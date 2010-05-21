@@ -1824,7 +1824,7 @@ int32_t handleevents(void)
             break;
 
         default:
-            //printOSD("Got event (%d)\n", ev.type);
+            //OSD_Printf("Got event (%d)\n", ev.type);
             break;
         }
     }

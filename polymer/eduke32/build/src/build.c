@@ -5921,7 +5921,7 @@ void showsectordata(int16_t sectnum)
 
     if (mode)
     {
-        _printmessage16("^10Sector %d ^O(F7 to edit)",sectnum);
+        _printmessage16("^10Sector %d %s ^O(F7 to edit)",sectnum, ExtGetSectorCaption(sectnum));
         return;
     }
 
@@ -5993,7 +5993,7 @@ void showwalldata(int16_t wallnum)
 
     if (mode)
     {
-        _printmessage16("^10Wall %d ^O(F8 to edit)",wallnum);
+        _printmessage16("^10Wall %d %s ^O(F8 to edit)",wallnum, ExtGetWallCaption(wallnum));
         return;
     }
 
@@ -6063,7 +6063,7 @@ void showspritedata(int16_t spritenum)
 
     if (mode)
     {
-        _printmessage16("^10Sprite %d ^O(F8 to edit)",spritenum);
+        _printmessage16("^10Sprite %d %s ^O(F8 to edit)",spritenum, ExtGetSpriteCaption(spritenum));
         return;
     }
 

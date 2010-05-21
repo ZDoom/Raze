@@ -133,6 +133,8 @@ char cachedebug = 0;
 qlz_state_compress *state_compress = NULL;
 qlz_state_decompress *state_decompress = NULL;
 
+int32_t whitecol;
+
 #if defined(_MSC_VER) && !defined(NOASM)
 
 //
@@ -5141,6 +5143,15 @@ static void loadpalette(void)
 
     initfastcolorlookup(30L,59L,11L);
 
+    {
+        int32_t i, j, k = 0;
+        for (i=0; i<256; i++)
+        {
+            j = ((int32_t)palette[i*3])+((int32_t)palette[i*3+1])+((int32_t)palette[i*3+2]);
+            if (j > k) { k = j; whitecol = i; }
+        }
+    }
+
     paletteloaded = 1;
 }
 
@@ -5483,6 +5494,8 @@ static sectortype sector_s[MAXSECTORS];
 static walltype wall_s[MAXWALLS];
 static spritetype sprite_s[MAXSPRITES];
 static spritetype tsprite_s[MAXSPRITESONSCREEN];
+#else
+void *blockptr = NULL;
 #endif
 
 int32_t preinitengine(void)
@@ -5495,7 +5508,6 @@ int32_t preinitengine(void)
 #ifdef DYNALLOC_ARRAYS
     {
         size_t i, size = 0;
-        int8_t *ptr;
 
         // allocate everything at once...  why not?  entries can just be added to this table
         // to allocate future arrays without further intervention
@@ -5519,14 +5531,14 @@ int32_t preinitengine(void)
         for (i=0;i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
             size += dynarray[i].size;
       
-        if ((ptr = (int8_t *)Bcalloc(1, size)) == NULL)
+        if ((blockptr = Bcalloc(1, size)) == NULL)
             return 1;
 
         size = 0;
 
         for (i=0;i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
         {
-            *dynarray[i].ptr = ptr + size;
+            *dynarray[i].ptr = (int8_t *)blockptr + size;
             size += dynarray[i].size;
         }
     }
@@ -5685,8 +5697,8 @@ void uninitengine(void)
         if (palookup[i] != NULL) { Bfree(palookup[i]); palookup[i] = NULL; }
 
 #ifdef DYNALLOC_ARRAYS
-    if (sector != NULL)
-        Bfree(sector);
+    if (blockptr != NULL)
+        Bfree(blockptr);
 #else
     if (state_compress) Bfree(state_compress);
 #endif
@@ -5808,7 +5820,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     //if (smostwallcnt < 0)
     //  if (getkensmessagecrc(FP_OFF(kensmessage)) != 0x56c764d4)
-    //      { /* setvmode(0x3);*/ printOSD("Nice try.\n"); exit(0); }
+    //      { /* setvmode(0x3);*/ OSD_Printf("Nice try.\n"); exit(0); }
 
     numhits = xdimen; numscans = 0; numbunches = 0;
     maskwallcnt = 0; smostwallcnt = 0; smostcnt = 0; spritesortcnt = 0;
@@ -7723,7 +7735,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
     strcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI.  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
     //  if (getkensmessagecrc(FP_OFF(kensmessage)) != 0x56c764d4)
-    //      { printOSD("Nice try.\n"); exit(0); }
+    //      { OSD_Printf("Nice try.\n"); exit(0); }
 
     //if (checkvideomode(&daxdim, &daydim, dabpp, davidoption)<0) return (-1);
 
@@ -7943,13 +7955,12 @@ int32_t loadpics(char *filename, int32_t askedsize)
 
     clearbuf(&gotpic[0],(int32_t)((MAXTILES+31)>>5),0L);
 
-    //try dpmi_DETERMINEMAXREALALLOC!
-
     //cachesize = min((int32_t)((Bgetsysmemsize()/100)*60),max(artsize,askedsize));
     if (Bgetsysmemsize() <= (uint32_t)askedsize)
         cachesize = (Bgetsysmemsize()/100)*60;
     else
         cachesize = askedsize;
+
     while ((pic = Bmalloc(cachesize)) == NULL)
     {
         cachesize -= 65536L;
@@ -7988,7 +7999,7 @@ void loadtile(int16_t tilenume)
 #ifdef WITHKPLIB
     if (artptrs[(i = tilefilenum[tilenume])]) // from zip
     {
-        waloff[tilenume] = (intptr_t)(artptrs[i] + tilefileoffs[tilenume]);
+        waloff[tilenume] = (intptr_t)(artptrs[i]) + tilefileoffs[tilenume];
         faketimerhandler();
         // OSD_Printf("loaded tile %d from zip\n", tilenume);
         return;
@@ -8008,7 +8019,7 @@ void loadtile(int16_t tilenume)
         faketimerhandler();
     }
 
-    if (cachedebug) printOSD("Tile:%d\n",tilenume);
+    if (cachedebug) OSD_Printf("Tile:%d\n",tilenume);
 
     // dummy tiles for highres replacements and tilefromtexture definitions
     if (faketilesiz[tilenume])
@@ -8016,13 +8027,13 @@ void loadtile(int16_t tilenume)
         if (faketilesiz[tilenume] == -1)
         {
             walock[tilenume] = 255; // permanent tile
-            allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
+            allocache(&waloff[tilenume], dasiz, &walock[tilenume]);
             Bmemset((char *)waloff[tilenume],0,dasiz);
         }
         else if (faketiledata[tilenume] != NULL)
         {
-            walock[tilenume] = 255; // permanent tile
-            allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
+            walock[tilenume] = 255;
+            allocache(&waloff[tilenume], dasiz, &walock[tilenume]);
             qlz_decompress(faketiledata[tilenume], (char *)waloff[tilenume], state_decompress);
             Bfree(faketiledata[tilenume]);
             faketiledata[tilenume] = NULL;
@@ -11037,7 +11048,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int16
                 {
                     if (xp1 != xp2)
                     {
-                        drawline16(xp1,yp1,xp1,yp2,editorcolors[8]);
+                        drawline16(xp1,yp1,xp1,yp2,whitecol-25);
                     }
                 }
             }
@@ -11045,7 +11056,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int16
                 xp2 = xp1;
             if ((xp2 >= 0) && (xp2 < xdim))
             {
-                drawline16(xp2,yp1,xp2,yp2,editorcolors[8]);
+                drawline16(xp2,yp1,xp2,yp2,whitecol-25);
             }
         }
         xp1 = mulscale14(posxe+editorgridextent,zoome);
@@ -11058,7 +11069,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int16
             {
                 if ((yp1 > midydim16-ydim16) && (yp1 <= midydim16))
                 {
-                    drawline16(halfxdim16-xp1,midydim16-yp1,halfxdim16-xp2,midydim16-yp1,editorcolors[8]);
+                    drawline16(halfxdim16-xp1,midydim16-yp1,halfxdim16-xp2,midydim16-yp1,whitecol-25);
                     tempy = yp1;
                 }
             }
@@ -11203,7 +11214,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
             if (((halfxdim16+xp1) >= 2) && ((halfxdim16+xp1) <= xdim-3))
                 if (((midydim16+yp1) >= 2) && ((midydim16+yp1) <= ydim16-3))
                 {
-                    int32_t pointsize = 1;
+                    int32_t pointsize = 2;
                     col = 15;
                     if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (pointhighlight >= 0) && (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
                     {

@@ -4415,15 +4415,15 @@ static int32_t C_ParseCommand(void)
         C_GetNextVarType(GAMEVAR_READONLY);
         break;
 
-    case CON_ROTATEPOINT:
     case CON_NEARTAG:
         C_GetManyVars(5);
+        C_GetManyVarsType(GAMEVAR_READONLY,4);
+        C_GetManyVars(2);
+        break;
+
+    case CON_ROTATEPOINT:
+        C_GetManyVars(5);
         C_GetManyVarsType(GAMEVAR_READONLY,2);
-        if (tw == CON_NEARTAG)
-        {
-            C_GetManyVarsType(GAMEVAR_READONLY,2);
-            C_GetManyVars(2);
-        }
         break;
 
     case CON_GETTIMEDATE:

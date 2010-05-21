@@ -284,7 +284,7 @@ static void SignalHandler(int32_t signum)
     switch (signum)
     {
     case SIGSEGV:
-        printOSD("Fatal Signal caught: SIGSEGV. Bailing out.\n");
+        OSD_Printf("Fatal Signal caught: SIGSEGV. Bailing out.\n");
         if (gammabrightness)
             setgammaramp(sysgamma);
         gammabrightness = 0;

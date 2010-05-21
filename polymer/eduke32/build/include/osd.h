@@ -132,7 +132,6 @@ void OSD_Draw(void);
 
 // just like printf
 void OSD_Printf(const char *fmt, ...);
-#define printOSD OSD_Printf
 
 // executes buffered commands
 void OSD_DispatchQueued(void);

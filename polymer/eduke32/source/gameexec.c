@@ -2793,7 +2793,7 @@ nullquote:
             {
                 if (g_lastSaveSlot >= 0 && ud.recstat != 2)
                 {
-                    g_player[vm.g_p].ps->gm = MODE_MENU;
+                    g_player[vm.g_p].ps->gm |= MODE_MENU;
                     KB_ClearKeyDown(sc_Space);
                     ChangeToMenu(15000);
                 }
