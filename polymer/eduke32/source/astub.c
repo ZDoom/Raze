@@ -205,9 +205,8 @@ static void drawgradient()
     int32_t i, col = whitecol-21;
     begindrawing();
     for (i=ydim-STATUS2DSIZ+16; i<ydim && col>0; i++,col--)
-        clearbufbyte((char *)(frameplace + i*bytesperline), bytesperline,
-                     (col<<24)|(col<<16)|(col<<8)|col);
-    clearbufbyte((char *)(frameplace + i*bytesperline), (ydim-i)*bytesperline, 0);
+        CLEARLINES2D(i, 1, (col<<24)|(col<<16)|(col<<8)|col);
+    CLEARLINES2D(i, ydim-i, 0);
     enddrawing();
 }
 
@@ -1022,8 +1021,8 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     printmessage16("Level %s",levelname);
 
 #define PRSTAT(Str, Tiledef) \
-    PrintStatus(Str, numsprite[Tiledef], x, y+yi, 11); \
-    PrintStatus("",multisprite[Tiledef], x2,y+yi, 9); \
+    PrintStatus(Str, numsprite[Tiledef], x, y+yi, numsprite[Tiledef]?11:7); \
+    PrintStatus("",multisprite[Tiledef], x2,y+yi, multisprite[Tiledef]?9:7); \
     yi++;
 
     ydim -= 8; // vvvvvv reset at end!!
@@ -1162,7 +1161,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
     clearmidstatbar16();
     drawgradient();
 
-    printmessage16("Level %s next tag %d",levelname,nextfreetag);
+    printmessage16("Level %s next tag %d", levelname, nextfreetag);
 
 
 #define CASES_LIZTROOP \
@@ -1254,9 +1253,9 @@ void ExtShowWallData(int16_t wallnum)       //F6
 
         x=2+runi*34;
         y=4;
-        PrintStatus(runi==0?"Normal Actors =":"Respawn", total,x,y,11);
+        PrintStatus(runi==0?"Normal actors:":"Respawn actors:", total, x, y, 11);
 
-#define PRSTAT(Str, Tiledef)  PrintStatus(Str, numsprite[Tiledef], x, y+(yi++), 11);
+#define PRSTAT(Str, Tiledef)  PrintStatus(Str, numsprite[Tiledef], x, y+(yi++), numsprite[Tiledef]?11:7);
         yi=1;
 
         PRSTAT(" Liztroop  =", LIZTROOP);
@@ -1273,7 +1272,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
         yi=1;
         PRSTAT("Slimer    =", GREENSLIME);
         PRSTAT("Boss1     =", BOSS1);
-        PrintStatus("MiniBoss1 =",multisprite[BOSS1], x, y+(yi++), 11);
+        PrintStatus("MiniBoss1 =", multisprite[BOSS1], x, y+(yi++), multisprite[BOSS1]?11:7);
         PRSTAT("Boss2     =", BOSS2);
         PRSTAT("Boss3     =", BOSS3);
         PRSTAT("Riot Tank =", TANK);
@@ -1478,7 +1477,7 @@ HELPFILE_ERROR:
 // why can't MSVC allocate an array of variable size?!
 #define IHELP_NUMDISPLINES 110 // ((overridepm16y>>4)+(overridepm16y>>5)+(overridepm16y>>7)-2)
 #define IHELP_PATLEN 45
-extern int32_t overridepm16y;  // influences printmessage16() and clearmidstatbar16()
+extern int32_t overridepm16y;  // influences clearmidstatbar16()
 
 static void IntegratedHelp()
 {
@@ -1493,18 +1492,15 @@ static void IntegratedHelp()
         char disptext[IHELP_NUMDISPLINES][80];
         char oldpattern[IHELP_PATLEN+1];
 
-        drawgradient();
-
-        begindrawing();
-        printext16(9, ydim2d-overridepm16y+9, editorcolors[4], -1, "Help Mode", 0);
-        printext16(8, ydim2d-overridepm16y+8, editorcolors[12], -1, "Help Mode", 0);
-        enddrawing();
-
-        memset(oldpattern, 0, sizeof(char));
+        Bmemset(oldpattern, 0, sizeof(char));
         //    clearmidstatbar16();
 
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F1]==0)
         {
+            begindrawing();
+            CLEARLINES2D(0, ydim, 0);
+            enddrawing();
+
             idle_waitevent();
             if (handleevents())
                 quitevent = 0;
@@ -1604,10 +1600,9 @@ static void IntegratedHelp()
                     showframe(1);
 
                     idle_waitevent();
+
                     if (handleevents())
-                    {
-                        if (quitevent) quitevent = 0;
-                    }
+                        quitevent = 0;
 
                     ch = bgetchar();
 
@@ -1673,11 +1668,12 @@ ENDFOR1:
                 }
             }
 
-            drawgradient();
+//            drawgradient();
 
             begindrawing();
             printext16(9, ydim2d-overridepm16y+9, editorcolors[4], -1, "Help Mode", 0);
             printext16(8, ydim2d-overridepm16y+8, editorcolors[12], -1, "Help Mode", 0);
+            printext16(8 + 9*8 + 2*8, ydim2d-overridepm16y+8, editorcolors[15], -1, "(S:search)", 0);
             enddrawing();
 
             if (curhp < helppage[0]->numlines)
@@ -1688,12 +1684,14 @@ ENDFOR1:
             for (i=0; j=(curhp==0)?(i+curline+1):(i+curline),
                     i<IHELP_NUMDISPLINES && j<helppage[curhp]->numlines; i++)
             {
-                if (ydim-overridepm16y+28+i*9+32 >= ydim) break;
+                if (ydim-overridepm16y+28+i*9+32 >= ydim)
+                    break;
                 Bmemcpy(disptext[i], helppage[curhp]->line[j], 80);
-                printext16(8,ydim-overridepm16y+28+i*9,editorcolors[10],
+                printext16(8, ydim-overridepm16y+28+i*9, editorcolors[10],
                            (j==highlightline && curhp==highlighthp
-                            && totalclock-lasthighlighttime<120*5)?editorcolors[1]:-1,
-                           disptext[i],0);
+                            && totalclock-lasthighlighttime<120*5) ? 
+                           editorcolors[1] : -1,
+                           disptext[i], 0);
             }
 
             showframe(1);
@@ -1865,15 +1863,20 @@ static void SoundDisplay()
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F2]==0
                && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
         {
+            begindrawing();
+            CLEARLINES2D(0, ydim16, 0);
+            enddrawing();
+
             idle_waitevent();
             if (handleevents())
                 quitevent = 0;
 
-            drawgradient();
+//            drawgradient();
 
             begindrawing();
             printext16(9, ydim2d-overridepm16y+9, editorcolors[4], -1, "Sound Index", 0);
             printext16(8, ydim2d-overridepm16y+8, editorcolors[12], -1, "Sound Index", 0);
+            printext16(8 + 11*8 + 2*8, ydim2d-overridepm16y+8, editorcolors[15], -1, "(SPACE:play, S:sort)", 0);
             enddrawing();
 
             if (PRESSED_KEYSC(G))    // goto specified sound#
@@ -1956,14 +1959,12 @@ static void SoundDisplay()
                 bflushchars();
                 while (bad == 0)
                 {
-                    _printmessage16("Sort by: (S)num (D)ef (F)ile ori(g) or (12345)");
+                    _printmessage16("Sort by: (S)oundnum (D)ef (F)ile ori(g) or flags (12345)");
                     showframe(1);
 
                     idle_waitevent();
                     if (handleevents())
-                    {
-                        if (quitevent) quitevent = 0;
-                    }
+                        quitevent = 0;
 
                     ch = bgetchar();
 
@@ -2621,6 +2622,8 @@ static int32_t AskIfSure(char *text)
 
     while ((keystatus[KEYSC_ESC]|keystatus[KEYSC_ENTER]|keystatus[KEYSC_SPACE]|keystatus[KEYSC_N]) == 0)
     {
+        idle_waitevent();
+
         if (handleevents())
         {
             if (quitevent)
@@ -2629,7 +2632,6 @@ static int32_t AskIfSure(char *text)
                 break;
             }
         }
-        idle();
 
         if (PRESSED_KEYSC(Y) || PRESSED_KEYSC(ENTER))
         {
@@ -2638,11 +2640,8 @@ static int32_t AskIfSure(char *text)
         }
     }
 
-    while (PRESSED_KEYSC(ESC))
-    {
+    if (PRESSED_KEYSC(ESC))
         retval = 1;
-        break;
-    }
 
     return(retval);
 }
@@ -2682,7 +2681,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 
 static int32_t m32gettile(int32_t idInitialTile)
 {
-    int32_t gap, temp;
+    int32_t gap, temp, zoomsz;
     int32_t nXTiles, nYTiles, nDisplayedTiles;
     int32_t i;
     int32_t iTile, iTopLeftTile;
@@ -2822,8 +2821,10 @@ static int32_t m32gettile(int32_t idInitialTile)
     iTopLeftTile = iTile - (iTile % nXTiles);
     iTopLeftTile = clamp(iTopLeftTile, 0, MAXTILES-nDisplayedTiles);
 
-    searchx = ((iTile-iTopLeftTile)%nXTiles)*ZoomToThumbSize[s_Zoom] + ZoomToThumbSize[s_Zoom]/2;
-    searchy = ((iTile-iTopLeftTile)/nXTiles)*ZoomToThumbSize[s_Zoom] + ZoomToThumbSize[s_Zoom]/2;
+    zoomsz = ZoomToThumbSize[s_Zoom];
+
+    searchx = ((iTile-iTopLeftTile)%nXTiles)*zoomsz + zoomsz/2;
+    searchy = ((iTile-iTopLeftTile)/nXTiles)*zoomsz + zoomsz/2;
 
     ////////////////////////////////
     // Start of key handling code //
@@ -2831,8 +2832,21 @@ static int32_t m32gettile(int32_t idInitialTile)
 
     while ((keystatus[KEYSC_ENTER]|keystatus[KEYSC_ESC]|(bstatus&1)) == 0) // <- Presumably one of these is escape key ??
     {
+        zoomsz = ZoomToThumbSize[s_Zoom];
+
         DrawTiles(iTopLeftTile, (iTile >= localartlookupnum) ? localartlookupnum-1 : iTile,
-                  nXTiles, nYTiles, ZoomToThumbSize[s_Zoom], moffset);
+                  nXTiles, nYTiles, zoomsz, moffset);
+
+
+        idle_waitevent_timeout(500);
+        // SDL seems to miss mousewheel events when rotated slowly.
+        // These kludgy things seem to make it better, but I'm not sure.
+        idle();
+        idle();
+
+        if (handleevents())
+            quitevent = 0;
+
 
         getmousevalues(&mousedx,&mousedy,&bstatus);
         searchx += mousedx;
@@ -2850,51 +2864,42 @@ static int32_t m32gettile(int32_t idInitialTile)
                 moffset=0;
                 searchy -= mousedy*2;
             }
-            while (moffset>ZoomToThumbSize[s_Zoom])
+
+            while (moffset > zoomsz)
             {
-                iTopLeftTile-=nXTiles;
-                moffset-=ZoomToThumbSize[s_Zoom];
+                iTopLeftTile -= nXTiles;
+                moffset -= zoomsz;
             }
-            while (moffset<-ZoomToThumbSize[s_Zoom])
+            while (moffset < -zoomsz)
             {
-                iTopLeftTile+=nXTiles;
-                moffset+=ZoomToThumbSize[s_Zoom];
+                iTopLeftTile += nXTiles;
+                moffset += zoomsz;
             }
         }
 
         // Keep the pointer visible at all times.
-        temp = min((ZoomToThumbSize[s_Zoom] / 2), 12);
-        if (searchx < temp) searchx = temp;
-        if (searchy < temp) searchy = temp;
-        if (searchx > xdim - temp) searchx = xdim - temp;
-        if (searchy > ydim - temp) searchy = ydim - temp;
+        temp = min(zoomsz/2, 12);
+        searchx = clamp(searchx, temp, xdim-temp);
+        searchy = clamp(searchy, temp, ydim-temp);
 
-        scrollmode=!(eitherCTRL^revertCTRL);
+        scrollmode = !(eitherCTRL^revertCTRL);
         if (bstatus&16 && scrollmode && iTopLeftTile > 0)
         {
             mouseb &= ~16;
             iTopLeftTile -= (nXTiles*scrollamount);
         }
-        if (bstatus&32 && scrollmode && iTopLeftTile < localartlookupnum-nDisplayedTiles-1)
+        else if (bstatus&32 && scrollmode && iTopLeftTile < localartlookupnum-nDisplayedTiles-1)
         {
             mouseb &= ~32;
             iTopLeftTile += (nXTiles*scrollamount);
         }
 
-        mtile=iTile=(searchx/ZoomToThumbSize[s_Zoom])+((searchy-moffset)/ZoomToThumbSize[s_Zoom])*nXTiles+iTopLeftTile;
+        mtile = iTile = searchx/zoomsz + ((searchy-moffset)/zoomsz)*nXTiles + iTopLeftTile;
         while (iTile >= iTopLeftTile + nDisplayedTiles)
         {
-            iTile-=nXTiles;
-            mtile=iTile;
+            iTile -= nXTiles;
+            mtile = iTile;
         }
-
-        if (bpp==8)  // no idea why, but it breaks the mousewheel else :/
-            idle_waitevent();
-        else
-            idle();
-
-        if (handleevents())
-            quitevent = 0;
 
         // These two lines are so obvious I don't need to comment them ...;-)
         synctics = totalclock-lockclock;
@@ -2925,13 +2930,17 @@ static int32_t m32gettile(int32_t idInitialTile)
                 s_Zoom--;
             }
 
-            if (iTile >= localartlookupnum)iTile = localartlookupnum-1;
+            zoomsz = ZoomToThumbSize[s_Zoom];
+
+            if (iTile >= localartlookupnum)
+                iTile = localartlookupnum-1;
 
             // Calculate new num of tiles to display
-            nXTiles = xdim / ZoomToThumbSize[s_Zoom];
-            nYTiles = ydim / ZoomToThumbSize[s_Zoom];
+            nXTiles = xdim / zoomsz;
+            nYTiles = ydim / zoomsz;
             // Refuse to draw less than half of a row.
-            if (ZoomToThumbSize[s_Zoom]/2 < 12) nYTiles--;
+            if (zoomsz/2 < 12)
+                nYTiles--;
             nDisplayedTiles  = nXTiles * nYTiles;
 
             // Determine if the top-left displayed tile needs to
@@ -2940,8 +2949,7 @@ static int32_t m32gettile(int32_t idInitialTile)
             iTopLeftTile = clamp(iTopLeftTile, 0, MAXTILES - nDisplayedTiles);
 
             // scroll window so mouse points the same tile as it was before zooming
-            iTopLeftTile -= (searchx/ZoomToThumbSize[s_Zoom]) + ((searchy-moffset)/ZoomToThumbSize[s_Zoom])*nXTiles
-                + iTopLeftTile-iTile;
+            iTopLeftTile -= searchx/zoomsz + ((searchy-moffset)/zoomsz)*nXTiles + iTopLeftTile-iTile;
         }
 
         if (PRESSED_KEYSC(LEFT))
@@ -3041,8 +3049,8 @@ static int32_t m32gettile(int32_t idInitialTile)
         }
         if (mtile!=iTile) // if changed by keyboard, update mouse cursor
         {
-            searchx=((iTile-iTopLeftTile)%nXTiles)*ZoomToThumbSize[s_Zoom]+ZoomToThumbSize[s_Zoom]/2;
-            searchy=((iTile-iTopLeftTile)/nXTiles)*ZoomToThumbSize[s_Zoom]+ZoomToThumbSize[s_Zoom]/2+moffset;
+            searchx = ((iTile-iTopLeftTile)%nXTiles) * zoomsz + zoomsz/2;
+            searchy = ((iTile-iTopLeftTile)/nXTiles) * zoomsz + zoomsz/2 + moffset;
         }
     }
 
@@ -4302,7 +4310,7 @@ static void Keys3d(void)
     {
         if (AIMING_AT_SPRITE)
         {
-            sprite[searchwall].ang += tsign<<(eitherSHIFT*7);
+            sprite[searchwall].ang += tsign<<(!eitherSHIFT*7);
             sprite[searchwall].ang &= 2047;
             message("Sprite %d angle: %d", searchwall, sprite[searchwall].ang);
         }
@@ -4969,11 +4977,11 @@ static void Keys3d(void)
 
     tempbuf[0] = 0;
 
-    if (bstatus&4 && !(bstatus&(1|2)) && !unrealedlook)  //PK
+    if ((bstatus&(4|2|1))==4 && !unrealedlook)  //PK
         Bsprintf(tempbuf,"VIEW");
-    else if (bstatus&2 && !(bstatus&1))
-        Bsprintf(tempbuf,"Z");
-    else if (bstatus&1 && !(bstatus&2))
+    else if ((bstatus&(2|1))==2)
+        Bsprintf(tempbuf,"Z%s", keystatus[KEYSC_HOME]?" 256":keystatus[KEYSC_END]?" 512":"");
+    else if ((bstatus&(2|1))==1)
         Bsprintf(tempbuf,"LOCK");
 
     if (bstatus&1)
@@ -6377,7 +6385,10 @@ static void Keys2d(void)
     if (keystatus[KEYSC_TAB])  //TAB
     {
         if (cursectornum >= 0)
+        {
+            drawgradient();
             showsectordata((int16_t)i);
+        }
     }
     else if (!(keystatus[KEYSC_F5]|keystatus[KEYSC_F6]|keystatus[KEYSC_F7]|keystatus[KEYSC_F8]))
     {
@@ -6498,7 +6509,7 @@ static void Keys2d(void)
         cursprite = ppointhighlight&16383;
     }
 
-    if (PRESSED_KEYSC(F9)) // F9 f1=3b
+    if (keystatus[KEYSC_F9]) // F9 f1=3b
         Show2dText("sthelp.hlp");
 
     /* start Mapster32 */
@@ -6627,7 +6638,7 @@ static void Keys2d(void)
                 i &= ~48;
             sprite[cursprite].cstat = i;
 
-            message("Sprite %d now view aligned", cursprite, aligntype[(i&48)/16]);
+            message("Sprite %d now %s aligned", cursprite, aligntype[(i&48)/16]);
             asksave = 1;
         }
     }

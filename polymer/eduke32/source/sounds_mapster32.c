@@ -78,7 +78,7 @@ int32_t S_SoundStartup(void)
 #if defined(_WIN32)
     MixRate = 44100;
 #else
-    MixRate = 48000;
+    MixRate = 44100;
 #endif
     fxdevicetype = ASS_AutoDetect;
 

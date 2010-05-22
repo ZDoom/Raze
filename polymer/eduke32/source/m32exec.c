@@ -834,9 +834,9 @@ skip_check:
             insptr++;
             {
                 int32_t bits=Gv_GetVarX(*insptr), scale=*(insptr+1);
-                double fval=(double)(*((float*)&bits));
+                float fval = *((float*)&bits);
 
-                Gv_SetVarX(*insptr, (int32_t)((fval/scale)*2e9));
+                Gv_SetVarX(*insptr, (int32_t)(fval * scale));
             }
             insptr += 2;
             continue;
@@ -845,7 +845,7 @@ skip_check:
             insptr++;
             {
                 int32_t scaled=Gv_GetVarX(*insptr), scale=*(insptr+1);
-                float fval = (float)((((double)scaled)*scale)/2e9);
+                float fval = (float)scaled/(float)scale;
 
                 Gv_SetVarX(*insptr, *((int32_t *)&fval));
             }
@@ -2273,6 +2273,20 @@ badindex:
                                 int32_t ii = 0;
 
                                 Bsprintf(buf, "%d", arg[i++]);
+
+                                ii = Bstrlen(buf);
+                                Bmemcpy(&tmpbuf[j], buf, ii);
+                                j += ii;
+                                k++;
+                            }
+                            break;
+
+                            case 'f':
+                            {
+                                char buf[64];
+                                int32_t ii = 0;
+
+                                Bsprintf(buf, "%f", *((float *)&arg[i++]));
 
                                 ii = Bstrlen(buf);
                                 Bmemcpy(&tmpbuf[j], buf, ii);

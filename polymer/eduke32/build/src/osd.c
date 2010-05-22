@@ -1370,8 +1370,8 @@ void OSD_Draw(void)
 
     clearbackground(osdcols,osdrowscur+1);
 
-    if (osdver[0])
-        drawosdstr(osdcols-osdverlen,osdrowscur,osdver,osdverlen,(sintable[(totalclock<<4)&2047]>>11),osdverpal);
+    if (osdver[0] && osdrowscur>2)
+        drawosdstr(osdcols-osdverlen,osdrowscur-2,osdver,osdverlen,(sintable[(totalclock<<4)&2047]>>11),osdverpal);
 
     for (; lines>0; lines--, row--)
     {

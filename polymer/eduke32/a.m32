@@ -11,12 +11,23 @@ gamevar l 0 1
 gamevar m 0 1
 gamevar p 0 1
 gamevar q 0 1
+gamevar r 0 1
+
+gamevar x 0 0
+gamevar y 0 0
+gamevar z 0 0
 
 gamevar gi 0 0
 gamevar gj 0 0
 gamevar gk 0 0
 
+gamevar dx 0 0
+gamevar dy 0 0
+gamevar dz 0 0
+gamevar dang 0 0
+
 gamevar tmp 0 0
+gamevar cnt 0 0
 
 gamevar davr 65536 0
 gamevar dayx 65536 0
@@ -64,6 +75,19 @@ definequote 24 WALL[%d].NEXTWALL=%d out of range: numwalls=%d!!!
 definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d!!!
 
 definequote 26 FLOAT ACCESS TEST
+
+definequote 27 OVERRIDE POLYMER PARALLAX & SPECULAR: OFF
+definequote 28 OVERRIDE POLYMER PARALLAX & SPECULAR: ON
+
+definequote 29 PARALLAX SCALE: %f
+definequote 30 PARALLAX BIAS: %f
+definequote 31 SPECULAR FACTOR: %f
+definequote 32 SPECULAR POWER: %f
+
+define PRSCALE 1000
+// NOTE: inline constants >=32768 are sometimes broken ATM (when loading a second time?).
+// This should always work
+define MAXSPECULAR 100000
 
 gamearray ar 128
 gamearray parm 8
@@ -136,27 +160,107 @@ defstate printlights
 ends
 
 // convenient polymer SE light manipulation with keypad keys
+// when aiming at light SE (49 or 50):
+//  KP 4,5,6,8: angle/horiz
+//  KP 7,9: range
+//  KP+/-: radius
+//  KP 1,2,3: RGB color (Shift inverts)
+//
+// when aiming at wall or sector:
+//  KP/ enable/disable overrides
+// when overrides are on:
+//  KP 4,7: parallaxscale
+//  KP 8,9: parallaxbias
+//  KP 1,2: specularfactor
+//  KP 3,6: specularpower
+//
+// Also try Shift and/or Ctrl modifiers for different increments
 defstate fiddlewithlights
-    ifn searchstat 0 ifn searchstat 4 nullop
-    else
+    ife searchstat 3 nullop else
     {
-        // polymer override parallaxscale
-        set j 0
-        ifhitkey KEY_KP8 set j 1
-        ifhitkey KEY_KP5 set j -1
-        ifeithershift nullop else mul j 10
-
-        ifn j 0
+        ifhitkey KEY_gSLASH
         {
-            set k pr_parallaxscale  // also available: ~bias, specularfactor, ~power
-            ftoi k 2000000  // must convert to scaled integer
-            add k j
-            itof k 2000000 // convert back
-            set pr_parallaxscale k
+            ife pr_overrideparallax 0
+            {
+                set pr_overrideparallax 1
+                set pr_overridespecular 1
+                quote 28
+            }
+            else
+            {
+                set pr_overrideparallax 0
+                set pr_overridespecular 0
+                quote 27
+            }
         }
-
     }
 
+    // if aiming at sector or wall
+    ife searchstat 3 nullop
+    else ifn pr_overrideparallax 0
+    {
+        // polymer override parallaxscale
+        set j 0 set k 0
+
+        ifhitkey KEY_KP4 set j -1
+        ifhitkey KEY_KP7 set j 1
+        ifn j 0 set k 1
+        
+        ifhitkey KEY_KP8 set j -1
+        ifhitkey KEY_KP9 set j 1
+        ife k 0 ifn j 0 set k 2
+
+        ifhitkey KEY_KP1 set j -1
+        ifhitkey KEY_KP2 set j 1
+        ife k 0 ifn j 0 set k 3
+        
+        ifhitkey KEY_KP3 set j -1
+        ifhitkey KEY_KP6 set j 1
+        ife k 0 ifn j 0 set k 4
+
+        ifeithershift mul j 2 else mul j 10
+        ifeitherctrl mul j 10
+
+        switch k
+        case 0: break;
+        case 1:
+        {
+            set k pr_parallaxscale
+            ftoi k PRSCALE  // must convert to scaled integer, scale is 1:PRSCALE
+            add k j, clamp k -10000 10000
+            itof k PRSCALE  // convert back
+            qsprintf TQUOTE 29 k, quote TQUOTE
+            set pr_parallaxscale k
+            break;
+        }
+        case 2:
+        {
+            set k pr_parallaxbias
+            ftoi k PRSCALE, add k j, clamp k -10000 10000, itof k PRSCALE
+            qsprintf TQUOTE 30 k, quote TQUOTE
+            set pr_parallaxbias k
+            break;
+        }
+        case 3:
+        {
+            set k pr_specularfactor
+            ftoi k PRSCALE, add k j, clamp k -10000 MAXSPECULAR, itof k PRSCALE
+            qsprintf TQUOTE 31 k, quote TQUOTE
+            set pr_specularfactor k
+            break;
+        }
+        case 4:
+        {
+            set k pr_specularpower
+            ftoi k PRSCALE, add k j, clamp k -10000 MAXSPECULAR, itof k PRSCALE
+            qsprintf TQUOTE 32 k, quote TQUOTE
+            set pr_specularpower k
+            break;
+        }
+        endswitch
+    }
+
+    // if aiming at an SE with lotag 49 or 50
     ife searchstat 3 ife sprite[searchwall].picnum SECTOREFFECTOR
     ifge sprite[searchwall].lotag 49 ifle sprite[searchwall].lotag 50
     {
@@ -252,6 +356,7 @@ defstate fiddlewithlights
     }
 ends
 
+/*
 defstate testkeyavail
     for i range 27
     {
@@ -271,10 +376,46 @@ defstate testkeyavail
         }
     }
 ends
+*/
 
-//onevent EVENT_PREKEYS2D
+// rotate highlighted sprites around selected (closest to mouse) sprite
+// global parameter: dang
+defstate rotselspr
+    ifg highlightcnt 0
+    ifge pointhighlight 16384, ifl pointhighlight 32768
+    {
+        ife dang 0 return
+
+        set p pointhighlight, and p 16383
+
+        add sprite[p].ang dang
+
+        for i selsprites, ifn i p
+        {
+            rotatepoint sprite[p].x sprite[p].y .x .y dang (x y)
+            add .ang dang
+            bsetsprite I x y .z
+        }
+    }
+ends
+
+onevent EVENT_PREKEYS2D
 //    state testkeyavail
-//endevent
+
+    set j 0
+    ifeitherctrl
+    {
+        ifhitkey KEY_COMMA set j -1
+        ifhitkey KEY_PERIOD set j 1
+    }
+
+    ifn j 0
+    {
+        mul j 512
+        set dang j
+        state rotselspr
+    }
+endevent
 
 onevent EVENT_PREKEYS3D
 //    state testkeyavail
@@ -347,26 +488,45 @@ onevent EVENT_INSERTSPRITE2D
     }
 endevent
 
-// rotates and duplicates selected sprites around
-// pivot sprite (extra=123, ang:dang, yrepeat<<5:dz (pos. if pal!=0), lo:cnt)
+
+//////////////////// SPRITE DUPLICATORS ////////////////////
+
+defstate transcnt
+    ifle cnt 0 { inv cnt, add cnt 128 }
+ends
+
+define DUP_ROT_MAGIC 123
+
+// duplicates and rotates selected sprites around
+// pivot sprite with fields
+//  .extra=123 (magic)
+//  .ang: angle delta
+//  .yrepeat*32: z delta (positive if pal!=0, i.e. going down)
+//  .shade: count (-128 to 0 -> 255 to 128)
 defstate duprot
     ifn searchstat 3 return
-    ifn sprite[searchwall].extra 123 return
-    ifl sprite[searchwall].shade 1 return
-    set k searchwall
+    ifn sprite[searchwall].extra DUP_ROT_MAGIC return
 
-    for i range sprite[k].shade
+    set p searchwall  // pivot sprite
+    set cnt sprite[p].shade, state transcnt
+
+    set sprite[p].extra -1
+
+    for i range cnt
     {
-        for j selsprites, ifn j k
+        for j selsprites, ifn j p
         {
-            dupsprite j
-            set tmp i, add tmp 1, mul tmp sprite[k].ang
-            rotatepoint sprite[k].x sprite[k].y .x .y tmp (l m)
-            add .ang tmp
-            set tmp i, add tmp 1, mul tmp sprite[k].yrepeat, shiftl tmp 5
-            ife sprite[k].pal 0 inv tmp
-            add tmp .z
-            bsetsprite I l m tmp
+            dupsprite j  // duplicate sprite j, I becomes index of newly created sprite
+
+            set dang i, add dang 1, mul dang sprite[p].ang
+            rotatepoint sprite[p].x sprite[p].y .x .y dang (x y)
+            add .ang dang
+
+            set z i, add z 1, mul z sprite[p].yrepeat, shiftl z 5
+            ife sprite[p].pal 0, inv z
+            add z .z
+
+            bsetsprite I x y z
         }
     }
 ends
@@ -374,33 +534,120 @@ ends
 // same as above but with tsprite[], as a kind of preview
 defstate tduprot
     ifn searchstat 3 return
-    ifn sprite[searchwall].extra 123 return
-    ifl sprite[searchwall].shade 1 return
-    set k searchwall
+    ifn sprite[searchwall].extra DUP_ROT_MAGIC return
 
-    for i range sprite[k].shade
+    set p searchwall  // pivot sprite
+    set cnt sprite[p].shade, state transcnt
+
+    for i range cnt
     {
-        for j selsprites, ifn j k
+        for j selsprites, ifn j p
         {
-            set p spritesortcnt
+            set k spritesortcnt
             tdupsprite j
-            set tmp i, add tmp 1, mul tmp sprite[k].ang
-            rotatepoint sprite[k].x sprite[k].y tsprite[p].x tsprite[p].y tmp (l m)
-            add tsprite[p].ang tmp
-            set tmp i, add tmp 1, mul tmp sprite[k].yrepeat, shiftl tmp 5
-            ife sprite[k].pal 0 inv tmp
-            add tmp tsprite[p].z
-            set tsprite[p].x l
-            set tsprite[p].y m
-            set tsprite[p].z tmp
-            or tsprite[p].cstat 514
-//            bsetsprite I l m tmp
+
+            set dang i, add dang 1, mul dang sprite[p].ang
+            rotatepoint sprite[p].x sprite[p].y tsprite[k].x tsprite[k].y dang (x y)
+            add tsprite[k].ang dang
+
+            set z i, add z 1, mul z sprite[p].yrepeat, shiftl z 5
+            ife sprite[p].pal 0 inv z
+            add z tsprite[k].z
+
+            set tsprite[k].x x
+            set tsprite[k].y y
+            set tsprite[k].z z
+
+            or tsprite[k].cstat 514
+        }
+    }
+ends
+
+define DUP_LIN_MAGIC 234
+define DUP_LIN_MAGIC2 345
+
+// duplicates and translates selected sprites in the direction between two
+// reference sprites with fields
+//  .extra=234 (1st sprite), =345 (2nd, aimed at sprite)
+//  .shade: count (-128 to 0 -> 255 to 128)
+defstate duplin
+    ifn searchstat 3 return
+    ifn sprite[searchwall].extra DUP_LIN_MAGIC2 return
+
+    set r searchwall  // 2nd reference point
+
+    set cnt sprite[r].shade, state transcnt
+
+    set p -1  // 1st reference point
+    for i selsprites, ifn i r
+    {
+        ife .extra DUP_LIN_MAGIC { set p i, break }
+    }
+    ifl p 0 return
+
+    set sprite[p].extra -1
+    set sprite[r].extra -1
+
+    set dx sprite[r].x, sub dx sprite[p].x
+    set dy sprite[r].y, sub dy sprite[p].y
+    set dz sprite[r].z, sub dz sprite[p].z
+
+    for i range cnt
+    {
+        for j selsprites, ifn j r
+        {
+            dupsprite j
+
+            set x i, add x 1, mul x dx, add x .x
+            set y i, add y 1, mul y dy, add y .y
+            set z i, add z 1, mul z dz, add z .z
+            bsetsprite I x y z
+        }
+    }
+ends
+
+defstate tduplin
+    ifn searchstat 3 return
+    ifn sprite[searchwall].extra DUP_LIN_MAGIC2 return
+
+    set r searchwall  // 2nd reference point
+
+    set cnt sprite[r].shade, state transcnt
+
+    set p -1  // 1st reference point
+    for i selsprites, ifn i r
+    {
+        ife .extra DUP_LIN_MAGIC { set p i, break }
+    }
+    ifl p 0 return
+
+    set dx sprite[r].x, sub dx sprite[p].x
+    set dy sprite[r].y, sub dy sprite[p].y
+    set dz sprite[r].z, sub dz sprite[p].z
+
+    for i range cnt
+    {
+        for j selsprites, ifn j r
+        {
+            set k spritesortcnt
+            tdupsprite j
+
+            set tmp i, add tmp 1, mul tmp dx
+            add tsprite[k].x tmp
+            set tmp i, add tmp 1, mul tmp dy
+            add tsprite[k].y tmp
+            set tmp i, add tmp 1, mul tmp dz
+            add tsprite[k].z tmp
+
+            or tsprite[k].cstat 514
+//            bsetsprite I x y z
         }
     }
 ends
 
 onevent EVENT_ANALYZESPRITES
     state tduprot
+    state tduplin
 /*
     for i drawnsprites
     {
@@ -517,10 +764,13 @@ onevent EVENT_KEYS3D
                 }
             }
         }
-        else ife sprite[searchwall].extra 123
+        else ife sprite[searchwall].extra DUP_ROT_MAGIC
         {
             state duprot
-            add sprite[searchwall].extra 1
+        }
+        else ife sprite[searchwall].extra DUP_LIN_MAGIC2
+        {
+            state duplin
         }
     }
 
@@ -583,6 +833,7 @@ gamevar endwall 0 0
 defstate corruptchk
     ifle numsectors MAXSECTORS ifle numwalls MAXWALLS nullop else
     { quote 19 printmessage16 19 return }
+
     set ewall 0  // expected wall index
     for i allsectors
     {

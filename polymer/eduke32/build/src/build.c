@@ -286,8 +286,8 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
         ydim2d = ydim;
 
         begindrawing();	//{{{
-        clearbuf((char *)(frameplace + (ydim16*bytesperline)), (bytesperline*STATUS2DSIZ2) >> 2, 0x00000000l);
-        clearbuf((char *)frameplace, (ydim16*bytesperline) >> 2, 0L);
+
+        CLEARLINES2D(0, ydim16+STATUS2DSIZ, 0);
 
         ydim16 = ydim;
 //        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
@@ -1107,8 +1107,8 @@ void editinput(void)
                 {
                     sprite[i].cstat = (sprite[i].cstat&~48)|(16+64);
                     if (hitinfo.hitwall >= 0)
-                        sprite[i].ang = ((getangle(POINT2(hitinfo.hitwall).x-wall[hitinfo.hitwall].x,
-                                                   POINT2(hitinfo.hitwall).y-wall[hitinfo.hitwall].y)+512)&2047);
+                        sprite[i].ang = (getangle(POINT2(hitinfo.hitwall).x-wall[hitinfo.hitwall].x,
+                                                  POINT2(hitinfo.hitwall).y-wall[hitinfo.hitwall].y)+512)&2047;
 
                     //Make sure sprite's in right sector
                     if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
@@ -1175,10 +1175,11 @@ void editinput(void)
     if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
     {
         double gamma = vid_gamma;
-        keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         vid_gamma = 1.0;
         setbrightness(0,palette,0);
+        keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         overheadeditor();
+        keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         vid_gamma = gamma;
         setbrightness(brightness,palette,0);
     }
@@ -1283,8 +1284,8 @@ void overheadeditor(void)
     oposz = pos.z;
 
     begindrawing();	//{{{
-    clearbuf((char *)(frameplace + (ydim16*bytesperline)), (bytesperline*STATUS2DSIZ2) >> 2, 0x00000000l);
-    clearbuf((char *)frameplace, (ydim16*bytesperline) >> 2, 0L);
+
+    CLEARLINES2D(0, ydim, 0);
 
     ydim16 = ydim;
 //    drawline16(0,ydim-STATUS2DSIZ2,xdim-1,ydim-STATUS2DSIZ2,editorcolors[1]);
@@ -1696,10 +1697,10 @@ void overheadeditor(void)
         {
             int32_t about_x=keystatus[0x2d];
 
-            keystatus[0x2d] = keystatus[0x15] = 0;
-
             if (highlightsectorcnt > 0)
             {
+                keystatus[0x2d] = keystatus[0x15] = 0;
+
                 k = 0;
                 dax = 0;
                 day = 0;
@@ -3153,7 +3154,7 @@ SKIP:
                 split = 0;
 
                 //clearbufbyte(&wall[newnumwalls],sizeof(walltype),0L);
-                memset(&wall[newnumwalls],0,sizeof(walltype));
+                Bmemset(&wall[newnumwalls],0,sizeof(walltype));
                 wall[newnumwalls].extra = -1;
 
                 wall[newnumwalls].x = mousxplc;
@@ -3231,7 +3232,7 @@ SKIP:
                         if (bad == 0)
                         {
                             //clearbufbyte(&wall[newnumwalls],sizeof(walltype),0L);
-                            memset(&wall[newnumwalls],0,sizeof(walltype));
+                            Bmemset(&wall[newnumwalls],0,sizeof(walltype));
                             wall[newnumwalls].extra = -1;
 
                             wall[newnumwalls].x = mousxplc;
@@ -3269,7 +3270,7 @@ SKIP:
                                 flipwalls(numwalls,newnumwalls);
 
                             //clearbufbyte(&sector[numsectors],sizeof(sectortype),0L);
-                            memset(&sector[numsectors],0,sizeof(sectortype));
+                            Bmemset(&sector[numsectors],0,sizeof(sectortype));
                             sector[numsectors].extra = -1;
 
                             sector[numsectors].wallptr = numwalls;
@@ -3338,7 +3339,7 @@ SKIP:
                             flipwalls(numwalls,newnumwalls);
 
                         //clearbufbyte(&sector[numsectors],sizeof(sectortype),0L);
-                        memset(&sector[numsectors],0,sizeof(sectortype));
+                        Bmemset(&sector[numsectors],0,sizeof(sectortype));
                         sector[numsectors].extra = -1;
 
                         sector[numsectors].wallptr = numwalls;
@@ -4973,18 +4974,18 @@ int32_t overridepm16y = -1;
 
 void clearmidstatbar16(void)
 {
-    int32_t x = overridepm16y<0 ? STATUS2DSIZ : overridepm16y;
+    int32_t y = overridepm16y<0 ? STATUS2DSIZ : overridepm16y;
 
     begindrawing();
-    ydim16 = ydim;
+//    ydim16 = ydim;
 
     //  clearbuf((char *)(frameplace + (bytesperline*(ydim-STATUS2DSIZ+25L))),(bytesperline*(STATUS2DSIZ-1-(25<<1))) >> 2, 0x08080808l);
-    clearbuf((char *)(frameplace + (bytesperline*(ydim-x+25L))), (bytesperline*(STATUS2DSIZ+2-(25<<1))) >> 2, 0x00000000l);
 
-    /*
-        drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,editorcolors[7]);
-        drawline16base(xdim,ydim, -1,-STATUS2DSIZ, -1,-1, editorcolors[7]);
-    */
+    CLEARLINES2D(ydim-y+25, STATUS2DSIZ+2-(25<<1), 0);
+
+//        drawline16(0,ydim-STATUS2DSIZ,0,ydim-1,editorcolors[7]);
+//        drawline16base(xdim,ydim, -1,-STATUS2DSIZ, -1,-1, editorcolors[7]);
+
     ydim16 = ydim-STATUS2DSIZ2;
     enddrawing();
 }
@@ -4992,22 +4993,23 @@ void clearmidstatbar16(void)
 static void clearministatbar16(void)
 {
     int32_t i, col = whitecol - 21;
-    char tempbuf[32];
+    static const char *tempbuf = "Mapster32" VERSION;
+
     begindrawing();
 
     for (i=ydim-STATUS2DSIZ2; i<ydim; i++)
     {
 //        drawline256(0, i<<12, xdim<<12, i<<12, col);
-        clearbufbyte((char *)(frameplace + (i*bytesperline)), (bytesperline), ((int32_t)col<<24)|((int32_t)col<<16)|((int32_t)col<<8)|col);
+        CLEARLINES2D(i, 1, (col<<24)|(col<<16)|(col<<8)|col);
+
         col--;
         if (col <= 0) break;
     }
 
-    clearbufbyte((char *)(frameplace + (i*bytesperline)), (ydim-i)*(bytesperline), 0);
+    CLEARLINES2D(i, ydim-i, 0);
 
-    Bsprintf(tempbuf, "Mapster32" VERSION);
-    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3,ydim2d-STATUS2DSIZ2+10L, editorcolors[4],-1,tempbuf,0);
-    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2,ydim2d-STATUS2DSIZ2+9L, editorcolors[12],-1,tempbuf,0);
+    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3, ydim2d-STATUS2DSIZ2+10, editorcolors[4],-1, tempbuf, 0);
+    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2, ydim2d-STATUS2DSIZ2+9, editorcolors[12],-1, tempbuf, 0);
 
     enddrawing();
 }
@@ -5317,7 +5319,8 @@ static int32_t menuselect(void)
     do
     {
         begindrawing();
-        clearbuf((char *)frameplace, (bytesperline*ydim16) >> 2, 0l);
+
+        CLEARLINES2D(0, ydim16, 0);
 
         if (pathsearchmode)
             Bstrcpy(buffer,"Local filesystem mode; press F for game filesystem.");
@@ -5343,7 +5346,7 @@ static int32_t menuselect(void)
             for (i=0; ((i<listsize) && dir); i++, dir=dir->next)
             {
                 int32_t c = (dir->type == CACHE1D_FIND_DIR ? 2 : 3); //PK
-                memset(buffer,0,sizeof(buffer));
+                Bmemset(buffer,0,sizeof(buffer));
                 Bstrncpy(buffer,dir->name,25);
                 if (Bstrlen(buffer) == 25)
                     buffer[21] = buffer[22] = buffer[23] = '.', buffer[24] = 0;
@@ -5539,7 +5542,7 @@ static int32_t menuselect(void)
             ch = 0;
 
             begindrawing();
-            clearbuf((char *)frameplace, (bytesperline*ydim16) >> 2, 0l);
+            CLEARLINES2D(0, ydim16, 0);
             enddrawing();
             showframe(1);
         }
@@ -5703,7 +5706,7 @@ int32_t loadnames(void)
     }
 
     //clearbufbyte(names, sizeof(names), 0);
-    memset(names,0,sizeof(names));
+    Bmemset(names,0,sizeof(names));
 
     initprintf("Loading NAMES.H\n");
 
@@ -5830,9 +5833,9 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
     m = (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || numsprites > MAXSPRITESV7);
 
     Bsprintf(snotbuf,"%d/%d sect. %d/%d walls %d/%d spri.",
-             numsectors,m?MAXSECTORSV8:MAXSECTORSV7,
-             numwalls,m?MAXWALLSV8:MAXWALLSV7,
-             numsprites,m?MAXSPRITESV8:MAXSPRITESV7);
+             numsectors, m?MAXSECTORSV8:MAXSECTORSV7,
+             numwalls, m?MAXWALLSV8:MAXWALLSV7,
+             numsprites, m?MAXSPRITESV8:MAXSPRITESV7);
 
     i = 0;
     while ((snotbuf[i] != 0) && (i < 46))
@@ -5910,156 +5913,122 @@ void copysector(int16_t soursector, int16_t destsector, int16_t deststartwall, c
     }
 }
 
+#define DOPRINT(Yofs, fmt, ...) \
+    Bsprintf(snotbuf, fmt, ## __VA_ARGS__); \
+    printext16(8+col*200, ydim/*-(row*96)*/-STATUS2DSIZ+Yofs, color, -1, snotbuf, 0);
+
 void showsectordata(int16_t sectnum)
 {
+    sectortype *sec;
     char snotbuf[80];
-    int32_t col = 1, row = 0;
+    int32_t col=0;  //,row = 0;
     int32_t mode = (sectnum & 16384);
     int32_t color = mode?whitecol:editorcolors[11];
 
     sectnum &= ~16384;
+    sec = &sector[sectnum];
 
     if (mode)
     {
-        _printmessage16("^10Sector %d %s ^O(F7 to edit)",sectnum, ExtGetSectorCaption(sectnum));
+        _printmessage16("^10Sector %d %s ^O(F7 to edit)", sectnum, ExtGetSectorCaption(sectnum));
         return;
     }
 
-    Bsprintf(snotbuf,"^10Sector %d",sectnum);
-    printext16(8,ydim-(row*96)-STATUS2DSIZ+32,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Firstwall: %d",sector[sectnum].wallptr);
-    printext16(8,ydim-(row*96)-STATUS2DSIZ+48,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Numberofwalls: %d",sector[sectnum].wallnum);
-    printext16(8,ydim-(row*96)-STATUS2DSIZ+56,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Firstsprite: %d",headspritesect[sectnum]);
-    printext16(8,ydim-(row*96)-STATUS2DSIZ+64,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Tags: %d, %d",sector[sectnum].hitag,sector[sectnum].lotag);
-    printext16(8,ydim-(row*96)-STATUS2DSIZ+72,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"     (0x%x), (0x%x)",sector[sectnum].hitag,sector[sectnum].lotag);
-    printext16(8,ydim-(row*96)-STATUS2DSIZ+80,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Extra: %d",sector[sectnum].extra);
-    printext16(8,ydim-(row*96)-STATUS2DSIZ+88,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Visibility: %d",sector[sectnum].visibility);
-    printext16(8,ydim-(row*96)-STATUS2DSIZ+96,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Pixel height: %d",(sector[sectnum].floorz-sector[sectnum].ceilingz)>>8);
-    printext16(8,ydim-(row*96)-STATUS2DSIZ+104,color,-1,snotbuf,0);
+    DOPRINT(32, "^10Sector %d", sectnum);
+    DOPRINT(48, "Firstwall: %d", sec->wallptr);
+    DOPRINT(56, "Numberofwalls: %d", sec->wallnum);
+    DOPRINT(64, "Firstsprite: %d", headspritesect[sectnum]);
+    DOPRINT(72, "Tags: %d, %d", sec->hitag, sec->lotag);
+    DOPRINT(80, "     (0x%x), (0x%x)", sec->hitag, sec->lotag);
+    DOPRINT(88, "Extra: %d", sec->extra);
+    DOPRINT(96, "Visibility: %d", sec->visibility);
+    DOPRINT(104, "Pixel height: %d", (sec->floorz-sec->ceilingz)>>8);
 
     col++;
 
-    printext16(8+((col-1)*200),ydim-(row*96)-STATUS2DSIZ+32,color,-1,"^10CEILING:^O",0);
-    Bsprintf(snotbuf,"Flags (hex): %x",sector[sectnum].ceilingstat);
-    printext16(8+((col-1)*200),ydim-(row*96)-STATUS2DSIZ+48,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning);
-    printext16(8+((col-1)*200),ydim-(row*96)-STATUS2DSIZ+56,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Shade byte: %d",sector[sectnum].ceilingshade);
-    printext16(8+((col-1)*200),ydim-(row*96)-STATUS2DSIZ+64,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Z-coordinate: %d",sector[sectnum].ceilingz);
-    printext16(8+((col-1)*200),ydim-(row*96)-STATUS2DSIZ+72,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Tile number: %d",sector[sectnum].ceilingpicnum);
-    printext16(8+((col-1)*200),ydim-(row*96)-STATUS2DSIZ+80,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Ceiling heinum: %d",sector[sectnum].ceilingheinum);
-    printext16(8+((col-1)*200),ydim-(row*96)-STATUS2DSIZ+88,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Palookup number: %d",sector[sectnum].ceilingpal);
-    printext16(8+((col-1)*200),ydim-(row*96)-STATUS2DSIZ+96,color,-1,snotbuf,0);
+    DOPRINT(32, "^10CEILING:^O");
+    DOPRINT(48, "Flags (hex): %x", sec->ceilingstat);
+    DOPRINT(56, "(X, Y)pan: %d, %d", sec->ceilingxpanning, sec->ceilingypanning);
+    DOPRINT(64, "Shade byte: %d", sec->ceilingshade);
+    DOPRINT(72, "Z-coordinate: %d", sec->ceilingz);
+    DOPRINT(80, "Tile number: %d", sec->ceilingpicnum);
+    DOPRINT(88, "Ceiling heinum: %d", sec->ceilingheinum);
+    DOPRINT(96, "Palookup number: %d", sec->ceilingpal);
 
     col++;
 
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+32,color,-1,"^10FLOOR:^O",0);
-    Bsprintf(snotbuf,"Flags (hex): %x",sector[sectnum].floorstat);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+48,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+56,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Shade byte: %d",sector[sectnum].floorshade);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+64,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Z-coordinate: %d",sector[sectnum].floorz);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+72,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Tile number: %d",sector[sectnum].floorpicnum);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+80,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Floor heinum: %d",sector[sectnum].floorheinum);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+88,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Palookup number: %d",sector[sectnum].floorpal);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+96,color,-1,snotbuf,0);
+    DOPRINT(32, "^10FLOOR:^O");
+    DOPRINT(48, "Flags (hex): %x", sec->floorstat);
+    DOPRINT(56, "(X, Y)pan: %d, %d", sec->floorxpanning, sec->floorypanning);
+    DOPRINT(64, "Shade byte: %d", sec->floorshade);
+    DOPRINT(72, "Z-coordinate: %d", sec->floorz);
+    DOPRINT(80, "Tile number: %d", sec->floorpicnum);
+    DOPRINT(88, "Floor heinum: %d", sec->floorheinum);
+    DOPRINT(96, "Palookup number: %d", sec->floorpal);
 }
 
 void showwalldata(int16_t wallnum)
 {
-    int32_t dax;
+    walltype *wal;
+    int32_t sec;
     char snotbuf[80];
-    int32_t col = 1, row = 0;
+    int32_t col=0; //, row = 0;
     int32_t mode = (wallnum & 16384);
     int32_t color = mode?whitecol:editorcolors[11];
 
     wallnum &= ~16384;
+    wal = &wall[wallnum];
 
     if (mode)
     {
-        _printmessage16("^10Wall %d %s ^O(F8 to edit)",wallnum, ExtGetWallCaption(wallnum));
+        _printmessage16("^10Wall %d %s ^O(F8 to edit)", wallnum, ExtGetWallCaption(wallnum));
         return;
     }
 
-    Bsprintf(snotbuf,"^10Wall %d",wallnum);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+32,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"X-coordinate: %d",wall[wallnum].x);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+48,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Y-coordinate: %d",wall[wallnum].y);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+56,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Point2: %d",wall[wallnum].point2);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+64,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Sector: ^010%d",sectorofwall(wallnum));
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+72,color,-1,snotbuf,0);
+    DOPRINT(32, "^10Wall %d", wallnum);
+    DOPRINT(48, "X-coordinate: %d", wal->x);
+    DOPRINT(56, "Y-coordinate: %d", wal->y);
+    DOPRINT(64, "Point2: %d", wal->point2);
+    DOPRINT(72, "Sector: ^010%d", sectorofwall(wallnum));
 
-    Bsprintf(snotbuf,"Tags: %d, %d",wall[wallnum].hitag,wall[wallnum].lotag);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+88,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"     (0x%x), (0x%x)",wall[wallnum].hitag,wall[wallnum].lotag);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+96,color,-1,snotbuf,0);
+    DOPRINT(88, "Tags: %d,  %d", wal->hitag, wal->lotag);
+    DOPRINT(96, "     (0x%x),  (0x%x)", wal->hitag, wal->lotag);
 
     col++;
 
-    Bsprintf(snotbuf,"^10%s^O",names[wall[wallnum].picnum]);
-    printext16(8+((col-1)*200),ydim-(row*80)-STATUS2DSIZ+32,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Flags (hex): %x",wall[wallnum].cstat);
-    printext16(8+((col-1)*200),ydim-(row*80)-STATUS2DSIZ+48,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Shade: %d",wall[wallnum].shade);
-    printext16(8+((col-1)*200),ydim-(row*80)-STATUS2DSIZ+56,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Pal: %d",wall[wallnum].pal);
-    printext16(8+((col-1)*200),ydim-(row*80)-STATUS2DSIZ+64,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat);
-    printext16(8+((col-1)*200),ydim-(row*80)-STATUS2DSIZ+72,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning);
-    printext16(8+((col-1)*200),ydim-(row*80)-STATUS2DSIZ+80,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Tile number: %d",wall[wallnum].picnum);
-    printext16(8+((col-1)*200),ydim-(row*80)-STATUS2DSIZ+88,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"OverTile number: %d",wall[wallnum].overpicnum);
-    printext16(8+((col-1)*200),ydim-(row*80)-STATUS2DSIZ+96,color,-1,snotbuf,0);
+    DOPRINT(32, "^10%s^O", (wal->picnum>=0 && wal->picnum<MAXTILES) ? names[wal->picnum] : "!INVALID!");
+    DOPRINT(48, "Flags (hex): %x", wal->cstat);
+    DOPRINT(56, "Shade: %d", wal->shade);
+    DOPRINT(64, "Pal: %d", wal->pal);
+    DOPRINT(72, "(X, Y)repeat: %d, %d", wal->xrepeat, wal->yrepeat);
+    DOPRINT(80, "(X, Y)pan: %d, %d", wal->xpanning, wal->ypanning);
+    DOPRINT(88, "Tile number: %d", wal->picnum);
+    DOPRINT(96, "OverTile number: %d", wal->overpicnum);
 
     col++;
 
-    Bsprintf(snotbuf,"nextsector: %d",wall[wallnum].nextsector);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+48-(mode?16:0),color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"nextwall: %d",wall[wallnum].nextwall);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+56-(mode?16:0),color,-1,snotbuf,0);
+    DOPRINT(48-(mode?16:0), "nextsector: %d", wal->nextsector);
+    DOPRINT(56-(mode?16:0), "nextwall: %d", wal->nextwall);
 
-    Bsprintf(snotbuf,"Extra: %d",wall[wallnum].extra);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+72-(mode?16:0),color,-1,snotbuf,0);
+    DOPRINT(72-(mode?16:0), "Extra: %d", wal->extra);
 
     // TX 20050102 I'm not sure what unit dist<<4 is supposed to be, but dist itself is correct in terms of game coordinates as one would expect
+    DOPRINT(96-(mode?16:0),  "Wall length: %d",  wallength(wallnum));
 
-    Bsprintf(snotbuf, "Wall length: %d", wallength(wallnum));
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+96-(mode?16:0),color,-1,snotbuf,0);
-
-    dax = (int32_t)sectorofwall(wallnum);
-    Bsprintf(snotbuf,"Pixel height: %d",(sector[dax].floorz-sector[dax].ceilingz)>>8);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+104-(mode?16:0),color,-1,snotbuf,0);
+    sec = sectorofwall(wallnum);
+    DOPRINT(104-(mode?16:0), "Pixel height: %d", (sector[sec].floorz-sector[sec].ceilingz)>>8);
 }
 
 void showspritedata(int16_t spritenum)
 {
+    spritetype *spr;
     char snotbuf[80];
-    int32_t col = 1, row = 0;
+    int32_t col=0; //, row = 0;
     int32_t mode = (spritenum & 16384);
     int32_t color = mode?whitecol:editorcolors[11];
 
     spritenum &= ~16384;
+    spr = &sprite[spritenum];
 
     if (mode)
     {
@@ -6067,69 +6036,43 @@ void showspritedata(int16_t spritenum)
         return;
     }
 
-    Bsprintf(snotbuf,"^10Sprite %d",spritenum);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+32,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"X-coordinate: %d",sprite[spritenum].x);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+48,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Y-coordinate: %d",sprite[spritenum].y);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+56,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Z-coordinate: %d",sprite[spritenum].z);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+64,color,-1,snotbuf,0);
+    DOPRINT(32, "^10Sprite %d", spritenum);
+    DOPRINT(48, "X-coordinate: %d", spr->x);
+    DOPRINT(56, "Y-coordinate: %d", spr->y);
+    DOPRINT(64, "Z-coordinate: %d", spr->z);
 
-    Bsprintf(snotbuf,"Sectnum: ^010%d",sprite[spritenum].sectnum);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+72,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Statnum: %d",sprite[spritenum].statnum);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+80,color,-1,snotbuf,0);
+    DOPRINT(72, "Sectnum: ^010%d", spr->sectnum);
+    DOPRINT(80, "Statnum: %d", spr->statnum);
 
-    Bsprintf(snotbuf,"Tags: %d, %d",sprite[spritenum].hitag,sprite[spritenum].lotag);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+96,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"     (0x%x), (0x%x)",sprite[spritenum].hitag,sprite[spritenum].lotag);
-    printext16(8,ydim-(row*80)-STATUS2DSIZ+104,color,-1,snotbuf,0);
+    DOPRINT(96, "Tags: %d,  %d", spr->hitag, spr->lotag);
+    DOPRINT(104, "     (0x%x),  (0x%x)", spr->hitag, spr->lotag);
 
     col++;
 
-    Bsprintf(snotbuf,"^10%s^O",names[sprite[spritenum].picnum]);
-    printext16(8+((col-1)*200),ydim-(row*72)-STATUS2DSIZ+32,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Flags (hex): %x",sprite[spritenum].cstat);
-    printext16(8+((col-1)*200),ydim-(row*72)-STATUS2DSIZ+48,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Shade: %d",sprite[spritenum].shade);
-    printext16(8+((col-1)*200),ydim-(row*72)-STATUS2DSIZ+56,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Pal: %d",sprite[spritenum].pal);
-    printext16(8+((col-1)*200),ydim-(row*72)-STATUS2DSIZ+64,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat);
-    printext16(8+((col-1)*200),ydim-(row*72)-STATUS2DSIZ+72,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset);
-    printext16(8+((col-1)*200),ydim-(row*72)-STATUS2DSIZ+80,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Tile number: %d",sprite[spritenum].picnum);
-    printext16(8+((col-1)*200),ydim-(row*72)-STATUS2DSIZ+88,color,-1,snotbuf,0);
+    DOPRINT(32, "^10%s^O", (spr->picnum>=0 && spr->picnum<MAXTILES) ? names[spr->picnum] : "!INVALID!");
+    DOPRINT(48, "Flags (hex): %x", spr->cstat);
+    DOPRINT(56, "Shade: %d", spr->shade);
+    DOPRINT(64, "Pal: %d", spr->pal);
+    DOPRINT(72, "(X, Y)repeat: %d, %d", spr->xrepeat, spr->yrepeat);
+    DOPRINT(80, "(X, Y)offset: %d, %d", spr->xoffset, spr->yoffset);
+    DOPRINT(88, "Tile number: %d", spr->picnum);
 
     col++;
 
-    Bsprintf(snotbuf,"Angle (2048 degrees): %d",sprite[spritenum].ang);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+48,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"X-Velocity: %d",sprite[spritenum].xvel);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+56,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Y-Velocity: %d",sprite[spritenum].yvel);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+64,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Z-Velocity: %d",sprite[spritenum].zvel);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+72,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Owner: %d",sprite[spritenum].owner);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+80,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Clipdist: %d",sprite[spritenum].clipdist);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+88,color,-1,snotbuf,0);
-    Bsprintf(snotbuf,"Extra: %d",sprite[spritenum].extra);
-    printext16(8+((col-1)*200),ydim-STATUS2DSIZ+96,color,-1,snotbuf,0);
+    DOPRINT(48, "Angle (2048 degrees): %d", spr->ang);
+    DOPRINT(56, "X-Velocity: %d", spr->xvel);
+    DOPRINT(64, "Y-Velocity: %d", spr->yvel);
+    DOPRINT(72, "Z-Velocity: %d", spr->zvel);
+    DOPRINT(80, "Owner: %d", spr->owner);
+    DOPRINT(88, "Clipdist: %d", spr->clipdist);
+    DOPRINT(96, "Extra: %d", spr->extra);
 }
 
-// gets called once per totalclock increment since last call (at least in sdlayer.c)
+#undef DOPRINT
+
+// gets called once per totalclock increment since last call
 void keytimerstuff(void)
 {
-//    static int32_t ltotalclock=0;
-//    int32_t fac=1; //(totalclock-ltotalclock);
-
-//    if (fac==0) return;
-//    ltotalclock=totalclock;
-
     if (DOWN_BK(STRAFE) == 0)
     {
         if (DOWN_BK(TURNLEFT)) angvel = max(angvel-pk_turnaccel, -128);
@@ -6151,8 +6094,7 @@ void keytimerstuff(void)
     if (svel > 0) svel = max(svel-6, 0);
     if (vel < 0) vel = min(vel+6, 0);
     if (vel > 0) vel = max(vel-6, 0);
-    /*    if(mlook)
-            pos.z -= (horiz-101)*(vel/40); */
+    /*    if(mlook) pos.z -= (horiz-101)*(vel/40); */
 }
 
 int32_t snfillprintf(char *outbuf, size_t bufsiz, int32_t fill, const char *fmt, ...)
@@ -6300,7 +6242,7 @@ static void AlignWalls(int32_t nWall0, int32_t z0, int32_t nWall1, int32_t z1, i
 
     z1 = GetWallZPeg(nWall1);
 
-    for (n=(picsiz[nTile]>>4); ((1<<n)<tilesizy[nTile]); n++);
+    for (n=picsiz[nTile]>>4; (1<<n)<tilesizy[nTile]; n++);
 
     wall[nWall1].yrepeat = wall[nWall0].yrepeat;
     wall[nWall1].ypanning = (uint8_t)(wall[nWall0].ypanning+(((z1-z0)*wall[nWall0].yrepeat)>>(n+3)));
@@ -6315,7 +6257,7 @@ void AutoAlignWalls(int32_t nWall0, int32_t ply)
     if (ply == 0)
     {
         //clear visited bits
-        memset(visited,0,sizeof(visited));
+        Bmemset(visited,0,sizeof(visited));
         visited[nWall0] = 1;
     }
 

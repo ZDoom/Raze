@@ -130,6 +130,8 @@ static inline int32_t wallength(int16_t i)
     return ksqrt(dax*dax + day*day);
 }
 
+#define CLEARLINES2D(Startline, Numlines, Color) clearbuf((char *)(frameplace + ((Startline)*bytesperline)), (bytesperline*(Numlines))>>2, (Color))
+
 #ifdef __cplusplus
 }
 #endif
