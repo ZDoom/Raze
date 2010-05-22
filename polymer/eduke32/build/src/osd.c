@@ -124,6 +124,9 @@ static cvar_t *cvars = NULL;
 static uint32_t osdnumcvars = 0;
 static hashtable_t h_cvars      = { MAXSYMBOLS<<1, NULL };
 
+int32_t m32_osd_tryscript=0;  // whether to try executing m32script on unkown command in the osd
+extern void M32RunScript(const char *s);
+
 int32_t OSD_RegisterCvar(const cvar_t *cvar)
 {
     const char *cp;
@@ -1653,8 +1656,14 @@ int32_t OSD_Dispatch(const char *cmd)
 
         if ((symb = findexactsymbol(wp)) == NULL)
         {
-            if (wp[0] != '/' || wp[1] != '/') // cheap hack for comments in cfgs
+            if ((wp[0] != '/' || wp[1] != '/') && !m32_osd_tryscript) // cheap hack for comments in cfgs
+            {
                 OSD_Printf(OSDTEXT_RED "\"%s\" is not a valid command or cvar\n", wp);
+            }
+            else if (m32_osd_tryscript)
+            {
+                M32RunScript(cmd);
+            }
             Bfree(workbuf);
             return -1;
         }

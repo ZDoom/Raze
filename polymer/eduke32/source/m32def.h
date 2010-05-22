@@ -25,19 +25,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _m32def_h_
 #define _m32def_h_
 
-extern int32_t g_iReturnVarID;      // var ID of "RETURN"
-extern int32_t g_iLoTagID;          // var ID of "LOTAG"
-extern int32_t g_iHiTagID;          // var ID of "HITAG"
-extern int32_t g_iTextureID;        // var ID of "TEXTURE"
-
-extern int32_t g_iThisActorID;      // var ID of "I"  ///"THISACTOR"
-
-extern int32_t g_iSpriteVarID;
-extern int32_t g_iSectorVarID;
-extern int32_t g_iWallVarID;
-
 #define ABORTERRCNT 8
-#define CON_ERROR OSD_ERROR "Line %d, %s: "
+
+#define C_CUSTOMERROR(Text, ...) do { \
+    C_ReportError(-1);                                                  \
+    initprintf("%s:%d: error: " Text "\n", g_szScriptFileName, g_lineNumber, ## __VA_ARGS__); \
+    g_numCompilerErrors++; \
+    } while (0)
+
+#define C_CUSTOMWARNING(Text, ...) do { \
+    C_ReportError(-1);                                                  \
+    initprintf("%s:%d: warning: " Text "\n", g_szScriptFileName, g_lineNumber, ## __VA_ARGS__); \
+    g_numCompilerWarnings++; \
+    } while (0)
 
 extern char g_szScriptFileName[BMAX_PATH];
 extern int32_t g_totalLines,g_lineNumber;
@@ -111,7 +111,7 @@ enum ScriptError_t
 {
     ERROR_CLOSEBRACKET,
     ERROR_EVENTONLY,
-    ERROR_EXCEEDSMAXTILES,
+//    ERROR_EXCEEDSMAXTILES,
     ERROR_EXPECTEDKEYWORD,
     ERROR_FOUNDWITHIN,
     ERROR_ISAKEYWORD,
@@ -136,7 +136,7 @@ enum ScriptError_t
     WARNING_DUPLICATEDEFINITION,
     WARNING_LABELSONLY,
     WARNING_NAMEMATCHESVAR,
-    WARNING_CONSTANTBITSIZE,
+//    WARNING_CONSTANTBITSIZE,
     WARNING_OUTSIDEDRAWSPRITE,
 };
 

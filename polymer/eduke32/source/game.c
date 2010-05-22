@@ -198,6 +198,8 @@ uint32_t g_frameDelay = 0;
 extern char forcegl;
 #endif
 
+void M32RunScript(const char *s) {};  // needed for linking since it's referenced from build/src/osd.c
+
 int32_t kopen4loadfrommod(char *filename, char searchfirst)
 {
     static char fn[BMAX_PATH];
@@ -11776,6 +11778,9 @@ MAIN_LOOP_RESTART:
     }
     else G_UpdateScreenArea();
 
+//    G_GameExit(" "); ///
+
+//    ud.auto_run = ud.config.RunMode;
     ud.showweapons = ud.config.ShowOpponentWeapons;
     g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
     g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;

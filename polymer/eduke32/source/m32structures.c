@@ -120,10 +120,10 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLab
     }
 
 badwall:
-    OSD_Printf(CON_ERROR "Invalid wall %d\n",g_errorLineNum,keyw[g_tw],i);
+    M32_PRINTERROR("Invalid wall %d", i);
     return -1;
 readonly:
-    OSD_Printf(CON_ERROR "Wall structure member `%s' is read-only.\n",g_errorLineNum,keyw[g_tw],WallLabels[lLabelID].name);
+    M32_PRINTERROR("Wall structure member `%s' is read-only.", WallLabels[lLabelID].name);
     return -1;
 }
 
@@ -133,7 +133,7 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
     int32_t lValue;
     int32_t i = (how&ACCESS_USEVARS) ? sprite[vm.g_i].sectnum : lVar1;
 
-    if ((how&ACCESS_USEVARS) && lVar1 != g_iThisActorID)
+    if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
         i = Gv_GetVarX(lVar1);
 
     if (i<0 || i >= numsectors)
@@ -237,10 +237,10 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
     }
 
 badsector:
-    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],i);
+    M32_PRINTERROR("Invalid sector %d", i);
     return -1;
 readonly:
-    OSD_Printf(CON_ERROR "Sector structure member `%s' is read-only.\n",g_errorLineNum,keyw[g_tw],SectorLabels[lLabelID].name);
+    M32_PRINTERROR("Sector structure member `%s' is read-only.", SectorLabels[lLabelID].name);
     return -1;
 }
 
@@ -250,7 +250,7 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lL
     int32_t lValue;
     register int32_t i = (how&ACCESS_USEVARS) ? vm.g_i : lVar1;
 
-    if ((how&ACCESS_USEVARS) && lVar1 != g_iThisActorID)
+    if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
         i = Gv_GetVarX(lVar1);
 
     if (i < 0 || i >= MAXSPRITES)
@@ -348,11 +348,10 @@ badactor:
 //    OSD_Printf(CON_ERROR "tried to set %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",g_errorLineNum,keyw[g_tw],
 //               SpriteLabels[lLabelID].name,i,vm.g_i,vm.g_sp->picnum,
 //               (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
-    OSD_Printf(CON_ERROR "tried to set %s on invalid target sprite (%d)\n",g_errorLineNum,keyw[g_tw],
-               SpriteLabels[lLabelID].name,i);
+    M32_PRINTERROR("tried to set %s on invalid target sprite (%d)", SpriteLabels[lLabelID].name, i);
     return -1;
 readonly:
-    OSD_Printf(CON_ERROR "Sprite structure member `%s' is read-only.\n",g_errorLineNum,keyw[g_tw],SpriteLabels[lLabelID].name);
+    M32_PRINTERROR("Sprite structure member `%s' is read-only.", SpriteLabels[lLabelID].name);
     return -1;
 }
 
@@ -363,7 +362,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
     int32_t i = (how&ACCESS_USEVARS) ? vm.g_i : lVar1;
     spritetype *datspr;
 
-    if ((how&ACCESS_USEVARS) && lVar1 != g_iThisActorID)
+    if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
         i = Gv_GetVarX(lVar1);
 
     if (how&ACCESS_SPRITEEXT)
@@ -458,10 +457,10 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
     }
 
 badsprite:
-    OSD_Printf(CON_ERROR "invalid target sprite (%d)\n",g_errorLineNum,keyw[g_tw],i);
+    M32_PRINTERROR("invalid target sprite (%d)", i);
     return -1;
 badtspr:
-    OSD_Printf(CON_ERROR "Internal bug, tsprite is unavailable\n",g_errorLineNum,keyw[g_tw]);
+    M32_PRINTERROR("Internal bug, tsprite is unavailable");
     return -1;
 }
 

@@ -4616,7 +4616,7 @@ static void Keys3d(void)
                 {
                     if (ASSERT_AIMING)
                     {
-                        AIMED_CF_SEL(shade) += tsign;
+                        AIMED_CF_SEL(shade) += tsign*(1+3*eitherCTRL);
                         message("%s %d shade %d", Typestr[searchstat], i, AIMED_CF_SEL(shade));
                     }
                 }
@@ -7310,6 +7310,7 @@ static int32_t osdcmd_noclip(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
     noclip = !noclip;
+    OSD_Printf("Clipping %s\n", noclip?"disabled":"enabled");
 
     return OSDCMD_OK;
 }
@@ -7410,6 +7411,11 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
             pk_uedaccel = pk_uedaccel>5 ? 5:pk_uedaccel;
         }
     }
+    else if (!Bstrcasecmp(parm->name, "osd_tryscript"))
+    {
+        m32_osd_tryscript = !m32_osd_tryscript;
+        OSD_Printf("Try M32 script execution on invalid OSD command: %s\n", m32_osd_tryscript?"on":"off");
+    }
     return OSDCMD_OK;
 }
 
@@ -7498,30 +7504,30 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 {
     intptr_t tscrofs;
     char *tp;
-    int32_t i, j, slen;
+    int32_t i, j, slen, ofs;
     int32_t onumconstants=g_numSavedConstants;
 
-    if (parm->numparms < 1)
+    if (parm->numparms==0)
         return OSDCMD_SHOWHELP;
 
     tscrofs = (g_scriptPtr-script);
 
-    slen = Bstrlen(parm->raw+2);
+    ofs = 2*(parm->numparms>0);  // true if "do" command
+    slen = Bstrlen(parm->raw+ofs);
     tp = Bmalloc(slen+2);
-    if (!tp)
-    {
-        initprintf("OUT OF MEMORY!\n");
-        return OSDCMD_OK;
-    }
+    if (!tp) goto OUTOFMEM;
+    Bmemcpy(tp, parm->raw+ofs, slen);
 
-    Bmemcpy(tp, parm->raw+2, slen);
+    // needed so that subsequent commands won't execute old stuff.
     tp[slen] = '\n';
     tp[slen+1] = '\0';
 
     g_didDefineSomething = 0;
 
     C_Compile(tp, 0);
-    Bfree(tp);
+
+    if (parm->numparms>=0)
+        Bfree(tp);
 
     if (g_numCompilerErrors)
     {
@@ -7547,12 +7553,24 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
     }
 
     return OSDCMD_OK;
+OUTOFMEM:
+    OSD_Printf("OUT OF MEMORY!\n");
+    return OSDCMD_OK;
+}
+
+void M32RunScript(const char *s)
+{
+    osdfuncparm_t parm;
+
+    parm.numparms = -1;
+    parm.raw = s;
+
+    osdcmd_do(&parm);
 }
 
 static int32_t osdcmd_endisableevent(const osdfuncparm_t *parm)
 {
     int32_t i, j, enable;
-    char buf[64] = "EVENT_";
 
     if (!label) return OSDCMD_OK;
 
@@ -7569,28 +7587,44 @@ static int32_t osdcmd_endisableevent(const osdfuncparm_t *parm)
 
     if (parm->numparms == 1)
     {
-        if (!Bstrcasecmp(parm->parms[0], "all"))
+        if (!Bstrcasecmp(parm->parms[0], "all") || !Bstrcasecmp(parm->parms[0], "a"))
         {
             for (i=0; i<MAXEVENTS; i++)
                 aEventEnabled[i] = enable?1:0;
+            OSD_Printf("Enabled all events.\n");
             return OSDCMD_OK;
         }
     }
 
     for (i=0; i<parm->numparms; i++)
     {
+        char buf[64] = "EVENT_", buf2[64];
+
         if (isdigit(parm->parms[i][0]))
+        {
             j = atoi(parm->parms[i]);
+            Bsprintf(buf2, "event %d", j);
+        }
         else if (!Bstrncmp(parm->parms[i], "EVENT_", 6))
+        {
             j = hash_find(&h_labels, parm->parms[i]);
+            Bstrncpy(buf2, parm->parms[i], sizeof(buf2));
+            buf2[sizeof(buf2)-1] = '\0';
+        }
         else
         {
             Bstrncat(buf, parm->parms[i], sizeof(buf)-6-1);
             j = hash_find(&h_labels, buf);
+            Bmemcpy(buf2, buf, sizeof(buf2));
         }
 
         if (j>=0 && j<MAXEVENTS)
+        {
             aEventEnabled[j] = enable?1:0;
+            OSD_Printf("%sabled %s.\n", enable?"En":"Dis", buf2);
+        }
+        else
+            OSD_Printf("Invalid event %s.\n", buf2);
     }
     return OSDCMD_OK;
 }
@@ -7629,6 +7663,7 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("scriptinfo", "scriptinfo: shows information about compiled M32 script", osdcmd_scriptinfo);
     OSD_RegisterFunction("enableevent", "enableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
     OSD_RegisterFunction("disableevent", "disableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
+    OSD_RegisterFunction("osd_tryscript", "osd_tryscript: Toggles execution of M32 script on invalid OSD command", osdcmd_vars_pk);
 //    OSD_RegisterFunction("disasm", "disasm [s|e] <state or event number>", osdcmd_disasm);
     return 0;
 }

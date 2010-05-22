@@ -244,8 +244,9 @@ int32_t loadsetup(const char *fn)
         graphicsmode = min(max(Batoi(val),0),2);
 
     if (readconfig(fp, "ambiencetoggle", val, VL) > 0) AmbienceToggle = Batoi(val);
-
     if (readconfig(fp, "parlock", val, VL) > 0) ParentalLock = Batoi(val);
+
+    if (readconfig(fp, "osdtryscript", val, VL) > 0) m32_osd_tryscript = Batoi(val);
 
     for (i=0; i<256; i++)
         remap[i]=i;
@@ -399,7 +400,12 @@ int32_t writesetup(const char *fn)
              "graphicsmode = %d\n\n"
              "; Ambient sounds in 3D mode (0:off, 1:on)\n"
              "ambiencetoggle = %d\n"
-             "parlock = %d\n\n"
+             "parlock = %d\n"
+             "\n"
+             "; Try executing m32script on invalid command in the OSD? This makes\n"
+             "; typing m32script commands into the OSD directly possible.\n"
+             "osdtryscript = %d\n"
+             "\n"
 #if 1
              "; Key Settings\n"
              ";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
@@ -470,6 +476,7 @@ int32_t writesetup(const char *fn)
              option[3], msens, unrealedlook, pk_uedaccel, quickmapcycling,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,
              showheightindicators,graphicsmode,AmbienceToggle,ParentalLock,
+             !!m32_osd_tryscript,
 #if 1
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
              keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],

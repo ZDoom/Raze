@@ -169,11 +169,6 @@ extern uint32_t m32_drawlinepat;
 
 extern int32_t g_iReturnVar;
 extern int32_t m32_sortvar1, m32_sortvar2;
-extern int32_t g_iReturnVarID;
-extern int32_t g_iLoTagID;          // var ID of "LOTAG"
-extern int32_t g_iHiTagID;          // var ID of "HITAG"
-extern int32_t g_iTextureID;        // var ID of "TEXTURE"
-extern int32_t g_iThisActorID;        // var ID of "I"     ///"THISACTOR"
 
 //extern int32_t g_numRealPalettes;
 //extern int32_t g_scriptDebug;
@@ -182,7 +177,7 @@ extern int32_t g_numQuoteRedefinitions;
 
 extern hashtable_t h_gamevars;
 extern hashtable_t h_arrays;
-extern hashtable_t h_keywords;
+//extern hashtable_t h_keywords;
 extern hashtable_t h_gamefuncs;
 
 
@@ -231,5 +226,24 @@ extern int32_t numsprites;
 
 extern int32_t zoom;
 extern int32_t halfxdim16, midydim16;
+
+
+#define M32_FLAG_NEGATE (MAXGAMEVARS<<1)
+#define M32_FLAG_ARRAY (MAXGAMEVARS<<2)
+#define M32_FLAG_SPECIAL (MAXGAMEVARS<<3)
+
+// IDs of special vars
+#define M32_SPRITE_VAR_ID 0
+#define M32_SECTOR_VAR_ID 1
+#define M32_WALL_VAR_ID 2
+#define M32_TSPRITE_VAR_ID 3
+
+#define M32_THISACTOR_VAR_ID 4
+#define M32_RETURN_VAR_ID 5
+#define M32_LOTAG_VAR_ID 6
+#define M32_HITAG_VAR_ID 7
+#define M32_TEXTURE_VAR_ID 8
+
+#define M32_PRINTERROR(Text, ...) OSD_Printf(OSD_ERROR "Line %d, %s: " Text "\n", g_errorLineNum, keyw[g_tw], ## __VA_ARGS__)
 
 #endif
