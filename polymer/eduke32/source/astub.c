@@ -1,9 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 1996, 2003 - 3D Realms Entertainment
-Copyright (C) 2004, 2007 - EDuke32 developers
+Copyright (C) 2010 EDuke32 developers and contributors
 
-This file is part of EDuke32
+This file is part of EDuke32.
 
 EDuke32 is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -53,7 +52,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
-#define BUILDDATE " 20090616"
+#define BUILDDATE " 20100521"
 
 static int32_t floor_over_floor;
 
@@ -3087,7 +3086,7 @@ static int32_t OnGotoTile(int32_t iTile)
         if (handleevents())
             quitevent = 0;
 
-        idle();
+        idle_waitevent();
 
         ch = bgetchar();
 
@@ -3172,7 +3171,7 @@ static int32_t OnSelectTile(int32_t iTile)
         if (handleevents())
             quitevent = 0;
 
-        idle();
+        idle_waitevent();
 
         //
         // Display the description strings for each available tile group

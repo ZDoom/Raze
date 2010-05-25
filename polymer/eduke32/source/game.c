@@ -1,10 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 1996, 2003 - 3D Realms Entertainment
-Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
-Copyright (C) 2004, 2007 - EDuke32 developers
+Copyright (C) 2010 EDuke32 developers and contributors
 
-This file is part of EDuke32
+This file is part of EDuke32.
 
 EDuke32 is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -198,7 +196,7 @@ uint32_t g_frameDelay = 0;
 extern char forcegl;
 #endif
 
-void M32RunScript(const char *s) {};  // needed for linking since it's referenced from build/src/osd.c
+void M32RunScript(const char *s) { UNREFERENCED_PARAMETER(s); };  // needed for linking since it's referenced from build/src/osd.c
 
 int32_t kopen4loadfrommod(char *filename, char searchfirst)
 {
@@ -5100,9 +5098,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             }
             else
             {
-                tiltcs = xres/240;
-                tiltcx = xres;
-                tiltcy = yres;
+                tiltcs = 2;
+                tiltcx = 640;
+                tiltcy = 400;
             }
 
             walock[TILE_TILT] = 255;
@@ -11397,7 +11395,7 @@ void app_main(int32_t argc,const char **argv)
         else dir[0] = '\0';
 
         Bsprintf(tempbuf,"%stexcache",dir);
-        if (stat(tempbuf, &st) >= 0)
+        if (Bstat(tempbuf, &st) >= 0)
         {
             if ((st.st_mode & S_IFDIR) == S_IFDIR)
             {

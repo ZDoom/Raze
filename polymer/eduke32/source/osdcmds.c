@@ -1,10 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 1996, 2003 - 3D Realms Entertainment
-Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
-Copyright (C) 2004, 2007 - EDuke32 developers
+Copyright (C) 2010 EDuke32 developers and contributors
 
-This file is part of EDuke32
+This file is part of EDuke32.
 
 EDuke32 is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -1290,7 +1288,9 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
     {
-        r_ambientlightrecip = 1.f/r_ambientlight;
+        if (r_ambientlight == 0)
+            r_ambientlightrecip = 256.f;
+        else r_ambientlightrecip = 1.f/r_ambientlight;
 
         return r;
     }

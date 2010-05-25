@@ -73,23 +73,6 @@ char nogl=0;
 #endif
 int32_t vsync=0;
 
-// input
-char inputdevices=0;
-char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
-char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
-char remap[256];
-int32_t remapinit=0;
-static char key_names[256][24];
-volatile int32_t mousex=0,mousey=0,mouseb=0;
-int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
-char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
-int32_t joyaxespresent=0;
-
-
-void(*keypresscallback)(int32_t,int32_t) = 0;
-void(*mousepresscallback)(int32_t,int32_t) = 0;
-void(*joypresscallback)(int32_t,int32_t) = 0;
-
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
 static char keytranslation[SDLK_LAST];
 #else
@@ -502,11 +485,6 @@ void uninitinput(void)
     }
 }
 
-const char *getkeyname(int32_t num)
-{
-    return ((unsigned)num >= 256) ? NULL : key_names[num];
-}
-
 const char *getjoyname(int32_t what, int32_t num)
 {
     static char tmp[64];
@@ -533,33 +511,6 @@ const char *getjoyname(int32_t what, int32_t num)
     }
 }
 
-//
-// bgetchar, bflushchars -- character-based input functions
-//
-char bgetchar(void)
-{
-    if (keyasciififoplc == keyasciififoend)
-        return 0;
-
-    {
-        char c = keyasciififo[keyasciififoplc];
-        keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
-        return c;
-    }
-}
-
-void bflushchars(void)
-{
-    keyasciififoplc = keyasciififoend = 0;
-}
-
-
-//
-// set{key|mouse|joy}presscallback() -- sets a callback which gets notified when keys are pressed
-//
-void setkeypresscallback(void(*callback)(int32_t, int32_t)) { keypresscallback = callback; }
-void setmousepresscallback(void(*callback)(int32_t, int32_t)) { mousepresscallback = callback; }
-void setjoypresscallback(void(*callback)(int32_t, int32_t)) { joypresscallback = callback; }
 
 //
 // initmouse() -- init mouse input
@@ -1417,16 +1368,14 @@ void showframe(int32_t w)
             bglEnable(GL_BLEND);
             bglColor4ub(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
-            bglBegin(GL_QUADS);
-            bglVertex2i(-1, -1);
-            bglVertex2i(1, -1);
-            bglVertex2i(1, 1);
-            bglVertex2i(-1, 1);
+            bglBegin(GL_TRIANGLES);
+            bglVertex2f(-2.5f, 1.f);
+            bglVertex2f(2.5f, 1.f);
+            bglVertex2f(.0f, -2.5f);
             bglEnd();
 
             bglDisable(GL_BLEND);
 
-            bglMatrixMode(GL_MODELVIEW);
             bglPopMatrix();
             bglMatrixMode(GL_PROJECTION);
             bglPopMatrix();
@@ -1548,18 +1497,6 @@ static SDL_Surface * loadappicon(void)
 // handleevents() -- process the SDL message queue
 //   returns !0 if there was an important event worth checking (like quitting)
 //
-
-static inline void SetKey(int32_t key, int32_t state)
-{
-    keystatus[remap[key]] = state;
-
-    if (state) 
-    {
-        keyfifo[keyfifoend] = remap[key];
-        keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state;
-        keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1));
-    }
-}
 
 int32_t handleevents(void)
 {

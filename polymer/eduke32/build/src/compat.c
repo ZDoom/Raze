@@ -680,7 +680,7 @@ struct Bdirent*	Breaddir(BDIR *dir)
     if (fn)
     {
         Bsprintf(fn,"%s/%s",dirr->name,dirr->info.name);
-        if (!stat(fn, &st))
+        if (!Bstat(fn, &st))
         {
             dirr->info.mode = st.st_mode;
             dirr->info.size = st.st_size;

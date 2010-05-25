@@ -1,10 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 1996, 2003 - 3D Realms Entertainment
-Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
-Copyright (C) 2004, 2007 - EDuke32 developers
+Copyright (C) 2010 EDuke32 developers and contributors
 
-This file is part of EDuke32
+This file is part of EDuke32.
 
 EDuke32 is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -2961,7 +2959,7 @@ cheat_for_port_credits:
                     int32_t osdmode = OSD_GetTextMode();
                     if (x==io) osdmode = !osdmode;
                     modval(0,1,(int32_t *)&osdmode,1,probey==io);
-                    mgametextpal(d,yy, osdmode? "Monochrome" : "Sprites", MENUHIGHLIGHT(io), 0);
+                    mgametextpal(d,yy, osdmode? "Basic" : "Sprites", MENUHIGHLIGHT(io), 0);
                     if (OSD_GetTextMode() != osdmode)
                         OSD_SetTextMode(osdmode);
                     break;

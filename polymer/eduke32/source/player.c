@@ -1,10 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 1996, 2003 - 3D Realms Entertainment
-Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
-Copyright (C) 2004, 2007 - EDuke32 developers
+Copyright (C) 2010 EDuke32 developers and contributors
 
-This file is part of EDuke32
+This file is part of EDuke32.
 
 EDuke32 is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -21,8 +19,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
-
-// Savage Baggage Masters
 
 #include "duke3d.h"
 #include "osd.h"
@@ -4443,7 +4439,7 @@ int32_t P_DoFist(DukePlayer_t *p)
         if (p->buttonpalette && ud.from_bonus == 0)
         {
             ud.from_bonus = ud.level_number+1;
-            if (ud.secretlevel > 0 && ud.secretlevel < MAXLEVELS)
+            if (ud.secretlevel > 0 && ud.secretlevel <= MAXLEVELS)
                 ud.level_number = ud.secretlevel-1;
             ud.m_level_number = ud.level_number;
         }
@@ -4702,9 +4698,15 @@ void P_ProcessInput(int32_t snum)
         return;
     }
 
-    p->rotscrnang -= ((p->rotscrnang>>1) + (p->rotscrnang != 0));
+    p->rotscrnang -= (p->rotscrnang>>1);
+
+    if (p->rotscrnang && !(p->rotscrnang>>1))
+        p->rotscrnang -= ksgn(p->rotscrnang);
 
     p->look_ang -= (p->look_ang>>2);
+
+    if (p->look_ang && !(p->look_ang>>2))
+        p->look_ang -= ksgn(p->look_ang);
 
     if (TEST_SYNC_KEY(sb_snum, SK_LOOK_LEFT))
     {

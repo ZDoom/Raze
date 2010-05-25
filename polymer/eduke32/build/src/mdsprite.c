@@ -556,15 +556,31 @@ int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, 
             texcacheindex *cacheindexptr = cacheptrs[i];
             len = cacheindexptr->len;
             offset = cacheindexptr->offset;
-//            initprintf("got a match for %s offset %d\n",cachefn,offset);
+            // initprintf("got a match for %s offset %d\n",cachefn,offset);
         }
         if (len == 0) return -1; // didn't find it
-        Blseek(cachefilehandle, offset, BSEEK_SET);
+        cachepos = offset;
     }
 
 //    initprintf("Loading cached skin: %s\n", cachefn);
 
-    if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader)) goto failure;
+    if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(texcacheheader)))
+    {
+        //        initprintf("using memcache!\n");
+        Bmemcpy(head, memcachedata + cachepos, sizeof(texcacheheader));
+        cachepos += sizeof(texcacheheader);
+    }
+    else
+    {
+        Blseek(cachefilehandle, cachepos, BSEEK_SET);
+        if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader))
+        {
+            cachepos += sizeof(texcacheheader); 
+            goto failure;
+        }
+        cachepos += sizeof(texcacheheader);
+    }
+
     if (memcmp(head->magic, TEXCACHEMAGIC, 4)) goto failure;
 
     head->xdim = B_LITTLE32(head->xdim);
@@ -607,7 +623,9 @@ static int32_t mdloadskin_cached(int32_t fil, texcacheheader *head, int32_t *doa
     // load the mipmaps
     for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
     {
+        Blseek(fil, cachepos, BSEEK_SET);
         r = Bread(fil, &pict, sizeof(texcachepicture));
+        cachepos += sizeof(texcachepicture);
         if (r < (int32_t)sizeof(texcachepicture)) goto failure;
 
         pict.size = B_LITTLE32(pict.size);
@@ -831,7 +849,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                 if (ysiz == pow2long[j]) { i |= 2; }
             }
             cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
-            OSD_Printf("No cached tex for %s.\n",fn);
+            OSD_Printf("Caching \"%s\"\n",fn);
             writexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), &cachead);
         }
 
@@ -1872,14 +1890,13 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
         float al = 0.0;
         if (alphahackarray[globalpicnum] != 0)
             al=alphahackarray[globalpicnum];
-        /*if (!peelcompiling)*/
         bglEnable(GL_BLEND);
         bglEnable(GL_ALPHA_TEST);
         bglAlphaFunc(GL_GREATER,al);
     }
     else
     {
-        if (tspr->cstat&2/* && (!peelcompiling)*/) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
+        if (tspr->cstat&2) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     }
     bglColor4f(pc[0],pc[1],pc[2],pc[3]);
     //if (m->head.flags == 1337)
@@ -1973,7 +1990,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
         //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
-        if (r_detailmapping && /*!r_depthpeeling &&*/ !(tspr->cstat&1024))
+        if (r_detailmapping && !(tspr->cstat&1024))
             i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,DETAILPAL,surfi);
         else
             i = 0;
@@ -2013,7 +2030,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
             bglMatrixMode(GL_MODELVIEW);
         }
 
-        if (r_glowmapping && /*!r_depthpeeling &&*/ !(tspr->cstat&1024))
+        if (r_glowmapping && !(tspr->cstat&1024))
             i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
         else
             i = 0;
@@ -2055,7 +2072,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
             indexhandle = m->vindexes;
 
         //PLAG: delayed polygon-level sorted rendering
-        if (m->usesalpha && !(tspr->cstat & 1024)/* && !r_depthpeeling*/)
+        if (m->usesalpha && !(tspr->cstat & 1024))
         {
             for (i=s->numtris-1; i>=0; i--)
             {
@@ -3030,7 +3047,7 @@ int32_t voxdraw(voxmodel_t *m, spritetype *tspr)
     pc[2] *= (float)hictinting[globalpal].b / 255.0;
     if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66f; else pc[3] = 0.33f; }
     else pc[3] = 1.0;
-    if (tspr->cstat&2/* && (!peelcompiling)*/) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
+    if (tspr->cstat&2) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     //------------
 
     //transform to Build coords

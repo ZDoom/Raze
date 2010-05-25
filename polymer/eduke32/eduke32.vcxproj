@@ -257,6 +257,10 @@
     <ClCompile Include="source\enet\src\unix.c" />
     <ClCompile Include="source\enet\src\win32.c" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="build\Makefile.msvc" />
+    <None Include="Makefile.msvc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

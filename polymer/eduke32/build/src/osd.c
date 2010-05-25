@@ -1373,9 +1373,6 @@ void OSD_Draw(void)
 
     clearbackground(osdcols,osdrowscur+1);
 
-    if (osdver[0] && osdrowscur>2)
-        drawosdstr(osdcols-osdverlen,osdrowscur-2,osdver,osdverlen,(sintable[(totalclock<<4)&2047]>>11),osdverpal);
-
     for (; lines>0; lines--, row--)
     {
         drawosdstr(0,row,osdtext+topoffs,osdcols,osdtextshade,osdtextpal);
@@ -1397,7 +1394,13 @@ void OSD_Draw(void)
         for (x=len-1; x>=0; x--)
             drawosdchar(3+x+offset,osdrowscur,osdeditbuf[osdeditwinstart+x],osdeditshade<<1,osdeditpal);
 
-        drawosdcursor(3+osdeditcursor-osdeditwinstart+offset,osdrowscur,osdflags & OSD_OVERTYPE,keytime);
+        offset += 3+osdeditcursor-osdeditwinstart;
+
+        drawosdcursor(offset,osdrowscur,osdflags & OSD_OVERTYPE,keytime);
+
+        if (osdver[0])
+            drawosdstr(osdcols-osdverlen,osdrowscur - (offset >= osdcols-osdverlen),
+            osdver,osdverlen,(sintable[(totalclock<<4)&2047]>>11),osdverpal);
     }
 
     enddrawing();

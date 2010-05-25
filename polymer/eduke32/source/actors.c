@@ -1,10 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 1996, 2003 - 3D Realms Entertainment
-Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
-Copyright (C) 2004, 2007 - EDuke32 developers
+Copyright (C) 2010 EDuke32 developers and contributors
 
-This file is part of EDuke32
+This file is part of EDuke32.
 
 EDuke32 is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -21,6 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
+
 #include "duke3d.h"
 #include "gamedef.h"
 #include "compat.h"
@@ -8118,6 +8117,7 @@ void G_MoveWorld(void)
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 128 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
                             break;
                         case SHOTSPARK1__STATIC:
+                            if (actor[i].t_data[2] == 0) // check for first frame of action
                             {
                                 int32_t x = ((sintable[(s->ang+512)&2047])>>7);
                                 int32_t y = ((sintable[(s->ang)&2047])>>7);
@@ -8126,6 +8126,7 @@ void G_MoveWorld(void)
                                 s->y -= y;
 
                                 G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 16 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+                                actor[i].lightcount = 1;
 
                                 s->x += x;
                                 s->y += y;
@@ -8149,7 +8150,8 @@ void G_MoveWorld(void)
                         {
                             int32_t x, y;
 
-                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || 
+                                !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
                             {
                                 if (actor[i].lightptr != NULL)
                                 {

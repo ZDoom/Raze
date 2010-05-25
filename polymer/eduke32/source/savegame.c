@@ -1,10 +1,8 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 1996, 2003 - 3D Realms Entertainment
-Copyright (C) 2000, 2003 - Matt Saettler (EDuke Enhancements)
-Copyright (C) 2004, 2007 - EDuke32 developers
+Copyright (C) 2010 EDuke32 developers and contributors
 
-This file is part of EDuke32
+This file is part of EDuke32.
 
 EDuke32 is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License version 2
@@ -220,6 +218,31 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&ud.level_number,sizeof(ud.level_number),1,fil) != 1) goto corrupt;
     if (kdfread(&ud.player_skill,sizeof(ud.player_skill),1,fil) != 1) goto corrupt;
     if (kdfread(&boardfilename[0],BMAX_PATH,1,fil) != 1) goto corrupt;
+
+    currentboardfilename[0] = 0;
+
+    if (boardfilename[0])
+        strcpy(currentboardfilename, boardfilename);
+    else if (MapInfo[(ud.volume_number * MAXLEVELS) + ud.level_number].filename)
+        strcpy(currentboardfilename, MapInfo[(ud.volume_number * MAXLEVELS) + ud.level_number].filename);
+
+    if (currentboardfilename[0])
+    {
+        char *p;
+
+        p = Bstrrchr(currentboardfilename,'.');
+        if (!p) strcat(currentboardfilename,".mhk");
+        else
+        {
+            p[1]='m';
+            p[2]='h';
+            p[3]='k';
+            p[4]=0;
+        }
+
+        loadmaphack(currentboardfilename);
+    }
+
     Bmemcpy(&currentboardfilename[0],&boardfilename[0],BMAX_PATH);
 
     ud.m_level_number = ud.level_number;
@@ -593,11 +616,11 @@ int32_t G_LoadPlayer(int32_t spot)
         int32_t i = 0;
 
         polymer_loadboard();
+
         while (i < MAXSPRITES)
         {
             if (actor[i].lightptr)
             {
-                polymer_deletelight(actor[i].lightId);
                 actor[i].lightptr = NULL;
                 actor[i].lightId = -1;
             }

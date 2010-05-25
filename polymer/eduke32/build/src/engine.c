@@ -6042,24 +6042,6 @@ static inline int32_t         sameside(_equation* eq, _point2d* p1, _point2d* p2
     return (0);
 }
 
-/*
-#ifdef USE_OPENGL
-void    drawpeel(int32_t peel)
-{
-    bglBindTexture(GL_TEXTURE_RECTANGLE, peels[peel]);
-    bglBegin(GL_QUADS);
-    bglTexCoord2f(0.0f, 0.0f);
-    bglVertex2f(-1.0f, -1.0f);
-    bglTexCoord2i(xdim, 0);
-    bglVertex2f(1.0f, -1.0f);
-    bglTexCoord2i(xdim, ydim);
-    bglVertex2f(1.0f, 1.0f);
-    bglTexCoord2i(0, ydim);
-    bglVertex2f(-1.0f, 1.0f);
-    bglEnd();
-}
-#endif
-*/
 
 //
 // drawmasks
@@ -6106,7 +6088,7 @@ killsprite:
     }
 
 #ifdef USE_OPENGL
-//    if ((!r_depthpeeling) || (rendmode < 3))
+//    if (rendmode < 3)
 #endif
     {
 
@@ -6185,7 +6167,7 @@ killsprite:
     }*/
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
-//    if ((!r_depthpeeling) || (rendmode < 3))
+//    if (rendmode < 3)
 #endif
     {
 #if defined(USE_OPENGL) && defined(POLYMOST)
@@ -6253,130 +6235,7 @@ killsprite:
         if (totalclock >= lastcullcheck + CULL_DELAY)
             lastcullcheck = (totalclock + CULL_DELAY);
 #endif
-    } /* depthpeeling */
-#if defined(USE_OPENGL) && defined(POLYMOST)
-    /*
-        else
-        {
-            curpolygonoffset = 0;
-            cullcheckcnt = 0;
-            j = spritesortcnt;
-            k = maskwallcnt;
-
-            while (j > 0) drawsprite(--j);
-            while (k > 0) drawmaskwall(--k);
-            if (totalclock < lastcullcheck - CULL_DELAY)
-                lastcullcheck = totalclock;
-            if (totalclock >= lastcullcheck + CULL_DELAY)
-                lastcullcheck = (totalclock + CULL_DELAY);
-        }
-    */
-#endif
-
-#if defined(USE_OPENGL) && defined(POLYMOST)
-    /*
-        if ((r_depthpeeling) && (rendmode >= 3))
-        {
-            bglPopAttrib();
-            bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-
-            bglNewList(1, GL_COMPILE);
-
-            peelcompiling = 1;
-            curpolygonoffset = 0;
-
-            while (spritesortcnt > 0) drawsprite(--spritesortcnt);
-            while (maskwallcnt > 0) drawmaskwall(--maskwallcnt);
-
-            peelcompiling = 0;
-
-            bglEndList();
-
-            bglDisable(GL_BLEND);
-            bglEnable(GL_ALPHA_TEST);
-            bglAlphaFunc(GL_GREATER, 0.0f);
-            bglEnable(GL_FRAGMENT_PROGRAM_ARB);
-
-            i = 0;
-            while (i < r_peelscount)
-            {
-
-                if (i > 0)
-                {
-                    bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[1]);
-                    bglActiveTextureARB(GL_TEXTURE1_ARB);
-                    bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[(i - 1) % 2]);
-                    bglActiveTextureARB(GL_TEXTURE2_ARB);
-                    bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[2]);
-                    bglActiveTextureARB(GL_TEXTURE0_ARB);
-                }
-                else
-                {
-                    bglBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, peelprogram[0]);
-                    bglActiveTextureARB(GL_TEXTURE1_ARB);
-                    bglBindTexture(GL_TEXTURE_RECTANGLE, ztexture[2]);
-                    bglActiveTextureARB(GL_TEXTURE0_ARB);
-                }
-
-                if (i == (r_peelscount - 1))
-                    bglEnable(GL_BLEND);
-
-                bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, peelfbos[i]);
-                bglPushAttrib(GL_VIEWPORT_BIT);
-                bglViewport(0, 0, xdim, ydim);
-
-                bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                bglCallList(1);
-
-                bglPopAttrib();
-                bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-
-                i++;
-            }
-
-            bglDisable(GL_FRAGMENT_PROGRAM_ARB);
-            bglEnable(GL_BLEND);
-            bglDisable(GL_DEPTH_TEST);
-
-            bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-            // identity for screen aligned quads
-            bglMatrixMode(GL_PROJECTION);
-            bglPushMatrix();
-            bglLoadIdentity();
-            bglMatrixMode(GL_MODELVIEW);
-            bglPushMatrix();
-            bglLoadIdentity();
-
-            bglEnable(GL_TEXTURE_RECTANGLE);
-
-            // backbuffer
-            drawpeel(r_peelscount);
-
-            if (r_curpeel == -1)
-            {
-                i = r_peelscount - 1;
-                while (i >= 0)
-                    drawpeel(i--);
-            }
-            else
-                drawpeel(r_curpeel);
-
-            bglDisable(GL_TEXTURE_RECTANGLE);
-            bglEnable(GL_TEXTURE_2D);
-
-            // restore the polymost projection
-            bglMatrixMode(GL_PROJECTION);
-            bglPopMatrix();
-            bglMatrixMode(GL_MODELVIEW);
-            bglPopMatrix();
-
-            bglEnable(GL_DEPTH_TEST);
-
-            bglDeleteLists(1, 1);
-        }
-    */
-#endif
+    }
 
     indrawroomsandmasks = 0;
     enddrawing();   //}}}
@@ -6797,9 +6656,12 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
 
     kclose(fil);
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
     Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
+
+#if defined(POLYMOST) && defined(USE_OPENGL)
     Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
+
+//    polymost_cachesync();
 
 # ifdef POLYMER
     if (rendmode == 4)
@@ -7316,16 +7178,27 @@ int32_t loadmaphack(char *filename)
         { NULL, -1 }
     };
 
-    scriptfile *script;
+    scriptfile *script = NULL;
     char *tok, *cmdtokptr;
     int32_t i;
     int32_t whichsprite = -1;
+    static char fn[BMAX_PATH];
 
-    script = scriptfile_fromfile(filename);
-    if (!script) return -1;
+    if (filename)
+    {
+        memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
+        memset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
+        Bstrcpy(fn, filename);
+        script = scriptfile_fromfile(filename);
+    }
+    else if (fn[0])
+        script = scriptfile_fromfile(fn);
 
-    memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-    memset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
+    if (!script)
+    {
+        fn[0] = 0;
+        return -1;
+    }
 
     while (1)
     {
@@ -7333,6 +7206,9 @@ int32_t loadmaphack(char *filename)
         if (!tok) break;
         for (i=0; legaltokens[i].text; i++) if (!Bstrcasecmp(tok,legaltokens[i].text)) break;
         cmdtokptr = script->ltextptr;
+
+        if (!filename && legaltokens[i].tokenid != T_LIGHT) continue;
+
         switch (legaltokens[i].tokenid)
         {
         case T_SPRITE:     // sprite <xx>
@@ -7727,9 +7603,11 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 #endif
     if ((qsetmode == 200) && (videomodereset == 0) &&
             (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp)
+/*
 #ifdef POLYMER
             && glrendmode != 4
 #endif // POLYMER
+*/
        )
         return(0);
 
@@ -8058,12 +7936,6 @@ void loadtile(int16_t tilenume)
     kread(artfil, (char *)waloff[tilenume], dasiz);
     faketimerhandler();
     artfilplc = tilefileoffs[tilenume]+dasiz;
-}
-
-void checktile(int16_t tilenume)
-{
-    if (!waloff[tilenume])
-        loadtile(tilenume);
 }
 
 //
@@ -11122,7 +10994,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
         if (j < 0)
         {
             col = 15;
-            if (i == linehighlight) if (totalclock & 16) col -= (2<<2);
+            if (i == linehighlight) col = (totalclock & 16) ? 15 : 7;
         }
         else
         {
@@ -11132,14 +11004,6 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
             if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
                 if (totalclock & 16) col += (2<<2);
         }
-        if (showfirstwall && (sector[searchsector].wallptr==i||sector[searchsector].wallptr==wall[i].nextwall))
-        {
-            col = 14;
-            if (i == linehighlight) if (totalclock & 16) col -= (2<<2);
-        }
-
-        if (circlewall >= 0 && (i == circlewall || wal->nextwall == circlewall))
-            col = 14;
 
         xp1 = mulscale14(wal->x-posxe,zoome);
         yp1 = mulscale14(wal->y-posye,zoome);
@@ -11149,12 +11013,20 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
         dx=wal->x-wall[wal->point2].x;
         dy=wal->y-wall[wal->point2].y;
         dist=dx*dx+dy*dy;
-        if (dist>0xffffffff)
+
+        if (dist > 0xffffffff)
         {
             col=9;
             if (i == linehighlight || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
                 if (totalclock & 16) col -= (2<<2);
         }
+        else if (showfirstwall && (sector[searchsector].wallptr == i || sector[searchsector].wallptr == wall[i].nextwall))
+        {
+            col = 14;
+            if (i == linehighlight) if (totalclock & 16) col -= (2<<2);
+        }
+        else if (circlewall >= 0 && (i == circlewall || wal->nextwall == circlewall))
+            col = 14;
 
         if ((wal->cstat&64) > 0)
         {
@@ -11215,39 +11087,26 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
                 if (((midydim16+yp1) >= 2) && ((midydim16+yp1) <= ydim16-3))
                 {
                     int32_t pointsize = 2;
-                    col = 15;
-                    if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (pointhighlight >= 0) && (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
+
+                    if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (pointhighlight >= 0) && 
+                        (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
                     {
                         if (totalclock & 16)
-                        {
-                            //col += (2<<2);  // JBF 20040116: two braces is all this needed. man I'm a fool sometimes.
-                            pointsize += 1;
-                        }
+                            pointsize++;
                     }
                     else if ((highlightcnt > 0) && (editstatus == 1))
                     {
                         if (show2dwall[i>>3]&pow2char[i&7])
+                        {
                             if (totalclock & 16)
-                            {
-                                //  col += (2<<2);  // JBF 20040116: two braces is all this needed. man I'm a fool sometimes.
-                                pointsize += 1;
-                            }
+                                pointsize++;
+                        }
                     }
 
                     tempint = ((midydim16+yp1)*bytesperline)+(halfxdim16+xp1)+frameplace;
-#if 1
                     do
-                    {
-                        /*                        drawline16(halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,col);
-                                                drawline16(halfxdim16+xp1+pointsize,midydim16+yp1+pointsize,halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,col);
-                                                drawline16(halfxdim16+xp1+pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,col);
-                                                drawline16(halfxdim16+xp1-pointsize,midydim16+yp1-pointsize,halfxdim16+xp1-pointsize,midydim16+yp1+pointsize,col); */
-                        drawcircle16(halfxdim16+xp1, midydim16+yp1, pointsize, editorcolors[col]);
-                    }
-                    while (pointsize--);
-#else
-                    drawcircle16(halfxdim16+xp1, midydim16+yp1, pointsize, col);
-#endif
+                        drawcircle16(halfxdim16+xp1, midydim16+yp1, pointsize--, editorcolors[15]);
+                    while (pointsize);
                 }
     }
     faketimerhandler();

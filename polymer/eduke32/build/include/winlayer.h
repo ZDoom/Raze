@@ -16,10 +16,6 @@ int32_t win_gethinstance(void);
 void win_allowtaskswitching(int32_t onf);
 int32_t win_checkinstance(void);
 
-extern void (*keypresscallback)(int32_t,int32_t);
-extern void (*mousepresscallback)(int32_t,int32_t);
-extern void (*joypresscallback)(int32_t,int32_t);
-
 #include "baselayer.h"
 
 #else

@@ -747,6 +747,8 @@ void                polymer_resetlights(void)
     }
 
     lightcount = 0;
+
+    loadmaphack(NULL);
 }
 
 void                polymer_loadboard(void)

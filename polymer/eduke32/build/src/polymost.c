@@ -87,6 +87,10 @@ Low priority:
 #include "cache1d.h"
 #include "kplib.h"
 
+#ifndef _WIN32
+extern int32_t filelength(int h); // kplib.c
+#endif
+
 extern char textfont[2048], smalltextfont[2048];
 
 int32_t rendmode=0;
@@ -241,32 +245,8 @@ void drawline2d(float x0, float y0, float x1, float y1, char col)
 }
 
 #ifdef USE_OPENGL
-
 #include "md4.h"
-
-#define USELZF
-#define USEKENFILTER 1
-
-#ifdef USELZF
-#	include "quicklz.h"
-#else
-#	include "lzwnew.h"
-#endif
-
-int32_t cachefilehandle = -1; // texture cache file handle
-FILE *cacheindexptr = NULL;
-
-hashtable_t h_texcache    = { 1024, NULL };
-
-char TEXCACHEFILE[BMAX_PATH] = "textures";
-
-int32_t mdtims, omdtims;
-float alphahackarray[MAXTILES];
-
-texcacheindex *firstcacheindex = NULL;
-texcacheindex *curcacheindex = NULL;
-texcacheindex *cacheptrs[MAXTILES<<1];
-int32_t numcacheentries = 0;
+#include "quicklz.h"
 
 //--------------------------------------------------------------------------------------------------
 //TEXTURE MANAGEMENT: treats same texture with different .PAL as a separate texture. This makes the
@@ -291,6 +271,25 @@ int32_t numcacheentries = 0;
     struct pthtyp_t *wofb; // without fullbright
     struct pthtyp_t *ofb; // only fullbright
 } pthtyp;*/
+
+int32_t cachefilehandle = -1; // texture cache file handle
+FILE *cacheindexptr = NULL;
+uint8_t *memcachedata = NULL;
+int32_t memcachesize = -1;
+int32_t cachepos = 0;
+
+hashtable_t h_texcache    = { 1024, NULL };
+
+char TEXCACHEFILE[BMAX_PATH] = "textures";
+
+int32_t mdtims, omdtims;
+float alphahackarray[MAXTILES];
+
+texcacheindex *firstcacheindex = NULL;
+texcacheindex *curcacheindex = NULL;
+texcacheindex *cacheptrs[MAXTILES<<1];
+int32_t numcacheentries = 0;
+
 
 #define GLTEXCACHEADSIZ 8192
 pthtyp *gltexcachead[GLTEXCACHEADSIZ];
@@ -551,6 +550,21 @@ float glox1, gloy1, glox2, gloy2;
 //Use this for both initialization and uninitialization of OpenGL.
 static int32_t gltexcacnum = -1;
 extern void freevbos(void);
+
+void polymost_cachesync(void)
+{
+    if (memcachedata && cachefilehandle != -1 && filelength(cachefilehandle) > memcachesize)
+    {
+        size_t len = filelength(cachefilehandle);
+        initprintf("Syncing memcache to texcache\n");
+        memcachedata = (uint8_t *)Brealloc(memcachedata, len);
+        Blseek(cachefilehandle, memcachesize, BSEEK_SET);
+        Bread(cachefilehandle, memcachedata + memcachesize, len - memcachesize);
+        memcachesize = len;
+    }
+}
+
+
 void polymost_glreset()
 {
     int32_t i;
@@ -602,17 +616,19 @@ void polymost_glreset()
     memset(gltexcachead,0,sizeof(gltexcachead));
     glox1 = -1;
 
-    if (cachefilehandle != -1)
-    {
-        Bclose(cachefilehandle);
-        cachefilehandle = -1;
-    }
+    /*
+        if (cachefilehandle != -1)
+        {
+            Bclose(cachefilehandle);
+            cachefilehandle = -1;
+        }
 
-    if (cacheindexptr)
-    {
-        Bfclose(cacheindexptr);
-        cacheindexptr = NULL;
-    }
+        if (cacheindexptr)
+        {
+            Bfclose(cacheindexptr);
+            cacheindexptr = NULL;
+        }
+    */
 
     for (i = numcacheentries-1; i >= 0; i--)
         if (cacheptrs[i])
@@ -625,9 +641,11 @@ void polymost_glreset()
                     cacheptrs[ii] = NULL;
                 }
 
-            Bfree(cacheptrs[i]);
-            cacheptrs[i] = NULL;
+                Bfree(cacheptrs[i]);
+                cacheptrs[i] = NULL;
         }
+
+    polymost_cachesync();
 }
 
 // one-time initialization of OpenGL for polymost
@@ -685,7 +703,7 @@ void polymost_glinit()
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    if (cachefilehandle > -1)
+    if (cachefilehandle != -1)
     {
         Bclose(cachefilehandle);
         cachefilehandle = -1;
@@ -695,6 +713,13 @@ void polymost_glinit()
     {
         Bfclose(cacheindexptr);
         cacheindexptr = NULL;
+    }
+
+    if (memcachedata)
+    {
+        Bfree(memcachedata);
+        memcachedata = NULL;
+        memcachesize = -1;
     }
 
     for (i = numcacheentries-1; i >= 0; i--)
@@ -748,6 +773,24 @@ void polymost_glinit()
         return;
     }
 
+    memcachesize = filelength(cachefilehandle);
+
+    if (memcachesize > 0)
+        memcachedata = (uint8_t *)Brealloc(memcachedata, memcachesize);
+
+    if (!memcachedata)
+    {
+        initprintf("Failed allocating %d bytes for memcache\n", memcachesize);
+        memcachesize = -1;
+    }
+
+    if (memcachesize > 0 && Bread(cachefilehandle, memcachedata, memcachesize) != memcachesize)
+    {
+        initprintf("Failed reading texcache into memcache!\n");
+        Bfree(memcachedata);
+        memcachesize = -1;
+    }
+
     i = 0;
 
     curcacheindex = firstcacheindex;
@@ -770,6 +813,7 @@ void invalidatecache(void)
     r_downsizevar = r_downsize; // update the cvar representation when the menu changes r_downsize
 
     polymost_glreset();
+
     if (cachefilehandle != -1)
     {
         Bclose(cachefilehandle);
@@ -780,6 +824,13 @@ void invalidatecache(void)
     {
         Bfclose(cacheindexptr);
         cacheindexptr = NULL;
+    }
+
+    if (memcachedata)
+    {
+        Bfree(memcachedata);
+        memcachedata = NULL;
+        memcachesize = -1;
     }
 
     for (i = numcacheentries-1; i >= 0; i--)
@@ -1285,16 +1336,28 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
         }
         else return -1; // didn't find it
 
-        if (Blseek(cachefilehandle, offset, BSEEK_SET) == -1)
-        {
-            OSD_Printf("Cache seek error: %s\n",strerror(errno));
-            return -1;
-        }
+        cachepos = offset;
     }
 
 //    initprintf("Loading cached tex: %s\n", cachefn);
 
-    if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader)) goto failure;
+    if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(texcacheheader)))
+    {
+//        initprintf("using memcache!\n");
+        Bmemcpy(head, memcachedata + cachepos, sizeof(texcacheheader));
+        cachepos += sizeof(texcacheheader);
+    }
+    else
+    {
+        Blseek(cachefilehandle, cachepos, BSEEK_SET);
+        if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader))
+        {
+            cachepos += sizeof(texcacheheader); 
+            goto failure;
+        }
+        cachepos += sizeof(texcacheheader);
+    }
+
     if (Bmemcmp(head->magic, TEXCACHEMAGIC, 4)) goto failure;
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
@@ -1358,7 +1421,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
     Blseek(cachefilehandle, 0, BSEEK_END);
 
     offset = Blseek(cachefilehandle, 0, BSEEK_CUR);
-    OSD_Printf("Caching %s, offset 0x%x\n", cachefn, offset);
+//    OSD_Printf("Caching %s, offset 0x%x\n", cachefn, offset);
 
     Bmemcpy(head->magic, TEXCACHEMAGIC, 4);   // sizes are set by caller
 
@@ -1380,7 +1443,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, (GLint *)&gi);
         if (bglGetError() != GL_NO_ERROR) goto failure;
 #ifdef __APPLE__
-        if(pr_ati_textureformat_one && gi == 1 ) gi = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+        if (pr_ati_textureformat_one && gi == 1) gi = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 #endif
         pict.format = B_LITTLE32(gi);
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH, (GLint *)&gi);
@@ -1494,8 +1557,19 @@ int32_t gloadtile_cached(int32_t fil, texcacheheader *head, int32_t *doalloc, pt
     // load the mipmaps
     for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
     {
-        r = Bread(fil, &pict, sizeof(texcachepicture));
-        if (r < (int32_t)sizeof(texcachepicture)) goto failure;
+        if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(texcachepicture)))
+        {
+            //        initprintf("using memcache!\n");
+            Bmemcpy(&pict, memcachedata + cachepos, sizeof(texcachepicture));
+            cachepos += sizeof(texcachepicture);
+        }
+        else
+        {
+            Blseek(fil, cachepos, BSEEK_SET);
+            r = Bread(fil, &pict, sizeof(texcachepicture));
+            cachepos += sizeof(texcachepicture);
+            if (r < (int32_t)sizeof(texcachepicture)) goto failure;
+        }
 
         pict.size = B_LITTLE32(pict.size);
         pict.format = B_LITTLE32(pict.format);
@@ -1802,7 +1876,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                 if (ysiz == pow2long[j]) { x |= 2; }
             }
             cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0) | (hicr->flags & 16?8:0); // handle nocompress
-            OSD_Printf("No cached tex for tile %d pal %d.\n",dapic,dapalnum);
+            OSD_Printf("Caching \"%s\"\n", fn);
             writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
         }
 
@@ -3558,12 +3632,13 @@ static void polymost_drawalls(int32_t bunch)
                 oy = -vv[0]/vv[1];
                 if ((oy < cy0) && (oy < cy1)) domost(x1,oy,x0,oy);
                 else if ((oy < cy0) != (oy < cy1))
-                {      /*         cy1        cy0
-                                                                            //        /             \
-                                                                            //oy----------      oy---------
-                                                                            //    /                    \
-                                                                            //  cy0                     cy1
-                                                                            */
+                {
+                    /*         cy1        cy0
+                                                                         //        /             \
+                                                                         //oy----------      oy---------
+                                                                         //    /                    \
+                                                                         //  cy0                     cy1
+                                                                         */
                     ox = (oy-cy0)*(x1-x0)/(cy1-cy0) + x0;
                     if (oy < cy0) { domost(ox,oy,x0,oy); domost(x1,cy1,ox,oy); }
                     else { domost(ox,oy,x0,cy0); domost(x1,oy,ox,oy); }
@@ -5970,10 +6045,14 @@ void polymost_initosdfuncs(void)
                 { "r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",(void *)&r_glowmapping, CVAR_BOOL, 0, 1 }
                 { "r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",(void *)&glnvmultisamplehint, CVAR_BOOL, 0, 1 }
         */
-        { "r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",
-          (void *)&r_parallaxskyclamping, CVAR_BOOL, 0, 1 },
-        { "r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",
-          (void *)&r_parallaxskypanning, CVAR_BOOL, 0, 1 },
+        {
+            "r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",
+            (void *)&r_parallaxskyclamping, CVAR_BOOL, 0, 1
+        },
+        {
+            "r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",
+            (void *)&r_parallaxskypanning, CVAR_BOOL, 0, 1
+        },
         { "r_polygonmode","r_polygonmode: debugging feature",(void *)&glpolygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
         { "r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",(void *)&glredbluemode, CVAR_BOOL, 0, 1 },
         { "r_shadescale","r_shadescale: multiplier for lighting",(void *)&shadescale, CVAR_FLOAT, 0, 10 },
@@ -6029,7 +6108,7 @@ void polymost_initosdfuncs(void)
             continue;
 
         OSD_RegisterFunction(cvars_polymost[i].name, cvars_polymost[i].helpstr,
-            cvars_polymost[i].type & CVAR_FUNCPTR ? osdcmd_cvar_set_polymost : osdcmd_cvar_set);
+                             cvars_polymost[i].type & CVAR_FUNCPTR ? osdcmd_cvar_set_polymost : osdcmd_cvar_set);
     }
 }
 
@@ -6132,40 +6211,13 @@ Description of Ken's filter to improve LZW compression of DXT1 format by ~15%: (
 int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, uint32_t miplen)
 {
     void *writebuf;
-#if (USEKENFILTER == 0)
-    uint32_t cleng,j;
-    if (glusetexcache == 2)
-    {
-#ifdef USELZF
-        cleng = qlz_compress(pic, packbuf, miplen, state_compress);
-        if (cleng == 0 || cleng > j-1)
-        {
-            // failed to compress
-            cleng = miplen;
-            writebuf = pic;
-        }
-        else writebuf = packbuf;
-#else
-        cleng = lzwcompress(pic,miplen,packbuf);
-        writebuf = packbuf;
-#endif
-    }
-    else
-    {
-        cleng = miplen;
-        writebuf = pic;
-    }
-    if (cleng < 0) return -1; j = B_LITTLE32(cleng);
-    if (Bwrite(fil, &j, sizeof(uint32_t)) != sizeof(uint32_t)) return -1;
-    if (Bwrite(fil, writebuf, cleng) != cleng) return -1;
-#else
     uint32_t j, k, offs, stride, cleng;
     char *cptr;
 
     if ((pict->format == B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||
-            (pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
+        (pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
     else if ((pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)) ||
-             (pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
+        (pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
     else { offs = 0; stride = 8; }
 
     if (stride == 16) //If DXT3...
@@ -6177,7 +6229,6 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
             for (k=0; k<8; k++) *cptr++ = pic[j+k];
         if (glusetexcache == 2)
         {
-#ifdef USELZF
             j = (miplen/stride)<<3;
             cleng = qlz_compress(midbuf,packbuf,j,state_compress);
             if (cleng == 0 || cleng > j-1)
@@ -6186,10 +6237,6 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
                 writebuf = midbuf;
             }
             else writebuf = packbuf;
-#else
-            cleng = lzwcompress(midbuf,(miplen/stride)*8,packbuf);
-            writebuf = packbuf;
-#endif
         }
         else
         {
@@ -6205,88 +6252,63 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     cptr = midbuf;
     for (k=0; k<=2; k+=2)
         for (j=0; (unsigned)j<miplen; j+=stride)
-            { *(int16_t *)cptr = hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
-    if (glusetexcache == 2)
-    {
-#ifdef USELZF
-        j = (miplen/stride)<<2;
-        cleng = qlz_compress(midbuf,packbuf,j,state_compress);
-        if (cleng == 0 || cleng > j-1)
+        { *(int16_t *)cptr = hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
+        if (glusetexcache == 2)
         {
-            cleng = j;
+            j = (miplen/stride)<<2;
+            cleng = qlz_compress(midbuf,packbuf,j,state_compress);
+            if (cleng == 0 || cleng > j-1)
+            {
+                cleng = j;
+                writebuf = midbuf;
+            }
+            else writebuf = packbuf;
+        }
+        else
+        {
+            cleng = (miplen/stride)<<2;
             writebuf = midbuf;
         }
-        else writebuf = packbuf;
-#else
-        cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
-        writebuf = packbuf;
-#endif
-    }
-    else
-    {
-        cleng = (miplen/stride)<<2;
-        writebuf = midbuf;
-    }
-    j = B_LITTLE32(cleng);
-    Bwrite(fil,&j,sizeof(j));
-    Bwrite(fil,writebuf,cleng);
+        j = B_LITTLE32(cleng);
+        Bwrite(fil,&j,sizeof(j));
+        Bwrite(fil,writebuf,cleng);
 
-    //index_4x4
-    cptr = midbuf;
-    for (j=0; (unsigned)j<miplen; j+=stride)
-    {
-        char *c2 = &pic[j+offs+4];
-        cptr[0] = ((c2[0]>>0)&3) + (((c2[1]>>0)&3)<<2) + (((c2[2]>>0)&3)<<4) + (((c2[3]>>0)&3)<<6);
-        cptr[1] = ((c2[0]>>2)&3) + (((c2[1]>>2)&3)<<2) + (((c2[2]>>2)&3)<<4) + (((c2[3]>>2)&3)<<6);
-        cptr[2] = ((c2[0]>>4)&3) + (((c2[1]>>4)&3)<<2) + (((c2[2]>>4)&3)<<4) + (((c2[3]>>4)&3)<<6);
-        cptr[3] = ((c2[0]>>6)&3) + (((c2[1]>>6)&3)<<2) + (((c2[2]>>6)&3)<<4) + (((c2[3]>>6)&3)<<6);
-        cptr += 4;
-    }
-    if (glusetexcache == 2)
-    {
-#ifdef USELZF
-        j = (miplen/stride)<<2;
-        cleng = qlz_compress(midbuf,packbuf,j,state_compress);
-        if (cleng == 0 || cleng > j-1)
+        //index_4x4
+        cptr = midbuf;
+        for (j=0; (unsigned)j<miplen; j+=stride)
         {
-            cleng = j;
+            char *c2 = &pic[j+offs+4];
+            cptr[0] = ((c2[0]>>0)&3) + (((c2[1]>>0)&3)<<2) + (((c2[2]>>0)&3)<<4) + (((c2[3]>>0)&3)<<6);
+            cptr[1] = ((c2[0]>>2)&3) + (((c2[1]>>2)&3)<<2) + (((c2[2]>>2)&3)<<4) + (((c2[3]>>2)&3)<<6);
+            cptr[2] = ((c2[0]>>4)&3) + (((c2[1]>>4)&3)<<2) + (((c2[2]>>4)&3)<<4) + (((c2[3]>>4)&3)<<6);
+            cptr[3] = ((c2[0]>>6)&3) + (((c2[1]>>6)&3)<<2) + (((c2[2]>>6)&3)<<4) + (((c2[3]>>6)&3)<<6);
+            cptr += 4;
+        }
+        if (glusetexcache == 2)
+        {
+            j = (miplen/stride)<<2;
+            cleng = qlz_compress(midbuf,packbuf,j,state_compress);
+            if (cleng == 0 || cleng > j-1)
+            {
+                cleng = j;
+                writebuf = midbuf;
+            }
+            else writebuf = packbuf;
+        }
+        else
+        {
+            cleng = (miplen/stride)<<2;
             writebuf = midbuf;
         }
-        else writebuf = packbuf;
-#else
-        cleng = lzwcompress(midbuf,(miplen/stride)*4,packbuf);
-        writebuf = packbuf;
-#endif
-    }
-    else
-    {
-        cleng = (miplen/stride)<<2;
-        writebuf = midbuf;
-    }
-    j = B_LITTLE32(cleng);
-    Bwrite(fil,&j,sizeof(j));
-    Bwrite(fil,writebuf,cleng);
-#endif
-    return 0;
+        j = B_LITTLE32(cleng);
+        Bwrite(fil,&j,sizeof(j));
+        Bwrite(fil,writebuf,cleng);
+        return 0;
 }
 
 int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked)
 {
     void *inbuf;
-#if (USEKENFILTER == 0)
-    uint32_t cleng;
-    if (Bread(fil, &cleng, sizeof(uint32_t)) != sizeof(uint32_t)) return -1; cleng = B_LITTLE32(cleng);
-#ifdef USELZF
-    if (ispacked && cleng < pict->size) inbuf = packbuf; else inbuf = pic;
-    if (Bread(fil, inbuf, cleng) != cleng) return -1;
-    if (ispacked && cleng < pict->size)
-        if (qlz_decompress(packbuf, pic, state_decompress) == 0) return -1;
-#else
-    if (ispacked) inbuf = packbuf; else inbuf = pic;
-    if (Bread(fil, inbuf, cleng) != cleng) return -1;
-    if (ispacked && lzwuncompress(packbuf, cleng, pic, pict->size) != pict->size) return -1;
-#endif
-#else
     int32_t j, k, offs, stride, cleng;
     char *cptr;
 
@@ -6301,17 +6323,48 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
     if (stride == 16) //If DXT3...
     {
         //alpha_4x4
-        if (Bread(fil,&cleng,4) < 4) return -1; cleng = B_LITTLE32(cleng);
+        if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(int32_t)))
+        {
+            cleng = *(int32_t *)(memcachedata + cachepos);
+            cachepos += sizeof(int32_t);
+        }
+        else
+        {
+            Blseek(fil, cachepos, BSEEK_SET);
+            cachepos += sizeof(int32_t);
+            if (Bread(fil,&cleng,sizeof(int32_t)) < (signed)sizeof(int32_t)) return -1;
+            cleng = B_LITTLE32(cleng);
+        }
+
         j = (pict->size/stride)*8;
-#ifdef USELZF
+
         if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
-        if (Bread(fil,inbuf,cleng) < cleng) return -1;
-        if (ispacked && cleng < j)
-            if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
-#else
-    if (Bread(fil,inbuf,cleng) < cleng) return -1;
-    if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
-#endif
+
+        if (memcachedata && memcachesize >= (signed)(cachepos + cleng))
+        {
+            if (ispacked && cleng < j)
+            {           
+                if (qlz_decompress((const char *)memcachedata + cachepos,midbuf,state_decompress) == 0)
+                {
+                    cachepos += cleng;
+                    return -1;
+                }
+            }
+            else Bmemcpy(inbuf, memcachedata + cachepos, cleng);
+
+            cachepos += cleng;
+        }
+        else
+        {
+            Blseek(fil, cachepos, BSEEK_SET);
+            cachepos += cleng;
+            if (Bread(fil,inbuf,cleng) < cleng) return -1;
+
+
+            if (ispacked && cleng < j)
+                if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
+        }
+
         cptr = midbuf;
         for (k=0; k<8; k++) pic[k] = *cptr++;
         for (j=stride; j<pict->size; j+=stride)
@@ -6319,37 +6372,97 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
     }
 
     //rgb0,rgb1
-    if (Bread(fil,&cleng,4) < 4) return -1; cleng = B_LITTLE32(cleng);
+    if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(int32_t)))
+    {
+        cleng = *(int32_t *)(memcachedata + cachepos);
+        cachepos += sizeof(int32_t);
+    }
+    else
+    {
+        Blseek(fil, cachepos, BSEEK_SET);
+        cachepos += sizeof(int32_t);
+        if (Bread(fil,&cleng,sizeof(int32_t)) < (signed)sizeof(int32_t)) return -1;
+        cleng = B_LITTLE32(cleng);
+    }
+
     j = (pict->size/stride)*4;
-#ifdef USELZF
     if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
-    if (Bread(fil,inbuf,cleng) < cleng) return -1;
-    if (ispacked && cleng < j)
-        if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
-#else
-    if (Bread(fil,inbuf,cleng) < cleng) return -1;
-    if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
-#endif
+
+    if (memcachedata && memcachesize >= (signed)(cachepos + cleng))
+    {
+        if (ispacked && cleng < j)
+        {           
+            if (qlz_decompress((const char *)memcachedata + cachepos,midbuf,state_decompress) == 0)
+            {
+                cachepos += cleng;
+                return -1;
+            }
+        }
+        else Bmemcpy(inbuf, memcachedata + cachepos, cleng);
+
+        cachepos += cleng;
+    }
+    else
+    {
+        Blseek(fil, cachepos, BSEEK_SET);
+        cachepos += cleng;
+        if (Bread(fil,inbuf,cleng) < cleng) return -1;
+
+        if (ispacked && cleng < j)
+            if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
+    }
+
     cptr = midbuf;
     for (k=0; k<=2; k+=2)
+    {
         for (j=0; j<pict->size; j+=stride)
         {
             *(int16_t *)(&pic[offs+j+k]) = hicoadd(*(int16_t *)cptr);
             cptr += 2;
         }
+    }
 
     //index_4x4:
-    if (Bread(fil,&cleng,4) < 4) return -1; cleng = B_LITTLE32(cleng);
+    if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(int32_t)))
+    {
+        cleng = *(int32_t *)(memcachedata + cachepos);
+        cachepos += sizeof(int32_t);
+    }
+    else
+    {  
+        Blseek(fil, cachepos, BSEEK_SET);
+        cachepos += sizeof(int32_t);
+        if (Bread(fil,&cleng,sizeof(int32_t)) < (signed)sizeof(int32_t)) return -1; 
+        cleng = B_LITTLE32(cleng);
+    }
+
     j = (pict->size/stride)*4;
-#ifdef USELZF
     if (ispacked && cleng < j) inbuf = packbuf; else inbuf = midbuf;
-    if (Bread(fil,inbuf,cleng) < cleng) return -1;
-    if (ispacked && cleng < j)
-        if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
-#else
-    if (Bread(fil,inbuf,cleng) < cleng) return -1;
-    if (ispacked && lzwuncompress(packbuf,cleng,midbuf,j) != j) return -1;
-#endif
+
+    if (memcachedata && memcachesize >= (signed)(cachepos + cleng))
+    {
+        if (ispacked && cleng < j)
+        {           
+            if (qlz_decompress((const char *)memcachedata + cachepos,midbuf,state_decompress) == 0)
+            {
+                cachepos += cleng;
+                return -1;
+            }
+        }
+        else Bmemcpy(inbuf, memcachedata + cachepos, cleng);
+
+        cachepos += cleng;
+    }
+    else
+    {
+        Blseek(fil, cachepos, BSEEK_SET);
+        cachepos += cleng;
+        if (Bread(fil,inbuf,cleng) < cleng) return -1;
+
+        if (ispacked && cleng < j)
+            if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
+    }
+
     cptr = midbuf;
     for (j=0; j<pict->size; j+=stride)
     {
@@ -6359,7 +6472,6 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
         pic[j+offs+7] = ((cptr[0]>>6)&3) + (((cptr[1]>>6)&3)<<2) + (((cptr[2]>>6)&3)<<4) + (((cptr[3]>>6)&3)<<6);
         cptr += 4;
     }
-#endif
     return 0;
 }
 #endif

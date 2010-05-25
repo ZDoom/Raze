@@ -108,6 +108,11 @@ static inline void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
     case VK_NUMPAD6:
         if (rkbd->Flags & RI_KEY_E0) VKey = VK_RIGHT, key = sc_RightArrow;
         else VKey = VK_NUMPAD6, key = sc_kpad_6; break;
+    case VK_DIVIDE:
+//        if (rkbd->Flags & RI_KEY_E0) key = sc_Slash;
+//        else 
+        key = sc_kpad_Slash;
+        break;
     case VK_INSERT:
         key = sc_Insert; break;
     case VK_HOME:

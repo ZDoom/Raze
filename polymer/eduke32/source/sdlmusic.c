@@ -1,10 +1,12 @@
+//-------------------------------------------------------------------------
 /*
-Copyright (C) 2003-2004 Ryan C. Gordon. and James Bentler
+Copyright (C) 2010 EDuke32 developers and contributors
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+This file is part of EDuke32.
+
+EDuke32 is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,11 +17,9 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-Originally written by Ryan C. Gordon. (icculus@clutteredmind.org)
-Adapted to work with JonoF's port by James Bentler (bentler@cs.umn.edu)
-
 */
+//-------------------------------------------------------------------------
+
 /*
  * A reimplementation of Jim Dose's FX_MAN routines, using  SDL_mixer 1.2.
  *   Whee. FX_MAN is also known as the "Apogee Sound System", or "ASS" for

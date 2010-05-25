@@ -45,6 +45,7 @@ void polymost_drawrooms(void);
 
 void polymost_glinit(void);
 void polymost_glreset(void);
+void polymost_cachesync(void);
 
 void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
 void gltexinvalidateall(void);
@@ -53,21 +54,12 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
 extern float curpolygonoffset;
 
-/*
-// Depth peeling control
-extern int32_t r_curpeel;
-extern int32_t peelcompiling;
-
-// Depth peeling data
-extern GLuint ztexture[3];
-extern GLuint *peels;
-extern GLuint *peelfbos;
-extern GLuint peelprogram[2];
-*/
-
 extern int32_t cachefilehandle;
 extern FILE *cacheindexptr;
 extern hashtable_t h_texcache;
+extern uint8_t *memcachedata;
+extern int32_t memcachesize;
+extern int32_t cachepos;
 
 struct cacheitem_t
 {

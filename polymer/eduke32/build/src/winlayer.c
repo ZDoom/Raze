@@ -1,14 +1,5 @@
-// Windows DIB/DirectDraw interface layer
-// for the Build Engine
-// by Jonathon Fowler (jonof@edgenetwk.com)
-//
-// This is all very ugly.
-//
-// Written for DirectX 6.0
-
-#ifndef _WIN32
-#error winlayer.c is for Windows only.
-#endif
+// Windows DIB/DirectDraw interface layer for the Build Engine
+// Originally by Jonathon Fowler (jonof@edgenetwk.com)
 
 #define DIRECTINPUT_VERSION 0x0700
 #define DIRECTDRAW_VERSION  0x0600
@@ -24,7 +15,6 @@
 
 #include "dxdidf.h"	// comment this out if c_dfDI* is being reported as multiply defined
 #include <stdlib.h>
-#include <stdio.h>
 #include <signal.h>
 #include <stdarg.h>
 
@@ -99,47 +89,49 @@ static BOOL CreateAppWindow(int32_t modenum);
 static void DestroyAppWindow(void);
 
 // video
-static int32_t desktopxdim=0,desktopydim=0,desktopbpp=0,modesetusing=-1;
-int32_t xres=-1, yres=-1, fullscreen=0, bpp=0, bytesperline=0, imageSize=0;
-intptr_t frameplace=0;
-int32_t lockcount=0;
+static int32_t desktopxdim=0;
+static int32_t desktopydim=0;
+static int32_t desktopbpp=0;
+static int32_t modesetusing=-1;
 static int32_t curvidmode = -1;
-static int32_t customxdim = 640, customydim = 480, custombpp = 8, customfs = 0;
+static int32_t customxdim = 640;
+static int32_t customydim = 480;
+static int32_t custombpp = 8;
+static int32_t customfs = 0;
 static uint32_t modeschecked=0;
-uint32_t maxrefreshfreq=60;
-char modechange=1, repaintneeded=0;
-char offscreenrendering=0;
+int32_t xres=-1;
+int32_t yres=-1;
+int32_t fullscreen=0;
+int32_t bpp=0;
+int32_t bytesperline=0;
+int32_t imageSize=0;
+int32_t lockcount=0;
 int32_t glcolourdepth=32;
+int32_t vsync=0;
+uint32_t maxrefreshfreq=60;
+intptr_t frameplace=0;
+char modechange=1;
+char repaintneeded=0;
+char offscreenrendering=0;
 char videomodereset = 0;
 char silentvideomodeswitch = 0;
-int32_t vsync=0;
-// input and events
-char inputdevices=0;
-char quitevent=0, appactive=1, realfs=0, regrabmouse=0;
-volatile int32_t mousex=0, mousey=0, mouseb=0;
-uint32_t mousewheel[2] = { 0,0 };
 
-int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
-char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
+// input and events
+char quitevent=0;
+char appactive=1;
+char realfs=0;
+char regrabmouse=0;
+uint32_t mousewheel[2] = { 0,0 };
 
 static char taskswitching=1;
 
-char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
-char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
-char remap[256];
-int32_t remapinit=0;
-static char key_names[256][24];
-
 static OSVERSIONINFOEX osv;
+
 #ifdef NEDMALLOC
 extern int32_t largepagesavailable;
 #else
 static HMODULE nedhandle = NULL;
 #endif
-
-void (*keypresscallback)(int32_t,int32_t) = 0;
-void (*mousepresscallback)(int32_t,int32_t) = 0;
-void (*joypresscallback)(int32_t,int32_t) = 0;
 
 
 //-------------------------------------------------------------------------------------------------
@@ -244,6 +236,8 @@ int32_t wm_msgbox(char *name, char *fmt, ...)
     MessageBox(hWindow,buf,name,MB_OK|MB_TASKMODAL);
     return 0;
 }
+
+
 int32_t wm_ynbox(char *name, char *fmt, ...)
 {
     char buf[2048];
@@ -360,7 +354,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     ReleaseDC(NULL, hdc);
     if (r < 8)
     {
-        MessageBox(0, "This application requires a desktop colour depth of 256-colours or more.",
+        MessageBox(0, "This application requires a desktop color depth of 256-colors or better.",
                    apptitle, MB_OK|MB_ICONSTOP);
         return -1;
     }
@@ -646,7 +640,7 @@ void uninitsystem(void)
 #endif
 
 #ifndef NEDMALLOC
-    if (nedhandle) FreeLibrary(nedhandle), nedhandle = NULL;
+    // if (nedhandle) FreeLibrary(nedhandle), nedhandle = NULL;
 #endif
 }
 
@@ -749,19 +743,6 @@ int32_t handleevents(void)
 }
 
 
-// I don't see any pressing need to store the key-up events yet
-inline void SetKey(int32_t key, int32_t state)
-{
-    keystatus[remap[key]] = state;
-
-    if (state)
-    {
-        keyfifo[keyfifoend] = remap[key];
-        keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state;
-        keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1));
-    }
-}
-
 //
 // initinput() -- init input system
 //
@@ -811,33 +792,6 @@ void uninitinput(void)
     UninitDirectInput();
 }
 
-
-//
-// bgetchar, bflushchars -- character-based input functions
-//
-char bgetchar(void)
-{
-    char c;
-    if (keyasciififoplc == keyasciififoend) return 0;
-    c = keyasciififo[keyasciififoplc];
-    keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
-    //OSD_Printf("bgetchar %d, %d-%d\n",c,keyasciififoplc,keyasciififoend);
-    return c;
-}
-
-void bflushchars(void)
-{
-    Bmemset(&keyasciififo,0,sizeof(keyasciififo));
-    keyasciififoplc = keyasciififoend = 0;
-}
-
-
-//
-// set{key|mouse|joy}presscallback() -- sets a callback which gets notified when keys are pressed
-//
-void setkeypresscallback(void (*callback)(int32_t, int32_t)) { keypresscallback = callback; }
-void setmousepresscallback(void (*callback)(int32_t, int32_t)) { mousepresscallback = callback; }
-void setjoypresscallback(void (*callback)(int32_t, int32_t)) { joypresscallback = callback; }
 
 inline void idle_waitevent_timeout(uint32_t timeout)
 {
@@ -1255,11 +1209,6 @@ static void GetKeyNames(void)
         GetKeyNameText((i>128?(i+128):i)<<16, tbuf, sizeof(key_names[i])-1);
         Bstrncpy(&key_names[i][0], tbuf, sizeof(key_names[i])-1);
     }
-}
-
-const char *getkeyname(int32_t num)
-{
-    return ((unsigned)num >= 256) ? NULL : key_names[num];
 }
 
 const char *getjoyname(int32_t what, int32_t num)
@@ -2042,16 +1991,14 @@ void showframe(int32_t w)
             bglEnable(GL_BLEND);
             bglColor4ub(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
-            bglBegin(GL_QUADS);
-            bglVertex2i(-1, -1);
-            bglVertex2i(1, -1);
-            bglVertex2i(1, 1);
-            bglVertex2i(-1, 1);
+            bglBegin(GL_TRIANGLES);
+            bglVertex2f(-2.5f, 1.f);
+            bglVertex2f(2.5f, 1.f);
+            bglVertex2f(.0f, -2.5f);
             bglEnd();
 
             bglDisable(GL_BLEND);
 
-            bglMatrixMode(GL_MODELVIEW);
             bglPopMatrix();
             bglMatrixMode(GL_PROJECTION);
             bglPopMatrix();

@@ -614,7 +614,6 @@ extern int32_t gltexmaxsize;
 void gltexapplyprops (void);
 void invalidatecache(void);
 
-extern int32_t r_depthpeeling, r_peelscount;
 extern int32_t r_detailmapping;
 extern int32_t r_glowmapping;
 extern int32_t r_vertexarrays;

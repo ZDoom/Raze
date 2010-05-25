@@ -9,6 +9,29 @@
 
 #include "polymost.h"
 
+// input
+char inputdevices=0;
+char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
+char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
+char remap[256];
+int32_t remapinit=0;
+char key_names[256][24];
+volatile int32_t mousex=0,mousey=0,mouseb=0;
+int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
+char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
+int32_t joyaxespresent=0;
+
+void(*keypresscallback)(int32_t,int32_t) = 0;
+void(*mousepresscallback)(int32_t,int32_t) = 0;
+void(*joypresscallback)(int32_t,int32_t) = 0;
+
+//
+// set{key|mouse|joy}presscallback() -- sets a callback which gets notified when keys are pressed
+//
+void setkeypresscallback(void (*callback)(int32_t, int32_t)) { keypresscallback = callback; }
+void setmousepresscallback(void (*callback)(int32_t, int32_t)) { mousepresscallback = callback; }
+void setjoypresscallback(void (*callback)(int32_t, int32_t)) { joypresscallback = callback; }
+
 char scantoasc[128] =
 {
     0,0,'1','2','3','4','5','6','7','8','9','0','-','=',0,0,
@@ -20,6 +43,44 @@ char scantoasc[128] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
+
+void SetKey(int32_t key, int32_t state)
+{
+    keystatus[remap[key]] = state;
+
+    if (state) 
+    {
+        keyfifo[keyfifoend] = remap[key];
+        keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state;
+        keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1));
+    }
+}
+
+//
+// bgetchar, bflushchars -- character-based input functions
+//
+char bgetchar(void)
+{
+    if (keyasciififoplc == keyasciififoend)
+        return 0;
+
+    {
+        char c = keyasciififo[keyasciififoplc];
+        keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
+        return c;
+    }
+}
+
+void bflushchars(void)
+{
+    Bmemset(&keyasciififo,0,sizeof(keyasciififo));
+    keyasciififoplc = keyasciififoend = 0;
+}
+
+const char *getkeyname(int32_t num)
+{
+    return ((unsigned)num >= 256) ? NULL : key_names[num];
+}
 
 #ifdef USE_OPENGL
 struct glinfo_t glinfo =
@@ -85,8 +146,8 @@ static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
 
     char *modestrs[] =
     {
-        "classic software", "completely broken polygonal flat-shaded software",
-        "polygonal textured software", "polygonal OpenGL", "great justice"
+        "classic software", "",
+        "", "polygonal OpenGL", "great justice (Polymer)"
     };
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
@@ -256,11 +317,9 @@ int32_t baselayer_init(void)
     OSD_RegisterFunction("setrendermode","setrendermode <number>: sets the engine's rendering mode.\n"
                          "Mode numbers are:\n"
                          "   0 - Classic Build software\n"
-                         "   1 - Polygonal flat-shaded software\n"
-                         "   2 - Polygonal textured software\n"
 #ifdef USE_OPENGL
                          "   3 - Polygonal OpenGL\n"
-                         "   4 - Great justice renderer\n"
+                         "   4 - Great justice renderer (Polymer)\n"
 #endif
                          ,
                          osdfunc_setrendermode);

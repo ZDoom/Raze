@@ -76,7 +76,10 @@ extern char inputdevices;
 #define KEYFIFOSIZ 64
 extern char keystatus[256], keyfifo[KEYFIFOSIZ], keyfifoplc, keyfifoend;
 extern char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
-extern char scantoasc[128];
+extern char scantoasc[128], remap[256], key_names[256][24];
+extern int32_t remapinit;
+
+extern void SetKey(int32_t key, int32_t state);
 
 // mouse
 extern volatile int32_t mousex, mousey, mouseb;
@@ -100,9 +103,10 @@ extern inline void idle(void);
 extern inline void idle_waitevent(void);
 extern inline void idle_waitevent_timeout(uint32_t timeout);
 
-typedef void (*KeyPressCallback)(int32_t,int32_t);
-typedef void (*MousePressCallback)(int32_t,int32_t);
-typedef void (*JoyPressCallback)(int32_t,int32_t);
+extern void (*keypresscallback)(int32_t,int32_t);
+extern void (*mousepresscallback)(int32_t,int32_t);
+extern void (*joypresscallback)(int32_t,int32_t);
+
 int32_t initinput(void);
 void uninitinput(void);
 void releaseallbuttons(void);
