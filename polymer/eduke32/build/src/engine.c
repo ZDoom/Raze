@@ -5519,7 +5519,7 @@ int32_t preinitengine(void)
         dynarray[] =
         {
             { (void **)&sector,           sizeof(sectortype)     * MAXSECTORS                },
-            { (void **)&wall,             sizeof(walltype)       * MAXWALLS                  },
+            { (void **)&wall,             sizeof(walltype)       * (MAXWALLS+4)              },  // +4: editor quirks
             { (void **)&sprite,           sizeof(spritetype)     * MAXSPRITES                },
             { (void **)&tsprite,          sizeof(spritetype)     * MAXSPRITESONSCREEN        },
             { (void **)&spriteext,        sizeof(spriteext_t)    * (MAXSPRITES+MAXUNIQHUDID) },

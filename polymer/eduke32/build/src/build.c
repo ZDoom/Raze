@@ -1257,7 +1257,7 @@ void overheadeditor(void)
     int32_t tempint, tempint1, tempint2, doubvel;
     int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3, x4, y4;
     int32_t highlightx1, highlighty1, highlightx2, highlighty2, xvect, yvect;
-    int16_t pag, suckwall=0, sucksect, /*newnumwalls,*/ newnumsectors, split=0, bad;
+    int16_t pag, suckwall=0, sucksect, /*newnumwalls,*/ newnumsectors, split=0, bad, goodtogo;
     int16_t splitsect=0, danumwalls, secondstartwall, joinsector[2], joinsectnum;
     int16_t splitstartwall=0, splitendwall, loopnum;
     int32_t mousx, mousy, bstatus;
@@ -1422,6 +1422,7 @@ void overheadeditor(void)
 
         if (newnumwalls >= numwalls)
         {
+            // if we're in the process of drawing a wall, set the end point's coordinates
             dax = mousxplc;
             day = mousyplc;
             adjustmark(&dax,&day,newnumwalls);
@@ -2883,6 +2884,11 @@ SKIP:
                 {
                     printmessage16("Can't make a sector out there.");
                 }
+                else if (newnumwalls > MAXWALLS)
+                {
+                    printmessage16("Making new sector from inner loop would exceed wall limits.");
+                    newnumwalls = -1;
+                }
                 else
                 {
                     for (i=numwalls; i<newnumwalls; i++)
@@ -3054,7 +3060,7 @@ SKIP:
             keystatus[0x2e] = 0;
         }
 
-        bad = (keystatus[0x39]);  //Gotta do this to save lots of 3 spaces!
+        bad = keystatus[0x39];  //Gotta do this to save lots of 3 spaces!
 
         if (circlewall >= 0)
         {
@@ -3092,6 +3098,7 @@ SKIP:
                 }
 
                 circlerad = ksqrt(dmulscale4(centerx-x1,centerx-x1, centery-y1,centery-y1))<<2;
+                goodtogo = (numwalls+circlepoints <= MAXWALLS);
 
                 for (i=circlepoints; i>0; i--)
                 {
@@ -3102,11 +3109,13 @@ SKIP:
                     bclamp(&dax, -editorgridextent, editorgridextent);
                     bclamp(&day, -editorgridextent, editorgridextent);
 
-                    if (bad > 0)
+                    if (bad > 0 && goodtogo)
                     {
                         insertpoint(circlewall,dax,day);
-                        circlewall += (wall[circlewall].nextwall >= 0 && wall[circlewall].nextwall < circlewall);
+                        if (wall[circlewall].nextwall >= 0 && wall[circlewall].nextwall < circlewall)
+                            circlewall++;
                     }
+
                     dax = mulscale14(dax-pos.x,zoom);
                     day = mulscale14(day-pos.y,zoom);
                     drawline16base(halfxdim16+dax,midydim16+day, -ps,-ps, +ps,-ps, editorcolors[14]);
@@ -3115,13 +3124,20 @@ SKIP:
                     drawline16base(halfxdim16+dax,midydim16+day, -ps,+ps, -ps,-ps, editorcolors[14]);
 //                    drawcircle16(halfxdim16+dax, midydim16+day, 3, 14);
                 }
+
                 if (bad > 0)
                 {
                     bad = 0;
                     keystatus[0x39] = 0;
-                    asksave = 1;
-                    printmessage16("Circle points inserted.");
-                    circlewall = -1;
+
+                    if (goodtogo)
+                    {
+                        asksave = 1;
+                        printmessage16("Circle points inserted.");
+                        circlewall = -1;
+                    }
+                    else
+                        printmessage16("Inserting circle points would exceed wall limit.");
                 }
             }
         }
@@ -3130,6 +3146,7 @@ SKIP:
         {
             keystatus[0x39] = 0;
             adjustmark(&mousxplc,&mousyplc,newnumwalls);
+
             if (checkautoinsert(mousxplc,mousyplc,newnumwalls) == 1)
             {
                 printmessage16("You must insert a point there first.");
@@ -3137,18 +3154,57 @@ SKIP:
             }
         }
 
-        if (bad > 0 && (max(numwalls,newnumwalls) > MAXWALLS - (newnumwalls < numwalls)))
+        goodtogo = 1;  // Checking limits...
+        if (bad > 0)
         {
             if (newnumwalls < numwalls)
-                printmessage16("Can't start sector drawing: wall limit reached.");
-            else
-                printmessage16("Inserting another point would exceed wall limit.");
-        }
-        else if (bad > 0)  //Space
-        {
-            if ((newnumwalls < numwalls) /*&& (numwalls < MAXWALLS-1)*/)
             {
-                firstx = mousxplc, firsty = mousyplc;  //Make first point
+                // ---why MAXWALLS-2? wall[MAXWALLS-1] would be inserted, but would
+                // need to draw end of wall trail in wall[MAXWALLS]!---
+
+                // for MAXWALLS-1 we need extra space at the end of wall[]
+                if (numwalls >= MAXWALLS-1)
+                {
+                    goodtogo = 0;
+                    printmessage16("Can't start sector drawing: wall limit reached.");
+                }
+            }
+            else
+            {
+                //if not back to first point
+                if (firstx != mousxplc || firsty != mousyplc)  //nextpoint
+                {
+                    if (newnumwalls>=MAXWALLS)
+                    {
+                        goodtogo = 0;
+                        printmessage16("Inserting another point would exceed wall limit.");
+                    }
+                }
+
+                //if not split and back to first point
+                if ((split == 0) && (firstx == mousxplc) && (firsty == mousyplc) && (newnumwalls >= numwalls+3))
+                {
+                    if (suckwall == -1)  //if no connections to other sectors
+                    { /* No problem... */ }
+                    else
+                    {
+                        if (newnumwalls>=MAXWALLS)  // still too optimistic since we can have more than one new red wall
+                        {
+                            goodtogo = 0;
+                            printmessage16("Closing wall drawing would exceed wall limit.");
+                        }
+                    }
+                }
+//                else if (split==1) {}  // handled there
+            }
+        }
+
+        if (bad > 0 && goodtogo)  //Space
+        {
+            if (newnumwalls < numwalls)  // starting wall drawing
+            {
+                firstx = mousxplc;
+                firsty = mousyplc;  //Make first point
                 newnumwalls = numwalls;
                 suckwall = -1;
                 split = 0;
@@ -3161,9 +3217,11 @@ SKIP:
                 wall[newnumwalls].y = mousyplc;
                 wall[newnumwalls].nextsector = -1;
                 wall[newnumwalls].nextwall = -1;
+
                 for (i=0; i<numwalls; i++)
-                    if ((wall[i].x == mousxplc) && (wall[i].y == mousyplc))
+                    if (wall[i].x == mousxplc && wall[i].y == mousyplc)
                         suckwall = i;
+
                 wall[newnumwalls].point2 = newnumwalls+1;
                 printmessage16("Sector drawing started.");
                 newnumwalls++;
@@ -3171,13 +3229,14 @@ SKIP:
             else
             {
                 //if not back to first point
-                if ((firstx != mousxplc) || (firsty != mousyplc))  //nextpoint
+                if (firstx != mousxplc || firsty != mousyplc)  //nextpoint
                 {
                     j = 0;
                     for (i=numwalls; i<newnumwalls; i++)
-                        if ((mousxplc == wall[i].x) && (mousyplc == wall[i].y))
+                        if (mousxplc == wall[i].x && mousyplc == wall[i].y)
                             j = 1;
-                    if (j == 0)
+
+                    if (j == 0)  // if new point is not on a position of already drawn points
                     {
                         //check if starting to split a sector
                         if (newnumwalls == numwalls+1)
@@ -3193,12 +3252,11 @@ SKIP:
                                     startwall = sector[i].wallptr;
                                     endwall = startwall + sector[i].wallnum - 1;
                                     for (k=startwall; k<=endwall; k++)
-                                        if (wall[k].x == wall[numwalls].x)
-                                            if (wall[k].y == wall[numwalls].y)
-                                            {
-                                                m = k;
-                                                break;
-                                            }
+                                        if (wall[k].x==wall[numwalls].x && wall[k].y==wall[numwalls].y)
+                                        {
+                                            m = k;
+                                            break;
+                                        }
 
                                     if (m >= 0)
                                         if (POINT2(k).x != mousxplc || POINT2(k).y != mousyplc)
@@ -3239,9 +3297,11 @@ SKIP:
                             wall[newnumwalls].y = mousyplc;
                             wall[newnumwalls].nextsector = -1;
                             wall[newnumwalls].nextwall = -1;
+
                             for (i=0; i<numwalls; i++)
-                                if ((wall[i].x == mousxplc) && (wall[i].y == mousyplc))
+                                if (wall[i].x == mousxplc && wall[i].y == mousyplc)
                                     suckwall = i;
+
                             wall[newnumwalls].point2 = newnumwalls+1;
                             newnumwalls++;
                         }
@@ -3263,6 +3323,7 @@ SKIP:
                         for (i=0; i<numsectors; i++)
                             if (inside(firstx,firsty,i) == 1)
                                 k = i;
+
                         if (k == -1)   //if not inside another sector either
                         {
                             //add island sector
@@ -3277,6 +3338,7 @@ SKIP:
                             sector[numsectors].wallnum = newnumwalls-numwalls;
                             sector[numsectors].ceilingz = (-32<<8);
                             sector[numsectors].floorz = (32<<8);
+
                             for (i=numwalls; i<newnumwalls; i++)
                             {
                                 wall[i].cstat = 0;
@@ -3288,6 +3350,7 @@ SKIP:
                                 wall[i].nextsector = -1;
                                 wall[i].nextwall = -1;
                             }
+
                             headspritesect[numsectors] = -1;
                             numsectors++;
                         }
@@ -3357,6 +3420,7 @@ SKIP:
                         sector[numsectors].floorpicnum = sector[sucksect].floorpicnum;
                         sector[numsectors].ceilingheinum = sector[sucksect].ceilingheinum;
                         sector[numsectors].floorheinum = sector[sucksect].floorheinum;
+
                         for (i=numwalls; i<newnumwalls; i++)
                         {
                             wall[i].cstat = wall[suckwall].cstat;
@@ -3367,14 +3431,16 @@ SKIP:
                             wall[i].overpicnum = wall[suckwall].overpicnum;
                             checksectorpointer((int16_t)i,(int16_t)numsectors);
                         }
+
                         headspritesect[numsectors] = -1;
                         numsectors++;
                     }
+
                     numwalls = newnumwalls;
                     newnumwalls = -1;
                     asksave = 1;
                 }
-                if (split == 1)
+                else if (split == 1)
                 {
                     //split sector
                     startwall = sector[splitsect].wallptr;
@@ -4915,7 +4981,7 @@ static int32_t movewalls(int32_t start, int32_t offs)
 
 int32_t checksectorpointer(int16_t i, int16_t sectnum)
 {
-    int32_t j, k, startwall, endwall, x1, y1, x2, y2;
+    int32_t j, k, startwall, endwall, x1, y1, x2, y2, numnewwalls=0;
 
     char buf[128];
     if (i<0 || i>=max(numwalls,newnumwalls))
@@ -4951,14 +5017,18 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
                 if (POINT2(k).x == x1 && POINT2(k).y == y1)
                     if (j != sectnum)
                     {
-                        wall[i].nextsector = j;
-                        wall[i].nextwall = k;
-                        wall[k].nextsector = sectnum;
-                        wall[k].nextwall = i;
+                        if (sectnum != -2)  // -2 means dry run
+                        {
+                            wall[i].nextsector = j;
+                            wall[i].nextwall = k;
+                            wall[k].nextsector = sectnum;
+                            wall[k].nextwall = i;
+                        }
+                        numnewwalls++;
                     }
         }
     }
-    return(0);
+    return(numnewwalls);
 }
 
 void fixrepeats(int16_t i)
