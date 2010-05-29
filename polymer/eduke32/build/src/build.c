@@ -526,6 +526,10 @@ CANCEL:
 
         ExtPreCheckKeys();
 
+        nextpage();
+        synctics = totalclock-lockclock;
+        lockclock += synctics;
+
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
 #ifdef SUPERBUILD
         ExtAnalyzeSprites();
@@ -546,9 +550,6 @@ CANCEL:
 #endif
         ExtCheckKeys();
 
-        nextpage();
-        synctics = totalclock-lockclock;
-        lockclock += synctics;
 
         if (keystatus[1])
         {
@@ -845,22 +846,23 @@ void editinput(void)
 
     if (keystatus[0x43])  // F9
     {
-        mhk=1;
-        loadmhk();
+        if (mhk)
+        {
+            Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
+            Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
+            mhk = 0;
+            initprintf("Maphacks disabled\n");
+        }
+        else
+        {
+            loadmhk();
+            mhk = 1;
+        }
+
         keystatus[0x43] = 0;
-    }
-    if (keystatus[0x44])  // F10
-    {
-        Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-        Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
-        mhk=0;
-        initprintf("Maphacks disabled\n");
-        keystatus[0x44] = 0;
     }
 
     begindrawing();     //{{{
-    if (mhk)
-        printext256(0,16,whitecol,0,(mhk==1)?"Maphacks ON":"Maphacks ON (not found)",0);
     enddrawing();       //}}}
 
     if (angvel != 0)          //ang += angvel * constant

@@ -2714,7 +2714,8 @@ CHECKINV1:
             p->wantweaponfire = j;
             p->kickback_pic = 0;
         }
-        if ((int32_t)j != -1 && p->last_pissed_time <= (GAMETICSPERSEC*218) && p->show_empty_weapon == 0 /*&& p->kickback_pic == 0*/ && p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
+        if ((int32_t)j != -1 && p->last_pissed_time <= (GAMETICSPERSEC*218) && p->show_empty_weapon == 0 /*&& p->kickback_pic == 0*/ && 
+            p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
         {
             //            if(  ( p->weapon_pos == 0 || ( p->holster_weapon && p->weapon_pos == -9 ) ))
             {
@@ -2743,7 +2744,7 @@ CHECKINV1:
                         if (k == -1) k = 9;
                         else if (k == 10) k = 0;
 
-                        if ((p->gotweapon && (1<<k)) && p->ammo_amount[k] > 0)
+                        if ((p->gotweapon & (1<<k)) && p->ammo_amount[k] > 0)
                         {
                             if (PLUTOPAK)   // JBF 20040116: so we don't select grower with v1.3d
                                 if (k == SHRINKER_WEAPON && (p->subweapon&(1<<GROW_WEAPON)))
@@ -2768,10 +2769,9 @@ CHECKINV1:
                                     break;
                                 }
 
-                        i++;    // absolutely no weapons, so use foot
-                        if (i == 10)
+                        if (++i == 10) // absolutely no weapons, so use foot
                         {
-                            P_AddWeapon(p, KNEE_WEAPON);
+                            j = KNEE_WEAPON;
                             break;
                         }
                     }
@@ -2779,9 +2779,12 @@ CHECKINV1:
 
                 Gv_SetVar(g_iWorksLikeVarID,aplWeaponWorksLike[p->curr_weapon][snum],p->i,snum);
                 Gv_SetVar(g_iWeaponVarID,j, p->i, snum);
+
                 aGameVars[g_iReturnVarID].val.lValue = j;
+
                 VM_OnEvent(EVENT_SELECTWEAPON,p->i,snum, -1);
                 j = aGameVars[g_iReturnVarID].val.lValue;
+
                 if ((int32_t)j != -1 && j <= MAX_WEAPONS)
                 {
                     if (j == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)

@@ -7669,7 +7669,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     mylight.horiz = SH;
                     mylight.minshade = sprite[i].xoffset;
                     mylight.maxshade = sprite[i].yoffset;
-                    mylight.tilenum = actor[i].picnum;
+                    mylight.tilenum = sprite[i].owner;
 
                     if (CS & 2)
                     {
