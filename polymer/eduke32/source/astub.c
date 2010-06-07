@@ -2840,12 +2840,9 @@ static int32_t m32gettile(int32_t idInitialTile)
         idle_waitevent_timeout(500);
         // SDL seems to miss mousewheel events when rotated slowly.
         // These kludgy things seem to make it better, but I'm not sure.
-        idle();
-        idle();
 
         if (handleevents())
             quitevent = 0;
-
 
         getmousevalues(&mousedx,&mousedy,&bstatus);
         searchx += mousedx;
@@ -3988,7 +3985,7 @@ static void Keys3d(void)
         drawtileinfo("Clipboard",3,124,temppicnum,tempshade,temppal,tempcstat,templotag,temphitag,tempextra);
     }// end if usedcount
 
-    //    if (infobox&1)
+    if (searchsector > -1 && searchsector < numsectors)
     {
         char lines[8][64];
         int32_t dist, height1=0,height2=0,height3=0, num=0;

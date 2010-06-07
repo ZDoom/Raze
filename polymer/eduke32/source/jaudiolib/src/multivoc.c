@@ -2755,7 +2755,8 @@ int32_t MV_Init
     {
         status = MV_ErrorCode;
 
-        free(MV_Voices);
+        if (MV_Voices)
+            free(MV_Voices);
         MV_Voices      = NULL;
         MV_HarshClipTable = NULL;
         MV_TotalMemory = 0;
@@ -2834,7 +2835,8 @@ int32_t MV_Shutdown
     SoundDriver_Shutdown();
 
     // Free any voices we allocated
-    free(MV_Voices);
+    if (MV_Voices)
+        free(MV_Voices);
     MV_Voices      = NULL;
     MV_TotalMemory = 0;
 

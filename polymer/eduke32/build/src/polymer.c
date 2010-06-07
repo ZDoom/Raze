@@ -892,7 +892,8 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
         polymersearching = FALSE;
     }
 
-    getzsofslope(dacursectnum, daposx, daposy, &cursectceilz, &cursectflorz);
+    if (dacursectnum > -1 && dacursectnum < numsectors)
+        getzsofslope(dacursectnum, daposx, daposy, &cursectceilz, &cursectflorz);
 
     // external view (editor)
     if ((dacursectnum < 0) || (dacursectnum >= numsectors) ||
@@ -3467,7 +3468,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     color = mdspritematerial.diffusemodulation;
 
     color[0] = color[1] = color[2] =
-        ((float)(numpalookups-min(max((tspr->shade*shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups) * 0xFF;
+        ((float)(numpalookups-min(max((tspr->shade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups) * 0xFF;
 
     if (!(hictinting[tspr->pal].f&4))
     {
@@ -3819,7 +3820,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
-            ((float)(numpalookups-min(max(shade*shadescale,0),numpalookups)))/((float)numpalookups) * 0xFF;
+            ((float)(numpalookups-min(max((shade  * shadescale),0),numpalookups)))/((float)numpalookups) * 0xFF;
  
         if (pth->flags & 2)
         {

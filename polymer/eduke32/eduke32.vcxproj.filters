@@ -150,9 +150,6 @@
     <ClInclude Include="build\include\msvc\stdint.h">
       <Filter>build\headers\MSVC</Filter>
     </ClInclude>
-    <ClInclude Include="build\src\engine_priv.h">
-      <Filter>build\source</Filter>
-    </ClInclude>
     <ClInclude Include="source\_functio.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
@@ -316,6 +313,9 @@
       <Filter>build\headers</Filter>
     </ClInclude>
     <ClInclude Include="build\include\rawinput.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\src\engine_priv.h">
       <Filter>build\headers</Filter>
     </ClInclude>
   </ItemGroup>

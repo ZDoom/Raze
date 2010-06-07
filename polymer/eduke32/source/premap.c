@@ -316,7 +316,7 @@ static void G_PrecacheSounds(void)
     if (ud.config.FXDevice < 0) return;
     j = 0;
 
-    for (i=MAXSOUNDS; i>=0; i--)
+    for (i=MAXSOUNDS-1; i>=0; i--)
         if (g_sounds[i].ptr == 0)
         {
             j++;

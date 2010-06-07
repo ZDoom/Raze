@@ -109,7 +109,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
 
-float shadescale = 1.0f;
+float shadescale = 1.3f;
 
 double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
 double gcosang, gsinang, gcosang2, gsinang2;
@@ -776,19 +776,21 @@ void polymost_glinit()
     memcachesize = filelength(cachefilehandle);
 
     if (memcachesize > 0)
+    {
         memcachedata = (uint8_t *)Brealloc(memcachedata, memcachesize);
 
-    if (!memcachedata)
-    {
-        initprintf("Failed allocating %d bytes for memcache\n", memcachesize);
-        memcachesize = -1;
-    }
+        if (!memcachedata)
+        {
+            initprintf("Failed allocating %d bytes for memcache\n", memcachesize);
+            memcachesize = -1;
+        }
 
-    if (memcachesize > 0 && Bread(cachefilehandle, memcachedata, memcachesize) != memcachesize)
-    {
-        initprintf("Failed reading texcache into memcache!\n");
-        Bfree(memcachedata);
-        memcachesize = -1;
+        if (Bread(cachefilehandle, memcachedata, memcachesize) != memcachesize)
+        {
+            initprintf("Failed reading texcache into memcache!\n");
+            Bfree(memcachedata);
+            memcachesize = -1;
+        }
     }
 
     i = 0;
@@ -2144,7 +2146,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         {
             float pc[4];
-            f = ((float)(numpalookups-min(max(globalshade * shadescale,0),numpalookups)))/((float)numpalookups);
+            f = ((float)(numpalookups-min(max((globalshade * shadescale),0),numpalookups)))/((float)numpalookups);
             pc[0] = pc[1] = pc[2] = f;
             switch (method&3)
             {
@@ -2423,7 +2425,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             nguo = uu[0] - ox*ngux - oy*nguy;
             ngvo = vv[0] - ox*ngvx - oy*ngvy;
         }
-        palptr = &palookup[globalpal][min(max(globalshade,0),numpalookups-1)<<8]; //<-need to make shade not static!
+        palptr = &palookup[globalpal][min(max((int32_t)(globalshade * shadescale),0),numpalookups-1)<<8]; //<-need to make shade not static!
 
         tsizxm1 = tsizx-1; xmodnice = (!(tsizxm1&tsizx));
         tsizym1 = tsizy-1; ymulnice = (!(tsizym1&tsizy));
@@ -2434,7 +2436,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     }
     else
     {
-        dacol = palookup[0][(int32_t)(*(char *)(waloff[globalpicnum]))+(min(max(globalshade,0),numpalookups-1)<<8)];
+        dacol = palookup[0][(int32_t)(*(char *)(waloff[globalpicnum]))+(min(max((int32_t)(globalshade * shadescale),0),numpalookups-1)<<8)];
     }
 
     if (grhalfxdown10x < 0) //Hack for mirrors
@@ -4346,74 +4348,78 @@ void polymost_drawrooms()
 
         hitallsprites = 1;
         hitscan((const vec3_t *)&vect,globalcursectnum, //Start position
-                vx>>12,vy>>12,vz>>8,&hitinfo,0xffff0030);
-        getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
-        hitallsprites = 0;
+            vx>>12,vy>>12,vz>>8,&hitinfo,0xffff0030);
 
-        searchsector = hitinfo.hitsect;
-        if (hitinfo.pos.z<cz) searchstat = 1; else if (hitinfo.pos.z>fz) searchstat = 2; else if (hitinfo.hitwall >= 0)
+        if (hitinfo.hitsect != -1) // if hitsect is -1, hitscan overflowed somewhere
         {
-            searchbottomwall = searchwall = hitinfo.hitwall; searchstat = 0;
-            if (wall[hitinfo.hitwall].nextwall >= 0)
+            getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
+            hitallsprites = 0;
+
+            searchsector = hitinfo.hitsect;
+            if (hitinfo.pos.z<cz) searchstat = 1; else if (hitinfo.pos.z>fz) searchstat = 2; else if (hitinfo.hitwall >= 0)
+            {
+                searchbottomwall = searchwall = hitinfo.hitwall; searchstat = 0;
+                if (wall[hitinfo.hitwall].nextwall >= 0)
+                {
+                    int32_t cz, fz;
+                    getzsofslope(wall[hitinfo.hitwall].nextsector,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
+                    if (hitinfo.pos.z > fz)
+                    {
+                        if (wall[hitinfo.hitwall].cstat&2) //'2' bottoms of walls
+                            searchbottomwall = wall[hitinfo.hitwall].nextwall;
+                    }
+                    else if ((hitinfo.pos.z > cz) && (wall[hitinfo.hitwall].cstat&(16+32))) //masking or 1-way
+                        searchstat = 4;
+                }
+            }
+            else if (hitinfo.hitsprite >= 0) { searchwall = hitinfo.hitsprite; searchstat = 3; }
+            else
             {
                 int32_t cz, fz;
-                getzsofslope(wall[hitinfo.hitwall].nextsector,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
-                if (hitinfo.pos.z > fz)
-                {
-                    if (wall[hitinfo.hitwall].cstat&2) //'2' bottoms of walls
-                        searchbottomwall = wall[hitinfo.hitwall].nextwall;
-                }
-                else if ((hitinfo.pos.z > cz) && (wall[hitinfo.hitwall].cstat&(16+32))) //masking or 1-way
-                    searchstat = 4;
+                getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
+                if ((hitinfo.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
+                //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
             }
-        }
-        else if (hitinfo.hitsprite >= 0) { searchwall = hitinfo.hitsprite; searchstat = 3; }
-        else
-        {
-            int32_t cz, fz;
-            getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
-            if ((hitinfo.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
-            //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
-        }
 
-        if ((searchstat==1 || searchstat==2) && searchsector>=0)
-        {
-            int32_t scrv[2] = {(vx>>12), (vy>>12)};
-            int32_t scrv_r[2] = {scrv[1], -scrv[0]};
-            walltype *wal = &wall[sector[searchsector].wallptr];
-            int32_t wdistsq, bestwdistsq=0x7fffffff;
-            int16_t k, bestk=-1;
-
-            for (k=0; k<sector[searchsector].wallnum; k++)
+            if ((searchstat==1 || searchstat==2) && searchsector>=0)
             {
-                int32_t w1[2] = {wal[k].x, wal[k].y};
-                int32_t w2[2] = {wall[wal[k].point2].x, wall[wal[k].point2].y};
-                int32_t w21[2] = {w1[0]-w2[0], w1[1]-w2[1]};
-                int32_t pw1[2] = {w1[0]-hitinfo.pos.x, w1[1]-hitinfo.pos.y};
-                int32_t pw2[2] = {w2[0]-hitinfo.pos.x, w2[1]-hitinfo.pos.y};
-                float w1d = (float)(scrv_r[0]*pw1[0] + scrv_r[1]*pw1[1]);
-                float w2d = (float)(scrv_r[0]*pw2[0] + scrv_r[1]*pw2[1]);
-                int32_t ptonline[2], scrp[2];
+                int32_t scrv[2] = {(vx>>12), (vy>>12)};
+                int32_t scrv_r[2] = {scrv[1], -scrv[0]};
+                walltype *wal = &wall[sector[searchsector].wallptr];
+                int32_t wdistsq, bestwdistsq=0x7fffffff;
+                int16_t k, bestk=-1;
 
-                w2d = -w2d;
-                if ((w1d==0 && w2d==0) || (w1d<0 || w2d<0))
-                    continue;
-                ptonline[0] = (int32_t)(w2[0]+(w2d/(w1d+w2d))*w21[0]);
-                ptonline[1] = (int32_t)(w2[1]+(w2d/(w1d+w2d))*w21[1]);
-                scrp[0] = ptonline[0]-vect.x;
-                scrp[1] = ptonline[1]-vect.y;
-                if (scrv[0]*scrp[0] + scrv[1]*scrp[1] <= 0)
-                    continue;
-                wdistsq = scrp[0]*scrp[0] + scrp[1]*scrp[1];
-                if (wdistsq < bestwdistsq)
+                for (k=0; k<sector[searchsector].wallnum; k++)
                 {
-                    bestk = k;
-                    bestwdistsq = wdistsq;
-                }
-            }
+                    int32_t w1[2] = {wal[k].x, wal[k].y};
+                    int32_t w2[2] = {wall[wal[k].point2].x, wall[wal[k].point2].y};
+                    int32_t w21[2] = {w1[0]-w2[0], w1[1]-w2[1]};
+                    int32_t pw1[2] = {w1[0]-hitinfo.pos.x, w1[1]-hitinfo.pos.y};
+                    int32_t pw2[2] = {w2[0]-hitinfo.pos.x, w2[1]-hitinfo.pos.y};
+                    float w1d = (float)(scrv_r[0]*pw1[0] + scrv_r[1]*pw1[1]);
+                    float w2d = (float)(scrv_r[0]*pw2[0] + scrv_r[1]*pw2[1]);
+                    int32_t ptonline[2], scrp[2];
 
-            if (bestk >= 0)
-                searchwall = sector[searchsector].wallptr + bestk;
+                    w2d = -w2d;
+                    if ((w1d==0 && w2d==0) || (w1d<0 || w2d<0))
+                        continue;
+                    ptonline[0] = (int32_t)(w2[0]+(w2d/(w1d+w2d))*w21[0]);
+                    ptonline[1] = (int32_t)(w2[1]+(w2d/(w1d+w2d))*w21[1]);
+                    scrp[0] = ptonline[0]-vect.x;
+                    scrp[1] = ptonline[1]-vect.y;
+                    if (scrv[0]*scrp[0] + scrv[1]*scrp[1] <= 0)
+                        continue;
+                    wdistsq = scrp[0]*scrp[0] + scrp[1]*scrp[1];
+                    if (wdistsq < bestwdistsq)
+                    {
+                        bestk = k;
+                        bestwdistsq = wdistsq;
+                    }
+                }
+
+                if (bestk >= 0)
+                    searchwall = sector[searchsector].wallptr + bestk;
+            }
         }
         searchit = 0;
     }
@@ -4710,7 +4716,7 @@ void polymost_drawsprite(int32_t snum)
     int32_t oldsizx, oldsizy;
     int32_t tsizx, tsizy;
     tspr = tspriteptr[snum];
-    if (tspr->owner < 0 || tspr->picnum < 0) return;
+    if (tspr->owner < 0 || tspr->picnum < 0 || tspr->picnum >= MAXTILES) return;
 
     globalpicnum      = tspr->picnum;
     globalshade       = tspr->shade;
@@ -5681,7 +5687,7 @@ void polymost_fillpolygon(int32_t npoints)
     pth = gltexcache(globalpicnum,globalpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
-    f = ((float)(numpalookups-min(max(globalshade * shadescale,0),numpalookups)))/((float)numpalookups);
+    f = ((float)(numpalookups-min(max((globalshade * shadescale),0),numpalookups)))/((float)numpalookups);
     switch ((globalorientation>>7)&3)
     {
     case 0:

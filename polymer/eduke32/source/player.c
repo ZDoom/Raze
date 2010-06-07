@@ -2027,12 +2027,31 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
 
 static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
 {
+    static int32_t shadef = 0, palf = 0;
+
+    // basic fading between player weapon shades
+    if (shadef != shade && (!p || palf == p))
+    {
+        shadef += (shade-shadef)>>2;
+
+        if (!((shade-shadef)>>2))
+        {
+            shadef += (shade-shadef)>>1;
+            if (!((shade-shadef)>>1))
+                shadef = shade;
+        }
+    }
+    else
+        shadef = shade;
+
+    palf = p;
+
     switch (ud.drawweapon)
     {
     default:
         return;
     case 1:
-        G_DrawTileScaled(x,y,tilenum,shade,orientation,p);
+        G_DrawTileScaled(x,y,tilenum,shadef,orientation,p);
         return;
     case 2:
         switch (g_currentweapon)
@@ -5355,10 +5374,10 @@ HORIZONLY:
         if (!A_CheckSoundPlaying(p->i,DUKE_ONWATER))
             A_PlaySound(DUKE_ONWATER,p->i);
 
-    if (p->cursectnum != s->sectnum)
-        changespritesect(p->i,p->cursectnum);
+    if (p->cursectnum >=0 && p->cursectnum != s->sectnum)
+        changespritesect(p->i, p->cursectnum);
 
-    if (ud.clipping == 0)
+    if (p->cursectnum >= 0 && ud.clipping == 0)
     {
         j = (pushmove((vec3_t *)p,&p->cursectnum,164L,(4L<<8),(4L<<8),CLIPMASK0) < 0 && A_GetFurthestAngle(p->i,8) < 512);
 

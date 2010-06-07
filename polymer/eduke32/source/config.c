@@ -198,7 +198,7 @@ void CONFIG_SetDefaults(void)
     ud.config.AmbienceToggle = 1;
     ud.config.AutoAim = 1;
     ud.config.FXDevice = 0;
-    ud.config.FXVolume = 220;
+    ud.config.FXVolume = 225;
 #if defined(_WIN32)
     ud.config.MixRate = 44100;
 #else
@@ -208,7 +208,7 @@ void CONFIG_SetDefaults(void)
     ud.config.MouseDeadZone = 0;
     ud.config.MusicDevice = 0;
     ud.config.MusicToggle = 1;
-    ud.config.MusicVolume = 200;
+    ud.config.MusicVolume = 195;
     g_myAimMode = g_player[0].ps->aim_mode = 1;
     ud.config.NumBits = 16;
     ud.config.NumChannels = 2;
@@ -1017,7 +1017,7 @@ int32_t CONFIG_GetMapBestTime(char *mapname)
     strcpy(m, mapname);
     p = strrchr(m, '/');
     if (!p) p = strrchr(m, '\\');
-    if (p) strcpy(m, p);
+    if (p) Bmemmove(m, p, Bstrlen(p)+1);//strcpy(m, p);
     for (p=m; *p; p++) *p = tolower(*p);
 
     // cheap hack because SCRIPT_GetNumber doesn't like the slashes

@@ -45,10 +45,31 @@ typedef struct
     char *name;
     char *helpstr;
     void *var;
-    int32_t type;       // see cvartype_t
+    int32_t type;   // see cvartype_t
     int32_t min;
-    int32_t max; // for string, is the length
+    int32_t max;    // for string, is the length
 } cvar_t;
+
+typedef struct
+{
+    char *name;
+    char *helpstr;
+    void *var;
+    int32_t type;   // see cvartype_t
+    int32_t min;
+    int32_t max;    // for string, is the length
+
+    // everything before this point needs to match cvar_t
+
+    // default value for cvar, assigned when var is registered
+    union 
+    {
+        int32_t i;
+        uint32_t uint;
+        float f;
+        double d;
+    } dval;
+} osdcvar_t;
 
 enum osdflags_t 
 {

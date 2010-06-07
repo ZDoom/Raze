@@ -9495,7 +9495,7 @@ static void G_ShowParameterHelp(void)
               "-l#\t\tWarp to level #, see -v\n"
               "-map [file.map]\tLoads a map\n"
               "-m\t\tDisable monsters\n"
-              "-nam/-ww2gi\tRun in NAM or WW2GI-compatible mode\n"
+              "-nam\t\tRun in NAM/NAPALM compatibility mode\n"
               "-r\t\tRecord demo\n"
               "-s#\t\tSet skill level (1-4)\n"
               "-server\t\tStart a multiplayer game for other players to join\n"
@@ -9508,6 +9508,7 @@ static void G_ShowParameterHelp(void)
 #endif
               "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
               "-v#\t\tWarp to volume #, see -l\n"
+              "-ww2gi\t\tRun in WW2GI compatibility mode\n"
               "-x[game.con]\tLoad custom CON script\n"
               "-#\t\tLoad and run a game from slot # (0-9)\n"
 //              "\n-?/--help\tDisplay this help message and exit\n"
@@ -9527,17 +9528,14 @@ static void G_ShowDebugHelp(void)
               "\n"
               "-a\t\tUse fake player AI (fake multiplayer only)\n"
               "-cachesize #\tSets cache size, in Kb\n"
-              "-fNUM\t\tSend fewer packets in multiplayer (1, 2, 4) (deprecated)\n"
               "-game_dir [dir]\tDuke3d_w32 compatibility option, see -j\n"
               "-gamegrp   \tSelects which file to use as main grp\n"
-              "-i#\t\tUse networking mode (1/0)\n"
               "-name [name]\tPlayer name in multiplay\n"
               "-nD\t\tDump default gamevars to gamevars.txt\n"
               "-noautoload\tDisable loading content from autoload dir\n"
               "-nologo\t\tSkip the logo anim\n"
               "-ns/-nm\t\tDisable sound or music\n"
               "-q#\t\tFake multiplayer with # (2-8) players\n"
-              "-w\t\tShow coordinates\n"
               "-z#/-condebug\tEnable line-by-line CON compile debugging at level #\n"
               ;
 #if defined RENDERTYPEWIN
@@ -11121,9 +11119,8 @@ void app_main(int32_t argc,const char **argv)
     getcwd(g_rootDir,BMAX_PATH);
     strcat(g_rootDir,"/");
 #endif
-
-    OSD_SetLogFile("eduke32.log");
     OSD_SetParameters(0,0, 0,12, 2,12);
+    OSD_SetLogFile("eduke32.log");
     OSD_SetFunctions(
         GAME_drawosdchar,
         GAME_drawosdstr,

@@ -176,7 +176,7 @@ BOOL RI_CaptureInput(BOOL grab, HWND target)
 
     raw[1].usUsagePage = 0x01;
     raw[1].usUsage = 0x06;
-    raw[1].dwFlags = RIDEV_NOLEGACY;
+    raw[1].dwFlags = 0;
     raw[1].hwndTarget = target;
 
     mousegrab = grab;

@@ -1245,7 +1245,7 @@ static int32_t owallmost(int16_t *mostbuf, int32_t w, int32_t z)
 //
 // wallmost (internal)
 //
-int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat)
+static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat)
 {
     int32_t bad, i, j, t, y, z, inty, intz, xcross, yinc, fw;
     int32_t x1, y1, z1, x2, y2, z2, xv, yv, dx, dy, dasqr, oz1, oz2;
@@ -3073,6 +3073,8 @@ static void drawsprite(int32_t snum)
     tilenum = tspr->picnum;
     spritenum = tspr->owner;
     cstat = tspr->cstat;
+
+    if (tilenum < 0 || tilenum >= MAXSPRITES) return;
 
 #ifdef SUPERBUILD
     if ((cstat&48)==48) vtilenum = tilenum; // if the game wants voxels, it gets voxels

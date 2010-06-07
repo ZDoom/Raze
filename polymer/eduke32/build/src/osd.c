@@ -120,7 +120,7 @@ static void (*_drawosdcursor)(int32_t, int32_t, int32_t, int32_t) = _internal_dr
 static int32_t (*_getcolumnwidth)(int32_t) = _internal_getcolumnwidth;
 static int32_t (*_getrowheight)(int32_t) = _internal_getrowheight;
 
-static cvar_t *cvars = NULL;
+static osdcvar_t *cvars = NULL;
 static uint32_t osdnumcvars = 0;
 static hashtable_t h_cvars      = { MAXSYMBOLS<<1, NULL };
 
@@ -164,11 +164,57 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
         }
     }
 
-    cvars = Brealloc(cvars, (osdnumcvars + 1) * sizeof(cvar_t));
+    cvars = (osdcvar_t *)Brealloc(cvars, (osdnumcvars + 1) * sizeof(osdcvar_t));
+
     hash_add(&h_cvars, cvar->name, osdnumcvars);
+
+    switch (cvar->type & (CVAR_BOOL|CVAR_INT|CVAR_UINT|CVAR_FLOAT|CVAR_DOUBLE))
+    {
+    case CVAR_BOOL:
+    case CVAR_INT:
+        cvars[osdnumcvars].dval.i = *(int32_t *)cvar->var;
+        break;
+    case CVAR_UINT:
+        cvars[osdnumcvars].dval.uint = *(uint32_t *)cvar->var;
+        break;
+    case CVAR_FLOAT:
+        cvars[osdnumcvars].dval.f = *(float *)cvar->var;
+        break;
+    case CVAR_DOUBLE:
+        cvars[osdnumcvars].dval.d = *(double *)cvar->var;
+        break;
+    }
+        
     Bmemcpy(&cvars[osdnumcvars++], cvar, sizeof(cvar_t));
 
     return 0;
+}
+
+static int32_t OSD_CvarModified(const osdcvar_t *cvar)
+{
+    if ((osdflags & OSD_INITIALIZED) == 0)
+        return 0;
+
+    if (!cvar->var)
+    {
+        OSD_Printf("OSD_CvarModified(): null cvar?!\n");
+        return 0;
+    }
+
+    switch (cvar->type & (CVAR_BOOL|CVAR_INT|CVAR_UINT|CVAR_FLOAT|CVAR_DOUBLE))
+    {
+    case CVAR_BOOL:
+    case CVAR_INT:
+        return (cvar->dval.i != *(int32_t *)cvar->var);
+    case CVAR_UINT:
+        return (cvar->dval.uint != *(uint32_t *)cvar->var);
+    case CVAR_FLOAT:
+        return (cvar->dval.f != *(float *)cvar->var);
+    case CVAR_DOUBLE:
+        return (cvar->dval.d != *(double *)cvar->var);
+    default:
+        return 0;
+    }
 }
 
 // color code format is as follows:
@@ -199,9 +245,9 @@ const char * OSD_StripColors(char *out, const char *in)
             in += 2;
             continue;
         }
-        *(out++) = *in;
+        *(out++) = *(in++);
     }
-    while (*(++in));
+    while (*in);
 
     *out = '\0';
     return (ptr);
@@ -527,7 +573,15 @@ static int32_t _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
         {
             if (i->func != OSD_UNALIASED)
             {
-                OSD_Printf("%-*s",maxwidth,i->name);
+                int32_t j = hash_find(&h_cvars, i->name);
+
+                if (j != -1 && OSD_CvarModified(&cvars[j]))
+                {
+                    OSD_Printf(OSDTEXT_RED "*");
+                    OSD_Printf("%-*s",maxwidth-1,i->name);
+                }
+                else OSD_Printf("%-*s",maxwidth,i->name);
+
                 x += maxwidth;
                 count++;
             }
@@ -634,6 +688,28 @@ static int32_t osdcmd_cvar_set_osd(const osdfuncparm_t *parm)
     return r;
 }
 
+static int32_t _internal_osdfunc_toggle(const osdfuncparm_t *parm)
+{
+    int32_t i;
+
+    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
+
+    i = hash_find(&h_cvars, parm->parms[0]);
+
+    if (i == -1)
+        for (i = osdnumcvars-1; i >= 0; i--)
+            if (!Bstrcasecmp(parm->parms[0], cvars[i].name)) break;
+
+    if (i == -1 || (cvars[i].type & CVAR_BOOL) != CVAR_BOOL)
+    {
+        OSD_Printf("Bad cvar name or cvar not boolean\n");
+        return OSDCMD_OK;
+    }
+
+    *(int32_t *)cvars[i].var = 1 - *(int32_t *)cvars[i].var;
+    return OSDCMD_OK;
+}
+
 //
 // OSD_Init() -- Initializes the on-screen display
 //
@@ -681,6 +757,7 @@ void OSD_Init(void)
     OSD_RegisterFunction("help","help: displays help for the specified cvar or command; \"listsymbols\" to show all commands",_internal_osdfunc_help);
     OSD_RegisterFunction("history","history: displays the console command history",_internal_osdfunc_history);
     OSD_RegisterFunction("listsymbols","listsymbols: lists all registered functions, cvars and aliases",_internal_osdfunc_listsymbols);
+    OSD_RegisterFunction("toggle","toggle: toggles the value of a boolean cvar",_internal_osdfunc_toggle);
     OSD_RegisterFunction("unalias","unalias: removes a command alias",_internal_osdfunc_unalias);
 
     atexit(OSD_Cleanup);
@@ -2006,7 +2083,7 @@ void OSD_WriteCvars(FILE *fp)
 
     for (i=0; i<osdnumcvars; i++)
     {
-        if (!(cvars[i].type & CVAR_NOSAVE))
+        if (!(cvars[i].type & CVAR_NOSAVE) && OSD_CvarModified(&cvars[i]))
             switch (cvars[i].type&(CVAR_FLOAT|CVAR_DOUBLE|CVAR_INT|CVAR_UINT|CVAR_BOOL|CVAR_STRING))
         {
             case CVAR_FLOAT:

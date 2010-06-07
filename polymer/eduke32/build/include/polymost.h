@@ -124,12 +124,13 @@ extern float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
 
 static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal)
 {
-    float f = shade * 1.75f;
+    float f = (shade < 0) ? shade * 3.5f :
+        shade * .66f;
 
-    if (vis > 239) f = (float)(gvisibility*((vis-240+f)/(klabs(vis-256))));
-    else f = (float)(gvisibility*(vis+16+f));
+    f = (vis > 239) ? (float)(gvisibility*((vis-240+f)/(klabs(vis-256)))) :
+        (float)(gvisibility*(vis+16+f));
 
-    fogresult = clamp(f, 0.01f, 100.f);
+    fogresult = clamp(f, 0.0f, 100.f);
 
     Bmemcpy(fogcol, &fogtable[pal<<2], sizeof(fogcol));
 }

@@ -429,7 +429,7 @@ int32_t app_main(int32_t argc, const char **argv)
     inittimer(TIMERINTSPERSECOND);
     installusertimercallback(keytimerstuff);
 
-    loadpics("tiles000.art",1048576*16);
+    loadpics("tiles000.art", 1048576*16);
     loadnames();
 
     Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");

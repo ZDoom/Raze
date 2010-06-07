@@ -519,7 +519,7 @@ int32_t G_ActivateWarpElevators(int32_t s,int32_t d) //Parm = sectoreffectornum
     return 0;
 }
 
-void G_OperateSectors(int32_t sn,int32_t ii)
+void G_OperateSectors(int32_t sn, int32_t ii)
 {
     int32_t j=0, l, q, startwall, endwall;
     int32_t i;
@@ -726,11 +726,6 @@ void G_OperateSectors(int32_t sn,int32_t ii)
 
     case 29:
 
-        if (sptr->lotag&0x8000)
-            j = sector[nextsectorneighborz(sn,sptr->ceilingz,1,1)].floorz;
-        else
-            j = sector[nextsectorneighborz(sn,sptr->ceilingz,-1,-1)].ceilingz;
-
         i = headspritestat[STAT_EFFECTOR]; //Effectors
         while (i >= 0)
         {
@@ -745,11 +740,34 @@ void G_OperateSectors(int32_t sn,int32_t ii)
             i = nextspritestat[i];
         }
 
+        A_CallSound(sn, ii);
+
         sptr->lotag ^= 0x8000;
 
-        SetAnimation(sn,&sptr->ceilingz,j,sptr->extra);
+        if (sptr->lotag&0x8000)
+        {
+            j = nextsectorneighborz(sn,sptr->ceilingz,-1,-1);
+            if (j == -1) j = nextsectorneighborz(sn,sptr->ceilingz,1,1);
+            if (j == -1)
+            {
+                OSD_Printf("WARNING: ST29: null sector!\n");
+                return;
+            }
+            j = sector[j].ceilingz;
+        }
+        else
+        {            
+            j = nextsectorneighborz(sn,sptr->ceilingz,1,1);
+            if (j == -1) j = nextsectorneighborz(sn,sptr->ceilingz,-1,-1);
+            if (j == -1)
+            {
+                OSD_Printf("WARNING: ST29: null sector!\n");
+                return;
+            }
+            j = sector[j].floorz;
+        }
 
-        A_CallSound(sn,ii);
+        SetAnimation(sn,&sptr->ceilingz,j,sptr->extra);
 
         return;
 

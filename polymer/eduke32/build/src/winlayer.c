@@ -13,6 +13,10 @@
 #endif
 #include <math.h>
 
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
+
 #include "dxdidf.h"	// comment this out if c_dfDI* is being reported as multiply defined
 #include <stdlib.h>
 #include <signal.h>
@@ -305,6 +309,10 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     UNREFERENCED_PARAMETER(nCmdShow);
 
     hInstance = hInst;
+
+#ifdef _MSC_VER
+    _CrtSetDbgFlag(_CRTDBG_CHECK_ALWAYS_DF);
+#endif
 
     if (!CheckWinVersion() || hPrevInst)
     {

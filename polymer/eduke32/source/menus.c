@@ -4475,9 +4475,7 @@ cheat_for_port_credits:
                 {
                     enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
                     l = ud.config.FXVolume;
-                    ud.config.FXVolume >>= 2;
-                    _bar(1,d+8,yy+7, &ud.config.FXVolume,4,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,64);
-                    ud.config.FXVolume <<= 2;
+                    _bar(1,d+8,yy+7, &ud.config.FXVolume,15,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,255);
                     if (l != ud.config.FXVolume)
                         FX_SetVolume((int16_t) ud.config.FXVolume);
                 }
@@ -4511,9 +4509,7 @@ cheat_for_port_credits:
                 {
                     enabled = (ud.config.MusicToggle && ud.config.MusicDevice >= 0);
                     l = ud.config.MusicVolume;
-                    ud.config.MusicVolume >>= 2;
-                    _bar(1,d+8,yy+7, &ud.config.MusicVolume,4,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,64);
-                    ud.config.MusicVolume <<= 2;
+                    _bar(1,d+8,yy+7, &ud.config.MusicVolume,15,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,255);
                     if (l != ud.config.MusicVolume)
                         S_MusicVolume((int16_t) ud.config.MusicVolume);
                 }

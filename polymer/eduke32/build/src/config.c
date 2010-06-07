@@ -139,7 +139,7 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "mouse", val, VL) > 0) { if (Batoi(val) != 0) option[3] = 1; else option[3] = 0; }
     if (readconfig(fp, "bpp", val, VL) > 0) bppgame = Batoi(val);
     if (readconfig(fp, "vsync", val, VL) > 0) vsync = Batoi(val)?1:0;
-    if (readconfig(fp, "editorgridextent", val, VL) > 0) editorgridextent = max(min(524288,Batoi(val)),65536);
+    if (readconfig(fp, "editorgridextent", val, VL) > 0) editorgridextent = max(min(262144,Batoi(val)),32768);
     if (readconfig(fp, "grid", val, VL) > 0)
     {
         grid = Batoi(val);

@@ -225,7 +225,7 @@ void agecache(void)
     while(mutex_lock(&cachemutex));
     for (; cnt>=0; cnt--)
     {
-        if ((((*cac[agecount].lock)-2)&255) < 198)
+        if (cac[agecount].lock && (((*cac[agecount].lock)-2)&255) < 198)
             (*cac[agecount].lock)--;
 
         agecount--;
