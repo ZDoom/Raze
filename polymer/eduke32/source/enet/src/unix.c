@@ -30,11 +30,9 @@
 #include <sys/poll.h>
 #endif
 
-/* sys/socket.h always has this type but never defines this as far as I can tell
-#ifndef HAS_SOCKLEN_T
+#ifndef __socklen_t_defined
 typedef int socklen_t;
 #endif
-*/
 
 #ifndef MSG_NOSIGNAL
 #define MSG_NOSIGNAL 0

@@ -48,6 +48,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "enet/enet.h"
 #include "quicklz.h"
 
+#define ROTATESPRITE_MAX 2048
+
 #if KRANDDEBUG
 # define GAME_INLINE
 # define GAME_STATIC
@@ -157,7 +159,10 @@ static int32_t user_quote_time[MAXUSERQUOTES];
 static char user_quote[MAXUSERQUOTES][178];
 // char typebuflen,typebuf[41];
 
-static int32_t MAXCACHE1DSIZE = (32*1048576);
+// This was 32 for a while, but I think lowering it to 24 will help things like the Dingoo.
+// Ideally, we would look at our memory usage on our most cramped platform and figure out
+// how much of that is needed for the underlying OS and things like SDL instead of guessing
+static int32_t MAXCACHE1DSIZE = (24*1048576);
 
 int32_t tempwallptr;
 
@@ -337,7 +342,7 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
     if (t == NULL)
         return -1;
 
-    if (o & 256)
+    if (o & ROTATESPRITE_MAX)
     {
         widthx = 320<<16;
         shift = 0;
@@ -379,7 +384,7 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
 
         x = (f & 4) ?
             (xres>>1)-textsc(newx>>1) :
-        (widthx>>1)-((o & 256)?newx<<15:newx>>1);
+        (widthx>>1)-((o & ROTATESPRITE_MAX)?newx<<15:newx>>1);
     }
 
     ox = x;
@@ -419,7 +424,7 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
         if (ac < tile || ac > (tile + 93))
             break;
 
-        if (o&256)
+        if (o&ROTATESPRITE_MAX)
         {
             ox = x += (x-ox)<<16;
             oy = y += (y-oy)<<16;
@@ -439,7 +444,7 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
         if ((*t >= '0' && *t <= '9'))
             x -= i - ((8 * z)>>16);
 
-        if ((o&256) == 0) //  wrapping long strings doesn't work for precise coordinates due to overflow
+        if ((o&ROTATESPRITE_MAX) == 0) //  wrapping long strings doesn't work for precise coordinates due to overflow
         {
             if (((f&4) ? textsc(x) : x) > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
                 x = origx, y += (8 * z)>>16;
@@ -487,8 +492,8 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
     int32_t ac;
     char ch, cmode;
 
-    cmode = (sb&256)!=0;
-    sb &= 255;
+    cmode = (sb&ROTATESPRITE_MAX)!=0;
+    sb &= ROTATESPRITE_MAX-1;
 
     do
     {
@@ -594,7 +599,7 @@ void Net_Connect(const char * srvaddr)
 
     Net_Disconnect();
 
-    g_netClient = enet_host_create(NULL, 1, 0, 0);
+    g_netClient = enet_host_create(NULL, 1, CHAN_MAX, 0, 0);
 
     if (g_netClient == NULL)
     {
@@ -606,7 +611,7 @@ void Net_Connect(const char * srvaddr)
     enet_address_set_host(&address, addrstr);
     address.port = atoi((addrstr = strtok(NULL, ":")) == NULL ? "23513" : addrstr);
 
-    g_netClientPeer = enet_host_connect(g_netClient, &address, CHAN_MAX);
+    g_netClientPeer = enet_host_connect(g_netClient, &address, CHAN_MAX, 0);
 
     if (g_netClientPeer == NULL)
     {
@@ -1757,6 +1762,7 @@ void Net_GetPackets(void)
 {
     sampletimer();
     MUSIC_Update();
+    S_Update();
 
     G_HandleSpecialKeys();
 
@@ -2292,7 +2298,8 @@ void G_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t or
     if (orientation&4)
         a = 1024;
 
-    rotatesprite((orientation&256)?x:(x<<16),(orientation&256)?y:(y<<16),65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
+        65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
 void G_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
@@ -2302,7 +2309,8 @@ void G_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t
     if (orientation&4)
         a = 1024;
 
-    rotatesprite((orientation&256)?x:(x<<16),(orientation&256)?y:(y<<16),65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
+        65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
 void G_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
@@ -2312,7 +2320,8 @@ void G_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32
     if (orientation&4)
         a = 1024;
 
-    rotatesprite((orientation&256)?x:(x<<16),(orientation&256)?y:(y<<16),32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
+        32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
 void G_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
@@ -2322,14 +2331,15 @@ void G_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, in
     if (orientation&4)
         a = 1024;
 
-    rotatesprite((orientation&256)?x:(x<<16),(orientation&256)?y:(y<<16),32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
+        32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
 }
 
 #define POLYMOSTTRANS (1)
 #define POLYMOSTTRANS2 (1|32)
 
 // draws inventory numbers in the HUD for both the full and mini status bars
-static void G_DrawInvNum(int32_t x,int32_t y,char num1,char ha,char sbits)
+static void G_DrawInvNum(int32_t x,int32_t y,char num1,char ha,int32_t sbits)
 {
     char dabuf[80] = {0};
     int32_t shd = (x < 0);
@@ -2366,7 +2376,7 @@ static void G_DrawInvNum(int32_t x,int32_t y,char num1,char ha,char sbits)
     rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
 }
 
-static void G_DrawWeapNum(int16_t ind,int32_t x,int32_t y,int32_t num1, int32_t num2,char ha)
+static void G_DrawWeapNum(int16_t ind,int32_t x,int32_t y,int32_t num1, int32_t num2,int32_t ha)
 {
     char dabuf[80] = {0};
 
@@ -2375,7 +2385,7 @@ static void G_DrawWeapNum(int16_t ind,int32_t x,int32_t y,int32_t num1, int32_t 
 
     if (VOLUMEONE && (ind > HANDBOMB_WEAPON || ind < 0))
     {
-        minitextshade(x+1,y-4,"ORDER",20,11,2+8+16+256);
+        minitextshade(x+1,y-4,"ORDER",20,11,2+8+16+ROTATESPRITE_MAX);
         return;
     }
 
@@ -2529,7 +2539,7 @@ static void G_DrawWeapAmounts(DukePlayer_t *p,int32_t x,int32_t y,int32_t u)
     }
 }
 
-static void G_DrawDigiNum(int32_t x,int32_t y,int32_t n,char s,char cs)
+static void G_DrawDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
 {
     int32_t i, j = 0, k, p, c;
     char b[10];
@@ -2553,11 +2563,12 @@ static void G_DrawDigiNum(int32_t x,int32_t y,int32_t n,char s,char cs)
     }
 }
 
-void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,int32_t cs,int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t z)
+void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,
+                      int32_t cs,int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t z)
 {
     int32_t i, j = 0, k, p, c;
     char b[10];
-    int32_t shift = (cs&256)?0:16;
+    int32_t shift = (cs&ROTATESPRITE_MAX)?0:16;
 
     //ltoa(n,b,10);
     Bsnprintf(b,10,"%d",n);
@@ -2568,7 +2579,7 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
         p = starttile+*(b+k)-'0';
         j += (1+tilesizx[p]*z)>>16;
     }
-    if (cs&256) j<<=16;
+    if (cs&ROTATESPRITE_MAX) j<<=16;
     c = x-(j>>1);
 
     j = 0;
@@ -2576,11 +2587,11 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
     {
         p = starttile+*(b+k)-'0';
         rotatesprite((c+j)<<shift,y<<shift,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
-        j += ((1+tilesizx[p]*z)>>((cs&256)?0:16));
+        j += ((1+tilesizx[p]*z)>>((cs&ROTATESPRITE_MAX)?0:16));
     }
 }
 
-static void G_DrawAltDigiNum(int32_t x,int32_t y,int32_t n,char s,char cs)
+static void G_DrawAltDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
 {
     int32_t i, j = 0, k, p, c;
     char b[10];
@@ -2762,51 +2773,52 @@ static void G_DrawStatusBar(int32_t snum)
 //            rotatesprite(sbarx(5+1),sbary(200-25+1),sbarsc(49152L),0,SIXPAK,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
 //            rotatesprite(sbarx(5),sbary(200-25),sbarsc(49152L),0,SIXPAK,0,0,10+16,0,0,xdim-1,ydim-1);
             if (getrendermode() >= 3 && althud_shadows)
-                rotatesprite(sbarx(2+1),sbary(200-21+1),sbarsc(49152L),0,COLA,0,4,10+16+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(2),sbary(200-21),sbarsc(49152L),0,COLA,0,0,10+16,0,0,xdim-1,ydim-1);
+                rotatesprite(sbarx(2+1),sbary(200-21+1),sbarsc(49152L),0,COLA,0,4,10+16+256+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(2),sbary(200-21),sbarsc(49152L),0,COLA,0,0,10+16+256,0,0,xdim-1,ydim-1);
 
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
-                G_DrawAltDigiNum(40,-(200-22),1,-16,10+16);
+                G_DrawAltDigiNum(40,-(200-22),1,-16,10+16+256);
             else if (!althud_flashing || p->last_extra > (p->max_player_health>>2) || totalclock&32)
             {
                 int32_t s = -8;
                 if (althud_flashing && p->last_extra > p->max_player_health)
                     s += (sintable[(totalclock<<5)&2047]>>10);
-                G_DrawAltDigiNum(40,-(200-22),p->last_extra,s,10+16);
+                G_DrawAltDigiNum(40,-(200-22),p->last_extra,s,10+16+256);
             }
 
             if (getrendermode() >= 3 && althud_shadows)
-                rotatesprite(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(62),sbary(200-25),sbarsc(49152L),0,SHIELD,0,0,10+16,0,0,xdim-1,ydim-1);
+                rotatesprite(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+POLYMOSTTRANS2+256,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(62),sbary(200-25),sbarsc(49152L),0,SHIELD,0,0,10+16+256,0,0,xdim-1,ydim-1);
 
             {
                 int32_t lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
                 if (lAmount == -1) lAmount = p->inv_amount[GET_SHIELD];
-                G_DrawAltDigiNum(105,-(200-22),lAmount,-16,10+16);
+                G_DrawAltDigiNum(105,-(200-22),lAmount,-16,10+16+256);
             }
 
             if (getrendermode() >= 3 && althud_shadows)
             {
-                if (p->got_access&1) rotatesprite(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
-                if (p->got_access&4) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
-                if (p->got_access&2) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
+                if (p->got_access&1) rotatesprite(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512,0,0,xdim-1,ydim-1);
+                if (p->got_access&4) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512,0,0,xdim-1,ydim-1);
+                if (p->got_access&2) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512,0,0,xdim-1,ydim-1);
             }
 
-            if (p->got_access&1) rotatesprite(sbarxr(39),sbary(200-43),sbarsc(32768),0,ACCESSCARD,0,0,10+16,0,0,xdim-1,ydim-1);
-            if (p->got_access&4) rotatesprite(sbarxr(34),sbary(200-41),sbarsc(32768),0,ACCESSCARD,0,23,10+16,0,0,xdim-1,ydim-1);
-            if (p->got_access&2) rotatesprite(sbarxr(29),sbary(200-39),sbarsc(32768),0,ACCESSCARD,0,21,10+16,0,0,xdim-1,ydim-1);
+            if (p->got_access&1) rotatesprite(sbarxr(39),sbary(200-43),sbarsc(32768),0,ACCESSCARD,0,0,10+16+512,0,0,xdim-1,ydim-1);
+            if (p->got_access&4) rotatesprite(sbarxr(34),sbary(200-41),sbarsc(32768),0,ACCESSCARD,0,23,10+16+512,0,0,xdim-1,ydim-1);
+            if (p->got_access&2) rotatesprite(sbarxr(29),sbary(200-39),sbarsc(32768),0,ACCESSCARD,0,21,10+16+512,0,0,xdim-1,ydim-1);
 
-            i = 32768;
-            if (p->curr_weapon == PISTOL_WEAPON) i = 16384;
+            i = (p->curr_weapon == PISTOL_WEAPON) ? 16384 : 32768;
+
             if (getrendermode() >= 3 && althud_shadows)
-                rotatesprite(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,2+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarxr(57),sbary(200-15),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,2,0,0,xdim-1,ydim-1);
+                rotatesprite(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,10+POLYMOSTTRANS2+512,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarxr(57),sbary(200-15),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,10+512,0,0,xdim-1,ydim-1);
 
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
             else i = p->curr_weapon;
+
             if (p->curr_weapon != KNEE_WEAPON &&
                     (!althud_flashing || totalclock&32 || p->ammo_amount[i] > (p->max_ammo_amount[i]/10)))
-                G_DrawAltDigiNum(-20,-(200-22),p->ammo_amount[i],-16,10+16);
+                G_DrawAltDigiNum(-20,-(200-22),p->ammo_amount[i],-16,10+16+512);
 
             o = 102;
             permbit = 0;
@@ -2842,13 +2854,13 @@ static void G_DrawStatusBar(int32_t snum)
                 if (i >= 0)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        rotatesprite(sbarx(231-o+1),sbary(200-21-2+1),sbarsc(65536L),0,i,0,4,10+16+permbit+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
-                    rotatesprite(sbarx(231-o),sbary(200-21-2),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
+                        rotatesprite(sbarx(231-o+1),sbary(200-21-2+1),sbarsc(65536L),0,i,0,4,10+16+permbit+POLYMOSTTRANS2+256,0,0,xdim-1,ydim-1);
+                    rotatesprite(sbarx(231-o),sbary(200-21-2),sbarsc(65536L),0,i,0,0,10+16+permbit+256,0,0,xdim-1,ydim-1);
                 }
 
                 if (getrendermode() >= 3 && althud_shadows)
-                    minitext(292-30-o+1,190-3+1,"%",4,POLYMOSTTRANS+10+16+permbit + 256);
-                minitext(292-30-o,190-3,"%",6,10+16+permbit + 256);
+                    minitext(292-30-o+1,190-3+1,"%",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
+                minitext(292-30-o,190-3,"%",6,10+16+permbit+256 + ROTATESPRITE_MAX);
 
                 j = 0x80000000;
                 switch (p->inven_icon)
@@ -2878,42 +2890,43 @@ static void G_DrawStatusBar(int32_t snum)
                     i = (p->inv_amount[GET_BOOTS]>>1);
                     break;
                 }
-                G_DrawInvNum(-(284-30-o),200-6-3,(uint8_t)i,0,10+permbit);
+                G_DrawInvNum(-(284-30-o),200-6-3,(uint8_t)i,0,10+permbit+256);
                 if (j > 0)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        minitext(288-30-o+1,180-3+1,"ON",4,POLYMOSTTRANS+10+16+permbit + 256);
-                    minitext(288-30-o,180-3,"ON",0,10+16+permbit + 256);
+                        minitext(288-30-o+1,180-3+1,"ON",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
+                    minitext(288-30-o,180-3,"ON",0,10+16+permbit+256 + ROTATESPRITE_MAX);
                 }
                 else if ((uint32_t)j != 0x80000000)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        minitext(284-30-o+1,180-3+1,"OFF",4,POLYMOSTTRANS+10+16+permbit + 256);
-                    minitext(284-30-o,180-3,"OFF",2,10+16+permbit + 256);
+                        minitext(284-30-o+1,180-3+1,"OFF",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
+                    minitext(284-30-o,180-3,"OFF",2,10+16+permbit+256 + ROTATESPRITE_MAX);
                 }
                 if (p->inven_icon >= 6)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        minitext(284-35-o+1,180-3+1,"AUTO",4,POLYMOSTTRANS+10+16+permbit + 256);
-                    minitext(284-35-o,180-3,"AUTO",2,10+16+permbit + 256);
+                        minitext(284-35-o+1,180-3+1,"AUTO",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
+                    minitext(284-35-o,180-3,"AUTO",2,10+16+permbit+256 + ROTATESPRITE_MAX);
                 }
 
             }
             return;
         }
-        rotatesprite(sbarx(5),sbary(200-28),sbarsc(65536L),0,HEALTHBOX,0,21,10+16,0,0,xdim-1,ydim-1);
+
+        rotatesprite(sbarx(5),sbary(200-28),sbarsc(65536L),0,HEALTHBOX,0,21,10+16+256,0,0,xdim-1,ydim-1);
         if (p->inven_icon)
-            rotatesprite(sbarx(69),sbary(200-30),sbarsc(65536L),0,INVENTORYBOX,0,21,10+16,0,0,xdim-1,ydim-1);
+            rotatesprite(sbarx(69),sbary(200-30),sbarsc(65536L),0,INVENTORYBOX,0,21,10+16+256,0,0,xdim-1,ydim-1);
 
         if (sprite[p->i].pal == 1 && p->last_extra < 2) // frozen
-            G_DrawDigiNum(20,200-17,1,-16,10+16);
-        else G_DrawDigiNum(20,200-17,p->last_extra,-16,10+16);
+            G_DrawDigiNum(20,200-17,1,-16,10+16+256);
+        else G_DrawDigiNum(20,200-17,p->last_extra,-16,10+16+256);
 
-        rotatesprite(sbarx(37),sbary(200-28),sbarsc(65536L),0,AMMOBOX,0,21,10+16,0,0,xdim-1,ydim-1);
+        rotatesprite(sbarx(37),sbary(200-28),sbarsc(65536L),0,AMMOBOX,0,21,10+16+256,0,0,xdim-1,ydim-1);
 
         if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
         else i = p->curr_weapon;
-        G_DrawDigiNum(53,200-17,p->ammo_amount[i],-16,10+16);
+        G_DrawDigiNum(53,200-17,p->ammo_amount[i],-16,10+16+256);
 
         o = 158;
         permbit = 0;
@@ -2945,9 +2958,9 @@ static void G_DrawStatusBar(int32_t snum)
             default:
                 i = -1;
             }
-            if (i >= 0) rotatesprite(sbarx(231-o),sbary(200-21),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
+            if (i >= 0) rotatesprite(sbarx(231-o),sbary(200-21),sbarsc(65536L),0,i,0,0,10+16+permbit+256,0,0,xdim-1,ydim-1);
 
-            minitext(292-30-o,190,"%",6,10+16+permbit + 256);
+            minitext(292-30-o,190,"%",6,10+16+permbit+256 + ROTATESPRITE_MAX);
 
             j = 0x80000000;
             switch (p->inven_icon)
@@ -2977,10 +2990,10 @@ static void G_DrawStatusBar(int32_t snum)
                 i = (p->inv_amount[GET_BOOTS]>>1);
                 break;
             }
-            G_DrawInvNum(284-30-o,200-6,(uint8_t)i,0,10+permbit);
-            if (j > 0) minitext(288-30-o,180,"ON",0,10+16+permbit + 256);
-            else if ((uint32_t)j != 0x80000000) minitext(284-30-o,180,"OFF",2,10+16+permbit + 256);
-            if (p->inven_icon >= 6) minitext(284-35-o,180,"AUTO",2,10+16+permbit + 256);
+            G_DrawInvNum(284-30-o,200-6,(uint8_t)i,0,10+permbit+256);
+            if (j > 0) minitext(288-30-o,180,"ON",0,10+16+permbit+256 + ROTATESPRITE_MAX);
+            else if ((uint32_t)j != 0x80000000) minitext(284-30-o,180,"OFF",2,10+16+permbit+256 + ROTATESPRITE_MAX);
+            if (p->inven_icon >= 6) minitext(284-35-o,180,"AUTO",2,10+16+permbit+256 + ROTATESPRITE_MAX);
         }
         return;
     }
@@ -3235,8 +3248,8 @@ static void G_DrawStatusBar(int32_t snum)
                     break;
                 }
                 rotatesprite(sbarx(231-o),sbary(SBY+13),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
-                minitext(292-30-o,SBY+24,"%",6,10+16+permbit + 256);
-                if (p->inven_icon >= 6) minitext(284-35-o,SBY+14,"AUTO",2,10+16+permbit + 256);
+                minitext(292-30-o,SBY+24,"%",6,10+16+permbit + ROTATESPRITE_MAX);
+                if (p->inven_icon >= 6) minitext(284-35-o,SBY+14,"AUTO",2,10+16+permbit + ROTATESPRITE_MAX);
             }
             if (u&(2048+4096))
             {
@@ -3254,8 +3267,8 @@ static void G_DrawStatusBar(int32_t snum)
                 default:
                     j = 0x80000000;
                 }
-                if (j > 0) minitext(288-30-o,SBY+14,"ON",0,10+16+permbit + 256);
-                else if ((uint32_t)j != 0x80000000) minitext(284-30-o,SBY+14,"OFF",2,10+16+permbit + 256);
+                if (j > 0) minitext(288-30-o,SBY+14,"ON",0,10+16+permbit  + ROTATESPRITE_MAX);
+                else if ((uint32_t)j != 0x80000000) minitext(284-30-o,SBY+14,"OFF",2,10+16+permbit + ROTATESPRITE_MAX);
             }
             if (u&8192)
             {
@@ -3551,7 +3564,7 @@ void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, in
                 KB_ClearKeyDown(sc_Space);
                 return;
             }
-            rotatesprite(0,0,65536L,0,tile,0,0,2+8+16, 0,0,xdim-1,ydim-1);
+            rotatesprite(0,0,65536L,0,tile,0,0,2+8+16+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
             G_FadePalette(r,g,b,start);
         }
     }
@@ -3562,7 +3575,7 @@ void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, in
             KB_ClearKeyDown(sc_Space);
             return;
         }
-        rotatesprite(0,0,65536L,0,tile,0,0,2+8+16, 0,0,xdim-1,ydim-1);
+        rotatesprite(0,0,65536L,0,tile,0,0,2+8+16+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
         G_FadePalette(r,g,b,start);
     }
 }
@@ -3582,7 +3595,7 @@ static void G_DisplayExtraScreens(void)
         P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
-        rotatesprite(0,0,65536L,0,3291,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+        rotatesprite(0,0,65536L,0,3291,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
         fadepaltile(0,0,0, 63,0,-7, 3291);
                 while (!KB_KeyWaiting())
         {
@@ -3592,7 +3605,7 @@ static void G_DisplayExtraScreens(void)
 
         fadepaltile(0,0,0, 0,64,7, 3291);
         KB_FlushKeyboardQueue();
-        rotatesprite(0,0,65536L,0,3290,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+        rotatesprite(0,0,65536L,0,3290,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
         fadepaltile(0,0,0, 63,0,-7,3290);
         while (!KB_KeyWaiting())
         {
@@ -3609,7 +3622,7 @@ static void G_DisplayExtraScreens(void)
         P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
-        rotatesprite(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+        rotatesprite(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
         fadepaltile(0,0,0, 63,0,-7,TENSCREEN);
         while (!KB_KeyWaiting() && totalclock < 2400)
         {
@@ -3930,6 +3943,11 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     char col;
     walltype *wal, *wal2;
     spritetype *spr;
+    int32_t oydim=ydim;
+
+    ydim = (int32_t)((double)xdim * 0.625f);
+    setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+    ydim = oydim;
 
     xvect = sintable[(-cang)&2047] * czoom;
     yvect = sintable[(1536-cang)&2047] * czoom;
@@ -4170,6 +4188,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         }
     }
 
+    setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+
     TRAVERSE_CONNECT(p)
     {
         if (ud.scrollmode && p == screenpeek) continue;
@@ -4201,7 +4221,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
             rotatesprite((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),j,daang,i,sprite[g_player[p].ps->i].shade,
                          (g_player[p].ps->cursectnum > -1)?sector[g_player[p].ps->cursectnum].floorpal:0,
-                         (sprite[g_player[p].ps->i].cstat&2)>>1,windowx1,windowy1,windowx2,windowy2);
+                         0,windowx1,windowy1,windowx2,windowy2);
         }
     }
 }
@@ -4493,8 +4513,8 @@ void G_DisplayRest(int32_t smoothratio)
             {
                 if (ud.screen_size > 0) a = 147;
                 else a = 179;
-                minitext(5,a+6,EpisodeNames[ud.volume_number],0,2+8+16);
-                minitext(5,a+6+6,MapInfo[ud.volume_number*MAXLEVELS + ud.level_number].name,0,2+8+16);
+                minitext(5,a+6,EpisodeNames[ud.volume_number],0,2+8+16+256);
+                minitext(5,a+6+6,MapInfo[ud.volume_number*MAXLEVELS + ud.level_number].name,0,2+8+16+256);
             }
         }
     }
@@ -4783,7 +4803,7 @@ void G_DrawBackground(void)
                 for (x=0; x<xdim; x+=tilesizx[aGameVars[g_iReturnVarID].val.lValue])
                     rotatesprite(x<<16,y<<16,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,8+16+64,0,0,xdim-1,ydim-1);
         }
-        else rotatesprite(320<<15,200<<15,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,2+8+64,0,0,xdim-1,ydim-1);
+        else rotatesprite(320<<15,200<<15,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,2+8+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
         return;
     }
 
@@ -4812,7 +4832,7 @@ void G_DrawBackground(void)
     }
 
     // draw in the bits to the left and right of the non-fullsize status bar
-    if (ud.statusbarscale < 100 && ud.screen_size >= 8 && ud.statusbarmode == 0)
+    if (ud.screen_size >= 8 && ud.statusbarmode == 0)
     {
         /*
         y1 = y2;
@@ -4827,7 +4847,7 @@ void G_DrawBackground(void)
             }
             */
         // when not rendering a game, fullscreen wipe
-        x2 = (xdim - scale(xdim,ud.statusbarscale,100)) >> 1;
+        x2 = (xdim - scale((int32_t)(ydim*1.333333333333333333f),ud.statusbarscale,100)) >> 1;
         for (y=y2-y2%tilesizy[dapicnum]; y<ydim; y+=tilesizy[dapicnum])
             for (x=0; x<xdim>>1; x+=tilesizx[dapicnum])
             {
@@ -5071,7 +5091,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     else
     {
         i = divscale22(1,sprite[p->i].yrepeat+28);
-        if (i != oyrepeat)
+//        if (i != oyrepeat)
         {
             oyrepeat = i;
             setaspect(oyrepeat,yxaspect);
@@ -9208,9 +9228,23 @@ GAME_STATIC void G_HandleLocalKeys(void)
             inputloc = 0;
         }
 
-        if (KB_UnBoundKeyPressed(sc_F1) || (ud.show_help && (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || MOUSE_GetButtons()&LEFT_MOUSE)))
+        if (KB_UnBoundKeyPressed(sc_F1)/* || (ud.show_help && (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || MOUSE_GetButtons()&LEFT_MOUSE))*/)
         {
             KB_ClearKeyDown(sc_F1);
+            ChangeToMenu(400);
+            FX_StopAllSounds();
+            S_ClearSoundLocks();
+
+            g_player[myconnectindex].ps->gm |= MODE_MENU;
+
+            if ((!g_netServer && ud.multimode < 2))
+            {
+                ready2send = 0;
+                totalclock = ototalclock;
+                screenpeek = myconnectindex;
+            }
+
+/*
             KB_ClearKeyDown(sc_Space);
             KB_ClearKeyDown(sc_kpad_Enter);
             KB_ClearKeyDown(sc_Enter);
@@ -9232,6 +9266,7 @@ GAME_STATIC void G_HandleLocalKeys(void)
                     totalclock = ototalclock;
                 }
             }
+*/
         }
 
         //        if((!net_server && ud.multimode < 2))
@@ -10081,7 +10116,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     address.host = ENET_HOST_ANY;
                     address.port = g_netPort;
 
-                    g_netServer = enet_host_create(&address, MAXPLAYERS, 0, 0);
+                    g_netServer = enet_host_create(&address, MAXPLAYERS, CHAN_MAX, 0, 0);
 
                     if (g_netServer == NULL)
                         initprintf("An error occurred while trying to create an ENet server host.\n");
@@ -10480,13 +10515,13 @@ static void G_DisplayLogo(void)
                 P_SetGamePalette(g_player[myconnectindex].ps, drealms, 11);    // JBF 20040308
                 fadepal(0,0,0, 0,64,7);
                 flushperms();
-                rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16, 0,0,xdim-1,ydim-1);
+                rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
                 nextpage();
                 fadepaltile(0,0,0, 63,0,-7,DREALMS);
                 totalclock = 0;
                 while (totalclock < (120*7) && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE  && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
                 {
-                    rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+                    rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
                     handleevents();
                     Net_GetPackets();
                     if (g_restorePalette)
@@ -10517,7 +10552,7 @@ static void G_DisplayLogo(void)
 
             while (totalclock < (860+120) && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE  && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
             {
-                rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+                rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
                 if (logoflags & LOGO_DUKENUKEM)
                 {
                     if (totalclock > 120 && totalclock < (120+60))
@@ -11084,7 +11119,7 @@ void app_main(int32_t argc,const char **argv)
     int32_t i = 0, j;
     char cwd[BMAX_PATH];
 //    extern char datetimestring[];
-    ENetCallbacks callbacks = { Bmalloc, Bfree, NULL, NULL };
+    ENetCallbacks callbacks = { Bmalloc, Bfree, NULL };
 
 #ifdef RENDERTYPEWIN
     if (argc > 1)
@@ -11714,7 +11749,7 @@ CLEAN_DIRECTORY:
         //g_player[myconnectindex].ps->palette = palette;
         //G_FadePalette(0,0,0,0);
         P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
-        rotatesprite(320<<15,200<<15,65536L,0,LOADSCREEN,0,0,2+8+64,0,0,xdim-1,ydim-1);
+        rotatesprite(320<<15,200<<15,65536L,0,LOADSCREEN,0,0,2+8+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
         menutext(160,105,0,0,"LOADING SAVED GAME...");
         nextpage();
 
@@ -11909,7 +11944,6 @@ MAIN_LOOP_RESTART:
             G_DisplayRest(i);
             if (getrendermode() >= 3)
                 G_DrawBackground();
-            S_Update();
 
             framewaiting++;
         }
@@ -12764,7 +12798,7 @@ static void G_DoOrderScreen(void)
     //g_player[myconnectindex].ps->palette = palette;
     P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
     KB_FlushKeyboardQueue();
-    rotatesprite(0,0,65536L,0,ORDERING,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+    rotatesprite(0,0,65536L,0,ORDERING,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
     {
@@ -12774,7 +12808,7 @@ static void G_DoOrderScreen(void)
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
-    rotatesprite(0,0,65536L,0,ORDERING+1,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+    rotatesprite(0,0,65536L,0,ORDERING+1,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
     {
@@ -12784,7 +12818,7 @@ static void G_DoOrderScreen(void)
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
-    rotatesprite(0,0,65536L,0,ORDERING+2,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+    rotatesprite(0,0,65536L,0,ORDERING+2,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
     {
@@ -12794,7 +12828,7 @@ static void G_DoOrderScreen(void)
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
-    rotatesprite(0,0,65536L,0,ORDERING+3,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+    rotatesprite(0,0,65536L,0,ORDERING+3,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
     {
@@ -12839,7 +12873,12 @@ void G_BonusScreen(int32_t bonusonly)
         if (!lastmapname) lastmapname = Bstrrchr(boardfilename,'/');
         if (!lastmapname) lastmapname = boardfilename;
     }
-    else lastmapname = MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name;
+    else
+    {
+        lastmapname = MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name;
+        if (!lastmapname) // this isn't right but it's better than no name at all
+            lastmapname = MapInfo[(ud.m_volume_number*MAXLEVELS)+ud.last_level-1].name;
+    }
 
     bonuscnt = 0;
 
@@ -12864,7 +12903,7 @@ void G_BonusScreen(int32_t bonusonly)
             {
                 P_SetGamePalette(g_player[myconnectindex].ps, endingpal, 11); // JBF 20040308
                 clearview(0L);
-                rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
                 nextpage();
                 //g_player[myconnectindex].ps->palette = endingpal;
                 fadepal(0,0,0, 63,0,-1);
@@ -12875,7 +12914,7 @@ void G_BonusScreen(int32_t bonusonly)
                 while (1)
                 {
                     clearview(0L);
-                    rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                    rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
 
                     // boss
                     if (totalclock > 390 && totalclock < 780)
@@ -12887,7 +12926,7 @@ void G_BonusScreen(int32_t bonusonly)
                                     S_PlaySound(SQUISHED);
                                     bonuscnt++;
                                 }
-                                rotatesprite(bossmove[t+3]<<16,bossmove[t+4]<<16,65536L,0,bossmove[t+2],0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                                rotatesprite(bossmove[t+3]<<16,bossmove[t+4]<<16,65536L,0,bossmove[t+2],0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
                             }
 
                     // Breathe
@@ -12895,7 +12934,7 @@ void G_BonusScreen(int32_t bonusonly)
                     {
                         if (totalclock >= 750)
                         {
-                            rotatesprite(86<<16,59<<16,65536L,0,VICTORY1+8,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                            rotatesprite(86<<16,59<<16,65536L,0,VICTORY1+8,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
                             if (totalclock >= 750 && bonuscnt == 2)
                             {
                                 S_PlaySound(DUKETALKTOBOSS);
@@ -12911,7 +12950,7 @@ void G_BonusScreen(int32_t bonusonly)
                                     S_PlaySound(BOSSTALKTODUKE);
                                     bonuscnt++;
                                 }
-                                rotatesprite(breathe[t+3]<<16,breathe[t+4]<<16,65536L,0,breathe[t+2],0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                                rotatesprite(breathe[t+3]<<16,breathe[t+4]<<16,65536L,0,breathe[t+2],0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
                             }
                     }
                     handleevents();
@@ -12927,7 +12966,7 @@ void G_BonusScreen(int32_t bonusonly)
             //g_player[myconnectindex].ps->palette = palette;
             P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
 
-            rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+            rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
             fadepal(0,0,0, 63,0,-1);
             while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
             {
@@ -12959,7 +12998,7 @@ void G_BonusScreen(int32_t bonusonly)
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
             P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
-            rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64, 0,0,xdim-1,ydim-1);
+            rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
             fadepal(0,0,0, 63,0,-1);
             while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
             {
@@ -13144,7 +13183,7 @@ FRAGBONUS:
         if (!(ud.config.MusicToggle == 0 || ud.config.MusicDevice < 0))
             S_PlaySound(BONUSMUSIC);
 
-        rotatesprite(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64,0,0,xdim-1,ydim-1);
+        rotatesprite(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
         rotatesprite(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10,0,0,xdim-1,ydim-1);
         if (PLUTOPAK)   // JBF 20030804
             rotatesprite((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8,0,0,xdim-1,ydim-1);
@@ -13245,9 +13284,10 @@ FRAGBONUS:
         break;
     }
 
-    rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+    rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
 
-    menutext(160,20-6,0,0,lastmapname);
+    if (lastmapname)
+        menutext(160,20-6,0,0,lastmapname);
     menutext(160,36-6,0,0,"COMPLETED");
 
     gametext(160,192,"PRESS ANY KEY OR BUTTON TO CONTINUE",quotepulseshade,2+8+16);
@@ -13300,7 +13340,7 @@ FRAGBONUS:
 
         if (g_player[myconnectindex].ps->gm&MODE_EOL)
         {
-            rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+            rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
 
             if (totalclock > (1000000000L) && totalclock < (1000000320L))
             {
@@ -13330,11 +13370,11 @@ FRAGBONUS:
                 case 1:
                 case 4:
                 case 5:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+3+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+3+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
                     break;
                 case 2:
                 case 3:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+4+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+4+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
                     break;
                 }
             }
@@ -13345,15 +13385,16 @@ FRAGBONUS:
                 {
                 case 1:
                 case 3:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+1+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+1+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
                     break;
                 case 2:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+2+gfx_offset,0,0,2+8+16+64+128,0,0,xdim-1,ydim-1);
+                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+2+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
                     break;
                 }
             }
 
-            menutext(160,20-6,0,0,lastmapname);
+            if (lastmapname)
+                menutext(160,20-6,0,0,lastmapname);
             menutext(160,36-6,0,0,"COMPLETED");
 
             gametext(160,192,"PRESS ANY KEY OR BUTTON TO CONTINUE",quotepulseshade,2+8+16);

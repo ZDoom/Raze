@@ -40,6 +40,7 @@ extern int32_t A_PlaySound(uint32_t num,int32_t i);
 extern void S_StopSound(int32_t num);
 extern void S_StopEnvSound(int32_t num,int32_t i);
 extern void S_Update(void);
+extern void S_Cleanup(void);
 extern void S_Callback(uint32_t num);
 extern void S_ClearSoundLocks(void);
 extern int32_t A_CallSound(int32_t sn,int32_t whatsprite);

@@ -70,7 +70,7 @@ extern "C" {
 #define JoyMax           0xa00
 #define MaxJoyValue      5000
 
-#define DEFAULTMOUSESENSITIVITY 10 // 0x7000+MINIMUMMOUSESENSITIVITY
+#define DEFAULTMOUSESENSITIVITY 7 // 0x7000+MINIMUMMOUSESENSITIVITY
 
 #define INSTANT_ONOFF       0
 #define TOGGLE_ONOFF        1

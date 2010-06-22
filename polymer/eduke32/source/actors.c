@@ -2164,8 +2164,7 @@ CLEAR_THE_BOLT:
 
             if (t[1])
             {
-                t[1]--;
-                if (t[1] == 0)
+                if (--t[1] == 0)
                     s->cstat &= 32767;
             }
             else

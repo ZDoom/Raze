@@ -994,7 +994,8 @@ void                polymer_editorpick(void)
     searchit = 0;
 }
 
-void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, char dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
+void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade,
+                                         char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     UNREFERENCED_PARAMETER(sx);
     UNREFERENCED_PARAMETER(sy);
@@ -3091,7 +3092,7 @@ static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projecti
 
 static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum)
 {
-    int32_t         i, j, k;
+    int32_t         i, j, k = -1;
 
     i = 4;
     do

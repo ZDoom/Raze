@@ -812,13 +812,7 @@ int32_t FX_PlayLoopedRaw
    with the specified handle.
 ---------------------------------------------------------------------*/
 
-int32_t FX_Pan3D
-(
-    int32_t handle,
-    int32_t angle,
-    int32_t distance
-)
-
+int32_t FX_Pan3D(int32_t handle,int32_t angle,int32_t distance)
 {
     int32_t status;
 
@@ -839,11 +833,7 @@ int32_t FX_Pan3D
    Tests if the specified sound is currently playing.
 ---------------------------------------------------------------------*/
 
-int32_t FX_SoundActive
-(
-    int32_t handle
-)
-
+int32_t FX_SoundActive(int32_t handle)
 {
     return(MV_VoicePlaying(handle));
 }
@@ -855,11 +845,7 @@ int32_t FX_SoundActive
    Reports the number of voices playing.
 ---------------------------------------------------------------------*/
 
-int32_t FX_SoundsPlaying
-(
-    void
-)
-
+int32_t FX_SoundsPlaying(void)
 {
     return(MV_VoicesPlaying());
 }
@@ -871,11 +857,7 @@ int32_t FX_SoundsPlaying
    Halts playback of a specific voice
 ---------------------------------------------------------------------*/
 
-int32_t FX_StopSound
-(
-    int32_t handle
-)
-
+int32_t FX_StopSound(int32_t handle)
 {
     int32_t status;
 
@@ -979,7 +961,7 @@ int32_t FX_PlayAuto(char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol
         break;
     }
 
-    if (handle < MV_Ok)
+    if (handle <= MV_Ok)
     {
         FX_SetErrorCode(FX_MultiVocError);
         handle = FX_Warning;
@@ -987,6 +969,14 @@ int32_t FX_PlayAuto(char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol
 
     return handle;
 }
+
+int32_t FX_SetPrintf(void (*function)(const char *, ...))
+{
+    MV_SetPrintf(function);
+
+    return FX_Ok;
+}
+
 
 /*---------------------------------------------------------------------
    Function: FX_PlayLoopedAuto
@@ -1021,7 +1011,7 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
     }
 
 
-    if (handle < MV_Ok)
+    if (handle <= MV_Ok)
     {
         FX_SetErrorCode(FX_MultiVocError);
         handle = FX_Warning;
@@ -1061,11 +1051,25 @@ int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t pitchoffset, int32_t a
         break;
     }
 
-    if (handle < MV_Ok)
+    if (handle <= MV_Ok)
     {
         FX_SetErrorCode(FX_MultiVocError);
         handle = FX_Warning;
     }
 
     return handle;
+}
+
+int32_t FX_SetVoiceCallback(int32_t handle, uint32_t callbackval)
+{
+    int32_t status;
+
+    status = MV_SetVoiceCallback(handle, callbackval);
+    if (status != MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        return(FX_Warning);
+    }
+
+    return(FX_Ok);
 }

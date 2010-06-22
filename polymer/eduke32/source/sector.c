@@ -2968,10 +2968,9 @@ CHECKINV1:
                     if (p->jetpack_on)
                     {
                         p->inven_icon = 4;
-                        if (p->scream_voice >= FX_Ok)
+                        if (p->scream_voice > FX_Ok)
                         {
                             FX_StopSound(p->scream_voice);
-//                            S_TestSoundCallback(DUKE_SCREAM);
                             p->scream_voice = -1;
                         }
 

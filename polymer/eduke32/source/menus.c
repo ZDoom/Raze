@@ -4934,7 +4934,23 @@ VOLUME_ALL_40x:
         if (x == -1)
         {
             if (g_player[myconnectindex].ps->gm&MODE_GAME)
-                ChangeToMenu(50);
+            {
+                switch (g_currentMenu)
+                {
+                case 400:
+                case 401:
+                    g_player[myconnectindex].ps->gm = MODE_GAME;
+                    if ((!g_netServer && ud.multimode < 2)  && ud.recstat != 2)
+                    {
+                        ready2send = 1;
+                        totalclock = ototalclock;
+                    }
+                    break;
+                default:
+                    ChangeToMenu(50);
+                    break;
+                }
+            }
             else ChangeToMenu(0);
             return;
         }

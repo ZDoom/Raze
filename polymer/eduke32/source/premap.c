@@ -350,7 +350,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
             clearview(0L);
         }
 
-        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
+        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
 
         if (j > MAXTILES-1)
         {
@@ -402,7 +402,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
         aGameVars[g_iReturnVarID].val.lValue = LOADSCREEN;
         VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
         j = aGameVars[g_iReturnVarID].val.lValue;
-        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64,0,0,xdim-1,ydim-1);
+        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
         if (j > MAXTILES-1)
         {
             nextpage();

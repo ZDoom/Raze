@@ -455,10 +455,11 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                     {
                                         if (ProjectileData[atwith].decal >= 0)
                                         {
-                                            if (!(SpriteFlags[ProjectileData[atwith].decal] & SPRITE_DECAL))
-                                                SpriteFlags[ProjectileData[atwith].decal] |= SPRITE_DECAL;
-
                                             k = A_Spawn(i,ProjectileData[atwith].decal);
+
+                                            if (!A_CheckSpriteFlags(k , SPRITE_DECAL))
+                                                actor[k].flags |= SPRITE_DECAL;
+
                                             sprite[k].xvel = -1;
                                             sprite[k].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,
                                                                      wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
@@ -841,6 +842,10 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                     if (ProjectileData[atwith].decal >= 0)
                                     {
                                         l = A_Spawn(k,ProjectileData[atwith].decal);
+
+                                        if (!A_CheckSpriteFlags(l , SPRITE_DECAL))
+                                            actor[l].flags |= SPRITE_DECAL;
+
                                         sprite[l].xvel = -1;
                                         sprite[l].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,
                                                                  wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
@@ -1400,6 +1405,10 @@ DOSKIPBULLETHOLE:
                                         l = nextspritestat[l];
                                     }
                                     l = A_Spawn(k,BULLETHOLE);
+
+                                    if (!A_CheckSpriteFlags(l , SPRITE_DECAL))
+                                        actor[l].flags |= SPRITE_DECAL;
+
                                     sprite[l].xvel = -1;
                                     sprite[l].x = hitinfo.pos.x;
                                     sprite[l].y = hitinfo.pos.y;
@@ -2020,9 +2029,9 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     if (getrendermode() >= 3 && usemodels && md_tilehasmodel(tilenum,p) > 0)
         y += (224-weapsc(224));
 #endif
-    rotatesprite(weapsc((orientation&256)?x:(x<<16))+((xoff-weapsc(xoff))<<16),
-                 weapsc((orientation&256)?y:(y<<16))+((200-weapsc(200))<<16),
-                 weapsc(65536L),a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite(weapsc((orientation&1024)?x:(x<<16))+((xoff-weapsc(xoff))<<16),
+                 weapsc((orientation&1024)?y:(y<<16))+((200-weapsc(200))<<16),
+                 weapsc(65536L),a,tilenum,shade,p,(2|orientation),windowx1,windowy1,windowx2,windowy2);
 }
 
 static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
@@ -2473,12 +2482,12 @@ void P_DisplayWeapon(int32_t snum)
                         if (*kb < 8)
                         {
                             G_DrawWeaponTile(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
-                                             RPGGUN+((*kb)>>1),gs,o,pal);
+                                             RPGGUN+((*kb)>>1),gs,o|512,pal);
                         }
                     }
 
                     G_DrawWeaponTile(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
-                                     RPGGUN,gs,o,pal);
+                                     RPGGUN,gs,o|512,pal);
                 }
                 break;
 
@@ -2666,42 +2675,42 @@ void P_DisplayWeapon(int32_t snum)
                         if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-17)
                         {
                             guniqhudid = cw;
-                            G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+230-gun_pos,FIRSTGUN+4,gs,o,pal);
+                            G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+230-gun_pos,FIRSTGUN+4,gs,o|512,pal);
                             guniqhudid = 0;
                         }
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-12)
                         {
-                            G_DrawWeaponTile(244-((*kb)<<3)-(p->look_ang>>1),looking_arc+130-gun_pos+((*kb)<<4),FIRSTGUN+6,gs,o,pal);
+                            G_DrawWeaponTile(244-((*kb)<<3)-(p->look_ang>>1),looking_arc+130-gun_pos+((*kb)<<4),FIRSTGUN+6,gs,o|512,pal);
                             guniqhudid = cw;
-                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o|512,pal);
                             guniqhudid = 0;
                         }
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-7)
                         {
-                            G_DrawWeaponTile(124+((*kb)<<1)-(p->look_ang>>1),looking_arc+430-gun_pos-((*kb)<<3),FIRSTGUN+6,gs,o,pal);
+                            G_DrawWeaponTile(124+((*kb)<<1)-(p->look_ang>>1),looking_arc+430-gun_pos-((*kb)<<3),FIRSTGUN+6,gs,o|512,pal);
                             guniqhudid = cw;
-                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o|512,pal);
                             guniqhudid = 0;
                         }
 
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-4)
                         {
-                            G_DrawWeaponTile(184-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+8,gs,o,pal);
+                            G_DrawWeaponTile(184-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+8,gs,o|512,pal);
                             guniqhudid = cw;
-                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+210-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+210-gun_pos,FIRSTGUN+5,gs,o|512,pal);
                             guniqhudid = 0;
                         }
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON]-2)
                         {
-                            G_DrawWeaponTile(164-(p->look_ang>>1),looking_arc+245-gun_pos,FIRSTGUN+8,gs,o,pal);
+                            G_DrawWeaponTile(164-(p->look_ang>>1),looking_arc+245-gun_pos,FIRSTGUN+8,gs,o|512,pal);
                             guniqhudid = cw;
-                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            G_DrawWeaponTile(224-(p->look_ang>>1),looking_arc+220-gun_pos,FIRSTGUN+5,gs,o|512,pal);
                             guniqhudid = 0;
                         }
                         else if ((*kb) < *aplWeaponReload[PISTOL_WEAPON])
                         {
                             guniqhudid = cw;
-                            G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+5,gs,o,pal);
+                            G_DrawWeaponTile(194-(p->look_ang>>1),looking_arc+235-gun_pos,FIRSTGUN+5,gs,o|512,pal);
                             guniqhudid = 0;
                         }
 
@@ -2841,15 +2850,15 @@ void P_DisplayWeapon(int32_t snum)
                         }
                         gun_pos -= 16;
                         guniqhudid = 0;
-                        G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE+2,-32,o,pal);
+                        G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE+2,-32,o|512,pal);
                         guniqhudid = cw;
-                        G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+235-gun_pos,FREEZE+3+cat_frames[*kb%6],-32,o,pal);
+                        G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+235-gun_pos,FREEZE+3+cat_frames[*kb%6],-32,o|512,pal);
                         guniqhudid = 0;
                     }
                     else
                     {
                         guniqhudid = cw;
-                        G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE,gs,o,pal);
+                        G_DrawWeaponTile(weapon_xoffset+210-(p->look_ang>>1),looking_arc+261-gun_pos,FREEZE,gs,o|512,pal);
                         guniqhudid = 0;
                     }
                 }
@@ -3065,72 +3074,6 @@ void getinput(int32_t snum)
         return;
     }
 
-    if (BUTTON(gamefunc_Jump) && p->on_ground)
-        jump_timer = 4;
-
-    loc.bits = (jump_timer > 0 || BUTTON(gamefunc_Jump))<<SK_JUMP;
-    loc.bits |=   BUTTON(gamefunc_Crouch)<<SK_CROUCH;
-    loc.bits |=   BUTTON(gamefunc_Fire)<<SK_FIRE;
-    loc.bits |=   BUTTON(gamefunc_Aim_Up)<<SK_AIM_UP;
-    loc.bits |=   BUTTON(gamefunc_Aim_Down)<<SK_AIM_DOWN;
-    if (ud.runkey_mode) loc.bits |= (ud.auto_run | BUTTON(gamefunc_Run))<<SK_RUN;
-    else loc.bits |= (BUTTON(gamefunc_Run) ^ ud.auto_run)<<SK_RUN;
-    loc.bits |=   BUTTON(gamefunc_Look_Left)<<SK_LOOK_LEFT;
-    loc.bits |=   BUTTON(gamefunc_Look_Right)<<SK_LOOK_RIGHT;
-
-    if (aplWeaponFlags[g_player[snum].ps->curr_weapon][snum] & WEAPON_SEMIAUTO && BUTTON(gamefunc_Fire))
-        CONTROL_ClearButton(gamefunc_Fire);
-
-    if (jump_timer > 0)
-        jump_timer--;
-
-    j=0;
-
-    if (BUTTON(gamefunc_Weapon_1))
-        j = 1;
-    if (BUTTON(gamefunc_Weapon_2))
-        j = 2;
-    if (BUTTON(gamefunc_Weapon_3))
-        j = 3;
-    if (BUTTON(gamefunc_Weapon_4))
-        j = 4;
-    if (BUTTON(gamefunc_Weapon_5))
-        j = 5;
-    if (BUTTON(gamefunc_Weapon_6))
-        j = 6;
-    if (BUTTON(gamefunc_Weapon_7))
-        j = 7;
-    if (BUTTON(gamefunc_Weapon_8))
-        j = 8;
-    if (BUTTON(gamefunc_Weapon_9))
-        j = 9;
-    if (BUTTON(gamefunc_Weapon_10))
-        j = 10;
-    if (BUTTON(gamefunc_Previous_Weapon))
-        j = 11;
-    if (BUTTON(gamefunc_Next_Weapon))
-        j = 12;
-
-    loc.bits |=   j<<SK_WEAPON_BITS;
-    loc.bits |=   BUTTON(gamefunc_Steroids)<<SK_STEROIDS;
-    loc.bits |=   BUTTON(gamefunc_Look_Up)<<SK_LOOK_UP;
-    loc.bits |=   BUTTON(gamefunc_Look_Down)<<SK_LOOK_DOWN;
-    loc.bits |=   BUTTON(gamefunc_NightVision)<<SK_NIGHTVISION;
-    loc.bits |=   BUTTON(gamefunc_MedKit)<<SK_MEDKIT;
-    loc.bits |=   BUTTON(gamefunc_Center_View)<<SK_CENTER_VIEW;
-    loc.bits |=   BUTTON(gamefunc_Holster_Weapon)<<SK_HOLSTER;
-    loc.bits |=   BUTTON(gamefunc_Inventory_Left)<<SK_INV_LEFT;
-    loc.bits |=   KB_KeyPressed(sc_Pause)<<SK_PAUSE;
-    loc.bits |=   BUTTON(gamefunc_Quick_Kick)<<SK_QUICK_KICK;
-    loc.bits |=   g_myAimMode<<SK_AIMMODE;
-    loc.bits |=   BUTTON(gamefunc_Holo_Duke)<<SK_HOLODUKE;
-    loc.bits |=   BUTTON(gamefunc_Jetpack)<<SK_JETPACK;
-    loc.bits |= (((int32_t)g_gameQuit)<<SK_GAMEQUIT);
-    loc.bits |=   BUTTON(gamefunc_Inventory_Right)<<SK_INV_RIGHT;
-    loc.bits |=   BUTTON(gamefunc_TurnAround)<<SK_TURNAROUND;
-    loc.bits |=   BUTTON(gamefunc_Open)<<SK_OPEN;
-    loc.bits |=   BUTTON(gamefunc_Inventory)<<SK_INVENTORY;
-    loc.bits |=   KB_KeyPressed(sc_Escape)<<SK_ESCAPE;
 
     //    running = BUTTON(gamefunc_Run)|ud.auto_run;
     // JBF: Run key behaviour is selectable
@@ -3220,6 +3163,79 @@ void getinput(int32_t snum)
     if (horiz < -MAXHORIZ) horiz = -MAXHORIZ;
     if (horiz > MAXHORIZ) horiz = MAXHORIZ;
 
+    j=0;
+
+    if (BUTTON(gamefunc_Weapon_1))
+        j = 1;
+    if (BUTTON(gamefunc_Weapon_2))
+        j = 2;
+    if (BUTTON(gamefunc_Weapon_3))
+        j = 3;
+    if (BUTTON(gamefunc_Weapon_4))
+        j = 4;
+    if (BUTTON(gamefunc_Weapon_5))
+        j = 5;
+    if (BUTTON(gamefunc_Weapon_6))
+        j = 6;
+    if (BUTTON(gamefunc_Weapon_7))
+        j = 7;
+    if (BUTTON(gamefunc_Weapon_8))
+        j = 8;
+    if (BUTTON(gamefunc_Weapon_9))
+        j = 9;
+    if (BUTTON(gamefunc_Weapon_10))
+        j = 10;
+    if (BUTTON(gamefunc_Previous_Weapon) || (BUTTON(gamefunc_Dpad_Select) && vel < 0))
+        j = 11;
+    if (BUTTON(gamefunc_Next_Weapon) || (BUTTON(gamefunc_Dpad_Select) && vel > 0))
+        j = 12;
+
+    if (BUTTON(gamefunc_Jump) && p->on_ground)
+        jump_timer = 4;
+
+    if (aplWeaponFlags[g_player[snum].ps->curr_weapon][snum] & WEAPON_SEMIAUTO && BUTTON(gamefunc_Fire))
+        CONTROL_ClearButton(gamefunc_Fire);
+
+    loc.bits = (jump_timer > 0 || BUTTON(gamefunc_Jump))<<SK_JUMP;
+
+    if (jump_timer > 0)
+        jump_timer--;
+
+    loc.bits |=   BUTTON(gamefunc_Crouch)<<SK_CROUCH;
+    loc.bits |=   BUTTON(gamefunc_Fire)<<SK_FIRE;
+    loc.bits |=   (BUTTON(gamefunc_Aim_Up) || (BUTTON(gamefunc_Dpad_Aiming) && vel > 0))<<SK_AIM_UP;
+    loc.bits |=   (BUTTON(gamefunc_Aim_Down) || (BUTTON(gamefunc_Dpad_Aiming) && vel < 0))<<SK_AIM_DOWN;
+    if (ud.runkey_mode) loc.bits |= (ud.auto_run | BUTTON(gamefunc_Run))<<SK_RUN;
+    else loc.bits |= (BUTTON(gamefunc_Run) ^ ud.auto_run)<<SK_RUN;
+    loc.bits |=   BUTTON(gamefunc_Look_Left)<<SK_LOOK_LEFT;
+    loc.bits |=   BUTTON(gamefunc_Look_Right)<<SK_LOOK_RIGHT;
+    loc.bits |=   j<<SK_WEAPON_BITS;
+    loc.bits |=   BUTTON(gamefunc_Steroids)<<SK_STEROIDS;
+    loc.bits |=   BUTTON(gamefunc_Look_Up)<<SK_LOOK_UP;
+    loc.bits |=   BUTTON(gamefunc_Look_Down)<<SK_LOOK_DOWN;
+    loc.bits |=   BUTTON(gamefunc_NightVision)<<SK_NIGHTVISION;
+    loc.bits |=   BUTTON(gamefunc_MedKit)<<SK_MEDKIT;
+    loc.bits |=   BUTTON(gamefunc_Center_View)<<SK_CENTER_VIEW;
+    loc.bits |=   BUTTON(gamefunc_Holster_Weapon)<<SK_HOLSTER;
+    loc.bits |=   (BUTTON(gamefunc_Inventory_Left) || (BUTTON(gamefunc_Dpad_Select) && (svel > 0 || angvel < 0))) <<SK_INV_LEFT;
+    loc.bits |=   KB_KeyPressed(sc_Pause)<<SK_PAUSE;
+    loc.bits |=   BUTTON(gamefunc_Quick_Kick)<<SK_QUICK_KICK;
+    loc.bits |=   g_myAimMode<<SK_AIMMODE;
+    loc.bits |=   BUTTON(gamefunc_Holo_Duke)<<SK_HOLODUKE;
+    loc.bits |=   BUTTON(gamefunc_Jetpack)<<SK_JETPACK;
+    loc.bits |= (((int32_t)g_gameQuit)<<SK_GAMEQUIT);
+    loc.bits |=   (BUTTON(gamefunc_Inventory_Right) || (BUTTON(gamefunc_Dpad_Select) && (svel < 0 || angvel > 0))) <<SK_INV_RIGHT;
+    loc.bits |=   BUTTON(gamefunc_TurnAround)<<SK_TURNAROUND;
+    loc.bits |=   BUTTON(gamefunc_Open)<<SK_OPEN;
+    loc.bits |=   BUTTON(gamefunc_Inventory)<<SK_INVENTORY;
+    loc.bits |=   KB_KeyPressed(sc_Escape)<<SK_ESCAPE;
+
+    if (BUTTON(gamefunc_Dpad_Select))
+        vel = svel = angvel = 0;
+
+    if (BUTTON(gamefunc_Dpad_Aiming))
+        vel = 0;
+
     loc.extbits = 0;
 //    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEFORWARD])
     loc.extbits |= BUTTON(gamefunc_Move_Forward) || (vel > 0);
@@ -3240,10 +3256,7 @@ void getinput(int32_t snum)
     {
         ud.folfvel = vel;
         ud.folavel = angvel;
-        loc.fvel = 0;
-        loc.svel = 0;
-        loc.avel = 0;
-        loc.horz = 0;
+        loc.fvel = loc.svel = loc.avel = loc.horz = 0;
         return;
     }
 
@@ -3838,9 +3851,10 @@ void P_FragPlayer(int32_t snum)
     p->holoduke_on = -1;
 
     S_StopEnvSound(DUKE_JETPACK_IDLE,p->i);
-    if (p->scream_voice >= FX_Ok)
+    if (p->scream_voice > FX_Ok)
     {
         FX_StopSound(p->scream_voice);
+        S_Cleanup();
         //                S_TestSoundCallback(DUKE_SCREAM);
         p->scream_voice = -1;
     }
@@ -4065,7 +4079,7 @@ void P_ProcessWeapon(int32_t snum)
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
                         (*kb)=1;
-                        if (aplWeaponInitialSound[p->curr_weapon][snum])
+                        if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
                             A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
                     }
                     break;
@@ -4073,7 +4087,7 @@ void P_ProcessWeapon(int32_t snum)
                 case HANDREMOTE_WEAPON:
                     p->hbomb_hold_delay = 0;
                     (*kb) = 1;
-                    if (aplWeaponInitialSound[p->curr_weapon][snum])
+                    if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
                         A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
                     break;
 
@@ -4081,7 +4095,7 @@ void P_ProcessWeapon(int32_t snum)
                     if (p->ammo_amount[p->curr_weapon] > 0 && p->random_club_frame == 0)
                     {
                         (*kb)=1;
-                        if (aplWeaponInitialSound[p->curr_weapon][snum])
+                        if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
                             A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
                     }
                     break;
@@ -4126,7 +4140,7 @@ void P_ProcessWeapon(int32_t snum)
                                     p->pos.z = p->opos.z;
                                     p->posvel.z = 0;
                                     (*kb) = 1;
-                                    if (aplWeaponInitialSound[p->curr_weapon][snum])
+                                    if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
                                     {
                                         A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
                                     }
@@ -4143,7 +4157,7 @@ void P_ProcessWeapon(int32_t snum)
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
                         (*kb) = 1;
-                        if (aplWeaponInitialSound[p->curr_weapon][snum])
+                        if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
                             A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
                     }
                     break;
@@ -4153,7 +4167,7 @@ void P_ProcessWeapon(int32_t snum)
                     {
                         (*kb) = 1;
                         p->hbomb_hold_delay = !p->hbomb_hold_delay;
-                        if (aplWeaponInitialSound[p->curr_weapon][snum])
+                        if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
                             A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
                     }
                     break;
@@ -4162,7 +4176,7 @@ void P_ProcessWeapon(int32_t snum)
                     if (p->quick_kick == 0)
                     {
                         (*kb) = 1;
-                        if (aplWeaponInitialSound[p->curr_weapon][snum])
+                        if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
                             A_PlaySound(aplWeaponInitialSound[p->curr_weapon][snum], p->i);
                     }
                     break;
@@ -5025,7 +5039,7 @@ void P_ProcessInput(int32_t snum)
                 if (p->posvel.z > 2400 && p->falling_counter < 255)
                 {
                     p->falling_counter++;
-                    if (p->falling_counter >= 38 && p->scream_voice == -1)
+                    if (p->falling_counter >= 38 && p->scream_voice <= FX_Ok)
                         p->scream_voice = A_PlaySound(DUKE_SCREAM,p->i);
                 }
 
@@ -5066,9 +5080,10 @@ void P_ProcessInput(int32_t snum)
         {
             p->falling_counter = 0;
 
-            if (p->scream_voice >= FX_Ok)
+            if (p->scream_voice > FX_Ok)
             {
                 FX_StopSound(p->scream_voice);
+                S_Cleanup();
                 p->scream_voice = -1;
             }
 

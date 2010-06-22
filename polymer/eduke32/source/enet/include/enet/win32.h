@@ -6,10 +6,12 @@
 #define __ENET_WIN32_H__
 
 #ifdef ENET_BUILDING_LIB
+#ifdef _MSC_VER
 #pragma warning (disable: 4996) // 'strncpy' was declared deprecated
 #pragma warning (disable: 4267) // size_t to int conversion
 #pragma warning (disable: 4244) // 64bit to 32bit int
 #pragma warning (disable: 4018) // signed/unsigned mismatch
+#endif
 #endif
 
 #include <stdlib.h>

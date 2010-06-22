@@ -84,6 +84,8 @@ static int32_t buildkeytranslationtable(void);
 static SDL_Surface * appicon = NULL;
 static SDL_Surface * loadappicon(void);
 
+static mutex_t m_initprintf;
+
 int32_t wm_msgbox(char *name, char *fmt, ...)
 {
     char buf[2048];
@@ -251,6 +253,8 @@ int32_t initsystem(void)
 
     SDL_VERSION(&compiled);
 
+    mutex_init(&m_initprintf);
+
     initprintf("Initializing SDL system interface "
                "(compiled against SDL version %d.%d.%d, found version %d.%d.%d)\n",
                compiled.major, compiled.minor, compiled.patch,
@@ -361,6 +365,7 @@ void initprintf(const char *f, ...)
     OSD_Printf(buf);
     Bprintf("%s", buf);
 
+    mutex_lock(&m_initprintf);
     if (Bstrlen(dabuf) + Bstrlen(buf) > 1022)
     {
         startwin_puts(dabuf);
@@ -375,6 +380,7 @@ void initprintf(const char *f, ...)
         startwin_idle(NULL);
         Bmemset(dabuf, 0, sizeof(dabuf));
     }
+    mutex_unlock(&m_initprintf);
 }
 
 //

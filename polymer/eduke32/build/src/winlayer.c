@@ -34,9 +34,12 @@
 #include "osd.h"
 #include "rawinput.h"
 #include "nedmalloc.h"
+#include "mutex.h"
 
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
+
+static mutex_t m_initprintf;
 
 int32_t   _buildargc = 0;
 const char **_buildargv = NULL;
@@ -348,6 +351,8 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     nedcreatepool(SYSTEM_POOL_SIZE, -1);
     //    atexit(neddestroysyspool);
 #else
+    // don't want to mix msvcrt with msvcrtd!
+#ifndef DEBUGGINGAIDS
     if ((nedhandle = LoadLibrary("nedmalloc.dll")))
     {
         nedpool *(WINAPI *nedcreatepool)(size_t, int);
@@ -355,6 +360,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         if ((nedcreatepool = (void *)GetProcAddress(nedhandle, "nedcreatepool")))
             nedcreatepool(SYSTEM_POOL_SIZE, -1);
     }
+#endif
 #endif
 
     hdc = GetDC(NULL);
@@ -593,6 +599,8 @@ int32_t initsystem(void)
 
     //    initprintf("Initializing Windows DirectX/GDI system interface\n");
 
+    mutex_init(&m_initprintf);
+
     // get the desktop dimensions before anything changes them
     ZeroMemory(&desktopmode, sizeof(DEVMODE));
     desktopmode.dmSize = sizeof(DEVMODE);
@@ -668,6 +676,7 @@ void initprintf(const char *f, ...)
 
     OSD_Printf(buf);
 
+    mutex_lock(&m_initprintf);
     if ((Bstrlen(dabuf) + Bstrlen(buf) + 2) > sizeof(dabuf))
     {
         startwin_puts(dabuf);
@@ -682,6 +691,7 @@ void initprintf(const char *f, ...)
         handleevents();
         Bmemset(dabuf, 0, sizeof(dabuf));
     }
+    mutex_unlock(&m_initprintf);
 }
 
 

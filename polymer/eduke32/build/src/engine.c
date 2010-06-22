@@ -42,6 +42,8 @@
 
 #include "engine_priv.h"
 
+#define CACHEAGETIME 16
+
 #ifdef SUPERBUILD
 void loadvoxel(int32_t voxindex) { voxindex=0; }
 int32_t tiletovox[MAXTILES];
@@ -4478,7 +4480,8 @@ static int32_t clippoly4(int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 // dorotatesprite (internal)
 //
 //JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
-static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, char dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
+static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade,
+    char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
 {
     int32_t cosang, sinang, v, nextv, dax1, dax2, oy, bx, by;
     int32_t i, x, y, x1, y1, x2, y2, gx1, gy1 ;
@@ -6256,6 +6259,11 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     int32_t s, w, ox, oy, startwall, cx1, cy1, cx2, cy2;
     int32_t bakgxvect, bakgyvect, sortnum, gap, npoints;
     int32_t xvect, yvect, xvect2, yvect2, daslope;
+    int32_t oydim=ydim;
+
+    ydim = (int32_t)((double)xdim * 0.625f);
+    setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+    ydim = oydim;
 
     beforedrawrooms = 0;
 
@@ -6535,6 +6543,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     }
 
     enddrawing();   //}}}
+    setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
 }
 
 
@@ -6544,7 +6553,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz,
                   int16_t *daang, int16_t *dacursectnum)
 {
-    int16_t fil, i, numsprites;
+    int16_t fil, i, numsprites, dq[MAXSPRITES], dnum = 0;
 
     i = strlen(filename)-1;
     if (filename[i] == 255) { filename[i] = 0; fromwhere = 1; } // JBF 20040119: "compatibility"
@@ -6642,15 +6651,58 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
 
         if (sprite[i].sectnum<0||sprite[i].sectnum>=MYMAXSECTORS)
         {
-            initprintf("Map error: sprite #%d(%d,%d) with an illegal sector(%d)\n",i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
-            sprite[i].sectnum=MYMAXSECTORS-1;
+            initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal sector(%d). Map is corrupt!\n",i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
+            updatesector(sprite[i].x, sprite[i].y, &sprite[i].sectnum);
+        }
+        if (sprite[i].picnum<0||sprite[i].picnum>=MAXTILES)
+        {
+            initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal picnum(%d). Map is corrupt!\n",i,sprite[i].x,sprite[i].y,sprite[i].picnum);
+            dq[dnum++] = i;
         }
     }
 
     for (i=0; i<numsprites; i++)
     {
+        int32_t k;
+        int16_t sect;
+
         if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
-        insertsprite(sprite[i].sectnum,sprite[i].statnum);
+
+        k = insertsprite(sprite[i].sectnum,sprite[i].statnum);
+
+        sect = sprite[k].sectnum;
+        updatesector(sprite[k].x, sprite[k].y, &sect);
+
+        if (sect == -1)
+        {
+            updatesector(sprite[k].x+1, sprite[k].y+1, &sect);
+
+            if (sect == -1)
+            {
+                updatesector(sprite[k].x-1, sprite[k].y-1, &sect);
+
+                if (sect == -1)
+                {
+                    updatesector(sprite[k].x+1, sprite[k].y-1, &sect);
+
+                    if (sect == -1)
+                    {
+                        updatesector(sprite[k].x-1, sprite[k].y+1, &sect);
+
+                        /* fuck it, the sprite is clearly not legitimately in any sector at this point
+                           so let's queue it up for deletion */
+                        if (sect == -1)
+                            dq[dnum++] = k;
+                    }
+                }
+            }
+        }
+    }
+
+    while (--dnum > -1)
+    {
+        initprintf(OSD_ERROR "Map error: removing sprite #%d(%d,%d) in null space. Map is corrupt!\n",dq[dnum],sprite[dq[dnum]].x,sprite[dq[dnum]].y);
+        deletesprite(dq[dnum]);
     }
 
     //Must be after loading sectors, etc!
@@ -7742,7 +7794,7 @@ void nextpage(void)
     }
     faketimerhandler();
 
-    if ((totalclock >= lastageclock+8) || (totalclock < lastageclock))
+    if ((totalclock >= lastageclock+CACHEAGETIME) || (totalclock < lastageclock))
         { lastageclock = totalclock; agecache(); }
 
 #ifdef USE_OPENGL
@@ -9730,7 +9782,7 @@ void flushperms(void)
 //
 // rotatesprite
 //
-void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, char dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
+void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     int32_t i;
     permfifotype *per, *per2;

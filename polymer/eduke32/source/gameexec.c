@@ -2359,13 +2359,13 @@ nullquote:
                 int32_t x1=Gv_GetVarX(*insptr++),  y1=Gv_GetVarX(*insptr++);
                 int32_t x2=Gv_GetVarX(*insptr++),  y2=Gv_GetVarX(*insptr++);
 
-                if (tw == CON_ROTATESPRITE && !(orientation & 256))
+                if (tw == CON_ROTATESPRITE)
                 {
                     x<<=16;
                     y<<=16;
                 }
 
-                if (x < (-160)<<16 || x >= (480<<16) || y < (-100)<<16 || y >= (300<<16))
+                if (x < (-320)<<16 || x >= (640<<16) || y < (-200)<<16 || y >= (400<<16))
                 {
                     OSD_Printf(CON_ERROR "invalid coordinates: %d, %d\n",g_errorLineNum, keyw[g_tw], x, y);
                     continue;
@@ -2748,7 +2748,7 @@ nullquote:
                 {
                     curtime = time(NULL);
                     Bstrcpy(tempbuf,asctime(localtime(&curtime)));
-                    clearbuf(ud.savegame[g_lastSaveSlot],sizeof(ud.savegame[g_lastSaveSlot]),0);
+                    clearbufbyte(ud.savegame[g_lastSaveSlot],sizeof(ud.savegame[g_lastSaveSlot]),0);
                     Bsprintf(ud.savegame[g_lastSaveSlot],"Auto");
                     //            for (j=0;j<13;j++)
                     //                Bmemcpy(&ud.savegame[g_lastSaveSlot][j+4],&tempbuf[j+3],sizeof(tempbuf[j+3]));
@@ -4601,8 +4601,18 @@ nullquote:
         {
             int32_t j = MAXSOUNDS-1;
             for (; j>=0; j--)
-                if (g_sounds[j].SoundOwner[0].i == vm.g_i)
+            {
+                int32_t k = 0;
+
+                for (;k<MAXSOUNDINSTANCES;k++)
+                {
+                    if (g_sounds[j].SoundOwner[k].i == vm.g_i)
+                        break;
+                }
+
+                if (k != MAXSOUNDINSTANCES)
                     break;
+            }
 
             VM_DoConditional(j < 0);
         }

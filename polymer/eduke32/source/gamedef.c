@@ -3868,7 +3868,7 @@ static int32_t C_ParseCommand(void)
         g_scriptPtr--;
         if (g_dynamicTileMapping++)
         {
-            initprintf("%s:%d: warning: duplicate g_dynamicTileMapping statement\n",g_szScriptFileName,g_lineNumber);
+            initprintf("%s:%d: warning: duplicate dynamicremap statement\n",g_szScriptFileName,g_lineNumber);
             g_numCompilerWarnings++;
         }
         else initprintf("Using dynamic tile remapping\n");

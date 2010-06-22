@@ -1404,6 +1404,7 @@ int32_t registerosdcommands(void)
         { "demoplay_showsync","demoplay_showsync: enable/disable display of sync status",(void*)&demoplay_showsync, CVAR_BOOL, 0, 1 },
 
         { "hud_althud", "hud_althud: enable/disable alternate mini-hud", (void*)&ud.althud, CVAR_BOOL, 0, 1 },
+        { "hud_bgstretch", "hud_bgstretch: enable/disable background image stretching in wide resolutions", (void*)&ud.bgstretch, CVAR_BOOL, 0, 1 },
         { "hud_messagetime", "hud_messagetime: length of time to display multiplayer chat messages", (void*)&ud.msgdisptime, CVAR_INT, 0, 3600 },
         { "hud_numbertile", "hud_numbertile: first tile in alt hud number set", (void*)&althud_numbertile, CVAR_INT, 0, MAXTILES-10 },
         { "hud_numberpal", "hud_numberpal: pal for alt hud numbers", (void*)&althud_numberpal, CVAR_INT, 0, MAXPALOOKUPS },

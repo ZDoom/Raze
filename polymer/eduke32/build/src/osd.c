@@ -11,6 +11,7 @@
 #include "scancodes.h"
 #include "crc32.h"
 
+static mutex_t m_osdprintf;
 symbol_t *symbols = NULL;
 static symbol_t *addnewsymbol(const char *name);
 static symbol_t *findsymbol(const char *name, symbol_t *startingat);
@@ -728,6 +729,8 @@ void OSD_Init(void)
         { "osdtextmode","osdtextmode: set OSD text mode (0:graphical, 1:fast)",(void *)&osdtextmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "logcutoff","logcutoff: sets the maximal line count of the log file",(void *)&logcutoff, CVAR_INT, 0, 262144 },
     };
+
+    mutex_init(&m_osdprintf);
 
     Bmemset(osdtext, asc_Space, TEXTSIZE);
     Bmemset(osdfmt, osdtextpal+(osdtextshade<<5), TEXTSIZE);
@@ -1504,8 +1507,12 @@ void OSD_Printf(const char *fmt, ...)
     char *chp, p=osdtextpal, s=osdtextshade;
     va_list va;
 
+/*
     if ((osdflags & OSD_INITIALIZED) == 0)
         OSD_Init();
+*/
+
+    mutex_lock(&m_osdprintf);
 
     va_start(va, fmt);
     Bvsnprintf(tmpstr, 8192, fmt, va);
@@ -1517,6 +1524,7 @@ void OSD_Printf(const char *fmt, ...)
         else
         {
             OSD_errors=MAX_ERRORS+2;
+            mutex_unlock(&m_osdprintf);
             return;
         }
     }
@@ -1593,6 +1601,8 @@ void OSD_Printf(const char *fmt, ...)
         }
     }
     while (*(++chp));
+
+    mutex_unlock(&m_osdprintf);
 }
 
 

@@ -42,6 +42,9 @@ static int32_t MusicLen = 0;
 static int32_t MusicVoice = -1;
 static int32_t MusicPaused = 0;
 
+static mutex_t s_mutex;
+static uint32_t dq[128], dnum = 0;
+
 /*
 ===================
 =
@@ -71,9 +74,12 @@ void S_SoundStartup(void)
         G_GameExit(tempbuf);
     }
 
+    S_ClearSoundLocks();
     FX_SetVolume(ud.config.FXVolume);
     FX_SetReverseStereo(ud.config.ReverseStereo);
     FX_SetCallBack(S_Callback);
+    FX_SetPrintf(initprintf);
+    mutex_init(&s_mutex);
 }
 
 /*
@@ -267,7 +273,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
     {
         if ((MusicVoice = FX_PlayLoopedAuto(MusicPtr, MusicLen, 0, 0, 0, ud.config.MusicVolume,
                                             ud.config.MusicVolume, ud.config.MusicVolume,
-                                            FX_MUSIC_PRIORITY, MUSIC_ID)) >= FX_Ok)
+                                            FX_MUSIC_PRIORITY, MUSIC_ID)) > FX_Ok)
             MusicIsWaveform = 1;
     }
     return (alt != 0);
@@ -294,6 +300,67 @@ void S_StopMusic(void)
     }
 }
 
+void S_Cleanup(void)
+{
+    // process from our own local copy of the delete queue so we don't hold the lock long
+    uint32_t ldq[128], ldnum;
+
+    mutex_lock(&s_mutex);
+
+    if (!dnum)
+    {
+        mutex_unlock(&s_mutex);
+        return;
+    }
+
+    Bmemcpy(ldq, dq, sizeof(int32_t) * (ldnum = dnum));
+    dnum = 0;
+
+    mutex_unlock(&s_mutex);
+
+    do
+    {
+        uint32_t num = ldq[--ldnum];
+
+        if (num >= 65536)
+        {
+            g_soundlocks[num-65536]--;
+            continue;
+        }
+
+        // negative index is RTS playback
+        if ((int32_t)num < 0)
+        {
+            if (lumplockbyte[-(int32_t)num] >= 200)
+                lumplockbyte[-(int32_t)num]--;
+            continue;
+        }
+
+        {
+            int32_t j = num & (MAXSOUNDINSTANCES-1);
+            num = (num - j) / MAXSOUNDINSTANCES;
+
+            if (g_sounds[num].num > MAXSOUNDINSTANCES)
+                OSD_Printf(OSD_ERROR "S_Cleanup(): num exceeds MAXSOUNDINSTANCES! g_sounds[%d].num %d wtf?\n", num, g_sounds[num].num);
+
+            if (g_sounds[num].num > 0)
+            {
+                int32_t i = g_sounds[num].SoundOwner[j].i;
+
+                // MUSICANDSFX uses t_data[0] to control restarting the sound
+                if (i != -1 && sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
+                    actor[i].t_data[0] = 0;
+
+                g_sounds[num].SoundOwner[j].i = -1;
+                g_sounds[num].SoundOwner[j].voice = 0;
+                g_sounds[num].num--;
+            }
+        }
+        g_soundlocks[num]--;
+    }
+    while (ldnum);
+}
+
 // returns number of bytes read
 int32_t S_LoadSound(uint32_t num)
 {
@@ -317,11 +384,9 @@ int32_t S_LoadSound(uint32_t num)
 
     g_sounds[num].soundsiz = l = kfilelength(fp);
 
-    while(mutex_lock(&cachemutex));
     g_soundlocks[num] = 200;
 
     allocache((intptr_t *)&g_sounds[num].ptr, l, (char *)&g_soundlocks[num]);
-    mutex_unlock(&cachemutex);
     l = kread(fp, g_sounds[num].ptr , l);
     kclose(fp);
 
@@ -340,38 +405,35 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             ((g_sounds[num].m&8) && ud.lockout) ||
             ud.config.SoundToggle == 0 ||
             g_sounds[num].num >= MAXSOUNDINSTANCES ||
+            i < 0 || i >= MAXSPRITES ||
             FX_VoiceAvailable(g_sounds[num].pr) == 0 ||
             (g_player[myconnectindex].ps->timebeforeexit > 0 && g_player[myconnectindex].ps->timebeforeexit <= GAMETICSPERSEC*3) ||
             g_player[myconnectindex].ps->gm&MODE_MENU) return -1;
 
     if (g_sounds[num].m&128)
     {
-        if (g_sounds[num].num < MAXSOUNDINSTANCES && i >= 0 && i < MAXSPRITES)
+        while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
+            j++;
+
+        if (j >= MAXSOUNDINSTANCES)
         {
-            while(mutex_lock(&cachemutex));
-            while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
-                j++;
-            mutex_unlock(&cachemutex);
-
-            if (j >= MAXSOUNDINSTANCES)
-            {
-                OSD_Printf(OSD_ERROR "%s %d: WTF?\n", __FILE__, __LINE__);
-                return -1;
-            }
-
-            if ((voice = S_PlaySound(num)) >= FX_Ok)
-            {
-                while(mutex_lock(&cachemutex));
-                g_sounds[num].SoundOwner[j].i = i;
-                g_sounds[num].num++;
-                g_sounds[num].SoundOwner[j].voice = voice;
-                mutex_unlock(&cachemutex);
-                return voice;
-            }
-
+            OSD_Printf(OSD_ERROR "%s %d: WTF?\n", __FILE__, __LINE__);
             return -1;
         }
-        return -1;
+
+        if ((voice = S_PlaySound(num)) <= FX_Ok)
+            return -1;
+
+        if (FX_SetVoiceCallback(voice, (num * MAXSOUNDINSTANCES) + j))
+        {
+            OSD_Printf(OSD_ERROR "S_PlaySound3D(): error setting callback!\n");
+            return -1;
+        }
+
+        g_sounds[num].SoundOwner[j].i = i;
+        g_sounds[num].num++;
+        g_sounds[num].SoundOwner[j].voice = voice;
+        return voice;
     }
 
     // Duke talk
@@ -447,11 +509,9 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     }
     else 
     {
-        while(mutex_lock(&cachemutex));
         if (g_soundlocks[num] < 200)
             g_soundlocks[num] = 200;
         else g_soundlocks[num]++;
-        mutex_unlock(&cachemutex);
     }
 
     if (g_sounds[num].m&16) sndist = 0;
@@ -461,22 +521,22 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     j = 0;
 
-    while(mutex_lock(&cachemutex));
     while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
         j++;
 
     if (j >= MAXSOUNDINSTANCES)
     {
         g_soundlocks[num]--;
-        mutex_unlock(&cachemutex);
         return -1;
     }
 
-    mutex_unlock(&cachemutex);
-
     if (g_sounds[num].m&1)
     {
-        if (g_sounds[num].num > 0) return -1;
+        if (g_sounds[num].num > 0)
+        {
+            g_soundlocks[num]--;
+            return -1;
+        }
 
         voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
             pitch,sndist>>6,sndist>>6,0,g_sounds[num].pr,(num * MAXSOUNDINSTANCES) + j);
@@ -487,19 +547,15 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             (num * MAXSOUNDINSTANCES) + j);
     }
 
-    while(mutex_lock(&cachemutex));
-
-    if (voice >= FX_Ok)
+    if (voice > FX_Ok)
     {
         g_sounds[num].SoundOwner[j].i = i;
         g_sounds[num].num++;
         g_sounds[num].SoundOwner[j].voice = voice;
-        mutex_unlock(&cachemutex);
         return voice;
     }
 
     g_soundlocks[num]--;
-    mutex_unlock(&cachemutex);
     return -1;
 }
 
@@ -530,23 +586,19 @@ int32_t S_PlaySound(int32_t num)
     }
     else 
     {
-        while(mutex_lock(&cachemutex));
         if (g_soundlocks[num] < 200)
             g_soundlocks[num] = 200;
         else g_soundlocks[num]++;
-        mutex_unlock(&cachemutex);
     }
 
     voice = (g_sounds[num].m&1) ?
         FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
-        pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].soundsiz,num * MAXSOUNDINSTANCES) :
-    FX_PlayAuto3D(g_sounds[ num ].ptr, g_sounds[num].soundsiz, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num * MAXSOUNDINSTANCES);
+        pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].soundsiz, 65536 + num) :
+    FX_PlayAuto3D(g_sounds[ num ].ptr, g_sounds[num].soundsiz, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, 65536 + num);
 
-    if (voice < FX_Ok)
+    if (voice <= FX_Ok)
     {
-        while(mutex_lock(&cachemutex));
         g_soundlocks[num]--;
-        mutex_unlock(&cachemutex);
         return -1;
     }
 
@@ -568,17 +620,28 @@ void S_StopSound(int32_t num)
     {
         int32_t j=MAXSOUNDINSTANCES-1;
 
-        while(mutex_lock(&cachemutex));
         for (; j>=0; j--)
         {
             if (g_sounds[num].SoundOwner[j].voice)
             {
-                mutex_unlock(&cachemutex);
-                FX_StopSound(g_sounds[num].SoundOwner[j].voice);
-                goto retry;
+                if (g_sounds[num].SoundOwner[j].voice > FX_Ok && g_sounds[num].SoundOwner[j].voice <= ud.config.NumVoices)
+                {
+                    if (FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
+                        FX_StopSound(g_sounds[num].SoundOwner[j].voice);
+                    S_Cleanup();
+                    goto retry;
+                }
+                else
+                {
+                    initprintf(OSD_ERROR "S_StopSound(): bad voice %d for sound ID %d index %d!\n", g_sounds[num].SoundOwner[j].voice, num, j);
+                    mutex_lock(&s_mutex);
+                    dq[dnum++] = (num * MAXSOUNDINSTANCES) + j;
+                    mutex_unlock(&s_mutex);
+                    S_Cleanup();
+                    goto retry;
+                }
             }
         }
-        mutex_unlock(&cachemutex);
     }
 }
 
@@ -591,17 +654,28 @@ void S_StopEnvSound(int32_t num,int32_t i)
     {
         int32_t j=MAXSOUNDINSTANCES-1;
 
-        while(mutex_lock(&cachemutex));
         for (; j>=0; j--)
         {
-            if (g_sounds[num].SoundOwner[j].i == i && g_sounds[num].SoundOwner[j].voice)
+            if (g_sounds[num].SoundOwner[j].i == i)
             {
-                mutex_unlock(&cachemutex);
-                FX_StopSound(g_sounds[num].SoundOwner[j].voice);
-                goto retry;
+                if (g_sounds[num].SoundOwner[j].voice > FX_Ok && g_sounds[num].SoundOwner[j].voice <= ud.config.NumVoices)
+                {
+                    if (FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
+                        FX_StopSound(g_sounds[num].SoundOwner[j].voice);
+                    S_Cleanup();
+                    goto retry;
+                }
+                else
+                {
+                    initprintf(OSD_ERROR "S_StopEnvSound(): bad voice %d for sound ID %d index %d!\n", g_sounds[num].SoundOwner[j].voice, num, j);
+                    mutex_lock(&s_mutex);
+                    dq[dnum++] = (num * MAXSOUNDINSTANCES) + j;
+                    mutex_unlock(&s_mutex);
+                    S_Cleanup();
+                    goto retry;
+                }
             }
         }
-        mutex_unlock(&cachemutex);
     }
 }
 
@@ -609,6 +683,8 @@ void S_Update(void)
 {
     vec3_t *s, *c;
     int32_t sndist,sndang,ca,j,k,i,cs;
+    
+    S_Cleanup();
 
     g_numEnvSoundsPlaying = 0;
 
@@ -627,15 +703,23 @@ void S_Update(void)
 
     j = g_maxSoundPos;
 
-    while(mutex_lock(&cachemutex));
     do
     {
         for (k=MAXSOUNDINSTANCES-1; k>=0; k--)
         {
             i = g_sounds[j].SoundOwner[k].i;
 
-            if (i < 0 || i >= MAXSPRITES || g_sounds[j].num == 0 || g_sounds[j].SoundOwner[k].voice < FX_Ok)
+            if (i < 0 || i >= MAXSPRITES || g_sounds[j].num == 0 || g_sounds[j].SoundOwner[k].voice <= FX_Ok)
                 continue;
+
+            if (!FX_SoundActive(g_sounds[j].SoundOwner[k].voice))
+            {
+/*
+                OSD_Printf("S_Update(): stale voice %d from sound %d position %d sprite %d\n",
+                    g_sounds[j].SoundOwner[k].voice, j, k, g_sounds[j].SoundOwner[k].i);
+*/
+                continue;
+            }
 
             s = (vec3_t *)&sprite[i];
 
@@ -674,13 +758,10 @@ void S_Update(void)
             if (sndist < ((255-LOUDESTVOLUME)<<6))
                 sndist = ((255-LOUDESTVOLUME)<<6);
 
-            mutex_unlock(&cachemutex);
             FX_Pan3D(g_sounds[j].SoundOwner[k].voice, sndang>>4, sndist>>6);
-            mutex_lock(&cachemutex);
         }
     }
     while (j--);
-    mutex_unlock(&cachemutex);
 }
 
 void S_Callback(uint32_t num)
@@ -688,53 +769,33 @@ void S_Callback(uint32_t num)
     if ((int32_t)num == MUSIC_ID)
         return;
 
-    while(mutex_lock(&cachemutex));
-
-    // negative index is RTS playback
-    if ((int32_t)num < 0)
-    {
-
-        if (lumplockbyte[-(int32_t)num] >= 200)
-            lumplockbyte[-(int32_t)num]--;
-        mutex_unlock(&cachemutex);
-        return;
-    }
-
-    {
-        int32_t j = num & (MAXSOUNDINSTANCES-1);
-        num = (num - j) / MAXSOUNDINSTANCES;
-
-        if (g_sounds[num].num > 0)
-        {
-            int32_t i = g_sounds[num].SoundOwner[j].i;
-
-            // MUSICANDSFX uses t_data[0] to control restarting the sound
-            if (sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
-                actor[i].t_data[0] = 0;
-
-            g_sounds[num].SoundOwner[j].i = -1;
-            g_sounds[num].SoundOwner[j].voice = 0;
-
-            g_sounds[num].num--;
-        }
-    }
-    g_soundlocks[num]--;
-    mutex_unlock(&cachemutex);
+    mutex_lock(&s_mutex);
+    dq[dnum++] = num;
+    mutex_unlock(&s_mutex);
 }
 
 void S_ClearSoundLocks(void)
 {
     int32_t i;
 
-    while(mutex_lock(&cachemutex));
     for (i=g_maxSoundPos; i >= 0 ; i--)
+    {
+        int32_t j = MAXSOUNDINSTANCES-1;
+
+        for (; j>=0; j--)
+        {
+            g_sounds[i].num = 0;
+            g_sounds[i].SoundOwner[j].voice = 0;
+            g_sounds[i].SoundOwner[j].i = -1;
+        }
+
         if (g_soundlocks[i] >= 200)
             g_soundlocks[i] = 199;
+    }
 
     for (i=0; i<11; i++)
         if (lumplockbyte[i] >= 200)
             lumplockbyte[i] = 199;
-    mutex_unlock(&cachemutex);
 }
 
 int32_t A_CheckSoundPlaying(int32_t i, int32_t num)

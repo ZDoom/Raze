@@ -5186,7 +5186,7 @@ void polymost_drawsprite(int32_t snum)
 //dastat&128  1:draw all pages (permanent)
 //cx1,...     clip window (actual screen coords)
 void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                             int8_t dashade, char dapalnum, char dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
+                             int8_t dashade, char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
 {
     static int32_t onumframes = 0;
     int32_t n, nn, x, zz, xoff, yoff, xsiz, ysiz, method;
@@ -5196,6 +5196,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     double ogrhalfxdown10, ogrhalfxdown10x;
     double d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
     float m[4][4];
+    int32_t oxdim = xdim, oydim = ydim;
+
 
 #ifdef USE_OPENGL
     if (rendmode >= 3 && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
@@ -5378,23 +5380,54 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
     if (dastat&2)  //Auto window size scaling
     {
+        // nasty hacks go here
         if (!(dastat&8))
         {
             x = xdimenscale;   //= scale(xdimen,yxaspect,320);
-            sx = ((cx1+cx2+2)<<15)+scale(sx-(320<<15),oxdimen,320);
+
+            if (!(dastat & 1024) && ((double)ydim/(double)xdim) <= .75f)
+            {
+                xdim = (int32_t)((double)ydim * 1.33333333333333334f);
+                setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+            }
+
+            if (dastat & 512)
+                sx = ((cx1+cx2+2+scale((oxdim-xdim), cx1+cx2+2, oxdim))<<15)+scale(sx-(320<<15),scale(xdimen, xdim, oxdim),320);
+            else if (dastat & 256)
+                sx = ((cx1+cx2+2-scale((oxdim-xdim), cx1+cx2+2, oxdim))<<15)+scale(sx-(320<<15),scale(xdimen, xdim, oxdim),320);
+            else 
+                sx = ((cx1+cx2+2)<<15)+scale(sx-(320<<15),scale(xdimen, xdim, oxdim),320);
+
             sy = ((cy1+cy2+2)<<15)+mulscale16(sy-(200<<15),x);
         }
         else
         {
             //If not clipping to startmosts, & auto-scaling on, as a
             //hard-coded bonus, scale to full screen instead
+
+            if (!(dastat & 1024) && ((double)ydim/(double)xdim) <= .75f)
+            {
+                xdim = (int32_t)((double)ydim * 1.33333333333333334f);
+                setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+            }
+
             x = scale(xdim,yxaspect,320);
             sx = (xdim<<15)+32768+scale(sx-(320<<15),xdim,320);
             sy = (ydim<<15)+32768+mulscale16(sy-(200<<15),x);
+
+            if (dastat & 512)
+                sx += (oxdim-xdim)<<16;
+            else if ((dastat & 256) == 0)
+                sx += (oxdim-xdim)<<15;
         }
         z = mulscale16(z,x);
     }
-
+    else if (!(dastat & 1024) && ((double)ydim/(double)xdim) <= .75f)
+    {
+        ydim = (int32_t)((double)xdim * 0.75f);
+        setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+    }
+    
     d = (double)z/(65536.0*16384.0);
     cosang2 = cosang = (double)sintable[(a+512)&2047]*d;
     sinang2 = sinang = (double)sintable[a&2047]*d;
@@ -5496,6 +5529,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     gshang = ogshang;
     gctang = ogctang;
     gstang = ogstang;
+    xdim = oxdim;
+    ydim = oydim;
+    setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
 }
 
 #ifdef USE_OPENGL

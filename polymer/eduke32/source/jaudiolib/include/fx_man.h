@@ -108,4 +108,7 @@ int32_t FX_StartDemandFeedPlayback( void ( *function )( char **ptr, uint32_t *le
        int32_t rate, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
        int32_t priority, uint32_t callbackval );
 
+int32_t FX_SetVoiceCallback(int32_t handle, uint32_t callbackval);
+int32_t FX_SetPrintf(void (*function)(const char *, ...));
+
 #endif

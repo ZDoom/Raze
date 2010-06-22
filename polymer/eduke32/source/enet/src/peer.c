@@ -325,7 +325,7 @@ void
 enet_peer_reset (ENetPeer * peer)
 {
     peer -> outgoingPeerID = ENET_PROTOCOL_MAXIMUM_PEER_ID;
-    peer -> sessionID = 0;
+    peer -> connectID = 0;
 
     peer -> state = ENET_PEER_STATE_DISCONNECTED;
 
@@ -363,7 +363,7 @@ enet_peer_reset (ENetPeer * peer)
     peer -> windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
     peer -> incomingUnsequencedGroup = 0;
     peer -> outgoingUnsequencedGroup = 0;
-    peer -> disconnectData = 0;
+    peer -> eventData = 0;
 
     memset (peer -> unsequencedWindow, 0, sizeof (peer -> unsequencedWindow));
     
@@ -477,7 +477,7 @@ enet_peer_disconnect_later (ENetPeer * peer, enet_uint32 data)
            enet_list_empty (& peer -> sentReliableCommands)))
     {
         peer -> state = ENET_PEER_STATE_DISCONNECT_LATER;
-        peer -> disconnectData = data;
+        peer -> eventData = data;
     }
     else
       enet_peer_disconnect (peer, data);
@@ -585,7 +585,7 @@ enet_peer_queue_outgoing_command (ENetPeer * peer, const ENetProtocol * command,
     return outgoingCommand;
 }
 
-static void
+void
 enet_peer_dispatch_incoming_unreliable_commands (ENetPeer * peer, ENetChannel * channel)
 {
     ENetListIterator currentCommand;
@@ -614,7 +614,7 @@ enet_peer_dispatch_incoming_unreliable_commands (ENetPeer * peer, ENetChannel * 
     }
 }
 
-static void
+void
 enet_peer_dispatch_incoming_reliable_commands (ENetPeer * peer, ENetChannel * channel)
 {
     ENetListIterator currentCommand;

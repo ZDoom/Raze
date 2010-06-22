@@ -31,7 +31,8 @@ OBJECTS=$(OBJ)\callbacks.o \
 	$(OBJ)\packet.o \
 	$(OBJ)\peer.o \
 	$(OBJ)\protocol.o \
-	$(OBJ)\win32.o
+	$(OBJ)\win32.o \
+	$(OBJ)\compress.o
 
 {$(SRC)}.c{$(OBJ)}.o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<

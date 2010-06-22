@@ -115,6 +115,7 @@ static int32_t seek_vorbis(void * datasource, ogg_int64_t offset, int32_t whence
 
 static int32_t close_vorbis(void * datasource)
 {
+    UNREFERENCED_PARAMETER(datasource);
    return 0;
 }
 
@@ -161,7 +162,7 @@ static playbackstatus MV_GetNextVorbisBlock
            if (voice->LoopStart) {
                err = ov_pcm_seek_page(&vd->vf, 0);
                if (err != 0) {
-                   fprintf(stderr, "MV_GetNextVorbisBlock ov_pcm_seek_page_lap: err %d\n", err);
+                   MV_Printf("MV_GetNextVorbisBlock ov_pcm_seek_page_lap: err %d\n", err);
                } else {
                    continue;
                }
@@ -169,7 +170,7 @@ static playbackstatus MV_GetNextVorbisBlock
                break;
            }
        } else if (bytes < 0) {
-           fprintf(stderr, "MV_GetNextVorbisBlock ov_read: err %d\n", bytes);
+           MV_Printf("MV_GetNextVorbisBlock ov_read: err %d\n", bytes);
            voice->Playing = FALSE;
            return NoMoreData;
        }
@@ -316,7 +317,9 @@ int32_t MV_PlayLoopedVorbis
    int32_t          status;
    vorbis_data * vd = 0;
    vorbis_info * vi = 0;
-   
+ 
+   UNREFERENCED_PARAMETER(loopend);
+
    if ( !MV_Installed )
    {
       MV_SetErrorCode( MV_NotInstalled );
@@ -337,7 +340,7 @@ int32_t MV_PlayLoopedVorbis
    
    status = ov_open_callbacks((void *) vd, &vd->vf, 0, 0, vorbis_callbacks);
    if (status < 0) {
-      fprintf(stderr, "MV_PlayLoopedVorbis: err %d\n", status);
+      MV_Printf("MV_PlayLoopedVorbis: err %d\n", status);
       MV_SetErrorCode( MV_InvalidVorbisFile );
       return MV_Error;
    }

@@ -6,6 +6,7 @@ EROOT?=build
 RELEASE?=1
 OPTLEVEL?=2
 SRC=src
+INC=include
 
 include ../../$(EROOT)/Makefile.shared
 
@@ -25,14 +26,15 @@ CFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
     -fjump-tables -fno-stack-protector
 
-CPPFLAGS=-Iinclude -Isrc
+CPPFLAGS=-I$(INC) -I$(SRC)
 
 OBJECTS=$(OBJ)/callbacks.o \
 	$(OBJ)/host.o \
 	$(OBJ)/list.o \
 	$(OBJ)/packet.o \
 	$(OBJ)/peer.o \
-	$(OBJ)/protocol.o
+	$(OBJ)/protocol.o \
+	$(OBJ)/compress.o
 
 ifeq ($(PLATFORM),WINDOWS)
  OBJECTS+= $(OBJ)/win32.o
@@ -47,7 +49,7 @@ endif
 $(OBJNAME): $(OBJECTS)
 	$(AR) cr $@ $^
 
-$(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c
+$(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c $(INC)/enet/*.h
 	-mkdir -p $(OBJ)
 	$(COMPILE_STATUS)
 	if $(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi

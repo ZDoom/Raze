@@ -31,6 +31,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __MULTIVOC_H
 #define __MULTIVOC_H
 
+#ifndef UNREFERENCED_PARAMETER
+#define UNREFERENCED_PARAMETER(x) x=x
+#endif
+
 #define MV_MinVoiceHandle  1
 
 extern int32_t MV_ErrorCode;
@@ -53,6 +57,7 @@ enum MV_Errors
    MV_NullRecordFunction
    };
 
+void (*MV_Printf)(const char *fmt, ...);
 const char *MV_ErrorString( int32_t ErrorNumber );
 int32_t   MV_VoicePlaying( int32_t handle );
 int32_t   MV_KillAllVoices( void );
@@ -113,5 +118,7 @@ int32_t   MV_GetReverseStereo( void );
 int32_t   MV_Init( int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numchannels,
          int32_t samplebits, void * initdata );
 int32_t   MV_Shutdown( void );
+int32_t MV_SetVoiceCallback(int32_t handle, uint32_t callbackval);
+void MV_SetPrintf(void (*function)(const char *fmt, ...));
 
 #endif

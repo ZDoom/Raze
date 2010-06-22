@@ -140,6 +140,7 @@ static volatile VoiceNode VoicePool;
 static int32_t MV_MixPage      = 0;
 static int32_t MV_VoiceHandle  = MV_MinVoiceHandle;
 
+void (*MV_Printf)(const char *fmt, ...) = NULL;
 static void (*MV_CallBackFunc)(uint32_t) = NULL;
 static void (*MV_MixFunction)(VoiceNode *voice, int32_t buffer);
 
@@ -157,7 +158,8 @@ uint32_t MV_MixPosition;
 int32_t MV_ErrorCode = MV_Ok;
 
 static int32_t lockdepth = 0;
-static void DisableInterrupts(void)
+
+static inline void DisableInterrupts(void)
 {
     if (lockdepth++ > 0)
         return;
@@ -165,7 +167,7 @@ static void DisableInterrupts(void)
     return;
 }
 
-static void RestoreInterrupts(void)
+static inline void RestoreInterrupts(void)
 {
     if (--lockdepth > 0)
         return;
@@ -180,71 +182,50 @@ static void RestoreInterrupts(void)
    number.  A -1 returns a pointer the current error.
 ---------------------------------------------------------------------*/
 
-const char *MV_ErrorString
-(
-    int32_t ErrorNumber
-)
-
+const char *MV_ErrorString(int32_t ErrorNumber)
 {
-    const char *ErrorString;
-
     switch (ErrorNumber)
     {
     case MV_Warning :
     case MV_Error :
-        ErrorString = MV_ErrorString(MV_ErrorCode);
-        break;
+        return MV_ErrorString(MV_ErrorCode);
 
     case MV_Ok :
-        ErrorString = "Multivoc ok.";
-        break;
+        return "Multivoc ok.";
 
     case MV_UnsupportedCard :
-        ErrorString = "Selected sound card is not supported by Multivoc.";
-        break;
+        return "Selected sound card is not supported by Multivoc.";
 
     case MV_NotInstalled :
-        ErrorString = "Multivoc not installed.";
-        break;
+        return "Multivoc not installed.";
 
     case MV_DriverError :
-        ErrorString = SoundDriver_ErrorString(SoundDriver_GetError());
-        break;
+        return SoundDriver_ErrorString(SoundDriver_GetError());
 
     case MV_NoVoices :
-        ErrorString = "No free voices available to Multivoc.";
-        break;
+        return "No free voices available to Multivoc.";
 
     case MV_NoMem :
-        ErrorString = "Out of memory in Multivoc.";
-        break;
+        return "Out of memory in Multivoc.";
 
     case MV_VoiceNotFound :
-        ErrorString = "No voice with matching handle found.";
-        break;
+        return "No voice with matching handle found.";
 
     case MV_InvalidVOCFile :
-        ErrorString = "Invalid VOC file passed in to Multivoc.";
-        break;
+        return "Invalid VOC file passed in to Multivoc.";
 
     case MV_InvalidWAVFile :
-        ErrorString = "Invalid WAV file passed in to Multivoc.";
-        break;
+        return "Invalid WAV file passed in to Multivoc.";
 
     case MV_InvalidVorbisFile :
-        ErrorString = "Invalid OggVorbis file passed in to Multivoc.";
-        break;
+        return "Invalid OggVorbis file passed in to Multivoc.";
 
     case MV_InvalidMixMode :
-        ErrorString = "Invalid mix mode request in Multivoc.";
-        break;
+        return "Invalid mix mode request in Multivoc.";
 
     default :
-        ErrorString = "Unknown Multivoc error code.";
-        break;
+        return "Unknown Multivoc error code.";
     }
-
-    return(ErrorString);
 }
 
 
@@ -254,12 +235,7 @@ const char *MV_ErrorString
    Mixes the sound into the buffer.
 ---------------------------------------------------------------------*/
 
-static void MV_Mix
-(
-    VoiceNode *voice,
-    int32_t        buffer
-)
-
+static void MV_Mix(VoiceNode *voice,int32_t buffer)
 {
     char          *start;
     int32_t            length;
@@ -308,14 +284,10 @@ static void MV_Mix
             }
         }
         else
-        {
             voclength = length;
-        }
 
         if (voice->mix)
-        {
             voice->mix(position, rate, start, voclength);
-        }
 
         voice->position = MV_MixPosition;
 
@@ -325,9 +297,7 @@ static void MV_Mix
         {
             // Get the next block of sound
             if (voice->GetSound(voice) != KeepPlaying)
-            {
                 return;
-            }
 
             if (length > (voice->channels - 1))
             {
@@ -345,16 +315,10 @@ static void MV_Mix
    Adds a voice to the play list.
 ---------------------------------------------------------------------*/
 
-void MV_PlayVoice
-(
-    VoiceNode *voice
-)
-
+void MV_PlayVoice(VoiceNode *voice)
 {
-
     DisableInterrupts();
     LL_SortedInsertion(&VoiceList, voice, prev, next, VoiceNode, priority);
-
     RestoreInterrupts();
 }
 
@@ -365,11 +329,7 @@ void MV_PlayVoice
    Removes the voice from the play list and adds it to the free list.
 ---------------------------------------------------------------------*/
 
-void MV_StopVoice
-(
-    VoiceNode *voice
-)
-
+void MV_StopVoice(VoiceNode *voice)
 {
     DisableInterrupts();
 
@@ -380,9 +340,9 @@ void MV_StopVoice
     RestoreInterrupts();
 
     if (voice->wavetype == Vorbis)
-    {
         MV_ReleaseVorbisVoice(voice);
-    }
+
+    voice->handle = 0;
 }
 
 
@@ -403,22 +363,16 @@ void MV_StopVoice
            MV_GetNextWAVBlock
            MV_SetVoiceMixMode
 ---------------------------------------------------------------------*/
-void MV_ServiceVoc
-(
-    void
-)
-
+void MV_ServiceVoc(void)
 {
     VoiceNode *voice;
     VoiceNode *next;
     //int32_t        flags;
+    int32_t iter;
 
     // Toggle which buffer we'll mix next
-    MV_MixPage++;
-    if (MV_MixPage >= MV_NumberOfBuffers)
-    {
+    if (++MV_MixPage >= MV_NumberOfBuffers)
         MV_MixPage -= MV_NumberOfBuffers;
-    }
 
     if (MV_ReverbLevel == 0)
     {
@@ -443,41 +397,30 @@ void MV_ServiceVoc
         end = MV_MixBuffer[ 0 ] + MV_BufferLength;;
         dest = MV_MixBuffer[ MV_MixPage ];
         source = MV_MixBuffer[ MV_MixPage ] - MV_ReverbDelay;
+
         if (source < MV_MixBuffer[ 0 ])
-        {
             source += MV_BufferLength;
-        }
 
         length = MV_BufferSize;
         while (length > 0)
         {
             count = length;
             if (source + count > end)
-            {
                 count = end - source;
-            }
 
             if (MV_Bits == 16)
             {
                 if (MV_ReverbTable != NULL)
-                {
                     MV_16BitReverb(source, dest, MV_ReverbTable, count / 2);
-                }
                 else
-                {
                     MV_16BitReverbFast(source, dest, count / 2, MV_ReverbLevel);
-                }
             }
             else
             {
                 if (MV_ReverbTable != NULL)
-                {
                     MV_8BitReverb((int8_t *) source, (int8_t *) dest, MV_ReverbTable, count);
-                }
                 else
-                {
                     MV_8BitReverbFast((int8_t *) source, (int8_t *) dest, count, MV_ReverbLevel);
-                }
             }
 
             // if we go through the loop again, it means that we've wrapped around the buffer
@@ -493,9 +436,15 @@ void MV_ServiceVoc
     if (!VoiceList.next || (voice = VoiceList.next) == &VoiceList)
         return;
 
+    iter = 0;
+
     do
     {
         next = voice->next;
+        iter++;
+
+        if (iter > MV_MaxVoices && MV_Printf)
+            MV_Printf("more iterations than voices! iter: %d\n",iter);
 
         if (voice->Paused)
             continue;
@@ -515,6 +464,8 @@ void MV_ServiceVoc
             if (voice->wavetype == Vorbis)
                 MV_ReleaseVorbisVoice(voice);
 
+            voice->handle = 0;
+
             if (MV_CallBackFunc)
                 MV_CallBackFunc(voice->callbackval);
         }
@@ -531,11 +482,7 @@ void MV_ServiceVoc
    Interpret the information of a VOC format sound file.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextVOCBlock
-(
-    VoiceNode *voice
-)
-
+playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
 {
     uint8_t *ptr;
     int32_t            blocktype;
@@ -756,13 +703,9 @@ playbackstatus MV_GetNextVOCBlock
         if (voice->LoopEnd != NULL)
         {
             if (blocklength > (uint32_t)voice->LoopEnd)
-            {
                 blocklength = (uint32_t)voice->LoopEnd;
-            }
             else
-            {
                 voice->LoopEnd = (char *)blocklength;
-            }
 
             voice->LoopStart = voice->sound + (uint32_t)voice->LoopStart;
             voice->LoopEnd   = voice->sound + (uint32_t)voice->LoopEnd;
@@ -770,13 +713,10 @@ playbackstatus MV_GetNextVOCBlock
         }
 
         if (voice->bits == 16)
-        {
             blocklength /= 2;
-        }
+
         if (voice->channels == 2)
-        {
             blocklength /= 2;
-        }
 
         voice->position     = 0;
         voice->length       = min(blocklength, 0x8000);
@@ -798,11 +738,7 @@ playbackstatus MV_GetNextVOCBlock
    Controls playback of demand fed data.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextDemandFeedBlock
-(
-    VoiceNode *voice
-)
-
+playbackstatus MV_GetNextDemandFeedBlock(VoiceNode *voice)
 {
     if (voice->BlockLength > 0)
     {
@@ -816,9 +752,7 @@ playbackstatus MV_GetNextDemandFeedBlock
     }
 
     if (voice->DemandFeed == NULL)
-    {
         return(NoMoreData);
-    }
 
     voice->position     = 0;
     (voice->DemandFeed)(&voice->sound, &voice->BlockLength);
@@ -826,11 +760,7 @@ playbackstatus MV_GetNextDemandFeedBlock
     voice->BlockLength -= voice->length;
     voice->length     <<= 16;
 
-    if ((voice->length > 0) && (voice->sound != NULL))
-    {
-        return(KeepPlaying);
-    }
-    return(NoMoreData);
+    return((voice->length > 0) && (voice->sound != NULL) ? KeepPlaying : NoMoreData);
 }
 
 
@@ -840,11 +770,7 @@ playbackstatus MV_GetNextDemandFeedBlock
    Controls playback of demand fed data.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextRawBlock
-(
-    VoiceNode *voice
-)
-
+playbackstatus MV_GetNextRawBlock(VoiceNode *voice)
 {
     if (voice->BlockLength <= 0)
     {
@@ -877,11 +803,7 @@ playbackstatus MV_GetNextRawBlock
    Controls playback of demand fed data.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextWAVBlock
-(
-    VoiceNode *voice
-)
-
+playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
 {
     if (voice->BlockLength <= 0)
     {
@@ -914,13 +836,16 @@ playbackstatus MV_GetNextWAVBlock
    Locates the voice with the specified handle.
 ---------------------------------------------------------------------*/
 
-VoiceNode *MV_GetVoice
-(
-    int32_t handle
-)
-
+VoiceNode *MV_GetVoice(int32_t handle)
 {
     VoiceNode *voice;
+
+    if (handle < MV_MinVoiceHandle || handle > MV_MaxVoices)
+    {
+        if (MV_Printf)
+            MV_Printf("MV_GetVoice(): bad handle (%d)!\n", handle);
+        return NULL;
+    }
 
     DisableInterrupts();
 
@@ -928,19 +853,14 @@ VoiceNode *MV_GetVoice
     {
         if (handle == voice->handle)
         {
-            break;
+            RestoreInterrupts();
+            return voice;
         }
     }
 
     RestoreInterrupts();
-
-    if (voice == &VoiceList)
-    {
-        MV_SetErrorCode(MV_VoiceNotFound);
-        voice = 0;
-    }
-
-    return(voice);
+    MV_SetErrorCode(MV_VoiceNotFound);
+    return NULL;
 }
 
 
@@ -951,28 +871,15 @@ VoiceNode *MV_GetVoice
    playing.
 ---------------------------------------------------------------------*/
 
-int32_t MV_VoicePlaying
-(
-    int32_t handle
-)
-
+int32_t MV_VoicePlaying(int32_t handle)
 {
-    VoiceNode *voice;
-
     if (!MV_Installed)
     {
         MV_SetErrorCode(MV_NotInstalled);
         return(FALSE);
     }
 
-    voice = MV_GetVoice(handle);
-
-    if (voice == NULL)
-    {
-        return(FALSE);
-    }
-
-    return(TRUE);
+    return MV_GetVoice(handle) ? TRUE : FALSE;
 }
 
 
@@ -982,13 +889,9 @@ int32_t MV_VoicePlaying
    Stops output of all currently active voices.
 ---------------------------------------------------------------------*/
 
-int32_t MV_KillAllVoices
-(
-    void
-)
-
+int32_t MV_KillAllVoices(void)
 {
-    VoiceNode * voice = VoiceList.prev;
+    VoiceNode * voice;
 
     if (!MV_Installed)
     {
@@ -996,10 +899,15 @@ int32_t MV_KillAllVoices
         return(MV_Error);
     }
 
-    if (&VoiceList == VoiceList.next)
-        return(MV_Ok);
-
     DisableInterrupts();
+
+    if (&VoiceList == VoiceList.next)
+    {
+        RestoreInterrupts();
+        return(MV_Ok);
+    }
+
+    voice = VoiceList.prev;
 
     // Remove all the voices from the list
     while (voice != &VoiceList)
@@ -1026,11 +934,7 @@ int32_t MV_KillAllVoices
    Stops output of the voice associated with the specified handle.
 ---------------------------------------------------------------------*/
 
-int32_t MV_Kill
-(
-    int32_t handle
-)
-
+int32_t MV_Kill(int32_t handle)
 {
     VoiceNode *voice;
     uint32_t callbackval;
@@ -1043,8 +947,7 @@ int32_t MV_Kill
 
     DisableInterrupts();
 
-    voice = MV_GetVoice(handle);
-    if (voice == NULL)
+    if ((voice = MV_GetVoice(handle)) == NULL)
     {
         RestoreInterrupts();
         MV_SetErrorCode(MV_VoiceNotFound);
@@ -1058,9 +961,7 @@ int32_t MV_Kill
     RestoreInterrupts();
 
     if (MV_CallBackFunc)
-    {
         MV_CallBackFunc(callbackval);
-    }
 
     return(MV_Ok);
 }
@@ -1072,14 +973,10 @@ int32_t MV_Kill
    Determines the number of currently active voices.
 ---------------------------------------------------------------------*/
 
-int32_t MV_VoicesPlaying
-(
-    void
-)
-
+int32_t MV_VoicesPlaying(void)
 {
     VoiceNode   *voice;
-    int32_t         NumVoices = 0;
+    int32_t     NumVoices = 0;
 
     if (!MV_Installed)
     {
@@ -1090,9 +987,7 @@ int32_t MV_VoicesPlaying
     DisableInterrupts();
 
     for (voice = VoiceList.next; voice != &VoiceList; voice = voice->next)
-    {
         NumVoices++;
-    }
 
     RestoreInterrupts();
 
@@ -1106,11 +1001,7 @@ int32_t MV_VoicesPlaying
    Retrieve an inactive or lower priority voice for output.
 ---------------------------------------------------------------------*/
 
-VoiceNode *MV_AllocVoice
-(
-    int32_t priority
-)
-
+VoiceNode *MV_AllocVoice(int32_t priority)
 {
     VoiceNode   *voice;
     VoiceNode   *node;
@@ -1125,87 +1016,72 @@ VoiceNode *MV_AllocVoice
         for (node = voice->next; node != &VoiceList; node = node->next)
         {
             if (node->priority < voice->priority)
-            {
                 voice = node;
-            }
         }
 
-        if (priority >= voice->priority)
-        {
+        if (priority >= voice->priority && voice->handle > MV_Ok)
             MV_Kill(voice->handle);
-        }
-    }
 
-    // Check if any voices are in the voice pool
-    if (LL_Empty(&VoicePool, next, prev))
-    {
-        // No free voices
-        RestoreInterrupts();
-        return(NULL);
+        if (LL_Empty(&VoicePool, next, prev))
+        {
+            // No free voices
+            RestoreInterrupts();
+            return NULL;
+        }
     }
 
     voice = VoicePool.next;
     LL_Remove(voice, next, prev);
     RestoreInterrupts();
 
+    MV_VoiceHandle = MV_MinVoiceHandle;
+
     // Find a free voice handle
     do
     {
-        MV_VoiceHandle++;
-        if (MV_VoiceHandle < MV_MinVoiceHandle)
-        {
+        if (++MV_VoiceHandle < MV_MinVoiceHandle || MV_VoiceHandle > MV_MaxVoices)
             MV_VoiceHandle = MV_MinVoiceHandle;
-        }
     }
     while (MV_VoicePlaying(MV_VoiceHandle));
 
     voice->handle = MV_VoiceHandle;
 
-    return(voice);
+    return voice;
 }
 
 
 /*---------------------------------------------------------------------
    Function: MV_VoiceAvailable
 
-   Checks if a voice can be play at the specified priority.
+   Checks if a voice can be played at the specified priority.
 ---------------------------------------------------------------------*/
 
-int32_t MV_VoiceAvailable
-(
-    int32_t priority
-)
-
+int32_t MV_VoiceAvailable(int32_t priority)
 {
     VoiceNode   *voice;
     VoiceNode   *node;
 
     // Check if we have any free voices
     if (!LL_Empty(&VoicePool, next, prev))
-    {
-        return(TRUE);
-    }
+        return TRUE;
 
     DisableInterrupts();
 
     // check if we have a higher priority than a voice that is playing.
-    voice = VoiceList.next;
-    for (node = VoiceList.next; node != &VoiceList; node = node->next)
+    for (voice = node = VoiceList.next; node != &VoiceList; node = node->next)
     {
         if (node->priority < voice->priority)
-        {
             voice = node;
-        }
     }
-
-    RestoreInterrupts();
 
     if ((voice != &VoiceList) && (priority >= voice->priority))
     {
-        return(TRUE);
+        RestoreInterrupts();
+        return TRUE;
     }
 
-    return(FALSE);
+    RestoreInterrupts();
+    return FALSE;
 }
 
 
@@ -1938,9 +1814,7 @@ void MV_StopPlayback
         MV_StopVoice(voice);
 
         if (MV_CallBackFunc)
-        {
             MV_CallBackFunc(voice->callbackval);
-        }
     }
 
     RestoreInterrupts();
@@ -2213,6 +2087,9 @@ int32_t MV_PlayLoopedWAV
     VoiceNode     *voice;
     int32_t length;
 
+    UNREFERENCED_PARAMETER(ptrlength);
+    UNREFERENCED_PARAMETER(loopend);
+
     if (!MV_Installed)
     {
         MV_SetErrorCode(MV_NotInstalled);
@@ -2424,6 +2301,8 @@ int32_t MV_PlayLoopedVOC
 {
     VoiceNode   *voice;
     int32_t          status;
+
+    UNREFERENCED_PARAMETER(ptrlength);
 
     if (!MV_Installed)
     {
@@ -2853,5 +2732,37 @@ int32_t MV_Shutdown
 
     return(MV_Ok);
 }
+
+int32_t MV_SetVoiceCallback(int32_t handle, uint32_t callbackval)
+{
+    VoiceNode *voice;
+
+    if (!MV_Installed)
+    {
+        MV_SetErrorCode(MV_NotInstalled);
+        return(MV_Error);
+    }
+
+    DisableInterrupts();
+
+    if ((voice = MV_GetVoice(handle)) == NULL)
+    {
+        RestoreInterrupts();
+        MV_SetErrorCode(MV_VoiceNotFound);
+        return(MV_Error);
+    }
+
+    voice->callbackval = callbackval;
+
+    RestoreInterrupts();
+
+    return(MV_Ok);
+}
+
+void MV_SetPrintf(void (*function)(const char *, ...))
+{
+    MV_Printf = function;
+}
+
 
 // vim:ts=3:expandtab:
