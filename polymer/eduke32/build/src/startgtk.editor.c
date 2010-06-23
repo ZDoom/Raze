@@ -7,6 +7,7 @@
 
 #include "build.h"
 #include "editor.h"
+#include "baselayer.h"
 
 enum {
 	TAB_CONFIG,

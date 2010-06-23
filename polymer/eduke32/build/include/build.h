@@ -701,6 +701,10 @@ void hash_add(hashtable_t *t, const char *s, int32_t key);
 
 #ifdef POLYMER
 # include "polymer.h"
+#else
+#ifdef POLYMOST
+# include "polymost.h"
+#endif
 #endif
 
 #ifdef __cplusplus

@@ -65,6 +65,7 @@
 #  endif
 #else
 # include <stdarg.h>
+# include <stddef.h>
 #endif
 
 #ifdef __compat_h_macrodef__

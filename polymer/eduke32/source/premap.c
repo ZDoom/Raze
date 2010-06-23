@@ -498,7 +498,7 @@ void G_CacheMapData(void)
                             polymost_precache(i,DETAILPAL,type);
                         if (r_glowmapping && !KB_KeyPressed(sc_Space))
                             polymost_precache(i,GLOWPAL,type);
-
+#ifdef POLYMER
                         if (rendmode==4)
                         {
                             if (pr_specularmapping && !KB_KeyPressed(sc_Space))
@@ -506,6 +506,7 @@ void G_CacheMapData(void)
                             if (pr_normalmapping && !KB_KeyPressed(sc_Space))
                                 polymost_precache(i,NORMALPAL,type);
                         }
+#endif
                     }
             }
 #endif

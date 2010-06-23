@@ -140,9 +140,6 @@ GLfloat         artskydata[16];
 _prlight        prlights[PR_MAXLIGHTS];
 int32_t         lightcount;
 int32_t         curlight;
-
-_prlight        gamelights[PR_MAXLIGHTS];
-int32_t         gamelightcount;
 #pragma pack(pop)
 
 static GLfloat  shadowBias[] =

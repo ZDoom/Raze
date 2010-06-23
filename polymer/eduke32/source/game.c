@@ -12699,11 +12699,6 @@ GAME_STATIC int32_t G_DoMoveThings(void)
     everyothertime++;
     if (g_earthquakeTime > 0) g_earthquakeTime--;
 
-#ifdef POLYMER
-    if (ud.pause_on == 0)
-        gamelightcount = 0;
-#endif
-
     if (ud.pause_on == 0)
     {
         g_globalRandom = krand();

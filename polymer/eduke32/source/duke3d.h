@@ -33,6 +33,10 @@ extern "C" {
 #include "build.h"
 #ifdef POLYMER
 # include "polymer.h"
+#else
+#ifdef POLYMOST
+# include "polymost.h"
+#endif
 #endif
 #include "cache1d.h"
 #include "pragmas.h"

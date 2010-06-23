@@ -109,7 +109,7 @@ static struct strllist
 static const char *Typestr[] = { "Wall", "Ceiling", "Floor", "Sprite", "Wall" };
 static const char *typestr[] = { "wall", "ceiling", "floor", "sprite", "wall" };
 static const char *Typestr_wss[] = { "Wall", "Sector", "Sector", "Sprite", "Wall" };
-static const char *typestr_wss[] = { "wall", "sector", "sector", "sprite", "wall" };
+/*static const char *typestr_wss[] = { "wall", "sector", "sector", "sprite", "wall" };*/
 
 //#define AIMED_obj (typestr[searchstat])
 

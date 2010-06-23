@@ -70,7 +70,9 @@ static struct
     GtkWidget *vmode3dlabel;
     GtkWidget *vmode3dcombo;
     GtkWidget *fullscreencheck;
+#ifdef POLYMER
     GtkWidget *polymercheck;
+#endif
     GtkWidget *inputdevlabel;
     GtkWidget *inputdevcombo;
     GtkWidget *custommodlabel;
@@ -103,7 +105,9 @@ static struct
 static struct
 {
     int32_t fullscreen;
+#ifdef POLYMER
     int32_t polymer;
+#endif
     int32_t xdim3d, ydim3d, bpp3d;
     int32_t forcesetup;
     int32_t autoload;
@@ -142,6 +146,7 @@ static void on_fullscreencheck_toggled(GtkToggleButton *togglebutton, gpointer u
     PopulateForm(POPULATE_VIDEO);
 }
 
+#ifdef POLYMER
 static void on_polymercheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
     UNREFERENCED_PARAMETER(user_data);
@@ -161,6 +166,7 @@ static void on_polymercheck_toggled(GtkToggleButton *togglebutton, gpointer user
         settings.polymer = FALSE;
     }
 }
+#endif
 
 static void on_inputdevcombo_changed(GtkComboBox *combobox, gpointer user_data)
 {
@@ -420,7 +426,9 @@ static void PopulateForm(unsigned char pgs)
 
         // populate check buttons
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.fullscreencheck), settings.fullscreen);
+#ifdef POLYMER
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.polymercheck), settings.polymer);
+#endif
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.autoloadcheck), settings.autoload);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.alwaysshowcheck), settings.forcesetup);
     }
@@ -532,9 +540,11 @@ static GtkWidget *create_window(void)
     stwidgets.fullscreencheck = gtk_check_button_new_with_mnemonic("_Fullscreen");
     gtk_box_pack_start(GTK_BOX(stwidgets.displayvlayout), stwidgets.fullscreencheck, FALSE, FALSE, 0);
 
+#ifdef POLYMER
     // Polymer checkbox
     stwidgets.polymercheck = gtk_check_button_new_with_mnemonic("_Polymer");
     gtk_box_pack_start(GTK_BOX(stwidgets.displayvlayout), stwidgets.polymercheck, FALSE, FALSE, 0);
+#endif
 
     // Input devices LabelText
     stwidgets.inputdevlabel = gtk_label_new_with_mnemonic("_Input devices:");
@@ -556,7 +566,7 @@ static GtkWidget *create_window(void)
     gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inputdevcombo, 1,2, 1,2, GTK_EXPAND | GTK_FILL, 0, 4, 0);
 
     // Custom mod LabelText
-    stwidgets.custommodlabel = gtk_label_new_with_mnemonic("Custom _Mod:");
+    stwidgets.custommodlabel = gtk_label_new_with_mnemonic("Custom _game:");
     gtk_misc_set_alignment(GTK_MISC(stwidgets.custommodlabel), 0.3, 0);
     gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.custommodlabel, 0,1, 2,3, GTK_FILL, 0, 4, 7);
 
@@ -596,7 +606,7 @@ static GtkWidget *create_window(void)
     gtk_container_set_border_width(GTK_CONTAINER(stwidgets.gamevlayout), 4);
 
     // Game data field LabelText
-    stwidgets.gamelabel = gtk_label_new_with_mnemonic("_Game or addon:");
+    stwidgets.gamelabel = gtk_label_new_with_mnemonic("_Game:");
     gtk_box_pack_start(GTK_BOX(stwidgets.gamevlayout), stwidgets.gamelabel, FALSE, FALSE, 0);
     gtk_misc_set_alignment(GTK_MISC(stwidgets.gamelabel), 0, 0.5);
 
@@ -703,9 +713,11 @@ static GtkWidget *create_window(void)
     g_signal_connect((gpointer) stwidgets.fullscreencheck, "toggled",
                      G_CALLBACK(on_fullscreencheck_toggled),
                      NULL);
+#ifdef POLYMER
     g_signal_connect((gpointer) stwidgets.polymercheck, "toggled",
                      G_CALLBACK(on_polymercheck_toggled),
                      NULL);
+#endif
     g_signal_connect((gpointer) stwidgets.inputdevcombo, "changed",
                      G_CALLBACK(on_inputdevcombo_changed),
                      NULL);
@@ -858,11 +870,13 @@ int32_t startwin_run(void)
     Bstrncpy(settings.selectedgrp, g_grpNamePtr, BMAX_PATH);
     if (ud.config.NoAutoLoad) settings.autoload = FALSE;
     else settings.autoload = TRUE;
+#ifdef POLYMER
     if (glrendmode == RDR_POLYMER)
     {
         if (settings.bpp3d == 8) settings.bpp3d = 32;
         settings.polymer = TRUE;
     }
+#endif
     PopulateForm(ALL);
 
     gtk_main();

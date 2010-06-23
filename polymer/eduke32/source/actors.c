@@ -3732,6 +3732,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 s->z = sector[sect].ceilingz+(32<<8);
 
 #ifdef POLYMER
+/*
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x;
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y;
@@ -3751,6 +3752,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
             if (gamelightcount < PR_MAXLIGHTS)
                 gamelightcount++;
+*/
 #endif // POLYMER
 
             if (!g_netServer && ud.multimode < 2)

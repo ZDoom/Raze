@@ -1531,6 +1531,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("lastsavepos",(intptr_t)&g_lastSaveSlot, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
 #ifdef POLYMOST
     Gv_NewVar("rendmode",(intptr_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
+#else
+    Gv_NewVar("rendmode", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
 #endif
 }
 
