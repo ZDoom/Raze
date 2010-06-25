@@ -76,6 +76,7 @@ static int32_t label_allocsize = 512;
 int32_t g_stateCount = 0;
 statesinfo_t *statesinfo = NULL;
 static int32_t statesinfo_allocsize = 512;
+static int32_t interactive_compilation = 0;
 
 static char tempbuf[2048];
 static char tlabel[MAXLABELLEN];
@@ -748,9 +749,11 @@ static int32_t C_GetKeyword(void)
     return hash_find(&h_keywords, tempbuf);
 }
 
-static int32_t C_GetNextKeyword(void)  //Returns its code #
+//Returns its code # if keyword, -1 on eof or non-keyword
+static int32_t C_GetNextKeyword(void)
 {
-    int32_t i, l;
+    int32_t i, l, olinenum = g_lineNumber, havequickstate=0;
+    const char *otextptr = textptr;
 
     C_SkipComments();
 
@@ -780,39 +783,58 @@ static int32_t C_GetNextKeyword(void)  //Returns its code #
     }
     tempbuf[l] = 0;
 
-    i = hash_find(&h_keywords, tempbuf);
-    if (i>=0)
-    {
-        if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
-            *g_scriptPtr = i + (IFELSE_MAGIC<<12);
-        else
-            *g_scriptPtr = i + (g_lineNumber<<12);
-
-        textptr += l;
-        g_scriptPtr++;
-
-//        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-//            initprintf("%s:%d: debug: translating keyword `%s'.\n",g_szScriptFileName,g_lineNumber,keyw[i]);
-        return i;
-    }
-
     textptr += l;
 
-    if (tempbuf[0] == '{' && tempbuf[1] != 0)
+    i = hash_find(&h_keywords, tempbuf);
+    if (i<0)
     {
-        C_CUSTOMERROR("expected whitespace between `{' and `%s'", tempbuf+1);
-    }
-    else if (tempbuf[0] == '}' && tempbuf[1] != 0)
-    {
-        C_CUSTOMERROR("expected whitespace between `}' and `%s'", tempbuf+1);
-    }
-    else
-    {
-        C_ReportError(ERROR_EXPECTEDKEYWORD);
-        g_numCompilerErrors++;
+        if (tempbuf[0]=='{' && tempbuf[1])
+        {
+            C_CUSTOMERROR("expected whitespace between `{' and `%s'", tempbuf+1);
+            return -1;
+        }
+        else if (tempbuf[0]=='}' && tempbuf[1])
+        {
+            C_CUSTOMERROR("expected whitespace between `}' and `%s'", tempbuf+1);
+            return -1;
+        }
+        else
+        {
+            // if compiling from OSD, try state name
+            if (interactive_compilation)
+                i = hash_find(&h_states, tempbuf);
+
+            if (i<0)
+            {
+                C_ReportError(ERROR_EXPECTEDKEYWORD);
+                g_numCompilerErrors++;
+                return -1;
+            }
+            else
+            {
+                havequickstate = 1;
+                i = CON_STATE;
+            }
+        }
     }
 
-    return -1;
+    if (i == CON_LEFTBRACE || i == CON_RIGHTBRACE || i == CON_NULLOP)
+        *g_scriptPtr = i + (IFELSE_MAGIC<<12);
+    else
+        *g_scriptPtr = i + (g_lineNumber<<12);
+
+    if (havequickstate)
+    {
+        g_lineNumber = olinenum;
+        // reset textptr so that case CON_STATE in C_ParseCommand() can insert the state number
+        textptr = otextptr;
+    }
+
+    g_scriptPtr++;
+
+//    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
+//        initprintf("%s:%d: debug: translating keyword `%s'.\n",g_szScriptFileName,g_lineNumber,keyw[i]);
+    return i;
 }
 
 #define GetGamevarID(szGameLabel) hash_find(&h_gamevars, szGameLabel)
@@ -3313,6 +3335,8 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
     int32_t startcompiletime;
     instype* oscriptPtr;
     int32_t ostateCount = g_stateCount;
+
+    interactive_compilation = !isfilename;
 
     if (firstime)
     {

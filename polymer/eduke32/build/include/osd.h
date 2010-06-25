@@ -190,5 +190,12 @@ void OSD_WriteCvars(FILE *fp);
 #define OSD_ERROR OSDTEXT_DARKRED OSDTEXT_BRIGHT
 #define TEXTSIZE 32768
 
+#define OSD_EDITLENGTH 511
+#define OSD_HISTORYDEPTH 32
+
+extern char osdhistorybuf[OSD_HISTORYDEPTH][OSD_EDITLENGTH+1];  // history strings
+extern int32_t  osdhistorysize;       // number of entries in history
+extern int32_t  osdhistorytotal;      // number of total history entries
+
 #endif // __osd_h__
 

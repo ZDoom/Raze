@@ -59,9 +59,8 @@ static int32_t  keytime=0;
 static int32_t osdscrtime = 0;
 
 // command prompt editing
-#define EDITLENGTH 511
-static char osdeditbuf[EDITLENGTH+1];   // editing buffer
-static char osdedittmp[EDITLENGTH+1];   // editing buffer temporary workspace
+static char osdeditbuf[OSD_EDITLENGTH+1];   // editing buffer
+static char osdedittmp[OSD_EDITLENGTH+1];   // editing buffer temporary workspace
 static int32_t  osdeditlen=0;       // length of characters in edit buffer
 static int32_t  osdeditcursor=0;        // position of cursor in edit buffer
 static int32_t  osdeditwinstart=0;
@@ -69,11 +68,10 @@ static int32_t  osdeditwinend=60-1-3;
 #define editlinewidth (osdcols-1-3)
 
 // command processing
-#define HISTORYDEPTH 32
 static int32_t  osdhistorypos=-1;       // position we are at in the history buffer
-static char osdhistorybuf[HISTORYDEPTH][EDITLENGTH+1];  // history strings
-static int32_t  osdhistorysize=0;       // number of entries in history
-static int32_t  osdhistorytotal=0;      // number of total history entries
+char osdhistorybuf[OSD_HISTORYDEPTH][OSD_EDITLENGTH+1];  // history strings
+int32_t  osdhistorysize=0;       // number of entries in history
+int32_t  osdhistorytotal=0;      // number of total history entries
 
 // execution buffer
 // the execution buffer works from the command history
@@ -630,7 +628,7 @@ static int32_t _internal_osdfunc_history(const osdfuncparm_t *parm)
     int32_t i, j = 0;
     UNREFERENCED_PARAMETER(parm);
     OSD_Printf(OSDTEXT_RED "Command history:\n");
-    for (i=HISTORYDEPTH-1; i>=0; i--)
+    for (i=OSD_HISTORYDEPTH-1; i>=0; i--)
         if (osdhistorybuf[i][0])
             OSD_Printf("%4d \"%s\"\n",osdhistorytotal-osdhistorysize+(++j),osdhistorybuf[i]);
     return OSDCMD_OK;
@@ -858,7 +856,7 @@ static void OSD_HistoryPrev(void)
     if (osdhistorypos >= osdhistorysize-1) return;
 
     osdhistorypos++;
-    Bmemcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
+    Bmemcpy(osdeditbuf, osdhistorybuf[osdhistorypos], OSD_EDITLENGTH+1);
 
     osdeditcursor = 0;
     while (osdeditbuf[osdeditcursor]) osdeditcursor++;
@@ -897,7 +895,7 @@ static void OSD_HistoryNext(void)
     }
 
     osdhistorypos--;
-    Bmemcpy(osdeditbuf, osdhistorybuf[osdhistorypos], EDITLENGTH+1);
+    Bmemcpy(osdeditbuf, osdhistorybuf[osdhistorypos], OSD_EDITLENGTH+1);
 
     osdeditcursor = 0;
     while (osdeditbuf[osdeditcursor]) osdeditcursor++;
@@ -1055,7 +1053,7 @@ int32_t OSD_HandleChar(char ch)
             {
                 for (i=osdeditcursor; i>0; i--) if (osdeditbuf[i-1] == ' ') break;
                 osdeditlen = i;
-                for (j=0; tabc->name[j] && osdeditlen <= EDITLENGTH
+                for (j=0; tabc->name[j] && osdeditlen <= OSD_EDITLENGTH
                     && (osdeditlen < commonsize); i++,j++,osdeditlen++)
                     osdeditbuf[i] = tabc->name[j];
                 osdeditcursor = osdeditlen;
@@ -1085,11 +1083,11 @@ int32_t OSD_HandleChar(char ch)
             osdeditbuf[osdeditlen] = 0;
             if (Bstrcmp(osdhistorybuf[0], osdeditbuf))
             {
-                Bmemmove(osdhistorybuf[1], osdhistorybuf[0], (HISTORYDEPTH-1)*(EDITLENGTH+1));
-                Bmemmove(osdhistorybuf[0], osdeditbuf, EDITLENGTH+1);
-                if (osdhistorysize < HISTORYDEPTH) osdhistorysize++;
+                Bmemmove(osdhistorybuf[1], osdhistorybuf[0], (OSD_HISTORYDEPTH-1)*(OSD_EDITLENGTH+1));
+                Bmemmove(osdhistorybuf[0], osdeditbuf, OSD_EDITLENGTH+1);
+                if (osdhistorysize < OSD_HISTORYDEPTH) osdhistorysize++;
                 osdhistorytotal++;
-                if (osdexeccount == HISTORYDEPTH)
+                if (osdexeccount == OSD_HISTORYDEPTH)
                     OSD_Printf("Command Buffer Warning: Failed queueing command "
                     "for execution. Buffer full.\n");
                 else
@@ -1097,7 +1095,7 @@ int32_t OSD_HandleChar(char ch)
             }
             else
             {
-                if (osdexeccount == HISTORYDEPTH)
+                if (osdexeccount == OSD_HISTORYDEPTH)
                     OSD_Printf("Command Buffer Warning: Failed queueing command "
                     "for execution. Buffer full.\n");
                 else
@@ -1150,7 +1148,7 @@ int32_t OSD_HandleChar(char ch)
         {
             if ((osdflags & OSD_OVERTYPE) == 0)
             {
-                if (osdeditlen == EDITLENGTH) // buffer full, can't insert another char
+                if (osdeditlen == OSD_EDITLENGTH) // buffer full, can't insert another char
                     return 0;
                 if (osdeditcursor < osdeditlen)
                     Bmemmove(osdeditbuf+osdeditcursor+1, osdeditbuf+osdeditcursor, osdeditlen-osdeditcursor);

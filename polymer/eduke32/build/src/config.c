@@ -112,7 +112,7 @@ extern int32_t ParentalLock;
 int32_t loadsetup(const char *fn)
 {
     BFILE *fp;
-#define VL 256
+#define VL 1024
     char val[VL];
     int32_t i;
 
@@ -265,6 +265,30 @@ int32_t loadsetup(const char *fn)
             if ((p=strchr(p,','))==0)break; p++;
         }
     }
+
+    // load m32script history
+    for (i=0; i<SCRIPTHISTSIZ; i++)
+    {
+        Bsprintf(val, "hist%d", i);
+        if (readconfig(fp, val, val, VL) <= 0)
+            break;
+
+        scripthist[i] = Bstrdup(val);
+    }
+
+    scripthistend = i;
+
+    // copy script history into OSD history
+    for (i=0; i<min(scripthistend, OSD_HISTORYDEPTH); i++)
+    {
+        Bstrncpy(osdhistorybuf[i], scripthist[scripthistend-1-i], OSD_EDITLENGTH+1);
+        osdhistorybuf[i][OSD_EDITLENGTH] = 0;
+        osdhistorysize++;
+        osdhistorytotal++;
+    }
+
+    scripthistend %= SCRIPTHISTSIZ;
+
     Bfclose(fp);
 
     return 0;
@@ -273,7 +297,7 @@ int32_t loadsetup(const char *fn)
 int32_t writesetup(const char *fn)
 {
     BFILE *fp;
-    int32_t i,first=1;
+    int32_t i,j,first=1;
 
     fp = Bfopen(fn,"wt");
     if (!fp) return -1;
@@ -492,7 +516,16 @@ int32_t writesetup(const char *fn)
             Bfprintf(fp,first?"%02X-%02X":",%02X-%02X",i,remap[i]);
             first=0;
         }
-    Bfprintf(fp,"\n");
+    Bfprintf(fp,"\n\n");
+
+    // save m32script history
+    first = 1;
+    for (i=scripthistend, j=0; first || i!=scripthistend; i=(i+1)%SCRIPTHISTSIZ, first=0)
+    {
+        if (scripthist[i])
+            Bfprintf(fp, "hist%d = %s\n", j++, scripthist[i]);
+    }
+
     Bfclose(fp);
 
     return 0;

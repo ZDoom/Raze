@@ -813,16 +813,19 @@ defstate resetallws  // reset all sprites and walls to default repeat/panning
 	}
 ends
 
+defstate js  // jump to current sprite
+    set posx .x
+    set posy .y
+    set posz .z
+    updatecursectnum
+ends
+
 defstate jumptosec  // (tmp)
-    for i allsectors
-    {   
-        ife i tmp
-        {
-            set j sector[i].wallptr
-            set posx wall[j].x
-            set posy wall[j].y
-        }
-    }   
+    ifge tmp 0 ifl tmp numsectors nullop else return
+    set j sector[tmp].wallptr
+    set posx wall[j].x
+    set posy wall[j].y
+    updatecursectnum
 ends
 
 // Map corruption checker

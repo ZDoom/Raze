@@ -6020,7 +6020,7 @@ void showsectordata(int16_t sectnum)
 
     DOPRINT(32, "^10CEILING:^O");
     DOPRINT(48, "Flags (hex): %x", sec->ceilingstat);
-    DOPRINT(56, "(X, Y)pan: %d, %d", sec->ceilingxpanning, sec->ceilingypanning);
+    DOPRINT(56, "(X,Y)pan: %d, %d", sec->ceilingxpanning, sec->ceilingypanning);
     DOPRINT(64, "Shade byte: %d", sec->ceilingshade);
     DOPRINT(72, "Z-coordinate: %d", sec->ceilingz);
     DOPRINT(80, "Tile number: %d", sec->ceilingpicnum);
@@ -6031,7 +6031,7 @@ void showsectordata(int16_t sectnum)
 
     DOPRINT(32, "^10FLOOR:^O");
     DOPRINT(48, "Flags (hex): %x", sec->floorstat);
-    DOPRINT(56, "(X, Y)pan: %d, %d", sec->floorxpanning, sec->floorypanning);
+    DOPRINT(56, "(X,Y)pan: %d, %d", sec->floorxpanning, sec->floorypanning);
     DOPRINT(64, "Shade byte: %d", sec->floorshade);
     DOPRINT(72, "Z-coordinate: %d", sec->floorz);
     DOPRINT(80, "Tile number: %d", sec->floorpicnum);
@@ -6072,8 +6072,8 @@ void showwalldata(int16_t wallnum)
     DOPRINT(48, "Flags (hex): %x", wal->cstat);
     DOPRINT(56, "Shade: %d", wal->shade);
     DOPRINT(64, "Pal: %d", wal->pal);
-    DOPRINT(72, "(X, Y)repeat: %d, %d", wal->xrepeat, wal->yrepeat);
-    DOPRINT(80, "(X, Y)pan: %d, %d", wal->xpanning, wal->ypanning);
+    DOPRINT(72, "(X,Y)repeat: %d, %d", wal->xrepeat, wal->yrepeat);
+    DOPRINT(80, "(X,Y)pan: %d, %d", wal->xpanning, wal->ypanning);
     DOPRINT(88, "Tile number: %d", wal->picnum);
     DOPRINT(96, "OverTile number: %d", wal->overpicnum);
 
@@ -6125,8 +6125,8 @@ void showspritedata(int16_t spritenum)
     DOPRINT(48, "Flags (hex): %x", spr->cstat);
     DOPRINT(56, "Shade: %d", spr->shade);
     DOPRINT(64, "Pal: %d", spr->pal);
-    DOPRINT(72, "(X, Y)repeat: %d, %d", spr->xrepeat, spr->yrepeat);
-    DOPRINT(80, "(X, Y)offset: %d, %d", spr->xoffset, spr->yoffset);
+    DOPRINT(72, "(X,Y)repeat: %d, %d", spr->xrepeat, spr->yrepeat);
+    DOPRINT(80, "(X,Y)offset: %d, %d", spr->xoffset, spr->yoffset);
     DOPRINT(88, "Tile number: %d", spr->picnum);
 
     col++;

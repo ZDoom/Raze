@@ -52,6 +52,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
+#include <signal.h>
+
 #define BUILDDATE " 20100521"
 
 static int32_t floor_over_floor;
@@ -89,6 +91,8 @@ static struct strllist
 }
 *CommandPaths = NULL, *CommandGrps = NULL;
 
+const char *scripthist[SCRIPTHISTSIZ];
+int32_t scripthistend = 0;
 
 //////////////////// Key stuff ////////////////////
 
@@ -7498,7 +7502,7 @@ static int32_t osdcmd_disasm(const osdfuncparm_t *parm)
 
 static int32_t osdcmd_do(const osdfuncparm_t *parm)
 {
-    intptr_t tscrofs;
+    intptr_t oscrofs;
     char *tp;
     int32_t i, j, slen, ofs;
     int32_t onumconstants=g_numSavedConstants;
@@ -7506,7 +7510,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
     if (parm->numparms==0)
         return OSDCMD_SHOWHELP;
 
-    tscrofs = (g_scriptPtr-script);
+    oscrofs = (g_scriptPtr-script);
 
     ofs = 2*(parm->numparms>0);  // true if "do" command
     slen = Bstrlen(parm->raw+ofs);
@@ -7527,7 +7531,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 
     if (g_numCompilerErrors)
     {
-//        g_scriptPtr = script + tscrofs;  // handled in C_Compile()
+//        g_scriptPtr = script + oscrofs;  // handled in C_Compile()
         return OSDCMD_OK;
     }
 
@@ -7540,11 +7544,21 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
         g_numSavedConstants = onumconstants;
 
         *g_scriptPtr = CON_RETURN + (g_lineNumber<<12);
-        g_scriptPtr = script + tscrofs;
+        g_scriptPtr = script + oscrofs;
 
-        insptr = script + tscrofs;
+        insptr = script + oscrofs;
         Bmemcpy(&vm, &vm_default, sizeof(vmstate_t));
         VM_Execute(0);
+
+        if (!(vm.flags&VMFLAG_ERROR))
+        {
+            if (scripthist[scripthistend])
+                Bfree((void *)scripthist[scripthistend]);
+
+            scripthist[scripthistend] = Bstrdup(parm->raw);
+            scripthistend++;
+            scripthistend %= SCRIPTHISTSIZ;
+        }
 //        asksave = 1; // handled in Access(Sprite|Sector|Wall)
     }
 
@@ -7587,7 +7601,7 @@ static int32_t osdcmd_endisableevent(const osdfuncparm_t *parm)
         {
             for (i=0; i<MAXEVENTS; i++)
                 aEventEnabled[i] = enable?1:0;
-            OSD_Printf("Enabled all events.\n");
+            OSD_Printf("%sabled all events.\n", enable?"En":"Dis");
             return OSDCMD_OK;
         }
     }
@@ -8427,6 +8441,16 @@ void ExtPreLoadMap(void)
 
 /// ^^^
 
+static void m32script_interrupt_handler(int signo)
+{
+    if (signo==SIGINT)
+    {
+        vm.flags |= VMFLAG_ERROR;
+        OSD_Printf("M32 script execution interrupted.\n");
+        Bmemset(aEventEnabled, 0, sizeof(aEventEnabled));
+    }
+}
+
 int32_t ExtInit(void)
 {
     int32_t rv = 0;
@@ -8634,6 +8658,8 @@ int32_t ExtInit(void)
     loadtilegroups("tiles.cfg");
 
     ReadHelpFile("m32help.hlp");
+
+    signal(SIGINT, m32script_interrupt_handler);
 
     return rv;
 }

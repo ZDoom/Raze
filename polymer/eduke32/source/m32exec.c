@@ -137,7 +137,7 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
 {
     if (iEventID < 0 || iEventID >= MAXEVENTS)
     {
-        M32_PRINTERROR("invalid event ID");
+        M32_PRINTERROR("Invalid event ID");
         return;
     }
 
