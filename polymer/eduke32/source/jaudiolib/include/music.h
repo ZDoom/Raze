@@ -85,7 +85,7 @@ void  MUSIC_GetSongLength( songposition *pos );
 int32_t   MUSIC_FadeVolume( int32_t tovolume, int32_t milliseconds );
 int32_t   MUSIC_FadeActive( void );
 void  MUSIC_StopFade( void );
-void  MUSIC_RerouteMidiChannel( int32_t channel, int32_t ( *function )( int32_t event, int32_t c1, int32_t c2 ) );
+void  MUSIC_RerouteMidiChannel( int32_t channel, int32_t ( *function )( int32_t, int32_t, int32_t ) );
 void  MUSIC_RegisterTimbreBank( char *timbres );
 void  MUSIC_Update(void);
 

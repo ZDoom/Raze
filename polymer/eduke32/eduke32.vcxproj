@@ -99,6 +99,7 @@
     <ClInclude Include="build\include\polymer.h" />
     <ClInclude Include="build\include\polymost.h" />
     <ClInclude Include="build\include\pragmas.h" />
+    <ClInclude Include="build\include\prlights.h" />
     <ClInclude Include="build\include\quicklz.h" />
     <ClInclude Include="build\include\rawinput.h" />
     <ClInclude Include="build\include\scriptfile.h" />

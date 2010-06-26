@@ -566,7 +566,7 @@ void MUSIC_StopFade
 void MUSIC_RerouteMidiChannel
 (
     int32_t channel,
-    int32_t(*function)(int32_t event, int32_t c1, int32_t c2)
+    int32_t(*function)(int32_t, int32_t, int32_t)
 )
 
 {

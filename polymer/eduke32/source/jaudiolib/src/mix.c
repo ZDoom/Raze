@@ -307,7 +307,7 @@ void MV_16BitReverb( char *src, char *dest, VOLUME16 *volume, int32_t count )
         
         input++;
         output++;
-    } while (count-- > 0);
+    } while (--count > 0);
 }
 
 void MV_8BitReverb( int8_t *src, int8_t *dest, VOLUME16 *volume, int32_t count )
@@ -320,7 +320,7 @@ void MV_8BitReverb( int8_t *src, int8_t *dest, VOLUME16 *volume, int32_t count )
         
         input++;
         output++;
-    } while (count-- > 0);
+    } while (--count > 0);
 }
 
 void MV_16BitReverbFast( char *src, char *dest, int32_t count, int32_t shift )
@@ -333,7 +333,7 @@ void MV_16BitReverbFast( char *src, char *dest, int32_t count, int32_t shift )
         
         input++;
         output++;
-    } while (count-- > 0);
+    } while (--count > 0);
 }
 
 void MV_8BitReverbFast( int8_t *src, int8_t *dest, int32_t count, int32_t shift )
@@ -348,6 +348,6 @@ void MV_8BitReverbFast( int8_t *src, int8_t *dest, int32_t count, int32_t shift 
         
         src++;
         dest++;
-    } while (count-- > 0);
+    } while (--count > 0);
 }
 

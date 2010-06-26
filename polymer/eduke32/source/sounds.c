@@ -613,25 +613,34 @@ int32_t A_PlaySound(uint32_t num, int32_t i)
 
 void S_StopSound(int32_t num)
 {
+    int32_t iter = 0;
+
     if (num < 0 || num > g_maxSoundPos || g_sounds[num].num <= 0)
         return;
 
-    retry:
+retry:
+
+    if (iter > MAXSOUNDINSTANCES)
     {
         int32_t j=MAXSOUNDINSTANCES-1;
+
+        initprintf(OSD_ERROR "S_StopSound(): too many iterations! The following IDs are still active for sound %d:\n", num);
+        for (; j>=0; j--)
+            if (g_sounds[num].SoundOwner[j].voice)
+                initprintf("slot %d, voice %d, sprite %d\n", j, g_sounds[num].SoundOwner[j].voice, g_sounds[num].SoundOwner[j].i);
+        return;
+    }
+
+    {
+        int32_t j=MAXSOUNDINSTANCES-1;
+
+        iter++;
 
         for (; j>=0; j--)
         {
             if (g_sounds[num].SoundOwner[j].voice)
             {
-                if (g_sounds[num].SoundOwner[j].voice > FX_Ok && g_sounds[num].SoundOwner[j].voice <= ud.config.NumVoices)
-                {
-                    if (FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
-                        FX_StopSound(g_sounds[num].SoundOwner[j].voice);
-                    S_Cleanup();
-                    goto retry;
-                }
-                else
+                if (g_sounds[num].SoundOwner[j].voice <= FX_Ok || g_sounds[num].SoundOwner[j].voice > ud.config.NumVoices)
                 {
                     initprintf(OSD_ERROR "S_StopSound(): bad voice %d for sound ID %d index %d!\n", g_sounds[num].SoundOwner[j].voice, num, j);
                     mutex_lock(&s_mutex);
@@ -640,6 +649,17 @@ void S_StopSound(int32_t num)
                     S_Cleanup();
                     goto retry;
                 }
+
+                if (FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
+                    FX_StopSound(g_sounds[num].SoundOwner[j].voice);
+                else
+                {
+                    mutex_lock(&s_mutex);
+                    dq[dnum++] = (num * MAXSOUNDINSTANCES) + j;
+                    mutex_unlock(&s_mutex);
+                }
+                S_Cleanup();
+                goto retry;
             }
         }
     }
@@ -647,25 +667,33 @@ void S_StopSound(int32_t num)
 
 void S_StopEnvSound(int32_t num,int32_t i)
 {
+    int32_t iter = 0;
+
     if (num < 0 || num > g_maxSoundPos || g_sounds[num].num <= 0)
         return;
 
-    retry:
+retry:
+    if (iter > MAXSOUNDINSTANCES)
     {
         int32_t j=MAXSOUNDINSTANCES-1;
+
+        initprintf(OSD_ERROR "S_StopEnvSound(): too many iterations! The following IDs are still active for sound %d:\n", num);
+        for (; j>=0; j--)
+            if (g_sounds[num].SoundOwner[j].i == i)
+                initprintf("slot %d, voice %d, sprite %d\n", j, g_sounds[num].SoundOwner[j].voice, g_sounds[num].SoundOwner[j].i);
+        return;
+    }
+
+    {
+        int32_t j=MAXSOUNDINSTANCES-1;
+
+        iter++;
 
         for (; j>=0; j--)
         {
             if (g_sounds[num].SoundOwner[j].i == i)
             {
-                if (g_sounds[num].SoundOwner[j].voice > FX_Ok && g_sounds[num].SoundOwner[j].voice <= ud.config.NumVoices)
-                {
-                    if (FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
-                        FX_StopSound(g_sounds[num].SoundOwner[j].voice);
-                    S_Cleanup();
-                    goto retry;
-                }
-                else
+                if (g_sounds[num].SoundOwner[j].voice <= FX_Ok || g_sounds[num].SoundOwner[j].voice > ud.config.NumVoices)
                 {
                     initprintf(OSD_ERROR "S_StopEnvSound(): bad voice %d for sound ID %d index %d!\n", g_sounds[num].SoundOwner[j].voice, num, j);
                     mutex_lock(&s_mutex);
@@ -674,6 +702,21 @@ void S_StopEnvSound(int32_t num,int32_t i)
                     S_Cleanup();
                     goto retry;
                 }
+
+                if (FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
+                    FX_StopSound(g_sounds[num].SoundOwner[j].voice);
+                else
+                {
+                    // FX_SoundActive returning false could mean one of two things: we asked to stop the sound
+                    // right when it was done playing, or we lost track of a voice somewhere (didn't get the callback)
+                    // the first scenario resolves itself, and this addresses the second
+
+                    mutex_lock(&s_mutex);
+                    dq[dnum++] = (num * MAXSOUNDINSTANCES) + j;
+                    mutex_unlock(&s_mutex);
+                }
+                S_Cleanup();
+                goto retry;
             }
         }
     }

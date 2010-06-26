@@ -318,6 +318,9 @@
     <ClInclude Include="build\src\engine_priv.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="build\include\prlights.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">

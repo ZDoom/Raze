@@ -1005,13 +1005,6 @@ void C_InitHashes()
     for (i=0; TsprLabels[i].lId >= 0; i++) hash_add(&tspriteH,TsprLabels[i].name,i);
 }
 
-void C_FreeHashes(void)
-{
-    hash_free(&h_gamevars);
-    hash_free(&h_arrays);
-    hash_free(&h_labels);
-}
-
 // "magic" number for { and }, overrides line number in compiled code for later detection
 #define IFELSE_MAGIC 31337
 static int32_t g_ifElseAborted;

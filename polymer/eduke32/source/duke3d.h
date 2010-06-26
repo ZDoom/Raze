@@ -1090,6 +1090,7 @@ extern hashtable_t h_gamevars;
 extern hashtable_t h_arrays;
 extern hashtable_t h_keywords;
 extern hashtable_t h_gamefuncs;
+extern hashtable_t h_labels;
 
 enum DukePacket_t
 {

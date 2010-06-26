@@ -3664,10 +3664,6 @@ void G_GameExit(const char *t)
 
     if (*t != 0)
     {
-        //setvmode(0x3);    // JBF
-        //binscreen();
-        //            if(*t == ' ' && *(t+1) == 0) *t = 0;
-        //printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
         if (!(t[0] == ' ' && t[1] == 0))
         {
             char titlebuf[256];
@@ -3677,8 +3673,6 @@ void G_GameExit(const char *t)
     }
 
     uninitgroupfile();
-
-    //unlink("duke3d.tmp");
 
     exit(0);
 }
@@ -6589,6 +6583,13 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case REACTOR2__STATIC:
         case REACTOR__STATIC:
             sp->extra = g_impactDamage;
+            CS |= 257;
+            sp->pal = 0;
+            SS = -17;
+
+            changespritestat(i, STAT_ZOMBIEACTOR);
+            break;
+
         case HEAVYHBOMB__STATIC:
             if (j >= 0)
                 sp->owner = j;
@@ -6612,22 +6613,22 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         case RECON__STATIC:
 
-                if (sp->lotag > ud.player_skill)
-                {
-                    sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i,5);
-                    goto SPAWN_END;
-                }
-                g_player[myconnectindex].ps->max_actors_killed++;
-                actor[i].t_data[5] = 0;
-                if (ud.monsters_off == 1)
-                {
-                    sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i,5);
-                    break;
-                }
-                sp->extra = 130;
-                CS |= 256; // Make it hitable
+            if (sp->lotag > ud.player_skill)
+            {
+                sp->xrepeat = sp->yrepeat = 0;
+                changespritestat(i,5);
+                goto SPAWN_END;
+            }
+            g_player[myconnectindex].ps->max_actors_killed++;
+            actor[i].t_data[5] = 0;
+            if (ud.monsters_off == 1)
+            {
+                sp->xrepeat = sp->yrepeat = 0;
+                changespritestat(i,5);
+                break;
+            }
+            sp->extra = 130;
+            CS |= 256; // Make it hitable
 
             if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
             {
@@ -10637,24 +10638,7 @@ static void G_DisplayLogo(void)
     clearview(0L);
 }
 
-/*
-static void loadtmb(void)
-{
-    char tmb[8000];
-    int32_t fil, l;
-
-    fil = kopen4load("d3dtimbr.tmb",0);
-    if (fil == -1) return;
-    l = kfilelength(fil);
-    kread(fil,(char *)tmb,l);
-    MUSIC_RegisterTimbreBank(tmb);
-    kclose(fil);
-}
-*/
-
-extern void C_FreeHashes();
-
-static void G_FreeMemory(void)
+static void G_Cleanup(void)
 {
     int32_t i;
     extern char *bitptr;
@@ -10693,7 +10677,9 @@ static void G_FreeMemory(void)
 
 //    if (MusicPtr != NULL) Bfree(MusicPtr);
 
-    // C_FreeHashes();
+    hash_free(&h_gamevars);
+    hash_free(&h_arrays);
+    hash_free(&h_labels);
     hash_free(&h_gamefuncs);
 }
 
@@ -10707,14 +10693,13 @@ static void G_FreeMemory(void)
 
 void G_Shutdown(void)
 {
+    CONFIG_WriteSetup();
     S_SoundShutdown();
     S_MusicShutdown();
-    uninittimer();
     CONTROL_Shutdown();
-    CONFIG_WriteSetup();
     KB_Shutdown();
-    G_FreeMemory();
     uninitengine();
+    G_Cleanup();
 }
 
 /*
@@ -10871,7 +10856,7 @@ static void G_Startup(void)
     {
         wm_msgbox("Build Engine Initialization Error",
                   "There was a problem initializing the Build engine: %s", engineerrstr);
-        G_FreeMemory();
+        G_Cleanup();
         exit(1);
     }
 

@@ -2269,6 +2269,7 @@ static void md3free(md3model_t *m)
                 if (s->shaders) Bfree(s->shaders);
                 if (s->uv) Bfree(s->uv);
                 if (s->xyzn) Bfree(s->xyzn);
+                if (s->geometry) Bfree(s->geometry);
             }
         }
         Bfree(m->head.surfs);
@@ -3191,7 +3192,7 @@ int32_t mddraw(spritetype *tspr)
 void mdfree(mdmodel_t *vm)
 {
     if (vm->mdnum == 1) { voxfree((voxmodel_t *)vm); return; }
-    if (vm->mdnum == 3) { md3free((md3model_t *)vm); return; }
+    if (vm->mdnum == 2 || vm->mdnum == 3) { md3free((md3model_t *)vm); return; }
 }
 
 #endif
