@@ -667,11 +667,11 @@ void uninitsystem(void)
 void initprintf(const char *f, ...)
 {
     va_list va;
-    char buf[1024];
-    static char dabuf[1024];
+    char buf[2048];
+    static char dabuf[2048];
 
     va_start(va, f);
-    Bvsnprintf(buf, 1024, f, va);
+    Bvsnprintf(buf, sizeof(buf), f, va);
     va_end(va);
 
     OSD_Printf(buf);

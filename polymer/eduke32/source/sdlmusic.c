@@ -36,11 +36,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sdl_inc.h"
 #include "music.h"
 
+#if !defined _WIN32  // fork/exec based external midi player
+#include <unistd.h>
+#include <malloc.h>
+#include <sys/mman.h>
+#include <sys/wait.h>
+static char **external_midi_argv;
+static pid_t external_midi_pid=-1;
+static int8_t external_midi_restart=0;
+#endif
+static char *external_midi_tempfn = "/tmp/eduke32-music.mid";
+static int32_t external_midi = 0;
+
 int32_t MUSIC_ErrorCode = MUSIC_Ok;
 
 static char warningMessage[80];
 static char errorMessage[80];
-static int32_t external_midi = 0;
 
 static int32_t music_initialized = 0;
 static int32_t music_context = 0;
@@ -106,6 +117,12 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
     char *command = getenv("EDUKE32_MUSIC_CMD");
     const SDL_version *linked = Mix_Linked_Version();
 
+    if (music_initialized)
+    {
+        setErrorMessage("Music system is already initialized.");
+        return(MUSIC_Error);
+    } // if
+
     UNREFERENCED_PARAMETER(Address);
     if (SDL_VERSIONNUM(linked->major,linked->minor,linked->patch) < MIX_REQUIREDVERSION)
     {
@@ -119,13 +136,89 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
     if (external_midi)
     {
         initprintf("Setting music command to `%s'.\n", command);
+
+#if defined _WIN32
         if (Mix_SetMusicCMD(command)==-1)
+        {
             perror("Mix_SetMusicCMD");
+            goto fallback;
+        }
+#else
+        int32_t ws=1, numargs=0, pagesize=sysconf(_SC_PAGE_SIZE);
+        char *c, *cmd;
+        size_t sz;
+
+        if (pagesize==-1)
+            goto fallback;
+
+        for (c=command; *c; c++)
+        {
+            if (isspace(*c))
+                ws = 1;
+            else if (ws)
+            {
+                ws = 0;
+                numargs++;
+            }
+        }
+
+        if (numargs==0)
+            goto fallback;
+
+        sz = (numargs+2)*sizeof(char *) + (c-command+1);
+        sz = ((sz+pagesize)/pagesize)*pagesize;
+
+        external_midi_argv = memalign(pagesize, sz);
+        if (!external_midi_argv)
+            goto fallback;
+
+        cmd = (char *)external_midi_argv + (numargs+2)*sizeof(char *);
+        Bmemcpy(cmd, command, c-command+1);
+
+        ws = 1;
+        numargs = 0;
+        for (c=cmd; *c; c++)
+        {
+            if (isspace(*c))
+            {
+                ws = 1;
+                *c = 0;
+            }
+            else if (ws)
+            {
+                ws = 0;
+                external_midi_argv[numargs++] = c;
+            }
+        }
+        external_midi_argv[numargs] = external_midi_tempfn;
+        external_midi_argv[numargs+1] = NULL;
+
+        if (mprotect(external_midi_argv, sz, PROT_READ)==-1)  // make argv and command string read-only
+        {
+            perror("MUSIC_Init: mprotect");
+            goto fallback;
+        }
+/*
+        {
+            int i;
+            initprintf("----Music argv:\n");
+            for (i=0; i<numargs+1; i++)
+                initprintf("  %s\n", external_midi_argv[i]);
+            initprintf("----\n");
+        }
+*/
+#endif
+        SoundCard = 1;
+        music_initialized = 1;
+        return(MUSIC_Ok);
+
+fallback:
+        initprintf("Error setting music command, falling back to timidity.\n");
     }
-    else
+
     {
-        char *s[] = { "/etc/timidity.cfg", "/etc/timidity/timidity.cfg", "/etc/timidity/freepats.cfg" };
-        FILE *fp = NULL;
+        static char *s[] = { "/etc/timidity.cfg", "/etc/timidity/timidity.cfg", "/etc/timidity/freepats.cfg" };
+        FILE *fp;
         int32_t i;
 
         for (i = (sizeof(s)/sizeof(s[0]))-1; i>=0; i--)
@@ -147,14 +240,7 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
         Bfclose(fp);
     }
 
-    if (music_initialized)
-    {
-        setErrorMessage("Music system is already initialized.");
-        return(MUSIC_Error);
-    } // if
-
     SoundCard = 1;
-
     music_initialized = 1;
     return(MUSIC_Ok);
 } // MUSIC_Init
@@ -163,8 +249,10 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 int32_t MUSIC_Shutdown(void)
 {
     // TODO - make sure this is being called from the menu -- SA
+#if defined _WIN32
     if (external_midi)
         Mix_SetMusicCMD(NULL);
+#endif
 
     MUSIC_StopSong();
     music_context = 0;
@@ -232,9 +320,43 @@ void MUSIC_Pause(void)
     Mix_PauseMusic();
 } // MUSIC_Pause
 
-
 int32_t MUSIC_StopSong(void)
 {
+#if !defined _WIN32
+    if (external_midi)
+    {
+        if (external_midi_pid > 0)
+        {
+            int32_t ret;
+
+            external_midi_restart = 0;  // make SIGCHLD handler a no-op
+
+            kill(external_midi_pid, SIGTERM);
+            nanosleep(&(const struct timespec){ .tv_sec=0, .tv_nsec=5000000 }, NULL);  // sleep 5ms at most
+            ret = waitpid(external_midi_pid, NULL, WNOHANG|WUNTRACED);
+//            printf("(%d)", ret);
+
+            if (ret != external_midi_pid)
+            {
+                if (ret==-1)
+                    perror("waitpid");
+                else
+                {
+                    // we tried to be nice, but no...
+                    kill(external_midi_pid, SIGKILL);
+                    initprintf("%s: wait for SIGTERM timed out.\n", __func__);
+                    if (waitpid(external_midi_pid, NULL, WUNTRACED)==-1)
+                        perror("waitpid (2)");
+                }
+            }
+
+            external_midi_pid = -1;
+        }
+
+        return(MUSIC_Ok);
+    }
+#endif
+
     //if (!fx_initialized)
     if (!Mix_QuerySpec(NULL, NULL, NULL))
     {
@@ -253,27 +375,89 @@ int32_t MUSIC_StopSong(void)
     return(MUSIC_Ok);
 } // MUSIC_StopSong
 
+#if !defined _WIN32
+static void playmusic()
+{
+    pid_t pid = vfork();
+
+    if (pid==-1)  // error
+    {
+        initprintf("%s: vfork: %s\n", __func__, strerror(errno));
+    }
+    else if (pid==0)  // child
+    {
+        // exec with PATH lookup
+        if (execvp(external_midi_argv[0], external_midi_argv) < 0)
+        {
+            perror("execv");
+            _exit(1);
+        }
+    }
+    else  // parent
+    {
+        external_midi_pid = pid;
+    }
+}
+
+static void sigchld_handler(int signo)
+{
+    if (signo==SIGCHLD && external_midi_restart)
+    {
+        int status;
+
+        if (waitpid(external_midi_pid, &status, WUNTRACED)==-1)
+            perror("waitpid (3)");
+
+        if (WIFEXITED(status) && WEXITSTATUS(status)==0)
+        {
+            // loop ...
+            playmusic();
+        }
+    }
+}
+#endif
+
 // Duke3D-specific.  --ryan.
 // void MUSIC_PlayMusic(char *_filename)
 int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
 {
-    static char *tempfn = "/tmp/eduke32-music.mid";
-    FILE *fp;
-
     MUSIC_StopSong();
 
     if (external_midi)
     {
-        fp = Bfopen(tempfn, "wb");
+        FILE *fp;
+
+#if !defined _WIN32
+        static int32_t sigchld_handler_set = 0;
+
+        if (!sigchld_handler_set)
+        {
+            struct sigaction sa = { .sa_handler=sigchld_handler, .sa_flags=0 };
+            sigemptyset(&sa.sa_mask);
+
+            if (sigaction(SIGCHLD, &sa, NULL)==-1)
+                initprintf("%s: sigaction: %s\n", __func__, strerror(errno));
+
+            sigchld_handler_set = 1;
+        }
+#endif
+
+        fp = Bfopen(external_midi_tempfn, "wb");
         if (fp)
         {
             fwrite(song, 1, g_musicSize, fp);
             Bfclose(fp);
-            music_musicchunk = Mix_LoadMUS(tempfn);
+
+#if !defined _WIN32
+            external_midi_restart = loopflag;
+            playmusic();
+#else
+            music_musicchunk = Mix_LoadMUS(external_midi_tempfn);
             if (!music_musicchunk)
                 initprintf("Mix_LoadMUS: %s\n", Mix_GetError());
+#endif
         }
-        else initprintf("MUSIC_PlaySong: fopen: %s\n", strerror(errno));
+        else initprintf("%s: fopen: %s\n", __func__, strerror(errno));
     }
     else
         music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem((char *) song, g_musicSize));

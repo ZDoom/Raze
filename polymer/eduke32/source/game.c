@@ -9551,7 +9551,7 @@ static void G_ShowParameterHelp(void)
               "\nSee eduke32 -debughelp for debug parameters"
               ;
 #if defined RENDERTYPEWIN
-    Bsprintf(tempbuf,HEAD2 " %s",s_buildDate);
+    Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildDate);
     wm_msgbox(tempbuf,s);
 #else
     initprintf("%s\n",s);
@@ -9575,7 +9575,7 @@ static void G_ShowDebugHelp(void)
               "-z#/-condebug\tEnable line-by-line CON compile debugging at level #\n"
               ;
 #if defined RENDERTYPEWIN
-    Bsprintf(tempbuf,HEAD2 " %s",s_buildDate);
+    Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildDate);
     wm_msgbox(tempbuf,s);
 #else
     initprintf("%s\n",s);

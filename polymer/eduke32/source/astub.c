@@ -6587,9 +6587,9 @@ static void Keys2d(void)
     for (k=0; k<2; k++)    // panning/repeat
     {
         if (k==0)
-            j = (keystatus[KEYSC_gLEFT]<<2)|keystatus[KEYSC_gRIGHT];  // 4 & 6 (keypad 2D)
+            j = (keystatus[KEYSC_gLEFT]<<1)|keystatus[KEYSC_gRIGHT];  // 4 & 6 (keypad 2D)
         else
-            j = (keystatus[KEYSC_gUP]<<2)|keystatus[KEYSC_gDOWN];  // 2 & 8 (keypad 2D)
+            j = (keystatus[KEYSC_gUP]<<1)|keystatus[KEYSC_gDOWN];  // 2 & 8 (keypad 2D)
 
         if (j)
         {
