@@ -388,6 +388,8 @@ void       (*gtk_window_set_title)                (GtkWindow           *window,
 						const gchar         *title);
 void       (*gtk_window_set_type_hint)            (GtkWindow           *window, 
 						GdkWindowTypeHint    hint);
+void       (*gtk_window_set_default)              (GtkWindow           *window,
+						GtkWidget           *default_widget);
 
     // gunicode.h
 gint   (*g_utf8_collate)     (const gchar *str1,
@@ -614,6 +616,7 @@ void dynamicgtk_uninit(void);
 #define gtk_window_set_resizable dynamicgtksyms.gtk_window_set_resizable
 #define gtk_window_set_title dynamicgtksyms.gtk_window_set_title
 #define gtk_window_set_type_hint dynamicgtksyms.gtk_window_set_type_hint
+#define gtk_window_set_default dynamicgtksyms.gtk_window_set_default
 
 // gunicode.h
 #define g_utf8_collate dynamicgtksyms.g_utf8_collate

@@ -159,6 +159,7 @@ int32_t dynamicgtk_init(void)
         GETDLSYM(gtk_window_set_resizable)
         GETDLSYM(gtk_window_set_title)
         GETDLSYM(gtk_window_set_type_hint)
+        GETDLSYM(gtk_window_set_default)
         GETDLSYM(g_utf8_collate)
     }
     while (0);

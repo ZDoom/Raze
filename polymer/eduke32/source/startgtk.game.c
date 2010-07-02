@@ -691,6 +691,8 @@ static GtkWidget *create_window(void)
     gtk_container_add(GTK_CONTAINER(stwidgets.buttons), stwidgets.startbutton);
     GTK_WIDGET_SET_FLAGS(stwidgets.startbutton, GTK_CAN_DEFAULT);
 
+    gtk_window_set_default(GTK_WINDOW(stwidgets.startwin), stwidgets.startbutton);
+
     stwidgets.startbuttonalign = gtk_alignment_new(0.5, 0.5, 0, 0);
     gtk_container_add(GTK_CONTAINER(stwidgets.startbutton), stwidgets.startbuttonalign);
 
