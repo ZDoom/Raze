@@ -149,11 +149,13 @@ void showframe(int32_t);
 int32_t setpalette(int32_t start, int32_t num);
 //int32_t getpalette(int32_t start, int32_t num, char *dapal);
 int32_t setgamma(void);
-double vid_gamma, vid_contrast, vid_brightness;
+extern double vid_gamma, vid_contrast, vid_brightness;
 
 #define DEFAULT_GAMMA 1.0
 #define DEFAULT_CONTRAST 1.0
 #define DEFAULT_BRIGHTNESS 0.0
+
+#define GAMMA_CALC (int32_t)(min(max((float)((vid_gamma-1.0)*10.0),0),15))
 
 int32_t switchrendermethod(int32_t,int32_t);    // 0 = software, 1 = opengl | bool = reinit
 

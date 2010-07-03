@@ -3193,9 +3193,6 @@ void getinput(int32_t snum)
     if (BUTTON(gamefunc_Jump) && p->on_ground)
         jump_timer = 4;
 
-    if (aplWeaponFlags[g_player[snum].ps->curr_weapon][snum] & WEAPON_SEMIAUTO && BUTTON(gamefunc_Fire))
-        CONTROL_ClearButton(gamefunc_Fire);
-
     loc.bits = (jump_timer > 0 || BUTTON(gamefunc_Jump))<<SK_JUMP;
 
     if (jump_timer > 0)
@@ -3235,6 +3232,9 @@ void getinput(int32_t snum)
 
     if (BUTTON(gamefunc_Dpad_Aiming))
         vel = 0;
+
+    if (aplWeaponFlags[g_player[snum].ps->curr_weapon][snum] & WEAPON_SEMIAUTO && BUTTON(gamefunc_Fire))
+        CONTROL_ClearButton(gamefunc_Fire);
 
     loc.extbits = 0;
 //    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEFORWARD])

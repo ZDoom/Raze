@@ -37,8 +37,8 @@ extern int32_t S_LoadSound(uint32_t num);
 extern int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos);
 extern int32_t S_PlaySound(int32_t num);
 extern int32_t A_PlaySound(uint32_t num,int32_t i);
-extern void S_StopSound(int32_t num);
 extern void S_StopEnvSound(int32_t num,int32_t i);
+#define S_StopSound(num) S_StopEnvSound(num, -1)
 extern void S_Update(void);
 extern void S_Cleanup(void);
 extern void S_Callback(uint32_t num);

@@ -4199,7 +4199,6 @@ nullquote:
             if (MapInfo[(uint8_t)g_musicIndex].musicfn == NULL)
             {
                 OSD_Printf(CON_ERROR "null music for map %d\n",g_errorLineNum,keyw[g_tw],g_musicIndex);
-                insptr++;
                 continue;
             }
             S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);

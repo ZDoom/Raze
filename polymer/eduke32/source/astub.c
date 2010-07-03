@@ -78,7 +78,7 @@ sound_t g_sounds[MAXSOUNDS];
 static int16_t g_definedsndnum[MAXSOUNDS];  // maps parse order index to g_sounds index
 static int16_t g_sndnum[MAXSOUNDS];  // maps current order index to g_sounds index
 int32_t g_numsounds = 0;
-
+static int32_t lastupdate, mousecol, mouseadd = 1, bstatus;
 
 #if !defined(_WIN32)
 static int32_t usecwd = 0;
@@ -2536,10 +2536,6 @@ static void ReadGamePalette()
     ReadPaletteTable();
 }
 
-static char lockbyte4094;
-
-static int32_t lastupdate, mousecol, mouseadd = 1, bstatus;
-
 static void m32_showmouse(void)
 {
     int32_t i, col;
@@ -3923,7 +3919,7 @@ ERROR_NOMEMORY:
 
 static void Keys3d(void)
 {
-    int32_t i,changedir,tsign; // ,count,nexti
+    int32_t i = 0,changedir,tsign; // ,count,nexti
     int32_t j, k, tempint = 0, hiz, loz;
     int32_t hihit, lohit;
     char smooshyalign=0, repeatpanalign=0; //, buffer[80];
@@ -3931,23 +3927,6 @@ static void Keys3d(void)
     char tempbuf[128];
 
     /* start Mapster32 */
-
-    /*
-    if (sidemode != 0)
-    {
-    setviewback();
-    rotatesprite(320<<15,200<<15,65536,(horiz-100)<<2,4094,0,0,2+4,0,0,0,0);
-    lockbyte4094 = 0;
-    searchx = ydim-1-searchx;
-    searchx ^= searchy;
-    searchy ^= searchx;
-    searchx ^= searchy;
-
-    //      overwritesprite(160L,170L,1153,0,1+2,0);
-    rotatesprite(160<<16,170<<16,65536,(100-horiz+1024)<<3,1153,0,0,2,0,0,0,0);
-
-    }
-    */
 
     if (g_numsounds > 0 && AmbienceToggle)
     {
@@ -5847,7 +5826,7 @@ static void Keys3d(void)
 
     if (PRESSED_KEYSC(F11))  //F11 - brightness
     {
-        extern int16_t brightness;
+        static int16_t brightness;
 
         brightness = brightness + (1-2*eitherSHIFT);
         brightness &= 15;
@@ -7291,21 +7270,6 @@ static int32_t osdcmd_sensitivity(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_gamma(const osdfuncparm_t *parm)
-{
-    extern int16_t brightness;
-
-    if (parm->numparms != 1)
-    {
-        OSD_Printf("\"gamma\" \"%d\"\n",brightness);
-        return OSDCMD_SHOWHELP;
-    }
-    brightness = atoi(parm->parms[0]);
-    setbrightness(brightness,palette,0);
-    OSD_Printf("gamma %d\n",brightness);
-    return OSDCMD_OK;
-}
-
 static int32_t osdcmd_noclip(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
@@ -7644,8 +7608,6 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
 
     OSD_RegisterFunction("editorgridextent","editorgridextent: sets the size of the 2D mode editing grid",osdcmd_editorgridextent);
-
-    OSD_RegisterFunction("gamma","gamma <value>: changes brightness", osdcmd_gamma);
 
     OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
 
@@ -8919,20 +8881,8 @@ void ExtPreCheckKeys(void) // just before drawrooms
         }
 
         if (floor_over_floor) SE40Code(pos.x,pos.y,pos.z,ang,horiz);
-
         if (purpleon) clearview(255);
 
-        if (sidemode)
-        {
-            lockbyte4094 = 1;
-            if (waloff[4094] == 0)
-                allocache(&waloff[4094],320L*200L,&lockbyte4094);
-            setviewtotile(4094,320L,200L);
-            searchx ^= searchy;
-            searchy ^= searchx;
-            searchx ^= searchy;
-            searchx = ydim-1-searchx;
-        }
         return;
     }
     begindrawing();
@@ -9475,12 +9425,9 @@ void ExtCheckKeys(void)
     if (qsetmode == 200)    //In 3D mode
     {
         Keys3d();
-        if (sidemode != 1)
-        {
-            editinput();
-            if (infobox&2)
-                m32_showmouse();
-        }
+        editinput();
+        if (infobox&2)
+            m32_showmouse();
     }
     else Keys2d();
 
@@ -9524,7 +9471,7 @@ void faketimerhandler(void)
 //    if (counter>=5) counter=0;
 
     sampletimer();
-    if (totalclock < ototalclock+TICSPERFRAME || qsetmode != 200 || sidemode != 1)
+    if (totalclock < ototalclock+TICSPERFRAME || qsetmode != 200)
         return;
     ototalclock = totalclock;
 
@@ -9588,34 +9535,32 @@ void faketimerhandler(void)
     if (horiz > 100) horiz--;
 }
 
-extern int16_t brightness;
-
 void SetBOSS1Palette(void)
 {
     if (acurpalette==3) return;
     acurpalette=3;
-    setbrightness(brightness,BOSS1palette,0);
+    setbrightness(GAMMA_CALC,BOSS1palette,0);
 }
 
 void SetSLIMEPalette(void)
 {
     if (acurpalette==2) return;
     acurpalette=2;
-    setbrightness(brightness,SLIMEpalette,0);
+    setbrightness(GAMMA_CALC,SLIMEpalette,0);
 }
 
 void SetWATERPalette(void)
 {
     if (acurpalette==1) return;
     acurpalette=1;
-    setbrightness(brightness,WATERpalette,0);
+    setbrightness(GAMMA_CALC,WATERpalette,0);
 }
 
 void SetGAMEPalette(void)
 {
     if (acurpalette==0) return;
     acurpalette=0;
-    setbrightness(brightness,GAMEpalette,0);
+    setbrightness(GAMMA_CALC,GAMEpalette,0);
 }
 
 static void SearchSectors(int32_t dir)  // <0: backwards, >=0: forwards

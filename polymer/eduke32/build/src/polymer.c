@@ -4537,14 +4537,12 @@ static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
 
 static void         polymer_invalidateplanelights(_prplane* plane)
 {
-    int32_t         i = 0;
+    int32_t         i = -1;
 
-    while (i < plane->lightcount)
+    while (++i < plane->lightcount)
     {
         if (plane && (plane->lights[i] != -1) && (prlights[plane->lights[i]].flags.active))
             prlights[plane->lights[i]].flags.invalidate = 1;
-
-        i++;
     }
 }
 
@@ -4561,21 +4559,15 @@ static void         polymer_invalidatesectorlights(int16_t sectnum)
     polymer_invalidateplanelights(&s->floor);
     polymer_invalidateplanelights(&s->ceil);
 
-    i = 0;
-    while (i < sec->wallnum)
-    {
-        w = prwalls[sec->wallptr + i];
+    i = sec->wallnum;
 
-        if (!w) {
-            i++;
-            continue;
-        }
+    while (i--)
+    {
+        if (!(w = prwalls[sec->wallptr + i])) continue;
 
         polymer_invalidateplanelights(&w->wall);
         polymer_invalidateplanelights(&w->over);
         polymer_invalidateplanelights(&w->mask);
-
-        i++;
     }
 }
 

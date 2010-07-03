@@ -1308,7 +1308,7 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->name, "vid_gamma"))
     {
-        ud.brightness = (int32_t)(min(max((float)((vid_gamma-1.0)*10.0),0),15));
+        ud.brightness = GAMMA_CALC;
         ud.brightness <<= 2;
         setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
 

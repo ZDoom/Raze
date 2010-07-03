@@ -165,7 +165,7 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
 
     cvars = (osdcvar_t *)Brealloc(cvars, (osdnumcvars + 1) * sizeof(osdcvar_t));
 
-    hash_add(&h_cvars, cvar->name, osdnumcvars);
+    hash_replace(&h_cvars, cvar->name, osdnumcvars);
 
     switch (cvar->type & (CVAR_BOOL|CVAR_INT|CVAR_UINT|CVAR_FLOAT|CVAR_DOUBLE))
     {
@@ -1841,11 +1841,13 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
 
     if (symb) // allow this now for reusing an alias name
     {
+/*
         if (symb->func != OSD_ALIAS && symb->func != OSD_UNALIASED)
         {
             OSD_Printf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
             return -1;
         }
+*/
         Bfree((char *)symb->help);
         symb->help = help;
         symb->func = func;
@@ -1918,9 +1920,9 @@ static symbol_t *addnewsymbol(const char *name)
             newsymb->next = t;
         }
     }
-    hash_add(&h_osd, name, osdnumsymbols);
+    hash_replace(&h_osd, name, osdnumsymbols);
     name = Bstrtolower(Bstrdup(name));
-    hash_add(&h_osd, name, osdnumsymbols);
+    hash_replace(&h_osd, name, osdnumsymbols);
     Bfree((void *)name);
     osdsymbptrs[osdnumsymbols++] = newsymb;
     return newsymb;

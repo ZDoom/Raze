@@ -1663,12 +1663,12 @@ ACTOR_STATIC void G_MoveStandables(void)
 
                 if (T3 == 8)
                 {
-                    A_PlaySound(LASERTRIP_EXPLODE,i);
                     for (j=0; j<5; j++) RANDOMSCRAP;
                     x = s->extra;
                     A_RadiusDamage(i, g_tripbombBlastRadius, x>>2,x>>1,x-(x>>2),x);
 
                     j = A_Spawn(i,EXPLOSION2);
+                    A_PlaySound(LASERTRIP_EXPLODE,j);
                     sprite[j].ang = s->ang;
                     sprite[j].xvel = 348;
                     A_SetSprite(j,CLIPMASK0);
@@ -1838,9 +1838,9 @@ ACTOR_STATIC void G_MoveStandables(void)
                 sprite[j].pal = 2;
             }
 
-            A_Spawn(i,EXPLOSION2);
-            A_PlaySound(PIPEBOMB_EXPLODE,i);
-            A_PlaySound(GLASS_HEAVYBREAK,i);
+            j = A_Spawn(i,EXPLOSION2);
+            A_PlaySound(PIPEBOMB_EXPLODE,j);
+            A_PlaySound(GLASS_HEAVYBREAK,j);
 
             if (s->hitag > 0)
             {
@@ -1854,9 +1854,9 @@ ACTOR_STATIC void G_MoveStandables(void)
                 }
 
                 x = s->extra;
-                A_Spawn(i,EXPLOSION2);
                 A_RadiusDamage(i, g_pipebombBlastRadius,x>>2, x-(x>>1),x-(x>>2), x);
-                A_PlaySound(PIPEBOMB_EXPLODE,i);
+                j = A_Spawn(i,EXPLOSION2);
+                A_PlaySound(PIPEBOMB_EXPLODE,j);
 
                 goto DETONATE;
             }
@@ -1958,16 +1958,16 @@ DETONATE:
 
                     s->z -= (32<<8);
 
-                    if ((t[3] == 1 && s->xrepeat) || s->lotag == -99)
-                    {
-                        x = s->extra;
-                        A_Spawn(i,EXPLOSION2);
-                        A_RadiusDamage(i,g_seenineBlastRadius,x>>2, x-(x>>1),x-(x>>2), x);
-                        A_PlaySound(PIPEBOMB_EXPLODE,i);
-                    }
-
                     if (s->xrepeat)
                         for (x=0; x<8; x++) RANDOMSCRAP;
+
+                    if ((t[3] == 1 && s->xrepeat) || s->lotag == -99)
+                    {
+                        int32_t j = A_Spawn(i,EXPLOSION2);
+                        x = s->extra;
+                        A_RadiusDamage(i,g_seenineBlastRadius,x>>2, x-(x>>1),x-(x>>2), x);
+                        A_PlaySound(PIPEBOMB_EXPLODE,j);
+                    }
 
                     KILLIT(i);
                 }
@@ -3027,6 +3027,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                         if (s->picnum == RPG)
                         {
                             k = A_Spawn(i,EXPLOSION2);
+                            A_PlaySound(RPG_EXPLODE,k);
                             Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
 
                             if (s->xrepeat < 10)
@@ -3045,7 +3046,6 @@ ACTOR_STATIC void G_MoveWeapons(void)
                                 }
 
                             }
-                            A_PlaySound(RPG_EXPLODE,i);
 
                             if (s->xrepeat >= 10)
                             {
@@ -3788,7 +3788,8 @@ ACTOR_STATIC void G_MoveActors(void)
                 {
                     for (l=0; l<16; l++)
                         RANDOMSCRAP;
-                    A_PlaySound(LASERTRIP_EXPLODE,i);
+                    j = A_Spawn(i,EXPLOSION2);
+                    A_PlaySound(LASERTRIP_EXPLODE,j);
                     A_Spawn(i,PIGCOP);
                     g_player[myconnectindex].ps->actors_killed++;
                     KILLIT(i);
@@ -4503,6 +4504,8 @@ DETONATEB:
 
                 if (t[2] == 2)
                 {
+                    int32_t j;
+
                     x = s->extra;
                     m = 0;
                     switch (DynamicTileMap[s->picnum])
@@ -4519,10 +4522,10 @@ DETONATEB:
                     }
 
                     A_RadiusDamage(i, m,x>>2,x>>1,x-(x>>2),x);
-                    A_Spawn(i,EXPLOSION2);
+                    j = A_Spawn(i,EXPLOSION2);
+                    A_PlaySound(PIPEBOMB_EXPLODE,j);
                     if (s->zvel == 0)
                         A_Spawn(i,EXPLOSION2BOT);
-                    A_PlaySound(PIPEBOMB_EXPLODE,i);
                     for (x=0; x<8; x++)
                         RANDOMSCRAP;
                 }

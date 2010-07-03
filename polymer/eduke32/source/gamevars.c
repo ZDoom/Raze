@@ -380,8 +380,10 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
 
     for (i=0; i<MAXGAMEVARS; i++)
     {
-        if (aGameVars[i].szLabel != NULL && aGameVars[i].dwFlags & GAMEVAR_RESET)
-            Gv_NewVar(aGameVars[i].szLabel,aGameVars[i].lDefault,aGameVars[i].dwFlags);
+        if (aGameVars[i].szLabel != NULL)
+            Gv_NewVar(aGameVars[i].szLabel,
+            aGameVars[i].dwFlags & GAMEVAR_NODEFAULT ? aGameVars[i].val.lValue : aGameVars[i].lDefault,
+            aGameVars[i].dwFlags);
     }
 
     for (i=0; i<MAXGAMEARRAYS; i++)

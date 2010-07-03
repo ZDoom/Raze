@@ -25,6 +25,8 @@ void(*keypresscallback)(int32_t,int32_t) = 0;
 void(*mousepresscallback)(int32_t,int32_t) = 0;
 void(*joypresscallback)(int32_t,int32_t) = 0;
 
+extern int16_t brightness;
+
 //
 // set{key|mouse|joy}presscallback() -- sets a callback which gets notified when keys are pressed
 //
@@ -270,25 +272,37 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
 #endif
 #endif
 
-static int32_t osdcmd_vars(const osdfuncparm_t *parm)
+static int32_t osdcmd_cvar_set_baselayer(const osdfuncparm_t *parm)
 {
-    int32_t showval = (parm->numparms < 1);
+    int32_t r = osdcmd_cvar_set(parm);
 
-    if (!Bstrcasecmp(parm->name, "r_scrcaptureformat"))
-    {
-        const char *fmts[] = {"TGA", "PCX"};
-        if (showval) { OSD_Printf("r_scrcaptureformat is %s\n", fmts[captureformat]); }
-        else
+    if (r != OSDCMD_OK) return r;
+
+/*
+        if (!Bstrcasecmp(parm->name, "r_scrcaptureformat"))
         {
-            int32_t j;
-            for (j=0; j<2; j++)
-                if (!Bstrcasecmp(parm->parms[0], fmts[j])) break;
-            if (j == 2) return OSDCMD_SHOWHELP;
-            captureformat = j;
+            const char *fmts[] = {"TGA", "PCX"};
+            if (showval) { OSD_Printf("r_scrcaptureformat is %s\n", fmts[captureformat]); }
+            else
+            {
+                int32_t j;
+                for (j=0; j<2; j++)
+                    if (!Bstrcasecmp(parm->parms[0], fmts[j])) break;
+                if (j == 2) return OSDCMD_SHOWHELP;
+                captureformat = j;
+            }
+            return OSDCMD_OK;
         }
-        return OSDCMD_OK;
+        else */
+
+    if (!Bstrcasecmp(parm->name, "vid_gamma") || !Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
+    {
+        setbrightness(GAMMA_CALC,palette,0);
+
+        return r;
     }
-    return OSDCMD_SHOWHELP;
+
+    return r;
 }
 
 int32_t baselayer_init(void)
@@ -300,7 +314,10 @@ int32_t baselayer_init(void)
 #ifdef SUPERBUILD
         { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",(void *)&novoxmips, CVAR_BOOL, 0, 1 },
         { "r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",(void *)&usevoxels, CVAR_BOOL, 0, 1 },
-        { "r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars, CVAR_FUNCPTR, 0, 0 },
+/*        { "r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars, CVAR_FUNCPTR, 0, 0 },*/
+        { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void *)&vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
+        { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void *)&vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
+        { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void *)&vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
 #endif
     };
 
@@ -310,7 +327,7 @@ int32_t baselayer_init(void)
             continue;
 
         OSD_RegisterFunction(cvars_engine[i].name, cvars_engine[i].helpstr,
-            cvars_engine[i].type == CVAR_FUNCPTR ? cvars_engine[i].var : osdcmd_cvar_set);
+            (cvars_engine[i].type & CVAR_FUNCPTR) ? osdcmd_cvar_set_baselayer : osdcmd_cvar_set);
     }
 
 #ifdef POLYMOST

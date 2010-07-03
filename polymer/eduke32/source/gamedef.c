@@ -1191,6 +1191,7 @@ static int32_t C_SkipComments(void)
         case ' ':
         case '\t':
         case '\r':
+        case 0x1a:
             textptr++;
             break;
         case '/':
@@ -1200,7 +1201,7 @@ static int32_t C_SkipComments(void)
                 if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
                     initprintf("%s:%d: debug: got comment.\n",g_szScriptFileName,g_lineNumber);
                 C_NextLine();
-                break;
+                continue;
             case '*': // beginning of a C style comment
                 if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
                     initprintf("%s:%d: debug: got start of comment block.\n",g_szScriptFileName,g_lineNumber);
@@ -1220,22 +1221,22 @@ static int32_t C_SkipComments(void)
                     initprintf("%s:%d: error: found `/*' with no `*/'.\n",g_szScriptFileName,g_lineNumber);
                     g_parsingActorPtr = 0;g_processingState = g_numBraces = 0;
                     g_numCompilerErrors++;
-                    break;
+                    continue;
                 }
 
                 if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
                     initprintf("%s:%d: debug: got end of comment block.\n",g_szScriptFileName,g_lineNumber);
 
                 textptr+=2;
-                break;
+                continue;
             }
-            break;
+            continue;
 
         default:
             if (ispecial(*textptr))
             {
                 textptr++;
-                break;
+                continue;
             }
         case 0: // EOF
             return ((g_scriptPtr-script) > (g_scriptSize-32)) ? C_SetScriptSize(g_scriptSize<<1) : 0;

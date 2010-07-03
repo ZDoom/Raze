@@ -338,23 +338,24 @@ void S_Cleanup(void)
 
         {
             int32_t j = num & (MAXSOUNDINSTANCES-1);
+            int32_t i;
+
             num = (num - j) / MAXSOUNDINSTANCES;
+
+            i = g_sounds[num].SoundOwner[j].i;
 
             if (g_sounds[num].num > MAXSOUNDINSTANCES)
                 OSD_Printf(OSD_ERROR "S_Cleanup(): num exceeds MAXSOUNDINSTANCES! g_sounds[%d].num %d wtf?\n", num, g_sounds[num].num);
 
             if (g_sounds[num].num > 0)
-            {
-                int32_t i = g_sounds[num].SoundOwner[j].i;
-
-                // MUSICANDSFX uses t_data[0] to control restarting the sound
-                if (i != -1 && sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
-                    actor[i].t_data[0] = 0;
-
-                g_sounds[num].SoundOwner[j].i = -1;
-                g_sounds[num].SoundOwner[j].voice = 0;
                 g_sounds[num].num--;
-            }
+
+            // MUSICANDSFX uses t_data[0] to control restarting the sound
+            if (i != -1 && sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
+                actor[i].t_data[0] = 0;
+
+            g_sounds[num].SoundOwner[j].i = -1;
+            g_sounds[num].SoundOwner[j].voice = 0;
         }
         g_soundlocks[num]--;
     }
@@ -547,22 +548,22 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             (num * MAXSOUNDINSTANCES) + j);
     }
 
-    if (voice > FX_Ok)
+    if (voice <= FX_Ok)
     {
-        g_sounds[num].SoundOwner[j].i = i;
-        g_sounds[num].num++;
-        g_sounds[num].SoundOwner[j].voice = voice;
-        return voice;
+        g_soundlocks[num]--;
+        return -1;
     }
 
-    g_soundlocks[num]--;
-    return -1;
+    g_sounds[num].num++;
+    g_sounds[num].SoundOwner[j].i = i;
+    g_sounds[num].SoundOwner[j].voice = voice;
+    return voice;
 }
 
 int32_t S_PlaySound(int32_t num)
 {
-    int32_t pitch,cx;
-    int32_t voice;
+    int32_t pitch, cx;
+    int32_t voice, j;
 
     if (ud.config.FXDevice < 0) return -1;
     if (ud.config.SoundToggle==0) return -1;
@@ -591,6 +592,17 @@ int32_t S_PlaySound(int32_t num)
         else g_soundlocks[num]++;
     }
 
+    j = 0;
+
+    while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
+        j++;
+
+    if (j >= MAXSOUNDINSTANCES)
+    {
+        g_soundlocks[num]--;
+        return -1;
+    }
+
     voice = (g_sounds[num].m&1) ?
         FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
         pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].soundsiz, 65536 + num) :
@@ -602,6 +614,9 @@ int32_t S_PlaySound(int32_t num)
         return -1;
     }
 
+    g_sounds[num].num++;
+    g_sounds[num].SoundOwner[j].i = -1;
+    g_sounds[num].SoundOwner[j].voice = voice;
     return voice;
 }
 
@@ -611,115 +626,46 @@ int32_t A_PlaySound(uint32_t num, int32_t i)
     return i < 0 ? S_PlaySound(num) : S_PlaySound3D(num, i, (vec3_t *)&sprite[i]);
 }
 
-void S_StopSound(int32_t num)
+void S_StopEnvSound(int32_t num, int32_t i)
 {
-    int32_t iter = 0;
+    int32_t j, iter = 0;
 
     if (num < 0 || num > g_maxSoundPos || g_sounds[num].num <= 0)
         return;
 
-retry:
-
-    if (iter > MAXSOUNDINSTANCES)
+    do
     {
-        int32_t j=MAXSOUNDINSTANCES-1;
-
-        initprintf(OSD_ERROR "S_StopSound(): too many iterations! The following IDs are still active for sound %d:\n", num);
-        for (; j>=0; j--)
-            if (g_sounds[num].SoundOwner[j].voice)
-                initprintf("slot %d, voice %d, sprite %d\n", j, g_sounds[num].SoundOwner[j].voice, g_sounds[num].SoundOwner[j].i);
-        return;
-    }
-
-    {
-        int32_t j=MAXSOUNDINSTANCES-1;
-
-        iter++;
-
-        for (; j>=0; j--)
+        if (iter++ > MAXSOUNDINSTANCES<<1)
         {
-            if (g_sounds[num].SoundOwner[j].voice)
-            {
-                if (g_sounds[num].SoundOwner[j].voice <= FX_Ok || g_sounds[num].SoundOwner[j].voice > ud.config.NumVoices)
-                {
-                    initprintf(OSD_ERROR "S_StopSound(): bad voice %d for sound ID %d index %d!\n", g_sounds[num].SoundOwner[j].voice, num, j);
-                    mutex_lock(&s_mutex);
-                    dq[dnum++] = (num * MAXSOUNDINSTANCES) + j;
-                    mutex_unlock(&s_mutex);
-                    S_Cleanup();
-                    goto retry;
-                }
-
-                if (FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
-                    FX_StopSound(g_sounds[num].SoundOwner[j].voice);
-                else
-                {
-                    mutex_lock(&s_mutex);
-                    dq[dnum++] = (num * MAXSOUNDINSTANCES) + j;
-                    mutex_unlock(&s_mutex);
-                }
-                S_Cleanup();
-                goto retry;
-            }
+            initprintf(OSD_ERROR "S_StopEnvSound(): too many iterations! The following IDs are still active for sound %d:\n", num);
+            for (j=MAXSOUNDINSTANCES-1; j>=0; j--)
+                if (g_sounds[num].SoundOwner[j].i == i)
+                    initprintf(OSD_ERROR "slot %d, voice %d, sprite %d\n", j, g_sounds[num].SoundOwner[j].voice, g_sounds[num].SoundOwner[j].i);
+            return;
         }
-    }
-}
 
-void S_StopEnvSound(int32_t num,int32_t i)
-{
-    int32_t iter = 0;
-
-    if (num < 0 || num > g_maxSoundPos || g_sounds[num].num <= 0)
-        return;
-
-retry:
-    if (iter > MAXSOUNDINSTANCES)
-    {
-        int32_t j=MAXSOUNDINSTANCES-1;
-
-        initprintf(OSD_ERROR "S_StopEnvSound(): too many iterations! The following IDs are still active for sound %d:\n", num);
-        for (; j>=0; j--)
-            if (g_sounds[num].SoundOwner[j].i == i)
-                initprintf("slot %d, voice %d, sprite %d\n", j, g_sounds[num].SoundOwner[j].voice, g_sounds[num].SoundOwner[j].i);
-        return;
-    }
-
-    {
-        int32_t j=MAXSOUNDINSTANCES-1;
-
-        iter++;
-
-        for (; j>=0; j--)
+        for (j=MAXSOUNDINSTANCES-1; j>=0; j--)
         {
-            if (g_sounds[num].SoundOwner[j].i == i)
+            if (i == -1 || g_sounds[num].SoundOwner[j].i == i)
             {
                 if (g_sounds[num].SoundOwner[j].voice <= FX_Ok || g_sounds[num].SoundOwner[j].voice > ud.config.NumVoices)
-                {
                     initprintf(OSD_ERROR "S_StopEnvSound(): bad voice %d for sound ID %d index %d!\n", g_sounds[num].SoundOwner[j].voice, num, j);
-                    mutex_lock(&s_mutex);
-                    dq[dnum++] = (num * MAXSOUNDINSTANCES) + j;
-                    mutex_unlock(&s_mutex);
-                    S_Cleanup();
-                    goto retry;
-                }
-
-                if (FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
+                else if (FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
                     FX_StopSound(g_sounds[num].SoundOwner[j].voice);
-                else
-                {
-                    // FX_SoundActive returning false could mean one of two things: we asked to stop the sound
-                    // right when it was done playing, or we lost track of a voice somewhere (didn't get the callback)
-                    // the first scenario resolves itself, and this addresses the second
 
-                    mutex_lock(&s_mutex);
-                    dq[dnum++] = (num * MAXSOUNDINSTANCES) + j;
-                    mutex_unlock(&s_mutex);
-                }
+                // FX_SoundActive returning false could mean one of two things: we asked to stop the sound
+                // right when it was done playing, or we lost track of a voice somewhere (didn't get the callback)
+                // the first scenario resolves itself, and this addresses the second
+
+                mutex_lock(&s_mutex);
+                dq[dnum++] = (num * MAXSOUNDINSTANCES) + j;
+                mutex_unlock(&s_mutex);
                 S_Cleanup();
-                goto retry;
+                break;
             }
         }
     }
+    while (j >= 0);
 }
 
 void S_Update(void)

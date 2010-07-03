@@ -44,14 +44,16 @@ o=o
 
 ifneq (0,$(RELEASE))
 	# Debugging disabled
-  debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL)
+    debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL) -fno-stack-protector
+    LIBS=-lm
 else
 	# Debugging enabled
-  debug=-ggdb -O0 -DDEBUGGINGAIDS
-  ifneq (0,$(KRANDDEBUG))
-    debug+=-fno-inline -fno-inline-functions -fno-inline-functions-called-once
-    debug+=-DKRANDDEBUG=1
-  endif
+    debug=-ggdb -O0 -DDEBUGGINGAIDS -fstack-protector-all
+    LIBS=-lm -lssp -Wl,--enable-auto-import
+    ifneq (0,$(KRANDDEBUG))
+      debug+=-fno-inline -fno-inline-functions -fno-inline-functions-called-once
+      debug+=-DKRANDDEBUG=1
+    endif
 endif
 
 ifneq (0,$(DEBUGANYWAY))
@@ -70,30 +72,12 @@ AS=nasm
 RC=windres
 STRIP=strip
 
-GCC_MAJOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f1)
-GCC_MINOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f2)
-
-ifeq (4,$(GCC_MAJOR))
-  ifneq (0,$(GCC_MINOR))
-#    debug += -ftree-vectorize
-    ifneq (1,$(GCC_MINOR))
-      ifneq (2,$(GCC_MINOR))
-#        debug += -finline-small-functions -fpredictive-commoning
-      endif
-    endif
-    ifeq (5,$(GCC_MINOR))
-#        debug += -flto
-    endif
-  endif
-endif
-
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
 	-I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(JAUDIOLIBDIR)/include -I$(ENETDIR)/include -D_FORTIFY_SOURCE=2 \
-	-fjump-tables -fno-stack-protector
-#        -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
+	-fjump-tables $(ARCH)
+	
 OURCXXFLAGS=-fno-exceptions -fno-rtti
-LIBS=-lm
 
 NASMFLAGS	= -s
 EXESUFFIX=
@@ -244,7 +228,7 @@ endif
 
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB)
 	$(LINK_STATUS)
-	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB) $(MISCLINKOPTS); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
   ifeq (0,$(DEBUGANYWAY))
 	$(STRIP) mapster32$(EXESUFFIX)

@@ -16,8 +16,15 @@ SDL_FRAMEWORK	= 0
 
 # Overridden for OSes that don't have the cutdown stdc++ that is supc++
 STDCPPLIB=-lsupc++
-
 BUILDCFLAGS=
+
+ifndef ARCH
+    ifeq ($(findstring i686, $(shell uname -m)), i686)
+	    ARCH=-march=pentium3 -mtune=generic -mmmx # -msse2 -mfpmath=sse,387 -malign-double -mstackrealign
+    else
+        ARCH=
+    endif
+endif
 
 # Detect the platform if it wasn't explicitly given to us from
 # the outside world. This allows cross-compilation by overriding

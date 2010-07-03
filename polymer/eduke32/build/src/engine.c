@@ -9329,6 +9329,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                         bad = -1;
                         k--; if (k <= 0) return(bad);
                         updatesector(vect->x,vect->y,sectnum);
+                        if (*sectnum < 0) return -1;
                     }
                     else
                     {

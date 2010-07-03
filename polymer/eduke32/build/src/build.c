@@ -93,7 +93,6 @@ int32_t forcesetup = 1;
 extern int32_t cachesize, artsize;
 
 static int16_t oldmousebstatus = 0;
-int16_t brightness = 0;
 char game_executable[BMAX_PATH] = DEFAULT_GAME_LOCAL_EXEC;
 int32_t zlock = 0x7fffffff, zmode = 0, whitecol, kensplayerheight = 32;
 int16_t defaultspritecstat = 0;
@@ -287,7 +286,7 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 
         begindrawing();	//{{{
 
-        CLEARLINES2D(0, ydim16+STATUS2DSIZ, 0);
+        CLEARLINES2D(0, ydim16, 0);
 
         ydim16 = ydim;
 //        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
@@ -418,7 +417,11 @@ int32_t app_main(int32_t argc, const char **argv)
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
     if (i || forcesetup || cmdsetup)
     {
-        if (quitevent || !startwin_run()) return -1;
+        if (quitevent || !startwin_run()) 
+        {
+            uninitengine();
+            exit(0);
+        }
     }
 #endif
 
@@ -483,8 +486,10 @@ int32_t app_main(int32_t argc, const char **argv)
 
     if (cursectnum == -1)
     {
-        double gamma = vid_gamma;
-        vid_gamma = 1.0;
+        double gamma = vid_gamma, brightness = vid_brightness, contrast = vid_contrast;
+        vid_gamma = vid_contrast = 1.0;
+        vid_brightness = 0.0;
+
         setbrightness(0,palette,0);
         if (setgamemode(fullscreen, xdim2d, ydim2d, 8) < 0)
         {
@@ -496,7 +501,10 @@ int32_t app_main(int32_t argc, const char **argv)
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         vid_gamma = gamma;
-        setbrightness(brightness,palette,0);
+        vid_contrast = contrast;
+        vid_brightness = brightness;
+
+        setbrightness(GAMMA_CALC,palette,0);
     }
     else
     {
@@ -507,7 +515,7 @@ int32_t app_main(int32_t argc, const char **argv)
             Bprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
             exit(0);
         }
-        setbrightness(brightness,palette,0);
+        setbrightness(GAMMA_CALC,palette,0);
     }
 CANCEL:
     quitflag = 0;
@@ -1174,16 +1182,23 @@ void editinput(void)
         }
 
     }
+
     if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
     {
-        double gamma = vid_gamma;
-        vid_gamma = 1.0;
+
+        double gamma = vid_gamma, contrast = vid_contrast, brightness = vid_brightness;
+        vid_gamma = vid_contrast = 1.0;
+        vid_brightness = 0.0;
+
         setbrightness(0,palette,0);
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         vid_gamma = gamma;
-        setbrightness(brightness,palette,0);
+        vid_contrast = contrast;
+        vid_brightness = brightness;
+
+        setbrightness(GAMMA_CALC,palette,0);
     }
 }
 
@@ -1432,7 +1447,8 @@ void overheadeditor(void)
             wall[newnumwalls].y = day;
         }
 
-        ydim16 = ydim - STATUS2DSIZ2;
+        ydim16 = ydim;// - STATUS2DSIZ2;
+        midydim16 = ydim>>1;
 
         tempint = numwalls;
         numwalls = newnumwalls;
@@ -1447,19 +1463,13 @@ void overheadeditor(void)
 
             if (graphicsmode)
             {
-                int32_t ii = xyaspect;
-
-                i = yxaspect;
                 Bmemset(show2dsector, 255, sizeof(show2dsector));
                 setview(0, 0, xdim-1, ydim16-1);
-                yxaspect = xyaspect = 65536;
 
                 if (graphicsmode == 2)
                     totalclocklock = totalclock;
 
-                drawmapview(pos.x, pos.y + scale((65536/zoom), ydim, 240), zoom, 1536);
-                yxaspect = i;
-                xyaspect = ii;
+                drawmapview(pos.x, pos.y, zoom, 1536);
             }
 
             draw2dgrid(pos.x,pos.y,ang,zoom,grid);
@@ -4604,8 +4614,8 @@ CANCEL:
         exit(0);
     }
 
-    setbrightness(brightness,palette,0);
-
+    setbrightness(GAMMA_CALC,palette,0);
+        
     pos.z = oposz;
     searchx = scale(searchx,xdimgame,xdim2d);
     searchy = scale(searchy,ydimgame,ydim2d-STATUS2DSIZ);
@@ -5356,7 +5366,7 @@ static int32_t menuselect_pk(int32_t direction) // 20080104: jump to next (direc
 
 static int32_t menuselect(void)
 {
-    int32_t listsize = (ydim16-32)/9;
+    int32_t listsize;
     int32_t i;
     char ch, buffer[96], /*PK*/ *chptr;
     static char oldpath[BMAX_PATH];
@@ -5387,6 +5397,7 @@ static int32_t menuselect(void)
     enddrawing();
 
     ydim16 = ydim-STATUS2DSIZ2;
+    listsize = (ydim16-32)/9;
 
     do
     {

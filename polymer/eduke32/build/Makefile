@@ -70,14 +70,16 @@ asm=nasm
 # Debugging and release
 #
 ifneq ($(RELEASE),0)
-  # Debugging disabled
-  debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL)
+    # Debugging disabled
+    debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL) -fno-stack-protector
+    LIBS=-lm
 else
-  # Debugging enabled
-  debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE
-  ifneq (0,$(KRANDDEBUG))
-    debug+=-DKRANDDEBUG=1
-  endif
+    # Debugging enabled
+    debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE -fstack-protector-all
+    LIBS=-lm -lssp -Wl,--enable-auto-import
+    ifneq (0,$(KRANDDEBUG))
+      debug+=-DKRANDDEBUG=1
+    endif
 endif
 
 ifneq (0,$(DEBUGANYWAY))
@@ -91,31 +93,11 @@ RC=windres
 AR=ar
 RANLIB=ranlib
 
-GCC_MAJOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f1)
-GCC_MINOR    := $(shell $(CC) -dumpversion 2>&1 | cut -d'.' -f2)
-
-ifeq (4,$(GCC_MAJOR))
-#  debug += -ftree-vectorize
-  ifneq (0,$(GCC_MINOR))
-    ifneq (1,$(GCC_MINOR))
-      ifneq (2,$(GCC_MINOR))
-        # this should only enable for 4.3.0 and later
-#        debug += -finline-small-functions -fpredictive-commoning
-      endif
-    endif
-    ifeq (5,$(GCC_MINOR))
-#	debug += -flto
-    endif
-  endif
-endif
-
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-Wno-char-subscripts -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
 	-DKSFORBUILD -I$(INC) -D_FORTIFY_SOURCE=2 \
-	-fjump-tables -fno-stack-protector
-#    -march=pentium3 -mtune=generic -mmmx -m3dnow -msse -mfpmath=sse
+	-fjump-tables $(ARCH)
 OURCXXFLAGS=-fno-exceptions -fno-rtti
-LIBS=
 ASFLAGS=-s #-g
 EXESUFFIX=
 
@@ -171,7 +153,6 @@ EDITOROBJS=$(OBJ)/build.$o \
 
 ifeq ($(PLATFORM),LINUX)
 	ASFLAGS+= -f elf
-	LIBS+= -lm 
 endif
 ifeq ($(PLATFORM),DARWIN)
 	ENGINEOBJS	+= $(OBJ)/StartupWinController.editor.$o \
@@ -183,19 +164,15 @@ endif
 ifeq ($(PLATFORM),BSD)
 	ASFLAGS+= -f elf
 	OURCFLAGS+= -I/usr/X11R6/include
-	LIBS+= -lm
 endif
 ifeq ($(PLATFORM),WINDOWS)
 	OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc # -I$(ENETROOT)/include
-	LIBS+= -lm -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
+	LIBS+= -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
 	ASFLAGS+= -DUNDERSCORES -f win32
 endif
 ifeq ($(PLATFORM),BEOS)
 	ASFLAGS+= -f elf
 	TARGETOPTS+= -DNOASM
-endif
-ifeq ($(PLATFORM),SUNOS)
-	LIBS+= -lm
 endif
 ifeq ($(PLATFORM),SYLLABLE)
 	ASFLAGS+= -f elf

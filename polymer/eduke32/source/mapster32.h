@@ -93,7 +93,7 @@ int32_t mousxplc, mousyplc;
 static int32_t ppointhighlight;
 //static int32_t counter=0;
 static uint8_t nosprites=0,purpleon=0,skill=4;
-static uint8_t framerateon=1,shadepreview=0,sidemode=0;
+static uint8_t framerateon=1,shadepreview=0;
 static int32_t xvel, yvel, timoff;
 
 int32_t autosave=180;
