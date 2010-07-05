@@ -2226,7 +2226,11 @@ void Net_UpdateClients(void)
     }
 
     {
-        char *buf = alloca(PACKBUF_SIZE);
+        char buf[PACKBUF_SIZE];
+
+        if (j >= PACKBUF_SIZE) {
+            initprintf("Global packet buffer overflow! Size of packet: %i\n", j);
+        }
 
         j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
         Bmemcpy((char *)(packbuf)+1, (char *)buf, j);
