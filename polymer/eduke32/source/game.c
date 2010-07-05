@@ -1002,8 +1002,6 @@ void Net_ParseServerPacket(ENetEvent * event)
 
         TRAVERSE_CONNECT(i)
         {
-            if (g_player[i].playerquitflag == 0) continue;
-
             g_player[i].ps->dead_flag = *(int16_t *)&packbuf[j];
             j += sizeof(int16_t);
 
@@ -1017,12 +1015,12 @@ void Net_ParseServerPacket(ENetEvent * event)
 
             nsyn = (input_t *)&inputfifo[0][0];
 
-            Bmemcpy(&nsyn[i], &packbuf[j], sizeof(input_t));
-
+            Bmemcpy(&nsyn[i], &packbuf[j], offsetof(input_t, filler));
             j += offsetof(input_t, filler);
 
             if (TEST_SYNC_KEY(nsyn[i].bits,SK_GAMEQUIT)) g_player[i].playerquitflag = 0;
             g_player[i].movefifoend++;
+            if (g_player[i].playerquitflag == 0) continue;
 
 //                Bmemcpy(&g_player[i].ps->opos.x, &g_player[i].ps->pos.x, sizeof(vec3_t));
 
@@ -1962,8 +1960,6 @@ void Net_UpdateClients(void)
 
     TRAVERSE_CONNECT(i)
     {
-        if (g_player[i].playerquitflag == 0) continue;
-
         Bmemcpy(&osyn[i], &nsyn[i], offsetof(input_t, filler));
 
         *(int16_t *)&packbuf[j] = g_player[i].ps->dead_flag;
@@ -1971,6 +1967,7 @@ void Net_UpdateClients(void)
 
         Bmemcpy(&packbuf[j], &nsyn[i], offsetof(input_t, filler));
         j += offsetof(input_t, filler);
+        if (g_player[i].playerquitflag == 0) continue;
 
         Bmemcpy(&packbuf[j], &g_player[i].ps->pos.x, sizeof(vec3_t) * 2);
         j += sizeof(vec3_t) * 2;
@@ -2229,7 +2226,7 @@ void Net_UpdateClients(void)
     }
 
     {
-        char buf[4096];
+        char *buf = alloca(PACKBUF_SIZE);
 
         j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
         Bmemcpy((char *)(packbuf)+1, (char *)buf, j);

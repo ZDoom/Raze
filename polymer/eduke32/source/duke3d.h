@@ -487,7 +487,8 @@ typedef struct {
     char name[32];
 } DukePlayer_t;
 
-extern char tempbuf[2048], packbuf[4096], menutextbuf[128];
+#define PACKBUF_SIZE 65535
+extern char tempbuf[2048], packbuf[PACKBUF_SIZE], menutextbuf[128];
 
 extern int32_t g_spriteGravity;
 

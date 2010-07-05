@@ -48,7 +48,7 @@ int16_t cyclers[MAXCYCLERS][6],g_numCyclers;
 
 char *ScriptQuotes[MAXQUOTES], *ScriptQuoteRedefinitions[MAXQUOTES];
 
-char tempbuf[2048], packbuf[4096], menutextbuf[128], buf[1024];
+char tempbuf[2048], packbuf[PACKBUF_SIZE], menutextbuf[128], buf[1024];
 
 int16_t camsprite;
 int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
