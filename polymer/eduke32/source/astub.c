@@ -3919,7 +3919,7 @@ ERROR_NOMEMORY:
 
 static void Keys3d(void)
 {
-    int32_t i = 0,changedir,tsign; // ,count,nexti
+    int32_t i = 0, changedir,tsign; // ,count,nexti
     int32_t j, k, tempint = 0, hiz, loz;
     int32_t hihit, lohit;
     char smooshyalign=0, repeatpanalign=0; //, buffer[80];
@@ -9471,68 +9471,8 @@ void faketimerhandler(void)
 //    if (counter>=5) counter=0;
 
     sampletimer();
-    if (totalclock < ototalclock+TICSPERFRAME || qsetmode != 200)
-        return;
-    ototalclock = totalclock;
-
-    oposx = pos.x;
-    oposy = pos.y;
-
-    hitwall = clipmove(&pos,&cursectnum,xvel,yvel,128L,4L<<8,4L<<8,0);
-    xvel = (pos.x-oposx)<<14;
-    yvel = (pos.y-oposy)<<14;
-
-    yvel += 80000;
-
-    if ((hitwall&0xc000) == 32768)
-    {
-        hitwall &= (MAXWALLS-1);
-        i = wall[hitwall].point2;
-        daang = getangle(wall[i].x-wall[hitwall].x, wall[i].y-wall[hitwall].y);
-
-        xvel -= (xvel>>4);
-        xvel -= ksgn(xvel);
-
-        yvel -= (yvel>>4);
-        yvel -= ksgn(yvel);
-
-        i = 4-keystatus[buildkeys[BK_RUN]];
-        xvel += mulscale(vel, sintable[(ang+512)&2047], i);
-        yvel += mulscale(vel, sintable[ang&2047], i);
-
-        angdiff = (daang-ang)&2047;
-        if (angdiff < 1024)
-            ang = (ang+((angdiff+24)>>4))&2047;
-        else
-            ang = (ang-((angdiff+24)>>4))&2047;
-
-        timoff = ototalclock;
-    }
-    else
-    {
-        if (ototalclock > timoff+32)
-            ang = (ang+((timoff+32-ototalclock)>>4))&2047;
-    }
-
-    getzrange(&pos,cursectnum,&hiz,&hihit,&loz,&lohit,128L,0);
-
-    oposx -= pos.x;
-    oposy -= pos.y;
-
-    dist = ksqrt(oposx*oposx + oposy*oposy);
-    if (ototalclock > timoff+32)
-        dist = 0;
-
-    daang = mulscale(dist,angvel,9);
-    pos.z += (daang<<6);
-    if (pos.z > loz-(4<<8))
-        pos.z = loz-(4<<8), hvel = 0;
-    if (pos.z < hiz+(4<<8))
-        pos.z = hiz+(4<<8), hvel = 0;
-
-    horiz = (horiz*7 + (100-(daang>>1)))>>3;
-    if (horiz < 100) horiz++;
-    if (horiz > 100) horiz--;
+//    if (totalclock < ototalclock+TICSPERFRAME || qsetmode != 200)
+//        return;
 }
 
 void SetBOSS1Palette(void)

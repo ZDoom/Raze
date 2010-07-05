@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "music.h"
 
 #if !defined _WIN32  // fork/exec based external midi player
+#include <malloc.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/wait.h>
