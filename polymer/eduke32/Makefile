@@ -49,7 +49,8 @@ ifneq (0,$(RELEASE))
 else
 	# Debugging enabled
     debug=-ggdb -O0 -DDEBUGGINGAIDS -fstack-protector-all
-    LIBS=-lm -lssp -Wl,--enable-auto-import
+    LIBS=-lm 
+
     ifneq (0,$(KRANDDEBUG))
       debug+=-fno-inline -fno-inline-functions -fno-inline-functions-called-once
       debug+=-DKRANDDEBUG=1
@@ -87,6 +88,7 @@ include $(EROOT)/Makefile.shared
 ifeq ($(PLATFORM),WINDOWS)
     OBJ=obj_win
     EOBJ=eobj_win
+    LIBS+= -lssp -Wl,--enable-auto-import
 else
     LIBS+= -ldl -pthread
     ifeq (1,$(PROFILER))

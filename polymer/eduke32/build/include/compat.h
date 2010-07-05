@@ -387,12 +387,14 @@ int32_t		Bclosedir(BDIR *dir);
 # define Brealloc nedrealloc
 # define Bfree nedfree
 # define Bstrdup nedstrdup
+# define Bmemalign nedmemalign
 #else
 # define Bmalloc malloc
 # define Bcalloc calloc
 # define Brealloc realloc
 # define Bfree free
 # define Bstrdup strdup
+# define Bmemalign memalign
 #endif
 # define Bopen open
 # define Bclose close

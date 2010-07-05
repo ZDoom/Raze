@@ -38,7 +38,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if !defined _WIN32  // fork/exec based external midi player
 #include <unistd.h>
-#include <malloc.h>
 #include <sys/mman.h>
 #include <sys/wait.h>
 static char **external_midi_argv;
@@ -168,7 +167,7 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
         sz = (numargs+2)*sizeof(char *) + (c-command+1);
         sz = ((sz+pagesize)/pagesize)*pagesize;
 
-        external_midi_argv = memalign(pagesize, sz);
+        external_midi_argv = Bmemalign(pagesize, sz);
         if (!external_midi_argv)
             goto fallback;
 

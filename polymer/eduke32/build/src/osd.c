@@ -1848,7 +1848,7 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
             return -1;
         }
 */
-        Bfree((char *)symb->help);
+//        Bfree((char *)symb->help);
         symb->help = help;
         symb->func = func;
         return 0;
