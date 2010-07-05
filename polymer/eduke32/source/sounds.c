@@ -322,6 +322,7 @@ void S_Cleanup(void)
     {
         uint32_t num = ldq[--ldnum];
 
+        // num + 65536 is a sound played globally for which there was no open slot to keep track of the voice
         if (num >= 65536)
         {
             g_soundlocks[num-65536]--;
@@ -413,7 +414,10 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     if (g_sounds[num].m&128)
     {
-        while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
+        if ((voice = S_PlaySound(num)) <= FX_Ok)
+            return -1;
+
+        while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice != voice)
             j++;
 
         if (j >= MAXSOUNDINSTANCES)
@@ -422,18 +426,8 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             return -1;
         }
 
-        if ((voice = S_PlaySound(num)) <= FX_Ok)
-            return -1;
-
-        if (FX_SetVoiceCallback(voice, (num * MAXSOUNDINSTANCES) + j))
-        {
-            OSD_Printf(OSD_ERROR "S_PlaySound3D(): error setting callback!\n");
-            return -1;
-        }
-
         g_sounds[num].SoundOwner[j].i = i;
-        g_sounds[num].num++;
-        g_sounds[num].SoundOwner[j].voice = voice;
+
         return voice;
     }
 
@@ -564,6 +558,7 @@ int32_t S_PlaySound(int32_t num)
 {
     int32_t pitch, cx;
     int32_t voice, j;
+    int32_t doretry = 0;
 
     if (ud.config.FXDevice < 0) return -1;
     if (ud.config.SoundToggle==0) return -1;
@@ -597,21 +592,36 @@ int32_t S_PlaySound(int32_t num)
     while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
         j++;
 
-    if (j >= MAXSOUNDINSTANCES)
-    {
-        g_soundlocks[num]--;
-        return -1;
-    }
-
+    if (j >= MAXSOUNDINSTANCES) // no slots available, so let's see if one opens up after multivoc kills a voice
+        doretry = 1;
+    
     voice = (g_sounds[num].m&1) ?
         FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
-        pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].soundsiz, 65536 + num) :
-    FX_PlayAuto3D(g_sounds[ num ].ptr, g_sounds[num].soundsiz, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, 65536 + num);
+        pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].soundsiz, (num * MAXSOUNDINSTANCES) + j) :
+    FX_PlayAuto3D(g_sounds[ num ].ptr, g_sounds[num].soundsiz, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
 
     if (voice <= FX_Ok)
     {
         g_soundlocks[num]--;
         return -1;
+    }
+
+    if (doretry)
+    {
+        S_Cleanup();
+
+        j = 0;
+
+        while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
+            j++;
+
+        if (j >= MAXSOUNDINSTANCES) // still no slots available
+        {
+            FX_SetVoiceCallback(voice, num + 65536);
+            return voice;
+        }
+
+        FX_SetVoiceCallback(voice, (num * MAXSOUNDINSTANCES) + j);
     }
 
     g_sounds[num].num++;
@@ -646,11 +656,11 @@ void S_StopEnvSound(int32_t num, int32_t i)
 
         for (j=MAXSOUNDINSTANCES-1; j>=0; j--)
         {
-            if (i == -1 || g_sounds[num].SoundOwner[j].i == i)
+            if ((i == -1 && g_sounds[num].SoundOwner[j].voice > FX_Ok) || (i != -1 && g_sounds[num].SoundOwner[j].i == i))
             {
-                if (g_sounds[num].SoundOwner[j].voice <= FX_Ok || g_sounds[num].SoundOwner[j].voice > ud.config.NumVoices)
+                if (i >= 0 && g_sounds[num].SoundOwner[j].voice <= FX_Ok)
                     initprintf(OSD_ERROR "S_StopEnvSound(): bad voice %d for sound ID %d index %d!\n", g_sounds[num].SoundOwner[j].voice, num, j);
-                else if (FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
+                else if (g_sounds[num].SoundOwner[j].voice > FX_Ok && FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
                     FX_StopSound(g_sounds[num].SoundOwner[j].voice);
 
                 // FX_SoundActive returning false could mean one of two things: we asked to stop the sound
@@ -674,6 +684,9 @@ void S_Update(void)
     int32_t sndist,sndang,ca,j,k,i,cs;
     
     S_Cleanup();
+
+    if ((g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO)) == 0)
+        return;
 
     g_numEnvSoundsPlaying = 0;
 
