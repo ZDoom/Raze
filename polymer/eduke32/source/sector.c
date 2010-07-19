@@ -308,7 +308,6 @@ void G_DoSectorAnimations(void)
                         {
                             my.z += v;
                             myvel.z = 0;
-                            myzbak[0] = g_player[p].ps->pos.z;
                         }
                     }
 
@@ -331,10 +330,7 @@ int32_t GetAnimationGoal(int32_t *animptr)
 
     for (; i>=0; i--)
         if (animptr == (int32_t *)animateptr[i])
-        {
-            j = i;
-            break;
-        }
+            return j;
     return(j);
 }
 

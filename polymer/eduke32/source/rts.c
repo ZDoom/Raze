@@ -33,6 +33,16 @@ static int32_t RTS_Started = FALSE;
 
 char lumplockbyte[11];
 
+int32_t  IntelLong(int32_t l)
+{
+#if B_BIG_ENDIAN != 0
+    int32_t t = ((l & 0x00ff00ffl) << 8) | ((l & 0xff00ff00l) >> 8);
+    return ((t & 0x0000ffffl) << 16) | ((t & 0xffff0000l) >> 16);
+#else
+    return l;
+#endif
+}
+
 /*
 ============================================================================
 
@@ -186,7 +196,12 @@ int32_t RTS_SoundLength(int32_t lump)
 {
     lump++;
     if (lump >= numlumps)
-        Error("RTS_SoundLength: %i >= numlumps",lump);
+    {
+        initprintf("RTS_SoundLength: %i >= numlumps",lump);
+        RTS_Started = FALSE;
+        numlumps = 0;
+        return 0;
+    }
     return lumpinfo[lump].size;
 }
 
@@ -202,7 +217,13 @@ const char * RTS_GetSoundName(int32_t i)
 {
     i++;
     if (i>=numlumps)
-        Error("RTS_GetSoundName: %i >= numlumps",i);
+    {
+        initprintf("RTS_GetSoundName: %i >= numlumps",i);
+        RTS_Started = FALSE;
+        numlumps = 0;
+        return 0;
+    }
+
     return &(lumpinfo[i].name[0]);
 }
 
@@ -220,9 +241,21 @@ void RTS_ReadLump(int32_t lump, void *dest)
     lumpinfo_t *l;
 
     if (lump >= numlumps)
-        Error("RTS_ReadLump: %i >= numlumps",lump);
+    {
+        initprintf("RTS_ReadLump: %i >= numlumps",lump);
+        RTS_Started = FALSE;
+        numlumps = 0;
+        return;
+    }
+
     if (lump < 0)
-        Error("RTS_ReadLump: %i < 0",lump);
+    {
+        initprintf("RTS_ReadLump: %i < 0",lump);
+        RTS_Started = FALSE;
+        numlumps = 0;
+        return;
+    }
+
     l = lumpinfo+lump;
     klseek(l->handle, l->position, SEEK_SET);
     kread(l->handle,dest,l->size);
@@ -239,7 +272,13 @@ void *RTS_GetSound(int32_t lump)
 {
     lump++;
     if ((uint32_t)lump >= (uint32_t)numlumps)
-        Error("RTS_GetSound: %i >= %i\n",lump,numlumps);
+    {
+        initprintf("RTS_GetSound: %i >= %i\n",lump,numlumps);
+        RTS_Started = FALSE;
+        numlumps = 0;
+        return 0;
+    }
+
 
     if (lumpcache[lump] == NULL)
     {

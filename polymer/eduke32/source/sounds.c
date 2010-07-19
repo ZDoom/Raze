@@ -27,8 +27,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "fx_man.h"
 #include "music.h"
 #include "duke3d.h"
-#include "util_lib.h"
 #include "osd.h"
+
+#ifdef WIN32
+#include "winlayer.h"
+#endif
 
 #define LOUDESTVOLUME 150
 
@@ -43,7 +46,7 @@ static int32_t MusicVoice = -1;
 static int32_t MusicPaused = 0;
 
 static mutex_t s_mutex;
-static uint32_t dq[128], dnum = 0;
+static volatile uint32_t dq[128], dnum = 0;
 
 /*
 ===================
@@ -145,7 +148,7 @@ void S_MusicShutdown(void)
     S_StopMusic();
 
     if (MUSIC_Shutdown() != MUSIC_Ok)
-        Error(MUSIC_ErrorString(MUSIC_ErrorCode));
+        initprintf(MUSIC_ErrorString(MUSIC_ErrorCode));
 }
 
 void S_PauseMusic(int32_t onf)
@@ -251,8 +254,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
 
     S_StopMusic();
 
-    MusicLen = kfilelength(fp);
-    MusicPtr = (char *) Bmalloc(MusicLen);
+    MusicPtr = (char *) Bmalloc((MusicLen = kfilelength(fp)));
 
     if ((g_musicSize = kread(fp, (char *)MusicPtr, MusicLen)) != MusicLen)
     {
@@ -313,7 +315,7 @@ void S_Cleanup(void)
         return;
     }
 
-    Bmemcpy(ldq, dq, sizeof(int32_t) * (ldnum = dnum));
+    Bmemcpy(ldq, (void *)dq, sizeof(int32_t) * (ldnum = dnum));
     dnum = 0;
 
     mutex_unlock(&s_mutex);

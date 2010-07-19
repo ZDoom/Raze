@@ -110,7 +110,6 @@ extern int32_t g_scriptVersion, g_Shareware, g_gameType;
 #include "file_lib.h"
 #include "gamedefs.h"
 #include "keyboard.h"
-#include "util_lib.h"
 #include "mathutil.h"
 #include "function.h"
 #include "fx_man.h"
@@ -594,7 +593,7 @@ extern int32_t animatevel[MAXANIMATES];
 extern int16_t neartagsector, neartagwall, neartagsprite;
 extern int32_t neartaghitdist;
 extern int16_t animatesect[MAXANIMATES];
-extern int32_t movefifoplc, vel,svel,angvel,horiz;
+extern int32_t vel,svel,angvel,horiz;
 
 extern int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
 
@@ -650,10 +649,6 @@ extern vec3_t my, omy, myvel;
 extern int16_t myhoriz, omyhoriz, myhorizoff, omyhorizoff, g_skillSoundID;
 extern int16_t myang, omyang, mycursectnum, myjumpingcounter;
 extern char myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
-extern int32_t predictfifoplc;
-extern int32_t myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
-extern int32_t myhorizbak[MOVEFIFOSIZ];
-extern int16_t myangbak[MOVEFIFOSIZ];
 
 extern int16_t BlimpSpawnSprites[15];
 
@@ -670,40 +665,26 @@ typedef struct {
 #pragma pack(push,1)
 
 extern DukeStatus_t sbar;
-extern int32_t g_cameraDistance, g_cameraClock, g_playerFriction,g_showShareware;
+extern int32_t g_cameraDistance, g_cameraClock, g_playerFriction, g_showShareware;
 extern int32_t g_gameQuit;
 
 extern int32_t playerswhenstarted;
+extern int8_t multiwho, multipos, multiwhat, multiflag;
 
 extern char pus,pub;
 extern int32_t g_damageCameras,g_freezerSelfDamage,g_tripbombLaserMode;
-
-// TENSW: on really bad network connections, the sync FIFO queue can overflow if it is the
-// same size as the move fifo.
-#define MAXSYNCBYTES 16
-#define SYNCFIFOSIZ 1024
-
-extern char syncstat[MAXSYNCBYTES];
-extern int8_t multiwho, multipos, multiwhat, multiflag;
-extern int32_t syncvaltail, syncvaltottail;
 extern int32_t g_numFreezeBounces,g_rpgBlastRadius,g_pipebombBlastRadius,g_tripbombBlastRadius;
 extern int32_t g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
 extern int32_t everyothertime;
-extern int32_t mymaxlag, otherminlag, bufferjitter;
 
 extern int32_t g_numInterpolations, startofdynamicinterpolations;
 extern int32_t g_interpolationLock;
 extern int32_t oldipos[MAXINTERPOLATIONS];
 extern int32_t bakipos[MAXINTERPOLATIONS];
 extern int32_t *curipos[MAXINTERPOLATIONS];
-
 extern int16_t g_numClouds,clouds[128],cloudx[128],cloudy[128];
-extern int32_t cloudtotalclock,totalmemory;
-
-extern int32_t stereomode, stereowidth, stereopixelwidth;
-
+extern int32_t cloudtotalclock;
 extern int32_t g_myAimMode, g_myAimStat, g_oldAimStat;
-
 extern uint32_t g_moveThingsCount;
 
 #define IFISGLMODE if (getrendermode() >= 3)
@@ -1060,14 +1041,13 @@ typedef struct {
     DukePlayer_t *ps;
     input_t *sync;
 
-    int32_t movefifoend, syncvalhead;
+    int32_t netsynctime;
     int16_t ping, filler;
     int32_t pcolor, pteam;
     uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
     char vote, gotvote, playerreadyflag, playerquitflag;
     char user_name[32];
-    char syncval[SYNCFIFOSIZ][MAXSYNCBYTES];
 } playerdata_t;
 
 extern input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];

@@ -506,7 +506,7 @@ GAMEEXEC_STATIC void VM_Move(void)
 
     moveptr = (intptr_t *)vm.g_t[1];
 
-    if (a&geth) vm.g_sp->xvel += (*moveptr-vm.g_sp->xvel)>>1;
+    if (a&geth) vm.g_sp->xvel += ((*moveptr)-vm.g_sp->xvel)>>1;
     if (a&getv) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)>>1;
 
     if (a&dodgebullet && !deadflag)
@@ -2021,11 +2021,12 @@ nullquote:
             insptr++;
             {
                 int32_t j = Gv_GetVarX(*insptr++);
+
                 if (g_timerTicsPerSecond == j)
                     continue;
+
                 uninittimer();
-                inittimer(j);
-                g_timerTicsPerSecond = j;
+                inittimer((g_timerTicsPerSecond = j));
             }
             continue;
 

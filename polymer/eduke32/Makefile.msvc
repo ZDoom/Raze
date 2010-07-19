@@ -60,8 +60,7 @@ LIBS=$(LIBS)  msvcrtd.lib
 LIBS=$(LIBS)  msvcrt.lib msvcrt_winxp.obj
 !endif
 
-JMACTOBJ=$(OBJ)\util_lib.$o \
-	$(OBJ)\file_lib.$o \
+JMACTOBJ=$(OBJ)\file_lib.$o \
 	$(OBJ)\control.$o \
 	$(OBJ)\keyboard.$o \
 	$(OBJ)\mouse.$o \

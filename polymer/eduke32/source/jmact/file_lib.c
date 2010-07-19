@@ -40,8 +40,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "compat.h"
 
 #include "file_lib.h"
-#include "util_lib.h"
 #include "cache1d.h"
+#include "baselayer.h"
 
 #ifndef O_BINARY
 #define  O_BINARY 0
@@ -61,7 +61,11 @@ int32_t SafeOpen(const char *filename, int32_t mode, int32_t sharemode)
     int32_t h;
 
     h = openfrompath(filename, mode, sharemode);
-    if (h < 0) Error("Error opening %s: %s", filename, strerror(errno));
+    if (h < 0)
+    {
+            initprintf("Error opening %s: %s", filename, strerror(errno));
+            return h;
+    }
 
     if (h < MaxFiles)
     {
@@ -82,7 +86,7 @@ int32_t SafeOpenRead(const char *filename, int32_t filetype)
     case filetype_text:
         return SafeOpen(filename, O_RDONLY|O_TEXT, S_IREAD);
     default:
-        Error("SafeOpenRead: Illegal filetype specified");
+        initprintf("SafeOpenRead: Illegal filetype specified");
         return -1;
     }
 }
@@ -93,9 +97,10 @@ void SafeClose(int32_t handle)
     if (close(handle) < 0)
     {
         if (handle < MaxFiles)
-            Error("Unable to close file %s", FileNames[handle]);
+            initprintf("Unable to close file %s", FileNames[handle]);
         else
-            Error("Unable to close file");
+            initprintf("Unable to close file");
+        return;
     }
 
     if (handle < MaxFiles && FileNames[handle])
@@ -126,11 +131,12 @@ void SafeRead(int32_t handle, void *buffer, int32_t count)
     {
         close(handle);
         if (handle < MaxFiles)
-            Error("File read failure %s reading %d bytes from file %s.",
+            initprintf("File read failure %s reading %d bytes from file %s.",
                   strerror(errno), count, FileNames[handle]);
         else
-            Error("File read failure %s reading %d bytes.",
+            initprintf("File read failure %s reading %d bytes.",
                   strerror(errno), count);
+        return;
     }
 }
 

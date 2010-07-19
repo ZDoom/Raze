@@ -12,7 +12,6 @@
 #include "mouse.h"
 #include "control.h"
 #include "_control.h"
-#include "util_lib.h"
 
 #include "baselayer.h"
 #include "osd.h"

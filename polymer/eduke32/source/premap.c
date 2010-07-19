@@ -1597,16 +1597,8 @@ void clearfifo(void)
     int32_t i = 0;
     extern int32_t jump_timer;
 
-    syncvaltail = 0L;
-    syncvaltottail = 0L;
-    memset(&syncstat, 0, sizeof(syncstat));
-    bufferjitter = 1;
-    mymaxlag = otherminlag = 0;
     jump_timer = 0;
-
-    movefifoplc = movefifosendplc = predictfifoplc = 0;
     avg.fvel = avg.svel = avg.avel = avg.horz = avg.bits = avg.extbits = 0;
-    otherminlag = mymaxlag = 0;
 
     clearbufbyte(&loc,sizeof(input_t),0L);
     clearbufbyte(&inputfifo,sizeof(input_t)*MOVEFIFOSIZ*MAXPLAYERS,0L);
@@ -1616,8 +1608,6 @@ void clearfifo(void)
 //      Bmemset(g_player[i].inputfifo,0,sizeof(g_player[i].inputfifo));
         if (g_player[i].sync != NULL)
             Bmemset(g_player[i].sync,0,sizeof(input_t));
-        Bmemset(&g_player[i].movefifoend,0,sizeof(g_player[i].movefifoend));
-        Bmemset(&g_player[i].syncvalhead,0,sizeof(g_player[i].syncvalhead));
         g_player[i].vote = 0;
         g_player[i].gotvote = 0;
     }

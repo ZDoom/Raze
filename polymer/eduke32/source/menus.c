@@ -537,12 +537,29 @@ void G_CheckPlayerColor(int32_t *color, int32_t prev_color)
 
 void M_DisplayMenus(void)
 {
+    extern int32_t g_netSync;
     CACHE1D_FIND_REC *dir;
     int32_t c,x,i;
     int32_t l,m;
     char *p = NULL;
 
     Net_GetPackets();
+
+    if (g_netSync)
+    {
+        P_SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);
+        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+
+        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+        if (PLUTOPAK)   // JBF 20030804
+            rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+
+        gametext(160,190,"Transferring gamestate",14,2);
+        nextpage();
+
+        return;
+    }
 
     {
         if (buttonstat != 0 && !onbar)
@@ -3678,6 +3695,7 @@ cheat_for_port_credits:
 
         {
             int32_t sense = (int32_t)(CONTROL_MouseSensitivity * 4.0f);
+            sense = clamp(sense, 0, 63);
             barsm(248,126,&sense,2,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
             CONTROL_MouseSensitivity = sense / 4.0f;
         }

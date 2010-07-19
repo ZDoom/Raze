@@ -279,9 +279,6 @@
     <ClInclude Include="source\jmact\scriplib.h">
       <Filter>jmact\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jmact\util_lib.h">
-      <Filter>jmact\headers</Filter>
-    </ClInclude>
     <ClInclude Include="source\enet\include\enet\callbacks.h">
       <Filter>enet\headers</Filter>
     </ClInclude>
@@ -567,9 +564,6 @@
       <Filter>jmact\source</Filter>
     </ClCompile>
     <ClCompile Include="source\jmact\scriplib.c">
-      <Filter>jmact\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\jmact\util_lib.c">
       <Filter>jmact\source</Filter>
     </ClCompile>
     <ClCompile Include="source\enet\src\callbacks.c">

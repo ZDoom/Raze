@@ -34,27 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "winlayer.h"
 
-// this replaces the Error() function in jmact/util_lib.c
-extern void G_Shutdown(void);	// game.c
-void Error(char *error, ...)
-{
-    char buf[1000];
-    va_list va;
-
-    G_Shutdown();
-
-    if (error)
-    {
-        va_start(va, error);
-        vsprintf(buf, error, va);
-        va_end(va);
-
-        MessageBox((HWND)win_gethwnd(),buf,"Fatal Error",MB_OK|MB_ICONERROR|MB_TASKMODAL);
-    }
-
-    exit((error != NULL));
-}
-
 int32_t G_GetVersionFromWebsite(char *buffer)
 {
     int32_t wsainitialized = 0;

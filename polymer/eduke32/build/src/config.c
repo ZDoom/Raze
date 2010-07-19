@@ -151,8 +151,8 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "rendmode", val, VL) > 0) { i = Batoi(val); glrendmode = i; }
 #endif
     if (readconfig(fp, "vid_gamma", val, VL) > 0) vid_gamma = Bstrtod(val, NULL);
-        if (readconfig(fp, "vid_brightness", val, VL) > 0) vid_brightness = Bstrtod(val, NULL);
-            if (readconfig(fp, "vid_contrast", val, VL) > 0) vid_contrast = Bstrtod(val, NULL);
+    if (readconfig(fp, "vid_brightness", val, VL) > 0) vid_brightness = Bstrtod(val, NULL);
+    if (readconfig(fp, "vid_contrast", val, VL) > 0) vid_contrast = Bstrtod(val, NULL);
 #ifdef RENDERTYPEWIN
     if (readconfig(fp, "maxrefreshfreq", val, VL) > 0) maxrefreshfreq = Batoi(val);
 #endif
@@ -352,9 +352,9 @@ int32_t writesetup(const char *fn)
              "\n"
 #endif
              "; 3D mode brightness setting\n"
-             "vid_gamma = %f\n"
-             "vid_brightness = %f\n"
-             "vid_contrast = %f\n"
+             "vid_gamma = %g\n"
+             "vid_brightness = %g\n"
+             "vid_contrast = %g\n"
              "\n"
              "; Game executable used for map testing\n"
              "gameexecutable = %s\n"

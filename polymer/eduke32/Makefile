@@ -98,8 +98,7 @@ else
    	EOBJ=eobj
 endif
 
-JMACTOBJ=$(OBJ)/util_lib.$o \
-	$(OBJ)/file_lib.$o \
+JMACTOBJ=$(OBJ)/file_lib.$o \
 	$(OBJ)/control.$o \
 	$(OBJ)/keyboard.$o \
 	$(OBJ)/mouse.$o \

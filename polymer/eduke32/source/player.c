@@ -34,9 +34,6 @@ int32_t g_kb;
 int32_t g_looking_angSR1;
 int32_t g_weapon_xoffset;
 
-int32_t turnheldtime; //MED
-int32_t lastcontroltime; //MED
-
 extern int32_t g_levelTextTime, ticrandomseed;
 
 int32_t g_numObituaries = 0;
@@ -308,7 +305,7 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
 
 int32_t A_Shoot(int32_t i,int32_t atwith)
 {
-    int16_t l, sa, p, j, k=-1, wh, scount;
+    int16_t l, sa, p, j, k=-1;
     int32_t vel, zvel = 0, x, oldzvel, dal;
     hitdata_t hitinfo;
     vec3_t srcvect;
@@ -392,9 +389,8 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
 
             if (ProjectileData[atwith].workslike & PROJECTILE_BLOOD)
             {
-                if (p >= 0)
-                    sa += 64 - (krand()&127);
-                else sa += 1024 + 64 - (krand()&127);
+                sa += 64 - (krand()&127);
+                if (p < 0) sa += 1024;
                 zvel = 1024-(krand()&2047);
             }
 
@@ -426,13 +422,15 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                     ProjectileData[atwith].range = 1024;
 
                 if (FindDistance2D(srcvect.x-hitinfo.pos.x,srcvect.y-hitinfo.pos.y) < ProjectileData[atwith].range)
-                    if (FindDistance2D(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y) > (mulscale(ProjectileData[atwith].xrepeat+8,tilesizx[ProjectileData[atwith].decal],3)))
+                    if (FindDistance2D(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y) > 
+                        (mulscale(ProjectileData[atwith].xrepeat+8,tilesizx[ProjectileData[atwith].decal],3)))
                         if (hitinfo.hitwall >= 0 && wall[hitinfo.hitwall].overpicnum != BIGFORCE)
                             if ((wall[hitinfo.hitwall].nextsector >= 0 && hitinfo.hitsect >= 0 &&
                                     sector[wall[hitinfo.hitwall].nextsector].lotag == 0 &&
                                     sector[hitinfo.hitsect].lotag == 0 &&
                                     sector[wall[hitinfo.hitwall].nextsector].lotag == 0 &&
-                                    (sector[hitinfo.hitsect].floorz-sector[wall[hitinfo.hitwall].nextsector].floorz) > (mulscale(ProjectileData[atwith].yrepeat,tilesizy[ProjectileData[atwith].decal],3)<<8)) ||
+                                    (sector[hitinfo.hitsect].floorz-sector[wall[hitinfo.hitwall].nextsector].floorz) > 
+                                    (mulscale(ProjectileData[atwith].yrepeat,tilesizy[ProjectileData[atwith].decal],3)<<8)) ||
                                     (wall[hitinfo.hitwall].nextsector == -1 && sector[hitinfo.hitsect].lotag == 0))
                                 if ((wall[hitinfo.hitwall].cstat&16) == 0)
                                 {
@@ -471,7 +469,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                             */
                                             if (ProjectileData[atwith].workslike & PROJECTILE_RANDDECALSIZE)
                                             {
-                                                wh = (krand()&ProjectileData[atwith].xrepeat);
+                                                int32_t wh = (krand()&ProjectileData[atwith].xrepeat);
                                                 if (wh < ProjectileData[atwith].yrepeat)
                                                     wh = ProjectileData[atwith].yrepeat;
                                                 sprite[k].xrepeat = wh;
@@ -486,16 +484,18 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                             //                                        sprite[k].cstat = 16+(krand()&12);
                                             sprite[k].cstat = 16;
 
-                                            wh = (krand()&1);
-                                            if (wh == 1)
-                                                sprite[k].cstat |= 4;
+                                            {
+                                                int32_t wh = (krand()&1);
+                                                if (wh == 1)
+                                                    sprite[k].cstat |= 4;
 
-                                            wh = (krand()&1);
-                                            if (wh == 1)
-                                                sprite[k].cstat |= 8;
+                                                wh = (krand()&1);
+                                                if (wh == 1)
+                                                    sprite[k].cstat |= 8;
 
-                                            wh = sprite[k].sectnum;
-                                            sprite[k].shade = sector[wh].floorshade;
+                                                wh = sprite[k].sectnum;
+                                                sprite[k].shade = sector[wh].floorshade;
+                                            }
                                             sprite[k].x -= mulscale13(1,sintable[(sprite[k].ang+2560)&2047]);
                                             sprite[k].y -= mulscale13(1,sintable[(sprite[k].ang+2048)&2047]);
 
@@ -737,7 +737,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                     }
                     if (ProjectileData[atwith].spawns >= 0)
                     {
-                        wh=A_Spawn(k,ProjectileData[atwith].spawns);
+                        int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                         if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                         if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
                         actor[wh].t_data[6] = hitinfo.hitwall;
@@ -749,7 +749,9 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 if (hitinfo.hitsprite >= 0)
                 {
                     A_DamageObject(hitinfo.hitsprite,k);
-                    if (sprite[hitinfo.hitsprite].picnum == APLAYER && (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) && g_player[sprite[hitinfo.hitsprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
+                    if (sprite[hitinfo.hitsprite].picnum == APLAYER && 
+                        (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) && 
+                        g_player[sprite[hitinfo.hitsprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
                     {
                         l = A_Spawn(k,JIBS6);
                         sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -762,7 +764,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                     {
                         if (ProjectileData[atwith].spawns >= 0)
                         {
-                            wh=A_Spawn(k,ProjectileData[atwith].spawns);
+                            int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                             if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                             if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
                             actor[wh].t_data[6] = hitinfo.hitwall;
@@ -788,7 +790,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 {
                     if (ProjectileData[atwith].spawns >= 0)
                     {
-                        wh=A_Spawn(k,ProjectileData[atwith].spawns);
+                        int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                         if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                         if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
                         actor[wh].t_data[6] = hitinfo.hitwall;
@@ -851,7 +853,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                                                  wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
                                         if (ProjectileData[atwith].workslike & PROJECTILE_RANDDECALSIZE)
                                         {
-                                            wh = (krand()&ProjectileData[atwith].xrepeat);
+                                            int32_t wh = (krand()&ProjectileData[atwith].xrepeat);
                                             if (wh < ProjectileData[atwith].yrepeat)
                                                 wh = ProjectileData[atwith].yrepeat;
                                             sprite[l].xrepeat = wh;
@@ -899,7 +901,7 @@ DOSKIPBULLETHOLE:
                     {
                         if (ProjectileData[atwith].spawns >= 0)
                         {
-                            wh=A_Spawn(k,ProjectileData[atwith].spawns);
+                            int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                             if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                             if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
                             actor[wh].t_data[6] = hitinfo.hitwall;
@@ -927,7 +929,6 @@ DOSKIPBULLETHOLE:
 
             if (s->extra >= 0) s->shade = ProjectileData[atwith].shade;
 
-            scount = 1;
             vel = ProjectileData[atwith].vel;
 
             j = -1;
@@ -1046,10 +1047,8 @@ DOSKIPBULLETHOLE:
         case BLOODSPLAT2__STATIC:
         case BLOODSPLAT3__STATIC:
         case BLOODSPLAT4__STATIC:
-
-            if (p >= 0)
-                sa += 64 - (krand()&127);
-            else sa += 1024 + 64 - (krand()&127);
+            sa += 64 - (krand()&127);
+            if (p < 0) sa += 1024;
             zvel = 1024-(krand()&2047);
         case KNEE__STATIC:
             if (atwith == KNEE)
@@ -1173,7 +1172,6 @@ DOSKIPBULLETHOLE:
 
                 }
             }
-
             break;
 
         case SHOTSPARK1__STATIC:
@@ -1468,7 +1466,6 @@ SKIPBULLETHOLE:
 
             if (s->extra >= 0) s->shade = -96;
 
-            scount = 1;
             if (atwith == SPIT) vel = 292;
             else
             {
@@ -1522,61 +1519,46 @@ SKIPBULLETHOLE:
 
             if (atwith == SPIT)
             {
-                sizx = 18;
-                sizy = 18,srcvect.z -= (10<<8);
+                sizx = sizy = 18;
+                srcvect.z -= (10<<8);
             }
+            else if (p >= 0)
+                sizx = sizy = 7;
             else
             {
                 if (atwith == FIRELASER)
                 {
                     if (p >= 0)
-                    {
-
-                        sizx = 34;
-                        sizy = 34;
-                    }
+                        sizx = sizy = 34;
                     else
-                    {
-                        sizx = 18;
-                        sizy = 18;
-                    }
+                        sizx = sizy = 18;
                 }
                 else
-                {
-                    sizx = 18;
-                    sizy = 18;
-                }
+                    sizx = sizy = 18;
             }
 
-            if (p >= 0) sizx = 7,sizy = 7;
+            j = A_InsertSprite(sect,srcvect.x,srcvect.y,srcvect.z,
+                atwith,-127,sizx,sizy,sa,vel,zvel,i,4);
+            sprite[j].extra += (krand()&7);
 
-            while (scount > 0)
+            if (atwith == COOLEXPLOSION1)
             {
-                j = A_InsertSprite(sect,srcvect.x,srcvect.y,srcvect.z,
-                                   atwith,-127,sizx,sizy,sa,vel,zvel,i,4);
-                sprite[j].extra += (krand()&7);
-
-                if (atwith == COOLEXPLOSION1)
+                sprite[j].shade = 0;
+                if (PN == BOSS2)
                 {
-                    sprite[j].shade = 0;
-                    if (PN == BOSS2)
-                    {
-                        l = sprite[j].xvel;
-                        sprite[j].xvel = 1024;
-                        A_SetSprite(j,CLIPMASK0);
-                        sprite[j].xvel = l;
-                        sprite[j].ang += 128-(krand()&255);
-                    }
+                    l = sprite[j].xvel;
+                    sprite[j].xvel = 1024;
+                    A_SetSprite(j,CLIPMASK0);
+                    sprite[j].xvel = l;
+                    sprite[j].ang += 128-(krand()&255);
                 }
-
-                sprite[j].cstat = 128;
-                sprite[j].clipdist = 4;
-
-                sa = s->ang+32-(krand()&63);
-                zvel = oldzvel+512-(krand()&1023);
-
-                scount--;
             }
+
+            sprite[j].cstat = 128;
+            sprite[j].clipdist = 4;
+
+            sa = s->ang+32-(krand()&63);
+            zvel = oldzvel+512-(krand()&1023);
 
             return j;
 
@@ -1586,7 +1568,6 @@ SKIPBULLETHOLE:
 
             if (s->extra >= 0) s->shade = -96;
 
-            scount = 1;
             vel = 644;
 
             j = -1;
@@ -2982,8 +2963,10 @@ void getinput(int32_t snum)
 {
     int32_t j, daang;
     static ControlInfo info[2];
-    int32_t tics;
-    int32_t running;
+    static int32_t turnheldtime; //MED
+    static int32_t lastcontroltime; //MED
+
+    int32_t tics, running;
     int32_t turnamount;
     int32_t keymove;
     int32_t momx = 0,momy = 0;
@@ -3105,6 +3088,7 @@ void getinput(int32_t snum)
     info[1].dz = info[0].dz % (1<<6);
     vel = -info[0].dz>>6;
 
+//     OSD_Printf("running: %d\n", running);
     if (running)
     {
         turnamount = NORMALTURN<<1;
@@ -3820,7 +3804,8 @@ void P_FragPlayer(int32_t snum)
     DukePlayer_t *p = g_player[snum].ps;
     spritetype *s = &sprite[p->i];
 
-    randomseed = ticrandomseed;
+    if (g_netServer || g_netClient)
+        randomseed = ticrandomseed;
 
     if (s->pal != 1)
     {
@@ -3841,9 +3826,10 @@ void P_FragPlayer(int32_t snum)
             packbuf[1] = snum;
             packbuf[2] = p->frag_ps;
             packbuf[3] = actor[p->i].picnum;
-            packbuf[4] = myconnectindex;
+            *(int32_t *)&packbuf[4] = ticrandomseed;
+            packbuf[8] = myconnectindex;
 
-            enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 5, ENET_PACKET_FLAG_RELIABLE));
+            enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 9, ENET_PACKET_FLAG_RELIABLE));
         }
     }
 

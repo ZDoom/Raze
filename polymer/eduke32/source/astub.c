@@ -9321,29 +9321,6 @@ static void Keys2d3d(void)
 
     if (getmessageleng > 0)
     {
-        //        charsperline = 64;
-        //if (dimensionmode[snum] == 2) charsperline = 80;
-        /*        if (qsetmode == 200)
-        {
-        for (i=0;i<=getmessageleng;i+=charsperline)
-        {
-        for (j=0;j<charsperline;j++)
-        tempbuf[j] = getmessage[i+j];
-        if (getmessageleng < i+charsperline)
-        tempbuf[(getmessageleng-i)] = 0;
-        else
-        tempbuf[charsperline] = 0;
-        begindrawing();
-        if (tempbuf[charsperline] != 0)
-        {
-        printext256((MESSAGEX*(xdimgame/320.))+2,(MESSAGEY*(ydimgame/200.))+2,0,-1,tempbuf,xdimgame>640?0:1);
-        printext256(MESSAGEX*(xdimgame/320.),MESSAGEY*(ydimgame/200.),
-        (totalclock > (lastmessagetime + 120*5))?whitecol:256-5,-1,tempbuf,xdimgame>640?0:1);
-        }
-        enddrawing();
-        }
-        }
-        else */
         if (qsetmode != 200)
             printmessage16(getmessage);
         if (totalclock > getmessagetimeoff)
@@ -9463,16 +9440,7 @@ void ExtCheckKeys(void)
 
 void faketimerhandler(void)
 {
-    int32_t i, dist, angdiff;
-    int32_t hiz, hihit, loz, lohit, oposx, oposy;
-    int16_t hitwall, daang;
-
-//    counter++;
-//    if (counter>=5) counter=0;
-
     sampletimer();
-//    if (totalclock < ototalclock+TICSPERFRAME || qsetmode != 200)
-//        return;
 }
 
 void SetBOSS1Palette(void)

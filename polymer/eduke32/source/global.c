@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 
-const char *s_buildDate = "20100704";
+const char *s_buildDate = "20100714";
 char *MusicPtr = NULL;
 int32_t g_musicSize;
 
@@ -92,8 +92,6 @@ PlayerSpawn_t g_playerSpawnPoints[MAXPLAYERS];
 user_defs ud;
 
 char pus, pub;
-char syncstat[MAXSYNCBYTES];
-int32_t syncvaltail, syncvaltottail;
 
 input_t loc;
 input_t recsync[RECSYNCBUFSIZ];
@@ -155,9 +153,7 @@ int16_t myang, omyang, mycursectnum, myjumpingcounter;
 char myjumpingtoggle, myonground, myhardlanding, myreturntocenter;
 int8_t multiwho, multipos, multiwhat, multiflag;
 
-int32_t predictfifoplc,movefifoplc;
-int32_t myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
-int32_t myhorizbak[MOVEFIFOSIZ],g_playerFriction = 0xcc00, g_showShareware;
+int32_t g_playerFriction = 0xcc00, g_showShareware;
 
 int16_t myangbak[MOVEFIFOSIZ];
 char szPlayerName[32];
@@ -167,9 +163,8 @@ int32_t g_numFreezeBounces=3,g_rpgBlastRadius,g_pipebombBlastRadius,g_tripbombBl
         g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
 DukeStatus_t sbar;
 
-int32_t mymaxlag, otherminlag, bufferjitter = 1;
 int16_t g_numClouds,clouds[128],cloudx[128],cloudy[128];
-int32_t cloudtotalclock = 0,totalmemory = 0;
+int32_t cloudtotalclock = 0;
 int32_t g_numInterpolations = 0, startofdynamicinterpolations = 0;
 int32_t g_interpolationLock = 0;
 int32_t oldipos[MAXINTERPOLATIONS];

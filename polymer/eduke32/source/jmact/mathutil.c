@@ -39,10 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 int32_t FindDistance2D(int32_t x, int32_t y)
 {
-    x= klabs(x);
-    y= klabs(y);
-
-    if (x<y) swaplong(&x,&y);
+    if ((x=klabs(x)) < (y=klabs(y))) swaplong(&x,&y);
 
     {
         int32_t t = y + (y>>1);
@@ -52,12 +49,8 @@ int32_t FindDistance2D(int32_t x, int32_t y)
 
 int32_t FindDistance3D(int32_t x, int32_t y, int32_t z)
 {
-    x= klabs(x);
-    y= klabs(y);
-    z= klabs(z);
-
-    if (x<y) swaplong(&x,&y);
-    if (x<z) swaplong(&x,&z);
+    if ((x=klabs(x)) < (y=klabs(y))) swaplong(&x,&y);
+    if (x < (z=klabs(z))) swaplong(&x,&z);
 
     {
         int32_t t = y + z;

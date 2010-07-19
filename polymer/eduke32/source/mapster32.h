@@ -48,8 +48,6 @@ extern int16_t searchbottomwall;
 #define COLOR_RED 248
 #define COLOR_WHITE 31
 
-static int32_t ototalclock = 0;
-
 #define NUMOPTIONS 9
 char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
 
@@ -94,7 +92,6 @@ static int32_t ppointhighlight;
 //static int32_t counter=0;
 static uint8_t nosprites=0,purpleon=0,skill=4;
 static uint8_t framerateon=1,shadepreview=0;
-static int32_t xvel, yvel, timoff;
 
 int32_t autosave=180;
 static int32_t autosavetimer;

@@ -152,7 +152,6 @@
     <ClInclude Include="source\jmact\mathutil.h" />
     <ClInclude Include="source\jmact\mouse.h" />
     <ClInclude Include="source\jmact\scriplib.h" />
-    <ClInclude Include="source\jmact\util_lib.h" />
     <ClInclude Include="source\enet\include\enet\callbacks.h" />
     <ClInclude Include="source\enet\include\enet\enet.h" />
     <ClInclude Include="source\enet\include\enet\list.h" />
@@ -248,7 +247,6 @@
     <ClCompile Include="source\jmact\mathutil.c" />
     <ClCompile Include="source\jmact\mouse.c" />
     <ClCompile Include="source\jmact\scriplib.c" />
-    <ClCompile Include="source\jmact\util_lib.c" />
     <ClCompile Include="source\enet\src\callbacks.c" />
     <ClCompile Include="source\enet\src\host.c" />
     <ClCompile Include="source\enet\src\list.c" />
