@@ -142,7 +142,7 @@ int16_t BlimpSpawnSprites[15] =
     FREEZEAMMO__STATIC
 };
 
-int32_t g_impactDamage;
+int32_t g_impactDamage, g_maxPlayerHealth;
 int32_t g_scriptDebug;
 
 //GLOBAL.C - replace the end "my's" with this

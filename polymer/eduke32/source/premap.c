@@ -1915,12 +1915,12 @@ int32_t G_EnterLevel(int32_t g)
             S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
     }
 
-    if ((g&MODE_GAME) || (g&MODE_EOL))
+    if (g & (MODE_GAME|MODE_EOL))
     {
         TRAVERSE_CONNECT(i)
         g_player[i].ps->gm = MODE_GAME;
     }
-    else if (g&MODE_RESTART)
+    else if (g & MODE_RESTART)
     {
         if (ud.recstat == 2)
             g_player[myconnectindex].ps->gm = MODE_DEMO;
@@ -1930,10 +1930,8 @@ int32_t G_EnterLevel(int32_t g)
     if ((ud.recstat == 1) && (g&MODE_RESTART) != MODE_RESTART)
         G_OpenDemoWrite();
 
-    if (VOLUMEONE)
-    {
-        if (ud.level_number == 0 && ud.recstat != 2) P_DoQuote(40,g_player[myconnectindex].ps);
-    }
+    if (VOLUMEONE && ud.level_number == 0 && ud.recstat != 2)
+        P_DoQuote(40,g_player[myconnectindex].ps);
 
     TRAVERSE_CONNECT(i)
     switch (DynamicTileMap[sector[sprite[g_player[i].ps->i].sectnum].floorpicnum])

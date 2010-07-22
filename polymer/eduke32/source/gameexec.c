@@ -617,42 +617,34 @@ GAMEEXEC_STATIC void VM_Move(void)
         }
 
         {
-            vec3_t tmpvect;
+            vec3_t tmpvect = { (daxvel*(sintable[(angdif+512)&2047]))>>14, 
+            (daxvel*(sintable[angdif&2047]))>>14, vm.g_sp->zvel };
 
-            tmpvect.x = (daxvel*(sintable[(angdif+512)&2047]))>>14;
-            tmpvect.y = (daxvel*(sintable[angdif&2047]))>>14;
-            tmpvect.z = vm.g_sp->zvel;
             actor[vm.g_i].movflag = A_MoveSprite(vm.g_i,&tmpvect,CLIPMASK0);
         }
     }
 
-    if (a)
-    {
-        if (sector[vm.g_sp->sectnum].ceilingstat&1)
-            vm.g_sp->shade += (sector[vm.g_sp->sectnum].ceilingshade-vm.g_sp->shade)>>1;
-        else vm.g_sp->shade += (sector[vm.g_sp->sectnum].floorshade-vm.g_sp->shade)>>1;
+    if (!a) return;
 
-        if (sector[vm.g_sp->sectnum].floorpicnum == MIRROR)
-            deletesprite(vm.g_i);
-    }
+    if (sector[vm.g_sp->sectnum].ceilingstat&1)
+        vm.g_sp->shade += (sector[vm.g_sp->sectnum].ceilingshade-vm.g_sp->shade)>>1;
+    else vm.g_sp->shade += (sector[vm.g_sp->sectnum].floorshade-vm.g_sp->shade)>>1;
+
+// wtf?
+/*
+    if (sector[vm.g_sp->sectnum].floorpicnum == MIRROR)
+        deletesprite(vm.g_i);
+*/
 }
 
 GAMEEXEC_STATIC GAMEEXEC_INLINE void __fastcall VM_DoConditional(register int32_t condition)
 {
-    if (condition)
+    if (condition || ((insptr = (intptr_t *)*(insptr+1)) && (((*insptr)&0xFFF) == CON_ELSE)))
     {
         // skip 'else' pointer.. and...
         insptr += 2;
         VM_Execute(1);
         return;
-    }
-    insptr = (intptr_t *) *(insptr+1);
-    if (((*insptr)&0xFFF) == CON_ELSE)
-    {
-        // else...
-        // skip 'else' and...
-        insptr += 2;
-        VM_Execute(1);
     }
 }
 
@@ -3055,7 +3047,15 @@ nullquote:
             continue;
 
         case CON_IFMULTIPLAYER:
-            VM_DoConditional((g_netServer || ud.multimode > 1));
+            VM_DoConditional((g_netServer || g_netClient || ud.multimode > 1));
+            continue;
+
+        case CON_IFCLIENT:
+            VM_DoConditional(g_netClient != NULL);
+            continue;
+
+        case CON_IFSERVER:
+            VM_DoConditional(g_netServer != NULL);
             continue;
 
         case CON_OPERATE:

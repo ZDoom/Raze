@@ -380,7 +380,7 @@ void MV_ServiceVoc(void)
         //Commented out so that the buffer is always cleared.
         //This is so the guys at Echo Speech can mix into the
         //buffer even when no sounds are playing.
-        //if ( !MV_BufferEmpty[ MV_MixPage ] )
+        if (!MV_BufferEmpty[MV_MixPage])
         {
             ClearBuffer_DW(MV_MixBuffer[ MV_MixPage ], MV_Silence, MV_BufferSize >> 2);
             MV_BufferEmpty[ MV_MixPage ] = TRUE;

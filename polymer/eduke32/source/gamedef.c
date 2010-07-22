@@ -500,6 +500,8 @@ const char *keyw[] =
     "qstrncat",                 // 348
     "ifactorsound",             // 349
     "stopactorsound",           // 350
+    "ifclient",                 // 351
+    "ifserver",                 // 352
     "<null>"
 };
 
@@ -4906,6 +4908,8 @@ repeatcase:
         return 0;
     }
 
+    case CON_IFCLIENT:
+    case CON_IFSERVER:
     case CON_IFONWATER:
     case CON_IFINWATER:
     case CON_IFACTORNOTSTAYPUT:
@@ -5768,7 +5772,7 @@ repeatcase:
         j = 0;
         ud.const_visibility = params[j++];
         g_impactDamage = params[j++];
-        g_player[0].ps->max_player_health = g_player[0].ps->max_shield_amount = params[j++];
+        g_maxPlayerHealth = g_player[0].ps->max_player_health = g_player[0].ps->max_shield_amount = params[j++];
         g_startArmorAmount = params[j++];
         g_actorRespawnTime = params[j++];
         g_itemRespawnTime = params[j++];

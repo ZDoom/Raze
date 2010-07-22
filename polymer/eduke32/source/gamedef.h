@@ -911,6 +911,8 @@ enum ScriptKeywords_t
     CON_QSTRNCAT,           // 348
     CON_IFACTORSOUND,       // 349
     CON_STOPACTORSOUND,     // 350
+    CON_IFCLIENT,           // 351
+    CON_IFSERVER,           // 352
     CON_END
 };
 #endif

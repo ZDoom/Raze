@@ -492,7 +492,7 @@ extern char tempbuf[2048], packbuf[PACKBUF_SIZE], menutextbuf[128];
 extern int32_t g_spriteGravity;
 
 extern int32_t g_impactDamage,g_actorRespawnTime,g_itemRespawnTime;
-extern int32_t g_startArmorAmount;
+extern int32_t g_startArmorAmount, g_maxPlayerHealth;
 
 #define MOVFIFOSIZ 256
 
@@ -1088,6 +1088,7 @@ enum DukePacket_t
     PACKET_VERSION,
     PACKET_AUTH,
     PACKET_PLAYER_READY,
+    PACKET_MAP_STREAM,
 
     // any packet with an ID higher than PACKET_BROADCAST is rebroadcast by server
     // so hacked clients can't create fake server packets and get the server to
