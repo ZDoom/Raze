@@ -74,6 +74,7 @@ typedef enum {
                     PR_BIT_MIRROR_MAP,
                     PR_BIT_FOG,
                     PR_BIT_GLOW_MAP,
+                    PR_BIT_PROJECTION_MAP,
                     PR_BIT_SHADOW_MAP,
                     PR_BIT_LIGHT_MAP,
                     PR_BIT_SPOT_LIGHT,
@@ -137,9 +138,10 @@ typedef struct      s_prrograminfo {
     GLint           uniform_mirrorMap;
     // PR_BIT_GLOW_MAP
     GLint           uniform_glowMap;
+    // PR_BIT_PROJECTION_MAP
+    GLint           uniform_shadowProjMatrix;
     // PR_BIT_SHADOW_MAP
     GLint           uniform_shadowMap;
-    GLint           uniform_shadowProjMatrix;
     // PR_BIT_LIGHT_MAP
     GLint           uniform_lightMap;
     // PR_BIT_SPOT_LIGHT

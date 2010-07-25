@@ -380,13 +380,24 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
-        1 << PR_BIT_SHADOW_MAP,
+        1 << PR_BIT_PROJECTION_MAP,
         // vert_def
         "uniform mat4 shadowProjMatrix;\n"
         "\n",
         // vert_prog
         "  gl_TexCoord[2] = shadowProjMatrix * curVertex;\n"
         "\n",
+        // frag_def
+        "",
+        // frag_prog
+        "",
+    },
+    {
+        1 << PR_BIT_SHADOW_MAP,
+        // vert_def
+        "",
+        // vert_prog
+        "",
         // frag_def
         "uniform sampler2DShadow shadowMap;\n"
         "\n",
@@ -3785,7 +3796,7 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     material->mirrormap = 0;
     // PR_BIT_GLOW_MAP
     material->glowmap = 0;
-    // PR_BIT_SHADOW_MAP
+    // PR_BIT_PROJECTION_MAP
     material->mdspritespace = GL_FALSE;
 }
 
@@ -3934,9 +3945,12 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
             // PR_BIT_SHADOW_MAP
             if (prlights[lights[curlight]].rtindex != -1) {
                 programbits |= prprogrambits[PR_BIT_SHADOW_MAP].bit;
-                // PR_BIT_LIGHT_MAP
-                if (prlights[lights[curlight]].lightmap)
-                    programbits |= prprogrambits[PR_BIT_LIGHT_MAP].bit;
+                programbits |= prprogrambits[PR_BIT_PROJECTION_MAP].bit;
+            }
+            // PR_BIT_LIGHT_MAP
+            if (prlights[lights[curlight]].lightmap) {
+                programbits |= prprogrambits[PR_BIT_LIGHT_MAP].bit;
+                programbits |= prprogrambits[PR_BIT_PROJECTION_MAP].bit;
             }
         }
     }
@@ -4163,8 +4177,8 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
             bglUniform3fvARB(prprograms[programbits].uniform_spotDir, 1, dir);
             bglUniform2fvARB(prprograms[programbits].uniform_spotRadius, 1, indir);
 
-            // PR_BIT_SHADOW_MAP
-            if (programbits & prprogrambits[PR_BIT_SHADOW_MAP].bit)
+            // PR_BIT_PROJECTION_MAP
+            if (programbits & prprogrambits[PR_BIT_PROJECTION_MAP].bit)
             {
                 GLfloat matrix[16];
 
@@ -4178,13 +4192,18 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
                 bglLoadIdentity();
                 bglMatrixMode(GL_MODELVIEW);
 
-                bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
-                bglBindTexture(prrts[prlights[lights[curlight]].rtindex].target, prrts[prlights[lights[curlight]].rtindex].z);
-
-                bglUniform1iARB(prprograms[programbits].uniform_shadowMap, texunit);
                 bglUniformMatrix4fvARB(prprograms[programbits].uniform_shadowProjMatrix, 1, GL_FALSE, matrix);
 
-                texunit++;
+                // PR_BIT_SHADOW_MAP
+                if (programbits & prprogrambits[PR_BIT_SHADOW_MAP].bit)
+                {
+                    bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+                    bglBindTexture(prrts[prlights[lights[curlight]].rtindex].target, prrts[prlights[lights[curlight]].rtindex].z);
+
+                    bglUniform1iARB(prprograms[programbits].uniform_shadowMap, texunit);
+
+                    texunit++;
+                }
 
                 // PR_BIT_LIGHT_MAP
                 if (programbits & prprogrambits[PR_BIT_LIGHT_MAP].bit)
@@ -4388,11 +4407,16 @@ static void         polymer_compileprogram(int32_t programbits)
         prprograms[programbits].uniform_glowMap = bglGetUniformLocationARB(program, "glowMap");
     }
 
+    // PR_BIT_PROJECTION_MAP
+    if (programbits & prprogrambits[PR_BIT_PROJECTION_MAP].bit)
+    {
+        prprograms[programbits].uniform_shadowProjMatrix = bglGetUniformLocationARB(program, "shadowProjMatrix");
+    }
+
     // PR_BIT_SHADOW_MAP
     if (programbits & prprogrambits[PR_BIT_SHADOW_MAP].bit)
     {
         prprograms[programbits].uniform_shadowMap = bglGetUniformLocationARB(program, "shadowMap");
-        prprograms[programbits].uniform_shadowProjMatrix = bglGetUniformLocationARB(program, "shadowProjMatrix");
     }
 
     // PR_BIT_LIGHT_MAP
