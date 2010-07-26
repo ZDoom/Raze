@@ -6081,22 +6081,16 @@ void drawmasks(void)
         {
 killsprite:
             spritesortcnt--;  //Delete face sprite if on wrong side!
-            if (i != spritesortcnt)
-            {
-                tspriteptr[i] = tspriteptr[spritesortcnt];
-                spritesx[i] = spritesx[spritesortcnt];
-                spritesy[i] = spritesy[spritesortcnt];
-            }
+            if (i == spritesortcnt) continue;
+            tspriteptr[i] = tspriteptr[spritesortcnt];
+            spritesx[i] = spritesx[spritesortcnt];
+            spritesy[i] = spritesy[spritesortcnt];
             continue;
         }
         spritesy[i] = yp;
     }
 
-#ifdef USE_OPENGL
-//    if (rendmode < 3)
-#endif
     {
-
         gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
         for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
             for (i=0; i<spritesortcnt-gap; i++)
@@ -6171,9 +6165,6 @@ killsprite:
         drawline256(xs+65536,ys-65536,xs-65536,ys+65536,31);
     }*/
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
-//    if (rendmode < 3)
-#endif
     {
 #if defined(USE_OPENGL) && defined(POLYMOST)
         curpolygonoffset = 0;
@@ -6654,6 +6645,7 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
             initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal sector(%d). Map is corrupt!\n",i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
             updatesector(sprite[i].x, sprite[i].y, &sprite[i].sectnum);
         }
+
         if (sprite[i].picnum<0||sprite[i].picnum>=MAXTILES)
         {
             initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal picnum(%d). Map is corrupt!\n",i,sprite[i].x,sprite[i].y,sprite[i].picnum);
@@ -6675,31 +6667,26 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
 
         if (sect == -1)
         {
-            updatesector(sprite[k].x+1, sprite[k].y+1, &sect);
+            int32_t ii, jj;
 
-            if (sect == -1)
+            for (ii=32; ii >= 0; ii--)
             {
-                updatesector(sprite[k].x-1, sprite[k].y-1, &sect);
-
-                if (sect == -1)
+                for (jj=32; jj >= 0; jj--)
                 {
-                    updatesector(sprite[k].x+1, sprite[k].y-1, &sect);
-
-                    if (sect == -1)
-                    {
-                        updatesector(sprite[k].x-1, sprite[k].y+1, &sect);
-
-                        /* fuck it, the sprite is clearly not legitimately in any sector at this point
-                           so let's queue it up for deletion */
-                        if (sect == -1)
-                            dq[dnum++] = k;
-                    }
+                    updatesector(sprite[k].x+ii-16, sprite[k].y+jj-16, &sect);
+                    if (sect != -1) break;
                 }
+                if (sect != -1) break;
             }
+
+            /* fuck it, the sprite is clearly not legitimately in any sector at this point
+            so let's queue it up for deletion */
+            if (sect == -1)
+                dq[dnum++] = k;
         }
     }
 
-    while (--dnum > -1)
+    while (dnum--)
     {
         initprintf(OSD_ERROR "Map error: removing sprite #%d(%d,%d) in null space. Map is corrupt!\n",dq[dnum],sprite[dq[dnum]].x,sprite[dq[dnum]].y);
         deletesprite(dq[dnum]);

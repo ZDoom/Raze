@@ -9718,7 +9718,7 @@ static void G_DoAutoload(const char *fn)
     }
 }
 
-static char *makename(char *destname, char *OGGname, char *origname)
+static char *makename(char *destname, char *OGGname, const char *origname)
 {
     if (!origname)
         return destname;
@@ -9744,7 +9744,7 @@ static char *makename(char *destname, char *OGGname, char *origname)
     return destname;
 }
 
-static int32_t AL_DefineSound(int32_t ID,char *name)
+static int32_t S_DefineSound(int32_t ID,char *name)
 {
     if (ID >= MAXSOUNDS)
         return 1;
@@ -9754,7 +9754,7 @@ static int32_t AL_DefineSound(int32_t ID,char *name)
     return 0;
 }
 
-static int32_t AL_DefineMusic(char *ID,char *name)
+static int32_t S_DefineMusic(char *ID,char *name)
 {
     int32_t lev, ep;
     int32_t sel = MAXVOLUMES * MAXLEVELS;
@@ -9923,7 +9923,7 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
                 else Bfree(tfn);
                 pathsearchmode = i;
 
-                if (AL_DefineMusic(ID,fn))
+                if (S_DefineMusic(ID,fn))
                     initprintf("Error: invalid music ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
             }
         }
@@ -9977,7 +9977,7 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
                 else Bfree(tfn);
                 pathsearchmode = i;
 
-                if (AL_DefineSound(num,fn))
+                if (S_DefineSound(num,fn))
                     initprintf("Error: invalid sound ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
             }
         }

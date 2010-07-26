@@ -326,12 +326,12 @@ void G_DoSectorAnimations(void)
 
 int32_t GetAnimationGoal(int32_t *animptr)
 {
-    int32_t i = g_animateCount-1, j = -1;
+    int32_t i = g_animateCount-1;
 
     for (; i>=0; i--)
         if (animptr == (int32_t *)animateptr[i])
-            return j;
-    return(j);
+            return i;
+    return -1;
 }
 
 int32_t SetAnimation(int32_t animsect,int32_t *animptr, int32_t thegoal, int32_t thevel)

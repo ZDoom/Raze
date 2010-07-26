@@ -2827,6 +2827,8 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 err = 0;
             else if (!Bstrcmp(glinfo.renderer,"Mobile Intel(R) 4 Series Express Chipset Family"))
                 err = 0;
+            else if (!Bstrcmp(glinfo.renderer,"Intel Brookdale-G"))
+                err = 0;
             else err = 1;
         }
         else

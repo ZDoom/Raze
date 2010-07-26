@@ -242,6 +242,11 @@ typedef struct      s_prwall {
     }               flags;
 }                   _prwall;
 
+typedef struct      s_prsprite {
+    _prplane        plane;
+    uint32_t        crc;
+}                   _prsprite;
+
 typedef struct      s_prmirror {
     _prplane        *plane;
     int16_t         sectnum;
@@ -296,12 +301,13 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum);
 // HSR
 static void         polymer_computeplane(_prplane* p);
 static inline void  polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out);
-static inline void  polymer_transformpoint(float* inpos, float* pos, float* matrix);
+static inline void  polymer_transformpoint(const float* inpos, float* pos, float* matrix);
 static inline void  polymer_normalize(float* vec);
 static inline void  polymer_pokesector(int16_t sectnum);
 static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum);
 static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum);
 static inline void  polymer_scansprites(int16_t sectnum, spritetype* tsprite, int32_t* spritesortcnt);
+static inline void  polymer_updatesprite(int32_t snum);
 // SKIES
 static void         polymer_getsky(void);
 static void         polymer_drawsky(int16_t tilenum, char palnum, int8_t shade);
@@ -314,7 +320,7 @@ static void         polymer_drawmdsprite(spritetype *tspr);
 static void         polymer_loadmodelvbos(md3model_t* m);
 // MATERIALS
 static void         polymer_getscratchmaterial(_prmaterial* material);
-static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade);
+static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int32_t cmeth);
 static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, int lightcount);
 static void         polymer_unbindmaterial(int32_t programbits);
 static void         polymer_compileprogram(int32_t programbits);

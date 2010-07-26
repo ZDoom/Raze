@@ -4368,7 +4368,7 @@ static void Keys3d(void)
         if (ASSERT_AIMING)
         {
             Bsprintf(tempbuf, "%s extra: ", Typestr_wss[searchstat]);
-            getnumberptr256(tempbuf, &AIMED(extra), sizeof(int16_t), BTAG_MAX, 0, NULL);
+            getnumberptr256(tempbuf, &AIMED(extra), sizeof(int16_t), BTAG_MAX, 1, NULL);
             asksave = 1;
         }
     }
