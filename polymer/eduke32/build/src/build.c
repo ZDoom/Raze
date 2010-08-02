@@ -80,6 +80,10 @@ extern int32_t totalclocklock;
 
 int32_t synctics = 0, lockclock = 0;
 
+// those ones save the respective 3d video vars while in 2d mode
+// so that exiting from mapster32 in 2d mode saves the correct ones
+double vid_gamma_3d=-1, vid_contrast_3d=-1, vid_brightness_3d=-1;
+
 extern char vgacompatible;
 
 extern char picsiz[MAXTILES];
@@ -486,7 +490,10 @@ int32_t app_main(int32_t argc, const char **argv)
 
     if (cursectnum == -1)
     {
-        double gamma = vid_gamma, brightness = vid_brightness, contrast = vid_contrast;
+        vid_gamma_3d = vid_gamma;
+        vid_brightness_3d = vid_brightness;
+        vid_contrast_3d = vid_contrast;
+
         vid_gamma = vid_contrast = 1.0;
         vid_brightness = 0.0;
 
@@ -500,9 +507,12 @@ int32_t app_main(int32_t argc, const char **argv)
         }
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
-        vid_gamma = gamma;
-        vid_contrast = contrast;
-        vid_brightness = brightness;
+
+        vid_gamma = vid_gamma_3d;
+        vid_contrast = vid_contrast_3d;
+        vid_brightness = vid_brightness_3d;
+
+        vid_gamma_3d = vid_contrast_3d = vid_brightness_3d = -1;
 
         setbrightness(GAMMA_CALC,palette,0);
     }
@@ -1186,17 +1196,24 @@ void editinput(void)
     if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
     {
 
-        double gamma = vid_gamma, contrast = vid_contrast, brightness = vid_brightness;
+        vid_gamma_3d = vid_gamma;
+        vid_contrast_3d = vid_contrast;
+        vid_brightness_3d = vid_brightness;
+
         vid_gamma = vid_contrast = 1.0;
         vid_brightness = 0.0;
 
         setbrightness(0,palette,0);
+
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
-        vid_gamma = gamma;
-        vid_contrast = contrast;
-        vid_brightness = brightness;
+
+        vid_gamma = vid_gamma_3d;
+        vid_contrast = vid_contrast_3d;
+        vid_brightness = vid_brightness_3d;
+
+        vid_gamma_3d = vid_contrast_3d = vid_brightness_3d = -1;
 
         setbrightness(GAMMA_CALC,palette,0);
     }
@@ -1338,7 +1355,9 @@ void overheadeditor(void)
     while ((keystatus[buildkeys[BK_MODE2D_3D]]>>1) == 0)
     {
         if (!((vel|angvel|svel) //DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
-              || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || bstatus || OSD_IsMoving()))
+              || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN)
+              || keystatus[0x48] || keystatus[0x4b] || keystatus[0x4d] || keystatus[0x50]  // keypad keys
+              || bstatus || OSD_IsMoving()))
         {
             if (totalclock > waitdelay)
             {
@@ -1454,8 +1473,9 @@ void overheadeditor(void)
         numwalls = newnumwalls;
         if (numwalls < 0) numwalls = tempint;
 
-        if ((getticks() - lastdraw) >= 5 || (vel|angvel|svel) || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || mousx || mousy || bstatus ||
-            newnumwalls>=0 || OSD_IsMoving())
+        if ((getticks() - lastdraw) >= 5 || (vel|angvel|svel) || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN)
+            || mousx || mousy || bstatus
+            || newnumwalls>=0 || OSD_IsMoving())
         {
             lastdraw = getticks();
 
@@ -2659,6 +2679,8 @@ SKIP:
                 pos.y = mousyplc;
             }
         }
+        else if ((oldmousebstatus&6) > 0)
+            updatesector(pos.x,pos.y,&cursectnum);
 
         if (circlewall != -1 && (keystatus[0x4a] || ((bstatus&32) && !eitherCTRL)))  // -
         {

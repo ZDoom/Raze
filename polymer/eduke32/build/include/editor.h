@@ -47,6 +47,8 @@ extern char somethingintab;
 
 extern uint8_t buildkeys[NUMBUILDKEYS];
 
+extern double vid_gamma_3d, vid_contrast_3d, vid_brightness_3d;
+
 extern int32_t ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
 extern int32_t unrealedlook, quickmapcycling;
 extern int32_t pk_turnaccel,pk_turndecel,pk_uedaccel;

@@ -490,7 +490,10 @@ int32_t writesetup(const char *fn)
 #ifdef RENDERTYPEWIN
              maxrefreshfreq, windowpos, windowx, windowy,
 #endif
-             vid_gamma, vid_brightness, vid_contrast, game_executable,
+             vid_gamma_3d>=0?vid_gamma_3d:vid_gamma,
+             vid_brightness_3d>=0?vid_brightness_3d:vid_brightness,
+             vid_contrast_3d>=0?vid_contrast_3d:vid_contrast,
+             game_executable,
 #if 0
              option[7]>>4, option[2],
 #endif

@@ -84,6 +84,8 @@ definequote 30 PARALLAX BIAS: %f
 definequote 31 SPECULAR FACTOR: %f
 definequote 32 SPECULAR POWER: %f
 
+definequote 33 PAL: %d
+
 define PRSCALE 1000
 // NOTE: inline constants >=32768 are sometimes broken ATM (when loading a second time?).
 // This should always work
@@ -649,16 +651,24 @@ onevent EVENT_ANALYZESPRITES
     state tduprot
     state tduplin
 /*
+    ife searchstat 3
     for i drawnsprites
     {
-        set j tsprite[i].owner
-        switch sprite[j].picnum
-        case LIZTROOP spritepal 1 break
-        case PIGCOP spritepal 2 break
-        case BOSS1 spritepal 6 break
-        endswitch
-    }
+        ife tsprite[i].owner searchwall
+        {
+            qsprintf TQUOTE 33 tsprite[i].pal
+            quote TQUOTE
+            break
+        }
+
 */
+
+//        switch sprite[j].picnum
+//        case LIZTROOP spritepal 1 break
+//        case PIGCOP spritepal 2 break
+//        case BOSS1 spritepal 6 break
+//        endswitch
+    }
 endevent
 
 onevent EVENT_KEYS3D

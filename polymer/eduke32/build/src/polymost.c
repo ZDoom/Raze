@@ -1332,11 +1332,18 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
         if (i > -1)
         {
             texcacheindex *t = cacheptrs[i];
-            len = t->len;
-            offset = t->offset;
+            if (!t)
+                i = -1;
+            else
+            {
+                len = t->len;
+                offset = t->offset;
+            }
             /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
         }
-        else return -1; // didn't find it
+
+        if (i < 0)
+            return -1; // didn't find it
 
         cachepos = offset;
     }

@@ -5825,7 +5825,10 @@ static void Keys3d(void)
 
     if (PRESSED_KEYSC(F11))  //F11 - brightness
     {
-        static int16_t brightness;
+        static int16_t brightness = -1;
+
+        if (brightness==-1)
+            brightness = ((int16_t)((vid_gamma-1.0)*10.0))&15;
 
         brightness = brightness + (1-2*eitherSHIFT);
         brightness &= 15;
