@@ -22,9 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 #include "osd.h"
-#include "gamedef.h"
 #include "player.h"
-#include "gameexec.h"
+#include "demo.h"
 #include "enet/enet.h"
 
 int32_t g_currentweapon;

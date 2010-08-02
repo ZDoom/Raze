@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gameexec.h"
 #include "savegame.h"
 #include "premap.h"
+#include "demo.h"
 #include <sys/stat.h>
 
 extern char inputloc;

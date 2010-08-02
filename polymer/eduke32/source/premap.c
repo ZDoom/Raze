@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gameexec.h"
 #include "anim.h"
 #include "menus.h"
+#include "demo.h"
 
 #ifdef RENDERTYPEWIN
 #define WIN32_LEAN_AND_MEAN
