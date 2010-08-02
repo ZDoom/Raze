@@ -36,6 +36,8 @@ int32_t	kfilelength(int32_t handle);
 int32_t	ktell(int32_t handle);
 void	kclose(int32_t handle);
 
+typedef struct { intptr_t *hand; int32_t leng; char *lock ; } cactype;
+
 enum {
 	CACHE1D_FIND_FILE = 1,
 	CACHE1D_FIND_DIR = 2,

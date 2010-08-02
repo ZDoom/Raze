@@ -165,7 +165,7 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
 
     cvars = (osdcvar_t *)Brealloc(cvars, (osdnumcvars + 1) * sizeof(osdcvar_t));
 
-    hash_replace(&h_cvars, cvar->name, osdnumcvars);
+    hash_add(&h_cvars, cvar->name, osdnumcvars, 1);
 
     switch (cvar->type & (CVAR_BOOL|CVAR_INT|CVAR_UINT|CVAR_FLOAT|CVAR_DOUBLE))
     {
@@ -1920,9 +1920,9 @@ static symbol_t *addnewsymbol(const char *name)
             newsymb->next = t;
         }
     }
-    hash_replace(&h_osd, name, osdnumsymbols);
+    hash_add(&h_osd, name, osdnumsymbols, 1);
     name = Bstrtolower(Bstrdup(name));
-    hash_replace(&h_osd, name, osdnumsymbols);
+    hash_add(&h_osd, name, osdnumsymbols, 1);
     Bfree((void *)name);
     osdsymbptrs[osdnumsymbols++] = newsymb;
     return newsymb;

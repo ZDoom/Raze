@@ -20,31 +20,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __osdcmds_h__
-#define __osdcmds_h__
+#ifndef __menus_h__
+#define __menus_h__
 
-struct osdcmd_cheatsinfo {
-	int32_t cheatnum;	// -1 = none, else = see DoCheats()
-	int32_t volume,level;
-};
+#include "savegame.h"
 
-extern struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
-
-int32_t registerosdcommands(void);
-void onvideomodechange(int32_t newmode);
-
-extern float r_ambientlight,r_ambientlightrecip;
-
-#pragma pack(push,1)
-// key bindings stuff
-typedef struct {
-    char *name;
-    int32_t id;
-} keydef_t;
-
-extern keydef_t ConsoleKeys[];
-extern char *ConsoleButtons[];
-#pragma pack(pop)
-
-#endif	// __osdcmds_h__
-
+extern char inputloc;
+extern int16_t g_skillSoundID;
+extern int32_t g_demo_recFilePtr;
+extern int32_t g_lastSaveSlot;
+extern int32_t g_quitDeadline;
+extern int32_t probey;
+extern int32_t voting;
+int32_t G_LoadSaveHeader(char spot,struct savehead *saveh);
+int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits);
+void ChangeToMenu(int32_t cm);
+void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
+void M_DisplayMenus(void);
+#endif

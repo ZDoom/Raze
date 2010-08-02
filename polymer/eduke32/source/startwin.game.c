@@ -361,9 +361,9 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
             if (i != CB_ERR) i = ListBox_GetItemData((HWND)lParam, i);
             if (i != CB_ERR)
             {
-                strcpy(settings.selectedgrp, ((struct grpfile*)i)->name);
-                settings.game = ((struct grpfile*)i)->game;
-                settings.crcval = ((struct grpfile*)i)->crcval;
+                strcpy(settings.selectedgrp, ((struct grpfile *)i)->name);
+                settings.game = ((struct grpfile *)i)->game;
+                settings.crcval = ((struct grpfile *)i)->crcval;
             }
             return TRUE;
         }
@@ -701,7 +701,7 @@ int32_t startwin_settitle(const char *str)
 int32_t startwin_idle(void *v)
 {
     if (!startupdlg || !IsWindow(startupdlg)) return 0;
-    if (IsDialogMessage(startupdlg, (MSG*)v)) return 1;
+    if (IsDialogMessage(startupdlg, (MSG *)v)) return 1;
     return 0;
 }
 

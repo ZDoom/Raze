@@ -20,31 +20,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __osdcmds_h__
-#define __osdcmds_h__
-
-struct osdcmd_cheatsinfo {
-	int32_t cheatnum;	// -1 = none, else = see DoCheats()
-	int32_t volume,level;
-};
-
-extern struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
-
-int32_t registerosdcommands(void);
-void onvideomodechange(int32_t newmode);
-
-extern float r_ambientlight,r_ambientlightrecip;
+#ifndef __savegame_h__
+#define __savegame_h__
 
 #pragma pack(push,1)
-// key bindings stuff
-typedef struct {
-    char *name;
-    int32_t id;
-} keydef_t;
-
-extern keydef_t ConsoleKeys[];
-extern char *ConsoleButtons[];
+struct savehead 
+{
+    char name[19];
+    int32_t numplr,volnum,levnum,plrskl;
+    char boardfn[BMAX_PATH];
+};
 #pragma pack(pop)
 
-#endif	// __osdcmds_h__
-
+int32_t sv_updatestate(int32_t frominit);
+int32_t sv_readdiff(int32_t fil);
+uint32_t sv_writediff(FILE *fil);
+int32_t sv_loadsnapshot(int32_t fil,int32_t *ret_hasdiffs,int32_t *ret_demoticcnt,int32_t *ret_synccompress);
+int32_t sv_saveandmakesnapshot(FILE *fil,int32_t recdiffs,int32_t diffcompress,int32_t synccompress);
+void sv_freemem();
+int32_t G_SavePlayer(int32_t spot);
+int32_t G_LoadPlayer(int32_t spot);
+int32_t G_LoadSaveHeader(char spot,struct savehead *saveh);
+void ReadSaveGameHeaders(void);
+extern char *bitptr;
+#endif

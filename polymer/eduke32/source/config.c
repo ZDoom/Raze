@@ -51,7 +51,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 hashtable_t h_gamefuncs    = { NUMGAMEFUNCTIONS<<1, NULL };
 
-int32_t CONFIG_FunctionNameToNum(char * func)
+int32_t CONFIG_FunctionNameToNum(char *func)
 {
     int32_t i;
 
@@ -77,7 +77,7 @@ int32_t CONFIG_FunctionNameToNum(char * func)
 ===================
 */
 
-char * CONFIG_FunctionNumToName(int32_t func)
+char *CONFIG_FunctionNumToName(int32_t func)
 {
     if ((unsigned)func >= (unsigned)NUMGAMEFUNCTIONS)
         return NULL;
@@ -93,7 +93,7 @@ char * CONFIG_FunctionNumToName(int32_t func)
 */
 
 
-int32_t CONFIG_AnalogNameToNum(char * func)
+int32_t CONFIG_AnalogNameToNum(char *func)
 {
 
     if (!Bstrcasecmp(func,"analog_turning"))
@@ -117,7 +117,7 @@ int32_t CONFIG_AnalogNameToNum(char * func)
 }
 
 
-char * CONFIG_AnalogNumToName(int32_t func)
+char *CONFIG_AnalogNumToName(int32_t func)
 {
     switch (func)
     {
@@ -712,38 +712,38 @@ int32_t CONFIG_ReadSetup(void)
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.config.ScreenBPP);
         if (ud.config.ScreenBPP < 8) ud.config.ScreenBPP = 32;
 
-#ifdef POLYMER 
+#ifdef POLYMER
         SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Polymer", &dummy);
         if (dummy > 0 && ud.config.ScreenBPP >= 16) glrendmode = 4;
         else glrendmode = 3;
 #endif
 
-/*
+        /*
 
-            SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Color",&ud.color);
-            G_CheckPlayerColor((int32_t *)&ud.color,-1);
-            g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
-            tempbuf[0] = 0;
-            SCRIPT_GetString(ud.config.scripthandle, "Misc", "CrosshairColor",&tempbuf[0]);
-            if (tempbuf[0])
-            {
-                char *ptr = strtok(tempbuf,",");
-                palette_t temppal;
-                char *palptr = (char *)&temppal;
+                    SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Color",&ud.color);
+                    G_CheckPlayerColor((int32_t *)&ud.color,-1);
+                    g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
+                    tempbuf[0] = 0;
+                    SCRIPT_GetString(ud.config.scripthandle, "Misc", "CrosshairColor",&tempbuf[0]);
+                    if (tempbuf[0])
+                    {
+                        char *ptr = strtok(tempbuf,",");
+                        palette_t temppal;
+                        char *palptr = (char *)&temppal;
 
-                i = 0;
-                while (ptr != NULL && i < 3)
-                {
-                    palptr[i++] = atoi(ptr);
-                    ptr = strtok(NULL,",");
-                }
-                if (i == 3)
-                {
-                    Bmemcpy(&CrosshairColors,&temppal,sizeof(palette_t));
-                    DefaultCrosshairColors.f = 1;
-                }
-            }
-*/
+                        i = 0;
+                        while (ptr != NULL && i < 3)
+                        {
+                            palptr[i++] = atoi(ptr);
+                            ptr = strtok(NULL,",");
+                        }
+                        if (i == 3)
+                        {
+                            Bmemcpy(&CrosshairColors,&temppal,sizeof(palette_t));
+                            DefaultCrosshairColors.f = 1;
+                        }
+                    }
+        */
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions",&ud.executions);
 

@@ -13,7 +13,7 @@
 #include "kplib.h"
 #include "quicklz.h"
 
-enum
+enum scripttoken_t
 {
     T_EOF = -2,
     T_ERROR = -1,
@@ -80,189 +80,8 @@ enum
 };
 
 typedef struct { char *text; int32_t tokenid; } tokenlist;
-static tokenlist basetokens[] =
-{
-    { "include",         T_INCLUDE          },
-    { "#include",        T_INCLUDE          },
-    { "define",          T_DEFINE           },
-    { "#define",         T_DEFINE           },
 
-    // deprecated style
-    { "definetexture",   T_DEFINETEXTURE    },
-    { "defineskybox",    T_DEFINESKYBOX     },
-    { "definetint",      T_DEFINETINT       },
-    { "definemodel",     T_DEFINEMODEL      },
-    { "definemodelframe",T_DEFINEMODELFRAME },
-    { "definemodelanim", T_DEFINEMODELANIM  },
-    { "definemodelskin", T_DEFINEMODELSKIN  },
-    { "selectmodelskin", T_SELECTMODELSKIN  },
-    { "definevoxel",     T_DEFINEVOXEL      },
-    { "definevoxeltiles",T_DEFINEVOXELTILES },
-
-    // new style
-
-    { "model",           T_MODEL            },
-    { "voxel",           T_VOXEL            },
-    { "skybox",          T_SKYBOX           },
-    { "tint",            T_TINT             },
-    { "texture",         T_TEXTURE          },
-    { "tile",            T_TEXTURE          },
-    { "music",           T_MUSIC            },
-    { "sound",           T_SOUND            },
-
-    // other stuff
-    { "undefmodel",      T_UNDEFMODEL       },
-    { "undefmodelrange", T_UNDEFMODELRANGE  },
-    { "undefmodelof",    T_UNDEFMODELOF     },
-    { "undeftexture",    T_UNDEFTEXTURE     },
-    { "undeftexturerange", T_UNDEFTEXTURERANGE },
-    { "alphahack",	     T_ALPHAHACK 		},
-    { "alphahackrange",  T_ALPHAHACKRANGE 	},
-    { "spritecol",	     T_SPRITECOL 		},
-    { "2dcol",	     	 T_2DCOL 			},
-    { "fogpal",	     	 T_FOGPAL	 		},
-    { "loadgrp",     	 T_LOADGRP	 		},
-    { "dummytile",     	 T_DUMMYTILE		},
-    { "dummytilerange",  T_DUMMYTILERANGE   },
-    { "setuptile",       T_SETUPTILE        },
-    { "setuptilerange",  T_SETUPTILERANGE   },
-    { "animtilerange",   T_ANIMTILERANGE    },
-    { "cachesize",       T_CACHESIZE        },
-    { "dummytilefrompic",T_IMPORTTILE       },
-    { "tilefromtexture", T_TILEFROMTEXTURE  },
-};
-
-static tokenlist modeltokens[] =
-{
-    { "scale",    T_SCALE    },
-    { "shade",    T_SHADE    },
-    { "zadd",     T_ZADD     },
-    { "frame",    T_FRAME    },
-    { "anim",     T_ANIM     },
-    { "skin",     T_SKIN     },
-    { "detail",   T_DETAIL   },
-    { "glow",     T_GLOW     },
-    { "specular", T_SPECULAR },
-    { "normal",   T_NORMAL   },
-    { "hud",      T_HUD      },
-    { "flags",    T_FLAGS    },
-};
-
-static tokenlist modelframetokens[] =
-{
-    { "pal",              T_PAL               },
-    { "frame",            T_FRAME             },
-    { "name",             T_FRAME             },
-    { "tile",             T_TILE              },
-    { "tile0",            T_TILE0             },
-    { "tile1",            T_TILE1             },
-    { "smoothduration",   T_SMOOTHDURATION    },
-};
-
-static tokenlist modelanimtokens[] =
-{
-    { "frame0", T_FRAME0 },
-    { "frame1", T_FRAME1 },
-    { "fps",    T_FPS    },
-    { "flags",  T_FLAGS  },
-};
-
-static tokenlist modelskintokens[] =
-{
-    { "pal",           T_PAL        },
-    { "file",          T_FILE       },
-    { "surf",          T_SURF       },
-    { "surface",       T_SURF       },
-    { "intensity",     T_PARAM      },
-    { "scale",         T_PARAM      },
-    { "detailscale",   T_PARAM      },
-    { "specpower",     T_SPECPOWER  }, { "parallaxscale", T_SPECPOWER },
-    { "specfactor",    T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
-};
-
-static tokenlist modelhudtokens[] =
-{
-    { "tile",   T_TILE   },
-    { "tile0",  T_TILE0  },
-    { "tile1",  T_TILE1  },
-    { "xadd",   T_XADD   },
-    { "yadd",   T_YADD   },
-    { "zadd",   T_ZADD   },
-    { "angadd", T_ANGADD },
-    { "hide",   T_HIDE   },
-    { "nobob",  T_NOBOB  },
-    { "flipped",T_FLIPPED},
-    { "nodepth",T_NODEPTH},
-};
-
-static tokenlist voxeltokens[] =
-{
-    { "tile",   T_TILE   },
-    { "tile0",  T_TILE0  },
-    { "tile1",  T_TILE1  },
-    { "scale",  T_SCALE  },
-};
-
-static tokenlist skyboxtokens[] =
-{
-    { "tile"   ,T_TILE   },
-    { "pal"    ,T_PAL    },
-    { "ft"     ,T_FRONT  },{ "front"  ,T_FRONT  },{ "forward",T_FRONT  },
-    { "rt"     ,T_RIGHT  },{ "right"  ,T_RIGHT  },
-    { "bk"     ,T_BACK   },{ "back"   ,T_BACK   },
-    { "lf"     ,T_LEFT   },{ "left"   ,T_LEFT   },{ "lt"     ,T_LEFT   },
-    { "up"     ,T_TOP    },{ "top"    ,T_TOP    },{ "ceiling",T_TOP    },{ "ceil"   ,T_TOP    },
-    { "dn"     ,T_BOTTOM },{ "bottom" ,T_BOTTOM },{ "floor"  ,T_BOTTOM },{ "down"   ,T_BOTTOM }
-};
-
-static tokenlist tinttokens[] =
-{
-    { "pal",   T_PAL },
-    { "red",   T_RED   },{ "r", T_RED },
-    { "green", T_GREEN },{ "g", T_GREEN },
-    { "blue",  T_BLUE  },{ "b", T_BLUE },
-    { "flags", T_FLAGS }
-};
-
-static tokenlist texturetokens[] =
-{
-    { "pal",     T_PAL  },
-    { "detail",  T_DETAIL },
-    { "glow",    T_GLOW },
-    { "specular",T_SPECULAR },
-    { "normal",  T_NORMAL },
-};
-
-static tokenlist texturetokens_pal[] =
-{
-    { "file",            T_FILE },{ "name", T_FILE },
-    { "alphacut",        T_ALPHACUT },
-    { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
-    { "yscale",          T_YSCALE },
-    { "specpower",       T_SPECPOWER }, { "parallaxscale", T_SPECPOWER },
-    { "specfactor",      T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
-    { "nocompress",      T_NOCOMPRESS },
-    { "nodownsize",      T_NODOWNSIZE },
-};
-
-static tokenlist sound_musictokens[] =
-{
-    { "id",   T_ID  },
-    { "file", T_FILE },
-};
-
-static tokenlist tilefromtexturetokens[] =
-{
-    { "file",            T_FILE },
-    { "name",            T_FILE },
-    { "alphacut",        T_ALPHACUT },
-    { "xoffset",         T_XOFFSET },
-    { "xoff",            T_XOFFSET },
-    { "yoffset",         T_YOFFSET },
-    { "yoff",            T_YOFFSET },
-};
-
-static int32_t getatoken(scriptfile *sf, tokenlist *tl, int32_t ntokens)
+static int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 {
     char *tok;
     int32_t i;
@@ -271,7 +90,7 @@ static int32_t getatoken(scriptfile *sf, tokenlist *tl, int32_t ntokens)
     tok = scriptfile_gettoken(sf);
     if (!tok) return T_EOF;
 
-    for (i=0; i<ntokens; i++)
+    for (i=ntokens-1; i>=0; i--)
     {
         if (!Bstrcasecmp(tok, tl[i].text))
             return tl[i].tokenid;
@@ -297,6 +116,58 @@ static int32_t defsparser(scriptfile *script)
 {
     int32_t tokn;
     char *cmdtokptr;
+
+    static const tokenlist basetokens[] =
+    {
+        { "include",         T_INCLUDE          },
+        { "#include",        T_INCLUDE          },
+        { "define",          T_DEFINE           },
+        { "#define",         T_DEFINE           },
+
+        // deprecated style
+        { "definetexture",   T_DEFINETEXTURE    },
+        { "defineskybox",    T_DEFINESKYBOX     },
+        { "definetint",      T_DEFINETINT       },
+        { "definemodel",     T_DEFINEMODEL      },
+        { "definemodelframe",T_DEFINEMODELFRAME },
+        { "definemodelanim", T_DEFINEMODELANIM  },
+        { "definemodelskin", T_DEFINEMODELSKIN  },
+        { "selectmodelskin", T_SELECTMODELSKIN  },
+        { "definevoxel",     T_DEFINEVOXEL      },
+        { "definevoxeltiles",T_DEFINEVOXELTILES },
+
+        // new style
+        { "model",           T_MODEL            },
+        { "voxel",           T_VOXEL            },
+        { "skybox",          T_SKYBOX           },
+        { "tint",            T_TINT             },
+        { "texture",         T_TEXTURE          },
+        { "tile",            T_TEXTURE          },
+        { "music",           T_MUSIC            },
+        { "sound",           T_SOUND            },
+
+        // other stuff
+        { "undefmodel",      T_UNDEFMODEL       },
+        { "undefmodelrange", T_UNDEFMODELRANGE  },
+        { "undefmodelof",    T_UNDEFMODELOF     },
+        { "undeftexture",    T_UNDEFTEXTURE     },
+        { "undeftexturerange", T_UNDEFTEXTURERANGE },
+        { "alphahack",	     T_ALPHAHACK 		},
+        { "alphahackrange",  T_ALPHAHACKRANGE 	},
+        { "spritecol",	     T_SPRITECOL 		},
+        { "2dcol",	     	 T_2DCOL 			},
+        { "fogpal",	     	 T_FOGPAL	 		},
+        { "loadgrp",     	 T_LOADGRP	 		},
+        { "dummytile",     	 T_DUMMYTILE		},
+        { "dummytilerange",  T_DUMMYTILERANGE   },
+        { "setuptile",       T_SETUPTILE        },
+        { "setuptilerange",  T_SETUPTILERANGE   },
+        { "animtilerange",   T_ANIMTILERANGE    },
+        { "cachesize",       T_CACHESIZE        },
+        { "dummytilefrompic",T_IMPORTTILE       },
+        { "tilefromtexture", T_TILEFROMTEXTURE  },
+    };
+
     while (1)
     {
         if (quitevent) return 0;
@@ -593,6 +464,17 @@ static int32_t defsparser(scriptfile *script)
             int32_t tile=-1, token, i;
             int32_t alphacut = 255;
             int32_t xoffset = 0, yoffset = 0;
+
+            static const tokenlist tilefromtexturetokens[] =
+            {
+                { "file",            T_FILE },
+                { "name",            T_FILE },
+                { "alphacut",        T_ALPHACUT },
+                { "xoffset",         T_XOFFSET },
+                { "xoff",            T_XOFFSET },
+                { "yoffset",         T_YOFFSET },
+                { "yoff",            T_YOFFSET },
+            };
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
@@ -1031,6 +913,22 @@ static int32_t defsparser(scriptfile *script)
             double scale=1.0, mzadd=0.0;
             int32_t shadeoffs=0, pal=0, flags=0;
 
+            static const tokenlist modeltokens[] =
+            {
+                { "scale",    T_SCALE    },
+                { "shade",    T_SHADE    },
+                { "zadd",     T_ZADD     },
+                { "frame",    T_FRAME    },
+                { "anim",     T_ANIM     },
+                { "skin",     T_SKIN     },
+                { "detail",   T_DETAIL   },
+                { "glow",     T_GLOW     },
+                { "specular", T_SPECULAR },
+                { "normal",   T_NORMAL   },
+                { "hud",      T_HUD      },
+                { "flags",    T_FLAGS    },
+            };
+
             modelskin = lastmodelskin = 0;
             seenframe = 0;
 
@@ -1065,6 +963,17 @@ static int32_t defsparser(scriptfile *script)
                     char *frameend, *framename = 0, happy=1;
                     int32_t ftilenume = -1, ltilenume = -1, tilex = 0;
                     double smoothduration = 0.1f;
+
+                    static const tokenlist modelframetokens[] =
+                    {
+                        { "pal",              T_PAL               },
+                        { "frame",            T_FRAME             },
+                        { "name",             T_FRAME             },
+                        { "tile",             T_TILE              },
+                        { "tile0",            T_TILE0             },
+                        { "tile1",            T_TILE1             },
+                        { "smoothduration",   T_SMOOTHDURATION    },
+                    };
 
                     if (scriptfile_getbraces(script,&frameend)) break;
                     while (script->textptr < frameend)
@@ -1135,6 +1044,14 @@ static int32_t defsparser(scriptfile *script)
                     int32_t flags = 0;
                     double dfps = 1.0;
 
+                    static const tokenlist modelanimtokens[] =
+                    {
+                        { "frame0", T_FRAME0 },
+                        { "frame1", T_FRAME1 },
+                        { "fps",    T_FPS    },
+                        { "flags",  T_FLAGS  },
+                    };
+
                     if (scriptfile_getbraces(script,&animend)) break;
                     while (script->textptr < animend)
                     {
@@ -1189,6 +1106,19 @@ static int32_t defsparser(scriptfile *script)
                     char *skinend, *skinfn = 0;
                     int32_t palnum = 0, surfnum = 0;
                     double param = 1.0, specpower = 1.0, specfactor = 1.0;
+
+                    static const tokenlist modelskintokens[] =
+                    {
+                        { "pal",           T_PAL        },
+                        { "file",          T_FILE       },
+                        { "surf",          T_SURF       },
+                        { "surface",       T_SURF       },
+                        { "intensity",     T_PARAM      },
+                        { "scale",         T_PARAM      },
+                        { "detailscale",   T_PARAM      },
+                        { "specpower",     T_SPECPOWER  }, { "parallaxscale", T_SPECPOWER },
+                        { "specfactor",    T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
+                    };
 
                     if (scriptfile_getbraces(script,&skinend)) break;
                     while (script->textptr < skinend)
@@ -1265,6 +1195,21 @@ static int32_t defsparser(scriptfile *script)
                     char happy=1, *frameend;
                     int32_t ftilenume = -1, ltilenume = -1, tilex = 0, flags = 0;
                     double xadd = 0.0, yadd = 0.0, zadd = 0.0, angadd = 0.0;
+
+                    static const tokenlist modelhudtokens[] =
+                    {
+                        { "tile",   T_TILE   },
+                        { "tile0",  T_TILE0  },
+                        { "tile1",  T_TILE1  },
+                        { "xadd",   T_XADD   },
+                        { "yadd",   T_YADD   },
+                        { "zadd",   T_ZADD   },
+                        { "angadd", T_ANGADD },
+                        { "hide",   T_HIDE   },
+                        { "nobob",  T_NOBOB  },
+                        { "flipped",T_FLIPPED},
+                        { "nodepth",T_NODEPTH},
+                    };
 
                     if (scriptfile_getbraces(script,&frameend)) break;
                     while (script->textptr < frameend)
@@ -1355,6 +1300,14 @@ static int32_t defsparser(scriptfile *script)
             char *fn, *modelend;
             int32_t tile0 = MAXTILES, tile1 = -1, tilex = -1;
 
+            static const tokenlist voxeltokens[] =
+            {
+                { "tile",   T_TILE   },
+                { "tile0",  T_TILE0  },
+                { "tile1",  T_TILE1  },
+                { "scale",  T_SCALE  },
+            };
+
             if (scriptfile_getstring(script,&fn)) break; //voxel filename
             if (nextvoxid == MAXVOXELS) { initprintf("Maximum number of voxels already defined.\n"); break; }
 #ifdef SUPERBUILD
@@ -1409,6 +1362,18 @@ static int32_t defsparser(scriptfile *script)
             char *skyboxtokptr = script->ltextptr;
             char *fn[6] = {0,0,0,0,0,0}, *modelend, happy=1, *tfn = NULL;
             int32_t i, tile = -1, pal = 0,ii;
+
+            static const tokenlist skyboxtokens[] =
+            {
+                { "tile"   ,T_TILE   },
+                { "pal"    ,T_PAL    },
+                { "ft"     ,T_FRONT  },{ "front"  ,T_FRONT  },{ "forward",T_FRONT  },
+                { "rt"     ,T_RIGHT  },{ "right"  ,T_RIGHT  },
+                { "bk"     ,T_BACK   },{ "back"   ,T_BACK   },
+                { "lf"     ,T_LEFT   },{ "left"   ,T_LEFT   },{ "lt"     ,T_LEFT   },
+                { "up"     ,T_TOP    },{ "top"    ,T_TOP    },{ "ceiling",T_TOP    },{ "ceil"   ,T_TOP    },
+                { "dn"     ,T_BOTTOM },{ "bottom" ,T_BOTTOM },{ "floor"  ,T_BOTTOM },{ "down"   ,T_BOTTOM }
+            };
 
             if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend)
@@ -1467,6 +1432,15 @@ static int32_t defsparser(scriptfile *script)
             int32_t red=255, green=255, blue=255, pal=-1, flags=0;
             char *tintend;
 
+            static const tokenlist tinttokens[] =
+            {
+                { "pal",   T_PAL },
+                { "red",   T_RED   },{ "r", T_RED },
+                { "green", T_GREEN },{ "g", T_GREEN },
+                { "blue",  T_BLUE  },{ "b", T_BLUE },
+                { "flags", T_FLAGS }
+            };
+
             if (scriptfile_getbraces(script,&tintend)) break;
             while (script->textptr < tintend)
             {
@@ -1499,6 +1473,15 @@ static int32_t defsparser(scriptfile *script)
             char *texturetokptr = script->ltextptr, *textureend;
             int32_t tile=-1, token;
 
+            static const tokenlist texturetokens[] =
+            {
+                { "pal",     T_PAL  },
+                { "detail",  T_DETAIL },
+                { "glow",    T_GLOW },
+                { "specular",T_SPECULAR },
+                { "normal",  T_NORMAL },
+            };
+
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
             while (script->textptr < textureend)
@@ -1513,6 +1496,18 @@ static int32_t defsparser(scriptfile *script)
                     char *fn = NULL, *tfn = NULL;
                     double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
                     char flags = 0;
+
+                    static const tokenlist texturetokens_pal[] =
+                    {
+                        { "file",            T_FILE },{ "name", T_FILE },
+                        { "alphacut",        T_ALPHACUT },
+                        { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
+                        { "yscale",          T_YSCALE },
+                        { "specpower",       T_SPECPOWER }, { "parallaxscale", T_SPECPOWER },
+                        { "specfactor",      T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
+                        { "nocompress",      T_NOCOMPRESS },
+                        { "nodownsize",      T_NODOWNSIZE },
+                    };
 
                     if (scriptfile_getsymbol(script,&pal)) break;
                     if (scriptfile_getbraces(script,&palend)) break;
@@ -1585,6 +1580,18 @@ static int32_t defsparser(scriptfile *script)
                     char *fn = NULL, *tfn = NULL;
                     double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
                     char flags = 0;
+
+                    static const tokenlist texturetokens_pal[] =
+                    {
+                        { "file",            T_FILE },{ "name", T_FILE },
+                        { "alphacut",        T_ALPHACUT },
+                        { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
+                        { "yscale",          T_YSCALE },
+                        { "specpower",       T_SPECPOWER }, { "parallaxscale", T_SPECPOWER },
+                        { "specfactor",      T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
+                        { "nocompress",      T_NOCOMPRESS },
+                        { "nodownsize",      T_NODOWNSIZE },
+                    };
 
                     if (scriptfile_getbraces(script,&detailend)) break;
                     while (script->textptr < detailend)
@@ -1767,9 +1774,15 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
 
+        case T_SOUND:
         case T_MUSIC:
         {
             char *dummy, *dummy2;
+            static const tokenlist sound_musictokens[] =
+            {
+                { "id",   T_ID  },
+                { "file", T_FILE },
+            };
 
             if (scriptfile_getbraces(script,&dummy)) break;
             while (script->textptr < dummy)
@@ -1778,26 +1791,6 @@ static int32_t defsparser(scriptfile *script)
                 {
                 case T_ID:
                     scriptfile_getstring(script,&dummy2);
-                    break;
-                case T_FILE:
-                    scriptfile_getstring(script,&dummy2);
-                    break;
-                }
-            }
-        }
-        break;
-
-        case T_SOUND:
-        {
-            char *dummy, *dummy2;
-
-            if (scriptfile_getbraces(script,&dummy)) break;
-            while (script->textptr < dummy)
-            {
-                switch (getatoken(script,sound_musictokens,sizeof(sound_musictokens)/sizeof(tokenlist)))
-                {
-                case T_ID:
-                    scriptfile_getsymbol(script,(int32_t *)&dummy2);
                     break;
                 case T_FILE:
                     scriptfile_getstring(script,&dummy2);

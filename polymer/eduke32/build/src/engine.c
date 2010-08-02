@@ -12122,9 +12122,8 @@ void hash_free(hashtable_t *t)
     t->items = 0;
 }
 
-#if 1
 // djb3 algorithm
-inline uint32_t HASH_getcode(const char *s)
+static inline uint32_t hash_getcode(const char *s)
 {
     uint32_t h = 5381;
     int32_t ch;
@@ -12134,119 +12133,66 @@ inline uint32_t HASH_getcode(const char *s)
 
     return h;
 }
-#else
-inline uint32_t HASH_getcode(const char *s)
-{
-    int32_t i=0, fact=1;
-    while (*s)
-    {
-        i+=*s;
-        i+=1<<fact;
-        s++;
-    }
-    return i;
-}
-#endif
 
-void hash_add(hashtable_t *t, const char *s, int32_t key)
+void hash_add(hashtable_t *t, const char *s, int32_t key, int32_t replace)
 {
     hashitem_t *cur, *prev=NULL;
     int32_t code;
 
-    if (!s)
-        return;
     if (t->items == NULL)
-    {
-        initprintf("hash_add(): table not initialized!\n");
-        return;
-    }
-    code = HASH_getcode(s)%t->size;
-    cur = t->items[code];
-
-    if (!cur)
-    {
-        cur=Bcalloc(1,sizeof(hashitem_t));
-        cur->string=Bstrdup(s);
-        cur->key=key;
-        cur->next=NULL;
-        t->items[code]=cur;
-        return;
-    }
-
-    do
-    {
-        if (Bstrcmp(s,cur->string)==0)
-            return;
-        prev=cur;
-        cur=cur->next;
-    }
-    while (cur);
-
-    cur=Bcalloc(1,sizeof(hashitem_t));
-    cur->string=Bstrdup(s);
-    cur->key=key;
-    cur->next=NULL;
-    prev->next=cur;
-}
-
-void hash_replace(hashtable_t *t, const char *s, int32_t key)
-{
-    hashitem_t *cur, *prev=NULL;
-    int32_t code;
-
-    if (t->items==NULL)
     {
         initprintf("hash_replace(): table not initialized!\n");
         return;
     }
-    code=HASH_getcode(s)%t->size;
-    cur=t->items[code];
+
+    code = hash_getcode(s) % t->size;
+    cur = t->items[code];
 
     if (!cur)
     {
-        cur=Bcalloc(1,sizeof(hashitem_t));
-        cur->string=Bstrdup(s);
-        cur->key=key;
-        cur->next=NULL;
-        t->items[code]=cur;
+        cur = (hashitem_t *)Bcalloc(1,sizeof(hashitem_t));
+        cur->string = Bstrdup(s);
+        cur->key = key;
+        cur->next = NULL;
+        t->items[code] = cur;
         return;
     }
 
     do
     {
-        if (Bstrcmp(s,cur->string)==0)
+        if (Bstrcmp(s,cur->string) == 0)
         {
-            cur->key=key;
+            if (replace) cur->key = key;
             return;
         }
-        prev=cur;
-        cur=cur->next;
+        prev = cur;
     }
-    while (cur);
+    while ((cur = cur->next));
 
-    cur=Bcalloc(1,sizeof(hashitem_t));
-    cur->string=Bstrdup(s);
-    cur->key=key;
-    cur->next=NULL;
-    prev->next=cur;
+    cur = (hashitem_t *)Bcalloc(1,sizeof(hashitem_t));
+    cur->string = Bstrdup(s);
+    cur->key = key;
+    cur->next = NULL;
+    prev->next = cur;
 }
 
 int32_t hash_find(hashtable_t *t, const char *s)
 {
     hashitem_t *cur;
 
-    if (t->items==NULL)
+    if (t->items == NULL)
     {
         initprintf("hash_find(): table not initialized!\n");
         return -1;
     }
-    cur=t->items[HASH_getcode(s)%t->size];
-    while (cur)
-    {
+
+    if ((cur = t->items[hash_getcode(s) % t->size]) == NULL) return -1;
+    
+    do
         if (Bstrcmp(s,cur->string) == 0)
             return cur->key;
-        cur=cur->next;
-    }
+    while ((cur = cur->next));
+
     return -1;
 }
 
@@ -12254,18 +12200,19 @@ int32_t hash_findcase(hashtable_t *t, const char *s)
 {
     hashitem_t *cur;
 
-    if (t->items==NULL)
+    if (t->items == NULL)
     {
         initprintf("hash_findcase(): table not initialized!\n");
         return -1;
     }
-    cur=t->items[HASH_getcode(s)%t->size];
-    while (cur)
-    {
+
+    if ((cur=t->items[hash_getcode(s)%t->size]) == NULL) return -1;
+
+    do
         if (Bstrcasecmp(s,cur->string) == 0)
             return cur->key;
-        cur=cur->next;
-    }
+    while ((cur=cur->next));
+
     return -1;
 }
 

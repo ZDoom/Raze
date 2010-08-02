@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
+#include "gamevars.h"
 #include "gamedef.h"
 #include "osd.h"
 
@@ -127,7 +128,7 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         if (kdfread(&(aGameVars[i]),sizeof(gamevar_t),1,fil) != 1) goto corrupt;
         aGameVars[i].szLabel=Bcalloc(MAXVARLABEL,sizeof(uint8_t));
         if (kdfread(aGameVars[i].szLabel,sizeof(uint8_t) * MAXVARLABEL, 1, fil) != 1) goto corrupt;
-        hash_replace(&h_gamevars,aGameVars[i].szLabel,i);
+        hash_add(&h_gamevars, aGameVars[i].szLabel,i, 1);
 
         if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
         {
@@ -155,7 +156,7 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         if (kdfread(&(aGameArrays[i]),sizeof(gamearray_t),1,fil) != 1) goto corrupt;
         aGameArrays[i].szLabel=Bcalloc(MAXARRAYLABEL,sizeof(uint8_t));
         if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
-        hash_replace(&h_arrays,aGameArrays[i].szLabel,i);
+        hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
 
         aGameArrays[i].plValues=Bcalloc(aGameArrays[i].size,sizeof(intptr_t));
         if (kdfread(aGameArrays[i].plValues,sizeof(intptr_t) * aGameArrays[i].size, 1, fil) < 1) goto corrupt;
@@ -342,11 +343,11 @@ void Gv_DumpValues(void)
         OSD_Printf("gamevar %s ",aGameVars[i].szLabel);
 
         if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR))
-            OSD_Printf("%d",*((int32_t*)aGameVars[i].val.lValue));
+            OSD_Printf("%d",*((int32_t *)aGameVars[i].val.lValue));
         else if (aGameVars[i].dwFlags & (GAMEVAR_SHORTPTR))
-            OSD_Printf("%d",*((int16_t*)aGameVars[i].val.lValue));
+            OSD_Printf("%d",*((int16_t *)aGameVars[i].val.lValue));
         else if (aGameVars[i].dwFlags & (GAMEVAR_CHARPTR))
-            OSD_Printf("%d",*((char*)aGameVars[i].val.lValue));
+            OSD_Printf("%d",*((char *)aGameVars[i].val.lValue));
         else
             OSD_Printf("%" PRIdPTR "",aGameVars[i].val.lValue);
 
@@ -382,8 +383,8 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
     {
         if (aGameVars[i].szLabel != NULL)
             Gv_NewVar(aGameVars[i].szLabel,
-            aGameVars[i].dwFlags & GAMEVAR_NODEFAULT ? aGameVars[i].val.lValue : aGameVars[i].lDefault,
-            aGameVars[i].dwFlags);
+                      aGameVars[i].dwFlags & GAMEVAR_NODEFAULT ? aGameVars[i].val.lValue : aGameVars[i].lDefault,
+                      aGameVars[i].dwFlags);
     }
 
     for (i=0; i<MAXGAMEARRAYS; i++)
@@ -431,7 +432,7 @@ int32_t Gv_NewArray(const char *pszLabel, int32_t asize)
     aGameArrays[i].size=asize;
     aGameArrays[i].bReset=0;
     g_gameArrayCount++;
-    hash_replace(&h_arrays,aGameArrays[i].szLabel,i);
+    hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
     return 1;
 }
 
@@ -508,7 +509,7 @@ int32_t Gv_NewVar(const char *pszLabel, int32_t lValue, uint32_t dwFlags)
     if (i == g_gameVarCount)
     {
         // we're adding a new one.
-        hash_add(&h_gamevars, aGameVars[i].szLabel, g_gameVarCount++);
+        hash_add(&h_gamevars, aGameVars[i].szLabel, g_gameVarCount++, 0);
     }
 
     if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
@@ -640,11 +641,11 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
             if (iActor < 0 || iActor >= MAXSPRITES) goto bad_id;
             return ((aGameVars[id].val.plValues[iActor] ^ -negateResult) + negateResult);
         case GAMEVAR_INTPTR:
-            return (((*((int32_t*)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
+            return (((*((int32_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
         case GAMEVAR_SHORTPTR:
-            return (((*((int16_t*)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
+            return (((*((int16_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
         case GAMEVAR_CHARPTR:
-            return (((*((char*)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
+            return (((*((char *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
         }
     }
 bad_id:
@@ -675,29 +676,29 @@ void __fastcall Gv_SetVar(register int32_t id, register int32_t lValue, register
         aGameVars[id].val.plValues[iActor]=lValue;
         return;
     case GAMEVAR_INTPTR:
-        *((int32_t*)aGameVars[id].val.lValue)=(int32_t)lValue;
+        *((int32_t *)aGameVars[id].val.lValue)=(int32_t)lValue;
         return;
     case GAMEVAR_SHORTPTR:
-        *((int16_t*)aGameVars[id].val.lValue)=(int16_t)lValue;
+        *((int16_t *)aGameVars[id].val.lValue)=(int16_t)lValue;
         return;
     case GAMEVAR_CHARPTR:
-        *((uint8_t*)aGameVars[id].val.lValue)=(uint8_t)lValue;
+        *((uint8_t *)aGameVars[id].val.lValue)=(uint8_t)lValue;
         return;
     }
 
 badvarid:
     OSD_Printf(CON_ERROR "Gv_SetVar(): invalid gamevar (%d) from sprite %d (%d), player %d\n",
-        g_errorLineNum,keyw[g_tw],id,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
+               g_errorLineNum,keyw[g_tw],id,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
     return;
 
 badplayer:
     OSD_Printf(CON_ERROR "Gv_SetVar(): invalid player (%d) for gamevar %s from sprite %d, player %d\n",
-        g_errorLineNum,keyw[g_tw],iPlayer,aGameVars[id].szLabel,vm.g_i,vm.g_p);
+               g_errorLineNum,keyw[g_tw],iPlayer,aGameVars[id].szLabel,vm.g_i,vm.g_p);
     return;
 
 badactor:
     OSD_Printf(CON_ERROR "Gv_SetVar(): invalid actor (%d) for gamevar %s from sprite %d (%d), player %d\n",
-        g_errorLineNum,keyw[g_tw],iActor,aGameVars[id].szLabel,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
+               g_errorLineNum,keyw[g_tw],iActor,aGameVars[id].szLabel,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
     return;
 }
 
@@ -786,11 +787,11 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
         case GAMEVAR_PERACTOR:
             return ((aGameVars[id].val.plValues[vm.g_i] ^ -negateResult) + negateResult);
         case GAMEVAR_INTPTR:
-            return (((*((int32_t*)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
+            return (((*((int32_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
         case GAMEVAR_SHORTPTR:
-            return (((*((int16_t*)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
+            return (((*((int16_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
         case GAMEVAR_CHARPTR:
-            return (((*((uint8_t*)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
+            return (((*((uint8_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
         }
     }
 }
@@ -812,24 +813,24 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
         aGameVars[id].val.plValues[vm.g_i]=lValue;
         return;
     case GAMEVAR_INTPTR:
-        *((int32_t*)aGameVars[id].val.lValue)=(int32_t)lValue;
+        *((int32_t *)aGameVars[id].val.lValue)=(int32_t)lValue;
         return;
     case GAMEVAR_SHORTPTR:
-        *((int16_t*)aGameVars[id].val.lValue)=(int16_t)lValue;
+        *((int16_t *)aGameVars[id].val.lValue)=(int16_t)lValue;
         return;
     case GAMEVAR_CHARPTR:
-        *((uint8_t*)aGameVars[id].val.lValue)=(uint8_t)lValue;
+        *((uint8_t *)aGameVars[id].val.lValue)=(uint8_t)lValue;
         return;
     }
 
 badplayer:
     OSD_Printf(CON_ERROR "Gv_SetVar(): invalid player (%d) for gamevar %s\n",
-        g_errorLineNum,keyw[g_tw],vm.g_p,aGameVars[id].szLabel);
+               g_errorLineNum,keyw[g_tw],vm.g_p,aGameVars[id].szLabel);
     return;
 
 badactor:
     OSD_Printf(CON_ERROR "Gv_SetVar(): invalid actor (%d) for gamevar %s\n",
-        g_errorLineNum,keyw[g_tw],vm.g_i,aGameVars[id].szLabel);
+               g_errorLineNum,keyw[g_tw],vm.g_i,aGameVars[id].szLabel);
     return;
 }
 

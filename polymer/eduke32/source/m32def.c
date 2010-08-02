@@ -121,7 +121,7 @@ static const char *C_GetLabelType(int32_t type)
     char x[64];
 
     x[0] = 0;
-    for (i=0; i<sizeof(LabelTypeText)/sizeof(char*); i++)
+    for (i=0; i<sizeof(LabelTypeText)/sizeof(char *); i++)
     {
         if (!(type & (1<<i))) continue;
         if (x[0]) Bstrcat(x, " or ");
@@ -525,27 +525,27 @@ static void C_InitHashes()
 
     hash_init(&h_keywords);
     for (i=NUMKEYWORDS-1; i>=0; i--)
-        hash_add(&h_keywords, keyw[i], i);
+        hash_add(&h_keywords, keyw[i], i, 0);
     for (i=0; i<NUMALTKEYWORDS; i++)
-        hash_add(&h_keywords, altkeyw[i].token, altkeyw[i].val);
+        hash_add(&h_keywords, altkeyw[i].token, altkeyw[i].val, 0);
 
     hash_init(&h_sector);
     for (i=0; SectorLabels[i].lId >=0; i++)
-        hash_add(&h_sector,SectorLabels[i].name,i);
-    hash_add(&h_sector,"filler", SECTOR_ALIGNTO);
+        hash_add(&h_sector,SectorLabels[i].name,i, 0);
+    hash_add(&h_sector,"filler", SECTOR_ALIGNTO, 0);
 
     hash_init(&h_wall);
     for (i=0; WallLabels[i].lId >=0; i++)
-        hash_add(&h_wall,WallLabels[i].name,i);
+        hash_add(&h_wall,WallLabels[i].name,i, 0);
 
     hash_init(&h_sprite);
     for (i=0; SpriteLabels[i].lId >=0; i++)
-        hash_add(&h_sprite,SpriteLabels[i].name,i);
-    hash_add(&h_sprite,"filler", SPRITE_DETAIL);
+        hash_add(&h_sprite,SpriteLabels[i].name,i, 0);
+    hash_add(&h_sprite,"filler", SPRITE_DETAIL, 0);
 
     hash_init(&h_iter);
     for (i=0; iter_tokens[i].val >=0; i++)
-        hash_add(&h_iter, iter_tokens[i].token, iter_tokens[i].val);
+        hash_add(&h_iter, iter_tokens[i].token, iter_tokens[i].val, 0);
 }
 
 static int32_t C_SetScriptSize(int32_t size)
@@ -603,7 +603,7 @@ static inline int32_t ispecial(char c)
 static inline int32_t isaltok(char c)
 {
     return isalnum(c) || c == '#' || c == '{' || c == '}' || c == '/' || c == '\\' ||
-                         c == '*' || c == '-' || c == '_' || c == '.';
+           c == '*' || c == '-' || c == '_' || c == '.';
 }
 
 static int32_t C_SkipComments(void)
@@ -924,7 +924,7 @@ static void C_GetNextVarType(int32_t type)
         }
     }
     else if (type != GAMEVAR_SPECIAL &&
-                 (textptr[0]=='.' || (textptr[0]=='-' && textptr[1]=='.')))
+             (textptr[0]=='.' || (textptr[0]=='-' && textptr[1]=='.')))
     {
         int32_t lLabelID = -1, aridx = M32_THISACTOR_VAR_ID;
 
@@ -1430,7 +1430,7 @@ static int32_t C_ParseCommand(void)
             // printf("Defining Definition '%s' to be '%d'\n",label+(g_numLabels*MAXLABELLEN),*(g_scriptPtr-1));
 //            Bmemcpy(label+(g_numLabels*MAXLABELLEN), tlabel, MAXLABELLEN);
             C_CopyLabel();
-            hash_add(&h_labels, label+(g_numLabels*MAXLABELLEN), g_numLabels);
+            hash_add(&h_labels, label+(g_numLabels*MAXLABELLEN), g_numLabels, 0);
             labeltype[g_numLabels] = LABEL_DEFINE;
             labelval[g_numLabels++] = *(g_scriptPtr-1);
         }
@@ -1576,7 +1576,7 @@ static int32_t C_ParseCommand(void)
 
                 Bmemcpy(statesinfo[j].name, tlabel, MAXLABELLEN);
                 Bsprintf(g_szCurrentBlockName, "%s", tlabel);
-                hash_add(&h_states, tlabel, j);
+                hash_add(&h_states, tlabel, j, 0);
             }
 
             return 0;
@@ -3162,7 +3162,7 @@ repeatcase:
 static void C_AddDefinition(const char *lLabel,int32_t lValue, uint8_t lType)
 {
     Bstrcpy(label+(g_numLabels*MAXLABELLEN), lLabel);
-    hash_add(&h_labels, label+(g_numLabels*MAXLABELLEN), g_numLabels);
+    hash_add(&h_labels, label+(g_numLabels*MAXLABELLEN), g_numLabels, 0);
     labeltype[g_numLabels] = lType;
     labelval[g_numLabels++] = lValue;
     g_numDefaultLabels++;
@@ -3333,7 +3333,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
     int32_t i,j;
     int32_t fs,fp;
     int32_t startcompiletime;
-    instype* oscriptPtr;
+    instype *oscriptPtr;
     int32_t ostateCount = g_stateCount;
 
     interactive_compilation = !isfilename;

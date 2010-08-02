@@ -1,35 +1,35 @@
--SECTOR EFFECTOR HELP-
+-Sector Effector Help-
 
- 0  : ROTATED SECTOR
- 1  : PIVOT SPRITE FOR SE 0
- 2  : EARTHQUAKE
- 3  : RANDOM LIGHTS AFTER SHOT OUT
- 4  : RANDOM LIGHTS
- 6  : SUBWAY
- 7  : TRANSPORT (UNDERWATER ST 1 or 2)
- 8  : UP OPEN DOOR LIGHTS
- 9  : DOWN OPEN DOOR LIGHTS
- 10 : DOOR AUTO CLOSE (H=DELAY)
- 11 : ROTATE SECTOR DOOR
- 12 : LIGHT SWITCH
- 13 : C-9 EXPLOSIVE
- 14 : SUBWAY CAR
- 15 : SLIDE DOOR (ST 25)
- 16 : ROTATE REACTOR SECTOR
- 17 : ELEVATOR TRANSPORT (ST 15)
- 18 : INCREMENTAL SECTOR RISE/FALL
- 19 : SHOT TOUCHPLATE CIELING DOWN
- 20 : BRIDGE (ST 27)
- 21 : DROP FLOOR (ST 28)
- 22 : PRONG (ST 29)
- 23 : TRANSPORT DESTINATION (H=SE 7)
- 24 : CONVAIRBELT
- 25 : ENGINE
- 28 : LIGHTNING (H= TILE#4890)
- 27 : CAMERA FOR PLAYBACK
- 29 : FLOAT
- 30 : 2 WAY TRAIN (ST=31)
- 31 : FLOOR RISE
- 32 : CEILING FALL
- 33 : SPAWN JIB W/QUAKE
- 36 : SKRINK RAY SHOOTER
+ 0  : Rotating Sector
+ 1  : Pivot Sprite for SE 0
+ 2  : Earthquake
+ 3  : Random Lights After Shot Out
+ 4  : Random Lights
+ 6  : Subway
+ 7  : Teleporter
+ 8  : Up Open Door Lights
+ 9  : Down Open Door Lights
+ 10 : Door Auto Close (Hitag = Delay)
+ 11 : Rotate Sector Door
+ 12 : Light Switch
+ 13 : C-9 Explosive
+ 14 : Subway Car
+ 15 : Slide Door (ST 25)
+ 16 : Rotate Reactor Sector
+ 17 : Elevator Transport (ST 15)
+ 18 : Incremental Sector Rise/Fall
+ 19 : Explosion Lowers Ceiling
+ 20 : Stretch (ST 27)
+ 21 : Drop Floor (ST 28)
+ 22 : Teeth Door Prong (ST 29)
+ 23 : One-Way Teleporter Destination
+ 24 : Conveyor Belt or Water Current
+ 25 : Engine Piston
+ 27 : Demo Camera
+ 28 : Lightning
+ 29 : Float (for Waves)
+ 30 : Two-Way Train (ST 31)
+ 31 : Floor Rise/Fall
+ 32 : Ceiling Rise/Fall
+ 33 : Earthquake Debris
+ 36 : Projectile Shooter

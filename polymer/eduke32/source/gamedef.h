@@ -27,6 +27,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2
 
+extern hashtable_t h_gamevars;
+extern hashtable_t h_arrays;
+extern hashtable_t h_keywords;
+extern hashtable_t h_gamefuncs;
+extern hashtable_t h_labels;
+
+
 extern int32_t g_iReturnVarID;      // var ID of "RETURN"
 extern int32_t g_iWeaponVarID;      // var ID of "WEAPON"
 extern int32_t g_iWorksLikeVarID;   // var ID of "WORKSLIKE"
@@ -60,7 +67,9 @@ extern int32_t lastvisinc;
 extern char CheatStrings[][MAXCHEATLEN];
 extern char g_szScriptFileName[BMAX_PATH];
 extern int32_t g_totalLines,g_lineNumber;
-extern int32_t g_numCompilerErrors,g_numCompilerWarnings;
+extern int32_t g_numCompilerErrors,g_numCompilerWarnings,g_numQuoteRedefinitions;
+extern int32_t g_scriptVersion;
+extern char g_szBuf[1024];
 
 extern intptr_t *g_scriptPtr;
 
@@ -80,6 +89,9 @@ extern const memberlabel_t ProjectileLabels[];
 extern const memberlabel_t userdeflabels[];
 extern const memberlabel_t InputLabels[];
 extern const memberlabel_t TsprLabels[];
+
+void C_ReportError(int32_t iError);
+void C_Compile(const char *filenam);
 
 /*
 extern void VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t lVar2);

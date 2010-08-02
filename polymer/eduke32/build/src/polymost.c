@@ -1282,7 +1282,7 @@ static int32_t LoadCacheOffsets(void)
             curcacheindex->offset = foffset;
             curcacheindex->len = fsize;
             curcacheindex->next = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
-            hash_replace(&h_texcache, Bstrdup(fname), numcacheentries);
+            hash_add(&h_texcache, Bstrdup(fname), numcacheentries, 1);
             cacheptrs[numcacheentries++] = curcacheindex;
             curcacheindex = curcacheindex->next;
         }
@@ -1515,7 +1515,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
             }
             else OSD_Printf("wtf?\n");
 
-            hash_add(&h_texcache, Bstrdup(cachefn), numcacheentries);
+            hash_add(&h_texcache, Bstrdup(cachefn), numcacheentries, 0);
             cacheptrs[numcacheentries++] = curcacheindex;
             curcacheindex = curcacheindex->next;
         }

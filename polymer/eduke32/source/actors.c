@@ -21,8 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
+#include "actors.h"
 #include "gamedef.h"
-#include "compat.h"
+#include "gameexec.h"
 
 #if KRANDDEBUG
 # define ACTOR_INLINE
@@ -95,9 +96,7 @@ inline void G_RestoreInterpolations(void)  //Stick at end of drawscreen
     int32_t i=g_numInterpolations-1;
 
     if (--g_interpolationLock)
-    {
         return;
-    }
 
     for (; i>=0; i--) *curipos[i] = bakipos[i];
 }
@@ -663,7 +662,7 @@ static void A_MoveSector(int32_t i)
 #define LIGHTRAD (s->yrepeat * tilesizy[s->picnum+(T5?(*(intptr_t *)T5) + *(((intptr_t *)T5)+2) * T4:0)])
 #define LIGHTRAD2 (((s->yrepeat) + (rand()%(s->yrepeat>>2))) * tilesizy[s->picnum+(T5?(*(intptr_t *)T5) + *(((intptr_t *)T5)+2) * T4:0)])
 
-inline void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority)
+void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority)
 {
 #ifdef POLYMER
     spritetype *s = &sprite[srcsprite];
@@ -1338,7 +1337,7 @@ ACTOR_STATIC void G_MoveFallers(void)
                         x = g_spriteGravity;
                 }
 
-                if (s->z < (sector[sect].floorz-FOURSLEIGHT))
+                if (s->z < (sector[sect].floorz-ZOFFSET))
                 {
                     s->zvel += x;
                     if (s->zvel > 6144)
@@ -1696,7 +1695,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 s->ang = l;
             }
 
-            switch(T1)
+            switch (T1)
             {
             default:
                 p = A_FindPlayer(s,&x);
@@ -3224,7 +3223,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                         if (sprite[g_player[p].ps->i].extra > 0)
                             A_PlaySound(DUKE_UNDERWATER,j);
                         g_player[p].ps->opos.z = g_player[p].ps->pos.z =
-                                                    sector[sprite[OW].sectnum].ceilingz;
+                                                     sector[sprite[OW].sectnum].ceilingz;
 
                         /*
                                                 g_player[p].ps->posvel.x = 4096-(krand()&8192);
@@ -3246,7 +3245,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                         A_PlaySound(DUKE_GASP,j);
 
                         g_player[p].ps->opos.z = g_player[p].ps->pos.z =
-                                                    sector[sprite[OW].sectnum].floorz;
+                                                     sector[sprite[OW].sectnum].floorz;
 
                         g_player[p].ps->jumping_toggle = 1;
                         g_player[p].ps->jumping_counter = 0;
@@ -3732,27 +3731,27 @@ ACTOR_STATIC void G_MoveActors(void)
                 s->z = sector[sect].ceilingz+(32<<8);
 
 #ifdef POLYMER
-/*
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z + 10248;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
+            /*
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z + 10248;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = s->ang;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = s->ang;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = 255;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = 255;
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = 255;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = 255;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = 255;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = 255;
 
-            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
+                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
 
-            if (gamelightcount < PR_MAXLIGHTS)
-                gamelightcount++;
-*/
+                        if (gamelightcount < PR_MAXLIGHTS)
+                            gamelightcount++;
+            */
 #endif // POLYMER
 
             if (!g_netServer && ud.multimode < 2)
@@ -4390,7 +4389,7 @@ ACTOR_STATIC void G_MoveActors(void)
             {
                 A_Fall(i);
 
-                if ((sector[sect].lotag != 1 || actor[i].floorz != sector[sect].floorz) && s->z >= actor[i].floorz-(FOURSLEIGHT) && s->yvel < 3)
+                if ((sector[sect].lotag != 1 || actor[i].floorz != sector[sect].floorz) && s->z >= actor[i].floorz-(ZOFFSET) && s->yvel < 3)
                 {
                     if (s->yvel > 0 || (s->yvel == 0 && actor[i].floorz == sector[sect].floorz))
                         A_PlaySound(PIPEBOMB_BOUNCE,i);
@@ -5163,7 +5162,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 
                 p = A_FindPlayer(s,&x);
 
-                s->z = actor[i].floorz-(FOURSLEIGHT);
+                s->z = actor[i].floorz-(ZOFFSET);
 
                 if (t[2] < 32)
                 {
@@ -5292,7 +5291,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 if (s->zvel > 4096) s->zvel = 4096;
                 if (sect < 0) KILLIT(i);
 
-                if (s->z == actor[i].floorz-(FOURSLEIGHT) && t[0] < 3)
+                if (s->z == actor[i].floorz-(ZOFFSET) && t[0] < 3)
                 {
                     s->zvel = -((3-t[0])<<8)-(krand()&511);
                     if (sector[sect].lotag == 2)
@@ -8005,8 +8004,8 @@ void G_MoveWorld(void)
                         {
                             int32_t x, y;
 
-                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || 
-                                !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
+                                    !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
                             {
                                 if (actor[i].lightptr != NULL)
                                 {
@@ -8078,33 +8077,33 @@ void G_MoveWorld(void)
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD, 80+(80<<8)+(255<<16),PR_LIGHT_PRIO_LOW_GAME);
                             break;
                         case GROWSPARK__STATIC:
-                            {
-                                int32_t x = ((sintable[(s->ang+512)&2047])>>6);
-                                int32_t y = ((sintable[(s->ang)&2047])>>6);
+                        {
+                            int32_t x = ((sintable[(s->ang+512)&2047])>>6);
+                            int32_t y = ((sintable[(s->ang)&2047])>>6);
 
-                                s->x -= x;
-                                s->y -= y;
+                            s->x -= x;
+                            s->y -= y;
 
-                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
 
-                                s->x += x;
-                                s->y += y;
-                            }
-                            break;
+                            s->x += x;
+                            s->y += y;
+                        }
+                        break;
                         case SHRINKEREXPLOSION__STATIC:
-                            {
-                                int32_t x = ((sintable[(s->ang+512)&2047])>>6);
-                                int32_t y = ((sintable[(s->ang)&2047])>>6);
+                        {
+                            int32_t x = ((sintable[(s->ang+512)&2047])>>6);
+                            int32_t y = ((sintable[(s->ang)&2047])>>6);
 
-                                s->x -= x;
-                                s->y -= y;
+                            s->x -= x;
+                            s->y -= y;
 
-                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
 
-                                s->x += x;
-                                s->y += y;
-                            }
-                            break;
+                            s->x += x;
+                            s->y += y;
+                        }
+                        break;
                         case FREEZEBLAST__STATIC:
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
                             break;
@@ -8154,8 +8153,8 @@ void G_MoveWorld(void)
                         {
                             int32_t x, y;
 
-                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) || 
-                                !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
+                                    !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
                             {
                                 if (actor[i].lightptr != NULL)
                                 {

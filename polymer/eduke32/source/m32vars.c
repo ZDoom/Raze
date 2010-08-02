@@ -120,7 +120,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     aGameArrays[i].dwFlags = dwFlags & ~GAMEARRAY_RESET;
 
     g_gameArrayCount++;
-    hash_replace(&h_arrays, aGameArrays[i].szLabel, i);
+    hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
     return 1;
 }
 
@@ -191,7 +191,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     if (i == g_gameVarCount)
     {
         // we're adding a new one.
-        hash_add(&h_gamevars, aGameVars[i].szLabel, g_gameVarCount++);
+        hash_add(&h_gamevars, aGameVars[i].szLabel, g_gameVarCount++, 0);
     }
 
     if (aGameVars[i].dwFlags & GAMEVAR_PERBLOCK)
@@ -229,11 +229,11 @@ int32_t __fastcall Gv_GetVarN(register int32_t id)  // 'N' for "no side-effects"
         return aGameVars[id].val.plValues[vm.g_st];
     case GAMEVAR_FLOATPTR:
     case GAMEVAR_INTPTR:
-        return *((int32_t*)aGameVars[id].val.lValue);
+        return *((int32_t *)aGameVars[id].val.lValue);
     case GAMEVAR_SHORTPTR:
-        return *((int16_t*)aGameVars[id].val.lValue);
+        return *((int16_t *)aGameVars[id].val.lValue);
     case GAMEVAR_CHARPTR:
-        return *((uint8_t*)aGameVars[id].val.lValue);
+        return *((uint8_t *)aGameVars[id].val.lValue);
     default:
         M32_PRINTERROR("Gv_GetVarN(): WTF??");
         vm.flags |= VMFLAG_ERROR;
@@ -353,15 +353,15 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
         case GAMEVAR_FLOATPTR:
             if (negateResult)
             {
-                float fval = -(*(float*)aGameVars[id].val.lValue);
+                float fval = -(*(float *)aGameVars[id].val.lValue);
                 return *(int32_t *)&fval;
             }
         case GAMEVAR_INTPTR:
-            return ((*((int32_t*)aGameVars[id].val.lValue) ^ -negateResult) + negateResult);
+            return ((*((int32_t *)aGameVars[id].val.lValue) ^ -negateResult) + negateResult);
         case GAMEVAR_SHORTPTR:
-            return ((*((int16_t*)aGameVars[id].val.lValue) ^ -negateResult) + negateResult);
+            return ((*((int16_t *)aGameVars[id].val.lValue) ^ -negateResult) + negateResult);
         case GAMEVAR_CHARPTR:
-            return ((*((uint8_t*)aGameVars[id].val.lValue) ^ -negateResult) + negateResult);
+            return ((*((uint8_t *)aGameVars[id].val.lValue) ^ -negateResult) + negateResult);
         default:
             M32_PRINTERROR("Gv_GetVarX(): WTF??");
             vm.flags |= VMFLAG_ERROR;
@@ -473,13 +473,13 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
         }
     }
     case GAMEVAR_INTPTR:
-        *((int32_t*)aGameVars[id].val.lValue)=(int32_t)lValue;
+        *((int32_t *)aGameVars[id].val.lValue)=(int32_t)lValue;
         return;
     case GAMEVAR_SHORTPTR:
-        *((int16_t*)aGameVars[id].val.lValue)=(int16_t)lValue;
+        *((int16_t *)aGameVars[id].val.lValue)=(int16_t)lValue;
         return;
     case GAMEVAR_CHARPTR:
-        *((uint8_t*)aGameVars[id].val.lValue)=(uint8_t)lValue;
+        *((uint8_t *)aGameVars[id].val.lValue)=(uint8_t)lValue;
         return;
     default:
         M32_PRINTERROR("Gv_SetVarX(): WTF??");

@@ -21,6 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
+#include "gamedef.h"
+#include "premap.h"
+#include "menus.h"
 #include "prlights.h"
 
 extern char *bitptr;
@@ -134,31 +137,8 @@ int32_t G_LoadPlayer(int32_t spot)
     strcpy(fn, "egam0.sav");
     strcpy(mpfn, "egamA_00.sav");
 
-    if (spot < 0)
-    {
-        multiflag = 1;
-        multiwhat = 0;
-        multipos = -spot-1;
-        return -1;
-    }
-
-    if (multiflag == 2 && multiwho != myconnectindex)
-    {
-        fnptr = mpfn;
-        mpfn[4] = spot + 'A';
-
-        if (ud.multimode > 9)
-        {
-            mpfn[6] = (multiwho/10) + '0';
-            mpfn[7] = (multiwho%10) + '0';
-        }
-        else mpfn[7] = multiwho + '0';
-    }
-    else
-    {
-        fnptr = fn;
-        fn[4] = spot + '0';
-    }
+    fnptr = fn;
+    fn[4] = spot + '0';
 
     if ((fil = kopen4loadfrommod(fnptr,0)) == -1) return(-1);
 
@@ -341,7 +321,7 @@ int32_t G_LoadPlayer(int32_t spot)
     scriptptrs = Brealloc(scriptptrs, MAXSPRITES * sizeof(scriptptrs));
 
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-    if (kdfread(&actor[0],sizeof(ActorData_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
+    if (kdfread(&actor[0],sizeof(actor_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
     for (i=0; i<MAXSPRITES; i++)
     {
@@ -359,7 +339,7 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&g_animateCount,sizeof(g_animateCount),1,fil) != 1) goto corrupt;
     if (kdfread(&animatesect[0],sizeof(animatesect[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
     if (kdfread(&animateptr[0],sizeof(animateptr[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
-    for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t*)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+    for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
     if (kdfread(&animategoal[0],sizeof(animategoal[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
     if (kdfread(&animatevel[0],sizeof(animatevel[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
 
@@ -650,33 +630,10 @@ int32_t G_SavePlayer(int32_t spot)
     strcpy(fn, "egam0.sav");
     strcpy(mpfn, "egamA_00.sav");
 
-    if (spot < 0)
-    {
-        multiflag = 1;
-        multiwhat = 1;
-        multipos = -spot-1;
-        return -1;
-    }
-
     Net_WaitForServer();
 
-    if (multiflag == 2 && multiwho != myconnectindex)
-    {
-        fnptr = mpfn;
-        mpfn[4] = spot + 'A';
-
-        if (ud.multimode > 9)
-        {
-            mpfn[6] = (multiwho/10) + '0';
-            mpfn[7] = multiwho + '0';
-        }
-        else mpfn[7] = multiwho + '0';
-    }
-    else
-    {
-        fnptr = fn;
-        fn[4] = spot + '0';
-    }
+    fnptr = fn;
+    fn[4] = spot + '0';
 
     {
         char temp[BMAX_PATH];
@@ -705,7 +662,7 @@ int32_t G_SavePlayer(int32_t spot)
     {
         walock[TILE_SAVESHOT] = 254;
         allocache(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
-        clearbuf((void*)waloff[TILE_SAVESHOT],(200*320)/4,0);
+        clearbuf((void *)waloff[TILE_SAVESHOT],(200*320)/4,0);
         walock[TILE_SAVESHOT] = 1;
     }
     dfwrite((char *)waloff[TILE_SAVESHOT],320,200,fil);
@@ -847,7 +804,7 @@ int32_t G_SavePlayer(int32_t spot)
     }
 
     dfwrite(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil);
-    dfwrite(&actor[0],sizeof(ActorData_t),MAXSPRITES,fil);
+    dfwrite(&actor[0],sizeof(actor_t),MAXSPRITES,fil);
 
     for (i=0; i<MAXSPRITES; i++)
     {
@@ -1012,7 +969,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
         if (sp->flags&(DS_SAVEFN|DS_LOADFN))
         {
             if (sp->flags&DS_SAVEFN)
-                (*(void (*)(void))sp->ptr)();
+                (*(void ( *)(void))sp->ptr)();
             continue;
         }
 
@@ -1030,7 +987,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
 
         if (fil)
         {
-            if (((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=(int32_t)savegame_comprthres)
+            if (((sp->flags&DS_CNTMASK)==0 && sp->size *cnt<=(int32_t)savegame_comprthres)
                     || (sp->flags&DS_CMP))
                 fwrite(ptr, sp->size, cnt, fil);
             else
@@ -1066,7 +1023,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
         if (sp->flags&(DS_LOADFN|DS_SAVEFN))
         {
             if (sp->flags&DS_LOADFN)
-                (*(void (*)())sp->ptr)();
+                (*(void ( *)())sp->ptr)();
             continue;
         }
 
@@ -1098,7 +1055,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
         {
             mem = (dump && (sp->flags&DS_NOCHK)==0) ? dump : ptr;
 
-            if ((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=(int32_t)savegame_comprthres)
+            if ((sp->flags&DS_CNTMASK)==0 && sp->size *cnt<=(int32_t)savegame_comprthres)
             {
                 i = kread(fil, mem, cnt*sp->size);
                 j = cnt*sp->size;
@@ -1112,7 +1069,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
             {
                 OSD_Printf("rsd: spec=%p, sp=%p, mem=%p ", spec, sp, mem);
                 OSD_Printf("rsd: %s: read %d, expected %d!\n",
-                           ((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=(int32_t)savegame_comprthres)?
+                           ((sp->flags&DS_CNTMASK)==0 && sp->size *cnt<=(int32_t)savegame_comprthres)?
                            "UNCOMP":"COMPR", i, j);
 
                 if (i==-1)
@@ -1238,7 +1195,7 @@ static void cmpspecdata(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **dif
 
         if (sp->flags&(DS_LOADFN|DS_SAVEFN))
         {
-            (*(void (*)())sp->ptr)();
+            (*(void ( *)())sp->ptr)();
             continue;
         }
 
@@ -1506,7 +1463,7 @@ static const dataspec_t svgm_script[] =
 
     { DS_SAVEFN, (void *)&sv_preactordatasave, 0, 1 },
     { 0, &savegame_bitmap, sizeof(savegame_bitmap), 1 },
-    { 0, &actor[0], sizeof(ActorData_t), MAXSPRITES },
+    { 0, &actor[0], sizeof(actor_t), MAXSPRITES },
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postactordata, 0, 1 },
 
     { DS_END, 0, 0, 0 }
@@ -1649,7 +1606,7 @@ static int32_t doallocsnap(int32_t allocinit)
     return 0;
 }
 
-int32_t sv_saveandmakesnapshot(FILE* fil, int32_t recdiffs, int32_t diffcompress, int32_t synccompress)
+int32_t sv_saveandmakesnapshot(FILE *fil, int32_t recdiffs, int32_t diffcompress, int32_t synccompress)
 {
     uint8_t *p, tb;
     uint16_t ts;
@@ -2097,7 +2054,7 @@ static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem)
         {
             walock[TILE_SAVESHOT] = 254;
             allocache(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
-            clearbuf((void*)waloff[TILE_SAVESHOT],(200*320)/4,0);
+            clearbuf((void *)waloff[TILE_SAVESHOT],(200*320)/4,0);
             walock[TILE_SAVESHOT] = 1;
         }
         SAVEWR((char *)waloff[TILE_SAVESHOT], 320, 200);

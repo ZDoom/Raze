@@ -64,7 +64,6 @@ int32_t cachecount = 0;
 char zerochar = 0;
 intptr_t cachestart = 0;
 int32_t cacnum = 0, agecount = 0;
-typedef struct { intptr_t *hand; int32_t leng; char *lock ; } cactype;
 cactype cac[MAXCACHEOBJECTS];
 static int32_t lockrecip[200];
 

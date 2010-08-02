@@ -37,4 +37,11 @@ int32_t CONFIG_SetMapBestTime(char *mapname, int32_t tm);
 
 void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2);
 
+int32_t CONFIG_FunctionNameToNum(char *func);
+char *CONFIG_FunctionNumToName(int32_t func);
+int32_t CONFIG_AnalogNameToNum(char *func);
+char *CONFIG_AnalogNumToName(int32_t func);
+void CONFIG_SetDefaults(void);
+void CONFIG_ReadKeys(void);
+
 #endif

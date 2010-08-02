@@ -72,7 +72,7 @@ int32_t S_SoundStartup(void)
 {
     int32_t status;
     int32_t fxdevicetype;
-    void * initdata = 0;
+    void *initdata = 0;
 
     // TODO: read config
     int32_t FXVolume=220, /*NumVoices=32,*/ NumChannels=2, NumBits=16, MixRate, ReverseStereo=0;

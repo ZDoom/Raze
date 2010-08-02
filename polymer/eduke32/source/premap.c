@@ -23,6 +23,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "osd.h"
 #include "gamedef.h"
+#include "premap.h"
+#include "sounds.h"
+#include "gameexec.h"
+#include "anim.h"
+#include "menus.h"
 
 #ifdef RENDERTYPEWIN
 #define WIN32_LEAN_AND_MEAN
@@ -31,7 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern char pow2char[];
 
-extern int32_t everyothertime;
 static int32_t g_whichPalForPlayer = 9;
 int32_t g_numRealPalettes;
 int16_t SpriteCacheList[MAXTILES][3];
@@ -335,7 +339,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
 
     if (ud.recstat != 2)
     {
-                /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
+        /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
         aGameVars[g_iReturnVarID].val.lValue = LOADSCREEN;
         VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
         j = aGameVars[g_iReturnVarID].val.lValue;
@@ -868,7 +872,7 @@ static void resetprestat(int32_t snum,int32_t g)
     p->weapon_pos = 6;
 
     if ((aplWeaponWorksLike[p->curr_weapon][snum] == PISTOL_WEAPON) &&
-        (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]))
+            (aplWeaponReload[p->curr_weapon][snum] > aplWeaponTotalTime[p->curr_weapon][snum]))
         p->kickback_pic  = aplWeaponTotalTime[p->curr_weapon][snum];
     else p->kickback_pic = 0;
 
@@ -899,7 +903,7 @@ static void resetprestat(int32_t snum,int32_t g)
     startofdynamicinterpolations = 0;
 
     if (((g&MODE_EOL) != MODE_EOL && numplayers < 2 && !g_netServer) ||
-        (!(GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
+            (!(GametypeFlags[ud.coop]&GAMETYPE_PRESERVEINVENTORYDEATH) && numplayers > 1))
     {
         P_ResetWeapons(snum);
         P_ResetInventory(snum);
@@ -1551,47 +1555,6 @@ void G_ResetTimers(void)
     g_moveThingsCount = 0;
 }
 
-void Net_WaitForServer(void)
-{
-    int32_t server_ready = g_player[0].playerreadyflag;
-
-    if (numplayers < 2 || g_netServer) return;
-
-    if ((g_netServer || ud.multimode > 1))
-    {
-        P_SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);
-        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
-
-        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
-        if (PLUTOPAK)   // JBF 20030804
-            rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
-
-        gametext(160,190,"WAITING FOR SERVER",14,2);
-        nextpage();
-    }
-
-    while (1)
-    {
-        if (quitevent || keystatus[1]) G_GameExit("");
-
-        packbuf[0] = PACKET_PLAYER_READY;
-        packbuf[1] = myconnectindex;
-
-        if (g_netClientPeer)
-            enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
-
-        handleevents();
-        Net_GetPackets();
-
-        if (g_player[0].playerreadyflag > server_ready)
-        {
-            P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);
-            return;
-        }
-    }
-}
-
 void clearfifo(void)
 {
     int32_t i = 0;
@@ -1612,23 +1575,6 @@ void clearfifo(void)
         g_player[i].gotvote = 0;
     }
     //    clearbufbyte(playerquitflag,MAXPLAYERS,0x01);
-}
-
-void Net_ResetPrediction(void)
-{
-    Bmemcpy(&my, &g_player[myconnectindex].ps, sizeof(vec3_t));
-    Bmemcpy(&omy, &g_player[myconnectindex].ps, sizeof(vec3_t));
-    Bmemset(&myvel, 0, sizeof(vec3_t));
-
-    myang = omyang = g_player[myconnectindex].ps->ang;
-    myhoriz = omyhoriz = g_player[myconnectindex].ps->horiz;
-    myhorizoff = omyhorizoff = g_player[myconnectindex].ps->horizoff;
-    mycursectnum = g_player[myconnectindex].ps->cursectnum;
-    myjumpingcounter = g_player[myconnectindex].ps->jumping_counter;
-    myjumpingtoggle = g_player[myconnectindex].ps->jumping_toggle;
-    myonground = g_player[myconnectindex].ps->on_ground;
-    myhardlanding = g_player[myconnectindex].ps->hard_landing;
-    myreturntocenter = g_player[myconnectindex].ps->return_to_center;
 }
 
 extern int32_t voting, vote_map, vote_episode;
@@ -1667,16 +1613,16 @@ void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int
         }
     }
     else for (; start >= end; start += step)
-    {
-        if (KB_KeyPressed(sc_Space))
         {
-            KB_ClearKeyDown(sc_Space);
-            return;
+            if (KB_KeyPressed(sc_Space))
+            {
+                KB_ClearKeyDown(sc_Space);
+                return;
+            }
+            G_FadePalette(r,g,b,start);
+            flushperms();
+            G_DoLoadScreen(" ", -1);
         }
-        G_FadePalette(r,g,b,start);
-        flushperms();
-        G_DoLoadScreen(" ", -1);
-    }
 }
 
 int32_t G_EnterLevel(int32_t g)
@@ -1765,7 +1711,7 @@ int32_t G_EnterLevel(int32_t g)
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
             if (loadboard(boardfilename,0,&g_player[0].ps->pos.x, &g_player[0].ps->pos.y,
-                &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
+                          &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
             {
                 OSD_Printf(OSD_ERROR "Map '%s' not found!\n",boardfilename);
                 //G_GameExit(tempbuf);
@@ -1836,7 +1782,7 @@ int32_t G_EnterLevel(int32_t g)
             }
         }
         else if (loadboard(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,0,&g_player[0].ps->pos.x,
-            &g_player[0].ps->pos.y, &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
+                           &g_player[0].ps->pos.y, &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
         {
             OSD_Printf(OSD_ERROR "Map %s not found!\n",MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
             //G_GameExit(tempbuf);
@@ -1868,7 +1814,7 @@ int32_t G_EnterLevel(int32_t g)
         levname[i+1] = 0;
 
         if (loadboard(levname,1,&g_player[0].ps->pos.x, &g_player[0].ps->pos.y,
-            &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
+                      &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
         {
             OSD_Printf(OSD_ERROR "Map '%s' not found!\n",MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
             //G_GameExit(tempbuf);
@@ -1901,7 +1847,7 @@ int32_t G_EnterLevel(int32_t g)
     allignwarpelevators();
     resetpspritevars(g);
 
-    cachedebug = 0;
+    //cachedebug = 0;
     automapping = 0;
 
     G_FadeLoad(0,0,0, 63, 0, -7);
@@ -1992,7 +1938,7 @@ int32_t G_EnterLevel(int32_t g)
     Bmemcpy(&currentboardfilename[0],&boardfilename[0],BMAX_PATH);
     VM_OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
     OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,
-        MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
+               MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
     return 0;
 }
 

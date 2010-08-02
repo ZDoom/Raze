@@ -1532,7 +1532,7 @@ void inithashnames()
     int32_t i;
     hash_init(&h_names);
     for (i=0; list[i].val; i++)
-        hash_add(&h_names,list[i].s,i);
+        hash_add(&h_names,list[i].s,i,0);
 }
 
 void freehashnames()

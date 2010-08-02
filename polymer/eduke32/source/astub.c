@@ -381,7 +381,7 @@ void create_map_snapshot(void)
             {
                 int32_t i = 0;
                 spritetype *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites),
-                                    *spri = &tspri[0];
+                            *spri = &tspri[0];
                 mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
 
                 for (j=0; j<MAXSPRITES && i < numsprites; j++)
@@ -813,7 +813,8 @@ const char *SectorEffectorTagText(int32_t lotag)
 {
     static char tempbuf[64];
 
-    static const char *tags[] = {
+    static const char *tags[] =
+    {
         "ROTATED SECTOR",                // 0
         "PIVOT SPRITE FOR SE 0",
         "EARTHQUAKE",
@@ -1692,7 +1693,7 @@ ENDFOR1:
                 Bmemcpy(disptext[i], helppage[curhp]->line[j], 80);
                 printext16(8, ydim-overridepm16y+28+i*9, editorcolors[10],
                            (j==highlightline && curhp==highlighthp
-                            && totalclock-lasthighlighttime<120*5) ? 
+                            && totalclock-lasthighlighttime<120*5) ?
                            editorcolors[1] : -1,
                            disptext[i], 0);
             }
@@ -1864,7 +1865,7 @@ static void SoundDisplay()
         //        SoundToggle = 1;
 
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F2]==0
-               && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
+                && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
         {
             begindrawing();
             CLEARLINES2D(0, ydim16, 0);
@@ -2101,7 +2102,7 @@ static void M32_MoveFX(void)
             {
                 if ((g_sounds[s->lotag].m&2))
                 {
-                    x = dist((spritetype*)&pos,s);
+                    x = dist((spritetype *)&pos,s);
                     if (x < ht && (T1&1) == 0 && FX_VoiceAvailable(g_sounds[s->lotag].pr-1))
                     {
                         if (g_numEnvSoundsPlaying == NumVoices)
@@ -2109,7 +2110,7 @@ static void M32_MoveFX(void)
                             for (j = headspritestat[0]; j >= 0; j = nextspritestat[j])
                             {
                                 if (s->picnum == MUSICANDSFX && j != i && sprite[j].lotag < 999 &&
-                                    (sprite[j].filler&1) == 1 && dist(&sprite[j],(spritetype*)&pos) > x)
+                                        (sprite[j].filler&1) == 1 && dist(&sprite[j],(spritetype *)&pos) > x)
                                 {
                                     S_StopEnvSound(sprite[j].lotag,j);
                                     break;
@@ -2341,7 +2342,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
         for (j=0; j<MAXSPRITES; j++) // restore ceiling or floor for the draw both sectors
         {
             if (sprite[j].picnum==SECTOREFFECTOR &&
-                sprite[j].lotag==k+2 && sprite[j].hitag==sprite[floor1].hitag)
+                    sprite[j].lotag==k+2 && sprite[j].hitag==sprite[floor1].hitag)
             {
                 if (k==40)
                 {
@@ -3205,7 +3206,7 @@ static int32_t OnSelectTile(int32_t iTile)
     return iTile;
 }
 
-static const char * GetTilePixels(int32_t idTile)
+static const char *GetTilePixels(int32_t idTile)
 {
     char *pPixelData = 0;
 
@@ -3229,7 +3230,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     int32_t XPos, YPos;
     int32_t XOffset, YOffset;
     int32_t i;
-    const char * pRawPixels;
+    const char *pRawPixels;
     int32_t TileSizeX, TileSizeY;
     int32_t DivInc,MulInc;
     char *pScreen;
@@ -4034,8 +4035,8 @@ static void Keys3d(void)
                 break;
 
             case SEARCH_SPRITE:
-                drawtileinfo("Current", WIND1X, WIND1Y, sprite[searchwall].picnum, sprite[searchwall].shade, 
-                             sprite[searchwall].pal, sprite[searchwall].cstat, sprite[searchwall].lotag, 
+                drawtileinfo("Current", WIND1X, WIND1Y, sprite[searchwall].picnum, sprite[searchwall].shade,
+                             sprite[searchwall].pal, sprite[searchwall].cstat, sprite[searchwall].lotag,
                              sprite[searchwall].hitag, sprite[searchwall].extra);
 
                 Bsprintf(lines[num++], "Repeat:  %d,%d", sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
@@ -4285,7 +4286,7 @@ static void Keys3d(void)
     tsign -= PRESSED_KEYSC(COMMA);
     tsign += PRESSED_KEYSC(PERIOD);;
 
-    if (tsign) // , . Search & fix panning to the left/right (3D) 
+    if (tsign) // , . Search & fix panning to the left/right (3D)
     {
         if (AIMING_AT_SPRITE)
         {
@@ -4551,9 +4552,8 @@ static void Keys3d(void)
                                             if (sector[highlightsector[i]].visibility == 240)
                                                 sector[highlightsector[i]].visibility = 239;
                                         }
-                                        else
-                                            if (sector[highlightsector[i]].visibility == 239)
-                                                sector[highlightsector[i]].visibility = 240;
+                                        else if (sector[highlightsector[i]].visibility == 239)
+                                            sector[highlightsector[i]].visibility = 240;
                                     }
                                     k--;
                                 }
@@ -4569,9 +4569,8 @@ static void Keys3d(void)
                             if (sector[searchsector].visibility == 240)
                                 sector[searchsector].visibility = 239;
                         }
-                        else
-                            if (sector[searchsector].visibility == 239)
-                                sector[searchsector].visibility = 240;
+                        else if (sector[searchsector].visibility == 239)
+                            sector[searchsector].visibility = 240;
                         k--;
                     }
                     message("Sector %d visibility %d",searchsector,sector[searchsector].visibility);
@@ -4798,8 +4797,8 @@ static void Keys3d(void)
         if (AIMING_AT_WALL || AIMING_AT_CEILING)
         {
             int16_t sect = k ? highlightsector[0] :
-                ((AIMING_AT_WALL && eitherSHIFT && wall[searchwall].nextsector>=0) ?
-                 wall[searchwall].nextsector : searchsector);
+                           ((AIMING_AT_WALL && eitherSHIFT && wall[searchwall].nextsector>=0) ?
+                            wall[searchwall].nextsector : searchsector);
 
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
             {
@@ -5210,7 +5209,7 @@ static void Keys3d(void)
                 }
             }
             else
-                sprite[searchwall].lotag = getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0);            
+                sprite[searchwall].lotag = getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0);
         }
     }
 
@@ -6243,7 +6242,7 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
         {
             if (did_wrap)
                 break;
-            
+
             did_wrap = 1;
             gs_cursprite &= (MAXSPRITES-1);
         }
@@ -6373,11 +6372,11 @@ static void Keys2d(void)
     {
         static int32_t counter = 0;
         static int32_t omx = 0, omy = 0;
-/*
-        static int32_t opointhighlight, olinehighlight, ocursectornum;
+        /*
+                static int32_t opointhighlight, olinehighlight, ocursectornum;
 
-        if (pointhighlight == opointhighlight && linehighlight == olinehighlight && cursectornum == ocursectornum)
-*/
+                if (pointhighlight == opointhighlight && linehighlight == olinehighlight && cursectornum == ocursectornum)
+        */
         if (omx == mousxplc && omy == mousyplc)
         {
             if (counter < 6)
@@ -6385,15 +6384,15 @@ static void Keys2d(void)
         }
         else if (counter > 0)
             counter--;
-        
+
         omx = mousxplc;
         omy = mousyplc;
 
-/*
-        opointhighlight = pointhighlight;
-        olinehighlight = linehighlight;
-        ocursectornum = cursectornum;
-*/
+        /*
+                opointhighlight = pointhighlight;
+                olinehighlight = linehighlight;
+                ocursectornum = cursectornum;
+        */
 
         if (counter >= 2 && totalclock >= 120*6)
         {
@@ -6433,7 +6432,7 @@ static void Keys2d(void)
             extern int32_t showtags;
 
             showtags ^= 1;
-            printmessage16("Show tags %s", ONOFF( showtags));
+            printmessage16("Show tags %s", ONOFF(showtags));
         }
         else if (eitherALT)  //ALT
         {
@@ -6659,8 +6658,8 @@ static void Keys2d(void)
             for (i=curwallnum; i>=0 && i<numwalls; i+=tsign)
             {
                 if ((wall[i].picnum==wall[curwall].picnum)
-                    && (search_lotag==0 || search_lotag==wall[i].lotag)
-                    && (search_hitag==0 || search_hitag==wall[i].hitag))
+                        && (search_lotag==0 || search_lotag==wall[i].lotag)
+                        && (search_hitag==0 || search_hitag==wall[i].hitag))
                 {
                     pos.x = wall[i].x - (wall[i].x-POINT2(i).x)/2;
                     pos.y = wall[i].y - (wall[i].y-POINT2(i).y)/2;
@@ -6971,7 +6970,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     int32_t i = 1, j, maxlen=0, *lengths;
     char *c, *k;
 
-    mapster32_fullpath = (char*)argv[0];
+    mapster32_fullpath = (char *)argv[0];
 
     if (argc > 1)
     {
@@ -7339,7 +7338,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
     if (!Bstrcasecmp(parm->name, "pk_turnaccel"))
     {
         if (showval)
-            OSD_Printf("Turning acceleration+declaration is %d\n", pk_turnaccel); 
+            OSD_Printf("Turning acceleration+declaration is %d\n", pk_turnaccel);
         else
         {
             pk_turnaccel = atoi(parm->parms[0]);
@@ -7350,7 +7349,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
     else if (!Bstrcasecmp(parm->name, "pk_turndecel"))
     {
         if (showval)
-            OSD_Printf("Turning deceleration is %d\n", pk_turndecel); 
+            OSD_Printf("Turning deceleration is %d\n", pk_turndecel);
         else
         {
             pk_turndecel = atoi(parm->parms[0]);
@@ -7367,7 +7366,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
     else if (!Bstrcasecmp(parm->name, "pk_uedaccel"))
     {
         if (showval)
-            OSD_Printf("UnrealEd mouse navigation acceleration is %d\n", pk_uedaccel); 
+            OSD_Printf("UnrealEd mouse navigation acceleration is %d\n", pk_uedaccel);
         else
         {
             pk_uedaccel = atoi(parm->parms[0]);
@@ -8609,7 +8608,7 @@ int32_t ExtInit(void)
         GAME_getrowheight,*/
         0,0,0,0,0,
         GAME_clearbackground,
-        (int32_t(*)(void))GetTime,
+        (int32_t( *)(void))GetTime,
         NULL
     );
 #endif
@@ -9298,7 +9297,7 @@ static void Keys2d3d(void)
                 NULL,
                 NULL,
                 NULL,
-                (int32_t(*)(void))GetTime,
+                (int32_t( *)(void))GetTime,
                 NULL
             );
         }
@@ -9312,7 +9311,7 @@ static void Keys2d3d(void)
                 GAME_getrowheight,*/
                 0,0,0,0,0,
                 GAME_clearbackground,
-                (int32_t(*)(void))GetTime,
+                (int32_t( *)(void))GetTime,
                 NULL
             );
         }
@@ -10213,7 +10212,7 @@ static void GenericSpriteSearch()
     char edittext[80];
     static int32_t col=0, row=0;
     int32_t i, j, k;
-    int32_t rowmax[3]={6,5,6}, dispwidth[3] = {24,24,28};
+    int32_t rowmax[3]= {6,5,6}, dispwidth[3] = {24,24,28};
     int32_t xpos[3] = {8,200,400}, ypos = ydim-STATUS2DSIZ+48;
 
     static char *labels[7][3] =

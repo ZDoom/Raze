@@ -541,7 +541,7 @@ static int32_t set_windowpos(const osdfuncparm_t *parm)
 // initsystem() -- init systems
 //
 
-static void printsysversion(void)
+static void win_printversion(void)
 {
     const char *ver = "";
 
@@ -617,7 +617,7 @@ int32_t initsystem(void)
     frameplace=0;
     lockcount=0;
 
-    printsysversion();
+    win_printversion();
 
 #if defined(USE_OPENGL) && defined(POLYMOST)
     if (loadgldriver(getenv("BUILD_GLDRV")))

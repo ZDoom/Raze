@@ -21,6 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
+#include "sector.h"
+#include "gamedef.h"
+#include "gameexec.h"
+#include "premap.h"
 #include "osd.h"
 
 // PRIMITIVE
@@ -752,7 +756,7 @@ void G_OperateSectors(int32_t sn, int32_t ii)
             j = sector[j].ceilingz;
         }
         else
-        {            
+        {
             j = nextsectorneighborz(sn,sptr->ceilingz,1,1);
             if (j == -1) j = nextsectorneighborz(sn,sptr->ceilingz,-1,-1);
             if (j == -1)
@@ -2728,8 +2732,8 @@ CHECKINV1:
             p->wantweaponfire = j;
             p->kickback_pic = 0;
         }
-        if ((int32_t)j != -1 && p->last_pissed_time <= (GAMETICSPERSEC*218) && p->show_empty_weapon == 0 /*&& p->kickback_pic == 0*/ && 
-            p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
+        if ((int32_t)j != -1 && p->last_pissed_time <= (GAMETICSPERSEC*218) && p->show_empty_weapon == 0 /*&& p->kickback_pic == 0*/ &&
+                p->quick_kick == 0 && sprite[p->i].xrepeat > 32 && p->access_incs == 0 && p->knee_incs == 0)
         {
             //            if(  ( p->weapon_pos == 0 || ( p->holster_weapon && p->weapon_pos == -9 ) ))
             {
@@ -2768,7 +2772,7 @@ CHECKINV1:
                         }
                         else    // JBF: grower with no ammo, but shrinker with ammo, switch to shrink
                             if (PLUTOPAK && k == GROW_WEAPON && p->ammo_amount[GROW_WEAPON] == 0 &&
-                                (p->gotweapon & (1<<SHRINKER_WEAPON)) && p->ammo_amount[SHRINKER_WEAPON] > 0)   // JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
+                                    (p->gotweapon & (1<<SHRINKER_WEAPON)) && p->ammo_amount[SHRINKER_WEAPON] > 0)   // JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
                             {
                                 j = SHRINKER_WEAPON;
                                 p->subweapon &= ~(1<<GROW_WEAPON);
@@ -2776,7 +2780,7 @@ CHECKINV1:
                             }
                             else    // JBF: shrinker with no ammo, but grower with ammo, switch to grow
                                 if (PLUTOPAK && k == SHRINKER_WEAPON && p->ammo_amount[SHRINKER_WEAPON] == 0 &&
-                                    (p->gotweapon & (1<<SHRINKER_WEAPON)) && p->ammo_amount[GROW_WEAPON] > 0)   // JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
+                                        (p->gotweapon & (1<<SHRINKER_WEAPON)) && p->ammo_amount[GROW_WEAPON] > 0)   // JBF 20040116: added PLUTOPAK so we don't select grower with v1.3d
                                 {
                                     j = GROW_WEAPON;
                                     p->subweapon |= (1<<GROW_WEAPON);
@@ -3089,7 +3093,7 @@ void P_CheckSectors(int32_t snum)
 
     //After this point the the player effects the map with space
 
-    if (p->gm&MODE_TYPE || sprite[p->i].extra <= 0) return;
+    if (p->gm &MODE_TYPE || sprite[p->i].extra <= 0) return;
 
     if (TEST_SYNC_KEY(g_player[snum].sync->bits, SK_OPEN))
     {

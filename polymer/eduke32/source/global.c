@@ -20,9 +20,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
+#define __global_c__
+#include "global.h"
 #include "duke3d.h"
 
-const char *s_buildDate = "20100714";
+
+const char *s_buildDate = "20100727";
 char *MusicPtr = NULL;
 int32_t g_musicSize;
 
@@ -34,7 +37,7 @@ int32_t neartaghitdist,lockclock,g_startArmorAmount;
 int32_t g_spriteGravity=176;
 
 // int32_t temp_data[MAXSPRITES][6];
-ActorData_t actor[MAXSPRITES];
+actor_t actor[MAXSPRITES];
 
 int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos,g_spriteDeleteQueueSize=64;
 animwalltype animwall[MAXANIMWALLS];
@@ -86,9 +89,11 @@ char g_numPlayerSprites,g_loadFromGroupOnly=0,g_earthquakeTime;
 int32_t playerswhenstarted;
 
 int32_t fricxv,fricyv;
+#pragma pack(push,1)
 playerdata_t g_player[MAXPLAYERS];
 input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
-PlayerSpawn_t g_playerSpawnPoints[MAXPLAYERS];
+playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
+#pragma pack(pop)
 user_defs ud;
 
 char pus, pub;
@@ -158,7 +163,8 @@ int32_t g_playerFriction = 0xcc00, g_showShareware;
 int16_t myangbak[MOVEFIFOSIZ];
 char szPlayerName[32];
 int32_t g_damageCameras,g_freezerSelfDamage=0,g_tripbombLaserMode=0;
-int32_t g_gameQuit = 0,everyothertime;
+int32_t g_gameQuit = 0;
+uint32_t everyothertime;
 int32_t g_numFreezeBounces=3,g_rpgBlastRadius,g_pipebombBlastRadius,g_tripbombBlastRadius,
         g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
 DukeStatus_t sbar;
@@ -183,3 +189,4 @@ char setupfilename[BMAX_PATH]= SETUPFILENAME;
 int32_t g_doQuickSave = 0;
 uint32_t g_moveThingsCount = 0;
 
+int32_t g_restorePalette = 0, g_screenCapture = 0, g_noEnemies = 0;

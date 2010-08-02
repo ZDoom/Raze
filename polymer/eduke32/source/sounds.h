@@ -29,22 +29,65 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _sounds_public_
 #define _sounds_public_
 
-void S_SoundStartup( void );
-void S_SoundShutdown( void );
-void S_MusicStartup( void );
-void S_MusicShutdown( void );
-void AudioUpdate(void);
+#define MAXSOUNDS           2560
+#define MAXSOUNDINSTANCES   8
+#define LOUDESTVOLUME       150
+#define MUSIC_ID            -65536
 
-struct audioenumdev {
+struct audioenumdev
+{
 	char *def;
 	char **devs;
 	struct audioenumdev *next;
 };
-struct audioenumdrv {
+struct audioenumdrv
+{
 	char *def;
 	char **drvs;
 	struct audioenumdev *devs;
 };
 int32_t EnumAudioDevs(struct audioenumdrv **wave, struct audioenumdev **midi, struct audioenumdev **cda);
+
+typedef struct
+{
+    int16_t voice;
+    int16_t i;
+} SOUNDOWNER;
+
+
+typedef struct
+{
+    int32_t  length, num, soundsiz; // 12b
+    char *filename, *ptr, *filename1; // 12b/24b
+    SOUNDOWNER SoundOwner[MAXSOUNDINSTANCES]; // 32b
+    int16_t ps,pe,vo; // 6b
+    char pr,m; // 2b
+} sound_t;
+
+extern volatile char g_soundlocks[MAXSOUNDS];
+extern sound_t g_sounds[MAXSOUNDS];
+extern int16_t g_skillSoundID;
+extern int32_t backflag,g_numEnvSoundsPlaying,g_maxSoundPos;
+
+int32_t A_CheckSoundPlaying(int32_t i,int32_t num);
+int32_t A_PlaySound(uint32_t num,int32_t i);
+void S_Callback(uint32_t num);
+int32_t S_CheckSoundPlaying(int32_t i,int32_t num);
+void S_Cleanup(void);
+void S_ClearSoundLocks(void);
+int32_t S_LoadSound(uint32_t num);
+void S_MenuSound(void);
+void S_MusicShutdown(void);
+void S_MusicStartup(void);
+void S_MusicVolume(int32_t volume);
+void S_PauseMusic(int32_t onf);
+int32_t S_PlayMusic(const char *fn,const int32_t sel);
+int32_t S_PlaySound(int32_t num);
+int32_t S_PlaySound3D(int32_t num,int32_t i,const vec3_t *pos);
+void S_SoundShutdown(void);
+void S_SoundStartup(void);
+void S_StopEnvSound(int32_t num,int32_t i);
+void S_StopMusic(void);
+void S_Update(void);
 
 #endif

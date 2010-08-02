@@ -25,10 +25,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 #include "gamedef.h"
+#include "gameexec.h"
 #include "scriplib.h"
-
+#include "savegame.h"
+#include "premap.h"
 #include "osdcmds.h"
 #include "osd.h"
+#include "menus.h"
 
 #if KRANDDEBUG
 # define GAMEEXEC_INLINE
@@ -86,7 +89,8 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
         intptr_t *oinsptr=insptr;
         vmstate_t vm_backup;
         vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
-            &sprite[iActor], 0};
+                             &sprite[iActor], 0
+                           };
 
         Bmemcpy(&vm_backup, &vm, sizeof(vmstate_t));
         Bmemcpy(&vm, &tempvm, sizeof(vmstate_t));
@@ -171,7 +175,7 @@ GAMEEXEC_STATIC int32_t A_Dodge(spritetype *s)
         bxvect = sintable[(SA+512)&2047];
         byvect = sintable[SA&2047];
 
-        if (mxvect*bx + myvect*by >= 0)
+        if (mxvect *bx + myvect *by >= 0)
             if (bxvect*bx + byvect*by < 0)
             {
                 d = bxvect*by - byvect*bx;
@@ -262,7 +266,7 @@ void A_GetZLimits(int32_t iActor)
 {
     spritetype *s = &sprite[iActor];
 
-    if (s->statnum == STAT_PLAYER || s->statnum == STAT_STANDABLE || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_ACTOR || s->statnum == STAT_PROJECTILE)
+//    if (s->statnum == STAT_PLAYER || s->statnum == STAT_STANDABLE || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_ACTOR || s->statnum == STAT_PROJECTILE)
     {
         int32_t hz,lz,zr = 127L;
         int32_t cstat = s->cstat;
@@ -272,9 +276,9 @@ void A_GetZLimits(int32_t iActor)
         if (s->statnum == STAT_PROJECTILE)
             zr = 4L;
 
-        s->z -= FOURSLEIGHT;
+        s->z -= ZOFFSET;
         getzrange((vec3_t *)s,s->sectnum,&actor[iActor].ceilingz,&hz,&actor[iActor].floorz,&lz,zr,CLIPMASK0);
-        s->z += FOURSLEIGHT;
+        s->z += ZOFFSET;
 
         s->cstat = cstat;
 
@@ -304,11 +308,13 @@ void A_GetZLimits(int32_t iActor)
                 }
         }
     }
-    else
-    {
-        actor[iActor].ceilingz = sector[s->sectnum].ceilingz;
-        actor[iActor].floorz   = sector[s->sectnum].floorz;
-    }
+    /*
+        else
+        {
+            actor[iActor].ceilingz = sector[s->sectnum].ceilingz;
+            actor[iActor].floorz   = sector[s->sectnum].floorz;
+        }
+    */
 }
 
 void A_Fall(int32_t iActor)
@@ -328,9 +334,9 @@ void A_Fall(int32_t iActor)
     {
         int32_t cstat = s->cstat;
         s->cstat = 0;
-        s->z -= FOURSLEIGHT;
+        s->z -= ZOFFSET;
         getzrange((vec3_t *)s,s->sectnum,&actor[iActor].ceilingz,&hz,&actor[iActor].floorz,&lz,127L,CLIPMASK0);
-        s->z += FOURSLEIGHT;
+        s->z += ZOFFSET;
         s->cstat = cstat;
     }
     else
@@ -339,15 +345,15 @@ void A_Fall(int32_t iActor)
         actor[iActor].floorz   = sector[s->sectnum].floorz;
     }
 
-    if (s->z < actor[iActor].floorz-(FOURSLEIGHT))
+    if (s->z < actor[iActor].floorz-(ZOFFSET))
     {
         if (sector[s->sectnum].lotag == 2 && s->zvel > 3122)
             s->zvel = 3144;
         s->z += s->zvel = min(6144, s->zvel+c);
     }
-    if (s->z >= actor[iActor].floorz-(FOURSLEIGHT))
+    if (s->z >= actor[iActor].floorz-(ZOFFSET))
     {
-        s->z = actor[iActor].floorz - FOURSLEIGHT;
+        s->z = actor[iActor].floorz - ZOFFSET;
         s->zvel = 0;
     }
 }
@@ -617,8 +623,9 @@ GAMEEXEC_STATIC void VM_Move(void)
         }
 
         {
-            vec3_t tmpvect = { (daxvel*(sintable[(angdif+512)&2047]))>>14, 
-            (daxvel*(sintable[angdif&2047]))>>14, vm.g_sp->zvel };
+            vec3_t tmpvect = { (daxvel*(sintable[(angdif+512)&2047]))>>14,
+                               (daxvel*(sintable[angdif&2047]))>>14, vm.g_sp->zvel
+                             };
 
             actor[vm.g_i].movflag = A_MoveSprite(vm.g_i,&tmpvect,CLIPMASK0);
         }
@@ -631,15 +638,15 @@ GAMEEXEC_STATIC void VM_Move(void)
     else vm.g_sp->shade += (sector[vm.g_sp->sectnum].floorshade-vm.g_sp->shade)>>1;
 
 // wtf?
-/*
-    if (sector[vm.g_sp->sectnum].floorpicnum == MIRROR)
-        deletesprite(vm.g_i);
-*/
+    /*
+        if (sector[vm.g_sp->sectnum].floorpicnum == MIRROR)
+            deletesprite(vm.g_i);
+    */
 }
 
 GAMEEXEC_STATIC GAMEEXEC_INLINE void __fastcall VM_DoConditional(register int32_t condition)
 {
-    if (condition || ((insptr = (intptr_t *)*(insptr+1)) && (((*insptr)&0xFFF) == CON_ELSE)))
+    if (condition || ((insptr = (intptr_t *)*(insptr+1)) && (((*insptr) & 0xfff) == CON_ELSE)))
     {
         // skip 'else' pointer.. and...
         insptr += 2;
@@ -964,8 +971,8 @@ skip_check:
                 int32_t j = (*insptr++ - vm.g_sp->xrepeat)<<1;
                 vm.g_sp->xrepeat += ksgn(j);
 
-                if ((vm.g_sp->picnum == APLAYER && vm.g_sp->yrepeat < 36) || *insptr < vm.g_sp->yrepeat || 
-                    ((vm.g_sp->yrepeat*(tilesizy[vm.g_sp->picnum]+8))<<2) < (actor[vm.g_i].floorz - actor[vm.g_i].ceilingz))
+                if ((vm.g_sp->picnum == APLAYER && vm.g_sp->yrepeat < 36) || *insptr < vm.g_sp->yrepeat ||
+                        ((vm.g_sp->yrepeat*(tilesizy[vm.g_sp->picnum]+8))<<2) < (actor[vm.g_i].floorz - actor[vm.g_i].ceilingz))
                 {
                     j = ((*insptr)-vm.g_sp->yrepeat)<<1;
                     if (klabs(j)) vm.g_sp->yrepeat += ksgn(j);
@@ -1102,15 +1109,15 @@ skip_check:
                     actor[vm.g_i].cgg = 3;
                 }
 
-                if (vm.g_sp->z < (actor[vm.g_i].floorz-FOURSLEIGHT))
+                if (vm.g_sp->z < (actor[vm.g_i].floorz-ZOFFSET))
                 {
                     vm.g_sp->z += vm.g_sp->zvel = min(6144, vm.g_sp->zvel+j);
 
-                    if (vm.g_sp->z > (actor[vm.g_i].floorz - FOURSLEIGHT))
-                        vm.g_sp->z = (actor[vm.g_i].floorz - FOURSLEIGHT);
+                    if (vm.g_sp->z > (actor[vm.g_i].floorz - ZOFFSET))
+                        vm.g_sp->z = (actor[vm.g_i].floorz - ZOFFSET);
                     continue;
                 }
-                vm.g_sp->z = actor[vm.g_i].floorz - FOURSLEIGHT;
+                vm.g_sp->z = actor[vm.g_i].floorz - ZOFFSET;
 
                 if (A_CheckEnemySprite(vm.g_sp) || (vm.g_sp->picnum == APLAYER && vm.g_sp->owner >= 0))
                 {
@@ -1131,7 +1138,7 @@ skip_check:
                     else if (vm.g_sp->zvel > 2048  && sector[vm.g_sp->sectnum].lotag != 1)
                     {
                         j = vm.g_sp->sectnum;
-                        pushmove((vec3_t *)vm.g_sp,(int16_t*)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
+                        pushmove((vec3_t *)vm.g_sp,(int16_t *)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
                         if (j != vm.g_sp->sectnum && j >= 0 && j < MAXSECTORS)
                             changespritesect(vm.g_i,j);
                         A_PlaySound(THUD,vm.g_i);
@@ -1139,11 +1146,11 @@ skip_check:
                 }
             }
 
-            if (vm.g_sp->z > (actor[vm.g_i].floorz - FOURSLEIGHT))
+            if (vm.g_sp->z > (actor[vm.g_i].floorz - ZOFFSET))
             {
                 A_GetZLimits(vm.g_i);
                 if (actor[vm.g_i].floorz != sector[vm.g_sp->sectnum].floorz)
-                    vm.g_sp->z = (actor[vm.g_i].floorz - FOURSLEIGHT);
+                    vm.g_sp->z = (actor[vm.g_i].floorz - ZOFFSET);
                 continue;
             }
             else if (sector[vm.g_sp->sectnum].lotag == 1)
@@ -1152,17 +1159,17 @@ skip_check:
                 {
                 default:
                     // fix for flying/jumping monsters getting stuck in water
+                {
+                    intptr_t *moveptr = (intptr_t *)vm.g_t[1];
+                    if (vm.g_sp->hitag & jumptoplayer || (actorscrptr[vm.g_sp->picnum] &&
+                                                          moveptr >= &script[0] && moveptr <= (&script[0]+g_scriptSize) && *(moveptr+1)))
                     {
-                        intptr_t *moveptr = (intptr_t *)vm.g_t[1];
-                        if (vm.g_sp->hitag & jumptoplayer || (actorscrptr[vm.g_sp->picnum] &&
-                            moveptr >= &script[0] && moveptr <= (&script[0]+g_scriptSize) && *(moveptr+1)))
-                        {
-                            //                    OSD_Printf("%d\n",*(moveptr+1));
-                            break;
-                        }
+                        //                    OSD_Printf("%d\n",*(moveptr+1));
+                        break;
                     }
-                    //                OSD_Printf("hitag: %d\n",vm.g_sp->hitag);
-                    vm.g_sp->z += (24<<8);
+                }
+                //                OSD_Printf("hitag: %d\n",vm.g_sp->hitag);
+                vm.g_sp->z += (24<<8);
                 case OCTABRAIN__STATIC:
                 case COMMANDER__STATIC:
                 case DRONE__STATIC:
@@ -1892,7 +1899,7 @@ nullquote:
                         //            (int32_t)insptr,(int32_t)lCheckCase,lpCases[lCheckCase*2+1],(int32_t)&script[0]);
                         //AddLog(g_szBuf);
                         // fake a 2-d Array
-                        insptr=(intptr_t*)(lpCases[lCheckCase*2+1] + &script[0]);
+                        insptr=(intptr_t *)(lpCases[lCheckCase*2+1] + &script[0]);
                         //Bsprintf(g_szBuf,"insptr=%d. ",     (int32_t)insptr);
                         //AddLog(g_szBuf);
                         VM_Execute(0);
@@ -1907,7 +1914,7 @@ nullquote:
                     if (*lpDefault)
                     {
                         //AddLog("No Matching Case: Using Default");
-                        insptr=(intptr_t*)(*lpDefault + &script[0]);
+                        insptr=(intptr_t *)(*lpDefault + &script[0]);
                         VM_Execute(0);
                     }
                     else
@@ -2281,8 +2288,8 @@ nullquote:
                 setview(x1,y1,x2,y2);
 
 #if 0
-                if (!ud.pause_on && ((ud.show_help == 0 && (!net_server && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU)) 
-                    || (net_server || ud.multimode > 1) || ud.recstat == 2))
+                if (!ud.pause_on && ((ud.show_help == 0 && (!net_server && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU))
+                                     || (net_server || ud.multimode > 1) || ud.recstat == 2))
                     smoothratio = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
 #endif
                 G_DoInterpolations(smoothratio);
@@ -2557,7 +2564,7 @@ nullquote:
             {
                 int32_t v1=*insptr++,v2=*insptr++,v3=*insptr++,v4=*insptr++,v5=*insptr++,v6=*insptr++,v7=*insptr++,v8=*insptr++;
                 time_t rawtime;
-                struct tm * ti;
+                struct tm *ti;
 
                 time(&rawtime);
                 ti=localtime(&rawtime);
@@ -3001,8 +3008,8 @@ nullquote:
             continue;
 
         case CON_SAVEMAPSTATE:
-            if (MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate == NULL)
-                MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate = Bcalloc(1,sizeof(mapstate_t));
+            if (MapInfo[ud.volume_number *MAXLEVELS+ud.level_number].savedstate == NULL)
+                MapInfo[ud.volume_number *MAXLEVELS+ud.level_number].savedstate = Bcalloc(1,sizeof(mapstate_t));
             G_SaveMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
             insptr++;
             continue;
@@ -4475,7 +4482,7 @@ nullquote:
             insptr++;
             if (g_player[vm.g_p].ps->knee_incs == 0 && sprite[g_player[vm.g_p].ps->i].xrepeat >= 40)
                 if (cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-(4<<8),vm.g_sp->sectnum,g_player[vm.g_p].ps->pos.x,
-                    g_player[vm.g_p].ps->pos.y,g_player[vm.g_p].ps->pos.z+(16<<8),sprite[g_player[vm.g_p].ps->i].sectnum))
+                           g_player[vm.g_p].ps->pos.y,g_player[vm.g_p].ps->pos.z+(16<<8),sprite[g_player[vm.g_p].ps->i].sectnum))
                 {
                     int32_t j = playerswhenstarted-1;
                     for (; j>=0; j--)
@@ -4604,7 +4611,7 @@ nullquote:
             {
                 int32_t k = 0;
 
-                for (;k<MAXSOUNDINSTANCES;k++)
+                for (; k<MAXSOUNDINSTANCES; k++)
                 {
                     if (g_sounds[j].SoundOwner[k].i == vm.g_i)
                         break;
@@ -4694,7 +4701,8 @@ void A_LoadActor(int32_t iActor)
 void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 {
     vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
-        &sprite[iActor], 0};
+                         &sprite[iActor], 0
+                       };
 
     if (g_netClient && A_CheckSpriteFlags(iActor, SPRITE_NULL))
     {
@@ -4706,7 +4714,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
         randomseed = ticrandomseed;
 
     Bmemcpy(&vm, &tempvm, sizeof(vmstate_t));
-    
+
     insptr = 4 + (actorscrptr[vm.g_sp->picnum]);
 
     if (vm.g_sp->sectnum < 0 || vm.g_sp->sectnum >= MAXSECTORS)
@@ -4849,7 +4857,7 @@ void G_SaveMapState(mapstate_t *save)
             }
         }
 
-        Bmemcpy(&save->actor[0],&actor[0],sizeof(ActorData_t)*MAXSPRITES);
+        Bmemcpy(&save->actor[0],&actor[0],sizeof(actor_t)*MAXSPRITES);
 
         for (i=MAXSPRITES-1; i>=0; i--)
         {
@@ -4947,7 +4955,7 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&headspritestat[0],&save->headspritestat[0],sizeof(headspritestat));
         Bmemcpy(&prevspritestat[0],&save->prevspritestat[0],sizeof(prevspritestat));
         Bmemcpy(&nextspritestat[0],&save->nextspritestat[0],sizeof(nextspritestat));
-        Bmemcpy(&actor[0],&save->actor[0],sizeof(ActorData_t)*MAXSPRITES);
+        Bmemcpy(&actor[0],&save->actor[0],sizeof(actor_t)*MAXSPRITES);
 
         for (i=MAXSPRITES-1; i>=0; i--)
         {

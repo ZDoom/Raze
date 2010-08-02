@@ -162,9 +162,6 @@
     <ClInclude Include="source\duke3d.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\funct.h">
-      <Filter>eduke32\headers</Filter>
-    </ClInclude>
     <ClInclude Include="source\function.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
@@ -317,6 +314,45 @@
     </ClInclude>
     <ClInclude Include="build\include\prlights.h">
       <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\sector.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gameexec.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\actors.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\player.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gamevars.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\net.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\global.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\game.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\premap.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\menus.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\savegame.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\anim.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\demo.h">
+      <Filter>eduke32\headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -595,6 +631,12 @@
     </ClCompile>
     <ClCompile Include="build\src\rawinput.c">
       <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\net.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\demo.c">
+      <Filter>eduke32\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

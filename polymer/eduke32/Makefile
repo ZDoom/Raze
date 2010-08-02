@@ -110,12 +110,14 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/actors.$o \
 	$(OBJ)/anim.$o \
 	$(OBJ)/config.$o \
+	$(OBJ)/demo.$o \
 	$(OBJ)/gamedef.$o \
 	$(OBJ)/gameexec.$o \
 	$(OBJ)/gamevars.$o \
 	$(OBJ)/global.$o \
 	$(OBJ)/menus.$o \
 	$(OBJ)/namesdyn.$o \
+	$(OBJ)/net.$o \
 	$(OBJ)/player.$o \
 	$(OBJ)/premap.$o \
 	$(OBJ)/savegame.$o \

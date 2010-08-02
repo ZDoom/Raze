@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 #include "gamedef.h"
+#include "gameexec.h"
 
 #include "osd.h"
 
@@ -996,15 +997,15 @@ void C_InitHashes()
     hash_init(&actorH);
     hash_init(&tspriteH);
 
-    for (i=NUMKEYWORDS-1; i>=0; i--) hash_add(&h_keywords,keyw[i],i);
-    for (i=0; SectorLabels[i].lId >= 0; i++) hash_add(&sectorH,SectorLabels[i].name,i);
-    for (i=0; WallLabels[i].lId >= 0; i++) hash_add(&wallH,WallLabels[i].name,i);
-    for (i=0; UserdefsLabels[i].lId >= 0; i++) hash_add(&userdefH,UserdefsLabels[i].name,i);
-    for (i=0; ProjectileLabels[i].lId >= 0; i++) hash_add(&projectileH,ProjectileLabels[i].name,i);
-    for (i=0; PlayerLabels[i].lId >= 0; i++) hash_add(&playerH,PlayerLabels[i].name,i);
-    for (i=0; InputLabels[i].lId >= 0; i++) hash_add(&inputH,InputLabels[i].name,i);
-    for (i=0; ActorLabels[i].lId >= 0; i++) hash_add(&actorH,ActorLabels[i].name,i);
-    for (i=0; TsprLabels[i].lId >= 0; i++) hash_add(&tspriteH,TsprLabels[i].name,i);
+    for (i=NUMKEYWORDS-1; i>=0; i--) hash_add(&h_keywords,keyw[i],i,0);
+    for (i=0; SectorLabels[i].lId >= 0; i++) hash_add(&sectorH,SectorLabels[i].name,i,0);
+    for (i=0; WallLabels[i].lId >= 0; i++) hash_add(&wallH,WallLabels[i].name,i,0);
+    for (i=0; UserdefsLabels[i].lId >= 0; i++) hash_add(&userdefH,UserdefsLabels[i].name,i,0);
+    for (i=0; ProjectileLabels[i].lId >= 0; i++) hash_add(&projectileH,ProjectileLabels[i].name,i,0);
+    for (i=0; PlayerLabels[i].lId >= 0; i++) hash_add(&playerH,PlayerLabels[i].name,i,0);
+    for (i=0; InputLabels[i].lId >= 0; i++) hash_add(&inputH,InputLabels[i].name,i,0);
+    for (i=0; ActorLabels[i].lId >= 0; i++) hash_add(&actorH,ActorLabels[i].name,i,0);
+    for (i=0; TsprLabels[i].lId >= 0; i++) hash_add(&tspriteH,TsprLabels[i].name,i,0);
 }
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
@@ -1221,7 +1222,7 @@ static int32_t C_SkipComments(void)
                         initprintf("%s:%d: debug: EOF in comment!\n",g_szScriptFileName,g_lineNumber);
                     C_ReportError(-1);
                     initprintf("%s:%d: error: found `/*' with no `*/'.\n",g_szScriptFileName,g_lineNumber);
-                    g_parsingActorPtr = 0;g_processingState = g_numBraces = 0;
+                    g_parsingActorPtr = 0; g_processingState = g_numBraces = 0;
                     g_numCompilerErrors++;
                     continue;
                 }
@@ -2034,7 +2035,7 @@ static int32_t C_ParseCommand(void)
 
             g_processingState = 1;
             Bsprintf(g_szCurrentBlockName,"%s",label+(g_numLabels<<6));
-            hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
+            hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
             g_numLabels++;
             return 0;
         }
@@ -2323,7 +2324,7 @@ static int32_t C_ParseCommand(void)
         if (i == -1)
         {
             //              printf("Defining Definition '%s' to be '%d'\n",label+(g_numLabels<<6),*(g_scriptPtr-1));
-            hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
+            hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
             labeltype[g_numLabels] = LABEL_DEFINE;
             labelcode[g_numLabels++] = *(g_scriptPtr-1);
             if (*(g_scriptPtr-1) >= 0 && *(g_scriptPtr-1) < MAXTILES && g_dynamicTileMapping)
@@ -2407,7 +2408,7 @@ static int32_t C_ParseCommand(void)
 
             if (i == -1)
             {
-                hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
+                hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
                 labeltype[g_numLabels] = LABEL_MOVE;
                 labelcode[g_numLabels++] = (intptr_t) g_scriptPtr;
             }
@@ -2603,7 +2604,7 @@ static int32_t C_ParseCommand(void)
             if (i == -1)
             {
                 labeltype[g_numLabels] = LABEL_AI;
-                hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
+                hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
                 labelcode[g_numLabels++] = (intptr_t) g_scriptPtr;
             }
 
@@ -2685,7 +2686,7 @@ static int32_t C_ParseCommand(void)
             {
                 labeltype[g_numLabels] = LABEL_ACTION;
                 labelcode[g_numLabels] = (intptr_t) g_scriptPtr;
-                hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
+                hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
                 g_numLabels++;
             }
 
@@ -4668,7 +4669,7 @@ repeatcase:
                 }
             //AddLog("Adding value to script");
             g_caseScriptPtr[g_numCases++]=j;   // save value
-            g_caseScriptPtr[g_numCases]=(intptr_t)((intptr_t*)g_scriptPtr-&script[0]);   // save offset
+            g_caseScriptPtr[g_numCases]=(intptr_t)((intptr_t *)g_scriptPtr-&script[0]);  // save offset
         }
         //      j = C_GetKeyword();
         //Bsprintf(g_szBuf,"case3: %.12s",textptr);
@@ -5112,10 +5113,10 @@ repeatcase:
         }
         gamefunctions[j][i] = '\0';
         keydefaults[j*3][i] = '\0';
-        hash_add(&h_gamefuncs,gamefunctions[j],j);
+        hash_add(&h_gamefuncs,gamefunctions[j],j,0);
         {
             char *str = Bstrtolower(Bstrdup(gamefunctions[j]));
-            hash_add(&h_gamefuncs,str,j);
+            hash_add(&h_gamefuncs,str,j,0);
             Bfree(str);
         }
 
@@ -5357,23 +5358,23 @@ repeatcase:
 
         Bcorrectfilename(tempbuf,0);
 
-        if (MapInfo[j*MAXLEVELS+k].filename == NULL)
-            MapInfo[j*MAXLEVELS+k].filename = Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
+        if (MapInfo[j *MAXLEVELS+k].filename == NULL)
+            MapInfo[j *MAXLEVELS+k].filename = Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
         else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[j*MAXLEVELS+k].filename))
-            MapInfo[j*MAXLEVELS+k].filename = Brealloc(MapInfo[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
+            MapInfo[j *MAXLEVELS+k].filename = Brealloc(MapInfo[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
 
         Bstrcpy(MapInfo[j*MAXLEVELS+k].filename,tempbuf);
 
         C_SkipComments();
 
-        MapInfo[j*MAXLEVELS+k].partime =
+        MapInfo[j *MAXLEVELS+k].partime =
             (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
             (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
         textptr += 5;
         while (*textptr == ' '  || *textptr == '\t') textptr++;
 
-        MapInfo[j*MAXLEVELS+k].designertime =
+        MapInfo[j *MAXLEVELS+k].designertime =
             (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
             (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
@@ -5398,10 +5399,10 @@ repeatcase:
 
         tempbuf[i] = '\0';
 
-        if (MapInfo[j*MAXLEVELS+k].name == NULL)
-            MapInfo[j*MAXLEVELS+k].name = Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
+        if (MapInfo[j *MAXLEVELS+k].name == NULL)
+            MapInfo[j *MAXLEVELS+k].name = Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
         else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[j*MAXLEVELS+k].name))
-            MapInfo[j*MAXLEVELS+k].name = Brealloc(MapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
+            MapInfo[j *MAXLEVELS+k].name = Brealloc(MapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
 
         /*         initprintf("level name string len: %d\n",Bstrlen(tempbuf)); */
 
@@ -5818,7 +5819,7 @@ static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
 {
     Bstrcpy(label+(g_numLabels<<6),lLabel);
     labeltype[g_numLabels] = lType;
-    hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels);
+    hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
     labelcode[g_numLabels++] = lValue;
     g_numDefaultLabels++;
 }
@@ -5973,8 +5974,8 @@ static void C_InitProjectiles(void)
         int8_t velmult; // 1b
         uint8_t clipdist; // 1b
     } defaultprojectile_t;
-    
-    defaultprojectile_t DefaultProjectile = 
+
+    defaultprojectile_t DefaultProjectile =
     {
         1, -1, 2048, 0, 0, SMALLSMOKE, -1, -1, 600, BULLETHOLE, -1, 0, 0, 448, g_numFreezeBounces, PIPEBOMB_BOUNCE, 1,
         100, -1, -1, -1, -1, -1, -96, 18, 18, 0, 1, 32
@@ -6171,7 +6172,7 @@ void C_Compile(const char *filenam)
         C_SetScriptSize(g_scriptPtr-script+8);
 
         initprintf("Script compiled in %dms, %ld*%db, version %s\n", getticks() - startcompiletime,
-            (unsigned)(g_scriptPtr-script), sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
+                   (unsigned)(g_scriptPtr-script), sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
 
         initprintf("%ld/%ld labels, %d/%d variables\n", g_numLabels,
                    min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
@@ -6277,20 +6278,20 @@ void C_Compile(const char *filenam)
             g_numObituaries = (sizeof(PlayerObituaries)/sizeof(PlayerObituaries[0]));
             for (i=g_numObituaries-1; i>=0; i--)
             {
-                if (ScriptQuotes[i+FIRST_OBITUARY_QUOTE] == NULL)
+                if (ScriptQuotes[i+OBITQUOTEINDEX] == NULL)
                 {
-                    ScriptQuotes[i+FIRST_OBITUARY_QUOTE] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
-                    Bstrcpy(ScriptQuotes[i+FIRST_OBITUARY_QUOTE],PlayerObituaries[i]);
+                    ScriptQuotes[i+OBITQUOTEINDEX] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
+                    Bstrcpy(ScriptQuotes[i+OBITQUOTEINDEX],PlayerObituaries[i]);
                 }
             }
 
             g_numSelfObituaries = (sizeof(PlayerSelfObituaries)/sizeof(PlayerSelfObituaries[0]));
             for (i=g_numSelfObituaries-1; i>=0; i--)
             {
-                if (ScriptQuotes[i+FIRST_SUICIDE_QUOTE] == NULL)
+                if (ScriptQuotes[i+SUICIDEQUOTEINDEX] == NULL)
                 {
-                    ScriptQuotes[i+FIRST_SUICIDE_QUOTE] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
-                    Bstrcpy(ScriptQuotes[i+FIRST_SUICIDE_QUOTE],PlayerSelfObituaries[i]);
+                    ScriptQuotes[i+SUICIDEQUOTEINDEX] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
+                    Bstrcpy(ScriptQuotes[i+SUICIDEQUOTEINDEX],PlayerSelfObituaries[i]);
                 }
             }
         }

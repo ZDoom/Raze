@@ -25,11 +25,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 #include "osdcmds.h"
 #include "gamedef.h"
+#include "gameexec.h"
+#include "savegame.h"
+#include "premap.h"
 #include <sys/stat.h>
 
 extern char inputloc;
 extern int32_t g_demo_recFilePtr;
-//extern char vgacompatible;
 int16_t g_skillSoundID=-1;
 int32_t probey=0;
 static int32_t lastsavehead=0,last_menu_pos=0,last_menu,sh,onbar,buttonstat;
@@ -469,7 +471,10 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
 
 extern int32_t G_LoadSaveHeader(char spot,struct savehead *saveh);
 
+#pragma pack(push,1)
 static struct savehead savehead;
+#pragma pack(pop)
+
 //static int32_t volnum,levnum,plrskl,numplr;
 //static char brdfn[BMAX_PATH];
 int32_t g_lastSaveSlot = -1;
@@ -1464,37 +1469,9 @@ void M_DisplayMenus(void)
                 totalclock = ototalclock;
             }
 
-            if ((g_netServer || ud.multimode > 1))
-            {
-                if (g_player[myconnectindex].ps->gm&MODE_GAME)
-                {
-                    G_LoadPlayer(-1-g_lastSaveSlot);
-                    g_player[myconnectindex].ps->gm = MODE_GAME;
-                }
-                else
-                {
-                    tempbuf[0] = PACKET_LOAD_GAME;
-                    tempbuf[1] = g_lastSaveSlot;
-                    tempbuf[2] = myconnectindex;
-
-                    if (g_netClient)
-                        enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_RELIABLE));
-                    else if (g_netServer)
-                        enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 3, ENET_PACKET_FLAG_RELIABLE));
-
-                    Net_GetPackets();
-
-                    G_LoadPlayer(g_lastSaveSlot);
-
-                    multiflag = 0;
-                }
-            }
-            else
-            {
-                c = G_LoadPlayer(g_lastSaveSlot);
-                if (c == 0)
-                    g_player[myconnectindex].ps->gm = MODE_GAME;
-            }
+            c = G_LoadPlayer(g_lastSaveSlot);
+            if (c == 0)
+                g_player[myconnectindex].ps->gm = MODE_GAME;
 
             break;
         }
@@ -1874,8 +1851,8 @@ cheat_for_port_credits:
                 for (m=0,i=(totalclock/104)%numlines; m<6; m++,i++)
                 {
                     if (i==numlines) i=0;
-                    minitext(161-(Bstrlen(scroller[i])<<1), 101+10+10+8+4+(m*7)-l, (char*)scroller[i], 4, 10+16+128);
-                    minitext(160-(Bstrlen(scroller[i])<<1), 100+10+10+8+4+(m*7)-l, (char*)scroller[i], 8, 10+16+128);
+                    minitext(161-(Bstrlen(scroller[i])<<1), 101+10+10+8+4+(m*7)-l, (char *)scroller[i], 4, 10+16+128);
+                    minitext(160-(Bstrlen(scroller[i])<<1), 100+10+10+8+4+(m*7)-l, (char *)scroller[i], 8, 10+16+128);
                 }
             }
 
@@ -1929,7 +1906,7 @@ cheat_for_port_credits:
 
         if (KB_KeyPressed(sc_Q)) ChangeToMenu(500);
 
-        if (x == -1 && (g_player[myconnectindex].ps->gm&MODE_GAME || ud.recstat == 2))
+        if (x == -1 && (g_player[myconnectindex].ps->gm &MODE_GAME || ud.recstat == 2))
         {
             g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
@@ -2592,7 +2569,7 @@ cheat_for_port_credits:
 
         if (x == -1)
         {
-            if (g_player[myconnectindex].ps->gm&MODE_GAME && g_currentMenu == 232)
+            if (g_player[myconnectindex].ps->gm &MODE_GAME && g_currentMenu == 232)
             {
                 g_player[myconnectindex].ps->gm &= ~MODE_MENU;
                 if ((!g_netServer && ud.multimode < 2)  && ud.recstat != 2)
@@ -4448,7 +4425,7 @@ cheat_for_port_credits:
                 ud.config.NumVoices = soundvoices;
                 ud.config.NumBits = soundbits;
 
-                if (g_player[myconnectindex].ps->gm&MODE_GAME && g_currentMenu == 701)
+                if (g_player[myconnectindex].ps->gm &MODE_GAME && g_currentMenu == 701)
                 {
                     g_player[myconnectindex].ps->gm &= ~MODE_MENU;
                     if ((!g_netServer && ud.multimode < 2)  && ud.recstat != 2)
@@ -5008,7 +4985,7 @@ VOLUME_ALL_40x:
         {
             KB_ClearKeyDown(sc_N);
             g_quitDeadline = 0;
-            if (g_player[myconnectindex].ps->gm&MODE_DEMO && ud.recstat == 2)
+            if (g_player[myconnectindex].ps->gm &MODE_DEMO && ud.recstat == 2)
                 g_player[myconnectindex].ps->gm = MODE_DEMO;
             else
             {
@@ -5017,7 +4994,7 @@ VOLUME_ALL_40x:
                     ChangeToMenu(last_menu);
                     probey = last_menu_pos;
                 }
-                else if (!(g_player[myconnectindex].ps->gm & MODE_GAME || ud.recstat == 2))
+                else if (!(g_player[myconnectindex].ps->gm &MODE_GAME || ud.recstat == 2))
                     ChangeToMenu(0);
                 else g_player[myconnectindex].ps->gm &= ~MODE_MENU;
                 if ((!g_netServer && ud.multimode < 2)  && ud.recstat != 2)

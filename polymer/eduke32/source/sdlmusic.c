@@ -199,15 +199,15 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
             perror("MUSIC_Init: mprotect");
             goto fallback;
         }
-/*
-        {
-            int i;
-            initprintf("----Music argv:\n");
-            for (i=0; i<numargs+1; i++)
-                initprintf("  %s\n", external_midi_argv[i]);
-            initprintf("----\n");
-        }
-*/
+        /*
+                {
+                    int i;
+                    initprintf("----Music argv:\n");
+                    for (i=0; i<numargs+1; i++)
+                        initprintf("  %s\n", external_midi_argv[i]);
+                    initprintf("----\n");
+                }
+        */
 #endif
         SoundCard = 1;
         music_initialized = 1;
@@ -333,7 +333,7 @@ int32_t MUSIC_StopSong(void)
             external_midi_restart = 0;  // make SIGCHLD handler a no-op
 
             kill(external_midi_pid, SIGTERM);
-            nanosleep(&(const struct timespec){ .tv_sec=0, .tv_nsec=5000000 }, NULL);  // sleep 5ms at most
+            nanosleep(&(const struct timespec) { .tv_sec=0, .tv_nsec=5000000 }, NULL); // sleep 5ms at most
             ret = waitpid(external_midi_pid, NULL, WNOHANG|WUNTRACED);
 //            printf("(%d)", ret);
 

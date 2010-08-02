@@ -602,7 +602,7 @@ skip_check:
                 {
                 case 0:
                 case GAMEARRAY_OFINT:
-                    Bmemcpy((int32_t*)aGameArrays[di].vals + didx, (int32_t *)aGameArrays[si].vals + sidx, numelts * sizeof(int32_t));
+                    Bmemcpy((int32_t *)aGameArrays[di].vals + didx, (int32_t *)aGameArrays[si].vals + sidx, numelts * sizeof(int32_t));
                     break;
                 case GAMEARRAY_OFSHORT:
                     for (; numelts>0; numelts--)
@@ -832,7 +832,7 @@ skip_check:
             insptr++;
             {
                 int32_t bits=Gv_GetVarX(*insptr), scale=*(insptr+1);
-                float fval = *((float*)&bits);
+                float fval = *((float *)&bits);
 
                 Gv_SetVarX(*insptr, (int32_t)(fval * scale));
             }
@@ -1141,13 +1141,13 @@ skip_check:
 
                 if (state < 0)
                 {
-                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t(*)(const void*,const void*))X_DoSortDefault);
+                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t( *)(const void *,const void *))X_DoSortDefault);
                 }
                 else
                 {
                     x_sortingstateptr = script + statesinfo[state].ofs;
                     vm.g_st = 1+MAXEVENTS+state;
-                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t(*)(const void*,const void*))X_DoSort);
+                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t( *)(const void *,const void *))X_DoSort);
                     vm.g_st = o_g_st;
                     insptr = end;
                 }
@@ -1972,7 +1972,7 @@ badindex:
             {
                 int32_t v1=*insptr++,v2=*insptr++,v3=*insptr++,v4=*insptr++,v5=*insptr++,v6=*insptr++,v7=*insptr++,v8=*insptr++;
                 time_t rawtime;
-                struct tm * ti;
+                struct tm *ti;
 
                 time(&rawtime);
                 ti = localtime(&rawtime);

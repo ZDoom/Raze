@@ -1208,7 +1208,7 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
     if ((iPlayer<0 || iPlayer >= playerswhenstarted) /* && g_scriptSanityChecks */)
         goto badplayer;
 
-    if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if ((PlayerLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
         goto badpos;
 
     switch (lLabelID)
@@ -1539,7 +1539,7 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
     if ((iPlayer<0 || iPlayer >= playerswhenstarted) /* && g_scriptSanityChecks */)
         goto badplayer;
 
-    if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if ((PlayerLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
         goto badpos;
 
     lVar1=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
@@ -2372,7 +2372,7 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     if ((iActor < 0 || iActor >= MAXSPRITES) /* && g_scriptSanityChecks */)
         goto badactor;
 
-    if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if ((ActorLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
         goto badpos;
 
     lVar1=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
@@ -2616,7 +2616,7 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     if ((iActor < 0 || iActor >= MAXSPRITES) /* && g_scriptSanityChecks */)
         goto badactor;
 
-    if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if ((ActorLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
         goto badpos;
 
     switch (lLabelID)
@@ -3366,7 +3366,7 @@ badtile:
 #else
 static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
 {
-    if ((ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if ((ActorLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
         goto badpos;
 
     switch (lLabelID)
@@ -3465,7 +3465,7 @@ static int32_t __fastcall VM_AccessSectorX(int32_t iSector, int32_t lLabelID)
 
 static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2)
 {
-    if ((PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if ((PlayerLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
         goto badpos;
 
     switch (lLabelID)

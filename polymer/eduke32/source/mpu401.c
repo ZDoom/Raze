@@ -124,7 +124,7 @@ void CALLBACK MPU_MIDICallback(HMIDIOUT handle, UINT uMsg, DWORD dwInstance, DWO
     switch (uMsg)
     {
     case MOM_DONE:
-        midiOutUnprepareHeader((HMIDIOUT)handle, (MIDIHDR*)dwParam1, sizeof(MIDIHDR));
+        midiOutUnprepareHeader((HMIDIOUT)handle, (MIDIHDR *)dwParam1, sizeof(MIDIHDR));
         for (i=0; i<NUMBUFFERS; i++)
         {
             if (dwParam1 == (uint32_t)&bufferheaders[i])
@@ -181,9 +181,9 @@ void MPU_SendMidi(char *data, int32_t count)
         }
 
         p = eventbuf[_MPU_CurrentBuffer] + eventcnt[_MPU_CurrentBuffer];
-        ((int32_t*)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
-        ((int32_t*)p)[1] = 0;
-        ((int32_t*)p)[2] = (MEVT_SHORTMSG << 24) | ((*((int32_t*)data)) & masks[count-1]);
+        ((int32_t *)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
+        ((int32_t *)p)[1] = 0;
+        ((int32_t *)p)[2] = (MEVT_SHORTMSG << 24) | ((*((int32_t *)data)) & masks[count-1]);
         eventcnt[_MPU_CurrentBuffer] += 12;
     }
     else
@@ -203,9 +203,9 @@ void MPU_SendMidi(char *data, int32_t count)
         }
 
         p = eventbuf[_MPU_CurrentBuffer] + eventcnt[_MPU_CurrentBuffer];
-        ((int32_t*)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
-        ((int32_t*)p)[1] = 0;
-        ((int32_t*)p)[2] = (MEVT_LONGMSG<<24) | (count & 0xffffffl);
+        ((int32_t *)p)[0] = _MIDI_GlobalPositionInTicks - _MPU_LastEvent;
+        ((int32_t *)p)[1] = 0;
+        ((int32_t *)p)[2] = (MEVT_LONGMSG<<24) | (count & 0xffffffl);
         p+=12; eventcnt[_MPU_CurrentBuffer] += 12;
         for (; count>0; count--, padded--, eventcnt[_MPU_CurrentBuffer]++)
             *(p++) = *(data++);
@@ -227,7 +227,7 @@ void MPU_SendMidiImmediate(char *data, int32_t count)
     static int32_t masks[3] = { 0x00ffffffl, 0x0000ffffl, 0x000000ffl };
 
     if (!count) return;
-    if (count<=3) midiOutShortMsg((HMIDIOUT)hmido, (*((int32_t*)data)) & masks[count-1]);
+    if (count<=3) midiOutShortMsg((HMIDIOUT)hmido, (*((int32_t *)data)) & masks[count-1]);
     else
     {
         ZeroMemory(&mhdr, sizeof(mhdr));
