@@ -4,6 +4,7 @@
 include names.h
 
 // flag 1: per-block (top-level, event, or state) variable
+gamevar h 0 1
 gamevar i 0 1
 gamevar j 0 1
 gamevar k 0 1
@@ -13,9 +14,17 @@ gamevar p 0 1
 gamevar q 0 1
 gamevar r 0 1
 
+gamearray xx 10
+gamearray yy 10
+
+gamevar c 0 0
+gamevar d 0 0
 gamevar x 0 0
 gamevar y 0 0
+gamevar x2 0 0
+gamevar y2 0 0
 gamevar z 0 0
+gamevar frac 0 0
 
 gamevar gi 0 0
 gamevar gj 0 0
@@ -28,6 +37,8 @@ gamevar dang 0 0
 
 gamevar tmp 0 0
 gamevar cnt 0 0
+
+gamevar thecount 0 0
 
 gamevar davr 65536 0
 gamevar dayx 65536 0
@@ -50,8 +61,9 @@ definequote 6 time: %d ms
 definequote 7 door sector not an island sector!
 definequote 8 door sector has no SE sprite!
 
-//light sector     x     y     z   range  r   g   b   radi  fade angle  horiz  mins maxs prio tile
-definequote 9 light  %d  %d %d %d  %d  %d %d %d  %d %d %d %d  %d %d  %d %d
+//light                   x  y  z       r  g  b                mins maxs
+definequote 9 light  %d   %d %d %d  %d  %d %d %d   %d %d %d %d   %d %d   %d %d
+//                   sec          range       radius fade ang horiz    prio tile
 definequote 10 --PRLIGHTS--
 definequote 11 --ENDPRLIGHTS--
 
@@ -60,7 +72,7 @@ definequote 13 GREEN:
 definequote 14 BLUE: 
 
 definequote 15 x/yoffset: %d %d
-definequote 16 (r/g/b)color: %d %d %d
+definequote 16 RGB color: %d %d %d
 definequote 17 PICNUM: 
 
 definequote 18 NUMBER KEY: %d (SCANCODE: %d)
@@ -154,8 +166,10 @@ defstate printlights
             else
                 set l 2
         }
+        //                                   range     r   g   b
         qsprintf TQUOTE 9 .sectnum .x .y .z .hitag .xvel .yvel .zvel
-                   j k .ang .extra .xoffset .yoffset l .owner
+                   j k    .ang .extra .xoffset .yoffset l    .owner
+        //    radius fade      horiz  minshade maxshade prio tile
         print TQUOTE
     }
     print 11
@@ -472,6 +486,69 @@ onevent EVENT_DRAW2DSCREEN
         ifactor LIZTROOP
             drawcircle16b sprite[i].x sprite[i].y 256 drawcol
 */
+
+////////// polymer light 2d projections //////////
+    set tmp drawlinepat
+    set drawlinepat 0x11111111
+    for i spritesofsector cursectnum
+    {
+        ifactor SECTOREFFECTOR
+        {
+            ife .lotag 49  // point light
+            {
+                set d .hitag  // light distance
+                mul d d, mul d 2, sqrt d d, div d 2
+
+                getclosestcol .xvel .yvel .zvel c  // light color
+                inv c
+
+                set x .x, set x2 .x, set y .y, set y2 .y
+                add x d, add y d, sub x2 d, sub y2 d
+                drawline16b x y x2 y2 c
+
+                set x .x, set x2 .x, set y .y, set y2 .y
+                add x d, sub y d, sub x2 d, add y2 d
+                drawline16b x y x2 y2 c
+
+                drawcircle16b .x .y .hitag c
+            }
+            else ife .lotag 50  // spot light
+            {
+                set d .hitag  // light distance
+                and d 65535
+                set r 128, sub r .shade, shiftl r 1  // light cone radius (BUILD angles)
+                getclosestcol .xvel .yvel .zvel c  // light color
+                inv c
+
+                set x .x, set y .y, add x d
+                rotatepoint .x .y x y .ang x y
+
+                set h .extra  // horiz
+                sub h 100
+                set tmp h, mul tmp tmp, add tmp 40000
+                sqrt tmp tmp
+                divscale h 200 tmp 15  // h: horizontal distance fraction
+
+                set dx .x, sub dx x
+                set dy .y, sub dy y
+                set tmp 32768, sub tmp h
+                mulscale dx dx tmp 15
+                mulscale dy dy tmp 15
+
+                set tmp 0, sub tmp r
+                rotatepoint .x .y x y tmp xx[0] yy[0]
+                set tmp 0, add tmp r
+                rotatepoint .x .y x y tmp xx[1] yy[1]
+
+                add xx[0] dx, add yy[0] dy
+                add xx[1] dx, add yy[1] dy
+
+                drawline16b .x .y xx[0] yy[0] c
+                drawline16b .x .y xx[1] yy[1] c
+            }
+        }
+    }
+    set drawlinepat tmp
 endevent
 
 // LOCATORS auto-incrementer

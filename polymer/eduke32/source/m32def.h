@@ -319,6 +319,7 @@ enum ScriptKeywords_t
     CON_INV,
     CON_SQRT,
     CON_MULSCALE,
+    CON_DIVSCALE,
     CON_DIST,
     CON_LDIST,
     CON_GETANGLE,
@@ -422,6 +423,7 @@ enum ScriptKeywords_t
     CON_NEXTSPRITESECT,
     CON_SECTOROFWALL,
     CON_FIXREPEATS,
+    CON_GETCLOSESTCOL,
 
 // stuff
     CON_ADDLOGVAR,

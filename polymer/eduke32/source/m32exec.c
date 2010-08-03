@@ -932,6 +932,15 @@ skip_check:
                 Gv_SetVarX(var1, mulscale(var2, var3, var4));
                 continue;
             }
+        case CON_DIVSCALE:
+            insptr++;
+            {
+                int32_t var1 = *insptr++, var2 = Gv_GetVarX(*insptr++);
+                int32_t var3 = Gv_GetVarX(*insptr++), var4 = Gv_GetVarX(*insptr++);
+
+                Gv_SetVarX(var1, divscale(var2, var3, var4));
+                continue;
+            }
 
 // *** if & while
         case CON_IFVARVARAND:
@@ -1966,6 +1975,13 @@ badindex:
             }
             continue;
 
+        case CON_GETCLOSESTCOL:
+            insptr++;
+            {
+                int32_t r = Gv_GetVarX(*insptr++), g = Gv_GetVarX(*insptr++), b = Gv_GetVarX(*insptr++);
+                Gv_SetVarX(*insptr++, getclosestcol((r>>2)&63, (g>>2)&63, (b>>2)&63));
+                continue;
+            }
 // *** stuff
         case CON_GETTIMEDATE:
             insptr++;
@@ -2548,7 +2564,7 @@ dodefault:
                 }
 
                 drawlinepat = m32_drawlinepat;
-                drawline16(xofs+x1,yofs+y1, xofs+x2,yofs+y2, editorcolors[col&15]);
+                drawline16(xofs+x1,yofs+y1, xofs+x2,yofs+y2, col>=0?editorcolors[col&15]:(-col&255));
                 drawlinepat = odrawlinepat;
                 continue;
             }
@@ -2572,7 +2588,7 @@ dodefault:
                 }
 
                 drawlinepat = m32_drawlinepat;
-                drawcircle16(xofs+x1, yofs+y1, r, editorcolors[col&15]);
+                drawcircle16(xofs+x1, yofs+y1, r, col>=0?editorcolors[col&15]:(-col&255));
                 drawlinepat = odrawlinepat;
                 continue;
             }

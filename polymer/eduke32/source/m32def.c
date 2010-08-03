@@ -241,6 +241,7 @@ const char *keyw[] =
     "inv",  //  inversion function.. not internal
     "sqrt",
     "mulscale",
+    "divscale",
     "dist",
     "ldist",
     "getangle",
@@ -332,6 +333,7 @@ const char *keyw[] =
     "nextspritesect",
     "sectorofwall",
     "fixrepeats",
+    "getclosestcol",
 
     "addlogvar",
     "addlog",
@@ -2618,6 +2620,7 @@ repeatcase:
     }
 
     case CON_MULSCALE:
+    case CON_DIVSCALE:
         C_GetManyVars(4);
         return 0;
 
@@ -2875,6 +2878,10 @@ repeatcase:
 
     case CON_FIXREPEATS:
         C_GetNextVar();
+        return 0;
+
+    case CON_GETCLOSESTCOL:
+        C_GetManyVars(4);
         return 0;
 
 // *** stuff
