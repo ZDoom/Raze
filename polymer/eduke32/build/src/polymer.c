@@ -1305,7 +1305,9 @@ void                polymer_drawsprite(int32_t snum)
     bglFogf(GL_FOG_DENSITY,fogresult);
     bglFogfv(GL_FOG_COLOR,fogcol);
 
-    if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0)
+    if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 &&
+        tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0 &&
+        !spriteext[tspr->owner].flags & SPREXT_NOTMD)
     {
         polymer_drawmdsprite(tspr);
         return;
