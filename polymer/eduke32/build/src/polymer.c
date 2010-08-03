@@ -1315,6 +1315,21 @@ void                polymer_drawsprite(int32_t snum)
 
     cs = tspr->cstat;
 
+    // I think messing with the tspr is safe at this point?
+    // If not, change that to modify a temp position in updatesprite itself.
+    // I don't think this flags are meant to change on the fly so it'd possibly
+    // be safe to cache a plane that has them applied.
+    if (spriteext[tspr->owner].flags & SPREXT_AWAY1)
+    {
+        tspr->x += sintable[(tspr->ang + 512) & 2047] >> 13;
+        tspr->y += sintable[tspr->ang & 2047] >> 13;
+    }
+    else if (spriteext[tspr->owner].flags & SPREXT_AWAY2)
+    {
+        tspr->x -= sintable[(tspr->ang + 512) & 2047] >> 13;
+        tspr->y -= sintable[tspr->ang & 2047] >> 13;
+    }
+
     polymer_updatesprite(snum);
 
     if (prsprites[tspr->owner] == NULL)
