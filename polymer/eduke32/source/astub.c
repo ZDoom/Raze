@@ -4797,7 +4797,7 @@ static void Keys3d(void)
         if (AIMING_AT_WALL || AIMING_AT_CEILING)
         {
             int16_t sect = k ? highlightsector[0] :
-                           ((AIMING_AT_WALL && eitherSHIFT && wall[searchwall].nextsector>=0) ?
+                           ((AIMING_AT_WALL && wall[searchwall].nextsector>=0 && (eitherALT && !(bstatus&1))) ?
                             wall[searchwall].nextsector : searchsector);
 
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])

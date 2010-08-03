@@ -486,6 +486,8 @@ int32_t app_main(int32_t argc, const char **argv)
 
     totalclock = 0;
 
+    OSD_Exec("m32_autoexec.cfg");
+
     updatesector(pos.x,pos.y,&cursectnum);
 
     if (cursectnum == -1)

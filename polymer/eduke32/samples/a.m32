@@ -661,7 +661,6 @@ onevent EVENT_ANALYZESPRITES
             break
         }
 
-*/
 
 //        switch sprite[j].picnum
 //        case LIZTROOP spritepal 1 break
@@ -669,6 +668,7 @@ onevent EVENT_ANALYZESPRITES
 //        case BOSS1 spritepal 6 break
 //        endswitch
     }
+*/
 endevent
 
 onevent EVENT_KEYS3D
