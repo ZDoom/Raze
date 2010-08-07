@@ -380,8 +380,14 @@ int32_t G_GetAngleDelta(int32_t a,int32_t na)
 
 GAMEEXEC_STATIC GAMEEXEC_INLINE void VM_AlterAng(int32_t a)
 {
-    intptr_t *moveptr = (intptr_t *)vm.g_t[1];
+    intptr_t *moveptr;
     int32_t ticselapsed = (vm.g_t[0])&31;
+
+    if ((moveptr = (intptr_t *)vm.g_t[1]) < &script[0] || moveptr > (&script[0]+g_scriptSize))
+    {
+        vm.g_t[1] = 0;
+        OSD_Printf(CON_ERROR "%s %d bad moveptr for actor %d (%d)!\n",g_errorLineNum, keyw[g_tw], vm.g_i, vm.g_sp->picnum);
+    }
 
     vm.g_sp->xvel += (*moveptr-vm.g_sp->xvel)/5;
     if (vm.g_sp->zvel < 648) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)/5;
@@ -514,6 +520,11 @@ GAMEEXEC_STATIC void VM_Move(void)
     {
         if (a&geth) vm.g_sp->xvel += ((*moveptr)-vm.g_sp->xvel)>>1;
         if (a&getv) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)>>1;
+    }
+    else
+    {
+        vm.g_t[1] = 0;
+        OSD_Printf(CON_ERROR "%s %d bad moveptr for actor %d (%d)!\n",g_errorLineNum, keyw[g_tw], vm.g_i, vm.g_sp->picnum);
     }
 
     if (a&dodgebullet && !deadflag)
