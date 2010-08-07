@@ -386,7 +386,7 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void VM_AlterAng(int32_t a)
     if ((moveptr = (intptr_t *)vm.g_t[1]) < &script[0] || moveptr > (&script[0]+g_scriptSize))
     {
         vm.g_t[1] = 0;
-        OSD_Printf(CON_ERROR "%s %d bad moveptr for actor %d (%d)!\n",g_errorLineNum, keyw[g_tw], vm.g_i, vm.g_sp->picnum);
+        OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, vm.g_sp->picnum);
         return;
     }
 
@@ -525,7 +525,7 @@ GAMEEXEC_STATIC void VM_Move(void)
     else
     {
         vm.g_t[1] = 0;
-        OSD_Printf(CON_ERROR "%s %d bad moveptr for actor %d (%d)!\n",g_errorLineNum, keyw[g_tw], vm.g_i, vm.g_sp->picnum);
+        OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, vm.g_sp->picnum);
         return;
     }
 
