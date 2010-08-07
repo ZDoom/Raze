@@ -106,10 +106,6 @@ int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
 
 static int32_t g_Debug = 0;
-
-extern int32_t rts_numlumps;
-
-
 static int32_t g_noLogoAnim = 0;
 static int32_t g_noLogo = 0;
 
@@ -6164,7 +6160,7 @@ PALONLY:
             }
             */
 
-            if (t4 && t4 != 1)
+            if ((intptr_t *)t4 >= &script[0] && (intptr_t *)t4 <= (&script[0]+g_scriptSize))
             {
                 l = *(((intptr_t *)t4)+2); //For TerminX: was *(int32_t *)(t4+8)
 
