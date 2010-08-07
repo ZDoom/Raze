@@ -4291,13 +4291,11 @@ void P_ProcessWeapon(int32_t snum)
                 p->pos.z = p->opos.z;
                 p->posvel.z = 0;
             }
+
             if (*kb == aplWeaponSound2Time[p->curr_weapon][snum])
-            {
-                if (aplWeaponSound2Sound[p->curr_weapon][snum])
-                {
+                if (aplWeaponSound2Sound[p->curr_weapon][snum] > 0)
                     A_PlaySound(aplWeaponSound2Sound[p->curr_weapon][snum],p->i);
-                }
-            }
+
             if (*kb == aplWeaponSpawnTime[p->curr_weapon][snum])
                 P_DoWeaponSpawn(p);
 

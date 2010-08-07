@@ -510,10 +510,11 @@ GAMEEXEC_STATIC void VM_Move(void)
         vm.g_sp->ang += angdif;
     }
 
-    moveptr = (intptr_t *)vm.g_t[1];
-
-    if (a&geth) vm.g_sp->xvel += ((*moveptr)-vm.g_sp->xvel)>>1;
-    if (a&getv) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)>>1;
+    if ((moveptr = (intptr_t *)vm.g_t[1]) >= &script[0] && moveptr <= (&script[0]+g_scriptSize))
+    {
+        if (a&geth) vm.g_sp->xvel += ((*moveptr)-vm.g_sp->xvel)>>1;
+        if (a&getv) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)>>1;
+    }
 
     if (a&dodgebullet && !deadflag)
         A_Dodge(vm.g_sp);
