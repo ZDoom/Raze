@@ -387,6 +387,7 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void VM_AlterAng(int32_t a)
     {
         vm.g_t[1] = 0;
         OSD_Printf(CON_ERROR "%s %d bad moveptr for actor %d (%d)!\n",g_errorLineNum, keyw[g_tw], vm.g_i, vm.g_sp->picnum);
+        return;
     }
 
     vm.g_sp->xvel += (*moveptr-vm.g_sp->xvel)/5;
@@ -525,6 +526,7 @@ GAMEEXEC_STATIC void VM_Move(void)
     {
         vm.g_t[1] = 0;
         OSD_Printf(CON_ERROR "%s %d bad moveptr for actor %d (%d)!\n",g_errorLineNum, keyw[g_tw], vm.g_i, vm.g_sp->picnum);
+        return;
     }
 
     if (a&dodgebullet && !deadflag)
