@@ -1092,7 +1092,7 @@ void                polymer_updatesprite(int32_t snum)
     curpicnum = tspr->picnum;
     if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);
 
-    if (tspr->cstat & 48)
+    if (tspr->cstat & 48 && searchit != 2)
     {
         uint32_t crc = crc32once((uint8_t *)tspr, offsetof(spritetype, owner));
         int32_t curpriority = 0;
@@ -1144,6 +1144,7 @@ void                polymer_updatesprite(int32_t snum)
         s->plane.material.diffusemodulation[1] = ((GLubyte *)(&tspr->owner))[0];
         s->plane.material.diffusemodulation[2] = ((GLubyte *)(&tspr->owner))[1];
         s->plane.material.diffusemodulation[3] = 0xFF;
+        s->crc = 0xdeadbeef;
     }
 
     curpicnum = tspr->picnum;

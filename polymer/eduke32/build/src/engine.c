@@ -6656,12 +6656,15 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
     for (i=0; i<numsprites; i++)
     {
         int32_t k;
+/*
         int16_t sect;
+*/
 
         if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
 
         k = insertsprite(sprite[i].sectnum,sprite[i].statnum);
 
+/*
         sect = sprite[k].sectnum;
         updatesector(sprite[k].x, sprite[k].y, &sect);
 
@@ -6679,18 +6682,21 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
                 if (sect != -1) break;
             }
 
-            /* fuck it, the sprite is clearly not legitimately in any sector at this point
-            so let's queue it up for deletion */
+            / * fuck it, the sprite is clearly not legitimately in any sector at this point
+            so let's queue it up for deletion * /
             if (sect == -1)
                 dq[dnum++] = k;
         }
+*/
     }
 
+/*
     while (dnum--)
     {
         initprintf(OSD_ERROR "Map error: removing sprite #%d(%d,%d) in null space. Map is corrupt!\n",dq[dnum],sprite[dq[dnum]].x,sprite[dq[dnum]].y);
         deletesprite(dq[dnum]);
     }
+*/
 
     //Must be after loading sectors, etc!
     updatesector(*daposx,*daposy,dacursectnum);
