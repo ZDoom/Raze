@@ -2135,7 +2135,7 @@ void P_FireWeapon(DukePlayer_t *p)
         if (aplWeaponWorksLike[p->curr_weapon][snum] != KNEE_WEAPON)
             p->ammo_amount[p->curr_weapon]--;
 
-        if (aplWeaponFireSound[p->curr_weapon][snum])
+        if (aplWeaponFireSound[p->curr_weapon][snum] > 0)
             A_PlaySound(aplWeaponFireSound[p->curr_weapon][snum],p->i);
 
         Gv_SetVar(g_iWeaponVarID,p->curr_weapon,p->i,snum);
@@ -3496,9 +3496,10 @@ void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
             p->gotweapon |= (1<<GROW_WEAPON);
     }
 
-    if (aplWeaponSelectSound[p->curr_weapon][snum])
+    if (aplWeaponSelectSound[p->curr_weapon][snum] > 0)
         S_StopEnvSound(aplWeaponSelectSound[p->curr_weapon][snum],p->i);
-    if (aplWeaponSelectSound[weapon][snum])
+
+    if (aplWeaponSelectSound[weapon][snum] > 0)
         A_PlaySound(aplWeaponSelectSound[weapon][snum],p->i);
 }
 
@@ -4313,7 +4314,7 @@ void P_ProcessWeapon(int32_t snum)
                     {
                         if ((*kb) == (aplWeaponTotalTime[p->curr_weapon][snum]+1))
                         {
-                            if (aplWeaponReloadSound1[p->curr_weapon][snum])
+                            if (aplWeaponReloadSound1[p->curr_weapon][snum] > 0)
                                 A_PlaySound(aplWeaponReloadSound1[p->curr_weapon][snum],p->i);
                         }
                         else if (((*kb) == (aplWeaponReload[p->curr_weapon][snum] - (i/3)) &&
@@ -4322,7 +4323,7 @@ void P_ProcessWeapon(int32_t snum)
                                  ((*kb) == (aplWeaponReload[p->curr_weapon][snum] - i+4) &&
                                   (aplWeaponFlags[p->curr_weapon][snum] & WEAPON_RELOAD_TIMING)))
                         {
-                            if (aplWeaponReloadSound2[p->curr_weapon][snum])
+                            if (aplWeaponReloadSound2[p->curr_weapon][snum] > 0)
                                 A_PlaySound(aplWeaponReloadSound2[p->curr_weapon][snum],p->i);
                         }
                         else if ((*kb) >= (aplWeaponReload[p->curr_weapon][snum]))
