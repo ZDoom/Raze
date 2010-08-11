@@ -34,8 +34,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MAXQUOTELEN 128
 
 // Some misc #defines
-#define NO       0
-#define YES      1
+//#define NO       0
+//#define YES      1
 
 typedef int32_t instype;
 typedef int32_t ofstype;
@@ -59,7 +59,7 @@ extern void Gv_Init(void);
 
 extern int32_t __fastcall Gv_GetVarX(register int32_t id);
 extern void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue);
-extern int32_t __fastcall Gv_GetVarN(register int32_t id);  // 'N' for "no side-effects"... vars only!
+extern int32_t __fastcall Gv_GetVarN(register int32_t id);  // 'N' for "no side-effects"... vars and locals only!
 
 extern void SetGAMEPalette(void);
 extern void SetWATERPalette(void);
@@ -101,6 +101,7 @@ enum GameEvent_t {
 extern ofstype aEventOffsets[MAXEVENTS];
 extern int32_t aEventSizes[MAXEVENTS];
 extern uint8_t aEventEnabled[MAXEVENTS];
+extern uint16_t aEventNumLocals[MAXEVENTS];
 
 
 enum GamevarFlags_t {
@@ -109,18 +110,20 @@ enum GamevarFlags_t {
     MAXVARLABEL        = MAXLABELLEN, //26,
 
     GAMEVAR_PERBLOCK   = 0x00000001, // per-block (state, event, or top-level) variable
-    GAMEVAR_USER_MASK  = (0x00000001),
+    GAMEVAR_USER_MASK = GAMEVAR_PERBLOCK,
 
     GAMEVAR_RESET      = 0x00000008, // marks var for to default
     GAMEVAR_DEFAULT    = 0x00000100, // allow override
-    GAMEVAR_SECRET     = 0x00000200, // don't dump...
 
     GAMEVAR_SYSTEM     = 0x00000800, // cannot change mode flags...(only default value)
     GAMEVAR_READONLY   = 0x00001000, // values are read-only (no setvar allowed)
+
     GAMEVAR_INTPTR     = 0x00002000, // plValues is a pointer to an int32_t
     GAMEVAR_FLOATPTR   = 0x00004000, // plValues is a pointer to a float
     GAMEVAR_SHORTPTR   = 0x00008000, // plValues is a pointer to a short
     GAMEVAR_CHARPTR    = 0x00010000, // plValues is a pointer to a char
+    GAMEVAR_PTR_MASK = GAMEVAR_INTPTR|GAMEVAR_FLOATPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR,
+
 //    GAMEVAR_NORESET    = 0x00020000, // var values are not reset when restoring map state
     GAMEVAR_SPECIAL    = 0x00040000, // flag for structure member shortcut vars
 };
@@ -128,13 +131,14 @@ enum GamevarFlags_t {
 enum GamearrayFlags_t {
     MAXGAMEARRAYS      = (MAXGAMEVARS>>2), // must be lower than MAXGAMEVARS
     MAXARRAYLABEL      = MAXVARLABEL,
-    GAMEARRAY_NORMAL   = 0,
+
     GAMEARRAY_READONLY = 0x00001000,
 
+    GAMEARRAY_NORMAL   = 0,
     GAMEARRAY_OFCHAR   = 0x00000001,
     GAMEARRAY_OFSHORT  = 0x00000002,
     GAMEARRAY_OFINT    = 0x00000004,
-    GAMEARRAY_TYPEMASK = 0x00000007,
+    GAMEARRAY_TYPE_MASK = GAMEARRAY_OFCHAR|GAMEARRAY_OFSHORT|GAMEARRAY_OFINT,
 
     GAMEARRAY_VARSIZE = 0x00000020,
 
@@ -169,6 +173,7 @@ extern uint32_t m32_drawlinepat;
 
 extern int32_t g_iReturnVar;
 extern int32_t m32_sortvar1, m32_sortvar2;
+extern int32_t m32_script_expertmode;  // if true, make read-only vars writable
 
 //extern int32_t g_numRealPalettes;
 //extern int32_t g_scriptDebug;
@@ -228,9 +233,31 @@ extern int32_t zoom;
 extern int32_t halfxdim16, midydim16;
 
 
+// gamevar bytecode format:
+
+//  FEDC|BA09|8765|4321|FEDC|BA09|8765|4321
+//                     |       .. .... ....  gamevar ID
+//                     |      .              constant bit (checked first) / get-payload-var bit for array or struct
+//                     |     .               negate bit
+//                     |   .                 array bit  \___\  if both set:
+//                     |  .                  struct bit /   /  local var
+//  .... .... .... ....|                     optional payload
+
+
+
+#define M32_FLAG_CONSTANT (MAXGAMEVARS)
 #define M32_FLAG_NEGATE (MAXGAMEVARS<<1)
+
+#define M32_FLAG_VAR (0)
 #define M32_FLAG_ARRAY (MAXGAMEVARS<<2)
-#define M32_FLAG_SPECIAL (MAXGAMEVARS<<3)
+#define M32_FLAG_STRUCT (MAXGAMEVARS<<3)
+#define M32_FLAG_LOCAL (M32_FLAG_ARRAY|M32_FLAG_STRUCT)
+#define M32_VARTYPE_MASK (M32_FLAG_ARRAY|M32_FLAG_STRUCT)
+
+#define M32_FLAG_CONSTANTINDEX M32_FLAG_CONSTANT
+// if set, fetch index for array or struct array from 16 high bits as a constant (otherwise: gamevar)
+
+#define M32_BITS_MASK (0x0000ffff-(MAXGAMEVARS-1))
 
 // IDs of special vars
 #define M32_SPRITE_VAR_ID 0
@@ -243,6 +270,8 @@ extern int32_t halfxdim16, midydim16;
 #define M32_LOTAG_VAR_ID 6
 #define M32_HITAG_VAR_ID 7
 #define M32_TEXTURE_VAR_ID 8
+
+#define M32_LOCAL_ARRAY_ID 0
 
 #define M32_PRINTERROR(Text, ...) OSD_Printf(OSD_ERROR "Line %d, %s: " Text "\n", g_errorLineNum, keyw[g_tw], ## __VA_ARGS__)
 

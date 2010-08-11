@@ -94,6 +94,8 @@ static struct strllist
 const char *scripthist[SCRIPTHISTSIZ];
 int32_t scripthistend = 0;
 
+int32_t showambiencesounds=2;
+
 //////////////////// Key stuff ////////////////////
 
 #define eitherALT   (keystatus[KEYSC_LALT] || keystatus[KEYSC_RALT])
@@ -7318,19 +7320,6 @@ static int32_t osdcmd_testplay_addparam(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_showheightindicators(const osdfuncparm_t *parm)
-{
-    extern int32_t showheightindicators;
-
-    if (parm->numparms == 1)
-        showheightindicators = clamp(atoi(parm->parms[0]), 0, 2);
-
-    OSD_Printf("height indicators: %s\n",
-               showheightindicators==0 ? "none" :
-               (showheightindicators==1 ? "two-sided walls only" : "all"));
-
-    return OSDCMD_OK;
-}
 
 //PK vvv ------------
 static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
@@ -7368,19 +7357,54 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->name, "pk_uedaccel"))
     {
-        if (showval)
-            OSD_Printf("UnrealEd mouse navigation acceleration is %d\n", pk_uedaccel);
-        else
+        if (parm->numparms==1)
         {
             pk_uedaccel = atoi(parm->parms[0]);
             pk_uedaccel = pk_uedaccel<0 ? 0:pk_uedaccel;
             pk_uedaccel = pk_uedaccel>5 ? 5:pk_uedaccel;
         }
+
+        if (parm->numparms <= 1)
+            OSD_Printf("UnrealEd mouse navigation acceleration is %d\n", pk_uedaccel);
+        else
+            return OSDCMD_SHOWHELP;
     }
     else if (!Bstrcasecmp(parm->name, "osd_tryscript"))
     {
         m32_osd_tryscript = !m32_osd_tryscript;
         OSD_Printf("Try M32 script execution on invalid OSD command: %s\n", m32_osd_tryscript?"on":"off");
+    }
+    else if (!Bstrcasecmp(parm->name, "script_expertmode"))
+    {
+        m32_script_expertmode = !m32_script_expertmode;
+        if (m32_script_expertmode)
+            OSD_Printf("M32 Script expert mode ENABLED.  Be sure to know what you are doing!\n");
+        else
+            OSD_Printf("M32 Script expert mode DISABLED.\n");
+    }
+    else if (!Bstrcasecmp(parm->name, "show_heightindicators"))
+    {
+        static const char *how[3] = {"none", "two-sided walls only", "all"};
+
+        if (parm->numparms == 1)
+            showheightindicators = clamp(atoi(parm->parms[0]), 0, 2);
+
+        if (parm->numparms <= 1)
+            OSD_Printf("height indicators: %s\n", how[showheightindicators]);
+        else
+            return OSDCMD_SHOWHELP;
+    }
+    else if (!Bstrcasecmp(parm->name, "show_ambiencesounds"))
+    {
+        static const char *how[3] = {"none", "current sector only", "all"};
+
+        if (parm->numparms == 1)
+            showambiencesounds = clamp(atoi(parm->parms[0]), 0, 2);
+
+        if (parm->numparms <= 1)
+            OSD_Printf("ambience sound circles: %s\n", how[showambiencesounds]);
+        else
+            return OSDCMD_SHOWHELP;
     }
     return OSDCMD_OK;
 }
@@ -7615,18 +7639,19 @@ static int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
-    OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
-    OSD_RegisterFunction("exit","exit: exits the game immediately", osdcmd_quit);
+    OSD_RegisterFunction("quit","quit: exits the editor immediately", osdcmd_quit);
+    OSD_RegisterFunction("exit","exit: exits the editor immediately", osdcmd_quit);
 
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
 
     //PK
-    OSD_RegisterFunction("pk_turnaccel", "pk_turnaccel: sets turning acceleration", osdcmd_vars_pk);
-    OSD_RegisterFunction("pk_turndecel", "pk_turndecel: sets turning deceleration", osdcmd_vars_pk);
-    OSD_RegisterFunction("pk_uedaccel", "pk_uedaccel: sets UnrealEd movement speed factor (0-5, exponentially)", osdcmd_vars_pk);
-    OSD_RegisterFunction("pk_quickmapcycling", "pk_quickmapcycling: allows cycling of maps with (Shift-)Ctrl-X", osdcmd_vars_pk);
-    OSD_RegisterFunction("testplay_addparam", "testplay_addparam \"string\": set additional parameters for test playing", osdcmd_testplay_addparam);
-    OSD_RegisterFunction("showheightindicators", "showheightindicators [012]: toggles height indicators in 2D mode", osdcmd_showheightindicators);
+    OSD_RegisterFunction("pk_turnaccel", "pk_turnaccel <value>: sets turning acceleration+deceleration", osdcmd_vars_pk);
+    OSD_RegisterFunction("pk_turndecel", "pk_turndecel <value>: sets turning deceleration", osdcmd_vars_pk);
+    OSD_RegisterFunction("pk_uedaccel", "pk_uedaccel <value>: sets UnrealEd movement speed factor (0-5, exponentially)", osdcmd_vars_pk);
+    OSD_RegisterFunction("pk_quickmapcycling", "pk_quickmapcycling: toggles quick cycling of maps with (Shift-)Ctrl-X", osdcmd_vars_pk);
+    OSD_RegisterFunction("testplay_addparam", "testplay_addparam \"string\": sets additional parameters for test playing", osdcmd_testplay_addparam);
+    OSD_RegisterFunction("show_heightindicators", "show_heightindicators <0, 1 or 2>: sets display of height indicators in 2D mode", osdcmd_vars_pk);
+    OSD_RegisterFunction("show_ambiencesounds", "show_ambiencesounds <0, 1 or 2>: sets display of MUSICANDSFX circles in 2D mode", osdcmd_vars_pk);
 #ifdef POLYMOST
     OSD_RegisterFunction("tint", "tint <pal> <r> <g> <b> <flags>: queries or sets hightile tinting", osdcmd_tint);
 #endif
@@ -7634,10 +7659,11 @@ static int32_t registerosdcommands(void)
     // M32 script
     OSD_RegisterFunction("include", "include <filnames...>: compiles one or more M32 script files", osdcmd_include);
     OSD_RegisterFunction("do", "do (m32 script ...): executes M32 script statements", osdcmd_do);
-    OSD_RegisterFunction("scriptinfo", "scriptinfo: shows information about compiled M32 script", osdcmd_scriptinfo);
+    OSD_RegisterFunction("script_info", "script_info: shows information about compiled M32 script", osdcmd_scriptinfo);
+    OSD_RegisterFunction("script_expertmode", "script_expertmode: toggles M32 script expert mode", osdcmd_vars_pk);
     OSD_RegisterFunction("enableevent", "enableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
     OSD_RegisterFunction("disableevent", "disableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
-    OSD_RegisterFunction("osd_tryscript", "osd_tryscript: Toggles execution of M32 script on invalid OSD command", osdcmd_vars_pk);
+    OSD_RegisterFunction("osd_tryscript", "osd_tryscript: toggles execution of M32 script on invalid OSD command", osdcmd_vars_pk);
 //    OSD_RegisterFunction("disasm", "disasm [s|e] <state or event number>", osdcmd_disasm);
     return 0;
 }
@@ -9008,22 +9034,26 @@ void ExtPreCheckKeys(void) // just before drawrooms
         }
     }
 
-    for (i=0; i<numsprites; i++)
-        if (sprite[i].picnum == 5 /*&& zoom >= 256*/ && sprite[i].sectnum != MAXSECTORS)
-        {
-            xp1 = mulscale14(sprite[i].x-pos.x,zoom);
-            yp1 = mulscale14(sprite[i].y-pos.y,zoom);
+    if (showambiencesounds)
+        for (i=0; i<numsprites; i++)
+            if (sprite[i].picnum == MUSICANDSFX /*&& zoom >= 256*/ && sprite[i].sectnum != MAXSECTORS)
+            {
+                if (showambiencesounds==1 && sprite[i].sectnum!=cursectnum)
+                    continue;
 
-            radius = mulscale14(sprite[i].hitag,zoom);
-            col = 6;
-            if (i+16384 == pointhighlight)
-                if (totalclock & 32) col += (2<<2);
-            drawlinepat = 0xf0f0f0f0;
-            drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, editorcolors[(int32_t)col]);
-            drawlinepat = 0xffffffff;
-            //            radius = mulscale15(sprite[i].hitag,zoom);
-            //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
-        }
+                xp1 = mulscale14(sprite[i].x-pos.x,zoom);
+                yp1 = mulscale14(sprite[i].y-pos.y,zoom);
+
+                radius = mulscale14(sprite[i].hitag,zoom);
+                col = 6;
+                if (i+16384 == pointhighlight)
+                    if (totalclock & 32) col += (2<<2);
+                drawlinepat = 0xf0f0f0f0;
+                drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, editorcolors[(int32_t)col]);
+                drawlinepat = 0xffffffff;
+                //            radius = mulscale15(sprite[i].hitag,zoom);
+                //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
+            }
 
     enddrawing();
 }

@@ -66,7 +66,6 @@ extern int32_t remapinit;
 extern double msens;
 extern int32_t editorgridextent, grid, autogrid;
 static int32_t default_grid=3;
-extern int32_t showheightindicators;
 extern int32_t graphicsmode;
 extern int32_t AmbienceToggle;
 extern int32_t ParentalLock;
@@ -235,6 +234,8 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "autosavesec", val, VL) > 0) autosave = Batoi(val);
 
     if (readconfig(fp, "showheightindicators", val, VL) > 0)
+        showheightindicators = min(max(Batoi(val),0),2);
+    if (readconfig(fp, "showambiencesounds", val, VL) > 0)
         showheightindicators = min(max(Batoi(val),0),2);
 
     if (readconfig(fp, "graphicsmode", val, VL) > 0)
@@ -417,6 +418,9 @@ int32_t writesetup(const char *fn)
              "; Height indicators (0:none, 1:only 2-sided&different, 2:all)\n"
              "showheightindicators = %d\n"
              "\n"
+             "; Ambience sound circles (0:none, 1:only in current sector, 2:all)\n"
+             "showambiencesounds = %d\n"
+             "\n"
              "; 2D mode display type (0:classic, 1:textured, 2:textured/animated)\n"
              "graphicsmode = %d\n\n"
              "; Ambient sounds in 3D mode (0:off, 1:on)\n"
@@ -499,7 +503,7 @@ int32_t writesetup(const char *fn)
 #endif
              option[3], msens, unrealedlook, pk_uedaccel, quickmapcycling,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,
-             showheightindicators,graphicsmode,AmbienceToggle,ParentalLock,
+             showheightindicators,showambiencesounds,graphicsmode,AmbienceToggle,ParentalLock,
              !!m32_osd_tryscript,
 #if 1
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],

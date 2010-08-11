@@ -62,6 +62,8 @@ extern char *mapster32_fullpath;
 extern char *testplay_addparam;
 
 extern int32_t m32_osd_tryscript;
+extern int32_t showheightindicators;
+extern int32_t showambiencesounds;
 
 extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);

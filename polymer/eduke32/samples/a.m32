@@ -4,7 +4,6 @@
 include names.h
 
 // flag 1: per-block (top-level, event, or state) variable
-gamevar h 0 1
 gamevar i 0 1
 gamevar j 0 1
 gamevar k 0 1
@@ -14,17 +13,9 @@ gamevar p 0 1
 gamevar q 0 1
 gamevar r 0 1
 
-gamearray xx 10
-gamearray yy 10
-
-gamevar c 0 0
-gamevar d 0 0
 gamevar x 0 0
 gamevar y 0 0
-gamevar x2 0 0
-gamevar y2 0 0
 gamevar z 0 0
-gamevar frac 0 0
 
 gamevar gi 0 0
 gamevar gj 0 0
@@ -45,37 +36,16 @@ gamevar dayx 65536 0
 
 gamevar drawcol 9 0
 
-define TQUOTE 3
 
-definequote 0 OK
-definequote 1 DAMN
+define TQUOTE 0
+definequote TQUOTE  >>> write on me! <<<
 
-definequote 2 BU:%d ABS:%d
-definequote TQUOTE write on me!
+//light       
+define LIGHTQUOTE 1
+//                                  x  y  z       r  g  b                mins maxs
+definequote LIGHTQUOTE light  %d   %d %d %d  %d  %d %d %d   %d %d %d %d   %d %d   %d %d
+//                            sec          range       radius fade ang horiz    prio tile
 
-definequote 4 ASPECT: VR=%d, YX=%d
-definequote 5 ALPHA KEY: %d (SCANCODE: %d)
-
-definequote 6 time: %d ms
-
-definequote 7 door sector not an island sector!
-definequote 8 door sector has no SE sprite!
-
-//light                   x  y  z       r  g  b                mins maxs
-definequote 9 light  %d   %d %d %d  %d  %d %d %d   %d %d %d %d   %d %d   %d %d
-//                   sec          range       radius fade ang horiz    prio tile
-definequote 10 --PRLIGHTS--
-definequote 11 --ENDPRLIGHTS--
-
-definequote 12 RED: 
-definequote 13 GREEN: 
-definequote 14 BLUE: 
-
-definequote 15 x/yoffset: %d %d
-definequote 16 RGB color: %d %d %d
-definequote 17 PICNUM: 
-
-definequote 18 NUMBER KEY: %d (SCANCODE: %d)
 
 // Corruption checker
 definequote 19 PANIC!!! SECTOR OR WALL LIMIT EXCEEDED!!!
@@ -86,66 +56,18 @@ definequote 23 WALL[%d].POINT2=%d out of range: sector[%d].wallptr=%d, endwall=%
 definequote 24 WALL[%d].NEXTWALL=%d out of range: numwalls=%d!!!
 definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d!!!
 
-definequote 26 FLOAT ACCESS TEST
-
 definequote 27 OVERRIDE POLYMER PARALLAX & SPECULAR: OFF
 definequote 28 OVERRIDE POLYMER PARALLAX & SPECULAR: ON
 
-definequote 29 PARALLAX SCALE: %f
-definequote 30 PARALLAX BIAS: %f
-definequote 31 SPECULAR FACTOR: %f
-definequote 32 SPECULAR POWER: %f
-
-definequote 33 PAL: %d
-
 define PRSCALE 1000
-// NOTE: inline constants >=32768 are sometimes broken ATM (when loading a second time?).
-// This should always work
 define MAXSPECULAR 100000
 
 gamearray ar 128
 gamearray parm 8
 
-// various tests of m32-script features
-defstate tests
-// array test
-    getarraysize ar tmp
-    resizearray ar 65536
-    getticks parm[2]
-    for j range 65536
-        set ar[j] j
-    set i 0
-    for j range 65536
-        add i ar[j]
-    getticks parm[3]
-    resizearray ar tmp
-    ife i 2147450880 quote 0 else quote 1
-    sub parm[3] parm[2]
-    qsprintf TQUOTE 6 parm[3]
-    quote TQUOTE
-
-// iteration and break test
-    for i range 10
-    {
-        addlogvar i
-        ife i 5 break
-    }
-    ife i 5 quote 0 else quote 1
-
-    quote 26
-    set tmp pr_parallaxscale
-
-    set gi tmp set gj tmp set gk tmp
-    al gi al gj al gk
-    ftoi gi 20 ftoi gj 200 ftoi gk 2000
-    al gi al gj al gk
-    mul gk 2
-    itof gk 2000
-ends
-
 // prints out maphack light definitions based on SE lights in map
 defstate printlights
-    print 10
+    print "--PRLIGHTS--"
     for i allsprites, ifactor SECTOREFFECTOR, ifge .lotag 49, ifle .lotag 50
     {
         ife .lotag 50
@@ -166,13 +88,13 @@ defstate printlights
             else
                 set l 2
         }
-        //                                   range     r   g   b
-        qsprintf TQUOTE 9 .sectnum .x .y .z .hitag .xvel .yvel .zvel
-                   j k    .ang .extra .xoffset .yoffset l    .owner
-        //    radius fade      horiz  minshade maxshade prio tile
+        //                                            range     r   g   b
+        qsprintf TQUOTE LIGHTQUOTE .sectnum .x .y .z .hitag .xvel .yvel .zvel
+                                   j k    .ang .extra .xoffset .yoffset l    .owner
+        //                    radius fade      horiz  minshade maxshade prio tile
         print TQUOTE
     }
-    print 11
+    print "--ENDPRLIGHTS--"
 ends
 
 // convenient polymer SE light manipulation with keypad keys
@@ -245,7 +167,7 @@ defstate fiddlewithlights
             ftoi k PRSCALE  // must convert to scaled integer, scale is 1:PRSCALE
             add k j, clamp k -10000 10000
             itof k PRSCALE  // convert back
-            qsprintf TQUOTE 29 k, quote TQUOTE
+            qsprintf TQUOTE "PARALLAX SCALE: %f" k, quote TQUOTE
             set pr_parallaxscale k
             break;
         }
@@ -253,23 +175,23 @@ defstate fiddlewithlights
         {
             set k pr_parallaxbias
             ftoi k PRSCALE, add k j, clamp k -10000 10000, itof k PRSCALE
-            qsprintf TQUOTE 30 k, quote TQUOTE
+            qsprintf TQUOTE "PARALLAX BIAS: %f" k, quote TQUOTE
             set pr_parallaxbias k
             break;
         }
         case 3:
         {
             set k pr_specularfactor
-            ftoi k PRSCALE, add k j, clamp k -10000 MAXSPECULAR, itof k PRSCALE
-            qsprintf TQUOTE 31 k, quote TQUOTE
+            ftoi k PRSCALE, add k j, clamp k 0 MAXSPECULAR, itof k PRSCALE
+            qsprintf TQUOTE "SPECULAR FACTOR: %f" k, quote TQUOTE
             set pr_specularfactor k
             break;
         }
         case 4:
         {
             set k pr_specularpower
-            ftoi k PRSCALE, add k j, clamp k -10000 MAXSPECULAR, itof k PRSCALE
-            qsprintf TQUOTE 32 k, quote TQUOTE
+            ftoi k PRSCALE, add k j, clamp k 0 MAXSPECULAR, itof k PRSCALE
+            qsprintf TQUOTE "SPECULAR POWER: %f" k, quote TQUOTE
             set pr_specularpower k
             break;
         }
@@ -282,35 +204,38 @@ defstate fiddlewithlights
     {
         set i searchwall, seti i  // set current sprite = targeted sprite
 
-        // horiz
-        ifeithershift set j 1 else set j 10
-        ifhitkey KEY_gUP add .extra j
-        else ifhitkey KEY_gKP5 sub .extra j
-        clamp .extra -500 500
+        ife .lotag 50
+        {
+            // horiz
+            ifeithershift set j 1 else set j 10
+            ifhitkey KEY_gUP add .extra j
+            else ifhitkey KEY_gKP5 sub .extra j
+            clamp .extra -500 500
 
-        // angle
-        set j 128
-        ifeitherctrl set j 4
-        ifeithershift { ifeitherctrl set j 1 else set j 32 }
-        ifhitkey KEY_gLEFT sub .ang j
-        else ifhitkey KEY_gRIGHT add .ang j
+            // angle
+            set j 128
+            ifeitherctrl set j 4
+            ifeithershift { ifeitherctrl set j 1 else set j 32 }
+            ifhitkey KEY_gLEFT sub .ang j
+            else ifhitkey KEY_gRIGHT add .ang j
+
+            // radius
+            ifeitherctrl
+            {
+                ifholdkey KEY_gMINUS add .shade 9
+                else ifholdkey KEY_gPLUS sub .shade 9
+
+                clamp .shade -118 117
+            }
+        }
 
         // range
         ifeithershift set j 10
         else ifeitherctrl set j 1000
         else set j 100
-        ifhitkey KEY_gPGUP add .hitag j
-        else ifhitkey KEY_gHOME sub .hitag j
+        ifhitkey KEY_KP9 add .hitag j
+        else ifhitkey KEY_KP7 sub .hitag j
         clamp .hitag 0 16000
-
-        // radius
-        ifeitherctrl
-        {
-            ifholdkey KEY_gMINUS add .shade 9
-            else ifholdkey KEY_gPLUS sub .shade 9
-
-            clamp .shade -118 117
-        }
 
         // min/max shade
         ifeithershift set j -1 else set j 1
@@ -330,7 +255,7 @@ defstate fiddlewithlights
 
             ife k 1
             {
-                qsprintf TQUOTE 15 .xoffset .yoffset
+                qsprintf TQUOTE "XY offset: %d %d" .xoffset .yoffset
                 quote TQUOTE
             }
         }
@@ -338,15 +263,15 @@ defstate fiddlewithlights
         // color/picnum
         ifeitheralt
         {
-            ifhitkey KEY_gEND
+            ifhitkey KEY_KP1
             {
-                getnumber256 .xvel 12 255
-                getnumber256 .yvel 13 255
-                getnumber256 .zvel 14 255
+                getnumber256 .xvel "RED:" 255
+                getnumber256 .yvel "GREEN:" 255
+                getnumber256 .zvel "BLUE:" 255
             }
-            else ifhitkey KEY_gDOWN
+            else ifhitkey KEY_KP2
             {
-                getnumber256 .owner 17 -MAXTILES
+                getnumber256 .owner "PICNUM:" -MAXTILES
             }
         }
         else
@@ -355,9 +280,9 @@ defstate fiddlewithlights
             ifeithershift inv j
 
             set k 0
-            ifhitkey KEY_gEND { add .xvel j, set k 1 }
-            ifhitkey KEY_gDOWN { add .yvel j, set k 1 }
-            ifhitkey KEY_gPGDN { add .zvel j, set k 1 }
+            ifhitkey KEY_KP1 { add .xvel j, set k 1 }
+            ifhitkey KEY_KP2 { add .yvel j, set k 1 }
+            ifhitkey KEY_KP3 { add .zvel j, set k 1 }
 
             ife k 1
             {
@@ -365,34 +290,12 @@ defstate fiddlewithlights
                 clamp .yvel 1 255
                 clamp .zvel 1 255
 
-                qsprintf TQUOTE 16 .xvel .yvel .zvel
+                qsprintf TQUOTE "RGB color: %d %d %d" .xvel .yvel .zvel
                 quote TQUOTE
             }
         }
     }
 ends
-
-/*
-defstate testkeyavail
-    for i range 27
-    {
-        ifholdkey alphakeys[i]
-        {
-            qsprintf TQUOTE 5 i alphakeys[i]
-            quote TQUOTE
-        }
-    }
-
-    for i range 10
-    {
-        ifholdkey numberkeys[i]
-        {
-            qsprintf TQUOTE 18 i numberkeys[i]
-            quote TQUOTE
-        }
-    }
-ends
-*/
 
 // rotate highlighted sprites around selected (closest to mouse) sprite
 // global parameter: dang
@@ -488,7 +391,12 @@ onevent EVENT_DRAW2DSCREEN
 */
 
 ////////// polymer light 2d projections //////////
-    set tmp drawlinepat
+    var c d h x2 y2 oldpat
+
+    array xx 2
+    array yy 2
+
+    set oldpat drawlinepat
     set drawlinepat 0x11111111
     for i spritesofsector cursectnum
     {
@@ -548,7 +456,7 @@ onevent EVENT_DRAW2DSCREEN
             }
         }
     }
-    set drawlinepat tmp
+    set drawlinepat oldpat
 endevent
 
 // LOCATORS auto-incrementer
@@ -727,25 +635,6 @@ ends
 onevent EVENT_ANALYZESPRITES
     state tduprot
     state tduplin
-/*
-    ife searchstat 3
-    for i drawnsprites
-    {
-        ife tsprite[i].owner searchwall
-        {
-            qsprintf TQUOTE 33 tsprite[i].pal
-            quote TQUOTE
-            break
-        }
-
-
-//        switch sprite[j].picnum
-//        case LIZTROOP spritepal 1 break
-//        case PIGCOP spritepal 2 break
-//        case BOSS1 spritepal 6 break
-//        endswitch
-    }
-*/
 endevent
 
 onevent EVENT_KEYS3D
@@ -790,7 +679,7 @@ onevent EVENT_KEYS3D
 //        }
         ifn tmp 0
         {
-            quote 7
+            quote "door sector not an island sector!"
             return
         }
 
@@ -805,7 +694,7 @@ onevent EVENT_KEYS3D
         }
         ifl l 0
         {
-            quote 8
+            quote "door sector has no SE sprite!"
             return
         }
 
@@ -868,7 +757,7 @@ onevent EVENT_KEYS3D
         ifl davr 32768 set davr 32768
         ifg davr 256000 set davr 256000
         setaspect davr yxaspect
-        qsprintf TQUOTE 4 davr yxaspect
+        qsprintf TQUOTE "ASPECT: VR=%d, YX=%d" davr yxaspect
         quote TQUOTE
     }
 endevent
@@ -917,10 +806,10 @@ ends
 
 // Map corruption checker
 
-gamevar ewall 0 0
-gamevar endwall 0 0
-
 defstate corruptchk
+    var ewall
+    var endwall
+
     ifle numsectors MAXSECTORS ifle numwalls MAXWALLS nullop else
     { quote 19 printmessage16 19 return }
 

@@ -151,6 +151,12 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
     {
         instype *oinsptr=insptr;
         vmstate_t vm_backup;
+        void *olocalvars = aGameArrays[M32_LOCAL_ARRAY_ID].vals;
+        void *localvars = alloca(aEventNumLocals[iEventID] * sizeof(int32_t));
+
+        // needed since any read access before initialization would cause undefined behaviour
+        if (aEventNumLocals[iEventID] > 0)
+            Bmemset(localvars, aEventNumLocals[iEventID]*sizeof(int32_t), 0);
 
         Bmemcpy(&vm_backup, &vm, sizeof(vmstate_t));
 
@@ -163,7 +169,10 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
         vm.flags = 0;
 
         insptr = script + aEventOffsets[iEventID];
+
+        aGameArrays[M32_LOCAL_ARRAY_ID].vals = localvars;
         VM_Execute(0);
+        aGameArrays[M32_LOCAL_ARRAY_ID].vals = olocalvars;
 
         if (vm.flags&VMFLAG_ERROR)
         {
@@ -278,6 +287,26 @@ static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
         vm.flags |= VMFLAG_ERROR;                                       \
         continue;                                                       \
     }                                                                   \
+
+static char *GetMaybeInlineQuote(int32_t quotei)
+{
+    char *quotetext;
+    if (quotei==-1)
+    {
+        quotetext = (char *)insptr;
+        while (*insptr++) /* skip the string */;
+    }
+    else
+    {
+        quotei = Gv_GetVarX(quotei);
+        do { X_ERROR_INVALIDQUOTE(quotei, ScriptQuotes) } while (0);
+        if (vm.flags&VMFLAG_ERROR)
+            return NULL;
+        quotetext = ScriptQuotes[quotei];
+    }
+
+    return quotetext;
+}
  
 int32_t VM_Execute(int32_t once)
 {
@@ -311,10 +340,18 @@ skip_check:
         {
             instype *tempscrptr = insptr+2;
             int32_t stateidx = *(insptr+1), o_g_st = vm.g_st, oret=vm.flags&VMFLAG_RETURN;
+            void *olocalvars = aGameArrays[M32_LOCAL_ARRAY_ID].vals;
+            void *localvars = alloca(statesinfo[stateidx].numlocals * sizeof(int32_t));
+
+            // needed since any read access before initialization would cause undefined behaviour
+            if (statesinfo[stateidx].numlocals > 0)
+                Bmemset(localvars, statesinfo[stateidx].numlocals*sizeof(int32_t), 0);
 
             insptr = script + statesinfo[stateidx].ofs;
             vm.g_st = 1+MAXEVENTS+stateidx;
+            aGameArrays[M32_LOCAL_ARRAY_ID].vals = localvars;
             VM_Execute(0);
+            aGameArrays[M32_LOCAL_ARRAY_ID].vals = olocalvars;
             vm.g_st = o_g_st;
             vm.flags &= ~VMFLAG_RETURN;
             vm.flags |= oret;
@@ -544,7 +581,7 @@ skip_check:
 
                 if (asize<=0 || asize>65536)
                 {
-                    M32_PRINTERROR("Invalid array size %d (max: 65536)");
+                    M32_PRINTERROR("Invalid array size %d (must be between 1 and 65536)", asize);
                     vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
@@ -598,7 +635,7 @@ skip_check:
                 if ((sidx+numelts) > ssiz) numelts = ssiz-sidx;
                 if ((didx+numelts) > dsiz) numelts = dsiz-didx;
 
-                switch (aGameArrays[si].dwFlags & GAMEARRAY_TYPEMASK)
+                switch (aGameArrays[si].dwFlags & GAMEARRAY_TYPE_MASK)
                 {
                 case 0:
                 case GAMEARRAY_OFINT:
@@ -1150,13 +1187,13 @@ skip_check:
 
                 if (state < 0)
                 {
-                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t( *)(const void *,const void *))X_DoSortDefault);
+                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t(*)(const void *,const void *))X_DoSortDefault);
                 }
                 else
                 {
                     x_sortingstateptr = script + statesinfo[state].ofs;
                     vm.g_st = 1+MAXEVENTS+state;
-                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t( *)(const void *,const void *))X_DoSort);
+                    qsort(aGameArrays[aridx].vals, count, sizeof(int32_t), (int32_t(*)(const void *,const void *))X_DoSort);
                     vm.g_st = o_g_st;
                     insptr = end;
                 }
@@ -2025,16 +2062,20 @@ badindex:
                     char pp1[4][8] = {"sprite","sector","wall","tsprite"};
                     const memberlabel_t *pp2[4] = {SpriteLabels, SectorLabels, WallLabels, SpriteLabels};
 
-                    if ((code&M32_FLAG_ARRAY) || (code&M32_FLAG_SPECIAL))
+                    if ((code&M32_VARTYPE_MASK)==M32_FLAG_ARRAY || (code&M32_VARTYPE_MASK)==M32_FLAG_STRUCT)
                     {
-                        if (code&MAXGAMEVARS)
+                        if (code&M32_FLAG_CONSTANT)
                             Bsprintf(buf2, "%d", (code>>16)&0xffff);
                         else
-                            Bsprintf(buf2, "%s", aGameVars[(code>>16)&(MAXGAMEVARS-1)].szLabel?
-                                     aGameVars[(code>>16)&(MAXGAMEVARS-1)].szLabel:"???");
+                        {
+                            char *label = aGameVars[(code>>16)&(MAXGAMEVARS-1)].szLabel;
+                            Bsprintf(buf2, "%s", label?label:"???");
+                        }
                     }
+                    else if ((code&M32_VARTYPE_MASK)==M32_FLAG_LOCAL)
+                        Bsprintf(buf2, "%d", code&(MAXGAMEVARS-1));
 
-                    if ((code&0x0000FFFC) == MAXGAMEVARS) // addlogvar for a constant.. why not? :P
+                    if ((code&0x0000FFFC) == M32_FLAG_CONSTANT) // addlogvar for a constant.. why not? :P
                     {
                         switch (code&3)
                         {
@@ -2044,13 +2085,25 @@ badindex:
                         default: Bsprintf(buf, "(??? constant)"); break;
                         }
                     }
-                    else if (code&M32_FLAG_ARRAY)
-                        Bsprintf(buf, "%s[%s]", aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel?
-                                 aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel:"???", buf2);
-                    else if (code&M32_FLAG_SPECIAL)
-                        Bsprintf(buf, "%s[%s].%s", pp1[code&3], buf2, pp2[code&3][(code>>2)&31].name);
                     else
-                        Bsprintf(buf, "???");
+                    {
+                        switch (code&M32_VARTYPE_MASK)
+                        {
+                        case M32_FLAG_ARRAY:
+                            Bsprintf(buf, "%s[%s]", aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel?
+                                     aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel:"???", buf2);
+                            break;
+                        case M32_FLAG_STRUCT:
+                            Bsprintf(buf, "%s[%s].%s", pp1[code&3], buf2, pp2[code&3][(code>>2)&31].name);
+                            break;
+                        case M32_FLAG_VAR:
+                            Bsprintf(buf, "???");
+                            break;
+                        case M32_FLAG_LOCAL:
+                            Bsprintf(buf, ".local[%s]", buf2);
+                            break;
+                        }
+                    }
                 }
                 else
                 {
@@ -2098,17 +2151,24 @@ badindex:
         case CON_GETNUMBER256:
             insptr++;
             {
-                int32_t var=*insptr++, quote=Gv_GetVarX(*insptr++), max=Gv_GetVarX(*insptr++), sign=ksgn(max)<0?1:0;
-                char buf[60];
+                int32_t var=*insptr++, quote=*insptr++;
+                const char *quotetext = GetMaybeInlineQuote(quote);
+                if (vm.flags&VMFLAG_ERROR)
+                    continue;
 
-                X_ERROR_INVALIDQUOTE(quote, ScriptQuotes);
-                Bmemcpy(buf, ScriptQuotes[quote], sizeof(buf)-1);
-                buf[sizeof(buf)-1]='\0';
+                {
+                    int32_t max=Gv_GetVarX(*insptr++), sign=ksgn(max)<0?1:0;
+                    char buf[64];  // buffers in getnumber* are 80 bytes long
 
-                if (tw==CON_GETNUMBER16)
-                    Gv_SetVarX(var, getnumber16(ScriptQuotes[quote], Gv_GetVarX(var), max, sign));
-                else
-                    Gv_SetVarX(var, getnumber256(ScriptQuotes[quote], Gv_GetVarX(var), max, sign));
+                    // no danger of accessing unallocated memory since we took care in C_SetScriptSize()
+                    Bmemcpy(buf, quotetext, sizeof(buf));
+                    buf[sizeof(buf)-1]='\0';
+
+                    if (tw==CON_GETNUMBER16)
+                        Gv_SetVarX(var, getnumber16(quotetext, Gv_GetVarX(var), max, sign));
+                    else
+                        Gv_SetVarX(var, getnumber256(quotetext, Gv_GetVarX(var), max, sign));
+                }
             }
             continue;
 
@@ -2121,35 +2181,39 @@ badindex:
         case CON_PRINTEXT16:
             insptr++;
             {
-                int32_t i=Gv_GetVarX(*insptr++);
-                int32_t x=(tw>=CON_PRINTMESSAGE256)?Gv_GetVarX(*insptr++):0;
-                int32_t y=(tw>=CON_PRINTMESSAGE256)?Gv_GetVarX(*insptr++):0;
-                int32_t col=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
-                int32_t backcol=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
-                int32_t fontsize=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
+                int32_t i=*insptr++;
+                const char *quotetext = GetMaybeInlineQuote(i);
+                if (vm.flags&VMFLAG_ERROR)
+                    continue;
 
-                if (tw==CON_ERRORINS) vm.flags |= VMFLAG_ERROR;
-
-                X_ERROR_INVALIDQUOTE(i, ScriptQuotes);
-
-                if (tw==CON_PRINT)
-                    OSD_Printf("%s\n", ScriptQuotes[i]);
-                if (tw==CON_QUOTE)
-                    message("%s", ScriptQuotes[i]);
-                else if (tw==CON_PRINTMESSAGE16)
-                    printmessage16("%s", ScriptQuotes[i]);
-                else if (tw==CON_PRINTMESSAGE256)
-                    printmessage256(x, y, ScriptQuotes[i]);
-                else if (tw==CON_PRINTEXT256)
                 {
-                    if (col<0 || col>=256) col=0;
-                    if (backcol<0 || backcol>=256) backcol=-1;
-                    printext256(x, y, col, backcol, ScriptQuotes[i], fontsize);
-                }
-                else if (tw==CON_PRINTEXT16)
-                {
-                    printext16(x, y, editorcolors[col&15], backcol<0 ? -1 : editorcolors[backcol&15],
-                               ScriptQuotes[i], fontsize);
+                    int32_t x=(tw>=CON_PRINTMESSAGE256)?Gv_GetVarX(*insptr++):0;
+                    int32_t y=(tw>=CON_PRINTMESSAGE256)?Gv_GetVarX(*insptr++):0;
+                    int32_t col=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
+                    int32_t backcol=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
+                    int32_t fontsize=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
+
+                    if (tw==CON_ERRORINS) vm.flags |= VMFLAG_ERROR;
+
+                    if (tw==CON_PRINT || tw==CON_ERRORINS)
+                        OSD_Printf("%s\n", quotetext);
+                    else if (tw==CON_QUOTE)
+                        message("%s", quotetext);
+                    else if (tw==CON_PRINTMESSAGE16)
+                        printmessage16("%s", quotetext);
+                    else if (tw==CON_PRINTMESSAGE256)
+                        printmessage256(x, y, quotetext);
+                    else if (tw==CON_PRINTEXT256)
+                    {
+                        if (col<0 || col>=256) col=0;
+                        if (backcol<0 || backcol>=256) backcol=-1;
+                        printext256(x, y, col, backcol, quotetext, fontsize);
+                    }
+                    else if (tw==CON_PRINTEXT16)
+                    {
+                        printext16(x, y, editorcolors[col&15], backcol<0 ? -1 : editorcolors[backcol&15],
+                                   quotetext, fontsize);
+                    }
                 }
             }
             continue;
@@ -2157,11 +2221,12 @@ badindex:
         case CON_QSTRLEN:
             insptr++;
             {
-                int32_t i=*insptr++;
-                int32_t j=Gv_GetVarX(*insptr++);
+                int32_t i=*insptr++, quote=*insptr++;
+                const char *quotetext = GetMaybeInlineQuote(quote);
+                if (vm.flags&VMFLAG_ERROR)
+                    continue;
 
-                X_ERROR_INVALIDQUOTE(j, ScriptQuotes);
-                Gv_SetVarX(i, Bstrlen(ScriptQuotes[j]));
+                Gv_SetVarX(i, Bstrlen(quotetext));
                 continue;
             }
 
@@ -2169,16 +2234,18 @@ badindex:
             insptr++;
             {
                 int32_t q1 = Gv_GetVarX(*insptr++);
-                int32_t q2 = Gv_GetVarX(*insptr++);
-                int32_t st = Gv_GetVarX(*insptr++);
-                int32_t ln = Gv_GetVarX(*insptr++);
+                int32_t q2 = *insptr++;
+                const char *q2text = GetMaybeInlineQuote(q2);
+                if (vm.flags&VMFLAG_ERROR)
+                    continue;
 
                 X_ERROR_INVALIDQUOTE(q1, ScriptQuotes);
-                X_ERROR_INVALIDQUOTE(q2, ScriptQuotes);
 
                 {
+                    int32_t st = Gv_GetVarX(*insptr++);
+                    int32_t ln = Gv_GetVarX(*insptr++);
                     char *s1 = ScriptQuotes[q1];
-                    char *s2 = ScriptQuotes[q2];
+                    const char *s2 = q2text;
 
                     while (*s2 && st--) s2++;
                     while ((*s1 = *s2) && ln--)
@@ -2198,10 +2265,13 @@ badindex:
             insptr++;
             {
                 int32_t i = Gv_GetVarX(*insptr++);
-                int32_t j = Gv_GetVarX(*insptr++);
+                int32_t j = *insptr++;
+
+                const char *quotetext = GetMaybeInlineQuote(j);
+                if (vm.flags&VMFLAG_ERROR)
+                    continue;
 
                 X_ERROR_INVALIDQUOTE(i, ScriptQuotes);
-                X_ERROR_INVALIDQUOTE(j, ScriptQuotes);
 
                 switch (tw)
                 {
@@ -2226,13 +2296,13 @@ badindex:
                     break;
 #endif
                 case CON_QSTRCAT:
-                    Bstrncat(ScriptQuotes[i],ScriptQuotes[j],(MAXQUOTELEN-1)-Bstrlen(ScriptQuotes[i]));
+                    Bstrncat(ScriptQuotes[i], quotetext, (MAXQUOTELEN-1)-Bstrlen(ScriptQuotes[i]));
                     break;
                 case CON_QSTRNCAT:
-                    Bstrncat(ScriptQuotes[i],ScriptQuotes[j],Gv_GetVarX(*insptr++));
+                    Bstrncat(ScriptQuotes[i], quotetext, Gv_GetVarX(*insptr++));
                     break;
                 case CON_QSTRCPY:
-                    Bstrcpy(ScriptQuotes[i],ScriptQuotes[j]);
+                    Bstrcpy(ScriptQuotes[i], quotetext);
                     break;
                 }
                 continue;
@@ -2241,14 +2311,16 @@ badindex:
         case CON_QSPRINTF:
             insptr++;
             {
-                int32_t dq = Gv_GetVarX(*insptr++), sq = Gv_GetVarX(*insptr++);
+                int32_t dq=Gv_GetVarX(*insptr++), sq=*insptr++;
+                const char *sourcetext = GetMaybeInlineQuote(sq);
+                if (vm.flags&VMFLAG_ERROR)
+                    continue;
 
                 X_ERROR_INVALIDQUOTE(dq, ScriptQuotes);
-                X_ERROR_INVALIDQUOTE(sq, ScriptQuotes);
 
                 {
                     int32_t arg[32], numvals=0, i=0, j=0, k=0;
-                    int32_t len = Bstrlen(ScriptQuotes[sq]);
+                    int32_t len = Bstrlen(sourcetext);
                     char tmpbuf[MAXQUOTELEN<<1];
 
                     while (*insptr != -1 && numvals < 32)
@@ -2259,23 +2331,23 @@ badindex:
                     i = 0;
                     do
                     {
-                        while (k < len && j < MAXQUOTELEN && ScriptQuotes[sq][k] != '%')
-                            tmpbuf[j++] = ScriptQuotes[sq][k++];
+                        while (k < len && j < MAXQUOTELEN && sourcetext[k] != '%')
+                            tmpbuf[j++] = sourcetext[k++];
 
-                        if (ScriptQuotes[sq][k] == '%')
+                        if (sourcetext[k] == '%')
                         {
                             k++;
 
                             if (i>=numvals) goto dodefault;
 
-                            switch (ScriptQuotes[sq][k])
+                            switch (sourcetext[k])
                             {
                             case 'l':
-                                if (ScriptQuotes[sq][k+1] != 'd')
+                                if (sourcetext[k+1] != 'd')
                                 {
                                     // write the % and l
-                                    tmpbuf[j++] = ScriptQuotes[sq][k-1];
-                                    tmpbuf[j++] = ScriptQuotes[sq][k++];
+                                    tmpbuf[j++] = sourcetext[k-1];
+                                    tmpbuf[j++] = sourcetext[k++];
                                     break;
                                 }
                                 k++;
@@ -2321,7 +2393,7 @@ badindex:
 
 dodefault:
                             default:
-                                tmpbuf[j++] = ScriptQuotes[sq][k-1];
+                                tmpbuf[j++] = sourcetext[k-1];
                                 break;
                             }
                         }

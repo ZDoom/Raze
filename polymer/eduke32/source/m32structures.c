@@ -33,25 +33,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ACCESS_USEVARS 2
 #define ACCESS_SPRITEEXT 4
 
+int32_t m32_script_expertmode = 0;
+
 
 static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue;
     int32_t i = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar1) : lVar1;
 
-    if (i<0 || i >= numwalls)
+    if (!m32_script_expertmode && (i<0 || i >= numwalls))
         goto badwall;
 
     if (how&ACCESS_SET)
     {
-        if (WallLabels[lLabelID].flags & 1)
+        if (!m32_script_expertmode && (WallLabels[lLabelID].flags & 1))
             goto readonly;
 
         lValue = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar2) : lVar2;
 
         asksave = 1;
 
-        if (WallLabels[lLabelID].min != 0 || WallLabels[lLabelID].max != 0)
+        if (!m32_script_expertmode && (WallLabels[lLabelID].min != 0 || WallLabels[lLabelID].max != 0))
         {
             if (lValue < WallLabels[lLabelID].min)
                 lValue = WallLabels[lLabelID].min;
@@ -134,19 +136,19 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
     if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
         i = Gv_GetVarX(lVar1);
 
-    if (i<0 || i >= numsectors)
+    if (!m32_script_expertmode && (i<0 || i >= numsectors))
         goto badsector;
 
     if (how&ACCESS_SET)
     {
-        if (SectorLabels[lLabelID].flags & 1)
+        if (!m32_script_expertmode && (SectorLabels[lLabelID].flags & 1))
             goto readonly;
 
         lValue = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar2) : lVar2;
 
         asksave = 1;
 
-        if (SectorLabels[lLabelID].min != 0 || SectorLabels[lLabelID].max != 0)
+        if (!m32_script_expertmode && (SectorLabels[lLabelID].min != 0 || SectorLabels[lLabelID].max != 0))
         {
             if (lValue < SectorLabels[lLabelID].min)
                 lValue = SectorLabels[lLabelID].min;
@@ -252,18 +254,18 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lL
         i = Gv_GetVarX(lVar1);
 
     if (i < 0 || i >= MAXSPRITES)
-        goto badactor;
+        goto badsprite;
 
     if (how&ACCESS_SET)
     {
-        if (SpriteLabels[lLabelID].flags & 1)
+        if (!m32_script_expertmode && (SpriteLabels[lLabelID].flags & 1))
             goto readonly;
 
         lValue = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar2) : lVar2;
 
         asksave = 1;
 
-        if (SpriteLabels[lLabelID].min != 0 || SpriteLabels[lLabelID].max != 0)
+        if (!m32_script_expertmode && (SpriteLabels[lLabelID].min != 0 || SpriteLabels[lLabelID].max != 0))
         {
             if (lValue < SpriteLabels[lLabelID].min)
                 lValue = SpriteLabels[lLabelID].min;
@@ -342,14 +344,11 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lL
 
         return lValue;
     }
-badactor:
-//    OSD_Printf(CON_ERROR "tried to set %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",g_errorLineNum,keyw[g_tw],
-//               SpriteLabels[lLabelID].name,i,vm.g_i,vm.g_sp->picnum,
-//               (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+badsprite:
     M32_PRINTERROR("tried to set %s on invalid target sprite (%d)", SpriteLabels[lLabelID].name, i);
     return -1;
 readonly:
-    M32_PRINTERROR("Sprite structure member `%s' is read-only.", SpriteLabels[lLabelID].name);
+    M32_PRINTERROR("sprite structure member `%s' is read-only.", SpriteLabels[lLabelID].name);
     return -1;
 }
 

@@ -486,8 +486,6 @@ int32_t app_main(int32_t argc, const char **argv)
 
     totalclock = 0;
 
-    OSD_Exec("m32_autoexec.cfg");
-
     updatesector(pos.x,pos.y,&cursectnum);
 
     if (cursectnum == -1)
@@ -507,6 +505,10 @@ int32_t app_main(int32_t argc, const char **argv)
             Bprintf("%d * %d not supported in this graphics mode\n",xdim2d,ydim2d);
             exit(0);
         }
+
+        // executed once per init, but after setgamemode so that OSD has the right width
+        OSD_Exec("m32_autoexec.cfg");
+
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
 
@@ -527,6 +529,10 @@ int32_t app_main(int32_t argc, const char **argv)
             Bprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
             exit(0);
         }
+
+        // executed once per init, but after setgamemode so that OSD has the right width
+        OSD_Exec("m32_autoexec.cfg");
+
         setbrightness(GAMMA_CALC,palette,0);
     }
 CANCEL:
@@ -2463,13 +2469,8 @@ void overheadeditor(void)
 
             for (i=0; i<numwalls; i++)     //make new red lines?
             {
-                if (wall[i].x == dax && wall[i].y == day)
-                {
-                    checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
-                    fixrepeats((int16_t)i);
-                    asksave = 1;
-                }
-                else if (POINT2(i).x == dax && POINT2(i).y == day)
+                if ((wall[i].x == dax && wall[i].y == day)
+                      || (POINT2(i).x == dax && POINT2(i).y == day))
                 {
                     checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
                     fixrepeats((int16_t)i);

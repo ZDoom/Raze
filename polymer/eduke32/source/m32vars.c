@@ -42,6 +42,7 @@ static void Gv_Clear(void)
     {
         if (aGameVars[i].szLabel)
             Bfree(aGameVars[i].szLabel);
+
         aGameVars[i].szLabel = NULL;
         aGameVars[i].dwFlags = 0;
 
@@ -50,22 +51,30 @@ static void Gv_Clear(void)
             Bfree(aGameVars[i].val.plValues);
             aGameVars[i].val.plValues = NULL;
         }
-        aGameVars[i].val.lValue=0;
+
+        aGameVars[i].val.lValue = 0;
         aGameVars[i].dwFlags |= GAMEVAR_RESET;
+
         if (i >= MAXGAMEARRAYS)
             continue;
+
         if (aGameArrays[i].szLabel)
             Bfree(aGameArrays[i].szLabel);
+
         aGameArrays[i].szLabel = NULL;
 
         if (aGameArrays[i].vals)
             Bfree(aGameArrays[i].vals);
+
         aGameArrays[i].vals = NULL;
         aGameArrays[i].dwFlags |= GAMEARRAY_RESET;
     }
+
     g_gameVarCount = g_gameArrayCount = 0;
+
     hash_init(&h_gamevars);
     hash_init(&h_arrays);
+
     return;
 }
 
@@ -90,7 +99,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     {
         // found it it's a duplicate in error
 
-        if (aGameArrays[i].dwFlags&GAMEARRAY_TYPEMASK)
+        if (aGameArrays[i].dwFlags&GAMEARRAY_TYPE_MASK)
         {
             C_CUSTOMWARNING("ignored redefining system array `%s'.", pszLabel);
         }
@@ -98,8 +107,10 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
         return 0;
     }
 
-    if (!(dwFlags&GAMEARRAY_VARSIZE) && (asize<=0 || asize>=65536))
+    if (!(dwFlags&GAMEARRAY_VARSIZE) && !(dwFlags&GAMEARRAY_TYPE_MASK) && (asize<=0 || asize>65536))
     {
+        // the dummy array with index 0 sets the size to 0 so that accidental accesses as array
+        // will complain.
         C_CUSTOMERROR("invalid array size %d. Must be between 1 and 65536", (int32_t)asize);
         return 0;
     }
@@ -111,7 +122,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel, pszLabel);
 
-    if (!(dwFlags & GAMEARRAY_TYPEMASK))
+    if (!(dwFlags & GAMEARRAY_TYPE_MASK))
         aGameArrays[i].vals = Bcalloc(asize, sizeof(int32_t));
     else
         aGameArrays[i].vals = arrayptr;
@@ -148,7 +159,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     if (i >= 0 && !(aGameVars[i].dwFlags & GAMEVAR_RESET))
     {
         // found it...
-        if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR|GAMEVAR_FLOATPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+        if (aGameVars[i].dwFlags & GAMEVAR_PTR_MASK)
         {
             C_ReportError(-1);
             initprintf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
@@ -206,36 +217,44 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     return 1;
 }
 
-int32_t __fastcall Gv_GetVarN(register int32_t id)  // 'N' for "no side-effects"... vars only!
+int32_t __fastcall Gv_GetVarN(register int32_t id)  // 'N' for "no side-effects"... vars and locals only!
 {
     if (id == M32_THISACTOR_VAR_ID)
         return vm.g_i;
 
-    if (id & (0xFFFFFFFF-(MAXGAMEVARS-1)))
+    switch (id&M32_VARTYPE_MASK)
     {
-        M32_PRINTERROR("Gv_GetVarN(): invalid var index %d", id);
-        vm.flags |= VMFLAG_ERROR;
-        return -1;
+    case M32_FLAG_VAR:
+        id &= (MAXGAMEVARS-1);
+
+        switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
+        {
+        case 0:
+            return aGameVars[id].val.lValue;
+        case GAMEVAR_PERBLOCK:
+            return aGameVars[id].val.plValues[vm.g_st];
+        case GAMEVAR_FLOATPTR:
+        case GAMEVAR_INTPTR:
+            return *((int32_t *)aGameVars[id].val.lValue);
+        case GAMEVAR_SHORTPTR:
+            return *((int16_t *)aGameVars[id].val.lValue);
+        case GAMEVAR_CHARPTR:
+            return *((uint8_t *)aGameVars[id].val.lValue);
+        default:
+            M32_PRINTERROR("Gv_GetVarN(): WTF??");
+            vm.flags |= VMFLAG_ERROR;
+            return -1;
+        }
+
+    case M32_FLAG_LOCAL:
+    {
+        int32_t index = id&(MAXGAMEVARS-1);
+        // no bounds checking since it's done at script compilation time
+        return ((int32_t *)aGameArrays[M32_LOCAL_ARRAY_ID].vals)[index];
     }
 
-    id &= (MAXGAMEVARS-1);
-
-    switch (aGameVars[id].dwFlags &
-            (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_FLOATPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
-    {
-    case 0:
-        return aGameVars[id].val.lValue;
-    case GAMEVAR_PERBLOCK:
-        return aGameVars[id].val.plValues[vm.g_st];
-    case GAMEVAR_FLOATPTR:
-    case GAMEVAR_INTPTR:
-        return *((int32_t *)aGameVars[id].val.lValue);
-    case GAMEVAR_SHORTPTR:
-        return *((int16_t *)aGameVars[id].val.lValue);
-    case GAMEVAR_CHARPTR:
-        return *((uint8_t *)aGameVars[id].val.lValue);
     default:
-        M32_PRINTERROR("Gv_GetVarN(): WTF??");
+        M32_PRINTERROR("Gv_GetVarN(): invalid var code %0x08x", id);
         vm.flags |= VMFLAG_ERROR;
         return -1;
     }
@@ -246,7 +265,9 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
     if (id == M32_THISACTOR_VAR_ID)
         return vm.g_i;
 
-    if ((id & 0x0000FFFC) == MAXGAMEVARS)
+    register int32_t negateResult = !!(id&M32_FLAG_NEGATE);
+
+    if ((id & M32_BITS_MASK) == M32_FLAG_CONSTANT)
     {
         switch (id&3)
         {
@@ -255,7 +276,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
         case 1:
             return constants[(id>>16)&0xffff];
         case 2:
-            return labelval[(id>>16)&0xffff];
+            return (labelval[(id>>16)&0xffff] ^ -negateResult) + negateResult;
         default:
             M32_PRINTERROR("Gv_GetVarX() (constant): WTF??");
             vm.flags |= VMFLAG_ERROR;
@@ -263,228 +284,224 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
         }
     }
 
+
+    switch (id&M32_VARTYPE_MASK)
     {
-        register int32_t negateResult = (id&M32_FLAG_NEGATE)>>(LOG2MAXGV+1);
+    case M32_FLAG_ARRAY:
+    {
+        register int32_t index;
+        int32_t siz;
 
-        if (id & (0xFFFFFFFF-(MAXGAMEVARS-1)))
+        index = (int32_t)((id>>16)&0xffff);
+        if (!(id&M32_FLAG_CONSTANTINDEX))
+            index = Gv_GetVarN(index);
+
+        id &= (MAXGAMEARRAYS-1);
+
+        if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
+            siz = Gv_GetVarN(aGameArrays[id].size);
+        else
+            siz = aGameArrays[id].size;
+
+        if (index < 0 || index >= siz)
         {
-            if (id&M32_FLAG_ARRAY) // array
-            {
-                register int32_t index;
-                int32_t siz;
-
-                index = (int32_t)((id>>16)&0xffff);
-                if (!(id&MAXGAMEVARS))
-                    index = Gv_GetVarN(index);
-
-                id &= (MAXGAMEARRAYS-1);
-
-                if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
-                    siz = Gv_GetVarN(aGameArrays[id].size);
-                else
-                    siz = aGameArrays[id].size;
-
-                if (index < 0 || index >= siz)
-                {
-                    M32_PRINTERROR("Gv_GetVarX(): invalid array index (%s[%d])", aGameArrays[id].szLabel, index);
-                    return -1;
-                }
-
-                switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPEMASK)
-                {
-                case 0:
-                case GAMEARRAY_OFINT:
-                    return ((((int32_t *)aGameArrays[id].vals)[index] ^ -negateResult) + negateResult);
-                case GAMEARRAY_OFSHORT:
-                    return ((((int16_t *)aGameArrays[id].vals)[index] ^ -negateResult) + negateResult);
-                case GAMEARRAY_OFCHAR:
-                    return ((((uint8_t *)aGameArrays[id].vals)[index] ^ -negateResult) + negateResult);
-                default:
-                    M32_PRINTERROR("Gv_GetVarX() (array): WTF??");
-                    vm.flags |= VMFLAG_ERROR;
-                    return -1;
-                }
-            }
-
-            if (id&M32_FLAG_SPECIAL) // struct shortcut vars
-            {
-                register int32_t index, memberid;
-
-                index = (id>>16)&0x7fff;
-                if (!(id&MAXGAMEVARS))
-                    index = Gv_GetVarN(index);
-
-                memberid = (id>>2)&31;
-
-                switch (id&3)
-                {
-                case M32_SPRITE_VAR_ID:
-                    return ((VM_AccessSprite(0, index, memberid, 0) ^ -negateResult) + negateResult);
-                case M32_SECTOR_VAR_ID:
-//                    if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
-                    return ((VM_AccessSector(0, index, memberid, 0) ^ -negateResult) + negateResult);
-                case M32_WALL_VAR_ID:
-                    return ((VM_AccessWall(0, index, memberid, 0) ^ -negateResult) + negateResult);
-                case M32_TSPRITE_VAR_ID:
-                    return ((VM_AccessTsprite(0, index, memberid, 0) ^ -negateResult) + negateResult);
-//                default:
-//                    M32_PRINTERROR("Gv_GetVarX() (special): WTF??");
-//                    return -1;
-                }
-            }
-
-            id &= (MAXGAMEVARS-1);
-
-            if (!negateResult)
-            {
-                M32_PRINTERROR("Gv_GetVarX(): invalid gamevar ID (%d)", id);
-                vm.flags |= VMFLAG_ERROR;
-                return -1;
-            }
+            M32_PRINTERROR("Gv_GetVarX(): invalid array index (%s[%d])", aGameArrays[id].szLabel, index);
+            return -1;
         }
 
-        switch (aGameVars[id].dwFlags &
-                (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_FLOATPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+        switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPE_MASK)
         {
         case 0:
-            return ((aGameVars[id].val.lValue ^ -negateResult) + negateResult);
+        case GAMEARRAY_OFINT:
+            return (((int32_t *)aGameArrays[id].vals)[index] ^ -negateResult) + negateResult;
+        case GAMEARRAY_OFSHORT:
+            return (((int16_t *)aGameArrays[id].vals)[index] ^ -negateResult) + negateResult;
+        case GAMEARRAY_OFCHAR:
+            return (((uint8_t *)aGameArrays[id].vals)[index] ^ -negateResult) + negateResult;
+        default:
+            M32_PRINTERROR("Gv_GetVarX() (array): WTF??");
+            vm.flags |= VMFLAG_ERROR;
+            return -1;
+        }
+    }
+    case M32_FLAG_STRUCT:
+    {
+        register int32_t index, memberid;
+
+        index = (id>>16)&0x7fff;
+        if (!(id&M32_FLAG_CONSTANTINDEX))
+            index = Gv_GetVarN(index);
+
+        memberid = (id>>2)&31;
+
+        switch (id&3)
+        {
+        case M32_SPRITE_VAR_ID:
+            return (VM_AccessSprite(0, index, memberid, 0) ^ -negateResult) + negateResult;
+        case M32_SECTOR_VAR_ID:
+            return (VM_AccessSector(0, index, memberid, 0) ^ -negateResult) + negateResult;
+        case M32_WALL_VAR_ID:
+            return (VM_AccessWall(0, index, memberid, 0) ^ -negateResult) + negateResult;
+        case M32_TSPRITE_VAR_ID:
+            return (VM_AccessTsprite(0, index, memberid, 0) ^ -negateResult) + negateResult;
+        }
+    }
+    case M32_FLAG_VAR:
+    {
+        id &= (MAXGAMEVARS-1);
+
+        switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
+        {
+        case 0:
+            return (aGameVars[id].val.lValue ^ -negateResult) + negateResult;
         case GAMEVAR_PERBLOCK:
-            return ((aGameVars[id].val.plValues[vm.g_st] ^ -negateResult) + negateResult);
+            return (aGameVars[id].val.plValues[vm.g_st] ^ -negateResult) + negateResult;
         case GAMEVAR_FLOATPTR:
+        {
+            float fval = *(float *)aGameVars[id].val.lValue;
             if (negateResult)
-            {
-                float fval = -(*(float *)aGameVars[id].val.lValue);
-                return *(int32_t *)&fval;
-            }
+                fval *= -1;
+            return *(int32_t *)&fval;
+        }
         case GAMEVAR_INTPTR:
-            return ((*((int32_t *)aGameVars[id].val.lValue) ^ -negateResult) + negateResult);
+            return (*((int32_t *)aGameVars[id].val.lValue) ^ -negateResult) + negateResult;
         case GAMEVAR_SHORTPTR:
-            return ((*((int16_t *)aGameVars[id].val.lValue) ^ -negateResult) + negateResult);
+            return (*((int16_t *)aGameVars[id].val.lValue) ^ -negateResult) + negateResult;
         case GAMEVAR_CHARPTR:
-            return ((*((uint8_t *)aGameVars[id].val.lValue) ^ -negateResult) + negateResult);
+            return (*((uint8_t *)aGameVars[id].val.lValue) ^ -negateResult) + negateResult;
         default:
             M32_PRINTERROR("Gv_GetVarX(): WTF??");
             vm.flags |= VMFLAG_ERROR;
             return -1;
         }
     }
+    case M32_FLAG_LOCAL:
+    {
+        int32_t index = id&(MAXGAMEVARS-1);
+        // no bounds checking since it's done at script compilation time
+        return (((int32_t *)aGameArrays[M32_LOCAL_ARRAY_ID].vals)[index] ^ -negateResult) + negateResult;
+    }
+    }  // switch (id&M32_VARTYPE_MASK)
+
+    return 0;  // never reached
 }
+
 
 void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
 {
-    if (id & (0xFFFFFFFF-(MAXGAMEVARS-1)))
+    switch (id&M32_VARTYPE_MASK)
     {
-        if (id&M32_FLAG_ARRAY) // array
+    case M32_FLAG_ARRAY:
+    {
+        register int32_t index;
+        int32_t siz;
+
+        index = (id>>16)&0xffff;
+        if (!(id&M32_FLAG_CONSTANTINDEX))
+            index = Gv_GetVarN(index);
+
+        id &= (MAXGAMEARRAYS-1);
+
+        if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
+            siz = Gv_GetVarN(aGameArrays[id].size);
+        else siz = aGameArrays[id].size;
+
+        if (index < 0 || index >= siz)
         {
-            register int32_t index;
-            int32_t siz;
-
-            index = (id>>16)&0xffff;
-            if (!(id&MAXGAMEVARS))
-                index = Gv_GetVarN(index);
-
-            id &= (MAXGAMEARRAYS-1);
-
-            if (aGameArrays[id].dwFlags & GAMEARRAY_VARSIZE)
-                siz = Gv_GetVarN(aGameArrays[id].size);
-            else siz = aGameArrays[id].size;
-
-            if (index < 0 || index >= siz)
-            {
-                M32_PRINTERROR("Gv_SetVarX(): invalid array index (%s[%d])", aGameArrays[id].szLabel, index);
-                vm.flags |= VMFLAG_ERROR;
-                return;
-            }
-
-            switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPEMASK)
-            {
-            case 0:
-            case GAMEARRAY_OFINT:
-                ((int32_t *)aGameArrays[id].vals)[index] = lValue;
-                return;
-            case GAMEARRAY_OFSHORT:
-                ((int16_t *)aGameArrays[id].vals)[index] = (int16_t)lValue;
-                return;
-            case GAMEARRAY_OFCHAR:
-                ((uint8_t *)aGameArrays[id].vals)[index] = (uint8_t)lValue;
-                return;
-            default:
-                M32_PRINTERROR("Gv_SetVarX() (array): WTF??");
-                vm.flags |= VMFLAG_ERROR;
-                return;
-            }
+            M32_PRINTERROR("Gv_SetVarX(): invalid array index %s[%d], size=%d", aGameArrays[id].szLabel, index, siz);
+            vm.flags |= VMFLAG_ERROR;
             return;
         }
 
-        if (id&M32_FLAG_SPECIAL) // struct shortcut vars
+        switch (aGameArrays[id].dwFlags & GAMEARRAY_TYPE_MASK)
         {
-            register int32_t index, memberid;
-
-            index = (id>>16)&0x7fff;
-            if (!(id&MAXGAMEVARS))
-                index = Gv_GetVarN(index);
-
-            memberid = (id>>2)&31;
-
-            switch (id&3)
-            {
-            case M32_SPRITE_VAR_ID:
-                VM_AccessSprite(1, index, memberid, lValue);
-                return;
-            case M32_SECTOR_VAR_ID:
-//                    if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
-                VM_AccessSector(1, index, memberid, lValue);
-                return;
-            case M32_WALL_VAR_ID:
-                VM_AccessWall(1, index, memberid, lValue);
-                return;
-            case M32_TSPRITE_VAR_ID:
-                VM_AccessTsprite(1, index, memberid, lValue);
-                return;
-//                default:
-//                    M32_PRINTERROR("Gv_SetVarX(): WTF??");
-//                    return;
-            }
+        case 0:
+        case GAMEARRAY_OFINT:
+            ((int32_t *)aGameArrays[id].vals)[index] = lValue;
+            return;
+        case GAMEARRAY_OFSHORT:
+            ((int16_t *)aGameArrays[id].vals)[index] = (int16_t)lValue;
+            return;
+        case GAMEARRAY_OFCHAR:
+            ((uint8_t *)aGameArrays[id].vals)[index] = (uint8_t)lValue;
+            return;
+        default:
+            M32_PRINTERROR("Gv_SetVarX() (array): WTF??");
+            vm.flags |= VMFLAG_ERROR;
+            return;
         }
-
-        M32_PRINTERROR("Gv_SetVarX(): invalid gamevar ID (%d)", id);
-        vm.flags |= VMFLAG_ERROR;
         return;
     }
+    case M32_FLAG_STRUCT:
+    {
+        register int32_t index, memberid;
 
-    switch (aGameVars[id].dwFlags &
-            (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_FLOATPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
-    {
-    case 0:
-        aGameVars[id].val.lValue=lValue;
-        return;
-    case GAMEVAR_PERBLOCK:
-        aGameVars[id].val.plValues[vm.g_st] = lValue;
-        return;
-    case GAMEVAR_FLOATPTR:
-    {
-        int32_t ival = lValue;
-        float fval = *(float *)&ival;
-        if (fval!=fval || fval<-3.4e38 || fval > 3.4e38)
+        index = (id>>16)&0x7fff;
+        if (!(id&M32_FLAG_CONSTANTINDEX))
+            index = Gv_GetVarN(index);
+
+        memberid = (id>>2)&31;
+
+        switch (id&3)
         {
-            M32_PRINTERROR("Gv_SetVarX(): tried to set float var to NaN or infinity");
+        case M32_SPRITE_VAR_ID:
+            VM_AccessSprite(1, index, memberid, lValue);
+            return;
+        case M32_SECTOR_VAR_ID:
+            VM_AccessSector(1, index, memberid, lValue);
+            return;
+        case M32_WALL_VAR_ID:
+            VM_AccessWall(1, index, memberid, lValue);
+            return;
+        case M32_TSPRITE_VAR_ID:
+            VM_AccessTsprite(1, index, memberid, lValue);
+            return;
+        }
+    }
+    case M32_FLAG_VAR:
+    {
+        id &= (MAXGAMEVARS-1);
+
+        switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
+        {
+        case 0:
+            aGameVars[id].val.lValue=lValue;
+            return;
+        case GAMEVAR_PERBLOCK:
+            aGameVars[id].val.plValues[vm.g_st] = lValue;
+            return;
+        case GAMEVAR_FLOATPTR:
+        {
+            int32_t ival = lValue;
+            float fval = *(float *)&ival;
+            if (fval!=fval || fval<-3.4e38 || fval > 3.4e38)
+            {
+                M32_PRINTERROR("Gv_SetVarX(): tried to set float var to NaN or infinity");
+                vm.flags |= VMFLAG_ERROR;
+                return;
+            }
+        }
+        case GAMEVAR_INTPTR:
+            *((int32_t *)aGameVars[id].val.lValue)=(int32_t)lValue;
+            return;
+        case GAMEVAR_SHORTPTR:
+            *((int16_t *)aGameVars[id].val.lValue)=(int16_t)lValue;
+            return;
+        case GAMEVAR_CHARPTR:
+            *((uint8_t *)aGameVars[id].val.lValue)=(uint8_t)lValue;
+            return;
+        default:
+            M32_PRINTERROR("Gv_SetVarX(): WTF??");
             vm.flags |= VMFLAG_ERROR;
             return;
         }
     }
-    case GAMEVAR_INTPTR:
-        *((int32_t *)aGameVars[id].val.lValue)=(int32_t)lValue;
+    case M32_FLAG_LOCAL:
+    {
+        int32_t index = id&(MAXGAMEVARS-1);
+        ((int32_t *)aGameArrays[M32_LOCAL_ARRAY_ID].vals)[index] = lValue;
         return;
-    case GAMEVAR_SHORTPTR:
-        *((int16_t *)aGameVars[id].val.lValue)=(int16_t)lValue;
-        return;
-    case GAMEVAR_CHARPTR:
-        *((uint8_t *)aGameVars[id].val.lValue)=(uint8_t)lValue;
-        return;
-    default:
-        M32_PRINTERROR("Gv_SetVarX(): WTF??");
-        vm.flags |= VMFLAG_ERROR;
-        return;
+    }
     }
 }
 
@@ -616,6 +633,8 @@ static void Gv_AddSystemVars(void)
 
     g_systemVarCount = g_gameVarCount;
 
+    // must be first!
+    Gv_NewArray(".LOCALS_BASE", NULL, 0, GAMEARRAY_OFINT);
 
     Gv_NewArray("highlight", (void *)highlight, hlcnt_id,
                 GAMEARRAY_READONLY|GAMEARRAY_OFSHORT|GAMEARRAY_VARSIZE);

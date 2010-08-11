@@ -29,10 +29,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "keys.h"
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
-static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
+static char g_szCurrentBlockName[BMAX_PATH] = "(none)", g_szLastBlockName[BMAX_PATH] = "NULL";
 
 ////// compiler state vvv
-static const char *textptr;
+static const char *textptr, *start_textptr, *g_curkwptr;
+static int32_t g_tw;
 int32_t g_totalLines, g_lineNumber;
 int32_t g_numCompilerErrors, g_numCompilerWarnings;
 
@@ -79,7 +80,7 @@ static int32_t statesinfo_allocsize = 512;
 static int32_t interactive_compilation = 0;
 
 static char tempbuf[2048];
-static char tlabel[MAXLABELLEN];
+static char tlabel[MAXLABELLEN], tlabel2[MAXLABELLEN];
 
 int32_t g_iReturnVar=0;
 int32_t m32_sortvar1, m32_sortvar2;
@@ -89,6 +90,7 @@ int32_t g_numQuoteRedefinitions = 0;
 
 ofstype aEventOffsets[MAXEVENTS];
 int32_t aEventSizes[MAXEVENTS];
+uint16_t aEventNumLocals[MAXEVENTS];
 
 gamevar_t aGameVars[MAXGAMEVARS];
 gamearray_t aGameArrays[MAXGAMEARRAYS];
@@ -101,6 +103,7 @@ int32_t g_gameArrayCount=0, g_systemArrayCount=0;
 
 
 void C_ReportError(int32_t iError);
+static void PrintErrorPosition();
 
 enum ScriptLabel_t
 {
@@ -506,6 +509,7 @@ const tokenmap_t iter_tokens[] =
 hashtable_t h_gamevars = { MAXGAMEVARS>>1, NULL };
 hashtable_t h_arrays   = { MAXGAMEARRAYS>>1, NULL };
 hashtable_t h_labels   = { 11262>>1, NULL };
+static hashtable_t h_localvars = { MAXGAMEVARS>>2, NULL };  // values: offset|(array?(size<<16):0)
 
 static hashtable_t h_states   = { 1264>>1, NULL };
 static hashtable_t h_keywords = { CON_END>>1, NULL };
@@ -522,6 +526,8 @@ static void C_InitHashes()
 
     hash_init(&h_gamevars);
     hash_init(&h_arrays);
+    hash_init(&h_localvars);
+
     hash_init(&h_labels);
     hash_init(&h_states);
 
@@ -550,6 +556,7 @@ static void C_InitHashes()
         hash_add(&h_iter, iter_tokens[i].token, iter_tokens[i].val, 0);
 }
 
+// returns:  0:success, 1:failure
 static int32_t C_SetScriptSize(int32_t size)
 {
     ofstype oscriptOfs = (unsigned)(g_scriptPtr-script);
@@ -597,15 +604,15 @@ static int32_t C_SetScriptSize(int32_t size)
     return 0;
 }
 
-static inline int32_t ispecial(char c)
+static inline int32_t char_whitespace(char c)
 {
     return c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='(' || c==')' || c==',' || c==';';
 }
 
-static inline int32_t isaltok(char c)
+static inline int32_t char_alnumtok(char c)
 {
     return isalnum(c) || c == '#' || c == '{' || c == '}' || c == '/' || c == '\\' ||
-           c == '*' || c == '-' || c == '_' || c == '.';
+           c == '*' || c == '-' || c == '_' || c == '.' || c == '"';
 }
 
 static int32_t C_SkipComments(void)
@@ -614,7 +621,7 @@ static int32_t C_SkipComments(void)
 
     do
     {
-        if (ispecial(c))
+        if (char_whitespace(c))
         {
             textptr++;
             g_lineNumber += (c=='\n');
@@ -650,7 +657,10 @@ static int32_t C_SkipComments(void)
     }
     while ((c = *textptr));
 
-    if ((unsigned)(g_scriptPtr-script) > (unsigned)(g_scriptSize-32))
+    // Be sure to have enough space allocated for the command to be parsed next.
+    // Currently, the commands that potentially need the most space are
+    // various string handling function that accept inline strings.
+    if ((unsigned)(g_scriptPtr-script) > (unsigned)(g_scriptSize - max(40, MAXQUOTELEN/sizeof(instype)+8)))
         return C_SetScriptSize(g_scriptSize<<1);
 
     return 0;
@@ -668,29 +678,32 @@ static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t 
     return l;
 }
 
-static void C_GetNextLabelName(void)
+// returns:  1 on EOF or (checkkeyw and keyword encountered), 0 else
+static int32_t C_GetNextLabelName(int32_t checkkeyw)
 {
     int32_t i;
 
     C_SkipComments();
 
+    tlabel[0] = 0;
+
     if (*textptr == 0)
     {
         C_CUSTOMERROR("unexpected EOF where label was expected.");
-        return;
+        return 1;
     }
 
-    while (!isalnum(*textptr))
+    while (*textptr && (char_whitespace(*textptr) || *textptr=='-')) //!isalnum(*textptr))
     {
         g_lineNumber += (*textptr == 0x0a);
-
         textptr++;
-        if (!*textptr)
-            return;
     }
 
+    if (!isalpha(*textptr))
+        C_CUSTOMERROR("label names must start with an alphabetic character, encountered '%c'.", *textptr);
+
     i = 0;
-    while (!ispecial(*textptr) && *textptr!='['&& *textptr!=']')
+    while (*textptr && !char_whitespace(*textptr) && *textptr!='['&& *textptr!=']')
     {
         if (i < MAXLABELLEN-1)
             tlabel[i++] = *(textptr++);
@@ -699,8 +712,21 @@ static void C_GetNextLabelName(void)
     }
 
     tlabel[i] = 0;
+
+    if (checkkeyw)
+    {
+        if (hash_find(&h_keywords, tlabel)>=0)
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_ISAKEYWORD);
+            return 1;
+        }
+    }
+
 //    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
 //        initprintf("%s:%d: debug: got label `%s'.\n",g_szScriptFileName,g_lineNumber,tlabel);
+
+    return 0;
 }
 
 static int32_t C_CopyLabel(void)
@@ -724,6 +750,7 @@ static int32_t C_CopyLabel(void)
     return 0;
 }
 
+// returns: -1 on EOF or not a keyword, keyword index (==bytecode value) else
 static int32_t C_GetKeyword(void)
 {
     int32_t i;
@@ -736,15 +763,15 @@ static int32_t C_GetKeyword(void)
 
     temptextptr = textptr;
 
-    while (!isaltok(*temptextptr))
+    while (!char_alnumtok(*temptextptr))
     {
         temptextptr++;
         if (!*temptextptr)
-            return 0;
+            return -1;
     }
 
     i = 0;
-    while (isaltok(*temptextptr))
+    while (char_alnumtok(*temptextptr))
         tempbuf[i++] = *(temptextptr++);
     tempbuf[i] = 0;
 
@@ -762,7 +789,7 @@ static int32_t C_GetNextKeyword(void)
     if (*textptr == 0)
         return -1;
 
-    while (!isaltok(*textptr))
+    while (!char_alnumtok(*textptr))
     {
         g_lineNumber += (*textptr == 0x0a);
 
@@ -773,17 +800,19 @@ static int32_t C_GetNextKeyword(void)
     }
 
     l = 0;
-    while (isaltok(*(textptr+l)) && !(*(textptr + l) == '.'))
+    while (char_alnumtok(textptr[l]) && textptr[l] != '.')
     {
         tempbuf[l] = textptr[l];
         l++;
     }
-    while (isaltok(*(textptr+l)))
+    while (char_alnumtok(textptr[l]))
     {
         tempbuf[l] = textptr[l];
         l++;
     }
     tempbuf[l] = 0;
+
+    g_curkwptr = textptr;
 
     textptr += l;
 
@@ -839,12 +868,36 @@ static int32_t C_GetNextKeyword(void)
     return i;
 }
 
-#define GetGamevarID(szGameLabel) hash_find(&h_gamevars, szGameLabel)
-#define GetGamearrayID(szGameLabel) hash_find(&h_arrays, szGameLabel)
+static int32_t GetGamevarID(const char *szGameLabel, int32_t searchlocals)
+{
+    if (searchlocals)
+    {
+        int32_t retid = hash_find(&h_localvars, szGameLabel);
+        if (retid>=0 && retid<MAXGAMEVARS)  // it's a local variable
+            return M32_FLAG_LOCAL | retid;
+    }
+
+    return hash_find(&h_gamevars, szGameLabel);
+}
+
+static int32_t GetGamearrayID(const char *szGameLabel, int32_t searchlocals)
+{
+    if (searchlocals)
+    {
+        int32_t retid = hash_find(&h_localvars, szGameLabel);
+        if (retid > MAXGAMEVARS)  // it's a local array
+            return retid;
+    }
+    return hash_find(&h_arrays, szGameLabel);
+}
+
+// gamevar type restrictions
+#define GV_WRITABLE GAMEVAR_READONLY
+#define GV_SIMPLE GAMEVAR_SPECIAL
 
 static void C_GetNextVarType(int32_t type)
 {
-    int32_t i, id=0, flags=0, num, indirect=0;
+    int32_t i, id=0, flags=0, num, indirect=0; //, thenum;
 
     C_SkipComments();
 
@@ -856,10 +909,20 @@ static void C_GetNextVarType(int32_t type)
 
     g_wasConstant = 0;
 
-    // constant where gamevar expected
-    if ((type==0 || type==GAMEVAR_SPECIAL) && !cs.labelsOnly &&
+    if (*textptr == '"')
+    {
+        C_CUSTOMERROR("String literal encountered where not expected, skipping.");
+        while (*textptr && *textptr!='"' && *textptr!=0x0a)
+            textptr++;
+        if (*textptr == '"')
+            textptr++;
+        return;
+    }
+    else if (!(type&GV_WRITABLE) && !cs.labelsOnly &&
             (isdigit(textptr[0]) || (textptr[0]=='-' && isdigit(textptr[1]))))
     {
+        // literal numeric constant where gamevar expected
+
 //        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
 //            initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
 
@@ -867,17 +930,23 @@ static void C_GetNextVarType(int32_t type)
             sscanf(textptr+2, "%" SCNx32, &num);
         else
             num = atoi(textptr);
-
-        if (type==GAMEVAR_SPECIAL && (num<0 || num>=65536))
+//thenum=num;
+        if (type==GV_SIMPLE && (num<0 || num>=65536))
             C_CUSTOMERROR("array index %d out of bounds. (max: 65535)",  num);
 
-        if (g_numCompilerErrors==0 && type!=GAMEVAR_SPECIAL && num != (int16_t)num)
+        if (g_numCompilerErrors==0 && type!=GV_SIMPLE && num != (int16_t)num)
         {
+            // Constant doesn't fit in 16 bits, make it indirect.
+            // Array indices are interpreted as unsigned, so they always fit into the high bits of the instruction.
+
             indirect = 1;
 
             for (i=g_numSavedConstants-1; i>=0; i--)
                 if (constants[i] == num)
+                {
+                    num = i;
                     break;
+                }
 
             if (i<0)
             {
@@ -900,38 +969,24 @@ static void C_GetNextVarType(int32_t type)
             }
         }
 
-        if (type!=GAMEVAR_SPECIAL)
+        if (type!=GV_SIMPLE)
             g_wasConstant = 1;
 
-        *g_scriptPtr++ = MAXGAMEVARS | (num<<16) | indirect;
+//printf("num:%d, idx:%d, indir:%d\n",thenum,num,indirect);
+        *g_scriptPtr++ = (num<<16) | M32_FLAG_CONSTANT | indirect;
 
-        while (!ispecial(*textptr) && *textptr != ']')
+        while (!char_whitespace(*textptr) && *textptr != ']')
             textptr++;
 
         return;
     }
-    else if (textptr[0]=='-' && textptr[1] != '.') //  && !isdigit(*(textptr+1))
+    else if (type != GV_SIMPLE && (textptr[0]=='.' || (textptr[0]=='-' && textptr[1]=='.')))
     {
-        if (type==0)
-        {
-//            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-//                initprintf("%s:%d: debug: flagging gamevar as negative.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
-            flags = M32_FLAG_NEGATE;
-        }
-        else
-        {
-            C_CUSTOMERROR("error: syntax error. Tried negating written-to variable.");
-            C_GetNextLabelName();
-            return;
-        }
-    }
-    else if (type != GAMEVAR_SPECIAL &&
-             (textptr[0]=='.' || (textptr[0]=='-' && textptr[1]=='.')))
-    {
-        int32_t lLabelID = -1, aridx = M32_THISACTOR_VAR_ID;
+        // current sprite shortcut access
 
-        flags |= M32_FLAG_SPECIAL;
+        int32_t lLabelID;
 
+        flags = M32_FLAG_STRUCT;
         if (*textptr=='-')
         {
             flags |= M32_FLAG_NEGATE;
@@ -941,7 +996,7 @@ static void C_GetNextVarType(int32_t type)
 
         /// now pointing at 'xxx'
 
-        C_GetNextLabelName();
+        C_GetNextLabelName(0);
         lLabelID = C_GetLabelNameID(SpriteLabels, &h_sprite, Bstrtolower(tlabel));
 
         if (lLabelID == -1)
@@ -951,21 +1006,41 @@ static void C_GetNextVarType(int32_t type)
             return;
         }
 
-        id = M32_SPRITE_VAR_ID;
-        *g_scriptPtr++ = ((aridx<<16) | id | (lLabelID<<2) | flags);
+        *g_scriptPtr++ = ((M32_THISACTOR_VAR_ID<<16) | flags | (lLabelID<<2) | M32_SPRITE_VAR_ID);
 
         return;
     }
-
-    C_GetNextLabelName();
-    if (hash_find(&h_keywords, tlabel)>=0)
+    else if (textptr[0]=='-' && textptr[1] != '.') //  && !isdigit(*(textptr+1))
     {
-        g_numCompilerErrors++;
-        C_ReportError(ERROR_ISAKEYWORD);
-        return;
+        // negation
+
+        if (type==0)
+        {
+//            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
+//                initprintf("%s:%d: debug: flagging gamevar as negative.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+            flags = M32_FLAG_NEGATE;
+        }
+        else
+        {
+            if (type==GV_WRITABLE)
+                C_CUSTOMERROR("syntax error. Tried negating written-to variable.");
+            else if (type==GV_SIMPLE)
+                C_CUSTOMERROR("syntax error. Tried negating variable in context that doesn't allow it.");
+            else  // type==GV_WRITABLE|GV_SIMPLE
+                C_CUSTOMERROR("syntax error. Tried negating written-to variable in context that doesn't allow it.");
+
+            C_GetNextLabelName(1);
+
+            return;
+        }
     }
+
+    // at this point, flags can be 0 or M32_FLAG_NEGATE
+
+    C_GetNextLabelName(1);
 
     C_SkipComments();  //skip comments and whitespace
+
     if (*textptr == '[')  //read of array as a gamevar
     {
         int32_t lLabelID = -1, aridx;
@@ -973,42 +1048,56 @@ static void C_GetNextVarType(int32_t type)
         textptr++;
         flags |= M32_FLAG_ARRAY;
 
-        if (type & GAMEVAR_SPECIAL)
+        if (type & GV_SIMPLE)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_EXPECTEDSIMPLEVAR);
             return;
         }
 
-        id = GetGamearrayID(tlabel);
+        id = GetGamearrayID(tlabel, 1);
         if (id < 0)
         {
-            id = GetGamevarID(tlabel);
-            if (id >= 4)
-                id = -1;
+            id = GetGamevarID(tlabel, 0);
 
-            if (id < 0)
+            if (id < 0 || id >= 4)
             {
-                g_numCompilerErrors++;
-                C_ReportError(ERROR_NOTAGAMEARRAY);
+                C_CUSTOMERROR("symbol `%s' is neither an array name nor one of `(t)sprite', `sector' or `wall'.", tlabel);
                 return;
             }
 
             flags &= ~M32_FLAG_ARRAY; // not an array
-            flags |= M32_FLAG_SPECIAL;
+            flags |= M32_FLAG_STRUCT;
         }
-        else
+        else if (id<MAXGAMEARRAYS)  // simple (non-local) gamearrays
         {
-            if ((aGameArrays[id].dwFlags & GAMEARRAY_READONLY) && (type&GAMEVAR_READONLY))
+            if ((aGameArrays[id].dwFlags & GAMEARRAY_READONLY) && (type&GV_WRITABLE))
             {
                 C_ReportError(ERROR_ARRAYREADONLY);
                 g_numCompilerErrors++;
             }
         }
+        else  // local array
+        {
+            Bmemcpy(tlabel2, tlabel, MAXLABELLEN);
+            flags |= M32_FLAG_LOCAL;
+        }
 
-        C_GetNextVarType(GAMEVAR_SPECIAL);  // _SPECIAL signifies that we want only simple vars or a constant
+        // ---------- get index:
+        // GV_SIMPLE signifies that we want only simple vars or a constant
+        C_GetNextVarType(GV_SIMPLE);
         g_scriptPtr--;
         aridx = *g_scriptPtr;
+
+        if ((flags & M32_VARTYPE_MASK) == M32_FLAG_LOCAL)
+        {
+            if ((aridx & M32_BITS_MASK) != M32_FLAG_CONSTANTINDEX)
+                C_CUSTOMERROR("local arrays can only be indexed with constants.");
+
+            aridx = (int16_t)((aridx>>16)&0xffff);  // decode...
+        }
+
+        // ----------
 
         C_SkipComments();
 
@@ -1020,16 +1109,26 @@ static void C_GetNextVarType(int32_t type)
         }
         textptr++;
 
-        // writing arrays in this way is not supported because it would
-        // require too many changes to other code
-//        if (type)
-//        {
-//            g_numCompilerErrors++;
-//            C_ReportError(ERROR_INVALIDARRAYWRITE);
-//            return;
-//        }
+        // ----------
 
-        if (flags & M32_FLAG_SPECIAL)
+        if ((flags & M32_VARTYPE_MASK) == M32_FLAG_LOCAL)
+        {
+            // id: local ofs | (size<<16)
+            int32_t ar_ofs=id&(MAXGAMEVARS-1), ar_size=(id>>16)&0xffff;
+
+            if (aridx<0 || aridx>=ar_size)
+                C_CUSTOMERROR("local array index %d out of bounds. Size of local array `%s': %d.", aridx, tlabel2, ar_size);
+
+            *g_scriptPtr++ = (flags|(ar_ofs+aridx));
+        }
+        if ((flags & M32_VARTYPE_MASK) == M32_FLAG_ARRAY)
+        {
+            if ((aridx & M32_BITS_MASK) == M32_FLAG_CONSTANTINDEX)
+                *g_scriptPtr++ = (aridx | flags | id);
+            else  // simple or local gamevar
+                *g_scriptPtr++ = (aridx<<16 | flags | id);
+        }
+        else if ((flags & M32_VARTYPE_MASK) == M32_FLAG_STRUCT)
         {
             while (*textptr && *textptr != 0x0a && *textptr != '.')
                 textptr++;
@@ -1037,14 +1136,14 @@ static void C_GetNextVarType(int32_t type)
             if (*textptr != '.')
             {
                 static const char *types[4] = {"sprite","sector","wall","tsprite"};
-                C_CUSTOMERROR("error: syntax error. Expected `.<label>' after `%s[...]'", types[id&3]);
+                C_CUSTOMERROR("syntax error. Expected `.<label>' after `%s[...]'", types[id&3]);
                 return;
             }
             textptr++;
 
             /// now pointing at 'xxx'
 
-            C_GetNextLabelName();
+            C_GetNextLabelName(0);
 
             /*initprintf("found xxx label of '%s'\n",   label+(g_numLabels*MAXLABELLEN));*/
             if (id==M32_SPRITE_VAR_ID || id==M32_TSPRITE_VAR_ID)
@@ -1062,23 +1161,17 @@ static void C_GetNextVarType(int32_t type)
                 return;
             }
 
-            if ((aridx & 0x0000FFFF) == MAXGAMEVARS)  // constant
-                *g_scriptPtr++ = (aridx | id | (lLabelID<<2) | flags);
-            else  // simple gamevar
-                *g_scriptPtr++ = (aridx<<16 | id | (lLabelID<<2) | flags);
+            if ((aridx & M32_BITS_MASK) == M32_FLAG_CONSTANTINDEX)
+                *g_scriptPtr++ = (aridx | flags | (lLabelID<<2) | id);
+            else  // simple or local gamevar
+                *g_scriptPtr++ = (aridx<<16 | flags | (lLabelID<<2) | id);
         }
-        else // if (flags & M32_FLAG_ARRAY)
-        {
-            if ((aridx & 0x0000FFFF) == MAXGAMEVARS)  // constant
-                *g_scriptPtr++ = (aridx | id | flags);
-            else  // simple gamevar
-                *g_scriptPtr++ = (aridx<<16 | id | flags);
-        }
+
         return;
     }
 
 //    initprintf("not an array");
-    id = GetGamevarID(tlabel);
+    id = GetGamevarID(tlabel, 1);
     if (id < 0)   //gamevar not found
     {
         if (!type && !cs.labelsOnly)
@@ -1089,9 +1182,9 @@ static void C_GetNextVarType(int32_t type)
             {
 //                if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
 //                    initprintf("%s:%d: debug: accepted defined label `%s' instead of gamevar.\n",g_szScriptFileName,g_lineNumber,label+(id*MAXLABELLEN));
-                num = labelval[id];
+                num = (1-!!(flags&M32_FLAG_NEGATE))*labelval[id];
 
-                if (type==GAMEVAR_SPECIAL && (num<0 || num>=65536))
+                if (type==GV_SIMPLE && (num<0 || num>=65536))
                 {
                     C_CUSTOMERROR("label %s=%d not suitable as array index. (max: 65535)", label+(id*MAXLABELLEN), num);
                 }
@@ -1101,10 +1194,14 @@ static void C_GetNextVarType(int32_t type)
                     num = id;
                 }
 
-                if (type!=GAMEVAR_SPECIAL)
+                if (type!=GV_SIMPLE)
                     g_wasConstant = 1;
 
-                *g_scriptPtr++ = MAXGAMEVARS | (num<<16) | indirect;
+                // note: For direct constants, the NEGATE flag is ignored since they're interpreted
+                //       as signed. For label-indirect constants however, the NEGATE flag is considered.
+                //       See m32vars.c --> Gv_GetVarX()
+                // note 2: demotions like int32_t -> int16_t are implementation-defined
+                *g_scriptPtr++ = M32_FLAG_CONSTANT | (num<<16) | flags | indirect;
                 return;
             }
         }
@@ -1114,23 +1211,27 @@ static void C_GetNextVarType(int32_t type)
         textptr++;
         return;
     }
-
-    if (type == GAMEVAR_READONLY && aGameVars[id].dwFlags & GAMEVAR_READONLY)
+    else if (id<MAXGAMEVARS)  // it's an ordinary var (not a local one)
     {
-        g_numCompilerErrors++;
-        C_ReportError(ERROR_VARREADONLY);
-        return;
-    }
-    else if (aGameVars[id].dwFlags & type)
-    {
-        g_numCompilerErrors++;
-        C_ReportError(ERROR_VARTYPEMISMATCH);
-        return;
+        if (type==GV_WRITABLE && (aGameVars[id].dwFlags & GV_WRITABLE))
+        {
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_VARREADONLY);
+            return;
+        }
+        else if (aGameVars[id].dwFlags & type)
+        {
+//        g_numCompilerErrors++;
+            C_CUSTOMERROR("variable `%s' is of the wrong type: expected simple var.", tlabel);
+//        C_ReportError(ERROR_VARTYPEMISMATCH);
+            return;
+        }
     }
 //    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
 //        initprintf("%s:%d: debug: accepted gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,tlabel);
 
-    *g_scriptPtr++ = (id|flags);
+    // if it's a local, "id" ors M32_FLAG_LOCAL to the flags
+    *g_scriptPtr++ = (flags|id);
 }
 
 static inline void C_GetNextVar()
@@ -1150,19 +1251,83 @@ static inline void C_GetManyVars(int32_t num)
     C_GetManyVarsType(0,num);
 }
 
+// used in various quote commands: they either take a string
+// enclosed in double quotes or a variable that contains a quote number
+// returns:
+//   -1: error
+//    0: variable
+//    1: string, also does *g_scriptPtr++ = -1 and inlines
+//       the string in the code (terminator: (instype)0)
+static int32_t C_GetNextVarOrString()
+{
+    C_SkipComments();
+
+    if (*textptr == 0)
+    {
+        C_CUSTOMERROR("unexpected EOF where variable or string literal was expected.");
+        return -1;
+    }
+
+    if (*textptr == '"')
+    {
+        const char *beg = ++textptr;
+        int32_t nchars;
+
+        while (*textptr!='"')
+        {
+            switch (*textptr)
+            {
+            case 0x0a:
+                C_CUSTOMERROR("string literal must end on the same line.");
+                return -1;
+            case 0:
+                C_CUSTOMERROR("unexpected EOF inside string literal.");
+                return -1;
+            }
+
+            textptr++;
+        }
+
+        nchars = textptr-beg;
+
+        if (nchars >= MAXQUOTELEN)
+        {
+            nchars = MAXQUOTELEN-1;
+            C_CUSTOMWARNING("truncating string literal to %d characters.", nchars);
+        }
+
+        *g_scriptPtr++ = -1;  // special indicator meaning "inline string follows"
+
+        Bmemcpy((char *)g_scriptPtr, beg, nchars);
+        ((char *)g_scriptPtr)[nchars] = 0;
+
+        g_scriptPtr += (nchars + sizeof(instype)-1)/sizeof(instype);
+        *g_scriptPtr++ = 0;
+
+        textptr++;
+
+        return 1;
+    }
+    else
+    {
+        C_GetNextVar();
+        return 0;
+    }
+}
+
 static int32_t C_GetNextValue(int32_t type)
 {
-    int32_t i, l;
+    int32_t i, l, thesign=1;
 
     C_SkipComments();
 
     if (*textptr == 0)
     {
-        C_CUSTOMERROR("unexpected EOF where value was expected.");
+        C_CUSTOMERROR("unexpected EOF where constant label or value was expected.");
         return -1;
     }
 
-    while (!isaltok(*textptr))
+    while (!char_alnumtok(*textptr))
     {
         g_lineNumber += (*textptr == 0x0a);
 
@@ -1172,8 +1337,15 @@ static int32_t C_GetNextValue(int32_t type)
             return -1; // eof
     }
 
+    if (*textptr=='-' && !isdigit(textptr[1]))
+    {
+        // in case constant label is negated, e.g. -MAXSPRITES
+        thesign = -1;
+        textptr++;
+    }
+
     l = 0;
-    while (isaltok(*(textptr+l)))
+    while (char_alnumtok(*(textptr+l)))
     {
         tempbuf[l] = textptr[l];
         l++;
@@ -1201,7 +1373,7 @@ static int32_t C_GetNextValue(int32_t type)
 //                Bfree(gl);
 //            }
 
-            *(g_scriptPtr++) = labelval[i];
+            *(g_scriptPtr++) = thesign*labelval[i];
 
             textptr += l;
             return labeltype[i];
@@ -1220,7 +1392,7 @@ static int32_t C_GetNextValue(int32_t type)
         return -1;  // valid label name, but wrong type
     }
 
-    if (isdigit(*textptr) == 0 && *textptr != '-')
+    if (!isdigit(*textptr) && *textptr != '-')
     {
         C_ReportError(ERROR_PARAMUNDEFINED);
         g_numCompilerErrors++;
@@ -1245,7 +1417,7 @@ static int32_t C_GetNextValue(int32_t type)
         if (textptr[0] == '0' && textptr[1] == 'x') break; // kill the warning for hex
         if (!isdigit(textptr[i--]))
         {
-            C_CUSTOMWARNING("invalid character `%c' in definition!", textptr[i+1]);
+            C_CUSTOMERROR("invalid character `%c' in definition!", textptr[i+1]);
             break;
         }
     }
@@ -1335,6 +1507,7 @@ static int32_t C_CountCaseStatements()
 
     cs.numCases=0;
     cs.caseScriptPtr=NULL;
+
     //Bsprintf(g_szBuf,"CSS: %.12s",textptr); AddLog(g_szBuf);
     while (C_ParseCommand() == 0)
     {
@@ -1355,17 +1528,12 @@ static int32_t C_CountCaseStatements()
     return lCount;
 }
 
+// returns:  0:keep going,  1:done
 static int32_t C_ParseCommand(void)
 {
     int32_t i, j=0, k=0, done, tw;
     const char *temptextptr;
     instype *tempscrptr = NULL;
-
-///    if (quitevent)
-///    {
-///        initprintf("Aborted.\n");
-///        return 1;
-///    }
 
     if (g_numCompilerErrors >= ABORTERRCNT || (*textptr == '\0') || (*(textptr+1) == '\0'))
         return 1;
@@ -1377,6 +1545,7 @@ static int32_t C_ParseCommand(void)
 ///        Bsprintf(g_szBuf,"PC(): '%.25s'",textptr); AddLog(g_szBuf);
 
     tw = C_GetNextKeyword();
+    g_tw = tw;
     //    Bsprintf(tempbuf,"%s",keyw[tw]); AddLog(tempbuf);
 
     if (C_SkipComments())
@@ -1400,14 +1569,14 @@ static int32_t C_ParseCommand(void)
 
     case CON_DEFINE:
     {
-        C_GetNextLabelName();
-
-        if (hash_find(&h_keywords, tlabel) >= 0)
+        if (cs.currentStateIdx >=0 || cs.currentEvent >= 0)
         {
-            g_numCompilerErrors++;
-            C_ReportError(ERROR_ISAKEYWORD);
-            return 0;
+            C_CUSTOMERROR("Can only `define' at top level.");
+            return 1;
         }
+
+        if (C_GetNextLabelName(1))
+            return 1;
 
         // Check to see it's already defined
         i = hash_find(&h_gamevars, tlabel);
@@ -1448,7 +1617,7 @@ static int32_t C_ParseCommand(void)
 
     case CON_INCLUDE:
         g_scriptPtr--;
-        while (!isaltok(*textptr))
+        while (!char_alnumtok(*textptr))
         {
             g_lineNumber += (*textptr == 0x0a);
 
@@ -1458,7 +1627,7 @@ static int32_t C_ParseCommand(void)
         }
 
         j = 0;
-        while (isaltok(*textptr))
+        while (char_alnumtok(*textptr))
         {
             tempbuf[j] = *(textptr++);
             j++;
@@ -1526,16 +1695,16 @@ static int32_t C_ParseCommand(void)
 
     case CON_DEFSTATE:
         g_scriptPtr--;
-        if (cs.parsingEventOfs < 0  && cs.currentStateIdx < 0)
+        if (cs.parsingEventOfs >= 0 || cs.currentStateIdx >= 0)
         {
-            C_GetNextLabelName();
-
-            if (hash_find(&h_keywords, tlabel)>=0)
-            {
-                g_numCompilerErrors++;
-                C_ReportError(ERROR_ISAKEYWORD);
+            g_numCompilerErrors++;
+            C_ReportError(ERROR_FOUNDWITHIN);
+            return 1;
+        }
+        else
+        {
+            if (C_GetNextLabelName(1))
                 return 1;
-            }
 
             if (hash_find(&h_gamevars, tlabel)>=0)
             {
@@ -1577,6 +1746,7 @@ static int32_t C_ParseCommand(void)
                 }
 
                 Bmemcpy(statesinfo[j].name, tlabel, MAXLABELLEN);
+                statesinfo[j].numlocals = 0;
                 Bsprintf(g_szCurrentBlockName, "%s", tlabel);
                 hash_add(&h_states, tlabel, j, 0);
             }
@@ -1584,133 +1754,133 @@ static int32_t C_ParseCommand(void)
             return 0;
         }
 
-        g_numCompilerErrors++;
-        C_ReportError(ERROR_FOUNDWITHIN);
-        return 1;
-
     case CON_ENDS:
         if (cs.currentStateIdx < 0)
         {
             C_CUSTOMERROR("found `ends' without open `state'.");
             return 1; //+
         }
-        else
+
+        hash_init(&h_localvars);
+
+        if (cs.numBraces > 0)
         {
-            if (cs.numBraces > 0)
-            {
-                C_ReportError(ERROR_OPENBRACKET);
-                g_numCompilerErrors++;
-            }
-            else if (cs.numBraces < 0)
-            {
-                C_ReportError(ERROR_CLOSEBRACKET);
-                g_numCompilerErrors++;
-            }
+            C_ReportError(ERROR_OPENBRACKET);
+            g_numCompilerErrors++;
+        }
+        else if (cs.numBraces < 0)
+        {
+            C_ReportError(ERROR_CLOSEBRACKET);
+            g_numCompilerErrors++;
+        }
 
-            if (cs.checkingSwitch > 0)
-            {
-                C_ReportError(ERROR_NOENDSWITCH);
-                g_numCompilerErrors++;
+        if (cs.checkingSwitch > 0)
+        {
+            C_ReportError(ERROR_NOENDSWITCH);
+            g_numCompilerErrors++;
 
-                cs.checkingSwitch = 0; // can't be checking anymore...
-            }
+            cs.checkingSwitch = 0; // can't be checking anymore...
+        }
 
-            if (g_numCompilerErrors)
-            {
-                g_scriptPtr = script+cs.currentStateOfs;
-                cs.currentStateOfs = -1;
-                cs.currentStateIdx = -1;
-                Bsprintf(g_szCurrentBlockName,"(none)");
-                return 0;
-            }
-
-            j = cs.currentStateIdx;
-
-            if (cs.currentStateIdx == g_stateCount)  // we were defining a new state
-            {
-                statesinfo[j].ofs = cs.currentStateOfs;
-                statesinfo[j].codesize = (g_scriptPtr-script) - cs.currentStateOfs;
-
-                g_stateCount++;
-
-                initprintf("  Defined state `%s' (index %d).\n", g_szCurrentBlockName, j);
-//                initprintf("    o:%d s:%d\n", statesinfo[j].ofs, statesinfo[j].codesize);
-            }
-            else  // we were redefining a state
-            {
-                int32_t oofs = statesinfo[j].ofs;
-                int32_t nofs = cs.currentStateOfs;
-                int32_t osize = statesinfo[j].codesize;
-                int32_t nsize = (g_scriptPtr-script) - nofs;
-
-                if (nsize == osize)
-                {
-                    int ii, equal=2, linedif = 0, ow, nw;
-
-                    for (ii=0; ii<nsize; ii++)
-                    {
-                        ow = *(script+oofs+ii);
-                        nw = *(script+nofs+ii);
-                        if (ow != nw)
-                        {
-                            int32_t ld = (nw>>12) - (ow>>12);
-                            if (equal==2)
-                            {
-                                equal = 1;
-                                linedif = ld;
-                            }
-
-                            if (linedif != ld || ((nw&0xFFF) != (ow&0xFFF)))
-                            {
-                                equal = 0;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (equal!=2)
-                        Bmemcpy(script+oofs, script+nofs, nsize*sizeof(instype));
-                    if (equal==0)
-                        initprintf("  Redefined state `%s' (index %d).\n", g_szCurrentBlockName, j);
-//                        initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
-                }
-                else
-                {
-                    int32_t ii;
-                    uint32_t movedcodesize = g_scriptPtr - (script+oofs+osize);
-
-                    Bmemmove(script+oofs, script+oofs+osize, movedcodesize*sizeof(instype));
-
-                    for (ii=0; ii<g_stateCount; ii++)
-                    {
-                        if (statesinfo[ii].ofs > oofs)
-                            statesinfo[ii].ofs -= osize;
-                    }
-                    for (ii=0; ii<MAXEVENTS; ii++)
-                        if (/*ii != j &&*/ aEventOffsets[ii] > oofs)
-                            aEventOffsets[ii] -= osize;
-
-                    statesinfo[j].ofs = nofs-osize;
-                    statesinfo[j].codesize = nsize;
-
-                    initprintf("  Redefined state `%s' (index %d).\n", g_szCurrentBlockName, j);
-//                    initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
-                }
-                g_scriptPtr -= osize;
-            }
-
-            g_didDefineSomething = 1;
-
+        if (g_numCompilerErrors)
+        {
+            g_scriptPtr = script+cs.currentStateOfs;
             cs.currentStateOfs = -1;
             cs.currentStateIdx = -1;
-
             Bsprintf(g_szCurrentBlockName,"(none)");
+            return 0;
         }
+
+        j = cs.currentStateIdx;
+
+        if (cs.currentStateIdx == g_stateCount)  // we were defining a new state
+        {
+            statesinfo[j].ofs = cs.currentStateOfs;
+            statesinfo[j].codesize = (g_scriptPtr-script) - cs.currentStateOfs;
+
+            g_stateCount++;
+
+            initprintf("  Defined State %3d `%s'.\n", j, g_szCurrentBlockName);
+//                initprintf("    o:%d s:%d\n", statesinfo[j].ofs, statesinfo[j].codesize);
+        }
+        else  // we were redefining a state
+        {
+            int32_t oofs = statesinfo[j].ofs;
+            int32_t nofs = cs.currentStateOfs;
+            int32_t osize = statesinfo[j].codesize;
+            int32_t nsize = (g_scriptPtr-script) - nofs;
+
+            if (nsize == osize)
+            {
+                int ii, equal=2, linedif = 0, ow, nw;
+
+                for (ii=0; ii<nsize; ii++)
+                {
+                    ow = *(script+oofs+ii);
+                    nw = *(script+nofs+ii);
+                    if (ow != nw)
+                    {
+                        int32_t ld = (nw>>12) - (ow>>12);
+                        if (equal==2)
+                        {
+                            equal = 1;
+                            linedif = ld;
+                        }
+
+                        if (linedif != ld || ((nw&0xFFF) != (ow&0xFFF)))
+                        {
+                            equal = 0;
+                            break;
+                        }
+                    }
+                }
+
+                if (equal!=2)
+                    Bmemcpy(script+oofs, script+nofs, nsize*sizeof(instype));
+                if (equal==0)
+                    initprintf("  Redefined State %3d `%s'.\n", j, g_szCurrentBlockName);
+//                        initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
+            }
+            else
+            {
+                int32_t ii;
+                uint32_t movedcodesize = g_scriptPtr - (script+oofs+osize);
+
+                Bmemmove(script+oofs, script+oofs+osize, movedcodesize*sizeof(instype));
+
+                for (ii=0; ii<g_stateCount; ii++)
+                {
+                    if (statesinfo[ii].ofs > oofs)
+                        statesinfo[ii].ofs -= osize;
+                }
+                for (ii=0; ii<MAXEVENTS; ii++)
+                    if (/*ii != j &&*/ aEventOffsets[ii] > oofs)
+                        aEventOffsets[ii] -= osize;
+
+                statesinfo[j].ofs = nofs-osize;
+                statesinfo[j].codesize = nsize;
+
+                initprintf("  Redefined State %3d `%s'.\n", j, g_szCurrentBlockName);
+//                    initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
+            }
+            g_scriptPtr -= osize;
+        }
+
+        g_didDefineSomething = 1;
+
+        cs.currentStateOfs = -1;
+        cs.currentStateIdx = -1;
+
+        Bsprintf(g_szCurrentBlockName,"(none)");
+
         return 0;
 
+
     case CON_SORT:
-        C_GetNextLabelName();
-        i = GetGamearrayID(tlabel);
+        if (C_GetNextLabelName(1))
+            return 1;
+
+        i = GetGamearrayID(tlabel, 0);
         if (i >= 0)
         {
             *g_scriptPtr++ = i;
@@ -1730,25 +1900,14 @@ static int32_t C_ParseCommand(void)
 
         if (C_GetKeyword() >= 0)
         {
+            // default sorting state that compares values numerically
             *g_scriptPtr++ = -1;
             return 0;
         }
         // fall-through
     case CON_STATE:
-        C_GetNextLabelName();
-
-        if (hash_find(&h_keywords, tlabel)>=0)
-        {
-            g_numCompilerErrors++;
-            C_ReportError(ERROR_ISAKEYWORD);
+        if (C_GetNextLabelName(1))
             return 1;
-        }
-
-        if (hash_find(&h_gamevars, tlabel)>=0)
-        {
-            g_numCompilerWarnings++;
-            C_ReportError(WARNING_NAMEMATCHESVAR);
-        }
 
         j = hash_find(&h_states, tlabel);
         if (j>=0)
@@ -1768,6 +1927,7 @@ static int32_t C_ParseCommand(void)
         {
             C_ReportError(ERROR_FOUNDWITHIN);
             g_numCompilerErrors++;
+            return 1;
         }
 
         g_scriptPtr--;
@@ -1775,7 +1935,7 @@ static int32_t C_ParseCommand(void)
 
         C_SkipComments();
         j = 0;
-        while (isaltok(*(textptr+j)))
+        while (char_alnumtok(*(textptr+j)))
         {
             g_szCurrentBlockName[j] = textptr[j];
             j++;
@@ -1790,6 +1950,7 @@ static int32_t C_ParseCommand(void)
         j = *g_scriptPtr;  // event number
 
         cs.currentEvent = j;
+        aEventNumLocals[j] = 0;
         cs.parsingEventOfs = g_scriptPtr-script;
         //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, g_parsingEventPtr); AddLog(g_szBuf);
         if (j<0 || j >= MAXEVENTS)
@@ -1808,6 +1969,9 @@ static int32_t C_ParseCommand(void)
             C_CUSTOMERROR("found `endevent' without open `onevent'.");
             return 1;
         }
+
+        hash_init(&h_localvars);
+
         if (cs.numBraces > 0)
         {
             C_ReportError(ERROR_OPENBRACKET);
@@ -1818,6 +1982,7 @@ static int32_t C_ParseCommand(void)
             C_ReportError(ERROR_CLOSEBRACKET);
             g_numCompilerErrors++;
         }
+
         if (g_numCompilerErrors)
         {
             g_scriptPtr = script+cs.parsingEventOfs;
@@ -1861,7 +2026,7 @@ static int32_t C_ParseCommand(void)
                 if (equal!=2)
                     Bmemcpy(script+oofs, script+nofs, nsize*sizeof(instype));
                 if (equal==0)
-                    initprintf("  Redefined event `%s' (index %d).\n", g_szCurrentBlockName, j);
+                    initprintf("  Redefined Event %3d `%s'.\n", j, g_szCurrentBlockName);
 //                        initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
             }
             else
@@ -1883,7 +2048,7 @@ static int32_t C_ParseCommand(void)
                 aEventOffsets[j] = nofs - osize;
                 aEventSizes[j] = nsize;
 
-                initprintf("  Redefined event `%s' (index %d).\n", g_szCurrentBlockName, j);
+                initprintf("  Redefined Event %3d `%s'.\n", j, g_szCurrentBlockName);
 //                initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
             }
             g_scriptPtr -= osize;
@@ -1893,7 +2058,7 @@ static int32_t C_ParseCommand(void)
             aEventOffsets[j] = cs.parsingEventOfs;
             aEventSizes[j] = (g_scriptPtr-script) - cs.parsingEventOfs;
 
-            initprintf("  Defined event `%s' (index %d).\n", g_szCurrentBlockName, j);
+            initprintf("  Defined Event %3d `%s'.\n", j, g_szCurrentBlockName);
 //            initprintf("    o:%d s:%d\n", aEventOffsets[j], aEventSizes[j]);
         }
 
@@ -2150,7 +2315,7 @@ repeatcase:
 //        break;
 
     case CON_GETCURRADDRESS:
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         return 0;
 
     case CON_JUMP:
@@ -2250,13 +2415,13 @@ repeatcase:
 
         if (*textptr!='.')
         {
-            C_CUSTOMERROR("error: syntax error. Expected `.<label>' after `%s[...]'", keyw[tw]);
+            C_CUSTOMERROR("syntax error. Expected `.<label>' after `%s[...]'", keyw[tw]);
             return 0;
         }
         textptr++;
 
         /// now pointing at 'xxx'
-        C_GetNextLabelName();
+        C_GetNextLabelName(0);
         //printf("found xxx label of '%s'\n",   label+(g_numLabels*MAXLABELLEN));
 
         if (tw==CON_GETSECTOR || tw==CON_SETSECTOR)
@@ -2278,7 +2443,7 @@ repeatcase:
         // now at target VAR...
         // get the ID of the DEF
         if (tw==CON_GETSECTOR || tw==CON_GETWALL || tw==CON_GETSPRITE || tw==CON_GETTSPR)
-            C_GetNextVarType(GAMEVAR_READONLY);
+            C_GetNextVarType(GV_WRITABLE);
         else
             C_GetNextVar();
         break;
@@ -2287,70 +2452,59 @@ repeatcase:
     case CON_GAMEVAR:
         // syntax: gamevar <var1> <initial value> <flags>
         // defines var1 and sets initial value.
-        // flags are used to define usage
-        // (see top of this files for flags)
-        //printf("Got gamedef. Getting Label. '%.20s'\n",textptr);
+        // flags are used to define usage: 0:global, 1:per-block
 
-        if (isdigit(*textptr) || (*textptr == '-'))
+        g_scriptPtr--;
+
+        if (cs.currentStateIdx < 0 && cs.currentEvent < 0)
         {
-            C_CUSTOMERROR("error: syntax error. Expected identifier after `gamevar'");
-            C_GetNextLabelName();
-            C_GetNextValue(LABEL_DEFINE);
-            C_GetNextValue(LABEL_DEFINE);
-            g_scriptPtr -= 3; // we complete the process anyways just to skip past the fucked up section
-            return 0;
+            // global gamevar
+
+            if (C_GetNextLabelName(1))
+                return 1;
+
+            C_GetNextValue(LABEL_DEFINE); // get initial value
+            C_GetNextValue(LABEL_DEFINE); // get flags
+            //Bsprintf(g_szBuf,"Adding GameVar='%s', val=%l, flags=%lX",label+(g_numLabels*MAXLABELLEN), *(g_scriptPtr-2), *(g_scriptPtr-1)); AddLog(g_szBuf);
+
+            // global var: can't define default
+            if (g_numCompilerErrors==0)
+            {
+                Gv_NewVar(tlabel, *(g_scriptPtr-2), *(g_scriptPtr-1) & ~GAMEVAR_DEFAULT);
+                g_scriptPtr -= 2; // no need to save in script...
+            }
         }
-
-        C_GetNextLabelName();
-        //printf("Got Label '%.20s'\n",textptr);
-        // Check to see it's already defined
-
-        if (hash_find(&h_keywords, tlabel)>=0)
+        else  // local var
         {
-            g_numCompilerErrors++;
-            C_ReportError(ERROR_ISAKEYWORD);
-            return 0;
+            do
+            {
+                C_GetNextLabelName(1);
+
+                if (hash_find(&h_localvars, tlabel) >= 0)
+                    C_CUSTOMERROR("local variable `%s' already defined.", tlabel);
+                else
+                {
+                    uint16_t *numlocals = (cs.currentStateIdx >= 0) ? 
+                        &statesinfo[cs.currentStateIdx].numlocals : &aEventNumLocals[cs.currentEvent];
+
+                    if (((int32_t)(*numlocals))+1 > MAXGAMEVARS)
+                        C_CUSTOMERROR("too much local storage required (max: %d gamevar equivalents).", MAXGAMEVARS);
+                    else
+                    {
+                        hash_add(&h_localvars, tlabel, (int32_t)(*numlocals), 0);
+                        *numlocals += 1;
+                    }
+                }
+            } while (C_GetKeyword() < 0 && g_numCompilerErrors<ABORTERRCNT && *textptr);
         }
-
-        C_GetNextValue(LABEL_DEFINE); // get initial value
-        C_GetNextValue(LABEL_DEFINE); // get flags
-        //Bsprintf(g_szBuf,"Adding GameVar='%s', val=%l, flags=%lX",label+(g_numLabels*MAXLABELLEN), *(g_scriptPtr-2), *(g_scriptPtr-1)); AddLog(g_szBuf);
-///        if ((*(g_scriptPtr-1)&GAMEVAR_USER_MASK)==3)
-///        {
-///            g_numCompilerWarnings++;
-///            *(g_scriptPtr-1) ^= GAMEVAR_PERBLOCK;
-///            C_ReportError(WARNING_BADGAMEVAR);
-///        }
-
-        Gv_NewVar(tlabel, *(g_scriptPtr-2),
-                  /* can't define default or secret */
-                  *(g_scriptPtr-1) & ~(GAMEVAR_DEFAULT|GAMEVAR_SECRET));
 
         //AddLog("Added gamevar");
-        g_scriptPtr -= 3; // no need to save in script...
         return 0;
 
 // *** arrays
     case CON_GAMEARRAY:
-        if (isdigit(*textptr) || (*textptr == '-'))
-        {
-            C_CUSTOMERROR("error: syntax error. Expected identifier after `gamearray'");
-            C_GetNextLabelName();
-            C_GetNextValue(LABEL_DEFINE);
-            C_GetNextValue(LABEL_DEFINE);
-            g_scriptPtr -= 2; // we complete the process anyways just to skip past the fucked up section
-            return 0;
-        }
-
-        C_GetNextLabelName();
-        //printf("Got Label '%.20s'\n",textptr);
-        // Check to see it's already defined
-        if (hash_find(&h_keywords, tlabel) >= 0)
-        {
-            g_numCompilerErrors++;
-            C_ReportError(ERROR_ISAKEYWORD);
-            return 0;
-        }
+        if (C_GetNextLabelName(1))
+            return 1;
 
         if (hash_find(&h_gamevars, tlabel) >= 0)
         {
@@ -2359,15 +2513,34 @@ repeatcase:
         }
 
         C_GetNextValue(LABEL_DEFINE);
-        Gv_NewArray(tlabel, 0, *(g_scriptPtr-1), GAMEARRAY_NORMAL);
+
+        {
+            int32_t asize = *(g_scriptPtr-1);
+            if (cs.currentStateIdx < 0 && cs.currentEvent < 0)        
+                Gv_NewArray(tlabel, NULL, asize, GAMEARRAY_NORMAL);
+            else  // local array
+            {
+                uint16_t *numlocals = (cs.currentStateIdx >= 0) ?
+                    &statesinfo[cs.currentStateIdx].numlocals : &aEventNumLocals[cs.currentEvent];
+
+                if (((int32_t)(*numlocals))+asize > MAXGAMEVARS)
+                    C_CUSTOMERROR("too much local storage required (max: %d gamevar equivalents).", MAXGAMEVARS);
+                else
+                {
+                    hash_add(&h_localvars, tlabel, ((int32_t)(*numlocals))|(asize<<16), 0);
+                    *numlocals += asize;
+                }
+            }
+        }
 
         g_scriptPtr -= 2; // no need to save in script...
         return 0;
 
     case CON_COPY:
-        C_GetNextLabelName();
+        if (C_GetNextLabelName(1))
+            return 1;
 
-        i = GetGamearrayID(tlabel);
+        i = GetGamearrayID(tlabel, 0);
         if (i >= 0)
             *g_scriptPtr++ = i;
         else
@@ -2398,9 +2571,10 @@ repeatcase:
         textptr++;
         // fall-through
     case CON_SETARRAY:
-        C_GetNextLabelName();
+        if (C_GetNextLabelName(1))
+            return 1;
 
-        i = GetGamearrayID(tlabel);
+        i = GetGamearrayID(tlabel, 0);
         if (i >= 0)
         {
             *g_scriptPtr++ = i;
@@ -2442,12 +2616,14 @@ repeatcase:
 
     case CON_GETARRAYSIZE:
     case CON_RESIZEARRAY:
-        C_GetNextLabelName();
-        i = GetGamearrayID(tlabel);
+        if (C_GetNextLabelName(1))
+            return 1;
+
+        i = GetGamearrayID(tlabel, 0);
         if (i >= 0)
         {
             *g_scriptPtr++ = i;
-            if (tw==CON_RESIZEARRAY && (aGameArrays[i].dwFlags&(GAMEARRAY_TYPEMASK)))
+            if (tw==CON_RESIZEARRAY && (aGameArrays[i].dwFlags & GAMEARRAY_TYPE_MASK))
             {
                 C_CUSTOMERROR("can't resize system array `%s'.", tlabel);
             }
@@ -2464,8 +2640,9 @@ repeatcase:
 #if 0
     case CON_WRITEARRAYTOFILE:
     case CON_READARRAYFROMFILE:
-        C_GetNextLabelName();
-        i = GetGamearrayID(tlabel);
+        if (C_GetNextLabelName(1))
+            return 1;
+        i = GetGamearrayID(tlabel, 0);
         if (i > (-1))
         {
             *g_scriptPtr++ = i;
@@ -2502,7 +2679,7 @@ repeatcase:
         //printf("Found [add|set]var at line= %d\n",g_lineNumber);
 
         // get the ID of the DEF
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
 
         C_GetNextValue(LABEL_DEFINE); // the number to check against...
 
@@ -2529,7 +2706,7 @@ repeatcase:
 
                 *g_scriptPtr++ = CON_INV + (g_lineNumber<<12);
                 textptr = tptr;
-                C_GetNextVarType(GAMEVAR_READONLY);
+                C_GetNextVarType(GV_WRITABLE);
                 C_GetNextValue(LABEL_DEFINE);
                 g_scriptPtr--;
 //                    initprintf("%s:%d: adding inversion\n",g_szScriptFileName,g_lineNumber);
@@ -2554,7 +2731,7 @@ repeatcase:
         instype *inst = (g_scriptPtr-1);
         const char *otextptr;
 
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
 
         otextptr = textptr;
 
@@ -2573,7 +2750,7 @@ repeatcase:
 
     case CON_SIN:
     case CON_COS:
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         C_GetNextVar();
         return 0;
 
@@ -2582,7 +2759,7 @@ repeatcase:
         // syntax: displayrand <var>
         // gets rand (not game rand) into <var>
 
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         break;
 
 // *** float access: convert float to int and back
@@ -2590,7 +2767,7 @@ repeatcase:
     case CON_FTOI:
         // syntax: itof <<var>> SCALE
         //         ftoi <<var>> SCALE
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         C_GetNextValue(LABEL_DEFINE);
 
         if (*(g_scriptPtr-1)<=0)
@@ -2600,12 +2777,12 @@ repeatcase:
 
 // *** other math
     case CON_CLAMP:
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         C_GetManyVars(2);
         return 0;
 
     case CON_INV:
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         return 0;
 
     case CON_SQRT:
@@ -2615,22 +2792,22 @@ repeatcase:
 
         C_GetNextVar();
         // target var
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         break;
     }
 
     case CON_MULSCALE:
     case CON_DIVSCALE:
-        C_GetManyVars(4);
+        C_GetNextVarType(GV_WRITABLE);
+        C_GetManyVars(3);
         return 0;
 
     case CON_DIST:
     case CON_LDIST:
     case CON_GETANGLE:
     case CON_GETINCANGLE:
-        C_GetNextVarType(GAMEVAR_READONLY);
-        C_GetNextVar();
-        C_GetNextVar();
+        C_GetNextVarType(GV_WRITABLE);
+        C_GetManyVars(2);
         return 0;
 
     case CON_FOR:  // special-purpose iteration
@@ -2639,9 +2816,9 @@ repeatcase:
         instype *tscrptr;
         int32_t how;
 
-        C_GetNextVarType(GAMEVAR_READONLY|GAMEVAR_SPECIAL);  // only simple vars allowed
+        C_GetNextVarType(GV_WRITABLE|GV_SIMPLE);  // only simple vars allowed
 
-        C_GetNextLabelName();
+        C_GetNextLabelName(0);
         how = hash_find(&h_iter, tlabel);
         if (how < 0)
         {
@@ -2650,8 +2827,8 @@ repeatcase:
         }
         *g_scriptPtr++ = how;
 
-        if (how <= ITER_DRAWNSPRITES) {}
-        else C_GetNextVarType(0);
+        if (how >= ITER_SPRITESOFSECTOR)
+            C_GetNextVar();
 
         offset = g_scriptPtr-script;
         g_scriptPtr++; //Leave a spot for the location to jump to after completion
@@ -2801,7 +2978,7 @@ repeatcase:
 
     case CON_LASTWALL:
         C_GetNextVar();
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         break;
 
     case CON_UPDATECURSECTNUM:
@@ -2812,12 +2989,12 @@ repeatcase:
         C_GetManyVars(2);
         if (tw==CON_UPDATESECTORZ)
             C_GetNextVar();
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         break;
 
     case CON_GETZRANGE:
         C_GetManyVars(4);
-        C_GetManyVarsType(GAMEVAR_READONLY,4);
+        C_GetManyVarsType(GV_WRITABLE, 4);
         C_GetManyVars(2);
         break;
 
@@ -2825,21 +3002,21 @@ repeatcase:
     case CON_CANSEE:
         // get the ID of the DEF
         C_GetManyVars(tw==CON_CANSEE?8:7);
-        C_GetManyVarsType(GAMEVAR_READONLY,tw==CON_CANSEE?1:6);
+        C_GetManyVarsType(GV_WRITABLE, tw==CON_CANSEE?1:6);
         if (tw==CON_HITSCAN) C_GetNextVar();
         break;
     case CON_CANSEESPR:
         C_GetManyVars(2);
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         break;
 
     case CON_NEARTAG:
     case CON_ROTATEPOINT:
         C_GetManyVars(5);
-        C_GetManyVarsType(GAMEVAR_READONLY,2);
+        C_GetManyVarsType(GV_WRITABLE, 2);
         if (tw == CON_NEARTAG)
         {
-            C_GetManyVarsType(GAMEVAR_READONLY,2);
+            C_GetManyVarsType(GV_WRITABLE, 2);
             C_GetManyVars(2);
         }
         break;
@@ -2850,7 +3027,7 @@ repeatcase:
     case CON_GETFLORZOFSLOPE:
     case CON_GETCEILZOFSLOPE:
         C_GetManyVars(3);
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         return 0;
 
     case CON_ALIGNCEILSLOPE:
@@ -2872,7 +3049,7 @@ repeatcase:
         return 0;
 
     case CON_SECTOROFWALL:
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         C_GetNextVar();
         return 0;
 
@@ -2881,7 +3058,8 @@ repeatcase:
         return 0;
 
     case CON_GETCLOSESTCOL:
-        C_GetManyVars(4);
+        C_GetManyVars(3);
+        C_GetNextVarType(GV_WRITABLE);
         return 0;
 
 // *** stuff
@@ -2901,6 +3079,11 @@ repeatcase:
 
 // *** strings
     case CON_DEFINEQUOTE:
+        if (cs.currentStateIdx >=0 || cs.currentEvent >= 0)
+        {
+            C_CUSTOMERROR("Can define quotes only at top level.");
+            return 1;
+        }
     case CON_REDEFINEQUOTE:
         if (tw == CON_DEFINEQUOTE)
             g_scriptPtr--;
@@ -2916,11 +3099,11 @@ repeatcase:
         }
 
         if (ScriptQuotes[k] == NULL)
-            ScriptQuotes[k] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
+            ScriptQuotes[k] = Bcalloc(MAXQUOTELEN, sizeof(uint8_t));
 
         if (!ScriptQuotes[k])
         {
-            Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(uint8_t) * MAXQUOTELEN);
+            Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.", MAXQUOTELEN);
             g_numCompilerErrors++;
             return 1;
         }
@@ -2934,10 +3117,10 @@ repeatcase:
         if (tw == CON_REDEFINEQUOTE)
         {
             if (ScriptQuoteRedefinitions[g_numQuoteRedefinitions] == NULL)
-                ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
+                ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = Bcalloc(MAXQUOTELEN, sizeof(uint8_t));
             if (!ScriptQuoteRedefinitions[g_numQuoteRedefinitions])
             {
-                Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(uint8_t) * MAXQUOTELEN);
+                Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.", MAXQUOTELEN);
                 g_numCompilerErrors++;
                 return 1;
             }
@@ -2984,46 +3167,52 @@ repeatcase:
     case CON_QUOTE:
     case CON_ERRORINS:
     case CON_PRINTMESSAGE16:
-        C_GetNextVar();
-        return 0;
-    case CON_PRINTMESSAGE256:
-        C_GetManyVars(3);
-        return 0;
     case CON_PRINTEXT256:
     case CON_PRINTEXT16:
-        C_GetManyVars(6);
+        if (C_GetNextVarOrString()==-1)
+            return 1;
+        if (tw==CON_PRINTMESSAGE256)
+            C_GetManyVars(2);
+        else if (tw==CON_PRINTEXT256 || tw==CON_PRINTEXT16)
+            C_GetManyVars(5);
         return 0;
 
     case CON_GETNUMBER16:
     case CON_GETNUMBER256:
-        C_GetNextVarType(GAMEVAR_READONLY);
-        C_GetManyVars(2);
+        C_GetNextVarType(GV_WRITABLE);
+        if (C_GetNextVarOrString()==-1)
+            return 1;
+        C_GetNextVar();
         return 0;
 
     case CON_QSPRINTF:
-        C_GetManyVars(2);
-
+        C_GetNextVar();
+        if (C_GetNextVarOrString()==-1)
+            return 1;
         j = 0;
         while (C_GetKeyword() == -1 && j < 32)
             C_GetNextVar(), j++;
-
         *g_scriptPtr++ = -1; //CON_NULLOP + (g_lineNumber<<12);
         return 0;
 
     case CON_QSTRCAT:
     case CON_QSTRCPY:
     case CON_QSTRLEN:
+    case CON_QSTRNCAT:
+    case CON_QSUBSTR:
+        C_GetNextVar();
+        if (C_GetNextVarOrString()==-1)
+            return 1;
+        if (tw==CON_QSTRNCAT)
+            C_GetNextVar();
+        else if (tw==CON_QSUBSTR)
+            C_GetManyVars(2);
+        return 0;
 #if 0
     case CON_QGETSYSSTR:
         C_GetManyVars(2);
         return 0;
 #endif
-    case CON_QSTRNCAT:
-        C_GetManyVars(3);
-        return 0;
-    case CON_QSUBSTR:
-        C_GetManyVars(4);
-        return 0;
 
 // *** findnear*
     case CON_FINDNEARSPRITE:
@@ -3043,7 +3232,7 @@ repeatcase:
 
         // target var
         // get the ID of the DEF
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         break;
     }
 
@@ -3061,17 +3250,17 @@ repeatcase:
 
         // target var
         // get the ID of the DEF
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         break;
     }
 
 
     case CON_GETTICKS:
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         return 0;
 
     case CON_GETTIMEDATE:
-        C_GetManyVarsType(GAMEVAR_READONLY,8);
+        C_GetManyVarsType(GV_WRITABLE, 8);
         break;
 
     case CON_SETASPECT:
@@ -3103,7 +3292,7 @@ repeatcase:
 
     case CON_GETSOUNDFLAGS:
         C_GetNextVar();
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         break;
 
     case CON_SOUNDVAR:
@@ -3119,12 +3308,7 @@ repeatcase:
 
     case CON_CSTAT:
         C_GetNextValue(LABEL_DEFINE);
-        if (*(g_scriptPtr-1) == 32767)
-        {
-            *(g_scriptPtr-1) = 32768;
-            C_CUSTOMWARNING("tried to set cstat 32767, using 32768 instead.");
-        }
-        else if ((*(g_scriptPtr-1) & 32) && (*(g_scriptPtr-1) & 16))
+        if ((*(g_scriptPtr-1) & 32) && (*(g_scriptPtr-1) & 16))
         {
             i = *(g_scriptPtr-1);
             *(g_scriptPtr-1) ^= 48;
@@ -3313,6 +3497,7 @@ static void C_AddDefaultDefinitions(void)
 void C_CompilationInfo(void)
 {
     int32_t j, k=0;
+    initprintf(" \n");
     initprintf("Compiled code info: (size=%ld*%d bytes)\n",
                (unsigned)(g_scriptPtr-script), sizeof(instype));
     initprintf("  %d/%d user labels, %d/65536 indirect constants,\n",
@@ -3359,6 +3544,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         {
             aEventOffsets[i] = -1;
             aEventEnabled[i] = 0;
+            aEventNumLocals[i] = 0;
         }
 
         C_InitHashes();
@@ -3409,6 +3595,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         }
 
         fs = kfilelength(fp);
+        initprintf(" \n");
         initprintf("--- Compiling: %s (%d bytes)\n",mptr,fs);
         Bstrcpy(g_szScriptFileName, mptr);   // JBF 20031130: Store currently compiling file name
         Bfree(mptr);
@@ -3437,10 +3624,12 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 
         kread(fp, mptr, fs);
         kclose(fp);
-        textptr = (char *)mptr;
+        start_textptr = textptr = (char *)mptr;
     }
     else
-        textptr = filenameortext;
+        start_textptr = textptr = filenameortext;
+
+    g_curkwptr = textptr;
 
 //////
     g_numCompilerWarnings = g_numCompilerErrors = 0;
@@ -3458,8 +3647,8 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 
 //    flushlogwindow = 1;
 
-    if (g_numCompilerErrors >= ABORTERRCNT)
-        initprintf("fatal error: too many errors: Aborted\n");
+//    if (g_numCompilerErrors >= ABORTERRCNT)
+//        initprintf("Too many errors: Aborted\n");
 
     //*script = g_scriptPtr-script;
 
@@ -3509,6 +3698,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 
     if (g_numCompilerErrors)
     {
+        initprintf(" \n");
         initprintf("--- Found %d errors", g_numCompilerErrors);
         if (g_numCompilerWarnings)
             initprintf(", %d warnings.\n", g_numCompilerWarnings);
@@ -3516,7 +3706,10 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
             initprintf(".\n");
     }
     else if (g_numCompilerWarnings)
+    {
+        initprintf(" \n");
         initprintf("--- Found %d warnings.\n", g_numCompilerWarnings);
+    }
 }
 
 void C_ReportError(int32_t iError)
@@ -3524,7 +3717,8 @@ void C_ReportError(int32_t iError)
     if (Bstrcmp(g_szCurrentBlockName, g_szLastBlockName))
     {
         if (cs.parsingEventOfs >= 0 || cs.currentStateIdx >= 0)
-            initprintf("%s: In %s `%s':\n",g_szScriptFileName, cs.parsingEventOfs >= 0 ? "event":"state", g_szCurrentBlockName);
+            initprintf("%s: In %s `%s':\n", g_szScriptFileName,
+                       cs.parsingEventOfs >= 0 ? "event":"state", g_szCurrentBlockName);
         else
             initprintf("%s: At top level:\n", g_szScriptFileName);
 
@@ -3541,10 +3735,6 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: error: `%s' only valid during events.\n",
                    g_szScriptFileName, g_lineNumber, tempbuf);
         break;
-//    case ERROR_EXCEEDSMAXTILES:
-//        initprintf("%s:%d: error: `%s' value exceeds MAXTILES.  Maximum is %d.\n",
-//                   g_szScriptFileName, g_lineNumber, tempbuf, MAXTILES-1);
-//        break;
     case ERROR_EXPECTEDKEYWORD:
         initprintf("%s:%d: error: expected a keyword but found `%s'.\n",
                    g_szScriptFileName, g_lineNumber, tempbuf);
@@ -3621,10 +3811,6 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: error: label `%s' is already in use by a %s.\n",
                    g_szScriptFileName, g_lineNumber, tlabel, g_tw==CON_DEFSTATE?"define":"state");
         break;
-//    case WARNING_BADGAMEVAR:
-//        initprintf("%s:%ld: warning: variable `%s' should be either per-player OR per-actor, not both.\n",
-//                   g_szScriptFileName, g_lineNumber, tlabel);
-//        break;
     case WARNING_DUPLICATECASE:
         initprintf("%s:%ld: warning: duplicate case ignored.\n",
                    g_szScriptFileName, g_lineNumber);
@@ -3640,13 +3826,64 @@ void C_ReportError(int32_t iError)
     case WARNING_NAMEMATCHESVAR:
         initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",
                    g_szScriptFileName, g_lineNumber, tlabel);
-//    case WARNING_CONSTANTBITSIZE:
-//        initprintf("%s:%d: warning: constants where gamevars are expected save only 16 bits.\n",
-//                   g_szScriptFileName,g_lineNumber);
-//        break;
     case WARNING_OUTSIDEDRAWSPRITE:
         initprintf("%s:%d: warning: found `%s' outside of EVENT_ANALYZESPRITES\n",
                    g_szScriptFileName,g_lineNumber,tempbuf);
         break;
+    }
+
+    if (iError!=-1)
+        PrintErrorPosition();
+}
+
+static void PrintErrorPosition()
+{
+    const char *b = g_curkwptr, *e=textptr;
+    int32_t i, nchars;
+    int32_t osdcols = OSD_GetCols();
+
+    if (!(b<e+1))
+        return;
+
+    while (*e && !(*e==0x0a || *e==0x0d))
+        e++;
+
+    while (b>start_textptr && *b!=0x0a)
+        b--;
+    if (*b==0x0a)
+        b++;
+
+    nchars = e-b;
+    if (nchars==0 || nchars > osdcols)
+        return;
+
+    {
+        char *buf = Bmalloc(nchars+1);
+
+        Bmemcpy(buf, b, nchars);
+        buf[nchars]=0;
+
+        for (i=0; i<nchars; i++)
+            if (buf[i]==0x0a || buf[i]==0x0d)
+                buf[i]=' ';
+
+        initprintf("%s\n", buf);
+
+        for (i=0; i<nchars; i++)
+            buf[i]=' ';
+
+        buf[g_curkwptr-b] = '|';
+        buf[textptr-b] = '*';
+        buf[textptr-1-b] = '>';
+
+        i = g_curkwptr-b+1;
+
+        while (i<textptr-1-b)
+            buf[i++] = '-';
+        buf[nchars]=0;
+
+        initprintf("%s\n", buf);
+
+        Bfree(buf);
     }
 }

@@ -25,23 +25,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _m32def_h_
 #define _m32def_h_
 
-#define ABORTERRCNT 8
+// the parsing routines aren't good at error recovery yet...
+#define ABORTERRCNT 1
 
+// these two are for m32def.c
 #define C_CUSTOMERROR(Text, ...) do { \
     C_ReportError(-1);                                                  \
     initprintf("%s:%d: error: " Text "\n", g_szScriptFileName, g_lineNumber, ## __VA_ARGS__); \
+    PrintErrorPosition();  \
     g_numCompilerErrors++; \
     } while (0)
-
 #define C_CUSTOMWARNING(Text, ...) do { \
     C_ReportError(-1);                                                  \
     initprintf("%s:%d: warning: " Text "\n", g_szScriptFileName, g_lineNumber, ## __VA_ARGS__); \
+    PrintErrorPosition();    \
     g_numCompilerWarnings++; \
     } while (0)
 
 extern char g_szScriptFileName[BMAX_PATH];
-extern int32_t g_totalLines,g_lineNumber;
-extern int32_t g_numCompilerErrors,g_numCompilerWarnings;
+extern int32_t g_totalLines, g_lineNumber;
+extern int32_t g_numCompilerErrors, g_numCompilerWarnings;
 
 extern int32_t g_didDefineSomething;
 
@@ -52,8 +55,9 @@ void C_CompilationInfo(void);
 
 typedef struct
 {
-    int32_t ofs;
+    int32_t ofs;  // offset into script[]
     int32_t codesize;
+    uint16_t numlocals;  // number of local int32_t vars to allocate
     char name[MAXLABELLEN];
 } statesinfo_t;
 
@@ -99,7 +103,6 @@ extern vmstate_t vm_default;
 
 
 extern int32_t g_errorLineNum;
-extern int32_t g_tw;
 extern const char *keyw[];
 
 enum SystemString_t {
@@ -228,6 +231,7 @@ enum IterationTypes_t
     ITER_SELSECTORS,
     ITER_SELWALLS,
     ITER_DRAWNSPRITES,
+// ---
     ITER_SPRITESOFSECTOR,
     ITER_WALLSOFSECTOR,
     ITER_LOOPOFWALL,
