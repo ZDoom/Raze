@@ -33,7 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ACCESS_USEVARS 2
 #define ACCESS_SPRITEEXT 4
 
-int32_t m32_script_expertmode = 0;
+
+/// This file is #included into other files, so don't define variables here!
 
 
 static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)

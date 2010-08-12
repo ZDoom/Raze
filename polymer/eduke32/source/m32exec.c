@@ -48,6 +48,7 @@ int32_t g_errorLineNum, g_tw;
 uint8_t aEventEnabled[MAXEVENTS];
 
 uint32_t m32_drawlinepat=0xffffffff;
+int32_t m32_script_expertmode = 0;
 
 instype *insptr;
 int32_t VM_Execute(int32_t once);
@@ -152,7 +153,13 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
         instype *oinsptr=insptr;
         vmstate_t vm_backup;
         void *olocalvars = aGameArrays[M32_LOCAL_ARRAY_ID].vals;
-        void *localvars = alloca(aEventNumLocals[iEventID] * sizeof(int32_t));
+#ifdef M32_LOCALS_VARARRAY
+        int32_t localvars[aEventNumLocals[iEventID]];
+#elif defined M32_LOCALS_ALLOCA
+        int32_t *localvars = alloca(aEventNumLocals[iEventID] * sizeof(int32_t));
+#else
+        int32_t localvars[M32_LOCALS_FIXEDNUM];
+#endif
 
         // needed since any read access before initialization would cause undefined behaviour
         if (aEventNumLocals[iEventID] > 0)
@@ -341,7 +348,13 @@ skip_check:
             instype *tempscrptr = insptr+2;
             int32_t stateidx = *(insptr+1), o_g_st = vm.g_st, oret=vm.flags&VMFLAG_RETURN;
             void *olocalvars = aGameArrays[M32_LOCAL_ARRAY_ID].vals;
-            void *localvars = alloca(statesinfo[stateidx].numlocals * sizeof(int32_t));
+#ifdef M32_LOCALS_VARARRAY
+            int32_t localvars[statesinfo[stateidx].numlocals];
+#elif defined M32_LOCALS_ALLOCA
+            int32_t *localvars = alloca(statesinfo[stateidx].numlocals * sizeof(int32_t));
+#else
+            int32_t localvars[M32_LOCALS_FIXEDNUM];
+#endif
 
             // needed since any read access before initialization would cause undefined behaviour
             if (statesinfo[stateidx].numlocals > 0)

@@ -32,15 +32,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define C_CUSTOMERROR(Text, ...) do { \
     C_ReportError(-1);                                                  \
     initprintf("%s:%d: error: " Text "\n", g_szScriptFileName, g_lineNumber, ## __VA_ARGS__); \
-    PrintErrorPosition();  \
+    C_PrintErrorPosition();  \
     g_numCompilerErrors++; \
     } while (0)
 #define C_CUSTOMWARNING(Text, ...) do { \
     C_ReportError(-1);                                                  \
     initprintf("%s:%d: warning: " Text "\n", g_szScriptFileName, g_lineNumber, ## __VA_ARGS__); \
-    PrintErrorPosition();    \
+    C_PrintErrorPosition();    \
     g_numCompilerWarnings++; \
     } while (0)
+
+extern void C_PrintErrorPosition();
+extern void C_ReportError(int32_t iError);
 
 extern char g_szScriptFileName[BMAX_PATH];
 extern int32_t g_totalLines, g_lineNumber;
@@ -103,6 +106,7 @@ extern vmstate_t vm_default;
 
 
 extern int32_t g_errorLineNum;
+extern int32_t g_tw;
 extern const char *keyw[];
 
 enum SystemString_t {

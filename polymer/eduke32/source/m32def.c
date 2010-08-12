@@ -33,7 +33,7 @@ static char g_szCurrentBlockName[BMAX_PATH] = "(none)", g_szLastBlockName[BMAX_P
 
 ////// compiler state vvv
 static const char *textptr, *start_textptr, *g_curkwptr;
-static int32_t g_tw;
+static int32_t def_tw;
 int32_t g_totalLines, g_lineNumber;
 int32_t g_numCompilerErrors, g_numCompilerWarnings;
 
@@ -101,9 +101,6 @@ int32_t g_gameArrayCount=0, g_systemArrayCount=0;
 // "magic" number for { and }, overrides line number in compiled code for later detection
 #define IFELSE_MAGIC 31337
 
-
-void C_ReportError(int32_t iError);
-static void PrintErrorPosition();
 
 enum ScriptLabel_t
 {
@@ -1545,7 +1542,7 @@ static int32_t C_ParseCommand(void)
 ///        Bsprintf(g_szBuf,"PC(): '%.25s'",textptr); AddLog(g_szBuf);
 
     tw = C_GetNextKeyword();
-    g_tw = tw;
+    def_tw = tw;
     //    Bsprintf(tempbuf,"%s",keyw[tw]); AddLog(tempbuf);
 
     if (C_SkipComments())
@@ -2487,8 +2484,8 @@ repeatcase:
                     uint16_t *numlocals = (cs.currentStateIdx >= 0) ? 
                         &statesinfo[cs.currentStateIdx].numlocals : &aEventNumLocals[cs.currentEvent];
 
-                    if (((int32_t)(*numlocals))+1 > MAXGAMEVARS)
-                        C_CUSTOMERROR("too much local storage required (max: %d gamevar equivalents).", MAXGAMEVARS);
+                    if (((int32_t)(*numlocals))+1 > M32_MAX_LOCALS)
+                        C_CUSTOMERROR("too much local storage required (max: %d gamevar equivalents).", M32_MAX_LOCALS);
                     else
                     {
                         hash_add(&h_localvars, tlabel, (int32_t)(*numlocals), 0);
@@ -2523,8 +2520,8 @@ repeatcase:
                 uint16_t *numlocals = (cs.currentStateIdx >= 0) ?
                     &statesinfo[cs.currentStateIdx].numlocals : &aEventNumLocals[cs.currentEvent];
 
-                if (((int32_t)(*numlocals))+asize > MAXGAMEVARS)
-                    C_CUSTOMERROR("too much local storage required (max: %d gamevar equivalents).", MAXGAMEVARS);
+                if (((int32_t)(*numlocals))+asize > M32_MAX_LOCALS)
+                    C_CUSTOMERROR("too much local storage required (max: %d gamevar equivalents).", M32_MAX_LOCALS);
                 else
                 {
                     hash_add(&h_localvars, tlabel, ((int32_t)(*numlocals))|(asize<<16), 0);
@@ -3809,7 +3806,7 @@ void C_ReportError(int32_t iError)
         break;
     case ERROR_LABELINUSE:
         initprintf("%s:%d: error: label `%s' is already in use by a %s.\n",
-                   g_szScriptFileName, g_lineNumber, tlabel, g_tw==CON_DEFSTATE?"define":"state");
+                   g_szScriptFileName, g_lineNumber, tlabel, def_tw==CON_DEFSTATE?"define":"state");
         break;
     case WARNING_DUPLICATECASE:
         initprintf("%s:%ld: warning: duplicate case ignored.\n",
@@ -3833,10 +3830,10 @@ void C_ReportError(int32_t iError)
     }
 
     if (iError!=-1)
-        PrintErrorPosition();
+        C_PrintErrorPosition();
 }
 
-static void PrintErrorPosition()
+void C_PrintErrorPosition()
 {
     const char *b = g_curkwptr, *e=textptr;
     int32_t i, nchars;

@@ -51,7 +51,6 @@ extern void VM_OnEvent(register int32_t iEventID, register int32_t iActor);
 
 extern void VM_ScriptInfo(void);
 extern void VM_Disasm(ofstype beg, int32_t size);
-extern void C_ReportError(int32_t iError);
 
 extern int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags);
 extern int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t dwFlags);
@@ -274,5 +273,24 @@ extern int32_t halfxdim16, midydim16;
 #define M32_LOCAL_ARRAY_ID 0
 
 #define M32_PRINTERROR(Text, ...) OSD_Printf(OSD_ERROR "Line %d, %s: " Text "\n", g_errorLineNum, keyw[g_tw], ## __VA_ARGS__)
+
+
+// how local gamevars are allocated:
+
+// uncomment if variable-length arrays are available
+//#define M32_LOCALS_VARARRAY
+
+// uncomment if alloca() is available
+//#define M32_LOCALS_ALLOCA
+
+// if neither is there, use a constant number of them
+#define M32_LOCALS_FIXEDNUM 64
+
+#if defined M32_LOCALS_VARARRAY || defined M32_LOCALS_ALLOCA
+# define M32_MAX_LOCALS MAXGAMEVARS
+#else
+# define M32_MAX_LOCALS M32_LOCALS_FIXEDNUM
+#endif
+
 
 #endif
