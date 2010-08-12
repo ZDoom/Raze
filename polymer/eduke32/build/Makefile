@@ -29,7 +29,7 @@ BUILD32_ON_64 ?= 0
 NEDMALLOC ?= 1
 
 ifeq (0,$(USE_OPENGL))
-	POLYMER = 0
+    POLYMER = 0
 endif
 
 # Debugging/Build options
@@ -41,10 +41,14 @@ RELEASE?=1
 DEBUGANYWAY?=0
 KRANDDEBUG?=0
 EFENCE?=0
-OPTLEVEL	?= 2
+OPTLEVEL?=2
+PROFILER?=0
 
 ifneq (0,$(KRANDDEBUG))
     RELEASE=0
+endif
+ifneq (0,$(PROFILER))
+    DEBUGANYWAY=1
 endif
 
 # SDK locations for Windows - adjust to match your setup
@@ -71,19 +75,23 @@ asm=nasm
 #
 ifneq ($(RELEASE),0)
     # Debugging disabled
-    debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL) -fno-stack-protector
+    debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL) $(F_NO_STACK_PROTECTOR)
     LIBS=-lm
 else
     # Debugging enabled
-    debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE -fstack-protector-all
-    LIBS=-lm -lssp -Wl,--enable-auto-import
+    debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE $(F_STACK_PROTECTOR_ALL)
+    LIBS=-lm $(L_SSP) -Wl,--enable-auto-import
     ifneq (0,$(KRANDDEBUG))
-      debug+=-DKRANDDEBUG=1
+        debug+=-DKRANDDEBUG=1
+    endif
+    ifneq (0,$(PROFILER))
+        LIBS+= -lprofiler
+        debug+= -pg
     endif
 endif
 
 ifneq (0,$(DEBUGANYWAY))
-  debug+=-ggdb
+    debug+=-ggdb
 endif
 
 CC=gcc
@@ -96,7 +104,8 @@ RANLIB=ranlib
 OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-Wno-char-subscripts -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
 	-DKSFORBUILD -I$(INC) -D_FORTIFY_SOURCE=2 \
-	-fjump-tables $(ARCH)
+    $(F_JUMP_TABLES) $(ARCH)
+
 OURCXXFLAGS=-fno-exceptions -fno-rtti
 ASFLAGS=-s #-g
 EXESUFFIX=
@@ -134,16 +143,16 @@ ENGINEOBJS+= \
 	$(OBJ)/mutex.$o
 
 ifeq (1,$(USE_OPENGL))
-	ENGINEOBJS+=  $(OBJ)/mdsprite.$o
-	ENGINEOBJS+=  $(OBJ)/glbuild.$o
+    ENGINEOBJS+=  $(OBJ)/mdsprite.$o
+    ENGINEOBJS+=  $(OBJ)/glbuild.$o
 endif
 
 ifeq (1,$(POLYMER))
-	ENGINEOBJS+=  $(OBJ)/polymer.$o
+    ENGINEOBJS+=  $(OBJ)/polymer.$o
 endif
 
 ifeq (1,$(NEDMALLOC))
-	ENGINEOBJS+=  $(OBJ)/nedmalloc.$o
+    ENGINEOBJS+=  $(OBJ)/nedmalloc.$o
 endif
 
 EDITOROBJS=$(OBJ)/build.$o \
@@ -152,53 +161,53 @@ EDITOROBJS=$(OBJ)/build.$o \
 # PLATFORM SPECIFIC SETTINGS
 
 ifeq ($(PLATFORM),LINUX)
-	ASFLAGS+= -f elf
+    ASFLAGS+= -f elf
 endif
 ifeq ($(PLATFORM),DARWIN)
-	ENGINEOBJS	+= $(OBJ)/StartupWinController.editor.$o \
-			$(OBJ)//osxbits.$o
-	ASFLAGS		+= -f Mach-O
-	OURCFLAGS	+= -fno-pic
-	TARGETOPTS	+= -DNOASM
+    ENGINEOBJS  += $(OBJ)/StartupWinController.editor.$o \
+            $(OBJ)//osxbits.$o
+    ASFLAGS     += -f Mach-O
+    OURCFLAGS   += -fno-pic
+    TARGETOPTS  += -DNOASM
 endif
 ifeq ($(PLATFORM),BSD)
-	ASFLAGS+= -f elf
-	OURCFLAGS+= -I/usr/X11R6/include
+    ASFLAGS+= -f elf
+    OURCFLAGS+= -I/usr/X11R6/include
 endif
 ifeq ($(PLATFORM),WINDOWS)
-	OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc # -I$(ENETROOT)/include
-	LIBS+= -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
-	ASFLAGS+= -DUNDERSCORES -f win32
+    OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc # -I$(ENETROOT)/include
+    LIBS+= -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
+    ASFLAGS+= -DUNDERSCORES -f win32
 endif
 ifeq ($(PLATFORM),BEOS)
-	ASFLAGS+= -f elf
-	TARGETOPTS+= -DNOASM
+    ASFLAGS+= -f elf
+    TARGETOPTS+= -DNOASM
 endif
 ifeq ($(PLATFORM),SYLLABLE)
-	ASFLAGS+= -f elf
+    ASFLAGS+= -f elf
 endif
 
 ifeq ($(RENDERTYPE),SDL)
-	ENGINEOBJS+= $(OBJ)/sdlayer.$o
-	OURCFLAGS+= $(subst -Dmain=SDL_main,,$(SDLCONFIG_CFLAGS))
-	
-	ifeq (1,$(HAVE_GTK2))
-		OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
-		ENGINEOBJS+= $(OBJ)/gtkbits.$o
-		ifeq ($(LINKED_GTK),0)
-			ENGINEOBJS+= $(OBJ)/dynamicgtk.$o
-		endif
-		EDITOROBJS+= $(OBJ)/startgtk.editor.$o
-	endif
+    ENGINEOBJS+= $(OBJ)/sdlayer.$o
+    OURCFLAGS+= $(subst -Dmain=SDL_main,,$(SDLCONFIG_CFLAGS))
+
+    ifeq (1,$(HAVE_GTK2))
+        OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
+        ENGINEOBJS+= $(OBJ)/gtkbits.$o
+        ifeq ($(LINKED_GTK),0)
+            ENGINEOBJS+= $(OBJ)/dynamicgtk.$o
+        endif
+        EDITOROBJS+= $(OBJ)/startgtk.editor.$o
+    endif
 endif
 ifeq ($(RENDERTYPE),WIN)
-	ENGINEOBJS+= $(OBJ)/winlayer.$o $(OBJ)/rawinput.$o
-	EDITOROBJS+= $(OBJ)/startwin.editor.$o
+    ENGINEOBJS+= $(OBJ)/winlayer.$o $(OBJ)/rawinput.$o
+    EDITOROBJS+= $(OBJ)/startwin.editor.$o
 endif
 
 ifneq (0,$(EFENCE))
-	LIBS+= -lefence
-	OURCFLAGS+= -DEFENCE
+    LIBS+= -lefence
+    OURCFLAGS+= -DEFENCE
 endif
 
 OURCFLAGS+= $(BUILDCFLAGS)
@@ -225,7 +234,7 @@ $(OBJ)/$(EDITORLIB): $(EDITOROBJS)
 
 pragmacheck$(EXESUFFIX): $(OBJ)/pragmacheck.$o $(OBJ)/pragmas.$o
 	$(CC) $(subst -Dmain=app_main,,$(OURCFLAGS)) -o $@ $^
-	
+
 kextract$(EXESUFFIX): $(OBJ)/kextract.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
 	$(CC) -o $@ $^ $(LIBS)
 kgroup$(EXESUFFIX): $(OBJ)/kgroup.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o

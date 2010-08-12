@@ -491,6 +491,8 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 
     fclose(stdout);
 
+    if (r) Sleep(3000);
+
     startwin_close();
     if (instanceflag) CloseHandle(instanceflag);
 

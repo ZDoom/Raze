@@ -77,6 +77,7 @@
 # endif
 # include <fcntl.h>
 # include <ctype.h>
+# include <stdint.h>
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <errno.h>
@@ -539,6 +540,11 @@ char *Bstrupr(char *);
 #ifdef __cplusplus
 }
 #endif
+
+// timer defs for profiling function chunks the simple way
+#define EDUKE32_TMRDEF int32_t t[20], ti=0; const char *tmrstr=__func__; fprintf(stderr,"%s\n",tmrstr); t[ti++]=getticks();
+#define EDUKE32_TMRTIC t[ti++]=getticks()
+#define EDUKE32_TMRPRN do { int ii=0; fprintf(stderr,"%s: ",tmrstr); for (ii=1; ii<ti; ii++) fprintf(stderr,"%d ", t[ii]-t[ii-1]); fprintf(stderr,"\n"); } while (0)
 
 #endif // __compat_h__
 
