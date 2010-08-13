@@ -110,6 +110,8 @@ OURCXXFLAGS=-fno-exceptions -fno-rtti
 ASFLAGS=-s #-g
 EXESUFFIX=
 
+UTILLIBS=-lpthread
+
 include Makefile.shared
 
 ENGINEOBJS=
@@ -236,23 +238,23 @@ pragmacheck$(EXESUFFIX): $(OBJ)/pragmacheck.$o $(OBJ)/pragmas.$o
 	$(CC) $(subst -Dmain=app_main,,$(OURCFLAGS)) -o $@ $^
 
 kextract$(EXESUFFIX): $(OBJ)/kextract.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(LIBS)
+	$(CC) -o $@ $^ $(UTILLIBS)
 kgroup$(EXESUFFIX): $(OBJ)/kgroup.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(LIBS)
+	$(CC) -o $@ $^ $(UTILLIBS)
 transpal$(EXESUFFIX): $(OBJ)/transpal.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(LIBS)
+	$(CC) -o $@ $^ $(UTILLIBS)
 wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(LIBS)
+	$(CC) -o $@ $^ $(UTILLIBS)
 wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(LIBS)
+	$(CC) -o $@ $^ $(UTILLIBS)
 generateicon$(EXESUFFIX): $(OBJ)/generateicon.$o $(OBJ)/kplib.$o
-	$(CC) -o $@ $^ $(LIBS)
+	$(CC) -o $@ $^ $(UTILLIBS)
 cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(LIBS)
+	$(CC) -o $@ $^ $(UTILLIBS)
 enumdisplay$(EXESUFFIX): src/misc/enumdisplay.c
-	$(CC) -g -Os -o $@ $^ $(LIBS) -I$(DXROOT)/include -lgdi32
+	$(CC) -g -Os -o $@ $^ $(UTILLIBS) -I$(DXROOT)/include -lgdi32
 mapdump$(EXESUFFIX): $(OBJ)/mapdump.$o
-	$(CC) -o $@ $^ $(LIBS)
+	$(CC) -o $@ $^ $(UTILLIBS)
 
 # DEPENDENCIES
 include Makefile.deps
