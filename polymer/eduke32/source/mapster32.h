@@ -186,7 +186,7 @@ typedef struct
 static TileGroup s_TileGroups[MAX_TILE_GROUPS];
 static int32_t tilegroupItems;
 static int32_t tilegroupActors;
-static uint32_t tile_groups = 0;
+static int32_t tile_groups = 0;
 
 
 #define NUMPRINTABLES 94

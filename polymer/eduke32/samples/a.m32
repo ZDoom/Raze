@@ -116,7 +116,7 @@ ends
 defstate fiddlewithlights
     ife searchstat 3 nullop else
     {
-        ifhitkey KEY_gSLASH
+        ifeitherctrl ifhitkey KEY_gSLASH 
         {
             ife pr_overrideparallax 0
             {
@@ -140,20 +140,20 @@ defstate fiddlewithlights
         // polymer override parallaxscale
         set j 0 set k 0
 
-        ifhitkey KEY_KP4 set j -1
-        ifhitkey KEY_KP7 set j 1
+        ifhitkey KEY_KP5 set j -1  //pscale
+        ifhitkey KEY_KP8 set j 1
         ifn j 0 set k 1
-        
-        ifhitkey KEY_KP8 set j -1
-        ifhitkey KEY_KP9 set j 1
+
+        ifhitkey KEY_KP4 set j -1  //pbias
+        ifhitkey KEY_KP6 set j 1
         ife k 0 ifn j 0 set k 2
 
-        ifhitkey KEY_KP1 set j -1
-        ifhitkey KEY_KP2 set j 1
+        ifhitkey KEY_gSLASH set j -1  //sfac
+        ifhitkey KEY_gSTAR set j 1
         ife k 0 ifn j 0 set k 3
-        
-        ifhitkey KEY_KP3 set j -1
-        ifhitkey KEY_KP6 set j 1
+
+        ifhitkey KEY_KP7 set j -1  //spow
+        ifhitkey KEY_KP9 set j 1
         ife k 0 ifn j 0 set k 4
 
         ifeithershift mul j 2 else mul j 10
@@ -198,7 +198,36 @@ defstate fiddlewithlights
         endswitch
     }
 
-    // if aiming at an SE with lotag 49 or 50
+    // if aiming at a sprite that's not a Polymer light
+    set k 0
+    ife searchstat 3 set k 1
+
+    ife k 1 ife sprite[searchwall].picnum SECTOREFFECTOR
+    ifge sprite[searchwall].lotag 49 ifle sprite[searchwall].lotag 50
+    set k 0
+
+    ife k 1
+    {
+        seti searchwall
+
+        // [xyz]vel / owner
+        ifeitheralt
+        {
+            ifhitkey KEY_KP1
+            {
+                getnumber256 .xvel "XVEL:" 255
+                getnumber256 .yvel "YVEL:" 255
+                getnumber256 .zvel "ZVEL:" 255
+            }
+            else ifhitkey KEY_KP2
+            {
+                getnumber256 .owner "OWNER:" -MAXTILES
+            }
+        }
+    }
+
+
+    // if aiming at an SE with lotag 49 or 50 (Polymer light)
     ife searchstat 3 ife sprite[searchwall].picnum SECTOREFFECTOR
     ifge sprite[searchwall].lotag 49 ifle sprite[searchwall].lotag 50
     {

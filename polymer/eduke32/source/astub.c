@@ -59,7 +59,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static int32_t floor_over_floor;
 
 // static char *startwin_labeltext = "Starting Mapster32...";
-static char setupfilename[BMAX_PATH]= "mapster32.cfg";
+static char setupfilename[]= "mapster32.cfg";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char *g_grpNamePtr = defaultduke3dgrp;
 static int32_t fixmapbeforesaving = 1;
@@ -67,8 +67,11 @@ static int32_t lastsave = -180*60;
 static int32_t NoAutoLoad = 0;
 static int32_t spnoclip=1;
 
+static char default_tiles_cfg[] = "tiles.cfg";
+static int32_t pathsearchmode_oninit;
+
 // Sound in Mapster32
-static char defaultgamecon[BMAX_PATH] = "game.con";
+static char defaultgamecon[] = "game.con";
 static char *gamecon = defaultgamecon;
 
 #pragma pack(push,1)
@@ -192,6 +195,10 @@ static char wallpals[MAXWALLS];
 static char sectorpals[MAXSECTORS][2];
 static char spritepals[MAXSPRITES];
 static char wallflag[MAXWALLS];
+
+// tile marking in tile selector for custom creation of tile groups
+static int16_t tilemarked[(MAXTILES+7)>>3];
+
 #ifdef POLYMER
 static int16_t spritelightid[MAXSPRITES];
 _prlight *spritelightptr[MAXSPRITES];
@@ -2675,10 +2682,31 @@ static int32_t SelectAllTiles(int32_t iCurrentTile)
 
 static int32_t OnGotoTile(int32_t iTile);
 static int32_t OnSelectTile(int32_t iTile);
+static int32_t OnSaveTileGroup();
+static int32_t loadtilegroups(const char *fn);
 static int32_t s_Zoom = INITIAL_ZOOM;
 static int32_t s_TileZoom = 1;
+static char tilesel_errmsg[128], tilesel_showerr=0;
 
 static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, int32_t nYTiles, int32_t TileDim, int32_t offset);
+
+#define TMPERRMSG_SHOW(alsoOSD) do { \
+    printext256(0, 0, whitecol, 0, tilesel_errmsg, 0); \
+    if (alsoOSD) OSD_Printf("%s\n", tilesel_errmsg); \
+    showframe(1); \
+} while (0)
+
+#define TMPERRMSG_PRINT(Msg, ...) do {  \
+    Bsprintf(tilesel_errmsg, Msg, __VA_ARGS__); \
+    TMPERRMSG_SHOW(1); \
+    tilesel_showerr = 1; \
+} while (0)
+
+#define TMPERRMSG_RETURN(Msg, ...) do   \
+{ \
+    TMPERRMSG_PRINT(Msg, __VA_ARGS__);  \
+    return 1; \
+} while (0)
 
 
 static int32_t m32gettile(int32_t idInitialTile)
@@ -2686,10 +2714,13 @@ static int32_t m32gettile(int32_t idInitialTile)
     int32_t gap, temp, zoomsz;
     int32_t nXTiles, nYTiles, nDisplayedTiles;
     int32_t i;
-    int32_t iTile, iTopLeftTile;
+    int32_t iTile, iTopLeftTile, iLastTile;
     int32_t idSelectedTile;
     int32_t scrollmode;
     int32_t mousedx, mousedy, mtile, omousex=searchx, omousey=searchy, moffset=0;
+
+    int32_t noTilesMarked=1;
+    int32_t mark_lastk = -1;
 
     // Enable following line for testing. I couldn't work out how to change vidmode on the fly
     // s_Zoom = NUM_ZOOMS - 1;
@@ -2722,7 +2753,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         localartlookup[i] = i;
     }
 
-    iTile = idSelectedTile = idInitialTile;
+    iLastTile = iTile = idSelectedTile = idInitialTile;
 
     switch (searchstat)
     {
@@ -2839,6 +2870,14 @@ static int32_t m32gettile(int32_t idInitialTile)
         DrawTiles(iTopLeftTile, (iTile >= localartlookupnum) ? localartlookupnum-1 : iTile,
                   nXTiles, nYTiles, zoomsz, moffset);
 
+        if (tilesel_showerr)
+        {
+            if (iTile == iLastTile)
+                TMPERRMSG_SHOW(0);
+            else
+                tilesel_showerr = 0;
+        }
+        iLastTile = iTile;
 
         idle_waitevent_timeout(500);
         // SDL seems to miss mousewheel events when rotated slowly.
@@ -2952,28 +2991,76 @@ static int32_t m32gettile(int32_t idInitialTile)
         }
 
         if (PRESSED_KEYSC(LEFT))
-            iTile -= (iTile > 0);
+        {
+            if (eitherCTRL)  // same as HOME, for consistency with CTRL-UP/DOWN
+                iTile = (iTile/nXTiles)*nXTiles;
+            else
+                iTile--;
+        }
 
         if (PRESSED_KEYSC(RIGHT))
-            iTile += (iTile < MAXTILES);
+        {
+            if (eitherCTRL)  // same as END, for consistency with CTRL-UP/DOWN
+                iTile = ((iTile+nXTiles)/nXTiles)*nXTiles - 1;
+            else
+                iTile++;
+        }
 
         if (PRESSED_KEYSC(UP))
-            iTile -= nXTiles;
+        {
+            if (eitherCTRL)
+                while (iTile-nXTiles >= iTopLeftTile)
+                    iTile -= nXTiles;
+            else
+                iTile -= nXTiles;
+        }
 
         if (PRESSED_KEYSC(DOWN))
-            iTile += nXTiles;
+        {
+            if (eitherCTRL)
+                while (iTile+nXTiles < iTopLeftTile + nDisplayedTiles)
+                    iTile += nXTiles;
+            else
+                iTile += nXTiles;
+        }
 
         if (PRESSED_KEYSC(PGUP))
-            iTile -= nDisplayedTiles;
+        {
+            if (eitherCTRL)
+                iTile = 0;
+            else
+                iTile -= nDisplayedTiles;
+        }
 
         if (PRESSED_KEYSC(PGDN))
-            iTile += nDisplayedTiles;
+        {
+            if (eitherCTRL)
+                iTile = localartlookupnum-1;
+            else
+                iTile += nDisplayedTiles;
+        }
+
+        if (PRESSED_KEYSC(HOME))
+        {
+            if (eitherCTRL)
+                iTile = iTopLeftTile;
+            else
+                iTile = (iTile/nXTiles)*nXTiles;
+        }
+
+        if (PRESSED_KEYSC(END))
+        {
+            if (eitherCTRL)
+                iTile = iTopLeftTile + nDisplayedTiles - 1;
+            else
+                iTile = ((iTile+nXTiles)/nXTiles)*nXTiles - 1;
+        }
 
         //
         // Ensure tilenum is within valid range
         //
 
-        iTile = clamp(iTile, 0, MAXTILES-1);  	// shouldn't this be the count of num tiles ??
+        iTile = clamp(iTile, 0, localartlookupnum-1);
 
         // 'V'  KEYPRESS
         if (PRESSED_KEYSC(V))
@@ -2981,7 +3068,20 @@ static int32_t m32gettile(int32_t idInitialTile)
 
         // 'G'  KEYPRESS - Goto frame
         if (PRESSED_KEYSC(G))
-            iTile = OnGotoTile(iTile);
+        {
+            if (eitherCTRL)
+            {
+                if (OnSaveTileGroup() == 0)
+                {
+//                    iTile = SelectAllTiles(iTile);
+                    Bmemset(tilemarked, 0, sizeof(tilemarked));
+                    mark_lastk = -1;
+                    noTilesMarked = 1;
+                }
+            }
+            else
+                iTile = OnGotoTile(iTile);
+        }
 
         // 'U'  KEYPRESS : go straight to user defined art
         if (PRESSED_KEYSC(U))
@@ -2997,10 +3097,6 @@ static int32_t m32gettile(int32_t idInitialTile)
             iTile = FIRST_ATOMIC_TILE;
         }
 
-        // 'T' KEYPRESS = Select from pre-defined tileset
-        if (PRESSED_KEYSC(T))
-            iTile = OnSelectTile(iTile);
-
         // 'E'  KEYPRESS : Go straight to start of extended art
         if (PRESSED_KEYSC(E))
         {
@@ -3010,6 +3106,10 @@ static int32_t m32gettile(int32_t idInitialTile)
                 iTile = SECOND_EXTENDED_TILE;
             else iTile = FIRST_EXTENDED_TILE;
         }
+
+        // 'T' KEYPRESS = Select from pre-defined tileset
+        if (PRESSED_KEYSC(T))
+            iTile = OnSelectTile(iTile);
 
         if (PRESSED_KEYSC(Z))
             s_TileZoom = !s_TileZoom;
@@ -3025,6 +3125,51 @@ static int32_t m32gettile(int32_t idInitialTile)
             iTopLeftTile += nXTiles;
 
         iTopLeftTile = clamp(iTopLeftTile, 0, MAXTILES - nDisplayedTiles);
+
+
+        // SPACE keypress: mark/unmark selected tile
+        if (PRESSED_KEYSC(SPACE))
+        {
+            if (iTile < localartlookupnum && IsValidTile(localartlookup[iTile]))
+            {
+                if (keystatus[KEYSC_LCTRL] && keystatus[KEYSC_RSHIFT])
+                {
+                    Bmemset(tilemarked, 0, sizeof(tilemarked));
+                    mark_lastk = -1;
+                    noTilesMarked = 1;
+                }
+                else
+                {
+                    int32_t k=iTile, kend, dir;
+
+                    if (noTilesMarked)
+                    {
+                        noTilesMarked = 0;
+                        TMPERRMSG_PRINT("%s", "Beginning marking tiles. To group, press Ctrl-G. To reset, press LCtrl-RShift-SPACE.");
+                    }
+
+                    if (mark_lastk>=0 && eitherCTRL)
+                    {
+                        kend = mark_lastk;
+                        dir = ksgn(mark_lastk-k);
+                    }
+                    else
+                    {
+                        kend = k;
+                        dir = 0;
+                    }
+
+                    mark_lastk = k;
+
+                    for (; dir==0 || dir*(kend-k)>=1; k+=dir)
+                    {
+                        tilemarked[localartlookup[k]>>3] ^= (1<<(localartlookup[k]&7));
+                        if (dir==0)
+                            break;
+                    }
+                }
+            }
+        }
 
         if ((keystatus[KEYSC_ENTER] || (bstatus&1)) == 0)   // uh ? Not escape key ?
         {
@@ -3059,7 +3204,7 @@ static int32_t m32gettile(int32_t idInitialTile)
     keystatus[KEYSC_ESC] = 0;
     keystatus[KEYSC_ENTER] = 0;
 
-    return(idSelectedTile);
+    return idSelectedTile;
 
 }
 
@@ -3067,6 +3212,124 @@ static int32_t m32gettile(int32_t idInitialTile)
 //void OnZoomInOut( int32_t *pZoom, int32_t Dir /*0*/ )
 //{
 //}
+
+static int32_t OnSaveTileGroup()
+{
+    int32_t i, n=0;
+    char hotkey;
+    const char *cp, *name;
+
+    if (tile_groups==MAX_TILE_GROUPS)
+        TMPERRMSG_RETURN("Cannot save tile group: maximum number of groups (%d) exceeded.", MAX_TILE_GROUPS);
+
+    for (i=0; i<MAXTILES; i++)
+        n += !!(tilemarked[i>>3]&(1<<(i&7)));
+
+    if (n==0)
+        TMPERRMSG_RETURN("%s", "Cannot save tile group: no tiles marked.");
+    else if (n > MAX_TILE_GROUP_ENTRIES)
+        TMPERRMSG_RETURN("Cannot save tile group: too many tiles in group. Have %d, max is %d.",
+                  n, MAX_TILE_GROUP_ENTRIES);
+
+    cp = getstring_simple("Hotkey for new group: ", "", 1);
+    if (!cp || !*cp)
+        return 1;
+
+    hotkey = Btoupper(cp[0]);
+    if (!isalpha(hotkey))
+        TMPERRMSG_RETURN("%s", "Hotkey must be alphabetic.");
+
+    for (i=0; i<tile_groups; i++)
+        if (s_TileGroups[i].key1==hotkey || s_TileGroups[i].key2==Btolower(hotkey))
+            TMPERRMSG_RETURN("Hotkey '%c' already in use by tile group `%s'.", hotkey, s_TileGroups[i].szText);
+
+    name = getstring_simple("Name for new tile group: ", "", 0);
+    if (!name || !*name)
+        return 1;
+
+    {
+        int32_t lasti=-1, col=0, k, opathsearchmode=pathsearchmode;
+        BFILE *fp;
+
+        pathsearchmode = pathsearchmode_oninit;  // use the same pathsearchmode as on init
+        fp = fopenfrompath(default_tiles_cfg, "a");
+        pathsearchmode = opathsearchmode;
+        if (!fp)
+            TMPERRMSG_RETURN("Could not open `%s' for appending: %s.", default_tiles_cfg, strerror(errno));
+
+#define TTAB "\t"
+#define TBITCHK(i) ((i)<MAXTILES && (tilemarked[(i)>>3]&(1<<((i)&7))))
+        Bfprintf(fp, "\n");
+        Bfprintf(fp, "tilegroup \"%s\"\n{\n", name);
+        Bfprintf(fp, TTAB "hotkey \"%c\"\n\n", hotkey);
+
+        // tileranges for consecutive runs of 3 or more tiles
+        for (i=0; i<MAXTILES; i++)
+        {
+            if (lasti>=0 && !TBITCHK(i))
+            {
+                if (names[lasti][0] && names[i-1][0])
+                    Bfprintf(fp, TTAB "tilerange %s %s\n", names[lasti], names[i-1]);
+                else
+                    Bfprintf(fp, TTAB "tilerange %d %d\n", lasti, i-1);
+
+                for (k=lasti; k<i; k++)
+                    tilemarked[i>>3] &= ~(1<<(i&7));
+
+                lasti = -1;
+            }
+            else if (lasti==-1 && TBITCHK(i))
+            {
+                if (TBITCHK(i+1) && TBITCHK(i+2))
+                {
+                    lasti = i;
+                    i += 2;
+                }
+            }
+        }
+        if (lasti>=0)
+            Bfprintf(fp, TTAB "tilerange %d %d\n", lasti, MAXTILES-1);
+        Bfprintf(fp, "\n");
+
+        // throw them all in a tiles{...} group else
+        Bfprintf(fp, TTAB "tiles\n" TTAB "{\n");
+        for (i=0; i<MAXTILES; i++)
+        {
+            if (TBITCHK(i))
+            {
+                if (col==0)
+                    Bfprintf(fp, TTAB TTAB), col+=8;
+
+                if (names[i])
+                    col+=Bfprintf(fp, "%s ", names[i]);
+                else
+                    col+=Bfprintf(fp, "%d ", i);
+
+                if (col>80)
+                {
+                    Bfprintf(fp, "\n");
+                    col = 0;
+                }
+            }
+        }
+        if (col>0)
+            Bfprintf(fp, "\n");
+        Bfprintf(fp, TTAB "}\n");
+#undef TBITCHK
+#undef TTAB
+        Bfprintf(fp, "}\n");
+
+        Bfclose(fp);
+
+        if (loadtilegroups(default_tiles_cfg))
+            TMPERRMSG_PRINT("%s", "Wrote new tile group but failed reloading them.");
+        else
+            TMPERRMSG_PRINT("%s", "Wrote and reloaded new tile group.");
+    }
+
+    return 0;
+}
+
 
 static int32_t OnGotoTile(int32_t iTile)
 {
@@ -3116,6 +3379,7 @@ static int32_t OnGotoTile(int32_t iTile)
     return iTile;
 }
 
+
 static int32_t LoadTileSet(const int32_t idCurrentTile, const int32_t *pIds, const int32_t nIds)
 {
     int32_t iNewTile = 0;
@@ -3143,14 +3407,11 @@ static int32_t OnSelectTile(int32_t iTile)
     int32_t i;
     char ch;
 
-    for (i = 0; (unsigned)i < tile_groups; i++)
+    if (tile_groups <= 0)
     {
-        if (s_TileGroups[i].pIds != NULL)
-            break;
+        TMPERRMSG_PRINT("No tile groups loaded. Check for existence of `%s'.", default_tiles_cfg);
+        return iTile;
     }
-
-    if ((unsigned)i == tile_groups) // no tile groups
-        return (iTile);
 
     SelectAllTiles(iTile);
 
@@ -3176,7 +3437,7 @@ static int32_t OnSelectTile(int32_t iTile)
         //
         // Display the description strings for each available tile group
         //
-        for (i = 0; (unsigned)i < tile_groups; i++)
+        for (i = 0; i < tile_groups; i++)
         {
             if (s_TileGroups[i].szText != NULL)
             {
@@ -3189,7 +3450,7 @@ static int32_t OnSelectTile(int32_t iTile)
 
         ch = bgetchar();
 
-        for (i = 0; (unsigned)i < tile_groups; i++)
+        for (i = 0; i < tile_groups; i++)
         {
             if (s_TileGroups[i].pIds != NULL && s_TileGroups[i].key1)
                 if ((ch == s_TileGroups[i].key1) || (ch == s_TileGroups[i].key2))
@@ -3207,6 +3468,11 @@ static int32_t OnSelectTile(int32_t iTile)
 
     return iTile;
 }
+
+#undef TMPERRMSG_SHOW
+#undef TMPERRMSG_PRINT
+#undef TMPERRMSG_RETURN
+
 
 static const char *GetTilePixels(int32_t idTile)
 {
@@ -3228,10 +3494,9 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 {
     int32_t XTile, YTile;
     int32_t iTile, idTile;
-    int32_t XBox, YBox;
     int32_t XPos, YPos;
     int32_t XOffset, YOffset;
-    int32_t i;
+    int32_t i, marked;
     const char *pRawPixels;
     int32_t TileSizeX, TileSizeY;
     int32_t DivInc,MulInc;
@@ -3306,30 +3571,45 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
                         printext256(XPos, YPos, whitecol, -1, szT, 1);
                     }
                 }
+
+                marked = (IsValidTile(idTile) && tilemarked[idTile>>3]&(1<<(idTile&7)));
+
+                //
+                // Draw white box around currently selected tile or marked tile
+                // p1=(x1, y1), p2=(x1+TileDim-1, y1+TileDim-1)
+                //
+                if (iTile == iSelected || marked)
+                {
+                    int32_t x1 = ((iTile-iTopLeft) % nXTiles)*TileDim;
+                    int32_t y1 = ((iTile - ((iTile-iTopLeft) % nXTiles) - iTopLeft)/nXTiles)*TileDim + offset;
+                    int32_t x2 = x1+TileDim-1;
+                    int32_t y2 = y1+TileDim-1;
+
+                    char markedcol = editorcolors[14];
+
+                    setpolymost2dview();
+
+                    y1=max(y1, 0);
+                    y2=min(y2, ydim-1);
+
+                    // box
+                    plotlines2d((int32_t[]){x1, x1, x2, x2, x1},
+                                (int32_t[]){y1, y2, y2, y1, y1}, 5, iTile==iSelected ? whitecol : markedcol);
+                    // cross
+                    if (marked)
+                    {
+                        plotlines2d((int32_t[]){x1, x2},
+                                    (int32_t[]){y1, y2}, 2, markedcol);
+                        plotlines2d((int32_t[]){x1, x2},
+                                    (int32_t[]){y2, y1}, 2, markedcol);
+                    }
+                }
             }
         }
     }
 
-    //
-    // Draw white box around currently selected tile
-    //
-
-    XBox = ((iSelected-iTopLeft) % nXTiles) * TileDim;
-    YBox = ((iSelected - ((iSelected-iTopLeft) % nXTiles) - iTopLeft) / nXTiles) * TileDim+offset;
-
-    if (iSelected-iTopLeft>0)
-        for (i = 0; i < TileDim; i++)
-        {
-            if (YBox>=0 && YBox<ydim)
-                plotpixel(XBox+i,         YBox,           whitecol);
-            if (YBox+TileDim>=0 && YBox+TileDim<ydim)
-                plotpixel(XBox+i,         YBox + TileDim, whitecol);
-            if (YBox+i>=0 && YBox+i<ydim)
-            {
-                plotpixel(XBox,           YBox + i,       whitecol);
-                plotpixel(XBox + TileDim, YBox + i,       whitecol);
-            }
-        }
+    if (iSelected < 0 || iSelected >= MAXTILES)
+        return 1;
 
     idTile = localartlookup[ iSelected ];
 
@@ -8016,7 +8296,7 @@ int32_t parsetilegroups(scriptfile *script)
             if (scriptfile_getstring(script,&name)) break;
             if (scriptfile_getbraces(script,&end)) break;
 
-            s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES,sizeof(int32_t));
+            s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES, sizeof(int32_t));
             s_TileGroups[tile_groups].szText = Bstrdup(name);
 
             while (script->textptr < end)
@@ -8090,7 +8370,9 @@ int32_t parsetilegroups(scriptfile *script)
                 }
                 }
             }
-            s_TileGroups[tile_groups].pIds = Brealloc(s_TileGroups[tile_groups].pIds,s_TileGroups[tile_groups].nIds*sizeof(int32_t));
+
+            s_TileGroups[tile_groups].pIds = Brealloc(s_TileGroups[tile_groups].pIds,
+                                                      s_TileGroups[tile_groups].nIds*sizeof(int32_t));
             tile_groups++;
             break;
         }
@@ -8099,7 +8381,12 @@ int32_t parsetilegroups(scriptfile *script)
             char *end;
             int32_t i, j, k;
 
-            if (numalphabets >= MAX_ALPHABETS) break;
+            if (numalphabets >= MAX_ALPHABETS)
+            {
+                OSD_Printf("Too many alphabet definitions (max: %d).\n", MAX_ALPHABETS);
+                break;
+            }
+
             if (scriptfile_getbraces(script,&end)) break;
 
             for (i=0; i<NUMPRINTABLES; i++)
@@ -8217,19 +8504,42 @@ int32_t parsetilegroups(scriptfile *script)
     return 0;
 }
 
-int32_t loadtilegroups(char *fn)
+static int32_t loadtilegroups(const char *fn)
 {
     int32_t i, j;
     scriptfile *script;
-    TileGroup blank = { NULL,     0,  NULL,     0, 0, 0, 0};
+    TileGroup blank = { NULL, 0, NULL, 0, 0, 0, 0};
 
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
 
-    for (i = MAX_TILE_GROUPS-1; i >= 0; i--)
+    for (i=0; i<tile_groups; i++)
     {
-        Bmemcpy(&s_TileGroups[i],&blank,sizeof(blank));
+        if (s_TileGroups[i].pIds)
+            Bfree(s_TileGroups[i].pIds);
+        if (s_TileGroups[i].szText)
+            Bfree(s_TileGroups[i].szText);
+        Bmemcpy(&s_TileGroups[i], &blank, sizeof(blank));
     }
+    tile_groups = 0;
+
+    // ---------- Init hardcoded tile group consisting of all named tiles
+    s_TileGroups[0].szText = Bstrdup("All named");
+    s_TileGroups[0].pIds = Bmalloc(MAXTILES * sizeof(s_TileGroups[0].pIds[0]));
+    if (!s_TileGroups[0].pIds)
+        return -1;
+    j = 0;
+    for (i=0; i<MAXTILES; i++)
+        if (names[i][0])
+            s_TileGroups[0].pIds[j++] = i;
+    if (j)
+    {
+        s_TileGroups[0].nIds = j;
+        s_TileGroups[0].key1 = 'Y';
+        s_TileGroups[0].key2 = 'y';
+        tile_groups++;
+    }
+    // --------------------
 
     parsetilegroups(script);
 
@@ -8240,9 +8550,8 @@ int32_t loadtilegroups(char *fn)
     tilegroupActors = getTileGroup("Actors");
 
     // Apply 2d sprite colors as specified in tiles.cfg.
-    for (i = 0; i < MAX_TILE_GROUPS; i++)
+    for (i=0; i<tile_groups; i++)
     {
-        if (s_TileGroups[i].szText == NULL) break;
         // If the colors were specified...
         if (s_TileGroups[i].color1 && s_TileGroups[i].color2)
         {
@@ -8255,12 +8564,11 @@ int32_t loadtilegroups(char *fn)
         }
     }
 
-
     return 0;
 }
 
 /// vvv Parse CON files partially to get sound definitions
-int32_t parseconsounds(scriptfile *script)
+static int32_t parseconsounds(scriptfile *script)
 {
     int32_t tokn;
     char *cmdtokptr;
@@ -8399,7 +8707,7 @@ END:
     return g_numsounds;
 }
 
-int32_t loadconsounds(char *fn)
+static int32_t loadconsounds(const char *fn)
 {
     scriptfile *script;
     int32_t ret;
@@ -8645,7 +8953,10 @@ int32_t ExtInit(void)
     OSD_SetParameters(0,2, 0,0, 4,0);
     registerosdcommands();
 
-    loadtilegroups("tiles.cfg");
+    // backup pathsearchmode so that a later open
+    // will hopefully be the same file
+    pathsearchmode_oninit = pathsearchmode;
+    loadtilegroups(default_tiles_cfg);
 
     ReadHelpFile("m32help.hlp");
 

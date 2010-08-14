@@ -17,8 +17,8 @@ int32_t scriptfile_getsymbol(scriptfile *sf, int32_t *num);
 int32_t scriptfile_getlinum(scriptfile *sf, char *ptr);
 int32_t scriptfile_getbraces(scriptfile *sf, char **braceend);
 
-scriptfile *scriptfile_fromfile(char *fn);
-scriptfile *scriptfile_fromstring(char *string);
+scriptfile *scriptfile_fromfile(const char *fn);
+scriptfile *scriptfile_fromstring(const char *string);
 void scriptfile_close(scriptfile *sf);
 int32_t scriptfile_eof(scriptfile *sf);
 

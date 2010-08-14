@@ -417,6 +417,8 @@ int32_t app_main(int32_t argc, const char **argv)
     }
     //Bcanonicalisefilename(boardfilename,0);
 
+    loadnames();  // should be before ExtInit() because of auto 'Y' tile group
+
     if ((i = ExtInit()) < 0) return -1;
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
     if (i || forcesetup || cmdsetup)
@@ -437,7 +439,6 @@ int32_t app_main(int32_t argc, const char **argv)
     installusertimercallback(keytimerstuff);
 
     loadpics("tiles000.art", 1048576*16);
-    loadnames();
 
     Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");
     initcrc();
@@ -679,7 +680,8 @@ void showmouse(void)
         plotpixel(searchx,searchy-i,whitecol);
         plotpixel(searchx,searchy+i,whitecol);
     }
-}*/
+}
+*/
 
 static int32_t mhk=0;
 void loadmhk()
@@ -3864,7 +3866,7 @@ SKIP:
 
             if (newnumwalls >= numwalls)
             {
-                if (newnumwalls > numwalls)
+                if (newnumwalls > numwalls+1)
                     newnumwalls--;
                 else
                     newnumwalls = -1;
@@ -4445,6 +4447,7 @@ CANCEL:
                             }
                         }
                     }
+
                     if (bad == 1)
                     {
                         Bstrcpy(boardfilename, selectedboardfilename);
@@ -4452,7 +4455,7 @@ CANCEL:
                         printmessage16("Operation cancelled");
                         showframe(1);
                     }
-                    if (bad == 2)
+                    else if (bad == 2)
                     {
                         char *f; int32_t res;
                         keystatus[0x1c] = 0;
@@ -5317,6 +5320,86 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
     lockclock = totalclock;  //Reset timing
 
     return(oldnum);
+}
+
+// querystr: e.g. "Name: ", must be !=NULL
+// defaultstr: can be NULL
+//  NO overflow checks are done when copying them!
+// maxlen: maximum length of entry string, if ==1, enter single char
+const char* getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen)
+{
+    static char buf[128];
+    int32_t ei=0, qrylen=0;
+    char ch;
+
+    bflushchars();
+    clearkeys();
+
+    if (maxlen==0)
+        maxlen = 1000;
+
+    Bmemset(buf, 0, sizeof(buf));
+
+    qrylen = Bstrlen(querystr);
+    Bmemcpy(buf, querystr, qrylen);
+
+    ei = qrylen;
+
+    if (defaultstr)
+    {
+        int32_t deflen = Bstrlen(defaultstr);
+        Bmemcpy(&buf[ei], defaultstr, deflen);
+        ei += deflen;
+    }
+
+    buf[ei] = 0;
+
+    if (maxlen==1)
+    {
+        ei = qrylen;
+        buf[ei+1] = 0;
+    }
+
+    while (1)
+    {
+        printext256(0, 0, whitecol, 0, buf, 0);
+        showframe(1);
+
+        if (handleevents())
+            quitevent = 0;
+
+        idle_waitevent();
+
+        ch = bgetchar();
+
+        if (ch==13)
+            break;
+        else if (keystatus[1])
+        {
+            clearkeys();
+            return defaultstr;
+        }
+
+        if (maxlen!=1)
+        {
+            if (ei>qrylen && (ch==8 || ch==127))
+                buf[--ei] = ' ';
+            else if ((unsigned)ei<sizeof(buf)-1 && ei-qrylen<maxlen && isalnum(ch))
+            {
+                buf[ei++] = ch;
+                buf[ei] = 0;
+            }
+        }
+        else 
+        {
+            if (isalnum(ch) || ch==' ')
+                buf[ei] = Btoupper(ch);
+        }
+    }
+
+    clearkeys();
+
+    return buf+qrylen;
 }
 
 static void clearfilenames(void)

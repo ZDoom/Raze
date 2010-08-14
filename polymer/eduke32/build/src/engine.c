@@ -7667,6 +7667,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     //bytesperline is set in this function
 
     j = bpp;
+
     if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return(-1);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
@@ -9982,6 +9983,18 @@ void setbrightness(char dabrightness, uint8_t *dapal, char noapply)
     palfadedelta = 0;
 }
 
+static inline palette_t getpal(int32_t col)
+{
+    if (gammabrightness) return curpalette[col];
+    else
+    {
+        palette_t p;
+        p.b = britable[curbrightness][ curpalette[col].b ];
+        p.g	= britable[curbrightness][ curpalette[col].g ];
+        p.r = britable[curbrightness][ curpalette[col].r ];
+        return p;
+    }
+}
 
 //
 // setpalettefade
@@ -9998,13 +10011,7 @@ void setpalettefade(char r, char g, char b, char offset)
 
     for (i=0; i<256; i++)
     {
-        if (gammabrightness) p = curpalette[i];
-        else
-        {
-            p.b = britable[curbrightness][ curpalette[i].b ];
-            p.g	= britable[curbrightness][ curpalette[i].g ];
-            p.r = britable[curbrightness][ curpalette[i].r ];
-        }
+        p = getpal(i);
 
         curpalettefaded[i].b =
             p.b + (((palfadergb.b - p.b) * offset) >> 6);
@@ -10032,14 +10039,8 @@ void clearview(int32_t dacol)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (rendmode >= 3)
     {
-        palette_t p;
-        if (gammabrightness) p = curpalette[dacol];
-        else
-        {
-            p.r = britable[curbrightness][ curpalette[dacol].r ];
-            p.g = britable[curbrightness][ curpalette[dacol].g ];
-            p.b = britable[curbrightness][ curpalette[dacol].b ];
-        }
+        palette_t p = getpal(dacol);
+
         bglClearColor(((float)p.r)/255.0,
                       ((float)p.g)/255.0,
                       ((float)p.b)/255.0,
@@ -10076,14 +10077,8 @@ void clearallviews(int32_t dacol)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (rendmode >= 3)
     {
-        palette_t p;
-        if (gammabrightness) p = curpalette[dacol];
-        else
-        {
-            p.r = britable[curbrightness][ curpalette[dacol].r ];
-            p.g = britable[curbrightness][ curpalette[dacol].g ];
-            p.b = britable[curbrightness][ curpalette[dacol].b ];
-        }
+        palette_t p = getpal(dacol);
+
         bglViewport(0,0,xdim,ydim); glox1 = -1;
         bglClearColor(((float)p.r)/255.0,
                       ((float)p.g)/255.0,
@@ -10112,14 +10107,7 @@ void plotpixel(int32_t x, int32_t y, char col)
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (rendmode >= 3 && qsetmode == 200)
     {
-        palette_t p;
-        if (gammabrightness) p = curpalette[col];
-        else
-        {
-            p.r = britable[curbrightness][ curpalette[col].r ];
-            p.g = britable[curbrightness][ curpalette[col].g ];
-            p.b = britable[curbrightness][ curpalette[col].b ];
-        }
+        palette_t p = getpal(col);
 
         setpolymost2dview();	// JBF 20040205: more efficient setup
 
@@ -10130,7 +10118,6 @@ void plotpixel(int32_t x, int32_t y, char col)
         bglRasterPos4i(x, y, 0, 1);
         bglDrawPixels(1, 1, GL_RGB, GL_UNSIGNED_BYTE, &p);
         bglRasterPos4i(0, 0, 0, 1);
-
         return;
     }
 #endif
@@ -10138,6 +10125,35 @@ void plotpixel(int32_t x, int32_t y, char col)
     begindrawing(); //{{{
     drawpixel((void*)(ylookup[y]+x+frameplace),(int32_t)col);
     enddrawing();   //}}}
+}
+
+void plotlines2d(int32_t *xx, int32_t *yy, int32_t numpoints, char col)
+{
+    int32_t i;
+
+    if (rendmode >= 3)
+    {
+        palette_t p = getpal(col);
+
+        bglBegin(GL_LINE_STRIP);
+
+        bglColor4ub(p.r, p.g, p.b, 1);
+
+        for (i=0; i<numpoints; i++)
+            bglVertex2i(xx[i], yy[i]);
+
+        bglEnd();
+    }
+    else
+    {
+        int32_t odrawlinepat = drawlinepat;
+        drawlinepat = 0xffffffff;
+
+        for (i=0; i<numpoints-1; i++)
+            drawline16(xx[i], yy[i], xx[i+1], yy[i+1], col);
+
+        drawlinepat = odrawlinepat;
+    }
 }
 
 
@@ -11524,22 +11540,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
     {
         int32_t xx, yy;
         int32_t lc=-1;
-        palette_t p,b;
-
-        if (gammabrightness)
-        {
-            p = curpalette[col];
-            b = curpalette[backcol];
-        }
-        else
-        {
-            p.r = britable[curbrightness][ curpalette[col].r ];
-            p.g = britable[curbrightness][ curpalette[col].g ];
-            p.b = britable[curbrightness][ curpalette[col].b ];
-            b.r = britable[curbrightness][ curpalette[backcol].r ];
-            b.g = britable[curbrightness][ curpalette[backcol].g ];
-            b.b = britable[curbrightness][ curpalette[backcol].b ];
-        }
+        palette_t p=getpal(col), b=getpal(backcol);
 
         setpolymost2dview();
         bglDisable(GL_ALPHA_TEST);
@@ -11553,24 +11554,18 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
             {
                 char smallbuf[8];
                 int32_t bi=0;
+
                 while (isdigit(name[i+1]) && bi<8)
                 {
                     smallbuf[bi++]=name[i+1];
                     i++;
                 }
                 smallbuf[bi++]=0;
-                if (col)col = atol(smallbuf);
+                if (col)
+                    col = atol(smallbuf);
 
-                if (gammabrightness)
-                {
-                    p = curpalette[col];
-                }
-                else
-                {
-                    p.r = britable[curbrightness][ curpalette[col].r ];
-                    p.g = britable[curbrightness][ curpalette[col].g ];
-                    p.b = britable[curbrightness][ curpalette[col].b ];
-                }
+                p = getpal(col);
+
                 continue;
             }
             letptr = &fontptr[name[i]<<3];

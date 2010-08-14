@@ -236,7 +236,7 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "showheightindicators", val, VL) > 0)
         showheightindicators = min(max(Batoi(val),0),2);
     if (readconfig(fp, "showambiencesounds", val, VL) > 0)
-        showheightindicators = min(max(Batoi(val),0),2);
+        showambiencesounds = min(max(Batoi(val),0),2);
 
     if (readconfig(fp, "graphicsmode", val, VL) > 0)
         graphicsmode = min(max(Batoi(val),0),2);

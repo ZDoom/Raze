@@ -453,6 +453,8 @@ void   setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   setaspect(int32_t daxrange, int32_t daaspect);
 void   flushperms(void);
 
+void plotlines2d(int32_t *xx, int32_t *yy, int32_t numpoints, char col);
+
 void   plotpixel(int32_t x, int32_t y, char col);
 char   getpixel(int32_t x, int32_t y);
 void   setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz);

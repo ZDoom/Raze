@@ -261,7 +261,7 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
     sf->eof = &sf->textbuf[nflen-1];
 }
 
-scriptfile *scriptfile_fromfile(char *fn)
+scriptfile *scriptfile_fromfile(const char *fn)
 {
     int32_t fp;
     scriptfile *sf;
@@ -298,7 +298,7 @@ scriptfile *scriptfile_fromfile(char *fn)
     return sf;
 }
 
-scriptfile *scriptfile_fromstring(char *string)
+scriptfile *scriptfile_fromstring(const char *string)
 {
     scriptfile *sf;
     char *tx;

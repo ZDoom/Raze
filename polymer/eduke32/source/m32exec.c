@@ -163,7 +163,7 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
 
         // needed since any read access before initialization would cause undefined behaviour
         if (aEventNumLocals[iEventID] > 0)
-            Bmemset(localvars, aEventNumLocals[iEventID]*sizeof(int32_t), 0);
+            Bmemset(localvars, 0, aEventNumLocals[iEventID]*sizeof(int32_t));
 
         Bmemcpy(&vm_backup, &vm, sizeof(vmstate_t));
 
@@ -358,7 +358,7 @@ skip_check:
 
             // needed since any read access before initialization would cause undefined behaviour
             if (statesinfo[stateidx].numlocals > 0)
-                Bmemset(localvars, statesinfo[stateidx].numlocals*sizeof(int32_t), 0);
+                Bmemset(localvars, 0, statesinfo[stateidx].numlocals*sizeof(int32_t));
 
             insptr = script + statesinfo[stateidx].ofs;
             vm.g_st = 1+MAXEVENTS+stateidx;
