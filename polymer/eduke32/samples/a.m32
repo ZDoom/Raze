@@ -1,5 +1,27 @@
-// m32 script test & show-off file
-// do "include a" in the console
+// m32 script editor extensions.
+// to load, enter "include samples/a" (without quotes) in the console
+// or into a file named m32_autoexec.cfg for automatic loading on startup.
+// to enable all events, "enableevents all"
+
+////////// USER SETTINGS //////////
+
+// settings for the tweaking of Polymer pr_override*-variables with the keypad keys
+define MINPARALLAXSCALE -10  // minimum pr_parallaxscale value
+define MAXPARALLAXSCALE 10
+define MINPARALLAXBIAS -10
+define MAXPARALLAXBIAS 10
+define PSCALESTEPS 1000  // 0..1 is mapped to 0..PSCALESTEPS
+define PBIASSTEPS 1000
+
+define MINSPECULARPOWER -10
+define MAXSPECULARPOWER 1000
+define MINSPECULARFACTOR -10
+define MAXSPECULARFACTOR 1000
+define SPOWERSTEPS 100
+define SFACTORSTEPS 100
+
+////////// END USER SETTINGS //////////
+
 
 include names.h
 
@@ -7,19 +29,13 @@ include names.h
 gamevar i 0 1
 gamevar j 0 1
 gamevar k 0 1
-gamevar l 0 1
-gamevar m 0 1
+
 gamevar p 0 1
-gamevar q 0 1
 gamevar r 0 1
 
 gamevar x 0 0
 gamevar y 0 0
 gamevar z 0 0
-
-gamevar gi 0 0
-gamevar gj 0 0
-gamevar gk 0 0
 
 gamevar dx 0 0
 gamevar dy 0 0
@@ -28,8 +44,6 @@ gamevar dang 0 0
 
 gamevar tmp 0 0
 gamevar cnt 0 0
-
-gamevar thecount 0 0
 
 gamevar davr 65536 0
 gamevar dayx 65536 0
@@ -56,9 +70,6 @@ definequote 23 WALL[%d].POINT2=%d out of range: sector[%d].wallptr=%d, endwall=%
 definequote 24 WALL[%d].NEXTWALL=%d out of range: numwalls=%d!!!
 definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d!!!
 
-definequote 27 OVERRIDE POLYMER PARALLAX & SPECULAR: OFF
-definequote 28 OVERRIDE POLYMER PARALLAX & SPECULAR: ON
-
 define PRSCALE 1000
 define MAXSPECULAR 100000
 
@@ -67,6 +78,8 @@ gamearray parm 8
 
 // prints out maphack light definitions based on SE lights in map
 defstate printlights
+    var flags
+
     print "--PRLIGHTS--"
     for i allsprites, ifactor SECTOREFFECTOR, ifge .lotag 49, ifle .lotag 50
     {
@@ -80,18 +93,18 @@ defstate printlights
             set j 0, set k 0
         }
 
-        set l 0
+        set flags 0
         ifand .cstat 2
         {
             ifand .cstat 512
-                set l 4
+                set flags 4
             else
-                set l 2
+                set flags 2
         }
         //                                            range     r   g   b
         qsprintf TQUOTE LIGHTQUOTE .sectnum .x .y .z .hitag .xvel .yvel .zvel
-                                   j k    .ang .extra .xoffset .yoffset l    .owner
-        //                    radius fade      horiz  minshade maxshade prio tile
+                                   j k    .ang .extra .xoffset .yoffset flags .owner
+        //                    radius fade      horiz  minshade maxshade prio  tile
         print TQUOTE
     }
     print "--ENDPRLIGHTS--"
@@ -105,58 +118,51 @@ ends
 //  KP 1,2,3: RGB color (Shift inverts)
 //
 // when aiming at wall or sector:
-//  KP/ enable/disable overrides
+//  Ctrl-Shift-KP/ enable/disable parallax override
+//  Ctrl-Shift-KP* enable/disable bias override
 // when overrides are on:
-//  KP 4,7: parallaxscale
-//  KP 8,9: parallaxbias
-//  KP 1,2: specularfactor
-//  KP 3,6: specularpower
+//  KP 5,8: parallaxscale
+//  KP 4,6: parallaxbias
+//  KP /,*: specularfactor
+//  KP 7,9: specularpower
 //
 // Also try Shift and/or Ctrl modifiers for different increments
 defstate fiddlewithlights
-    ife searchstat 3 nullop else
+    var minval maxval
+
+    ifaimingsprite nullop else
     {
-        ifeitherctrl ifhitkey KEY_gSLASH 
+        ifeitheralt ifhitkey KEY_gSLASH 
         {
-            ife pr_overrideparallax 0
-            {
-                set pr_overrideparallax 1
-                set pr_overridespecular 1
-                quote 28
-            }
+            xor pr_overrideparallax 1, and pr_overrideparallax 1
+            ife pr_overrideparallax 1
+                quote "OVERRIDE POLYMER PARALLAX: ON"
             else
-            {
-                set pr_overrideparallax 0
-                set pr_overridespecular 0
-                quote 27
-            }
+                quote "OVERRIDE POLYMER PARALLAX: OFF"
+        }
+        else ifeitheralt ifhitkey KEY_gSTAR
+        {
+            xor pr_overridespecular 1, and pr_overridespecular 1
+            ife pr_overridespecular 1
+                quote "OVERRIDE POLYMER SPECULAR: ON"
+            else
+                quote "OVERRIDE POLYMER SPECULAR: OFF"
         }
     }
 
     // if aiming at sector or wall
-    ife searchstat 3 nullop
+    ifaimingsprite nullop
     else ifn pr_overrideparallax 0
     {
-        // polymer override parallaxscale
         set j 0 set k 0
 
-        ifhitkey KEY_KP5 set j -1  //pscale
-        ifhitkey KEY_KP8 set j 1
+        ifhitkey KEY_KP5 set j -1, ifhitkey KEY_KP8 set j 1
         ifn j 0 set k 1
 
-        ifhitkey KEY_KP4 set j -1  //pbias
-        ifhitkey KEY_KP6 set j 1
+        ifhitkey KEY_KP4 set j -1, ifhitkey KEY_KP6 set j 1
         ife k 0 ifn j 0 set k 2
 
-        ifhitkey KEY_gSLASH set j -1  //sfac
-        ifhitkey KEY_gSTAR set j 1
-        ife k 0 ifn j 0 set k 3
-
-        ifhitkey KEY_KP7 set j -1  //spow
-        ifhitkey KEY_KP9 set j 1
-        ife k 0 ifn j 0 set k 4
-
-        ifeithershift mul j 2 else mul j 10
+        ifeithershift mul j 10
         ifeitherctrl mul j 10
 
         switch k
@@ -164,9 +170,11 @@ defstate fiddlewithlights
         case 1:
         {
             set k pr_parallaxscale
-            ftoi k PRSCALE  // must convert to scaled integer, scale is 1:PRSCALE
-            add k j, clamp k -10000 10000
-            itof k PRSCALE  // convert back
+            ftoi k PSCALESTEPS  // must convert to scaled integer, maps 0..1 to 0..PARALLAXSTEPS
+            set minval MINPARALLAXSCALE, mul minval PSCALESTEPS
+            set maxval MAXPARALLAXSCALE, mul maxval PSCALESTEPS
+            add k j, al k, clamp k minval maxval, al k
+            itof k PSCALESTEPS  // convert back
             qsprintf TQUOTE "PARALLAX SCALE: %f" k, quote TQUOTE
             set pr_parallaxscale k
             break;
@@ -174,15 +182,43 @@ defstate fiddlewithlights
         case 2:
         {
             set k pr_parallaxbias
-            ftoi k PRSCALE, add k j, clamp k -10000 10000, itof k PRSCALE
+            ftoi k PBIASSTEPS
+            set minval MINPARALLAXBIAS, mul minval PBIASSTEPS
+            set maxval MAXPARALLAXBIAS, mul maxval PBIASSTEPS
+            add k j, clamp k minval maxval
+            itof k PBIASSTEPS
             qsprintf TQUOTE "PARALLAX BIAS: %f" k, quote TQUOTE
             set pr_parallaxbias k
             break;
         }
+        endswitch
+    }
+
+    // if aiming at sector or wall
+    ifaimingsprite nullop
+    else ifn pr_overridespecular 0
+    {
+        set j 0 set k 0
+
+        ifhitkey KEY_gSLASH set j -1, ifhitkey KEY_gSTAR set j 1
+        ifn j 0 set k 3
+
+        ifhitkey KEY_KP7 set j -1, ifhitkey KEY_KP9 set j 1
+        ife k 0 ifn j 0 set k 4
+
+        ifeithershift mul j 10
+        ifeitherctrl mul j 10
+
+        switch k
+        case 0: break;
         case 3:
         {
             set k pr_specularfactor
-            ftoi k PRSCALE, add k j, clamp k 0 MAXSPECULAR, itof k PRSCALE
+            ftoi k SFACTORSTEPS
+            set minval MINSPECULARFACTOR, mul minval SFACTORSTEPS
+            set maxval MAXSPECULARFACTOR, mul maxval SFACTORSTEPS
+            add k j, clamp k minval maxval
+            itof k SFACTORSTEPS
             qsprintf TQUOTE "SPECULAR FACTOR: %f" k, quote TQUOTE
             set pr_specularfactor k
             break;
@@ -190,7 +226,11 @@ defstate fiddlewithlights
         case 4:
         {
             set k pr_specularpower
-            ftoi k PRSCALE, add k j, clamp k 0 MAXSPECULAR, itof k PRSCALE
+            ftoi k SPOWERSTEPS
+            set minval MINSPECULARPOWER, mul minval SPOWERSTEPS
+            set maxval MAXSPECULARPOWER, mul maxval SPOWERSTEPS
+            add k j, clamp k minval maxval
+            itof k SPOWERSTEPS
             qsprintf TQUOTE "SPECULAR POWER: %f" k, quote TQUOTE
             set pr_specularpower k
             break;
@@ -198,9 +238,9 @@ defstate fiddlewithlights
         endswitch
     }
 
+
     // if aiming at a sprite that's not a Polymer light
-    set k 0
-    ife searchstat 3 set k 1
+    ifaimingsprite set k 1 else set k 0
 
     ife k 1 ife sprite[searchwall].picnum SECTOREFFECTOR
     ifge sprite[searchwall].lotag 49 ifle sprite[searchwall].lotag 50
@@ -215,20 +255,21 @@ defstate fiddlewithlights
         {
             ifhitkey KEY_KP1
             {
-                getnumber256 .xvel "XVEL:" 255
-                getnumber256 .yvel "YVEL:" 255
-                getnumber256 .zvel "ZVEL:" 255
+                getnumber256 .xvel "XVEL: " 0
+                getnumber256 .yvel "YVEL: " 0
+                getnumber256 .zvel "ZVEL: " 0
             }
             else ifhitkey KEY_KP2
             {
-                getnumber256 .owner "OWNER:" -MAXTILES
+                getnumber256 .owner "OWNER: " 0
+                ifl .owner 0 set .owner -1
             }
         }
     }
 
 
     // if aiming at an SE with lotag 49 or 50 (Polymer light)
-    ife searchstat 3 ife sprite[searchwall].picnum SECTOREFFECTOR
+    ifaimingsprite ife sprite[searchwall].picnum SECTOREFFECTOR
     ifge sprite[searchwall].lotag 49 ifle sprite[searchwall].lotag 50
     {
         set i searchwall, seti i  // set current sprite = targeted sprite
@@ -274,6 +315,7 @@ defstate fiddlewithlights
             {
                 set .xoffset 0
                 set .yoffset 0
+                quote "Reset X and Y OFFSET (min/max shade) to 0"
             }
         }
         else
@@ -284,7 +326,7 @@ defstate fiddlewithlights
 
             ife k 1
             {
-                qsprintf TQUOTE "XY offset: %d %d" .xoffset .yoffset
+                qsprintf TQUOTE "XY OFFSET (min/max shade): %d %d" .xoffset .yoffset
                 quote TQUOTE
             }
         }
@@ -294,13 +336,14 @@ defstate fiddlewithlights
         {
             ifhitkey KEY_KP1
             {
-                getnumber256 .xvel "RED:" 255
-                getnumber256 .yvel "GREEN:" 255
-                getnumber256 .zvel "BLUE:" 255
+                getnumber256 .xvel "XVEL (red): " 255
+                getnumber256 .yvel "YVEL (green): " 255
+                getnumber256 .zvel "ZVEL (blue): " 255
             }
             else ifhitkey KEY_KP2
             {
-                getnumber256 .owner "PICNUM:" -MAXTILES
+                getnumber256 .owner "OWNER (projection picnum): " -MAXTILES
+                ifl .owner 0 set .owner -1
             }
         }
         else
@@ -319,7 +362,7 @@ defstate fiddlewithlights
                 clamp .yvel 1 255
                 clamp .zvel 1 255
 
-                qsprintf TQUOTE "RGB color: %d %d %d" .xvel .yvel .zvel
+                qsprintf TQUOTE "XYZ VEL (RGB color): %d %d %d" .xvel .yvel .zvel
                 quote TQUOTE
             }
         }
@@ -412,15 +455,9 @@ onevent EVENT_DRAW2DSCREEN
         set k i, add k 1, set k ar[k]
         drawline16b sprite[j].x sprite[j].y sprite[k].x sprite[k].y drawcol
     }
-/*
-    set drawlinepat -1
-    for i allsprites
-        ifactor LIZTROOP
-            drawcircle16b sprite[i].x sprite[i].y 256 drawcol
-*/
 
 ////////// polymer light 2d projections //////////
-    var c d h x2 y2 oldpat
+    var c d h r x2 y2 oldpat
 
     array xx 2
     array yy 2
@@ -520,7 +557,7 @@ define DUP_ROT_MAGIC 123
 //  .yrepeat*32: z delta (positive if pal!=0, i.e. going down)
 //  .shade: count (-128 to 0 -> 255 to 128)
 defstate duprot
-    ifn searchstat 3 return
+    ifaimingsprite nullop else return
     ifn sprite[searchwall].extra DUP_ROT_MAGIC return
 
     set p searchwall  // pivot sprite
@@ -549,7 +586,7 @@ ends
 
 // same as above but with tsprite[], as a kind of preview
 defstate tduprot
-    ifn searchstat 3 return
+    ifaimingsprite nullop else return
     ifn sprite[searchwall].extra DUP_ROT_MAGIC return
 
     set p searchwall  // pivot sprite
@@ -587,7 +624,7 @@ define DUP_LIN_MAGIC2 345
 //  .extra=234 (1st sprite), =345 (2nd, aimed at sprite)
 //  .shade: count (-128 to 0 -> 255 to 128)
 defstate duplin
-    ifn searchstat 3 return
+    ifaimingsprite nullop else return
     ifn sprite[searchwall].extra DUP_LIN_MAGIC2 return
 
     set r searchwall  // 2nd reference point
@@ -623,7 +660,7 @@ defstate duplin
 ends
 
 defstate tduplin
-    ifn searchstat 3 return
+    ifaimingsprite nullop else return
     ifn sprite[searchwall].extra DUP_LIN_MAGIC2 return
 
     set r searchwall  // 2nd reference point
@@ -667,8 +704,10 @@ onevent EVENT_ANALYZESPRITES
 endevent
 
 onevent EVENT_KEYS3D
+    var l m
+
     // door sound tester
-    ife searchstat 0
+    ifaimingwall
     ifholdkey KEY_SPACE
     {
         set k wall[searchwall].nextsector
@@ -688,7 +727,7 @@ onevent EVENT_KEYS3D
     }
 
     // swinging doors tester -- hit space on a door wall
-    ife searchstat 0
+    ifaimingwall
     ifhitkey KEY_SPACE  // SE11 ST23 up:ccw
     {
         set k wall[searchwall].nextsector
@@ -744,7 +783,7 @@ onevent EVENT_KEYS3D
     }
 
     // teleporter -- works on SE7 and SE17 (elevator)
-    ife searchstat 3
+    ifaimingsprite
     ifhitkey KEY_SPACE
     {
         ife sprite[searchwall].picnum SECTOREFFECTOR

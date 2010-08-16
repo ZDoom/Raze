@@ -145,6 +145,24 @@ static inline int32_t wallength(int16_t i)
 extern const char *scripthist[SCRIPTHISTSIZ];
 extern int32_t scripthistend;
 
+//////////////////// Aiming ////////////////////
+#define SEARCH_WALL 0
+#define SEARCH_CEILING 1
+#define SEARCH_FLOOR 2
+#define SEARCH_SPRITE 3
+#define SEARCH_MASKWALL 4
+
+#define ASSERT_AIMING (searchstat>=0 && searchstat<=4)
+
+#define AIMING_AT_WALL (searchstat==0)
+#define AIMING_AT_CEILING (searchstat==1)
+#define AIMING_AT_FLOOR (searchstat==2)
+#define AIMING_AT_SPRITE (searchstat==3)
+#define AIMING_AT_MASKWALL (searchstat==4)
+
+#define AIMING_AT_WALL_OR_MASK (AIMING_AT_WALL || AIMING_AT_MASKWALL)
+#define AIMING_AT_CEILING_OR_FLOOR (AIMING_AT_CEILING || AIMING_AT_FLOOR)
+
 #ifdef __cplusplus
 }
 #endif

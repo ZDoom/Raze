@@ -299,6 +299,9 @@ const char *keyw[] =
     "ifinwater",
     "ifoutside",
     "ifnosounds",
+    "ifaimingsprite",
+    "ifaimingwall",
+    "ifaimingsector",
 
 // BUILD functions
     "resetkey",
@@ -2895,6 +2898,9 @@ repeatcase:
 ///    case CON_IFINOUTERSPACE:
 ///    case CON_IFCANSEETARGET:
     case CON_IFNOSOUNDS:
+    case CON_IFAIMINGSPRITE:
+    case CON_IFAIMINGWALL:
+    case CON_IFAIMINGSECTOR:
     {
         ofstype offset;
         ofstype lastScriptOfs = (g_scriptPtr-script-1);

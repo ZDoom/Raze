@@ -167,7 +167,7 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
             goto fallback;
 
         sz = (numargs+2)*sizeof(char *) + (c-command+1);
-        sz = ((sz+pagesize)/pagesize)*pagesize;
+        sz = ((sz+pagesize-1)/pagesize)*pagesize;
 
         external_midi_argv = Bmemalign(pagesize, sz);
         if (!external_midi_argv)

@@ -10131,7 +10131,8 @@ void plotlines2d(int32_t *xx, int32_t *yy, int32_t numpoints, char col)
 {
     int32_t i;
 
-    if (rendmode >= 3)
+#if defined(POLYMOST) && defined(USE_OPENGL)
+    if (rendmode >= 3 && qsetmode == 200)
     {
         palette_t p = getpal(col);
 
@@ -10143,8 +10144,9 @@ void plotlines2d(int32_t *xx, int32_t *yy, int32_t numpoints, char col)
             bglVertex2i(xx[i], yy[i]);
 
         bglEnd();
+        return;
     }
-    else
+#endif
     {
         int32_t odrawlinepat = drawlinepat;
         drawlinepat = 0xffffffff;

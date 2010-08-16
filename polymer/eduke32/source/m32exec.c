@@ -883,8 +883,9 @@ skip_check:
             {
                 int32_t bits=Gv_GetVarX(*insptr), scale=*(insptr+1);
                 float fval = *((float *)&bits);
-
-                Gv_SetVarX(*insptr, (int32_t)(fval * scale));
+// rounding must absolutely be!
+//OSD_Printf("ftoi: bits:%8x, scale=%d, fval=%f, (int32_t)(fval*scale)=%d\n", bits, scale, fval, (int32_t)(fval*scale));
+                Gv_SetVarX(*insptr, (int32_t)nearbyintf(fval * scale));
             }
             insptr += 2;
             continue;
@@ -894,7 +895,6 @@ skip_check:
             {
                 int32_t scaled=Gv_GetVarX(*insptr), scale=*(insptr+1);
                 float fval = (float)scaled/(float)scale;
-
                 Gv_SetVarX(*insptr, *((int32_t *)&fval));
             }
             insptr += 2;
@@ -2170,13 +2170,17 @@ badindex:
                     continue;
 
                 {
-                    int32_t max=Gv_GetVarX(*insptr++), sign=ksgn(max)<0?1:0;
+                    int32_t max=Gv_GetVarX(*insptr++), sign=(max<=0);
                     char buf[64];  // buffers in getnumber* are 80 bytes long
 
                     // no danger of accessing unallocated memory since we took care in C_SetScriptSize()
                     Bmemcpy(buf, quotetext, sizeof(buf));
                     buf[sizeof(buf)-1]='\0';
 
+                    if (max==0)
+                        max = INT_MAX;
+
+OSD_Printf("max:%d, sign:%d\n", max, sign);
                     if (tw==CON_GETNUMBER16)
                         Gv_SetVarX(var, getnumber16(quotetext, Gv_GetVarX(var), max, sign));
                     else
@@ -2731,6 +2735,16 @@ dodefault:
             VM_DoConditional(j < 0);
         }
         continue;
+
+        case CON_IFAIMINGSPRITE:
+            VM_DoConditional(AIMING_AT_SPRITE);
+            continue;
+        case CON_IFAIMINGWALL:
+            VM_DoConditional(AIMING_AT_WALL_OR_MASK);
+            continue;
+        case CON_IFAIMINGSECTOR:
+            VM_DoConditional(AIMING_AT_CEILING_OR_FLOOR);
+            continue;
 
         case CON_GETSOUNDFLAGS:
             insptr++;

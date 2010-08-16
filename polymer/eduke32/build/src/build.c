@@ -5205,15 +5205,16 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
 
         if (ch >= '0' && ch <= '9')
         {
+            int64_t nbig;
             if (danum >= 0)
             {
-                n = (danum*10)+(ch-'0');
-                if (n <= maxnumber) danum = n;
+                nbig = ((int64_t)danum*10)+(ch-'0');
+                if (nbig <= (int64_t)maxnumber) danum = nbig;
             }
             else if (sign) // this extra check isn't hurting anything
             {
-                n = (danum*10)-(ch-'0');
-                if (n >= -maxnumber) danum = n;
+                nbig = ((int64_t)danum*10)-(ch-'0');
+                if (nbig >= (int64_t)-maxnumber) danum = nbig;
             }
         }
         else if (ch == 8 || ch == 127)  	// backspace
@@ -5239,7 +5240,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
 int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
     char buffer[80], ch;
-    int32_t n, danum, oldnum;
+    int32_t danum, oldnum;
 
     danum = num;
     oldnum = danum;
@@ -5289,15 +5290,16 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
 
         if (ch >= '0' && ch <= '9')
         {
+            int64_t nbig;
             if (danum >= 0)
             {
-                n = (danum*10)+(ch-'0');
-                if (n <= maxnumber) danum = n;
+                nbig = ((int64_t)danum*10)+(ch-'0');
+                if (nbig <= (int64_t)maxnumber) danum = nbig;
             }
             else if (sign)
             {
-                n = (danum*10)-(ch-'0');
-                if (n >= -maxnumber) danum = n;
+                nbig = ((int64_t)danum*10)-(ch-'0');
+                if (nbig >= (int64_t)-maxnumber) danum = nbig;
             }
         }
         else if (ch == 8 || ch == 127)  	// backspace
@@ -5357,6 +5359,7 @@ const char* getstring_simple(const char *querystr, const char *defaultstr, int32
     if (maxlen==1)
     {
         ei = qrylen;
+        buf[ei] = '_';
         buf[ei+1] = 0;
     }
 
@@ -5373,7 +5376,11 @@ const char* getstring_simple(const char *querystr, const char *defaultstr, int32
         ch = bgetchar();
 
         if (ch==13)
+        {
+            if (maxlen != 1)
+                buf[ei] = 0;
             break;
+        }
         else if (keystatus[1])
         {
             clearkeys();
@@ -5383,11 +5390,15 @@ const char* getstring_simple(const char *querystr, const char *defaultstr, int32
         if (maxlen!=1)
         {
             if (ei>qrylen && (ch==8 || ch==127))
-                buf[--ei] = ' ';
-            else if ((unsigned)ei<sizeof(buf)-1 && ei-qrylen<maxlen && isalnum(ch))
+            {
+                buf[ei] = ' ';
+                buf[--ei] = '_';
+            }
+            else if ((unsigned)ei<sizeof(buf)-2 && ei-qrylen<maxlen && isprint(ch))
             {
                 buf[ei++] = ch;
-                buf[ei] = 0;
+                buf[ei] = '_';
+                buf[ei+1] = 0;
             }
         }
         else 
