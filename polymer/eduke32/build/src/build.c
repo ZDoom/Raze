@@ -208,9 +208,6 @@ int32_t fillsector(int16_t sectnum, char fillcolor);
 int16_t whitelinescan(int16_t dalinehighlight);
 void printcoords16(int32_t posxe, int32_t posye, int16_t ange);
 void copysector(int16_t soursector, int16_t destsector, int16_t deststartwall, char copystat);
-void showsectordata(int16_t sectnum);
-void showwalldata(int16_t wallnum);
-void showspritedata(int16_t spritenum);
 int32_t drawtilescreen(int32_t pictopleft, int32_t picbox);
 void overheadeditor(void);
 static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line);
@@ -6119,18 +6116,16 @@ void copysector(int16_t soursector, int16_t destsector, int16_t deststartwall, c
     Bsprintf(snotbuf, fmt, ## __VA_ARGS__); \
     printext16(8+col*200, ydim/*-(row*96)*/-STATUS2DSIZ+Yofs, color, -1, snotbuf, 0);
 
-void showsectordata(int16_t sectnum)
+void showsectordata(int16_t sectnum, int16_t small)
 {
     sectortype *sec;
     char snotbuf[80];
     int32_t col=0;  //,row = 0;
-    int32_t mode = (sectnum & 16384);
-    int32_t color = mode?whitecol:editorcolors[11];
+    int32_t color = small ? whitecol : editorcolors[11];
 
-    sectnum &= ~16384;
     sec = &sector[sectnum];
 
-    if (mode)
+    if (small)
     {
         _printmessage16("^10Sector %d %s ^O(F7 to edit)", sectnum, ExtGetSectorCaption(sectnum));
         return;
@@ -6169,19 +6164,17 @@ void showsectordata(int16_t sectnum)
     DOPRINT(96, "Palookup number: %d", sec->floorpal);
 }
 
-void showwalldata(int16_t wallnum)
+void showwalldata(int16_t wallnum, int16_t small)
 {
     walltype *wal;
     int32_t sec;
     char snotbuf[80];
     int32_t col=0; //, row = 0;
-    int32_t mode = (wallnum & 16384);
-    int32_t color = mode?whitecol:editorcolors[11];
+    int32_t color = small ? whitecol : editorcolors[11];
 
-    wallnum &= ~16384;
     wal = &wall[wallnum];
 
-    if (mode)
+    if (small)
     {
         _printmessage16("^10Wall %d %s ^O(F8 to edit)", wallnum, ExtGetWallCaption(wallnum));
         return;
@@ -6209,30 +6202,28 @@ void showwalldata(int16_t wallnum)
 
     col++;
 
-    DOPRINT(48-(mode?16:0), "nextsector: %d", wal->nextsector);
-    DOPRINT(56-(mode?16:0), "nextwall: %d", wal->nextwall);
+    DOPRINT(48-(small?16:0), "nextsector: %d", wal->nextsector);
+    DOPRINT(56-(small?16:0), "nextwall: %d", wal->nextwall);
 
-    DOPRINT(72-(mode?16:0), "Extra: %d", wal->extra);
+    DOPRINT(72-(small?16:0), "Extra: %d", wal->extra);
 
     // TX 20050102 I'm not sure what unit dist<<4 is supposed to be, but dist itself is correct in terms of game coordinates as one would expect
-    DOPRINT(96-(mode?16:0),  "Wall length: %d",  wallength(wallnum));
+    DOPRINT(96-(small?16:0),  "Wall length: %d",  wallength(wallnum));
 
     sec = sectorofwall(wallnum);
-    DOPRINT(104-(mode?16:0), "Pixel height: %d", (sector[sec].floorz-sector[sec].ceilingz)>>8);
+    DOPRINT(104-(small?16:0), "Pixel height: %d", (sector[sec].floorz-sector[sec].ceilingz)>>8);
 }
 
-void showspritedata(int16_t spritenum)
+void showspritedata(int16_t spritenum, int16_t small)
 {
     spritetype *spr;
     char snotbuf[80];
     int32_t col=0; //, row = 0;
-    int32_t mode = (spritenum & 16384);
-    int32_t color = mode?whitecol:editorcolors[11];
+    int32_t color = small ? whitecol : editorcolors[11];
 
-    spritenum &= ~16384;
     spr = &sprite[spritenum];
 
-    if (mode)
+    if (small)
     {
         _printmessage16("^10Sprite %d %s ^O(F8 to edit)",spritenum, ExtGetSpriteCaption(spritenum));
         return;

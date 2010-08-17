@@ -246,6 +246,8 @@ const char *keyw[] =
     "ldist",
     "getangle",
     "getincangle",
+    "a2xy",
+    "ah2xyz",
 
     "sort",
     "for",  // *
@@ -1720,18 +1722,17 @@ static int32_t C_ParseCommand(void)
                 return 1;
             }
 
+
+            cs.currentStateOfs = (g_scriptPtr-script);
+
             j = hash_find(&h_states, tlabel);
             if (j>=0)  // only redefining
             {
                 cs.currentStateIdx = j;
-                cs.currentStateOfs = (g_scriptPtr-script);
-
-                Bsprintf(g_szCurrentBlockName, "%s", statesinfo[j].name);
             }
             else  // new state definition
             {
                 cs.currentStateIdx = j = g_stateCount;
-                cs.currentStateOfs = (g_scriptPtr-script);
 
                 if (g_stateCount >= statesinfo_allocsize)
                 {
@@ -1745,11 +1746,12 @@ static int32_t C_ParseCommand(void)
                     }
                 }
 
-                Bmemcpy(statesinfo[j].name, tlabel, MAXLABELLEN);
-                statesinfo[j].numlocals = 0;
-                Bsprintf(g_szCurrentBlockName, "%s", tlabel);
+                Bstrcpy(statesinfo[j].name, tlabel);
                 hash_add(&h_states, tlabel, j, 0);
             }
+
+            statesinfo[j].numlocals = 0;
+            Bsprintf(g_szCurrentBlockName, "%s", statesinfo[j].name);
 
             return 0;
         }
@@ -1953,6 +1955,7 @@ static int32_t C_ParseCommand(void)
         aEventNumLocals[j] = 0;
         cs.parsingEventOfs = g_scriptPtr-script;
         //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, g_parsingEventPtr); AddLog(g_szBuf);
+
         if (j<0 || j >= MAXEVENTS)
         {
             initprintf("%s:%d: error: invalid event ID.\n",g_szScriptFileName,g_lineNumber);
@@ -2523,6 +2526,8 @@ repeatcase:
                 uint16_t *numlocals = (cs.currentStateIdx >= 0) ?
                     &statesinfo[cs.currentStateIdx].numlocals : &aEventNumLocals[cs.currentEvent];
 
+//OSD_Printf("s%d,e%d: array `%s', numlocals of `%s' is %d.\n", cs.currentStateIdx, cs.currentEvent,
+//           tlabel, g_szCurrentBlockName, (int32_t)*numlocals);
                 if (((int32_t)(*numlocals))+asize > M32_MAX_LOCALS)
                     C_CUSTOMERROR("too much local storage required (max: %d gamevar equivalents).", M32_MAX_LOCALS);
                 else
@@ -2808,6 +2813,16 @@ repeatcase:
     case CON_GETINCANGLE:
         C_GetNextVarType(GV_WRITABLE);
         C_GetManyVars(2);
+        return 0;
+
+    case CON_A2XY:
+        C_GetNextVar();
+        C_GetManyVarsType(GV_WRITABLE, 2);
+        return 0;
+
+    case CON_AH2XYZ:
+        C_GetManyVars(2);
+        C_GetManyVarsType(GV_WRITABLE, 3);
         return 0;
 
     case CON_FOR:  // special-purpose iteration

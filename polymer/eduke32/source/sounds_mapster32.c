@@ -51,6 +51,7 @@ static char SM32_havesound = 0;
 
 char SoundToggle = 1;
 int32_t NumVoices = 32;
+int32_t MixRate = 44100;
 
 int32_t backflag,g_numEnvSoundsPlaying;
 
@@ -75,12 +76,8 @@ int32_t S_SoundStartup(void)
     void *initdata = 0;
 
     // TODO: read config
-    int32_t FXVolume=220, /*NumVoices=32,*/ NumChannels=2, NumBits=16, MixRate, ReverseStereo=0;
-#if defined(_WIN32)
-    MixRate = 44100;
-#else
-    MixRate = 44100;
-#endif
+    int32_t FXVolume=220, /*NumVoices=32,*/ NumChannels=2, NumBits=16, ReverseStereo=0;
+
     fxdevicetype = ASS_AutoDetect;
 
 #ifdef WIN32

@@ -20,6 +20,9 @@ define MAXSPECULARFACTOR 1000
 define SPOWERSTEPS 100
 define SFACTORSTEPS 100
 
+// settings for various drawing enhancements
+define PREVIEW_DRAW_COLOR 11
+
 ////////// END USER SETTINGS //////////
 
 
@@ -73,7 +76,11 @@ definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d!!!
 define PRSCALE 1000
 define MAXSPECULAR 100000
 
-gamearray ar 128
+define TMPARLEN 128
+gamearray ar TMPARLEN
+gamearray xx TMPARLEN
+gamearray yy TMPARLEN
+
 gamearray parm 8
 
 // prints out maphack light definitions based on SE lights in map
@@ -369,6 +376,12 @@ defstate fiddlewithlights
     }
 ends
 
+onevent EVENT_PREKEYS3D
+//    state testkeyavail
+    state fiddlewithlights
+endevent
+
+
 // rotate highlighted sprites around selected (closest to mouse) sprite
 // global parameter: dang
 defstate rotselspr
@@ -408,10 +421,6 @@ onevent EVENT_PREKEYS2D
     }
 endevent
 
-onevent EVENT_PREKEYS3D
-//    state testkeyavail
-    state fiddlewithlights
-endevent
 
 defstate setas
     set j dayx
@@ -424,15 +433,14 @@ onevent EVENT_ENTER3DMODE
     state setas
 endevent
 
+
 defstate cmp_by_lotag  // comparator subroutine for sorting
     set RETURN sprite[SV2].lotag
     sub RETURN sprite[SV1].lotag
 ends
 
-onevent EVENT_DRAW2DSCREEN
-    ifl cursectnum 0 return
-
-    // connect LOCATORS in a sector by lines
+defstate connectlocators
+    // connect LOCATORS in a sector with lines
     getarraysize ar tmp
     set j 0
     for i spritesofsector cursectnum
@@ -455,7 +463,9 @@ onevent EVENT_DRAW2DSCREEN
         set k i, add k 1, set k ar[k]
         drawline16b sprite[j].x sprite[j].y sprite[k].x sprite[k].y drawcol
     }
+ends
 
+defstate draw_prlightprojections
 ////////// polymer light 2d projections //////////
     var c d h r x2 y2 oldpat
 
@@ -523,7 +533,103 @@ onevent EVENT_DRAW2DSCREEN
         }
     }
     set drawlinepat oldpat
+ends
+
+defstate previewdoors2d
+    // preview swinging and sliding doors in 2d mode
+    var valid sect lo
+    var i j w numw ang trange dx dy
+
+    set valid 0
+    set sect searchsector
+
+    ifge sect 0
+    {
+        set lo sector[sect].lotag
+        ife lo 23 set valid 1
+        else ife lo 25 set valid 1
+    }
+
+    ife valid 1
+    {
+        set valid 0
+        for i spritesofsector sect
+            ifactor SECTOREFFECTOR
+            {
+                ife .lotag 11 ife lo 23 set valid 1  // swinging door
+                ife .lotag 15 ife lo 25 set valid 1  // slide door
+                ife valid 1 { set j i, break }
+            }
+
+        ife valid 1
+            seti j
+        else return
+
+        ife .lotag 15
+        {
+            set trange 256
+            for i spritesofsector sect
+                ifactor GPSPEED { set trange .lotag, break }
+            mul trange 2  // now equals distance of sliding door to travel
+        }
+
+        set i 0
+        for w loopofwall sector[sect].wallptr
+        {
+            ifge i TMPARLEN break
+            set xx[i] wall[w].x
+            set yy[i] wall[w].y
+            add i 1
+        }
+        ifl i TMPARLEN
+        {
+            set xx[i] xx[0]
+            set yy[i] yy[0]
+            add i 1
+        }
+        set numw i
+
+        ife .lotag 11
+        {
+            ifg .ang 1024 set ang -512 else set ang 512
+            for i range numw
+                rotatepoint .x .y xx[i] yy[i] ang xx[i] yy[i]
+        }
+        else  // if .lotag 15
+        {
+            set ang .ang, add ang 1024
+            a2xy ang dx dy
+            mulscale dx trange dx 14
+            mulscale dy trange dy 14
+
+            for i range numw
+            {
+                add xx[i] dx
+                add yy[i] dy
+            }
+        }
+
+        set drawlinepat 0x33333333
+        sub numw 1
+        for i range numw
+        {
+            set j i, add j 1
+            drawline16b xx[i] yy[i] xx[j] yy[j] PREVIEW_DRAW_COLOR
+        }
+        set drawlinepat 0xffffffff
+    }
+ends
+
+onevent EVENT_DRAW2DSCREEN
+    ifge cursectnum 0
+    {
+        state connectlocators
+        state draw_prlightprojections
+    }
+
+    state previewdoors2d
 endevent
+
 
 // LOCATORS auto-incrementer
 onevent EVENT_INSERTSPRITE2D
@@ -702,6 +808,7 @@ onevent EVENT_ANALYZESPRITES
     state tduprot
     state tduplin
 endevent
+
 
 onevent EVENT_KEYS3D
     var l m

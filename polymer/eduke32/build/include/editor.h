@@ -88,6 +88,10 @@ extern void ExtEditWallData(int16_t wallnum);
 extern void ExtEditSpriteData(int16_t spritenum);
 extern const char *ExtGetSectorType(int32_t lotag);
 
+extern void showsectordata(int16_t sectnum, int16_t small);
+extern void showwalldata(int16_t wallnum, int16_t small);
+extern void showspritedata(int16_t spritenum, int16_t small);
+
 extern int32_t circlewall;
 
 int32_t loadsetup(const char *fn);	// from config.c

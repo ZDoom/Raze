@@ -67,7 +67,7 @@ extern double msens;
 extern int32_t editorgridextent, grid, autogrid;
 static int32_t default_grid=3;
 extern int32_t graphicsmode;
-extern int32_t AmbienceToggle;
+extern int32_t AmbienceToggle, MixRate;
 extern int32_t ParentalLock;
 
 /*
@@ -133,7 +133,7 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "ydim2d", val, VL) > 0) ydim2d = Batoi(val);
     if (readconfig(fp, "xdim3d", val, VL) > 0) xdimgame = Batoi(val);
     if (readconfig(fp, "ydim3d", val, VL) > 0) ydimgame = Batoi(val);
-    if (readconfig(fp, "samplerate", val, VL) > 0) option[7] = (Batoi(val) & 0x0f) << 4;
+//    if (readconfig(fp, "samplerate", val, VL) > 0) option[7] = (Batoi(val) & 0x0f) << 4;
     if (readconfig(fp, "music", val, VL) > 0) { if (Batoi(val) != 0) option[2] = 1; else option[2] = 0; }
     if (readconfig(fp, "mouse", val, VL) > 0) { if (Batoi(val) != 0) option[3] = 1; else option[3] = 0; }
     if (readconfig(fp, "bpp", val, VL) > 0) bppgame = Batoi(val);
@@ -241,6 +241,7 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "graphicsmode", val, VL) > 0)
         graphicsmode = min(max(Batoi(val),0),2);
 
+    if (readconfig(fp, "samplerate", val, VL) > 0) MixRate = min(max(8000, Batoi(val)), 48000);
     if (readconfig(fp, "ambiencetoggle", val, VL) > 0) AmbienceToggle = Batoi(val);
     if (readconfig(fp, "parlock", val, VL) > 0) ParentalLock = Batoi(val);
 
@@ -422,7 +423,10 @@ int32_t writesetup(const char *fn)
              "showambiencesounds = %d\n"
              "\n"
              "; 2D mode display type (0:classic, 1:textured, 2:textured/animated)\n"
-             "graphicsmode = %d\n\n"
+             "graphicsmode = %d\n"
+             "\n"
+             "; Sample rate in Hz\n"
+             "samplerate = %d\n"
              "; Ambient sounds in 3D mode (0:off, 1:on)\n"
              "ambiencetoggle = %d\n"
              "parlock = %d\n"
@@ -503,8 +507,8 @@ int32_t writesetup(const char *fn)
 #endif
              option[3], msens, unrealedlook, pk_uedaccel, quickmapcycling,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,
-             showheightindicators,showambiencesounds,graphicsmode,AmbienceToggle,ParentalLock,
-             !!m32_osd_tryscript,
+             showheightindicators,showambiencesounds,graphicsmode,
+             MixRate,AmbienceToggle,ParentalLock, !!m32_osd_tryscript,
 #if 1
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
              keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],

@@ -143,9 +143,6 @@ extern intptr_t frameplace;
 
 static int32_t acurpalette=0;
 
-extern void showsectordata(int16_t sectnum);
-extern void showwalldata(int16_t wallnum);
-extern void showspritedata(int16_t spritenum);
 extern int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
 extern double msens;

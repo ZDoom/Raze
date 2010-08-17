@@ -332,6 +332,8 @@ enum ScriptKeywords_t
     CON_LDIST,
     CON_GETANGLE,
     CON_GETINCANGLE,
+    CON_A2XY,
+    CON_AH2XYZ,
 
     CON_SORT,
     CON_FOR,

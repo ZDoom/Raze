@@ -11086,7 +11086,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
             if (i == linehighlight || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
                 if (totalclock & 16) col -= (2<<2);
         }
-        else if (showfirstwall && (sector[searchsector].wallptr == i || sector[searchsector].wallptr == wall[i].nextwall))
+        else if (showfirstwall && searchsector>=0 && (sector[searchsector].wallptr == i || sector[searchsector].wallptr == wall[i].nextwall))
         {
             col = 14;
             if (i == linehighlight) if (totalclock & 16) col -= (2<<2);

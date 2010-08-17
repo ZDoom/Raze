@@ -6684,13 +6684,26 @@ static void Keys2d(void)
 
     if (keystatus[KEYSC_TAB])  //TAB
     {
-        if (cursectornum >= 0)
+        if (eitherSHIFT || eitherCTRL)
+        {
+            if (pointhighlight >= 16384)
+            {
+                drawgradient();
+                showspritedata(pointhighlight&16383, 0);
+            }
+            else if (linehighlight >= 0 && ((bstatus&1) || sectorofwall(linehighlight)==cursectornum))
+            {
+                drawgradient();
+                showwalldata(linehighlight, 0);
+            }
+        }
+        else if (cursectornum >= 0)
         {
             drawgradient();
-            showsectordata((int16_t)i);
+            showsectordata(cursectornum, 0);
         }
     }
-    else if (!(keystatus[KEYSC_F5]|keystatus[KEYSC_F6]|keystatus[KEYSC_F7]|keystatus[KEYSC_F8]))
+    else if (!(keystatus[KEYSC_F5]|keystatus[KEYSC_F6]|keystatus[KEYSC_F7]|keystatus[KEYSC_F8]) && !eitherSHIFT)
     {
         static int32_t counter = 0;
         static int32_t omx = 0, omy = 0;
@@ -6721,15 +6734,15 @@ static void Keys2d(void)
             if (pointhighlight >= 16384)
             {
                 i = pointhighlight-16384;
-                showspritedata((int16_t)i+16384);
+                showspritedata(i, 1);
 
                 if (sprite[i].picnum==SECTOREFFECTOR)
                     _printmessage16("^10%s", SectorEffectorText(i));
             }
             else if (linehighlight >= 0 && ((bstatus&1) || sectorofwall(linehighlight)==cursectornum))
-                showwalldata((int16_t)linehighlight+16384);
+                showwalldata(linehighlight, 1);
             else if (cursectornum >= 0)
-                showsectordata((int16_t)cursectornum+16384);
+                showsectordata(cursectornum, 1);
         }
 
         if (totalclock < lastpm16time + 120*2)
@@ -6845,7 +6858,7 @@ static void Keys2d(void)
                     Bsprintf(tempbuf,"Sector %d Extra: ",i);
                     sector[i].extra = getnumber16(tempbuf,sector[i].extra,BTAG_MAX,1);
 //                    clearmidstatbar16();
-//                    showsectordata((int16_t)i);
+//                    showsectordata(i, 0);
 //                    break;
                 }
         }
@@ -9864,7 +9877,7 @@ static void EditSectorData(int16_t sectnum)
 
     disptext[dispwidth] = 0;
 
-    showsectordata(sectnum);
+    showsectordata(sectnum, 0);
 
     begindrawing();
     while (keystatus[KEYSC_ESC] == 0)
@@ -10096,7 +10109,7 @@ static void EditWallData(int16_t wallnum)
 
     disptext[dispwidth] = 0;
 
-    showwalldata(wallnum);
+    showwalldata(wallnum, 0);
     begindrawing();
     while (keystatus[KEYSC_ESC] == 0)
     {
@@ -10201,7 +10214,7 @@ static void EditWallData(int16_t wallnum)
         if (editval)
         {
             editval = 0;
-            //showwalldata(wallnum);
+            //showwalldata(wallnum, 0);
             //// printmessage16("");
         }
         //enddrawing();
@@ -10227,7 +10240,7 @@ static void EditSpriteData(int16_t spritenum)
     disptext[dispwidth] = 0;
     //    clearmidstatbar16();
 
-    showspritedata(spritenum);
+    showspritedata(spritenum, 0);
 
     while (keystatus[KEYSC_ESC] == 0)
     {
@@ -10633,7 +10646,7 @@ static void GenericSpriteSearch()
     for (k=0; k<80; k++) disptext[k] = 0;
 
     //    disptext[dispwidth[col]] = 0;
-    //    showspritedata(spritenum);
+    //    showspritedata(spritenum, 0);
     wallsprite = 2;
 
     while (keystatus[KEYSC_ESC] == 0)

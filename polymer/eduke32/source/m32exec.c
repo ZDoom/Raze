@@ -248,6 +248,7 @@ static int32_t X_DoSort(const int32_t *lv, const int32_t *rv)
     return g_iReturnVar;
 }
 
+// in interactive execution, allow the current sprite index to be the aimed-at sprite (in 3d mode)
 #define X_ERROR_INVALIDCI()                                             \
     if ((vm.g_i < 0 || vm.g_i>=MAXSPRITES) &&                           \
         (vm.g_st!=0 || searchstat!=3 || (vm.g_i=searchwall, vm.g_sp=&sprite[vm.g_i], 0))) \
@@ -970,6 +971,40 @@ skip_check:
                 int32_t yvar = Gv_GetVarX(*insptr++);
 
                 Gv_SetVarX(angvar, G_GetAngleDelta(xvar,yvar));
+                continue;
+            }
+
+        case CON_A2XY:
+        case CON_AH2XYZ:
+            insptr++;
+            {
+                int32_t ang=Gv_GetVarX(*insptr++), horiz=(tw==CON_A2XY)?100:Gv_GetVarX(*insptr++);
+                int32_t xvar=*insptr++, yvar=*insptr++;
+
+                int32_t x = sintable[(ang+512)&2047];
+                int32_t y = sintable[ang&2047];
+
+                if (tw==CON_AH2XYZ)
+                {
+                    int32_t zvar=*insptr++, z=0;
+
+                    horiz -= 100;
+                    if (horiz)
+                    {
+                        int32_t veclen = ksqrt(200*200 + horiz*horiz);
+                        int32_t dacos = divscale14(200, veclen);
+
+                        x = mulscale14(x, dacos);
+                        y = mulscale14(y, dacos);
+                        z = divscale14(horiz, veclen);
+                    }
+
+                    Gv_SetVarX(zvar, z);
+                }
+
+                Gv_SetVarX(xvar, x);
+                Gv_SetVarX(yvar, y);
+
                 continue;
             }
 
@@ -2736,11 +2771,12 @@ dodefault:
         }
         continue;
 
+        // ifaimingsprite and -wall also work in 2d mode, but you must "and" with 16383 yourself
         case CON_IFAIMINGSPRITE:
-            VM_DoConditional(AIMING_AT_SPRITE);
+            VM_DoConditional(AIMING_AT_SPRITE || pointhighlight>=16384);
             continue;
         case CON_IFAIMINGWALL:
-            VM_DoConditional(AIMING_AT_WALL_OR_MASK);
+            VM_DoConditional(AIMING_AT_WALL_OR_MASK || linehighlight>=0);
             continue;
         case CON_IFAIMINGSECTOR:
             VM_DoConditional(AIMING_AT_CEILING_OR_FLOOR);
