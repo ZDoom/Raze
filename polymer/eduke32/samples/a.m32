@@ -125,9 +125,9 @@ ends
 //  KP 1,2,3: RGB color (Shift inverts)
 //
 // when aiming at wall or sector:
-//  Ctrl-Shift-KP/ enable/disable parallax override
-//  Ctrl-Shift-KP* enable/disable bias override
-// when overrides are on:
+//  ----Alt-KP/ enable/disable parallax override  /// none, toggle them manually in the OSD
+//  ----Alt-KP* enable/disable bias override  /// none, toggle them manually in the OSD
+// when the respective overrides are on:
 //  KP 5,8: parallaxscale
 //  KP 4,6: parallaxbias
 //  KP /,*: specularfactor
@@ -136,10 +136,10 @@ ends
 // Also try Shift and/or Ctrl modifiers for different increments
 defstate fiddlewithlights
     var minval maxval
-
+/*
     ifaimingsprite nullop else
     {
-        ifeitheralt ifhitkey KEY_gSLASH 
+        ifeithershift ifhitkey KEY_gSLASH 
         {
             xor pr_overrideparallax 1, and pr_overrideparallax 1
             ife pr_overrideparallax 1
@@ -147,7 +147,7 @@ defstate fiddlewithlights
             else
                 quote "OVERRIDE POLYMER PARALLAX: OFF"
         }
-        else ifeitheralt ifhitkey KEY_gSTAR
+        else ifeithershift ifhitkey KEY_gSTAR
         {
             xor pr_overridespecular 1, and pr_overridespecular 1
             ife pr_overridespecular 1
@@ -156,7 +156,7 @@ defstate fiddlewithlights
                 quote "OVERRIDE POLYMER SPECULAR: OFF"
         }
     }
-
+*/
     // if aiming at sector or wall
     ifaimingsprite nullop
     else ifn pr_overrideparallax 0
@@ -169,18 +169,19 @@ defstate fiddlewithlights
         ifhitkey KEY_KP4 set j -1, ifhitkey KEY_KP6 set j 1
         ife k 0 ifn j 0 set k 2
 
-        ifeithershift mul j 10
+        ifeitheralt mul j 10
         ifeitherctrl mul j 10
 
         switch k
-        case 0: break;
+  // "break" breaks too far or there's something wrong with the switch -- needs to be looked at
+//        case 0: break;
         case 1:
         {
             set k pr_parallaxscale
             ftoi k PSCALESTEPS  // must convert to scaled integer, maps 0..1 to 0..PARALLAXSTEPS
             set minval MINPARALLAXSCALE, mul minval PSCALESTEPS
             set maxval MAXPARALLAXSCALE, mul maxval PSCALESTEPS
-            add k j, al k, clamp k minval maxval, al k
+            add k j, clamp k minval maxval
             itof k PSCALESTEPS  // convert back
             qsprintf TQUOTE "PARALLAX SCALE: %f" k, quote TQUOTE
             set pr_parallaxscale k
@@ -199,8 +200,9 @@ defstate fiddlewithlights
             break;
         }
         endswitch
+//quote "zxczxc"
     }
-
+//quote "asdasd"
     // if aiming at sector or wall
     ifaimingsprite nullop
     else ifn pr_overridespecular 0
@@ -213,11 +215,11 @@ defstate fiddlewithlights
         ifhitkey KEY_KP7 set j -1, ifhitkey KEY_KP9 set j 1
         ife k 0 ifn j 0 set k 4
 
-        ifeithershift mul j 10
+        ifeitheralt mul j 10
         ifeitherctrl mul j 10
 
         switch k
-        case 0: break;
+//        case 0: break;
         case 3:
         {
             set k pr_specularfactor
@@ -245,7 +247,7 @@ defstate fiddlewithlights
         endswitch
     }
 
-
+//quote "qweqwe"
     // if aiming at a sprite that's not a Polymer light
     ifaimingsprite set k 1 else set k 0
 

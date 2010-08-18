@@ -7793,7 +7793,9 @@ static int32_t osdcmd_scriptinfo(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-#if 0
+#ifdef DEBUGGINGAIDS
+extern void X_Disasm(ofstype beg, int32_t size);
+
 static int32_t osdcmd_disasm(const osdfuncparm_t *parm)
 {
     int32_t i;
@@ -7994,7 +7996,9 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("enableevent", "enableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
     OSD_RegisterFunction("disableevent", "disableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
     OSD_RegisterFunction("osd_tryscript", "osd_tryscript: toggles execution of M32 script on invalid OSD command", osdcmd_vars_pk);
-//    OSD_RegisterFunction("disasm", "disasm [s|e] <state or event number>", osdcmd_disasm);
+#ifdef DEBUGGINGAIDS
+    OSD_RegisterFunction("disasm", "disasm [s|e] <state or event number>", osdcmd_disasm);
+#endif
     return 0;
 }
 

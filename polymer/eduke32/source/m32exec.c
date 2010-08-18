@@ -88,7 +88,7 @@ static int32_t dist(spritetype *s1,spritetype *s2)
 }
 ///
 
-#if 0
+#ifdef DEBUGGINGAIDS
 void X_Disasm(ofstype beg, int32_t size)
 {
     instype *p;
@@ -996,7 +996,7 @@ skip_check:
 
                         x = mulscale14(x, dacos);
                         y = mulscale14(y, dacos);
-                        z = divscale14(horiz, veclen);
+                        z = divscale14(-horiz, veclen);
                     }
 
                     Gv_SetVarX(zvar, z);
