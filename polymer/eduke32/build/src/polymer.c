@@ -3469,7 +3469,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     float           *v0, *v1;
     md3surf_t       *s;
     char            lpal;
-    float           spos[3], tspos[3], lpos[3], tlpos[3], vec[3], mat[4][4];
+    float           spos2[3], spos[3], tspos[3], lpos[3], tlpos[3], vec[3], mat[4][4];
     float           ang;
     float           scale;
     double          det;
@@ -3489,9 +3489,28 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     if ((pr_vbos > 1) && (m->indices == NULL))
         polymer_loadmodelvbos(m);
 
-    spos[0] = (float)tspr->y;
-    spos[1] = -(float)(tspr->z) / 16.0f;
-    spos[2] = -(float)tspr->x;
+    // Hackish, but that means it's a model drawn by rotatesprite.
+    if (tspriteptr[MAXSPRITESONSCREEN] == tspr) {
+        float       x, y, z;
+
+        spos[0] = (float)globalposy;
+        spos[1] = -(float)(globalposz) / 16.0f;
+        spos[2] = -(float)globalposx;
+
+        // The coordinates are actually floats disguised as int in this case
+        memcpy(&x, &tspr->x, sizeof(float));
+        memcpy(&y, &tspr->y, sizeof(float));
+        memcpy(&z, &tspr->z, sizeof(float));
+
+        spos2[0] = (float)y - globalposy;
+        spos2[1] = -(float)(z - globalposz) / 16.0f;
+        spos2[2] = -(float)(x - globalposx);
+    } else {
+        spos[0] = (float)tspr->y;
+        spos[1] = -(float)(tspr->z) / 16.0f;
+        spos[2] = -(float)tspr->x;
+    }
+
     ang = (float)((tspr->ang+spriteext[tspr->owner].angoff) & 2047) / (2048.0f / 360.0f);
     ang -= 90.0f;
     if (((tspr->cstat>>4) & 3) == 2)
@@ -3504,8 +3523,22 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     scale *= m->scale;
     scale *= m->bscale;
 
-    bglTranslatef(spos[0], spos[1], spos[2]);
-    bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+    if (tspriteptr[MAXSPRITESONSCREEN] == tspr) {
+        float radplayerang, cosminusradplayerang, sinminusradplayerang;
+
+        radplayerang = (globalang & 2047) * 2.0f * PI / 2048.0f;
+        cosminusradplayerang = cos(-radplayerang);
+        sinminusradplayerang = sin(-radplayerang);
+
+        bglTranslatef(spos[0], spos[1], spos[2]);
+        bglRotatef(horizang, -cosminusradplayerang, 0.0f, sinminusradplayerang);
+        bglRotatef(spriteext[tspr->owner].roll / (2048.0f / 360.0f), sinminusradplayerang, 0.0f, cosminusradplayerang);
+        bglTranslatef(spos2[0], spos2[1], spos2[2]);
+        bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+    } else {
+        bglTranslatef(spos[0], spos[1], spos[2]);
+        bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+    }
     if (((tspr->cstat>>4) & 3) == 2)
     {
         bglTranslatef(0.0f, 0.0, -(float)(tilesizy[tspr->picnum] * tspr->yrepeat) / 8.0f);
@@ -3530,7 +3563,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     bglTranslatef(0.0f, 0.0, m->zadd * 64);
 
     // scripted model rotation
-    if (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll)
+    if (tspr->owner < MAXSPRITES &&
+        (spriteext[tspr->owner].pitch || spriteext[tspr->owner].roll))
     {
         float       pitchang, rollang, offsets[3];
 

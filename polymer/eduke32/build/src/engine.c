@@ -436,7 +436,7 @@ int16_t maskwall[MAXWALLSB], maskwallcnt;
 static int32_t spritesx[MAXSPRITESONSCREEN];
 static int32_t spritesy[MAXSPRITESONSCREEN+1];
 static int32_t spritesz[MAXSPRITESONSCREEN];
-spritetype *tspriteptr[MAXSPRITESONSCREEN];
+spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 
 int16_t umost[MAXXDIM], dmost[MAXXDIM];
 static int16_t bakumost[MAXXDIM], bakdmost[MAXXDIM];

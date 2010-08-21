@@ -189,7 +189,7 @@ EXTERN walltype *wall;
 EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN int16_t thewall[MAXWALLSB];
 EXTERN spritetype *sprite;
-EXTERN spritetype *tspriteptr[MAXSPRITESONSCREEN];
+EXTERN spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t spritesortcnt;
 EXTERN spritetype *tsprite;

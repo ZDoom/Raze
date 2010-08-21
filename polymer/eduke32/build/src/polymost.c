@@ -5260,17 +5260,35 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 }
             }
             tspr.ang = hudmem[(dastat&4)>>2][picnum].angadd+globalang;
-            tspr.xrepeat = tspr.yrepeat = 32;
 
             if (dastat&4) { x1 = -x1; y1 = -y1; }
-            tspr.x = (int32_t)(((double)gcosang*z1 - (double)gsinang*x1)*16384.0 + globalposx);
-            tspr.y = (int32_t)(((double)gsinang*z1 + (double)gcosang*x1)*16384.0 + globalposy);
-            tspr.z = (int32_t)(globalposz + y1*16384.0*0.8);
+            
+            // In Polymost, we don't care if the model is very big
+            if (rendmode < 4) {
+                tspr.xrepeat = tspr.yrepeat = 32;
+
+                tspr.x = (int32_t)(((double)gcosang*z1 - (double)gsinang*x1)*16384.0 + globalposx);
+                tspr.y = (int32_t)(((double)gsinang*z1 + (double)gcosang*x1)*16384.0 + globalposy);
+                tspr.z = (int32_t)(globalposz + y1*16384.0*0.8);
+            } else {
+                float x, y, z;
+
+                tspr.xrepeat = tspr.yrepeat = 5;
+
+                x = (float)(((double)gcosang*z1 - (double)gsinang*x1)*2560.0 + globalposx);
+                y = (float)(((double)gsinang*z1 + (double)gcosang*x1)*2560.0 + globalposy);
+                z = (float)(globalposz + y1*2560.0*0.8);
+                
+                memcpy(&tspr.x, &x, sizeof(float));
+                memcpy(&tspr.y, &y, sizeof(float));
+                memcpy(&tspr.z, &z, sizeof(float));
+            }
             tspr.picnum = picnum;
             tspr.shade = dashade;
             tspr.pal = dapalnum;
             tspr.owner = uniqid+MAXSPRITES;
             globalorientation = (dastat&1)+((dastat&32)<<4)+((dastat&4)<<1);
+            tspr.cstat = globalorientation;
 
             if ((dastat&10) == 2)
                 bglViewport(windowx1,yres-(windowy2+1),windowx2-windowx1+1,windowy2-windowy1+1);
@@ -5280,20 +5298,23 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
             }
 
-            bglMatrixMode(GL_PROJECTION);
-            memset(m,0,sizeof(m));
-            if ((dastat&10) == 2)
+            if (rendmode < 4)
             {
-                float ratioratio = (float)xdim/ydim;
-                m[0][0] = (float)ydimen*(ratioratio >= 1.6?1.2:1); m[0][2] = 1.0;
-                m[1][1] = (float)xdimen; m[1][2] = 1.0;
-                m[2][2] = 1.0; m[2][3] = (float)ydimen*(ratioratio >= 1.6?1.2:1);
-                m[3][2] =-1.0;
+                bglMatrixMode(GL_PROJECTION);
+                memset(m,0,sizeof(m));
+                if ((dastat&10) == 2)
+                {
+                    float ratioratio = (float)xdim/ydim;
+                    m[0][0] = (float)ydimen*(ratioratio >= 1.6?1.2:1); m[0][2] = 1.0;
+                    m[1][1] = (float)xdimen; m[1][2] = 1.0;
+                    m[2][2] = 1.0; m[2][3] = (float)ydimen*(ratioratio >= 1.6?1.2:1);
+                    m[3][2] =-1.0;
+                }
+                else { m[0][0] = m[2][3] = 1.0f; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001f; m[3][2] = 1-m[2][2]; }
+                bglLoadMatrixf(&m[0][0]);
+                bglMatrixMode(GL_MODELVIEW);
+                bglLoadIdentity();
             }
-            else { m[0][0] = m[2][3] = 1.0f; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001f; m[3][2] = 1-m[2][2]; }
-            bglLoadMatrixf(&m[0][0]);
-            bglMatrixMode(GL_MODELVIEW);
-            bglLoadIdentity();
 
             if (hudmem[(dastat&4)>>2][picnum].flags&8) //NODEPTH flag
                 bglDisable(GL_DEPTH_TEST);
@@ -5307,22 +5328,31 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 }
             }
 
-#if 0
-            if (!nofog)
-            {
-                i = klabs(tspr.shade);
-                bglFogf(GL_FOG_DENSITY,fogcalc(tspr.shade,sector[tspr.sectnum].visibility);
-                    }
-                    mddraw(&tspr);
-#else
 #ifdef USE_OPENGL
             if (!nofog) bglDisable(GL_FOG);
-            mddraw(&tspr);
+            if (rendmode < 4)
+                mddraw(&tspr);
+            else {
+                tspriteptr[MAXSPRITESONSCREEN] = &tspr;
+
+                bglEnable(GL_ALPHA_TEST);
+                bglEnable(GL_BLEND);
+                
+                spriteext[tspr.owner].roll = a;
+
+                polymer_drawsprite(MAXSPRITESONSCREEN);
+
+                spriteext[tspr.owner].roll = 0;
+
+                bglDisable(GL_BLEND);
+                bglDisable(GL_ALPHA_TEST);
+            }
+            
             if (!nofog) bglEnable(GL_FOG);
 #else
             mddraw(&tspr);
 #endif
-#endif
+
             viewingrange = oldviewingrange;
             gxyaspect = ogxyaspect;
             globalshade  = ogshade;
@@ -5360,6 +5390,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         m[0][0] = m[2][3] = 1.0f; m[1][1] = ((float)xdim)/((float)ydim); m[2][2] = 1.0001f; m[3][2] = 1-m[2][2];
         bglPushMatrix(); bglLoadMatrixf(&m[0][0]);
         bglMatrixMode(GL_MODELVIEW);
+        bglPushMatrix();
         bglLoadIdentity();
 
         bglDisable(GL_DEPTH_TEST);
@@ -5519,6 +5550,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     if (rendmode >= 3)
     {
         bglMatrixMode(GL_PROJECTION); bglPopMatrix();
+        bglMatrixMode(GL_MODELVIEW); bglPopMatrix();
     }
 #endif
 

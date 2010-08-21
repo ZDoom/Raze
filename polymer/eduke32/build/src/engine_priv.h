@@ -14,7 +14,7 @@ extern int32_t pow2int[32];
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 extern int16_t maskwall[MAXWALLSB], maskwallcnt;
-extern spritetype *tspriteptr[MAXSPRITESONSCREEN];
+extern spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern intptr_t frameoffset;
 extern int32_t globalposx, globalposy, globalposz, globalhoriz;
