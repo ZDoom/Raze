@@ -44,6 +44,10 @@
 
 #define CACHEAGETIME 16
 
+#ifdef DEBUGGINGAIDS
+float debug1, debug2;
+#endif
+
 #ifdef SUPERBUILD
 void loadvoxel(int32_t voxindex) { voxindex=0; }
 int32_t tiletovox[MAXTILES];

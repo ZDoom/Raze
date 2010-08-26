@@ -319,6 +319,10 @@ int32_t baselayer_init(void)
         { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void *)&vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
         { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void *)&vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
 #endif
+#ifdef DEBUGGINGAIDS
+        { "debug1","debug counter",(void *)&debug1, CVAR_FLOAT, -100000, 100000 },
+        { "debug2","debug counter",(void *)&debug2, CVAR_FLOAT, -100000, 100000 },
+#endif
     };
 
     for (i=0; i<sizeof(cvars_engine)/sizeof(cvars_engine[0]); i++)
