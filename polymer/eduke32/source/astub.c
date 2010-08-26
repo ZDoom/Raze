@@ -4237,6 +4237,89 @@ ERROR_NOMEMORY:
     lockclock = totalclock;  //Reset timing
 }
 
+static void mouseaction_movesprites(int32_t *sumxvect, int32_t *sumyvect, int32_t yangofs, int32_t mousexory)
+{
+    int32_t xvect,yvect, daxvect,dayvect, ii, spi;
+    int32_t units, gridlock = (eitherCTRL && grid > 0 && grid < 9);
+    spritetype *sp = &sprite[searchwall];
+    int16_t tsect = sp->sectnum;
+    vec3_t tvec = { sp->x, sp->y, sp->z };
+
+    xvect = -((mousexory*(int32_t)sintable[(ang+yangofs+512)&2047])<<3);
+    yvect = -((mousexory*(int32_t)sintable[(ang+yangofs)&2047])<<3);
+
+    if (gridlock)
+    {
+        units = 1<<(11-grid);
+
+        if ((tvec.x & (units-1)) || (tvec.y & (units-1)))
+        {
+            daxvect = ((tvec.x & ~(units-1)) - tvec.x)<<14;
+            dayvect = ((tvec.y & ~(units-1)) - tvec.y)<<14;
+        }
+        else
+        {
+            units <<= 14;
+
+            *sumxvect += xvect;
+            *sumyvect += yvect;
+
+            if (klabs(*sumxvect) >= units)
+            {
+                daxvect = ((*sumxvect)/units)*units;
+                *sumxvect %= units;
+            }
+            else
+                daxvect = 0;
+
+            if (klabs(*sumyvect) >= units)
+            {
+                dayvect = ((*sumyvect)/units)*units;
+                *sumyvect %= units;
+            }
+            else
+                dayvect = 0;
+        }
+    }
+    else
+    {
+        daxvect = xvect;
+        dayvect = yvect;
+    }
+
+    if (highlightcnt<=0 || (show2dsprite[searchwall>>3] & (1<<(searchwall&7)))==0)
+    {
+        clipmove(&tvec, &tsect, daxvect,dayvect, 128,64<<4,64<<4, spnoclip?1:CLIPMASK0);
+        setsprite(searchwall, &tvec);
+    }
+    else
+    {
+        xvect = daxvect;
+        yvect = dayvect;
+
+        for (ii=0; ii<highlightcnt; ii++)
+            if (highlight[ii]&16384)
+            {
+                spi = highlight[ii]&16383;
+                Bmemcpy(&tvec, &sprite[spi], sizeof(vec3_t));
+                tsect = sprite[spi].sectnum;
+                clipmove(&tvec, &tsect, xvect,yvect, 128,64<<4,64<<4, spnoclip?1:CLIPMASK0);
+
+                xvect = (tvec.x - sprite[spi].x)<<14;
+                yvect = (tvec.y - sprite[spi].y)<<14;
+            }
+        for (ii=0; ii<highlightcnt; ii++)
+            if (highlight[ii]&16384)
+            {
+                spi = highlight[ii]&16383;
+                Bmemcpy(&tvec, &sprite[spi], sizeof(vec3_t));
+                tsect = sprite[spi].sectnum;
+                clipmove(&tvec, &tsect, xvect,yvect, 128,64<<4,64<<4, spnoclip?1:CLIPMASK0);
+                setsprite(spi, &tvec);
+            }
+    }
+}
+
 static void Keys3d(void)
 {
     int32_t i = 0, changedir,tsign; // ,count,nexti
@@ -4955,7 +5038,7 @@ static void Keys3d(void)
             while (!tilesizx[AIMED_SELOVR_PICNUM] || !tilesizy[AIMED_SELOVR_PICNUM] || j)
             {
                 AIMED_SELOVR_PICNUM += i;
-                AIMED_SELOVR_PICNUM &= (MAXTILES-1);
+                AIMED_SELOVR_PICNUM %= MAXTILES;
                 j = 0;
             }
 
@@ -5945,44 +6028,7 @@ static void Keys3d(void)
                 static int32_t sumxvect=0, sumyvect=0;
 
                 if (mouseaction==1)
-                {
-                    int32_t xvect,yvect,daxvect,dayvect;
-                    int16_t cursectnum=sprite[searchwall].sectnum;
-                    int32_t units, gridlock = (eitherCTRL && grid > 0 && grid < 9);
-
-                    xvect = -((mousex*(int32_t)sintable[(ang+2048)&2047])<<3);
-                    yvect = -((mousex*(int32_t)sintable[(ang+1536)&2047])<<3);
-
-                    if (gridlock)
-                    {
-                        units = (2048 >> grid) << 14;
-                        sumxvect += xvect;
-                        sumyvect += yvect;
-                        if (klabs(sumxvect) >= units)
-                        {
-                            daxvect = (sumxvect/units)*units;
-                            sumxvect %= units;
-                        }
-                        else
-                            daxvect = 0;
-
-                        if (klabs(sumyvect) >= units)
-                        {
-                            dayvect = (sumyvect/units)*units;
-                            sumyvect %= units;
-                        }
-                        else
-                            dayvect = 0;
-                    }
-                    else
-                    {
-                        daxvect = xvect;
-                        dayvect = yvect;
-                    }
-                    clipmove((vec3_t *)&sprite[searchwall],
-                             &cursectnum,daxvect,dayvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
-                    setsprite(searchwall,(vec3_t *)&sprite[searchwall]);
-                }
+                    mouseaction_movesprites(&sumxvect, &sumyvect, 1536, mousex);
                 else
                 {
                     sumxvect = sumyvect = 0;
@@ -6084,44 +6130,7 @@ static void Keys3d(void)
                 static int32_t sumxvect=0, sumyvect=0;
 
                 if (mouseaction==1)
-                {
-                    int32_t xvect,yvect,daxvect,dayvect;
-                    int16_t cursectnum=sprite[searchwall].sectnum;
-                    int32_t units, gridlock = (eitherCTRL && grid > 0 && grid < 9);
-
-                    xvect = -((mousey*(int32_t)sintable[(ang+2560)&2047])<<3);
-                    yvect = -((mousey*(int32_t)sintable[(ang+2048)&2047])<<3);
-
-                    if (gridlock)
-                    {
-                        units = (2048 >> grid) << 14;
-                        sumxvect += xvect;
-                        sumyvect += yvect;
-                        if (klabs(sumxvect) >= units)
-                        {
-                            daxvect = (sumxvect/units)*units;
-                            sumxvect %= units;
-                        }
-                        else
-                            daxvect = 0;
-
-                        if (klabs(sumyvect) >= units)
-                        {
-                            dayvect = (sumyvect/units)*units;
-                            sumyvect %= units;
-                        }
-                        else
-                            dayvect = 0;
-                    }
-                    else
-                    {
-                        daxvect = xvect;
-                        dayvect = yvect;
-                    }
-                    clipmove((vec3_t *)&sprite[searchwall],
-                             &cursectnum,daxvect,dayvect,128L,4L<<8,4L<<8,spnoclip?1:CLIPMASK0);
-                    setsprite(searchwall,(vec3_t *)&sprite[searchwall]);
-                }
+                    mouseaction_movesprites(&sumxvect, &sumyvect, 2048, mousey);
                 else
                 {
                     sumxvect = sumyvect = 0;

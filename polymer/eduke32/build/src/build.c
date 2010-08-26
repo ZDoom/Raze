@@ -1291,6 +1291,105 @@ static inline void drawline16base(int32_t bx, int32_t by, int32_t x1, int32_t y1
     drawline16(bx+x1, by+y1, bx+x2, by+y2, col);
 }
 
+static void duplicate_selected_sectors()
+{
+    int32_t i, j, startwall, endwall, newnumsectors, newwalls = 0;
+
+    for (i=0; i<highlightsectorcnt; i++)
+        newwalls += sector[highlightsector[i]].wallnum;
+
+    if (highlightsectorcnt + numsectors <= MAXSECTORS && numwalls+newwalls <= MAXWALLS)
+    {
+        newnumsectors = numsectors;
+        newnumwalls = numwalls;
+        for (i=0; i<highlightsectorcnt; i++)
+        {
+            copysector(highlightsector[i], newnumsectors, newnumwalls, 1);
+            newnumsectors++;
+            newnumwalls += sector[highlightsector[i]].wallnum;
+        }
+
+        for (i=0; i<highlightsectorcnt; i++)
+        {
+            // first, make red lines of old selected sectors, effectively
+            // restoring the original state
+            startwall = sector[highlightsector[i]].wallptr;
+            endwall = startwall+sector[highlightsector[i]].wallnum-1;
+            for (j=startwall; j<=endwall; j++)
+            {
+                if (wall[j].nextwall >= 0)
+                    checksectorpointer(wall[j].nextwall,wall[j].nextsector);
+                checksectorpointer(j, highlightsector[i]);
+            }
+
+            // Then, highlight the ones just copied.
+            // These will have all walls whited out.
+            highlightsector[i] = numsectors+i;
+        }
+
+        numsectors = newnumsectors;
+        numwalls = newnumwalls;
+
+        newnumwalls = -1;
+        newnumsectors = -1;
+
+        updatenumsprites();
+        printmessage16("Sectors duplicated and stamped.");
+        asksave = 1;
+    }
+    else
+    {
+        printmessage16("Copying sectors would exceed sector or wall limit.");
+    }
+}
+
+static void duplicate_selected_sprites()
+{
+    int32_t i, j, k;
+
+    if (highlightcnt + numsprites <= MAXSPRITES)
+    {
+        for (i=0; i<highlightcnt; i++)
+            if ((highlight[i]&0xc000) == 16384)
+            {
+                //duplicate sprite
+                k = (highlight[i]&16383);
+                j = insertsprite(sprite[k].sectnum,sprite[k].statnum);
+                Bmemcpy(&sprite[j],&sprite[k],sizeof(spritetype));
+                sprite[j].sectnum = sprite[k].sectnum;   //Don't let memcpy overwrite sector!
+                setsprite(j,(vec3_t *)&sprite[j]);
+            }
+        updatenumsprites();
+        printmessage16("Sprites duplicated and stamped.");
+        asksave = 1;
+    }
+    else
+    {
+        printmessage16("Copying sprites would exceed sprite limit.");
+    }
+}
+
+static void update_highlight()
+{
+    int32_t i;
+
+    highlightcnt = 0;
+    for (i=0; i<numwalls; i++)
+        if (show2dwall[i>>3]&(1<<(i&7)))
+            highlight[highlightcnt++] = i;
+    for (i=0; i<MAXSPRITES; i++)
+        if (sprite[i].statnum < MAXSTATUS)
+        {
+            if (show2dsprite[i>>3]&(1<<(i&7)))
+                highlight[highlightcnt++] = i+16384;
+        }
+        else
+            show2dsprite[i>>3] &= ~(1<<(i&7));
+
+    if (highlightcnt == 0)
+        highlightcnt = -1;
+}
+
 void overheadeditor(void)
 {
     char buffer[80], *dabuffer, ch;
@@ -1298,7 +1397,7 @@ void overheadeditor(void)
     int32_t tempint, tempint1, tempint2, doubvel;
     int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3, x4, y4;
     int32_t highlightx1, highlighty1, highlightx2, highlighty2, xvect, yvect;
-    int16_t pag, suckwall=0, sucksect, /*newnumwalls,*/ newnumsectors, split=0, bad, goodtogo;
+    int16_t pag, suckwall=0, sucksect, split=0, bad, goodtogo;
     int16_t splitsect=0, danumwalls, secondstartwall, joinsector[2], joinsectnum;
     int16_t splitstartwall=0, splitendwall, loopnum;
     int32_t mousx, mousy, bstatus;
@@ -1699,18 +1798,31 @@ void overheadeditor(void)
             drawline16(searchx,0, searchx,8, editorcolors[15]);
             drawline16(0,searchy, 8,searchy, editorcolors[15]);
 
-            col = 15-((gridlock<<1)+gridlock);
+            // draw mouse pointer
+            col = editorcolors[15 - 3*gridlock];
             if (joinsector[0] >= 0)
-                col = 11;
+                col = editorcolors[11];
 
-            drawline16base(searchx,searchy, +0,-8, +0,-1, editorcolors[col]);
-            drawline16base(searchx,searchy, +1,-8, +1,-1, editorcolors[col]);
-            drawline16base(searchx,searchy, +0,+2, +0,+9, editorcolors[col]);
-            drawline16base(searchx,searchy, +1,+2, +1,+9, editorcolors[col]);
-            drawline16base(searchx,searchy, -8,+0, -1,+0, editorcolors[col]);
-            drawline16base(searchx,searchy, -8,+1, -1,+1, editorcolors[col]);
-            drawline16base(searchx,searchy, +2,+0, +9,+0, editorcolors[col]);
-            drawline16base(searchx,searchy, +2,+1, +9,+1, editorcolors[col]);
+            if (keystatus[0x36] && !eitherCTRL)  // RSHIFT
+            {
+                if (keystatus[0x27] || keystatus[0x28])  // ' and ;
+                {
+                    col = editorcolors[14];
+
+                    drawline16base(searchx+16, searchy-16, -4,0, +4,0, col);
+                    if (keystatus[0x28])
+                        drawline16base(searchx+16, searchy-16, 0,-4, 0,+4, col);
+                }
+            }
+
+            drawline16base(searchx,searchy, +0,-8, +0,-1, col);
+            drawline16base(searchx,searchy, +1,-8, +1,-1, col);
+            drawline16base(searchx,searchy, +0,+2, +0,+9, col);
+            drawline16base(searchx,searchy, +1,+2, +1,+9, col);
+            drawline16base(searchx,searchy, -8,+0, -1,+0, col);
+            drawline16base(searchx,searchy, -8,+1, -1,+1, col);
+            drawline16base(searchx,searchy, +2,+0, +9,+0, col);
+            drawline16base(searchx,searchy, +2,+1, +9,+1, col);
 
             //Draw the white pixel closest to mouse cursor on linehighlight
             if (linehighlight>=0)
@@ -2235,7 +2347,9 @@ void overheadeditor(void)
             {
                 if (highlightcnt == 0)
                 {
-                    highlightx2 = searchx, highlighty2 = searchy;
+                    highlightx2 = searchx;
+                    highlighty2 = searchy;
+
                     ydim16 = ydim-STATUS2DSIZ2;
                     drawline16(highlightx2,highlighty1, highlightx1,highlighty1, editorcolors[5]);
                     drawline16(highlightx2,highlighty2, highlightx1,highlighty2, editorcolors[5]);
@@ -2245,13 +2359,11 @@ void overheadeditor(void)
                 else
                 {
                     highlightcnt = 0;
+
                     highlightx1 = searchx;
                     highlighty1 = searchy;
                     highlightx2 = searchx;
                     highlighty2 = searchx;
-
-                    Bmemset(show2dwall, 0, sizeof(show2dwall));
-                    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
                 }
             }
             else
@@ -2268,50 +2380,64 @@ void overheadeditor(void)
 
                     if (eitherCTRL)
                     {
+                        Bmemset(show2dwall, 0, sizeof(show2dwall));
+                        Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+
                         if ((linehighlight >= 0) && (linehighlight < MAXWALLS))
                         {
                             i = linehighlight;
                             do
                             {
-                                highlight[highlightcnt++] = i;
                                 show2dwall[i>>3] |= (1<<(i&7));
 
                                 for (j=0; j<numwalls; j++)
                                     if (j!=i && wall[j].x==wall[i].x && wall[j].y==wall[i].y)
-                                    {
-                                        highlight[highlightcnt++] = j;
                                         show2dwall[j>>3] |= (1<<(j&7));
-                                    }
 
                                 i = wall[i].point2;
                             }
                             while (i != linehighlight);
                         }
+
+                        update_highlight();
                     }
                     else
                     {
-                        for (i=0; i<numwalls; i++)
-                            if (wall[i].x >= highlightx1 && wall[i].x <= highlightx2)
-                                if (wall[i].y >= highlighty1 && wall[i].y <= highlighty2)
-                                {
-                                    highlight[highlightcnt++] = i;
-                                    show2dwall[i>>3] |= (1<<(i&7));
-                                }
-                        for (i=0; i<MAXSPRITES; i++)
-                            if (sprite[i].statnum < MAXSTATUS)
-                                if (sprite[i].x >= highlightx1 && sprite[i].x <= highlightx2)
-                                    if (sprite[i].y >= highlighty1 && sprite[i].y <= highlighty2)
-                                    {
-                                        highlight[highlightcnt++] = i+16384;
-                                        show2dsprite[i>>3] |= (1<<(i&7));
-                                    }
-                    }
+                        int32_t add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
 
-                    if (highlightcnt <= 0)
-                        highlightcnt = -1;
+                        if (!setop)
+                        {
+                            Bmemset(show2dwall, 0, sizeof(show2dwall));
+                            Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+                        }
+
+                        for (i=0; i<numwalls; i++)
+                            if (wall[i].x >= highlightx1 && wall[i].x <= highlightx2 &&
+                                wall[i].y >= highlighty1 && wall[i].y <= highlighty2)
+                            {
+                                if (!sub)
+                                    show2dwall[i>>3] |= (1<<(i&7));
+                                else if (sub)
+                                    show2dwall[i>>3] &= ~(1<<(i&7));
+                            }
+
+                        for (i=0; i<MAXSPRITES; i++)
+                            if (sprite[i].statnum < MAXSTATUS &&
+                                sprite[i].x >= highlightx1 && sprite[i].x <= highlightx2 &&
+                                sprite[i].y >= highlighty1 && sprite[i].y <= highlighty2)
+                            {
+                                if (!sub)
+                                    show2dsprite[i>>3] |= (1<<(i&7));
+                                else
+                                    show2dsprite[i>>3] &= ~(1<<(i&7));
+                            }
+
+                        update_highlight();
+                    }
                 }
             }
         }
+
         if (highlightcnt < 0)
         {
             if (keystatus[0xb8])  //Right alt (sector highlighting)
@@ -2327,7 +2453,7 @@ void overheadeditor(void)
                     drawline16(highlightx2,highlighty2, highlightx2,highlighty1, editorcolors[10]);
                     enddrawing();	//}}}
                 }
-                if (highlightsectorcnt != 0)
+                else
                 {
                     for (i=0; i<highlightsectorcnt; i++)
                     {
@@ -3034,55 +3160,9 @@ SKIP:
         if (keystatus[0x2e])  // C (make circle of points)
         {
             if (highlightsectorcnt >= 0)
-            {
-                newnumsectors = numsectors;
-                newnumwalls = numwalls;
-                for (i=0; i<highlightsectorcnt; i++)
-                {
-                    copysector(highlightsector[i],newnumsectors,newnumwalls,1);
-                    newnumsectors++;
-                    newnumwalls += sector[highlightsector[i]].wallnum;
-                }
-
-                for (i=0; i<highlightsectorcnt; i++)
-                {
-                    startwall = sector[highlightsector[i]].wallptr;
-                    endwall = startwall+sector[highlightsector[i]].wallnum-1;
-
-                    for (j=startwall; j<=endwall; j++)
-                    {
-                        if (wall[j].nextwall >= 0)
-                            checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                        checksectorpointer((int16_t)j,highlightsector[i]);
-                    }
-                    highlightsector[i] = numsectors+i;
-                }
-                numsectors = newnumsectors;
-                numwalls = newnumwalls;
-
-                newnumwalls = -1;
-                newnumsectors = -1;
-
-                updatenumsprites();
-                printmessage16("Sectors duplicated and stamped.");
-                asksave = 1;
-            }
+                duplicate_selected_sectors();
             else if (highlightcnt >= 0)
-            {
-                for (i=0; i<highlightcnt; i++)
-                    if ((highlight[i]&0xc000) == 16384)
-                    {
-                        //duplicate sprite
-                        k = (highlight[i]&16383);
-                        j = insertsprite(sprite[k].sectnum,sprite[k].statnum);
-                        Bmemcpy(&sprite[j],&sprite[k],sizeof(spritetype));
-                        sprite[j].sectnum = sprite[k].sectnum;   //Don't let memcpy overwrite sector!
-                        setsprite(j,(vec3_t *)&sprite[j]);
-                    }
-                updatenumsprites();
-                printmessage16("Sprites duplicated and stamped.");
-                asksave = 1;
-            }
+                duplicate_selected_sprites();
 
             else if (circlewall >= 0)
             {
@@ -3898,16 +3978,25 @@ SKIP:
                                         if (highlightsector[k] >= highlightsector[j])
                                             highlightsector[k]--;
                                 }
-                                printmessage16("Highlighted sectors deleted.");
+
                                 newnumwalls = -1;
-                                k = 1;
                                 highlightsectorcnt = -1;
+
+                                Bmemset(show2dwall, 0, sizeof(show2dwall));
+                                update_highlight();
+
+                                printmessage16("Highlighted sectors deleted.");
+                                k = 1;
                                 break;
                             }
                     if (k == 0)
                     {
                         deletesector((int16_t)i);
                         highlightsectorcnt = -1;
+
+                        Bmemset(show2dwall, 0, sizeof(show2dwall));
+                        update_highlight();
+
                         printmessage16("Sector deleted.");
                     }
                     newnumwalls = -1;
@@ -3923,6 +4012,7 @@ SKIP:
                 deletesprite(pointhighlight&16383);
                 printmessage16("Sprite deleted.");
                 updatenumsprites();
+                update_highlight();
                 asksave = 1;
             }
             keystatus[0xd3] = 0;
@@ -3931,72 +4021,9 @@ SKIP:
         if (keystatus[0xd2] || keystatus[0x17])  //InsertPoint
         {   
             if (highlightsectorcnt >= 0)
-            {
-                int32_t newwalls = 0;
-                for (i=0; i<highlightsectorcnt; i++)
-                    newwalls += sector[highlightsector[i]].wallnum;
-
-                if (highlightsectorcnt + numsectors <= MAXSECTORS && numwalls+newwalls <= MAXWALLS)
-                {
-                    newnumsectors = numsectors;
-                    newnumwalls = numwalls;
-                    for (i=0; i<highlightsectorcnt; i++)
-                    {
-                        copysector(highlightsector[i],newnumsectors,newnumwalls,1);
-                        newnumsectors++;
-                        newnumwalls += sector[highlightsector[i]].wallnum;
-                    }
-
-                    for (i=0; i<highlightsectorcnt; i++)
-                    {
-                        startwall = sector[highlightsector[i]].wallptr;
-                        endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                        for (j=startwall; j<=endwall; j++)
-                        {
-                            if (wall[j].nextwall >= 0)
-                                checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                            checksectorpointer((int16_t)j,highlightsector[i]);
-                        }
-                        highlightsector[i] = numsectors+i;
-                    }
-                    numsectors = newnumsectors;
-                    numwalls = newnumwalls;
-
-                    newnumwalls = -1;
-                    newnumsectors = -1;
-
-                    updatenumsprites();
-                    printmessage16("Sectors duplicated and stamped.");
-                    asksave = 1;
-                }
-                else
-                {
-                    printmessage16("Copying sectors would exceed sector or wall limit.");
-                }
-            }
+                duplicate_selected_sectors();
             else if (highlightcnt >= 0)
-            {
-                if (highlightcnt + numsprites <= MAXSPRITES)
-                {
-                    for (i=0; i<highlightcnt; i++)
-                        if ((highlight[i]&0xc000) == 16384)
-                        {
-                            //duplicate sprite
-                            k = (highlight[i]&16383);
-                            j = insertsprite(sprite[k].sectnum,sprite[k].statnum);
-                            Bmemcpy(&sprite[j],&sprite[k],sizeof(spritetype));
-                            sprite[j].sectnum = sprite[k].sectnum;   //Don't let memcpy overwrite sector!
-                            setsprite(j,(vec3_t *)&sprite[j]);
-                        }
-                    updatenumsprites();
-                    printmessage16("Sprites duplicated and stamped.");
-                    asksave = 1;
-                }
-                else
-                {
-                    printmessage16("Copying sprites would exceed sprite limit.");
-                }
-            }
+                duplicate_selected_sprites();
             else if (linehighlight >= 0)
             {
                 int32_t wallsdrawn = newnumwalls-numwalls;
@@ -6073,8 +6100,12 @@ void copysector(int16_t soursector, int16_t destsector, int16_t deststartwall, c
         wall[newnumwalls].point2 += deststartwall-startwall;
         if (wall[newnumwalls].nextwall >= 0)
         {
-            wall[newnumwalls].nextwall += deststartwall-startwall;
-            wall[newnumwalls].nextsector += destsector-soursector;
+            wall[newnumwalls].nextwall = -1;
+            wall[newnumwalls].nextsector = -1;
+            // the below code is incorrect in the general case since, in a set of
+            // selected sectors, the order may not be the same as the destination ones
+//            wall[newnumwalls].nextwall += deststartwall-startwall;
+//            wall[newnumwalls].nextsector += destsector-soursector;
         }
         newnumwalls++;
     }
