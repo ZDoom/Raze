@@ -5339,9 +5339,11 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 bglEnable(GL_BLEND);
                 
                 spriteext[tspr.owner].roll = a;
+                spriteext[tspr.owner].zoff = z;
 
                 polymer_drawsprite(MAXSPRITESONSCREEN);
 
+                spriteext[tspr.owner].zoff = 0;
                 spriteext[tspr.owner].roll = 0;
 
                 bglDisable(GL_BLEND);

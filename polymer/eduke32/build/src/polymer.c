@@ -3524,15 +3524,20 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     scale *= m->bscale;
 
     if (tspriteptr[MAXSPRITESONSCREEN] == tspr) {
-        float radplayerang, cosminusradplayerang, sinminusradplayerang;
+        float playerang, radplayerang, cosminusradplayerang, sinminusradplayerang, hudzoom;
 
+        playerang = (globalang & 2047) / (2048.0f / 360.0f) - 90.0f;
         radplayerang = (globalang & 2047) * 2.0f * PI / 2048.0f;
         cosminusradplayerang = cos(-radplayerang);
         sinminusradplayerang = sin(-radplayerang);
+        hudzoom = 65536.0 / spriteext[tspr->owner].zoff;
 
         bglTranslatef(spos[0], spos[1], spos[2]);
         bglRotatef(horizang, -cosminusradplayerang, 0.0f, sinminusradplayerang);
         bglRotatef(spriteext[tspr->owner].roll / (2048.0f / 360.0f), sinminusradplayerang, 0.0f, cosminusradplayerang);
+        bglRotatef(-playerang, 0.0f, 1.0f, 0.0f);
+        bglScalef(hudzoom, 1.0f, 1.0f);
+        bglRotatef(playerang, 0.0f, 1.0f, 0.0f);
         bglTranslatef(spos2[0], spos2[1], spos2[2]);
         bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
     } else {
