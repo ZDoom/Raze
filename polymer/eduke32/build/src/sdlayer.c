@@ -547,8 +547,7 @@ void grabmouse(char a)
     {
         if (a != mouseacquired)
         {
-// #ifndef DEBUGGINGAIDS
-#if 1
+#ifndef DEBUGGINGAIDS
             SDL_GrabMode g;
 
             g = SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF);
