@@ -3622,15 +3622,21 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
                     y2=min(y2, ydim-1);
 
                     // box
-                    plotlines2d((int32_t[]){x1, x1, x2, x2, x1},
-                                (int32_t[]){y1, y2, y2, y1, y1}, 5, iTile==iSelected ? whitecol : markedcol);
+
+                    {
+                        int32_t xx[] = {x1, x1, x2, x2, x1};
+                        int32_t yy[] = {y1, y2, y2, y1, y1};
+                        plotlines2d(xx, yy, 5, iTile==iSelected ? whitecol : markedcol);
+                    }
                     // cross
                     if (marked)
                     {
-                        plotlines2d((int32_t[]){x1, x2},
-                                    (int32_t[]){y1, y2}, 2, markedcol);
-                        plotlines2d((int32_t[]){x1, x2},
-                                    (int32_t[]){y2, y1}, 2, markedcol);
+                        int32_t xx[] = {x1, x2};
+                        int32_t yy[] = {y1, y2};
+
+                        plotlines2d(xx, yy, 2, markedcol);
+                        swaplong(&yy[0], &yy[1]);
+                        plotlines2d(xx, yy, 2, markedcol);
                     }
                 }
             }

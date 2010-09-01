@@ -77,7 +77,6 @@
 # endif
 # include <fcntl.h>
 # include <ctype.h>
-# include <stdint.h>
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <errno.h>
@@ -95,6 +94,20 @@
 #if defined(_MSC_VER)
 # define inline __inline
 # define longlong(x) x##i64
+static inline float nearbyintf(float x) 
+{ 
+    uint32_t w1, w2;
+    __asm fnstcw w1
+    w2 = w1 | 0x00000020;
+    __asm
+    {
+        fldcw w2
+        fld x
+        frndint
+        fclex
+        fldcw w1
+    }
+}
 #else
 # define longlong(x) x##ll
 #endif

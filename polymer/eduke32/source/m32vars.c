@@ -262,10 +262,10 @@ int32_t __fastcall Gv_GetVarN(register int32_t id)  // 'N' for "no side-effects"
 
 int32_t __fastcall Gv_GetVarX(register int32_t id)
 {
+    register int32_t negateResult = !!(id&M32_FLAG_NEGATE);
+
     if (id == M32_THISACTOR_VAR_ID)
         return vm.g_i;
-
-    register int32_t negateResult = !!(id&M32_FLAG_NEGATE);
 
     if ((id & M32_BITS_MASK) == M32_FLAG_CONSTANT)
     {
