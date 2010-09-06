@@ -1073,7 +1073,7 @@ static void C_GetNextVarType(int32_t type)
         }
         else if (id<MAXGAMEARRAYS)  // simple (non-local) gamearrays
         {
-            if ((aGameArrays[id].dwFlags & GAMEARRAY_READONLY) && (type&GV_WRITABLE))
+            if (!m32_script_expertmode && (aGameArrays[id].dwFlags & GAMEARRAY_READONLY) && (type&GV_WRITABLE))
             {
                 C_ReportError(ERROR_ARRAYREADONLY);
                 g_numCompilerErrors++;
@@ -1215,6 +1215,8 @@ static void C_GetNextVarType(int32_t type)
     }
     else if (id<MAXGAMEVARS)  // it's an ordinary var (not a local one)
     {
+        if (m32_script_expertmode)
+            type &= ~GV_WRITABLE;
         if (type==GV_WRITABLE && (aGameVars[id].dwFlags & GV_WRITABLE))
         {
             g_numCompilerErrors++;

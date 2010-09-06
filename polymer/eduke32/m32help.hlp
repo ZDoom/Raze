@@ -434,6 +434,8 @@ RIGHT       smooth scrolling
       Hi=unique per train
    SE 6: SUBWAY FRONT CAR
       Ang: direction of first movement
+      GPSPEED:
+          Lo: speed (default: 256)
    SE 14: SUBWAY PULLED CARS
    Locators:
       starting with Lo=0, ascending

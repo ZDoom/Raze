@@ -20,8 +20,14 @@ define MAXSPECULARFACTOR 1000
 define SPOWERSTEPS 100
 define SFACTORSTEPS 100
 
-// settings for various drawing enhancements
+// color of various drawing enhancements
 define PREVIEW_DRAW_COLOR 11
+
+// whether to use overridden aspect/range values when entering 3d mode (software/Polymost).
+// tweak with keys 7,8,9,0 on the top row
+gamevar use_custom_aspect 0 0
+gamevar davr 65536 0
+gamevar dayx 65536 0
 
 ////////// END USER SETTINGS //////////
 
@@ -47,9 +53,6 @@ gamevar dang 0 0
 
 gamevar tmp 0 0
 gamevar cnt 0 0
-
-gamevar davr 65536 0
-gamevar dayx 65536 0
 
 gamevar drawcol 9 0
 
@@ -425,14 +428,15 @@ endevent
 
 
 defstate setas
-    set j dayx
-    mul j ydim  mul j 8
-    div j xdim  div j 5
-    setaspect davr j
+//    set j dayx
+//    mul j ydim  mul j 8
+//    div j xdim  div j 5
+    setaspect davr dayx
 ends
 
 onevent EVENT_ENTER3DMODE
-    state setas
+    ifn use_custom_aspect 0
+        state setas
 endevent
 
 
@@ -695,6 +699,7 @@ ends
 // same as above but with tsprite[], as a kind of preview
 defstate tduprot
     ifaimingsprite nullop else return
+    ifl searchwall 0 return
     ifn sprite[searchwall].extra DUP_ROT_MAGIC return
 
     set p searchwall  // pivot sprite
@@ -927,14 +932,36 @@ onevent EVENT_KEYS3D
         }
     }
 
-    ifholdkey KEY_0
-    //    ife 0 1
+
+    set j 0
+
+    set k 0
+    ifholdkey KEY_7 set k -1
+    ifholdkey KEY_0 set k 1
+    ifn k 0
     {
-        ifeithershift sub davr 512 else add davr 512
+        set j 1
+        ifeithershift nullop else mul k 256
+        add davr k
         ifl davr 32768 set davr 32768
         ifg davr 256000 set davr 256000
-        setaspect davr yxaspect
-        qsprintf TQUOTE "ASPECT: VR=%d, YX=%d" davr yxaspect
+    }
+
+    set k 0
+    ifholdkey KEY_8 set k -1
+    ifholdkey KEY_9 set k 1
+    ifn k 0
+    {
+        set j 1
+        ifeithershift nullop else mul k 256
+        add dayx k
+        ifl dayx 32768 set dayx 32768
+        ifg dayx 256000 set dayx 256000
+    }
+    ife j 1
+    {
+        setaspect davr dayx
+        qsprintf TQUOTE "ASPECT: VR=%d, YX=%d" davr dayx
         quote TQUOTE
     }
 endevent

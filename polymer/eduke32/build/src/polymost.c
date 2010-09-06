@@ -119,6 +119,8 @@ double guo, gux, guy; //Screen-based texture mapping parameters
 double gvo, gvx, gvy;
 double gdo, gdx, gdy;
 
+static int32_t preview_mouseaim=0;  // when 1, displays a CROSSHAIR tsprite at the _real_ aimed position
+
 #if (USEZBUFFER != 0)
 int32_t  zbufysiz = 0, zbufbpl = 0, *zbufoff = 0;
 intptr_t zbufmem = 0;
@@ -198,6 +200,8 @@ static char ptempbuf[MAXWALLSB<<1];
 // polymost ART sky control
 int32_t r_parallaxskyclamping = 1;
 int32_t r_parallaxskypanning = 0;
+
+extern int16_t editstatus;
 
 static inline int32_t imod(int32_t a, int32_t b)
 {
@@ -4204,7 +4208,9 @@ void polymost_drawrooms()
     {
         resizeglcheck();
 
-        //bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        if (editstatus)
+            bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
         bglDisable(GL_BLEND);
         bglEnable(GL_TEXTURE_2D);
         //bglTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE); //default anyway
@@ -4355,7 +4361,7 @@ void polymost_drawrooms()
 
         hitallsprites = 1;
         hitscan((const vec3_t *)&vect,globalcursectnum, //Start position
-            vx>>12,vy>>12,vz>>8,&hitinfo,0xffff0030);
+            vx>>10,vy>>10,vz>>6,&hitinfo,0xffff0030);
 
         if (hitinfo.hitsect != -1) // if hitsect is -1, hitscan overflowed somewhere
         {
@@ -4386,6 +4392,22 @@ void polymost_drawrooms()
                 getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
                 if ((hitinfo.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
                 //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
+            }
+
+            if (preview_mouseaim && spritesortcnt < MAXSPRITESONSCREEN)
+            {
+                spritetype *tsp = &tsprite[spritesortcnt];
+                double dadist, x,y,z;
+                Bmemcpy(tsp, &hitinfo.pos, sizeof(vec3_t));
+                x = tsp->x-globalposx; y=tsp->y-globalposy; z=(tsp->z-globalposz)/16.0;
+                dadist = sqrt(x*x + y*y + z*z);
+                tsp->sectnum = hitinfo.hitsect;
+                tsp->picnum = 2523;  // CROSSHAIR
+                tsp->cstat = 128;
+                tsp->owner = MAXSPRITES-1;
+                tsp->xrepeat = tsp->yrepeat = min(max(1, (int32_t)(dadist*48.0/3200.0)), 255);
+                sprite[tsp->owner].xoffset = sprite[tsp->owner].yoffset = 0;
+                tspriteptr[spritesortcnt++] = tsp;
             }
 
             if ((searchstat==1 || searchstat==2) && searchsector>=0)
@@ -6182,6 +6204,8 @@ void polymost_initosdfuncs(void)
 
         { "r_models","r_models: enable/disable model rendering",(void *)&usemodels, CVAR_BOOL, 0, 1 },
         { "r_hightile","r_hightile: enable/disable hightile texture rendering",(void *)&usehightile, CVAR_BOOL, 0, 1 },
+
+        { "r_preview_mouseaim", "r_preview_mouseaim: toggles mouse aiming preview, use this to calibrate yxaspect in Polymost Mapster32", (void *)&preview_mouseaim, CVAR_BOOL, 0, 1 },
 #endif
     };
 

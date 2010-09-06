@@ -105,6 +105,7 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
 int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
 #define getnumber16(namestart, num, maxnumber, sign) _getnumber16(namestart, num, maxnumber, sign, NULL)
 void printmessage256(int32_t x, int32_t y, const char *name);
+void message(const char *fmt, ...);
 
 // currently only for 3d mode
 const char* getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen);
@@ -170,5 +171,8 @@ extern int32_t scripthistend;
 #ifdef __cplusplus
 }
 #endif
+
+// showdebug is now used as a general informational on-screen display
+#define M32_SHOWDEBUG
 
 #endif

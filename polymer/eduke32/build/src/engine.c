@@ -536,8 +536,11 @@ int16_t editstatus = 0;
 int16_t searchit;
 int32_t searchx = -1, searchy;                          //search input
 int16_t searchsector, searchwall, searchstat;     //search output
-// nextwall if aiming at bottom w/ swapped walls, else searchwall; only valid for searchstat==0:
+
+// if searchstat==0 (wall), searchbottomwall is ==.nextwall if aiming at
+// bottom of a wall with swapped walls (.cstat&2), else it's ==searchwall
 int16_t searchbottomwall;
+
 double msens = 1.0;
 
 static char artfilename[20];
@@ -9392,12 +9395,13 @@ void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
     walltype *wal;
     int32_t i, j, cz, fz;
 
-    getzsofslope(*sectnum, x, y, &cz, &fz);
-    if ((z >= cz) && (z <= fz))
-        if (inside(x,y,*sectnum) != 0) return;
-
     if ((*sectnum >= 0) && (*sectnum < numsectors))
     {
+        // this block used to be outside the "if" and caused crashes in Polymost Mapster32
+        getzsofslope(*sectnum, x, y, &cz, &fz);
+        if ((z >= cz) && (z <= fz))
+            if (inside(x,y,*sectnum) != 0) return;
+
         wal = &wall[sector[*sectnum].wallptr];
         j = sector[*sectnum].wallnum;
         do

@@ -3097,22 +3097,19 @@ static int32_t m32gettile(int32_t idInitialTile)
 
             if (searchstr && searchstr[0])
             {
-                int32_t i, i0;
+                int32_t i, i0, slen=Bstrlen(searchstr)-1;
 
                 Bstrcpy(laststr, searchstr);
                 i0 = localartlookup[iTile];
 
-                if (searchstr[0]=='^')
-                {
-                    for (i=(i0+1)%MAXTILES; i!=i0; i=(i+1)%MAXTILES)
-                        if ((searchstr[0]=='^' && !Bstrcmp(names[i], searchstr+1)) ||
-                            (searchstr[0]!='^' && strstr(names[i], searchstr)))
-                        {
-                            SelectAllTiles(iTile);
-                            iTile = i;
-                            break;
-                        }
-                }
+                for (i=(i0+1)%MAXTILES; i!=i0; i=(i+1)%MAXTILES)
+                    if ((searchstr[0]=='^' && !Bstrncmp(names[i], searchstr+1, slen)) ||
+                        (searchstr[0]!='^' && strstr(names[i], searchstr)))
+                    {
+                        SelectAllTiles(i);
+                        iTile = i;
+                        break;
+                    }
             }
         }
 
@@ -3731,7 +3728,8 @@ void drawtileinfo(char *title,int32_t x,int32_t y,int32_t picnum,int32_t shade,i
     scale /= (max(tilesizx[picnum],tilesizy[picnum])/24.0);
 
     setaspect(65536L, (int32_t)divscale16(ydim*320L,xdim*200L));
-    rotatesprite((x1+13)<<16,(y+11)<<16,scale,0,picnum,shade,pal,2,0L,0L,xdim-1L,ydim-1L);
+    // +1024: prevents rotatesprite from setting aspect itself
+    rotatesprite((x1+13)<<16,(y+11)<<16,scale,0, picnum,shade,pal, 2+1024, 0,0,xdim-1,ydim-1);
     setaspect(oviewingrange, oyxaspect);
 
     x *= xdimgame/320.0;
@@ -4692,7 +4690,7 @@ static void Keys3d(void)
 
     tsign = 0;
     tsign -= PRESSED_KEYSC(COMMA);
-    tsign += PRESSED_KEYSC(PERIOD);;
+    tsign += PRESSED_KEYSC(PERIOD);
 
     if (tsign) // , . Search & fix panning to the left/right (3D)
     {
@@ -5646,7 +5644,7 @@ static void Keys3d(void)
     if (PRESSED_KEYSC(F2))  // F2
     {
         if (eitherCTRL || eitherSHIFT)
-            infobox ^= (eitherSHIFT | (eitherCTRL<<2));
+            infobox ^= (eitherSHIFT | ((eitherCTRL)<<1));
         else
             usedcount = !usedcount;
     }
@@ -6744,7 +6742,10 @@ static void Keys2d(void)
                 ocursectornum = cursectornum;
         */
 
-        if (counter >= 2 && totalclock >= 120*6)
+
+        if (totalclock < lastpm16time + 120*2)
+            _printmessage16(lastpm16buf);
+        else if (counter >= 2 && totalclock >= 120*6)
         {
             if (pointhighlight >= 16384)
             {
@@ -6759,9 +6760,6 @@ static void Keys2d(void)
             else if (cursectornum >= 0)
                 showsectordata(cursectornum, 1);
         }
-
-        if (totalclock < lastpm16time + 120*2)
-            _printmessage16(lastpm16buf);
     }
 
 ///__bigcomment__

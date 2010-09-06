@@ -320,26 +320,18 @@ extern char *defsfilename;	// set in bstub.c
 
 
 #ifdef M32_SHOWDEBUG
-extern char m32_debugstr[64][128];
-extern int32_t m32_numdebuglines;
+char m32_debugstr[64][128];
+int32_t m32_numdebuglines=0;
 
 static void M32_drawdebug(void)
 {
     int i;
     int x=4, y=8;
-    char tstr[64];
-
-    static int inited = 0;
-    if (!inited)
-    {
-        Bmemset(m32_debugstr, 0, sizeof(m32_debugstr));
-        inited = 1;
-    }
 
     begindrawing();
-    Bsprintf(tstr, "searchstat=%d, searchsector=%d, searchwall=%d",
-             searchstat, searchsector, searchwall);  
-    printext256(x,y,whitecol,0,tstr,xdimgame>640?0:1);
+//    Bsprintf(tstr, "searchstat=%d, searchsector=%d, searchwall=%d",
+//             searchstat, searchsector, searchwall);  
+//    printext256(x,y,whitecol,0,tstr,xdimgame>640?0:1);
     for (i=0; i<m32_numdebuglines; i++)
     {
         y+=8;
@@ -364,13 +356,13 @@ int32_t app_main(int32_t argc, const char **argv)
 
     wm_setapptitle("Mapster32");
 
+    editstatus = 1;
     if ((i = ExtPreInit(argc,argv)) < 0) return -1;
 
 #ifdef RENDERTYPEWIN
     backgroundidle = 1;
 #endif
 
-    editstatus = 1;
     boardfilename[0] = 0;
     for (i=1; i<argc; i++)
     {
@@ -570,6 +562,12 @@ CANCEL:
 #endif
 
 #ifdef M32_SHOWDEBUG
+        if (searchstat>=0 && (searchwall<0 || searchsector<0))
+        {
+            Bsprintf(m32_debugstr[m32_numdebuglines++], "inconsistent search variables!");
+            searchstat = -1;
+        }
+
         M32_drawdebug();
 #endif
         ExtCheckKeys();
@@ -1419,8 +1417,8 @@ void overheadeditor(void)
     osearchx = searchx;
     osearchy = searchy;
 
-    searchx = scale(searchx,xdim2d,xdimgame);
-    searchy = scale(searchy,ydim2d-STATUS2DSIZ2,ydimgame);
+    searchx = clamp(scale(searchx,xdim2d,xdimgame), 8, xdim2d-8-1);
+    searchy = clamp(scale(searchy,ydim2d-STATUS2DSIZ2,ydimgame), 8, ydim2d-STATUS2DSIZ-8-1);
     oposz = pos.z;
 
     begindrawing();	//{{{
@@ -4669,8 +4667,9 @@ CANCEL:
     setbrightness(GAMMA_CALC,palette,0);
         
     pos.z = oposz;
-    searchx = scale(searchx,xdimgame,xdim2d);
-    searchy = scale(searchy,ydimgame,ydim2d-STATUS2DSIZ);
+
+    searchx = clamp(scale(searchx,xdimgame,xdim2d), 8, xdimgame-8-1);
+    searchy = clamp(scale(searchy,ydimgame,ydim2d-STATUS2DSIZ), 8, ydimgame-8-1);
 
     VM_OnEvent(EVENT_ENTER3DMODE, -1);
 }
@@ -6613,7 +6612,8 @@ void test_map(int32_t mode)
         else
             saveboard("autosave.map",&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
 
-        _printmessage16("Board saved to AUTOSAVE.MAP. Starting the game...");
+        message("Board saved to AUTOSAVE.MAP. Starting the game...");
+        OSD_Printf("...as `%s'\n", fullparam);
 
         showframe(1);
         uninitmouse();
@@ -6627,7 +6627,7 @@ void test_map(int32_t mode)
             si.cb = sizeof(si);
 
             if (!CreateProcess(NULL,fullparam,NULL,NULL,0,0,NULL,NULL,&si,&pi))
-                printmessage16("Error launching the game!");
+                message("Error launching the game!");
             else WaitForSingleObject(pi.hProcess,INFINITE);
         }
 #else

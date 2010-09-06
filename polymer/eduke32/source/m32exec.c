@@ -2773,10 +2773,10 @@ dodefault:
 
         // ifaimingsprite and -wall also work in 2d mode, but you must "and" with 16383 yourself
         case CON_IFAIMINGSPRITE:
-            VM_DoConditional(AIMING_AT_SPRITE || pointhighlight>=16384);
+            VM_DoConditional(AIMING_AT_SPRITE || (qsetmode!=200 && pointhighlight>=16384));
             continue;
         case CON_IFAIMINGWALL:
-            VM_DoConditional(AIMING_AT_WALL_OR_MASK || linehighlight>=0);
+            VM_DoConditional(AIMING_AT_WALL_OR_MASK || (qsetmode!=200 && linehighlight>=0));
             continue;
         case CON_IFAIMINGSECTOR:
             VM_DoConditional(AIMING_AT_CEILING_OR_FLOOR);
