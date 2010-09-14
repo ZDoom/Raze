@@ -29,6 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "savegame.h"
 #include "premap.h"
 #include "demo.h"
+#include "crc32.h"
+
 #include <sys/stat.h>
 
 extern char inputloc;
@@ -4670,6 +4672,10 @@ cheat_for_port_credits:
 
         if (g_currentMenu >= 360 && g_currentMenu <= 369)
         {
+            static uint32_t crc = 0;
+
+            if (!crc) crc = crc32once((uint8_t *)&ud.savegame[g_currentMenu-360][0], 19);
+
             Bsprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
             mgametext(160,156,tempbuf,0,2+8+16);
             Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
@@ -4677,43 +4683,40 @@ cheat_for_port_credits:
             if (ud.volume_number == 0 && ud.level_number == 7)
                 mgametext(160,180,currentboardfilename,0,2+8+16);
 
-            x = G_EnterText((320>>1),184,&ud.savegame[g_currentMenu-360][0],19, 999);
+            x = G_EnterText((320>>1),184,&ud.savegame[g_currentMenu-360][0],20, 999);
 
             if (x == -1)
             {
-                //        ReadSaveGameHeaders();
-                g_player[myconnectindex].ps->gm = MODE_GAME;
-                if ((!g_netServer && ud.multimode < 2)  && ud.recstat != 2)
-                {
-                    ready2send = 1;
-                    totalclock = ototalclock;
-                }
+                crc = 0;
+                ReadSaveGameHeaders();
+                ChangeToMenu(351);
                 goto DISPLAYNAMES;
             }
 
             if (x == 1)
             {
-                if (ud.savegame[g_currentMenu-360][0] == 0)
+                // dirty hack... char 127 in last position indicates an auto-filled name
+                if (ud.savegame[g_currentMenu-360][0] == 0 || (ud.savegame[g_currentMenu-360][20] == 127 &&
+                    crc == crc32once((uint8_t *)&ud.savegame[g_currentMenu-360][0], 19)))
                 {
-                    KB_FlushKeyboardQueue();
-                    ChangeToMenu(351);
+                    Bstrncpy(&ud.savegame[g_currentMenu-360][0], MapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
+                    ud.savegame[g_currentMenu-360][20] = 127;
                 }
-                else
-                {
-                    if ((g_netServer || ud.multimode > 1))
-                        G_SavePlayer(-1-(g_currentMenu-360));
-                    else G_SavePlayer(g_currentMenu-360);
-                    g_lastSaveSlot = g_currentMenu-360;
-                    g_player[myconnectindex].ps->gm = MODE_GAME;
 
-                    if ((!g_netServer && ud.multimode < 2)  && ud.recstat != 2)
-                    {
-                        ready2send = 1;
-                        totalclock = ototalclock;
-                    }
-                    KB_ClearKeyDown(sc_Escape);
-                    S_PlaySound(EXITMENUSOUND);
+                if ((g_netServer || ud.multimode > 1))
+                    G_SavePlayer(-1-(g_currentMenu-360));
+                else G_SavePlayer(g_currentMenu-360);
+                g_lastSaveSlot = g_currentMenu-360;
+                g_player[myconnectindex].ps->gm = MODE_GAME;
+
+                if ((!g_netServer && ud.multimode < 2)  && ud.recstat != 2)
+                {
+                    ready2send = 1;
+                    totalclock = ototalclock;
                 }
+                KB_ClearKeyDown(sc_Escape);
+                S_PlaySound(EXITMENUSOUND);
+                crc = 0;
             }
 
             rotatesprite(101<<16,97<<16,65536>>1,512,TILE_SAVESHOT,-32,0,2+4+8+64,0,0,xdim-1,ydim-1);

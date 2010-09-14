@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma pack(push,1)
 struct savehead 
 {
-    char name[19];
+    char name[21];
     int32_t numplr,volnum,levnum,plrskl;
     char boardfn[BMAX_PATH];
 };

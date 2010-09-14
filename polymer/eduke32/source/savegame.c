@@ -68,10 +68,12 @@ void ReadSaveGameHeaders(void)
             kclose(fil);
             continue;
         }
-        if (kdfread(&ud.savegame[i][0],19,1,fil) != 1)
+        if (kdfread(&ud.savegame[i][0],21,1,fil) != 1)
         {
             ud.savegame[i][0] = 0;
         }
+        else ud.savegame[i][19] = 0;
+
         kclose(fil);
     }
 }
@@ -104,7 +106,7 @@ int32_t G_LoadSaveHeader(char spot,struct savehead *saveh)
 
     if (kdfread(&saveh->numplr,sizeof(int32_t),1,fil) != 1) goto corrupt;
 
-    if (kdfread(saveh->name,19,1,fil) != 1) goto corrupt;
+    if (kdfread(saveh->name,21,1,fil) != 1) goto corrupt;
     if (kdfread(&saveh->volnum,sizeof(int32_t),1,fil) != 1) goto corrupt;
     if (kdfread(&saveh->levnum,sizeof(int32_t),1,fil) != 1) goto corrupt;
     if (kdfread(&saveh->plrskl,sizeof(int32_t),1,fil) != 1) goto corrupt;
@@ -187,11 +189,12 @@ int32_t G_LoadPlayer(int32_t spot)
 
     if (numplayers > 1)
     {
-        if (kdfread(&buf,19,1,fil) != 1) goto corrupt;
+        if (kdfread(&buf,21,1,fil) != 1) goto corrupt;
     }
     else
     {
-        if (kdfread(&ud.savegame[spot][0],19,1,fil) != 1) goto corrupt;
+        if (kdfread(&ud.savegame[spot][0],21,1,fil) != 1) goto corrupt;
+        ud.savegame[spot][19] = 0;
     }
 
 
@@ -653,7 +656,7 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&bv,sizeof(bv),1,fil);
     dfwrite(&ud.multimode,sizeof(ud.multimode),1,fil);
 
-    dfwrite(&ud.savegame[spot][0],19,1,fil);
+    dfwrite(&ud.savegame[spot][0],21,1,fil);
     dfwrite(&ud.volume_number,sizeof(ud.volume_number),1,fil);
     dfwrite(&ud.level_number,sizeof(ud.level_number),1,fil);
     dfwrite(&ud.player_skill,sizeof(ud.player_skill),1,fil);
@@ -2048,7 +2051,7 @@ static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem)
 
     if (spot>=0)
     {
-        SAVEWRU(&ud.savegame[spot][0], 19, 1);
+        SAVEWRU(&ud.savegame[spot][0], 21, 1);
         SAVEWRU("1", 1, 1);
         if (!waloff[TILE_SAVESHOT])
         {
@@ -2061,13 +2064,13 @@ static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem)
     }
     else
     {
-        char buf[19];
+        char buf[21];
         const time_t t=time(NULL);
         struct tm *st;
         Bsprintf(buf, "Eduke32 demo");
         if (t>=0 && (st = localtime(&t)))
             Bsprintf(buf, "Edemo32 %04d%02d%02d", st->tm_year+1900, st->tm_mon+1, st->tm_mday);
-        SAVEWRU(&buf, 19, 1);
+        SAVEWRU(&buf, 21, 1);
         SAVEWRU("\0", 1, 1);  // demos don't save screenshot
     }
 
@@ -2091,7 +2094,7 @@ static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem)
 static int32_t doloadplayer2(int32_t spot, int32_t fil, uint8_t **memptr)
 {
     uint8_t *mem = memptr ? *memptr : NULL, *tmem=mem;
-    char tbuf[19];
+    char tbuf[21];
     int32_t i;
 
     if (readspecdata(svgm_udnetw, fil, &mem))
@@ -2102,9 +2105,10 @@ static int32_t doloadplayer2(int32_t spot, int32_t fil, uint8_t **memptr)
 
     if (spot<0 || numplayers > 1)
     {
-        if (LOADRDU(&tbuf, 19, 1)) return -3;
+        if (LOADRDU(&tbuf, 21, 1)) return -3;
     }
-    else if (LOADRDU(&ud.savegame[spot][0], 19, 1)) return -3;
+    else if (LOADRDU(&ud.savegame[spot][0], 21, 1)) return -3;
+    else ud.savegame[spot][19] = 0;
 
     if (LOADRDU(tbuf, 1, 1)) return -3;
     if (tbuf[0])
