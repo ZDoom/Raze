@@ -244,6 +244,7 @@ const char *keyw[] =
     "divscale",
     "dist",
     "ldist",
+    "calchypotenuse",
     "getangle",
     "getincangle",
     "a2xy",
@@ -316,6 +317,9 @@ const char *keyw[] =
     "updatesector",
     "updatesectorz",
     "getzrange",
+    "clipmove",
+    "lineintersect",
+    "rayintersect",
     "hitscan",
     "cansee",
     "canseespr",
@@ -3016,6 +3020,27 @@ repeatcase:
         C_GetManyVars(4);
         C_GetManyVarsType(GV_WRITABLE, 4);
         C_GetManyVars(2);
+        break;
+
+    case CON_CALCHYPOTENUSE:
+        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetManyVars(2);
+        break;
+
+    case CON_CLIPMOVE:
+        // <retvar>,<x>,<y>,z,<sectnum>, xvect,yvect,walldist,floordist,ceildist,clipmask
+        C_GetManyVarsType(GAMEVAR_READONLY,3);
+        C_GetNextVar();
+        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetManyVars(6);
+        break;
+
+    case CON_LINEINTERSECT:
+    case CON_RAYINTERSECT:
+        // lineintersect x y z  x y z  x y  x y  <intx> <inty> <intz> <ret>
+        // rayintersect x y z  vx vy vz  x y  x y  <intx> <inty> <intz> <ret>
+        C_GetManyVars(10);
+        C_GetManyVarsType(GAMEVAR_READONLY,4);
         break;
 
     case CON_HITSCAN:

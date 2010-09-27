@@ -136,7 +136,7 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 
     if (external_midi)
     {
-        initprintf("Setting music command to `%s'.\n", command);
+        initprintf("Setting music command to \"%s\".\n", command);
 
 #if defined _WIN32
         if (Mix_SetMusicCMD(command)==-1)

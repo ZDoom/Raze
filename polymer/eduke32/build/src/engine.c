@@ -5357,6 +5357,12 @@ static inline int32_t lintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2,
 }
 
 
+int32_t lineintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t x3,
+                      int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
+{
+    return lintersect(x1, y1, z1, x2, y2, z2, x3, y3, x4, y4, intx, inty, intz);
+}
+
 //
 // rintersect (internal)
 //
@@ -5388,6 +5394,11 @@ static inline int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx,
     return(1);
 }
 
+int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
+                     int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
+{
+    return rintersect(x1, y1, z1, vx, vy, vz, x3, y3, x4, y4, intx, inty, intz);
+}
 
 //
 // keepaway (internal)

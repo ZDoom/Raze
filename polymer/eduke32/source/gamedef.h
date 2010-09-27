@@ -69,6 +69,7 @@ extern char g_szScriptFileName[BMAX_PATH];
 extern int32_t g_totalLines,g_lineNumber;
 extern int32_t g_numCompilerErrors,g_numCompilerWarnings,g_numQuoteRedefinitions;
 extern int32_t g_scriptVersion;
+extern uint32_t g_scriptDateVersion;  // YYYYMMDD
 extern char g_szBuf[1024];
 
 extern intptr_t *g_scriptPtr;
@@ -925,6 +926,12 @@ enum ScriptKeywords_t
     CON_STOPACTORSOUND,     // 350
     CON_IFCLIENT,           // 351
     CON_IFSERVER,           // 352
+    CON_SECTSETINTERPOLATION, // 353
+    CON_SECTCLEARINTERPOLATION, // 354
+    CON_CLIPMOVE, // 355
+    CON_LINEINTERSECT, // 356
+    CON_RAYINTERSECT, // 357
+    CON_CALCHYPOTENUSE, // 358
     CON_END
 };
 #endif

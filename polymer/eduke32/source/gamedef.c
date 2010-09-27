@@ -32,7 +32,55 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <shellapi.h>
 #endif
 
+#define NUMKEYWORDS (int32_t)(sizeof(keyw)/sizeof(keyw[0]))
+
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
+uint32_t g_scriptDateVersion = 99999999;  // YYYYMMDD
+static uint32_t g_scriptLastKeyword; // = NUMKEYWORDS-1;
+
+#define NUMKEYWDATES (int32_t)(sizeof(g_keywdate)/sizeof(g_keywdate[0]))
+// { keyw, date } means that at the date, all keywords up to keyw inclusive are available
+static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
+{
+    // beginning of eduke32 svn
+    { CON_CANSEE, 20060423 },    
+    { CON_CANSEESPR, 20060424 },
+    // some stuff here not representable this way
+    { CON_FINDNEARSPRITEZVAR, 20060516 },
+    { CON_EZSHOOT, 20060701 },
+    { CON_EZSHOOTVAR, 20060822 },
+    { CON_JUMP, 20060828 },
+    { CON_QSTRLEN, 20060930 },
+    { CON_QUAKE, 20070105 },
+    { CON_SHOWVIEW, 20070208 },
+    { CON_NEXTSPRITESECT, 20070819 },
+    { CON_GETKEYNAME, 20071024 },  // keyw numbers have been
+    { CON_SPRITENOPAL, 20071220 }, // shuffled around here
+    { CON_HITRADIUSVAR, 20080216 },
+    { CON_ROTATESPRITE16, 20080314 },
+    { CON_SETARRAY, 20080401 },
+    { CON_READARRAYFROMFILE, 20080405 },
+    { CON_STARTTRACKVAR, 20080510 },
+    { CON_QGETSYSSTR, 20080709 },
+    { CON_GETTICKS, 20080711 },
+    { CON_SETTSPR, 20080713 },
+    { CON_CLEARMAPSTATE, 20080716 },
+    { CON_SCRIPTSIZE, 20080720 },
+    { CON_SETGAMENAME, 20080722 },
+    { CON_CMENU, 20080725 },
+    { CON_GETTIMEDATE, 20080809 },
+    { CON_ACTIVATECHEAT, 20080810 },
+    { CON_SETGAMEPALETTE, 20080816 },
+    { CON_SETCFGNAME, 20080817 },
+    { CON_IFVARVAREITHER, 20080907 },
+    { CON_SAVENN, 20080915 },
+    { CON_COPY, 20090219 },
+//    { CON_INV, 20090619 },
+    { CON_QSTRNCAT, 20090712 },
+    { CON_STOPACTORSOUND, 20090715 },
+    { CON_IFSERVER, 20100722 },
+    { CON_CALCHYPOTENUSE, 20100927 },
+};
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
 static char g_szCurrentBlockName[256] = "(none)", g_szLastBlockName[256] = "NULL";
@@ -146,7 +194,6 @@ static const char *C_GetLabelType(int32_t type)
     return Bstrdup(x);
 }
 
-#define NUMKEYWORDS (int32_t)(sizeof(keyw)/sizeof(keyw[0]))
 
 const char *keyw[] =
 {
@@ -503,6 +550,12 @@ const char *keyw[] =
     "stopactorsound",           // 350
     "ifclient",                 // 351
     "ifserver",                 // 352
+    "sectsetinterpolation",     // 353
+    "sectclearinterpolation",   // 354
+    "clipmove",   // 355
+    "lineintersect",   // 356
+    "rayintersect",   // 357
+    "calchypotenuse",   // 358
     "<null>"
 };
 
@@ -997,7 +1050,24 @@ void C_InitHashes()
     hash_init(&actorH);
     hash_init(&tspriteH);
 
-    for (i=NUMKEYWORDS-1; i>=0; i--) hash_add(&h_keywords,keyw[i],i,0);
+    g_scriptLastKeyword = NUMKEYWORDS-1;
+    // determine last CON keyword for backward compatibility with older mods
+    if (g_scriptDateVersion < g_keywdate[NUMKEYWDATES-1].date)
+    {
+        for (i=NUMKEYWDATES-1; i>=0; i--)
+        {
+            if (g_scriptDateVersion >= g_keywdate[i].date)
+            {
+                g_scriptLastKeyword = g_keywdate[i].keyw;
+                break;
+            }
+        }
+
+        if (i<0)
+            g_scriptLastKeyword = g_keywdate[0].keyw-1;  // may be slightly imprecise
+    }
+
+    for (i=g_scriptLastKeyword; i>=0; i--) hash_add(&h_keywords,keyw[i],i,0);
     for (i=0; SectorLabels[i].lId >= 0; i++) hash_add(&sectorH,SectorLabels[i].name,i,0);
     for (i=0; WallLabels[i].lId >= 0; i++) hash_add(&wallH,WallLabels[i].name,i,0);
     for (i=0; UserdefsLabels[i].lId >= 0; i++) hash_add(&userdefH,UserdefsLabels[i].name,i,0);
@@ -4395,6 +4465,32 @@ static int32_t C_ParseCommand(void)
         C_GetManyVars(4);
         C_GetManyVarsType(GAMEVAR_READONLY,4);
         C_GetManyVars(2);
+        break;
+
+    case CON_SECTSETINTERPOLATION:
+    case CON_SECTCLEARINTERPOLATION:
+        C_GetNextVar();
+        break;
+
+    case CON_CLIPMOVE:
+        // <retvar>,<x>,<y>,z,<sectnum>, xvect,yvect,walldist,floordist,ceildist,clipmask
+        C_GetManyVarsType(GAMEVAR_READONLY,3);
+        C_GetNextVar();
+        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetManyVars(6);
+        break;
+
+    case CON_CALCHYPOTENUSE:
+        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetManyVars(2);
+        break;
+
+    case CON_LINEINTERSECT:
+    case CON_RAYINTERSECT:
+        // lineintersect x y z  x y z  x y  x y  <intx> <inty> <intz> <ret>
+        // rayintersect x y z  vx vy vz  x y  x y  <intx> <inty> <intz> <ret>
+        C_GetManyVars(10);
+        C_GetManyVarsType(GAMEVAR_READONLY,4);
         break;
 
     case CON_HITSCAN:

@@ -139,14 +139,22 @@ void test_map(int32_t mode);
 
 static inline int32_t wallength(int16_t i)
 {
-    int32_t dax = POINT2(i).x - wall[i].x;
-    int32_t day = POINT2(i).y - wall[i].y;
+    int64_t dax = POINT2(i).x - wall[i].x;
+    int64_t day = POINT2(i).y - wall[i].y;
+#if 1 //def POLYMOST
+    int64_t hypsq = dax*dax + day*day;
+    if (hypsq > (int64_t)INT_MAX)
+        return (int32_t)sqrt((double)hypsq);
+    else
+        return ksqrt((int32_t)hypsq);
+#else
     return ksqrt(dax*dax + day*day);
+#endif
 }
 
 #define CLEARLINES2D(Startline, Numlines, Color) clearbuf((char *)(frameplace + ((Startline)*bytesperline)), (bytesperline*(Numlines))>>2, (Color))
 
-#define SCRIPTHISTSIZ 32  // should be the same as OSD_HISTORYDEPTH for maximum win
+#define SCRIPTHISTSIZ 32  // should be the same as OSD_HISTORYDEPTH for maximum win, should be a power of two
 extern const char *scripthist[SCRIPTHISTSIZ];
 extern int32_t scripthistend;
 

@@ -600,7 +600,7 @@ void A_DoGutsDir(int32_t sp, int32_t gtype, int32_t n)
 
 void Sect_SetInterpolation(int32_t i)
 {
-    int32_t k, j = sector[SECT].wallptr,endwall = j+sector[SECT].wallnum;
+    int32_t k, j = sector[SECT].wallptr, endwall = j+sector[SECT].wallnum;
 
     for (; j<endwall; j++)
     {
@@ -620,16 +620,20 @@ void Sect_SetInterpolation(int32_t i)
 
 void Sect_ClearInterpolation(int32_t i)
 {
-    int32_t j = sector[SECT].wallptr,endwall = j+sector[SECT].wallnum;
+    int32_t k, j = sector[SECT].wallptr, endwall = j+sector[SECT].wallnum;
 
     for (; j<endwall; j++)
     {
         G_StopInterpolation(&wall[j].x);
         G_StopInterpolation(&wall[j].y);
-        if (wall[j].nextwall >= 0)
+        k = wall[j].nextwall;
+        if (k >= 0)
         {
-            G_StopInterpolation(&wall[wall[j].nextwall].x);
-            G_StopInterpolation(&wall[wall[j].nextwall].y);
+            G_StopInterpolation(&wall[k].x);
+            G_StopInterpolation(&wall[k].y);
+            k = wall[k].point2;
+            G_StopInterpolation(&wall[k].x);
+            G_StopInterpolation(&wall[k].y);
         }
     }
 }

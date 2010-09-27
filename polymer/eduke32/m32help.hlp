@@ -389,7 +389,7 @@ RIGHT       smooth scrolling
  31 : Two-Way Train (SE 30)
  10+++ : One-Time Sound
  32767 : Secret Room
- 65534 : End Of Level with Message
+ 65534 : End Of Level with Message (sector hitag: sound #)
  65535 : End Of Level
 ^P
 ^3SE 0/1: ROTATED SECTOR
@@ -546,11 +546,13 @@ RIGHT       smooth scrolling
    Hi = tile #4890 Hi
 
 ^3^0SE 29: WAVES
-^0   (...)
-^0   Hi: start height (min. height?)
-^0   GPSPEED Lo: start height (?) (phase?)
+   Hi: start height (phase)
+   GPSPEED Lo: amplitude (default: 256)
 
-^0 Based on MAP EDITING FAQ v1.3 BY JONAH BISHOP and code research
+^0 Based on
+^0  * MAP EDITING FAQ v1.3 BY JONAH BISHOP
+^0  * The Duke Nukem 3D Informational Suite by Ryan Lennox
+^0  * code research
 ^P
 Foreground colors:
 ^0,15 0 ^1,0 1 ^2 2 ^3 3 ^4 4 ^5 5 ^6 6 ^7 7 

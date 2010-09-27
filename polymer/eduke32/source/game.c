@@ -7733,6 +7733,7 @@ static void G_ShowDebugHelp(void)
               "-ns/-nm\t\tDisable sound or music\n"
               "-q#\t\tFake multiplayer with # (2-8) players\n"
               "-z#/-condebug\tEnable line-by-line CON compile debugging at level #\n"
+              "-conversion YYYYMMDD\tSelects CON script version for compatibility with older mods\n"
               ;
 #if defined RENDERTYPEWIN
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildDate);
@@ -8318,6 +8319,23 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 if (!Bstrcasecmp(c+1,"condebug"))
                 {
                     g_scriptDebug = 1;
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1, "conversion"))
+                {
+                    if (argc > i+1)
+                    {
+                        uint32_t j = atol((char *)argv[i+1]);
+                        if (j>=10000000 && j<=99999999)
+                        {
+                            g_scriptDateVersion = j;
+                            initprintf("CON script date version: %d\n",j);
+                        }
+                        else
+                            initprintf("CON script date version must be specified as YYYYMMDD, ignoring.\n");
+                        i++;
+                    }
                     i++;
                     continue;
                 }

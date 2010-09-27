@@ -1741,6 +1741,72 @@ badindex:
                 continue;
             }
 
+        case CON_CALCHYPOTENUSE:
+            insptr++;
+            {
+                int32_t retvar=*insptr++;
+                int64_t dax=Gv_GetVarX(*insptr++), day=Gv_GetVarX(*insptr++);
+                int64_t hypsq = dax*dax + day*day;
+
+                if (hypsq > (int64_t)INT_MAX)
+                    Gv_SetVarX(retvar, (int32_t)sqrt((double)hypsq));
+                else
+                    Gv_SetVarX(retvar, ksqrt((int32_t)hypsq));
+
+                continue;
+            }
+
+        case CON_LINEINTERSECT:
+        case CON_RAYINTERSECT:
+            insptr++;
+            {
+                int32_t x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++), z1=Gv_GetVarX(*insptr++);
+                int32_t x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++), z2=Gv_GetVarX(*insptr++);
+                int32_t x3=Gv_GetVarX(*insptr++), y3=Gv_GetVarX(*insptr++), x4=Gv_GetVarX(*insptr++), y4=Gv_GetVarX(*insptr++);
+                int32_t intxvar=*insptr++, intyvar=*insptr++, intzvar=*insptr++, retvar=*insptr++;
+                int32_t intx, inty, intz, ret;
+
+                if (tw==CON_LINEINTERSECT)
+                    ret = lineintersect(x1, y1, z1, x2, y2, z2, x3, y3, x4, y4, &intx, &inty, &intz);
+                else
+                    ret = rayintersect(x1, y1, z1, x2, y2, z2, x3, y3, x4, y4, &intx, &inty, &intz);
+
+                Gv_SetVarX(retvar, ret);
+                if (ret)
+                {
+                    Gv_SetVarX(intxvar, intx);
+                    Gv_SetVarX(intyvar, inty);
+                    Gv_SetVarX(intzvar, intz);
+                }
+
+                continue;
+            }
+
+        case CON_CLIPMOVE:
+            insptr++;
+            {
+                vec3_t vect;
+                int32_t retvar=*insptr++, xvar=*insptr++, yvar=*insptr++, z=Gv_GetVarX(*insptr++), sectnumvar=*insptr++;
+                int32_t xvect=Gv_GetVarX(*insptr++), yvect=Gv_GetVarX(*insptr++);
+                int32_t walldist=Gv_GetVarX(*insptr++), floordist=Gv_GetVarX(*insptr++), ceildist=Gv_GetVarX(*insptr++);
+                int32_t clipmask=Gv_GetVarX(*insptr++);
+                int16_t sectnum;
+
+                vect.x = Gv_GetVarX(xvar);
+                vect.y = Gv_GetVarX(yvar);
+                vect.z = z;
+                sectnum = Gv_GetVarX(sectnumvar);
+
+                X_ERROR_INVALIDSECT(sectnum);
+
+                Gv_SetVarX(retvar, clipmove(&vect, &sectnum, xvect, yvect, walldist, floordist, ceildist, clipmask));
+                Gv_SetVarX(sectnumvar, sectnum);
+                Gv_SetVarX(xvar, vect.x);
+                Gv_SetVarX(yvar, vect.y);
+
+                continue;
+            }
+
         case CON_HITSCAN:
             insptr++;
             {

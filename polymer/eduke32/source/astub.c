@@ -3086,7 +3086,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         //
         // Ensure tilenum is within valid range
         //
-        iTile = clamp(iTile, 0, localartlookupnum-1);
+        iTile = clamp(iTile, 0, min(MAXTILES-1, localartlookupnum+nDisplayedTiles-1));
 
 
         // 'S' KEYPRESS: search for named tile
@@ -5509,6 +5509,12 @@ static void Keys3d(void)
         //        printext256(1*4,1*8,11,-1,tempbuf,0);
     }
 
+    if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(I))  // ' i
+    {
+        showinvisibility = !showinvisibility;
+        message("Invisible sprite preview %s", showinvisibility?"enabled":"disabled");
+    }
+
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(X)) // ' x
     {
         shadepreview = !shadepreview;
@@ -7887,12 +7893,28 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 
         if (!(vm.flags&VMFLAG_ERROR))
         {
-            if (scripthist[scripthistend])
-                Bfree((void *)scripthist[scripthistend]);
+            int32_t idx, dosave=1;
 
-            scripthist[scripthistend] = Bstrdup(parm->raw);
-            scripthistend++;
-            scripthistend %= SCRIPTHISTSIZ;
+            for (i=1; i<=4; i++)
+            {
+                idx = (scripthistend-i)&(SCRIPTHISTSIZ-1);
+                if (!scripthist[idx])
+                    break;
+                else if (!Bstrcmp(scripthist[idx], parm->raw))
+                {
+                    dosave = 0;
+                    break;
+                }
+            }
+
+            if (dosave)
+            {
+                if (scripthist[scripthistend])
+                    Bfree((void *)scripthist[scripthistend]);
+                scripthist[scripthistend] = Bstrdup(parm->raw);
+                scripthistend++;
+                scripthistend %= SCRIPTHISTSIZ;
+            }
         }
 //        asksave = 1; // handled in Access(Sprite|Sector|Wall)
     }
@@ -8124,7 +8146,6 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
     CLEARLINES2D(0, min(ydim, numrows*8+8), editorcolors[16]);
 }
 
-
 static void m32_osdsetfunctions()
 {
     OSD_SetFunctions(
@@ -8139,6 +8160,7 @@ static void m32_osdsetfunctions()
         NULL
     );
 }
+
 
 #endif
 
@@ -9015,7 +9037,7 @@ int32_t ExtInit(void)
     Bstrcpy(apptitle, "Mapster32"VERSION BUILDDATE);
     autosavetimer = totalclock+120*autosave;
 
-#if defined(_WIN32) && defined(DUKEOSD)
+#if defined(DUKEOSD)
     m32_osdsetfunctions();
 #endif
 
@@ -9457,6 +9479,13 @@ void ExtAnalyzeSprites(void)
                 tspr->xrepeat=0;
             }
 
+        if (showinvisibility && (tspr->cstat&32768))
+        {
+            tspr->pal = 6;
+            tspr->cstat &= ~32768;
+            tspr->cstat |= 2+512;
+        }
+
         if (shadepreview && !(tspr->cstat & 16))
         {
             if (sector[tspr->sectnum].ceilingstat&1)
@@ -9700,7 +9729,7 @@ static void Keys2d3d(void)
     {
         getmessageleng = 0;
         getmessagetimeoff = 0;
-#if defined(_WIN32) && defined(DUKEOSD)
+#if defined(DUKEOSD)
         m32_osdsetfunctions();
 #endif
     }
@@ -10546,7 +10575,7 @@ static void EditSpriteData(int16_t spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    sprite[spritenum].owner = getnumber16(edittext,(int32_t)sprite[spritenum].owner,MAXSPRITES,0);
+                    sprite[spritenum].owner = getnumber16(edittext,(int32_t)sprite[spritenum].owner,MAXSPRITES,1);
                 }
             }
             break;
