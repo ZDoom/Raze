@@ -62,7 +62,7 @@ static int32_t floor_over_floor;
 static char setupfilename[]= "mapster32.cfg";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char *g_grpNamePtr = defaultduke3dgrp;
-static int32_t fixmapbeforesaving = 1;
+static int32_t fixmapbeforesaving = 0;
 static int32_t lastsave = -180*60;
 static int32_t NoAutoLoad = 0;
 static int32_t spnoclip=1;
@@ -7264,7 +7264,8 @@ static void G_ShowParameterHelp(void)
               "-gFILE, -grp FILE\tUse extra group file FILE\n"
               "-hFILE\t\tUse definitions file FILE\n"
               "-jDIR, -game_dir DIR\n\t\tAdds DIR to the file path stack\n"
-              "-nocheck\t\tDisables map pointer checking when saving\n"
+              "-check\t\tEnables map pointer checking when saving\n"
+              "-nocheck\t\tDisables map pointer checking when saving (default)\n"  // kept for script compat
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup\t\tDisplays the configuration dialog\n"
 #endif
@@ -7413,6 +7414,13 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     Bstrcpy(g_grpNamePtr, "ww2gi.grp");
                     COPYARG(i);
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"check"))
+                {
+                    initprintf("Map pointer checking on saving enabled\n");
+                    fixmapbeforesaving = 1;
                     i++;
                     continue;
                 }
