@@ -1367,7 +1367,7 @@ static void duplicate_selected_sprites()
     }
 }
 
-static void update_highlight()
+void update_highlight()
 {
     int32_t i;
 
@@ -3507,6 +3507,8 @@ SKIP:
                                 wall[i].nextsector = -1;
                                 wall[i].nextwall = -1;
                             }
+
+                            setfirstwall(k, suckwall+j);  // restore old first wall
                         }
                     }
                     else

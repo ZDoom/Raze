@@ -40,6 +40,7 @@ vmstate_t vm_default =
     -1,
     0,
     NULL,
+    0,
     0
 };
 
@@ -185,6 +186,12 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
         {
             aEventEnabled[iEventID] = 0;
             message("ERROR executing %s. Event disabled.", label+(iEventID*MAXLABELLEN));
+        }
+
+        if (vm.updatehighlight)
+        {
+            update_highlight();
+            vm.updatehighlight = 0;
         }
 
         // restore old values...
@@ -855,10 +862,26 @@ skip_check:
             insptr += 2;
             continue;
 
+        case CON_SHIFTVARVARL:
+            insptr++;
+            {
+                int32_t j=*insptr++;
+                Gv_SetVarX(j, Gv_GetVarX(j) << Gv_GetVarX(*insptr++));
+            }
+            continue;
+
         case CON_SHIFTVARR:
             insptr++;
             Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) >> *(insptr+1));
             insptr += 2;
+            continue;
+
+        case CON_SHIFTVARVARR:
+            insptr++;
+            {
+                int32_t j=*insptr++;
+                Gv_SetVarX(j, Gv_GetVarX(j) >> Gv_GetVarX(*insptr++));
+            }
             continue;
 
         case CON_SIN:
@@ -1518,6 +1541,25 @@ badindex:
             VM_DoConditional(vm.g_sp->pal == Gv_GetVarX(*insptr));
             continue;
 
+        case CON_IFHIGHLIGHTED:
+            insptr++;
+            {
+                int32_t id=*insptr++, index=Gv_GetVarX(*insptr);
+
+                if (index<0 || (id==M32_SPRITE_VAR_ID && index>=MAXSPRITES) || (id==M32_WALL_VAR_ID && index>=numwalls))
+                {
+                    M32_PRINTERROR("%s index %d out of range!", id==M32_SPRITE_VAR_ID?"Sprite":"Wall", index);
+                    vm.flags |= VMFLAG_ERROR;
+                    continue;
+                }
+
+                if (id==M32_SPRITE_VAR_ID)
+                    VM_DoConditional(show2dsprite[index>>3]&(1<<(index&7)));
+                else
+                    VM_DoConditional(show2dwall[index>>3]&(1<<(index&7)));
+            }
+            continue;
+
         case CON_IFANGDIFFL:
             insptr++;
             {
@@ -2133,7 +2175,50 @@ badindex:
                 Gv_SetVarX(*insptr++, getclosestcol((r>>2)&63, (g>>2)&63, (b>>2)&63));
                 continue;
             }
+
 // *** stuff
+        case CON_UPDATEHIGHLIGHT:
+            insptr++;
+            update_highlight();
+            continue;
+
+        case CON_SETHIGHLIGHT:
+            insptr++;
+            {
+                int32_t what=Gv_GetVarX(*insptr++), index=Gv_GetVarX(*insptr++), doset = Gv_GetVarX(*insptr++);
+
+                if (what&16384)
+                {
+                    index &= ~16384;
+                    if (index < 0 || index>=MAXSPRITES || sprite[index].statnum==MAXSTATUS)
+                    {
+                        M32_PRINTERROR("Invalid sprite index %d", index);
+                        vm.flags |= VMFLAG_ERROR;
+                        continue;
+                    }
+
+                    if (doset)
+                        show2dsprite[index>>3] |= (1<<(index&7));
+                    else
+                        show2dsprite[index>>3] &= ~(1<<(index&7));
+                }
+                else if (index < 0 || index>=numwalls)
+                {
+                    M32_PRINTERROR("Invalid wall index %d", index);
+                    vm.flags |= VMFLAG_ERROR;
+                    continue;
+
+                    if (doset)
+                        show2dwall[index>>3] |= (1<<(index&7));
+                    else
+                        show2dwall[index>>3] &= ~(1<<(index&7));
+                }
+
+                vm.updatehighlight = 1;
+
+                continue;
+            }
+
         case CON_GETTIMEDATE:
             insptr++;
             {
@@ -2281,7 +2366,7 @@ badindex:
                     if (max==0)
                         max = INT_MAX;
 
-OSD_Printf("max:%d, sign:%d\n", max, sign);
+//OSD_Printf("max:%d, sign:%d\n", max, sign);
                     if (tw==CON_GETNUMBER16)
                         Gv_SetVarX(var, getnumber16(quotetext, Gv_GetVarX(var), max, sign));
                     else
@@ -2836,6 +2921,10 @@ dodefault:
             VM_DoConditional(j < 0);
         }
         continue;
+
+        case CON_IFIN3DMODE:
+            VM_DoConditional(qsetmode==200);
+            continue;
 
         // ifaimingsprite and -wall also work in 2d mode, but you must "and" with 16383 yourself
         case CON_IFAIMINGSPRITE:

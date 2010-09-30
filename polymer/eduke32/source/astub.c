@@ -1943,47 +1943,6 @@ static void SoundDisplay()
                 }
             }
 
-            else if (keystatus[KEYSC_S])    // sorting
-            {
-
-                char ch, bad=0;
-
-                i=0;
-                bflushchars();
-                while (bad == 0)
-                {
-                    _printmessage16("Sort by: (S)oundnum (D)ef (F)ile ori(g) or flags (12345)");
-                    showframe(1);
-
-                    idle_waitevent();
-                    if (handleevents())
-                        quitevent = 0;
-
-                    ch = bgetchar();
-
-                    if (keystatus[1]) bad = 1;
-
-                    else if (ch == 's' || ch == 'd' || ch == 'f' || ch == 'g' ||
-                             ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5')
-                    {
-                        bad = 2;
-                        sort_sounds(ch);
-                    }
-                }
-
-                if (bad==1)
-                {
-                    keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F2] = 0;
-                }
-
-                if (bad==2)
-                {
-                    keystatus[KEYSC_S] = keystatus[KEYSC_D] = keystatus[KEYSC_F] = 0;
-                    keystatus[KEYSC_G] = keystatus[KEYSC_1] = keystatus[KEYSC_2] = 0;
-                    keystatus[KEYSC_3] = keystatus[KEYSC_4] = keystatus[KEYSC_5] = 0;
-                }
-            }
-
             _printmessage16("                          FILE NAME         PITCH RANGE  PRI FLAGS VOLUME");
             for (i=0; j=cursnd+i, i<SOUND_NUMDISPLINES && j<g_numsounds; i++)
             {
@@ -2015,12 +1974,53 @@ static void SoundDisplay()
                 }
 
                 printext16(8, ydim-overridepm16y+28+i*9,
-                           S_CheckSoundPlaying(-1, k) ? editorcolors[2] : editorcolors[10],
+                           keystatus[KEYSC_S]?editorcolors[8] : (S_CheckSoundPlaying(-1, k) ? editorcolors[2] : editorcolors[10]),
                            j==cursnd+curofs ? editorcolors[1] : -1,
                            disptext[i], 0);
             }
 
-            showframe(1);
+            if (keystatus[KEYSC_S])    // sorting
+            {
+
+                char ch, bad=0;
+
+                _printmessage16("Sort by: (S)oundnum (D)ef (F)ile ori(g) or flags (12345)");
+                showframe(1);
+
+                i=0;
+                bflushchars();
+                while (bad == 0)
+                {
+                    idle_waitevent();
+                    if (handleevents())
+                        quitevent = 0;
+
+                    ch = bgetchar();
+
+                    if (keystatus[1]) bad = 1;
+
+                    else if (ch == 's' || ch == 'd' || ch == 'f' || ch == 'g' ||
+                             ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5')
+                    {
+                        bad = 2;
+                        sort_sounds(ch);
+                    }
+                }
+
+                if (bad==1)
+                {
+                    keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F2] = 0;
+                }
+
+                if (bad==2)
+                {
+                    keystatus[KEYSC_S] = keystatus[KEYSC_D] = keystatus[KEYSC_F] = 0;
+                    keystatus[KEYSC_G] = keystatus[KEYSC_1] = keystatus[KEYSC_2] = 0;
+                    keystatus[KEYSC_3] = keystatus[KEYSC_4] = keystatus[KEYSC_5] = 0;
+                }
+            }
+            else
+                showframe(1);
         }
 
         overridepm16y = -1;
@@ -7897,7 +7897,20 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 
         insptr = script + oscrofs;
         Bmemcpy(&vm, &vm_default, sizeof(vmstate_t));
+
+        if (qsetmode==200 && AIMING_AT_SPRITE)
+        {
+            vm.g_i = searchwall;
+            vm.g_sp = &sprite[vm.g_i];
+        }
+
         VM_Execute(0);
+
+        if (vm.updatehighlight)
+        {
+            update_highlight();
+            vm.updatehighlight = 0;
+        }
 
         if (!(vm.flags&VMFLAG_ERROR))
         {

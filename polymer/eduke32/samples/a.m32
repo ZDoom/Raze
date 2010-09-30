@@ -1068,3 +1068,61 @@ defstate corruptchk
         }
     }
 ends
+
+defstate mkterrain
+    var w2 w3 idx bit tmp sec
+    var warned
+
+    set warned 0
+
+    for i selwalls
+    {
+        sectorofwall j i
+        set tmp 0, ifand sector[j].floorstat 2, set tmp 1  // already handled
+        ife tmp 0 ife sector[j].wallnum 3
+        {
+            set w2 wall[i].point2
+            set idx w2, shiftr idx 3
+            set tmp w2, and tmp 7, set bit 1, shiftl bit tmp
+            ifand show2dwall[idx] bit
+            {
+                setfirstwall j i
+
+                set z 0x7ffffff
+                ifin3dmode
+                {
+                    ife searchstat 2  // floor
+                        set z sector[searchsector].floorz
+                }
+                else
+                {
+                    for k allsectors
+                    {
+                        ifinside mousxplc mousyplc k
+                        {
+                            set z sector[k].floorz
+                            break
+                        }
+                    }
+                }
+
+                ife z 0x7ffffff
+                {
+                    ife warned 0
+                    {
+                        quote "Mouse pointer must be aiming at sector floor."
+                        set warned 1
+                    }
+                }
+                else
+                {
+                    set w3 wall[w2].point2
+                    set sec wall[i].nextsector
+                    ifge sec 0
+                        set sector[j].floorz sector[sec].floorz
+                    alignflorslope j wall[w3].x wall[w3].y z
+                }
+            }
+        }
+    }
+ends

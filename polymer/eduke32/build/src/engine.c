@@ -10497,13 +10497,24 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
 {
     int32_t i, j, k, numwallsofloop;
     int32_t startwall, endwall, danumwalls, dagoalloop;
+    walltype *tmpwall;
 
     startwall = sector[sectnum].wallptr;
     danumwalls = sector[sectnum].wallnum;
     endwall = startwall+danumwalls;
+
     if ((newfirstwall < startwall) || (newfirstwall >= startwall+danumwalls)) return;
-    for (i=0; i<danumwalls; i++)
-        Bmemcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
+
+    tmpwall = Bmalloc(danumwalls * sizeof(walltype));
+    if (!tmpwall)
+    {
+        initprintf("setfirstwall: OUT OF MEMORY!\n");
+        return;
+    }
+
+    Bmemcpy(tmpwall, &wall[startwall], danumwalls*sizeof(walltype));
+//    for (i=0; i<danumwalls; i++)
+//        Bmemcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
 
     numwallsofloop = 0;
     i = newfirstwall;
@@ -10523,7 +10534,7 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
         for (i=0; i<danumwalls; i++)
         {
             k = i+j; if (k >= danumwalls) k -= danumwalls;
-            Bmemcpy(&wall[startwall+i],&wall[numwalls+k],sizeof(walltype));
+            Bmemcpy(&wall[startwall+i], &tmpwall[k], sizeof(walltype));
 
             wall[startwall+i].point2 += danumwalls-startwall-j;
             if (wall[startwall+i].point2 >= danumwalls)
@@ -10535,12 +10546,12 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
     }
 
     for (i=0; i<numwallsofloop; i++)
-        Bmemcpy(&wall[i+numwalls],&wall[i+startwall],sizeof(walltype));
+        Bmemcpy(&tmpwall[i], &wall[i+startwall], sizeof(walltype));
     for (i=0; i<numwallsofloop; i++)
     {
         k = i+newfirstwall-startwall;
         if (k >= numwallsofloop) k -= numwallsofloop;
-        Bmemcpy(&wall[startwall+i],&wall[numwalls+k],sizeof(walltype));
+        Bmemcpy(&wall[startwall+i], &tmpwall[k], sizeof(walltype));
 
         wall[startwall+i].point2 += numwallsofloop-newfirstwall;
         if (wall[startwall+i].point2 >= numwallsofloop)
@@ -10550,6 +10561,8 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
 
     for (i=startwall; i<endwall; i++)
         if (wall[i].nextwall >= 0) wall[wall[i].nextwall].nextwall = i;
+
+    Bfree(tmpwall);
 }
 
 

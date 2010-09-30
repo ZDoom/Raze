@@ -95,6 +95,7 @@ typedef struct {
     int32_t g_st;
     spritetype *g_sp;
     uint32_t flags; //g_errorFlag, g_returnFlag;
+    uint32_t updatehighlight;
 } vmstate_t;
 
 #define VMFLAG_RETURN 1
@@ -314,6 +315,8 @@ enum ScriptKeywords_t
     CON_ANDVARVAR,
     CON_ORVARVAR,
     CON_XORVARVAR,
+    CON_SHIFTVARVARL,
+    CON_SHIFTVARVARR,
     CON_SIN,
     CON_COS,
 
@@ -377,6 +380,7 @@ enum ScriptKeywords_t
 // if* using current sprite
     CON_IFANGDIFFL,
     CON_IFSPRITEPAL,
+    CON_IFHIGHLIGHTED,
     CON_IFACTOR,
     CON_IFSOUND,
     CON_IFPDISTL,
@@ -400,6 +404,7 @@ enum ScriptKeywords_t
 ///    CON_IFINOUTERSPACE,
 ///    CON_IFCANSEETARGET,
     CON_IFNOSOUNDS,
+    CON_IFIN3DMODE,
     CON_IFAIMINGSPRITE,
     CON_IFAIMINGWALL,
     CON_IFAIMINGSECTOR,
@@ -443,6 +448,8 @@ enum ScriptKeywords_t
     CON_GETCLOSESTCOL,
 
 // stuff
+    CON_UPDATEHIGHLIGHT,
+    CON_SETHIGHLIGHT,
     CON_ADDLOGVAR,
     CON_ADDLOG,
     CON_DEBUG,

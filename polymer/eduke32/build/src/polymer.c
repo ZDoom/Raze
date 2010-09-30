@@ -965,6 +965,20 @@ void                polymer_drawmasks(void)
     bglDisable(GL_ALPHA_TEST);
 }
 
+static inline GLfloat dot2f(GLfloat *v1, GLfloat *v2)
+{
+    return v1[0]*v2[0] + v1[1]*v2[1];
+}
+static inline GLfloat dot3f(GLfloat *v1, GLfloat *v2) 	 
+{ 	 
+    return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
+}
+static inline void relvec2f(GLfloat *v1, GLfloat *v2, GLfloat *out)
+{
+    out[0] = v2[0]-v1[0];
+    out[1] = v2[1]-v1[1];
+}
+
 void                polymer_editorpick(void)
 {
     GLubyte         picked[3];
@@ -987,7 +1001,99 @@ void                polymer_editorpick(void)
     case 1: // floor
     case 2: // ceiling
         searchsector = num;
-        searchwall = sector[num].wallptr;
+
+        // Apologies to Plagman for littering here, but this feature is quite essential
+        {
+            GLdouble model[16];
+            GLdouble proj[16];
+            GLint view[4];
+
+            GLdouble x,y,z;
+            GLfloat scr[3], scrv[3];
+            GLdouble scrx,scry,scrz;
+            GLfloat dadepth;
+
+            int16_t k, bestk=0;
+            GLfloat bestwdistsq = 3.4e38, wdistsq;
+            GLfloat w1[2], w2[2], w21[2], pw1[2], pw2[2];
+            GLfloat ptonline[2];
+            GLfloat scrvxz[2];
+            GLfloat scrvxznorm, scrvxzn[2], scrpxz[2];
+            GLfloat w1d, w2d;
+            walltype *wal = &wall[sector[searchsector].wallptr];
+
+            GLfloat t, svcoeff, p[2];
+            GLfloat *pl;
+
+            bglGetDoublev(GL_MODELVIEW_MATRIX, model);
+            bglGetDoublev(GL_PROJECTION_MATRIX, proj);
+            bglGetIntegerv(GL_VIEWPORT, view);
+
+            bglReadPixels(searchx, ydim-searchy, 1,1, GL_DEPTH_COMPONENT, GL_FLOAT, &dadepth);
+            bgluUnProject(searchx, ydim-searchy, dadepth,  model, proj, view,  &x, &y, &z);
+            bgluUnProject(searchx, ydim-searchy, 0.0,  model, proj, view,  &scrx, &scry, &scrz);
+
+            scr[0]=scrx, scr[1]=scry, scr[2]=scrz;
+
+            scrv[0] = x-scrx; 	 
+            scrv[1] = y-scry; 	 
+            scrv[2] = z-scrz; 	 
+
+            scrvxz[0] = x-scrx;
+            scrvxz[1] = z-scrz;
+
+            if (searchstat==1)
+                pl = &prsectors[searchsector]->ceil.plane[0];
+            else
+                pl = &prsectors[searchsector]->floor.plane[0];
+
+            t = dot3f(pl,scrv);
+            svcoeff = -(dot3f(pl,scr)+pl[3])/t;
+
+            // point on plane (x and z)
+            p[0] = scrx + svcoeff*scrv[0];
+            p[1] = scrz + svcoeff*scrv[2];
+
+            for (k=0; k<sector[searchsector].wallnum; k++)
+            {
+                w1[1] = -(float)wal[k].x;
+                w1[0] = (float)wal[k].y;
+                w2[1] = -(float)wall[wal[k].point2].x;
+                w2[0] = (float)wall[wal[k].point2].y;
+
+                scrvxznorm = sqrt(dot2f(scrvxz,scrvxz));
+                scrvxzn[0] = scrvxz[1]/scrvxznorm;
+                scrvxzn[1] = -scrvxz[0]/scrvxznorm;
+
+                relvec2f(p,w1, pw1);
+                relvec2f(p,w2, pw2);
+                relvec2f(w2,w1, w21);
+
+                w1d = dot2f(scrvxzn,pw1);
+                w2d = dot2f(scrvxzn,pw2);
+                w2d = -w2d;
+                if (w1d <= 0 || w2d <= 0)
+                    continue;
+
+                ptonline[0] = w2[0]+(w2d/(w1d+w2d))*w21[0];
+                ptonline[1] = w2[1]+(w2d/(w1d+w2d))*w21[1];
+                relvec2f(p,ptonline, scrpxz);
+                if (dot2f(scrvxz,scrpxz)<0)
+                    continue;
+
+                wdistsq = dot2f(scrpxz,scrpxz);
+                if (wdistsq < bestwdistsq)
+                {
+                    bestk = k;
+                    bestwdistsq = wdistsq;
+                }
+            }
+
+            searchwall = sector[searchsector].wallptr + bestk;
+        }
+        // :P
+
+//        searchwall = sector[num].wallptr;
         break;
     case 3:
         // sprite

@@ -545,7 +545,7 @@ RIGHT       smooth scrolling
 ^3SE 28: LIGHTNING
    Hi = tile #4890 Hi
 
-^3^0SE 29: WAVES
+^3SE 29: WAVES
    Hi: start height (phase)
    GPSPEED Lo: amplitude (default: 256)
 

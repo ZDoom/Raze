@@ -139,8 +139,8 @@ const tokenmap_t altkeyw[] =
     { "al", CON_ADDLOGVAR },
     { "var", CON_GAMEVAR },
     { "array", CON_GAMEARRAY },
-    { "shiftl", CON_SHIFTVARL },
-    { "shiftr", CON_SHIFTVARR },
+    { "shiftl", CON_SHIFTVARVARL },
+    { "shiftr", CON_SHIFTVARVARR },
     { "rand", CON_RANDVARVAR },
     { "set", CON_SETVARVAR },
     { "add", CON_ADDVARVAR },
@@ -230,6 +230,8 @@ const char *keyw[] =
     "andvarvar",
     "orvarvar",
     "xorvarvar",
+    "shiftvarvarl",
+    "shiftvarvarr",
     "sin",
     "cos",
 
@@ -286,6 +288,7 @@ const char *keyw[] =
     "ifrnd",
     "ifangdiffl",
     "ifspritepal",
+    "ifhighlighted",
     "ifactor",
     "ifsound",
     "ifpdistl",
@@ -302,6 +305,7 @@ const char *keyw[] =
     "ifinwater",
     "ifoutside",
     "ifnosounds",
+    "ifin3dmode",
     "ifaimingsprite",
     "ifaimingwall",
     "ifaimingsector",
@@ -344,6 +348,8 @@ const char *keyw[] =
     "fixrepeats",
     "getclosestcol",
 
+    "updatehighlight",
+    "sethighlight",
     "addlogvar",
     "addlog",
     "debug",
@@ -2738,6 +2744,8 @@ repeatcase:
     case CON_ANDVARVAR:
     case CON_ORVARVAR:
     case CON_XORVARVAR:
+    case CON_SHIFTVARVARL:
+    case CON_SHIFTVARVARR:
     {
         instype *inst = (g_scriptPtr-1);
         const char *otextptr;
@@ -2896,6 +2904,7 @@ repeatcase:
 // vvv if* using current sprite
     case CON_IFANGDIFFL:
     case CON_IFSPRITEPAL:
+    case CON_IFHIGHLIGHTED:
     case CON_IFACTOR:
     case CON_IFSOUND:
     case CON_IFPDISTL:
@@ -2919,6 +2928,7 @@ repeatcase:
 ///    case CON_IFINOUTERSPACE:
 ///    case CON_IFCANSEETARGET:
     case CON_IFNOSOUNDS:
+    case CON_IFIN3DMODE:
     case CON_IFAIMINGSPRITE:
     case CON_IFAIMINGWALL:
     case CON_IFAIMINGSECTOR:
@@ -2955,8 +2965,27 @@ repeatcase:
             }
         }
         else if (tw<=CON_IFPDISTG)
-///            C_GetNextValue(LABEL_DEFINE);
-            C_GetNextVar();
+        {
+            if (tw==CON_IFHIGHLIGHTED)
+            {
+                int32_t id;
+
+                if (C_GetNextLabelName(1))
+                    return 1;
+
+                id = GetGamevarID(tlabel, 0);
+                if (!(id==M32_SPRITE_VAR_ID || id==M32_WALL_VAR_ID))
+                {
+                    C_CUSTOMERROR("\"ifhighlighted\" must be followed immediately by \"sprite\" or \"wall\".");
+                    return 1;
+                }
+
+                *g_scriptPtr++ = id;
+                C_GetNextVar();
+            }
+            else
+                C_GetNextVar();
+        }
         else if (tw<=CON_IFINSIDE)
             C_GetManyVars(3);
         // else {}
@@ -3108,12 +3137,19 @@ repeatcase:
         return 0;
 
 // *** stuff
+    case CON_SETHIGHLIGHT:
+        // sethighlight <what> <index> <set_or_unset>
+        // if <what>&16384, index&16383 is sprite index, else wall index
+        C_GetManyVars(3);
+        return 0;
+
     case CON_ADDLOGVAR:
         // syntax: addlogvar <var>
         // prints the line number in the log file.
         C_GetNextVar();
         return 0;
 
+    case CON_UPDATEHIGHLIGHT:
     case CON_ADDLOG:
         // syntax: addlog
         // prints the line number in the log file.
