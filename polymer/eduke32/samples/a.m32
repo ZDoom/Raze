@@ -1,7 +1,7 @@
 // m32 script editor extensions.
 // to load, enter "include samples/a" (without quotes) in the console
 // or into a file named m32_autoexec.cfg for automatic loading on startup.
-// to enable all events, "enableevents all"
+// to enable all events, "enableevent all"
 
 ////////// USER SETTINGS //////////
 

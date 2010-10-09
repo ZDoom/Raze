@@ -932,6 +932,7 @@ enum ScriptKeywords_t
     CON_LINEINTERSECT, // 356
     CON_RAYINTERSECT, // 357
     CON_CALCHYPOTENUSE, // 358
+    CON_CLIPMOVENOSLIDE, // 359
     CON_END
 };
 #endif

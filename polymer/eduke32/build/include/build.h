@@ -476,6 +476,7 @@ void   drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
 int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize);
 void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize);
 
+extern int32_t clipmoveboxtracenum;
 int32_t   clipmove(vec3_t *vect, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype);
 int32_t   clipinsidebox(int32_t x, int32_t y, int16_t wallnum, int32_t walldist);
 int32_t   clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t walldist);

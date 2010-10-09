@@ -8644,7 +8644,7 @@ static int32_t loadtilegroups(const char *fn)
         Bmemcpy(&s_TileGroups[i], &blank, sizeof(blank));
     }
     tile_groups = 0;
-
+#if 0
     // ---------- Init hardcoded tile group consisting of all named tiles
     s_TileGroups[0].szText = Bstrdup("All named");
     s_TileGroups[0].pIds = Bmalloc(MAXTILES * sizeof(s_TileGroups[0].pIds[0]));
@@ -8662,7 +8662,7 @@ static int32_t loadtilegroups(const char *fn)
         tile_groups++;
     }
     // --------------------
-
+#endif
     parsetilegroups(script);
 
     scriptfile_close(script);

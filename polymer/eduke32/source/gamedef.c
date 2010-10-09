@@ -556,6 +556,7 @@ const char *keyw[] =
     "lineintersect",   // 356
     "rayintersect",   // 357
     "calchypotenuse",   // 358
+    "clipmovenoslide",   // 359
     "<null>"
 };
 
@@ -4473,6 +4474,7 @@ static int32_t C_ParseCommand(void)
         break;
 
     case CON_CLIPMOVE:
+    case CON_CLIPMOVENOSLIDE:
         // <retvar>,<x>,<y>,z,<sectnum>, xvect,yvect,walldist,floordist,ceildist,clipmask
         C_GetManyVarsType(GAMEVAR_READONLY,3);
         C_GetNextVar();

@@ -406,8 +406,6 @@ int32_t app_main(int32_t argc, const char **argv)
     }
     //Bcanonicalisefilename(boardfilename,0);
 
-    loadnames();  // should be before ExtInit() because of auto 'Y' tile group
-
     if ((i = ExtInit()) < 0) return -1;
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
     if (i || forcesetup || cmdsetup)
@@ -419,6 +417,8 @@ int32_t app_main(int32_t argc, const char **argv)
         }
     }
 #endif
+
+    loadnames();
 
     if (initinput()) return -1;
     // if (option[3] != 0) moustat =

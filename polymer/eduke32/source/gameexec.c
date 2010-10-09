@@ -2544,13 +2544,14 @@ nullquote:
             }
 
         case CON_CLIPMOVE:
+        case CON_CLIPMOVENOSLIDE:
             insptr++;
             {
                 vec3_t vect;
                 int32_t retvar=*insptr++, xvar=*insptr++, yvar=*insptr++, z=Gv_GetVarX(*insptr++), sectnumvar=*insptr++;
                 int32_t xvect=Gv_GetVarX(*insptr++), yvect=Gv_GetVarX(*insptr++);
                 int32_t walldist=Gv_GetVarX(*insptr++), floordist=Gv_GetVarX(*insptr++), ceildist=Gv_GetVarX(*insptr++);
-                int32_t clipmask=Gv_GetVarX(*insptr++);
+                int32_t clipmask=Gv_GetVarX(*insptr++), oclipmoveboxtracenum=clipmoveboxtracenum;
                 int16_t sectnum;
 
                 vect.x = Gv_GetVarX(xvar);
@@ -2565,7 +2566,11 @@ nullquote:
                     continue;
                 }
 
+                if (tw==CON_CLIPMOVENOSLIDE)
+                    clipmoveboxtracenum = 1;
                 Gv_SetVarX(retvar, clipmove(&vect, &sectnum, xvect, yvect, walldist, floordist, ceildist, clipmask));
+                if (tw==CON_CLIPMOVENOSLIDE)
+                    clipmoveboxtracenum = oclipmoveboxtracenum;
                 Gv_SetVarX(sectnumvar, sectnum);
                 Gv_SetVarX(xvar, vect.x);
                 Gv_SetVarX(yvar, vect.y);
