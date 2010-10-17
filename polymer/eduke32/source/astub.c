@@ -4293,7 +4293,7 @@ static void mouseaction_movesprites(int32_t *sumxvect, int32_t *sumyvect, int32_
 
     if (highlightcnt<=0 || (show2dsprite[searchwall>>3] & (1<<(searchwall&7)))==0)
     {
-        clipmove(&tvec, &tsect, daxvect,dayvect, 128,64<<4,64<<4, spnoclip?1:CLIPMASK0);
+        clipmove(&tvec, &tsect, daxvect,dayvect, sp->clipdist,64<<4,64<<4, spnoclip?1:CLIPMASK0);
         setsprite(searchwall, &tvec);
     }
     else

@@ -76,6 +76,10 @@ int32_t dommxoverlay = 1, beforedrawrooms = 1, indrawroomsandmasks = 0;
 
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
+// r_usenewaspect is the cvar, newaspect_enable to trigger the new behaviour in the code
+int32_t r_usenewaspect = 0, newaspect_enable=0;
+uint32_t r_screenxy = 403;  // 4:3 aspect ratio
+
 int32_t curbrightness = 0, gammabrightness = 0;
 
 double vid_gamma = DEFAULT_GAMMA;
@@ -5524,7 +5528,7 @@ void *blockptr = NULL;
 int32_t preinitengine(void)
 {
     char *e;
-    if (initsystem()) exit(1);
+    if (initsystem()) exit(9);
 
     makeasmwriteable();
 
@@ -6270,6 +6274,8 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     int32_t xvect, yvect, xvect2, yvect2, daslope;
     int32_t oydim=ydim;
 
+    int32_t oyxaspect=yxaspect, oviewingrange=viewingrange;
+
     ydim = (int32_t)((double)xdim * 0.625f);
     setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
     ydim = oydim;
@@ -6552,7 +6558,10 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     }
 
     enddrawing();   //}}}
-    setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+    if (r_usenewaspect)
+        setaspect(oviewingrange, oyxaspect);
+    else
+        setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
 }
 
 
@@ -9737,6 +9746,33 @@ void getzrange(const vec3_t *vect, int16_t sectnum,
     }
 }
 
+void setaspect_new()
+{
+    if (r_usenewaspect && newaspect_enable)
+    {
+        // the correction factor 100/107 has been found
+        // out experimentally. squares ftw!
+        int32_t vr, yx=(65536*4*100)/(3*107);
+        int32_t y, x;
+
+        if (fullscreen)
+        {
+            x=r_screenxy/100; y=r_screenxy%100;
+            if (y==0 || x==0) { x=4; y=3; }
+        }
+        else
+        {
+            x = xdim;
+            y = ydim;
+        }
+
+        vr = (65536*x*3)/(y*4);
+
+        setaspect(vr, yx);
+    }
+    else
+        setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+}
 
 //
 // setview
@@ -9754,7 +9790,7 @@ void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     xdimenrecip = divscale32(1L,xdimen);
     ydimen = (y2-y1)+1;
 
-    setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+    setaspect_new();
 
     for (i=0; i<windowx1; i++) { startumost[i] = 1, startdmost[i] = 0; }
     for (i=windowx1; i<=windowx2; i++)

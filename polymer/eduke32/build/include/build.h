@@ -453,6 +453,7 @@ void   squarerotatetile(int16_t tilenume);
 
 int32_t   setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp);
 void   nextpage(void);
+void   setaspect_new();
 void   setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   setaspect(int32_t daxrange, int32_t daaspect);
 void   flushperms(void);

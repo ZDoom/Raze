@@ -166,7 +166,7 @@ extern char forcegl;
 
 void M32RunScript(const char *s) { UNREFERENCED_PARAMETER(s); };  // needed for linking since it's referenced from build/src/osd.c
 
-int32_t kopen4loadfrommod(char *filename, char searchfirst)
+int32_t kopen4loadfrommod(const char *filename, char searchfirst)
 {
     static char fn[BMAX_PATH];
     int32_t r;
@@ -2354,7 +2354,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         }
     }
 
-    setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+    setaspect_new();
 
     TRAVERSE_CONNECT(p)
     {
@@ -3211,6 +3211,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     int16_t tang;
     int32_t tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
 
+    int32_t tmpyx=yxaspect, tmpvr=viewingrange;
+
     if (pub > 0 || getrendermode() >= 3) // JBF 20040101: redraw background always
     {
         if (getrendermode() >= 3 || ud.screen_size > 8 || (ud.screen_size == 8 && ud.statusbarscale<100))
@@ -3220,6 +3222,12 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     if (ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && getrendermode() < 3))
         return;
+
+    if (r_usenewaspect)
+    {
+        newaspect_enable = 1;
+        setaspect_new();
+    }
 
 //    smoothratio = min(max(smoothratio,0),65536);
     smoothratio = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
@@ -3259,10 +3267,19 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     else
     {
         i = divscale22(1,sprite[p->i].yrepeat+28);
-//        if (i != oyrepeat)
+
+        if (!r_usenewaspect)
         {
-            oyrepeat = i;
-            setaspect(oyrepeat,yxaspect);
+//            if (i != oyrepeat)
+            {
+                oyrepeat = i;
+                setaspect(oyrepeat,yxaspect);
+            }
+        }
+        else
+        {
+            tmpvr = i;
+            tmpyx = (65536*ydim*8)/(xdim*5);
         }
 
         if (g_screenCapture)
@@ -3315,6 +3332,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             if (i > 256) i = 512-i;
             i = sintable[i+512]*8 + sintable[i]*5L;
             setaspect(i>>1,yxaspect);
+
+            tmpvr = i>>1;
+            tmpyx = (65536*ydim*8)/(xdim*5);
         }
         else if (getrendermode() > 0 && ud.screen_tilting /*&& (p->rotscrnang || p->orotscrnang)*/)
         {
@@ -3502,6 +3522,12 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             p->visibility += (ud.const_visibility-p->visibility)>>2;
     }
     else p->visibility = ud.const_visibility;
+
+    if (r_usenewaspect)
+    {
+        newaspect_enable = 0;
+        setaspect(tmpvr, tmpyx);
+    }
 }
 
 static void G_DumpDebugInfo(void)
@@ -8996,7 +9022,8 @@ static void G_Startup(void)
         wm_msgbox("Build Engine Initialization Error",
                   "There was a problem initializing the Build engine: %s", engineerrstr);
         G_Cleanup();
-        exit(1);
+        fprintf(stderr, "G_Startup: There was a problem initializing the Build engine: %s\n", engineerrstr);
+        exit(6);
     }
 
     G_InitDynamicTiles();
@@ -9239,7 +9266,7 @@ void app_crashhandler(void)
 }
 #endif
 
-void app_main(int32_t argc,const char **argv)
+int32_t app_main(int32_t argc,const char **argv)
 {
     int32_t i = 0, j;
     char cwd[BMAX_PATH];
@@ -9263,7 +9290,7 @@ void app_main(int32_t argc,const char **argv)
     {
         if (!wm_ynbox("EDuke32","Another Build game is currently running. "
                       "Do you wish to continue starting this copy?"))
-            return;
+            return 3;
     }
 #endif
 
@@ -9449,7 +9476,8 @@ void app_main(int32_t argc,const char **argv)
     {
         wm_msgbox("Build Engine Initialization Error",
                   "There was a problem initializing the Build engine: %s", engineerrstr);
-        exit(1);
+        fprintf(stderr, "app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
+        exit(2);
     }
 
     if (Bstrcmp(setupfilename, SETUPFILENAME))
@@ -9737,7 +9765,7 @@ CLEAN_DIRECTORY:
         i = 1-i;
     }
 
-    if (quitevent) return;
+    if (quitevent) return 4;
 
     if (!loaddefinitionsfile(g_defNamePtr))
     {
@@ -9797,8 +9825,9 @@ CLEAN_DIRECTORY:
 
     if (CONTROL_Startup(1, &GetTime, TICRATE))
     {
+        fprintf(stderr, "There was an error initializing the CONTROL system.\n");
         uninitengine();
-        exit(1);
+        exit(5);
     }
 
     G_SetupGameButtons();
@@ -10082,6 +10111,7 @@ MAIN_LOOP_RESTART:
     while (1);
 
     G_GameExit(" ");
+    return 0;  // not reached (duh)
 }
 
 GAME_STATIC GAME_INLINE int32_t G_MoveLoop()

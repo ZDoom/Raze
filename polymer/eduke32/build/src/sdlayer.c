@@ -224,6 +224,11 @@ void setvsync(int32_t sync)
 
 static void attach_debugger_here(void){}
 
+#ifdef __GNUC__
+# define PRINTSTACKONSEGV 1
+# include <execinfo.h>
+#endif
+
 static void sighandler(int signum)
 {
     UNREFERENCED_PARAMETER(signum);
@@ -231,9 +236,20 @@ static void sighandler(int signum)
     {
         SDL_WM_GrabInput(SDL_GRAB_OFF);
         SDL_ShowCursor(SDL_ENABLE);
+#if PRINTSTACKONSEGV
+        {
+            void *addr[32];
+            int32_t errfd = fileno(stderr);
+            int32_t n=backtrace(addr, sizeof(addr)/sizeof(addr[0]));
+            backtrace_symbols_fd(addr, n, errfd);
+        }
+        // This is useful for attaching the debugger post-mortem. For those pesky
+        // cases where the program runs through happily when inspected from the start.
+//        usleep(15000000);
+#endif
         attach_debugger_here();
         uninitsystem();
-        exit(1);
+        exit(8);
     }
 }
 

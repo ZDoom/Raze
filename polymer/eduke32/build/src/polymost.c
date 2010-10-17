@@ -5594,7 +5594,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     gstang = ogstang;
     xdim = oxdim;
     ydim = oydim;
-    setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+
+    setaspect_new();
 }
 
 #ifdef USE_OPENGL

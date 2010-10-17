@@ -26,10 +26,10 @@ int32_t		findfrompath(const char *fn, char **where);
 int32_t     openfrompath(const char *fn, int32_t flags, int32_t mode);
 BFILE  *fopenfrompath(const char *fn, const char *mode);
 
-int32_t	initgroupfile(char *filename);
+int32_t	initgroupfile(const char *filename);
 void	uninitsinglegroupfile(int32_t grphandle);
 void	uninitgroupfile(void);
-int32_t	kopen4load(char *filename, char searchfirst);	// searchfirst: 0 = anywhere, 1 = first group, 2 = any group
+int32_t	kopen4load(const char *filename, char searchfirst);	// searchfirst: 0 = anywhere, 1 = first group, 2 = any group
 int32_t	kread(int32_t handle, void *buffer, int32_t leng);
 int32_t	klseek(int32_t handle, int32_t offset, int32_t whence);
 int32_t	kfilelength(int32_t handle);

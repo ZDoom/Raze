@@ -80,6 +80,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_STOPACTORSOUND, 20090715 },
     { CON_IFSERVER, 20100722 },
     { CON_CALCHYPOTENUSE, 20100927 },
+    { CON_CLIPMOVENOSLIDE, 20101009 },
 };
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling

@@ -25,7 +25,7 @@ define PREVIEW_DRAW_COLOR 11
 
 // whether to use overridden aspect/range values when entering 3d mode (software/Polymost).
 // tweak with keys 7,8,9,0 on the top row
-gamevar use_custom_aspect 0 0
+gamevar use_custom_aspect 0 0  // this is now the same as r_usenewaspect
 gamevar davr 65536 0
 gamevar dayx 65536 0
 
@@ -426,12 +426,17 @@ onevent EVENT_PREKEYS2D
     }
 endevent
 
+gamevar fyx 0 0
+gamevar fvr 0 0
 
 defstate setas
-//    set j dayx
-//    mul j ydim  mul j 8
-//    div j xdim  div j 5
-    setaspect davr dayx
+    set fyx dayx
+    mul fyx 4 mul fyx 100  // the correction factor 100/107 has been found
+    div fyx 3 div fyx 107  // out experimentally. squares ftw!
+    set fvr davr
+    mul fvr xdim mul fvr 3
+    div fvr ydim div fvr 4
+    setaspect fvr fyx //davr dayx
 ends
 
 onevent EVENT_ENTER3DMODE
@@ -960,8 +965,9 @@ onevent EVENT_KEYS3D
     }
     ife j 1
     {
-        setaspect davr dayx
-        qsprintf TQUOTE "ASPECT: VR=%d, YX=%d" davr dayx
+//        setaspect davr dayx
+        state setas
+        qsprintf TQUOTE "ASPECT: davr=%d, dayx=%d | FVR=%d, FYX=%d" davr dayx fvr fyx
         quote TQUOTE
     }
 endevent
