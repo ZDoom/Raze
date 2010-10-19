@@ -10,7 +10,7 @@ clean=veryclean
 
 # the following file paths are relative to $source
 targets=( eduke32.exe mapster32.exe )
-bin_packaged=( eduke32.exe mapster32.exe SEHELP.HLP STHELP.HLP names.h buildlic.txt GNU.TXT m32help.hlp nedmalloc.dll samples/* )
+bin_packaged=( eduke32.exe eduke32.debug.exe mapster32.exe mapster32.debug.exe SEHELP.HLP STHELP.HLP names.h buildlic.txt GNU.TXT m32help.hlp nedmalloc.dll samples/* )
 not_src_packaged=( psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple )
 
 # group that owns the resulting packages
@@ -64,13 +64,19 @@ fi
 if [ $dobuild ]
 then
     echo "Launching a build..."
-    
+
     cd $top/$source
-    
-    # clean the tree and build
-    echo "${make[@]}" $clean all
-    "${make[@]}" $clean all
-    
+
+    # remove possible old debug binaries
+    echo rm eduke32.debug.exe
+    rm eduke32.debug.exe
+    echo rm mapster32.debug.exe
+    rm mapster32.debug.exe
+
+    # clean the tree and build debug first
+    echo "${make[@]}" RELEASE=0 $clean all
+    "${make[@]}" RELEASE=0 $clean all
+
     # make sure all the targets were produced
     for i in "${targets[@]}"; do
         if [ ! -e $i ]
@@ -80,7 +86,27 @@ then
             exit
         fi
     done
-    
+
+    # move the debug binaries out of the way
+    echo mv eduke32.exe eduke32.debug.exe
+    mv eduke32.exe eduke32.debug.exe
+    echo mv mapster32.exe mapster32.debug.exe
+    mv mapster32.exe mapster32.debug.exe
+
+    # clean the tree and build release
+    echo "${make[@]}" $clean all
+    "${make[@]}" $clean all
+
+    # make sure all the targets were produced
+    for i in "${targets[@]}"; do
+        if [ ! -e $i ]
+        then
+            echo "Build failed! Bailing out..."
+        	rm -r $lockfile
+            exit
+        fi
+    done
+
     # get the date in the YYYYMMDD format (ex: 20091001)
     date=`date +%Y%m%d`
     
