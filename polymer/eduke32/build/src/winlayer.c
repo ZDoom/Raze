@@ -363,6 +363,10 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 #endif
 #endif
 
+#ifdef DEBUGGINGAIDS
+    LoadLibraryA("backtrace.dll");
+#endif
+
     hdc = GetDC(NULL);
     r = GetDeviceCaps(hdc, BITSPIXEL);
     ReleaseDC(NULL, hdc);

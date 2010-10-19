@@ -52,7 +52,7 @@ ifneq (0,$(RELEASE))
     LIBS=-lm
 else
     # Debugging enabled
-    debug=-ggdb -O0 -DDEBUGGINGAIDS $(F_STACK_PROTECTOR_ALL)
+    debug=-ggdb -O0 -DDEBUGGINGAIDS
     LIBS=-lm -rdynamic
 
     ifneq (0,$(KRANDDEBUG))

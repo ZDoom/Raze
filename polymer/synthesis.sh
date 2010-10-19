@@ -10,7 +10,7 @@ clean=veryclean
 
 # the following file paths are relative to $source
 targets=( eduke32.exe mapster32.exe )
-bin_packaged=( eduke32.exe eduke32.debug.exe mapster32.exe mapster32.debug.exe SEHELP.HLP STHELP.HLP names.h buildlic.txt GNU.TXT m32help.hlp nedmalloc.dll samples/* )
+bin_packaged=( eduke32.exe eduke32.debug.exe mapster32.exe mapster32.debug.exe backtrace.dll libiconv2.dll libintl3.dll SEHELP.HLP STHELP.HLP names.h buildlic.txt GNU.TXT m32help.hlp nedmalloc.dll samples/* )
 not_src_packaged=( psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple )
 
 # group that owns the resulting packages
