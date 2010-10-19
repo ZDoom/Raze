@@ -80,7 +80,7 @@ ifneq ($(RELEASE),0)
 else
     # Debugging enabled
     debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE $(F_STACK_PROTECTOR_ALL)
-    LIBS=-lm $(L_SSP) -Wl,--enable-auto-import
+    LIBS=-lm $(L_SSP) -Wl,--enable-auto-import -rdynamic
     ifneq (0,$(KRANDDEBUG))
         debug+=-DKRANDDEBUG=1
     endif

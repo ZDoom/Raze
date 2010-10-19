@@ -53,7 +53,7 @@ ifneq (0,$(RELEASE))
 else
     # Debugging enabled
     debug=-ggdb -O0 -DDEBUGGINGAIDS $(F_STACK_PROTECTOR_ALL)
-    LIBS=-lm 
+    LIBS=-lm -rdynamic
 
     ifneq (0,$(KRANDDEBUG))
       debug+=-fno-inline -fno-inline-functions -fno-inline-functions-called-once
