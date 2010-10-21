@@ -4335,7 +4335,7 @@ cheat_for_port_credits:
             break;
         }
 
-        for (m=first; m<last-1; m++)
+        for (m = first; m < last; m++)
         {
             int32_t odx,dx,ody,dy;
             Bstrcpy(tempbuf,(char *)getjoyname(0,m));

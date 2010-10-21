@@ -86,6 +86,9 @@ static SDL_Surface * loadappicon(void);
 
 static mutex_t m_initprintf;
 
+// Joystick dead and saturation zones
+uint16_t *joydead, *joysatur;
+
 int32_t wm_msgbox(char *name, char *fmt, ...)
 {
     char buf[2048];
@@ -487,6 +490,12 @@ int32_t initinput(void)
 
             joyaxis = (int32_t *)Bcalloc(joynumaxes, sizeof(int32_t));
             joyhat = (int32_t *)Bcalloc(joynumhats, sizeof(int32_t));
+
+            for (i = 0; i < joynumhats; i++)
+                 joyhat[i] = -1; // centre
+
+            joydead = (uint16_t *)Bcalloc(joynumaxes, sizeof(uint16_t));
+            joysatur = (uint16_t *)Bcalloc(joynumaxes, sizeof(uint16_t));
         }
     }
 
@@ -611,9 +620,8 @@ void readmousebstatus(int32_t *b)
 //
 void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
 {
-    UNREFERENCED_PARAMETER(axis);
-    UNREFERENCED_PARAMETER(dead);
-    UNREFERENCED_PARAMETER(satur);
+    joydead[axis] = dead;
+    joysatur[axis] = satur;
 }
 
 
@@ -622,8 +630,8 @@ void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
 //
 void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
 {
-    UNREFERENCED_PARAMETER(axis);
-    *dead = *satur = 0;
+    *dead = joydead[axis];
+    *satur = joysatur[axis];
 }
 
 
@@ -1736,7 +1744,19 @@ int32_t handleevents(void)
 
         case SDL_JOYAXISMOTION:
             if (appactive && ev.jaxis.axis < joynumaxes)
-                joyaxis[ ev.jaxis.axis ] = ev.jaxis.value * 10000 / 32767;
+            {
+                joyaxis[ev.jaxis.axis] = ev.jaxis.value * 10000 / 32767;
+                if ((joyaxis[ev.jaxis.axis] < joydead[ev.jaxis.axis])
+                    && (joyaxis[ev.jaxis.axis] > -joydead[ev.jaxis.axis]))
+                    joyaxis[ev.jaxis.axis] = 0;
+                else if (joyaxis[ev.jaxis.axis] >= joysatur[ev.jaxis.axis])
+                    joyaxis[ev.jaxis.axis] = 10000;
+                else if (joyaxis[ev.jaxis.axis] <= -joysatur[ev.jaxis.axis])
+                    joyaxis[ev.jaxis.axis] = -10000;
+                else
+                  joyaxis[ev.jaxis.axis] = joyaxis[ev.jaxis.axis] *
+                                           10000 / joysatur[ev.jaxis.axis];
+            }
             break;
 
         case SDL_JOYHATMOTION:
