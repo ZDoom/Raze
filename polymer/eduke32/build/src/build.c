@@ -357,6 +357,8 @@ int32_t app_main(int32_t argc, const char **argv)
     wm_setapptitle("Mapster32");
 
     editstatus = 1;
+    newaspect_enable = 1;
+
     if ((i = ExtPreInit(argc,argv)) < 0) return -1;
 
 #ifdef RENDERTYPEWIN
@@ -4342,9 +4344,9 @@ CANCEL:
                         circlewall = -1;
                         circlepoints = 7;
 
-                        for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
-                        for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
-                        for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
+//                        for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
+//                        for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
+//                        for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
 
                         ExtPreLoadMap();
                         i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
