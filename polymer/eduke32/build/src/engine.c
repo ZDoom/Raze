@@ -48,6 +48,27 @@
 float debug1, debug2;
 #endif
 
+void drawpixel_safe(void* s, char a)
+{
+    if ((intptr_t)s >= frameplace && (intptr_t)s < frameplace+bytesperline*ydim)
+        drawpixel(s, a);
+#ifdef DEBUGGINGAIDS
+    else
+    {
+        static const char *const c = &editorcolors[15];
+        drawpixel((void*)frameplace, *c);
+        drawpixel((void*)frameplace+1, *c);
+        drawpixel((void*)frameplace+2, *c);
+        drawpixel((void*)frameplace+bytesperline, *c);
+        drawpixel((void*)frameplace+bytesperline+1, *c);
+        drawpixel((void*)frameplace+bytesperline+2, *c);
+        drawpixel((void*)frameplace+2*bytesperline, *c);
+        drawpixel((void*)frameplace+2*bytesperline+1, *c);
+        drawpixel((void*)frameplace+2*bytesperline+2, *c);
+    }
+#endif
+}
+
 #ifdef SUPERBUILD
 void loadvoxel(int32_t voxindex) { voxindex=0; }
 int32_t tiletovox[MAXTILES];
@@ -10178,7 +10199,7 @@ void plotpixel(int32_t x, int32_t y, char col)
 #endif
 
     begindrawing(); //{{{
-    drawpixel((void*)(ylookup[y]+x+frameplace),(int32_t)col);
+    drawpixel_safe((void*)(ylookup[y]+x+frameplace),(int32_t)col);
     enddrawing();   //}}}
 }
 
@@ -10682,7 +10703,7 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         {
             j = (plc>>12);
             if ((j >= startumost[i]) && (j < startdmost[i]))
-                drawpixel((void*)(frameplace+ylookup[j]+i),col);
+                drawpixel_safe((void*)(frameplace+ylookup[j]+i),col);
             plc += inc;
         }
         enddrawing();   //}}}
@@ -10705,7 +10726,7 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         {
             j = (plc>>12);
             if ((i >= startumost[j]) && (i < startdmost[j]))
-                drawpixel((void*)(j+p),col);
+                drawpixel_safe((void*)(j+p),col);
             plc += inc; p += ylookup[1];
         }
         enddrawing();   //}}}
@@ -10773,7 +10794,7 @@ void drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
             for (i=dx; i>0; i--)
             {
                 if (drawlinepat & pow2long[(patc++)&31])
-                    drawpixel((char *)p, col);
+                    drawpixel_safe((char *)p, col);
                 d += dy;
                 if (d >= dx) { d -= dx; p += pinc; }
                 p++;
@@ -10795,7 +10816,7 @@ void drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
     for (i=dy; i>0; i--)
     {
         if (drawlinepat & pow2long[(patc++)&31])
-            drawpixel((char *)p, col);
+            drawpixel_safe((char *)p, col);
         d += dx;
         if (d >= dy) { d -= dy; p += pinc; }
         p += bytesperline;
@@ -10837,13 +10858,13 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, char col)
     if (drawlinepat & pow2long[(patc++)&31])
     {
         if ((uint32_t)y1 < (uint32_t)ydim16 && (uint32_t)(x1+r) < (uint32_t)xres)
-            drawpixel((char *)(p+r), col);          // a
+            drawpixel_safe((char *)(p+r), col);          // a
         if ((uint32_t)x1 < (uint32_t)xres   && (uint32_t)(y1+r) < (uint32_t)ydim16)
-            drawpixel((char *)(p+(r*bytesperline)), col);   // b
+            drawpixel_safe((char *)(p+(r*bytesperline)), col);   // b
         if ((uint32_t)y1 < (uint32_t)ydim16 && (uint32_t)(x1-r) < (uint32_t)xres)
-            drawpixel((char *)(p-r), col);          // c
+            drawpixel_safe((char *)(p-r), col);          // c
         if ((uint32_t)x1 < (uint32_t)xres   && (uint32_t)(y1-r) < (uint32_t)ydim16)
-            drawpixel((char *)(p-(r*bytesperline)), col);   // d
+            drawpixel_safe((char *)(p-(r*bytesperline)), col);   // d
     }
 
     do
@@ -10869,21 +10890,21 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, char col)
         if (drawlinepat & pow2long[(patc++)&31])
         {
             if ((uint32_t)(x1+yp) < (uint32_t)xres && (uint32_t)(y1+xp) < (uint32_t)ydim16)
-                drawpixel((char *)(p+yp+xpbpl), col);   // 1
+                drawpixel_safe((char *)(p+yp+xpbpl), col);   // 1
             if ((uint32_t)(x1+xp) < (uint32_t)xres && (uint32_t)(y1+yp) < (uint32_t)ydim16)
-                drawpixel((char *)(p+xp+ypbpl), col);   // 2
+                drawpixel_safe((char *)(p+xp+ypbpl), col);   // 2
             if ((uint32_t)(x1-xp) < (uint32_t)xres && (uint32_t)(y1+yp) < (uint32_t)ydim16)
-                drawpixel((char *)(p-xp+ypbpl), col);   // 3
+                drawpixel_safe((char *)(p-xp+ypbpl), col);   // 3
             if ((uint32_t)(x1-yp) < (uint32_t)xres && (uint32_t)(y1+xp) < (uint32_t)ydim16)
-                drawpixel((char *)(p-yp+xpbpl), col);   // 4
+                drawpixel_safe((char *)(p-yp+xpbpl), col);   // 4
             if ((uint32_t)(x1-yp) < (uint32_t)xres && (uint32_t)(y1-xp) < (uint32_t)ydim16)
-                drawpixel((char *)(p-yp-xpbpl), col);   // 5
+                drawpixel_safe((char *)(p-yp-xpbpl), col);   // 5
             if ((uint32_t)(x1-xp) < (uint32_t)xres && (uint32_t)(y1-yp) < (uint32_t)ydim16)
-                drawpixel((char *)(p-xp-ypbpl), col);   // 6
+                drawpixel_safe((char *)(p-xp-ypbpl), col);   // 6
             if ((uint32_t)(x1+xp) < (uint32_t)xres && (uint32_t)(y1-yp) < (uint32_t)ydim16)
-                drawpixel((char *)(p+xp-ypbpl), col);   // 7
+                drawpixel_safe((char *)(p+xp-ypbpl), col);   // 7
             if ((uint32_t)(x1+yp) < (uint32_t)xres && (uint32_t)(y1-xp) < (uint32_t)ydim16)
-                drawpixel((char *)(p+yp-xpbpl), col);   // 8
+                drawpixel_safe((char *)(p+yp-xpbpl), col);   // 8
         }
     }
     while (yp > xp);
