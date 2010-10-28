@@ -7341,7 +7341,11 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
         while (i < argc)
         {
             c = (char *)argv[i];
-            if (((*c == '/') || (*c == '-')))
+            if ((*c == '-')
+#ifdef _WIN32
+                || (*c == '/')
+#endif
+)
             {
                 if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
                 {
@@ -7458,7 +7462,11 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 #endif
             }
 
-            if ((*c == '/') || (*c == '-'))
+            if ((*c == '-')
+#ifdef _WIN32
+                || (*c == '/')
+#endif
+)
             {
                 c++;
                 switch (*c)

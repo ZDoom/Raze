@@ -439,6 +439,7 @@ void   uninitengine(void);
 void   initspritelists(void);
 int32_t   loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
 int32_t   loadmaphack(char *filename);
+int32_t clipmapinfo_load(char *filename);
 int32_t   saveboard(char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
 int32_t   loadpics(char *filename, int32_t askedsize);
 void   loadtile(int16_t tilenume);

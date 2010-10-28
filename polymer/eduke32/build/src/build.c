@@ -444,6 +444,12 @@ int32_t app_main(int32_t argc, const char **argv)
         if (j > k) { k = j; whitecol = i; }
     }
 
+    k = clipmapinfo_load("_clipshape_.map");
+    if (k==0)
+        initprintf("Loaded sprite clipping map from \"_clipshape_.map\"\n");
+    else if (k>0)
+        initprintf("There was an error loading the sprite clipping map from \"_clipshape_.map\" (status %d).\n", k);
+
     for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
     for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
     for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
@@ -6638,8 +6644,8 @@ void test_map(int32_t mode)
         if (current_cwd[0] != '\0')
         {
             chdir(program_origcwd);
-            system(fullparam);
-            //  message("Error launching the game!");
+            if (system(fullparam))
+                message("Error launching the game!");
             chdir(current_cwd);
         }
         else system(fullparam);

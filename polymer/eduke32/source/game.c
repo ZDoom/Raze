@@ -175,6 +175,7 @@ int32_t kopen4loadfrommod(const char *filename, char searchfirst)
     r = kopen4load(fn,searchfirst);
     if (r < 0)
         r = kopen4load(filename,searchfirst);
+
     return r;
 }
 
@@ -8184,7 +8185,11 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
         while (i < argc)
         {
             c = (char *)argv[i];
-            if (((*c == '/') || (*c == '-')))
+            if ((*c == '-')
+#ifdef _WIN32
+                || (*c == '/')
+#endif
+                )
             {
                 if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
                 {
@@ -8406,7 +8411,11 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 #endif
             }
 
-            if ((*c == '/') || (*c == '-'))
+            if ((*c == '-')
+#ifdef _WIN32
+                || (*c == '/')
+#endif
+                )
             {
                 c++;
                 switch (Btolower(*c))
@@ -9849,6 +9858,12 @@ CLEAN_DIRECTORY:
         OSD_Exec(tempbuf);
         Bfree(ptr);
     }
+
+    i = clipmapinfo_load("_clipshape_.map");
+    if (i==0)
+        initprintf("Loaded sprite clipping map from \"_clipshape_.map\"\n");
+    else if (i>0)
+        initprintf("There was an error loading the sprite clipping map from \"_clipshape_.map\" (status %d).\n", i);
 
     OSD_Exec("autoexec.cfg");
 
