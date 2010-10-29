@@ -9542,7 +9542,7 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
                     {
                         daz = getceilzofslope((int16_t)dasect,dax,day);
                         daz2 = getceilzofslope(wal->nextsector,dax,day);
-                        basez = getceilzofslope(clipsectorlist[clipsectnum-1],dax,day);
+                        basez = getceilzofslope(sectq[clipinfo[curidx].qend],dax,day);
                         if ((sec2->ceilingstat&1) == 0)
 //                            if (dasect==sectq[clipinfo[curidx].qend] || daz2 > daz+(1<<8))
                                 if (vect->z >= basez-(ceildist-1))
