@@ -220,10 +220,6 @@ static int16_t *tempictoidx;
 #define CM_SOME (CM_NONE-1)
 #define CM_OUTER (CM_MAX)   // sector surrounds clipping sector
 
-// offset x and y of clipping sectors by this much
-// so that we avoid problems with inside() etc. later
-#define CM_OFS (1<<20)
-
 // sprite -> sector tag mappings
 #define CM_XREPEAT floorpal
 #define CM_YREPEAT floorxpanning
@@ -493,9 +489,6 @@ int32_t clipmapinfo_load(char *filename)
 
                     CM_WALL_X(w) = wall[w].x;
                     CM_WALL_Y(w) = wall[w].y;
-
-                    wall[w].x += CM_OFS;
-                    wall[w].y += CM_OFS;
                 }
             }
 
@@ -8799,10 +8792,96 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
     return(0);
 }
 
+// stat, heinum, z: either ceiling- or floor-
+// how: -1: behave like ceiling, 1: behave like floor
+static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdata_t *hitinfo,
+                                 int32_t vx, int32_t vy, int32_t vz,
+                                 int16_t stat, int16_t heinum, int32_t z, int32_t how, const intptr_t *tmp)
+{
+    int32_t x1 = 0x7fffffff, y1, z1;
+    int32_t dax, day, i, j;
+    walltype *wal, *wal2;
+
+    if (stat&2)
+    {
+        wal = &wall[sec->wallptr]; wal2 = &wall[wal->point2];
+        dax = wal2->x-wal->x; day = wal2->y-wal->y;
+        i = nsqrtasm(dax*dax+day*day); if (i == 0) return 1; //continue;
+        i = divscale15(heinum,i);
+        dax *= i; day *= i;
+
+        j = (vz<<8)-dmulscale15(dax,vy,-day,vx);
+        if (j != 0)
+        {
+            i = ((z - sv->z)<<8)+dmulscale15(dax,sv->y-wal->y,-day,sv->x-wal->x);
+            if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
+            {
+                i = divscale30(i,j);
+                x1 = sv->x + mulscale30(vx,i);
+                y1 = sv->y + mulscale30(vy,i);
+                z1 = sv->z + mulscale30(vz,i);
+            }
+        }
+    }
+    else if ((how*vz > 0) && (how*sv->z <= how*z))
+    {
+        z1 = z; i = z1-sv->z;
+        if ((klabs(i)>>1) < vz*how)
+        {
+            i = divscale30(i,vz);
+            x1 = sv->x + mulscale30(vx,i);
+            y1 = sv->y + mulscale30(vy,i);
+        }
+    }
+
+    if ((x1 != 0x7fffffff) && (klabs(x1-sv->x)+klabs(y1-sv->y) < klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)))
+    {
+        if (tmp==NULL)
+        {
+            if (inside(x1,y1,sec-sector) != 0)
+            {
+                hitinfo->hitsect = sec-sector; hitinfo->hitwall = -1; hitinfo->hitsprite = -1;
+                hitinfo->pos.x = x1; hitinfo->pos.y = y1; hitinfo->pos.z = z1;
+            }
+        }
+        else
+        {
+            int32_t curidx=(int32_t)tmp[0];
+            spritetype *curspr=(spritetype *)tmp[1];
+            int32_t thislastsec = tmp[2];
+
+            if (!thislastsec)
+            {
+                if (inside(x1,y1,sec-sector) != 0)
+                {
+                    hitinfo->hitsect = curspr->sectnum; hitinfo->hitwall = -1; hitinfo->hitsprite = curspr-sprite;
+                    hitinfo->pos.x = x1; hitinfo->pos.y = y1; hitinfo->pos.z = z1;
+                }                
+            }
+            else
+            {
+                for (i=clipinfo[curidx].qbeg; i<clipinfo[curidx].qend; i++)
+                {
+                    if (inside(x1,y1,sectq[i]) != 0)
+                    {
+                        hitinfo->hitsect = curspr->sectnum; hitinfo->hitwall = -1; hitinfo->hitsprite = curspr-sprite;
+                        hitinfo->pos.x = x1; hitinfo->pos.y = y1; hitinfo->pos.z = z1;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 
 //
 // hitscan
 //
+static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t *clipsectcnt, const vec3_t *vect);
+
 int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                 hitdata_t *hitinfo, uint32_t cliptype)
 {
@@ -8811,12 +8890,17 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
     spritetype *spr;
     int32_t z, zz, x1, y1=0, z1=0, x2, y2, x3, y3, x4, y4, intx, inty, intz;
     int32_t topt, topu, bot, dist, offx, offy, cstat;
-    int32_t i, j, k, l, tilenum, xoff, yoff, dax, day, daz, daz2;
+    int32_t i, k, l, tilenum, xoff, yoff, dax, day, daz, daz2;
     int32_t ang, cosang, sinang, xspan, yspan, xrepeat, yrepeat;
     int32_t dawalclipmask, dasprclipmask;
     int16_t tempshortcnt, tempshortnum, dasector, startwall, endwall;
     int16_t nextsector;
     char clipyou;
+
+    spritetype *curspr = NULL;
+    int32_t clipspritecnt, curidx=-1;
+    // tmp: { (int32_t)curidx, (spritetype *)curspr, (!=0 if outer sector) }
+    intptr_t tmp[3], *tmpptr=NULL;
 
     hitinfo->hitsect = -1; hitinfo->hitwall = -1; hitinfo->hitsprite = -1;
     if (sectnum < 0) return(-1);
@@ -8828,118 +8912,117 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
 
     clipsectorlist[0] = sectnum;
     tempshortcnt = 0; tempshortnum = 1;
+    clipspritecnt = clipspritenum = 0;
     do
     {
+        if (tempshortcnt >= tempshortnum)
+        {
+            // one bunch of sectors completed, prepare the next
+            if (!curspr)
+                mapinfo_set(&origmapinfo, &clipmapinfo);  // replace sector and wall with clip map
+
+            curspr = &sprite[clipspritelist[clipspritecnt]];
+
+            if (curidx < 0)  // per-sprite init
+                curidx = pictoidx[curspr->picnum];
+            else
+                curidx = clipinfo[curidx].next;
+
+            while (curidx>=0 && (curspr->cstat&32) != (sector[sectq[clipinfo[curidx].qbeg]].CM_CSTAT&32))
+                curidx = clipinfo[curidx].next;
+
+            if (curidx < 0)
+            {
+                clipspritecnt++;
+                continue;
+            }
+
+            tmp[0] = (intptr_t)curidx;
+            tmp[1] = (intptr_t)curspr;
+            tmpptr = tmp;
+
+            clipsprite_initindex(curidx, curspr, &i, sv);  // &i is dummy
+            tempshortnum = (int16_t)clipsectnum;
+            tempshortcnt = 0;
+        }
+
         dasector = clipsectorlist[tempshortcnt]; sec = &sector[dasector];
 
-        x1 = 0x7fffffff;
-        if (sec->ceilingstat&2)
+        i = 1;
+        if (curspr)
         {
-            wal = &wall[sec->wallptr]; wal2 = &wall[wal->point2];
-            dax = wal2->x-wal->x; day = wal2->y-wal->y;
-            i = nsqrtasm(dax*dax+day*day); if (i == 0) continue;
-            i = divscale15(sec->ceilingheinum,i);
-            dax *= i; day *= i;
+            if (dasector == sectq[clipinfo[curidx].qend])
+            {
+                i = -1;
+                tmp[2] = 1;
+            }
+            else tmp[2] = 0;
+        }
 
-            j = (vz<<8)-dmulscale15(dax,vy,-day,vx);
-            if (j != 0)
-            {
-                i = ((sec->ceilingz-sv->z)<<8)+dmulscale15(dax,sv->y-wal->y,-day,sv->x-wal->x);
-                if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
-                {
-                    i = divscale30(i,j);
-                    x1 = sv->x + mulscale30(vx,i);
-                    y1 = sv->y + mulscale30(vy,i);
-                    z1 = sv->z + mulscale30(vz,i);
-                }
-            }
-        }
-        else if ((vz < 0) && (sv->z >= sec->ceilingz))
-        {
-            z1 = sec->ceilingz; i = z1-sv->z;
-            if ((klabs(i)>>1) < -vz)
-            {
-                i = divscale30(i,vz);
-                x1 = sv->x + mulscale30(vx,i);
-                y1 = sv->y + mulscale30(vy,i);
-            }
-        }
-        if ((x1 != 0x7fffffff) && (klabs(x1-sv->x)+klabs(y1-sv->y) < klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)))
-            if (inside(x1,y1,dasector) != 0)
-            {
-                hitinfo->hitsect = dasector; hitinfo->hitwall = -1; hitinfo->hitsprite = -1;
-                hitinfo->pos.x = x1; hitinfo->pos.y = y1; hitinfo->pos.z = z1;
-            }
-
-        x1 = 0x7fffffff;
-        if (sec->floorstat&2)
-        {
-            wal = &wall[sec->wallptr]; wal2 = &wall[wal->point2];
-            dax = wal2->x-wal->x; day = wal2->y-wal->y;
-            i = nsqrtasm(dax*dax+day*day); if (i == 0) continue;
-            i = divscale15(sec->floorheinum,i);
-            dax *= i; day *= i;
-
-            j = (vz<<8)-dmulscale15(dax,vy,-day,vx);
-            if (j != 0)
-            {
-                i = ((sec->floorz-sv->z)<<8)+dmulscale15(dax,sv->y-wal->y,-day,sv->x-wal->x);
-                if (((i^j) >= 0) && ((klabs(i)>>1) < klabs(j)))
-                {
-                    i = divscale30(i,j);
-                    x1 = sv->x + mulscale30(vx,i);
-                    y1 = sv->y + mulscale30(vy,i);
-                    z1 = sv->z + mulscale30(vz,i);
-                }
-            }
-        }
-        else if ((vz > 0) && (sv->z <= sec->floorz))
-        {
-            z1 = sec->floorz; i = z1-sv->z;
-            if ((klabs(i)>>1) < vz)
-            {
-                i = divscale30(i,vz);
-                x1 = sv->x + mulscale30(vx,i);
-                y1 = sv->y + mulscale30(vy,i);
-            }
-        }
-        if ((x1 != 0x7fffffff) && (klabs(x1-sv->x)+klabs(y1-sv->y) < klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)))
-            if (inside(x1,y1,dasector) != 0)
-            {
-                hitinfo->hitsect = dasector; hitinfo->hitwall = -1; hitinfo->hitsprite = -1;
-                hitinfo->pos.x = x1; hitinfo->pos.y = y1; hitinfo->pos.z = z1;
-            }
+        if (hitscan_trysector(sv, sec, hitinfo, vx,vy,vz, sec->ceilingstat, sec->ceilingheinum, sec->ceilingz, -i, tmpptr))
+            continue;
+        if (hitscan_trysector(sv, sec, hitinfo, vx,vy,vz, sec->floorstat, sec->floorheinum, sec->floorz, i, tmpptr))
+            continue;
 
         startwall = sec->wallptr; endwall = startwall + sec->wallnum;
         for (z=startwall,wal=&wall[startwall]; z<endwall; z++,wal++)
         {
+            if (curspr && wal->nextsector<0) continue;
+
             wal2 = &wall[wal->point2];
             x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
 
             if ((x1-sv->x)*(y2-sv->y) < (x2-sv->x)*(y1-sv->y)) continue;
-            if (rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz) == 0) continue;
+            if (rintersect(sv->x,sv->y,sv->z, vx,vy,vz, x1,y1, x2,y2, &intx,&inty,&intz) == 0) continue;
 
-            if (klabs(intx-sv->x)+klabs(inty-sv->y) >= klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)) continue;
+            if (klabs(intx-sv->x)+klabs(inty-sv->y) >= klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y))
+                continue;
 
             nextsector = wal->nextsector;
-            if ((nextsector < 0) || (wal->cstat&dawalclipmask))
+            if (!curspr)
             {
-                hitinfo->hitsect = dasector; hitinfo->hitwall = z; hitinfo->hitsprite = -1;
-                hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
-                continue;
+                if ((nextsector < 0) || (wal->cstat&dawalclipmask))
+                {
+                    hitinfo->hitsect = dasector; hitinfo->hitwall = z; hitinfo->hitsprite = -1;
+                    hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
+                    continue;
+                }
+                getzsofslope(nextsector,intx,inty,&daz,&daz2);
+                if ((intz <= daz) || (intz >= daz2))
+                {
+                    hitinfo->hitsect = dasector; hitinfo->hitwall = z; hitinfo->hitsprite = -1;
+                    hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
+                    continue;
+                }
             }
-            getzsofslope(nextsector,intx,inty,&daz,&daz2);
-            if ((intz <= daz) || (intz >= daz2))
+            else
             {
-                hitinfo->hitsect = dasector; hitinfo->hitwall = z; hitinfo->hitsprite = -1;
-                hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
-                continue;
+                int32_t cz,fz;
+
+                if (wal->cstat&dawalclipmask)
+                {
+                    hitinfo->hitsect = curspr->sectnum; hitinfo->hitwall = -1; hitinfo->hitsprite = curspr-sprite;
+                    hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
+                    continue;
+                }
+                getzsofslope(nextsector,intx,inty,&daz,&daz2);
+                getzsofslope(sectq[clipinfo[curidx].qend],intx,inty,&cz,&fz);
+                // ceil   cz daz daz2 fz   floor
+                if ((cz <= intz && intz <= daz) || (daz2 <= intz && intz <= fz))
+                {
+                    hitinfo->hitsect = curspr->sectnum; hitinfo->hitwall = -1; hitinfo->hitsprite = curspr-sprite;
+                    hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
+                    continue;
+                }
             }
 
             for (zz=tempshortnum-1; zz>=0; zz--)
                 if (clipsectorlist[zz] == nextsector) break;
             if (zz < 0) clipsectorlist[tempshortnum++] = nextsector;
         }
+
+        if (curspr)
+            continue;
 
         for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
@@ -8949,6 +9032,17 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
             if (!hitallsprites)
 #endif
                 if ((cstat&dasprclipmask) == 0) continue;
+
+            // try and see whether this sprite's picnum has sector-like clipping data
+            i = pictoidx[spr->picnum];
+            // handle sector-like floor sprites separately
+            while (i>=0 && (spr->cstat&32) != (clipmapinfo.sector[sectq[clipinfo[i].qbeg]].CM_CSTAT&32))
+                i = clipinfo[i].next;
+            if (i>=0 && clipspritenum<MAXCLIPNUM)
+            {
+                clipspritelist[clipspritenum++] = z;
+                continue;
+            }
 
             x1 = spr->x; y1 = spr->y; z1 = spr->z;
             switch (cstat&48)
@@ -9076,9 +9170,12 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 break;
             }
         }
-        tempshortcnt++;
     }
-    while (tempshortcnt < tempshortnum);
+    while (++tempshortcnt < tempshortnum || clipspritecnt < clipspritenum);
+
+    if (curspr)
+        mapinfo_set(NULL, &origmapinfo);
+
     return(0);
 }
 
@@ -11116,6 +11213,11 @@ int32_t sectorofwall(int16_t theline)
 //
 int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
+#if defined _WIN32 && defined DEBUGGINGAIDS
+    if (sectnum<0 || sectnum>numsectors)
+        debug_sleep(15000);
+#endif
+
     if (!(sector[sectnum].ceilingstat&2)) return(sector[sectnum].ceilingz);
 
     {
@@ -11136,6 +11238,11 @@ int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 //
 int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
+#if defined _WIN32 && defined DEBUGGINGAIDS
+    if (sectnum<0 || sectnum>numsectors)
+        debug_sleep(15000);
+#endif
+
     if (!(sector[sectnum].floorstat&2)) return(sector[sectnum].floorz);
 
     {
@@ -11159,6 +11266,11 @@ void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int
     int32_t dx, dy, i, j;
     walltype *wal, *wal2;
     sectortype *sec;
+
+#if defined _WIN32 && defined DEBUGGINGAIDS
+    if (sectnum<0 || sectnum>numsectors)
+        debug_sleep(15000);
+#endif
 
     sec = &sector[sectnum];
     *ceilz = sec->ceilingz; *florz = sec->floorz;

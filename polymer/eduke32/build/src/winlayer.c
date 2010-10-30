@@ -847,6 +847,11 @@ inline void idle(void)
     idle_waitevent();
 }
 
+void debug_sleep(int32_t ms)
+{
+    Sleep(ms);
+}
+
 //
 // setjoydeadzone() -- sets the dead and saturation zones for the joystick
 //

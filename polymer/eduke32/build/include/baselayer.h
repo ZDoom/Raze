@@ -104,6 +104,7 @@ int32_t handleevents(void);
 extern inline void idle(void);
 extern inline void idle_waitevent(void);
 extern inline void idle_waitevent_timeout(uint32_t timeout);
+extern void debug_sleep(int32_t ms);
 
 extern void (*keypresscallback)(int32_t,int32_t);
 extern void (*mousepresscallback)(int32_t,int32_t);
