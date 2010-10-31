@@ -2082,7 +2082,7 @@ static void M32_MoveFX(void)
                 S_StopEnvSound(s->lotag, i);
             }
         }
-        else
+        else if (s->sectnum>=0)
         {
             ht = s->hitag;
 
@@ -9152,6 +9152,9 @@ void ExtPreCheckKeys(void) // just before drawrooms
                     int32_t start_wall = sector[isec].wallptr;
                     int32_t end_wall = start_wall + sector[isec].wallnum;
 
+                    if (isec<0)
+                        continue;
+
                     for (w = start_wall; w < end_wall; w++)
                     {
                         if (!wallflag[w])
@@ -9517,6 +9520,9 @@ void ExtAnalyzeSprites(void)
 
         if (shadepreview && !(tspr->cstat & 16))
         {
+            if (tspr->sectnum<0)
+                continue;
+
             if (sector[tspr->sectnum].ceilingstat&1)
             {
                 l = sector[tspr->sectnum].ceilingshade;
@@ -9803,6 +9809,9 @@ void ExtCheckKeys(void)
                     int32_t w, isec=sprite[i].sectnum;
                     int32_t start_wall = sector[isec].wallptr;
                     int32_t end_wall = start_wall + sector[isec].wallnum;
+
+                    if (isec<0)
+                        continue;
 
                     for (w = start_wall; w < end_wall; w++)
                     {
@@ -10448,7 +10457,7 @@ static void EditSpriteData(int16_t spritenum)
                 if (editval)
                 {
                     printmessage16(edittext);
-                    i = getnumber16(edittext,sprite[spritenum].sectnum,MAXSECTORS-1,0);
+                    i = getnumber16(edittext,sprite[spritenum].sectnum,numsectors-1,0);
                     if (i != sprite[spritenum].sectnum)
                         changespritesect(spritenum,i);
                 }

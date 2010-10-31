@@ -444,11 +444,11 @@ int32_t app_main(int32_t argc, const char **argv)
         if (j > k) { k = j; whitecol = i; }
     }
 
-    k = clipmapinfo_load("_clipshape_.map");
+    k = clipmapinfo_load("_clipshape0.map");
     if (k==0)
-        initprintf("Loaded sprite clipping map from \"_clipshape_.map\"\n");
+        initprintf("Loaded sprite clipping map.\n");
     else if (k>0)
-        initprintf("There was an error loading the sprite clipping map from \"_clipshape_.map\" (status %d).\n", k);
+        initprintf("There was an error loading the sprite clipping map (status %d).\n", k);
 
     for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
     for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
@@ -2433,7 +2433,10 @@ void overheadeditor(void)
                                 sprite[i].y >= highlighty1 && sprite[i].y <= highlighty2)
                             {
                                 if (!sub)
-                                    show2dsprite[i>>3] |= (1<<(i&7));
+                                {
+                                    if (sprite[i].sectnum >= 0)  // don't allow to select sprites in null space
+                                        show2dsprite[i>>3] |= (1<<(i&7));
+                                }
                                 else
                                     show2dsprite[i>>3] &= ~(1<<(i&7));
                             }
@@ -2545,9 +2548,12 @@ void overheadeditor(void)
 
                         setsprite(j,(vec3_t *)&sprite[j]);
 
-                        tempint = ((tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<2);
-                        sprite[j].z = max(sprite[j].z,getceilzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y)+tempint);
-                        sprite[j].z = min(sprite[j].z,getflorzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y));
+                        tempint = (tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<2;
+                        if (sprite[j].sectnum>=0)
+                        {
+                            sprite[j].z = max(sprite[j].z, getceilzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y)+tempint);
+                            sprite[j].z = min(sprite[j].z, getflorzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y));
+                        }
                     }
                 }
             }
@@ -2559,8 +2565,11 @@ void overheadeditor(void)
 
                 tempint = ((tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<2);
 
-                sprite[j].z = max(sprite[j].z, getceilzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y)+tempint);
-                sprite[j].z = min(sprite[j].z, getflorzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y));
+                if (sprite[j].sectnum>=0)
+                {
+                    sprite[j].z = max(sprite[j].z, getceilzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y)+tempint);
+                    sprite[j].z = min(sprite[j].z, getflorzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y));
+                }
             }
 
             if ((pointhighlight&0xc000) == 0)
@@ -2631,7 +2640,7 @@ SKIP:
 //                    updatesector(mousxplc,mousyplc,&cursectorhighlight);
                     cursectorhighlight = -1;
                     for (i=0; i<highlightsectorcnt; i++)
-                        if (inside(mousxplc, mousyplc, highlightsector[i]))
+                        if (inside(mousxplc, mousyplc, highlightsector[i])==1)
                         {
                             cursectorhighlight = highlightsector[i];
                             break;
@@ -2744,15 +2753,15 @@ SKIP:
                             dragpoint(pointhighlight,dax,day);
                         else if ((pointhighlight&0xc000) == 16384)
                         {
-                            int32_t daspr = pointhighlight&16383;
+                            int32_t daspr=pointhighlight&16383, osec=sprite[daspr].sectnum;
                             vec3_t vec, ovec;
 
                             Bmemcpy(&ovec, (vec3_t *)&sprite[daspr], sizeof(vec3_t));
                             vec.x = dax;
                             vec.y = day;
                             vec.z = sprite[daspr].z;
-                            if (setsprite(daspr, &vec) == -1)
-                                Bmemcpy(&sprite[daspr], &ovec, sizeof(vec3_t));                            
+                            if (setsprite(daspr, &vec) == -1 && osec>=0)
+                                Bmemcpy(&sprite[daspr], &ovec, sizeof(vec3_t));
 /*
                             daz = ((tilesizy[sprite[daspr].picnum]*sprite[daspr].yrepeat)<<2);
 

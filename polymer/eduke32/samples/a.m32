@@ -23,6 +23,9 @@ define SFACTORSTEPS 100
 // color of various drawing enhancements
 define PREVIEW_DRAW_COLOR 11
 
+// 2d mode corruption checker interval, 120 = 1 second
+gamevar checkinterval 600 0
+
 // whether to use overridden aspect/range values when entering 3d mode (software/Polymost).
 // tweak with keys 7,8,9,0 on the top row
 gamevar use_custom_aspect 0 0  // this is now the same as r_usenewaspect
@@ -75,6 +78,7 @@ definequote 22 SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d!!!
 definequote 23 WALL[%d].POINT2=%d out of range: sector[%d].wallptr=%d, endwall=%d!!!
 definequote 24 WALL[%d].NEXTWALL=%d out of range: numwalls=%d!!!
 definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d!!!
+definequote 26 SPRITE[%d].SECTNUM=%d. Expect problems!
 
 define PRSCALE 1000
 define MAXSPECULAR 100000
@@ -631,16 +635,6 @@ defstate previewdoors2d
     }
 ends
 
-onevent EVENT_DRAW2DSCREEN
-    ifge cursectnum 0
-    {
-        state connectlocators
-        state draw_prlightprojections
-    }
-
-    state previewdoors2d
-endevent
-
 
 // LOCATORS auto-incrementer
 onevent EVENT_INSERTSPRITE2D
@@ -1073,7 +1067,39 @@ defstate corruptchk
 			}
         }
     }
+
+    for i allsprites
+    {
+        ifl .sectnum 0
+        {
+            qsprintf TQUOTE 26 i .sectnum
+            quote TQUOTE printmessage16 TQUOTE
+        }
+    }
 ends
+
+
+gamevar d2d_lastcheck 0 0
+onevent EVENT_DRAW2DSCREEN
+    var tmp
+
+    ifge cursectnum 0
+    {
+        state connectlocators
+        state draw_prlightprojections
+    }
+
+    state previewdoors2d
+
+    ifl checkinterval 120, set checkinterval 120
+    set tmp totalclock, sub tmp checkinterval
+    ifl d2d_lastcheck tmp
+    {
+        set d2d_lastcheck totalclock
+        state corruptchk
+    }
+endevent
+
 
 defstate mkterrain
     var w2 w3 idx bit tmp sec

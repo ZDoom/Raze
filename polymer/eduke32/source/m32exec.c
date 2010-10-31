@@ -55,7 +55,7 @@ instype *insptr;
 int32_t VM_Execute(int32_t once);
 static instype *x_sortingstateptr;
 
-#include "m32structures.c"
+//#include "m32structures.c"
 
 extern void message(const char *fmt, ...);
 
@@ -492,6 +492,7 @@ skip_check:
             VM_Execute(0);
             continue;
 
+#if 0
 // *** more basic commands
         case CON_SETSECTOR:
         case CON_GETSECTOR:
@@ -535,7 +536,7 @@ skip_check:
                 VM_AccessTsprite((tw==CON_SETTSPR)|2|4, lVar1, lLabelID, lVar2);
                 continue;
             }
-#if 0
+
         case CON_SETSPRITE:
             insptr++;
             {

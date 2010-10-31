@@ -9859,11 +9859,11 @@ CLEAN_DIRECTORY:
         Bfree(ptr);
     }
 
-    i = clipmapinfo_load("_clipshape_.map");
+    i = clipmapinfo_load("_clipshape0.map");
     if (i==0)
-        initprintf("Loaded sprite clipping map from \"_clipshape_.map\"\n");
+        initprintf("Loaded sprite clipping map.\n");
     else if (i>0)
-        initprintf("There was an error loading the sprite clipping map from \"_clipshape_.map\" (status %d).\n", i);
+        initprintf("There was an error loading the sprite clipping map (status %d).\n", i);
 
     OSD_Exec("autoexec.cfg");
 

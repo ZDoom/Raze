@@ -270,6 +270,7 @@ enum ScriptKeywords_t
     CON_LEFTBRACE,
     CON_RIGHTBRACE,
 
+#if 0
 // more basic commands
     CON_SETSECTOR,
     CON_GETSECTOR,
@@ -279,6 +280,7 @@ enum ScriptKeywords_t
     CON_GETSPRITE, //+
     CON_GETTSPR,
     CON_SETTSPR,
+#endif
 
 // arrays
     CON_GAMEARRAY,

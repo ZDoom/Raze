@@ -189,7 +189,7 @@ const char *keyw[] =
     "jump",
     "{",
     "}",
-
+#if 0
     "setsector",
     "getsector",
     "setwall",
@@ -198,7 +198,7 @@ const char *keyw[] =
     "getsprite",
     "gettspr",
     "settspr",
-
+#endif
     "gamearray",
     "setarray",
     "getarraysize",
@@ -2387,6 +2387,7 @@ repeatcase:
         return 1;
 
 // *** more basic commands
+#if 0
     case CON_SETSECTOR:
     case CON_GETSECTOR:
     case CON_SETWALL:
@@ -2463,6 +2464,7 @@ repeatcase:
             C_GetNextVar();
         break;
     }
+#endif
 
     case CON_GAMEVAR:
         // syntax: gamevar <var1> <initial value> <flags>

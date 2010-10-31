@@ -215,6 +215,10 @@ static int16_t *sectoidx, *sectq;  // [numsectors]
 static int16_t pictoidx[MAXTILES];  // maps tile num to clipinfo[] index
 static int16_t *tempictoidx;
 
+static sectortype *loadsector;
+static walltype *loadwall;
+static spritetype *loadsprite;
+
 // sectoidx bits
 #define CM_NONE (CM_MAX<<1)
 #define CM_SOME (CM_NONE-1)
@@ -243,10 +247,6 @@ static void clipmapinfo_init()
 {
     int32_t i;
 
-    if (clipmapinfo.sector) { Bfree(clipmapinfo.sector); clipmapinfo.sector=NULL; }
-    if (clipmapinfo.wall) { Bfree(clipmapinfo.wall); clipmapinfo.wall=NULL; }
-    clipmapinfo.numsectors = clipmapinfo.numwalls = 0;
-
     numclipmaps = 0;
     numclipsects = 0;
 
@@ -256,6 +256,14 @@ static void clipmapinfo_init()
 
     for (i=0; i<MAXTILES; i++)
         pictoidx[i]=-1;
+
+    if (loadsector) { Bfree(loadsector); loadsector=NULL; }
+    if (loadwall) { Bfree(loadwall); loadwall=NULL; }
+    if (loadsprite) { Bfree(loadsprite); loadsprite=NULL; }
+
+    clipmapinfo.numsectors = clipmapinfo.numwalls = 0;
+    clipmapinfo.sector=NULL;
+    clipmapinfo.wall=NULL;
 }
 
 int32_t clipmapinfo_load(char *filename)
@@ -263,16 +271,94 @@ int32_t clipmapinfo_load(char *filename)
     int32_t i,k,w, px,py,pz;
     int16_t ang,cs;
 
+    char fn[BMAX_PATH];
+    int32_t slen, fi, fisec[10], fispr[10];
+    int32_t ournumsectors=0, ournumwalls=0, ournumsprites=0, numsprites;
+
     clipmapinfo_init();
 
+    loadsector = Bmalloc(MAXSECTORS * sizeof(sectortype));
+    loadwall = Bmalloc(MAXWALLS * sizeof(walltype));
+    loadsprite = Bmalloc(MAXSPRITES * sizeof(spritetype));
+
+    if (!loadsector || !loadwall || !loadsprite)
+    {
+        clipmapinfo_init();
+        return 1;
+    }
+
+    Bmemset(fisec, 0, sizeof(fisec));
+    Bmemset(fispr, 0, sizeof(fispr));
+
+    Bstrcpy(fn, filename);
+    slen = Bstrlen(fn);
+
     quickloadboard = 1;
-    i = loadboard(filename, 0, &px,&py,&pz, &ang,&cs);
+    for (fi='0'; fi<='9'; fi++)
+    {
+        fisec[fi-'0'] = ournumsectors;
+        fispr[fi-'0'] = ournumsprites;
+
+        fn[slen-5] = fi;
+        i = loadboard(fn, 0, &px,&py,&pz, &ang,&cs);
+        if (i<0)
+            continue;
+
+        for (numsprites=0; numsprites<MAXSPRITES; numsprites++)
+            if (sprite[numsprites].statnum == MAXSTATUS)
+                break;
+
+        if (ournumsectors+numsectors>MAXSECTORS ||
+            ournumwalls+numwalls>MAXWALLS ||
+            ournumsprites+numsprites>MAXSPRITES)
+        {
+            initprintf("clip map: warning: exceeded limits when loading %s, aborting.\n", fn);
+            break;
+        }
+
+        Bmemcpy(loadsector+ournumsectors, sector, numsectors*sizeof(sectortype));
+        Bmemcpy(loadwall+ournumwalls, wall, numwalls*sizeof(walltype));
+        Bmemcpy(loadsprite+ournumsprites, sprite, numsprites*sizeof(spritetype));
+        for (i=ournumsectors; i<ournumsectors+numsectors; i++)
+            loadsector[i].wallptr += ournumwalls;
+        for (i=ournumwalls; i<ournumwalls+numwalls; i++)
+        {
+            if (loadwall[i].point2>=0)
+                loadwall[i].point2 += ournumwalls;
+            if (loadwall[i].nextwall>=0)
+            {
+                loadwall[i].nextwall += ournumwalls;
+                loadwall[i].nextsector += ournumsectors;
+            }
+        }
+        for (i=ournumsprites; i<ournumsprites+numsprites; i++)
+            if (loadsprite[i].sectnum>=0)
+                loadsprite[i].sectnum += ournumsectors;
+        ournumsectors += numsectors;
+        ournumwalls += numwalls;
+        ournumsprites += numsprites;
+    }
     quickloadboard = 0;
-    if (i<0)
-        return i;
+
+    if (ournumsectors==0 || ournumwalls==0 || ournumsprites==0)  // nothing loaded
+    {
+        clipmapinfo_init();
+        return -1;
+    }
+
+    loadsector = Brealloc(loadsector, ournumsectors*sizeof(sectortype));
+    loadwall = Brealloc(loadwall, ournumwalls*sizeof(walltype));
+
+    Bmemcpy(sector, loadsector, ournumsectors*sizeof(sectortype));
+    Bmemcpy(wall, loadwall, ournumwalls*sizeof(walltype));
+    Bmemcpy(sprite, loadsprite, ournumsprites*sizeof(spritetype));
+    numsectors = ournumsectors;
+    numwalls = ournumwalls;
+
+    //  vvvv    don't use headsprite[sect,stat]!   vvvv
 
     sectoidx = Bmalloc(numsectors*sizeof(sectoidx[0]));
-    if (!sectoidx)
+    if (!sectoidx || !sector || !wall)
     {
         clipmapinfo_init();
         return 1;
@@ -333,8 +419,12 @@ int32_t clipmapinfo_load(char *filename)
             {
                 if (sectoidx[k]&CM_SOME)
                 {
-                    initprintf("clip map: error: tried to chain picnum %d (sprite %d) in sector %d which"
-                               " already belongs to picnum %d.\n", pn, i, k, clipinfo[sectoidx[k]].picnum);
+                    for (fi=0; fi<9; fi++)
+                        if (k>=fisec[fi])
+                            break;
+                    initprintf("clip map %d: error: tried to chain picnum %d (sprite %d) in sector %d which"
+                               " already belongs to picnum %d.\n", fi, pn, i-fispr[fi], k-fisec[fi],
+                               clipinfo[sectoidx[k]].picnum);
                     clipmapinfo_init();
                     return 2;
                 }
@@ -353,8 +443,11 @@ int32_t clipmapinfo_load(char *filename)
             {
                 if (sprite[i].ang!=1536 && sprite[i].ang!=512)
                 {
-                    initprintf("clip map: warning: sprite %d pointing neither northward nor southward. %s"
-                               " will be wrong.", i, (sprite[i].cstat&48)==32 ? "Scaling and flipping" : "X-flipping");
+                    for (fi=0; fi<9; fi++)
+                        if (i>=fispr[fi])
+                            break;
+                    initprintf("clip map %d: warning: sprite %d pointing neither northward nor southward. %s will be wrong.\n",
+                               fi, i-fispr[fi], (sprite[i].cstat&48)==32 ? "Scaling and flipping" : "X-flipping");
                 }
             }
 
@@ -387,8 +480,11 @@ int32_t clipmapinfo_load(char *filename)
                         {
                             if (outersect>=0 && ns!=outersect)
                             {
-                                initprintf("clip map: error: encountered more than one outer sector"
-                                           " (%d and %d) for sprite %d.\n", outersect, ns, i);
+                                for (fi=0; fi<9; fi++)
+                                    if (ns>=fisec[fi])
+                                        break;
+                                initprintf("clip map %d: error: encountered more than one outer sector (%d and %d)"
+                                           " for sprite %d.\n", fi, outersect-fisec[fi], ns-fisec[fi], i-fispr[fi]);
                                 clipmapinfo_init();
                                 return 3;
                             }
@@ -398,15 +494,25 @@ int32_t clipmapinfo_load(char *filename)
                         }
                         else if (sectoidx[ns]!=numclipmaps)
                         {
-                            initprintf("clip map: error: encountered sector %d belonging to index %d"
+                            for (fi=0; fi<9; fi++)
+                                if (ns>=fisec[fi])
+                                    break;
+                            initprintf("clip map %d: error: encountered sector %d belonging to index %d"
                                        " while collecting sectors for sprite %d (index %d).\n",
-                                       ns, sectoidx[ns], i, numclipmaps);
+                                       fi, ns-fisec[fi], sectoidx[ns], i-fispr[fi], numclipmaps);
                             clipmapinfo_init();
                             return 4;
                         }
                     }
                 }
             } while (++scnt < numclipsects);
+
+            if (outersect==-1)
+            {
+                initprintf("clip map: INTERNAL ERROR: outersect==-1!\n");
+                clipmapinfo_init();
+                return 5;
+            }
 
             sectq[numclipsects++] = outersect;  // last is outer
             clipinfo[numclipmaps].qend = numclipsects-1;
@@ -418,12 +524,12 @@ int32_t clipmapinfo_load(char *filename)
             {
                 k = sectq[scnt];
 
-                sector[k].floorz -= z;
-                sector[k].ceilingz -= z;
-
                 x = sprite[i].x;
                 y = sprite[i].y;
                 z = sprite[i].z;
+
+                sector[k].floorz -= z;
+                sector[k].ceilingz -= z;
 
                 if (scnt==clipinfo[numclipmaps].qbeg)
                 {
@@ -497,12 +603,14 @@ int32_t clipmapinfo_load(char *filename)
         }
     }
 
+    // yes, too much copying, but better than ugly code
+    Bmemcpy(loadsector, sector, ournumsectors*sizeof(sectortype));
+    Bmemcpy(loadwall, wall, ournumwalls*sizeof(walltype));
+
     clipmapinfo.numsectors = numsectors;
-    clipmapinfo.sector = Bmalloc(numsectors * sizeof(sectortype));
-    Bmemcpy(clipmapinfo.sector, sector, numsectors*sizeof(sectortype));
+    clipmapinfo.sector = loadsector;
     clipmapinfo.numwalls = numwalls;
-    clipmapinfo.wall = Bmalloc(numwalls * sizeof(walltype));
-    Bmemcpy(clipmapinfo.wall, wall, numwalls*sizeof(walltype));
+    clipmapinfo.wall = loadwall;
 
     for (i=0; i<MAXTILES; i++)
     {
@@ -510,7 +618,8 @@ int32_t clipmapinfo_load(char *filename)
             pictoidx[i]=tempictoidx[i];
     }
 
-    Bfree(tempictoidx);
+    Bfree(loadsprite); loadsprite=NULL;
+    Bfree(tempictoidx); tempictoidx=NULL;
 
     return 0;
 }
@@ -9597,7 +9706,11 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
             mulxdir = clipsprite_initindex(curidx, curspr, &clipsectcnt, vect);
         }
 
+
         dasect = clipsectorlist[clipsectcnt++];
+//if (curspr)
+//    initprintf("sprite %d/%d: sect %d/%d (%d)\n", clipspritecnt,clipspritenum, clipsectcnt,clipsectnum,dasect);
+
         sec = &sector[dasect];
         startwall = sec->wallptr; endwall = startwall + sec->wallnum;
         for (j=startwall,wal=&wall[startwall]; j<endwall; j++,wal++)
@@ -9633,8 +9746,8 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
                     sec2 = &sector[wal->nextsector];
                     if ((sec2->floorstat&1) == 0)
 //                        if (dasect==sectq[clipinfo[curidx].qend] || daz2 < daz-(1<<8))
-                            if (vect->z <= basez+(flordist-1))
-                                if (vect->z >= daz2-(flordist-1)) clipyou = 1;
+                            if (daz2-(flordist-1) <= vect->z && vect->z <= basez+(flordist-1))
+                                clipyou = 1;
                     if (clipyou == 0)
                     {
                         daz = getceilzofslope((int16_t)dasect,dax,day);
@@ -9642,8 +9755,8 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
                         basez = getceilzofslope(sectq[clipinfo[curidx].qend],dax,day);
                         if ((sec2->ceilingstat&1) == 0)
 //                            if (dasect==sectq[clipinfo[curidx].qend] || daz2 > daz+(1<<8))
-                                if (vect->z >= basez-(ceildist-1))
-                                    if (vect->z <= daz2+(ceildist-1)) clipyou = 1;
+                            if (basez-(ceildist-1) <= vect->z && vect->z <= daz2+(ceildist-1))
+                                clipyou = 1;
                     }
                 }
             }
@@ -9699,7 +9812,7 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
                 day = walldist; if (dx < 0) day = -day;
                 addclipline(x1+dax,y1+day,x2+dax,y2+day,objtype);
             }
-            else
+            else if (wal->nextsector>=0)
             {
                 for (i=clipsectnum-1; i>=0; i--)
                     if (wal->nextsector == clipsectorlist[i]) break;
@@ -9836,8 +9949,6 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
                 break;
             }
         }
-//if (clipspritenum)
-//    initprintf("sect %d/%d  sprite %d/%d\n", clipsectcnt,clipsectnum, clipspritecnt,clipspritenum);
     }
     while (clipsectcnt < clipsectnum || clipspritecnt < clipspritenum);
 
@@ -11213,11 +11324,6 @@ int32_t sectorofwall(int16_t theline)
 //
 int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
-#if defined _WIN32 && defined DEBUGGINGAIDS
-    if (sectnum<0 || sectnum>numsectors)
-        debug_sleep(15000);
-#endif
-
     if (!(sector[sectnum].ceilingstat&2)) return(sector[sectnum].ceilingz);
 
     {
@@ -11238,11 +11344,6 @@ int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 //
 int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
-#if defined _WIN32 && defined DEBUGGINGAIDS
-    if (sectnum<0 || sectnum>numsectors)
-        debug_sleep(15000);
-#endif
-
     if (!(sector[sectnum].floorstat&2)) return(sector[sectnum].floorz);
 
     {
@@ -11266,11 +11367,6 @@ void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int
     int32_t dx, dy, i, j;
     walltype *wal, *wal2;
     sectortype *sec;
-
-#if defined _WIN32 && defined DEBUGGINGAIDS
-    if (sectnum<0 || sectnum>numsectors)
-        debug_sleep(15000);
-#endif
 
     sec = &sector[sectnum];
     *ceilz = sec->ceilingz; *florz = sec->floorz;
@@ -12067,19 +12163,27 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
     faketimerhandler();
 
     if ((zoome >= 256) || (editstatus == 0))
-        for (i=0; i<numsectors; i++)
-            for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
+        for (j=0; j<MAXSPRITES; j++)
+            if (sprite[j].statnum<MAXSTATUS)
+//        for (i=0; i<numsectors; i++)
+//            for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
                 if ((editstatus == 1) || (show2dsprite[j>>3]&pow2char[j&7]))
                 {
-                    col = 3;
-                    if (spritecol2d[sprite[j].picnum][0])
-                        col = spritecol2d[sprite[j].picnum][0];
-                    if ((sprite[j].cstat&1) > 0)
+                    if (sprite[j].sectnum<0)
+                        col = 4;  // red
+                    else
                     {
-                        col = 5;
-                        if (spritecol2d[sprite[j].picnum][1])
-                            col = spritecol2d[sprite[j].picnum][1];
+                        col = 3;
+                        if (spritecol2d[sprite[j].picnum][0])
+                            col = spritecol2d[sprite[j].picnum][0];
+                        else if ((sprite[j].cstat&1) > 0)
+                        {
+                            col = 5;
+                            if (spritecol2d[sprite[j].picnum][1])
+                                col = spritecol2d[sprite[j].picnum][1];
+                        }
                     }
+
                     if (editstatus == 1)
                     {
                         if ((pointhighlight-16384) >= 0 && (j+16384 == pointhighlight || ((sprite[j].x == sprite[pointhighlight-16384].x) && (sprite[j].y == sprite[pointhighlight-16384].y))))
