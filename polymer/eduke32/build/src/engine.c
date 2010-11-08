@@ -8184,6 +8184,9 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     j = bpp;
 
     if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return(-1);
+    
+    // Workaround possible bugs in the GL driver
+    makeasmwriteable();
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     if (dabpp > 8) rendmode = glrendmode;    // GL renderer
