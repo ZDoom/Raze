@@ -36,7 +36,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sdl_inc.h"
 #include "music.h"
 
-#if !defined _WIN32  // fork/exec based external midi player
+#if !defined _WIN32
+# define FORK_EXEC_MIDI 1
+#endif
+
+#if defined FORK_EXEC_MIDI  // fork/exec based external midi player
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
@@ -138,7 +142,7 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
     {
         initprintf("Setting music command to \"%s\".\n", command);
 
-#if defined _WIN32
+#if !defined FORK_EXEC_MIDI
         if (Mix_SetMusicCMD(command)==-1)
         {
             perror("Mix_SetMusicCMD");
@@ -168,11 +172,14 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 
         sz = (numargs+2)*sizeof(char *) + (c-command+1);
         sz = ((sz+pagesize-1)/pagesize)*pagesize;
-
+# ifdef NEDMALLOC
         external_midi_argv = Bmemalign(pagesize, sz);
         if (!external_midi_argv)
             goto fallback;
-
+# else
+        if (posix_memalign((void **)&external_midi_argv, pagesize, sz))
+            goto fallback;
+# endif
         cmd = (char *)external_midi_argv + (numargs+2)*sizeof(char *);
         Bmemcpy(cmd, command, c-command+1);
 
@@ -250,7 +257,7 @@ fallback:
 int32_t MUSIC_Shutdown(void)
 {
     // TODO - make sure this is being called from the menu -- SA
-#if defined _WIN32
+#if !defined FORK_EXEC_MIDI
     if (external_midi)
         Mix_SetMusicCMD(NULL);
 #endif
@@ -323,7 +330,7 @@ void MUSIC_Pause(void)
 
 int32_t MUSIC_StopSong(void)
 {
-#if !defined _WIN32
+#if defined FORK_EXEC_MIDI
     if (external_midi)
     {
         if (external_midi_pid > 0)
@@ -376,7 +383,7 @@ int32_t MUSIC_StopSong(void)
     return(MUSIC_Ok);
 } // MUSIC_StopSong
 
-#if !defined _WIN32
+#if defined FORK_EXEC_MIDI
 static void playmusic()
 {
     pid_t pid = vfork();
@@ -428,7 +435,7 @@ int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
     {
         FILE *fp;
 
-#if !defined _WIN32
+#if defined FORK_EXEC_MIDI
         static int32_t sigchld_handler_set = 0;
 
         if (!sigchld_handler_set)
@@ -449,7 +456,7 @@ int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
             fwrite(song, 1, g_musicSize, fp);
             Bfclose(fp);
 
-#if !defined _WIN32
+#if defined FORK_EXEC_MIDI
             external_midi_restart = loopflag;
             playmusic();
 #else
