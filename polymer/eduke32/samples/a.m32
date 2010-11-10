@@ -79,6 +79,7 @@ definequote 23 WALL[%d].POINT2=%d out of range: sector[%d].wallptr=%d, endwall=%
 definequote 24 WALL[%d].NEXTWALL=%d out of range: numwalls=%d!!!
 definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d!!!
 definequote 26 SPRITE[%d].SECTNUM=%d. Expect problems!
+definequote 27 SPRITE[%d].PICNUM=%d out of range, resetting to 0
 
 define PRSCALE 1000
 define MAXSPECULAR 100000
@@ -1074,6 +1075,13 @@ defstate corruptchk
         {
             qsprintf TQUOTE 26 i .sectnum
             quote TQUOTE printmessage16 TQUOTE
+        }
+
+        ifge .picnum 0 ifl .picnum MAXTILES nullop else
+        {
+            qsprintf TQUOTE 27 i .picnum
+            quote TQUOTE printmessage16 TQUOTE
+            set .picnum 0
         }
     }
 ends
