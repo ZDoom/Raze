@@ -122,6 +122,7 @@ extern char lastpm16buf[156];
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y);
 int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point);
 void update_highlight();
+void update_highlightsector();
 
 #ifdef _WIN32
 #define DEFAULT_GAME_EXEC "eduke32.exe"

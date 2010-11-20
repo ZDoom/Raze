@@ -153,6 +153,7 @@ static int32_t fillist[640];
 
 static int32_t mousx, mousy;
 int16_t prefixtiles[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+uint8_t hlsectorbitmap[MAXSECTORS>>3];  // show2dsector is already taken...
 
 /*
 static char scantoasc[128] =
@@ -445,9 +446,7 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 
     k = clipmapinfo_load("_clipshape0.map");
-    if (k==0)
-        initprintf("Loaded sprite clipping map.\n");
-    else if (k>0)
+    if (k>0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", k);
 
     for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
@@ -1315,6 +1314,7 @@ static void duplicate_selected_sectors()
             newnumwalls += sector[highlightsector[i]].wallnum;
         }
 
+        Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
         for (i=0; i<highlightsectorcnt; i++)
         {
             // first, make red lines of old selected sectors, effectively
@@ -1330,11 +1330,14 @@ static void duplicate_selected_sectors()
 
             // Then, highlight the ones just copied.
             // These will have all walls whited out.
-            highlightsector[i] = numsectors+i;
+            j = numsectors + i;
+            hlsectorbitmap[j>>3] |= (1<<(j&7));
         }
 
         numsectors = newnumsectors;
         numwalls = newnumwalls;
+
+        update_highlightsector();  // must be after numsectors = newnumsectors
 
         newnumwalls = -1;
         newnumsectors = -1;
@@ -1396,6 +1399,19 @@ void update_highlight()
         highlightcnt = -1;
 }
 
+void update_highlightsector()
+{
+    int32_t i;
+
+    highlightsectorcnt = 0;
+    for (i=0; i<numsectors; i++)
+        if (hlsectorbitmap[i>>3]&(1<<(i&7)))
+            highlightsector[highlightsectorcnt++] = i;
+
+    if (highlightsectorcnt==0)
+        highlightsectorcnt = -1;
+}
+
 void overheadeditor(void)
 {
     char buffer[80], *dabuffer, ch;
@@ -1448,12 +1464,12 @@ void overheadeditor(void)
     enddrawing();	//}}}
 
     pag = 0;
-    highlightcnt = -1;
     cursectorhighlight = -1;
     lastpm16time = -1;
 
     ovh_whiteoutgrab();
 
+    highlightcnt = -1;
     Bmemset(show2dwall, 0, sizeof(show2dwall));  //Clear all highlights
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
 
@@ -1777,9 +1793,10 @@ void overheadeditor(void)
 
             numwalls = tempint;
 
-            if (highlightsectorcnt > 0)
-                for (i=0; i<highlightsectorcnt; i++)
-                    fillsector(highlightsector[i],2);
+            if (highlightsectorcnt >= 0)
+                for (i=0; i<numsectors; i++)
+                    if (hlsectorbitmap[i>>3]&(1<<(i&7)))
+                        fillsector(i,2);
 
             if (keystatus[0x2a]) // FIXME
             {
@@ -1809,7 +1826,7 @@ void overheadeditor(void)
             if (joinsector[0] >= 0)
                 col = editorcolors[11];
 
-            if (keystatus[0x36] && !eitherCTRL)  // RSHIFT
+            if ((keystatus[0x36] || keystatus[0xb8]) && !eitherCTRL)  // RSHIFT || RALT
             {
                 if (keystatus[0x27] || keystatus[0x28])  // ' and ;
                 {
@@ -2486,6 +2503,8 @@ void overheadeditor(void)
             {
                 if (highlightsectorcnt == 0)
                 {
+                    int32_t add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
+
                     getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
                     getpoint(highlightx2,highlighty2, &highlightx2,&highlighty2);
 
@@ -2493,6 +2512,9 @@ void overheadeditor(void)
                         swaplong(&highlightx1, &highlightx2);
                     if (highlighty1 > highlighty2)
                         swaplong(&highlighty1, &highlighty2);
+
+                    if (!setop)
+                        Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
 
                     for (i=0; i<numsectors; i++)
                     {
@@ -2508,11 +2530,23 @@ void overheadeditor(void)
                             if (bad == 1) break;
                         }
                         if (bad == 0)
-                            highlightsector[highlightsectorcnt++] = i;
+                        {
+                            if (sub)
+                            {
+                                hlsectorbitmap[i>>3] &= ~(1<<(i&7));
+                                for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+                                {
+                                    if (wall[j].nextwall >= 0)
+                                        checksectorpointer(wall[j].nextwall,wall[j].nextsector);
+                                    checksectorpointer((int16_t)j, i);
+                                }
+                            }
+                            else
+                                hlsectorbitmap[i>>3] |= (1<<(i&7));
+                        }
                     }
-                    if (highlightsectorcnt <= 0)
-                        highlightsectorcnt = -1;
 
+                    update_highlightsector();
                     ovh_whiteoutgrab();
                 }
             }
@@ -3997,6 +4031,7 @@ SKIP:
                                 }
 
                                 newnumwalls = -1;
+                                Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
                                 highlightsectorcnt = -1;
 
                                 Bmemset(show2dwall, 0, sizeof(show2dwall));
@@ -4009,6 +4044,7 @@ SKIP:
                     if (k == 0)
                     {
                         deletesector((int16_t)i);
+                        Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
                         highlightsectorcnt = -1;
 
                         Bmemset(show2dwall, 0, sizeof(show2dwall));
@@ -4149,6 +4185,9 @@ nextmap:
                     Bstrcpy(boardfilename, selectedboardfilename);
 
                     highlightcnt = -1;
+                    Bmemset(show2dwall, 0, sizeof(show2dwall));  //Clear all highlights
+                    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+
                     sectorhighlightstat = -1;
                     newnumwalls = -1;
                     joinsector[0] = -1;
@@ -4242,9 +4281,10 @@ CANCEL:
 
                         if (ch == 'Y' || ch == 'y')
                         {
+                            Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
                             highlightsectorcnt = -1;
-                            highlightcnt = -1;
 
+                            highlightcnt = -1;
                             //Clear all highlights
                             Bmemset(show2dwall, 0, sizeof(show2dwall));
                             Bmemset(show2dsprite, 0, sizeof(show2dsprite));
@@ -4311,6 +4351,7 @@ CANCEL:
                             updatenumsprites();
                             if ((numsectors+highlightsectorcnt > MAXSECTORS) || (numwalls+j > MAXWALLS) || (numsprites+k > MAXSPRITES))
                             {
+                                Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
                                 highlightsectorcnt = -1;
                             }
                             else
@@ -4353,6 +4394,9 @@ CANCEL:
                         }
 
                         highlightcnt = -1;
+                        Bmemset(show2dwall, 0, sizeof(show2dwall));  //Clear all highlights
+                        Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+
                         sectorhighlightstat = -1;
                         newnumwalls = -1;
                         joinsector[0] = -1;
@@ -4380,18 +4424,22 @@ CANCEL:
                             {
                                 if ((numsectors+highlightsectorcnt > MAXSECTORS) || (sector[MAXSECTORS-highlightsectorcnt].wallptr < numwalls))
                                 {
+                                    Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
                                     highlightsectorcnt = -1;
                                 }
                                 else
                                 {
                                     //Re-attach sectors&walls
+                                    Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
                                     for (i=0; i<highlightsectorcnt; i++)
                                     {
                                         copysector((int16_t)(MAXSECTORS-highlightsectorcnt+i),numsectors,numwalls,0);
-                                        highlightsector[i] = numsectors;
+                                        hlsectorbitmap[numsectors>>3] |= (1<<(numsectors&7));
                                         numwalls += sector[numsectors].wallnum;
                                         numsectors++;
                                     }
+                                    update_highlightsector();
+
                                     //Re-attach sprites
                                     while (m < MAXSPRITES)
                                     {

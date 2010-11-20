@@ -264,14 +264,19 @@ static void clipmapinfo_init()
     clipmapinfo.numsectors = clipmapinfo.numwalls = 0;
     clipmapinfo.sector=NULL;
     clipmapinfo.wall=NULL;
+
+    numsectors = 0;
+    numwalls = 0;
 }
 
+// loads the clip maps 0 through 9.
+// this should be called before any real map is loaded.
 int32_t clipmapinfo_load(char *filename)
 {
     int32_t i,k,w, px,py,pz;
     int16_t ang,cs;
 
-    char fn[BMAX_PATH];
+    char fn[BMAX_PATH], loadedwhich[32]={0}, *lwcp=loadedwhich;
     int32_t slen, fi, fisec[10], fispr[10];
     int32_t ournumsectors=0, ournumwalls=0, ournumsprites=0, numsprites;
 
@@ -337,6 +342,14 @@ int32_t clipmapinfo_load(char *filename)
         ournumsectors += numsectors;
         ournumwalls += numwalls;
         ournumsprites += numsprites;
+
+        if (lwcp != loadedwhich)
+        {
+            *lwcp++ = ',';
+            *lwcp++ = ' ';
+        }
+        *lwcp++ = fi;
+        *lwcp = 0;
     }
     quickloadboard = 0;
 
@@ -346,6 +359,7 @@ int32_t clipmapinfo_load(char *filename)
         return -1;
     }
 
+    // shrink
     loadsector = Brealloc(loadsector, ournumsectors*sizeof(sectortype));
     loadwall = Brealloc(loadwall, ournumwalls*sizeof(walltype));
 
@@ -620,6 +634,12 @@ int32_t clipmapinfo_load(char *filename)
 
     Bfree(loadsprite); loadsprite=NULL;
     Bfree(tempictoidx); tempictoidx=NULL;
+
+    // don't let other code be distracted by the temporary map we constructed
+    numsectors = 0;
+    numwalls = 0;
+
+    initprintf("Loaded clip map%s %s.\n", lwcp==loadedwhich+1?"":"s", loadedwhich);
 
     return 0;
 }
@@ -7162,6 +7182,7 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
         {
             initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal picnum(%d). Map is corrupt!\n",i,sprite[i].x,sprite[i].y,sprite[i].picnum);
             dq[dnum++] = i;
+            sprite[i].picnum = 0;
         }
     }
 
@@ -9491,7 +9512,7 @@ int32_t lastwall(int16_t point)
 
 //////////
 
-static int32_t clipsprite_try(spritetype *spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)
+static int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)
 {
     int32_t i,k,tempint1,tempint2;
 
@@ -9969,7 +9990,8 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
     do
     {
         intx = goalx; inty = goaly;
-        if ((hitwall = raytrace(vect->x, vect->y, &intx, &inty)) >= 0)
+        hitwall = raytrace(vect->x, vect->y, &intx, &inty);
+        if (hitwall >= 0)
         {
             lx = clipit[hitwall].x2-clipit[hitwall].x1;
             ly = clipit[hitwall].y2-clipit[hitwall].y1;
@@ -12148,7 +12170,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
                         if (totalclock & 16)
                             pointsize++;
                     }
-                    else if ((highlightcnt > 0) && (editstatus == 1))
+                    else //if (highlightcnt > 0)
                     {
                         if (show2dwall[i>>3]&pow2char[i&7])
                         {
@@ -12193,7 +12215,7 @@ void draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int
                         {
                             if (totalclock & 32) col += (2<<2);
                         }
-                        else if ((highlightcnt > 0) && (editstatus == 1))
+                        else // if (highlightcnt > 0)
                         {
                             if (show2dsprite[j>>3]&pow2char[j&7])
                                 if (totalclock & 32) col += (2<<2);
