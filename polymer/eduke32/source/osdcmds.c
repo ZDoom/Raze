@@ -306,13 +306,9 @@ static int32_t osdcmd_god(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
-    {
         osdcmd_cheatsinfo_stat.cheatnum = 0;
-    }
     else
-    {
         OSD_Printf("god: Not in a single-player game.\n");
-    }
 
     return OSDCMD_OK;
 }

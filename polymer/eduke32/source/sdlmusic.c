@@ -173,7 +173,7 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
         sz = (numargs+2)*sizeof(char *) + (c-command+1);
         sz = ((sz+pagesize-1)/pagesize)*pagesize;
 # ifdef NEDMALLOC
-        external_midi_argv = Bmemalign(pagesize, sz);
+        external_midi_argv = Bmalloc(sz);
         if (!external_midi_argv)
             goto fallback;
 # else

@@ -221,7 +221,10 @@ static void PopulateForm(int32_t pgs)
         (void)ComboBox_ResetContent(hwnd);
         (void)ComboBox_SetCurSel(hwnd, 0);
 
-        for (i=0; i<4; i++)
+        if (di_disabled) j = 2;
+        else j = 4;
+
+        for (i=0; i<j; i++)
         {
             (void)ComboBox_InsertString(hwnd, i, controlstrings[i]);
             (void)ComboBox_SetItemData(hwnd, i, i);

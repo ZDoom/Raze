@@ -5,6 +5,8 @@
 #ifndef __editor_h__
 #define __editor_h__
 
+#include <math.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

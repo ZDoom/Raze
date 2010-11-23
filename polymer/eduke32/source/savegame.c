@@ -495,7 +495,8 @@ int32_t G_LoadPlayer(int32_t spot)
         Bstrcpy(MapInfo[ud.level_number].musicfn,levname);
     }
 
-    if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL && (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].alt_musicfn))
+    if (ud.config.MusicToggle && MapInfo[(uint8_t)g_musicIndex].musicfn != NULL &&
+        (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].alt_musicfn))
     {
         S_StopMusic();
         S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);

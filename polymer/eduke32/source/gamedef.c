@@ -1446,6 +1446,7 @@ static void C_SetProjectile(int32_t lVar1, int32_t lLabelID, int32_t lVar2)
     return;
 }
 
+/*
 static int32_t C_CheckEventSync(int32_t iEventID)
 {
     if (g_parsingEventPtr || g_parsingActorPtr)
@@ -1484,6 +1485,7 @@ static int32_t C_CheckEventSync(int32_t iEventID)
     }
     return 1;
 }
+*/
 
 #define GetDefID(szGameLabel) hash_find(&h_gamevars,szGameLabel)
 #define GetADefID(szGameLabel) hash_find(&h_arrays,szGameLabel)
@@ -1829,6 +1831,7 @@ static void C_GetNextVarType(int32_t type)
         C_ReportError(ERROR_VARTYPEMISMATCH);
         return;
     }
+/*
     if ((aGameVars[i].dwFlags & GAMEVAR_SYNCCHECK) && g_parsingActorPtr && C_CheckEventSync(g_currentEvent))
     {
         C_ReportError(-1);
@@ -1837,6 +1840,7 @@ static void C_GetNextVarType(int32_t type)
                    g_lineNumber,label+(g_numLabels<<6),g_parsingEventPtr?"a synced event":"an actor");
         g_numCompilerWarnings++;
     }
+*/
     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
         initprintf("%s:%d: debug: accepted gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
 
@@ -2197,8 +2201,10 @@ static int32_t C_ParseCommand(void)
 
     case CON_SETTHISPROJECTILE:
     case CON_SETPROJECTILE:
+/*
         if (!C_CheckEventSync(g_currentEvent))
             C_ReportError(WARNING_EVENTSYNC);
+*/
     case CON_GETTHISPROJECTILE:
     case CON_GETPROJECTILE:
     {
@@ -2426,11 +2432,13 @@ static int32_t C_ParseCommand(void)
     case CON_MOVE:
         if (g_parsingActorPtr || g_processingState)
         {
+/*
             if (!C_CheckEventSync(g_currentEvent))
             {
                 g_numCompilerWarnings++;
                 C_ReportError(WARNING_EVENTSYNC);
             }
+*/
 
             if ((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1))
             {
@@ -2640,11 +2648,13 @@ static int32_t C_ParseCommand(void)
     case CON_AI:
         if (g_parsingActorPtr || g_processingState)
         {
+/*
             if (!C_CheckEventSync(g_currentEvent))
             {
                 C_ReportError(WARNING_EVENTSYNC);
                 g_numCompilerWarnings++;
             }
+*/
             C_GetNextValue(LABEL_AI);
         }
         else
@@ -2720,11 +2730,13 @@ static int32_t C_ParseCommand(void)
     case CON_ACTION:
         if (g_parsingActorPtr || g_processingState)
         {
+/*
             if (!C_CheckEventSync(g_currentEvent))
             {
                 C_ReportError(WARNING_EVENTSYNC);
                 g_numCompilerWarnings++;
             }
+*/
             C_GetNextValue(LABEL_ACTION);
         }
         else
@@ -3023,11 +3035,13 @@ static int32_t C_ParseCommand(void)
         return 0;
 
     case CON_INSERTSPRITEQ:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
         return 0;
 
     case CON_QSPRINTF:
@@ -3066,11 +3080,13 @@ static int32_t C_ParseCommand(void)
     case CON_LOTSOFGLASS:
     case CON_SAVENN:
     case CON_SAVE:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_ANGOFF:
     case CON_QUOTE:
     case CON_SOUND:
@@ -3099,11 +3115,13 @@ static int32_t C_ParseCommand(void)
         return 0;
 
     case CON_HITRADIUSVAR:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
         C_GetManyVars(5);
         break;
     case CON_HITRADIUS:
@@ -3117,11 +3135,13 @@ static int32_t C_ParseCommand(void)
     case CON_DEBRIS:
     case CON_ADDINVENTORY:
     case CON_GUTS:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
         C_GetNextValue(LABEL_DEFINE);
         C_GetNextValue(LABEL_DEFINE);
         break;
@@ -3175,11 +3195,13 @@ static int32_t C_ParseCommand(void)
         return 0;
 
     case CON_SETSECTOR:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_GETSECTOR:
     {
         int32_t lLabelID;
@@ -3310,11 +3332,13 @@ static int32_t C_ParseCommand(void)
     }
 
     case CON_SETWALL:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_GETWALL:
     {
         int32_t lLabelID;
@@ -3377,11 +3401,13 @@ static int32_t C_ParseCommand(void)
     }
 
     case CON_SETPLAYER:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_GETPLAYER:
     {
         int32_t lLabelID;
@@ -3458,11 +3484,13 @@ static int32_t C_ParseCommand(void)
     }
 
     case CON_SETINPUT:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_GETINPUT:
     {
         int32_t lLabelID;
@@ -3577,11 +3605,13 @@ static int32_t C_ParseCommand(void)
 
     case CON_SETACTORVAR:
     case CON_SETPLAYERVAR:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_GETACTORVAR:
     case CON_GETPLAYERVAR:
     {
@@ -3711,11 +3741,13 @@ static int32_t C_ParseCommand(void)
     }
 
     case CON_SETACTOR:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_GETACTOR:
     {
         int32_t lLabelID;
@@ -3871,11 +3903,13 @@ static int32_t C_ParseCommand(void)
         return 0;
 
     case CON_GETTICKS:
+/*
         if (C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_REVEVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_GETCURRADDRESS:
         C_GetNextVarType(GAMEVAR_READONLY);
         return 0;
@@ -3892,11 +3926,13 @@ static int32_t C_ParseCommand(void)
     case CON_LOCKPLAYER:
     case CON_SHOOTVAR:
     case CON_QUAKE:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_JUMP:
     case CON_CMENU:
     case CON_SOUNDVAR:
@@ -3947,11 +3983,13 @@ static int32_t C_ParseCommand(void)
     case CON_RANDVAR:
     case CON_ZSHOOT:
     case CON_EZSHOOT:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_SETVAR:
     case CON_ADDVAR:
     case CON_SUBVAR:
@@ -4113,11 +4151,13 @@ static int32_t C_ParseCommand(void)
         return 0;
 
     case CON_RANDVARVAR:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_SETVARVAR:
     case CON_ADDVARVAR:
     case CON_SUBVARVAR:
@@ -4140,11 +4180,13 @@ static int32_t C_ParseCommand(void)
     case CON_OPERATESECTORS:
     case CON_OPERATEACTIVATORS:
     case CON_SSP:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_GMAXAMMO:
     case CON_DIST:
     case CON_LDIST:
@@ -4255,11 +4297,13 @@ static int32_t C_ParseCommand(void)
 
             return 0;
         }
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
         C_GetNextVar();
         return 0;
     }
@@ -4526,11 +4570,13 @@ static int32_t C_ParseCommand(void)
 
     case CON_MOVESPRITE:
     case CON_SETSPRITE:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
         C_GetManyVars(4);
         if (tw == CON_MOVESPRITE)
         {
@@ -4857,11 +4903,13 @@ repeatcase:
     case CON_CHANGESPRITESECT:
     case CON_ZSHOOTVAR:
     case CON_EZSHOOTVAR:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             g_numCompilerWarnings++;
             C_ReportError(WARNING_EVENTSYNC);
         }
+*/
     case CON_GETPNAME:
     case CON_STARTLEVEL:
     case CON_QSTRCAT:
@@ -4881,11 +4929,13 @@ repeatcase:
         return 0;
     case CON_SETACTORANGLE:
     case CON_SETPLAYERANGLE:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             g_numCompilerWarnings++;
             C_ReportError(WARNING_EVENTSYNC);
         }
+*/
     case CON_GETANGLETOTARGET:
     case CON_GETACTORANGLE:
     case CON_GETPLAYERANGLE:
@@ -4904,11 +4954,13 @@ repeatcase:
         return 0;
 
     case CON_IFRND:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_IFPDISTL:
     case CON_IFPDISTG:
     case CON_IFWASWEAPON:
@@ -4973,11 +5025,13 @@ repeatcase:
             break;
         case CON_IFSOUND:
         case CON_IFACTORSOUND:
+/*
             if (C_CheckEventSync(g_currentEvent))
             {
                 C_ReportError(WARNING_REVEVENTSYNC);
                 g_numCompilerWarnings++;
             }
+*/
         default:
             C_GetNextValue(LABEL_DEFINE);
             break;
@@ -5790,11 +5844,13 @@ repeatcase:
     case CON_PKICK:
     case CON_MIKESND:
     case CON_TOSSWEAPON:
+/*
         if (!C_CheckEventSync(g_currentEvent))
         {
             C_ReportError(WARNING_EVENTSYNC);
             g_numCompilerWarnings++;
         }
+*/
     case CON_NULLOP:
         if (tw == CON_NULLOP)
         {

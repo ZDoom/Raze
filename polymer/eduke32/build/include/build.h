@@ -658,6 +658,7 @@ int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
 
+#if defined(POLYMOST) && defined(USE_OPENGL)
 typedef struct
 {
     // maps build tiles to particular animation frames of a model
@@ -679,6 +680,7 @@ static inline int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
     if (!mdinited) return -1;
     return tile2model[Ptile2tile(tilenume,pal)].modelid;
 }
+#endif
 
 int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume, int32_t skinnum, float smoothduration, int32_t pal);
 int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *frameend, int32_t fps, int32_t flags);

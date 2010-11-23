@@ -56,15 +56,15 @@ void drawpixel_safe(void* s, char a)
     else
     {
         static const char *const c = &editorcolors[15];
-        drawpixel((void*)frameplace, *c);
-        drawpixel((void*)frameplace+1, *c);
-        drawpixel((void*)frameplace+2, *c);
-        drawpixel((void*)frameplace+bytesperline, *c);
-        drawpixel((void*)frameplace+bytesperline+1, *c);
-        drawpixel((void*)frameplace+bytesperline+2, *c);
-        drawpixel((void*)frameplace+2*bytesperline, *c);
-        drawpixel((void*)frameplace+2*bytesperline+1, *c);
-        drawpixel((void*)frameplace+2*bytesperline+2, *c);
+        drawpixel((intptr_t*)frameplace, *c);
+        drawpixel((intptr_t*)frameplace+1, *c);
+        drawpixel((intptr_t*)frameplace+2, *c);
+        drawpixel((intptr_t*)frameplace+bytesperline, *c);
+        drawpixel((intptr_t*)frameplace+bytesperline+1, *c);
+        drawpixel((intptr_t*)frameplace+bytesperline+2, *c);
+        drawpixel((intptr_t*)frameplace+2*bytesperline, *c);
+        drawpixel((intptr_t*)frameplace+2*bytesperline+1, *c);
+        drawpixel((intptr_t*)frameplace+2*bytesperline+2, *c);
     }
 #endif
 }

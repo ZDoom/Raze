@@ -6787,6 +6787,7 @@ FOUNDCHEAT:
                     sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
                     actor[g_player[myconnectindex].ps->i].extra = 0;
                     g_player[myconnectindex].ps->cheat_phase = 0;
+                    g_player[myconnectindex].ps->dead_flag = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
@@ -7756,6 +7757,7 @@ static void G_ShowDebugHelp(void)
               "-name [name]\tPlayer name in multiplay\n"
               "-nD\t\tDump default gamevars to gamevars.txt\n"
               "-noautoload\tDisable loading content from autoload dir\n"
+              "-nodinput\tDisable DirectInput (joystick) support\n"
               "-nologo\t\tSkip the logo anim\n"
               "-ns/-nm\t\tDisable sound or music\n"
               "-q#\t\tFake multiplayer with # (2-8) players\n"
@@ -8273,6 +8275,15 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
+#ifdef _WIN32
+                if (!Bstrcasecmp(c+1,"nodinput"))
+                {
+                    initprintf("DirectInput (joystick) support disabled\n");
+                    di_disabled = 1;
+                    i++;
+                    continue;
+                }
+#endif
                 if (!Bstrcasecmp(c+1,"noautoload"))
                 {
                     initprintf("Autoload disabled\n");
@@ -8950,13 +8961,10 @@ static void G_CompileScripts(void)
 
 static inline void G_CheckGametype(void)
 {
-    //    initprintf("ud.m_coop=%i before sanitization\n",ud.m_coop);
     ud.m_coop = clamp(ud.m_coop, 0, g_numGametypes-1);
-    Bsprintf(tempbuf,"%s\n",GametypeNames[ud.m_coop]);
-    initprintf(tempbuf);
+    initprintf("%s\n",GametypeNames[ud.m_coop]);
     if (GametypeFlags[ud.m_coop] & GAMETYPE_ITEMRESPAWN)
         ud.m_respawn_items = ud.m_respawn_inventory = 1;
-    //     initprintf("ud.m_coop=%i after sanitisation\n",ud.m_coop);
 }
 
 static void G_LoadExtraPalettes(void)
@@ -9140,9 +9148,9 @@ static void G_Startup(void)
         initprintf("Multiplayer initialized.\n");
 
     {
-        char cwd[BMAX_PATH];
+        char *cwd;
 
-        if (getcwd(cwd,BMAX_PATH) && g_modDir[0] != '/')
+        if (g_modDir[0] != '/' && (cwd = (char *)getcwd(NULL, 0)))
         {
             chdir(g_modDir);
 //            initprintf("g_rootDir '%s'\nmod '%s'\ncwd '%s'\n",g_rootDir,mod_dir,cwd);
@@ -9153,6 +9161,7 @@ static void G_Startup(void)
                     G_GameExit("Failed loading art.");
             }
             chdir(cwd);
+            Bfree(cwd);
         }
         else if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
             G_GameExit("Failed loading art.");
@@ -9166,13 +9175,6 @@ static void G_Startup(void)
     tilesizx[MIRROR] = tilesizy[MIRROR] = 0;
 
     screenpeek = myconnectindex;
-}
-
-void sendscore(const char *s)
-{
-    UNREFERENCED_PARAMETER(s);
-//    if (numplayers > 1)
-//        genericmultifunction(-1,(char *)s,strlen(s)+1,5);
 }
 
 void G_UpdatePlayerFromMenu(void)
@@ -10751,12 +10753,6 @@ FRAGBONUS:
                     minitext(92+(y*23),90+t,tempbuf,0,2+8+16+128);
                     xfragtotal += g_player[i].frags[y];
                 }
-
-                if (g_netServer)
-                {
-                    Bsprintf(tempbuf,"stats %d killed %d %d\n",i+1,y+1,g_player[i].frags[y]);
-                    sendscore(tempbuf);
-                }
             }
 
             Bsprintf(tempbuf,"%-4d",xfragtotal);
@@ -10834,11 +10830,7 @@ FRAGBONUS:
     playerbest = CONFIG_GetMapBestTime(MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].filename);
 
     if (g_player[myconnectindex].ps->player_par < playerbest || playerbest < 0)
-    {
         CONFIG_SetMapBestTime(MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].filename, g_player[myconnectindex].ps->player_par);
-        //        if(playerbest != -1)
-        //            playerbest = g_player[myconnectindex].ps->player_par;
-    }
 
     {
         int32_t ii, ij;
@@ -10859,7 +10851,7 @@ FRAGBONUS:
         clockpad = max(clockpad,ij);
     }
 
-    while (1)
+    do
     {
         int32_t yy = 0, zz;
 
@@ -11089,10 +11081,13 @@ FRAGBONUS:
                     totalclock = (1000000000L);
             }
         }
-        else break;
+        else
+            break;
+
         VM_OnEvent(EVENT_DISPLAYBONUSSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();
     }
+    while (1);
 }
 
 static void G_DrawCameraText(int16_t i)
@@ -11184,13 +11179,10 @@ void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n)
 
 void A_SpawnGlass(int32_t i,int32_t n)
 {
-    int32_t j, k, a, z;
-
-    for (j=n; j>0; j--)
+    for (; n>0; n--)
     {
-        a = krand()&2047;
-        z = SZ-((krand()&16)<<8);
-        k = A_InsertSprite(SECT,SX,SY,z,GLASSPIECES+(j%3),krand()&15,36,36,a,32+(krand()&63),-512-(krand()&2047),i,5);
+        int32_t k = A_InsertSprite(SECT,SX,SY,SZ-((krand()&16)<<8),GLASSPIECES+(n%3),
+            krand()&15,36,36,krand()&2047,32+(krand()&63),-512-(krand()&2047),i,5);
         sprite[k].pal = sprite[i].pal;
     }
 }

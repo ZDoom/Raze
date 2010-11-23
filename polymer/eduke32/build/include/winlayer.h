@@ -10,6 +10,8 @@ extern uint32_t maxrefreshfreq;
 
 extern int32_t glusecds;
 
+extern char di_disabled;
+
 int32_t win_gethwnd(void);
 int32_t win_gethinstance(void);
 

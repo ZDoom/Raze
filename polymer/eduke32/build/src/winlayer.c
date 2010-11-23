@@ -153,8 +153,9 @@ static LPDIRECTINPUTDEVICE7A lpDID = NULL;
 #define INPUT_BUFFER_SIZE	32
 static GUID                  guidDevs;
 
+char di_disabled = 0;
 static char di_devacquired;
-static HANDLE di_inputevt;
+static HANDLE di_inputevt = 0;
 static int32_t joyblast=0;
 volatile uint8_t moustat = 0, mousegrab = 0;
 
@@ -1053,7 +1054,7 @@ static BOOL InitDirectInput(void)
     LPDIRECTINPUTDEVICE7A dev2;
     DIDEVCAPS didc;
 
-    if (hDInputDLL) return FALSE;
+    if (hDInputDLL || di_disabled) return FALSE;
 
     initprintf("Initializing DirectInput...\n");
 
@@ -1077,7 +1078,7 @@ static BOOL InitDirectInput(void)
 
     initprintf("  - Enumerating attached game controllers\n");
     inputdevices = 1|2;
-    result = IDirectInput7_EnumDevices(lpDI, 0, InitDirectInput_enum, NULL, DIEDFL_ATTACHEDONLY);
+    result = IDirectInput7_EnumDevices(lpDI, DIDEVTYPE_JOYSTICK, InitDirectInput_enum, NULL, DIEDFL_ATTACHEDONLY);
     if (FAILED(result)) { HorribleDInputDeath("Failed enumerating attached game controllers", result); }
     else if (result != DI_OK) initprintf("    Enumerated game controllers with warning: %s\n",GetDInputError(result));
 
@@ -1105,6 +1106,7 @@ static BOOL InitDirectInput(void)
     else if (result != DI_OK) initprintf("    Set data format with warning: %s\n",GetDInputError(result));
 
     di_inputevt = CreateEvent(NULL, FALSE, FALSE, NULL);
+
     if (di_inputevt == NULL)
     {
         IDirectInputDevice7_Release(dev2);
@@ -1192,15 +1194,16 @@ static void UninitDirectInput(void)
         Bfree(hatdefs); hatdefs = NULL;
     }
 
-    if (*devicedef.did)
-    {
-        IDirectInputDevice7_Release(*devicedef.did);
-        *devicedef.did = NULL;
-    }
     if (di_inputevt)
     {
         CloseHandle(di_inputevt);
         di_inputevt = NULL;
+    }
+
+    if (*devicedef.did)
+    {
+        IDirectInputDevice7_Release(*devicedef.did);
+        *devicedef.did = NULL;
     }
 
     if (lpDI)
