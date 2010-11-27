@@ -67,6 +67,20 @@ extern int32_t m32_osd_tryscript;
 extern int32_t showheightindicators;
 extern int32_t showambiencesounds;
 
+// editor side view
+extern int32_t m32_sideview;
+extern int32_t m32_sideelev;
+extern int16_t m32_sideang;
+extern int32_t m32_sidecos, m32_sidesin;
+extern int32_t m32_swcnt;
+extern int16_t *m32_wallsprite;
+extern int8_t sideview_reversehrot;
+extern inline int32_t scalescreeny(int32_t sy);
+extern void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome);
+extern inline int32_t getscreenvdisp(int32_t bz, int32_t zoome);
+extern void setup_sideview_sincos(void);
+extern void m32_setkeyfilter(int32_t on);
+
 extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
 extern void ExtUnInit(void);

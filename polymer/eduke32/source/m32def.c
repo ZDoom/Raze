@@ -409,8 +409,10 @@ const char *keyw[] =
 
     "drawline16",
     "drawline16b",
+    "drawline16z",
     "drawcircle16",
     "drawcircle16b",
+    "drawcircle16z",
     "rotatesprite16",
     "rotatesprite",
     "setgamepalette",
@@ -3401,14 +3403,21 @@ repeatcase:
 
     case CON_DRAWLINE16:
     case CON_DRAWLINE16B:
+    case CON_DRAWLINE16Z:
     case CON_DRAWCIRCLE16:
     case CON_DRAWCIRCLE16B:
+    case CON_DRAWCIRCLE16Z:
         if (cs.parsingEventOfs < 0 && cs.currentStateIdx < 0)
         {
             C_ReportError(ERROR_EVENTONLY);
             g_numCompilerErrors++;
         }
-        C_GetManyVars((tw==CON_DRAWLINE16||tw==CON_DRAWLINE16B) ? 5 : 4);
+        if (tw==CON_DRAWLINE16 || tw==CON_DRAWLINE16B || tw==CON_DRAWCIRCLE16Z)
+            C_GetManyVars(5);
+        else if (tw==CON_DRAWLINE16Z)
+            C_GetManyVars(7);
+        else
+            C_GetManyVars(4);
         break;
 
     case CON_ROTATESPRITE16:

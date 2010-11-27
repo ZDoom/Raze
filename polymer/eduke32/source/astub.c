@@ -4137,6 +4137,8 @@ ENDFOR1:
             {
                 i = insertsprite(sect,0);
                 Bmemcpy(&sprite[i], &sprite[linebegspr], sizeof(spritetype));
+                sprite[i].sectnum = sect;
+
                 sprite[i].x = dax, sprite[i].y = day;
                 sprite[i].picnum = t;
                 sprite[i].ang = daang;
@@ -6710,7 +6712,7 @@ static void Keys2d(void)
                 drawgradient();
                 showspritedata(pointhighlight&16383, 0);
             }
-            else if (linehighlight >= 0 && ((bstatus&1) || sectorofwall(linehighlight)==cursectornum))
+            else if (linehighlight >= 0 /* && ((bstatus&1) || sectorofwall(linehighlight)==cursectornum)*/)
             {
                 drawgradient();
                 showwalldata(linehighlight, 0);
@@ -6823,14 +6825,24 @@ static void Keys2d(void)
     {
         // PK_
         if (numhelppages>0)
+        {
+            m32_setkeyfilter(0);
             IntegratedHelp();
+            m32_setkeyfilter(1);
+        }
         else
             printmessage16("m32help.hlp invalid or not found!");
     }
 
     if (PRESSED_KEYSC(F2))
         if (g_numsounds > 0)
+        {
+            m32_setkeyfilter(0);
             SoundDisplay();
+            m32_setkeyfilter(1);
+        }
+
+    // F3: side view toggle (handled in build.c)
 
     getpoint(searchx,searchy, &mousxplc,&mousyplc);
     ppointhighlight = getpointhighlight(mousxplc,mousyplc, ppointhighlight);
@@ -7739,6 +7751,11 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         m32_osd_tryscript = !m32_osd_tryscript;
         OSD_Printf("Try M32 script execution on invalid OSD command: %s\n", m32_osd_tryscript?"on":"off");
     }
+    else if (!Bstrcasecmp(parm->name, "sideview_reversehorizrot"))
+    {
+        sideview_reversehrot = !sideview_reversehrot;
+        OSD_Printf("Side view reverse horizontal rotation: %s\n", sideview_reversehrot?"on":"off");
+    }
     else if (!Bstrcasecmp(parm->name, "script_expertmode"))
     {
         m32_script_expertmode = !m32_script_expertmode;
@@ -8060,6 +8077,7 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("enableevent", "enableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
     OSD_RegisterFunction("disableevent", "disableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
     OSD_RegisterFunction("osd_tryscript", "osd_tryscript: toggles execution of M32 script on invalid OSD command", osdcmd_vars_pk);
+    OSD_RegisterFunction("sideview_reversehorizrot", "sideview_reversehorizrot: toggles reversion of Q and W keys in side view mode", osdcmd_vars_pk);
 #ifdef DEBUGGINGAIDS
     OSD_RegisterFunction("disasm", "disasm [s|e] <state or event number>", osdcmd_disasm);
 #endif
@@ -9352,7 +9370,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
     //    if (cursectornum >= 0)
     //        fillsector(cursectornum, 31);
 
-    if (graphicsmode && zoom >= 256)
+    if (graphicsmode && !m32_sideview && zoom >= 256)
     {
         for (i=ii=0; i<MAXSPRITES && ii < numsprites; i++)
         {
@@ -9469,25 +9487,29 @@ void ExtPreCheckKeys(void) // just before drawrooms
     }
 
     if (showambiencesounds)
-        for (i=0; i<numsprites; i++)
-            if (sprite[i].picnum == MUSICANDSFX /*&& zoom >= 256*/ && sprite[i].sectnum != MAXSECTORS)
-            {
-                if (showambiencesounds==1 && sprite[i].sectnum!=cursectnum)
-                    continue;
+    {
+        for (ii=0; ii<numsectors; ii++)
+            for (i=headspritesect[ii]; i>=0; i=nextspritesect[i])
+                if (sprite[i].picnum == MUSICANDSFX /*&& zoom >= 256*/ )
+                {
+                    if (showambiencesounds==1 && sprite[i].sectnum!=cursectnum)
+                        continue;
 
-                xp1 = mulscale14(sprite[i].x-pos.x,zoom);
-                yp1 = mulscale14(sprite[i].y-pos.y,zoom);
+                    screencoords(&xp1,&yp1, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
+                    if (m32_sideview)
+                        yp1 += getscreenvdisp(sprite[i].z-pos.z, zoom);
 
-                radius = mulscale14(sprite[i].hitag,zoom);
-                col = 6;
-                if (i+16384 == pointhighlight)
-                    if (totalclock & 32) col += (2<<2);
-                drawlinepat = 0xf0f0f0f0;
-                drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, editorcolors[(int32_t)col]);
-                drawlinepat = 0xffffffff;
-                //            radius = mulscale15(sprite[i].hitag,zoom);
-                //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
-            }
+                    radius = mulscale14(sprite[i].hitag,zoom);
+                    col = 6;
+                    if (i+16384 == pointhighlight)
+                        if (totalclock & 32) col += (2<<2);
+                    drawlinepat = 0xf0f0f0f0;
+                    drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, scalescreeny(16384), editorcolors[(int32_t)col]);
+                    drawlinepat = 0xffffffff;
+                    //            radius = mulscale15(sprite[i].hitag,zoom);
+                    //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
+                }
+    }
 
     enddrawing();
 }

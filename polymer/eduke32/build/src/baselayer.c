@@ -24,6 +24,7 @@ int32_t joyaxespresent=0;
 void(*keypresscallback)(int32_t,int32_t) = 0;
 void(*mousepresscallback)(int32_t,int32_t) = 0;
 void(*joypresscallback)(int32_t,int32_t) = 0;
+void (*after_handleevents_hook)(void) = 0;
 
 extern int16_t brightness;
 

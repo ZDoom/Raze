@@ -1829,6 +1829,9 @@ int32_t handleevents(void)
 
 #undef SetKey
 
+    if (after_handleevents_hook)
+        after_handleevents_hook();
+
     return rv;
 }
 

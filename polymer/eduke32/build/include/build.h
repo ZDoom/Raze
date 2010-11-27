@@ -488,6 +488,7 @@ int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int
 int32_t   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, char tagsearch);
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 void   updatesector(int32_t x, int32_t y, int16_t *sectnum);
+void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *excludesectbitmap);
 void   updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum);
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day);
@@ -584,10 +585,10 @@ void   qsetmode640350(void);
 void   qsetmode640480(void);
 void   qsetmodeany(int32_t,int32_t);
 void   clear2dscreen(void);
-void   draw2dgrid(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int16_t gride);
-void   draw2dscreen(int32_t posxe, int32_t posye, int16_t ange, int32_t zoome, int16_t gride);
-void   drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
-void   drawcircle16(int32_t x1, int32_t y1, int32_t r, char col);
+void   draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t ange, int32_t zoome, int16_t gride);
+void   draw2dscreen(const vec3_t *pos, int16_t ange, int32_t zoome, int16_t gride);
+int32_t   drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
+void   drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col);
 
 int32_t   setrendermode(int32_t renderer);
 int32_t   getrendermode(void);

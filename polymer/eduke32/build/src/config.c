@@ -216,13 +216,14 @@ int32_t loadsetup(const char *fn)
 
     if (readconfig(fp, "mousesensitivity", val, VL) > 0) msens = Bstrtod(val, NULL);
 
-    if (readconfig(fp, "mousenavigation", val, VL) > 0) unrealedlook = Batoi(val);
+    if (readconfig(fp, "mousenavigation", val, VL) > 0) unrealedlook = !!Batoi(val);
 
     if (readconfig(fp, "mousenavigationaccel", val, VL) > 0) pk_uedaccel = Batoi(val);
 
     if (readconfig(fp, "quickmapcycling", val, VL) > 0) quickmapcycling = Batoi(val);
 
-    if (readconfig(fp, "revertCTRL", val, VL) > 0) revertCTRL = Batoi(val);
+    if (readconfig(fp, "sideview_reversehorizrot", val, VL) > 0) sideview_reversehrot = !!Batoi(val);
+    if (readconfig(fp, "revertCTRL", val, VL) > 0) revertCTRL = !!Batoi(val);
 
     if (readconfig(fp, "scrollamount", val, VL) > 0) scrollamount = Batoi(val);
 
@@ -242,10 +243,10 @@ int32_t loadsetup(const char *fn)
         graphicsmode = min(max(Batoi(val),0),2);
 
     if (readconfig(fp, "samplerate", val, VL) > 0) MixRate = min(max(8000, Batoi(val)), 48000);
-    if (readconfig(fp, "ambiencetoggle", val, VL) > 0) AmbienceToggle = Batoi(val);
-    if (readconfig(fp, "parlock", val, VL) > 0) ParentalLock = Batoi(val);
+    if (readconfig(fp, "ambiencetoggle", val, VL) > 0) AmbienceToggle = !!Batoi(val);
+    if (readconfig(fp, "parlock", val, VL) > 0) ParentalLock = !!Batoi(val);
 
-    if (readconfig(fp, "osdtryscript", val, VL) > 0) m32_osd_tryscript = Batoi(val);
+    if (readconfig(fp, "osdtryscript", val, VL) > 0) m32_osd_tryscript = !!Batoi(val);
 
     for (i=0; i<256; i++)
         remap[i]=i;
@@ -399,12 +400,15 @@ int32_t writesetup(const char *fn)
              ";   1 - Yes\n"
              "quickmapcycling = %d\n"
              "\n"
+             "; Reverse meaning of Q and W keys in side view mode\n"
+             "sideview_reversehorizrot = %d\n"
+             "\n"
              "; Revert CTRL for tile selction\n"
              ";   0 - WHEEL:scrolling, CTRL+WHEEL:zooming\n"
              ";   1 - CTRL+WHEEL:scrolling, WHEEL:zooming\n"
              "revertCTRL = %d\n"
              "\n"
-             "; Scroll amount for WHEEL in the tile selcetion\n"
+             "; Scroll amount for WHEEL in the tile selection\n"
              "scrollamount = %d\n"
              "\n"
              "; Turning acceleration+declaration\n"
@@ -480,10 +484,9 @@ int32_t writesetup(const char *fn)
 #endif
 //             "; Console key scancode, in hex\n"
              "keyconsole = %X\n"
-             "; example: make 'Q' function as CapsLock, KP. as AltGr\n"
-             "; and KP0 as KP5 (counters inability to pan using Shift-KP5-KP8/2\n"
-             "; in 3D mode)\n"
-             "; remap = 10-3A,52-4C,53-B8\n"
+             "; example: make KP0 function as KP5 (counters inability\n"
+             "; inability to pan using Shift-KP5-KP8/2 in 3D mode)\n"
+             "; remap = 52-4C\n"
              "remap = ",
 
              forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame, vsync,
@@ -506,6 +509,7 @@ int32_t writesetup(const char *fn)
              option[7]>>4, option[2],
 #endif
              option[3], msens, unrealedlook, pk_uedaccel, quickmapcycling,
+             sideview_reversehrot,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,
              showheightindicators,showambiencesounds,graphicsmode,
              MixRate,AmbienceToggle,ParentalLock, !!m32_osd_tryscript,

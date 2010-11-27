@@ -2822,19 +2822,27 @@ dodefault:
 // ^^^
         case CON_DRAWLINE16:
         case CON_DRAWLINE16B:
+        case CON_DRAWLINE16Z:
             insptr++;
             {
                 int32_t x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++);
+                int32_t z1=tw==CON_DRAWLINE16Z?Gv_GetVarX(*insptr++):0;
                 int32_t x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++);
+                int32_t z2=tw==CON_DRAWLINE16Z?Gv_GetVarX(*insptr++):0;
                 int32_t col=Gv_GetVarX(*insptr++), odrawlinepat=drawlinepat;
                 int32_t xofs=0, yofs=0;
 
-                if (tw==CON_DRAWLINE16B)
+                if (tw==CON_DRAWLINE16B || tw==CON_DRAWLINE16Z)
                 {
-                    x1 = mulscale14(x1-pos.x,zoom);
-                    y1 = mulscale14(y1-pos.y,zoom);
-                    x2 = mulscale14(x2-pos.x,zoom);
-                    y2 = mulscale14(y2-pos.y,zoom);
+                    screencoords(&x1,&y1, x1-pos.x,y1-pos.y, zoom);
+                    screencoords(&x2,&y2, x2-pos.x,y2-pos.y, zoom);
+
+                    if (tw==CON_DRAWLINE16Z && m32_sideview)
+                    {
+                        y1 += getscreenvdisp(z1-pos.z,zoom);
+                        y2 += getscreenvdisp(z2-pos.z,zoom);
+                    }
+
                     xofs = halfxdim16;
                     yofs = midydim16;
                 }
@@ -2847,24 +2855,28 @@ dodefault:
 
         case CON_DRAWCIRCLE16:
         case CON_DRAWCIRCLE16B:
+        case CON_DRAWCIRCLE16Z:
             insptr++;
             {
                 int32_t x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++);
+                int32_t z1 = tw==CON_DRAWCIRCLE16Z ? Gv_GetVarX(*insptr++) : 0;
                 int32_t r=Gv_GetVarX(*insptr++);
                 int32_t col=Gv_GetVarX(*insptr++), odrawlinepat=drawlinepat;
-                int32_t xofs=0, yofs=0;
+                int32_t xofs=0, yofs=0, eccen=16384;
 
                 if (tw==CON_DRAWCIRCLE16B)
                 {
-                    x1 = mulscale14(x1-pos.x,zoom);
-                    y1 = mulscale14(y1-pos.y,zoom);
+                    screencoords(&x1,&y1, x1-pos.x,y1-pos.y, zoom);
+                    if (m32_sideview)
+                        y1 += getscreenvdisp(z1, zoom);
                     r = mulscale14(r,zoom);
+                    eccen = scalescreeny(eccen);
                     xofs = halfxdim16;
                     yofs = midydim16;
                 }
 
                 drawlinepat = m32_drawlinepat;
-                drawcircle16(xofs+x1, yofs+y1, r, col>=0?editorcolors[col&15]:(-col&255));
+                drawcircle16(xofs+x1, yofs+y1, r, eccen, col>=0?editorcolors[col&15]:(-col&255));
                 drawlinepat = odrawlinepat;
                 continue;
             }

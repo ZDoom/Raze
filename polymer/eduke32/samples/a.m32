@@ -22,9 +22,10 @@ define SFACTORSTEPS 100
 
 // color of various drawing enhancements
 define PREVIEW_DRAW_COLOR 11
+gamevar showpal 0 0
 
 // 2d mode corruption checker interval, 120 = 1 second
-gamevar checkinterval 600 0
+gamevar checkinterval 1200 0
 
 // whether to use overridden aspect/range values when entering 3d mode (software/Polymost).
 // tweak with keys 7,8,9,0 on the top row
@@ -72,14 +73,15 @@ definequote LIGHTQUOTE light  %d   %d %d %d  %d  %d %d %d   %d %d %d %d   %d %d 
 
 // Corruption checker
 definequote 19 PANIC!!! SECTOR OR WALL LIMIT EXCEEDED!!!
-definequote 20 SECTOR[%d].WALLPTR=%d out of range: numwalls=%d!!!
-definequote 21 SECTOR[%d].WALLPTR=%d inconsistent, expected %d!!!
-definequote 22 SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d!!!
-definequote 23 WALL[%d].POINT2=%d out of range: sector[%d].wallptr=%d, endwall=%d!!!
-definequote 24 WALL[%d].NEXTWALL=%d out of range: numwalls=%d!!!
-definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d!!!
+definequote 20 SECTOR[%d].WALLPTR=%d out of range: numwalls=%d
+definequote 21 SECTOR[%d].WALLPTR=%d inconsistent, expected %d
+definequote 22 SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d
+definequote 23 WALL[%d].POINT2=%d out of range [%d, %d]
+definequote 24 WALL[%d].NEXTWALL=%d out of range: numwalls=%d
+definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d
 definequote 26 SPRITE[%d].SECTNUM=%d. Expect problems!
 definequote 27 SPRITE[%d].PICNUM=%d out of range, resetting to 0
+definequote 28 WALL[%d] has nextsector but no nextwall or vice versa!
 
 define PRSCALE 1000
 define MAXSPECULAR 100000
@@ -477,7 +479,7 @@ defstate connectlocators
     {
         set j ar[i]
         set k i, add k 1, set k ar[k]
-        drawline16b sprite[j].x sprite[j].y sprite[k].x sprite[k].y drawcol
+        drawline16z sprite[j].x sprite[j].y sprite[j].z sprite[k].x sprite[k].y sprite[k].z drawcol
     }
 ends
 
@@ -504,13 +506,12 @@ defstate draw_prlightprojections
 
                 set x .x, set x2 .x, set y .y, set y2 .y
                 add x d, add y d, sub x2 d, sub y2 d
-                drawline16b x y x2 y2 c
+                drawline16z x y .z x2 y2 .z c
 
                 set x .x, set x2 .x, set y .y, set y2 .y
                 add x d, sub y d, sub x2 d, add y2 d
-                drawline16b x y x2 y2 c
-
-                drawcircle16b .x .y .hitag c
+                drawline16z x y .z x2 y2 .z c
+                drawcircle16z .x .y .z .hitag c
             }
             else ife .lotag 50  // spot light
             {
@@ -543,8 +544,8 @@ defstate draw_prlightprojections
                 add xx[0] dx, add yy[0] dy
                 add xx[1] dx, add yy[1] dy
 
-                drawline16b .x .y xx[0] yy[0] c
-                drawline16b .x .y xx[1] yy[1] c
+                drawline16z .x .y .z xx[0] yy[0] .z c
+                drawline16z .x .y .z xx[1] yy[1] .z c
             }
         }
     }
@@ -559,7 +560,7 @@ defstate previewdoors2d
     set valid 0
     set sect searchsector
 
-    ifge sect 0
+    ifge sect 0 ifl sect numsectors
     {
         set lo sector[sect].lotag
         ife lo 23 set valid 1
@@ -630,7 +631,7 @@ defstate previewdoors2d
         for i range numw
         {
             set j i, add j 1
-            drawline16b xx[i] yy[i] xx[j] yy[j] PREVIEW_DRAW_COLOR
+            drawline16z xx[i] yy[i] sector[sect].floorz xx[j] yy[j] sector[sect].floorz PREVIEW_DRAW_COLOR
         }
         set drawlinepat 0xffffffff
     }
@@ -1014,9 +1015,12 @@ ends
 defstate corruptchk
     var ewall
     var endwall
+    var ok
 
     ifle numsectors MAXSECTORS ifle numwalls MAXWALLS nullop else
     { quote 19 printmessage16 19 return }
+
+    set ok 1
 
     set ewall 0  // expected wall index
     for i allsectors
@@ -1044,27 +1048,44 @@ defstate corruptchk
             set k 0
         }
 
+        and ok k
+
         ifn k 0
         {
+            sub endwall 1
 			for j wallsofsector i
 			{
-				ifge wall[j].point2 sector[i].wallptr  ifl wall[i].point2 endwall nullop else
+				ifge wall[j].point2 sector[i].wallptr  ifle wall[i].point2 endwall nullop else
                 {
-                    qsprintf TQUOTE 23 j wall[j].point2 i sector[i].wallptr endwall
+                    qsprintf TQUOTE 23 j wall[j].point2 sector[i].wallptr endwall
 				    quote TQUOTE printmessage16 TQUOTE
+                    set ok 0
                 }
 
-                ifge wall[i].nextwall numwalls
+                ifge wall[j].nextwall numwalls
 				{
 					qsprintf TQUOTE 24 j wall[j].nextwall numwalls
 				    quote TQUOTE printmessage16 TQUOTE
+                    set ok 0
 				}
 
-                ifge wall[i].nextsector numsectors
+                ifge wall[j].nextsector numsectors
 				{
 					qsprintf TQUOTE 25 j wall[j].nextsector numsectors
 				    quote TQUOTE printmessage16 TQUOTE
+                    set ok 0
 				}
+
+                set k 0
+                ifge wall[j].nextsector 0, xor k 1
+                ifge wall[j].nextwall 0, xor k 1
+
+                ife k 1
+                {
+					qsprintf TQUOTE 28 j
+				    quote TQUOTE printmessage16 TQUOTE
+                    set ok 0
+                }
 			}
         }
     }
@@ -1075,6 +1096,7 @@ defstate corruptchk
         {
             qsprintf TQUOTE 26 i .sectnum
             quote TQUOTE printmessage16 TQUOTE
+            set ok 0
         }
 
         ifge .picnum 0 ifl .picnum MAXTILES nullop else
@@ -1082,14 +1104,19 @@ defstate corruptchk
             qsprintf TQUOTE 27 i .picnum
             quote TQUOTE printmessage16 TQUOTE
             set .picnum 0
+            set ok 0
         }
     }
+
+    ife ok 0
+        print "--"
 ends
 
 
 gamevar d2d_lastcheck 0 0
 onevent EVENT_DRAW2DSCREEN
     var tmp
+    var xx
 
     ifge cursectnum 0
     {
@@ -1105,6 +1132,25 @@ onevent EVENT_DRAW2DSCREEN
     {
         set d2d_lastcheck totalclock
         state corruptchk
+    }
+
+    ifn showpal 0
+    {
+        set xx 100
+        for tmp range 256
+        {
+            drawline16 xx 100 xx 200 -tmp
+            add xx 1
+            drawline16 xx 100 xx 200 -tmp
+            add xx 1
+            ifge tmp 240
+            {
+                drawline16 xx 100 xx 200 -tmp
+                add xx 1
+                drawline16 xx 100 xx 200 -tmp
+                add xx 1
+            }
+        }
     }
 endevent
 
