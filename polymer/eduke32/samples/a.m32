@@ -33,6 +33,7 @@ gamevar use_custom_aspect 0 0  // this is now the same as r_usenewaspect
 gamevar davr 65536 0
 gamevar dayx 65536 0
 
+// see end of file for user key defs
 ////////// END USER SETTINGS //////////
 
 
@@ -388,9 +389,12 @@ defstate fiddlewithlights
     }
 ends
 
+defstate userkeys_3d ends  // forward-ref
+
 onevent EVENT_PREKEYS3D
 //    state testkeyavail
     state fiddlewithlights
+    state userkeys_3d
 endevent
 
 
@@ -817,7 +821,6 @@ onevent EVENT_ANALYZESPRITES
     state tduplin
 endevent
 
-
 onevent EVENT_KEYS3D
     var l m
 
@@ -1211,4 +1214,24 @@ defstate mkterrain
             }
         }
     }
+ends
+
+defstate chselshade
+    for i selsectors
+    {
+        set sector[i].floorshade tempshade
+        set sector[i].ceilingshade tempshade
+
+        for j spritesofsector i
+            set .shade tempshade
+
+        for j wallsofsector i
+            set wall[j].shade tempshade
+    }
+ends
+
+
+////////// USER KEY SETTINGS //////////
+defstate userkeys_3d
+    ifholdkey KEY_SEMI ifhitkey KEY_C state chselshade
 ends
