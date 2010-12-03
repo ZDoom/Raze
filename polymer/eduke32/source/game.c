@@ -900,7 +900,7 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
     for (k=i-1; k>=0; k--)
     {
         p = starttile+*(b+k)-'0';
-        j += (1+tilesizx[p]*z)>>16;
+        j += ((1+tilesizx[p])*z)>>16;
     }
     if (cs&ROTATESPRITE_MAX) j<<=16;
     c = x-(j>>1);
@@ -910,7 +910,7 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
     {
         p = starttile+*(b+k)-'0';
         rotatesprite((c+j)<<shift,y<<shift,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
-        j += ((1+tilesizx[p]*z)>>((cs&ROTATESPRITE_MAX)?0:16));
+        j += (((1+tilesizx[p])*z)>>((cs&ROTATESPRITE_MAX)?0:16));
     }
 }
 

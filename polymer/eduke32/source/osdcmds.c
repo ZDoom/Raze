@@ -1440,10 +1440,11 @@ int32_t registerosdcommands(void)
         { "r_drawweapon", "r_drawweapon: enable/disable weapon drawing", (void *)&ud.drawweapon, CVAR_INT, 0, 2 },
         { "r_showfps", "r_showfps: show the frame rate counter", (void *)&ud.tickrate, CVAR_BOOL, 0, 1 },
         { "r_shadows", "r_shadows: enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
+        { "r_size", "r_size: change size of viewable area", (void *)&ud.screen_size, CVAR_INT, 0, 64 },
         { "r_precache", "r_precache: enable/disable the pre-level caching routine", (void *)&ud.config.useprecache, CVAR_BOOL, 0, 1 },
 
         { "r_ambientlight", "r_ambientlight: sets the global map light level",(void *)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-        { "r_maxfps", "r_maxfps: sets a framerate cap",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 1000 },
+        { "r_maxfps", "r_maxfps: limit the frame rate",(void *)&r_maxfps, CVAR_INT|CVAR_FUNCPTR, 0, 1000 },
 
         { "sensitivity","sensitivity <value>: changes the mouse sensitivity", (void *)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 25 },
 
