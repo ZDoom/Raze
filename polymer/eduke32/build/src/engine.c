@@ -48,9 +48,13 @@
 float debug1, debug2;
 #endif
 
-void drawpixel_safe(void* s, char a)
+static void drawpixel_safe(void* s, char a)
 {
+#if defined __GNUC__
+    if (__builtin_expect((intptr_t)s >= frameplace && (intptr_t)s < frameplace+bytesperline*ydim, 1))
+#else
     if ((intptr_t)s >= frameplace && (intptr_t)s < frameplace+bytesperline*ydim)
+#endif
         drawpixel(s, a);
 #ifdef DEBUGGINGAIDS
     else
@@ -11716,28 +11720,31 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
     uint32_t patc=0;
     intptr_t p;
 
-    dx = x2-x1; dy = y2-y1;
+    dx = x2-x1;
+    dy = y2-y1;
+
     if (dx >= 0)
     {
-        if ((x1 >= xres) || (x2 < 0)) return 0;
+        if (x1 >= xres || x2 < 0) return 0;
         if (x1 < 0) { if (dy) y1 += scale(0-x1,dy,dx); x1 = 0; }
         if (x2 >= xres) { if (dy) y2 += scale(xres-1-x2,dy,dx); x2 = xres-1; }
     }
     else
     {
-        if ((x2 >= xres) || (x1 < 0)) return 0;
+        if (x2 >= xres || x1 < 0) return 0;
         if (x2 < 0) { if (dy) y2 += scale(0-x2,dy,dx); x2 = 0; }
         if (x1 >= xres) { if (dy) y1 += scale(xres-1-x1,dy,dx); x1 = xres-1; }
     }
+
     if (dy >= 0)
     {
-        if ((y1 >= ydim16) || (y2 < 0)) return 0;
+        if (y1 >= ydim16 || y2 < 0) return 0;
         if (y1 < 0) { if (dx) x1 += scale(0-y1,dx,dy); y1 = 0; if (x1 < 0) x1 = 0; }
         if (y2 >= ydim16) { if (dx) x2 += scale(ydim16-1-y2,dx,dy); y2 = ydim16-1; if (x2 < 0) x2 = 0; }
     }
     else
     {
-        if ((y2 >= ydim16) || (y1 < 0)) return 0;
+        if (y2 >= ydim16 || y1 < 0) return 0;
         if (y2 < 0) { if (dx) x2 += scale(0-y2,dx,dy); y2 = 0; if (x2 < 0) x2 = 0; }
         if (y1 >= ydim16) { if (dx) x1 += scale(ydim16-1-y1,dx,dy); y1 = ydim16-1; if (x1 < 0) x1 = 0; }
     }
@@ -12051,6 +12058,30 @@ void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zo
     *yres = scalescreeny(mulscale14(y,zoome));
 }
 
+#if 0
+void invscreencoords(int32_t *dx, int32_t *dy, int32_t sx, int32_t sy, int32_t zoome)
+{
+    if (m32_sidesin==0 || zoome==0) { *dx=0; *dy=0; return; }
+
+    sy = divscale14(divscale14(sy, m32_sidesin), zoome);
+    sx = divscale14(sx, zoome);
+
+    rotatepoint(0,0, sx,sy, -m32_sideang, dx,dy);
+}
+#endif
+
+// invscreencoords with sx==0 and sy==getscreenvdisp(dz, zoom)
+int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz)
+{
+    if (m32_sidesin==0)
+        return 1;
+
+    dz = (((int64_t)dz * (int64_t)m32_sidecos)/(int64_t)m32_sidesin)>>4;
+    rotatepoint(0,0, 0,dz, -m32_sideang, dx,dy);
+
+    return 0;
+}
+
 // return vertical screen coordinate displacement for BUILD z coord
 inline int32_t getscreenvdisp(int32_t bz, int32_t zoome)
 {
@@ -12111,7 +12142,7 @@ static int sideview_cmppoints(const int16_t *sw1, const int16_t *sw2)
 //
 // draw2dgrid
 //
-void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t ange, int32_t zoome, int16_t gride)
+void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride)
 {
     int64_t i, xp1, yp1, xp2=0, yp2, tempy;
 
@@ -12127,7 +12158,11 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t ange, int32
         int32_t sx1,sy1, sx2,sy2, dx=0,dy=0;
         int32_t xinc=0, yinc=2048>>gride, yofs;
 
-        yofs = getscreenvdisp((yinc-posze)&((yinc<<4)-1), zoome);
+//        yofs = getscreenvdisp((yinc-posze)&((yinc<<4)-1), zoome);
+        if (cursectnum<0 || cursectnum>=numsectors)
+            yofs = getscreenvdisp(-posze, zoome);
+        else 
+            yofs = getscreenvdisp(getflorzofslope(cursectnum, posxe,posye)-posze, zoome);
 
         while (scalescreeny(mulscale14(yinc, zoome))==0 && gride>2)
         {
@@ -12307,6 +12342,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 
     if (m32_sideview)
     {
+        // draw vertical line to neighboring wall
         int32_t fz, fz2, fzn;
         int32_t sect=sectorofwall(i);
 
@@ -12438,6 +12474,7 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
 {
     int32_t x1, y1, x2, y2;
     char col;
+    int16_t hitblocking=(sprite[j].cstat&256), flooraligned=(sprite[j].cstat&32), wallaligned=(sprite[j].cstat&16);
 
     int16_t angofs = m32_sideview ? m32_sideang : 0;
 
@@ -12488,114 +12525,19 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
 
         drawline16mid(x1,y1, x1+x2,y1+y2, editorcolors[col]);
 
-        if ((sprite[j].cstat&256) > 0)
+        if (hitblocking)
         {
             drawline16mid(x1,y1+1, x1+x2,y1+y2+1, editorcolors[col]);
             drawline16mid(x1,y1-1, x1+x2,y1+y2-1, editorcolors[col]);
             drawline16mid(x1-1,y1, x1+x2-1,y1+y2, editorcolors[col]);
             drawline16mid(x1+1,y1, x1+x2+1,y1+y2, editorcolors[col]);
-
-            if ((sprite[j].cstat&32) > 0)
-            {
-                int32_t fx = mulscale10(mulscale6(tilesizx[sprite[j].picnum], sprite[j].xrepeat),zoome) >> 1;
-                int32_t fy = mulscale10(mulscale6(tilesizy[sprite[j].picnum], sprite[j].yrepeat),zoome) >> 1;
-                int32_t co[4][2], ii;
-                int32_t sinang = sintable[(sprite[j].ang+angofs+1536)&2047];
-                int32_t cosang = sintable[(sprite[j].ang+angofs+1024)&2047];
-                int32_t r,s;
-
-                co[0][0] = co[3][0] = -fx;
-                co[0][1] = co[1][1] = -fy;
-                co[1][0] = co[2][0] = fx;
-                co[2][1] = co[3][1] = fy;
-
-                for (ii=3; ii>=0; ii--)
-                {
-                    r = mulscale14(cosang,co[ii][0]) - mulscale14(sinang,co[ii][1]);
-                    s = mulscale14(sinang,co[ii][0]) + mulscale14(cosang,co[ii][1]);
-                    s = scalescreeny(s);
-                    co[ii][0] = r;
-                    co[ii][1] = s;
-                }
-                drawlinepat = 0xcfcfcfcf;
-                for (ii=3; ii>=0; ii--)
-                {
-                    drawline16mid(x1+co[ii][0], y1-co[ii][1], x1+co[(ii+1)&3][0], y1-co[(ii+1)&3][1], editorcolors[col]);
-                    drawline16mid(x1+co[ii][0], y1-co[ii][1]+1, x1+co[(ii+1)&3][0], y1-co[(ii+1)&3][1]+1, editorcolors[col]);
-                    drawline16mid(x1+co[ii][0], y1-co[ii][1]-1, x1+co[(ii+1)&3][0], y1-co[(ii+1)&3][1]-1, editorcolors[col]);
-                    drawline16mid(x1+co[ii][0]+1, y1-co[ii][1], x1+co[(ii+1)&3][0]+1, y1-co[(ii+1)&3][1], editorcolors[col]);
-                    drawline16mid(x1+co[ii][0]-1, y1-co[ii][1], x1+co[(ii+1)&3][0]-1, y1-co[(ii+1)&3][1], editorcolors[col]);
-                    drawline16mid(x1, y1,  x1 + co[(ii+1)&3][0], y1 - co[(ii+1)&3][1],  editorcolors[col]);
-                }
-                drawlinepat = 0xffffffff;
-            }
-            else if ((sprite[j].cstat&16) > 0)
-            {
-                int32_t fx = mulscale6(tilesizx[sprite[j].picnum], sprite[j].xrepeat);
-                int32_t one=(((sprite[j].ang+angofs+256)&512) == 0), no=!one;
-
-                x2 = mulscale11(sintable[(sprite[j].ang+angofs+2560)&2047],zoome) / 6144;
-                y2 = mulscale11(sintable[(sprite[j].ang+angofs+2048)&2047],zoome) / 6144;
-                y2 = scalescreeny(y2);
-
-                if (!(sprite[j].cstat&64))
-                {
-                    drawline16mid(x1-no,y1-one, x1-x2-no,y1-y2-one, editorcolors[col]);
-                    drawline16mid(x1,y1, x1-x2,y1-y2, editorcolors[col]);
-                    drawline16mid(x1+no,y1+one, x1-x2+no,y1-y2+one, editorcolors[col]);
-                }
-
-                drawline16mid(x1-no,y1-one, x1+x2-no,y1+y2-one, editorcolors[col]);
-                drawline16mid(x1,y1, x1+x2,y1+y2, editorcolors[col]);
-                drawline16mid(x1+no,y1+one, x1+x2+no,y1+y2+one, editorcolors[col]);
-
-
-                x2 = mulscale13(sintable[(sprite[j].ang+angofs+1024)&2047],zoome) * fx / 4096;
-                y2 = mulscale13(sintable[(sprite[j].ang+angofs+512)&2047],zoome) * fx / 4096;
-                y2 = scalescreeny(y2);
-
-                drawline16mid(x1+1,y1, x1+x2+1,y1+y2, editorcolors[col]);
-                drawline16mid(x1-1,y1, x1-x2-1,y1-y2, editorcolors[col]);
-                drawline16mid(x1-1,y1, x1+x2-1,y1+y2, editorcolors[col]);
-                drawline16mid(x1+1,y1, x1-x2+1,y1-y2, editorcolors[col]);
-
-                drawline16mid(x1,y1, x1-x2,y1-y2, editorcolors[col]);
-                drawline16mid(x1,y1, x1+x2,y1+y2, editorcolors[col]);
-
-                drawline16mid(x1,y1-1, x1+x2,y1+y2-1, editorcolors[col]);
-                drawline16mid(x1,y1+1, x1-x2,y1-y2+1, editorcolors[col]);
-                drawline16mid(x1,y1+1, x1+x2,y1+y2+1, editorcolors[col]);
-                drawline16mid(x1,y1-1, x1-x2,y1-y2-1, editorcolors[col]);
-            }
-
-            col += 8;
         }
-        else if ((sprite[j].cstat&16) > 0)
-        {
-            int32_t fx = mulscale6(tilesizx[sprite[j].picnum], sprite[j].xrepeat);
 
-            x2 = mulscale11(sintable[(sprite[j].ang+angofs+2560)&2047],zoome) / 6144;
-            y2 = mulscale11(sintable[(sprite[j].ang+angofs+2048)&2047],zoome) / 6144;
-            y2 = scalescreeny(y2);
-
-            drawline16mid(x1,y1, x1+x2,y1+y2, editorcolors[col]);
-            if (!(sprite[j].cstat&64))
-                drawline16mid(x1,y1, x1-x2,y1-y2, editorcolors[col]);
-
-            x2 = mulscale13(sintable[(sprite[j].ang+angofs+1024)&2047],zoome) * fx / 4096;
-            y2 = mulscale13(sintable[(sprite[j].ang+angofs+512)&2047],zoome) * fx / 4096;
-            y2 = scalescreeny(y2);
-
-            drawline16mid(x1,y1, x1+x2,y1+y2, editorcolors[col]);
-            drawline16mid(x1,y1, x1-x2,y1-y2, editorcolors[col]);
-
-            col += 8;
-        }
-        else if ((sprite[j].cstat&32) > 0)
+        if (flooraligned)
         {
             int32_t fx = mulscale10(mulscale6(tilesizx[sprite[j].picnum], sprite[j].xrepeat),zoome) >> 1;
             int32_t fy = mulscale10(mulscale6(tilesizy[sprite[j].picnum], sprite[j].yrepeat),zoome) >> 1;
-            int32_t co[4][2], ii;
+            int32_t co[4][2], ii, in;
             int32_t sinang = sintable[(sprite[j].ang+angofs+1536)&2047];
             int32_t cosang = sintable[(sprite[j].ang+angofs+1024)&2047];
             int32_t r,s;
@@ -12613,14 +12555,68 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
                 co[ii][0] = r;
                 co[ii][1] = s;
             }
-
             drawlinepat = 0xcfcfcfcf;
             for (ii=3; ii>=0; ii--)
             {
-                drawline16mid(x1+co[ii][0], y1-co[ii][1], x1+co[(ii+1)&3][0], y1-co[(ii+1)&3][1], editorcolors[col]);
-                drawline16mid(x1, y1, x1+co[(ii+1)&3][0], y1-co[(ii+1)&3][1], editorcolors[col]);
+                in = (ii+1)&3;
+                drawline16mid(x1+co[ii][0], y1-co[ii][1], x1+co[in][0], y1-co[in][1], editorcolors[col]);
+                if (hitblocking)
+                {
+                    drawline16mid(x1+co[ii][0], y1-co[ii][1]+1, x1+co[in][0], y1-co[in][1]+1, editorcolors[col]);
+                    drawline16mid(x1+co[ii][0], y1-co[ii][1]-1, x1+co[in][0], y1-co[in][1]-1, editorcolors[col]);
+                    drawline16mid(x1+co[ii][0]+1, y1-co[ii][1], x1+co[in][0]+1, y1-co[in][1], editorcolors[col]);
+                    drawline16mid(x1+co[ii][0]-1, y1-co[ii][1], x1+co[in][0]-1, y1-co[in][1], editorcolors[col]);
+                }
+                drawline16mid(x1, y1,  x1 + co[in][0], y1 - co[in][1],  editorcolors[col]);
             }
             drawlinepat = 0xffffffff;
+        }
+        else if (wallaligned)
+        {
+            int32_t fx = mulscale6(tilesizx[sprite[j].picnum], sprite[j].xrepeat);
+            int32_t one=(((sprite[j].ang+angofs+256)&512) == 0), no=!one;
+
+            x2 = mulscale11(sintable[(sprite[j].ang+angofs+2560)&2047],zoome) / 6144;
+            y2 = mulscale11(sintable[(sprite[j].ang+angofs+2048)&2047],zoome) / 6144;
+            y2 = scalescreeny(y2);
+
+            drawline16mid(x1,y1, x1+x2,y1+y2, editorcolors[col]);
+            if (!(sprite[j].cstat&64))  // not 1-sided
+            {
+                drawline16mid(x1,y1, x1-x2,y1-y2, editorcolors[col]);
+                if (hitblocking)
+                {
+                    drawline16mid(x1-no,y1-one, x1-x2-no,y1-y2-one, editorcolors[col]);
+                    drawline16mid(x1+no,y1+one, x1-x2+no,y1-y2+one, editorcolors[col]);
+                }
+            }
+
+            if (hitblocking)
+            {
+                drawline16mid(x1-no,y1-one, x1+x2-no,y1+y2-one, editorcolors[col]);
+                drawline16mid(x1+no,y1+one, x1+x2+no,y1+y2+one, editorcolors[col]);
+            }
+
+
+            x2 = mulscale13(sintable[(sprite[j].ang+angofs+1024)&2047],zoome) * fx / 4096;
+            y2 = mulscale13(sintable[(sprite[j].ang+angofs+512)&2047],zoome) * fx / 4096;
+            y2 = scalescreeny(y2);
+
+            drawline16mid(x1,y1, x1-x2,y1-y2, editorcolors[col]);
+            drawline16mid(x1,y1, x1+x2,y1+y2, editorcolors[col]);
+
+            if (hitblocking)
+            {
+                drawline16mid(x1+1,y1, x1+x2+1,y1+y2, editorcolors[col]);
+                drawline16mid(x1-1,y1, x1-x2-1,y1-y2, editorcolors[col]);
+                drawline16mid(x1-1,y1, x1+x2-1,y1+y2, editorcolors[col]);
+                drawline16mid(x1+1,y1, x1-x2+1,y1-y2, editorcolors[col]);
+
+                drawline16mid(x1,y1-1, x1+x2,y1+y2-1, editorcolors[col]);
+                drawline16mid(x1,y1+1, x1-x2,y1-y2+1, editorcolors[col]);
+                drawline16mid(x1,y1+1, x1+x2,y1+y2+1, editorcolors[col]);
+                drawline16mid(x1,y1-1, x1-x2,y1-y2-1, editorcolors[col]);
+            }
         }
     }
 }
@@ -12628,7 +12624,7 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
 //
 // draw2dscreen
 //
-void draw2dscreen(const vec3_t *pos, int16_t ange, int32_t zoome, int16_t gride)
+void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride)
 {
     int32_t i, j, x1, y1;
     int16_t angofs = m32_sideview ? m32_sideang : 0;
@@ -12660,7 +12656,7 @@ void draw2dscreen(const vec3_t *pos, int16_t ange, int32_t zoome, int16_t gride)
         clear2dscreen();
 
 //        faketimerhandler();
-        draw2dgrid(posxe,posye,posze,ange,zoome,gride);
+        draw2dgrid(posxe,posye,posze,cursectnum,ange,zoome,gride);
     }
 
     faketimerhandler();

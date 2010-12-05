@@ -99,6 +99,13 @@ int32_t scripthistend = 0;
 
 int32_t showambiencesounds=2;
 
+static uint32_t templenrepquot;
+static void fixxrepeat(int16_t i, uint32_t lenrepquot)
+{
+    if (lenrepquot != 0)
+        wall[i].xrepeat = clamp(divscale12(wallength(i), lenrepquot), 1, 255);
+}
+
 //////////////////// Key stuff ////////////////////
 
 #define eitherALT   (keystatus[KEYSC_LALT] || keystatus[KEYSC_RALT])
@@ -6192,8 +6199,10 @@ static void Keys3d(void)
             {
                 temppicnum = AIMED_SELOVR_WALL(picnum);
                 tempxrepeat = AIMED_SEL_WALL(xrepeat);
+                tempxrepeat = max(1, tempxrepeat);
                 tempyrepeat = AIMED_SEL_WALL(yrepeat);
                 tempcstat = AIMED_SEL_WALL(cstat);
+                templenrepquot = divscale12(wallength(searchwall), tempxrepeat);
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
             {
@@ -6293,9 +6302,9 @@ static void Keys3d(void)
                     wall[i].xrepeat = tempxrepeat;
                     wall[i].yrepeat = tempyrepeat;
                     wall[i].cstat = tempcstat;
+                    fixxrepeat(i, templenrepquot);
                 }
 
-                fixrepeats((int16_t)i);
                 i = wall[i].point2;
             }
             while (i != searchwall);
@@ -6361,8 +6370,8 @@ static void Keys3d(void)
                     wall[searchwall].lotag = templotag;
                     wall[searchwall].hitag = temphitag;
                     wall[searchwall].extra = tempextra;
+                    fixxrepeat(searchwall, templenrepquot);
                 }
-                fixrepeats(searchwall);
                 asksave = 1;
             }
             else if (AIMING_AT_MASKWALL)
@@ -6382,8 +6391,8 @@ static void Keys3d(void)
                     wall[searchwall].lotag = templotag;
                     wall[searchwall].hitag = temphitag;
                     wall[searchwall].extra = tempextra;
+                    fixxrepeat(searchwall, templenrepquot);
                 }
-                fixrepeats(searchwall);
                 asksave = 1;
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)

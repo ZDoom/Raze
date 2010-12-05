@@ -122,7 +122,7 @@ int32_t lastpm16time = 0;
 int32_t numsprites;
 extern int32_t mapversion;
 
-int16_t highlight[MAXWALLS];
+int16_t highlight[MAXWALLS+MAXSPRITES];
 int16_t highlightsector[MAXSECTORS], highlightsectorcnt = -1;
 extern char textfont[128][8];
 
@@ -1889,7 +1889,7 @@ void overheadeditor(void)
                 drawmapview(pos.x, pos.y, zoom, 1536);
             }
 
-            draw2dgrid(pos.x,pos.y,pos.z,ang,zoom,grid);
+            draw2dgrid(pos.x,pos.y,pos.z,cursectnum,ang,zoom,grid);
 
             ExtPreCheckKeys();
 
@@ -1918,7 +1918,7 @@ void overheadeditor(void)
                 }
             }
 
-            draw2dscreen(&pos,ang,zoom,grid);
+            draw2dscreen(&pos,cursectnum,ang,zoom,grid);
             VM_OnEvent(EVENT_DRAW2DSCREEN, -1);
 
             begindrawing();	//{{{
@@ -2299,21 +2299,9 @@ void overheadeditor(void)
         if (keystatus[88])   //F12
         {
             keystatus[88] = 0;
-            /*
-            j = ydim16; ydim16 = ydim;
-            clear2dscreen();
-            draw2dgrid(pos.x,pos.y,ang,zoom,grid);
-            draw2dscreen(pos.x,pos.y,ang,zoom,grid);
-            */
-
+//__clearscreen_beforecapture__
             screencapture("captxxxx.tga", eitherSHIFT);
 
-            /*
-            ydim16 = j;
-            clear2dscreen();
-            draw2dgrid(pos.x,pos.y,ang,zoom,grid);
-            draw2dscreen(pos.x,pos.y,ang,zoom,grid);
-            */
             showframe(1);
         }
         if (keystatus[0x30])  // B (clip Blocking xor) (2D)
@@ -3164,10 +3152,26 @@ SKIP:
                 if ((bstatus&1) > (oldmousebstatus&1))
                     pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
 
-                if (pointhighlight >= 0)
+                if (pointhighlight >= 0 && (!m32_sideview || m32_sideelev>=32))
                 {
-                    dax = mousxplc;
-                    day = mousyplc;
+                    if (m32_sideview)
+                    {
+                        int32_t dz;
+                        if (pointhighlight>=16384)
+                            dz = sprite[pointhighlight&16383].z - pos.z;
+                        else
+                            dz = getflorzofslope(sectorofwall(pointhighlight),
+                                                 wall[pointhighlight].x, wall[pointhighlight].y) - pos.z;
+                        getinvdisplacement(&dax,&day, -dz);
+                        dax += mousxplc;
+                        day += mousyplc;
+                    }
+                    else
+                    {
+                        dax = mousxplc;
+                        day = mousyplc;
+                    }
+
                     if (gridlock && grid > 0)
                         locktogrid(&dax, &day);
 
@@ -3189,6 +3193,7 @@ SKIP:
                             dax -= sprite[pointhighlight&16383].x;
                             day -= sprite[pointhighlight&16383].y;
                         }
+
                         for (i=0; i<highlightcnt; i++)
                         {
                             if ((highlight[i]&0xc000) == 0)
@@ -3245,7 +3250,7 @@ SKIP:
             sectorhighlightstat = -1;
         }
 
-        if ((bstatus&6) > 0)
+        if (bstatus&(2|4))  // change arrow position
         {
             if (eitherCTRL)
             {
@@ -3293,8 +3298,7 @@ SKIP:
                     {
                         if (inside(pos.x, pos.y, i)==1)
                         {
-                            screencoords(&dax,&day, 0,0, zoom);
-                            day += getscreenvdisp(getflorzofslope(i, pos.x, pos.y)-pos.z, zoom);
+                            day = getscreenvdisp(getflorzofslope(i, pos.x, pos.y)-pos.z, zoom);
 
                             x2 = max(4, mulscale14(64,zoom));
                             y2 = scalescreeny(x2);
@@ -3302,17 +3306,17 @@ SKIP:
                             if (klabs(day) < y1)
                                 y1 = day;
 
-                            drawline16base(halfxdim16+dax, midydim16+day, -x2,-y2, x2,y2, editorcolors[14]);
-                            drawline16base(halfxdim16+dax, midydim16+day, -x2,y2, x2,-y2, editorcolors[14]);
+                            drawline16base(halfxdim16, midydim16+day, -x2,-y2, x2,y2, editorcolors[14]);
+                            drawline16base(halfxdim16, midydim16+day, -x2,y2, x2,-y2, editorcolors[14]);
                         }
                     }
 
+                    drawlinepat = 0x11111111;
                     if (y1 != INT_MAX)
-                    {
-                        drawlinepat = 0x11111111;
-                        drawline16base(halfxdim16,midydim16, dax,0, dax,y1, editorcolors[14]);
-                        drawlinepat = opat;
-                    }
+                        drawline16base(halfxdim16,midydim16, 0,0, 0,y1, editorcolors[14]);
+                    else
+                        drawline16base(halfxdim16,midydim16, 0,0, 0,getscreenvdisp(-pos.z, zoom), editorcolors[14]);
+                    drawlinepat = opat;
                 }
 
                 searchx = halfxdim16;
@@ -3357,16 +3361,22 @@ SKIP:
         {
             if (eitherCTRL)
             {
-                m32_sideang += 32;
-                m32_sideang &= (2047&~63);
+                if (m32_sideang&63)
+                {
+                    m32_sideang += (1-2*keystatus[0x10])*(1-2*sideview_reversehrot)*32;
+                    m32_sideang &= (2047&~63);
+                }
+                else
+                {
+                    m32_sideang += (1-2*keystatus[0x10])*(1-2*sideview_reversehrot)*64;
+                    m32_sideang &= 2047;
+                }
+
+                keystatus[0x10] = keystatus[0x11] = 0;
             }
             else
             {
-                if (keystatus[0x10])
-                    m32_sideang -= (1-2*sideview_reversehrot)*synctics<<(eitherSHIFT*2);
-                else
-                    m32_sideang += (1-2*sideview_reversehrot)*synctics<<(eitherSHIFT*2);
-
+                m32_sideang += (1-2*keystatus[0x10])*(1-2*sideview_reversehrot)*synctics<<(eitherSHIFT*2);
                 m32_sideang &= 2047;
             }
             _printmessage16("Sideview angle: %d", (int32_t)m32_sideang);
@@ -5210,6 +5220,9 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
     if (mouseb & 1)
         return line;
 
+    if ((pointhighlight&0xc000) == 16384)
+        return (-1);
+
     dist = 1024;
     closest = -1;
     for (i=0; i<numwalls; i++)
@@ -5233,13 +5246,14 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
         if (dmulscale32(xplc-x1,y2-y1,-(x2-x1),yplc-y1) >= 0)
             closest = wall[closest].nextwall;
     }
-    if ((pointhighlight&0xc000) == 16384) return (-1);
+
     return(closest);
 }
 
 int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
 {
-    int32_t i, dst, dist = 512, closest = -1;
+    int32_t i, j, dst, dist = 512, closest = -1;
+    int32_t dax,day;
 
     if (numwalls == 0)
         return(-1);
@@ -5250,22 +5264,49 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
     if (grid < 1)
         dist = 0;
 
-    for (i=0; i<numwalls; i++)
-    {
-        dst = klabs(xplc-wall[i].x) + klabs(yplc-wall[i].y);
-        if (dst <= dist)
-            dist = dst, closest = i;
-    }
+    for (i=0; i<numsectors; i++)
+        for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+        {
+            if (!m32_sideview)
+                dst = klabs(xplc-wall[j].x) + klabs(yplc-wall[j].y);
+            else
+            {
+                screencoords(&dax,&day, wall[j].x-pos.x,wall[j].y-pos.y, zoom);
+                day += getscreenvdisp(getflorzofslope(i, wall[j].x,wall[j].y)-pos.z, zoom);
+
+                if (halfxdim16+dax < 0 || halfxdim16+dax >= xdim || midydim16+day < 0 || midydim16+day >= ydim)
+                    continue;
+
+                dst = klabs(halfxdim16+dax-searchx) + klabs(midydim16+day-searchy);
+            }
+
+            if (dst <= dist)
+                dist = dst, closest = j;
+        }
+
     if (zoom >= 256)
         for (i=0; i<MAXSPRITES; i++)
             if (sprite[i].statnum < MAXSTATUS)
             {
-                dst = klabs(xplc-sprite[i].x) + klabs(yplc-sprite[i].y);
+                if (!m32_sideview)
+                    dst = klabs(xplc-sprite[i].x) + klabs(yplc-sprite[i].y);
+                else
+                {
+                    screencoords(&dax,&day, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
+                    day += getscreenvdisp(sprite[i].z-pos.z, zoom);
+
+                    if (halfxdim16+dax < 0 || halfxdim16+dax >= xdim || midydim16+day < 0 || midydim16+day >= ydim)
+                        continue;
+
+                    dst = klabs(halfxdim16+dax-searchx) + klabs(midydim16+day-searchy);
+                }
+
                 // was (dst <= dist), but this way, when duplicating sprites,
                 // the selected ones are dragged first
                 if (dst < dist || (dst == dist && (show2dsprite[i>>3]&(1<<(i&7)))))
                     dist = dst, closest = i+16384;
             }
+
     return(closest);
 }
 
