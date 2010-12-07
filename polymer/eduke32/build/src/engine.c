@@ -11707,6 +11707,10 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
     }
 }
 
+//static int engine_watchme=0;
+//#define WATCHME engine_watchme|=(odx!=dx||ody!=dy);
+static void attach_here() {}
+
 //
 // drawline16
 //
@@ -11720,34 +11724,56 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
     uint32_t patc=0;
     intptr_t p;
 
+int32_t odx,ody;
+
     dx = x2-x1;
     dy = y2-y1;
+
+odx=dx;
+ody=dy;
 
     if (dx >= 0)
     {
         if (x1 >= xres || x2 < 0) return 0;
+//WATCHME
         if (x1 < 0) { if (dy) y1 += scale(0-x1,dy,dx); x1 = 0; }
+//WATCHME
         if (x2 >= xres) { if (dy) y2 += scale(xres-1-x2,dy,dx); x2 = xres-1; }
+//WATCHME
     }
     else
     {
         if (x2 >= xres || x1 < 0) return 0;
+//WATCHME
         if (x2 < 0) { if (dy) y2 += scale(0-x2,dy,dx); x2 = 0; }
+//WATCHME
         if (x1 >= xres) { if (dy) y1 += scale(xres-1-x1,dy,dx); x1 = xres-1; }
+//WATCHME
     }
 
     if (dy >= 0)
     {
         if (y1 >= ydim16 || y2 < 0) return 0;
+//WATCHME
         if (y1 < 0) { if (dx) x1 += scale(0-y1,dx,dy); y1 = 0; if (x1 < 0) x1 = 0; }
+//WATCHME
         if (y2 >= ydim16) { if (dx) x2 += scale(ydim16-1-y2,dx,dy); y2 = ydim16-1; if (x2 < 0) x2 = 0; }
+//WATCHME
     }
     else
     {
         if (y2 >= ydim16 || y1 < 0) return 0;
+//WATCHME
         if (y2 < 0) { if (dx) x2 += scale(0-y2,dx,dy); y2 = 0; if (x2 < 0) x2 = 0; }
+//WATCHME
         if (y1 >= ydim16) { if (dx) x1 += scale(ydim16-1-y1,dx,dy); y1 = ydim16-1; if (x1 < 0) x1 = 0; }
+//WATCHME
     }
+
+if (x1<0||x1>=xres || x2<0||x2>=xres) attach_here();
+//WATCHME
+//if (odx!=dx || ody!=dy)
+//    *(int*)123=234;
 
     dx = klabs(x2-x1)+1; dy = klabs(y2-y1)+1;
     if (dx >= dy)
