@@ -4250,7 +4250,10 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     // PR_BIT_LIGHTING_PASS
     if (programbits & prprogrambits[PR_BIT_LIGHTING_PASS].bit)
     {
-        bglEnable(GL_BLEND);
+	// Careful with that, it works only if we respect the wrapping order
+	// or make sure GL_BLEND is the only ENABLE we mess with here.
+        bglPushAttrib(GL_ENABLE_BIT);
+	bglEnable(GL_BLEND);
         bglBlendFunc(GL_ONE, GL_ONE);
     }
 
@@ -4514,7 +4517,7 @@ static void         polymer_unbindmaterial(int32_t programbits)
     // PR_BIT_LIGHTING_PASS
     if (programbits & prprogrambits[PR_BIT_LIGHTING_PASS].bit)
     {
-        bglDisable(GL_BLEND);
+        bglPopAttrib();
         bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
