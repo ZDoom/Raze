@@ -11707,9 +11707,7 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
     }
 }
 
-//static int engine_watchme=0;
-//#define WATCHME engine_watchme|=(odx!=dx||ody!=dy);
-static void attach_here() {}
+//static void attach_here() {}
 
 //
 // drawline16
@@ -11724,56 +11722,84 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
     uint32_t patc=0;
     intptr_t p;
 
-int32_t odx,ody;
+//int32_t odx,ody;
+//int32_t ox1=x1,oy1=y1, ox2=x2,oy2=y2;
 
     dx = x2-x1;
     dy = y2-y1;
 
-odx=dx;
-ody=dy;
+//odx=dx;
+//ody=dy;
 
     if (dx >= 0)
     {
-        if (x1 >= xres || x2 < 0) return 0;
-//WATCHME
-        if (x1 < 0) { if (dy) y1 += scale(0-x1,dy,dx); x1 = 0; }
-//WATCHME
-        if (x2 >= xres) { if (dy) y2 += scale(xres-1-x2,dy,dx); x2 = xres-1; }
-//WATCHME
+        if (x1 >= xres || x2 < 0)
+            return 0;
+        if (x1 < 0)
+        {
+            if (dy) y1 += scale(0-x1,dy,dx);
+            x1 = 0;
+        }
+        if (x2 >= xres)
+        {
+            if (dy) y2 += scale(xres-1-x2,dy,dx);
+            x2 = xres-1;
+        }
     }
     else
     {
-        if (x2 >= xres || x1 < 0) return 0;
-//WATCHME
-        if (x2 < 0) { if (dy) y2 += scale(0-x2,dy,dx); x2 = 0; }
-//WATCHME
-        if (x1 >= xres) { if (dy) y1 += scale(xres-1-x1,dy,dx); x1 = xres-1; }
-//WATCHME
+        if (x2 >= xres || x1 < 0)
+            return 0;
+        if (x2 < 0)
+        {
+            if (dy) y2 += scale(0-x2,dy,dx);
+            x2 = 0;
+        }
+        if (x1 >= xres)
+        {
+            if (dy) y1 += scale(xres-1-x1,dy,dx);
+            x1 = xres-1;
+        }
     }
 
     if (dy >= 0)
     {
-        if (y1 >= ydim16 || y2 < 0) return 0;
-//WATCHME
-        if (y1 < 0) { if (dx) x1 += scale(0-y1,dx,dy); y1 = 0; if (x1 < 0) x1 = 0; }
-//WATCHME
-        if (y2 >= ydim16) { if (dx) x2 += scale(ydim16-1-y2,dx,dy); y2 = ydim16-1; if (x2 < 0) x2 = 0; }
-//WATCHME
+        if (y1 >= ydim16 || y2 < 0)
+            return 0;
+        if (y1 < 0)
+        {
+            if (dx) x1 += scale(0-y1,dx,dy);
+            y1 = 0;
+            x1 = clamp(x1, 0, xres-1);
+        }
+        if (y2 >= ydim16)
+        {
+            if (dx) x2 += scale(ydim16-1-y2,dx,dy);
+            y2 = ydim16-1;
+            x2 = clamp(x2, 0, xres-1);
+        }
     }
     else
     {
-        if (y2 >= ydim16 || y1 < 0) return 0;
-//WATCHME
-        if (y2 < 0) { if (dx) x2 += scale(0-y2,dx,dy); y2 = 0; if (x2 < 0) x2 = 0; }
-//WATCHME
-        if (y1 >= ydim16) { if (dx) x1 += scale(ydim16-1-y1,dx,dy); y1 = ydim16-1; if (x1 < 0) x1 = 0; }
-//WATCHME
+        if (y2 >= ydim16 || y1 < 0)
+            return 0;
+        if (y2 < 0)
+        {
+            if (dx) x2 += scale(0-y2,dx,dy);
+            y2 = 0;
+            x2 = clamp(x2, 0, xres-1);
+        }
+        if (y1 >= ydim16)
+        {
+            if (dx) x1 += scale(ydim16-1-y1,dx,dy);
+            y1 = ydim16-1;
+            x1 = clamp(x1, 0, xres-1);
+        }
     }
 
-if (x1<0||x1>=xres || x2<0||x2>=xres) attach_here();
-//WATCHME
-//if (odx!=dx || ody!=dy)
-//    *(int*)123=234;
+//if (ox1||ox2||oy1||oy2)
+//    if (x1<0||x1>=xres || y2<0||y2>=yres)
+//        attach_here();
 
     dx = klabs(x2-x1)+1; dy = klabs(y2-y1)+1;
     if (dx >= dy)
@@ -11797,7 +11823,7 @@ if (x1<0||x1>=xres || x2<0||x2>=xres) attach_here();
             for (i=dx; i>0; i--)
             {
                 if (drawlinepat & pow2long[(patc++)&31])
-                    drawpixel_safe((char *)p, col);
+                    drawpixel((char *)p, col);
                 d += dy;
                 if (d >= dx) { d -= dx; p += pinc; }
                 p++;
@@ -11820,7 +11846,7 @@ if (x1<0||x1>=xres || x2<0||x2>=xres) attach_here();
     for (i=dy; i>0; i--)
     {
         if (drawlinepat & pow2long[(patc++)&31])
-            drawpixel_safe((char *)p, col);
+            drawpixel((char *)p, col);
         d += dx;
         if (d >= dy) { d -= dy; p += pinc; }
         p += bytesperline;

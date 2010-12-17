@@ -3693,9 +3693,9 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 
 static int32_t spriteonceilingz(int32_t searchwall)
 {
-    int32_t z=sprite[searchwall].z;
+//    int32_t z=sprite[searchwall].z;
 
-    z = getceilzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
+    int32_t z = getceilzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
 
     if (sprite[searchwall].cstat&128)
         z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
@@ -3706,9 +3706,9 @@ static int32_t spriteonceilingz(int32_t searchwall)
 
 static int32_t spriteongroundz(int32_t searchwall)
 {
-    int32_t z=sprite[searchwall].z;
+//    int32_t z=sprite[searchwall].z;
 
-    z = getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
+    int32_t z = getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
 
     if (sprite[searchwall].cstat&128)
         z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);

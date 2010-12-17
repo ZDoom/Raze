@@ -94,7 +94,7 @@ ifneq (0,$(DEBUGANYWAY))
     debug+=-ggdb
 endif
 
-CC=gcc
+CC?=gcc
 CXX=gcc
 AS=nasm
 RC=windres

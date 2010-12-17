@@ -460,7 +460,7 @@ static int32_t defsparser(scriptfile *script)
         }
         case T_TILEFROMTEXTURE:
         {
-            char *texturetokptr = script->ltextptr, *textureend, *fn, *tfn = NULL, *ftd = NULL;
+            char *texturetokptr = script->ltextptr, *textureend, *fn = NULL, *tfn = NULL, *ftd = NULL;
             int32_t tile=-1, token, i;
             int32_t alphacut = 255;
             int32_t xoffset = 0, yoffset = 0;
@@ -1404,6 +1404,7 @@ static int32_t defsparser(scriptfile *script)
             for (i=0; i<6; i++)
             {
                 if (!fn[i]) initprintf("Error: missing '%s filename' for skybox definition near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
+                // FIXME?
                 ii = pathsearchmode;
                 pathsearchmode = 1;
                 if (findfrompath(fn[i],&tfn) < 0)

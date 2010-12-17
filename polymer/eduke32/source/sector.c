@@ -843,10 +843,20 @@ REDODOOR:
         }
         else
         {
-            q = sector[nextsectorneighborz(sn,sptr->floorz,1,1)].floorz;
-            j = SetAnimation(sn,&sptr->floorz,q,sptr->extra);
-            q = sector[nextsectorneighborz(sn,sptr->ceilingz,-1,-1)].ceilingz;
-            j = SetAnimation(sn,&sptr->ceilingz,q,sptr->extra);
+            int32_t fneigh=nextsectorneighborz(sn,sptr->floorz,1,1);
+            int32_t cneigh=nextsectorneighborz(sn,sptr->ceilingz,-1,-1);
+
+            if (fneigh>=0 && cneigh>=0)
+            {
+                j = SetAnimation(sn, &sptr->floorz, sector[fneigh].floorz, sptr->extra);
+                j = SetAnimation(sn, &sptr->ceilingz, sector[cneigh].ceilingz, sptr->extra);
+            }
+            else
+            {
+                OSD_Printf("WARNING: ST22: null sector: floor neighbor=%d, ceiling neighbor=%d!\n",
+                           fneigh, cneigh);
+                sptr->lotag ^= 0x8000;
+            }
         }
 
         sptr->lotag ^= 0x8000;

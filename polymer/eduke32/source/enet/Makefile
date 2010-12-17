@@ -1,4 +1,4 @@
-CC=gcc
+CC?=gcc
 OBJ=obj
 OBJNAME?=libenet.a
 PRETTY_OUTPUT?=1
@@ -26,7 +26,7 @@ CFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
     -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
     $(F_JUMP_TABLES) $(F_NO_STACK_PROTECTOR)
 
-CPPFLAGS=-I$(INC) -I$(SRC)
+CPPFLAGS=-I$(INC) -I$(SRC) -I../../$(EROOT)/include
 
 OBJECTS=$(OBJ)/callbacks.o \
 	$(OBJ)/host.o \

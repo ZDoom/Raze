@@ -190,13 +190,16 @@ int32_t main(int32_t argc, char *argv[])
         if (!Bstrcasecmp(argp, "TRUE"))
         {
             fp = freopen("stdout.txt", "w", stdout);
+
             if (!fp)
-            {
                 fp = fopen("stdout.txt", "w");
+
+            if (fp)
+            {
+                setvbuf(fp, 0, _IONBF, 0);
+                *stdout = *fp;
+                *stderr = *fp;
             }
-            if (fp) setvbuf(fp, 0, _IONBF, 0);
-            *stdout = *fp;
-            *stderr = *fp;
         }
 
 #if defined(USE_OPENGL) && defined(POLYMOST)

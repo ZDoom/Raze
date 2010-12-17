@@ -394,7 +394,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     if (dasectnum == -1)
     {
         dasectnum = spr->sectnum;
-        /*OSD_Printf("%s:%d wtf\n",__FILE__,__LINE__);*/
+//        OSD_Printf("%s:%d wtf\n",__FILE__,__LINE__);
     }
 
     if ((dasectnum != spr->sectnum))
