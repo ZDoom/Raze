@@ -9161,7 +9161,7 @@ static void G_Startup(void)
                     G_GameExit("Failed loading art.");
             }
             chdir(cwd);
-            Bfree(cwd);
+            free(cwd);
         }
         else if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
             G_GameExit("Failed loading art.");
