@@ -264,7 +264,7 @@ void G_DrawTilePal(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t ori
 void G_DrawTilePalSmall(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation,int32_t p);
 void G_DrawTileSmall(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation);
 void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e);
-void G_GameExit(const char *t);
+void G_GameExit(const char *t) ATTRIBUTE((noreturn));
 void G_GameQuit(void);
 void G_GetCrosshairColor(void);
 void G_HandleLocalKeys(void);

@@ -125,7 +125,7 @@ void S_MusicShutdown(void)
     S_StopMusic();
 
     if (MUSIC_Shutdown() != MUSIC_Ok)
-        initprintf(MUSIC_ErrorString(MUSIC_ErrorCode));
+        initprintf("%s", MUSIC_ErrorString(MUSIC_ErrorCode));
 }
 
 void S_PauseMusic(int32_t onf)

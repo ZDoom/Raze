@@ -1408,7 +1408,7 @@ skip_check:
                     continue;
 badindex:
                     OSD_Printf(OSD_ERROR "Line %d, %s %s: index %d out of range!\n",g_errorLineNum,keyw[g_tw],
-                               iter_tokens[how], parm2);
+                               iter_tokens[how].token, parm2);
                     vm.flags |= VMFLAG_ERROR;
                     continue;
                 }

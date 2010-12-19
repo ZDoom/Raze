@@ -97,8 +97,8 @@ int32_t initsystem(void);
 void uninitsystem(void);
 
 extern int32_t flushlogwindow;
-void initprintf(const char *, ...);
-void debugprintf(const char *,...);
+void initprintf(const char *, ...) ATTRIBUTE((format(printf,1,2)));
+void debugprintf(const char *,...) ATTRIBUTE((format(printf,1,2)));
 
 int32_t handleevents(void);
 extern void (*after_handleevents_hook)(void);
@@ -162,8 +162,8 @@ extern double vid_gamma, vid_contrast, vid_brightness;
 
 int32_t switchrendermethod(int32_t,int32_t);    // 0 = software, 1 = opengl | bool = reinit
 
-int32_t wm_msgbox(char *name, char *fmt, ...);
-int32_t wm_ynbox(char *name, char *fmt, ...);
+int32_t wm_msgbox(char *name, char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
+int32_t wm_ynbox(char *name, char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
 void wm_setapptitle(char *name);
 
 // baselayer.c

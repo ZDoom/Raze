@@ -234,7 +234,7 @@ extern int32_t halfxdim16, midydim16;
 
 // gamevar bytecode format:
 
-//  FEDC|BA09|8765|4321|FEDC|BA09|8765|4321
+//  FEDC|BA98|7654|3210|FEDC|BA98|7654|3120
 //                     |       .. .... ....  gamevar ID
 //                     |      .              constant bit (checked first) / get-payload-var bit for array or struct
 //                     |     .               negate bit

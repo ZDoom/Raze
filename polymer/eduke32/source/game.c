@@ -1992,7 +1992,7 @@ void G_GameExit(const char *t)
         {
             char titlebuf[256];
             Bsprintf(titlebuf,HEAD2 " %s",s_buildDate);
-            wm_msgbox(titlebuf, (char *)t);
+            wm_msgbox(titlebuf, "%s", (char *)t);
         }
     }
 

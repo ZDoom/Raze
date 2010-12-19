@@ -699,7 +699,7 @@ skip_check:
                 int32_t q = *insptr++, i = *insptr++;
                 if ((ScriptQuotes[q] == NULL || ScriptQuoteRedefinitions[i] == NULL))
                 {
-                    OSD_Printf(CON_ERROR "%s %d null quote\n",g_errorLineNum,keyw[g_tw],q,i);
+                    OSD_Printf(CON_ERROR "%d %d null quote\n",g_errorLineNum,keyw[g_tw],q,i);
                     break;
                 }
                 Bstrcpy(ScriptQuotes[q],ScriptQuoteRedefinitions[i]);

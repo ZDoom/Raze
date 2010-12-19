@@ -246,7 +246,7 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
               );
 
     s = Bstrdup(glinfo.extensions);
-    if (!s) initprintf(glinfo.extensions);
+    if (!s) initprintf("%s", glinfo.extensions);
     else
     {
         i = 0; t = u = s;

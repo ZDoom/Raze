@@ -825,9 +825,8 @@ process:
     case PACKET_VERSION:
         if (pbuf[1] != BYTEVERSION || pbuf[2] != (uint8_t)atoi(s_buildDate))
         {
-            Bsprintf(tempbuf, "Server protocol is version %d.%d, expecting %d.%d\n",
-                     pbuf[1], pbuf[2], BYTEVERSION, (uint8_t)atoi(s_buildDate));
-            initprintf(tempbuf);
+            initprintf("Server protocol is version %d.%d, expecting %d.%d\n",
+                       pbuf[1], pbuf[2], BYTEVERSION, (uint8_t)atoi(s_buildDate));
             initprintf("Server version mismatch!  You cannot play Duke with different versions!\n");
             g_netDisconnect = 1;
             return;

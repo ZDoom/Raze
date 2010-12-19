@@ -603,7 +603,7 @@ static int32_t C_SetScriptSize(int32_t size)
 
     if (script != newscript)
     {
-        initprintf("Relocating compiled code from to 0x%x to 0x%x\n", script, newscript);
+        initprintf("Relocating compiled code from to 0x%lx to 0x%lx\n", (unsigned long)script, (unsigned long)newscript);
         script = newscript;
     }
 
@@ -1674,7 +1674,7 @@ static int32_t C_ParseCommand(void)
                 kclose(fp);
                 g_numCompilerErrors++;
                 initprintf("%s:%d: error: could not allocate %d bytes to include `%s'.\n",
-                           g_lineNumber,g_szScriptFileName,j,tempbuf);
+                           g_szScriptFileName,g_lineNumber,j,tempbuf);
                 return 1;
             }
 
@@ -3591,7 +3591,7 @@ void C_CompilationInfo(void)
     int32_t j, k=0;
     initprintf(" \n");
     initprintf("Compiled code info: (size=%ld*%d bytes)\n",
-               (unsigned)(g_scriptPtr-script), sizeof(instype));
+               (unsigned long)(g_scriptPtr-script), sizeof(instype));
     initprintf("  %d/%d user labels, %d/65536 indirect constants,\n",
                g_numLabels-g_numDefaultLabels, 65536-g_numDefaultLabels,
                g_numSavedConstants);
@@ -3904,7 +3904,7 @@ void C_ReportError(int32_t iError)
                    g_szScriptFileName, g_lineNumber, tlabel, def_tw==CON_DEFSTATE?"define":"state");
         break;
     case WARNING_DUPLICATECASE:
-        initprintf("%s:%ld: warning: duplicate case ignored.\n",
+        initprintf("%s:%d: warning: duplicate case ignored.\n",
                    g_szScriptFileName, g_lineNumber);
         break;
     case WARNING_DUPLICATEDEFINITION:

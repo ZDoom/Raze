@@ -459,7 +459,7 @@ void   setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   setaspect(int32_t daxrange, int32_t daaspect);
 void   flushperms(void);
 
-void plotlines2d(int32_t *xx, int32_t *yy, int32_t numpoints, char col);
+void plotlines2d(int32_t *xx, int32_t *yy, int32_t numpoints, char col) ATTRIBUTE((nonnull(1,2)));
 
 void   plotpixel(int32_t x, int32_t y, char col);
 char   getpixel(int32_t x, int32_t y);
@@ -475,26 +475,26 @@ void   clearallviews(int32_t dacol);
 void   drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
 void   rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 void   drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
-int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize);
-void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize);
+int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
+void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
 
 extern int32_t clipmoveboxtracenum;
-int32_t   clipmove(vec3_t *vect, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype);
+int32_t   clipmove(vec3_t *vect, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
 int32_t   clipinsidebox(int32_t x, int32_t y, int16_t wallnum, int32_t walldist);
 int32_t   clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t walldist);
-int32_t   pushmove(vec3_t *vect, int16_t *sectnum, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype);
-void   getzrange(const vec3_t *vect, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit, int32_t walldist, uint32_t cliptype);
-int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz, hitdata_t *hitinfo, uint32_t cliptype);
-int32_t   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, char tagsearch);
+int32_t   pushmove(vec3_t *vect, int16_t *sectnum, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
+void   getzrange(const vec3_t *vect, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
+int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz, hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
+int32_t   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, char tagsearch) ATTRIBUTE((nonnull(6,7,8)));
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
-void   updatesector(int32_t x, int32_t y, int16_t *sectnum);
-void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *excludesectbitmap);
-void   updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum);
+void   updatesector(int32_t x, int32_t y, int16_t *sectnum) ATTRIBUTE((nonnull(3)));
+void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *excludesectbitmap) ATTRIBUTE((nonnull(3)));
+void   updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum) ATTRIBUTE((nonnull(4)));
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day);
 void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
 
-void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus);
+void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUTE((nonnull(1,2,3)));
 int32_t    krand(void);
 int32_t   ksqrt(int32_t num);
 // int32_t   getangle(int32_t xvect, int32_t yvect);
@@ -517,12 +517,12 @@ static inline int32_t getangle(int32_t xvect, int32_t yvect)
     return ((radarang[640-scale(160,xvect,yvect)]>>6)+512+((yvect<0)<<10))&2047;
 }
 
-void   rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y, int16_t daang, int32_t *x2, int32_t *y2);
+void   rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y, int16_t daang, int32_t *x2, int32_t *y2) ATTRIBUTE((nonnull(6,7)));
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, int16_t direction);
 int32_t   getceilzofslope(int16_t sectnum, int32_t dax, int32_t day);
 int32_t   getflorzofslope(int16_t sectnum, int32_t dax, int32_t day);
-void   getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz);
+void   getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(4,5)));
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 int32_t   sectorofwall(int16_t theline);
@@ -563,9 +563,9 @@ static inline int32_t deletesprite(int16_t spritenum)
 
 int32_t   changespritesect(int16_t spritenum, int16_t newsectnum);
 int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
-int32_t   setsprite(int16_t spritenum, const vec3_t *new);
+int32_t   setsprite(int16_t spritenum, const vec3_t *new) ATTRIBUTE((nonnull(2)));
 
-int32_t   screencapture(char *filename, char inverseit);
+int32_t   screencapture(char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
 
 int32_t   getclosestcol(int32_t r, int32_t g, int32_t b);
 
@@ -586,7 +586,7 @@ void   qsetmode640480(void);
 void   qsetmodeany(int32_t,int32_t);
 void   clear2dscreen(void);
 void   draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride);
-void   draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride);
+void   draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride) ATTRIBUTE((nonnull(1)));
 int32_t   drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
 void   drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col);
 

@@ -1156,7 +1156,7 @@ static int32_t C_SetScriptSize(int32_t size)
     {
         C_ReportError(-1);
         initprintf("%s:%d: out of memory: Aborted (%ud)\n",g_szScriptFileName,g_lineNumber,(unsigned)(g_scriptPtr-script));
-        initprintf(tempbuf);
+        initprintf("%s", tempbuf);
         g_numCompilerErrors++;
         return 1;
     }
@@ -1174,7 +1174,7 @@ static int32_t C_SetScriptSize(int32_t size)
     bitptr = newbitptr;
     if (script != newscript)
     {
-        initprintf("Relocating compiled code from to 0x%x to 0x%x\n", script, newscript);
+        initprintf("Relocating compiled code from to 0x%lx to 0x%lx\n", (unsigned long)script, (unsigned long)newscript);
         script = newscript;
     }
 
@@ -1619,7 +1619,7 @@ static void C_GetNextVarType(int32_t type)
     if (!type && !g_labelsOnly && (isdigit(*textptr) || ((*textptr == '-') && (isdigit(*(textptr+1))))))
     {
         if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-            initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+            initprintf("%s:%d: debug: accepted constant %ld in place of gamevar.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
         bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
         *g_scriptPtr++=MAXGAMEVARS;
         if (tolower(textptr[1])=='x')
@@ -1640,7 +1640,7 @@ static void C_GetNextVarType(int32_t type)
         if (!type)
         {
             if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-                initprintf("%s:%d: debug: flagging gamevar as negative.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+                initprintf("%s:%d: debug: flagging gamevar as negative.\n",g_szScriptFileName,g_lineNumber); //,atol(textptr));
             f = (MAXGAMEVARS<<1);
         }
         else
@@ -1949,7 +1949,7 @@ static int32_t C_GetNextValue(int32_t type)
     while (i > 0);
 
     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
-        initprintf("%s:%d: debug: accepted constant %d.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+        initprintf("%s:%d: debug: accepted constant %ld.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
     bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
 
     if (tolower(textptr[1])=='x')
@@ -2607,7 +2607,7 @@ static int32_t C_ParseCommand(void)
                 kclose(fp);
                 g_numCompilerErrors++;
                 initprintf("%s:%d: error: could not allocate %d bytes to include `%s'.\n",
-                           g_lineNumber,g_szScriptFileName,j,tempbuf);
+                           g_szScriptFileName,g_lineNumber,j,tempbuf);
                 return 0;
             }
 
@@ -5676,7 +5676,7 @@ repeatcase:
             if (i >= (signed)sizeof(CheatStrings[k])-1)
             {
                 initprintf("%s:%d: warning: truncating cheat string to %d characters.\n",
-                           g_szScriptFileName,g_lineNumber,MAXCHEATLEN,sizeof(CheatStrings[k])-1);
+                           g_szScriptFileName,g_lineNumber,MAXCHEATLEN); //,sizeof(CheatStrings[k])-1);
                 g_numCompilerWarnings++;
                 C_NextLine();
                 break;
@@ -5691,7 +5691,7 @@ repeatcase:
         k = *(g_scriptPtr-1);
         if (k >= MAXSOUNDS)
         {
-            initprintf("%s:%ld: error: exceeded sound limit of %ld.\n",g_szScriptFileName,g_lineNumber,MAXSOUNDS);
+            initprintf("%s:%d: error: exceeded sound limit of %d.\n",g_szScriptFileName,g_lineNumber,MAXSOUNDS);
             g_numCompilerErrors++;
         }
         g_scriptPtr--;
@@ -6327,9 +6327,9 @@ void C_Compile(const char *filenam)
         C_SetScriptSize(g_scriptPtr-script+8);
 
         initprintf("Script compiled in %dms, %ld*%db, version %s\n", getticks() - startcompiletime,
-                   (unsigned)(g_scriptPtr-script), sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
+                   (unsigned long)(g_scriptPtr-script), sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
 
-        initprintf("%ld/%ld labels, %d/%d variables\n", g_numLabels,
+        initprintf("%d/%d labels, %d/%d variables\n", g_numLabels,
                    min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
                        MAXSPRITES * sizeof(spritetype)/(1<<6)),
                    g_gameVarCount, MAXGAMEVARS);
@@ -6344,10 +6344,10 @@ void C_Compile(const char *filenam)
             if (actorscrptr[i])
                 l++;
 
-        if (j) initprintf("%ld quotes, ", j);
+        if (j) initprintf("%d quotes, ", j);
         if (g_numQuoteRedefinitions) initprintf("%d strings, ", g_numQuoteRedefinitions);
-        if (k) initprintf("%ld events, ", k);
-        if (l) initprintf("%ld actors", l);
+        if (k) initprintf("%d events, ", k);
+        if (l) initprintf("%d actors", l);
 
         initprintf("\n");
 
@@ -6522,10 +6522,10 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: error: variable `%s' is of the wrong type.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     case WARNING_BADGAMEVAR:
-        initprintf("%s:%ld: warning: variable `%s' should be either per-player OR per-actor, not both.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        initprintf("%s:%d: warning: variable `%s' should be either per-player OR per-actor, not both.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     case WARNING_DUPLICATECASE:
-        initprintf("%s:%ld: warning: duplicate case ignored.\n",g_szScriptFileName,g_lineNumber);
+        initprintf("%s:%d: warning: duplicate case ignored.\n",g_szScriptFileName,g_lineNumber);
         break;
     case WARNING_DUPLICATEDEFINITION:
         initprintf("%s:%d: warning: duplicate game definition `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));

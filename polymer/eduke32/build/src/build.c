@@ -254,6 +254,7 @@ static inline void bclamp(int32_t *x, int32_t mi, int32_t ma)
     if (*x<mi) *x=mi;
 }
 
+#ifdef USE_OPENGL
 static int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 {
     extern int32_t qsetmode;
@@ -329,6 +330,7 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 
     return OSDCMD_OK;
 }
+#endif
 
 extern int32_t startwin_run(void);
 
@@ -400,7 +402,7 @@ int32_t app_main(int32_t argc, const char **argv)
 #endif
                     ;
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
-                wm_msgbox("Mapster32",s);
+                wm_msgbox("Mapster32","%s",s);
 #else
                 puts(s);
 #endif
@@ -2093,18 +2095,17 @@ void overheadeditor(void)
                 drawline16(0,searchy, xdim2d-1,searchy, editorcolors[15]);
                 drawlinepat = 0xffffffff;
 
-                Bsprintf(tempbuf,"(%d,%d)",mousxplc,mousyplc);
-                /*
-                  i = (Bstrlen(tempbuf)<<3)+6;
-                  if ((searchx+i) < (xdim2d-1))
-                  i = 0;
-                  else i = (searchx+i)-(xdim2d-1);
-                  if ((searchy+16) < (ydim2d-STATUS2DSIZ2-1))
-                  j = 0;
-                  else j = (searchy+16)-(ydim2d-STATUS2DSIZ2-1);
-                  printext16(searchx+6-i,searchy+6-j,editorcolors[11],-1,tempbuf,0);
-                */
-                _printmessage16(tempbuf);
+                _printmessage16("(%d,%d)",mousxplc,mousyplc);
+#if 0
+                i = (Bstrlen(tempbuf)<<3)+6;
+                if ((searchx+i) < (xdim2d-1))
+                    i = 0;
+                else i = (searchx+i)-(xdim2d-1);
+                if ((searchy+16) < (ydim2d-STATUS2DSIZ2-1))
+                    j = 0;
+                else j = (searchy+16)-(ydim2d-STATUS2DSIZ2-1);
+                printext16(searchx+6-i,searchy+6-j,editorcolors[11],-1,tempbuf,0);
+#endif
             }
             drawline16(searchx,0, searchx,8, editorcolors[15]);
             drawline16(0,searchy, 8,searchy, editorcolors[15]);
@@ -4950,10 +4951,7 @@ CANCEL:
                     bflushchars();
                     while (bad == 0)
                     {
-                        Bsprintf(buffer,"Save as: ^011%s", boardfilename);
-                        if (totalclock & 32)
-                            Bstrcat(buffer,"_");
-                        _printmessage16(buffer);
+                        _printmessage16("Save as: ^011%s%s", boardfilename, (totalclock&32)?"_":"");
                         showframe(1);
 
                         if (handleevents())
@@ -5010,8 +5008,7 @@ CANCEL:
                             f = Bstrrchr(selectedboardfilename, '/');
                             if (!f) f = selectedboardfilename; else f++;
                         }
-                        Bsprintf(buffer,"Saving to %s...",f);
-                        _printmessage16(buffer);
+                        _printmessage16("Saving to %s...",f);
                         showframe(1);
 
                         fixspritesectors();   //Do this before saving!
@@ -5606,7 +5603,7 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
         char buf[128];
         Bsprintf(buf, "WARN: checksectorpointer called with i=%d but (new)numwalls=%d", i, max(numwalls,newnumwalls));
         OSD_Printf("%s\n", buf);
-        printmessage16(buf);
+        printmessage16("%s", buf);
         return 0;
     }
 
@@ -5770,7 +5767,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
         Bsprintf(buffer,"%s^011%d",namestart,danum);
         n = Bstrlen(buffer);
         if (totalclock & 32) Bstrcat(buffer,"_ ");
-        _printmessage16(buffer);
+        _printmessage16("%s", buffer);
 
         if (func != NULL)
         {
@@ -5803,7 +5800,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
         {
             oldnum = danum;
             asksave = 1;
-            printmessage16(buffer);
+            printmessage16("%s", buffer);
             break;
         }
         else if (ch == '-' && sign)  	// negate
@@ -6907,6 +6904,7 @@ void keytimerstuff(void)
     /*    if(mlook) pos.z -= (horiz-101)*(vel/40); */
 }
 
+#if 0
 int32_t snfillprintf(char *outbuf, size_t bufsiz, int32_t fill, const char *fmt, ...)
 {
     char tmpstr[256];
@@ -6922,6 +6920,7 @@ int32_t snfillprintf(char *outbuf, size_t bufsiz, int32_t fill, const char *fmt,
     
     return ofs;
 }
+#endif
 
 void _printmessage16(const char *fmt, ...)
 {

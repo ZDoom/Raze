@@ -210,14 +210,14 @@ void CONTROL_PrintKeyMap(void)
 
     for (i=0; i<CONTROL_NUM_FLAGS; i++)
     {
-        initprintf("function %2ld key1=%3x key2=%3x\n",
+        initprintf("function %2d key1=%3x key2=%3x\n",
                    i, CONTROL_KeyMapping[i].key1, CONTROL_KeyMapping[i].key2);
     }
 }
 
 void CONTROL_PrintControlFlag(int32_t which)
 {
-    initprintf("function %2ld active=%d used=%d toggle=%d buttonheld=%d cleared=%d\n",
+    initprintf("function %2d active=%d used=%d toggle=%d buttonheld=%d cleared=%d\n",
                which, CONTROL_Flags[which].active, CONTROL_Flags[which].used,
                CONTROL_Flags[which].toggle, CONTROL_Flags[which].buttonheld,
                CONTROL_Flags[which].cleared);

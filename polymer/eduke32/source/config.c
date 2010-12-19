@@ -624,18 +624,14 @@ int32_t CONFIG_ReadSetup(void)
         ud.config.scripthandle = SCRIPT_Load(setupfilename);
     else if (SafeFileExists(SETUPFILENAME) && ud.config.scripthandle < 0)
     {
-        Bsprintf(tempbuf,"The configuration file \"%s\" was not found. "
-                 "Import configuration data from \"%s\"?",setupfilename,SETUPFILENAME);
-
-        i=wm_ynbox("Import Configuration Settings",tempbuf);
+        i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
+                   "Import configuration data from \"%s\"?",setupfilename,SETUPFILENAME);
         if (i) ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
     }
     else if (SafeFileExists("duke3d.cfg") && ud.config.scripthandle < 0)
     {
-        Bsprintf(tempbuf,"The configuration file \"%s\" was not found. "
-                 "Import configuration data from \"duke3d.cfg\"?",setupfilename);
-
-        i=wm_ynbox("Import Configuration Settings",tempbuf);
+        i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
+                   "Import configuration data from \"duke3d.cfg\"?",setupfilename);
         if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");
     }
     pathsearchmode = 0;
@@ -822,18 +818,17 @@ void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_settings.cfg
         OSD_WriteCvars(fp);
         fclose(fp);
         if (!Bstrcmp(setupfilename, SETUPFILENAME))
-            Bsprintf(tempbuf, "Wrote settings.cfg\n");
-        else Bsprintf(tempbuf,"Wrote %s_settings.cfg\n",ptr);
-        OSD_Printf(tempbuf);
+            OSD_Printf("Wrote settings.cfg\n");
+        else OSD_Printf("Wrote %s_settings.cfg\n",ptr);
+
         Bfree(ptr);
         return;
     }
 
     if (!Bstrcmp(setupfilename, SETUPFILENAME))
-        Bsprintf(tempbuf, "Error writing settings.cfg: %s\n", strerror(errno));
-    else Bsprintf(tempbuf,"Error writing %s_settings.cfg: %s\n",ptr,strerror(errno));
+        OSD_Printf("Error writing settings.cfg: %s\n", strerror(errno));
+    else OSD_Printf("Error writing %s_settings.cfg: %s\n",ptr,strerror(errno));
 
-    OSD_Printf(tempbuf);
     Bfree(ptr);
 }
 
