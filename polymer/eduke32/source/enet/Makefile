@@ -1,4 +1,4 @@
-CC?=gcc
+CC=gcc
 OBJ=obj
 OBJNAME?=libenet.a
 PRETTY_OUTPUT?=1

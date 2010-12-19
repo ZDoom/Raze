@@ -1,4 +1,4 @@
-CC?=gcc
+CC=gcc
 OBJ=obj
 OBJNAME?=libjfaudiolib.a
 PRETTY_OUTPUT?=1

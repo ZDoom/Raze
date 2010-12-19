@@ -16,7 +16,7 @@ SUPERBUILD = 1
 POLYMOST = 1
 POLYMER = 1
 USE_OPENGL = 1
-NOASM ?= 0
+NOASM = 0
 LINKED_GTK = 0
 BUILD32_ON_64 = 0
 NEDMALLOC = 1
@@ -71,7 +71,7 @@ JAUDIOLIB=libjfaudiolib.a
 ENETDIR=$(SRC)/enet
 ENETLIB=libenet.a
 
-CC?=gcc
+CC=gcc
 CXX=g++
 AS=nasm
 RC=windres
