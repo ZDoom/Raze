@@ -8,52 +8,16 @@
 #  try again. If things are still going wrong, call me.
 #   
 
-# Use colored output
-PRETTY_OUTPUT = 1
+include ../Makefile.common
 
-# Engine options - these may be overridden by game makefiles
-#  SUPERBUILD     - enables voxels
-#  POLYMOST       - enables Polymost renderer
-#  USE_OPENGL     - enables OpenGL support in Polymost
-#  NOASM          - disables the use of inline assembly pragmas
-#  LINKED_GTK     - enables compile-time linkage to GTK
-#
-
-SUPERBUILD ?= 1
-POLYMOST ?= 1		
-POLYMER ?= 1
-USE_OPENGL ?= 1
-NOASM ?= 0
-LINKED_GTK ?= 0
-BUILD32_ON_64 ?= 0
-NEDMALLOC ?= 1
-
-ifeq (0,$(USE_OPENGL))
-    POLYMER = 0
-endif
-
-# Debugging/Build options
-#  RELEASE - 1 = no debugging
-#  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
-#  OPTLEVEL	- 0..3 = GCC optimization strategy 
-#
-RELEASE?=1
-DEBUGANYWAY?=0
-KRANDDEBUG?=0
-EFENCE?=0
-OPTLEVEL?=2
-PROFILER?=0
-
-ifneq (0,$(KRANDDEBUG))
-    RELEASE=0
-endif
-ifneq (0,$(PROFILER))
-    DEBUGANYWAY=1
-endif
 
 # SDK locations for Windows - adjust to match your setup
 #
-DXROOT=c:/sdks/directx/dx61
+ifneq ($(DXROOT_OVERRIDE),)
+    DXROOT=$(DXROOT_OVERRIDE)
+else
+    DXROOT=c:/sdks/directx/dx61
+endif
 FMODROOTWIN=c:/sdks/fmodapi374win/api
 
 # Build locations - OBJ gets overridden to the game-specific objects dir
@@ -75,44 +39,21 @@ asm=nasm
 #
 ifneq ($(RELEASE),0)
     # Debugging disabled
-    debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL) $(F_NO_STACK_PROTECTOR)
-    LIBS=-lm
+    debug+= $(F_NO_STACK_PROTECTOR)
 else
     # Debugging enabled
-    debug=-ggdb -O0 -DDEBUGGINGAIDS -DNOSDLPARACHUTE
-    LIBS=-lm $(L_SSP) -Wl,--enable-auto-import -rdynamic
-    ifneq (0,$(KRANDDEBUG))
-        debug+=-DKRANDDEBUG=1
-    endif
-    ifneq (0,$(PROFILER))
-        LIBS+= -lprofiler
-        debug+= -pg
-    endif
+    debug+= -DNOSDLPARACHUTE
+    LIBS+= $(L_SSP) -Wl,--enable-auto-import
 endif
 
-ifneq (0,$(DEBUGANYWAY))
-    debug+=-ggdb
-endif
-
-CC=gcc
-CXX=gcc
-AS=nasm
-RC=windres
-AR=ar
-RANLIB=ranlib
-
-OURCFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
-	-Wno-char-subscripts -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS \
-	-DKSFORBUILD -I$(INC) -D_FORTIFY_SOURCE=2 \
-    $(F_JUMP_TABLES) $(ARCH)
-
-OURCXXFLAGS=-fno-exceptions -fno-rtti
-ASFLAGS=-s #-g
-EXESUFFIX=
-
-UTILLIBS=-lpthread
+OURCFLAGS=$(BASECFLAGS) -Wno-char-subscripts -DKSFORBUILD -I$(INC) $(ARCH)
+OURCXXFLAGS=$(BASECXXFLAGS)
+ASFLAGS=$(BASEASFLAGS)
 
 include Makefile.shared
+
+
+UTILLIBS=-lpthread
 
 ENGINEOBJS=
 ifeq (0,$(NOASM))
@@ -226,12 +167,16 @@ utils: $(UTILS)
 
 enginelib: $(OBJ)/$(ENGINELIB)
 $(OBJ)/$(ENGINELIB): $(ENGINEOBJS)
-	$(AR) rc $@ $^
+	$(BUILD_ECHOFLAGS)
+	$(ARCHIVE_STATUS)
+	if $(AR) rc $@ $^; then $(ARCHIVE_OK); else $(ARCHIVE_FAILED); fi
 	$(RANLIB) $@
 
 editorlib: $(OBJ)/$(EDITORLIB)
 $(OBJ)/$(EDITORLIB): $(EDITOROBJS)
-	$(AR) rc $@ $^
+	$(BUILD_ECHOFLAGS)
+	$(ARCHIVE_STATUS)
+	if $(AR) rc $@ $^; then $(ARCHIVE_OK); else $(ARCHIVE_FAILED); fi
 	$(RANLIB) $@
 
 pragmacheck$(EXESUFFIX): $(OBJ)/pragmacheck.$o $(OBJ)/pragmas.$o

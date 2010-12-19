@@ -1,33 +1,23 @@
-CC=gcc
-OBJ=obj
-OBJNAME?=libjfaudiolib.a
-PRETTY_OUTPUT?=1
-EROOT?=build
-RELEASE?=1
-OPTLEVEL?=2
-SRC=src
-
-DXROOT ?= c:/sdks/directx/dx8
-
+include ../../Makefile.common
 include ../../$(EROOT)/Makefile.shared
 
-ifneq (0,$(RELEASE))
-  # Debugging disabled
-  debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL)
+OBJ=obj
+OBJNAME=libjfaudiolib.a
+SRC=src
+INC=include
+
+# SDK locations - adjust to match your setup
+ifneq ($(DXROOT_OVERRIDE),)
+    DXROOT ?= $(DXROOT_OVERRIDE)
 else
-  # Debugging enabled
-  debug=-ggdb -O0 -DDEBUGGINGAIDS
+    DXROOT ?= c:/sdks/directx/dx8
 endif
 
-ifneq (0,$(DEBUGANYWAY))
-  debug+=-ggdb
-endif
+CFLAGS=$(BASECFLAGS) $(F_NO_STACK_PROTECTOR)
+# for BUILD_ECHOFLAGS:
+OURCFLAGS=$(CFLAGS)
+CPPFLAGS=-I$(INC) -I$(SRC) -DHAVE_VORBIS
 
-CFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
-    -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
-    $(F_JUMP_TABLES) $(F_NO_STACK_PROTECTOR)
-
-CPPFLAGS=-Iinclude -Isrc -DHAVE_VORBIS
 
 OBJECTS=$(OBJ)/drivers.o \
 	$(OBJ)/fx_man.o \
@@ -39,19 +29,21 @@ OBJECTS=$(OBJ)/drivers.o \
 	$(OBJ)/driver_nosound.o
 
 ifeq ($(PLATFORM),WINDOWS)
- CPPFLAGS+= -I$(DXROOT)/include -Ithird-party/mingw32/include
- OBJECTS+= $(OBJ)/driver_directsound.o
- OBJNAME=libjfaudiolib_win32.a
- OBJ=obj_win
+    CPPFLAGS+= -I$(DXROOT)/include -Ithird-party/mingw32/include
+    OBJECTS+= $(OBJ)/driver_directsound.o
+    OBJNAME=libjfaudiolib_win32.a
+    OBJ=obj_win
 else
- CPPFLAGS+= -DHAVE_SDL
- OBJECTS+= $(OBJ)/driver_sdl.o
+    CPPFLAGS+= -DHAVE_SDL
+    OBJECTS+= $(OBJ)/driver_sdl.o
 endif
 
 # OBJECTS=$(SOURCES:%.c=$(OBJ)/%.o)
 
 $(OBJNAME): $(OBJECTS)
-	$(AR) cr $@ $^
+	$(BUILD_ECHOFLAGS)
+	$(ARCHIVE_STATUS)
+	if $(AR) cr $@ $^; then $(ARCHIVE_OK); else $(ARCHIVE_FAILED); fi
 
 $(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c
 	-mkdir -p $(OBJ)
