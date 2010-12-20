@@ -91,8 +91,9 @@
 # include <efence.h>
 #endif
 
+#define ATTRIBUTE(x) 
+
 #if defined(_MSC_VER)
-# define ATTRIBUTE(x) 
 # define inline __inline
 # define longlong(x) x##i64
 static inline float nearbyintf(float x) 
