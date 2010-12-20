@@ -16,6 +16,12 @@
 
 #define clamp(in, min, max) ((in) <= (min) ? (min) : (in) >= (max) ? (max) : (in))
 
+#if defined __GNUC__ || defined __clang__
+# define ATTRIBUTE(attrlist) __attribute__(attrlist)
+#else
+# define ATTRIBUTE(attrlist)
+#endif
+
 // This gives us access to 'intptr_t' and 'uintptr_t', which are
 // abstractions to the size of a pointer on a given platform
 // (ie, they're guaranteed to be the same size as a pointer)
@@ -90,8 +96,6 @@
 #ifdef EFENCE
 # include <efence.h>
 #endif
-
-#define ATTRIBUTE(x) 
 
 #if defined(_MSC_VER)
 # define inline __inline
@@ -522,16 +526,16 @@ char *Bstrchr(const char *s, int32_t c);
 char *Bstrrchr(const char *s, int32_t c);
 int32_t Batoi(const char *nptr);
 int32_t Batol(const char *nptr);
-int32_t int32_t Bstrtol(const char *nptr, char **endptr, int32_t base);
-uint32_t int32_t Bstrtoul(const char *nptr, char **endptr, int32_t base);
+int32_t Bstrtol(const char *nptr, char **endptr, int32_t base);
+uint32_t Bstrtoul(const char *nptr, char **endptr, int32_t base);
 void *Bmemcpy(void *dest, const void *src, bsize_t n);
 void *Bmemmove(void *dest, const void *src, bsize_t n);
 void *Bmemchr(const void *s, int32_t c, bsize_t n);
 void *Bmemset(void *s, int32_t c, bsize_t n);
 int32_t Bmemcmp(const void *s1, const void *s2, bsize_t n);
-int32_t Bprintf(const char *format, ...);
-int32_t Bsprintf(char *str, const char *format, ...);
-int32_t Bsnprintf(char *str, bsize_t size, const char *format, ...);
+int32_t Bprintf(const char *format, ...) ATTRIBUTE((format(printf,1,2)));
+int32_t Bsprintf(char *str, const char *format, ...) ATTRIBUTE((format(printf,2,3)));
+int32_t Bsnprintf(char *str, bsize_t size, const char *format, ...) ATTRIBUTE((format(printf,3,4)));
 int32_t Bvsnprintf(char *str, bsize_t size, const char *format, va_list ap);
 char *Bgetcwd(char *buf, bsize_t size);
 char *Bgetenv(const char *name);
