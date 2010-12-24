@@ -13362,8 +13362,26 @@ int32_t setrendermode(int32_t renderer)
 
     if (renderer == 4)
     {
+        int32_t i;
+
         if (!polymer_init())
             renderer = 3;
+
+        // potentially deferred MD3 postprocessing
+        for (i=0; i<nextmodelid; i++)
+            if (models[i]->mdnum==3 && ((md3model_t *)models[i])->head.surfs[0].geometry == NULL)
+            {
+                static int32_t warned=0;
+
+                if (!warned)
+                {
+                    OSD_Printf("Post-processing MD3 models for Polymer. This can take a while...\n");
+                    nextpage();
+                    warned = 1;
+                }
+
+                md3postload_polymer((md3model_t *)models[i]);
+            }
     }
 # else
     else renderer = 3;

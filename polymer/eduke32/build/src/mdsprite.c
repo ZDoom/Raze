@@ -1029,10 +1029,10 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m->numglcmds = head.numglcmds;
     m->framebytes = head.framebytes;
 
-    m->frames = (char *)Bcalloc(m->numframes,m->framebytes); if (!m->frames) { Bfree(m); return(0); }
-    m->glcmds = (int32_t *)Bcalloc(m->numglcmds,sizeof(int32_t)); if (!m->glcmds) { Bfree(m->frames); Bfree(m); return(0); }
-    m->tris = (md2tri_t *)Bcalloc(head.numtris, sizeof(md2tri_t)); if (!m->tris) { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
-    m->uv = (md2uv_t *)Bcalloc(head.numuv, sizeof(md2uv_t)); if (!m->uv) { Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m->frames = (char *)Bmalloc(m->numframes*m->framebytes); if (!m->frames) { Bfree(m); return(0); }
+    m->glcmds = (int32_t *)Bmalloc(m->numglcmds*sizeof(int32_t)); if (!m->glcmds) { Bfree(m->frames); Bfree(m); return(0); }
+    m->tris = (md2tri_t *)Bmalloc(head.numtris*sizeof(md2tri_t)); if (!m->tris) { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m->uv = (md2uv_t *)Bmalloc(head.numuv*sizeof(md2uv_t)); if (!m->uv) { Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
     klseek(fil,head.ofsframes,SEEK_SET);
     if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
@@ -1093,7 +1093,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m->basepath = (char *)Bmalloc(i+1); if (!m->basepath) { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     strcpy(m->basepath, st);
 
-    m->skinfn = (char *)Bcalloc(m->numskins,64); if (!m->skinfn) { Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m->skinfn = (char *)Bmalloc(m->numskins*64); if (!m->skinfn) { Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     klseek(fil,head.ofsskins,SEEK_SET);
     if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
         { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
@@ -1231,6 +1231,13 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m3->indexes = Bmalloc(sizeof(uint16_t) * s->numtris);
     m3->vindexes = Bmalloc(sizeof(uint16_t) * s->numtris * 3);
     m3->maxdepths = Bmalloc(sizeof(float) * s->numtris);
+
+    if (!m3->indexes || !m3->vindexes || !m3->maxdepths)
+    {
+        initprintf("OUT OF MEMORY in md2load!\n");
+        uninitengine();
+        exit(1);
+    }
 
     m3->vbos = NULL;
 
@@ -1450,6 +1457,13 @@ static md3model_t *md3load(int32_t fil)
     m->vindexes = Bmalloc(sizeof(uint16_t) * maxtrispersurf * 3);
     m->maxdepths = Bmalloc(sizeof(float) * maxtrispersurf);
 
+    if (!m->indexes || !m->vindexes || !m->maxdepths)
+    {
+        initprintf("OUT OF MEMORY in md3load!\n");
+        uninitengine();
+        exit(1);
+    }
+
     m->vbos = NULL;
 
     return(m);
@@ -1491,14 +1505,12 @@ static inline void  normalize(float* vec)
     vec[2] *= norm;
 }
 
-static int      md3postload(md3model_t* m)
+static void      md3postload_common(md3model_t* m)
 {
-    int         framei, surfi, verti, trii, i;
-    md3surf_t   *s;
+    int         framei, surfi, verti;
     md3frame_t  *frame;
     md3xyzn_t   *frameverts;
-    int         *numtris;
-    float       dist, lat, lng, vec1[5], vec2[5], mat[9], r;
+    float       dist, vec1[5];
 
     // apparently we can't trust loaded models bounding box/sphere information,
     // so let's compute it ourselves
@@ -1590,6 +1602,50 @@ static int      md3postload(md3model_t* m)
 
         framei++;
     }
+}
+
+#ifdef POLYMER
+// pre-check success of conversion since it must not fail later.
+// keep in sync with md3postload_polymer!
+static int md3postload_polymer_check(md3model_t *m)
+{
+    int surfi, trii;
+    md3surf_t   *s;
+
+    surfi = 0;
+    while (surfi < m->head.numsurfs)
+    {
+        s = &m->head.surfs[surfi];
+
+        trii = 0;
+        while (trii < s->numtris)
+        {
+            // let the vertices know they're being referenced by a triangle
+            if (s->tris[trii].i[0] >= s->numverts || s->tris[trii].i[0] < 0 ||
+                s->tris[trii].i[1] >= s->numverts || s->tris[trii].i[1] < 0 ||
+                s->tris[trii].i[2] >= s->numverts || s->tris[trii].i[2] < 0) {
+                // corrupt model
+                OSD_Printf("Triangle index out of bounds!\n");
+                return 0;
+            }
+
+            trii++;
+        }
+
+        surfi++;
+    }
+
+    return 1;
+}
+#endif
+
+int      md3postload_polymer(md3model_t* m)
+{
+#ifdef POLYMER
+    int         framei, surfi, verti, trii, i;
+    md3surf_t   *s;
+    int         *numtris;
+    float       lat, lng, vec1[5], vec2[5], mat[9], r;
 
     // let's also repack the geometry to more usable formats
 
@@ -1601,6 +1657,13 @@ static int      md3postload(md3model_t* m)
         s->geometry = Bcalloc(m->head.numframes * s->numverts * sizeof(float), 15);
 
         numtris = Bcalloc(s->numverts, sizeof(int));
+
+        if (!s->geometry || !numtris)
+        {
+            initprintf("OUT OF MEMORY in md3postload_polymer!\n");
+            uninitengine();
+            exit(1);
+        }
 
         verti = 0;
         while (verti < (m->head.numframes * s->numverts))
@@ -1717,7 +1780,9 @@ static int      md3postload(md3model_t* m)
     }
 
     return 1;
+#endif
 }
+
 
 static int32_t md3draw(md3model_t *m, spritetype *tspr)
 {
@@ -3126,6 +3191,7 @@ mdmodel_t *mdload(const char *filnam)
 
     fil = kopen4load((char *)filnam,0); if (fil < 0) return(0);
     kread(fil,&i,4); klseek(fil,0,SEEK_SET);
+
     switch (B_LITTLE32(i))
     {
     case 0x32504449:
@@ -3139,10 +3205,25 @@ mdmodel_t *mdload(const char *filnam)
         vm = (mdmodel_t*)0; break;
     }
     kclose(fil);
-    if (vm && !md3postload((md3model_t*)vm)) {
-        mdfree(vm);
-        vm = (mdmodel_t*)0;
+
+    if (vm)
+    {
+        md3postload_common((md3model_t*)vm);
+#ifdef POLYMER
+// implies defined(POLYMOST) && defined(USE_OPENGL)?
+        if (glrendmode==4)
+            i = md3postload_polymer((md3model_t*)vm);
+        else
+            i = md3postload_polymer_check((md3model_t*)vm);
+
+        if (!i)
+        {
+            mdfree(vm);
+            vm = (mdmodel_t*)0;
+        }
+#endif
     }
+
     return(vm);
 }
 
