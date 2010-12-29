@@ -284,9 +284,7 @@ extern char palfadedelta;
 
 extern int32_t dommxoverlay, novoxmips;
 
-#ifdef DEBUGGINGAIDS
 extern float debug1, debug2;
-#endif
 
 #ifdef SUPERBUILD
 extern int32_t tiletovox[MAXTILES];

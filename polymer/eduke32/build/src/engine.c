@@ -44,9 +44,7 @@
 
 #define CACHEAGETIME 16
 
-#ifdef DEBUGGINGAIDS
 float debug1, debug2;
-#endif
 
 static void drawpixel_safe(void* s, char a)
 {
