@@ -255,6 +255,30 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
         // frag_prog
         "  diffuseTexel = texture2D(diffuseMap, commonTexCoord.st);\n"
+        "\n",
+    },
+    {
+        1 << PR_BIT_HIGHPALOOKUP_MAP,
+        // vert_def
+        "",
+        // vert_prog
+        "",
+        // frag_def
+        "uniform sampler3D highPalookupMap;\n"
+        "\n",
+        // frag_prog
+        "  diffuseTexel.rgb = texture3D(highPalookupMap, diffuseTexel.rgb).rgb;\n"
+        "\n",
+    },
+    {
+        1 << PR_BIT_DIFFUSE_MAP2,
+        // vert_def
+        "",
+        // vert_prog
+        "",
+        // frag_def
+        "",
+        // frag_prog
         "  if (isLightingPass == 0)\n"
         "    result *= diffuseTexel;\n"
         "\n",
@@ -554,6 +578,9 @@ int32_t         globaloldoverridematerial;
 // RENDER TARGETS
 _prrt           *prrts;
 
+// HIGHPALOOKUP MAP NAMES
+GLuint          globalhighpalookupmap;
+
 // CONTROL
 GLfloat         spritemodelview[16];
 GLfloat         mdspritespace[4][4];
@@ -645,6 +672,60 @@ int32_t             polymer_init(void)
     polymersearching = FALSE;
 
     polymer_initrendertargets(pr_shadowcount + 1);
+    
+    // test highpalookup
+    int32_t j, k;
+    int32_t xbits = 6, ybits = 6, zbits = 6; // depth
+    int32_t x = 1 << xbits, y = 1 << ybits, z = 1 << zbits; // dimensions
+    int32_t bitdiff;
+    coltype *highpalookup;
+    
+    highpalookup = malloc(x*y*z*sizeof(coltype));
+    
+    k = 0;
+    while (k < z) {
+        j = 0;
+        while (j < y) {
+            i = 0;
+            while (i < x) {
+                bitdiff = 8 - xbits;
+                highpalookup[k * z * y + j * y + i].r = (i << bitdiff) | (i & ((1 << bitdiff) - 1));
+
+                bitdiff = 8 - ybits;
+                highpalookup[k * z * y + j * y + i].g = (j << bitdiff) | (j & ((1 << bitdiff) - 1));
+
+                bitdiff = 8 - zbits;
+                highpalookup[k * z * y + j * y + i].b = (k << bitdiff) | (k & ((1 << bitdiff) - 1));
+                
+                // unneeded padding, will make the texture upload faster
+                highpalookup[k * z * y + j * y + i].a = 0;
+                i++;
+            }
+            j++;
+        }
+        k++;
+    }
+
+    bglGenTextures(1, &globalhighpalookupmap);
+    bglBindTexture(GL_TEXTURE_3D, globalhighpalookupmap);
+    bglTexImage3D(GL_TEXTURE_3D,    // target
+                 0,                 // mip level
+                 GL_RGBA,           // internalFormat
+                 x,                 // width
+                 y,                 // height
+                 z,                 // depth
+                 0,                 // border
+                 GL_RGBA,           // upload format
+                 GL_UNSIGNED_BYTE,  // upload component type
+                 highpalookup);     // data pointer
+    bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+    bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+    bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+    bglBindTexture(GL_TEXTURE_3D, 0);
+    
+    free(highpalookup);
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
 
@@ -4036,6 +4117,8 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     // PR_BIT_DIFFUSE_MAP
     material->diffusemap = 0;
     material->diffusescale[0] = material->diffusescale[1] = 1.0f;
+    // PR_BIT_HIGHPALOOKUP_MAP
+    material->highpalookupmap = 0;
     // PR_BIT_DIFFUSE_DETAIL_MAP
     material->detailmap = 0;
     material->detailscale[0] = material->detailscale[1] = 1.0f;
@@ -4149,6 +4232,11 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     programbits = 0;
 
     // --------- bit validation
+    
+    // hack to dynamically insert highpalookup
+    if (debug1) {
+        material.highpalookupmap = globalhighpalookupmap;
+    }
 
     // PR_BIT_ANIM_INTERPOLATION
     if (material.nextframedata)
@@ -4163,8 +4251,14 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         programbits |= prprogrambits[PR_BIT_NORMAL_MAP].bit;
 
     // PR_BIT_DIFFUSE_MAP
-    if (material.diffusemap)
+    if (material.diffusemap) {
         programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
+        programbits |= prprogrambits[PR_BIT_DIFFUSE_MAP2].bit;
+    }
+    
+    // PR_BIT_HIGHPALOOKUP_MAP
+    if (material.highpalookupmap)
+        programbits |= prprogrambits[PR_BIT_HIGHPALOOKUP_MAP].bit;
 
     // PR_BIT_DIFFUSE_DETAIL_MAP
     if (!curlight && r_detailmapping && material.detailmap)
@@ -4313,6 +4407,17 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
 
         bglUniform1iARB(prprograms[programbits].uniform_diffuseMap, texunit);
         bglUniform2fvARB(prprograms[programbits].uniform_diffuseScale, 1, material.diffusescale);
+
+        texunit++;
+    }
+
+    // PR_BIT_HIGHPALOOKUP_MAP
+    if (programbits & prprogrambits[PR_BIT_HIGHPALOOKUP_MAP].bit)
+    {
+        bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
+        bglBindTexture(GL_TEXTURE_3D, material.highpalookupmap);
+
+        bglUniform1iARB(prprograms[programbits].uniform_highPalookupMap, texunit);
 
         texunit++;
     }
@@ -4634,6 +4739,12 @@ static void         polymer_compileprogram(int32_t programbits)
     {
         prprograms[programbits].uniform_diffuseMap = bglGetUniformLocationARB(program, "diffuseMap");
         prprograms[programbits].uniform_diffuseScale = bglGetUniformLocationARB(program, "diffuseScale");
+    }
+
+    // PR_BIT_HIGHPALOOKUP_MAP
+    if (programbits & prprogrambits[PR_BIT_HIGHPALOOKUP_MAP].bit)
+    {
+        prprograms[programbits].uniform_highPalookupMap = bglGetUniformLocationARB(program, "highPalookupMap");
     }
 
     // PR_BIT_DIFFUSE_DETAIL_MAP
@@ -5096,6 +5207,7 @@ static void         polymer_prepareshadows(void)
             overridematerial = prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit;
             // used by alpha-testing for sprite silhouette
             overridematerial |= prprogrambits[PR_BIT_DIFFUSE_MAP].bit;
+            overridematerial |= prprogrambits[PR_BIT_DIFFUSE_MAP2].bit;
 
             // to force sprite drawing
             mirrors[depth++].plane = NULL;

@@ -67,6 +67,8 @@ typedef enum {
                     PR_BIT_LIGHTING_PASS,
                     PR_BIT_NORMAL_MAP,
                     PR_BIT_DIFFUSE_MAP,
+                    PR_BIT_HIGHPALOOKUP_MAP,
+                    PR_BIT_DIFFUSE_MAP2,
                     PR_BIT_DIFFUSE_DETAIL_MAP,
                     PR_BIT_DIFFUSE_MODULATION,
                     PR_BIT_SPECULAR_MAP,
@@ -94,6 +96,8 @@ typedef struct      s_prmaterial {
     // PR_BIT_DIFFUSE_MAP
     GLuint          diffusemap;
     GLfloat         diffusescale[2];
+    // PR_BIT_HIGHPALOOKUP_MAP
+    GLuint          highpalookupmap;
     // PR_BIT_DIFFUSE_DETAIL_MAP
     GLuint          detailmap;
     GLfloat         detailscale[2];
@@ -127,6 +131,8 @@ typedef struct      s_prrograminfo {
     // PR_BIT_DIFFUSE_MAP
     GLint           uniform_diffuseMap;
     GLint           uniform_diffuseScale;
+    // PR_BIT_HIGHPALOOKUP_MAP
+    GLuint          uniform_highPalookupMap;
     // PR_BIT_DIFFUSE_DETAIL_MAP
     GLint           uniform_detailMap;
     GLint           uniform_detailScale;

@@ -87,6 +87,7 @@ void (APIENTRY * bglGenTextures)(GLsizei n, GLuint *textures);	// 1.1
 void (APIENTRY * bglDeleteTextures)(GLsizei n, const GLuint *textures);	// 1.1
 void (APIENTRY * bglBindTexture)(GLenum target, GLuint texture);	// 1.1
 void (APIENTRY * bglTexImage2D)(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
+void (APIENTRY * bglTexImage3D)(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const GLvoid *pixels);
 void (APIENTRY * bglCopyTexImage2D)(GLenum	target, GLint level, GLenum	internalFormat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
 void (APIENTRY * bglCopyTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 void (APIENTRY * bglTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);	// 1.1
@@ -431,6 +432,7 @@ int32_t loadgldriver(const char *driver)
     bglDeleteTextures	= GETPROC("glDeleteTextures");
     bglBindTexture		= GETPROC("glBindTexture");
     bglTexImage2D		= GETPROC("glTexImage2D");
+    bglTexImage3D		= GETPROC("glTexImage3D");
     bglCopyTexImage2D	= GETPROC("glCopyTexImage2D");
     bglCopyTexSubImage2D= GETPROC("glCopyTexSubImage2D");
     bglTexSubImage2D	= GETPROC("glTexSubImage2D");
@@ -709,6 +711,7 @@ int32_t unloadgldriver(void)
     bglDeleteTextures	= NULL;
     bglBindTexture		= NULL;
     bglTexImage2D		= NULL;
+    bglTexImage3D		= NULL;
     bglCopyTexImage2D	= NULL;
     bglCopyTexSubImage2D= NULL;
     bglTexSubImage2D	= NULL;
