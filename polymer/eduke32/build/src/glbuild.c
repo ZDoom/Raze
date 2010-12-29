@@ -432,7 +432,6 @@ int32_t loadgldriver(const char *driver)
     bglDeleteTextures	= GETPROC("glDeleteTextures");
     bglBindTexture		= GETPROC("glBindTexture");
     bglTexImage2D		= GETPROC("glTexImage2D");
-    bglTexImage3D		= GETPROC("glTexImage3D");
     bglCopyTexImage2D	= GETPROC("glCopyTexImage2D");
     bglCopyTexSubImage2D= GETPROC("glCopyTexSubImage2D");
     bglTexSubImage2D	= GETPROC("glTexSubImage2D");
@@ -484,6 +483,7 @@ int32_t loadglextensions(void)
     if (!hGLDLL) return 0;
 #endif
 
+    bglTexImage3D		= GETPROCEXTSOFT("glTexImage3D");
     bglCompressedTexImage2DARB  = GETPROCEXTSOFT("glCompressedTexImage2DARB");
     bglGetCompressedTexImageARB = GETPROCEXTSOFT("glGetCompressedTexImageARB");
 
