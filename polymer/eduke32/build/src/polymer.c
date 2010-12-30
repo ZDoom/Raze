@@ -30,6 +30,7 @@ float           pr_parallaxbias = 0.0f;
 int32_t         pr_overridespecular = 0;
 float           pr_specularpower = 15.0f;
 float           pr_specularfactor = 1.0f;
+int32_t         pr_highpalookups = 1;
 int32_t         pr_ati_fboworkaround = 0;
 int32_t         pr_ati_nodepthoffset = 0;
 
@@ -43,6 +44,7 @@ _prsector       *prsectors[MAXSECTORS];
 _prwall         *prwalls[MAXWALLS];
 _prsprite       *prsprites[MAXSPRITES];
 _prmaterial     mdspritematerial;
+_prhighpalookup prhighpalookups[MAXPALOOKUPS];
 
 static const GLfloat  vertsprite[4 * 5] =
 {
@@ -578,9 +580,6 @@ int32_t         globaloldoverridematerial;
 // RENDER TARGETS
 _prrt           *prrts;
 
-// HIGHPALOOKUP MAP NAMES
-GLuint          globalhighpalookupmap;
-
 // CONTROL
 GLfloat         spritemodelview[16];
 GLfloat         mdspritespace[4][4];
@@ -673,59 +672,33 @@ int32_t             polymer_init(void)
 
     polymer_initrendertargets(pr_shadowcount + 1);
     
-    // test highpalookup
-    int32_t j, k;
-    int32_t xbits = 6, ybits = 6, zbits = 6; // depth
-    int32_t x = 1 << xbits, y = 1 << ybits, z = 1 << zbits; // dimensions
-    int32_t bitdiff;
-    coltype *highpalookup;
-    
-    highpalookup = malloc(x*y*z*sizeof(coltype));
-    
-    k = 0;
-    while (k < z) {
-        j = 0;
-        while (j < y) {
-            i = 0;
-            while (i < x) {
-                bitdiff = 8 - xbits;
-                highpalookup[k * z * y + j * y + i].r = (i << bitdiff) | (i & ((1 << bitdiff) - 1));
-
-                bitdiff = 8 - ybits;
-                highpalookup[k * z * y + j * y + i].g = (j << bitdiff) | (j & ((1 << bitdiff) - 1));
-
-                bitdiff = 8 - zbits;
-                highpalookup[k * z * y + j * y + i].b = (k << bitdiff) | (k & ((1 << bitdiff) - 1));
-                
-                // unneeded padding, will make the texture upload faster
-                highpalookup[k * z * y + j * y + i].a = 0;
-                i++;
-            }
-            j++;
+    // Prime highpalookup maps
+    i = 0;
+    while (i < MAXPALOOKUPS)
+    {
+        if (prhighpalookups[i].data)
+        {
+            bglGenTextures(1, &prhighpalookups[i].map);
+            bglBindTexture(GL_TEXTURE_3D, prhighpalookups[i].map);
+            bglTexImage3D(GL_TEXTURE_3D,                // target
+                          0,                            // mip level
+                          GL_RGBA,                      // internalFormat
+                          PR_HIGHPALOOKUP_DIM,          // width
+                          PR_HIGHPALOOKUP_DIM,          // height
+                          PR_HIGHPALOOKUP_DIM,          // depth
+                          0,                            // border
+                          GL_BGRA,                      // upload format
+                          GL_UNSIGNED_BYTE,             // upload component type
+                          prhighpalookups[i].data);     // data pointer
+            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+            bglBindTexture(GL_TEXTURE_3D, 0);
         }
-        k++;
+        i++;
     }
-
-    bglGenTextures(1, &globalhighpalookupmap);
-    bglBindTexture(GL_TEXTURE_3D, globalhighpalookupmap);
-    bglTexImage3D(GL_TEXTURE_3D,    // target
-                 0,                 // mip level
-                 GL_RGBA,           // internalFormat
-                 x,                 // width
-                 y,                 // height
-                 z,                 // depth
-                 0,                 // border
-                 GL_RGBA,           // upload format
-                 GL_UNSIGNED_BYTE,  // upload component type
-                 highpalookup);     // data pointer
-    bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-    bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-    bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-    bglBindTexture(GL_TEXTURE_3D, 0);
-    
-    free(highpalookup);
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
 
@@ -734,7 +707,23 @@ int32_t             polymer_init(void)
 
 void                polymer_uninit(void)
 {
+    int32_t         i;
+
     polymer_freeboard();
+    
+    i = 0;
+    while (i < MAXPALOOKUPS)
+    {
+        if (prhighpalookups[i].data) {
+            Bfree(prhighpalookups[i].data);
+            prhighpalookups[i].data = NULL;
+        }
+        if (prhighpalookups[i].map) {
+            bglDeleteTextures(1, &prhighpalookups[i].map);
+            prhighpalookups[i].map = 0;
+        }
+        i++;
+    }
 }
 
 void                polymer_glinit(void)
@@ -1667,6 +1656,13 @@ void                polymer_texinvalidate(void)
     do
         prwalls[i--]->flags.invalidtex = 1;
     while (i >= 0);
+}
+
+void                polymer_definehighpalookup(char palnum, char *data)
+{
+    prhighpalookups[palnum].data = Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
+    
+    Bmemcpy(prhighpalookups[palnum].data, data, PR_HIGHPALOOKUP_DATA_SIZE);
 }
 
 // CORE
@@ -4149,6 +4145,14 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     // PR_BIT_DIFFUSE_MAP
     if (!waloff[tilenum])
         loadtile(tilenum);
+    
+    // PR_BIT_HIGHPALOOKUP_MAP
+    if (pal > 0 && pr_highpalookups && prhighpalookups[pal].map &&
+        hicfindsubst(tilenum, 0, 0) && (hicfindsubst(tilenum, pal, 0)->palnum != pal))
+    {
+        material->highpalookupmap = prhighpalookups[pal].map;
+        pal = 0;
+    }
  
     if ((pth = gltexcache(tilenum, pal, cmeth)))
     {
@@ -4232,11 +4236,6 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     programbits = 0;
 
     // --------- bit validation
-    
-    // hack to dynamically insert highpalookup
-    if (debug1) {
-        material.highpalookupmap = globalhighpalookupmap;
-    }
 
     // PR_BIT_ANIM_INTERPOLATION
     if (material.nextframedata)

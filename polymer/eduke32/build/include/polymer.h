@@ -52,6 +52,7 @@ extern float        pr_parallaxbias;
 extern int32_t      pr_overridespecular;
 extern float        pr_specularpower;
 extern float        pr_specularfactor;
+extern int32_t      pr_highpalookups;
 extern int32_t      pr_ati_fboworkaround;
 extern int32_t      pr_ati_nodepthoffset;
 #ifdef __APPLE__
@@ -156,6 +157,11 @@ typedef struct      s_prrograminfo {
 }                   _prprograminfo;
 
 #define             PR_INFO_LOG_BUFFER_SIZE 8192
+#define             PR_HIGHPALOOKUP_BIT_DEPTH 7
+#define             PR_HIGHPALOOKUP_DIM (1 << PR_HIGHPALOOKUP_BIT_DEPTH)
+#define             PR_HIGHPALOOKUP_DATA_SIZE (4 * PR_HIGHPALOOKUP_DIM * \
+                                                   PR_HIGHPALOOKUP_DIM * \
+                                                   PR_HIGHPALOOKUP_DIM)
 
 typedef struct      s_prprogrambit {
     int32_t         bit;
@@ -259,6 +265,11 @@ typedef struct      s_prmirror {
     int16_t         wallnum;
 }                   _prmirror;
 
+typedef struct      s_prhighpalookup {
+    char            *data;
+    GLuint          map;
+}                   _prhighpalookup;
+
 typedef void    (*animatespritesptr)(int32_t, int32_t, int32_t, int32_t);
 
 typedef struct      s_pranimatespritesinfo {
@@ -283,6 +294,7 @@ int16_t             polymer_addlight(_prlight* light);
 void                polymer_deletelight(int16_t lighti);
 void                polymer_invalidatelights(void);
 void                polymer_texinvalidate(void);
+void                polymer_definehighpalookup(char palnum, char *fn);
 
 # ifdef POLYMER_C
 

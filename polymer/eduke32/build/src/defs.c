@@ -63,6 +63,7 @@ enum scripttoken_t
     T_VOXEL,
     T_SKYBOX,
     T_FRONT,T_RIGHT,T_BACK,T_LEFT,T_TOP,T_BOTTOM,
+    T_HIGHPALOOKUP,
     T_TINT,T_RED,T_GREEN,T_BLUE,
     T_TEXTURE,T_ALPHACUT,T_XSCALE,T_YSCALE,T_SPECPOWER,T_SPECFACTOR,T_NOCOMPRESS,T_NODOWNSIZE,
     T_UNDEFMODEL,T_UNDEFMODELRANGE,T_UNDEFMODELOF,T_UNDEFTEXTURE,T_UNDEFTEXTURERANGE,
@@ -140,6 +141,7 @@ static int32_t defsparser(scriptfile *script)
         { "model",           T_MODEL            },
         { "voxel",           T_VOXEL            },
         { "skybox",          T_SKYBOX           },
+        { "highpalookup",    T_HIGHPALOOKUP     },
         { "tint",            T_TINT             },
         { "texture",         T_TEXTURE          },
         { "tile",            T_TEXTURE          },
@@ -1425,6 +1427,88 @@ static int32_t defsparser(scriptfile *script)
             if (!happy) break;
 
             hicsetskybox(tile,pal,fn);
+        }
+        break;
+        case T_HIGHPALOOKUP:
+        {
+            char *highpaltokptr = script->ltextptr;
+            int32_t pal=-1, oldpathsearchmode, fd, datasize, dataread;
+            char *fn = NULL, *tfn = NULL;
+            char *highpalend;
+            char *highpaldata;
+
+            static const tokenlist highpaltokens[] =
+            {
+                { "pal",   T_PAL },
+                { "file",  T_FILE }
+            };
+
+            if (scriptfile_getbraces(script,&highpalend)) break;
+            while (script->textptr < highpalend)
+            {
+                switch (getatoken(script,highpaltokens,sizeof(highpaltokens)/sizeof(tokenlist)))
+                {
+                case T_PAL:
+                    scriptfile_getsymbol(script,&pal);   break;
+                case T_FILE:
+                    scriptfile_getstring(script,&fn); break;
+                }
+            }
+
+            if ((unsigned)pal >= ((unsigned)MAXPALOOKUPS - RESERVEDPALS))
+            {
+                initprintf("Error: missing or invalid 'palette number' for highpalookup definition near "
+                           "line %s:%d\n", script->filename, scriptfile_getlinum(script,highpaltokptr));
+                break;
+            }
+            if (!fn)
+            {
+                initprintf("Error: missing 'file name' for highpalookup definition near line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,highpaltokptr));
+                break;
+            }
+            
+            oldpathsearchmode = pathsearchmode;
+            pathsearchmode = 1;
+            if (findfrompath(fn,&tfn) < 0)
+            {
+                char buf[BMAX_PATH];
+
+                Bstrcpy(buf,fn);
+                kzfindfilestart(buf);
+                if (!kzfindfile(buf))
+                {
+                    initprintf("Error: file '%s' does not exist\n",fn);
+                    pathsearchmode = oldpathsearchmode;
+                    break;
+                }
+            }
+            else Bfree(tfn);
+            pathsearchmode = oldpathsearchmode;
+            
+            // load the highpalookup and send it to polymer
+            datasize = PR_HIGHPALOOKUP_DATA_SIZE;
+            
+            highpaldata = Bmalloc(datasize);
+            
+            fd = kopen4load(fn, 0);
+            // skip the TGA header
+            klseek(fd, 18, SEEK_SET);
+
+            dataread = 0;
+    
+            while (1) {
+                dataread += kread(fd, highpaldata + dataread, datasize - dataread);
+                if (dataread == datasize)
+                    break;
+            }
+            
+            // ignore whatever image editors might have put after the interesting stuff
+            kclose(fd);
+            
+            polymer_definehighpalookup(pal, highpaldata);
+
+            Bfree(highpaldata);
         }
         break;
         case T_TINT:
