@@ -179,7 +179,7 @@ static int32_t ccind[19] = {16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15};
 static int32_t hxbit[59][2], ibuf0[288], nbuf0[32], ibuf1[32], nbuf1[32];
 static const uint8_t *filptr;
 static uint8_t slidebuf[32768], opixbuf0[4], opixbuf1[4];
-static uint8_t pnginited = 0, olinbuf[65536] ASMNAME("olinbuf"); //WARNING:max xres is: 65536/bpp-1
+static uint8_t pnginited = 0, olinbuf[131072] ASMNAME("olinbuf"); //WARNING:max xres is: 131072/bpp-1
 static int32_t gotcmov = -2, abstab10[1024] ASMNAME("abstab10");
 
 //Variables to speed up dynamic Huffman decoding:
