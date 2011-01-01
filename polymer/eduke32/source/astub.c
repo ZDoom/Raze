@@ -3092,28 +3092,38 @@ static int32_t m32gettile(int32_t idInitialTile)
         //
         iTile = clamp(iTile, 0, min(MAXTILES-1, localartlookupnum+nDisplayedTiles-1));
 
-
         // 'S' KEYPRESS: search for named tile
         if (PRESSED_KEYSC(S))
         {
-            static char laststr[MAXTILES] = "";
+            static char laststr[25] = "";
             const char *searchstr = getstring_simple("Search for tile name: ", laststr, MAXTILES-1);
+            static char buf[2][25];
 
             if (searchstr && searchstr[0])
             {
                 int32_t i, i0, slen=Bstrlen(searchstr)-1;
 
-                Bstrcpy(laststr, searchstr);
+                Bstrncpy(laststr, searchstr, 25);
+                laststr[24] = 0;
                 i0 = localartlookup[iTile];
 
+                Bmemcpy(buf[0], laststr, 25);
+                Bstrupr(buf[0]);
+
                 for (i=(i0+1)%MAXTILES; i!=i0; i=(i+1)%MAXTILES)
-                    if ((searchstr[0]=='^' && !Bstrncmp(names[i], searchstr+1, slen)) ||
-                        (searchstr[0]!='^' && strstr(names[i], searchstr)))
+                {
+                    Bmemcpy(buf[1], names[i], 25);
+                    buf[1][24]=0;
+                    Bstrupr(buf[1]);
+
+                    if ((searchstr[0]=='^' && !Bstrncmp(buf[1], buf[0]+1, slen)) ||
+                        (searchstr[0]!='^' && strstr(buf[1], buf[0])))
                     {
                         SelectAllTiles(i);
                         iTile = i;
                         break;
                     }
+                }
             }
         }
 

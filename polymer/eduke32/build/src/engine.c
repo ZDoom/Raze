@@ -13362,11 +13362,9 @@ int32_t setrendermode(int32_t renderer)
     {
         int32_t i;
 
-        if (!polymer_init())
-            renderer = 3;
-
         // potentially deferred MD3 postprocessing
         for (i=0; i<nextmodelid; i++)
+        {
             if (models[i]->mdnum==3 && ((md3model_t *)models[i])->head.surfs[0].geometry == NULL)
             {
                 static int32_t warned=0;
@@ -13378,8 +13376,18 @@ int32_t setrendermode(int32_t renderer)
                     warned = 1;
                 }
 
-                md3postload_polymer((md3model_t *)models[i]);
+                if (!md3postload_polymer((md3model_t *)models[i]))
+                    OSD_Printf("INTERNAL ERROR: mdmodel %d failed postprocessing!\n", i);
+
+                if (((md3model_t *)models[i])->head.surfs[0].geometry == NULL)
+                    OSD_Printf("INTERNAL ERROR: wtf?\n");
             }
+//            else
+//                OSD_Printf("mdmodel %d already postprocessed.\n", i);
+        }
+
+        if (!polymer_init())
+            renderer = 3;
     }
 # else
     else renderer = 3;

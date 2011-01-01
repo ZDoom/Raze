@@ -1337,6 +1337,7 @@ static md3model_t *md3load(int32_t fil)
 
     klseek(fil,m->head.ofssurfs,SEEK_SET); i = m->head.numsurfs*sizeof(md3surf_t);
     m->head.surfs = (md3surf_t *)Bmalloc(i); if (!m->head.surfs) { if (m->head.tags) Bfree(m->head.tags); Bfree(m->head.frames); Bfree(m); return(0); }
+    m->head.surfs[0].geometry = NULL;  // for deferred polymer model postprocessing (else: crashes)
 
 #if B_BIG_ENDIAN != 0
     {
