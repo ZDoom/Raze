@@ -6244,6 +6244,7 @@ static int32_t menuselect(void)
             if (keystatus[0xc8]) ch = 72;   	// up arr
             if (keystatus[0xd0]) ch = 80;   	// down arr
         }
+
         if (ch == 'f' || ch == 'F')
         {
             currentlist = 0;
@@ -6323,9 +6324,11 @@ static int32_t menuselect(void)
             enddrawing();
             showframe(1);
         }
+
         if (ch == 13 && !findfileshigh) ch = 0;
     }
     while ((ch != 13) && (ch != 27));
+
     if (ch == 13)
     {
         Bstrcat(selectedboardfilename, findfileshigh->name);
@@ -6333,7 +6336,9 @@ static int32_t menuselect(void)
 
         return(0);
     }
+
     pathsearchmode = bakpathsearchmode;
+
     return(-1);
 }
 
@@ -7130,6 +7135,8 @@ void AutoAlignWalls(int32_t nWall0, int32_t ply)
     }
 }
 
+#define PLAYTEST_MAPNAME "autosave_playtest.map"
+
 void test_map(int32_t mode)
 {
     if (!mode)
@@ -7139,7 +7146,7 @@ void test_map(int32_t mode)
 
     if ((!mode && cursectnum >= 0) || (mode && startsectnum >= 0))
     {
-        char *param = " -map autosave.map -noinstancechecking";
+        char *param = " -map " PLAYTEST_MAPNAME " -noinstancechecking";
         char *fullparam;
         char current_cwd[BMAX_PATH];
         int32_t slen = 0;
@@ -7194,11 +7201,11 @@ void test_map(int32_t mode)
         fixspritesectors();   //Do this before saving!
         ExtPreSaveMap();
         if (mode)
-            saveboard("autosave.map",&startposx,&startposy,&startposz,&startang,&startsectnum);
+            saveboard(PLAYTEST_MAPNAME,&startposx,&startposy,&startposz,&startang,&startsectnum);
         else
-            saveboard("autosave.map",&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+            saveboard(PLAYTEST_MAPNAME,&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
 
-        message("Board saved to AUTOSAVE.MAP. Starting the game...");
+        message("Board saved to " PLAYTEST_MAPNAME ". Starting the game...");
         OSD_Printf("...as `%s'\n", fullparam);
 
         showframe(1);

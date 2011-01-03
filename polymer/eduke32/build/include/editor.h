@@ -106,6 +106,9 @@ extern void ExtEditWallData(int16_t wallnum);
 extern void ExtEditSpriteData(int16_t spritenum);
 extern const char *ExtGetSectorType(int32_t lotag);
 
+extern int32_t autocorruptcheck;
+extern int32_t CheckMapCorruption(int32_t printfromlev);
+
 extern void showsectordata(int16_t sectnum, int16_t small);
 extern void showwalldata(int16_t wallnum, int16_t small);
 extern void showspritedata(int16_t spritenum, int16_t small);

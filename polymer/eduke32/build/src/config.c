@@ -220,7 +220,7 @@ int32_t loadsetup(const char *fn)
 
     if (readconfig(fp, "mousenavigationaccel", val, VL) > 0) pk_uedaccel = Batoi(val);
 
-    if (readconfig(fp, "quickmapcycling", val, VL) > 0) quickmapcycling = Batoi(val);
+    if (readconfig(fp, "quickmapcycling", val, VL) > 0) quickmapcycling = !!Batoi(val);
 
     if (readconfig(fp, "sideview_reversehorizrot", val, VL) > 0) sideview_reversehrot = !!Batoi(val);
     if (readconfig(fp, "revertCTRL", val, VL) > 0) revertCTRL = !!Batoi(val);
@@ -231,8 +231,9 @@ int32_t loadsetup(const char *fn)
 
     if (readconfig(fp, "turndecel", val, VL) > 0) pk_turndecel = Batoi(val);
 
-    if (readconfig(fp, "autosave", val, VL) > 0) autosave = Batoi(val)*60;
-    if (readconfig(fp, "autosavesec", val, VL) > 0) autosave = Batoi(val);
+//    if (readconfig(fp, "autosave", val, VL) > 0) autosave = Batoi(val)*60;
+    if (readconfig(fp, "autosavesec", val, VL) > 0) autosave = max(0, Batoi(val));
+    if (readconfig(fp, "autocorruptchecksec", val, VL) > 0) autocorruptcheck = max(0, Batoi(val));
 
     if (readconfig(fp, "showheightindicators", val, VL) > 0)
         showheightindicators = min(max(Batoi(val),0),2);
@@ -420,6 +421,9 @@ int32_t writesetup(const char *fn)
              "; Autosave map interval (seconds)\n"
              "autosavesec = %d\n"
              "\n"
+             "; Auto corruption check interval (seconds)\n"
+             "autocorruptchecksec = %d\n"
+             "\n"
              "; Height indicators (0:none, 1:only 2-sided&different, 2:all)\n"
              "showheightindicators = %d\n"
              "\n"
@@ -510,7 +514,7 @@ int32_t writesetup(const char *fn)
 #endif
              option[3], msens, unrealedlook, pk_uedaccel, quickmapcycling,
              sideview_reversehrot,
-             revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,
+             revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,autocorruptcheck,
              showheightindicators,showambiencesounds,graphicsmode,
              MixRate,AmbienceToggle,ParentalLock, !!m32_osd_tryscript,
 #if 1

@@ -152,7 +152,7 @@ void OSD_ShowDisplay(int32_t onf);
 void OSD_Draw(void);
 
 // just like printf
-void OSD_Printf(const char *fmt, ...);
+void OSD_Printf(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
 
 // executes buffered commands
 void OSD_DispatchQueued(void);

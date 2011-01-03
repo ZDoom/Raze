@@ -1014,7 +1014,9 @@ defstate jumptosec  // (tmp)
 ends
 
 // Map corruption checker
+//  now included in Mapster32 natively
 
+/*
 defstate corruptchk
     var ewall
     var endwall
@@ -1114,7 +1116,7 @@ defstate corruptchk
     ife ok 0
         print "--"
 ends
-
+*/
 
 gamevar d2d_lastcheck 0 0
 onevent EVENT_DRAW2DSCREEN
@@ -1134,7 +1136,7 @@ onevent EVENT_DRAW2DSCREEN
     ifl d2d_lastcheck tmp
     {
         set d2d_lastcheck totalclock
-        state corruptchk
+//        state corruptchk
     }
 
     ifn showpal 0

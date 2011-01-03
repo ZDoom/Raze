@@ -99,6 +99,9 @@ int32_t scripthistend = 0;
 
 int32_t showambiencesounds=2;
 
+int32_t autocorruptcheck = 0;
+static int32_t corruptchecktimer;
+
 static uint32_t templenrepquot;
 static void fixxrepeat(int16_t i, uint32_t lenrepquot)
 {
@@ -2682,14 +2685,14 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 } while (0)
 
 #define TMPERRMSG_PRINT(Msg, ...) do {  \
-    Bsprintf(tilesel_errmsg, Msg, __VA_ARGS__); \
+    Bsprintf(tilesel_errmsg, Msg, ## __VA_ARGS__); \
     TMPERRMSG_SHOW(1); \
     tilesel_showerr = 1; \
 } while (0)
 
 #define TMPERRMSG_RETURN(Msg, ...) do   \
 { \
-    TMPERRMSG_PRINT(Msg, __VA_ARGS__);  \
+    TMPERRMSG_PRINT(Msg, ## __VA_ARGS__);  \
     return 1; \
 } while (0)
 
@@ -3158,7 +3161,7 @@ static int32_t m32gettile(int32_t idInitialTile)
                     if (noTilesMarked)
                     {
                         noTilesMarked = 0;
-                        TMPERRMSG_PRINT("%s", "Beginning marking tiles. To group, press Ctrl-G. To reset, press LCtrl-RShift-SPACE.");
+                        TMPERRMSG_PRINT("Beginning marking tiles. To group, press Ctrl-G. To reset, press LCtrl-RShift-SPACE.");
                     }
 
                     if (mark_lastk>=0 && eitherCTRL)
@@ -3239,7 +3242,7 @@ static int32_t OnSaveTileGroup()
         n += !!(tilemarked[i>>3]&(1<<(i&7)));
 
     if (n==0)
-        TMPERRMSG_RETURN("%s", "Cannot save tile group: no tiles marked.");
+        TMPERRMSG_RETURN("Cannot save tile group: no tiles marked.");
     else if (n > MAX_TILE_GROUP_ENTRIES)
         TMPERRMSG_RETURN("Cannot save tile group: too many tiles in group. Have %d, max is %d.",
                   n, MAX_TILE_GROUP_ENTRIES);
@@ -3250,7 +3253,7 @@ static int32_t OnSaveTileGroup()
 
     hotkey = Btoupper(cp[0]);
     if (!isalpha(hotkey))
-        TMPERRMSG_RETURN("%s", "Hotkey must be alphabetic.");
+        TMPERRMSG_RETURN("Hotkey must be alphabetic.");
 
     for (i=0; i<tile_groups; i++)
         if (s_TileGroups[i].key1==hotkey || s_TileGroups[i].key2==Btolower(hotkey))
@@ -3262,7 +3265,7 @@ static int32_t OnSaveTileGroup()
 
     for (i=0; name[i]; i++)
         if (!(isalnum(name[i]) || name[i]==' ' || name[i]==','))
-            TMPERRMSG_RETURN("%s", "Name may only consist of alphabetic, numeric and space characters.");
+            TMPERRMSG_RETURN("Name may only consist of alphabetic, numeric and space characters.");
 
     {
         int32_t lasti=-1, col=0, j, k, opathsearchmode=pathsearchmode;
@@ -3283,7 +3286,7 @@ static int32_t OnSaveTileGroup()
         Bfprintf(fp, TTAB "hotkey \"%c\"\n\n", hotkey);
 
         if (!(s_TileGroups[tile_groups].pIds = Bmalloc(n * sizeof(s_TileGroups[tile_groups].pIds[0]))))
-            TMPERRMSG_RETURN("%s", "Out of memory.");
+            TMPERRMSG_RETURN("Out of memory.");
 
         j = 0;
         // tileranges for consecutive runs of 3 or more tiles
@@ -3359,7 +3362,7 @@ static int32_t OnSaveTileGroup()
         if (!(s_TileGroups[tile_groups].szText = Bstrdup(name)))
         {
             Bfree(s_TileGroups[tile_groups].pIds);
-            TMPERRMSG_RETURN("%s", "Out of memory.");
+            TMPERRMSG_RETURN("Out of memory.");
         }
 
         s_TileGroups[tile_groups].nIds = n;
@@ -3368,7 +3371,7 @@ static int32_t OnSaveTileGroup()
         s_TileGroups[tile_groups].color1 = s_TileGroups[tile_groups].color2 = 0;
         tile_groups++;
 
-        TMPERRMSG_PRINT("%s", "Wrote and installed new tile group.");
+        TMPERRMSG_PRINT("Wrote and installed new tile group.");
     }
 
     return 0;
@@ -7795,6 +7798,25 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         else
             return OSDCMD_SHOWHELP;
     }
+    else if (!Bstrcasecmp(parm->name, "autocorruptcheck"))
+    {
+        if (parm->numparms == 1)
+        {
+            autocorruptcheck = clamp(atoi(parm->parms[0]), 0, 3600);
+            corruptchecktimer = 0;  // force checking now
+        }
+
+        if (parm->numparms <= 1)
+        {
+            if (autocorruptcheck)
+                OSD_Printf("auto corruption check: %d seconds\n", autocorruptcheck);
+            else
+                OSD_Printf("auto corruption check: off\n");
+        }
+        else
+            return OSDCMD_SHOWHELP;
+    }
+
     return OSDCMD_OK;
 }
 
@@ -8072,6 +8094,7 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("testplay_addparam", "testplay_addparam \"string\": sets additional parameters for test playing", osdcmd_testplay_addparam);
     OSD_RegisterFunction("show_heightindicators", "show_heightindicators <0, 1 or 2>: sets display of height indicators in 2D mode", osdcmd_vars_pk);
     OSD_RegisterFunction("show_ambiencesounds", "show_ambiencesounds <0, 1 or 2>: sets display of MUSICANDSFX circles in 2D mode", osdcmd_vars_pk);
+    OSD_RegisterFunction("autocorruptcheck", "autocorruptcheck <seconds>: sets auto corruption check interval", osdcmd_vars_pk);
 #ifdef POLYMOST
     OSD_RegisterFunction("tint", "tint <pal> <r> <g> <b> <flags>: queries or sets hightile tinting", osdcmd_tint);
 #endif
@@ -9888,7 +9911,16 @@ void ExtCheckKeys(void)
         if (infobox&2)
             m32_showmouse();
     }
-    else Keys2d();
+    else
+    {
+        Keys2d();
+
+        if (autocorruptcheck>0 && totalclock > corruptchecktimer)
+        {
+            CheckMapCorruption(0);
+            corruptchecktimer = totalclock + 120*autocorruptcheck;
+        }
+    }
 
     if (asksave == 1 && (bstatus + lastbstatus) == 0 && mapstate)
     {
@@ -9919,6 +9951,130 @@ void ExtCheckKeys(void)
         message("Saved screenshot %04d", capturecount-1);
     }
 }
+
+
+//// port of a.m32's corruptchk ////
+// returns value from 0 (all OK) to 5 (panic!)
+#define CORRUPTCHK_PRINT(errlev, fmt, ...) do \
+{ \
+    bad = max(bad, errlev); \
+    if (errlev >= printfromlev) \
+    { \
+        OSD_Printf(fmt "\n", ## __VA_ARGS__); \
+        if (qsetmode!=200) printmessage16(fmt, ## __VA_ARGS__); \
+    } \
+} while (0)
+
+int32_t CheckMapCorruption(int32_t printfromlev)
+{
+    int32_t i, j, w0, numw, endwall, ns, nw;
+    int32_t ewall=0;  // expected wall index
+
+    int32_t errlevel=0, bad=0;
+
+    if (numsectors>MAXSECTORS)
+        CORRUPTCHK_PRINT(5, "PANIC!!! SECTOR LIMIT EXCEEDED (MAXSECTORS=%d)!!!", MAXSECTORS);
+
+    if (numwalls>MAXWALLS)
+        CORRUPTCHK_PRINT(5, "PANIC!!! WALL LIMIT EXCEEDED (MAXWALLS=%d)!!!", MAXWALLS);
+
+    if (numsectors>MAXSECTORS || numwalls>MAXWALLS)
+        return bad;
+
+    for (i=0; i<numsectors; i++)
+    {
+        bad = 0;
+
+        w0 = sector[i].wallptr;
+        numw = sector[i].wallnum;
+
+        if (w0 < 0 || w0 > numwalls)
+            CORRUPTCHK_PRINT(4, "SECTOR[%d].WALLPTR=%d out of range (numwalls=%d)", i, w0, numw);
+
+        if (w0 != ewall)
+            CORRUPTCHK_PRINT(4, "SECTOR[%d].WALLPTR=%d inconsistent, expected %d", i, w0, ewall);
+
+        if (numw <= 1)
+            CORRUPTCHK_PRINT(5, "PANIC!!! SECTOR[%d].WALLNUM=%d INVALID!!!", i, numw);
+        else if (numw==2)
+            CORRUPTCHK_PRINT(3, "SECTOR[%d].WALLNUM=2, expected at least 3", i);
+
+        ewall += numw;
+
+        endwall = w0 + numw;
+        if (endwall > numwalls)
+            CORRUPTCHK_PRINT(4, "SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d", i, endwall, numwalls);
+
+        if (bad)
+            errlevel = max(errlevel, bad);
+        else
+        {
+            endwall--;
+
+            for (j=w0; j<=endwall; j++)
+            {
+                bad = 0;
+
+                if (wall[j].point2 < w0 || wall[j].point2 > endwall)
+                    CORRUPTCHK_PRINT(4, "WALL[%d].POINT2=%d out of range [%d, %d]",
+                                     j, wall[j].point2, w0, endwall);
+
+                nw = wall[j].nextwall;
+                ns = wall[j].nextsector;
+
+                if (nw >= numwalls)
+                    CORRUPTCHK_PRINT(4, "WALL[%d].NEXTWALL=%d out of range: numwalls=%d",
+                                     j, nw, numwalls);
+
+                if (ns >= numsectors)
+                    CORRUPTCHK_PRINT(4, "WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d",
+                                     j, ns, numsectors);
+
+                if (ns == i)
+                    CORRUPTCHK_PRINT(4, "WALL[%d].NEXTSECTOR is its own sector", j);
+
+                if (nw>=w0 && nw<=endwall)
+                    CORRUPTCHK_PRINT(4, "WALL[%d].NEXTWALL is its own sector's wall", j);
+
+                if (bad)
+                    errlevel = max(errlevel, bad);
+                else
+                {
+                    if (ns>=0 || (ns^nw)<0)
+                    {
+                        if ((ns^nw)<0 || nw<sector[ns].wallptr || nw>=sector[ns].wallptr+sector[ns].wallnum)
+                            CORRUPTCHK_PRINT(4, "WALL[%d].NEXTSECTOR=%d and .NEXTWALL=%d inconsistent",
+                                             j, ns, nw);
+                    }
+                }
+            }
+        }
+    }
+
+    bad = 0;
+    for (i=0; i<MAXSPRITES; i++)
+    {
+        if (sprite[i].statnum==MAXSTATUS)
+            continue;
+
+        if (sprite[i].sectnum<0 || sprite[i].sectnum>=numsectors)
+            CORRUPTCHK_PRINT(2, "SPRITE[%d].SECTNUM=%d. Expect problems!", i, sprite[i].sectnum);
+
+        if (sprite[i].picnum<0 || sprite[i].picnum>=MAXTILES)
+        {
+            sprite[i].picnum = 0;
+            CORRUPTCHK_PRINT(0, "SPRITE[%d].PICNUM=%d out of range, resetting to 0", i, sprite[i].picnum);
+        }
+    }
+
+    errlevel = max(errlevel, bad);
+
+    if (errlevel)
+        OSD_Printf("--\n");
+
+    return errlevel;
+}
+////
 
 void faketimerhandler(void)
 {

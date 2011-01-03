@@ -1432,12 +1432,10 @@ static int32_t defsparser(scriptfile *script)
         case T_HIGHPALOOKUP:
         {
             char *highpaltokptr = script->ltextptr;
-            int32_t pal=-1, oldpathsearchmode, fd, datasize, dataread;
+            int32_t pal=-1, oldpathsearchmode, fd;
             char *fn = NULL, *tfn = NULL;
             char *highpalend;
             char *highpaldata;
-            static const uint8_t pngheaderref[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
-            uint8_t pngheader[8];
 
             static const tokenlist highpaltokens[] =
             {
@@ -1488,35 +1486,13 @@ static int32_t defsparser(scriptfile *script)
             else Bfree(tfn);
             pathsearchmode = oldpathsearchmode;
 
-            // load the highpalookup and send it to polymer
-            datasize = PR_HIGHPALOOKUP_DATA_SIZE;
-
             fd = kopen4load(fn, 0);
 
-            if (kread(fd, pngheader, sizeof(pngheader))!=sizeof(pngheader))
-                break;
+            // load the highpalookup and send it to polymer
+            highpaldata = Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
 
-            highpaldata = Bmalloc(datasize);
-
-            if (Bmemcmp(pngheader, pngheaderref, sizeof(pngheader)))  // blindly assume TGA
             {
-                // skip the TGA header
-                klseek(fd, 18, SEEK_SET);
-
-                dataread = 0;
-
-                while (1) {
-                    dataread += kread(fd, highpaldata + dataread, datasize - dataread);
-                    if (dataread == datasize)
-                        break;
-                }
-
-                // ignore whatever image editors might have put after the interesting stuff
-                kclose(fd);
-            }
-            else
-            {
-                char *filebuf, *tmpbuf;
+                char *filebuf;
                 int32_t xsiz, ysiz, filesize, i;
 
                 filesize = kfilelength(fd);
@@ -1531,10 +1507,10 @@ static int32_t defsparser(scriptfile *script)
                 kclose(fd);
                 kpgetdim(filebuf, filesize, &xsiz, &ysiz);
 
-                if (xsiz*ysiz != PR_HIGHPALOOKUP_DATA_SIZE/4)
+                if (xsiz != PR_HIGHPALOOKUP_DIM*PR_HIGHPALOOKUP_DIM || ysiz != PR_HIGHPALOOKUP_DIM)
                 {
-                    initprintf("Error: product of image dimensions of '%s' must equal %d.\n",
-                               fn, PR_HIGHPALOOKUP_DATA_SIZE/4);
+                    initprintf("Error: image dimensions of '%s' must be %dx%d.\n",
+                               fn, PR_HIGHPALOOKUP_DIM*PR_HIGHPALOOKUP_DIM, PR_HIGHPALOOKUP_DIM);
                     Bfree(filebuf); Bfree(highpaldata);
                     break;
                 }
@@ -1542,15 +1518,7 @@ static int32_t defsparser(scriptfile *script)
                 i = kprender(filebuf, filesize, (intptr_t)highpaldata, xsiz*sizeof(coltype), xsiz, ysiz, 0, 0);
                 Bfree(filebuf);
                 if (i)
-                { Bfree(highpaldata); initprintf("Error: failed rendering '%s': code %d.\n", fn, i); break; }
-
-#if 0
-                for (i=0; i<PR_HIGHPALOOKUP_DATA_SIZE/4; i++)
-                {
-                    char *col = &highpaldata[i*4];
-                    swapchar(&col[0], &col[2]);
-                }
-#endif
+                { Bfree(highpaldata); initprintf("Error: failed rendering '%s'.\n", fn); break; }
             }
 
             polymer_definehighpalookup(pal, highpaldata);

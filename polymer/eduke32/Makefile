@@ -167,11 +167,14 @@ OURCFLAGS+= $(BUILDCFLAGS)
 OURCXXFLAGS+= $(BUILDCFLAGS)
 
 MISCLINKOPTS=
+ifeq($(PLATFORM),WINDOWS)
+    MISCLINKOPTS+= -Wl,--large-address-aware
+endif
 ifneq (0,$(KRANDDEBUG))
-    MISCLINKOPTS=-Wl,-Map=$@.memmap
+    MISCLINKOPTS+=-Wl,-Map=$@.memmap
 endif
 ifneq (0,$(PROFILER))
-    MISCLINKOPTS=-pg
+    MISCLINKOPTS+=-pg
 endif
 
 ifeq ($(PRETTY_OUTPUT),1)

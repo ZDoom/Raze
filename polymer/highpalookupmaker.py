@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 def makehighpalookuppixel(pal, rgb):
     hsv = list(colorsys.rgb_to_hsv(*rgb))
     if pal == 0:
