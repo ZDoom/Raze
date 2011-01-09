@@ -268,6 +268,7 @@ static void G_PrecacheSprites(void)
     for (i = SCRAP1; i < (SCRAP1+29); i++) tloadtile(i,1);
 
     tloadtile(FIRELASER,1);
+    for (i=TRANSPORTERSTAR; i<TRANSPORTERSTAR+6; i++) tloadtile(i,1);
     for (i=FORCERIPPLE; i<(FORCERIPPLE+9); i++) tloadtile(i,1);
 
     for (i=MENUSCREEN; i<DUKECAR; i++) tloadtile(i,1);
@@ -442,7 +443,6 @@ void G_CacheMapData(void)
     starttime = getticks();
 
     G_PrecacheSounds();
-
     G_PrecacheSprites();
 
     for (i=0; i<numwalls; i++)
@@ -490,6 +490,7 @@ void G_CacheMapData(void)
                 loadtile((int16_t)i);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
+// PRECACHE
             if (ud.config.useprecache)
             {
                 int32_t k,type;
@@ -1626,6 +1627,25 @@ void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int
         }
 }
 
+
+static void G_LoadMapHack(char *outbuf, const char *filename)
+{
+    char *p;
+
+    if (filename != NULL)
+        Bstrcpy(outbuf, filename);
+    p = Bstrrchr(outbuf,'.');
+    if (!p) Bstrcat(outbuf,".mhk");
+    else
+    {
+        p[1]='m';
+        p[2]='h';
+        p[3]='k';
+        p[4]=0;
+    }
+    if (!loadmaphack(outbuf)) initprintf("Loaded map hack file '%s'\n",outbuf);
+}
+
 int32_t G_EnterLevel(int32_t g)
 {
     int32_t i;
@@ -1694,8 +1714,9 @@ int32_t G_EnterLevel(int32_t g)
     i = ud.screen_size;
     ud.screen_size = 0;
 
-    G_DoLoadScreen(NULL, -1);
+    G_DoLoadScreen("Loading map . . .", -1);
     G_UpdateScreenArea();
+
     ud.screen_size = i;
 
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
@@ -1707,6 +1728,7 @@ int32_t G_EnterLevel(int32_t g)
 
     Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);
+
     if (!VOLUMEONE)
     {
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
@@ -1722,17 +1744,7 @@ int32_t G_EnterLevel(int32_t g)
             {
                 char *p;
 
-                strcpy(levname, boardfilename);
-                p = Bstrrchr(levname,'.');
-                if (!p) strcat(levname,".mhk");
-                else
-                {
-                    p[1]='m';
-                    p[2]='h';
-                    p[3]='k';
-                    p[4]=0;
-                }
-                if (!loadmaphack(levname)) initprintf("Loaded map hack file '%s'\n",levname);
+                G_LoadMapHack(levname, boardfilename);
 
                 // usermap music based on map filename
                 Bcorrectfilename(levname,0);
@@ -1791,20 +1803,8 @@ int32_t G_EnterLevel(int32_t g)
         }
         else
         {
-            char *p;
-            strcpy(levname, MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
-            p = Bstrrchr(levname,'.');
-            if (!p) strcat(levname,".mhk");
-            else
-            {
-                p[1]='m';
-                p[2]='h';
-                p[3]='k';
-                p[4]=0;
-            }
-            if (!loadmaphack(levname)) initprintf("Loaded map hack file '%s'\n",levname);
+            G_LoadMapHack(levname, MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
         }
-
     }
     else
     {
@@ -1823,17 +1823,7 @@ int32_t G_EnterLevel(int32_t g)
         }
         else
         {
-            char *p;
-            p = Bstrrchr(levname,'.');
-            if (!p) strcat(levname,".mhk");
-            else
-            {
-                p[1]='m';
-                p[2]='h';
-                p[3]='k';
-                p[4]=0;
-            }
-            if (!loadmaphack(levname)) initprintf("Loaded map hack file '%s'\n",levname);
+            G_LoadMapHack(levname, NULL);
         }
     }
 

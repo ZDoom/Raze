@@ -2,7 +2,7 @@
 
 import sys;
 
-from numpy import array, zeros, ones, arange
+from numpy import array, zeros, ones, arange, uint32
 from numpy import vstack, hstack, hsplit, dstack, dsplit
 
 from PIL.Image import frombuffer
@@ -66,7 +66,8 @@ def showpalimg(im):
 
 ## port of Octave's rbg2hsv
 def rgb2hsv(im):
-    im = imitof(im);
+    if (im.dtype=='uint8'):
+        im = imitof(im);
 
     r, g, b = im[..., 0], im[..., 1], im[..., 2];
     s, v = im.min(2), im.max(2);
@@ -117,11 +118,16 @@ def hsv2rgb(imh):
 
 
 def imftoi(im):
+    im = im.copy();
+    if (im.dtype=='uint8'):
+        return im
     im *= CONVFACT;
     im[im>255] = 255;
     return im.astype('uint8');
 
 def imitof(im):
+    if (im.dtype=='float32'):
+        return im.copy();
     return im.astype('float32')/CONVFACT;
 
 
@@ -144,13 +150,54 @@ BASEPALHSV should the precomputed HSV representation of BASEPAL."
     # all true mask will be used unless overridden
     mask = ones(h.shape, 'bool');
 
-# plagman:
-    if (pal==1):
-        h[:] = 0.66;
 
-    elif (pal==6):
-        h[:] = 0.33;
-        v = 1.0 - v;
+## PHRP r176 defs:
+#
+# tint { pal 1 red 100 green 120 blue 148 flags 1 }
+# tint { pal 2 red 255 green  48 blue   0 flags 0 }
+# tint { pal 4 red   0 green   0 blue   0 flags 0 }
+# tint { pal 6 red 224 green 255 blue 112 flags 3 }
+# tint { pal 7 red 172 green 157 blue 140 flags 0 }
+# tint { pal 8 red 199 green 226 blue 113 flags 1 }
+#
+# bit 1: greyscale (max)
+# bit 2: invert (255-x)
+# colorization: min(int(C*C')/64, 255)
+
+    if (pal in [1,2,4,6,7,8]):
+        rgbf = { 1: [100, 120, 148, 1],
+                 2: [255,  48,   0, 0],
+                 4: [0,     0,   0, 0],
+                 6: [224, 255, 112, 3],
+                 7: [172, 157, 140, 0],
+                 8: [199, 226, 113, 1]}
+
+        newrgb = basepal.astype('uint32');
+
+        flags = rgbf[pal][3]
+
+        if (flags&1):  # greyscale
+            newrgb = newrgb.max(2);
+            newrgb = dstack((newrgb, newrgb, newrgb)).copy();
+
+        if (flags&2):  # invert
+            newrgb = 255-newrgb;
+
+        # colorize
+        for i in range(3):
+            newrgb[:,:,i] *= rgbf[pal][i]
+            newrgb[:,:,i] /= 255
+        newrgb[newrgb>255] = 255
+
+        return newrgb.astype('uint8');
+
+# plagman:
+#    if (pal==1):
+#        h[:] = 0.66;
+
+#    elif (pal==6):
+#        h[:] = 0.33;
+#        v = 1.0 - v;
 
     elif (pal==20):
         m1 = ((h>0.6) & (h<0.7));
@@ -171,35 +218,39 @@ BASEPALHSV should the precomputed HSV representation of BASEPAL."
 # helixhorned:
     elif (pal==11):
         mask = bluemask;
-        h[:] = green;
-        s += 0.1;
+        h[mask] = green;
+        s[mask] += 0.1;
 
     elif (pal==12):
         mask = bluemask;
-        h[:] = 0.0;
-        s[:] = 0.0;
+        h[mask] = 0.0;
+        s[mask] = 0.0;
 
     elif (pal==13):
         mask = bluemask;
-        h[:] = 0.0;
-        s[:] = 0.0;
-        v *= 0.7;
+        h[mask] = 0.0;
+        s[mask] = 0.0;
+        v[mask] *= 0.7;
 
     elif (pal==16):
         mask = bluemask;
-        s += 0.1;
-        v -= 0.1;
+        s[mask] += 0.1;
+        v[mask] -= 0.1;
 
     elif (pal==21):
         mask = bluemask;
-        h[:] = red;
-        s += 0.3;
+        h[mask] = red;
+        s[mask] += 0.3;
 
     elif (pal==23):
         mask = bluemask;
-        h[:] = yellow;
-        s += 0.12;
-        v *= 1.15;
+        h[mask] = yellow;
+        s[mask] += 0.12;
+        v[mask] *= 1.15;
+
+    elif (pal==99):
+        mask = bluemask;
+        v[mask] = 0;
 
 # user:
 # ...
@@ -210,9 +261,11 @@ BASEPALHSV should the precomputed HSV representation of BASEPAL."
     # ---
     newrgb = hsv2rgb(dstack((h, s, v)));
 
-    r = mask*newrgb[:,:,0] + (~mask)*basepal[:,:,0];
-    g = mask*newrgb[:,:,1] + (~mask)*basepal[:,:,1];
-    b = mask*newrgb[:,:,2] + (~mask)*basepal[:,:,2];
+    nmask = ~mask;
+
+    r = mask*newrgb[:,:,0] + nmask*basepal[:,:,0];
+    g = mask*newrgb[:,:,1] + nmask*basepal[:,:,1];
+    b = mask*newrgb[:,:,2] + nmask*basepal[:,:,2];
 
     # PIL doesn't seem to like views/shallow copies
     return dstack((r, g, b)).copy();
@@ -223,21 +276,18 @@ if (__name__ == "__main__"):
 
     argc = len(sys.argv);
     if (argc == 1):
-        print "Usage: python prhighpal.py <palnum>"
+        print "Usage: python prhighpal.py (palnums ...)"
         sys.exit();
-    elif (argc > 2):
-        print "There's a weird bug when passing more than one palnum; \
-processing only the first one.\n"
 
     print "Generating base palette..."
     bp = genbasepal();
     bph = rgb2hsv(bp);
 
-    for i in [1]: #xrange(1, argc):
+    for i in xrange(1, argc):
         palnum = int(sys.argv[i]);
         filename = "hipal{0}_gen.png".format(palnum);
         print "Generating palnum", palnum, "image ...";
-        palimg = genpal(bp, bph, palnum);
+        palimg = genpal(bp.copy(), bph.copy(), palnum);
         print "Writing", filename, "...";
         saveimage(palimg, filename);
 

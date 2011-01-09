@@ -500,13 +500,14 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
     *bpl = xsiz;
     *fptr = (intptr_t)pic;
     *hasalpha = (al != 255);
+
     return 0;
 }
 
 // JONOF'S COMPRESSED TEXTURE CACHE STUFF ---------------------------------------------------
 int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, texcacheheader *head)
 {
-    int32_t fp;
+    int32_t fp, err=0;
     char cachefn[BMAX_PATH], *cp;
     uint8_t mdsum[16];
 
@@ -576,28 +577,29 @@ int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, 
         if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader))
         {
             cachepos += sizeof(texcacheheader); 
+            err = 1;
             goto failure;
         }
         cachepos += sizeof(texcacheheader);
     }
 
-    if (memcmp(head->magic, TEXCACHEMAGIC, 4)) goto failure;
+    if (memcmp(head->magic, TEXCACHEMAGIC, 4)) { err=2; goto failure; }
 
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
     head->quality = B_LITTLE32(head->quality);
 
-    if (head->quality != r_downsize) goto failure;
-    if ((head->flags & 4) && glusetexcache != 2) goto failure;
-    if (!(head->flags & 4) && glusetexcache == 2) goto failure;
-    if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
-    if (!glinfo.texnpot && (head->flags & 1)) goto failure;
+    if (head->quality != r_downsize) { err=3; goto failure; }
+    if ((head->flags & 4) && glusetexcache != 2) { err=4; goto failure; }
+    if (!(head->flags & 4) && glusetexcache == 2) { err=5; goto failure; }
+    if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) { err=6; goto failure; }
+    if (!glinfo.texnpot && (head->flags & 1)) { err=7; goto failure; }
 
     return cachefilehandle;
 failure:
 //    kclose(fil);
-    initprintf("cache miss\n");
+    initprintf("skin cache miss: %d\n", err);
     return -1;
 }
 
@@ -681,6 +683,8 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     int32_t cachefil = -1, picfillen;
     texcacheheader cachead;
 
+    int32_t startticks, willprint=0;
+
     modelhead=m; // for palmaps
 
     if (m->mdnum == 2) surf = 0;
@@ -754,6 +758,8 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     picfillen = kfilelength(filh);
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
+    startticks = getticks();
+
     cachefil = mdloadskin_trytexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), &cachead);
     if (cachefil >= 0 && !mdloadskin_cached(cachefil, &cachead, &doalloc, texidx, &xsiz, &ysiz, pal))
     {
@@ -779,6 +785,9 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             return(0);
         }
         else kclose(filh);
+
+        willprint = 1;
+
         if (pal < (MAXPALOOKUPS - RESERVEDPALS)) m->usesalpha = hasalpha;
         if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)texidx);
         bglBindTexture(GL_TEXTURE_2D,*texidx);
@@ -849,9 +858,20 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                 if (ysiz == pow2long[j]) { i |= 2; }
             }
             cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
-            OSD_Printf("Caching \"%s\"\n",fn);
+///            OSD_Printf("Caching \"%s\"\n",fn);
             writexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), &cachead);
+
+            if (willprint)
+            {
+                OSD_Printf("Load skin: p%d-e%d \"%s\"... cached... %d ms\n", pal, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), fn, getticks()-startticks);
+                willprint = 0;
+            }
+            else
+                OSD_Printf("Cached skin \"%s\"\n", fn);
         }
+
+    if (willprint)
+        OSD_Printf("Load skin: p%d-e%d \"%s\"... %d ms\n", pal, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), fn, getticks()-startticks);
 
     return(*texidx);
 }

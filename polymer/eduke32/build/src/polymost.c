@@ -1307,7 +1307,7 @@ void phex(char v, char *s)
 
 int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
 {
-    int32_t fp;
+    int32_t fp, err=0;
     char cachefn[BMAX_PATH], *cp;
     uint8_t mdsum[16];
 
@@ -1366,27 +1366,28 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
         if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader))
         {
             cachepos += sizeof(texcacheheader); 
+            err = 1;
             goto failure;
         }
         cachepos += sizeof(texcacheheader);
     }
 
-    if (Bmemcmp(head->magic, TEXCACHEMAGIC, 4)) goto failure;
+    if (Bmemcmp(head->magic, TEXCACHEMAGIC, 4)) { err=2; goto failure; }
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
     head->quality = B_LITTLE32(head->quality);
 
-    if ((head->flags & 4) && glusetexcache != 2) goto failure;
-    if (!(head->flags & 4) && glusetexcache == 2) goto failure;
+    if ((head->flags & 4) && glusetexcache != 2) { err=3; goto failure; }
+    if (!(head->flags & 4) && glusetexcache == 2) { err=4; goto failure; }
 
     if (!(head->flags & 8) && head->quality != r_downsize) return -1; // handle nocompress
-    if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) goto failure;
-    if (!glinfo.texnpot && (head->flags & 1)) goto failure;
+    if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) { err=5; goto failure; }
+    if (!glinfo.texnpot && (head->flags & 1)) { err=6; goto failure; }
 
     return cachefilehandle;
 failure:
-    initprintf("cache miss\n");
+    initprintf("cache miss: %d\n", err);
     return -1;
 }
 
@@ -1636,6 +1637,7 @@ failure:
     return -1;
 }
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
+//static
 int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr, int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
 {
     coltype *pic = NULL, *rpptr;
@@ -1651,6 +1653,8 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     static coltype *lastpic = NULL;
     static char *lastfn = NULL;
     static int32_t lastsize = 0;
+
+    int32_t startticks, didprint=0;
 
     if (!hicr) return -1;
     if (facen > 0)
@@ -1716,15 +1720,19 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         }
         pic = (coltype *)Bcalloc(xsiz,ysiz*sizeof(coltype)); if (!pic) { Bfree(picfil); return 1; }
 
+        startticks = getticks();
+
         if (lastpic && lastfn && !Bstrcmp(lastfn,fn))
         {
-//            if (hicprecaching) OSD_Printf("use  %4d: p%-3d m%d e%d\n", dapic, dapalnum, dameth, effect);
+            OSD_Printf("Load tile %4d: p%d-m%d-e%d", dapic, dapalnum, dameth, effect);
+            didprint=1;
             Bmemcpy(pic, lastpic, xsiz*ysiz*sizeof(coltype));
         }
         else
         {
-//            if (hicprecaching) OSD_Printf("rend %4d: p%-3d m%d e%d: `%s'\n", dapic, dapalnum, dameth, effect, fn);
             if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { Bfree(picfil); Bfree(pic); return -2; }
+            OSD_Printf("Load tile %4d: p%d-m%d-e%d \"%s\"", dapic, dapalnum, dameth, effect, fn);
+            didprint=1;
 
             if (hicprecaching)
             {
@@ -1889,9 +1897,20 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                 if (ysiz == pow2long[j]) { x |= 2; }
             }
             cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0) | (hicr->flags & 16?8:0); // handle nocompress
-            OSD_Printf("Caching \"%s\"\n", fn);
+///            OSD_Printf("Caching \"%s\"\n", fn);
             writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
+
+            if (didprint)
+            {
+                OSD_Printf("... cached... %d ms\n", getticks()-startticks);
+                didprint = 0;
+            }
+            else
+                OSD_Printf("Cached \"%s\"\n", fn);
         }
+
+    if (didprint)
+        OSD_Printf("... %d ms\n", getticks()-startticks);
 
     return 0;
 }
