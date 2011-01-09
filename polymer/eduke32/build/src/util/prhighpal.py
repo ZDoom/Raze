@@ -207,7 +207,7 @@ BASEPALHSV should the precomputed HSV representation of BASEPAL."
         mask = m1 | m2 | m3 | m4;
 
         # blue to gray by removing all saturation
-        h[m1] = 0.0;
+        s[m1] = 0.0;
         # orange and brown to blue
         h[m2] = 0.66;
         # purple and reddish to blue

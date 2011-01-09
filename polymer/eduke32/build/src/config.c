@@ -178,6 +178,10 @@ int32_t loadsetup(const char *fn)
         r_downsize = clamp(r_downsize, 0, 5);
         r_downsizevar = r_downsize;
     }
+    if (readconfig(fp, "r_texcompr", val, VL) > 0)
+    {
+        glusetexcompr = !!Batoi(val);
+    }
 #endif
 
     if (readconfig(fp, "gameexecutable", val, VL) > 0)
@@ -350,6 +354,7 @@ int32_t writesetup(const char *fn)
              "gltexfiltermode = %d\n"
              "glanisotropy = %d\n"
              "r_downsize = %d\n"
+             "r_texcompr = %d\n"
              "\n"
 #endif
 
@@ -508,7 +513,7 @@ int32_t writesetup(const char *fn)
              editorgridextent, min(max(0, default_grid), 9),
 #if defined(POLYMOST) && defined(USE_OPENGL)
              usemodels, usehightile,
-             glusetexcache, gltexfiltermode, glanisotropy,r_downsize,
+             glusetexcache, gltexfiltermode, glanisotropy,r_downsize,glusetexcompr,
 #endif
 #ifdef RENDERTYPEWIN
              maxrefreshfreq, windowpos, windowx, windowy,
