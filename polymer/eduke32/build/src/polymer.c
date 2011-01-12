@@ -958,6 +958,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     {
         globaloldoverridematerial = overridematerial;
         overridematerial = prprogrambits[PR_BIT_DIFFUSE_MODULATION].bit;
+        overridematerial |= prprogrambits[PR_BIT_DIFFUSE_MAP2].bit;
         polymersearching = TRUE;
     }
     if (!searchit && polymersearching) {
