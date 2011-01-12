@@ -260,6 +260,43 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
     },
     {
+        1 << PR_BIT_DIFFUSE_DETAIL_MAP,
+        // vert_def
+        "uniform vec2 detailScale;\n"
+        "varying vec2 fragDetailScale;\n"
+        "\n",
+        // vert_prog
+        "  fragDetailScale = detailScale;\n"
+        "  if (isNormalMapped == 0)\n"
+        "    gl_TexCoord[1] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
+        "\n",
+        // frag_def
+        "uniform sampler2D detailMap;\n"
+        "varying vec2 fragDetailScale;\n"
+        "\n",
+        // frag_prog
+        "  if (isNormalMapped == 0)\n"
+        "    diffuseTexel *= texture2D(detailMap, gl_TexCoord[1].st);\n"
+        "  else\n"
+        "    diffuseTexel *= texture2D(detailMap, commonTexCoord.st * fragDetailScale);\n"
+        "  diffuseTexel.rgb *= 2.0;\n"
+        "\n",
+    },
+    {
+        1 << PR_BIT_DIFFUSE_MODULATION,
+        // vert_def
+        "",
+        // vert_prog
+        "  gl_FrontColor = gl_Color;\n"
+        "\n",
+        // frag_def
+        "",
+        // frag_prog
+        "  if (isLightingPass == 0)\n"
+        "    diffuseTexel *= vec4(gl_Color);\n"
+        "\n",
+    },
+    {
         1 << PR_BIT_HIGHPALOOKUP_MAP,
         // vert_def
         "",
@@ -283,43 +320,6 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // frag_prog
         "  if (isLightingPass == 0)\n"
         "    result *= diffuseTexel;\n"
-        "\n",
-    },
-    {
-        1 << PR_BIT_DIFFUSE_DETAIL_MAP,
-        // vert_def
-        "uniform vec2 detailScale;\n"
-        "varying vec2 fragDetailScale;\n"
-        "\n",
-        // vert_prog
-        "  fragDetailScale = detailScale;\n"
-        "  if (isNormalMapped == 0)\n"
-        "    gl_TexCoord[1] = vec4(detailScale, 1.0, 1.0) * gl_MultiTexCoord0;\n"
-        "\n",
-        // frag_def
-        "uniform sampler2D detailMap;\n"
-        "varying vec2 fragDetailScale;\n"
-        "\n",
-        // frag_prog
-        "  if (isNormalMapped == 0)\n"
-        "    result *= texture2D(detailMap, gl_TexCoord[1].st);\n"
-        "  else\n"
-        "    result *= texture2D(detailMap, commonTexCoord.st * fragDetailScale);\n"
-        "  result.rgb *= 2.0;\n"
-        "\n",
-    },
-    {
-        1 << PR_BIT_DIFFUSE_MODULATION,
-        // vert_def
-        "",
-        // vert_prog
-        "  gl_FrontColor = gl_Color;\n"
-        "\n",
-        // frag_def
-        "",
-        // frag_prog
-        "  if (isLightingPass == 0)\n"
-        "    result *= vec4(gl_Color);\n"
         "\n",
     },
     {
@@ -4276,7 +4276,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         programbits |= prprogrambits[PR_BIT_HIGHPALOOKUP_MAP].bit;
 
     // PR_BIT_DIFFUSE_DETAIL_MAP
-    if (!curlight && r_detailmapping && material.detailmap)
+    if (r_detailmapping && material.detailmap)
         programbits |= prprogrambits[PR_BIT_DIFFUSE_DETAIL_MAP].bit;
 
     // PR_BIT_DIFFUSE_MODULATION
