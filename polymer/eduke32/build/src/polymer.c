@@ -3656,7 +3656,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     mdskinmap_t*    sk;
     float           *v0, *v1;
     md3surf_t       *s;
-    char            lpal;
+    char            lpal, targetpal, usinghighpal, foundpalskin;
     float           spos2[3], spos[3], tspos[3], lpos[3], tlpos[3], vec[3], mat[4][4];
     float           ang;
     float           scale;
@@ -3819,8 +3819,13 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     color[0] = color[1] = color[2] =
         ((float)(numpalookups-min(max((tspr->shade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups) * 0xFF;
+    
+    usinghighpal = (tspr->pal > 0 && pr_highpalookups &&
+                    prhighpalookups[tspr->pal].map);
 
-    if (!(hictinting[tspr->pal].f&4))
+    // If that palette has a highpalookup, we'll never use tinting. We might use
+    // alternate skins if they exist later, though.
+    if (!usinghighpal && !(hictinting[tspr->pal].f&4))
     {
         if (!(m->flags&1) || (!(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0))
         {
@@ -3953,8 +3958,29 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 //         bglEnable(GL_TEXTURE_2D);
 
 
+        targetpal = tspr->pal;
+        foundpalskin = 0;
+
+        for (sk = m->skinmap; sk; sk = sk->next)
+            if ((int32_t)sk->palette == tspr->pal &&
+                 sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
+                 sk->surfnum == surfi)
+        {
+            if (sk->specpower != 1.0)
+                mdspritematerial.specmaterial[0] = sk->specpower;
+            mdspritematerial.specmaterial[1] = sk->specfactor;
+            foundpalskin = 1;
+        }
+        
+        if (!foundpalskin) {
+            // We don't have a specific skin defined for this palette
+            // Use the base skin instead and plug in our highpalookup map
+            targetpal = 0;
+            mdspritematerial.highpalookupmap = prhighpalookups[tspr->pal].map;
+        }
+
         mdspritematerial.diffusemap =
-                mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,tspr->pal,surfi);
+                mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,targetpal,surfi);
         if (!mdspritematerial.diffusemap)
             continue;
 
@@ -3988,16 +4014,6 @@ static void         polymer_drawmdsprite(spritetype *tspr)
                     mdspritematerial.normalbias[0] = sk->specpower;
                     mdspritematerial.normalbias[1] = sk->specfactor;
                 }
-        }
-
-        for (sk = m->skinmap; sk; sk = sk->next)
-            if ((int32_t)sk->palette == tspr->pal &&
-                 sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
-                 sk->surfnum == surfi)
-        {
-            if (sk->specpower != 1.0)
-                mdspritematerial.specmaterial[0] = sk->specpower;
-            mdspritematerial.specmaterial[1] = sk->specfactor;
         }
 
         if (!(tspr->cstat&1024))
