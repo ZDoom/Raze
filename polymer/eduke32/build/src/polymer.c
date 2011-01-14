@@ -3973,7 +3973,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             foundpalskin = 1;
         }
         
-        if (!foundpalskin) {
+        if (!foundpalskin && usinghighpal) {
             // We don't have a specific skin defined for this palette
             // Use the base skin instead and plug in our highpalookup map
             targetpal = 0;
