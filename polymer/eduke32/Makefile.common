@@ -88,7 +88,7 @@ endif
 
 BASECFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
-    $(F_JUMP_TABLES)
+        $(F_JUMP_TABLES) -Wno-unused-result
 
 BASECXXFLAGS= -fno-exceptions -fno-rtti
 BASEASFLAGS=-s #-g

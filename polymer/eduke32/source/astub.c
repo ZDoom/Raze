@@ -7065,6 +7065,7 @@ static void Keys2d(void)
             {
             case 0:
                 printmessage16("MAP LIMITS EXCEEDED!");
+                x = y = z = 0;
                 break;
             case CORRUPT_SECTOR:
                 i = k&(MAXSECTORS-1);
@@ -7089,6 +7090,7 @@ static void Keys2d(void)
                 break;
             default:
                 k = 0;
+                x = y = z = 0;
                 break;
             }
 

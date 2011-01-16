@@ -1917,7 +1917,7 @@ void overheadeditor(void)
                         dabuffer = (char *)ExtGetSectorCaption(i);
                         if (dabuffer[0] != 0)
                         {
-                            int32_t vdisp;
+                            int32_t vdisp = 0;
 
                             dax = 0;   //Get average point of sector
                             day = 0;

@@ -1654,7 +1654,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     static char *lastfn = NULL;
     static int32_t lastsize = 0;
 
-    int32_t startticks, didprint=0;
+    int32_t startticks=0, didprint=0;
 
     if (!hicr) return -1;
     if (facen > 0)

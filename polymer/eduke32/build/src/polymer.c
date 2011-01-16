@@ -3698,6 +3698,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         spos[0] = (float)tspr->y;
         spos[1] = -(float)(tspr->z) / 16.0f;
         spos[2] = -(float)tspr->x;
+        
+        spos2[0] = spos2[1] = spos2[2] = 0.0f;
     }
 
     ang = (float)((tspr->ang+spriteext[tspr->owner].angoff) & 2047) / (2048.0f / 360.0f);
