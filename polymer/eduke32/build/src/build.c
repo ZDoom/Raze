@@ -347,7 +347,7 @@ static void M32_drawdebug(void)
 
     begindrawing();
 //    Bsprintf(tstr, "searchstat=%d, searchsector=%d, searchwall=%d",
-//             searchstat, searchsector, searchwall);  
+//             searchstat, searchsector, searchwall);
 //    printext256(x,y,whitecol,0,tstr,xdimgame>640?0:1);
     for (i=0; i<m32_numdebuglines; i++)
     {
@@ -429,7 +429,7 @@ int32_t app_main(int32_t argc, const char **argv)
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
     if (i || forcesetup || cmdsetup)
     {
-        if (quitevent || !startwin_run()) 
+        if (quitevent || !startwin_run())
         {
             uninitengine();
             exit(0);
@@ -474,7 +474,7 @@ int32_t app_main(int32_t argc, const char **argv)
         ang = 1536;
         numsectors = 0;
         numwalls = 0;
-        cursectnum = -1;        
+        cursectnum = -1;
     }
 
     totalclock = 0;
@@ -840,7 +840,7 @@ void editinput(void)
             //              horiz--;
             //        if (mousx && !(mousx/2))
             //          ang++;
-            
+
             bclamp(&horiz, -99, 299);
 
             if (mlook == 1)
@@ -1361,7 +1361,7 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
 
     updatenumsprites();
     if (numsectors+mapinfo->numsectors>MAXSECTORS || numwalls+mapinfo->numwalls>MAXWALLS
-        || numsprites+mapinfo->numsprites>MAXSPRITES)
+            || numsprites+mapinfo->numsprites>MAXSPRITES)
     {
         mapinfofull_free(mapinfo);
         return -1;
@@ -1735,9 +1735,9 @@ void overheadeditor(void)
     while ((keystatus[buildkeys[BK_MODE2D_3D]]>>1) == 0)
     {
         if (!((vel|angvel|svel) //DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
-              || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || keystatus[0x10] || keystatus[0x11]
-              || keystatus[0x48] || keystatus[0x4b] || keystatus[0x4d] || keystatus[0x50]  // keypad keys
-              || bstatus || OSD_IsMoving()))
+                || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || keystatus[0x10] || keystatus[0x11]
+                || keystatus[0x48] || keystatus[0x4b] || keystatus[0x4d] || keystatus[0x50]  // keypad keys
+                || bstatus || OSD_IsMoving()))
         {
             if (totalclock > waitdelay)
             {
@@ -1855,8 +1855,8 @@ void overheadeditor(void)
         if (numwalls < 0) numwalls = tempint;
 
         if ((getticks() - lastdraw) >= 5 || (vel|angvel|svel) || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN)
-            || mousx || mousy || bstatus || keystatus[0x10] || keystatus[0x11]
-            || newnumwalls>=0 || OSD_IsMoving())
+                || mousx || mousy || bstatus || keystatus[0x10] || keystatus[0x11]
+                || newnumwalls>=0 || OSD_IsMoving())
         {
             lastdraw = getticks();
 
@@ -2186,8 +2186,8 @@ void overheadeditor(void)
 
                 if (gridlock && grid > 0)
                     locktogrid(&dax, &day);
-                    //          dax = ((dax+(GRIDMAX>>grid))&(0xffffffff-(GRIDMAX>>(grid-1))+1));
-                    //          day = ((day+(GRIDMAX>>grid))&(0xffffffff-(GRIDMAX>>(grid-1))+1));
+                //          dax = ((dax+(GRIDMAX>>grid))&(0xffffffff-(GRIDMAX>>(grid-1))+1));
+                //          day = ((day+(GRIDMAX>>grid))&(0xffffffff-(GRIDMAX>>(grid-1))+1));
 
                 for (i=0; i<highlightsectorcnt; i++)
                 {
@@ -2489,7 +2489,7 @@ void overheadeditor(void)
         if (keystatus[0x3f])  //F5
         {
 //            keystatus[0x3f] = 0;
-            
+
             ydim16 = STATUS2DSIZ;
             ExtShowSectorData((int16_t)0);
             ydim16 = ydim-STATUS2DSIZ2;
@@ -2709,7 +2709,7 @@ void overheadeditor(void)
 
                         for (i=0; i<numwalls; i++)
                             if (wall[i].x >= highlightx1 && wall[i].x <= highlightx2 &&
-                                wall[i].y >= highlighty1 && wall[i].y <= highlighty2)
+                                    wall[i].y >= highlighty1 && wall[i].y <= highlighty2)
                             {
                                 if (!sub)
                                     show2dwall[i>>3] |= (1<<(i&7));
@@ -2719,8 +2719,8 @@ void overheadeditor(void)
 
                         for (i=0; i<MAXSPRITES; i++)
                             if (sprite[i].statnum < MAXSTATUS &&
-                                sprite[i].x >= highlightx1 && sprite[i].x <= highlightx2 &&
-                                sprite[i].y >= highlighty1 && sprite[i].y <= highlighty2)
+                                    sprite[i].x >= highlightx1 && sprite[i].x <= highlightx2 &&
+                                    sprite[i].y >= highlighty1 && sprite[i].y <= highlighty2)
                             {
                                 if (!sub)
                                 {
@@ -2834,7 +2834,8 @@ void overheadeditor(void)
 //                                            visitedwall[j>>3] |= (1<<(j&7));
                                             n--;
                                         }
-                                    } while (j!=refwall && n>0);
+                                    }
+                                    while (j!=refwall && n>0);
                                     if (j!=refwall)
                                     {
                                         message("internal error while trying to trace outer loop: j!=refwall");
@@ -3051,7 +3052,7 @@ outtathis:
             for (i=0; i<numwalls; i++)     //make new red lines?
             {
                 if ((wall[i].x == dax && wall[i].y == day)
-                      || (POINT2(i).x == dax && POINT2(i).y == day))
+                        || (POINT2(i).x == dax && POINT2(i).y == day))
                 {
                     checksectorpointer((int16_t)i,sectorofwall((int16_t)i));
                     fixrepeats((int16_t)i);
@@ -3220,21 +3221,21 @@ SKIP:
                             vec.z = sprite[daspr].z;
                             if (setsprite(daspr, &vec) == -1 && osec>=0)
                                 Bmemcpy(&sprite[daspr], &ovec, sizeof(vec3_t));
-/*
-                            daz = ((tilesizy[sprite[daspr].picnum]*sprite[daspr].yrepeat)<<2);
+                            /*
+                                                        daz = ((tilesizy[sprite[daspr].picnum]*sprite[daspr].yrepeat)<<2);
 
-                            for (i=0; i<numsectors; i++)
-                                if (inside(dax,day,i) == 1)
-                                    if (sprite[daspr].z >= getceilzofslope(i,dax,day))
-                                        if (sprite[daspr].z-daz <= getflorzofslope(i,dax,day))
-                                        {
-                                            sprite[daspr].x = dax;
-                                            sprite[daspr].y = day;
-                                            if (sprite[daspr].sectnum != i)
-                                                changespritesect(daspr,(int16_t)i);
-                                            break;
-                                        }
-*/
+                                                        for (i=0; i<numsectors; i++)
+                                                            if (inside(dax,day,i) == 1)
+                                                                if (sprite[daspr].z >= getceilzofslope(i,dax,day))
+                                                                    if (sprite[daspr].z-daz <= getflorzofslope(i,dax,day))
+                                                                    {
+                                                                        sprite[daspr].x = dax;
+                                                                        sprite[daspr].y = day;
+                                                                        if (sprite[daspr].sectnum != i)
+                                                                            changespritesect(daspr,(int16_t)i);
+                                                                        break;
+                                                                    }
+                            */
                         }
                     }
                     asksave = 1;
@@ -3873,7 +3874,7 @@ SKIP:
                 if ((split == 0) && (firstx == mousxplc) && (firsty == mousyplc) && (newnumwalls >= numwalls+3))
                 {
                     if (suckwall == -1)  //if no connections to other sectors
-                    { /* No problem... */ }
+                        { /* No problem... */ }
                     else
                     {
                         if (newnumwalls>=MAXWALLS)  // still too optimistic since we can have more than one new red wall
@@ -4529,7 +4530,7 @@ SKIP:
                 printmessage16("2D mode textures %s",
                                (graphicsmode == 2)?"enabled w/ animation":graphicsmode?"enabled":"disabled");
             }
-            
+
         }
 
         if (keystatus[0xd3] && eitherCTRL && (numwalls >= 0))  //sector delete
@@ -4595,7 +4596,7 @@ SKIP:
         }
 
         if (keystatus[0xd2] || keystatus[0x17])  //InsertPoint
-        {   
+        {
             if (highlightsectorcnt >= 0)
                 duplicate_selected_sectors();
             else if (highlightcnt >= 0)
@@ -5052,7 +5053,7 @@ CANCEL:
     }
 
     setbrightness(GAMMA_CALC,palette,0);
-        
+
     pos.z = oposz;
 
     searchx = clamp(scale(searchx,xdimgame,xdim2d), 8, xdimgame-8-1);
@@ -5863,7 +5864,7 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
 // defaultstr: can be NULL
 //  NO overflow checks are done when copying them!
 // maxlen: maximum length of entry string, if ==1, enter single char
-const char* getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen)
+const char *getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen)
 {
     static char buf[128];
     int32_t ei=0, qrylen=0;
@@ -5936,7 +5937,7 @@ const char* getstring_simple(const char *querystr, const char *defaultstr, int32
                 buf[ei+1] = 0;
             }
         }
-        else 
+        else
         {
             if (isalnum(ch) || ch==' ')
                 buf[ei] = Btoupper(ch);
@@ -6664,7 +6665,7 @@ static void copysector(int16_t soursector, int16_t destsector, int16_t deststart
                 else if (highlightsector[i]==soursector)
                 {
                     message("internal error in copysector(): highlightsector[i]==soursector");
-                    goto nonextsector;                    
+                    goto nonextsector;
                 }
                 wall[newnumwalls].nextwall = numwalls + m + (wall[j].nextwall-sector[k].wallptr);
             }
@@ -6905,7 +6906,7 @@ int32_t snfillprintf(char *outbuf, size_t bufsiz, int32_t fill, const char *fmt,
 
     ofs = min(nwritten, (signed)bufsiz-1);
     Bmemset(outbuf, fill, bufsiz-ofs);
-    
+
     return ofs;
 }
 #endif

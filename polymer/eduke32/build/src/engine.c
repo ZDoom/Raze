@@ -46,7 +46,7 @@
 
 float debug1, debug2;
 
-static void drawpixel_safe(void* s, char a)
+static void drawpixel_safe(void *s, char a)
 {
 #if defined __GNUC__
     if (__builtin_expect((intptr_t)s >= frameplace && (intptr_t)s < frameplace+bytesperline*ydim, 1))
@@ -58,15 +58,15 @@ static void drawpixel_safe(void* s, char a)
     else
     {
         static const char *const c = &editorcolors[15];
-        drawpixel((intptr_t*)frameplace, *c);
-        drawpixel((intptr_t*)frameplace+1, *c);
-        drawpixel((intptr_t*)frameplace+2, *c);
-        drawpixel((intptr_t*)frameplace+bytesperline, *c);
-        drawpixel((intptr_t*)frameplace+bytesperline+1, *c);
-        drawpixel((intptr_t*)frameplace+bytesperline+2, *c);
-        drawpixel((intptr_t*)frameplace+2*bytesperline, *c);
-        drawpixel((intptr_t*)frameplace+2*bytesperline+1, *c);
-        drawpixel((intptr_t*)frameplace+2*bytesperline+2, *c);
+        drawpixel((intptr_t *)frameplace, *c);
+        drawpixel((intptr_t *)frameplace+1, *c);
+        drawpixel((intptr_t *)frameplace+2, *c);
+        drawpixel((intptr_t *)frameplace+bytesperline, *c);
+        drawpixel((intptr_t *)frameplace+bytesperline+1, *c);
+        drawpixel((intptr_t *)frameplace+bytesperline+2, *c);
+        drawpixel((intptr_t *)frameplace+2*bytesperline, *c);
+        drawpixel((intptr_t *)frameplace+2*bytesperline+1, *c);
+        drawpixel((intptr_t *)frameplace+2*bytesperline+2, *c);
     }
 #endif
 }
@@ -295,7 +295,7 @@ int32_t clipmapinfo_load(const char *filename)
     int32_t i,k,w, px,py,pz;
     int16_t ang,cs;
 
-    char fn[BMAX_PATH], loadedwhich[32]={0}, *lwcp=loadedwhich;
+    char fn[BMAX_PATH], loadedwhich[32]= {0}, *lwcp=loadedwhich;
     int32_t slen, fi, fisec[10], fispr[10];
     int32_t ournumsectors=0, ournumwalls=0, ournumsprites=0, numsprites;
 
@@ -333,8 +333,8 @@ int32_t clipmapinfo_load(const char *filename)
                 break;
 
         if (ournumsectors+numsectors>MAXSECTORS ||
-            ournumwalls+numwalls>MAXWALLS ||
-            ournumsprites+numsprites>MAXSPRITES)
+                ournumwalls+numwalls>MAXWALLS ||
+                ournumsprites+numsprites>MAXSPRITES)
         {
             initprintf("clip map: warning: exceeded limits when loading %s, aborting.\n", fn);
             break;
@@ -538,7 +538,8 @@ int32_t clipmapinfo_load(const char *filename)
                         }
                     }
                 }
-            } while (++scnt < numclipsects);
+            }
+            while (++scnt < numclipsects);
 
             if (outersect==-1)
             {
@@ -622,7 +623,7 @@ int32_t clipmapinfo_load(const char *filename)
                         else
                         {
                             if (wall[w].hitag<MAXTILES)
-                                tempictoidx[wall[w].hitag] = numclipmaps;                            
+                                tempictoidx[wall[w].hitag] = numclipmaps;
                         }
                     }
 
@@ -790,10 +791,10 @@ static inline int32_t nsqrtasm(int32_t a)
         shr ebx, 12
         mov cx, word ptr shlookup[ebx*2]
         jmp short under24
-over24:
+        over24:
         shr ebx, 24
         mov cx, word ptr shlookup[ebx*2+8192]
-under24:
+        under24:
         shr eax, cl
         mov cl, ch
         mov ax, word ptr sqrtable[eax*2]
@@ -810,12 +811,12 @@ static inline int32_t msqrtasm(int32_t c)
         mov ecx, c
         mov eax, 0x40000000
         mov ebx, 0x20000000
-begit:
+        begit:
         cmp ecx, eax
         jl skip
         sub ecx, eax
         lea eax, [eax+ebx*4]
-skip:
+        skip:
         sub eax, ebx
         shr eax, 1
         shr ebx, 2
@@ -884,7 +885,7 @@ static inline int32_t getkensmessagecrc(void *b)
         mov ebx, b
         xor eax, eax
         mov ecx, 32
-beg:
+        beg:
         mov edx, dword ptr [ebx+ecx*4-4]
         ror edx, cl
         adc eax, edx
@@ -1335,7 +1336,7 @@ static void scansector(int16_t sectnum)
             rx2[numscans] = xp2; ry2[numscans] = yp2;
             p2[numscans] = numscans+1;
             numscans++;
-skipitaddwall:
+            skipitaddwall:
 
             if ((wall[z].point2 < z) && (scanfirst < numscans))
                 p2[numscans-1] = scanfirst, scanfirst = numscans;
@@ -1782,17 +1783,17 @@ inline int32_t animateoffs(int16_t tilenum, int16_t fakevar)
         switch (picanm[tilenum]&192)
         {
         case 64:
-            k = (i%((picanm[tilenum]&63)<<1));
+                k = (i%((picanm[tilenum]&63)<<1));
             if (k < (picanm[tilenum]&63))
                 offs = k;
             else
                 offs = (((picanm[tilenum]&63)<<1)-k);
             break;
         case 128:
-            offs = (i%((picanm[tilenum]&63)+1));
+                offs = (i%((picanm[tilenum]&63)+1));
             break;
         case 192:
-            offs = -(i%((picanm[tilenum]&63)+1));
+                offs = -(i%((picanm[tilenum]&63)+1));
         }
     }
     return(offs);
@@ -2168,14 +2169,14 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
     switch (globalorientation&0x180)
     {
     case 128:
-        msethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
+            msethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 256:
-        settransnormal();
+            settransnormal();
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 384:
-        settransreverse();
+            settransreverse();
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     }
@@ -2339,14 +2340,14 @@ static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
     switch (globalorientation&0x180)
     {
     case 128:
-        msethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
+            msethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 256:
-        settransnormal();
+            settransnormal();
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 384:
-        settransreverse();
+            settransreverse();
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     }
@@ -3513,21 +3514,21 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
         switch (cnt)
         {
         case 0:
-            xs = 0;        ys = 0;        xi = 1;  yi = 1;  break;
+                xs = 0;        ys = 0;        xi = 1;  yi = 1;  break;
         case 1:
-            xs = daxsiz-1; ys = 0;        xi = -1; yi = 1;  break;
+                xs = daxsiz-1; ys = 0;        xi = -1; yi = 1;  break;
         case 2:
-            xs = 0;        ys = daysiz-1; xi = 1;  yi = -1; break;
+                xs = 0;        ys = daysiz-1; xi = 1;  yi = -1; break;
         case 3:
-            xs = daxsiz-1; ys = daysiz-1; xi = -1; yi = -1; break;
+                xs = daxsiz-1; ys = daysiz-1; xi = -1; yi = -1; break;
         case 4:
-            xs = 0;        ys = cbacky;   xi = 1;  yi = 2;  break;
+                xs = 0;        ys = cbacky;   xi = 1;  yi = 2;  break;
         case 5:
-            xs = daxsiz-1; ys = cbacky;   xi = -1; yi = 2;  break;
+                xs = daxsiz-1; ys = cbacky;   xi = -1; yi = 2;  break;
         case 6:
-            xs = cbackx;   ys = 0;        xi = 2;  yi = 1;  break;
+                xs = cbackx;   ys = 0;        xi = 2;  yi = 1;  break;
         case 7:
-            xs = cbackx;   ys = daysiz-1; xi = 2;  yi = -1; break;
+                xs = cbackx;   ys = daysiz-1; xi = 2;  yi = -1; break;
         }
         xe = cbackx; ye = cbacky;
         if (cnt < 4)
@@ -3550,32 +3551,32 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
         switch (i)
         {
         case 6:
-        case 7:
-            x1 = 0; y1 = 0; break;
+            case 7:
+                    x1 = 0; y1 = 0; break;
         case 8:
-        case 5:
-            x1 = gxinc; y1 = gyinc; break;
+            case 5:
+                    x1 = gxinc; y1 = gyinc; break;
         case 0:
-        case 3:
-            x1 = gyinc; y1 = -gxinc; break;
+            case 3:
+                    x1 = gyinc; y1 = -gxinc; break;
         case 2:
-        case 1:
-            x1 = gxinc+gyinc; y1 = gyinc-gxinc; break;
+            case 1:
+                    x1 = gxinc+gyinc; y1 = gyinc-gxinc; break;
         }
         switch (i)
         {
         case 2:
-        case 5:
-            x2 = 0; y2 = 0; break;
+            case 5:
+                    x2 = 0; y2 = 0; break;
         case 0:
-        case 1:
-            x2 = gxinc; y2 = gyinc; break;
+            case 1:
+                    x2 = gxinc; y2 = gyinc; break;
         case 8:
-        case 7:
-            x2 = gyinc; y2 = -gxinc; break;
+            case 7:
+                    x2 = gyinc; y2 = -gxinc; break;
         case 6:
-        case 3:
-            x2 = gxinc+gyinc; y2 = gyinc-gxinc; break;
+            case 3:
+                    x2 = gxinc+gyinc; y2 = gyinc-gxinc; break;
         }
         oand = pow2char[(xs<backx)+0]+pow2char[(ys<backy)+2];
         oand16 = oand+16;
@@ -3840,21 +3841,21 @@ static void drawsprite(int32_t snum)
             switch (smostwalltype[i])
             {
             case 0:
-                if (dalx2 <= darx2)
-                {
-                    if ((dalx2 == lx) && (darx2 == rx)) return;
-                    //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
-                    for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
-                }
+                    if (dalx2 <= darx2)
+                    {
+                        if ((dalx2 == lx) && (darx2 == rx)) return;
+                        //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
+                        for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
+                    }
                 break;
             case 1:
-                k = smoststart[i] - xb1[j];
+                    k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                 if ((dalx2 == lx) && (darx2 == rx)) daclip |= 1;
                 break;
             case 2:
-                k = smoststart[i] - xb1[j];
+                    k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
                 if ((dalx2 == lx) && (darx2 == rx)) daclip |= 2;
@@ -4127,20 +4128,20 @@ static void drawsprite(int32_t snum)
                     switch (smostwalltype[i])
                     {
                     case 0:
-                        if (dalx2 <= darx2)
-                        {
-                            if ((dalx2 == xb1[MAXWALLSB-1]) && (darx2 == xb2[MAXWALLSB-1])) return;
-                            //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
-                            for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
-                        }
+                            if (dalx2 <= darx2)
+                            {
+                                if ((dalx2 == xb1[MAXWALLSB-1]) && (darx2 == xb2[MAXWALLSB-1])) return;
+                                //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
+                                for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
+                            }
                         break;
                     case 1:
-                        k = smoststart[i] - xb1[j];
+                            k = smoststart[i] - xb1[j];
                         for (x=dalx2; x<=darx2; x++)
                             if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                         break;
                     case 2:
-                        k = smoststart[i] - xb1[j];
+                            k = smoststart[i] - xb1[j];
                         for (x=dalx2; x<=darx2; x++)
                             if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
                         break;
@@ -4412,20 +4413,20 @@ static void drawsprite(int32_t snum)
             switch (smostwalltype[i])
             {
             case 0:
-                if (dalx2 <= darx2)
-                {
-                    if ((dalx2 == lx) && (darx2 == rx)) return;
-                    //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
-                    for (x=dalx2; x<=darx2; x++) dwall[x] = 0;
-                }
+                    if (dalx2 <= darx2)
+                    {
+                        if ((dalx2 == lx) && (darx2 == rx)) return;
+                        //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
+                        for (x=dalx2; x<=darx2; x++) dwall[x] = 0;
+                    }
                 break;
             case 1:
-                k = smoststart[i] - xb1[j];
+                    k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                 break;
             case 2:
-                k = smoststart[i] - xb1[j];
+                    k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
                 break;
@@ -4502,20 +4503,20 @@ static void drawsprite(int32_t snum)
             switch (smostwalltype[i])
             {
             case 0:
-                if (dalx2 <= darx2)
-                {
-                    if ((dalx2 == lx) && (darx2 == rx)) return;
-                    //clearbufbyte(&swall[dalx2],(darx2-dalx2+1)*sizeof(swall[0]),0L);
-                    for (x=dalx2; x<=darx2; x++) swall[x] = 0;
-                }
+                    if (dalx2 <= darx2)
+                    {
+                        if ((dalx2 == lx) && (darx2 == rx)) return;
+                        //clearbufbyte(&swall[dalx2],(darx2-dalx2+1)*sizeof(swall[0]),0L);
+                        for (x=dalx2; x<=darx2; x++) swall[x] = 0;
+                    }
                 break;
             case 1:
-                k = smoststart[i] - xb1[j];
+                    k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] > lwall[x]) lwall[x] = smost[k+x];
                 break;
             case 2:
-                k = smoststart[i] - xb1[j];
+                    k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] < swall[x]) swall[x] = smost[k+x];
                 break;
@@ -4691,20 +4692,20 @@ static void drawmaskwall(int16_t damaskwallcnt)
         switch (smostwalltype[i])
         {
         case 0:
-            if (lx <= rx)
-            {
-                if ((lx == xb1[z]) && (rx == xb2[z])) return;
-                //clearbufbyte(&dwall[lx],(rx-lx+1)*sizeof(dwall[0]),0L);
-                for (x=lx; x<=rx; x++) dwall[x] = 0;
-            }
+                if (lx <= rx)
+                {
+                    if ((lx == xb1[z]) && (rx == xb2[z])) return;
+                    //clearbufbyte(&dwall[lx],(rx-lx+1)*sizeof(dwall[0]),0L);
+                    for (x=lx; x<=rx; x++) dwall[x] = 0;
+                }
             break;
         case 1:
-            k = smoststart[i] - xb1[j];
+                k = smoststart[i] - xb1[j];
             for (x=lx; x<=rx; x++)
                 if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
             break;
         case 2:
-            k = smoststart[i] - xb1[j];
+                k = smoststart[i] - xb1[j];
             for (x=lx; x<=rx; x++)
                 if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
             break;
@@ -5120,7 +5121,7 @@ static int32_t clippoly4(int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 //
 //JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
 static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade,
-    char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
+                           char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
 {
     int32_t cosang, sinang, v, nextv, dax1, dax2, oy, bx, by;
     int32_t i, x, y, x1, y1, x2, y2, gx1, gy1 ;
@@ -5517,13 +5518,13 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
             switch (y1-oy)
             {
             case -1:
-                bx -= xv; by -= yv; oy = y1; break;
+                    bx -= xv; by -= yv; oy = y1; break;
             case 0:
-                break;
+                    break;
             case 1:
-                bx += xv; by += yv; oy = y1; break;
+                    bx += xv; by += yv; oy = y1; break;
             default:
-                bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1; break;
+                    bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1; break;
             }
 
             p = ylookup[y1]+x+frameplace;
@@ -5572,13 +5573,13 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         switch (y1-oy)
         {
         case -1:
-            bx -= xv; by -= yv; oy = y1; break;
+                bx -= xv; by -= yv; oy = y1; break;
         case 0:
-            break;
+                break;
         case 1:
-            bx += xv; by += yv; oy = y1; break;
+                bx += xv; by += yv; oy = y1; break;
         default:
-            bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1; break;
+                bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1; break;
         }
 
         p = ylookup[y1]+x+frameplace;
@@ -5772,9 +5773,9 @@ static void loadpalette(void)
     kread(fil,&numpalookups,2); numpalookups = B_LITTLE16(numpalookups);
 
     if ((palookup[0] = (char *)Bmalloc(numpalookups<<8)) == NULL)
-        allocache((intptr_t*)&palookup[0],numpalookups<<8,&permanentlock);
+        allocache((intptr_t *)&palookup[0],numpalookups<<8,&permanentlock);
     if ((transluc = (char *)Bmalloc(65536L)) == NULL)
-        allocache((intptr_t*)&transluc,65536,&permanentlock);
+        allocache((intptr_t *)&transluc,65536,&permanentlock);
 
     globalpalwritten = palookup[0]; globalpal = 0;
     setpalookupaddress(globalpalwritten);
@@ -6105,31 +6106,31 @@ static void sighandler(int32_t sig, const siginfo_t *info, void *ctx)
     switch (sig)
     {
     case SIGFPE:
-        switch (info->si_code)
-        {
-        case FPE_INTDIV:
-            s = "FPE_INTDIV (integer divide by zero)"; break;
-        case FPE_INTOVF:
-            s = "FPE_INTOVF (integer overflow)"; break;
-        case FPE_FLTDIV:
-            s = "FPE_FLTDIV (floating-point divide by zero)"; break;
-        case FPE_FLTOVF:
-            s = "FPE_FLTOVF (floating-point overflow)"; break;
-        case FPE_FLTUND:
-            s = "FPE_FLTUND (floating-point underflow)"; break;
-        case FPE_FLTRES:
-            s = "FPE_FLTRES (floating-point inexact result)"; break;
-        case FPE_FLTINV:
-            s = "FPE_FLTINV (floating-point invalid operation)"; break;
-        case FPE_FLTSUB:
-            s = "FPE_FLTSUB (floating-point subscript out of range)"; break;
-        default:
-            s = "?! (unknown)"; break;
-        }
+            switch (info->si_code)
+            {
+            case FPE_INTDIV:
+                    s = "FPE_INTDIV (integer divide by zero)"; break;
+            case FPE_INTOVF:
+                    s = "FPE_INTOVF (integer overflow)"; break;
+            case FPE_FLTDIV:
+                    s = "FPE_FLTDIV (floating-point divide by zero)"; break;
+            case FPE_FLTOVF:
+                    s = "FPE_FLTOVF (floating-point overflow)"; break;
+            case FPE_FLTUND:
+                    s = "FPE_FLTUND (floating-point underflow)"; break;
+            case FPE_FLTRES:
+                    s = "FPE_FLTRES (floating-point inexact result)"; break;
+            case FPE_FLTINV:
+                    s = "FPE_FLTINV (floating-point invalid operation)"; break;
+            case FPE_FLTSUB:
+                    s = "FPE_FLTSUB (floating-point subscript out of range)"; break;
+            default:
+                    s = "?! (unknown)"; break;
+            }
         fprintf(stderr, "Caught SIGFPE at address %p, code %s. Aborting.\n", info->si_addr, s);
         break;
     default:
-        break;
+            break;
     }
     abort();
 }
@@ -6173,25 +6174,25 @@ int32_t preinitengine(void)
         }
         dynarray[] =
         {
-            { (void **)&sector,           sizeof(sectortype)     * MAXSECTORS                },
-            { (void **)&wall,             sizeof(walltype)       * (MAXWALLS+4)              },  // +4: editor quirks
-            { (void **)&sprite,           sizeof(spritetype)     * MAXSPRITES                },
-            { (void **)&tsprite,          sizeof(spritetype)     * MAXSPRITESONSCREEN        },
-            { (void **)&spriteext,        sizeof(spriteext_t)    * (MAXSPRITES+MAXUNIQHUDID) },
-            { (void **)&spritesmooth,     sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID) },
-            { (void **)&state_compress,   sizeof(qlz_state_compress)                         },
-            { (void **)&state_decompress, sizeof(qlz_state_decompress)                       }
+            { (void **) &sector,           sizeof(sectortype)      *MAXSECTORS                },
+            { (void **) &wall,             sizeof(walltype)        *(MAXWALLS+4)              }, // +4: editor quirks
+            { (void **) &sprite,           sizeof(spritetype)      *MAXSPRITES                },
+            { (void **) &tsprite,          sizeof(spritetype)      *MAXSPRITESONSCREEN        },
+            { (void **) &spriteext,        sizeof(spriteext_t)     *(MAXSPRITES+MAXUNIQHUDID) },
+            { (void **) &spritesmooth,     sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID) },
+            { (void **) &state_compress,   sizeof(qlz_state_compress)                         },
+            { (void **) &state_decompress, sizeof(qlz_state_decompress)                       }
         };
 
-        for (i=0;i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
+        for (i=0; i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
             size += dynarray[i].size;
-      
+
         if ((blockptr = Bcalloc(1, size)) == NULL)
             return 1;
 
         size = 0;
 
-        for (i=0;i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
+        for (i=0; i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
         {
             *dynarray[i].ptr = (int8_t *)blockptr + size;
             size += dynarray[i].size;
@@ -6206,7 +6207,7 @@ int32_t preinitengine(void)
     spriteext = spriteext_s;
     spritesmooth = spritesmooth_s;
     state_compress = (qlz_state_compress *) Bmalloc(sizeof(qlz_state_compress) + sizeof(qlz_state_decompress));
-    state_decompress = (qlz_state_decompress *) ((int8_t *)(state_compress) + sizeof(qlz_state_compress));
+    state_decompress = (qlz_state_decompress *)((int8_t *)(state_compress) + sizeof(qlz_state_compress));
 #endif
 
     if ((e = Bgetenv("BUILD_NOP6")) != NULL)
@@ -6332,7 +6333,7 @@ void uninitengine(void)
     i=(sizeof(artptrs)/sizeof(intptr_t))-1;
 
     // this leaves a bunch of invalid pointers in waloff... fixme?
-    for(; i>=0; i--)
+    for (; i>=0; i--)
     {
         if (artptrs[i])
         {
@@ -6682,7 +6683,7 @@ static inline void    drawmaskleaf(_maskleaf* wall)
 }
 */
 
-static inline int32_t         sameside(_equation* eq, _point2d* p1, _point2d* p2)
+static inline int32_t         sameside(_equation *eq, _point2d *p1, _point2d *p2)
 {
     float   sign1, sign2;
 
@@ -6731,7 +6732,7 @@ void drawmasks(void)
         }
         else if ((tspriteptr[i]->cstat&48) == 0)
         {
-killsprite:
+            killsprite:
             spritesortcnt--;  //Delete face sprite if on wrong side!
             if (i == spritesortcnt) continue;
             tspriteptr[i] = tspriteptr[spritesortcnt];
@@ -7319,47 +7320,47 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
     for (i=0; i<numsprites; i++)
     {
         int32_t k;
-/*
-        int16_t sect;
-*/
+        /*
+                int16_t sect;
+        */
 
         if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
 
         k = insertsprite(sprite[i].sectnum,sprite[i].statnum);
 
-/*
-        sect = sprite[k].sectnum;
-        updatesector(sprite[k].x, sprite[k].y, &sect);
+        /*
+                sect = sprite[k].sectnum;
+                updatesector(sprite[k].x, sprite[k].y, &sect);
 
-        if (sect == -1)
-        {
-            int32_t ii, jj;
-
-            for (ii=32; ii >= 0; ii--)
-            {
-                for (jj=32; jj >= 0; jj--)
+                if (sect == -1)
                 {
-                    updatesector(sprite[k].x+ii-16, sprite[k].y+jj-16, &sect);
-                    if (sect != -1) break;
+                    int32_t ii, jj;
+
+                    for (ii=32; ii >= 0; ii--)
+                    {
+                        for (jj=32; jj >= 0; jj--)
+                        {
+                            updatesector(sprite[k].x+ii-16, sprite[k].y+jj-16, &sect);
+                            if (sect != -1) break;
+                        }
+                        if (sect != -1) break;
+                    }
+
+                    / * fuck it, the sprite is clearly not legitimately in any sector at this point
+                    so let's queue it up for deletion * /
+                    if (sect == -1)
+                        dq[dnum++] = k;
                 }
-                if (sect != -1) break;
-            }
+        */
+    }
 
-            / * fuck it, the sprite is clearly not legitimately in any sector at this point
-            so let's queue it up for deletion * /
-            if (sect == -1)
-                dq[dnum++] = k;
+    /*
+        while (dnum--)
+        {
+            initprintf(OSD_ERROR "Map error: removing sprite #%d(%d,%d) in null space. Map is corrupt!\n",dq[dnum],sprite[dq[dnum]].x,sprite[dq[dnum]].y);
+            deletesprite(dq[dnum]);
         }
-*/
-    }
-
-/*
-    while (dnum--)
-    {
-        initprintf(OSD_ERROR "Map error: removing sprite #%d(%d,%d) in null space. Map is corrupt!\n",dq[dnum],sprite[dq[dnum]].x,sprite[dq[dnum]].y);
-        deletesprite(dq[dnum]);
-    }
-*/
+    */
 
     //Must be after loading sectors, etc!
     updatesector(*daposx,*daposy,dacursectnum);
@@ -7693,7 +7694,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-            kread(fil,&v5sect,sizeof(struct sectortypev5));
+                kread(fil,&v5sect,sizeof(struct sectortypev5));
             v5sect.wallptr = B_LITTLE16(v5sect.wallptr);
             v5sect.wallnum = B_LITTLE16(v5sect.wallnum);
             v5sect.ceilingpicnum = B_LITTLE16(v5sect.ceilingpicnum);
@@ -7707,7 +7708,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
             v5sect.extra = B_LITTLE16(v5sect.extra);
             break;
         case 6:
-            kread(fil,&v6sect,sizeof(struct sectortypev6));
+                kread(fil,&v6sect,sizeof(struct sectortypev6));
             v6sect.wallptr = B_LITTLE16(v6sect.wallptr);
             v6sect.wallnum = B_LITTLE16(v6sect.wallnum);
             v6sect.ceilingpicnum = B_LITTLE16(v6sect.ceilingpicnum);
@@ -7724,9 +7725,9 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-            convertv5sectv6(&v5sect,&v6sect);
+                convertv5sectv6(&v5sect,&v6sect);
         case 6:
-            convertv6sectv7(&v6sect,&sector[i]);
+                convertv6sectv7(&v6sect,&sector[i]);
         }
     }
 
@@ -7737,7 +7738,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-            kread(fil,&v5wall,sizeof(struct walltypev5));
+                kread(fil,&v5wall,sizeof(struct walltypev5));
             v5wall.x = B_LITTLE32(v5wall.x);
             v5wall.y = B_LITTLE32(v5wall.y);
             v5wall.point2 = B_LITTLE16(v5wall.point2);
@@ -7753,7 +7754,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
             v5wall.extra = B_LITTLE16(v5wall.extra);
             break;
         case 6:
-            kread(fil,&v6wall,sizeof(struct walltypev6));
+                kread(fil,&v6wall,sizeof(struct walltypev6));
             v6wall.x = B_LITTLE32(v6wall.x);
             v6wall.y = B_LITTLE32(v6wall.y);
             v6wall.point2 = B_LITTLE16(v6wall.point2);
@@ -7770,9 +7771,9 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-            convertv5wallv6(&v5wall,&v6wall,i);
+                convertv5wallv6(&v5wall,&v6wall,i);
         case 6:
-            convertv6wallv7(&v6wall,&wall[i]);
+                convertv6wallv7(&v6wall,&wall[i]);
         }
     }
 
@@ -7783,7 +7784,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-            kread(fil,&v5spr,sizeof(struct spritetypev5));
+                kread(fil,&v5spr,sizeof(struct spritetypev5));
             v5spr.x = B_LITTLE32(v5spr.x);
             v5spr.y = B_LITTLE32(v5spr.y);
             v5spr.z = B_LITTLE32(v5spr.z);
@@ -7800,7 +7801,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
             v5spr.extra = B_LITTLE16(v5spr.extra);
             break;
         case 6:
-            kread(fil,&v6spr,sizeof(struct spritetypev6));
+                kread(fil,&v6spr,sizeof(struct spritetypev6));
             v6spr.x = B_LITTLE32(v6spr.x);
             v6spr.y = B_LITTLE32(v6spr.y);
             v6spr.z = B_LITTLE32(v6spr.z);
@@ -7821,9 +7822,9 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-            convertv5sprv6(&v5spr,&v6spr);
+                convertv5sprv6(&v5spr,&v6spr);
         case 6:
-            convertv6sprv7(&v6spr,&sprite[i]);
+                convertv6sprv7(&v6spr,&sprite[i]);
         }
     }
 
@@ -7947,7 +7948,7 @@ int32_t loadmaphack(const char *filename)
         switch (legaltokens[i].tokenid)
         {
         case T_SPRITE:     // sprite <xx>
-            if (scriptfile_getnumber(script, &whichsprite)) break;
+                if (scriptfile_getnumber(script, &whichsprite)) break;
 
             if ((unsigned)whichsprite >= (unsigned)MAXSPRITES)
             {
@@ -7960,190 +7961,190 @@ int32_t loadmaphack(const char *filename)
 
             break;
         case T_ANGOFF:     // angoff <xx>
-        {
-            int32_t ang;
-            if (scriptfile_getnumber(script, &ang)) break;
+            {
+                int32_t ang;
+                if (scriptfile_getnumber(script, &ang)) break;
 
-            if (whichsprite < 0)
+                if (whichsprite < 0)
             {
                 // no sprite directive preceeding
                 initprintf("Ignoring angle offset directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].angoff = (int16_t)ang;
+                    break;
+                }
+        spriteext[whichsprite].angoff = (int16_t)ang;
         }
         break;
         case T_NOMODEL:      // notmd
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
+                if (whichsprite < 0)
+                {
+                    // no sprite directive preceeding
+                    initprintf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line %s:%d\n",
+                               script->filename, scriptfile_getlinum(script,cmdtokptr));
+                    break;
+                }
             spriteext[whichsprite].flags |= SPREXT_NOTMD;
             break;
         case T_NOANIM:      // nomdanim
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
+                if (whichsprite < 0)
+                {
+                    // no sprite directive preceeding
+                    initprintf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line %s:%d\n",
+                               script->filename, scriptfile_getlinum(script,cmdtokptr));
+                    break;
+                }
             spriteext[whichsprite].flags |= SPREXT_NOMDANIM;
             break;
         case T_PITCH:     // pitch <xx>
-        {
-            int32_t pitch;
-            if (scriptfile_getnumber(script, &pitch)) break;
+            {
+                int32_t pitch;
+                if (scriptfile_getnumber(script, &pitch)) break;
 
-            if (whichsprite < 0)
+                if (whichsprite < 0)
             {
                 // no sprite directive preceeding
                 initprintf("Ignoring pitch directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].pitch = (int16_t)pitch;
+                    break;
+                }
+        spriteext[whichsprite].pitch = (int16_t)pitch;
         }
         break;
         case T_ROLL:     // roll <xx>
-        {
-            int32_t roll;
-            if (scriptfile_getnumber(script, &roll)) break;
+            {
+                int32_t roll;
+                if (scriptfile_getnumber(script, &roll)) break;
 
-            if (whichsprite < 0)
+                if (whichsprite < 0)
             {
                 // no sprite directive preceeding
                 initprintf("Ignoring roll directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].roll = (int16_t)roll;
+                    break;
+                }
+        spriteext[whichsprite].roll = (int16_t)roll;
         }
         break;
         case T_MDXOFF:     // mdxoff <xx>
-        {
-            int32_t i;
-            if (scriptfile_getnumber(script, &i)) break;
+            {
+                int32_t i;
+                if (scriptfile_getnumber(script, &i)) break;
 
-            if (whichsprite < 0)
+                if (whichsprite < 0)
             {
                 // no sprite directive preceeding
                 initprintf("Ignoring mdxoff directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].xoff = i;
+                    break;
+                }
+        spriteext[whichsprite].xoff = i;
         }
         break;
         case T_MDYOFF:     // mdyoff <xx>
-        {
-            int32_t i;
-            if (scriptfile_getnumber(script, &i)) break;
+            {
+                int32_t i;
+                if (scriptfile_getnumber(script, &i)) break;
 
-            if (whichsprite < 0)
+                if (whichsprite < 0)
             {
                 // no sprite directive preceeding
                 initprintf("Ignoring mdyoff directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].yoff = i;
+                    break;
+                }
+        spriteext[whichsprite].yoff = i;
         }
         break;
         case T_MDZOFF:     // mdzoff <xx>
-        {
-            int32_t i;
-            if (scriptfile_getnumber(script, &i)) break;
+            {
+                int32_t i;
+                if (scriptfile_getnumber(script, &i)) break;
 
-            if (whichsprite < 0)
+                if (whichsprite < 0)
             {
                 // no sprite directive preceeding
                 initprintf("Ignoring mdzoff directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].zoff = i;
+                    break;
+                }
+        spriteext[whichsprite].zoff = i;
         }
         break;
         case T_AWAY1:      // away1
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
+                if (whichsprite < 0)
+                {
+                    // no sprite directive preceeding
+                    initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
+                               script->filename, scriptfile_getlinum(script,cmdtokptr));
+                    break;
+                }
             spriteext[whichsprite].flags |= SPREXT_AWAY1;
             break;
         case T_AWAY2:      // away2
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
+                if (whichsprite < 0)
+                {
+                    // no sprite directive preceeding
+                    initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
+                               script->filename, scriptfile_getlinum(script,cmdtokptr));
+                    break;
+                }
             spriteext[whichsprite].flags |= SPREXT_AWAY2;
             break;
 #ifdef POLYMER
         case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority tilenum
-        {
-            int32_t value;
-            int16_t lightid;
-#pragma pack(push,1)
-            _prlight light;
-#pragma pack(pop)
-            scriptfile_getnumber(script, &value);
-            light.sector = value;
-            scriptfile_getnumber(script, &value);
-            light.x = value;
-            scriptfile_getnumber(script, &value);
-            light.y = value;
-            scriptfile_getnumber(script, &value);
-            light.z = value;
-            scriptfile_getnumber(script, &value);
-            light.range = value;
-            scriptfile_getnumber(script, &value);
-            light.color[0] = value;
-            scriptfile_getnumber(script, &value);
-            light.color[1] = value;
-            scriptfile_getnumber(script, &value);
-            light.color[2] = value;
-            scriptfile_getnumber(script, &value);
-            light.radius = value;
-            scriptfile_getnumber(script, &value);
-            light.faderadius = value;
-            scriptfile_getnumber(script, &value);
-            light.angle = value;
-            scriptfile_getnumber(script, &value);
-            light.horiz = value;
-            scriptfile_getnumber(script, &value);
-            light.minshade = value;
-            scriptfile_getnumber(script, &value);
-            light.maxshade = value;
-            scriptfile_getnumber(script, &value);
-            light.priority = value;
-            scriptfile_getnumber(script, &value);
-            light.tilenum = value;
-
-            if (rendmode == 4)
             {
-                lightid = polymer_addlight(&light);
+                int32_t value;
+                int16_t lightid;
+#pragma pack(push,1)
+                _prlight light;
+#pragma pack(pop)
+                scriptfile_getnumber(script, &value);
+                light.sector = value;
+                scriptfile_getnumber(script, &value);
+                light.x = value;
+                scriptfile_getnumber(script, &value);
+                light.y = value;
+                scriptfile_getnumber(script, &value);
+                light.z = value;
+                scriptfile_getnumber(script, &value);
+                light.range = value;
+                scriptfile_getnumber(script, &value);
+                light.color[0] = value;
+                scriptfile_getnumber(script, &value);
+                light.color[1] = value;
+                scriptfile_getnumber(script, &value);
+                light.color[2] = value;
+                scriptfile_getnumber(script, &value);
+                light.radius = value;
+                scriptfile_getnumber(script, &value);
+                light.faderadius = value;
+                scriptfile_getnumber(script, &value);
+                light.angle = value;
+                scriptfile_getnumber(script, &value);
+                light.horiz = value;
+                scriptfile_getnumber(script, &value);
+                light.minshade = value;
+                scriptfile_getnumber(script, &value);
+                light.maxshade = value;
+                scriptfile_getnumber(script, &value);
+                light.priority = value;
+                scriptfile_getnumber(script, &value);
+                light.tilenum = value;
+
+                if (rendmode == 4)
+        {
+            lightid = polymer_addlight(&light);
                 if (lightid>=0)
                     maphacklight[maphacklightcnt++] = lightid;
             }
 
-            break;
+        break;
         }
 #endif // POLYMER
 
         default:
-            // unrecognised token
-            break;
+                // unrecognised token
+                break;
         }
     }
 
@@ -8346,11 +8347,11 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 #endif
     if ((qsetmode == 200) && (videomodereset == 0) &&
             (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp)
-/*
-#ifdef POLYMER
-            && glrendmode != 4
-#endif // POLYMER
-*/
+            /*
+            #ifdef POLYMER
+                        && glrendmode != 4
+            #endif // POLYMER
+            */
        )
         return(0);
 
@@ -8365,7 +8366,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     j = bpp;
 
     if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return(-1);
-    
+
     // Workaround possible bugs in the GL driver
     makeasmwriteable();
 
@@ -8451,7 +8452,7 @@ void nextpage(void)
     switch (qsetmode)
     {
     case 200:
-        begindrawing(); //{{{
+            begindrawing(); //{{{
         for (i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
             per = &permfifo[i];
@@ -8460,7 +8461,7 @@ void nextpage(void)
                                per->dashade,per->dapalnum,per->dastat,
                                per->cx1,per->cy1,per->cx2,per->cy2,per->uniqid);
         }
-        enddrawing();   //}}}                                      
+        enddrawing();   //}}}
 
         OSD_Draw();
         showframe(0);
@@ -8482,8 +8483,8 @@ void nextpage(void)
         break;
 
     case 350:
-    case 480:
-        break;
+        case 480:
+                break;
     }
     faketimerhandler();
 
@@ -9116,7 +9117,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
             }
         }
     }
-    else if ((how*vz > 0) && (how*sv->z <= how*z))
+    else if ((how*vz > 0) && (how *sv->z <= how*z))
     {
         z1 = z; i = z1-sv->z;
         if ((klabs(i)>>1) < vz*how)
@@ -9149,7 +9150,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
                 {
                     hitinfo->hitsect = curspr->sectnum; hitinfo->hitwall = -1; hitinfo->hitsprite = curspr-sprite;
                     hitinfo->pos.x = x1; hitinfo->pos.y = y1; hitinfo->pos.z = z1;
-                }                
+                }
             }
             else
             {
@@ -9341,7 +9342,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
             switch (cstat&48)
             {
             case 0:
-                topt = vx*(x1-sv->x) + vy*(y1-sv->y); if (topt <= 0) continue;
+                    topt = vx*(x1-sv->x) + vy*(y1-sv->y); if (topt <= 0) continue;
                 bot = vx*vx + vy*vy; if (bot == 0) continue;
 
                 intz = sv->z+scale(vz,topt,bot);
@@ -9366,9 +9367,9 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
                 break;
             case 16:
-                //These lines get the 2 points of the rotated sprite
-                //Given: (x1, y1) starts out as the center point
-                tilenum = spr->picnum;
+                    //These lines get the 2 points of the rotated sprite
+                    //Given: (x1, y1) starts out as the center point
+                    tilenum = spr->picnum;
                 xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
                 if ((cstat&4) > 0) xoff = -xoff;
                 k = spr->ang; l = spr->xrepeat;
@@ -9394,7 +9395,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 }
                 break;
             case 32:
-                if (vz == 0) continue;
+                    if (vz == 0) continue;
                 intz = z1;
                 if (((intz-sv->z)^vz) < 0) continue;
                 if ((cstat&64) != 0)
@@ -9804,7 +9805,7 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
     clipnum++;                                            \
     } else if (!warned) { initprintf("!!clipnum\n"); warned=1; } \
 }                                                        \
-
+ 
 int32_t clipmoveboxtracenum = 3;
 
 //
@@ -9931,8 +9932,8 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
                     sec2 = &sector[wal->nextsector];
                     if ((sec2->floorstat&1) == 0)
 //                        if (dasect==sectq[clipinfo[curidx].qend] || daz2 < daz-(1<<8))
-                            if (daz2-(flordist-1) <= vect->z && vect->z <= basez+(flordist-1))
-                                clipyou = 1;
+                        if (daz2-(flordist-1) <= vect->z && vect->z <= basez+(flordist-1))
+                            clipyou = 1;
                     if (clipyou == 0)
                     {
                         daz = getceilzofslope((int16_t)dasect,dax,day);
@@ -10012,22 +10013,22 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
             switch (cstat&48)
             {
             case 0:
-                if ((x1 >= xmin) && (x1 <= xmax) && (y1 >= ymin) && (y1 <= ymax))
-                {
-                    k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
-                    if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
-                    if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
-                    if (((vect->z) < daz+ceildist) && ((vect->z) > daz-k-flordist))
+                    if ((x1 >= xmin) && (x1 <= xmax) && (y1 >= ymin) && (y1 <= ymax))
                     {
-                        bsz = (spr->clipdist<<2)+walldist; if (gx < 0) bsz = -bsz;
-                        addclipline(x1-bsz,y1-bsz,x1-bsz,y1+bsz,(int16_t)j+49152);
-                        bsz = (spr->clipdist<<2)+walldist; if (gy < 0) bsz = -bsz;
-                        addclipline(x1+bsz,y1-bsz,x1-bsz,y1-bsz,(int16_t)j+49152);
+                        k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
+                        if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
+                        if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                        if (((vect->z) < daz+ceildist) && ((vect->z) > daz-k-flordist))
+                        {
+                            bsz = (spr->clipdist<<2)+walldist; if (gx < 0) bsz = -bsz;
+                            addclipline(x1-bsz,y1-bsz,x1-bsz,y1+bsz,(int16_t)j+49152);
+                            bsz = (spr->clipdist<<2)+walldist; if (gy < 0) bsz = -bsz;
+                            addclipline(x1+bsz,y1-bsz,x1-bsz,y1-bsz,(int16_t)j+49152);
+                        }
                     }
-                }
                 break;
             case 16:
-                k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
+                    k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
                 if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
                 if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
                 daz2 = daz-k;
@@ -10068,7 +10069,7 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
                 }
                 break;
             case 32:
-                daz = spr->z+ceildist;
+                    daz = spr->z+ceildist;
                 daz2 = spr->z-flordist;
                 if (((vect->z) < daz) && ((vect->z) > daz2))
                 {
@@ -10625,7 +10626,7 @@ void getzrange(const vec3_t *vect, int16_t sectnum,
 
     if (0)
     {
-beginagain:
+        beginagain:
         // replace sector and wall with clip map
         mapinfo_set(&origmapinfo, &clipmapinfo);
         clipsectcnt = clipsectnum;  // should be a nop, "safety"...
@@ -10779,7 +10780,7 @@ beginagain:
                 switch (cstat&48)
                 {
                 case 0:
-                    k = walldist+(spr->clipdist<<2)+1;
+                        k = walldist+(spr->clipdist<<2)+1;
                     if ((klabs(x1-vect->x) <= k) && (klabs(y1-vect->y) <= k))
                     {
                         daz = spr->z;
@@ -10791,7 +10792,7 @@ beginagain:
                     }
                     break;
                 case 16:
-                    tilenum = spr->picnum;
+                        tilenum = spr->picnum;
                     xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
                     if ((cstat&4) > 0) xoff = -xoff;
                     k = spr->ang; l = spr->xrepeat;
@@ -10809,7 +10810,7 @@ beginagain:
                     }
                     break;
                 case 32:
-                    daz = spr->z; daz2 = daz;
+                        daz = spr->z; daz2 = daz;
 
                     if ((cstat&64) != 0)
                         if ((vect->z > daz) == ((cstat&8)==0)) continue;
@@ -11052,7 +11053,7 @@ void makepalookup(int32_t palnum, char *remapbuf, int8_t r, int8_t g, int8_t b, 
     {
         //Allocate palookup buffer
         if ((palookup[palnum] = (char *)Bmalloc(numpalookups<<8)) == NULL)
-            allocache((intptr_t*)&palookup[palnum],numpalookups<<8,&permanentlock);
+            allocache((intptr_t *)&palookup[palnum],numpalookups<<8,&permanentlock);
     }
 
     if (dastat == 0) return;
@@ -11242,7 +11243,7 @@ void clearview(int32_t dacol)
     for (y=windowy1; y<=windowy2; y++)
     {
         //clearbufbyte((void*)p,dx,dacol);
-        Bmemset((void*)p,dacol,dx);
+        Bmemset((void *)p,dacol,dx);
         p += ylookup[1];
     }
     enddrawing();   //}}}
@@ -11276,7 +11277,7 @@ void clearallviews(int32_t dacol)
 
     begindrawing(); //{{{
     //clearbufbyte((void*)frameplace,imageSize,0L);
-    Bmemset((void*)frameplace,dacol,imageSize);
+    Bmemset((void *)frameplace,dacol,imageSize);
     enddrawing();   //}}}
     //nextpage();
 
@@ -11308,7 +11309,7 @@ void plotpixel(int32_t x, int32_t y, char col)
 #endif
 
     begindrawing(); //{{{
-    drawpixel_safe((void*)(ylookup[y]+x+frameplace),(int32_t)col);
+    drawpixel_safe((void *)(ylookup[y]+x+frameplace),(int32_t)col);
     enddrawing();   //}}}
 }
 
@@ -11356,7 +11357,7 @@ char getpixel(int32_t x, int32_t y)
 #endif
 
     begindrawing(); //{{{
-    r = readpixel((void*)(ylookup[y]+x+frameplace));
+    r = readpixel((void *)(ylookup[y]+x+frameplace));
     enddrawing();   //}}}
     return(r);
 }
@@ -11500,9 +11501,9 @@ void completemirror(void)
     i = windowx2-windowx1-mirrorsx2-mirrorsx1; mirrorsx2 -= mirrorsx1;
     for (dy=mirrorsy2-mirrorsy1-1; dy>=0; dy--)
     {
-        copybufbyte((void*)(p+1),tempbuf,mirrorsx2+1);
+        copybufbyte((void *)(p+1),tempbuf,mirrorsx2+1);
         tempbuf[mirrorsx2] = tempbuf[mirrorsx2-1];
-        copybufreverse(&tempbuf[mirrorsx2],(void*)(p+i),mirrorsx2+1);
+        copybufreverse(&tempbuf[mirrorsx2],(void *)(p+i),mirrorsx2+1);
         p += ylookup[1];
         faketimerhandler();
     }
@@ -11812,7 +11813,7 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         {
             j = (plc>>12);
             if ((j >= startumost[i]) && (j < startdmost[i]))
-                drawpixel_safe((void*)(frameplace+ylookup[j]+i),col);
+                drawpixel_safe((void *)(frameplace+ylookup[j]+i),col);
             plc += inc;
         }
         enddrawing();   //}}}
@@ -11835,7 +11836,7 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         {
             j = (plc>>12);
             if ((i >= startumost[j]) && (i < startdmost[j]))
-                drawpixel_safe((void*)(j+p),col);
+                drawpixel_safe((void *)(j+p),col);
             plc += inc; p += ylookup[1];
         }
         enddrawing();   //}}}
@@ -12348,7 +12349,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
 //        yofs = getscreenvdisp((yinc-posze)&((yinc<<4)-1), zoome);
         if (cursectnum<0 || cursectnum>=numsectors)
             yofs = getscreenvdisp(-posze, zoome);
-        else 
+        else
             yofs = getscreenvdisp(getflorzofslope(cursectnum, posxe,posye)-posze, zoome);
 
         while (scalescreeny(mulscale14(yinc, zoome))==0 && gride>2)
@@ -12380,7 +12381,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
                 {
                     screencoords(&sx2,&sy2, xp2-posxe, editorgridextent-posye, zoome);
                     dx = sx2-sx1;
-                    dy = sy2-sy1;                    
+                    dy = sy2-sy1;
                 }
                 xp2 += xinc;
             }
@@ -12519,7 +12520,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
             if (totalclock & 16) col -= (2<<2);
     }
     else if (showfirstwall && searchsector>=0 && (sector[searchsector].wallptr == i ||
-                                                  sector[searchsector].wallptr == wall[i].nextwall))
+             sector[searchsector].wallptr == wall[i].nextwall))
     {
         col = 14;
         if (i == linehighlight) if (totalclock & 16) col -= (2<<2);
@@ -12615,11 +12616,11 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 
     if (zoome >= 256 && editstatus == 1)
         if ((halfxdim16+x1 >= 2) && (halfxdim16+x1 <= xdim-3) &&
-            (midydim16+y1 >= 2) && (midydim16+y1 <= ydim16-3))
+                (midydim16+y1 >= 2) && (midydim16+y1 <= ydim16-3))
         {
             int32_t pointsize = 2;
 
-            if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (pointhighlight >= 0) && 
+            if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (pointhighlight >= 0) &&
                                         (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
             {
                 if (totalclock & 16)
@@ -12683,8 +12684,8 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
     if (editstatus == 1)
     {
         if ((pointhighlight) >= 16384 && (j+16384 == pointhighlight ||
-             (!m32_sideview && ((sprite[j].x == sprite[pointhighlight-16384].x) &&
-                                (sprite[j].y == sprite[pointhighlight-16384].y)))))
+                                          (!m32_sideview && ((sprite[j].x == sprite[pointhighlight-16384].x) &&
+                                                  (sprite[j].y == sprite[pointhighlight-16384].y)))))
         {
             if (totalclock & 32) col += 8;
         }
@@ -12702,7 +12703,7 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
         y1 += getscreenvdisp(sprite[j].z-posze,zoome);
 
     if ((halfxdim16+x1 >= 0) && (halfxdim16+x1 < xdim) &&
-        (midydim16+y1 >= 0) && (midydim16+y1 < ydim16))
+            (midydim16+y1 >= 0) && (midydim16+y1 < ydim16))
     {
         drawcircle16(halfxdim16+x1, midydim16+y1, 4, 16384, editorcolors[col]);
 
@@ -12861,14 +12862,14 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
                 m32_wallsprite[m32_swcnt++] = j;
                 sideview_getdist(j, i);
             }
-/*
-        // j = sector[numsectors-1].wallptr + sector[numsectors-1].wallnum
-        for (; j<numwalls; j++)  // new walls ...
-        {
-            m32_wallsprite[m32_swcnt++] = j;
-            m32_sidedist[j] = sideview_getdist(j, 0);
-        }
-*/
+        /*
+                // j = sector[numsectors-1].wallptr + sector[numsectors-1].wallnum
+                for (; j<numwalls; j++)  // new walls ...
+                {
+                    m32_wallsprite[m32_swcnt++] = j;
+                    m32_sidedist[j] = sideview_getdist(j, 0);
+                }
+        */
     }
 
     faketimerhandler();
@@ -12890,7 +12891,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     if (m32_sideview)
     {
-        qsort(m32_wallsprite, m32_swcnt, sizeof(int16_t), (int(*)(const void *, const void *))&sideview_cmppoints);
+        qsort(m32_wallsprite, m32_swcnt, sizeof(int16_t), (int( *)(const void *, const void *))&sideview_cmppoints);
 
         for (i=0; i<m32_swcnt; i++)  // shouldn't it go the other way around?
         {
@@ -13757,7 +13758,7 @@ int32_t hash_find(hashtable_t *t, const char *s)
     }
 
     if ((cur = t->items[hash_getcode(s) % t->size]) == NULL) return -1;
-    
+
     do
         if (Bstrcmp(s,cur->string) == 0)
             return cur->key;

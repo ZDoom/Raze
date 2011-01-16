@@ -1,17 +1,18 @@
 #if defined(LINKED_GTK)
-	#include <gtk/gtk.h>
-	#include <gdk-pixbuf/gdk-pixdata.h>
+#include <gtk/gtk.h>
+#include <gdk-pixbuf/gdk-pixdata.h>
 #else
-	#include "dynamicgtk.h"
+#include "dynamicgtk.h"
 #endif
 
 #include "build.h"
 #include "editor.h"
 #include "baselayer.h"
 
-enum {
-	TAB_CONFIG,
-	TAB_MESSAGES,
+enum
+{
+    TAB_CONFIG,
+    TAB_MESSAGES,
 };
 
 static struct
@@ -46,7 +47,7 @@ static struct
     GtkWidget *startbuttonlabel;
     GtkAccelGroup *accel_group;
 } stwidgets;
-    
+
 static struct
 {
     int32_t fullscreen;
@@ -145,8 +146,8 @@ static void SetPage(int32_t n)
     if (n == TAB_CONFIG) n = TRUE; else n = FALSE;
     gtk_widget_set_sensitive(stwidgets.startbutton, n);
     gtk_container_foreach(GTK_CONTAINER(stwidgets.configtlayout),
-                         (GtkCallback)gtk_widget_set_sensitive,
-                         (gpointer)&n);
+                          (GtkCallback)gtk_widget_set_sensitive,
+                          (gpointer)&n);
 }
 
 static void PopulateForm(void)
@@ -207,7 +208,7 @@ static void PopulateForm(void)
             g_signal_handlers_unblock_by_func(box2d, on_vmode2dcombo_changed, NULL);
         }
     }
-   
+
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.fullscreencheck), settings.fullscreen);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.alwaysshowcheck), settings.forcesetup);
 }
@@ -246,14 +247,14 @@ static GtkWidget *create_window(void)
     gtk_container_set_border_width(GTK_CONTAINER(stwidgets.tabs), 4);
 
     // layout table of config page
-	stwidgets.configtlayout = gtk_table_new(4, 3, FALSE);
-	gtk_container_add(GTK_CONTAINER(stwidgets.tabs), stwidgets.configtlayout);
+    stwidgets.configtlayout = gtk_table_new(4, 3, FALSE);
+    gtk_container_add(GTK_CONTAINER(stwidgets.tabs), stwidgets.configtlayout);
 
     // 2D video mode label
     stwidgets.vmode2dlabel = gtk_label_new_with_mnemonic("_2D Video mode:");
-    gtk_misc_set_alignment (GTK_MISC(stwidgets.vmode2dlabel), 0.3, 0);
-    gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode2dlabel, 0,1, 0,1, GTK_FILL, 0, 4, 6);
-    
+    gtk_misc_set_alignment(GTK_MISC(stwidgets.vmode2dlabel), 0.3, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode2dlabel, 0,1, 0,1, GTK_FILL, 0, 4, 6);
+
     // 2D video mode combo
     {
         GtkListStore *list = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_INT);
@@ -266,22 +267,22 @@ static GtkWidget *create_window(void)
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(stwidgets.vmode2dcombo), cell, FALSE);
         gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(stwidgets.vmode2dcombo), cell, "text", 0, NULL);
     }
-    gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode2dcombo, 1,2, 0,1, GTK_EXPAND | GTK_FILL, 0, 4, 6);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode2dcombo, 1,2, 0,1, GTK_EXPAND | GTK_FILL, 0, 4, 6);
     gtk_widget_add_accelerator(stwidgets.vmode2dcombo, "grab_focus", stwidgets.accel_group,
                                GDK_2, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);
-	
-	// Fullscreen checkbox
+
+    // Fullscreen checkbox
     stwidgets.fullscreencheck = gtk_check_button_new_with_mnemonic("_Fullscreen");
-    gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.fullscreencheck, 2,3, 0,1, GTK_FILL, 0, 4, 6);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.fullscreencheck, 2,3, 0,1, GTK_FILL, 0, 4, 6);
     gtk_widget_add_accelerator(stwidgets.fullscreencheck, "grab_focus", stwidgets.accel_group,
                                GDK_F, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);
-                               
+
     // 3D video mode label
     stwidgets.vmode3dlabel = gtk_label_new_with_mnemonic("_3D Video mode:");
-    gtk_misc_set_alignment (GTK_MISC(stwidgets.vmode3dlabel), 0.3, 0);
-    gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dlabel, 0,1, 1,2, GTK_FILL, 0, 4, 6);
+    gtk_misc_set_alignment(GTK_MISC(stwidgets.vmode3dlabel), 0.3, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dlabel, 0,1, 1,2, GTK_FILL, 0, 4, 6);
 
     // 3D video mode combo
     {
@@ -295,17 +296,17 @@ static GtkWidget *create_window(void)
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(stwidgets.vmode3dcombo), cell, FALSE);
         gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(stwidgets.vmode3dcombo), cell, "text", 0, NULL);
     }
-    gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dcombo, 1,2, 1,2, GTK_EXPAND | GTK_FILL, 0, 4, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dcombo, 1,2, 1,2, GTK_EXPAND | GTK_FILL, 0, 4, 0);
     gtk_widget_add_accelerator(stwidgets.vmode3dcombo, "grab_focus", stwidgets.accel_group,
                                GDK_3, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);
-	// Empty horizontal layout
-	stwidgets.emptyhlayout = gtk_hbox_new(TRUE, 0);
-	gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.emptyhlayout, 0,1, 2,3, 0, GTK_EXPAND | GTK_FILL, 0, 0);
-	
+    // Empty horizontal layout
+    stwidgets.emptyhlayout = gtk_hbox_new(TRUE, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.emptyhlayout, 0,1, 2,3, 0, GTK_EXPAND | GTK_FILL, 0, 0);
+
     // Always show config checkbox
     stwidgets.alwaysshowcheck = gtk_check_button_new_with_mnemonic("_Always show configuration on start");
-    gtk_table_attach (GTK_TABLE(stwidgets.configtlayout), stwidgets.alwaysshowcheck, 0,2, 3,4, GTK_FILL, 0, 4, 6);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.alwaysshowcheck, 0,2, 3,4, GTK_FILL, 0, 4, 6);
     gtk_widget_add_accelerator(stwidgets.alwaysshowcheck, "grab_focus", stwidgets.accel_group,
                                GDK_A, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);

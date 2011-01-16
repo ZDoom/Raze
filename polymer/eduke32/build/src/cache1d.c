@@ -274,12 +274,12 @@ int32_t addsearchpath(const char *p)
     }
     if (!(st.st_mode & BS_IFDIR)) return -1;
 
-    srch = (searchpath_t*)Bmalloc(sizeof(searchpath_t));
+    srch = (searchpath_t *)Bmalloc(sizeof(searchpath_t));
     if (!srch) return -1;
 
     srch->next    = searchpathhead;
     srch->pathlen = strlen(p)+1;
-    srch->path    = (char*)Bmalloc(srch->pathlen + 1);
+    srch->path    = (char *)Bmalloc(srch->pathlen + 1);
     if (!srch->path)
     {
         Bfree(srch);
@@ -337,7 +337,7 @@ int32_t findfrompath(const char *fn, char **where)
         }
     }
 
-    for (pfn = (char*)fn; toupperlookup[*pfn] == '/'; pfn++);
+    for (pfn = (char *)fn; toupperlookup[*pfn] == '/'; pfn++);
     ffn = Bstrdup(pfn);
     if (!ffn) return -1;
     Bcorrectfilename(ffn,0);	// compress relative paths
@@ -415,7 +415,7 @@ int32_t openfrompath(const char *fn, int32_t flags, int32_t mode)
     return h;
 }
 
-BFILE* fopenfrompath(const char *fn, const char *mode)
+BFILE *fopenfrompath(const char *fn, const char *mode)
 {
     int32_t fh;
     BFILE *h;
@@ -894,7 +894,7 @@ static int32_t klistaddentry(CACHE1D_FIND_REC **rec, char *name, int32_t type, i
 
     r = (CACHE1D_FIND_REC *)Bmalloc(sizeof(CACHE1D_FIND_REC)+strlen(name)+1);
     if (!r) return -1;
-    r->name = (char*)r + sizeof(CACHE1D_FIND_REC); strcpy(r->name, name);
+    r->name = (char *)r + sizeof(CACHE1D_FIND_REC); strcpy(r->name, name);
     r->type = type;
     r->source = source;
     r->usera = r->userb = NULL;

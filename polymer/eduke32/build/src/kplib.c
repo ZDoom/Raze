@@ -206,7 +206,7 @@ static _inline int32_t bitrev(int32_t b, int32_t c)
         mov edx, b
         mov ecx, c
         xor eax, eax
-beg: shr edx, 1
+        beg: shr edx, 1
         adc eax, eax
         sub ecx, 1
         jnz short beg
@@ -230,7 +230,7 @@ static _inline int32_t testflag(int32_t c)
         mov eax, 1
         jne menostinx
         xor eax, eax
-menostinx:
+        menostinx:
     }
 }
 
@@ -256,7 +256,7 @@ static _inline void cpuid(int32_t a, int32_t *s)
 
 static inline uint32_t bswap(uint32_t a)
 {
-__asm__ __volatile__("bswap %0" : "+r"(a) : : "cc");
+    __asm__ __volatile__("bswap %0" : "+r"(a) : : "cc");
     return a;
 }
 
@@ -265,7 +265,7 @@ static inline int32_t bitrev(int32_t b, int32_t c)
     int32_t a = 0;
     __asm__ __volatile__(
         "xorl %%eax, %%eax\n\t0:\n\tshrl $1, %%ebx\n\tadcl %%eax, %%eax\n\tsubl $1, %%ecx\n\tjnz 0b"
-    : "+a"(a), "+b"(b), "+c"(c) : : "cc");
+        : "+a"(a), "+b"(b), "+c"(c) : : "cc");
     return a;
 }
 
@@ -276,7 +276,7 @@ static inline int32_t testflag(int32_t c)
         "pushf\n\tpopl %%eax\n\tmovl %%eax, %%ebx\n\txorl %%ecx, %%eax\n\tpushl %%eax\n\t"
         "popf\n\tpushf\n\tpopl %%eax\n\txorl %%ebx, %%eax\n\tmovl $1, %%eax\n\tjne 0f\n\t"
         "xorl %%eax, %%eax\n\t0:"
-    : "=a"(a) : "c"(c) : "ebx","cc");
+        : "=a"(a) : "c"(c) : "ebx","cc");
     return a;
 }
 
@@ -285,7 +285,7 @@ static inline void cpuid(int32_t a, int32_t *s)
     __asm__ __volatile__(
         "cpuid\n\tmovl %%eax, (%%esi)\n\tmovl %%ebx, 4(%%esi)\n\t"
         "movl %%ecx, 8(%%esi)\n\tmovl %%edx, 12(%%esi)"
-    : "+a"(a) : "S"(s) : "ebx","ecx","edx","memory","cc");
+        : "+a"(a) : "S"(s) : "ebx","ecx","edx","memory","cc");
 }
 
 #else
@@ -337,7 +337,8 @@ static void suckbitsnextblock()
     if (!zipfilmode)
     {
         if (!nfilptr)
-        {     //|===|===|crc|lng|typ|===|===|
+        {
+            //|===|===|crc|lng|typ|===|===|
             //        \  fakebuf: /
             //          |===|===|
             //----x     O---x     O--------
@@ -568,26 +569,26 @@ static _inline void rgbhlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
         add edx, offset olinbuf
         cmp dword ptr trnsrgb, 0
         jz short begit2
-begit:
+        begit:
         mov eax, dword ptr [ecx+edx]
         or eax, 0xff000000
         cmp eax, dword ptr trnsrgb
         jne short skipit
         and eax, 0xffffff
-skipit:
+        skipit:
         sub ecx, 3
         mov [edi], eax
         lea edi, [edi+ebx]
         jnz short begit
         jmp short endit
-begit2:
+        begit2:
         mov eax, dword ptr [ecx+edx]
         or eax, 0xff000000
         sub ecx, 3
         mov [edi], eax
         lea edi, [edi+ebx]
         jnz short begit2
-endit:
+        endit:
         pop edi
         pop ebx
     }
@@ -607,7 +608,7 @@ static _inline void pal8hlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
         mov edi, t
         mov ebx, b
         add edx, offset olinbuf
-begit:movzx eax, byte ptr [ecx+edx]
+        begit:movzx eax, byte ptr [ecx+edx]
         mov eax, dword ptr palcol[eax*4]
         sub ecx, 1
         mov [edi], eax
@@ -615,7 +616,7 @@ begit:movzx eax, byte ptr [ecx+edx]
         jnz short begit
         pop edi
         pop ebx
-endit:
+        endit:
     }
 }
 
@@ -635,8 +636,8 @@ static inline int32_t Paeth686(int32_t a, int32_t b, int32_t c)
         "cmovgel %%ebx, %%ecx \n"
         "cmpl (%%edx,%%eax,4), %%edi \n"
         "cmovgel %%eax, %%ecx \n"
-    : "+c"(c) : "a"(a), "b"(b) : "edx","esi","edi","memory","cc"
-            );
+        : "+c"(c) : "a"(a), "b"(b) : "edx","esi","edi","memory","cc"
+    );
     return c;
 }
 
@@ -666,8 +667,8 @@ static inline void rgbhlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
         "leal (%%edi,%%ebx,1), %%edi \n"
         "jnz 2b \n"
         "3: \n"
-    : "+c"(c), "+d"(d), "+D"(t) : "b"(b) : "eax","memory","cc"
-            );
+        : "+c"(c), "+d"(d), "+D"(t) : "b"(b) : "eax","memory","cc"
+    );
 }
 
 static inline void pal8hlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
@@ -683,8 +684,8 @@ static inline void pal8hlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
         "leal (%%edi,%%ebx,1), %%edi \n"
         "jnz 0b \n"
         "1: \n"
-    : "+c"(c), "+d"(d), "+D"(t) : "b"(b) : "eax","memory","cc"
-            );
+        : "+c"(c), "+d"(d), "+D"(t) : "b"(b) : "eax","memory","cc"
+    );
 }
 
 #else
@@ -747,42 +748,42 @@ static void putbuf(const uint8_t *buf, int32_t leng)
         switch (filt)
         {
         case 0:
-            while (i < x) { olinbuf[xplc] = buf[i]; xplc--; i++; }
+                while (i < x) { olinbuf[xplc] = buf[i]; xplc--; i++; }
             break;
         case 1:
-            while (i < x)
-            {
-                olinbuf[xplc] = (uint8_t)(opixbuf1[xm] += buf[i]);
-                xm = xmn[xm]; xplc--; i++;
-            }
+                while (i < x)
+                {
+                    olinbuf[xplc] = (uint8_t)(opixbuf1[xm] += buf[i]);
+                    xm = xmn[xm]; xplc--; i++;
+                }
             break;
         case 2:
-            while (i < x) { olinbuf[xplc] += (uint8_t)buf[i]; xplc--; i++; }
+                while (i < x) { olinbuf[xplc] += (uint8_t)buf[i]; xplc--; i++; }
             break;
         case 3:
-            while (i < x)
-            {
-                opixbuf1[xm] = olinbuf[xplc] = (uint8_t)(((opixbuf1[xm]+olinbuf[xplc])>>1)+buf[i]);
-                xm = xmn[xm]; xplc--; i++;
-            }
+                while (i < x)
+                {
+                    opixbuf1[xm] = olinbuf[xplc] = (uint8_t)(((opixbuf1[xm]+olinbuf[xplc])>>1)+buf[i]);
+                    xm = xmn[xm]; xplc--; i++;
+                }
             break;
         case 4:
-            while (i < x)
-            {
-                opixbuf1[xm] = (uint8_t)(Paeth(opixbuf1[xm],olinbuf[xplc],opixbuf0[xm])+buf[i]);
-                opixbuf0[xm] = olinbuf[xplc];
-                olinbuf[xplc] = opixbuf1[xm];
-                xm = xmn[xm]; xplc--; i++;
-            }
+                while (i < x)
+                {
+                    opixbuf1[xm] = (uint8_t)(Paeth(opixbuf1[xm],olinbuf[xplc],opixbuf0[xm])+buf[i]);
+                    opixbuf0[xm] = olinbuf[xplc];
+                    olinbuf[xplc] = opixbuf1[xm];
+                    xm = xmn[xm]; xplc--; i++;
+                }
             break;
         case 5: //Special hack for Paeth686 (Doesn't have to be case 5)
-            while (i < x)
-            {
-                opixbuf1[xm] = (uint8_t)(Paeth686(opixbuf1[xm],olinbuf[xplc],opixbuf0[xm])+buf[i]);
-                opixbuf0[xm] = olinbuf[xplc];
-                olinbuf[xplc] = opixbuf1[xm];
-                xm = xmn[xm]; xplc--; i++;
-            }
+                while (i < x)
+                {
+                    opixbuf1[xm] = (uint8_t)(Paeth686(opixbuf1[xm],olinbuf[xplc],opixbuf0[xm])+buf[i]);
+                    opixbuf0[xm] = olinbuf[xplc];
+                    olinbuf[xplc] = opixbuf1[xm];
+                    xm = xmn[xm]; xplc--; i++;
+                }
             break;
         }
 
@@ -796,26 +797,26 @@ static void putbuf(const uint8_t *buf, int32_t leng)
             {
             case 2: rgbhlineasm(x,xr1,p,ixstp); break;
             case 4:
-                for (; x>xr1; p+=ixstp,x-=2)
-                    *(int32_t *)p = (palcol[olinbuf[x]]&LSWAPIB(0xffffff))|LSWAPIL((int32_t)olinbuf[x-1]);
+                    for (; x>xr1; p+=ixstp,x-=2)
+                        *(int32_t *)p = (palcol[olinbuf[x]]&LSWAPIB(0xffffff))|LSWAPIL((int32_t)olinbuf[x-1]);
                 break;
             case 6:
-                for (; x>xr1; p+=ixstp,x-=4)
-                {
-                    *(char *)(p) = olinbuf[x  ];   //B
-                    *(char *)(p+1) = olinbuf[x+1]; //G
-                    *(char *)(p+2) = olinbuf[x+2]; //R
-                    *(char *)(p+3) = olinbuf[x-1]; //A
-                }
+                    for (; x>xr1; p+=ixstp,x-=4)
+                    {
+                        *(char *)(p) = olinbuf[x  ];   //B
+                        *(char *)(p+1) = olinbuf[x+1]; //G
+                        *(char *)(p+2) = olinbuf[x+2]; //R
+                        *(char *)(p+3) = olinbuf[x-1]; //A
+                    }
                 break;
             default:
-                switch (bitdepth)
-                {
-                case 1: for (; x>xr1; p+=ixstp,x--) *(int32_t *)p = palcol[olinbuf[x>>3]>>(x&7)]; break;
-                case 2: for (; x>xr1; p+=ixstp,x-=2) *(int32_t *)p = palcol[olinbuf[x>>3]>>(x&6)]; break;
-                case 4: for (; x>xr1; p+=ixstp,x-=4) *(int32_t *)p = palcol[olinbuf[x>>3]>>(x&4)]; break;
-                case 8: pal8hlineasm(x,xr1,p,ixstp); break; //for(;x>xr1;p+=ixstp,x-- ) *(int32_t *)p = palcol[olinbuf[x]]; break;
-                }
+                    switch (bitdepth)
+                    {
+                    case 1: for (; x>xr1; p+=ixstp,x--) *(int32_t *)p = palcol[olinbuf[x>>3]>>(x&7)]; break;
+                    case 2: for (; x>xr1; p+=ixstp,x-=2) *(int32_t *)p = palcol[olinbuf[x>>3]>>(x&6)]; break;
+                    case 4: for (; x>xr1; p+=ixstp,x-=4) *(int32_t *)p = palcol[olinbuf[x>>3]>>(x&4)]; break;
+                    case 8: pal8hlineasm(x,xr1,p,ixstp); break; //for(;x>xr1;p+=ixstp,x-- ) *(int32_t *)p = palcol[olinbuf[x]]; break;
+                    }
                 break;
             }
             nfplace += nbpl;
@@ -916,19 +917,19 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
             switch (coltype)
             {
             case 0: case 4:
-                bakcol = (((int32_t)filptr[0]<<8)+(int32_t)filptr[1])*255/((1<<bitdepth)-1);
+                        bakcol = (((int32_t)filptr[0]<<8)+(int32_t)filptr[1])*255/((1<<bitdepth)-1);
                 bakcol = bakcol*0x10101+0xff000000; break;
             case 2: case 6:
-                if (bitdepth == 8)
-                    { bakcol = (((int32_t)filptr[1])<<16)+(((int32_t)filptr[3])<<8)+((int32_t)filptr[5])+0xff000000; }
-                else
-                {
-                    for (i=0,bakcol=0xff000000; i<3; i++)
-                        bakcol += ((((((int32_t)filptr[i<<1])<<8)+((int32_t)filptr[(i<<1)+1]))/257)<<(16-(i<<3)));
-                }
+                        if (bitdepth == 8)
+                            { bakcol = (((int32_t)filptr[1])<<16)+(((int32_t)filptr[3])<<8)+((int32_t)filptr[5])+0xff000000; }
+                        else
+                        {
+                            for (i=0,bakcol=0xff000000; i<3; i++)
+                                bakcol += ((((((int32_t)filptr[i<<1])<<8)+((int32_t)filptr[(i<<1)+1]))/257)<<(16-(i<<3)));
+                        }
                 break;
             case 3:
-                bakcol = palcol[filptr[0]]; break;
+                    bakcol = palcol[filptr[0]]; break;
             }
             bakr = ((bakcol>>16)&255);
             bakg = ((bakcol>>8)&255);
@@ -940,18 +941,18 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
             switch (coltype)
             {
             case 0:
-                if (bitdepth <= 8)
-                    palcol[(int32_t)filptr[1]] &= LSWAPIB(0xffffff);
+                    if (bitdepth <= 8)
+                        palcol[(int32_t)filptr[1]] &= LSWAPIB(0xffffff);
                 //else {} // /c0 /d16 not yet supported
                 break;
             case 2:
-                if (bitdepth == 8)
-                    { trnsrgb = LSWAPIB((((int32_t)filptr[1])<<16)+(((int32_t)filptr[3])<<8)+((int32_t)filptr[5])+0xff000000); }
+                    if (bitdepth == 8)
+                        { trnsrgb = LSWAPIB((((int32_t)filptr[1])<<16)+(((int32_t)filptr[3])<<8)+((int32_t)filptr[5])+0xff000000); }
                 //else {} //WARNING: PNG docs say: MUST compare all 48 bits :(
                 break;
             case 3:
-                for (i=min(leng,paleng)-1; i>=0; i--)
-                    palcol[i] &= LSWAPIB((((int32_t)filptr[i])<<24)|0xffffff);
+                    for (i=min(leng,paleng)-1; i>=0; i--)
+                        palcol[i] &= LSWAPIB((((int32_t)filptr[i])<<24)|0xffffff);
                 break;
             default:;
             }
@@ -1107,7 +1108,7 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
         putbuf(slidebuf,slidew&32767);
     }
 
-kpngrend_goodret:;
+    kpngrend_goodret:;
     if (!(filterest&~(1<<filter1st))) filtype = (int8_t)filter1st;
     else if ((filter1st == 1) && (!(filterest&~(1<<3)))) filtype = 3;
     else filtype = 5;
@@ -1187,7 +1188,7 @@ static inline int32_t mulshr32(int32_t a, int32_t b)
 #endif
 
 static int32_t cosqr16[8] =    //cosqr16[i] = ((cos(PI*i/16)*sqrt(2))<<24);
-    {23726566,23270667,21920489,19727919,16777216,13181774,9079764,4628823};
+{23726566,23270667,21920489,19727919,16777216,13181774,9079764,4628823};
 static int32_t crmul[4096], cbmul[4096];
 
 static void initkpeg()
@@ -1431,8 +1432,8 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
         switch (marker)
         {
         case 0xc0: case 0xc1: case 0xc2:
-            //processit!
-            kfileptr++; //numbits = *kfileptr++;
+                        //processit!
+                        kfileptr++; //numbits = *kfileptr++;
 
             ydim = SSWAPIL(*(uint16_t *)&kfileptr[0]);
             xdim = SSWAPIL(*(uint16_t *)&kfileptr[2]);
@@ -1463,64 +1464,64 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
 
             break;
         case 0xc4:  //Huffman table
-            do
-            {
-                ch = *kfileptr++; leng--;
-                if (ch >= 16) { index = ch-12; }
-                else { index = ch; }
-                Bmemcpy((void *)&hufnumatbit[index][1],(void *)kfileptr,16); kfileptr += 16;
-                leng -= 16;
-
-                v = 0; hufcnt[index] = 0;
-                hufquickcnt[index] = 0;
-                for (i=1; i<=16; i++)
+                do
                 {
-                    hufmaxatbit[index][i] = v+hufnumatbit[index][i];
-                    hufvalatbit[index][i] = hufcnt[index]-v;
-                    Bmemcpy((void *)&huftable[index][hufcnt[index]],(void *)kfileptr,(int32_t)hufnumatbit[index][i]);
-                    if (i <= 10)
-                        for (c=0; c<hufnumatbit[index][i]; c++)
-                            for (j=(1<<(10-i)); j>0; j--)
-                            {
-                                hufquickval[index][hufquickcnt[index]] = huftable[index][hufcnt[index]+c];
-                                hufquickbits[index][hufquickcnt[index]] = i;
-                                hufquickcnt[index]++;
-                            }
-                    kfileptr += hufnumatbit[index][i];
-                    leng -= hufnumatbit[index][i];
-                    hufcnt[index] += hufnumatbit[index][i];
-                    v = ((v+hufnumatbit[index][i])<<1);
-                }
+                    ch = *kfileptr++; leng--;
+                    if (ch >= 16) { index = ch-12; }
+                    else { index = ch; }
+                    Bmemcpy((void *)&hufnumatbit[index][1],(void *)kfileptr,16); kfileptr += 16;
+                    leng -= 16;
 
-            }
-            while (leng > 0);
+                    v = 0; hufcnt[index] = 0;
+                    hufquickcnt[index] = 0;
+                    for (i=1; i<=16; i++)
+                    {
+                        hufmaxatbit[index][i] = v+hufnumatbit[index][i];
+                        hufvalatbit[index][i] = hufcnt[index]-v;
+                        Bmemcpy((void *)&huftable[index][hufcnt[index]],(void *)kfileptr,(int32_t)hufnumatbit[index][i]);
+                        if (i <= 10)
+                            for (c=0; c<hufnumatbit[index][i]; c++)
+                                for (j=(1<<(10-i)); j>0; j--)
+                                {
+                                    hufquickval[index][hufquickcnt[index]] = huftable[index][hufcnt[index]+c];
+                                    hufquickbits[index][hufquickcnt[index]] = i;
+                                    hufquickcnt[index]++;
+                                }
+                        kfileptr += hufnumatbit[index][i];
+                        leng -= hufnumatbit[index][i];
+                        hufcnt[index] += hufnumatbit[index][i];
+                        v = ((v+hufnumatbit[index][i])<<1);
+                    }
+
+                }
+                while (leng > 0);
             break;
         case 0xdb:
-            do
-            {
-                ch = *kfileptr++; leng--;
-                index = (ch&15);
-                prec = (ch>>4);
-                for (z=0; z<64; z++)
+                do
                 {
-                    v = (int32_t)(*kfileptr++);
-                    if (prec) v = (v<<8)+((int32_t)(*kfileptr++));
-                    v <<= 19;
-                    if (unzig[z]&7) v = mulshr24(v,cosqr16[unzig[z]&7 ]);
-                    if (unzig[z]>>3) v = mulshr24(v,cosqr16[unzig[z]>>3]);
-                    quantab[index][unzig[z]] = v;
+                    ch = *kfileptr++; leng--;
+                    index = (ch&15);
+                    prec = (ch>>4);
+                    for (z=0; z<64; z++)
+                    {
+                        v = (int32_t)(*kfileptr++);
+                        if (prec) v = (v<<8)+((int32_t)(*kfileptr++));
+                        v <<= 19;
+                        if (unzig[z]&7) v = mulshr24(v,cosqr16[unzig[z]&7 ]);
+                        if (unzig[z]>>3) v = mulshr24(v,cosqr16[unzig[z]>>3]);
+                        quantab[index][unzig[z]] = v;
+                    }
+                    leng -= 64;
+                    if (prec) leng -= 64;
                 }
-                leng -= 64;
-                if (prec) leng -= 64;
-            }
-            while (leng > 0);
+                while (leng > 0);
             break;
         case 0xdd:
-            restartinterval = SSWAPIL(*(uint16_t *)&kfileptr[0]);
+                restartinterval = SSWAPIL(*(uint16_t *)&kfileptr[0]);
             kfileptr += leng;
             break;
         case 0xda:
-            if ((xdim <= 0) || (ydim <= 0)) { if (dctbuf) Bfree(dctbuf); return(-1); }
+                if ((xdim <= 0) || (ydim <= 0)) { if (dctbuf) Bfree(dctbuf); return(-1); }
 
             lnumcomponents = (int32_t)(*kfileptr++); if (!lnumcomponents) { if (dctbuf) Bfree(dctbuf); return(-1); }
             if (lnumcomponents > 1) coltype = 2;
@@ -1603,7 +1604,8 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                         if (!dctbuf) quanptr = &quantab[lcompquantab[c]][0];
                         for (yy=0; yy<(lcompvsamp[c]<<3); yy+=8)
                             for (xx=0; xx<(lcomphsamp[c]<<3); xx+=8)
-                            {  //NOTE: Might help to split this code into firstime vs. refinement (!Ah vs. Ah!=0)
+                            {
+                                //NOTE: Might help to split this code into firstime vs. refinement (!Ah vs. Ah!=0)
 
                                 if (dctbuf) dcs = &ldctptr[c][(((y+yy)>>lshy[c])*ldctx[c] + ((x+xx)>>lshx[c]))<<6];
 
@@ -1663,11 +1665,11 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                         {
                                             if (Ah)
                                             {
-												if (curbits < 8) //Getbits
-												{
-													ch = *kfileptr++; if (ch == 255) kfileptr++;
-													num = (num<<8)+((long)ch); curbits += 8;
-												}
+                                                if (curbits < 8) //Getbits
+                                                {
+                                                    ch = *kfileptr++; if (ch == 255) kfileptr++;
+                                                    num = (num<<8)+((long)ch); curbits += 8;
+                                                }
                                                 if (num&(pow2long[--curbits])) daval = Alut[0]; else daval = Alut[1];
                                             }
                                         }
@@ -1758,7 +1760,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                         eobrun = 0;
                     }
                 }
-kpegrend_break2:;
+            kpegrend_break2:;
             if (!dctbuf) return(0);
             passcnt++; kfileptr -= ((curbits>>3)+1); break;
         case 0xd9: break;
@@ -1825,7 +1827,8 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
     if (kfilebuf[10]&128) { cptr = ptr; ptr += paleng*3; }
     transcol = -1;
     while ((chunkind = *ptr++) == '!')
-    {      //! 0xf9 leng flags ? ? transcol
+    {
+        //! 0xf9 leng flags ? ? transcol
         if (ptr[0] == 0xf9) { if (ptr[2]&1) transcol = (int32_t)(((uint8_t)ptr[5])); }
         ptr++;
         do { i = *ptr++; ptr += i; }
@@ -2181,20 +2184,20 @@ static int32_t kbmprend(const char *buf, int32_t fleng,
         case  4: for (x=x0; x<x1; x++) lptr[x] = palcol[(int32_t)((cptr[x>>1]>>(((x&1)^1)<<2))&15)]; break;
         case  8: for (x=x0; x<x1; x++) lptr[x] = palcol[(int32_t)(cptr[x])]; break;
         case 16: for (x=x0; x<x1; x++)
-            {
-                i = ((int32_t)(*(int16_t *)&cptr[x<<1]));
-                lptr[x] = (_lrotl(i,palcol[0])&palcol[3]) +
-                          (_lrotl(i,palcol[1])&palcol[4]) +
-                          (_lrotl(i,palcol[2])&palcol[5]) + LSWAPIB(0xff000000);
-            } break;
+                {
+                    i = ((int32_t)(*(int16_t *)&cptr[x<<1]));
+                    lptr[x] = (_lrotl(i,palcol[0])&palcol[3]) +
+                              (_lrotl(i,palcol[1])&palcol[4]) +
+                              (_lrotl(i,palcol[2])&palcol[5]) + LSWAPIB(0xff000000);
+                } break;
         case 24: for (x=x0; x<x1; x++) lptr[x] = ((*(int32_t *)&cptr[x*3])|LSWAPIB(0xff000000)); break;
         case 32: for (x=x0; x<x1; x++)
-            {
-                i = (*(int32_t *)&cptr[x<<2]);
-                lptr[x] = (_lrotl(i,palcol[0])&palcol[3]) +
-                          (_lrotl(i,palcol[1])&palcol[4]) +
-                          (_lrotl(i,palcol[2])&palcol[5]) + LSWAPIB(0xff000000);
-            } break;
+                {
+                    i = (*(int32_t *)&cptr[x<<2]);
+                    lptr[x] = (_lrotl(i,palcol[0])&palcol[3]) +
+                              (_lrotl(i,palcol[1])&palcol[4]) +
+                              (_lrotl(i,palcol[2])&palcol[5]) + LSWAPIB(0xff000000);
+                } break;
         }
 
     }
@@ -2479,7 +2482,8 @@ void kpgetdim(const char *buf, int32_t leng, int32_t *xsiz, int32_t *ysiz)
         (*ysiz) = LSWAPIB(*(int32_t *)&buf[12]);
     }
     else
-    {     //Unreliable .TGA identification - this MUST be final case!
+    {
+        //Unreliable .TGA identification - this MUST be final case!
         if ((leng >= 19) && (!(ubuf[1]&0xfe)))
             if ((ubuf[2] < 12) && ((1<<ubuf[2])&0xe0e))
                 if ((!(ubuf[16]&7)) && (ubuf[16] != 0) && (ubuf[16] <= 32))
@@ -2818,7 +2822,7 @@ intptr_t kzopen(const char *filnam)
             {
             case 0: kzfs.i = 0; return((intptr_t)kzfs.fil);
             case 8:
-                if (!pnginited) { pnginited = 1; initpngtables(); }
+                    if (!pnginited) { pnginited = 1; initpngtables(); }
                 kzfs.comptell = 0;
                 kzfs.compleng = LSWAPIB(*(int32_t *)&tempbuf[18]);
 
@@ -2896,7 +2900,7 @@ int32_t kzfindfile(char *filnam)
 {
     int32_t i;
 
-kzfindfile_beg:;
+    kzfindfile_beg:;
     filnam[0] = 0;
     if (srchstat == 0)
     {
@@ -3091,7 +3095,7 @@ int32_t kzread(void *buffer, int32_t leng)
         case 2: goto kzreadplc2;
         case 3: goto kzreadplc3;
         }
-kzreadplc0:;
+        kzreadplc0:;
         do
         {
             bfinal = getbits(1); btype = getbits(2);
@@ -3131,7 +3135,7 @@ kzreadplc0:;
                         {
                             kzfs.jmpplc = 1; kzfs.i = i; kzfs.bfinal = bfinal;
                             goto retkzread;
-kzreadplc1:;         i = kzfs.i; bfinal = kzfs.bfinal;
+                            kzreadplc1:;         i = kzfs.i; bfinal = kzfs.bfinal;
                         }
                     }
                     slidebuf[(gslidew++)&32767] = (uint8_t)getbits(8);
@@ -3185,7 +3189,7 @@ kzreadplc1:;         i = kzfs.i; bfinal = kzfs.bfinal;
                     if (gslider-16384 >= kzfs.endpos)
                     {
                         kzfs.jmpplc = 2; kzfs.bfinal = bfinal; goto retkzread;
-kzreadplc2:;      bfinal = kzfs.bfinal;
+                        kzreadplc2:;      bfinal = kzfs.bfinal;
                     }
                 }
 
@@ -3215,10 +3219,10 @@ kzreadplc2:;      bfinal = kzfs.bfinal;
             putbuf4zip(&slidebuf[gslider&32767],gslider,gslidew&~32767);
             putbuf4zip(slidebuf,gslidew&~32767,gslidew);
         }
-kzreadplc3:; kzfs.jmpplc = 3;
+        kzreadplc3:; kzfs.jmpplc = 3;
     }
 
-retkzread:;
+    retkzread:;
     i = kzfs.pos;
     kzfs.pos += leng; if (kzfs.pos > kzfs.leng) kzfs.pos = kzfs.leng;
     return(kzfs.pos-i);

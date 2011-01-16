@@ -1467,7 +1467,7 @@ static int32_t defsparser(scriptfile *script)
                            script->filename, scriptfile_getlinum(script,highpaltokptr));
                 break;
             }
-            
+
             oldpathsearchmode = pathsearchmode;
             pathsearchmode = 1;
             if (findfrompath(fn,&tfn) < 0)
@@ -1502,12 +1502,12 @@ static int32_t defsparser(scriptfile *script)
 
                 klseek(fd, 0, SEEK_SET);
                 if (kread(fd, filebuf, filesize)!=filesize)
-                { Bfree(highpaldata); initprintf("Error: didn't read all of '%s'.\n", fn); break; }
+                    { Bfree(highpaldata); initprintf("Error: didn't read all of '%s'.\n", fn); break; }
 
                 kclose(fd);
                 kpgetdim(filebuf, filesize, &xsiz, &ysiz);
 
-                if (xsiz != PR_HIGHPALOOKUP_DIM*PR_HIGHPALOOKUP_DIM || ysiz != PR_HIGHPALOOKUP_DIM)
+                if (xsiz != PR_HIGHPALOOKUP_DIM *PR_HIGHPALOOKUP_DIM || ysiz != PR_HIGHPALOOKUP_DIM)
                 {
                     initprintf("Error: image dimensions of '%s' must be %dx%d.\n",
                                fn, PR_HIGHPALOOKUP_DIM*PR_HIGHPALOOKUP_DIM, PR_HIGHPALOOKUP_DIM);
@@ -1518,7 +1518,7 @@ static int32_t defsparser(scriptfile *script)
                 i = kprender(filebuf, filesize, (intptr_t)highpaldata, xsiz*sizeof(coltype), xsiz, ysiz, 0, 0);
                 Bfree(filebuf);
                 if (i)
-                { Bfree(highpaldata); initprintf("Error: failed rendering '%s'.\n", fn); break; }
+                    { Bfree(highpaldata); initprintf("Error: failed rendering '%s'.\n", fn); break; }
             }
 
             polymer_definehighpalookup(pal, highpaldata);

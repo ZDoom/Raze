@@ -54,7 +54,7 @@ int32_t   _buildargc = 1;
 const char **_buildargv = NULL;
 extern int32_t app_main(int32_t argc, const char *argv[]);
 
-char quitevent=0, appactive=1;
+char quitevent=0, appactive=1, novideo=0;
 
 // video
 static SDL_Surface *sdl_surface;
@@ -81,8 +81,8 @@ static char keytranslation[SDL_NUM_SCANCODES];
 static int32_t buildkeytranslationtable(void);
 
 //static SDL_Surface * loadtarga(const char *fn);		// for loading the icon
-static SDL_Surface * appicon = NULL;
-static SDL_Surface * loadappicon(void);
+static SDL_Surface *appicon = NULL;
+static SDL_Surface *loadappicon(void);
 
 static mutex_t m_initprintf;
 
@@ -183,7 +183,7 @@ int32_t main(int32_t argc, char *argv[])
     startwin_open();
 
     _buildargc = argc;
-    _buildargv = (const char**)argv;
+    _buildargv = (const char **)argv;
 
     // pipe standard outputs to files
     if ((argp = Bgetenv("BUILD_LOGSTDOUT")) != NULL)
@@ -228,7 +228,7 @@ void setvsync(int32_t sync)
 }
 #endif
 
-static void attach_debugger_here(void){}
+static void attach_debugger_here(void) {}
 
 #ifdef __GNUC__
 # define PRINTSTACKONSEGV 1
@@ -295,8 +295,15 @@ int32_t initsystem(void)
 #endif
                 ))
     {
-        initprintf("Initialization failed! (%s)\n", SDL_GetError());
-        return -1;
+        initprintf("Initialization failed! (%s)\nNon-interactive mode enabled\n", SDL_GetError());
+        /*        if (SDL_Init(0))
+                {
+                    initprintf("Initialization failed! (%s)\n", SDL_GetError());
+                    return -1;
+                }
+                else
+                */
+        novideo = nogl = 1;
     }
 
     signal(SIGSEGV, sighandler);
@@ -309,7 +316,7 @@ int32_t initsystem(void)
     lockcount = 0;
 
 #ifdef USE_OPENGL
-    if (loadgldriver(getenv("BUILD_GLDRV")))
+    if (!novideo && loadgldriver(getenv("BUILD_GLDRV")))
     {
         initprintf("Failed loading OpenGL driver. GL modes will be unavailable.\n");
         nogl = 1;
@@ -317,15 +324,20 @@ int32_t initsystem(void)
 #endif
 
 #ifndef __APPLE__
-        
+
     //icon = loadtarga("icon.tga");
-    appicon = loadappicon();
-    if (appicon)
-        SDL_WM_SetIcon(appicon, 0);
+
+    if (!novideo)
+    {
+        appicon = loadappicon();
+        if (appicon)
+            SDL_WM_SetIcon(appicon, 0);
+    }
 #endif
 
-    if (SDL_VideoDriverName(drvname, 32))
-        initprintf("Using \"%s\" video driver\n", drvname);
+    if (!novideo)
+        if (SDL_VideoDriverName(drvname, 32))
+            initprintf("Using \"%s\" video driver\n", drvname);
 
     /*
     // dump a quick summary of the graphics hardware
@@ -384,8 +396,8 @@ void initprintf(const char *f, ...)
     Bvsnprintf(buf, sizeof(buf), f, va);
     va_end(va);
 
-    OSD_Printf(buf);
-    Bprintf("%s", buf);
+    OSD_Printf("%s", buf);
+//    Bprintf("%s", buf);
 
     mutex_lock(&m_initprintf);
     if (Bstrlen(dabuf) + Bstrlen(buf) > 1022)
@@ -495,7 +507,7 @@ int32_t initinput(void)
             joyhat = (int32_t *)Bcalloc(joynumhats, sizeof(int32_t));
 
             for (i = 0; i < joynumhats; i++)
-                 joyhat[i] = -1; // centre
+                joyhat[i] = -1; // centre
 
             joydead = (uint16_t *)Bcalloc(joynumaxes, sizeof(uint16_t));
             joysatur = (uint16_t *)Bcalloc(joynumaxes, sizeof(uint16_t));
@@ -793,7 +805,7 @@ void getvalidmodes(void)
 #endif
     int32_t i, j, maxx=0, maxy=0;
 
-    if (modeschecked) return;
+    if (modeschecked || novideo) return;
 
     validmodecnt=0;
 //    initprintf("Detecting video modes:\n");
@@ -879,7 +891,7 @@ void getvalidmodes(void)
 #undef CHECK
 #undef ADDMODE
 
-    qsort((void*)validmode, validmodecnt, sizeof(struct validmode_t), (int32_t(*)(const void*,const void*))sortmodes);
+    qsort((void *)validmode, validmodecnt, sizeof(struct validmode_t), (int32_t( *)(const void *,const void *))sortmodes);
 
     modeschecked=1;
 }
@@ -1131,27 +1143,32 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         glinfo.extensions = (const char *)bglGetString(GL_EXTENSIONS);
 
 #ifdef POLYMER
-        if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc.")) {
+        if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
+        {
             pr_ati_fboworkaround = 1;
             initprintf("Enabling ATI FBO color attachment workaround.\n");
 
-            if (!Bstrncmp(glinfo.renderer,"Radeon X1", 9)) {
+            if (Bstrstr(glinfo.renderer,"Radeon X1"))
+            {
                 pr_ati_nodepthoffset = 1;
                 initprintf("Enabling ATI R520 polygon offset workaround.\n");
-            } else
+            }
+            else
                 pr_ati_nodepthoffset = 0;
 #ifdef __APPLE__
             //See bug description at http://lists.apple.com/archives/mac-opengl/2005/Oct/msg00169.html
-            if (!Bstrncmp(glinfo.renderer,"ATI Radeon 9600", 15)) {
+            if (!Bstrncmp(glinfo.renderer,"ATI Radeon 9600", 15))
+            {
                 pr_ati_textureformat_one = 1;
                 initprintf("Enabling ATI Radeon 9600 texture format workaround.\n");
-            } else
+            }
+            else
                 pr_ati_textureformat_one = 0;
 #endif
-        } else
+        }
+        else
             pr_ati_fboworkaround = 0;
 #endif
-
 
         glinfo.maxanisotropy = 1.0;
         glinfo.bgra = 0;
@@ -1160,7 +1177,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         // process the extensions string and flag stuff we recognize
         p = Bstrdup(glinfo.extensions);
         p3 = p;
-        while ((p2 = Bstrtoken(p3==p?p:NULL, " ", (char**)&p3, 1)) != NULL)
+        while ((p2 = Bstrtoken(p3==p?p:NULL, " ", (char **)&p3, 1)) != NULL)
         {
             if (!Bstrcmp(p2, "GL_EXT_texture_filter_anisotropic"))
             {
@@ -1446,7 +1463,7 @@ int32_t setpalette(int32_t start, int32_t num)
         curpalettefaded[i].f = pal[i].unused = 0;
 
     //return SDL_SetPalette(sdl_surface, SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
-    
+
     return sdl_surface ? SDL_SetColors(sdl_surface, pal, 0, 256) : 0;
 }
 
@@ -1487,6 +1504,8 @@ int32_t setgamma(void)
     double invgamma = 1 / gamma;
     double norm = pow(255., invgamma - 1);
 
+    if (novideo) return 0;
+
     // This formula is taken from Doomsday
 
     for (i = 0; i < 256; i++)
@@ -1502,11 +1521,11 @@ int32_t setgamma(void)
 
 #ifndef __APPLE__
 extern struct sdlappicon sdlappicon;
-static SDL_Surface * loadappicon(void)
+static SDL_Surface *loadappicon(void)
 {
     SDL_Surface *surf;
 
-    surf = SDL_CreateRGBSurfaceFrom((void*)sdlappicon.pixels,
+    surf = SDL_CreateRGBSurfaceFrom((void *)sdlappicon.pixels,
                                     sdlappicon.width, sdlappicon.height, 32, sdlappicon.width*4,
                                     0xffl,0xff00l,0xff0000l,0xff000000l);
 
@@ -1549,7 +1568,7 @@ int32_t handleevents(void)
                 if (code != scantoasc[OSD_OSDKey()] && ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
                 {
 //                    printf("got char %d\n",code);
-                    
+
                     if (OSD_HandleChar(code))
                     {
                         keyasciififo[keyasciififoend] = code;
@@ -1750,15 +1769,15 @@ int32_t handleevents(void)
             {
                 joyaxis[ev.jaxis.axis] = ev.jaxis.value * 10000 / 32767;
                 if ((joyaxis[ev.jaxis.axis] < joydead[ev.jaxis.axis])
-                    && (joyaxis[ev.jaxis.axis] > -joydead[ev.jaxis.axis]))
+                        && (joyaxis[ev.jaxis.axis] > -joydead[ev.jaxis.axis]))
                     joyaxis[ev.jaxis.axis] = 0;
                 else if (joyaxis[ev.jaxis.axis] >= joysatur[ev.jaxis.axis])
                     joyaxis[ev.jaxis.axis] = 10000;
                 else if (joyaxis[ev.jaxis.axis] <= -joysatur[ev.jaxis.axis])
                     joyaxis[ev.jaxis.axis] = -10000;
                 else
-                  joyaxis[ev.jaxis.axis] = joyaxis[ev.jaxis.axis] *
-                                           10000 / joysatur[ev.jaxis.axis];
+                    joyaxis[ev.jaxis.axis] = joyaxis[ev.jaxis.axis] *
+                                             10000 / joysatur[ev.jaxis.axis];
             }
             break;
 
@@ -1850,26 +1869,30 @@ inline void idle_waitevent(void)
 
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
 // from SDL HG, modified
-static int32_t SDL_WaitEventTimeout(SDL_Event * event, int32_t timeout)
+static int32_t SDL_WaitEventTimeout(SDL_Event *event, int32_t timeout)
 {
     uint32_t expiration = 0;
 
     if (timeout > 0)
         expiration = SDL_GetTicks() + timeout;
 
-    for (;;) {
+    for (;;)
+    {
         SDL_PumpEvents();
-        switch (SDL_PeepEvents(event, 1, SDL_GETEVENT, ~0)) { //SDL_FIRSTEVENT, SDL_LASTEVENT)) {
+        switch (SDL_PeepEvents(event, 1, SDL_GETEVENT, ~0))   //SDL_FIRSTEVENT, SDL_LASTEVENT)) {
+        {
         case -1:
             return 0;
         case 1:
             return 1;
         case 0:
-            if (timeout == 0) {
+            if (timeout == 0)
+            {
                 /* Polling and no events, just return */
                 return 0;
             }
-            if (timeout > 0 && ((int32_t) (SDL_GetTicks() - expiration) >= 0)) {
+            if (timeout > 0 && ((int32_t)(SDL_GetTicks() - expiration) >= 0))
+            {
                 /* Timeout expired and no events */
                 return 0;
             }

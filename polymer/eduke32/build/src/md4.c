@@ -24,7 +24,7 @@
    documentation and/or software.
  */
 
-typedef unsigned char * POINTER;
+typedef unsigned char *POINTER;
 typedef unsigned short UINT2;
 typedef unsigned int  UINT4;
 

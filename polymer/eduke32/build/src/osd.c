@@ -27,7 +27,7 @@ static int32_t _internal_osdfunc_alias(const osdfuncparm_t *);
 
 static int32_t white=-1;            // colour of white (used by default display routines)
 static void _internal_drawosdchar(int32_t, int32_t, char, int32_t, int32_t);
-static void _internal_drawosdstr(int32_t, int32_t, char*, int32_t, int32_t, int32_t);
+static void _internal_drawosdstr(int32_t, int32_t, char *, int32_t, int32_t, int32_t);
 static void _internal_drawosdcursor(int32_t,int32_t,int32_t,int32_t);
 static int32_t _internal_getcolumnwidth(int32_t);
 static int32_t _internal_getrowheight(int32_t);
@@ -105,7 +105,7 @@ static hashtable_t h_osd      = { MAXSYMBOLS<<1, NULL };
 
 // application callbacks
 static void (*drawosdchar)(int32_t, int32_t, char, int32_t, int32_t) = _internal_drawosdchar;
-static void (*drawosdstr)(int32_t, int32_t, char*, int32_t, int32_t, int32_t) = _internal_drawosdstr;
+static void (*drawosdstr)(int32_t, int32_t, char *, int32_t, int32_t, int32_t) = _internal_drawosdstr;
 static void (*drawosdcursor)(int32_t, int32_t, int32_t, int32_t) = _internal_drawosdcursor;
 static int32_t (*getcolumnwidth)(int32_t) = _internal_getcolumnwidth;
 static int32_t (*getrowheight)(int32_t) = _internal_getrowheight;
@@ -114,7 +114,7 @@ static int32_t (*gettime)(void) = _internal_gettime;
 static void (*onshowosd)(int32_t) = _internal_onshowosd;
 
 static void (*_drawosdchar)(int32_t, int32_t, char, int32_t, int32_t) = _internal_drawosdchar;
-static void (*_drawosdstr)(int32_t, int32_t, char*, int32_t, int32_t, int32_t) = _internal_drawosdstr;
+static void (*_drawosdstr)(int32_t, int32_t, char *, int32_t, int32_t, int32_t) = _internal_drawosdstr;
 static void (*_drawosdcursor)(int32_t, int32_t, int32_t, int32_t) = _internal_drawosdcursor;
 static int32_t (*_getcolumnwidth)(int32_t) = _internal_getcolumnwidth;
 static int32_t (*_getrowheight)(int32_t) = _internal_getrowheight;
@@ -183,7 +183,7 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
         cvars[osdnumcvars].dval.d = *(double *)cvar->var;
         break;
     }
-        
+
     Bmemcpy(&cvars[osdnumcvars++], cvar, sizeof(cvar_t));
 
     return 0;
@@ -221,7 +221,7 @@ static int32_t OSD_CvarModified(const osdcvar_t *cvar)
 // ^S# sets a shade, range is 0-7 equiv to shades 0-14
 // ^O resets formatting to defaults
 
-const char * OSD_StripColors(char *out, const char *in)
+const char *OSD_StripColors(char *out, const char *in)
 {
     const char *ptr = out;
 
@@ -254,7 +254,7 @@ const char * OSD_StripColors(char *out, const char *in)
 
 int32_t OSD_Exec(const char *szScript)
 {
-    FILE* fp = fopenfrompath(szScript, "r");
+    FILE *fp = fopenfrompath(szScript, "r");
 
     if (fp != NULL)
     {
@@ -281,19 +281,19 @@ int32_t OSD_OSDKey(void)
     return osdkey;
 }
 
-char * OSD_GetTextPtr(void)
+char *OSD_GetTextPtr(void)
 {
-    return (&osdtext[0]);
+    return osdtext;
 }
 
-char * OSD_GetFmtPtr(void)
+char *OSD_GetFmtPtr(void)
 {
-    return (&osdfmt[0]);
+    return osdfmt;
 }
 
-char * OSD_GetFmt(char *ptr)
+char *OSD_GetFmt(char *ptr)
 {
-    return (ptr - &osdtext[0] + &osdfmt[0]);
+    return (ptr - osdtext + osdfmt);
 }
 
 int32_t OSD_GetCols(void)
@@ -393,9 +393,9 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
     kclose(i);
 
     OSD_Printf("fileinfo: %s\n"
-        "  File size: %d\n"
-        "  CRC-32:    %08X\n",
-        parm->parms[0], length, crc);
+               "  File size: %d\n"
+               "  CRC-32:    %08X\n",
+               parm->parms[0], length, crc);
 
     return OSDCMD_OK;
 }
@@ -603,13 +603,9 @@ static int32_t _internal_osdfunc_help(const osdfuncparm_t *parm)
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
     symb = findexactsymbol(parm->parms[0]);
     if (!symb)
-    {
-        OSD_Printf("Help Error: \"%s\" is not a defined variable or function\n", parm->parms[0]);
-    }
+        OSD_Printf("Error: no help for undefined symbol \"%s\"\n", parm->parms[0]);
     else
-    {
         OSD_Printf("%s\n", symb->help);
-    }
 
     return OSDCMD_OK;
 }
@@ -653,8 +649,11 @@ void OSD_Cleanup(void)
         Bfree(symbols);
     }
 
-    if (osdlog) Bfclose(osdlog);
-    osdlog = NULL;
+    if (osdlog)
+    {
+        Bfclose(osdlog);
+        osdlog = NULL;
+    }
 
     if (cvars)
     {
@@ -717,15 +716,15 @@ void OSD_Init(void)
     uint32_t i;
     cvar_t cvars_osd[] =
     {
-        { "osdeditpal","osdeditpal: sets the palette of the OSD input text",(void *)&osdeditpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-        { "osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",(void *)&osdpromptpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-        { "osdtextpal","osdtextpal: sets the palette of the OSD text",(void *)&osdtextpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-        { "osdeditshade","osdeditshade: sets the shade of the OSD input text",(void *)&osdeditshade, CVAR_INT, 0, 7 },
-        { "osdtextshade","osdtextshade: sets the shade of the OSD text",(void *)&osdtextshade, CVAR_INT, 0, 7 },
-        { "osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",(void *)&osdpromptshade, CVAR_INT, INT8_MIN, INT8_MAX },
-        { "osdrows","osdrows: sets the number of visible lines of the OSD",(void *)&osdrows, CVAR_INT|CVAR_FUNCPTR, 0, MAXPALOOKUPS-1 },
-        { "osdtextmode","osdtextmode: set OSD text mode (0:graphical, 1:fast)",(void *)&osdtextmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-        { "logcutoff","logcutoff: sets the maximal line count of the log file",(void *)&logcutoff, CVAR_INT, 0, 262144 },
+        { "osdeditpal","osdeditpal: sets the palette of the OSD input text",(void *) &osdeditpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdpromptpal","osdpromptpal: sets the palette of the OSD prompt",(void *) &osdpromptpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdtextpal","osdtextpal: sets the palette of the OSD text",(void *) &osdtextpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdeditshade","osdeditshade: sets the shade of the OSD input text",(void *) &osdeditshade, CVAR_INT, 0, 7 },
+        { "osdtextshade","osdtextshade: sets the shade of the OSD text",(void *) &osdtextshade, CVAR_INT, 0, 7 },
+        { "osdpromptshade","osdpromptshade: sets the shade of the OSD prompt",(void *) &osdpromptshade, CVAR_INT, INT8_MIN, INT8_MAX },
+        { "osdrows","osdrows: sets the number of visible lines of the OSD",(void *) &osdrows, CVAR_INT|CVAR_FUNCPTR, 0, MAXPALOOKUPS-1 },
+        { "osdtextmode","osdtextmode: set OSD text mode (0:graphical, 1:fast)",(void *) &osdtextmode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
+        { "logcutoff","logcutoff: sets the maximal line count of the log file",(void *) &logcutoff, CVAR_INT, 0, 262144 },
     };
 
     mutex_init(&m_osdprintf);
@@ -747,7 +746,7 @@ void OSD_Init(void)
             continue;
 
         OSD_RegisterFunction(cvars_osd[i].name, cvars_osd[i].helpstr,
-            cvars_osd[i].type & CVAR_FUNCPTR ? osdcmd_cvar_set_osd : osdcmd_cvar_set);
+                             cvars_osd[i].type & CVAR_FUNCPTR ? osdcmd_cvar_set_osd : osdcmd_cvar_set);
     }
 
     OSD_RegisterFunction("alias","alias: creates an alias for calling multiple commands",_internal_osdfunc_alias);
@@ -770,10 +769,14 @@ void OSD_Init(void)
 //
 void OSD_SetLogFile(char *fn)
 {
-    if (osdlog) Bfclose(osdlog);
-    osdlog = NULL;
+    if (osdlog)
+    {
+        Bfclose(osdlog);
+        osdlog = NULL;
+    }
+
     if (fn) osdlog = Bfopen(fn,"w");
-    if (osdlog) setvbuf(osdlog, (char*)NULL, _IONBF, 0);
+    if (osdlog) setvbuf(osdlog, (char *)NULL, _IONBF, 0);
 }
 
 
@@ -782,7 +785,7 @@ void OSD_SetLogFile(char *fn)
 //
 void OSD_SetFunctions(
     void (*drawchar)(int32_t,int32_t,char,int32_t,int32_t),
-    void (*drawstr)(int32_t,int32_t,char*,int32_t,int32_t,int32_t),
+    void (*drawstr)(int32_t,int32_t,char *,int32_t,int32_t,int32_t),
     void (*drawcursor)(int32_t,int32_t,int32_t,int32_t),
     int32_t (*colwidth)(int32_t),
     int32_t (*rowheight)(int32_t),
@@ -983,92 +986,92 @@ int32_t OSD_HandleChar(char ch)
     case 127:  // handled in OSD_HandleScanCode (delete)
         return 0;
     case 9:   // tab
+    {
+        int32_t commonsize = 512;
+
+        if (!lastmatch)
         {
-            int32_t commonsize = 512;
+            for (i=osdeditcursor; i>0; i--) if (osdeditbuf[i-1] == ' ') break;
+            for (j=0; osdeditbuf[i] != ' ' && i < osdeditlen; j++,i++)
+                osdedittmp[j] = osdeditbuf[i];
+            osdedittmp[j] = 0;
 
-            if (!lastmatch)
+            if (j > 0)
             {
-                for (i=osdeditcursor; i>0; i--) if (osdeditbuf[i-1] == ' ') break;
-                for (j=0; osdeditbuf[i] != ' ' && i < osdeditlen; j++,i++)
-                    osdedittmp[j] = osdeditbuf[i];
-                osdedittmp[j] = 0;
+                tabc = findsymbol(osdedittmp, NULL);
 
-                if (j > 0)
+                if (tabc && tabc->next && findsymbol(osdedittmp, tabc->next))
                 {
-                    tabc = findsymbol(osdedittmp, NULL);
+                    symbol_t *symb=tabc;
+                    int32_t maxwidth = 0, x = 0, num = 0, diffpt;
 
-                    if (tabc && tabc->next && findsymbol(osdedittmp, tabc->next))
+                    while (symb && symb != lastmatch)
                     {
-                        symbol_t *symb=tabc;
-                        int32_t maxwidth = 0, x = 0, num = 0, diffpt;
+                        num++;
 
-                        while (symb && symb != lastmatch)
+                        if (lastmatch)
                         {
-                            num++;
-
-                            if (lastmatch)
-                            {
-                                diffpt = OSD_FindDiffPoint(symb->name,lastmatch->name);
-                                if (diffpt < commonsize)
-                                    commonsize = diffpt;
-                            }
-
-                            maxwidth = max((unsigned)maxwidth,Bstrlen(symb->name));
-                            lastmatch = symb;
-                            if (!lastmatch->next) break;
-                            symb=findsymbol(osdedittmp, lastmatch->next);
+                            diffpt = OSD_FindDiffPoint(symb->name,lastmatch->name);
+                            if (diffpt < commonsize)
+                                commonsize = diffpt;
                         }
-                        OSD_Printf(OSDTEXT_RED "Found %d possible completions for '%s':\n",num,osdedittmp);
-                        maxwidth += 3;
-                        symb = tabc;
-                        OSD_Printf("  ");
-                        while (symb && (symb != lastmatch))
-                        {
-                            tabc = lastmatch = symb;
-                            OSD_Printf("%-*s",maxwidth,symb->name);
-                            if (!lastmatch->next) break;
-                            symb=findsymbol(osdedittmp, lastmatch->next);
-                            x += maxwidth;
-                            if (x > (osdcols - maxwidth))
-                            {
-                                x = 0;
-                                OSD_Printf("\n");
-                                if (symb && (symb != lastmatch))
-                                    OSD_Printf("  ");
-                            }
-                        }
-                        if (x) OSD_Printf("\n");
-                        OSD_Printf(OSDTEXT_RED "Press TAB again to cycle through matches\n");
+
+                        maxwidth = max((unsigned)maxwidth,Bstrlen(symb->name));
+                        lastmatch = symb;
+                        if (!lastmatch->next) break;
+                        symb=findsymbol(osdedittmp, lastmatch->next);
                     }
+                    OSD_Printf(OSDTEXT_RED "Found %d possible completions for '%s':\n",num,osdedittmp);
+                    maxwidth += 3;
+                    symb = tabc;
+                    OSD_Printf("  ");
+                    while (symb && (symb != lastmatch))
+                    {
+                        tabc = lastmatch = symb;
+                        OSD_Printf("%-*s",maxwidth,symb->name);
+                        if (!lastmatch->next) break;
+                        symb=findsymbol(osdedittmp, lastmatch->next);
+                        x += maxwidth;
+                        if (x > (osdcols - maxwidth))
+                        {
+                            x = 0;
+                            OSD_Printf("\n");
+                            if (symb && (symb != lastmatch))
+                                OSD_Printf("  ");
+                        }
+                    }
+                    if (x) OSD_Printf("\n");
+                    OSD_Printf(OSDTEXT_RED "Press TAB again to cycle through matches\n");
                 }
-            }
-            else
-            {
-                tabc = findsymbol(osdedittmp, lastmatch->next);
-                if (!tabc && lastmatch)
-                    tabc = findsymbol(osdedittmp, NULL);    // wrap */
-            }
-
-            if (tabc)
-            {
-                for (i=osdeditcursor; i>0; i--) if (osdeditbuf[i-1] == ' ') break;
-                osdeditlen = i;
-                for (j=0; tabc->name[j] && osdeditlen <= OSD_EDITLENGTH
-                    && (osdeditlen < commonsize); i++,j++,osdeditlen++)
-                    osdeditbuf[i] = tabc->name[j];
-                osdeditcursor = osdeditlen;
-                osdeditwinend = osdeditcursor;
-                osdeditwinstart = osdeditwinend-editlinewidth;
-                if (osdeditwinstart<0)
-                {
-                    osdeditwinstart=0;
-                    osdeditwinend = editlinewidth;
-                }
-
-                lastmatch = tabc;
             }
         }
-        return 0;
+        else
+        {
+            tabc = findsymbol(osdedittmp, lastmatch->next);
+            if (!tabc && lastmatch)
+                tabc = findsymbol(osdedittmp, NULL);    // wrap */
+        }
+
+        if (tabc)
+        {
+            for (i=osdeditcursor; i>0; i--) if (osdeditbuf[i-1] == ' ') break;
+            osdeditlen = i;
+            for (j=0; tabc->name[j] && osdeditlen <= OSD_EDITLENGTH
+                    && (osdeditlen < commonsize); i++,j++,osdeditlen++)
+                osdeditbuf[i] = tabc->name[j];
+            osdeditcursor = osdeditlen;
+            osdeditwinend = osdeditcursor;
+            osdeditwinstart = osdeditwinend-editlinewidth;
+            if (osdeditwinstart<0)
+            {
+                osdeditwinstart=0;
+                osdeditwinend = editlinewidth;
+            }
+
+            lastmatch = tabc;
+        }
+    }
+    return 0;
     case 11:      // control k, delete all to end of line
         Bmemset(osdeditbuf+osdeditcursor,0,sizeof(osdeditbuf)-osdeditcursor);
         return 0;
@@ -1089,7 +1092,7 @@ int32_t OSD_HandleChar(char ch)
                 osdhistorytotal++;
                 if (osdexeccount == OSD_HISTORYDEPTH)
                     OSD_Printf("Command Buffer Warning: Failed queueing command "
-                    "for execution. Buffer full.\n");
+                               "for execution. Buffer full.\n");
                 else
                     osdexeccount++;
             }
@@ -1097,7 +1100,7 @@ int32_t OSD_HandleChar(char ch)
             {
                 if (osdexeccount == OSD_HISTORYDEPTH)
                     OSD_Printf("Command Buffer Warning: Failed queueing command "
-                    "for execution. Buffer full.\n");
+                               "for execution. Buffer full.\n");
                 else
                     osdexeccount++;
             }
@@ -1478,7 +1481,7 @@ void OSD_Draw(void)
 
         if (osdver[0])
             drawosdstr(osdcols-osdverlen,osdrowscur - (offset >= osdcols-osdverlen),
-            osdver,osdverlen,(sintable[(totalclock<<4)&2047]>>11),osdverpal);
+                       osdver,osdverlen,(sintable[(totalclock<<4)&2047]>>11),osdverpal);
     }
 
     enddrawing();
@@ -1505,11 +1508,6 @@ void OSD_Printf(const char *fmt, ...)
     char *chp, p=osdtextpal, s=osdtextshade;
     va_list va;
 
-/*
-    if ((osdflags & OSD_INITIALIZED) == 0)
-        OSD_Init();
-*/
-
     mutex_lock(&m_osdprintf);
 
     va_start(va, fmt);
@@ -1518,28 +1516,30 @@ void OSD_Printf(const char *fmt, ...)
 
     if (tmpstr[0]=='^' && tmpstr[1]=='1' && tmpstr[2]=='0' && ++OSD_errors > MAX_ERRORS)
     {
-        if (OSD_errors == MAX_ERRORS+1) Bstrcpy(tmpstr,OSD_ERROR "\nToo many errors. Logging errors stopped.\n");
+        if (OSD_errors == MAX_ERRORS + 1)
+            Bstrcpy(tmpstr, OSD_ERROR "\nToo many errors. Logging errors stopped.\n");
         else
         {
-            OSD_errors=MAX_ERRORS+2;
+            OSD_errors = MAX_ERRORS + 2;
             mutex_unlock(&m_osdprintf);
             return;
         }
     }
 
-    if (linecnt<logcutoff)
+    if (linecnt < logcutoff)
     {
-        if (osdlog&&(!logcutoff||linecnt<logcutoff))
+        if (osdlog && (!logcutoff || linecnt < logcutoff))
         {
             chp = Bstrdup(tmpstr);
-            Bfputs(OSD_StripColors(chp,tmpstr), osdlog);
+            Bfputs(OSD_StripColors(chp, tmpstr), osdlog);
+            Bprintf("%s", chp);
             Bfree(chp);
         }
     }
-    else if (linecnt==logcutoff)
+    else if (linecnt == logcutoff)
     {
         Bfputs("\nMaximal log size reached. Logging stopped.\nSet the \"logcutoff\" console variable to a higher value if you need a longer log.\n", osdlog);
-        linecnt=logcutoff+1;
+        linecnt = logcutoff + 1;
     }
 
     chp = tmpstr;
@@ -1552,11 +1552,13 @@ void OSD_Printf(const char *fmt, ...)
             OSD_LineFeed();
             continue;
         }
+
         if (*chp == '\r')
         {
             osdpos=0;
             continue;
         }
+
         if (*chp == '^')
         {
             if (isdigit(*(chp+1)))
@@ -1569,12 +1571,14 @@ void OSD_Printf(const char *fmt, ...)
                     p = atol(smallbuf);
                     continue;
                 }
+
                 smallbuf[0] = *(chp++);
                 smallbuf[1] = *(chp);
                 smallbuf[2] = '\0';
                 p = atol(smallbuf);
                 continue;
             }
+
             if (Btoupper(*(chp+1)) == 'S')
             {
                 chp++;
@@ -1582,6 +1586,7 @@ void OSD_Printf(const char *fmt, ...)
                     s = *chp;
                 continue;
             }
+
             if (Btoupper(*(chp+1)) == 'O')
             {
                 chp++;
@@ -1590,8 +1595,10 @@ void OSD_Printf(const char *fmt, ...)
                 continue;
             }
         }
+
         osdtext[osdpos] = *chp;
         osdfmt[osdpos++] = p+(s<<5);
+
         if (osdpos == osdcols)
         {
             osdpos = 0;
@@ -1766,11 +1773,11 @@ int32_t OSD_Dispatch(const char *cmd)
         ofp.parms    = (const char **)parms;
         ofp.raw      = cmd;
 
-        switch((intptr_t)symb->func)
+        switch ((intptr_t)symb->func)
         {
-        case (intptr_t)OSD_ALIAS:
+        case(intptr_t)OSD_ALIAS:
             OSD_Dispatch(symb->help);
-        case (intptr_t)OSD_UNALIASED:
+        case(intptr_t)OSD_UNALIASED:
             break;
         default:
             switch (symb->func(&ofp))
@@ -1797,7 +1804,7 @@ int32_t OSD_Dispatch(const char *cmd)
 //
 // OSD_RegisterFunction() -- Registers a new function
 //
-int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)(const osdfuncparm_t*))
+int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)(const osdfuncparm_t *))
 {
     symbol_t *symb;
     const char *cp;
@@ -1841,13 +1848,13 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
 
     if (symb) // allow this now for reusing an alias name
     {
-/*
-        if (symb->func != OSD_ALIAS && symb->func != OSD_UNALIASED)
-        {
-            OSD_Printf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
-            return -1;
-        }
-*/
+        /*
+                if (symb->func != OSD_ALIAS && symb->func != OSD_UNALIASED)
+                {
+                    OSD_Printf("OSD_RegisterFunction(): \"%s\" is already defined\n", name);
+                    return -1;
+                }
+        */
 //        Bfree((char *)symb->help);
         symb->help = help;
         symb->func = func;
@@ -1998,7 +2005,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             float val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(float*)cvars[i].var,(char*)cvars[i].helpstr);
+                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(float *)cvars[i].var,(char *)cvars[i].helpstr);
                 return OSDCMD_OK;
             }
 
@@ -2009,7 +2016,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
                 OSD_Printf("%s value out of range\n",cvars[i].name);
                 return OSDCMD_OK;
             }
-            *(float*)cvars[i].var = val;
+            *(float *)cvars[i].var = val;
             if (!OSD_ParsingScript())
                 OSD_Printf("%s %f",cvars[i].name,val);
         }
@@ -2019,7 +2026,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             double val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(double*)cvars[i].var,(char*)cvars[i].helpstr);
+                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(double *)cvars[i].var,(char *)cvars[i].helpstr);
                 return OSDCMD_OK;
             }
 
@@ -2030,7 +2037,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
                 OSD_Printf("%s value out of range\n",cvars[i].name);
                 return OSDCMD_OK;
             }
-            *(double*)cvars[i].var = val;
+            *(double *)cvars[i].var = val;
             if (!OSD_ParsingScript())
                 OSD_Printf("%s %f",cvars[i].name,val);
         }
@@ -2042,7 +2049,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             int32_t val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].name,*(int32_t*)cvars[i].var,(char*)cvars[i].helpstr);
+                OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].name,*(int32_t *)cvars[i].var,(char *)cvars[i].helpstr);
                 return OSDCMD_OK;
             }
 
@@ -2054,7 +2061,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
                 OSD_Printf("%s value out of range\n",cvars[i].name);
                 return OSDCMD_OK;
             }
-            *(int32_t*)cvars[i].var = val;
+            *(int32_t *)cvars[i].var = val;
             if (!OSD_ParsingScript())
                 OSD_Printf("%s %d",cvars[i].name,val);
         }
@@ -2063,14 +2070,14 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         {
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].name,(char*)cvars[i].var,(char*)cvars[i].helpstr);
+                OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].name,(char *)cvars[i].var,(char *)cvars[i].helpstr);
                 return OSDCMD_OK;
             }
 
-            Bstrncpy((char*)cvars[i].var, parm->parms[0], cvars[i].max-1);
-            ((char*)cvars[i].var)[cvars[i].max-1] = 0;
+            Bstrncpy((char *)cvars[i].var, parm->parms[0], cvars[i].max-1);
+            ((char *)cvars[i].var)[cvars[i].max-1] = 0;
             if (!OSD_ParsingScript())
-                OSD_Printf("%s %s",cvars[i].name,(char*)cvars[i].var);
+                OSD_Printf("%s %s",cvars[i].name,(char *)cvars[i].var);
         }
         break;
         default:
@@ -2095,12 +2102,12 @@ void OSD_WriteCvars(FILE *fp)
     {
         if (!(cvars[i].type & CVAR_NOSAVE) && OSD_CvarModified(&cvars[i]))
             switch (cvars[i].type&(CVAR_FLOAT|CVAR_DOUBLE|CVAR_INT|CVAR_UINT|CVAR_BOOL|CVAR_STRING))
-        {
+            {
             case CVAR_FLOAT:
-                fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(float*)cvars[i].var);
+                fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(float *)cvars[i].var);
                 break;
             case CVAR_DOUBLE:
-                fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(double*)cvars[i].var);
+                fprintf(fp,"%s \"%f\"\n",cvars[i].name,*(double *)cvars[i].var);
                 break;
             case CVAR_INT:
             case CVAR_UINT:
@@ -2108,11 +2115,11 @@ void OSD_WriteCvars(FILE *fp)
                 fprintf(fp,"%s \"%d\"\n",cvars[i].name,*(int32_t *)cvars[i].var);
                 break;
             case CVAR_STRING:
-                fprintf(fp,"%s \"%s\"\n",cvars[i].name,(char*)cvars[i].var);
+                fprintf(fp,"%s \"%s\"\n",cvars[i].name,(char *)cvars[i].var);
                 break;
             default:
                 break;
-        }
+            }
     }
 }
 

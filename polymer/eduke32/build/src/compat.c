@@ -119,47 +119,47 @@ int32_t Blseek(int32_t fildes, int32_t offset, int32_t whence)
 
 BFILE *Bfopen(const char *path, const char *mode)
 {
-    return (BFILE*)fopen(path,mode);
+    return (BFILE *)fopen(path,mode);
 }
 
 int32_t Bfclose(BFILE *stream)
 {
-    return fclose((FILE*)stream);
+    return fclose((FILE *)stream);
 }
 
 void Brewind(BFILE *stream)
 {
-    rewind((FILE*)stream);
+    rewind((FILE *)stream);
 }
 
 int32_t Bfgetc(BFILE *stream)
 {
-    return fgetc((FILE*)stream);
+    return fgetc((FILE *)stream);
 }
 
 char *Bfgets(char *s, int32_t size, BFILE *stream)
 {
-    return fgets(s,size,(FILE*)stream);
+    return fgets(s,size,(FILE *)stream);
 }
 
 int32_t Bfputc(int32_t c, BFILE *stream)
 {
-    return fputc(c,(FILE*)stream);
+    return fputc(c,(FILE *)stream);
 }
 
 int32_t Bfputs(const char *s, BFILE *stream)
 {
-    return fputs(s,(FILE*)stream);
+    return fputs(s,(FILE *)stream);
 }
 
 bsize_t Bfread(void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream)
 {
-    return fread(ptr,size,nmemb,(FILE*)stream);
+    return fread(ptr,size,nmemb,(FILE *)stream);
 }
 
 bsize_t Bfwrite(const void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream)
 {
-    return fwrite(ptr,size,nmemb,(FILE*)stream);
+    return fwrite(ptr,size,nmemb,(FILE *)stream);
 }
 
 
@@ -387,7 +387,7 @@ char *Bgethomedir(void)
     str = CFURLCopyFileSystemPath(base, kCFURLPOSIXPathStyle);
     CFRelease(base);
     if (!str) return NULL;
-    s = (char*)CFStringGetCStringPtr(str,CFStringGetSystemEncoding());
+    s = (char *)CFStringGetCStringPtr(str,CFStringGetSystemEncoding());
     if (s) s = Bstrdup(s);
     CFRelease(str);
     return s;
@@ -417,7 +417,7 @@ char *Bgetsupportdir(int32_t global)
     str = CFURLCopyFileSystemPath(base, kCFURLPOSIXPathStyle);
     CFRelease(base);
     if (!str) return NULL;
-    s = (char*)CFStringGetCStringPtr(str,CFStringGetSystemEncoding());
+    s = (char *)CFStringGetCStringPtr(str,CFStringGetSystemEncoding());
     if (s) s = Bstrdup(s);
     CFRelease(str);
     return s;
@@ -585,16 +585,16 @@ typedef struct
     char name[1];
 } BDIR_real;
 
-BDIR* Bopendir(const char *name)
+BDIR *Bopendir(const char *name)
 {
     BDIR_real *dirr;
 #ifdef _MSC_VER
     char *t,*tt;
-    t = (char*)Bmalloc(strlen(name)+1+4);
+    t = (char *)Bmalloc(strlen(name)+1+4);
     if (!t) return NULL;
 #endif
 
-    dirr = (BDIR_real*)Bmalloc(sizeof(BDIR_real) + strlen(name));
+    dirr = (BDIR_real *)Bmalloc(sizeof(BDIR_real) + strlen(name));
     if (!dirr)
     {
 #ifdef _MSC_VER
@@ -632,12 +632,12 @@ BDIR* Bopendir(const char *name)
     dirr->status = 0;
     strcpy(dirr->name, name);
 
-    return (BDIR*)dirr;
+    return (BDIR *)dirr;
 }
 
-struct Bdirent*	Breaddir(BDIR *dir)
+struct Bdirent	*Breaddir(BDIR *dir)
 {
-    BDIR_real *dirr = (BDIR_real*)dir;
+    BDIR_real *dirr = (BDIR_real *)dir;
     struct dirent *de;
     struct stat st;
     char *fn;
@@ -694,7 +694,7 @@ struct Bdirent*	Breaddir(BDIR *dir)
 
 int32_t Bclosedir(BDIR *dir)
 {
-    BDIR_real *dirr = (BDIR_real*)dir;
+    BDIR_real *dirr = (BDIR_real *)dir;
 
 #ifdef _MSC_VER
     _findclose(dirr->dir);
@@ -795,10 +795,10 @@ uint32_t Bgetsysmemsize(void)
 #ifdef _WIN32
     uint32_t siz = UINT_MAX;
     HMODULE lib = LoadLibrary("KERNEL32.DLL");
-    
+
     if (lib)
     {
-         BOOL (WINAPI *aGlobalMemoryStatusEx)(LPMEMORYSTATUSEX) =
+        BOOL (WINAPI *aGlobalMemoryStatusEx)(LPMEMORYSTATUSEX) =
             (void *)GetProcAddress(lib, "GlobalMemoryStatusEx");
 
         if (aGlobalMemoryStatusEx)
@@ -811,7 +811,7 @@ uint32_t Bgetsysmemsize(void)
         }
         else
         {
-            // Yeah, there's enough Win9x hatred here that a perfectly good workaround 
+            // Yeah, there's enough Win9x hatred here that a perfectly good workaround
             // has been replaced by an error message.  Oh well, we don't support 9x anyway.
             initprintf("Bgetsysmemsize(): error determining system memory size!\n");
         }

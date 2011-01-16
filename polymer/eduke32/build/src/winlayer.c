@@ -69,8 +69,8 @@ char forcegl=0;
 #endif
 
 static LPTSTR GetWindowsErrorMsg(DWORD code);
-static const char * GetDDrawError(HRESULT code);
-static const char * GetDInputError(HRESULT code);
+static const char *GetDDrawError(HRESULT code);
+static const char *GetDInputError(HRESULT code);
 static void ShowErrorBox(const char *m);
 static void ShowDDrawErrorBox(const char *m, HRESULT r);
 static void ShowDInputErrorBox(const char *m, HRESULT r);
@@ -441,7 +441,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         }
         *wp = 0;
 
-        _buildargv = (const char**)Bmalloc(sizeof(char*)*_buildargc);
+        _buildargv = (const char **)Bmalloc(sizeof(char *)*_buildargc);
         wp = argvbuf;
         for (i=0; i<_buildargc; i++,wp++)
         {
@@ -586,7 +586,7 @@ static void win_printversion(void)
     }
 
     initprintf("Windows %s (build %lu.%lu.%lu) %s", ver,
-        osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber, osv.szCSDVersion);
+               osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber, osv.szCSDVersion);
 
 #ifdef NEDMALLOC
     initprintf("\n");
@@ -754,7 +754,7 @@ int32_t handleevents(void)
             continue;
         }
 
-        if (startwin_idle((void*)&msg) > 0) continue;
+        if (startwin_idle((void *)&msg) > 0) continue;
 
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -1010,7 +1010,7 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
 
 static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddoi, LPVOID pvRef)
 {
-    int32_t *typecounts = (int32_t*)pvRef;
+    int32_t *typecounts = (int32_t *)pvRef;
 
     if (lpddoi->dwType & DIDFT_AXIS)
     {
@@ -1183,17 +1183,17 @@ static void UninitDirectInput(void)
 
     if (axisdefs)
     {
-        for (i=joynumaxes-1; i>=0; i--) if (axisdefs[i].name) Bfree((void*)axisdefs[i].name);
+        for (i=joynumaxes-1; i>=0; i--) if (axisdefs[i].name) Bfree((void *)axisdefs[i].name);
         Bfree(axisdefs); axisdefs = NULL;
     }
     if (buttondefs)
     {
-        for (i=joynumbuttons-1; i>=0; i--) if (buttondefs[i].name) Bfree((void*)buttondefs[i].name);
+        for (i=joynumbuttons-1; i>=0; i--) if (buttondefs[i].name) Bfree((void *)buttondefs[i].name);
         Bfree(buttondefs); buttondefs = NULL;
     }
     if (hatdefs)
     {
-        for (i=joynumhats-1; i>=0; i--) if (hatdefs[i].name) Bfree((void*)hatdefs[i].name);
+        for (i=joynumhats-1; i>=0; i--) if (hatdefs[i].name) Bfree((void *)hatdefs[i].name);
         Bfree(hatdefs); hatdefs = NULL;
     }
 
@@ -1396,7 +1396,7 @@ static void ShowDInputErrorBox(const char *m, HRESULT r)
 // GetDInputError() -- stinking huge list of error messages since MS didn't want to include
 //   them in the DLL
 //
-static const char * GetDInputError(HRESULT code)
+static const char *GetDInputError(HRESULT code)
 {
     switch (code)
     {
@@ -1514,14 +1514,14 @@ int32_t inittimer(int32_t tickspersecond)
     // OpenWatcom seems to want us to query the value into a local variable
     // instead of the global 'timerfreq' or else it gets pissed with an
     // access violation
-    if (!QueryPerformanceFrequency((LARGE_INTEGER*)&t))
+    if (!QueryPerformanceFrequency((LARGE_INTEGER *)&t))
     {
         ShowErrorBox("Failed fetching timer frequency");
         return -1;
     }
     timerfreq = t;
     timerticspersec = tickspersecond;
-    QueryPerformanceCounter((LARGE_INTEGER*)&t);
+    QueryPerformanceCounter((LARGE_INTEGER *)&t);
     timerlastsample = (int32_t)(t*timerticspersec / timerfreq);
 
     usertimercallback = NULL;
@@ -1550,7 +1550,7 @@ inline void sampletimer(void)
 
     if (!timerfreq) return;
 
-    QueryPerformanceCounter((LARGE_INTEGER*)&i);
+    QueryPerformanceCounter((LARGE_INTEGER *)&i);
     n = (int32_t)((i*timerticspersec / timerfreq) - timerlastsample);
 
     if (n <= 0) return;
@@ -1569,7 +1569,7 @@ uint32_t getticks(void)
 {
     int64_t i;
     if (timerfreq == 0) return 0;
-    QueryPerformanceCounter((LARGE_INTEGER*)&i);
+    QueryPerformanceCounter((LARGE_INTEGER *)&i);
     return (uint32_t)(i*longlong(1000)/timerfreq);
 }
 
@@ -1594,7 +1594,7 @@ static HMODULE              hDDrawDLL      = NULL;
 static LPDIRECTDRAW         lpDD           = NULL;
 static LPDIRECTDRAWSURFACE  lpDDSPrimary   = NULL;
 static LPDIRECTDRAWSURFACE  lpDDSBack      = NULL;
-static char *               lpOffscreen = NULL;
+static char                *lpOffscreen = NULL;
 static LPDIRECTDRAWPALETTE  lpDDPalette = NULL;
 static BOOL                 bDDrawInited = FALSE;
 static DWORD                DDdwCaps = 0, DDdwCaps2 = 0;
@@ -1909,7 +1909,7 @@ void getvalidmodes(void)
             ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],0,-1)
         }
 
-    qsort((void*)validmode, validmodecnt, sizeof(struct validmode_t), (int32_t(*)(const void*,const void*))sortmodes);
+    qsort((void *)validmode, validmodecnt, sizeof(struct validmode_t), (int32_t( *)(const void *,const void *))sortmodes);
 
     modeschecked=1;
 }
@@ -2889,7 +2889,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         // process the extensions string and flag stuff we recognize
         p = (GLubyte *)Bstrdup(glinfo.extensions);
         p3 = p;
-        while ((p2 = (GLubyte *)Bstrtoken(p3==p?(char *)p:NULL, " ", (char**)&p3, 1)) != NULL)
+        while ((p2 = (GLubyte *)Bstrtoken(p3==p?(char *)p:NULL, " ", (char **)&p3, 1)) != NULL)
         {
             if (!Bstrcmp((char *)p2, "GL_EXT_texture_filter_anisotropic"))
             {
@@ -3285,7 +3285,7 @@ static void ShowDDrawErrorBox(const char *m, HRESULT r)
 // GetDDrawError() -- stinking huge list of error messages since MS didn't want to include
 //   them in the DLL
 //
-static const char * GetDDrawError(HRESULT code)
+static const char *GetDDrawError(HRESULT code)
 {
     switch (code)
     {

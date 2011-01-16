@@ -59,8 +59,8 @@ static int32_t maxmodeltris = 0, allocmodeltris = 0;
 static point3d *vertlist = NULL; //temp array to store interpolated vertices for drawing
 
 static int32_t allocvbos = 0, curvbo = 0;
-static GLuint* vertvbos = NULL;
-static GLuint* indexvbos = NULL;
+static GLuint *vertvbos = NULL;
+static GLuint *indexvbos = NULL;
 
 mdmodel_t *mdload(const char *);
 int32_t mddraw(spritetype *);
@@ -118,13 +118,13 @@ void freeallmodels()
     }
     freevbos();
 
-/*
-    if (model_data_pool)
-    {
-        neddestroypool(model_data_pool);
-        model_data_pool = NULL;
-    }
-*/
+    /*
+        if (model_data_pool)
+        {
+            neddestroypool(model_data_pool);
+            model_data_pool = NULL;
+        }
+    */
 }
 
 void clearskins()
@@ -137,27 +137,27 @@ void clearskins()
         m = models[i];
         if (m->mdnum == 1)
         {
-            voxmodel_t *v = (voxmodel_t*)m;
+            voxmodel_t *v = (voxmodel_t *)m;
             for (j=0; j<MAXPALOOKUPS; j++)
             {
-                if (v->texid[j]) bglDeleteTextures(1,(GLuint*)&v->texid[j]);
+                if (v->texid[j]) bglDeleteTextures(1,(GLuint *)&v->texid[j]);
                 v->texid[j] = 0;
             }
         }
         else if (m->mdnum == 2 || m->mdnum == 3)
         {
-            md2model_t *m2 = (md2model_t*)m;
+            md2model_t *m2 = (md2model_t *)m;
             mdskinmap_t *sk;
             for (j=0; j<m2->numskins*(HICEFFECTMASK+1); j++)
             {
-                if (m2->texid[j]) bglDeleteTextures(1,(GLuint*)&m2->texid[j]);
+                if (m2->texid[j]) bglDeleteTextures(1,(GLuint *)&m2->texid[j]);
                 m2->texid[j] = 0;
             }
 
             for (sk=m2->skinmap; sk; sk=sk->next)
                 for (j=0; j<(HICEFFECTMASK+1); j++)
                 {
-                    if (sk->texid[j]) bglDeleteTextures(1,(GLuint*)&sk->texid[j]);
+                    if (sk->texid[j]) bglDeleteTextures(1,(GLuint *)&sk->texid[j]);
                     sk->texid[j] = 0;
                 }
         }
@@ -165,10 +165,10 @@ void clearskins()
 
     for (i=0; i<MAXVOXELS; i++)
     {
-        voxmodel_t *v = (voxmodel_t*)voxmodels[i]; if (!v) continue;
+        voxmodel_t *v = (voxmodel_t *)voxmodels[i]; if (!v) continue;
         for (j=0; j<MAXPALOOKUPS; j++)
         {
-            if (v->texid[j]) bglDeleteTextures(1,(GLuint*)&v->texid[j]);
+            if (v->texid[j]) bglDeleteTextures(1,(GLuint *)&v->texid[j]);
             v->texid[j] = 0;
         }
     }
@@ -191,7 +191,7 @@ int32_t md_loadmodel(const char *fn)
 
     if (nextmodelid >= nummodelsalloced)
     {
-        ml = (mdmodel_t **)Brealloc(models,(nummodelsalloced+MODELALLOCGROUP)*sizeof(void*)); if (!ml) return(-1);
+        ml = (mdmodel_t **)Brealloc(models,(nummodelsalloced+MODELALLOCGROUP)*sizeof(void *)); if (!ml) return(-1);
         models = ml; nummodelsalloced += MODELALLOCGROUP;
     }
 
@@ -272,7 +272,7 @@ int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
         return 0;
     }
 
-    i = framename2index((mdmodel_t*)m,framename);
+    i = framename2index((mdmodel_t *)m,framename);
     if (i == m->numframes) return(-3);   // frame name invalid
 
     tile2model[tilenume].modelid = modelid;
@@ -298,19 +298,19 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
     if (m->mdnum < 2) return 0;
 
     //find index of start frame
-    i = framename2index((mdmodel_t*)m,framestart);
+    i = framename2index((mdmodel_t *)m,framestart);
     if (i == m->numframes) return -2;
     ma.startframe = i;
 
     //find index of finish frame which must trail start frame
-    i = framename2index((mdmodel_t*)m,frameend);
+    i = framename2index((mdmodel_t *)m,frameend);
     if (i == m->numframes) return -3;
     ma.endframe = i;
 
     ma.fpssc = fpssc;
     ma.flags = flags;
 
-    map = (mdanim_t*)Bcalloc(1,sizeof(mdanim_t));
+    map = (mdanim_t *)Bcalloc(1,sizeof(mdanim_t));
     if (!map) return(-4);
     Bmemcpy(map, &ma, sizeof(ma));
 
@@ -576,7 +576,7 @@ int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, 
         Blseek(cachefilehandle, cachepos, BSEEK_SET);
         if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader))
         {
-            cachepos += sizeof(texcacheheader); 
+            cachepos += sizeof(texcacheheader);
             err = 1;
             goto failure;
         }
@@ -789,15 +789,15 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         willprint = 1;
 
         if (pal < (MAXPALOOKUPS - RESERVEDPALS)) m->usesalpha = hasalpha;
-        if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)texidx);
+        if ((doalloc&3)==1) bglGenTextures(1,(GLuint *)texidx);
         bglBindTexture(GL_TEXTURE_2D,*texidx);
 
         //gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA,xsiz,ysiz,GL_BGRA_EXT,GL_UNSIGNED_BYTE,(char *)fptr);
         if (glinfo.texcompr && glusetexcompr) intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
         else if (!hasalpha) intexfmt = GL_RGB;
         if (glinfo.bgra) texfmt = GL_BGRA;
-        uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype*)fptr, xsiz, ysiz, 0|8192);
-        Bfree((void*)fptr);
+        uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype *)fptr, xsiz, ysiz, 0|8192);
+        Bfree((void *)fptr);
     }
 
     if (!m->skinloaded)
@@ -1088,20 +1088,20 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
         {
             m->glcmds[i] = B_LITTLE32(m->glcmds[i]);
         }
-	for (i = head.numtris-1; i>=0; i--)
-	{
-		m->tris[i].v[0] = B_LITTLE16(m->tris[i].v[0]);
-		m->tris[i].v[1] = B_LITTLE16(m->tris[i].v[1]);
-		m->tris[i].v[2] = B_LITTLE16(m->tris[i].v[2]);
-		m->tris[i].u[0] = B_LITTLE16(m->tris[i].u[0]);
-		m->tris[i].u[1] = B_LITTLE16(m->tris[i].u[1]);
-		m->tris[i].u[2] = B_LITTLE16(m->tris[i].u[2]);
-	}
-	for(i = head.numuv-1; i>=0; i--)
-	{
-		m->uv[i].u = B_LITTLE16(m->uv[i].u);
-		m->uv[i].v = B_LITTLE16(m->uv[i].v);
-	}
+        for (i = head.numtris-1; i>=0; i--)
+        {
+            m->tris[i].v[0] = B_LITTLE16(m->tris[i].v[0]);
+            m->tris[i].v[1] = B_LITTLE16(m->tris[i].v[1]);
+            m->tris[i].v[2] = B_LITTLE16(m->tris[i].v[2]);
+            m->tris[i].u[0] = B_LITTLE16(m->tris[i].u[0]);
+            m->tris[i].u[1] = B_LITTLE16(m->tris[i].u[1]);
+            m->tris[i].u[2] = B_LITTLE16(m->tris[i].u[2]);
+        }
+        for (i = head.numuv-1; i>=0; i--)
+        {
+            m->uv[i].u = B_LITTLE16(m->uv[i].u);
+            m->uv[i].v = B_LITTLE16(m->uv[i].v);
+        }
     }
 #endif
 
@@ -1408,8 +1408,8 @@ static md3model_t *md3load(int32_t fil)
             if (m->head.tags) Bfree(m->head.tags); Bfree(m->head.frames); Bfree(m); return(0);
         }
         s->shaders = (md3shader_t *)(((intptr_t)s->tris)+leng[0]);
-        s->uv      = (md3uv_t     *)(((intptr_t)s->shaders)+leng[1]);
-        s->xyzn    = (md3xyzn_t   *)(((intptr_t)s->uv)+leng[2]);
+        s->uv      = (md3uv_t *)(((intptr_t)s->shaders)+leng[1]);
+        s->xyzn    = (md3xyzn_t *)(((intptr_t)s->uv)+leng[2]);
 
         klseek(fil,offs[0],SEEK_SET); kread(fil,s->tris   ,leng[0]);
         klseek(fil,offs[1],SEEK_SET); kread(fil,s->shaders,leng[1]);
@@ -1430,7 +1430,7 @@ static md3model_t *md3load(int32_t fil)
             }
             for (i=s->numverts-1; i>=0; i--)
             {
-                l = (int32_t*)&s->uv[i].u;
+                l = (int32_t *)&s->uv[i].u;
                 l[0] = B_LITTLE32(l[0]);
                 l[1] = B_LITTLE32(l[1]);
             }
@@ -1490,7 +1490,7 @@ static md3model_t *md3load(int32_t fil)
     return(m);
 }
 
-static inline void  invertmatrix(float* m, float* out)
+static inline void  invertmatrix(float *m, float *out)
 {
     float det;
 
@@ -1513,7 +1513,7 @@ static inline void  invertmatrix(float* m, float* out)
     out[8] = det * (m[0] * m[4] - m[1] * m[3]);
 }
 
-static inline void  normalize(float* vec)
+static inline void  normalize(float *vec)
 {
     double norm;
 
@@ -1526,7 +1526,7 @@ static inline void  normalize(float* vec)
     vec[2] *= norm;
 }
 
-static void      md3postload_common(md3model_t* m)
+static void      md3postload_common(md3model_t *m)
 {
     int         framei, surfi, verti;
     md3frame_t  *frame;
@@ -1643,8 +1643,9 @@ static int md3postload_polymer_check(md3model_t *m)
         {
             // let the vertices know they're being referenced by a triangle
             if (s->tris[trii].i[0] >= s->numverts || s->tris[trii].i[0] < 0 ||
-                s->tris[trii].i[1] >= s->numverts || s->tris[trii].i[1] < 0 ||
-                s->tris[trii].i[2] >= s->numverts || s->tris[trii].i[2] < 0) {
+                    s->tris[trii].i[1] >= s->numverts || s->tris[trii].i[1] < 0 ||
+                    s->tris[trii].i[2] >= s->numverts || s->tris[trii].i[2] < 0)
+            {
                 // corrupt model
                 OSD_Printf("Triangle index out of bounds!\n");
                 return 0;
@@ -1660,7 +1661,7 @@ static int md3postload_polymer_check(md3model_t *m)
 }
 #endif
 
-int      md3postload_polymer(md3model_t* m)
+int      md3postload_polymer(md3model_t *m)
 {
 #ifdef POLYMER
     int         framei, surfi, verti, trii, i;
@@ -1710,8 +1711,9 @@ int      md3postload_polymer(md3model_t* m)
         {
             // let the vertices know they're being referenced by a triangle
             if (s->tris[trii].i[0] >= s->numverts || s->tris[trii].i[0] < 0 ||
-                s->tris[trii].i[1] >= s->numverts || s->tris[trii].i[1] < 0 ||
-                s->tris[trii].i[2] >= s->numverts || s->tris[trii].i[2] < 0) {
+                    s->tris[trii].i[1] >= s->numverts || s->tris[trii].i[1] < 0 ||
+                    s->tris[trii].i[2] >= s->numverts || s->tris[trii].i[2] < 0)
+            {
                 // corrupt model
                 Bfree(numtris);
                 OSD_Printf("Triangle index out of bounds!\n");
@@ -1724,20 +1726,20 @@ int      md3postload_polymer(md3model_t* m)
             framei = 0;
             while (framei < m->head.numframes)
             {
-                vec1[0] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 0] - 
+                vec1[0] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 0] -
                           s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[0] * 15) + 0];
-                vec1[1] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 1] - 
+                vec1[1] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 1] -
                           s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[0] * 15) + 1];
-                vec1[2] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 2] - 
+                vec1[2] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 2] -
                           s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[0] * 15) + 2];
                 vec1[3] = s->uv[s->tris[trii].i[1]].u - s->uv[s->tris[trii].i[0]].u;
                 vec1[4] = s->uv[s->tris[trii].i[1]].v - s->uv[s->tris[trii].i[0]].v;
 
-                vec2[0] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 0] - 
+                vec2[0] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 0] -
                           s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 0];
-                vec2[1] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 1] - 
+                vec2[1] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 1] -
                           s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 1];
-                vec2[2] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 2] - 
+                vec2[2] = s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[2] * 15) + 2] -
                           s->geometry[(framei * s->numverts * 15) + (s->tris[trii].i[1] * 15) + 2];
                 vec2[3] = s->uv[s->tris[trii].i[2]].u - s->uv[s->tris[trii].i[1]].u;
                 vec2[4] = s->uv[s->tris[trii].i[2]].v - s->uv[s->tris[trii].i[1]].v;
@@ -1816,9 +1818,9 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
     int32_t                 texunits = GL_TEXTURE0_ARB;
     mdskinmap_t *sk;
     //PLAG : sorting stuff
-    void*               vbotemp;
-    point3d*            vertexhandle = NULL;
-    uint16_t*     indexhandle;
+    void               *vbotemp;
+    point3d            *vertexhandle = NULL;
+    uint16_t     *indexhandle;
     char lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
     if (r_vbos && (m->vbos == NULL))
@@ -2406,7 +2408,7 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
 
     pic = (coltype *)picbuf; //Correct for GL's RGB order; also apply gamma here..
     pic2 = (coltype *)Bmalloc(xsiz*ysiz*sizeof(int32_t)); if (!pic2) return((unsigned)-1);
-    cptr = (char*)&britable[gammabrightness ? 0 : curbrightness][0];
+    cptr = (char *)&britable[gammabrightness ? 0 : curbrightness][0];
     if (!is8bit)
     {
         for (i=xsiz*ysiz-1; i>=0; i--)
@@ -2429,7 +2431,7 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
         }
     }
 
-    bglGenTextures(1,(GLuint*)&rtexid);
+    bglGenTextures(1,(GLuint *)&rtexid);
     bglBindTexture(GL_TEXTURE_2D,rtexid);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -3208,7 +3210,7 @@ mdmodel_t *mdload(const char *filnam)
     int32_t fil;
     int32_t i;
 
-    vm = (mdmodel_t*)voxload(filnam); if (vm) return(vm);
+    vm = (mdmodel_t *)voxload(filnam); if (vm) return(vm);
 
     fil = kopen4load((char *)filnam,0); if (fil < 0) return(0);
     kread(fil,&i,4); klseek(fil,0,SEEK_SET);
@@ -3217,30 +3219,30 @@ mdmodel_t *mdload(const char *filnam)
     {
     case 0x32504449:
 //        initprintf("Warning: model '%s' is version IDP2; wanted version IDP3\n",filnam);
-        vm = (mdmodel_t*)md2load(fil,filnam);
+        vm = (mdmodel_t *)md2load(fil,filnam);
         break; //IDP2
     case 0x33504449:
-        vm = (mdmodel_t*)md3load(fil);
+        vm = (mdmodel_t *)md3load(fil);
         break; //IDP3
     default:
-        vm = (mdmodel_t*)0; break;
+        vm = (mdmodel_t *)0; break;
     }
     kclose(fil);
 
     if (vm)
     {
-        md3postload_common((md3model_t*)vm);
+        md3postload_common((md3model_t *)vm);
 #ifdef POLYMER
 // implies defined(POLYMOST) && defined(USE_OPENGL)?
         if (glrendmode==4)
-            i = md3postload_polymer((md3model_t*)vm);
+            i = md3postload_polymer((md3model_t *)vm);
         else
-            i = md3postload_polymer_check((md3model_t*)vm);
+            i = md3postload_polymer_check((md3model_t *)vm);
 
         if (!i)
         {
             mdfree(vm);
-            vm = (mdmodel_t*)0;
+            vm = (mdmodel_t *)0;
         }
 #endif
     }

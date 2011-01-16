@@ -18,10 +18,10 @@ extern void SetKey(int32_t key, int32_t state);
 #define MASK_UP (MASK_DOWN<<1)
 #define MouseWheelFakePressTime 50
 #ifndef GET_RAWINPUT_CODE_WPARAM
-    #define GET_RAWINPUT_CODE_WPARAM(wParam)    ((wParam) & 0xff)
+#define GET_RAWINPUT_CODE_WPARAM(wParam)    ((wParam) & 0xff)
 #endif
 
-static inline void RI_ProcessMouse(const RAWMOUSE* rmouse)
+static inline void RI_ProcessMouse(const RAWMOUSE *rmouse)
 {
     int32_t i, mask;
 
@@ -77,11 +77,11 @@ static inline void RI_ProcessMouse(const RAWMOUSE* rmouse)
     }
 }
 
-static inline void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
+static inline void RI_ProcessKeyboard(const RAWKEYBOARD *rkbd)
 {
     uint8_t key = rkbd->MakeCode, VKey = rkbd->VKey;
 
-    // for some reason rkbd->MakeCode is wrong for these 
+    // for some reason rkbd->MakeCode is wrong for these
     // even though rkbd->VKey is right...
 
     switch (VKey)
@@ -110,7 +110,7 @@ static inline void RI_ProcessKeyboard(const RAWKEYBOARD* rkbd)
         else VKey = VK_NUMPAD6, key = sc_kpad_6; break;
     case VK_DIVIDE:
 //        if (rkbd->Flags & RI_KEY_E0) key = sc_Slash;
-//        else 
+//        else
         key = sc_kpad_Slash;
         break;
     case VK_INSERT:
@@ -262,7 +262,7 @@ void grabmouse(char a)
 {
     static POINT pos;
     static int32_t d = 0;
-     
+
     if (!moustat) return;
 
     if (!mousegrab || !d)

@@ -300,10 +300,10 @@ pthtyp *gltexcachead[GLTEXCACHEADSIZ];
 
 int32_t drawingskybox = 0;
 
-int32_t gloadtile_art(int32_t,int32_t,int32_t,pthtyp*,int32_t);
-int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp*,int32_t,pthtyp*,int32_t,char);
+int32_t gloadtile_art(int32_t,int32_t,int32_t,pthtyp *,int32_t);
+int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t,char);
 static int32_t hicprecaching = 0;
-pthtyp * gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
+pthtyp *gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 {
     int32_t i, j;
     hicreplctyp *si;
@@ -645,8 +645,8 @@ void polymost_glreset()
                     cacheptrs[ii] = NULL;
                 }
 
-                Bfree(cacheptrs[i]);
-                cacheptrs[i] = NULL;
+            Bfree(cacheptrs[i]);
+            cacheptrs[i] = NULL;
         }
 
     polymost_cachesync();
@@ -1199,7 +1199,7 @@ int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth,
         }
     }
 
-    if (doalloc) bglGenTextures(1,(GLuint*)&pth->glpic);  //# of textures (make OpenGL allocate structure)
+    if (doalloc) bglGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
     bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
     fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
@@ -1365,7 +1365,7 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
         Blseek(cachefilehandle, cachepos, BSEEK_SET);
         if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader))
         {
-            cachepos += sizeof(texcacheheader); 
+            cachepos += sizeof(texcacheheader);
             err = 1;
             goto failure;
         }
@@ -1558,7 +1558,7 @@ int32_t gloadtile_cached(int32_t fil, texcacheheader *head, int32_t *doalloc, pt
 
     if (*doalloc&1)
     {
-        bglGenTextures(1,(GLuint*)&pth->glpic);  //# of textures (make OpenGL allocate structure)
+        bglGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
         *doalloc |= 2;   // prevents bglGenTextures being called again if we fail in here
     }
     bglBindTexture(GL_TEXTURE_2D,pth->glpic);
@@ -1829,7 +1829,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             intexfmt = (hasalpha == 255) ? GL_COMPRESSED_RGB_ARB : GL_COMPRESSED_RGBA_ARB;
         else if (hasalpha == 255) intexfmt = GL_RGB;
 
-        if ((doalloc&3)==1) bglGenTextures(1,(GLuint*)&pth->glpic);  //# of textures (make OpenGL allocate structure)
+        if ((doalloc&3)==1) bglGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
         bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
         fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
@@ -2897,7 +2897,7 @@ void domost(float x0, float y0, float x1, float y1)
         {
             d = (y0-y1)*dx - (x0-x1)*cv[j];
             n = (y0-cy[j])*dx - (x0-nx0)*cv[j];
-            if ((fabs(n) <= fabs(d)) && (d*n >= 0) && (d != 0))
+            if ((fabs(n) <= fabs(d)) && (d *n >= 0) && (d != 0))
             {
                 t = n/d; nx = (x1-x0)*t + x0;
                 if ((nx > nx0) && (nx < nx1))
@@ -4168,7 +4168,7 @@ static void polymost_scansector(int32_t sectnum)
             if ((nextsectnum >= 0) && (!(wal->cstat&32)) && (!(gotsector[nextsectnum>>3]&pow2char[nextsectnum&7])))
             {
                 d = (double)x1*(double)y2 - (double)x2*(double)y1; xp1 = (double)(x2-x1); yp1 = (double)(y2-y1);
-                if (d*d <= (xp1*xp1 + yp1*yp1)*(SCISDIST*SCISDIST*260.0))
+                if (d *d <= (xp1*xp1 + yp1*yp1)*(SCISDIST*SCISDIST*260.0))
                     sectorborder[sectorbordercnt++] = nextsectnum;
             }
 
@@ -4380,7 +4380,7 @@ void polymost_drawrooms()
 
         hitallsprites = 1;
         hitscan((const vec3_t *)&vect,globalcursectnum, //Start position
-            vx>>10,vy>>10,vz>>6,&hitinfo,0xffff0030);
+                vx>>10,vy>>10,vz>>6,&hitinfo,0xffff0030);
 
         if (hitinfo.hitsect != -1) // if hitsect is -1, hitscan overflowed somewhere
         {
@@ -5303,15 +5303,18 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             tspr.ang = hudmem[(dastat&4)>>2][picnum].angadd+globalang;
 
             if (dastat&4) { x1 = -x1; y1 = -y1; }
-            
+
             // In Polymost, we don't care if the model is very big
-            if (rendmode < 4) {
+            if (rendmode < 4)
+            {
                 tspr.xrepeat = tspr.yrepeat = 32;
 
                 tspr.x = (int32_t)(((double)gcosang*z1 - (double)gsinang*x1)*16384.0 + globalposx);
                 tspr.y = (int32_t)(((double)gsinang*z1 + (double)gcosang*x1)*16384.0 + globalposy);
                 tspr.z = (int32_t)(globalposz + y1*16384.0*0.8);
-            } else {
+            }
+            else
+            {
                 float x, y, z;
 
                 tspr.xrepeat = tspr.yrepeat = 5;
@@ -5319,7 +5322,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 x = (float)(((double)gcosang*z1 - (double)gsinang*x1)*2560.0 + globalposx);
                 y = (float)(((double)gsinang*z1 + (double)gcosang*x1)*2560.0 + globalposy);
                 z = (float)(globalposz + y1*2560.0*0.8);
-                
+
                 memcpy(&tspr.x, &x, sizeof(float));
                 memcpy(&tspr.y, &y, sizeof(float));
                 memcpy(&tspr.z, &z, sizeof(float));
@@ -5373,12 +5376,13 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             if (!nofog) bglDisable(GL_FOG);
             if (rendmode < 4)
                 mddraw(&tspr);
-            else {
+            else
+            {
                 tspriteptr[MAXSPRITESONSCREEN] = &tspr;
 
                 bglEnable(GL_ALPHA_TEST);
                 bglEnable(GL_BLEND);
-                
+
                 spriteext[tspr.owner].roll = a;
                 spriteext[tspr.owner].zoff = z;
 
@@ -5390,7 +5394,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 bglDisable(GL_BLEND);
                 bglDisable(GL_ALPHA_TEST);
             }
-            
+
             if (!nofog) bglEnable(GL_FOG);
 #else
             mddraw(&tspr);
@@ -5476,7 +5480,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 sx = ((cx1+cx2+2+scale((oxdim-xdim), cx1+cx2+2, oxdim))<<15)+scale(sx-(320<<15),scale(xdimen, xdim, oxdim),320);
             else if (dastat & 256)
                 sx = ((cx1+cx2+2-scale((oxdim-xdim), cx1+cx2+2, oxdim))<<15)+scale(sx-(320<<15),scale(xdimen, xdim, oxdim),320);
-            else 
+            else
                 sx = ((cx1+cx2+2)<<15)+scale(sx-(320<<15),scale(xdimen, xdim, oxdim),320);
 
             sy = ((cy1+cy2+2)<<15)+mulscale16(sy-(200<<15),x);
@@ -5508,7 +5512,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         ydim = (int32_t)((double)xdim * 0.75f);
         setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
     }
-    
+
     d = (double)z/(65536.0*16384.0);
     cosang2 = cosang = (double)sintable[(a+512)&2047]*d;
     sinang2 = sinang = (double)sintable[a&2047]*d;
@@ -5652,9 +5656,9 @@ static void tessectrap(float *px, float *py, int32_t *point2, int32_t numpoints)
     if (numpoints+16 > allocpoints) //16 for safety
     {
         allocpoints = numpoints+16;
-        rst = (raster*)Brealloc(rst,allocpoints*sizeof(raster));
-        slist = (int32_t*)Brealloc(slist,allocpoints*sizeof(int32_t));
-        npoint2 = (int32_t*)Brealloc(npoint2,allocpoints*sizeof(int32_t));
+        rst = (raster *)Brealloc(rst,allocpoints*sizeof(raster));
+        slist = (int32_t *)Brealloc(slist,allocpoints*sizeof(int32_t));
+        npoint2 = (int32_t *)Brealloc(npoint2,allocpoints*sizeof(int32_t));
     }
 
     //Remove unnecessary collinear points:
@@ -5949,7 +5953,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         }
         Bmemset(tbuf, 0, 256*128);
 
-        cptr = (char*)textfont;
+        cptr = (char *)textfont;
         for (h=0; h<256; h++)
         {
             tptr = tbuf + (h%32)*8 + (h/32)*256*8;
@@ -5963,7 +5967,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
             }
         }
 
-        cptr = (char*)smalltextfont;
+        cptr = (char *)smalltextfont;
         for (h=0; h<256; h++)
         {
             tptr = tbuf + 256*64 + (h%32)*8 + (h/32)*256*8;
@@ -5978,7 +5982,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         }
 
         bglBindTexture(GL_TEXTURE_2D, polymosttext);
-        bglTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,256,128,0,GL_ALPHA,GL_UNSIGNED_BYTE,(GLvoid*)tbuf);
+        bglTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,256,128,0,GL_ALPHA,GL_UNSIGNED_BYTE,(GLvoid *)tbuf);
         bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
         bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
         Bfree(tbuf);
@@ -6160,73 +6164,73 @@ void polymost_initosdfuncs(void)
     cvar_t cvars_polymost[] =
     {
 #ifdef USE_OPENGL
-        { "r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",(void *)&r_animsmoothing, CVAR_BOOL, 0, 1 },
-        { "r_modelocclusionchecking","r_modelocclusionchecking: enable/disable hack to cull \"obstructed\" models",(void *)&r_modelocclusionchecking, CVAR_INT, 0, 2 },
-        { "r_detailmapping","r_detailmapping: enable/disable detail mapping",(void *)&r_detailmapping, CVAR_BOOL, 0, 1 },
-        { "r_downsize","r_downsize: controls downsizing factor for hires textures",(void *)&r_downsize, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
-        { "r_fullbrights","r_fullbrights: enable/disable fullbright textures",(void *)&r_fullbrights, CVAR_BOOL, 0, 1 },
-        { "r_glowmapping","r_glowmapping: enable/disable glow mapping",(void *)&r_glowmapping, CVAR_BOOL, 0, 1 },
+        { "r_animsmoothing","r_animsmoothing: enable/disable model animation smoothing",(void *) &r_animsmoothing, CVAR_BOOL, 0, 1 },
+        { "r_modelocclusionchecking","r_modelocclusionchecking: enable/disable hack to cull \"obstructed\" models",(void *) &r_modelocclusionchecking, CVAR_INT, 0, 2 },
+        { "r_detailmapping","r_detailmapping: enable/disable detail mapping",(void *) &r_detailmapping, CVAR_BOOL, 0, 1 },
+        { "r_downsize","r_downsize: controls downsizing factor for hires textures",(void *) &r_downsize, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
+        { "r_fullbrights","r_fullbrights: enable/disable fullbright textures",(void *) &r_fullbrights, CVAR_BOOL, 0, 1 },
+        { "r_glowmapping","r_glowmapping: enable/disable glow mapping",(void *) &r_glowmapping, CVAR_BOOL, 0, 1 },
         /*
                 { "r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",(void *)&r_glowmapping, CVAR_BOOL, 0, 1 }
                 { "r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",(void *)&glnvmultisamplehint, CVAR_BOOL, 0, 1 }
         */
         {
             "r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",
-            (void *)&r_parallaxskyclamping, CVAR_BOOL, 0, 1
+            (void *) &r_parallaxskyclamping, CVAR_BOOL, 0, 1
         },
         {
             "r_parallaxskypanning","r_parallaxskypanning: enable/disable parallaxed floor/ceiling panning when drawing a parallaxed sky",
-            (void *)&r_parallaxskypanning, CVAR_BOOL, 0, 1
+            (void *) &r_parallaxskypanning, CVAR_BOOL, 0, 1
         },
-        { "r_polygonmode","r_polygonmode: debugging feature",(void *)&glpolygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
-        { "r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",(void *)&glredbluemode, CVAR_BOOL, 0, 1 },
-        { "r_shadescale","r_shadescale: multiplier for lighting",(void *)&shadescale, CVAR_FLOAT, 0, 10 },
-        { "r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",(void *)&vsync, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-        { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",(void *)&glusetexcache, CVAR_INT, 0, 2 },
-        { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",(void *)&glusetexcompr, CVAR_BOOL, 0, 1 },
-        { "r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", (void *)&glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 16 },
-        { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",(void *)&gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 4096 },
-        { "r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",(void *)&gltexmiplevel, CVAR_INT, 0, 6 },
-        { "r_texturemode", "r_texturemode: changes the texture filtering settings", (void *)&gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
-        { "r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",(void *)&r_vbocount, CVAR_INT, 1, 256 },
-        { "r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",(void *)&r_vbos, CVAR_BOOL, 0, 1 },
-        { "r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",(void *)&r_vertexarrays, CVAR_BOOL, 0, 1 },
-        { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void*)&glwidescreen, CVAR_BOOL, 0, 1 },
-        { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void*)&glprojectionhacks, CVAR_INT, 0, 2 },
+        { "r_polygonmode","r_polygonmode: debugging feature",(void *) &glpolygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
+        { "r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",(void *) &glredbluemode, CVAR_BOOL, 0, 1 },
+        { "r_shadescale","r_shadescale: multiplier for lighting",(void *) &shadescale, CVAR_FLOAT, 0, 10 },
+        { "r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",(void *) &vsync, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
+        { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",(void *) &glusetexcache, CVAR_INT, 0, 2 },
+        { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",(void *) &glusetexcompr, CVAR_BOOL, 0, 1 },
+        { "r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", (void *) &glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 16 },
+        { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",(void *) &gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 4096 },
+        { "r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",(void *) &gltexmiplevel, CVAR_INT, 0, 6 },
+        { "r_texturemode", "r_texturemode: changes the texture filtering settings", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
+        { "r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",(void *) &r_vbocount, CVAR_INT, 1, 256 },
+        { "r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",(void *) &r_vbos, CVAR_BOOL, 0, 1 },
+        { "r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",(void *) &r_vertexarrays, CVAR_BOOL, 0, 1 },
+        { "r_anamorphic", "r_anamorphic: enable/disable widescreen mode", (void *) &glwidescreen, CVAR_BOOL, 0, 1 },
+        { "r_projectionhack", "r_projectionhack: enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 2 },
 
 #ifdef POLYMER
         // polymer cvars
-        { "r_pr_lighting", "r_pr_lighting: enable/disable dynamic lights", (void*)&pr_lighting, CVAR_BOOL, 0, 1 },
-        { "r_pr_normalmapping", "r_pr_normalmapping: enable/disable virtual displacement mapping", (void*)&pr_normalmapping, CVAR_BOOL, 0, 1 },
-        { "r_pr_specularmapping", "r_pr_specularmapping: enable/disable specular mapping", (void*)&pr_specularmapping, CVAR_BOOL, 0, 1 },
-        { "r_pr_shadows", "r_pr_shadows: enable/disable dynamic shadows", (void*)&pr_shadows, CVAR_BOOL, 0, 1 },
-        { "r_pr_shadowcount", "r_pr_shadowcount: maximal amount of shadow emitting lights on screen - you need to restart the renderer for it to take effect", (void*)&pr_shadowcount, CVAR_INT, 0, 64 },
-        { "r_pr_shadowdetail", "r_pr_shadowdetail: sets the shadow map resolution - you need to restart the renderer for it to take effect", (void*)&pr_shadowdetail, CVAR_INT, 0, 5 },
-        { "r_pr_shadowfiltering", "r_pr_shadowfiltering: enable/disable shadow edges filtering - you need to restart the renderer for it to take effect", (void*)&pr_shadowfiltering, CVAR_BOOL, 0, 1 },
-        { "r_pr_maxlightpasses", "r_pr_maxlightpasses: the maximal amount of lights a single object can by affected by", (void*)&r_pr_maxlightpasses, CVAR_INT|CVAR_FUNCPTR, 0, PR_MAXLIGHTS },
-        { "r_pr_maxlightpriority", "r_pr_maxlightpriority: lowering that value removes less meaningful lights from the scene", (void*)&pr_maxlightpriority, CVAR_INT, 0, PR_MAXLIGHTPRIORITY },
-        { "r_pr_fov", "r_pr_fov: sets the field of vision in build angle", (void*)&pr_fov, CVAR_INT, 0, 1023},
-        { "r_pr_customaspect", "r_pr_customaspect: if non-zero, forces the 3D view aspect ratio", (void*)&pr_customaspect, CVAR_FLOAT, 0, 3 },
-        { "r_pr_billboardingmode", "r_pr_billboardingmode: face sprite display method. 0: classic mode; 1: polymost mode", (void*)&pr_billboardingmode, CVAR_INT, 0, 1 },
-        { "r_pr_verbosity", "r_pr_verbosity: verbosity level of the polymer renderer", (void*)&pr_verbosity, CVAR_INT, 0, 3 },
-        { "r_pr_wireframe", "r_pr_wireframe: toggles wireframe mode", (void*)&pr_wireframe, CVAR_INT | CVAR_NOSAVE, 0, 1 },
-        { "r_pr_vbos", "r_pr_vbos: contols Vertex Buffer Object usage. 0: no VBOs. 1: VBOs for map data. 2: VBOs for model data.", (void*)&pr_vbos, CVAR_INT, 0, 2 },
-        { "r_pr_gpusmoothing", "r_pr_gpusmoothing: toggles model animation interpolation", (void*)&pr_gpusmoothing, CVAR_INT, 0, 1 },
-        { "r_pr_overrideparallax", "r_pr_overrideparallax: overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens", (void*)&pr_overrideparallax, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
-        { "r_pr_parallaxscale", "r_pr_parallaxscale: overriden parallax mapping offset scale", (void*)&pr_parallaxscale, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },
-        { "r_pr_parallaxbias", "r_pr_parallaxbias: overriden parallax mapping offset bias", (void*)&pr_parallaxbias, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },
-        { "r_pr_overridespecular", "r_pr_overridespecular: overrides specular material power and factor values with values from the pr_specularpower and pr_specularfactor cvars; use it to fine-tune DEF tokens", (void*)&pr_overridespecular, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
-        { "r_pr_specularpower", "r_pr_specularpower: overriden specular material power", (void*)&pr_specularpower, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
-        { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void*)&pr_specularfactor, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
-        { "r_pr_highpalookups", "r_pr_highpalookups: enable/disable highpalookups", (void*)&pr_highpalookups, CVAR_BOOL, 0, 1 },
-        { "r_pr_ati_fboworkaround", "r_pr_ati_fboworkaround: enable this to workaround an ATI driver bug that causes sprite shadows to be square - you need to restart the renderer for it to take effect", (void*)&pr_ati_fboworkaround, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
-        { "r_pr_ati_nodepthoffset", "r_pr_ati_nodepthoffset: enable this to workaround an ATI driver bug that causes sprite drawing to freeze the game on Radeon X1x00 hardware - you need to restart the renderer for it to take effect", (void*)&pr_ati_nodepthoffset, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
+        { "r_pr_lighting", "r_pr_lighting: enable/disable dynamic lights", (void *) &pr_lighting, CVAR_BOOL, 0, 1 },
+        { "r_pr_normalmapping", "r_pr_normalmapping: enable/disable virtual displacement mapping", (void *) &pr_normalmapping, CVAR_BOOL, 0, 1 },
+        { "r_pr_specularmapping", "r_pr_specularmapping: enable/disable specular mapping", (void *) &pr_specularmapping, CVAR_BOOL, 0, 1 },
+        { "r_pr_shadows", "r_pr_shadows: enable/disable dynamic shadows", (void *) &pr_shadows, CVAR_BOOL, 0, 1 },
+        { "r_pr_shadowcount", "r_pr_shadowcount: maximal amount of shadow emitting lights on screen - you need to restart the renderer for it to take effect", (void *) &pr_shadowcount, CVAR_INT, 0, 64 },
+        { "r_pr_shadowdetail", "r_pr_shadowdetail: sets the shadow map resolution - you need to restart the renderer for it to take effect", (void *) &pr_shadowdetail, CVAR_INT, 0, 5 },
+        { "r_pr_shadowfiltering", "r_pr_shadowfiltering: enable/disable shadow edges filtering - you need to restart the renderer for it to take effect", (void *) &pr_shadowfiltering, CVAR_BOOL, 0, 1 },
+        { "r_pr_maxlightpasses", "r_pr_maxlightpasses: the maximal amount of lights a single object can by affected by", (void *) &r_pr_maxlightpasses, CVAR_INT|CVAR_FUNCPTR, 0, PR_MAXLIGHTS },
+        { "r_pr_maxlightpriority", "r_pr_maxlightpriority: lowering that value removes less meaningful lights from the scene", (void *) &pr_maxlightpriority, CVAR_INT, 0, PR_MAXLIGHTPRIORITY },
+        { "r_pr_fov", "r_pr_fov: sets the field of vision in build angle", (void *) &pr_fov, CVAR_INT, 0, 1023},
+        { "r_pr_customaspect", "r_pr_customaspect: if non-zero, forces the 3D view aspect ratio", (void *) &pr_customaspect, CVAR_FLOAT, 0, 3 },
+        { "r_pr_billboardingmode", "r_pr_billboardingmode: face sprite display method. 0: classic mode; 1: polymost mode", (void *) &pr_billboardingmode, CVAR_INT, 0, 1 },
+        { "r_pr_verbosity", "r_pr_verbosity: verbosity level of the polymer renderer", (void *) &pr_verbosity, CVAR_INT, 0, 3 },
+        { "r_pr_wireframe", "r_pr_wireframe: toggles wireframe mode", (void *) &pr_wireframe, CVAR_INT | CVAR_NOSAVE, 0, 1 },
+        { "r_pr_vbos", "r_pr_vbos: contols Vertex Buffer Object usage. 0: no VBOs. 1: VBOs for map data. 2: VBOs for model data.", (void *) &pr_vbos, CVAR_INT, 0, 2 },
+        { "r_pr_gpusmoothing", "r_pr_gpusmoothing: toggles model animation interpolation", (void *) &pr_gpusmoothing, CVAR_INT, 0, 1 },
+        { "r_pr_overrideparallax", "r_pr_overrideparallax: overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens", (void *) &pr_overrideparallax, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
+        { "r_pr_parallaxscale", "r_pr_parallaxscale: overriden parallax mapping offset scale", (void *) &pr_parallaxscale, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },
+        { "r_pr_parallaxbias", "r_pr_parallaxbias: overriden parallax mapping offset bias", (void *) &pr_parallaxbias, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },
+        { "r_pr_overridespecular", "r_pr_overridespecular: overrides specular material power and factor values with values from the pr_specularpower and pr_specularfactor cvars; use it to fine-tune DEF tokens", (void *) &pr_overridespecular, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
+        { "r_pr_specularpower", "r_pr_specularpower: overriden specular material power", (void *) &pr_specularpower, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
+        { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void *) &pr_specularfactor, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
+        { "r_pr_highpalookups", "r_pr_highpalookups: enable/disable highpalookups", (void *) &pr_highpalookups, CVAR_BOOL, 0, 1 },
+        { "r_pr_ati_fboworkaround", "r_pr_ati_fboworkaround: enable this to workaround an ATI driver bug that causes sprite shadows to be square - you need to restart the renderer for it to take effect", (void *) &pr_ati_fboworkaround, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
+        { "r_pr_ati_nodepthoffset", "r_pr_ati_nodepthoffset: enable this to workaround an ATI driver bug that causes sprite drawing to freeze the game on Radeon X1x00 hardware - you need to restart the renderer for it to take effect", (void *) &pr_ati_nodepthoffset, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
 #endif
 
-        { "r_models","r_models: enable/disable model rendering",(void *)&usemodels, CVAR_BOOL, 0, 1 },
-        { "r_hightile","r_hightile: enable/disable hightile texture rendering",(void *)&usehightile, CVAR_BOOL, 0, 1 },
+        { "r_models","r_models: enable/disable model rendering",(void *) &usemodels, CVAR_BOOL, 0, 1 },
+        { "r_hightile","r_hightile: enable/disable hightile texture rendering",(void *) &usehightile, CVAR_BOOL, 0, 1 },
 
-        { "r_preview_mouseaim", "r_preview_mouseaim: toggles mouse aiming preview, use this to calibrate yxaspect in Polymost Mapster32", (void *)&preview_mouseaim, CVAR_BOOL, 0, 1 },
+        { "r_preview_mouseaim", "r_preview_mouseaim: toggles mouse aiming preview, use this to calibrate yxaspect in Polymost Mapster32", (void *) &preview_mouseaim, CVAR_BOOL, 0, 1 },
 #endif
     };
 
@@ -6273,7 +6277,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 
         for (i=0; i<=j; i++)
         {
-            mdloadskin((md2model_t*)models[mid], 0, dapalnum, i);
+            mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
         }
     }
 #endif
@@ -6343,9 +6347,9 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     char *cptr;
 
     if ((pict->format == B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||
-        (pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
+            (pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
     else if ((pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)) ||
-        (pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
+             (pict->format == B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
     else { offs = 0; stride = 8; }
 
     if (stride == 16) //If DXT3...
@@ -6380,58 +6384,58 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     cptr = midbuf;
     for (k=0; k<=2; k+=2)
         for (j=0; (unsigned)j<miplen; j+=stride)
-        { *(int16_t *)cptr = hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
-        if (glusetexcache == 2)
+            { *(int16_t *)cptr = hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
+    if (glusetexcache == 2)
+    {
+        j = (miplen/stride)<<2;
+        cleng = qlz_compress(midbuf,packbuf,j,state_compress);
+        if (cleng == 0 || cleng > j-1)
         {
-            j = (miplen/stride)<<2;
-            cleng = qlz_compress(midbuf,packbuf,j,state_compress);
-            if (cleng == 0 || cleng > j-1)
-            {
-                cleng = j;
-                writebuf = midbuf;
-            }
-            else writebuf = packbuf;
-        }
-        else
-        {
-            cleng = (miplen/stride)<<2;
+            cleng = j;
             writebuf = midbuf;
         }
-        j = B_LITTLE32(cleng);
-        Bwrite(fil,&j,sizeof(j));
-        Bwrite(fil,writebuf,cleng);
+        else writebuf = packbuf;
+    }
+    else
+    {
+        cleng = (miplen/stride)<<2;
+        writebuf = midbuf;
+    }
+    j = B_LITTLE32(cleng);
+    Bwrite(fil,&j,sizeof(j));
+    Bwrite(fil,writebuf,cleng);
 
-        //index_4x4
-        cptr = midbuf;
-        for (j=0; (unsigned)j<miplen; j+=stride)
+    //index_4x4
+    cptr = midbuf;
+    for (j=0; (unsigned)j<miplen; j+=stride)
+    {
+        char *c2 = &pic[j+offs+4];
+        cptr[0] = ((c2[0]>>0)&3) + (((c2[1]>>0)&3)<<2) + (((c2[2]>>0)&3)<<4) + (((c2[3]>>0)&3)<<6);
+        cptr[1] = ((c2[0]>>2)&3) + (((c2[1]>>2)&3)<<2) + (((c2[2]>>2)&3)<<4) + (((c2[3]>>2)&3)<<6);
+        cptr[2] = ((c2[0]>>4)&3) + (((c2[1]>>4)&3)<<2) + (((c2[2]>>4)&3)<<4) + (((c2[3]>>4)&3)<<6);
+        cptr[3] = ((c2[0]>>6)&3) + (((c2[1]>>6)&3)<<2) + (((c2[2]>>6)&3)<<4) + (((c2[3]>>6)&3)<<6);
+        cptr += 4;
+    }
+    if (glusetexcache == 2)
+    {
+        j = (miplen/stride)<<2;
+        cleng = qlz_compress(midbuf,packbuf,j,state_compress);
+        if (cleng == 0 || cleng > j-1)
         {
-            char *c2 = &pic[j+offs+4];
-            cptr[0] = ((c2[0]>>0)&3) + (((c2[1]>>0)&3)<<2) + (((c2[2]>>0)&3)<<4) + (((c2[3]>>0)&3)<<6);
-            cptr[1] = ((c2[0]>>2)&3) + (((c2[1]>>2)&3)<<2) + (((c2[2]>>2)&3)<<4) + (((c2[3]>>2)&3)<<6);
-            cptr[2] = ((c2[0]>>4)&3) + (((c2[1]>>4)&3)<<2) + (((c2[2]>>4)&3)<<4) + (((c2[3]>>4)&3)<<6);
-            cptr[3] = ((c2[0]>>6)&3) + (((c2[1]>>6)&3)<<2) + (((c2[2]>>6)&3)<<4) + (((c2[3]>>6)&3)<<6);
-            cptr += 4;
-        }
-        if (glusetexcache == 2)
-        {
-            j = (miplen/stride)<<2;
-            cleng = qlz_compress(midbuf,packbuf,j,state_compress);
-            if (cleng == 0 || cleng > j-1)
-            {
-                cleng = j;
-                writebuf = midbuf;
-            }
-            else writebuf = packbuf;
-        }
-        else
-        {
-            cleng = (miplen/stride)<<2;
+            cleng = j;
             writebuf = midbuf;
         }
-        j = B_LITTLE32(cleng);
-        Bwrite(fil,&j,sizeof(j));
-        Bwrite(fil,writebuf,cleng);
-        return 0;
+        else writebuf = packbuf;
+    }
+    else
+    {
+        cleng = (miplen/stride)<<2;
+        writebuf = midbuf;
+    }
+    j = B_LITTLE32(cleng);
+    Bwrite(fil,&j,sizeof(j));
+    Bwrite(fil,writebuf,cleng);
+    return 0;
 }
 
 int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked)
@@ -6471,7 +6475,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
         if (memcachedata && memcachesize >= (signed)(cachepos + cleng))
         {
             if (ispacked && cleng < j)
-            {           
+            {
                 if (qlz_decompress((const char *)memcachedata + cachepos,midbuf,state_decompress) == 0)
                 {
                     cachepos += cleng;
@@ -6519,7 +6523,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
     if (memcachedata && memcachesize >= (signed)(cachepos + cleng))
     {
         if (ispacked && cleng < j)
-        {           
+        {
             if (qlz_decompress((const char *)memcachedata + cachepos,midbuf,state_decompress) == 0)
             {
                 cachepos += cleng;
@@ -6557,10 +6561,10 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
         cachepos += sizeof(int32_t);
     }
     else
-    {  
+    {
         Blseek(fil, cachepos, BSEEK_SET);
         cachepos += sizeof(int32_t);
-        if (Bread(fil,&cleng,sizeof(int32_t)) < (signed)sizeof(int32_t)) return -1; 
+        if (Bread(fil,&cleng,sizeof(int32_t)) < (signed)sizeof(int32_t)) return -1;
         cleng = B_LITTLE32(cleng);
     }
 
@@ -6570,7 +6574,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
     if (memcachedata && memcachesize >= (signed)(cachepos + cleng))
     {
         if (ispacked && cleng < j)
-        {           
+        {
             if (qlz_decompress((const char *)memcachedata + cachepos,midbuf,state_decompress) == 0)
             {
                 cachepos += cleng;

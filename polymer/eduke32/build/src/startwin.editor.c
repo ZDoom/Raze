@@ -434,7 +434,7 @@ int32_t startwin_settitle(const char *str)
 int32_t startwin_idle(void *v)
 {
     if (!startupdlg || !IsWindow(startupdlg)) return 0;
-    if (IsDialogMessage(startupdlg, (MSG*)v)) return 1;
+    if (IsDialogMessage(startupdlg, (MSG *)v)) return 1;
     return 0;
 }
 

@@ -51,7 +51,7 @@ void SetKey(int32_t key, int32_t state)
 {
     keystatus[remap[key]] = state;
 
-    if (state) 
+    if (state)
     {
         keyfifo[keyfifoend] = remap[key];
         keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state;
@@ -279,22 +279,22 @@ static int32_t osdcmd_cvar_set_baselayer(const osdfuncparm_t *parm)
 
     if (r != OSDCMD_OK) return r;
 
-/*
-        if (!Bstrcasecmp(parm->name, "r_scrcaptureformat"))
-        {
-            const char *fmts[] = {"TGA", "PCX"};
-            if (showval) { OSD_Printf("r_scrcaptureformat is %s\n", fmts[captureformat]); }
-            else
+    /*
+            if (!Bstrcasecmp(parm->name, "r_scrcaptureformat"))
             {
-                int32_t j;
-                for (j=0; j<2; j++)
-                    if (!Bstrcasecmp(parm->parms[0], fmts[j])) break;
-                if (j == 2) return OSDCMD_SHOWHELP;
-                captureformat = j;
+                const char *fmts[] = {"TGA", "PCX"};
+                if (showval) { OSD_Printf("r_scrcaptureformat is %s\n", fmts[captureformat]); }
+                else
+                {
+                    int32_t j;
+                    for (j=0; j<2; j++)
+                        if (!Bstrcasecmp(parm->parms[0], fmts[j])) break;
+                    if (j == 2) return OSDCMD_SHOWHELP;
+                    captureformat = j;
+                }
+                return OSDCMD_OK;
             }
-            return OSDCMD_OK;
-        }
-        else */
+            else */
 
     if (!Bstrcasecmp(parm->name, "vid_gamma") || !Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
     {
@@ -313,17 +313,17 @@ int32_t baselayer_init(void)
     cvar_t cvars_engine[] =
     {
 #ifdef SUPERBUILD
-        { "r_usenewaspect","r_usenewaspect: enable/disable new screen aspect ratio determination code",(void *)&r_usenewaspect, CVAR_BOOL, 0, 1 },
-        { "r_screenaspect","r_screenaspect: if using the new aspect code and in fullscreen, screen aspect ratio in the form XXYY, e.g. 1609 for 16:9",(void *)&r_screenxy, CVAR_UINT, 100, 9999 },
-        { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",(void *)&novoxmips, CVAR_BOOL, 0, 1 },
-        { "r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",(void *)&usevoxels, CVAR_BOOL, 0, 1 },
-/*        { "r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars, CVAR_FUNCPTR, 0, 0 },*/
-        { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void *)&vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
-        { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void *)&vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
-        { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void *)&vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
+        { "r_usenewaspect","r_usenewaspect: enable/disable new screen aspect ratio determination code",(void *) &r_usenewaspect, CVAR_BOOL, 0, 1 },
+        { "r_screenaspect","r_screenaspect: if using the new aspect code and in fullscreen, screen aspect ratio in the form XXYY, e.g. 1609 for 16:9",(void *) &r_screenxy, CVAR_UINT, 100, 9999 },
+        { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",(void *) &novoxmips, CVAR_BOOL, 0, 1 },
+        { "r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",(void *) &usevoxels, CVAR_BOOL, 0, 1 },
+        /*        { "r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars, CVAR_FUNCPTR, 0, 0 },*/
+        { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void *) &vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
+        { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void *) &vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
+        { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void *) &vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
 #endif
-        { "debug1","debug counter",(void *)&debug1, CVAR_FLOAT, -100000, 100000 },
-        { "debug2","debug counter",(void *)&debug2, CVAR_FLOAT, -100000, 100000 },
+        { "debug1","debug counter",(void *) &debug1, CVAR_FLOAT, -100000, 100000 },
+        { "debug2","debug counter",(void *) &debug2, CVAR_FLOAT, -100000, 100000 },
     };
 
     for (i=0; i<sizeof(cvars_engine)/sizeof(cvars_engine[0]); i++)
@@ -332,7 +332,7 @@ int32_t baselayer_init(void)
             continue;
 
         OSD_RegisterFunction(cvars_engine[i].name, cvars_engine[i].helpstr,
-            (cvars_engine[i].type & CVAR_FUNCPTR) ? osdcmd_cvar_set_baselayer : osdcmd_cvar_set);
+                             (cvars_engine[i].type & CVAR_FUNCPTR) ? osdcmd_cvar_set_baselayer : osdcmd_cvar_set);
     }
 
 #ifdef POLYMOST

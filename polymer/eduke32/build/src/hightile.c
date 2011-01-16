@@ -20,7 +20,7 @@ char hicfirstinit = 0;
 //
 // find the index into hicreplc[] which contains the replacement tile particulars
 //
-hicreplctyp * hicfindsubst(int32_t picnum, int32_t palnum, int32_t skybox)
+hicreplctyp *hicfindsubst(int32_t picnum, int32_t palnum, int32_t skybox)
 {
     if (!hicfirstinit || (uint32_t)picnum >= (uint32_t)MAXTILES) return NULL;
 

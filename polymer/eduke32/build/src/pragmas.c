@@ -40,9 +40,9 @@ int32_t boundmulscale(int32_t a, int32_t b, int32_t c)
         "xorl $0x7fffffff, %%eax\n\t"	// xor eax, 0x7fffffff
         "1:"				// skipboundit:
     : "+a"(a), "+b"(b), "+c"(c)	// input eax ebx ecx
-                :
-                : "edx", "cc"
-            );
+            :
+            : "edx", "cc"
+        );
     return a;
 }
 
@@ -84,8 +84,8 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
         "stosb\n\t"
         "5:"				// endit
     : "+D"(D), "+c"(c), "+a"(a) :
-                : "ebx", "memory", "cc"
-            );
+            : "ebx", "memory", "cc"
+        );
 }
 
 void copybufbyte(void *S, void *D, int32_t c)
@@ -125,8 +125,8 @@ void copybufbyte(void *S, void *D, int32_t c)
         "movsb\n\t"
         "5:"				// endit:
     : "+c"(c), "+S"(S), "+D"(D) :
-                : "ebx", "memory", "cc"
-            );
+            : "ebx", "memory", "cc"
+        );
 }
 
 void copybufreverse(void *S, void *D, int32_t c)
@@ -159,8 +159,8 @@ void copybufreverse(void *S, void *D, int32_t c)
         "jnz 2b\n\t"		// jnz begloop
         "3:"
     : "+S"(S), "+D"(D), "+c"(c) :
-                : "eax", "memory", "cc"
-            );
+            : "eax", "memory", "cc"
+        );
 }
 
 #elif defined(_MSC_VER) && !defined(NOASM)		// __GNUC__ && __i386__
@@ -191,19 +191,19 @@ void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t 
 
 void clearbuf(void *d, int32_t c, int32_t a)
 {
-    int32_t *p = (int32_t*)d;
+    int32_t *p = (int32_t *)d;
     while ((c--) > 0) *(p++) = a;
 }
 
 void copybuf(void *s, void *d, int32_t c)
 {
-    int32_t *p = (int32_t*)s, *q = (int32_t*)d;
+    int32_t *p = (int32_t *)s, *q = (int32_t *)d;
     while ((c--) > 0) *(q++) = *(p++);
 }
 
 void swapbuf4(void *a, void *b, int32_t c)
 {
-    int32_t *p = (int32_t*)a, *q = (int32_t*)b;
+    int32_t *p = (int32_t *)a, *q = (int32_t *)b;
     int32_t x, y;
     while ((c--) > 0)
     {
@@ -217,7 +217,7 @@ void swapbuf4(void *a, void *b, int32_t c)
 void clearbufbyte(void *D, int32_t c, int32_t a)
 {
     // Cringe City
-    char *p = (char*)D;
+    char *p = (char *)D;
     int32_t m[4] = { 0xffl,0xff00l,0xff0000l,0xff000000l };
     int32_t n[4] = { 0,8,16,24 };
     int32_t z=0;
@@ -230,13 +230,13 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
 
 void copybufbyte(void *S, void *D, int32_t c)
 {
-    char *p = (char*)S, *q = (char*)D;
+    char *p = (char *)S, *q = (char *)D;
     while ((c--) > 0) *(q++) = *(p++);
 }
 
 void copybufreverse(void *S, void *D, int32_t c)
 {
-    char *p = (char*)S, *q = (char*)D;
+    char *p = (char *)S, *q = (char *)D;
     while ((c--) > 0) *(q++) = *(p--);
 }
 
