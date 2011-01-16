@@ -471,6 +471,7 @@ int32_t		Bclosedir(BDIR *dir);
 # define Bstrtol strtol
 # define Bstrtoul strtoul
 # define Bstrtod strtod
+# define Bstrstr strstr
 # define Btoupper toupper
 # define Btolower tolower
 # define Bmemcpy memcpy
