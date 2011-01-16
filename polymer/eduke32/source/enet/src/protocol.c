@@ -8,7 +8,10 @@
 #include "enet/utility.h"
 #include "enet/time.h"
 #include "enet/enet.h"
-#include "compat.h"
+
+#ifndef UNREFERENCED_PARAMETER
+# define UNREFERENCED_PARAMETER(x) x=x
+#endif
 
 static size_t commandSizes [ENET_PROTOCOL_COMMAND_COUNT] =
 {
