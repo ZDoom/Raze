@@ -24,6 +24,8 @@
 
 #ifdef HAVE_VORBIS
 
+#define OV_EXCLUDE_STATIC_CALLBACKS
+
 #ifdef __APPLE__
 # include <vorbis/vorbisfile.h>
 #else
