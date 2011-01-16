@@ -8,6 +8,7 @@
 #include "enet/utility.h"
 #include "enet/time.h"
 #include "enet/enet.h"
+#include "compat.h"
 
 static size_t commandSizes [ENET_PROTOCOL_COMMAND_COUNT] =
 {
@@ -82,6 +83,8 @@ enet_protocol_dispatch_incoming_commands (ENetHost * host, ENetEvent * event)
            }
 
            return 1;
+       default:
+           break;
        }
     }
 
@@ -250,6 +253,7 @@ enet_protocol_handle_connect (ENetHost * host, ENetProtocolHeader * header, ENet
     size_t channelCount;
     ENetPeer * currentPeer;
     ENetProtocol verifyCommand;
+    UNREFERENCED_PARAMETER(header);
 
     channelCount = ENET_NET_TO_HOST_32 (command -> connect.channelCount);
 
@@ -604,6 +608,9 @@ enet_protocol_handle_send_fragment (ENetHost * host, ENetPeer * peer, const ENet
 static int
 enet_protocol_handle_ping (ENetHost * host, ENetPeer * peer, const ENetProtocol * command)
 {
+    UNREFERENCED_PARAMETER(host);
+    UNREFERENCED_PARAMETER(peer);
+    UNREFERENCED_PARAMETER(command);
     return 0;
 }
 
@@ -631,6 +638,8 @@ enet_protocol_handle_bandwidth_limit (ENetHost * host, ENetPeer * peer, const EN
 static int
 enet_protocol_handle_throttle_configure (ENetHost * host, ENetPeer * peer, const ENetProtocol * command)
 {
+    UNREFERENCED_PARAMETER(host);
+    
     peer -> packetThrottleInterval = ENET_NET_TO_HOST_32 (command -> throttleConfigure.packetThrottleInterval);
     peer -> packetThrottleAcceleration = ENET_NET_TO_HOST_32 (command -> throttleConfigure.packetThrottleAcceleration);
     peer -> packetThrottleDeceleration = ENET_NET_TO_HOST_32 (command -> throttleConfigure.packetThrottleDeceleration);
@@ -744,6 +753,8 @@ enet_protocol_handle_acknowledge (ENetHost * host, ENetEvent * event, ENetPeer *
            enet_list_empty (& peer -> outgoingUnreliableCommands) &&   
            enet_list_empty (& peer -> sentReliableCommands))
          enet_peer_disconnect (peer, peer -> eventData);
+       break;
+    default:
        break;
     }
    

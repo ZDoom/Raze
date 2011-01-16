@@ -26,6 +26,8 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 */
 
+#include "compat.h"
+
 #ifdef _MSC_VER
 /* Enable full aliasing on MSVC */
 /*#pragma optimize("a", on)*/
@@ -514,7 +516,7 @@ NEDMALLOCNOALIASATTR size_t nedblksize(int *RESTRICT isforeign, void *RESTRICT m
             size_t *_mem=(size_t *) mem-3;
             if (_mem[0]==*(size_t *) "NEDMALOC")
             {
-                mstate mspace=(mstate) _mem[1];
+                //mstate mspace=(mstate) _mem[1];
                 size_t size=_mem[2];
                 if (isforeign) *isforeign=0;
                 return size;
@@ -680,6 +682,7 @@ static void tcfullsanitycheck(threadcache *tc) THROWSPEC
 
 static NOINLINE void RemoveCacheEntries(nedpool *RESTRICT p, threadcache *RESTRICT tc, unsigned int age) THROWSPEC
 {
+    UNREFERENCED_PARAMETER(p);
 #ifdef FULLSANITYCHECKS
     tcfullsanitycheck(tc);
 #endif
@@ -783,6 +786,8 @@ static NOINLINE threadcache *AllocCache(nedpool *RESTRICT p) THROWSPEC
 
 static void *threadcache_malloc(nedpool *RESTRICT p, threadcache *RESTRICT tc, size_t *RESTRICT _size) THROWSPEC
 {
+    UNREFERENCED_PARAMETER(p);
+    
     void *RESTRICT ret=0;
     size_t size=*_size, blksize=0;
     unsigned int bestsize;
@@ -871,6 +876,8 @@ static void *threadcache_malloc(nedpool *RESTRICT p, threadcache *RESTRICT tc, s
 }
 static NOINLINE void ReleaseFreeInCache(nedpool *RESTRICT p, threadcache *RESTRICT tc, int mymspace) THROWSPEC
 {
+    UNREFERENCED_PARAMETER(mymspace);
+
     unsigned int age=THREADCACHEMAXFREESPACE/8192;
 #if USE_LOCKS
     /*ACQUIRE_LOCK(&p->m[mymspace]->mutex);*/
@@ -905,7 +912,7 @@ static void threadcache_free(nedpool *RESTRICT p, threadcache *RESTRICT tc, int 
     idx<<=1;
     if (size>bestsize)
     {
-        unsigned int biggerbestsize=bestsize+bestsize<<1;
+        unsigned int biggerbestsize=bestsize+(bestsize<<1);
         if (size>=biggerbestsize)
         {
             idx++;
@@ -1465,7 +1472,7 @@ NEDMALLOCPTRATTR void *nedpmemalign(nedpool *p, size_t alignment, size_t bytes) 
 struct nedmallinfo nedpmallinfo(nedpool *p) THROWSPEC
 {
     int n;
-    struct nedmallinfo ret= {0};
+    struct nedmallinfo ret= {0,0,0,0,0,0,0,0,0,0};
 if (!p) { p=&syspool; if (!syspool.threads) InitPool(&syspool, 0, -1); }
 for (n=0; p->m[n]; n++)
 {
@@ -1484,6 +1491,7 @@ return ret;
 }
 int    nedpmallopt(nedpool *p, int parno, int value) THROWSPEC
 {
+    UNREFERENCED_PARAMETER(p);
 #if USE_ALLOCATOR==1
     return mspace_mallopt(parno, value);
 #else

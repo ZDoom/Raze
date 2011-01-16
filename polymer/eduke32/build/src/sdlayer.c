@@ -1648,9 +1648,9 @@ int32_t handleevents(void)
                         }
                         break;
                         */
-#warning "Using SDL 1.3"
+// #print "Using SDL 1.3"
 #else  // SDL 1.3 ^^^ | vvv SDL 1.2
-#warning "Using SDL 1.2"
+// #print "Using SDL 1.2"
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.sym];
