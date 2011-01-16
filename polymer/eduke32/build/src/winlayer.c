@@ -2851,7 +2851,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 pr_ati_fboworkaround = 1;
                 initprintf("Enabling ATI FBO color attachment workaround.\n");
 #endif
-                if (!Bstrncmp(glinfo.renderer,"Radeon X1", 9))
+                if (Bstrstr(glinfo.renderer,"Radeon X1"))
                 {
                     r_vbos = 0;
 #ifdef POLYMER
