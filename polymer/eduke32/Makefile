@@ -280,7 +280,13 @@ $(OBJ)/%.$o: $(RSRC)/%.c
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/game_banner.$o: $(RSRC)/game_banner.c
+	$(COMPILE_STATUS)
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
+	$(COMPILE_STATUS)
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
 $(RSRC)/game_banner.c: $(RSRC)/game.bmp
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
