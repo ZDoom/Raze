@@ -12469,7 +12469,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
 static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t posze, int32_t zoome)
 {
     const walltype *wal = &wall[i];
-    int32_t j, x1, y1, x2, y2, dz, dz2;
+    int32_t j, x1, y1, x2, y2, dz = 0, dz2 = 0;
 //    intptr_t tempint;
     char col;
 
