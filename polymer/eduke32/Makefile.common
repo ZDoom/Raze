@@ -73,7 +73,9 @@ ifneq (0,$(RELEASE))
 else
     # Debugging enabled
     debug=-ggdb -O0 -DDEBUGGINGAIDS
-    LIBS+=-rdynamic
+    ifeq ($(PLATFORM),LINUX)
+        LIBS+=-rdynamic
+    endif
     ifneq (0,$(PROFILER))
         LIBS+= -lprofiler
         debug+= -pg
