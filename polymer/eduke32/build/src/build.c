@@ -205,7 +205,7 @@ int8_t sideview_reversehrot = 0;
 
 char lastpm16buf[156];
 
-static int32_t checksectorpointer_warn = 0;
+//static int32_t checksectorpointer_warn = 0;
 
 char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
 static int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls);
@@ -217,7 +217,6 @@ static void flipwalls(int16_t numwalls, int16_t newnumwalls);
 static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day);
 static void deletepoint(int16_t point);
 static int32_t deletesector(int16_t sucksect);
-int32_t checksectorpointer(int16_t i, int16_t sectnum);
 void fixrepeats(int16_t i);
 static int16_t loopinside(int32_t x, int32_t y, int16_t startwall);
 int32_t fillsector(int16_t sectnum, char fillcolor);
@@ -237,11 +236,11 @@ void AutoAlignWalls(int32_t nWall0, int32_t ply);
 int32_t gettile(int32_t tilenum);
 
 static int32_t menuselect(void);
-static int32_t menuselect_pk(int32_t); //PK
+static int32_t menuselect_auto(int32_t); //PK
 
 static int32_t getfilenames(const char *path, const char *kind);
 static void clearfilenames(void);
-void loadmhk();
+void loadmhk(int32_t domessage);
 extern int32_t map_revision;
 extern int32_t map_undoredo(int32_t dir);
 extern void map_undoredo_free(void);
@@ -466,15 +465,7 @@ int32_t app_main(int32_t argc, const char **argv)
     if (k>0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", k);
 
-    for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
-    for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
-    for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
-
-    ExtPreLoadMap();
-    i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
-    loadmhk();
-    if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
-    if (i < 0)
+    if (LoadBoard(boardfilename, 1))
     {
         initspritelists();
         pos.x = 32768;
@@ -483,20 +474,8 @@ int32_t app_main(int32_t argc, const char **argv)
         ang = 1536;
         numsectors = 0;
         numwalls = 0;
-        cursectnum = -1;
+        cursectnum = -1;        
     }
-    else
-    {
-        ExtLoadMap(boardfilename);
-    }
-
-    updatenumsprites();
-
-    startposx = pos.x;
-    startposy = pos.y;
-    startposz = pos.z;
-    startang = ang;
-    startsectnum = cursectnum; // TX 20050225: moved to loadboard
 
     totalclock = 0;
 
@@ -549,6 +528,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
         setbrightness(GAMMA_CALC,palette,0);
     }
+
 CANCEL:
     quitflag = 0;
     while (quitflag == 0)
@@ -638,8 +618,10 @@ CANCEL:
 
     if (asksave)
     {
+        i = CheckMapCorruption(4);
+
         begindrawing();	//{{{
-        printext256(0,8,whitecol,0,"Save changes?",0);
+        printext256(0,8,whitecol,0,i<4?"Save changes?":"Map is heavily corrupt. Save changes?",0);
         showframe(1);	//}}}
 
         while ((keystatus[1]|keystatus[0x1c]|keystatus[0x39]|keystatus[0x31]|keystatus[0x2e]) == 0)
@@ -649,29 +631,16 @@ CANCEL:
 
             if (keystatus[0x15] || keystatus[0x1c]) // Y or ENTER
             {
-                char *f;
-                keystatus[0x15] = 0;
-                keystatus[0x1c] = 0;
-                fixspritesectors();
-                updatesector(startposx,startposy,&startsectnum);
-                ExtPreSaveMap();
-                if (pathsearchmode) f = boardfilename;
-                else
-                {
-                    // virtual filesystem mode can't save to directories so drop the file into
-                    // the current directory
-                    f = Bstrrchr(boardfilename, '/');
-                    if (!f) f = boardfilename; else f++;
-                }
-                saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
-                ExtSaveMap(f);
+                keystatus[0x15] = keystatus[0x1c] = 0;
+
+                SaveBoard(NULL, 0);
+
                 break;
             }
         }
         while (keystatus[1]||keystatus[0x2e])
         {
-            keystatus[1] = 0;
-            keystatus[0x2e] = 0;
+            keystatus[1] = keystatus[0x2e] = 0;
             quitevent = 0;
             goto CANCEL;
         }
@@ -703,12 +672,13 @@ void showmouse(void)
 */
 
 static int32_t mhk=0;
-void loadmhk()
+void loadmhk(int32_t domessage)
 {
     char *p; char levname[BMAX_PATH];
 
     if (!mhk)
         return;
+
     Bstrcpy(levname, boardfilename);
     p = Bstrrchr(levname,'.');
     if (!p)
@@ -720,9 +690,20 @@ void loadmhk()
         p[3]='k';
         p[4]=0;
     }
+
     if (!loadmaphack(levname))
-        initprintf("Loaded map hack file '%s'\n",levname);
-    else mhk=2;
+    {
+        if (domessage)
+            message("Loaded map hack file '%s'",levname);
+        else
+            initprintf("Loaded map hack file '%s'\n",levname);
+    }
+    else
+    {
+        mhk=2;
+        if (domessage)
+            message("No maphack found for map '%s'",boardfilename);
+    }
 }
 
 void editinput(void)
@@ -897,13 +878,14 @@ void editinput(void)
         {
             Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
             Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
+            delete_maphack_lights();
             mhk = 0;
-            initprintf("Maphacks disabled\n");
+            message("Maphacks disabled");
         }
         else
         {
-            loadmhk();
             mhk = 1;
+            loadmhk(1);
         }
 
         keystatus[0x43] = 0;
@@ -1403,7 +1385,7 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
 
     // reconstruct wall connections
     numsectors=newnumsectors;  // needed now for checksectorpointer
-    checksectorpointer_warn = 0;
+//    checksectorpointer_warn = 0;
     Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
     for (i=onumsectors; i<newnumsectors; i++)
     {
@@ -1413,7 +1395,7 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
     }
     for (i=numwalls; i<newnumwalls; i++)
         wall[i].x -= editorgridextent<<2;
-    checksectorpointer_warn = 1;
+//    checksectorpointer_warn = 1;
 
     // insert sprites
     for (i=0; i<mapinfo->numsprites; i++)
@@ -1676,6 +1658,8 @@ void m32_setkeyfilter(int32_t on)
     else
         after_handleevents_hook = 0;
 }
+
+static int32_t ask_if_sure(const char *query, int32_t quit_is_yes);
 
 void overheadeditor(void)
 {
@@ -2110,10 +2094,22 @@ void overheadeditor(void)
             drawline16(searchx,0, searchx,8, editorcolors[15]);
             drawline16(0,searchy, 8,searchy, editorcolors[15]);
 
-            // draw mouse pointer
+            ////// draw mouse pointer
             col = editorcolors[15 - 3*gridlock];
             if (joinsector[0] >= 0)
                 col = editorcolors[11];
+
+            if (numcorruptthings>0 && (pointhighlight&16384)==0)
+            {
+                for (i=0; i<numcorruptthings; i++)
+                    if ((corruptthings[i]&CORRUPT_MASK)==CORRUPT_WALL &&
+                            (corruptthings[i]&(MAXWALLS-1))==pointhighlight)
+                    {
+                        col = editorcolors[13];
+                        printext16(searchx+6,searchy-6-8,editorcolors[13],editorcolors[0],"corrupt wall",0);
+                        break;
+                    }
+            }
 
             if ((keystatus[0x36] || keystatus[0xb8]) && !eitherCTRL)  // RSHIFT || RALT
             {
@@ -2136,7 +2132,7 @@ void overheadeditor(void)
             drawline16base(searchx,searchy, +2,+0, +9,+0, col);
             drawline16base(searchx,searchy, +2,+1, +9,+1, col);
 
-            //Draw the white pixel closest to mouse cursor on linehighlight
+            ////// Draw the white pixel closest to mouse cursor on linehighlight
             if (linehighlight>=0 && !m32_sideview)
             {
                 getclosestpointonwall(mousxplc,mousyplc,(int32_t)linehighlight,&dax,&day);
@@ -4699,54 +4695,26 @@ SKIP:
             {
 nextmap:
 //				bad = 0;
-                i = menuselect_pk(keystatus[0x2a] ? 0:1); // Left Shift: prev map
+                i = menuselect_auto(keystatus[0x2a] ? 0:1); // Left Shift: prev map
                 if (i < 0)
                 {
-                    if (i == -2)
-                        printmessage16("No .MAP files found.");
+                    if (i == -1)
+                        message("No more map files.");
+                    else if (i == -2)
+                        message("No .MAP files found.");
                     else if (i == -3)
-                        printmessage16("Load map first!");
+                        message("Load map first!");
                 }
                 else
                 {
-                    Bstrcpy(boardfilename, selectedboardfilename);
-
-                    highlightcnt = -1;
-                    Bmemset(show2dwall, 0, sizeof(show2dwall));  //Clear all highlights
-                    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+                    if (LoadBoard(NULL, 4))
+                        goto nextmap;
 
                     sectorhighlightstat = -1;
-                    newnumwalls = -1;
                     joinsector[0] = -1;
                     circlewall = -1;
                     circlepoints = 7;
-
-                    for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
-                    for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
-                    for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
-
-                    ExtPreLoadMap();
-                    i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
-                    if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
                     oposz = pos.z;
-                    if (i < 0)
-                    {
-//                        printmessage16("Invalid map format.");
-                        goto nextmap;
-                    }
-                    else
-                    {
-                        ExtLoadMap(boardfilename);
-
-                        if (mapversion < 7) printmessage16("Map %s loaded successfully and autoconverted to V7!",boardfilename);
-                        else printmessage16("Map %s loaded successfully.",boardfilename);
-                    }
-                    updatenumsprites();
-                    startposx = pos.x;      //this is same
-                    startposy = pos.y;
-                    startposz = pos.z;
-                    startang = ang;
-                    startsectnum = cursectnum;
                 }
                 showframe(1);
                 keystatus[0x1c] = 0;
@@ -4757,7 +4725,6 @@ nextmap:
         }
 // ^^^ PK ------------------------------------
 
-CANCEL:
         if (keystatus[1] && joinsector[0] >= 0)
         {
             keystatus[1]=0;
@@ -4765,6 +4732,7 @@ CANCEL:
             printmessage16("No sectors joined.");
         }
 
+CANCEL:
         if (keystatus[1])
         {
             m32_setkeyfilter(0);
@@ -4779,9 +4747,7 @@ CANCEL:
                 if (handleevents())
                 {
                     if (quitevent)
-                    {
                         quitevent = 0;
-                    }
                 }
                 idle();
 
@@ -4796,70 +4762,57 @@ CANCEL:
                 else if (ch == 'n' || ch == 'N')  //N
                 {
                     bad = 0;
-                    _printmessage16("Are you sure you want to start a new board? (Y/N)");
-                    showframe(1);
-                    bflushchars(); ch = 0;
-                    while (keystatus[1] == 0)
+
+                    if (!ask_if_sure("Are you sure you want to start a new board? (Y/N)", 0))
+                        break;
+                    else
                     {
-                        if (handleevents())
-                            quitevent = 0;
+                        int32_t bakstat=-1;
+                        mapinfofull_t bakmap;
 
-                        idle();
+                        if (highlightsectorcnt > 0)
+                            bakstat = backup_highlighted_map(&bakmap);
 
-                        ch = bgetchar();
+//                        Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
+//                        highlightsectorcnt = -1;
 
-                        if (ch == 'Y' || ch == 'y')
+                        highlightcnt = -1;
+                        //Clear all highlights
+                        Bmemset(show2dwall, 0, sizeof(show2dwall));
+                        Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+
+                        for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
+                        for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
+                        for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
+
+                        sectorhighlightstat = -1;
+                        newnumwalls = -1;
+                        joinsector[0] = -1;
+                        circlewall = -1;
+                        circlepoints = 7;
+
+                        pos.x = 32768;          //new board!
+                        pos.y = 32768;
+                        pos.z = 0;
+                        ang = 1536;
+                        numsectors = 0;
+                        numwalls = 0;
+                        numsprites = 0;
+                        cursectnum = -1;
+                        initspritelists();
+                        Bstrcpy(boardfilename,"newboard.map");
+                        map_undoredo_free();
+
+                        if (bakstat==0)
                         {
-                            int32_t bakstat=-1;
-                            mapinfofull_t bakmap;
-
-                            if (highlightsectorcnt > 0)
-                                bakstat = backup_highlighted_map(&bakmap);
-
-//                            Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
-//                            highlightsectorcnt = -1;
-
-                            highlightcnt = -1;
-                            //Clear all highlights
-                            Bmemset(show2dwall, 0, sizeof(show2dwall));
-                            Bmemset(show2dsprite, 0, sizeof(show2dsprite));
-
-                            for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
-                            for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
-                            for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
-
-                            sectorhighlightstat = -1;
-                            newnumwalls = -1;
-                            joinsector[0] = -1;
-                            circlewall = -1;
-                            circlepoints = 7;
-
-                            pos.x = 32768;          //new board!
-                            pos.y = 32768;
-                            pos.z = 0;
-                            ang = 1536;
-                            numsectors = 0;
-                            numwalls = 0;
-                            numsprites = 0;
-                            cursectnum = -1;
-                            initspritelists();
-                            Bstrcpy(boardfilename,"newboard.map");
-                            map_undoredo_free();
-
-                            if (bakstat==0)
-                            {
-                                bakstat = restore_highlighted_map(&bakmap);
-                                if (bakstat == -1)
-                                    message("Can't copy highlighted portion of old map: limits exceeded.");
-                            }
-
-                            break;
+                            bakstat = restore_highlighted_map(&bakmap);
+                            if (bakstat == -1)
+                                message("Can't copy highlighted portion of old map: limits exceeded.");
                         }
-                        else if (ch == 'N' || ch == 'n' || ch == 13 || ch == ' ')
-                        {
-                            break;
-                        }
+
+                        break;
                     }
+
                     // printmessage16("");
                     showframe(1);
                 }
@@ -4877,40 +4830,22 @@ CANCEL:
                         int32_t bakstat=-1;
                         mapinfofull_t bakmap;
 
-                        Bstrcpy(boardfilename, selectedboardfilename);
-
                         if (highlightsectorcnt > 0)
                             bakstat = backup_highlighted_map(&bakmap);
 // __old_mapcopy_2__
-                        highlightcnt = -1;
-                        Bmemset(show2dwall, 0, sizeof(show2dwall));  //Clear all highlights
-                        Bmemset(show2dsprite, 0, sizeof(show2dsprite));
-
-                        sectorhighlightstat = -1;
-                        newnumwalls = -1;
-                        joinsector[0] = -1;
-                        circlewall = -1;
-                        circlepoints = 7;
-
-                        for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
-                        for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
-                        for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
-
-                        ExtPreLoadMap();
-                        i = loadboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
-                        loadmhk();
-                        if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
-                        oposz = pos.z;
-                        if (i < 0)
+                        if (LoadBoard(NULL, 4))
                         {
                             printmessage16("Invalid map format.");
-
                             if (bakstat==0)
                                 mapinfofull_free(&bakmap);
                         }
                         else
                         {
-                            ExtLoadMap(boardfilename);
+                            sectorhighlightstat = -1;
+                            joinsector[0] = -1;
+                            circlewall = -1;
+                            circlepoints = 7;
+                            oposz = pos.z;
 
                             if (bakstat==0)
                             {
@@ -4918,23 +4853,15 @@ CANCEL:
                                 if (bakstat == -1)
                                     message("Can't copy highlighted portion of old map: limits exceeded.");
                             }
-// __old_mapcopy_2__
-                            if (mapversion < 7) printmessage16("Map %s loaded successfully and autoconverted to V7!",boardfilename);
-                            else printmessage16("Map %s loaded successfully.",boardfilename);
                         }
-
-                        updatenumsprites();
-                        startposx = pos.x;      //this is same
-                        startposy = pos.y;
-                        startposz = pos.z;
-                        startang = ang;
-                        startsectnum = cursectnum;
                     }
                     showframe(1);
                     keystatus[0x1c] = 0;
                 }
                 else if (ch == 'a' || ch == 'A')  //A
                 {
+                    int32_t corrupt = CheckMapCorruption(4);
+
                     bad = 0;
 
                     Bstrcpy(selectedboardfilename, boardfilename);
@@ -4951,7 +4878,8 @@ CANCEL:
                     bflushchars();
                     while (bad == 0)
                     {
-                        _printmessage16("Save as: ^011%s%s", boardfilename, (totalclock&32)?"_":"");
+                        _printmessage16("%sSave as: ^011%s%s", corrupt>=4?"(map corrupt) ":"",
+                                        boardfilename, (totalclock&32)?"_":"");
                         showframe(1);
 
                         if (handleevents())
@@ -4987,7 +4915,9 @@ CANCEL:
                     }
                     else if (bad == 2)
                     {
-                        char *f; int32_t res;
+                        const char *f;
+                        char *slash;
+
                         keystatus[0x1c] = 0;
 
                         boardfilename[i] = '.';
@@ -4996,52 +4926,43 @@ CANCEL:
                         boardfilename[i+3] = 'p';
                         boardfilename[i+4] = 0;
 
-                        if (Bstrrchr(selectedboardfilename,'/'))
-                            Bstrcpy(Bstrrchr(selectedboardfilename, '/')+1, boardfilename);
-                        else
-                            Bstrcpy(selectedboardfilename, boardfilename);
-                        if (pathsearchmode) f = selectedboardfilename;
-                        else
-                        {
-                            // virtual filesystem mode can't save to directories so drop the file into
-                            // the current directory
-                            f = Bstrrchr(selectedboardfilename, '/');
-                            if (!f) f = selectedboardfilename; else f++;
-                        }
-                        _printmessage16("Saving to %s...",f);
+                        slash = Bstrrchr(selectedboardfilename,'/');
+                        Bstrcpy(slash ? slash+1 : selectedboardfilename, boardfilename);
+
+                        _printmessage16("Saving board...");
                         showframe(1);
 
-                        fixspritesectors();   //Do this before saving!
-                        updatesector(startposx,startposy,&startsectnum);
-                        ExtPreSaveMap();
-                        res=saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
-                        ExtSaveMap(f);
-                        printmessage16((res==0)?"Board saved.":"Saving board failed.");
+                        f = SaveBoard(selectedboardfilename, 0);
+
+                        if (f)
+                            printmessage16("Saved board to %s.", f);
+                        else
+                            printmessage16("Saving board failed.");
+
                         Bstrcpy(boardfilename, selectedboardfilename);
                     }
                     bad = 0;
                 }
                 else if (ch == 's' || ch == 'S')  //S
                 {
-                    char *f;
-                    int32_t res;
+                    const char *f;
+
                     bad = 0;
+
+                    if (CheckMapCorruption(4)>=4)
+                        if (!ask_if_sure("Map is corrupt. Are you sure you want to save?", 0))
+                            break;
+
                     _printmessage16("Saving board...");
                     showframe(1);
-                    fixspritesectors();   //Do this before saving!
-                    updatesector(startposx,startposy,&startsectnum);
-                    if (pathsearchmode) f = boardfilename;
+
+                    f = SaveBoard(NULL, 0);
+
+                    if (f)
+                        printmessage16("Saved board to %s.", f);
                     else
-                    {
-                        // virtual filesystem mode can't save to directories so drop the file into
-                        // the current directory
-                        f = Bstrrchr(boardfilename, '/');
-                        if (!f) f = boardfilename; else f++;
-                    }
-                    ExtPreSaveMap();
-                    res=saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
-                    ExtSaveMap(f);
-                    printmessage16((res==0)?"Board saved.":"Saving board failed.");
+                        printmessage16("Saving board failed.");
+
                     showframe(1);
                 }
                 else if (ch == 't' || ch == 'T')
@@ -5063,77 +4984,34 @@ CANCEL:
                 else if (ch == 'q' || ch == 'Q')  //Q
                 {
                     bad = 0;
-                    _printmessage16("Are you sure you want to quit?");
-                    showframe(1);
-                    bflushchars();
-                    while ((keystatus[1]|keystatus[0x2e]) == 0)
+
+                    if (ask_if_sure("Are you sure you want to quit?", 0))
                     {
-                        if (handleevents())
+                        //QUIT!
+
+                        int32_t corrupt = CheckMapCorruption(4);
+
+                        if (ask_if_sure(corrupt<4?"Save changes?":"Map corrupt. Save changes?", corrupt<4?0:1))
+                            SaveBoard(NULL, 0);
+
+                        while (keystatus[1] || keystatus[0x2e])
                         {
-                            if (quitevent) quitevent = 0;
-                        }
-                        idle();
-
-                        ch = bgetchar();
-
-                        if (ch == 'y' || ch == 'Y')
-                        {
-                            //QUIT!
-
-                            _printmessage16("Save changes?");
+                            keystatus[1] = 0;
+                            keystatus[0x2e] = 0;
+                            quitevent = 0;
+                            printmessage16("Operation cancelled");
                             showframe(1);
-                            while ((keystatus[1]|keystatus[0x2e]) == 0)
-                            {
-                                if (handleevents())
-                                {
-                                    if (quitevent) break;	// like saying no
-                                }
-                                idle();
-
-                                ch = bgetchar();
-
-                                if (ch == 'y' || ch == 'Y')
-                                {
-                                    char *f;
-                                    fixspritesectors();   //Do this before saving!
-                                    updatesector(startposx,startposy,&startsectnum);
-                                    ExtPreSaveMap();
-                                    if (pathsearchmode) f = boardfilename;
-                                    else
-                                    {
-                                        // virtual filesystem mode can't save to directories so drop the file into
-                                        // the current directory
-                                        f = Bstrrchr(boardfilename, '/');
-                                        if (!f) f = boardfilename; else f++;
-                                    }
-                                    saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
-                                    ExtSaveMap(f);
-                                    break;
-                                }
-                                else if (ch == 'n' || ch == 'N' || ch == 13 || ch == ' ')
-                                {
-                                    break;
-                                }
-                            }
-                            while (keystatus[1] || keystatus[0x2e])
-                            {
-                                keystatus[1] = 0;
-                                keystatus[0x2e] = 0;
-                                quitevent = 0;
-                                printmessage16("Operation cancelled");
-                                showframe(1);
-                                goto CANCEL;
-                            }
-                            clearfilenames();
-                            uninittimer();
-                            uninitinput();
-                            ExtUnInit();
-                            uninitengine();
-                            exit(0);
+                            goto CANCEL;
                         }
-                        else if (ch == 'n' || ch == 'N' || ch == 13 || ch == ' ')
-                            break;
+
+                        clearfilenames();
+                        uninittimer();
+                        uninitinput();
+                        ExtUnInit();
+                        uninitengine();
+                        exit(0);
                     }
+
                     // printmessage16("");
                     showframe(1);
                 }
@@ -5183,6 +5061,140 @@ CANCEL:
     m32_setkeyfilter(0);
 
     VM_OnEvent(EVENT_ENTER3DMODE, -1);
+}
+
+static int32_t ask_if_sure(const char *query, int32_t quit_is_yes)
+{
+    char ch;
+
+    if (!query)
+        _printmessage16("Are you sure?");
+    else
+        _printmessage16("%s", query);
+    showframe(1);
+    bflushchars();
+    while ((keystatus[1]|keystatus[0x2e]) == 0)
+    {
+        if (handleevents())
+        {
+            if (quitevent)
+            {
+                if (quit_is_yes)
+                    return 1;
+                else
+                    quitevent = 0;
+            }
+        }
+        idle();
+
+        ch = bgetchar();
+
+        if (ch == 'y' || ch == 'Y')
+            return 1;
+        else if (ch == 'n' || ch == 'N' || ch == 13 || ch == ' ')
+            return 0;
+    }
+
+    return 0;
+}
+
+// flags:  1:no ExSaveMap (backup.map)
+const char *SaveBoard(const char *fn, uint32_t flags)
+{
+    const char *f;
+    int32_t ret;
+
+    if (!fn)
+        fn = boardfilename;
+
+    if (pathsearchmode)
+        f = fn;
+    else
+    {
+        // virtual filesystem mode can't save to directories so drop the file into
+        // the current directory
+        f = Bstrrchr(fn, '/');
+        if (!f)
+            f = fn;
+        else
+            f++;
+    }
+
+    fixspritesectors();   //Do this before saving!
+    updatesector(startposx,startposy,&startsectnum);
+    ExtPreSaveMap();
+    ret = saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
+    if ((flags&1)==0)
+        ExtSaveMap(f);
+
+    if (ret)
+        return f;
+    else
+        return NULL;
+}
+
+// flags:  1: for running on Mapster32 init
+//         4: passed to loadboard flags (no polymer_loadboard); implies no maphack loading
+int32_t LoadBoard(const char *filename, uint32_t flags)
+{
+    int32_t i;
+
+    if (!filename)
+        filename = selectedboardfilename;
+
+    if (filename != boardfilename)
+        Bstrcpy(boardfilename, filename);
+
+    if ((flags&1)==0)
+    {
+        highlightcnt = -1;
+        Bmemset(show2dwall, 0, sizeof(show2dwall));  //Clear all highlights
+        Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+
+        newnumwalls = -1;
+    }
+
+///    sectorhighlightstat = -1;
+///    joinsector[0] = -1;
+///    circlewall = -1;
+///    circlepoints = 7;
+
+    for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
+    for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
+    for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
+
+    ExtPreLoadMap();
+    i = loadboard(boardfilename,(flags&4)|(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+    if ((flags&4)==0)
+        loadmhk(0);
+    if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+    if (i < 0)
+    {
+//        printmessage16("Invalid map format.");
+        return i;
+    }
+    else
+    {
+        ExtLoadMap(boardfilename);
+
+        if (mapversion < 7) message("Map %s loaded successfully and autoconverted to V7!",boardfilename);
+        else
+        {
+            i = CheckMapCorruption(4);
+            message("Loaded map %s %s",boardfilename, i==0?"successfully":
+                    (i<4 ? "(moderate corruption)" : "(HEAVY corruption)"));
+        }
+    }
+    updatenumsprites();
+    startposx = pos.x;      //this is same
+    startposy = pos.y;
+    startposz = pos.z;
+    startang = ang;
+    startsectnum = cursectnum;
+
+///    oposz = pos.z;
+
+    return 0;
 }
 
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)
@@ -5594,58 +5606,6 @@ static int32_t movewalls(int32_t start, int32_t offs)
     return(0);
 }
 
-int32_t checksectorpointer(int16_t i, int16_t sectnum)
-{
-    int32_t j, k, startwall, endwall, x1, y1, x2, y2, numnewwalls=0;
-
-    if (checksectorpointer_warn && (i<0 || i>=max(numwalls,newnumwalls)))
-    {
-        char buf[128];
-        Bsprintf(buf, "WARN: checksectorpointer called with i=%d but (new)numwalls=%d", i, max(numwalls,newnumwalls));
-        OSD_Printf("%s\n", buf);
-        printmessage16("%s", buf);
-        return 0;
-    }
-
-    x1 = wall[i].x;
-    y1 = wall[i].y;
-    x2 = POINT2(i).x;
-    y2 = POINT2(i).y;
-
-    if (wall[i].nextwall >= 0)          //Check for early exit
-    {
-        k = wall[i].nextwall;
-        if (wall[k].x == x2 && wall[k].y == y2)
-            if (POINT2(k).x == x1 && POINT2(k).y == y1)
-                return(0);
-    }
-
-    wall[i].nextsector = -1;
-    wall[i].nextwall = -1;
-    for (j=0; j<numsectors; j++)
-    {
-        startwall = sector[j].wallptr;
-        endwall = startwall + sector[j].wallnum - 1;
-        for (k=startwall; k<=endwall; k++)
-        {
-            if (wall[k].x == x2 && wall[k].y == y2)
-                if (POINT2(k).x == x1 && POINT2(k).y == y1)
-                    if (j != sectnum)
-                    {
-                        if (sectnum != -2)  // -2 means dry run
-                        {
-                            wall[i].nextsector = j;
-                            wall[i].nextwall = k;
-                            wall[k].nextsector = sectnum;
-                            wall[k].nextwall = i;
-                        }
-                        numnewwalls++;
-                    }
-        }
-    }
-    return(numnewwalls);
-}
-
 void fixrepeats(int16_t i)
 {
     int32_t dist = wallength(i);
@@ -6018,12 +5978,14 @@ static int32_t getfilenames(const char *path, const char *kind)
 // copied off menuselect
 
 static const char *g_oldpath=NULL;
-static int32_t menuselect_pk(int32_t direction) // 20080104: jump to next (direction!=0) or prev (direction==0) file
+static int32_t menuselect_auto(int32_t direction) // 20080104: jump to next (direction!=0) or prev (direction==0) file
 {
-    const char *chptr;
+    const char *boardbasename;
 
-    if (!g_oldpath) return -3;
-    else Bmemcpy(selectedboardfilename, g_oldpath, BMAX_PATH);
+    if (!g_oldpath)
+        return -3;  // not inited
+    else
+        Bmemcpy(selectedboardfilename, g_oldpath, BMAX_PATH);
 
     if (pathsearchmode)
         Bcanonicalisefilename(selectedboardfilename, 1);  // clips off the last token and compresses relative path
@@ -6031,25 +5993,35 @@ static int32_t menuselect_pk(int32_t direction) // 20080104: jump to next (direc
         Bcorrectfilename(selectedboardfilename, 1);
 
     getfilenames(selectedboardfilename, "*.map");
+    if (numfiles==0)
+        return -2;
 
-    chptr = Bstrrchr(boardfilename,'/'); // PK
-    if (!chptr) chptr=boardfilename; else chptr++;
+    boardbasename = Bstrrchr(boardfilename,'/'); // PK
+    if (!boardbasename)
+        boardbasename=boardfilename;
+    else
+        boardbasename++;
+
     for (; findfileshigh; findfileshigh=findfileshigh->next)
-    {
-        if (!Bstrcmp(findfileshigh->name,chptr)) break;
-    }
+        if (!Bstrcmp(findfileshigh->name,boardbasename))
+            break;
 
-    if (!findfileshigh) findfileshigh=findfiles;
+    if (!findfileshigh)
+        findfileshigh=findfiles;
 
     if (direction)
     {
         if (findfileshigh->next)
             findfileshigh=findfileshigh->next;
+        else
+            return -1;
     }
     else
     {
         if (findfileshigh->prev)
             findfileshigh=findfileshigh->prev;
+        else
+            return -1;
     }
 
     Bstrcat(selectedboardfilename, findfileshigh->name);
@@ -6062,12 +6034,12 @@ static int32_t menuselect(void)
 {
     int32_t listsize;
     int32_t i;
-    char ch, buffer[96], /*PK*/ *chptr;
+    char ch, buffer[96], /*PK*/ *boardbasename;
     static char oldpath[BMAX_PATH];
     CACHE1D_FIND_REC *dir;
     int32_t bakpathsearchmode = pathsearchmode;
 
-    g_oldpath=oldpath; //PK: need it in menuselect_pk
+    g_oldpath=oldpath; //PK: need it in menuselect_auto
 
     Bstrcpy(selectedboardfilename, oldpath);
     if (pathsearchmode)
@@ -6078,13 +6050,18 @@ static int32_t menuselect(void)
     getfilenames(selectedboardfilename, "*.map");
 
     // PK 20080103: start with last selected map
-    chptr = Bstrrchr(boardfilename,'/');
-    if (!chptr) chptr=boardfilename; else chptr++;
+    boardbasename = Bstrrchr(boardfilename,'/');
+    if (!boardbasename)
+        boardbasename=boardfilename;
+    else
+        boardbasename++;
+
     for (; findfileshigh; findfileshigh=findfileshigh->next)
-    {
-        if (!Bstrcmp(findfileshigh->name,chptr)) break;
-    }
-    if (!findfileshigh) findfileshigh=findfiles;
+        if (!Bstrcmp(findfileshigh->name,boardbasename))
+            break;
+
+    if (!findfileshigh)
+        findfileshigh=findfiles;
 
     begindrawing();
     _printmessage16("Select map file with arrow keys and enter.");
@@ -6100,9 +6077,9 @@ static int32_t menuselect(void)
         CLEARLINES2D(0, ydim16, 0);
 
         if (pathsearchmode)
-            Bstrcpy(buffer,"Local filesystem mode; press F for game filesystem.");
+            Bstrcpy(buffer,"Local filesystem mode.  Ctrl-F: game filesystem");
         else
-            Bsprintf(buffer,"Game filesystem %smode; press F for local filesystem or G for %s.",
+            Bsprintf(buffer,"Game filesystem %smode.  Ctrl-F: local filesystem, Ctrl-G: %s",
                      grponlymode?"GRP-only ":"", grponlymode?"all files":"GRP contents only");
 
         printext16(halfxdim16-(8*Bstrlen(buffer)/2), 4, editorcolors[12],editorcolors[0],buffer,0);
@@ -6183,6 +6160,7 @@ static int32_t menuselect(void)
             idle();
 
             ch = bgetchar();
+
             {
                 // JBF 20040208: seek to first name matching pressed character
                 CACHE1D_FIND_REC *seeker = currentlist ? findfiles : finddirs;
@@ -6220,13 +6198,18 @@ static int32_t menuselect(void)
                 else
                 {
                     char ch2;
-                    if (ch > 0 && ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9')))
+                    if (ch > 0 && ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+                                   (ch >= '0' && ch <= '9') || (ch=='_')))
                     {
+#ifdef _WIN32
                         if (ch >= 'a') ch -= ('a'-'A');
+#endif
                         while (seeker)
                         {
                             ch2 = seeker->name[0];
+#ifdef _WIN32
                             if (ch2 >= 'a' && ch2 <= 'z') ch2 -= ('a'-'A');
+#endif
                             if (ch2 == ch) break;
                             seeker = seeker->next;
                         }
@@ -6245,7 +6228,7 @@ static int32_t menuselect(void)
             if (keystatus[0xd0]) ch = 80;   	// down arr
         }
 
-        if (ch == 'f' || ch == 'F')
+        if (ch==6)  // Ctrl-F
         {
             currentlist = 0;
             pathsearchmode = 1-pathsearchmode;
@@ -6259,7 +6242,7 @@ static int32_t menuselect(void)
             getfilenames(selectedboardfilename, "*.map");
             Bstrcpy(oldpath,selectedboardfilename);
         }
-        else if (ch == 'g' || ch == 'G')
+        else if (ch==7)  // Ctrl-G
         {
             if (!pathsearchmode)
             {

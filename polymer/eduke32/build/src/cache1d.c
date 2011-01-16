@@ -629,6 +629,9 @@ int32_t kopen4load(const char *filename, char searchfirst)
     char bad, *gfileptr;
     intptr_t i;
 
+    if (filename==NULL)
+        return -1;
+
     while (filehan[newhandle] != -1)
     {
         newhandle--;

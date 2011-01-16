@@ -101,6 +101,9 @@ int32_t showambiencesounds=2;
 
 int32_t autocorruptcheck = 0;
 static int32_t corruptchecktimer;
+static int32_t curcorruptthing=-1;
+
+int32_t numcorruptthings=0, corruptthings[MAXCORRUPTTHINGS];
 
 static uint32_t templenrepquot;
 static void fixxrepeat(int16_t i, uint32_t lenrepquot)
@@ -192,6 +195,17 @@ static int16_t tilemarked[(MAXTILES+7)>>3];
 #ifdef POLYMER
 static int16_t spritelightid[MAXSPRITES];
 _prlight *spritelightptr[MAXSPRITES];
+
+static void DeletePolymerLights()
+{
+    int32_t i;
+    for (i=0; i<MAXSPRITES; i++)
+        if (spritelightptr[i] != NULL)
+        {
+            polymer_deletelight(spritelightid[i]);
+            spritelightptr[i] = NULL;
+        }
+}
 #endif
 extern int32_t graphicsmode;
 
@@ -5508,12 +5522,7 @@ static void Keys3d(void)
         S_ClearSoundLocks();
 
 #ifdef POLYMER
-        for (i=0; i<MAXSPRITES; i++)
-            if (spritelightptr[i] != NULL)
-            {
-                polymer_deletelight(spritelightid[i]);
-                spritelightptr[i] = NULL;
-            }
+        DeletePolymerLights();
 #endif
     }
 
@@ -5540,12 +5549,7 @@ static void Keys3d(void)
         message("Map shade preview %s", shadepreview?"enabled":"disabled");
 
 #ifdef POLYMER
-        for (i=0; i<MAXSPRITES; i++)
-            if (spritelightptr[i] != NULL)
-            {
-                polymer_deletelight(spritelightid[i]);
-                spritelightptr[i] = NULL;
-            }
+        DeletePolymerLights();
 #endif
     }
 
@@ -6593,7 +6597,7 @@ static void Keys3d(void)
 
 static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
 {
-    char did_wrap = 0;
+    char did_wrap = 0, outofgrid=0;
     int32_t i, j, k = 0;
 
     dir = 1-2*(dir<0);
@@ -6672,12 +6676,20 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
             }
 
         // found matching sprite
-        pos.x = sprite[gs_cursprite].x;
-        pos.y = sprite[gs_cursprite].y;
-        ang = sprite[gs_cursprite].ang;
+        if (pos.x >= -editorgridextent && pos.x <= editorgridextent &&
+                pos.y >= -editorgridextent && pos.y <= editorgridextent)
+        {
+            pos.x = sprite[gs_cursprite].x;
+            pos.y = sprite[gs_cursprite].y;
+            if (pos.z >= -editorgridextent<<4 && pos.z <= editorgridextent<<4)
+                pos.z = sprite[gs_cursprite].z;
+            ang = sprite[gs_cursprite].ang;
+        }
+        else
+            outofgrid = 1;
 
-        printmessage16("%s Sprite seach%s: found sprite %d", dir<0 ? "<" : ">",
-                       did_wrap ? " (wrap)" : "", gs_cursprite);
+        printmessage16("%s Sprite seach%s: found sprite %d%s", dir<0 ? "<" : ">",
+                       did_wrap ? " (wrap)" : "", gs_cursprite, outofgrid?"(outside grid)":"");
         did_wrap = 0;
         return;
 
@@ -6694,19 +6706,20 @@ static void Keys2d(void)
     int32_t i=0, j, k;
     int32_t smooshy, changedir;
     static int32_t repeatcnt[2] = {0,0};  // was repeatcountx, repeatcounty
+    int32_t tcursectornum;
 
 //    for(i=0;i<0x50;i++) if(keystatus[i]==1) Bsprintf(tempbuf,"key %d",i); printmessage16(tempbuf);
 
-    cursectornum = -1;
+    tcursectornum = -1;
     for (i=0; i<numsectors; i++)
     {
         if (inside(mousxplc,mousyplc,i) == 1)
         {
-            cursectornum = i;
+            tcursectornum = i;
             break;
         }
     }
-    searchsector = cursectornum;
+    searchsector = tcursectornum;
 
     if (eitherCTRL && PRESSED_KEYSC(Z)) // CTRL+Z
     {
@@ -6731,16 +6744,16 @@ static void Keys2d(void)
                 drawgradient();
                 showspritedata(pointhighlight&16383, 0);
             }
-            else if (linehighlight >= 0 /* && ((bstatus&1) || sectorofwall(linehighlight)==cursectornum)*/)
+            else if (linehighlight >= 0 /* && ((bstatus&1) || sectorofwall(linehighlight)==tcursectornum)*/)
             {
                 drawgradient();
                 showwalldata(linehighlight, 0);
             }
         }
-        else if (cursectornum >= 0)
+        else if (tcursectornum >= 0)
         {
             drawgradient();
-            showsectordata(cursectornum, 0);
+            showsectordata(tcursectornum, 0);
         }
     }
     else if (!(keystatus[KEYSC_F5]|keystatus[KEYSC_F6]|keystatus[KEYSC_F7]|keystatus[KEYSC_F8]) && !eitherSHIFT)
@@ -6750,7 +6763,7 @@ static void Keys2d(void)
         /*
                 static int32_t opointhighlight, olinehighlight, ocursectornum;
 
-                if (pointhighlight == opointhighlight && linehighlight == olinehighlight && cursectornum == ocursectornum)
+                if (pointhighlight == opointhighlight && linehighlight == olinehighlight && tcursectornum == ocursectornum)
         */
         if (omx == mousxplc && omy == mousyplc)
         {
@@ -6766,7 +6779,7 @@ static void Keys2d(void)
         /*
                 opointhighlight = pointhighlight;
                 olinehighlight = linehighlight;
-                ocursectornum = cursectornum;
+                ocursectornum = tcursectornum;
         */
 
 
@@ -6782,10 +6795,10 @@ static void Keys2d(void)
                 if (sprite[i].picnum==SECTOREFFECTOR)
                     _printmessage16("^10%s", SectorEffectorText(i));
             }
-            else if (linehighlight >= 0 && ((bstatus&1) || sectorofwall(linehighlight)==cursectornum))
+            else if (linehighlight >= 0 && ((bstatus&1) || sectorofwall(linehighlight)==tcursectornum))
                 showwalldata(linehighlight, 1);
-            else if (cursectornum >= 0)
-                showsectordata(cursectornum, 1);
+            else if (tcursectornum >= 0)
+                showsectordata(tcursectornum, 1);
         }
     }
 
@@ -7032,7 +7045,70 @@ static void Keys2d(void)
 
     if (tsign)
     {
-        if (wallsprite==0)
+        if (numcorruptthings>0)
+        {
+            int32_t wrap=0, x, y, z;
+
+            if (curcorruptthing<0 || curcorruptthing>=numcorruptthings)
+                curcorruptthing = 0;
+            else
+            {
+                curcorruptthing += tsign;
+                wrap = (curcorruptthing<0 || curcorruptthing>=numcorruptthings);
+                curcorruptthing += numcorruptthings;
+                curcorruptthing %= numcorruptthings;
+            }
+
+            k = corruptthings[curcorruptthing];
+            j = -1;
+            switch (k&CORRUPT_MASK)
+            {
+            case 0:
+                printmessage16("MAP LIMITS EXCEEDED!");
+                break;
+            case CORRUPT_SECTOR:
+                i = k&(MAXSECTORS-1);
+                j = 0;
+                x = wall[sector[i].wallptr].x;
+                y = wall[sector[i].wallptr].y;
+                z = pos.z;
+                break;
+            case CORRUPT_WALL:
+                i = k&(MAXWALLS-1);
+                j = 1;
+                x = wall[i].x;
+                y = wall[i].y;
+                z = pos.z;
+                break;
+            case CORRUPT_SPRITE:
+                i = k&(MAXSPRITES-1);
+                j = 2;
+                x = sprite[i].x;
+                y = sprite[i].y;
+                z = sprite[i].z;
+                break;
+            default:
+                k = 0;
+                break;
+            }
+
+            if (k)
+            {
+                static const char *secwalspr[3] = {"sector", "wall", "sprite"};
+                if (x>=-editorgridextent && x<=editorgridextent &&
+                        y>=-editorgridextent && y<=editorgridextent)
+                {
+                    pos.x = x;
+                    pos.y = y;
+                    pos.z = z;
+                }
+                else x=editorgridextent+1;
+
+                printmessage16("%s Corrupt %s %d%s", tsign<0?"<":">", secwalspr[j], i,
+                               (x==editorgridextent+1) ? " (outside grid)" : (wrap ? " (wrap)" : ""));
+            }
+        }
+        else if (wallsprite==0)
             SearchSectors(tsign);
         else if (wallsprite==1)
         {
@@ -7047,6 +7123,7 @@ static void Keys2d(void)
                 {
                     pos.x = wall[i].x - (wall[i].x-POINT2(i).x)/2;
                     pos.y = wall[i].y - (wall[i].y-POINT2(i).y)/2;
+                    pos.z = getflorzofslope(sectorofwall(i), pos.x, pos.y);
                     printmessage16("%s Wall search: found", tsign<0?"<":">");
                     return;
                 }
@@ -9138,25 +9215,13 @@ void app_crashhandler(void)
 {
     if (levelname[0])
     {
-        char *f;
-        fixspritesectors();   //Do this before saving!
-        updatesector(startposx,startposy,&startsectnum);
-        if (pathsearchmode)
-            f = levelname;
-        else
-        {
-            // virtual filesystem mode can't save to directories so drop the file into
-            // the current directory
-            f = Bstrrchr(levelname, '/');
-            if (!f) f = levelname; else f++;
-        }
-        f=strstr(levelname,".map");
+        char *f = strstr(levelname,".map");
+
         if (f)
             Bstrcpy(f,"_crash.map");
         else Bstrcat(f,"_crash.map");
-        ExtPreSaveMap();
-        saveboard(levelname,&startposx,&startposy,&startposz,&startang,&startsectnum);
-        ExtSaveMap(levelname);
+
+        SaveBoard(f, 1);
     }
 }
 #endif
@@ -9737,16 +9802,6 @@ static void Keys2d3d(void)
 
     if (eitherCTRL)  //CTRL
     {
-        char *f;
-        if (pathsearchmode) f = levelname;
-        else
-        {
-            // virtual filesystem mode can't save to directories so drop the file into
-            // the current directory
-            f = Bstrrchr(levelname, '/');
-            if (!f) f = levelname; else f++;
-        }
-
         if (PRESSED_KEYSC(P)) // Ctrl-P: Map playtesting
         {
             if (qsetmode != 200)
@@ -9758,56 +9813,50 @@ static void Keys2d3d(void)
             if (levelname[0])
             {
                 keystatus[KEYSC_S] = 0;
-                fixspritesectors();   //Do this before saving!
-                updatesector(startposx,startposy,&startsectnum);
-                ExtPreSaveMap();
-                saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
-                ExtSaveMap(f);
-                message("Board saved");
-                asksave = 0;
-                lastsave=totalclock;
+
+                i = CheckMapCorruption(4);
+                if (i<4)
+                {
+                    SaveBoard(levelname, 0);
+
+                    message("Board saved");
+                    asksave = 0;
+                    lastsave=totalclock;
+                }
+                else
+                    message("Map is heavily corrupted, not saving. See OSD for details.");
             }
         }
         if (keystatus[KEYSC_L]) // L
         {
-            extern int32_t grponlymode;
-            extern void loadmhk();
-
             if (totalclock < (lastsave + 120*10) || !AskIfSure("Are you sure you want to load the last saved map?"))
             {
                 int32_t sposx=pos.x,sposy=pos.y,sposz=pos.z,sang=ang;
+                char *f;
+
+                if (pathsearchmode) f = levelname;
+                else
+                {
+                    // virtual filesystem mode can't save to directories so drop the file into
+                    // the current directory
+                    f = Bstrrchr(levelname, '/');
+                    if (!f) f = levelname; else f++;
+                }
 
                 lastsave=totalclock;
-                highlightcnt = -1;
                 //  			  sectorhighlightstat = -1;
                 //  			  newnumwalls = -1;
                 //  			  joinsector[0] = -1;
                 //  			  circlewall = -1;
                 //  			  circlepoints = 7;
 
-                for (i=MAXSECTORS-1; i>=0; i--) sector[i].extra = -1;
-                for (i=MAXWALLS-1; i>=0; i--) wall[i].extra = -1;
-                for (i=MAXSPRITES-1; i>=0; i--) sprite[i].extra = -1;
+                if (LoadBoard(f, 0))
+                    message("Invalid map format.");
 
-                ExtPreLoadMap();
-                i = loadboard(f,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
-                loadmhk();
-                if (i == -2) i = loadoldboard(f,(!pathsearchmode&&grponlymode?2:0),&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
-                if (i < 0) printmessage16("Invalid map format.");
-                else
-                {
-                    ExtLoadMap(f);
-                    if (mapversion < 7) message("Map %s loaded successfully and autoconverted to V7!",f);
-                    else message("Map %s loaded successfully",f);
-                }
-                updatenumsprites();
-                startposx = pos.x;
-                startposy = pos.y;
-                startposz = pos.z;
-                startang = ang;
-                startsectnum = cursectnum;
                 pos.x=sposx; pos.y=sposy; pos.z=sposz; ang=sang;
-                keystatus[KEYSC_L]=0;
+                updatesectorz(pos.x, pos.y, pos.z, &cursectnum);
+
+                keystatus[KEYSC_L] = 0;
             }
         }
     }
@@ -9917,7 +9966,8 @@ void ExtCheckKeys(void)
 
         if (autocorruptcheck>0 && totalclock > corruptchecktimer)
         {
-            CheckMapCorruption(0);
+            if (CheckMapCorruption(3)>=4)
+                message("Corruption detected. See OSD for details.");
             corruptchecktimer = totalclock + 120*autocorruptcheck;
         }
     }
@@ -9934,12 +9984,17 @@ void ExtCheckKeys(void)
     {
         if (asksave == 3)
         {
-            fixspritesectors();   //Do this before saving!
-            //             updatesector(startposx,startposy,&startsectnum);
-            ExtPreSaveMap();
-            saveboard("autosave.map",&startposx,&startposy,&startposz,&startang,&startsectnum);
-            ExtSaveMap("autosave.map");
-            message("Board autosaved to AUTOSAVE.MAP");
+            if (CheckMapCorruption(6)>=4)
+            {
+                SaveBoard("autosave_corrupt.map", 1);
+                message("Board autosaved to AUTOSAVE_CORRUPT.MAP");
+            }
+            else
+            {
+                SaveBoard("autosave.map", 0);
+                message("Board autosaved to AUTOSAVE.MAP");
+            }
+
             asksave = 4;
         }
         autosavetimer = totalclock+120*autosave;
@@ -9955,14 +10010,13 @@ void ExtCheckKeys(void)
 
 //// port of a.m32's corruptchk ////
 // returns value from 0 (all OK) to 5 (panic!)
-#define CORRUPTCHK_PRINT(errlev, fmt, ...) do \
+#define CORRUPTCHK_PRINT(errlev, what, fmt, ...) do  \
 { \
     bad = max(bad, errlev); \
+    if (numcorruptthings<MAXCORRUPTTHINGS) \
+        corruptthings[numcorruptthings++] = what;   \
     if (errlev >= printfromlev) \
-    { \
         OSD_Printf(fmt "\n", ## __VA_ARGS__); \
-        if (qsetmode!=200) printmessage16(fmt, ## __VA_ARGS__); \
-    } \
 } while (0)
 
 int32_t CheckMapCorruption(int32_t printfromlev)
@@ -9972,11 +10026,13 @@ int32_t CheckMapCorruption(int32_t printfromlev)
 
     int32_t errlevel=0, bad=0;
 
+    numcorruptthings = 0;
+
     if (numsectors>MAXSECTORS)
-        CORRUPTCHK_PRINT(5, "PANIC!!! SECTOR LIMIT EXCEEDED (MAXSECTORS=%d)!!!", MAXSECTORS);
+        CORRUPTCHK_PRINT(5, 0, "PANIC!!! SECTOR LIMIT EXCEEDED (MAXSECTORS=%d)!!!", MAXSECTORS);
 
     if (numwalls>MAXWALLS)
-        CORRUPTCHK_PRINT(5, "PANIC!!! WALL LIMIT EXCEEDED (MAXWALLS=%d)!!!", MAXWALLS);
+        CORRUPTCHK_PRINT(5, 0, "PANIC!!! WALL LIMIT EXCEEDED (MAXWALLS=%d)!!!", MAXWALLS);
 
     if (numsectors>MAXSECTORS || numwalls>MAXWALLS)
         return bad;
@@ -9989,21 +10045,21 @@ int32_t CheckMapCorruption(int32_t printfromlev)
         numw = sector[i].wallnum;
 
         if (w0 < 0 || w0 > numwalls)
-            CORRUPTCHK_PRINT(4, "SECTOR[%d].WALLPTR=%d out of range (numwalls=%d)", i, w0, numw);
+            CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR[%d].WALLPTR=%d out of range (numwalls=%d)", i, w0, numw);
 
         if (w0 != ewall)
-            CORRUPTCHK_PRINT(4, "SECTOR[%d].WALLPTR=%d inconsistent, expected %d", i, w0, ewall);
+            CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR[%d].WALLPTR=%d inconsistent, expected %d", i, w0, ewall);
 
         if (numw <= 1)
-            CORRUPTCHK_PRINT(5, "PANIC!!! SECTOR[%d].WALLNUM=%d INVALID!!!", i, numw);
+            CORRUPTCHK_PRINT(5, CORRUPT_SECTOR|i, "PANIC!!! SECTOR[%d].WALLNUM=%d INVALID!!!", i, numw);
         else if (numw==2)
-            CORRUPTCHK_PRINT(3, "SECTOR[%d].WALLNUM=2, expected at least 3", i);
+            CORRUPTCHK_PRINT(3, CORRUPT_SECTOR|i, "SECTOR[%d].WALLNUM=2, expected at least 3", i);
 
         ewall += numw;
 
         endwall = w0 + numw;
         if (endwall > numwalls)
-            CORRUPTCHK_PRINT(4, "SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d", i, endwall, numwalls);
+            CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d", i, endwall, numwalls);
 
         if (bad)
             errlevel = max(errlevel, bad);
@@ -10016,37 +10072,37 @@ int32_t CheckMapCorruption(int32_t printfromlev)
                 bad = 0;
 
                 if (wall[j].point2 < w0 || wall[j].point2 > endwall)
-                    CORRUPTCHK_PRINT(4, "WALL[%d].POINT2=%d out of range [%d, %d]",
+                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].POINT2=%d out of range [%d, %d]",
                                      j, wall[j].point2, w0, endwall);
 
                 nw = wall[j].nextwall;
                 ns = wall[j].nextsector;
 
                 if (nw >= numwalls)
-                    CORRUPTCHK_PRINT(4, "WALL[%d].NEXTWALL=%d out of range: numwalls=%d",
+                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d out of range: numwalls=%d",
                                      j, nw, numwalls);
 
                 if (ns >= numsectors)
-                    CORRUPTCHK_PRINT(4, "WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d",
+                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d",
                                      j, ns, numsectors);
 
                 if (ns == i)
-                    CORRUPTCHK_PRINT(4, "WALL[%d].NEXTSECTOR is its own sector", j);
+                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR is its own sector", j);
 
                 if (nw>=w0 && nw<=endwall)
-                    CORRUPTCHK_PRINT(4, "WALL[%d].NEXTWALL is its own sector's wall", j);
+                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL is its own sector's wall", j);
 
-                if (bad)
-                    errlevel = max(errlevel, bad);
-                else
+                if (!bad)
                 {
                     if (ns>=0 || (ns^nw)<0)
                     {
                         if ((ns^nw)<0 || nw<sector[ns].wallptr || nw>=sector[ns].wallptr+sector[ns].wallnum)
-                            CORRUPTCHK_PRINT(4, "WALL[%d].NEXTSECTOR=%d and .NEXTWALL=%d inconsistent",
+                            CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d and .NEXTWALL=%d inconsistent",
                                              j, ns, nw);
                     }
                 }
+
+                errlevel = max(errlevel, bad);
             }
         }
     }
@@ -10058,19 +10114,22 @@ int32_t CheckMapCorruption(int32_t printfromlev)
             continue;
 
         if (sprite[i].sectnum<0 || sprite[i].sectnum>=numsectors)
-            CORRUPTCHK_PRINT(2, "SPRITE[%d].SECTNUM=%d. Expect problems!", i, sprite[i].sectnum);
+            CORRUPTCHK_PRINT(2, CORRUPT_SPRITE|i, "SPRITE[%d].SECTNUM=%d. Expect problems!", i, sprite[i].sectnum);
 
         if (sprite[i].picnum<0 || sprite[i].picnum>=MAXTILES)
         {
             sprite[i].picnum = 0;
-            CORRUPTCHK_PRINT(0, "SPRITE[%d].PICNUM=%d out of range, resetting to 0", i, sprite[i].picnum);
+            CORRUPTCHK_PRINT(0, CORRUPT_SPRITE|i, "SPRITE[%d].PICNUM=%d out of range, resetting to 0", i, sprite[i].picnum);
         }
     }
 
     errlevel = max(errlevel, bad);
 
     if (errlevel)
-        OSD_Printf("--\n");
+    {
+        if (printfromlev<=errlevel)
+            OSD_Printf("-- corruption level: %d\n", errlevel);
+    }
 
     return errlevel;
 }
@@ -10126,9 +10185,9 @@ static void SearchSectors(int32_t dir)  // <0: backwards, >=0: forwards
                 pos.x = wall[sector[ii].wallptr].x;
                 pos.y = wall[sector[ii].wallptr].y;
                 printmessage16("%s Sector search: found", dir<0?"<":">");
+                cursectornum = ii;
                 return;
             }
-            cursectornum += dir;
         }
     }
     printmessage16("%s Sector search: none found", dir<0?"<":">");

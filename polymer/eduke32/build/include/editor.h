@@ -106,6 +106,15 @@ extern void ExtEditWallData(int16_t wallnum);
 extern void ExtEditSpriteData(int16_t spritenum);
 extern const char *ExtGetSectorType(int32_t lotag);
 
+extern int32_t LoadBoard(const char *filename, uint32_t flags);
+extern const char *SaveBoard(const char *fn, uint32_t flags);
+
+#define CORRUPT_SECTOR (1<<17)
+#define CORRUPT_WALL (1<<18)
+#define CORRUPT_SPRITE (1<<19)
+#define CORRUPT_MASK (CORRUPT_SECTOR|CORRUPT_WALL|CORRUPT_SPRITE)
+#define MAXCORRUPTTHINGS 64
+extern int32_t numcorruptthings, corruptthings[MAXCORRUPTTHINGS];
 extern int32_t autocorruptcheck;
 extern int32_t CheckMapCorruption(int32_t printfromlev);
 

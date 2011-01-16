@@ -2864,7 +2864,7 @@ dodefault:
                 int32_t col=Gv_GetVarX(*insptr++), odrawlinepat=drawlinepat;
                 int32_t xofs=0, yofs=0, eccen=16384;
 
-                if (tw==CON_DRAWCIRCLE16B)
+                if (tw==CON_DRAWCIRCLE16B || tw==CON_DRAWCIRCLE16Z)
                 {
                     screencoords(&x1,&y1, x1-pos.x,y1-pos.y, zoom);
                     if (m32_sideview)

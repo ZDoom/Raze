@@ -57,12 +57,6 @@ Notes:
 * The clipping will not change with rendering modes or options.
 
 
-Known bugs:
------------
-
-* Flipping doesn't work correctly
-
-
 Predicted bugs:
 ---------------
 

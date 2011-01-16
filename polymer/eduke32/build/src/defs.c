@@ -1908,7 +1908,7 @@ static int32_t defsparser(scriptfile *script)
 }
 
 
-int32_t loaddefinitionsfile(char *fn)
+int32_t loaddefinitionsfile(const char *fn)
 {
     scriptfile *script;
     int32_t f = flushlogwindow;

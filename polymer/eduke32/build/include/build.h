@@ -435,13 +435,14 @@ int32_t    preinitengine(void);	// a partial setup of the engine used for launch
 int32_t    initengine(void);
 void   uninitengine(void);
 void   initspritelists(void);
-int32_t   loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
-int32_t   loadmaphack(char *filename);
-int32_t clipmapinfo_load(char *filename);
-int32_t   saveboard(char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
-int32_t   loadpics(char *filename, int32_t askedsize);
+int32_t   loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
+int32_t   loadmaphack(const char *filename);
+void delete_maphack_lights();
+int32_t clipmapinfo_load(const char *filename);
+int32_t   saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
+int32_t   loadpics(const char *filename, int32_t askedsize);
 void   loadtile(int16_t tilenume);
-int32_t   qloadkvx(int32_t voxindex, char *filename);
+int32_t   qloadkvx(int32_t voxindex, const char *filename);
 int32_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   makepalookup(int32_t palnum, char *remapbuf, int8_t r, int8_t g, int8_t b, char dastat);
@@ -491,6 +492,7 @@ void   updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum) ATTRIBUT
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day);
 void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
+int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
 void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUTE((nonnull(1,2,3)));
 int32_t    krand(void);
@@ -563,7 +565,7 @@ int32_t   changespritesect(int16_t spritenum, int16_t newsectnum);
 int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
 int32_t   setsprite(int16_t spritenum, const vec3_t *new) ATTRIBUTE((nonnull(2)));
 
-int32_t   screencapture(char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
+int32_t   screencapture(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
 
 int32_t   getclosestcol(int32_t r, int32_t g, int32_t b);
 
@@ -648,7 +650,7 @@ void hicinit(void);
 // effect bitset: 1 = greyscale, 2 = invert
 void hicsetpalettetint(int32_t palnum, char r, char g, char b, char effect);
 // flags bitset: 1 = don't compress
-int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, char *filen, float alphacut, float xscale, float yscale, float specpower, float specfactor, char flags);
+int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float alphacut, float xscale, float yscale, float specpower, float specfactor, char flags);
 int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6]);
 int32_t hicclearsubst(int32_t picnum, int32_t palnum);
 
@@ -688,7 +690,7 @@ int32_t md_definehud (int32_t modelid, int32_t tilex, double xadd, double yadd, 
 int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);
 
-int32_t loaddefinitionsfile(char *fn);
+int32_t loaddefinitionsfile(const char *fn);
 
 extern int32_t mapversion;	// if loadboard() fails with -2 return, try loadoldboard(). if it fails with -2, board is dodgy
 int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);

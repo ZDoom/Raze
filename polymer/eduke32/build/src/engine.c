@@ -168,6 +168,10 @@ qlz_state_decompress *state_decompress = NULL;
 
 int32_t whitecol;
 
+#ifdef POLYMER
+static int16_t maphacklightcnt=0;
+static int16_t maphacklight[PR_MAXLIGHTS];
+#endif
 
 ////////// editor side view //////////
 int32_t m32_sideview = 0;
@@ -230,7 +234,7 @@ static int16_t pictoidx[MAXTILES];  // maps tile num to clipinfo[] index
 static int16_t *tempictoidx;
 
 static sectortype *loadsector;
-static walltype *loadwall;
+static walltype *loadwall, *loadwallinv;
 static spritetype *loadsprite;
 
 // sectoidx bits
@@ -273,6 +277,7 @@ static void clipmapinfo_init()
 
     if (loadsector) { Bfree(loadsector); loadsector=NULL; }
     if (loadwall) { Bfree(loadwall); loadwall=NULL; }
+    if (loadwallinv) { Bfree(loadwallinv); loadwallinv=NULL; }
     if (loadsprite) { Bfree(loadsprite); loadsprite=NULL; }
 
     clipmapinfo.numsectors = clipmapinfo.numwalls = 0;
@@ -285,7 +290,7 @@ static void clipmapinfo_init()
 
 // loads the clip maps 0 through 9.
 // this should be called before any real map is loaded.
-int32_t clipmapinfo_load(char *filename)
+int32_t clipmapinfo_load(const char *filename)
 {
     int32_t i,k,w, px,py,pz;
     int16_t ang,cs;
@@ -635,6 +640,56 @@ int32_t clipmapinfo_load(char *filename)
     Bmemcpy(loadsector, sector, ournumsectors*sizeof(sectortype));
     Bmemcpy(loadwall, wall, ournumwalls*sizeof(walltype));
 
+    // loadwallinv will contain all walls with inverted orientation for x/y-flip handling
+    loadwallinv = Bmalloc(ournumwalls*sizeof(walltype));
+    if (!loadwallinv)
+    {
+        clipmapinfo_init();
+        return 1;
+    }
+
+    {
+        int32_t j, loopstart, loopend, numloopwalls;
+
+        // invert walls!
+        loopstart = 0;
+        for (j=0; j<ournumwalls; j++)
+        {
+            wall[j].nextsector = wall[j].nextwall = -1;
+
+            if (wall[j].point2 < j)
+            {
+                loopend = j+1;
+                numloopwalls = loopend-loopstart;
+
+                if (numloopwalls<3)
+                {
+                    loopstart = loopend;
+                    continue;
+                }
+
+                for (k=0; k<numloopwalls; k++)
+                {
+                    wall[loopstart+k].x = loadwall[loopstart + (numloopwalls+1-k)%numloopwalls].x;
+                    wall[loopstart+k].y = loadwall[loopstart + (numloopwalls+1-k)%numloopwalls].y;
+
+                    CM_WALL_X(loopstart+k) = wall[loopstart+k].x;
+                    CM_WALL_Y(loopstart+k) = wall[loopstart+k].y;
+                }
+
+                loopstart = loopend;
+            }
+        }
+
+        // reconstruct wall connections
+        for (i=0; i<ournumsectors; i++)
+        {
+            for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+                checksectorpointer(j, i);
+        }
+    }
+    Bmemcpy(loadwallinv, wall, ournumwalls*sizeof(walltype));
+
     clipmapinfo.numsectors = numsectors;
     clipmapinfo.sector = loadsector;
     clipmapinfo.numwalls = numwalls;
@@ -652,6 +707,7 @@ int32_t clipmapinfo_load(char *filename)
     // don't let other code be distracted by the temporary map we constructed
     numsectors = 0;
     numwalls = 0;
+    initspritelists();
 
     initprintf("Loaded clip map%s %s.\n", lwcp==loadedwhich+1?"":"s", loadedwhich);
 
@@ -659,6 +715,61 @@ int32_t clipmapinfo_load(char *filename)
 }
 
 ////// //////
+
+
+int32_t checksectorpointer(int16_t i, int16_t sectnum)
+{
+    int32_t j, k, startwall, endwall, x1, y1, x2, y2, numnewwalls=0;
+
+#if 0
+    if (checksectorpointer_warn && (i<0 || i>=max(numwalls,newnumwalls)))
+    {
+        char buf[128];
+        Bsprintf(buf, "WARN: checksectorpointer called with i=%d but (new)numwalls=%d", i, max(numwalls,newnumwalls));
+        OSD_Printf("%s\n", buf);
+        printmessage16("%s", buf);
+        return 0;
+    }
+#endif
+
+    x1 = wall[i].x;
+    y1 = wall[i].y;
+    x2 = (wall[wall[i].point2]).x;
+    y2 = (wall[wall[i].point2]).y;
+
+    if (wall[i].nextwall >= 0)          //Check for early exit
+    {
+        k = wall[i].nextwall;
+        if (wall[k].x == x2 && wall[k].y == y2)
+            if ((wall[wall[k].point2]).x == x1 && (wall[wall[k].point2]).y == y1)
+                return(0);
+    }
+
+    wall[i].nextsector = -1;
+    wall[i].nextwall = -1;
+    for (j=0; j<numsectors; j++)
+    {
+        startwall = sector[j].wallptr;
+        endwall = startwall + sector[j].wallnum - 1;
+        for (k=startwall; k<=endwall; k++)
+        {
+            if (wall[k].x == x2 && wall[k].y == y2)
+                if ((wall[wall[k].point2]).x == x1 && (wall[wall[k].point2]).y == y1)
+                    if (j != sectnum)
+                    {
+                        if (sectnum != -2)  // -2 means dry run
+                        {
+                            wall[i].nextsector = j;
+                            wall[i].nextwall = k;
+                            wall[k].nextsector = sectnum;
+                            wall[k].nextwall = i;
+                        }
+                        numnewwalls++;
+                    }
+        }
+    }
+    return(numnewwalls);
+}
 
 
 #if defined(_MSC_VER) && !defined(NOASM)
@@ -7087,14 +7198,19 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 //
 // loadboard
 //
-int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz,
+// flags: 1, 2: former parameter "fromwhere"
+//           4: don't call polymer_loadboard
+int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, int32_t *daposz,
                   int16_t *daang, int16_t *dacursectnum)
 {
     int16_t fil, i, numsprites, dq[MAXSPRITES], dnum = 0;
+    char myflags = flags&(~3);
+
+    flags &= 3;
 
     i = strlen(filename)-1;
-    if (filename[i] == 255) { filename[i] = 0; fromwhere = 1; } // JBF 20040119: "compatibility"
-    if ((fil = kopen4load(filename,fromwhere)) == -1)
+    if (filename[i] == 255) { filename[i] = 0; flags = 1; } // JBF 20040119: "compatibility"
+    if ((fil = kopen4load(filename,flags)) == -1)
         { mapversion = 7L; return(-1); }
 
     kread(fil,&mapversion,4); mapversion = B_LITTLE32(mapversion);
@@ -7261,7 +7377,10 @@ int32_t loadboard(char *filename, char fromwhere, int32_t *daposx, int32_t *dapo
 
 # ifdef POLYMER
         if (rendmode == 4)
-            polymer_loadboard();
+        {
+            if ((myflags&4)==0)
+                polymer_loadboard();
+        }
 #endif
 #endif
     }
@@ -7728,12 +7847,26 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
     return(0);
 }
 
+#ifdef POLYMER
+void delete_maphack_lights()
+{
+    int32_t i;
+    for (i=0; i<maphacklightcnt; i++)
+    {
+        polymer_deletelight(maphacklight[i]);
+        maphacklight[i] = -1;
+    }
+    maphacklightcnt = 0;
+}
+#else
+void delete_maphack_lights() {}
+#endif
 
 //
 // loadmaphack
 //
 #if defined(POLYMOST) && defined(USE_OPENGL)
-int32_t loadmaphack(char *filename)
+int32_t loadmaphack(const char *filename)
 {
     enum
     {
@@ -7780,6 +7913,11 @@ int32_t loadmaphack(char *filename)
     int32_t i;
     int32_t whichsprite = -1;
     static char fn[BMAX_PATH];
+
+#ifdef POLYMER
+    for (i=0; i<PR_MAXLIGHTS; i++)
+        maphacklight[i] = -1;
+#endif
 
     if (filename)
     {
@@ -7955,6 +8093,7 @@ int32_t loadmaphack(char *filename)
         case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority tilenum
         {
             int32_t value;
+            int16_t lightid;
 #pragma pack(push,1)
             _prlight light;
 #pragma pack(pop)
@@ -7992,7 +8131,11 @@ int32_t loadmaphack(char *filename)
             light.tilenum = value;
 
             if (rendmode == 4)
-                polymer_addlight(&light);
+            {
+                lightid = polymer_addlight(&light);
+                if (lightid>=0)
+                    maphacklight[maphacklightcnt++] = lightid;
+            }
 
             break;
         }
@@ -8015,7 +8158,7 @@ int32_t loadmaphack(char *filename) { UNREFERENCED_PARAMETER(filename); return -
 //
 // saveboard
 //
-int32_t saveboard(char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz,
+int32_t saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz,
                   int16_t *daang, int16_t *dacursectnum)
 {
     int16_t fil, i, j, numsprites, ts;
@@ -8028,7 +8171,10 @@ int32_t saveboard(char *filename, int32_t *daposx, int32_t *daposy, int32_t *dap
     spritetype *spri;
 
     if ((fil = Bopen(filename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
+    {
+        initprintf("Couldn't open \"%s\" for writing: %s\n", filename, strerror(errno));
         return(-1);
+    }
 
     for (j=0; j<MAXSPRITES; j++)if ((unsigned)sprite[j].statnum>MAXSTATUS)
         {
@@ -8362,7 +8508,7 @@ void nextpage(void)
 //
 // loadpics
 //
-int32_t loadpics(char *filename, int32_t askedsize)
+int32_t loadpics(const char *filename, int32_t askedsize)
 {
     int32_t offscount, localtilestart, localtileend, dasiz;
     int16_t fil, i, j, k;
@@ -8613,7 +8759,7 @@ void copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, in
 // qloadkvx
 //
 #ifdef SUPERBUILD
-int32_t qloadkvx(int32_t voxindex, char *filename)
+int32_t qloadkvx(int32_t voxindex, const char *filename)
 {
     int32_t i, fil, dasiz, lengcnt, lengtot;
     char *ptr;
@@ -9602,7 +9748,11 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
     rotang = (curspr->ang - sector[j].CM_ANG)&2047;
     dorot = !CM_NOROTS(j);
     if (dorot)
+    {
         flipmul = flipx*flipy;
+        if (flipmul==-1)
+            wall = loadwallinv;
+    }
 
     if ((curspr->cstat&128) != (sector[j].CM_CSTAT&128))
         daz += (((curspr->cstat&128)>>6)-1)*(((int32_t)tilesizy[curspr->picnum]*(int32_t)curspr->yrepeat)<<1);
@@ -9633,9 +9783,6 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
 
             wal->x += curspr->x;
             wal->y += curspr->y;
-
-            if (flipmul==-1)
-                wal->x = vect->x - (wal->x-vect->x);
         }
 
         if (inside(vect->x, vect->y, j)==1)
@@ -9679,7 +9826,7 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
     int32_t hitwall, cnt, clipyou;
 
     spritetype *curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
-    int32_t curidx=-1, warned=0, clipspritecnt, mulxdir=1;
+    int32_t curidx=-1, warned=0, clipspritecnt;
 
     if (((xvect|yvect) == 0) || (*sectnum < 0)) return(0);
     retval = 0;
@@ -9741,7 +9888,7 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
                 continue;
             }
 
-            mulxdir = clipsprite_initindex(curidx, curspr, &clipsectcnt, vect);
+            clipsprite_initindex(curidx, curspr, &clipsectcnt, vect);
         }
 
 
@@ -9775,7 +9922,7 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
                 {
                     int32_t basez;
 
-                    if (rintersect(vect->x,vect->y,0, gx*mulxdir,gy,0, x1,y1, x2,y2, &dax,&day,&daz) == 0)
+                    if (rintersect(vect->x,vect->y,0, gx,gy,0, x1,y1, x2,y2, &dax,&day,&daz) == 0)
                         dax = vect->x, day = vect->y;
                     daz = getflorzofslope((int16_t)dasect,dax,day);
                     daz2 = getflorzofslope(wal->nextsector,dax,day);
@@ -9826,20 +9973,10 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
                 if (!curspr)
                     objtype = (int16_t)j+32768;
                 else
-                {
                     objtype = (int16_t)(curspr-sprite)+49152;
-                    if (mulxdir==-1)
-                    {
-                        x1 = vect->x - (x1-vect->x);
-                        x2 = vect->x - (x2-vect->x);
-                        swaplong(&x1,&x2);
-                        swaplong(&y1,&y2);
-                        dx *= -1;
-                    }
-                }
 
                 //Add 2 boxes at endpoints
-                bsz = walldist; if (gx*mulxdir < 0) bsz = -bsz;
+                bsz = walldist; if (gx < 0) bsz = -bsz;
                 addclipline(x1-bsz,y1-bsz,x1-bsz,y1+bsz,objtype);
                 addclipline(x2-bsz,y2-bsz,x2-bsz,y2+bsz,objtype);
                 bsz = walldist; if (gy < 0) bsz = -bsz;
@@ -12802,9 +12939,24 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
 {
     int32_t stx, i, x, y, charxsiz, ocol = col, obackcol = backcol;
+    int32_t ymin=0, ymax=7;
     char *fontptr, *letptr, *ptr;
     char smallbuf[4];
+
     stx = xpos;
+
+    if (ypos<0)
+    {
+        ymin = 0-ypos;
+        if (ymin>7)
+            return 0;
+    }
+    else if (ypos+7 >= ydim)
+    {
+        ymax = ydim-ypos-1;
+        if (ymax<0)
+            return 0;
+    }
 
     if (fontsize & 2) printext16(xpos+1, ypos+1, 0, -1, name, (fontsize & ~2) | 4);
     if (fontsize & 1) { fontptr = smalltextfont; charxsiz = 4; }
@@ -12880,20 +13032,30 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
             }
         }
 
-        letptr = &fontptr[name[i]<<3];
-        ptr = (char *)(bytesperline*(ypos+7)+(stx-(fontsize&1))+frameplace);
-        for (y=7; y>=0; y--)
+        if (stx<0)
         {
-            for (x=charxsiz-1; x>=0; x--)
+            stx += charxsiz;
+            continue;
+        }
+
+        letptr = &fontptr[name[i]<<3];
+        ptr = (char *)(bytesperline*ypos + (stx-(fontsize&1)) + frameplace);
+        for (y=ymin; y<=ymax; y++)
+        {
+            for (x=0; x<charxsiz; x++)
             {
+                if (stx+x >= xdim)
+                    break;
                 if (letptr[y]&pow2char[7-(fontsize&1)-x])
                     ptr[x] = (uint8_t)col;
                 else if (backcol >= 0)
                     ptr[x] = (uint8_t)backcol;
             }
-            ptr -= bytesperline;
+            ptr += bytesperline;
         }
         stx += charxsiz;
+        if (stx >= xdim)
+            break;
     }
     enddrawing();   //}}}
 
@@ -13021,7 +13183,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
 //
 // screencapture
 //
-int32_t screencapture_tga(char *filename, char inverseit)
+int32_t screencapture_tga(const char *filename, char inverseit)
 {
     int32_t i,j;
     char *ptr, head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
@@ -13203,7 +13365,7 @@ static void writepcxline(char *buf, int32_t bytes, int32_t step, BFILE *fp)
     if (bytes&1) writepcxbyte(0, 1, fp);
 }
 
-int32_t screencapture_pcx(char *filename, char inverseit)
+int32_t screencapture_pcx(const char *filename, char inverseit)
 {
     int32_t i,j,bpl;
     char *ptr, head[128];
@@ -13339,7 +13501,7 @@ int32_t screencapture_pcx(char *filename, char inverseit)
     return(0);
 }
 
-int32_t screencapture(char *filename, char inverseit)
+int32_t screencapture(const char *filename, char inverseit)
 {
     if (captureformat == 0) return screencapture_tga(filename,inverseit);
     else return screencapture_pcx(filename,inverseit);
