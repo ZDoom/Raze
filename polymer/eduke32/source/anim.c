@@ -235,11 +235,13 @@ void G_PlayAnim(const char *fn,char t)
 
     ANIM_LoadAnim(animbuf);
     numframes = ANIM_NumFrames();
-    animpal = ANIM_GetPalette();
+    anim_pal = ANIM_GetPalette();
+    
+    basepaltable[ANIMPAL] = anim_pal;
 
     //setpalette(0L,256L,tempbuf);
     //setbrightness(ud.brightness>>2,tempbuf,2);
-    P_SetGamePalette(g_player[myconnectindex].ps,animpal,10);
+    P_SetGamePalette(g_player[myconnectindex].ps,ANIMPAL,10);
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
     gltexfiltermode = 0;
@@ -271,7 +273,7 @@ void G_PlayAnim(const char *fn,char t)
 
             if (g_restorePalette == 1)
             {
-                P_SetGamePalette(g_player[myconnectindex].ps,animpal,0);
+                P_SetGamePalette(g_player[myconnectindex].ps,ANIMPAL,0);
                 g_restorePalette = 0;
             }
 

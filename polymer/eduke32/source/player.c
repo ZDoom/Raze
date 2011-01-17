@@ -42,16 +42,16 @@ int32_t g_numSelfObituaries = 0;
 
 void P_UpdateScreenPal(DukePlayer_t *p)
 {
-    if (p->heat_on) p->palette = slimepal;
-    else if (p->cursectnum < 0) p->palette = palette;
+    if (p->heat_on) p->palette = SLIMEPAL;
+    else if (p->cursectnum < 0) p->palette = BASEPAL;
     else if ((sector[p->cursectnum].ceilingpicnum >= FLOORSLIME)&&(sector[p->cursectnum].ceilingpicnum <=FLOORSLIME+2))
     {
-        p->palette = slimepal;
+        p->palette = SLIMEPAL;
     }
     else
     {
-        if (sector[p->cursectnum].lotag == 2) p->palette = waterpal;
-        else p->palette = palette;
+        if (sector[p->cursectnum].lotag == 2) p->palette = WATERPAL;
+        else p->palette = BASEPAL;
     }
     g_restorePalette = 1;
 }

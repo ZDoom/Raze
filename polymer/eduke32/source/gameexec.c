@@ -4341,17 +4341,7 @@ nullquote:
 
         case CON_SETGAMEPALETTE:
             insptr++;
-            switch (Gv_GetVarX(*(insptr++)))
-            {
-            default:
-            case 0:P_SetGamePalette(g_player[vm.g_p].ps,palette  ,0); break;
-            case 1:P_SetGamePalette(g_player[vm.g_p].ps,waterpal ,0); break;
-            case 2:P_SetGamePalette(g_player[vm.g_p].ps,slimepal ,0); break;
-            case 3:P_SetGamePalette(g_player[vm.g_p].ps,drealms  ,0); break;
-            case 4:P_SetGamePalette(g_player[vm.g_p].ps,titlepal ,0); break;
-            case 5:P_SetGamePalette(g_player[vm.g_p].ps,endingpal,0); break;
-            case 6:P_SetGamePalette(g_player[vm.g_p].ps,animpal  ,0); break;
-            }
+            P_SetGamePalette(g_player[vm.g_p].ps, Gv_GetVarX(*(insptr++)),0);
             continue;
 
         case CON_GETTEXTURECEILING:

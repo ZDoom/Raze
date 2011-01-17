@@ -698,25 +698,19 @@ static int32_t osdcmd_give(const osdfuncparm_t *parm)
 
 void onvideomodechange(int32_t newmode)
 {
-    uint8_t *pal;
+    uint8_t palid;
     extern int32_t g_crosshairSum;
 
     if (newmode)
     {
-        if (g_player[screenpeek].ps->palette == palette ||
-                g_player[screenpeek].ps->palette == waterpal ||
-                g_player[screenpeek].ps->palette == titlepal ||
-                g_player[screenpeek].ps->palette == animpal ||
-                g_player[screenpeek].ps->palette == endingpal ||
-                g_player[screenpeek].ps->palette == drealms ||
-                g_player[screenpeek].ps->palette == slimepal)
-            pal = g_player[screenpeek].ps->palette;
+        if (g_player[screenpeek].ps->palette < BASEPALCOUNT)
+            palid = g_player[screenpeek].ps->palette;
         else
-            pal = palette;
+            palid = BASEPAL;
     }
     else
     {
-        pal = g_player[screenpeek].ps->palette;
+        palid = g_player[screenpeek].ps->palette;
     }
 
 #ifdef POLYMER
@@ -737,7 +731,7 @@ void onvideomodechange(int32_t newmode)
     }
 #endif
 
-    setbrightness(ud.brightness>>2, pal, 0);
+    setbrightness(ud.brightness>>2, basepaltable[palid], 0);
     g_restorePalette = 1;
     g_crosshairSum = 0;
 }
@@ -1310,19 +1304,19 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
     {
         ud.brightness = GAMMA_CALC;
         ud.brightness <<= 2;
-        setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+        setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
 
         return r;
     }
     else if (!Bstrcasecmp(parm->name, "vid_brightness"))
     {
-        setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+        setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
 
         return r;
     }
     else if (!Bstrcasecmp(parm->name, "vid_contrast"))
     {
-        setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+        setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
 
         return r;
     }

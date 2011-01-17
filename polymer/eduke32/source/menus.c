@@ -555,7 +555,7 @@ void M_DisplayMenus(void)
 
     if (g_netSync)
     {
-        P_SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);
+        P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 11);
         rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
         rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
@@ -2613,7 +2613,7 @@ cheat_for_port_credits:
                 vid_gamma = (double)b/40960.f;
                 ud.brightness = (int32_t)(min(max((double)((vid_gamma-1.0)*10.0),0),15));
                 ud.brightness <<= 2;
-                setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+                setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
             }
 
             b = (int32_t)(vid_contrast*40960.f);
@@ -2622,7 +2622,7 @@ cheat_for_port_credits:
             if (b != (vid_contrast*40960.f))
             {
                 vid_contrast = (double)b/40960.f;
-                setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+                setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
             }
 
             b = (int32_t)(vid_brightness*40960.f);
@@ -2631,7 +2631,7 @@ cheat_for_port_credits:
             if (b != (vid_brightness*40960.f))
             {
                 vid_brightness = (double)b/40960.f;
-                setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+                setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
             }
 
             if (x == 3)
@@ -2640,7 +2640,7 @@ cheat_for_port_credits:
                 vid_contrast = DEFAULT_CONTRAST;
                 vid_brightness = DEFAULT_BRIGHTNESS;
                 ud.brightness = 0;
-                setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+                setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
             }
         }
 

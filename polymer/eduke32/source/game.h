@@ -227,7 +227,21 @@ extern palette_t DefaultCrosshairColors;
 
 extern uint32_t g_frameDelay;
 
-extern uint8_t waterpal[768],slimepal[768],titlepal[768],drealms[768],endingpal[768],*animpal;
+#define BASEPALCOUNT 7
+
+extern uint8_t water_pal[768],slime_pal[768],title_pal[768],dre_alms[768],ending_pal[768],*anim_pal;
+
+extern uint8_t *basepaltable[BASEPALCOUNT];
+
+typedef enum basepal_ {
+    BASEPAL = 0,
+    WATERPAL,
+    SLIMEPAL,
+    TITLEPAL,
+    DREALMSPAL,
+    ENDINGPAL,
+    ANIMPAL
+} basepal_t; 
 
 extern user_defs ud;
 
@@ -277,7 +291,7 @@ void G_Shutdown(void);
 void G_UpdatePlayerFromMenu(void);
 void M32RunScript(const char *s);
 void P_DoQuote(int32_t q,DukePlayer_t *p);
-void P_SetGamePalette(DukePlayer_t *player,uint8_t *pal,int32_t set);
+void P_SetGamePalette(DukePlayer_t *player,uint8_t palid,int32_t set);
 int32_t app_main(int32_t argc,const char **argv);
 void computergetinput(int32_t snum,input_t *syn);
 void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step);

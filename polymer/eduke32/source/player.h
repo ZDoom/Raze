@@ -145,7 +145,7 @@ typedef struct {
 
     uint32_t interface_toggle_flag;
 
-    uint8_t *palette;
+    uint8_t palette;
 
     uint16_t max_actors_killed, actors_killed;
     uint16_t gotweapon, zoom;

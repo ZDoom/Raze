@@ -99,7 +99,11 @@ char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
 static char g_rootDir[BMAX_PATH];
 char g_modDir[BMAX_PATH] = "/";
 
-uint8_t waterpal[768], slimepal[768], titlepal[768], drealms[768], endingpal[768], *animpal;
+
+uint8_t water_pal[768],slime_pal[768],title_pal[768],dre_alms[768],ending_pal[768],*anim_pal;
+
+uint8_t *basepaltable[BASEPALCOUNT] = { palette, water_pal, slime_pal, title_pal, dre_alms, ending_pal, NULL };
+
 static int32_t g_skipDefaultCons = 0;
 
 int32_t voting = -1;
@@ -279,18 +283,20 @@ static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 //    else rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1,cly1,clx2+clofx-1,cly2+clofy-1);
 }
 
-void P_SetGamePalette(DukePlayer_t *player, uint8_t *pal, int32_t set)
+void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set)
 {
-    if (!(pal == palette || pal == waterpal || pal == slimepal || pal == drealms || pal == titlepal || pal == endingpal || pal == animpal))
-        pal = palette;
+    if (palid >= BASEPALCOUNT)
+        palid = BASEPAL;
 
     if (player != g_player[screenpeek].ps)
     {
-        player->palette = pal;
+        player->palette = palid;
         return;
     }
+    
+    player->palette = palid;
 
-    setbrightness(ud.brightness>>2, (player->palette = pal), set);
+    setbrightness(ud.brightness>>2, basepaltable[palid], set);
 }
 
 int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const char *t,
@@ -1916,7 +1922,7 @@ static void G_DisplayExtraScreens(void)
         setview(0,0,xdim-1,ydim-1);
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
-        P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,3291,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
@@ -1943,7 +1949,7 @@ static void G_DisplayExtraScreens(void)
         setview(0,0,xdim-1,ydim-1);
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
-        P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
         rotatesprite(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
@@ -1961,7 +1967,7 @@ extern int32_t g_doQuickSave;
 
 void G_GameExit(const char *t)
 {
-    if (*t != 0) g_player[myconnectindex].ps->palette = (uint8_t *) &palette[0];
+    if (*t != 0) g_player[myconnectindex].ps->palette = BASEPAL;
 
     if (ud.recstat == 1) G_CloseDemoWrite();
     else if (ud.recstat == 2)
@@ -2534,12 +2540,12 @@ void G_DisplayRest(int32_t smoothratio)
     // this takes care of fullscreen tint for OpenGL
     if (getrendermode() >= 3)
     {
-        if (pp->palette == waterpal)
+        if (pp->palette == WATERPAL)
         {
             static palette_t wp = { 224, 192, 255, 0 };
             Bmemcpy(&hictinting[MAXPALOOKUPS-1], &wp, sizeof(palette_t));
         }
-        else if (pp->palette == slimepal)
+        else if (pp->palette == SLIMEPAL)
         {
             static palette_t sp = { 208, 255, 192, 0 };
             Bmemcpy(&hictinting[MAXPALOOKUPS-1], &sp, sizeof(palette_t));
@@ -8698,7 +8704,7 @@ static void G_DisplayLogo(void)
             //G_FadePalette(0,0,0,63);
             if (logoflags & LOGO_3DRSCREEN)
             {
-                P_SetGamePalette(g_player[myconnectindex].ps, drealms, 11);    // JBF 20040308
+                P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 11);    // JBF 20040308
                 fadepal(0,0,0, 0,64,7);
                 flushperms();
                 rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
@@ -8729,7 +8735,7 @@ static void G_DisplayLogo(void)
         if (logoflags & LOGO_TITLESCREEN)
         {
             //g_player[myconnectindex].ps->palette = titlepal;
-            P_SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 11);   // JBF 20040308
             flushperms();
             rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16,0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
@@ -8816,7 +8822,7 @@ static void G_DisplayLogo(void)
     nextpage();
 
     //g_player[myconnectindex].ps->palette = palette;
-    P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
     S_PlaySound(NITEVISION_ONOFF);
 
     //G_FadePalette(0,0,0,0);
@@ -9006,15 +9012,15 @@ static void G_LoadExtraPalettes(void)
     makepalookup(g_numRealPalettes + 2, tempbuf, 0, 15, 0, 1);
     makepalookup(g_numRealPalettes + 3, tempbuf, 0, 0, 15, 1);
 
-    kread(fp,&waterpal[0],768);
-    kread(fp,&slimepal[0],768);
-    kread(fp,&titlepal[0],768);
-    kread(fp,&drealms[0],768);
-    kread(fp,&endingpal[0],768);
+    kread(fp,&water_pal[0],768);
+    kread(fp,&slime_pal[0],768);
+    kread(fp,&title_pal[0],768);
+    kread(fp,&dre_alms[0],768);
+    kread(fp,&ending_pal[0],768);
 
     palette[765] = palette[766] = palette[767] = 0;
-    slimepal[765] = slimepal[766] = slimepal[767] = 0;
-    waterpal[765] = waterpal[766] = waterpal[767] = 0;
+    slime_pal[765] = slime_pal[766] = slime_pal[767] = 0;
+    water_pal[765] = water_pal[766] = water_pal[767] = 0;
 
     kclose(fp);
 }
@@ -9218,7 +9224,7 @@ void G_BackToMenu(void)
 
 int32_t G_EndOfLevel(void)
 {
-    P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
     P_UpdateScreenPal(g_player[myconnectindex].ps);
 
     if (g_player[myconnectindex].ps->gm&MODE_EOL)
@@ -9764,7 +9770,7 @@ CLEAN_DIRECTORY:
         if (!g_player[i].sync) g_player[i].sync = (input_t *)Bcalloc(1, sizeof(input_t));
     }
 
-    g_player[myconnectindex].ps->palette = (uint8_t *)&palette[0];
+    g_player[myconnectindex].ps->palette = BASEPAL;
 
     i = 1;
     for (j=numplayers; j<ud.multimode; j++)
@@ -9904,7 +9910,7 @@ CLEAN_DIRECTORY:
         ud.config.ScreenBPP = bpp[i];
     }
 
-    setbrightness(ud.brightness>>2,&g_player[myconnectindex].ps->palette[0],0);
+    setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
 
     S_MusicStartup();
     S_SoundStartup();
@@ -9915,7 +9921,7 @@ CLEAN_DIRECTORY:
         clearview(0L);
         //g_player[myconnectindex].ps->palette = palette;
         //G_FadePalette(0,0,0,0);
-        P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
         rotatesprite(320<<15,200<<15,65536L,0,LOADSCREEN,0,0,2+8+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
         menutext(160,105,0,0,"LOADING SAVED GAME...");
         nextpage();
@@ -10327,7 +10333,7 @@ static void G_DoOrderScreen(void)
 
     fadepal(0,0,0, 0,63,7);
     //g_player[myconnectindex].ps->palette = palette;
-    P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
     KB_FlushKeyboardQueue();
     rotatesprite(0,0,65536L,0,ORDERING,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
     fadepal(0,0,0, 63,0,-7);
@@ -10432,7 +10438,7 @@ void G_BonusScreen(int32_t bonusonly)
         case 0:
             if (ud.lockout == 0)
             {
-                P_SetGamePalette(g_player[myconnectindex].ps, endingpal, 11); // JBF 20040308
+                P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, 11); // JBF 20040308
                 clearview(0L);
                 rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
                 nextpage();
@@ -10495,7 +10501,7 @@ void G_BonusScreen(int32_t bonusonly)
 
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
-            P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 11);   // JBF 20040308
 
             rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
             fadepal(0,0,0, 63,0,-1);
@@ -10528,7 +10534,7 @@ void G_BonusScreen(int32_t bonusonly)
             setview(0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
-            P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 11);   // JBF 20040308
             rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
             fadepal(0,0,0, 63,0,-1);
             while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
@@ -10568,7 +10574,7 @@ void G_BonusScreen(int32_t bonusonly)
             KB_FlushKeyBoardQueue();
 
             //g_player[myconnectindex].ps->palette = palette;
-            P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 11);   // JBF 20040308
             G_FadePalette(0,0,0,63);
             clearview(0L);
             menutext(160,60,0,0,"THANKS TO ALL OUR");
@@ -10698,7 +10704,7 @@ ENDANM:
 FRAGBONUS:
 
     //g_player[myconnectindex].ps->palette = palette;
-    P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);   // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 11);   // JBF 20040308
     G_FadePalette(0,0,0,63);   // JBF 20031228
     KB_FlushKeyboardQueue();
     totalclock = 0;

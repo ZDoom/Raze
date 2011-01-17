@@ -349,7 +349,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
         if (!statustext)
         {
             //g_player[myconnectindex].ps->palette = palette;
-            P_SetGamePalette(g_player[myconnectindex].ps, palette, 1);    // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
             i = ud.screen_size;
             ud.screen_size = 0;
             G_UpdateScreenArea();
@@ -402,7 +402,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
             clearview(0L);
             //g_player[myconnectindex].ps->palette = palette;
             //G_FadePalette(0,0,0,0);
-            P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
         }
         /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
         aGameVars[g_iReturnVarID].val.lValue = LOADSCREEN;
@@ -764,7 +764,7 @@ void P_ResetStatus(int32_t snum)
     p->on_warping_sector = 0;
     p->spritebridge      = 0;
     p->sbs          = 0;
-    p->palette = (uint8_t *) &palette[0];
+    p->palette = BASEPAL;
 
     if (p->inv_amount[GET_STEROIDS] < 400)
     {
@@ -1891,7 +1891,7 @@ int32_t G_EnterLevel(int32_t g)
 
     //g_player[myconnectindex].ps->palette = palette;
     //G_FadePalette(0,0,0,0);
-    P_SetGamePalette(g_player[myconnectindex].ps, palette, 0);    // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
 
     P_UpdateScreenPal(g_player[myconnectindex].ps);
     flushperms();

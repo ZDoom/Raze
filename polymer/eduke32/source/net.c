@@ -1928,7 +1928,7 @@ void Net_WaitForServer(void)
 
     if ((g_netServer || ud.multimode > 1))
     {
-        P_SetGamePalette(g_player[myconnectindex].ps, titlepal, 11);
+        P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 11);
         rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
         rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
@@ -1955,7 +1955,7 @@ void Net_WaitForServer(void)
 
         if (g_player[0].playerreadyflag > server_ready)
         {
-            P_SetGamePalette(g_player[myconnectindex].ps, palette, 11);
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 11);
             return;
         }
     }
