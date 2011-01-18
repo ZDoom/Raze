@@ -293,20 +293,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "",
         // frag_prog
         "  if (isLightingPass == 0)\n"
-        "    diffuseTexel *= vec4(gl_Color);\n"
-        "\n",
-    },
-    {
-        1 << PR_BIT_HIGHPALOOKUP_MAP,
-        // vert_def
-        "",
-        // vert_prog
-        "",
-        // frag_def
-        "uniform sampler3D highPalookupMap;\n"
-        "\n",
-        // frag_prog
-        "  diffuseTexel.rgb = texture3D(highPalookupMap, diffuseTexel.rgb).rgb;\n"
+        "    result *= vec4(gl_Color);\n"
         "\n",
     },
     {
@@ -320,6 +307,21 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         // frag_prog
         "  if (isLightingPass == 0)\n"
         "    result *= diffuseTexel;\n"
+        "\n",
+    },
+    {
+        1 << PR_BIT_HIGHPALOOKUP_MAP,
+        // vert_def
+        "",
+        // vert_prog
+        "",
+        // frag_def
+        "uniform sampler3D highPalookupMap;\n"
+        "\n",
+        // frag_prog
+        "  if (isLightingPass == 0)\n"
+        "    result.rgb = texture3D(highPalookupMap, result.rgb).rgb;\n"
+        "  diffuseTexel.rgb = texture3D(highPalookupMap, diffuseTexel.rgb).rgb;\n"
         "\n",
     },
     {
