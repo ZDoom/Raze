@@ -1,0 +1,152 @@
+
+// load a.m32 first
+
+defstate testkeyavail
+    for i range 27
+    {
+        ifholdkey alphakeys[i]
+        {
+            qsprintf TQUOTE "ALPHA KEY: %d (SCANCODE: %d)" i alphakeys[i]
+            quote TQUOTE
+        }
+    }
+
+    for i range 10
+    {
+        ifholdkey numberkeys[i]
+        {
+            qsprintf TQUOTE "NUMBER KEY: %d (SCANCODE: %d)" i numberkeys[i]
+            quote TQUOTE
+        }
+    }
+ends
+
+
+// various tests of m32-script features
+
+defstate arraytest
+    getarraysize ar tmp
+    resizearray ar 65536
+    getticks parm[2]
+    for j range 65536
+        set ar[j] j
+    set i 0
+    for j range 65536
+        add i ar[j]
+    getticks parm[3]
+    resizearray ar tmp
+    ife i 2147450880 quote "OK" else quote "DAMN"
+    sub parm[3] parm[2]
+    qsprintf TQUOTE "time: %d ms" parm[3]
+    quote TQUOTE
+ends
+
+defstate itertest
+// iteration and break test
+    for i range 10
+    {
+        addlogvar i
+        ife i 5 break
+    }
+    ife i 5 quote "OK" else quote "DAMN"
+
+    quote "FLOAT ACCESS TEST"
+    set tmp pr_parallaxscale
+
+    set gi tmp set gj tmp set gk tmp
+    al gi al gj al gk
+    ftoi gi 20 ftoi gj 200 ftoi gk 2000
+    al gi al gj al gk
+    mul gk 2
+    itof gk 2000
+ends
+
+define TEST_ZERO 0
+define TEST_PLUS_ONE 1
+define TEST_MINUS_ONE -1
+
+define MOST_POSITIVE_DIRECT 32767
+define MOST_NEGATIVE_DIRECT -32768
+define LEAST_POSITIVE_INDIRECT 32768
+define LEAST_NEGATIVE_INDIRECT -32769
+
+define HEX_MOST_POSITIVE_DIRECT 0x7fff
+define HEX_MOST_NEGATIVE_DIRECT 0xffff8000
+define HEX_LEAST_POSITIVE_INDIRECT 0x8000
+define HEX_LEAST_NEGATIVE_INDIRECT 0xffff7fff
+
+define MAX_CONSTANT 2147483647
+define MIN_CONSTANT -2147483648
+
+// tests various combinations of constants and labels
+defstate consttest
+    quote " --- Constants test ---", quote " "
+
+    quote "Shoud be 0:"
+    set i 0, set j TEST_ZERO
+    qsprintf TQUOTE "%d %d  %d %d" 0 TEST_ZERO  i j
+    quote TQUOTE, quote " "
+
+    quote "Shoud be 1:"
+    set i 1, set j TEST_PLUS_ONE
+    qsprintf TQUOTE "%d %d  %d %d" 1 TEST_PLUS_ONE  i j
+    quote TQUOTE, quote " "
+
+    quote "Shoud be -1:"
+    set i -1, set j TEST_MINUS_ONE
+    qsprintf TQUOTE "%d %d  %d %d" -1 TEST_MINUS_ONE  i j
+    quote TQUOTE, quote " "
+
+
+    quote "Shoud be 32767:"
+    set i 32767, set j MOST_POSITIVE_DIRECT
+    qsprintf TQUOTE "%d %d  %d %d" 32767 MOST_POSITIVE_DIRECT  i j
+    quote TQUOTE, quote " "
+
+    quote "Shoud be -32768:"
+    set i -32768, set j MOST_NEGATIVE_DIRECT
+    qsprintf TQUOTE "%d %d  %d %d" -32768 MOST_NEGATIVE_DIRECT  i j
+    quote TQUOTE, quote " "
+
+    quote "Shoud be 32768:"
+    set i 32768, set j LEAST_POSITIVE_INDIRECT
+    qsprintf TQUOTE "%d %d  %d %d" 32768 LEAST_POSITIVE_INDIRECT  i j
+    quote TQUOTE, quote " "
+
+    quote "Shoud be -32769:"
+    set i -32769, set j LEAST_NEGATIVE_INDIRECT
+    qsprintf TQUOTE "%d %d  %d %d" -32769 LEAST_NEGATIVE_INDIRECT  i j
+    quote TQUOTE, quote " "
+
+    quote "Hex tests:"
+    quote "Shoud be 32767:"
+    set i 0x7fff, set j HEX_MOST_POSITIVE_DIRECT
+    qsprintf TQUOTE "%d %d  %d %d" 0x7fff HEX_MOST_POSITIVE_DIRECT  i j
+    quote TQUOTE, quote " "
+
+    quote "Shoud be -32768:"
+    set i 0xffff8000, set j HEX_MOST_NEGATIVE_DIRECT
+    qsprintf TQUOTE "%d %d  %d %d" 0xffff8000 HEX_MOST_NEGATIVE_DIRECT  i j
+    quote TQUOTE, quote " "
+
+    quote "Shoud be 32768:"
+    set i 0x8000, set j HEX_LEAST_POSITIVE_INDIRECT
+    qsprintf TQUOTE "%d %d  %d %d" 0x8000 HEX_LEAST_POSITIVE_INDIRECT  i j
+    quote TQUOTE, quote " "
+
+    quote "Shoud be -32769:"
+    set i 0xffff7fff, set j HEX_LEAST_NEGATIVE_INDIRECT
+    qsprintf TQUOTE "%d %d  %d %d" 0xffff7fff HEX_LEAST_NEGATIVE_INDIRECT  i j
+    quote TQUOTE, quote " "
+
+    quote "min/max tests:"
+    quote "Shoud be 2147483647:"
+    set i 2147483647, set j MAX_CONSTANT
+    qsprintf TQUOTE "%d %d  %d %d" 2147483647 MAX_CONSTANT  i j
+    quote TQUOTE, quote " "
+
+    quote "Shoud be -2147483648:"
+    set i -2147483648, set j MIN_CONSTANT
+    qsprintf TQUOTE "%d %d  %d %d" -2147483648 MIN_CONSTANT  i j
+    quote TQUOTE, quote " "
+ends

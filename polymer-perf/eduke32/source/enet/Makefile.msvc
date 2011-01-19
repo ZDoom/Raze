@@ -1,0 +1,46 @@
+OBJ=obj.msc
+INC=include
+SRC=src
+ENETLIB=libenet.lib
+
+!ifdef DEBUG
+# debugging options
+flags_cl=/Od /Zi
+flags_link=/DEBUG
+flags_lib=
+!else
+# release options
+flags_cl=/Ox /GL /arch:SSE
+flags_link=/RELEASE /LTCG
+flags_lib=/LTCG
+!endif
+
+CC=cl
+LINK=link /opt:ref /nologo
+
+CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(SRC)
+!ifdef DEBUG
+CFLAGS=$(CFLAGS) /DDEBUGGINGAIDS
+!endif
+
+CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1 /D "_CRT_SECURE_NO_DEPRECATE" /W2 /Iinclude/msvc /DWIN32
+
+OBJECTS=$(OBJ)\callbacks.o \
+	$(OBJ)\host.o \
+	$(OBJ)\list.o \
+	$(OBJ)\packet.o \
+	$(OBJ)\peer.o \
+	$(OBJ)\protocol.o \
+	$(OBJ)\win32.o \
+	$(OBJ)\compress.o
+
+{$(SRC)}.c{$(OBJ)}.o:
+	$(CC) /c $(CFLAGS) /Fo$@ $<
+
+enet: $(ENETLIB)
+$(ENETLIB): $(OBJECTS)
+	lib $(flags_lib) /out:$@ /nologo $**
+
+clean:
+	-del /Q $(OBJ)\* $(ENETLIB)
+

@@ -1,0 +1,48 @@
+# GNU Makefile to prepare source and binary distributions.
+#    make -f MakeDistributions [source|binary]
+
+SOURCEFILES=buildlic.txt ChangeLog LICENSE \
+	   Makefile Makefile.deps Makefile.shared Makefile.msvc Makefile.watcom \
+           MakeDistributions makegnu.bat makemsc.bat makew.bat NAMES.H README
+
+BINARYFILES=build.exe buildlic.txt ChangeLog fmod.dll \
+           game.exe LICENSE NAMES.H neatsong.ogg README
+
+BINARYCHECKS=checkfmoddll checkneatsongogg
+
+.PHONY: source binary $(BINARYCHECKS)
+
+datenow=$(shell date +%Y%m%d)
+
+sourcedir=txbuild_src_$(datenow)
+binarydir=txbuild_$(datenow)
+
+all: source binary
+
+source:
+	rm -rf $(sourcedir) $(sourcedir).zip
+	mkdir $(sourcedir) $(sourcedir)/obj.gnu $(sourcedir)/obj.watcom $(sourcedir)/obj.msc
+	touch $(sourcedir)/obj.gnu/keep.me $(sourcedir)/obj.watcom/keep.me $(sourcedir)/obj.msc/keep.me
+	cp $(SOURCEFILES) $(sourcedir)
+	find . -name "*~" -exec rm -rf '{}' ';';
+	find . -name "*.orig" -exec rm -rf '{}' ';';
+	find . -name "*.rej" -exec rm -rf '{}' ';';
+	find . -name "*.mine" -exec rm -rf '{}' ';';
+	find . -name "*.c.r*" -exec rm -rf '{}' ';';
+	find . -name "*.h.r*" -exec rm -rf '{}' ';';
+	cp -R src rsrc include devcpp testgame $(sourcedir)
+	find $(sourcedir) | grep -i svn | xargs rm -rf
+	rm -f $(sourcedir)/src/tmp/*
+	touch $(sourcedir)/src/tmp/keep.me
+	kzip -r $(sourcedir).zip $(sourcedir)
+
+binary: $(BINARYCHECKS)
+	make RELEASE=1
+	upx --best build.exe game.exe
+	mkdir $(binarydir)
+	cp $(BINARYFILES) $(binarydir)
+	kzip -r $(binarydir).zip $(binarydir)
+
+# Binary checks
+checkfmoddll: fmod.dll
+checkneatsongogg: neatsong.ogg

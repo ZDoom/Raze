@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+		<meta name="Author" content="TX" />
+		<title>ChangeLog for EDuke32</title>
+		<style type="text/css">
+			body {
+				font-family: "Bitstream Vera Sans","Tahoma","Arial",sans-serif;
+				font-size: 10pt;
+				margin: 0.5em;
+				border: 2px dashed #ccc;
+				padding: 1em;
+			}
+			h2,h3,h4 {
+				margin-top: 0;
+				margin-bottom: 0.5em;
+				color: #777;
+			}
+			h1 {
+				margin-top: 0; margin-bottom: 0.5em;
+				padding: 3px;
+				background-color: #ddd;
+				font-size: 170%;
+				color: #444;
+			}
+			h2 { font-size: 145%; }
+			h3 { font-size: 125%; }
+			h4 { font-size: 110%; }
+			p { margin-top: 0.5em; margin-bottom: 0.75em; }
+			pre { margin-left: 0.75em; padding-left: 0.75em; border-left: 2px solid #ddd; }
+
+			dl { margin-left: 3em; }
+			dt { font-weight: bold; }
+			dd { padding-bottom: 1em; margin-left: 2em; }
+			table { margin: 1em; }
+			table.center { margin-left: auto; margin-right: auto; }
+			caption { font-style: oblique; }
+
+			span.warning { color: #f00; }
+
+			address {
+				margin-top: 3em;
+				font-size: 85%;
+				font-style: normal;
+			}
+
+			@media print {
+				body { border: none; margin: 0; }
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>ChangeLog for EDuke32</h1>
+		<p>1.4.0 beta 2, released July 18, 2006</p>
+
+		<h2>Core changes</h2>
+		<ul>
+            <li>reworked/enhanced Polymost shading</li>
+            <li>cleaned up code to properly build without Polymost/OpenGL support</li>
+            <li>added widescreen support for Polymost</li>
+            <li>added support for toggling correct HUD model rendering on/off</li>
+            <li>removed broken support for linking OpenGL statically</li>
+            <li>added support for DDS textures (JF)</li>
+            <li>added support for dynamically loading GTK (JF)</li>
+        </ul>
+		<h2>Game changes</h2>
+		<ul>
+            <li>new startup window (JF)</li>
+            <li>added support for using the mouse and a joystick simultaneously (JF)</li>
+            <li>fixed an issue preventing skill selection, bonus screen and episode ending animation sounds from playing</li>
+            <li>fixed a problem where the player was unable to exit some pools of water in some maps</li>
+            <li>made further adjustments to the weapon properties in order to more closely emulate Duke 1.5</li>
+            <li>fixed an issue where you could disable map exits in multiplayer, have all players quit, start a single player game and then have exits continue to kill you</li>
+        </ul>
+		<h2>Multiplayer changes</h2>
+		<ul>
+            <li>fixed numerous minor bugs in the voting system</li>
+            <li>added a more noticeable message to indicate that the player hasn't voted yet in an active vote</li>
+            <li>added support for /me in text chat</li>
+            <li>increased size of player chat icon</li>
+            <li>added "nat-free" support from Adam Fazakerley</li>
+            <li>fixed inventory respawn bug</li>
+            <li>minor fixes to DukesterX 1.5 compatibility wrapper</li>
+        </ul>
+		<h2>CON changes</h2>
+		<ul>
+            <li>reworked movement_lock member of the player struct to use bit flags</li>
+            <li>reworked findnearactor3d, findnearactor3dvar, findnearsprite3d, and findnearsprite3dvar</li>
+            <li>added findnearactorz, findnearactorzvar, findnearspritez, and findnearspritezvar</li>
+            <li>added WEAPON_FLAG_RESET (65536) to weapon system in order to properly emulate the chaingun and freezer</li>
+            <li>fixed "eshoot" and added "ezshoot"</li>
+            <li>reworked weapon system; note that your custom weapons may need adjustments to work again</li>
+            <li>updated sample enhance.con</li>
+        </ul>
+
+        <p><br />Please see JonoF's JFDuke3D release notes <a href="http://www.jonof.id.au/modsuppt/jfduke3d/releasenotes.html">here</a> for information on features JFDuke3D shares with EDuke32</p>
+
+		<address>Richard "TerminX" Gobeille (<a href="mailto:terminx@gmail.com">terminx@gmail.com</a>)</address>
+	</body>
+</html>
+

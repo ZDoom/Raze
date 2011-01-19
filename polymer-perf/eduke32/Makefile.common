@@ -1,0 +1,103 @@
+
+## common definitions for Makefile, build/Makefile, source/enet/Makefile and
+## source/jaudiolib/Makefile
+
+# Use colored output
+PRETTY_OUTPUT = 1
+
+# DirectX SDK location - if nonempty, overrides the DXROOTs of the individual
+# Makefiles. Should be set to an absolute path since this Makefile is included
+# at different directory levels
+DXROOT_OVERRIDE:=
+
+
+# Engine options
+#  SUPERBUILD     - enables voxels
+#  POLYMOST       - enables Polymost renderer
+#  USE_OPENGL     - enables OpenGL support in Polymost
+#  NOASM          - disables the use of inline assembly pragmas
+#  LINKED_GTK     - enables compile-time linkage to GTK
+#
+SUPERBUILD = 1
+POLYMOST = 1		
+POLYMER = 1
+USE_OPENGL = 1
+NOASM = 0
+LINKED_GTK = 0
+BUILD32_ON_64 = 0
+NEDMALLOC = 1
+
+ifeq (0,$(USE_OPENGL))
+    POLYMOST = 0
+    POLYMER = 0
+endif
+
+
+# Debugging/Build options
+#  RELEASE - 1 = no debugging
+#  DEBUGANYWAY - 1 = include debug symbols even when generating release code
+#  KRANDDEBUG - 1 = include logging of krand() calls for debugging the demo system
+#  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
+#  OPTLEVEL	- 0..3 = GCC optimization strategy
+#
+RELEASE?=1
+DEBUGANYWAY?=0
+KRANDDEBUG?=0
+EFENCE?=0
+OPTLEVEL?=2
+PROFILER?=0
+NOSOUND?=0
+
+ifneq (0,$(KRANDDEBUG))
+    RELEASE=0
+endif
+ifneq (0,$(PROFILER))
+    DEBUGANYWAY=1
+endif
+
+
+# Tools
+CC=gcc
+CXX=g++
+AS=nasm
+AR=ar
+RC=windres
+RANLIB=ranlib
+STRIP=strip
+
+# compiler flags etc.
+LIBS=-lm
+ifneq (0,$(RELEASE))
+    # Debugging disabled
+    debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL)
+else
+    # Debugging enabled
+    debug=-ggdb -O0 -DDEBUGGINGAIDS
+    ifeq ($(PLATFORM),LINUX)
+        LIBS+=-rdynamic
+    endif
+    ifneq (0,$(PROFILER))
+        LIBS+= -lprofiler
+        debug+= -pg
+    endif
+    ifneq (0,$(KRANDDEBUG))
+        debug+=-DKRANDDEBUG=1
+    endif
+endif
+ifneq (0,$(DEBUGANYWAY))
+    debug+=-ggdb
+endif
+
+BASECFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
+	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
+        $(F_JUMP_TABLES) -Wno-unused-result
+
+BASECXXFLAGS= -fno-exceptions -fno-rtti
+BASEASFLAGS=-s #-g
+
+
+# Misc. stuff that is constant between Makefiles
+EROOT:=build
+
+# will be potentially overridden in build/Makefile.shared
+EXESUFFIX=

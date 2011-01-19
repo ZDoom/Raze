@@ -1,0 +1,241 @@
+# Shared make information between Build engine and games
+
+ENGINELIB=libengine.a
+EDITORLIB=libbuild.a
+
+# SDLCONFIG = /usr/local/bin/sdl-config
+SDLCONFIG = /usr/bin/sdl-config
+
+ifeq ($(wildcard $(SDLCONFIG)),$(SDLCONFIG))
+    SDLROOT		= /usr/local
+else
+    SDLCONFIG	= sdl-config
+endif
+
+SDL_FRAMEWORK	= 0
+
+# Overridden for OSes that don't have the cutdown stdc++ that is supc++
+STDCPPLIB=-lsupc++
+BUILDCFLAGS=
+
+# GCC version, for conditional selection of flags.
+# This is easier than trying to squeeze it out of gcc --version:
+GCC_MAJOR ?= 4
+ifeq (4,$(GCC_MAJOR))
+    F_NO_STACK_PROTECTOR := -fno-stack-protector
+    # there are some link-time issues with stack protectors, so make it possible to override
+    F_STACK_PROTECTOR_ALL ?= -fstack-protector-all
+    F_JUMP_TABLES := -fjump-tables
+    M_TUNE_GENERIC := -mtune=generic
+    M_STACKREALIGN := -mstackrealign
+    L_SSP := -lssp
+endif
+
+
+ifndef ARCH
+    ifeq ($(findstring i686, $(shell uname -m)), i686)
+        ARCH=-march=pentium3 $(M_TUNE_GENERIC) -mmmx # -msse2 -mfpmath=sse,387 -malign-double $(M_STACKREALIGN)
+    else
+        ARCH=
+    endif
+endif
+
+# Detect the platform if it wasn't explicitly given to us from
+# the outside world. This allows cross-compilation by overriding
+# CC and giving us PLATFORM specifically.
+#
+ifndef PLATFORM
+    uname=$(strip $(shell uname -s))
+    PLATFORM=UNKNOWN
+    ifeq ($(findstring Linux,$(uname)),Linux)
+        PLATFORM=LINUX
+    endif
+    ifeq ($(findstring BSD,$(uname)),BSD)
+        PLATFORM=BSD
+    endif
+    ifeq ($(findstring MINGW,$(uname)),MINGW)
+        PLATFORM=WINDOWS
+    endif
+    ifeq ($(findstring Darwin,$(uname)),Darwin)
+        PLATFORM=DARWIN
+    endif
+    ifeq ($(findstring BeOS,$(uname)),BeOS)
+        PLATFORM=BEOS
+    endif
+    ifeq ($(findstring skyos,$(uname)),skyos)
+        PLATFORM=SKYOS
+    endif
+    ifeq ($(findstring QNX,$(uname)),QNX)
+        PLATFORM=QNX
+    endif
+    ifeq ($(findstring SunOS,$(uname)),SunOS)
+        PLATFORM=SUNOS
+    endif
+    ifeq ($(findstring syllable,$(uname)),syllable)
+        PLATFORM=SYLLABLE
+    endif
+endif
+
+ifeq ($(PLATFORM),LINUX)
+    RENDERTYPE=SDL
+    BUILDCFLAGS+= -DHAVE_INTTYPES
+    GTKCOMPAT32=0
+
+    ifeq ($(findstring x86_64,$(shell uname -m)),x86_64)
+        ifeq (1,$(BUILD32_ON_64))
+            # On my 64bit Gentoo these are the 32bit emulation libs
+            LIBS+= -m32 -L/emul/linux/x86/usr/lib
+            BUILDCFLAGS+= -m32
+            # Override WITHOUT_GTK=0
+            GTKCOMPAT32=1
+        else
+            override NOASM=1
+        endif
+    endif
+endif
+ifeq ($(PLATFORM),DARWIN)
+    RENDERTYPE    = SDL
+    BUILDCFLAGS    += -DHAVE_INTTYPES
+    GTKCOMPAT32    = 0
+    SDL_FRAMEWORK    = 1
+    # ASM won't work on PowerPC and currently throws errors on i386 too :-/
+    override NOASM    = 1
+endif
+ifeq ($(PLATFORM),WINDOWS)
+    RENDERTYPE ?= WIN
+    BUILDCFLAGS+= -DHAVE_INTTYPES
+    EXESUFFIX=.exe
+    LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 -lcomctl32 #-lshfolder
+#    STDCPPLIB=-lstdc++
+endif
+ifeq ($(PLATFORM),BSD)
+    RENDERTYPE=SDL
+    BUILDCFLAGS+= -DHAVE_INTTYPES
+endif
+ifeq ($(PLATFORM),BEOS)
+    RENDERTYPE=SDL
+    STDCPPLIB=-lstdc++
+endif
+ifeq ($(PLATFORM),SKYOS)
+    RENDERTYPE=SDL
+    EXESUFFIX=.app
+    override NOASM=1
+    BUILDCFLAGS+= -DUNDERSCORES
+    SDLCONFIG=
+    SDLCONFIG_CFLAGS=-I/boot/programs/sdk/include/sdl
+    LIBS+= -lSDL -lnet
+endif
+ifeq ($(PLATFORM),QNX)
+    RENDERTYPE=SDL
+    override USE_OPENGL=0
+    override NOASM=1
+    STDCPPLIB=-lstdc++
+    LIBS+= -lsocket
+endif
+ifeq ($(PLATFORM),SUNOS)
+    RENDERTYPE=SDL
+    override USE_OPENGL=0
+    override NOASM=1
+    STDCPPLIB=-lstdc++
+    LIBS+= -lsocket -lnsl
+endif
+ifeq ($(PLATFORM),SYLLABLE)
+    RENDERTYPE=SDL
+    override USE_OPENGL=0
+    override NOASM=1
+endif
+
+ifeq ($(RENDERTYPE),SDL)
+    ifeq ($(SDL_FRAMEWORK),1)
+        LIBS        += -Wl,-framework,SDL
+        SDLCONFIG_CFLAGS+= -I/Library/Frameworks/SDL.framework/Headers
+    else
+    ifneq ($(SDLCONFIG),)
+        LIBS+= $(shell $(SDLCONFIG) --libs)
+        SDLCONFIG_CFLAGS+=$(shell $(SDLCONFIG) --cflags)
+    endif
+    endif
+
+    ifeq (1,$(WITHOUT_GTK))
+        HAVE_GTK2=0
+    else
+        ifneq (No,$(shell pkg-config --exists gtk+-2.0 || echo No))
+            HAVE_GTK2=1
+            # On my 64bit Gentoo box I have Cairo enabled which means the libs list includes
+            # -lpangocairo-1.0 and -lcairo, however the 32bit compatibility libraries don't
+            # include cairo, so we need to filter out those -l switches in order to link
+            ifneq ($(LINKED_GTK),0)
+                ifeq ($(GTKCOMPAT32),1)
+                    LIBS+= $(shell pkg-config --libs gtk+-2.0 | sed 's/\s-l\(pango\)\{0,1\}cairo\S*\s/ /g')
+                else
+                    LIBS+= $(shell pkg-config --libs gtk+-2.0)
+                endif
+            endif
+        else
+            HAVE_GTK2=0
+        endif
+    endif
+else
+    ifeq ($(RENDERTYPE),WIN)
+        LIBS+= -mwindows -ldxguid
+    endif
+endif
+
+
+BUILDCFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1
+
+ifneq (0,$(SUPERBUILD))
+    BUILDCFLAGS+= -DSUPERBUILD
+endif
+ifneq (0,$(POLYMOST))
+    BUILDCFLAGS+= -DPOLYMOST
+endif
+ifneq (0,$(USE_OPENGL))
+    BUILDCFLAGS+= -DUSE_OPENGL
+endif
+ifneq (0,$(NOASM))
+    BUILDCFLAGS+= -DNOASM
+endif
+ifneq (0,$(LINKED_GTK))
+    BUILDCFLAGS+= -DLINKED_GTK
+endif
+
+ifneq (0,$(POLYMER))
+ ifneq (0,$(POLYMOST))
+  ifneq (0,$(USE_OPENGL))
+   BUILDCFLAGS+= -DPOLYMER
+  endif
+ endif
+endif
+
+ifneq (0,$(NEDMALLOC))
+    BUILDCFLAGS+= -DNEDMALLOC
+endif
+
+ifeq ($(PRETTY_OUTPUT),1)
+BUILD_STARTED = printf "\033[K\033[1;36mBuild started using \"$(CC) $(OURCFLAGS)\"\033[0m\n"
+BUILD_ECHOFLAGS = printf "\033[K\033[1;36mEnded compilation in this directory using \"$(CC) $(OURCFLAGS)\"\033[0m\n"
+BUILD_FINISHED = printf "\033[K\033[1;36mBuild successful:\033[0m\n"
+COMPILE_STATUS = printf "\033[K\033[0mBuilding object \033[1m$@\033[0m...\033[0m\r"
+COMPILE_OK = printf "\033[K\033[0;32mBuilt object \033[1;32m$@\033[0;32m \033[0m\n"
+COMPILE_FAILED = printf "\033[K\033[0;31mFailed building \033[1;31m$@\033[0;31m from\033[0m \033[1;31m$<\033[0;31m!\033[0m\n"; exit 1
+ARCHIVE_STATUS = printf "\033[K\033[0mCreating library archive \033[1m$@\033[0m...\033[0m\r"
+ARCHIVE_OK = printf "\033[K\033[0;32mCreated library archive \033[1;32m$@\033[0;32m \033[0m\n"
+ARCHIVE_FAILED = printf "\033[K\033[0;31mFailed creating library archive \033[1;31m$@\033[0;31m from\033[0m \033[1;31m$<\033[0;31m!\033[0m\n"; exit 1
+LINK_STATUS = printf "\033[K\033[0;0mLinking executable \033[1m$@\033[0;0m...\033[0m\r"
+LINK_OK = printf "\033[K\033[0;32mLinked executable \033[1;32m$@\033[0;32m \033[0m\n"
+LINK_FAILED = printf "\033[K\033[0;31mFailed linking executable \033[1;31m$@\033[0;31m!\033[0m\n"; exit 1
+else
+BUILD_STARTED = 
+BUILD_ECHOFLAGS=
+BUILD_FINISHED = 
+COMPILE_STATUS = 
+COMPILE_OK = true
+COMPILE_FAILED = false; exit 1
+ARCHIVE_STATUS = 
+ARCHIVE_OK = true
+ARCHIVE_FAILED = false; exit 1
+LINK_STATUS = 
+LINK_OK = true
+LINK_FAILED = false; exit 1
+endif

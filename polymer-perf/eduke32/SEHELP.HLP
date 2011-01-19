@@ -1,0 +1,35 @@
+-Sector Effector Help-
+
+ 0  : Rotating Sector
+ 1  : Pivot Sprite for SE 0
+ 2  : Earthquake
+ 3  : Random Lights After Shot Out
+ 4  : Random Lights
+ 6  : Subway
+ 7  : Teleporter
+ 8  : Up Open Door Lights
+ 9  : Down Open Door Lights
+ 10 : Door Auto Close (Hitag = Delay)
+ 11 : Rotate Sector Door
+ 12 : Light Switch
+ 13 : C-9 Explosive
+ 14 : Subway Car
+ 15 : Slide Door (ST 25)
+ 16 : Rotate Reactor Sector
+ 17 : Elevator Transport (ST 15)
+ 18 : Incremental Sector Rise/Fall
+ 19 : Explosion Lowers Ceiling
+ 20 : Stretch (ST 27)
+ 21 : Drop Floor (ST 28)
+ 22 : Teeth Door Prong (ST 29)
+ 23 : One-Way Teleporter Destination
+ 24 : Conveyor Belt or Water Current
+ 25 : Engine Piston
+ 27 : Demo Camera
+ 28 : Lightning
+ 29 : Float (for Waves)
+ 30 : Two-Way Train (ST 31)
+ 31 : Floor Rise/Fall
+ 32 : Ceiling Rise/Fall
+ 33 : Earthquake Debris
+ 36 : Projectile Shooter

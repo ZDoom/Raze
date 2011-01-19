@@ -1,0 +1,186 @@
+# EDuke32 Makefile for Microsoft NMake
+
+SRC=source
+OBJ=obj_win
+EROOT=build
+EINC=$(EROOT)\include
+EOBJ=eobj_win
+INC=$(SRC)
+RSRC=rsrc
+o=obj
+
+JAUDIOLIBDIR=$(SRC)\jaudiolib
+JAUDIOLIB=libjfaudiolib.lib
+
+ENETDIR=$(SRC)\enet
+ENETLIB=libenet.lib
+
+ENGINELIB=engine.lib
+EDITORLIB=build.lib
+
+# the WDK allows us to link against msvcrt.dll instead of msvcrxxx.dll
+# this path should match build\Makefile.msvc
+WDKROOT="C:\WinDDK\7600.16385.1"
+DXROOT="C:\Program Files\Microsoft DirectX SDK (February 2010)"
+
+!ifdef DEBUG
+# debugging options
+flags_cl= /Od /Zi
+flags_link=/DEBUG
+!else
+# release options
+flags_cl=/O2 /GL /arch:SSE /MP /I$(WDKROOT)\inc\crt
+flags_link=/RELEASE /LTCG /LIBPATH:$(WDKROOT)\lib\wxp\i386 /LIBPATH:$(WDKROOT)\lib\Crt\i386
+!endif
+
+ENGINEOPTS=/DSUPERBUILD /DPOLYMOST /DUSE_OPENGL /DPOLYMER
+
+CC=cl
+AS=ml
+LINK=link /nologo /opt:ref 
+MT=mt
+CFLAGS= /MT /J /nologo $(flags_cl)  \
+	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(JAUDIOLIBDIR)\include /I$(ENETDIR)\include \
+ 	/W2 $(ENGINEOPTS) \
+ 	/I$(DXROOT)\include /DRENDERTYPEWIN=1
+ 	
+LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib dxguid.lib comctl32.lib \
+     vorbisfile_static.lib vorbis_static.lib ogg_static.lib dsound.lib advapi32.lib   
+
+LIBS=/NODEFAULTLIB:glu32.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcmt.lib \
+    /NODEFAULTLIB:libcmtd.lib $(LIBS)
+
+ASFLAGS=/nologo /coff /c
+EXESUFFIX=.exe
+!ifdef DEBUG
+CFLAGS=$(CFLAGS) /DDEBUGGINGAIDS /D "_CRT_SECURE_NO_DEPRECATE"
+LIBS=$(LIBS)  msvcrtd.lib
+!else
+# comment msvcrt_winxp.obj if not using the WDK
+LIBS=$(LIBS)  msvcrt.lib msvcrt_winxp.obj
+!endif
+
+JMACTOBJ=$(OBJ)\file_lib.$o \
+	$(OBJ)\control.$o \
+	$(OBJ)\keyboard.$o \
+	$(OBJ)\mouse.$o \
+	$(OBJ)\mathutil.$o \
+	$(OBJ)\scriplib.$o
+
+AUDIOLIBOBJ=$(OBJ)\midi.$o $(OBJ)\music.$o $(OBJ)\mpu401.$o
+ 
+GAMEOBJS=$(OBJ)\game.$o \
+	$(OBJ)\actors.$o \
+	$(OBJ)\anim.$o \
+	$(OBJ)\demo.$o \
+	$(OBJ)\gamedef.$o \
+	$(OBJ)\gameexec.$o \
+	$(OBJ)\gamevars.$o \
+	$(OBJ)\global.$o \
+	$(OBJ)\menus.$o \
+	$(OBJ)\namesdyn.$o \
+    $(OBJ)\net.$o \
+	$(OBJ)\player.$o \
+	$(OBJ)\premap.$o \
+	$(OBJ)\savegame.$o \
+	$(OBJ)\sector.$o \
+	$(OBJ)\rts.$o \
+	$(OBJ)\config.$o \
+	$(OBJ)\animlib.$o\
+	$(OBJ)\osdfuncs.$o \
+ 	$(OBJ)\osdcmds.$o \
+	$(OBJ)\grpscan.$o \
+	$(OBJ)\winbits.$o \
+	$(OBJ)\gameres.res \
+	$(OBJ)\startwin.game.$o \
+ 	$(JMACTOBJ) \
+	$(AUDIOLIBOBJ) \
+	$(OBJ)\sounds.$o \
+!ifdef DEBUG
+	$(OBJ)\mdump.$o
+!endif
+
+EDITOROBJS=$(OBJ)\astub.$o \
+	$(OBJ)\mathutil.$o \
+	$(OBJ)\m32def.$o \
+	$(OBJ)\m32vars.$o \
+	$(OBJ)\m32exec.$o \
+	$(OBJ)\sounds_mapster32.$o \
+	$(OBJ)\buildres.res \
+	$(AUDIOLIB_FX) \
+!ifdef DEBUG
+	$(OBJ)\mdump.$o
+!endif
+
+		
+# RULES
+.SUFFIXES: .masm
+
+{$(SRC)\}.masm{$(OBJ)\}.$o:
+	$(AS) /c $(ASFLAGS) /Fo$@ $<
+
+{$(SRC)\jmact}.c{$(OBJ)\}.$o:
+	$(CC) /c $(CFLAGS) /Fo$@ $<
+
+{$(SRC)\util}.c{$(OBJ)\}.$o:
+	$(CC) /c $(CFLAGS) /Fo$@ $<
+
+{$(SRC)\}.c{$(OBJ)\}.$o:
+	$(CC) /c $(CFLAGS) /Fo$@ $<
+
+{$(SRC)\}.cpp{$(OBJ)\}.$o:
+	$(CC) /c $(CFLAGS) /Fo$@ $<
+
+{$(SRC)\misc}.rc{$(OBJ)\}.res:
+	$(RC) /i$(EINC)\ /i$(SRC)\ /DPOLYMER /fo$@ /r $<
+
+
+# TARGETS
+all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) # duke3d_w32$(EXESUFFIX);
+
+eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)\$(ENGINELIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB) $(ENETDIR)\$(ENETLIB)
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86 $(flags_link) /MAP $** $(LIBS) 
+	$(MT) -manifest $(RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
+	
+mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)\$(ENGINELIB) $(EOBJ)\$(EDITORLIB) $(JAUDIOLIBDIR)\$(JAUDIOLIB)
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS /LIBPATH:$(DXROOT)\lib\x86 $(flags_link) /MAP $** $(LIBS) 
+	$(MT) -manifest $(RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
+	
+!include Makefile.deps
+
+enginelib editorlib: AlwaysBuild
+	-mkdir $(EOBJ)
+	echo OBJ=$(MAKEDIR)\$(EOBJ)\ > $(EOBJ)\overrides.mak
+	echo CFLAGS=$(ENGINEOPTS) >> $(EOBJ)\overrides.mak
+	cd $(EROOT)
+	nmake /f Makefile.msvc "OVERRIDES=$(MAKEDIR)\$(EOBJ)\overrides.mak" $@
+	cd $(MAKEDIR)
+
+jaudiolib:
+	cd $(JAUDIOLIBDIR)
+	nmake /f Makefile.msvc
+	cd $(MAKEDIR)
+
+enet:
+	cd $(ENETDIR)
+	nmake /f Makefile.msvc
+	cd $(MAKEDIR)
+
+AlwaysBuild: ;
+$(EOBJ)\$(EDITORLIB): editorlib ;
+$(EOBJ)\$(ENGINELIB): enginelib ;
+$(JAUDIOLIBDIR)\$(JAUDIOLIB): jaudiolib ;
+$(ENETDIR)\$(ENETLIB): enet ;
+
+# PHONIES	
+clean:
+	-del /Q $(OBJ)\* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) duke3d_w32$(EXESUFFIX) \
+            *.pdb *.map *.manifest
+	cd $(JAUDIOLIBDIR)
+	nmake /f Makefile.msvc clean
+	cd $(MAKEDIR)\$(ENETDIR)
+	nmake /f Makefile.msvc clean
+	cd $(MAKEDIR)
+	
+veryclean: clean
+	-del /Q $(EOBJ)\*

@@ -1,0 +1,47 @@
+# GNU Makefile to prepare source and binary distributions.
+#    make -f MakeDistributions [source|binary]
+
+SOURCEFILES=GNU.TXT buildlic.txt \
+	   Makefile Makefile.deps Makefile.msvc Makefile.watcom MakeDistributions \
+	   duke3d.def.sample SEHELP.HLP STHELP.HLP enhance.con.sample names.h
+
+BINARYFILES=mapster32.exe eduke32.exe GNU.TXT buildlic.txt \
+           ChangeLog.html setup.exe duke3d.def.sample SEHELP.HLP STHELP.HLP \
+	   ChangeLog enhance.con.sample duke3d_w32.exe names.h
+
+.PHONY: source binary
+
+datenow=$(shell date +%Y%m%d)
+
+sourcedir=eduke32_src_$(datenow)
+binarydir=eduke32_$(datenow)
+
+all: source binary
+
+source:
+	rm -rf $(sourcedir) $(sourcedir).zip
+	mkdir -p $(sourcedir) $(sourcedir)/eobj $(sourcedir)/obj
+	mkdir -p $(sourcedir)/eobj.nix $(sourcedir)/obj.nix
+	touch $(sourcedir)/eobj/keep.me $(sourcedir)/obj/keep.me
+	touch $(sourcedir)/eobj.nix/keep.me $(sourcedir)/obj.nix/keep.me
+	cp $(SOURCEFILES) $(sourcedir)
+	find . -name "*~" -exec rm -rf '{}' ';';
+	find . -name "*.orig" -exec rm -rf '{}' ';';
+	find . -name "*.rej" -exec rm -rf '{}' ';';
+	find . -name "*.mine" -exec rm -rf '{}' ';';
+	find . -name "*.c.r*" -exec rm -rf '{}' ';';
+	find . -name "*.h.r*" -exec rm -rf '{}' ';';
+	cp -R source rsrc $(sourcedir)
+	find $(sourcedir) | grep -i svn | xargs rm -rf
+	kzip -r $(sourcedir).zip $(sourcedir)
+
+binary:
+	make RELEASE=1
+#	upx -9 mapster32.exe eduke32.exe duke3d_w32.exe setup.exe
+	rm -rf $(binarydir)
+	mkdir $(binarydir)
+#	mkdir $(binarydir) $(binarydir)/models
+	cp $(BINARYFILES) $(binarydir)
+#	cp models/* $(binarydir)/models
+	kzip -r $(binarydir).zip $(binarydir)
+

@@ -1,0 +1,50 @@
+OBJ=obj.msc
+INC=include
+SRC=src
+JFAUDIOLIB=libjfaudiolib.lib
+
+!ifdef DEBUG
+# debugging options
+flags_cl=/Od /Zi
+flags_link=/DEBUG
+flags_lib=
+!else
+# release options
+flags_cl=/Ox /GL /arch:SSE
+flags_link=/RELEASE /LTCG
+flags_lib=/LTCG
+!endif
+
+CC=cl
+LINK=link /opt:ref /nologo
+
+DXROOT=U:\SDKs\Microsoft DirectX SDK (April 2007)
+VORBISSDK=U:\SDKs\oggvorbis-win32sdk-1.0.1
+
+CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC) /I$(SRC) /I"$(VORBISSDK)\include" /I"$(DXROOT)\include"
+!ifdef DEBUG
+CFLAGS=$(CFLAGS) /DDEBUGGINGAIDS
+!endif
+
+CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1 /D "_CRT_SECURE_NO_DEPRECATE" /W2 /DHAVE_VORBIS /Iinclude/msvc /DWIN32
+
+OBJECTS=$(OBJ)\drivers.o \
+	$(OBJ)\fx_man.o \
+	$(OBJ)\multivoc.o \
+	$(OBJ)\mix.o \
+	$(OBJ)\mixst.o \
+	$(OBJ)\pitch.o \
+	$(OBJ)\vorbis.o \
+	$(OBJ)\driver_nosound.o \
+    $(OBJ)\driver_directsound.o
+
+{$(SRC)}.c{$(OBJ)}.o:
+	$(CC) /c $(CFLAGS) /Fo$@ $<
+
+jfaudiolib: $(JFAUDIOLIB)
+$(JFAUDIOLIB): $(OBJECTS)
+	lib $(flags_lib) /out:$@ /nologo $**
+
+clean:
+	-del /Q $(OBJ)\* $(JFAUDIOLIB)
+

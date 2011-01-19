@@ -1,0 +1,84 @@
+EDuke32:
+
+Added: activatecheat CON command to trick the game into thinking a specific cheat was typed in
+Added: addlogvar console command to print the value of a gamevar
+Added: althud to get/setuserdef to allow forcing the althud on or off
+Added: ambient light level slider in video setup and r_ambientlight cvar
+Added: a menu option and cvar to control crosshair size
+Added: animtilerange to .def format to allow assigning animation flags to dummytiles
+Added: basic Mac OSX support
+Added: cmenu CON command and current_menu special gamevar to jump to a different menu index when a menu is being drawn
+Added: code to automatically replace "SPACE" in quote 13 with "OPEN"
+Added: color code support to minitext
+Added: CON access to tsprite via new EVENT_ANIMATESPRITES event and gettspr/settspr commands
+Added: crosshairscale to get/setuserdef to allow manipulation of the crosshair size
+Added: display_bonus_screen to setuserdef to allow coders to force the bonus screen to display when using startlevel
+Added: drag-and-drop support for maps, CONs, GRPs, et cetera
+Added: experimental software-based 3D model visibility checking (r_modelocclusionchecking)
+Added: extended control over console text display via osdeditpal/osdeditshade/osdhightile/osdpromptpal/osdpromptshade/osdtextmode/osdtextshade/osdtextpal cvars and a new menu option to switch console text between "nice" sprite-based rendering and "fast" internal text rendering
+Added: gettimedate CON command to get the current month/day/year/time into gamevars
+Added: htflags member to get/setactor to control the spritenoshade/spritenvg/spriteshadow flags
+Added: line numbers to in-game CON errors thrown when attempting to operate on invalid data and improved error messages
+Added: map listing printout to "map" console command when no map name is given
+Added: menu option to control multiplayer death messages and cvar r_obituaries
+Added: mod directory selection to startup and unified "configuration" and "game" tabs of startup window
+Added: new alternate version of the small HUD (enabled by default) and a menu option to turn it off if so desired and several hud_* cvars to control it
+Added: new brightness/contrast/gamma controls and new cvars vid_brightness, vid_contrast and vid_gamma
+Added: new sound configuration menu which allows changing bitrate, sample size and voices in-game
+Added: obituaries to get/setuserdef to allow forcing the multiplayer obituaries on or off
+Added: r_downsize cvar and texture quality slider to video settings menu, defaults to medium and allows hightile textures without the nocompress flag to be scaled down to improve performance
+Added: r_fullbrights cvar to control rendering fullbright pixels for 8-bit tiles in OpenGL
+Added: savemapstate/loadmapstate/clearmapstate commands to manipulate map states and GAMEVAR_FLAG_NORESET (131072) to allow specific gamevars to be preserved when the map state is loaded
+Added: scriptsize CON command to set the CON script size manually to avoid resizing the chunk of memory several times at startup with large CONs
+Added: setdefname CON command to set the name of the definitions file to be loaded
+Added: setgamepalette CON command to change between normal/water/slime/nightvision palettes manually
+Added: support for changing the crosshair color via the crosshaircolor console command
+Added: support for changing the window title of a mod via the setgamename command
+Added: support for colored console text
+Added: support for importing configuration data from duke3d.cfg when a config specified by command line or CON isn't found
+Added: support for saving/loading the state of a map separately from savegames, enabling Hexen and Half-Life style map setups
+Added: vsync menu option and cvar (r_swapinterval)
+Changed: adjusted framerate counter averaging
+Changed: improved detection of external IP address for multiplayer
+Changed: improved multiplayer text line wrapping
+Changed: improved startup time on Windows
+Changed: increased max sound definitions to 2560
+Changed: modified ldist to return 0 instead of 1 when the points checked are the same, but changed CON divide-by-zero errors into soft errors
+Changed: renamed binds.cfg to cfgname_binds.cfg, where cfgname is the name of the main configuration file in use
+Changed: reworked HUD level stats display
+Changed: updated user map menu
+Changed: various fairly insignificant optimizations
+Changed: various improvements to many other menus
+Fixed: 8-bit fullscreen palette corruption bug
+Fixed: autoloading from directories other than ~/.eduke32/autoload on Linux
+Fixed: bounds checking for htg_t member used with getactor/setactor
+Fixed: bug where a projectile's extra_rand wasn't applied with certain weapon flags
+Fixed: bug where hitscan projectile trails would continue through walls after the projectile hit
+Fixed: bug with console command history and added new "history" command to print out the current history
+Fixed: console crash with TCs without tile 1141
+Fixed: gibs not assuming the palette of the actor which spawned them in all cases
+Fixed: occasional crash when spawning a sprite with no owner
+Fixed: out-of-sync bug with DeathMessages = 0 in cfg
+Fixed: problems with definemodelframe and nonexistent models
+Fixed: problem with devistator rocket timing which caused an unintentional nerf of the devistator's damage
+Fixed: problem with eshoot returning -1 when firing RPGs
+Fixed: problem with invalid gamearray definitions mangling further errors in the log
+Fixed: problem with model rendering when using animation blending and added option to toggle it to the video menu
+Fixed: problem with weapon up/down transition when using pipebombs with PIPEBOMB_CONTROL set to PIPEBOMB_TIMER
+Fixed: random CON value corruption issue which occurred dependent on the memory addresses and size of the compiled CON code
+Fixed: several situations in which invalid memory access occurred while using noclip
+Fixed: text spacing problem with gametext
+
+Mapster32:
+
+Added: gradient background in tile selector info at bottom of screen to improve readability
+Added: drag-and-drop support for maps, GRPs, et cetera
+Changed: improved tile grouping support, tiles.cfg now controls the various Duke-specific actor and item related functions in 2D mode as well as 2D mode sprite colors
+Changed: use underwater palette when in an underwater sector
+Fixed: bug where wall coordinate editing didn't properly move both sides of a wall
+Fixed: crash with previous/next map in dir shortcut keys when a .map file in the current directory is invalid
+Fixed: issue in file selector where sometimes jumping to a map on the list by typing the first letter of its name would leave you at the wrong place in the map list
+Fixed: possible crashes due to invalid memory access associated with the file selector
+Fixed: problem where sometimes the tile selector would select the wrong tile
+Fixed: problem where the tile group list wouldn't refresh after alt-tab
+

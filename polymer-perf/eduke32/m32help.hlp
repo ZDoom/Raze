@@ -1,0 +1,564 @@
+ *** Mapster32 Help: Table of contents ***
+1. 2D mode mouse reference
+2. 2D mode keyboard reference
+3. 3D mode mouse reference
+4. 3D mode keyboard reference
+5. 3D mode tile selector refrence
+6. Sector effector reference
+7. Sector tag reference
+8. Long SE reference
+9. Colors
+^P
+The purpose of mouse in 2D mode is pointing, selecting and
+moving objects in a map.
+
+^3Every time mouse is pointing at one of these:
+1. Nothing
+2. Sector
+3. Sector and wall
+4. Sector and sprite
+5. Wall (wall without sector - map is corrupt)
+6. Sprite (sprite without sector - map is corrupt)
+
+Some commands work differently depending on the currently selected object.
+Press ALT to work with a wall or sprite instead of any adjacent sectors.
+
+^14RSHIFT^O        Select vertex/sprites
+^14RALT^O          Select sectors
+^14WHEEL^O         Zoom
+^14WHEEL+ALT^O     Move camera and zoom
+^14LEFT BUTTON^O   Drag sectors/vertex/sprites
+^14RIGHT BUTTON^O  Move camera
+^14RIGHT MIDDLE^O  Move camera
+^P
+LSHIFT   Show coordinates
+F1       Show help
+F9       Show the Sector Tags help
+M        Set extra of sector
+M+ALT    Set extra of wall/sprite
+/        Reset panning, size and flags to defaults
+/+SHIFT  Make square - set xrepeat to yrepeat
+
+KP_4     Scaling sprite horizontally
+KP_6     Scaling sprite horizontally
+KP_2     Scaling sprite vertically
+KP_8     Scaling sprite vertically
++KP_5    Speed up
+
+R        Cycle sprite alignment
+' S      Set sprite size
+' F      Function menu
+F7+ALT   Search sector lotag
+F8+ALT   Search wall/sprite lotag
+[        Search backward
+]        Search forward
+G        Cycle grid size
+G+SHIFT  Cycle grid size backward
+' L      Set sprite/wall coordinates
+' 3      Cycle modes of showing object's name
+' 7      Swap lotag and hitag of wall/sprite
+' J      Goto X,Y
+
+X        Flip selected sectors in x
+Y        Flip selected sectors in y
+X+ALT    Mirror selected sectors in x
+Y+ALT    Mirror selected sectors in y
+
+F12        Screenshot
+F12+SHIFT  Inverted screenshot
+
+B        Toggle blocking
+B+SHIFT  Toggle one-sided blocking for a wall
+F+ALT    Set the first wall of a sector
+O        Ornament sprite flat onto wall
+
+,   Rotate sprite/selected sectors
+.   Rotate sprite/selected sectors
+<   Slowly rotate sprite/selected sectors
+>   Slowly rotate sprite/selected sectors
+
+SCROLL LOCK  Set starting position
+F5  Show item count
+F6  Show actor count
+F6  Show Sector Effector help when pointed at sprite
+F7  Edit sector data
+F8  Edit wall/sprite data
+
+T             Set sector lotag
+T+ALT         Set wall/sprite lotag
+T+CTRL        Toggle show tags
+
+H             Set sector hitag
+H+ALT         Set wall/sprite hitag
+H+CTRL        Toggle hitscan sensitivity
+
+P             Set sector palette
+E             Set sprite status list
+TAB           Show sector data
+TAB+SHIFT     Show wall/sprite data
+TAB+CTRL      Show wall/sprite data
+
+LCTRL+RSHIFT  Select all walls of the current sector
+              (point at a wall and, holding CTRL, press SHIFT)
+
+A          Zoom in
+Z          Zoom out
+L          Toggle grid lock
+J          Join sectors
+S          Insert sprite (see samples/tiles.cfg for customization)
+S+ALT      Make inner sector
+C          Duplicate sectors/sprites
+C          Start circle attached to a wall
+KP_+       Increase amount of walls in circle
+KP_-       Decrease amount of walls in circle
+SPACE      Start/end drawing of sector, end drawing of circle
+LENTER               Check all pointers for the current sector
+LSHIFT+LCTRL+LENTER  Check ALL pointers (manual attempt to recover map)
+BACKSPACE  Remove the last wall during drawing sector
+DEL        Delete sprite
+DEL+CTRL   Delete sector
+INS        Duplicate sectors/sprites
+INS        Start circle attached to a wall
+INS        Add vertex to wall
+RENTER     Switch to 3D mode
+ESC        Menu
+
+' A        Toggle autosave (every 3 minutes)
+' N        Toggle clipping
+S+CTRL     Save map
+L+CTRL     Load map
+^P
+^3The mouse pointer always points at one of these objects:
+1. wall
+2. ceiling of sector
+3. floor of sector
+4. sprite
+5. masked wall (non-transparent or semi-transparent wall between sectors)
+
+It's important to understand this concept.
+Some commands work differently depending on the "current object",
+the object the mouse points at.
+Some commands only manipulate the "current object", but other commands
+manipulate the sprites and sectors which are "selected" in 2D mode.
+Other commands work globally.
+
+^3Mouse buttons:
+^14LEFT^O         Lock the current object. The current object won't
+                  change as long as the button is pressed.
+^14LEFT+MIDDLE^O  Toggle mouselook
+^14WHEEL^O        Change shade/visibility
+^14LEFT+WHEEL^O   Change tile
+^14RIGHT+WHEEL^O  Move object up/down
+
+Additionally, there is UnrealEd-style mouse navigation in 3D mode
+(toggle it with ^14F5^O) with the following bindings:
+^14RIGHT^O        mouselook
+^14LEFT^O         x: turning, y: move forward/back
+^14LEFT+RIGHT^O   x: strafe left/right, y: move up/down
+^14MIDDLE^O       y: move in viewing direction
+  The console variable 'pk_uedaccel' changes the speed
+  of navigation exponentially (valid values are 0-5).
+
+^14LEFT+ALT^O     Move object up/down
+^14LEFT+SHIFT^O   Pan ceiling/floor/wall
+^14LEFT+SHIFT^O   Move sprite in horizontal plane
+^14LEFT+CTRL^O    Scale wall texture or size of sprite
+^14LEFT+CTRL^O    Change slope of sector
+^P
+UP          Move forward
+DOWN        Move backward
+LEFT+RCTRL  Move left
+RIGHT+RCTRL Move right
+A           Move up
+Z           Move down
+F4+ALT      Toggle showing the first wall
++LSHIFT     Speed up movements
+
+LEFT    Turn left
+RIGHT   Turn right
+A+CTRL  Look down
+Z+CTRL  Look up
+
+' V   Set sector visibility
+; V   Set sector visibility on all selected sectors
+V     Choose tile
+3     Toggle "sector over sector".
+F3    Toggle mouselook
+' BACKSPACE  Clear all flags for wall/sprite
+' P   Paste palette to all selected sectors
+; P   Paste palette to all selected sectors & sprites
+DEL   Delete sprite
+F6    Toggle automatic Sector Effector help
+F7    Toggle automatic sector tag help
+
+,     Rotate sprite
+.     Rotate sprite
+<     Slowly rotate sprite
+>     Slowly rotate sprite
+.     Search & fix panning of the wall to the right
+
+' L   Change the coordinates of the current object
+CAPS LOCK  Cycle zmode
+' Z   Cycle zmode
+' M   Set the extra of the current object
+1     Toggle one-sided flag of sprite/wall
+2     Toggle bottom wall swapping
+O     Set top or bottom orientation of wall
+O     Ornament sprite flat onto wall
+M     Toggle masked wall
+H     Toggle hitscan sensitivity
+H+SHIFT  Toggle one side hitscan sensitivity for the wall
+' H   Set hitag of the current object
+
+KP_MINUS            Darkens shade of individual sector/wall/sprite or selected sectors
+KP_MINUS+ALT        Decreases visibility of sector or selected sectors
+KP_MINUS+ALT+SHIFT  Slowly decreases visibility of sector or selected sectors
+KP_MINUS+ALT+CTRL   Decreases global visibility
+KP_PLUS             Lightens shade individual sector/wall/sprite or selected sectors
+KP_PLUS+ALT         Increases visibility of sector or selected sectors
+KP_PLUS+ALT+SHIFT   Slowly increases visibility of sector or selected sectors
+KP_PLUS+ALT+CTRL    Increases global visibility
+^3Note: ALT, CTRL, SHIFT are modifiers so they work with mouse too.
+
++/-    Cycle tile
+E      Toggle sector texture expansion
+R      Toggle sector texture relativity alignment
+R      Cycle sprite aligment between: wall aligned, floor aligned, view aligned
+'R     Toggle framerate
+F      Flip the current object
+F+ALT  Set the first wall of sector
+
+PAGE UP      Move selected sprites or sectors up
+PAGE DN      Move selected sprites or sectors down
+PAGE UP+CTRL Move selected sprites to ceiling
+PAGE DN+CTRL Move selected sprites to floor
++CTRL        Speed up movement
++END         Slow down movement
++HOME        Slow down movement even more
+^3Note: CTRL, HOME, END are modifiers, so they work with the mouse too.
+
+' D      Cycle skill level
+' X      Toggle sprite shade preview
+' W      Toggle sprite display
+' Y      Toggle purple background
+' C      Copy shade from the clipboard to all objects in the map which are the same
+          tile as the tile of the object in the clipboard. It works separately for
+          sectors/walls/sprites depending on the current object.
+' T      Set lotag
+' H      Set hitag
+' S      Set shade
+F2       Toggle clipboard preview
+TAB      Copy to the clipboard
+F1       Toggle help
+G        Set picnum
+B        Toggle blocking
+B+SHIFT  Toggle one side blocking for the wall
+T        Cycles translucence for sprites/masked walls
+
+LENTER+CTRL+SHIFT  Autoshade wall
+' LENTER           Paste picnum only
+LENTER+SHIFT       Paste shade and palette onto the current object
+LENTER+CTRL        Paste picnum, shading, and palette onto the current object
+LENTER             Paste all properties onto the current object
+
+' A  Toggle autosave. The interval is configurable in the .cfg.
+     (by default: every 3 minutes)
+
+' N        Toggle clipping for the camera
+N+CTRL     Toggle clipping for sprites
+
+S+CTRL     Save map
+L+CTRL     Load map
+
+ESC        Quit
+F11        Brightness
+F12        Screenshot
+F12+SHIFT  Inverted screenshot
+F9         Reload and activate maphacks
+F10        Disable maphacks
+
+C          Toggle center sprite (cstat 128)
+ALT+C      Replace all tiles in the map with the clipboard
+
+[          Increases slope quickly
+[+RSHIFT   Increases slope with medium speed
+[+LSHIFT   Increases slope slowly
+[+ALT      Align slope to the floor of an adjoining sector
+]          Decreases slope quickly
+]+RSHIFT   Decreases slope with medium speed
+]+LSHIFT   Decreases slope slowly
+]+ALT      Align slope to the ceiling of an adjoining sector
+
+KP_4       Pan floor/ceiling horizontally
+KP_6       Pan floor/ceiling horizontally
+KP_2       Pan floor/ceiling vertically
+KP_8       Pan floor/ceiling vertically
+KP_4       Scale wall/sprite horizontally
+KP_6       Scale wall/sprite horizontally
+KP_2       Scale wall/sprite vertically
+KP_8       Scale wall/sprite vertically
++SHIFT     Force panning (for walls)
++KP_5      Increase speed
+
+/          Reset panning, size and flags to defaults
+/+SHIFT    Make square - set xrepeat to yrepeat
+
+P          Enable/disable parallax
+P+CTRL     Change parallax type (only in 8-bit classic renderer)
+P+ALT      Change palette of sector/wall/sprite
+D+ALT      Adjust clipping distance of the sprite
+T          Translucence for sprites/masked walls
+S          Insert sprite
+KP_ENTER   Switch to 2D mode
+^P
+After pressing V in 3D mode, the editor enters tile browsing.
+
+^3Keys:
+KP_/  Zoom in
+KP_*  Zoom out
+UP/DOWN/LEFT/RIGHT/PAGE UP/PAGE DOWN movements
+G  Go to specified tile
+U  Go to start of user defined art (3584)
+A  Go to start of Atomic edition's art (4096)
+E  Go to start of extended art (6144, 9216)
+
+V      Select from all tiles
+T      Select from pre-defined tileset (tiles.cfg)
+Z      Tile zoom
+ESC    Cancel
+ENTER  Accept
+
+^3Mouse:
+LEFT        select
+CTRL+WHEEL  zoom
+WHEEL       scroll
+RIGHT       smooth scrolling
+^P
+ 0  : Rotating Sector
+ 1  : Pivot Sprite for SE 0
+ 2  : Earthquake
+ 3  : Random Lights After Shot Out
+ 4  : Random Lights
+ 6  : Subway
+ 7  : Teleporter
+ 8  : Up Open Door Lights
+ 9  : Down Open Door Lights
+ 10 : Door Auto Close (Hitag = Delay)
+ 11 : Rotate Sector Door
+ 12 : Light Switch
+ 13 : C-9 Explosive
+ 14 : Subway Car
+ 15 : Slide Door (ST 25)
+ 16 : Rotate Reactor Sector
+ 17 : Elevator Transport (ST 15)
+ 18 : Incremental Sector Rise/Fall
+ 19 : Explosion Lowers Ceiling
+ 20 : Stretch (ST 27)
+ 21 : Drop Floor (ST 28)
+ 22 : Teeth Door Prong (ST 29)
+ 23 : One-Way Teleporter Destination
+ 24 : Conveyor Belt or Water Current
+ 25 : Engine Piston
+ 27 : Demo Camera
+ 28 : Lightning
+ 29 : Float (for Waves)
+ 30 : Two-Way Train (ST 31)
+ 31 : Floor Rise/Fall
+ 32 : Ceiling Rise/Fall
+ 33 : Earthquake Debris
+ 36 : Projectile Shooter
+^P
+ 1  : Above Water (SE 7)
+ 2  : Underwater (SE 7)
+ 9  : Sliding Star Trek Doors
+ 15 : Elevator Transport (SE 17)
+ 16 : Elevator Platform Down
+ 17 : Elevator Platform Up
+ 18 : Elevator Down
+ 19 : Elevator Up
+ 20 : Ceiling Door
+ 21 : Floor Door
+ 22 : Splitting Door
+ 23 : Swinging Door
+ 25 : Sliding Door (SE 15)
+ 26 : Splitting Star Trek Door
+ 27 : Stretch (SE 20)
+ 28 : Drop Floor (SE 21)
+ 29 : Teeth Door Prong (SE 22)
+ 30 : Rotate and Rise Bridge
+ 31 : Two-Way Train (SE 30)
+ 10+++ : One-Time Sound
+ 32767 : Secret Room
+ 65534 : End Of Level with Message (sector hitag: sound #)
+ 65535 : End Of Level
+^P
+^3SE 0/1: ROTATED SECTOR
+   SE1: pivot
+      Ang: up--clockwise, down--counterclockwise
+   SE0: a sector to rotate
+      Hi = SE1 Hi
+
+^3SE 2: EARTHQUAKE
+   In quake sector, modeled as after the quake, insert additionally:
+      MASTERSWITCH
+         Lo=X
+   In other sector:
+      TOUCHPLATE
+         Lo=X
+   Anywhere:
+      SE33: scraps
+         Hi=X
+
+^3SE 3: RANDOM LIGHTS AFTER SHOT OUT
+   Light is wall:
+      2-way, blockable?
+      Lo=X
+   Light is ceiling:
+      sector Hi=X
+   SE 3 in affected sector:
+      Hi=X
+   Shades:
+      sectors/walls: when off
+      SE: when on
+
+^3SE 4: RANDOM LIGHTS
+   Hi: random blink num. ^0(research!)
+   Shades:
+      sectors/walls: when off
+      SE: when on
+
+^3SE 5: ?
+
+^3SE 6/14: SUBWAY
+   subway sectors:
+      Hi=unique per train
+   SE 6: SUBWAY FRONT CAR
+      Ang: direction of first movement
+      GPSPEED:
+          Lo: speed (default: 256)
+   SE 14: SUBWAY PULLED CARS
+   Locators:
+      starting with Lo=0, ascending
+      Hi=1: train stops here
+
+^3SE 7: TRANSPORT
+   Hi=X link
+
+^3SE 8: UP OPEN DOOR LIGHTS (with ST 20)
+   SE 8 also in door sector
+   Hi=X links with other SE8 sprites
+   Shades:
+      sectors/walls: when closed
+      SE: when open
+   Walls:
+      Hi=1 means exclude this wall from changing shade
+
+^3SE 9: DOWN OPEN DOOR LIGHTS (with ST 21)
+   analogous SE 8
+
+^3SE 10: ?
+
+^3SE 11: ROTATE SECTOR DOOR
+   Ang: up--clockwise, down--counterclockwise
+   Hi: link doors to be opened simulataneously
+   ST=23
+
+^3SE 12: LIGHT SWITCH  (preview with 'X)
+   Hi=X
+   Shades:
+      sectors/walls: when off
+      SE: when on
+   [switch]:
+      Lo=X
+
+^3SEENINE: C-9 BARREL
+      Hi=X
+      Lo=delay ^0(>0? game ticks?)
+   In all sectors with SEENINEs:
+      MASTERSWITCH Lo=X
+   [switch]:
+      Lo=X
+
+^3SE 13: C-9 EXPLOSIVE/BLASTABLE WALL
+   CRACKs/SEENINEs: Hi=X
+   SE 13: Hi=X
+   other SEENINEs:
+      Hi=X
+      Lo=delay
+
+^3SE 15: SLIDING DOOR (ST=25)
+   Ang: opposite of direction of first movement
+   GPSPEED:
+      2*Lo: how far (BUILD units)
+
+^3SE 17: ELEVATOR TRANSPORT
+   Shade: darker on SE of starting sector
+   Sectors:
+      ST=15
+      Top floor sector Hi=1
+
+^3SE 18: INCREMENTAL SECTOR RISE/FALL
+   Hi: units moved per activation (min: 1024?)
+   Ang:
+      up--floor affected
+      down--ceiling affected
+   Pal:
+      0: start at floor/ceiling height
+      not 0: start at SE height
+   [switch] & ACTIVATOR ^0(in same sector as SE?):
+      Lo=X
+
+^3SE 19: SHOT TOUCHPLATE CIELING DOWN
+
+^3SE 20: BRIDGE/STRETCH SECTOR (ST 27)
+   Ang: direction
+   ACTIVATOR
+      Hi = SE Hi = [switch] Lo
+   GPSPEED
+      Lo: how far (BUILD units)
+
+^3SE 21: DROP FLOOR (ST 28)
+   Ang:
+      up: drop ceiling
+      down: drop floor
+   z: end z ^0(())
+   Sector:
+      z: start z ^0(())
+   GPSPEED
+      Lo: rate ^0(units?)
+   ACTIVATOR
+      Lo = [switch] Lo
+
+^3SE 24: CONVEYOR BELT
+   Ang: direction
+   GPSPEED:
+      Lo=speed
+
+^3SE 25: ENGINE PISTON (CRUSHER)
+   z: starting z
+   Sector:
+      piston travels between ceiling z and floor z
+
+^3SE 27: CAMERA FOR PLAYBACK
+   Hi: radius (BUILD units?)
+
+^3SE 28: LIGHTNING
+   Hi = tile #4890 Hi
+
+^3SE 29: WAVES
+   Hi: start height (phase)
+   GPSPEED Lo: amplitude (default: 256)
+
+^0 Based on
+^0  * MAP EDITING FAQ v1.3 BY JONAH BISHOP
+^0  * The Duke Nukem 3D Informational Suite by Ryan Lennox
+^0  * code research
+^P
+Foreground colors:
+^0,15 0 ^1,0 1 ^2 2 ^3 3 ^4 4 ^5 5 ^6 6 ^7 7 
+^8 8 ^9 9 ^10 10^11 11^12 12^13 13^14 14^15 15
+
+Background colors:
+^15,0 0 ^0,1 1 ^0,2 2 ^0,3 3 ^0,4 4 ^0,5 5 ^0,6 6 ^0,7 7 
+^0,8 8 ^0,9 9 ^0,10 10^0,11 11^0,12 12^0,13 13^0,14 14^0,15 15
+

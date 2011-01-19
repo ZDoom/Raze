@@ -1,0 +1,25 @@
+-Sector Tags Help-
+
+ 1  : Above Water (SE 7)
+ 2  : Underwater (SE 7)
+ 9  : Sliding Star Trek Doors
+ 15 : Elevator Transport (SE 17)
+ 16 : Elevator Platform Down
+ 17 : Elevator Platform Up
+ 18 : Elevator Down
+ 19 : Elevator Up
+ 20 : Ceiling Door
+ 21 : Floor Door
+ 22 : Splitting Door
+ 23 : Swinging Door
+ 25 : Sliding Door (SE 15)
+ 26 : Splitting Star Trek Door
+ 27 : Stretch (SE 20)
+ 28 : Drop Floor (SE 21)
+ 29 : Teeth Door Prong (SE 22)
+ 30 : Rotate and Rise Bridge
+ 31 : Two-Way Train (SE 30)
+ 10+++ : One-Time Sound
+ 32767 : Secret Room
+ 65534 : End Of Level with Message
+ 65535 : End Of Level

@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8E7A6179-0B72-4073-8A4C-E8682D481DAE}</ProjectGuid>
+    <RootNamespace>eduke32</RootNamespace>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f Makefile.msvc DEBUG=1</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f Makefile.msvc veryclean all DEBUG=1</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f Makefile.msvc veryclean</NMakeCleanCommandLine>
+    <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">eduke32.exe</NMakeOutput>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">WIN32;_DEBUG;SUPERBUILD;POLYMOST;POLYMER;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
+    <NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f Makefile.msvc</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f Makefile.msvc veryclean all</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f Makefile.msvc veryclean</NMakeCleanCommandLine>
+    <NMakeOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">eduke32.exe</NMakeOutput>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">WIN32;_DEBUG;SUPERBUILD;POLYMOST;POLYMER;USE_OPENGL;NOCOPYPROTECT;RENDERTYPEWIN;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</NMakeIncludeSearchPath>
+    <NMakeForcedIncludes Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakeAssemblySearchPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
+    <NMakeForcedUsingAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">u:\SDKs\oggvorbis-win32sdk-1.0.1\include;$(IncludePath)</IncludePath>
+    <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SourcePath)</SourcePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <BuildLog>
+      <Path>
+      </Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <BuildLog>
+      <Path>
+      </Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="build\include\a.h" />
+    <ClInclude Include="build\include\baselayer.h" />
+    <ClInclude Include="build\include\build.h" />
+    <ClInclude Include="build\include\cache1d.h" />
+    <ClInclude Include="build\include\compat.h" />
+    <ClInclude Include="build\include\crc32.h" />
+    <ClInclude Include="build\include\dxdidf.h" />
+    <ClInclude Include="build\include\dynamicgtk.h" />
+    <ClInclude Include="build\include\editor.h" />
+    <ClInclude Include="build\include\enet_mmulti.h" />
+    <ClInclude Include="build\include\glbuild.h" />
+    <ClInclude Include="build\include\glext.h" />
+    <ClInclude Include="build\include\gtkbits.h" />
+    <ClInclude Include="build\include\kplib.h" />
+    <ClInclude Include="build\include\lzwnew.h" />
+    <ClInclude Include="build\include\malloc.c.h" />
+    <ClInclude Include="build\include\md4.h" />
+    <ClInclude Include="build\include\mdsprite.h" />
+    <ClInclude Include="build\include\mmulti.h" />
+    <ClInclude Include="build\include\mutex.h" />
+    <ClInclude Include="build\include\nedmalloc.h" />
+    <ClInclude Include="build\include\osd.h" />
+    <ClInclude Include="build\include\osxbits.h" />
+    <ClInclude Include="build\include\osxmain.h" />
+    <ClInclude Include="build\include\polymer.h" />
+    <ClInclude Include="build\include\polymost.h" />
+    <ClInclude Include="build\include\pragmas.h" />
+    <ClInclude Include="build\include\prlights.h" />
+    <ClInclude Include="build\include\quicklz.h" />
+    <ClInclude Include="build\include\rawinput.h" />
+    <ClInclude Include="build\include\scriptfile.h" />
+    <ClInclude Include="build\include\sdlayer.h" />
+    <ClInclude Include="build\include\startwin.editor.h" />
+    <ClInclude Include="build\include\winlayer.h" />
+    <ClInclude Include="build\include\msvc\inttypes.h" />
+    <ClInclude Include="build\include\msvc\stdint.h" />
+    <ClInclude Include="build\src\engine_priv.h" />
+    <ClInclude Include="source\actors.h" />
+    <ClInclude Include="source\anim.h" />
+    <ClInclude Include="source\demo.h" />
+    <ClInclude Include="source\game.h" />
+    <ClInclude Include="source\gameexec.h" />
+    <ClInclude Include="source\gamevars.h" />
+    <ClInclude Include="source\global.h" />
+    <ClInclude Include="source\menus.h" />
+    <ClInclude Include="source\net.h" />
+    <ClInclude Include="source\player.h" />
+    <ClInclude Include="source\premap.h" />
+    <ClInclude Include="source\savegame.h" />
+    <ClInclude Include="source\sector.h" />
+    <ClInclude Include="source\_functio.h" />
+    <ClInclude Include="source\_rts.h" />
+    <ClInclude Include="source\config.h" />
+    <ClInclude Include="source\duke3d.h" />
+    <ClInclude Include="source\function.h" />
+    <ClInclude Include="source\gamedef.h" />
+    <ClInclude Include="source\gamedefs.h" />
+    <ClInclude Include="source\grpscan.h" />
+    <ClInclude Include="source\keys.h" />
+    <ClInclude Include="source\macros.h" />
+    <ClInclude Include="source\mapster32.h" />
+    <ClInclude Include="source\mdump.h" />
+    <ClInclude Include="source\names.h" />
+    <ClInclude Include="source\namesdyn.h" />
+    <ClInclude Include="source\osdcmds.h" />
+    <ClInclude Include="source\osdfuncs.h" />
+    <ClInclude Include="source\rts.h" />
+    <ClInclude Include="source\soundefs.h" />
+    <ClInclude Include="source\sounds.h" />
+    <ClInclude Include="source\sounds_mapster32.h" />
+    <ClInclude Include="source\startwin.game.h" />
+    <ClInclude Include="source\jaudiolib\src\_multivc.h" />
+    <ClInclude Include="source\jaudiolib\src\driver_directsound.h" />
+    <ClInclude Include="source\jaudiolib\src\driver_nosound.h" />
+    <ClInclude Include="source\jaudiolib\src\driver_sdl.h" />
+    <ClInclude Include="source\jaudiolib\src\drivers.h" />
+    <ClInclude Include="source\jaudiolib\include\fx_man.h" />
+    <ClInclude Include="source\jaudiolib\src\linklist.h" />
+    <ClInclude Include="source\jaudiolib\src\ll_man.h" />
+    <ClInclude Include="source\jaudiolib\src\multivoc.h" />
+    <ClInclude Include="source\jaudiolib\include\music.h" />
+    <ClInclude Include="source\jaudiolib\src\pitch.h" />
+    <ClInclude Include="source\jaudiolib\include\sndcards.h" />
+    <ClInclude Include="source\jmact\_control.h" />
+    <ClInclude Include="source\jmact\_scrplib.h" />
+    <ClInclude Include="source\jmact\animlib.h" />
+    <ClInclude Include="source\jmact\control.h" />
+    <ClInclude Include="source\jmact\file_lib.h" />
+    <ClInclude Include="source\jmact\keyboard.h" />
+    <ClInclude Include="source\jmact\mathutil.h" />
+    <ClInclude Include="source\jmact\mouse.h" />
+    <ClInclude Include="source\jmact\scriplib.h" />
+    <ClInclude Include="source\enet\include\enet\callbacks.h" />
+    <ClInclude Include="source\enet\include\enet\enet.h" />
+    <ClInclude Include="source\enet\include\enet\list.h" />
+    <ClInclude Include="source\enet\include\enet\protocol.h" />
+    <ClInclude Include="source\enet\include\enet\time.h" />
+    <ClInclude Include="source\enet\include\enet\types.h" />
+    <ClInclude Include="source\enet\include\enet\unix.h" />
+    <ClInclude Include="source\enet\include\enet\utility.h" />
+    <ClInclude Include="source\enet\include\enet\win32.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="build\src\a-c.c" />
+    <ClCompile Include="build\src\baselayer.c" />
+    <ClCompile Include="build\src\build.c" />
+    <ClCompile Include="build\src\cache1d.c" />
+    <ClCompile Include="build\src\compat.c" />
+    <ClCompile Include="build\src\config.c" />
+    <ClCompile Include="build\src\crc32.c" />
+    <ClCompile Include="build\src\defs.c" />
+    <ClCompile Include="build\src\dynamicgtk.c" />
+    <ClCompile Include="build\src\engine.c" />
+    <ClCompile Include="build\src\glbuild.c" />
+    <ClCompile Include="build\src\gtkbits.c" />
+    <ClCompile Include="build\src\hightile.c" />
+    <ClCompile Include="build\src\kplib.c" />
+    <ClCompile Include="build\src\lzwnew.c" />
+    <ClCompile Include="build\src\md4.c" />
+    <ClCompile Include="build\src\mdsprite.c" />
+    <ClCompile Include="build\src\mutex.c" />
+    <ClCompile Include="build\src\nedmalloc.c" />
+    <ClCompile Include="build\src\osd.c" />
+    <ClCompile Include="build\src\polymer.c" />
+    <ClCompile Include="build\src\polymost.c" />
+    <ClCompile Include="build\src\pragmas.c" />
+    <ClCompile Include="build\src\quicklz.c" />
+    <ClCompile Include="build\src\rawinput.c" />
+    <ClCompile Include="build\src\scriptfile.c" />
+    <ClCompile Include="build\src\sdlayer.c" />
+    <ClCompile Include="build\src\smalltextfont.c" />
+    <ClCompile Include="build\src\startgtk.editor.c" />
+    <ClCompile Include="build\src\startwin.editor.c" />
+    <ClCompile Include="build\src\textfont.c" />
+    <ClCompile Include="build\src\winlayer.c" />
+    <ClCompile Include="source\actors.c" />
+    <ClCompile Include="source\anim.c" />
+    <ClCompile Include="source\astub.c" />
+    <ClCompile Include="source\config.c" />
+    <ClCompile Include="source\demo.c" />
+    <ClCompile Include="source\game.c" />
+    <ClCompile Include="source\gamedef.c" />
+    <ClCompile Include="source\gameexec.c" />
+    <ClCompile Include="source\gamestructures.c" />
+    <ClCompile Include="source\gamevars.c" />
+    <ClCompile Include="source\global.c" />
+    <ClCompile Include="source\grpscan.c" />
+    <ClCompile Include="source\m32def.c" />
+    <ClCompile Include="source\m32exec.c" />
+    <ClCompile Include="source\m32structures.c" />
+    <ClCompile Include="source\m32vars.c" />
+    <ClCompile Include="source\mdump.cpp" />
+    <ClCompile Include="source\menus.c" />
+    <ClCompile Include="source\midi.c" />
+    <ClCompile Include="source\mpu401.c" />
+    <ClCompile Include="source\music.c" />
+    <ClCompile Include="source\namesdyn.c" />
+    <ClCompile Include="source\net.c" />
+    <ClCompile Include="source\osdcmds.c" />
+    <ClCompile Include="source\osdfuncs.c" />
+    <ClCompile Include="source\player.c" />
+    <ClCompile Include="source\premap.c" />
+    <ClCompile Include="source\rts.c" />
+    <ClCompile Include="source\savegame.c" />
+    <ClCompile Include="source\sdlmusic.c" />
+    <ClCompile Include="source\sector.c" />
+    <ClCompile Include="source\sounds.c" />
+    <ClCompile Include="source\sounds_mapster32.c" />
+    <ClCompile Include="source\startgtk.game.c" />
+    <ClCompile Include="source\startwin.game.c" />
+    <ClCompile Include="source\winbits.c" />
+    <ClCompile Include="source\wrapper.c" />
+    <ClCompile Include="source\jaudiolib\src\driver_directsound.c" />
+    <ClCompile Include="source\jaudiolib\src\driver_nosound.c" />
+    <ClCompile Include="source\jaudiolib\src\driver_sdl.c" />
+    <ClCompile Include="source\jaudiolib\src\drivers.c" />
+    <ClCompile Include="source\jaudiolib\src\fx_man.c" />
+    <ClCompile Include="source\jaudiolib\src\mix.c" />
+    <ClCompile Include="source\jaudiolib\src\mixst.c" />
+    <ClCompile Include="source\jaudiolib\src\multivoc.c" />
+    <ClCompile Include="source\jaudiolib\src\pitch.c" />
+    <ClCompile Include="source\jaudiolib\src\vorbis.c" />
+    <ClCompile Include="source\jmact\animlib.c" />
+    <ClCompile Include="source\jmact\control.c" />
+    <ClCompile Include="source\jmact\file_lib.c" />
+    <ClCompile Include="source\jmact\keyboard.c" />
+    <ClCompile Include="source\jmact\mathutil.c" />
+    <ClCompile Include="source\jmact\mouse.c" />
+    <ClCompile Include="source\jmact\scriplib.c" />
+    <ClCompile Include="source\enet\src\callbacks.c" />
+    <ClCompile Include="source\enet\src\host.c" />
+    <ClCompile Include="source\enet\src\list.c" />
+    <ClCompile Include="source\enet\src\packet.c" />
+    <ClCompile Include="source\enet\src\peer.c" />
+    <ClCompile Include="source\enet\src\protocol.c" />
+    <ClCompile Include="source\enet\src\unix.c" />
+    <ClCompile Include="source\enet\src\win32.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build\Makefile.msvc" />
+    <None Include="Makefile.msvc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

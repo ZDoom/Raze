@@ -1,0 +1,1655 @@
+// "Build Engine & Tools" Copyright (c) 1993-1997 Ken Silverman
+// Ken Silverman's official web site: "http://www.advsys.net/ken"
+// See the included license file "BUILDLIC.TXT" for license info.
+
+BUILD engine Notes (7/24/96):
+
+BUILD programmed by Ken Silverman
+
+BUILD.TXT CONTINUED...  (BUILD.TXT WAS GETTING TOO BIG!!!)
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+8/12/95   - Added parameter to initmultiplayers to allow who becomes
+               master at the start of a multiplayer game.
+
+          - Added parallaxyscale variable to BUILD.H which control the ratio
+               at which the parallaxing skies scroll in relation to the
+               horizon.  Default is 65536.  With lower values, you don't
+               need as much artwork and can look higher, but I like 65536
+               because it is the correct projection.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+8/13/95   - Had MAJOR bug with my searchmap function.  If you use it, please
+               re-copy from my game.c
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+8/14/95   - Fixed some EVIL bugs with Rt.ALT sector copying.  It shouldn't
+               screw up your maps anymore!  And if you have maps that were
+               screwed up with it, you can try my new map correcting key,
+               L.Ctrl+L.Shift+L.Enter.  This key will not affect an already
+               perfect map.  However it can SOMETIMES clean up a map that
+               was screwed up.  I take no responsibility if it screws up
+               your map even more, so please check them before saving!
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+8/16/95   - Added error correction to mmulti.obj.  Mmulti.obj is like
+               multi.obj but it is made to work with Mark's real mode
+               multiplayer driver that he calls COMMIT.
+
+
+            MMULTI.OBJ vs. MULTI.OBJ:
+             * initmultiplayers is the same, but the parameters are ignored
+             * uninitmultiplayers can be called but does nothing.
+             * sendlogon can be called but does nothing.
+             * sendlogoff sends packet 255 to everybody else.  It does not
+                 need to be called any more.
+             * sendpacket and getpacket are the same.
+             * connecthead, connectpoint2[], numplayers, myconnectindex
+                  are the same.  They can be externed just like before.
+             * getoutputcirclesize always returns 0.  It is not needed.
+             * setsocket does nothing.  The socket is now in commit.dat.
+             * crctable can still be externed.
+             * syncstate can still be externed but is not used.
+             * Do not use the option[4] variable.  Initmultiplayers will
+                  always return a valid number in numplayers from 1-16.
+
+
+               You can link mmulti.obj in place of multi.obj and use
+             commit.dat as the setup file for multiplayer options.
+
+               There are 2 ways you can run your game through commit:
+                  1.  Set the launch name (usually game.exe) in commit.dat
+                      and type something like "commit map01 /asdf"
+                  2.  Type "commit launch game map01 /asdf".  This method
+                      is easier if you want to use the debugger with commit
+                      since you won't have to change commit.dat constantly.
+                      Ex: "commit launch wd /tr=rsi game map01 /asdf"
+
+             I have not tested mmulti.obj with my BUILD game yet because
+             I have been using 2DRAW as my test program.  I may put up a
+             new version of mmulti.obj with better error correction for
+             extremely error-prone lines soon.
+
+          - Kgroup can now accept a parameter as a filename with a list of
+               files to be put into the group file.
+               Ex:  "kgroup @filelist.txt"
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+8/18/95   - Found a way to greatly reduce slave "hitching" on multiplayer
+               games for faketimerhandler style communications.  It's pretty
+               simple.
+
+               Step 1:  In the beginning of faketimerhandler, change
+
+                  ototalclock = totalclock;
+                     TO:
+                  ototalclock += TICSPERFRAME;
+
+                     This makes the timing of the game more constant and to
+                  never miss ticks.  I should have done this in the first
+                  place all along.
+
+               Step 2:  In getpackets, (for slaves only) count the number of
+                  times movethings is called.  Normally, movethings should
+                  be called exactly once for every time getpackets is called
+                  inside faketimerhandler.  The hitching is because
+                  movethings is called in a 0-2-0-2-0-2 cycle instead of the
+                  standard 1-1-1-1-1-1 cycle.  This happens because the
+                  timers of the 2 computers are aligning in such a way that
+                  the slave is receiving the master's packets at nearly the
+                  same time as it calls getpackets.  To correct the problem,
+                  if movethings is called an even number of times, I randomly
+                  add or subtract (TICSPERFRAME>>1) to ototalclock.  Throw
+                  this code at the end of getpackets:
+
+               Beginning of getpackets:
+                  movecnt = 0;
+
+               Where slave receives buffer in getpackets, next to movethings:
+                  movecnt++;
+
+               End of getpackets:
+                  if ((myconnectindex != connecthead) && ((movecnt&1) == 0))
+                  {
+                     if (rand()&1) ototalclock += (TICSPERFRAME>>1);
+                              else ototalclock -= (TICSPERFRAME>>1);
+                  }
+
+          - Found a way to interpolate anything using the doanimations
+               code for faketimerhandler style multiplayer games.  It's not
+               as hard as I thought it would be (and it doesn't waste too
+               much memory!)  To smooth out doanimations, since there's no
+               temporary variables that can be thrown away like with tsprite,
+               the current doanimations positions must be backed up at the
+               beginning of drawscreen and restored at the end of drawscreen.
+               If you want smooth up&down doors, do this:
+
+               Global declaration:
+                  static long oanimateval[MAXANIMATES];
+
+               Beginning of drawscreen:
+                  for(i=animatecnt-1;i>=0;i--)
+                  {
+                      oanimateval[i] = *animateptr[i];  //Backup doanimations interpolation
+
+                      j = *animateptr[i];
+                      if (j < animategoal[i])
+                         j = min(j+animatevel[i]*(totalclock-gotlastpacketclock),animategoal[i]);
+                      else
+                         j = max(j-animatevel[i]*(totalclock-gotlastpacketclock),animategoal[i]);
+
+                      *animateptr[i] = j;
+                   }
+
+               End of drawscreen:
+                     //Restore doanimations interpolation
+                  for(i=animatecnt-1;i>=0;i--) *animateptr[i] = oanimateval[i];
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+8/19/95   - Added global invisibility variable.  Initengine sets it to 0
+               by default.  If you set global invisibility to 1, then
+               all sprites with the invisible bit set (sprite[].cstat&0x8000)
+               will be shown.  This is useful for editing invisiblie sprites.
+
+          - Made the hitscan blocking bit for sprites be the bit checked
+               when using cliptype 1 instead of the blocking bit.  Before
+               I was accidently using the clipmove blocking bit on sprites
+               with cliptype 1.  I should have done it this way in the first
+               place.  I hope you haven't "built" around this bug too much!
+               Here's how everything works now:
+
+                  Clipmove blocking bits:
+                     Which bits:
+                        wall[].cstat & 1
+                        sprite[].cstat & 1
+                     Used in these cases:
+                        clipmove when cliptype = 0
+                        getzrange when cliptype = 0
+
+                  Hitscan blocking bits:
+                     Which bits:
+                        wall[].cstat & 64
+                        sprite[].cstat & 256
+                     Used in these cases:
+                        clipmove when cliptype = 1
+                        getzrange when cliptype = 1
+                        hitscan always
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+8/20/95   - Reduced some overhead memory by combining 2 large internal
+               arrays which were used in different parts of the engine.
+               This is a total savings of about 90K.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+8/24/95   - Changed the way 'E' mode works on ceiling and floor textures.
+               64*64 and 128*128 textures are the same as before so I think
+               this won't screw up your existing maps. (But I can never be
+               sure)  Now, 'E' mode always smooshes the texture size by 2 for
+               any size texture.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+8/29/95   - ÜÛÛÛÛÛÛÜ ÛÛ       ÜÛÛÛÛÛÛÜ ÜÛÛÛÛÛÛÜ ÜÛÛÛÛÛÛÜ ÜÛÛÛÛÛÛÜ ÛÛ ÛÛ ÛÛ
+            ÛÛ       ÛÛ       ÛÛß  ßÛÛ ÛÛ    ÛÛ ÛÛ       ÛÛ       ÛÛ ÛÛ ÛÛ
+            ßÛÛÛÛÛÛÜ ÛÛ       ÛÛ    ÛÛ ÛÛÛÛÛÛÛß ÛÛÛÛÛÛ   ßÛÛÛÛÛÛÜ ÛÛ ÛÛ ÛÛ
+                  ÛÛ ÛÛ       ÛÛÜ  ÜÛÛ ÛÛ       ÛÛ             ÛÛ ßß ßß ßß
+            ßÛÛÛÛÛÛß ßÛÛÛÛÛÛÛ ßÛÛÛÛÛÛß ÛÛ       ßÛÛÛÛÛÛß ßÛÛÛÛÛÛß ÛÛ ÛÛ ÛÛ
+
+            New 3D EDIT MODE BUILD keys:
+               Press [ or ] on a ceiling or floor to change the slope.
+               Shift + [ or ] on a ceiling or floor to adjust finely.
+               Press / to reset a ceiling or floor to slope 0.
+               Use Alt-F in either 2D or 3D mode to change the slope's hinge.
+
+            Sector fields used for slopes:
+               The useless groudraw fields, ceilingheinum and floorheinum,
+               are now being used as the slope value.  They are treated
+               as signed shorts, where 0 is slope 0, of course.  To enable
+               slope mode, you must also set bit 1 of the ceilingstat or
+               floorstat bits.
+
+            Known bugs:
+               There are still a few bugs that I haven't gotten around to
+               fixing yet.  They're not necessarily hard to fix - it's just
+               that there are a lot of little things that need to be updated
+               (on my part).
+
+               - Hitscan does not hit slopes correctly.
+               - Rare divide overflow bug in my wallmost function only when
+                 you're very close to a red sector line of a slope.
+               - Relative alignment for slopes not yet programmed.  Relative
+                 alignment for slopes will allow square aspect ratio for all
+                 slopes of slopes.
+               - ALT-F code with passing loops would be nice.
+               - Visibility not implemented for slopes yet.
+               - Sometimes an annoying tiny wall is drawn at sector lines.
+
+               Don't call me to tell me about these bugs.  I know about them.
+               And if I didn't list your favorite bug of the day, it will
+               probably be brought up by the 2 internal teams now working
+               with BUILD.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/4/95    - Made ALT-F select any wall of a sector, even crossing loops.
+               In 3D mode, ALT-F now sets the selected wall directly to the
+               first wall.
+
+          - Fixes related to slopes:
+             * Relative alignment now works.  Use relative alignment on high
+                  slopes if you don't like the way the texture is stretched
+                  out.
+             * Flipping now works
+             * Panning now works
+             * Fixed seams for SOME (not all) slope borders
+
+          - My wonderful divide overflow bugs in wallmost aren't quite as
+               rare as they used to be.  Wait a minute - I thought I was
+               supposed to document bug fixes here!  This is what you get
+               for wanting BUILD tonight.  As soon as I fix these darn
+               divide bugs, I'll put up a new version.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/5/95    - Fixed all known divide overflow bugs related to wallmost.  I
+               haven't gotten a divide overflow yet in the last few hours,
+               but that doesn't guarantee that you'll never get one.  Take a
+               look at GROULAND.  It has a cool new cylindrical tunnel.  On
+               the other side of the level is my house in Rhode Island.
+
+            Known bugs with slopes now:
+               - Hitscan does not hit slopes correctly.
+               - Visibility not implemented for slopes yet.
+               - Clipmove will not allow you to walk off high sloped cliffs.
+
+               - Also, I noticed a rare sprite drawing clipping bug.  I
+                   don't know if this is new or not.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/7/95    - Fixed an exception 0xe bug by using tsprite[MAXSPRITESONSCREEN-2]
+               instead of tsprite[MAXSPRITESONSCREEN-1].  I don't understand
+               why this fixed it so I expect that it will come back to haunt
+               me.  Oh happy day. :(
+
+          - I forgot to document 2 new and useful functions in the engine:
+
+              long getceilzofslope(short sectnum, long x, long y); and
+              long getflorzofslope(short sectnum, long x, long y);
+
+                 Returns the z coordinate of the ceiling/floor at that x, y
+                 location.  If the sector doesn't have a ceiling/floor slope
+                 then it immediately returns the sector[].floorz or
+                 sector[].ceilingz so it's not that slow.  You may want to
+                 check for slopes yourself ceilingstat&2/floorstat&2 if you
+                 think the overhead of calling these functions are too slow.
+
+          - Made clipmove use getceilzofslope and getflorzofslope when
+               checking for overlapping.
+
+          - Cleaned up mirror code for non-chained modes a little bit.  The
+               mirrors should no longer have a stay line on the right anymore
+               for these modes.
+
+          - Added Chain-Buffer mode.  See my new SETUP.EXE.  Chain-Buffer
+               is a combination of the chain and screen buffer modes - a
+               buffered chain mode.  This mode is faster than standard chain
+               mode when a lot of screen memory is being read, for example
+               when you use transluscence or mirrors.  Also, Chain-Buffer
+               mode is cleaner than screen-buffer mode since you don't see
+               memory being copied to the screen.  Unfortunately, in most
+               cases, Chain-Buffer is the slowest of all modes.  Actually,
+               Chain-Buffer mode sucks.  There is a use for this mode,
+               however!  In the future, I may make some kind of chain mode
+               automatically switch into chain-buffer mode for extra speed
+               when there is a large area of transluscence, etc.
+
+            ATTENTION PROGRAMMERS:  Here is the new order of modes that
+               initengine accepts:
+
+               0 = Chain mode
+               1 = Chain-Buffer mode
+               2 = Screen-Buffer/VESA mode
+               3 = TSENG mode
+               4 = Paradise mode
+               5 = S3
+               6 = Crystal Eyes mode
+               7 = Red-Blue mode
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/9/95    - Fixed visibility for face sprites in high resolution modes.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/14/95   - Added a new bunch of graphics modes using the new VESA 2.0 linear
+               buffer.  (I replaced the useless chain-buffer mode with VESA
+               2.0 modes)  See my new SETUP.  Since most cards only support
+               VESA 1.2 right now, you will probably need a VESA 2.0 driver.
+               I have been using the UniVBE(tm) 5.1 from SciTech Software
+               (ftp: ftp.scitechsoft.com, www: http://www.scitechsoft.com)
+               Note that since I inserted the new modes between chained mode
+               and screen buffer mode, you will need to update your setup
+               program and fix your initengine calls.
+
+          - Programmed a LRU/MRU-style cacheing system.  It should be fully
+               compatible with the old cache1d except for the locking byte.
+               The locking byte would be better described as a priority byte.
+                     Priority byte:
+
+                         0 - non-cached memory, you NEVER set the byte to 0!
+                     1-199 - cached unlocked memory
+                   200-255 - cached locked memory
+
+               When the cacheing system needs to remove a memory block, it
+               will try to remove the FEWEST number of SMALLEST blocks with
+               the LOWEST priority.
+
+               Note: Never set the priority byte to a 0!  Let the cacheing
+                  system do that for you.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/15/95   - Optimized hitscan a little and made it work with slopes.
+
+          - Made some internal things in the build editor work better with
+               sprites on slopes.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/16/95   - Note:  Initengine now only does memory allocation for the
+                   graphics modes.  The ylookup table is calculated in
+                   setgamemode since with VESA, I don't know certain
+                   variables such as bytesperline until the mode is
+                   actually set.
+
+          - Cansee should now work with slopes properly.
+
+          - Added a new function which is a combination of the
+               getceilzofslope and getflorzofslope functions.  Whenever you
+               need both the ceiling and floor, it is more optimal to call
+               this function instead.  The parameters are just like the other
+               functions except the ceiling and floor are returned through
+               pointers instead of a return value.
+
+                  getzsofslope(short sectnum, long x, long y,
+                               long *ceilz, long *florz);
+
+          - Fixed recently introduced hitscan divide overflow bug.
+
+          - Fixed a sprite drawing clipping bug.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/17/95   - ATTENTION PROGRAMMERS:  I moved the sprite shading code from
+               the engine into GAME/BSTUB.  If you want sprites to shade
+               like they used to, be sure to copy the code I recently added
+               to the end of analyzesprites in GAME.C or ExtAnalyzeSprites
+               in BSTUB.C.
+
+          - Added 2 new interesting functions to the engine to make moving
+               slope programming easier.  These functions will align a slope
+               to a given (x, y, z) point.  It will make the slope pass
+               through the point.  The function will do nothing if the point
+               is collinear to the first wall of the sector.
+
+               alignceilslope(short sectnum, long x, long y, long z);
+                  and
+               alignflorslope(short sectnum, long x, long y, long z);
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/18/95   - Kgroup will now work with subdirectories.
+
+          - ATTENTION PROGRAMMERS:  I have not done this yet, but I am
+               planning on doing a new map version!  Before I do it, I
+               want to give you a chance to give me any suggestions you may
+               have.  The only changes I am planning on, besides re-arranging
+               the structures for better alignment is to give the slopes some
+               more bits precision.  This may limit slopes to a maximum slope
+               of 4 (almost 76ø) which is still extremely high.  Here are the
+               new structures that I am proposing:
+
+                  //40 bytes
+               typedef struct
+               {
+                  long ceilingz, floorz;
+                  unsigned short wallptr, wallnum;
+                  short ceilingstat, floorstat;
+                  short ceilingpicnum, ceilingheinum;
+                  signed char ceilingshade;
+                  char ceilingpal, ceilingxpanning, ceilingypanning;
+                  short floorpicnum, floorheinum;
+                  signed char floorshade;
+                  char floorpal, floorxpanning, floorypanning;
+                  char visibility, filler;
+                  short lotag, hitag, extra;
+               } sectortype;
+
+                  //32 bytes
+               typedef struct
+               {
+                  long x, y;
+                  short point2, nextwall, nextsector, cstat;
+                  short picnum, overpicnum;
+                  signed char shade;
+                  char pal, xrepeat, yrepeat, xpanning, ypanning;
+                  short lotag, hitag, extra;
+               } walltype;
+
+                  //44 bytes
+               typedef struct
+               {
+                  long x, y, z;
+                  short cstat, picnum;
+                  signed char shade;
+                  char pal, clipdist, filler;
+                  unsigned char xrepeat, yrepeat;
+                  signed char xoffset, yoffset;
+                  short sectnum, statnum;
+                  short ang, owner, xvel, yvel, zvel;
+                  short lotag, hitag, extra;
+               } spritetype;
+
+               Note that I am adding 1 byte of filler to the sprite structure
+               (4K more) and 3 bytes of filler to the sector structure
+               (3K more).  (If I'm a nice guy, one of those bytes may even
+               be use for fog. (DOH!))
+
+          - Fixed another wonderful hitscan divide bug.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/22/95   - Optimized slopes.  On a 486-66 w/ local bus in VESA 2.0 320*200
+               mode, a full screen slope was optimized from 24fps to 35fps!
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/25/95   - Re-optimized some more assembly.
+
+          - ATTENTION EVERYONE!  CONVMAP7!  You know what this means.  Just
+              type "convmap7 *.map" and you'll be back in business.  P.S.
+              enjoy the newly aligned structures!
+
+          - ATTENTION PROGRAMMERS!  New TRANSPAL!  You can now use 2 levels
+               of transluscence by using just a single 64K transluscent
+               buffer, such as 33/67 and 67/33 transluscence.  I changed the
+               format of palette.dat, so please run TRANSPAL before you try
+               running the game with the new OBJS! If you don't, the palette
+               tables will be screwed up.
+
+                Old PALETTE.DAT:
+                   768 bytes - VGA palette
+                   numshades*256 bytes - palookup[0] table
+                   32640 bytes- transluscent palette (smaller from symmetry)
+
+                   The way I used to get numshades (fun):
+                      numshades = ((filelength-32640-768)>>8)
+
+                New PALETTE.DAT:
+                   768 - VGA palette
+                   2 - numshades
+                   numshades*256 - palookup[0] table
+                   65536 - transluscent table
+
+                To keep things less confusing, could you all use a
+                transluscent constant >= 128.  For example, I used 170 on
+                my PALETTE.DAT.
+
+
+               READ THIS!  New bits added to things:
+                  Bit 5 of rotatesprite, bit 9 of both sprite[].cstat
+                  and bit 9 of wall[].cstat are now used for reverse
+                  transluscence.
+
+          - Added super-cool new feature to 2D EDIT MODE (that should have
+               been there from the start).  Try inserting some points!
+
+          - ATTENTION PROGRAMMERS!  Removed overwritesprite.  Use
+               rotatesprite instead.  I don't want to support a function that
+               can totally be done with another better function.  I will
+               eventually optimize rotatesprite for 90ø cases so it's even
+               faster than the current overwritesprite.  If you're too lazy
+               to convert right now, then you can use this overwritesprite
+               stub function:
+
+overwritesprite (long thex, long they, short tilenum,
+                 signed char shade, char stat, char dapalnum)
+{
+   rotatesprite(thex<<16,they<<16,65536L,(stat&8)<<7,tilenum,shade,dapalnum,
+      ((stat&1^1)<<4)+(stat&2)+((stat&4)>>2)+((stat&16)>>2)^((stat&8)>>1),
+      windowx1,windowy1,windowx2,windowy2);
+}
+
+          - Fixed the rotatesprite centerting bug in y-flipping mode.  Oh
+              by the way, you know how I originally said the flipping bit
+              was x?  Well, I screwed it up.  It was actually y-flipping all
+              along.
+
+          - This one's for hackers (N&P/Qs)  In the engine, I call
+               getpalookup every time I need a pointer to a 256-byte
+               palookup table.  One big limitation right now is that each
+               bunch of 256-byte tables has a limit of 64K because a shade
+               is being returned, not a 4-byte pointer.  This means you
+               could have a maximum of 8 shades, with 8 fogs per palookup.
+               It's not as expandable as I originally intended since this is
+               a speed-critical function.  It is called EVERY single time a
+               line is drawn - probably called 50 times more often than
+               faketimerhandler.
+
+               #pragma aux bound32 =\
+                  "test eax, 0ffffffe0h",\
+                  "jz endit",\
+                  "cmp eax, 80000000h",\
+                  "sbb eax, eax",\
+                  "and eax, 31",\
+                  "endit:",\
+                  parm [eax]\
+
+               getpalookup(long davis, long dashade)
+               {
+                  return(bound32(dashade+(davis>>8)));
+               }
+
+               This is just a start.  Eventually I hope to use some kind of
+               lookup table, such as:  palookup = palptr[davis][dashade],
+               but I couldn't think of a good way to make the array small
+               enough for what people need.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/26/95   - Fixed drawmapview so it actually clips to the rectangular window
+               properly.  It does not clip to startumost/startdmost so you
+               should call a rotatesprite to draw the status bar every frame
+               if it is not rectangular.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/30/95   - Fixed recently introduced mirror bug.
+
+          - Fixed rotatesprite x-positioning bug in scale mode for weird
+                 resolutions.
+
+          - Fixed tilting for pure chained modes.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/2/95   - Changed setbrightness call:
+
+               setbrightness(char dabrightness, char *dapal)
+                  dabrightness is gamma level(0-15)
+                  dapal is pointer to standard VGA 768 byte palette.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/3/95   - Fixed flicker in UNIVBE modes.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/6/95   - Added a global visibility variable to BUILD.H specific for
+               p-skies called parallaxvisibility.  Now you can do lightning
+               effects without modifying the visibility for everything.
+
+          - Really fixed the drawmapview window clipping this time.
+
+          - Made my clearview function clip to the viewing window since it
+               is usually used just before the drawmapview function.
+
+          - You can now use bit 6 (64) to tell rotatesprite whether or not
+               the tile has transparent regions or not.  If there are no
+               transparent regions, then it would be faster to set this bit
+               because it doesn't have to check for color 255 at every pixel.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/11/95  - Back in RI!
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/13/95  - Cleaned up setup program by having only 1 VESA menu for all
+               possible VESA modes.  The engine will now auto-detect whether
+               or not your computer supports VESA 2.0.  The screen buffer
+               menu now only supports 320*200.  (I noticed that Mark's setup
+               program doesn't list 320*400 mode even though it is supported
+               by my game and UNIVBE. 320*400 is considered by some people
+               the next best mode after 320*200 and 640*480.  You have my
+               permission to annoy him.)
+
+          - I bought UNIVBE by credit card for $28!  When you buy UNIVBE,
+               you don't have to struggle with beeps or date changing - and
+               it loads instantly.  I try not to use TSR's whenever possible,
+               but I found that UNIVBE is worth wasting 8K.  I don't think my
+               computer has ever crashed due to something related to UNIVBE.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/17/95  - Found an easy way to interpolate everything for faketimerhandler
+               in my game, including swinging doors, revolving doors, and
+               other moving sectors.  My doanimations interpolation now uses
+               these functions instead.  Check them out in my GAME:
+
+                  setinterpolation(long *posptr);  //Call when door starts
+                  stopinterpolation(long *posptr); //Call when door stops
+                  updateinterpolations();  //Call at start of domovethings
+                  dointerpolations()       //Call at start of drawscreen
+                  restoreinterpolations()  //Call at end of drawscreen
+
+               Call setinterpolation with a pointer to the long variable
+               being interpolated.  If an object stops moving, you can
+               speed things up by calling stopinterpolation.  For things
+               that always move, you can call setinterpolation in pre-map
+               and don't stopinterpolation for those things.  Don't forget
+               to set numinterpolations to 0 in premap whenever changing
+               levels in the game.
+
+          - Optimized lava.  You can re-copy my code if you want.
+
+          - Added auto screen-buffering mode for linear VESA modes.  (In
+               case you didn't know, reading video memory can be 10 times
+               slower than reading non-video memory.)  Auto-buffering
+               means that if the engine detects that more than 1/8th of the
+               screen has transluscence or mirrors, then it will switch into
+               a screen-buffering mode.  Screen-buffer mode in linear VESA
+               not only will still have smooth page flipping, but will be
+               faster than standard screen buffer mode on some video cards
+               just because it's linear memory.  (That's a good thing)
+
+          - Optimized screen buffer modes so they copy only the viewing
+               window instead of the whole screen from non-video memory to
+               video memory.  If a permanent sprite is written, as a special
+               case, it will copy the whole screen - but this doesn't affect
+               you.  Me and my engine babble.
+
+          - Moved the printext function out of the engine and into my game.
+               Use printext16/printext256 instead.
+
+          - I tried removing chain mode twice and it didn't improve the frame
+               rates of the other modes at all.  So it stays!  If you don't
+               like it, then don't include it in your setup program.
+
+          - Made allocatepermanenttile return 0 instead of -1 if something
+               bad happens.  My GAME.C was crashing in windows with a memory
+               error because I was assuming all memory pointers were
+               positive.  Please make sure your code will work if an
+               allocation function returns a negative pointer (Windows often
+               returns negative pointers).
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/19/95  - Tried to make pushmove work with face sprites, but it kept making
+               the player die too much.  Also it presented some interesting
+               new problems, such as:  You get pushed by your own bullets
+               that you just shot - and get this - if you don't temporarily
+               set yourself to non-blocking you kill yourself because you're
+               inside you're own sprite!  So I have decided to comment out
+               this code for now.
+
+          - Fixed hitscan bug with ceiling slopes.
+
+          - ATTENTION PROGRAMMERS!!! PERMANENTWRITESPRITE was removed from
+               the engine and be put into my game as an emulated function.
+               If you still use permanentwritesprite, get the emulated
+               function out of my GAME.C.
+
+            Drawing permanent areas is now easier than ever!!!  Simply
+               call rotatesprite with bit 3 (&8) set or the
+               permanentwritesprite stub call, and the engine now
+               automatically takes care of copying the permanent region
+               to all necessary pages in the future.  It even keeps track
+               of whether the call was before or after drawrooms!
+            I am using an internal fifo to back up the parameters for each
+               rotatesprite call.  It can support up to 512 calls per
+               page right now.  This number can get reached quicker than
+               you think, especially if you use fonts with shadows behind
+               each character.  Permanentwritespritetile could also go
+               over the limit in hi-res modes since each tile is considered
+               a separate call.
+            I optimized out the case where an older rotatesprite region gets
+               completely covered by a newer rotatesprite region with bit 6
+               (&64 for non-masking) set.  Currently this has a few
+               limitations - such as the x, y, zoom, and ang must be the same
+               right now to knock out an older rotatesprite.
+
+          - I corrected an off-by 1 error in my GAME.C for window size
+               calculations.  I simply used more precision. Ex:
+               * changing (xdim>>1)-(screensize>>1) to ((xdim-screensize)>>1)
+               * using the scale function instead of a separate mul & div.
+            By the way, if you haven't already, please stick your screen
+               re-sizing code BEFORE drawrooms.  It will make the screen
+               re-size update more responsively and you're less likely to get
+               drawing bugs.
+
+          - Future plans for possible rotatesprite optimizations:
+              1. Angle is 0, 512, 1024, 1536
+              2. Bit 6 (&64) is set for non-masking mode
+              3. tilesizy[tilenum] is a power of 2
+              4. If coincidentally, x=34562, y=34682, and zoom=67275
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/20/95  - Fixed vertical line shading bugs when looking at walls at harsh
+               angles.
+
+          - Made masked walls clip to slopes properly.  TRY IT!
+               (hope you didn't "BUILD" on this bug!)
+
+          - Fixed overflow and precision bugs with extremely long walls.
+               I even got the chance to optimize out a multiply in the
+               wallmost clipping code!
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/25/95  - Now absolutely everything in my game is being interpolated
+               for smooth play - including subways!  No interpolation
+               disable variable exists any more.  The setinterpolation
+               function is really easy to use.  Try it!
+
+          - Programmed VISIBILITY for slopes!!!!!  On my P-100, the slopes
+               are almost as fast as they used to be.  You can now start
+               adjusting the shades of slopes.
+
+          - The shading lines on ceilings and floors now match to the shading
+               lines on walls.  Before they didn't match. (oops).
+
+
+          - For those of you who want to program their own palette functions,
+               using my gamma correction lookup table, here's the code:
+
+               extern char britable[16][64];
+
+               koutp(0x3c8,0);
+               for(i=0;i<768;i++)
+                  koutp(0x3c9,britable[curbrightness][palette[i]]);
+
+               If you use this code, don't bother calling setbrightness any
+               more.  The only bad thing about programming this yourself
+               is that you lose support for red-blue glasses mode.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/26/95  - Added support for VESA 2.0 protected mode extensions.  With the
+               protected mode extensions, the page-flipping is less likely to
+               flicker, if at all.  This is because the retrace timing isn't
+               screwed up as badly as if it had to switch to real mode.
+
+          - Fixed a weird buffer bug in my GAME.C.  I was using tempbuf in
+               faketimerhandler/getpackets for sending packets.  I was also
+               using tempbuf in many other places, such as my printext
+               function.  Unfortunately, since rotatesprite is now called
+               for each character, faketimerhandler would sometimes get
+               called and the rest of the word got screwed up.  Please make
+               sure you are not sharing any buffers in faketimerhandler /
+               getpackets with the rest of your code.
+
+          - Fixed a bug for linear VESA modes.  Now, the screen will update
+               properly when calling rotatesprite and nextpage for the first
+               time before any drawrooms calls.  This used to not work right
+               at my "waiting for other players" code in this mode.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/27/95  - Did you notice I fixed some of the weird cases with slope drawing
+               in the last upload?   I fixed things like when a ceiling of
+               one sector is partially below the floor of another, etc.
+
+          - Fixed precision of shading lines on slopes.
+
+          - Fixed visibility overflow when slopes are near horizons.  This
+               means you won't see ugly bright pixels any more when you're
+               looking at a slope at an extremely sharp angle.
+
+          - Fixed a bug in BUILD 3D EDIT MODE with slopes.  Now when you
+               press '/' on a ceiling or floor slope, it stays straight
+               until you press [ or ] on it again.  Before, sometimes the
+               ceiling would stupidly get sloped again if you pressed [ or ]
+               on the floor and vice versa.
+
+          - Removed some unnecessary sounds from my game.  This doesn't
+               really affect you people out there.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/30/95  - Fixed recently screwed up p-sky tiling.
+
+          - Made Editart work with map version 7 for tile sorting and the
+               Alt-R command.  Alt-R does not scan the heinum's of sectors
+               any more, and only adds in the overpicnum if a masked or
+               1-way wall is actually defined on the map.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/31/95  - Fixed a bug with my slopalookup array.  It was sometimes writing
+               up to 3 bytes after the end of the array.
+
+          - Fixed recently screwed up p-sky tiling for real this time.
+
+          - Permanentwritesprite is out of my game.  Here it is just in case
+               I will need it again for future reference.
+
+                permanentwritesprite (long thex, long they, short tilenum,
+                   signed char shade, long cx1, long cy1,
+                    long cx2, long cy2, char dapalnum)
+                {
+                   rotatesprite(thex<<16,they<<16,65536L,0,tilenum,shade,
+                        dapalnum,8+16,cx1,cy1,cx2,cy2);
+                }
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+11/1/95   - Guess what?  I turned 20 today.  This means I'm no longer a
+               teenage programming genius.  Doesn't that just suck.  If you
+               guys don't get a game out by the next time my age plus
+               plusses, I'm going to get really p-skied off and kill some
+               people.  That would be bad.  (When I say killing, I mean
+               virtual killing in the entertaining game of Ken-Build
+               in which a fun time is always had by all.)  So put on your
+               happy fun smiles and work out all those rotatesprites,
+               fsyncsyncvel.bits, and interpolation fifos before it's
+               ototalclock!
+
+          - Optimized the NON-MASKING cases of rotatesprite for
+               NON-(un)CHAINED modes.  This means that low detail modes,
+               status bars, and permanent background tiles are now drawn
+               about as fast as they're ever going to be drawn!  Try the
+               F5 key in my game to compare frame rates if you want.  I have
+               not optimized guns and stuff yet.  That's next on my list.
+
+          - Made the engine call new internal functions, kmalloc and kfree,
+               instead of malloc or free.  Unless you're a hacker and wrote
+               your own memory manager (like N&P/Qs) you can just ignore
+               this message.
+                  void *kmalloc(size_t size) { return(malloc(size)); }
+                  void kfree(void *buffer) { free(buffer); }
+
+          - Supposedly fixed the new rotatesprite and linear vesa crashing
+               bugs.  Since I'm not totally sure that I fixed the problems,
+               all I can do is hope that I don't get too many phone calls!
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+11/4/95   - Did some neat optimizations that will make the drawing code
+               faster, especially in hi-res modes, but I'm sure nobody cares.
+               Instead I'm probably just going to get 10 totally different
+               bug report stories.  So I'll be talking to you soon!
+
+          - Fixed stupid bugs in cansee.  If the 2 objects were in the same
+               place, sometimes it returned 1 even if it couldn't see you.
+               I made 2 fixes:
+                  This one to fix overlapping:
+
+                     if ((xs == xe) && (ys == ye)) return(sects == secte);
+
+                  And I removed the early out return(1) optimization - I
+                     put this after the big loop instead:
+
+                  for(i=danum-1;i>=0;i--)
+                     if (clipsectorlist[i] == secte) return(1);
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+11/7/95   - Optimized the awful shld's out of my divscale's in pragmas.h.
+               You can update to the new pragmas.h if you actually use it.
+
+          - Remember the lovely horizontal lines on top of face sprites.
+               Well you won't be seeing them any more.  At least the case
+               I trapped works better than before.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+11/8/95   - Made krand generate better random seeds.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+11/9/95   - ATTENTION PROGRAMMERS!  Moved part of stat bit 3 of rotatesprite
+               to bit 7.  Have you noticed that your menu code was kind of
+               screwy in modes where numpages > 1?  This is because I made
+               rotatesprite automatically copy to all pages whenever the
+               "don't clip to startmost's bit" (bit 3 or +8) was set in
+               the stat bit of rotatesprite.  To give you more control, I
+               moved the auto copy to all pages bit to bit 7 and left bit 3
+               as the don't clip to startmosts bit.  If you want your code
+               to work the same as the last update of BUILD, simply go
+               through all your rotatesprite calls and add 128 in addition
+               to the stat bit whenever you were adding 8 before.  See the
+               revised rotatesprite documentation:
+
+rotatesprite (long sx, long sy, long z, short a, short picnum,
+              signed char dashade, char dapalnum, char dastat,
+              long cx1, long cy1, long cx2, long cy2)
+
+   (sx, sy) is the center of the sprite to draw defined as screen coordinates
+      shifted up by 16.  In auto-scale mode, be sure that (sx, sy) is using
+      a 320*200 size screen even though the real resolution may be different.
+   (z) is the zoom.  Normal zoom is 65536.  > is zoomed in, < is zoomed out.
+   (a) is the angle (0 is straight up)
+   (picnum) is the tile number
+   (dashade) is shade number
+   (dapalnum) is the palookup number
+
+   if ((dastat&1) != 0) - transluscence
+   if ((dastat&2) != 0) - auto-scale mode
+          Auto-scale mode will automatically scale from 320*200 resolution
+      coordinates to the clipping window passed (cx1, cy1, cx2, cy2).  In
+      auto-scale mode, don't pre-scale the (sx, sy) coordinates.  Simply pass
+      (sx, sy) as if the resolution was 320*200 even though it may be
+      different.  This means that you shouldn't use xdim or ydim to get
+      (sx, sy).
+   if ((dastat&4) != 0) - y-flip image
+   if ((dastat&8) != 0) - don't clip to startumost/startdmost
+   if ((dastat&16) == 0) - use Editart center as point passed
+   if ((dastat&16) != 0) - force point passed to be top-left corner
+   if ((dastat&32) != 0) - use reverse transluscence
+   if ((dastat&64) == 0) - masked drawing (check 255's) (slower)
+   if ((dastat&64) != 0) - draw everything (don't check 255's) (faster)
+   if ((dastat&128) != 0) - automatically draws to all pages as they come
+
+   (cx1, cy1, cx2, cy2) - The clipping window.  These coordinates are never
+       scaled, not even in auto-scale mode.  Usually you should pass them as
+       (windowx1,windowy1,windowx2,windowy2) for things scaled to the viewing
+       window or (0L,0L,xdim-1L,ydim-1L) for things scaled to full screen.
+       Probably the only time you wouldn't follow this rule is if you program
+       a non-scaled tiled background function.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+11/21/95  - Optimized cansee - before it was checking each red wall 2 times
+               as much as it needed to.  Now it only checks the side facing
+               the first object passed to cansee.  Since this optimization
+               is only 1 line, I don't think I messed anything up this time.
+
+          - Made cansee not pass through 1-way walls.  This means that the
+               order of points passed to cansee could give you different
+               results, but only for 1-way walls.
+
+          - FIXED CRASHING AND PRECISION ON HIGH SLOPES!!!  Try it for the
+               first time again!  The bug was:  In wallmost, if a slope's
+               line was getting clipped by both the top and bottom of the
+               screen, the x-intercept of the bottom was calculated wrong.
+               And if you were real lucky, if the x-intercept could have been
+               so wrong that a loop would happily overwrite random chunks of
+               memory.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+12/1/95   - In my GAME.C, made tilting zoom in smoothly as it rotates to
+               hide the ugly corners.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+12/4/95   - Made some more optimizations to rotatesprite - added more cases
+               for removing things from the permanent list early, such as:
+               any full screen rotatesprite with 64 knocks everything else
+               off the list, and any rotatesprites with zoom=65536,ang=0,
+               stat&64 will knock out anything totally under its rectangle.
+               These optimizations seemed to actually fix some bugs.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+12/10/95  - Well, well, well.  It has now been 2 years since you know what
+               was released and Apogee still hasn't put out a (real) Build
+               game.  Trivia of the year:  Did you know that the first Build
+               game was originally scheduled to be released a month before
+               Doom was to be released?  Maybe I should rename the "Build"
+               engine to the "ROTTT" engine because it's probably just going
+               to rot on my hard drive for another year until all the games
+               just get cancelled.  PROVE ME WRONG!
+
+          - Added selectable viewing angles - not locked at 90ø anymore!
+               Try playing around with the ( ) - = keys on the main keyboard
+               in my new BSTUB.C.  See the example code in BSTUB for setaspect.
+               Use the setaspect function to control both the viewing range
+               angle and the y/x aspect ratio.
+
+               setaspect(long daxrange, long daaspect)
+
+               For a standard 90ø 320*200 screen, daxrange and daaspect are
+                  65536.  For square aspect ratio at 320*400, set daaspect
+                  to 131072.  Since daxrange is actually zoom, you must
+                  modify the aspect ratio inversely if you only want to
+                  change the viewing angle.
+
+            ATTENTION EVERYONE!  To make parallaxing skies work with larger
+               than 90ø viewing ranges, I had to change some things around
+               in TABLES.DAT.  Don't forget to update to the new one!  The
+               new one is smaller because I removed a useless array.
+
+          - Improved red-blue glasses mode by fixing some palette problems
+               and removing the overlap problem on the right side of the
+               screen.  It still has some things wrong with it though.
+
+          - Perfected screen tilting by using the new setaspect function.  It
+               now tilts all 360ø smoothly with no zoom change and with no
+               ugly corners.  This is possible only because you can now set
+               the viewing angle higher than 90ø.
+
+          - Fixed a flicker bug with permanent rotatesprites in multi-page
+               modes.  When rotatesprite was called because drawrooms in a
+               multipage mode, the rotatesprites were being called in the
+               wrong order from the fifo for the first page.  Note that
+               before, the auto-knock out feature sometimes hid the problem.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+12/11/95  - Made EDITART work with the new TABLES.DAT.
+
+          - Upgraded to Watcom 10.5.  The engine is now about 1K larger,
+               and 0.0000001% faster.
+
+          - Added some interesting compression routines to cache1d.obj,
+               dfread and dfwrite.  These functions take the same parameters
+               as fread and fwrite respectively.  These functions are useful
+               for loading/saving games or for recording demos.
+
+            Note: Since these functions need to allocate 118K off of my LRU
+               cacheing system, you must not call them before
+               initcache(loadpics) is called.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+12/18/95  - Made rotatesprite use getpalookup to get the palette shade.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+12/31/95  - Cleaned up KGROUP.EXE and wrote a KEXTRACT.EXE utility.  With
+               KEXTRACT, you can extract any files from a group file.
+               Note that in KGROUP, DOS handles the ? and * wildcards whereas
+               in KEXTRACT, I had to program the wildcards myself for finding
+               files inside the group file.  The following combinations
+               should work:  *.*, *.map, game.*, tiles???.art, *.k??
+
+          - NEW NETWORK METHODS!  TRY MY GAME IN MULTIPLAYER MODE!  MODEM!
+
+               SUMMARY:  Lag Time: ZERO!  That's right Z.E.R.O. (0)
+                         Smoothness: Perfect on ALL computers!
+
+                  My new network code builds upon everything you've already
+               programed with faketimerhandler, getpackets, movethings, and
+               domovethings, so you don't need to throw away any of that
+               great stuff.  There are actually 2 totally separate things I
+               did to improve the multiplayer performance.  First I added a
+               new network mode which sends packets in a different way (this
+               is way Doom actually does it)  Then I found a way to reduce
+               lag-time to 0 with perfect smoothness.  (Doom does NOT do
+               this, but G&S like it anyway for some reason.)  I will first
+               describe the new network mode:
+
+             -------------------------------------------------------------
+             1.   First, let me describe the new network mode.  Instead of
+               a master/slave system, every computer sends its own controls
+               to every other.  You are currently using the master/slave
+               system which sends 2(n-1) packets per frame where n is the
+               number of players.  My new network mode sends n(n-1) packets
+               per frame and treats every player evenly.  See the chart
+               below of packets per frame:
+
+                           2(n-1) method:   n(n-1) method:
+               2 players        2             2
+               3 players        4             6
+               4 players        6            12
+               5 players        8            20 (OUCH!)
+               6 players       10            30 (OUCH!)
+               7 players       12            42 (OUCH!)
+               8 players       14            56 (OUCH!)
+
+
+                  You may be asking why I am bothering you with this new
+               network method if it sends more packets then the old one?
+               I'll explain:  With the old network method, slaves had to
+               wait for their packets to take 2 trips before they could move,
+               whereas with the new method the packets need to take only 1
+               trip.  Also with the new method the players are treated
+               evenly.  For 2 players, the new network method is definitly
+               the mode of choice since it sends the same number of packets
+               AND the packets can be smaller since each computer only needs
+               to send its own controls to the other computer, not everyone's
+               controls (good for modem play).  It's up to you what your
+               break even point is before you switch into the old network
+               method.  I recommend: 1-4 New, 5+ Old.
+                  Now let me explain how the new method REALLY works.  Since
+               every computer must call the movement code in the same order
+               to stay in sync, all computers must wait until every packet
+               is received for that frame before it can actually go into
+               the movement code.  You could say that all the computers are
+               half-slaves.  Your computer should always be ahead of the
+               other computers.  If you are player 0, the packets you
+               currently have might look like this:
+
+               Chart for Player 0:
+
+                          Player 0   Player 1   Player 2
+                Tic 0:    GOTMINE------GOT--------GOT------>     MOVE!
+                Tic 1:    GOTMINE------GOT--------GOT------>     MOVE!
+                Tic 2:    GOTMINE--X WAITING...   GOT         CAN'T MOVE!
+                Tic 3:    GOTMINE    WAITING... WAITING...    CAN'T MOVE!
+                Tic 4:    GOTMINE    WAITING... WAITING...    CAN'T MOVE!
+
+                  As soon as player 0 receives player 1's next packet,
+               player 0 can call domovethings for tic 2.
+                  One interesting complication of the new network method is
+               the timing.  If for some reason player 0 sends packets faster
+               than player 1, then player 1 will have no lag and player 0
+               will start with twice the normal lag which will increase
+               until bad things happen.  See this chart:
+
+                     Player 0's side:         |   Player 1's side:
+                   Player 0:  Player 1:       | Player 0:  Player 1:
+          Tic 5:   GOTMINE      GOT    (MOVE) |   GOT      GOTMINE  (MOVE)
+          Tic 6:   GOTMINE    WAITING         |   GOT      GOTMINE  (MOVE)
+          Tic 7:   GOTMINE    WAITING         |   GOT      GOTMINE  (MOVE)
+          Tic 8:   GOTMINE    WAITING         |   GOT      GOTMINE  (MOVE)
+          Tic 9:   GOTMINE    WAITING         |   GOT      GOTMINE  (MOVE)
+                                              |   GOT
+                                              |   GOT
+                                              |   GOT
+
+                  This can be corrected by sending a byte which tells the
+               other computer how many packets behind it is.  You want the
+               other computer to be a little behind.   Player 0's packet
+               delta in this case would be 4.  Player 1's would be -3.
+
+                  Another interesting thing about this network method is
+               that a slave's packet cannot be skipped like in the
+               master/slave system.
+
+                  The actual code for everything described above is already
+               in my GAME.C and working perfectly.  Go through the file
+               searching for the keyword, "networkmode".  If it is non-zero,
+               that's the new mode.  Look mainly at the section inside
+               faketimerhandler and case 17 of getpackets.
+
+               (I've talked about "2(n-1)" and "n(n-1)" networking modes.
+                Believe it or not, it's possible to do a network mode as
+                low as an "n" mode.  I haven't done it due to some
+                inherent problems.  I'd be impressed if you can figure out
+                how this one works)
+             -------------------------------------------------------------
+             2.   Now I'll type about the "KLAG-0 Technology" I promised you.
+
+               The secret to life is, "
+               NO CARRIER
+
+                  Why do you have to wait for another computer to tell you
+               when to move when you already know where you want to go?
+               So I added a fake set of variables that simulate
+               where the player's x, y, z, and ang variables will be after
+               it does sync crap with other computers.  I added a function
+               called fakedomovethings which is called in the same fashion
+               that domovethings would be called in a 1-player game.
+               Fakedomovethings modifies ONLY the fake x, y, z, and ang
+               variables.  It is a shadow of the processinput function.  It
+               only needs the parts of processinput that modify the position
+               of player[myconnectindex].  If it modifies real variables,
+               the game will get out of sync.
+                  Sometimes the fake variables can get out of sync with the
+               real variables.  This can happen if you walk into another
+               player or anything else that moves.  This doesn't happen too
+               often though and when it does, there are things that you can
+               do to smooth out the jump to the right position.  This brings
+               me to my other new function: fakedomovethingscorrect.
+                  The easy way to correct the player's position in a smooth
+               way is to say something like: fakex += ((realx-fakex)>>3);
+               This would effectively move the player 1/8th of the way closer
+               to the real position.  The problem with this method is that
+               the realx and fakex are not sampled at the same time,
+               therefore creating more error than isn't any.
+                  So instead of comparing your fake position with where the
+               real position was a few tics ago, I chose to compare both
+               of them a few tics ago.  FIFO time!  To do this, I am keeping
+               a fifo of the new fake positions and comparing the positions
+               as the real positions come.  Now that they're being compared
+               at the same tic, correction will only occur when you've truly
+               run into a moving object.
+             -------------------------------------------------------------
+             I hope all this was as much fun for you to read as it was for
+             me to type.  If you don't understand it, then I was probably
+             just trying to confuse you with all the possible word
+             combinations I could come up with that contain the letters in:
+             "fake", "sync", and "fifo".
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+1/6/96    - Made RT.SHIFT highlighting in build.obj not pick up non-existent
+               sprites in the selection rectangle.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+1/9/96    - Fixed a rare hitscan overflow bug for sectors that had a
+               ceiling&floor z-difference of more than 400000 z-units.
+               (About 20 stories tall)
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+1/15/96   - Changed something in rotatesprite so that status bars could be
+               clipped easily by using the clipping parameters.  (I never
+               knew this didn't work until now)  This change will only affect
+               your code if you were using bits 2+8 and the clipping window
+               was something other than the standard (0,0,xdim-1,ydim-1).
+
+          - Improved fakedomovethingscorrect.  Before when there was an
+               error, I was adding the difference into the current
+               position.  This method conflicted with pushmove - where
+               sometimes it never fully corrected the position leaving you
+               stuck behind a wall.  Now I make your position the position
+               it would have been if it had predicted the right position
+               several ticks ago.  In other words, I set the my... variables
+               to the real, older position then call fakedomovethings for
+               every tic from the time of the real, older position up to
+               the current time.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+1/19/96   - Added snow reduction code to setpalette.  It takes about 4 ms
+               to set a full palette.  I write during the horizontal retrace
+               period to save time.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+1/23/96   - Added hack to loadboard to make it load a board only from the
+               group file if the last character of the filename is a 255.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+1/25/96   - Fixed a stupid bug in UNIVBE segmented modes so it doesn't
+               flicker anymore.  Why didn't you guys tell me about this
+               sooner!
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+2/1/96    - Optimized cansee according to Peter's suggestions.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+2/2/96    - Made setview calls not mess up the stereo vision variables.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+2/5/96    - ATTENTIONS ALL PROGRAMMERS!!!  If you use use any VGA registers
+               (such as 0x3da, or 0x3c6 - 0x3c9), you will need to re-code
+               those sections of code.  Please make your BSTUB's work with
+               this too!
+
+               1.  If you use register 0x3da, limitrate, or qlimitrate, you
+                   will need to do a special check to see whether or not the
+                   video mode is VGA register compatible.  If you do not
+                   check this, then the computer may lock up because register
+                   0x3da simply doesn't change on certain video cards.
+                   Unless you know the code won't be called in VESA mode, you
+                   need to perform this check.  Here's an example of how you
+                   can do this check:
+
+                Instead of calling limitrate (or your own 0x3da function):
+                   limitrate();
+                Do this:
+                      //extern char vgacompatible;
+                   if ((vidoption != 1) || (vgacompatible == 1)) limitrate();
+
+               2.  You must now use my function to set or get any palette
+                   registers.  This means that the keywords "3c7", "3c8",
+                   and "3c9" should not even exist in your code.  I really
+                   didn't want to force you to use my palette functions, but
+                   since VESA 2.0 supports non VGA compatible cards, you must
+                   do it this way.  If you use setbrightness for all of your
+                   palette setting, then you can ignore this.  Note that the
+                   palette format here is VESA's palette format, which is
+                   different than my other palette control functions.  It's
+                   4 bytes and RGB are backwards.  Here are the function
+                   prototypes:
+
+                VBE_setPalette(long palstart, long palnum, char *dapal);
+                VBE_getPalette(long palstart, long palnum, char *dapal);
+                   palstart is the offset of the first palette to set
+                   palnum is the number of the palette entries to set
+                   dapal is a pointer to the palette buffer.  The palette
+                      buffer must be in this format:
+                         char Blue, Green, Red, reserved;
+                      I think this format stinks, but since VESA 2.0 uses
+                      it, the code will run fastest if the buffer is not
+                      copied.  You can make your own cover up function if
+                      you don't like this format.
+
+                   This example sets up a wasteful gray scale palette:
+
+                   char mypalette[1024];
+                   for(i=0;i<256;i++)
+                   {
+                      mypalette[i*4+0] = (i>>2);   //Blue
+                      mypalette[i*4+1] = (i>>2);   //Green
+                      mypalette[i*4+2] = (i>>2);   //Red
+                      mypalette[i*4+3] = 0;        //reserved
+                   }
+                   VBE_setPalette(0,256,mypalette);
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+2/7/96    - Did some minor optimizations to functions that use cliptype.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+2/9/96    - ATTENTION PROGRAMMERS!!!  There is no such thing as a cliptype
+            anymore!  Instead you use clipmasks.  Clipmasks are much better
+            because it gives you full control of which bits are used to
+            test whether or not a sprite or wall will block things.
+
+            Let me refresh your memory on how cliptypes used to work:
+               For CLIPMOVE, PUSHMOVE, and GETZRANGE:
+                  If (cliptype == 0) these bits were the blocking bits:
+                     (wall[].cstat&1), (sprite[].cstat&1)
+                  If (cliptype == 1) these bits were the blocking bits:
+                     (wall[].cstat&64), (sprite[].cstat&256)
+               For HITSCAN, cliptype was not passed and assumed to be 1:
+                     (wall[].cstat&64), (sprite[].cstat&256)
+
+            Note that I added these 2 defines in BUILD.H:
+               #define CLIPMASK0 (((1L)<<16)+1L)
+               #define CLIPMASK1 (((256L)<<16)+64L)
+
+            In order to make clipmasks work, I had to change the parameters
+            to these 4 important functions.  CLIPMOVE, PUSHMOVE, GETZRANGE,
+            and HITSCAN.  For CLIPMOVE, PUSHMOVE, and GETZRANGE, I simply
+            made the cliptype from a char to a long.  For HITSCAN, I had to
+            add the clipmask parameter at the end.  Here are the new function
+            prototypes:
+
+clipmove (long *x, long *y, long *z, short *sectnum, long xvect, long yvect,
+          long walldist, long ceildist, long flordist, unsigned long clipmask)
+
+pushmove (long *x, long *y, long *z, short *sectnum,
+          long walldist, long ceildist, long flordist, unsigned long clipmask)
+
+getzrange (long x, long y, long z, short sectnum,
+           long *ceilz, long *ceilhit, long *florz, long *florhit,
+           long walldist, unsigned long clipmask)
+
+hitscan (long xs, long ys, long zs, short sectnum, long vx, long vy, long vz,
+         short *hitsect, short *hitwall, short *hitsprite,
+         long *hitx, long *hity, long *hitz, unsigned long clipmask)
+
+            You should convert your source code using these rules:
+               * For CLIPMOVE, PUSHMOVE, and GETZRANGE, look at the last
+                 parameter.  If it is a 0, then change it to say CLIPMASK0.
+                 If it is a 1, then change it to say CLIPMASK1.
+
+               * For HITSCAN, add a new parameter that says CLIPMASK1.
+
+               * If you have your own movesprite function, then you will
+                 need to make the cliptype parameter into a long variable.
+
+          - If you want to set a range for hitscan, or optimize its
+               performance, you can now extern these 2 variables from
+               the engine.  You can set them just before you call hitscan.
+               If you DO choose to screw around with these variables, then
+               you must set them before EVERY hitscan in your code.
+               I have them defaulting to a really high number, totally out
+               of range of the map, but not high enough for a subtraction
+               to overflow it.  These variables are used in hitscan only
+               to compare whether the new hit is closer then the last one.
+
+               long hitscangoalx = (1<<29)-1, hitscangoaly = (1<<29)-1;
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+2/13/96    - Fixed a bug in clipmove that showed up in the latest upload
+                related to sector searching.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+2/18/96    - Re-wrote waitforeverybody / case 250 of getpackets, so the slave
+                sends acknowledge packets in a better way.  Before there was
+                a possibility of a slave sending an invalid acknowledge
+                packet if the last packet received was not 250.
+
+           - ATTENTION PROGRAMMERS!  Setgamemode now returns -1 if the mode
+                is invalid or 0 if it is valid.  Since the engine no longer
+                quits to DOS from an invalid video mode, you must program the
+                -1 case or else the computer will probably lock up!
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+3/5/96     - Solved tile index corruption bug in EDITART.  After looking at
+                the latest art files I have from you, It looks like SW has
+                this problem, but DUKE and BLOOD seem ok.  Let me explain:
+                   In Editart 'V' mode (with no tile report), when you use
+                INSERT or DELETE, it very quickly moves all tiles after the
+                cursor forward or back 1.  With multiple art files, this
+                operation would be very slow, since I'd have to load and
+                save every art file after the current one.  But I figured
+                out a way to still keep it fast - instead of reading and
+                writing all the later art files, I instead changed just the
+                headers that tell which tile indeces the art files start and
+                end with.  This works nice when you have 1 big art file, or
+                only 1 person using EDITART to change stuff.
+                   Unfortunately, some of you have been passing around
+                individual art files and this is where the problem comes in.
+                If either person used INSERT of DELETE in 'V' mode and passed
+                an individual art file to another person, the headers could
+                possibly conflict and cause strange lockups or crashes in
+                EDITART, BUILD, or GAME.
+                   So I fixed the problem by making EDITART only change the
+                CURRENT art file.  Insert mode will now delete the last
+                tile in the CURRENT art file, so be careful that the last
+                tile in the CURRENT art file is blank.  Delete will now
+                insert a blank tile at the end of the CURRENT art file.
+                If your ART files are already corrupt, you can run
+                RSIZEART.EXE and agree on a number of tiles per file.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+4/27/96    - Fixed a bug where rotatesprite seemed to clip the tile
+                to the viewing window even though stat&8 (don't clip
+                to startumosts/startdmosts) was set.  The problem was
+                actually related to an optimization in the VESA blitting
+                code that copies only the screen if it thinks nothing
+                was drawn outside of the viewing window.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+6/15/96    - I must have added a whole bunch of unnoticable optimizations
+                since the last time I typed stuff into this file, but since
+                I didn't keeping track of it, I couldn't tell you what they
+                were off hand.
+
+           - I added support for the 'new' Crystal Eyes in such a way where
+                you don't have to mess with the timer.  I use the real-time
+                clock (IRQ8) in order to avoid conflicts.  Crystal Eyes mode
+                works only in VESA 2.0 modes with at least 4 pages.  The nice
+                thing about this mode is that you can switch in and out of
+                it easily during the game.  There are 2 very simple functions
+                and 3 variables you can extern.  To use Crystal Eyes mode,
+                simply call initstereo().  Initstereo should be called after
+                setgamemode and the palette is loaded into the VGA.  To
+                return back to normal mode, simply call uninitstereo().
+                Here's what the code would look like:
+
+                extern long stereomode, stereowidth, stereopixelwidth;
+
+                if (KEYTOTOGGLESTEREOMODE)
+                {
+                   KEYTOTOGGLESTEREOMODE = 0;
+                   if (stereomode == 0)
+                      initstereo();
+                   else
+                      uninitstereo();
+                }
+
+            Notes:
+              * The following 2 variables can be changed any time, and
+                should always be >= 0.
+
+                     stereowidth: distance between left and right eyes
+                stereopixelwidth: parallax - pan offset in pixels between
+                                  left & right screens
+
+              * initstereo automatically sets stereomode to nonzero and
+                uninitstereo automatically sets stereomode to 0.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+7/5/96     - Made cache1d.obj support up to 4 group files at the same time.
+                To use multiple group files, simply call initgroupfile again.
+                You need to uninitgroupfile only once.  This is useful if
+                users want to add their own .ART, .VOC, or other files and
+                distribute it all in one file without telling people they
+                need to back up stuff.  For example:
+
+                Beginning of program:
+                   initgroupfile("duke3d.grp");
+                   if (usergroupfile)
+                      initgroupfile(usergroufile);
+
+                End of program:
+                   uninitgroupfile();
+
+                Here's the order cache1d will search for a file when
+                   kopen4load is called.  Remember that the second parameter
+                   to kopen4load is the searchfirst parameter.  If you set
+                   this variable to non-zero, you can tell kopen4load to search
+                   the main group file only.  This is useful if invalid user
+                   files are detected.
+
+                   if (searchfirst == 0)
+                   {
+                      1. Look for it as a stand-alone file
+                      2. Look for it in the 4th group file (user group file)
+                      3. Look for it in the 3rd group file (user group file)
+                      4. Look for it in the 2nd group file (user group file)
+                   }
+                   5. Look for it in the 1st groupfile ("duke3d.grp")
+                   6. If file still not found, return -1
+
+           - Fixed a stupid bug with choosing the side of a red line in BUILD
+                2D edit mode.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+7/24/96    - Increased MAXTILES to 6144.  Fixed some scrolling errors related
+                to MAXTILES in 'V' mode of EDITART and BUILD.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+8/20/96    - Made it possible to safely default to NORMAL mode 320*200 when
+                VESA is not supported or found.  Check out the beginning of
+                my setup3dscreen function.  It shows how you can offer the
+                player a choice of quitting to DOS or continuing in NORMAL
+                mode.  It is very annoying when setting up multiplayer games
+                when the game always quits to DOS because somebody forgot
+                to load their VESA driver.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/6/96     - Moved internal function, setfirstwall, in BUILD.OBJ into
+                ENGINE.OBJ because it can be useful to game programmers.
+                This function sets the first wall of a sector to be the
+                wall index passed.  This function is useful for setting
+                the hinge wall for slopes or relative alignment.  (ALT-F
+                uses this function)  Here's the function:
+
+                setfirstwall(short sectnum, short newfirstwall)
+
+           - Added a variable, clipmoveboxtracenum, to ENGINE.OBJ which can
+                be externed.  As a special case, if you set it to 1 just
+                before calling clipmove, then clipmove will return when it
+                first hits a wall - in other words, the (x,y,z) that clipmove
+                returns will be before any sliding calculations occur.  Be
+                sure to set clipmoveboxtracenum back to 3 after calling
+                clipmove.
+
+                   This is how it is defined in ENGINE.OBJ:
+                long clipmoveboxtracenum = 3;
+
+                   Example of calling clipmove with no sliding:
+                clipmoveboxtracenum = 1;
+                i = clipmove(...);
+                clipmoveboxtracenum = 3;
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+9/25/96    - Removed support for specially optimized TSENG, Paradise, and S3
+                modes.  If you want the engine to run as fast on these cards,
+                get Scitech Software's latest Vesa 2.0 driver.
+
+           - ATTENTION PROGRAMMERS!  Added video mode changing during the game.
+                I moved the option, xdim, and ydim parameters from initengine
+                into the setgamemode function.
+
+             Here are the updated prototypes for the 2 functions:
+                initengine();
+                setgamemode(char newvidoption, long newxdim, long newydim);
+
+             You are free to call setgamemode as often as you like.  If you
+                have very low memory, it's possible that the call will fail
+                and quit to DOS with one of those awful CACHE SPACE ALL LOCKED
+                UP messages.
+
+             Note: When updating your code, be careful to not rely on
+                vidoption, xdim, of ydim being valid until your first
+                setgamemode call.  If you're not careful with this, you may
+                get a divide by zero or something.  I had a bug in my GAME.C
+                where I was calling setview between initengine and
+                setgamemode.  I had to move setview after setgamemode.
+
+           - Added function to the engine that returns all valid VESA modes.
+
+               getvalidvesamodes();
+
+             This function prepares the list of valid VESA modes in these
+             new variables which I put in BUILD.H.  This function needs to
+             only be called once, but it doesn't hurt to call it multiple
+             times since I have a flag that checks if it has already been
+             called.
+
+               EXTERN long validmodecnt;
+               EXTERN short validmode[256];
+               EXTERN long validmodexdim[256], validmodeydim[256];
+
+               validmodecnt - number of available 256 color VESA modes.
+               validmode[] - array of vesa mode numbers (640*480 is 0x101, etc.)
+               validmodexdim[] - array of x dimensions for each mode
+               validmodeydim[] - array of y dimensions for each mode
+
+             In my GAME.C, I have code that cycles through all VESA modes
+                and screen buffer mode when you press F4.  Search for the
+                keyword "//F4" to find it.
+
+             Note: Be careful when you call setgamemode!  Be sure that it
+               is not called inside any function of sub-function of
+               faketimerhandler because this would be in the middle of the
+               drawing code.  Actually, the safest place to call setgamemode is
+               right after nextpage in your main drawing loop.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+12/13/96   - Fixed the nasty caching bug first found in the Plutonium version
+               of Duke3D.  I was using copybuf when I should have been using
+               copybufbyte.
+
+           - Made the '>' key in 3D EDIT MODE not lock up any more for
+               textures that have non power of 2 tilesizy's.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+2/12/97    - Optimized mirror code so it x-flips only the bounding rectangle
+                (x AND y).  Actually calculates left & right boundaries instead
+                of using the horizontal line checking stuff which didn't really
+                work all the time anyway.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+5/22/97    - Frank noticed a divide overflow in clippoly when drawmapview was
+                in hi-res mode.  -fixed by lowered precision from 16 to 12
+                bits.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+6/2/97     - Added support for the Nuvision 3D-Spex stereo glasses.  I renamed
+                initstereo to setstereo and got rid of uninitstereo.  Here's
+                complete documentation for all of the new stereo glasses stuff:
+
+               setstereo(0);   //Set to default normal non-stereo mode
+               setstereo(1);   //Use Stereographics Simuleyes (white line code)
+               setstereo(2);   //Use Nuvision 3-D Spex stereo (uses LPT1)
+
+                  //You can extern these 2 variables from the engine to add
+                  //your own stereo adjustment code
+               extern long stereowidth = 23040;
+               extern long stereopixelwidth = 28;
+
+                  It would be nice to allow the adjustment of these variables
+               inside the game, but if you're too lazy, it would be nice to
+               have some way of modifying it.
+                   Please do not extern stereomode any more since I use it now
+               to uninit the old mode automatically.  Use your own current
+               stereo mode variable.
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+10/4/97    - I have upgraded to Watcom 11.0.  The only changes I had to make
+               in the engine were some "#pragma push" and "#pragma pop"
+               calls in BUILD.H since the default structure packing alignment
+               was moved from 1 to 8.  The sector, wall, and sprite structures
+               are already aligned well and must remain the same for .MAP
+               files to remain compatible.
+
+           - Increase MAXTILES for all utilities (EDITART,BUILD,GAME,etc.) to
+               9216 for Xatrix.
+
+             You may have some initial bugs with EDITART when you add new
+               tiles for the first time.  I haven't touched the code in years
+               and I'm afraid if I did, I'd mess it up more.  One bug I know
+               of is this:  Let's say you have 256 tiles per art file, and
+               then you add 1 silly tile way up at picnum=8500.  When you
+               save and quit, your directory may look like this:
+
+                  TILES000.ART
+                  TILES001.ART
+                  TILES002.ART
+                  TILES029.ART
+
+               When you load EDITART again, that 1 tile will not appear unless
+               you kind of mess with it and scroll around for a while.  This
+               is because EDITART loads TILES###.ART files until 1 is not
+               found, meaning that it will stop when it doesn't find
+               TILES003.ART.  There are probably some other nasty bugs like
+               this.  To get around it, you could add 1 tile to the next file,
+               save and quit.  Or you could use RSIZEART.EXE to make 1 huge
+               ART file, add 1 tile way up high (if you have enough memory),
+               and then run RSIZEART.EXE again to 256 tiles per file or
+               whatever you like.  Remember that the ART files need to be split
+               in such a way that each individual .ART file must fit in
+               memory, or else EDITART will crash.
+
+           - It's time I document how you can add voxels to the Build engine.
+               The code is not the cleanest, but at least it works.  First
+               you must load each voxel into memory using the qloadkvx
+               function.  You specify the filename of the .KVX file and an
+               index that you want to use to reference the voxel.  You can
+               pack .KVX files in a .GRP file if you want.  The index must
+               be in this range: 0 <= index < MAXVOXELS where MAXVOXELS is
+               currently 512.  This index works sort of like a picnum, but I
+               have a totally separate array for these indeces so you don't
+               need to mess with your art file at all.  Since qloadkvx
+               allocates memory off of my cacheing system, you must call it
+               after loadpics which allocates all memory.
+
+               Function parameters:
+                  void qloadkvx(long voxindex, char *filename)
+
+               loadpics("tiles000.art");
+               qloadkvx(0L,"voxel000.kvx");
+               qloadkvx(1L,"voxel001.kvx");
+
+               Now to actually display the voxel, you need to set the
+               (sprite[?].cstat&48) to equal 48 like this:
+                  sprite[?].cstat |= 48;
+               I have no special collision code for voxels.  They are simply
+               treated as face sprites.
+
+               If ((sprite[?].cstat&48) == 48)
+                  You should set the sprite[?].picnum to equal the VOXEL
+               index of the voxel that you passed to qloadkvx.  If you don't
+               do this you will see nothing.  To handle this index remapping
+               it is a good idea to make some array like this:
+                  short picnumtovox[MAXTILES];
+               and save the array in some file (or in the .GRP file)
+
+               Many other fields of the sprite structure also affect voxels,
+               such as:  ang, shade, pal, xrepeat, yrepeat.
+
+               Note: To view voxels in the Build editor, you will need to do
+               the same qloadkvx calls in your BSTUB.C.
+
+               And now a warning:  Voxels tend to draw the fastest when
+                  they are tall and thin.  For example, a telephone poll
+                  would work just great.  They slow down very quickly as
+                  you add detail.  This is why you don't see any large
+                  voxels in SW and Blood.
+
+           - Something you should know about this version of the engine:
+                Over the summer, I got a lot of pressure from GT to add
+                MMX support to the Build engine, so I bought a Pentium II.
+             I messed around with the code quite a bit and discovered
+                that MMX really didn't help at all.  In fact, in some ways
+                it made the code slower.  The problem is that the inner
+                loops of Build are already optimized really well.  I have
+                found that MMX is useful only because it gives you extra
+                registers.  Unfortunately, the Build loops don't need extra
+                registers since they aren't very complex.
+             Now there are 2 major differences between an old Pentium and
+                a Pentium II.  A Pentium II is like a Pentium PRO with MMX.
+                So I tried to optimize Build for Pentium PRO's.  I was
+                actually able to get about a 50% speed increase mostly due
+                to avoiding those awful partial stalls.  But there are
+                SEVERAL catches:
+
+                1.  First of all, you need to enable WRITE-COMBINING for
+                video memory to get all this extra speed.  One popular
+                program which does this is FASTVID.  You should be able
+                to find it easily on the net.  If you do not enable
+                WRITE-COMBINING, the engine actually runs SLOWER than
+                the original version!  Unfortunately, neither DOS nor
+                WINDOWS 95 enable WRITE-COMBINING by default, so you need to
+                load a driver.  Even worse, if you're in WINDOWS 95, the
+                program which enables WRITE-COMBINING will crash because
+                you can only set the PPRO registers in Priviledge Level 0.
+                You can still enable WRITE-COMBINING in WINDOWS 95, but you
+                have to run the program in your AUTOEXEC.BAT file.  I wish
+                you all good luck on getting the average user to be able
+                to accomplish this feat.  Quake has the same problem.
+                You'll find the same thing in their documentation.
+
+                2.  The second catch is that my code tries to auto-detect
+                whether you have a Pentium, Pentium MMX, Pentium PRO, of
+                Pentium II.  Of course this means, that if you don't have
+                an Intel processor, it's possible that the auto-detect code
+                may crash.  I haven't had the opportunity to test this
+                myself.  And since I can never guarantee it will always work
+                I made a way for you to disable the new code altogether
+                should this happen.  Here's how you disable the new code
+                in the Build engine:
+
+                extern long dommxoverlay;   //(from engine.obj)
+
+                Before you first call initengine, set dommxoverlay = 0;
+
+                The default is dommxoverlay = 1 and it will run the code.

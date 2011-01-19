@@ -1,0 +1,67 @@
+duke3d_h=$(EINC)/build.h $(EINC)/polymer.h $(EINC)/pragmas.h $(EINC)/compat.h $(EINC)/cache1d.h $(EINC)/baselayer.h $(SRC)/jmact/file_lib.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/control.h $(INC)/gamedefs.h $(INC)/function.h $(INC)/config.h $(INC)/sounds.h $(INC)/rts.h $(INC)/_rts.h $(INC)/soundefs.h $(JAUDIOLIBDIR)/include/fx_man.h $(JAUDIOLIBDIR)/include/music.h $(INC)/namesdyn.h $(INC)/duke3d.h $(INC)/player.h $(INC)/sector.h $(INC)/game.h $(INC)/actors.h
+
+gamedef_h=$(SRC)/gamedef.h $(SRC)/gameexec.h $(SRC)/gamevars.h
+
+$(OBJ)/game.$o: $(SRC)/game.c $(SRC)/jmact/scriplib.h $(duke3d_h) $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h $(INC)/demo.h
+$(OBJ)/actors.$o: $(SRC)/actors.c $(duke3d_h)
+$(OBJ)/anim.$o: $(SRC)/anim.c $(duke3d_h) $(SRC)/jmact/animlib.h
+$(OBJ)/demo.$o: $(SRC)/demo.c $(duke3d_h)
+$(OBJ)/gamedef.$o: $(SRC)/gamedef.c $(duke3d_h) $(gamedef_h)
+$(OBJ)/gameexec.$o: $(SRC)/gameexec.c $(SRC)/gamestructures.c $(duke3d_h) $(gamedef_h)
+$(OBJ)/gamestructures.$o: $(SRC)/gamestructures.c $(duke3d_h) $(gamedef_h)
+$(OBJ)/gamevars.$o: $(SRC)/gamevars.c $(SRC)/gamestructures.c $(duke3d_h) $(gamedef_h)
+$(OBJ)/global.$o: $(SRC)/*.c $(SRC)/global.c $(duke3d_h)
+$(OBJ)/mdump.$o: $(SRC)/mdump.cpp $(SRC)/mdump.h
+$(OBJ)/menus.$o: $(SRC)/menus.c $(duke3d_h) $(SRC)/jmact/mouse.h
+$(OBJ)/namesdyn.$o: $(SRC)/namesdyn.c $(duke3d_h)
+$(OBJ)/net.$o: $(SRC)/net.c $(duke3d_h)
+$(OBJ)/player.$o: $(SRC)/player.c $(duke3d_h)
+$(OBJ)/premap.$o: $(SRC)/premap.c $(duke3d_h) $(EINC)/osd.h
+$(OBJ)/savegame.$o: $(SRC)/savegame.c $(duke3d_h)
+$(OBJ)/sector.$o: $(SRC)/sector.c $(duke3d_h)
+$(OBJ)/sounds.$o: $(SRC)/sounds.c $(duke3d_h)
+$(OBJ)/rts.$o: $(SRC)/rts.c $(duke3d_h)
+$(OBJ)/config.$o: $(SRC)/config.c $(duke3d_h) $(SRC)/jmact/scriplib.h $(INC)/_functio.h
+$(OBJ)/winbits.$o: $(SRC)/winbits.c
+$(OBJ)/osdfuncs.$o: $(SRC)/names.h $(EINC)/build.h $(EINC)/osd.h
+$(OBJ)/osdcmds.$o: $(SRC)/osdcmds.c $(INC)/osdcmds.h $(EINC)/osd.h $(duke3d_h)
+
+$(OBJ)/astub.$o: $(SRC)/astub.c $(SRC)/mapster32.h $(EINC)/build.h $(EINC)/pragmas.h $(EINC)/compat.h $(EINC)/editor.h
+
+$(OBJ)/game_icon.$o: $(RSRC)/game_icon.c
+$(OBJ)/build_icon.$o: $(RSRC)/build_icon.c
+
+$(OBJ)/grpscan.$o: $(SRC)/grpscan.c $(EINC)/compat.h $(EINC)/baselayer.h $(EINC)/scriptfile.h $(EINC)/cache1d.h $(EINC)/crc32.h $(INC)/grpscan.h
+$(OBJ)/gameres.$o: $(SRC)/misc/gameres.rc $(SRC)/startwin.game.h $(RSRC)/game.bmp $(RSRC)/game_icon.ico
+$(OBJ)/buildres.$o: $(SRC)/misc/buildres.rc $(EINC)/startwin.editor.h $(RSRC)/build.bmp $(RSRC)/build_icon.ico
+$(OBJ)/startwin.game.$o: $(SRC)/startwin.game.c $(duke3d_h) $(EINC)/build.h $(EINC)/winlayer.h $(EINC)/compat.h $(INC)/grpscan.h
+$(OBJ)/startgtk.game.$o: $(SRC)/startgtk.game.c $(duke3d_h) $(EINC)/dynamicgtk.h $(EINC)/build.h $(EINC)/baselayer.h $(EINC)/compat.h
+
+
+# jMACT objects
+$(OBJ)/animlib.$o: $(SRC)/jmact/animlib.c $(SRC)/jmact/animlib.h $(EINC)/compat.h
+$(OBJ)/file_lib.$o: $(SRC)/jmact/file_lib.c $(SRC)/jmact/file_lib.h 
+$(OBJ)/control.$o: $(SRC)/jmact/control.c $(SRC)/jmact/control.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/mouse.h $(EINC)/baselayer.h
+$(OBJ)/keyboard.$o: $(SRC)/jmact/keyboard.c $(SRC)/jmact/keyboard.h $(EINC)/compat.h $(EINC)/baselayer.h
+$(OBJ)/mouse.$o: $(SRC)/jmact/mouse.c $(SRC)/jmact/mouse.h $(EINC)/baselayer.h
+$(OBJ)/mathutil.$o: $(SRC)/jmact/mathutil.c
+$(OBJ)/scriplib.$o: $(SRC)/jmact/scriplib.c $(SRC)/jmact/scriplib.h $(SRC)/jmact/_scrplib.h $(EINC)/compat.h
+
+# jAudioLib objects
+
+$(OBJ)/mv_mix.$o: $(SRC)/jaudiolib/mv_mix.nasm
+$(OBJ)/mv_mix16.$o: $(SRC)/jaudiolib/mv_mix16.nasm
+$(OBJ)/mvreverb.$o: $(SRC)/jaudiolib/mvreverb.nasm
+$(OBJ)/mv_mix-c.$o: $(SRC)/jaudiolib/mv_mix-c.c
+$(OBJ)/mvreverb-c.$o: $(SRC)/jaudiolib/mvreverb-c.c
+$(OBJ)/pitch.$o: $(SRC)/jaudiolib/pitch.c $(SRC)/jaudiolib/pitch.h
+$(OBJ)/multivoc.$o: $(SRC)/jaudiolib/multivoc.c $(SRC)/jaudiolib/linklist.h $(SRC)/jaudiolib/pitch.h $(SRC)/jaudiolib/multivoc.h $(SRC)/jaudiolib/_multivc.h
+$(OBJ)/fx_man.$o: $(SRC)/jaudiolib/fx_man.c $(SRC)/jaudiolib/multivoc.h $(SRC)/jaudiolib/ll_man.h $(SRC)/jaudiolib/fx_man.h
+$(OBJ)/dsoundout.$o: $(SRC)/jaudiolib/dsoundout.c $(SRC)/jaudiolib/dsoundout.h
+$(OBJ)/openal.$o: $(SRC)/jaudiolib/openal.c $(SRC)/jaudiolib/openal.h
+$(OBJ)/dsl.$o: $(SRC)/jaudiolib/dsl.c $(SRC)/jaudiolib/dsl.h $(EINC)/compat.h
+
+$(OBJ)/midi.$o: $(SRC)/midi.c $(SRC)/_midi.h $(SRC)/midi.h $(JAUDIOLIBDIR)/include/music.h
+$(OBJ)/mpu401.$o: $(SRC)/mpu401.c $(SRC)/mpu401.h $(JAUDIOLIBDIR)/include/music.h
+$(OBJ)/music.$o: $(SRC)/music.c $(SRC)/midi.h $(SRC)/mpu401.h $(JAUDIOLIBDIR)/include/music.h
+

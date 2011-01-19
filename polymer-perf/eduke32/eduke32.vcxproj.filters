@@ -1,0 +1,650 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="enet">
+      <UniqueIdentifier>{be808922-2ddf-4835-a57d-42e2f8d6e6d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="enet\source">
+      <UniqueIdentifier>{6b639a6d-6609-479e-bf61-3e2d3e4323e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="enet\headers">
+      <UniqueIdentifier>{84e51a60-037b-40c6-933a-7001d46906ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jaudiolib">
+      <UniqueIdentifier>{eb6a8145-04f6-4b81-b8eb-508836cfdc91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jaudiolib\headers">
+      <UniqueIdentifier>{7f1918c8-1b71-43db-b2af-aefaf13d21ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jaudiolib\source">
+      <UniqueIdentifier>{447f3e7e-c01b-4ec3-8427-36441da24049}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build">
+      <UniqueIdentifier>{da5afe7a-2de4-4594-b07f-69cd3d29cc1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build\headers">
+      <UniqueIdentifier>{4386b181-dad1-4aaa-9395-b5b57e49bca1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build\headers\MSVC">
+      <UniqueIdentifier>{647e88f0-5d39-46cc-9822-460f2db9dfe6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build\source">
+      <UniqueIdentifier>{766da152-470f-4b3b-8c8c-8289206d0d4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="eduke32">
+      <UniqueIdentifier>{df162924-c116-4c59-a0f3-589ebfb0ca27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="eduke32\source">
+      <UniqueIdentifier>{dd93df66-1ed9-4b54-bd54-18abf46d2773}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="eduke32\headers">
+      <UniqueIdentifier>{82d4000f-cd8c-4737-88dc-4ada5775a68e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jmact">
+      <UniqueIdentifier>{65030203-c837-4739-a552-281c7535372f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jmact\headers">
+      <UniqueIdentifier>{607ab16a-c3a5-4dad-b6ba-3393e6309d23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="jmact\source">
+      <UniqueIdentifier>{8a6aad55-a3bc-4e4f-a61d-4652c29d8b92}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="build\include\a.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\baselayer.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\build.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\cache1d.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\compat.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\crc32.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\dxdidf.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\dynamicgtk.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\editor.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\enet_mmulti.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\glbuild.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\glext.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\gtkbits.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\kplib.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\lzwnew.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\malloc.c.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\md4.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\mdsprite.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\mmulti.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\nedmalloc.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\osd.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\osxbits.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\osxmain.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\polymer.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\polymost.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\pragmas.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\quicklz.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\scriptfile.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\sdlayer.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\startwin.editor.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\winlayer.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\msvc\inttypes.h">
+      <Filter>build\headers\MSVC</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\msvc\stdint.h">
+      <Filter>build\headers\MSVC</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_functio.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\_rts.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\config.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\duke3d.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\function.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gamedef.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gamedefs.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\grpscan.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\keys.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\macros.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mapster32.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mdump.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\names.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\namesdyn.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\osdcmds.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\osdfuncs.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\rts.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\soundefs.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\sounds.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\sounds_mapster32.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\startwin.game.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\src\_multivc.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\src\driver_directsound.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\src\driver_nosound.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\src\driver_sdl.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\src\drivers.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\include\fx_man.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\src\linklist.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\src\ll_man.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\src\multivoc.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\include\music.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\src\pitch.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\include\sndcards.h">
+      <Filter>jaudiolib\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jmact\_control.h">
+      <Filter>jmact\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jmact\_scrplib.h">
+      <Filter>jmact\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jmact\animlib.h">
+      <Filter>jmact\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jmact\control.h">
+      <Filter>jmact\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jmact\file_lib.h">
+      <Filter>jmact\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jmact\keyboard.h">
+      <Filter>jmact\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jmact\mathutil.h">
+      <Filter>jmact\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jmact\mouse.h">
+      <Filter>jmact\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jmact\scriplib.h">
+      <Filter>jmact\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\enet\include\enet\callbacks.h">
+      <Filter>enet\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\enet\include\enet\enet.h">
+      <Filter>enet\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\enet\include\enet\list.h">
+      <Filter>enet\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\enet\include\enet\protocol.h">
+      <Filter>enet\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\enet\include\enet\time.h">
+      <Filter>enet\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\enet\include\enet\types.h">
+      <Filter>enet\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\enet\include\enet\unix.h">
+      <Filter>enet\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\enet\include\enet\utility.h">
+      <Filter>enet\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\enet\include\enet\win32.h">
+      <Filter>enet\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\mutex.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\rawinput.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\src\engine_priv.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\prlights.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\sector.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gameexec.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\actors.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\player.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\gamevars.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\net.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\global.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\game.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\premap.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\menus.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\savegame.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\anim.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\demo.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="build\src\a-c.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\baselayer.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\build.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\cache1d.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\compat.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\config.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\crc32.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\defs.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\dynamicgtk.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\engine.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\glbuild.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\gtkbits.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\hightile.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\kplib.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\lzwnew.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\md4.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\mdsprite.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\nedmalloc.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\osd.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\polymer.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\polymost.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\pragmas.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\quicklz.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\scriptfile.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\sdlayer.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\smalltextfont.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\startgtk.editor.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\startwin.editor.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\textfont.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\winlayer.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\actors.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\anim.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\astub.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\config.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\game.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gamedef.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gameexec.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gamestructures.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\gamevars.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\global.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\grpscan.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\m32def.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\m32exec.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\m32structures.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\m32vars.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mdump.cpp">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\menus.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\midi.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\mpu401.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\music.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\namesdyn.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\osdcmds.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\osdfuncs.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\player.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\premap.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\rts.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\savegame.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sdlmusic.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sector.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sounds.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sounds_mapster32.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\startgtk.game.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\startwin.game.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\winbits.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\wrapper.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\driver_directsound.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\driver_nosound.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\driver_sdl.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\drivers.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\fx_man.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\mix.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\mixst.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\multivoc.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\pitch.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\vorbis.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jmact\animlib.c">
+      <Filter>jmact\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jmact\control.c">
+      <Filter>jmact\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jmact\file_lib.c">
+      <Filter>jmact\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jmact\keyboard.c">
+      <Filter>jmact\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jmact\mathutil.c">
+      <Filter>jmact\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jmact\mouse.c">
+      <Filter>jmact\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jmact\scriplib.c">
+      <Filter>jmact\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\enet\src\callbacks.c">
+      <Filter>enet\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\enet\src\host.c">
+      <Filter>enet\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\enet\src\list.c">
+      <Filter>enet\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\enet\src\packet.c">
+      <Filter>enet\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\enet\src\peer.c">
+      <Filter>enet\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\enet\src\protocol.c">
+      <Filter>enet\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\enet\src\unix.c">
+      <Filter>enet\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\enet\src\win32.c">
+      <Filter>enet\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\mutex.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\rawinput.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\net.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\demo.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile.msvc">
+      <Filter>eduke32</Filter>
+    </None>
+    <None Include="build\Makefile.msvc">
+      <Filter>build</Filter>
+    </None>
+  </ItemGroup>
+</Project>
