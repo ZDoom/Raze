@@ -157,7 +157,7 @@ typedef struct      s_prrograminfo {
 }                   _prprograminfo;
 
 #define             PR_INFO_LOG_BUFFER_SIZE 8192
-#define             PR_HIGHPALOOKUP_BIT_DEPTH 5
+#define             PR_HIGHPALOOKUP_BIT_DEPTH 7
 #define             PR_HIGHPALOOKUP_DIM (1 << PR_HIGHPALOOKUP_BIT_DEPTH)
 #define             PR_HIGHPALOOKUP_DATA_SIZE (4 * PR_HIGHPALOOKUP_DIM * \
                                                    PR_HIGHPALOOKUP_DIM * \

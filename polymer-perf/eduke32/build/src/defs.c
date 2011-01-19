@@ -1169,7 +1169,6 @@ static int32_t defsparser(scriptfile *script)
                     }
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-                    if (palnum == 0 || palnum >= NORMALPAL)
                     switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param, specpower, specfactor))
                     {
                     case 0:
@@ -1671,7 +1670,6 @@ static int32_t defsparser(scriptfile *script)
                     xscale = 1.0f / xscale;
                     yscale = 1.0f / yscale;
 
-                    if (pal == 0)
                     hicsetsubsttex(tile,pal,fn,alphacut,xscale,yscale, specpower, specfactor,flags);
                 }
                 break;

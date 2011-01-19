@@ -320,12 +320,8 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
         // frag_prog
         "  if (isLightingPass == 0)\n"
-/*        "    result.rgb = texture3D(highPalookupMap, result.rgb * 0.9921875 + 0.00390625).rgb;\n"
-        "  diffuseTexel.rgb = texture3D(highPalookupMap, diffuseTexel.rgb * 0.9921875 + 0.00390625).rgb;\n"*/
-/*        "    result.rgb = texture3D(highPalookupMap, result.rgb * 0.984375 + 0.0078125).rgb;\n"
-        "  diffuseTexel.rgb = texture3D(highPalookupMap, diffuseTexel.rgb * 0.984375 + 0.0078125).rgb;\n"*/
-        "    result.rgb = texture3D(highPalookupMap, result.rgb * 0.96875 + 0.015625).rgb;\n"
-        "  diffuseTexel.rgb = texture3D(highPalookupMap, diffuseTexel.rgb * 0.96875 + 0.015625).rgb;\n"
+        "    result.rgb = texture3D(highPalookupMap, result.rgb).rgb;\n"
+        "  diffuseTexel.rgb = texture3D(highPalookupMap, diffuseTexel.rgb).rgb;\n"
         "\n",
     },
     {
