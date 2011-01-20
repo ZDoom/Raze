@@ -10,6 +10,7 @@
 #include "compat.h"
 #include "kplib.h"
 #include "hightile.h"
+#include "baselayer.h"
 
 
 palette_t hictinting[MAXPALOOKUPS];
@@ -166,13 +167,13 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float 
     if (tilesizx[picnum]<=0 || tilesizy[picnum]<=0)
     {
         static int32_t first=1;
-        OSD_Printf("warning: defined hightile replacement for empty tile %d.", picnum);
+        initprintf("Warning: defined hightile replacement for empty tile %d.", picnum);
         if (first)
         {
-            OSD_Printf(" Maybe some tiles???.art are not loaded?");
+            initprintf(" Maybe some tilesXXX.art are not loaded?");
             first = 0;
         }
-        OSD_Printf("\n");
+        initprintf("\n");
     }
 
     //printf("Replacement [%d,%d]: %s\n", picnum, palnum, hicreplc[i]->filename);

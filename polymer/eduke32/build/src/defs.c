@@ -1432,11 +1432,13 @@ static int32_t defsparser(scriptfile *script)
         case T_HIGHPALOOKUP:
         {
             char *highpaltokptr = script->ltextptr;
-            int32_t pal=-1, oldpathsearchmode, fd;
+            int32_t pal=-1, oldpathsearchmode;
             char *fn = NULL, *tfn = NULL;
             char *highpalend;
+#ifdef POLYMER
+            int32_t fd;
             char *highpaldata;
-
+#endif
             static const tokenlist highpaltokens[] =
             {
                 { "pal",   T_PAL },
@@ -1486,6 +1488,7 @@ static int32_t defsparser(scriptfile *script)
             else Bfree(tfn);
             pathsearchmode = oldpathsearchmode;
 
+#ifdef POLYMER
             fd = kopen4load(fn, 0);
 
             // load the highpalookup and send it to polymer
@@ -1498,11 +1501,11 @@ static int32_t defsparser(scriptfile *script)
                 filesize = kfilelength(fd);
 
                 filebuf = Bmalloc(filesize);
-                if (!filebuf) { Bfree(highpaldata); break; }
+                if (!filebuf) { kclose(fd); Bfree(highpaldata); break; }
 
                 klseek(fd, 0, SEEK_SET);
                 if (kread(fd, filebuf, filesize)!=filesize)
-                    { Bfree(highpaldata); initprintf("Error: didn't read all of '%s'.\n", fn); break; }
+                    { kclose(fd); Bfree(highpaldata); initprintf("Error: didn't read all of '%s'.\n", fn); break; }
 
                 kclose(fd);
                 kpgetdim(filebuf, filesize, &xsiz, &ysiz);
@@ -1524,6 +1527,7 @@ static int32_t defsparser(scriptfile *script)
             polymer_definehighpalookup(pal, highpaldata);
 
             Bfree(highpaldata);
+#endif
         }
         break;
         case T_TINT:

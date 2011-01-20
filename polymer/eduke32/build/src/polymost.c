@@ -5376,6 +5376,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             if (!nofog) bglDisable(GL_FOG);
             if (rendmode < 4)
                 mddraw(&tspr);
+# ifdef POLYMER
             else
             {
                 tspriteptr[MAXSPRITESONSCREEN] = &tspr;
@@ -5394,7 +5395,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 bglDisable(GL_BLEND);
                 bglDisable(GL_ALPHA_TEST);
             }
-
+# endif
             if (!nofog) bglEnable(GL_FOG);
 #else
             mddraw(&tspr);

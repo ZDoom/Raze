@@ -630,6 +630,23 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("pr_overridespecular",(intptr_t)&pr_overridespecular, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("pr_specularpower",(intptr_t)&pr_specularpower, GAMEVAR_FLOATPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("pr_specularfactor",(intptr_t)&pr_specularfactor, GAMEVAR_FLOATPTR | GAMEVAR_SYSTEM);
+#else
+    {
+        // dummy Polymer variables for non-Polymer builds
+        static int32_t pr_overrideparallax = 0;
+        static float pr_parallaxscale = 0.1f;
+        static float pr_parallaxbias = 0.0f;
+        static int32_t pr_overridespecular = 0;
+        static float pr_specularpower = 15.0f;
+        static float pr_specularfactor = 1.0f;
+
+        Gv_NewVar("pr_overrideparallax",(intptr_t)&pr_overrideparallax, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+        Gv_NewVar("pr_parallaxscale",(intptr_t)&pr_parallaxscale, GAMEVAR_FLOATPTR | GAMEVAR_SYSTEM);
+        Gv_NewVar("pr_parallaxbias",(intptr_t)&pr_parallaxbias, GAMEVAR_FLOATPTR | GAMEVAR_SYSTEM);
+        Gv_NewVar("pr_overridespecular",(intptr_t)&pr_overridespecular, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+        Gv_NewVar("pr_specularpower",(intptr_t)&pr_specularpower, GAMEVAR_FLOATPTR | GAMEVAR_SYSTEM);
+        Gv_NewVar("pr_specularfactor",(intptr_t)&pr_specularfactor, GAMEVAR_FLOATPTR | GAMEVAR_SYSTEM);
+    }
 #endif
 
     g_systemVarCount = g_gameVarCount;
