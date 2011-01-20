@@ -612,7 +612,7 @@ int32_t clipmapinfo_load(const char *filename)
                             if (wall[w].lotag > wall[w].hitag)
                                 swapshort(&wall[w].lotag, &wall[w].hitag);
 
-                            for (ii=wall[w].lotag; ii<MAXTILES; ii++)
+                            for (ii=wall[w].lotag; ii<wall[w].hitag; ii++)
                                 tempictoidx[ii] = numclipmaps;
                         }
                         else if (wall[w].lotag>0)
