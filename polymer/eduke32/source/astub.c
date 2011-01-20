@@ -3478,7 +3478,6 @@ static int32_t OnSelectTile(int32_t iTile)
 
     bflushchars();
 
-    begindrawing();
     setpolymost2dview();
     clearview(0);
 
@@ -3522,7 +3521,6 @@ static int32_t OnSelectTile(int32_t iTile)
         }
     }
 
-    enddrawing();
     showframe(1);
 
     clearkeys();
@@ -3672,7 +3670,10 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     }
 
     if (iSelected < 0 || iSelected >= MAXTILES)
+    {
+        enddrawing();
         return 1;
+    }
 
     idTile = localartlookup[ iSelected ];
 
@@ -9462,7 +9463,9 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
         return;
     }
-    begindrawing();
+
+
+    begindrawing();  //{{{
 
     //    if (cursectornum >= 0)
     //        fillsector(cursectornum, 31);
@@ -9608,7 +9611,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 }
     }
 
-    enddrawing();
+    enddrawing();  //}}}
 }
 
 void ExtAnalyzeSprites(void)
@@ -10209,7 +10212,6 @@ static void EditSectorData(int16_t sectnum)
 
     showsectordata(sectnum, 0);
 
-    begindrawing();
     while (keystatus[KEYSC_ESC] == 0)
     {
         idle_waitevent();
@@ -10414,16 +10416,17 @@ static void EditSectorData(int16_t sectnum)
                 break;
             }
         }
+
         printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
         if (editval)
-        {
             editval = 0;
-        }
+
         showframe(1);
     }
+
     printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
     // printmessage16("");
-    enddrawing();
+
     showframe(1);
     keystatus[KEYSC_ESC] = 0;
 }
@@ -10440,7 +10443,7 @@ static void EditWallData(int16_t wallnum)
     disptext[dispwidth] = 0;
 
     showwalldata(wallnum, 0);
-    begindrawing();
+
     while (keystatus[KEYSC_ESC] == 0)
     {
         idle_waitevent();
@@ -10547,13 +10550,13 @@ static void EditWallData(int16_t wallnum)
             //showwalldata(wallnum, 0);
             //// printmessage16("");
         }
-        //enddrawing();
+
         showframe(1);
     }
-    //begindrawing();
+
     printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
     // printmessage16("");
-    enddrawing();
+
     showframe(1);
     keystatus[KEYSC_ESC] = 0;
 }
@@ -10575,7 +10578,7 @@ static void EditSpriteData(int16_t spritenum)
     while (keystatus[KEYSC_ESC] == 0)
     {
         idle_waitevent();
-        begindrawing();
+
         if (handleevents())
         {
             if (quitevent) quitevent = 0;
@@ -10892,17 +10895,15 @@ static void EditSpriteData(int16_t spritenum)
 
         printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
         if (editval)
-        {
             editval = 0;
-        }
-        enddrawing();
+
         showframe(1);
     }
-    begindrawing();
+
     printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
     // printmessage16("");
-    enddrawing();
     showframe(1);
+
     keystatus[KEYSC_ESC] = 0;
 }
 
@@ -10987,7 +10988,6 @@ static void GenericSpriteSearch()
             if (quitevent) quitevent = 0;
         }
 
-        begindrawing();
         printmessage16("Sprite search, press <Esc> to exit");
 
         if (PRESSED_KEYSC(DOWN))
@@ -11029,13 +11029,11 @@ static void GenericSpriteSearch()
         if (PRESSED_KEYSC(ENTER))
         {
             Bsprintf(edittext, "%s: ", labels[row][col]);
-            enddrawing();
             printmessage16("%s", edittext);
             i = getnumber16(edittext, gs_spritewhat[col][row] ? gs_sprite[col][row] : 0,
                             maxval[row][col], sign[row][col]);
             if (col == 2 && row == 0) i = (i+2048)&2047;  // angle
             gs_sprite[col][row] = i;
-            begindrawing();
             gs_spritewhat[col][row] = 1;
 
             if (col == 1 && row == 5)  // picnum
@@ -11063,14 +11061,13 @@ static void GenericSpriteSearch()
 
         printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
 
-        enddrawing();
         showframe(1);
     }
-    //    begindrawing();
+
     printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
     printmessage16("Search sprite");
-    //    enddrawing();
     showframe(1);
+
     keystatus[KEYSC_ESC] = 0;
 }
 
@@ -11139,7 +11136,6 @@ static void FuncMenu(void)
         if (handleevents())
             quitevent = 0;
 
-        begindrawing();
         _printmessage16("Select an option, press <Esc> to exit");
         if (PRESSED_KEYSC(DOWN))
         {
@@ -11407,13 +11403,13 @@ static void FuncMenu(void)
             break;
         }
         printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[1],disptext,0);
-        enddrawing();
+
         showframe(1);
     }
-    begindrawing();
+
     printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[0],disptext,0);
-    enddrawing();
     /*clearmidstatbar16();*/
+
     showframe(1);
     keystatus[KEYSC_ESC] = 0;
 }

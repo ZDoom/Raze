@@ -580,9 +580,8 @@ CANCEL:
         if (keystatus[1])
         {
             keystatus[1] = 0;
-            begindrawing();	//{{{
+
             printext256(0,0,whitecol,0,"Are you sure you want to quit?",0);
-            enddrawing();	//}}}
 
             showframe(1);
             synctics = totalclock-lockclock;
@@ -620,9 +619,8 @@ CANCEL:
     {
         i = CheckMapCorruption(4);
 
-        begindrawing();	//{{{
         printext256(0,8,whitecol,0,i<4?"Save changes?":"Map is heavily corrupt. Save changes?",0);
-        showframe(1);	//}}}
+        showframe(1);
 
         while ((keystatus[1]|keystatus[0x1c]|keystatus[0x39]|keystatus[0x31]|keystatus[0x2e]) == 0)
         {
@@ -890,9 +888,6 @@ void editinput(void)
 
         keystatus[0x43] = 0;
     }
-
-    begindrawing();     //{{{
-    enddrawing();       //}}}
 
     if (angvel != 0)          //ang += angvel * constant
     {
@@ -1696,7 +1691,7 @@ void overheadeditor(void)
     searchy = clamp(scale(searchy,ydim2d-STATUS2DSIZ2,ydimgame), 8, ydim2d-STATUS2DSIZ-8-1);
     oposz = pos.z;
 
-    begindrawing();	//{{{
+    begindrawing(); //{{{
 
     CLEARLINES2D(0, ydim, 0);
 
@@ -1712,7 +1707,8 @@ void overheadeditor(void)
 //    drawline16(0,ydim-1-20,xdim-1,ydim-1-20,1);
 //    drawline16(256,ydim-1-20,256,ydim-1,1);
     ydim16 = ydim-STATUS2DSIZ2;
-    enddrawing();	//}}}
+
+    enddrawing(); //}}}
 
     pag = 0;
     cursectorhighlight = -1;
@@ -2144,6 +2140,7 @@ void overheadeditor(void)
                 else
                     drawline16base(halfxdim16+x2,midydim16+y2, 0,0, 0,0, editorcolors[5]);
             }
+
             enddrawing();	//}}}
 
             OSD_Draw();
@@ -5128,7 +5125,7 @@ const char *SaveBoard(const char *fn, uint32_t flags)
     if ((flags&1)==0)
         ExtSaveMap(f);
 
-    if (ret)
+    if (!ret)
         return f;
     else
         return NULL;
@@ -6064,16 +6061,14 @@ static int32_t menuselect(void)
     if (!findfileshigh)
         findfileshigh=findfiles;
 
-    begindrawing();
     _printmessage16("Select map file with arrow keys and enter.");
-    enddrawing();
 
     ydim16 = ydim-STATUS2DSIZ2;
     listsize = (ydim16-32)/9;
 
     do
     {
-        begindrawing();
+        begindrawing(); //{{{
 
         CLEARLINES2D(0, ydim16, 0);
 
@@ -6138,7 +6133,8 @@ static int32_t menuselect(void)
                 }
             }
         }
-        enddrawing();
+
+        enddrawing(); //}}}
         showframe(1);
 
         keystatus[0xcb] = 0;
@@ -6934,12 +6930,10 @@ void _printmessage16(const char *fmt, ...)
 
     clearministatbar16();
 
-    begindrawing();
 //    ybase = (overridepm16y >= 0) ? ydim-overridepm16y : ydim-STATUS2DSIZ+128-8;
     ybase = ydim-STATUS2DSIZ+128-8;
 
     printext16(/*(overridepm16y >= 0) ? 200L-24 :*/ 8, ybase+8, whitecol, -1, snotbuf, 0);
-    enddrawing();
 }
 
 void printmessage256(int32_t x, int32_t y, const char *name)
