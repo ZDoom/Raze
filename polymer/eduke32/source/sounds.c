@@ -61,8 +61,8 @@ void S_SoundStartup(void)
 
     if (FX_Init(fxdevicetype, ud.config.NumVoices, ud.config.NumChannels, ud.config.NumBits, ud.config.MixRate, initdata) != FX_Ok)
     {
-        sprintf(tempbuf, "Sound startup error: %s", FX_ErrorString(FX_Error));
-        G_GameExit(tempbuf);
+        initprintf("%s\n", FX_ErrorString(FX_Error));
+        return;
     }
 
     for (i=g_maxSoundPos; i >= 0 ; i--)
