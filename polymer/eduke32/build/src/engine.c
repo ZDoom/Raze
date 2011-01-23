@@ -3110,7 +3110,8 @@ static void drawalls(int32_t bunch)
         }
 
         wallnum = thewall[z]; wal = &wall[wallnum];
-        nextsectnum = wal->nextsector; nextsec = &sector[nextsectnum];
+        nextsectnum = wal->nextsector;
+        nextsec = nextsectnum>=0 ? &sector[nextsectnum] : NULL;
 
         gotswall = 0;
 
@@ -6490,6 +6491,14 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         i = globalcursectnum;
         updatesector(globalposx,globalposy,&globalcursectnum);
         if (globalcursectnum < 0) globalcursectnum = i;
+
+        // PK 20110123: I'm not sure what the line above is supposed to do, but 'i'
+        //              *can* be negative, so let's just quit here in that case...
+        if (globalcursectnum<0)
+        {
+            enddrawing();
+            return;
+        }
     }
 
     globparaceilclip = 1;

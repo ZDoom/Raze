@@ -5507,7 +5507,7 @@ static void Keys3d(void)
     }
     */
 
-    if (sector[cursectnum].lotag==2)
+    if (cursectnum>=0 && sector[cursectnum].lotag==2)
     {
         if (sector[cursectnum].ceilingpicnum==FLOORSLIME)
             SetSLIMEPalette();

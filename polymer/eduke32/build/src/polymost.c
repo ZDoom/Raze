@@ -3087,7 +3087,8 @@ static void polymost_drawalls(int32_t bunch)
     for (z=bunchfirst[bunch]; z>=0; z=p2[z])
     {
         wallnum = thewall[z]; wal = &wall[wallnum]; wal2 = &wall[wal->point2];
-        nextsectnum = wal->nextsector; nextsec = &sector[nextsectnum];
+        nextsectnum = wal->nextsector;
+        nextsec = nextsectnum>=0 ? &sector[nextsectnum] : NULL;
 
         //Offset&Rotate 3D coordinates to screen 3D space
         x = wal->x-globalposx; y = wal->y-globalposy;
