@@ -319,9 +319,12 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform sampler3D highPalookupMap;\n"
         "\n",
         // frag_prog
+        "  float highPalScale = 0.9921875; // for 6 bits\n"
+        "  float highPalBias = 0.00390625;\n"
+        "\n"
         "  if (isLightingPass == 0)\n"
-        "    result.rgb = texture3D(highPalookupMap, result.rgb).rgb;\n"
-        "  diffuseTexel.rgb = texture3D(highPalookupMap, diffuseTexel.rgb).rgb;\n"
+        "    result.rgb = texture3D(highPalookupMap, result.rgb * highPalScale + highPalBias).rgb;\n"
+        "  diffuseTexel.rgb = texture3D(highPalookupMap, diffuseTexel.rgb * highPalScale + highPalBias).rgb;\n"
         "\n",
     },
     {
@@ -3988,6 +3991,10 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             foundpalskin = 1;
         }
         
+        // If we have a global palette tint, the palskin won't do us any good
+        if (curbasepal)
+            foundpalskin = 0;
+        
         if (!foundpalskin && usinghighpal) {
             // We don't have a specific skin defined for this palette
             // Use the base skin instead and plug in our highpalookup map
@@ -4181,7 +4188,8 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     
     // PR_BIT_HIGHPALOOKUP_MAP
     if (pr_highpalookups && prhighpalookups[curbasepal][pal].map &&
-        hicfindsubst(tilenum, 0, 0) && (hicfindsubst(tilenum, pal, 0)->palnum != pal))
+        hicfindsubst(tilenum, 0, 0) &&
+        (curbasepal || (hicfindsubst(tilenum, pal, 0)->palnum != pal)))
     {
         material->highpalookupmap = prhighpalookups[curbasepal][pal].map;
         pal = 0;
