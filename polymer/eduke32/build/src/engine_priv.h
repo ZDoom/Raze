@@ -8,6 +8,10 @@
 #define MAXNODESPERLINE 42   //Warning: This depends on MAXYSAVES & MAXYDIM!
 #define MAXCLIPDIST 1024
 
+extern uint8_t **basepaltableptr;
+extern uint8_t basepalcount;
+extern uint8_t curbasepal;
+
 extern char pow2char[8];
 extern int32_t pow2int[32];
 

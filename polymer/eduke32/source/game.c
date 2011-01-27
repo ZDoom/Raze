@@ -296,7 +296,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set)
     
     player->palette = palid;
 
-    setbrightness(ud.brightness>>2, basepaltable[palid], set);
+    setbrightness(ud.brightness>>2, palid, set);
 }
 
 int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const char *t,
@@ -9048,6 +9048,8 @@ static void G_Startup(void)
         fprintf(stderr, "G_Startup: There was a problem initializing the Build engine: %s\n", engineerrstr);
         exit(6);
     }
+    
+    setbasepaltable(basepaltable, BASEPALCOUNT);
 
     G_InitDynamicTiles();
 
@@ -9910,7 +9912,7 @@ CLEAN_DIRECTORY:
         ud.config.ScreenBPP = bpp[i];
     }
 
-    setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
+    setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
 
     S_MusicStartup();
     S_SoundStartup();

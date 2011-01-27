@@ -1193,6 +1193,11 @@ static int32_t bakrendmode,baktile;
 int32_t totalclocklock;
 
 char apptitle[256] = "Build Engine";
+
+uint8_t **basepaltableptr;
+uint8_t basepalcount;
+uint8_t curbasepal;
+
 palette_t curpalette[256];			// the current palette, unadjusted for brightness or tint
 palette_t curpalettefaded[256];		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
 palette_t palfadergb = { 0,0,0,0 };
@@ -8414,7 +8419,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
     setview(0L,0L,xdim-1,ydim-1);
     clearallviews(0L);
-    setbrightness(curbrightness,palette,0);
+    setbrightness(curbrightness,0,0);
 
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
@@ -11120,12 +11125,29 @@ void setvgapalette(void)
 }
 
 //
+// setbasepaltable
+//
+void setbasepaltable(uint8_t **thebasepaltable, uint8_t thebasepalcount)
+{
+    basepaltableptr = thebasepaltable;
+    basepalcount = thebasepalcount;
+}
+
+//
 // setbrightness
 //
-void setbrightness(char dabrightness, uint8_t *dapal, char noapply)
+void setbrightness(char dabrightness, uint8_t dapalid, char noapply)
 {
     int32_t i, k, j;
+    uint8_t *dapal;
 //    uint32_t lastbright = curbrightness;
+    
+    if (dapalid >= basepalcount)
+        dapalid = 0;
+    
+    curbasepal = dapalid;
+    
+    dapal = basepaltableptr[dapalid];
 
     if (!(noapply&4))
     {

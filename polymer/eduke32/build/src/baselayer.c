@@ -298,7 +298,7 @@ static int32_t osdcmd_cvar_set_baselayer(const osdfuncparm_t *parm)
 
     if (!Bstrcasecmp(parm->name, "vid_gamma") || !Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
     {
-        setbrightness(GAMMA_CALC,palette,0);
+        setbrightness(GAMMA_CALC,0,0);
 
         return r;
     }

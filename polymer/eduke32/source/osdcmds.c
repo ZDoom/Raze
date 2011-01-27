@@ -731,7 +731,7 @@ void onvideomodechange(int32_t newmode)
     }
 #endif
 
-    setbrightness(ud.brightness>>2, basepaltable[palid], 0);
+    setbrightness(ud.brightness>>2, palid, 0);
     g_restorePalette = 1;
     g_crosshairSum = 0;
 }
@@ -1304,19 +1304,19 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
     {
         ud.brightness = GAMMA_CALC;
         ud.brightness <<= 2;
-        setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
+        setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
 
         return r;
     }
     else if (!Bstrcasecmp(parm->name, "vid_brightness"))
     {
-        setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
+        setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
 
         return r;
     }
     else if (!Bstrcasecmp(parm->name, "vid_contrast"))
     {
-        setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
+        setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
 
         return r;
     }

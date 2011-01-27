@@ -6196,7 +6196,7 @@ static void Keys3d(void)
         brightness &= 15;
 
         vid_gamma = 1.0 + ((float)brightness / 10.0);
-        setbrightness(brightness, palette, 0);
+        setbrightness(brightness, 0, 0);
         message("Brightness: %d/16", brightness+1);
     }
 
@@ -9177,6 +9177,8 @@ int32_t ExtInit(void)
         initprintf("There was a problem initializing the engine.\n");
         return -1;
     }
+    
+    setbasepaltable(basepaltable, BASEPALCOUNT);
 
     kensplayerheight = 40; //32
     zmode = 2;
@@ -10149,28 +10151,28 @@ void SetBOSS1Palette(void)
 {
     if (acurpalette==3) return;
     acurpalette=3;
-    setbrightness(GAMMA_CALC,BOSS1palette,0);
+    setbrightness(GAMMA_CALC,5,0);
 }
 
 void SetSLIMEPalette(void)
 {
     if (acurpalette==2) return;
     acurpalette=2;
-    setbrightness(GAMMA_CALC,SLIMEpalette,0);
+    setbrightness(GAMMA_CALC,2,0);
 }
 
 void SetWATERPalette(void)
 {
     if (acurpalette==1) return;
     acurpalette=1;
-    setbrightness(GAMMA_CALC,WATERpalette,0);
+    setbrightness(GAMMA_CALC,1,0);
 }
 
 void SetGAMEPalette(void)
 {
     if (acurpalette==0) return;
     acurpalette=0;
-    setbrightness(GAMMA_CALC,GAMEpalette,0);
+    setbrightness(GAMMA_CALC,6,0);
 }
 
 static void SearchSectors(int32_t dir)  // <0: backwards, >=0: forwards

@@ -490,7 +490,7 @@ int32_t app_main(int32_t argc, const char **argv)
         vid_gamma = vid_contrast = 1.0;
         vid_brightness = 0.0;
 
-        setbrightness(0,palette,0);
+        setbrightness(0,0,0);
         if (setgamemode(fullscreen, xdim2d, ydim2d, 8) < 0)
         {
             ExtUnInit();
@@ -511,7 +511,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
         vid_gamma_3d = vid_contrast_3d = vid_brightness_3d = -1;
 
-        setbrightness(GAMMA_CALC,palette,0);
+        setbrightness(GAMMA_CALC,0,0);
     }
     else
     {
@@ -526,7 +526,7 @@ int32_t app_main(int32_t argc, const char **argv)
         // executed once per init, but after setgamemode so that OSD has the right width
         OSD_Exec("m32_autoexec.cfg");
 
-        setbrightness(GAMMA_CALC,palette,0);
+        setbrightness(GAMMA_CALC,0,0);
     }
 
 CANCEL:
@@ -1209,7 +1209,7 @@ void editinput(void)
         vid_gamma = vid_contrast = 1.0;
         vid_brightness = 0.0;
 
-        setbrightness(0,palette,0);
+        setbrightness(0,0,0);
 
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         overheadeditor();
@@ -1221,7 +1221,7 @@ void editinput(void)
 
         vid_gamma_3d = vid_contrast_3d = vid_brightness_3d = -1;
 
-        setbrightness(GAMMA_CALC,palette,0);
+        setbrightness(GAMMA_CALC,0,0);
     }
 }
 
@@ -5049,7 +5049,7 @@ CANCEL:
         exit(0);
     }
 
-    setbrightness(GAMMA_CALC,palette,0);
+    setbrightness(GAMMA_CALC,0,0);
 
     pos.z = oposz;
 
