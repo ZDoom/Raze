@@ -294,7 +294,7 @@ int16_t             polymer_addlight(_prlight* light);
 void                polymer_deletelight(int16_t lighti);
 void                polymer_invalidatelights(void);
 void                polymer_texinvalidate(void);
-void                polymer_definehighpalookup(char palnum, char *fn);
+void                polymer_definehighpalookup(char basepalnum, char palnum, char *fn);
 
 # ifdef POLYMER_C
 

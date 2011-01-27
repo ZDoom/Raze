@@ -11129,6 +11129,9 @@ void setvgapalette(void)
 //
 void setbasepaltable(uint8_t **thebasepaltable, uint8_t thebasepalcount)
 {
+    if (thebasepalcount >= MAXBASEPALS)
+        thebasepalcount = MAXBASEPALS - 1;
+
     basepaltableptr = thebasepaltable;
     basepalcount = thebasepalcount;
 }

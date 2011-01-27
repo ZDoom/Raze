@@ -44,7 +44,7 @@ _prsector       *prsectors[MAXSECTORS];
 _prwall         *prwalls[MAXWALLS];
 _prsprite       *prsprites[MAXSPRITES];
 _prmaterial     mdspritematerial;
-_prhighpalookup prhighpalookups[MAXPALOOKUPS];
+_prhighpalookup prhighpalookups[MAXBASEPALS][MAXPALOOKUPS];
 
 static const GLfloat  vertsprite[4 * 5] =
 {
@@ -614,7 +614,7 @@ int32_t         polymersearching;
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void)
 {
-    int32_t         i;
+    int32_t         i, j;
 
     if (pr_verbosity >= 1) OSD_Printf("Initializing Polymer subsystem...\n");
 
@@ -676,28 +676,33 @@ int32_t             polymer_init(void)
     
     // Prime highpalookup maps
     i = 0;
-    while (i < MAXPALOOKUPS)
+    while (i < MAXBASEPALS)
     {
-        if (prhighpalookups[i].data)
+        j = 0;
+        while (j < MAXPALOOKUPS)
         {
-            bglGenTextures(1, &prhighpalookups[i].map);
-            bglBindTexture(GL_TEXTURE_3D, prhighpalookups[i].map);
-            bglTexImage3D(GL_TEXTURE_3D,                // target
-                          0,                            // mip level
-                          GL_RGBA,                      // internalFormat
-                          PR_HIGHPALOOKUP_DIM,          // width
-                          PR_HIGHPALOOKUP_DIM,          // height
-                          PR_HIGHPALOOKUP_DIM,          // depth
-                          0,                            // border
-                          GL_BGRA,                      // upload format
-                          GL_UNSIGNED_BYTE,             // upload component type
-                          prhighpalookups[i].data);     // data pointer
-            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglBindTexture(GL_TEXTURE_3D, 0);
+            if (prhighpalookups[i][j].data)
+            {
+                bglGenTextures(1, &prhighpalookups[i][j].map);
+                bglBindTexture(GL_TEXTURE_3D, prhighpalookups[i][j].map);
+                bglTexImage3D(GL_TEXTURE_3D,                // target
+                              0,                            // mip level
+                              GL_RGBA,                      // internalFormat
+                              PR_HIGHPALOOKUP_DIM,          // width
+                              PR_HIGHPALOOKUP_DIM,          // height
+                              PR_HIGHPALOOKUP_DIM,          // depth
+                              0,                            // border
+                              GL_BGRA,                      // upload format
+                              GL_UNSIGNED_BYTE,             // upload component type
+                              prhighpalookups[i][j].data);     // data pointer
+                bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+                bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+                bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+                bglBindTexture(GL_TEXTURE_3D, 0);
+            }
+            j++;
         }
         i++;
     }
@@ -709,21 +714,26 @@ int32_t             polymer_init(void)
 
 void                polymer_uninit(void)
 {
-    int32_t         i;
+    int32_t         i, j;
 
     polymer_freeboard();
     
     i = 0;
-    while (i < MAXPALOOKUPS)
+    while (i < MAXBASEPALS)
     {
-        if (prhighpalookups[i].data) {
-            Bfree(prhighpalookups[i].data);
-            prhighpalookups[i].data = NULL;
-        }
-        if (prhighpalookups[i].map) {
-            bglDeleteTextures(1, &prhighpalookups[i].map);
-            prhighpalookups[i].map = 0;
-        }
+        j = 0;
+        while (j < MAXPALOOKUPS)
+        {
+            if (prhighpalookups[i][j].data) {
+                Bfree(prhighpalookups[i][j].data);
+                prhighpalookups[i][j].data = NULL;
+            }
+            if (prhighpalookups[i][j].map) {
+                bglDeleteTextures(1, &prhighpalookups[i][j].map);
+                prhighpalookups[i][j].map = 0;
+            }
+            j++;
+        }        
         i++;
     }
 }
@@ -1661,11 +1671,11 @@ void                polymer_texinvalidate(void)
     while (i >= 0);
 }
 
-void                polymer_definehighpalookup(char palnum, char *data)
+void                polymer_definehighpalookup(char basepalnum, char palnum, char *data)
 {
-    prhighpalookups[palnum].data = Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
+    prhighpalookups[basepalnum][palnum].data = Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
     
-    Bmemcpy(prhighpalookups[palnum].data, data, PR_HIGHPALOOKUP_DATA_SIZE);
+    Bmemcpy(prhighpalookups[basepalnum][palnum].data, data, PR_HIGHPALOOKUP_DATA_SIZE);
 }
 
 // CORE
@@ -3825,8 +3835,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     color[0] = color[1] = color[2] =
         ((float)(numpalookups-min(max((tspr->shade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups) * 0xFF;
     
-    usinghighpal = (tspr->pal > 0 && pr_highpalookups &&
-                    prhighpalookups[tspr->pal].map);
+    usinghighpal = (pr_highpalookups &&
+                    prhighpalookups[curbasepal][tspr->pal].map);
 
     // If that palette has a highpalookup, we'll never use tinting. We might use
     // alternate skins if they exist later, though.
@@ -3842,9 +3852,10 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     }
 
     // fullscreen tint on global palette change
-    if (hictinting[MAXPALOOKUPS-1].r != 255 ||
-        hictinting[MAXPALOOKUPS-1].g != 255 ||
-        hictinting[MAXPALOOKUPS-1].b != 255)
+    if (!usinghighpal &&
+        (hictinting[MAXPALOOKUPS-1].r != 255 ||
+         hictinting[MAXPALOOKUPS-1].g != 255 ||
+         hictinting[MAXPALOOKUPS-1].b != 255))
     {
         color[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
         color[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;
@@ -3981,7 +3992,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             // We don't have a specific skin defined for this palette
             // Use the base skin instead and plug in our highpalookup map
             targetpal = 0;
-            mdspritematerial.highpalookupmap = prhighpalookups[tspr->pal].map;
+            mdspritematerial.highpalookupmap = prhighpalookups[curbasepal][tspr->pal].map;
         }
 
         mdspritematerial.diffusemap =
@@ -4160,6 +4171,7 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
 static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int32_t cmeth)
 {
     pthtyp*         pth;
+    int32_t         usinghighpal = 0;
  
     polymer_getscratchmaterial(material);
  
@@ -4168,11 +4180,12 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         loadtile(tilenum);
     
     // PR_BIT_HIGHPALOOKUP_MAP
-    if (pal > 0 && pr_highpalookups && prhighpalookups[pal].map &&
+    if (pr_highpalookups && prhighpalookups[curbasepal][pal].map &&
         hicfindsubst(tilenum, 0, 0) && (hicfindsubst(tilenum, pal, 0)->palnum != pal))
     {
-        material->highpalookupmap = prhighpalookups[pal].map;
+        material->highpalookupmap = prhighpalookups[curbasepal][pal].map;
         pal = 0;
+        usinghighpal = 1;
     }
  
     if ((pth = gltexcache(tilenum, pal, cmeth)))
@@ -4207,7 +4220,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
 
             // fullscreen tint on global palette change... this is used for nightvision and underwater tinting
             // if ((hictinting[MAXPALOOKUPS-1].r + hictinting[MAXPALOOKUPS-1].g + hictinting[MAXPALOOKUPS-1].b) != 0x2FD)
-            if (((uint32_t)hictinting[MAXPALOOKUPS-1].r & 0xFFFFFF00) != 0xFFFFFF00)
+            if (!usinghighpal && ((uint32_t)hictinting[MAXPALOOKUPS-1].r & 0xFFFFFF00) != 0xFFFFFF00)
             {
                 material->diffusemodulation[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
                 material->diffusemodulation[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;
