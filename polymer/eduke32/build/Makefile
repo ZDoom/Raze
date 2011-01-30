@@ -160,7 +160,7 @@ OURCFLAGS+= $(BUILDCFLAGS)
 
 # TARGETS
 
-UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX)
+UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) md2tool$(EXESUFFIX)
 
 # all: $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB)
 utils: $(UTILS)
@@ -191,6 +191,8 @@ transpal$(EXESUFFIX): $(OBJ)/transpal.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OB
 wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
 	$(CC) -o $@ $^ $(UTILLIBS)
 wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
+	$(CC) -o $@ $^ $(UTILLIBS)
+md2tool$(EXESUFFIX): $(OBJ)/md2tool.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
 	$(CC) -o $@ $^ $(UTILLIBS)
 generateicon$(EXESUFFIX): $(OBJ)/generateicon.$o $(OBJ)/kplib.$o
 	$(CC) -o $@ $^ $(UTILLIBS)

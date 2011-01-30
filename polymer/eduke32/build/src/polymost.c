@@ -203,6 +203,9 @@ int32_t r_parallaxskypanning = 0;
 
 extern int16_t editstatus;
 
+#define MIN_CACHETIME_PRINT 5
+
+
 static inline int32_t imod(int32_t a, int32_t b)
 {
     if (a >= 0) return(a%b);
@@ -1654,7 +1657,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     static char *lastfn = NULL;
     static int32_t lastsize = 0;
 
-    int32_t startticks=0, didprint=0;
+    int32_t startticks=0, willprint=0;
 
     if (!hicr) return -1;
     if (facen > 0)
@@ -1724,15 +1727,13 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         if (lastpic && lastfn && !Bstrcmp(lastfn,fn))
         {
-            OSD_Printf("Load tile %4d: p%d-m%d-e%d", dapic, dapalnum, dameth, effect);
-            didprint=1;
+            willprint=1;
             Bmemcpy(pic, lastpic, xsiz*ysiz*sizeof(coltype));
         }
         else
         {
             if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0)) { Bfree(picfil); Bfree(pic); return -2; }
-            OSD_Printf("Load tile %4d: p%d-m%d-e%d \"%s\"", dapic, dapalnum, dameth, effect, fn);
-            didprint=1;
+            willprint=2;
 
             if (hicprecaching)
             {
@@ -1900,17 +1901,25 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 ///            OSD_Printf("Caching \"%s\"\n", fn);
             writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
 
-            if (didprint)
+            if (willprint)
             {
-                OSD_Printf("... cached... %d ms\n", getticks()-startticks);
-                didprint = 0;
+                int32_t etime = getticks()-startticks;
+                if (etime>=MIN_CACHETIME_PRINT)
+                    OSD_Printf("Load tile %4d: p%d-m%d-e%d %s... cached... %d ms\n", dapic, dapalnum, dameth, effect,
+                               willprint==2 ? fn : "", etime);
+                willprint = 0;
             }
             else
                 OSD_Printf("Cached \"%s\"\n", fn);
         }
 
-    if (didprint)
-        OSD_Printf("... %d ms\n", getticks()-startticks);
+    if (willprint)
+    {
+        int32_t etime = getticks()-startticks;
+        if (etime>=MIN_CACHETIME_PRINT)
+            OSD_Printf("Load tile %4d: p%d-m%d-e%d %s... %d ms\n", dapic, dapalnum, dameth, effect,
+                       willprint==2 ? fn : "", etime);
+    }
 
     return 0;
 }
