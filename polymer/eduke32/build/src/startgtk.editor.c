@@ -1,6 +1,7 @@
 #if defined(LINKED_GTK)
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixdata.h>
+#include <gdk/gdkkeysyms.h>
 #else
 #include "dynamicgtk.h"
 #endif

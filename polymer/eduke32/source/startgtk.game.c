@@ -518,7 +518,11 @@ static GtkWidget *create_window(void)
     // 3D video mode LabelText
     stwidgets.vmode3dlabel = gtk_label_new_with_mnemonic("_Video mode:");
     gtk_misc_set_alignment(GTK_MISC(stwidgets.vmode3dlabel), 0.3, 0);
+#ifdef POLYMER
     gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dlabel, 0,1, 0,1, GTK_FILL, 0, 4, 0);
+#else
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dlabel, 0,1, 0,1, GTK_FILL, 0, 4, 7);
+#endif
 
     // 3D video mode combo
     {
@@ -536,7 +540,12 @@ static GtkWidget *create_window(void)
 
     // Fullscreen checkbox
     stwidgets.displayvlayout = gtk_vbox_new(TRUE, 0);
+#ifdef POLYMER
     gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.displayvlayout, 2,3, 0,1, GTK_FILL, 0, 4, 0);
+#else
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.displayvlayout, 2,3, 0,1, GTK_FILL, 0, 4, 7);
+#endif
+
     stwidgets.fullscreencheck = gtk_check_button_new_with_mnemonic("_Fullscreen");
     gtk_box_pack_start(GTK_BOX(stwidgets.displayvlayout), stwidgets.fullscreencheck, FALSE, FALSE, 0);
 
