@@ -216,8 +216,8 @@ extern int16_t localartlookup[MAXTILES], localartlookupnum;
 extern int32_t lockclock;
 extern void clearkeys(void);
 
-static int32_t gs_sprite[3][7];
-static char gs_spritewhat[3][7];
+static int32_t gs_spriteTagValue[3][7];
+static char gs_spriteTagInterested[3][7];
 static int16_t gs_cursprite=-1;
 
 int32_t g_musicSize=0;

@@ -6619,7 +6619,7 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
         for (i=0; i<3; i++)
             for (j=0; i==1 ? j<6 : j<7; j++)
             {
-                if (!gs_spritewhat[i][j]) continue;
+                if (!gs_spriteTagInterested[i][j]) continue;
 
                 if (i==0)
                 {
@@ -6630,28 +6630,28 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
                     case 2: k = sprite[gs_cursprite].z; break;
                     case 3: k = sprite[gs_cursprite].sectnum; break;
                     case 4: k = sprite[gs_cursprite].statnum; break;
-                    case 5: k = sprite[gs_cursprite].hitag; break;
-                    case 6: k = sprite[gs_cursprite].lotag; break;
+                    case 5: k = (uint16_t)sprite[gs_cursprite].hitag; break;
+                    case 6: k = (uint16_t)sprite[gs_cursprite].lotag; break;
                     }
                 }
-                if (i==1)
+                else if (i==1)
                 {
                     switch (j)
                     {
                     case 0:
                         k = sprite[gs_cursprite].cstat;
-                        k &= gs_sprite[1][0];
+                        k &= gs_spriteTagValue[1][0];
                         break;
                     case 1: k = sprite[gs_cursprite].shade; break;
                     case 2: k = sprite[gs_cursprite].pal; break;
                     case 3:
-                        k = gs_sprite[1][3];
+                        k = gs_spriteTagValue[1][3];
                         if (k != sprite[gs_cursprite].xrepeat &&
                                 k != sprite[gs_cursprite].yrepeat)
                             goto NEXTSPRITE;
                         break;
                     case 4:
-                        k = gs_sprite[1][4];
+                        k = gs_spriteTagValue[1][4];
                         if (k != sprite[gs_cursprite].xoffset &&
                                 k != sprite[gs_cursprite].yoffset)
                             goto NEXTSPRITE;
@@ -6659,21 +6659,21 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
                     case 5: k = sprite[gs_cursprite].picnum; break;
                     }
                 }
-                if (i==2)
+                else if (i==2)
                 {
                     switch (j)
                     {
                     case 0: k = sprite[gs_cursprite].ang; break;
-                    case 1: k = sprite[gs_cursprite].xvel; break;
-                    case 2: k = sprite[gs_cursprite].yvel; break;
-                    case 3: k = sprite[gs_cursprite].zvel; break;
-                    case 4: k = sprite[gs_cursprite].owner; break;
+                    case 1: k = (uint16_t)sprite[gs_cursprite].xvel; break;
+                    case 2: k = (uint16_t)sprite[gs_cursprite].yvel; break;
+                    case 3: k = (uint16_t)sprite[gs_cursprite].zvel; break;
+                    case 4: k = (uint16_t)sprite[gs_cursprite].owner; break;
                     case 5: k = sprite[gs_cursprite].clipdist; break;
                     case 6: k = sprite[gs_cursprite].extra; break;
                     }
                 }
 
-                if (k != gs_sprite[i][j]) goto NEXTSPRITE;
+                if (k != gs_spriteTagValue[i][j]) goto NEXTSPRITE;
             }
 
         // found matching sprite
@@ -10951,14 +10951,6 @@ static void GenericSpriteSearch()
         {0, 0, 1}
     };
 
-    static char firstrun=1;
-
-    if (firstrun)
-    {
-        firstrun = 0;
-        Bmemset(&gs_spritewhat, 0, sizeof(gs_spritewhat));
-    }
-
     clearmidstatbar16();
 
     drawgradient();
@@ -10968,8 +10960,8 @@ static void GenericSpriteSearch()
     for (i=0; i<3; i++)
         for (j=0; j<=rowmax[i]; j++)
         {
-            if (gs_spritewhat[i][j])
-                k=Bsprintf(disptext, "%s: %d", labels[j][i], gs_sprite[i][j]);
+            if (gs_spriteTagInterested[i][j])
+                k=Bsprintf(disptext, "%s: %d", labels[j][i], gs_spriteTagValue[i][j]);
             else
                 k=Bsprintf(disptext, "%s: ^7any", labels[j][i]);
             for (; k<dispwidth[i]; k++) disptext[k] = 0;
@@ -11032,29 +11024,29 @@ static void GenericSpriteSearch()
         {
             Bsprintf(edittext, "%s: ", labels[row][col]);
             printmessage16("%s", edittext);
-            i = getnumber16(edittext, gs_spritewhat[col][row] ? gs_sprite[col][row] : 0,
+            i = getnumber16(edittext, gs_spriteTagInterested[col][row] ? gs_spriteTagValue[col][row] : 0,
                             maxval[row][col], sign[row][col]);
             if (col == 2 && row == 0) i = (i+2048)&2047;  // angle
-            gs_sprite[col][row] = i;
-            gs_spritewhat[col][row] = 1;
+            gs_spriteTagValue[col][row] = i;
+            gs_spriteTagInterested[col][row] = 1;
 
             if (col == 1 && row == 5)  // picnum
                 printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], names[i], 0);
         }
         if (PRESSED_KEYSC(BS) || PRESSED_KEYSC(DELETE))
         {
-            gs_spritewhat[col][row] = 0;
+            gs_spriteTagInterested[col][row] = 0;
 
             if (col == 1 && row == 5)  // picnum
                 printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], "                         ", 0);
         }
 
-        if (gs_spritewhat[col][row])
+        if (gs_spriteTagInterested[col][row])
         {
             if (col == 1 && row == 0)  // flags
-                k = Bsprintf(disptext, "%s: %x", labels[row][col], gs_sprite[col][row]);
+                k = Bsprintf(disptext, "%s: %x", labels[row][col], gs_spriteTagValue[col][row]);
             else
-                k = Bsprintf(disptext, "%s: %d", labels[row][col], gs_sprite[col][row]);
+                k = Bsprintf(disptext, "%s: %d", labels[row][col], gs_spriteTagValue[col][row]);
         }
         else
             k = Bsprintf(disptext, "%s: ^7any", labels[row][col]);
