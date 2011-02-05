@@ -4939,7 +4939,7 @@ static void Keys3d(void)
     }
 
     smooshyalign = keystatus[KEYSC_gKP5];
-    repeatpanalign = eitherSHIFT || (bstatus&2);
+    repeatpanalign = eitherSHIFT || eitherALT || (bstatus&2);
 
     if (mlook == 2)
         mlook = 0;
@@ -5969,7 +5969,7 @@ static void Keys3d(void)
 
 
     smooshyalign = keystatus[KEYSC_gKP5];
-    repeatpanalign = eitherSHIFT;
+    repeatpanalign = eitherSHIFT || eitherALT;
 
     ////////////////////
     updownunits=1;
@@ -7046,7 +7046,7 @@ static void Keys2d(void)
 
     if (tsign)
     {
-        if (numcorruptthings>0)
+        if (eitherALT && numcorruptthings>0)
         {
             int32_t wrap=0, x, y, z;
 
@@ -10400,7 +10400,7 @@ static void EditSectorData(int16_t sectnum)
                 break;
             case 5:
                 for (i=Bsprintf(disptext,"Floor heinum: %d",sector[sectnum].floorheinum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Flooring Heinum: ",sectnum);
+                Bsprintf(edittext,"Sector %d Floor Heinum: ",sectnum);
                 if (editval)
                 {
                     printmessage16("%s", edittext);
@@ -10964,11 +10964,11 @@ static void GenericSpriteSearch()
                 k=Bsprintf(disptext, "%s: %d", labels[j][i], gs_spriteTagValue[i][j]);
             else
                 k=Bsprintf(disptext, "%s: ^7any", labels[j][i]);
-            for (; k<dispwidth[i]; k++) disptext[k] = 0;
+//            for (; k<dispwidth[i]; k++) disptext[k] = 0;
 
             printext16(xpos[i], ypos+j*8, editorcolors[11], editorcolors[0], disptext, 0);
         }
-    for (k=0; k<80; k++) disptext[k] = 0;
+    Bmemset(disptext, 0, sizeof(disptext));
 
     //    disptext[dispwidth[col]] = 0;
     //    showspritedata(spritenum, 0);
@@ -11041,7 +11041,8 @@ static void GenericSpriteSearch()
                 printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], "                         ", 0);
         }
 
-        if (gs_spriteTagInterested[col][row])
+        i = gs_spriteTagInterested[col][row];
+        if (i)
         {
             if (col == 1 && row == 0)  // flags
                 k = Bsprintf(disptext, "%s: %x", labels[row][col], gs_spriteTagValue[col][row]);
@@ -11050,7 +11051,8 @@ static void GenericSpriteSearch()
         }
         else
             k = Bsprintf(disptext, "%s: ^7any", labels[row][col]);
-        for (; k<dispwidth[col]; k++) disptext[k] = ' ';
+        //                      v-------^^
+        for (; k<dispwidth[col]-2*i; k++) disptext[k] = ' ';
         disptext[k] = 0;
 
         printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
