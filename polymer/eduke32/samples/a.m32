@@ -372,6 +372,10 @@ defstate fiddlewithlights
             ifeithershift inv j
 
             set k 0
+            ifhitkey KEY_B { add .xvel j, set k 1 }
+            ifhitkey KEY_N { add .yvel j, set k 1 }
+            ifhitkey KEY_M { add .zvel j, set k 1 }
+
             ifhitkey KEY_KP1 { add .xvel j, set k 1 }
             ifhitkey KEY_KP2 { add .yvel j, set k 1 }
             ifhitkey KEY_KP3 { add .zvel j, set k 1 }

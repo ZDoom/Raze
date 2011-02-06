@@ -33,6 +33,9 @@ float           pr_specularfactor = 1.0f;
 int32_t         pr_highpalookups = 1;
 int32_t         pr_ati_fboworkaround = 0;
 int32_t         pr_ati_nodepthoffset = 0;
+#ifdef __APPLE__
+int32_t         pr_ati_textureformat_one = 0;
+#endif
 
 int32_t         r_pr_maxlightpasses = 5; // value of the cvar (not live value), used to detect changes
 
