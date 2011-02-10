@@ -758,6 +758,11 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
                 if ((wall[wall[k].point2]).x == x1 && (wall[wall[k].point2]).y == y1)
                     if (j != sectnum)
                     {
+                        // Don't create link if the other side is connected to another wall.
+                        // The nextwall relation should be definitely one-to-one at all times!
+                        if (wall[k].nextwall>=0 && wall[k].nextwall != i)
+                            continue;
+
                         if (sectnum != -2)  // -2 means dry run
                         {
                             wall[i].nextsector = j;
@@ -11548,12 +11553,9 @@ void completemirror(void)
 //
 // sectorofwall
 //
-int32_t sectorofwall(int16_t theline)
+static int32_t sectorofwall_internal(int16_t theline)
 {
     int32_t i, gap;
-
-    if ((theline < 0) || (theline >= numwalls)) return(-1);
-    i = wall[theline].nextwall; if (i >= 0 && i < MAXWALLS) return(wall[i].nextsector);
 
     gap = (numsectors>>1); i = gap;
     while (gap > 1)
@@ -11564,6 +11566,23 @@ int32_t sectorofwall(int16_t theline)
     while (sector[i].wallptr > theline) i--;
     while (sector[i].wallptr+sector[i].wallnum <= theline) i++;
     return(i);
+}
+
+int32_t sectorofwall(int16_t theline)
+{
+    int32_t i;
+
+    if ((theline < 0) || (theline >= numwalls)) return(-1);
+    i = wall[theline].nextwall; if (i >= 0 && i < MAXWALLS) return(wall[i].nextsector);
+
+    return sectorofwall_internal(theline);
+}
+
+int32_t sectorofwall_noquick(int16_t theline)
+{
+    if ((theline < 0) || (theline >= numwalls)) return(-1);
+
+    return sectorofwall_internal(theline);
 }
 
 

@@ -528,6 +528,7 @@ void   getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, i
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 int32_t   sectorofwall(int16_t theline);
+int32_t   sectorofwall_noquick(int16_t theline);
 int32_t   loopnumofsector(int16_t sectnum, int16_t wallnum);
 
 // int32_t   insertsprite(int16_t sectnum, int16_t statnum);

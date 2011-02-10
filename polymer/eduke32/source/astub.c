@@ -7878,12 +7878,23 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         else
             return OSDCMD_SHOWHELP;
     }
-    else if (!Bstrcasecmp(parm->name, "autocorruptcheck"))
+    else if (!Bstrcasecmp(parm->name, "corruptcheck"))
     {
         if (parm->numparms == 1)
         {
-            autocorruptcheck = clamp(atoi(parm->parms[0]), 0, 3600);
-            corruptchecktimer = 0;  // force checking now
+            if (!Bstrcasecmp(parm->parms[0], "now"))
+            {
+                CheckMapCorruption(1, 0);
+            }
+            else if (!Bstrcasecmp(parm->parms[0], "tryfix"))
+            {
+                CheckMapCorruption(3, 1);
+            }
+            else if (isdigit(parm->parms[0][0]))
+            {
+                autocorruptcheck = clamp(atoi(parm->parms[0]), 0, 3600);
+                corruptchecktimer = totalclock + 120*autocorruptcheck;
+            }
         }
 
         if (parm->numparms <= 1)
@@ -8172,9 +8183,9 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("pk_uedaccel", "pk_uedaccel <value>: sets UnrealEd movement speed factor (0-5, exponentially)", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_quickmapcycling", "pk_quickmapcycling: toggles quick cycling of maps with (Shift-)Ctrl-X", osdcmd_vars_pk);
     OSD_RegisterFunction("testplay_addparam", "testplay_addparam \"string\": sets additional parameters for test playing", osdcmd_testplay_addparam);
-    OSD_RegisterFunction("show_heightindicators", "show_heightindicators <0, 1 or 2>: sets display of height indicators in 2D mode", osdcmd_vars_pk);
-    OSD_RegisterFunction("show_ambiencesounds", "show_ambiencesounds <0, 1 or 2>: sets display of MUSICANDSFX circles in 2D mode", osdcmd_vars_pk);
-    OSD_RegisterFunction("autocorruptcheck", "autocorruptcheck <seconds>: sets auto corruption check interval", osdcmd_vars_pk);
+    OSD_RegisterFunction("show_heightindicators", "show_heightindicators {0, 1 or 2}: sets display of height indicators in 2D mode", osdcmd_vars_pk);
+    OSD_RegisterFunction("show_ambiencesounds", "show_ambiencesounds {0, 1 or 2}>: sets display of MUSICANDSFX circles in 2D mode", osdcmd_vars_pk);
+    OSD_RegisterFunction("corruptcheck", "corruptcheck {<seconds>|now|tryfix}: sets auto corruption check interval if <seconds> given, otherwise as indicated", osdcmd_vars_pk);
 #ifdef POLYMOST
     OSD_RegisterFunction("tint", "tint <pal> <r> <g> <b> <flags>: queries or sets hightile tinting", osdcmd_tint);
 #endif
@@ -8184,8 +8195,8 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("do", "do (m32 script ...): executes M32 script statements", osdcmd_do);
     OSD_RegisterFunction("script_info", "script_info: shows information about compiled M32 script", osdcmd_scriptinfo);
     OSD_RegisterFunction("script_expertmode", "script_expertmode: toggles M32 script expert mode", osdcmd_vars_pk);
-    OSD_RegisterFunction("enableevent", "enableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
-    OSD_RegisterFunction("disableevent", "disableevent <all|EVENT_...|(event number)>", osdcmd_endisableevent);
+    OSD_RegisterFunction("enableevent", "enableevent {all|EVENT_...|(event number)}", osdcmd_endisableevent);
+    OSD_RegisterFunction("disableevent", "disableevent {all|EVENT_...|(event number)}", osdcmd_endisableevent);
     OSD_RegisterFunction("osd_tryscript", "osd_tryscript: toggles execution of M32 script on invalid OSD command", osdcmd_vars_pk);
     OSD_RegisterFunction("sideview_reversehorizrot", "sideview_reversehorizrot: toggles reversion of Q and W keys in side view mode", osdcmd_vars_pk);
 #ifdef DEBUGGINGAIDS
@@ -8306,11 +8317,13 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
 static void m32_osdsetfunctions()
 {
     OSD_SetFunctions(
-        /*  	  GAME_drawosdchar,
+/*
+        GAME_drawosdchar,
         GAME_drawosdstr,
         GAME_drawosdcursor,
         GAME_getcolumnwidth,
-        GAME_getrowheight,*/
+        GAME_getrowheight,
+*/
         0,0,0,0,0,
         GAME_clearbackground,
         (int32_t( *)(void))GetTime,
@@ -9235,9 +9248,10 @@ void ExtUnInit(void)
 {
     int32_t i;
     // setvmode(0x03);
+    writesetup(setupfilename);
+
     S_SoundShutdown();
     uninitgroupfile();
-    writesetup(setupfilename);
 
     for (i = MAX_TILE_GROUPS-1; i >= 0; i--)
     {
@@ -9821,7 +9835,7 @@ static void Keys2d3d(void)
             {
                 keystatus[KEYSC_S] = 0;
 
-                i = CheckMapCorruption(4);
+                i = CheckMapCorruption(4, 0);
                 if (i<4)
                 {
                     SaveBoard(levelname, 0);
@@ -9973,7 +9987,7 @@ void ExtCheckKeys(void)
 
         if (autocorruptcheck>0 && totalclock > corruptchecktimer)
         {
-            if (CheckMapCorruption(3)>=4)
+            if (CheckMapCorruption(3, 0)>=4)
                 message("Corruption detected. See OSD for details.");
             corruptchecktimer = totalclock + 120*autocorruptcheck;
         }
@@ -9991,7 +10005,7 @@ void ExtCheckKeys(void)
     {
         if (asksave == 3)
         {
-            if (CheckMapCorruption(6)>=4)
+            if (CheckMapCorruption(6, 0)>=4)
             {
                 SaveBoard("autosave_corrupt.map", 1);
                 message("Board autosaved to AUTOSAVE_CORRUPT.MAP");
@@ -10017,32 +10031,65 @@ void ExtCheckKeys(void)
 
 //// port of a.m32's corruptchk ////
 // returns value from 0 (all OK) to 5 (panic!)
+#define CCHK_PANIC OSDTEXT_DARKRED "PANIC!!!^O "
+#define CCHKPREF OSDTEXT_RED "* ^O"
+#define CCHK_CORRECTED OSDTEXT_GREEN " -> "
+
 #define CORRUPTCHK_PRINT(errlev, what, fmt, ...) do  \
 { \
     bad = max(bad, errlev); \
     if (numcorruptthings<MAXCORRUPTTHINGS) \
         corruptthings[numcorruptthings++] = what;   \
     if (errlev >= printfromlev) \
-        OSD_Printf(fmt "\n", ## __VA_ARGS__); \
+        OSD_Printf(CCHKPREF fmt "\n", ## __VA_ARGS__); \
 } while (0)
 
-int32_t CheckMapCorruption(int32_t printfromlev)
+static void suggest_nextsector_correction(int32_t nw, int32_t j)
+{
+    if (nw>=0 && nw<numwalls)
+    {
+        // maybe nextwall is right?
+        if (wall[nw].nextwall==j && wall[j].x==POINT2(nw).x && wall[j].y==POINT2(nw).y)
+            OSD_Printf("    suggest setting wall[%d].nextsector to %d\n", j, sectorofwall_noquick(nw));
+    }
+}
+
+static void do_nextsector_correction(int32_t nw, int32_t j)
+{
+    if (nw>=0 && nw<numwalls)
+        if (wall[nw].nextwall==j && wall[j].x==POINT2(nw).x && wall[j].y==POINT2(nw).y)
+        {
+            int32_t newns = sectorofwall_noquick(nw);
+            wall[j].nextsector = newns;
+            OSD_Printf(CCHK_CORRECTED "auto-correction: set wall[%d].nextsector=%d\n", j, newns);
+        }
+}
+
+int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
 {
     int32_t i, j, w0, numw, endwall, ns, nw;
     int32_t ewall=0;  // expected wall index
 
     int32_t errlevel=0, bad=0;
 
+    uint8_t *seen_nextwalls;
+    int16_t *lastnextwallsource;
+
     numcorruptthings = 0;
 
     if (numsectors>MAXSECTORS)
-        CORRUPTCHK_PRINT(5, 0, "PANIC!!! SECTOR LIMIT EXCEEDED (MAXSECTORS=%d)!!!", MAXSECTORS);
+        CORRUPTCHK_PRINT(5, 0, CCHK_PANIC "SECTOR LIMIT EXCEEDED (MAXSECTORS=%d)!!!", MAXSECTORS);
 
     if (numwalls>MAXWALLS)
-        CORRUPTCHK_PRINT(5, 0, "PANIC!!! WALL LIMIT EXCEEDED (MAXWALLS=%d)!!!", MAXWALLS);
+        CORRUPTCHK_PRINT(5, 0, CCHK_PANIC "WALL LIMIT EXCEEDED (MAXWALLS=%d)!!!", MAXWALLS);
 
     if (numsectors>MAXSECTORS || numwalls>MAXWALLS)
         return bad;
+
+    seen_nextwalls = Bcalloc((numwalls+7)>>3,1);
+    if (!seen_nextwalls) return 5;
+    lastnextwallsource = Bmalloc(numwalls*sizeof(lastnextwallsource[0]));
+    if (!lastnextwallsource) { Bfree(seen_nextwalls); return 5; }
 
     for (i=0; i<numsectors; i++)
     {
@@ -10058,7 +10105,7 @@ int32_t CheckMapCorruption(int32_t printfromlev)
             CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR[%d].WALLPTR=%d inconsistent, expected %d", i, w0, ewall);
 
         if (numw <= 1)
-            CORRUPTCHK_PRINT(5, CORRUPT_SECTOR|i, "PANIC!!! SECTOR[%d].WALLNUM=%d INVALID!!!", i, numw);
+            CORRUPTCHK_PRINT(5, CORRUPT_SECTOR|i, CCHK_PANIC "SECTOR[%d].WALLNUM=%d INVALID!!!", i, numw);
         else if (numw==2)
             CORRUPTCHK_PRINT(3, CORRUPT_SECTOR|i, "SECTOR[%d].WALLNUM=2, expected at least 3", i);
 
@@ -10079,8 +10126,14 @@ int32_t CheckMapCorruption(int32_t printfromlev)
                 bad = 0;
 
                 if (wall[j].point2 < w0 || wall[j].point2 > endwall)
-                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].POINT2=%d out of range [%d, %d]",
-                                     j, wall[j].point2, w0, endwall);
+                {
+                    if (wall[j].point2 < 0 || wall[j].point2 >= MAXWALLS)
+                        CORRUPTCHK_PRINT(5, CORRUPT_WALL|j, CCHK_PANIC "WALL[%d].POINT2=%d INVALID!!!",
+                                         j, wall[j].point2);
+                    else
+                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].POINT2=%d out of range [%d, %d]",
+                                         j, wall[j].point2, w0, endwall);
+                }
 
                 nw = wall[j].nextwall;
                 ns = wall[j].nextsector;
@@ -10093,19 +10146,78 @@ int32_t CheckMapCorruption(int32_t printfromlev)
                     CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d",
                                      j, ns, numsectors);
 
-                if (ns == i)
-                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR is its own sector", j);
-
                 if (nw>=w0 && nw<=endwall)
                     CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL is its own sector's wall", j);
 
-                if (!bad)
+                if (ns == i)
                 {
-                    if (ns>=0 || (ns^nw)<0)
+                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR is its own sector", j);
+                    if (!bad)
                     {
-                        if ((ns^nw)<0 || nw<sector[ns].wallptr || nw>=sector[ns].wallptr+sector[ns].wallnum)
-                            CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d and .NEXTWALL=%d inconsistent",
-                                             j, ns, nw);
+                        if (tryfixing)
+                            do_nextsector_correction(nw, j);
+                        else if (4>=printfromlev)
+                            suggest_nextsector_correction(nw, j);
+                    }
+                }
+
+                if (nw>=0 && nw<numwalls)
+                {
+                    if (seen_nextwalls[nw>>3]&(1<<(nw&7)))
+                    {
+                        int16_t nwnw, lnws;
+
+                        lnws = lastnextwallsource[nw];
+                        CORRUPTCHK_PRINT(3, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d already referenced from wall %d",
+                                         j, nw, lnws);
+                        nwnw = wall[nw].nextwall;
+                        if (nwnw==j || nwnw==lnws)
+                        {
+                            int32_t walltoclear = nwnw==j ? lnws : j;
+                            if (tryfixing)
+                            {
+                                wall[walltoclear].nextsector = wall[walltoclear].nextwall = -1;
+                                OSD_Printf(CCHK_CORRECTED "auto-correction: cleared wall %d's nextwall and nextsector tags to -1\n",
+                                           walltoclear);
+                            }
+                            else if (3 >= printfromlev)
+                                OSD_Printf("    wall[%d].nextwall=%d, suggest clearing wall %d's nextwall and nextsector tags to -1\n",
+                                           nw, nwnw, walltoclear);
+                        }
+                    }
+                    else
+                    {
+                        seen_nextwalls[nw>>3] |= 1<<(nw&7);
+                        lastnextwallsource[nw] = j;
+                    }
+                }
+
+                if (bad<4)
+                {
+                    if ((ns^nw)<0)
+                    {
+                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d and .NEXTWALL=%d inconsistent:"
+                                         " missing one next pointer", j, ns, nw);
+                        if (tryfixing)
+                            do_nextsector_correction(nw, j);
+                        else if (4>=printfromlev)
+                            suggest_nextsector_correction(nw, j);
+                    }
+                    else if (ns>=0)
+                    {
+                        if (nw<sector[ns].wallptr || nw>=sector[ns].wallptr+sector[ns].wallnum)
+                        {
+                            CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d out of .NEXTSECTOR=%d's bounds",
+                                             j, nw, ns);
+                            if (tryfixing)
+                                do_nextsector_correction(nw, j);
+                            else if (4 >= printfromlev)
+                            {
+                                OSD_Printf("    sector %d's walls: [%d .. %d]\n", ns, sector[ns].wallptr,
+                                           sector[ns].wallptr+sector[ns].wallnum-1);
+                                suggest_nextsector_correction(nw, j);
+                            }
+                        }
                     }
                 }
 
@@ -10137,6 +10249,9 @@ int32_t CheckMapCorruption(int32_t printfromlev)
         if (printfromlev<=errlevel)
             OSD_Printf("-- corruption level: %d\n", errlevel);
     }
+
+    Bfree(seen_nextwalls);
+    Bfree(lastnextwallsource);
 
     return errlevel;
 }

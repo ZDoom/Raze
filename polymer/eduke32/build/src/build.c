@@ -617,7 +617,7 @@ CANCEL:
 
     if (asksave)
     {
-        i = CheckMapCorruption(4);
+        i = CheckMapCorruption(4, 0);
 
         printext256(0,8,whitecol,0,i<4?"Save changes?":"Map is heavily corrupt. Save changes?",0);
         showframe(1);
@@ -1259,6 +1259,18 @@ static inline void drawline16base(int32_t bx, int32_t by, int32_t x1, int32_t y1
     drawline16(bx+x1, by+y1, bx+x2, by+y2, col);
 }
 
+static void drawsmalllabel(const char *text, char col, char backcol,
+                           int32_t x1, int32_t y1, int32_t x2, int32_t y2)
+{
+    printext16(x1,y1, col,backcol, text,1);
+    drawline16(x1-1,y1-1, x2-3,y1-1, backcol);
+    drawline16(x1-1,y2+1, x2-3,y2+1, backcol);
+
+    drawline16(x1-2,y1, x1-2,y2, backcol);
+    drawline16(x2-2,y1, x2-2,y2, backcol);
+    drawline16(x2-3,y1, x2-3,y2, backcol);
+}
+
 // backup highlighted sectors with sprites as mapinfo for later restoration
 // return values:
 //  -1: highlightsectorcnt<=0
@@ -1483,9 +1495,7 @@ static void duplicate_selected_sectors()
         {
             // first, make red lines of old selected sectors, effectively
             // restoring the original state
-            startwall = sector[highlightsector[i]].wallptr;
-            endwall = startwall+sector[highlightsector[i]].wallnum-1;
-            for (j=startwall; j<=endwall; j++)
+            for (WALLS_OF_SECTOR(highlightsector[i], j))
             {
                 if (wall[j].nextwall >= 0)
                     checksectorpointer(wall[j].nextwall,wall[j].nextsector);
@@ -1917,17 +1927,15 @@ void overheadeditor(void)
 
                             dax = 0;   //Get average point of sector
                             day = 0;
-                            startwall = sector[i].wallptr;
-                            endwall = startwall + sector[i].wallnum - 1;
-                            for (j=startwall; j<=endwall; j++)
+                            for (WALLS_OF_SECTOR(i, j))
                             {
                                 dax += wall[j].x;
                                 day += wall[j].y;
                             }
-                            if (endwall > startwall)
+                            if (sector[i].wallnum > 0)
                             {
-                                dax /= (endwall-startwall+1);
-                                day /= (endwall-startwall+1);
+                                dax /= sector[i].wallnum;
+                                day /= sector[i].wallnum;
                             }
 
                             if (m32_sideview)
@@ -1941,15 +1949,8 @@ void overheadeditor(void)
                             x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
                             y2 = y1 + 7;
                             if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
-                            {
-                                printext16(x1,y1,editorcolors[0],editorcolors[7],dabuffer,1);
-                                drawline16(x1-1,y1-1, x2-3,y1-1, editorcolors[7]);
-                                drawline16(x1-1,y2+1, x2-3,y2+1, editorcolors[7]);
-
-                                drawline16(x1-2,y1, x1-2,y2, editorcolors[7]);
-                                drawline16(x2-2,y1, x2-2,y2, editorcolors[7]);
-                                drawline16(x2-3,y1, x2-3,y2, editorcolors[7]);
-                            }
+                                drawsmalllabel(dabuffer, editorcolors[0], editorcolors[7],
+                                               x1,y1, x2,y2);
                         }
                     }
                 }
@@ -1971,6 +1972,7 @@ void overheadeditor(void)
                 for (wal=&wall[i]; i>=0; i--,wal--)
                 {
                     if (zoom < 768 && !(wal->cstat & (1<<14))) continue;
+
                     //Get average point of wall
                     dax = (wal->x+wall[wal->point2].x)>>1;
                     day = (wal->y+wall[wal->point2].y)>>1;
@@ -1989,15 +1991,8 @@ void overheadeditor(void)
                             y2 = y1 + 7;
 
                             if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
-                            {
-                                printext16(x1,y1,editorcolors[0],editorcolors[31],dabuffer,1);
-                                drawline16(x1-1,y1-1, x2-3,y1-1, editorcolors[31]);
-                                drawline16(x1-1,y2+1, x2-3,y2+1, editorcolors[31]);
-
-                                drawline16(x1-2,y1, x1-2,y2, editorcolors[31]);
-                                drawline16(x2-2,y1, x2-2,y2, editorcolors[31]);
-                                drawline16(x2-3,y1, x2-3,y2, editorcolors[31]);
-                            }
+                                drawsmalllabel(dabuffer, editorcolors[0], editorcolors[31],
+                                               x1,y1, x2,y2);
                         }
                     }
                 }
@@ -2043,14 +2038,8 @@ void overheadeditor(void)
                                     if ((i == pointhighlight-16384) && (totalclock & 32))
                                         col += (2<<2);
 
-                                    printext16(x1,y1,editorcolors[0],editorcolors[col],dabuffer,1);
-
-                                    drawline16(x1-1,y1-1, x2-3,y1-1, editorcolors[col]);
-                                    drawline16(x1-1,y2+1, x2-3,y2+1, editorcolors[col]);
-
-                                    drawline16(x1-2,y1, x1-2,y2, editorcolors[col]);
-                                    drawline16(x2-2,y1, x2-2,y2, editorcolors[col]);
-                                    drawline16(x2-3,y1, x2-3,y2, editorcolors[col]);
+                                    drawsmalllabel(dabuffer, editorcolors[0], editorcolors[col],
+                                                   x1,y1, x2,y2);
                                 }
                             }
                             j--;
@@ -2164,9 +2153,7 @@ void overheadeditor(void)
 
                 for (i=0; i<highlightsectorcnt; i++)
                 {
-                    startwall = sector[highlightsector[i]].wallptr;
-                    endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                    for (j=startwall; j<=endwall; j++)
+                    for (WALLS_OF_SECTOR(highlightsector[i], j))
                     {
                         dax += wall[j].x;
                         day += wall[j].y;
@@ -2385,9 +2372,7 @@ void overheadeditor(void)
                 day = 0;
                 for (i=0; i<highlightsectorcnt; i++)
                 {
-                    startwall = sector[highlightsector[i]].wallptr;
-                    endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                    for (j=startwall; j<=endwall; j++)
+                    for (WALLS_OF_SECTOR(highlightsector[i], j))
                     {
                         dax += wall[j].x;
                         day += wall[j].y;
@@ -2410,9 +2395,7 @@ void overheadeditor(void)
 
                 for (i=0; i<highlightsectorcnt; i++)
                 {
-                    startwall = sector[highlightsector[i]].wallptr;
-                    endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                    for (j=startwall; j<=endwall; j++)
+                    for (WALLS_OF_SECTOR(highlightsector[i], j))
                     {
                         if (k == 0)
                         {
@@ -2755,9 +2738,7 @@ void overheadeditor(void)
 
                     for (i=0; i<highlightsectorcnt; i++)
                     {
-                        startwall = sector[highlightsector[i]].wallptr;
-                        endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                        for (j=startwall; j<=endwall; j++)
+                        for (WALLS_OF_SECTOR(highlightsector[i], j))
                         {
                             if (wall[j].nextwall >= 0)
                                 checksectorpointer(wall[j].nextwall,wall[j].nextsector);
@@ -2765,10 +2746,28 @@ void overheadeditor(void)
                         }
                     }
 
+                    if (!didmakered && newnumwalls<0)
+                    {
+                        char blackcol=editorcolors[0], greycol=whitecol-25, *cp;
+
+                        // fade the screen to have the user's attention
+                        begindrawing();
+                        cp = (char *)frameplace;
+                        for (i=0; i<bytesperline*(ydim-STATUS2DSIZ2); i++, cp++)
+                            if (*cp==greycol)
+                                *cp = blackcol;
+                            else if (*cp != blackcol)
+                                *cp = greycol;
+                        enddrawing();
+                        showframe(1);
+
+                        didmakered |= !ask_if_sure("Insert outer loop and make red walls?", 0);
+                        clearkeys();
+                    }
+
                     while (!didmakered && newnumwalls<0)  // if
                     {
-                        int32_t tmpnumwalls=0, refwall, n;
-                        int16_t refsect, ignore;
+                        int32_t tmpnumwalls=0, refwall;
                         uint8_t *visitedwall = Bcalloc((numwalls+7)>>3,1);
 
                         if (!visitedwall)
@@ -2782,118 +2781,125 @@ void overheadeditor(void)
 
                         for (i=0; i<highlightsectorcnt; i++)
                         {
-                            startwall = sector[highlightsector[i]].wallptr;
-                            endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                            for (j=startwall; j<=endwall; j++)
-                                if (wall[j].nextwall<0 && !(visitedwall[j>>3]&(1<<(j&7))))
+                            for (WALLS_OF_SECTOR(highlightsector[i], j))
+                            {
+                                int16_t refsect, ignore;
+                                int32_t n;
+
+                                if (wall[j].nextwall>=0 || (visitedwall[j>>3]&(1<<(j&7))))
+                                    continue;
+
+                                n=2*tmpnumwalls;  // simple inf loop check
+                                refwall = j;
+                                k = numwalls;
+
+                                ignore = 0;
+                                refsect = -1;
+                                updatesectorexclude(wall[j].x, wall[j].y, &refsect, hlsectorbitmap);
+                                if (refsect<0)
+                                    goto outtathis;
+
+                                do
                                 {
-                                    n=tmpnumwalls;
-                                    refwall = j;
-                                    k = numwalls;
+                                    if (j!=refwall && visitedwall[j>>3]&(1<<(j&7)))
+                                        ignore = 1;
+                                    visitedwall[j>>3] |= (1<<(j&7));
 
-                                    ignore = 0;
-                                    refsect = -1;
-                                    updatesectorexclude(wall[j].x, wall[j].y, &refsect, hlsectorbitmap);
-                                    if (refsect<0)
-                                        goto outtathis;
-
-                                    do
-                                    {
-                                        if (j!=refwall && visitedwall[j>>3]&(1<<(j&7)))
-                                            ignore = 1;
-                                        visitedwall[j>>3] |= (1<<(j&7));
-
-                                        if (inside(wall[j].x, wall[j].y, refsect)!=1)
-                                            ignore = 1;
-
-                                        if (!ignore)
-                                        {
-                                            if (k>=MAXWALLS)
-                                            {
-                                                message("Wall limits exceeded while trying to trace outer loop.");
-                                                goto outtathis;
-                                            }
-
-                                            Bmemcpy(&wall[k], &wall[j], sizeof(walltype));
-                                            wall[k].point2 = k+1;
-                                            wall[k].nextsector = wall[k].nextwall = wall[k].extra = -1;
-                                            k++;
-                                        }
-
-                                        j = wall[j].point2;
-                                        n--;
-
-                                        while (wall[j].nextwall>=0 && n>0)
-                                        {
-                                            j = wall[wall[j].nextwall].point2;
-//                                            if (j!=refwall && (visitedwall[j>>3]&(1<<(j&7))))
-//                                                ignore = 1;
-//                                            visitedwall[j>>3] |= (1<<(j&7));
-                                            n--;
-                                        }
-                                    }
-                                    while (j!=refwall && n>0);
-                                    if (j!=refwall)
-                                    {
-                                        message("internal error while trying to trace outer loop: j!=refwall");
-                                        goto outtathis;
-                                    }
+                                    if (inside(wall[j].x, wall[j].y, refsect)!=1)
+                                        ignore = 1;
 
                                     if (!ignore)
                                     {
-                                        wall[k-1].point2 = numwalls;  // close the loop
-                                        newnumwalls = k;
-                                        n = (newnumwalls-numwalls);  // number of walls in just constructed loop
-
-                                        if (clockdir(numwalls)==0)
+                                        if (k>=MAXWALLS)
                                         {
-                                            int16_t begwalltomove = sector[refsect].wallptr+sector[refsect].wallnum;
-
-                                            flipwalls(numwalls, newnumwalls);
-
-                                            sector[refsect].wallnum += n;
-                                            if (refsect != numsectors-1)
-                                            {
-                                                walltype *tmpwall = Bmalloc(n * sizeof(walltype));
-
-                                                if (!tmpwall)
-                                                {
-                                                    message("out of memory!");
-                                                    goto outtathis;
-                                                }
-
-                                                for (m=0; m<numwalls; m++)
-                                                {
-                                                    if (wall[m].nextwall >= begwalltomove)
-                                                        wall[m].nextwall += n;
-                                                }
-                                                for (m=refsect+1; m<numsectors; m++)
-                                                    sector[m].wallptr += n;
-                                                for (m=begwalltomove; m<numwalls; m++)
-                                                    wall[m].point2 += n;
-                                                for (m=numwalls; m<newnumwalls; m++)
-                                                    wall[m].point2 += (begwalltomove-numwalls);
-
-                                                Bmemcpy(tmpwall, &wall[numwalls], n*sizeof(walltype));
-                                                Bmemmove(&wall[begwalltomove+n], &wall[begwalltomove], (numwalls-begwalltomove)*sizeof(walltype));
-                                                Bmemcpy(&wall[begwalltomove], tmpwall, n*sizeof(walltype));
-
-                                                Bfree(tmpwall);
-                                            }
-                                            numwalls = newnumwalls;
-                                            newnumwalls = -1;
-
-                                            message("Attached new inner loop to sector %d", refsect);
-
-                                            for (m=begwalltomove; m<begwalltomove+n; m++)
-                                                checksectorpointer(m, refsect);
+                                            message("Wall limits exceeded while tracing outer loop.");
+                                            goto outtathis;
                                         }
+
+                                        Bmemcpy(&wall[k], &wall[j], sizeof(walltype));
+                                        wall[k].point2 = k+1;
+                                        wall[k].nextsector = wall[k].nextwall = wall[k].extra = -1;
+                                        k++;
+                                    }
+
+                                    j = wall[j].point2;
+                                    n--;
+
+                                    while (wall[j].nextwall>=0 && n>0)
+                                    {
+                                        j = wall[wall[j].nextwall].point2;
+//                                            if (j!=refwall && (visitedwall[j>>3]&(1<<(j&7))))
+//                                                ignore = 1;
+//                                            visitedwall[j>>3] |= (1<<(j&7));
+                                        n--;
                                     }
                                 }
+                                while (j!=refwall && n>0);
+
+                                if (j!=refwall)
+                                {
+                                    message("internal error while tracing outer loop: didn't reach refwall");
+                                    goto outtathis;
+                                }
+
+                                if (!ignore)
+                                {
+                                    wall[k-1].point2 = numwalls;  // close the loop
+                                    newnumwalls = k;
+                                    n = (newnumwalls-numwalls);  // number of walls in just constructed loop
+
+                                    if (clockdir(numwalls)==0)
+                                    {
+                                        int16_t begwalltomove = sector[refsect].wallptr+sector[refsect].wallnum;
+
+                                        flipwalls(numwalls, newnumwalls);
+
+                                        sector[refsect].wallnum += n;
+                                        if (refsect != numsectors-1)
+                                        {
+                                            walltype *tmpwall = Bmalloc(n * sizeof(walltype));
+
+                                            if (!tmpwall)
+                                            {
+                                                message("out of memory!");
+                                                ExtUnInit();
+                                                uninitsystem();
+                                                exit(1);
+                                            }
+
+                                            for (m=0; m<numwalls; m++)
+                                            {
+                                                if (wall[m].nextwall >= begwalltomove)
+                                                    wall[m].nextwall += n;
+                                            }
+                                            for (m=refsect+1; m<numsectors; m++)
+                                                sector[m].wallptr += n;
+                                            for (m=begwalltomove; m<numwalls; m++)
+                                                wall[m].point2 += n;
+                                            for (m=numwalls; m<newnumwalls; m++)
+                                                wall[m].point2 += (begwalltomove-numwalls);
+
+                                            Bmemcpy(tmpwall, &wall[numwalls], n*sizeof(walltype));
+                                            Bmemmove(&wall[begwalltomove+n], &wall[begwalltomove], (numwalls-begwalltomove)*sizeof(walltype));
+                                            Bmemcpy(&wall[begwalltomove], tmpwall, n*sizeof(walltype));
+
+                                            Bfree(tmpwall);
+                                        }
+                                        numwalls = newnumwalls;
+                                        newnumwalls = -1;
+
+                                        for (m=begwalltomove; m<begwalltomove+n; m++)
+                                            checksectorpointer(m, refsect);
+
+                                        message("Attached new inner loop to sector %d", refsect);
+                                    }
+                                }
+                            }
                         }
 outtathis:
                         newnumwalls = -1;
                         Bfree(visitedwall);
+
                         break;  // --|
                     }  //  <---------/
 
@@ -2923,10 +2929,8 @@ outtathis:
 
                     for (i=0; i<numsectors; i++)
                     {
-                        startwall = sector[i].wallptr;
-                        endwall = startwall + sector[i].wallnum;
                         bad = 0;
-                        for (j=startwall; j<endwall; j++)
+                        for (WALLS_OF_SECTOR(i, j))
                         {
                             if (wall[j].x < highlightx1) bad = 1;
                             if (wall[j].x > highlightx2) bad = 1;
@@ -3118,9 +3122,7 @@ SKIP:
 
                     for (i=0; i<highlightsectorcnt; i++)
                     {
-                        startwall = sector[highlightsector[i]].wallptr;
-                        endwall = startwall+sector[highlightsector[i]].wallnum-1;
-                        for (j=startwall; j<=endwall; j++)
+                        for (WALLS_OF_SECTOR(highlightsector[i], j))
                             { wall[j].x += dax; wall[j].y += day; }
 
                         for (j=headspritesect[highlightsector[i]]; j>=0; j=nextspritesect[j])
@@ -3218,21 +3220,21 @@ SKIP:
                             vec.z = sprite[daspr].z;
                             if (setsprite(daspr, &vec) == -1 && osec>=0)
                                 Bmemcpy(&sprite[daspr], &ovec, sizeof(vec3_t));
-                            /*
-                                                        daz = ((tilesizy[sprite[daspr].picnum]*sprite[daspr].yrepeat)<<2);
+#if 0
+                            daz = ((tilesizy[sprite[daspr].picnum]*sprite[daspr].yrepeat)<<2);
 
-                                                        for (i=0; i<numsectors; i++)
-                                                            if (inside(dax,day,i) == 1)
-                                                                if (sprite[daspr].z >= getceilzofslope(i,dax,day))
-                                                                    if (sprite[daspr].z-daz <= getflorzofslope(i,dax,day))
-                                                                    {
-                                                                        sprite[daspr].x = dax;
-                                                                        sprite[daspr].y = day;
-                                                                        if (sprite[daspr].sectnum != i)
-                                                                            changespritesect(daspr,(int16_t)i);
-                                                                        break;
-                                                                    }
-                            */
+                            for (i=0; i<numsectors; i++)
+                                if (inside(dax,day,i) == 1)
+                                    if (sprite[daspr].z >= getceilzofslope(i,dax,day))
+                                        if (sprite[daspr].z-daz <= getflorzofslope(i,dax,day))
+                                        {
+                                            sprite[daspr].x = dax;
+                                            sprite[daspr].y = day;
+                                            if (sprite[daspr].sectnum != i)
+                                                changespritesect(daspr,(int16_t)i);
+                                            break;
+                                        }
+#endif
                         }
                     }
                     asksave = 1;
@@ -3497,9 +3499,7 @@ SKIP:
 
                     for (k=0; k<2; k++)
                     {
-                        startwall = sector[joinsector[k]].wallptr;
-                        endwall = startwall + sector[joinsector[k]].wallnum - 1;
-                        for (j=startwall; j<=endwall; j++)
+                        for (WALLS_OF_SECTOR(joinsector[k], j))
                         {
                             if (wall[j].cstat == 255)
                                 continue;
@@ -3565,9 +3565,7 @@ SKIP:
 
                         for (k=0; k<2; k++)
                         {
-                            startwall = sector[joinsector[k]].wallptr;
-                            endwall = startwall + sector[joinsector[k]].wallnum - 1;
-                            for (j=startwall; j<=endwall; j++)
+                            for (WALLS_OF_SECTOR(joinsector[k], j))
                             {
                                 wall[j].nextwall = -1;
                                 wall[j].nextsector = -1;
@@ -3935,9 +3933,7 @@ SKIP:
                                 {
                                     //check if first point at point of sector
                                     m = -1;
-                                    startwall = sector[i].wallptr;
-                                    endwall = startwall + sector[i].wallnum - 1;
-                                    for (k=startwall; k<=endwall; k++)
+                                    for (WALLS_OF_SECTOR(i, k))
                                         if (wall[k].x==wall[numwalls].x && wall[k].y==wall[numwalls].y)
                                         {
                                             m = k;
@@ -4490,10 +4486,8 @@ SKIP:
                 }
                 for (i=0; i<numsectors; i++)
                 {
-                    startwall = sector[i].wallptr;
-                    endwall = startwall + sector[i].wallnum;
-                    for (j=startwall; j<endwall; j++)
-                        checksectorpointer((int16_t)j,(int16_t)i);
+                    for (WALLS_OF_SECTOR(i, j))
+                        checksectorpointer(j, i);
                 }
                 printmessage16("ALL POINTERS CHECKED!");
                 asksave = 1;
@@ -4858,7 +4852,7 @@ CANCEL:
                 }
                 else if (ch == 'a' || ch == 'A')  //A
                 {
-                    int32_t corrupt = CheckMapCorruption(4);
+                    int32_t corrupt = CheckMapCorruption(4, 0);
 
                     bad = 0;
 
@@ -4947,7 +4941,7 @@ CANCEL:
 
                     bad = 0;
 
-                    if (CheckMapCorruption(4)>=4)
+                    if (CheckMapCorruption(4, 0)>=4)
                         if (!ask_if_sure("Map is corrupt. Are you sure you want to save?", 0))
                             break;
 
@@ -4987,7 +4981,7 @@ CANCEL:
                     {
                         //QUIT!
 
-                        int32_t corrupt = CheckMapCorruption(4);
+                        int32_t corrupt = CheckMapCorruption(4, 0);
 
                         if (ask_if_sure(corrupt<4?"Save changes?":"Map corrupt. Save changes?", corrupt<4?0:1))
                             SaveBoard(NULL, 0);
@@ -5002,10 +4996,10 @@ CANCEL:
                             goto CANCEL;
                         }
 
+                        ExtUnInit();
                         clearfilenames();
                         uninittimer();
                         uninitinput();
-                        ExtUnInit();
                         uninitengine();
                         exit(0);
                     }
@@ -5026,9 +5020,7 @@ CANCEL:
 
     for (i=0; i<highlightsectorcnt; i++)
     {
-        startwall = sector[highlightsector[i]].wallptr;
-        endwall = startwall+sector[highlightsector[i]].wallnum-1;
-        for (j=startwall; j<=endwall; j++)
+        for (WALLS_OF_SECTOR(highlightsector[i], j))
         {
             if (wall[j].nextwall >= 0)
                 checksectorpointer(wall[j].nextwall,wall[j].nextsector);
@@ -5040,10 +5032,10 @@ CANCEL:
 
     if (setgamemode(fullscreen,xdimgame,ydimgame,bppgame) < 0)
     {
+        initprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
         ExtUnInit();
         uninitinput();
         uninittimer();
-        initprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
         uninitsystem();
         clearfilenames();
         exit(0);
@@ -5071,6 +5063,7 @@ static int32_t ask_if_sure(const char *query, int32_t quit_is_yes)
         _printmessage16("%s", query);
     showframe(1);
     bflushchars();
+
     while ((keystatus[1]|keystatus[0x2e]) == 0)
     {
         if (handleevents())
@@ -5178,7 +5171,7 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
         if (mapversion < 7) message("Map %s loaded successfully and autoconverted to V7!",boardfilename);
         else
         {
-            i = CheckMapCorruption(4);
+            i = CheckMapCorruption(4, 0);
             message("Loaded map %s %s",boardfilename, i==0?"successfully":
                     (i<4 ? "(moderate corruption)" : "(HEAVY corruption)"));
         }
@@ -5535,7 +5528,6 @@ static int32_t deletesector(int16_t sucksect)
     }
     numsectors--;
 
-    j = endwall-startwall+1;
     for (i=startwall; i<=endwall; i++)
         if (wall[i].nextwall != -1)
         {
@@ -5543,6 +5535,7 @@ static int32_t deletesector(int16_t sucksect)
             NEXTWALL(i).nextsector = -1;
         }
 
+    j = endwall-startwall+1;
     movewalls(startwall,-j);
     for (i=0; i<numwalls; i++)
         if (wall[i].nextwall >= startwall)
