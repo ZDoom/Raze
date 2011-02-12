@@ -113,15 +113,17 @@ endif
 
 ifeq ($(PLATFORM),DARWIN)
     ifeq (1,$(SDL_FRAMEWORK))
-        OURCFLAGS += -fno-pic -IApple/include -I/Library/Frameworks/SDL.framework/Headers \
-                -I-I/Library/Frameworks/SDL_mixer.framework/Headers
+        APPLE_INCLUDE_DIR=$(abspath Apple/include)
+        OURCFLAGS += -fno-pic -I$(APPLE_INCLUDE_DIR) -I/Library/Frameworks/SDL.framework/Headers \
+                -I/Library/Frameworks/SDL_mixer.framework/Headers
         LIBS += -read_only_relocs suppress -LApple/lib -lvorbisfile -lvorbis -logg -lm \
                 -Wl,-framework,SDL -Wl,-framework,SDL_mixer Apple/lib/libSDLmain.a \
                 -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
                 -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
                 -Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
                 -Wl,-framework,QuickTime -lm
-
+        # I like to have the SDLMain.m from the OSX SDL package to be in this dir:
+        LIBS += $(realpath SDLMain.m)
     else
         OURCFLAGS += -fno-pic -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
         LIBS += -read_only_relocs suppress -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
@@ -196,7 +198,7 @@ notice:
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB)
 	$(LINK_STATUS)
-	if $(CC) -o $@ $^ $(LIBS) $(STDCPPLIB) $(MISCLINKOPTS); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB) $(MISCLINKOPTS); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
   ifeq (0,$(DEBUGANYWAY))
 	$(STRIP) eduke32$(EXESUFFIX)
@@ -282,7 +284,7 @@ $(OBJ)/%.$o: $(RSRC)/%.c
 $(OBJ)/game_banner.$o: $(RSRC)/game_banner.c
 	$(COMPILE_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
-	
+
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 	$(COMPILE_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi

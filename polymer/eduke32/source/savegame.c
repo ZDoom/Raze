@@ -1721,7 +1721,7 @@ int32_t sv_loadsnapshot(int32_t fil, int32_t *ret_hasdiffs, int32_t *ret_demotic
     if (p != svsnapshot+svsnapsiz)
     {
         OSD_Printf("sv_loadsnapshot: internal error: p-(snapshot end)=%d!\n",
-                   p-(svsnapshot+svsnapsiz));
+                   (int32_t)(p-(svsnapshot+svsnapsiz)));
         sv_freemem();
         return 6;
     }
@@ -2042,7 +2042,7 @@ static void sv_restload()
 #define SAVEWR(ptr, sz, cnt) do { if (fil) dfwrite(ptr,sz,cnt,fil); } while (0)
 #define SAVEWRU(ptr, sz, cnt) do { if (fil) fwrite(ptr,sz,cnt,fil); } while (0)
 
-#define PRINTSIZE(name) OSD_Printf(#name ": %d\n", mem-tmem), tmem=mem
+#define PRINTSIZE(name) OSD_Printf(#name ": %d\n", (int32_t)(mem-tmem)), tmem=mem
 
 static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem)
 {

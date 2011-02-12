@@ -120,7 +120,7 @@ void VM_ScriptInfo(void)
                 if (p==insptr) initprintf("<<");
 
                 if (*p>>12 && (*p&0xFFF)<CON_END)
-                    initprintf("\n%5d: L%5d:  %s ",p-script,*p>>12,keyw[*p&0xFFF]);
+                    initprintf("\n%5d: L%5d:  %s ",(int32_t)(p-script),(int32_t)(*p>>12),keyw[*p&0xFFF]);
                 else initprintf(" %d",*p);
 
                 if (p==insptr) initprintf(">>");

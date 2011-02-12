@@ -6561,7 +6561,7 @@ int32_t loadnames(void)
         }
         else if (comment)continue;
 badline:
-        initprintf("Error: Invalid statement found at character %d on line %d\n", (p-buffer), line-1);
+        initprintf("Error: Invalid statement found at character %d on line %d\n", (int32_t)(p-buffer), line-1);
     }
     initprintf("Read %d lines, loaded %d names.\n", line, syms);
 

@@ -10151,9 +10151,9 @@ int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
 
                 if (ns == i)
                 {
-                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR is its own sector", j);
                     if (!bad)
                     {
+                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR is its own sector", j);
                         if (tryfixing)
                             do_nextsector_correction(nw, j);
                         else if (4>=printfromlev)

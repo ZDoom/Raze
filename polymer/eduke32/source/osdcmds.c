@@ -1210,7 +1210,7 @@ static int32_t osdcmd_kick(const osdfuncparm_t *parm)
         if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)
             continue;
 
-        sscanf(parm->parms[0],"%" PRIxPTR "", &hexaddr);
+        sscanf(parm->parms[0],"%" SCNx32 "", &hexaddr);
 
         if (currentPeer->address.host == hexaddr)
         {
@@ -1246,7 +1246,7 @@ static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
         if (currentPeer -> state != ENET_PEER_STATE_CONNECTED)
             continue;
 
-        sscanf(parm->parms[0],"%" PRIxPTR "", &hexaddr);
+        sscanf(parm->parms[0],"%" SCNx32 "", &hexaddr);
 
         // TODO: implement banning logic
 

@@ -585,7 +585,7 @@ static int32_t C_SetScriptSize(int32_t size)
 
     //initprintf("offset: %d\n",(unsigned)(g_scriptPtr-script));
     g_scriptSize = size;
-    initprintf("Resizing code buffer to %d*%d bytes\n", g_scriptSize, sizeof(instype));
+    initprintf("Resizing code buffer to %d*%d bytes\n", g_scriptSize, (int32_t)sizeof(instype));
 
     newscript = (instype *)Brealloc(script, g_scriptSize * sizeof(instype));
 
@@ -3188,7 +3188,7 @@ repeatcase:
 
         if (!ScriptQuotes[k])
         {
-            Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.", MAXQUOTELEN);
+            Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.", MAXQUOTELEN);
             g_numCompilerErrors++;
             return 1;
         }
@@ -3205,7 +3205,7 @@ repeatcase:
                 ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = Bcalloc(MAXQUOTELEN, sizeof(uint8_t));
             if (!ScriptQuoteRedefinitions[g_numQuoteRedefinitions])
             {
-                Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.", MAXQUOTELEN);
+                Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.", MAXQUOTELEN);
                 g_numCompilerErrors++;
                 return 1;
             }
@@ -3591,7 +3591,7 @@ void C_CompilationInfo(void)
     int32_t j, k=0;
     initprintf(" \n");
     initprintf("Compiled code info: (size=%ld*%d bytes)\n",
-               (unsigned long)(g_scriptPtr-script), sizeof(instype));
+               (unsigned long)(g_scriptPtr-script), (int32_t)sizeof(instype));
     initprintf("  %d/%d user labels, %d/65536 indirect constants,\n",
                g_numLabels-g_numDefaultLabels, 65536-g_numDefaultLabels,
                g_numSavedConstants);
