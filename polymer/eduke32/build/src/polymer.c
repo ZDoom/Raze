@@ -1081,11 +1081,16 @@ void                polymer_editorpick(void)
 
     switch (searchstat) {
     case 0: // wall
+    case 5: // botomwall
     case 4: // 1-way/masked wall
         searchsector = sectorofwall(num);
         searchbottomwall = searchwall = num;
-        if (wall[num].nextwall>=0 && (wall[num].cstat&2))
-            searchbottomwall = wall[num].nextwall;
+        if (searchstat == 5) {
+            searchstat = 0;
+            if (wall[num].nextwall >= 0 && (wall[num].cstat & 2)) {
+                searchbottomwall = wall[num].nextwall;
+            }
+        }
         break;
     case 1: // floor
     case 2: // ceiling
@@ -3170,22 +3175,11 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
     if ((w->underover & 1) && (!parallaxedfloor || (searchit == 2)))
     {
         if (searchit == 2) {
-            int16_t pickwallnum;
-
             memcpy(oldcolor, w->wall.material.diffusemodulation, sizeof(GLubyte) * 4);
 
-            pickwallnum = wallnum;
-
-            // if the bottom of the walls are inverted
-            // we're going to hit the nextwall instead
-// PK -- handled in polymer_editorpick(), also because there
-//       are maps with .nextwall==-1 but .cstat&2 (like e4l3)
-//            if (wall[wallnum].cstat & 2)
-//                pickwallnum = wall[wallnum].nextwall;
-
-            w->wall.material.diffusemodulation[0] = 0x00;
-            w->wall.material.diffusemodulation[1] = ((GLubyte *)(&pickwallnum))[0];
-            w->wall.material.diffusemodulation[2] = ((GLubyte *)(&pickwallnum))[1];
+            w->wall.material.diffusemodulation[0] = 0x05;
+            w->wall.material.diffusemodulation[1] = ((GLubyte *)(&wallnum))[0];
+            w->wall.material.diffusemodulation[2] = ((GLubyte *)(&wallnum))[1];
             w->wall.material.diffusemodulation[3] = 0xFF;
         }
 
