@@ -1259,16 +1259,25 @@ static inline void drawline16base(int32_t bx, int32_t by, int32_t x1, int32_t y1
     drawline16(bx+x1, by+y1, bx+x2, by+y2, col);
 }
 
-static void drawsmalllabel(const char *text, char col, char backcol,
-                           int32_t x1, int32_t y1, int32_t x2, int32_t y2)
+static void drawsmalllabel(const char *text, char col, char backcol, int32_t dax, int32_t day)
 {
-    printext16(x1,y1, col,backcol, text,1);
-    drawline16(x1-1,y1-1, x2-3,y1-1, backcol);
-    drawline16(x1-1,y2+1, x2-3,y2+1, backcol);
+    int32_t x1, y1, x2, y2;
 
-    drawline16(x1-2,y1, x1-2,y2, backcol);
-    drawline16(x2-2,y1, x2-2,y2, backcol);
-    drawline16(x2-3,y1, x2-3,y2, backcol);
+    x1 = halfxdim16+dax-(Bstrlen(text)<<1);
+    y1 = midydim16+day-4;
+    x2 = x1 + (Bstrlen(text)<<2)+2;
+    y2 = y1 + 7;
+
+    if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+    {
+        printext16(x1,y1, col,backcol, text,1);
+        drawline16(x1-1,y1-1, x2-3,y1-1, backcol);
+        drawline16(x1-1,y2+1, x2-3,y2+1, backcol);
+
+        drawline16(x1-2,y1, x1-2,y2, backcol);
+        drawline16(x2-2,y1, x2-2,y2, backcol);
+        drawline16(x2-3,y1, x2-3,y2, backcol);
+    }
 }
 
 // backup highlighted sectors with sprites as mapinfo for later restoration
@@ -1944,13 +1953,7 @@ void overheadeditor(void)
                             if (m32_sideview)
                                 day += vdisp;
 
-                            x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
-                            y1 = midydim16+day-4;
-                            x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
-                            y2 = y1 + 7;
-                            if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
-                                drawsmalllabel(dabuffer, editorcolors[0], editorcolors[7],
-                                               x1,y1, x2,y2);
+                            drawsmalllabel(dabuffer, editorcolors[0], editorcolors[7], dax, day);
                         }
                     }
                 }
@@ -1985,14 +1988,7 @@ void overheadeditor(void)
                             if (m32_sideview)
                                 day += getscreenvdisp(getflorzofslope(sectorofwall(i), dax,day)-pos.z, zoom);
 
-                            x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
-                            y1 = midydim16+day-4;
-                            x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
-                            y2 = y1 + 7;
-
-                            if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
-                                drawsmalllabel(dabuffer, editorcolors[0], editorcolors[31],
-                                               x1,y1, x2,y2);
+                            drawsmalllabel(dabuffer, editorcolors[0], editorcolors[31], dax, day);
                         }
                     }
                 }
@@ -2022,12 +2018,6 @@ void overheadeditor(void)
                                 if (m32_sideview)
                                     day += getscreenvdisp(sprite[i].z-pos.z, zoom);
 
-                                x1 = halfxdim16+dax-(Bstrlen(dabuffer)<<1);
-                                y1 = midydim16+day-4;
-                                x2 = x1 + (Bstrlen(dabuffer)<<2)+2;
-                                y2 = y1 + 7;
-
-                                if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
                                 {
                                     int32_t blocking = (sprite[i].cstat&1);
 
@@ -2038,8 +2028,7 @@ void overheadeditor(void)
                                     if ((i == pointhighlight-16384) && (totalclock & 32))
                                         col += (2<<2);
 
-                                    drawsmalllabel(dabuffer, editorcolors[0], editorcolors[col],
-                                                   x1,y1, x2,y2);
+                                    drawsmalllabel(dabuffer, editorcolors[0], editorcolors[col], dax, day);
                                 }
                             }
                             j--;
@@ -2084,16 +2073,24 @@ void overheadeditor(void)
             if (joinsector[0] >= 0)
                 col = editorcolors[11];
 
-            if (numcorruptthings>0 && (pointhighlight&16384)==0)
+            if (numcorruptthings>0)
             {
-                for (i=0; i<numcorruptthings; i++)
-                    if ((corruptthings[i]&CORRUPT_MASK)==CORRUPT_WALL &&
+                static char cbuf[64];
+
+                if ((pointhighlight&16384)==0)
+                {
+                    for (i=0; i<numcorruptthings; i++)
+                        if ((corruptthings[i]&CORRUPT_MASK)==CORRUPT_WALL &&
                             (corruptthings[i]&(MAXWALLS-1))==pointhighlight)
-                    {
-                        col = editorcolors[13];
-                        printext16(searchx+6,searchy-6-8,editorcolors[13],editorcolors[0],"corrupt wall",0);
-                        break;
-                    }
+                        {
+                            col = editorcolors[13];
+                            printext16(searchx+6,searchy-6-8,editorcolors[13],editorcolors[0],"corrupt wall",0);
+                            break;
+                        }
+                }
+
+                Bsprintf(cbuf, "map corrupt (level %d): %d errors", corruptlevel, numcorruptthings);
+                printext16(8,8, editorcolors[13],editorcolors[0],cbuf,0);
             }
 
             if ((keystatus[0x36] || keystatus[0xb8]) && !eitherCTRL)  // RSHIFT || RALT

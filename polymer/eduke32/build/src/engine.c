@@ -6186,7 +6186,7 @@ int32_t preinitengine(void)
         dynarray[] =
         {
             { (void **) &sector,           sizeof(sectortype)      *MAXSECTORS                },
-            { (void **) &wall,             sizeof(walltype)        *(MAXWALLS+4)              }, // +4: editor quirks
+            { (void **) &wall,             sizeof(walltype)        *MAXWALLS }, // +1024: editor quirks. FIXME!
             { (void **) &sprite,           sizeof(spritetype)      *MAXSPRITES                },
             { (void **) &tsprite,          sizeof(spritetype)      *MAXSPRITESONSCREEN        },
             { (void **) &spriteext,        sizeof(spriteext_t)     *(MAXSPRITES+MAXUNIQHUDID) },
@@ -6194,6 +6194,12 @@ int32_t preinitengine(void)
             { (void **) &state_compress,   sizeof(qlz_state_compress)                         },
             { (void **) &state_decompress, sizeof(qlz_state_decompress)                       }
         };
+
+        if (editstatus)
+        {
+            dynarray[1].size += 1024*sizeof(walltype);
+            Bprintf("FIXME: Allocating additional space beyong wall[] for editor bugs.\n");
+        }
 
         for (i=0; i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
             size += dynarray[i].size;

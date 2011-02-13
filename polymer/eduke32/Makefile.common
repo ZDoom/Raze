@@ -88,7 +88,7 @@ ifneq (0,$(DEBUGANYWAY))
 endif
 
 W_NO_UNUSED_RESULT := $(shell echo '' | $(CC) -E -Wno-unused-result - 2>/dev/null && echo -Wno-unused-result)
-W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(WNO_UNUSED_RESULT))
+W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
 
 BASECFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \

@@ -103,7 +103,7 @@ int32_t autocorruptcheck = 0;
 static int32_t corruptchecktimer;
 static int32_t curcorruptthing=-1;
 
-int32_t numcorruptthings=0, corruptthings[MAXCORRUPTTHINGS];
+int32_t corruptlevel=0, numcorruptthings=0, corruptthings[MAXCORRUPTTHINGS];
 
 static uint32_t templenrepquot;
 static void fixxrepeat(int16_t i, uint32_t lenrepquot)
@@ -7884,11 +7884,14 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         {
             if (!Bstrcasecmp(parm->parms[0], "now"))
             {
-                CheckMapCorruption(1, 0);
+                if (CheckMapCorruption(1, 0)==0)
+                    OSD_Printf("All OK.\n");
+                return OSDCMD_OK;
             }
             else if (!Bstrcasecmp(parm->parms[0], "tryfix"))
             {
                 CheckMapCorruption(3, 1);
+                return OSDCMD_OK;
             }
             else if (isdigit(parm->parms[0][0]))
             {
@@ -9987,8 +9990,8 @@ void ExtCheckKeys(void)
 
         if (autocorruptcheck>0 && totalclock > corruptchecktimer)
         {
-            if (CheckMapCorruption(3, 0)>=4)
-                message("Corruption detected. See OSD for details.");
+            if (CheckMapCorruption(3, 0)>=3)
+                printmessage16("Corruption detected. See OSD for details.");
             corruptchecktimer = totalclock + 120*autocorruptcheck;
         }
     }
@@ -10084,7 +10087,10 @@ int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
         CORRUPTCHK_PRINT(5, 0, CCHK_PANIC "WALL LIMIT EXCEEDED (MAXWALLS=%d)!!!", MAXWALLS);
 
     if (numsectors>MAXSECTORS || numwalls>MAXWALLS)
+    {
+        corruptlevel = bad;
         return bad;
+    }
 
     seen_nextwalls = Bcalloc((numwalls+7)>>3,1);
     if (!seen_nextwalls) return 5;
@@ -10252,6 +10258,8 @@ int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
 
     Bfree(seen_nextwalls);
     Bfree(lastnextwallsource);
+
+    corruptlevel = errlevel;
 
     return errlevel;
 }
