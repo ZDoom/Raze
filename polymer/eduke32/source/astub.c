@@ -5754,6 +5754,16 @@ static void Keys3d(void)
         }
     }
 
+    // N (set "spritenoshade" bit)
+    if (PRESSED_KEYSC(N) && !eitherCTRL && !keystatus[KEYSC_QUOTE])
+    {
+        if (AIMING_AT_SPRITE)
+        {
+            sprite[searchwall].cstat ^= 2048;
+            message("Sprite %d spritenoshade bit: %s", searchwall, ONOFF(sprite[searchwall].cstat&2048));
+        }
+    }
+
     if (PRESSED_KEYSC(T))  // T (transluscence for sprites/masked walls)
     {
         if (AIMING_AT_CEILING_OR_FLOOR)   //Set masked/transluscent ceilings/floors
@@ -9280,15 +9290,22 @@ void ExtPreCheckKeys(void) // just before drawrooms
         if (shadepreview)
         {
             int32_t i = 0;
-            for (i=numsprites-1; i>=0; i--)
+            for (i=0; i<MAXSPRITES; i++)
+            {
+                if (sprite[i].statnum==MAXSTATUS)
+                    continue;
+
                 if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || sprite[i].lotag == 3))
                 {
                     int32_t w, isec=sprite[i].sectnum;
-                    int32_t start_wall = sector[isec].wallptr;
-                    int32_t end_wall = start_wall + sector[isec].wallnum;
+                    int32_t start_wall;
+                    int32_t end_wall;
 
                     if (isec<0)
                         continue;
+
+                    start_wall = sector[isec].wallptr;
+                    end_wall = start_wall + sector[isec].wallnum;
 
                     for (w = start_wall; w < end_wall; w++)
                     {
@@ -9475,6 +9492,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                     }
 #endif // POLYMER
                 }
+            }
         }
 
         if (floor_over_floor) SE40Code(pos.x,pos.y,pos.z,ang,horiz);
@@ -9581,7 +9599,6 @@ void ExtPreCheckKeys(void) // just before drawrooms
             break;
             default:
                 break;
-
             }
 
             xp1 = mulscale14(sprite[i].x-pos.x,zoom);
@@ -9609,25 +9626,27 @@ void ExtPreCheckKeys(void) // just before drawrooms
     {
         for (ii=0; ii<numsectors; ii++)
             for (i=headspritesect[ii]; i>=0; i=nextspritesect[i])
-                if (sprite[i].picnum == MUSICANDSFX /*&& zoom >= 256*/ )
-                {
-                    if (showambiencesounds==1 && sprite[i].sectnum!=cursectnum)
-                        continue;
+            {
+                if (sprite[i].picnum != MUSICANDSFX /*|| zoom < 256*/ )
+                    continue;
 
-                    screencoords(&xp1,&yp1, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
-                    if (m32_sideview)
-                        yp1 += getscreenvdisp(sprite[i].z-pos.z, zoom);
+                if (showambiencesounds==1 && sprite[i].sectnum!=cursectnum)
+                    continue;
 
-                    radius = mulscale14(sprite[i].hitag,zoom);
-                    col = 6;
-                    if (i+16384 == pointhighlight)
-                        if (totalclock & 32) col += (2<<2);
-                    drawlinepat = 0xf0f0f0f0;
-                    drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, scalescreeny(16384), editorcolors[(int32_t)col]);
-                    drawlinepat = 0xffffffff;
-                    //            radius = mulscale15(sprite[i].hitag,zoom);
-                    //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
-                }
+                screencoords(&xp1,&yp1, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
+                if (m32_sideview)
+                    yp1 += getscreenvdisp(sprite[i].z-pos.z, zoom);
+
+                radius = mulscale14(sprite[i].hitag,zoom);
+                col = 6;
+                if (i+16384 == pointhighlight)
+                    if (totalclock & 32) col += (2<<2);
+                drawlinepat = 0xf0f0f0f0;
+                drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, scalescreeny(16384), editorcolors[(int32_t)col]);
+                drawlinepat = 0xffffffff;
+                //            radius = mulscale15(sprite[i].hitag,zoom);
+                //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
+            }
     }
 
     enddrawing();  //}}}
@@ -9676,11 +9695,12 @@ void ExtAnalyzeSprites(void)
                 if (sector[tspr->sectnum].floorpal != 0 && sector[tspr->sectnum].floorpal < num_tables)
                     tspr->pal=sector[tspr->sectnum].floorpal;
             }
-            if (l < -127) l = -127;
-            if (l > 126) l =  127;
 
-            tspr->shade = l;
-
+            if ((tspr->owner>=0 && (sprite[tspr->owner].cstat&2048)==0))
+            {
+                l = clamp(l, -127, 127);
+//                tspr->shade = l;
+            }
         }
 
         switch (tspr->picnum)

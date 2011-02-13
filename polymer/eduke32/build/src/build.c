@@ -2731,7 +2731,8 @@ void overheadeditor(void)
                 }
                 else
                 {
-                    int32_t didmakered = (highlightsectorcnt<0);
+                    int32_t didmakered = (highlightsectorcnt<0), hadouterpoint=0;
+                    int16_t tmprefsect;
 
                     for (i=0; i<highlightsectorcnt; i++)
                     {
@@ -2740,10 +2741,17 @@ void overheadeditor(void)
                             if (wall[j].nextwall >= 0)
                                 checksectorpointer(wall[j].nextwall,wall[j].nextsector);
                             didmakered |= !!checksectorpointer((int16_t)j,highlightsector[i]);
+
+                            if (!didmakered)
+                            {
+                                updatesectorexclude(wall[j].x, wall[j].y, &tmprefsect, hlsectorbitmap);
+                                if (tmprefsect<0)
+                                    hadouterpoint = 1;
+                            }
                         }
                     }
 
-                    if (!didmakered && newnumwalls<0)
+                    if (!didmakered && !hadouterpoint && newnumwalls<0)
                     {
                         char blackcol=editorcolors[0], greycol=whitecol-25, *cp;
 
@@ -2762,7 +2770,8 @@ void overheadeditor(void)
                         clearkeys();
                     }
 
-                    while (!didmakered && newnumwalls<0)  // if
+
+                    while (!didmakered && !hadouterpoint && newnumwalls<0)  // if
                     {
                         int32_t tmpnumwalls=0, refwall;
                         uint8_t *visitedwall = Bcalloc((numwalls+7)>>3,1);
@@ -3308,8 +3317,8 @@ SKIP:
                     drawlinepat = 0x11111111;
                     if (y1 != INT_MAX)
                         drawline16base(halfxdim16,midydim16, 0,0, 0,y1, editorcolors[14]);
-                    else
-                        drawline16base(halfxdim16,midydim16, 0,0, 0,getscreenvdisp(-pos.z, zoom), editorcolors[14]);
+//                    else
+//                        drawline16base(halfxdim16,midydim16, 0,0, 0,getscreenvdisp(-pos.z, zoom), editorcolors[14]);
                     drawlinepat = opat;
                 }
 
@@ -3320,7 +3329,7 @@ SKIP:
         else if ((oldmousebstatus&6) > 0)
             updatesectorz(pos.x,pos.y,pos.z,&cursectnum);
 
-        if (circlewall != -1 && (keystatus[0x4a] || ((bstatus&32) && !eitherCTRL)))  // -
+        if (circlewall != -1 && (keystatus[0x4a] || ((bstatus&32) && !eitherCTRL)))  // -, mousewheel down
         {
             if (circlepoints > 1)
                 circlepoints--;
@@ -3328,7 +3337,7 @@ SKIP:
             mouseb &= ~32;
             bstatus &= ~32;
         }
-        if (circlewall != -1 && (keystatus[0x4e] || ((bstatus&16) && !eitherCTRL)))  // +
+        if (circlewall != -1 && (keystatus[0x4e] || ((bstatus&16) && !eitherCTRL)))  // +, mousewheel up
         {
             if (circlepoints < 63)
                 circlepoints++;
@@ -3376,18 +3385,18 @@ SKIP:
             _printmessage16("Sideview angle: %d", (int32_t)m32_sideang);
         }
 
-        if (m32_sideview && keystatus[0x2a])  // LShift
+        if (m32_sideview && (keystatus[0x2a] || (bstatus&(16|32))))  // LShift
         {
-            if (DOWN_BK(MOVEUP) && m32_sideelev < 512)
+            if ((DOWN_BK(MOVEUP) || (bstatus&16)) && m32_sideelev < 512)
             {
-                m32_sideelev += synctics<<1;
+                m32_sideelev += synctics<<(1+!!(bstatus&16));
                 if (m32_sideelev > 512)
                     m32_sideelev = 512;
                 _printmessage16("Sideview elevation: %d", m32_sideelev);
             }
-            if (DOWN_BK(MOVEDOWN) && m32_sideelev > 0)
+            if ((DOWN_BK(MOVEDOWN) || (bstatus&32)) && m32_sideelev > 0)
             {
-                m32_sideelev -= synctics<<1;
+                m32_sideelev -= synctics<<(1+!!(bstatus&32));
                 if (m32_sideelev < 0)
                     m32_sideelev = 0;
                 _printmessage16("Sideview elevation: %d", m32_sideelev);
@@ -3395,31 +3404,30 @@ SKIP:
         }
         else
         {
+            int32_t didzoom=0;
+
             if ((DOWN_BK(MOVEUP) || (bstatus&16)) && zoom < 65536)
             {
                 zoom += synctics*(zoom>>4);
                 if (zoom < 24) zoom += 2;
-                if ((bstatus&16) && eitherALT)
-                {
-                    searchx = halfxdim16;
-                    searchy = midydim16;
-                    pos.x = mousxplc;
-                    pos.y = mousyplc;
-                }
-                if (zoom > 65536) zoom = 65536;
-                _printmessage16("Zoom: %d",zoom);
+                didzoom = 1;
             }
             if ((DOWN_BK(MOVEDOWN) || (bstatus&32)) && zoom > 8)
             {
                 zoom -= synctics*(zoom>>4);
-                if ((bstatus&32) && eitherALT)
+                didzoom = 1;
+            }
+
+            if (didzoom)
+            {
+                if (eitherALT)
                 {
                     searchx = halfxdim16;
                     searchy = midydim16;
                     pos.x = mousxplc;
                     pos.y = mousyplc;
                 }
-                if (zoom < 8) zoom = 8;
+                zoom = clamp(zoom, 8, 65536);
                 _printmessage16("Zoom: %d",zoom);
             }
         }

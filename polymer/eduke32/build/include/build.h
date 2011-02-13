@@ -137,7 +137,9 @@ typedef struct
 //   bit 7: 1 = Real centered centering, 0 = foot center             "C"
 //   bit 8: 1 = Blocking sprite (use with hitscan / cliptype 1)      "H"
 //   bit 9: 1 = Transluscence reversing, 0 = normal                  "T"
-//   bits 10-12: reserved
+//   bit 10: reserved (in use by a renderer hack)
+//   bit 11: 1 = determine shade based only on its own shade member (see CON's spritenoshade command)
+//   bit 12: reserved
 //   bit 13: 1 = does not cast shadow
 //   bit 14: 1 = invisible but casts shadow
 //   bit 15: 1 = Invisible sprite, 0 = not invisible
