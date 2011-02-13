@@ -2790,7 +2790,8 @@ static void         polymer_updatewall(int16_t wallnum)
              ((nwallpicnum == w->nwallpicnum) &&
               (wall[nwallnum].xpanning == w->nwallxpanning) &&
               (wall[nwallnum].ypanning == w->nwallypanning) &&
-              (wall[nwallnum].cstat == w->nwallcstat))))
+              (wall[nwallnum].cstat == w->nwallcstat) &&
+              (wall[nwallnum].shade == w->nwallshade))))
     {
         w->flags.uptodate = 1;
         return; // screw you guys I'm going home
@@ -2816,6 +2817,7 @@ static void         polymer_updatewall(int16_t wallnum)
             w->nwallxpanning = wall[nwallnum].xpanning;
             w->nwallypanning = wall[nwallnum].ypanning;
             w->nwallcstat = wall[nwallnum].cstat;
+            w->nwallshade = wall[nwallnum].shade;
         }
     }
 

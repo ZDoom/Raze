@@ -246,6 +246,7 @@ typedef struct      s_prwall {
     int8_t          shade;
     char            pal, xrepeat, yrepeat, xpanning, ypanning;
     char            nwallxpanning, nwallypanning;
+    int8_t          nwallshade;
 
     char            underover;
     uint32_t        invalidid;
