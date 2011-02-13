@@ -2868,7 +2868,7 @@ dodefault:
                 {
                     screencoords(&x1,&y1, x1-pos.x,y1-pos.y, zoom);
                     if (m32_sideview)
-                        y1 += getscreenvdisp(z1, zoom);
+                        y1 += getscreenvdisp(z1-pos.z, zoom);
                     r = mulscale14(r,zoom);
                     eccen = scalescreeny(eccen);
                     xofs = halfxdim16;
