@@ -1282,7 +1282,7 @@ static void scansector(int16_t sectnum)
                 if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
                 {
                     tempint = x1*y2-x2*y1;
-                    if (((unsigned)tempint+262144) < 524288)
+                    if (((unsigned)tempint+262144) < 524288)  // BXY_MAX?
                         if (mulscale5(tempint,tempint) <= (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
                             sectorborder[sectorbordercnt++] = nextsectnum;
                 }

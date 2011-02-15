@@ -168,7 +168,7 @@ static const char *Typestr_wss[] = { "Wall", "Sector", "Sector", "Sprite", "Wall
 
 
 #define BTAG_MAX 65535
-
+#define BZ_MAX 8388608
 
 static const char *ONOFF_[] = {"OFF","ON"};
 #define ONOFF(b) (ONOFF_[!!(b)])
@@ -981,6 +981,12 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
 //  y1, y2  0-143  (status bar is 144 high, origin is top-left of STATUS BAR)
 //  col     0-15
 
+static void PrintStatus(const char *string, int32_t num, int32_t x, int32_t y, int32_t color)
+{
+    Bsprintf(tempbuf, "%s %d", string, num);
+    printext16(x*8, ydim-STATUS2DSIZ+y*8, editorcolors[color], -1, tempbuf, 0);
+}
+
 void ExtShowSectorData(int16_t sectnum)   //F5
 {
     int32_t x,x2,y;
@@ -1007,7 +1013,9 @@ void ExtShowSectorData(int16_t sectnum)   //F5
             if (sprite[i].lotag<=3) totalactors3++;
             if (sprite[i].lotag<=4) totalactors4++;
         }
-        if (sprite[i].picnum == RESPAWN) totalrespawn++;
+
+        if (sprite[i].picnum == RESPAWN)
+            totalrespawn++;
 
         i = nextspritestat[i];
     }
@@ -1017,7 +1025,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
 
     for (i=0; i<MAXSPRITES; i++)
     {
-        if (sprite[i].statnum==0)
+        if (sprite[i].statnum==0 && sprite[i].picnum>=0 && sprite[i].picnum<MAXTILES)
         {
             if (sprite[i].pal!=0)
                 multisprite[sprite[i].picnum]++;
@@ -1041,11 +1049,11 @@ void ExtShowSectorData(int16_t sectnum)   //F5
 
     ydim -= 8; // vvvvvv reset at end!!
 
+    begindrawing();  //{{{
+
     x=1; x2=14;
     y=4; yi=2;
-    begindrawing();
     printext16(x*8, ydim-STATUS2DSIZ+y*8, editorcolors[11], -1, "Item Count", 0);
-    enddrawing();
 
     PRSTAT("10%health=", COLA);
     PRSTAT("30%health=", SIXPAK);
@@ -1055,9 +1063,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
 
     x=17; x2=30;
     y=4; yi=2;
-    begindrawing();
     printext16(x*8, ydim-STATUS2DSIZ+y*8, editorcolors[11], -1, "Inventory", 0);
-    enddrawing();
 
     PRSTAT("Steroids =", STEROIDS);
     PRSTAT("Airtank  =", AIRTANK);
@@ -1069,9 +1075,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
 
     x=33; x2=46;
     y=4; yi=2;
-    begindrawing();
     printext16(x*8, ydim-STATUS2DSIZ+y*8, editorcolors[11], -1, "Weapon Count", 0);
-    enddrawing();
 
     PRSTAT("Pistol   =", FIRSTGUNSPRITE);
     PRSTAT("Shotgun  =", SHOTGUNSPRITE);
@@ -1085,9 +1089,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
 
     x=49; x2=62;
     y=4; yi=2;
-    begindrawing();
     printext16(x*8,ydim-STATUS2DSIZ+y*8,editorcolors[11],-1,"Ammo Count",0);
-    enddrawing();
 
     PRSTAT("Pistol   =", AMMO);
     PRSTAT("Shot     =", SHOTGUNAMMO);
@@ -1099,10 +1101,8 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     PRSTAT("Expander =", GROWAMMO);
     PRSTAT("Freezeray=", FREEZEAMMO);
 
-    begindrawing();
     printext16(65*8, ydim-STATUS2DSIZ+4*8, editorcolors[11], -1, "MISC", 0);
     printext16(65*8, ydim-STATUS2DSIZ+8*8, editorcolors[11], -1, "ACTORS", 0);
-    enddrawing();
 
 #undef PRSTAT
 
@@ -1112,6 +1112,8 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     PrintStatus("Skill 3 =", totalactors3, 65, 12, 11);
     PrintStatus("Skill 4 =", totalactors4, 65, 13, 11);
     PrintStatus("Respawn =", totalrespawn, 65, 14, 11);
+
+    enddrawing();  //}}}
 
     ydim += 8; // ^^^^^^ see above!
 
@@ -1128,48 +1130,48 @@ void ExtShowWallData(int16_t wallnum)       //F6
 
     for (i=0; i<MAXSPRITES; i++)
     {
-        if (sprite[i].statnum==0)
-            switch (sprite[i].picnum)
-            {
-                //LOTAG
-            case ACTIVATOR:
-            case ACTIVATORLOCKED:
-            case TOUCHPLATE:
-            case MASTERSWITCH:
-            case RESPAWN:
-            case ACCESSSWITCH:
-            case SLOTDOOR:
-            case LIGHTSWITCH:
-            case SPACEDOORSWITCH:
-            case SPACELIGHTSWITCH:
-            case FRANKENSTINESWITCH:
-            case MULTISWITCH:
-            case DIPSWITCH:
-            case DIPSWITCH2:
-            case TECHSWITCH:
-            case DIPSWITCH3:
-            case ACCESSSWITCH2:
-            case POWERSWITCH1:
-            case LOCKSWITCH1:
-            case POWERSWITCH2:
-            case PULLSWITCH:
-            case ALIENSWITCH:
-                if (sprite[i].lotag>nextfreetag) nextfreetag = sprite[i].lotag+1;
-                break;
+        if (sprite[i].statnum!=0)
+            continue;
 
-                //HITAG
-            case SEENINE:
-            case OOZFILTER:
-            case SECTOREFFECTOR:
-                if (sprite[i].lotag==10 || sprite[i].lotag==27 || sprite[i].lotag==28 || sprite[i].lotag==29)
-                    break;
-                else if (sprite[i].hitag>nextfreetag) nextfreetag=sprite[i].hitag+1;
-                break;
-            default:
-                break;
+        switch (sprite[i].picnum)
+        {
+            //LOTAG
+        case ACTIVATOR:
+        case ACTIVATORLOCKED:
+        case TOUCHPLATE:
+        case MASTERSWITCH:
+        case RESPAWN:
+        case ACCESSSWITCH:
+        case SLOTDOOR:
+        case LIGHTSWITCH:
+        case SPACEDOORSWITCH:
+        case SPACELIGHTSWITCH:
+        case FRANKENSTINESWITCH:
+        case MULTISWITCH:
+        case DIPSWITCH:
+        case DIPSWITCH2:
+        case TECHSWITCH:
+        case DIPSWITCH3:
+        case ACCESSSWITCH2:
+        case POWERSWITCH1:
+        case LOCKSWITCH1:
+        case POWERSWITCH2:
+        case PULLSWITCH:
+        case ALIENSWITCH:
+            if (sprite[i].lotag>nextfreetag) nextfreetag = sprite[i].lotag+1;
+            break;
 
-            }
-
+            //HITAG
+        case SEENINE:
+        case OOZFILTER:
+        case SECTOREFFECTOR:
+            if (sprite[i].lotag==10 || sprite[i].lotag==27 || sprite[i].lotag==28 || sprite[i].lotag==29)
+                break;
+            else if (sprite[i].hitag>nextfreetag) nextfreetag=sprite[i].hitag+1;
+            break;
+        default:
+            break;
+        }
     } // end sprite loop
 
     clearmidstatbar16();
@@ -1207,10 +1209,11 @@ void ExtShowWallData(int16_t wallnum)       //F6
             }
     }
 
-    //runi==0: Count Normal Actors,  runi==1: Count Respawn Actors
+    // runi==0: Count Normal Actors
+    // runi==1: Count Respawn Actors
     for (runi=0; runi<2; runi++)
     {
-        if (runi==2)
+        if (runi==1)
         {
             Bmemset(numsprite, 0, sizeof(numsprite));
             Bmemset(multisprite, 0, sizeof(multisprite));
@@ -1218,52 +1221,65 @@ void ExtShowWallData(int16_t wallnum)       //F6
 
         for (i=0; i<MAXSPRITES; i++)
         {
-            if (sprite[i].statnum==0 && ((runi==0 && sprite[i].pal==0) || (runi==1 && sprite[i].picnum==RESPAWN)))
-            {
-                int32_t pic = (runi==1) ? sprite[i].picnum : sprite[i].hitag;
-                switch (sprite[i].picnum)
-                {
-                case CASES_LIZTROOP:
-                    numsprite[LIZTROOP]++;
-                    break;
-                case PIGCOP: case PIGCOPSTAYPUT: case PIGCOPDIVE:
-                    numsprite[PIGCOP]++;
-                    break;
-                case LIZMAN: case LIZMANSTAYPUT: case LIZMANSPITTING: case LIZMANFEEDING: case LIZMANJUMP:
-                    numsprite[LIZMAN]++;
-                    break;
-                case CASES_BOSS1:
-                    if (runi==0 || sprite[i].pal==0)
-                        numsprite[BOSS1]++;
-                    else
-                        multisprite[BOSS1]++;
-                    break;
-                case COMMANDER:
-                case COMMANDERSTAYPUT:
-                    numsprite[COMMANDER]++;
-                    break;
-                case OCTABRAIN:
-                case OCTABRAINSTAYPUT:
-                    numsprite[OCTABRAIN]++;
-                    break;
-                case RECON: case DRONE: case ROTATEGUN: case EGG: case ORGANTIC: case GREENSLIME:
-                case BOSS2: case BOSS3: case TANK: case NEWBEAST: case NEWBEASTSTAYPUT: case BOSS4:
-                    numsprite[pic]++;
-                default:
-                    break;
+            int32_t pic;
 
-                }// end switch
-            }// end if
-        }//end for
+            if (sprite[i].statnum!=0)
+                continue;
+
+            if (runi==0 && sprite[i].pal!=0)
+                continue;
+
+            if (runi==1 && sprite[i].picnum!=RESPAWN)
+                continue;
+
+            pic = (runi==0) ? sprite[i].picnum : sprite[i].hitag;
+            if (pic<0 || pic>=MAXTILES)
+                continue;
+
+            switch (pic)
+            {
+            case CASES_LIZTROOP:
+                numsprite[LIZTROOP]++;
+                break;
+            case PIGCOP: case PIGCOPSTAYPUT: case PIGCOPDIVE:
+                numsprite[PIGCOP]++;
+                break;
+            case LIZMAN: case LIZMANSTAYPUT: case LIZMANSPITTING: case LIZMANFEEDING: case LIZMANJUMP:
+                numsprite[LIZMAN]++;
+                break;
+            case CASES_BOSS1:
+                if (runi==0 || sprite[i].pal==0)
+                    numsprite[BOSS1]++;
+                else
+                    multisprite[BOSS1]++;
+                break;
+            case COMMANDER:
+            case COMMANDERSTAYPUT:
+                numsprite[COMMANDER]++;
+                break;
+            case OCTABRAIN:
+            case OCTABRAINSTAYPUT:
+                numsprite[OCTABRAIN]++;
+                break;
+            case RECON: case DRONE: case ROTATEGUN: case EGG: case ORGANTIC: case GREENSLIME:
+            case BOSS2: case BOSS3: case TANK: case NEWBEAST: case NEWBEASTSTAYPUT: case BOSS4:
+                numsprite[pic]++;
+                break;
+            default:
+                break;
+            }
+        }
 
 #undef CASES_LIZTROOP
 #undef CASES_BOSS1
 
         total=0;
-        for (i=0; i<MAXSPRITES; i++)
+        for (i=0; i<MAXTILES; i++)
             total += numsprite[i];
-        for (i=0; i<MAXSPRITES; i++)
+        for (i=0; i<MAXTILES; i++)
             total += multisprite[i];
+
+        begindrawing();  //{{{
 
         x=2+runi*34;
         y=4;
@@ -1293,22 +1309,30 @@ void ExtShowWallData(int16_t wallnum)       //F6
         PRSTAT("Newbeast  =", NEWBEAST);
         PRSTAT("Boss4     =", BOSS4);
 #undef PRSTAT
+
+        enddrawing();  //}}}
     }
 }// end ExtShowWallData
 
-static void Show2dText(char *name)
+// formerly Show2dText and Show3dText
+static void ShowFileText(const char *name, int32_t do3d)
 {
     int32_t fp,t;
     uint8_t x=0,y=4,xmax=0,xx=0,col=0;
 
-    clearmidstatbar16();
-    drawgradient();
+    if (!do3d)
+    {
+        clearmidstatbar16();
+        drawgradient();
+    }
 
     if ((fp=kopen4load(name,0)) == -1)
     {
-        begindrawing();
-        printext16(1*4,ydim-STATUS2DSIZ+4*8,editorcolors[11],-1,"ERROR: file not found.",0);
-        enddrawing();
+        Bsprintf(tempbuf, "ERROR: file '%s' not found.", name);
+        if (do3d)
+            printext256(1*4,4*8,whitecol,-1,tempbuf,0);
+        else
+            printext16(1*4,ydim-STATUS2DSIZ+4*8,editorcolors[11],-1,tempbuf,0);
         return;
     }
 
@@ -1328,7 +1352,12 @@ static void Show2dText(char *name)
             if (x>xmax) xmax=x;
         }
         tempbuf[x]=0;
-        printext16(xx*4,ydim-STATUS2DSIZ+(y*6)+2,editorcolors[11],-1,tempbuf,1);
+
+        if (do3d)
+            printext256(xx*4,(y*6)+2,whitecol,-1,tempbuf,1);
+        else
+            printext16(xx*4,ydim-STATUS2DSIZ+(y*6)+2,editorcolors[11],-1,tempbuf,1);
+
         x=0;
         y++;
         if (y>18)
@@ -1343,7 +1372,7 @@ static void Show2dText(char *name)
 
     kclose(fp);
 
-}// end Show2dText
+}// end ShowFileText
 
 // PK_ vvvv
 typedef struct helppage_
@@ -2145,57 +2174,13 @@ static void M32_MoveFX(void)
 #undef T1
 
 
-static void Show3dText(char *name)
-{
-    int32_t fp,t;
-    uint8_t x=0,y=4,xmax=0,xx=0,col=0;
-
-    if ((fp=kopen4load(name,0)) == -1)
-    {
-        begindrawing();
-        printext256(1*4,4*8,whitecol,-1,"ERROR: file not found.",0);
-        enddrawing();
-        return;
-    }
-    t=65;
-    begindrawing();
-    while (t!=EOF && col<5)
-    {
-        t = 0;
-        if (kread(fp,&t,1)<=0)
-            t = EOF;
-        while (t!=EOF && t!='\n' && x<250)
-        {
-            tempbuf[x]=t;
-            t = 0;
-            if (kread(fp,&t,1)<=0) t = EOF;
-            x++;
-            if (x>xmax) xmax=x;
-        }
-        tempbuf[x]=0;
-        printext256(xx*4,(y*6)+2,whitecol,-1,tempbuf,1);
-        x=0;
-        y++;
-        if (y>18)
-        {
-            col++;
-            y=6;
-            xx+=xmax;
-            xmax=0;
-        }
-    }
-    enddrawing();
-
-    kclose(fp);
-}// end Show3dText
-
 ///__ShowHelpText__
 
 void ExtShowSpriteData(int16_t spritenum)   //F6
 {
     UNREFERENCED_PARAMETER(spritenum);
     if (qsetmode != 200)
-        Show2dText("sehelp.hlp");
+        ShowFileText("sehelp.hlp", 0);
     /*    if (qsetmode == 200)                // In 3D mode
     return;
 
@@ -2403,7 +2388,7 @@ static void SE40Code(int32_t x,int32_t y,int32_t z,int32_t a,int32_t h)
 
 void ExtEditSectorData(int16_t sectnum)    //F7
 {
-    //    if (qsetmode != 200) Show2dText("sthelp.hlp");
+    //    if (qsetmode != 200) ShowFileText("sthelp.hlp", 0);
     if (qsetmode == 200)
         return;
 
@@ -2469,14 +2454,6 @@ void ExtEditSpriteData(int16_t spritenum)   //F8
     }
 #endif
     else EditSpriteData(spritenum);
-}
-
-static void PrintStatus(const char *string,int32_t num,char x,char y,char color)
-{
-    Bsprintf(tempbuf,"%s %d",string,num);
-    begindrawing();
-    printext16(x*8,ydim-STATUS2DSIZ+y*8,editorcolors[(int32_t)color],-1,tempbuf,0);
-    enddrawing();
 }
 
 static inline void SpriteName(int16_t spritenum, char *lo2)
@@ -2613,7 +2590,7 @@ static void m32_showmouse(void)
     }
 }
 
-static int32_t AskIfSure(char *text)
+static int32_t AskIfSure(const char *text)
 {
     int32_t retval=1;
 
@@ -3742,15 +3719,22 @@ static int32_t spriteongroundz(int32_t searchwall)
 
 #define WIND1X   3
 #define WIND1Y 150
-void drawtileinfo(char *title,int32_t x,int32_t y,int32_t picnum,int32_t shade,int32_t pal,int32_t cstat,int32_t lotag,int32_t hitag,int32_t extra)
+
+static void tileinfo_doprint(int32_t x, int32_t y, char *buf, const char *label, int32_t value, int32_t pos)
+{
+    int32_t small = (xdimgame<=640), i = ydimgame>>6;
+    Bsprintf(buf,"%s:%4d",label,value);
+    printext256(x+2, y+2+i*pos, 0, -1, buf, small);
+    printext256(x, y+i*pos, whitecol, -1, buf, small);
+}
+
+static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,int32_t shade,int32_t pal,int32_t cstat,int32_t lotag,int32_t hitag,int32_t extra)
 {
     char buf[64];
-    int32_t i,small = (xdimgame<=640);
+    int32_t small = (xdimgame<=640);
     int32_t scale=65536;
     int32_t x1;
     int32_t oviewingrange=viewingrange, oyxaspect=yxaspect;
-
-    i = ydimgame>>6;
 
     x1 = x+80;
     if (small)
@@ -3771,26 +3755,15 @@ void drawtileinfo(char *title,int32_t x,int32_t y,int32_t picnum,int32_t shade,i
     printext256(x+2,y+2,0,-1,title,small);
     printext256(x,y,255-13,-1,title,small);
 
-#define DOPRINT(N) \
-    printext256(x+2, y+2+i*N, 0, -1, buf, small); \
-    printext256(x, y+i*N, whitecol, -1, buf, small);
+    tileinfo_doprint(x, y, buf, "Pic", picnum, 1);
+    tileinfo_doprint(x, y, buf, "Shd", shade, 2);
+    tileinfo_doprint(x, y, buf, "Pal", pal, 3);
+    tileinfo_doprint(x, y, buf, "Cst", cstat, 4);
+    tileinfo_doprint(x, y, buf, "Lot", lotag, 5);
+    tileinfo_doprint(x, y, buf, "Hit", hitag, 6);
+    tileinfo_doprint(x, y, buf, "Ext", extra, 7);
 
-    Bsprintf(buf,"Pic:%4d",picnum);
-    DOPRINT(1);
-    Bsprintf(buf,"Shd:%4d",shade);
-    DOPRINT(2);
-    Bsprintf(buf,"Pal:%4d",pal);
-    DOPRINT(3);
-    Bsprintf(buf,"Cst:%4d",cstat);
-    DOPRINT(4);
-    Bsprintf(buf,"Lot:%4d",lotag);
-    DOPRINT(5);
-    Bsprintf(buf,"Hit:%4d",hitag);
-    DOPRINT(6);
-    Bsprintf(buf,"Ext:%4d",extra);
-    DOPRINT(7);
     enddrawing();
-#undef DOPRINT
 }
 //int32_t snap=0;
 //int32_t saveval1,saveval2,saveval3;
@@ -4632,14 +4605,14 @@ static void Keys3d(void)
 
         if (keystatus[KEYSC_QUOTE])
         {
-            pal[0] = getnumber256("Ceiling palette: ", -1, MAXPALOOKUPS, 1);
-            pal[1] = getnumber256("Floor palette: ", -1, MAXPALOOKUPS, 1);
-            pal[2] = getnumber256("Wall palette: ", -1, MAXPALOOKUPS, 1);
-            pal[3] = getnumber256("Sprite palette: ", -1, MAXPALOOKUPS, 1);
+            pal[0] = getnumber256("Ceiling palette: ", -1, MAXPALOOKUPS-1, 1);
+            pal[1] = getnumber256("Floor palette: ", -1, MAXPALOOKUPS-1, 1);
+            pal[2] = getnumber256("Wall palette: ", -1, MAXPALOOKUPS-1, 1);
+            pal[3] = getnumber256("Sprite palette: ", -1, MAXPALOOKUPS-1, 1);
         }
         else
         {
-            pal[0] = getnumber256("Global palette: ", 0, MAXPALOOKUPS, 0);
+            pal[0] = getnumber256("Global palette: ", 0, MAXPALOOKUPS-1, 0);
             pal[1] = pal[2] = pal[3] = pal[0];
         }
 
@@ -4710,9 +4683,9 @@ static void Keys3d(void)
     if (autospritehelp && helpon==0)
     {
         if (AIMING_AT_SPRITE && sprite[searchwall].picnum==SECTOREFFECTOR)
-            Show3dText("sehelp.hlp");
+            ShowFileText("sehelp.hlp", 1);
         else if (AIMING_AT_CEILING_OR_FLOOR)
-            Show3dText("sthelp.hlp");
+            ShowFileText("sthelp.hlp", 1);
     }
 
     if (AIMING_AT_WALL_OR_MASK && PRESSED_KEYSC(PERIOD))
@@ -4745,7 +4718,7 @@ static void Keys3d(void)
         {
         case SEARCH_CEILING:
             getnumberptr256("Sector ceilingz: ", &sector[searchsector].ceilingz,
-                            sizeof(sector[0].ceilingz), 8388608, 1, NULL);
+                            sizeof(sector[0].ceilingz), BZ_MAX, 1, NULL);
             if (!(sector[searchsector].ceilingstat&2))
             {
                 sector[searchsector].ceilingstat |= 2;
@@ -4756,7 +4729,7 @@ static void Keys3d(void)
             break;
         case SEARCH_FLOOR:
             getnumberptr256("Sector floorz: ", &sector[searchsector].floorz,
-                            sizeof(sector[0].floorz), 8388608, 1, NULL);
+                            sizeof(sector[0].floorz), BZ_MAX, 1, NULL);
             if (!(sector[searchsector].floorstat&2))
             {
                 sector[searchsector].floorheinum = 0;
@@ -4767,9 +4740,9 @@ static void Keys3d(void)
             break;
 
         case SEARCH_SPRITE:
-            getnumberptr256("Sprite x: ", &sprite[searchwall].x, sizeof(sprite[0].x), 131072, 1, NULL);
-            getnumberptr256("Sprite y: ", &sprite[searchwall].y, sizeof(sprite[0].y), 131072, 1, NULL);
-            getnumberptr256("Sprite z: ", &sprite[searchwall].z, sizeof(sprite[0].z), 8388608, 1, NULL);
+            getnumberptr256("Sprite x: ", &sprite[searchwall].x, sizeof(sprite[0].x), editorgridextent-1, 1, NULL);
+            getnumberptr256("Sprite y: ", &sprite[searchwall].y, sizeof(sprite[0].y), editorgridextent-1, 1, NULL);
+            getnumberptr256("Sprite z: ", &sprite[searchwall].z, sizeof(sprite[0].z), BZ_MAX, 1, NULL);
             getnumberptr256("Sprite angle: ", &sprite[searchwall].ang, sizeof(sprite[0].ang), 2047, 0, NULL);
             break;
         }
@@ -6897,7 +6870,7 @@ static void Keys2d(void)
     }
 
     if (keystatus[KEYSC_F9]) // F9 f1=3b
-        Show2dText("sthelp.hlp");
+        ShowFileText("sthelp.hlp", 0);
 
     /* start Mapster32 */
 
@@ -7197,9 +7170,10 @@ static void Keys2d(void)
             Bsprintf(tempbuf, "Sprite %d y: ", i);
             sprite[i].y = getnumber16(tempbuf, sprite[i].y, editorgridextent-1, 1);
             Bsprintf(tempbuf, "Sprite %d z: ", i);
-            sprite[i].z = getnumber16(tempbuf, sprite[i].z, 8388608, 1);
+            sprite[i].z = getnumber16(tempbuf, sprite[i].z, BZ_MAX, 1);
             Bsprintf(tempbuf, "Sprite %d angle: ", i);
-            sprite[i].ang = getnumber16(tempbuf, sprite[i].ang, 2047, 0);
+            sprite[i].ang = getnumber16(tempbuf, sprite[i].ang, 2048, 1);
+            sprite[i].ang &= 2047;
             printmessage16("Sprite %d updated", i);
         }
 
@@ -7706,13 +7680,13 @@ static int32_t osdcmd_editorgridextent(const osdfuncparm_t *parm)
 
     i = Batol(parm->parms[0]);
 
-    if (i >= 65536 && i <= 524288)
+    if (i >= 65536 && i <= BXY_MAX)
     {
         editorgridextent = i;
         OSD_Printf("editorgridextent %d\n", editorgridextent);
     }
     else
-        OSD_Printf("editorgridextent: value out of range (65536 to 524288)\n");
+        OSD_Printf("editorgridextent: value out of range (65536 to %d)\n", BXY_MAX);
 
     return OSDCMD_OK;
 }
@@ -9943,55 +9917,64 @@ void ExtCheckKeys(void)
         soundinit = 1;
     }
 
-    if (qsetmode == 200)
+    if (qsetmode == 200 && shadepreview)
     {
-        if (shadepreview)
+        int32_t i = 0;
+        int32_t w, isec, start_wall, end_wall;
+
+        for (i=0; i<MAXSPRITES; i++)
         {
-            int32_t i = 0;
-            for (i=numsprites-1; i>=0; i--)
-                if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || sprite[i].lotag == 3))
+            if (sprite[i].statnum==MAXSTATUS)
+                continue;
+
+            if (sprite[i].picnum != SECTOREFFECTOR || !(sprite[i].lotag == 12 || sprite[i].lotag == 3))
+                continue;
+
+            isec = sprite[i].sectnum;
+
+            if (isec<0)
+                continue;
+
+            start_wall = sector[isec].wallptr;
+            end_wall = start_wall + sector[isec].wallnum;
+
+            for (w = start_wall; w < end_wall; w++)
+            {
+                if (wallflag[w])
                 {
-                    int32_t w, isec=sprite[i].sectnum;
-                    int32_t start_wall = sector[isec].wallptr;
-                    int32_t end_wall = start_wall + sector[isec].wallnum;
-
-                    if (isec<0)
-                        continue;
-
-                    for (w = start_wall; w < end_wall; w++)
+                    wall[w].shade = wallshades[w];
+                    wall[w].pal = wallpals[w];
+                    wallflag[w] = 0;
+                }
+#if 0
+                if (wall[w].nextwall >= 0)
+                {
+                    if (wallflag[wall[w].nextwall])
                     {
-                        if (wallflag[w])
-                        {
-                            wall[w].shade = wallshades[w];
-                            wall[w].pal = wallpals[w];
-                            wallflag[w] = 0;
-                        }
-                        /*                        if (wall[w].nextwall >= 0)
-                        {
-                        if (wallflag[wall[w].nextwall])
-                        {
                         NEXTWALL(w).shade = wallshades[wall[w].nextwall];
                         NEXTWALL(w).pal = wallpals[wall[w].nextwall];
                         wallflag[wall[w].nextwall] = 0;
-                        }
-                        } */
-                    }
-                    sector[isec].floorshade = sectorshades[isec][0];
-                    sector[isec].ceilingshade = sectorshades[isec][1];
-                    sector[isec].floorpal = sectorpals[isec][0];
-                    sector[isec].ceilingpal = sectorpals[isec][1];
-
-                    w = headspritesect[isec];
-                    while (w >= 0)
-                    {
-                        if (w == i) { w = nextspritesect[w]; continue; }
-                        sprite[w].shade = spriteshades[w];
-                        sprite[w].pal = spritepals[w];
-                        w = nextspritesect[w];
                     }
                 }
+#endif
+            }
+            sector[isec].floorshade = sectorshades[isec][0];
+            sector[isec].ceilingshade = sectorshades[isec][1];
+            sector[isec].floorpal = sectorpals[isec][0];
+            sector[isec].ceilingpal = sectorpals[isec][1];
+
+            for (w=headspritesect[isec]; w>=0; w=nextspritesect[w])
+            {
+                if (w == i)
+                    continue; 
+                sprite[w].shade = spriteshades[w];
+                sprite[w].pal = spritepals[w];
+                w = nextspritesect[w];
+            }
+            
         }
     }
+
     lastbstatus = bstatus;
     readmousebstatus(&bstatus);
 
@@ -10343,53 +10326,128 @@ static void SearchSectors(int32_t dir)  // <0: backwards, >=0: forwards
     printmessage16("%s Sector search: none found", dir<0?"<":">");
 }
 
+
+//////////////////// manual editing ////////////////////
 // Build edit originally by Ed Coolidge <semicharm@earthlink.net>
+
+static char med_disptext[80];
+static char med_edittext[80];
+static const char *med_typename="";
+static int32_t med_dispwidth=24;
+static int32_t med_editval=0;
+static int32_t med_thenum=-1;
+
+static void handlemed(int32_t dohex, const char *disp_membername, const char *edit_membername,
+                      void *themember, int32_t thesizeof, int32_t themax, int32_t sign)
+{
+    int32_t i, val;
+
+    if (thesizeof==sizeof(int8_t))
+    {
+        if (sign)
+            val = *(int8_t *)themember;
+        else
+            val = *(uint8_t *)themember;
+    }
+    else if (thesizeof==sizeof(int16_t))
+        val = *(int16_t *)themember;
+    else //if (thesizeof==sizeof(int32_t))
+        val = *(int32_t *)themember;
+
+    if (dohex)
+        i=Bsprintf(med_disptext,"%s: %x", disp_membername, val);
+    else
+        i=Bsprintf(med_disptext,"%s: %d", disp_membername, val);
+
+    for (; i<med_dispwidth; i++)
+        med_disptext[i] = ' ';
+
+    Bsprintf(med_edittext,"%s %d %s: ", med_typename, med_thenum, edit_membername);
+    if (med_editval)
+    {
+        printmessage16("%s", med_edittext);
+        val = getnumber16(med_edittext, val, themax, sign);
+
+        if (thesizeof==sizeof(int8_t))
+        {
+            if (sign)
+                *(int8_t *)themember = (int8_t)val;
+            else
+                *(uint8_t *)themember = (uint8_t)val;
+        }
+        else if (thesizeof==sizeof(int16_t))
+            *(int16_t *)themember = (int16_t)val;
+        else //if (thesizeof==sizeof(int32_t))
+            *(int32_t *)themember = val;
+    }
+}
+
+static void med_printcurline(int32_t xpos, int32_t ypos, int32_t row, int32_t selected)
+{
+    printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[!!selected],med_disptext,0);
+}
+
+static void med_handlecommon(int32_t xpos, int32_t ypos, int32_t *row, int32_t rowmax)
+{
+    idle_waitevent();
+    if (handleevents())
+        quitevent = 0;
+
+    _printmessage16("Edit mode, press <Esc> to exit");
+
+    if (PRESSED_KEYSC(DOWN))
+    {
+        if (*row < rowmax)
+        {
+            med_printcurline(xpos, ypos, *row, 0);
+            (*row)++;
+        }
+    }
+
+    if (PRESSED_KEYSC(UP))
+    {
+        if (*row > 0)
+        {
+            med_printcurline(xpos, ypos, *row, 0);
+            (*row)--;
+        }
+    }
+
+    if (PRESSED_KEYSC(ENTER))
+        med_editval = 1;
+}
+
 static void EditSectorData(int16_t sectnum)
 {
-    char disptext[80];
-    char edittext[80];
-    int32_t col=1, row=0, rowmax = 6, dispwidth = 24, editval = 0, i = -1;
+    int32_t col=1, row=0, rowmax = 6, i = -1;
     int32_t xpos = 208, ypos = ydim-STATUS2DSIZ+48;
 
-    drawgradient();
+    med_editval = 0;
 
-    disptext[dispwidth] = 0;
+    med_dispwidth = 24;
+    med_disptext[med_dispwidth] = 0;
+
+    med_typename = "Sector";
+    med_thenum = sectnum;
+
+    drawgradient();
 
     showsectordata(sectnum, 0);
 
     while (keystatus[KEYSC_ESC] == 0)
     {
-        idle_waitevent();
-        if (handleevents())
-            quitevent = 0;
+        med_handlecommon(xpos, ypos, &row, rowmax);
 
-        _printmessage16("Edit mode, press <Esc> to exit");
-        if (PRESSED_KEYSC(DOWN))
-        {
-            if (row < rowmax)
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                row++;
-            }
-        }
-        if (PRESSED_KEYSC(UP))
-        {
-            if (row > 0)
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                row--;
-            }
-        }
         if (PRESSED_KEYSC(LEFT))
         {
             if (col == 2)
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                med_printcurline(xpos, ypos, row, 0);
                 col = 1;
                 xpos = 208;
                 rowmax = 6;
-                dispwidth = 24;
-                disptext[dispwidth] = 0;
+                med_dispwidth = 24;
+                med_disptext[med_dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
         }
@@ -10397,91 +10455,54 @@ static void EditSectorData(int16_t sectnum)
         {
             if (col == 1)
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                med_printcurline(xpos, ypos, row, 0);
                 col = 2;
                 xpos = 408;
                 rowmax = 6;
-                dispwidth = 24;
-                disptext[dispwidth] = 0;
+                med_dispwidth = 24;
+                med_disptext[med_dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
         }
-        if (PRESSED_KEYSC(ENTER))
-            editval = 1;
 
         if (col == 1)
         {
             switch (row)
             {
             case 0:
-                for (i=Bsprintf(disptext,"Flags (hex): %x",sector[sectnum].ceilingstat); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Ceiling Flags: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].ceilingstat = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].ceilingstat,65536L,0);
-                }
+                handlemed(1, "Flags (hex)", "Ceiling Flags", &sector[sectnum].ceilingstat,
+                          sizeof(sector[sectnum].ceilingstat), 65535, 0);
                 break;
             case 1:
-                for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                for (i=Bsprintf(med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning); i < med_dispwidth; i++) med_disptext[i] = ' ';
+                if (med_editval)
                 {
-                    Bsprintf(edittext,"Sector %d Ceiling X Pan: ",sectnum);
-                    printmessage16("%s", edittext);
-                    sector[sectnum].ceilingxpanning = (char)getnumber16(edittext,(int32_t)sector[sectnum].ceilingxpanning,256L,0);
-                    Bsprintf(edittext,"Sector %d Ceiling Y Pan: ",sectnum);
-                    printmessage16("%s", edittext);
-                    sector[sectnum].ceilingypanning = (char)getnumber16(edittext,(int32_t)sector[sectnum].ceilingypanning,256L,0);
+                    Bsprintf(med_edittext,"Sector %d Ceiling X Pan: ",sectnum);
+                    printmessage16("%s", med_edittext);
+                    sector[sectnum].ceilingxpanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].ceilingxpanning,256L,0);
+                    Bsprintf(med_edittext,"Sector %d Ceiling Y Pan: ",sectnum);
+                    printmessage16("%s", med_edittext);
+                    sector[sectnum].ceilingypanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].ceilingypanning,256L,0);
                 }
                 break;
             case 2:
-                for (i=Bsprintf(disptext,"Shade byte: %d",sector[sectnum].ceilingshade); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Ceiling Shade: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].ceilingshade = (char)getnumber16(edittext,(int32_t)sector[sectnum].ceilingshade,128L,1);
-                }
+                handlemed(0, "Shade byte", "Ceiling Shade", &sector[sectnum].ceilingshade,sizeof(sector[sectnum].ceilingshade), 128L, 1);
                 break;
-
             case 3:
-                for (i=Bsprintf(disptext,"Z-coordinate: %d",sector[sectnum].ceilingz); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Ceiling Z-coordinate: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].ceilingz = getnumber16(edittext,sector[sectnum].ceilingz,8388608,1); //2147483647L,-2147483648L
-                }
+                handlemed(0, "Z-coordinate", "Ceiling Z-coordinate", &sector[sectnum].ceilingz,
+                          sizeof(sector[sectnum].ceilingz), BZ_MAX, 1);
                 break;
-
             case 4:
-                for (i=Bsprintf(disptext,"Tile number: %d",sector[sectnum].ceilingpicnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Ceiling Tile Number: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].ceilingpicnum = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].ceilingpicnum,MAXTILES,0);
-                }
+                handlemed(0, "Tile number", "Ceiling Tile Number", &sector[sectnum].ceilingpicnum,
+                          sizeof(sector[sectnum].ceilingpicnum), MAXTILES, 0);
                 break;
-
             case 5:
-                for (i=Bsprintf(disptext,"Ceiling heinum: %d",sector[sectnum].ceilingheinum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Ceiling Heinum: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].ceilingheinum = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].ceilingheinum,65536L,1);
-                }
+                handlemed(0, "Ceiling heinum", "Ceiling Heinum", &sector[sectnum].ceilingheinum,
+                          sizeof(sector[sectnum].ceilingheinum), 65536L, 1);
                 break;
-
             case 6:
-                for (i=Bsprintf(disptext,"Palookup number: %d",sector[sectnum].ceilingpal); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Ceiling Palookup Number: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].ceilingpal = (char)getnumber16(edittext,(int32_t)sector[sectnum].ceilingpal,MAXPALOOKUPS,0);
-                }
+                handlemed(0, "Palookup number", "Ceiling Palookup Number", &sector[sectnum].ceilingpal,
+                          sizeof(sector[sectnum].ceilingpal), MAXPALOOKUPS-1, 0);
                 break;
             }
         }
@@ -10490,86 +10511,54 @@ static void EditSectorData(int16_t sectnum)
             switch (row)
             {
             case 0:
-                for (i=Bsprintf(disptext,"Flags (hex): %x",sector[sectnum].floorstat); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Floor Flags: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].floorstat = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].floorstat,65536L,0);
-                }
+                handlemed(1, "Flags (hex)", "Floor Flags", &sector[sectnum].floorstat,
+                          sizeof(sector[sectnum].floorstat), 65536, 0);
                 break;
 
             case 1:
-                for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                for (i=Bsprintf(med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning); i < med_dispwidth; i++) med_disptext[i] = ' ';
+                if (med_editval)
                 {
-                    Bsprintf(edittext,"Sector %d Floor X Pan: ",sectnum);
-                    printmessage16("%s", edittext);
-                    sector[sectnum].floorxpanning = (char)getnumber16(edittext,(int32_t)sector[sectnum].floorxpanning,256L,0);
-                    Bsprintf(edittext,"Sector %d Floor Y Pan: ",sectnum);
-                    printmessage16("%s", edittext);
-                    sector[sectnum].floorypanning = (char)getnumber16(edittext,(int32_t)sector[sectnum].floorypanning,256L,0);
+                    Bsprintf(med_edittext,"Sector %d Floor X Pan: ",sectnum);
+                    printmessage16("%s", med_edittext);
+                    sector[sectnum].floorxpanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].floorxpanning,256,0);
+                    Bsprintf(med_edittext,"Sector %d Floor Y Pan: ",sectnum);
+                    printmessage16("%s", med_edittext);
+                    sector[sectnum].floorypanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].floorypanning,256,0);
                 }
                 break;
 
             case 2:
-                for (i=Bsprintf(disptext,"Shade byte: %d",sector[sectnum].floorshade); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Floor Shade: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].floorshade = (char)getnumber16(edittext,(int32_t)sector[sectnum].floorshade,128L,1L);
-                }
+                handlemed(0, "Shade byte", "Floor Shade", &sector[sectnum].floorshade,
+                          sizeof(sector[sectnum].floorshade), 128, 1);
                 break;
-
             case 3:
-                for (i=Bsprintf(disptext,"Z-coordinate: %d",sector[sectnum].floorz); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Floor Z-coordinate: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].floorz = getnumber16(edittext,sector[sectnum].floorz,8388608L,1); //2147483647L,-2147483648L
-                }
+                handlemed(0, "Z-coordinate", "Floor Z-coordinate", &sector[sectnum].floorz,
+                          sizeof(sector[sectnum].floorz), BZ_MAX, 1); //2147483647L,-2147483648L
                 break;
-
             case 4:
-                for (i=Bsprintf(disptext,"Tile number: %d",sector[sectnum].floorpicnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Floor Tile Number: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].floorpicnum = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].floorpicnum,MAXTILES,0);
-                }
+                handlemed(0, "Tile number", "Floor Tile Number", &sector[sectnum].floorpicnum,
+                          sizeof(sector[sectnum].floorpicnum), MAXTILES, 0);
                 break;
             case 5:
-                for (i=Bsprintf(disptext,"Floor heinum: %d",sector[sectnum].floorheinum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Floor Heinum: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].floorheinum = (int16_t)getnumber16(edittext,(int32_t)sector[sectnum].floorheinum,65536L,1);
-                }
+                handlemed(0, "Floor heinum", "Floor Heinum", &sector[sectnum].floorheinum,
+                          sizeof(sector[sectnum].floorheinum), 65536, 1);
                 break;
             case 6:
-                for (i=Bsprintf(disptext,"Palookup number: %d",sector[sectnum].floorpal); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sector %d Floor Palookup Number: ",sectnum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sector[sectnum].floorpal = (char)getnumber16(edittext,(int32_t)sector[sectnum].floorpal,MAXPALOOKUPS,0);
-                }
+                handlemed(0, "Palookup number", "Floor Palookup Number", &sector[sectnum].floorpal,
+                          sizeof(sector[sectnum].floorpal), MAXPALOOKUPS-1, 0);
                 break;
             }
         }
 
-        printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
-        if (editval)
-            editval = 0;
+        med_printcurline(xpos, ypos, row, 1);
+        if (med_editval)
+            med_editval = 0;
 
         showframe(1);
     }
 
-    printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+    med_printcurline(xpos, ypos, row, 0);
     // printmessage16("");
 
     showframe(1);
@@ -10578,120 +10567,78 @@ static void EditSectorData(int16_t sectnum)
 
 static void EditWallData(int16_t wallnum)
 {
-    char disptext[80];
-    char edittext[80];
-    int32_t row=0, dispwidth = 24, editval = 0, i = -1;
+    int32_t row=0, i = -1;
     int32_t xpos = 208, ypos = ydim-STATUS2DSIZ+48;
 
-    drawgradient();
+    med_editval = 0;
 
-    disptext[dispwidth] = 0;
+    med_dispwidth = 24;
+    med_disptext[med_dispwidth] = 0;
+
+    med_typename = "Wall";
+    med_thenum = wallnum;
+
+    drawgradient();
 
     showwalldata(wallnum, 0);
 
     while (keystatus[KEYSC_ESC] == 0)
     {
-        idle_waitevent();
-        if (handleevents())
-            quitevent = 0;
-
-        _printmessage16("Edit mode, press <Esc> to exit");
-        if (PRESSED_KEYSC(DOWN))
-        {
-            if (row < 6)
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                row++;
-            }
-        }
-        if (PRESSED_KEYSC(UP))
-        {
-            if (row > 0)
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                row--;
-            }
-        }
-        if (PRESSED_KEYSC(ENTER))
-            editval = 1;
+        med_handlecommon(xpos, ypos, &row, 6);
 
         switch (row)
         {
         case 0:
-            for (i=Bsprintf(disptext,"Flags (hex): %x",wall[wallnum].cstat); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall %d Flags: ",wallnum);
-            if (editval)
-            {
-                printmessage16("%s", edittext);
-                wall[wallnum].cstat = (int16_t)getnumber16(edittext,(int32_t)wall[wallnum].cstat,65536L,0);
-            }
+            handlemed(1, "Flags (hex)", "Flags", &wall[wallnum].cstat,
+                      sizeof(wall[wallnum].cstat), 65536L, 0);
             break;
         case 1:
-            for (i=Bsprintf(disptext,"Shade: %d",wall[wallnum].shade); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall %d Shade: ",wallnum);
-            if (editval)
-            {
-                printmessage16("%s", edittext);
-                wall[wallnum].shade = (char)getnumber16(edittext,(int32_t)wall[wallnum].shade,128,1);
-            }
+            handlemed(0, "Shade", "Shade", &wall[wallnum].shade,
+                      sizeof(wall[wallnum].shade), 128, 1);
             break;
         case 2:
-            for (i=Bsprintf(disptext,"Pal: %d",wall[wallnum].pal); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall %d Pal: ",wallnum);
-            if (editval)
-            {
-                printmessage16("%s", edittext);
-                wall[wallnum].pal = (char)getnumber16(edittext,(int32_t)wall[wallnum].pal,MAXPALOOKUPS,0);
-            }
+            handlemed(0, "Pal", "Pal", &wall[wallnum].pal,
+                      sizeof(wall[wallnum].pal), MAXPALOOKUPS-1, 0);
             break;
         case 3:
-            for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
-            if (editval)
+            for (i=Bsprintf(med_disptext,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat); i < med_dispwidth; i++) med_disptext[i] = ' ';
+            if (med_editval)
             {
-                Bsprintf(edittext,"Wall %d X Repeat: ",wallnum);
-                printmessage16("%s", edittext);
-                wall[wallnum].xrepeat = (char)getnumber16(edittext,(int32_t)wall[wallnum].xrepeat,256L,0);
-                Bsprintf(edittext,"Wall %d Y Repeat: ",wallnum);
-                printmessage16("%s", edittext);
-                wall[wallnum].yrepeat = (char)getnumber16(edittext,(int32_t)wall[wallnum].yrepeat,256L,0);
+                Bsprintf(med_edittext,"Wall %d X Repeat: ",wallnum);
+                printmessage16("%s", med_edittext);
+                wall[wallnum].xrepeat = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].xrepeat,256L,0);
+                Bsprintf(med_edittext,"Wall %d Y Repeat: ",wallnum);
+                printmessage16("%s", med_edittext);
+                wall[wallnum].yrepeat = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].yrepeat,256L,0);
             }
             break;
         case 4:
-            for (i=Bsprintf(disptext,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning); i < dispwidth; i++) disptext[i] = ' ';
-            if (editval)
+            for (i=Bsprintf(med_disptext,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning); i < med_dispwidth; i++) med_disptext[i] = ' ';
+            if (med_editval)
             {
-                Bsprintf(edittext,"Wall %d X Pan: ",wallnum);
-                printmessage16("%s", edittext);
-                wall[wallnum].xpanning = (char)getnumber16(edittext,(int32_t)wall[wallnum].xpanning,256L,0);
-                Bsprintf(edittext,"Wall %d Y Pan: ",wallnum);
-                printmessage16("%s", edittext);
-                wall[wallnum].ypanning = (char)getnumber16(edittext,(int32_t)wall[wallnum].ypanning,256L,0);
+                Bsprintf(med_edittext,"Wall %d X Pan: ",wallnum);
+                printmessage16("%s", med_edittext);
+                wall[wallnum].xpanning = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].xpanning,256L,0);
+                Bsprintf(med_edittext,"Wall %d Y Pan: ",wallnum);
+                printmessage16("%s", med_edittext);
+                wall[wallnum].ypanning = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].ypanning,256L,0);
             }
             break;
         case 5:
-            for (i=Bsprintf(disptext,"Tile number: %d",wall[wallnum].picnum); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall %d Tile number: ",wallnum);
-            if (editval)
-            {
-                printmessage16("%s", edittext);
-                wall[wallnum].picnum = (int16_t)getnumber16(edittext,(int32_t)wall[wallnum].picnum,MAXTILES,0);
-            }
+            handlemed(0, "Tile number", "Tile number", &wall[wallnum].picnum,
+                      sizeof(wall[wallnum].picnum), MAXTILES, 0);
             break;
 
         case 6:
-            for (i=Bsprintf(disptext,"OverTile number: %d",wall[wallnum].overpicnum); i < dispwidth; i++) disptext[i] = ' ';
-            Bsprintf(edittext,"Wall %d OverTile number: ",wallnum);
-            if (editval)
-            {
-                printmessage16("%s", edittext);
-                wall[wallnum].overpicnum = (int16_t)getnumber16(edittext,(int32_t)wall[wallnum].overpicnum,MAXTILES,0);
-            }
+            handlemed(0, "OverTile number", "OverTile number", &wall[wallnum].overpicnum,
+                      sizeof(wall[wallnum].overpicnum), MAXTILES, 0);
             break;
         }
-        printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
-        if (editval)
+
+        med_printcurline(xpos, ypos, row, 1);
+        if (med_editval)
         {
-            editval = 0;
+            med_editval = 0;
             //showwalldata(wallnum, 0);
             //// printmessage16("");
         }
@@ -10699,7 +10646,7 @@ static void EditWallData(int16_t wallnum)
         showframe(1);
     }
 
-    printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+    med_printcurline(xpos, ypos, row, 0);
     // printmessage16("");
 
     showframe(1);
@@ -10708,67 +10655,50 @@ static void EditWallData(int16_t wallnum)
 
 static void EditSpriteData(int16_t spritenum)
 {
-    char disptext[80];
-    char edittext[80];
-    int32_t col=0, row=0, rowmax=4, dispwidth = 24, editval = 0, i = -1;
+    int32_t col=0, row=0, rowmax=4, i = -1;
     int32_t xpos = 8, ypos = ydim-STATUS2DSIZ+48;
+
+    med_editval = 0;
+
+    med_dispwidth = 24;
+    med_disptext[med_dispwidth] = 0;
+
+    med_typename = "Sprite";
+    med_thenum = spritenum;
 
     drawgradient();
 
-    disptext[dispwidth] = 0;
     //    clearmidstatbar16();
 
     showspritedata(spritenum, 0);
 
     while (keystatus[KEYSC_ESC] == 0)
     {
-        idle_waitevent();
+        med_handlecommon(xpos, ypos, &row, rowmax);
 
-        if (handleevents())
-        {
-            if (quitevent) quitevent = 0;
-        }
-
-        _printmessage16("Edit mode, press <Esc> to exit");
-        if (PRESSED_KEYSC(DOWN))
-        {
-            if (row < rowmax)
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                row++;
-            }
-        }
-        if (PRESSED_KEYSC(UP))
-        {
-            if (row > 0)
-            {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
-                row--;
-            }
-        }
         if (PRESSED_KEYSC(LEFT))
         {
             switch (col)
             {
             case 1:
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                med_printcurline(xpos, ypos, row, 0);
                 col = 0;
                 xpos = 8;
                 rowmax = 4;
-                dispwidth = 23;
-                disptext[dispwidth] = 0;
+                med_dispwidth = 23;
+                med_disptext[med_dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
             break;
             case 2:
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                med_printcurline(xpos, ypos, row, 0);
                 col = 1;
                 xpos = 208;
                 rowmax = 5;
-                dispwidth = 24;
-                disptext[dispwidth] = 0;
+                med_dispwidth = 24;
+                med_disptext[med_dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
             break;
@@ -10780,30 +10710,28 @@ static void EditSpriteData(int16_t spritenum)
             {
             case 0:
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                med_printcurline(xpos, ypos, row, 0);
                 col = 1;
                 xpos = 208;
                 rowmax = 5;
-                dispwidth = 24;
-                disptext[dispwidth] = 0;
+                med_dispwidth = 24;
+                med_disptext[med_dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
             break;
             case 1:
             {
-                printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+                med_printcurline(xpos, ypos, row, 0);
                 col = 2;
                 xpos = 408;
                 rowmax = 6;
-                dispwidth = 26;
-                disptext[dispwidth] = 0;
+                med_dispwidth = 26;
+                med_disptext[med_dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
             break;
             }
         }
-        if (PRESSED_KEYSC(ENTER))
-            editval = 1;
 
         switch (col)
         {
@@ -10812,64 +10740,37 @@ static void EditSpriteData(int16_t spritenum)
             switch (row)
             {
             case 0:
-            {
-                for (i=Bsprintf(disptext,"X-coordinate: %d",sprite[spritenum].x); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d X-coordinate: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].x = getnumber16(edittext,sprite[spritenum].x,131072,1);
-                }
-            }
-            break;
+                handlemed(0, "X-coordinate", "X-coordinate", &sprite[spritenum].x,
+                          sizeof(sprite[spritenum].x), 131072, 1);
+                break;
             case 1:
-            {
-                for (i=Bsprintf(disptext,"Y-coordinate: %d",sprite[spritenum].y); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Y-coordinate: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].y = getnumber16(edittext,sprite[spritenum].y,131072,1);
-                }
-            }
-            break;
+                handlemed(0, "Y-coordinate", "Y-coordinate", &sprite[spritenum].y,
+                          sizeof(sprite[spritenum].y), 131072, 1);
+                break;
             case 2:
-            {
-                for (i=Bsprintf(disptext,"Z-coordinate: %d",sprite[spritenum].z); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Z-coordinate: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].z = getnumber16(edittext,sprite[spritenum].z,8388608,1); //2147483647L,-2147483648L
-                }
-            }
-            break;
+                handlemed(0, "Z-coordinate", "Z-coordinate", &sprite[spritenum].z,
+                          sizeof(sprite[spritenum].z), BZ_MAX, 1); //2147483647L,-2147483648L
+                break;
             case 3:
-            {
-                for (i=Bsprintf(disptext,"Sectnum: %d",sprite[spritenum].sectnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Sectnum: ",spritenum);
-                if (editval)
+                i = sprite[spritenum].sectnum;
+                handlemed(0, "Sectnum", "Sectnum", &sprite[spritenum].sectnum,
+                          sizeof(sprite[spritenum].sectnum), numsectors-1, 0);
+                if (i != sprite[spritenum].sectnum)
                 {
-                    printmessage16("%s", edittext);
-                    i = getnumber16(edittext,sprite[spritenum].sectnum,numsectors-1,0);
-                    if (i != sprite[spritenum].sectnum)
-                        changespritesect(spritenum,i);
+                    swapshort(&i, &sprite[spritenum].sectnum);
+                    changespritesect(spritenum,i);
                 }
-            }
-            break;
+                break;
             case 4:
-            {
-                for (i=Bsprintf(disptext,"Statnum: %d",sprite[spritenum].statnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Statnum: ",spritenum);
-                if (editval)
+                i = sprite[spritenum].statnum;
+                handlemed(0, "Statnum", "Statnum", &sprite[spritenum].statnum,
+                          sizeof(sprite[spritenum].statnum), MAXSTATUS-1, 0);
+                if (i != sprite[spritenum].statnum)
                 {
-                    printmessage16("%s", edittext);
-                    i = getnumber16(edittext,sprite[spritenum].statnum,MAXSTATUS-1,0);
-                    if (i != sprite[spritenum].statnum)
-                        changespritestat(spritenum,i);
+                    swapshort(&i, &sprite[spritenum].statnum);
+                    changespritestat(spritenum,i);
                 }
-            }
-            break;
+                break;
             }
         }
         break;
@@ -10878,77 +10779,49 @@ static void EditSpriteData(int16_t spritenum)
             switch (row)
             {
             case 0:
-            {
-                for (i=Bsprintf(disptext,"Flags (hex): %x",sprite[spritenum].cstat); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Flags: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].cstat = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].cstat,65536L,0);
-                }
-            }
-            break;
+                handlemed(1, "Flags (hex)", "Flags", &sprite[spritenum].cstat,
+                          sizeof(sprite[spritenum].cstat), 65535, 0);
+                break;
             case 1:
-            {
-                for (i=Bsprintf(disptext,"Shade: %d",sprite[spritenum].shade); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Shade: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].shade = (char)getnumber16(edittext,(int32_t)sprite[spritenum].shade,128,1);
-                }
-            }
-            break;
+                handlemed(0, "Shade", "Shade", &sprite[spritenum].shade,
+                          sizeof(sprite[spritenum].shade), 128, 1);
+                break;
             case 2:
-            {
-                for (i=Bsprintf(disptext,"Pal: %d",sprite[spritenum].pal); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Pal: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].pal = (char)getnumber16(edittext,(int32_t)sprite[spritenum].pal,MAXPALOOKUPS,0);
-                }
-            }
-            break;
+                handlemed(0, "Pal", "Pal", &sprite[spritenum].pal,
+                          sizeof(sprite[spritenum].pal), MAXPALOOKUPS-1, 0);
+                break;
             case 3:
             {
-                for (i=Bsprintf(disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                for (i=Bsprintf(med_disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < med_dispwidth; i++) med_disptext[i] = ' ';
+                if (med_editval)
                 {
-                    Bsprintf(edittext,"Sprite %d X Repeat: ",spritenum);
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].xrepeat = (char)getnumber16(edittext,(int32_t)sprite[spritenum].xrepeat,256L,0);
-                    Bsprintf(edittext,"Sprite %d Y Repeat: ",spritenum);
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].yrepeat = (char)getnumber16(edittext,(int32_t)sprite[spritenum].yrepeat,256L,0);
+                    Bsprintf(med_edittext,"Sprite %d X Repeat: ",spritenum);
+                    printmessage16("%s", med_edittext);
+                    sprite[spritenum].xrepeat = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].xrepeat,255,0);
+                    Bsprintf(med_edittext,"Sprite %d Y Repeat: ",spritenum);
+                    printmessage16("%s", med_edittext);
+                    sprite[spritenum].yrepeat = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].yrepeat,255,0);
                 }
             }
             break;
             case 4:
             {
-                for (i=Bsprintf(disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < dispwidth; i++) disptext[i] = ' ';
-                if (editval)
+                for (i=Bsprintf(med_disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < med_dispwidth; i++) med_disptext[i] = ' ';
+                if (med_editval)
                 {
-                    Bsprintf(edittext,"Sprite %d X Offset: ",spritenum);
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].xoffset = (char)getnumber16(edittext,(int32_t)sprite[spritenum].xoffset,128L,1);
-                    Bsprintf(edittext,"Sprite %d Y Offset: ",spritenum);
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].yoffset = (char)getnumber16(edittext,(int32_t)sprite[spritenum].yoffset,128L,1);
+                    Bsprintf(med_edittext,"Sprite %d X Offset: ",spritenum);
+                    printmessage16("%s", med_edittext);
+                    sprite[spritenum].xoffset = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].xoffset,128,1);
+                    Bsprintf(med_edittext,"Sprite %d Y Offset: ",spritenum);
+                    printmessage16("%s", med_edittext);
+                    sprite[spritenum].yoffset = (char)getnumber16(med_edittext,(int32_t)sprite[spritenum].yoffset,128,1);
                 }
             }
             break;
             case 5:
-            {
-                for (i=Bsprintf(disptext,"Tile number: %d",sprite[spritenum].picnum); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Tile number: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].picnum = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].picnum,MAXTILES,0);
-                }
-            }
-            break;
+                handlemed(0, "Tile number", "Tile number", &sprite[spritenum].picnum,
+                          sizeof(sprite[spritenum].picnum), MAXTILES-1, 0);
+                break;
             }
         }
         break;
@@ -10957,100 +10830,55 @@ static void EditSpriteData(int16_t spritenum)
             switch (row)
             {
             case 0:
-            {
-                for (i=Bsprintf(disptext,"Angle (2048 degrees): %d",sprite[spritenum].ang); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Angle: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].ang = (int16_t)getnumber16(edittext,(int32_t)sprite[spritenum].ang,2048L,0);
-                }
-            }
-            break;
+                handlemed(0, "Angle (2048 degrees)", "Angle", &sprite[spritenum].ang,
+                          sizeof(sprite[spritenum].ang), 2048, 1);
+                if (med_editval)
+                    sprite[spritenum].ang &= 2047;
+                break;
             case 1:
-            {
-                for (i=Bsprintf(disptext,"X-Velocity: %d",sprite[spritenum].xvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d X-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].xvel = getnumber16(edittext,(int32_t)sprite[spritenum].xvel,65536,1);
-                }
-            }
-            break;
+                handlemed(0, "X-Velocity", "X-Velocity", &sprite[spritenum].xvel,
+                          sizeof(sprite[spritenum].xvel), 65536, 1);
+                break;
             case 2:
-            {
-                for (i=Bsprintf(disptext,"Y-Velocity: %d",sprite[spritenum].yvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Y-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].yvel = getnumber16(edittext,(int32_t)sprite[spritenum].yvel,65536,1);
-                }
-            }
-            break;
+                handlemed(0, "Y-Velocity", "Y-Velocity", &sprite[spritenum].yvel,
+                          sizeof(sprite[spritenum].yvel), 65536, 1);
+                break;
             case 3:
-            {
-                for (i=Bsprintf(disptext,"Z-Velocity: %d",sprite[spritenum].zvel); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Z-Velocity: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].zvel = getnumber16(edittext,(int32_t)sprite[spritenum].zvel,65536,1);
-                }
-            }
-            break;
+                handlemed(0, "Z-Velocity", "Z-Velocity", &sprite[spritenum].zvel,
+                          sizeof(sprite[spritenum].zvel), 65536, 1);
+                break;
             case 4:
-            {
-                for (i=Bsprintf(disptext,"Owner: %d",sprite[spritenum].owner); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Owner: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].owner = getnumber16(edittext,(int32_t)sprite[spritenum].owner,MAXSPRITES,1);
-                }
-            }
-            break;
+                handlemed(0, "Owner", "Owner", &sprite[spritenum].owner,
+                          sizeof(sprite[spritenum].owner), MAXSPRITES-1, 1);
+                break;
             case 5:
-            {
-                for (i=Bsprintf(disptext,"Clipdist: %d",sprite[spritenum].clipdist); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Clipdist: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].clipdist = (char)getnumber16(edittext,(int32_t)sprite[spritenum].clipdist,256,0);
-                }
-            }
-            break;
+                handlemed(0, "Clipdist", "Clipdist", &sprite[spritenum].clipdist,
+                          sizeof(sprite[spritenum].clipdist), 255, 0);
+                break;
             case 6:
-            {
-                for (i=Bsprintf(disptext,"Extra: %d",sprite[spritenum].extra); i < dispwidth; i++) disptext[i] = ' ';
-                Bsprintf(edittext,"Sprite %d Extra: ",spritenum);
-                if (editval)
-                {
-                    printmessage16("%s", edittext);
-                    sprite[spritenum].extra = getnumber16(edittext,(int32_t)sprite[spritenum].extra,BTAG_MAX,1);
-                }
-            }
-            break;
+                handlemed(0, "Extra", "Extra", &sprite[spritenum].extra,
+                          sizeof(sprite[spritenum].extra), BTAG_MAX, 1);
+                break;
             }
         }
         break;
         }
 
-        printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
-        if (editval)
-            editval = 0;
+        med_printcurline(xpos, ypos, row, 1);
+        if (med_editval)
+            med_editval = 0;
 
         showframe(1);
     }
 
-    printext16(xpos,ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
+    med_printcurline(xpos, ypos, row, 0);
     // printmessage16("");
     showframe(1);
 
     keystatus[KEYSC_ESC] = 0;
 }
+
+#define TWENTYFIVE_BLANKS "                         "
 
 static void GenericSpriteSearch()
 {
@@ -11074,13 +10902,13 @@ static void GenericSpriteSearch()
 
     static int32_t maxval[7][3] =
     {
-        { 524288      , 65536       , 2048 },
-        { 524288      , 128         , 65536 },
-        { 8388608     , MAXPALOOKUPS, 65536 },
-        { MAXSECTORS-1, 128         , 65536 },
-        { MAXSTATUS-1 , 128         , MAXSPRITES-1 },
-        { BTAG_MAX    , MAXTILES    , 256 },
-        { BTAG_MAX    , 0           , BTAG_MAX }
+        { BXY_MAX     , 65536         , 2048 },
+        { BXY_MAX     , 128           , 65536 },
+        { BZ_MAX      , MAXPALOOKUPS-1, 65536 },
+        { MAXSECTORS-1, 128           , 65536 },
+        { MAXSTATUS-1 , 128           , MAXSPRITES-1 },
+        { BTAG_MAX    , MAXTILES-1    , 256 },
+        { BTAG_MAX    , 0             , BTAG_MAX }
     };
 
     static char sign[7][3] =
@@ -11174,14 +11002,18 @@ static void GenericSpriteSearch()
             gs_spriteTagInterested[col][row] = 1;
 
             if (col == 1 && row == 5)  // picnum
-                printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], names[i], 0);
+            {
+                printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], TWENTYFIVE_BLANKS, 0);
+                if (names[i][0])
+                    printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], names[i], 0);
+            }
         }
         if (PRESSED_KEYSC(BS) || PRESSED_KEYSC(DELETE))
         {
             gs_spriteTagInterested[col][row] = 0;
 
             if (col == 1 && row == 5)  // picnum
-                printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], "                         ", 0);
+                printext16(xpos[1], ypos-2*8, editorcolors[14], editorcolors[0], TWENTYFIVE_BLANKS, 0);
         }
 
         i = gs_spriteTagInterested[col][row];
@@ -11389,7 +11221,7 @@ static void FuncMenu(void)
                     if (i >= 0)
                     {
                         int32_t k = 0;
-                        for (j=0; j<MAXSPRITES-1; j++)
+                        for (j=0; j<MAXSPRITES; j++)
                             if (sprite[j].picnum == i)
                                 deletesprite(j), k++;
                         printmessage16("%d sprite(s) deleted",k);

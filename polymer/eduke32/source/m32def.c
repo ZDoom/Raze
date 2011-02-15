@@ -450,8 +450,8 @@ const memberlabel_t SectorLabels[]=
 
 const memberlabel_t WallLabels[]=
 {
-    { "x", WALL_X, 0, -524288, 524288 },
-    { "y", WALL_Y, 0, -524288, 524288 },
+    { "x", WALL_X, 0, -BXY_MAX, BXY_MAX },
+    { "y", WALL_Y, 0, -BXY_MAX, BXY_MAX },
     { "point2", WALL_POINT2, 1, 0, 0 },
     { "nextwall", WALL_NEXTWALL, 1, 0, 0 },
     { "nextsector", WALL_NEXTSECTOR, 1, 0, 0 },
@@ -472,8 +472,8 @@ const memberlabel_t WallLabels[]=
 
 const memberlabel_t SpriteLabels[]=
 {
-    { "x", SPRITE_X, 0, -524288, 524288 },
-    { "y", SPRITE_Y, 0, -524288, 524288 },
+    { "x", SPRITE_X, 0, -BXY_MAX, BXY_MAX },
+    { "y", SPRITE_Y, 0, -BXY_MAX, BXY_MAX },
     { "z", SPRITE_Z, 0, 0, 0 },
     { "cstat", SPRITE_CSTAT, 0, 0, 0 },
     { "picnum", SPRITE_PICNUM, 0, 0, MAXTILES-1 },

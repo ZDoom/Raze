@@ -76,7 +76,7 @@ static char autospritehelp=0,autosecthelp=0;
 static int32_t lastmessagetime=-1;
 
 static char tempbuf[1024];
-static int32_t numsprite[MAXSPRITES], multisprite[MAXSPRITES];
+static int32_t numsprite[MAXTILES], multisprite[MAXTILES];
 static char lo[64];
 static char levelname[BMAX_PATH];
 static int16_t curwall=0, curwallnum=0;
@@ -100,7 +100,7 @@ extern int32_t vel, svel, hvel, angvel;
 
 static void SearchSectors(int32_t dir);
 static inline void SpriteName(int16_t spritenum, char *lo2);
-static void PrintStatus(const char *string,int32_t num,char x,char y,char color);
+//static void PrintStatus(const char *string,int32_t num,char x,char y,char color);
 void SetBOSS1Palette();
 void SetSLIMEPalette();
 void SetWATERPalette();

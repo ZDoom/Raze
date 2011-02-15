@@ -60,6 +60,9 @@ extern "C" {
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
 
+// max x/y val (= max editorgridextent in Mapster32)
+#define BXY_MAX 524288
+
     //Make all variables in BUILD.H defined in the ENGINE,
     //and externed in GAME
 #ifdef ENGINE

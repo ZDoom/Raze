@@ -346,9 +346,14 @@ static void M32_drawdebug(void)
     int x=4, y=8;
 
     begindrawing();
-//    Bsprintf(tstr, "searchstat=%d, searchsector=%d, searchwall=%d",
-//             searchstat, searchsector, searchwall);
-//    printext256(x,y,whitecol,0,tstr,xdimgame>640?0:1);
+#if 0
+    {
+        static char tstr[128];
+        Bsprintf(tstr, "searchstat=%d, searchsector=%d, searchwall=%d (%d)",
+                 searchstat, searchsector, searchwall, searchbottomwall);
+        printext256(x,y,whitecol,0,tstr,xdimgame>640?0:1);
+    }
+#endif
     for (i=0; i<m32_numdebuglines; i++)
     {
         y+=8;
@@ -1635,29 +1640,11 @@ static void sideview_filter_keys()
     {
         switch (i)
         {
-#if 0
-        case 0x01:  // esc
-        case 0x10: case 0x11:  // q,w
-        case 0x1e: case 0x2c:  // a.z
-        case 0x2a: case 0x36:  // shift
-        case 0xc8: case 0xcb: case 0xd0: case 0xcd:  // arrow keys
-        case 0x3b: case 0x3c: case 0x3d: case 0x3e:  // f1,f2,f3,f4
-        case 0x3f: case 0x40: case 0x43: case 0x58:  // f5,f6,f9,f12
-        case 0x0f: case 0x29: // tab, `
-        case 0x22:  // g
-        case 0x9c:  // KPENTER
-            break;
-        default:
-            if (!(eitherCTRL && (keystatus[0x2d] || keystatus[0x14])))  // Ctrl-X, Ctrl-T
-                keystatus[i] = 0;
-            break;
-#else
         case 0xd2: case 0xd3:  // ins, del
         case 0x2e: case 0x39:  // c, space
         case 0xb8:  // ralt
             keystatus[i] = 0;
             break;
-#endif
         }
     }
 }
@@ -2033,6 +2020,7 @@ void overheadeditor(void)
                             }
                             j--;
                         }
+
                         i++;
                     }
             }
