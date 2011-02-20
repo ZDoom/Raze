@@ -238,8 +238,8 @@ typedef enum basepal_ {
     BASEPAL = 0,
     WATERPAL,
     SLIMEPAL,
-    TITLEPAL,
     DREALMSPAL,
+    TITLEPAL,
     ENDINGPAL,
     ANIMPAL
 } basepal_t; 
