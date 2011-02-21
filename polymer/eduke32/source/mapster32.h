@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // #define VULGARITY
 
-char *defsfilename = "duke3d.def";
+const char *defsfilename = "duke3d.def";
 
 extern char keystatus[];
 extern int16_t defaultspritecstat;

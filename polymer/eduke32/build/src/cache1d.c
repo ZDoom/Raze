@@ -69,7 +69,7 @@ static int32_t lockrecip[200];
 
 static char toupperlookup[256];
 
-static void reportandexit(char *errormessage);
+static void reportandexit(const char *errormessage);
 
 extern char pow2char[8];
 
@@ -226,7 +226,7 @@ void agecache(void)
     }
 }
 
-static void reportandexit(char *errormessage)
+static void reportandexit(const char *errormessage)
 {
     int32_t i, j;
 
@@ -841,7 +841,7 @@ void kclose(int32_t handle)
     filehan[handle] = -1;
 }
 
-static int32_t klistaddentry(CACHE1D_FIND_REC **rec, char *name, int32_t type, int32_t source)
+static int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t type, int32_t source)
 {
     CACHE1D_FIND_REC *r = NULL, *attach = NULL;
 

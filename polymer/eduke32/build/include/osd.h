@@ -42,8 +42,8 @@ enum cvartype_t
 
 typedef struct
 {
-    char *name;
-    char *helpstr;
+    const char *name;
+    const char *helpstr;
     void *var;
     int32_t type;   // see cvartype_t
     int32_t min;

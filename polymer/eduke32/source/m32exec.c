@@ -440,9 +440,11 @@ skip_check:
                         //AddLog("Done Executing Case");
                         bMatched=1;
                     }
+
                     if (right-left < 0)
                         break;
                 }
+
                 if (!bMatched)
                 {
                     if (*lpDefault >= 0)

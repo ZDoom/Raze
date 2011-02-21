@@ -549,7 +549,7 @@ int32_t Bcorrectfilename(char *filename, int32_t removefn);
 int32_t Bcanonicalisefilename(char *filename, int32_t removefn);
 char *Bgetsystemdrives(void);
 int32_t Bfilelength(int32_t fd);
-char *Bstrtoken(char *s, char *delim, char **ptrptr, int32_t chop);
+char *Bstrtoken(char *s, const char *delim, char **ptrptr, int32_t chop);
 int32_t Bwildmatch (const char *i, const char *j);
 
 #if !defined(_WIN32)
@@ -565,6 +565,9 @@ char *Bstrupr(char *);
 #define EDUKE32_TMRDEF int32_t t[20], ti=0; const char *tmrstr=__func__; fprintf(stderr,"%s\n",tmrstr); t[ti++]=getticks();
 #define EDUKE32_TMRTIC t[ti++]=getticks()
 #define EDUKE32_TMRPRN do { int ii=0; fprintf(stderr,"%s: ",tmrstr); for (ii=1; ii<ti; ii++) fprintf(stderr,"%d ", t[ii]-t[ii-1]); fprintf(stderr,"\n"); } while (0)
+
+static inline int32_t ARBNDCHK(int32_t i) { return i<0 ? (*(int32_t *)123=234) : i; }
+#define DOUBLEWALL(w) wall[ARBNDCHK(w)]
 
 #endif // __compat_h__
 

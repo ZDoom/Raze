@@ -707,7 +707,7 @@ int32_t Bclosedir(BDIR *dir)
 }
 
 
-char *Bstrtoken(char *s, char *delim, char **ptrptr, int32_t chop)
+char *Bstrtoken(char *s, const char *delim, char **ptrptr, int32_t chop)
 {
     char *p, *start;
 

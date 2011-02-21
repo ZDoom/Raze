@@ -226,7 +226,7 @@ fallback:
     }
 
     {
-        static char *s[] = { "/etc/timidity.cfg", "/etc/timidity/timidity.cfg", "/etc/timidity/freepats.cfg" };
+        static const char *s[] = { "/etc/timidity.cfg", "/etc/timidity/timidity.cfg", "/etc/timidity/freepats.cfg" };
         FILE *fp;
         int32_t i;
 

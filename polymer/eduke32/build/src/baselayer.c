@@ -147,7 +147,7 @@ static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
     int32_t m;
     char *p;
 
-    char *modestrs[] =
+    const char *modestrs[] =
     {
         "classic software", "",
         "", "polygonal OpenGL", "great justice (Polymer)"

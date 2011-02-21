@@ -2077,7 +2077,8 @@ void overheadeditor(void)
                         }
                 }
 
-                Bsprintf(cbuf, "map corrupt (level %d): %d errors", corruptlevel, numcorruptthings);
+                Bsprintf(cbuf, "Map corrupt (level %d): %s%d errors", corruptlevel,
+                         numcorruptthings>=MAXCORRUPTTHINGS ? ">=":"", numcorruptthings);
                 printext16(8,8, editorcolors[13],editorcolors[0],cbuf,0);
             }
 
@@ -5274,7 +5275,11 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
             }
 
             if (dst <= dist)
-                dist = dst, closest = j;
+            {
+                // prefer white walls
+                if (dist<dist || closest==-1 || (wall[j].nextwall>=0)-(wall[closest].nextwall>=0) <= 0)
+                    dist = dst, closest = j;
+            }
         }
 
     if (zoom >= 256)

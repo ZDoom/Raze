@@ -42,7 +42,9 @@ defstate arraytest
 ends
 
 defstate itertest
-// iteration and break test
+    var gi gj gk
+    // iteration and break test
+
     for i range 10
     {
         addlogvar i
@@ -82,70 +84,70 @@ define MIN_CONSTANT -2147483648
 defstate consttest
     quote " --- Constants test ---", quote " "
 
-    quote "Shoud be 0:"
+    quote "Should be 0:"
     set i 0, set j TEST_ZERO
     qsprintf TQUOTE "%d %d  %d %d" 0 TEST_ZERO  i j
     quote TQUOTE, quote " "
 
-    quote "Shoud be 1:"
+    quote "Should be 1:"
     set i 1, set j TEST_PLUS_ONE
     qsprintf TQUOTE "%d %d  %d %d" 1 TEST_PLUS_ONE  i j
     quote TQUOTE, quote " "
 
-    quote "Shoud be -1:"
+    quote "Should be -1:"
     set i -1, set j TEST_MINUS_ONE
     qsprintf TQUOTE "%d %d  %d %d" -1 TEST_MINUS_ONE  i j
     quote TQUOTE, quote " "
 
 
-    quote "Shoud be 32767:"
+    quote "Should be 32767:"
     set i 32767, set j MOST_POSITIVE_DIRECT
     qsprintf TQUOTE "%d %d  %d %d" 32767 MOST_POSITIVE_DIRECT  i j
     quote TQUOTE, quote " "
 
-    quote "Shoud be -32768:"
+    quote "Should be -32768:"
     set i -32768, set j MOST_NEGATIVE_DIRECT
     qsprintf TQUOTE "%d %d  %d %d" -32768 MOST_NEGATIVE_DIRECT  i j
     quote TQUOTE, quote " "
 
-    quote "Shoud be 32768:"
+    quote "Should be 32768:"
     set i 32768, set j LEAST_POSITIVE_INDIRECT
     qsprintf TQUOTE "%d %d  %d %d" 32768 LEAST_POSITIVE_INDIRECT  i j
     quote TQUOTE, quote " "
 
-    quote "Shoud be -32769:"
+    quote "Should be -32769:"
     set i -32769, set j LEAST_NEGATIVE_INDIRECT
     qsprintf TQUOTE "%d %d  %d %d" -32769 LEAST_NEGATIVE_INDIRECT  i j
     quote TQUOTE, quote " "
 
     quote "Hex tests:"
-    quote "Shoud be 32767:"
+    quote "Should be 32767:"
     set i 0x7fff, set j HEX_MOST_POSITIVE_DIRECT
     qsprintf TQUOTE "%d %d  %d %d" 0x7fff HEX_MOST_POSITIVE_DIRECT  i j
     quote TQUOTE, quote " "
 
-    quote "Shoud be -32768:"
+    quote "Should be -32768:"
     set i 0xffff8000, set j HEX_MOST_NEGATIVE_DIRECT
     qsprintf TQUOTE "%d %d  %d %d" 0xffff8000 HEX_MOST_NEGATIVE_DIRECT  i j
     quote TQUOTE, quote " "
 
-    quote "Shoud be 32768:"
+    quote "Should be 32768:"
     set i 0x8000, set j HEX_LEAST_POSITIVE_INDIRECT
     qsprintf TQUOTE "%d %d  %d %d" 0x8000 HEX_LEAST_POSITIVE_INDIRECT  i j
     quote TQUOTE, quote " "
 
-    quote "Shoud be -32769:"
+    quote "Should be -32769:"
     set i 0xffff7fff, set j HEX_LEAST_NEGATIVE_INDIRECT
     qsprintf TQUOTE "%d %d  %d %d" 0xffff7fff HEX_LEAST_NEGATIVE_INDIRECT  i j
     quote TQUOTE, quote " "
 
     quote "min/max tests:"
-    quote "Shoud be 2147483647:"
+    quote "Should be 2147483647:"
     set i 2147483647, set j MAX_CONSTANT
     qsprintf TQUOTE "%d %d  %d %d" 2147483647 MAX_CONSTANT  i j
     quote TQUOTE, quote " "
 
-    quote "Shoud be -2147483648:"
+    quote "Should be -2147483648:"
     set i -2147483648, set j MIN_CONSTANT
     qsprintf TQUOTE "%d %d  %d %d" -2147483648 MIN_CONSTANT  i j
     quote TQUOTE, quote " "

@@ -909,6 +909,26 @@ static int32_t GetGamearrayID(const char *szGameLabel, int32_t searchlocals)
 #define GV_WRITABLE GAMEVAR_READONLY
 #define GV_SIMPLE GAMEVAR_SPECIAL
 
+static int32_t parse_integer_literal(int32_t *num)
+{
+    if (tolower(textptr[1])=='x')
+        sscanf(textptr+2, "%" SCNx32, num);
+    else
+    {
+        long lnum;
+        errno = 0;
+        lnum = strtol(textptr, NULL, 10);
+        if (errno || (sizeof(long)>4 && (lnum<INT_MIN || lnum>INT_MAX)))
+        {
+            C_CUSTOMERROR("integer literal exceeds bitwidth.");
+            return 1;
+        }
+        *num = (int32_t)lnum;
+    }
+
+    return 0;
+}
+
 static void C_GetNextVarType(int32_t type)
 {
     int32_t i, id=0, flags=0, num, indirect=0; //, thenum;
@@ -940,13 +960,10 @@ static void C_GetNextVarType(int32_t type)
 //        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
 //            initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
 
-        if (tolower(textptr[1])=='x')
-            sscanf(textptr+2, "%" SCNx32, &num);
-        else
-            num = atoi(textptr);
+        parse_integer_literal(&num);
 //thenum=num;
         if (type==GV_SIMPLE && (num<0 || num>=65536))
-            C_CUSTOMERROR("array index %d out of bounds. (max: 65535)",  num);
+            C_CUSTOMERROR("array index %d out of bounds. (max: 65535)", num);
 
         if (g_numCompilerErrors==0 && type!=GV_SIMPLE && num != (int16_t)num)
         {
@@ -1442,10 +1459,7 @@ static int32_t C_GetNextValue(int32_t type)
 //    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
 //        initprintf("%s:%d: debug: accepted constant %d.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
 
-    if (tolower(textptr[1])=='x')
-        sscanf(textptr+2,"%" SCNx32 "",g_scriptPtr);
-    else
-        *g_scriptPtr = atol(textptr);
+    parse_integer_literal(g_scriptPtr);
 
     g_scriptPtr++;
 

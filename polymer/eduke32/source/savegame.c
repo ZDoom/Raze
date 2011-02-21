@@ -937,7 +937,7 @@ static uint8_t savegame_comprthres;
 // 64
 #define DS_LOADFN 128  // .ptr is function that is run when loading
 #define DS_SAVEFN 256  // .ptr is function that is run when saving
-#define DS_NOCHK 1024  // don't check for diffs (and don't write out in dump) since assumend constant throughout demo
+#define DS_NOCHK 1024  // don't check for diffs (and don't write out in dump) since assumed constant throughout demo
 #define DS_END (0x70000000)
 
 static int32_t ds_getcnt(const dataspec_t *sp)

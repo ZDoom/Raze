@@ -155,7 +155,7 @@ char britable[16][256]; // JBF 20040207: full 8bit precision
 extern char textfont[2048], smalltextfont[2048];
 
 static char kensmessage[128];
-char *engineerrstr = "No error";
+const char *engineerrstr = "No error";
 
 int32_t showfirstwall=0;
 int32_t showheightindicators=2;
@@ -7912,7 +7912,7 @@ int32_t loadmaphack(const char *filename)
         T_LIGHT,
     };
 
-    static struct { char *text; int32_t tokenid; } legaltokens[] =
+    static struct { const char *text; int32_t tokenid; } legaltokens[] =
     {
         { "sprite", T_SPRITE },
         { "angleoff", T_ANGOFF },
@@ -9696,7 +9696,9 @@ int32_t lastwall(int16_t point)
 }
 
 
-//////////
+////////// CLIPMOVE //////////
+
+int32_t clipmoveboxtracenum = 3;
 
 static int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)
 {
@@ -9821,17 +9823,24 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
     return flipmul;
 }
 
-#define addclipline(dax1, day1, dax2, day2, daoval)      \
-{                                                        \
-    if (clipnum < MAXCLIPNUM) { \
-    clipit[clipnum].x1 = dax1; clipit[clipnum].y1 = day1; \
-    clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2; \
-    clipobjectval[clipnum] = daoval;                      \
-    clipnum++;                                            \
-    } else if (!warned) { initprintf("!!clipnum\n"); warned=1; } \
-}                                                        \
- 
-int32_t clipmoveboxtracenum = 3;
+
+static int32_t clipmove_warned=0;
+
+static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int32_t daoval)
+{
+    if (clipnum < MAXCLIPNUM)
+    {
+        clipit[clipnum].x1 = dax1; clipit[clipnum].y1 = day1;
+        clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2;
+        clipobjectval[clipnum] = daoval;
+        clipnum++;
+    }
+    else if (!clipmove_warned)
+    {
+        initprintf("!!clipnum\n");
+        clipmove_warned = 1;
+    }
+}
 
 //
 // clipmove
@@ -9852,10 +9861,12 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
     int32_t hitwall, cnt, clipyou;
 
     spritetype *curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
-    int32_t curidx=-1, warned=0, clipspritecnt;
+    int32_t curidx=-1, clipspritecnt;
 
     if (((xvect|yvect) == 0) || (*sectnum < 0)) return(0);
     retval = 0;
+
+    clipmove_warned = 0;
 
     oxvect = xvect;
     oyvect = yvect;

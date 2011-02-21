@@ -82,7 +82,7 @@ enum scripttoken_t
     T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET
 };
 
-typedef struct { char *text; int32_t tokenid; } tokenlist;
+typedef struct { const char *text; int32_t tokenid; } tokenlist;
 
 static int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 {

@@ -3788,7 +3788,7 @@ static inline void getnumber_doint64(int64_t *ptr, int32_t num)
     *ptr = (int64_t) num;
 }
 
-void getnumberptr256(char *namestart, void *num, int32_t bytes, int32_t maxnumber, char sign, void *(func)(int32_t))
+static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
     char buffer[80], ch;
     int32_t n, danum = 0, oldnum;
@@ -7090,8 +7090,8 @@ static void Keys2d(void)
                 }
                 else x=editorgridextent+1;
 
-                printmessage16("%s Corrupt %s %d%s", tsign<0?"<":">", secwalspr[j], i,
-                               (x==editorgridextent+1) ? " (outside grid)" : (wrap ? " (wrap)" : ""));
+                printmessage16("#%d: %s Corrupt %s %d%s", curcorruptthing+1, tsign<0?"<":">", secwalspr[j],
+                               i, (x==editorgridextent+1) ? " (outside grid)" : (wrap ? " (wrap)" : ""));
             }
         }
         else if (wallsprite==0)
@@ -7346,7 +7346,7 @@ void ExtPreSaveMap(void)
 
 static void G_ShowParameterHelp(void)
 {
-    char *s = "Usage: mapster32 [OPTIONS] [FILE]\n\n"
+    const char *s = "Usage: mapster32 [OPTIONS] [FILE]\n\n"
               "-gFILE, -grp FILE\tUse extra group file FILE\n"
               "-hFILE\t\tUse definitions file FILE\n"
               "-jDIR, -game_dir DIR\n\t\tAdds DIR to the file path stack\n"
@@ -7655,6 +7655,11 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
     return 0;
 }
 
+static int32_t atoi_safe(const char *str)
+{
+    return (int32_t)strtol(str, NULL, 10);
+}
+
 static int32_t osdcmd_quit(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
@@ -7784,7 +7789,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
             OSD_Printf("Turning acceleration+declaration is %d\n", pk_turnaccel);
         else
         {
-            pk_turnaccel = atoi(parm->parms[0]);
+            pk_turnaccel = atoi_safe(parm->parms[0]);
             pk_turnaccel = pk_turnaccel<=pk_turndecel ? (pk_turndecel+1):pk_turnaccel;
             pk_turnaccel = pk_turnaccel>256 ? 256:pk_turnaccel;
         }
@@ -7795,7 +7800,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
             OSD_Printf("Turning deceleration is %d\n", pk_turndecel);
         else
         {
-            pk_turndecel = atoi(parm->parms[0]);
+            pk_turndecel = atoi_safe(parm->parms[0]);
             pk_turndecel = pk_turndecel<=0 ? 1:pk_turndecel;
             pk_turndecel = pk_turndecel>=pk_turnaccel ? (pk_turnaccel-1):pk_turndecel;
             pk_turndecel = pk_turndecel>128 ? 128:pk_turndecel;
@@ -7810,7 +7815,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
     {
         if (parm->numparms==1)
         {
-            pk_uedaccel = atoi(parm->parms[0]);
+            pk_uedaccel = atoi_safe(parm->parms[0]);
             pk_uedaccel = pk_uedaccel<0 ? 0:pk_uedaccel;
             pk_uedaccel = pk_uedaccel>5 ? 5:pk_uedaccel;
         }
@@ -7843,7 +7848,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         static const char *how[3] = {"none", "two-sided walls only", "all"};
 
         if (parm->numparms == 1)
-            showheightindicators = clamp(atoi(parm->parms[0]), 0, 2);
+            showheightindicators = clamp(atoi_safe(parm->parms[0]), 0, 2);
 
         if (parm->numparms <= 1)
             OSD_Printf("height indicators: %s\n", how[showheightindicators]);
@@ -7855,7 +7860,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         static const char *how[3] = {"none", "current sector only", "all"};
 
         if (parm->numparms == 1)
-            showambiencesounds = clamp(atoi(parm->parms[0]), 0, 2);
+            showambiencesounds = clamp(atoi_safe(parm->parms[0]), 0, 2);
 
         if (parm->numparms <= 1)
             OSD_Printf("ambience sound circles: %s\n", how[showambiencesounds]);
@@ -7864,7 +7869,9 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->name, "corruptcheck"))
     {
-        if (parm->numparms == 1)
+        int32_t tryfix = parm->numparms>=1 && !Bstrcasecmp(parm->parms[0], "tryfix");
+
+        if (parm->numparms == 1 || tryfix)
         {
             if (!Bstrcasecmp(parm->parms[0], "now"))
             {
@@ -7872,14 +7879,47 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
                     OSD_Printf("All OK.\n");
                 return OSDCMD_OK;
             }
-            else if (!Bstrcasecmp(parm->parms[0], "tryfix"))
+            else if (tryfix)
             {
-                CheckMapCorruption(3, 1);
+                uint64_t whicherrs = parm->numparms==1 ? ULONG_LONG_MAX : 0;
+
+                if (whicherrs==0)
+                {
+                    int32_t i, n, m;
+                    char *endptr;
+                    for (i=1; i<parm->numparms; i++)
+                    {
+                        n = (int32_t)Bstrtol(parm->parms[i], &endptr, 10);
+                        if (endptr != parm->parms[i])
+                        {
+                            if (*endptr=='-')
+                            {
+                                m = (int32_t)Bstrtol(endptr+1, NULL, 10);
+                                if (n>=1 && n<=m && m<=MAXCORRUPTTHINGS)
+                                {
+                                    uint64_t mask = ULONG_LONG_MAX;
+                                    m = m-n+1;
+                                    mask >>= (MAXCORRUPTTHINGS-m);
+                                    mask <<= (n-1);
+
+                                    whicherrs |= mask;
+                                }
+                            }
+                            else
+                            {
+                                if (n>=1 && n<=MAXCORRUPTTHINGS)
+                                    whicherrs |= (1ull<<(n-1));
+                            }
+                        }
+                    }
+                }
+
+                CheckMapCorruption(3, whicherrs);
                 return OSDCMD_OK;
             }
             else if (isdigit(parm->parms[0][0]))
             {
-                autocorruptcheck = clamp(atoi(parm->parms[0]), 0, 3600);
+                autocorruptcheck = clamp(atoi_safe(parm->parms[0]), 0, 3600);
                 corruptchecktimer = totalclock + 120*autocorruptcheck;
             }
         }
@@ -7891,7 +7931,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
             else
                 OSD_Printf("auto corruption check: off\n");
         }
-        else
+        else if (!tryfix)
             return OSDCMD_SHOWHELP;
     }
 
@@ -7906,7 +7946,7 @@ static int32_t osdcmd_tint(const osdfuncparm_t *parm)
 
     if (parm->numparms==1)
     {
-        i = atoi(parm->parms[0]);
+        i = atoi_safe(parm->parms[0]);
         if (i>=0 && i<MAXPALOOKUPS-RESERVEDPALS)
         {
             p = &hictinting[i];
@@ -7922,15 +7962,15 @@ static int32_t osdcmd_tint(const osdfuncparm_t *parm)
     }
     else if (parm->numparms>=2)
     {
-        i = atoi(parm->parms[0]);
+        i = atoi_safe(parm->parms[0]);
         if (i<0 || i>=MAXPALOOKUPS-RESERVEDPALS)
             return OSDCMD_SHOWHELP;
 
         p = &hictinting[i];
-        p->r = atoi(parm->parms[1]);
-        p->g = (parm->numparms>=3) ? atoi(parm->parms[2]) : 255;
-        p->b = (parm->numparms>=4) ? atoi(parm->parms[3]) : 255;
-        p->f = (parm->numparms>=5) ? atoi(parm->parms[4])&HICEFFECTMASK : 0;
+        p->r = atoi_safe(parm->parms[1]);
+        p->g = (parm->numparms>=3) ? atoi_safe(parm->parms[2]) : 255;
+        p->b = (parm->numparms>=4) ? atoi_safe(parm->parms[3]) : 255;
+        p->f = (parm->numparms>=5) ? atoi_safe(parm->parms[4])&HICEFFECTMASK : 0;
     }
     return OSDCMD_OK;
 }
@@ -7965,7 +8005,7 @@ static int32_t osdcmd_disasm(const osdfuncparm_t *parm)
     if (!isdigit(parm->parms[1][0]))
         return OSDCMD_SHOWHELP;
 
-    i=atoi(parm->parms[1]);
+    i=atoi_safe(parm->parms[1]);
 
     if (parm->parms[0][0]=='s')
     {
@@ -8122,7 +8162,7 @@ static int32_t osdcmd_endisableevent(const osdfuncparm_t *parm)
 
         if (isdigit(parm->parms[i][0]))
         {
-            j = atoi(parm->parms[i]);
+            j = atoi_safe(parm->parms[i]);
             Bsprintf(buf2, "event %d", j);
         }
         else if (!Bstrncmp(parm->parms[i], "EVENT_", 6))
@@ -8349,12 +8389,12 @@ enum
 
 typedef struct
 {
-    char *text;
+    const char *text;
     int32_t tokenid;
 }
 tokenlist;
 
-static int32_t getatoken(scriptfile *sf, tokenlist *tl, int32_t ntokens)
+static int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 {
     char *tok;
     int32_t i;
@@ -8466,7 +8506,7 @@ int32_t parsegroupfiles(scriptfile *script)
     return 0;
 }
 
-int32_t loadgroupfiles(char *fn)
+int32_t loadgroupfiles(const char *fn)
 {
     scriptfile *script;
 
@@ -10038,48 +10078,57 @@ void ExtCheckKeys(void)
 //// port of a.m32's corruptchk ////
 // returns value from 0 (all OK) to 5 (panic!)
 #define CCHK_PANIC OSDTEXT_DARKRED "PANIC!!!^O "
-#define CCHKPREF OSDTEXT_RED "* ^O"
+//#define CCHKPREF OSDTEXT_RED "^O"
 #define CCHK_CORRECTED OSDTEXT_GREEN " -> "
 
 #define CORRUPTCHK_PRINT(errlev, what, fmt, ...) do  \
 { \
     bad = max(bad, errlev); \
-    if (numcorruptthings<MAXCORRUPTTHINGS) \
-        corruptthings[numcorruptthings++] = what;   \
+    if (numcorruptthings>=MAXCORRUPTTHINGS) \
+        goto too_many_errors; \
+    corruptthings[numcorruptthings++] = what; \
     if (errlev >= printfromlev) \
-        OSD_Printf(CCHKPREF fmt "\n", ## __VA_ARGS__); \
+        OSD_Printf("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
 } while (0)
+
+static int32_t walls_are_consistent(int32_t nw, int32_t j)
+{
+    return (wall[j].x==POINT2(nw).x && wall[j].y==POINT2(nw).y
+                && POINT2(j).x==wall[nw].x && POINT2(j).y==wall[nw].y);
+}
 
 static void suggest_nextsector_correction(int32_t nw, int32_t j)
 {
     if (nw>=0 && nw<numwalls)
     {
         // maybe nextwall is right?
-        if (wall[nw].nextwall==j && wall[j].x==POINT2(nw).x && wall[j].y==POINT2(nw).y)
-            OSD_Printf("    suggest setting wall[%d].nextsector to %d\n", j, sectorofwall_noquick(nw));
+        if (wall[nw].nextwall==j && walls_are_consistent(nw, j))
+            OSD_Printf("   suggest setting wall[%d].nextsector to %d\n",
+                       j, sectorofwall_noquick(nw));
     }
 }
 
 static void do_nextsector_correction(int32_t nw, int32_t j)
 {
     if (nw>=0 && nw<numwalls)
-        if (wall[nw].nextwall==j && wall[j].x==POINT2(nw).x && wall[j].y==POINT2(nw).y)
+        if (wall[nw].nextwall==j && walls_are_consistent(nw, j))
         {
             int32_t newns = sectorofwall_noquick(nw);
             wall[j].nextsector = newns;
-            OSD_Printf(CCHK_CORRECTED "auto-correction: set wall[%d].nextsector=%d\n", j, newns);
+            OSD_Printf(CCHK_CORRECTED "auto-correction: set wall[%d].nextsector=%d\n",
+                       j, newns);
         }
 }
 
-int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
+int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 {
     int32_t i, j, w0, numw, endwall, ns, nw;
     int32_t ewall=0;  // expected wall index
 
     int32_t errlevel=0, bad=0;
 
-    uint8_t *seen_nextwalls;
-    int16_t *lastnextwallsource;
+    uint8_t *seen_nextwalls = NULL;
+    int16_t *lastnextwallsource = NULL;
 
     numcorruptthings = 0;
 
@@ -10124,9 +10173,9 @@ int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
         if (endwall > numwalls)
             CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d", i, endwall, numwalls);
 
-        if (bad)
-            errlevel = max(errlevel, bad);
-        else
+        errlevel = max(errlevel, bad);
+
+        if (bad<4)
         {
             endwall--;
 
@@ -10162,11 +10211,15 @@ int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
                 {
                     if (!bad)
                     {
+                        int32_t onumct = numcorruptthings;
                         CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR is its own sector", j);
-                        if (tryfixing)
-                            do_nextsector_correction(nw, j);
-                        else if (4>=printfromlev)
-                            suggest_nextsector_correction(nw, j);
+                        if (onumct < MAXCORRUPTTHINGS)
+                        {
+                            if (tryfixing & (1ull<<onumct))
+                                do_nextsector_correction(nw, j);
+                            else if (4>=printfromlev)
+                                suggest_nextsector_correction(nw, j);
+                        }
                     }
                 }
 
@@ -10175,15 +10228,16 @@ int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
                     if (seen_nextwalls[nw>>3]&(1<<(nw&7)))
                     {
                         int16_t nwnw, lnws;
+                        int32_t onumct = numcorruptthings;
 
                         lnws = lastnextwallsource[nw];
                         CORRUPTCHK_PRINT(3, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d already referenced from wall %d",
                                          j, nw, lnws);
                         nwnw = wall[nw].nextwall;
-                        if (nwnw==j || nwnw==lnws)
+                        if (onumct < MAXCORRUPTTHINGS && (nwnw==j || nwnw==lnws))
                         {
                             int32_t walltoclear = nwnw==j ? lnws : j;
-                            if (tryfixing)
+                            if (tryfixing & (1ull<<onumct))
                             {
                                 wall[walltoclear].nextsector = wall[walltoclear].nextwall = -1;
                                 OSD_Printf(CCHK_CORRECTED "auto-correction: cleared wall %d's nextwall and nextsector tags to -1\n",
@@ -10203,14 +10257,18 @@ int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
 
                 if (bad<4)
                 {
+                    int32_t onumct = numcorruptthings;
                     if ((ns^nw)<0)
                     {
                         CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR=%d and .NEXTWALL=%d inconsistent:"
                                          " missing one next pointer", j, ns, nw);
-                        if (tryfixing)
-                            do_nextsector_correction(nw, j);
-                        else if (4>=printfromlev)
-                            suggest_nextsector_correction(nw, j);
+                        if (onumct < MAXCORRUPTTHINGS)
+                        {
+                            if (tryfixing & (1ull<<onumct))
+                                do_nextsector_correction(nw, j);
+                            else if (4>=printfromlev)
+                                suggest_nextsector_correction(nw, j);
+                        }
                     }
                     else if (ns>=0)
                     {
@@ -10218,13 +10276,16 @@ int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
                         {
                             CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d out of .NEXTSECTOR=%d's bounds",
                                              j, nw, ns);
-                            if (tryfixing)
-                                do_nextsector_correction(nw, j);
-                            else if (4 >= printfromlev)
+                            if (onumct < MAXCORRUPTTHINGS)
                             {
-                                OSD_Printf("    sector %d's walls: [%d .. %d]\n", ns, sector[ns].wallptr,
-                                           sector[ns].wallptr+sector[ns].wallnum-1);
-                                suggest_nextsector_correction(nw, j);
+                                if (tryfixing & (1ull<<onumct))
+                                    do_nextsector_correction(nw, j);
+                                else if (4 >= printfromlev)
+                                {
+                                    OSD_Printf("    sector %d's walls: [%d .. %d]\n", ns,
+                                               sector[ns].wallptr, sector[ns].wallptr+sector[ns].wallnum-1);
+                                    suggest_nextsector_correction(nw, j);
+                                }
                             }
                         }
                     }
@@ -10251,6 +10312,13 @@ int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
         }
     }
 
+    if (0)
+    {
+too_many_errors:
+        if (printfromlev<=errlevel)
+            OSD_Printf("!! too many errors, stopping. !!\n");
+    }
+
     errlevel = max(errlevel, bad);
 
     if (errlevel)
@@ -10259,8 +10327,11 @@ int32_t CheckMapCorruption(int32_t printfromlev, int32_t tryfixing)
             OSD_Printf("-- corruption level: %d\n", errlevel);
     }
 
-    Bfree(seen_nextwalls);
-    Bfree(lastnextwallsource);
+    if (seen_nextwalls)
+    {
+        Bfree(seen_nextwalls);
+        Bfree(lastnextwallsource);
+    }
 
     corruptlevel = errlevel;
 
@@ -10506,7 +10577,7 @@ static void EditSectorData(int16_t sectnum)
                 break;
             }
         }
-        if (col == 2)
+        else if (col == 2)
         {
             switch (row)
             {
@@ -10606,10 +10677,10 @@ static void EditWallData(int16_t wallnum)
             {
                 Bsprintf(med_edittext,"Wall %d X Repeat: ",wallnum);
                 printmessage16("%s", med_edittext);
-                wall[wallnum].xrepeat = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].xrepeat,256L,0);
+                wall[wallnum].xrepeat = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].xrepeat,255,0);
                 Bsprintf(med_edittext,"Wall %d Y Repeat: ",wallnum);
                 printmessage16("%s", med_edittext);
-                wall[wallnum].yrepeat = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].yrepeat,256L,0);
+                wall[wallnum].yrepeat = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].yrepeat,255,0);
             }
             break;
         case 4:
@@ -10618,10 +10689,10 @@ static void EditWallData(int16_t wallnum)
             {
                 Bsprintf(med_edittext,"Wall %d X Pan: ",wallnum);
                 printmessage16("%s", med_edittext);
-                wall[wallnum].xpanning = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].xpanning,256L,0);
+                wall[wallnum].xpanning = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].xpanning,255,0);
                 Bsprintf(med_edittext,"Wall %d Y Pan: ",wallnum);
                 printmessage16("%s", med_edittext);
-                wall[wallnum].ypanning = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].ypanning,256L,0);
+                wall[wallnum].ypanning = (char)getnumber16(med_edittext,(int32_t)wall[wallnum].ypanning,255,0);
             }
             break;
         case 5:
@@ -10889,7 +10960,7 @@ static void GenericSpriteSearch()
     int32_t rowmax[3]= {6,5,6}, dispwidth[3] = {24,24,28};
     int32_t xpos[3] = {8,200,400}, ypos = ydim-STATUS2DSIZ+48;
 
-    static char *labels[7][3] =
+    static const char *labels[7][3] =
     {
         {"X-coordinate", "Flags (hex)", "Angle (2048 degrees)"},
         {"Y-coordinate", "Shade",       "X-Velocity"},
