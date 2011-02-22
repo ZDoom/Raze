@@ -57,6 +57,10 @@ DEALINGS IN THE SOFTWARE.
 /* Sadly we can't include <malloc.h> as it causes a redefinition error */
 extern size_t malloc_usable_size(void *);
 #endif
+#if defined(__APPLE__)
+/* PK: for malloc_size(): */
+#include <malloc/malloc.h>
+#endif
 #if USE_ALLOCATOR==1
 #define MSPACES 1
 #define ONLY_MSPACES 1

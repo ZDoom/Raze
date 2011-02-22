@@ -23,6 +23,17 @@ int32_t curextra=MAXTILES;
 // #define MODEL_POOL_SIZE 20971520
 #define model_data_pool (nedpool *) 0 // take it out of the system pool
 
+#define MIN_CACHETIME_PRINT 5
+
+static void QuitOnFatalError(const char *msg)
+{
+    if (msg)
+        initprintf("%s\n", msg);
+    uninitengine();
+    exit(1);
+}
+
+
 int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
 {
     UNREFERENCED_PARAMETER(model);
@@ -443,7 +454,7 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
     memset(pic,0,xsiz*ysiz*sizeof(coltype));
 
     if (kprender(picfil,picfillen,(intptr_t)pic,xsiz*sizeof(coltype),xsiz,ysiz,0,0))
-        { Bfree(picfil); Bfree(pic); return -1; }
+        { Bfree(picfil); Bfree(pic); return -2; }
     Bfree(picfil);
 
     cptr = &britable[gammabrightness ? 0 : curbrightness][0];
@@ -773,14 +784,20 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     }
     else
     {
+        int32_t ret;
+
 //        if (cachefil >= 0) kclose(cachefil);
         cachefil = -1;	// the compressed version will be saved to disk
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
-        if (daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)))
+        ret=daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK));
+        if (ret)
         {
             kclose(filh);
-            OSD_Printf("Failed loading skin file \"%s\"\n", fn);
+            OSD_Printf("Failed loading skin file \"%s\": error %d\n", fn, ret);
+            if (ret==-1)
+                QuitOnFatalError("OUT OF MEMORY in daskinloader!");
+
             skinfile[0] = 0;
             return(0);
         }
@@ -863,7 +880,9 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
             if (willprint)
             {
-                OSD_Printf("Load skin: p%d-e%d \"%s\"... cached... %d ms\n", pal, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), fn, getticks()-startticks);
+                int32_t etime = getticks()-startticks;
+                if (etime>=MIN_CACHETIME_PRINT)
+                    OSD_Printf("Load skin: p%d-e%d \"%s\"... cached... %d ms\n", pal, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), fn, etime);
                 willprint = 0;
             }
             else
@@ -871,7 +890,11 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         }
 
     if (willprint)
-        OSD_Printf("Load skin: p%d-e%d \"%s\"... %d ms\n", pal, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), fn, getticks()-startticks);
+    {
+        int32_t etime = getticks()-startticks;
+        if (etime>=MIN_CACHETIME_PRINT)
+            OSD_Printf("Load skin: p%d-e%d \"%s\"... %d ms\n", pal, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), fn, etime);
+    }
 
     return(*texidx);
 }
@@ -1253,11 +1276,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m3->maxdepths = Bmalloc(sizeof(float) * s->numtris);
 
     if (!m3->indexes || !m3->vindexes || !m3->maxdepths)
-    {
-        initprintf("OUT OF MEMORY in md2load!\n");
-        uninitengine();
-        exit(1);
-    }
+        QuitOnFatalError("OUT OF MEMORY in md2load!");
 
     m3->vbos = NULL;
 
@@ -1479,11 +1498,7 @@ static md3model_t *md3load(int32_t fil)
     m->maxdepths = Bmalloc(sizeof(float) * maxtrispersurf);
 
     if (!m->indexes || !m->vindexes || !m->maxdepths)
-    {
-        initprintf("OUT OF MEMORY in md3load!\n");
-        uninitengine();
-        exit(1);
-    }
+        QuitOnFatalError("OUT OF MEMORY in md3load!");
 
     m->vbos = NULL;
 
@@ -1681,11 +1696,7 @@ int      md3postload_polymer(md3model_t *m)
         numtris = Bcalloc(s->numverts, sizeof(int));
 
         if (!s->geometry || !numtris)
-        {
-            initprintf("OUT OF MEMORY in md3postload_polymer!\n");
-            uninitengine();
-            exit(1);
-        }
+            QuitOnFatalError("OUT OF MEMORY in md3postload_polymer!");
 
         verti = 0;
         while (verti < (m->head.numframes * s->numverts))

@@ -450,8 +450,8 @@ const memberlabel_t SectorLabels[]=
 
 const memberlabel_t WallLabels[]=
 {
-    { "x", WALL_X, 0, -524288, 524288 },
-    { "y", WALL_Y, 0, -524288, 524288 },
+    { "x", WALL_X, 0, -BXY_MAX, BXY_MAX },
+    { "y", WALL_Y, 0, -BXY_MAX, BXY_MAX },
     { "point2", WALL_POINT2, 1, 0, 0 },
     { "nextwall", WALL_NEXTWALL, 1, 0, 0 },
     { "nextsector", WALL_NEXTSECTOR, 1, 0, 0 },
@@ -472,8 +472,8 @@ const memberlabel_t WallLabels[]=
 
 const memberlabel_t SpriteLabels[]=
 {
-    { "x", SPRITE_X, 0, -524288, 524288 },
-    { "y", SPRITE_Y, 0, -524288, 524288 },
+    { "x", SPRITE_X, 0, -BXY_MAX, BXY_MAX },
+    { "y", SPRITE_Y, 0, -BXY_MAX, BXY_MAX },
     { "z", SPRITE_Z, 0, 0, 0 },
     { "cstat", SPRITE_CSTAT, 0, 0, 0 },
     { "picnum", SPRITE_PICNUM, 0, 0, MAXTILES-1 },
@@ -585,7 +585,7 @@ static int32_t C_SetScriptSize(int32_t size)
 
     //initprintf("offset: %d\n",(unsigned)(g_scriptPtr-script));
     g_scriptSize = size;
-    initprintf("Resizing code buffer to %d*%d bytes\n", g_scriptSize, sizeof(instype));
+    initprintf("Resizing code buffer to %d*%d bytes\n", g_scriptSize, (int32_t)sizeof(instype));
 
     newscript = (instype *)Brealloc(script, g_scriptSize * sizeof(instype));
 
@@ -909,6 +909,26 @@ static int32_t GetGamearrayID(const char *szGameLabel, int32_t searchlocals)
 #define GV_WRITABLE GAMEVAR_READONLY
 #define GV_SIMPLE GAMEVAR_SPECIAL
 
+static int32_t parse_integer_literal(int32_t *num)
+{
+    if (tolower(textptr[1])=='x')
+        sscanf(textptr+2, "%" SCNx32, num);
+    else
+    {
+        long lnum;
+        errno = 0;
+        lnum = strtol(textptr, NULL, 10);
+        if (errno || (sizeof(long)>4 && (lnum<INT_MIN || lnum>INT_MAX)))
+        {
+            C_CUSTOMERROR("integer literal exceeds bitwidth.");
+            return 1;
+        }
+        *num = (int32_t)lnum;
+    }
+
+    return 0;
+}
+
 static void C_GetNextVarType(int32_t type)
 {
     int32_t i, id=0, flags=0, num, indirect=0; //, thenum;
@@ -940,13 +960,10 @@ static void C_GetNextVarType(int32_t type)
 //        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
 //            initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
 
-        if (tolower(textptr[1])=='x')
-            sscanf(textptr+2, "%" SCNx32, &num);
-        else
-            num = atoi(textptr);
+        parse_integer_literal(&num);
 //thenum=num;
         if (type==GV_SIMPLE && (num<0 || num>=65536))
-            C_CUSTOMERROR("array index %d out of bounds. (max: 65535)",  num);
+            C_CUSTOMERROR("array index %d out of bounds. (max: 65535)", num);
 
         if (g_numCompilerErrors==0 && type!=GV_SIMPLE && num != (int16_t)num)
         {
@@ -1442,10 +1459,7 @@ static int32_t C_GetNextValue(int32_t type)
 //    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
 //        initprintf("%s:%d: debug: accepted constant %d.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
 
-    if (tolower(textptr[1])=='x')
-        sscanf(textptr+2,"%" SCNx32 "",g_scriptPtr);
-    else
-        *g_scriptPtr = atol(textptr);
+    parse_integer_literal(g_scriptPtr);
 
     g_scriptPtr++;
 
@@ -3188,7 +3202,7 @@ repeatcase:
 
         if (!ScriptQuotes[k])
         {
-            Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.", MAXQUOTELEN);
+            Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.", MAXQUOTELEN);
             g_numCompilerErrors++;
             return 1;
         }
@@ -3205,7 +3219,7 @@ repeatcase:
                 ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = Bcalloc(MAXQUOTELEN, sizeof(uint8_t));
             if (!ScriptQuoteRedefinitions[g_numQuoteRedefinitions])
             {
-                Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.", MAXQUOTELEN);
+                Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.", MAXQUOTELEN);
                 g_numCompilerErrors++;
                 return 1;
             }
@@ -3591,7 +3605,7 @@ void C_CompilationInfo(void)
     int32_t j, k=0;
     initprintf(" \n");
     initprintf("Compiled code info: (size=%ld*%d bytes)\n",
-               (unsigned long)(g_scriptPtr-script), sizeof(instype));
+               (unsigned long)(g_scriptPtr-script), (int32_t)sizeof(instype));
     initprintf("  %d/%d user labels, %d/65536 indirect constants,\n",
                g_numLabels-g_numDefaultLabels, 65536-g_numDefaultLabels,
                g_numSavedConstants);

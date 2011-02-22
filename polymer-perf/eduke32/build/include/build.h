@@ -35,6 +35,7 @@ extern "C" {
 #define MAXPLAYERS 16
 #define MAXXDIM 3072
 #define MAXYDIM 2304
+#define MAXBASEPALS 8
 #define MAXPALOOKUPS 256
 #define MAXPSKYTILES 256
 #define MAXSPRITESONSCREEN 4096
@@ -58,6 +59,9 @@ extern "C" {
 
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
+
+// max x/y val (= max editorgridextent in Mapster32)
+#define BXY_MAX 524288
 
     //Make all variables in BUILD.H defined in the ENGINE,
     //and externed in GAME
@@ -136,7 +140,9 @@ typedef struct
 //   bit 7: 1 = Real centered centering, 0 = foot center             "C"
 //   bit 8: 1 = Blocking sprite (use with hitscan / cliptype 1)      "H"
 //   bit 9: 1 = Transluscence reversing, 0 = normal                  "T"
-//   bits 10-12: reserved
+//   bit 10: reserved (in use by a renderer hack)
+//   bit 11: 1 = determine shade based only on its own shade member (see CON's spritenoshade command)
+//   bit 12: reserved
 //   bit 13: 1 = does not cast shadow
 //   bit 14: 1 = invisible but casts shadow
 //   bit 15: 1 = Invisible sprite, 0 = not invisible
@@ -297,7 +303,7 @@ extern int32_t rendmode;
 EXTERN int32_t h_xsize[MAXTILES], h_ysize[MAXTILES];
 EXTERN int8_t h_xoffs[MAXTILES], h_yoffs[MAXTILES];
 
-extern char *engineerrstr;
+extern const char *engineerrstr;
 extern char noclip;
 
 EXTERN int32_t editorzrange[2];
@@ -447,7 +453,8 @@ int32_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   makepalookup(int32_t palnum, char *remapbuf, int8_t r, int8_t g, int8_t b, char dastat);
 void   setvgapalette(void);
-void   setbrightness(char dabrightness, uint8_t *dapal, char noapply);
+void   setbasepaltable(uint8_t **basepaltable, uint8_t basepalcount);
+void   setbrightness(char dabrightness, uint8_t dapalid, char noapply);
 void   setpalettefade(char r, char g, char b, char offset);
 void   squarerotatetile(int16_t tilenume);
 
@@ -526,6 +533,7 @@ void   getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, i
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 int32_t   sectorofwall(int16_t theline);
+int32_t   sectorofwall_noquick(int16_t theline);
 int32_t   loopnumofsector(int16_t sectnum, int16_t wallnum);
 
 // int32_t   insertsprite(int16_t sectnum, int16_t statnum);

@@ -114,9 +114,9 @@ extern const char *SaveBoard(const char *fn, uint32_t flags);
 #define CORRUPT_SPRITE (1<<19)
 #define CORRUPT_MASK (CORRUPT_SECTOR|CORRUPT_WALL|CORRUPT_SPRITE)
 #define MAXCORRUPTTHINGS 64
-extern int32_t numcorruptthings, corruptthings[MAXCORRUPTTHINGS];
+extern int32_t corruptlevel, numcorruptthings, corruptthings[MAXCORRUPTTHINGS];
 extern int32_t autocorruptcheck;
-extern int32_t CheckMapCorruption(int32_t printfromlev);
+extern int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing);
 
 extern void showsectordata(int16_t sectnum, int16_t small);
 extern void showwalldata(int16_t wallnum, int16_t small);
@@ -214,5 +214,12 @@ extern int32_t scripthistend;
 
 // showdebug is now used as a general informational on-screen display
 #define M32_SHOWDEBUG
+
+// this should be only used if there's no dependency on endwall after the loop.
+// of course, users of this macro should know that it modifies startwall and endwall.
+#define WALLS_OF_SECTOR(Sect, Itervar) \
+    startwall=sector[(Sect)].wallptr, endwall=startwall+sector[(Sect)].wallnum, Itervar=startwall; \
+    Itervar < endwall; \
+    Itervar++
 
 #endif

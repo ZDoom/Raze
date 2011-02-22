@@ -120,7 +120,7 @@ void VM_ScriptInfo(void)
                 if (p==insptr) initprintf("<<");
 
                 if (*p>>12 && (*p&0xFFF)<CON_END)
-                    initprintf("\n%5d: L%5d:  %s ",p-script,*p>>12,keyw[*p&0xFFF]);
+                    initprintf("\n%5d: L%5d:  %s ",(int32_t)(p-script),(int32_t)(*p>>12),keyw[*p&0xFFF]);
                 else initprintf(" %d",*p);
 
                 if (p==insptr) initprintf(">>");
@@ -440,9 +440,11 @@ skip_check:
                         //AddLog("Done Executing Case");
                         bMatched=1;
                     }
+
                     if (right-left < 0)
                         break;
                 }
+
                 if (!bMatched)
                 {
                     if (*lpDefault >= 0)
@@ -2868,7 +2870,7 @@ dodefault:
                 {
                     screencoords(&x1,&y1, x1-pos.x,y1-pos.y, zoom);
                     if (m32_sideview)
-                        y1 += getscreenvdisp(z1, zoom);
+                        y1 += getscreenvdisp(z1-pos.z, zoom);
                     r = mulscale14(r,zoom);
                     eccen = scalescreeny(eccen);
                     xofs = halfxdim16;

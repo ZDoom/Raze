@@ -33,6 +33,9 @@ float           pr_specularfactor = 1.0f;
 int32_t         pr_highpalookups = 1;
 int32_t         pr_ati_fboworkaround = 0;
 int32_t         pr_ati_nodepthoffset = 0;
+#ifdef __APPLE__
+int32_t         pr_ati_textureformat_one = 0;
+#endif
 
 int32_t         r_pr_maxlightpasses = 5; // value of the cvar (not live value), used to detect changes
 
@@ -44,7 +47,7 @@ _prsector       *prsectors[MAXSECTORS];
 _prwall         *prwalls[MAXWALLS];
 _prsprite       *prsprites[MAXSPRITES];
 _prmaterial     mdspritematerial;
-_prhighpalookup prhighpalookups[MAXPALOOKUPS];
+_prhighpalookup prhighpalookups[MAXBASEPALS][MAXPALOOKUPS];
 
 static const GLfloat  vertsprite[4 * 5] =
 {
@@ -319,9 +322,12 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform sampler3D highPalookupMap;\n"
         "\n",
         // frag_prog
+        "  float highPalScale = 0.9921875; // for 6 bits\n"
+        "  float highPalBias = 0.00390625;\n"
+        "\n"
         "  if (isLightingPass == 0)\n"
-        "    result.rgb = texture3D(highPalookupMap, result.rgb).rgb;\n"
-        "  diffuseTexel.rgb = texture3D(highPalookupMap, diffuseTexel.rgb).rgb;\n"
+        "    result.rgb = texture3D(highPalookupMap, result.rgb * highPalScale + highPalBias).rgb;\n"
+        "  diffuseTexel.rgb = texture3D(highPalookupMap, diffuseTexel.rgb * highPalScale + highPalBias).rgb;\n"
         "\n",
     },
     {
@@ -614,7 +620,7 @@ int32_t         polymersearching;
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void)
 {
-    int32_t         i;
+    int32_t         i, j;
 
     if (pr_verbosity >= 1) OSD_Printf("Initializing Polymer subsystem...\n");
 
@@ -676,28 +682,33 @@ int32_t             polymer_init(void)
     
     // Prime highpalookup maps
     i = 0;
-    while (i < MAXPALOOKUPS)
+    while (i < MAXBASEPALS)
     {
-        if (prhighpalookups[i].data)
+        j = 0;
+        while (j < MAXPALOOKUPS)
         {
-            bglGenTextures(1, &prhighpalookups[i].map);
-            bglBindTexture(GL_TEXTURE_3D, prhighpalookups[i].map);
-            bglTexImage3D(GL_TEXTURE_3D,                // target
-                          0,                            // mip level
-                          GL_RGBA,                      // internalFormat
-                          PR_HIGHPALOOKUP_DIM,          // width
-                          PR_HIGHPALOOKUP_DIM,          // height
-                          PR_HIGHPALOOKUP_DIM,          // depth
-                          0,                            // border
-                          GL_BGRA,                      // upload format
-                          GL_UNSIGNED_BYTE,             // upload component type
-                          prhighpalookups[i].data);     // data pointer
-            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglBindTexture(GL_TEXTURE_3D, 0);
+            if (prhighpalookups[i][j].data)
+            {
+                bglGenTextures(1, &prhighpalookups[i][j].map);
+                bglBindTexture(GL_TEXTURE_3D, prhighpalookups[i][j].map);
+                bglTexImage3D(GL_TEXTURE_3D,                // target
+                              0,                            // mip level
+                              GL_RGBA,                      // internalFormat
+                              PR_HIGHPALOOKUP_DIM,          // width
+                              PR_HIGHPALOOKUP_DIM,          // height
+                              PR_HIGHPALOOKUP_DIM,          // depth
+                              0,                            // border
+                              GL_BGRA,                      // upload format
+                              GL_UNSIGNED_BYTE,             // upload component type
+                              prhighpalookups[i][j].data);     // data pointer
+                bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+                bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+                bglTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+                bglBindTexture(GL_TEXTURE_3D, 0);
+            }
+            j++;
         }
         i++;
     }
@@ -709,21 +720,26 @@ int32_t             polymer_init(void)
 
 void                polymer_uninit(void)
 {
-    int32_t         i;
+    int32_t         i, j;
 
     polymer_freeboard();
     
     i = 0;
-    while (i < MAXPALOOKUPS)
+    while (i < MAXBASEPALS)
     {
-        if (prhighpalookups[i].data) {
-            Bfree(prhighpalookups[i].data);
-            prhighpalookups[i].data = NULL;
-        }
-        if (prhighpalookups[i].map) {
-            bglDeleteTextures(1, &prhighpalookups[i].map);
-            prhighpalookups[i].map = 0;
-        }
+        j = 0;
+        while (j < MAXPALOOKUPS)
+        {
+            if (prhighpalookups[i][j].data) {
+                Bfree(prhighpalookups[i][j].data);
+                prhighpalookups[i][j].data = NULL;
+            }
+            if (prhighpalookups[i][j].map) {
+                bglDeleteTextures(1, &prhighpalookups[i][j].map);
+                prhighpalookups[i][j].map = 0;
+            }
+            j++;
+        }        
         i++;
     }
 }
@@ -1065,11 +1081,16 @@ void                polymer_editorpick(void)
 
     switch (searchstat) {
     case 0: // wall
+    case 5: // botomwall
     case 4: // 1-way/masked wall
         searchsector = sectorofwall(num);
         searchbottomwall = searchwall = num;
-        if (wall[num].nextwall>=0 && (wall[num].cstat&2))
-            searchbottomwall = wall[num].nextwall;
+        if (searchstat == 5) {
+            searchstat = 0;
+            if (wall[num].nextwall >= 0 && (wall[num].cstat & 2)) {
+                searchbottomwall = wall[num].nextwall;
+            }
+        }
         break;
     case 1: // floor
     case 2: // ceiling
@@ -1661,11 +1682,11 @@ void                polymer_texinvalidate(void)
     while (i >= 0);
 }
 
-void                polymer_definehighpalookup(char palnum, char *data)
+void                polymer_definehighpalookup(char basepalnum, char palnum, char *data)
 {
-    prhighpalookups[palnum].data = Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
+    prhighpalookups[basepalnum][palnum].data = Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
     
-    Bmemcpy(prhighpalookups[palnum].data, data, PR_HIGHPALOOKUP_DATA_SIZE);
+    Bmemcpy(prhighpalookups[basepalnum][palnum].data, data, PR_HIGHPALOOKUP_DATA_SIZE);
 }
 
 // CORE
@@ -2769,7 +2790,8 @@ static void         polymer_updatewall(int16_t wallnum)
              ((nwallpicnum == w->nwallpicnum) &&
               (wall[nwallnum].xpanning == w->nwallxpanning) &&
               (wall[nwallnum].ypanning == w->nwallypanning) &&
-              (wall[nwallnum].cstat == w->nwallcstat))))
+              (wall[nwallnum].cstat == w->nwallcstat) &&
+              (wall[nwallnum].shade == w->nwallshade))))
     {
         w->flags.uptodate = 1;
         return; // screw you guys I'm going home
@@ -2795,6 +2817,7 @@ static void         polymer_updatewall(int16_t wallnum)
             w->nwallxpanning = wall[nwallnum].xpanning;
             w->nwallypanning = wall[nwallnum].ypanning;
             w->nwallcstat = wall[nwallnum].cstat;
+            w->nwallshade = wall[nwallnum].shade;
         }
     }
 
@@ -3154,22 +3177,11 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
     if ((w->underover & 1) && (!parallaxedfloor || (searchit == 2)))
     {
         if (searchit == 2) {
-            int16_t pickwallnum;
-
             memcpy(oldcolor, w->wall.material.diffusemodulation, sizeof(GLubyte) * 4);
 
-            pickwallnum = wallnum;
-
-            // if the bottom of the walls are inverted
-            // we're going to hit the nextwall instead
-// PK -- handled in polymer_editorpick(), also because there
-//       are maps with .nextwall==-1 but .cstat&2 (like e4l3)
-//            if (wall[wallnum].cstat & 2)
-//                pickwallnum = wall[wallnum].nextwall;
-
-            w->wall.material.diffusemodulation[0] = 0x00;
-            w->wall.material.diffusemodulation[1] = ((GLubyte *)(&pickwallnum))[0];
-            w->wall.material.diffusemodulation[2] = ((GLubyte *)(&pickwallnum))[1];
+            w->wall.material.diffusemodulation[0] = 0x05;
+            w->wall.material.diffusemodulation[1] = ((GLubyte *)(&wallnum))[0];
+            w->wall.material.diffusemodulation[2] = ((GLubyte *)(&wallnum))[1];
             w->wall.material.diffusemodulation[3] = 0xFF;
         }
 
@@ -3825,8 +3837,8 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     color[0] = color[1] = color[2] =
         ((float)(numpalookups-min(max((tspr->shade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups) * 0xFF;
     
-    usinghighpal = (tspr->pal > 0 && pr_highpalookups &&
-                    prhighpalookups[tspr->pal].map);
+    usinghighpal = (pr_highpalookups &&
+                    prhighpalookups[curbasepal][tspr->pal].map);
 
     // If that palette has a highpalookup, we'll never use tinting. We might use
     // alternate skins if they exist later, though.
@@ -3842,9 +3854,10 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     }
 
     // fullscreen tint on global palette change
-    if (hictinting[MAXPALOOKUPS-1].r != 255 ||
-        hictinting[MAXPALOOKUPS-1].g != 255 ||
-        hictinting[MAXPALOOKUPS-1].b != 255)
+    if (!usinghighpal &&
+        (hictinting[MAXPALOOKUPS-1].r != 255 ||
+         hictinting[MAXPALOOKUPS-1].g != 255 ||
+         hictinting[MAXPALOOKUPS-1].b != 255))
     {
         color[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
         color[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;
@@ -3977,11 +3990,15 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             foundpalskin = 1;
         }
         
+        // If we have a global palette tint, the palskin won't do us any good
+        if (curbasepal)
+            foundpalskin = 0;
+        
         if (!foundpalskin && usinghighpal) {
             // We don't have a specific skin defined for this palette
             // Use the base skin instead and plug in our highpalookup map
             targetpal = 0;
-            mdspritematerial.highpalookupmap = prhighpalookups[tspr->pal].map;
+            mdspritematerial.highpalookupmap = prhighpalookups[curbasepal][tspr->pal].map;
         }
 
         mdspritematerial.diffusemap =
@@ -4160,6 +4177,7 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
 static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int32_t cmeth)
 {
     pthtyp*         pth;
+    int32_t         usinghighpal = 0;
  
     polymer_getscratchmaterial(material);
  
@@ -4168,11 +4186,13 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         loadtile(tilenum);
     
     // PR_BIT_HIGHPALOOKUP_MAP
-    if (pal > 0 && pr_highpalookups && prhighpalookups[pal].map &&
-        hicfindsubst(tilenum, 0, 0) && (hicfindsubst(tilenum, pal, 0)->palnum != pal))
+    if (pr_highpalookups && prhighpalookups[curbasepal][pal].map &&
+        hicfindsubst(tilenum, 0, 0) &&
+        (curbasepal || (hicfindsubst(tilenum, pal, 0)->palnum != pal)))
     {
-        material->highpalookupmap = prhighpalookups[pal].map;
+        material->highpalookupmap = prhighpalookups[curbasepal][pal].map;
         pal = 0;
+        usinghighpal = 1;
     }
  
     if ((pth = gltexcache(tilenum, pal, cmeth)))
@@ -4207,7 +4227,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
 
             // fullscreen tint on global palette change... this is used for nightvision and underwater tinting
             // if ((hictinting[MAXPALOOKUPS-1].r + hictinting[MAXPALOOKUPS-1].g + hictinting[MAXPALOOKUPS-1].b) != 0x2FD)
-            if (((uint32_t)hictinting[MAXPALOOKUPS-1].r & 0xFFFFFF00) != 0xFFFFFF00)
+            if (!usinghighpal && ((uint32_t)hictinting[MAXPALOOKUPS-1].r & 0xFFFFFF00) != 0xFFFFFF00)
             {
                 material->diffusemodulation[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
                 material->diffusemodulation[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;

@@ -70,7 +70,7 @@ extern int32_t g_stateCount;
 
 typedef struct
 {
-    char *name;
+    const char *name;
     int16_t lId;
     int16_t flags;  // 1: read-only
     int32_t min, max;
@@ -82,7 +82,8 @@ extern const memberlabel_t SpriteLabels[];
 
 
 typedef struct {
-    char* token; int32_t val;
+    const char* token;
+    int32_t val;
 } tokenmap_t;
 
 extern const tokenmap_t iter_tokens[];

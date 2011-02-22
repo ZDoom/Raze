@@ -18,6 +18,14 @@ CFLAGS=$(BASECFLAGS) $(F_NO_STACK_PROTECTOR)
 OURCFLAGS=$(CFLAGS)
 CPPFLAGS=-I$(INC) -I$(SRC) -DHAVE_VORBIS
 
+ifeq ($(PLATFORM),DARWIN)
+    ifeq (1,$(SDL_FRAMEWORK))
+        APPLE_INCLUDE_DIR:=../../Apple/include
+        OURCFLAGS += -DSDL_FRAMEWORK -I$(APPLE_INCLUDE_DIR) -I/Library/Frameworks/SDL.framework/Headers \
+                -I/Library/Frameworks/SDL_mixer.framework/Headers
+    endif
+endif
+
 
 OBJECTS=$(OBJ)/drivers.o \
 	$(OBJ)/fx_man.o \
@@ -48,7 +56,7 @@ $(OBJNAME): $(OBJECTS)
 $(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c
 	-mkdir -p $(OBJ)
 	$(COMPILE_STATUS)
-	if $(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(CPPFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:

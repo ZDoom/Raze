@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // #define VULGARITY
 
-char *defsfilename = "duke3d.def";
+const char *defsfilename = "duke3d.def";
 
 extern char keystatus[];
 extern int16_t defaultspritecstat;
@@ -76,7 +76,7 @@ static char autospritehelp=0,autosecthelp=0;
 static int32_t lastmessagetime=-1;
 
 static char tempbuf[1024];
-static int32_t numsprite[MAXSPRITES], multisprite[MAXSPRITES];
+static int32_t numsprite[MAXTILES], multisprite[MAXTILES];
 static char lo[64];
 static char levelname[BMAX_PATH];
 static int16_t curwall=0, curwallnum=0;
@@ -100,7 +100,7 @@ extern int32_t vel, svel, hvel, angvel;
 
 static void SearchSectors(int32_t dir);
 static inline void SpriteName(int16_t spritenum, char *lo2);
-static void PrintStatus(const char *string,int32_t num,char x,char y,char color);
+//static void PrintStatus(const char *string,int32_t num,char x,char y,char color);
 void SetBOSS1Palette();
 void SetSLIMEPalette();
 void SetWATERPalette();
@@ -113,8 +113,13 @@ static void EditWallData(int16_t wallnum);
 static void EditSectorData(int16_t sectnum);
 static void FuncMenu(void);
 
+#define BASEPALCOUNT 7
+
 static uint8_t GAMEpalette[768], WATERpalette[768], SLIMEpalette[768], TITLEpalette[768];
 static uint8_t REALMSpalette[768], BOSS1palette[768];
+
+uint8_t *basepaltable[BASEPALCOUNT] = { palette, WATERpalette, SLIMEpalette, TITLEpalette, REALMSpalette, BOSS1palette, GAMEpalette };
+
 
 static char num_tables;
 
@@ -211,8 +216,8 @@ extern int16_t localartlookup[MAXTILES], localartlookupnum;
 extern int32_t lockclock;
 extern void clearkeys(void);
 
-static int32_t gs_sprite[3][7];
-static char gs_spritewhat[3][7];
+static int32_t gs_spriteTagValue[3][7];
+static char gs_spriteTagInterested[3][7];
 static int16_t gs_cursprite=-1;
 
 int32_t g_musicSize=0;

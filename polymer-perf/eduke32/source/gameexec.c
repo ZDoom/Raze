@@ -67,9 +67,9 @@ void VM_ScriptInfo(void)
         for (p=insptr-20; p<insptr+20; p++)
         {
             if (*p>>12&&(*p&0xFFF)<CON_END)
-                initprintf("\n%5d: %5d %s ",p-script,*p>>12,keyw[*p&0xFFF]);
+                initprintf("\n%5d: %5d %s ",(int32_t)(p-script),(int32_t)(*p>>12),keyw[*p&0xFFF]);
             else
-                initprintf(" %d",*p);
+                initprintf(" %d",(int32_t)*p);
         }
 
         initprintf("\n");
@@ -1012,7 +1012,7 @@ skip_check:
             insptr++;
             if ((*insptr<0 || *insptr>=MAXSOUNDS))
             {
-                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr++);
+                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr++);
                 continue;
             }
             if (!S_CheckSoundPlaying(vm.g_i,*insptr++))
@@ -1039,7 +1039,7 @@ skip_check:
             insptr++;
             if ((*insptr<0 || *insptr>=MAXSOUNDS))
             {
-                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
+                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
                 insptr++;
                 continue;
             }
@@ -1051,7 +1051,7 @@ skip_check:
             insptr++;
             if ((*insptr<0 || *insptr>=MAXSOUNDS))
             {
-                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
+                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
                 insptr++;
                 continue;
             }
@@ -1081,7 +1081,7 @@ skip_check:
             insptr++;
             if ((*insptr<0 || *insptr>=MAXSOUNDS))
             {
-                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
+                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
                 insptr++;
                 continue;
             }
@@ -1094,7 +1094,7 @@ skip_check:
             insptr++;
             if ((*insptr<0 || *insptr>=MAXSOUNDS))
             {
-                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],*insptr);
+                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
                 insptr++;
                 continue;
             }
@@ -1208,7 +1208,7 @@ skip_check:
             insptr++;
             if ((*insptr<0 || *insptr>=MAX_WEAPONS))
             {
-                OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],*insptr);
+                OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
                 insptr += 2; break;
             }
             if (g_player[vm.g_p].ps->ammo_amount[*insptr] >= g_player[vm.g_p].ps->max_ammo_amount[*insptr])
@@ -1266,7 +1266,7 @@ skip_check:
             insptr++;
             if ((*insptr<0 ||*insptr>=MAX_WEAPONS))
             {
-                OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],*insptr);
+                OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
                 insptr += 2;
                 continue;
             }
@@ -1291,7 +1291,7 @@ skip_check:
 
         case CON_DEBUG:
             insptr++;
-            initprintf("%d\n",*insptr++);
+            initprintf("%"PRIdPTR"\n",*insptr++);
             continue;
 
         case CON_ENDOFGAME:
@@ -3019,7 +3019,7 @@ nullquote:
                 g_player[vm.g_p].ps->inv_amount[GET_BOOTS] = *insptr;
                 break;
             default:
-                OSD_Printf(CON_ERROR "Invalid inventory ID %d\n",g_errorLineNum,keyw[g_tw],*(insptr-1));
+                OSD_Printf(CON_ERROR "Invalid inventory ID %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*(insptr-1));
                 break;
             }
             insptr++;
@@ -4575,7 +4575,7 @@ nullquote:
                     if (g_player[vm.g_p].ps->inv_amount[GET_BOOTS] != *insptr) j = 1;
                     break;
                 default:
-                    OSD_Printf(CON_ERROR "invalid inventory ID: %d\n",g_errorLineNum,keyw[g_tw],*(insptr-1));
+                    OSD_Printf(CON_ERROR "invalid inventory ID: %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*(insptr-1));
                 }
 
                 VM_DoConditional(j);
@@ -4633,14 +4633,14 @@ nullquote:
 
             if ((ScriptQuotes[*insptr] == NULL))
             {
-                OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],*insptr);
+                OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
                 insptr++;
                 continue;
             }
 
             if ((vm.g_p < 0 || vm.g_p >= MAXPLAYERS))
             {
-                OSD_Printf(CON_ERROR "bad player for quote %d: (%d)\n",g_errorLineNum,keyw[g_tw],*insptr,vm.g_p);
+                OSD_Printf(CON_ERROR "bad player for quote %d: (%d)\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr,vm.g_p);
                 insptr++;
                 continue;
             }

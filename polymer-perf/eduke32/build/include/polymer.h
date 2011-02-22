@@ -157,7 +157,9 @@ typedef struct      s_prrograminfo {
 }                   _prprograminfo;
 
 #define             PR_INFO_LOG_BUFFER_SIZE 8192
-#define             PR_HIGHPALOOKUP_BIT_DEPTH 7
+
+// Think about changing highPal[Scale|Bias] in the program bit if you change this
+#define             PR_HIGHPALOOKUP_BIT_DEPTH 6
 #define             PR_HIGHPALOOKUP_DIM (1 << PR_HIGHPALOOKUP_BIT_DEPTH)
 #define             PR_HIGHPALOOKUP_DATA_SIZE (4 * PR_HIGHPALOOKUP_DIM * \
                                                    PR_HIGHPALOOKUP_DIM * \
@@ -244,6 +246,7 @@ typedef struct      s_prwall {
     int8_t          shade;
     char            pal, xrepeat, yrepeat, xpanning, ypanning;
     char            nwallxpanning, nwallypanning;
+    int8_t          nwallshade;
 
     char            underover;
     uint32_t        invalidid;
@@ -294,7 +297,7 @@ int16_t             polymer_addlight(_prlight* light);
 void                polymer_deletelight(int16_t lighti);
 void                polymer_invalidatelights(void);
 void                polymer_texinvalidate(void);
-void                polymer_definehighpalookup(char palnum, char *fn);
+void                polymer_definehighpalookup(char basepalnum, char palnum, char *fn);
 
 # ifdef POLYMER_C
 

@@ -3,13 +3,12 @@
 ## source/jaudiolib/Makefile
 
 # Use colored output
-PRETTY_OUTPUT = 1
+PRETTY_OUTPUT ?= 1
 
 # DirectX SDK location - if nonempty, overrides the DXROOTs of the individual
 # Makefiles. Should be set to an absolute path since this Makefile is included
 # at different directory levels
 DXROOT_OVERRIDE:=
-
 
 # Engine options
 #  SUPERBUILD     - enables voxels
@@ -88,9 +87,12 @@ ifneq (0,$(DEBUGANYWAY))
     debug+=-ggdb
 endif
 
+W_NO_UNUSED_RESULT := $(shell echo '' | $(CC) -E -Wno-unused-result - 2>/dev/null && echo -Wno-unused-result)
+W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
+
 BASECFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
-        $(F_JUMP_TABLES) -Wno-unused-result
+        $(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT)
 
 BASECXXFLAGS= -fno-exceptions -fno-rtti
 BASEASFLAGS=-s #-g

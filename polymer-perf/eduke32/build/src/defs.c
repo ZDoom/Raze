@@ -7,6 +7,7 @@
 
 #include "build.h"
 #include "compat.h"
+#include "engine_priv.h"
 #include "baselayer.h"
 #include "scriptfile.h"
 #include "cache1d.h"
@@ -46,6 +47,7 @@ enum scripttoken_t
     T_FPS,
     T_FLAGS,
     T_PAL,
+    T_BASEPAL,
     T_DETAIL,
     T_GLOW,
     T_SPECULAR,
@@ -80,7 +82,7 @@ enum scripttoken_t
     T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET
 };
 
-typedef struct { char *text; int32_t tokenid; } tokenlist;
+typedef struct { const char *text; int32_t tokenid; } tokenlist;
 
 static int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 {
@@ -1432,13 +1434,16 @@ static int32_t defsparser(scriptfile *script)
         case T_HIGHPALOOKUP:
         {
             char *highpaltokptr = script->ltextptr;
-            int32_t pal=-1, oldpathsearchmode, fd;
+            int32_t basepal=-1, pal=-1, oldpathsearchmode;
             char *fn = NULL, *tfn = NULL;
             char *highpalend;
+#ifdef POLYMER
+            int32_t fd;
             char *highpaldata;
-
+#endif
             static const tokenlist highpaltokens[] =
             {
+                { "basepal",   T_BASEPAL },
                 { "pal",   T_PAL },
                 { "file",  T_FILE }
             };
@@ -1448,11 +1453,19 @@ static int32_t defsparser(scriptfile *script)
             {
                 switch (getatoken(script,highpaltokens,sizeof(highpaltokens)/sizeof(tokenlist)))
                 {
+                case T_BASEPAL:
+                    scriptfile_getsymbol(script,&basepal);   break;
                 case T_PAL:
                     scriptfile_getsymbol(script,&pal);   break;
                 case T_FILE:
                     scriptfile_getstring(script,&fn); break;
                 }
+            }
+            if ((unsigned)basepal >= ((unsigned)basepalcount))
+            {
+                initprintf("Error: missing or invalid 'base palette number' for highpalookup definition "
+                           "near line %s:%d\n", script->filename, scriptfile_getlinum(script,highpaltokptr));
+                break;
             }
 
             if ((unsigned)pal >= ((unsigned)MAXPALOOKUPS - RESERVEDPALS))
@@ -1461,6 +1474,7 @@ static int32_t defsparser(scriptfile *script)
                            "line %s:%d\n", script->filename, scriptfile_getlinum(script,highpaltokptr));
                 break;
             }
+
             if (!fn)
             {
                 initprintf("Error: missing 'file name' for highpalookup definition near line %s:%d\n",
@@ -1486,6 +1500,7 @@ static int32_t defsparser(scriptfile *script)
             else Bfree(tfn);
             pathsearchmode = oldpathsearchmode;
 
+#ifdef POLYMER
             fd = kopen4load(fn, 0);
 
             // load the highpalookup and send it to polymer
@@ -1498,11 +1513,11 @@ static int32_t defsparser(scriptfile *script)
                 filesize = kfilelength(fd);
 
                 filebuf = Bmalloc(filesize);
-                if (!filebuf) { Bfree(highpaldata); break; }
+                if (!filebuf) { kclose(fd); Bfree(highpaldata); break; }
 
                 klseek(fd, 0, SEEK_SET);
                 if (kread(fd, filebuf, filesize)!=filesize)
-                    { Bfree(highpaldata); initprintf("Error: didn't read all of '%s'.\n", fn); break; }
+                    { kclose(fd); Bfree(highpaldata); initprintf("Error: didn't read all of '%s'.\n", fn); break; }
 
                 kclose(fd);
                 kpgetdim(filebuf, filesize, &xsiz, &ysiz);
@@ -1521,9 +1536,10 @@ static int32_t defsparser(scriptfile *script)
                     { Bfree(highpaldata); initprintf("Error: failed rendering '%s'.\n", fn); break; }
             }
 
-            polymer_definehighpalookup(pal, highpaldata);
+            polymer_definehighpalookup(basepal, pal, highpaldata);
 
             Bfree(highpaldata);
+#endif
         }
         break;
         case T_TINT:

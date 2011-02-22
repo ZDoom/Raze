@@ -1110,7 +1110,7 @@ static int32_t C_SetScriptSize(int32_t size)
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)) && !((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize])))
         {
             g_numCompilerErrors++;
-            initprintf("Internal compiler error at %d (0x%x)\n",i,i);
+            initprintf("Internal compiler error at %"PRIdPTR" (0x%"PRIxPTR")\n",i,i);
         }
 //        if (bitptr[i] == 0 && ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize])))
 //            initprintf("oh no!\n");
@@ -1145,7 +1145,7 @@ static int32_t C_SetScriptSize(int32_t size)
 
     //initprintf("offset: %d\n",(unsigned)(g_scriptPtr-script));
     g_scriptSize = size;
-    initprintf("Resizing code buffer to %d*%d bytes\n",g_scriptSize, sizeof(intptr_t));
+    initprintf("Resizing code buffer to %d*%d bytes\n",g_scriptSize, (int32_t)sizeof(intptr_t));
 
     newscript = (intptr_t *)Brealloc(script, g_scriptSize * sizeof(intptr_t));
 
@@ -3108,7 +3108,7 @@ static int32_t C_ParseCommand(void)
                 i = *(g_scriptPtr-1);
                 *(g_scriptPtr-1) ^= 48;
                 C_ReportError(-1);
-                initprintf("%s:%d: warning: tried to set cstat %d, using %d instead.\n",g_szScriptFileName,g_lineNumber,i,*(g_scriptPtr-1));
+                initprintf("%s:%d: warning: tried to set cstat %d, using %d instead.\n",g_szScriptFileName,g_lineNumber,i,(int32_t)(*(g_scriptPtr-1)));
                 g_numCompilerWarnings++;
             }
         }
@@ -5214,7 +5214,7 @@ repeatcase:
             if (i >= (signed)sizeof(EpisodeNames[j])-1)
             {
                 initprintf("%s:%d: warning: truncating volume name to %d characters.\n",
-                           g_szScriptFileName,g_lineNumber,sizeof(EpisodeNames[j])-1);
+                           g_szScriptFileName,g_lineNumber,(int32_t)sizeof(EpisodeNames[j])-1);
                 g_numCompilerWarnings++;
                 C_NextLine();
                 break;
@@ -5301,7 +5301,7 @@ repeatcase:
             if (i >= (signed)sizeof(SkillNames[j])-1)
             {
                 initprintf("%s:%d: warning: truncating skill name to %d characters.\n",
-                           g_szScriptFileName,g_lineNumber,sizeof(SkillNames[j])-1);
+                           g_szScriptFileName,g_lineNumber,(int32_t)sizeof(SkillNames[j])-1);
                 g_numCompilerWarnings++;
                 C_NextLine();
                 break;
@@ -5326,7 +5326,7 @@ repeatcase:
             if (i >= (signed)sizeof(gamename)-1)
             {
                 initprintf("%s:%d: warning: truncating game name to %d characters.\n",
-                           g_szScriptFileName,g_lineNumber,sizeof(gamename)-1);
+                           g_szScriptFileName,g_lineNumber,(int32_t)sizeof(gamename)-1);
                 g_numCompilerWarnings++;
                 C_NextLine();
                 break;
@@ -5457,7 +5457,7 @@ repeatcase:
             if (i >= (signed)sizeof(GametypeNames[j])-1)
             {
                 initprintf("%s:%d: warning: truncating gametype name to %d characters.\n",
-                           g_szScriptFileName,g_lineNumber,sizeof(GametypeNames[j])-1);
+                           g_szScriptFileName,g_lineNumber,(int32_t)sizeof(GametypeNames[j])-1);
                 g_numCompilerWarnings++;
                 C_NextLine();
                 break;
@@ -6327,11 +6327,11 @@ void C_Compile(const char *filenam)
         C_SetScriptSize(g_scriptPtr-script+8);
 
         initprintf("Script compiled in %dms, %ld*%db, version %s\n", getticks() - startcompiletime,
-                   (unsigned long)(g_scriptPtr-script), sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
+                   (unsigned long)(g_scriptPtr-script), (int32_t)sizeof(intptr_t), (g_scriptVersion == 14?"1.4+":"1.3D"));
 
         initprintf("%d/%d labels, %d/%d variables\n", g_numLabels,
-                   min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
-                       MAXSPRITES * sizeof(spritetype)/(1<<6)),
+                   (int32_t)min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
+                                MAXSPRITES * sizeof(spritetype)/(1<<6)),
                    g_gameVarCount, MAXGAMEVARS);
 
         for (i=MAXQUOTES-1; i>=0; i--)

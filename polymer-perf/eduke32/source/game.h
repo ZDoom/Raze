@@ -227,6 +227,7 @@ extern palette_t DefaultCrosshairColors;
 
 extern uint32_t g_frameDelay;
 
+// Watch out for MAXBASEPALS in the engine before increasing this
 #define BASEPALCOUNT 7
 
 extern uint8_t water_pal[768],slime_pal[768],title_pal[768],dre_alms[768],ending_pal[768],*anim_pal;
@@ -237,8 +238,8 @@ typedef enum basepal_ {
     BASEPAL = 0,
     WATERPAL,
     SLIMEPAL,
-    TITLEPAL,
     DREALMSPAL,
+    TITLEPAL,
     ENDINGPAL,
     ANIMPAL
 } basepal_t; 

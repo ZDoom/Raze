@@ -155,7 +155,7 @@ char britable[16][256]; // JBF 20040207: full 8bit precision
 extern char textfont[2048], smalltextfont[2048];
 
 static char kensmessage[128];
-char *engineerrstr = "No error";
+const char *engineerrstr = "No error";
 
 int32_t showfirstwall=0;
 int32_t showheightindicators=2;
@@ -612,7 +612,7 @@ int32_t clipmapinfo_load(const char *filename)
                             if (wall[w].lotag > wall[w].hitag)
                                 swapshort(&wall[w].lotag, &wall[w].hitag);
 
-                            for (ii=wall[w].lotag; ii<MAXTILES; ii++)
+                            for (ii=wall[w].lotag; ii<wall[w].hitag; ii++)
                                 tempictoidx[ii] = numclipmaps;
                         }
                         else if (wall[w].lotag>0)
@@ -758,6 +758,11 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
                 if ((wall[wall[k].point2]).x == x1 && (wall[wall[k].point2]).y == y1)
                     if (j != sectnum)
                     {
+                        // Don't create link if the other side is connected to another wall.
+                        // The nextwall relation should be definitely one-to-one at all times!
+                        if (wall[k].nextwall>=0 && wall[k].nextwall != i)
+                            continue;
+
                         if (sectnum != -2)  // -2 means dry run
                         {
                             wall[i].nextsector = j;
@@ -1193,6 +1198,11 @@ static int32_t bakrendmode,baktile;
 int32_t totalclocklock;
 
 char apptitle[256] = "Build Engine";
+
+uint8_t **basepaltableptr;
+uint8_t basepalcount;
+uint8_t curbasepal;
+
 palette_t curpalette[256];			// the current palette, unadjusted for brightness or tint
 palette_t curpalettefaded[256];		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
 palette_t palfadergb = { 0,0,0,0 };
@@ -1272,7 +1282,7 @@ static void scansector(int16_t sectnum)
                 if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
                 {
                     tempint = x1*y2-x2*y1;
-                    if (((unsigned)tempint+262144) < 524288)
+                    if (((unsigned)tempint+262144) < 524288)  // BXY_MAX?
                         if (mulscale5(tempint,tempint) <= (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
                             sectorborder[sectorbordercnt++] = nextsectnum;
                 }
@@ -3110,7 +3120,8 @@ static void drawalls(int32_t bunch)
         }
 
         wallnum = thewall[z]; wal = &wall[wallnum];
-        nextsectnum = wal->nextsector; nextsec = &sector[nextsectnum];
+        nextsectnum = wal->nextsector;
+        nextsec = nextsectnum>=0 ? &sector[nextsectnum] : NULL;
 
         gotswall = 0;
 
@@ -6175,7 +6186,7 @@ int32_t preinitengine(void)
         dynarray[] =
         {
             { (void **) &sector,           sizeof(sectortype)      *MAXSECTORS                },
-            { (void **) &wall,             sizeof(walltype)        *(MAXWALLS+4)              }, // +4: editor quirks
+            { (void **) &wall,             sizeof(walltype)        *MAXWALLS }, // +1024: editor quirks. FIXME!
             { (void **) &sprite,           sizeof(spritetype)      *MAXSPRITES                },
             { (void **) &tsprite,          sizeof(spritetype)      *MAXSPRITESONSCREEN        },
             { (void **) &spriteext,        sizeof(spriteext_t)     *(MAXSPRITES+MAXUNIQHUDID) },
@@ -6183,6 +6194,12 @@ int32_t preinitengine(void)
             { (void **) &state_compress,   sizeof(qlz_state_compress)                         },
             { (void **) &state_decompress, sizeof(qlz_state_decompress)                       }
         };
+
+        if (editstatus)
+        {
+            dynarray[1].size += 1024*sizeof(walltype);
+            Bprintf("FIXME: Allocating additional space beyong wall[] for editor bugs.\n");
+        }
 
         for (i=0; i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
             size += dynarray[i].size;
@@ -6490,6 +6507,14 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         i = globalcursectnum;
         updatesector(globalposx,globalposy,&globalcursectnum);
         if (globalcursectnum < 0) globalcursectnum = i;
+
+        // PK 20110123: I'm not sure what the line above is supposed to do, but 'i'
+        //              *can* be negative, so let's just quit here in that case...
+        if (globalcursectnum<0)
+        {
+            enddrawing();
+            return;
+        }
     }
 
     globparaceilclip = 1;
@@ -7887,7 +7912,7 @@ int32_t loadmaphack(const char *filename)
         T_LIGHT,
     };
 
-    static struct { char *text; int32_t tokenid; } legaltokens[] =
+    static struct { const char *text; int32_t tokenid; } legaltokens[] =
     {
         { "sprite", T_SPRITE },
         { "angleoff", T_ANGOFF },
@@ -8405,7 +8430,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
     setview(0L,0L,xdim-1,ydim-1);
     clearallviews(0L);
-    setbrightness(curbrightness,palette,0);
+    setbrightness(curbrightness,0,0);
 
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
@@ -9671,7 +9696,9 @@ int32_t lastwall(int16_t point)
 }
 
 
-//////////
+////////// CLIPMOVE //////////
+
+int32_t clipmoveboxtracenum = 3;
 
 static int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)
 {
@@ -9796,17 +9823,24 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
     return flipmul;
 }
 
-#define addclipline(dax1, day1, dax2, day2, daoval)      \
-{                                                        \
-    if (clipnum < MAXCLIPNUM) { \
-    clipit[clipnum].x1 = dax1; clipit[clipnum].y1 = day1; \
-    clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2; \
-    clipobjectval[clipnum] = daoval;                      \
-    clipnum++;                                            \
-    } else if (!warned) { initprintf("!!clipnum\n"); warned=1; } \
-}                                                        \
- 
-int32_t clipmoveboxtracenum = 3;
+
+static int32_t clipmove_warned=0;
+
+static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int32_t daoval)
+{
+    if (clipnum < MAXCLIPNUM)
+    {
+        clipit[clipnum].x1 = dax1; clipit[clipnum].y1 = day1;
+        clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2;
+        clipobjectval[clipnum] = daoval;
+        clipnum++;
+    }
+    else if (!clipmove_warned)
+    {
+        initprintf("!!clipnum\n");
+        clipmove_warned = 1;
+    }
+}
 
 //
 // clipmove
@@ -9827,10 +9861,12 @@ int32_t clipmove(vec3_t *vect, int16_t *sectnum,
     int32_t hitwall, cnt, clipyou;
 
     spritetype *curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
-    int32_t curidx=-1, warned=0, clipspritecnt;
+    int32_t curidx=-1, clipspritecnt;
 
     if (((xvect|yvect) == 0) || (*sectnum < 0)) return(0);
     retval = 0;
+
+    clipmove_warned = 0;
 
     oxvect = xvect;
     oyvect = yvect;
@@ -11111,12 +11147,32 @@ void setvgapalette(void)
 }
 
 //
+// setbasepaltable
+//
+void setbasepaltable(uint8_t **thebasepaltable, uint8_t thebasepalcount)
+{
+    if (thebasepalcount >= MAXBASEPALS)
+        thebasepalcount = MAXBASEPALS - 1;
+
+    basepaltableptr = thebasepaltable;
+    basepalcount = thebasepalcount;
+}
+
+//
 // setbrightness
 //
-void setbrightness(char dabrightness, uint8_t *dapal, char noapply)
+void setbrightness(char dabrightness, uint8_t dapalid, char noapply)
 {
     int32_t i, k, j;
+    uint8_t *dapal;
 //    uint32_t lastbright = curbrightness;
+    
+    if (dapalid >= basepalcount)
+        dapalid = 0;
+    
+    curbasepal = dapalid;
+    
+    dapal = basepaltableptr[dapalid];
 
     if (!(noapply&4))
     {
@@ -11514,12 +11570,9 @@ void completemirror(void)
 //
 // sectorofwall
 //
-int32_t sectorofwall(int16_t theline)
+static int32_t sectorofwall_internal(int16_t theline)
 {
     int32_t i, gap;
-
-    if ((theline < 0) || (theline >= numwalls)) return(-1);
-    i = wall[theline].nextwall; if (i >= 0 && i < MAXWALLS) return(wall[i].nextsector);
 
     gap = (numsectors>>1); i = gap;
     while (gap > 1)
@@ -11530,6 +11583,23 @@ int32_t sectorofwall(int16_t theline)
     while (sector[i].wallptr > theline) i--;
     while (sector[i].wallptr+sector[i].wallnum <= theline) i++;
     return(i);
+}
+
+int32_t sectorofwall(int16_t theline)
+{
+    int32_t i;
+
+    if ((theline < 0) || (theline >= numwalls)) return(-1);
+    i = wall[theline].nextwall; if (i >= 0 && i < MAXWALLS) return(wall[i].nextsector);
+
+    return sectorofwall_internal(theline);
+}
+
+int32_t sectorofwall_noquick(int16_t theline)
+{
+    if ((theline < 0) || (theline >= numwalls)) return(-1);
+
+    return sectorofwall_internal(theline);
 }
 
 

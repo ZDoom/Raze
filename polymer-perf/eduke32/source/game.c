@@ -102,7 +102,7 @@ char g_modDir[BMAX_PATH] = "/";
 
 uint8_t water_pal[768],slime_pal[768],title_pal[768],dre_alms[768],ending_pal[768],*anim_pal;
 
-uint8_t *basepaltable[BASEPALCOUNT] = { palette, water_pal, slime_pal, title_pal, dre_alms, ending_pal, NULL };
+uint8_t *basepaltable[BASEPALCOUNT] = { palette, water_pal, slime_pal, dre_alms, title_pal, ending_pal, NULL };
 
 static int32_t g_skipDefaultCons = 0;
 
@@ -296,7 +296,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set)
     
     player->palette = palid;
 
-    setbrightness(ud.brightness>>2, basepaltable[palid], set);
+    setbrightness(ud.brightness>>2, palid, set);
 }
 
 int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const char *t,
@@ -9048,6 +9048,8 @@ static void G_Startup(void)
         fprintf(stderr, "G_Startup: There was a problem initializing the Build engine: %s\n", engineerrstr);
         exit(6);
     }
+    
+    setbasepaltable(basepaltable, BASEPALCOUNT);
 
     G_InitDynamicTiles();
 
@@ -9910,7 +9912,7 @@ CLEAN_DIRECTORY:
         ud.config.ScreenBPP = bpp[i];
     }
 
-    setbrightness(ud.brightness>>2,basepaltable[g_player[myconnectindex].ps->palette],0);
+    setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
 
     S_MusicStartup();
     S_SoundStartup();
