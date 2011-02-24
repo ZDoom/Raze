@@ -29,7 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 const char *defsfilename = "duke3d.def";
 
 extern char keystatus[];
-extern int16_t defaultspritecstat;
 extern int32_t horiz, qsetmode;
 extern vec3_t pos;
 extern int16_t ang, cursectnum;

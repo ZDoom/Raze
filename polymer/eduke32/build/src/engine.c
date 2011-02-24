@@ -6197,8 +6197,9 @@ int32_t preinitengine(void)
 
         if (editstatus)
         {
-            dynarray[1].size += 1024*sizeof(walltype);
-            Bprintf("FIXME: Allocating additional space beyong wall[] for editor bugs.\n");
+            dynarray[0].size += 2*sizeof(sectortype);  // join sectors needs a temp. sector
+            dynarray[1].size += M32_FIXME_WALLS*sizeof(walltype);
+            Bprintf("FIXME: Allocating additional space beyond wall[] for editor bugs.\n");
         }
 
         for (i=0; i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
@@ -9628,6 +9629,7 @@ int32_t neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ang
 void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
 {
     int16_t cnt, tempshort;
+    int32_t thelastwall;
 
     wall[pointhighlight].x = dax;
     wall[pointhighlight].y = day;
@@ -9652,9 +9654,10 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
             tempshort = pointhighlight;    //search points CW if not searched all the way around
             do
             {
-                if (wall[lastwall(tempshort)].nextwall >= 0)
+                thelastwall = lastwall(tempshort);
+                if (wall[thelastwall].nextwall >= 0)
                 {
-                    tempshort = wall[lastwall(tempshort)].nextwall;
+                    tempshort = wall[thelastwall].nextwall;
                     wall[tempshort].x = dax;
                     wall[tempshort].y = day;
                     wall[tempshort].cstat |= (1<<14);
@@ -11369,7 +11372,7 @@ void plotpixel(int32_t x, int32_t y, char col)
     enddrawing();   //}}}
 }
 
-void plotlines2d(int32_t *xx, int32_t *yy, int32_t numpoints, char col)
+void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, char col)
 {
     int32_t i;
 
@@ -11393,8 +11396,10 @@ void plotlines2d(int32_t *xx, int32_t *yy, int32_t numpoints, char col)
         int32_t odrawlinepat = drawlinepat;
         drawlinepat = 0xffffffff;
 
+        begindrawing();
         for (i=0; i<numpoints-1; i++)
             drawline16(xx[i], yy[i], xx[i+1], yy[i+1], col);
+        enddrawing();
 
         drawlinepat = odrawlinepat;
     }

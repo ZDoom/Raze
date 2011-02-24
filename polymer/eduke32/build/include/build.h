@@ -29,6 +29,9 @@ extern "C" {
 #define MAXWALLSB ((MAXWALLS>>2)+(MAXWALLS>>3))
 #define MAXSPRITES MAXSPRITESV8
 
+// additional space beyond wall, in walltypes:
+#define M32_FIXME_WALLS 1024
+
 #define MAXTILES 15360
 #define MAXVOXELS 4096
 #define MAXSTATUS 1024
@@ -465,7 +468,7 @@ void   setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   setaspect(int32_t daxrange, int32_t daaspect);
 void   flushperms(void);
 
-void plotlines2d(int32_t *xx, int32_t *yy, int32_t numpoints, char col) ATTRIBUTE((nonnull(1,2)));
+void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, char col) ATTRIBUTE((nonnull(1,2)));
 
 void   plotpixel(int32_t x, int32_t y, char col);
 char   getpixel(int32_t x, int32_t y);

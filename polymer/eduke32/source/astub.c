@@ -167,9 +167,6 @@ static const char *Typestr_wss[] = { "Wall", "Sector", "Sector", "Sprite", "Wall
 #define AIMED_SELOVR_PICNUM SFBASE_CF(picnum, &AIMED_SELOVR_WALL(picnum))
 
 
-#define BTAG_MAX 65535
-#define BZ_MAX 8388608
-
 static const char *ONOFF_[] = {"OFF","ON"};
 #define ONOFF(b) (ONOFF_[!!(b)])
 
@@ -268,6 +265,8 @@ mapundo_t *mapstate = NULL;
 
 int32_t map_revision = 1;
 
+#define QADDNSZ 400
+
 void create_map_snapshot(void)
 {
     int32_t j;
@@ -288,29 +287,30 @@ void create_map_snapshot(void)
     {
         if (mapstate->next != NULL)
         {
-            mapundo_t *next = mapstate->next;
-            next->prev = NULL;
+            mapundo_t *cur = mapstate->next;
+            cur->prev = NULL;
 
-            while (next->next)
-                next = next->next;
+            while (cur->next)
+                cur = cur->next;
 
             do
             {
-                if (next->sectors && (next->prev == NULL || (next->sectcrc != next->prev->sectcrc)))
-                    Bfree(next->sectors);
-                if (next->walls && (next->prev == NULL || (next->wallcrc != next->prev->wallcrc)))
-                    Bfree(next->walls);
-                if (next->sprites && (next->prev == NULL || (next->spritecrc != next->prev->spritecrc)))
-                    Bfree(next->sprites);
-                if (!next->prev)
+                if (cur->sectors && (cur->prev == NULL || (cur->sectcrc != cur->prev->sectcrc)))
+                    Bfree(cur->sectors);
+                if (cur->walls && (cur->prev == NULL || (cur->wallcrc != cur->prev->wallcrc)))
+                    Bfree(cur->walls);
+                if (cur->sprites && (cur->prev == NULL || (cur->spritecrc != cur->prev->spritecrc)))
+                    Bfree(cur->sprites);
+                if (!cur->prev)
                 {
-                    Bfree(next);
+                    Bfree(cur);
                     break;
                 }
-                next = next->prev;
-                Bfree(next->next);
+
+                cur = cur->prev;
+                Bfree(cur->next);
             }
-            while (next);
+            while (cur);
         }
 
         mapstate->next = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
@@ -321,13 +321,7 @@ void create_map_snapshot(void)
     }
 
     fixspritesectors();
-
-    numsprites = 0;
-    for (j=MAXSPRITES-1; j>=0; j--)
-    {
-        if (sprite[j].statnum != MAXSTATUS)
-            numsprites++;
-    }
+    updatenumsprites();
 
     mapstate->numsectors = numsectors;
     mapstate->numwalls = numwalls;
@@ -347,7 +341,7 @@ void create_map_snapshot(void)
         }
         else
         {
-            mapstate->sectors = (sectortype *)Bcalloc(1, sizeof(sectortype) * numsectors);
+            mapstate->sectors = (sectortype *)Bcalloc(1, sizeof(sectortype) * numsectors + QADDNSZ);
             mapstate->sectsiz = j = qlz_compress(&sector[0], (char *)&mapstate->sectors[0],
                                                  sizeof(sectortype) * numsectors, state_compress);
             mapstate->sectors = (sectortype *)Brealloc(mapstate->sectors, j);
@@ -368,7 +362,7 @@ void create_map_snapshot(void)
             }
             else
             {
-                mapstate->walls = (walltype *)Bcalloc(1, sizeof(walltype) * numwalls);
+                mapstate->walls = (walltype *)Bcalloc(1, sizeof(walltype) * numwalls + QADDNSZ);
                 mapstate->wallsiz = j = qlz_compress(&wall[0], (char *)&mapstate->walls[0],
                                                      sizeof(walltype) * numwalls, state_compress);
                 mapstate->walls = (walltype *)Brealloc(mapstate->walls, j);
@@ -403,7 +397,7 @@ void create_map_snapshot(void)
                     }
                 }
                 mapstate->spritesiz = j = qlz_compress(&tspri[0], (char *)&mapstate->sprites[0],
-                                                       sizeof(spritetype) * numsprites, state_compress);
+                                                       sizeof(spritetype) * numsprites + QADDNSZ, state_compress);
                 mapstate->sprites = (spritetype *)Brealloc(mapstate->sprites, j);
                 mapstate->spritecrc = tempcrc;
                 Bfree(tspri);
@@ -471,6 +465,7 @@ int32_t map_undoredo(int32_t dir)
     Bmemset(show2dsector, 0, sizeof(show2dsector));
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
     Bmemset(show2dwall, 0, sizeof(show2dwall));
+    Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
 
     if (mapstate->numsectors)
     {
@@ -495,6 +490,9 @@ int32_t map_undoredo(int32_t dir)
     if (qsetmode == 200 && rendmode == 4)
         polymer_loadboard();
 #endif
+
+    CheckMapCorruption(4, 0);
+
     return 0;
 }
 
@@ -3624,13 +3622,13 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
                     y1=max(y1, 0);
                     y2=min(y2, ydim-1);
 
-                    // box
-
                     {
+                        // box
                         int32_t xx[] = {x1, x1, x2, x2, x1};
                         int32_t yy[] = {y1, y2, y2, y1, y1};
                         plotlines2d(xx, yy, 5, iTile==iSelected ? whitecol : markedcol);
                     }
+
                     // cross
                     if (marked)
                     {
@@ -3915,37 +3913,6 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
     case 8:
         getnumber_doint64(num, oldnum);
         break;
-    }
-}
-
-static void DoSpriteOrnament(int32_t i)
-{
-    int32_t j, hitw;
-    hitdata_t hitinfo;
-
-    hitscan((const vec3_t *)&sprite[i],sprite[i].sectnum,
-            sintable[(sprite[i].ang+1536)&2047],
-            sintable[(sprite[i].ang+1024)&2047],
-            0,
-            &hitinfo,CLIPMASK1);
-
-    sprite[i].x = hitinfo.pos.x;
-    sprite[i].y = hitinfo.pos.y;
-    sprite[i].z = hitinfo.pos.z;
-    changespritesect(i,hitinfo.hitsect);
-
-    hitw = hitinfo.hitwall;
-
-    if (hitw >= 0)
-        sprite[i].ang = (getangle(POINT2(hitw).x-wall[hitw].x,
-                                  POINT2(hitw).y-wall[hitw].y)+512)&2047;
-
-    //Make sure sprite's in right sector
-    if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
-    {
-        j = wall[hitw].point2;
-        sprite[i].x -= ksgn(wall[j].y-wall[hitw].y);
-        sprite[i].y += ksgn(wall[j].x-wall[hitw].x);
     }
 }
 
@@ -9223,7 +9190,7 @@ int32_t ExtInit(void)
     kensplayerheight = 40; //32
     zmode = 2;
     zlock = kensplayerheight<<8;
-    defaultspritecstat = 0;
+//    defaultspritecstat = 0;
 
     ReadGamePalette();
     //  InitWater();

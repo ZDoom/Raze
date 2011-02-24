@@ -40,7 +40,9 @@ extern int32_t qsetmode;
 extern int16_t searchsector, searchwall, searchstat;
 extern int16_t searchbottomwall;
 extern int32_t zmode, kensplayerheight;
-extern int16_t defaultspritecstat;
+
+#define DEFAULT_SPRITE_CSTAT 0
+//extern int16_t defaultspritecstat;
 
 extern int32_t temppicnum, tempcstat, templotag, temphitag, tempextra;
 extern uint32_t temppal, tempvis, tempxrepeat, tempyrepeat;
@@ -149,10 +151,14 @@ extern int32_t lastpm16time;
 
 extern char lastpm16buf[156];
 
+void DoSpriteOrnament(int32_t i);
+
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y);
 int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point);
 void update_highlight();
 void update_highlightsector();
+
+extern uint8_t hlsectorbitmap[MAXSECTORS>>3];
 
 #ifdef _WIN32
 #define DEFAULT_GAME_EXEC "eduke32.exe"
@@ -221,5 +227,9 @@ extern int32_t scripthistend;
     startwall=sector[(Sect)].wallptr, endwall=startwall+sector[(Sect)].wallnum, Itervar=startwall; \
     Itervar < endwall; \
     Itervar++
+
+#define BTAG_MAX 65535
+#define BZ_MAX 8388608
+
 
 #endif
