@@ -30,7 +30,8 @@ extern "C" {
 #define MAXSPRITES MAXSPRITESV8
 
 // additional space beyond wall, in walltypes:
-#define M32_FIXME_WALLS 1024
+#define M32_FIXME_WALLS 512
+#define M32_FIXME_SECTORS 2
 
 #define MAXTILES 15360
 #define MAXVOXELS 4096

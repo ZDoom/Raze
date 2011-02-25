@@ -6157,8 +6157,8 @@ static int32_t preinitcalled = 0;
 #ifndef DYNALLOC_ARRAYS
 static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];
 static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
-static sectortype sector_s[MAXSECTORS];
-static walltype wall_s[MAXWALLS];
+static sectortype sector_s[MAXSECTORS + M32_FIXME_SECTORS];
+static walltype wall_s[MAXWALLS + M32_FIXME_WALLS];
 static spritetype sprite_s[MAXSPRITES];
 static spritetype tsprite_s[MAXSPRITESONSCREEN];
 #else
@@ -6186,7 +6186,7 @@ int32_t preinitengine(void)
         dynarray[] =
         {
             { (void **) &sector,           sizeof(sectortype)      *MAXSECTORS                },
-            { (void **) &wall,             sizeof(walltype)        *MAXWALLS }, // +1024: editor quirks. FIXME!
+            { (void **) &wall,             sizeof(walltype)        *MAXWALLS }, // +512: editor quirks. FIXME!
             { (void **) &sprite,           sizeof(spritetype)      *MAXSPRITES                },
             { (void **) &tsprite,          sizeof(spritetype)      *MAXSPRITESONSCREEN        },
             { (void **) &spriteext,        sizeof(spriteext_t)     *(MAXSPRITES+MAXUNIQHUDID) },
@@ -6197,7 +6197,7 @@ int32_t preinitengine(void)
 
         if (editstatus)
         {
-            dynarray[0].size += 2*sizeof(sectortype);  // join sectors needs a temp. sector
+            dynarray[0].size += M32_FIXME_SECTORS*sizeof(sectortype);  // join sectors needs a temp. sector
             dynarray[1].size += M32_FIXME_WALLS*sizeof(walltype);
             Bprintf("FIXME: Allocating additional space beyond wall[] for editor bugs.\n");
         }
