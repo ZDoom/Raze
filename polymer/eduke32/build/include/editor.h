@@ -85,6 +85,10 @@ extern inline int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 extern void setup_sideview_sincos(void);
 extern void m32_setkeyfilter(int32_t on);
 
+extern int32_t wallength(int16_t i);
+extern void fixrepeats(int16_t i);
+extern void fixxrepeat(int16_t i, uint32_t lenrepquot);
+
 extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
 extern void ExtUnInit(void);
@@ -174,21 +178,6 @@ void test_map(int32_t mode);
 #define NEXTWALL(i) (wall[wall[i].nextwall])
 #define POINT2(i) (wall[wall[i].point2])
 #define SPRITESEC(j) (sector[sprite[j].sectnum])
-
-static inline int32_t wallength(int16_t i)
-{
-    int64_t dax = POINT2(i).x - wall[i].x;
-    int64_t day = POINT2(i).y - wall[i].y;
-#if 1 //def POLYMOST
-    int64_t hypsq = dax*dax + day*day;
-    if (hypsq > (int64_t)INT_MAX)
-        return (int32_t)sqrt((double)hypsq);
-    else
-        return ksqrt((int32_t)hypsq);
-#else
-    return ksqrt(dax*dax + day*day);
-#endif
-}
 
 #define CLEARLINES2D(Startline, Numlines, Color) clearbuf((char *)(frameplace + ((Startline)*bytesperline)), (bytesperline*(Numlines))>>2, (Color))
 

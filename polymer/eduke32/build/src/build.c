@@ -1380,7 +1380,7 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
     for (i=numwalls; i<newnumwalls; i++)
     {
         wall[i].point2 += numwalls;
-        wall[i].x += editorgridextent<<2;
+        wall[i].x += BXY_MAX*2;
     }
 
     // reconstruct wall connections
@@ -1394,7 +1394,7 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
         hlsectorbitmap[i>>3] |= (1<<(i&7));
     }
     for (i=numwalls; i<newnumwalls; i++)
-        wall[i].x -= editorgridextent<<2;
+        wall[i].x -= BXY_MAX*2;
 //    checksectorpointer_warn = 1;
 
     // insert sprites
@@ -3026,7 +3026,7 @@ outtathis:
         if (((bstatus&1) < (oldmousebstatus&1)) && highlightsectorcnt < 0)  //after dragging
         {
             int32_t wallsdrawn = newnumwalls-numwalls, runi;
-            walltype *tmpwall;
+            walltype *tmpwall = NULL;
 
             if (newnumwalls != -1)
             {
@@ -3103,7 +3103,7 @@ outtathis:
                         || (POINT2(i).x == dax && POINT2(i).y == day))
                 {
                     checksectorpointer(i, sectorofwall(i));
-                    fixrepeats(i);
+//                    fixrepeats(i);
                     asksave = 1;
                 }
             }
@@ -4658,7 +4658,7 @@ end_space_handling:
                         if ((wall[i].x == dax && wall[i].y == day) || (POINT2(i).x == dax && POINT2(i).y == day))
                         {
                             checksectorpointer(i, sectorofwall(i));
-                            fixrepeats(i);
+//                            fixrepeats(i);
                         }
                     }
                     //if (j != 0)
@@ -5480,22 +5480,25 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
 {
     int16_t sucksect;
     int32_t i, j, k;
+    uint32_t templenrepquot;
 
     j = linehighlight;
     sucksect = sectorofwall(j);
+    templenrepquot = divscale12(wallength(j), wall[j].xrepeat);
+    templenrepquot = max(1, templenrepquot);
 
     sector[sucksect].wallnum++;
     for (i=sucksect+1; i<numsectors; i++)
         sector[i].wallptr++;
 
     movewalls(j+1, +1);
-    Bmemcpy(&wall[j+1],&wall[j],sizeof(walltype));
+    Bmemcpy(&wall[j+1], &wall[j], sizeof(walltype));
 
     wall[j].point2 = j+1;
     wall[j+1].x = dax;
     wall[j+1].y = day;
-    fixrepeats(j);
-    fixrepeats(j+1);
+    fixxrepeat(j, templenrepquot);
+    fixxrepeat(j+1, templenrepquot);
 
     if (wall[j].nextwall >= 0)
     {
@@ -5513,8 +5516,8 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
         wall[k].point2 = k+1;
         wall[k+1].x = dax;
         wall[k+1].y = day;
-        fixrepeats(k);
-        fixrepeats(k+1);
+        fixxrepeat(k, templenrepquot);
+        fixxrepeat(k+1, templenrepquot);
 
         j = wall[k].nextwall;
         wall[j].nextwall = k+1;
@@ -5651,12 +5654,33 @@ static int32_t movewalls(int32_t start, int32_t offs)
     return(0);
 }
 
+int32_t wallength(int16_t i)
+{
+    int64_t dax = POINT2(i).x - wall[i].x;
+    int64_t day = POINT2(i).y - wall[i].y;
+#if 1 //def POLYMOST
+    int64_t hypsq = dax*dax + day*day;
+    if (hypsq > (int64_t)INT_MAX)
+        return (int32_t)sqrt((double)hypsq);
+    else
+        return ksqrt((int32_t)hypsq);
+#else
+    return ksqrt(dax*dax + day*day);
+#endif
+}
+
 void fixrepeats(int16_t i)
 {
     int32_t dist = wallength(i);
     int32_t day = wall[i].yrepeat;
 
     wall[i].xrepeat = clamp(mulscale10(dist,day), 1, 255);
+}
+
+void fixxrepeat(int16_t i, uint32_t lenrepquot)  // lenrepquot: divscale12(wallength,xrepeat)
+{
+    if (lenrepquot != 0)
+        wall[i].xrepeat = clamp(divscale12(wallength(i), lenrepquot), 1, 255);
 }
 
 

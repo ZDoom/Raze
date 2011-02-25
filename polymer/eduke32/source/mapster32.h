@@ -67,7 +67,6 @@ extern void updatenumsprites(void);
 
 extern int32_t lastpm16time, synctics;
 extern int32_t halfxdim16, midydim16, zoom;
-extern void fixrepeats(int16_t i);
 
 static char autospritehelp=0,autosecthelp=0;
 //int16_t MinRate=24, MinD=3;

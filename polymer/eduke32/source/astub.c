@@ -105,12 +105,7 @@ static int32_t curcorruptthing=-1;
 
 int32_t corruptlevel=0, numcorruptthings=0, corruptthings[MAXCORRUPTTHINGS];
 
-static uint32_t templenrepquot;
-static void fixxrepeat(int16_t i, uint32_t lenrepquot)
-{
-    if (lenrepquot != 0)
-        wall[i].xrepeat = clamp(divscale12(wallength(i), lenrepquot), 1, 255);
-}
+static uint32_t templenrepquot=1;
 
 //////////////////// Key stuff ////////////////////
 
@@ -384,20 +379,21 @@ void create_map_snapshot(void)
             else
             {
                 int32_t i = 0;
-                spritetype *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites),
+                spritetype *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites + 1),
                             *spri = &tspri[0];
-                mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
+                mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites + QADDNSZ);
 
                 for (j=0; j<MAXSPRITES && i < numsprites; j++)
                 {
                     if (sprite[j].statnum != MAXSTATUS)
                     {
-                        Bmemcpy(spri++,&sprite[j],sizeof(spritetype));
+                        Bmemcpy(spri++, &sprite[j], sizeof(spritetype));
                         i++;
                     }
                 }
+
                 mapstate->spritesiz = j = qlz_compress(&tspri[0], (char *)&mapstate->sprites[0],
-                                                       sizeof(spritetype) * numsprites + QADDNSZ, state_compress);
+                                                       sizeof(spritetype) * numsprites, state_compress);
                 mapstate->sprites = (spritetype *)Brealloc(mapstate->sprites, j);
                 mapstate->spritecrc = tempcrc;
                 Bfree(tspri);
@@ -5182,8 +5178,7 @@ static void Keys3d(void)
 
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
             {
-                i = headspritesect[sect];
-                while (i != -1)
+                for (i=headspritesect[sect]; i!=-1; i=nextspritesect[i])
                 {
                     tempint = getceilzofslope(sect, sprite[i].x, sprite[i].y);
                     tempint += (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2;
@@ -5193,8 +5188,6 @@ static void Keys3d(void)
 
                     if (sprite[i].z == tempint)
                         sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
-
-                    i = nextspritesect[i];
                 }
 
                 sector[sect].ceilingz += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
@@ -5207,8 +5200,7 @@ static void Keys3d(void)
 
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
             {
-                i = headspritesect[sect];
-                while (i != -1)
+                for (i=headspritesect[sect]; i!=-1; i=nextspritesect[i])
                 {
                     tempint = getflorzofslope(sect,sprite[i].x,sprite[i].y);
 
@@ -5217,8 +5209,6 @@ static void Keys3d(void)
 
                     if (sprite[i].z == tempint)
                         sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
-
-                    i = nextspritesect[i];
                 }
 
                 sector[sect].floorz += tsign * (updownunits << (eitherCTRL<<1)); // JBF 20031128
@@ -6476,7 +6466,7 @@ static void Keys3d(void)
             wall[w].xrepeat = 8;
             wall[w].yrepeat = 8;
             wall[w].cstat = 0;
-            fixrepeats((int16_t)searchwall);
+            fixrepeats(searchwall);
         }
         else if (AIMING_AT_CEILING_OR_FLOOR)
         {
@@ -10255,6 +10245,14 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                 }
                             }
                         }
+#if 0
+                        // this one usually appears together with the "already referenced" corruption
+                        else if (wall[nw].nextsector != i || wall[nw].nextwall != j)
+                        {
+                            CORRUPTCHK_PRINT(4, CORRUPT_WALL|nw, "WALL %d nextwall's backreferences inconsistent. Expected nw=%d, ns=%d; got nw=%d, ns=%d",
+                                             nw, i, j, wall[nw].nextsector, wall[nw].nextwall);
+                        }
+#endif
                     }
                 }
 
