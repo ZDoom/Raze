@@ -67,7 +67,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shellapi.h>
-#include <WinIoCtl.h>
 extern int32_t G_GetVersionFromWebsite(char *buffer);
 #define UPDATEINTERVAL 604800 // 1w
 #else
@@ -10048,6 +10047,7 @@ MAIN_LOOP_RESTART:
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         bindsenabled = g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO);
 
+#ifndef _WIN32
         // stdin -> OSD input for dedicated server
         if (g_networkMode == NET_DEDICATED_SERVER)
         {
@@ -10072,6 +10072,7 @@ MAIN_LOOP_RESTART:
             }
         }
         else
+#endif
         {
             MUSIC_Update();
             G_HandleLocalKeys();
