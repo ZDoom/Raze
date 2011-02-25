@@ -307,7 +307,7 @@ void G_DoSectorAnimations(void)
                     if (sprite[g_player[p].ps->i].owner >= 0)
                     {
                         g_player[p].ps->pos.z += v;
-                        g_player[p].ps->posvel.z = 0;
+                        g_player[p].ps->vel.z = 0;
                         if (p == myconnectindex)
                         {
                             my.z += v;
@@ -381,7 +381,7 @@ void G_AnimateCamSprite(void)
             if (waloff[TILE_VIEWSCR] == 0)
                 allocatepermanenttile(TILE_VIEWSCR,tilesizx[PN],tilesizy[PN]);
             else walock[TILE_VIEWSCR] = 255;
-            xyzmirror(OW,/*PN*/TILE_VIEWSCR);
+            G_SetupCamTile(OW,/*PN*/TILE_VIEWSCR);
         }
     }
     else T1++;
@@ -1046,8 +1046,8 @@ void G_OperateActivators(int32_t low,int32_t snum)
                 if (snum >= 0 && snum < ud.multimode)
                 {
                     if (sector[SECT].lotag&16384)
-                        P_DoQuote(4,g_player[snum].ps);
-                    else P_DoQuote(8,g_player[snum].ps);
+                        P_DoQuote(QUOTE_LOCKED,g_player[snum].ps);
+                    else P_DoQuote(QUOTE_UNLOCKED,g_player[snum].ps);
                 }
             }
             else
@@ -1222,21 +1222,21 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
             {
                 if ((g_player[snum].ps->got_access&1))
                     g_player[snum].ps->access_incs = 1;
-                else P_DoQuote(70,g_player[snum].ps);
+                else P_DoQuote(QUOTE_NEED_BLUE_KEY,g_player[snum].ps);
             }
 
             else if (switchpal == 21)
             {
                 if (g_player[snum].ps->got_access&2)
                     g_player[snum].ps->access_incs = 1;
-                else P_DoQuote(71,g_player[snum].ps);
+                else P_DoQuote(QUOTE_NEED_RED_KEY,g_player[snum].ps);
             }
 
             else if (switchpal == 23)
             {
                 if (g_player[snum].ps->got_access&4)
                     g_player[snum].ps->access_incs = 1;
-                else P_DoQuote(72,g_player[snum].ps);
+                else P_DoQuote(QUOTE_NEED_YELLOW_KEY,g_player[snum].ps);
             }
 
             if (g_player[snum].ps->access_incs == 1)
@@ -1565,11 +1565,11 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
                 case 25:
                     actor[x].t_data[4] = !actor[x].t_data[4];
                     if (actor[x].t_data[4])
-                        P_DoQuote(15,g_player[snum].ps);
-                    else P_DoQuote(2,g_player[snum].ps);
+                        P_DoQuote(QUOTE_DEACTIVATED,g_player[snum].ps);
+                    else P_DoQuote(QUOTE_ACTIVATED,g_player[snum].ps);
                     break;
                 case 21:
-                    P_DoQuote(2,g_player[screenpeek].ps);
+                    P_DoQuote(QUOTE_ACTIVATED,g_player[screenpeek].ps);
                     break;
                 }
             }
@@ -1603,7 +1603,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
 
 }
 
-void activatebysector(int32_t sect,int32_t j)
+void G_ActivateBySector(int32_t sect,int32_t j)
 {
     int32_t i = headspritesect[sect];
     int32_t didit = 0;
@@ -2521,7 +2521,7 @@ void G_HandleSharedKeys(int32_t snum)
             {
                 p->quick_kick = 14;
                 if (p->fta == 0 || p->ftq == 80)
-                    P_DoQuote(80,p);
+                    P_DoQuote(QUOTE_MIGHTY_FOOT,p);
             }
         }
 
@@ -2597,7 +2597,7 @@ void G_HandleSharedKeys(int32_t snum)
                 P_UpdateScreenPal(p);
                 p->inven_icon = 5;
                 A_PlaySound(NITEVISION_ONOFF,p->i);
-                P_DoQuote(106+(!p->heat_on),p);
+                P_DoQuote(QUOTE_NVG_OFF-p->heat_on,p);
             }
         }
 
@@ -2611,7 +2611,7 @@ void G_HandleSharedKeys(int32_t snum)
                 {
                     p->inv_amount[GET_STEROIDS]--;
                     A_PlaySound(DUKE_TAKEPILLS,p->i);
-                    P_DoQuote(12,p);
+                    P_DoQuote(QUOTE_USED_STEROIDS,p);
                 }
                 if (p->inv_amount[GET_STEROIDS] > 0)
                     p->inven_icon = 2;
@@ -2710,7 +2710,8 @@ CHECKINV1:
 
                     if (dainv || p->inv_amount[GET_FIRSTAID])
                     {
-                        static const int32_t i[8] = { 3, 90, 91, 88, 101, 89, 6, 0 };
+                        static const int32_t i[8] = { QUOTE_MEDKIT, QUOTE_STEROIDS, QUOTE_HOLODUKE,
+                                                      QUOTE_JETPACK, QUOTE_NVG, QUOTE_SCUBA, QUOTE_BOOTS, 0 };
                         P_DoQuote(i[dainv-1], p);
                     }
                 }
@@ -2919,11 +2920,11 @@ CHECKINV1:
                             T4 = T5 = 0;
                             SP = snum;
                             sprite[i].extra = 0;
-                            P_DoQuote(47,p);
+                            P_DoQuote(QUOTE_HOLODUKE_ON,p);
                             A_PlaySound(TELEPORTER,p->holoduke_on);
                         }
                     }
-                    else P_DoQuote(49,p);
+                    else P_DoQuote(QUOTE_HOLODUKE_NOT_FOUND,p);
                 }
             }
             else
@@ -2934,7 +2935,7 @@ CHECKINV1:
                 {
                     A_PlaySound(TELEPORTER,p->holoduke_on);
                     p->holoduke_on = -1;
-                    P_DoQuote(48,p);
+                    P_DoQuote(QUOTE_HOLODUKE_OFF,p);
                 }
             }
         }
@@ -2966,7 +2967,7 @@ CHECKINV1:
             }
         }
 
-        if (TEST_SYNC_KEY(sb_snum, SK_JETPACK) && p->newowner == -1)
+        if (p->newowner == -1 && TEST_SYNC_KEY(sb_snum, SK_JETPACK))
         {
             aGameVars[g_iReturnVarID].val.lValue = 0;
             VM_OnEvent(EVENT_USEJETPACK,g_player[snum].ps->i,snum, -1);
@@ -2986,19 +2987,19 @@ CHECKINV1:
 
                         A_PlaySound(DUKE_JETPACK_ON,p->i);
 
-                        P_DoQuote(52,p);
+                        P_DoQuote(QUOTE_JETPACK_ON,p);
                     }
                     else
                     {
                         p->hard_landing = 0;
-                        p->posvel.z = 0;
+                        p->vel.z = 0;
                         A_PlaySound(DUKE_JETPACK_OFF,p->i);
                         S_StopEnvSound(DUKE_JETPACK_IDLE,p->i);
                         S_StopEnvSound(DUKE_JETPACK_ON,p->i);
-                        P_DoQuote(53,p);
+                        P_DoQuote(QUOTE_JETPACK_OFF,p);
                     }
                 }
-                else P_DoQuote(50,p);
+                else P_DoQuote(QUOTE_JETPACK_NOT_FOUND,p);
             }
         }
 
@@ -3031,13 +3032,14 @@ int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
     SZ += zoff;
 
     *hitsp = hitinfo.hitsprite;
+
     if (hitinfo.hitwall >= 0 && (wall[hitinfo.hitwall].cstat&16) && A_CheckEnemySprite(&sprite[i]))
         return((1<<30));
 
     return (FindDistance2D(hitinfo.pos.x-SX,hitinfo.pos.y-SY));
 }
 
-static int32_t hitawall(DukePlayer_t *p,int16_t *hitw)
+static int32_t P_FindWall(DukePlayer_t *p,int16_t *hitw)
 {
     hitdata_t hitinfo;
 
@@ -3064,7 +3066,7 @@ void P_CheckSectors(int32_t snum)
 
         case 32767:
             sector[p->cursectnum].lotag = 0;
-            P_DoQuote(9,p);
+            P_DoQuote(QUOTE_FOUND_SECRET,p);
             p->secret_rooms++;
             return;
         case -1:
@@ -3144,7 +3146,7 @@ void P_CheckSectors(int32_t snum)
         p->toggle_key_flag = 1;
         hitscanwall = -1;
 
-        i = hitawall(p,&hitscanwall);
+        i = P_FindWall(p,&hitscanwall);
 
         if (i < 1280 && hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR)
             if (wall[hitscanwall].lotag > 0 && !A_CheckSoundPlaying(p->i,wall[hitscanwall].lotag) && snum == screenpeek)
@@ -3247,7 +3249,7 @@ void P_CheckSectors(int32_t snum)
                 return;
 
             case NUKEBUTTON__STATIC:
-                hitawall(p,&j);
+                P_FindWall(p,&j);
                 if (j >= 0 && wall[j].overpicnum == 0)
                     if (actor[neartagsprite].t_data[0] == 0)
                     {

@@ -64,7 +64,7 @@ extern "C" {
 #define WW2GI               (g_gameType & 2)
 
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
-#define BYTEVERSION_JF      195
+#define BYTEVERSION_JF      198
 #define BYTEVERSION_13      27
 #define BYTEVERSION_14      116
 #define BYTEVERSION_15      117
@@ -86,15 +86,10 @@ extern "C" {
 #define TICSPERFRAME        4
 #define TICRATE             120
 
-#define MAXQUOTES           16384
-#define MAXQUOTELEN         128
-#define OBITQUOTEINDEX      MAXQUOTES-128
-#define SUICIDEQUOTEINDEX   MAXQUOTES-32
-
 #define NO                  0
 #define YES                 1
 
-#define PACKBUF_SIZE        65535
+#define PACKBUF_SIZE        2048
 
 #define TILE_SAVESHOT       (MAXTILES-1)
 #define TILE_LOADSHOT       (MAXTILES-3)
@@ -118,6 +113,7 @@ extern "C" {
 #include "music.h"
 #include "player.h"
 #include "actors.h"
+#include "quotes.h"
 #include "global.h"
 #include "sector.h"
 #include "net.h"

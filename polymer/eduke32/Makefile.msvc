@@ -20,8 +20,8 @@ EDITORLIB=build.lib
 
 # the WDK allows us to link against msvcrt.dll instead of msvcrxxx.dll
 # this path should match build\Makefile.msvc
-WDKROOT="C:\WinDDK\7600.16385.1"
-DXROOT="C:\Program Files\Microsoft DirectX SDK (February 2010)"
+WDKROOT="H:\WinDDK\7600.16385.1"
+DXROOT="H:\Microsoft DirectX SDK (February 2010)"
 
 !ifdef DEBUG
 # debugging options

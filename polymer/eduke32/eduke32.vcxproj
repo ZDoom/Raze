@@ -120,6 +120,7 @@
     <ClInclude Include="source\net.h" />
     <ClInclude Include="source\player.h" />
     <ClInclude Include="source\premap.h" />
+    <ClInclude Include="source\quotes.h" />
     <ClInclude Include="source\savegame.h" />
     <ClInclude Include="source\sector.h" />
     <ClInclude Include="source\_functio.h" />

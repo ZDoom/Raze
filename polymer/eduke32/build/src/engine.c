@@ -6152,7 +6152,7 @@ static void sighandler(int32_t sig, const siginfo_t *info, void *ctx)
 //
 static int32_t preinitcalled = 0;
 
-#define DYNALLOC_ARRAYS
+// #define DYNALLOC_ARRAYS
 
 #ifndef DYNALLOC_ARRAYS
 static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];

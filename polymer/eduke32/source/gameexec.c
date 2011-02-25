@@ -83,56 +83,47 @@ void VM_ScriptInfo(void)
 
 void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int32_t iPlayer, register int32_t lDist)
 {
-    if (iEventID < 0 || iEventID >= MAXGAMEEVENTS || apScriptGameEvent[iEventID] == 0)
+    if (!apScriptGameEvent[iEventID])
         return;
+
+    insptr = apScriptGameEvent[iEventID];
 
     {
         intptr_t *oinsptr=insptr;
         vmstate_t vm_backup;
         vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
-                             &sprite[iActor], 0
-                           };
+                             &sprite[iActor], 0 };
 
         Bmemcpy(&vm_backup, &vm, sizeof(vmstate_t));
         Bmemcpy(&vm, &tempvm, sizeof(vmstate_t));
-
-        insptr = apScriptGameEvent[iEventID];
 
         VM_Execute(0);
 
         if (vm.g_flags & VM_KILL)
         {
             // if player was set to squish, first stop that...
-            if (vm.g_p >= 0)
-            {
-                if (g_player[vm.g_p].ps->actorsqu == vm.g_i)
-                    g_player[vm.g_p].ps->actorsqu = -1;
-            }
+            if (vm.g_p >= 0 && g_player[vm.g_p].ps->actorsqu == vm.g_i)
+                g_player[vm.g_p].ps->actorsqu = -1;
+
             deletesprite(vm.g_i);
         }
 
         Bmemcpy(&vm, &vm_backup, sizeof(vmstate_t));
-        insptr=oinsptr;
+        insptr = oinsptr;
     }
 }
 
-static int32_t VM_CheckSquished(void)
+static inline int32_t VM_CheckSquished(void)
 {
     sectortype *sc = &sector[vm.g_sp->sectnum];
-    int32_t squishme = 0;
 
-    if ((vm.g_sp->picnum == APLAYER && ud.clipping) || sc->lotag == 23)
+    if ((vm.g_sp->picnum == APLAYER && ud.clipping) || sc->lotag == 23 || 
+        (vm.g_sp->pal == 1 ?
+        !(sc->floorz - sc->ceilingz < (32<<8) && (sc->lotag&32768) == 0) :
+    !(sc->floorz - sc->ceilingz < (12<<8))))
         return 0;
 
-    squishme = (sc->floorz - sc->ceilingz < (12<<8)); // && (sc->lotag&32768) == 0;
-
-    if (vm.g_sp->pal == 1)
-        squishme = (sc->floorz - sc->ceilingz < (32<<8) && (sc->lotag&32768) == 0);
-
-    if (!squishme)
-        return 0;
-
-    P_DoQuote(10, g_player[vm.g_p].ps);
+    P_DoQuote(QUOTE_SQUISHED, g_player[vm.g_p].ps);
 
     if (A_CheckEnemySprite(vm.g_sp)) vm.g_sp->xvel = 0;
 
@@ -152,13 +143,12 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *p)
 
     p->horiz += 64;
     p->return_to_center = 9;
-    p->look_ang = n>>1;
-    p->rotscrnang = n>>1;
+    p->look_ang = p->rotscrnang = n>>1;
 }
 
 GAMEEXEC_STATIC int32_t A_Dodge(spritetype *s)
 {
-    int32_t bx,by,bxvect,byvect,d,i;
+    int32_t bx,by,bxvect,byvect,i;
     int32_t mx = s->x, my = s->y;
     int32_t mxvect = sintable[(s->ang+512)&2047];
     int32_t myvect = sintable[s->ang&2047];
@@ -168,7 +158,7 @@ GAMEEXEC_STATIC int32_t A_Dodge(spritetype *s)
 
     for (i=headspritestat[STAT_PROJECTILE]; i>=0; i=nextspritestat[i]) //weapons list
     {
-        if (OW == i/* || SECT != s->sectnum*/)
+        if (OW == i)
             continue;
 
         bx = SX-mx;
@@ -176,16 +166,14 @@ GAMEEXEC_STATIC int32_t A_Dodge(spritetype *s)
         bxvect = sintable[(SA+512)&2047];
         byvect = sintable[SA&2047];
 
-        if (mxvect *bx + myvect *by >= 0)
-            if (bxvect*bx + byvect*by < 0)
+        if ((mxvect * bx) + (myvect * by) >= 0 && (bxvect * bx) + (byvect * by) < 0)
+        {
+            if (klabs((bxvect * by) - (byvect * bx)) < 65536<<6)
             {
-                d = bxvect*by - byvect*bx;
-                if (klabs(d) < 65536*64)
-                {
-                    s->ang -= 512+(krand()&1024);
-                    return 1;
-                }
+                s->ang -= 512+(krand()&1024);
+                return 1;
             }
+        }
     }
     return 0;
 }
@@ -508,8 +496,8 @@ GAMEEXEC_STATIC void VM_Move(void)
 
     if (a&face_player_smart && !deadflag)
     {
-        int32_t newx = g_player[vm.g_p].ps->pos.x+(g_player[vm.g_p].ps->posvel.x/768);
-        int32_t newy = g_player[vm.g_p].ps->pos.y+(g_player[vm.g_p].ps->posvel.y/768);
+        int32_t newx = g_player[vm.g_p].ps->pos.x+(g_player[vm.g_p].ps->vel.x/768);
+        int32_t newy = g_player[vm.g_p].ps->pos.y+(g_player[vm.g_p].ps->vel.y/768);
 
         goalang = getangle(newx-vm.g_sp->x,newy-vm.g_sp->y);
         angdif = G_GetAngleDelta(vm.g_sp->ang,goalang)>>2;
@@ -613,13 +601,13 @@ GAMEEXEC_STATIC void VM_Move(void)
 
                 if (vm.g_x < 512)
                 {
-                    g_player[vm.g_p].ps->posvel.x = 0;
-                    g_player[vm.g_p].ps->posvel.y = 0;
+                    g_player[vm.g_p].ps->vel.x = 0;
+                    g_player[vm.g_p].ps->vel.y = 0;
                 }
                 else
                 {
-                    g_player[vm.g_p].ps->posvel.x = mulscale(g_player[vm.g_p].ps->posvel.x,g_player[vm.g_p].ps->runspeed-0x2000,16);
-                    g_player[vm.g_p].ps->posvel.y = mulscale(g_player[vm.g_p].ps->posvel.y,g_player[vm.g_p].ps->runspeed-0x2000,16);
+                    g_player[vm.g_p].ps->vel.x = mulscale(g_player[vm.g_p].ps->vel.x,g_player[vm.g_p].ps->runspeed-0x2000,16);
+                    g_player[vm.g_p].ps->vel.y = mulscale(g_player[vm.g_p].ps->vel.y,g_player[vm.g_p].ps->runspeed-0x2000,16);
                 }
             }
             else if (vm.g_sp->picnum != DRONE && vm.g_sp->picnum != SHARK && vm.g_sp->picnum != COMMANDER)
@@ -1437,7 +1425,7 @@ skip_check:
                 {
                 case CON_ACTIVATEBYSECTOR:
                     if ((var1<0 || var1>=numsectors)) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
-                    activatebysector(var1, var2);
+                    G_ActivateBySector(var1, var2);
                     break;
                 case CON_OPERATESECTORS:
                     if ((var1<0 || var1>=numsectors)) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
@@ -3048,7 +3036,7 @@ nullquote:
             if ((l&8) && g_player[vm.g_p].ps->on_ground && TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_CROUCH))
                 j = 1;
             else if ((l&16) && g_player[vm.g_p].ps->jumping_counter == 0 && !g_player[vm.g_p].ps->on_ground &&
-                     g_player[vm.g_p].ps->posvel.z > 2048)
+                     g_player[vm.g_p].ps->vel.z > 2048)
                 j = 1;
             else if ((l&32) && g_player[vm.g_p].ps->jumping_counter > 348)
                 j = 1;
@@ -4853,8 +4841,9 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     if (vm.g_flags & VM_KILL)
     {
         // if player was set to squish, first stop that...
-        if (g_player[vm.g_p].ps->actorsqu == vm.g_i)
+        if (vm.g_p >= 0 && g_player[vm.g_p].ps->actorsqu == vm.g_i)
             g_player[vm.g_p].ps->actorsqu = -1;
+
         deletesprite(vm.g_i);
         return;
     }
@@ -5195,7 +5184,7 @@ void G_RestoreMapState(mapstate_t *save)
 
         Net_ResetPrediction();
 
-        clearfifo();
+        G_ClearFIFO();
         G_ResetTimers();
     }
 }

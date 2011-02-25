@@ -33,6 +33,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define AUTO_AIM_ANGLE              48
 #define PHEIGHT                     (38<<8)
 
+#define TRIPBOMB_TRIPWIRE       0x00000001
+#define TRIPBOMB_TIMER          0x00000002
+
+#define PIPEBOMB_REMOTE         0x00000001
+#define PIPEBOMB_TIMER          0x00000002
+
 enum dukeinv_t {
     GET_STEROIDS,
     GET_SHIELD,
@@ -116,12 +122,6 @@ enum playeraction_t {
     pfacing                     = 0x00010000
 };
 
-#define TRIPBOMB_TRIPWIRE       0x00000001
-#define TRIPBOMB_TIMER          0x00000002
-
-#define PIPEBOMB_REMOTE         0x00000001
-#define PIPEBOMB_TIMER          0x00000002
-
 #pragma pack(push,1)
 typedef struct {
     int32_t ox,oy,oz;
@@ -137,7 +137,7 @@ typedef struct {
 } DukeStatus_t;
 
 typedef struct {
-    vec3_t pos, opos, posvel;
+    vec3_t pos, opos, vel, npos;
     int32_t bobposx, bobposy;
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;
@@ -261,7 +261,7 @@ extern int32_t          g_numObituaries;
 extern int32_t          g_numSelfObituaries;
 extern int32_t          g_weapon_offset;
 extern int32_t          g_weapon_xoffset;
-extern int32_t          jump_timer;
+extern int32_t          g_emuJumpTics;
 extern int32_t          lastvisinc;
 extern int32_t          mouseyaxismode;
 extern int32_t          ticrandomseed;

@@ -67,10 +67,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shellapi.h>
+#include <WinIoCtl.h>
 extern int32_t G_GetVersionFromWebsite(char *buffer);
 #define UPDATEINTERVAL 604800 // 1w
 #else
 static int32_t usecwd = 0;
+#include <sys/ioctl.h>
 #endif /* _WIN32 */
 
 int32_t g_quitDeadline = 0;
@@ -528,7 +530,7 @@ void G_HandleSpecialKeys(void)
 
 //    CONTROL_ProcessBinds();
 
-    if (ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
+    if (g_networkMode != NET_DEDICATED_SERVER && ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
         if (setgamemode(!ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
         {
@@ -546,7 +548,7 @@ void G_HandleSpecialKeys(void)
     {
         KB_ClearKeyDown(sc_F12);
         screencapture("duke0000.tga",0);
-        P_DoQuote(103,g_player[myconnectindex].ps);
+        P_DoQuote(QUOTE_SCREEN_SAVED,g_player[myconnectindex].ps);
     }
 
     // only dispatch commands here when not in a game
@@ -1695,7 +1697,7 @@ static void G_PrintCoords(int32_t snum)
     printext256(250L,y,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"A/H= %d,%d",g_player[snum].ps->ang,g_player[snum].ps->horiz);
     printext256(250L,y+9L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"ZV= %d",g_player[snum].ps->posvel.z);
+    Bsprintf(tempbuf,"ZV= %d",g_player[snum].ps->vel.z);
     printext256(250L,y+18L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"OG= %d",g_player[snum].ps->on_ground);
     printext256(250L,y+27L,31,-1,tempbuf,0);
@@ -1727,7 +1729,7 @@ void G_PrintGameQuotes(void)
         else if (j > 12) k += 24;
     }
 
-    if (g_player[screenpeek].ps->fta > 1 && (g_player[screenpeek].ps->ftq < 115 || g_player[screenpeek].ps->ftq > 117))
+    if (g_player[screenpeek].ps->fta > 1 && (g_player[screenpeek].ps->ftq < QUOTE_RESERVED || g_player[screenpeek].ps->ftq > QUOTE_RESERVED3))
     {
         if (g_player[screenpeek].ps->fta > 6)
             k += 7;
@@ -1778,7 +1780,7 @@ void G_PrintGameQuotes(void)
 
     k = 0;
 
-    if (g_player[screenpeek].ps->ftq == 115 || g_player[screenpeek].ps->ftq == 116 || g_player[screenpeek].ps->ftq == 117)
+    if (g_player[screenpeek].ps->ftq >= QUOTE_RESERVED && g_player[screenpeek].ps->ftq <= QUOTE_RESERVED3)
     {
         k = 140;//quotebot-8-4;
     }
@@ -1826,8 +1828,8 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
     if (ud.fta_on == 0)
         return;
 
-    if (p->fta > 0 && q != 115 && q != 116)
-        if (p->ftq == 115 || p->ftq == 116) return;
+    if (p->fta > 0 && q != QUOTE_RESERVED && q != QUOTE_RESERVED2)
+        if (p->ftq == QUOTE_RESERVED || p->ftq == QUOTE_RESERVED2) return;
 
     p->fta = 100;
 
@@ -3219,6 +3221,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     int32_t tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
 
     int32_t tmpyx=yxaspect, tmpvr=viewingrange;
+
+    if (g_networkMode == NET_DEDICATED_SERVER) return;
 
     if (pub > 0 || getrendermode() >= 3) // JBF 20040101: redraw background always
     {
@@ -6661,7 +6665,7 @@ GAME_STATIC void G_DoCheats(void)
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {
                 g_player[myconnectindex].ps->cheat_phase = 0;
-                //                             P_DoQuote(46,g_player[myconnectindex].ps);
+                //                             P_DoQuote(QUOTE_46,g_player[myconnectindex].ps);
                 return;
             }
 
@@ -6709,14 +6713,14 @@ FOUNDCHEAT:
 
                     KB_FlushKeyBoardQueue();
                     g_player[myconnectindex].ps->cheat_phase = 0;
-                    P_DoQuote(119,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_ALL_WEAPONS, g_player[myconnectindex].ps);
                     return;
 
                 case CHEAT_INVENTORY:
                     KB_FlushKeyBoardQueue();
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     G_CheatGetInv();
-                    P_DoQuote(120,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_ALL_INV, g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     return;
 
@@ -6724,7 +6728,7 @@ FOUNDCHEAT:
                     g_player[myconnectindex].ps->got_access =  7;
                     KB_FlushKeyBoardQueue();
                     g_player[myconnectindex].ps->cheat_phase = 0;
-                    P_DoQuote(121,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_ALL_KEYS, g_player[myconnectindex].ps);
                     return;
 
                 case CHEAT_DEBUG:
@@ -6743,7 +6747,7 @@ FOUNDCHEAT:
                     ud.clipping = 1-ud.clipping;
                     KB_FlushKeyBoardQueue();
                     g_player[myconnectindex].ps->cheat_phase = 0;
-                    P_DoQuote(112+ud.clipping,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_NOCLIP-ud.clipping, g_player[myconnectindex].ps);
                     return;
 
                 case CHEAT_RESERVED2:
@@ -6753,7 +6757,7 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_ALLEN:
-                    P_DoQuote(79,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_ALLEN,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_ClearKeyDown(sc_N);
                     return;
@@ -6779,7 +6783,7 @@ FOUNDCHEAT:
                         sprite[g_player[myconnectindex].ps->i].lotag = 0;
                         sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].ps->palookup;
 
-                        P_DoQuote(17,g_player[myconnectindex].ps);
+                        P_DoQuote(QUOTE_CHEAT_GODMODE_ON,g_player[myconnectindex].ps);
                     }
                     else
                     {
@@ -6787,7 +6791,7 @@ FOUNDCHEAT:
                         sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
                         actor[g_player[myconnectindex].ps->i].extra = -1;
                         g_player[myconnectindex].ps->last_extra = g_player[myconnectindex].ps->max_player_health;
-                        P_DoQuote(18,g_player[myconnectindex].ps);
+                        P_DoQuote(QUOTE_CHEAT_GODMODE_OFF,g_player[myconnectindex].ps);
                     }
 
                     sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
@@ -6816,9 +6820,9 @@ FOUNDCHEAT:
                         sprite[g_player[myconnectindex].ps->i].hitag = 0;
                         sprite[g_player[myconnectindex].ps->i].lotag = 0;
                         sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].ps->palookup;
-                        Bstrcpy(ScriptQuotes[122],"COME GET SOME!");
+                        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4],"COME GET SOME!");
                         S_PlaySound(DUKE_GETWEAPON2);
-                        P_DoQuote(122,g_player[myconnectindex].ps);
+                        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
                         G_CheatGetInv();
                         for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
                             g_player[myconnectindex].ps->gotweapon |= (1<<weapon);
@@ -6834,7 +6838,7 @@ FOUNDCHEAT:
                         sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
                         actor[g_player[myconnectindex].ps->i].extra = -1;
                         g_player[myconnectindex].ps->last_extra = g_player[myconnectindex].ps->max_player_health;
-                        P_DoQuote(18,g_player[myconnectindex].ps);
+                        P_DoQuote(QUOTE_CHEAT_GODMODE_OFF, g_player[myconnectindex].ps);
                     }
 
                     sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
@@ -6859,10 +6863,10 @@ FOUNDCHEAT:
                         P_AddAmmo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
                     G_CheatGetInv();
                     g_player[myconnectindex].ps->got_access =              7;
-                    P_DoQuote(5,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_EVERYTHING, g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
 
-                    //                        P_DoQuote(21,g_player[myconnectindex].ps);
+                    //                        P_DoQuote(QUOTE_21,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     g_player[myconnectindex].ps->inven_icon = 1;
@@ -6937,14 +6941,14 @@ FOUNDCHEAT:
                         g_cameraDistance = 0;
                         g_cameraClock = totalclock;
                     }
-                    P_DoQuote(22,g_player[myconnectindex].ps);
+//                    P_DoQuote(QUOTE_CHEATS_DISABLED,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_TIME:
 
-                    P_DoQuote(21,g_player[myconnectindex].ps);
+//                    P_DoQuote(QUOTE_21,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
@@ -6965,7 +6969,7 @@ FOUNDCHEAT:
                     }
                     G_OperateForceFields(g_player[myconnectindex].ps->i,-1);
 
-                    P_DoQuote(100,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_UNLOCK,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
@@ -6979,7 +6983,7 @@ FOUNDCHEAT:
                 case CHEAT_ITEMS:
                     G_CheatGetInv();
                     g_player[myconnectindex].ps->got_access =              7;
-                    P_DoQuote(5,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_EVERYTHING,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
@@ -6992,7 +6996,7 @@ FOUNDCHEAT:
                             show2dsector[i] = 255;
                         for (i=0; i<(MAXWALLS>>3); i++)
                             show2dwall[i] = 255;
-                        P_DoQuote(111,g_player[myconnectindex].ps);
+                        P_DoQuote(QUOTE_SHOW_MAP_ON, g_player[myconnectindex].ps);
                     }
                     else
                     {
@@ -7000,14 +7004,14 @@ FOUNDCHEAT:
                             show2dsector[i] = 0;
                         for (i=0; i<(MAXWALLS>>3); i++)
                             show2dwall[i] = 0;
-                        P_DoQuote(1,g_player[myconnectindex].ps);
+                        P_DoQuote(QUOTE_SHOW_MAP_OFF, g_player[myconnectindex].ps);
                     }
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_TODD:
-                    P_DoQuote(99,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_TODD,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
                     return;
@@ -7019,7 +7023,7 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_BETA:
-                    P_DoQuote(105,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_BETA,g_player[myconnectindex].ps);
                     KB_ClearKeyDown(sc_H);
                     g_player[myconnectindex].ps->cheat_phase = 0;
                     KB_FlushKeyBoardQueue();
@@ -7029,19 +7033,22 @@ FOUNDCHEAT:
                     g_player[myconnectindex].ps->inv_amount[GET_STEROIDS] = 399;
                     g_player[myconnectindex].ps->inv_amount[GET_HEATS] = 1200;
                     g_player[myconnectindex].ps->cheat_phase = 0;
-                    P_DoQuote(37,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_STEROIDS,g_player[myconnectindex].ps);
                     KB_FlushKeyBoardQueue();
                     return;
 
                 case CHEAT_MONSTERS:
                 {
-                    char *s[] = { "ON", "OFF", "ON" };
+                    char *s[] = { "ON", "OFF" };
 
-                    g_noEnemies++;
-                    if (g_noEnemies == 3) g_noEnemies = 0;
+                    if (++g_noEnemies == 3)
+                        g_noEnemies = 0;
+
                     g_player[screenpeek].ps->cheat_phase = 0;
-                    Bsprintf(ScriptQuotes[122],"MONSTERS: %s",s[(uint8_t)g_noEnemies]);
-                    P_DoQuote(122,g_player[myconnectindex].ps);
+
+                    Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "MONSTERS: %s", s[g_noEnemies%1]);
+                    P_DoQuote(QUOTE_RESERVED4,g_player[myconnectindex].ps);
+
                     KB_FlushKeyBoardQueue();
                     return;
                 }
@@ -7073,13 +7080,13 @@ FOUNDCHEAT:
             {
                 if (ud.player_skill == 4)
                 {
-                    P_DoQuote(22,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEATS_DISABLED,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->cheat_phase = 0;
                 }
                 else
                 {
                     g_player[myconnectindex].ps->cheat_phase = 1;
-                    //                    P_DoQuote(25,g_player[myconnectindex].ps);
+                    //                    P_DoQuote(QUOTE_25,g_player[myconnectindex].ps);
                     cheatbuflen = 0;
                 }
                 KB_FlushKeyboardQueue();
@@ -7192,14 +7199,14 @@ void G_HandleLocalKeys(void)
     {
         CONTROL_ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.config.ShowOpponentWeapons = ud.showweapons = 1-ud.showweapons;
-        P_DoQuote(82-ud.showweapons,g_player[screenpeek].ps);
+        P_DoQuote(QUOTE_WEAPON_MODE_OFF-ud.showweapons,g_player[screenpeek].ps);
     }
 
     if (BUTTON(gamefunc_Toggle_Crosshair))
     {
         CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
         ud.crosshair = !ud.crosshair;
-        P_DoQuote(21-ud.crosshair,g_player[screenpeek].ps);
+        P_DoQuote(QUOTE_CROSSHAIR_OFF-ud.crosshair,g_player[screenpeek].ps);
     }
 
     if (ud.overhead_on && BUTTON(gamefunc_Map_Follow_Mode))
@@ -7212,7 +7219,7 @@ void G_HandleLocalKeys(void)
             ud.foly = g_player[screenpeek].ps->opos.y;
             ud.fola = g_player[screenpeek].ps->oang;
         }
-        P_DoQuote(83+ud.scrollmode,g_player[myconnectindex].ps);
+        P_DoQuote(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,g_player[myconnectindex].ps);
     }
 
     if (KB_UnBoundKeyPressed(sc_ScrollLock))
@@ -7338,7 +7345,7 @@ void G_HandleLocalKeys(void)
         {
             if (SHIFTS_IS_PRESSED)
             {
-                if (i == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == 26)
+                if (i == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == QUOTE_MUSIC)
                 {
                     i = (VOLUMEALL?MAXVOLUMES*MAXLEVELS:6);
                     g_musicIndex = (g_musicIndex+1)%i;
@@ -7351,10 +7358,10 @@ void G_HandleLocalKeys(void)
                     if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
                     {
                         if (S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex))
-                            Bsprintf(ScriptQuotes[26],"PLAYING %s",&MapInfo[(uint8_t)g_musicIndex].alt_musicfn[0]);
+                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"PLAYING %s",&MapInfo[(uint8_t)g_musicIndex].alt_musicfn[0]);
                         else
-                            Bsprintf(ScriptQuotes[26],"PLAYING %s",&MapInfo[(uint8_t)g_musicIndex].musicfn[0]);
-                        P_DoQuote(26,g_player[myconnectindex].ps);
+                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"PLAYING %s",&MapInfo[(uint8_t)g_musicIndex].musicfn[0]);
+                        P_DoQuote(QUOTE_MUSIC,g_player[myconnectindex].ps);
                     }
                     return;
                 }
@@ -7473,7 +7480,7 @@ void G_HandleLocalKeys(void)
 FAKE_F2:
                 if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
                 {
-                    P_DoQuote(118,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_SAVE_DEAD,g_player[myconnectindex].ps);
                     return;
                 }
                 ChangeToMenu(350);
@@ -7542,7 +7549,7 @@ FAKE_F3:
 
             if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
             {
-                P_DoQuote(118,g_player[myconnectindex].ps);
+                P_DoQuote(QUOTE_SAVE_DEAD,g_player[myconnectindex].ps);
                 return;
             }
             g_screenCapture = 1;
@@ -7571,32 +7578,32 @@ FAKE_F3:
                 g_cameraDistance = 0;
                 g_cameraClock = totalclock;
             }
-            P_DoQuote(109+g_player[myconnectindex].ps->over_shoulder_on,g_player[myconnectindex].ps);
+            P_DoQuote(QUOTE_VIEW_MODE_OFF+g_player[myconnectindex].ps->over_shoulder_on,g_player[myconnectindex].ps);
         }
 
         if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicDevice >= 0)
         {
             KB_ClearKeyDown(sc_F5);
             if (MapInfo[(uint8_t)g_musicIndex].alt_musicfn != NULL)
-                Bstrcpy(ScriptQuotes[26],&MapInfo[(uint8_t)g_musicIndex].alt_musicfn[0]);
+                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],&MapInfo[(uint8_t)g_musicIndex].alt_musicfn[0]);
             else if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
             {
-                Bstrcpy(ScriptQuotes[26],&MapInfo[(uint8_t)g_musicIndex].musicfn[0]);
-                Bstrcat(ScriptQuotes[26],".  USE SHIFT-F5 TO CHANGE.");
+                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],&MapInfo[(uint8_t)g_musicIndex].musicfn[0]);
+                Bstrcat(ScriptQuotes[QUOTE_MUSIC],".  USE SHIFT-F5 TO CHANGE.");
             }
-            else ScriptQuotes[26][0] = '\0';
-            P_DoQuote(26,g_player[myconnectindex].ps);
+            else ScriptQuotes[QUOTE_MUSIC][0] = '\0';
+            P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
         }
 
         if (KB_UnBoundKeyPressed(sc_F8))
         {
             KB_ClearKeyDown(sc_F8);
             ud.fta_on = !ud.fta_on;
-            if (ud.fta_on) P_DoQuote(23,g_player[myconnectindex].ps);
+            if (ud.fta_on) P_DoQuote(QUOTE_MESSAGES_ON,g_player[myconnectindex].ps);
             else
             {
                 ud.fta_on = 1;
-                P_DoQuote(24,g_player[myconnectindex].ps);
+                P_DoQuote(QUOTE_MESSAGES_OFF,g_player[myconnectindex].ps);
                 ud.fta_on = 0;
             }
         }
@@ -7673,7 +7680,7 @@ FAKE_F3:
     {
         CONTROL_ClearButton(gamefunc_AutoRun);
         ud.auto_run = 1-ud.auto_run;
-        P_DoQuote(85+ud.auto_run,g_player[myconnectindex].ps);
+        P_DoQuote(QUOTE_RUN_MODE_OFF+ud.auto_run,g_player[myconnectindex].ps);
     }
 
     if (BUTTON(gamefunc_Map))
@@ -7809,7 +7816,7 @@ static int32_t getfilenames(const char *path, char kind[])
 }
 
 static char *autoloadmasks[] = { "*.grp", "*.zip", "*.pk3" };
-#define NUMAUTOLOADMASKS 3
+#define NUMAUTOLOADMASKS (int32_t)(sizeof(autoloadmasks)/sizeof(autoloadmasks[0]))
 
 static void G_DoAutoload(const char *fn)
 {
@@ -7829,7 +7836,7 @@ static void G_DoAutoload(const char *fn)
     }
 }
 
-static char *makename(char *destname, char *OGGname, const char *origname)
+static char *S_OggifyFilename(char *destname, char *OGGname, const char *origname)
 {
     if (!origname)
         return destname;
@@ -7859,7 +7866,7 @@ static int32_t S_DefineSound(int32_t ID,char *name)
 {
     if (ID >= MAXSOUNDS)
         return 1;
-    g_sounds[ID].filename1 =makename(g_sounds[ID].filename1,name,g_sounds[ID].filename);
+    g_sounds[ID].filename1 =S_OggifyFilename(g_sounds[ID].filename1,name,g_sounds[ID].filename);
 //    initprintf("(%s)(%s)(%s)\n",g_sounds[ID].filename1,name,g_sounds[ID].filename);
 //    S_LoadSound(ID);
     return 0;
@@ -7899,7 +7906,7 @@ static int32_t S_DefineMusic(char *ID,char *name)
         ID = MapInfo[sel].musicfn;
     }
 
-    MapInfo[sel].alt_musicfn = makename(MapInfo[sel].alt_musicfn,name,ID);
+    MapInfo[sel].alt_musicfn = S_OggifyFilename(MapInfo[sel].alt_musicfn,name,ID);
 //    initprintf("%-15s | ",ID);
 //    initprintf("%3d %2d %2d | %s\n",sel,ep,lev,MapInfo[sel].alt_musicfn);
 //    S_PlayMusic(ID,sel);
@@ -8190,14 +8197,14 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
         initprintf("\n");
 
         i = 1;
-        while (i < argc)
+        do
         {
             c = (char *)argv[i];
             if ((*c == '-')
 #ifdef _WIN32
-                || (*c == '/')
+                    || (*c == '/')
 #endif
-                )
+               )
             {
                 if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
                 {
@@ -8318,7 +8325,14 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 }
                 if (!Bstrcasecmp(c+1,"server"))
                 {
-                    g_netServerMode = 1;
+                    g_networkMode = NET_SERVER;
+                    g_noSetup = g_noLogo = TRUE;
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"dedicated"))
+                {
+                    g_networkMode = NET_DEDICATED_SERVER;
                     g_noSetup = g_noLogo = TRUE;
                     i++;
                     continue;
@@ -8430,9 +8444,9 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
             if ((*c == '-')
 #ifdef _WIN32
-                || (*c == '/')
+                    || (*c == '/')
 #endif
-                )
+               )
             {
                 c++;
                 switch (Btolower(*c))
@@ -8648,6 +8662,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             }
             i++;
         }
+        while (i < argc);
     }
 }
 
@@ -9305,6 +9320,7 @@ int32_t app_main(int32_t argc,const char **argv)
                 break;
         }
     }
+
     if (i == argc && win_checkinstance())
     {
         if (!wm_ynbox("EDuke32","Another Build game is currently running. "
@@ -9747,7 +9763,7 @@ CLEAN_DIRECTORY:
     if (g_scriptDebug)
         initprintf("CON debugging activated (level %d).\n",g_scriptDebug);
 
-    if (g_netServerMode)
+    if (g_networkMode == NET_SERVER || g_networkMode == NET_DEDICATED_SERVER)
     {
         ENetAddress address = { ENET_HOST_ANY, g_netPort };
         g_netServer = enet_host_create(&address, MAXPLAYERS, CHAN_MAX, 0, 0);
@@ -9842,23 +9858,26 @@ CLEAN_DIRECTORY:
     OSD_SetVersion(tempbuf, 10,0);
     registerosdcommands();
 
-    if (CONTROL_Startup(1, &GetTime, TICRATE))
+    if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        fprintf(stderr, "There was an error initializing the CONTROL system.\n");
-        uninitengine();
-        exit(5);
+        if (CONTROL_Startup(1, &GetTime, TICRATE))
+        {
+            fprintf(stderr, "There was an error initializing the CONTROL system.\n");
+            uninitengine();
+            exit(5);
+        }
+
+        G_SetupGameButtons();
+        CONFIG_SetupMouse();
+        CONFIG_SetupJoystick();
+
+        CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
+        CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
+
+        // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
+        for (i=0; i<joynumaxes; i++)
+            setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
     }
-
-    G_SetupGameButtons();
-    CONFIG_SetupMouse();
-    CONFIG_SetupJoystick();
-
-    CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
-    CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
-
-    // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-    for (i=0; i<joynumaxes; i++)
-        setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
 
     {
         char *ptr = Bstrdup(setupfilename), *p = strtok(ptr,".");
@@ -9869,53 +9888,55 @@ CLEAN_DIRECTORY:
         Bfree(ptr);
     }
 
-    i = clipmapinfo_load("_clipshape0.map");
-    if (i>0)
+    if ((i = clipmapinfo_load("_clipshape0.map")) > 0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", i);
 
     OSD_Exec("autoexec.cfg");
 
-    if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
+    if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        int32_t i = 0;
-        int32_t xres[] = {ud.config.ScreenWidth,800,640,320};
-        int32_t yres[] = {ud.config.ScreenHeight,600,480,240};
-        int32_t bpp[] = {32,16,8};
+        if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
+        {
+            int32_t i = 0;
+            int32_t xres[] = {ud.config.ScreenWidth,800,640,320};
+            int32_t yres[] = {ud.config.ScreenHeight,600,480,240};
+            int32_t bpp[] = {32,16,8};
 
-        initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n",
-                   ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.config.ScreenMode?"fullscreen":"windowed");
+            initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n",
+                       ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.config.ScreenMode?"fullscreen":"windowed");
 
 #if defined(POLYMOST) && defined(USE_OPENGL)
-        {
-            int32_t j = 0;
-            while (setgamemode(0,xres[i],yres[i],bpp[j]) < 0)
             {
-                initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],bpp[i]);
-
-                if (++j == 3)
+                int32_t j = 0;
+                while (setgamemode(0,xres[i],yres[i],bpp[j]) < 0)
                 {
-                    if (++i == 4)
-                        G_GameExit("Unable to set failsafe video mode!");
-                    j = 0;
+                    initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],bpp[i]);
+
+                    if (++j == 3)
+                    {
+                        if (++i == 4)
+                            G_GameExit("Unable to set failsafe video mode!");
+                        j = 0;
+                    }
                 }
             }
-        }
 #else
-        while (setgamemode(0,xres[i],yres[i],8) < 0)
-        {
-            initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],8);
-            i++;
-        }
+            while (setgamemode(0,xres[i],yres[i],8) < 0)
+            {
+                initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],8);
+                i++;
+            }
 #endif
-        ud.config.ScreenWidth = xres[i];
-        ud.config.ScreenHeight = yres[i];
-        ud.config.ScreenBPP = bpp[i];
+            ud.config.ScreenWidth = xres[i];
+            ud.config.ScreenHeight = yres[i];
+            ud.config.ScreenBPP = bpp[i];
+        }
+
+        setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
+
+        S_MusicStartup();
+        S_SoundStartup();
     }
-
-    setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
-
-    S_MusicStartup();
-    S_SoundStartup();
 //    loadtmb();
 
     if (ud.warp_on > 1 && (!g_netServer && ud.multimode < 2))
@@ -9939,8 +9960,11 @@ CLEAN_DIRECTORY:
 
 MAIN_LOOP_RESTART:
 
-    G_GetCrosshairColor();
-    G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
+    if (g_networkMode != NET_DEDICATED_SERVER)
+    {
+        G_GetCrosshairColor();
+        G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
+    }
 
     if (ud.warp_on == 0)
     {
@@ -9965,14 +9989,18 @@ MAIN_LOOP_RESTART:
 
             Net_WaitForServer();
         }
-        else G_DisplayLogo();
+        else if (g_networkMode != NET_DEDICATED_SERVER)
+            G_DisplayLogo();
 
-        if (G_PlaybackDemo())
+        if (g_networkMode != NET_DEDICATED_SERVER)
         {
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-            g_noLogoAnim = 1;
-            goto MAIN_LOOP_RESTART;
+            if (G_PlaybackDemo())
+            {
+                FX_StopAllSounds();
+                S_ClearSoundLocks();
+                g_noLogoAnim = 1;
+                goto MAIN_LOOP_RESTART;
+            }
         }
     }
     else if (ud.warp_on == 1)
@@ -10015,19 +10043,49 @@ MAIN_LOOP_RESTART:
         }
 
         sampletimer();
-        MUSIC_Update();
         Net_GetPackets();
-        G_HandleLocalKeys();
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
         bindsenabled = g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO);
 
+        // stdin -> OSD input for dedicated server
+        if (g_networkMode == NET_DEDICATED_SERVER)
+        {
+            int32_t nb, flag = 1;
+            char ch;
+            static uint32_t bufpos = 0;
+            static char buf[128];
+
+            ioctl(0, FIONBIO, &flag);
+                        
+            if ((nb = read(0, &ch, 1)) > 0 && bufpos < sizeof(buf))
+            {
+                if (ch != '\n')
+                    buf[bufpos++] = ch;
+                
+                if (ch == '\n' || bufpos >= sizeof(buf))
+                {
+                    buf[bufpos] = 0;
+                    OSD_Dispatch(buf);
+                    bufpos = 0;
+                }
+            }
+        }
+        else
+        {
+            MUSIC_Update();
+            G_HandleLocalKeys();
+        }
+
         OSD_DispatchQueued();
 
-        if (!(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO)) && totalclock >= ototalclock+TICSPERFRAME)
+        if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
         {
-            CONTROL_ProcessBinds();
-            getinput(myconnectindex);
+            if (g_networkMode != NET_DEDICATED_SERVER)
+            {
+                CONTROL_ProcessBinds();
+                getinput(myconnectindex);
+            }
 
             avg.fvel += loc.fvel;
             avg.svel += loc.svel;
@@ -10065,7 +10123,7 @@ MAIN_LOOP_RESTART:
                         (g_player[myconnectindex].ps->gm&MODE_GAME) && G_MoveLoop())
                     j++;
             }
-            while (!(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO)) && totalclock >= ototalclock+TICSPERFRAME);
+            while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
 
             if (j) continue;
         }
@@ -10092,6 +10150,12 @@ MAIN_LOOP_RESTART:
             g_player[myconnectindex].ps->gm = MODE_GAME;
             Bfree(g_multiMapState);
             g_multiMapState = NULL;
+        }
+
+        if (g_networkMode == NET_DEDICATED_SERVER)
+        {
+            idle();
+            goto skipframe;
         }
 
         if (framewaiting)
@@ -10128,6 +10192,7 @@ MAIN_LOOP_RESTART:
             framewaiting++;
         }
 
+skipframe:
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)
             goto MAIN_LOOP_RESTART;
     }
@@ -10184,12 +10249,12 @@ int32_t G_DoMoveThings(void)
                 sprite[hitinfo.hitsprite].picnum == APLAYER && sprite[hitinfo.hitsprite].yvel != screenpeek &&
                 g_player[sprite[hitinfo.hitsprite].yvel].ps->dead_flag == 0)
         {
-            if (g_player[screenpeek].ps->fta == 0 || g_player[screenpeek].ps->ftq == 117)
+            if (g_player[screenpeek].ps->fta == 0 || g_player[screenpeek].ps->ftq == QUOTE_RESERVED3)
             {
                 if (ldist(&sprite[g_player[screenpeek].ps->i],&sprite[hitinfo.hitsprite]) < 9216)
                 {
-                    Bsprintf(ScriptQuotes[117],"%s",&g_player[sprite[hitinfo.hitsprite].yvel].user_name[0]);
-                    g_player[screenpeek].ps->fta = 12, g_player[screenpeek].ps->ftq = 117;
+                    Bsprintf(ScriptQuotes[QUOTE_RESERVED3],"%s",&g_player[sprite[hitinfo.hitsprite].yvel].user_name[0]);
+                    g_player[screenpeek].ps->fta = 12, g_player[screenpeek].ps->ftq = QUOTE_RESERVED3;
                 }
             }
             else if (g_player[screenpeek].ps->fta > 2) g_player[screenpeek].ps->fta -= 3;
@@ -10301,7 +10366,7 @@ int32_t G_DoMoveThings(void)
         Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->pos.x, sizeof(vec3_t) * 2);
         j += sizeof(vec3_t) * 2;
 
-        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->posvel.x, sizeof(vec3_t));
+        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->vel.x, sizeof(vec3_t));
         j += sizeof(vec3_t);
 
         *(int16_t *)&packbuf[j] = g_player[myconnectindex].ps->ang;
@@ -10402,6 +10467,9 @@ void G_BonusScreen(int32_t bonusonly)
         320, 350,VICTORY1+7,86,59,
         350, 380,VICTORY1+8,86,59
     };
+
+    if (g_networkMode == NET_DEDICATED_SERVER)
+        return;
 
     Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
     wm_setapptitle(tempbuf);
@@ -11190,7 +11258,7 @@ void A_SpawnGlass(int32_t i,int32_t n)
     for (; n>0; n--)
     {
         int32_t k = A_InsertSprite(SECT,SX,SY,SZ-((krand()&16)<<8),GLASSPIECES+(n%3),
-            krand()&15,36,36,krand()&2047,32+(krand()&63),-512-(krand()&2047),i,5);
+                                   krand()&15,36,36,krand()&2047,32+(krand()&63),-512-(krand()&2047),i,5);
         sprite[k].pal = sprite[i].pal;
     }
 }

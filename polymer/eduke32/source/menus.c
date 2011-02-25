@@ -5150,8 +5150,8 @@ VOLUME_ALL_40x:
                 else if (g_netServer)
                     enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
 
-                Bsprintf(ScriptQuotes[116],"VOTE FAILED");
-                P_DoQuote(116,g_player[myconnectindex].ps);
+                Bsprintf(ScriptQuotes[QUOTE_RESERVED2],"VOTE FAILED");
+                P_DoQuote(QUOTE_RESERVED2,g_player[myconnectindex].ps);
                 g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             }
         }

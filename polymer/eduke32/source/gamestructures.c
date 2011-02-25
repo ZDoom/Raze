@@ -1256,11 +1256,11 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
     case PLAYER_OPYOFF:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->opyoff, vm.g_i, vm.g_p); return;
     case PLAYER_POSXV:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posvel.x, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->vel.x, vm.g_i, vm.g_p); return;
     case PLAYER_POSYV:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posvel.y, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->vel.y, vm.g_i, vm.g_p); return;
     case PLAYER_POSZV:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posvel.z, vm.g_i, vm.g_p); return;
+        Gv_SetVar(lVar2, g_player[iPlayer].ps->vel.z, vm.g_i, vm.g_p); return;
     case PLAYER_LAST_PISSED_TIME:
         Gv_SetVar(lVar2, g_player[iPlayer].ps->last_pissed_time, vm.g_i, vm.g_p); return;
     case PLAYER_TRUEFZ:
@@ -1589,11 +1589,11 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
     case PLAYER_OPYOFF:
         g_player[iPlayer].ps->opyoff=lVar1; return;
     case PLAYER_POSXV:
-        g_player[iPlayer].ps->posvel.x=lVar1; return;
+        g_player[iPlayer].ps->vel.x=lVar1; return;
     case PLAYER_POSYV:
-        g_player[iPlayer].ps->posvel.y=lVar1; return;
+        g_player[iPlayer].ps->vel.y=lVar1; return;
     case PLAYER_POSZV:
-        g_player[iPlayer].ps->posvel.z=lVar1; return;
+        g_player[iPlayer].ps->vel.z=lVar1; return;
     case PLAYER_LAST_PISSED_TIME:
         g_player[iPlayer].ps->last_pissed_time=lVar1; return;
     case PLAYER_TRUEFZ:
@@ -3513,11 +3513,11 @@ static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, in
     case PLAYER_OPYOFF:
         return g_player[iPlayer].ps->opyoff;
     case PLAYER_POSXV:
-        return g_player[iPlayer].ps->posvel.x;
+        return g_player[iPlayer].ps->vel.x;
     case PLAYER_POSYV:
-        return g_player[iPlayer].ps->posvel.y;
+        return g_player[iPlayer].ps->vel.y;
     case PLAYER_POSZV:
-        return g_player[iPlayer].ps->posvel.z;
+        return g_player[iPlayer].ps->vel.z;
     case PLAYER_LAST_PISSED_TIME:
         return g_player[iPlayer].ps->last_pissed_time;
     case PLAYER_TRUEFZ:

@@ -99,7 +99,7 @@ int32_t G_LoadSaveHeader(char spot,struct savehead *saveh)
     if (kdfread(&bv,sizeof(bv),1,fil) != 1) goto corrupt;
     /*    if (bv != BYTEVERSION)
         {
-            P_DoQuote(114,g_player[myconnectindex].ps);
+            P_DoQuote(QUOTE_SAVE_BAD_VERSION,g_player[myconnectindex].ps);
             kclose(fil);
             return 1;
         }*/
@@ -154,7 +154,7 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&bv,sizeof(bv),1,fil) != 1) return -1;
     if (bv != BYTEVERSION)
     {
-        P_DoQuote(114,g_player[myconnectindex].ps);
+        P_DoQuote(QUOTE_SAVE_BAD_VERSION,g_player[myconnectindex].ps);
         kclose(fil);
         ototalclock = totalclock;
         ready2send = 1;
@@ -167,7 +167,7 @@ int32_t G_LoadPlayer(int32_t spot)
         kclose(fil);
         ototalclock = totalclock;
         ready2send = 1;
-        P_DoQuote(124,g_player[myconnectindex].ps);
+        P_DoQuote(QUOTE_SAVE_BAD_PLAYERS,g_player[myconnectindex].ps);
         return 1;
     }
     else ud.multimode = nump;
@@ -590,7 +590,7 @@ int32_t G_LoadPlayer(int32_t spot)
 
     ready2send = 1;
 
-    clearfifo();
+    G_ClearFIFO();
     Net_WaitForServer();
 
     G_ResetTimers();
@@ -895,8 +895,8 @@ int32_t G_SavePlayer(int32_t spot)
 
     if ((!g_netServer && ud.multimode < 2))
     {
-        strcpy(ScriptQuotes[122],"GAME SAVED");
-        P_DoQuote(122,g_player[myconnectindex].ps);
+        strcpy(ScriptQuotes[QUOTE_RESERVED4],"GAME SAVED");
+        P_DoQuote(QUOTE_RESERVED4,g_player[myconnectindex].ps);
     }
 
     ready2send = 1;

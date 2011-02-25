@@ -1165,7 +1165,7 @@ static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
     ENetPeer *currentPeer;
     char ipaddr[32];
 
-    if (parm->numparms != 0)
+    if (parm && parm->numparms != 0)
         return OSDCMD_SHOWHELP;
 
     if (!g_netServer)
@@ -1173,6 +1173,8 @@ static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
         initprintf("You are not the server.\n");
         return OSDCMD_OK;
     }
+
+    initprintf("Connected clients:\n");
 
     for (currentPeer = g_netServer -> peers;
             currentPeer < & g_netServer -> peers [g_netServer -> peerCount];
@@ -1222,6 +1224,7 @@ static int32_t osdcmd_kick(const osdfuncparm_t *parm)
     }
 
     initprintf("Player %s not found!\n", parm->parms[0]);
+    osdcmd_listplayers(NULL);
     return OSDCMD_OK;
 }
 
@@ -1264,6 +1267,7 @@ static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
     }
 
     initprintf("Player %s not found!\n", parm->parms[0]);
+    osdcmd_listplayers(NULL);
     return OSDCMD_OK;
 }
 

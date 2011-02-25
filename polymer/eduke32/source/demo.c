@@ -138,8 +138,8 @@ void G_OpenDemoWrite(void)
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) && g_player[myconnectindex].ps->dead_flag)
     {
-        Bstrcpy(ScriptQuotes[122], "CANNOT START DEMO RECORDING WHEN DEAD!");
-        P_DoQuote(122, g_player[myconnectindex].ps);
+        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "CANNOT START DEMO RECORDING WHEN DEAD!");
+        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
         ud.recstat = ud.m_recstat = 0;
         return;
     }
@@ -156,8 +156,8 @@ void G_OpenDemoWrite(void)
                 OSD_Printf("contain a RESIZEARRAY command, you can force recording with the\n");
                 OSD_Printf("`demorec_force' cvar. Alternatively, you can disable diff recording\n");
                 OSD_Printf("with the `demorec_diffs' cvar.\n\n");
-                Bstrcpy(ScriptQuotes[122], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
-                P_DoQuote(122, g_player[myconnectindex].ps);
+                Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
+                P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
                 ud.recstat = ud.m_recstat = 0;
                 return;
             }
@@ -178,8 +178,8 @@ void G_OpenDemoWrite(void)
             demorec_synccompress_cvar|(demorec_seeds_cvar<<1));
         if (i)
         {
-            Bstrcpy(ScriptQuotes[122], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
-            P_DoQuote(122, g_player[myconnectindex].ps);
+            Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
+            P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
             Bfclose(g_demo_filePtr), g_demo_filePtr=NULL;
             ud.recstat = ud.m_recstat = 0;
             return;
@@ -189,8 +189,8 @@ void G_OpenDemoWrite(void)
         demo_synccompress = demorec_synccompress_cvar;
         demorec_difftics = demorec_difftics_cvar;
 
-        Bstrcpy(ScriptQuotes[122], "DEMO RECORDING STARTED");
-        P_DoQuote(122, g_player[myconnectindex].ps);
+        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "DEMO RECORDING STARTED");
+        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
         ud.reccnt = 0;
         ud.recstat = ud.m_recstat = 1;  //
@@ -269,8 +269,8 @@ void G_CloseDemoWrite(void)
 
         sv_freemem();
 
-        Bstrcpy(ScriptQuotes[122], "DEMO RECORDING STOPPED");
-        P_DoQuote(122, g_player[myconnectindex].ps);
+        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "DEMO RECORDING STOPPED");
+        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
     }
 #if KRANDDEBUG
     krd_print("krandrec.log");

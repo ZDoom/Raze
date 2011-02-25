@@ -5552,8 +5552,8 @@ repeatcase:
 
         tempbuf[i] = '\0';
 
-        if (MapInfo[j *MAXLEVELS+k].name == NULL)
-            MapInfo[j *MAXLEVELS+k].name = Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
+        if (MapInfo[j*MAXLEVELS+k].name == NULL)
+            MapInfo[j*MAXLEVELS+k].name = Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
         else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[j*MAXLEVELS+k].name))
             MapInfo[j *MAXLEVELS+k].name = Brealloc(MapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
 
@@ -5582,6 +5582,7 @@ repeatcase:
 
         if (ScriptQuotes[k] == NULL)
             ScriptQuotes[k] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
+
         if (!ScriptQuotes[k])
         {
             ScriptQuotes[k] = NULL;

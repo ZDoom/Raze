@@ -64,6 +64,17 @@ enum LogoFlags_t {
     LOGO_TENSCREEN         = 0x00000200
 };
 
+typedef enum basepal_ {
+    BASEPAL = 0,
+    WATERPAL,
+    SLIMEPAL,
+    DREALMSPAL,
+    TITLEPAL,
+    ENDINGPAL,
+    ANIMPAL,
+    BASEPALCOUNT
+} basepal_t; 
+
 #define deletesprite A_DeleteSprite
 void A_DeleteSprite(int32_t s);
 
@@ -227,22 +238,8 @@ extern palette_t DefaultCrosshairColors;
 
 extern uint32_t g_frameDelay;
 
-// Watch out for MAXBASEPALS in the engine before increasing this
-#define BASEPALCOUNT 7
-
 extern uint8_t water_pal[768],slime_pal[768],title_pal[768],dre_alms[768],ending_pal[768],*anim_pal;
-
 extern uint8_t *basepaltable[BASEPALCOUNT];
-
-typedef enum basepal_ {
-    BASEPAL = 0,
-    WATERPAL,
-    SLIMEPAL,
-    DREALMSPAL,
-    TITLEPAL,
-    ENDINGPAL,
-    ANIMPAL
-} basepal_t; 
 
 extern user_defs ud;
 
@@ -313,12 +310,11 @@ static inline int32_t G_GetTeamPalette(int32_t team)
 int32_t G_GetVersionFromWebsite(char *buffer);
 #endif
 
-#if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
+#ifdef RENDERTYPEWIN
+void app_crashhandler(void);
+#ifdef USE_OPENGL
 extern char forcegl;
 #endif
-
-#if defined(RENDERTYPEWIN)
-void app_crashhandler(void);
 #endif
 
 #if KRANDDEBUG
