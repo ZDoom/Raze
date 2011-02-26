@@ -1646,7 +1646,7 @@ void update_highlightsector()
 }
 
 // hook run after handleevents in side view
-static void sideview_filter_keys()
+static void sideview_filter_keys(void)
 {
     uint32_t i;
 
@@ -1758,10 +1758,9 @@ static void fade_screen()
 
 static void copy_some_wall_members(int16_t dst, int16_t src)
 {
-    static const walltype nullwall = { .yrepeat=8, .extra=-1 };
+    static const walltype nullwall = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, -1 };
     walltype *dstwal=&wall[dst];
-    const walltype *srcwal;
-    srcwal = src>=0 ? &wall[src] : &nullwall;
+    const walltype *srcwal = src >= 0 ? &wall[src] : &nullwall;
 
     dstwal->cstat = srcwal->cstat;
     dstwal->shade = srcwal->shade;

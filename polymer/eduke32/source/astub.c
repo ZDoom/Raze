@@ -7838,7 +7838,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
             }
             else if (tryfix)
             {
-                uint64_t whicherrs = parm->numparms==1 ? ULONG_LONG_MAX : 0;
+                uint64_t whicherrs = parm->numparms==1 ? 0xffffffffffffffffull : 0;
 
                 if (whicherrs==0)
                 {
@@ -7854,7 +7854,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
                                 m = (int32_t)Bstrtol(endptr+1, NULL, 10);
                                 if (n>=1 && n<=m && m<=MAXCORRUPTTHINGS)
                                 {
-                                    uint64_t mask = ULONG_LONG_MAX;
+                                    uint64_t mask = 0xffffffffffffffffull;
                                     m = m-n+1;
                                     mask >>= (MAXCORRUPTTHINGS-m);
                                     mask <<= (n-1);
