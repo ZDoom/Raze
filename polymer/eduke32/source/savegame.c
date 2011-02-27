@@ -1341,8 +1341,10 @@ static uint32_t calcsz(const dataspec_t *spec)
 }
 
 static void sv_postudload();
+#if defined(POLYMOST) && defined(USE_OPENGL)
 static void sv_prespriteextsave();
 static void sv_postspriteext();
+#endif
 static void sv_calcbitptrsize();
 static void sv_prescriptsave_once();
 static void sv_prescriptload_once();

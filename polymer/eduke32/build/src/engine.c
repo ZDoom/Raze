@@ -7894,9 +7894,9 @@ void delete_maphack_lights() {}
 //
 // loadmaphack
 //
-#if defined(POLYMOST) && defined(USE_OPENGL)
 int32_t loadmaphack(const char *filename)
 {
+#if defined(POLYMOST) && defined(USE_OPENGL)
     enum
     {
         T_EOF = -2,
@@ -8178,10 +8178,11 @@ int32_t loadmaphack(const char *filename)
 
     scriptfile_close(script);
     return 0;
-}
 #else
-int32_t loadmaphack(char *filename) { UNREFERENCED_PARAMETER(filename); return -1; }
+    UNREFERENCED_PARAMETER(filename);
+    return -1;
 #endif
+}
 
 
 //
@@ -8519,7 +8520,7 @@ void nextpage(void)
     if ((totalclock >= lastageclock+CACHEAGETIME) || (totalclock < lastageclock))
         { lastageclock = totalclock; agecache(); }
 
-#ifdef USE_OPENGL
+#if defined(POLYMOST) && defined(USE_OPENGL)
     omdtims = mdtims; mdtims = getticks();
 
     {
