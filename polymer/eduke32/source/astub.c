@@ -6702,9 +6702,8 @@ static void Keys2d(void)
         static int32_t counter = 0;
         static int32_t omx = 0, omy = 0;
         /*
-                static int32_t opointhighlight, olinehighlight, ocursectornum;
-
-                if (pointhighlight == opointhighlight && linehighlight == olinehighlight && tcursectornum == ocursectornum)
+          static int32_t opointhighlight, olinehighlight, ocursectornum;
+          if (pointhighlight == opointhighlight && linehighlight == olinehighlight && tcursectornum == ocursectornum)
         */
         if (omx == mousxplc && omy == mousyplc)
         {
@@ -6718,11 +6717,10 @@ static void Keys2d(void)
         omy = mousyplc;
 
         /*
-                opointhighlight = pointhighlight;
-                olinehighlight = linehighlight;
-                ocursectornum = tcursectornum;
+          opointhighlight = pointhighlight;
+          olinehighlight = linehighlight;
+          ocursectornum = tcursectornum;
         */
-
 
         if (totalclock < lastpm16time + 120*2)
             _printmessage16("%s", lastpm16buf);

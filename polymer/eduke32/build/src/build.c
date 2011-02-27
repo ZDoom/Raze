@@ -1780,12 +1780,17 @@ static void copy_some_wall_members(int16_t dst, int16_t src)
 }
 
 // helpers for often needed ops:
-static void copyloop1(int16_t *danumwalls, int32_t *m)
+static int32_t copyloop1(int16_t *danumwalls, int32_t *m)
 {
+    if (*danumwalls >= MAXWALLS + M32_FIXME_WALLS)
+        return 1;
+
     Bmemcpy(&wall[*danumwalls], &wall[*m], sizeof(walltype));
     wall[*danumwalls].point2 = *danumwalls+1;
     (*danumwalls)++;
     *m = wall[*m].point2;
+
+    return 0;
 }
 
 static void updatesprite1(int16_t j)
@@ -1811,7 +1816,7 @@ void overheadeditor(void)
     int32_t tempint, tempint1, tempint2, doubvel;
     int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3, x4, y4;
     int32_t highlightx1, highlighty1, highlightx2, highlighty2, xvect, yvect;
-    int16_t pag, suckwall=0, sucksect, split=0, bad, goodtogo;
+    int16_t pag, suckwall=0, sucksect, split=0, bad;
     int16_t splitsect=0, joinsector[2];
     int16_t splitstartwall=0, loopnum;
     int32_t mousx, mousy, bstatus;
@@ -3585,7 +3590,8 @@ end_point_dragging:
                         {
                             if (newnumwalls >= MAXWALLS + M32_FIXME_WALLS)
                             {
-                                printmessage16("Joining sectors failed: not enough space beyond wall[]");
+                                message("Joining sectors failed: not enough space beyond wall[]");
+                                joinsector[0] = -1;
                                 newnumwalls = -1;
 
                                 for (i=0; i<numwalls; i++)
@@ -3815,7 +3821,7 @@ end_join_sectors:
 
             if (tempint2 != 0)
             {
-                int32_t ps = 2;  // pointsize
+                int32_t ps = 2, goodtogo;  // pointsize
 
                 centerx = ((x1+x2) + scale(y1-y2,tempint1,tempint2))>>1;
                 centery = ((y1+y2) + scale(x2-x1,tempint1,tempint2))>>1;
@@ -3893,38 +3899,7 @@ end_join_sectors:
             }
         }
 
-        goodtogo = 1;  // Checking limits...
-        if (bad > 0)
-        {
-            if (newnumwalls < numwalls)  // starting wall drawing
-            {
-            }
-            else
-            {
-                //if not back to first point
-                if (firstx != mousxplc || firsty != mousyplc)  //nextpoint
-                {
-                }
-
-                //if not split and back to first point
-                if ((split == 0) && (firstx == mousxplc) && (firsty == mousyplc) && (newnumwalls >= numwalls+3))
-                {
-                    if (suckwall == -1)  //if no connections to other sectors
-                        { /* No problem... */ }
-                    else
-                    {
-                        if (newnumwalls > MAXWALLS)
-                        {
-                            goodtogo = 0;
-                            printmessage16("Closing wall drawing would exceed wall limit.");
-                        }
-                    }
-                }
-//                else if (split==1) {}  // handled there
-            }
-        }
-
-        if (bad > 0 && goodtogo)  //Space
+        if (bad > 0)  //Space
         {
             if (newnumwalls < numwalls)  // starting wall drawing
             {
@@ -4054,32 +4029,39 @@ end_join_sectors:
                         else
                         {
                             printmessage16("You can't draw new lines over red lines.");
+                            goto end_space_handling;
                         }
                     }
                 }
 
-                //if not split and back to first point
-                if ((split == 0) && (firstx == mousxplc) && (firsty == mousyplc) && (newnumwalls >= numwalls+3))
-                {
-                    // newnumwalls is at most MAXWALLS here
+                ////////// newnumwalls is at most MAXWALLS here //////////
 
+                //if not split and back to first point
+                if (!split && newnumwalls >= numwalls+3
+                        && firstx==mousxplc && firsty==mousyplc)
+                {
                     wall[newnumwalls-1].point2 = numwalls;
 
                     if (suckwall == -1)  //if no connections to other sectors
                     {
                         k = -1;
                         for (i=0; i<numsectors; i++)
+                        {
                             if (inside(firstx,firsty,i) == 1)
                             {
+                                // if all points inside that one sector i,
+                                // will add an inner loop
                                 for (j=numwalls+1; j<newnumwalls; j++)
                                 {
                                     if (inside(wall[j].x, wall[j].y, i) == 0)
-                                        continue;
+                                        goto check_next_sector;
                                 }
 
                                 k = i;
                                 break;
                             }
+check_next_sector: ;
+                        }
 
                         if (k == -1)   //if not inside another sector either
                         {
@@ -4105,6 +4087,8 @@ end_join_sectors:
 
                             headspritesect[numsectors] = -1;
                             numsectors++;
+
+                            printmessage16("Created new sector %d", numsectors-1);
                         }
                         else       //else add loop to sector
                         {
@@ -4143,40 +4127,32 @@ end_join_sectors:
                             }
 
                             setfirstwall(k, suckwall+j);  // restore old first wall
+
+                            printmessage16("Added inner loop to sector %d", k);
                         }
                     }
                     else  // if connected to at least one other sector
                     {
-                        sectortype *newsec;
-                        const sectortype *oldsec;
-
                         //add new sector with connections
 
                         if (clockdir(numwalls) == 1)
                             flipwalls(numwalls,newnumwalls);
 
-                        newsec = &sector[numsectors];
                         sucksect = sectorofwall(suckwall);
-                        oldsec = &sector[sucksect];
 
-                        Bmemset(newsec, 0, sizeof(sectortype));
-                        newsec->extra = -1;
+                        if (numsectors != sucksect)
+                            Bmemcpy(&sector[numsectors], &sector[sucksect], sizeof(sectortype));
 
-                        newsec->wallptr = numwalls;
-                        newsec->wallnum = newnumwalls-numwalls;
+                        sector[numsectors].wallptr = numwalls;
+                        sector[numsectors].wallnum = newnumwalls-numwalls;
 
-                        newsec->ceilingstat = oldsec->ceilingstat;
-                        newsec->floorstat = oldsec->floorstat;
-                        newsec->ceilingxpanning = oldsec->ceilingxpanning;
-                        newsec->floorxpanning = oldsec->floorxpanning;
-                        newsec->ceilingshade = oldsec->ceilingshade;
-                        newsec->floorshade = oldsec->floorshade;
-                        newsec->ceilingz = oldsec->ceilingz;
-                        newsec->floorz = oldsec->floorz;
-                        newsec->ceilingpicnum = oldsec->ceilingpicnum;
-                        newsec->floorpicnum = oldsec->floorpicnum;
-//                        newsec->ceilingheinum = oldsec->ceilingheinum;
-//                        newsec->floorheinum = oldsec->floorheinum;
+                        sector[numsectors].extra = -1;
+                        sector[numsectors].lotag = sector[numsectors].hitag = 0;
+
+                        sector[numsectors].ceilingstat &= ~2;
+                        sector[numsectors].floorstat &= ~2;
+                        sector[numsectors].ceilingheinum = sector[numsectors].floorheinum = 0;
+                        sector[numsectors].ceilingpal = sector[numsectors].floorpal = 0;
 
                         for (i=numwalls; i<newnumwalls; i++)
                         {
@@ -4186,17 +4162,22 @@ end_join_sectors:
 
                         headspritesect[numsectors] = -1;
                         numsectors++;
+
+                        printmessage16("Created new sector %d based on sector %d", numsectors-1, sucksect);
                     }
 
                     numwalls = newnumwalls;
                     newnumwalls = -1;
                     asksave = 1;
+
+                    goto end_space_handling;
                 }
+                ////////// split sector //////////
                 else if (split == 1)
                 {
-                    int16_t danumwalls, splitendwall, secondstartwall;
+                    int16_t danumwalls, splitendwall, doSectorSplit;
+                    int16_t secondstartwall=-1;  // used only with splitting
 
-                    //split sector
                     startwall = sector[splitsect].wallptr;
                     endwall = startwall + sector[splitsect].wallnum - 1;
 
@@ -4206,9 +4187,7 @@ end_join_sectors:
                         if (wall[k].x != wall[newnumwalls-1].x || wall[k].y != wall[newnumwalls-1].y)
                             continue;
 
-                        bad = 0;
-                        if (loopnumofsector(splitsect,splitstartwall) != loopnumofsector(splitsect,k))
-                            bad = 1;
+                        doSectorSplit = (loopnumofsector(splitsect,splitstartwall) == loopnumofsector(splitsect,k));
 
                         if (numwalls+2*(newnumwalls-numwalls-1) > MAXWALLS)
                         {
@@ -4218,98 +4197,130 @@ end_join_sectors:
                             break;
                         }
 
-                        if (bad == 0)
+                        ////////// common code for splitting/loop joining //////////
+
+                        splitendwall = k;
+                        newnumwalls--;  //first fix up the new walls
+                        for (i=numwalls; i<newnumwalls; i++)
                         {
-                            //SPLIT IT!
-                            //Split splitsect given: startwall,
-                            //   new points: numwalls to newnumwalls-2
+                            copy_some_wall_members(i, startwall);
 
-                            splitendwall = k;
-                            newnumwalls--;  //first fix up the new walls
-                            for (i=numwalls; i<newnumwalls; i++)
-                            {
-                                copy_some_wall_members(i, startwall);
+                            wall[i].nextwall = -1;
+                            wall[i].nextsector = -1;
+                            wall[i].point2 = i+1;
+                        }
 
-                                wall[i].nextwall = -1;
-                                wall[i].nextsector = -1;
-                                wall[i].point2 = i+1;
-                            }
+                        danumwalls = newnumwalls;  //where to add more walls
+                        m = splitendwall;          //copy rest of loop next
 
-                            danumwalls = newnumwalls;  //where to add more walls
-                            m = splitendwall;          //copy rest of loop next
+                        if (doSectorSplit)
+                        {
                             while (m != splitstartwall)
-                                copyloop1(&danumwalls, &m);
+                                if (copyloop1(&danumwalls, &m)) goto split_not_enough_walls;
                             wall[danumwalls-1].point2 = numwalls;
 
                             //Add other loops for 1st sector
-                            loopnum = loopnumofsector(splitsect,splitstartwall);
-                            i = loopnum;
+                            i = loopnum = loopnumofsector(splitsect,splitstartwall);
+
                             for (j=startwall; j<=endwall; j++)
                             {
                                 k = loopnumofsector(splitsect,j);
-                                if ((k != i) && (k != loopnum))
-                                {
-                                    i = k;
-                                    if (loopinside(wall[j].x,wall[j].y,numwalls) == 1)
-                                    {
-                                        m = j;          //copy loop
-                                        k = danumwalls;
-                                        do
-                                            copyloop1(&danumwalls, &m);
-                                        while (m != j);
-                                        wall[danumwalls-1].point2 = k;
-                                    }
-                                }
+                                if (k == i)
+                                    continue;
+
+                                if (k == loopnum)
+                                    continue;
+
+                                i = k;
+
+                                if (loopinside(wall[j].x,wall[j].y, numwalls) != 1)
+                                    continue;
+
+                                m = j;          //copy loop
+                                k = danumwalls;
+                                do
+                                    if (copyloop1(&danumwalls, &m)) goto split_not_enough_walls;
+                                while (m != j);
+                                wall[danumwalls-1].point2 = k;
                             }
 
                             secondstartwall = danumwalls;
-                            //copy split points for other sector backwards
-                            for (j=newnumwalls; j>numwalls; j--)
-                            {
-                                Bmemcpy(&wall[danumwalls],&wall[j],sizeof(walltype));
-                                wall[danumwalls].nextwall = -1;
-                                wall[danumwalls].nextsector = -1;
-                                wall[danumwalls].point2 = danumwalls+1;
-                                danumwalls++;
-                            }
+                        }
+                        else
+                        {
+                            do
+                                if (copyloop1(&danumwalls, &m)) goto split_not_enough_walls;
+                            while (m != splitendwall);
+                        }
 
-                            m = splitstartwall;     //copy rest of loop next
+                        //copy split points for other sector backwards
+                        for (j=newnumwalls; j>numwalls; j--)
+                        {
+                            Bmemcpy(&wall[danumwalls],&wall[j],sizeof(walltype));
+                            wall[danumwalls].nextwall = -1;
+                            wall[danumwalls].nextsector = -1;
+                            wall[danumwalls].point2 = danumwalls+1;
+                            danumwalls++;
+                        }
+
+                        m = splitstartwall;     //copy rest of loop next
+
+                        if (doSectorSplit)
+                        {
                             while (m != splitendwall)
-                                copyloop1(&danumwalls, &m);
+                                if (copyloop1(&danumwalls, &m)) goto split_not_enough_walls;
                             wall[danumwalls-1].point2 = secondstartwall;
+                        }
+                        else
+                        {
+                            do
+                                if (copyloop1(&danumwalls, &m)) goto split_not_enough_walls;
+                            while (m != splitstartwall);
+                            wall[danumwalls-1].point2 = numwalls;
+                        }
 
-                            //Add other loops for 2nd sector
-                            loopnum = loopnumofsector(splitsect,splitstartwall);
-                            i = loopnum;
-                            for (j=startwall; j<=endwall; j++)
-                            {
-                                k = loopnumofsector(splitsect, j);
-                                if ((k != i) && (k != loopnum))
-                                {
-                                    i = k;
-                                    if (loopinside(wall[j].x,wall[j].y,secondstartwall) == 1)
-                                    {
-                                        m = j; k = danumwalls;    //copy loop
-                                        do
-                                            copyloop1(&danumwalls, &m);
-                                        while (m != j);
-                                        wall[danumwalls-1].point2 = k;
-                                    }
-                                }
-                            }
+                        //Add other loops for 2nd sector
+                        i = loopnum = loopnumofsector(splitsect,splitstartwall);
 
-                            //fix all next pointers on old sector line
-                            for (j=numwalls; j<danumwalls; j++)
+                        for (j=startwall; j<=endwall; j++)
+                        {
+                            k = loopnumofsector(splitsect, j);
+                            if (k==i)
+                                continue;
+
+                            if (doSectorSplit && k==loopnum)
+                                continue;
+                            if (!doSectorSplit && (k == loopnumofsector(splitsect,splitstartwall) || k == loopnumofsector(splitsect,splitendwall)))
+                                continue;
+
+                            i = k;
+
+                            if (doSectorSplit && (loopinside(wall[j].x,wall[j].y, secondstartwall) != 1))
+                                continue;
+
+                            m = j; k = danumwalls;    //copy loop
+                            do
+                                if (copyloop1(&danumwalls, &m)) goto split_not_enough_walls;
+                            while (m != j);
+                            wall[danumwalls-1].point2 = k;
+                        }
+
+                        //fix all next pointers on old sector line
+                        for (j=numwalls; j<danumwalls; j++)
+                        {
+                            if (wall[j].nextwall >= 0)
                             {
-                                if (wall[j].nextwall >= 0)
-                                {
-                                    NEXTWALL(j).nextwall = j;
-                                    if (j < secondstartwall)
-                                        NEXTWALL(j).nextsector = numsectors;
-                                    else
-                                        NEXTWALL(j).nextsector = numsectors+1;
-                                }
+                                NEXTWALL(j).nextwall = j;
+
+                                if (!doSectorSplit || j < secondstartwall)
+                                    NEXTWALL(j).nextsector = numsectors;
+                                else
+                                    NEXTWALL(j).nextsector = numsectors+1;
                             }
+                        }
+
+                        if (doSectorSplit)
+                        {
                             //set all next pointers on split
                             for (j=numwalls; j<newnumwalls; j++)
                             {
@@ -4319,51 +4330,57 @@ end_join_sectors:
                                 wall[m].nextwall = j;
                                 wall[m].nextsector = numsectors;
                             }
+
                             //copy sector attributes & fix wall pointers
                             Bmemcpy(&sector[numsectors], &sector[splitsect], sizeof(sectortype));
-                            Bmemcpy(&sector[numsectors+1], &sector[splitsect], sizeof(sectortype));
                             sector[numsectors].wallptr = numwalls;
                             sector[numsectors].wallnum = secondstartwall-numwalls;
+                            Bmemcpy(&sector[numsectors+1], &sector[splitsect], sizeof(sectortype));
                             sector[numsectors+1].wallptr = secondstartwall;
                             sector[numsectors+1].wallnum = danumwalls-secondstartwall;
+                        }
+                        else
+                        {
+                            //copy sector attributes & fix wall pointers
+                            Bmemcpy(&sector[numsectors], &sector[splitsect], sizeof(sectortype));
+                            sector[numsectors].wallptr = numwalls;
+                            sector[numsectors].wallnum = danumwalls-numwalls;
+                        }
 
-                            //fix sprites
-                            j = headspritesect[splitsect];
-                            while (j != -1)
-                            {
-                                k = nextspritesect[j];
-                                if (loopinside(sprite[j].x,sprite[j].y,numwalls) == 1)
-                                    changespritesect(j,numsectors);
-                                //else if (loopinside(sprite[j].x,sprite[j].y,secondstartwall) == 1)
-                                else  //Make sure no sprites get left out & deleted!
-                                    changespritesect(j,numsectors+1);
-                                j = k;
-                            }
+                        //fix sprites
+                        j = headspritesect[splitsect];
+                        while (j != -1)
+                        {
+                            k = nextspritesect[j];
+                            if (!doSectorSplit || loopinside(sprite[j].x,sprite[j].y,numwalls) == 1)
+                                changespritesect(j,numsectors);
+                            //else if (loopinside(sprite[j].x,sprite[j].y,secondstartwall) == 1)
+                            else  //Make sure no sprites get left out & deleted!
+                                changespritesect(j,numsectors+1);
+                            j = k;
+                        }
 
-                            numsectors+=2;
+                        numsectors += 1 + doSectorSplit;
 
-                            //Back of number of walls of new sector for later
-                            k = danumwalls-numwalls;
+                        k = danumwalls-numwalls;  //Back of number of walls of new sector for later
+                        numwalls = danumwalls;
 
-                            //clear out old sector's next pointers for clean deletesector
-                            numwalls = danumwalls;
-                            for (j=startwall; j<=endwall; j++)
-                            {
-                                wall[j].nextwall = -1;
-                                wall[j].nextsector = -1;
-                            }
-                            deletesector(splitsect);
+                        //clear out old sector's next pointers for clean deletesector
+                        for (j=startwall; j<=endwall; j++)
+                            wall[j].nextwall = wall[j].nextsector = -1;
+                        deletesector(splitsect);
 
-                            //Check pointers
-                            for (j=numwalls-k; j<numwalls; j++)
-                            {
-                                if (wall[j].nextwall >= 0)
-                                    checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                                checksectorpointer(j, sectorofwall(j));
-                            }
+                        //Check pointers
+                        for (j=numwalls-k; j<numwalls; j++)
+                        {
+                            if (wall[j].nextwall >= 0)
+                                checksectorpointer(wall[j].nextwall, wall[j].nextsector);
+                            checksectorpointer(j, sectorofwall(j));
+                        }
 
-                            //k now safe to use as temp
-
+                        //k now safe to use as temp
+#if 0
+                        if (doSectorSplit)
                             for (m=numsectors-2; m<numsectors; m++)
                             {
                                 j = headspritesect[m];
@@ -4374,110 +4391,14 @@ end_join_sectors:
                                     j = k;
                                 }
                             }
+#endif
+                        printmessage16(doSectorSplit ? "Sector split." : "Loops joined.");
 
-                            printmessage16("Sector split.");
-                        }
-                        else
+                        if (0)
                         {
-                            //Sector split - actually loop joining
-
-                            splitendwall = k;
-                            newnumwalls--;  //first fix up the new walls
-                            for (i=numwalls; i<newnumwalls; i++)
-                            {
-                                copy_some_wall_members(i, startwall);
-
-                                wall[i].nextwall = -1;
-                                wall[i].nextsector = -1;
-                                wall[i].point2 = i+1;
-                            }
-
-                            danumwalls = newnumwalls;  //where to add more walls
-                            m = splitendwall;          //copy rest of loop next
-                            do
-                                copyloop1(&danumwalls, &m);
-                            while (m != splitendwall);
-
-                            //copy split points for other sector backwards
-                            for (j=newnumwalls; j>numwalls; j--)
-                            {
-                                Bmemcpy(&wall[danumwalls],&wall[j],sizeof(walltype));
-                                wall[danumwalls].nextwall = -1;
-                                wall[danumwalls].nextsector = -1;
-                                wall[danumwalls].point2 = danumwalls+1;
-                                danumwalls++;
-                            }
-
-                            m = splitstartwall;     //copy rest of loop next
-                            do
-                                copyloop1(&danumwalls, &m);
-                            while (m != splitstartwall);
-                            wall[danumwalls-1].point2 = numwalls;
-
-                            //Add other loops to sector
-                            loopnum = loopnumofsector(splitsect,splitstartwall);
-                            i = loopnum;
-                            for (j=startwall; j<=endwall; j++)
-                            {
-                                k = loopnumofsector(splitsect, j);
-                                if ((k != i) && (k != loopnumofsector(splitsect,splitstartwall)) && (k != loopnumofsector(splitsect,splitendwall)))
-                                {
-                                    i = k;
-                                    m = j; k = danumwalls;    //copy loop
-                                    do
-                                        copyloop1(&danumwalls, &m);
-                                    while (m != j);
-                                    wall[danumwalls-1].point2 = k;
-                                }
-                            }
-
-                            //fix all next pointers on old sector line
-                            for (j=numwalls; j<danumwalls; j++)
-                            {
-                                if (wall[j].nextwall >= 0)
-                                {
-                                    NEXTWALL(j).nextwall = j;
-                                    NEXTWALL(j).nextsector = numsectors;
-                                }
-                            }
-
-                            //copy sector attributes & fix wall pointers
-                            Bmemcpy(&sector[numsectors],&sector[splitsect],sizeof(sectortype));
-                            sector[numsectors].wallptr = numwalls;
-                            sector[numsectors].wallnum = danumwalls-numwalls;
-
-                            //fix sprites
-                            j = headspritesect[splitsect];
-                            while (j != -1)
-                            {
-                                k = nextspritesect[j];
-                                changespritesect(j,numsectors);
-                                j = k;
-                            }
-
-                            numsectors++;
-
-                            //Back of number of walls of new sector for later
-                            k = danumwalls-numwalls;
-
-                            //clear out old sector's next pointers for clean deletesector
-                            numwalls = danumwalls;
-                            for (j=startwall; j<=endwall; j++)
-                            {
-                                wall[j].nextwall = -1;
-                                wall[j].nextsector = -1;
-                            }
-                            deletesector(splitsect);
-
-                            //Check pointers
-                            for (j=numwalls-k; j<numwalls; j++)
-                            {
-                                if (wall[j].nextwall >= 0)
-                                    checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                                checksectorpointer(j, numsectors-1);
-                            }
-
-                            printmessage16("Loops joined.");
+split_not_enough_walls:
+                            message("%s failed: not enough space beyond wall[]",
+                                    doSectorSplit ? "Splitting sectors" : "Joining loops");
                         }
 
                         newnumwalls = -1;
@@ -6729,6 +6650,7 @@ static void copysector(int16_t soursector, int16_t destsector, int16_t deststart
                         break;
                     m += sector[highlightsector[i]].wallnum;
                 }
+
                 if (i==highlightsectorcnt)
                 {
                     message("internal error in copysector(): i==highlightsectorcnt");

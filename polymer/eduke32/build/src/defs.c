@@ -467,7 +467,7 @@ static int32_t defsparser(scriptfile *script)
             char *texturetokptr = script->ltextptr, *textureend, *fn = NULL, *tfn = NULL, *ftd = NULL;
             int32_t tile=-1, token, i;
             int32_t alphacut = 255;
-            int32_t xoffset = 0, yoffset = 0;
+            int32_t xoffset = 0, yoffset = 0, goodtogo=0;
 
             static const tokenlist tilefromtexturetokens[] =
             {
@@ -526,6 +526,7 @@ static int32_t defsparser(scriptfile *script)
                 }
                 else Bfree(tfn);
                 pathsearchmode = i;
+                goodtogo = 1;
             }
 
             if ((unsigned)tile >= (unsigned)MAXTILES)
@@ -535,6 +536,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
+            if (goodtogo)
             {
                 int32_t xsiz, ysiz, j;
                 int32_t *picptr = NULL;
