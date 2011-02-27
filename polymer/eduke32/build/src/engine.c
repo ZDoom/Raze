@@ -7231,7 +7231,9 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
                   int16_t *daang, int16_t *dacursectnum)
 {
     int16_t fil, i, numsprites, dq[MAXSPRITES], dnum = 0;
+#ifdef POLYMER
     char myflags = flags&(~3);
+#endif
 
     flags &= 3;
 

@@ -1813,8 +1813,11 @@ int      md3postload_polymer(md3model_t *m)
         surfi++;
     }
 
-    return 1;
+#else
+    UNREFERENCED_PARAMETER(m);
 #endif
+
+    return 1;
 }
 
 
