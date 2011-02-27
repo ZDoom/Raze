@@ -86,13 +86,13 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
     if (!apScriptGameEvent[iEventID])
         return;
 
-    insptr = apScriptGameEvent[iEventID];
-
     {
         intptr_t *oinsptr=insptr;
         vmstate_t vm_backup;
         vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
                              &sprite[iActor], 0 };
+
+        insptr = apScriptGameEvent[iEventID];
 
         Bmemcpy(&vm_backup, &vm, sizeof(vmstate_t));
         Bmemcpy(&vm, &tempvm, sizeof(vmstate_t));
