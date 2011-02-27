@@ -1111,6 +1111,7 @@ void editinput(void)
                     fz = getflorzofslope(hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y);
 
                     j = (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1;
+                    sprite[i].z = hitinfo.pos.z;
                     if ((sprite[i].cstat&128) == 0)
                         bclamp(&sprite[i].z, cz+(j<<1), fz);
                     else
