@@ -585,6 +585,8 @@ _prprograminfo  prprograms[1 << PR_BIT_COUNT];
 int32_t         overridematerial;
 int32_t         globaloldoverridematerial;
 
+int32_t         rotatespritematerialbits;
+
 // RENDER TARGETS
 _prrt           *prrts;
 
@@ -1199,21 +1201,18 @@ void                polymer_editorpick(void)
     searchit = 0;
 }
 
-void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade,
-                                         char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
+void                polymer_inb4rotatesprite(int16_t tilenum, char pal, int8_t shade)
 {
-    UNREFERENCED_PARAMETER(sx);
-    UNREFERENCED_PARAMETER(sy);
-    UNREFERENCED_PARAMETER(z);
-    UNREFERENCED_PARAMETER(a);
-    UNREFERENCED_PARAMETER(picnum);
-    UNREFERENCED_PARAMETER(dashade);
-    UNREFERENCED_PARAMETER(dapalnum);
-    UNREFERENCED_PARAMETER(dastat);
-    UNREFERENCED_PARAMETER(cx1);
-    UNREFERENCED_PARAMETER(cy1);
-    UNREFERENCED_PARAMETER(cx2);
-    UNREFERENCED_PARAMETER(cy2);
+    _prmaterial     rotatespritematerial;
+
+    polymer_getbuildmaterial(&rotatespritematerial, tilenum, pal, shade, 4);
+
+    rotatespritematerialbits = polymer_bindmaterial(rotatespritematerial, NULL, 0);
+}
+
+void                polymer_postrotatesprite(void)
+{
+    polymer_unbindmaterial(rotatespritematerialbits);
 }
 
 void                polymer_drawmaskwall(int32_t damaskwallcnt)

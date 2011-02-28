@@ -5454,6 +5454,12 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         bglDisable(GL_DEPTH_TEST);
         bglDisable(GL_ALPHA_TEST);
         bglEnable(GL_TEXTURE_2D);
+        
+# ifdef POLYMER
+        if (rendmode >= 4) {
+            polymer_inb4rotatesprite(picnum, dapalnum, dashade);
+        }
+# endif
     }
 #endif
 
@@ -5607,6 +5613,11 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 #ifdef USE_OPENGL
     if (rendmode >= 3)
     {
+# ifdef POLYMER
+        if (rendmode >= 4) {
+            polymer_postrotatesprite();
+        }
+# endif
         bglMatrixMode(GL_PROJECTION); bglPopMatrix();
         bglMatrixMode(GL_MODELVIEW); bglPopMatrix();
     }

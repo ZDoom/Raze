@@ -5149,9 +5149,6 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     //============================================================================= //POLYMOST BEGINS
 #ifdef POLYMOST
     if (rendmode >= 3 && qsetmode == 200) { polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,uniqid); return; }
-# ifdef POLYMER
-    if (rendmode == 4 && qsetmode == 200) { polymer_rotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2); return; }
-#endif
 #endif
     //============================================================================= //POLYMOST ENDS
 
