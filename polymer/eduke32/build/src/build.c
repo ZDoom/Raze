@@ -1759,6 +1759,7 @@ static void fade_screen()
 
 static void copy_some_wall_members(int16_t dst, int16_t src)
 {
+    //                                 x  y  p2 nw ns cs p  op sh pl xr yr xp yp lo hi ex
     static const walltype nullwall = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, -1 };
     walltype *dstwal=&wall[dst];
     const walltype *srcwal = src >= 0 ? &wall[src] : &nullwall;
@@ -1766,13 +1767,14 @@ static void copy_some_wall_members(int16_t dst, int16_t src)
     dstwal->cstat = srcwal->cstat;
     dstwal->shade = srcwal->shade;
     dstwal->yrepeat = srcwal->yrepeat;
-    fixrepeats(dst);
+    fixrepeats(dst);  // xrepeat
     dstwal->picnum = srcwal->picnum;
     dstwal->overpicnum = srcwal->overpicnum;
 
+    dstwal->nextwall = -1;
+    dstwal->nextsector = -1;
+
     dstwal->pal = srcwal->pal;
-    dstwal->xrepeat = srcwal->xrepeat;
-    dstwal->yrepeat = srcwal->yrepeat;
     dstwal->xpanning = srcwal->xpanning;
     dstwal->ypanning = srcwal->ypanning;
     dstwal->lotag = 0; //srcwal->lotag;
@@ -4079,12 +4081,7 @@ check_next_sector: ;
                             sector[numsectors].floorz = (32<<8);
 
                             for (i=numwalls; i<newnumwalls; i++)
-                            {
                                 copy_some_wall_members(i, -1);
-
-                                wall[i].nextsector = -1;
-                                wall[i].nextwall = -1;
-                            }
 
                             headspritesect[numsectors] = -1;
                             numsectors++;
@@ -4122,9 +4119,6 @@ check_next_sector: ;
 
                                 copy_some_wall_members(i, suckwall+j);
                                 wall[i].cstat &= ~(1+16+32+64);
-
-                                wall[i].nextsector = -1;
-                                wall[i].nextwall = -1;
                             }
 
                             setfirstwall(k, suckwall+j);  // restore old first wall
@@ -4205,9 +4199,6 @@ check_next_sector: ;
                         for (i=numwalls; i<newnumwalls; i++)
                         {
                             copy_some_wall_members(i, startwall);
-
-                            wall[i].nextwall = -1;
-                            wall[i].nextsector = -1;
                             wall[i].point2 = i+1;
                         }
 
@@ -5251,7 +5242,7 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
             if (dst <= dist)
             {
                 // prefer white walls
-                if (dist<dist || closest==-1 || (wall[j].nextwall>=0)-(wall[closest].nextwall>=0) <= 0)
+                if (dst<dist || closest==-1 || (wall[j].nextwall>=0)-(wall[closest].nextwall>=0) <= 0)
                     dist = dst, closest = j;
             }
         }
