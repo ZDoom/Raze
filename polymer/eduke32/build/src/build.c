@@ -1609,7 +1609,7 @@ void DoSpriteOrnament(int32_t i)
     sprite[i].z = hitinfo.pos.z;
     changespritesect(i, hitinfo.hitsect);
 
-    correct_ornamented_sprite(i, hitinfo.hitsect);
+    correct_ornamented_sprite(i, hitinfo.hitwall);
 }
 
 void update_highlight()
