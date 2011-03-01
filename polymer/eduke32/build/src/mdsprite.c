@@ -372,7 +372,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     return 0;
 }
 
-int32_t md_definehud(int32_t modelid, int32_t tilex, double xadd, double yadd, double zadd, double angadd, int32_t flags)
+int32_t md_definehud(int32_t modelid, int32_t tilex, double xadd, double yadd, double zadd, double angadd, int32_t flags, int32_t fov)
 {
     if (!mdinited) mdinit();
 
@@ -384,6 +384,7 @@ int32_t md_definehud(int32_t modelid, int32_t tilex, double xadd, double yadd, d
     hudmem[(flags>>2)&1][tilex].zadd = zadd;
     hudmem[(flags>>2)&1][tilex].angadd = ((int16_t)angadd)|2048;
     hudmem[(flags>>2)&1][tilex].flags = (int16_t)flags;
+    hudmem[(flags>>2)&1][tilex].fov = (int16_t)fov;
 
     return 0;
 }

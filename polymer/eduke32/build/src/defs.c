@@ -58,6 +58,7 @@ enum scripttoken_t
     T_YADD,
     T_ZADD,
     T_ANGADD,
+    T_FOV,
     T_FLIPPED,
     T_HIDE,
     T_NOBOB,
@@ -1199,7 +1200,7 @@ static int32_t defsparser(scriptfile *script)
                 {
                     char *hudtokptr = script->ltextptr;
                     char happy=1, *frameend;
-                    int32_t ftilenume = -1, ltilenume = -1, tilex = 0, flags = 0;
+                    int32_t ftilenume = -1, ltilenume = -1, tilex = 0, flags = 0, fov = -1;
                     double xadd = 0.0, yadd = 0.0, zadd = 0.0, angadd = 0.0;
 
                     static const tokenlist modelhudtokens[] =
@@ -1211,6 +1212,7 @@ static int32_t defsparser(scriptfile *script)
                         { "yadd",   T_YADD   },
                         { "zadd",   T_ZADD   },
                         { "angadd", T_ANGADD },
+                        { "fov",    T_FOV    },
                         { "hide",   T_HIDE   },
                         { "nobob",  T_NOBOB  },
                         { "flipped",T_FLIPPED},
@@ -1236,6 +1238,8 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&zadd); break;
                         case T_ANGADD:
                             scriptfile_getdouble(script,&angadd); break;
+                        case T_FOV:
+                            scriptfile_getsymbol(script,&fov); break;
                         case T_HIDE:
                             flags |= 1; break;
                         case T_NOBOB:
@@ -1267,7 +1271,7 @@ static int32_t defsparser(scriptfile *script)
 #if defined(POLYMOST) && defined(USE_OPENGL)
                     for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
                     {
-                        switch (md_definehud(lastmodelid, tilex, xadd, yadd, zadd, angadd, flags))
+                        switch (md_definehud(lastmodelid, tilex, xadd, yadd, zadd, angadd, flags, fov))
                         {
                         case 0:
                             break;

@@ -53,6 +53,12 @@ extern int32_t      pr_overridespecular;
 extern float        pr_specularpower;
 extern float        pr_specularfactor;
 extern int32_t      pr_highpalookups;
+extern int32_t      pr_overridehud;
+extern float        pr_hudxadd;
+extern float        pr_hudyadd;
+extern float        pr_hudzadd;
+extern int32_t      pr_hudangadd;
+extern int32_t      pr_hudfov;
 extern int32_t      pr_ati_fboworkaround;
 extern int32_t      pr_ati_nodepthoffset;
 #ifdef __APPLE__
@@ -283,6 +289,7 @@ typedef struct      s_pranimatespritesinfo {
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void);
 void                polymer_uninit(void);
+void                polymer_setaspect(int32_t);
 void                polymer_glinit(void);
 void                polymer_resetlights(void);
 void                polymer_loadboard(void);

@@ -31,6 +31,12 @@ int32_t         pr_overridespecular = 0;
 float           pr_specularpower = 15.0f;
 float           pr_specularfactor = 1.0f;
 int32_t         pr_highpalookups = 1;
+int32_t         pr_overridehud = 0;
+float           pr_hudxadd = 0.0f;
+float           pr_hudyadd = 0.0f;
+float           pr_hudzadd = 0.0f;
+int32_t         pr_hudangadd = 0;
+int32_t         pr_hudfov = 426;
 int32_t         pr_ati_fboworkaround = 0;
 int32_t         pr_ati_nodepthoffset = 0;
 #ifdef __APPLE__
@@ -746,10 +752,23 @@ void                polymer_uninit(void)
     }
 }
 
-void                polymer_glinit(void)
+void                polymer_setaspect(int32_t ang)
 {
     float           aspect;
 
+    if (pr_customaspect != 0.0f)
+        aspect = pr_customaspect;
+    else
+        aspect = (float)(windowx2-windowx1+1) /
+                 (float)(windowy2-windowy1+1);
+
+    bglMatrixMode(GL_PROJECTION);
+    bglLoadIdentity();
+    bgluPerspective((float)(ang) / (2048.0f / 360.0f), aspect, 0.01f, 100.0f);
+}
+
+void                polymer_glinit(void)
+{
     bglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     bglClearStencil(0);
     bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -757,8 +776,6 @@ void                polymer_glinit(void)
 
     // texturing
     bglEnable(GL_TEXTURE_2D);
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
     bglEnable(GL_DEPTH_TEST);
     bglDepthFunc(GL_LEQUAL);
@@ -770,16 +787,8 @@ void                polymer_glinit(void)
         bglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
         bglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    if (pr_customaspect != 0.0f)
-        aspect = pr_customaspect;
-    else
-        aspect = (float)(windowx2-windowx1+1) /
-                 (float)(windowy2-windowy1+1);
-
-    bglMatrixMode(GL_PROJECTION);
-    bglLoadIdentity();
-    bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), aspect, 0.01f, 100.0f);
+    
+    polymer_setaspect(pr_fov);
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();

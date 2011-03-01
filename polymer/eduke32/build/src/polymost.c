@@ -5279,6 +5279,15 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             x1 = hudmem[(dastat&4)>>2][picnum].xadd;
             y1 = hudmem[(dastat&4)>>2][picnum].yadd;
             z1 = hudmem[(dastat&4)>>2][picnum].zadd;
+            
+#ifdef POLYMER
+            if (pr_overridehud) {
+                x1 = pr_hudxadd;
+                y1 = pr_hudyadd;
+                z1 = pr_hudzadd;
+            }
+#endif
+
             if (!(hudmem[(dastat&4)>>2][picnum].flags&2)) //"NOBOB" is specified in DEF
             {
                 fx = ((double)sx)*(1.0/65536.0);
@@ -5311,6 +5320,12 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 }
             }
             tspr.ang = hudmem[(dastat&4)>>2][picnum].angadd+globalang;
+
+#ifdef POLYMER
+            if (pr_overridehud) {
+                tspr.ang = pr_hudangadd + globalang;
+            }
+#endif
 
             if (dastat&4) { x1 = -x1; y1 = -y1; }
 
@@ -5389,6 +5404,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 # ifdef POLYMER
             else
             {
+                int32_t fov;
+
                 tspriteptr[MAXSPRITESONSCREEN] = &tspr;
 
                 bglEnable(GL_ALPHA_TEST);
@@ -5396,8 +5413,22 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
                 spriteext[tspr.owner].roll = a;
                 spriteext[tspr.owner].zoff = z;
+                
+                fov = hudmem[(dastat&4)>>2][picnum].fov;
+                
+                if (fov == -1) {
+                    fov = pr_fov;
+                }
+                
+                if (pr_overridehud) {
+                    fov = pr_hudfov;
+                }
+                
+                polymer_setaspect(fov);
 
                 polymer_drawsprite(MAXSPRITESONSCREEN);
+                
+                polymer_setaspect(pr_fov);
 
                 spriteext[tspr.owner].zoff = 0;
                 spriteext[tspr.owner].roll = 0;
@@ -6245,6 +6276,12 @@ void polymost_initosdfuncs(void)
         { "r_pr_specularpower", "r_pr_specularpower: overriden specular material power", (void *) &pr_specularpower, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
         { "r_pr_specularfactor", "r_pr_specularfactor: overriden specular material factor", (void *) &pr_specularfactor, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
         { "r_pr_highpalookups", "r_pr_highpalookups: enable/disable highpalookups", (void *) &pr_highpalookups, CVAR_BOOL, 0, 1 },
+        { "r_pr_overridehud", "r_pr_overridehud: overrides hud model parameters with values from the pr_hud* cvars; use it to fine-tune DEF tokens", (void *) &pr_overridehud, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
+        { "r_pr_hudxadd", "r_pr_hudxadd: overriden HUD xadd; see r_pr_overridehud", (void *) &pr_hudxadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },
+        { "r_pr_hudyadd", "r_pr_hudyadd: overriden HUD yadd; see r_pr_overridehud", (void *) &pr_hudyadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },
+        { "r_pr_hudzadd", "r_pr_hudzadd: overriden HUD zadd; see r_pr_overridehud", (void *) &pr_hudzadd, CVAR_FLOAT | CVAR_NOSAVE, -100, 100 },
+        { "r_pr_hudangadd", "r_pr_hudangadd: overriden HUD angadd; see r_pr_overridehud", (void *) &pr_hudangadd, CVAR_INT | CVAR_NOSAVE, -512, 512 },
+        { "r_pr_hudfov", "r_pr_hudfov: overriden HUD fov; see r_pr_overridehud", (void *) &pr_hudfov, CVAR_INT | CVAR_NOSAVE, 0, 1023 },
         { "r_pr_ati_fboworkaround", "r_pr_ati_fboworkaround: enable this to workaround an ATI driver bug that causes sprite shadows to be square - you need to restart the renderer for it to take effect", (void *) &pr_ati_fboworkaround, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
         { "r_pr_ati_nodepthoffset", "r_pr_ati_nodepthoffset: enable this to workaround an ATI driver bug that causes sprite drawing to freeze the game on Radeon X1x00 hardware - you need to restart the renderer for it to take effect", (void *) &pr_ati_nodepthoffset, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
 #endif
