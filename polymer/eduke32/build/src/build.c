@@ -1110,13 +1110,15 @@ void editinput(void)
                     cz = getceilzofslope(hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y);
                     fz = getflorzofslope(hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y);
 
-                    j = (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1;
+                    j = spriteheight(i, NULL)>>1;
                     sprite[i].z = hitinfo.pos.z;
-                    if ((sprite[i].cstat&128) == 0)
-                        bclamp(&sprite[i].z, cz+(j<<1), fz);
-                    else
-                        bclamp(&sprite[i].z, cz+j, fz-j);
-
+                    if ((sprite[i].cstat&48)!=32)
+                    {
+                        if ((sprite[i].cstat&128) == 0)
+                            bclamp(&sprite[i].z, cz+(j<<1), fz);
+                        else
+                            bclamp(&sprite[i].z, cz+j, fz-j);
+                    }
 
                     if (searchstat == 0 || searchstat == 4)
                     {
@@ -1796,21 +1798,106 @@ static int32_t copyloop1(int16_t *danumwalls, int32_t *m)
     return 0;
 }
 
-static void updatesprite1(int16_t j)
+static void updatesprite1(int16_t i)
 {
-    int32_t tempint;
+    setsprite(i, (vec3_t *)&sprite[i]);
 
-    setsprite(j, (vec3_t *)&sprite[j]);
-
-    tempint = (tilesizy[sprite[j].picnum]*sprite[j].yrepeat)<<2;
-    if (sprite[j].sectnum>=0)
+    if ((sprite[i].cstat&48)!=32 && sprite[i].sectnum>=0)
     {
-        sprite[j].z = max(sprite[j].z, getceilzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y)+tempint);
-        sprite[j].z = min(sprite[j].z, getflorzofslope(sprite[j].sectnum,sprite[j].x,sprite[j].y));
+        int32_t tempint, cz, fz;
+        tempint = spriteheight(i, NULL);
+        if (sprite[i].cstat&128)
+            tempint >>= 1;
+        cz = getceilzofslope(sprite[i].sectnum, sprite[i].x,sprite[i].y);
+        fz = getflorzofslope(sprite[i].sectnum, sprite[i].x,sprite[i].y);
+        sprite[i].z = max(sprite[i].z, cz+tempint);
+        sprite[i].z = min(sprite[i].z, fz);
     }
 }
 
 static int32_t ask_if_sure(const char *query, uint32_t flags);
+static int32_t ask_above_or_below();
+
+// returns:
+//  0: continue
+// >0: newnumwalls
+// <0: error
+static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, int16_t *refsect_ret)
+{
+    int16_t refsect, ignore;
+    int32_t k, n, refwall;
+
+    if (wall[j].nextwall>=0 || (visitedwall[j>>3]&(1<<(j&7))))
+        return 0;
+
+    n=2*MAXWALLS;  // simple inf loop check
+    refwall = j;
+    k = numwalls;
+
+    ignore = 0;
+
+    if (ignore_ret)
+    {
+        refsect = -1;
+        updatesectorexclude(wall[j].x, wall[j].y, &refsect, hlsectorbitmap);
+        if (refsect<0)
+            return -1;
+    }
+
+    do
+    {
+        if (j!=refwall && visitedwall[j>>3]&(1<<(j&7)))
+            ignore = 1;
+        visitedwall[j>>3] |= (1<<(j&7));
+
+        if (ignore_ret)
+        {
+            if (inside(wall[j].x, wall[j].y, refsect) != 1)
+                ignore = 1;
+        }
+
+        if (!ignore)
+        {
+            if (k>=MAXWALLS)
+            {
+                message("Wall limits exceeded while tracing outer loop.");
+                return -2;
+            }
+
+            Bmemcpy(&wall[k], &wall[j], sizeof(walltype));
+            wall[k].point2 = k+1;
+            wall[k].nextsector = wall[k].nextwall = wall[k].extra = -1;
+            k++;
+        }
+
+        j = wall[j].point2;
+        n--;
+
+        while (wall[j].nextwall>=0 && n>0)
+        {
+            j = wall[wall[j].nextwall].point2;
+//            if (j!=refwall && (visitedwall[j>>3]&(1<<(j&7))))
+//                ignore = 1;
+//            visitedwall[j>>3] |= (1<<(j&7));
+            n--;
+        }
+    }
+    while (j!=refwall && n>0);
+
+    if (j!=refwall)
+    {
+        message("internal error while tracing outer loop: didn't reach refwall");
+        return -3;
+    }
+
+    if (ignore_ret)
+        *ignore_ret = ignore;
+
+    if (refsect_ret)
+        *refsect_ret = refsect;
+
+    return k;
+}
 
 void overheadeditor(void)
 {
@@ -2224,7 +2311,7 @@ void overheadeditor(void)
                 printext16(8,8, editorcolors[13],editorcolors[0],cbuf,0);
             }
 
-            if ((keystatus[0x36] || keystatus[0xb8]) && !eitherCTRL)  // RSHIFT || RALT
+            if (keystatus[0x36] || keystatus[0xb8])  // RSHIFT || RALT
             {
                 if (keystatus[0x27] || keystatus[0x28])  // ' and ;
                 {
@@ -2252,10 +2339,8 @@ void overheadeditor(void)
                 x2 = mulscale14(dax-pos.x,zoom);
                 y2 = mulscale14(day-pos.y,zoom);
 
-                if (wall[linehighlight].nextsector >= 0)
-                    drawline16base(halfxdim16+x2,midydim16+y2, 0,0, 0,0, editorcolors[15]);
-                else
-                    drawline16base(halfxdim16+x2,midydim16+y2, 0,0, 0,0, editorcolors[5]);
+                drawline16base(halfxdim16+x2,midydim16+y2, 0,0, 0,0,
+                               wall[linehighlight].nextsector >= 0 ? editorcolors[15] : editorcolors[5]);
             }
 
             enddrawing();	//}}}
@@ -2676,15 +2761,49 @@ void overheadeditor(void)
         {
             keystatus[0x12] = 0;
 
-            if (pointhighlight >= 16384)
+            if (!eitherCTRL)
             {
-                i = pointhighlight-16384;
-                Bsprintf(buffer, "Sprite (%d) Status list: ", i);
-                changespritestat(i, getnumber16(buffer, sprite[i].statnum, 65535, 0));
+                if (pointhighlight >= 16384)
+                {
+                    i = pointhighlight-16384;
+                    Bsprintf(buffer, "Sprite (%d) Status list: ", i);
+                    changespritestat(i, getnumber16(buffer, sprite[i].statnum, MAXSTATUS-1, 0));
 //                clearmidstatbar16();
 //                showspritedata((int16_t)i);
+                    // printmessage16("");
+                }
             }
-            // printmessage16("");
+            else if (highlightsectorcnt > 0&&0)
+            {
+                ////////// YAX //////////
+                static const char *cfs[2] = {"ceiling", "floor"};
+
+                int32_t cf, good, thez;
+
+                cf = ask_above_or_below();
+                if (!cf)
+                    goto end_yax;
+
+                cf--;
+
+                good = (highlightsectorcnt==1 || (YAX_SECTORFLD(highlightsector[0],stat, cf)&2)==0);
+
+                thez = YAX_SECTORFLD(highlightsector[0],z, cf);
+                for (i=1; i<highlightsectorcnt; i++)
+                {
+                    if (YAX_SECTORFLD(highlightsector[i],z, cf) != thez)
+                    {
+                        message("All sectors must have the same %s height", cfs[cf]);
+                        goto end_yax;
+                    }
+                    if ((YAX_SECTORFLD(highlightsector[i],stat, cf)&2)!=0)
+                    {
+                        message("Sector %ss must not be sloped", cfs[cf]);
+                        goto end_yax;
+                    }
+                }
+end_yax: ;
+            }
         }
 
         if (highlightsectorcnt < 0)
@@ -2724,12 +2843,13 @@ void overheadeditor(void)
                     if (highlighty1 > highlighty2)
                         swaplong(&highlighty1, &highlighty2);
 
+                    // Ctrl+RShift: select all wall-points of highlighted wall's loop:
                     if (eitherCTRL)
                     {
                         Bmemset(show2dwall, 0, sizeof(show2dwall));
                         Bmemset(show2dsprite, 0, sizeof(show2dsprite));
 
-                        if ((linehighlight >= 0) && (linehighlight < MAXWALLS))
+                        if (linehighlight >= 0 && linehighlight < MAXWALLS)
                         {
                             i = linehighlight;
                             do
@@ -2793,14 +2913,17 @@ void overheadeditor(void)
             {
                 if (highlightsectorcnt == 0)
                 {
-                    int32_t xx[] = { highlightx1, highlightx1, searchx, searchx, highlightx1 };
-                    int32_t yy[] = { highlighty1, searchy, searchy, highlighty1, highlighty1 };
+                    if (!eitherCTRL)
+                    {
+                        int32_t xx[] = { highlightx1, highlightx1, searchx, searchx, highlightx1 };
+                        int32_t yy[] = { highlighty1, searchy, searchy, highlighty1, highlighty1 };
 
-                    highlightx2 = searchx;
-                    highlighty2 = searchy;
-                    ydim16 = ydim-STATUS2DSIZ2;
+                        highlightx2 = searchx;
+                        highlighty2 = searchy;
+                        ydim16 = ydim-STATUS2DSIZ2;
 
-                    plotlines2d(xx, yy, 5, editorcolors[10]);
+                        plotlines2d(xx, yy, 5, editorcolors[10]);
+                    }
                 }
                 else
                 {
@@ -2833,83 +2956,27 @@ void overheadeditor(void)
                         clearkeys();
                     }
 
-
-                    while (!didmakered && !hadouterpoint && newnumwalls<0)  // if
+                    if (!didmakered && !hadouterpoint && newnumwalls<0)
                     {
-                        int32_t tmpnumwalls=0, refwall;
                         uint8_t *visitedwall = Bcalloc((numwalls+7)>>3,1);
+                        int16_t ignore, refsect;
+                        int32_t n;
 
                         if (!visitedwall)
                         {
                             message("out of memory!");
-                            break;
+                            goto outtathis;
                         }
-
-                        for (i=0; i<highlightsectorcnt; i++)
-                            tmpnumwalls += sector[highlightsector[i]].wallnum;
 
                         for (i=0; i<highlightsectorcnt; i++)
                         {
                             for (WALLS_OF_SECTOR(highlightsector[i], j))
                             {
-                                int16_t refsect, ignore;
-                                int32_t n;
-
-                                if (wall[j].nextwall>=0 || (visitedwall[j>>3]&(1<<(j&7))))
+                                k = trace_loop(j, visitedwall, &ignore, &refsect);
+                                if (k == 0)
                                     continue;
-
-                                n=2*tmpnumwalls;  // simple inf loop check
-                                refwall = j;
-                                k = numwalls;
-
-                                ignore = 0;
-                                refsect = -1;
-                                updatesectorexclude(wall[j].x, wall[j].y, &refsect, hlsectorbitmap);
-                                if (refsect<0)
+                                else if (k < 0)
                                     goto outtathis;
-
-                                do
-                                {
-                                    if (j!=refwall && visitedwall[j>>3]&(1<<(j&7)))
-                                        ignore = 1;
-                                    visitedwall[j>>3] |= (1<<(j&7));
-
-                                    if (inside(wall[j].x, wall[j].y, refsect)!=1)
-                                        ignore = 1;
-
-                                    if (!ignore)
-                                    {
-                                        if (k>=MAXWALLS)
-                                        {
-                                            message("Wall limits exceeded while tracing outer loop.");
-                                            goto outtathis;
-                                        }
-
-                                        Bmemcpy(&wall[k], &wall[j], sizeof(walltype));
-                                        wall[k].point2 = k+1;
-                                        wall[k].nextsector = wall[k].nextwall = wall[k].extra = -1;
-                                        k++;
-                                    }
-
-                                    j = wall[j].point2;
-                                    n--;
-
-                                    while (wall[j].nextwall>=0 && n>0)
-                                    {
-                                        j = wall[wall[j].nextwall].point2;
-//                                            if (j!=refwall && (visitedwall[j>>3]&(1<<(j&7))))
-//                                                ignore = 1;
-//                                            visitedwall[j>>3] |= (1<<(j&7));
-                                        n--;
-                                    }
-                                }
-                                while (j!=refwall && n>0);
-
-                                if (j!=refwall)
-                                {
-                                    message("internal error while tracing outer loop: didn't reach refwall");
-                                    goto outtathis;
-                                }
 
                                 if (!ignore)
                                 {
@@ -2967,15 +3034,14 @@ void overheadeditor(void)
                         }
 outtathis:
                         newnumwalls = -1;
-                        Bfree(visitedwall);
-
-                        break;  // --|
-                    }  //  <---------/
+                        if (visitedwall)
+                            Bfree(visitedwall);
+                    }
 
                     highlightx1 = searchx;
                     highlighty1 = searchy;
                     highlightx2 = searchx;
-                    highlighty2 = searchx;
+                    highlighty2 = searchy;
                     highlightsectorcnt = 0;
                 }
             }
@@ -2984,29 +3050,41 @@ outtathis:
                 if (highlightsectorcnt == 0)
                 {
                     int32_t add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
+                    int32_t pointsel = eitherCTRL;
 
                     getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
                     getpoint(highlightx2,highlighty2, &highlightx2,&highlighty2);
 
-                    if (highlightx1 > highlightx2)
-                        swaplong(&highlightx1, &highlightx2);
-                    if (highlighty1 > highlighty2)
-                        swaplong(&highlighty1, &highlighty2);
+                    if (!pointsel)
+                    {
+                        if (highlightx1 > highlightx2)
+                            swaplong(&highlightx1, &highlightx2);
+                        if (highlighty1 > highlighty2)
+                            swaplong(&highlighty1, &highlighty2);
+                    }
 
                     if (!setop)
                         Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
 
                     for (i=0; i<numsectors; i++)
                     {
-                        bad = 0;
-                        for (WALLS_OF_SECTOR(i, j))
+                        if (pointsel)
                         {
-                            if (wall[j].x < highlightx1) bad = 1;
-                            if (wall[j].x > highlightx2) bad = 1;
-                            if (wall[j].y < highlighty1) bad = 1;
-                            if (wall[j].y > highlighty2) bad = 1;
-                            if (bad == 1) break;
+                            bad = (inside(highlightx2, highlighty2, i)!=1);
                         }
+                        else
+                        {
+                            bad = 0;
+                            for (WALLS_OF_SECTOR(i, j))
+                            {
+                                if (wall[j].x < highlightx1) bad = 1;
+                                if (wall[j].x > highlightx2) bad = 1;
+                                if (wall[j].y < highlighty1) bad = 1;
+                                if (wall[j].y > highlighty2) bad = 1;
+                                if (bad == 1) break;
+                            }
+                        }
+
                         if (bad == 0)
                         {
                             if (sub)
@@ -3026,6 +3104,9 @@ outtathis:
 
                     update_highlightsector();
                     ovh_whiteoutgrab();
+
+                    if (highlightsectorcnt>0)
+                        printmessage16("Total selected sectors: %d", highlightsectorcnt);
                 }
             }
         }
@@ -3145,7 +3226,7 @@ end_after_dragging:
                             break;
                         }
 
-                    if ((cursectorhighlight >= 0) && (cursectorhighlight < numsectors))
+                    if (cursectorhighlight >= 0 && cursectorhighlight < numsectors)
                     {
 //                        for (i=0; i<highlightsectorcnt; i++)
 //                            if (cursectorhighlight == highlightsector[i])
@@ -3200,7 +3281,7 @@ end_after_dragging:
                 }
 
             }
-            else
+            else  //if (highlightsectorcnt <= 0)
             {
                 if ((bstatus&1) > (oldmousebstatus&1))
                     pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
@@ -3286,7 +3367,7 @@ end_after_dragging:
                             if (setsprite(daspr, &vec) == -1 && osec>=0)
                                 Bmemcpy(&sprite[daspr], &ovec, sizeof(vec3_t));
 #if 0
-                            daz = ((tilesizy[sprite[daspr].picnum]*sprite[daspr].yrepeat)<<2);
+                            daz = spriteheight(daspr, NULL);
 
                             for (i=0; i<numsectors; i++)
                                 if (inside(dax,day,i) == 1)
@@ -3414,7 +3495,7 @@ end_point_dragging:
             else
             {
                 m32_sideview = !m32_sideview;
-                message("Side view %s", m32_sideview?"enabled":"disabled");
+                printmessage16("Side view %s", m32_sideview?"enabled":"disabled");
 
                 m32_setkeyfilter(1);
             }
@@ -3673,6 +3754,7 @@ end_point_dragging:
                     deletesector(joinsector[1]);
 
                     printmessage16("Sectors joined.");
+                    asksave = 1;
                 }
 
                 joinsector[0] = -1;
@@ -3747,8 +3829,9 @@ end_join_sectors:
                 else
                 {
                     sprite[i].z = getflorzofslope(sucksect,dax,day);
-                    if ((sprite[i].cstat&128) != 0)
-                        sprite[i].z -= ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+//                    if (sprite[i].cstat&128)
+//                        sprite[i].z -= spriteheight(i, NULL)>>1;
+
 // PK
                     if (prefixarg)
                     {
@@ -5044,6 +5127,35 @@ static int32_t ask_if_sure(const char *query, uint32_t flags)
     return 0;
 }
 
+static int32_t ask_above_or_below()
+{
+    char ch;
+    int32_t ret=0;
+
+    _printmessage16("Extend above (a) or below (z)?");
+
+    showframe(1);
+    bflushchars();
+
+    while ((keystatus[1]|keystatus[0x2e]) == 0 && ret==0)
+    {
+        if (handleevents())
+            quitevent = 0;
+
+        idle();
+        ch = bgetchar();
+
+        if (ch == 'a' || ch == 'A')
+            ret = 1;
+        else if (ch == 'z' || ch == 'Z')
+            ret = 2;
+    }
+
+    clearkeys();
+
+    return ret;
+}
+
 // flags:  1:no ExSaveMap (backup.map)
 const char *SaveBoard(const char *fn, uint32_t flags)
 {
@@ -5527,7 +5639,7 @@ void fixspritesectors(void)
 
             if (inside(dax,day,sprite[i].sectnum) != 1)
             {
-                daz = (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2;
+                daz = spriteheight(i, NULL);
 
                 for (j=0; j<numsectors; j++)
                     if (inside(dax,day, j) == 1
@@ -6326,12 +6438,11 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
     endwall = startwall + sector[sectnum].wallnum - 1;
     for (z=startwall; z<=endwall; z++)
     {
-        y1 = (((wall[z].y-pos.y)*zoom)>>14)+midydim16;
-        y2 = (((POINT2(z).y-pos.y)*zoom)>>14)+midydim16;
-        if (y1 < miny) miny = y1;
-        if (y2 < miny) miny = y2;
-        if (y1 > maxy) maxy = y1;
-        if (y2 > maxy) maxy = y2;
+        y1 = midydim16 + (((wall[z].y-pos.y)*zoom)>>14);
+        y2 = midydim16 + (((POINT2(z).y-pos.y)*zoom)>>14);
+
+        miny = min(miny, min(y1, y2));
+        maxy = max(maxy, max(y1, y2));
     }
 
     if (miny < uborder) miny = uborder;
@@ -6340,7 +6451,7 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
 //+((totalclock>>2)&3)
     for (sy=miny; sy<=maxy; sy+=3)	// JBF 20040116: numframes%3 -> (totalclock>>2)&3
     {
-        y = pos.y+(((sy-midydim16)<<14)/zoom);
+        y = pos.y + ((sy-midydim16)<<14)/zoom;
 
         fillist[0] = lborder; fillcnt = 1;
         for (z=startwall; z<=endwall; z++)
@@ -6349,28 +6460,29 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
             y1 = wall[z].y; y2 = POINT2(z).y;
             if (y1 > y2)
             {
-                tempint = x1; x1 = x2; x2 = tempint;
-                tempint = y1; y1 = y2; y2 = tempint;
+                swaplong(&x1, &x2);
+                swaplong(&y1, &y2);
             }
-            if ((y1 <= y) && (y2 > y))
+
+            if (y1 <= y && y < y2)
                 //if (x1*(y-y2) + x2*(y1-y) <= 0)
             {
-                dax = x1+scale(y-y1,x2-x1,y2-y1);
-                dax = (((dax-pos.x)*zoom)>>14)+halfxdim16;
+                if (fillcnt == sizeof(fillist)/sizeof(fillist[0]))
+                    break;
+
+                dax = x1 + scale(y-y1, x2-x1, y2-y1);
+                dax = halfxdim16 + (((dax-pos.x)*zoom)>>14);
                 if (dax >= lborder)
                     fillist[fillcnt++] = dax;
             }
         }
+
         if (fillcnt > 0)
         {
             for (z=1; z<fillcnt; z++)
                 for (zz=0; zz<z; zz++)
                     if (fillist[z] < fillist[zz])
-                    {
-                        tempint = fillist[z];
-                        fillist[z] = fillist[zz];
-                        fillist[zz] = tempint;
-                    }
+                        swaplong(&fillist[z], &fillist[zz]);
 
             for (z=(fillcnt&1); z<fillcnt-1; z+=2)
             {
@@ -6378,11 +6490,13 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
                     break;
                 if (fillist[z+1] > rborder)
                     fillist[z+1] = rborder;
+
                 drawline16(fillist[z],sy, fillist[z+1],sy, 159  //editorcolors[fillcolor]
                            -klabs(sintable[((totalclock<<3)&2047)]>>11));
             }
         }
     }
+
     return(0);
 }
 
@@ -6690,11 +6804,15 @@ nonextsector:
             while (j >= 0)
             {
                 m = insertsprite(destsector,sprite[j].statnum);
-                if (m>=0)
+                if (m<0)
                 {
-                    Bmemcpy(&sprite[m],&sprite[j],sizeof(spritetype));
-                    sprite[m].sectnum = destsector;   //Don't let memcpy overwrite sector!
+                    message("Some sprites not duplicated because limit was reached.");
+                    break;
                 }
+
+                Bmemcpy(&sprite[m],&sprite[j],sizeof(spritetype));
+                sprite[m].sectnum = destsector;   //Don't let memcpy overwrite sector!
+
                 j = nextspritesect[j];
             }
         }

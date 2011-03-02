@@ -61,6 +61,17 @@ extern "C" {
 #define PR_LIGHT_PRIO_LOW       4
 #define PR_LIGHT_PRIO_LOW_GAME  5
 
+////////// yax defs //////////
+#define YAX_BIT 1024
+#define YAX_CEILING 0
+#define YAX_FLOOR 1
+
+#define YAX_SECTORFLD(Sect,Fld, Cf) (*((uint8_t *)&sector[Sect].ceiling##Fld + (Cf)*((char*)&sector[0].floor##Fld - (char*)&sector[0].ceiling##Fld)))
+
+int16_t yax_getbunch(int16_t i, int16_t cf);
+void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum);
+
+
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
 
@@ -576,6 +587,8 @@ static inline int32_t deletesprite(int16_t spritenum)
 int32_t   changespritesect(int16_t spritenum, int16_t newsectnum);
 int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
 int32_t   setsprite(int16_t spritenum, const vec3_t *new) ATTRIBUTE((nonnull(2)));
+
+int32_t spriteheight(int16_t i, int32_t *basez);
 
 int32_t   screencapture(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
 

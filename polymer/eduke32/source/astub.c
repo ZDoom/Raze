@@ -3692,11 +3692,12 @@ static int32_t spriteonceilingz(int32_t searchwall)
 //    int32_t z=sprite[searchwall].z;
 
     int32_t z = getceilzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
+    int32_t tmphei = spriteheight(searchwall, NULL);
 
     if (sprite[searchwall].cstat&128)
-        z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
+        z -= tmphei>>1;
     if ((sprite[searchwall].cstat&48) != 32)
-        z += ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<2);
+        z += tmphei;
     return z;
 }
 
@@ -3707,7 +3708,7 @@ static int32_t spriteongroundz(int32_t searchwall)
     int32_t z = getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
 
     if (sprite[searchwall].cstat&128)
-        z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
+        z -= spriteheight(searchwall, NULL)>>1;
     return z;
 }
 
@@ -4271,6 +4272,7 @@ static void mouseaction_movesprites(int32_t *sumxvect, int32_t *sumyvect, int32_
         xvect = daxvect;
         yvect = dayvect;
 
+        // test run
         for (ii=0; ii<highlightcnt; ii++)
             if (highlight[ii]&16384)
             {
@@ -4282,6 +4284,7 @@ static void mouseaction_movesprites(int32_t *sumxvect, int32_t *sumyvect, int32_
                 xvect = (tvec.x - sprite[spi].x)<<14;
                 yvect = (tvec.y - sprite[spi].y)<<14;
             }
+        // the real thing
         for (ii=0; ii<highlightcnt; ii++)
             if (highlight[ii]&16384)
             {
@@ -4653,7 +4656,7 @@ static void Keys3d(void)
 
     if (AIMING_AT_WALL_OR_MASK && PRESSED_KEYSC(PERIOD))
     {
-        AutoAlignWalls((int32_t)searchwall, 0);
+        AutoAlignWalls(searchwall, 0);
         message("Wall %d autoalign", searchwall);
     }
 
@@ -4688,7 +4691,7 @@ static void Keys3d(void)
                 sector[searchsector].ceilingheinum = 0;
             }
             getnumberptr256("Sector ceiling slope: ", &sector[searchsector].ceilingheinum,
-                            sizeof(sector[0].ceilingheinum), 65536, 1, NULL);
+                            sizeof(sector[0].ceilingheinum), 32767, 1, NULL);
             break;
         case SEARCH_FLOOR:
             getnumberptr256("Sector floorz: ", &sector[searchsector].floorz,
@@ -4699,7 +4702,7 @@ static void Keys3d(void)
                 sector[searchsector].floorstat |= 2;
             }
             getnumberptr256("Sector floor slope: ", &sector[searchsector].floorheinum,
-                            sizeof(sector[0].floorheinum), 65536, 1, NULL);
+                            sizeof(sector[0].floorheinum), 32767, 1, NULL);
             break;
 
         case SEARCH_SPRITE:
@@ -5175,16 +5178,19 @@ static void Keys3d(void)
             int16_t sect = k ? highlightsector[0] :
                            ((AIMING_AT_WALL && wall[searchwall].nextsector>=0 && (eitherALT && !(bstatus&1))) ?
                             wall[searchwall].nextsector : searchsector);
+            int32_t tmphei;
 
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
             {
                 for (i=headspritesect[sect]; i!=-1; i=nextspritesect[i])
                 {
+                    tmphei = spriteheight(i, NULL);
+
                     tempint = getceilzofslope(sect, sprite[i].x, sprite[i].y);
-                    tempint += (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2;
+                    tempint += tmphei;
 
                     if (sprite[i].cstat&128)
-                        tempint += (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1;
+                        tempint += tmphei>>1;
 
                     if (sprite[i].z == tempint)
                         sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
@@ -5205,7 +5211,7 @@ static void Keys3d(void)
                     tempint = getflorzofslope(sect,sprite[i].x,sprite[i].y);
 
                     if (sprite[i].cstat&128)
-                        tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                        tempint += spriteheight(i, NULL)>>1;
 
                     if (sprite[i].z == tempint)
                         sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
@@ -6866,7 +6872,7 @@ static void Keys2d(void)
         }
     }
 
-    if (PRESSED_KEYSC(E))  // E (expand)
+    if (!eitherCTRL && PRESSED_KEYSC(E))  // E (expand)
     {
         for (i=0; i<numsectors; i++)
             if (inside(mousxplc,mousyplc,i) == 1)
@@ -7131,8 +7137,7 @@ static void Keys2d(void)
             sprite[i].ang &= 2047;
             printmessage16("Sprite %d updated", i);
         }
-
-        else if (pointhighlight >= 0 /*<= 16383*/)
+        else if (pointhighlight >= 0)
         {
             i = linehighlight;
             j = wall[i].x;
@@ -9996,11 +10001,23 @@ void ExtCheckKeys(void)
 
     if (asksave == 1 && (bstatus + lastbstatus) == 0 && mapstate)
     {
+#if 0
+        int32_t i;
+        // check keys so that e.g. bunch deletions won't produce
+        // as much revisions
+        for (i=sizeof(keystatus)/sizeof(keystatus[0]) - 1; i>=0; i--)
+            if (keystatus[i])
+                break;
         //        message("Saved undo rev %d",map_revision);
-        create_map_snapshot();
-        asksave++;
+        if (i==-1)
+#endif
+        {
+            create_map_snapshot();
+            asksave++;
+        }
     }
-    else if (asksave == 2) asksave++;
+    else if (asksave == 2)
+        asksave++;
 
     if (totalclock > autosavetimer && autosave)
     {
@@ -10532,7 +10549,7 @@ static void EditSectorData(int16_t sectnum)
                 break;
             case 5:
                 handlemed(0, "Ceiling heinum", "Ceiling Heinum", &sector[sectnum].ceilingheinum,
-                          sizeof(sector[sectnum].ceilingheinum), 65536L, 1);
+                          sizeof(sector[sectnum].ceilingheinum), 32767, 1);
                 break;
             case 6:
                 handlemed(0, "Palookup number", "Ceiling Palookup Number", &sector[sectnum].ceilingpal,
@@ -10546,7 +10563,7 @@ static void EditSectorData(int16_t sectnum)
             {
             case 0:
                 handlemed(1, "Flags (hex)", "Floor Flags", &sector[sectnum].floorstat,
-                          sizeof(sector[sectnum].floorstat), 65536, 0);
+                          sizeof(sector[sectnum].floorstat), 65535, 0);
                 break;
 
             case 1:
@@ -10576,7 +10593,7 @@ static void EditSectorData(int16_t sectnum)
                 break;
             case 5:
                 handlemed(0, "Floor heinum", "Floor Heinum", &sector[sectnum].floorheinum,
-                          sizeof(sector[sectnum].floorheinum), 65536, 1);
+                          sizeof(sector[sectnum].floorheinum), 32767, 1);
                 break;
             case 6:
                 handlemed(0, "Palookup number", "Floor Palookup Number", &sector[sectnum].floorpal,
@@ -10624,7 +10641,7 @@ static void EditWallData(int16_t wallnum)
         {
         case 0:
             handlemed(1, "Flags (hex)", "Flags", &wall[wallnum].cstat,
-                      sizeof(wall[wallnum].cstat), 65536L, 0);
+                      sizeof(wall[wallnum].cstat), 65535, 0);
             break;
         case 1:
             handlemed(0, "Shade", "Shade", &wall[wallnum].shade,
@@ -10871,15 +10888,15 @@ static void EditSpriteData(int16_t spritenum)
                 break;
             case 1:
                 handlemed(0, "X-Velocity", "X-Velocity", &sprite[spritenum].xvel,
-                          sizeof(sprite[spritenum].xvel), 65536, 1);
+                          sizeof(sprite[spritenum].xvel), 65535, 1);
                 break;
             case 2:
                 handlemed(0, "Y-Velocity", "Y-Velocity", &sprite[spritenum].yvel,
-                          sizeof(sprite[spritenum].yvel), 65536, 1);
+                          sizeof(sprite[spritenum].yvel), 65535, 1);
                 break;
             case 3:
                 handlemed(0, "Z-Velocity", "Z-Velocity", &sprite[spritenum].zvel,
-                          sizeof(sprite[spritenum].zvel), 65536, 1);
+                          sizeof(sprite[spritenum].zvel), 65535, 1);
                 break;
             case 4:
                 handlemed(0, "Owner", "Owner", &sprite[spritenum].owner,
@@ -10936,10 +10953,10 @@ static void GenericSpriteSearch()
 
     static int32_t maxval[7][3] =
     {
-        { BXY_MAX     , 65536         , 2048 },
-        { BXY_MAX     , 128           , 65536 },
-        { BZ_MAX      , MAXPALOOKUPS-1, 65536 },
-        { MAXSECTORS-1, 128           , 65536 },
+        { BXY_MAX     , 65535         , 2048 },
+        { BXY_MAX     , 128           , 65535 },
+        { BZ_MAX      , MAXPALOOKUPS-1, 65535 },
+        { MAXSECTORS-1, 128           , 65535 },
         { MAXSTATUS-1 , 128           , MAXSPRITES-1 },
         { BTAG_MAX    , MAXTILES-1    , 256 },
         { BTAG_MAX    , 0             , BTAG_MAX }

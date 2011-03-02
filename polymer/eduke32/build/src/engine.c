@@ -173,6 +173,32 @@ static int16_t maphacklightcnt=0;
 static int16_t maphacklight[PR_MAXLIGHTS];
 #endif
 
+
+////////// YAX //////////
+#define YAX_BUNCHNUM(Sect, Cf) (*(int16_t *)(&sector[Sect].ceilingxpanning + 6*Cf))
+
+int16_t yax_getbunch(int16_t i, int16_t cf)
+{
+    if (((*(&sector[i].ceilingstat + cf))&YAX_BIT)==0)
+        return -1;
+
+    return YAX_BUNCHNUM(i, cf);
+}
+
+void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
+{
+    if (i<0)
+    {
+        *(&sector[i].ceilingstat + cf) &= ~YAX_BIT;
+        YAX_BUNCHNUM(i, cf) = 0;
+        return;
+    }
+
+    *(&sector[i].ceilingstat + cf) |= YAX_BIT;
+    YAX_BUNCHNUM(i, cf) = bunchnum;
+}
+
+
 ////////// editor side view //////////
 int32_t m32_sideview = 0;
 int32_t m32_sideelev = 256;  // elevation in BUILD degrees, 0..512
@@ -295,7 +321,7 @@ int32_t clipmapinfo_load(const char *filename)
     int32_t i,k,w, px,py,pz;
     int16_t ang,cs;
 
-    char fn[BMAX_PATH], loadedwhich[32]= {0}, *lwcp=loadedwhich;
+    char fn[BMAX_PATH], loadedwhich[32]={0}, *lwcp=loadedwhich;
     int32_t slen, fi, fisec[10], fispr[10];
     int32_t ournumsectors=0, ournumwalls=0, ournumsprites=0, numsprites;
 
@@ -6053,6 +6079,7 @@ static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
     y1 = clipit[w].y1; dy = clipit[w].y2-y1;
     ox = ksgn(-dy); oy = ksgn(dx);
     first = (klabs(dx) <= klabs(dy));
+
     while (1)
     {
         if (dx*(*y-y1) > (*x-x1)*dy) return;
@@ -8927,6 +8954,27 @@ int32_t ksqrt(int32_t num)
 int32_t krecip(int32_t num)
 {
     return(krecipasm(num));
+}
+
+int32_t spriteheight(int16_t i, int32_t *basez)
+{
+    int32_t hei, flooraligned=((sprite[i].cstat&48)==32);
+
+    if (flooraligned)
+    {
+        if (basez)
+            *basez = sprite[i].z;
+        return 0;
+    }
+
+    hei = (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2;
+    if (basez)
+    {
+        *basez = sprite[i].z;
+        if (sprite[i].cstat&128)
+            *basez -= (hei>>1);
+    }
+    return hei;
 }
 
 //
