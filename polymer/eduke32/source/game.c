@@ -10110,23 +10110,34 @@ MAIN_LOOP_RESTART:
                         }
             */
 
-            j = 0;
-
             do
             {
+                int32_t clockbeforetic;
+
                 sampletimer();
 
                 if (ready2send == 0) break;
 
                 ototalclock += TICSPERFRAME;
 
+                clockbeforetic = totalclock;
+
                 if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
-                        (g_player[myconnectindex].ps->gm&MODE_GAME) && G_MoveLoop())
-                    j++;
+                        (g_player[myconnectindex].ps->gm&MODE_GAME)) {
+                    G_MoveLoop();
+                }
+                
+                sampletimer();
+                
+                if (totalclock - clockbeforetic >= TICSPERFRAME) {
+                    // computing a tic takes longer than a tic, so we're slowing
+                    // the game down. rather than tightly spinning here, go draw
+                    // a frame since we're fucked anyway
+                    break;
+                }
             }
             while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
 
-            if (j) continue;
         }
 
         G_DoCheats();
