@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#define VERSION " 2.0.0devel"
+#define VERSION "2.0.0devel"
 
 // Build keys
 #define BK_MOVEFORWARD   0

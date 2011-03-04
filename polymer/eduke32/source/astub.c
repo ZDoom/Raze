@@ -46,6 +46,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "m32script.h"
 #include "m32def.h"
 
+#include "rev.h"
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -53,8 +55,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #include <signal.h>
-
-#define BUILDDATE " 20100521"
 
 static int32_t floor_over_floor;
 
@@ -583,6 +583,11 @@ static int32_t getfilenames(const char *path, const char *kind)
     if (findfileshigh) currentlist = 1;
 
     return(0);
+}
+
+const char *ExtGetVer(void)
+{
+    return s_buildRev;
 }
 
 void ExtLoadMap(const char *mapname)
@@ -2500,14 +2505,14 @@ static void ReadPaletteTable()
     //    initprintf("success.\n");
 }// end ReadPaletteTable
 
-static void ReadGamePalette()
+static void ReadGamePalette(void)
 {
     int32_t fp;
     if ((fp=kopen4load("palette.dat",0)) == -1)
         if ((fp=kopen4load("palette.dat",1)) == -1)
         {
             initprintf("!!! PALETTE.DAT NOT FOUND !!!\n");
-            Bstrcpy(tempbuf, "Mapster32"VERSION BUILDDATE);
+            Bsprintf(tempbuf, "Mapster32 %s %s", VERSION, s_buildRev);
             wm_msgbox(tempbuf,"palette.dat not found");
             exit(0);
         }
@@ -7316,7 +7321,8 @@ static void G_ShowParameterHelp(void)
 #endif
               "\n-?, -help, --help\tDisplay this help message and exit"
               ;
-    wm_msgbox("Mapster32"VERSION BUILDDATE,"%s",s);
+    Bsprintf(tempbuf, "Mapster32 %s %s", VERSION, s_buildRev);
+    wm_msgbox(tempbuf, "%s", s);
 }
 
 static void AddGamePath(const char *buffer)
@@ -7602,8 +7608,9 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
 #endif
 
     OSD_SetLogFile("mapster32.log");
-    OSD_SetVersion("Mapster32"VERSION,0,2);
-    initprintf("Mapster32"VERSION BUILDDATE"\n");
+    OSD_SetVersion("Mapster32" " " VERSION,0,2);
+    initprintf("Mapster32 %s %s\n", VERSION, s_buildRev);
+    initprintf("Compiled %s\n", __DATE__" "__TIME__);
     //    initprintf("Copyright (c) 2008 EDuke32 team\n");
 
     G_CheckCommandLine(argc,argv);
@@ -9189,7 +9196,7 @@ int32_t ExtInit(void)
     getmessageleng = 0;
     getmessagetimeoff = 0;
 
-    Bstrcpy(apptitle, "Mapster32"VERSION BUILDDATE);
+    Bsprintf(apptitle, "Mapster32 %s %s", VERSION, s_buildRev);
     autosavetimer = totalclock+120*autosave;
 
 #if defined(DUKEOSD)

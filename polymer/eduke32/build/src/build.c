@@ -25,6 +25,7 @@
 static int32_t crctable[256];
 static char kensig[64];
 
+extern const char *ExtGetVer(void);
 extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
 extern void ExtUnInit(void);
@@ -5728,7 +5729,8 @@ void clearmidstatbar16(void)
 static void clearministatbar16(void)
 {
     int32_t i, col = whitecol - 21;
-    static const char *tempbuf = "Mapster32" VERSION;
+//    static const char *tempbuf = "Mapster32" " " VERSION;
+    char tempbuf[16];
 
     begindrawing();
 
@@ -5743,6 +5745,7 @@ static void clearministatbar16(void)
 
     CLEARLINES2D(i, ydim-i, 0);
 
+    Bsprintf(tempbuf, "Mapster32 %s", ExtGetVer());
     printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3, ydim2d-STATUS2DSIZ2+10, editorcolors[4],-1, tempbuf, 0);
     printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2, ydim2d-STATUS2DSIZ2+9, editorcolors[12],-1, tempbuf, 0);
 
