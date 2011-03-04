@@ -183,12 +183,6 @@ endif
 
 BUILDCFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1
 
-ifneq (0,$(SUPERBUILD))
-    BUILDCFLAGS+= -DSUPERBUILD
-endif
-ifneq (0,$(POLYMOST))
-    BUILDCFLAGS+= -DPOLYMOST
-endif
 ifneq (0,$(USE_OPENGL))
     BUILDCFLAGS+= -DUSE_OPENGL
 endif
@@ -200,10 +194,8 @@ ifneq (0,$(LINKED_GTK))
 endif
 
 ifneq (0,$(POLYMER))
- ifneq (0,$(POLYMOST))
-  ifneq (0,$(USE_OPENGL))
-   BUILDCFLAGS+= -DPOLYMER
-  endif
+ ifneq (0,$(USE_OPENGL))
+  BUILDCFLAGS+= -DPOLYMER
  endif
 endif
 

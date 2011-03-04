@@ -187,6 +187,7 @@ extern mapstate_t   *g_multiMapState;
 
 int32_t Net_PackSprite(int32_t i,uint8_t *pbuf);
 int32_t Net_UnpackSprite(int32_t i,uint8_t *pbuf);
+void    Net_ClientMove(void);
 void    Net_Connect(const char *srvaddr);
 void    Net_Disconnect(void);
 void    Net_EnterMessage(void);

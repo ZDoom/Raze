@@ -2383,7 +2383,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                         sprite[i].xvel = -(sprite[sn].extra<<2);
                         j = SECT;
                         pushmove((vec3_t *)&sprite[i],&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
-                        if (j != SECT && j >= 0 && j < MAXSECTORS)
+                        if (j != SECT && (unsigned)j < MAXSECTORS)
                             changespritesect(i,j);
                     }
                 }

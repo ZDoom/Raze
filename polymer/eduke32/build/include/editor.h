@@ -93,9 +93,7 @@ extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
 extern void ExtUnInit(void);
 extern void ExtPreCheckKeys(void);
-#ifdef SUPERBUILD
 extern void ExtAnalyzeSprites(void);
-#endif
 extern void ExtCheckKeys(void);
 extern void ExtPreLoadMap(void);
 extern void ExtLoadMap(const char *mapname);

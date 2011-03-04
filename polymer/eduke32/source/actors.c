@@ -33,8 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # define ACTOR_STATIC static
 #endif
 
-
-#define KILLIT(KX) {deletesprite(KX);goto BOLT;}
+#define KILLIT(KX) { deletesprite(KX); goto BOLT; }
 
 extern int32_t g_numEnvSoundsPlaying;
 extern int32_t g_noEnemies;
@@ -2497,7 +2496,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 }
 
                 if (!(SpriteProjectile[i].workslike & PROJECTILE_BOUNCESOFFWALLS) &&
-                        s->yvel >= 0 && sprite[s->yvel].sectnum < MAXSECTORS)
+                        s->yvel >= 0 && sprite[s->yvel].sectnum != MAXSECTORS)
                     if (FindDistance2D(s->x-sprite[s->yvel].x,s->y-sprite[s->yvel].y) < 256)
                         j = 49152|s->yvel;
 

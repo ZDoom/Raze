@@ -2480,7 +2480,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
 
     makepalookup(CROSSHAIR_PAL,tempbuf,CrosshairColors.r>>2, CrosshairColors.g>>2, CrosshairColors.b>>2,1);
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     Bmemcpy(&hictinting[CROSSHAIR_PAL], &CrosshairColors, sizeof(palette_t));
     hictinting[CROSSHAIR_PAL].f = 9;
 #endif
@@ -2536,7 +2536,7 @@ void G_DisplayRest(int32_t smoothratio)
     walltype *wal;
     int32_t cposx, cposy, cang;
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
 
     // this takes care of fullscreen tint for OpenGL
     if (getrendermode() >= 3)
@@ -2792,7 +2792,7 @@ void G_DisplayRest(int32_t smoothratio)
     if (ud.coords)
         G_PrintCoords(screenpeek);
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     {
         extern int32_t mdpause;
 
@@ -3348,7 +3348,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         }
         else if (getrendermode() > 0 && ud.screen_tilting /*&& (p->rotscrnang || p->orotscrnang)*/)
         {
-#ifdef POLYMOST
+#ifdef USE_OPENGL
             setrollangle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024)&2047)-1024,smoothratio));
 #endif
             p->orotscrnang = p->rotscrnang; // JBF: save it for next time
@@ -3419,7 +3419,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1);
 
         if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                 && (getrendermode() != 4)
 #endif
            )
@@ -5636,7 +5636,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     t->xrepeat = t->yrepeat = 0;
                 continue;
             case CHAIR3__STATIC:
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                 if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     t->cstat &= ~4;
@@ -5902,7 +5902,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
             t->picnum = GROWSPARK+((totalclock>>4)&3);
             break;
         case RPG__STATIC:
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
                     !(spriteext[i].flags & SPREXT_NOTMD))
             {
@@ -5925,7 +5925,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
         case RECON__STATIC:
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
@@ -5965,7 +5965,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                                                 }
                                                 else*/
                 t->ang = g_player[p].ps->ang+mulscale16((int32_t)(((g_player[p].ps->ang+1024- g_player[p].ps->oang)&2047)-1024),smoothratio);
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                 if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0)
                 {
                     static int32_t targetang = 0;
@@ -6046,7 +6046,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
             if (s->owner == -1)
             {
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                 if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     k = 0;
@@ -6101,7 +6101,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                             continue;
                         }
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                         if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                         {
                             k = 0;
@@ -6195,77 +6195,77 @@ PALONLY:
                     t->ang = sprpos[i].ang;
             }
             */
+            if ((unsigned)((intptr_t *)t4-&script[0]) > (unsigned)(&script[g_scriptSize]-&script[0]))
+                goto skip;
 
-            if ((intptr_t *)t4 >= &script[0] && (intptr_t *)t4 <= (&script[0]+g_scriptSize))
+            l = *(((intptr_t *)t4)+2); //For TerminX: was *(int32_t *)(t4+8)
+
+#ifdef USE_OPENGL
+            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
-                l = *(((intptr_t *)t4)+2); //For TerminX: was *(int32_t *)(t4+8)
-
-#if defined(POLYMOST) && defined(USE_OPENGL)
-                if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
-                {
-                    k = 0;
-                    t->cstat &= ~4;
-                }
-                else
-#endif
-                    switch (l)
-                    {
-                    case 2:
-                        k = (((s->ang+3072+128-a)&2047)>>8)&1;
-                        break;
-
-                    case 3:
-                    case 4:
-                        k = (((s->ang+3072+128-a)&2047)>>7)&7;
-                        if (k > 3)
-                        {
-                            t->cstat |= 4;
-                            k = 7-k;
-                        }
-                        else t->cstat &= ~4;
-                        break;
-
-                    case 5:
-                        k = getangle(s->x-x,s->y-y);
-                        k = (((s->ang+3072+128-k)&2047)>>8)&7;
-                        if (k>4)
-                        {
-                            k = 8-k;
-                            t->cstat |= 4;
-                        }
-                        else t->cstat &= ~4;
-                        break;
-                    case 7:
-                        k = getangle(s->x-x,s->y-y);
-                        k = (((s->ang+3072+128-k)&2047)/170);
-                        if (k>6)
-                        {
-                            k = 12-k;
-                            t->cstat |= 4;
-                        }
-                        else t->cstat &= ~4;
-                        break;
-                    case 8:
-                        k = (((s->ang+3072+128-a)&2047)>>8)&7;
-                        t->cstat &= ~4;
-                        break;
-                    default:
-                        k = 0;
-                        break;
-                    }
-
-                t->picnum += k + (*(intptr_t *)t4) + l * t3;
-
-                if (l > 0) while (tilesizx[t->picnum] == 0 && t->picnum > 0)
-                        t->picnum -= l;       //Hack, for actors
-
-                if (actor[i].dispicnum >= 0)
-                    actor[i].dispicnum = t->picnum;
+                k = 0;
+                t->cstat &= ~4;
             }
-            else if (display_mirror == 1)
-                t->cstat |= 4;
-        }
+            else
+#endif
+                switch (l)
+            {
+                case 2:
+                    k = (((s->ang+3072+128-a)&2047)>>8)&1;
+                    break;
 
+                case 3:
+                case 4:
+                    k = (((s->ang+3072+128-a)&2047)>>7)&7;
+                    if (k > 3)
+                    {
+                        t->cstat |= 4;
+                        k = 7-k;
+                    }
+                    else t->cstat &= ~4;
+                    break;
+
+                case 5:
+                    k = getangle(s->x-x,s->y-y);
+                    k = (((s->ang+3072+128-k)&2047)>>8)&7;
+                    if (k>4)
+                    {
+                        k = 8-k;
+                        t->cstat |= 4;
+                    }
+                    else t->cstat &= ~4;
+                    break;
+                case 7:
+                    k = getangle(s->x-x,s->y-y);
+                    k = (((s->ang+3072+128-k)&2047)/170);
+                    if (k>6)
+                    {
+                        k = 12-k;
+                        t->cstat |= 4;
+                    }
+                    else t->cstat &= ~4;
+                    break;
+                case 8:
+                    k = (((s->ang+3072+128-a)&2047)>>8)&7;
+                    t->cstat &= ~4;
+                    break;
+                default:
+                    k = 0;
+                    break;
+            }
+
+            t->picnum += k + (*(intptr_t *)t4) + l * t3;
+
+            if (l > 0) while (tilesizx[t->picnum] == 0 && t->picnum > 0)
+                t->picnum -= l;       //Hack, for actors
+
+            if (actor[i].dispicnum >= 0)
+                actor[i].dispicnum = t->picnum;
+        }
+        else if (display_mirror == 1)
+            t->cstat |= 4;
+
+skip:
         if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
                 (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
         {
@@ -6312,7 +6312,7 @@ PALONLY:
                                 yrep = tsprite[spritesortcnt].yrepeat;// - (klabs(daz-t->z)>>11);
                                 tsprite[spritesortcnt].yrepeat = yrep;
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                                 if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
                                 {
                                     tsprite[spritesortcnt].yrepeat = 0;
@@ -6379,7 +6379,7 @@ PALONLY:
             t->picnum += (s->shade>>1);
             break;
         case PLAYERONWATER__STATIC:
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 k = 0;
@@ -6442,7 +6442,7 @@ PALONLY:
 
         case CAMERA1__STATIC:
         case RAT__STATIC:
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
@@ -8261,7 +8261,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     Bsprintf(defaultduke3dgrp, "nam.grp");
                     Bsprintf(defaultduke3ddef, "nam.def");
                     Bsprintf(defaultconfilename, "nam.con");
-                    g_gameType = GAMENAM;
+                    g_gameType = GAME_NAM;
                     i++;
                     continue;
                 }
@@ -8270,7 +8270,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     Bsprintf(defaultduke3dgrp, "ww2gi.grp");
                     Bsprintf(defaultduke3ddef, "ww2gi.def");
                     Bsprintf(defaultconfilename, "ww2gi.con");
-                    g_gameType = GAMEWW2;
+                    g_gameType = GAME_WW2;
                     i++;
                     continue;
                 }
@@ -8898,7 +8898,7 @@ static void G_Cleanup(void)
 
 void G_Shutdown(void)
 {
-    CONFIG_WriteSetup();
+    CONFIG_WriteSetup(0);
     S_SoundShutdown();
     S_MusicShutdown();
     CONTROL_Shutdown();
@@ -9450,7 +9450,7 @@ int32_t app_main(int32_t argc,const char **argv)
         Bfree(str);
     }
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     glusetexcache = -1;
 #endif
 
@@ -9498,7 +9498,7 @@ int32_t app_main(int32_t argc,const char **argv)
     }
 #endif
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     if (glusetexcache == -1)
     {
         ud.config.useprecache = glusetexcompr = 1;
@@ -9589,14 +9589,14 @@ int32_t app_main(int32_t argc,const char **argv)
             }
         }
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
         Bsprintf(tempbuf,"%s/%s",g_modDir,TEXCACHEFILE);
         Bstrcpy(TEXCACHEFILE,tempbuf);
 #endif
     }
 
     // shitcan the old cache directory
-#if 0 && defined(POLYMOST) && defined(USE_OPENGL)
+#if 0 && defined(USE_OPENGL)
     {
         struct stat st;
         char dir[BMAX_PATH];
@@ -9904,7 +9904,7 @@ CLEAN_DIRECTORY:
             initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n",
                        ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.config.ScreenMode?"fullscreen":"windowed");
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             {
                 int32_t j = 0;
                 while (setgamemode(0,xres[i],yres[i],bpp[j]) < 0)
@@ -10123,13 +10123,13 @@ MAIN_LOOP_RESTART:
                 clockbeforetic = totalclock;
 
                 if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
-                        (g_player[myconnectindex].ps->gm&MODE_GAME)) {
+                        (g_player[myconnectindex].ps->gm&MODE_GAME))
                     G_MoveLoop();
-                }
                 
                 sampletimer();
                 
-                if (totalclock - clockbeforetic >= TICSPERFRAME) {
+                if (totalclock - clockbeforetic >= TICSPERFRAME)
+                {
                     // computing a tic takes longer than a tic, so we're slowing
                     // the game down. rather than tightly spinning here, go draw
                     // a frame since we're fucked anyway
@@ -10223,7 +10223,7 @@ GAME_STATIC GAME_INLINE int32_t G_MoveLoop()
 
 int32_t G_DoMoveThings(void)
 {
-    int32_t i, j;
+    int32_t i;
 
     ud.camerasprite = -1;
     lockclock += TICSPERFRAME;
@@ -10366,42 +10366,7 @@ int32_t G_DoMoveThings(void)
     }
 
     if (g_netClient)   //Slave
-    {
-        input_t *nsyn = (input_t *)&inputfifo[0][myconnectindex];
-
-        packbuf[0] = PACKET_SLAVE_TO_MASTER;
-        j = 1;
-
-        Bmemcpy(&packbuf[j], &nsyn[0], offsetof(input_t, filler));
-        j += offsetof(input_t, filler);
-
-        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->pos.x, sizeof(vec3_t) * 2);
-        j += sizeof(vec3_t) * 2;
-
-        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->vel.x, sizeof(vec3_t));
-        j += sizeof(vec3_t);
-
-        *(int16_t *)&packbuf[j] = g_player[myconnectindex].ps->ang;
-        j += sizeof(int16_t);
-
-        Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->horiz, sizeof(int16_t) * 2);
-        j += sizeof(int16_t) * 2;
-
-        i = g_player[myconnectindex].ps->i;
-
-        {
-            char buf[1024];
-
-            j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
-            Bmemcpy((char *)(packbuf)+1, (char *)buf, j);
-            j++;
-        }
-
-        packbuf[j++] = myconnectindex;
-
-        enet_peer_send(g_netClientPeer, CHAN_MOVE, enet_packet_create(packbuf, j, 0));
-
-    }
+        Net_ClientMove();
 
     return 0;
 }

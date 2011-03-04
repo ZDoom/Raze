@@ -3812,9 +3812,7 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
             quitevent = 0;
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-#ifdef SUPERBUILD
         ExtAnalyzeSprites();
-#endif
         drawmasks();
 #ifdef POLYMER
         if (rendmode == 4 && searchit == 2)
@@ -4038,9 +4036,7 @@ ENDFOR1:
             sprite[linebegspr].pal -= (sprite[linebegspr].pal>0);
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-#ifdef SUPERBUILD
         ExtAnalyzeSprites();
-#endif
         drawmasks();
 #ifdef POLYMER
         if (rendmode == 4 && searchit == 2)
@@ -7416,7 +7412,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                         extern char TEXCACHEFILE[BMAX_PATH];
 
                         Bsprintf(tempbuf,"%s/%s",argv[i+1],TEXCACHEFILE);
@@ -7898,7 +7894,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-#ifdef POLYMOST
+#ifdef USE_OPENGL
 static int32_t osdcmd_tint(const osdfuncparm_t *parm)
 {
     int32_t i;
@@ -8173,7 +8169,7 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("show_heightindicators", "show_heightindicators {0, 1 or 2}: sets display of height indicators in 2D mode", osdcmd_vars_pk);
     OSD_RegisterFunction("show_ambiencesounds", "show_ambiencesounds {0, 1 or 2}>: sets display of MUSICANDSFX circles in 2D mode", osdcmd_vars_pk);
     OSD_RegisterFunction("corruptcheck", "corruptcheck {<seconds>|now|tryfix}: sets auto corruption check interval if <seconds> given, otherwise as indicated", osdcmd_vars_pk);
-#ifdef POLYMOST
+#ifdef USE_OPENGL
     OSD_RegisterFunction("tint", "tint <pal> <r> <g> <b> <flags>: queries or sets hightile tinting", osdcmd_tint);
 #endif
 
@@ -8264,7 +8260,7 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
 {
     UNREFERENCED_PARAMETER(numcols);
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
 //    if (getrendermode() < 3) bits = BITS;
 //    else 
     if (rendmode>=3 && qsetmode==200)
@@ -9146,7 +9142,7 @@ int32_t ExtInit(void)
 
     bpp = 32;
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     glusetexcache = -1;
 
     if (Bstrcmp(setupfilename, "mapster32.cfg"))
@@ -9741,7 +9737,7 @@ void ExtAnalyzeSprites(void)
             }
             //                else tspr->cstat&=32767;
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
             if (!usemodels || md_tilehasmodel(tspr->picnum,tspr->pal) < 0)
 #endif
             {

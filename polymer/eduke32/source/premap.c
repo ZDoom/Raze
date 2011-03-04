@@ -489,7 +489,7 @@ void G_CacheMapData(void)
             if (waloff[i] == 0)
                 loadtile((int16_t)i);
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
 // PRECACHE
             if (ud.config.useprecache)
             {

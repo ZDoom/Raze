@@ -4,7 +4,7 @@
  * See the included license file "BUILDLIC.TXT" for license info.
  */
 
-#ifdef POLYMOST
+#ifdef USE_OPENGL
 
 #include "build.h"
 #include "compat.h"

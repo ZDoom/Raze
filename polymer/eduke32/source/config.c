@@ -187,7 +187,7 @@ void CONFIG_SetDefaults(void)
     ud.config.ScreenWidth = 1024;
     ud.config.ScreenHeight = 768;
     ud.config.ScreenMode = 0;
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     ud.config.ScreenBPP = 32;
 #else
     ud.config.ScreenBPP = 8;
@@ -832,7 +832,7 @@ void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_settings.cfg
     Bfree(ptr);
 }
 
-void CONFIG_WriteSetup(void)
+void CONFIG_WriteSetup(uint32_t flags)
 {
     int32_t dummy;
     char tempbuf[1024];
@@ -844,12 +844,6 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Executions",++ud.executions,FALSE,FALSE);
 
-    for (dummy=0; dummy<10; dummy++)
-    {
-        Bsprintf(buf,"WeaponChoice%d",dummy);
-        SCRIPT_PutNumber(ud.config.scripthandle, "Misc",buf,g_player[myconnectindex].wchoice[dummy],FALSE,FALSE);
-    }
-
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup","ConfigVersion",BYTEVERSION_JF,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup",ud.config.ForceSetup,FALSE,FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad",ud.config.NoAutoLoad,FALSE,FALSE);
@@ -858,16 +852,26 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Polymer",glrendmode == 4 && bpp > 8,FALSE,FALSE);
 #endif
 
-    if (!NAM)
-    {
-        SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Out",ud.lockout,FALSE,FALSE);
-        SCRIPT_PutString(ud.config.scripthandle, "Screen Setup", "Password",ud.pwlockout);
-    }
-
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP",ud.config.ScreenBPP,FALSE,FALSE);  // JBF 20040523
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight",ud.config.ScreenHeight,FALSE,FALSE);    // JBF 20031206
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode",ud.config.ScreenMode,FALSE,FALSE);    // JBF 20031206
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth",ud.config.ScreenWidth,FALSE,FALSE);  // JBF 20031206
+
+
+    SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr[0]);
+
+    if (g_noSetup == 0)
+        SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
+
+    // exit early after only updating the values that can be changed from the startup window
+    if (flags & 1)
+    {
+        SCRIPT_Save(ud.config.scripthandle, setupfilename);
+        SCRIPT_Free(ud.config.scripthandle);
+        OSD_Printf("Updated %s\n",setupfilename);
+
+        return;
+    }
 
 #ifdef RENDERTYPEWIN
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", windowpos, FALSE, FALSE);
@@ -875,6 +879,17 @@ void CONFIG_WriteSetup(void)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", windowy, FALSE, FALSE);
 #endif
 
+    for (dummy=0; dummy<10; dummy++)
+    {
+        Bsprintf(buf,"WeaponChoice%d",dummy);
+        SCRIPT_PutNumber(ud.config.scripthandle, "Misc",buf,g_player[myconnectindex].wchoice[dummy],FALSE,FALSE);
+    }
+
+    if (!NAM)
+    {
+        SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Out",ud.lockout,FALSE,FALSE);
+        SCRIPT_PutString(ud.config.scripthandle, "Screen Setup", "Password",ud.pwlockout);
+    }
 
 #ifdef _WIN32
     SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "CheckForUpdates", ud.config.CheckForUpdates, FALSE, FALSE);
@@ -983,13 +998,6 @@ void CONFIG_WriteSetup(void)
 
     SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","PlayerName",&szPlayerName[0]);
     SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
-
-    SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr[0]);
-
-// #ifdef _WIN32
-    if (g_noSetup == 0)
-        SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
-// #endif
 
     {
         char commmacro[] = "CommbatMacro# ";

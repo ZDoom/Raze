@@ -255,7 +255,7 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&i,sizeof(int32_t),1,fil) != 1) goto corrupt;
 #endif // POLYMER
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     for (i=0; i<MAXSPRITES; i++)
         if (spriteext[i].mdanimtims)
             spriteext[i].mdanimtims+=mdtims;
@@ -500,8 +500,8 @@ int32_t G_LoadPlayer(int32_t spot)
     {
         S_StopMusic();
         S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
+        S_PauseMusic(0);
     }
-    S_PauseMusic(0);
 
     g_player[myconnectindex].ps->gm = MODE_GAME;
     ud.recstat = 0;
@@ -676,7 +676,7 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&numsectors,sizeof(numsectors),1,fil);
     dfwrite(&sector[0],sizeof(sectortype),MAXSECTORS,fil);
     dfwrite(&sprite[0],sizeof(spritetype),MAXSPRITES,fil);
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     for (i=0; i<MAXSPRITES; i++)
         if (spriteext[i].mdanimtims)
         {
@@ -695,7 +695,7 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&i,sizeof(int32_t),1,fil);
 #endif // POLYMER
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     for (i=0; i<MAXSPRITES; i++)if (spriteext[i].mdanimtims)spriteext[i].mdanimtims+=mdtims;
 #endif
     dfwrite(&headspritesect[0],sizeof(headspritesect[0]),MAXSECTORS+1,fil);
@@ -1341,7 +1341,7 @@ static uint32_t calcsz(const dataspec_t *spec)
 }
 
 static void sv_postudload();
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
 static void sv_prespriteextsave();
 static void sv_postspriteext();
 #endif
@@ -1426,11 +1426,11 @@ static const dataspec_t svgm_secwsp[] =
     { 0, &headspritestat[0], sizeof(headspritestat[0]), MAXSTATUS+1 },
     { 0, &prevspritestat[0], sizeof(prevspritestat[0]), MAXSPRITES },
     { 0, &nextspritestat[0], sizeof(nextspritestat[0]), MAXSPRITES },
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     { DS_SAVEFN, (void *)&sv_prespriteextsave, 0, 1 },
 #endif
     { DS_DYNAMIC, &spriteext, sizeof(spriteext_t), MAXSPRITES },
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postspriteext, 0, 1 },
 #endif
     { DS_NOCHK, &SpriteFlags[0], sizeof(SpriteFlags[0]), MAXTILES },
@@ -1820,7 +1820,7 @@ static void sv_postudload()
 }
 //static int32_t lockclock_dummy;
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
 static void sv_prespriteextsave()
 {
     int32_t i;

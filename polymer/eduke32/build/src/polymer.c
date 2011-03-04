@@ -1,6 +1,6 @@
 // blah
 
-#ifdef POLYMOST
+#ifdef USE_OPENGL
 
 #define POLYMER_C
 #include "polymer.h"
@@ -2744,7 +2744,7 @@ static void         polymer_updatewall(int16_t wallnum)
     // it also works, bitches
     sec = &sector[sectofwall];
 
-    if (sectofwall < 0 || sectofwall > numsectors ||
+    if (sectofwall < 0 || sectofwall >= numsectors ||
         wallnum < 0 || wallnum > numwalls ||
         sec->wallptr > wallnum || wallnum >= (sec->wallptr + sec->wallnum))
         return; // yay, corrupt map
@@ -2837,7 +2837,7 @@ static void         polymer_updatewall(int16_t wallnum)
     else
         xref = 0;
 
-    if (wal->nextsector < 0 || wal->nextsector > numsectors)
+    if (wal->nextsector < 0 || wal->nextsector >= numsectors)
     {
         Bmemcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
         Bmemcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);

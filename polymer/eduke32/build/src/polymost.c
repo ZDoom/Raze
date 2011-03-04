@@ -66,7 +66,7 @@ Low priority:
 **************************************************************************************************/
 
 
-#ifdef POLYMOST
+#ifdef USE_OPENGL
 
 #include "compat.h"
 #include "build.h"
@@ -6399,7 +6399,7 @@ Description of Ken's filter to improve LZW compression of DXT1 format by ~15%: (
  I think this improved compression by a few % :)
  */
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
 int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, uint32_t miplen)
 {
     void *writebuf;

@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 int32_t CONFIG_ReadSetup( void );
 void CONFIG_GetSetupFilename( void );
-void CONFIG_WriteSetup( void );
+void CONFIG_WriteSetup(uint32_t flags);
 void CONFIG_SetupMouse( void );
 void CONFIG_SetupJoystick( void );
 void CONFIG_SetDefaultKeys(int32_t type);

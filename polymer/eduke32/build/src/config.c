@@ -155,7 +155,7 @@ int32_t loadsetup(const char *fn)
 #ifdef RENDERTYPEWIN
     if (readconfig(fp, "maxrefreshfreq", val, VL) > 0) maxrefreshfreq = Batoi(val);
 #endif
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     if (readconfig(fp, "usemodels", val, VL) > 0) usemodels = Batoi(val)?1:0;
     if (readconfig(fp, "usehightile", val, VL) > 0) usehightile = Batoi(val)?1:0;
 
@@ -345,7 +345,7 @@ int32_t writesetup(const char *fn)
              "; Startup grid size (0-8, 9 is automatic)\n"
              "grid = %d\n"
              "\n"
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
              "; OpenGL mode options\n"
              "usemodels = %d\n"
              "usehightile = %d\n"
@@ -511,7 +511,7 @@ int32_t writesetup(const char *fn)
              glrendmode,
 #endif
              editorgridextent, min(max(0, default_grid), 9),
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
              usemodels, usehightile,
              glusetexcache, gltexfiltermode, glanisotropy,r_downsize,glusetexcompr,
 #endif

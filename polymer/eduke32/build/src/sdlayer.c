@@ -202,7 +202,7 @@ int32_t main(int32_t argc, char *argv[])
             }
         }
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     if ((argp = Bgetenv("BUILD_NOFOG")) != NULL)
         nofog = Batol(argp);
 #endif
@@ -217,7 +217,7 @@ int32_t main(int32_t argc, char *argv[])
     return r;
 }
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
 void setvsync(int32_t sync)
 {
     if (vsync == sync) return;
@@ -984,7 +984,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
     if (lockcount) while (lockcount) enddrawing();
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     if (bpp > 8 && sdl_surface) polymost_glreset();
 #endif
 
@@ -995,7 +995,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         gammabrightness = 0;	// redetect on next mode switch
     }
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     if (c > 8)
     {
         int32_t i, j, multisamplecheck = (glmultisample > 0);

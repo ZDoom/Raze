@@ -307,11 +307,10 @@ extern int32_t dommxoverlay, novoxmips;
 
 extern float debug1, debug2;
 
-#ifdef SUPERBUILD
 extern int32_t tiletovox[MAXTILES];
 extern int32_t usevoxels, voxscale[MAXVOXELS];
-#endif
-#ifdef POLYMOST
+
+#ifdef USE_OPENGL
 extern int32_t usemodels, usehightile;
 extern int32_t rendmode;
 #endif
@@ -328,7 +327,7 @@ EXTERN int32_t connecthead, connectpoint2[MAXPLAYERS];
 
 static inline int32_t getrendermode(void)
 {
-#ifndef POLYMOST
+#ifndef USE_OPENGL
     return 0;
 #else
     return rendmode;
@@ -506,7 +505,7 @@ int32_t   clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_
 int32_t   pushmove(vec3_t *vect, int16_t *sectnum, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
 void   getzrange(const vec3_t *vect, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
 int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz, hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
-int32_t   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, char tagsearch) ATTRIBUTE((nonnull(6,7,8)));
+int32_t   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch) ATTRIBUTE((nonnull(6,7,8)));
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 void   updatesector(int32_t x, int32_t y, int16_t *sectnum) ATTRIBUTE((nonnull(3)));
 void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *excludesectbitmap) ATTRIBUTE((nonnull(3)));
@@ -618,7 +617,7 @@ void   drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col);
 int32_t   setrendermode(int32_t renderer);
 int32_t   getrendermode(void);
 
-#ifdef POLYMOST
+#ifdef USE_OPENGL
 void    setrollangle(int32_t rolla);
 #endif
 
@@ -643,7 +642,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
 void polymost_glreset(void);
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
 extern int32_t glanisotropy;
 extern int32_t glusetexcompr;
 extern int32_t gltexfiltermode;
@@ -684,7 +683,7 @@ int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
 typedef struct
 {
     // maps build tiles to particular animation frames of a model
@@ -744,7 +743,7 @@ void hash_add(hashtable_t *t, const char *s, int32_t key, int32_t replace);
 #ifdef POLYMER
 # include "polymer.h"
 #else
-#ifdef POLYMOST
+#ifdef USE_OPENGL
 # include "polymost.h"
 #endif
 #endif

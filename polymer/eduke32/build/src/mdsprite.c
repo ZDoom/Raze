@@ -1,6 +1,6 @@
 //------------------------------------- MD2/MD3 LIBRARY BEGINS -------------------------------------
 
-#ifdef POLYMOST
+#ifdef USE_OPENGL
 
 #include "compat.h"
 #include "build.h"

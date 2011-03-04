@@ -1728,7 +1728,7 @@ void Net_ParseServerPacket(ENetEvent *event)
 
 //                Bmemcpy(&g_player[i].ps->opos.x, &g_player[i].ps->pos.x, sizeof(vec3_t));
 
-            Bmemcpy(&g_player[i].ps->pos.x, &pbuf[j], sizeof(vec3_t) * 2);
+//            Bmemcpy(&g_player[i].ps->pos.x, &pbuf[j], sizeof(vec3_t) * 2);
 
             Bmemcpy(&sprite[g_player[i].ps->i], &pbuf[j], sizeof(vec3_t));
             sprite[g_player[i].ps->i].z += PHEIGHT;
@@ -1737,13 +1737,19 @@ void Net_ParseServerPacket(ENetEvent *event)
             Bmemcpy(&g_player[i].ps->vel.x, &pbuf[j], sizeof(vec3_t));
             j += sizeof(vec3_t);
 
-            g_player[i].ps->oang = g_player[i].ps->ang;
-            g_player[i].ps->ang = sprite[g_player[i].ps->i].ang = *(int16_t *)&pbuf[j];
-            j += sizeof(int16_t);
+            if (i != myconnectindex)
+            {
+                g_player[i].ps->oang = g_player[i].ps->ang;
+                g_player[i].ps->ang = sprite[g_player[i].ps->i].ang = *(int16_t *)&pbuf[j];
+                j += sizeof(int16_t);
 
-            Bmemcpy(&g_player[i].ps->ohoriz, &g_player[i].ps->horiz, sizeof(int16_t) * 2);
-            Bmemcpy(&g_player[i].ps->horiz, &pbuf[j], sizeof(int16_t) * 2);
-            j += sizeof(int16_t) * 2;
+                Bmemcpy(&g_player[i].ps->ohoriz, &g_player[i].ps->horiz, sizeof(int16_t) * 2);
+                Bmemcpy(&g_player[i].ps->horiz, &pbuf[j], sizeof(int16_t) * 2);
+                j += sizeof(int16_t) * 2;
+            }
+            else j += sizeof(int16_t) * 3;
+
+
 
 //process:
             g_player[i].ps->gotweapon = *(uint16_t *)&pbuf[j];
@@ -2598,6 +2604,43 @@ void Net_GetPackets(void)
             }
         }
     }
+}
+
+void Net_ClientMove(void)
+{
+    int32_t j;
+    input_t *nsyn = (input_t *)&inputfifo[0][myconnectindex];
+
+    packbuf[0] = PACKET_SLAVE_TO_MASTER;
+    j = 1;
+
+    Bmemcpy(&packbuf[j], &nsyn[0], offsetof(input_t, filler));
+    j += offsetof(input_t, filler);
+
+    Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->pos.x, sizeof(vec3_t) * 2);
+    j += sizeof(vec3_t) * 2;
+
+    Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->vel.x, sizeof(vec3_t));
+    j += sizeof(vec3_t);
+
+    *(int16_t *)&packbuf[j] = g_player[myconnectindex].ps->ang;
+    j += sizeof(int16_t);
+
+    Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->horiz, sizeof(int16_t) * 2);
+    j += sizeof(int16_t) * 2;
+
+    {
+        char buf[1024];
+
+        j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
+        Bmemcpy((char *)(packbuf)+1, (char *)buf, j);
+        j++;
+    }
+
+    packbuf[j++] = myconnectindex;
+
+    enet_peer_send(g_netClientPeer, CHAN_MOVE, enet_packet_create(packbuf, j, 0));
+
 }
 
 void Net_UpdateClients(void)

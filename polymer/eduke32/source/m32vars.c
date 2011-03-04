@@ -563,7 +563,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("numsprites",(intptr_t)&numsprites, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
     Gv_NewVar("numtiles",(intptr_t)&numtiles, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
 
-#ifdef POLYMOST
+#ifdef USE_OPENGL
     Gv_NewVar("rendmode",(intptr_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
 #endif
 

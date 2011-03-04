@@ -29,9 +29,7 @@ extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
 extern void ExtUnInit(void);
 extern void ExtPreCheckKeys(void);
-#ifdef SUPERBUILD
 extern void ExtAnalyzeSprites(void);
-#endif
 extern void ExtCheckKeys(void);
 extern void ExtLoadMap(const char *mapname);
 extern void ExtSaveMap(const char *mapname);
@@ -559,10 +557,9 @@ CANCEL:
         lockclock += synctics;
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-#ifdef SUPERBUILD
         ExtAnalyzeSprites();
-#endif
         drawmasks();
+
 #ifdef POLYMER
         if (rendmode == 4 && searchit == 2)
         {
@@ -5879,10 +5876,9 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
             quitevent = 0;
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-#ifdef SUPERBUILD
         ExtAnalyzeSprites();
-#endif
         drawmasks();
+
 #ifdef POLYMER
         if (rendmode == 4 && searchit == 2)
         {

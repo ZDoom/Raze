@@ -635,10 +635,10 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
         default:
             return ((aGameVars[id].val.lValue ^ -negateResult) + negateResult);
         case GAMEVAR_PERPLAYER:
-            if (iPlayer < 0 || iPlayer >= MAXPLAYERS) goto bad_id;
+            if ((unsigned)iPlayer >= MAXPLAYERS) goto bad_id;
             return ((aGameVars[id].val.plValues[iPlayer] ^ -negateResult) + negateResult);
         case GAMEVAR_PERACTOR:
-            if (iActor < 0 || iActor >= MAXSPRITES) goto bad_id;
+            if ((unsigned)iActor >= MAXSPRITES) goto bad_id;
             return ((aGameVars[id].val.plValues[iActor] ^ -negateResult) + negateResult);
         case GAMEVAR_INTPTR:
             return (((*((int32_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
@@ -667,12 +667,12 @@ void __fastcall Gv_SetVar(register int32_t id, register int32_t lValue, register
         aGameVars[id].val.lValue=lValue;
         return;
     case GAMEVAR_PERPLAYER:
-        if (iPlayer < 0 || iPlayer > MAXPLAYERS-1) goto badplayer;
+        if ((unsigned)iPlayer > MAXPLAYERS-1) goto badindex;
         // for the current player
         aGameVars[id].val.plValues[iPlayer]=lValue;
         return;
     case GAMEVAR_PERACTOR:
-        if (iActor < 0 || iActor > MAXSPRITES-1) goto badactor;
+        if ((unsigned)iActor > MAXSPRITES-1) goto badindex;
         aGameVars[id].val.plValues[iActor]=lValue;
         return;
     case GAMEVAR_INTPTR:
@@ -691,14 +691,11 @@ badvarid:
                g_errorLineNum,keyw[g_tw],id,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
     return;
 
-badplayer:
-    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid player (%d) for gamevar %s from sprite %d, player %d\n",
-               g_errorLineNum,keyw[g_tw],iPlayer,aGameVars[id].szLabel,vm.g_i,vm.g_p);
-    return;
-
-badactor:
-    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid actor (%d) for gamevar %s from sprite %d (%d), player %d\n",
-               g_errorLineNum,keyw[g_tw],iActor,aGameVars[id].szLabel,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
+badindex:
+    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid index (%d) for gamevar %s from sprite %d, player %d\n",
+               g_errorLineNum,keyw[g_tw],
+               aGameVars[id].dwFlags & GAMEVAR_PERACTOR ? iActor : iPlayer,
+               aGameVars[id].szLabel,vm.g_i,vm.g_p);
     return;
 }
 
@@ -805,11 +802,11 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
         aGameVars[id].val.lValue=lValue;
         return;
     case GAMEVAR_PERPLAYER:
-        if (vm.g_p < 0 || vm.g_p > MAXPLAYERS-1) goto badplayer;
+        if ((unsigned)vm.g_p > MAXPLAYERS-1) goto badindex;
         aGameVars[id].val.plValues[vm.g_p]=lValue;
         return;
     case GAMEVAR_PERACTOR:
-        if (vm.g_i < 0 || vm.g_i > MAXSPRITES-1) goto badactor;
+        if ((unsigned)vm.g_i > MAXSPRITES-1) goto badindex;
         aGameVars[id].val.plValues[vm.g_i]=lValue;
         return;
     case GAMEVAR_INTPTR:
@@ -823,14 +820,11 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
         return;
     }
 
-badplayer:
-    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid player (%d) for gamevar %s\n",
-               g_errorLineNum,keyw[g_tw],vm.g_p,aGameVars[id].szLabel);
-    return;
-
-badactor:
-    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid actor (%d) for gamevar %s\n",
-               g_errorLineNum,keyw[g_tw],vm.g_i,aGameVars[id].szLabel);
+badindex:
+    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid index (%d) for gamevar %s\n",
+               g_errorLineNum,keyw[g_tw], 
+               aGameVars[id].dwFlags & GAMEVAR_PERACTOR ? vm.g_i : vm.g_p,
+               aGameVars[id].szLabel);
     return;
 }
 
@@ -1532,7 +1526,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("NUMSECTORS",(intptr_t)&numsectors, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_READONLY);
 
     Gv_NewVar("lastsavepos",(intptr_t)&g_lastSaveSlot, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-#ifdef POLYMOST
+#ifdef USE_OPENGL
     Gv_NewVar("rendmode",(intptr_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
 #else
     Gv_NewVar("rendmode", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
@@ -1689,7 +1683,7 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("NUMSECTORS")].val.lValue = (intptr_t)&numsectors;
 
     aGameVars[Gv_GetVarIndex("lastsavepos")].val.lValue = (intptr_t)&g_lastSaveSlot;
-#ifdef POLYMOST
+#ifdef USE_OPENGL
     aGameVars[Gv_GetVarIndex("rendmode")].val.lValue = (intptr_t)&rendmode;
 #endif
 }
