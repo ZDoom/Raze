@@ -6419,7 +6419,7 @@ static int32_t menuselect(void)
 
 int32_t fillsector(int16_t sectnum, char fillcolor)
 {
-    int32_t x1, x2, y1, y2, sy, y, tempint;
+    int32_t x1, x2, y1, y2, sy, y;
     int32_t lborder, rborder, uborder, dborder, miny, maxy, dax;
     int16_t z, zz, startwall, endwall, fillcnt;
 

@@ -1857,11 +1857,6 @@ static int32_t sortmodes(const struct validmode_t *a, const struct validmode_t *
 }
 void getvalidmodes(void)
 {
-    static int32_t defaultres[][2] =
-    {
-        {1920,1440},{1920,1200},{1600,1200},{1280,1024},{1280,960},{1152,864},{1024,768},{1024,600},{800,600},{640,480},
-        {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
-    };
     int32_t cdepths[2] = { 8, 0 };
     int32_t i, j, maxx=0, maxy=0;
     HRESULT result;

@@ -794,12 +794,6 @@ void getvalidmodes(void)
 #endif
         0
     };
-    static int32_t defaultres[][2] =
-    {
-        {1280,1024}
-        ,{1280,960},{1152,864},{1024,768},{800,600},{640,480},
-        {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
-    };
     SDL_Rect **modes;
 #if (SDL_MAJOR_VERSION > 1 || SDL_MINOR_VERSION > 2)
     SDL_PixelFormat pf = { NULL, 8, 1, 0,0,0,0, 0,0,0,0, 0,0,0,0 };
