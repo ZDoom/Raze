@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define MAXINTERPOLATIONS MAXSPRITES
 
+G_EXTERN const char *s_buildRev;
 G_EXTERN DukeStatus_t sbar;
 G_EXTERN actor_t actor[MAXSPRITES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];

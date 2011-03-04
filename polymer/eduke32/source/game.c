@@ -1998,7 +1998,7 @@ void G_GameExit(const char *t)
         if (!(t[0] == ' ' && t[1] == 0))
         {
             char titlebuf[256];
-            Bsprintf(titlebuf,HEAD2 " %s",s_buildDate);
+            Bsprintf(titlebuf,HEAD2 " %s",s_buildRev);
             wm_msgbox(titlebuf, "%s", (char *)t);
         }
     }
@@ -7751,7 +7751,7 @@ static void G_ShowParameterHelp(void)
               "\nSee eduke32 -debughelp for debug parameters"
               ;
 #if defined RENDERTYPEWIN
-    Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildDate);
+    Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
     wm_msgbox(tempbuf,s);
 #else
     initprintf("%s\n",s);
@@ -7777,7 +7777,7 @@ static void G_ShowDebugHelp(void)
               "-conversion YYYYMMDD\tSelects CON script version for compatibility with older mods\n"
               ;
 #if defined RENDERTYPEWIN
-    Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildDate);
+    Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
     wm_msgbox(tempbuf,s);
 #else
     initprintf("%s\n",s);
@@ -9359,7 +9359,7 @@ int32_t app_main(int32_t argc,const char **argv)
     Bstrcpy(tempbuf, APPNAME);
     wm_setapptitle(tempbuf);
 
-    initprintf(HEAD2 " %s\n", s_buildDate);
+    initprintf(HEAD2 " %s\n", s_buildRev);
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
     addsearchpath("/usr/share/games/jfduke3d");
@@ -9853,7 +9853,7 @@ CLEAN_DIRECTORY:
 
     initprintf("Initializing OSD...\n");
 
-    Bsprintf(tempbuf, HEAD2 " %s", s_buildDate);
+    Bsprintf(tempbuf, HEAD2 " %s", s_buildRev);
     OSD_SetVersion(tempbuf, 10,0);
     registerosdcommands();
 
