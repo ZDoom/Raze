@@ -59,6 +59,7 @@ extern float        pr_hudyadd;
 extern float        pr_hudzadd;
 extern int32_t      pr_hudangadd;
 extern int32_t      pr_hudfov;
+extern float        pr_overridemodelscale;
 extern int32_t      pr_ati_fboworkaround;
 extern int32_t      pr_ati_nodepthoffset;
 #ifdef __APPLE__

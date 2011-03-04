@@ -37,6 +37,7 @@ float           pr_hudyadd = 0.0f;
 float           pr_hudzadd = 0.0f;
 int32_t         pr_hudangadd = 0;
 int32_t         pr_hudfov = 426;
+float           pr_overridemodelscale = 0.0f;
 int32_t         pr_ati_fboworkaround = 0;
 int32_t         pr_ati_nodepthoffset = 0;
 #ifdef __APPLE__
@@ -3734,7 +3735,11 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     bglLoadIdentity();
     scale = (1.0/4.0);
     scale *= m->scale;
-    scale *= m->bscale;
+    if (pr_overridemodelscale) {
+        scale *= pr_overridemodelscale;
+    } else {
+        scale *= m->bscale;
+    }
 
     if (tspriteptr[MAXSPRITESONSCREEN] == tspr) {
         float playerang, radplayerang, cosminusradplayerang, sinminusradplayerang, hudzoom;
