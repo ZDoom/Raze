@@ -9360,6 +9360,7 @@ int32_t app_main(int32_t argc,const char **argv)
     wm_setapptitle(tempbuf);
 
     initprintf(HEAD2 " %s\n", s_buildRev);
+    initprintf("Compiled %s\n", __DATE__" "__TIME__);
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
     addsearchpath("/usr/share/games/jfduke3d");
