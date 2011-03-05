@@ -795,11 +795,12 @@ void getvalidmodes(void)
         0
     };
     SDL_Rect **modes;
-#if (SDL_MAJOR_VERSION > 1 || SDL_MINOR_VERSION > 2)
-    SDL_PixelFormat pf = { NULL, 8, 1, 0,0,0,0, 0,0,0,0, 0,0,0,0 };
-#else
-    SDL_PixelFormat pf = { NULL, 8, 1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0 };
-#endif
+    SDL_PixelFormat pf;
+
+    pf.palette = NULL;
+    pf.BitsPerPixel = 8;
+    pf.BytesPerPixel = 1;
+
     int32_t i, j, maxx=0, maxy=0;
 
     if (modeschecked || novideo) return;
@@ -834,9 +835,9 @@ void getvalidmodes(void)
         pf.BytesPerPixel = cdepths[j] >> 3;
 
         modes = SDL_ListModes(&pf, SURFACE_FLAGS
-#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
+// #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
                               | SDL_FULLSCREEN // not implemented/working in SDL 1.3 SDL_compat.c
-#endif
+//#endif
                              );
 
         if (modes == (SDL_Rect **)0)
