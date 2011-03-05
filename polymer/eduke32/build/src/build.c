@@ -154,6 +154,8 @@ static int32_t mousx, mousy;
 int16_t prefixtiles[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 uint8_t hlsectorbitmap[MAXSECTORS>>3];  // show2dsector is already taken...
 
+static uint8_t visited[MAXWALLS>>3];  // used for AlignWalls and trace_loop
+
 typedef struct
 {
     int16_t numsectors, numwalls, numsprites;
@@ -748,13 +750,13 @@ void editinput(void)
         ldiv_t ld;
         if (mlook)
         {
-            ld = ldiv((int32_t)(mousx), (int32_t)((1<<16)/(msens*0.5f))); mousx = ld.quot; mousexsurp = ld.rem;
-            ld = ldiv((int32_t)(mousy), (int32_t)((1<<16)/(msens*0.25f))); mousy = ld.quot; mouseysurp = ld.rem;
+            ld = ldiv((int32_t)mousx, (int32_t)((1<<16)/(msens*0.5f))); mousx = ld.quot; mousexsurp = ld.rem;
+            ld = ldiv((int32_t)mousy, (int32_t)((1<<16)/(msens*0.25f))); mousy = ld.quot; mouseysurp = ld.rem;
         }
         else
         {
-            ld = ldiv((int32_t)(mousx), (int32_t)((1<<16)/msens)); mousx = ld.quot; mousexsurp = ld.rem;
-            ld = ldiv((int32_t)(mousy), (int32_t)((1<<16)/msens)); mousy = ld.quot; mouseysurp = ld.rem;
+            ld = ldiv((int32_t)mousx, (int32_t)((1<<16)/msens)); mousx = ld.quot; mousexsurp = ld.rem;
+            ld = ldiv((int32_t)mousy, (int32_t)((1<<16)/msens)); mousy = ld.quot; mouseysurp = ld.rem;
         }
     }
 
@@ -880,7 +882,7 @@ void editinput(void)
         if (mhk)
         {
             Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-            Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
+            Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
             delete_maphack_lights();
             mhk = 0;
             message("Maphacks disabled");
@@ -1044,6 +1046,8 @@ void editinput(void)
         else
             hvel = 0;
     }
+
+    updatesectorz(pos.x,pos.y,pos.z, &cursectnum);
 
     searchit = 2;
     if (searchstat >= 0)
@@ -1238,6 +1242,43 @@ char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck)
 
 
 ////////////////////// OVERHEADEDITOR //////////////////////
+
+int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32_t zoom,
+                      int32_t x, int32_t y, int16_t sectnum)
+{
+    if (!m32_sideview)
+        return inside(x, y, sectnum);
+
+    // if in side-view mode, use the screen coords instead
+    {
+        int32_t dst = MAXSECTORS+M32_FIXME_SECTORS-1, i, oi;
+        int32_t srcw=sector[sectnum].wallptr, dstw=MAXWALLS;
+        int32_t ret;
+
+        if (sector[sectnum].wallnum > M32_FIXME_WALLS)
+            return -1;
+
+        Bmemcpy(&sector[dst], &sector[sectnum], sizeof(sectortype));
+        sector[dst].wallptr = dstw;
+
+        Bmemcpy(&wall[dstw], &wall[srcw], sector[dst].wallnum*sizeof(walltype));
+        for (i=dstw, oi=srcw; i<dstw+sector[dst].wallnum; i++, oi++)
+        {
+            wall[i].point2 += dstw-srcw;
+
+            screencoords(&wall[i].x, &wall[i].y, wall[i].x-pos->x, wall[i].y-pos->y, zoom);
+            wall[i].y += getscreenvdisp(getflorzofslope(sectnum,wall[oi].x,wall[oi].y)-pos->z, zoom);
+            wall[i].x += halfxdim16;
+            wall[i].y += midydim16;
+        }
+
+        i = numsectors;
+        numsectors = dst+1;
+        ret = inside(searchx, searchy, dst);
+        numsectors = i;
+        return ret;
+    }
+}
 
 static inline void drawline16base(int32_t bx, int32_t by, int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 {
@@ -1657,7 +1698,7 @@ static void sideview_filter_keys(void)
         {
         case 0xd2: case 0xd3:  // ins, del
         case 0x2e: case 0x39:  // c, space
-        case 0xb8:  // ralt
+//        case 0xb8:  // ralt
             keystatus[i] = 0;
             break;
         }
@@ -1889,10 +1930,11 @@ static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, 
     }
 
     if (ignore_ret)
+    {
         *ignore_ret = ignore;
-
-    if (refsect_ret)
-        *refsect_ret = refsect;
+        if (refsect_ret)
+            *refsect_ret = refsect;
+    }
 
     return k;
 }
@@ -2226,10 +2268,7 @@ void overheadeditor(void)
                             if (dabuffer[0] != 0)
                             {
                                 //Get average point of sprite
-                                dax = sprite[i].x;
-                                day = sprite[i].y;
-
-                                screencoords(&dax,&day, dax-pos.x,day-pos.y, zoom);
+                                screencoords(&dax,&day, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
                                 if (m32_sideview)
                                     day += getscreenvdisp(sprite[i].z-pos.z, zoom);
 
@@ -2256,7 +2295,7 @@ void overheadeditor(void)
 
             numwalls = tempint;
 
-            if (highlightsectorcnt >= 0 && !m32_sideview)
+            if (highlightsectorcnt >= 0)
                 for (i=0; i<numsectors; i++)
                     if (hlsectorbitmap[i>>3]&(1<<(i&7)))
                         fillsector(i,2);
@@ -2319,6 +2358,9 @@ void overheadeditor(void)
                     if (keystatus[0x28])
                         drawline16base(searchx+16, searchy-16, 0,-4, 0,+4, col);
                 }
+
+                if (keystatus[0x36] && eitherCTRL)
+                    printext16(searchx+6,searchy-6-8,editorcolors[12],-1,"S",0);
             }
 
             drawline16base(searchx,searchy, +0,-8, +0,-1, col);
@@ -2659,7 +2701,7 @@ void overheadeditor(void)
             keystatus[0x41] = 0;
 
             for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
+                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                 {
                     ydim16 = STATUS2DSIZ;
                     ExtEditSectorData((int16_t)i);
@@ -2731,7 +2773,7 @@ void overheadeditor(void)
             else
             {
                 for (i=0; i<numsectors; i++)
-                    if (inside(mousxplc,mousyplc,i) == 1)
+                    if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                     {
                         Bsprintf(buffer, "Sector (%d) Hi-tag: ", i);
                         sector[i].hitag = getnumber16(buffer, sector[i].hitag, BTAG_MAX, 0);
@@ -2745,7 +2787,7 @@ void overheadeditor(void)
             keystatus[0x19] = 0;
 
             for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
+                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                 {
                     Bsprintf(buffer, "Sector (%d) Ceilingpal: ", i);
                     sector[i].ceilingpal = getnumber16(buffer, sector[i].ceilingpal, MAXPALOOKUPS-1, 0);
@@ -2771,24 +2813,29 @@ void overheadeditor(void)
                     // printmessage16("");
                 }
             }
-            else if (highlightsectorcnt > 0&&0)
+            else if (highlightsectorcnt > 0 && newnumwalls < 0&&0)
             {
                 ////////// YAX //////////
                 static const char *cfs[2] = {"ceiling", "floor"};
 
-                int32_t cf, good, thez;
+                int32_t cf, thez;
 
                 cf = ask_above_or_below();
-                if (!cf)
+                if (cf==-1)
                     goto end_yax;
 
-                cf--;
-
-                good = (highlightsectorcnt==1 || (YAX_SECTORFLD(highlightsector[0],stat, cf)&2)==0);
-
                 thez = YAX_SECTORFLD(highlightsector[0],z, cf);
-                for (i=1; i<highlightsectorcnt; i++)
+                for (i=0; i<highlightsectorcnt; i++)
                 {
+                    if (yax_getbunch(highlightsector[i], cf) >= 0)
+                    {
+                        message("Sector %d's %s is already extended", highlightsector[i], cfs[cf]);
+                        goto end_yax;                        
+                    }
+
+                    if (i==0)
+                        continue;
+
                     if (YAX_SECTORFLD(highlightsector[i],z, cf) != thez)
                     {
                         message("All sectors must have the same %s height", cfs[cf]);
@@ -2800,6 +2847,73 @@ void overheadeditor(void)
                         goto end_yax;
                     }
                 }
+
+                m = numwalls;
+                Bmemset(visited, 0, sizeof(visited));
+                // construct!
+                for (i=0; i<highlightsectorcnt; i++)
+                    for (WALLS_OF_SECTOR(highlightsector[i], j))
+                    {
+                        k = trace_loop(j, visited, NULL, NULL);
+                        if (k == 0)
+                            continue;
+                        else if (k < 0)
+                        {
+                            numwalls = m;
+                            goto end_yax;
+                        }
+//message("loop");
+                        wall[k-1].point2 = numwalls;
+                        numwalls = k;
+                    }
+
+                i = highlightsector[0];
+                Bmemcpy(&sector[numsectors], &sector[i], sizeof(sectortype));
+                sector[numsectors].wallptr = m;
+                sector[numsectors].wallnum = numwalls-m;
+
+                if (YAX_SECTORFLD(i,stat, cf)&2)
+                {
+                    YAX_SECTORFLD(numsectors,stat, !cf) |= 2;
+                    YAX_SECTORFLD(numsectors,heinum, !cf) = YAX_SECTORFLD(i,heinum, cf);
+                }
+
+                YAX_SECTORFLD(numsectors,z, !cf) = YAX_SECTORFLD(i,z, cf);
+                YAX_SECTORFLD(numsectors,z, cf) = YAX_SECTORFLD(i,z, cf) - (1-2*cf)*16384;
+
+                k = -1;  // nextbunchnum
+                for (i=0; i<numsectors; i++)
+                {
+                    j = yax_getbunch(i,YAX_CEILING);
+                    k = max(k, j);
+                    j = yax_getbunch(i,YAX_FLOOR);
+                    k = max(k, j);
+                }
+                k++;
+
+                newnumwalls = numwalls;
+                numwalls = m;
+
+                // restore red walls of the selected sectors
+                for (i=0; i<highlightsectorcnt; i++)
+                {
+                    for (WALLS_OF_SECTOR(highlightsector[i], j))
+                        if (wall[j].nextwall < 0)
+                            checksectorpointer(j, highlightsector[i]);
+                }
+
+                // link
+                yax_setbunch(numsectors, !cf, k);
+                for (i=0; i<highlightsectorcnt; i++)
+                    yax_setbunch(highlightsector[i], cf, k);
+
+                numwalls = newnumwalls;
+                newnumwalls = -1;
+
+                numsectors++;
+
+                Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
+                update_highlightsector();
 end_yax: ;
             }
         }
@@ -2826,15 +2940,18 @@ end_yax: ;
                     highlightx1 = searchx;
                     highlighty1 = searchy;
                     highlightx2 = searchx;
-                    highlighty2 = searchx;
+                    highlighty2 = searchy;
                 }
             }
             else
             {
                 if (highlightcnt == 0)
                 {
-                    getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
-                    getpoint(highlightx2,highlighty2, &highlightx2,&highlighty2);
+                    if (!m32_sideview)
+                    {
+                        getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
+                        getpoint(highlightx2,highlighty2, &highlightx2,&highlighty2);
+                    }
 
                     if (highlightx1 > highlightx2)
                         swaplong(&highlightx1, &highlightx2);
@@ -2842,7 +2959,7 @@ end_yax: ;
                         swaplong(&highlighty1, &highlighty2);
 
                     // Ctrl+RShift: select all wall-points of highlighted wall's loop:
-                    if (eitherCTRL)
+                    if (eitherCTRL && highlightx1==highlightx2 && highlighty1==highlighty2)
                     {
                         Bmemset(show2dwall, 0, sizeof(show2dwall));
                         Bmemset(show2dsprite, 0, sizeof(show2dsprite));
@@ -2868,6 +2985,7 @@ end_yax: ;
                     else
                     {
                         int32_t add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
+                        int32_t tx, ty, onlySprites=eitherCTRL;
 
                         if (!setop)
                         {
@@ -2876,19 +2994,81 @@ end_yax: ;
                         }
 
                         for (i=0; i<numwalls; i++)
-                            if (wall[i].x >= highlightx1 && wall[i].x <= highlightx2 &&
-                                    wall[i].y >= highlighty1 && wall[i].y <= highlighty2)
+                        {
+                            if (onlySprites)
+                                break;
+
+                            if (!m32_sideview)
+                            {
+                                tx = wall[i].x;
+                                ty = wall[i].y;
+                                wall[i].cstat &= ~(1<<14);
+                            }
+                            else
+                            {
+                                screencoords(&tx,&ty, wall[i].x-pos.x,wall[i].y-pos.y, zoom);
+                                ty += getscreenvdisp(
+                                    getflorzofslope(sectorofwall(i), wall[i].x,wall[i].y)-pos.z, zoom);
+                                tx += halfxdim16;
+                                ty += midydim16;
+                            }
+
+                            if (tx >= highlightx1 && tx <= highlightx2 &&
+                                    ty >= highlighty1 && ty <= highlighty2)
                             {
                                 if (!sub)
                                     show2dwall[i>>3] |= (1<<(i&7));
                                 else if (sub)
                                     show2dwall[i>>3] &= ~(1<<(i&7));
                             }
+                        }
+
+                        if (m32_sideview && !onlySprites)
+                        {
+                            // also select walls that would be dragged but
+                            // maybe were missed
+#if 1
+                            for (i=0; i<numwalls; i++)
+                                if (show2dwall[i>>3]&(1<<(i&7)))
+                                {
+                                    //N^2...ugh
+                                    for (j=0; j<numwalls; j++)
+                                        if ((int64_t *)&wall[i] == (int64_t *)&wall[j])
+                                            show2dwall[j>>3] |= (1<<(j&7));
+                                }
+#else
+                            for (i=0; i<numwalls; i++)
+                                if (show2dwall[i>>3]&(1<<(i&7)))
+                                    dragpoint(i, wall[i].x, wall[i].y);
+                            for (i=0; i<numwalls; i++)
+                                if (wall[i].cstat & (1<<14))
+                                {
+                                    show2dwall[i>>3] |= (1<<(i&7));
+                                    wall[i].cstat &= ~(1<<14);
+                                }
+#endif
+                        }
 
                         for (i=0; i<MAXSPRITES; i++)
-                            if (sprite[i].statnum < MAXSTATUS &&
-                                    sprite[i].x >= highlightx1 && sprite[i].x <= highlightx2 &&
-                                    sprite[i].y >= highlighty1 && sprite[i].y <= highlighty2)
+                        {
+                            if (sprite[i].statnum == MAXSTATUS)
+                                continue;
+
+                            if (!m32_sideview)
+                            {
+                                tx = sprite[i].x;
+                                ty = sprite[i].y;
+                            }
+                            else
+                            {
+                                screencoords(&tx,&ty, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
+                                ty += getscreenvdisp(sprite[i].z-pos.z, zoom);
+                                tx += halfxdim16;
+                                ty += midydim16;
+                            }
+
+                            if (tx >= highlightx1 && tx <= highlightx2 &&
+                                    ty >= highlighty1 && ty <= highlighty2)
                             {
                                 if (!sub)
                                 {
@@ -2898,6 +3078,7 @@ end_yax: ;
                                 else
                                     show2dsprite[i>>3] &= ~(1<<(i&7));
                             }
+                        }
 
                         update_highlight();
                     }
@@ -2956,25 +3137,23 @@ end_yax: ;
 
                     if (!didmakered && !hadouterpoint && newnumwalls<0)
                     {
-                        uint8_t *visitedwall = Bcalloc((numwalls+7)>>3,1);
                         int16_t ignore, refsect;
                         int32_t n;
 
-                        if (!visitedwall)
-                        {
-                            message("out of memory!");
-                            goto outtathis;
-                        }
+                        Bmemset(visited, 0, sizeof(visited));
 
                         for (i=0; i<highlightsectorcnt; i++)
                         {
                             for (WALLS_OF_SECTOR(highlightsector[i], j))
                             {
-                                k = trace_loop(j, visitedwall, &ignore, &refsect);
+                                k = trace_loop(j, visited, &ignore, &refsect);
                                 if (k == 0)
                                     continue;
                                 else if (k < 0)
-                                    goto outtathis;
+                                {
+                                    i = highlightsectorcnt;
+                                    break;  // outer loop too
+                                }
 
                                 if (!ignore)
                                 {
@@ -3030,10 +3209,8 @@ end_yax: ;
                                 }
                             }
                         }
-outtathis:
+
                         newnumwalls = -1;
-                        if (visitedwall)
-                            Bfree(visitedwall);
                     }
 
                     highlightx1 = searchx;
@@ -3048,10 +3225,13 @@ outtathis:
                 if (highlightsectorcnt == 0)
                 {
                     int32_t add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
-                    int32_t pointsel = eitherCTRL;
+                    int32_t tx,ty, pointsel = eitherCTRL;
 
-                    getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
-                    getpoint(highlightx2,highlighty2, &highlightx2,&highlighty2);
+                    if (!m32_sideview)
+                    {
+                        getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
+                        getpoint(highlightx2,highlighty2, &highlightx2,&highlighty2);
+                    }
 
                     if (!pointsel)
                     {
@@ -3068,17 +3248,28 @@ outtathis:
                     {
                         if (pointsel)
                         {
-                            bad = (inside(highlightx2, highlighty2, i)!=1);
+                            bad = (inside_editor(&pos, searchx,searchy, zoom, highlightx2, highlighty2, i)!=1);
                         }
                         else
                         {
                             bad = 0;
                             for (WALLS_OF_SECTOR(i, j))
                             {
-                                if (wall[j].x < highlightx1) bad = 1;
-                                if (wall[j].x > highlightx2) bad = 1;
-                                if (wall[j].y < highlighty1) bad = 1;
-                                if (wall[j].y > highlighty2) bad = 1;
+                                if (!m32_sideview)
+                                {
+                                    tx = wall[j].x;
+                                    ty = wall[j].y;
+                                }
+                                else
+                                {
+                                    screencoords(&tx,&ty, wall[j].x-pos.x,wall[j].y-pos.y, zoom);
+                                    ty += getscreenvdisp(getflorzofslope(i, wall[j].x,wall[j].y)-pos.z, zoom);
+                                    tx += halfxdim16;
+                                    ty += midydim16;
+                                }
+
+                                if (tx < highlightx1 || tx > highlightx2) bad = 1;
+                                if (ty < highlighty1 || ty > highlighty2) bad = 1;
                                 if (bad == 1) break;
                             }
                         }
@@ -3103,8 +3294,8 @@ outtathis:
                     update_highlightsector();
                     ovh_whiteoutgrab();
 
-                    if (highlightsectorcnt>0)
-                        printmessage16("Total selected sectors: %d", highlightsectorcnt);
+//                    if (highlightsectorcnt>0)
+//                        printmessage16("Total selected sectors: %d", highlightsectorcnt);
                 }
             }
         }
@@ -3218,7 +3409,7 @@ end_after_dragging:
 //                    updatesector(mousxplc,mousyplc,&cursectorhighlight);
                     cursectorhighlight = -1;
                     for (i=0; i<highlightsectorcnt; i++)
-                        if (inside(mousxplc, mousyplc, highlightsector[i])==1)
+                        if (inside_editor(&pos, searchx,searchy, zoom, mousxplc, mousyplc, highlightsector[i])==1)
                         {
                             cursectorhighlight = highlightsector[i];
                             break;
@@ -3399,7 +3590,7 @@ end_point_dragging:
                 int16_t cursectornum;
 
                 for (cursectornum=0; cursectornum<numsectors; cursectornum++)
-                    if (inside(mousxplc,mousyplc,cursectornum) == 1)
+                    if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,cursectornum) == 1)
                         break;
 
                 if (cursectornum < numsectors)
@@ -3598,7 +3789,7 @@ end_point_dragging:
             {
                 joinsector[0] = -1;
                 for (i=0; i<numsectors; i++)
-                    if (inside(mousxplc,mousyplc,i) == 1)
+                    if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                     {
                         joinsector[0] = i;
                         printmessage16("Join sector - press J again on sector to join with.");
@@ -3614,7 +3805,7 @@ end_point_dragging:
 
                 for (i=0; i<numsectors; i++)
                 {
-                    if (inside(mousxplc,mousyplc,i) == 1)
+                    if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                     {
                         startwall = sector[i].wallptr;
                         endwall = startwall + sector[i].wallnum;
@@ -3807,7 +3998,7 @@ end_join_sectors:
 
             sucksect = -1;
             for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
+                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                 {
                     sucksect = i;
                     break;
@@ -4558,7 +4749,7 @@ end_space_handling:
             sucksect = -1;
             for (i=0; i<numsectors; i++)
             {
-                if (inside(mousxplc,mousyplc,i) != 1)
+                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) != 1)
                     continue;
                 
                 k = 0;
@@ -5128,14 +5319,14 @@ static int32_t ask_if_sure(const char *query, uint32_t flags)
 static int32_t ask_above_or_below()
 {
     char ch;
-    int32_t ret=0;
+    int32_t ret=-1;
 
     _printmessage16("Extend above (a) or below (z)?");
 
     showframe(1);
     bflushchars();
 
-    while ((keystatus[1]|keystatus[0x2e]) == 0 && ret==0)
+    while ((keystatus[1]|keystatus[0x2e]) == 0 && ret==-1)
     {
         if (handleevents())
             quitevent = 0;
@@ -5144,9 +5335,9 @@ static int32_t ask_above_or_below()
         ch = bgetchar();
 
         if (ch == 'a' || ch == 'A')
-            ret = 1;
+            ret = 0;
         else if (ch == 'z' || ch == 'Z')
-            ret = 2;
+            ret = 1;
     }
 
     clearkeys();
@@ -5526,7 +5717,7 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
     {
         k = wall[j].nextwall;
 
-        sucksect = sectorofwall((int16_t)k);
+        sucksect = sectorofwall(k);
 
         sector[sucksect].wallnum++;
         for (i=sucksect+1; i<numsectors; i++)
@@ -6416,6 +6607,8 @@ static int32_t menuselect(void)
     return(-1);
 }
 
+static int32_t fillsectorxy[MAXWALLS][2];
+
 int32_t fillsector(int16_t sectnum, char fillcolor)
 {
     int32_t x1, x2, y1, y2, sy, y;
@@ -6437,11 +6630,21 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
     endwall = startwall + sector[sectnum].wallnum - 1;
     for (z=startwall; z<=endwall; z++)
     {
-        y1 = midydim16 + (((wall[z].y-pos.y)*zoom)>>14);
-        y2 = midydim16 + (((POINT2(z).y-pos.y)*zoom)>>14);
+        screencoords(&x1,&y1, wall[z].x-pos.x,wall[z].y-pos.y, zoom);
+        if (m32_sideview)
+            y1 += getscreenvdisp(getflorzofslope(sectnum,wall[z].x,wall[z].y)-pos.z, zoom);
 
-        miny = min(miny, min(y1, y2));
-        maxy = max(maxy, max(y1, y2));
+        x1 += halfxdim16;
+        y1 += midydim16;
+
+        if (m32_sideview)
+        {
+            fillsectorxy[z][0] = x1;
+            fillsectorxy[z][1] = y1;
+        }
+
+        miny = min(miny, y1);
+        maxy = max(maxy, y1);
     }
 
     if (miny < uborder) miny = uborder;
@@ -6455,24 +6658,52 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
         fillist[0] = lborder; fillcnt = 1;
         for (z=startwall; z<=endwall; z++)
         {
-            x1 = wall[z].x; x2 = POINT2(z).x;
-            y1 = wall[z].y; y2 = POINT2(z).y;
-            if (y1 > y2)
+            if (m32_sideview)
             {
-                swaplong(&x1, &x2);
-                swaplong(&y1, &y2);
+                x1 = fillsectorxy[z][0];
+                y1 = fillsectorxy[z][1];
+                x2 = fillsectorxy[wall[z].point2][0];
+                y2 = fillsectorxy[wall[z].point2][1];
+
+                if (y1 > y2)
+                {
+                    swaplong(&x1, &x2);
+                    swaplong(&y1, &y2);
+                }
+
+                if (y1 <= sy && sy < y2)
+                {
+                    if (fillcnt == sizeof(fillist)/sizeof(fillist[0]))
+                        break;
+
+                    x1 += scale(sy-y1, x2-x1, y2-y1);
+                    fillist[fillcnt++] = x1;
+                }
             }
-
-            if (y1 <= y && y < y2)
-                //if (x1*(y-y2) + x2*(y1-y) <= 0)
+            else
             {
-                if (fillcnt == sizeof(fillist)/sizeof(fillist[0]))
-                    break;
+                x1 = wall[z].x; x2 = POINT2(z).x;
+                y1 = wall[z].y; y2 = POINT2(z).y;
 
-                dax = x1 + scale(y-y1, x2-x1, y2-y1);
-                dax = halfxdim16 + (((dax-pos.x)*zoom)>>14);
-                if (dax >= lborder)
-                    fillist[fillcnt++] = dax;
+                if (y1 > y2)
+                {
+                    swaplong(&x1, &x2);
+                    swaplong(&y1, &y2);
+                }
+
+                if (y1 <= y && y < y2)
+                    //if (x1*(y-y2) + x2*(y1-y) <= 0)
+                {
+                    dax = x1 + scale(y-y1, x2-x1, y2-y1);
+                    dax = halfxdim16 + (((dax-pos.x)*zoom)>>14);
+                    if (dax >= lborder)
+                    {
+                        if (fillcnt == sizeof(fillist)/sizeof(fillist[0]))
+                            break;
+
+                        fillist[fillcnt++] = dax;
+                    }
+                }
             }
         }
 
@@ -6681,7 +6912,8 @@ badline:
 void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
 {
     char snotbuf[80];
-    int32_t i,m;
+    int32_t i, m;
+    int32_t v8 = (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || numsprites > MAXSPRITESV7);
 
     Bsprintf(snotbuf,"x:%d y:%d ang:%d r%d",posxe,posye,ange,map_revision-1);
     i = 0;
@@ -6698,24 +6930,44 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
 
     printext16(8, ydim-STATUS2DSIZ+128, whitecol, -1, snotbuf,0);
 
-    m = (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || numsprites > MAXSPRITESV7);
+    if (highlightcnt<=0 && highlightsectorcnt<=0)
+    {
+        Bsprintf(snotbuf,"%d/%d sect. %d/%d walls %d/%d spri.",
+                 numsectors, v8?MAXSECTORSV8:MAXSECTORSV7,
+                 numwalls, v8?MAXWALLSV8:MAXWALLSV7,
+                 numsprites, v8?MAXSPRITESV8:MAXSPRITESV7);
+    }
+    else
+    {
+        if (highlightcnt>0)
+        {
+            m = 0;
+            for (i=0; i<highlightcnt; i++)
+                m += !!(highlight[i]&16384);
+            Bsprintf(snotbuf, "%d sprites, %d walls selected", m, highlightcnt-m);
+        }
+        else if (highlightsectorcnt>0)
+            Bsprintf(snotbuf, "%d sectors selected", highlightsectorcnt);
+        else
+            snotbuf[0] = 0;
 
-    Bsprintf(snotbuf,"%d/%d sect. %d/%d walls %d/%d spri.",
-             numsectors, m?MAXSECTORSV8:MAXSECTORSV7,
-             numwalls, m?MAXWALLSV8:MAXWALLSV7,
-             numsprites, m?MAXSPRITESV8:MAXSPRITESV7);
+        v8 = 1;
+    }
+
+    m = xdim/8 - 264/8;
+    m = clamp(m, 1, (signed)sizeof(snotbuf)-1);
 
     i = 0;
-    while ((snotbuf[i] != 0) && (i < 46))
+    while (snotbuf[i] && i < m)
         i++;
-    while (i < 46)
+    while (i < m)
     {
         snotbuf[i] = 32;
         i++;
     }
-    snotbuf[46] = 0;
+    snotbuf[m] = 0;
 
-    printext16(264, ydim-STATUS2DSIZ+128, m?editorcolors[10]:whitecol, -1, snotbuf,0);
+    printext16(264, ydim-STATUS2DSIZ+128, v8?editorcolors[10]:whitecol, -1, snotbuf,0);
 }
 
 void updatenumsprites(void)
@@ -7101,8 +7353,6 @@ static void initcrc(void)
     }
 }
 
-static char visited[MAXWALLS];
-
 static int32_t GetWallZPeg(int32_t nWall)
 {
     int32_t z=0, nSector, nNextSector;
@@ -7156,8 +7406,8 @@ void AutoAlignWalls(int32_t nWall0, int32_t ply)
     if (ply == 0)
     {
         //clear visited bits
-        Bmemset(visited,0,sizeof(visited));
-        visited[nWall0] = 1;
+        Bmemset(visited, 0, sizeof(visited));
+        visited[nWall0>>3] |= (1<<(nWall0&7));
     }
 
     z0 = GetWallZPeg(nWall0);
@@ -7168,12 +7418,14 @@ void AutoAlignWalls(int32_t nWall0, int32_t ply)
     while (1)
     {
         //break if this wall would connect us in a loop
-        if (visited[nWall1]) break;
+        if (visited[nWall1>>3]&(1<<(nWall1&7)))
+            break;
 
-        visited[nWall1] = 1;
+        visited[nWall1>>3] |= (1<<(nWall1&7));
 
         //break if reached back of left wall
-        if (wall[nWall1].nextwall == nWall0) break;
+        if (wall[nWall1].nextwall == nWall0)
+            break;
 
         if (wall[nWall1].picnum == nTile)
         {

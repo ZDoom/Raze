@@ -169,6 +169,10 @@ static int16_t maphacklightcnt=0;
 static int16_t maphacklight[PR_MAXLIGHTS];
 #endif
 
+// forward refs
+inline int32_t getscreenvdisp(int32_t bz, int32_t zoome);
+void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome);
+
 
 ////////// YAX //////////
 #define YAX_BUNCHNUM(Sect, Cf) (*(int16_t *)(&sector[Sect].ceilingxpanning + 6*Cf))
@@ -777,7 +781,7 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
         for (k=startwall; k<=endwall; k++)
         {
             if (wall[k].x == x2 && wall[k].y == y2)
-                if ((wall[wall[k].point2]).x == x1 && (wall[wall[k].point2]).y == y1)
+                if (wall[wall[k].point2].x == x1 && wall[wall[k].point2].y == y1)
                     if (j != sectnum)
                     {
                         // Don't create link if the other side is connected to another wall.
@@ -12580,7 +12584,8 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
 static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t posze, int32_t zoome)
 {
     const walltype *wal = &wall[i];
-    int32_t j, x1, y1, x2, y2, dz = 0, dz2 = 0;
+    int32_t sect=0, j, x1, y1, x2, y2, dz = 0, dz2 = 0;
+    int32_t fz=0,fzn=0;
 //    intptr_t tempint;
     char col;
 
@@ -12610,7 +12615,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         col = 33;
         if ((wal->cstat&1) != 0)
             col = 5;
-        if (wal->nextwall >= 0 && ((wal->cstat^wall[wal->nextwall].cstat)&1))
+        if (wal->nextwall >= 0 && ((wal->cstat^wall[j].cstat)&1))
             col = 2;
         if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
             if (totalclock & 16)
@@ -12624,7 +12629,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     dy = wal->y-wall[wal->point2].y;
     dist = dx*dx+dy*dy;
 
-    if (dist > 0xffffffff)
+    if (dist > 0xffffffffll)
     {
         col=9;
         if (i == linehighlight || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
@@ -12642,8 +12647,8 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     if (m32_sideview)
     {
         // draw vertical line to neighboring wall
-        int32_t fz, fz2, fzn;
-        int32_t sect=sectorofwall(i);
+        int32_t fz2;
+        sect = sectorofwall(i);
 
         fz = getflorzofslope(sect, wal->x,wal->y);
         fz2 = getflorzofslope(sect, wall[wal->point2].x,wall[wal->point2].y);
@@ -12656,12 +12661,13 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 
         if (wal->nextwall>=0)
         {
-            fzn = getflorzofslope(wal->nextsector, wal->x,wal->y)-fz;
-            drawline16mid(x1,y1, x1,y1+getscreenvdisp(fzn,zoome), editorcolors[col]);
+            fzn = getflorzofslope(wal->nextsector, wal->x,wal->y);
+//            if (i < wall[j].point2)
+                drawline16mid(x1,y1, x1,y1+getscreenvdisp(fzn-fz,zoome), editorcolors[col]);
         }
     }
 
-    if ((wal->cstat&64) > 0)  // if hitscan bit set
+    if (wal->cstat&64)  // if hitscan bit set
     {
         int32_t one=(klabs(x2-x1) >= klabs(y2-y1)), no=!one;
 
@@ -12698,18 +12704,11 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 
                 drawline16mid(dax+dax3,day+day3, dax+dax2,day+day2, editorcolors[col]);
             }
-            else if (jj > ii)
+            else
             {
-                int32_t dax2 = mulscale11(sintable[(k+1024)&2047],zoome) / 2560;
-                int32_t day2 = mulscale11(sintable[(k+512)&2047],zoome) / 2560;
-
-                day2 = scalescreeny(day2);
-                drawline16mid(dax,day, dax+dax2,day+day2, editorcolors[col]);
-            }
-            else if (jj < ii)
-            {
-                int32_t dax2 = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
-                int32_t day2 = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
+                int32_t bb = (jj < ii);
+                int32_t dax2 = mulscale11(sintable[(k+1024 + 1024*bb)&2047],zoome) / 2560;
+                int32_t day2 = mulscale11(sintable[(k+512 + 1024*bb)&2047],zoome) / 2560;
 
                 day2 = scalescreeny(day2);
                 drawline16mid(dax,day, dax+dax2,day+day2, editorcolors[col]);
@@ -12749,15 +12748,11 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
             col = 15;
             if (m32_sideview)
             {
-                int16_t nw = wall[i].nextwall;
-                if (nw>=0)
+                if (wal->nextwall >= 0)
                 {
-                    int32_t fz = getflorzofslope(sectorofwall(i), wall[i].x, wall[i].y);
-                    int32_t fz2 = getflorzofslope(wall[i].nextsector, wall[i].x, wall[i].y);
-
-                    if (fz < fz2)
+                    if (fz < fzn)
                         col = 7;
-                    else if (fz==fz2)
+                    else if (fz == fzn)
                         col = 4;
                 }
             }

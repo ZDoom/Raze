@@ -160,6 +160,9 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point);
 void update_highlight();
 void update_highlightsector();
 
+int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32_t zoom,
+                      int32_t x, int32_t y, int16_t sectnum);
+
 extern uint8_t hlsectorbitmap[MAXSECTORS>>3];
 
 #ifdef _WIN32

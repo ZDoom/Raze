@@ -4427,6 +4427,9 @@ static void Keys3d(void)
                 if (getmessageleng)
                     break;
 
+                if (sprite[searchwall].picnum<0 || sprite[searchwall].picnum>=MAXTILES)
+                    break;
+
                 if (names[sprite[searchwall].picnum][0])
                 {
                     if (sprite[searchwall].picnum==SECTOREFFECTOR)
@@ -5545,7 +5548,7 @@ static void Keys3d(void)
 
         if (ASSERT_AIMING)
         {
-            message("%ss with picnum %d have shade of %d", Typestr[searchstat], temppicnum, tempshade);
+            message("%ss with picnum %d now have shade of %d", Typestr[searchstat], temppicnum, tempshade);
             asksave = 1;
         }
     }
@@ -6661,7 +6664,7 @@ static void Keys2d(void)
     tcursectornum = -1;
     for (i=0; i<numsectors; i++)
     {
-        if (inside(mousxplc,mousyplc,i) == 1)
+        if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
         {
             tcursectornum = i;
             break;
@@ -6787,7 +6790,7 @@ static void Keys2d(void)
         else
         {
             for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
+                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                 {
                     Bsprintf(buffer,"Sector (%d) Lo-tag: ",i);
                     j = qsetmode;
@@ -6862,7 +6865,7 @@ static void Keys2d(void)
         else
         {
             for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
+                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                 {
                     Bsprintf(tempbuf,"Sector %d Extra: ",i);
                     sector[i].extra = getnumber16(tempbuf,sector[i].extra,BTAG_MAX,1);
@@ -6876,7 +6879,7 @@ static void Keys2d(void)
     if (!eitherCTRL && PRESSED_KEYSC(E))  // E (expand)
     {
         for (i=0; i<numsectors; i++)
-            if (inside(mousxplc,mousyplc,i) == 1)
+            if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
             {
                 sector[i].floorstat ^= 8;
                 message("Sector %d floor texture expansion bit %s", i, ONOFF(sector[i].floorstat&8));
@@ -6897,7 +6900,7 @@ static void Keys2d(void)
         else if (graphicsmode != 0)
         {
             for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
+                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                 {
                     sector[i].floorxpanning = sector[i].floorypanning = 0;
                     message("Sector %d floor panning reset", i);
@@ -6930,7 +6933,7 @@ static void Keys2d(void)
                 else
                 {
                     for (i=0; i<numsectors; i++)
-                        if (inside(mousxplc,mousyplc,i) == 1)
+                        if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                         {
                             uint8_t *panning = (k==0) ? &sector[i].floorxpanning : &sector[i].floorypanning;
                             *panning = changechar(*panning, changedir, smooshy, 0);

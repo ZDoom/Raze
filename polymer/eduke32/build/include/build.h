@@ -66,7 +66,7 @@ extern "C" {
 #define YAX_CEILING 0
 #define YAX_FLOOR 1
 
-#define YAX_SECTORFLD(Sect,Fld, Cf) (*((uint8_t *)&sector[Sect].ceiling##Fld + (Cf)*((char*)&sector[0].floor##Fld - (char*)&sector[0].ceiling##Fld)))
+#define YAX_SECTORFLD(Sect,Fld, Cf) (*((Cf) ? (&sector[Sect].floor##Fld) : (&sector[Sect].ceiling##Fld)))
 
 int16_t yax_getbunch(int16_t i, int16_t cf);
 void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum);
