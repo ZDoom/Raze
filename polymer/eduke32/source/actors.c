@@ -8034,6 +8034,48 @@ void G_MoveWorld(void)
 
                         switch (DynamicTileMap[sprite[i].picnum])
                         {
+                        case DIPSWITCH__STATIC:
+                        case DIPSWITCH2__STATIC:
+                        case DIPSWITCH3__STATIC:
+                        case PULLSWITCH__STATIC:
+                        case SLOTDOOR__STATIC:
+                        case LIGHTSWITCH__STATIC:
+                        case SPACELIGHTSWITCH__STATIC:
+                        case SPACEDOORSWITCH__STATIC:
+                        case FRANKENSTINESWITCH__STATIC:
+                        case POWERSWITCH1__STATIC:
+                        case LOCKSWITCH1__STATIC:
+                        case POWERSWITCH2__STATIC:
+                        case TECHSWITCH__STATIC:
+                        case ACCESSSWITCH__STATIC:
+                        case ACCESSSWITCH2__STATIC:
+                            {
+                                int32_t x, y;
+
+                                if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
+                                    !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                                {
+                                    if (actor[i].lightptr != NULL)
+                                    {
+                                        polymer_deletelight(actor[i].lightId);
+                                        actor[i].lightId = -1;
+                                        actor[i].lightptr = NULL;
+                                    }
+                                    break;
+                                }
+
+                                x = ((sintable[(s->ang+512)&2047])>>7);
+                                y = ((sintable[(s->ang)&2047])>>7);
+
+                                s->x += x;
+                                s->y += y;
+
+                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 768, 255+(48<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
+                                s->x -= x;
+                                s->y -= y;
+                            }
+                            break;
+
                         case ATOMICHEALTH__STATIC:
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2 * 3, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
                             break;
@@ -8042,11 +8084,23 @@ void G_MoveWorld(void)
                         case FIRE2__STATIC:
                         case BURNING__STATIC:
                         case BURNING2__STATIC:
-                            /*
-                            if (Actor[i].floorz - Actor[i].ceilingz < 128) break;
-                            if (s->z > Actor[i].floorz+2048) break;
-                            */
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                            {
+                                uint32_t color;
+                                /*
+                                if (Actor[i].floorz - Actor[i].ceilingz < 128) break;
+                                if (s->z > Actor[i].floorz+2048) break;
+                                */
+
+                                switch (s->pal)
+                                {
+                                case 1: color = 128+(128<<8)+(255<<16); break;
+                                case 2: color = 255+(48<<8)+(48<<16); break;
+                                case 8: color = 48+(255<<8)+(48<<16); break;
+                                default: color = 255+(95<<8); break;
+                                }
+
+                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, color, PR_LIGHT_PRIO_HIGH_GAME);
+                            }
                             break;
 
                         case OOZFILTER__STATIC:
@@ -8138,47 +8192,6 @@ void G_MoveWorld(void)
                                 s->y += y;
                             }
                             break;
-                        case DIPSWITCH__STATIC:
-                        case DIPSWITCH2__STATIC:
-                        case DIPSWITCH3__STATIC:
-                        case PULLSWITCH__STATIC:
-                        case SLOTDOOR__STATIC:
-                        case LIGHTSWITCH__STATIC:
-                        case SPACELIGHTSWITCH__STATIC:
-                        case SPACEDOORSWITCH__STATIC:
-                        case FRANKENSTINESWITCH__STATIC:
-                        case POWERSWITCH1__STATIC:
-                        case LOCKSWITCH1__STATIC:
-                        case POWERSWITCH2__STATIC:
-                        case TECHSWITCH__STATIC:
-                        case ACCESSSWITCH__STATIC:
-                        case ACCESSSWITCH2__STATIC:
-                        {
-                            int32_t x, y;
-
-                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
-                                    !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
-                            {
-                                if (actor[i].lightptr != NULL)
-                                {
-                                    polymer_deletelight(actor[i].lightId);
-                                    actor[i].lightId = -1;
-                                    actor[i].lightptr = NULL;
-                                }
-                                break;
-                            }
-
-                            x = ((sintable[(s->ang+512)&2047])>>7);
-                            y = ((sintable[(s->ang)&2047])>>7);
-
-                            s->x += x;
-                            s->y += y;
-
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 768, 255+(48<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
-                            s->x -= x;
-                            s->y -= y;
-                        }
-                        break;
                         }
                     }
                 }
