@@ -1521,6 +1521,9 @@ static int32_t C_GetKeyword(void)
 
     C_SkipComments();
 
+    if (*textptr == '\0') // EOF
+        return 0;
+
     temptextptr = textptr;
 
     while (isaltok(*temptextptr) == 0)
