@@ -279,12 +279,11 @@ void Net_NewGame(int32_t volume, int32_t level)
 static void Net_SendChallenge(void)
 {
     int32_t l = 1;
-    uint32_t crc = crc32once((uint8_t *)g_netPassword, Bstrlen(g_netPassword));
 
     if (!g_netClientPeer) return;
 
     buf[0] = PACKET_AUTH;
-    *(uint32_t *)&buf[1] = crc;
+    *(uint32_t *)&buf[1] = crc32once((uint8_t *)g_netPassword, Bstrlen(g_netPassword));
     l += sizeof(int32_t);
 
     buf[l++] = myconnectindex;
@@ -343,11 +342,8 @@ void Net_SyncPlayer(ENetEvent *event)
 
     S_PlaySound(DUKE_GETWEAPON2);
 
-    TRAVERSE_CONNECT(i)
-    if (g_player[i].playerquitflag == 0)
-        break;
-
-    // open a new slot if necessary
+    // open a new slot if necessary and save off the resulting slot # for future reference
+    TRAVERSE_CONNECT(i) if (g_player[i].playerquitflag == 0) break;
     event->peer->data = (void *)((intptr_t)(i = (i == -1 ? playerswhenstarted++ : i)));
 
     g_player[i].netsynctime = totalclock;
@@ -356,11 +352,11 @@ void Net_SyncPlayer(ENetEvent *event)
     for (j=0; j<playerswhenstarted-1; j++) connectpoint2[j] = j+1;
     connectpoint2[playerswhenstarted-1] = -1;
 
-    TRAVERSE_CONNECT(j)
-    {
-        if (!g_player[j].ps) g_player[j].ps = (DukePlayer_t *) Bcalloc(1, sizeof(DukePlayer_t));
-        if (!g_player[j].sync) g_player[j].sync = (input_t *) Bcalloc(1, sizeof(input_t));
-    }
+//    TRAVERSE_CONNECT(j)
+//    {
+        if (!g_player[i].ps) g_player[i].ps = (DukePlayer_t *) Bcalloc(1, sizeof(DukePlayer_t));
+        if (!g_player[i].sync) g_player[i].sync = (input_t *) Bcalloc(1, sizeof(input_t));
+//    }
 
     packbuf[0] = PACKET_NUM_PLAYERS;
     packbuf[1] = ++numplayers;
@@ -393,18 +389,22 @@ void Net_SyncPlayer(ENetEvent *event)
             G_SaveMapState(g_multiMapState);
             if ((j = qlz_compress((char *)g_multiMapState, buf, sizeof(mapstate_t), state_compress)))
             {
+                size_t csize = qlz_size_compressed(buf);
+
                 // all of these packets are SYNCPACKETSIZE
                 do
                 {
                     enet_peer_send(event->peer, CHAN_SYNC,
-                                   enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, SYNCPACKETSIZE, ENET_PACKET_FLAG_RELIABLE));
+                                   enet_packet_create((char *)(buf)+csize-j, SYNCPACKETSIZE, ENET_PACKET_FLAG_RELIABLE));
                     j -= SYNCPACKETSIZE;
+                    enet_host_service(g_netServer, NULL, 0);
                 }
                 while (j >= SYNCPACKETSIZE);
 
                 // ...except for this one.  A non-SYNCPACKETSIZE packet on CHAN_SYNC doubles as the signal that the transfer is done.
                 enet_peer_send(event->peer, CHAN_SYNC,
-                               enet_packet_create((char *)(buf)+qlz_size_compressed(buf)-j, j, ENET_PACKET_FLAG_RELIABLE));
+                               enet_packet_create((char *)(buf)+csize-j, j, ENET_PACKET_FLAG_RELIABLE));
+                enet_host_service(g_netServer, NULL, 0);
             }
             else
                 initprintf("Error compressing map state for transfer!\n");
@@ -1960,7 +1960,22 @@ void Net_ParseServerPacket(ENetEvent *event)
         G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
         ud.coop = ud.m_coop;
 
-        if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
+        if (G_EnterLevel(MODE_GAME))
+        {
+            G_BackToMenu();
+            break;
+        }
+
+        if (g_netSync)
+        {
+            packbuf[0] = PACKET_PLAYER_READY;
+            packbuf[1] = myconnectindex;
+
+            if (g_netClientPeer)
+                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
+            g_netSync = 0;
+        }
+
         break;
 
     case PACKET_VERSION:
@@ -2017,10 +2032,13 @@ void Net_ParseServerPacket(ENetEvent *event)
 
     case PACKET_PLAYER_SPAWN:
         if (!(g_player[myconnectindex].ps->gm & MODE_GAME) || g_netSync) break;
+
         P_ResetPlayer(pbuf[1]);
+        Bmemcpy(&g_player[pbuf[1]].ps->pos.x, &pbuf[2], sizeof(vec3_t) * 2);
+        Bmemcpy(&sprite[g_player[pbuf[1]].ps->i], &pbuf[2], sizeof(vec3_t));
         break;
 
-    case PACKET_PLAYER_READY:
+    case PACKET_PLAYER_PING:
         g_player[0].playerreadyflag++;
         return;
 
@@ -2196,9 +2214,36 @@ void Net_ParseClientPacket(ENetEvent *event)
         break;
 
     case PACKET_PLAYER_READY:
+        j = g_player[other].ps->i;
+        Bmemcpy(g_player[other].ps, g_player[0].ps, sizeof(DukePlayer_t));
+
+        g_player[other].ps->i = j;
+        changespritestat(j, STAT_PLAYER);
+
+        g_player[other].ps->last_extra = sprite[g_player[other].ps->i].extra = g_player[other].ps->max_player_health;
+        sprite[g_player[other].ps->i].cstat = 1+256;
+        actor[g_player[other].ps->i].t_data[2] = actor[g_player[other].ps->i].t_data[3] = actor[g_player[other].ps->i].t_data[4] = 0;
+
+        P_ResetPlayer(other);
+
+        j = 0;
+        packbuf[j++] = PACKET_PLAYER_SPAWN;
+        packbuf[j++] = other;
+
+        Bmemcpy(&packbuf[j], &g_player[other].ps->pos.x, sizeof(vec3_t) * 2);
+        j += sizeof(vec3_t) * 2;
+
+        packbuf[j++] = 0;
+
+        enet_host_broadcast(g_netServer, CHAN_GAMESTATE , enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
+
+        break;
+
+
+    case PACKET_PLAYER_PING:
         if (g_player[myconnectindex].ps->gm & MODE_GAME)
         {
-            packbuf[0] = PACKET_PLAYER_READY;
+            packbuf[0] = PACKET_PLAYER_PING;
             packbuf[1] = myconnectindex;
             enet_peer_send(event->peer, CHAN_GAMESTATE, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
         }
@@ -2371,19 +2416,11 @@ void Net_ParseClientPacket(ENetEvent *event)
 
             enet_peer_send(event->peer, CHAN_GAMESTATE, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
 
-            j = g_player[other].ps->i;
-            Bmemcpy(g_player[other].ps, g_player[0].ps, sizeof(DukePlayer_t));
-
-            g_player[other].ps->i = j;
-            changespritestat(j, STAT_PLAYER);
-
+/*
             P_ResetStatus(other);
             P_ResetWeapons(other);
             P_ResetInventory(other);
-
-            g_player[other].ps->last_extra = sprite[g_player[other].ps->i].extra = g_player[other].ps->max_player_health;
-            sprite[g_player[other].ps->i].cstat = 1+256;
-            actor[g_player[other].ps->i].t_data[2] = actor[g_player[other].ps->i].t_data[3] = actor[g_player[other].ps->i].t_data[4] = 0;
+*/
 
             g_netPlayersWaiting--;
 
@@ -2540,15 +2577,26 @@ void Net_GetPackets(void)
 
                     if (buf && event.packet->dataLength == SYNCPACKETSIZE)
                     {
+                        char tbuf[64];
                         Bmemcpy((uint8_t *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
                         datasiz += SYNCPACKETSIZE;
+
+                        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+
+                        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+                        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+                        if (PLUTOPAK)   // JBF 20030804
+                            rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+
+                        Bsprintf(tbuf, "RECEIVED %d BYTES\n", datasiz);
+                        gametext(160,190,tbuf,14,2);
                     }
                     // last packet of mapstate sequence
                     else if (buf)
                     {
                         Bmemcpy((uint8_t *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
                         datasiz = 0;
-                        g_netSync = 0;
+//                        g_netSync = 0;
 
                         if (qlz_size_decompressed((const char *)buf) == sizeof(mapstate_t))
                         {
@@ -2559,6 +2607,15 @@ void Net_GetPackets(void)
                             packbuf[0] = PACKET_REQUEST_GAMESTATE;
                             packbuf[1] = myconnectindex;
                             enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&packbuf[0], 2, ENET_PACKET_FLAG_RELIABLE));
+
+                            rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+
+                            rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+                            rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+                            if (PLUTOPAK)   // JBF 20030804
+                                rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+
+                            gametext(160,190,"TRANSFER COMPLETE",14,2);
                         }
                         else
                         {
@@ -2566,6 +2623,15 @@ void Net_GetPackets(void)
                             Bfree(buf);
                             buf = NULL;
                             g_netDisconnect = 1;
+
+                            rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+
+                            rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+                            rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+                            if (PLUTOPAK)   // JBF 20030804
+                                rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+
+                            gametext(160,190,"TRANSFER ERROR",14,2);
                         }
                     }
                     else
@@ -2573,6 +2639,8 @@ void Net_GetPackets(void)
                         initprintf("Error allocating buffer for map state!\n");
                         g_netDisconnect = 1;
                     }
+
+                    nextpage();
                 }
                 else Net_ParseServerPacket(&event);
 
@@ -2593,7 +2661,7 @@ void Net_GetPackets(void)
                     initprintf("You have been kicked from the server.\n");
                     return;
                 case DISC_BANNED:
-                    initprintf("You have been banned from this server.\n");
+                    initprintf("You are banned from this server.\n");
                     return;
                 default:
                     initprintf("Disconnected.\n");
@@ -2970,10 +3038,9 @@ void Net_StreamLevel(void)
 
 void faketimerhandler(void)
 {
-    if (g_netServer)
-        enet_host_service(g_netServer, NULL, 0);
-    else if (g_netClient)
-        enet_host_service(g_netClient, NULL, 0);
+    if (((uintptr_t)g_netServer|(uintptr_t)g_netClient) == (uintptr_t)NULL) return;
+
+    enet_host_service(g_netServer ? g_netServer : g_netClient, NULL, 0);
 }
 
 void Net_EnterMessage(void)
@@ -3134,25 +3201,23 @@ void Net_WaitForServer(void)
 
     if (numplayers < 2 || g_netServer) return;
 
-    if ((g_netServer || ud.multimode > 1))
-    {
-        P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 11);
-        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 11);
 
-        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
-        if (PLUTOPAK)   // JBF 20030804
-            rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+    rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
-        gametext(160,190,"WAITING FOR SERVER",14,2);
-        nextpage();
-    }
+    rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+    rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+    if (PLUTOPAK)   // JBF 20030804
+        rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+
+    gametext(160,170,"WAITING FOR SERVER",14,2);
+    nextpage();
 
     do
     {
         if (quitevent || keystatus[1]) G_GameExit("");
 
-        packbuf[0] = PACKET_PLAYER_READY;
+        packbuf[0] = PACKET_PLAYER_PING;
         packbuf[1] = myconnectindex;
 
         if (g_netClientPeer)

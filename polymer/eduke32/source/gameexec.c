@@ -2900,13 +2900,19 @@ nullquote:
 
                 if (g_netServer)
                 {
+                    int32_t jj = 0;
+
                     P_ResetPlayer(vm.g_p);
 
-                    packbuf[0] = PACKET_PLAYER_SPAWN;
-                    packbuf[1] = vm.g_p;
-                    packbuf[2] = 0;
+                    packbuf[jj++] = PACKET_PLAYER_SPAWN;
+                    packbuf[jj++] = vm.g_p;
 
-                    enet_host_broadcast(g_netServer, CHAN_GAMESTATE , enet_packet_create(packbuf, 3, ENET_PACKET_FLAG_RELIABLE));
+                    Bmemcpy(&packbuf[jj], &g_player[vm.g_p].ps->pos.x, sizeof(vec3_t) * 2);
+                    jj += sizeof(vec3_t) * 2;
+
+                    packbuf[jj++] = 0;
+
+                    enet_host_broadcast(g_netServer, CHAN_GAMESTATE , enet_packet_create(packbuf, jj, ENET_PACKET_FLAG_RELIABLE));
                 }
             }
             P_UpdateScreenPal(g_player[vm.g_p].ps);

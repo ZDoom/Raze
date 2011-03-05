@@ -4485,6 +4485,9 @@ void P_ProcessInput(int32_t snum)
     uint8_t *kb = &p->kickback_pic;
     int16_t tempsect;
 
+    if (g_player[snum].playerquitflag == 0)
+        return;
+
     p->player_par++;
 
     VM_OnEvent(EVENT_PROCESSINPUT, p->i, snum, -1);
