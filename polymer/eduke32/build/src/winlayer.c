@@ -594,7 +594,7 @@ static void win_printversion(void)
     if (largepagesavailable)
         initprintf("Large page support available\n");
 #else
-    initprintf(nedhandle ? "w/ nedmalloc.dll\n" : "\n");
+    initprintf(nedhandle ? "\nInitialized nedmalloc\n" : "\n");
 #endif
 
 }

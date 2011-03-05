@@ -6365,6 +6365,7 @@ skip:
             break;
         case FIRE__STATIC:
         case FIRE2__STATIC:
+            t->cstat |= 128;
         case BURNING__STATIC:
         case BURNING2__STATIC:
             if (sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2)
@@ -9156,7 +9157,7 @@ static void G_Startup(void)
     }
 
     for (i=0; i<MAXPLAYERS; i++)
-        g_player[i].playerreadyflag = 0;
+        g_player[i].pingcnt = 0;
 
     if (quitevent)
     {

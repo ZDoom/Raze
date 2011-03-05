@@ -2039,7 +2039,7 @@ void Net_ParseServerPacket(ENetEvent *event)
         break;
 
     case PACKET_PLAYER_PING:
-        g_player[0].playerreadyflag++;
+        g_player[0].pingcnt++;
         return;
 
     case PACKET_FRAG:
@@ -2247,7 +2247,7 @@ void Net_ParseClientPacket(ENetEvent *event)
             packbuf[1] = myconnectindex;
             enet_peer_send(event->peer, CHAN_GAMESTATE, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
         }
-        g_player[other].playerreadyflag++;
+        g_player[other].pingcnt++;
         return;
 
     case PACKET_MESSAGE:
@@ -3197,7 +3197,7 @@ void Net_EnterMessage(void)
 
 void Net_WaitForServer(void)
 {
-    int32_t server_ready = g_player[0].playerreadyflag;
+    int32_t server_ready = g_player[0].pingcnt;
 
     if (numplayers < 2 || g_netServer) return;
 
@@ -3226,7 +3226,7 @@ void Net_WaitForServer(void)
         handleevents();
         Net_GetPackets();
 
-        if (g_player[0].playerreadyflag > server_ready)
+        if (g_player[0].pingcnt > server_ready)
         {
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 11);
             return;

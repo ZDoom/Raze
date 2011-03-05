@@ -213,7 +213,7 @@ typedef struct {
     int32_t pcolor, pteam;
     uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
-    char vote, gotvote, playerreadyflag, playerquitflag;
+    char vote, gotvote, pingcnt, playerquitflag;
     char user_name[32];
 } playerdata_t;
 #pragma pack(pop)

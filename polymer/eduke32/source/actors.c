@@ -2913,7 +2913,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     if (s->picnum == COOLEXPLOSION1)
                     {
                         if ((j&49152) == 49152 && sprite[j&(MAXSPRITES-1)].picnum != APLAYER)
-                            goto BOLT;
+                            goto COOLEXPLOSION;
                         s->xvel = 0;
                         s->zvel = 0;
                     }
@@ -3085,6 +3085,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 }
                 if (s->picnum == COOLEXPLOSION1)
                 {
+COOLEXPLOSION:
                     s->shade++;
                     if (s->shade >= 40) KILLIT(i);
                 }
