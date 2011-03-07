@@ -1864,14 +1864,13 @@ static void updatesprite1(int16_t i)
 {
     setsprite(i, (vec3_t *)&sprite[i]);
 
-    if ((sprite[i].cstat&48)!=32 && sprite[i].sectnum>=0)
+    if (sprite[i].sectnum>=0)
     {
         int32_t tempint, cz, fz;
         tempint = spriteheight(i, NULL);
         if (sprite[i].cstat&128)
             tempint >>= 1;
-        cz = getceilzofslope(sprite[i].sectnum, sprite[i].x,sprite[i].y);
-        fz = getflorzofslope(sprite[i].sectnum, sprite[i].x,sprite[i].y);
+        getzsofslope(sprite[i].sectnum, sprite[i].x, sprite[i].y, &cz, &fz);
         sprite[i].z = max(sprite[i].z, cz+tempint);
         sprite[i].z = min(sprite[i].z, fz);
     }

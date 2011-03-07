@@ -853,8 +853,8 @@ const char *SectorEffectorTagText(int32_t lotag)
         "CONVAYER BELT",
         "ENGINE",                        // 25
         "(UNKNOWN)",
-        "LIGHTNING (H= TILE#4890)",
         "CAMERA FOR PLAYBACK",
+        "LIGHTNING (H= TILE#4890)",
         "FLOAT",
         "2 WAY TRAIN (ST=31)",           // 30
         "FLOOR RISE",
