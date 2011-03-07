@@ -64,6 +64,7 @@ extern int16_t prefixtiles[16];
 extern char program_origcwd[BMAX_PATH];
 extern char *mapster32_fullpath;
 extern char *testplay_addparam;
+extern const char *g_namesFileName;
 
 extern int32_t m32_osd_tryscript;
 extern int32_t showheightindicators;
@@ -126,6 +127,8 @@ extern void showsectordata(int16_t sectnum, int16_t small);
 extern void showwalldata(int16_t wallnum, int16_t small);
 extern void showspritedata(int16_t spritenum, int16_t small);
 
+extern void drawsmallabel(const char *text, char col, char backcol, int32_t dax, int32_t day, int32_t daz);
+
 extern int32_t circlewall;
 
 int32_t loadsetup(const char *fn);	// from config.c
@@ -162,6 +165,7 @@ void update_highlightsector();
 
 int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32_t zoom,
                       int32_t x, int32_t y, int16_t sectnum);
+void correct_sprite_yoffset(int32_t i);
 
 extern uint8_t hlsectorbitmap[MAXSECTORS>>3];
 

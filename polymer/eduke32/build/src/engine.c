@@ -9179,7 +9179,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
             }
         }
     }
-    else if ((how*vz > 0) && (how *sv->z <= how*z))
+    else if ((how*vz > 0) && (how*sv->z <= how*z))
     {
         z1 = z; i = z1-sv->z;
         if ((klabs(i)>>1) < vz*how)

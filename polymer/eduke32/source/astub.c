@@ -400,6 +400,8 @@ void create_map_snapshot(void)
             }
         }
     }
+
+    CheckMapCorruption(6, 0);
 }
 
 void map_undoredo_free(void)
@@ -3211,7 +3213,6 @@ static int32_t m32gettile(int32_t idInitialTile)
     keystatus[KEYSC_ENTER] = 0;
 
     return idSelectedTile;
-
 }
 
 // Dir = 0 (zoom out) or 1 (zoom in)
@@ -3671,9 +3672,18 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     Bsprintf(szT,"%dx%d",tilesizx[idTile],tilesizy[idTile]);
     printext256(xdim>>2,ydim-10,whitecol,-1,szT,0);
 
-    // EditArt animation flags.
-    Bsprintf(szT,"%d, %d",(picanm[idTile]>>8)&0xFF,(picanm[idTile]>>16)&0xFF);
+    // EditArt offset flags.
+    Bsprintf(szT,"%d, %d", (int8_t)((picanm[idTile]>>8)&0xFF), (int8_t)((picanm[idTile]>>16)&0xFF));
     printext256((xdim>>2)+100,ydim-10,whitecol,-1,szT,0);
+
+    // EditArt animation flags.
+    if (picanm[idTile]&0xc0)
+    {
+        static const char *anmtype[] = {"", "Osc", "Fwd", "Bck"};
+
+        Bsprintf(szT,"%s %d", anmtype[(picanm[idTile]&0xc0)>>6], picanm[idTile]&0x3f);
+        printext256((xdim>>2)+100+14*8,ydim-10,whitecol,-1,szT,0);
+    }
 
     if (showmsg)
         TMPERRMSG_SHOW(0);
@@ -4420,7 +4430,8 @@ static void Keys3d(void)
                              sprite[searchwall].hitag, sprite[searchwall].extra);
 
                 Bsprintf(lines[num++], "Repeat:  %d,%d", sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
-                Bsprintf(lines[num++], "PosXY:   %d,%d", sprite[searchwall].x, sprite[searchwall].y);
+                Bsprintf(lines[num++], "PosXY:   %d,%d%s", sprite[searchwall].x, sprite[searchwall].y,
+                         sprite[searchwall].xoffset|sprite[searchwall].yoffset ? " ^251*":"");
                 Bsprintf(lines[num++], "PosZ: ""   %d", sprite[searchwall].z);// prevents tab character
                 lines[num++][0]=0;
 
@@ -4510,6 +4521,9 @@ static void Keys3d(void)
 
             if (AIMING_AT_MASKWALL && wall[searchwall].nextwall >= 0)
                 NEXTWALL(searchwall).overpicnum = tempint;
+
+            if (AIMING_AT_SPRITE)
+                correct_sprite_yoffset(searchwall);
 
             if (oldtile != tempint)
                 asksave = 1;
@@ -5022,6 +5036,9 @@ static void Keys3d(void)
                 AIMED_SELOVR_PICNUM %= MAXTILES;
                 j = 0;
             }
+
+            if (AIMING_AT_SPRITE)
+                correct_sprite_yoffset(searchwall);
 
             asksave = 1;
         }
@@ -5661,11 +5678,14 @@ static void Keys3d(void)
     {
         if (ASSERT_AIMING)
         {
-            int16_t opicnum = AIMED_CF_SEL(picnum);
+            int16_t opicnum = AIMED_CF_SEL(picnum), aimspr=AIMING_AT_SPRITE;
             static const char *Typestr_tmp[5] = { "Wall", "Sector ceiling", "Sector floor", "Sprite", "Masked wall" };
             Bsprintf(tempbuf, "%s picnum: ", Typestr_tmp[searchstat]);
             getnumberptr256(tempbuf, &AIMED_CF_SEL(picnum), sizeof(int16_t), MAXTILES-1, 0, NULL);
             asksave |= (opicnum != AIMED_CF_SEL(picnum));
+
+            if (aimspr)
+                correct_sprite_yoffset(searchwall);
         }
     }
 
@@ -5765,6 +5785,9 @@ static void Keys3d(void)
     {
         AIMED_SELOVR_PICNUM = temppicnum;
         message("Pasted picnum only");
+
+        if (AIMING_AT_SPRITE)
+            correct_sprite_yoffset(searchwall);
     }
 
     i = 512;
@@ -6410,6 +6433,8 @@ static void Keys3d(void)
                     sprite[searchwall].yvel = tempyvel;
                     sprite[searchwall].zvel = tempzvel;
                 }
+                else
+                    correct_sprite_yoffset(searchwall);
             }
             message("Pasted clipboard");
             asksave = 1;
@@ -6442,7 +6467,10 @@ static void Keys3d(void)
                     for (i=0; i<MAXSPRITES; i++)
                         if (sprite[i].statnum < MAXSTATUS)
                             if (sprite[i].picnum == j)
+                            {
                                 sprite[i].picnum = temppicnum;
+                                correct_sprite_yoffset(i);
+                            }
                     break;
                 case SEARCH_MASKWALL:
                     j = wall[searchwall].overpicnum;
@@ -6494,6 +6522,8 @@ static void Keys3d(void)
                 sprite[searchwall].xrepeat = 64;
                 sprite[searchwall].yrepeat = 64;
             }
+
+            correct_sprite_yoffset(searchwall);
         }
 
         if (ASSERT_AIMING)
@@ -7462,6 +7492,12 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     Bstrcpy(g_grpNamePtr, "nam.grp");
                     COPYARG(i);
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"namesfile"))
+                {
+                    g_namesFileName = argv[i+1];
                     i++;
                     continue;
                 }

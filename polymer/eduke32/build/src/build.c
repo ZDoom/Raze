@@ -106,6 +106,7 @@ int16_t localartlookup[MAXTILES], localartlookupnum;
 char tempbuf[4096];
 
 char names[MAXTILES][25];
+const char *g_namesFileName = "NAMES.H";
 
 int16_t asksave = 0;
 extern int16_t editstatus, searchit;
@@ -229,7 +230,7 @@ void overheadeditor(void);
 static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line);
 void fixspritesectors(void);
 static int32_t movewalls(int32_t start, int32_t offs);
-int32_t loadnames(void);
+int32_t loadnames(const char *namesfile);
 void updatenumsprites(void);
 static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny);
 static void initcrc(void);
@@ -446,7 +447,7 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 #endif
 
-    loadnames();
+    loadnames(g_namesFileName);
 
     if (initinput()) return -1;
     // if (option[3] != 0) moustat =
@@ -1132,6 +1133,8 @@ void editinput(void)
                     else
                         sprite[i].cstat |= (tilesizy[sprite[i].picnum]>=32);
 
+                    correct_sprite_yoffset(i);
+
                     updatenumsprites();
                     asksave = 1;
 
@@ -1285,9 +1288,13 @@ static inline void drawline16base(int32_t bx, int32_t by, int32_t x1, int32_t y1
     drawline16(bx+x1, by+y1, bx+x2, by+y2, col);
 }
 
-static void drawsmalllabel(const char *text, char col, char backcol, int32_t dax, int32_t day)
+void drawsmallabel(const char *text, char col, char backcol, int32_t dax, int32_t day, int32_t daz)
 {
     int32_t x1, y1, x2, y2;
+
+    screencoords(&dax,&day, dax-pos.x,day-pos.y, zoom);
+    if (m32_sideview)
+        day += getscreenvdisp(daz-pos.z, zoom);
 
     x1 = halfxdim16+dax-(Bstrlen(text)<<1);
     y1 = midydim16+day-4;
@@ -1781,6 +1788,22 @@ static int32_t insert_sprite_common(int32_t sucksect, int32_t dax, int32_t day)
     return i;
 }
 
+void correct_sprite_yoffset(int32_t i)
+{
+    int32_t tileyofs = (int8_t)((picanm[sprite[i].picnum]>>16)&255);
+    int32_t tileysiz = tilesizy[sprite[i].picnum];
+
+    if (klabs(tileyofs) >= tileysiz)
+    {
+        tileyofs *= -1;
+        if (tileyofs == 128)
+            tileyofs = 127;
+
+        sprite[i].yoffset = tileyofs;
+    }
+    else
+        sprite[i].yoffset = 0;
+}
 
 static void fade_screen()
 {
@@ -2186,7 +2209,6 @@ void overheadeditor(void)
             }
 
             draw2dscreen(&pos,cursectnum,ang,zoom,grid);
-            VM_OnEvent(EVENT_DRAW2DSCREEN, -1);
 
             begindrawing();	//{{{
             if (showtags == 1)
@@ -2195,7 +2217,6 @@ void overheadeditor(void)
                 {
                     for (i=0; i<numsectors; i++)
                     {
-                        int32_t vdisp = 0;
                         int16_t secshort = i;
 
                         dabuffer = (char *)ExtGetSectorCaption(i);
@@ -2204,13 +2225,8 @@ void overheadeditor(void)
 
                         get_sectors_center(&secshort, 1, &dax, &day);
 
-                        if (m32_sideview)
-                            vdisp = getscreenvdisp(getflorzofslope(i,dax,day)-pos.z, zoom);
-                        screencoords(&dax,&day, dax-pos.x,day-pos.y, zoom);
-                        if (m32_sideview)
-                            day += vdisp;
-
-                        drawsmalllabel(dabuffer, editorcolors[0], editorcolors[7], dax, day);
+                        drawsmallabel(dabuffer, editorcolors[0], editorcolors[7],
+                                       dax, day, getflorzofslope(i,dax,day));
                     }
                 }
 
@@ -2239,14 +2255,11 @@ void overheadeditor(void)
                     if ((dax > x3) && (dax < x4) && (day > y3) && (day < y4))
                     {
                         dabuffer = (char *)ExtGetWallCaption(i);
-                        if (dabuffer[0] != 0)
-                        {
-                            screencoords(&dax,&day, dax-pos.x,day-pos.y, zoom);
-                            if (m32_sideview)
-                                day += getscreenvdisp(getflorzofslope(sectorofwall(i), dax,day)-pos.z, zoom);
+                        if (dabuffer[0] == 0)
+                            continue;
 
-                            drawsmalllabel(dabuffer, editorcolors[0], editorcolors[31], dax, day);
-                        }
+                        drawsmallabel(dabuffer, editorcolors[0], editorcolors[31],
+                                       dax, day, getflorzofslope(sectorofwall(i), dax,day));
                     }
                 }
 
@@ -2267,23 +2280,17 @@ void overheadeditor(void)
                             dabuffer = (char *)ExtGetSpriteCaption(i);
                             if (dabuffer[0] != 0)
                             {
-                                //Get average point of sprite
-                                screencoords(&dax,&day, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
-                                if (m32_sideview)
-                                    day += getscreenvdisp(sprite[i].z-pos.z, zoom);
+                                int32_t blocking = (sprite[i].cstat&1);
 
-                                {
-                                    int32_t blocking = (sprite[i].cstat&1);
+                                col = 3 + 2*blocking;
+                                if (spritecol2d[sprite[i].picnum][blocking])
+                                    col = spritecol2d[sprite[i].picnum][blocking];
 
-                                    col = 3 + 2*blocking;
-                                    if (spritecol2d[sprite[i].picnum][blocking])
-                                        col = spritecol2d[sprite[i].picnum][blocking];
+                                if ((i == pointhighlight-16384) && (totalclock & 32))
+                                    col += (2<<2);
 
-                                    if ((i == pointhighlight-16384) && (totalclock & 32))
-                                        col += (2<<2);
-
-                                    drawsmalllabel(dabuffer, editorcolors[0], editorcolors[col], dax, day);
-                                }
+                                drawsmallabel(dabuffer, editorcolors[0], editorcolors[col],
+                                               sprite[i].x, sprite[i].y, sprite[i].z);
                             }
                             j--;
                         }
@@ -2291,14 +2298,23 @@ void overheadeditor(void)
                     }
             }
 
+            // stick this event right between begin- end enddrawing()...
+            // also after the above label stuff so users can redefine them
+            VM_OnEvent(EVENT_DRAW2DSCREEN, -1);
+
             printcoords16(pos.x,pos.y,ang);
 
             numwalls = tempint;
 
             if (highlightsectorcnt >= 0)
+            {
+                int32_t oydim16 = ydim16;
+                ydim16 = ydim-STATUS2DSIZ2;
                 for (i=0; i<numsectors; i++)
                     if (hlsectorbitmap[i>>3]&(1<<(i&7)))
                         fillsector(i,2);
+                ydim16 = oydim16;
+            }
 
             if (keystatus[0x2a]) // FIXME
             {
@@ -2375,7 +2391,7 @@ void overheadeditor(void)
             ////// Draw the white pixel closest to mouse cursor on linehighlight
             if (linehighlight>=0 && !m32_sideview)
             {
-                getclosestpointonwall(mousxplc,mousyplc,(int32_t)linehighlight,&dax,&day);
+                getclosestpointonwall(mousxplc,mousyplc, linehighlight, &dax,&day);
                 x2 = mulscale14(dax-pos.x,zoom);
                 y2 = mulscale14(day-pos.y,zoom);
 
@@ -2660,7 +2676,7 @@ void overheadeditor(void)
             keystatus[0x46] = 0;
             asksave = 1;
         }
-
+#if 1
         if (keystatus[0x3f])  //F5
         {
 //            keystatus[0x3f] = 0;
@@ -2730,6 +2746,7 @@ void overheadeditor(void)
                 ydim16 = ydim-STATUS2DSIZ2;
             }
         }
+#endif
 
         if (keystatus[0x23])  //H (Hi 16 bits of tag)
         {
@@ -4051,6 +4068,8 @@ end_join_sectors:
 
                     if (tilesizy[sprite[i].picnum] >= 32)
                         sprite[i].cstat |= 1;
+
+                    correct_sprite_yoffset(i);
 
                     printmessage16("Sprite inserted.");
                     updatenumsprites();
@@ -6788,18 +6807,35 @@ static int16_t whitelinescan(int16_t dalinehighlight)
         return(tnewnumwalls);
 }
 
-int32_t loadnames(void)
+int32_t loadnames(const char *namesfile)
 {
     char buffer[1024], *p, *name, *number, *endptr;
     int32_t num, syms=0, line=0, a, comment=0;
     BFILE *fp;
 
-    fp = fopenfrompath("NAMES.H","r");
+    Bstrncpy(buffer, namesfile, sizeof(buffer));
+    buffer[sizeof(buffer)-1] = 0;
+
+    p = buffer;
+    while (*p)
+    {
+        *p = Btoupper(*p);
+        p++;
+    }
+
+    fp = fopenfrompath(buffer,"r");
     if (!fp)
     {
-        if ((fp = fopenfrompath("names.h","r")) == NULL)
+        p = buffer;
+        while (*p)
         {
-            initprintf("Failed to open NAMES.H\n");
+            *p = Btolower(*p);
+            p++;
+        }
+
+        if ((fp = fopenfrompath(buffer,"r")) == NULL)
+        {
+            initprintf("Failed to open %s\n", buffer);
             return -1;
         }
     }
@@ -6807,7 +6843,7 @@ int32_t loadnames(void)
     //clearbufbyte(names, sizeof(names), 0);
     Bmemset(names,0,sizeof(names));
 
-    initprintf("Loading NAMES.H\n");
+    initprintf("Loading %s\n", buffer);
 
     while (Bfgets(buffer, 1024, fp))
     {
