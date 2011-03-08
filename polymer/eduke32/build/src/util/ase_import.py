@@ -1,13 +1,13 @@
 #!BPY 
 
 """ 
-Name: 'ASCII Scene (.ase) v0.15' 
-Blender: 242 
+Name: 'ASCII Scene (.ase) v0.16' 
+Blender: 249 
 Group: 'Import' 
 Tooltip: 'ASCII Scene import (*.ase)' 
 """ 
 __author__ = "Goofos & Plagman" 
-__version__ = "0.15" 
+__version__ = "0.16" 
 
 # goofos at epruegel.de 
 # 
@@ -106,8 +106,11 @@ class ase_mesh:
         self.name = '' 
         self.vCount = 0 
         self.fCount = 0 
+        self.frames = [] 
         self.verts = [] 
         self.faces = [] 
+        self.animated = 0
+        self.frameCount = -1
         
 class mesh_vert: 
 
@@ -120,6 +123,7 @@ class mesh_vert:
         self.nx = 0.0 
         self.ny = 0.0 
         self.nz = 0.0 
+        self.origi = 0
     def make_tuple(self):
         return (self.x, self.y, self.z, self.u, self.v, self.nx, self.ny, self.nz)
       
@@ -155,12 +159,19 @@ def read_file(file, lines):
 
         if not words: 
             continue 
+        elif objIdx > 0 and me.animated == 1:
+            # I don't know how to make empty statements, this is to skip everything else
+            me.animated = me.animated
         elif words[0] == '*GEOMOBJECT': 
             objCheck = 0 
             newObj = ase_obj() 
             objects.append(newObj) 
             obj = objects[objIdx] 
             objIdx += 1 
+
+            obj.objType = 'Mesh' 
+            obj.obj = ase_mesh() 
+            me = obj.obj 
         elif words[0] == '*NODE_NAME' and objCheck != -1: 
             if objCheck == 0: 
                 obj.name = words[1] 
@@ -184,10 +195,6 @@ def read_file(file, lines):
             obj.row3y = float(words[2]) 
             obj.row3z = float(words[3]) 
             objCheck = -1 
-        elif words[0] == '*MESH': 
-            obj.objType = 'Mesh' 
-            obj.obj = ase_mesh() 
-            me = obj.obj 
         elif words[0] == '*MESH_NUMVERTEX': 
             me.vCount = int(words[1]) 
             for i in range(me.vCount):
@@ -209,14 +216,17 @@ def read_file(file, lines):
             me.faces[i].v1.x = me.verts[v1].x;
             me.faces[i].v1.y = me.verts[v1].y;
             me.faces[i].v1.z = me.verts[v1].z;
+            me.faces[i].v1.origi = v1
             
             me.faces[i].v2.x = me.verts[v2].x;
             me.faces[i].v2.y = me.verts[v2].y;
             me.faces[i].v2.z = me.verts[v2].z;
+            me.faces[i].v2.origi = v2
             
             me.faces[i].v3.x = me.verts[v3].x;
             me.faces[i].v3.y = me.verts[v3].y;
             me.faces[i].v3.z = me.verts[v3].z;
+            me.faces[i].v3.origi = v3
         elif words[0] == '*MESH_NUMTVERTEX': 
             del me.verts[:]
             uvCount = int(words[1]) 
@@ -226,7 +236,6 @@ def read_file(file, lines):
             i = int(words[1])
             me.verts[i].u = float(words[2]);
             me.verts[i].v = float(words[3]);
-        #elif words[0] == '*MESH_NUMTVFACES': 
         elif words[0] == '*MESH_TFACE':
             i = int(words[1])
             uv1 = int(words[2]);
@@ -241,12 +250,6 @@ def read_file(file, lines):
 
             me.faces[i].v3.u = me.verts[uv3].u;
             me.faces[i].v3.v = me.verts[uv3].v;
-        #elif words[0] == '*MESH_NUMCVERTEX': 
-            ##
-        #elif words[0] == '*MESH_VERTCOL': 
-            ##
-        #elif words[0] == '*MESH_CFACE': 
-            ##
         elif words[0] == '*MESH_FACENORMAL': 
             curFaceID = int(words[1]) # global, vertexnormal needs this
             faceVertID = 0 # same
@@ -269,6 +272,21 @@ def read_file(file, lines):
                 me.faces[curFaceID].v3.nz = nz;
                 
             faceVertID = faceVertID + 1;
+        elif words[0] == '*MESH_ANIMATION': 
+            me.animated = 1
+            
+        # now the loop for animation frames
+        if objIdx > 0 and me.animated == 1:
+            if words[0] == '*MESH_VERTEX_LIST':
+                me.frameCount += 1
+                me.frames.append([])
+            elif words[0] == '*MESH_VERTEX':
+                me.frames[me.frameCount].append(mesh_vert())
+                i = int(words[1])
+                me.frames[me.frameCount][i].x = float(words[2]);
+                me.frames[me.frameCount][i].y = float(words[3]);
+                me.frames[me.frameCount][i].z = float(words[4]);
+
         PBidx += 1.0 
 
     spawn_main(objects) 
@@ -355,20 +373,35 @@ def spawn_mesh(obj):
     for i in range(objMe.vCount):
         xyz = Blender.Mathutils.Vector(objMe.verts[i].x, objMe.verts[i].y, objMe.verts[i].z)
         newMesh.verts.extend(xyz)
-
-    frameCount = 100
+        
+    for i in range(objMe.vCount):
+        xyz = Blender.Mathutils.Vector(objMe.verts[i].x, objMe.verts[i].y, objMe.verts[i].z)
+        uv = Blender.Mathutils.Vector(objMe.verts[i].u, objMe.verts[i].v)
+        norm = Blender.Mathutils.Vector(objMe.verts[i].nx, objMe.verts[i].ny, objMe.verts[i].nz)
+        newMesh.verts[i].co  = xyz;
+        newMesh.verts[i].uvco = uv;
+        newMesh.verts[i].no = norm;
     
+    if objMe.animated:
+        objMe.frameCount -= 1 # do we always get an extra frame at the end?
+        for frame in objMe.frames:
+            for vert in objMe.verts:
+                xyz = Blender.Mathutils.Vector(frame[vert.origi].x, frame[vert.origi].y, frame[vert.origi].z)
 
-    #animate
-    for frame in range(frameCount):
-        for i in range(objMe.vCount):
-            xyz = Blender.Mathutils.Vector(objMe.verts[i].x, objMe.verts[i].y, objMe.verts[i].z)
-            uv = Blender.Mathutils.Vector(objMe.verts[i].u, objMe.verts[i].v)
-            norm = Blender.Mathutils.Vector(objMe.verts[i].nx, objMe.verts[i].ny, objMe.verts[i].nz)
-            newMesh.verts[i].co  = xyz * (1.0 + frame * 0.1);
-            newMesh.verts[i].uvco = uv;
-            newMesh.verts[i].no = norm;
-        newObj.insertShapeKey()
+                newMesh.verts[i].co  = xyz;
+            newObj.insertShapeKey()
+
+        for key in Key.Get() :
+            key.ipo = Ipo.New('Key', "bleh" + "_ipo")
+        index = 1
+        for curveName in key.ipo.curveConsts :
+            # print curveName
+            key.ipo.addCurve(curveName)
+            key.ipo[curveName].interpolation = IpoCurve.InterpTypes.CONST
+            key.ipo[curveName].addBezier((0, 0))
+            key.ipo[curveName].addBezier((index, 1))
+            key.ipo[curveName].addBezier((index + 1, 0))
+            index+=1
 
     # Faces 
     for i in range(objMe.fCount):
@@ -397,20 +430,10 @@ def spawn_mesh(obj):
         ##v.no[1] = vertices[i][1]
         ##v.no[2] = vertices[i][2]
         #i = i + 1
-        
-    for key in Key.Get() :
-        key.ipo = Ipo.New('Key', "bleh" + "_ipo")
-    index = 1
-    for curveName in key.ipo.curveConsts :
-        # print curveName
-        key.ipo.addCurve(curveName)
-        key.ipo[curveName].interpolation = IpoCurve.InterpTypes.CONST
-        key.ipo[curveName].addBezier((0, 0))
-        key.ipo[curveName].addBezier((index, 1))
-        key.ipo[curveName].addBezier((index + 1, 0))
-        index+=1
 
     newMesh.transform((newObj.getMatrix('worldspace').invert()), 1) 
+    
+    Blender.Set("curframe", objMe.frameCount + 1)
 
     counts['verts'] += objMe.vCount 
     counts['tris'] += objMe.fCount 
