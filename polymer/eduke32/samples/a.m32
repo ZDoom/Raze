@@ -998,12 +998,20 @@ defstate js  // jump to current sprite
     updatecursectnum
 ends
 
-defstate jumptosec  // (tmp)
-    ifge tmp 0 ifl tmp numsectors nullop else return
-    set j sector[tmp].wallptr
-    set posx wall[j].x
-    set posy wall[j].y
+var sec 0 0
+var wal 0 0
+
+defstate jumptowal  // (wal)
+    ifge wal 0 ifl wal numwalls nullop else return
+    set posx wall[wal].x
+    set posy wall[wal].y
     updatecursectnum
+ends
+
+defstate jumptosec  // (sec)
+    ifge sec 0 ifl sec numsectors nullop else return
+    set wal sector[sec].wallptr
+    state jumptowal
 ends
 
 

@@ -60,7 +60,7 @@ static instype *x_sortingstateptr;
 extern void message(const char *fmt, ...);
 
 // from sector.c vvv
-static int32_t ldist(spritetype *s1,spritetype *s2)
+static int32_t ldist(const spritetype *s1, const spritetype *s2)
 {
     int32_t x= klabs(s1->x-s2->x);
     int32_t y= klabs(s1->y-s2->y);
@@ -73,7 +73,7 @@ static int32_t ldist(spritetype *s1,spritetype *s2)
     }
 }
 
-static int32_t dist(spritetype *s1,spritetype *s2)
+static int32_t dist(const spritetype *s1, const spritetype *s2)
 {
     int32_t x= klabs(s1->x-s2->x);
     int32_t y= klabs(s1->y-s2->y);

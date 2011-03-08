@@ -39,7 +39,7 @@ extern "C" {
 extern int32_t qsetmode;
 extern int16_t searchsector, searchwall, searchstat;
 extern int16_t searchbottomwall;
-extern int32_t zmode, kensplayerheight;
+extern int32_t zmode, kensplayerheight, zlock;
 
 #define DEFAULT_SPRITE_CSTAT 0
 //extern int16_t defaultspritecstat;

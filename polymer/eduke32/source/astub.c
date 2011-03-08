@@ -4898,11 +4898,19 @@ static void Keys3d(void)
     smooshyalign = keystatus[KEYSC_gKP5];
     repeatpanalign = eitherSHIFT || eitherALT || (bstatus&2);
 
-    if (mlook == 2)
-        mlook = 0;
+    {
+        static int32_t omlook;
 
-    if (!unrealedlook && (bstatus&4))
-        mlook = 2;
+        if (mlook == 2)
+        {
+            mlook = omlook;
+        }
+        else if (!unrealedlook && (bstatus&4))
+        {
+            omlook = mlook;
+            mlook = 2;
+        }
+    }
 
     // PK: no btn: wheel changes shade
     if ((bstatus&(16|32) && !(bstatus&(1|2|4))) || keystatus[KEYSC_gMINUS] || keystatus[KEYSC_gPLUS])
@@ -5613,7 +5621,8 @@ static void Keys3d(void)
             int16_t ohitag = AIMED(hitag);
             Bsprintf(tempbuf, "%s hitag: ", Typestr_wss[searchstat]);
             AIMED(hitag) = getnumber256(tempbuf, ohitag, BTAG_MAX,0);
-            asksave |= (AIMED(hitag) != ohitag);
+            if (AIMED(hitag) != ohitag)
+                asksave = 1;
         }
     }
 
@@ -5624,7 +5633,8 @@ static void Keys3d(void)
             int8_t oshade = AIMED_CF_SEL(shade);
             Bsprintf(tempbuf, "%s shade: ", Typestr[searchstat]);
             getnumberptr256(tempbuf, &AIMED_CF_SEL(shade), sizeof(int8_t), 128, 1, NULL);
-            asksave |= (AIMED_CF_SEL(shade) != oshade);
+            if (AIMED_CF_SEL(shade) != oshade)
+                asksave = 1;
         }
     }
 
@@ -5682,7 +5692,8 @@ static void Keys3d(void)
             static const char *Typestr_tmp[5] = { "Wall", "Sector ceiling", "Sector floor", "Sprite", "Masked wall" };
             Bsprintf(tempbuf, "%s picnum: ", Typestr_tmp[searchstat]);
             getnumberptr256(tempbuf, &AIMED_CF_SEL(picnum), sizeof(int16_t), MAXTILES-1, 0, NULL);
-            asksave |= (opicnum != AIMED_CF_SEL(picnum));
+            if (opicnum != AIMED_CF_SEL(picnum))
+                asksave = 1;
 
             if (aimspr)
                 correct_sprite_yoffset(searchwall);
@@ -5954,7 +5965,7 @@ static void Keys3d(void)
         mouseay=0;
     }
 
-    if ((bstatus&1) && searchstat != SEARCH_CEILING && searchstat != SEARCH_FLOOR)
+    if ((bstatus&1) && !AIMING_AT_CEILING_OR_FLOOR)
     {
         if (eitherSHIFT)
         {
@@ -5963,7 +5974,7 @@ static void Keys3d(void)
             {
                 mouseaction = 1;
                 mouseax += mousex;
-                updownunits = klabs((int32_t)(mouseax/2.));
+                updownunits = klabs(mouseax/2);
                 if (updownunits)
                     mouseax=0;
             }
@@ -6006,10 +6017,10 @@ static void Keys3d(void)
 
                     if (mouseaction)
                     {
-                        i=wall[w].cstat;
-                        i=((i>>3)&1)+((i>>7)&2);
+                        i = wall[w].cstat;
+                        i &= (8|256);
 
-                        if (i==1||i==3)
+                        if (i==8 || i==256)
                             changedir*=-1;
 
                         if (eitherCTRL)
@@ -6546,7 +6557,7 @@ static void Keys3d(void)
             if (ASSERT_AIMING)
             {
                 Bsprintf(tempbuf, "%s pal: ", Typestr[searchstat]);
-                getnumberptr256(tempbuf, &AIMED_CF_SEL(pal) , sizeof(uint8_t), 255, 0, NULL);
+                getnumberptr256(tempbuf, &AIMED_CF_SEL(pal), sizeof(uint8_t), 255, 0, NULL);
                 asksave = 1;
             }
         }
@@ -6899,9 +6910,6 @@ static void Keys2d(void)
                 {
                     Bsprintf(tempbuf,"Sector %d Extra: ",i);
                     sector[i].extra = getnumber16(tempbuf,sector[i].extra,BTAG_MAX,1);
-//                    clearmidstatbar16();
-//                    showsectordata(i, 0);
-//                    break;
                 }
         }
     }
@@ -7090,7 +7098,9 @@ static void Keys2d(void)
             }
         }
         else if (wallsprite==0)
+        {
             SearchSectors(tsign);
+        }
         else if (wallsprite==1)
         {
             if ((tsign<0 && curwallnum>0) || (tsign>0 && curwallnum<numwalls))
@@ -7125,9 +7135,7 @@ static void Keys2d(void)
     {
         if (autogrid)
         {
-            grid = 0;
-            if (eitherSHIFT)
-                grid = 8;
+            grid = 8*eitherSHIFT;
 
             autogrid = 0;
         }
@@ -7140,6 +7148,7 @@ static void Keys2d(void)
                 grid = 0;
             }
         }
+
         if (autogrid)
             printmessage16("Grid size: 9 (autosize)");
         else if (!grid)
@@ -7147,6 +7156,7 @@ static void Keys2d(void)
         else
             printmessage16("Grid size: %d (%d units)", grid, 2048>>grid);
     }
+
     if (autogrid)
     {
         grid = min(zoom+512, 65536);
@@ -7333,7 +7343,7 @@ void ExtPreSaveMap(void)
             startwall = sector[i].wallptr;
             endwall = startwall + sector[i].wallnum;
             for (j=startwall; j<endwall; j++)
-                checksectorpointer((int16_t)j,(int16_t)i);
+                checksectorpointer(j, i);
         }
     }
 }
@@ -7346,6 +7356,7 @@ static void G_ShowParameterHelp(void)
               "-jDIR, -game_dir DIR\n\t\tAdds DIR to the file path stack\n"
               "-check\t\tEnables map pointer checking when saving\n"
               "-nocheck\t\tDisables map pointer checking when saving (default)\n"  // kept for script compat
+              "-namesfile <filename>\t\tOverride NAMES.H\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup\t\tDisplays the configuration dialog\n"
 #endif
@@ -7412,7 +7423,10 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     {
         lengths = Bmalloc(argc*sizeof(int32_t));
         for (j=1; j<argc; j++)
-            maxlen += (lengths[j] = Bstrlen(argv[j]));
+        {
+            lengths[j] = Bstrlen(argv[j]);
+            maxlen += lengths[j];
+        }
 
         testplay_addparam = Bmalloc(maxlen+argc);
         testplay_addparam[0] = 0;
@@ -8116,7 +8130,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 
     return OSDCMD_OK;
 OUTOFMEM:
-    OSD_Printf("OUT OF MEMORY!\n");
+    message("OUT OF MEMORY!\n");
     return OSDCMD_OK;
 }
 
@@ -8236,6 +8250,7 @@ static int32_t registerosdcommands(void)
 
 #define DUKEOSD
 #ifdef DUKEOSD
+#if 0
 void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
 {
     int32_t ac;
@@ -8266,12 +8281,14 @@ void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade,
         else x += tilesizx[ac];
     }
 }
+#endif
 
 static int32_t GetTime(void)
 {
     return totalclock;
 }
 
+#if 0
 void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress)
 {
     int32_t ac;
@@ -8292,6 +8309,7 @@ int32_t GAME_getrowheight(int32_t w)
 {
     return w>>3;
 }
+#endif
 
 //#define BGTILE 311
 //#define BGTILE 1156
@@ -8334,7 +8352,8 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
         ysiz = tilesizx[BORDTILE];
 
         for (x=0; x<=tx2; x++)
-            rotatesprite(x*xsiz<<16,(daydim+ysiz+1)<<16,65536L,1536,BORDTILE,SHADE-12,PALETTE,BITS,0,0,xdim,daydim+ysiz+1);
+            rotatesprite(x*xsiz<<16,(daydim+ysiz+1)<<16,65536L,1536,
+                         BORDTILE,SHADE-12,PALETTE,BITS,0,0,xdim,daydim+ysiz+1);
 
         return;
     }
@@ -8355,7 +8374,7 @@ static void m32_osdsetfunctions()
 */
         0,0,0,0,0,
         GAME_clearbackground,
-        (int32_t( *)(void))GetTime,
+        /*(int32_t( *)(void))*/GetTime,
         NULL
     );
 }
@@ -9194,7 +9213,8 @@ int32_t ExtInit(void)
     if (Bstrcmp(setupfilename, "mapster32.cfg"))
         initprintf("Using config file '%s'.\n",setupfilename);
 
-    if (loadsetup(setupfilename) < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
+    if (loadsetup(setupfilename) < 0)
+        initprintf("Configuration file not found, using defaults.\n"), rv = 1;
 
     if (glusetexcache == -1)
     {
@@ -9212,7 +9232,7 @@ int32_t ExtInit(void)
     }
 #endif
 
-    Bmemcpy((void *)buildkeys,(void *)keys,NUMBUILDKEYS);   //Trick to make build use setup.dat keys
+    Bmemcpy(buildkeys, default_buildkeys, NUMBUILDKEYS);   //Trick to make build use setup.dat keys
 
     if (initengine())
     {
@@ -9225,7 +9245,6 @@ int32_t ExtInit(void)
     kensplayerheight = 40; //32
     zmode = 2;
     zlock = kensplayerheight<<8;
-//    defaultspritecstat = 0;
 
     ReadGamePalette();
     //  InitWater();
@@ -10041,29 +10060,28 @@ void ExtCheckKeys(void)
         }
     }
 
-    if (asksave == 1 && (bstatus + lastbstatus) == 0 && mapstate)
+    if (asksave == 1)
+        asksave++;
+    else if (asksave == 2 && (bstatus + lastbstatus) == 0 && mapstate)
     {
-#if 0
         int32_t i;
-        // check keys so that e.g. bunch deletions won't produce
-        // as much revisions
-        for (i=sizeof(keystatus)/sizeof(keystatus[0]) - 1; i>=0; i--)
+        // check keys so that e.g. bulk deletions won't produce
+        // as much revisions as deleted sprites
+        for (i=sizeof(keystatus)/sizeof(keystatus[0])-1; i>=0; i--)
             if (keystatus[i])
                 break;
-        //        message("Saved undo rev %d",map_revision);
         if (i==-1)
-#endif
         {
             create_map_snapshot();
             asksave++;
         }
     }
-    else if (asksave == 2)
+    else if (asksave == 3)
         asksave++;
 
     if (totalclock > autosavetimer && autosave)
     {
-        if (asksave == 3)
+        if (asksave == 4)
         {
             if (CheckMapCorruption(6, 0)>=4)
             {
@@ -10076,7 +10094,7 @@ void ExtCheckKeys(void)
                 message("Board autosaved to AUTOSAVE.MAP");
             }
 
-            asksave = 4;
+            asksave++;
         }
         autosavetimer = totalclock+120*autosave;
     }

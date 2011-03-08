@@ -808,20 +808,22 @@ void getvalidmodes(void)
     validmodecnt=0;
 //    initprintf("Detecting video modes:\n");
 
-#define ADDMODE(x,y,c,f) if (validmodecnt<MAXVALIDMODES) { \
-    int32_t mn; \
-    for(mn=0;mn<validmodecnt;mn++) \
-        if (validmode[mn].xdim==x && validmode[mn].ydim==y && \
-            validmode[mn].bpp==c  && validmode[mn].fs==f) break; \
-    if (mn==validmodecnt) { \
-        validmode[validmodecnt].xdim=x; \
-        validmode[validmodecnt].ydim=y; \
-        validmode[validmodecnt].bpp=c; \
-        validmode[validmodecnt].fs=f; \
-        validmodecnt++; \
-        /*initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed");*/ \
+#define ADDMODE(x,y,c,f) do { \
+    if (validmodecnt<MAXVALIDMODES) { \
+        int32_t mn; \
+        for(mn=0;mn<validmodecnt;mn++) \
+            if (validmode[mn].xdim==x && validmode[mn].ydim==y && \
+                validmode[mn].bpp==c  && validmode[mn].fs==f) break; \
+        if (mn==validmodecnt) { \
+            validmode[validmodecnt].xdim=x; \
+            validmode[validmodecnt].ydim=y; \
+            validmode[validmodecnt].bpp=c; \
+            validmode[validmodecnt].fs=f; \
+            validmodecnt++; \
+            /*initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed");*/ \
+        } \
     } \
-}
+} while (0)
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
@@ -849,15 +851,15 @@ void getvalidmodes(void)
         if (modes == (SDL_Rect **)-1)
         {
             for (i=0; defaultres[i][0]; i++)
-                ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],1)
-            }
+                ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],1);
+        }
         else
         {
             for (i=0; modes[i]; i++)
             {
                 if ((modes[i]->w > MAXXDIM) || (modes[i]->h > MAXYDIM)) continue;
 
-                ADDMODE(modes[i]->w, modes[i]->h, cdepths[j], 1)
+                ADDMODE(modes[i]->w, modes[i]->h, cdepths[j], 1);
 
                 if ((modes[i]->w > maxx) && (modes[i]->h > maxy))
                 {
@@ -883,7 +885,7 @@ void getvalidmodes(void)
         if (cdepths[j] < 0) continue;
         for (i=0; defaultres[i][0]; i++)
             CHECK(defaultres[i][0],defaultres[i][1])
-            ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],0)
+                ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],0);
         }
 
 #undef CHECK

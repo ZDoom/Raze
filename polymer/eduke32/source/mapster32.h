@@ -37,8 +37,6 @@ extern char names[MAXTILES][25];
 
 extern int32_t ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d;
 
-extern int32_t zmode, kensplayerheight, zlock;
-
 extern int16_t editstatus, searchit;
 extern int32_t searchx, searchy, osearchx, osearchy;      //search input
 extern int16_t searchsector, searchwall, searchstat;     //search output
@@ -47,10 +45,10 @@ extern int16_t searchbottomwall;
 #define COLOR_RED 248
 #define COLOR_WHITE 31
 
-#define NUMOPTIONS 9
-char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
+//#define NUMOPTIONS 9
+//char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
 
-uint8_t keys[NUMBUILDKEYS] =
+uint8_t default_buildkeys[NUMBUILDKEYS] =
 {
 	0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
 	0x1e,0x2c,0xd1,0xc9,0x47,0x49,
