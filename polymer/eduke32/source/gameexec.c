@@ -940,7 +940,8 @@ skip_check:
             continue;
 
         case CON_MIKESND:
-            if (((unsigned)*(++insptr) >= MAXSOUNDS))
+            insptr++;
+            if (((unsigned)vm.g_sp->yvel >= MAXSOUNDS))
             {
                 OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->yvel);
                 insptr++;
