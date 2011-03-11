@@ -385,8 +385,8 @@ def spawn_mesh(obj):
     if objMe.animated:
         objMe.frameCount -= 1 # do we always get an extra frame at the end?
         for frame in objMe.frames:
-            for vert in objMe.verts:
-                xyz = Blender.Mathutils.Vector(frame[vert.origi].x, frame[vert.origi].y, frame[vert.origi].z)
+            for i in range(objMe.vCount):
+                xyz = Blender.Mathutils.Vector(frame[objMe.verts[i].origi].x, frame[objMe.verts[i].origi].y, frame[objMe.verts[i].origi].z)
 
                 newMesh.verts[i].co  = xyz;
             newObj.insertShapeKey()
