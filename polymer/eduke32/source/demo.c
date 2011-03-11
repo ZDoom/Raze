@@ -163,16 +163,21 @@ void G_OpenDemoWrite(void)
             }
         }
 
-        while (1)
+        do
         {
             if (demonum == 10000) return;
-            Bsprintf(d, "edemo%d.edm", demonum++);
-            g_demo_filePtr = fopen(d, "rb");
+
+            if (g_modDir[0] != '/')
+                Bsprintf(d,"%s/edemo%d.edm",g_modDir, demonum++);
+            else Bsprintf(d, "edemo%d.edm", demonum++);
+
+            g_demo_filePtr = Bfopen(d, "rb");
             if (g_demo_filePtr == NULL) break;
             Bfclose(g_demo_filePtr);
         }
+        while (1);
 
-        if ((g_demo_filePtr = fopen(d,"wb")) == NULL) return;
+        if ((g_demo_filePtr = Bfopen(d,"wb")) == NULL) return;
 
         i=sv_saveandmakesnapshot(g_demo_filePtr, demorec_diffs_cvar, demorec_diffcompress_cvar,
             demorec_synccompress_cvar|(demorec_seeds_cvar<<1));
