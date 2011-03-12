@@ -2902,7 +2902,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 // support bgra textures
                 glinfo.bgra = 1;
             }
-            else if (!Bstrcmp((char *)p2, "GL_ARB_texture_compression"))
+            else if (!Bstrcmp((char *)p2, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
             {
                 // support texture compression
                 glinfo.texcompr = 1;
