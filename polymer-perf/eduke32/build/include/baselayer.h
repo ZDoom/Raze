@@ -81,6 +81,8 @@ extern char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
 extern char scantoasc[128], remap[256], key_names[256][24];
 extern int32_t remapinit;
 
+extern int32_t defaultres[][2];
+
 extern void SetKey(int32_t key, int32_t state);
 
 // mouse

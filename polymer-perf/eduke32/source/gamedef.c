@@ -1084,38 +1084,37 @@ void C_InitHashes()
 #define IFELSE_MAGIC 31337
 static int32_t g_ifElseAborted;
 
-static int32_t C_SetScriptSize(int32_t size)
+static int32_t C_SetScriptSize(int32_t newsize)
 {
     intptr_t oscriptPtr = (unsigned)(g_scriptPtr-script);
     intptr_t ocaseScriptPtr = (unsigned)(g_caseScriptPtr-script);
     intptr_t oparsingEventPtr = (unsigned)(g_parsingEventPtr-script);
     intptr_t oparsingActorPtr = (unsigned)(g_parsingActorPtr-script);
-    char *scriptptrs;
     intptr_t *newscript;
     intptr_t i, j;
     int32_t osize = g_scriptSize;
+    char *scriptptrs;
     char *newbitptr;
 
     for (i=MAXSECTORS-1; i>=0; i--)
-    {
         if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
         {
-            labelcode[i] -= (intptr_t)&script[0];
+            j = (intptr_t)labelcode[i]-(intptr_t)&script[0];
+            labelcode[i] = (intptr_t)j;
         }
-    }
 
-    scriptptrs = Bcalloc(1,g_scriptSize * sizeof(uint8_t));
+    scriptptrs = Bcalloc(1, g_scriptSize * sizeof(uint8_t));
+
     for (i=g_scriptSize-1; i>=0; i--)
     {
-        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)) && !((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize])))
-        {
-            g_numCompilerErrors++;
-            initprintf("Internal compiler error at %"PRIdPTR" (0x%"PRIxPTR")\n",i,i);
-        }
-//        if (bitptr[i] == 0 && ((intptr_t)script[i] >= (intptr_t)(&script[0]) && (intptr_t)script[i] < (intptr_t)(&script[g_scriptSize])))
-//            initprintf("oh no!\n");
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
         {
+            if ((intptr_t)script[i] < (intptr_t)&script[0] || (intptr_t)script[i] >= (intptr_t)&script[g_scriptSize])
+            {
+                g_numCompilerErrors++;
+                initprintf("Internal compiler error at %"PRIdPTR" (0x%"PRIxPTR")\n",i,i);
+            }
+
             scriptptrs[i] = 1;
             script[i] -= (intptr_t)&script[0];
         }
@@ -1129,6 +1128,7 @@ static int32_t C_SetScriptSize(int32_t size)
             j = (intptr_t)actorscrptr[i]-(intptr_t)&script[0];
             actorscrptr[i] = (intptr_t *)j;
         }
+
         if (actorLoadEventScrptr[i])
         {
             j = (intptr_t)actorLoadEventScrptr[i]-(intptr_t)&script[0];
@@ -1143,14 +1143,10 @@ static int32_t C_SetScriptSize(int32_t size)
             apScriptGameEvent[i] = (intptr_t *)j;
         }
 
-    //initprintf("offset: %d\n",(unsigned)(g_scriptPtr-script));
-    g_scriptSize = size;
-    initprintf("Resizing code buffer to %d*%d bytes\n",g_scriptSize, (int32_t)sizeof(intptr_t));
+    initprintf("Resizing code buffer to %d*%d bytes\n",newsize, (int32_t)sizeof(intptr_t));
 
-    newscript = (intptr_t *)Brealloc(script, g_scriptSize * sizeof(intptr_t));
-
-//    bitptr = (char *)Brealloc(bitptr, g_scriptSize * sizeof(uint8_t));
-    newbitptr = Bcalloc(1,(((size+7)>>3)+1) * sizeof(uint8_t));
+    newscript = (intptr_t *)Brealloc(script, newsize * sizeof(intptr_t));
+    newbitptr = Bcalloc(1,(((newsize+7)>>3)+1) * sizeof(uint8_t));
 
     if (newscript == NULL || newbitptr == NULL)
     {
@@ -1161,14 +1157,13 @@ static int32_t C_SetScriptSize(int32_t size)
         return 1;
     }
 
-    if (size >= osize)
+    if (newsize >= osize)
     {
-        Bmemset(&newscript[osize],0,(size-osize) * sizeof(intptr_t));
-//        Bmemset(&bitptr[osize],0,size-osize);
+        Bmemset(&newscript[0]+osize,0,(newsize-osize) * sizeof(uint8_t));
         Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((osize+7)>>3));
     }
     else
-        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((size+7)>>3));
+        Bmemcpy(newbitptr,bitptr,sizeof(uint8_t) *((newsize+7)>>3));
 
     Bfree(bitptr);
     bitptr = newbitptr;
@@ -1178,10 +1173,8 @@ static int32_t C_SetScriptSize(int32_t size)
         script = newscript;
     }
 
+    g_scriptSize = newsize;
     g_scriptPtr = (intptr_t *)(script+oscriptPtr);
-//    initprintf("script: %d, bitptr: %d\n",script,bitptr);
-
-    //initprintf("offset: %d\n",(unsigned)(g_scriptPtr-script));
 
     if (g_caseScriptPtr)
         g_caseScriptPtr = (intptr_t *)(script+ocaseScriptPtr);
@@ -1196,28 +1189,17 @@ static int32_t C_SetScriptSize(int32_t size)
     {
         if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
         {
-            labelcode[i] += (intptr_t)&script[0];
+            j = (intptr_t)labelcode[i]+(intptr_t)&script[0];
+            labelcode[i] = j;
         }
     }
 
-    if (size >= osize)
-    {
-        for (i=g_scriptSize-(size-osize)-1; i>=0; i--)
-            if (scriptptrs[i])
-            {
-                j = (intptr_t)script[i]+(intptr_t)&script[0];
-                script[i] = j;
-            }
-    }
-    else
-    {
-        for (i=g_scriptSize-1; i>=0; i--)
-            if (scriptptrs[i])
-            {
-                j = (intptr_t)script[i]+(intptr_t)&script[0];
-                script[i] = j;
-            }
-    }
+    for (i=(((newsize>=osize)?osize:newsize))-1; i>=0; i--)
+        if (scriptptrs[i])
+        {
+            j = (intptr_t)script[i]+(intptr_t)&script[0];
+            script[i] = j;
+        }
 
     for (i=MAXTILES-1; i>=0; i--)
     {
@@ -1538,6 +1520,9 @@ static int32_t C_GetKeyword(void)
     char *temptextptr;
 
     C_SkipComments();
+
+    if (*textptr == '\0') // EOF
+        return 0;
 
     temptextptr = textptr;
 
@@ -2788,6 +2773,8 @@ static int32_t C_ParseCommand(void)
         return 0;
 
     case CON_ACTOR:
+    case CON_USERACTOR:
+    case CON_EVENTLOADACTOR:
         if (g_processingState || g_parsingActorPtr)
         {
             C_ReportError(ERROR_FOUNDWITHIN);
@@ -2798,6 +2785,12 @@ static int32_t C_ParseCommand(void)
         g_scriptPtr--;
         g_parsingActorPtr = g_scriptPtr;
 
+        if (tw == CON_USERACTOR)
+        {
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr--;
+        }
+
         C_SkipComments();
         j = 0;
         while (isaltok(*(textptr+j)))
@@ -2806,10 +2799,34 @@ static int32_t C_ParseCommand(void)
             j++;
         }
         g_szCurrentBlockName[j] = 0;
+
+        if (tw == CON_USERACTOR)
+        {
+            j = *g_scriptPtr;
+
+            if (j > 2)
+            {
+                C_ReportError(-1);
+                initprintf("%s:%d: warning: invalid useractor type.\n",g_szScriptFileName,g_lineNumber);
+                g_numCompilerWarnings++;
+                j = 0;
+            }
+        }
+
         C_GetNextValue(LABEL_DEFINE);
-        //         Bsprintf(g_szCurrentBlockName,"%s",label+(g_numLabels<<6));
         g_scriptPtr--;
+
+        if (tw == CON_EVENTLOADACTOR)
+        {
+            actorLoadEventScrptr[*g_scriptPtr] = g_parsingActorPtr;
+            g_checkingIfElse = 0;
+            return 0;
+        }
+
         actorscrptr[*g_scriptPtr] = g_parsingActorPtr;
+
+        if (tw == CON_USERACTOR)
+            ActorType[*g_scriptPtr] = j;
 
         for (j=0; j<4; j++)
         {
@@ -2911,127 +2928,6 @@ static int32_t C_ParseCommand(void)
 
         g_checkingIfElse = 0;
 
-        return 0;
-
-    case CON_EVENTLOADACTOR:
-        if (g_processingState || g_parsingActorPtr)
-        {
-            C_ReportError(ERROR_FOUNDWITHIN);
-            g_numCompilerErrors++;
-        }
-
-        g_numBraces = 0;
-        g_scriptPtr--;
-        g_parsingActorPtr = g_scriptPtr;
-
-        C_SkipComments();
-        j = 0;
-        while (isaltok(*(textptr+j)))
-        {
-            g_szCurrentBlockName[j] = textptr[j];
-            j++;
-        }
-        g_szCurrentBlockName[j] = 0;
-        C_GetNextValue(LABEL_DEFINE);
-        g_scriptPtr--;
-        actorLoadEventScrptr[*g_scriptPtr] = g_parsingActorPtr;
-
-        g_checkingIfElse = 0;
-        return 0;
-
-    case CON_USERACTOR:
-        if (g_processingState || g_parsingActorPtr)
-        {
-            C_ReportError(ERROR_FOUNDWITHIN);
-            g_numCompilerErrors++;
-        }
-
-        g_numBraces = 0;
-        g_scriptPtr--;
-        g_parsingActorPtr = g_scriptPtr;
-
-        C_GetNextValue(LABEL_DEFINE);
-        g_scriptPtr--;
-
-        C_SkipComments();
-        j = 0;
-        while (isaltok(*(textptr+j)))
-        {
-            g_szCurrentBlockName[j] = textptr[j];
-            j++;
-        }
-        g_szCurrentBlockName[j] = 0;
-
-        j = *g_scriptPtr;
-
-        if (j > 2)
-        {
-            C_ReportError(-1);
-            initprintf("%s:%d: warning: invalid useractor type.\n",g_szScriptFileName,g_lineNumber);
-            g_numCompilerWarnings++;
-            j = 0;
-        }
-
-        C_GetNextValue(LABEL_DEFINE);
-        g_scriptPtr--;
-        actorscrptr[*g_scriptPtr] = g_parsingActorPtr;
-        ActorType[*g_scriptPtr] = j;
-
-        for (j=0; j<4; j++)
-        {
-            bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-            *(g_parsingActorPtr+j) = 0;
-            if (j == 3)
-            {
-                j = 0;
-                while (C_GetKeyword() == -1)
-                {
-                    C_GetNextValue(LABEL_DEFINE);
-                    g_scriptPtr--;
-                    j |= *g_scriptPtr;
-                }
-                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                *g_scriptPtr = j;
-                g_scriptPtr++;
-                break;
-            }
-            else
-            {
-                if (C_GetKeyword() >= 0)
-                {
-                    for (i=4-j; i; i--)
-                    {
-                        bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                        *(g_scriptPtr++) = 0;
-                    }
-                    break;
-                }
-                switch (j)
-                {
-                case 0:
-                    C_GetNextValue(LABEL_DEFINE);
-                    break;
-                case 1:
-                    C_GetNextValue(LABEL_ACTION);
-                    break;
-                case 2:
-                    if ((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1))
-                    {
-                        C_ReportError(-1);
-                        bitptr[(g_scriptPtr-script-1)>>3] &= ~(1<<((g_scriptPtr-script-1)&7));
-                        *(g_scriptPtr-1) = 0;
-                        initprintf("%s:%d: warning: expected a move, found a constant.\n",g_szScriptFileName,g_lineNumber);
-                        g_numCompilerWarnings++;
-                    }
-                    break;
-                }
-                if (*(g_scriptPtr-1) >= (intptr_t)&script[0] && *(g_scriptPtr-1) < (intptr_t)&script[g_scriptSize])
-                    bitptr[(g_parsingActorPtr+j-script)>>3] |= (BITPTR_POINTER<<((g_parsingActorPtr+j-script)&7));
-                else bitptr[(g_parsingActorPtr+j-script)>>3] &= ~(1<<((g_parsingActorPtr+j-script)&7));
-                *(g_parsingActorPtr+j) = *(g_scriptPtr-1);
-            }
-        }
-        g_checkingIfElse = 0;
         return 0;
 
     case CON_INSERTSPRITEQ:
@@ -5375,7 +5271,7 @@ repeatcase:
             int32_t fullscreen = ud.config.ScreenMode;
             int32_t xdim = ud.config.ScreenWidth, ydim = ud.config.ScreenHeight, bpp = ud.config.ScreenBPP;
             int32_t usemouse = ud.config.UseMouse, usejoy = ud.config.UseJoystick;
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             int32_t glrm = glrendmode;
 #endif
 
@@ -5403,7 +5299,7 @@ repeatcase:
             }
 
             Bstrcpy(temp,tempbuf);
-            CONFIG_WriteSetup();
+            CONFIG_WriteSetup(1);
             if (g_modDir[0] != '/')
                 Bsprintf(setupfilename,"%s/",g_modDir);
             else setupfilename[0] = 0;
@@ -5419,7 +5315,7 @@ repeatcase:
             ud.config.ScreenBPP = bpp;
             ud.config.UseMouse = usemouse;
             ud.config.UseJoystick = usejoy;
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             glrendmode = glrm;
 #endif
 
@@ -5552,8 +5448,8 @@ repeatcase:
 
         tempbuf[i] = '\0';
 
-        if (MapInfo[j *MAXLEVELS+k].name == NULL)
-            MapInfo[j *MAXLEVELS+k].name = Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
+        if (MapInfo[j*MAXLEVELS+k].name == NULL)
+            MapInfo[j*MAXLEVELS+k].name = Bcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
         else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[j*MAXLEVELS+k].name))
             MapInfo[j *MAXLEVELS+k].name = Brealloc(MapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
 
@@ -5582,6 +5478,7 @@ repeatcase:
 
         if (ScriptQuotes[k] == NULL)
             ScriptQuotes[k] = Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
+
         if (!ScriptQuotes[k])
         {
             ScriptQuotes[k] = NULL;

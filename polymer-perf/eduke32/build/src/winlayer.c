@@ -22,7 +22,7 @@
 #include <signal.h>
 #include <stdarg.h>
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
 #include "glbuild.h"
 #endif
 
@@ -60,7 +60,7 @@ int32_t    backgroundidle = 1;
 static WORD sysgamma[3][256];
 extern int32_t curbrightness, gammabrightness;
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
 // OpenGL stuff
 static HGLRC hGLRC = 0;
 char nofog=0;
@@ -464,7 +464,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
             *stderr = *fp;
         }
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     if ((argp = Bgetenv("BUILD_NOFOG")) != NULL)
         nofog = Batol(argp);
     if (Bgetenv("BUILD_FORCEGL") != NULL)
@@ -594,7 +594,7 @@ static void win_printversion(void)
     if (largepagesavailable)
         initprintf("Large page support available\n");
 #else
-    initprintf(nedhandle ? "w/ nedmalloc.dll\n" : "\n");
+    initprintf(nedhandle ? "\nInitialized nedmalloc\n" : "\n");
 #endif
 
 }
@@ -626,7 +626,7 @@ int32_t initsystem(void)
 
     win_printversion();
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     if (loadgldriver(getenv("BUILD_GLDRV")))
     {
         initprintf("Failure loading OpenGL. GL modes are unavailable.\n");
@@ -658,7 +658,7 @@ void uninitsystem(void)
 
     win_allowtaskswitching(1);
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     unloadgldriver();
 #endif
 
@@ -1688,7 +1688,7 @@ int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t fo
 // setvideomode() -- set the video mode
 //
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
 static HWND hGLWindow = NULL;
 #endif
 
@@ -1738,7 +1738,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         if (gammabrightness && setgamma() < 0) gammabrightness = 0;
     }
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     if (hGLWindow && glinfo.vsync) bwglSwapIntervalEXT(vsync);
 #endif
     if (inp) AcquireInputDevices(1);
@@ -1767,7 +1767,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
 void setvsync(int32_t sync)
 {
     if (!glinfo.vsync)
@@ -1857,16 +1857,11 @@ static int32_t sortmodes(const struct validmode_t *a, const struct validmode_t *
 }
 void getvalidmodes(void)
 {
-    static int32_t defaultres[][2] =
-    {
-        {1920,1440},{1920,1200},{1600,1200},{1280,1024},{1280,960},{1152,864},{1024,768},{1024,600},{800,600},{640,480},
-        {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
-    };
     int32_t cdepths[2] = { 8, 0 };
     int32_t i, j, maxx=0, maxy=0;
     HRESULT result;
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     if (desktopbpp > 8 && !nogl) cdepths[1] = desktopbpp;
     else cdepths[1] = 0;
 #endif
@@ -1892,7 +1887,7 @@ void getvalidmodes(void)
                 }
         }
     }
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     cdsenummodes();
 #endif
 
@@ -2002,7 +1997,7 @@ void showframe(int32_t w)
     char *p,*q;
     int32_t i,j;
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     if (bpp > 8)
     {
         if (palfadedelta)
@@ -2680,7 +2675,7 @@ static int32_t SetupDIB(int32_t width, int32_t height)
     return FALSE;
 }
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
 //
 // ReleaseOpenGL() -- cleans up OpenGL rendering stuff
 //
@@ -2907,7 +2902,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 // support bgra textures
                 glinfo.bgra = 1;
             }
-            else if (!Bstrcmp((char *)p2, "GL_ARB_texture_compression"))
+            else if (!Bstrcmp((char *)p2, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
             {
                 // support texture compression
                 glinfo.texcompr = 1;
@@ -3016,7 +3011,7 @@ static BOOL CreateAppWindow(int32_t modenum)
     {
         if (bpp > 8)
         {
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
             ReleaseOpenGL();
 #endif
         }
@@ -3029,7 +3024,7 @@ static BOOL CreateAppWindow(int32_t modenum)
         {
             // restore previous display mode and set to normal cooperative level
             RestoreDirectDrawMode();
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
         }
         else if (fs && fullscreen)
         {
@@ -3121,7 +3116,7 @@ static BOOL CreateAppWindow(int32_t modenum)
     {
         if (bitspp > 8)
         {
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
             // yes, start up opengl
             if (SetupOpenGL(width,height,bitspp))
                 return TRUE;
@@ -3146,7 +3141,7 @@ static BOOL CreateAppWindow(int32_t modenum)
             return TRUE;
         }
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
         if (bitspp > 8)
         {
             DEVMODE dmScreenSettings;
@@ -3200,7 +3195,7 @@ static BOOL CreateAppWindow(int32_t modenum)
 
         if (bitspp > 8)
         {
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
             // we want an opengl mode
             if (SetupOpenGL(width,height,bitspp))
             {
@@ -3218,7 +3213,7 @@ static BOOL CreateAppWindow(int32_t modenum)
         }
     }
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     if (bitspp > 8) loadglextensions();
 #endif
 
@@ -3255,7 +3250,7 @@ static void DestroyAppWindow(void)
         gammabrightness = 0;
     }
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     UninitOpenGL();
 #endif
     UninitDirectDraw();
@@ -3566,7 +3561,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
     POINT pt;
     HRESULT result; */
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     if (hWnd == hGLWindow) return DefWindowProc(hWnd,uMsg,wParam,lParam);
 #endif
 
@@ -3585,7 +3580,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
     case WM_ACTIVATEAPP:
     {
         appactive = wParam;
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
         if (hGLWindow)
         {
             if (!appactive && fullscreen)

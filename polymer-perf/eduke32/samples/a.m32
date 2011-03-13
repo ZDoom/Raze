@@ -24,16 +24,15 @@ define SFACTORSTEPS 100
 define PREVIEW_DRAW_COLOR 11
 gamevar showpal 0 0
 
-// 2d mode corruption checker interval, 120 = 1 second
-gamevar checkinterval 1200 0
-
 // whether to use overridden aspect/range values when entering 3d mode (software/Polymost).
 // tweak with keys 7,8,9,0 on the top row
 gamevar use_custom_aspect 0 0  // this is now the same as r_usenewaspect
 gamevar davr 65536 0
 gamevar dayx 65536 0
 
-// see end of file for user key defs
+
+// see end of file for more user settings and examples
+
 ////////// END USER SETTINGS //////////
 
 
@@ -71,18 +70,6 @@ define LIGHTQUOTE 1
 definequote LIGHTQUOTE light  %d   %d %d %d  %d  %d %d %d   %d %d %d %d   %d %d   %d %d
 //                            sec          range       radius fade ang horiz    prio tile
 
-
-// Corruption checker
-definequote 19 PANIC!!! SECTOR OR WALL LIMIT EXCEEDED!!!
-definequote 20 SECTOR[%d].WALLPTR=%d out of range: numwalls=%d
-definequote 21 SECTOR[%d].WALLPTR=%d inconsistent, expected %d
-definequote 22 SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d
-definequote 23 WALL[%d].POINT2=%d out of range [%d, %d]
-definequote 24 WALL[%d].NEXTWALL=%d out of range: numwalls=%d
-definequote 25 WALL[%d].NEXTSECTOR=%d out of range: numsectors=%d
-definequote 26 SPRITE[%d].SECTNUM=%d. Expect problems!
-definequote 27 SPRITE[%d].PICNUM=%d out of range, resetting to 0
-definequote 28 WALL[%d] has nextsector but no nextwall or vice versa!
 
 define PRSCALE 1000
 define MAXSPECULAR 100000
@@ -393,7 +380,9 @@ defstate fiddlewithlights
     }
 ends
 
-defstate userkeys_3d ends  // forward-ref
+// forward refs
+defstate userkeys_3d ends
+defstate userdrawlabel ends
 
 onevent EVENT_PREKEYS3D
 //    state testkeyavail
@@ -1009,123 +998,28 @@ defstate js  // jump to current sprite
     updatecursectnum
 ends
 
-defstate jumptosec  // (tmp)
-    ifge tmp 0 ifl tmp numsectors nullop else return
-    set j sector[tmp].wallptr
-    set posx wall[j].x
-    set posy wall[j].y
+var sec 0 0
+var wal 0 0
+
+defstate jumptowal  // (wal)
+    ifge wal 0 ifl wal numwalls nullop else return
+    set posx wall[wal].x
+    set posy wall[wal].y
     updatecursectnum
 ends
 
-// Map corruption checker
-//  now included in Mapster32 natively
-
-/*
-defstate corruptchk
-    var ewall
-    var endwall
-    var ok
-
-    ifle numsectors MAXSECTORS ifle numwalls MAXWALLS nullop else
-    { quote 19 printmessage16 19 return }
-
-    set ok 1
-
-    set ewall 0  // expected wall index
-    for i allsectors
-    {
-        set k 1
-        ifge sector[i].wallptr 0 ifl sector[i].wallptr numwalls nullop else
-        {
-            qsprintf TQUOTE 20 i sector[i].wallptr numwalls
-            quote TQUOTE printmessage16 TQUOTE
-            set k 0
-        }
-        ifn ewall sector[i].wallptr
-        {
-			qsprintf TQUOTE 21 i sector[i].wallptr ewall
-            quote TQUOTE printmessage16 TQUOTE
-            set ewall sector[i].wallptr
-        }
-        add ewall sector[i].wallnum
-
-        set endwall sector[i].wallptr  add endwall sector[i].wallnum
-        ifg endwall numwalls
-        {
-            qsprintf TQUOTE 22 i endwall numwalls
-            quote TQUOTE printmessage16 TQUOTE
-            set k 0
-        }
-
-        and ok k
-
-        ifn k 0
-        {
-            sub endwall 1
-			for j wallsofsector i
-			{
-				ifge wall[j].point2 sector[i].wallptr  ifle wall[i].point2 endwall nullop else
-                {
-                    qsprintf TQUOTE 23 j wall[j].point2 sector[i].wallptr endwall
-				    quote TQUOTE printmessage16 TQUOTE
-                    set ok 0
-                }
-
-                ifge wall[j].nextwall numwalls
-				{
-					qsprintf TQUOTE 24 j wall[j].nextwall numwalls
-				    quote TQUOTE printmessage16 TQUOTE
-                    set ok 0
-				}
-
-                ifge wall[j].nextsector numsectors
-				{
-					qsprintf TQUOTE 25 j wall[j].nextsector numsectors
-				    quote TQUOTE printmessage16 TQUOTE
-                    set ok 0
-				}
-
-                set k 0
-                ifge wall[j].nextsector 0, xor k 1
-                ifge wall[j].nextwall 0, xor k 1
-
-                ife k 1
-                {
-					qsprintf TQUOTE 28 j
-				    quote TQUOTE printmessage16 TQUOTE
-                    set ok 0
-                }
-			}
-        }
-    }
-
-    for i allsprites
-    {
-        ifl .sectnum 0
-        {
-            qsprintf TQUOTE 26 i .sectnum
-            quote TQUOTE printmessage16 TQUOTE
-            set ok 0
-        }
-
-        ifge .picnum 0 ifl .picnum MAXTILES nullop else
-        {
-            qsprintf TQUOTE 27 i .picnum
-            quote TQUOTE printmessage16 TQUOTE
-            set .picnum 0
-            set ok 0
-        }
-    }
-
-    ife ok 0
-        print "--"
+defstate jumptosec  // (sec)
+    ifge sec 0 ifl sec numsectors nullop else return
+    set wal sector[sec].wallptr
+    state jumptowal
 ends
-*/
 
-gamevar d2d_lastcheck 0 0
+
 onevent EVENT_DRAW2DSCREEN
     var tmp
     var xx
+
+    state userdrawlabel
 
     ifge cursectnum 0
     {
@@ -1134,14 +1028,6 @@ onevent EVENT_DRAW2DSCREEN
     }
 
     state previewdoors2d
-
-    ifl checkinterval 120, set checkinterval 120
-    set tmp totalclock, sub tmp checkinterval
-    ifl d2d_lastcheck tmp
-    {
-        set d2d_lastcheck totalclock
-//        state corruptchk
-    }
 
     ifn showpal 0
     {
@@ -1237,7 +1123,23 @@ defstate chselshade
 ends
 
 
-////////// USER KEY SETTINGS //////////
+////////// USER AREA //////////
+
+// key settings
 defstate userkeys_3d
     ifholdkey KEY_SEMI ifhitkey KEY_C state chselshade
 ends
+
+/*
+// example for custom labels
+defstate userdrawlabel
+    for i allsprites
+    {
+        ifactor 2978
+        {
+            qsprintf TQUOTE "MOVABLE EX:%d OW:%d", sprite[i].owner, sprite[i].extra
+            drawlabel TQUOTE .x .y .z 0 31
+        }
+    }
+ends
+*/

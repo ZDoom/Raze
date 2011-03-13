@@ -42,7 +42,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
     }
 
     if (iSet)
-        lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+        lValue=Gv_GetVarX(lVar2);
 
     switch (lLabelID)
     {
@@ -52,7 +52,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.god = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.god, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.god);
         return;
 
     case USERDEFS_WARP_ON:
@@ -61,7 +61,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.warp_on = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.warp_on, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.warp_on);
         return;
 
     case USERDEFS_CASHMAN:
@@ -70,7 +70,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.cashman = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.cashman, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.cashman);
         return;
 
     case USERDEFS_EOG:
@@ -79,7 +79,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.eog = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.eog, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.eog);
         return;
 
     case USERDEFS_SHOWALLMAP:
@@ -88,7 +88,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.showallmap = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.showallmap, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.showallmap);
         return;
 
     case USERDEFS_SHOW_HELP:
@@ -97,7 +97,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.show_help = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.show_help, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.show_help);
         return;
 
     case USERDEFS_SCROLLMODE:
@@ -106,7 +106,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.scrollmode = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.scrollmode, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.scrollmode);
         return;
 
     case USERDEFS_CLIPPING:
@@ -115,7 +115,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.clipping = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.clipping, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.clipping);
         return;
 
         //  case USERDEFS_USER_NAME:
@@ -124,7 +124,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
         //          ud.user_name[MAXPLAYERS][32] = lValue;
         //          return;
         //      }
-        //      Gv_SetVar(lVar2, ud.user_name[MAXPLAYERS][32], vm.g_i, vm.g_p);
+        //      Gv_SetVarX(lVar2, ud.user_name[MAXPLAYERS][32]);
         //      return;
 
         //  case USERDEFS_RIDECULE:
@@ -133,7 +133,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
         //          ud.ridecule = lValue;
         //          return;
         //      }
-        //      Gv_SetVar(lVar2, ud.ridecule, vm.g_i, vm.g_p);
+        //      Gv_SetVarX(lVar2, ud.ridecule);
         //      return;
 
         //  case USERDEFS_SAVEGAME:
@@ -142,7 +142,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
         //          ud.savegame = lValue;
         //          return;
         //      }
-        //      Gv_SetVar(lVar2, ud.savegame, vm.g_i, vm.g_p);
+        //      Gv_SetVarX(lVar2, ud.savegame);
         //      return;
 
         //  case USERDEFS_PWLOCKOUT:
@@ -151,7 +151,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
         //          ud.pwlockout = lValue;
         //          return;
         //      }
-        //      Gv_SetVar(lVar2, ud.pwlockout, vm.g_i, vm.g_p);
+        //      Gv_SetVarX(lVar2, ud.pwlockout);
         //      return;
 
         //  case USERDEFS_RTSNAME:
@@ -160,7 +160,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
         //          ud.rtsname = lValue;
         //          return;
         //      }
-        //      Gv_SetVar(lVar2, ud.rtsname, vm.g_i, vm.g_p);
+        //      Gv_SetVarX(lVar2, ud.rtsname);
         //      return;
 
     case USERDEFS_OVERHEAD_ON:
@@ -169,7 +169,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.overhead_on = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.overhead_on, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.overhead_on);
         return;
 
     case USERDEFS_LAST_OVERHEAD:
@@ -178,7 +178,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.last_overhead = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.last_overhead, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.last_overhead);
         return;
 
     case USERDEFS_SHOWWEAPONS:
@@ -187,7 +187,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.showweapons = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.showweapons, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.showweapons);
         return;
 
     case USERDEFS_PAUSE_ON:
@@ -196,7 +196,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.pause_on = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.pause_on, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.pause_on);
         return;
 
     case USERDEFS_FROM_BONUS:
@@ -205,7 +205,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.from_bonus = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.from_bonus, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.from_bonus);
         return;
 
     case USERDEFS_CAMERASPRITE:
@@ -214,7 +214,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.camerasprite = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.camerasprite, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.camerasprite);
         return;
 
     case USERDEFS_LAST_CAMSPRITE:
@@ -223,7 +223,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.last_camsprite = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.last_camsprite, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.last_camsprite);
         return;
 
     case USERDEFS_LAST_LEVEL:
@@ -232,7 +232,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.last_level = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.last_level, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.last_level);
         return;
 
     case USERDEFS_SECRETLEVEL:
@@ -241,7 +241,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.secretlevel = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.secretlevel, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.secretlevel);
         return;
 
     case USERDEFS_CONST_VISIBILITY:
@@ -250,7 +250,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.const_visibility = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.const_visibility, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.const_visibility);
         return;
 
     case USERDEFS_UW_FRAMERATE:
@@ -259,7 +259,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.uw_framerate = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.uw_framerate, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.uw_framerate);
         return;
 
     case USERDEFS_CAMERA_TIME:
@@ -268,7 +268,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.camera_time = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.camera_time, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.camera_time);
         return;
 
     case USERDEFS_FOLFVEL:
@@ -277,7 +277,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.folfvel = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.folfvel, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.folfvel);
         return;
 
     case USERDEFS_FOLAVEL:
@@ -286,7 +286,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.folavel = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.folavel, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.folavel);
         return;
 
     case USERDEFS_FOLX:
@@ -295,7 +295,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.folx = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.folx, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.folx);
         return;
 
     case USERDEFS_FOLY:
@@ -304,7 +304,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.foly = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.foly, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.foly);
         return;
 
     case USERDEFS_FOLA:
@@ -313,7 +313,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.fola = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.fola, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.fola);
         return;
 
     case USERDEFS_RECCNT:
@@ -322,7 +322,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.reccnt = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.reccnt, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.reccnt);
         return;
 
     case USERDEFS_ENTERED_NAME:
@@ -331,7 +331,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.entered_name = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.entered_name, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.entered_name);
         return;
 
     case USERDEFS_SCREEN_TILTING:
@@ -340,7 +340,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.screen_tilting = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.screen_tilting, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.screen_tilting);
         return;
 
     case USERDEFS_SHADOWS:
@@ -349,7 +349,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.shadows = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.shadows, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.shadows);
         return;
 
     case USERDEFS_FTA_ON:
@@ -358,7 +358,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.fta_on = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.fta_on, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.fta_on);
         return;
 
     case USERDEFS_EXECUTIONS:
@@ -367,7 +367,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.executions = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.executions, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.executions);
         return;
 
     case USERDEFS_AUTO_RUN:
@@ -376,7 +376,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.auto_run = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.auto_run, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.auto_run);
         return;
 
     case USERDEFS_COORDS:
@@ -385,7 +385,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.coords = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.coords, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.coords);
         return;
 
     case USERDEFS_TICKRATE:
@@ -394,7 +394,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.tickrate = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.tickrate, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.tickrate);
         return;
 
     case USERDEFS_M_COOP:
@@ -403,7 +403,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_coop = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_coop, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_coop);
         return;
 
     case USERDEFS_COOP:
@@ -412,7 +412,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.coop = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.coop, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.coop);
         return;
 
     case USERDEFS_SCREEN_SIZE:
@@ -425,7 +425,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             }
             return;
         }
-        Gv_SetVar(lVar2, ud.screen_size, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.screen_size);
         return;
 
     case USERDEFS_LOCKOUT:
@@ -434,7 +434,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.lockout = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.lockout, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.lockout);
         return;
 
     case USERDEFS_CROSSHAIR:
@@ -443,7 +443,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.crosshair = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.crosshair, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.crosshair);
         return;
 
         //  case USERDEFS_WCHOICE:
@@ -452,7 +452,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
         //          ud.wchoice = lValue;
         //          return;
         //      }
-        //      Gv_SetVar(lVar2, ud.wchoice, vm.g_i, vm.g_p);
+        //      Gv_SetVarX(lVar2, ud.wchoice);
         //      return;
 
     case USERDEFS_PLAYERAI:
@@ -461,7 +461,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.playerai = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.playerai, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.playerai);
         return;
 
     case USERDEFS_RESPAWN_MONSTERS:
@@ -470,7 +470,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.respawn_monsters = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.respawn_monsters, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.respawn_monsters);
         return;
 
     case USERDEFS_RESPAWN_ITEMS:
@@ -479,7 +479,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.respawn_items = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.respawn_items, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.respawn_items);
         return;
 
     case USERDEFS_RESPAWN_INVENTORY:
@@ -488,7 +488,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.respawn_inventory = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.respawn_inventory, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.respawn_inventory);
         return;
 
     case USERDEFS_RECSTAT:
@@ -497,7 +497,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.recstat = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.recstat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.recstat);
         return;
 
     case USERDEFS_MONSTERS_OFF:
@@ -506,7 +506,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.monsters_off = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.monsters_off, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.monsters_off);
         return;
 
     case USERDEFS_BRIGHTNESS:
@@ -515,7 +515,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.brightness = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.brightness, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.brightness);
         return;
 
     case USERDEFS_M_RESPAWN_ITEMS:
@@ -524,7 +524,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_respawn_items = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_respawn_items, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_respawn_items);
         return;
 
     case USERDEFS_M_RESPAWN_MONSTERS:
@@ -533,7 +533,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_respawn_monsters = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_respawn_monsters, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_respawn_monsters);
         return;
 
     case USERDEFS_M_RESPAWN_INVENTORY:
@@ -542,7 +542,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_respawn_inventory = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_respawn_inventory, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_respawn_inventory);
         return;
 
     case USERDEFS_M_RECSTAT:
@@ -551,7 +551,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_recstat = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_recstat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_recstat);
         return;
 
     case USERDEFS_M_MONSTERS_OFF:
@@ -560,7 +560,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_monsters_off = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_monsters_off, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_monsters_off);
         return;
 
     case USERDEFS_DETAIL:
@@ -569,7 +569,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.detail = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.detail, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.detail);
         return;
 
     case USERDEFS_M_FFIRE:
@@ -578,7 +578,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_ffire = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_ffire, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_ffire);
         return;
 
     case USERDEFS_FFIRE:
@@ -587,7 +587,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.ffire = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.ffire, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.ffire);
         return;
 
     case USERDEFS_M_PLAYER_SKILL:
@@ -596,7 +596,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_player_skill = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_player_skill, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_player_skill);
         return;
 
     case USERDEFS_M_LEVEL_NUMBER:
@@ -605,7 +605,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_level_number = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_level_number, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_level_number);
         return;
 
     case USERDEFS_M_VOLUME_NUMBER:
@@ -614,7 +614,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_volume_number = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_volume_number, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_volume_number);
         return;
 
     case USERDEFS_MULTIMODE:
@@ -623,7 +623,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.multimode = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.multimode, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.multimode);
         return;
 
     case USERDEFS_PLAYER_SKILL:
@@ -632,7 +632,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.player_skill = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.player_skill, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.player_skill);
         return;
 
     case USERDEFS_LEVEL_NUMBER:
@@ -641,7 +641,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.level_number = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.level_number, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.level_number);
         return;
 
     case USERDEFS_VOLUME_NUMBER:
@@ -650,7 +650,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.volume_number = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.volume_number, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.volume_number);
         return;
 
     case USERDEFS_M_MARKER:
@@ -659,7 +659,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_marker = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_marker, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_marker);
         return;
 
     case USERDEFS_MARKER:
@@ -668,7 +668,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.marker = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.marker, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.marker);
         return;
 
     case USERDEFS_MOUSEFLIP:
@@ -677,7 +677,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.mouseflip = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.mouseflip, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.mouseflip);
         return;
 
     case USERDEFS_STATUSBARSCALE:
@@ -686,7 +686,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.statusbarscale = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.statusbarscale, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.statusbarscale);
         return;
 
     case USERDEFS_DRAWWEAPON:
@@ -695,7 +695,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.drawweapon = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.drawweapon, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.drawweapon);
         return;
 
     case USERDEFS_MOUSEAIMING:
@@ -704,7 +704,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.mouseaiming = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.mouseaiming, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.mouseaiming);
         return;
 
     case USERDEFS_WEAPONSWITCH:
@@ -713,7 +713,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.weaponswitch = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.weaponswitch, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.weaponswitch);
         return;
 
     case USERDEFS_DEMOCAMS:
@@ -722,7 +722,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.democams = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.democams, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.democams);
         return;
 
     case USERDEFS_COLOR:
@@ -731,7 +731,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.color = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.color, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.color);
         return;
 
     case USERDEFS_MSGDISPTIME:
@@ -740,7 +740,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.msgdisptime = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.msgdisptime, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.msgdisptime);
         return;
 
     case USERDEFS_STATUSBARMODE:
@@ -749,7 +749,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.statusbarmode = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.statusbarmode, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.statusbarmode);
         return;
 
     case USERDEFS_M_NOEXITS:
@@ -758,7 +758,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.m_noexits = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.m_noexits, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.m_noexits);
         return;
 
     case USERDEFS_NOEXITS:
@@ -767,7 +767,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.noexits = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.noexits, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.noexits);
         return;
 
     case USERDEFS_AUTOVOTE:
@@ -776,7 +776,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.autovote = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.autovote, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.autovote);
         return;
 
     case USERDEFS_AUTOMSG:
@@ -785,7 +785,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.automsg = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.automsg, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.automsg);
         return;
 
     case USERDEFS_IDPLAYERS:
@@ -794,7 +794,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.idplayers = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.idplayers, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.idplayers);
         return;
 
     case USERDEFS_TEAM:
@@ -803,7 +803,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.team = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.team, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.team);
         return;
 
     case USERDEFS_VIEWBOB:
@@ -812,7 +812,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.viewbob = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.viewbob, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.viewbob);
         return;
 
     case USERDEFS_WEAPONSWAY:
@@ -821,7 +821,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.weaponsway = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.weaponsway, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.weaponsway);
         return;
 
     case USERDEFS_ANGLEINTERPOLATION:
@@ -830,7 +830,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.angleinterpolation = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.angleinterpolation, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.angleinterpolation);
         return;
 
     case USERDEFS_OBITUARIES:
@@ -839,7 +839,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.obituaries = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.obituaries, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.obituaries);
         return;
 
     case USERDEFS_LEVELSTATS:
@@ -848,7 +848,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.levelstats = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.levelstats, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.levelstats);
         return;
 
     case USERDEFS_CROSSHAIRSCALE:
@@ -857,7 +857,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.crosshairscale = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.crosshairscale, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.crosshairscale);
         return;
 
     case USERDEFS_ALTHUD:
@@ -866,7 +866,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.althud = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.althud, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.althud);
         return;
 
     case USERDEFS_DISPLAY_BONUS_SCREEN:
@@ -875,7 +875,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.display_bonus_screen = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.display_bonus_screen, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.display_bonus_screen);
         return;
 
     case USERDEFS_SHOW_LEVEL_TEXT:
@@ -884,7 +884,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.show_level_text = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.show_level_text, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.show_level_text);
         return;
 
     case USERDEFS_WEAPONSCALE:
@@ -893,7 +893,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.weaponscale = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.weaponscale, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.weaponscale);
         return;
 
     case USERDEFS_TEXTSCALE:
@@ -902,7 +902,7 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
             ud.textscale = lValue;
             return;
         }
-        Gv_SetVar(lVar2, ud.textscale, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ud.textscale);
         return;
 
     default:
@@ -915,9 +915,9 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
     int32_t lValue=0,proj=vm.g_i;
 
     if (lVar1 != g_iThisActorID)
-        proj=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+        proj=Gv_GetVarX(lVar1);
 
-    if ((proj < 0 || proj >= MAXSPRITES) /* && g_scriptSanityChecks */)
+    if ((unsigned)proj >= MAXSPRITES)
     {
         //        OSD_Printf("VM_AccessActiveProjectile(): invalid projectile (%d)\n",proj);
         OSD_Printf(CON_ERROR "tried to %s %s on invalid target projectile (%d) %d %d from %s\n",g_errorLineNum,keyw[g_tw],
@@ -928,7 +928,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
     }
 
     if (iSet)
-        lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+        lValue=Gv_GetVarX(lVar2);
 
     switch (lLabelID)
     {
@@ -938,7 +938,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].workslike=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].workslike, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].workslike);
         return;
 
     case PROJ_SPAWNS:
@@ -947,7 +947,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].spawns=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].spawns, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].spawns);
         return;
 
     case PROJ_SXREPEAT:
@@ -956,7 +956,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].sxrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].sxrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].sxrepeat);
         return;
 
     case PROJ_SYREPEAT:
@@ -965,7 +965,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].syrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].syrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].syrepeat);
         return;
 
     case PROJ_SOUND:
@@ -974,7 +974,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].sound=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].sound, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].sound);
         return;
 
     case PROJ_ISOUND:
@@ -983,7 +983,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].isound=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].isound, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].isound);
         return;
 
     case PROJ_VEL:
@@ -992,7 +992,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].vel=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].vel, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].vel);
         return;
 
     case PROJ_EXTRA:
@@ -1001,7 +1001,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].extra=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].extra, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].extra);
         return;
 
     case PROJ_DECAL:
@@ -1010,7 +1010,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].decal=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].decal, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].decal);
         return;
 
     case PROJ_TRAIL:
@@ -1019,7 +1019,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].trail=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].trail, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].trail);
         return;
 
     case PROJ_TXREPEAT:
@@ -1028,7 +1028,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].txrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].txrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].txrepeat);
         return;
 
     case PROJ_TYREPEAT:
@@ -1037,7 +1037,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].tyrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].tyrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].tyrepeat);
         return;
 
     case PROJ_TOFFSET:
@@ -1046,7 +1046,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].toffset=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].toffset, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].toffset);
         return;
 
     case PROJ_TNUM:
@@ -1055,7 +1055,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].tnum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].tnum, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].tnum);
         return;
 
     case PROJ_DROP:
@@ -1064,7 +1064,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].drop=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].drop, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].drop);
         return;
 
     case PROJ_CSTAT:
@@ -1073,7 +1073,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].cstat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].cstat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].cstat);
         return;
 
     case PROJ_CLIPDIST:
@@ -1082,7 +1082,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].clipdist=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].clipdist, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].clipdist);
         return;
 
     case PROJ_SHADE:
@@ -1091,7 +1091,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].shade=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].shade, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].shade);
         return;
 
     case PROJ_XREPEAT:
@@ -1100,7 +1100,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].xrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].xrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].xrepeat);
         return;
 
     case PROJ_YREPEAT:
@@ -1109,7 +1109,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].yrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].yrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].yrepeat);
         return;
 
     case PROJ_PAL:
@@ -1118,7 +1118,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].pal=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].pal, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].pal);
         return;
 
     case PROJ_EXTRA_RAND:
@@ -1127,7 +1127,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].extra_rand=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].extra_rand, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].extra_rand);
         return;
 
     case PROJ_HITRADIUS:
@@ -1136,7 +1136,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].hitradius=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].hitradius, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].hitradius);
         return;
 
     case PROJ_VEL_MULT:
@@ -1145,7 +1145,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].velmult=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].velmult, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].velmult);
         return;
 
     case PROJ_OFFSET:
@@ -1154,7 +1154,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].offset=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].offset, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].offset);
         return;
 
     case PROJ_BOUNCES:
@@ -1163,7 +1163,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].bounces=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].bounces, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].bounces);
         return;
 
     case PROJ_BSOUND:
@@ -1172,7 +1172,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].bsound=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].bsound, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].bsound);
         return;
 
     case PROJ_RANGE:
@@ -1181,7 +1181,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].range=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].range, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].range);
         return;
 
     case PROJ_FLASH_COLOR:
@@ -1190,7 +1190,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
             SpriteProjectile[proj].flashcolor=lValue;
             return;
         }
-        Gv_SetVar(lVar2, SpriteProjectile[proj].flashcolor, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].flashcolor);
         return;
 
     default:
@@ -1203,7 +1203,7 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
     register int32_t iPlayer=vm.g_p;
 
     if (lVar1 != g_iThisActorID)
-        iPlayer=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+        iPlayer=Gv_GetVarX(lVar1);
 
     if ((iPlayer<0 || iPlayer >= playerswhenstarted) /* && g_scriptSanityChecks */)
         goto badplayer;
@@ -1214,302 +1214,302 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
     switch (lLabelID)
     {
     case PLAYER_ZOOM:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->zoom, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->zoom); return;
     case PLAYER_EXITX:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->exitx, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->exitx); return;
     case PLAYER_EXITY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->exity, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->exity); return;
     case PLAYER_LOOGIEX:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->loogiex[lParm2], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->loogiex[lParm2]); return;
     case PLAYER_LOOGIEY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->loogiey[lParm2], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->loogiey[lParm2]); return;
     case PLAYER_NUMLOOGS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->numloogs, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->numloogs); return;
     case PLAYER_LOOGCNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->loogcnt, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->loogcnt); return;
     case PLAYER_POSX:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pos.x, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pos.x); return;
     case PLAYER_POSY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pos.y, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pos.y); return;
     case PLAYER_POSZ:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pos.z, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pos.z); return;
     case PLAYER_HORIZ:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->horiz, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->horiz); return;
     case PLAYER_OHORIZ:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->ohoriz, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->ohoriz); return;
     case PLAYER_OHORIZOFF:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->ohorizoff, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->ohorizoff); return;
     case PLAYER_INVDISPTIME:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->invdisptime, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->invdisptime); return;
     case PLAYER_BOBPOSX:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->bobposx, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->bobposx); return;
     case PLAYER_BOBPOSY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->bobposy, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->bobposy); return;
     case PLAYER_OPOSX:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->opos.x, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->opos.x); return;
     case PLAYER_OPOSY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->opos.y, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->opos.y); return;
     case PLAYER_OPOSZ:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->opos.z, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->opos.z); return;
     case PLAYER_PYOFF:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pyoff, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pyoff); return;
     case PLAYER_OPYOFF:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->opyoff, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->opyoff); return;
     case PLAYER_POSXV:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posvel.x, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->vel.x); return;
     case PLAYER_POSYV:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posvel.y, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->vel.y); return;
     case PLAYER_POSZV:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->posvel.z, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->vel.z); return;
     case PLAYER_LAST_PISSED_TIME:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_pissed_time, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->last_pissed_time); return;
     case PLAYER_TRUEFZ:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->truefz, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->truefz); return;
     case PLAYER_TRUECZ:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->truecz, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->truecz); return;
     case PLAYER_PLAYER_PAR:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->player_par, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->player_par); return;
     case PLAYER_VISIBILITY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->visibility, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->visibility); return;
     case PLAYER_BOBCOUNTER:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->bobcounter, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->bobcounter); return;
     case PLAYER_WEAPON_SWAY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_sway, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weapon_sway); return;
     case PLAYER_PALS_TIME:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pals.f, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pals.f); return;
     case PLAYER_RANDOMFLAMEX:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->randomflamex, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->randomflamex); return;
     case PLAYER_CRACK_TIME:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->crack_time, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->crack_time); return;
     case PLAYER_AIM_MODE:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->aim_mode, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->aim_mode); return;
     case PLAYER_ANG:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->ang, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->ang); return;
     case PLAYER_OANG:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->oang, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->oang); return;
     case PLAYER_ANGVEL:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->angvel, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->angvel); return;
     case PLAYER_CURSECTNUM:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->cursectnum, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->cursectnum); return;
     case PLAYER_LOOK_ANG:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->look_ang, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->look_ang); return;
     case PLAYER_LAST_EXTRA:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_extra, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->last_extra); return;
     case PLAYER_SUBWEAPON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->subweapon, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->subweapon); return;
     case PLAYER_AMMO_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->ammo_amount[lParm2], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->ammo_amount[lParm2]); return;
     case PLAYER_WACKEDBYACTOR:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->wackedbyactor, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->wackedbyactor); return;
     case PLAYER_FRAG:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->frag, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->frag); return;
     case PLAYER_FRAGGEDSELF:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->fraggedself, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->fraggedself); return;
     case PLAYER_CURR_WEAPON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->curr_weapon, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->curr_weapon); return;
     case PLAYER_LAST_WEAPON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_weapon, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->last_weapon); return;
     case PLAYER_TIPINCS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->tipincs, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->tipincs); return;
     case PLAYER_HORIZOFF:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->horizoff, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->horizoff); return;
     case PLAYER_WANTWEAPONFIRE:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->wantweaponfire, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->wantweaponfire); return;
     case PLAYER_HOLODUKE_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_HOLODUKE], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_HOLODUKE]); return;
     case PLAYER_NEWOWNER:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->newowner, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->newowner); return;
     case PLAYER_HURT_DELAY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->hurt_delay, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->hurt_delay); return;
     case PLAYER_HBOMB_HOLD_DELAY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->hbomb_hold_delay, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->hbomb_hold_delay); return;
     case PLAYER_JUMPING_COUNTER:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->jumping_counter, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->jumping_counter); return;
     case PLAYER_AIRLEFT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->airleft, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->airleft); return;
     case PLAYER_KNEE_INCS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->knee_incs, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->knee_incs); return;
     case PLAYER_ACCESS_INCS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->access_incs, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->access_incs); return;
     case PLAYER_FTA:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->fta, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->fta); return;
     case PLAYER_FTQ:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->ftq, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->ftq); return;
     case PLAYER_ACCESS_WALLNUM:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->access_wallnum, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->access_wallnum); return;
     case PLAYER_ACCESS_SPRITENUM:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->access_spritenum, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->access_spritenum); return;
     case PLAYER_KICKBACK_PIC:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->kickback_pic, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->kickback_pic); return;
     case PLAYER_GOT_ACCESS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->got_access, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->got_access); return;
     case PLAYER_WEAPON_ANG:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_ang, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weapon_ang); return;
     case PLAYER_FIRSTAID_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_FIRSTAID], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_FIRSTAID]); return;
     case PLAYER_SOMETHINGONPLAYER:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->somethingonplayer, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->somethingonplayer); return;
     case PLAYER_ON_CRANE:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->on_crane, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->on_crane); return;
     case PLAYER_I:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->i, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->i); return;
     case PLAYER_ONE_PARALLAX_SECTNUM:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->one_parallax_sectnum, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->one_parallax_sectnum); return;
     case PLAYER_OVER_SHOULDER_ON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->over_shoulder_on, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->over_shoulder_on); return;
     case PLAYER_RANDOM_CLUB_FRAME:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->random_club_frame, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->random_club_frame); return;
     case PLAYER_FIST_INCS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->fist_incs, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->fist_incs); return;
     case PLAYER_ONE_EIGHTY_COUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->one_eighty_count, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->one_eighty_count); return;
     case PLAYER_CHEAT_PHASE:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->cheat_phase, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->cheat_phase); return;
     case PLAYER_DUMMYPLAYERSPRITE:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->dummyplayersprite, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->dummyplayersprite); return;
     case PLAYER_EXTRA_EXTRA8:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->extra_extra8, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->extra_extra8); return;
     case PLAYER_QUICK_KICK:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->quick_kick, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->quick_kick); return;
     case PLAYER_HEAT_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_HEATS], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_HEATS]); return;
     case PLAYER_ACTORSQU:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->actorsqu, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->actorsqu); return;
     case PLAYER_TIMEBEFOREEXIT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->timebeforeexit, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->timebeforeexit); return;
     case PLAYER_CUSTOMEXITSOUND:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->customexitsound, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->customexitsound); return;
     case PLAYER_WEAPRECS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weaprecs[lParm2], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weaprecs[lParm2]); return;
     case PLAYER_WEAPRECCNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapreccnt, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weapreccnt); return;
     case PLAYER_INTERFACE_TOGGLE_FLAG:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->interface_toggle_flag, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->interface_toggle_flag); return;
     case PLAYER_ROTSCRNANG:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->rotscrnang, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->rotscrnang); return;
     case PLAYER_DEAD_FLAG:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->dead_flag, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->dead_flag); return;
     case PLAYER_SHOW_EMPTY_WEAPON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->show_empty_weapon, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->show_empty_weapon); return;
     case PLAYER_SCUBA_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_SCUBA], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_SCUBA]); return;
     case PLAYER_JETPACK_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_JETPACK], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_JETPACK]); return;
     case PLAYER_STEROIDS_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_STEROIDS], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_STEROIDS]); return;
     case PLAYER_SHIELD_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_SHIELD], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_SHIELD]); return;
     case PLAYER_HOLODUKE_ON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->holoduke_on, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->holoduke_on); return;
     case PLAYER_PYCOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->pycount, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pycount); return;
     case PLAYER_WEAPON_POS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weapon_pos, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weapon_pos); return;
     case PLAYER_FRAG_PS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->frag_ps, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->frag_ps); return;
     case PLAYER_TRANSPORTER_HOLD:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->transporter_hold, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->transporter_hold); return;
     case PLAYER_LAST_FULL_WEAPON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_full_weapon, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->last_full_weapon); return;
     case PLAYER_FOOTPRINTSHADE:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintshade, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->footprintshade); return;
     case PLAYER_BOOT_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->inv_amount[GET_BOOTS], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_BOOTS]); return;
     case PLAYER_SCREAM_VOICE:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->scream_voice, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->scream_voice); return;
     case PLAYER_GM:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->gm, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->gm); return;
     case PLAYER_ON_WARPING_SECTOR:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->on_warping_sector, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->on_warping_sector); return;
     case PLAYER_FOOTPRINTCOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintcount, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->footprintcount); return;
     case PLAYER_HBOMB_ON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->hbomb_on, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->hbomb_on); return;
     case PLAYER_JUMPING_TOGGLE:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->jumping_toggle, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->jumping_toggle); return;
     case PLAYER_RAPID_FIRE_HOLD:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->rapid_fire_hold, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->rapid_fire_hold); return;
     case PLAYER_ON_GROUND:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->on_ground, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->on_ground); return;
     case PLAYER_INVEN_ICON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->inven_icon, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inven_icon); return;
     case PLAYER_BUTTONPALETTE:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->buttonpalette, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->buttonpalette); return;
     case PLAYER_JETPACK_ON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->jetpack_on, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->jetpack_on); return;
     case PLAYER_SPRITEBRIDGE:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->spritebridge, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->spritebridge); return;
     case PLAYER_LASTRANDOMSPOT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->lastrandomspot, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->lastrandomspot); return;
     case PLAYER_SCUBA_ON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->scuba_on, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->scuba_on); return;
     case PLAYER_FOOTPRINTPAL:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->footprintpal, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->footprintpal); return;
     case PLAYER_HEAT_ON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->heat_on, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->heat_on); return;
     case PLAYER_HOLSTER_WEAPON:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->holster_weapon, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->holster_weapon); return;
     case PLAYER_FALLING_COUNTER:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->falling_counter, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->falling_counter); return;
     case PLAYER_GOTWEAPON:
-        Gv_SetVar(lVar2, (g_player[iPlayer].ps->gotweapon & (1<<lParm2)) != 0, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, (g_player[iPlayer].ps->gotweapon & (1<<lParm2)) != 0); return;
     case PLAYER_REFRESH_INVENTORY:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->refresh_inventory, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->refresh_inventory); return;
     case PLAYER_TOGGLE_KEY_FLAG:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->toggle_key_flag, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->toggle_key_flag); return;
     case PLAYER_KNUCKLE_INCS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->knuckle_incs, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->knuckle_incs); return;
     case PLAYER_WALKING_SND_TOGGLE:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->walking_snd_toggle, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->walking_snd_toggle); return;
     case PLAYER_PALOOKUP:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->palookup, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->palookup); return;
     case PLAYER_HARD_LANDING:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->hard_landing, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->hard_landing); return;
     case PLAYER_MAX_SECRET_ROOMS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_secret_rooms, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->max_secret_rooms); return;
     case PLAYER_SECRET_ROOMS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->secret_rooms, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->secret_rooms); return;
     case PLAYER_PALS:
         switch (lParm2)
         {
         case 0:
-            Gv_SetVar(lVar2, g_player[iPlayer].ps->pals.r, vm.g_i, vm.g_p); return;
+            Gv_SetVarX(lVar2, g_player[iPlayer].ps->pals.r); return;
         case 1:
-            Gv_SetVar(lVar2, g_player[iPlayer].ps->pals.g, vm.g_i, vm.g_p); return;
+            Gv_SetVarX(lVar2, g_player[iPlayer].ps->pals.g); return;
         case 2:
-            Gv_SetVar(lVar2, g_player[iPlayer].ps->pals.b, vm.g_i, vm.g_p); return;
+            Gv_SetVarX(lVar2, g_player[iPlayer].ps->pals.b); return;
         }
         return;
     case PLAYER_MAX_ACTORS_KILLED:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_actors_killed, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->max_actors_killed); return;
     case PLAYER_ACTORS_KILLED:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->actors_killed, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->actors_killed); return;
     case PLAYER_RETURN_TO_CENTER:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->return_to_center, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->return_to_center); return;
     case PLAYER_RUNSPEED:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->runspeed, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->runspeed); return;
     case PLAYER_SBS:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->sbs, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->sbs); return;
     case PLAYER_RELOADING:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->reloading, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->reloading); return;
     case PLAYER_AUTO_AIM:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->auto_aim, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->auto_aim); return;
     case PLAYER_MOVEMENT_LOCK:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->movement_lock, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->movement_lock); return;
     case PLAYER_SOUND_PITCH:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->sound_pitch, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->sound_pitch); return;
     case PLAYER_WEAPONSWITCH:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->weaponswitch, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weaponswitch); return;
     case PLAYER_TEAM:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->team, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->team); return;
     case PLAYER_MAX_PLAYER_HEALTH:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_player_health, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->max_player_health); return;
     case PLAYER_MAX_SHIELD_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_shield_amount, vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->max_shield_amount); return;
     case PLAYER_MAX_AMMO_AMOUNT:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->max_ammo_amount[lParm2], vm.g_i, vm.g_p); return;
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->max_ammo_amount[lParm2]); return;
     case PLAYER_LAST_QUICK_KICK:
-        Gv_SetVar(lVar2, g_player[iPlayer].ps->last_quick_kick, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->last_quick_kick);
         return;
 
     default:
@@ -1534,7 +1534,7 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
     register int32_t iPlayer=vm.g_p;
 
     if (lVar1 != g_iThisActorID)
-        iPlayer=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+        iPlayer=Gv_GetVarX(lVar1);
 
     if ((iPlayer<0 || iPlayer >= playerswhenstarted) /* && g_scriptSanityChecks */)
         goto badplayer;
@@ -1542,7 +1542,7 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
     if ((PlayerLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
         goto badpos;
 
-    lVar1=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+    lVar1=Gv_GetVarX(lVar2);
 
     switch (lLabelID)
     {
@@ -1589,11 +1589,11 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
     case PLAYER_OPYOFF:
         g_player[iPlayer].ps->opyoff=lVar1; return;
     case PLAYER_POSXV:
-        g_player[iPlayer].ps->posvel.x=lVar1; return;
+        g_player[iPlayer].ps->vel.x=lVar1; return;
     case PLAYER_POSYV:
-        g_player[iPlayer].ps->posvel.y=lVar1; return;
+        g_player[iPlayer].ps->vel.y=lVar1; return;
     case PLAYER_POSZV:
-        g_player[iPlayer].ps->posvel.z=lVar1; return;
+        g_player[iPlayer].ps->vel.z=lVar1; return;
     case PLAYER_LAST_PISSED_TIME:
         g_player[iPlayer].ps->last_pissed_time=lVar1; return;
     case PLAYER_TRUEFZ:
@@ -1881,13 +1881,13 @@ static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t
     int32_t iPlayer=vm.g_p;
 
     if (lVar1 != g_iThisActorID)
-        iPlayer=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+        iPlayer=Gv_GetVarX(lVar1);
 
     if ((iPlayer<0 || iPlayer >= playerswhenstarted) /* && g_scriptSanityChecks */)
         goto badplayer;
 
     if (iSet)
-        lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+        lValue=Gv_GetVarX(lVar2);
 
     switch (lLabelID)
     {
@@ -1897,7 +1897,7 @@ static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t
             g_player[iPlayer].sync->avel=lValue;
             return;
         }
-        Gv_SetVar(lVar2, g_player[iPlayer].sync->avel, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, g_player[iPlayer].sync->avel);
         return;
 
     case INPUT_HORZ:
@@ -1906,7 +1906,7 @@ static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t
             g_player[iPlayer].sync->horz=lValue;
             return;
         }
-        Gv_SetVar(lVar2, g_player[iPlayer].sync->horz, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, g_player[iPlayer].sync->horz);
         return;
 
     case INPUT_FVEL:
@@ -1915,7 +1915,7 @@ static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t
             g_player[iPlayer].sync->fvel=lValue;
             return;
         }
-        Gv_SetVar(lVar2, g_player[iPlayer].sync->fvel, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, g_player[iPlayer].sync->fvel);
         return;
 
     case INPUT_SVEL:
@@ -1924,7 +1924,7 @@ static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t
             g_player[iPlayer].sync->svel=lValue;
             return;
         }
-        Gv_SetVar(lVar2, g_player[iPlayer].sync->svel, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, g_player[iPlayer].sync->svel);
         return;
 
     case INPUT_BITS:
@@ -1933,7 +1933,7 @@ static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t
             g_player[iPlayer].sync->bits=lValue;
             return;
         }
-        Gv_SetVar(lVar2, g_player[iPlayer].sync->bits, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, g_player[iPlayer].sync->bits);
         return;
 
     case INPUT_EXTBITS:
@@ -1942,7 +1942,7 @@ static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t
             g_player[iPlayer].sync->extbits=lValue;
             return;
         }
-        Gv_SetVar(lVar2, g_player[iPlayer].sync->extbits, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, g_player[iPlayer].sync->extbits);
         return;
     default:
         return;
@@ -1957,13 +1957,13 @@ badplayer:
 static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
     int32_t lValue=0;
-    int32_t iWall = Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+    int32_t iWall = Gv_GetVarX(lVar1);
 
     if ((iWall<0 || iWall >= numwalls) /* && g_scriptSanityChecks */)
         goto badwall;
 
     if (iSet)
-        lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+        lValue=Gv_GetVarX(lVar2);
 
     switch (lLabelID)
     {
@@ -1973,7 +1973,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].x=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].x, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].x);
         return;
 
     case WALL_Y:
@@ -1982,7 +1982,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].y=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].y, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].y);
         return;
 
     case WALL_POINT2:
@@ -1991,7 +1991,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].point2=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].point2, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].point2);
         return;
 
     case WALL_NEXTWALL:
@@ -2000,7 +2000,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].nextwall=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].nextwall, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].nextwall);
         return;
 
     case WALL_NEXTSECTOR:
@@ -2009,7 +2009,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].nextsector=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].nextsector, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].nextsector);
         return;
 
     case WALL_CSTAT:
@@ -2018,7 +2018,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].cstat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].cstat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].cstat);
         return;
 
     case WALL_PICNUM:
@@ -2027,7 +2027,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].picnum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].picnum, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].picnum);
         return;
 
     case WALL_OVERPICNUM:
@@ -2036,7 +2036,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].overpicnum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].overpicnum, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].overpicnum);
         return;
 
     case WALL_SHADE:
@@ -2045,7 +2045,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].shade=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].shade, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].shade);
         return;
 
     case WALL_PAL:
@@ -2054,7 +2054,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].pal=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].pal, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].pal);
         return;
 
     case WALL_XREPEAT:
@@ -2063,7 +2063,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].xrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].xrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].xrepeat);
         return;
 
     case WALL_YREPEAT:
@@ -2072,7 +2072,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].yrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].yrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].yrepeat);
         return;
 
     case WALL_XPANNING:
@@ -2081,7 +2081,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].xpanning=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].xpanning, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].xpanning);
         return;
 
     case WALL_YPANNING:
@@ -2090,7 +2090,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].ypanning=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].ypanning, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].ypanning);
         return;
 
     case WALL_LOTAG:
@@ -2099,7 +2099,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].lotag=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].lotag, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].lotag);
         return;
 
     case WALL_HITAG:
@@ -2108,7 +2108,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].hitag=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].hitag, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].hitag);
         return;
 
     case WALL_EXTRA:
@@ -2117,7 +2117,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].extra=lValue;
             return;
         }
-        Gv_SetVar(lVar2, wall[iWall].extra, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, wall[iWall].extra);
         return;
     default:
         return;
@@ -2135,13 +2135,13 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
     int32_t iSector=sprite[vm.g_i].sectnum;
 
     if (lVar1 != g_iThisActorID)
-        iSector=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+        iSector=Gv_GetVarX(lVar1);
 
     if ((iSector<0 || iSector >= numsectors) /* && g_scriptSanityChecks */)
         goto badsector;
 
     if (iSet)
-        lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+        lValue=Gv_GetVarX(lVar2);
 
     switch (lLabelID)
     {
@@ -2151,7 +2151,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].wallptr=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].wallptr,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].wallptr);
         return;
 
     case SECTOR_WALLNUM:
@@ -2160,7 +2160,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].wallnum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].wallnum,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].wallnum);
         return;
 
     case SECTOR_CEILINGZ:
@@ -2169,7 +2169,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].ceilingz=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].ceilingz,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].ceilingz);
         return;
 
     case SECTOR_FLOORZ:
@@ -2178,7 +2178,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].floorz=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].floorz,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].floorz);
         return;
 
     case SECTOR_CEILINGSTAT:
@@ -2187,7 +2187,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].ceilingstat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].ceilingstat,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].ceilingstat);
         return;
 
     case SECTOR_FLOORSTAT:
@@ -2196,7 +2196,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].floorstat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].floorstat,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].floorstat);
         return;
 
     case SECTOR_CEILINGPICNUM:
@@ -2205,7 +2205,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].ceilingpicnum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].ceilingpicnum,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].ceilingpicnum);
         return;
 
     case SECTOR_CEILINGSLOPE:
@@ -2214,7 +2214,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].ceilingheinum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].ceilingheinum,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].ceilingheinum);
         return;
 
     case SECTOR_CEILINGSHADE:
@@ -2223,7 +2223,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].ceilingshade=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].ceilingshade,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].ceilingshade);
         return;
 
     case SECTOR_CEILINGPAL:
@@ -2232,7 +2232,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].ceilingpal=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].ceilingpal,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].ceilingpal);
         return;
 
     case SECTOR_CEILINGXPANNING:
@@ -2241,7 +2241,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].ceilingxpanning=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].ceilingxpanning,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].ceilingxpanning);
         return;
 
     case SECTOR_CEILINGYPANNING:
@@ -2250,7 +2250,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].ceilingypanning=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].ceilingypanning,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].ceilingypanning);
         return;
 
     case SECTOR_FLOORPICNUM:
@@ -2259,7 +2259,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].floorpicnum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].floorpicnum,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].floorpicnum);
         return;
 
     case SECTOR_FLOORSLOPE:
@@ -2268,7 +2268,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].floorheinum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].floorheinum,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].floorheinum);
         return;
 
     case SECTOR_FLOORSHADE:
@@ -2277,7 +2277,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].floorshade=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].floorshade,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].floorshade);
         return;
 
     case SECTOR_FLOORPAL:
@@ -2286,7 +2286,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].floorpal=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].floorpal,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].floorpal);
         return;
 
     case SECTOR_FLOORXPANNING:
@@ -2295,7 +2295,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].floorxpanning=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].floorxpanning,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].floorxpanning);
         return;
 
     case SECTOR_FLOORYPANNING:
@@ -2304,7 +2304,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].floorypanning=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].floorypanning,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].floorypanning);
         return;
 
     case SECTOR_VISIBILITY:
@@ -2313,7 +2313,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].visibility=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].visibility,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].visibility);
         return;
 
     case SECTOR_ALIGNTO:
@@ -2322,7 +2322,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].filler=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].filler,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].filler);
         return;
 
     case SECTOR_LOTAG:
@@ -2331,7 +2331,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].lotag=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].lotag,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].lotag);
         return;
 
     case SECTOR_HITAG:
@@ -2340,7 +2340,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].hitag=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].hitag,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].hitag);
         return;
 
     case SECTOR_EXTRA:
@@ -2349,7 +2349,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].extra=lValue;
             return;
         }
-        Gv_SetVar(lVar2, sector[iSector].extra,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sector[iSector].extra);
         return;
 
     default:
@@ -2367,15 +2367,15 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     register int32_t iActor=vm.g_i;
 
     if (lVar1 != g_iThisActorID)
-        iActor=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+        iActor=Gv_GetVarX(lVar1);
 
-    if ((iActor < 0 || iActor >= MAXSPRITES) /* && g_scriptSanityChecks */)
+    if ((unsigned)iActor >= MAXSPRITES)
         goto badactor;
 
     if ((ActorLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
         goto badpos;
 
-    lVar1=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+    lVar1=Gv_GetVarX(lVar2);
 
     switch (lLabelID)
     {
@@ -2611,9 +2611,9 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     register int32_t iActor=vm.g_i;
 
     if (lVar1 != g_iThisActorID)
-        iActor=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+        iActor=Gv_GetVarX(lVar1);
 
-    if ((iActor < 0 || iActor >= MAXSPRITES) /* && g_scriptSanityChecks */)
+    if ((unsigned)iActor >= MAXSPRITES)
         goto badactor;
 
     if ((ActorLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
@@ -2622,211 +2622,211 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     switch (lLabelID)
     {
     case ACTOR_X:
-        Gv_SetVar(lVar2, sprite[iActor].x,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].x);
         return;
 
     case ACTOR_Y:
-        Gv_SetVar(lVar2, sprite[iActor].y,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].y);
         return;
 
     case ACTOR_Z:
-        Gv_SetVar(lVar2, sprite[iActor].z,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].z);
         return;
 
     case ACTOR_CSTAT:
-        Gv_SetVar(lVar2, sprite[iActor].cstat,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].cstat);
         return;
 
     case ACTOR_PICNUM:
-        Gv_SetVar(lVar2, sprite[iActor].picnum,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].picnum);
         return;
 
     case ACTOR_SHADE:
-        Gv_SetVar(lVar2, sprite[iActor].shade,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].shade);
         return;
 
     case ACTOR_PAL:
-        Gv_SetVar(lVar2, sprite[iActor].pal,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].pal);
         return;
 
     case ACTOR_CLIPDIST:
-        Gv_SetVar(lVar2, sprite[iActor].clipdist,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].clipdist);
         return;
 
     case ACTOR_DETAIL:
-        Gv_SetVar(lVar2, sprite[iActor].filler,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].filler);
         return;
 
     case ACTOR_XREPEAT:
-        Gv_SetVar(lVar2, sprite[iActor].xrepeat,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].xrepeat);
         return;
 
     case ACTOR_YREPEAT:
-        Gv_SetVar(lVar2, sprite[iActor].yrepeat,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].yrepeat);
         return;
 
     case ACTOR_XOFFSET:
-        Gv_SetVar(lVar2, sprite[iActor].xoffset,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].xoffset);
         return;
 
     case ACTOR_YOFFSET:
-        Gv_SetVar(lVar2, sprite[iActor].yoffset,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].yoffset);
         return;
 
     case ACTOR_SECTNUM:
-        Gv_SetVar(lVar2, sprite[iActor].sectnum,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].sectnum);
         return;
 
     case ACTOR_STATNUM:
-        Gv_SetVar(lVar2, sprite[iActor].statnum,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].statnum);
         return;
 
     case ACTOR_ANG:
-        Gv_SetVar(lVar2, sprite[iActor].ang,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].ang);
         return;
 
     case ACTOR_OWNER:
-        Gv_SetVar(lVar2, sprite[iActor].owner,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].owner);
         return;
 
     case ACTOR_XVEL:
-        Gv_SetVar(lVar2, sprite[iActor].xvel,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].xvel);
         return;
 
     case ACTOR_YVEL:
-        Gv_SetVar(lVar2, sprite[iActor].yvel,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].yvel);
         return;
 
     case ACTOR_ZVEL:
-        Gv_SetVar(lVar2, sprite[iActor].zvel,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].zvel);
         return;
 
     case ACTOR_LOTAG:
-        Gv_SetVar(lVar2, sprite[iActor].lotag,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].lotag);
         return;
 
     case ACTOR_HITAG:
-        Gv_SetVar(lVar2, sprite[iActor].hitag,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].hitag);
         return;
 
     case ACTOR_EXTRA:
-        Gv_SetVar(lVar2, sprite[iActor].extra,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, sprite[iActor].extra);
         return;
 
     case ACTOR_HTCGG:
-        Gv_SetVar(lVar2, actor[iActor].cgg, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, actor[iActor].cgg);
         return;
 
     case ACTOR_HTPICNUM :
-        Gv_SetVar(lVar2, actor[iActor].picnum, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, actor[iActor].picnum);
         return;
 
     case ACTOR_HTANG:
-        Gv_SetVar(lVar2, actor[iActor].ang, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, actor[iActor].ang);
         return;
 
     case ACTOR_HTEXTRA:
-        Gv_SetVar(lVar2,actor[iActor].extra, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].extra);
         return;
 
     case ACTOR_HTOWNER:
-        Gv_SetVar(lVar2,actor[iActor].owner, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].owner);
         return;
 
     case ACTOR_HTMOVFLAG:
-        Gv_SetVar(lVar2,actor[iActor].movflag, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].movflag);
         return;
 
     case ACTOR_HTTEMPANG:
-        Gv_SetVar(lVar2,actor[iActor].tempang, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].tempang);
         return;
 
     case ACTOR_HTACTORSTAYPUT:
-        Gv_SetVar(lVar2,actor[iActor].actorstayput, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].actorstayput);
         return;
 
     case ACTOR_HTDISPICNUM:
-        Gv_SetVar(lVar2,actor[iActor].dispicnum, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].dispicnum);
         return;
 
     case ACTOR_HTTIMETOSLEEP:
-        Gv_SetVar(lVar2,actor[iActor].timetosleep, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].timetosleep);
         return;
 
     case ACTOR_HTFLOORZ:
-        Gv_SetVar(lVar2,actor[iActor].floorz, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].floorz);
         return;
 
     case ACTOR_HTCEILINGZ:
-        Gv_SetVar(lVar2,actor[iActor].ceilingz, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].ceilingz);
         return;
 
     case ACTOR_HTLASTVX:
-        Gv_SetVar(lVar2,actor[iActor].lastvx, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].lastvx);
         return;
 
     case ACTOR_HTLASTVY:
-        Gv_SetVar(lVar2,actor[iActor].lastvy, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].lastvy);
         return;
 
     case ACTOR_HTBPOSX:
-        Gv_SetVar(lVar2,actor[iActor].bposx, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].bposx);
         return;
 
     case ACTOR_HTBPOSY:
-        Gv_SetVar(lVar2,actor[iActor].bposy, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].bposy);
         return;
 
     case ACTOR_HTBPOSZ:
-        Gv_SetVar(lVar2,actor[iActor].bposz, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].bposz);
         return;
 
     case ACTOR_HTG_T:
-        Gv_SetVar(lVar2, actor[iActor].t_data[lParm2], vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, actor[iActor].t_data[lParm2]);
         return;
 
     case ACTOR_ANGOFF:
-        Gv_SetVar(lVar2,spriteext[iActor].angoff, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,spriteext[iActor].angoff);
         return;
 
     case ACTOR_PITCH:
-        Gv_SetVar(lVar2,spriteext[iActor].pitch, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,spriteext[iActor].pitch);
         return;
 
     case ACTOR_ROLL:
-        Gv_SetVar(lVar2,spriteext[iActor].roll, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,spriteext[iActor].roll);
         return;
 
     case ACTOR_MDXOFF:
-        Gv_SetVar(lVar2,spriteext[iActor].xoff, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,spriteext[iActor].xoff);
         return;
 
     case ACTOR_MDYOFF:
-        Gv_SetVar(lVar2,spriteext[iActor].yoff, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,spriteext[iActor].yoff);
         return;
 
     case ACTOR_MDZOFF:
-        Gv_SetVar(lVar2,spriteext[iActor].zoff, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,spriteext[iActor].zoff);
         return;
 
     case ACTOR_MDFLAGS:
-        Gv_SetVar(lVar2,spriteext[iActor].flags, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,spriteext[iActor].flags);
         return;
 
     case ACTOR_XPANNING:
-        Gv_SetVar(lVar2, spriteext[iActor].xpanning,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].xpanning);
         return;
 
     case ACTOR_YPANNING:
-        Gv_SetVar(lVar2, spriteext[iActor].ypanning,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].ypanning);
         return;
 
     case ACTOR_HTFLAGS:
-        Gv_SetVar(lVar2,actor[iActor].flags, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2,actor[iActor].flags);
         return;
 
     case ACTOR_ALPHA:
-        Gv_SetVar(lVar2, (uint8_t)(spriteext[iActor].alpha * 255.0f), vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, (uint8_t)(spriteext[iActor].alpha * 255.0f));
         return;
 
     default:
@@ -2854,13 +2854,13 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
     int32_t iActor=vm.g_i;
 
     if (lVar1 != g_iThisActorID)
-        iActor=Gv_GetVar(lVar1, vm.g_i, vm.g_p);
+        iActor=Gv_GetVarX(lVar1);
 
-    if ((iActor < 0 || iActor >= MAXSPRITES) && g_scriptSanityChecks)
+    if ((unsigned)iActor >= MAXSPRITES)
         goto badsprite;
 
     if (iSet)
-        lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+        lValue=Gv_GetVarX(lVar2);
 
     if ((!spriteext[iActor].tspr) && g_scriptSanityChecks)
         goto badtspr;
@@ -2873,7 +2873,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->x=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->x,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->x);
         return;
 
     case ACTOR_Y:
@@ -2882,7 +2882,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->y=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->y,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->y);
         return;
 
     case ACTOR_Z:
@@ -2891,7 +2891,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->z=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->z,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->z);
         return;
 
     case ACTOR_CSTAT:
@@ -2900,7 +2900,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->cstat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->cstat,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->cstat);
         return;
 
     case ACTOR_PICNUM:
@@ -2909,7 +2909,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->picnum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->picnum,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->picnum);
         return;
 
     case ACTOR_SHADE:
@@ -2918,7 +2918,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->shade=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->shade,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->shade);
         return;
 
     case ACTOR_PAL:
@@ -2927,7 +2927,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->pal=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->pal,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->pal);
         return;
 
     case ACTOR_CLIPDIST:
@@ -2936,7 +2936,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->clipdist=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->clipdist,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->clipdist);
         return;
 
     case ACTOR_DETAIL:
@@ -2945,7 +2945,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->filler=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->filler,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->filler);
         return;
 
     case ACTOR_XREPEAT:
@@ -2954,7 +2954,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->xrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->xrepeat,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->xrepeat);
         return;
 
     case ACTOR_YREPEAT:
@@ -2963,7 +2963,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->yrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->yrepeat,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->yrepeat);
         return;
 
     case ACTOR_XOFFSET:
@@ -2972,7 +2972,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->xoffset=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->xoffset,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->xoffset);
         return;
 
     case ACTOR_YOFFSET:
@@ -2981,7 +2981,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->yoffset=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->yoffset,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->yoffset);
         return;
 
     case ACTOR_SECTNUM:
@@ -2990,7 +2990,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->sectnum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->sectnum,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->sectnum);
         return;
 
     case ACTOR_STATNUM:
@@ -2999,7 +2999,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->statnum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->statnum,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->statnum);
         return;
 
     case ACTOR_ANG:
@@ -3008,7 +3008,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->ang=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->ang,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->ang);
         return;
 
     case ACTOR_OWNER:
@@ -3017,7 +3017,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->owner=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->owner,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->owner);
         return;
 
 #if 1
@@ -3027,7 +3027,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->xvel=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->xvel,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->xvel);
         return;
 
     case ACTOR_YVEL:
@@ -3036,7 +3036,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->yvel=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->yvel,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->yvel);
         return;
 
     case ACTOR_ZVEL:
@@ -3045,7 +3045,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->zvel=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->zvel,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->zvel);
         return;
 
     case ACTOR_LOTAG:
@@ -3054,7 +3054,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->lotag=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->lotag,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->lotag);
         return;
 
     case ACTOR_HITAG:
@@ -3063,7 +3063,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->hitag=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->hitag,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->hitag);
         return;
 
     case ACTOR_EXTRA:
@@ -3072,7 +3072,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->extra=lValue;
             return;
         }
-        Gv_SetVar(lVar2, spriteext[iActor].tspr->extra,vm.g_i,vm.g_p);
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->extra);
         return;
 #endif
 
@@ -3098,7 +3098,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
         goto badtile;
 
     if (iSet)
-        lValue=Gv_GetVar(lVar2, vm.g_i, vm.g_p);
+        lValue=Gv_GetVarX(lVar2);
 
     switch (lLabelID)
     {
@@ -3108,7 +3108,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].workslike=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].workslike, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].workslike);
         return;
 
     case PROJ_SPAWNS:
@@ -3117,7 +3117,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].spawns=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].spawns, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].spawns);
         return;
 
     case PROJ_SXREPEAT:
@@ -3126,7 +3126,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].sxrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].sxrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].sxrepeat);
         return;
 
     case PROJ_SYREPEAT:
@@ -3135,7 +3135,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].syrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].syrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].syrepeat);
         return;
 
     case PROJ_SOUND:
@@ -3144,7 +3144,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].sound=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].sound, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].sound);
         return;
 
     case PROJ_ISOUND:
@@ -3153,7 +3153,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].isound=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].isound, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].isound);
         return;
 
     case PROJ_VEL:
@@ -3162,7 +3162,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].vel=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].vel, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].vel);
         return;
 
     case PROJ_EXTRA:
@@ -3171,7 +3171,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].extra=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].extra, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].extra);
         return;
 
     case PROJ_DECAL:
@@ -3180,7 +3180,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].decal=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].decal, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].decal);
         return;
 
     case PROJ_TRAIL:
@@ -3189,7 +3189,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].trail=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].trail, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].trail);
         return;
 
     case PROJ_TXREPEAT:
@@ -3198,7 +3198,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].txrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].txrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].txrepeat);
         return;
 
     case PROJ_TYREPEAT:
@@ -3207,7 +3207,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].tyrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].tyrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].tyrepeat);
         return;
 
     case PROJ_TOFFSET:
@@ -3216,7 +3216,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].toffset=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].toffset, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].toffset);
         return;
 
     case PROJ_TNUM:
@@ -3225,7 +3225,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].tnum=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].tnum, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].tnum);
         return;
 
     case PROJ_DROP:
@@ -3234,7 +3234,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].drop=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].drop, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].drop);
         return;
 
     case PROJ_CSTAT:
@@ -3243,7 +3243,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].cstat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].cstat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].cstat);
         return;
 
     case PROJ_CLIPDIST:
@@ -3252,7 +3252,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].clipdist=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].clipdist, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].clipdist);
         return;
 
     case PROJ_SHADE:
@@ -3261,7 +3261,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].shade=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].shade, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].shade);
         return;
 
     case PROJ_XREPEAT:
@@ -3270,7 +3270,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].xrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].xrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].xrepeat);
         return;
 
     case PROJ_YREPEAT:
@@ -3279,7 +3279,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].yrepeat=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].yrepeat, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].yrepeat);
         return;
 
     case PROJ_PAL:
@@ -3288,7 +3288,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].pal=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].pal, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].pal);
         return;
 
     case PROJ_EXTRA_RAND:
@@ -3297,7 +3297,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].extra_rand=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].extra_rand, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].extra_rand);
         return;
 
     case PROJ_HITRADIUS:
@@ -3306,7 +3306,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].hitradius=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].hitradius, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].hitradius);
         return;
 
     case PROJ_VEL_MULT:
@@ -3315,7 +3315,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].velmult=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].velmult, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].velmult);
         return;
 
     case PROJ_OFFSET:
@@ -3324,7 +3324,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].offset=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].offset, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].offset);
         return;
 
     case PROJ_BOUNCES:
@@ -3333,7 +3333,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].bounces=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].bounces, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].bounces);
         return;
 
     case PROJ_BSOUND:
@@ -3342,7 +3342,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].bsound=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].bsound, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].bsound);
         return;
 
     case PROJ_RANGE:
@@ -3351,7 +3351,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
             ProjectileData[lVar1].range=lValue;
             return;
         }
-        Gv_SetVar(lVar2, ProjectileData[lVar1].range, vm.g_i, vm.g_p);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].range);
         return;
 
     default:
@@ -3513,11 +3513,11 @@ static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, in
     case PLAYER_OPYOFF:
         return g_player[iPlayer].ps->opyoff;
     case PLAYER_POSXV:
-        return g_player[iPlayer].ps->posvel.x;
+        return g_player[iPlayer].ps->vel.x;
     case PLAYER_POSYV:
-        return g_player[iPlayer].ps->posvel.y;
+        return g_player[iPlayer].ps->vel.y;
     case PLAYER_POSZV:
-        return g_player[iPlayer].ps->posvel.z;
+        return g_player[iPlayer].ps->vel.z;
     case PLAYER_LAST_PISSED_TIME:
         return g_player[iPlayer].ps->last_pissed_time;
     case PLAYER_TRUEFZ:

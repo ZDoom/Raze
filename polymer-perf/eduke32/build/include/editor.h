@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#define VERSION " 2.0.0devel"
+#define VERSION "2.0.0devel"
 
 // Build keys
 #define BK_MOVEFORWARD   0
@@ -39,8 +39,10 @@ extern "C" {
 extern int32_t qsetmode;
 extern int16_t searchsector, searchwall, searchstat;
 extern int16_t searchbottomwall;
-extern int32_t zmode, kensplayerheight;
-extern int16_t defaultspritecstat;
+extern int32_t zmode, kensplayerheight, zlock;
+
+#define DEFAULT_SPRITE_CSTAT 0
+//extern int16_t defaultspritecstat;
 
 extern int32_t temppicnum, tempcstat, templotag, temphitag, tempextra;
 extern uint32_t temppal, tempvis, tempxrepeat, tempyrepeat;
@@ -62,6 +64,7 @@ extern int16_t prefixtiles[16];
 extern char program_origcwd[BMAX_PATH];
 extern char *mapster32_fullpath;
 extern char *testplay_addparam;
+extern const char *g_namesFileName;
 
 extern int32_t m32_osd_tryscript;
 extern int32_t showheightindicators;
@@ -83,13 +86,15 @@ extern inline int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 extern void setup_sideview_sincos(void);
 extern void m32_setkeyfilter(int32_t on);
 
+extern int32_t wallength(int16_t i);
+extern void fixrepeats(int16_t i);
+extern void fixxrepeat(int16_t i, uint32_t lenrepquot);
+
 extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
 extern void ExtUnInit(void);
 extern void ExtPreCheckKeys(void);
-#ifdef SUPERBUILD
 extern void ExtAnalyzeSprites(void);
-#endif
 extern void ExtCheckKeys(void);
 extern void ExtPreLoadMap(void);
 extern void ExtLoadMap(const char *mapname);
@@ -122,6 +127,8 @@ extern void showsectordata(int16_t sectnum, int16_t small);
 extern void showwalldata(int16_t wallnum, int16_t small);
 extern void showspritedata(int16_t spritenum, int16_t small);
 
+extern void drawsmallabel(const char *text, char col, char backcol, int32_t dax, int32_t day, int32_t daz);
+
 extern int32_t circlewall;
 
 int32_t loadsetup(const char *fn);	// from config.c
@@ -149,10 +156,18 @@ extern int32_t lastpm16time;
 
 extern char lastpm16buf[156];
 
+void DoSpriteOrnament(int32_t i);
+
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y);
 int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point);
 void update_highlight();
 void update_highlightsector();
+
+int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32_t zoom,
+                      int32_t x, int32_t y, int16_t sectnum);
+void correct_sprite_yoffset(int32_t i);
+
+extern uint8_t hlsectorbitmap[MAXSECTORS>>3];
 
 #ifdef _WIN32
 #define DEFAULT_GAME_EXEC "eduke32.exe"
@@ -168,21 +183,6 @@ void test_map(int32_t mode);
 #define NEXTWALL(i) (wall[wall[i].nextwall])
 #define POINT2(i) (wall[wall[i].point2])
 #define SPRITESEC(j) (sector[sprite[j].sectnum])
-
-static inline int32_t wallength(int16_t i)
-{
-    int64_t dax = POINT2(i).x - wall[i].x;
-    int64_t day = POINT2(i).y - wall[i].y;
-#if 1 //def POLYMOST
-    int64_t hypsq = dax*dax + day*day;
-    if (hypsq > (int64_t)INT_MAX)
-        return (int32_t)sqrt((double)hypsq);
-    else
-        return ksqrt((int32_t)hypsq);
-#else
-    return ksqrt(dax*dax + day*day);
-#endif
-}
 
 #define CLEARLINES2D(Startline, Numlines, Color) clearbuf((char *)(frameplace + ((Startline)*bytesperline)), (bytesperline*(Numlines))>>2, (Color))
 
@@ -221,5 +221,9 @@ extern int32_t scripthistend;
     startwall=sector[(Sect)].wallptr, endwall=startwall+sector[(Sect)].wallnum, Itervar=startwall; \
     Itervar < endwall; \
     Itervar++
+
+#define BTAG_MAX 65535
+#define BZ_MAX 8388608
+
 
 #endif

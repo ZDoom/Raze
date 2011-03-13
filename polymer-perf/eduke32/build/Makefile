@@ -46,7 +46,7 @@ else
     LIBS+= $(L_SSP) -Wl,--enable-auto-import
 endif
 
-OURCFLAGS=$(BASECFLAGS) -Wno-char-subscripts -DKSFORBUILD -I$(INC) $(ARCH)
+OURCFLAGS=$(BASECFLAGS) -Wno-char-subscripts -I$(INC) $(ARCH)
 OURCXXFLAGS=$(BASECXXFLAGS)
 ASFLAGS=$(BASEASFLAGS)
 

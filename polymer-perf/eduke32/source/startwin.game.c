@@ -95,7 +95,7 @@ static inline int32_t getfilenames(char *path)
 #define POPULATE_GAME 4
 #define POPULATE_GAMEDIRS 8
 
-#if defined(POLYMOST)
+#ifdef USE_OPENGL
 extern char TEXCACHEFILE[];
 #endif
 

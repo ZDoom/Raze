@@ -58,6 +58,7 @@ enum scripttoken_t
     T_YADD,
     T_ZADD,
     T_ANGADD,
+    T_FOV,
     T_FLIPPED,
     T_HIDE,
     T_NOBOB,
@@ -105,7 +106,7 @@ static int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
 extern int32_t nextvoxid;
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
 extern float alphahackarray[MAXTILES];
 #endif
 
@@ -305,7 +306,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getdouble(script,&alpha)) break;
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             if ((uint32_t)tile < MAXTILES) alphahackarray[tile] = alpha;
 #endif
         }
@@ -325,7 +326,7 @@ static int32_t defsparser(scriptfile *script)
                 tilenume2 = tilenume1;
                 tilenume1 = i;
             }
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             if ((tilenume1 >= 0 && tilenume1 < MAXTILES) && (tilenume2 >= 0 && tilenume2 < MAXTILES))
             {
                 for (i=tilenume1; i<=tilenume2; i++)
@@ -467,7 +468,7 @@ static int32_t defsparser(scriptfile *script)
             char *texturetokptr = script->ltextptr, *textureend, *fn = NULL, *tfn = NULL, *ftd = NULL;
             int32_t tile=-1, token, i;
             int32_t alphacut = 255;
-            int32_t xoffset = 0, yoffset = 0;
+            int32_t xoffset = 0, yoffset = 0, goodtogo=0;
 
             static const tokenlist tilefromtexturetokens[] =
             {
@@ -526,6 +527,7 @@ static int32_t defsparser(scriptfile *script)
                 }
                 else Bfree(tfn);
                 pathsearchmode = i;
+                goodtogo = 1;
             }
 
             if ((unsigned)tile >= (unsigned)MAXTILES)
@@ -535,6 +537,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
+            if (goodtogo)
             {
                 int32_t xsiz, ysiz, j;
                 int32_t *picptr = NULL;
@@ -699,7 +702,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getdouble(script,&scale)) break;
             if (scriptfile_getnumber(script,&shadeoffs)) break;
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             lastmodelid = md_loadmodel(modelfn);
             if (lastmodelid < 0)
             {
@@ -715,7 +718,7 @@ static int32_t defsparser(scriptfile *script)
         case T_DEFINEMODELFRAME:
         {
             char *framename;
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             char happy=1;
 #endif
             int32_t ftilenume, ltilenume, tilex;
@@ -736,7 +739,7 @@ static int32_t defsparser(scriptfile *script)
                 initprintf("Warning: Ignoring frame definition.\n");
                 break;
             }
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
             {
                 switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), 0.0f,0))
@@ -777,7 +780,7 @@ static int32_t defsparser(scriptfile *script)
                 initprintf("Warning: Ignoring animation definition.\n");
                 break;
             }
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             switch (md_defineanimation(lastmodelid, startframe, endframe, (int32_t)(dfps*(65536.0*.001)), flags))
             {
             case 0:
@@ -823,7 +826,7 @@ static int32_t defsparser(scriptfile *script)
             if (seenframe) { modelskin = ++lastmodelskin; }
             seenframe = 0;
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f, 1.0f, 1.0f))
             {
             case 0:
@@ -863,7 +866,6 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-#ifdef SUPERBUILD
             if (qloadkvx(nextvoxid, fn))
             {
                 initprintf("Failure loading voxel file \"%s\"\n",fn);
@@ -871,7 +873,6 @@ static int32_t defsparser(scriptfile *script)
             }
 
             lastvoxid = nextvoxid++;
-#endif
         }
         break;
         case T_DEFINEVOXELTILES:
@@ -901,12 +902,9 @@ static int32_t defsparser(scriptfile *script)
                 initprintf("Warning: Ignoring voxel tiles definition.\n");
                 break;
             }
-#ifdef SUPERBUILD
+
             for (tilex = ftilenume; tilex <= ltilenume; tilex++)
-            {
                 tiletovox[tilex] = lastvoxid;
-            }
-#endif
         }
         break;
 
@@ -938,7 +936,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getstring(script,&modelfn)) break;
             if (scriptfile_getbraces(script,&modelend)) break;
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             lastmodelid = md_loadmodel(modelfn);
             if (lastmodelid < 0)
             {
@@ -1016,7 +1014,7 @@ static int32_t defsparser(scriptfile *script)
                         initprintf("Warning: Ignoring frame definition.\n");
                         break;
                     }
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                     for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
                     {
                         switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), smoothduration,pal))
@@ -1081,7 +1079,7 @@ static int32_t defsparser(scriptfile *script)
                         initprintf("Warning: Ignoring animation definition.\n");
                         break;
                     }
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                     switch (md_defineanimation(lastmodelid, startframe, endframe, (int32_t)(dfps*(65536.0*.001)), flags))
                     {
                     case 0:
@@ -1170,7 +1168,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                     switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param, specpower, specfactor))
                     {
                     case 0:
@@ -1197,7 +1195,7 @@ static int32_t defsparser(scriptfile *script)
                 {
                     char *hudtokptr = script->ltextptr;
                     char happy=1, *frameend;
-                    int32_t ftilenume = -1, ltilenume = -1, tilex = 0, flags = 0;
+                    int32_t ftilenume = -1, ltilenume = -1, tilex = 0, flags = 0, fov = -1;
                     double xadd = 0.0, yadd = 0.0, zadd = 0.0, angadd = 0.0;
 
                     static const tokenlist modelhudtokens[] =
@@ -1209,6 +1207,7 @@ static int32_t defsparser(scriptfile *script)
                         { "yadd",   T_YADD   },
                         { "zadd",   T_ZADD   },
                         { "angadd", T_ANGADD },
+                        { "fov",    T_FOV    },
                         { "hide",   T_HIDE   },
                         { "nobob",  T_NOBOB  },
                         { "flipped",T_FLIPPED},
@@ -1234,6 +1233,8 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&zadd); break;
                         case T_ANGADD:
                             scriptfile_getdouble(script,&angadd); break;
+                        case T_FOV:
+                            scriptfile_getsymbol(script,&fov); break;
                         case T_HIDE:
                             flags |= 1; break;
                         case T_NOBOB:
@@ -1262,10 +1263,10 @@ static int32_t defsparser(scriptfile *script)
                         initprintf("Warning: Ignoring frame definition.\n");
                         break;
                     }
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                     for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
                     {
-                        switch (md_definehud(lastmodelid, tilex, xadd, yadd, zadd, angadd, flags))
+                        switch (md_definehud(lastmodelid, tilex, xadd, yadd, zadd, angadd, flags, fov))
                         {
                         case 0:
                             break;
@@ -1289,7 +1290,7 @@ static int32_t defsparser(scriptfile *script)
                 }
             }
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             md_setmisc(lastmodelid,(float)scale,shadeoffs,(float)mzadd,flags);
 #endif
 
@@ -1314,10 +1315,8 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getstring(script,&fn)) break; //voxel filename
             if (nextvoxid == MAXVOXELS) { initprintf("Maximum number of voxels already defined.\n"); break; }
-#ifdef SUPERBUILD
             if (qloadkvx(nextvoxid, fn)) { initprintf("Failure loading voxel file \"%s\"\n",fn); break; }
             lastvoxid = nextvoxid++;
-#endif
 
             if (scriptfile_getbraces(script,&modelend)) break;
             while (script->textptr < modelend)
@@ -1327,10 +1326,8 @@ static int32_t defsparser(scriptfile *script)
                     //case T_ERROR: initprintf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
                 case T_TILE:
                     scriptfile_getsymbol(script,&tilex);
-#ifdef SUPERBUILD
                     if ((uint32_t)tilex < MAXTILES) tiletovox[tilex] = lastvoxid;
                     else initprintf("Invalid tile number on line %s:%d\n",script->filename, scriptfile_getlinum(script,voxeltokptr));
-#endif
                     break;
                 case T_TILE0:
                     scriptfile_getsymbol(script,&tile0); break; //1st tile #
@@ -1343,17 +1340,13 @@ static int32_t defsparser(scriptfile *script)
                     }
                     if ((tile1 < 0) || (tile0 >= MAXTILES))
                         { initprintf("Invalid tile range on line %s:%d\n",script->filename, scriptfile_getlinum(script,voxeltokptr)); break; }
-#ifdef SUPERBUILD
                     for (tilex=tile0; tilex<=tile1; tilex++) tiletovox[tilex] = lastvoxid;
-#endif
                     break; //last tile number (inclusive)
                 case T_SCALE:
                 {
                     double scale=1.0;
                     scriptfile_getdouble(script,&scale);
-#ifdef SUPERBUILD
                     voxscale[lastvoxid] = (int32_t)(65536*scale);
-#endif
                     break;
                 }
                 }
@@ -1823,7 +1816,7 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 }
             }
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             for (; r0 <= r1; r0++) md_undefinetile(r0);
 #endif
         }
@@ -1832,7 +1825,7 @@ static int32_t defsparser(scriptfile *script)
         case T_UNDEFMODELOF:
         {
             int32_t r0;
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             int32_t mid;
 #endif
 
@@ -1843,7 +1836,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             mid = md_tilehasmodel(r0,0);
             if (mid < 0) break;
 

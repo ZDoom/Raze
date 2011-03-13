@@ -11,14 +11,11 @@ PRETTY_OUTPUT ?= 1
 DXROOT_OVERRIDE:=
 
 # Engine options
-#  SUPERBUILD     - enables voxels
-#  POLYMOST       - enables Polymost renderer
-#  USE_OPENGL     - enables OpenGL support in Polymost
+#  USE_OPENGL     - enables basic OpenGL Polymost renderer
+#  POLYMER        - enables fancy Polymer renderer
 #  NOASM          - disables the use of inline assembly pragmas
 #  LINKED_GTK     - enables compile-time linkage to GTK
 #
-SUPERBUILD = 1
-POLYMOST = 1		
 POLYMER = 1
 USE_OPENGL = 1
 NOASM = 0
@@ -27,7 +24,6 @@ BUILD32_ON_64 = 0
 NEDMALLOC = 1
 
 ifeq (0,$(USE_OPENGL))
-    POLYMOST = 0
     POLYMER = 0
 endif
 

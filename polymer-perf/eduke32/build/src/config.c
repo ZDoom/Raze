@@ -59,8 +59,8 @@ extern int16_t brightness;
 extern int32_t vsync;
 extern char game_executable[BMAX_PATH];
 extern int32_t fullscreen;
-extern char option[9];
-extern char keys[NUMBUILDKEYS];
+extern char default_buildkeys[NUMBUILDKEYS];
+static char *const keys = default_buildkeys;
 extern char remap[256];
 extern int32_t remapinit;
 extern double msens;
@@ -134,8 +134,8 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "xdim3d", val, VL) > 0) xdimgame = Batoi(val);
     if (readconfig(fp, "ydim3d", val, VL) > 0) ydimgame = Batoi(val);
 //    if (readconfig(fp, "samplerate", val, VL) > 0) option[7] = (Batoi(val) & 0x0f) << 4;
-    if (readconfig(fp, "music", val, VL) > 0) { if (Batoi(val) != 0) option[2] = 1; else option[2] = 0; }
-    if (readconfig(fp, "mouse", val, VL) > 0) { if (Batoi(val) != 0) option[3] = 1; else option[3] = 0; }
+//    if (readconfig(fp, "music", val, VL) > 0) { if (Batoi(val) != 0) option[2] = 1; else option[2] = 0; }
+//    if (readconfig(fp, "mouse", val, VL) > 0) { if (Batoi(val) != 0) option[3] = 1; else option[3] = 0; }
     if (readconfig(fp, "bpp", val, VL) > 0) bppgame = Batoi(val);
     if (readconfig(fp, "vsync", val, VL) > 0) vsync = Batoi(val)?1:0;
     if (readconfig(fp, "editorgridextent", val, VL) > 0) editorgridextent = max(min(262144,Batoi(val)),32768);
@@ -155,7 +155,7 @@ int32_t loadsetup(const char *fn)
 #ifdef RENDERTYPEWIN
     if (readconfig(fp, "maxrefreshfreq", val, VL) > 0) maxrefreshfreq = Batoi(val);
 #endif
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     if (readconfig(fp, "usemodels", val, VL) > 0) usemodels = Batoi(val)?1:0;
     if (readconfig(fp, "usehightile", val, VL) > 0) usehightile = Batoi(val)?1:0;
 
@@ -187,10 +187,10 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "gameexecutable", val, VL) > 0)
         Bstrcpy(game_executable, val);
 
-    option[0] = 1;	// vesa all the way...
-    option[1] = 1;	// sound all the way...
-    option[4] = 0;	// no multiplayer
-    option[5] = 0;
+//    option[0] = 1;	// vesa all the way...
+//    option[1] = 1;	// sound all the way...
+//    option[4] = 0;	// no multiplayer
+//    option[5] = 0;
 
 #if 1
     if (readconfig(fp, "keyforward", val, VL) > 0) keys[0] = Bstrtol(val, NULL, 16);
@@ -345,7 +345,7 @@ int32_t writesetup(const char *fn)
              "; Startup grid size (0-8, 9 is automatic)\n"
              "grid = %d\n"
              "\n"
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
              "; OpenGL mode options\n"
              "usemodels = %d\n"
              "usehightile = %d\n"
@@ -393,11 +393,6 @@ int32_t writesetup(const char *fn)
              "music = %d\n"
              "\n"
 #endif
-             "; Enable mouse\n"
-             ";   0 - No\n"
-             ";   1 - Yes\n"
-             "mouse = %d\n"
-             "\n"
              "; Mouse sensitivity\n"
              "mousesensitivity = %g\n"
              "\n"
@@ -511,7 +506,7 @@ int32_t writesetup(const char *fn)
              glrendmode,
 #endif
              editorgridextent, min(max(0, default_grid), 9),
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
              usemodels, usehightile,
              glusetexcache, gltexfiltermode, glanisotropy,r_downsize,glusetexcompr,
 #endif
@@ -525,7 +520,7 @@ int32_t writesetup(const char *fn)
 #if 0
              option[7]>>4, option[2],
 #endif
-             option[3], msens, unrealedlook, pk_uedaccel, quickmapcycling,
+             msens, unrealedlook, pk_uedaccel, quickmapcycling,
              sideview_reversehrot,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,autocorruptcheck,
              showheightindicators,showambiencesounds,graphicsmode,

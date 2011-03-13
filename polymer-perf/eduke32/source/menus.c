@@ -2358,7 +2358,7 @@ cheat_for_port_credits:
         menutext(c,70+19+19+19,MENUHIGHLIGHT(3),PHX(-5),SkillNames[3]);
         break;
     case 230:
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
         rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
         menutext(320>>1,24,0,0,"RENDERER SETUP");
 
@@ -2784,7 +2784,7 @@ cheat_for_port_credits:
                     break;
                 case 9:
                     if (x==io) ud.screen_tilting = 1-ud.screen_tilting;
-#ifdef POLYMOST
+#ifdef USE_OPENGL
                     if (!ud.screen_tilting) setrollangle(0);
 #endif
                     modval(0,1,(int32_t *)&ud.screen_tilting,1,probey==io);
@@ -3078,7 +3078,7 @@ cheat_for_port_credits:
 
         c = (320>>1)-120;
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
         x = (7/*+(getrendermode() >= 3)*/);
 #else
         x = 7;
@@ -3282,7 +3282,7 @@ cheat_for_port_credits:
                 nfs   = newfullscreen;
                 nbpp  = (newvidmode==validmodecnt)?bpp:validmode[newvidmode].bpp;
                 nrend = (vidsets[newvidset] & 0x20000) ? (nbpp==8?2:
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                         glrendmode
 #else
                         0
@@ -3326,7 +3326,7 @@ cheat_for_port_credits:
                 ud.detail = 1-ud.detail;
                 break;
             }
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
             /*            switch (gltexfiltermode)
                         {
                         case 0:
@@ -3398,7 +3398,7 @@ cheat_for_port_credits:
                 r_ambientlightrecip = 1.f/r_ambientlight;
             }
         }
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
         else
         {
             int32_t filter = gltexfiltermode;
@@ -5150,8 +5150,8 @@ VOLUME_ALL_40x:
                 else if (g_netServer)
                     enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
 
-                Bsprintf(ScriptQuotes[116],"VOTE FAILED");
-                P_DoQuote(116,g_player[myconnectindex].ps);
+                Bsprintf(ScriptQuotes[QUOTE_RESERVED2],"VOTE FAILED");
+                P_DoQuote(QUOTE_RESERVED2,g_player[myconnectindex].ps);
                 g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             }
         }

@@ -32,7 +32,7 @@ extern int32_t g_numRealPalettes;
 extern int32_t voting,vote_map,vote_episode;
 extern palette_t CrosshairColors;
 int32_t G_EnterLevel(int32_t g);
-int32_t G_FindLevelForFilename(const char *fn);
+int32_t G_FindLevelByFile(const char *fn);
 void G_CacheMapData(void);
 void G_FadeLoad(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step);
 void G_FreeMapState(int32_t mapnum);
@@ -45,7 +45,7 @@ void P_ResetInventory(int32_t snum);
 void P_ResetPlayer(int32_t snum);
 void P_ResetStatus(int32_t snum);
 void P_ResetWeapons(int32_t snum);
-void clearfifo(void);
-void xyzmirror(int32_t i,int32_t wn);
+void G_ClearFIFO(void);
+void G_SetupCamTile(int32_t i,int32_t wn);
 
 #endif

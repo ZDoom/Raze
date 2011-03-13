@@ -60,7 +60,7 @@ static instype *x_sortingstateptr;
 extern void message(const char *fmt, ...);
 
 // from sector.c vvv
-static int32_t ldist(spritetype *s1,spritetype *s2)
+static int32_t ldist(const spritetype *s1, const spritetype *s2)
 {
     int32_t x= klabs(s1->x-s2->x);
     int32_t y= klabs(s1->y-s2->y);
@@ -73,7 +73,7 @@ static int32_t ldist(spritetype *s1,spritetype *s2)
     }
 }
 
-static int32_t dist(spritetype *s1,spritetype *s2)
+static int32_t dist(const spritetype *s1, const spritetype *s2)
 {
     int32_t x= klabs(s1->x-s2->x);
     int32_t y= klabs(s1->y-s2->y);
@@ -2385,6 +2385,7 @@ badindex:
         case CON_PRINTMESSAGE256:
         case CON_PRINTEXT256:
         case CON_PRINTEXT16:
+        case CON_DRAWLABEL:
             insptr++;
             {
                 int32_t i=*insptr++;
@@ -2395,30 +2396,55 @@ badindex:
                 {
                     int32_t x=(tw>=CON_PRINTMESSAGE256)?Gv_GetVarX(*insptr++):0;
                     int32_t y=(tw>=CON_PRINTMESSAGE256)?Gv_GetVarX(*insptr++):0;
+
                     int32_t col=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
                     int32_t backcol=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
                     int32_t fontsize=(tw>=CON_PRINTEXT256)?Gv_GetVarX(*insptr++):0;
 
-                    if (tw==CON_ERRORINS) vm.flags |= VMFLAG_ERROR;
-
                     if (tw==CON_PRINT || tw==CON_ERRORINS)
+                    {
                         OSD_Printf("%s\n", quotetext);
+                        if (tw==CON_ERRORINS)
+                            vm.flags |= VMFLAG_ERROR;
+                    }
                     else if (tw==CON_QUOTE)
+                    {
                         message("%s", quotetext);
+                    }
                     else if (tw==CON_PRINTMESSAGE16)
-                        printmessage16("%s", quotetext);
+                    {
+                        if (qsetmode != 200)
+                            printmessage16("%s", quotetext);
+                    }
                     else if (tw==CON_PRINTMESSAGE256)
-                        printmessage256(x, y, quotetext);
+                    {
+                        if (qsetmode == 200)
+                            printmessage256(x, y, quotetext);
+                    }
                     else if (tw==CON_PRINTEXT256)
                     {
-                        if (col<0 || col>=256) col=0;
-                        if (backcol<0 || backcol>=256) backcol=-1;
-                        printext256(x, y, col, backcol, quotetext, fontsize);
+                        if (qsetmode == 200)
+                        {
+                            if (col<0 || col>=256) col=0;
+                            if (backcol<0 || backcol>=256) backcol=-1;
+                            printext256(x, y, col, backcol, quotetext, fontsize);
+                        }
                     }
                     else if (tw==CON_PRINTEXT16)
                     {
-                        printext16(x, y, editorcolors[col&15], backcol<0 ? -1 : editorcolors[backcol&15],
-                                   quotetext, fontsize);
+                        if (qsetmode != 200)
+                            printext16(x, y, editorcolors[col&255], backcol<0 ? -1 : editorcolors[backcol&255],
+                                       quotetext, fontsize);
+                    }
+                    else if (tw==CON_DRAWLABEL)
+                    {
+                        if (qsetmode != 200)
+                        {
+                            drawsmallabel(quotetext,
+                                          editorcolors[backcol&255],  // col
+                                          fontsize < 0 ? -1 : editorcolors[fontsize&255],  // backcol
+                                          x, y, col);  // x y z
+                        }
                     }
                 }
             }

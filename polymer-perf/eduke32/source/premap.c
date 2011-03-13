@@ -489,7 +489,7 @@ void G_CacheMapData(void)
             if (waloff[i] == 0)
                 loadtile((int16_t)i);
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
 // PRECACHE
             if (ud.config.useprecache)
             {
@@ -544,7 +544,7 @@ void G_CacheMapData(void)
     OSD_Printf("Cache time: %dms\n", endtime-starttime);
 }
 
-void xyzmirror(int32_t i,int32_t wn)
+void G_SetupCamTile(int32_t i,int32_t wn)
 {
     //if (waloff[wn] == 0) loadtile(wn);
     setviewtotile(wn,tilesizy[wn],tilesizx[wn]);
@@ -678,7 +678,7 @@ void P_ResetPlayer(int32_t snum)
     g_player[snum].ps->weapreccnt = 0;
     g_player[snum].ps->fta = 0;
     g_player[snum].ps->ftq = 0;
-    g_player[snum].ps->posvel.x = g_player[snum].ps->posvel.y = 0;
+    g_player[snum].ps->vel.x = g_player[snum].ps->vel.y = 0;
     g_player[snum].ps->rotscrnang = 0;
     g_player[snum].ps->runspeed = g_playerFriction;
     g_player[snum].ps->falling_counter = 0;
@@ -782,9 +782,9 @@ void P_ResetStatus(int32_t snum)
     p->newowner          =-1;
     p->jumping_counter   = 0;
     p->hard_landing      = 0;
-    p->posvel.x             = 0;
-    p->posvel.y             = 0;
-    p->posvel.z             = 0;
+    p->vel.x             = 0;
+    p->vel.y             = 0;
+    p->vel.z             = 0;
     fricxv            = 0;
     fricyv            = 0;
     p->somethingonplayer =-1;
@@ -1560,31 +1560,26 @@ void G_ResetTimers(void)
     g_moveThingsCount = 0;
 }
 
-void clearfifo(void)
+void G_ClearFIFO(void)
 {
-    int32_t i = 0;
-    extern int32_t jump_timer;
+    int32_t i = MAXPLAYERS-1;
+    
+    g_emuJumpTics = 0;
 
-    jump_timer = 0;
-    avg.fvel = avg.svel = avg.avel = avg.horz = avg.bits = avg.extbits = 0;
+    Bmemset(&avg, 0, sizeof(input_t));
 
     clearbufbyte(&loc,sizeof(input_t),0L);
     clearbufbyte(&inputfifo,sizeof(input_t)*MOVEFIFOSIZ*MAXPLAYERS,0L);
 
-    for (; i<MAXPLAYERS; i++)
+    for (; i >= 0; i--)
     {
-//      Bmemset(g_player[i].inputfifo,0,sizeof(g_player[i].inputfifo));
         if (g_player[i].sync != NULL)
-            Bmemset(g_player[i].sync,0,sizeof(input_t));
-        g_player[i].vote = 0;
-        g_player[i].gotvote = 0;
+            Bmemset(g_player[i].sync, 0, sizeof(input_t));
+        g_player[i].vote = g_player[i].gotvote = 0;
     }
-    //    clearbufbyte(playerquitflag,MAXPLAYERS,0x01);
 }
 
-extern int32_t voting, vote_map, vote_episode;
-
-int32_t G_FindLevelForFilename(const char *fn)
+int32_t G_FindLevelByFile(const char *fn)
 {
     int32_t volume, level;
 
@@ -1637,8 +1632,10 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
 
     if (filename != NULL)
         Bstrcpy(outbuf, filename);
+
     p = Bstrrchr(outbuf,'.');
-    if (!p) Bstrcat(outbuf,".mhk");
+    if (!p)
+        Bstrcat(outbuf,".mhk");
     else
     {
         p[1]='m';
@@ -1646,7 +1643,9 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
         p[3]='k';
         p[4]=0;
     }
-    if (!loadmaphack(outbuf)) initprintf("Loaded map hack file '%s'\n",outbuf);
+
+    if (!loadmaphack(outbuf))
+        initprintf("Loaded map hack file '%s'\n",outbuf);
 }
 
 int32_t G_EnterLevel(int32_t g)
@@ -1671,18 +1670,21 @@ int32_t G_EnterLevel(int32_t g)
     if ((g&MODE_DEMO) == 0 && ud.recstat == 2)
         ud.recstat = 0;
 
-    FX_StopAllSounds();
-    S_ClearSoundLocks();
-    FX_SetReverb(0);
+    if (g_networkMode != NET_DEDICATED_SERVER)
+    {
+        FX_StopAllSounds();
+        S_ClearSoundLocks();
+        FX_SetReverb(0);
+        setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
+    }	       
 
-    setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
     if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
     {
         int32_t volume, level;
 
         Bcorrectfilename(boardfilename,0);
 
-        volume = level = G_FindLevelForFilename(boardfilename);
+        volume = level = G_FindLevelByFile(boardfilename);
 
         if (level != MAXLEVELS*MAXVOLUMES)
         {
@@ -1811,7 +1813,6 @@ int32_t G_EnterLevel(int32_t g)
     }
     else
     {
-
         i = strlen(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
         copybufbyte(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,&levname[0],i);
         levname[i] = 255;
@@ -1871,7 +1872,7 @@ int32_t G_EnterLevel(int32_t g)
         G_OpenDemoWrite();
 
     if (VOLUMEONE && ud.level_number == 0 && ud.recstat != 2)
-        P_DoQuote(40,g_player[myconnectindex].ps);
+        P_DoQuote(QUOTE_F1HELP,g_player[myconnectindex].ps);
 
     TRAVERSE_CONNECT(i)
     switch (DynamicTileMap[sector[sprite[g_player[i].ps->i].sectnum].floorpicnum])
@@ -1904,7 +1905,7 @@ int32_t G_EnterLevel(int32_t g)
 
     ud.last_level = ud.level_number+1;
 
-    clearfifo();
+    G_ClearFIFO();
 
     for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
 

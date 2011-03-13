@@ -386,7 +386,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             ((g_sounds[num].m&8) && ud.lockout) ||
             ud.config.SoundToggle == 0 ||
             g_sounds[num].num >= MAXSOUNDINSTANCES ||
-            i < 0 || i >= MAXSPRITES ||
+            (unsigned)i >= MAXSPRITES ||
             FX_VoiceAvailable(g_sounds[num].pr) == 0 ||
             (g_player[myconnectindex].ps->timebeforeexit > 0 && g_player[myconnectindex].ps->timebeforeexit <= GAMETICSPERSEC*3) ||
             g_player[myconnectindex].ps->gm&MODE_MENU) return -1;
@@ -458,6 +458,8 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             pitch -= 1024;
         break;
     default:
+        if (sndist > 32767 && PN != MUSICANDSFX && (g_sounds[num].m & 3) == 0)
+            return -1;
         if (g_player[screenpeek].ps->cursectnum > -1 && sector[g_player[screenpeek].ps->cursectnum].lotag == 2 && (g_sounds[num].m&4) == 0)
             pitch = -768;
         break;
@@ -611,7 +613,7 @@ int32_t S_PlaySound(int32_t num)
 
 int32_t A_PlaySound(uint32_t num, int32_t i)
 {
-    if ((int32_t)num > g_maxSoundPos) return -1;
+    if ((unsigned)num > (unsigned)g_maxSoundPos) return -1;
     return i < 0 ? S_PlaySound(num) : S_PlaySound3D(num, i, (vec3_t *)&sprite[i]);
 }
 
@@ -619,7 +621,7 @@ void S_StopEnvSound(int32_t num, int32_t i)
 {
     int32_t j, iter = 0;
 
-    if (num < 0 || num > g_maxSoundPos || g_sounds[num].num <= 0)
+    if ((unsigned)num > (unsigned)g_maxSoundPos || g_sounds[num].num <= 0)
         return;
 
     do
@@ -690,7 +692,7 @@ void S_Update(void)
         {
             i = g_sounds[j].SoundOwner[k].i;
 
-            if (i < 0 || i >= MAXSPRITES || g_sounds[j].num == 0 || g_sounds[j].SoundOwner[k].voice <= FX_Ok)
+            if ((unsigned)i >= MAXSPRITES || g_sounds[j].num == 0 || g_sounds[j].SoundOwner[k].voice <= FX_Ok)
                 continue;
 
             if (!FX_SoundActive(g_sounds[j].SoundOwner[k].voice))
@@ -734,9 +736,7 @@ void S_Update(void)
                 break;
             }
 
-            if (g_sounds[j].m&16) sndist = 0;
-
-            if (sndist < ((255-LOUDESTVOLUME)<<6))
+            if (g_sounds[j].m&16 || sndist < ((255-LOUDESTVOLUME)<<6))
                 sndist = ((255-LOUDESTVOLUME)<<6);
 
             FX_Pan3D(g_sounds[j].SoundOwner[k].voice, sndang>>4, sndist>>6);

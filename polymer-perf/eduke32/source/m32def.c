@@ -363,6 +363,7 @@ const char *keyw[] =
     "printmessage256",
     "printext256",
     "printext16",
+    "drawlabel",
     "getnumber16",
     "getnumber256",
     "qsprintf",
@@ -3266,14 +3267,18 @@ repeatcase:
     case CON_QUOTE:
     case CON_ERRORINS:
     case CON_PRINTMESSAGE16:
+    case CON_PRINTMESSAGE256:
     case CON_PRINTEXT256:
     case CON_PRINTEXT16:
+    case CON_DRAWLABEL:
         if (C_GetNextVarOrString()==-1)
             return 1;
+
         if (tw==CON_PRINTMESSAGE256)
             C_GetManyVars(2);
-        else if (tw==CON_PRINTEXT256 || tw==CON_PRINTEXT16)
+        else if (tw >= CON_PRINTEXT256)
             C_GetManyVars(5);
+
         return 0;
 
     case CON_GETNUMBER16:

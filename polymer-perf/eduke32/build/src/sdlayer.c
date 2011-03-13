@@ -202,7 +202,7 @@ int32_t main(int32_t argc, char *argv[])
             }
         }
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
     if ((argp = Bgetenv("BUILD_NOFOG")) != NULL)
         nofog = Batol(argp);
 #endif
@@ -217,7 +217,7 @@ int32_t main(int32_t argc, char *argv[])
     return r;
 }
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
 void setvsync(int32_t sync)
 {
     if (vsync == sync) return;
@@ -303,7 +303,10 @@ int32_t initsystem(void)
                 }
                 else
                 */
-        novideo = nogl = 1;
+        novideo = 1;
+#ifdef USE_OPENGL
+        nogl = 1;
+#endif
     }
 
     signal(SIGSEGV, sighandler);
@@ -791,18 +794,13 @@ void getvalidmodes(void)
 #endif
         0
     };
-    static int32_t defaultres[][2] =
-    {
-        {1280,1024}
-        ,{1280,960},{1152,864},{1024,768},{800,600},{640,480},
-        {640,400},{512,384},{480,360},{400,300},{320,240},{320,200},{0,0}
-    };
     SDL_Rect **modes;
-#if (SDL_MAJOR_VERSION > 1 || SDL_MINOR_VERSION > 2)
-    SDL_PixelFormat pf = { NULL, 8, 1, 0,0,0,0, 0,0,0,0, 0,0,0,0 };
-#else
-    SDL_PixelFormat pf = { NULL, 8, 1, 0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0 };
-#endif
+    SDL_PixelFormat pf;
+
+    pf.palette = NULL;
+    pf.BitsPerPixel = 8;
+    pf.BytesPerPixel = 1;
+
     int32_t i, j, maxx=0, maxy=0;
 
     if (modeschecked || novideo) return;
@@ -810,20 +808,22 @@ void getvalidmodes(void)
     validmodecnt=0;
 //    initprintf("Detecting video modes:\n");
 
-#define ADDMODE(x,y,c,f) if (validmodecnt<MAXVALIDMODES) { \
-    int32_t mn; \
-    for(mn=0;mn<validmodecnt;mn++) \
-        if (validmode[mn].xdim==x && validmode[mn].ydim==y && \
-            validmode[mn].bpp==c  && validmode[mn].fs==f) break; \
-    if (mn==validmodecnt) { \
-        validmode[validmodecnt].xdim=x; \
-        validmode[validmodecnt].ydim=y; \
-        validmode[validmodecnt].bpp=c; \
-        validmode[validmodecnt].fs=f; \
-        validmodecnt++; \
-        /*initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed");*/ \
+#define ADDMODE(x,y,c,f) do { \
+    if (validmodecnt<MAXVALIDMODES) { \
+        int32_t mn; \
+        for(mn=0;mn<validmodecnt;mn++) \
+            if (validmode[mn].xdim==x && validmode[mn].ydim==y && \
+                validmode[mn].bpp==c  && validmode[mn].fs==f) break; \
+        if (mn==validmodecnt) { \
+            validmode[validmodecnt].xdim=x; \
+            validmode[validmodecnt].ydim=y; \
+            validmode[validmodecnt].bpp=c; \
+            validmode[validmodecnt].fs=f; \
+            validmodecnt++; \
+            /*initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed");*/ \
+        } \
     } \
-}
+} while (0)
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
@@ -837,9 +837,9 @@ void getvalidmodes(void)
         pf.BytesPerPixel = cdepths[j] >> 3;
 
         modes = SDL_ListModes(&pf, SURFACE_FLAGS
-#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
+// #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
                               | SDL_FULLSCREEN // not implemented/working in SDL 1.3 SDL_compat.c
-#endif
+//#endif
                              );
 
         if (modes == (SDL_Rect **)0)
@@ -851,15 +851,15 @@ void getvalidmodes(void)
         if (modes == (SDL_Rect **)-1)
         {
             for (i=0; defaultres[i][0]; i++)
-                ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],1)
-            }
+                ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],1);
+        }
         else
         {
             for (i=0; modes[i]; i++)
             {
                 if ((modes[i]->w > MAXXDIM) || (modes[i]->h > MAXYDIM)) continue;
 
-                ADDMODE(modes[i]->w, modes[i]->h, cdepths[j], 1)
+                ADDMODE(modes[i]->w, modes[i]->h, cdepths[j], 1);
 
                 if ((modes[i]->w > maxx) && (modes[i]->h > maxy))
                 {
@@ -885,7 +885,7 @@ void getvalidmodes(void)
         if (cdepths[j] < 0) continue;
         for (i=0; defaultres[i][0]; i++)
             CHECK(defaultres[i][0],defaultres[i][1])
-            ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],0)
+                ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],0);
         }
 
 #undef CHECK
@@ -987,7 +987,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
     if (lockcount) while (lockcount) enddrawing();
 
-#if defined(USE_OPENGL)
+#ifdef USE_OPENGL
     if (bpp > 8 && sdl_surface) polymost_glreset();
 #endif
 
@@ -998,7 +998,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         gammabrightness = 0;	// redetect on next mode switch
     }
 
-#if defined(USE_OPENGL)
+#ifdef USE_OPENGL
     if (c > 8)
     {
         int32_t i, j, multisamplecheck = (glmultisample > 0);

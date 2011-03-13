@@ -231,9 +231,9 @@ void freeallmodels(void);
 void clearskins(void);
 int32_t mddraw(spritetype *tspr);
 
-typedef struct { float xadd, yadd, zadd; int16_t angadd, flags; } hudtyp;
+typedef struct { float xadd, yadd, zadd; int16_t angadd, flags, fov; } hudtyp;
 
-EXTERN hudtyp hudmem[2][MAXTILES]; //~320KB ... ok for now ... could replace with dynamic alloc
+EXTERN hudtyp hudmem[2][MAXTILES];
 
 EXTERN int32_t mdpause;
 EXTERN int32_t nummodelsalloced, nextmodelid;

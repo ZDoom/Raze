@@ -2007,7 +2007,7 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     if (orientation&4)
         a = 1024;
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     if (getrendermode() >= 3 && usemodels && md_tilehasmodel(tilenum,p) > 0)
         y += (224-weapsc(224));
 #endif
@@ -2958,7 +2958,7 @@ void P_DisplayWeapon(int32_t snum)
 
 int32_t g_myAimMode = 0, g_myAimStat = 0, g_oldAimStat = 0;
 int32_t mouseyaxismode = -1;
-int32_t jump_timer = 0;
+int32_t g_emuJumpTics = 0;
 
 void getinput(int32_t snum)
 {
@@ -2996,7 +2996,7 @@ void getinput(int32_t snum)
         if (g_myAimStat > g_oldAimStat)
         {
             g_myAimMode ^= 1;
-            P_DoQuote(44+g_myAimMode,p);
+            P_DoQuote(QUOTE_MOUSE_AIMING_OFF+g_myAimMode,p);
         }
     }
 
@@ -3166,12 +3166,12 @@ void getinput(int32_t snum)
         j = 12;
 
     if (BUTTON(gamefunc_Jump) && p->on_ground)
-        jump_timer = 4;
+        g_emuJumpTics = 4;
 
-    loc.bits = (jump_timer > 0 || BUTTON(gamefunc_Jump))<<SK_JUMP;
+    loc.bits = (g_emuJumpTics > 0 || BUTTON(gamefunc_Jump))<<SK_JUMP;
 
-    if (jump_timer > 0)
-        jump_timer--;
+    if (g_emuJumpTics > 0)
+        g_emuJumpTics--;
 
     loc.bits |=   BUTTON(gamefunc_Crouch)<<SK_CROUCH;
     loc.bits |=   BUTTON(gamefunc_Fire)<<SK_FIRE;
@@ -3404,7 +3404,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
         {
             p->scuba_on = 1;
             p->inven_icon = 6;
-            P_DoQuote(76,p);
+            P_DoQuote(QUOTE_SCUBA_ON,p);
         }
         else
         {
@@ -3665,8 +3665,8 @@ void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
             p->pals.g = 0;
             p->pals.b = 0;
 
-            p->posvel.x = -(sintable[(p->ang+512)&2047]<<8);
-            p->posvel.y = -(sintable[(p->ang)&2047]<<8);
+            p->vel.x = -(sintable[(p->ang+512)&2047]<<8);
+            p->vel.y = -(sintable[(p->ang)&2047]<<8);
             A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
 
             {
@@ -3848,13 +3848,13 @@ void P_FragPlayer(int32_t snum)
 
             if (snum == screenpeek)
             {
-                Bsprintf(ScriptQuotes[115],"KILLED BY %s",&g_player[p->frag_ps].user_name[0]);
-                P_DoQuote(115,p);
+                Bsprintf(ScriptQuotes[QUOTE_RESERVED],"KILLED BY %s",&g_player[p->frag_ps].user_name[0]);
+                P_DoQuote(QUOTE_RESERVED,p);
             }
             else
             {
-                Bsprintf(ScriptQuotes[116],"KILLED %s",&g_player[snum].user_name[0]);
-                P_DoQuote(116,g_player[p->frag_ps].ps);
+                Bsprintf(ScriptQuotes[QUOTE_RESERVED2],"KILLED %s",&g_player[snum].user_name[0]);
+                P_DoQuote(QUOTE_RESERVED2,g_player[p->frag_ps].ps);
             }
 
             if (ud.obituaries)
@@ -3941,13 +3941,13 @@ void P_ProcessWeapon(int32_t snum)
                 {
                     p->holster_weapon = 1;
                     p->weapon_pos = -1;
-                    P_DoQuote(73,p);
+                    P_DoQuote(QUOTE_WEAPON_LOWERED,p);
                 }
                 else if (p->holster_weapon == 1 && p->weapon_pos == -9)
                 {
                     p->holster_weapon = 0;
                     p->weapon_pos = 10;
-                    P_DoQuote(74,p);
+                    P_DoQuote(QUOTE_WEAPON_RAISED,p);
                 }
             }
 
@@ -4027,7 +4027,7 @@ void P_ProcessWeapon(int32_t snum)
             {
                 p->holster_weapon = 0;
                 p->weapon_pos = 10;
-                P_DoQuote(74,p);
+                P_DoQuote(QUOTE_WEAPON_RAISED,p);
             }
         }
         else
@@ -4110,7 +4110,7 @@ void P_ProcessWeapon(int32_t snum)
                                         (hitinfo.pos.y-p->pos.y)*(hitinfo.pos.y-p->pos.y)) < (290*290))
                                 {
                                     p->pos.z = p->opos.z;
-                                    p->posvel.z = 0;
+                                    p->vel.z = 0;
                                     (*kb) = 1;
                                     if (aplWeaponInitialSound[p->curr_weapon][snum] > 0)
                                     {
@@ -4290,7 +4290,7 @@ void P_ProcessWeapon(int32_t snum)
                     && *kb < (aplWeaponFireDelay[p->curr_weapon][snum]+1))
             {
                 p->pos.z = p->opos.z;
-                p->posvel.z = 0;
+                p->vel.z = 0;
             }
 
             if (*kb == aplWeaponSound2Time[p->curr_weapon][snum])
@@ -4485,6 +4485,9 @@ void P_ProcessInput(int32_t snum)
     uint8_t *kb = &p->kickback_pic;
     int16_t tempsect;
 
+    if (g_player[snum].playerquitflag == 0)
+        return;
+
     p->player_par++;
 
     VM_OnEvent(EVENT_PROCESSINPUT, p->i, snum, -1);
@@ -4567,8 +4570,8 @@ void P_ProcessInput(int32_t snum)
         {
             // I think this is what makes the player slide off enemies... might be a good sprite flag to add later
             j = getangle(sprite[j].x-p->pos.x,sprite[j].y-p->pos.y);
-            p->posvel.x -= sintable[(j+512)&2047]<<4;
-            p->posvel.y -= sintable[j&2047]<<4;
+            p->vel.x -= sintable[(j+512)&2047]<<4;
+            p->vel.y -= sintable[j&2047]<<4;
         }
     }
 
@@ -4597,7 +4600,7 @@ void P_ProcessInput(int32_t snum)
             if (p->customexitsound >= 0)
             {
                 S_PlaySound(p->customexitsound);
-                P_DoQuote(102,p);
+                P_DoQuote(QUOTE_WEREGONNAFRYYOURASS,p);
             }
         }
         else if (p->timebeforeexit == 1)
@@ -4689,7 +4692,7 @@ void P_ProcessInput(int32_t snum)
         p->pos.y = SY;
         p->pos.z = SZ;
         p->ang =  SA;
-        p->posvel.x = p->posvel.y = s->xvel = 0;
+        p->vel.x = p->vel.y = s->xvel = 0;
         p->look_ang = 0;
         p->rotscrnang = 0;
 
@@ -4802,9 +4805,9 @@ void P_ProcessInput(int32_t snum)
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 // jump
-                if (p->posvel.z > 0) p->posvel.z = 0;
-                p->posvel.z -= 348;
-                if (p->posvel.z < -(256*6)) p->posvel.z = -(256*6);
+                if (p->vel.z > 0) p->vel.z = 0;
+                p->vel.z -= 348;
+                if (p->vel.z < -(256*6)) p->vel.z = -(256*6);
             }
         }
         else if (TEST_SYNC_KEY(sb_snum, SK_CROUCH))
@@ -4814,32 +4817,32 @@ void P_ProcessInput(int32_t snum)
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
                 // crouch
-                if (p->posvel.z < 0) p->posvel.z = 0;
-                p->posvel.z += 348;
-                if (p->posvel.z > (256*6)) p->posvel.z = (256*6);
+                if (p->vel.z < 0) p->vel.z = 0;
+                p->vel.z += 348;
+                if (p->vel.z > (256*6)) p->vel.z = (256*6);
             }
         }
         else
         {
             // normal view
-            if (p->posvel.z < 0)
+            if (p->vel.z < 0)
             {
-                p->posvel.z += 256;
-                if (p->posvel.z > 0)
-                    p->posvel.z = 0;
+                p->vel.z += 256;
+                if (p->vel.z > 0)
+                    p->vel.z = 0;
             }
-            if (p->posvel.z > 0)
+            if (p->vel.z > 0)
             {
-                p->posvel.z -= 256;
-                if (p->posvel.z < 0)
-                    p->posvel.z = 0;
+                p->vel.z -= 256;
+                if (p->vel.z < 0)
+                    p->vel.z = 0;
             }
         }
 
-        if (p->posvel.z > 2048)
-            p->posvel.z >>= 1;
+        if (p->vel.z > 2048)
+            p->vel.z >>= 1;
 
-        p->pos.z += p->posvel.z;
+        p->pos.z += p->vel.z;
 
         if (p->pos.z > (fz-(15<<8)))
             p->pos.z += ((fz-(15<<8))-p->pos.z)>>1;
@@ -4847,7 +4850,7 @@ void P_ProcessInput(int32_t snum)
         if (p->pos.z < cz)
         {
             p->pos.z = cz;
-            p->posvel.z = 0;
+            p->vel.z = 0;
         }
 
         if (p->scuba_on && (krand()&255) < 8)
@@ -5004,16 +5007,16 @@ void P_ProcessInput(int32_t snum)
             else
             {
                 p->on_ground = 0;
-                p->posvel.z += (g_spriteGravity+80); // (TICSPERFRAME<<6);
-                if (p->posvel.z >= (4096+2048)) p->posvel.z = (4096+2048);
-                if (p->posvel.z > 2400 && p->falling_counter < 255)
+                p->vel.z += (g_spriteGravity+80); // (TICSPERFRAME<<6);
+                if (p->vel.z >= (4096+2048)) p->vel.z = (4096+2048);
+                if (p->vel.z > 2400 && p->falling_counter < 255)
                 {
                     p->falling_counter++;
                     if (p->falling_counter >= 38 && p->scream_voice <= FX_Ok)
                         p->scream_voice = A_PlaySound(DUKE_SCREAM,p->i);
                 }
 
-                if ((p->pos.z+p->posvel.z) >= (fz-(i<<8)) && p->cursectnum >= 0)   // hit the ground
+                if ((p->pos.z+p->vel.z) >= (fz-(i<<8)) && p->cursectnum >= 0)   // hit the ground
                     if (sector[p->cursectnum].lotag != 1)
                     {
                         if (p->falling_counter > 62)
@@ -5040,7 +5043,7 @@ void P_ProcessInput(int32_t snum)
                             p->pals.b = 0;
                             p->pals.f = 32;
                         }
-                        else if (p->posvel.z > 2048)
+                        else if (p->vel.z > 2048)
                             A_PlaySound(DUKE_LAND,p->i);
                     }
             }
@@ -5057,8 +5060,8 @@ void P_ProcessInput(int32_t snum)
                 p->scream_voice = -1;
             }
 
-            if (psectlotag != 1 && psectlotag != 2 && p->on_ground == 0 && p->posvel.z > (6144>>1))
-                p->hard_landing = p->posvel.z>>10;
+            if (psectlotag != 1 && psectlotag != 2 && p->on_ground == 0 && p->vel.z > (6144>>1))
+                p->hard_landing = p->vel.z>>10;
 
             p->on_ground = 1;
 
@@ -5069,8 +5072,8 @@ void P_ProcessInput(int32_t snum)
                 k = ((fz-(i<<8))-p->pos.z)>>1;
                 if (klabs(k) < 256) k = 0;
                 p->pos.z += k;
-                p->posvel.z -= 768;
-                if (p->posvel.z < 0) p->posvel.z = 0;
+                p->vel.z -= 768;
+                if (p->vel.z < 0) p->vel.z = 0;
             }
             else if (p->jumping_counter == 0)
             {
@@ -5078,7 +5081,7 @@ void P_ProcessInput(int32_t snum)
                 if (p->on_warping_sector == 0 && p->pos.z > fz-(16<<8))
                 {
                     p->pos.z = fz-(16<<8);
-                    p->posvel.z >>= 1;
+                    p->vel.z >>= 1;
                 }
             }
 
@@ -5128,11 +5131,11 @@ void P_ProcessInput(int32_t snum)
                 if (psectlotag == 1 && p->jumping_counter > 768)
                 {
                     p->jumping_counter = 0;
-                    p->posvel.z = -512;
+                    p->vel.z = -512;
                 }
                 else
                 {
-                    p->posvel.z -= (sintable[(2048-128+p->jumping_counter)&2047])/12;
+                    p->vel.z -= (sintable[(2048-128+p->jumping_counter)&2047])/12;
                     p->jumping_counter += 180;
                     p->on_ground = 0;
                 }
@@ -5140,18 +5143,18 @@ void P_ProcessInput(int32_t snum)
             else
             {
                 p->jumping_counter = 0;
-                p->posvel.z = 0;
+                p->vel.z = 0;
             }
         }
 
-        p->pos.z += p->posvel.z;
+        p->pos.z += p->vel.z;
 
         if ((psectlotag != 2 || cz != sector[p->cursectnum].ceilingz) && p->pos.z < (cz+(4<<8)))
         {
             p->jumping_counter = 0;
-            if (p->posvel.z < 0)
-                p->posvel.x = p->posvel.y = 0;
-            p->posvel.z = 128;
+            if (p->vel.z < 0)
+                p->vel.x = p->vel.y = 0;
+            p->vel.z = 128;
             p->pos.z = cz+(4<<8);
         }
     }
@@ -5161,8 +5164,8 @@ void P_ProcessInput(int32_t snum)
              *kb > 1 && *kb < *aplWeaponFireDelay[p->curr_weapon]))
     {
         doubvel = 0;
-        p->posvel.x = 0;
-        p->posvel.y = 0;
+        p->vel.x = 0;
+        p->vel.y = 0;
     }
     else if (g_player[snum].sync->avel)            //p->ang += syncangvel * constant
     {
@@ -5203,7 +5206,7 @@ void P_ProcessInput(int32_t snum)
 
         if (p->on_ground && truefdist <= PHEIGHT+(16<<8) && P_CheckFloorDamage(p, j))
         {
-            P_DoQuote(75, p);
+            P_DoQuote(QUOTE_BOOTS_ON, p);
             p->inv_amount[GET_BOOTS] -= 2;
             if (p->inv_amount[GET_BOOTS] <= 0)
             {
@@ -5231,7 +5234,7 @@ void P_ProcessInput(int32_t snum)
     if (g_player[snum].sync->extbits&(1<<5) || g_player[snum].sync->avel > 0)
         VM_OnEvent(EVENT_TURNRIGHT,p->i,snum, -1);
 
-    if (p->posvel.x || p->posvel.y || g_player[snum].sync->fvel || g_player[snum].sync->svel)
+    if (p->vel.x || p->vel.y || g_player[snum].sync->fvel || g_player[snum].sync->svel)
     {
         p->crack_time = 777;
 
@@ -5275,8 +5278,8 @@ void P_ProcessInput(int32_t snum)
         if (p->jetpack_on == 0 && p->inv_amount[GET_STEROIDS] > 0 && p->inv_amount[GET_STEROIDS] < 400)
             doubvel <<= 1;
 
-        p->posvel.x += ((g_player[snum].sync->fvel*doubvel)<<6);
-        p->posvel.y += ((g_player[snum].sync->svel*doubvel)<<6);
+        p->vel.x += ((g_player[snum].sync->fvel*doubvel)<<6);
+        p->vel.y += ((g_player[snum].sync->svel*doubvel)<<6);
 
         j = 0;
 
@@ -5285,16 +5288,16 @@ void P_ProcessInput(int32_t snum)
         else if (p->on_ground && (TEST_SYNC_KEY(sb_snum, SK_CROUCH) || (*kb > 10 && aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON)))
             j = 0x2000;
 
-        p->posvel.x = mulscale16(p->posvel.x,p->runspeed-j);
-        p->posvel.y = mulscale16(p->posvel.y,p->runspeed-j);
+        p->vel.x = mulscale16(p->vel.x,p->runspeed-j);
+        p->vel.y = mulscale16(p->vel.y,p->runspeed-j);
 
-        if (klabs(p->posvel.x) < 2048 && klabs(p->posvel.y) < 2048)
-            p->posvel.x = p->posvel.y = 0;
+        if (klabs(p->vel.x) < 2048 && klabs(p->vel.y) < 2048)
+            p->vel.x = p->vel.y = 0;
 
         if (shrunk)
         {
-            p->posvel.x = mulscale16(p->posvel.x,p->runspeed-(p->runspeed>>1)+(p->runspeed>>2));
-            p->posvel.y = mulscale16(p->posvel.y,p->runspeed-(p->runspeed>>1)+(p->runspeed>>2));
+            p->vel.x = mulscale16(p->vel.x,p->runspeed-(p->runspeed>>1)+(p->runspeed>>2));
+            p->vel.y = mulscale16(p->vel.y,p->runspeed-(p->runspeed>>1)+(p->runspeed>>2));
         }
     }
 
@@ -5307,12 +5310,12 @@ HORIZONLY:
 
     if (ud.clipping)
     {
-        p->pos.x += p->posvel.x>>14;
-        p->pos.y += p->posvel.y>>14;
+        p->pos.x += p->vel.x>>14;
+        p->pos.y += p->vel.y>>14;
         updatesector(p->pos.x,p->pos.y,&p->cursectnum);
         changespritesect(p->i,p->cursectnum);
     }
-    else if ((j = clipmove((vec3_t *)p,&p->cursectnum, p->posvel.x,p->posvel.y,164L,(4L<<8),i,CLIPMASK0)))
+    else if ((j = clipmove((vec3_t *)p,&p->cursectnum, p->vel.x,p->vel.y,164L,(4L<<8),i,CLIPMASK0)))
         P_CheckTouchDamage(p, j);
 
     if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
@@ -5369,7 +5372,7 @@ HORIZONLY:
         {
             if (!(sector[s->sectnum].lotag&0x8000) && (isanunderoperator(sector[s->sectnum].lotag) ||
                     isanearoperator(sector[s->sectnum].lotag)))
-                activatebysector(s->sectnum,p->i);
+                G_ActivateBySector(s->sectnum,p->i);
             if (j)
             {
                 P_QuickKill(p);
@@ -5377,7 +5380,7 @@ HORIZONLY:
             }
         }
         else if (klabs(fz-cz) < (32<<8) && isanunderoperator(sector[p->cursectnum].lotag))
-            activatebysector(p->cursectnum,p->i);
+            G_ActivateBySector(p->cursectnum,p->i);
     }
 
     i = 0;
@@ -5809,7 +5812,7 @@ void computergetinput(int32_t snum, input_t *syn)
         if (fightdist < 128) fightdist = 128;
         dist = ksqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
         if (dist == 0) dist = 1;
-        daang = getangle(x2+(g_player[goalplayer[snum]].ps->posvel.x>>14)-x1,y2+(g_player[goalplayer[snum]].ps->posvel.y>>14)-y1);
+        daang = getangle(x2+(g_player[goalplayer[snum]].ps->vel.x>>14)-x1,y2+(g_player[goalplayer[snum]].ps->vel.y>>14)-y1);
         zang = 100-((z2-z1)*8)/dist;
         fightdist = max(fightdist,(klabs(z2-z1)>>4));
 
@@ -6048,13 +6051,13 @@ void computergetinput(int32_t snum, input_t *syn)
         int16_t dasect = p->cursectnum;
         Bmemcpy(&vect,p,sizeof(vec3_t));
 
-        i = clipmove(&vect,&dasect,p->posvel.x,p->posvel.y,164L,4L<<8,4L<<8,CLIPMASK0);
+        i = clipmove(&vect,&dasect,p->vel.x,p->vel.y,164L,4L<<8,4L<<8,CLIPMASK0);
         if (!i)
         {
             Bmemcpy(&vect,p,sizeof(vec3_t));
             vect.z += (24<<8);
             dasect = p->cursectnum;
-            i = clipmove(&vect,&dasect,p->posvel.x,p->posvel.y,164L,4L<<8,4L<<8,CLIPMASK0);
+            i = clipmove(&vect,&dasect,p->vel.x,p->vel.y,164L,4L<<8,4L<<8,CLIPMASK0);
         }
     }
     if (i)

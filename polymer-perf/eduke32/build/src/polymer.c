@@ -1,6 +1,6 @@
 // blah
 
-#ifdef POLYMOST
+#ifdef USE_OPENGL
 
 #define POLYMER_C
 #include "polymer.h"
@@ -31,6 +31,13 @@ int32_t         pr_overridespecular = 0;
 float           pr_specularpower = 15.0f;
 float           pr_specularfactor = 1.0f;
 int32_t         pr_highpalookups = 1;
+int32_t         pr_overridehud = 0;
+float           pr_hudxadd = 0.0f;
+float           pr_hudyadd = 0.0f;
+float           pr_hudzadd = 0.0f;
+int32_t         pr_hudangadd = 0;
+int32_t         pr_hudfov = 426;
+float           pr_overridemodelscale = 0.0f;
 int32_t         pr_ati_fboworkaround = 0;
 int32_t         pr_ati_nodepthoffset = 0;
 #ifdef __APPLE__
@@ -585,6 +592,8 @@ _prprograminfo  prprograms[1 << PR_BIT_COUNT];
 int32_t         overridematerial;
 int32_t         globaloldoverridematerial;
 
+int32_t         rotatespritematerialbits;
+
 // RENDER TARGETS
 _prrt           *prrts;
 
@@ -744,10 +753,23 @@ void                polymer_uninit(void)
     }
 }
 
-void                polymer_glinit(void)
+void                polymer_setaspect(int32_t ang)
 {
     float           aspect;
 
+    if (pr_customaspect != 0.0f)
+        aspect = pr_customaspect;
+    else
+        aspect = (float)(windowx2-windowx1+1) /
+                 (float)(windowy2-windowy1+1);
+
+    bglMatrixMode(GL_PROJECTION);
+    bglLoadIdentity();
+    bgluPerspective((float)(ang) / (2048.0f / 360.0f), aspect, 0.01f, 100.0f);
+}
+
+void                polymer_glinit(void)
+{
     bglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     bglClearStencil(0);
     bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -755,8 +777,6 @@ void                polymer_glinit(void)
 
     // texturing
     bglEnable(GL_TEXTURE_2D);
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
     bglEnable(GL_DEPTH_TEST);
     bglDepthFunc(GL_LEQUAL);
@@ -768,16 +788,8 @@ void                polymer_glinit(void)
         bglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
         bglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    if (pr_customaspect != 0.0f)
-        aspect = pr_customaspect;
-    else
-        aspect = (float)(windowx2-windowx1+1) /
-                 (float)(windowy2-windowy1+1);
-
-    bglMatrixMode(GL_PROJECTION);
-    bglLoadIdentity();
-    bgluPerspective((float)(pr_fov) / (2048.0f / 360.0f), aspect, 0.01f, 100.0f);
+    
+    polymer_setaspect(pr_fov);
 
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
@@ -1199,21 +1211,18 @@ void                polymer_editorpick(void)
     searchit = 0;
 }
 
-void                polymer_rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade,
-                                         char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
+void                polymer_inb4rotatesprite(int16_t tilenum, char pal, int8_t shade)
 {
-    UNREFERENCED_PARAMETER(sx);
-    UNREFERENCED_PARAMETER(sy);
-    UNREFERENCED_PARAMETER(z);
-    UNREFERENCED_PARAMETER(a);
-    UNREFERENCED_PARAMETER(picnum);
-    UNREFERENCED_PARAMETER(dashade);
-    UNREFERENCED_PARAMETER(dapalnum);
-    UNREFERENCED_PARAMETER(dastat);
-    UNREFERENCED_PARAMETER(cx1);
-    UNREFERENCED_PARAMETER(cy1);
-    UNREFERENCED_PARAMETER(cx2);
-    UNREFERENCED_PARAMETER(cy2);
+    _prmaterial     rotatespritematerial;
+
+    polymer_getbuildmaterial(&rotatespritematerial, tilenum, pal, shade, 4);
+
+    rotatespritematerialbits = polymer_bindmaterial(rotatespritematerial, NULL, 0);
+}
+
+void                polymer_postrotatesprite(void)
+{
+    polymer_unbindmaterial(rotatespritematerialbits);
 }
 
 void                polymer_drawmaskwall(int32_t damaskwallcnt)
@@ -2735,7 +2744,7 @@ static void         polymer_updatewall(int16_t wallnum)
     // it also works, bitches
     sec = &sector[sectofwall];
 
-    if (sectofwall < 0 || sectofwall > numsectors ||
+    if (sectofwall < 0 || sectofwall >= numsectors ||
         wallnum < 0 || wallnum > numwalls ||
         sec->wallptr > wallnum || wallnum >= (sec->wallptr + sec->wallnum))
         return; // yay, corrupt map
@@ -2828,7 +2837,7 @@ static void         polymer_updatewall(int16_t wallnum)
     else
         xref = 0;
 
-    if (wal->nextsector < 0 || wal->nextsector > numsectors)
+    if (wal->nextsector < 0 || wal->nextsector >= numsectors)
     {
         Bmemcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
         Bmemcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
@@ -3726,7 +3735,11 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     bglLoadIdentity();
     scale = (1.0/4.0);
     scale *= m->scale;
-    scale *= m->bscale;
+    if (pr_overridemodelscale) {
+        scale *= pr_overridemodelscale;
+    } else {
+        scale *= m->bscale;
+    }
 
     if (tspriteptr[MAXSPRITESONSCREEN] == tspr) {
         float playerang, radplayerang, cosminusradplayerang, sinminusradplayerang, hudzoom;

@@ -1012,14 +1012,13 @@ VoiceNode *MV_AllocVoice(int32_t priority)
     if (LL_Empty(&VoicePool, next, prev))
     {
         // check if we have a higher priority than a voice that is playing.
-        voice = VoiceList.next;
-        for (node = voice->next; node != &VoiceList; node = node->next)
+        for (voice = node = VoiceList.next; node != &VoiceList; node = node->next)
         {
             if (node->priority < voice->priority)
                 voice = node;
         }
 
-        if (priority >= voice->priority && voice->handle > MV_Ok)
+        if (priority >= voice->priority && voice != &VoiceList && voice->handle >= MV_MinVoiceHandle)
             MV_Kill(voice->handle);
 
         if (LL_Empty(&VoicePool, next, prev))
@@ -1074,14 +1073,14 @@ int32_t MV_VoiceAvailable(int32_t priority)
             voice = node;
     }
 
-    if ((voice != &VoiceList) && (priority >= voice->priority))
+    if ((voice == &VoiceList) || (priority < voice->priority))
     {
         RestoreInterrupts();
-        return TRUE;
+        return FALSE;
     }
 
     RestoreInterrupts();
-    return FALSE;
+    return TRUE;
 }
 
 

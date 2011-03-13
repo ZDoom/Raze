@@ -47,6 +47,14 @@ char scantoasc[128] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 };
 
+int32_t defaultres[][2] =
+{
+    {1920, 1440}, {1920, 1200}, {1920, 1080}, {1600, 1200}, {1600, 900}, {1366, 768}, {1280, 1024}, 
+    {1280, 960}, {1152, 864}, {1024, 768}, {1024, 600}, {800, 600}, {640, 480}, {640, 400}, 
+    {512, 384}, {480, 360}, {400, 300}, {320, 240}, {320, 200}, {0, 0}
+};
+
+
 void SetKey(int32_t key, int32_t state)
 {
     keystatus[remap[key]] = state;
@@ -141,7 +149,7 @@ int32_t flushlogwindow = 1;
 static void onvideomodechange(int32_t newmode) { UNREFERENCED_PARAMETER(newmode); }
 void (*baselayer_onvideomodechange)(int32_t) = onvideomodechange;
 
-#if defined(POLYMOST)
+#ifdef USE_OPENGL
 static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
 {
     int32_t m;
@@ -312,7 +320,6 @@ int32_t baselayer_init(void)
 
     cvar_t cvars_engine[] =
     {
-#ifdef SUPERBUILD
         { "r_usenewaspect","r_usenewaspect: enable/disable new screen aspect ratio determination code",(void *) &r_usenewaspect, CVAR_BOOL, 0, 1 },
         { "r_screenaspect","r_screenaspect: if using the new aspect code and in fullscreen, screen aspect ratio in the form XXYY, e.g. 1609 for 16:9",(void *) &r_screenxy, CVAR_UINT, 100, 9999 },
         { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",(void *) &novoxmips, CVAR_BOOL, 0, 1 },
@@ -321,7 +328,6 @@ int32_t baselayer_init(void)
         { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void *) &vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
         { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void *) &vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
         { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void *) &vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
-#endif
         { "debug1","debug counter",(void *) &debug1, CVAR_FLOAT, -100000, 100000 },
         { "debug2","debug counter",(void *) &debug2, CVAR_FLOAT, -100000, 100000 },
     };
@@ -335,7 +341,7 @@ int32_t baselayer_init(void)
                              (cvars_engine[i].type & CVAR_FUNCPTR) ? osdcmd_cvar_set_baselayer : osdcmd_cvar_set);
     }
 
-#ifdef POLYMOST
+#ifdef USE_OPENGL
     OSD_RegisterFunction("setrendermode","setrendermode <number>: sets the engine's rendering mode.\n"
                          "Mode numbers are:\n"
                          "   0 - Classic Build software\n"

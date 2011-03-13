@@ -1,7 +1,7 @@
 #ifndef _polymost_h_
 # define _polymost_h_
 
-#ifdef POLYMOST
+#ifdef USE_OPENGL
 
 #include "hightile.h"
 

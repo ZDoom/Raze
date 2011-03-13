@@ -25,6 +25,92 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "enet/enet.h"
 
+#define NET_SECTOR_WALLPTR          0x00000001
+#define NET_SECTOR_WALLNUM          0x00000002
+#define NET_SECTOR_CEILINGZ         0x00000004
+#define NET_SECTOR_FLOORZ           0x00000008
+#define NET_SECTOR_CEILINGSTAT      0x00000010
+#define NET_SECTOR_FLOORSTAT        0x00000020
+#define NET_SECTOR_CEILINGPIC       0x00000040
+#define NET_SECTOR_CEILINGSLOPE     0x00000080
+#define NET_SECTOR_CEILINGSHADE     0x00000100
+#define NET_SECTOR_CEILINGPAL       0x00000200
+#define NET_SECTOR_CEILINGXPAN      0x00000400
+#define NET_SECTOR_CEILINGYPAN      0x00000800
+#define NET_SECTOR_FLOORPIC         0x00001000
+#define NET_SECTOR_FLOORSLOPE       0x00002000
+#define NET_SECTOR_FLOORSHADE       0x00004000
+#define NET_SECTOR_FLOORPAL         0x00008000
+#define NET_SECTOR_FLOORXPAN        0x00010000
+#define NET_SECTOR_FLOORYPAN        0x00020000
+#define NET_SECTOR_VISIBILITY       0x00040000
+#define NET_SECTOR_LOTAG            0x00080000
+#define NET_SECTOR_HITAG            0x00100000
+#define NET_SECTOR_EXTRA            0x00200000
+
+#define NET_WALL_X                  0x00000001
+#define NET_WALL_Y                  0x00000002
+#define NET_WALL_POINT2             0x00000004
+#define NET_WALL_NEXTWALL           0x00000008
+#define NET_WALL_NEXTSECTOR         0x00000010
+#define NET_WALL_CSTAT              0x00000020
+#define NET_WALL_PICNUM             0x00000040
+#define NET_WALL_OVERPICNUM         0x00000080
+#define NET_WALL_SHADE              0x00000100
+#define NET_WALL_PAL                0x00000200
+#define NET_WALL_XREPEAT            0x00000400
+#define NET_WALL_YREPEAT            0x00000800
+#define NET_WALL_XPANNING           0x00001000
+#define NET_WALL_YPANNING           0x00002000
+#define NET_WALL_LOTAG              0x00004000
+#define NET_WALL_HITAG              0x00008000
+#define NET_WALL_EXTRA              0x00010000
+
+#define NET_SPRITE_X                0x00000001
+#define NET_SPRITE_Y                0x00000002
+#define NET_SPRITE_Z                0x00000004
+#define NET_SPRITE_SHADE            0x00000008
+#define NET_SPRITE_PAL              0x00000010
+#define NET_SPRITE_CLIPDIST         0x00000020
+#define NET_SPRITE_XREPEAT          0x00000040
+#define NET_SPRITE_YREPEAT          0x00000080
+#define NET_SPRITE_XOFFSET          0x00000100
+#define NET_SPRITE_YOFFSET          0x00000200
+#define NET_SPRITE_SECTNUM          0x00000400
+#define NET_SPRITE_STATNUM          0x00000800
+#define NET_SPRITE_ANG              0x00001000
+#define NET_SPRITE_OWNER            0x00002000
+#define NET_SPRITE_XVEL             0x00004000
+#define NET_SPRITE_YVEL             0x00008000
+#define NET_SPRITE_ZVEL             0x00010000
+#define NET_SPRITE_LOTAG            0x00020000
+#define NET_SPRITE_HITAG            0x00040000
+#define NET_SPRITE_EXTRA            0x00080000
+#define NET_SPRITE_CSTAT            0x00100000
+#define NET_SPRITE_PICNUM           0x00200000
+
+#define NET_ACTOR_T1                0x00000001
+#define NET_ACTOR_T2                0x00000002
+#define NET_ACTOR_T3                0x00000004
+#define NET_ACTOR_T4                0x00000008
+#define NET_ACTOR_T5                0x00000010
+#define NET_ACTOR_T6                0x00000020
+#define NET_ACTOR_T7                0x00000040
+#define NET_ACTOR_T8                0x00000080
+#define NET_ACTOR_T9                0x00000100
+#define NET_ACTOR_T10               0x00000200
+#define NET_ACTOR_PICNUM            0x00000400
+#define NET_ACTOR_ANG               0x00000800
+#define NET_ACTOR_EXTRA             0x00001000
+#define NET_ACTOR_OWNER             0x00002000
+#define NET_ACTOR_MOVFLAG           0x00004000
+#define NET_ACTOR_TEMPANG           0x00008000
+#define NET_ACTOR_TIMETOSLEEP       0x00010000
+#define NET_ACTOR_FLAGS             0x00020000
+#define NET_ACTOR_PTR1              0x00040000
+#define NET_ACTOR_PTR2              0x00080000
+#define NET_ACTOR_PTR3              0x00100000
+
 enum netchan_t
 {
     CHAN_MOVE,      // unreliable movement packets
@@ -48,6 +134,7 @@ enum DukePacket_t
     PACKET_REQUEST_GAMESTATE,
     PACKET_VERSION,
     PACKET_AUTH,
+    PACKET_PLAYER_PING,
     PACKET_PLAYER_READY,
     PACKET_MAP_STREAM,
 
@@ -69,11 +156,19 @@ enum DukePacket_t
     PACKET_MAP_VOTE_CANCEL,
 };
 
-enum NetDisconnect_t
+enum netdisconnect_t
 {
     DISC_BAD_PASSWORD = 1,
     DISC_KICKED,
     DISC_BANNED
+};
+
+enum netmode_t
+{
+    NET_CLIENT = 0,
+    NET_SERVER,
+    NET_DEDICATED_CLIENT, // client on dedicated server
+    NET_DEDICATED_SERVER
 };
 
 extern ENetHost     *g_netClient;
@@ -83,16 +178,17 @@ extern char         g_netPassword[32];
 extern int32_t      g_netDisconnect;
 extern int32_t      g_netPlayersWaiting;
 extern int32_t      g_netPort;
-extern int32_t      g_netServerMode;
+extern int32_t      g_networkMode;
 extern int32_t      g_netSync;
 extern int32_t      lastsectupdate[MAXSECTORS];
 extern int32_t      lastupdate[MAXSPRITES];
 extern int32_t      lastwallupdate[MAXWALLS];
-extern int8_t       g_netStatnums[8];
+extern int16_t       g_netStatnums[10];
 extern mapstate_t   *g_multiMapState;
 
 int32_t Net_PackSprite(int32_t i,uint8_t *pbuf);
 int32_t Net_UnpackSprite(int32_t i,uint8_t *pbuf);
+void    Net_ClientMove(void);
 void    Net_Connect(const char *srvaddr);
 void    Net_Disconnect(void);
 void    Net_EnterMessage(void);

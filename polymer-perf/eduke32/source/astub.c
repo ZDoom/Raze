@@ -46,6 +46,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "m32script.h"
 #include "m32def.h"
 
+#include "rev.h"
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -53,8 +55,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #include <signal.h>
-
-#define BUILDDATE " 20100521"
 
 static int32_t floor_over_floor;
 
@@ -105,12 +105,7 @@ static int32_t curcorruptthing=-1;
 
 int32_t corruptlevel=0, numcorruptthings=0, corruptthings[MAXCORRUPTTHINGS];
 
-static uint32_t templenrepquot;
-static void fixxrepeat(int16_t i, uint32_t lenrepquot)
-{
-    if (lenrepquot != 0)
-        wall[i].xrepeat = clamp(divscale12(wallength(i), lenrepquot), 1, 255);
-}
+static uint32_t templenrepquot=1;
 
 //////////////////// Key stuff ////////////////////
 
@@ -166,9 +161,6 @@ static const char *Typestr_wss[] = { "Wall", "Sector", "Sector", "Sprite", "Wall
 //#define AIMED_OVR_PICNUM  SFBASE_CF(picnum, &OVR_WALL(searchwall, picnum))
 #define AIMED_SELOVR_PICNUM SFBASE_CF(picnum, &AIMED_SELOVR_WALL(picnum))
 
-
-#define BTAG_MAX 65535
-#define BZ_MAX 8388608
 
 static const char *ONOFF_[] = {"OFF","ON"};
 #define ONOFF(b) (ONOFF_[!!(b)])
@@ -268,6 +260,8 @@ mapundo_t *mapstate = NULL;
 
 int32_t map_revision = 1;
 
+#define QADDNSZ 400
+
 void create_map_snapshot(void)
 {
     int32_t j;
@@ -288,29 +282,30 @@ void create_map_snapshot(void)
     {
         if (mapstate->next != NULL)
         {
-            mapundo_t *next = mapstate->next;
-            next->prev = NULL;
+            mapundo_t *cur = mapstate->next;
+            cur->prev = NULL;
 
-            while (next->next)
-                next = next->next;
+            while (cur->next)
+                cur = cur->next;
 
             do
             {
-                if (next->sectors && (next->prev == NULL || (next->sectcrc != next->prev->sectcrc)))
-                    Bfree(next->sectors);
-                if (next->walls && (next->prev == NULL || (next->wallcrc != next->prev->wallcrc)))
-                    Bfree(next->walls);
-                if (next->sprites && (next->prev == NULL || (next->spritecrc != next->prev->spritecrc)))
-                    Bfree(next->sprites);
-                if (!next->prev)
+                if (cur->sectors && (cur->prev == NULL || (cur->sectcrc != cur->prev->sectcrc)))
+                    Bfree(cur->sectors);
+                if (cur->walls && (cur->prev == NULL || (cur->wallcrc != cur->prev->wallcrc)))
+                    Bfree(cur->walls);
+                if (cur->sprites && (cur->prev == NULL || (cur->spritecrc != cur->prev->spritecrc)))
+                    Bfree(cur->sprites);
+                if (!cur->prev)
                 {
-                    Bfree(next);
+                    Bfree(cur);
                     break;
                 }
-                next = next->prev;
-                Bfree(next->next);
+
+                cur = cur->prev;
+                Bfree(cur->next);
             }
-            while (next);
+            while (cur);
         }
 
         mapstate->next = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
@@ -321,13 +316,7 @@ void create_map_snapshot(void)
     }
 
     fixspritesectors();
-
-    numsprites = 0;
-    for (j=MAXSPRITES-1; j>=0; j--)
-    {
-        if (sprite[j].statnum != MAXSTATUS)
-            numsprites++;
-    }
+    updatenumsprites();
 
     mapstate->numsectors = numsectors;
     mapstate->numwalls = numwalls;
@@ -347,7 +336,7 @@ void create_map_snapshot(void)
         }
         else
         {
-            mapstate->sectors = (sectortype *)Bcalloc(1, sizeof(sectortype) * numsectors);
+            mapstate->sectors = (sectortype *)Bcalloc(1, sizeof(sectortype) * numsectors + QADDNSZ);
             mapstate->sectsiz = j = qlz_compress(&sector[0], (char *)&mapstate->sectors[0],
                                                  sizeof(sectortype) * numsectors, state_compress);
             mapstate->sectors = (sectortype *)Brealloc(mapstate->sectors, j);
@@ -368,7 +357,7 @@ void create_map_snapshot(void)
             }
             else
             {
-                mapstate->walls = (walltype *)Bcalloc(1, sizeof(walltype) * numwalls);
+                mapstate->walls = (walltype *)Bcalloc(1, sizeof(walltype) * numwalls + QADDNSZ);
                 mapstate->wallsiz = j = qlz_compress(&wall[0], (char *)&mapstate->walls[0],
                                                      sizeof(walltype) * numwalls, state_compress);
                 mapstate->walls = (walltype *)Brealloc(mapstate->walls, j);
@@ -390,18 +379,19 @@ void create_map_snapshot(void)
             else
             {
                 int32_t i = 0;
-                spritetype *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites),
+                spritetype *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites + 1),
                             *spri = &tspri[0];
-                mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites);
+                mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites + QADDNSZ);
 
                 for (j=0; j<MAXSPRITES && i < numsprites; j++)
                 {
                     if (sprite[j].statnum != MAXSTATUS)
                     {
-                        Bmemcpy(spri++,&sprite[j],sizeof(spritetype));
+                        Bmemcpy(spri++, &sprite[j], sizeof(spritetype));
                         i++;
                     }
                 }
+
                 mapstate->spritesiz = j = qlz_compress(&tspri[0], (char *)&mapstate->sprites[0],
                                                        sizeof(spritetype) * numsprites, state_compress);
                 mapstate->sprites = (spritetype *)Brealloc(mapstate->sprites, j);
@@ -410,6 +400,8 @@ void create_map_snapshot(void)
             }
         }
     }
+
+    CheckMapCorruption(6, 0);
 }
 
 void map_undoredo_free(void)
@@ -471,6 +463,7 @@ int32_t map_undoredo(int32_t dir)
     Bmemset(show2dsector, 0, sizeof(show2dsector));
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
     Bmemset(show2dwall, 0, sizeof(show2dwall));
+    Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
 
     if (mapstate->numsectors)
     {
@@ -495,6 +488,9 @@ int32_t map_undoredo(int32_t dir)
     if (qsetmode == 200 && rendmode == 4)
         polymer_loadboard();
 #endif
+
+    CheckMapCorruption(4, 0);
+
     return 0;
 }
 
@@ -589,6 +585,11 @@ static int32_t getfilenames(const char *path, const char *kind)
     if (findfileshigh) currentlist = 1;
 
     return(0);
+}
+
+const char *ExtGetVer(void)
+{
+    return s_buildRev;
 }
 
 void ExtLoadMap(const char *mapname)
@@ -852,8 +853,8 @@ const char *SectorEffectorTagText(int32_t lotag)
         "CONVAYER BELT",
         "ENGINE",                        // 25
         "(UNKNOWN)",
-        "LIGHTNING (H= TILE#4890)",
         "CAMERA FOR PLAYBACK",
+        "LIGHTNING (H= TILE#4890)",
         "FLOAT",
         "2 WAY TRAIN (ST=31)",           // 30
         "FLOOR RISE",
@@ -2506,14 +2507,14 @@ static void ReadPaletteTable()
     //    initprintf("success.\n");
 }// end ReadPaletteTable
 
-static void ReadGamePalette()
+static void ReadGamePalette(void)
 {
     int32_t fp;
     if ((fp=kopen4load("palette.dat",0)) == -1)
         if ((fp=kopen4load("palette.dat",1)) == -1)
         {
             initprintf("!!! PALETTE.DAT NOT FOUND !!!\n");
-            Bstrcpy(tempbuf, "Mapster32"VERSION BUILDDATE);
+            Bsprintf(tempbuf, "Mapster32 %s %s", VERSION, s_buildRev);
             wm_msgbox(tempbuf,"palette.dat not found");
             exit(0);
         }
@@ -3212,7 +3213,6 @@ static int32_t m32gettile(int32_t idInitialTile)
     keystatus[KEYSC_ENTER] = 0;
 
     return idSelectedTile;
-
 }
 
 // Dir = 0 (zoom out) or 1 (zoom in)
@@ -3624,13 +3624,13 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
                     y1=max(y1, 0);
                     y2=min(y2, ydim-1);
 
-                    // box
-
                     {
+                        // box
                         int32_t xx[] = {x1, x1, x2, x2, x1};
                         int32_t yy[] = {y1, y2, y2, y1, y1};
                         plotlines2d(xx, yy, 5, iTile==iSelected ? whitecol : markedcol);
                     }
+
                     // cross
                     if (marked)
                     {
@@ -3672,9 +3672,18 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     Bsprintf(szT,"%dx%d",tilesizx[idTile],tilesizy[idTile]);
     printext256(xdim>>2,ydim-10,whitecol,-1,szT,0);
 
-    // EditArt animation flags.
-    Bsprintf(szT,"%d, %d",(picanm[idTile]>>8)&0xFF,(picanm[idTile]>>16)&0xFF);
+    // EditArt offset flags.
+    Bsprintf(szT,"%d, %d", (int8_t)((picanm[idTile]>>8)&0xFF), (int8_t)((picanm[idTile]>>16)&0xFF));
     printext256((xdim>>2)+100,ydim-10,whitecol,-1,szT,0);
+
+    // EditArt animation flags.
+    if (picanm[idTile]&0xc0)
+    {
+        static const char *anmtype[] = {"", "Osc", "Fwd", "Bck"};
+
+        Bsprintf(szT,"%s %d", anmtype[(picanm[idTile]&0xc0)>>6], picanm[idTile]&0x3f);
+        printext256((xdim>>2)+100+14*8,ydim-10,whitecol,-1,szT,0);
+    }
 
     if (showmsg)
         TMPERRMSG_SHOW(0);
@@ -3698,11 +3707,12 @@ static int32_t spriteonceilingz(int32_t searchwall)
 //    int32_t z=sprite[searchwall].z;
 
     int32_t z = getceilzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
+    int32_t tmphei = spriteheight(searchwall, NULL);
 
     if (sprite[searchwall].cstat&128)
-        z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
+        z -= tmphei>>1;
     if ((sprite[searchwall].cstat&48) != 32)
-        z += ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<2);
+        z += tmphei;
     return z;
 }
 
@@ -3713,7 +3723,7 @@ static int32_t spriteongroundz(int32_t searchwall)
     int32_t z = getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
 
     if (sprite[searchwall].cstat&128)
-        z -= ((tilesizy[sprite[searchwall].picnum]*sprite[searchwall].yrepeat)<<1);
+        z -= spriteheight(searchwall, NULL)>>1;
     return z;
 }
 
@@ -3817,9 +3827,7 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
             quitevent = 0;
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-#ifdef SUPERBUILD
         ExtAnalyzeSprites();
-#endif
         drawmasks();
 #ifdef POLYMER
         if (rendmode == 4 && searchit == 2)
@@ -3915,37 +3923,6 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
     case 8:
         getnumber_doint64(num, oldnum);
         break;
-    }
-}
-
-static void DoSpriteOrnament(int32_t i)
-{
-    int32_t j, hitw;
-    hitdata_t hitinfo;
-
-    hitscan((const vec3_t *)&sprite[i],sprite[i].sectnum,
-            sintable[(sprite[i].ang+1536)&2047],
-            sintable[(sprite[i].ang+1024)&2047],
-            0,
-            &hitinfo,CLIPMASK1);
-
-    sprite[i].x = hitinfo.pos.x;
-    sprite[i].y = hitinfo.pos.y;
-    sprite[i].z = hitinfo.pos.z;
-    changespritesect(i,hitinfo.hitsect);
-
-    hitw = hitinfo.hitwall;
-
-    if (hitw >= 0)
-        sprite[i].ang = (getangle(POINT2(hitw).x-wall[hitw].x,
-                                  POINT2(hitw).y-wall[hitw].y)+512)&2047;
-
-    //Make sure sprite's in right sector
-    if (inside(sprite[i].x,sprite[i].y,sprite[i].sectnum) == 0)
-    {
-        j = wall[hitw].point2;
-        sprite[i].x -= ksgn(wall[j].y-wall[hitw].y);
-        sprite[i].y += ksgn(wall[j].x-wall[hitw].x);
     }
 }
 
@@ -4074,9 +4051,7 @@ ENDFOR1:
             sprite[linebegspr].pal -= (sprite[linebegspr].pal>0);
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-#ifdef SUPERBUILD
         ExtAnalyzeSprites();
-#endif
         drawmasks();
 #ifdef POLYMER
         if (rendmode == 4 && searchit == 2)
@@ -4308,6 +4283,7 @@ static void mouseaction_movesprites(int32_t *sumxvect, int32_t *sumyvect, int32_
         xvect = daxvect;
         yvect = dayvect;
 
+        // test run
         for (ii=0; ii<highlightcnt; ii++)
             if (highlight[ii]&16384)
             {
@@ -4319,6 +4295,7 @@ static void mouseaction_movesprites(int32_t *sumxvect, int32_t *sumyvect, int32_
                 xvect = (tvec.x - sprite[spi].x)<<14;
                 yvect = (tvec.y - sprite[spi].y)<<14;
             }
+        // the real thing
         for (ii=0; ii<highlightcnt; ii++)
             if (highlight[ii]&16384)
             {
@@ -4453,11 +4430,15 @@ static void Keys3d(void)
                              sprite[searchwall].hitag, sprite[searchwall].extra);
 
                 Bsprintf(lines[num++], "Repeat:  %d,%d", sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
-                Bsprintf(lines[num++], "PosXY:   %d,%d", sprite[searchwall].x, sprite[searchwall].y);
+                Bsprintf(lines[num++], "PosXY:   %d,%d%s", sprite[searchwall].x, sprite[searchwall].y,
+                         sprite[searchwall].xoffset|sprite[searchwall].yoffset ? " ^251*":"");
                 Bsprintf(lines[num++], "PosZ: ""   %d", sprite[searchwall].z);// prevents tab character
                 lines[num++][0]=0;
 
                 if (getmessageleng)
+                    break;
+
+                if (sprite[searchwall].picnum<0 || sprite[searchwall].picnum>=MAXTILES)
                     break;
 
                 if (names[sprite[searchwall].picnum][0])
@@ -4540,6 +4521,9 @@ static void Keys3d(void)
 
             if (AIMING_AT_MASKWALL && wall[searchwall].nextwall >= 0)
                 NEXTWALL(searchwall).overpicnum = tempint;
+
+            if (AIMING_AT_SPRITE)
+                correct_sprite_yoffset(searchwall);
 
             if (oldtile != tempint)
                 asksave = 1;
@@ -4690,7 +4674,7 @@ static void Keys3d(void)
 
     if (AIMING_AT_WALL_OR_MASK && PRESSED_KEYSC(PERIOD))
     {
-        AutoAlignWalls((int32_t)searchwall, 0);
+        AutoAlignWalls(searchwall, 0);
         message("Wall %d autoalign", searchwall);
     }
 
@@ -4725,7 +4709,7 @@ static void Keys3d(void)
                 sector[searchsector].ceilingheinum = 0;
             }
             getnumberptr256("Sector ceiling slope: ", &sector[searchsector].ceilingheinum,
-                            sizeof(sector[0].ceilingheinum), 65536, 1, NULL);
+                            sizeof(sector[0].ceilingheinum), 32767, 1, NULL);
             break;
         case SEARCH_FLOOR:
             getnumberptr256("Sector floorz: ", &sector[searchsector].floorz,
@@ -4736,7 +4720,7 @@ static void Keys3d(void)
                 sector[searchsector].floorstat |= 2;
             }
             getnumberptr256("Sector floor slope: ", &sector[searchsector].floorheinum,
-                            sizeof(sector[0].floorheinum), 65536, 1, NULL);
+                            sizeof(sector[0].floorheinum), 32767, 1, NULL);
             break;
 
         case SEARCH_SPRITE:
@@ -4914,11 +4898,19 @@ static void Keys3d(void)
     smooshyalign = keystatus[KEYSC_gKP5];
     repeatpanalign = eitherSHIFT || eitherALT || (bstatus&2);
 
-    if (mlook == 2)
-        mlook = 0;
+    {
+        static int32_t omlook;
 
-    if (!unrealedlook && (bstatus&4))
-        mlook = 2;
+        if (mlook == 2)
+        {
+            mlook = omlook;
+        }
+        else if (!unrealedlook && (bstatus&4))
+        {
+            omlook = mlook;
+            mlook = 2;
+        }
+    }
 
     // PK: no btn: wheel changes shade
     if ((bstatus&(16|32) && !(bstatus&(1|2|4))) || keystatus[KEYSC_gMINUS] || keystatus[KEYSC_gPLUS])
@@ -5052,6 +5044,9 @@ static void Keys3d(void)
                 AIMED_SELOVR_PICNUM %= MAXTILES;
                 j = 0;
             }
+
+            if (AIMING_AT_SPRITE)
+                correct_sprite_yoffset(searchwall);
 
             asksave = 1;
         }
@@ -5212,22 +5207,22 @@ static void Keys3d(void)
             int16_t sect = k ? highlightsector[0] :
                            ((AIMING_AT_WALL && wall[searchwall].nextsector>=0 && (eitherALT && !(bstatus&1))) ?
                             wall[searchwall].nextsector : searchsector);
+            int32_t tmphei;
 
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
             {
-                i = headspritesect[sect];
-                while (i != -1)
+                for (i=headspritesect[sect]; i!=-1; i=nextspritesect[i])
                 {
+                    tmphei = spriteheight(i, NULL);
+
                     tempint = getceilzofslope(sect, sprite[i].x, sprite[i].y);
-                    tempint += (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2;
+                    tempint += tmphei;
 
                     if (sprite[i].cstat&128)
-                        tempint += (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1;
+                        tempint += tmphei>>1;
 
                     if (sprite[i].z == tempint)
                         sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
-
-                    i = nextspritesect[i];
                 }
 
                 sector[sect].ceilingz += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
@@ -5240,18 +5235,15 @@ static void Keys3d(void)
 
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
             {
-                i = headspritesect[sect];
-                while (i != -1)
+                for (i=headspritesect[sect]; i!=-1; i=nextspritesect[i])
                 {
                     tempint = getflorzofslope(sect,sprite[i].x,sprite[i].y);
 
                     if (sprite[i].cstat&128)
-                        tempint += ((tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<1);
+                        tempint += spriteheight(i, NULL)>>1;
 
                     if (sprite[i].z == tempint)
                         sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
-
-                    i = nextspritesect[i];
                 }
 
                 sector[sect].floorz += tsign * (updownunits << (eitherCTRL<<1)); // JBF 20031128
@@ -5581,7 +5573,7 @@ static void Keys3d(void)
 
         if (ASSERT_AIMING)
         {
-            message("%ss with picnum %d have shade of %d", Typestr[searchstat], temppicnum, tempshade);
+            message("%ss with picnum %d now have shade of %d", Typestr[searchstat], temppicnum, tempshade);
             asksave = 1;
         }
     }
@@ -5629,7 +5621,8 @@ static void Keys3d(void)
             int16_t ohitag = AIMED(hitag);
             Bsprintf(tempbuf, "%s hitag: ", Typestr_wss[searchstat]);
             AIMED(hitag) = getnumber256(tempbuf, ohitag, BTAG_MAX,0);
-            asksave |= (AIMED(hitag) != ohitag);
+            if (AIMED(hitag) != ohitag)
+                asksave = 1;
         }
     }
 
@@ -5640,7 +5633,8 @@ static void Keys3d(void)
             int8_t oshade = AIMED_CF_SEL(shade);
             Bsprintf(tempbuf, "%s shade: ", Typestr[searchstat]);
             getnumberptr256(tempbuf, &AIMED_CF_SEL(shade), sizeof(int8_t), 128, 1, NULL);
-            asksave |= (AIMED_CF_SEL(shade) != oshade);
+            if (AIMED_CF_SEL(shade) != oshade)
+                asksave = 1;
         }
     }
 
@@ -5694,11 +5688,15 @@ static void Keys3d(void)
     {
         if (ASSERT_AIMING)
         {
-            int16_t opicnum = AIMED_CF_SEL(picnum);
+            int16_t opicnum = AIMED_CF_SEL(picnum), aimspr=AIMING_AT_SPRITE;
             static const char *Typestr_tmp[5] = { "Wall", "Sector ceiling", "Sector floor", "Sprite", "Masked wall" };
             Bsprintf(tempbuf, "%s picnum: ", Typestr_tmp[searchstat]);
             getnumberptr256(tempbuf, &AIMED_CF_SEL(picnum), sizeof(int16_t), MAXTILES-1, 0, NULL);
-            asksave |= (opicnum != AIMED_CF_SEL(picnum));
+            if (opicnum != AIMED_CF_SEL(picnum))
+                asksave = 1;
+
+            if (aimspr)
+                correct_sprite_yoffset(searchwall);
         }
     }
 
@@ -5798,6 +5796,9 @@ static void Keys3d(void)
     {
         AIMED_SELOVR_PICNUM = temppicnum;
         message("Pasted picnum only");
+
+        if (AIMING_AT_SPRITE)
+            correct_sprite_yoffset(searchwall);
     }
 
     i = 512;
@@ -5964,7 +5965,7 @@ static void Keys3d(void)
         mouseay=0;
     }
 
-    if ((bstatus&1) && searchstat != SEARCH_CEILING && searchstat != SEARCH_FLOOR)
+    if ((bstatus&1) && !AIMING_AT_CEILING_OR_FLOOR)
     {
         if (eitherSHIFT)
         {
@@ -5973,7 +5974,7 @@ static void Keys3d(void)
             {
                 mouseaction = 1;
                 mouseax += mousex;
-                updownunits = klabs((int32_t)(mouseax/2.));
+                updownunits = klabs(mouseax/2);
                 if (updownunits)
                     mouseax=0;
             }
@@ -6016,10 +6017,10 @@ static void Keys3d(void)
 
                     if (mouseaction)
                     {
-                        i=wall[w].cstat;
-                        i=((i>>3)&1)+((i>>7)&2);
+                        i = wall[w].cstat;
+                        i &= (8|256);
 
-                        if (i==1||i==3)
+                        if (i==8 || i==256)
                             changedir*=-1;
 
                         if (eitherCTRL)
@@ -6443,6 +6444,8 @@ static void Keys3d(void)
                     sprite[searchwall].yvel = tempyvel;
                     sprite[searchwall].zvel = tempzvel;
                 }
+                else
+                    correct_sprite_yoffset(searchwall);
             }
             message("Pasted clipboard");
             asksave = 1;
@@ -6475,7 +6478,10 @@ static void Keys3d(void)
                     for (i=0; i<MAXSPRITES; i++)
                         if (sprite[i].statnum < MAXSTATUS)
                             if (sprite[i].picnum == j)
+                            {
                                 sprite[i].picnum = temppicnum;
+                                correct_sprite_yoffset(i);
+                            }
                     break;
                 case SEARCH_MASKWALL:
                     j = wall[searchwall].overpicnum;
@@ -6509,7 +6515,7 @@ static void Keys3d(void)
             wall[w].xrepeat = 8;
             wall[w].yrepeat = 8;
             wall[w].cstat = 0;
-            fixrepeats((int16_t)searchwall);
+            fixrepeats(searchwall);
         }
         else if (AIMING_AT_CEILING_OR_FLOOR)
         {
@@ -6527,6 +6533,8 @@ static void Keys3d(void)
                 sprite[searchwall].xrepeat = 64;
                 sprite[searchwall].yrepeat = 64;
             }
+
+            correct_sprite_yoffset(searchwall);
         }
 
         if (ASSERT_AIMING)
@@ -6549,7 +6557,7 @@ static void Keys3d(void)
             if (ASSERT_AIMING)
             {
                 Bsprintf(tempbuf, "%s pal: ", Typestr[searchstat]);
-                getnumberptr256(tempbuf, &AIMED_CF_SEL(pal) , sizeof(uint8_t), 255, 0, NULL);
+                getnumberptr256(tempbuf, &AIMED_CF_SEL(pal), sizeof(uint8_t), 255, 0, NULL);
                 asksave = 1;
             }
         }
@@ -6697,7 +6705,7 @@ static void Keys2d(void)
     tcursectornum = -1;
     for (i=0; i<numsectors; i++)
     {
-        if (inside(mousxplc,mousyplc,i) == 1)
+        if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
         {
             tcursectornum = i;
             break;
@@ -6745,9 +6753,8 @@ static void Keys2d(void)
         static int32_t counter = 0;
         static int32_t omx = 0, omy = 0;
         /*
-                static int32_t opointhighlight, olinehighlight, ocursectornum;
-
-                if (pointhighlight == opointhighlight && linehighlight == olinehighlight && tcursectornum == ocursectornum)
+          static int32_t opointhighlight, olinehighlight, ocursectornum;
+          if (pointhighlight == opointhighlight && linehighlight == olinehighlight && tcursectornum == ocursectornum)
         */
         if (omx == mousxplc && omy == mousyplc)
         {
@@ -6761,11 +6768,10 @@ static void Keys2d(void)
         omy = mousyplc;
 
         /*
-                opointhighlight = pointhighlight;
-                olinehighlight = linehighlight;
-                ocursectornum = tcursectornum;
+          opointhighlight = pointhighlight;
+          olinehighlight = linehighlight;
+          ocursectornum = tcursectornum;
         */
-
 
         if (totalclock < lastpm16time + 120*2)
             _printmessage16("%s", lastpm16buf);
@@ -6825,7 +6831,7 @@ static void Keys2d(void)
         else
         {
             for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
+                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                 {
                     Bsprintf(buffer,"Sector (%d) Lo-tag: ",i);
                     j = qsetmode;
@@ -6900,21 +6906,18 @@ static void Keys2d(void)
         else
         {
             for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
+                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                 {
                     Bsprintf(tempbuf,"Sector %d Extra: ",i);
                     sector[i].extra = getnumber16(tempbuf,sector[i].extra,BTAG_MAX,1);
-//                    clearmidstatbar16();
-//                    showsectordata(i, 0);
-//                    break;
                 }
         }
     }
 
-    if (PRESSED_KEYSC(E))  // E (expand)
+    if (!eitherCTRL && PRESSED_KEYSC(E))  // E (expand)
     {
         for (i=0; i<numsectors; i++)
-            if (inside(mousxplc,mousyplc,i) == 1)
+            if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
             {
                 sector[i].floorstat ^= 8;
                 message("Sector %d floor texture expansion bit %s", i, ONOFF(sector[i].floorstat&8));
@@ -6935,7 +6938,7 @@ static void Keys2d(void)
         else if (graphicsmode != 0)
         {
             for (i=0; i<numsectors; i++)
-                if (inside(mousxplc,mousyplc,i) == 1)
+                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                 {
                     sector[i].floorxpanning = sector[i].floorypanning = 0;
                     message("Sector %d floor panning reset", i);
@@ -6968,7 +6971,7 @@ static void Keys2d(void)
                 else
                 {
                     for (i=0; i<numsectors; i++)
-                        if (inside(mousxplc,mousyplc,i) == 1)
+                        if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                         {
                             uint8_t *panning = (k==0) ? &sector[i].floorxpanning : &sector[i].floorypanning;
                             *panning = changechar(*panning, changedir, smooshy, 0);
@@ -7095,7 +7098,9 @@ static void Keys2d(void)
             }
         }
         else if (wallsprite==0)
+        {
             SearchSectors(tsign);
+        }
         else if (wallsprite==1)
         {
             if ((tsign<0 && curwallnum>0) || (tsign>0 && curwallnum<numwalls))
@@ -7130,9 +7135,7 @@ static void Keys2d(void)
     {
         if (autogrid)
         {
-            grid = 0;
-            if (eitherSHIFT)
-                grid = 8;
+            grid = 8*eitherSHIFT;
 
             autogrid = 0;
         }
@@ -7145,6 +7148,7 @@ static void Keys2d(void)
                 grid = 0;
             }
         }
+
         if (autogrid)
             printmessage16("Grid size: 9 (autosize)");
         else if (!grid)
@@ -7152,6 +7156,7 @@ static void Keys2d(void)
         else
             printmessage16("Grid size: %d (%d units)", grid, 2048>>grid);
     }
+
     if (autogrid)
     {
         grid = min(zoom+512, 65536);
@@ -7176,8 +7181,7 @@ static void Keys2d(void)
             sprite[i].ang &= 2047;
             printmessage16("Sprite %d updated", i);
         }
-
-        else if (pointhighlight >= 0 /*<= 16383*/)
+        else if (pointhighlight >= 0)
         {
             i = linehighlight;
             j = wall[i].x;
@@ -7339,7 +7343,7 @@ void ExtPreSaveMap(void)
             startwall = sector[i].wallptr;
             endwall = startwall + sector[i].wallnum;
             for (j=startwall; j<endwall; j++)
-                checksectorpointer((int16_t)j,(int16_t)i);
+                checksectorpointer(j, i);
         }
     }
 }
@@ -7352,6 +7356,7 @@ static void G_ShowParameterHelp(void)
               "-jDIR, -game_dir DIR\n\t\tAdds DIR to the file path stack\n"
               "-check\t\tEnables map pointer checking when saving\n"
               "-nocheck\t\tDisables map pointer checking when saving (default)\n"  // kept for script compat
+              "-namesfile <filename>\t\tOverride NAMES.H\n"
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
               "-setup\t\tDisplays the configuration dialog\n"
 #endif
@@ -7360,7 +7365,8 @@ static void G_ShowParameterHelp(void)
 #endif
               "\n-?, -help, --help\tDisplay this help message and exit"
               ;
-    wm_msgbox("Mapster32"VERSION BUILDDATE,"%s",s);
+    Bsprintf(tempbuf, "Mapster32 %s %s", VERSION, s_buildRev);
+    wm_msgbox(tempbuf, "%s", s);
 }
 
 static void AddGamePath(const char *buffer)
@@ -7417,7 +7423,10 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     {
         lengths = Bmalloc(argc*sizeof(int32_t));
         for (j=1; j<argc; j++)
-            maxlen += (lengths[j] = Bstrlen(argv[j]));
+        {
+            lengths[j] = Bstrlen(argv[j]);
+            maxlen += lengths[j];
+        }
 
         testplay_addparam = Bmalloc(maxlen+argc);
         testplay_addparam[0] = 0;
@@ -7456,7 +7465,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
                         extern char TEXCACHEFILE[BMAX_PATH];
 
                         Bsprintf(tempbuf,"%s/%s",argv[i+1],TEXCACHEFILE);
@@ -7497,6 +7506,12 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     Bstrcpy(g_grpNamePtr, "nam.grp");
                     COPYARG(i);
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"namesfile"))
+                {
+                    g_namesFileName = argv[i+1];
                     i++;
                     continue;
                 }
@@ -7646,8 +7661,9 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
 #endif
 
     OSD_SetLogFile("mapster32.log");
-    OSD_SetVersion("Mapster32"VERSION,0,2);
-    initprintf("Mapster32"VERSION BUILDDATE"\n");
+    OSD_SetVersion("Mapster32" " " VERSION,0,2);
+    initprintf("Mapster32 %s %s\n", VERSION, s_buildRev);
+    initprintf("Compiled %s\n", __DATE__" "__TIME__);
     //    initprintf("Copyright (c) 2008 EDuke32 team\n");
 
     G_CheckCommandLine(argc,argv);
@@ -7881,7 +7897,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
             }
             else if (tryfix)
             {
-                uint64_t whicherrs = parm->numparms==1 ? ULONG_LONG_MAX : 0;
+                uint64_t whicherrs = parm->numparms==1 ? 0xffffffffffffffffull : 0;
 
                 if (whicherrs==0)
                 {
@@ -7897,7 +7913,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
                                 m = (int32_t)Bstrtol(endptr+1, NULL, 10);
                                 if (n>=1 && n<=m && m<=MAXCORRUPTTHINGS)
                                 {
-                                    uint64_t mask = ULONG_LONG_MAX;
+                                    uint64_t mask = 0xffffffffffffffffull;
                                     m = m-n+1;
                                     mask >>= (MAXCORRUPTTHINGS-m);
                                     mask <<= (n-1);
@@ -7938,7 +7954,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-#ifdef POLYMOST
+#ifdef USE_OPENGL
 static int32_t osdcmd_tint(const osdfuncparm_t *parm)
 {
     int32_t i;
@@ -8114,7 +8130,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 
     return OSDCMD_OK;
 OUTOFMEM:
-    OSD_Printf("OUT OF MEMORY!\n");
+    message("OUT OF MEMORY!\n");
     return OSDCMD_OK;
 }
 
@@ -8213,7 +8229,7 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("show_heightindicators", "show_heightindicators {0, 1 or 2}: sets display of height indicators in 2D mode", osdcmd_vars_pk);
     OSD_RegisterFunction("show_ambiencesounds", "show_ambiencesounds {0, 1 or 2}>: sets display of MUSICANDSFX circles in 2D mode", osdcmd_vars_pk);
     OSD_RegisterFunction("corruptcheck", "corruptcheck {<seconds>|now|tryfix}: sets auto corruption check interval if <seconds> given, otherwise as indicated", osdcmd_vars_pk);
-#ifdef POLYMOST
+#ifdef USE_OPENGL
     OSD_RegisterFunction("tint", "tint <pal> <r> <g> <b> <flags>: queries or sets hightile tinting", osdcmd_tint);
 #endif
 
@@ -8234,6 +8250,7 @@ static int32_t registerosdcommands(void)
 
 #define DUKEOSD
 #ifdef DUKEOSD
+#if 0
 void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
 {
     int32_t ac;
@@ -8264,12 +8281,14 @@ void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade,
         else x += tilesizx[ac];
     }
 }
+#endif
 
 static int32_t GetTime(void)
 {
     return totalclock;
 }
 
+#if 0
 void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress)
 {
     int32_t ac;
@@ -8290,6 +8309,7 @@ int32_t GAME_getrowheight(int32_t w)
 {
     return w>>3;
 }
+#endif
 
 //#define BGTILE 311
 //#define BGTILE 1156
@@ -8304,7 +8324,7 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
 {
     UNREFERENCED_PARAMETER(numcols);
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
 //    if (getrendermode() < 3) bits = BITS;
 //    else 
     if (rendmode>=3 && qsetmode==200)
@@ -8332,7 +8352,8 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
         ysiz = tilesizx[BORDTILE];
 
         for (x=0; x<=tx2; x++)
-            rotatesprite(x*xsiz<<16,(daydim+ysiz+1)<<16,65536L,1536,BORDTILE,SHADE-12,PALETTE,BITS,0,0,xdim,daydim+ysiz+1);
+            rotatesprite(x*xsiz<<16,(daydim+ysiz+1)<<16,65536L,1536,
+                         BORDTILE,SHADE-12,PALETTE,BITS,0,0,xdim,daydim+ysiz+1);
 
         return;
     }
@@ -8353,7 +8374,7 @@ static void m32_osdsetfunctions()
 */
         0,0,0,0,0,
         GAME_clearbackground,
-        (int32_t( *)(void))GetTime,
+        /*(int32_t( *)(void))*/GetTime,
         NULL
     );
 }
@@ -9186,13 +9207,14 @@ int32_t ExtInit(void)
 
     bpp = 32;
 
-#if defined(POLYMOST) && defined(USE_OPENGL)
+#ifdef USE_OPENGL
     glusetexcache = -1;
 
     if (Bstrcmp(setupfilename, "mapster32.cfg"))
         initprintf("Using config file '%s'.\n",setupfilename);
 
-    if (loadsetup(setupfilename) < 0) initprintf("Configuration file not found, using defaults.\n"), rv = 1;
+    if (loadsetup(setupfilename) < 0)
+        initprintf("Configuration file not found, using defaults.\n"), rv = 1;
 
     if (glusetexcache == -1)
     {
@@ -9210,7 +9232,7 @@ int32_t ExtInit(void)
     }
 #endif
 
-    Bmemcpy((void *)buildkeys,(void *)keys,NUMBUILDKEYS);   //Trick to make build use setup.dat keys
+    Bmemcpy(buildkeys, default_buildkeys, NUMBUILDKEYS);   //Trick to make build use setup.dat keys
 
     if (initengine())
     {
@@ -9223,7 +9245,6 @@ int32_t ExtInit(void)
     kensplayerheight = 40; //32
     zmode = 2;
     zlock = kensplayerheight<<8;
-    defaultspritecstat = 0;
 
     ReadGamePalette();
     //  InitWater();
@@ -9233,7 +9254,7 @@ int32_t ExtInit(void)
     getmessageleng = 0;
     getmessagetimeoff = 0;
 
-    Bstrcpy(apptitle, "Mapster32"VERSION BUILDDATE);
+    Bsprintf(apptitle, "Mapster32 %s %s", VERSION, s_buildRev);
     autosavetimer = totalclock+120*autosave;
 
 #if defined(DUKEOSD)
@@ -9781,7 +9802,7 @@ void ExtAnalyzeSprites(void)
             }
             //                else tspr->cstat&=32767;
 
-#if defined(USE_OPENGL) && defined(POLYMOST)
+#ifdef USE_OPENGL
             if (!usemodels || md_tilehasmodel(tspr->picnum,tspr->pal) < 0)
 #endif
             {
@@ -10039,17 +10060,28 @@ void ExtCheckKeys(void)
         }
     }
 
-    if (asksave == 1 && (bstatus + lastbstatus) == 0 && mapstate)
-    {
-        //        message("Saved undo rev %d",map_revision);
-        create_map_snapshot();
+    if (asksave == 1)
         asksave++;
+    else if (asksave == 2 && (bstatus + lastbstatus) == 0 && mapstate)
+    {
+        int32_t i;
+        // check keys so that e.g. bulk deletions won't produce
+        // as much revisions as deleted sprites
+        for (i=sizeof(keystatus)/sizeof(keystatus[0])-1; i>=0; i--)
+            if (keystatus[i])
+                break;
+        if (i==-1)
+        {
+            create_map_snapshot();
+            asksave++;
+        }
     }
-    else if (asksave == 2) asksave++;
+    else if (asksave == 3)
+        asksave++;
 
     if (totalclock > autosavetimer && autosave)
     {
-        if (asksave == 3)
+        if (asksave == 4)
         {
             if (CheckMapCorruption(6, 0)>=4)
             {
@@ -10062,7 +10094,7 @@ void ExtCheckKeys(void)
                 message("Board autosaved to AUTOSAVE.MAP");
             }
 
-            asksave = 4;
+            asksave++;
         }
         autosavetimer = totalclock+120*autosave;
     }
@@ -10288,6 +10320,14 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                 }
                             }
                         }
+#if 0
+                        // this one usually appears together with the "already referenced" corruption
+                        else if (wall[nw].nextsector != i || wall[nw].nextwall != j)
+                        {
+                            CORRUPTCHK_PRINT(4, CORRUPT_WALL|nw, "WALL %d nextwall's backreferences inconsistent. Expected nw=%d, ns=%d; got nw=%d, ns=%d",
+                                             nw, i, j, wall[nw].nextsector, wall[nw].nextwall);
+                        }
+#endif
                     }
                 }
 
@@ -10569,7 +10609,7 @@ static void EditSectorData(int16_t sectnum)
                 break;
             case 5:
                 handlemed(0, "Ceiling heinum", "Ceiling Heinum", &sector[sectnum].ceilingheinum,
-                          sizeof(sector[sectnum].ceilingheinum), 65536L, 1);
+                          sizeof(sector[sectnum].ceilingheinum), 32767, 1);
                 break;
             case 6:
                 handlemed(0, "Palookup number", "Ceiling Palookup Number", &sector[sectnum].ceilingpal,
@@ -10583,7 +10623,7 @@ static void EditSectorData(int16_t sectnum)
             {
             case 0:
                 handlemed(1, "Flags (hex)", "Floor Flags", &sector[sectnum].floorstat,
-                          sizeof(sector[sectnum].floorstat), 65536, 0);
+                          sizeof(sector[sectnum].floorstat), 65535, 0);
                 break;
 
             case 1:
@@ -10613,7 +10653,7 @@ static void EditSectorData(int16_t sectnum)
                 break;
             case 5:
                 handlemed(0, "Floor heinum", "Floor Heinum", &sector[sectnum].floorheinum,
-                          sizeof(sector[sectnum].floorheinum), 65536, 1);
+                          sizeof(sector[sectnum].floorheinum), 32767, 1);
                 break;
             case 6:
                 handlemed(0, "Palookup number", "Floor Palookup Number", &sector[sectnum].floorpal,
@@ -10661,7 +10701,7 @@ static void EditWallData(int16_t wallnum)
         {
         case 0:
             handlemed(1, "Flags (hex)", "Flags", &wall[wallnum].cstat,
-                      sizeof(wall[wallnum].cstat), 65536L, 0);
+                      sizeof(wall[wallnum].cstat), 65535, 0);
             break;
         case 1:
             handlemed(0, "Shade", "Shade", &wall[wallnum].shade,
@@ -10908,15 +10948,15 @@ static void EditSpriteData(int16_t spritenum)
                 break;
             case 1:
                 handlemed(0, "X-Velocity", "X-Velocity", &sprite[spritenum].xvel,
-                          sizeof(sprite[spritenum].xvel), 65536, 1);
+                          sizeof(sprite[spritenum].xvel), 65535, 1);
                 break;
             case 2:
                 handlemed(0, "Y-Velocity", "Y-Velocity", &sprite[spritenum].yvel,
-                          sizeof(sprite[spritenum].yvel), 65536, 1);
+                          sizeof(sprite[spritenum].yvel), 65535, 1);
                 break;
             case 3:
                 handlemed(0, "Z-Velocity", "Z-Velocity", &sprite[spritenum].zvel,
-                          sizeof(sprite[spritenum].zvel), 65536, 1);
+                          sizeof(sprite[spritenum].zvel), 65535, 1);
                 break;
             case 4:
                 handlemed(0, "Owner", "Owner", &sprite[spritenum].owner,
@@ -10973,10 +11013,10 @@ static void GenericSpriteSearch()
 
     static int32_t maxval[7][3] =
     {
-        { BXY_MAX     , 65536         , 2048 },
-        { BXY_MAX     , 128           , 65536 },
-        { BZ_MAX      , MAXPALOOKUPS-1, 65536 },
-        { MAXSECTORS-1, 128           , 65536 },
+        { BXY_MAX     , 65535         , 2048 },
+        { BXY_MAX     , 128           , 65535 },
+        { BZ_MAX      , MAXPALOOKUPS-1, 65535 },
+        { MAXSECTORS-1, 128           , 65535 },
         { MAXSTATUS-1 , 128           , MAXSPRITES-1 },
         { BTAG_MAX    , MAXTILES-1    , 256 },
         { BTAG_MAX    , 0             , BTAG_MAX }
