@@ -172,7 +172,6 @@ extern uint32_t m32_drawlinepat;
 
 extern int32_t g_iReturnVar;
 extern int32_t m32_sortvar1, m32_sortvar2;
-extern int32_t m32_script_expertmode;  // if true, make read-only vars writable
 
 //extern int32_t g_numRealPalettes;
 //extern int32_t g_scriptDebug;

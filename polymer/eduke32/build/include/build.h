@@ -69,7 +69,9 @@ extern "C" {
 #define YAX_SECTORFLD(Sect,Fld, Cf) (*((Cf) ? (&sector[Sect].floor##Fld) : (&sector[Sect].ceiling##Fld)))
 
 int16_t yax_getbunch(int16_t i, int16_t cf);
+void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb);
 void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum);
+void yax_setbunches(int16_t i, int16_t cb, int16_t fb);
 
 
 #define CLIPMASK0 (((1L)<<16)+1L)

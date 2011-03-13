@@ -206,7 +206,7 @@ extern int16_t capturecount;
 extern int32_t editorgridextent;	// in engine.c
 extern char game_executable[BMAX_PATH];
 
-extern int32_t fillsector(int16_t sectnum, char fillcolor);
+//extern int32_t fillsector(int16_t sectnum, char fillcolor);
 
 static void drawgradient()
 {
@@ -9294,13 +9294,13 @@ void app_crashhandler(void)
 
 void ExtUnInit(void)
 {
-    int32_t i;
+//    int32_t i;
     // setvmode(0x03);
     writesetup(setupfilename);
 
     S_SoundShutdown();
     uninitgroupfile();
-
+#if 0
     for (i = MAX_TILE_GROUPS-1; i >= 0; i--)
     {
         if (s_TileGroups[i].pIds != NULL)
@@ -9310,6 +9310,7 @@ void ExtUnInit(void)
     }
     for (i = numhelppages-1; i >= 0; i--) Bfree(helppage[i]);
     if (helppage) Bfree(helppage);
+#endif
 }
 
 void ExtPreCheckKeys(void) // just before drawrooms

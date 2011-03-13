@@ -1148,54 +1148,62 @@ void                polymer_editorpick(void)
             scrvxz[0] = x-scrx;
             scrvxz[1] = z-scrz;
 
-            if (searchstat==1)
-                pl = &prsectors[searchsector]->ceil.plane[0];
-            else
-                pl = &prsectors[searchsector]->floor.plane[0];
-
-            t = dot3f(pl,scrv);
-            svcoeff = -(dot3f(pl,scr)+pl[3])/t;
-
-            // point on plane (x and z)
-            p[0] = scrx + svcoeff*scrv[0];
-            p[1] = scrz + svcoeff*scrv[2];
-
-            for (k=0; k<sector[searchsector].wallnum; k++)
+            if (prsectors[searchsector]==NULL)
             {
-                w1[1] = -(float)wal[k].x;
-                w1[0] = (float)wal[k].y;
-                w2[1] = -(float)wall[wal[k].point2].x;
-                w2[0] = (float)wall[wal[k].point2].y;
-
-                scrvxznorm = sqrt(dot2f(scrvxz,scrvxz));
-                scrvxzn[0] = scrvxz[1]/scrvxznorm;
-                scrvxzn[1] = -scrvxz[0]/scrvxznorm;
-
-                relvec2f(p,w1, pw1);
-                relvec2f(p,w2, pw2);
-                relvec2f(w2,w1, w21);
-
-                w1d = dot2f(scrvxzn,pw1);
-                w2d = dot2f(scrvxzn,pw2);
-                w2d = -w2d;
-                if (w1d <= 0 || w2d <= 0)
-                    continue;
-
-                ptonline[0] = w2[0]+(w2d/(w1d+w2d))*w21[0];
-                ptonline[1] = w2[1]+(w2d/(w1d+w2d))*w21[1];
-                relvec2f(p,ptonline, scrpxz);
-                if (dot2f(scrvxz,scrpxz)<0)
-                    continue;
-
-                wdistsq = dot2f(scrpxz,scrpxz);
-                if (wdistsq < bestwdistsq)
-                {
-                    bestk = k;
-                    bestwdistsq = wdistsq;
-                }
+                //OSD_Printf("polymer_editorpick: prsectors[searchsector]==NULL !!!\n");
+                searchwall = sector[num].wallptr;
             }
+            else
+            {
+                if (searchstat==1)
+                    pl = &(prsectors[searchsector]->ceil.plane[0]);
+                else
+                    pl = &(prsectors[searchsector]->floor.plane[0]);
 
-            searchwall = sector[searchsector].wallptr + bestk;
+                t = dot3f(pl,scrv);
+                svcoeff = -(dot3f(pl,scr)+pl[3])/t;
+
+                // point on plane (x and z)
+                p[0] = scrx + svcoeff*scrv[0];
+                p[1] = scrz + svcoeff*scrv[2];
+
+                for (k=0; k<sector[searchsector].wallnum; k++)
+                {
+                    w1[1] = -(float)wal[k].x;
+                    w1[0] = (float)wal[k].y;
+                    w2[1] = -(float)wall[wal[k].point2].x;
+                    w2[0] = (float)wall[wal[k].point2].y;
+
+                    scrvxznorm = sqrt(dot2f(scrvxz,scrvxz));
+                    scrvxzn[0] = scrvxz[1]/scrvxznorm;
+                    scrvxzn[1] = -scrvxz[0]/scrvxznorm;
+
+                    relvec2f(p,w1, pw1);
+                    relvec2f(p,w2, pw2);
+                    relvec2f(w2,w1, w21);
+
+                    w1d = dot2f(scrvxzn,pw1);
+                    w2d = dot2f(scrvxzn,pw2);
+                    w2d = -w2d;
+                    if (w1d <= 0 || w2d <= 0)
+                        continue;
+
+                    ptonline[0] = w2[0]+(w2d/(w1d+w2d))*w21[0];
+                    ptonline[1] = w2[1]+(w2d/(w1d+w2d))*w21[1];
+                    relvec2f(p,ptonline, scrpxz);
+                    if (dot2f(scrvxz,scrpxz)<0)
+                        continue;
+
+                    wdistsq = dot2f(scrpxz,scrpxz);
+                    if (wdistsq < bestwdistsq)
+                    {
+                        bestk = k;
+                        bestwdistsq = wdistsq;
+                    }
+                }
+
+                searchwall = sector[searchsector].wallptr + bestk;
+            }
         }
         // :P
 

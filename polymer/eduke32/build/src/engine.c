@@ -173,24 +173,45 @@ static int16_t maphacklight[PR_MAXLIGHTS];
 inline int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome);
 
+int16_t editstatus = 0;
+
 
 ////////// YAX //////////
-#define YAX_BUNCHNUM(Sect, Cf) (*(int16_t *)(&sector[Sect].ceilingxpanning + 6*Cf))
 
+#ifdef YAX_ENABLE
+// all references to floor/ceiling bunchnums should be through the
+// get/set functions!
+
+// game-time YAX data structures
+static int16_t yax_bunchnum[MAXSECTORS][2];
+
+#define YAX_BUNCHNUM(Sect, Cf) (*(int16_t *)(&sector[Sect].ceilingxpanning + 6*Cf))
 int16_t yax_getbunch(int16_t i, int16_t cf)
 {
+    if (editstatus==0)
+        return yax_bunchnum[i][cf];
+
     if (((*(&sector[i].ceilingstat + cf))&YAX_BIT)==0)
         return -1;
 
     return YAX_BUNCHNUM(i, cf);
 }
 
+void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
+{
+    *cb = yax_getbunch(i, YAX_CEILING);
+    *fb = yax_getbunch(i, YAX_FLOOR);
+}
+
 void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
 {
-    if (i<0)
+    if (editstatus==0)
+        yax_bunchnum[i][cf] = bunchnum;
+
+    if (bunchnum<0)
     {
         *(&sector[i].ceilingstat + cf) &= ~YAX_BIT;
-        YAX_BUNCHNUM(i, cf) = 0;
+//        YAX_BUNCHNUM(i, cf) = 0;
         return;
     }
 
@@ -198,6 +219,15 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
     YAX_BUNCHNUM(i, cf) = bunchnum;
 }
 
+void yax_setbunches(int16_t i, int16_t cb, int16_t fb)
+{
+    yax_setbunch(i, YAX_CEILING, cb);
+    yax_setbunch(i, YAX_FLOOR, fb);
+}
+
+#undef YAX_BUNCHNUM
+
+#endif
 
 ////////// editor side view //////////
 int32_t m32_sideview = 0;
@@ -1147,7 +1177,7 @@ static char tablesloaded = 0;
 int32_t pageoffset, ydim16, qsetmode = 0;
 int32_t startposx, startposy, startposz;
 int16_t startang, startsectnum;
-int16_t pointhighlight, linehighlight, highlightcnt;
+int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 int32_t lastx[MAXYDIM];
 char *transluc = NULL, paletteloaded = 0;
 
@@ -1196,7 +1226,6 @@ char vgapal16[4*256] =
     63,63,63,00
 };
 
-int16_t editstatus = 0;
 int16_t searchit;
 int32_t searchx = -1, searchy;                          //search input
 int16_t searchsector, searchwall, searchstat;     //search output
@@ -6215,7 +6244,7 @@ int32_t preinitengine(void)
         {
             dynarray[0].size += M32_FIXME_SECTORS*sizeof(sectortype);  // join sectors needs a temp. sector
             dynarray[1].size += M32_FIXME_WALLS*sizeof(walltype);
-            Bprintf("FIXME: Allocating additional space beyond wall[] for editor bugs.\n");
+//            Bprintf("FIXME: Allocating additional space beyond wall[] for editor bugs.\n");
         }
 
         for (i=0; i<(signed)(sizeof(dynarray)/sizeof(dynarray[0])); i++)
@@ -6317,10 +6346,6 @@ int32_t initengine(void)
     clearbuf(&show2dsprite[0],(int32_t)((MAXSPRITES+3)>>5),0L);
     clearbuf(&show2dwall[0],(int32_t)((MAXWALLS+3)>>5),0L);
     automapping = 0;
-
-    pointhighlight = -1;
-    linehighlight = -1;
-    highlightcnt = 0;
 
     totalclock = 0;
     visibility = 512;
