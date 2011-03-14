@@ -6017,7 +6017,8 @@ static int32_t getnumber_internal1(char ch, const char *buffer, int32_t *danumpt
     {
         *oldnum = danum;
         asksave = 1;
-        printmessage16("%s", buffer);
+        if (qsetmode!=200)
+            printmessage16("%s", buffer);
         return 1;
     }
     else if (ch == '-' && sign)  	// negate
