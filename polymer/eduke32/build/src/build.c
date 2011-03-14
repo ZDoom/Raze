@@ -4342,6 +4342,9 @@ check_next_sector: ;
                             headspritesect[numsectors] = -1;
                             numsectors++;
 
+                            numwalls = newnumwalls;
+                            newnumwalls = -1;
+
                             printmessage16("Created new sector %d", numsectors-1);
                         }
                         else       //else add loop to sector
