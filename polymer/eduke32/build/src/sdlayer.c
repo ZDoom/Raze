@@ -1559,6 +1559,7 @@ int32_t handleevents(void)
         switch (ev.type)
         {
 #if (SDL_MAJOR_VERSION > 1 || SDL_MINOR_VERSION > 2)
+/*
         case SDL_TEXTINPUT:
             j = 0;
             do
@@ -1567,7 +1568,7 @@ int32_t handleevents(void)
 
                 if (code != scantoasc[OSD_OSDKey()] && ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
                 {
-//                    printf("got char %d\n",code);
+                    printf("got char %d\n",code);
 
                     if (OSD_HandleChar(code))
                     {
@@ -1578,10 +1579,23 @@ int32_t handleevents(void)
             }
             while (j < SDL_TEXTINPUTEVENT_TEXT_SIZE && ev.text.text[++j]);
             break;
+*/
 
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.scancode];
+
+            if (code != OSD_OSDKey() && ev.key.keysym.unicode != 0 && ev.key.type == SDL_KEYDOWN &&
+                (ev.key.keysym.unicode & 0xff80) == 0 &&
+                ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
+            {
+                if (OSD_HandleChar(ev.key.keysym.unicode & 0x7f))
+                {
+                    keyasciififo[keyasciififoend] = ev.key.keysym.unicode & 0x7f;
+                    keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
+                }
+            }
+
 //            printf("got key %d, %d\n",ev.key.keysym.scancode,code);
 
             // hook in the osd
@@ -1659,8 +1673,6 @@ int32_t handleevents(void)
                     (ev.key.keysym.unicode & 0xff80) == 0 &&
                     ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
             {
-//                if (ev.type==SDL_KEYDOWN)
-//                    printf("got char %d\n",ev.key.keysym.unicode & 0x7f);
                 if (OSD_HandleChar(ev.key.keysym.unicode & 0x7f))
                 {
                     keyasciififo[keyasciififoend] = ev.key.keysym.unicode & 0x7f;
@@ -1669,8 +1681,6 @@ int32_t handleevents(void)
             }
 
             // hook in the osd
-//            if (ev.type==SDL_KEYDOWN)
-//                printf("got key %d\n",code);
             if (OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN)) == 0)
                 break;
 
@@ -1757,10 +1767,14 @@ int32_t handleevents(void)
             break;
 
         case SDL_MOUSEMOTION:
-            if (appactive)
+            // SDL 1.3 doesn't handle relative mouse movement correctly yet as the cursor still clips to the screen edges
+            // so, we call SDL_WarpMouse() to center the cursor and ignore the resulting motion event that occurs
+            if (appactive && mouseacquired && (ev.motion.x != xdim>>1 || ev.motion.y != ydim>>1))
             {
                 mousex += ev.motion.xrel;
                 mousey += ev.motion.yrel;
+
+                SDL_WarpMouse(xdim>>1, ydim>>1);
             }
             break;
 
@@ -2048,7 +2062,6 @@ static int32_t buildkeytranslationtable(void)
     memset(keytranslation,0,sizeof(keytranslation));
 
 #define MAP(x,y) keytranslation[x] = y
-    printf("%d\n",SDL_SCANCODE_BACKSPACE);
     MAP(SDL_SCANCODE_BACKSPACE,	0xe);
     MAP(SDL_SCANCODE_TAB,		0xf);
     MAP(SDL_SCANCODE_RETURN,	0x1c);
