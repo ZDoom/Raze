@@ -110,6 +110,7 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
 
 float shadescale = 1.3f;
+int32_t shadescale_unbounded = 0;
 
 double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
 double gcosang, gsinang, gcosang2, gsinang2;
@@ -2185,7 +2186,8 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         {
             float pc[4];
-            f = ((float)(numpalookups-min(max((globalshade * shadescale),0),numpalookups)))/((float)numpalookups);
+            int32_t shadebound = shadescale_unbounded ? numpalookups : 31;
+            f = ((float)(numpalookups-min(max((globalshade * shadescale),0),shadebound)))/((float)numpalookups);
             pc[0] = pc[1] = pc[2] = f;
             switch (method&3)
             {
@@ -4398,7 +4400,9 @@ void polymost_drawrooms()
             hitallsprites = 0;
 
             searchsector = hitinfo.hitsect;
-            if (hitinfo.pos.z<cz) searchstat = 1; else if (hitinfo.pos.z>fz) searchstat = 2; else if (hitinfo.hitwall >= 0)
+            if (hitinfo.pos.z<cz) searchstat = 1;
+            else if (hitinfo.pos.z>fz) searchstat = 2;
+            else if (hitinfo.hitwall >= 0)
             {
                 searchbottomwall = searchwall = hitinfo.hitwall; searchstat = 0;
                 if (wall[hitinfo.hitwall].nextwall >= 0)
@@ -4407,11 +4411,16 @@ void polymost_drawrooms()
                     getzsofslope(wall[hitinfo.hitwall].nextsector,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
                     if (hitinfo.pos.z > fz)
                     {
+                        searchisbottom = 1;
                         if (wall[hitinfo.hitwall].cstat&2) //'2' bottoms of walls
                             searchbottomwall = wall[hitinfo.hitwall].nextwall;
                     }
-                    else if ((hitinfo.pos.z > cz) && (wall[hitinfo.hitwall].cstat&(16+32))) //masking or 1-way
-                        searchstat = 4;
+                    else
+                    {
+                        searchisbottom = 0;
+                        if ((hitinfo.pos.z > cz) && (wall[hitinfo.hitwall].cstat&(16+32))) //masking or 1-way
+                            searchstat = 4;
+                    }
                 }
             }
             else if (hitinfo.hitsprite >= 0) { searchwall = hitinfo.hitsprite; searchstat = 3; }
@@ -5840,6 +5849,7 @@ void polymost_fillpolygon(int32_t npoints)
     pthtyp *pth;
     float f,a=0.0;
     int32_t i;
+    int32_t shadebound = shadescale_unbounded ? numpalookups-1 : 31;
 
     globalx1 = mulscale16(globalx1,xyaspect);
     globaly2 = mulscale16(globaly2,xyaspect);
@@ -5863,7 +5873,7 @@ void polymost_fillpolygon(int32_t npoints)
     pth = gltexcache(globalpicnum,globalpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
-    f = ((float)(numpalookups-min(max((globalshade * shadescale),0),numpalookups)))/((float)numpalookups);
+    f = ((float)(numpalookups-min(max((globalshade * shadescale),0),shadebound)))/((float)numpalookups);
     switch ((globalorientation>>7)&3)
     {
     case 0:
@@ -6237,7 +6247,8 @@ void polymost_initosdfuncs(void)
         },
         { "r_polygonmode","r_polygonmode: debugging feature",(void *) &glpolygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
         { "r_redbluemode","r_redbluemode: enable/disable experimental OpenGL red-blue glasses mode",(void *) &glredbluemode, CVAR_BOOL, 0, 1 },
-        { "r_shadescale","r_shadescale: multiplier for lighting",(void *) &shadescale, CVAR_FLOAT, 0, 10 },
+        { "r_shadescale","r_shadescale: multiplier for shading",(void *) &shadescale, CVAR_FLOAT, 0, 10 },
+        { "r_shadescale_unbounded","r_shadescale_unbounded: enable/disable allowance of complete blackness",(void *) &shadescale_unbounded, CVAR_BOOL, 0, 1 },
         { "r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",(void *) &vsync, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",(void *) &glusetexcache, CVAR_INT, 0, 2 },
         { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",(void *) &glusetexcompr, CVAR_BOOL, 0, 1 },

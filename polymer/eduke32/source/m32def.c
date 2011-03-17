@@ -446,6 +446,11 @@ const memberlabel_t SectorLabels[]=
     { "lotag", SECTOR_LOTAG, 0, 0, 0 },
     { "hitag", SECTOR_HITAG, 0, 0, 0 },
     { "extra", SECTOR_EXTRA, 0, 0, 0 },
+// aliases
+    { "filler", SECTOR_ALIGNTO, 0, 0, 0 },
+    { "ceilingheinum", SECTOR_CEILINGSLOPE, 0, 0, 0},
+    { "floorheinum", SECTOR_FLOORSLOPE, 0, 0, 0},
+
     { "", -1, 0, 0, 0  }     // END OF LIST
 };
 
@@ -496,6 +501,9 @@ const memberlabel_t SpriteLabels[]=
     { "lotag", SPRITE_LOTAG, 0, 0, 0 },
     { "hitag", SPRITE_HITAG, 0, 0, 0 },
     { "extra", SPRITE_EXTRA, 0, 0, 0 },
+// aliases
+    { "filler", SPRITE_DETAIL, 1, 0, 0 },
+
     { "", -1, 0, 0, 0 }     // END OF LIST
 };
 
@@ -555,7 +563,7 @@ static void C_InitHashes()
     hash_init(&h_sector);
     for (i=0; SectorLabels[i].lId >=0; i++)
         hash_add(&h_sector,SectorLabels[i].name,i, 0);
-    hash_add(&h_sector,"filler", SECTOR_ALIGNTO, 0);
+//    hash_add(&h_sector,"filler", SECTOR_ALIGNTO, 0);
 
     hash_init(&h_wall);
     for (i=0; WallLabels[i].lId >=0; i++)
@@ -564,7 +572,7 @@ static void C_InitHashes()
     hash_init(&h_sprite);
     for (i=0; SpriteLabels[i].lId >=0; i++)
         hash_add(&h_sprite,SpriteLabels[i].name,i, 0);
-    hash_add(&h_sprite,"filler", SPRITE_DETAIL, 0);
+//    hash_add(&h_sprite,"filler", SPRITE_DETAIL, 0);
 
     hash_init(&h_iter);
     for (i=0; iter_tokens[i].val >=0; i++)

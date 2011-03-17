@@ -191,28 +191,12 @@ extern int16_t ang;
 extern int32_t horiz;
 extern int16_t cursectnum;
 extern int32_t searchx, searchy;
-/*
-extern int16_t searchstat;
-extern int16_t searchwall;
-extern int16_t searchsector;
-extern int16_t searchbottomwall;
-*/
+
 extern int16_t pointhighlight;
 extern int16_t linehighlight;
 extern int16_t highlightcnt;
 extern int16_t highlightsectorcnt;
-/*
-extern int32_t temppicnum;
-extern int32_t tempcstat;
-extern int32_t templotag;
-extern int32_t temphitag;
-extern int32_t tempextra;
-extern int32_t tempshade;
-extern uint32_t temppal;
-extern uint32_t tempvis;
-extern uint32_t tempxrepeat;
-extern uint32_t tempyrepeat;
-*/
+
 extern int32_t startposx;
 extern int32_t startposy;
 extern int32_t startposz;

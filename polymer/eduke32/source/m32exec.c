@@ -25,14 +25,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "m32script.h"
 #include "m32def.h"
-#include "macros.h"
+
 #include "sounds_mapster32.h"
 #include "fx_man.h"
-//#include "scriplib.h"
 
-//#include "osdcmds.h"
 #include "osd.h"
 #include "keys.h"
+
+// from macros.h
+#define rnd(X) ((krand()>>8)>=(255-(X)))
 
 vmstate_t vm;
 vmstate_t vm_default =

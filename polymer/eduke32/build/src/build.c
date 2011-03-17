@@ -236,7 +236,6 @@ int32_t loadnames(const char *namesfile);
 void updatenumsprites(void);
 static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny);
 static void initcrc(void);
-void AutoAlignWalls(int32_t nWall0, int32_t ply);
 int32_t gettile(int32_t tilenum);
 
 static int32_t menuselect(void);
@@ -346,8 +345,8 @@ static void M32_drawdebug(void)
 #if 0
     {
         static char tstr[128];
-        Bsprintf(tstr, "searchstat=%d, searchsector=%d, searchwall=%d (%d), asksave=%d",
-                 searchstat, searchsector, searchwall, searchbottomwall, asksave);
+        Bsprintf(tstr, "search... stat=%d, sector=%d, wall=%d (%d), isbottom=%d, asksave=%d",
+                 searchstat, searchsector, searchwall, searchbottomwall, searchisbottom, asksave);
         printext256(x,y,whitecol,0,tstr,xdimgame>640?0:1);
     }
 #endif
@@ -1048,7 +1047,7 @@ void editinput(void)
     searchit = 2;
     if (searchstat >= 0)
     {
-        if ((bstatus&(1|2|4)) > 0)
+        if ((bstatus&(1|2|4)) || keystatus[0x39])  // SPACE
             searchit = 0;
 
         if (keystatus[0x1f])  //S (insert sprite) (3D)
@@ -2773,10 +2772,10 @@ void overheadeditor(void)
                 if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                 {
                     Bsprintf(buffer, "Sector (%d) Ceilingpal: ", i);
-                    sector[i].ceilingpal = getnumber16(buffer, sector[i].ceilingpal, MAXPALOOKUPS-1, 0);
+                    sector[i].ceilingpal = getnumber16(buffer, sector[i].ceilingpal, M32_MAXPALOOKUPS, 0);
 
                     Bsprintf(buffer, "Sector (%d) Floorpal: ", i);
-                    sector[i].floorpal = getnumber16(buffer, sector[i].floorpal, MAXPALOOKUPS-1, 0);
+                    sector[i].floorpal = getnumber16(buffer, sector[i].floorpal, M32_MAXPALOOKUPS, 0);
                     break;
                 }
         }
@@ -4883,6 +4882,7 @@ end_space_handling:
                 {
                     getclosestpointonwall(mousxplc,mousyplc, linehighlight, &dax,&day);
                     adjustmark(&dax,&day, newnumwalls);
+
                     i = linehighlight;
                     if ((wall[i].x == dax && wall[i].y == day) || (POINT2(i).x == dax && POINT2(i).y == day))
                     {
@@ -5705,7 +5705,6 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
     j = linehighlight;
     sucksect = sectorofwall(j);
     templenrepquot = divscale12(wallength(j), wall[j].xrepeat);
-    templenrepquot = max(1, templenrepquot);
 
     sector[sucksect].wallnum++;
     for (i=sucksect+1; i<numsectors; i++)
@@ -5718,11 +5717,13 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
     wall[j+1].x = dax;
     wall[j+1].y = day;
     fixxrepeat(j, templenrepquot);
+    AlignWallPoint2(j);
     fixxrepeat(j+1, templenrepquot);
 
     if (wall[j].nextwall >= 0)
     {
         k = wall[j].nextwall;
+        templenrepquot = divscale12(wallength(k), wall[k].xrepeat);
 
         sucksect = sectorofwall(k);
 
@@ -5737,6 +5738,7 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
         wall[k+1].x = dax;
         wall[k+1].y = day;
         fixxrepeat(k, templenrepquot);
+        AlignWallPoint2(k);
         fixxrepeat(k+1, templenrepquot);
 
         j = wall[k].nextwall;
@@ -5903,7 +5905,10 @@ void fixrepeats(int16_t i)
 void fixxrepeat(int16_t i, uint32_t lenrepquot)  // lenrepquot: divscale12(wallength,xrepeat)
 {
     if (lenrepquot != 0)
-        wall[i].xrepeat = clamp(divscale12(wallength(i), lenrepquot), 1, 255);
+    {
+        uint32_t res = (((wallength(i)<<12)+(1<<11))/lenrepquot);
+        wall[i].xrepeat = clamp(res, 1, 255);
+    }
 }
 
 
@@ -7354,123 +7359,132 @@ static void initcrc(void)
     }
 }
 
-static int32_t GetWallZPeg(int32_t nWall)
+static int32_t GetWallBaseZ(int32_t wallnum)
 {
-    int32_t z=0, nSector, nNextSector;
+    int32_t z=0, sectnum, nextsec;
 
-    nSector = sectorofwall((int16_t)nWall);
-    nNextSector = wall[nWall].nextsector;
-    if (nNextSector == -1)
+    sectnum = sectorofwall(wallnum);
+    nextsec = wall[wallnum].nextsector;
+
+    if (nextsec == -1)  //1-sided wall
     {
-        //1-sided wall
-        if (wall[nWall].cstat&4) z = sector[nSector].floorz;
-        else z = sector[nSector].ceilingz;
+        if (wall[wallnum].cstat&4)  // floor-aligned
+            z = sector[sectnum].floorz;
+        else
+            z = sector[sectnum].ceilingz;
     }
-    else
+    else  //2-sided wall
     {
-        //2-sided wall
-        if (wall[nWall].cstat&4)
-            z = sector[nSector].ceilingz;
+        if (wall[wallnum].cstat&4)
+            z = sector[sectnum].ceilingz;
         else
         {
-            if (sector[nNextSector].ceilingz > sector[nSector].ceilingz)
-                z = sector[nNextSector].ceilingz;   //top step
-            if (sector[nNextSector].floorz < sector[nSector].floorz)
-                z = sector[nNextSector].floorz;   //bottom step
+            if (sector[nextsec].ceilingz > sector[sectnum].ceilingz)
+                z = sector[nextsec].ceilingz;   //top step
+            if (sector[nextsec].floorz < sector[sectnum].floorz)
+                z = sector[nextsec].floorz;   //bottom step
         }
     }
     return(z);
 }
 
-static void AlignWalls(int32_t nWall0, int32_t z0, int32_t nWall1, int32_t z1, int32_t nTile)
+static void AlignWalls(int32_t w0, int32_t z0, int32_t w1, int32_t z1, int32_t tilenum)
 {
     int32_t n;
 
     //do the x alignment
-    wall[nWall1].cstat &= ~0x0108;    //Set to non-flip
-    wall[nWall1].xpanning = (uint8_t)((wall[nWall0].xpanning+(wall[nWall0].xrepeat<<3))%tilesizx[nTile]);
+    wall[w1].cstat &= ~0x0108;    //Set to non-flip
+    wall[w1].xpanning = (uint8_t)((wall[w0].xpanning + (wall[w0].xrepeat<<3))%tilesizx[tilenum]);
 
-    z1 = GetWallZPeg(nWall1);
+    for (n=picsiz[tilenum]>>4; (1<<n)<tilesizy[tilenum]; n++);
 
-    for (n=picsiz[nTile]>>4; (1<<n)<tilesizy[nTile]; n++);
-
-    wall[nWall1].yrepeat = wall[nWall0].yrepeat;
-    wall[nWall1].ypanning = (uint8_t)(wall[nWall0].ypanning+(((z1-z0)*wall[nWall0].yrepeat)>>(n+3)));
+    wall[w1].yrepeat = wall[w0].yrepeat;
+    wall[w1].ypanning = (uint8_t)(wall[w0].ypanning + (((z1-z0)*wall[w0].yrepeat)>>(n+3)));
 }
 
-void AutoAlignWalls(int32_t nWall0, int32_t ply)
+void AlignWallPoint2(int32_t w0)
 {
-    int32_t z0, z1, nTile, nWall1, branch, visible, nNextSector, nSector;
+    int32_t w1 = wall[w0].point2;
+    AlignWalls(w0,GetWallBaseZ(w0), w1,GetWallBaseZ(w1), wall[w0].picnum);
+}
 
-    nTile = wall[nWall0].picnum;
-    branch = 0;
-    if (ply == 0)
+// pass maxrecurs=0 for unconstrained recursion
+int32_t AutoAlignWalls(int32_t w0, int32_t dorecurse, int32_t nrecurs)
+{
+    int32_t z0, z1, tilenum, w1, visible, nextsec, sectnum;
+    static int32_t numaligned;
+
+    tilenum = wall[w0].picnum;
+
+    if (nrecurs == 0)
     {
         //clear visited bits
         Bmemset(visited, 0, sizeof(visited));
-        visited[nWall0>>3] |= (1<<(nWall0&7));
+        visited[w0>>3] |= (1<<(w0&7));
+        numaligned = 0;
     }
 
-    z0 = GetWallZPeg(nWall0);
+    z0 = GetWallBaseZ(w0);
 
-    nWall1 = wall[nWall0].point2;
+    w1 = wall[w0].point2;
 
     //loop through walls at this vertex in CCW order
     while (1)
     {
         //break if this wall would connect us in a loop
-        if (visited[nWall1>>3]&(1<<(nWall1&7)))
+        if (visited[w1>>3]&(1<<(w1&7)))
             break;
 
-        visited[nWall1>>3] |= (1<<(nWall1&7));
+        visited[w1>>3] |= (1<<(w1&7));
 
         //break if reached back of left wall
-        if (wall[nWall1].nextwall == nWall0)
+        if (wall[w1].nextwall == w0)
             break;
 
-        if (wall[nWall1].picnum == nTile)
+        if (wall[w1].picnum == tilenum)
         {
-            z1 = GetWallZPeg(nWall1);
+            z1 = GetWallBaseZ(w1);
             visible = 0;
 
-            nNextSector = wall[nWall1].nextsector;
-            if (nNextSector < 0)
+            nextsec = wall[w1].nextsector;
+            if (nextsec < 0)
                 visible = 1;
             else
             {
-                //ignore two sided walls that have no visible face
-                nSector = NEXTWALL(nWall1).nextsector;
-                if (getceilzofslope((int16_t)nSector,wall[nWall1].x,wall[nWall1].y) <
-                        getceilzofslope((int16_t)nNextSector,wall[nWall1].x,wall[nWall1].y))
-                    visible = 1;
+                int32_t cz,fz, czn,fzn;
 
-                if (getflorzofslope((int16_t)nSector,wall[nWall1].x,wall[nWall1].y) >
-                        getflorzofslope((int16_t)nNextSector,wall[nWall1].x,wall[nWall1].y))
+                //ignore two sided walls that have no visible face
+                sectnum = NEXTWALL(w1).nextsector;
+                getzsofslope(sectnum, wall[w1].x,wall[w1].y, &cz, &fz);
+                getzsofslope(nextsec, wall[w1].x,wall[w1].y, &czn, &fzn);
+
+                if (cz < czn || fz > fzn)
                     visible = 1;
             }
 
             if (visible)
             {
-                branch++;
-                AlignWalls(nWall0,z0,nWall1,z1,nTile);
+                numaligned++;
+                AlignWalls(w0,z0, w1,z1, tilenum);
 
                 //if wall was 1-sided, no need to recurse
-                if (wall[nWall1].nextwall < 0)
+                if (wall[w1].nextwall < 0)
                 {
-                    nWall0 = nWall1;
-                    z0 = GetWallZPeg(nWall0);
-                    nWall1 = wall[nWall0].point2;
-                    branch = 0;
+                    w0 = w1;
+                    z0 = GetWallBaseZ(w0);
+                    w1 = wall[w0].point2;
                     continue;
                 }
-                else
-                    AutoAlignWalls(nWall1,ply+1);
+                else if (dorecurse)
+                    AutoAlignWalls(w1, 1, nrecurs+1);
             }
         }
 
-        if (wall[nWall1].nextwall < 0) break;
-        nWall1 = NEXTWALL(nWall1).point2;
+        if (wall[w1].nextwall < 0) break;
+        w1 = NEXTWALL(w1).point2;
     }
+
+    return numaligned;
 }
 
 #define PLAYTEST_MAPNAME "autosave_playtest.map"

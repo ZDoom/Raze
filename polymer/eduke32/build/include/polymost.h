@@ -84,6 +84,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
 void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head);
 
 extern float shadescale;
+extern int32_t shadescale_unbounded;
 extern float alphahackarray[MAXTILES];
 
 typedef struct pthtyp_t

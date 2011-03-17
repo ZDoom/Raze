@@ -16,6 +16,15 @@ static int32_t vesares[13][2] = {{320,200},{360,200},{320,240},{360,240},{320,40
     {1024,768},{1280,1024},{1600,1200}
 };
 
+static double clampd(double d, double mind, double maxd)
+{
+    if (d != d || d<mind)
+        d = mind;
+    else if (d>maxd)
+        d = maxd;
+    return d;
+}
+
 static int32_t readconfig(BFILE *fp, const char *key, char *value, uint32_t len)
 {
     char buf[1000], *k, *v, *eq;
@@ -117,70 +126,79 @@ int32_t loadsetup(const char *fn)
 
     if ((fp = Bfopen(fn, "rt")) == NULL) return -1;
 
-    if (readconfig(fp, "forcesetup", val, VL) > 0) { if (Batoi(val) != 0) forcesetup = 1; else forcesetup = 0; }
-    if (readconfig(fp, "fullscreen", val, VL) > 0) { if (Batoi(val) != 0) fullscreen = 1; else fullscreen = 0; }
+    if (readconfig(fp, "forcesetup", val, VL) > 0) { if (atoi_safe(val) != 0) forcesetup = 1; else forcesetup = 0; }
+    if (readconfig(fp, "fullscreen", val, VL) > 0) { if (atoi_safe(val) != 0) fullscreen = 1; else fullscreen = 0; }
     if (readconfig(fp, "resolution", val, VL) > 0)
     {
-        i = Batoi(val) & 0x0f;
+        i = atoi_safe(val) & 0x0f;
         if ((unsigned)i<13) { xdimgame = xdim2d = vesares[i][0]; ydimgame = ydim2d = vesares[i][1]; }
     }
     if (readconfig(fp, "2dresolution", val, VL) > 0)
     {
-        i = Batoi(val) & 0x0f;
+        i = atoi_safe(val) & 0x0f;
         if ((unsigned)i<13) { xdim2d = vesares[i][0]; ydim2d = vesares[i][1]; }
     }
-    if (readconfig(fp, "xdim2d", val, VL) > 0) xdim2d = Batoi(val);
-    if (readconfig(fp, "ydim2d", val, VL) > 0) ydim2d = Batoi(val);
-    if (readconfig(fp, "xdim3d", val, VL) > 0) xdimgame = Batoi(val);
-    if (readconfig(fp, "ydim3d", val, VL) > 0) ydimgame = Batoi(val);
-//    if (readconfig(fp, "samplerate", val, VL) > 0) option[7] = (Batoi(val) & 0x0f) << 4;
-//    if (readconfig(fp, "music", val, VL) > 0) { if (Batoi(val) != 0) option[2] = 1; else option[2] = 0; }
-//    if (readconfig(fp, "mouse", val, VL) > 0) { if (Batoi(val) != 0) option[3] = 1; else option[3] = 0; }
-    if (readconfig(fp, "bpp", val, VL) > 0) bppgame = Batoi(val);
-    if (readconfig(fp, "vsync", val, VL) > 0) vsync = Batoi(val)?1:0;
-    if (readconfig(fp, "editorgridextent", val, VL) > 0) editorgridextent = max(min(262144,Batoi(val)),32768);
+    if (readconfig(fp, "xdim2d", val, VL) > 0) xdim2d = atoi_safe(val);
+    if (readconfig(fp, "ydim2d", val, VL) > 0) ydim2d = atoi_safe(val);
+    if (readconfig(fp, "xdim3d", val, VL) > 0) xdimgame = atoi_safe(val);
+    if (readconfig(fp, "ydim3d", val, VL) > 0) ydimgame = atoi_safe(val);
+//    if (readconfig(fp, "samplerate", val, VL) > 0) option[7] = (atoi_safe(val) & 0x0f) << 4;
+//    if (readconfig(fp, "music", val, VL) > 0) { if (atoi_safe(val) != 0) option[2] = 1; else option[2] = 0; }
+//    if (readconfig(fp, "mouse", val, VL) > 0) { if (atoi_safe(val) != 0) option[3] = 1; else option[3] = 0; }
+    if (readconfig(fp, "bpp", val, VL) > 0) bppgame = atoi_safe(val);
+    if (readconfig(fp, "vsync", val, VL) > 0) vsync = !!atoi_safe(val);
+    if (readconfig(fp, "editorgridextent", val, VL) > 0)
+    {
+        int32_t tmp = atoi_safe(val);
+        editorgridextent = clamp(tmp, 65536, BXY_MAX);
+    }
+
     if (readconfig(fp, "grid", val, VL) > 0)
     {
-        grid = Batoi(val);
+        grid = atoi_safe(val);
         default_grid = grid;
         autogrid = (grid==9);
-        grid = min(max(0, grid), 8);
+        grid = clamp(grid, 0, 8);
     }
 #ifdef POLYMER
-    if (readconfig(fp, "rendmode", val, VL) > 0) { i = Batoi(val); glrendmode = i; }
+    if (readconfig(fp, "rendmode", val, VL) > 0) { i = atoi_safe(val); glrendmode = i; }
 #endif
-    if (readconfig(fp, "vid_gamma", val, VL) > 0) vid_gamma = Bstrtod(val, NULL);
-    if (readconfig(fp, "vid_brightness", val, VL) > 0) vid_brightness = Bstrtod(val, NULL);
-    if (readconfig(fp, "vid_contrast", val, VL) > 0) vid_contrast = Bstrtod(val, NULL);
+    if (readconfig(fp, "vid_gamma", val, VL) > 0) vid_gamma = clampd(Bstrtod(val, NULL), 0.0, 10.0);
+    if (readconfig(fp, "vid_brightness", val, VL) > 0) vid_brightness = clampd(Bstrtod(val, NULL), 0.0, 10.0);
+    if (readconfig(fp, "vid_contrast", val, VL) > 0) vid_contrast = clampd(Bstrtod(val, NULL), 0.0, 10.0);
 #ifdef RENDERTYPEWIN
-    if (readconfig(fp, "maxrefreshfreq", val, VL) > 0) maxrefreshfreq = Batoi(val);
+    if (readconfig(fp, "maxrefreshfreq", val, VL) > 0) maxrefreshfreq = atoi_safe(val);
 #endif
 #ifdef USE_OPENGL
-    if (readconfig(fp, "usemodels", val, VL) > 0) usemodels = Batoi(val)?1:0;
-    if (readconfig(fp, "usehightile", val, VL) > 0) usehightile = Batoi(val)?1:0;
+    if (readconfig(fp, "usemodels", val, VL) > 0) usemodels = !!atoi_safe(val);
+    if (readconfig(fp, "usehightile", val, VL) > 0) usehightile = !!atoi_safe(val);
 
     glusetexcache = -1;
     if (readconfig(fp, "glusetexcache", val, VL) > 0)
     {
-        glusetexcache = clamp(Batoi(val), 0, 2);
+        glusetexcache = clamp(atoi_safe(val), 0, 2);
     }
     if (readconfig(fp, "gltexfiltermode", val, VL) > 0)
     {
-        gltexfiltermode = Batoi(val);
+        gltexfiltermode = atoi_safe(val);
     }
     if (readconfig(fp, "glanisotropy", val, VL) > 0)
     {
-        glanisotropy = Batoi(val);
+        glanisotropy = atoi_safe(val);
     }
     if (readconfig(fp, "r_downsize", val, VL) > 0)
     {
-        r_downsize = Batoi(val);
+        r_downsize = atoi_safe(val);
         r_downsize = clamp(r_downsize, 0, 5);
         r_downsizevar = r_downsize;
     }
     if (readconfig(fp, "r_texcompr", val, VL) > 0)
     {
-        glusetexcompr = !!Batoi(val);
+        glusetexcompr = !!atoi_safe(val);
+    }
+    if (readconfig(fp, "r_shadescale", val, VL) > 0)
+    {
+        shadescale = clampd(Bstrtod(val, NULL), 0.0, 10.0);
     }
 #endif
 
@@ -215,49 +233,49 @@ int32_t loadsetup(const char *fn)
 #endif
 
 #ifdef RENDERTYPEWIN
-    if (readconfig(fp, "windowpositioning", val, VL) > 0) windowpos = Batoi(val);
+    if (readconfig(fp, "windowpositioning", val, VL) > 0) windowpos = atoi_safe(val);
     windowx = -1;
-    if (readconfig(fp, "windowposx", val, VL) > 0) windowx = Batoi(val);
+    if (readconfig(fp, "windowposx", val, VL) > 0) windowx = atoi_safe(val);
     windowy = -1;
-    if (readconfig(fp, "windowposy", val, VL) > 0) windowy = Batoi(val);
+    if (readconfig(fp, "windowposy", val, VL) > 0) windowy = atoi_safe(val);
 #endif
 
     if (readconfig(fp, "keyconsole", val, VL) > 0) { keys[19] = Bstrtol(val, NULL, 16); OSD_CaptureKey(keys[19]); }
 
     if (readconfig(fp, "mousesensitivity", val, VL) > 0) msens = Bstrtod(val, NULL);
 
-    if (readconfig(fp, "mousenavigation", val, VL) > 0) unrealedlook = !!Batoi(val);
+    if (readconfig(fp, "mousenavigation", val, VL) > 0) unrealedlook = !!atoi_safe(val);
 
-    if (readconfig(fp, "mousenavigationaccel", val, VL) > 0) pk_uedaccel = Batoi(val);
+    if (readconfig(fp, "mousenavigationaccel", val, VL) > 0) pk_uedaccel = atoi_safe(val);
 
-    if (readconfig(fp, "quickmapcycling", val, VL) > 0) quickmapcycling = !!Batoi(val);
+    if (readconfig(fp, "quickmapcycling", val, VL) > 0) quickmapcycling = !!atoi_safe(val);
 
-    if (readconfig(fp, "sideview_reversehorizrot", val, VL) > 0) sideview_reversehrot = !!Batoi(val);
-    if (readconfig(fp, "revertCTRL", val, VL) > 0) revertCTRL = !!Batoi(val);
+    if (readconfig(fp, "sideview_reversehorizrot", val, VL) > 0) sideview_reversehrot = !!atoi_safe(val);
+    if (readconfig(fp, "revertCTRL", val, VL) > 0) revertCTRL = !!atoi_safe(val);
 
-    if (readconfig(fp, "scrollamount", val, VL) > 0) scrollamount = Batoi(val);
+    if (readconfig(fp, "scrollamount", val, VL) > 0) scrollamount = atoi_safe(val);
 
-    if (readconfig(fp, "turnaccel", val, VL) > 0) pk_turnaccel = Batoi(val);
+    if (readconfig(fp, "turnaccel", val, VL) > 0) pk_turnaccel = atoi_safe(val);
 
-    if (readconfig(fp, "turndecel", val, VL) > 0) pk_turndecel = Batoi(val);
+    if (readconfig(fp, "turndecel", val, VL) > 0) pk_turndecel = atoi_safe(val);
 
-//    if (readconfig(fp, "autosave", val, VL) > 0) autosave = Batoi(val)*60;
-    if (readconfig(fp, "autosavesec", val, VL) > 0) autosave = max(0, Batoi(val));
-    if (readconfig(fp, "autocorruptchecksec", val, VL) > 0) autocorruptcheck = max(0, Batoi(val));
+//    if (readconfig(fp, "autosave", val, VL) > 0) autosave = atoi_safe(val)*60;
+    if (readconfig(fp, "autosavesec", val, VL) > 0) autosave = max(0, atoi_safe(val));
+    if (readconfig(fp, "autocorruptchecksec", val, VL) > 0) autocorruptcheck = max(0, atoi_safe(val));
 
     if (readconfig(fp, "showheightindicators", val, VL) > 0)
-        showheightindicators = min(max(Batoi(val),0),2);
+        showheightindicators = clamp(atoi_safe(val), 0, 2);
     if (readconfig(fp, "showambiencesounds", val, VL) > 0)
-        showambiencesounds = min(max(Batoi(val),0),2);
+        showambiencesounds = clamp(atoi_safe(val), 0, 2);
 
     if (readconfig(fp, "graphicsmode", val, VL) > 0)
-        graphicsmode = min(max(Batoi(val),0),2);
+        graphicsmode = clamp(atoi_safe(val), 0, 2);
 
-    if (readconfig(fp, "samplerate", val, VL) > 0) MixRate = min(max(8000, Batoi(val)), 48000);
-    if (readconfig(fp, "ambiencetoggle", val, VL) > 0) AmbienceToggle = !!Batoi(val);
-    if (readconfig(fp, "parlock", val, VL) > 0) ParentalLock = !!Batoi(val);
+    if (readconfig(fp, "samplerate", val, VL) > 0) MixRate = clamp(atoi_safe(val), 8000, 48000);
+    if (readconfig(fp, "ambiencetoggle", val, VL) > 0) AmbienceToggle = !!atoi_safe(val);
+    if (readconfig(fp, "parlock", val, VL) > 0) ParentalLock = !!atoi_safe(val);
 
-    if (readconfig(fp, "osdtryscript", val, VL) > 0) m32_osd_tryscript = !!Batoi(val);
+    if (readconfig(fp, "osdtryscript", val, VL) > 0) m32_osd_tryscript = !!atoi_safe(val);
 
     for (i=0; i<256; i++)
         remap[i]=i;
@@ -355,6 +373,7 @@ int32_t writesetup(const char *fn)
              "glanisotropy = %d\n"
              "r_downsize = %d\n"
              "r_texcompr = %d\n"
+             "r_shadescale = %g\n"
              "\n"
 #endif
 
@@ -505,10 +524,11 @@ int32_t writesetup(const char *fn)
 #ifdef POLYMER
              glrendmode,
 #endif
-             editorgridextent, min(max(0, default_grid), 9),
+             editorgridextent, clamp(default_grid, 0, 9),
 #ifdef USE_OPENGL
              usemodels, usehightile,
              glusetexcache, gltexfiltermode, glanisotropy,r_downsize,glusetexcompr,
+             shadescale,
 #endif
 #ifdef RENDERTYPEWIN
              maxrefreshfreq, windowpos, windowx, windowy,

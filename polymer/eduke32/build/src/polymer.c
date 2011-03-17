@@ -1097,6 +1097,7 @@ void                polymer_editorpick(void)
     case 4: // 1-way/masked wall
         searchsector = sectorofwall(num);
         searchbottomwall = searchwall = num;
+        searchisbottom = (searchstat==5);
         if (searchstat == 5) {
             searchstat = 0;
             if (wall[num].nextwall >= 0 && (wall[num].cstat & 2)) {

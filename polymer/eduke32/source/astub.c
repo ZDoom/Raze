@@ -4589,14 +4589,14 @@ static void Keys3d(void)
 
         if (keystatus[KEYSC_QUOTE])
         {
-            pal[0] = getnumber256("Ceiling palette: ", -1, MAXPALOOKUPS-1, 1);
-            pal[1] = getnumber256("Floor palette: ", -1, MAXPALOOKUPS-1, 1);
-            pal[2] = getnumber256("Wall palette: ", -1, MAXPALOOKUPS-1, 1);
-            pal[3] = getnumber256("Sprite palette: ", -1, MAXPALOOKUPS-1, 1);
+            pal[0] = getnumber256("Ceiling palette: ", -1, M32_MAXPALOOKUPS, 1);
+            pal[1] = getnumber256("Floor palette: ", -1, M32_MAXPALOOKUPS, 1);
+            pal[2] = getnumber256("Wall palette: ", -1, M32_MAXPALOOKUPS, 1);
+            pal[3] = getnumber256("Sprite palette: ", -1, M32_MAXPALOOKUPS, 1);
         }
         else
         {
-            pal[0] = getnumber256("Global palette: ", 0, MAXPALOOKUPS-1, 0);
+            pal[0] = getnumber256("Global palette: ", 0, M32_MAXPALOOKUPS, 0);
             pal[1] = pal[2] = pal[3] = pal[0];
         }
 
@@ -4674,8 +4674,9 @@ static void Keys3d(void)
 
     if (AIMING_AT_WALL_OR_MASK && PRESSED_KEYSC(PERIOD))
     {
-        AutoAlignWalls(searchwall, 0);
-        message("Wall %d autoalign", searchwall);
+        int32_t naligned=AutoAlignWalls(searchwall, eitherCTRL, 0);
+        message("Auto-aligned %d wall%s %s based on wall %d", naligned,
+                naligned==1?"":"s", eitherCTRL?"recursively":"", searchwall);
     }
 
 
@@ -4709,7 +4710,7 @@ static void Keys3d(void)
                 sector[searchsector].ceilingheinum = 0;
             }
             getnumberptr256("Sector ceiling slope: ", &sector[searchsector].ceilingheinum,
-                            sizeof(sector[0].ceilingheinum), 32767, 1, NULL);
+                            sizeof(sector[0].ceilingheinum), BHEINUM_MAX, 1, NULL);
             break;
         case SEARCH_FLOOR:
             getnumberptr256("Sector floorz: ", &sector[searchsector].floorz,
@@ -4720,14 +4721,15 @@ static void Keys3d(void)
                 sector[searchsector].floorstat |= 2;
             }
             getnumberptr256("Sector floor slope: ", &sector[searchsector].floorheinum,
-                            sizeof(sector[0].floorheinum), 32767, 1, NULL);
+                            sizeof(sector[0].floorheinum), BHEINUM_MAX, 1, NULL);
             break;
 
         case SEARCH_SPRITE:
             getnumberptr256("Sprite x: ", &sprite[searchwall].x, sizeof(sprite[0].x), editorgridextent-1, 1, NULL);
             getnumberptr256("Sprite y: ", &sprite[searchwall].y, sizeof(sprite[0].y), editorgridextent-1, 1, NULL);
             getnumberptr256("Sprite z: ", &sprite[searchwall].z, sizeof(sprite[0].z), BZ_MAX, 1, NULL);
-            getnumberptr256("Sprite angle: ", &sprite[searchwall].ang, sizeof(sprite[0].ang), 2047, 0, NULL);
+            getnumberptr256("Sprite angle: ", &sprite[searchwall].ang, sizeof(sprite[0].ang), 2047, 1, NULL);
+            sprite[searchwall].ang &= 2047;
             break;
         }
 
@@ -5185,14 +5187,16 @@ static void Keys3d(void)
     if (ASSERT_AIMING)
     {
         // PK: PGUP/PGDN, rmb only & mwheel
-        tsign -= (PRESSED_KEYSC(PGUP) || (mouseaction && mousey<0) || ((bstatus&18)==18 && !(bstatus&1)));
-        tsign += (PRESSED_KEYSC(PGDN) || (mouseaction && mousey>0) || ((bstatus&34)==34 && !(bstatus&1)));
+        tsign -= (PRESSED_KEYSC(PGUP) || (mouseaction && mousey<0) || ((bstatus&(16|2|1))==(16|2)));
+        tsign += (PRESSED_KEYSC(PGDN) || (mouseaction && mousey>0) || ((bstatus&(32|2|1))==(32|2)));
     }
 
     if (tsign)
     {
+        int16_t sect, havebtm=0, havetop=0;
+
         k = 0;
-        if (highlightsectorcnt >= 0)
+        if (highlightsectorcnt > 0)
         {
             for (i=0; i<highlightsectorcnt; i++)
                 if (highlightsector[i] == searchsector)
@@ -5202,11 +5206,29 @@ static void Keys3d(void)
                 }
         }
 
-        if (AIMING_AT_WALL || AIMING_AT_CEILING)
+        if (k)
         {
-            int16_t sect = k ? highlightsector[0] :
-                           ((AIMING_AT_WALL && wall[searchwall].nextsector>=0 && (eitherALT && !(bstatus&1))) ?
-                            wall[searchwall].nextsector : searchsector);
+            sect = highlightsector[0];
+            havetop = AIMING_AT_WALL;
+        }
+        else
+        {
+            if (AIMING_AT_WALL && wall[searchwall].nextsector>=0
+                    && eitherALT && !(bstatus&1))
+            {
+                sect = wall[searchwall].nextsector;
+                havebtm = searchisbottom;
+                havetop = !havebtm;
+            }
+            else
+            {
+                sect = searchsector;
+                havetop = AIMING_AT_WALL;
+            }
+        }
+
+        if (AIMING_AT_CEILING || havetop)
+        {
             int32_t tmphei;
 
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
@@ -5229,10 +5251,8 @@ static void Keys3d(void)
                 message("Sector %d ceilingz = %d", sect, sector[sect].ceilingz);
             }
         }
-        else if (AIMING_AT_FLOOR)
+        else if (AIMING_AT_FLOOR || havebtm)
         {
-            int16_t sect = k ? highlightsector[0] : searchsector;
-
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
             {
                 for (i=headspritesect[sect]; i!=-1; i=nextspritesect[i])
@@ -5364,12 +5384,12 @@ static void Keys3d(void)
         Bsprintf(tempbuf,"VIEW");
     else if ((bstatus&(2|1))==2)
         Bsprintf(tempbuf,"Z%s", keystatus[KEYSC_HOME]?" 256":keystatus[KEYSC_END]?" 512":"");
-    else if ((bstatus&(2|1))==1)
+
+    if ((bstatus&(2|1))==1 || (keystatus[KEYSC_SPACE]))
         Bsprintf(tempbuf,"LOCK");
 
     if (bstatus&1)
     {
-        Bsprintf(tempbuf,"LOCK");
         switch (searchstat)
         {
         case SEARCH_WALL:
@@ -5464,14 +5484,6 @@ static void Keys3d(void)
         }
     }
 
-    /* if(purpleon) {
-    begindrawing();
-    //          printext256(1*4,1*8,whitecol,-1,"Purple ON",0);
-    message("Purple ON");
-    enddrawing();
-    }
-    */
-
     if (cursectnum>=0 && sector[cursectnum].lotag==2)
     {
         if (sector[cursectnum].ceilingpicnum==FLOORSLIME)
@@ -5518,25 +5530,7 @@ static void Keys3d(void)
         DeletePolymerLights();
 #endif
     }
-
-
-    /*    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_G]) // ' g <Unused>
-    {
-    keystatus[KEYSC_G] = 0;
-    tabgraphic++;
-    if (tabgraphic > 2) tabgraphic = 0;
-    if (tabgraphic) message("Graphics ON");
-    else message("Graphics OFF");
-    }*/
-
-    /*    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_R]) // ' r <Handled already>
-    {
-    keystatus[KEYSC_R] = 0;
-    framerateon=!framerateon;
-    if (framerateon) message("Framerate ON");
-    else message("Framerate OFF");
-    }*/
-
+///___unused_keys___
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(W)) // ' w
     {
         nosprites = (nosprites+1)%MAXNOSPRITES;
@@ -5850,7 +5844,7 @@ static void Keys3d(void)
                 if (!(AIMED_CEILINGFLOOR(stat)&2))
                     AIMED_CEILINGFLOOR(heinum) = 0;
 
-                AIMED_CEILINGFLOOR(heinum) = clamp(AIMED_CEILINGFLOOR(heinum) + tsign*i, -32768, 32767);
+                AIMED_CEILINGFLOOR(heinum) = clamp(AIMED_CEILINGFLOOR(heinum) + tsign*i, -BHEINUM_MAX, BHEINUM_MAX);
 
                 message("Sector %d ceiling slope = %d",searchsector,AIMED_CEILINGFLOOR(heinum));
             }
@@ -6557,7 +6551,7 @@ static void Keys3d(void)
             if (ASSERT_AIMING)
             {
                 Bsprintf(tempbuf, "%s pal: ", Typestr[searchstat]);
-                getnumberptr256(tempbuf, &AIMED_CF_SEL(pal), sizeof(uint8_t), 255, 0, NULL);
+                getnumberptr256(tempbuf, &AIMED_CF_SEL(pal), sizeof(uint8_t), M32_MAXPALOOKUPS, 0, NULL);
                 asksave = 1;
             }
         }
@@ -7671,11 +7665,6 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
     return 0;
 }
 
-static int32_t atoi_safe(const char *str)
-{
-    return (int32_t)strtol(str, NULL, 10);
-}
-
 static int32_t osdcmd_quit(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
@@ -7963,7 +7952,7 @@ static int32_t osdcmd_tint(const osdfuncparm_t *parm)
     if (parm->numparms==1)
     {
         i = atoi_safe(parm->parms[0]);
-        if (i>=0 && i<MAXPALOOKUPS-RESERVEDPALS)
+        if (i>=0 && i<=M32_MAXPALOOKUPS)
         {
             p = &hictinting[i];
             OSD_Printf("pal %d: r=%d g=%d b=%d f=%d\n", i, p->r, p->g, p->b, p->f);
@@ -7972,14 +7961,14 @@ static int32_t osdcmd_tint(const osdfuncparm_t *parm)
     else if (parm->numparms==0)
     {
         OSD_Printf("Hightile tintings:\n");
-        for (i=0,p=&hictinting[0]; i<MAXPALOOKUPS-RESERVEDPALS; i++,p++)
+        for (i=0,p=&hictinting[0]; i<=M32_MAXPALOOKUPS; i++,p++)
             if (*(int32_t *)&hictinting[i] != B_LITTLE32(0x00ffffff))
                 OSD_Printf("pal %d: rgb %3d %3d %3d  f %d\n", i, p->r, p->g, p->b, p->f);
     }
     else if (parm->numparms>=2)
     {
         i = atoi_safe(parm->parms[0]);
-        if (i<0 || i>=MAXPALOOKUPS-RESERVEDPALS)
+        if (i<0 || i>M32_MAXPALOOKUPS)
             return OSDCMD_SHOWHELP;
 
         p = &hictinting[i];
@@ -10610,11 +10599,11 @@ static void EditSectorData(int16_t sectnum)
                 break;
             case 5:
                 handlemed(0, "Ceiling heinum", "Ceiling Heinum", &sector[sectnum].ceilingheinum,
-                          sizeof(sector[sectnum].ceilingheinum), 32767, 1);
+                          sizeof(sector[sectnum].ceilingheinum), BHEINUM_MAX, 1);
                 break;
             case 6:
                 handlemed(0, "Palookup number", "Ceiling Palookup Number", &sector[sectnum].ceilingpal,
-                          sizeof(sector[sectnum].ceilingpal), MAXPALOOKUPS-1, 0);
+                          sizeof(sector[sectnum].ceilingpal), M32_MAXPALOOKUPS, 0);
                 break;
             }
         }
@@ -10654,11 +10643,11 @@ static void EditSectorData(int16_t sectnum)
                 break;
             case 5:
                 handlemed(0, "Floor heinum", "Floor Heinum", &sector[sectnum].floorheinum,
-                          sizeof(sector[sectnum].floorheinum), 32767, 1);
+                          sizeof(sector[sectnum].floorheinum), BHEINUM_MAX, 1);
                 break;
             case 6:
                 handlemed(0, "Palookup number", "Floor Palookup Number", &sector[sectnum].floorpal,
-                          sizeof(sector[sectnum].floorpal), MAXPALOOKUPS-1, 0);
+                          sizeof(sector[sectnum].floorpal), M32_MAXPALOOKUPS, 0);
                 break;
             }
         }
@@ -10710,7 +10699,7 @@ static void EditWallData(int16_t wallnum)
             break;
         case 2:
             handlemed(0, "Pal", "Pal", &wall[wallnum].pal,
-                      sizeof(wall[wallnum].pal), MAXPALOOKUPS-1, 0);
+                      sizeof(wall[wallnum].pal), M32_MAXPALOOKUPS, 0);
             break;
         case 3:
             for (i=Bsprintf(med_disptext,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat); i < med_dispwidth; i++) med_disptext[i] = ' ';
@@ -10900,7 +10889,7 @@ static void EditSpriteData(int16_t spritenum)
                 break;
             case 2:
                 handlemed(0, "Pal", "Pal", &sprite[spritenum].pal,
-                          sizeof(sprite[spritenum].pal), MAXPALOOKUPS-1, 0);
+                          sizeof(sprite[spritenum].pal), M32_MAXPALOOKUPS, 0);
                 break;
             case 3:
             {
@@ -11016,7 +11005,7 @@ static void GenericSpriteSearch()
     {
         { BXY_MAX     , 65535         , 2048 },
         { BXY_MAX     , 128           , 65535 },
-        { BZ_MAX      , MAXPALOOKUPS-1, 65535 },
+        { BZ_MAX      , M32_MAXPALOOKUPS, 65535 },
         { MAXSECTORS-1, 128           , 65535 },
         { MAXSTATUS-1 , 128           , MAXSPRITES-1 },
         { BTAG_MAX    , MAXTILES-1    , 256 },

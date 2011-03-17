@@ -39,8 +39,6 @@ extern int32_t ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d;
 
 extern int16_t editstatus, searchit;
 extern int32_t searchx, searchy, osearchx, osearchy;      //search input
-extern int16_t searchsector, searchwall, searchstat;     //search output
-extern int16_t searchbottomwall;
 
 #define COLOR_RED 248
 #define COLOR_WHITE 31
@@ -59,7 +57,6 @@ int32_t nextvoxid = 0;
 
 extern int32_t whitecol;
 extern char vgapal16[4*256];
-extern void AutoAlignWalls(int32_t nWall0, int32_t ply);
 extern char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
 extern void updatenumsprites(void);
 

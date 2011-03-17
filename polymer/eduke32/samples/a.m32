@@ -122,10 +122,7 @@ ends
 //  KP+/-: radius
 //  KP 1,2,3: RGB color (Shift inverts)
 //
-// when aiming at wall or sector:
-//  ----Alt-KP/ enable/disable parallax override  /// none, toggle them manually in the OSD
-//  ----Alt-KP* enable/disable bias override  /// none, toggle them manually in the OSD
-// when the respective overrides are on:
+// when aiming at wall or sector and the respective overrides are on:
 //  KP 5,8: parallaxscale
 //  KP 4,6: parallaxbias
 //  KP /,*: specularfactor
@@ -134,27 +131,7 @@ ends
 // Also try Shift and/or Ctrl modifiers for different increments
 defstate fiddlewithlights
     var minval maxval
-/*
-    ifaimingsprite nullop else
-    {
-        ifeithershift ifhitkey KEY_gSLASH 
-        {
-            xor pr_overrideparallax 1, and pr_overrideparallax 1
-            ife pr_overrideparallax 1
-                quote "OVERRIDE POLYMER PARALLAX: ON"
-            else
-                quote "OVERRIDE POLYMER PARALLAX: OFF"
-        }
-        else ifeithershift ifhitkey KEY_gSTAR
-        {
-            xor pr_overridespecular 1, and pr_overridespecular 1
-            ife pr_overridespecular 1
-                quote "OVERRIDE POLYMER SPECULAR: ON"
-            else
-                quote "OVERRIDE POLYMER SPECULAR: OFF"
-        }
-    }
-*/
+
     // if aiming at sector or wall
     ifaimingsprite nullop
     else ifn pr_overrideparallax 0
@@ -818,7 +795,7 @@ onevent EVENT_KEYS3D
     var l m
 
     // door sound tester
-    ifaimingwall
+    ifeitherctrl ifeithershift ifaimingwall
     ifholdkey KEY_SPACE
     {
         set k wall[searchwall].nextsector
@@ -833,17 +810,21 @@ onevent EVENT_KEYS3D
             {
                 getsoundflags .lotag m
                 ifand m 1 nullop else soundonce .lotag
+                resetkey KEY_SPACE
             }
         }
     }
 
-    // swinging doors tester -- hit space on a door wall
-    ifaimingwall
-    ifhitkey KEY_SPACE  // SE11 ST23 up:ccw
+    // swinging doors tester -- hit Ctrl-Shift-SPACE on a door wall
+    ifeitherctrl ifeithershift ifaimingwall
+    ifholdkey KEY_SPACE  // SE11 ST23 up:ccw
     {
         set k wall[searchwall].nextsector
         ifl k 0 return
         ifn sector[k].lotag 23 return
+
+        resetkey KEY_SPACE
+
         set tmp 0
         for i loopofwall searchwall
         {
@@ -894,8 +875,8 @@ onevent EVENT_KEYS3D
     }
 
     // teleporter -- works on SE7 and SE17 (elevator)
-    ifaimingsprite
-    ifhitkey KEY_SPACE
+    ifeitherctrl ifaimingsprite
+    ifholdkey KEY_SPACE
     {
         ife sprite[searchwall].picnum SECTOREFFECTOR
         {
@@ -903,6 +884,8 @@ onevent EVENT_KEYS3D
             ife sprite[searchwall].lotag 7 set tmp 1
             ife sprite[searchwall].lotag 17 set tmp 1
             ife tmp 0 return
+
+            resetkey KEY_SPACE
 
             for i allsprites
             {
@@ -922,10 +905,12 @@ onevent EVENT_KEYS3D
         else ife sprite[searchwall].extra DUP_ROT_MAGIC
         {
             state duprot
+            resetkey KEY_SPACE
         }
         else ife sprite[searchwall].extra DUP_LIN_MAGIC2
         {
             state duplin
+            resetkey KEY_SPACE
         }
     }
 

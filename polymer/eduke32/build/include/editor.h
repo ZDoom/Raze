@@ -38,7 +38,7 @@ extern "C" {
 
 extern int32_t qsetmode;
 extern int16_t searchsector, searchwall, searchstat;
-extern int16_t searchbottomwall;
+extern int16_t searchbottomwall, searchisbottom;
 extern int32_t zmode, kensplayerheight, zlock;
 
 #define DEFAULT_SPRITE_CSTAT 0
@@ -89,6 +89,8 @@ extern void m32_setkeyfilter(int32_t on);
 extern int32_t wallength(int16_t i);
 extern void fixrepeats(int16_t i);
 extern void fixxrepeat(int16_t i, uint32_t lenrepquot);
+extern void AlignWallPoint2(int32_t w0);
+extern int32_t AutoAlignWalls(int32_t w0, int32_t dorecurse, int32_t nrecurs);
 
 extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
@@ -226,6 +228,13 @@ extern int32_t scripthistend;
 
 #define BTAG_MAX 65535
 #define BZ_MAX 8388608
+#define BHEINUM_MAX 32767
 
+#define M32_MAXPALOOKUPS (MAXPALOOKUPS-RESERVEDPALS-1)
+
+static inline int32_t atoi_safe(const char *str)
+{
+    return (int32_t)strtol(str, NULL, 10);
+}
 
 #endif

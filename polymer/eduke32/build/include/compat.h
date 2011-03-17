@@ -14,7 +14,10 @@
     #define UNREFERENCED_PARAMETER(x) x=x
 #endif
 
-#define clamp(in, min, max) ((in) <= (min) ? (min) : (in) >= (max) ? (max) : (in))
+static inline int clamp(int in, int min, int max)
+{
+    return in <= min ? min : in >= max ? max : in;
+}
 
 #if defined __GNUC__ || defined __clang__
 # define ATTRIBUTE(attrlist) __attribute__(attrlist)
@@ -565,9 +568,6 @@ char *Bstrupr(char *);
 #define EDUKE32_TMRDEF int32_t t[20], ti=0; const char *tmrstr=__func__; fprintf(stderr,"%s\n",tmrstr); t[ti++]=getticks();
 #define EDUKE32_TMRTIC t[ti++]=getticks()
 #define EDUKE32_TMRPRN do { int ii=0; fprintf(stderr,"%s: ",tmrstr); for (ii=1; ii<ti; ii++) fprintf(stderr,"%d ", t[ii]-t[ii-1]); fprintf(stderr,"\n"); } while (0)
-
-static inline int32_t ARBNDCHK(int32_t i) { return i<0 ? (*(int32_t *)123=234) : i; }
-#define DOUBLEWALL(w) wall[ARBNDCHK(w)]
 
 #endif // __compat_h__
 

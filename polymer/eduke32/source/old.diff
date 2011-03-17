@@ -175,3 +175,21 @@ Index: astub.c
 +    }
 +    }
 +    */
+@@ -5532,1 +5532,17 @@
+ ///__unused_keys__
++    /*    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_G]) // ' g <Unused>
++    {
++    keystatus[KEYSC_G] = 0;
++    tabgraphic++;
++    if (tabgraphic > 2) tabgraphic = 0;
++    if (tabgraphic) message("Graphics ON");
++    else message("Graphics OFF");
++    }*/
++
++    /*    if (keystatus[KEYSC_QUOTE] && keystatus[KEYSC_R]) // ' r <Handled already>
++    {
++    keystatus[KEYSC_R] = 0;
++    framerateon=!framerateon;
++    if (framerateon) message("Framerate ON");
++    else message("Framerate OFF");
++    }*/

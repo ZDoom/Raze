@@ -1230,9 +1230,14 @@ int16_t searchit;
 int32_t searchx = -1, searchy;                          //search input
 int16_t searchsector, searchwall, searchstat;     //search output
 
-// if searchstat==0 (wall), searchbottomwall is ==.nextwall if aiming at
-// bottom of a wall with swapped walls (.cstat&2), else it's ==searchwall
-int16_t searchbottomwall;
+// SEARCHBOTTOMWALL:
+//   When aiming at a the bottom part of a 2-sided wall whose bottom part
+//   is swapped (.cstat&2), searchbottomwall equals that wall's .nextwall. In all
+//   other cases (when aiming at a wall), searchbottomwall equals searchwall.
+//
+// SEARCHISBOTTOM:
+//  When aiming at a 2-sided wall, 1 if aiming at the bottom part, 0 else
+int16_t searchbottomwall, searchisbottom;
 
 double msens = 1.0;
 
@@ -3230,6 +3235,7 @@ static void drawalls(int32_t bunch)
                         if (searchy <= dwall[searchx]) //wall
                         {
                             searchsector = sectnum; searchbottomwall = searchwall = wallnum;
+                            searchisbottom = 0;
                             searchstat = 0; searchit = 1;
                         }
 
@@ -3320,6 +3326,7 @@ static void drawalls(int32_t bunch)
                         {
                             searchsector = sectnum; searchbottomwall = searchwall = wallnum;
                             if ((wal->cstat&2) > 0) searchbottomwall = wal->nextwall;
+                            searchisbottom = 1;
                             searchstat = 0; searchit = 1;
                         }
 
