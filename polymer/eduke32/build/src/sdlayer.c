@@ -1774,7 +1774,9 @@ int32_t handleevents(void)
                 mousex += ev.motion.xrel;
                 mousey += ev.motion.yrel;
 
+#ifndef DEBUGGINGAIDS
                 SDL_WarpMouse(xdim>>1, ydim>>1);
+#endif
             }
             break;
 
