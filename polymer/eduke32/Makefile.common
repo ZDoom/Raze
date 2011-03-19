@@ -21,7 +21,8 @@ USE_OPENGL = 1
 NOASM = 0
 LINKED_GTK = 0
 BUILD32_ON_64 = 0
-NEDMALLOC = 1
+# DO NOT SET THIS TO 1 AND COMMIT IT.
+NEDMALLOC = 0
 
 ifeq (0,$(USE_OPENGL))
     POLYMER = 0
@@ -41,7 +42,7 @@ KRANDDEBUG?=0
 EFENCE?=0
 OPTLEVEL?=2
 PROFILER?=0
-NOSOUND?=0
+MUDFLAP?=0
 
 ifneq (0,$(KRANDDEBUG))
     RELEASE=0
@@ -70,6 +71,10 @@ else
     debug=-ggdb -O0 -DDEBUGGINGAIDS
     ifeq ($(PLATFORM),LINUX)
         LIBS+=-rdynamic
+    endif
+    ifneq (0,$(MUDFLAP))
+        LIBS+= -lmudflapth
+        debug+= -fmudflapth
     endif
     ifneq (0,$(PROFILER))
         LIBS+= -lprofiler
