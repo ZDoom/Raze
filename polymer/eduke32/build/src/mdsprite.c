@@ -437,7 +437,7 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
     // xsiz/y = 2^x size of replacement
 
     kpgetdim(picfil,picfillen,&tsizx,&tsizy);
-    if (tsizx == 0 || tsizy == 0) { Bfree(picfil); return -1; }
+    if (tsizx == 0 || tsizy == 0) { Bfree(picfil); return -2; }
 
     if (!glinfo.texnpot)
     {
