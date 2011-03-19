@@ -14,11 +14,6 @@
     #define UNREFERENCED_PARAMETER(x) x=x
 #endif
 
-static inline int clamp(int in, int min, int max)
-{
-    return in <= min ? min : in >= max ? max : in;
-}
-
 #if defined __GNUC__ || defined __clang__
 # define ATTRIBUTE(attrlist) __attribute__(attrlist)
 #else
@@ -372,6 +367,10 @@ static inline void dtol(double d, int32_t *a)
 # define max(a,b) ( ((a) > (b)) ? (a) : (b) )
 #endif
 
+static inline int clamp(int in, int min, int max)
+{
+    return in <= min ? min : in >= max ? max : in;
+}
 
 #define BMAX_PATH 256
 

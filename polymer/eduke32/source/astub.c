@@ -10091,7 +10091,8 @@ void ExtCheckKeys(void)
 
     if (PRESSED_KEYSC(F12))   //F12
     {
-        screencapture("captxxxx.tga", keystatus[KEYSC_LSHIFT]|keystatus[KEYSC_RSHIFT]);
+        Bsprintf(tempbuf, "Mapster32 %s", ExtGetVer());
+        screencapture("captxxxx.tga", keystatus[KEYSC_LSHIFT]|keystatus[KEYSC_RSHIFT], tempbuf);
         message("Saved screenshot %04d", capturecount-1);
     }
 }

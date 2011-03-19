@@ -36,6 +36,14 @@
 # endif
 #endif
 
+#ifdef USE_LIBPNG
+//# include <setjmp.h>
+# ifdef NEDMALLOC
+#  define PNG_USER_MEM_SUPPORTED
+# endif
+# include <png.h>
+#endif
+
 #include <math.h>
 
 #include "engine_priv.h"
@@ -13322,13 +13330,10 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
 //
 // screencapture
 //
-int32_t screencapture_tga(const char *filename, char inverseit)
+
+static int32_t screencapture_common1(char *fn, const char *ext, BFILE** filptr)
 {
-    int32_t i,j;
-    char *ptr, head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
-    //char palette[4*256];
-    char *fn = Bstrdup(filename), *inversebuf;
-    BFILE *fil;
+    int32_t i;
 
     do      // JBF 2004022: So we don't overwrite existing screenshots
     {
@@ -13340,21 +13345,181 @@ int32_t screencapture_tga(const char *filename, char inverseit)
         fn[i++] = ((capturecount/10)%10)+48;
         fn[i++] = (capturecount%10)+48;
         i++;
-        fn[i++] = 't';
-        fn[i++] = 'g';
-        fn[i++] = 'a';
+        Bstrcpy(&fn[i], ext);
 
-        if ((fil = Bfopen(fn,"rb")) == NULL) break;
-        Bfclose(fil);
+        if ((*filptr = Bfopen(fn,"rb")) == NULL) break;
+        Bfclose(*filptr);
         capturecount++;
     }
     while (1);
-    fil = Bfopen(fn,"wb");
-    if (fil == NULL)
+
+    *filptr = Bfopen(fn,"wb");
+    if (*filptr == NULL)
     {
         Bfree(fn);
         return -1;
     }
+
+    return 0;
+}
+
+#ifdef USE_LIBPNG
+// PNG screenshots -- adapted from libpng example.c
+int32_t screencapture_png(const char *filename, char inverseit, const char *versionstr)
+{
+    int32_t i;
+    BFILE *fp;
+#ifdef USE_OPENGL
+# define HICOLOR (rendmode>=3 && qsetmode==200)
+#else
+# define HICOLOR 0
+#endif
+    png_structp png_ptr;
+    png_infop info_ptr;
+    png_colorp palette = NULL;
+    png_textp text = NULL;
+
+    png_bytep buf = NULL;
+    png_bytepp rowptrs = NULL;
+
+    char fn[32];  // careful...
+
+    UNREFERENCED_PARAMETER(inverseit);
+
+    Bstrcpy(fn, filename);
+    i = screencapture_common1(fn, "png", &fp);
+    if (i)
+        return i;
+
+    /* Create and initialize the png_struct with default error handling. */
+#ifndef NEDMALLOC
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+#else
+    png_ptr = png_create_write_struct_2(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL, Bmalloc, Bfree);
+#endif
+    if (png_ptr == NULL)
+    {
+        Bfclose(fp);
+        return -1;
+    }
+
+    /* Allocate/initialize the image information data. */
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == NULL)
+    {
+        Bfclose(fp);
+        png_destroy_write_struct(&png_ptr, NULL);
+        return -1;
+    }
+
+    /* Set error handling. */
+    if (setjmp(png_jmpbuf(png_ptr)))
+    {
+        /* If we get here, we had a problem writing the file */
+        Bfclose(fp);
+        if (palette) png_free(png_ptr, palette);
+        if (text) png_free(png_ptr, text);
+        if (buf) png_free(png_ptr, buf);
+        if (rowptrs) png_free(png_ptr, rowptrs);
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+
+        return -1;
+    }
+
+    png_init_io(png_ptr, fp);
+
+    // initialize various info fields from here on
+    png_set_IHDR(png_ptr, info_ptr, xdim, ydim, 8,
+                 HICOLOR ? PNG_COLOR_TYPE_RGB : PNG_COLOR_TYPE_PALETTE,
+                 PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+    if (HICOLOR && editstatus==0)
+        png_set_filter(png_ptr, PNG_FILTER_TYPE_BASE, PNG_FILTER_VALUE_NONE);
+
+    if (!HICOLOR)
+        palette = (png_colorp)png_malloc(png_ptr, 256*png_sizeof(png_color));
+
+    if (palette)
+    {
+        for (i=0; i<256; i++)
+        {
+            palette[i].red = curpalettefaded[i].r;
+            palette[i].green = curpalettefaded[i].g;
+            palette[i].blue = curpalettefaded[i].b;
+        }
+
+        png_set_PLTE(png_ptr, info_ptr, palette, 256);
+    }
+
+    png_set_gAMA(png_ptr, info_ptr, vid_gamma);  // 1.0/vid_gamma ?
+    png_set_sRGB(png_ptr, info_ptr, PNG_sRGB_INTENT_SATURATION);  // hm...
+
+    text = (png_textp)png_malloc(png_ptr, 2*png_sizeof(png_text));
+    text[0].compression = PNG_TEXT_COMPRESSION_NONE;
+    text[0].key = "Title";
+    text[0].text = editstatus ? "Mapster32 screenshot" : "EDuke32 screenshot";
+
+    text[1].compression = PNG_TEXT_COMPRESSION_NONE;
+    text[1].key = "Software";
+    text[1].text = (char *)versionstr;
+    png_set_text(png_ptr, info_ptr, text, 2);
+
+    // get/set the pixel data
+    begindrawing(); //{{{
+    if (palette)
+    {
+        buf = (png_bytep)png_malloc(png_ptr, xdim*ydim);
+        Bmemcpy(buf, (char *)frameplace, xdim*ydim);
+    }
+    else
+    {
+        buf = (png_bytep)png_malloc(png_ptr, xdim*ydim*3);
+        bglReadPixels(0,0,xdim,ydim,GL_RGB,GL_UNSIGNED_BYTE,buf);
+    }
+    enddrawing(); //}}}
+
+    rowptrs = (png_bytepp)png_malloc(png_ptr, ydim*sizeof(png_bytep));
+    if (!palette)
+    {
+        int32_t k = xdim*(1+2*!palette);
+        for (i=0; i<ydim; i++)
+            rowptrs[i] = &buf[k*(ydim-i-1)];
+    }
+    else
+    {
+        for (i=0; i<ydim; i++)
+            rowptrs[i] = &buf[xdim*i];
+    }
+    png_set_rows(png_ptr, info_ptr, rowptrs);
+
+    // write the png file!
+    png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+
+    Bfclose(fp);
+    if (palette) png_free(png_ptr, palette);
+    if (text) png_free(png_ptr, text);
+    if (buf) png_free(png_ptr, buf);
+    if (rowptrs) png_free(png_ptr, rowptrs);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+
+    OSD_Printf("Saved screenshot to %s\n", fn);
+    capturecount++;
+    return 0;
+}
+#undef HICOLOR
+#endif  // defined USE_LIBPNG
+
+int32_t screencapture_tga(const char *filename, char inverseit)
+{
+    int32_t i,j;
+    char *ptr, head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
+    //char palette[4*256];
+    char *fn = Bstrdup(filename), *inversebuf;
+    BFILE *fil;
+
+    i = screencapture_common1(fn, "tga", &fil);
+    if (i)
+        return i;
 
 #ifdef USE_OPENGL
     if (rendmode >= 3 && qsetmode == 200)
@@ -13452,6 +13617,7 @@ int32_t screencapture_tga(const char *filename, char inverseit)
     return(0);
 }
 
+#if 0
 // PCX is nasty, which is why I've lifted these functions from the PCX spec by ZSoft
 static int32_t writepcxbyte(char colour, char count, BFILE *fp)
 {
@@ -13512,31 +13678,9 @@ int32_t screencapture_pcx(const char *filename, char inverseit)
     char *fn = Bstrdup(filename), *inversebuf;
     BFILE *fil;
 
-    do      // JBF 2004022: So we don't overwrite existing screenshots
-    {
-        if (capturecount > 9999) return -1;
-
-        i = Bstrrchr(fn,'.')-fn-4;
-        fn[i++] = ((capturecount/1000)%10)+48;
-        fn[i++] = ((capturecount/100)%10)+48;
-        fn[i++] = ((capturecount/10)%10)+48;
-        fn[i++] = (capturecount%10)+48;
-        i++;
-        fn[i++] = 'p';
-        fn[i++] = 'c';
-        fn[i++] = 'x';
-
-        if ((fil = Bfopen(fn,"rb")) == NULL) break;
-        Bfclose(fil);
-        capturecount++;
-    }
-    while (1);
-    fil = Bfopen(fn,"wb");
-    if (fil == NULL)
-    {
-        Bfree(fn);
-        return -1;
-    }
+    i = screencapture_common1(fn, "pcx", &fil);
+    if (i)
+        return i;
 
     memset(head,0,128);
     head[0] = 10;
@@ -13639,11 +13783,20 @@ int32_t screencapture_pcx(const char *filename, char inverseit)
     capturecount++;
     return(0);
 }
+#endif
 
-int32_t screencapture(const char *filename, char inverseit)
+int32_t screencapture(const char *filename, char inverseit, const char *versionstr)
 {
-    if (captureformat == 0) return screencapture_tga(filename,inverseit);
-    else return screencapture_pcx(filename,inverseit);
+#ifndef USE_LIBPNG
+    UNREFERENCED_PARAMETER(versionstr);
+#else
+    if (!inverseit)
+        return screencapture_png(filename,inverseit,versionstr);
+    else
+#endif
+//    if (captureformat == 0)
+        return screencapture_tga(filename,inverseit);
+//    else return screencapture_pcx(filename,inverseit);
 }
 
 

@@ -591,7 +591,7 @@ int32_t   setsprite(int16_t spritenum, const vec3_t *new) ATTRIBUTE((nonnull(2))
 
 int32_t spriteheight(int16_t i, int32_t *basez);
 
-int32_t   screencapture(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
+int32_t   screencapture(const char *filename, char inverseit, const char *versionstr) ATTRIBUTE((nonnull(1)));
 
 int32_t   getclosestcol(int32_t r, int32_t g, int32_t b);
 

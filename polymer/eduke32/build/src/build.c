@@ -2532,7 +2532,9 @@ void overheadeditor(void)
         {
             keystatus[88] = 0;
 //__clearscreen_beforecapture__
-            screencapture("captxxxx.tga", eitherSHIFT);
+
+            Bsprintf(tempbuf, "Mapster32 %s", ExtGetVer());
+            screencapture("captxxxx.tga", eitherSHIFT, tempbuf);
 
             showframe(1);
         }

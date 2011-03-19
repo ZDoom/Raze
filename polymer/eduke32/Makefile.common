@@ -23,6 +23,7 @@ LINKED_GTK = 0
 BUILD32_ON_64 = 0
 # DO NOT SET THIS TO 1 AND COMMIT IT.
 NEDMALLOC = 0
+USE_LIBPNG = 0
 
 ifeq (0,$(USE_OPENGL))
     POLYMER = 0
@@ -43,6 +44,7 @@ EFENCE?=0
 OPTLEVEL?=2
 PROFILER?=0
 MUDFLAP?=0
+MUDFLAP=0
 
 ifneq (0,$(KRANDDEBUG))
     RELEASE=0
@@ -63,6 +65,10 @@ STRIP=strip
 
 # compiler flags etc.
 LIBS=-lm
+ifneq (0,$(USE_LIBPNG))
+    LIBS+= -lpng
+endif
+
 ifneq (0,$(RELEASE))
     # Debugging disabled
     debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL)
@@ -83,6 +89,9 @@ else
     ifneq (0,$(KRANDDEBUG))
         debug+=-DKRANDDEBUG=1
     endif
+    ifneq (0,$(MUDFLAP))
+        debug+=-fmudflap -fmudflapth -funwind-tables
+    endif
 endif
 ifneq (0,$(DEBUGANYWAY))
     debug+=-ggdb
@@ -93,7 +102,11 @@ W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
 
 BASECFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
-        $(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT)
+        $(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) \
+	-Wextra	-Wstrict-overflow=1 #-Wwrite-strings -Waddress -Wlogical-op
+ifneq (0,$(USE_LIBPNG))
+    BASECFLAGS+= -DUSE_LIBPNG
+endif
 
 BASECXXFLAGS= -fno-exceptions -fno-rtti
 BASEASFLAGS=-s #-g

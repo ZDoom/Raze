@@ -545,8 +545,11 @@ void G_HandleSpecialKeys(void)
 
     if (KB_UnBoundKeyPressed(sc_F12))
     {
+        char titlebuf[256];
+        Bsprintf(titlebuf,HEAD2 " %s",s_buildRev);
+
         KB_ClearKeyDown(sc_F12);
-        screencapture("duke0000.tga",0);
+        screencapture("duke0000.tga",0,titlebuf);
         P_DoQuote(QUOTE_SCREEN_SAVED,g_player[myconnectindex].ps);
     }
 

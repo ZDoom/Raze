@@ -2415,6 +2415,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     }
 #endif
 
+#if 0
     if (rendmode == 2)
     {
 #if (USEZBUFFER != 0)
@@ -2476,6 +2477,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         ltsizy = (picsiz[globalpicnum]>>4);
     }
     else
+#endif
     {
         dacol = palookup[0][(int32_t)(*(char *)(waloff[globalpicnum]))+(min(max((int32_t)(globalshade * shadescale),0),numpalookups-1)<<8)];
     }
@@ -2531,9 +2533,11 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                 ix1 = (x>>14); if (ix1 > xdimen) ix1 = xdimen;
                 if (ix0 < ix1)
                 {
+#if 0
                     if (rendmode == 1)
                         memset((void *)(ylookup[y]+ix0+frameoffset),dacol,ix1-ix0);
                     else
+#endif
                     {
                         vidp = (char *)(ylookup[y]+frameoffset+ix0);
                         dp = ngdx*(double)ix0 + ngdy*(double)y + ngdo;
@@ -2717,7 +2721,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         i = j;
     }
     while (i != maxi);
-
+#if 0
     if (rendmode == 1)
     {
         if (method&3) //Only draw border around sprites/maskwalls
@@ -2730,6 +2734,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         //ox /= (double)n; oy /= (double)n;
         //for(i=0,j=n-1;i<n;j=i,i++) drawline2d(px[i]+(ox-px[i])*.125,py[i]+(oy-py[i])*.125,px[j]+(ox-px[j])*.125,py[j]+(oy-py[j])*.125,31);
     }
+#endif
 }
 
 /*Init viewport boundary (must be 4 point convex loop):
@@ -3063,11 +3068,151 @@ void domost(float x0, float y0, float x1, float y1)
 
 static void polymost_scansector(int32_t sectnum);
 
+// variables that are set to ceiling- or floor-members, depending
+// on which one is processed right now
+static int32_t global_cf_z;
+static float global_cf_xpanning, global_cf_ypanning, global_cf_heinum;
+static int32_t global_cf_shade, global_cf_pal;
+static int32_t (*global_getzofslope_func)(int16_t, int32_t, int32_t);
+
+static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, double ny1, double ryp0, double ryp1,
+                                            double x0, double x1, double cf_y0, double cf_y1, int32_t have_floor,
+                                            int32_t sectnum)
+{
+    double ft[4], fx, fy, ox, oy, oz, ox2, oy2;
+    double px[3], py[3], dd[3], uu[3], vv[3], r;
+    int32_t i;
+
+    const sectortype *sec = &sector[sectnum];
+
+    // comments from floor code:
+            //(singlobalang/-16384*(sx-ghalfx) + 0*(sy-ghoriz) + (cosviewingrangeglobalang/16384)*ghalfx)*d + globalposx    = u*16
+            //(cosglobalang/ 16384*(sx-ghalfx) + 0*(sy-ghoriz) + (sinviewingrangeglobalang/16384)*ghalfx)*d + globalposy    = v*16
+            //(                  0*(sx-ghalfx) + 1*(sy-ghoriz) + (                             0)*ghalfx)*d + globalposz/16 = (sec->floorz/16)
+    if (!(globalorientation&64))
+        { ft[0] = globalposx; ft[1] = globalposy; ft[2] = cosglobalang; ft[3] = singlobalang; }
+    else
+    {
+        //relative alignment
+        fx = (double)(wall[wall[sec->wallptr].point2].x-wall[sec->wallptr].x);
+        fy = (double)(wall[wall[sec->wallptr].point2].y-wall[sec->wallptr].y);
+        r = 1.0/sqrt(fx*fx+fy*fy); fx *= r; fy *= r;
+        ft[2] = cosglobalang*fx + singlobalang*fy;
+        ft[3] = singlobalang*fx - cosglobalang*fy;
+        ft[0] = ((double)(globalposx-wall[sec->wallptr].x))*fx + ((double)(globalposy-wall[sec->wallptr].y))*fy;
+        ft[1] = ((double)(globalposy-wall[sec->wallptr].y))*fx - ((double)(globalposx-wall[sec->wallptr].x))*fy;
+        if (!(globalorientation&4)) globalorientation ^= 32; else globalorientation ^= 16;
+    }
+    gdx = 0;
+    gdy = gxyaspect;
+    if (!(globalorientation&2)) gdy /= (double)(global_cf_z-globalposz);
+    gdo = -ghoriz*gdy;
+    if (globalorientation&8) { ft[0] /= 8; ft[1] /= -8; ft[2] /= 2097152; ft[3] /= 2097152; }
+    else { ft[0] /= 16; ft[1] /= -16; ft[2] /= 4194304; ft[3] /= 4194304; }
+    gux = (double)ft[3]*((double)viewingrange)/-65536.0;
+    gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
+    guy = (double)ft[0]*gdy; gvy = (double)ft[1]*gdy;
+    guo = (double)ft[0]*gdo; gvo = (double)ft[1]*gdo;
+    guo += (double)(ft[2]-gux)*ghalfx;
+    gvo -= (double)(ft[3]+gvx)*ghalfx;
+
+    //Texture flipping
+    if (globalorientation&4)
+    {
+        r = gux; gux = gvx; gvx = r;
+        r = guy; guy = gvy; gvy = r;
+        r = guo; guo = gvo; gvo = r;
+    }
+    if (globalorientation&16) { gux = -gux; guy = -guy; guo = -guo; }
+    if (globalorientation&32) { gvx = -gvx; gvy = -gvy; gvo = -gvo; }
+
+    //Texture panning
+    fx = global_cf_xpanning*((float)(1<<(picsiz[globalpicnum]&15)))/256.0;
+    fy = global_cf_ypanning*((float)(1<<(picsiz[globalpicnum]>>4)))/256.0;
+    if ((globalorientation&(2+64)) == (2+64)) //Hack for panning for slopes w/ relative alignment
+    {
+        r = global_cf_heinum / 4096.0; r = 1.0/sqrt(r*r+1);
+        if (!(globalorientation&4)) fy *= r; else fx *= r;
+    }
+    guy += gdy*fx; guo += gdo*fx;
+    gvy += gdy*fy; gvo += gdo*fy;
+
+    if (globalorientation&2) //slopes
+    {
+        px[0] = x0; py[0] = ryp0 + ghoriz;
+        px[1] = x1; py[1] = ryp1 + ghoriz;
+
+        //Pick some point guaranteed to be not collinear to the 1st two points
+        ox = nx0 + (ny1-ny0);
+        oy = ny0 + (nx0-nx1);
+        ox2 = (double)(oy-globalposy)*gcosang  - (double)(ox-globalposx)*gsinang ;
+        oy2 = (double)(ox-globalposx)*gcosang2 + (double)(oy-globalposy)*gsinang2;
+        oy2 = 1.0/oy2;
+        px[2] = ghalfx*ox2*oy2 + ghalfx; oy2 *= gyxscale;
+        py[2] = oy2 + ghoriz;
+
+        for (i=0; i<3; i++)
+        {
+            dd[i] = px[i]*gdx + py[i]*gdy + gdo;
+            uu[i] = px[i]*gux + py[i]*guy + guo;
+            vv[i] = px[i]*gvx + py[i]*gvy + gvo;
+        }
+
+        py[0] = cf_y0;
+        py[1] = cf_y1;
+        py[2] = (global_getzofslope_func(sectnum,(int32_t)ox,(int32_t)oy)-globalposz)*oy2 + ghoriz;
+
+        ox = py[1]-py[2]; oy = py[2]-py[0]; oz = py[0]-py[1];
+        r = 1.0 / (ox*px[0] + oy*px[1] + oz*px[2]);
+        gdx = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
+        gux = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
+        gvx = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
+        ox = px[2]-px[1]; oy = px[0]-px[2]; oz = px[1]-px[0];
+        gdy = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
+        guy = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
+        gvy = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
+        gdo = dd[0] - px[0]*gdx - py[0]*gdy;
+        guo = uu[0] - px[0]*gux - py[0]*guy;
+        gvo = vv[0] - px[0]*gvx - py[0]*gvy;
+
+        if (globalorientation&64) //Hack for relative alignment on slopes
+        {
+            r = global_cf_heinum / 4096.0;
+            r = sqrt(r*r+1);
+            if (!(globalorientation&4)) { gvx *= r; gvy *= r; gvo *= r; }
+            else { gux *= r; guy *= r; guo *= r; }
+        }
+    }
+    domostpolymethod = (globalorientation>>7)&3;
+    if (have_floor)
+    {
+        if (globalposz >= getflorzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
+    }
+    else
+    {
+        if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
+    }
+#ifdef USE_OPENGL
+    if (!nofog)
+    {
+        fogcalc(global_cf_shade,sec->visibility,global_cf_pal);
+        bglFogf(GL_FOG_DENSITY,fogresult);
+        bglFogfv(GL_FOG_COLOR,fogcol);
+    }
+#endif
+    pow2xsplit = 0;
+    if (have_floor)
+        domost(x0,cf_y0,x1,cf_y1); //flor
+    else
+        domost(x1,cf_y1,x0,cf_y0); //ceil
+    domostpolymethod = 0;
+}
+
 static void polymost_drawalls(int32_t bunch)
 {
     sectortype *sec, *nextsec;
     walltype *wal, *wal2, *nwal;
-    double ox, oy, oz, ox2, oy2, px[3], py[3], dd[3], uu[3], vv[3];
+    double ox, oy, oz, dd[3], vv[3];
     double fx, fy, x0, x1, cy0, cy1, fy0, fy1, xp0, yp0, xp1, yp1, ryp0, ryp1, nx0, ny0, nx1, ny1;
     double t, r, t0, t1, ocy0, ocy1, ofy0, ofy1, oxp0, oyp0, ft[4];
     double oguo, ogux, oguy;
@@ -3148,117 +3293,13 @@ static void polymost_drawalls(int32_t bunch)
         globalpicnum = sec->floorpicnum; globalshade = sec->floorshade; globalpal = (int32_t)((uint8_t)sec->floorpal);
         globalorientation = sec->floorstat;
         if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,sectnum);
+
+        global_cf_shade = sec->floorshade, global_cf_pal = sec->floorpal; global_cf_z = sec->floorz;  // REFACT
+        global_cf_xpanning = sec->floorxpanning; global_cf_ypanning = sec->floorypanning, global_cf_heinum = sec->floorheinum;
+        global_getzofslope_func = &getflorzofslope;
+
         if (!(globalorientation&1))
-        {
-            //(singlobalang/-16384*(sx-ghalfx) + 0*(sy-ghoriz) + (cosviewingrangeglobalang/16384)*ghalfx)*d + globalposx    = u*16
-            //(cosglobalang/ 16384*(sx-ghalfx) + 0*(sy-ghoriz) + (sinviewingrangeglobalang/16384)*ghalfx)*d + globalposy    = v*16
-            //(                  0*(sx-ghalfx) + 1*(sy-ghoriz) + (                             0)*ghalfx)*d + globalposz/16 = (sec->floorz/16)
-            if (!(globalorientation&64))
-                { ft[0] = globalposx; ft[1] = globalposy; ft[2] = cosglobalang; ft[3] = singlobalang; }
-            else
-            {
-                //relative alignment
-                fx = (double)(wall[wall[sec->wallptr].point2].x-wall[sec->wallptr].x);
-                fy = (double)(wall[wall[sec->wallptr].point2].y-wall[sec->wallptr].y);
-                r = 1.0/sqrt(fx*fx+fy*fy); fx *= r; fy *= r;
-                ft[2] = cosglobalang*fx + singlobalang*fy;
-                ft[3] = singlobalang*fx - cosglobalang*fy;
-                ft[0] = ((double)(globalposx-wall[sec->wallptr].x))*fx + ((double)(globalposy-wall[sec->wallptr].y))*fy;
-                ft[1] = ((double)(globalposy-wall[sec->wallptr].y))*fx - ((double)(globalposx-wall[sec->wallptr].x))*fy;
-                if (!(globalorientation&4)) globalorientation ^= 32; else globalorientation ^= 16;
-            }
-            gdx = 0;
-            gdy = gxyaspect; if (!(globalorientation&2)) gdy /= (double)(sec->floorz-globalposz);
-            gdo = -ghoriz*gdy;
-            if (globalorientation&8) { ft[0] /= 8; ft[1] /= -8; ft[2] /= 2097152; ft[3] /= 2097152; }
-            else { ft[0] /= 16; ft[1] /= -16; ft[2] /= 4194304; ft[3] /= 4194304; }
-            gux = (double)ft[3]*((double)viewingrange)/-65536.0;
-            gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
-            guy = (double)ft[0]*gdy; gvy = (double)ft[1]*gdy;
-            guo = (double)ft[0]*gdo; gvo = (double)ft[1]*gdo;
-            guo += (double)(ft[2]-gux)*ghalfx;
-            gvo -= (double)(ft[3]+gvx)*ghalfx;
-
-            //Texture flipping
-            if (globalorientation&4)
-            {
-                r = gux; gux = gvx; gvx = r;
-                r = guy; guy = gvy; gvy = r;
-                r = guo; guo = gvo; gvo = r;
-            }
-            if (globalorientation&16) { gux = -gux; guy = -guy; guo = -guo; }
-            if (globalorientation&32) { gvx = -gvx; gvy = -gvy; gvo = -gvo; }
-
-            //Texture panning
-            fx = (float)sec->floorxpanning*((float)(1<<(picsiz[globalpicnum]&15)))/256.0;
-            fy = (float)sec->floorypanning*((float)(1<<(picsiz[globalpicnum]>>4)))/256.0;
-            if ((globalorientation&(2+64)) == (2+64)) //Hack for panning for slopes w/ relative alignment
-            {
-                r = (float)sec->floorheinum / 4096.0; r = 1.0/sqrt(r*r+1);
-                if (!(globalorientation&4)) fy *= r; else fx *= r;
-            }
-            guy += gdy*fx; guo += gdo*fx;
-            gvy += gdy*fy; gvo += gdo*fy;
-
-            if (globalorientation&2) //slopes
-            {
-                px[0] = x0; py[0] = ryp0 + ghoriz;
-                px[1] = x1; py[1] = ryp1 + ghoriz;
-
-                //Pick some point guaranteed to be not collinear to the 1st two points
-                ox = nx0 + (ny1-ny0);
-                oy = ny0 + (nx0-nx1);
-                ox2 = (double)(oy-globalposy)*gcosang  - (double)(ox-globalposx)*gsinang;
-                oy2 = (double)(ox-globalposx)*gcosang2 + (double)(oy-globalposy)*gsinang2;
-                oy2 = 1.0/oy2;
-                px[2] = ghalfx*ox2*oy2 + ghalfx; oy2 *= gyxscale;
-                py[2] = oy2 + ghoriz;
-
-                for (i=0; i<3; i++)
-                {
-                    dd[i] = px[i]*gdx + py[i]*gdy + gdo;
-                    uu[i] = px[i]*gux + py[i]*guy + guo;
-                    vv[i] = px[i]*gvx + py[i]*gvy + gvo;
-                }
-
-                py[0] = fy0;
-                py[1] = fy1;
-                py[2] = (getflorzofslope(sectnum,(int32_t)ox,(int32_t)oy)-globalposz)*oy2 + ghoriz;
-
-                ox = py[1]-py[2]; oy = py[2]-py[0]; oz = py[0]-py[1];
-                r = 1.0 / (ox*px[0] + oy*px[1] + oz*px[2]);
-                gdx = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
-                gux = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
-                gvx = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
-                ox = px[2]-px[1]; oy = px[0]-px[2]; oz = px[1]-px[0];
-                gdy = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
-                guy = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
-                gvy = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
-                gdo = dd[0] - px[0]*gdx - py[0]*gdy;
-                guo = uu[0] - px[0]*gux - py[0]*guy;
-                gvo = vv[0] - px[0]*gvx - py[0]*gvy;
-
-                if (globalorientation&64) //Hack for relative alignment on slopes
-                {
-                    r = (float)sec->floorheinum / 4096.0;
-                    r = sqrt(r*r+1);
-                    if (!(globalorientation&4)) { gvx *= r; gvy *= r; gvo *= r; }
-                    else { gux *= r; guy *= r; guo *= r; }
-                }
-            }
-            domostpolymethod = (globalorientation>>7)&3;
-            if (globalposz >= getflorzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
-#ifdef USE_OPENGL
-            if (!nofog)
-            {
-                fogcalc(sec->floorshade,sec->visibility,sec->floorpal);
-                bglFogf(GL_FOG_DENSITY,fogresult);
-                bglFogfv(GL_FOG_COLOR,fogcol);
-            }
-#endif
-            pow2xsplit = 0; domost(x0,fy0,x1,fy1); //flor
-            domostpolymethod = 0;
-        }
+            polymost_internal_nonparallaxed(nx0, ny0, nx1, ny1, ryp0, ryp1, x0, x1, fy0, fy1, 1, sectnum);
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
         {
             //Parallaxing sky... hacked for Ken's mountain texture; paper-sky only :/
@@ -3525,115 +3566,13 @@ static void polymost_drawalls(int32_t bunch)
         globalpicnum = sec->ceilingpicnum; globalshade = sec->ceilingshade; globalpal = (int32_t)((uint8_t)sec->ceilingpal);
         globalorientation = sec->ceilingstat;
         if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,sectnum);
+
+        global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT
+        global_cf_xpanning = sec->ceilingxpanning; global_cf_ypanning = sec->ceilingypanning, global_cf_heinum = sec->ceilingheinum;
+        global_getzofslope_func = &getceilzofslope;
+
         if (!(globalorientation&1))
-        {
-            if (!(globalorientation&64))
-                { ft[0] = globalposx; ft[1] = globalposy; ft[2] = cosglobalang; ft[3] = singlobalang; }
-            else
-            {
-                //relative alignment
-                fx = (double)(wall[wall[sec->wallptr].point2].x-wall[sec->wallptr].x);
-                fy = (double)(wall[wall[sec->wallptr].point2].y-wall[sec->wallptr].y);
-                r = 1.0/sqrt(fx*fx+fy*fy); fx *= r; fy *= r;
-                ft[2] = cosglobalang*fx + singlobalang*fy;
-                ft[3] = singlobalang*fx - cosglobalang*fy;
-                ft[0] = ((double)(globalposx-wall[sec->wallptr].x))*fx + ((double)(globalposy-wall[sec->wallptr].y))*fy;
-                ft[1] = ((double)(globalposy-wall[sec->wallptr].y))*fx - ((double)(globalposx-wall[sec->wallptr].x))*fy;
-                if (!(globalorientation&4)) globalorientation ^= 32; else globalorientation ^= 16;
-            }
-            gdx = 0;
-            gdy = gxyaspect;
-            if (!(globalorientation&2)) gdy /= (double)(sec->ceilingz-globalposz);
-            gdo = -ghoriz*gdy;
-            if (globalorientation&8) { ft[0] /= 8; ft[1] /= -8; ft[2] /= 2097152; ft[3] /= 2097152; }
-            else { ft[0] /= 16; ft[1] /= -16; ft[2] /= 4194304; ft[3] /= 4194304; }
-            gux = (double)ft[3]*((double)viewingrange)/-65536.0;
-            gvx = (double)ft[2]*((double)viewingrange)/-65536.0;
-            guy = (double)ft[0]*gdy; gvy = (double)ft[1]*gdy;
-            guo = (double)ft[0]*gdo; gvo = (double)ft[1]*gdo;
-            guo += (double)(ft[2]-gux)*ghalfx;
-            gvo -= (double)(ft[3]+gvx)*ghalfx;
-
-            //Texture flipping
-            if (globalorientation&4)
-            {
-                r = gux; gux = gvx; gvx = r;
-                r = guy; guy = gvy; gvy = r;
-                r = guo; guo = gvo; gvo = r;
-            }
-            if (globalorientation&16) { gux = -gux; guy = -guy; guo = -guo; }
-            if (globalorientation&32) { gvx = -gvx; gvy = -gvy; gvo = -gvo; }
-
-            //Texture panning
-            fx = (float)sec->ceilingxpanning*((float)(1<<(picsiz[globalpicnum]&15)))/256.0;
-            fy = (float)sec->ceilingypanning*((float)(1<<(picsiz[globalpicnum]>>4)))/256.0;
-            if ((globalorientation&(2+64)) == (2+64)) //Hack for panning for slopes w/ relative alignment
-            {
-                r = (float)sec->ceilingheinum / 4096.0; r = 1.0/sqrt(r*r+1);
-                if (!(globalorientation&4)) fy *= r; else fx *= r;
-            }
-            guy += gdy*fx; guo += gdo*fx;
-            gvy += gdy*fy; gvo += gdo*fy;
-
-            if (globalorientation&2) //slopes
-            {
-                px[0] = x0; py[0] = ryp0 + ghoriz;
-                px[1] = x1; py[1] = ryp1 + ghoriz;
-
-                //Pick some point guaranteed to be not collinear to the 1st two points
-                ox = nx0 + (ny1-ny0);
-                oy = ny0 + (nx0-nx1);
-                ox2 = (double)(oy-globalposy)*gcosang  - (double)(ox-globalposx)*gsinang ;
-                oy2 = (double)(ox-globalposx)*gcosang2 + (double)(oy-globalposy)*gsinang2;
-                oy2 = 1.0/oy2;
-                px[2] = ghalfx*ox2*oy2 + ghalfx; oy2 *= gyxscale;
-                py[2] = oy2 + ghoriz;
-
-                for (i=0; i<3; i++)
-                {
-                    dd[i] = px[i]*gdx + py[i]*gdy + gdo;
-                    uu[i] = px[i]*gux + py[i]*guy + guo;
-                    vv[i] = px[i]*gvx + py[i]*gvy + gvo;
-                }
-
-                py[0] = cy0;
-                py[1] = cy1;
-                py[2] = (getceilzofslope(sectnum,(int32_t)ox,(int32_t)oy)-globalposz)*oy2 + ghoriz;
-
-                ox = py[1]-py[2]; oy = py[2]-py[0]; oz = py[0]-py[1];
-                r = 1.0 / (ox*px[0] + oy*px[1] + oz*px[2]);
-                gdx = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
-                gux = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
-                gvx = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
-                ox = px[2]-px[1]; oy = px[0]-px[2]; oz = px[1]-px[0];
-                gdy = (ox*dd[0] + oy*dd[1] + oz*dd[2])*r;
-                guy = (ox*uu[0] + oy*uu[1] + oz*uu[2])*r;
-                gvy = (ox*vv[0] + oy*vv[1] + oz*vv[2])*r;
-                gdo = dd[0] - px[0]*gdx - py[0]*gdy;
-                guo = uu[0] - px[0]*gux - py[0]*guy;
-                gvo = vv[0] - px[0]*gvx - py[0]*gvy;
-
-                if (globalorientation&64) //Hack for relative alignment on slopes
-                {
-                    r = (float)sec->ceilingheinum / 4096.0;
-                    r = sqrt(r*r+1);
-                    if (!(globalorientation&4)) { gvx *= r; gvy *= r; gvo *= r; }
-                    else { gux *= r; guy *= r; guo *= r; }
-                }
-            }
-            domostpolymethod = (globalorientation>>7)&3;
-            if (globalposz <= getceilzofslope(sectnum,globalposx,globalposy)) domostpolymethod = -1; //Back-face culling
-#ifdef USE_OPENGL
-            if (!nofog)
-            {
-                fogcalc(sec->ceilingshade,sec->visibility,sec->ceilingpal);
-                bglFogf(GL_FOG_DENSITY,fogresult);
-                bglFogfv(GL_FOG_COLOR,fogcol);
-            }
-#endif
-            pow2xsplit = 0; domost(x1,cy1,x0,cy0); //ceil
-            domostpolymethod = 0;
-        }
+            polymost_internal_nonparallaxed(nx0, ny0, nx1, ny1, ryp0, ryp1, x0, x1, cy0, cy1, 0, sectnum);
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
         {
 #ifdef USE_OPENGL

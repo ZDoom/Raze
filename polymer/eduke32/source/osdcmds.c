@@ -1084,7 +1084,7 @@ static int32_t osdcmd_screenshot(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
 //    KB_ClearKeysDown();
-    screencapture("duke0000.tga",0);
+    screencapture("duke0000.tga",0,"EDuke32");
     return OSDCMD_OK;
 }
 
@@ -1105,7 +1105,9 @@ static int32_t osdcmd_restorestate(const osdfuncparm_t *parm)
         G_RestoreMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
     return OSDCMD_OK;
 }
+*/
 
+#ifdef DEBUGGINGAIDS
 static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
 {
     int32_t j;
@@ -1126,7 +1128,7 @@ static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
     OSD_Printf("%s\n",parm->raw);
     return OSDCMD_OK;
 }
-*/
+#endif
 
 static int32_t osdcmd_disconnect(const osdfuncparm_t *parm)
 {
@@ -1522,8 +1524,9 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
 
     OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
-//    OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
-
+#ifdef DEBUGGINGAIDS
+    OSD_RegisterFunction("inittimer","debug", osdcmd_inittimer);
+#endif
     OSD_RegisterFunction("kick","kick <id>: kicks a multiplayer client.  See listplayers.", osdcmd_kick);
     OSD_RegisterFunction("kickban","kickban <id>: kicks a multiplayer client and prevents them from reconnecting.  See listplayers.", osdcmd_kickban);
 
