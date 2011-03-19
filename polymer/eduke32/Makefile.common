@@ -44,7 +44,6 @@ EFENCE?=0
 OPTLEVEL?=2
 PROFILER?=0
 MUDFLAP?=0
-MUDFLAP=0
 
 ifneq (0,$(KRANDDEBUG))
     RELEASE=0
@@ -88,9 +87,6 @@ else
     endif
     ifneq (0,$(KRANDDEBUG))
         debug+=-DKRANDDEBUG=1
-    endif
-    ifneq (0,$(MUDFLAP))
-        debug+=-fmudflap -fmudflapth -funwind-tables
     endif
 endif
 ifneq (0,$(DEBUGANYWAY))
