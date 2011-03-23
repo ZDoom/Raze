@@ -875,7 +875,7 @@ onevent EVENT_KEYS3D
     }
 
     // teleporter -- works on SE7 and SE17 (elevator)
-    ifeitherctrl ifaimingsprite
+    ifeitheralt ifaimingsprite
     ifholdkey KEY_SPACE
     {
         ife sprite[searchwall].picnum SECTOREFFECTOR

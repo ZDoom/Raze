@@ -126,8 +126,6 @@ int16_t highlight[MAXWALLS+MAXSPRITES];
 int16_t highlightsector[MAXSECTORS], highlightsectorcnt = -1;
 extern char textfont[128][8];
 
-char pskysearch[MAXSECTORS];
-
 int32_t temppicnum, tempcstat, templotag, temphitag, tempextra;
 uint32_t temppal, tempvis, tempxrepeat, tempyrepeat;
 int32_t tempshade, tempxvel, tempyvel, tempzvel;
@@ -253,12 +251,6 @@ extern void map_undoredo_free(void);
 
 void clearkeys(void) { Bmemset(keystatus,0,sizeof(keystatus)); }
 
-static inline void bclamp(int32_t *x, int32_t mi, int32_t ma)
-{
-    if (*x>ma) *x=ma;
-    if (*x<mi) *x=mi;
-}
-
 #ifdef USE_OPENGL
 static int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 {
@@ -371,7 +363,39 @@ static void yax_resetbunchnums(void)
 
     for (i=0; i<MAXSECTORS; i++)
         yax_setbunches(i, -1, -1);
+    numyaxbunches = 0;
 }
+
+static void setslope(int32_t sectnum, int32_t cf, int16_t slope)
+{
+    if (slope==0)
+    {
+        SECTORFLD(sectnum,stat, cf) &= ~2;
+        SECTORFLD(sectnum,heinum, cf) = 0;
+    }
+    else
+    {
+        SECTORFLD(sectnum,stat, cf) |= 2;
+        SECTORFLD(sectnum,heinum, cf) = slope;
+    }
+}
+
+// whether a wall is unconstrained by sector extensions
+static int32_t yax_isinnerwall(int16_t sec, int16_t line)
+{
+    int16_t cb,fb, cbn,fbn;
+    int16_t ns = wall[line].nextsector;
+
+    yax_getbunches(sec, &cb, &fb);
+
+    if (ns < 0)
+        return (cb==-1 && fb==-1);
+
+    yax_getbunches(ns, &cbn, &fbn);
+
+    return (cb==cbn && fb==fbn);
+}
+# define DEFAULT_YAX_HEIGHT 32768
 #endif
 
 static void reset_default_mapstate(void)
@@ -380,10 +404,12 @@ static void reset_default_mapstate(void)
     pos.y = 32768;
     pos.z = 0;
     ang = 1536;
+    cursectnum = -1;
+
     numsectors = 0;
     numwalls = 0;
     numsprites = 0;
-    cursectnum = -1;
+
     initspritelists();
 #ifdef YAX_ENABLE
     yax_resetbunchnums();
@@ -566,11 +592,11 @@ CANCEL:
 
         OSD_DispatchQueued();
 
-        ExtPreCheckKeys();
-
         nextpage();
         synctics = totalclock-lockclock;
         lockclock += synctics;
+
+        ExtPreCheckKeys();
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
         ExtAnalyzeSprites();
@@ -726,6 +752,20 @@ void loadmhk(int32_t domessage)
     }
 }
 
+// this is spriteon{ceiling,ground}z from astub.c packed into
+// one convenient function
+void spriteoncfz(int32_t i, int32_t *czptr, int32_t *fzptr)
+{
+    int32_t cz,fz, height, zofs;
+
+    getzsofslope(sprite[i].sectnum, sprite[i].x,sprite[i].y, &cz, &fz);
+    spriteheightofs(i, &height, &zofs);
+
+    if (czptr)
+        *czptr = cz + height - zofs;
+    if (fzptr)
+        *fzptr = fz - zofs;
+}
 
 static void move_and_update(int32_t xvect, int32_t yvect, int32_t addshr)
 {
@@ -740,7 +780,7 @@ static void move_and_update(int32_t xvect, int32_t yvect, int32_t addshr)
                  128,4<<8,4<<8, CLIPMASK0);
 }
 
-static void mainloop_move()
+static void mainloop_move(void)
 {
     int32_t xvect, yvect, doubvel;
 
@@ -888,7 +928,7 @@ void editinput(void)
                 ang++;
             */
 
-            bclamp(&horiz, -99, 299);
+            inpclamp(&horiz, -99, 299);
 
             if (mlook == 1)
             {
@@ -905,8 +945,8 @@ void editinput(void)
             searchx += mousx;
             searchy += mousy;
 
-            bclamp(&searchx, 12, xdim-13);
-            bclamp(&searchy, 12, ydim-13);
+            inpclamp(&searchx, 12, xdim-13);
+            inpclamp(&searchy, 12, ydim-13);
         }
     }
 
@@ -1005,7 +1045,7 @@ void editinput(void)
         }
 
         if (!noclip)
-            bclamp(&goalz, hiz+(4<<8), loz-(4<<8));
+            inpclamp(&goalz, hiz+(4<<8), loz-(4<<8));
 
         if (zmode == 1) goalz = loz-zlock;
         if (!noclip && (goalz < hiz+(4<<8)))
@@ -1068,7 +1108,7 @@ void editinput(void)
                 day = hitinfo.pos.y;
                 if (gridlock && grid > 0)
                 {
-                    if (searchstat == 0 || searchstat == 4)
+                    if (AIMING_AT_WALL || AIMING_AT_MASKWALL)
                         hitinfo.pos.z &= 0xfffffc00;
                     else
                         locktogrid(&dax, &day);
@@ -1106,17 +1146,10 @@ void editinput(void)
 
                     getzsofslope(hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y, &cz, &fz);
 
-                    j = spriteheight(i, NULL)>>1;
-                    sprite[i].z = hitinfo.pos.z;
-                    if ((sprite[i].cstat&48)!=32)
-                    {
-                        if ((sprite[i].cstat&128) == 0)
-                            bclamp(&sprite[i].z, cz+(j<<1), fz);
-                        else
-                            bclamp(&sprite[i].z, cz+j, fz-j);
-                    }
+                    spriteoncfz(i, &cz, &fz);
+                    sprite[i].z = clamp(hitinfo.pos.z, cz, fz);
 
-                    if (searchstat == 0 || searchstat == 4)
+                    if (AIMING_AT_WALL || AIMING_AT_MASKWALL)
                     {
                         sprite[i].cstat &= ~48;
                         sprite[i].cstat |= (16+64);
@@ -1142,13 +1175,13 @@ void editinput(void)
         {
             switch (searchstat)
             {
-            case 1:
-            case 2:
+            case SEARCH_CEILING:
+            case SEARCH_FLOOR:
                 ExtShowSectorData(searchsector); break;
-            case 0:
-            case 4:
+            case SEARCH_WALL:
+            case SEARCH_MASKWALL:
                 ExtShowWallData(searchwall); break;
-            case 3:
+            case SEARCH_SPRITE:
                 ExtShowSpriteData(searchwall); break;
             }
 
@@ -1158,13 +1191,13 @@ void editinput(void)
         {
             switch (searchstat)
             {
-            case 1:
-            case 2:
+            case SEARCH_CEILING:
+            case SEARCH_FLOOR:
                 ExtEditSectorData(searchsector); break;
-            case 0:
-            case 4:
+            case SEARCH_WALL:
+            case SEARCH_MASKWALL:
                 ExtEditWallData(searchwall); break;
-            case 3:
+            case SEARCH_SPRITE:
                 ExtEditSpriteData(searchwall); break;
             }
 
@@ -1449,7 +1482,7 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
 
 static int32_t newnumwalls=-1;
 
-static void ovh_whiteoutgrab()
+static void ovh_whiteoutgrab(void)
 {
     int32_t i, j, k, startwall, endwall;
 
@@ -1480,7 +1513,7 @@ static void ovh_whiteoutgrab()
     }
 }
 
-static void duplicate_selected_sectors()
+static void duplicate_selected_sectors(void)
 {
     int32_t i, j, startwall, endwall, newnumsectors, newwalls = 0;
     int32_t minx=INT_MAX, maxx=INT_MIN, miny=INT_MAX, maxy=INT_MIN, dx, dy;
@@ -1581,7 +1614,7 @@ static void duplicate_selected_sectors()
     }
 }
 
-static void duplicate_selected_sprites()
+static void duplicate_selected_sprites(void)
 {
     int32_t i, j, k=0;
 
@@ -1645,7 +1678,7 @@ void DoSpriteOrnament(int32_t i)
     correct_ornamented_sprite(i, hitinfo.hitwall);
 }
 
-void update_highlight()
+void update_highlight(void)
 {
     int32_t i;
 
@@ -1666,7 +1699,7 @@ void update_highlight()
         highlightcnt = -1;
 }
 
-void update_highlightsector()
+void update_highlightsector(void)
 {
     int32_t i;
 
@@ -1790,7 +1823,7 @@ void correct_sprite_yoffset(int32_t i)
         sprite[i].yoffset = 0;
 }
 
-static void fade_screen()
+void fade_editor_screen(void)
 {
     char blackcol=editorcolors[0], greycol=whitecol-25, *cp;
     int32_t i;
@@ -1861,19 +1894,15 @@ static void updatesprite1(int16_t i)
 
     if (sprite[i].sectnum>=0)
     {
-        int32_t tempint, cz, fz;
-        tempint = spriteheight(i, NULL);
-        if (sprite[i].cstat&128)
-            tempint >>= 1;
-        getzsofslope(sprite[i].sectnum, sprite[i].x, sprite[i].y, &cz, &fz);
-        sprite[i].z = max(sprite[i].z, cz+tempint);
-        sprite[i].z = min(sprite[i].z, fz);
+        int32_t cz, fz;
+        spriteoncfz(i, &cz, &fz);
+        inpclamp(&sprite[i].z, cz, fz);
     }
 }
 
 static int32_t ask_if_sure(const char *query, uint32_t flags);
 #ifdef YAX_ENABLE
-static int32_t ask_above_or_below();
+static int32_t ask_above_or_below(void);
 #endif
 
 // returns:
@@ -2136,8 +2165,8 @@ void overheadeditor(void)
         searchx += mousx;
         searchy += mousy;
 
-        bclamp(&searchx, 8, xdim-8-1);
-        bclamp(&searchy, 8, ydim-8-1);
+        inpclamp(&searchx, 8, xdim-8-1);
+        inpclamp(&searchy, 8, ydim-8-1);
 
         mainloop_move();
 
@@ -2806,7 +2835,7 @@ void overheadeditor(void)
                 if (cf==-1)
                     goto end_yax;
 
-                thez = YAX_SECTORFLD(highlightsector[0],z, cf);
+                thez = SECTORFLD(highlightsector[0],z, cf);
                 for (i=0; i<highlightsectorcnt; i++)
                 {
                     if (yax_getbunch(highlightsector[i], cf) >= 0)
@@ -2815,15 +2844,13 @@ void overheadeditor(void)
                         goto end_yax;                        
                     }
 
-                    if (i==0)
-                        continue;
-
-                    if (YAX_SECTORFLD(highlightsector[i],z, cf) != thez)
+                    if (SECTORFLD(highlightsector[i],z, cf) != thez)
                     {
                         message("All sectors must have the same %s height", cfs[cf]);
                         goto end_yax;
                     }
-                    if ((YAX_SECTORFLD(highlightsector[i],stat, cf)&2)!=0)
+
+                    if (highlightsectorcnt>1 && SECTORFLD(highlightsector[i],stat, cf)&2)
                     {
                         message("Sector %ss must not be sloped", cfs[cf]);
                         goto end_yax;
@@ -2849,27 +2876,27 @@ void overheadeditor(void)
                         numwalls = k;
                     }
 
+                // create new sector based on first highlighted one
                 i = highlightsector[0];
                 Bmemcpy(&sector[numsectors], &sector[i], sizeof(sectortype));
                 sector[numsectors].wallptr = m;
                 sector[numsectors].wallnum = numwalls-m;
 
-                if (YAX_SECTORFLD(i,stat, cf)&2)
-                {
-                    YAX_SECTORFLD(numsectors,stat, !cf) |= 2;
-                    YAX_SECTORFLD(numsectors,heinum, !cf) = YAX_SECTORFLD(i,heinum, cf);
-                }
+                if (SECTORFLD(i,stat, cf)&2)
+                    setslope(numsectors, !cf, SECTORFLD(i,heinum, cf));
+                else
+                    setslope(numsectors, !cf, 0);
+                setslope(numsectors, cf, 0);
 
-                YAX_SECTORFLD(numsectors,z, !cf) = YAX_SECTORFLD(i,z, cf);
-                YAX_SECTORFLD(numsectors,z, cf) = YAX_SECTORFLD(i,z, cf) - (1-2*cf)*16384;
+                SECTORFLD(numsectors,z, !cf) = SECTORFLD(i,z, cf);
+                SECTORFLD(numsectors,z, cf) = SECTORFLD(i,z, cf) - (1-2*cf)*DEFAULT_YAX_HEIGHT;
 
                 k = -1;  // nextbunchnum
                 for (i=0; i<numsectors; i++)
                 {
-                    j = yax_getbunch(i,YAX_CEILING);
-                    k = max(k, j);
-                    j = yax_getbunch(i,YAX_FLOOR);
-                    k = max(k, j);
+                    int16_t cb, fb;
+                    yax_getbunches(i, &cb, &fb);
+                    k = max(k, max(cb, fb));
                 }
                 k++;
 
@@ -2893,11 +2920,12 @@ void overheadeditor(void)
                 newnumwalls = -1;
 
                 numsectors++;
+                yax_update(0);
 
                 Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
                 update_highlightsector();
 
-                message("Extended %ss of highlighted sectors, created new bunch %d", cfs[cf], k);
+                message("Extended %ss of highlighted sectors, creating bunch %d", cfs[cf], k);
 end_yax: ;
             }
 #endif
@@ -3110,7 +3138,7 @@ end_yax: ;
                 else
                 {
                     int32_t didmakered = (highlightsectorcnt<0), hadouterpoint=0;
-                    int16_t tmprefsect;
+                    int16_t tmprefsect = -1;
 
                     for (i=0; i<highlightsectorcnt; i++)
                     {
@@ -3132,7 +3160,7 @@ end_yax: ;
                     if (!didmakered && !hadouterpoint && newnumwalls<0)
                     {
                         // fade the screen to have the user's attention
-                        fade_screen();
+                        fade_editor_screen();
 
                         didmakered |= !ask_if_sure("Insert outer loop and make red walls?", 0);
                         clearkeys();
@@ -3781,7 +3809,9 @@ end_point_dragging:
             else
             {
                 int16_t joink;
-
+#ifdef YAX_ENABLE
+                int16_t cb0,fb0, cb1,fb1;
+#endif
                 joinsector[1] = -1;
 
                 for (i=0; i<numsectors; i++)
@@ -3795,16 +3825,37 @@ end_point_dragging:
                                 break;
 
                         joinsector[1] = i;
+#ifdef YAX_ENABLE
+                        yax_getbunches(joinsector[0], &cb0, &fb0);
+                        yax_getbunches(joinsector[1], &cb1, &fb1);
+#endif
                         // pressing J into the same sector is the same as saying 'no'
                         //                  v----------------v
                         if (j == endwall && i != joinsector[0])
                         {
-                            fade_screen();
+#ifdef YAX_ENABLE
+                            if (cb0>=0 || fb0>=0 || cb1>=0 || fb0>=0)
+                            {
+                                printmessage16("Joining non-adjacent extended sectors not allowed!");
+                                joinsector[0] = joinsector[1] = -1;
+                                goto end_join_sectors;
+                            }
+#endif
+                            {
+                                fade_editor_screen();
 
-                            if (!ask_if_sure("Join non-adjacent sectors? (Y/N)", 0))
-                                joinsector[1] = joinsector[0];
+                                if (!ask_if_sure("Join non-adjacent sectors? (Y/N)", 0))
+                                    joinsector[1] = joinsector[0];
+                            }
                         }
-
+#ifdef YAX_ENABLE
+                        if (cb0!=cb1 || fb0!=fb1)
+                        {
+                            printmessage16("Joining of extended sectors with different bunches not allowed!");
+                            joinsector[0] = joinsector[1] = -1;
+                            goto end_join_sectors;                            
+                        }
+#endif
                         break;
                     }
                 }
@@ -3999,9 +4050,6 @@ end_join_sectors:
                 else
                 {
                     sprite[i].z = getflorzofslope(sucksect,dax,day);
-//                    if (sprite[i].cstat&128)
-//                        sprite[i].z -= spriteheight(i, NULL)>>1;
-
 // PK
                     if (prefixarg)
                     {
@@ -4058,7 +4106,14 @@ end_join_sectors:
             else
             {
                 if (linehighlight >= 0)
+                {
+#ifdef YAX_ENABLE
+                    if (!yax_isinnerwall(sectorofwall(linehighlight), linehighlight))
+                        printmessage16("Can't make circle in wall constrained by sector extension.");
+                    else
+#endif
                     circlewall = linehighlight;
+                }
             }
             keystatus[0x2e] = 0;
         }
@@ -4109,8 +4164,8 @@ end_join_sectors:
                     dax = centerx + mulscale14(sintable[(j+512)&2047],circlerad);
                     day = centery + mulscale14(sintable[j],circlerad);
 
-                    bclamp(&dax, -editorgridextent, editorgridextent);
-                    bclamp(&day, -editorgridextent, editorgridextent);
+                    inpclamp(&dax, -editorgridextent, editorgridextent);
+                    inpclamp(&day, -editorgridextent, editorgridextent);
 
                     if (bad > 0 && goodtogo)
                     {
@@ -4892,8 +4947,15 @@ end_space_handling:
                     }
                     else
                     {
-                        insertpoint(linehighlight, dax,day);
-                        printmessage16("Point inserted.");
+#ifdef YAX_ENABLE
+                        if (!yax_isinnerwall(sectorofwall(linehighlight), linehighlight))
+                            printmessage16("Inserting point in constrained wall: not implemented!");
+                        else
+#endif
+                        {
+                            insertpoint(linehighlight, dax,day);
+                            printmessage16("Point inserted.");
+                        }
                     }
                 }
 
@@ -5330,7 +5392,7 @@ static int32_t ask_if_sure(const char *query, uint32_t flags)
 }
 
 #ifdef YAX_ENABLE
-static int32_t ask_above_or_below()
+static int32_t ask_above_or_below(void)
 {
     char ch;
     int32_t ret=-1;
@@ -5459,8 +5521,8 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
 
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)
 {
-    bclamp(&pos.x, -editorgridextent, editorgridextent);
-    bclamp(&pos.y, -editorgridextent, editorgridextent);
+    inpclamp(&pos.x, -editorgridextent, editorgridextent);
+    inpclamp(&pos.y, -editorgridextent, editorgridextent);
 
     searchxe -= halfxdim16;
     searchye -= midydim16;
@@ -5475,8 +5537,8 @@ void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)
     *x = pos.x + divscale14(searchxe,zoom);
     *y = pos.y + divscale14(searchye,zoom);
 
-    bclamp(x, -editorgridextent, editorgridextent);
-    bclamp(y, -editorgridextent, editorgridextent);
+    inpclamp(x, -editorgridextent, editorgridextent);
+    inpclamp(y, -editorgridextent, editorgridextent);
 }
 
 static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
@@ -5825,7 +5887,7 @@ static int32_t deletesector(int16_t sucksect)
 
 void fixspritesectors(void)
 {
-    int32_t i, j, dax, day, daz;
+    int32_t i, j, dax, day, cz, fz;
 
     for (i=numsectors-1; i>=0; i--)
         if (sector[i].wallnum <= 0 || sector[i].wallptr >= numwalls)
@@ -5842,16 +5904,19 @@ void fixspritesectors(void)
 
             if (inside(dax,day,sprite[i].sectnum) != 1)
             {
-                daz = spriteheight(i, NULL);
+                spriteoncfz(i, &cz, &fz);
 
                 for (j=0; j<numsectors; j++)
-                    if (inside(dax,day, j) == 1
-                            && sprite[i].z >= getceilzofslope(j,dax,day)
-                            && sprite[i].z-daz <= getflorzofslope(j,dax,day))
+                {
+                    if (inside(dax,day, j) != 1)
+                        continue;
+
+                    if (cz <= sprite[i].z && sprite[i].z <= fz)
                     {
                         changespritesect(i, j);
                         break;
                     }
+                }
             }
         }
 }
@@ -6922,7 +6987,8 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
 {
     char snotbuf[80];
     int32_t i, m;
-    int32_t v8 = (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || numsprites > MAXSPRITESV7);
+    int32_t v8 = (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 ||
+                  numsprites > MAXSPRITESV7 || numyaxbunches > 0);
 
     Bsprintf(snotbuf,"x:%d y:%d ang:%d r%d",posxe,posye,ange,map_revision-1);
     i = 0;
@@ -6941,8 +7007,9 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
 
     if (highlightcnt<=0 && highlightsectorcnt<=0)
     {
-        Bsprintf(snotbuf,"%d/%d sect. %d/%d walls %d/%d spri.",
+        Bsprintf(snotbuf,"%d/%d %s. %d/%d walls %d/%d spri.",
                  numsectors, v8?MAXSECTORSV8:MAXSECTORSV7,
+                 numyaxbunches>0 ? "SECT":"sect",
                  numwalls, v8?MAXWALLSV8:MAXWALLSV7,
                  numsprites, v8?MAXSPRITESV8:MAXSPRITESV7);
     }
@@ -7112,23 +7179,43 @@ void showsectordata(int16_t sectnum, int16_t small)
 
     DOPRINT(32, "^10CEILING:^O");
     DOPRINT(48, "Flags (hex): %x", sec->ceilingstat);
-    DOPRINT(56, "(X,Y)pan: %d, %d", sec->ceilingxpanning, sec->ceilingypanning);
+    {
+        int32_t xp=sec->ceilingxpanning, yp=sec->ceilingypanning;
+#ifdef YAX_ENABLE
+        if (yax_getbunch(searchsector, YAX_CEILING) >= 0)
+            xp = yp = 0;
+#endif
+        DOPRINT(56, "(X,Y)pan: %d, %d", xp, yp);
+    }
     DOPRINT(64, "Shade byte: %d", sec->ceilingshade);
     DOPRINT(72, "Z-coordinate: %d", sec->ceilingz);
     DOPRINT(80, "Tile number: %d", sec->ceilingpicnum);
     DOPRINT(88, "Ceiling heinum: %d", sec->ceilingheinum);
     DOPRINT(96, "Palookup number: %d", sec->ceilingpal);
+#ifdef YAX_ENABLE
+    DOPRINT(104, "Bunch number: %d", yax_getbunch(sectnum, YAX_CEILING));
+#endif
 
     col++;
 
     DOPRINT(32, "^10FLOOR:^O");
     DOPRINT(48, "Flags (hex): %x", sec->floorstat);
-    DOPRINT(56, "(X,Y)pan: %d, %d", sec->floorxpanning, sec->floorypanning);
+    {
+        int32_t xp=sec->floorxpanning, yp=sec->floorypanning;
+#ifdef YAX_ENABLE
+        if (yax_getbunch(searchsector, YAX_FLOOR) >= 0)
+            xp = yp = 0;
+#endif
+        DOPRINT(56, "(X,Y)pan: %d, %d", xp, yp);
+    }
     DOPRINT(64, "Shade byte: %d", sec->floorshade);
     DOPRINT(72, "Z-coordinate: %d", sec->floorz);
     DOPRINT(80, "Tile number: %d", sec->floorpicnum);
     DOPRINT(88, "Floor heinum: %d", sec->floorheinum);
     DOPRINT(96, "Palookup number: %d", sec->floorpal);
+#ifdef YAX_ENABLE
+    DOPRINT(104, "Bunch number: %d", yax_getbunch(sectnum, YAX_FLOOR));
+#endif
 }
 
 void showwalldata(int16_t wallnum, int16_t small)

@@ -219,7 +219,7 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
     if (bunchnum<0)
     {
         *(&sector[i].ceilingstat + cf) &= ~YAX_BIT;
-//        YAX_BUNCHNUM(i, cf) = 0;
+        YAX_BUNCHNUM(i, cf) = 0;
         return;
     }
 
@@ -233,6 +233,63 @@ void yax_setbunches(int16_t i, int16_t cb, int16_t fb)
     yax_setbunch(i, YAX_FLOOR, fb);
 }
 
+void yax_update(int32_t onlyreset)
+{
+    int32_t i, oeditstatus=editstatus;
+    int16_t cb, fb, tmpsect;
+
+    numyaxbunches = 0;
+
+    for (i=0; i<MAXSECTORS; i++)
+    {
+        yax_bunchnum[i][0] = yax_bunchnum[i][1] = -1;
+        nextsectbunch[0][i] = nextsectbunch[1][i] = -1;
+    }
+    for (i=0; i<YAX_MAXBUNCHES; i++)
+        headsectbunch[0][i] = headsectbunch[1][i] = -1;
+
+    if (onlyreset)
+        return;
+
+    // constuct singly linked list of sectors-of-bunch
+    editstatus = 1;  // read bunchnums directly from the sector struct!
+    for (i=numsectors-1; i>=0; i--)
+    {
+        yax_getbunches(i, &cb, &fb);
+        yax_bunchnum[i][0] = cb;
+        yax_bunchnum[i][1] = fb;
+
+        if (cb >= 0)
+        {
+            if (headsectbunch[0][cb] == -1)
+            {
+                headsectbunch[0][cb] = i;
+                // not duplicated in floors, since every extended ceiling
+                // must have a corresponding floor:
+                numyaxbunches++;
+            }
+            else
+            {
+                tmpsect = headsectbunch[0][cb];
+                headsectbunch[0][cb] = i;
+                nextsectbunch[0][i] = tmpsect;
+            }
+        }
+
+        if (fb >= 0)
+        {
+            if (headsectbunch[1][fb] == -1)
+                headsectbunch[1][fb] = i;
+            else
+            {
+                tmpsect = headsectbunch[1][fb];
+                headsectbunch[1][fb] = i;
+                nextsectbunch[1][i] = tmpsect;
+            }
+        }
+    }
+    editstatus = oeditstatus;
+}
 #undef YAX_BUNCHNUM
 
 #endif
@@ -1306,7 +1363,7 @@ static void scansector(int16_t sectnum)
 
     if (sectnum < 0) return;
 
-    if (automapping) show2dsector[sectnum>>3] |= pow2char[sectnum&7];
+//    if (automapping) show2dsector[sectnum>>3] |= pow2char[sectnum&7];
 
     sectorborder[0] = sectnum, sectorbordercnt = 1;
     do
@@ -4687,7 +4744,7 @@ static void drawsprite(int32_t snum)
 #endif
         drawvox(tspr->x,tspr->y,tspr->z,i,(int32_t)tspr->xrepeat,(int32_t)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
     }
-    if (automapping == 1) show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
+//    if (automapping == 1) show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
 }
 
 
@@ -6360,7 +6417,7 @@ int32_t initengine(void)
     clearbuf(&show2dsector[0],(int32_t)((MAXSECTORS+3)>>5),0L);
     clearbuf(&show2dsprite[0],(int32_t)((MAXSPRITES+3)>>5),0L);
     clearbuf(&show2dwall[0],(int32_t)((MAXWALLS+3)>>5),0L);
-    automapping = 0;
+//    automapping = 0;
 
     totalclock = 0;
     visibility = 512;
@@ -6477,7 +6534,7 @@ void initspritelists(void)
 void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
                int16_t daang, int32_t dahoriz, int16_t dacursectnum)
 {
-    int32_t i, j, z, cz, fz, closest;
+    int32_t i, j, cz, fz, closest;
     int16_t *shortptr1, *shortptr2;
 
     beforedrawrooms = 0;
@@ -6629,11 +6686,11 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
         drawalls(closest);
 
-        if (automapping)
-        {
-            for (z=bunchfirst[closest]; z>=0; z=p2[z])
-                show2dwall[thewall[z]>>3] |= pow2char[thewall[z]&7];
-        }
+//        if (automapping)
+//        {
+//            for (z=bunchfirst[closest]; z>=0; z=p2[z])
+//                show2dwall[thewall[z]>>3] |= pow2char[thewall[z]&7];
+//        }
 
         numbunches--;
         bunchfirst[closest] = bunchfirst[numbunches];
@@ -8984,25 +9041,27 @@ int32_t krecip(int32_t num)
     return(krecipasm(num));
 }
 
-int32_t spriteheight(int16_t i, int32_t *basez)
+void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs)
 {
     int32_t hei, flooraligned=((sprite[i].cstat&48)==32);
 
+    if (zofs)
+        *zofs = 0;
+
     if (flooraligned)
     {
-        if (basez)
-            *basez = sprite[i].z;
-        return 0;
+        if (height)
+            *height = 0;
+        return;
     }
 
     hei = (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2;
-    if (basez)
+    if (zofs)
     {
-        *basez = sprite[i].z;
         if (sprite[i].cstat&128)
-            *basez -= (hei>>1);
+            *zofs = hei>>1;
     }
-    return hei;
+    *height = hei;
 }
 
 //
@@ -10531,7 +10590,7 @@ void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *
     walltype *wal;
     int32_t i, j;
 
-    if (!(excludesectbitmap[*sectnum>>3]&(1<<(*sectnum&7))) && inside(x,y,*sectnum) == 1)
+    if (*sectnum>=0 && !(excludesectbitmap[*sectnum>>3]&(1<<(*sectnum&7))) && inside(x,y,*sectnum) == 1)
         return;
 
     if ((*sectnum >= 0) && (*sectnum < numsectors))
@@ -10745,7 +10804,7 @@ void getzrange(const vec3_t *vect, int16_t sectnum,
 
     if (0)
     {
-        beginagain:
+beginagain:
         // replace sector and wall with clip map
         mapinfo_set(&origmapinfo, &clipmapinfo);
         clipsectcnt = clipsectnum;  // should be a nop, "safety"...

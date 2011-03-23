@@ -367,7 +367,11 @@ static inline void dtol(double d, int32_t *a)
 # define max(a,b) ( ((a) > (b)) ? (a) : (b) )
 #endif
 
+#if __GNUC__ >= 4
+static inline __attribute__((warn_unused_result)) int clamp(int in, int min, int max)
+#else
 static inline int clamp(int in, int min, int max)
+#endif
 {
     return in <= min ? min : in >= max ? max : in;
 }

@@ -1843,7 +1843,7 @@ int32_t G_EnterLevel(int32_t g)
     resetpspritevars(g);
 
     //cachedebug = 0;
-    automapping = 0;
+//    automapping = 0;
 
     G_FadeLoad(0,0,0, 63, 0, -7);
     G_CacheMapData();

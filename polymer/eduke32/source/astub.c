@@ -179,7 +179,45 @@ static char spriteshades[MAXSPRITES];
 static char wallpals[MAXWALLS];
 static char sectorpals[MAXSECTORS][2];
 static char spritepals[MAXSPRITES];
-static char wallflag[MAXWALLS];
+static uint8_t wallflag[MAXWALLS>>3];
+
+#ifdef YAX_ENABLE
+static uint8_t havebunch[YAX_MAXBUNCHES];
+static int32_t *tempzar[YAX_MAXBUNCHES];
+
+// check whether bunchnum has exactly one corresponding floor and ceiling
+static int32_t yax_is121(int16_t bunchnum)
+{
+    int32_t i, ccnt=0, fcnt=0;
+    int16_t cb, fb;
+
+    for (i=0; i<numsectors; i++)
+    {
+        yax_getbunches(i, &cb, &fb);
+        if (cb>=0 && cb==bunchnum)
+            ccnt++;
+        if (fb>=0 && fb==bunchnum)
+            fcnt++;
+
+        if (ccnt>1 || fcnt>1)
+            return 0;
+    }
+
+    if (ccnt==1 && fcnt==1)
+        return 1;
+
+    return 0;
+}
+
+static void silentmessage(const char *fmt, ...);
+static int32_t yax_invalidop()
+{
+    silentmessage("Operation forbidden on extended sector.");
+    return 0;
+}
+
+# define YAXCHK(p) ((p) || yax_invalidop())
+#endif
 
 // tile marking in tile selector for custom creation of tile groups
 static int16_t tilemarked[(MAXTILES+7)>>3];
@@ -188,7 +226,50 @@ static int16_t tilemarked[(MAXTILES+7)>>3];
 static int16_t spritelightid[MAXSPRITES];
 _prlight *spritelightptr[MAXSPRITES];
 
-static void DeletePolymerLights()
+static int32_t check_prlight_colors(int32_t i)
+{
+    return (sprite[i].xvel != spritelightptr[i]->color[0]) ||
+        (sprite[i].yvel != spritelightptr[i]->color[1]) ||
+        (sprite[i].zvel != spritelightptr[i]->color[2]);
+}
+
+static void copy_prlight_colors(_prlight *mylightptr, int32_t i)
+{
+    mylightptr->color[0] = sprite[i].xvel;
+    mylightptr->color[1] = sprite[i].yvel;
+    mylightptr->color[2] = sprite[i].zvel;
+}
+
+static void addprlight_common1(_prlight *mylightptr, int32_t i)
+{
+    mylightptr->sector = SECT;
+    Bmemcpy(mylightptr, &sprite[i], sizeof(vec3_t));
+    mylightptr->range = SHT;
+    copy_prlight_colors(mylightptr, i);
+    mylightptr->angle = SA;
+    mylightptr->horiz = SH;
+    mylightptr->minshade = sprite[i].xoffset;
+    mylightptr->maxshade = sprite[i].yoffset;
+
+    // overridden for spot lights
+    mylightptr->radius = mylightptr->faderadius = mylightptr->tilenum = 0;
+
+    if (CS & 2)
+    {
+        if (CS & 512)
+            mylightptr->priority = PR_LIGHT_PRIO_LOW;
+        else
+            mylightptr->priority = PR_LIGHT_PRIO_HIGH;
+    }
+    else
+        mylightptr->priority = PR_LIGHT_PRIO_MAX;
+
+    spritelightid[i] = polymer_addlight(mylightptr);
+    if (spritelightid[i] >= 0)
+        spritelightptr[i] = &prlights[spritelightid[i]];
+}
+
+static void DeletePolymerLights(void)
 {
     int32_t i;
     for (i=0; i<MAXSPRITES; i++)
@@ -208,7 +289,7 @@ extern char game_executable[BMAX_PATH];
 
 //extern int32_t fillsector(int16_t sectnum, char fillcolor);
 
-static void drawgradient()
+static void drawgradient(void)
 {
     int32_t i, col = whitecol-21;
     begindrawing();
@@ -216,6 +297,15 @@ static void drawgradient()
         CLEARLINES2D(i, 1, (col<<24)|(col<<16)|(col<<8)|col);
     CLEARLINES2D(i, ydim-i, 0);
     enddrawing();
+}
+
+static void message_common1(const char *tmpstr)
+{
+    Bstrcpy(getmessage,tmpstr);
+
+    getmessageleng = Bstrlen(getmessage);
+    getmessagetimeoff = totalclock+120*2;
+    lastmessagetime = totalclock;    
 }
 
 void message(const char *fmt, ...)
@@ -227,15 +317,24 @@ void message(const char *fmt, ...)
     Bvsnprintf(tmpstr, 256, fmt, va);
     va_end(va);
 
-    Bstrcpy(getmessage,tmpstr);
-
-    getmessageleng = Bstrlen(getmessage);
-    getmessagetimeoff = totalclock+120*2;
-    lastmessagetime = totalclock;
+    message_common1(tmpstr);
 
     if (!mouseaction)
         OSD_Printf("%s\n", tmpstr);
 }
+
+static void silentmessage(const char *fmt, ...)
+{
+    char tmpstr[256];
+    va_list va;
+
+    va_start(va, fmt);
+    Bvsnprintf(tmpstr, 256, fmt, va);
+    va_end(va);
+
+    message_common1(tmpstr);
+}
+
 
 typedef struct _mapundo
 {
@@ -1523,7 +1622,7 @@ HELPFILE_ERROR:
 #define IHELP_PATLEN 45
 extern int32_t overridepm16y;  // influences clearmidstatbar16()
 
-static void IntegratedHelp()
+static void IntegratedHelp(void)
 {
     if (!helppage) return;
 
@@ -1539,19 +1638,102 @@ static void IntegratedHelp()
         Bmemset(oldpattern, 0, sizeof(char));
         //    clearmidstatbar16();
 
+        begindrawing();
+        CLEARLINES2D(0, ydim, 0);
+        enddrawing();
+
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F1]==0)
         {
-            begindrawing();
-            CLEARLINES2D(0, ydim, 0);
-            enddrawing();
-
             idle_waitevent();
             if (handleevents())
                 quitevent = 0;
 
             //        printmessage16("Help mode, press <Esc> to exit");
 
-            if (PRESSED_KEYSC(T))    // goto table of contents
+            if (keystatus[KEYSC_S])
+            {
+                fade_editor_screen();
+            }
+            else
+            {
+                begindrawing();
+                CLEARLINES2D(0, ydim, 0);
+                enddrawing();
+            }
+
+            // based on 'save as' dialog in overheadeditor()
+            if (keystatus[KEYSC_S])    // text search
+            {
+                char ch, bad=0, pattern[IHELP_PATLEN+1];
+
+                for (i=0; i<IHELP_PATLEN+1; i++) pattern[i]=0;
+
+                i=0;
+                bflushchars();
+                while (bad == 0)
+                {
+                    _printmessage16("Search: %s_", pattern);
+                    showframe(1);
+
+                    idle_waitevent();
+
+                    if (handleevents())
+                        quitevent = 0;
+
+                    ch = bgetchar();
+
+                    if (keystatus[1]) bad = 1;
+                    else if (ch == 13) bad = 2;
+                    else if (ch > 0)
+                    {
+                        if (i > 0 && (ch == 8 || ch == 127))
+                        {
+                            i--;
+                            pattern[i] = 0;
+                        }
+                        else if (i < IHELP_PATLEN && ch >= 32 && ch < 128)
+                        {
+                            pattern[i++] = ch;
+                            pattern[i] = 0;
+                        }
+                    }
+                }
+
+                if (bad==1)
+                {
+                    keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F1] = 0;
+                }
+
+                if (bad==2)
+                {
+                    keystatus[KEYSC_ENTER] = 0;
+
+                    for (i=curhp; i<numhelppages; i++)
+                    {
+                        for (j = (i==curhp)?(curline+1):0; j<helppage[i]->numlines; j++)
+                        {
+                            // entering an empty pattern will search with the last used pattern
+                            if (strstr(helppage[i]->line[j], pattern[0]?pattern:oldpattern))
+                            {
+                                curhp = i;
+
+                                if ((curline=j) <= helppage[i]->numlines - 32 /*-IHELP_NUMDISPLINES*/) /**/;
+                                else if ((curline=helppage[i]->numlines- 32 /*-IHELP_NUMDISPLINES*/) >= 0) /**/;
+                                else curline=0;
+
+                                highlighthp = i;
+                                highlightline = j;
+                                lasthighlighttime = totalclock;
+                                goto ENDFOR1;
+                            }
+                        }
+                    }
+ENDFOR1:
+                    if (pattern[0])
+                        Bmemcpy(oldpattern, pattern, IHELP_PATLEN+1);
+                }
+            }
+            else if (PRESSED_KEYSC(T))    // goto table of contents
             {
                 curhp=0;
                 curline=0;
@@ -1626,79 +1808,6 @@ static void IntegratedHelp()
                 {
                     curhp++;
                     curline=0;
-                }
-            }
-
-            // based on 'save as' dialog in overheadeditor()
-            else if (keystatus[KEYSC_S])    // text search
-            {
-                char ch, bad=0, pattern[IHELP_PATLEN+1];
-
-                for (i=0; i<IHELP_PATLEN+1; i++) pattern[i]=0;
-
-                i=0;
-                bflushchars();
-                while (bad == 0)
-                {
-                    _printmessage16("Search: %s_", pattern);
-                    showframe(1);
-
-                    idle_waitevent();
-
-                    if (handleevents())
-                        quitevent = 0;
-
-                    ch = bgetchar();
-
-                    if (keystatus[1]) bad = 1;
-                    else if (ch == 13) bad = 2;
-                    else if (ch > 0)
-                    {
-                        if (i > 0 && (ch == 8 || ch == 127))
-                        {
-                            i--;
-                            pattern[i] = 0;
-                        }
-                        else if (i < IHELP_PATLEN && ch >= 32 && ch < 128)
-                        {
-                            pattern[i++] = ch;
-                            pattern[i] = 0;
-                        }
-                    }
-                }
-
-                if (bad==1)
-                {
-                    keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F1] = 0;
-                }
-
-                if (bad==2)
-                {
-                    keystatus[KEYSC_ENTER] = 0;
-
-                    for (i=curhp; i<numhelppages; i++)
-                    {
-                        for (j = (i==curhp)?(curline+1):0; j<helppage[i]->numlines; j++)
-                        {
-                            // entering an empty pattern will search with the last used pattern
-                            if (strstr(helppage[i]->line[j], pattern[0]?pattern:oldpattern))
-                            {
-                                curhp = i;
-
-                                if ((curline=j) <= helppage[i]->numlines - 32 /*-IHELP_NUMDISPLINES*/) /**/;
-                                else if ((curline=helppage[i]->numlines- 32 /*-IHELP_NUMDISPLINES*/) >= 0) /**/;
-                                else curline=0;
-
-                                highlighthp = i;
-                                highlightline = j;
-                                lasthighlighttime = totalclock;
-                                goto ENDFOR1;
-                            }
-                        }
-                    }
-ENDFOR1:
-                    if (pattern[0])
-                        Bmemcpy(oldpattern, pattern, IHELP_PATLEN+1);
                 }
             }
             else    // '1'-'0' on the upper row
@@ -1890,7 +1999,7 @@ static int32_t sort_sounds(int32_t how)
     return 0;
 }
 
-static void SoundDisplay()
+static void SoundDisplay(void)
 {
     if (g_numsounds <= 0) return;
 
@@ -2201,7 +2310,7 @@ void ExtShowSpriteData(int16_t spritenum)   //F6
 static int32_t fofsizex = -1;
 static int32_t fofsizey = -1;
 #if 0
-static void ResetFOFSize()
+static void ResetFOFSize(void)
 {
     if (fofsizex != -1) tilesizx[FOF] = fofsizex;
     if (fofsizey != -1) tilesizy[FOF] = fofsizey;
@@ -2462,7 +2571,7 @@ static inline void SpriteName(int16_t spritenum, char *lo2)
     Bstrcpy(lo2, names[sprite[spritenum].picnum]);
 }// end SpriteName
 
-static void ReadPaletteTable()
+static void ReadPaletteTable(void)
 {
     int32_t i,j,fp;
     char lookup_num;
@@ -2673,12 +2782,12 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 #define TMPERRMSG_SHOW(alsoOSD) do { \
     printext256(0, 0, whitecol, 0, tilesel_errmsg, 0); \
     if (alsoOSD) OSD_Printf("%s\n", tilesel_errmsg); \
-    showframe(1); \
 } while (0)
 
 #define TMPERRMSG_PRINT(Msg, ...) do {  \
     Bsprintf(tilesel_errmsg, Msg, ## __VA_ARGS__); \
     TMPERRMSG_SHOW(1); \
+    showframe(1); \
     tilesel_showerr = 1; \
 } while (0)
 
@@ -2761,7 +2870,7 @@ static int32_t m32gettile(int32_t idInitialTile)
             localartfreq[ wall[i].overpicnum ]++;
         break;
 
-    default :
+    default:
         break;
     }
 
@@ -2845,22 +2954,25 @@ static int32_t m32gettile(int32_t idInitialTile)
 
     while ((keystatus[KEYSC_ENTER]|keystatus[KEYSC_ESC]|(bstatus&1)) == 0) // <- Presumably one of these is escape key ??
     {
+        int32_t ret;
         zoomsz = ZoomToThumbSize[s_Zoom];
 
-        DrawTiles(iTopLeftTile, (iTile >= localartlookupnum) ? localartlookupnum-1 : iTile,
-                  nXTiles, nYTiles, zoomsz, moffset,
-                  (tilesel_showerr && (iTile==iLastTile || (tilesel_showerr=0))));
+        ret = DrawTiles(iTopLeftTile, (iTile >= localartlookupnum) ? localartlookupnum-1 : iTile,
+                        nXTiles, nYTiles, zoomsz, moffset,
+                        (tilesel_showerr && (iTile==iLastTile || (tilesel_showerr=0))));
+
+        if (ret==0)
+        {
+            idle_waitevent_timeout(500);
+            // SDL seems to miss mousewheel events when rotated slowly.
+
+            if (handleevents())
+                quitevent = 0;
+        }
+        getmousevalues(&mousedx,&mousedy,&bstatus);
 
         iLastTile = iTile;
 
-        idle_waitevent_timeout(500);
-        // SDL seems to miss mousewheel events when rotated slowly.
-        // These kludgy things seem to make it better, but I'm not sure.
-
-        if (handleevents())
-            quitevent = 0;
-
-        getmousevalues(&mousedx,&mousedy,&bstatus);
         searchx += mousedx;
         searchy += mousedy;
 
@@ -2891,8 +3003,8 @@ static int32_t m32gettile(int32_t idInitialTile)
 
         // Keep the pointer visible at all times.
         temp = min(zoomsz/2, 12);
-        searchx = clamp(searchx, temp, xdim-temp);
-        searchy = clamp(searchy, temp, ydim-temp);
+        inpclamp(&searchx, temp, xdim-temp);
+        inpclamp(&searchy, temp, ydim-temp);
 
         scrollmode = !(eitherCTRL^revertCTRL);
         if (bstatus&16 && scrollmode && iTopLeftTile > 0)
@@ -3120,6 +3232,8 @@ static int32_t m32gettile(int32_t idInitialTile)
                     }
                 }
             }
+
+            mousex = mousey = mouseb = 0;
         }
 
         //
@@ -3220,7 +3334,7 @@ static int32_t m32gettile(int32_t idInitialTile)
 //{
 //}
 
-static int32_t OnSaveTileGroup()
+static int32_t OnSaveTileGroup(void)
 {
     int32_t i, n=0;
     char hotkey;
@@ -3521,19 +3635,148 @@ static const char *GetTilePixels(int32_t idTile)
     return pPixelData;
 }
 
+static void classic_drawtilescreen(int32_t x, int32_t y, int32_t idTile, int32_t TileDim,
+                                   const char *pRawPixels)
+{
+    int32_t dispxsz = tilesizx[idTile], dispysz = tilesizy[idTile];
+    int32_t divinc = 1, mulinc = 1;
+
+    int32_t xofs, yofs;
+    char *pScreen;
+
+    while ((dispxsz/divinc > TileDim) || (dispysz/divinc) > TileDim)
+    {
+        divinc++;
+    }
+
+    if (divinc == 1 && s_TileZoom)
+    {
+        while ((dispxsz*(mulinc+1)) <= TileDim && (dispysz*(mulinc+1)) <= TileDim)
+        {
+            mulinc++;
+        }
+    }
+
+    dispxsz = (dispxsz / divinc) * mulinc;
+    dispysz = (dispysz / divinc) * mulinc;
+
+    for (yofs = 0; yofs < dispysz; yofs++)
+    {
+        y += yofs;
+        if (y>=0 && y<ydim)
+        {
+            pScreen = (char *)ylookup[y]+x+frameplace;
+            for (xofs = 0; xofs < dispxsz; xofs++)
+            {
+                pScreen[xofs] = pRawPixels[((yofs*divinc)/mulinc) + (((xofs*divinc)/mulinc)*tilesizy[idTile])];
+            }
+        }
+        y -= yofs;
+    }
+}
+
+static void tilescreen_drawbox(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles,
+                               int32_t TileDim, int32_t offset,
+                               int32_t iTile, int32_t idTile)
+{
+    int32_t marked = (IsValidTile(idTile) && tilemarked[idTile>>3]&(1<<(idTile&7)));
+
+    //
+    // Draw white box around currently selected tile or marked tile
+    // p1=(x1, y1), p2=(x1+TileDim-1, y1+TileDim-1)
+    //
+    if (iTile == iSelected || marked)
+    {
+        int32_t x1 = ((iTile-iTopLeft) % nXTiles)*TileDim;
+        int32_t y1 = ((iTile - ((iTile-iTopLeft) % nXTiles) - iTopLeft)/nXTiles)*TileDim + offset;
+        int32_t x2 = x1+TileDim-1;
+        int32_t y2 = y1+TileDim-1;
+
+        char markedcol = editorcolors[14];
+
+        setpolymost2dview();
+
+        y1=max(y1, 0);
+        y2=min(y2, ydim-1);
+
+        {
+            // box
+            int32_t xx[] = {x1, x1, x2, x2, x1};
+            int32_t yy[] = {y1, y2, y2, y1, y1};
+            plotlines2d(xx, yy, 5, iTile==iSelected ? whitecol : markedcol);
+        }
+
+        // cross
+        if (marked)
+        {
+            int32_t xx[] = {x1, x2};
+            int32_t yy[] = {y1, y2};
+
+            plotlines2d(xx, yy, 2, markedcol);
+            swaplong(&yy[0], &yy[1]);
+            plotlines2d(xx, yy, 2, markedcol);
+        }
+    }
+}
+
+static void tilescreen_drawrest(int32_t iSelected, int32_t showmsg)
+{
+    if (iSelected>=0 && iSelected<MAXTILES)
+    {
+        int32_t idTile = localartlookup[iSelected];
+        int32_t i;
+        char szT[128];
+
+        // Draw info bar at bottom.
+
+        // Clear out behind the text for improved visibility.
+        //drawline256(0, (ydim-12)<<12, xdim<<12, (ydim-12)<<12, whitecol);
+        for (i=ydim-12; i<ydim; i++)
+            drawline256(0, i<<12, xdim<<12, i<<12, (ydim-i));
+
+        // Tile number on left.
+        Bsprintf(szT, "%d" , idTile);
+        printext256(1, ydim-10, whitecol, -1, szT, 0);
+
+        // Tile name on right.
+        printext256(xdim-(Bstrlen(names[idTile])<<3)-1,ydim-10,whitecol,-1,names[idTile],0);
+
+        // Tile dimensions.
+        Bsprintf(szT,"%dx%d",tilesizx[idTile],tilesizy[idTile]);
+        printext256(xdim>>2,ydim-10,whitecol,-1,szT,0);
+
+        // EditArt offset flags.
+        Bsprintf(szT,"%d, %d", (int8_t)((picanm[idTile]>>8)&0xFF), (int8_t)((picanm[idTile]>>16)&0xFF));
+        printext256((xdim>>2)+100,ydim-10,whitecol,-1,szT,0);
+
+        // EditArt animation flags.
+        if (picanm[idTile]&0xc0)
+        {
+            static const char *anmtype[] = {"", "Osc", "Fwd", "Bck"};
+
+            Bsprintf(szT,"%s %d", anmtype[(picanm[idTile]&0xc0)>>6], picanm[idTile]&0x3f);
+            printext256((xdim>>2)+100+14*8,ydim-10,whitecol,-1,szT,0);
+        }
+    }
+
+    if (showmsg)
+        TMPERRMSG_SHOW(0);
+
+    m32_showmouse();
+}
+
+////////// main tile drawing function //////////
 static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, int32_t nYTiles,
                          int32_t TileDim, int32_t offset, int32_t showmsg)
 {
     int32_t XTile, YTile;
     int32_t iTile, idTile;
-    int32_t XPos, YPos;
-    int32_t XOffset, YOffset;
-    int32_t i, marked;
+    int32_t i, x, y;
     const char *pRawPixels;
-    int32_t TileSizeX, TileSizeY;
-    int32_t DivInc,MulInc;
-    char *pScreen;
     char szT[128];
+
+    int32_t usehitilecnt=0, usehitile;
+    static uint8_t loadedhitile[(MAXTILES+7)>>3];
 
     begindrawing();
 
@@ -3541,159 +3784,98 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 
     clearview(0);
 
+restart:
     for (YTile = 0-(offset>0); YTile < nYTiles+(offset<0)+1; YTile++)
     {
         for (XTile = 0; XTile < nXTiles; XTile++)
         {
             iTile = iTopLeft + XTile + (YTile * nXTiles);
 
-            if (iTile>=0 && iTile < localartlookupnum)
+            if (iTile < 0 || iTile >= localartlookupnum)
+                continue;
+
+            usehitile = usehitilecnt;
+
+            idTile = localartlookup[ iTile ];
+            if (loadedhitile[idTile>>3]&(1<<(idTile&7)))
             {
-                idTile = localartlookup[ iTile ];
+                if (usehitilecnt==0)
+                    usehitile = 1;
+                else
+                    continue;
+            }
 
-                // Get pointer to tile's raw pixel data
-                pRawPixels = GetTilePixels(idTile);
+            // Get pointer to tile's raw pixel data
+            pRawPixels = GetTilePixels(idTile);
 
-                if (pRawPixels != NULL)
+            if (pRawPixels != NULL)
+            {
+                x = XTile * TileDim;
+                y = YTile * TileDim+offset;
+
+                if (polymost_drawtilescreen(x, y, idTile, TileDim, s_TileZoom,
+                                            usehitile, loadedhitile))
+                    classic_drawtilescreen(x, y, idTile, TileDim, pRawPixels);
+
+                if (localartfreq[iTile] != 0 && y >= 0 && y <= ydim-20)
                 {
-                    XPos = XTile * TileDim;
-                    YPos = YTile * TileDim+offset;
-
-                    if (polymost_drawtilescreen(XPos, YPos, idTile, TileDim, s_TileZoom))
-                    {
-                        TileSizeX = tilesizx[ idTile ];
-                        TileSizeY = tilesizy[ idTile ];
-
-                        DivInc = 1;
-                        MulInc = 1;
-
-                        while ((TileSizeX/DivInc > TileDim) || (TileSizeY/DivInc) > TileDim)
-                        {
-                            DivInc++;
-                        }
-
-                        if (DivInc == 1 && s_TileZoom)
-                        {
-                            while ((TileSizeX*(MulInc+1)) <= TileDim && (TileSizeY*(MulInc+1)) <= TileDim)
-                            {
-                                MulInc++;
-                            }
-                        }
-
-                        TileSizeX = (TileSizeX / DivInc) * MulInc;
-                        TileSizeY = (TileSizeY / DivInc) * MulInc;
-
-                        for (YOffset = 0; YOffset < TileSizeY; YOffset++)
-                        {
-                            int32_t y=YPos+YOffset;
-                            if (y>=0 && y<ydim)
-                            {
-                                pScreen = (char *)ylookup[y]+XPos+frameplace;
-                                for (XOffset = 0; XOffset < TileSizeX; XOffset++)
-                                {
-                                    pScreen[XOffset] = pRawPixels[((YOffset * DivInc) / MulInc) + (((XOffset * DivInc) / MulInc) * tilesizy[idTile])];
-                                }
-                            }
-                        }
-                    }
-
-                    if (localartfreq[iTile] != 0 && YPos >= 0 && YPos <= ydim-20)
-                    {
-                        Bsprintf(szT, "%d", localartfreq[iTile]);
-                        printext256(XPos, YPos, whitecol, -1, szT, 1);
-                    }
+                    Bsprintf(szT, "%d", localartfreq[iTile]);
+                    printext256(x, y, whitecol, -1, szT, 1);
                 }
+            }
 
-                marked = (IsValidTile(idTile) && tilemarked[idTile>>3]&(1<<(idTile&7)));
+            tilescreen_drawbox(iTopLeft, iSelected, nXTiles, TileDim, offset, iTile, idTile);
 
-                //
-                // Draw white box around currently selected tile or marked tile
-                // p1=(x1, y1), p2=(x1+TileDim-1, y1+TileDim-1)
-                //
-                if (iTile == iSelected || marked)
+            if (usehitilecnt)
+            {
+                int32_t k;
+
+                if (handleevents())
+                    quitevent=0;
+
+                tilescreen_drawrest(iSelected, showmsg);
+
+                enddrawing();
+                showframe(1);
+                begindrawing();
+
+                k = (mousex || mousey || mouseb);
+                if (!k)
+                    for (i=0; i<(signed)(sizeof(keystatus)/sizeof(keystatus[0])); i++)
+                        if (keystatus[i])
+                        {
+                            k = 1;
+                            break;
+                        }
+                if (k)
                 {
-                    int32_t x1 = ((iTile-iTopLeft) % nXTiles)*TileDim;
-                    int32_t y1 = ((iTile - ((iTile-iTopLeft) % nXTiles) - iTopLeft)/nXTiles)*TileDim + offset;
-                    int32_t x2 = x1+TileDim-1;
-                    int32_t y2 = y1+TileDim-1;
-
-                    char markedcol = editorcolors[14];
-
-                    setpolymost2dview();
-
-                    y1=max(y1, 0);
-                    y2=min(y2, ydim-1);
-
-                    {
-                        // box
-                        int32_t xx[] = {x1, x1, x2, x2, x1};
-                        int32_t yy[] = {y1, y2, y2, y1, y1};
-                        plotlines2d(xx, yy, 5, iTile==iSelected ? whitecol : markedcol);
-                    }
-
-                    // cross
-                    if (marked)
-                    {
-                        int32_t xx[] = {x1, x2};
-                        int32_t yy[] = {y1, y2};
-
-                        plotlines2d(xx, yy, 2, markedcol);
-                        swaplong(&yy[0], &yy[1]);
-                        plotlines2d(xx, yy, 2, markedcol);
-                    }
+                    enddrawing();
+                    showframe(1);
+                    return 1;
                 }
             }
         }
     }
 
-    if (iSelected < 0 || iSelected >= MAXTILES)
+    tilescreen_drawrest(iSelected, showmsg);
+
+    if (rendmode>=3 && qsetmode==200)
     {
-        enddrawing();
-        return 1;
+        if (usehitilecnt==0)
+        {
+            enddrawing();
+            showframe(1);
+            begindrawing();
+
+            usehitilecnt = 1;
+            goto restart;
+        }
     }
-
-    idTile = localartlookup[ iSelected ];
-
-    // Draw info bar at bottom.
-
-    // Clear out behind the text for improved visibility.
-    //drawline256(0, (ydim-12)<<12, xdim<<12, (ydim-12)<<12, whitecol);
-    for (i=ydim-12; i<ydim; i++)
-        drawline256(0, i<<12, xdim<<12, i<<12, (ydim-i));
-
-    // Tile number on left.
-    Bsprintf(szT, "%d" , idTile);
-    printext256(1, ydim-10, whitecol, -1, szT, 0);
-
-    // Tile name on right.
-    printext256(xdim-(Bstrlen(names[idTile])<<3)-1,ydim-10,whitecol,-1,names[idTile],0);
-
-    // Tile dimensions.
-    Bsprintf(szT,"%dx%d",tilesizx[idTile],tilesizy[idTile]);
-    printext256(xdim>>2,ydim-10,whitecol,-1,szT,0);
-
-    // EditArt offset flags.
-    Bsprintf(szT,"%d, %d", (int8_t)((picanm[idTile]>>8)&0xFF), (int8_t)((picanm[idTile]>>16)&0xFF));
-    printext256((xdim>>2)+100,ydim-10,whitecol,-1,szT,0);
-
-    // EditArt animation flags.
-    if (picanm[idTile]&0xc0)
-    {
-        static const char *anmtype[] = {"", "Osc", "Fwd", "Bck"};
-
-        Bsprintf(szT,"%s %d", anmtype[(picanm[idTile]&0xc0)>>6], picanm[idTile]&0x3f);
-        printext256((xdim>>2)+100+14*8,ydim-10,whitecol,-1,szT,0);
-    }
-
-    if (showmsg)
-        TMPERRMSG_SHOW(0);
-
-    m32_showmouse();
 
     enddrawing();
     showframe(1);
 
-    return(0);
+    return 0;
 
 }
 
@@ -3701,31 +3883,27 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 #undef TMPERRMSG_PRINT
 #undef TMPERRMSG_RETURN
 
-
-static int32_t spriteonceilingz(int32_t searchwall)
+#if 0
+static int32_t spriteonceilingz(int32_t i)
 {
-//    int32_t z=sprite[searchwall].z;
+    int32_t z = getceilzofslope(searchsector, sprite[i].x,sprite[i].y);
+    int32_t height, zofs;
 
-    int32_t z = getceilzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
-    int32_t tmphei = spriteheight(searchwall, NULL);
+    spriteheightofs(i, &height, &ofs);
 
-    if (sprite[searchwall].cstat&128)
-        z -= tmphei>>1;
-    if ((sprite[searchwall].cstat&48) != 32)
-        z += tmphei;
-    return z;
+    return z + height-ofs;
 }
 
-static int32_t spriteongroundz(int32_t searchwall)
+static int32_t spriteongroundz(int32_t i)
 {
-//    int32_t z=sprite[searchwall].z;
+    int32_t z = getflorzofslope(searchsector, sprite[i].x,sprite[i].y);
+    int32_t zofs;
 
-    int32_t z = getflorzofslope(searchsector,sprite[searchwall].x,sprite[searchwall].y);
+    spriteheightofs(i, NULL, &ofs);
 
-    if (sprite[searchwall].cstat&128)
-        z -= spriteheight(searchwall, NULL)>>1;
-    return z;
+    return z - ofs;
 }
+#endif
 
 #define WIND1X   3
 #define WIND1Y 150
@@ -4412,7 +4590,17 @@ static void Keys3d(void)
                              AIMED_CEILINGFLOOR(pal), AIMED_CEILINGFLOOR(stat),
                              sector[searchsector].lotag, sector[searchsector].hitag, sector[searchsector].extra);
 
-                Bsprintf(lines[num++],"Panning:  %d, %d", AIMED_CEILINGFLOOR(xpanning), AIMED_CEILINGFLOOR(ypanning));
+                {
+                    int32_t xp=AIMED_CEILINGFLOOR(xpanning), yp=AIMED_CEILINGFLOOR(ypanning);
+#ifdef YAX_ENABLE
+                    int32_t notextended = 1;
+                    if (yax_getbunch(searchsector, AIMING_AT_FLOOR) >= 0)
+                        xp = yp = notextended = 0;
+                    Bsprintf(lines[num++],"Panning:  %d, %d%s", xp, yp, notextended?"":" *");
+#else
+                    Bsprintf(lines[num++],"Panning:  %d, %d", xp, yp);
+#endif
+                }
                 Bsprintf(lines[num++],"%sZ: %d", Typestr[searchstat], AIMED_CEILINGFLOOR(z));
                 Bsprintf(lines[num++],"Slope:    %d", AIMED_CEILINGFLOOR(heinum));
                 lines[num++][0]=0;
@@ -4675,8 +4863,8 @@ static void Keys3d(void)
     if (AIMING_AT_WALL_OR_MASK && PRESSED_KEYSC(PERIOD))
     {
         int32_t naligned=AutoAlignWalls(searchwall, eitherCTRL, 0);
-        message("Auto-aligned %d wall%s %s based on wall %d", naligned,
-                naligned==1?"":"s", eitherCTRL?"recursively":"", searchwall);
+        message("Auto-aligned %d wall%s%s based on wall %d", naligned,
+                naligned==1?"":"s", eitherCTRL?" recursively":"", searchwall);
     }
 
 
@@ -4695,6 +4883,9 @@ static void Keys3d(void)
     }
 
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(L)) // ' L
+#ifdef YAX_ENABLE
+    if (YAXCHK(!AIMING_AT_CEILING_OR_FLOOR || yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0))
+#endif
     {
         i = noclip;
         noclip = 1;
@@ -4748,7 +4939,7 @@ static void Keys3d(void)
     }
 
 
-    getzrange(&pos, cursectnum, &hiz, &hihit, &loz, &lohit, 128L, CLIPMASK0);
+    getzrange(&pos, cursectnum, &hiz, &hihit, &loz, &lohit, 128, CLIPMASK0);
 
     if (PRESSED_KEYSC(CAPS) || (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(Z)))  // CAPS LOCK
     {
@@ -5061,7 +5252,8 @@ static void Keys3d(void)
         if (AIMING_AT_CEILING_OR_FLOOR)
         {
             AIMED_CEILINGFLOOR(stat) ^= 8;
-            message("Sector %d %s texture expansion bit %s", searchsector, typestr[searchstat], ONOFF(sector[searchsector].ceilingstat&8));
+            message("Sector %d %s texture expansion bit %s", searchsector, typestr[searchstat],
+                    ONOFF(sector[searchsector].ceilingstat&8));
             asksave = 1;
         }
     }
@@ -5078,7 +5270,8 @@ static void Keys3d(void)
             if (AIMING_AT_CEILING_OR_FLOOR)
             {
                 AIMED_CEILINGFLOOR(stat) ^= 64;
-                message("Sector %d %s texture relativity bit %s", searchsector, typestr[searchstat], ONOFF(AIMED_CEILINGFLOOR(stat)&64));
+                message("Sector %d %s texture relativity bit %s", searchsector, typestr[searchstat],
+                        ONOFF(AIMED_CEILINGFLOOR(stat)&64));
                 asksave = 1;
             }
             else if (AIMING_AT_SPRITE)
@@ -5127,12 +5320,12 @@ static void Keys3d(void)
             else if (AIMING_AT_CEILING_OR_FLOOR)  //8-way ceiling/floor flipping (bits 2,4,5)
             {
                 static const int32_t next[8] = { 6, 7, 4, 5, 0, 1, 3, 2 };  // 0->6->3->5->1->7->2->4->0
-                int16_t *stat = AIMING_AT_CEILING ? &sector[searchsector].ceilingstat : &sector[searchsector].floorstat;
+                int16_t *stat = &SECTORFLD(searchsector,stat, AIMING_AT_FLOOR);
 
                 i = *stat;
                 i = (i&0x4)+((i>>4)&3);
                 i = next[i];
-                message("Sector %d flip %d", searchsector, i);
+                message("Sector %d %s flip %d", searchsector, typestr[searchstat], i);
                 i = (i&0x4)+((i&3)<<4);
                 *stat &= ~0x34;
                 *stat |= i;
@@ -5193,17 +5386,14 @@ static void Keys3d(void)
 
     if (tsign)
     {
-        int16_t sect, havebtm=0, havetop=0;
+        int16_t sect0, sect, havebtm=0, havetop=0, moveCeilings, moveFloors;
+        int32_t cz, fz;
 
         k = 0;
-        if (highlightsectorcnt > 0)
+        if (highlightsectorcnt > 0 && searchsector>=0 && searchsector<numsectors)
         {
-            for (i=0; i<highlightsectorcnt; i++)
-                if (highlightsector[i] == searchsector)
-                {
-                    k = highlightsectorcnt;
-                    break;
-                }
+            if (show2dwall[searchsector>>3]&(1<<(searchsector&7)))
+                k = highlightsectorcnt;
         }
 
         if (k)
@@ -5227,71 +5417,81 @@ static void Keys3d(void)
             }
         }
 
-        if (AIMING_AT_CEILING || havetop)
-        {
-            int32_t tmphei;
+        sect0 = sect;
+        moveCeilings = (AIMING_AT_CEILING || havetop);
+        moveFloors = (AIMING_AT_FLOOR || havebtm);
 
+        if (moveCeilings || moveFloors)
+        {
+            static const char *cfs[2] = { "ceiling", "floor" };
+#ifdef YAX_ENABLE
+            int16_t bunchnum, maxbunchnum=-1, cb, fb;
+            Bmemset(havebunch, 0, sizeof(havebunch));
+#endif
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
             {
                 for (i=headspritesect[sect]; i!=-1; i=nextspritesect[i])
                 {
-                    tmphei = spriteheight(i, NULL);
-
-                    tempint = getceilzofslope(sect, sprite[i].x, sprite[i].y);
-                    tempint += tmphei;
-
-                    if (sprite[i].cstat&128)
-                        tempint += tmphei>>1;
-
-                    if (sprite[i].z == tempint)
+                    spriteoncfz(i, &cz, &fz);
+                    if ((moveCeilings && sprite[i].z <= cz) || (moveFloors && sprite[i].z >= fz))
                         sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
                 }
 
-                sector[sect].ceilingz += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
-                message("Sector %d ceilingz = %d", sect, sector[sect].ceilingz);
-            }
-        }
-        else if (AIMING_AT_FLOOR || havebtm)
-        {
-            for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
-            {
-                for (i=headspritesect[sect]; i!=-1; i=nextspritesect[i])
+                SECTORFLD(sect,z, moveFloors) += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
+#ifdef YAX_ENABLE
+                bunchnum = yax_getbunch(sect, moveFloors);
+                if (bunchnum >= 0 && !(havebunch[bunchnum>>3]&(1<<(bunchnum&7))))
                 {
-                    tempint = getflorzofslope(sect,sprite[i].x,sprite[i].y);
-
-                    if (sprite[i].cstat&128)
-                        tempint += spriteheight(i, NULL)>>1;
-
-                    if (sprite[i].z == tempint)
-                        sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
+                    maxbunchnum = max(maxbunchnum, bunchnum);
+                    havebunch[bunchnum>>3] |= (1<<(bunchnum&7));
+                    tempzar[bunchnum] = &SECTORFLD(sect,z, moveFloors);
                 }
-
-                sector[sect].floorz += tsign * (updownunits << (eitherCTRL<<1)); // JBF 20031128
-                message("Sector %d floorz = %d",sect,sector[sect].floorz);
+#endif
             }
-        }
 
-        if (sector[searchsector].floorz < sector[searchsector].ceilingz)
-        {
-            if (tsign==-1)
-                sector[searchsector].floorz = sector[searchsector].ceilingz;
+            if (k<=1 && sector[sect0].floorz < sector[sect0].ceilingz)
+            {
+                if (moveFloors)
+                    sector[sect0].floorz = sector[sect0].ceilingz;
+                else
+                    sector[sect0].ceilingz = sector[sect0].floorz;
+            }
+
+#ifdef YAX_ENABLE
+            // sync z values of extended sectors' ceilings/floors
+            for (i=0; i<numsectors; i++)
+            {
+                yax_getbunches(i, &cb, &fb);
+                if (cb >= 0 && (havebunch[cb>>3]&(1<<(cb&7))))
+                    sector[i].ceilingz = *tempzar[cb];
+                if (fb >= 0 && (havebunch[fb>>3]&(1<<(fb&7))))
+                    sector[i].floorz = *tempzar[fb];
+            }
+
+            if (k==0 && bunchnum>=0)
+                silentmessage("Bunch %d's ceilings and floors = %d", bunchnum, SECTORFLD(sect0,z, moveFloors));
             else
-                sector[searchsector].ceilingz = sector[searchsector].floorz;
+#endif
+            if (k==0)
+                silentmessage("Sector %d %sz = %d", sect0, cfs[moveFloors], SECTORFLD(sect0,z, moveFloors));
+            else
+                silentmessage("%s %d sector %ss by %d units", tsign<0 ? "Raised" : "Lowered",
+                              k, cfs[moveFloors], (updownunits << (eitherCTRL<<1)));
         }
 
         if (AIMING_AT_SPRITE)
         {
+            int32_t cz, fz;
+
             if (eitherCTRL && !eitherALT)  //CTRL - put sprite on ceiling/floor
             {
-                if (tsign==-1)
-                    sprite[searchwall].z = spriteonceilingz(searchwall);
-                else
-                    sprite[searchwall].z = spriteongroundz(searchwall);
+                spriteoncfz(searchwall, &cz, &fz);
+                sprite[searchwall].z = (tsign==1) ? fz : cz;
             }
             else
             {
                 k = 0;
-                if (highlightcnt >= 0)
+                if (highlightcnt > 0)
                     for (i=0; i<highlightcnt; i++)
                         if (highlight[i] == searchwall+16384)
                         {
@@ -5303,9 +5503,12 @@ static void Keys3d(void)
                 {
                     sprite[searchwall].z += tsign * (updownunits << ((eitherCTRL && mouseaction)*3));
                     if (!spnoclip)
-                        sprite[searchwall].z = max(sprite[searchwall].z, spriteonceilingz(searchwall));
+                    {
+                        spriteoncfz(searchwall, &cz, &fz);
+                        inpclamp(&sprite[searchwall].z, cz, fz);
+                    }
 
-                    message("Sprite %d z = %d", searchwall, sprite[searchwall].z);
+                    silentmessage("Sprite %d z = %d", searchwall, sprite[searchwall].z);
 
                 }
                 else
@@ -5319,15 +5522,12 @@ static void Keys3d(void)
 
                             if (!spnoclip)
                             {
-                                if (tsign==-1)
-                                    sprite[sp].z = max(sprite[sp].z, spriteonceilingz(sp));
-                                else
-                                    sprite[sp].z = min(sprite[sp].z, spriteongroundz(sp));
+                                spriteoncfz(searchwall, &cz, &fz);
+                                inpclamp(&sprite[searchwall].z, cz, fz);
                             }
                         }
 
-                    message("Sprites %s by %d units", tsign<0 ? "raised" : "lowered", updownunits);
-//                    message("Sprite %d z = %d", highlight[i]&16383, sprite[highlight[i]&16383].z);
+                    silentmessage("Sprites %s by %d units", tsign<0 ? "raised" : "lowered", updownunits);
                 }
             }
         }
@@ -5819,6 +6019,9 @@ static void Keys3d(void)
 
     if (tsign)
     {
+#ifdef YAX_ENABLE
+        int16_t bunchnum;
+#endif
         if (eitherALT)
         {
             int32_t ns=wall[searchwall].nextsector, sx=wall[searchwall].x, sy=wall[searchwall].y;
@@ -5826,11 +6029,18 @@ static void Keys3d(void)
             if (ns >= 0 && !mouseaction)
             {
                 if (AIMING_AT_CEILING || (tsign < 0 && AIMING_AT_WALL_OR_MASK))
+#ifdef YAX_ENABLE
+                if (YAXCHK((bunchnum=yax_getbunch(searchsector, YAX_CEILING)) < 0 || yax_is121(bunchnum)))
+#endif
                 {
                     alignceilslope(searchsector, sx, sy, getceilzofslope(ns, sx, sy));
                     message("Sector %d align ceiling to wall %d", searchsector, searchwall);
                 }
+
                 if (AIMING_AT_FLOOR || (tsign > 0 && AIMING_AT_WALL_OR_MASK))
+#ifdef YAX_ENABLE
+                if (YAXCHK((bunchnum=yax_getbunch(searchsector, YAX_FLOOR)) < 0 || yax_is121(bunchnum)))
+#endif
                 {
                     alignflorslope(searchsector, sx, sy, getflorzofslope(ns, sx, sy));
                     message("Sector %d align floor to wall %d", searchsector, searchwall);
@@ -5840,13 +6050,18 @@ static void Keys3d(void)
         else
         {
             if (AIMING_AT_CEILING_OR_FLOOR)
+#ifdef YAX_ENABLE
+            if (YAXCHK((bunchnum=yax_getbunch(searchsector, AIMING_AT_FLOOR)) < 0 || yax_is121(bunchnum)))
+#endif
             {
                 if (!(AIMED_CEILINGFLOOR(stat)&2))
                     AIMED_CEILINGFLOOR(heinum) = 0;
 
-                AIMED_CEILINGFLOOR(heinum) = clamp(AIMED_CEILINGFLOOR(heinum) + tsign*i, -BHEINUM_MAX, BHEINUM_MAX);
+                AIMED_CEILINGFLOOR(heinum) = clamp(AIMED_CEILINGFLOOR(heinum) + tsign*i,
+                                                   -BHEINUM_MAX, BHEINUM_MAX);
 
-                message("Sector %d ceiling slope = %d",searchsector,AIMED_CEILINGFLOOR(heinum));
+                silentmessage("Sector %d %s slope = %d", searchsector,
+                              typestr[searchstat], AIMED_CEILINGFLOOR(heinum));
             }
         }
 
@@ -5870,7 +6085,7 @@ static void Keys3d(void)
     {
         int32_t fw,x1,y1,x2,y2,stat,ma,a=0;
 
-        stat = AIMING_AT_FLOOR ? sector[searchsector].floorstat : sector[searchsector].ceilingstat;
+        stat = SECTORFLD(searchsector,stat, AIMING_AT_FLOOR);
         if (stat&64) // align to first wall
         {
             fw=sector[searchsector].wallptr;
@@ -5879,8 +6094,8 @@ static void Keys3d(void)
             a=getangle(x1-x2,y1-y2);
         }
         mouseax+=mousex; mouseay+=mousey;
-        ma=getangle(mouseax,mouseay);
-        ma+=ang-a;
+        ma = getangle(mouseax,mouseay);
+        ma += ang-a;
 
         i = stat;
         i = (i&0x4)+((i>>4)&3);
@@ -5922,6 +6137,9 @@ static void Keys3d(void)
                 mouseay=0;
 
                 if (AIMING_AT_CEILING_OR_FLOOR)
+#ifdef YAX_ENABLE
+                if (YAXCHK(yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0))
+#endif
                 {
                     changedir = 1-2*(x1<0);
                     x1 = klabs(x1);
@@ -5935,10 +6153,10 @@ static void Keys3d(void)
                     while (y1--)
                         AIMED_CEILINGFLOOR(ypanning) = changechar(AIMED_CEILINGFLOOR(ypanning),changedir,0,0);
 
-                    message("Sector %d %s panning: %d, %d", searchsector, typestr[searchstat],
-                            AIMED_CEILINGFLOOR(xpanning), AIMED_CEILINGFLOOR(ypanning));
+                    silentmessage("Sector %d %s panning: %d, %d", searchsector, typestr[searchstat],
+                                  AIMED_CEILINGFLOOR(xpanning), AIMED_CEILINGFLOOR(ypanning));
+                    asksave=1;
                 }
-                asksave=1;
             }
         }
         mousex=0;
@@ -6003,7 +6221,7 @@ static void Keys3d(void)
                 {
                     while (updownunits--)
                         wall[searchwall].xrepeat = changechar(wall[searchwall].xrepeat, changedir, smooshyalign, 1);
-                    message("Wall %d repeat: %d, %d", searchwall, wall[searchwall].xrepeat, wall[searchwall].yrepeat);
+                    silentmessage("Wall %d repeat: %d, %d", searchwall, wall[searchwall].xrepeat, wall[searchwall].yrepeat);
                 }
                 else
                 {
@@ -6023,17 +6241,22 @@ static void Keys3d(void)
 
                     while (updownunits--)
                         wall[w].xpanning = changechar(wall[w].xpanning, changedir, smooshyalign, 0);
-                    message("Wall %d panning: %d, %d", w, wall[w].xpanning, wall[w].ypanning);
+                    silentmessage("Wall %d panning: %d, %d", w, wall[w].xpanning, wall[w].ypanning);
                 }
                 asksave = 1;
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
             {
-                while (updownunits--)
-                    AIMED_CEILINGFLOOR(xpanning) = changechar(AIMED_CEILINGFLOOR(xpanning), changedir, smooshyalign, 0);
-                message("Sector %d %s panning: %d, %d", searchsector, typestr[searchstat],
-                        AIMED_CEILINGFLOOR(xpanning), AIMED_CEILINGFLOOR(ypanning));
-                asksave = 1;
+#ifdef YAX_ENABLE
+                if (YAXCHK(yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0))
+#endif
+                {
+                    while (updownunits--)
+                        AIMED_CEILINGFLOOR(xpanning) = changechar(AIMED_CEILINGFLOOR(xpanning), changedir, smooshyalign, 0);
+                    silentmessage("Sector %d %s panning: %d, %d", searchsector, typestr[searchstat],
+                                  AIMED_CEILINGFLOOR(xpanning), AIMED_CEILINGFLOOR(ypanning));
+                    asksave = 1;
+                }
             }
             else if (AIMING_AT_SPRITE)
             {
@@ -6050,7 +6273,7 @@ static void Keys3d(void)
                         sprite[searchwall].xrepeat = changechar(sprite[searchwall].xrepeat, changedir, smooshyalign, 1);
                     if (sprite[searchwall].xrepeat < 4)
                         sprite[searchwall].xrepeat = 4;
-                    message("Sprite %d repeat: %d, %d", searchwall, sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
+                    silentmessage("Sprite %d repeat: %d, %d", searchwall, sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
                 }
             }
             asksave = 1;
@@ -6117,7 +6340,7 @@ static void Keys3d(void)
                 {
                     while (updownunits--)
                         wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat, changedir, smooshyalign, 1);
-                    message("Wall %d repeat: %d, %d", searchwall, wall[searchwall].xrepeat, wall[searchwall].yrepeat);
+                    silentmessage("Wall %d repeat: %d, %d", searchwall, wall[searchwall].xrepeat, wall[searchwall].yrepeat);
                 }
                 else
                 {
@@ -6126,16 +6349,21 @@ static void Keys3d(void)
                         updownunits *= 8;
                     while (updownunits--)
                         wall[w].ypanning = changechar(wall[w].ypanning, changedir, smooshyalign, 0);
-                    message("Wall %d panning: %d, %d", w, wall[w].xpanning, wall[w].ypanning);
+                    silentmessage("Wall %d panning: %d, %d", w, wall[w].xpanning, wall[w].ypanning);
                 }
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
             {
-                while (updownunits--)
-                    AIMED_CEILINGFLOOR(ypanning) = changechar(AIMED_CEILINGFLOOR(ypanning), changedir, smooshyalign, 0);
-                message("Sector %d %s panning: %d, %d", searchsector, typestr[searchstat],
-                        AIMED_CEILINGFLOOR(xpanning), AIMED_CEILINGFLOOR(ypanning));
-                asksave = 1;
+#ifdef YAX_ENABLE
+                if (YAXCHK(yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0))
+#endif
+                {
+                    while (updownunits--)
+                        AIMED_CEILINGFLOOR(ypanning) = changechar(AIMED_CEILINGFLOOR(ypanning), changedir, smooshyalign, 0);
+                    silentmessage("Sector %d %s panning: %d, %d", searchsector, typestr[searchstat],
+                                  AIMED_CEILINGFLOOR(xpanning), AIMED_CEILINGFLOOR(ypanning));
+                    asksave = 1;
+                }
             }
             else if (AIMING_AT_SPRITE)
             {
@@ -6150,7 +6378,7 @@ static void Keys3d(void)
                         sprite[searchwall].yrepeat = changechar(sprite[searchwall].yrepeat, changedir, smooshyalign, 1);
                     if (sprite[searchwall].yrepeat < 4)
                         sprite[searchwall].yrepeat = 4;
-                    message("Sprite %d repeat: %d, %d", searchwall, sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
+                    silentmessage("Sprite %d repeat: %d, %d", searchwall, sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
                 }
             }
             asksave = 1;
@@ -6203,6 +6431,10 @@ static void Keys3d(void)
                 tempvis = sector[searchsector].visibility;
                 tempxrepeat = AIMED_CEILINGFLOOR(xpanning);
                 tempyrepeat = AIMED_CEILINGFLOOR(ypanning);
+#ifdef YAX_ENABLE
+                if (yax_getbunch(searchsector, AIMING_AT_FLOOR) >= 0)
+                    tempxrepeat = tempyrepeat = 0;
+#endif
                 tempcstat = AIMED_CEILINGFLOOR(stat);
             }
             else if (AIMING_AT_SPRITE)
@@ -6222,24 +6454,18 @@ static void Keys3d(void)
 
     if (PRESSED_KEYSC(ENTER))  // ENTER -- paste clipboard contents
     {
-        extern char pskysearch[MAXSECTORS];
-        int16_t daang;
-        int32_t dashade[2];
-
         if (eitherSHIFT)
         {
             if (AIMING_AT_WALL_OR_MASK && eitherCTRL)  //Ctrl-shift Enter (auto-shade)
             {
-                dashade[0] = 127;
-                dashade[1] = -128;
+                int16_t daang;
+                int32_t dashade[2] = { 127, -128 };
 
                 i = searchwall;
                 do
                 {
-                    if (dashade[0] > (int32_t)wall[i].shade)
-                        dashade[0] = wall[i].shade;
-                    if (dashade[1] < (int32_t)wall[i].shade)
-                        dashade[1] = wall[i].shade;
+                    dashade[0] = min(dashade[0], wall[i].shade);
+                    dashade[1] = max(dashade[1], wall[i].shade);
 
                     i = wall[i].point2;
                 }
@@ -6261,7 +6487,8 @@ static void Keys3d(void)
                 }
                 while (i != searchwall);
 
-                message("Wall %d auto-shaded", searchwall);
+                message("Auto-shaded wall %d's loop", searchwall);
+                asksave = 1;
             }
             else if (somethingintab < 255)
             {
@@ -6283,6 +6510,7 @@ static void Keys3d(void)
         }
         else if (AIMING_AT_WALL_OR_MASK && eitherCTRL && somethingintab < 255)  //Either ctrl key
         {
+            int32_t clipboard_has_wall = (somethingintab == SEARCH_WALL || somethingintab == SEARCH_MASKWALL);
             i = searchwall;
             do
             {
@@ -6290,7 +6518,7 @@ static void Keys3d(void)
                 wall[i].shade = tempshade;
                 wall[i].pal = temppal;
 
-                if (somethingintab == SEARCH_WALL || somethingintab == SEARCH_MASKWALL)
+                if (clipboard_has_wall)
                 {
                     wall[i].xrepeat = tempxrepeat;
                     wall[i].yrepeat = tempyrepeat;
@@ -6302,11 +6530,13 @@ static void Keys3d(void)
             }
             while (i != searchwall);
 
-            message("Pasted picnum+shading+pal");
+            message("Pasted picnum+shading+pal%s", clipboard_has_wall?"+pixelwidth":"");
             asksave = 1;
         }
         else if (AIMING_AT_CEILING_OR_FLOOR && eitherCTRL && somethingintab < 255)  //Either ctrl key
         {
+            static char pskysearch[MAXSECTORS];
+
             Bmemset(pskysearch, 0, numsectors);
 
             i = searchsector;
@@ -6320,6 +6550,9 @@ static void Keys3d(void)
                 CEILINGFLOOR(i, pal) = temppal;
 
                 if (somethingintab == SEARCH_CEILING || somethingintab == SEARCH_FLOOR)
+#ifdef YAX_ENABLE
+                if (yax_getbunch(i, AIMING_AT_FLOOR) < 0)
+#endif
                 {
                     CEILINGFLOOR(i, xpanning) = tempxrepeat;
                     CEILINGFLOOR(i, ypanning) = tempyrepeat;
@@ -6344,7 +6577,7 @@ static void Keys3d(void)
                         i = j;
             }
 
-            message("Pasted picnum+shading+pal");
+            message("Pasted picnum+shading+pal to adjoining sector %ss", typestr[searchstat]);
             asksave = 1;
         }
         else if (somethingintab < 255)
@@ -6395,6 +6628,9 @@ static void Keys3d(void)
                 AIMED_CEILINGFLOOR(pal) = temppal;
 
                 if (somethingintab == SEARCH_CEILING || somethingintab == SEARCH_FLOOR)
+#ifdef YAX_ENABLE
+                if (yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0)
+#endif
                 {
                     AIMED_CEILINGFLOOR(xpanning) = tempxrepeat;
                     AIMED_CEILINGFLOOR(ypanning) = tempyrepeat;
@@ -6513,10 +6749,25 @@ static void Keys3d(void)
         }
         else if (AIMING_AT_CEILING_OR_FLOOR)
         {
-            AIMED_CEILINGFLOOR(xpanning) = 0;
-            AIMED_CEILINGFLOOR(ypanning) = 0;
+#ifdef YAX_ENABLE
+            j = yax_getbunch(searchsector, AIMING_AT_FLOOR);
+            if (j < 0)
+#endif
+            {
+                AIMED_CEILINGFLOOR(xpanning) = 0;
+                AIMED_CEILINGFLOOR(ypanning) = 0;
+            }
             AIMED_CEILINGFLOOR(stat) &= ~2;
             AIMED_CEILINGFLOOR(heinum) = 0;
+#ifdef YAX_ENABLE
+            if (j >= 0)
+                for (i=0; i<numsectors; i++)
+                    if (yax_getbunch(i, !AIMING_AT_FLOOR) == j)
+                    {
+                        SECTORFLD(i,stat, !AIMING_AT_FLOOR) &= ~2;
+                        SECTORFLD(i,heinum, !AIMING_AT_FLOOR) = 0;
+                    }
+#endif
         }
         else if (AIMING_AT_SPRITE)
         {
@@ -6933,11 +7184,14 @@ static void Keys2d(void)
         {
             for (i=0; i<numsectors; i++)
                 if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+#ifdef YAX_ENABLE
+                if (yax_getbunch(i, YAX_FLOOR) < 0)
+#endif
                 {
                     sector[i].floorxpanning = sector[i].floorypanning = 0;
                     message("Sector %d floor panning reset", i);
+                    asksave = 1;
                 }
-            asksave = 1;
         }
     }
 
@@ -6960,16 +7214,19 @@ static void Keys2d(void)
                 {
                     uint8_t *repeat = (k==0) ? &sprite[cursprite].xrepeat : &sprite[cursprite].yrepeat;
                     *repeat = max(4, changechar(*repeat, changedir, smooshy, 1));
-                    message("Sprite %d repeat: %d, %d", cursprite, sprite[cursprite].xrepeat, sprite[cursprite].yrepeat);
+                    silentmessage("Sprite %d repeat: %d, %d", cursprite, sprite[cursprite].xrepeat, sprite[cursprite].yrepeat);
                 }
                 else
                 {
                     for (i=0; i<numsectors; i++)
+#ifdef YAX_ENABLE
+                        if (yax_getbunch(i, YAX_FLOOR) < 0)
+#endif
                         if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                         {
                             uint8_t *panning = (k==0) ? &sector[i].floorxpanning : &sector[i].floorypanning;
                             *panning = changechar(*panning, changedir, smooshy, 0);
-                            message("Sector %d floor panning: %d, %d", searchsector, sector[i].floorxpanning, sector[i].floorypanning);
+                            silentmessage("Sector %d floor panning: %d, %d", searchsector, sector[i].floorxpanning, sector[i].floorypanning);
                         }
                 }
 
@@ -7347,6 +7604,7 @@ static void G_ShowParameterHelp(void)
     const char *s = "Usage: mapster32 [OPTIONS] [FILE]\n\n"
               "-gFILE, -grp FILE\tUse extra group file FILE\n"
               "-hFILE\t\tUse definitions file FILE\n"
+              "-xFILE\t\tUse FILE instead of GAME.CON for getting sound definitions"
               "-jDIR, -game_dir DIR\n\t\tAdds DIR to the file path stack\n"
               "-check\t\tEnables map pointer checking when saving\n"
               "-nocheck\t\tDisables map pointer checking when saving (default)\n"  // kept for script compat
@@ -8351,7 +8609,7 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
     CLEARLINES2D(0, min(ydim, numrows*8+8), editorcolors[16]);
 }
 
-static void m32_osdsetfunctions()
+static void m32_osdsetfunctions(void)
 {
     OSD_SetFunctions(
 /*
@@ -9314,13 +9572,14 @@ void ExtPreCheckKeys(void) // just before drawrooms
     {
         if (shadepreview)
         {
-            int32_t i = 0;
+//            int32_t i = 0;
             for (i=0; i<MAXSPRITES; i++)
             {
                 if (sprite[i].statnum==MAXSTATUS)
                     continue;
 
-                if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 12 || sprite[i].lotag == 3))
+                if (sprite[i].picnum == SECTOREFFECTOR &&
+                        (sprite[i].lotag == 12 || sprite[i].lotag == 3 || sprite[i].lotag == 4))
                 {
                     int32_t w, isec=sprite[i].sectnum;
                     int32_t start_wall;
@@ -9334,43 +9593,38 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
                     for (w = start_wall; w < end_wall; w++)
                     {
-                        if (!wallflag[w])
+                        if (!(wallflag[w>>3]&(1<<(w&7))))
                         {
                             wallshades[w] = wall[w].shade;
-                            wall[w].shade = sprite[i].shade;
                             wallpals[w] = wall[w].pal;
+
+                            wall[w].shade = sprite[i].shade;
                             wall[w].pal = sprite[i].pal;
-                            wallflag[w] = 1;
+
+                            wallflag[w>>3] |= (1<<(w&7));
                         }
-                        /*                        if (wall[w].nextwall >= 0)
-                        {
-                        if (!wallflag[wall[w].nextwall])
-                        {
-                        wallshades[wall[w].nextwall] = NEXTWALL(w).shade;
-                        NEXTWALL(w).shade = sprite[i].shade;
-                        wallpals[wall[w].nextwall] = NEXTWALL(w).pal;
-                        NEXTWALL(w).pal = sprite[i].pal;
-                        wallflag[wall[w].nextwall] = 1;
-                        }
-                        } */
+                        // removed: same thing with nextwalls
                     }
                     sectorshades[isec][0] = sector[isec].floorshade;
                     sectorshades[isec][1] = sector[isec].ceilingshade;
                     sector[isec].floorshade = sprite[i].shade;
                     sector[isec].ceilingshade = sprite[i].shade;
+
                     sectorpals[isec][0] = sector[isec].floorpal;
                     sectorpals[isec][1] = sector[isec].ceilingpal;
                     sector[isec].floorpal = sprite[i].pal;
                     sector[isec].ceilingpal = sprite[i].pal;
-                    w = headspritesect[isec];
-                    while (w >= 0)
+                    
+                    for (w = headspritesect[isec]; w >= 0; w = nextspritesect[w])
                     {
-                        if (w == i) { w = nextspritesect[w]; continue; }
+                        if (w == i)
+                            continue;
+
                         spriteshades[w] = sprite[w].shade;
-                        sprite[w].shade = sprite[i].shade;
                         spritepals[w] = sprite[w].pal;
+
+                        sprite[w].shade = sprite[i].shade;
                         sprite[w].pal = sprite[i].pal;
-                        w = nextspritesect[w];
                     }
                 }
                 else if (sprite[i].picnum == SECTOREFFECTOR && (sprite[i].lotag == 49 || sprite[i].lotag == 50))
@@ -9385,32 +9639,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 #pragma pack(push,1)
                                 _prlight mylight;
 #pragma pack(pop)
-                                mylight.sector = SECT;
-                                Bmemcpy(&mylight, &sprite[i], sizeof(vec3_t));
-                                mylight.range = SHT;
-                                mylight.color[0] = sprite[i].xvel;
-                                mylight.color[1] = sprite[i].yvel;
-                                mylight.color[2] = sprite[i].zvel;
-                                mylight.radius = 0;
-                                mylight.angle = SA;
-                                mylight.horiz = SH;
-                                mylight.minshade = sprite[i].xoffset;
-                                mylight.maxshade = sprite[i].yoffset;
-                                mylight.tilenum = 0;
-
-                                if (CS & 2)
-                                {
-                                    if (CS & 512)
-                                        mylight.priority = PR_LIGHT_PRIO_LOW;
-                                    else
-                                        mylight.priority = PR_LIGHT_PRIO_HIGH;
-                                }
-                                else
-                                    mylight.priority = PR_LIGHT_PRIO_MAX;
-
-                                spritelightid[i] = polymer_addlight(&mylight);
-                                if (spritelightid[i] >= 0)
-                                    spritelightptr[i] = &prlights[spritelightid[i]];
+                                addprlight_common1(&mylight, i);
                             }
                             else
                             {
@@ -9425,14 +9654,8 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                     spritelightptr[i]->range = SHT;
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
-                                if ((sprite[i].xvel != spritelightptr[i]->color[0]) ||
-                                        (sprite[i].yvel != spritelightptr[i]->color[1]) ||
-                                        (sprite[i].zvel != spritelightptr[i]->color[2]))
-                                {
-                                    spritelightptr[i]->color[0] = sprite[i].xvel;
-                                    spritelightptr[i]->color[1] = sprite[i].yvel;
-                                    spritelightptr[i]->color[2] = sprite[i].zvel;
-                                }
+                                if (check_prlight_colors(i))
+                                    copy_prlight_colors(spritelightptr[i], i);
                             }
                         }
                     }
@@ -9445,34 +9668,11 @@ void ExtPreCheckKeys(void) // just before drawrooms
 #pragma pack(push,1)
                                 _prlight mylight;
 #pragma pack(pop)
-
-                                mylight.sector = SECT;
-                                Bmemcpy(&mylight, &sprite[i], sizeof(vec3_t));
-                                mylight.range = SHT;
-                                mylight.color[0] = sprite[i].xvel;
-                                mylight.color[1] = sprite[i].yvel;
-                                mylight.color[2] = sprite[i].zvel;
                                 mylight.radius = (256-(SS+128))<<1;
                                 mylight.faderadius = (int16_t)(mylight.radius * 0.75f);
-                                mylight.angle = SA;
-                                mylight.horiz = SH;
-                                mylight.minshade = sprite[i].xoffset;
-                                mylight.maxshade = sprite[i].yoffset;
                                 mylight.tilenum = OW;
 
-                                if (CS & 2)
-                                {
-                                    if (CS & 512)
-                                        mylight.priority = PR_LIGHT_PRIO_LOW;
-                                    else
-                                        mylight.priority = PR_LIGHT_PRIO_HIGH;
-                                }
-                                else
-                                    mylight.priority = PR_LIGHT_PRIO_MAX;
-
-                                spritelightid[i] = polymer_addlight(&mylight);
-                                if (spritelightid[i] >= 0)
-                                    spritelightptr[i] = &prlights[spritelightid[i]];
+                                addprlight_common1(&mylight, i);
                             }
                             else
                             {
@@ -9487,14 +9687,8 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                     spritelightptr[i]->range = SHT;
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
-                                if ((sprite[i].xvel != spritelightptr[i]->color[0]) ||
-                                        (sprite[i].yvel != spritelightptr[i]->color[1]) ||
-                                        (sprite[i].zvel != spritelightptr[i]->color[2]))
-                                {
-                                    spritelightptr[i]->color[0] = sprite[i].xvel;
-                                    spritelightptr[i]->color[1] = sprite[i].yvel;
-                                    spritelightptr[i]->color[2] = sprite[i].zvel;
-                                }
+                                if (check_prlight_colors(i))
+                                    copy_prlight_colors(spritelightptr[i], i);
                                 if (((256-(SS+128))<<1) != spritelightptr[i]->radius)
                                 {
                                     spritelightptr[i]->radius = (256-(SS+128))<<1;
@@ -9669,8 +9863,6 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 drawlinepat = 0xf0f0f0f0;
                 drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, scalescreeny(16384), editorcolors[(int32_t)col]);
                 drawlinepat = 0xffffffff;
-                //            radius = mulscale15(sprite[i].hitag,zoom);
-                //          drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, col);
             }
     }
 
@@ -9687,7 +9879,8 @@ void ExtAnalyzeSprites(void)
     {
         frames=0;
 
-        if ((nosprites==1||nosprites==3)&&tspr->picnum<11) tspr->xrepeat=0;
+        if ((nosprites==1||nosprites==3) && tspr->picnum<11)
+            tspr->xrepeat=0;
 
         if (nosprites==1||nosprites==3)
             switch (tspr->picnum)
@@ -9723,7 +9916,7 @@ void ExtAnalyzeSprites(void)
 
             if ((tspr->owner>=0 && (sprite[tspr->owner].cstat&2048)==0))
             {
-                l = clamp(l, -127, 127);
+                inpclamp(&l, -127, 127);
 //                tspr->shade = l;
             }
         }
@@ -9822,9 +10015,9 @@ void ExtAnalyzeSprites(void)
                     tspr->picnum -= 5;       //Hack, for actors
             }
             break;
+
         default:
             break;
-
         }
     }
 
@@ -9975,14 +10168,13 @@ void ExtCheckKeys(void)
 
         for (i=0; i<MAXSPRITES; i++)
         {
-            if (sprite[i].statnum==MAXSTATUS)
+            if (sprite[i].statnum==MAXSTATUS || sprite[i].picnum != SECTOREFFECTOR)
                 continue;
 
-            if (sprite[i].picnum != SECTOREFFECTOR || !(sprite[i].lotag == 12 || sprite[i].lotag == 3))
+            if (sprite[i].lotag != 12 && sprite[i].lotag != 3 && sprite[i].lotag != 4)
                 continue;
 
             isec = sprite[i].sectnum;
-
             if (isec<0)
                 continue;
 
@@ -9991,23 +10183,13 @@ void ExtCheckKeys(void)
 
             for (w = start_wall; w < end_wall; w++)
             {
-                if (wallflag[w])
+                if (wallflag[w>>3]&(1<<(w&7)))
                 {
                     wall[w].shade = wallshades[w];
                     wall[w].pal = wallpals[w];
-                    wallflag[w] = 0;
+                    wallflag[w>>3] &= ~(1<<(w&7));
                 }
-#if 0
-                if (wall[w].nextwall >= 0)
-                {
-                    if (wallflag[wall[w].nextwall])
-                    {
-                        NEXTWALL(w).shade = wallshades[wall[w].nextwall];
-                        NEXTWALL(w).pal = wallpals[wall[w].nextwall];
-                        wallflag[wall[w].nextwall] = 0;
-                    }
-                }
-#endif
+                // removed: same thing with nextwalls
             }
             sector[isec].floorshade = sectorshades[isec][0];
             sector[isec].ceilingshade = sectorshades[isec][1];
@@ -10020,7 +10202,6 @@ void ExtCheckKeys(void)
                     continue; 
                 sprite[w].shade = spriteshades[w];
                 sprite[w].pal = spritepals[w];
-                w = nextspritesect[w];
             }
             
         }
@@ -10547,8 +10728,6 @@ static void EditSectorData(int16_t sectnum)
                 med_printcurline(xpos, ypos, row, 0);
                 col = 1;
                 xpos = 208;
-                rowmax = 6;
-                med_dispwidth = 24;
                 med_disptext[med_dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
@@ -10560,12 +10739,18 @@ static void EditSectorData(int16_t sectnum)
                 med_printcurline(xpos, ypos, row, 0);
                 col = 2;
                 xpos = 408;
-                rowmax = 6;
-                med_dispwidth = 24;
                 med_disptext[med_dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
         }
+
+#ifdef YAX_ENABLE
+        if (med_editval)
+        {
+            if ((row==0 || row==1 || row==3 || row==5) && yax_getbunch(sectnum, (col==2)) >= 0)
+                med_editval = 0;
+        }
+#endif
 
         if (col == 1)
         {
@@ -10581,14 +10766,14 @@ static void EditSectorData(int16_t sectnum)
                 {
                     Bsprintf(med_edittext,"Sector %d Ceiling X Pan: ",sectnum);
                     printmessage16("%s", med_edittext);
-                    sector[sectnum].ceilingxpanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].ceilingxpanning,256L,0);
+                    sector[sectnum].ceilingxpanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].ceilingxpanning,255,0);
                     Bsprintf(med_edittext,"Sector %d Ceiling Y Pan: ",sectnum);
                     printmessage16("%s", med_edittext);
-                    sector[sectnum].ceilingypanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].ceilingypanning,256L,0);
+                    sector[sectnum].ceilingypanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].ceilingypanning,255,0);
                 }
                 break;
             case 2:
-                handlemed(0, "Shade byte", "Ceiling Shade", &sector[sectnum].ceilingshade,sizeof(sector[sectnum].ceilingshade), 128L, 1);
+                handlemed(0, "Shade byte", "Ceiling Shade", &sector[sectnum].ceilingshade,sizeof(sector[sectnum].ceilingshade), 128, 1);
                 break;
             case 3:
                 handlemed(0, "Z-coordinate", "Ceiling Z-coordinate", &sector[sectnum].ceilingz,
@@ -10623,10 +10808,10 @@ static void EditSectorData(int16_t sectnum)
                 {
                     Bsprintf(med_edittext,"Sector %d Floor X Pan: ",sectnum);
                     printmessage16("%s", med_edittext);
-                    sector[sectnum].floorxpanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].floorxpanning,256,0);
+                    sector[sectnum].floorxpanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].floorxpanning,255,0);
                     Bsprintf(med_edittext,"Sector %d Floor Y Pan: ",sectnum);
                     printmessage16("%s", med_edittext);
-                    sector[sectnum].floorypanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].floorypanning,256,0);
+                    sector[sectnum].floorypanning = (char)getnumber16(med_edittext,(int32_t)sector[sectnum].floorypanning,255,0);
                 }
                 break;
 
@@ -10982,7 +11167,7 @@ static void EditSpriteData(int16_t spritenum)
 
 #define TWENTYFIVE_BLANKS "                         "
 
-static void GenericSpriteSearch()
+static void GenericSpriteSearch(void)
 {
     char disptext[80];
     char edittext[80];

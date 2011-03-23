@@ -140,6 +140,7 @@ int32_t writesetup(const char *fn);	// from config.c
 
 void editinput(void);
 void clearmidstatbar16(void);
+void fade_editor_screen(void);
 
 int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
 #define getnumber256(namestart, num, maxnumber, sign) _getnumber256(namestart, num, maxnumber, sign, NULL)
@@ -160,6 +161,7 @@ extern int32_t lastpm16time;
 
 extern char lastpm16buf[156];
 
+void spriteoncfz(int32_t i, int32_t *czptr, int32_t *fzptr);
 void DoSpriteOrnament(int32_t i);
 
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y);
@@ -235,6 +237,12 @@ extern int32_t scripthistend;
 static inline int32_t atoi_safe(const char *str)
 {
     return (int32_t)strtol(str, NULL, 10);
+}
+
+static inline void inpclamp(int32_t *x, int32_t mi, int32_t ma)
+{
+    if (*x>ma) *x=ma;
+    if (*x<mi) *x=mi;
 }
 
 #endif

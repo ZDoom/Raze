@@ -562,6 +562,9 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("numsectors",(intptr_t)&numsectors, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_READONLY);
     Gv_NewVar("numsprites",(intptr_t)&numsprites, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
     Gv_NewVar("numtiles",(intptr_t)&numtiles, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
+#ifdef YAX_ENABLE
+    Gv_NewVar("numbunches",(intptr_t)&numyaxbunches, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
+#endif
 
 #ifdef USE_OPENGL
     Gv_NewVar("rendmode",(intptr_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
@@ -665,7 +668,12 @@ static void Gv_AddSystemVars(void)
     Gv_NewArray("hstat", (void *)headspritestat, MAXSTATUS+1, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
     Gv_NewArray("nstat", (void *)prevspritestat, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
     Gv_NewArray("pstat", (void *)nextspritestat, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-
+#ifdef YAX_ENABLE
+    Gv_NewArray("headsectbunchc", (void *)headsectbunch[0], YAX_MAXBUNCHES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("nextsectbunchc", (void *)nextsectbunch[0], MAXSECTORS, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("headsectbunchf", (void *)headsectbunch[1], YAX_MAXBUNCHES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("nextsectbunchf", (void *)nextsectbunch[1], MAXSECTORS, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+#endif
     Gv_NewArray("tilesizx", (void *)tilesizx, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
     Gv_NewArray("tilesizy", (void *)tilesizy, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
 //    Gv_NewArray("picsiz", (void *)picsiz, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);

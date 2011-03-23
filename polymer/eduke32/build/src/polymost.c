@@ -2186,7 +2186,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         {
             float pc[4];
-            int32_t shadebound = shadescale_unbounded ? numpalookups : 31;
+            int32_t shadebound = (shadescale_unbounded || globalshade>31) ? numpalookups : 31;
             f = ((float)(numpalookups-min(max((globalshade * shadescale),0),shadebound)))/((float)numpalookups);
             pc[0] = pc[1] = pc[2] = f;
             switch (method&3)
@@ -4077,7 +4077,7 @@ static void polymost_scansector(int32_t sectnum)
     int32_t xs, ys, x1, y1, x2, y2;
 
     if (sectnum < 0) return;
-    if (automapping) show2dsector[sectnum>>3] |= pow2char[sectnum&7];
+//    if (automapping) show2dsector[sectnum>>3] |= pow2char[sectnum&7];
 
     sectorborder[0] = sectnum, sectorbordercnt = 1;
     do
@@ -5788,7 +5788,7 @@ void polymost_fillpolygon(int32_t npoints)
     pthtyp *pth;
     float f,a=0.0;
     int32_t i;
-    int32_t shadebound = shadescale_unbounded ? numpalookups-1 : 31;
+    int32_t shadebound = (shadescale_unbounded || globalshade>31) ? numpalookups : 31;
 
     globalx1 = mulscale16(globalx1,xyaspect);
     globaly2 = mulscale16(globaly2,xyaspect);
@@ -5829,7 +5829,8 @@ void polymost_fillpolygon(int32_t npoints)
 }
 #endif
 
-int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen, int32_t tilezoom)
+int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen, int32_t tilezoom,
+                                int32_t usehitile, uint8_t *loadedhitile)
 {
 #ifdef USE_OPENGL
     float xdime, ydime, xdimepad, ydimepad, scx, scy, ratio = 1.0;
@@ -5860,11 +5861,22 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
     {
         scx = (float)dimen;
         scy = (float)dimen;
-        if (xdime < ydime) scx *= xdime/ydime; else scy *= ydime/xdime;
+        if (xdime < ydime)
+            scx *= xdime/ydime;
+        else
+            scy *= ydime/xdime;
     }
 
-    pth = gltexcache(wallnum,0,4);
-    bglBindTexture(GL_TEXTURE_2D,pth ? pth->glpic : 0);
+    {
+        int32_t ousehightile = usehightile;
+        usehightile = usehitile && usehightile;
+        pth = gltexcache(wallnum,0,4);
+        if (usehightile)
+            loadedhitile[wallnum>>3] |= (1<<(wallnum&7));
+        usehightile = ousehightile;
+    }
+
+    bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
     bglDisable(GL_ALPHA_TEST);
 
@@ -5888,10 +5900,10 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
                        (float)britable[curbrightness][ curpalette[255].g ] / 255.0,
                        (float)britable[curbrightness][ curpalette[255].b ] / 255.0,
                        1);
-        bglVertex2f((float)tilex    ,(float)tiley);
+        bglVertex2f((float)tilex            ,(float)tiley);
         bglVertex2f((float)tilex+(scx*ratio),(float)tiley);
         bglVertex2f((float)tilex+(scx*ratio),(float)tiley+(scy*ratio));
-        bglVertex2f((float)tilex    ,(float)tiley+(scy*ratio));
+        bglVertex2f((float)tilex            ,(float)tiley+(scy*ratio));
         bglEnd();
     }
 
@@ -5899,10 +5911,10 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
     bglEnable(GL_TEXTURE_2D);
     bglEnable(GL_BLEND);
     bglBegin(GL_TRIANGLE_FAN);
-    bglTexCoord2f(0,       0); bglVertex2f((float)tilex    ,(float)tiley);
+    bglTexCoord2f(0,              0); bglVertex2f((float)tilex            ,(float)tiley);
     bglTexCoord2f(xdimepad,       0); bglVertex2f((float)tilex+(scx*ratio),(float)tiley);
     bglTexCoord2f(xdimepad,ydimepad); bglVertex2f((float)tilex+(scx*ratio),(float)tiley+(scy*ratio));
-    bglTexCoord2f(0,ydimepad); bglVertex2f((float)tilex    ,(float)tiley+(scy*ratio));
+    bglTexCoord2f(0,       ydimepad); bglVertex2f((float)tilex            ,(float)tiley+(scy*ratio));
     bglEnd();
 
     return(0);
@@ -6621,7 +6633,11 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
 #else /* POLYMOST */
 
 #include "inttypes.h"
-int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen) { return -1; }
+int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen,
+                                int32_t usehitile, uint8_t *loadedhitile)
+{
+    return -1;
+}
 
 #endif
 

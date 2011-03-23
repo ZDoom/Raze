@@ -417,13 +417,13 @@ RIGHT       smooth scrolling
       sector Hi=X
    SE 3 in affected sector:
       Hi=X
-   Shades:
+   Shades/pals:
       sectors/walls: when off
       SE: when on
 
 ^3SE 4: RANDOM LIGHTS
    Hi: random blink num. ^0(research!)
-   Shades:
+   Shades/pals:
       sectors/walls: when off
       SE: when on
 

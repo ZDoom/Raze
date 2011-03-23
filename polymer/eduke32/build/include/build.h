@@ -62,16 +62,18 @@ extern "C" {
 #define PR_LIGHT_PRIO_LOW_GAME  5
 
 ////////// yax defs //////////
+#define YAX_MAXBUNCHES (MAXSECTORS>>1)
 #define YAX_BIT 1024
-#define YAX_CEILING 0
-#define YAX_FLOOR 1
+#define YAX_CEILING 0  // don't change!
+#define YAX_FLOOR 1  // don't change!
 
-#define YAX_SECTORFLD(Sect,Fld, Cf) (*((Cf) ? (&sector[Sect].floor##Fld) : (&sector[Sect].ceiling##Fld)))
+#define SECTORFLD(Sect,Fld, Cf) (*((Cf) ? (&sector[Sect].floor##Fld) : (&sector[Sect].ceiling##Fld)))
 
 int16_t yax_getbunch(int16_t i, int16_t cf);
 void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb);
 void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum);
 void yax_setbunches(int16_t i, int16_t cb, int16_t fb);
+void yax_update(int32_t onlyreset);
 
 
 #define CLIPMASK0 (((1L)<<16)+1L)
@@ -232,6 +234,19 @@ struct validmode_t {
 };
 EXTERN struct validmode_t validmode[MAXVALIDMODES];
 
+EXTERN int32_t numyaxbunches;
+#ifdef YAX_ENABLE
+// Singly-linked list of sectnums grouped by bunches and ceiling (0)/floor (1)
+// Usage e.g.:
+//   int16_t bunchnum = yax_getbunch(somesector, YAX_CEILING);
+// Iteration over all sectors whose floor bunchnum equals 'bunchnum' (i.e. "all
+// floors of the other side"):
+//   for (i=headsectbunch[1][bunchnum]; i!=-1; i=nextsectbunch[1][i])
+//       <do stuff with sector i...>
+
+EXTERN int16_t headsectbunch[2][YAX_MAXBUNCHES], nextsectbunch[2][MAXSECTORS];
+#endif
+
 EXTERN int16_t numsectors, numwalls;
 EXTERN char display_mirror;
 EXTERN /*volatile*/ int32_t totalclock;
@@ -279,7 +294,7 @@ EXTERN int32_t windowpos, windowx, windowy;
 EXTERN char show2dsector[(MAXSECTORS+7)>>3];
 EXTERN char show2dwall[(MAXWALLS+7)>>3];
 EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
-EXTERN char automapping;
+//EXTERN char automapping;
 
 EXTERN char gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
@@ -589,7 +604,7 @@ int32_t   changespritesect(int16_t spritenum, int16_t newsectnum);
 int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
 int32_t   setsprite(int16_t spritenum, const vec3_t *new) ATTRIBUTE((nonnull(2)));
 
-int32_t spriteheight(int16_t i, int32_t *basez);
+void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs);
 
 int32_t   screencapture(const char *filename, char inverseit, const char *versionstr) ATTRIBUTE((nonnull(1)));
 
@@ -640,7 +655,8 @@ int32_t animateoffs(int16_t tilenum, int16_t fakevar);
 
 void setpolymost2dview(void);   // sets up GL for 2D drawing
 
-int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen, int32_t tilezoom);
+int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen, int32_t tilezoom,
+                                int32_t usehitile, uint8_t *loadedhitile);
 void polymost_glreset(void);
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 
