@@ -2721,8 +2721,10 @@ CHECKINV1:
 
         aGameVars[g_iReturnVarID].val.lValue = j;
 
-        switch (j)
+        switch ((int32_t)j)
         {
+        case -1:
+            break;
         default:
             VM_OnEvent(EVENT_WEAPKEY1+j,p->i,snum, -1);
             break;
