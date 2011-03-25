@@ -9957,6 +9957,7 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
             clipsectorlist[clipsectnum++] = j;
     }
 
+    // add outer sector if not inside inner ones
     if (clipsectnum==0)
         clipsectorlist[clipsectnum++] = sectq[k-1];
 
@@ -10762,6 +10763,7 @@ int32_t krand(void)
 //
 // getzrange
 //
+
 void getzrange(const vec3_t *vect, int16_t sectnum,
                int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit,
                int32_t walldist, uint32_t cliptype)
@@ -10776,6 +10778,10 @@ void getzrange(const vec3_t *vect, int16_t sectnum,
     int16_t cstat;
 
     char clipyou;
+#ifdef YAX_ENABLE
+    // YAX round, -1:center, 0:ceiling, 1:floor
+    int32_t mcf=-1;
+#endif
 
     spritetype *curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
     int32_t curidx=-1, clipspritecnt;
@@ -10810,11 +10816,14 @@ beginagain:
         clipsectcnt = clipsectnum;  // should be a nop, "safety"...
     }
 
+#ifdef YAX_ENABLE
+restart_grand:
+#endif
     do  //Collect sectors inside your square first
     {
         if (clipsectcnt>=clipsectnum)
         {
-            // one bunch of sectors completed, prepare the next
+            // one set of clip-sprite sectors completed, prepare the next
 
             curspr = &sprite[clipspritelist[clipspritecnt]];
 
@@ -10828,6 +10837,7 @@ beginagain:
 
             if (curidx < 0)
             {
+                // didn't find matching clipping sectors for sprite
                 clipspritecnt++;
                 continue;
             }
@@ -10836,7 +10846,7 @@ beginagain:
 
             for (i=0; i<clipsectnum; i++)
             {
-                int32_t fz,cz;
+                int32_t fz,cz, hitwhat;
                 k = clipsectorlist[i];
 
                 if (k==sectq[clipinfo[curidx].qend])
@@ -10844,16 +10854,17 @@ beginagain:
 
                 getzsofslope((int16_t)k,vect->x,vect->y,&daz,&daz2);
                 getzsofslope(sectq[clipinfo[curidx].qend],vect->x,vect->y,&cz,&fz);
+                hitwhat = (curspr-sprite)+49152;
 
                 if ((sector[k].ceilingstat&1)==0)
                 {
-                    if (vect->z < cz && cz < *florz) { *florz = cz; *florhit = (curspr-sprite)+49152; }
-                    if (vect->z > daz && daz > *ceilz) { *ceilz = daz; *ceilhit = (curspr-sprite)+49152; }
+                    if (vect->z < cz && cz < *florz) { *florz = cz; *florhit = hitwhat; }
+                    if (vect->z > daz && daz > *ceilz) { *ceilz = daz; *ceilhit = hitwhat; }
                 }
                 if ((sector[k].floorstat&1)==0)
                 {
-                    if (vect->z < daz2 && daz2 < *florz) { *florz = daz2; *florhit = (curspr-sprite)+49152; }
-                    if (vect->z > fz && fz > *ceilz) { *ceilz = fz; *ceilhit = (curspr-sprite)+49152; }
+                    if (vect->z < daz2 && daz2 < *florz) { *florz = daz2; *florhit = hitwhat; }
+                    if (vect->z > fz && fz > *ceilz) { *ceilz = fz; *ceilhit = hitwhat; }
                 }
             }
         }
@@ -10895,7 +10906,8 @@ beginagain:
                     if (((sec->floorstat&1) == 0) && (vect->z >= sec->floorz-(3<<8))) continue;
                 }
 
-                for (i=clipsectnum-1; i>=0; i--) if (clipsectorlist[i] == k) break;
+                for (i=clipsectnum-1; i>=0; i--)
+                    if (clipsectorlist[i] == k) break;
                 if (i < 0) clipsectorlist[clipsectnum++] = k;
 
                 if ((x1 < xmin+MAXCLIPDIST) && (x2 < xmin+MAXCLIPDIST)) continue;
@@ -10907,27 +10919,40 @@ beginagain:
                 if (dax >= day) continue;
 
                 //It actually got here, through all the continue's!!!
-                getzsofslope((int16_t)k,vect->x,vect->y,&daz,&daz2);
+                getzsofslope(k, vect->x,vect->y, &daz,&daz2);
                 if (curspr)
                 {
-                    int32_t fz,cz;
+                    int32_t fz,cz, hitwhat=(curspr-sprite)+49152;
                     getzsofslope(sectq[clipinfo[curidx].qend],vect->x,vect->y,&cz,&fz);
 
                     if ((sec->ceilingstat&1)==0)
                     {
-                        if (vect->z < cz && cz < *florz) { *florz = cz; *florhit = (curspr-sprite)+49152; }
-                        if (vect->z > daz && daz > *ceilz) { *ceilz = daz; *ceilhit = (curspr-sprite)+49152; }
+                        if (vect->z < cz && cz < *florz) { *florz = cz; *florhit = hitwhat; }
+                        if (vect->z > daz && daz > *ceilz) { *ceilz = daz; *ceilhit = hitwhat; }
                     }
                     if ((sec->floorstat&1)==0)
                     {
-                        if (vect->z < daz2 && daz2 < *florz) { *florz = daz2; *florhit = (curspr-sprite)+49152; }
-                        if (vect->z > fz && fz > *ceilz) { *ceilz = fz; *ceilhit = (curspr-sprite)+49152; }
+                        if (vect->z < daz2 && daz2 < *florz) { *florz = daz2; *florhit = hitwhat; }
+                        if (vect->z > fz && fz > *ceilz) { *ceilz = fz; *ceilhit = hitwhat; }
                     }
                 }
                 else
                 {
-                    if (daz > *ceilz) { *ceilz = daz; *ceilhit = k+16384; }
-                    if (daz2 < *florz) { *florz = daz2; *florhit = k+16384; }
+#ifdef YAX_ENABLE
+                    int16_t cb, fb;
+                    yax_getbunches(k, &cb, &fb);
+#endif
+                    if (daz > *ceilz)
+#ifdef YAX_ENABLE
+                        if (mcf!=YAX_FLOOR && cb < 0)
+#endif
+                        *ceilz = daz, *ceilhit = k+16384; 
+
+                    if (daz2 < *florz)
+#ifdef YAX_ENABLE
+                        if (mcf!=YAX_CEILING && fb < 0)
+#endif
+                        *florz = daz2, *florhit = k+16384; 
                 }
             }
         }
@@ -10938,7 +10963,7 @@ beginagain:
     if (curspr)
     {
         mapinfo_set(NULL, &origmapinfo);  // restore original map
-        return;
+        clipsectnum = clipspritenum = 0;  // skip the next for loop and check afterwards
     }
 
     for (i=0; i<clipsectnum; i++)
@@ -10964,7 +10989,8 @@ beginagain:
                         daz = spr->z;
                         k = ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
                         if (cstat&128) daz += k;
-                        if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                        if (picanm[spr->picnum]&0x00ff0000)
+                            daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
                         daz2 = daz - (k<<1);
                         clipyou = 1;
                     }
@@ -10982,7 +11008,8 @@ beginagain:
                     {
                         daz = spr->z; k = ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
                         if (cstat&128) daz += k;
-                        if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                        if (picanm[spr->picnum]&0x00ff0000)
+                            daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
                         daz2 = daz-(k<<1);
                         clipyou = 1;
                     }
@@ -11053,6 +11080,65 @@ beginagain:
 
     if (clipspritenum>0)
         goto beginagain;
+
+#ifdef YAX_ENABLE
+    if (numyaxbunches > 0)
+    {
+        int16_t cb, fb, didchange;
+        yax_getbunches(sectnum, &cb, &fb);
+
+        if (mcf==-1)
+        {
+            Bmemcpy(origclipsectorlist, clipsectorlist, clipsectnum*sizeof(clipsectorlist[0]));
+            origclipsectnum = clipsectnum;
+        }
+
+        mcf++;
+        clipsectcnt = 0; clipsectnum = 0;
+        clipspritecnt = 0; clipspritenum = 0;
+        didchange = 0;
+
+        if (cb>=0 && mcf==0 && *ceilhit==sectnum+16384)
+        {
+            for (i=0; i<origclipsectnum; i++)
+            {
+                cb = yax_getbunch(origclipsectorlist[i], YAX_CEILING);
+                for (j=headsectbunch[YAX_FLOOR][cb]; j!=-1; j=nextsectbunch[YAX_FLOOR][j])
+                    if (inside(vect->x,vect->y, j)==1)
+                    {
+                        clipsectorlist[clipsectnum++] = j;
+                        daz = getceilzofslope(j, vect->x,vect->y);
+                        if (!didchange || daz > *ceilz)
+                            didchange=1, *ceilhit = j+16384, *ceilz = daz;
+                    }
+            }
+
+            if (clipsectnum==0)
+                mcf++;
+        }
+        else mcf++;
+
+        if (fb>=0 && mcf==1 && *florhit==sectnum+16384)
+        {
+            // (almost) same as above, but with floors...
+            for (i=0; i<origclipsectnum; i++)
+            {
+                fb = yax_getbunch(origclipsectorlist[i], YAX_FLOOR);
+                for (j=headsectbunch[YAX_CEILING][fb]; j!=-1; j=nextsectbunch[YAX_CEILING][j])
+                    if (inside(vect->x,vect->y, j)==1)
+                    {
+                        clipsectorlist[clipsectnum++] = j;
+                        daz = getflorzofslope(j, vect->x,vect->y);
+                        if (!didchange || daz < *florz)
+                            didchange=1, *florhit = j+16384, *florz = daz;
+                    }
+            }            
+        }
+
+        if (clipsectnum > 0)
+            goto restart_grand;
+    }
+#endif
 }
 
 void setaspect_new()

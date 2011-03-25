@@ -36,6 +36,7 @@ endif
 #  KRANDDEBUG - 1 = include logging of krand() calls for debugging the demo system
 #  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
 #  OPTLEVEL	- 0..3 = GCC optimization strategy
+#  LTO - 1 = enable link-time optimization, for GCC 4.5 and up
 #
 RELEASE?=1
 DEBUGANYWAY?=0
@@ -44,6 +45,7 @@ EFENCE?=0
 OPTLEVEL?=2
 PROFILER?=0
 MUDFLAP?=0
+LTO?=0
 
 ifneq (0,$(KRANDDEBUG))
     RELEASE=0
@@ -71,6 +73,10 @@ endif
 ifneq (0,$(RELEASE))
     # Debugging disabled
     debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL)
+    ifneq (0,$(LTO))
+        LIBS+= -flto
+        debug+= -flto
+    endif
 else
     # Debugging enabled
     debug=-ggdb -O0 -DDEBUGGINGAIDS

@@ -630,9 +630,9 @@ static const char *Help3d[]=
 {
     "Mapster32 3D mode help",
     " ",
-    " F1 = TOGGLE THIS HELP DISPLAY",
     " F2 = TOGGLE CLIPBOARD",
-    " F3 = MOUSELOOK",
+    " F3 = TOGGLE MOUSELOOK",
+    " F4 = TOGGLE AMBIENT SOUNDS",
     " F6 = AUTOMATIC SECTOREFFECTOR HELP",
     " F7 = AUTOMATIC SECTOR TAG HELP",
     "",
@@ -641,7 +641,7 @@ static const char *Help3d[]=
     " ' R = TOGGLE FRAMERATE DISPLAY",
     " ' W = TOGGLE SPRITE DISPLAY",
     " ' X = MAP SHADE PREVIEW",
-    " ' Y = TOGGLE PURPLE BACKGROUND",
+    " ' I = TOGGLE INVISIBLE SPRITES",
     "",
     " ' T = CHANGE LOTAG",
     " ' H = CHANGE HITAG",
@@ -5425,7 +5425,7 @@ static void Keys3d(void)
         {
             static const char *cfs[2] = { "ceiling", "floor" };
 #ifdef YAX_ENABLE
-            int16_t bunchnum, maxbunchnum=-1, cb, fb;
+            int16_t bunchnum=-1, maxbunchnum=-1, cb, fb;
             Bmemset(havebunch, 0, sizeof(havebunch));
 #endif
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
@@ -5663,7 +5663,7 @@ static void Keys3d(void)
                 Bsprintf(tempbuf,"%d",shadepreview);
                 break;
             case 13:
-                Bsprintf(tempbuf,"%d",purpleon);
+                Bsprintf(tempbuf,"%d",showinvisibility);
                 break;
             default :
                 Bsprintf(tempbuf," ");

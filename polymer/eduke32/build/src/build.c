@@ -363,7 +363,7 @@ static void yax_resetbunchnums(void)
 
     for (i=0; i<MAXSECTORS; i++)
         yax_setbunches(i, -1, -1);
-    numyaxbunches = 0;
+    yax_update(1);
 }
 
 static void setslope(int32_t sectnum, int32_t cf, int16_t slope)
@@ -380,8 +380,10 @@ static void setslope(int32_t sectnum, int32_t cf, int16_t slope)
     }
 }
 
-// whether a wall is unconstrained by sector extensions
-static int32_t yax_isinnerwall(int16_t sec, int16_t line)
+// Whether a wall is constrained by sector extensions.
+// If false, it's a wall that you can freely move around,
+// attach points to, etc...
+static int32_t yax_islockedwall(int16_t sec, int16_t line)
 {
     int16_t cb,fb, cbn,fbn;
     int16_t ns = wall[line].nextsector;
@@ -389,12 +391,34 @@ static int32_t yax_isinnerwall(int16_t sec, int16_t line)
     yax_getbunches(sec, &cb, &fb);
 
     if (ns < 0)
-        return (cb==-1 && fb==-1);
+        return (cb>=0 || fb>=0);
 
     yax_getbunches(ns, &cbn, &fbn);
 
-    return (cb==cbn && fb==fbn);
+    return (cb!=cbn || fb!=fbn);
 }
+
+#if 0
+static int32_t yax_nextwall(int16_t sec, int16_t line, int32_t downp)
+{
+    int16_t bunchnum = yax_getbunch(sec, downp);
+    int32_t i, j;
+
+    if (bunchnum==-1)
+        return -1;
+
+    for (i=headsectbunch[!downp][bunchnum]; i!=-1; i=nextsectbunch[!downp][i])
+    {
+        for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+            if (*(int64_t *)&wall[j] == *(int64_t *)&wall[line])
+                if (*(int64_t *)&POINT2(j) == *(int64_t *)&POINT2(line))
+                    return j;
+    }
+
+    return -1;
+}
+#endif
+
 # define DEFAULT_YAX_HEIGHT 32768
 #endif
 
@@ -4108,7 +4132,7 @@ end_join_sectors:
                 if (linehighlight >= 0)
                 {
 #ifdef YAX_ENABLE
-                    if (!yax_isinnerwall(sectorofwall(linehighlight), linehighlight))
+                    if (yax_islockedwall(sectorofwall(linehighlight), linehighlight))
                         printmessage16("Can't make circle in wall constrained by sector extension.");
                     else
 #endif
@@ -4948,8 +4972,11 @@ end_space_handling:
                     else
                     {
 #ifdef YAX_ENABLE
-                        if (!yax_isinnerwall(sectorofwall(linehighlight), linehighlight))
+                        int32_t sec = sectorofwall(linehighlight);
+                        if (yax_islockedwall(sec, linehighlight))
+                        {
                             printmessage16("Inserting point in constrained wall: not implemented!");
+                        }
                         else
 #endif
                         {
