@@ -133,13 +133,7 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
     if ((osdflags & OSD_INITIALIZED) == 0)
         OSD_Init();
 
-    if (!cvar->name || !cvar->name[0])
-    {
-        OSD_Printf("OSD_RegisterCvar(): can't register cvar with null name\n");
-        return -1;
-    }
-
-    if (!cvar->var)
+    if (!cvar->name || !cvar->name[0] || !cvar->var)
     {
         OSD_Printf("OSD_RegisterCvar(): can't register null cvar\n");
         return -1;
@@ -511,6 +505,7 @@ static int32_t _internal_osdfunc_alias(const osdfuncparm_t *parm)
                 else OSD_Printf("%s is a function, not an alias\n",i->name);
                 return OSDCMD_OK;
             }
+
             if (i->func != OSD_ALIAS && i->func != OSD_UNALIASED)
             {
                 OSD_Printf("Cannot override function \"%s\" with alias\n",i->name);
@@ -570,7 +565,9 @@ static int32_t _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
         OSD_Printf(OSDTEXT_RED "Symbol listing:\n");
         for (i=symbols; i!=NULL; i=i->next)
         {
-            if (i->func != OSD_UNALIASED)
+            if (i->func == OSD_UNALIASED)
+                continue;
+
             {
                 int32_t j = hash_find(&h_cvars, i->name);
 
@@ -584,6 +581,7 @@ static int32_t _internal_osdfunc_listsymbols(const osdfuncparm_t *parm)
                 x += maxwidth;
                 count++;
             }
+
             if (x > osdcols - maxwidth)
             {
                 x = 0;
@@ -745,7 +743,7 @@ void OSD_Init(void)
         if (OSD_RegisterCvar(&cvars_osd[i]))
             continue;
 
-        OSD_RegisterFunction(cvars_osd[i].name, cvars_osd[i].helpstr,
+        OSD_RegisterFunction(cvars_osd[i].name, cvars_osd[i].desc,
                              cvars_osd[i].type & CVAR_FUNCPTR ? osdcmd_cvar_set_osd : osdcmd_cvar_set);
     }
 
@@ -1991,10 +1989,10 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
 
     if (i > -1)
     {
-        if ((cvars[i].type & CVAR_NOMULTI) && numplayers > 1)
+        if (cvars[i].type & CVAR_LOCKED)
         {
             // sound the alarm
-            OSD_Printf("Cvar \"%s\" locked in multiplayer.\n",cvars[i].name);
+            OSD_Printf("Cvar \"%s\" is read only.\n",cvars[i].name);
             return OSDCMD_OK;
         }
 
@@ -2005,7 +2003,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             float val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(float *)cvars[i].var,(char *)cvars[i].helpstr);
+                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(float *)cvars[i].var,(char *)cvars[i].desc);
                 return OSDCMD_OK;
             }
 
@@ -2026,7 +2024,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             double val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(double *)cvars[i].var,(char *)cvars[i].helpstr);
+                OSD_Printf("\"%s\" is \"%f\"\n%s\n",cvars[i].name,*(double *)cvars[i].var,(char *)cvars[i].desc);
                 return OSDCMD_OK;
             }
 
@@ -2049,7 +2047,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             int32_t val;
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].name,*(int32_t *)cvars[i].var,(char *)cvars[i].helpstr);
+                OSD_Printf("\"%s\" is \"%d\"\n%s\n",cvars[i].name,*(int32_t *)cvars[i].var,(char *)cvars[i].desc);
                 return OSDCMD_OK;
             }
 
@@ -2070,7 +2068,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         {
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].name,(char *)cvars[i].var,(char *)cvars[i].helpstr);
+                OSD_Printf("\"%s\" is \"%s\"\n%s\n",cvars[i].name,(char *)cvars[i].var,(char *)cvars[i].desc);
                 return OSDCMD_OK;
             }
 

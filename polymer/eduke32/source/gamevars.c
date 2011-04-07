@@ -361,7 +361,7 @@ void Gv_DumpValues(void)
         OSD_Printf(" // ");
         if (aGameVars[i].dwFlags & (GAMEVAR_SYSTEM))
             OSD_Printf(" (system)");
-        if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+        if (aGameVars[i].dwFlags & (GAMEVAR_PTR_MASK))
             OSD_Printf(" (pointer)");
         if (aGameVars[i].dwFlags & (GAMEVAR_READONLY))
             OSD_Printf(" (read only)");
@@ -464,7 +464,7 @@ int32_t Gv_NewVar(const char *pszLabel, int32_t lValue, uint32_t dwFlags)
     if (i >= 0 && !(aGameVars[i].dwFlags & GAMEVAR_RESET))
     {
         // found it...
-        if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+        if (aGameVars[i].dwFlags & (GAMEVAR_PTR_MASK))
         {
             //  			   warning++;
             //  			   initprintf("%s:%d: warning: Internal gamevar '%s' cannot be redefined.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
@@ -572,10 +572,10 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
 
                 id &= (MAXGAMEVARS-1);// ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
 
-                if (index >= aGameArrays[id].size || index < 0)
+                if ((unsigned)index >= (unsigned)aGameArrays[id].size)
                 {
-                    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,index);
-                    return -1;
+                    iActor = index;
+                    goto badindex;
                 }
 
                 return ((aGameArrays[id].plValues[index] ^ -negateResult) + negateResult);
@@ -615,22 +615,18 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
                 case 2: //else if (id == g_iWallVarID)
                     return ((VM_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
                 default:
-                    OSD_Printf(CON_ERROR "Gv_GetVar(): WTF?\n",g_errorLineNum,keyw[g_tw]);
-                    return -1;
+                    goto wtf;
                 }
             }
 
             id &= (MAXGAMEVARS-1);
 
             if (!negateResult)
-            {
-                OSD_Printf(CON_ERROR "Gv_GetVar(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
-                return -1;
-            }
+                goto badvarid;
         }
 
         switch (aGameVars[id].dwFlags &
-                (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+                (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
         {
         default:
             return ((aGameVars[id].val.lValue ^ -negateResult) + negateResult);
@@ -648,20 +644,33 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
             return (((*((char *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
         }
     }
+
 bad_id:
     OSD_Printf(CON_ERROR "Gv_GetVar(): invalid sprite/player ID %d/%d\n",g_errorLineNum,keyw[g_tw],iActor,iPlayer);
+    return -1;
+
+badvarid:
+    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
+    return -1;
+
+badindex:
+    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,iActor);
+    return -1;
+
+wtf:
+    OSD_Printf(CON_ERROR "Gv_GetVar(): WTF?\n",g_errorLineNum,keyw[g_tw]);
     return -1;
 }
 
 void __fastcall Gv_SetVar(register int32_t id, register int32_t lValue, register int32_t iActor, register int32_t iPlayer)
 {
-    if (id<0 || id >= g_gameVarCount) goto badvarid;
+    if ((unsigned)id >= (unsigned)g_gameVarCount) goto badvarid;
 
     //Bsprintf(g_szBuf,"SGVI: %d ('%s') to %d for %d %d",id,aGameVars[id].szLabel,lValue,iActor,iPlayer);
     //AddLog(g_szBuf);
 
     switch (aGameVars[id].dwFlags &
-            (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+            (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
     {
     default:
         aGameVars[id].val.lValue=lValue;
@@ -718,11 +727,12 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
 
                 id &= (MAXGAMEVARS-1);// ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
 
-                if (index >= aGameArrays[id].size || index < 0)
+                if ((unsigned)index >= (unsigned)aGameArrays[id].size)
                 {
-                    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,index);
-                    return -1;
+                    negateResult = index;
+                    goto badindex;
                 }
+
                 return ((aGameArrays[id].plValues[index] ^ -negateResult) + negateResult);
             }
 
@@ -760,22 +770,18 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                 case 2: //else if (id == g_iWallVarID)
                     return ((VM_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
                 default:
-                    OSD_Printf(CON_ERROR "Gv_GetVar(): WTF?\n",g_errorLineNum,keyw[g_tw]);
-                    return -1;
+                    goto wtf;
                 }
             }
 
             id &= (MAXGAMEVARS-1);
 
             if (!negateResult)
-            {
-                OSD_Printf(CON_ERROR "Gv_GetVar(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
-                return -1;
-            }
+                goto badvarid;
         }
 
         switch (aGameVars[id].dwFlags &
-                (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+                (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
         {
         default:
             return ((aGameVars[id].val.lValue ^ -negateResult) + negateResult);
@@ -790,13 +796,25 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
         case GAMEVAR_CHARPTR:
             return (((*((uint8_t *)aGameVars[id].val.lValue)) ^ -negateResult) + negateResult);
         }
+
+badindex:
+        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,negateResult);
+        return -1;
+
+badvarid:
+        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
+        return -1;
+
+wtf:
+        OSD_Printf(CON_ERROR "Gv_GetVar(): WTF?\n",g_errorLineNum,keyw[g_tw]);
+        return -1;
     }
 }
 
 void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
 {
     switch (aGameVars[id].dwFlags &
-            (GAMEVAR_USER_MASK|GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR))
+            (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
     {
     default:
         aGameVars[id].val.lValue=lValue;
@@ -1457,79 +1475,79 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("player", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
     Gv_NewVar("actorvar", -1, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SPECIAL);
 
-    Gv_NewVar("myconnectindex", (intptr_t)&myconnectindex, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("screenpeek", (intptr_t)&screenpeek, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("currentweapon",(intptr_t)&g_currentweapon, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("gs",(intptr_t)&g_gs, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("looking_arc",(intptr_t)&g_looking_arc, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("gun_pos",(intptr_t)&g_gun_pos, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("weapon_xoffset",(intptr_t)&g_weapon_xoffset, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("weaponcount",(intptr_t)&g_kb, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("looking_angSR1",(intptr_t)&g_looking_angSR1, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("xdim",(intptr_t)&xdim, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("ydim",(intptr_t)&ydim, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("windowx1",(intptr_t)&windowx1, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("windowx2",(intptr_t)&windowx2, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("windowy1",(intptr_t)&windowy1, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("windowy2",(intptr_t)&windowy2, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("totalclock",(intptr_t)&totalclock, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("lastvisinc",(intptr_t)&lastvisinc, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("myconnectindex", (intptr_t)&myconnectindex, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("screenpeek", (intptr_t)&screenpeek, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("currentweapon",(intptr_t)&g_currentweapon, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("gs",(intptr_t)&g_gs, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("looking_arc",(intptr_t)&g_looking_arc, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("gun_pos",(intptr_t)&g_gun_pos, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("weapon_xoffset",(intptr_t)&g_weapon_xoffset, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("weaponcount",(intptr_t)&g_kb, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("looking_angSR1",(intptr_t)&g_looking_angSR1, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("xdim",(intptr_t)&xdim, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("ydim",(intptr_t)&ydim, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("windowx1",(intptr_t)&windowx1, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("windowx2",(intptr_t)&windowx2, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("windowy1",(intptr_t)&windowy1, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("windowy2",(intptr_t)&windowy2, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("totalclock",(intptr_t)&totalclock, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
+    Gv_NewVar("lastvisinc",(intptr_t)&lastvisinc, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
     Gv_NewVar("numsectors",(intptr_t)&numsectors, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_READONLY);
 
     Gv_NewVar("current_menu",(intptr_t)&g_currentMenu, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
     Gv_NewVar("numplayers",(intptr_t)&numplayers, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
-    Gv_NewVar("viewingrange",(intptr_t)&viewingrange, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("yxaspect",(intptr_t)&yxaspect, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("viewingrange",(intptr_t)&viewingrange, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
+    Gv_NewVar("yxaspect",(intptr_t)&yxaspect, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
     Gv_NewVar("gravitationalconstant",(intptr_t)&g_spriteGravity, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
     Gv_NewVar("gametype_flags",(intptr_t)&GametypeFlags[ud.coop], GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("framerate",(intptr_t)&g_currentFrameRate, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("framerate",(intptr_t)&g_currentFrameRate, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_READONLY);
     Gv_NewVar("CLIPMASK0", CLIPMASK0, GAMEVAR_SYSTEM|GAMEVAR_READONLY);
     Gv_NewVar("CLIPMASK1", CLIPMASK1, GAMEVAR_SYSTEM|GAMEVAR_READONLY);
 
-    Gv_NewVar("camerax",(intptr_t)&ud.camera.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("cameray",(intptr_t)&ud.camera.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("cameraz",(intptr_t)&ud.camera.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("cameraang",(intptr_t)&ud.cameraang, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("camerahoriz",(intptr_t)&ud.camerahoriz, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("camerasect",(intptr_t)&ud.camerasect, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("cameradist",(intptr_t)&g_cameraDistance, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("cameraclock",(intptr_t)&g_cameraClock, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("camerax",(intptr_t)&ud.camera.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("cameray",(intptr_t)&ud.camera.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("cameraz",(intptr_t)&ud.camera.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("cameraang",(intptr_t)&ud.cameraang, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
+    Gv_NewVar("camerahoriz",(intptr_t)&ud.camerahoriz, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
+    Gv_NewVar("camerasect",(intptr_t)&ud.camerasect, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
+    Gv_NewVar("cameradist",(intptr_t)&g_cameraDistance, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("cameraclock",(intptr_t)&g_cameraClock, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
 
-    Gv_NewVar("myx",(intptr_t)&my.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myy",(intptr_t)&my.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myz",(intptr_t)&my.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("omyx",(intptr_t)&omy.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("omyy",(intptr_t)&omy.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("omyz",(intptr_t)&omy.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myvelx",(intptr_t)&myvel.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myvely",(intptr_t)&myvel.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myvelz",(intptr_t)&myvel.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("myx",(intptr_t)&my.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("myy",(intptr_t)&my.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("myz",(intptr_t)&my.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("omyx",(intptr_t)&omy.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("omyy",(intptr_t)&omy.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("omyz",(intptr_t)&omy.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("myvelx",(intptr_t)&myvel.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("myvely",(intptr_t)&myvel.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
+    Gv_NewVar("myvelz",(intptr_t)&myvel.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
 
-    Gv_NewVar("myhoriz",(intptr_t)&myhoriz, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myhorizoff",(intptr_t)&myhorizoff, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("omyhoriz",(intptr_t)&omyhoriz, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("omyhorizoff",(intptr_t)&omyhorizoff, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myang",(intptr_t)&myang, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("omyang",(intptr_t)&omyang, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("mycursectnum",(intptr_t)&mycursectnum, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myjumpingcounter",(intptr_t)&myjumpingcounter, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("myhoriz",(intptr_t)&myhoriz, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
+    Gv_NewVar("myhorizoff",(intptr_t)&myhorizoff, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
+    Gv_NewVar("omyhoriz",(intptr_t)&omyhoriz, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
+    Gv_NewVar("omyhorizoff",(intptr_t)&omyhorizoff, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
+    Gv_NewVar("myang",(intptr_t)&myang, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
+    Gv_NewVar("omyang",(intptr_t)&omyang, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
+    Gv_NewVar("mycursectnum",(intptr_t)&mycursectnum, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
+    Gv_NewVar("myjumpingcounter",(intptr_t)&myjumpingcounter, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
 
-    Gv_NewVar("myjumpingtoggle",(intptr_t)&myjumpingtoggle, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myonground",(intptr_t)&myonground, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myhardlanding",(intptr_t)&myhardlanding, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR | GAMEVAR_SYNCCHECK);
-    Gv_NewVar("myreturntocenter",(intptr_t)&myreturntocenter, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("myjumpingtoggle",(intptr_t)&myjumpingtoggle, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR);
+    Gv_NewVar("myonground",(intptr_t)&myonground, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR);
+    Gv_NewVar("myhardlanding",(intptr_t)&myhardlanding, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR);
+    Gv_NewVar("myreturntocenter",(intptr_t)&myreturntocenter, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR);
 
-    Gv_NewVar("display_mirror",(intptr_t)&display_mirror, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("display_mirror",(intptr_t)&display_mirror, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR);
     Gv_NewVar("randomseed",(intptr_t)&randomseed, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
 
     Gv_NewVar("NUMWALLS",(intptr_t)&numwalls, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_READONLY);
     Gv_NewVar("NUMSECTORS",(intptr_t)&numsectors, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR | GAMEVAR_READONLY);
 
-    Gv_NewVar("lastsavepos",(intptr_t)&g_lastSaveSlot, GAMEVAR_SYSTEM | GAMEVAR_INTPTR | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("lastsavepos",(intptr_t)&g_lastSaveSlot, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
 #ifdef USE_OPENGL
-    Gv_NewVar("rendmode",(intptr_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("rendmode",(intptr_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
 #else
-    Gv_NewVar("rendmode", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM | GAMEVAR_SYNCCHECK);
+    Gv_NewVar("rendmode", 0, GAMEVAR_READONLY | GAMEVAR_SYSTEM);
 #endif
 }
 

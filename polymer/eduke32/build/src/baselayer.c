@@ -17,6 +17,7 @@ char remap[256];
 int32_t remapinit=0;
 char key_names[256][24];
 volatile int32_t mousex=0,mousey=0,mouseb=0;
+volatile uint8_t moustat = 0, mousegrab = 0;
 int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
 int32_t joyaxespresent=0;
@@ -91,6 +92,20 @@ void bflushchars(void)
 const char *getkeyname(int32_t num)
 {
     return ((unsigned)num >= 256) ? NULL : key_names[num];
+}
+
+void readmousexy(int32_t *x, int32_t *y)
+{
+    if (!moustat || !mousegrab || !appactive) { *x = *y = 0; return; }
+    *x = mousex;
+    *y = mousey;
+    mousex = mousey = 0;
+}
+
+void readmousebstatus(int32_t *b)
+{
+    if (!moustat || !mousegrab || !appactive) { *b = 0; return; }
+    *b = mouseb;
 }
 
 #ifdef USE_OPENGL
@@ -337,7 +352,7 @@ int32_t baselayer_init(void)
         if (OSD_RegisterCvar(&cvars_engine[i]))
             continue;
 
-        OSD_RegisterFunction(cvars_engine[i].name, cvars_engine[i].helpstr,
+        OSD_RegisterFunction(cvars_engine[i].name, cvars_engine[i].desc,
                              (cvars_engine[i].type & CVAR_FUNCPTR) ? osdcmd_cvar_set_baselayer : osdcmd_cvar_set);
     }
 

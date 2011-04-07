@@ -1337,7 +1337,7 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
         if (numplayers > 1)
             return r;
 
-        ud.m_player_skill = ud.player_skill;
+        ud.player_skill = ud.m_player_skill;
 
         return r;
     }
@@ -1448,7 +1448,7 @@ int32_t registerosdcommands(void)
 
         { "sensitivity","sensitivity <value>: changes the mouse sensitivity", (void *)&CONTROL_MouseSensitivity, CVAR_FLOAT|CVAR_FUNCPTR, 0, 25 },
 
-        { "skill","skill <value>: changes the game skill setting", (void *)&ud.player_skill, CVAR_INT|CVAR_FUNCPTR|CVAR_NOMULTI, 0, 5 },
+        { "skill","skill <value>: changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR/*|CVAR_NOMULTI*/, 0, 5 },
 
         { "snd_ambience", "snd_ambience: enables/disables ambient sounds", (void *)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 1 },
         { "snd_duketalk", "snd_duketalk: enables/disables Duke's speech", (void *)&ud.config.VoiceToggle, CVAR_INT, 0, 5 },
@@ -1477,14 +1477,14 @@ int32_t registerosdcommands(void)
         switch (cvars_game[i].type & (CVAR_FUNCPTR|CVAR_MULTI))
         {
         case CVAR_FUNCPTR:
-            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set_game);
+            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].desc, osdcmd_cvar_set_game);
             break;
         case CVAR_MULTI:
         case CVAR_FUNCPTR|CVAR_MULTI:
-            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set_multi);
+            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].desc, osdcmd_cvar_set_multi);
             break;
         default:
-            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].helpstr, osdcmd_cvar_set);
+            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].desc, osdcmd_cvar_set);
             break;
         }
     }

@@ -6261,7 +6261,7 @@ void polymost_initosdfuncs(void)
         if (OSD_RegisterCvar(&cvars_polymost[i]))
             continue;
 
-        OSD_RegisterFunction(cvars_polymost[i].name, cvars_polymost[i].helpstr,
+        OSD_RegisterFunction(cvars_polymost[i].name, cvars_polymost[i].desc,
                              cvars_polymost[i].type & CVAR_FUNCPTR ? osdcmd_cvar_set_polymost : osdcmd_cvar_set);
     }
 }

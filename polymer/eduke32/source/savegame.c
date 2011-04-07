@@ -372,7 +372,6 @@ int32_t G_LoadPlayer(int32_t spot)
     ud.m_ffire = ud.ffire;
 
     if (kdfread(&camsprite,sizeof(camsprite),1,fil) != 1) goto corrupt;
-    if (kdfread(&connecthead,sizeof(connecthead),1,fil) != 1) goto corrupt;
     if (kdfread(connectpoint2,sizeof(connectpoint2),1,fil) != 1) goto corrupt;
     if (kdfread(&g_numPlayerSprites,sizeof(g_numPlayerSprites),1,fil) != 1) goto corrupt;
     for (i=0; i<MAXPLAYERS; i++)
@@ -854,7 +853,6 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&ud.marker,sizeof(ud.marker),1,fil);
     dfwrite(&ud.ffire,sizeof(ud.ffire),1,fil);
     dfwrite(&camsprite,sizeof(camsprite),1,fil);
-    dfwrite(&connecthead,sizeof(connecthead),1,fil);
     dfwrite(connectpoint2,sizeof(connectpoint2),1,fil);
     dfwrite(&g_numPlayerSprites,sizeof(g_numPlayerSprites),1,fil);
     for (i=0; i<MAXPLAYERS; i++)
@@ -1408,7 +1406,6 @@ static const dataspec_t svgm_udnetw[] =
     { 0, &ud.pause_on, sizeof(ud.pause_on), 1 },
     { DS_NOCHK, &currentboardfilename[0], BMAX_PATH, 1 },
     { DS_LOADFN, (void *)&sv_postudload, 0, 1 },
-    { 0, &connecthead, sizeof(connecthead), 1 },
     { 0, connectpoint2, sizeof(connectpoint2), 1 },
     { 0, &randomseed, sizeof(randomseed), 1 },
     { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },

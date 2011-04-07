@@ -276,18 +276,3 @@ void grabmouse(char a)
     SetCursorPos(pos.x, pos.y);
 }
 
-void readmousexy(int32_t *x, int32_t *y)
-{
-    if (!moustat || !mousegrab) { *x = *y = 0; return; }
-    *x = mousex;
-    mousex = 0;
-    *y = mousey;
-    mousey = 0;
-}
-
-void readmousebstatus(int32_t *b)
-{
-    if (!moustat || !mousegrab) { *b = 0; return; }
-    *b = mouseb;
-}
-

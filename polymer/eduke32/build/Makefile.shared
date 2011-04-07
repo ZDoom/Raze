@@ -3,7 +3,7 @@
 ENGINELIB=libengine.a
 EDITORLIB=libbuild.a
 
-SDLCONFIG = /usr/local/bin/sdl-configinvalid
+SDLCONFIG = /usr/local/bin/sdl-config
 
 ifeq ($(wildcard $(SDLCONFIG)),$(SDLCONFIG))
     SDLROOT		= /usr/local

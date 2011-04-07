@@ -217,7 +217,6 @@ extern int32_t g_levelTextTime;
 extern int32_t g_noSetup;
 extern int32_t g_quitDeadline;
 extern int32_t g_restorePalette;
-extern int32_t g_scriptSanityChecks;
 extern int32_t hud_glowingquotes;
 extern int32_t hud_showmapname;
 extern int32_t lastvisinc;

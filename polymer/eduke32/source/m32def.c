@@ -1594,6 +1594,7 @@ static int32_t C_ParseCommand(void)
     {
     default:
     case -1:
+    case -2:
         return 0; //End
 
 // *** basic commands

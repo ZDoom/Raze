@@ -1911,7 +1911,6 @@ int32_t G_EnterLevel(int32_t g)
 
     g_restorePalette = 1;
 
-    Net_WaitForServer();
 //        mmulti_flushpackets();
 
     G_FadePalette(0,0,0,0);
@@ -1934,6 +1933,8 @@ int32_t G_EnterLevel(int32_t g)
     VM_OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
     OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,
                MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
+
+    Net_WaitForServer();
     return 0;
 }
 

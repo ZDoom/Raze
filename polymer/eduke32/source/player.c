@@ -3212,18 +3212,17 @@ void getinput(int32_t snum)
         CONTROL_ClearButton(gamefunc_Fire);
 
     loc.extbits = 0;
-//    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEFORWARD])
-    loc.extbits |= BUTTON(gamefunc_Move_Forward) || (vel > 0);
-//    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_MOVEBACKWARD])
+    loc.extbits |= (BUTTON(gamefunc_Move_Forward) || (vel > 0));
     loc.extbits |= (BUTTON(gamefunc_Move_Backward) || (vel < 0))<<1;
-//    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_STRAFELEFT])
     loc.extbits |= (BUTTON(gamefunc_Strafe_Left) || (svel > 0))<<2;
-//    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_STRAFERIGHT])
     loc.extbits |= (BUTTON(gamefunc_Strafe_Right) || (svel < 0))<<3;
+
     if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNLEFT])
         loc.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
+
     if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNRIGHT])
         loc.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
+
     // used for changing team
     loc.extbits |= (g_player[snum].pteam != g_player[snum].ps->team)<<6;
 
@@ -4490,7 +4489,7 @@ void P_ProcessInput(int32_t snum)
 
     p->player_par++;
 
-    VM_OnEvent(EVENT_PROCESSINPUT, p->i, snum, -1);
+//    VM_OnEvent(EVENT_PROCESSINPUT, p->i, snum, -1);
 
     if (p->cheat_phase > 0) sb_snum = 0;
 

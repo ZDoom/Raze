@@ -157,7 +157,6 @@ char di_disabled = 0;
 static char di_devacquired;
 static HANDLE di_inputevt = 0;
 static int32_t joyblast=0;
-volatile uint8_t moustat = 0, mousegrab = 0;
 
 static struct
 {
@@ -3579,7 +3578,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
     case WM_ACTIVATEAPP:
     {
-        appactive = wParam;
+        appactive = (wParam != 0);
 #ifdef USE_OPENGL
         if (hGLWindow)
         {
@@ -3628,6 +3627,8 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
     }
 
     case WM_ACTIVATE:
+        appactive = (wParam != WA_INACTIVE);
+
         if (appactive)
         {
             SetForegroundWindow(hWindow);

@@ -1415,15 +1415,15 @@ skip_check:
                 switch (tw)
                 {
                 case CON_ACTIVATEBYSECTOR:
-                    if ((var1<0 || var1>=numsectors)) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
+                    if ((unsigned)var1 >= (unsigned)numsectors) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
                     G_ActivateBySector(var1, var2);
                     break;
                 case CON_OPERATESECTORS:
-                    if ((var1<0 || var1>=numsectors)) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
+                    if ((unsigned)var1 >= (unsigned)numsectors) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
                     G_OperateSectors(var1, var2);
                     break;
                 case CON_OPERATEACTIVATORS:
-                    if ((var2<0 || var2>=playerswhenstarted)) {OSD_Printf(CON_ERROR "Invalid player %d\n",g_errorLineNum,keyw[g_tw],var2); break;}
+                    if ((unsigned)var2>=(unsigned)playerswhenstarted) {OSD_Printf(CON_ERROR "Invalid player %d\n",g_errorLineNum,keyw[g_tw],var2); break;}
                     G_OperateActivators(var1, var2);
                     break;
                 case CON_SETASPECT:
@@ -1616,7 +1616,7 @@ skip_check:
                 int32_t st = Gv_GetVarX(*insptr++);
                 int32_t ln = Gv_GetVarX(*insptr++);
 
-                if ((q1<0 || q1>=MAXQUOTES))
+                if ((unsigned)q1>=MAXQUOTES)
                 {
                     OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],q1);
                     continue;
@@ -1626,7 +1626,7 @@ skip_check:
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q1);
                     continue;
                 }
-                if ((q2<0 || q2>=MAXQUOTES))
+                if ((unsigned)q2>=MAXQUOTES)
                 {
                     OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],q2);
                     continue;
@@ -2269,7 +2269,7 @@ nullquote:
                     OSD_Printf(CON_ERROR "incorrect coordinates\n",g_errorLineNum,keyw[g_tw]);
                     continue;
                 }
-                if ((sect<0 || sect>=numsectors))
+                if ((unsigned)sect >= (unsigned)numsectors)
                 {
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sect);
                     continue;
@@ -2445,7 +2445,7 @@ nullquote:
                     int32_t ceilz, ceilhit, florz, florhit;
 
 
-                    if ((sectnum<0 || sectnum>=numsectors))
+                    if ((unsigned)sectnum >= (unsigned)numsectors)
                     {
                         OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
                         continue;
@@ -2465,7 +2465,7 @@ nullquote:
             {
                 int32_t sectnum = Gv_GetVarX(*insptr++), osectnum;
 
-                if ((sectnum<0 || sectnum>=numsectors))
+                if ((unsigned)sectnum >= (unsigned)numsectors)
                 {
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
                     continue;
@@ -2539,7 +2539,7 @@ nullquote:
                 vect.z = z;
                 sectnum = Gv_GetVarX(sectnumvar);
 
-                if ((sectnum<0 || sectnum>=numsectors))
+                if ((unsigned)sectnum >= (unsigned)numsectors)
                 {
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
                     Gv_SetVarX(retvar, 0);
@@ -2574,7 +2574,7 @@ nullquote:
                     int32_t hitsectvar=*insptr++, hitwallvar=*insptr++, hitspritevar=*insptr++;
                     int32_t hitxvar=*insptr++, hityvar=*insptr++, hitzvar=*insptr++, cliptype=Gv_GetVarX(*insptr++);
 
-                    if ((sectnum<0 || sectnum>=numsectors))
+                    if ((unsigned)sectnum >= (unsigned)numsectors)
                     {
                         OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
                         continue;
@@ -2598,7 +2598,7 @@ nullquote:
                 int32_t x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++), z2=Gv_GetVarX(*insptr++);
                 int32_t sect2=Gv_GetVarX(*insptr++), rvar=*insptr++;
 
-                if ((sect1<0 || sect1>=numsectors || sect2<0 || sect2>=numsectors))
+                if ((unsigned)sect1 >= (unsigned)numsectors || (unsigned)sect2 >= (unsigned)numsectors)
                 {
                     OSD_Printf(CON_ERROR "Invalid sector\n",g_errorLineNum,keyw[g_tw]);
                     Gv_SetVarX(rvar, 0);
@@ -2638,7 +2638,7 @@ nullquote:
                 int32_t neartagsectorvar=*insptr++, neartagwallvar=*insptr++, neartagspritevar=*insptr++, neartaghitdistvar=*insptr++;
                 int32_t neartagrange=Gv_GetVarX(*insptr++), tagsearch=Gv_GetVarX(*insptr++);
 
-                if ((sectnum<0 || sectnum>=numsectors))
+                if ((unsigned)sectnum >= (unsigned)numsectors)
                 {
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
                     continue;
@@ -2715,7 +2715,7 @@ nullquote:
             insptr++;
             {
                 int32_t sectnum = Gv_GetVarX(*insptr++), x = Gv_GetVarX(*insptr++), y = Gv_GetVarX(*insptr++);
-                if ((sectnum<0 || sectnum>=numsectors))
+                if ((unsigned)sectnum >= (unsigned)numsectors)
                 {
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
                     insptr++;

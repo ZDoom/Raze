@@ -1973,6 +1973,7 @@ void Net_ParseServerPacket(ENetEvent *event)
 
             if (g_netClientPeer)
                 enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
+
             g_netSync = 0;
         }
 
@@ -2237,6 +2238,28 @@ void Net_ParseClientPacket(ENetEvent *event)
 
         enet_host_broadcast(g_netServer, CHAN_GAMESTATE , enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
 
+        // a player connecting is a good time to mark things as needing to be updated
+        // we invalidate everything that has changed since we started sending the snapshot of the map to the new player
+
+        {
+            int32_t zz, i, nexti;
+
+            for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])); zz++)
+                TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti)
+            {
+                if (lastupdate[i] >= g_player[other].netsynctime)
+                    lastupdate[i] = 0;
+            }
+        }
+
+        for (i=numwalls-1; i>=0; i--)
+            if (lastwallupdate[i] >= g_player[other].netsynctime)
+                lastwallupdate[i] = 0;
+
+        for (i=numsectors-1; i>=0; i--)
+            if (lastsectupdate[i] >= g_player[other].netsynctime)
+                lastsectupdate[i] = 0;
+
         break;
 
 
@@ -2416,35 +2439,7 @@ void Net_ParseClientPacket(ENetEvent *event)
 
             enet_peer_send(event->peer, CHAN_GAMESTATE, enet_packet_create(packbuf, 13, ENET_PACKET_FLAG_RELIABLE));
 
-/*
-            P_ResetStatus(other);
-            P_ResetWeapons(other);
-            P_ResetInventory(other);
-*/
-
             g_netPlayersWaiting--;
-
-            // a player connecting is a good time to mark things as needing to be updated
-            // we invalidate everything that has changed since we started sending the snapshot of the map to the new player
-
-            {
-                int32_t zz, i, nexti;
-
-                for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])); zz++)
-                    TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti)
-                {
-                    if (lastupdate[i] >= g_player[other].netsynctime)
-                        spritecrc[i] = 0xdeadbeef;
-                }
-            }
-
-            for (i=numwalls-1; i>=0; i--)
-                if (lastwallupdate[i] >= g_player[other].netsynctime)
-                    wallcrc[i] = 0xdeadbeef;
-
-            for (i=numsectors-1; i>=0; i--)
-                if (lastsectupdate[i] >= g_player[other].netsynctime)
-                    sectcrc[i] = 0xdeadbeef;
         }
         break;
     }
@@ -2544,42 +2539,37 @@ void Net_GetPackets(void)
     else if (g_netClient)
     {
         ENetEvent event;
+        size_t datasiz = 0;
 
-        enet_host_service(g_netClient, NULL, 0);
-
-        while (enet_host_check_events(g_netClient, &event) > 0)
+        do
         {
-            switch (event.type)
+            enet_host_service(g_netClient, NULL, 0);
+
+            while (enet_host_check_events(g_netClient, &event) > 0)
             {
-            case ENET_EVENT_TYPE_RECEIVE:
-
-                /*
-                                initprintf("A packet of length %u was received from player %d on channel %u.\n",
-                                           event.packet -> dataLength,
-                                           event.peer -> data,
-                                           event.channelID);
-                */
-
-                // mapstate transfer from the server... all packets but the last are SYNCPACKETSIZE
-                if (event.channelID == CHAN_SYNC)
+                switch (event.type)
                 {
-                    static int32_t datasiz = 0;
-                    static uint8_t *buf = NULL;
+                case ENET_EVENT_TYPE_RECEIVE:
 
-                    if (buf == NULL)
+                    /*
+                    initprintf("A packet of length %u was received from player %d on channel %u.\n",
+                    event.packet -> dataLength,
+                    event.peer -> data,
+                    event.channelID);
+                    */
+
+                    // mapstate transfer from the server... all packets but the last are SYNCPACKETSIZE
+                    if (event.channelID == CHAN_SYNC)
                     {
-                        datasiz = 0;
-                        g_netSync = 1;
-                        buf = (uint8_t *)Bcalloc(1, sizeof(mapstate_t)<<1);
-                    }
+                        static uint8_t *buf = NULL;
 
-                    g_multiMapState = (mapstate_t *)Brealloc(g_multiMapState, sizeof(mapstate_t));
+                        if (buf == NULL)
+                        {
+                            g_netSync = 1;
+                            buf = (uint8_t *)Bcalloc(1, sizeof(mapstate_t)<<1);
+                        }
 
-                    if (buf && event.packet->dataLength == SYNCPACKETSIZE)
-                    {
-                        char tbuf[64];
-                        Bmemcpy((uint8_t *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
-                        datasiz += SYNCPACKETSIZE;
+                        g_multiMapState = (mapstate_t *)Brealloc(g_multiMapState, sizeof(mapstate_t));
 
                         rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
@@ -2588,89 +2578,87 @@ void Net_GetPackets(void)
                         if (PLUTOPAK)   // JBF 20030804
                             rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
 
-                        Bsprintf(tbuf, "RECEIVED %d BYTES\n", datasiz);
-                        gametext(160,190,tbuf,14,2);
-                    }
-                    // last packet of mapstate sequence
-                    else if (buf)
-                    {
-                        Bmemcpy((uint8_t *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
-                        datasiz = 0;
-//                        g_netSync = 0;
-
-                        if (qlz_size_decompressed((const char *)buf) == sizeof(mapstate_t))
+                        if (buf && event.packet->dataLength == SYNCPACKETSIZE)
                         {
-                            qlz_decompress((const char *)buf, g_multiMapState, state_decompress);
-                            Bfree(buf);
-                            buf = NULL;
+                            char tbuf[64];
+                            Bmemcpy((uint8_t *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
+                            datasiz += SYNCPACKETSIZE;
 
-                            packbuf[0] = PACKET_REQUEST_GAMESTATE;
-                            packbuf[1] = myconnectindex;
-                            enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&packbuf[0], 2, ENET_PACKET_FLAG_RELIABLE));
+                            Bsprintf(tbuf, "RECEIVED %d BYTES\n", datasiz);
+                            gametext(160,190,tbuf,14,2);
+                        }
+                        // last packet of mapstate sequence
+                        else if (buf)
+                        {
+                            Bmemcpy((uint8_t *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
+                            datasiz = 0;
+                            //                        g_netSync = 0;
 
-                            rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+                            if (qlz_size_decompressed((const char *)buf) == sizeof(mapstate_t))
+                            {
+                                qlz_decompress((const char *)buf, g_multiMapState, state_decompress);
+                                Bfree(buf);
+                                buf = NULL;
 
-                            rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-                            rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
-                            if (PLUTOPAK)   // JBF 20030804
-                                rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+                                packbuf[0] = PACKET_REQUEST_GAMESTATE;
+                                packbuf[1] = myconnectindex;
+                                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&packbuf[0], 2, ENET_PACKET_FLAG_RELIABLE));
 
-                            gametext(160,190,"TRANSFER COMPLETE",14,2);
+                                gametext(160,190,"TRANSFER COMPLETE",14,2);
+                            }
+                            else
+                            {
+                                initprintf("Invalid map state from server!\n");
+                                Bfree(buf);
+                                buf = NULL;
+                                g_netDisconnect = 1;
+                                g_netSync = 0;
+
+                                gametext(160,190,"TRANSFER ERROR",14,2);
+                            }
                         }
                         else
                         {
-                            initprintf("Invalid map state from server!\n");
-                            Bfree(buf);
-                            buf = NULL;
+                            initprintf("Error allocating buffer for map state!\n");
                             g_netDisconnect = 1;
-
-                            rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
-
-                            rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-                            rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
-                            if (PLUTOPAK)   // JBF 20030804
-                                rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+                            g_netSync = 0;
 
                             gametext(160,190,"TRANSFER ERROR",14,2);
                         }
+
+                        nextpage();
                     }
-                    else
+                    else Net_ParseServerPacket(&event);
+
+                    enet_packet_destroy(event.packet);
+                    break;
+
+                case ENET_EVENT_TYPE_DISCONNECT:
+                    g_netDisconnect = 1;
+                    numplayers = playerswhenstarted = ud.multimode = 1;
+                    myconnectindex = screenpeek = 0;
+                    G_BackToMenu();
+                    switch (event.data)
                     {
-                        initprintf("Error allocating buffer for map state!\n");
-                        g_netDisconnect = 1;
+                    case DISC_BAD_PASSWORD:
+                        initprintf("Bad password.\n");
+                        return;
+                    case DISC_KICKED:
+                        initprintf("You have been kicked from the server.\n");
+                        return;
+                    case DISC_BANNED:
+                        initprintf("You are banned from this server.\n");
+                        return;
+                    default:
+                        initprintf("Disconnected.\n");
+                        return;
                     }
-
-                    nextpage();
-                }
-                else Net_ParseServerPacket(&event);
-
-                enet_packet_destroy(event.packet);
-                break;
-
-            case ENET_EVENT_TYPE_DISCONNECT:
-                g_netDisconnect = 1;
-                numplayers = playerswhenstarted = ud.multimode = 1;
-                myconnectindex = screenpeek = 0;
-                G_BackToMenu();
-                switch (event.data)
-                {
-                case DISC_BAD_PASSWORD:
-                    initprintf("Bad password.\n");
-                    return;
-                case DISC_KICKED:
-                    initprintf("You have been kicked from the server.\n");
-                    return;
-                case DISC_BANNED:
-                    initprintf("You are banned from this server.\n");
-                    return;
                 default:
-                    initprintf("Disconnected.\n");
-                    return;
+                    break;
                 }
-            default:
-                break;
             }
         }
+        while (datasiz);
     }
 }
 
@@ -2965,8 +2953,6 @@ void Net_StreamLevel(void)
     }
 
     *(uint16_t *)&packbuf[zj] = k;
-//    j += sizeof(uint16_t);
-
     k = 0;
 
     *(uint16_t *)&packbuf[(zj = j)] = 0;
@@ -2991,7 +2977,6 @@ void Net_StreamLevel(void)
         }
     }
     *(uint16_t *)&packbuf[zj] = k;
-//    j += sizeof(uint16_t);
     k = 0;
 
     *(uint16_t *)&packbuf[(zj = j)] = 0;
@@ -3016,15 +3001,12 @@ void Net_StreamLevel(void)
         }
     }
     *(uint16_t *)&packbuf[zj] = k;
-//    j += sizeof(uint16_t);
 
     {
         char buf[PACKBUF_SIZE];
 
         if (j >= PACKBUF_SIZE)
-        {
             initprintf("Global packet buffer overflow! Size of packet: %i\n", j);
-        }
 
         j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
         Bmemcpy((char *)(packbuf)+1, (char *)buf, j);
@@ -3203,19 +3185,19 @@ void Net_WaitForServer(void)
 
     P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 11);
 
-    rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
-
-    rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-    rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
-    if (PLUTOPAK)   // JBF 20030804
-        rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
-
-    gametext(160,170,"WAITING FOR SERVER",14,2);
-    nextpage();
-
     do
     {
         if (quitevent || keystatus[1]) G_GameExit("");
+
+        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+
+        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+        if (PLUTOPAK)   // JBF 20030804
+            rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+
+        gametext(160,170,"WAITING FOR SERVER",14,2);
+        nextpage();
 
         packbuf[0] = PACKET_PLAYER_PING;
         packbuf[1] = myconnectindex;

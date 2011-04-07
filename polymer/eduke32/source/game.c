@@ -75,7 +75,6 @@ static int32_t usecwd = 0;
 #endif /* _WIN32 */
 
 int32_t g_quitDeadline = 0;
-int32_t g_scriptSanityChecks = 1;
 
 int32_t g_cameraDistance = 0, g_cameraClock = 0;
 static int32_t g_quickExit;
@@ -6372,7 +6371,7 @@ skip:
         case BURNING__STATIC:
         case BURNING2__STATIC:
             if (sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2)
-                t->z = sector[t->sectnum].floorz;
+                t->z = actor[t->owner].floorz;
             t->shade = -127;
         case SMALLSMOKE__STATIC:
             t->cstat |= 8192;
@@ -7049,7 +7048,7 @@ FOUNDCHEAT:
 
                     g_player[screenpeek].ps->cheat_phase = 0;
 
-                    Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "MONSTERS: %s", s[g_noEnemies%1]);
+                    Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "MONSTERS: %s", s[g_noEnemies & 1]);
                     P_DoQuote(QUOTE_RESERVED4,g_player[myconnectindex].ps);
 
                     KB_FlushKeyBoardQueue();

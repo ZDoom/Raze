@@ -29,7 +29,7 @@ enum GamevarFlags_t {
     MAXVARLABEL        = 26,
     GAMEVAR_PERPLAYER  = 0x00000001, // per-player variable
     GAMEVAR_PERACTOR   = 0x00000002, // per-actor variable
-    GAMEVAR_USER_MASK  = (0x00000001|0x00000002),
+    GAMEVAR_USER_MASK  = (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR),
     GAMEVAR_RESET      = 0x00000008, // marks var for to default
     GAMEVAR_DEFAULT    = 0x00000100, // allow override
     GAMEVAR_SECRET     = 0x00000200, // don't dump...
@@ -37,9 +37,9 @@ enum GamevarFlags_t {
     GAMEVAR_SYSTEM     = 0x00000800, // cannot change mode flags...(only default value)
     GAMEVAR_READONLY   = 0x00001000, // values are read-only (no setvar allowed)
     GAMEVAR_INTPTR     = 0x00002000, // plValues is a pointer to an int32_t
-    GAMEVAR_SYNCCHECK  = 0x00004000, // throw warnings during compile if used in local event
     GAMEVAR_SHORTPTR   = 0x00008000, // plValues is a pointer to a short
     GAMEVAR_CHARPTR    = 0x00010000, // plValues is a pointer to a char
+    GAMEVAR_PTR_MASK   = (GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR),
     GAMEVAR_NORESET    = 0x00020000, // var values are not reset when restoring map state
     GAMEVAR_SPECIAL    = 0x00040000, // flag for structure member shortcut vars
     GAMEVAR_NOMULTI    = 0x00080000, // don't attach to multiplayer packets

@@ -1205,10 +1205,10 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
     if (lVar1 != g_iThisActorID)
         iPlayer=Gv_GetVarX(lVar1);
 
-    if ((iPlayer<0 || iPlayer >= playerswhenstarted) /* && g_scriptSanityChecks */)
+    if ((unsigned)iPlayer >= (unsigned)playerswhenstarted)
         goto badplayer;
 
-    if ((PlayerLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && ((unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2))
         goto badpos;
 
     switch (lLabelID)
@@ -1536,10 +1536,10 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
     if (lVar1 != g_iThisActorID)
         iPlayer=Gv_GetVarX(lVar1);
 
-    if ((iPlayer<0 || iPlayer >= playerswhenstarted) /* && g_scriptSanityChecks */)
+    if ((unsigned)iPlayer >= (unsigned)playerswhenstarted)
         goto badplayer;
 
-    if ((PlayerLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2)
         goto badpos;
 
     lVar1=Gv_GetVarX(lVar2);
@@ -1883,7 +1883,7 @@ static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t
     if (lVar1 != g_iThisActorID)
         iPlayer=Gv_GetVarX(lVar1);
 
-    if ((iPlayer<0 || iPlayer >= playerswhenstarted) /* && g_scriptSanityChecks */)
+    if ((unsigned)iPlayer >= (unsigned)playerswhenstarted)
         goto badplayer;
 
     if (iSet)
@@ -1959,7 +1959,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
     int32_t lValue=0;
     int32_t iWall = Gv_GetVarX(lVar1);
 
-    if ((iWall<0 || iWall >= numwalls) /* && g_scriptSanityChecks */)
+    if ((unsigned)iWall >= (unsigned)numwalls)
         goto badwall;
 
     if (iSet)
@@ -2137,7 +2137,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
     if (lVar1 != g_iThisActorID)
         iSector=Gv_GetVarX(lVar1);
 
-    if ((iSector<0 || iSector >= numsectors) /* && g_scriptSanityChecks */)
+    if ((unsigned)iSector >= (unsigned)numsectors)
         goto badsector;
 
     if (iSet)
@@ -2372,7 +2372,7 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     if ((unsigned)iActor >= MAXSPRITES)
         goto badactor;
 
-    if ((ActorLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if (ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2)
         goto badpos;
 
     lVar1=Gv_GetVarX(lVar2);
@@ -2616,7 +2616,7 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     if ((unsigned)iActor >= MAXSPRITES)
         goto badactor;
 
-    if ((ActorLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if (ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2)
         goto badpos;
 
     switch (lLabelID)
@@ -2862,7 +2862,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
     if (iSet)
         lValue=Gv_GetVarX(lVar2);
 
-    if ((!spriteext[iActor].tspr) && g_scriptSanityChecks)
+    if (!spriteext[iActor].tspr)
         goto badtspr;
 
     switch (lLabelID)
@@ -3094,7 +3094,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
 {
     int32_t lValue=0;
 
-    if ((lVar1 < 0 || lVar1 >= MAXTILES) /* && g_scriptSanityChecks */)
+    if ((unsigned)lVar1 >= MAXTILES)
         goto badtile;
 
     if (iSet)
@@ -3366,7 +3366,7 @@ badtile:
 #else
 static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int32_t lParm2)
 {
-    if ((ActorLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= ActorLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if (ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2)
         goto badpos;
 
     switch (lLabelID)
@@ -3465,7 +3465,7 @@ static int32_t __fastcall VM_AccessSectorX(int32_t iSector, int32_t lLabelID)
 
 static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2)
 {
-    if ((PlayerLabels[lLabelID].flags &LABEL_HASPARM2 && (lParm2 < 0 || lParm2 >= PlayerLabels[lLabelID].maxParm2)) /* && g_scriptSanityChecks */)
+    if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2)
         goto badpos;
 
     switch (lLabelID)

@@ -447,7 +447,6 @@ void debugprintf(const char *f, ...)
 //
 //
 
-static char mouseacquired=0,moustat=0;
 // static int32_t joyblast=0;
 static SDL_Joystick *joydev = NULL;
 
@@ -470,7 +469,7 @@ int32_t initinput(void)
     if (SDL_EnableKeyRepeat(250, 30)) // doesn't do anything in 1.3
         initprintf("Error enabling keyboard repeat.\n");
     inputdevices = 1|2;	// keyboard (1) and mouse (2)
-    mouseacquired = 0;
+    mousegrab = 0;
 
     SDL_EnableUNICODE(1);	// let's hope this doesn't hit us too hard
 
@@ -588,49 +587,25 @@ void grabmouse(char a)
 {
     if (appactive && moustat)
     {
-        if (a != mouseacquired)
+        if (a != mousegrab)
         {
 #ifndef DEBUGGINGAIDS
             SDL_GrabMode g;
 
             g = SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF);
-            mouseacquired = (g == SDL_GRAB_ON);
+            mousegrab = (g == SDL_GRAB_ON);
 
-            SDL_ShowCursor(mouseacquired ? SDL_DISABLE : SDL_ENABLE);
+            SDL_ShowCursor(mousegrab ? SDL_DISABLE : SDL_ENABLE);
 #else
-            mouseacquired = a;
+            mousegrab = a;
 #endif
         }
     }
     else
     {
-        mouseacquired = a;
+        mousegrab = a;
     }
     mousex = mousey = 0;
-}
-
-
-//
-// readmousexy() -- return mouse motion information
-//
-void readmousexy(int32_t *x, int32_t *y)
-{
-    if (!mouseacquired || !appactive || !moustat) { *x = *y = 0; return; }
-
-//    if (mousex|mousey)printf("r:%d,%d\n",mousex,mousey); ///
-
-    *x = mousex;
-    *y = mousey;
-    mousex = mousey = 0;
-}
-
-//
-// readmousebstatus() -- return mouse button information
-//
-void readmousebstatus(int32_t *b)
-{
-    if (!mouseacquired || !appactive || !moustat) *b = 0;
-    else *b = mouseb;
 }
 
 //
@@ -979,7 +954,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
     startwin_close();
 
-    if (mouseacquired)
+    if (mousegrab)
     {
         regrab = 1;
         grabmouse(0);
@@ -1195,7 +1170,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 // support bgra textures
                 glinfo.bgra = 1;
             }
-            else if (!Bstrcmp(p2, "GL_ARB_texture_compression"))
+            else if (!Bstrcmp(p2, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
             {
                 // support texture compression
                 glinfo.texcompr = 1;
@@ -1559,7 +1534,6 @@ int32_t handleevents(void)
         switch (ev.type)
         {
 #if (SDL_MAJOR_VERSION > 1 || SDL_MINOR_VERSION > 2)
-/*
         case SDL_TEXTINPUT:
             j = 0;
             do
@@ -1568,8 +1542,6 @@ int32_t handleevents(void)
 
                 if (code != scantoasc[OSD_OSDKey()] && ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
                 {
-                    printf("got char %d\n",code);
-
                     if (OSD_HandleChar(code))
                     {
                         keyasciififo[keyasciififoend] = code;
@@ -1579,14 +1551,15 @@ int32_t handleevents(void)
             }
             while (j < SDL_TEXTINPUTEVENT_TEXT_SIZE && ev.text.text[++j]);
             break;
-*/
 
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.scancode];
 
-            if (code != OSD_OSDKey() && ev.key.keysym.unicode != 0 && ev.key.type == SDL_KEYDOWN &&
-                (ev.key.keysym.unicode & 0xff80) == 0 &&
+            if (ev.key.type == SDL_KEYDOWN &&
+                (ev.key.keysym.scancode == SDL_SCANCODE_RETURN ||
+                ev.key.keysym.scancode == SDL_SCANCODE_BACKSPACE ||
+                ev.key.keysym.scancode == SDL_SCANCODE_TAB) &&
                 ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
             {
                 if (OSD_HandleChar(ev.key.keysym.unicode & 0x7f))
@@ -1624,7 +1597,7 @@ int32_t handleevents(void)
             case SDL_WINDOWEVENT_FOCUS_GAINED:
                 appactive = 1;
 #ifndef DEBUGGINGAIDS
-                if (mouseacquired && moustat)
+                if (mousegrab && moustat)
                 {
                     SDL_WM_GrabInput(SDL_GRAB_ON);
                     SDL_ShowCursor(SDL_DISABLE);
@@ -1634,7 +1607,7 @@ int32_t handleevents(void)
             case SDL_WINDOWEVENT_FOCUS_LOST:
                 appactive = 0;
 #ifndef DEBUGGINGAIDS
-                if (mouseacquired && moustat)
+                if (mousegrab && moustat)
                 {
                     SDL_WM_GrabInput(SDL_GRAB_OFF);
                     SDL_ShowCursor(SDL_ENABLE);
@@ -1706,7 +1679,7 @@ int32_t handleevents(void)
             {
                 appactive = ev.active.gain;
 #ifndef DEBUGGINGAIDS
-                if (mouseacquired && moustat)
+                if (mousegrab && moustat)
                 {
                     if (appactive)
                     {
@@ -1769,7 +1742,7 @@ int32_t handleevents(void)
         case SDL_MOUSEMOTION:
             // SDL 1.3 doesn't handle relative mouse movement correctly yet as the cursor still clips to the screen edges
             // so, we call SDL_WarpMouse() to center the cursor and ignore the resulting motion event that occurs
-            if (appactive && mouseacquired && (ev.motion.x != xdim>>1 || ev.motion.y != ydim>>1))
+            if (appactive && mousegrab && (ev.motion.x != xdim>>1 || ev.motion.y != ydim>>1))
             {
                 mousex += ev.motion.xrel;
                 mousey += ev.motion.yrel;

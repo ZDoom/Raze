@@ -2243,8 +2243,8 @@ CLEAR_THE_BOLT:
 
             if (t[5] == 1) goto BOLT;
 
-            p = G_CheckPlayerInSector(sect);
-            if (p >= 0 && (g_player[p].ps->on_ground || s->ang == 512))
+            if ((p = G_CheckPlayerInSector(sect)) >= 0 &&
+                (g_player[p].ps->on_ground || s->ang == 512))
             {
                 if (t[0] == 0 && !G_CheckActivatorMotion(s->lotag))
                 {

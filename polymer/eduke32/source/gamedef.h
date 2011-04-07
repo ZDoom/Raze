@@ -123,8 +123,6 @@ typedef struct {
 
 extern vmstate_t vm;
 
-extern int32_t g_scriptSanityChecks;
-
 extern int32_t g_errorLineNum;
 extern int32_t g_tw;
 extern const char *keyw[];

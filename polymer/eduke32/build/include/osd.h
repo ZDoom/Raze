@@ -34,7 +34,7 @@ enum cvartype_t
     CVAR_BOOL    = 0x00000008,
     CVAR_STRING  = 0x00000010,
     CVAR_DOUBLE  = 0x00000020,
-    CVAR_NOMULTI = 0x00000040,
+    CVAR_LOCKED  = 0x00000040,
     CVAR_MULTI   = 0x00000080,
     CVAR_NOSAVE  = 0x00000100,
     CVAR_FUNCPTR = 0x00000200,
@@ -43,7 +43,7 @@ enum cvartype_t
 typedef struct
 {
     const char *name;
-    const char *helpstr;
+    const char *desc;
     void *var;
     int32_t type;   // see cvartype_t
     int32_t min;
@@ -53,7 +53,7 @@ typedef struct
 typedef struct
 {
     char *name;
-    char *helpstr;
+    char *desc;
     void *var;
     int32_t type;   // see cvartype_t
     int32_t min;

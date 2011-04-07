@@ -87,6 +87,7 @@ extern void SetKey(int32_t key, int32_t state);
 
 // mouse
 extern volatile int32_t mousex, mousey, mouseb;
+extern volatile uint8_t mousegrab, moustat;
 
 // joystick
 extern int32_t *joyaxis, *joyhat, joyb;

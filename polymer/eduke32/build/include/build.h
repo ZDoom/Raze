@@ -37,8 +37,8 @@ extern "C" {
 #define MAXVOXELS 4096
 #define MAXSTATUS 1024
 #define MAXPLAYERS 16
-#define MAXXDIM 3072
-#define MAXYDIM 2304
+#define MAXXDIM 7680
+#define MAXYDIM 3200
 #define MAXBASEPALS 8
 #define MAXPALOOKUPS 256
 #define MAXPSKYTILES 256
@@ -338,9 +338,6 @@ extern const char *engineerrstr;
 extern char noclip;
 
 EXTERN int32_t editorzrange[2];
-
-EXTERN int32_t myconnectindex, numplayers;
-EXTERN int32_t connecthead, connectpoint2[MAXPLAYERS];
 
 static inline int32_t getrendermode(void)
 {
