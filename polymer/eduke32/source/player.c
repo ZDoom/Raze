@@ -4489,7 +4489,7 @@ void P_ProcessInput(int32_t snum)
 
     p->player_par++;
 
-//    VM_OnEvent(EVENT_PROCESSINPUT, p->i, snum, -1);
+    VM_OnEvent(EVENT_PROCESSINPUT, p->i, snum, -1);
 
     if (p->cheat_phase > 0) sb_snum = 0;
 
