@@ -7964,7 +7964,7 @@ void G_MoveWorld(void)
                 {
                     spritetype *s = &sprite[i];
 
-                    if ((sprite[i].picnum != SECTOREFFECTOR && (s->cstat & 32768)) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
+                    if ((s->yrepeat < 4) || (sprite[i].picnum != SECTOREFFECTOR && (s->cstat & 32768)) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
                             (A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
                     {
                         if (actor[i].lightptr != NULL)
