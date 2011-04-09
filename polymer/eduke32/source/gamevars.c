@@ -798,7 +798,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
         }
 
 badindex:
-        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,negateResult);
+        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,(int32_t)negateResult);
         return -1;
 
 badvarid:

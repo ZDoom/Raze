@@ -1745,7 +1745,7 @@ static void sideview_filter_keys(void)
     {
         switch (i)
         {
-        case 0xd2: case 0xd3:  // ins, del
+//        case 0xd2: case 0xd3:  // ins, del
         case 0x2e: case 0x39:  // c, space
 //        case 0xb8:  // ralt
             keystatus[i] = 0;
@@ -2950,6 +2950,7 @@ void overheadeditor(void)
                 update_highlightsector();
 
                 message("Extended %ss of highlighted sectors, creating bunch %d", cfs[cf], k);
+                asksave = 1;
 end_yax: ;
             }
 #endif
@@ -5540,7 +5541,7 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     startang = ang;
     startsectnum = cursectnum;
 #ifdef YAX_ENABLE
-    yax_resetbunchnums();
+//    yax_resetbunchnums();
 #endif
 
     return 0;

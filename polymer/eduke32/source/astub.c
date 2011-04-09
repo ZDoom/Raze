@@ -587,7 +587,9 @@ int32_t map_undoredo(int32_t dir)
     if (qsetmode == 200 && rendmode == 4)
         polymer_loadboard();
 #endif
-
+#ifdef YAX_ENABLE
+    yax_update(0);
+#endif
     CheckMapCorruption(4, 0);
 
     return 0;
@@ -3835,10 +3837,6 @@ restart:
 
                 tilescreen_drawrest(iSelected, showmsg);
 
-                enddrawing();
-                showframe(1);
-                begindrawing();
-
                 k = (mousex || mousey || mouseb);
                 if (!k)
                     for (i=0; i<(signed)(sizeof(keystatus)/sizeof(keystatus[0])); i++)
@@ -3853,6 +3851,10 @@ restart:
                     showframe(1);
                     return 1;
                 }
+
+                enddrawing();
+                showframe(1);
+                begindrawing();
             }
         }
     }
@@ -5392,7 +5394,7 @@ static void Keys3d(void)
         k = 0;
         if (highlightsectorcnt > 0 && searchsector>=0 && searchsector<numsectors)
         {
-            if (show2dwall[searchsector>>3]&(1<<(searchsector&7)))
+            if (hlsectorbitmap[searchsector>>3]&(1<<(searchsector&7)))
                 k = highlightsectorcnt;
         }
 
@@ -9873,7 +9875,7 @@ void ExtAnalyzeSprites(void)
 {
     int32_t i, k;
     spritetype *tspr;
-    int32_t frames=0, l;
+    int32_t frames=0, sh;
 
     for (i=0,tspr=&tsprite[0]; i<spritesortcnt; i++,tspr++)
     {
@@ -9896,28 +9898,39 @@ void ExtAnalyzeSprites(void)
             tspr->cstat |= 2+512;
         }
 
-        if (shadepreview && !(tspr->cstat & 16))
+        /* Shade preview rules (thanks to Gambini)
+         *
+         * 1st rule: Any pal value not equal to 0 in the floor of a sector will
+         *           turn all the sprites within this sector to that pal value.
+         *
+         * 2nd rule: The shade of a sprite will be taken from the floor unless the
+         *           ceiling is parallaxed, in which case will be taken from the
+         *           ceiling. But not the pal which always follow the 1st rule.
+         *
+         * 3rd rule: relative to wall sprites will keep their own shade unless
+         *           they're actors, but they will still retain the floor pal.
+         */
+        if (shadepreview)
         {
+            int32_t wallaligned = (tspr->cstat & 16);
+
             if (tspr->sectnum<0)
                 continue;
 
-            if (sector[tspr->sectnum].ceilingstat&1)
-            {
-                l = sector[tspr->sectnum].ceilingshade;
-                if (sector[tspr->sectnum].ceilingpal != 0 && sector[tspr->sectnum].ceilingpal < num_tables)
-                    tspr->pal=sector[tspr->sectnum].ceilingpal;
-            }
-            else
-            {
-                l = sector[tspr->sectnum].floorshade;
-                if (sector[tspr->sectnum].floorpal != 0 && sector[tspr->sectnum].floorpal < num_tables)
-                    tspr->pal=sector[tspr->sectnum].floorpal;
-            }
+            // 1st rule
+            if (sector[tspr->sectnum].floorpal > 0 && sector[tspr->sectnum].floorpal < num_tables)
+                tspr->pal = sector[tspr->sectnum].floorpal;
 
-            if ((tspr->owner>=0 && (sprite[tspr->owner].cstat&2048)==0))
+            // 2nd and 3rd rule minus "actor condition"
+            if (!wallaligned && (tspr->cstat&2048)==0)
             {
-                inpclamp(&l, -127, 127);
-//                tspr->shade = l;
+                if (sector[tspr->sectnum].ceilingstat&1)
+                    sh = sector[tspr->sectnum].ceilingshade;
+                else
+                    sh = sector[tspr->sectnum].floorshade;
+
+                inpclamp(&sh, -127, 127);
+                tspr->shade = sh;
             }
         }
 
@@ -10747,7 +10760,7 @@ static void EditSectorData(int16_t sectnum)
 #ifdef YAX_ENABLE
         if (med_editval)
         {
-            if ((row==0 || row==1 || row==3 || row==5) && yax_getbunch(sectnum, (col==2)) >= 0)
+            if ((row==1 || row==3 || row==5) && yax_getbunch(sectnum, (col==2)) >= 0)
                 med_editval = 0;
         }
 #endif
@@ -10757,8 +10770,15 @@ static void EditSectorData(int16_t sectnum)
             switch (row)
             {
             case 0:
+#ifdef YAX_ENABLE
+                i = sector[sectnum].ceilingstat&YAX_BIT;
+#endif
                 handlemed(1, "Flags (hex)", "Ceiling Flags", &sector[sectnum].ceilingstat,
                           sizeof(sector[sectnum].ceilingstat), 65535, 0);
+#ifdef YAX_ENABLE
+                sector[sectnum].ceilingstat &= ~YAX_BIT;
+                sector[sectnum].ceilingstat |= i;
+#endif
                 break;
             case 1:
                 for (i=Bsprintf(med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning); i < med_dispwidth; i++) med_disptext[i] = ' ';
@@ -10798,8 +10818,15 @@ static void EditSectorData(int16_t sectnum)
             switch (row)
             {
             case 0:
+#ifdef YAX_ENABLE
+                i = sector[sectnum].ceilingstat&YAX_BIT;
+#endif
                 handlemed(1, "Flags (hex)", "Floor Flags", &sector[sectnum].floorstat,
                           sizeof(sector[sectnum].floorstat), 65535, 0);
+#ifdef YAX_ENABLE
+                sector[sectnum].ceilingstat &= ~YAX_BIT;
+                sector[sectnum].ceilingstat |= i;
+#endif
                 break;
 
             case 1:

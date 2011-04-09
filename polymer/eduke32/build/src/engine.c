@@ -7455,7 +7455,9 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
             sprite[i].picnum = 0;
         }
     }
-
+#ifdef YAX_ENABLE
+    yax_update(0);
+#endif
     for (i=0; i<numsprites; i++)
     {
         int32_t k;
@@ -11096,8 +11098,8 @@ restart_grand:
         mcf++;
         clipsectcnt = 0; clipsectnum = 0;
         clipspritecnt = 0; clipspritenum = 0;
-        didchange = 0;
 
+        didchange = 0;
         if (cb>=0 && mcf==0 && *ceilhit==sectnum+16384)
         {
             for (i=0; i<origclipsectnum; i++)
@@ -11116,8 +11118,10 @@ restart_grand:
             if (clipsectnum==0)
                 mcf++;
         }
-        else mcf++;
+        else if (mcf==0)
+            mcf++;
 
+        didchange = 0;
         if (fb>=0 && mcf==1 && *florhit==sectnum+16384)
         {
             // (almost) same as above, but with floors...
