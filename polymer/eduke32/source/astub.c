@@ -3780,11 +3780,10 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     int32_t usehitilecnt=0, usehitile;
     static uint8_t loadedhitile[(MAXTILES+7)>>3];
 
-    begindrawing();
-
     setpolymost2dview();
-
     clearview(0);
+
+    begindrawing();
 
 restart:
     for (YTile = 0-(offset>0); YTile < nYTiles+(offset<0)+1; YTile++)
@@ -5435,7 +5434,7 @@ static void Keys3d(void)
                 for (i=headspritesect[sect]; i!=-1; i=nextspritesect[i])
                 {
                     spriteoncfz(i, &cz, &fz);
-                    if ((moveCeilings && sprite[i].z <= cz) || (moveFloors && sprite[i].z >= fz))
+                    if ((moveCeilings && sprite[i].z == cz) || (moveFloors && sprite[i].z == fz))
                         sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
                 }
 
