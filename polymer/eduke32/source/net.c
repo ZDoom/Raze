@@ -2584,7 +2584,7 @@ void Net_GetPackets(void)
                             Bmemcpy((uint8_t *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
                             datasiz += SYNCPACKETSIZE;
 
-                            Bsprintf(tbuf, "RECEIVED %d BYTES\n", datasiz);
+                            Bsprintf(tbuf, "RECEIVED %d BYTES\n", (int32_t)datasiz);
                             gametext(160,190,tbuf,14,2);
                         }
                         // last packet of mapstate sequence
