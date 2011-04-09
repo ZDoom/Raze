@@ -922,7 +922,7 @@ typedef struct dataspec_
 } dataspec_t;
 
 #define SV_MAJOR_VER 0
-#define SV_MINOR_VER 2
+#define SV_MINOR_VER 3
 #define SV_DEFAULTCOMPRTHRES 8
 static uint8_t savegame_diffcompress;  // 0:none, 1:Ken's LZW in cache1d.c
 static uint8_t savegame_comprthres;
@@ -1695,7 +1695,7 @@ int32_t sv_loadsnapshot(int32_t fil, int32_t *ret_hasdiffs, int32_t *ret_demotic
     savegame_diffcompress = tmpbuf[7];
     *ret_synccompress = (int32_t)tmpbuf[8];
 
-    if (kread(fil, ret_demoticcnt, sizeof(ret_demoticcnt)) != sizeof(ret_demoticcnt)) goto corrupt;
+    if (kread(fil, ret_demoticcnt, sizeof(*ret_demoticcnt)) != sizeof(*ret_demoticcnt)) goto corrupt;
     if (kread(fil, &svsnapsiz, sizeof(svsnapsiz)) != sizeof(svsnapsiz)) goto corrupt;
 
 
