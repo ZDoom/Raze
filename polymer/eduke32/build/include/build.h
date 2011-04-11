@@ -64,15 +64,23 @@ extern "C" {
 ////////// yax defs //////////
 #define YAX_MAXBUNCHES (MAXSECTORS>>1)
 #define YAX_BIT 1024
+// "has next wall when constrained"-bit (1<<10: ceiling, 1<<11: floor)
+#define YAX_NEXTWALLBIT(Cf) (1<<(10+Cf))
+#define YAX_NEXTWALLBITS (YAX_NEXTWALLBIT(0)|YAX_NEXTWALLBIT(1))
 #define YAX_CEILING 0  // don't change!
 #define YAX_FLOOR 1  // don't change!
 
 #define SECTORFLD(Sect,Fld, Cf) (*((Cf) ? (&sector[Sect].floor##Fld) : (&sector[Sect].ceiling##Fld)))
 
+// more user tag hijacking: lotag/extra :/
+#define YAX_NEXTWALL(Wall, Cf) (*(&wall[Wall].lotag + 2*Cf))
+
 int16_t yax_getbunch(int16_t i, int16_t cf);
 void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb);
 void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum);
 void yax_setbunches(int16_t i, int16_t cb, int16_t fb);
+int16_t yax_getnextwall(int16_t wal, int16_t cf);
+void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall);
 void yax_update(int32_t onlyreset);
 
 
@@ -134,7 +142,8 @@ typedef struct
 //   bit 7: 1 = Transluscence, 0 = not                               "T"
 //   bit 8: 1 = y-flipped, 0 = normal                                "F"
 //   bit 9: 1 = Transluscence reversing, 0 = normal                  "T"
-//   bits 10-15: reserved
+//   bits 10 and 11: reserved (in use by YAX)
+//   bits 12-15: reserved
 
     //32 bytes
 typedef struct

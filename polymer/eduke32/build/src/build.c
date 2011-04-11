@@ -26,24 +26,6 @@ static int32_t crctable[256];
 static char kensig[64];
 
 extern const char *ExtGetVer(void);
-extern int32_t ExtInit(void);
-extern int32_t ExtPreInit(int32_t argc,const char **argv);
-extern void ExtUnInit(void);
-extern void ExtPreCheckKeys(void);
-extern void ExtAnalyzeSprites(void);
-extern void ExtCheckKeys(void);
-extern void ExtLoadMap(const char *mapname);
-extern void ExtSaveMap(const char *mapname);
-extern const char *ExtGetSectorCaption(int16_t sectnum);
-extern const char *ExtGetWallCaption(int16_t wallnum);
-extern const char *ExtGetSpriteCaption(int16_t spritenum);
-extern void ExtShowSectorData(int16_t sectnum);
-extern void ExtShowWallData(int16_t wallnum);
-extern void ExtShowSpriteData(int16_t spritenum);
-extern void ExtEditSectorData(int16_t sectnum);
-extern void ExtEditWallData(int16_t wallnum);
-extern void ExtEditSpriteData(int16_t spritenum);
-extern const char *ExtGetSectorType(int32_t lotag);
 
 extern char spritecol2d[MAXTILES][2];
 
@@ -232,7 +214,8 @@ void fixspritesectors(void);
 static int32_t movewalls(int32_t start, int32_t offs);
 int32_t loadnames(const char *namesfile);
 void updatenumsprites(void);
-static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny);
+static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny,
+                                  int32_t maybe_screen_coord_p);
 static void initcrc(void);
 int32_t gettile(int32_t tilenum);
 
@@ -357,6 +340,21 @@ static void M32_drawdebug(void)
 #endif
 
 #ifdef YAX_ENABLE
+static void yax_tweakwalls(int16_t start, int16_t offs)
+{
+    int32_t i, nw;
+    for (i=0; i<numwalls; i++)
+    {
+        nw = yax_getnextwall(i, YAX_CEILING);
+        if (nw >= start)
+            yax_setnextwall(i, YAX_CEILING, nw+offs);
+
+        nw = yax_getnextwall(i, YAX_FLOOR);
+        if (nw >= start)
+            yax_setnextwall(i, YAX_FLOOR, nw+offs);
+    }
+}
+
 static void yax_resetbunchnums(void)
 {
     int32_t i;
@@ -384,6 +382,12 @@ static void setslope(int32_t sectnum, int32_t cf, int16_t slope)
 // If false, it's a wall that you can freely move around,
 // attach points to, etc...
 static int32_t yax_islockedwall(int16_t sec, int16_t line)
+#if 1
+{
+    UNREFERENCED_PARAMETER(sec);
+    return !!(wall[line].cstat&YAX_NEXTWALLBITS);
+}
+#else
 {
     int16_t cb,fb, cbn,fbn;
     int16_t ns = wall[line].nextsector;
@@ -396,26 +400,6 @@ static int32_t yax_islockedwall(int16_t sec, int16_t line)
     yax_getbunches(ns, &cbn, &fbn);
 
     return (cb!=cbn || fb!=fbn);
-}
-
-#if 0
-static int32_t yax_nextwall(int16_t sec, int16_t line, int32_t downp)
-{
-    int16_t bunchnum = yax_getbunch(sec, downp);
-    int32_t i, j;
-
-    if (bunchnum==-1)
-        return -1;
-
-    for (i=headsectbunch[!downp][bunchnum]; i!=-1; i=nextsectbunch[!downp][i])
-    {
-        for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
-            if (*(int64_t *)&wall[j] == *(int64_t *)&wall[line])
-                if (*(int64_t *)&POINT2(j) == *(int64_t *)&POINT2(line))
-                    return j;
-    }
-
-    return -1;
 }
 #endif
 
@@ -1933,10 +1917,15 @@ static int32_t ask_above_or_below(void);
 //  0: continue
 // >0: newnumwalls
 // <0: error
-static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, int16_t *refsect_ret)
+static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, int16_t *refsect_ret,
+                          int16_t trace_loop_yaxcf)
 {
     int16_t refsect, ignore;
     int32_t k, n, refwall;
+
+#ifndef YAX_ENABLE
+    UNREFERENCED_PARAMETER(trace_loop_yaxcf);
+#endif
 
     if (wall[j].nextwall>=0 || (visitedwall[j>>3]&(1<<(j&7))))
         return 0;
@@ -1978,6 +1967,10 @@ static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, 
             Bmemcpy(&wall[k], &wall[j], sizeof(walltype));
             wall[k].point2 = k+1;
             wall[k].nextsector = wall[k].nextwall = wall[k].extra = -1;
+#ifdef YAX_ENABLE
+            if (trace_loop_yaxcf >= 0)
+                yax_setnextwall(k, trace_loop_yaxcf, j);
+#endif
             k++;
         }
 
@@ -2079,7 +2072,8 @@ static int32_t compare_wall_coords(const void *w1, const void *w2)
 
 void overheadeditor(void)
 {
-    char buffer[80], *dabuffer, ch;
+    char buffer[80], ch;
+    const char *dabuffer;
     int32_t i, j, k, m=0, mousxplc, mousyplc, firstx=0, firsty=0, oposz, col;
     int32_t tempint, tempint1, tempint2;
     int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3, x4, y4;
@@ -2276,7 +2270,7 @@ void overheadeditor(void)
                     {
                         int16_t secshort = i;
 
-                        dabuffer = (char *)ExtGetSectorCaption(i);
+                        dabuffer = ExtGetSectorCaption(i);
                         if (dabuffer[0] == 0)
                             continue;
 
@@ -2299,24 +2293,28 @@ void overheadeditor(void)
                 }
 
                 i = numwalls-1;
+                j = numsectors-1;
                 if (newnumwalls >= 0)
                     i = newnumwalls-1;
                 for (wal=&wall[i]; i>=0; i--,wal--)
                 {
+                    if (sector[j].wallptr > i)
+                        j--;
+
                     if (zoom < 768 && !(wal->cstat & (1<<14)))
                         continue;
 
                     //Get average point of wall
-                    dax = (wal->x+wall[wal->point2].x)>>1;
-                    day = (wal->y+wall[wal->point2].y)>>1;
-                    if ((dax > x3) && (dax < x4) && (day > y3) && (day < y4))
+//                    if ((dax > x3) && (dax < x4) && (day > y3) && (day < y4))
                     {
-                        dabuffer = (char *)ExtGetWallCaption(i);
+                        dabuffer = ExtGetWallCaption(i);
                         if (dabuffer[0] == 0)
                             continue;
 
+                        dax = (wal->x+wall[wal->point2].x)>>1;
+                        day = (wal->y+wall[wal->point2].y)>>1;
                         drawsmallabel(dabuffer, editorcolors[0], editorcolors[31],
-                                       dax, day, getflorzofslope(sectorofwall(i), dax,day));
+                                       dax, day, getflorzofslope(j, dax,day));
                     }
                 }
 
@@ -2334,7 +2332,7 @@ void overheadeditor(void)
 
                         if (sprite[i].statnum < MAXSTATUS)
                         {
-                            dabuffer = (char *)ExtGetSpriteCaption(i);
+                            dabuffer = ExtGetSpriteCaption(i);
                             if (dabuffer[0] != 0)
                             {
                                 int32_t blocking = (sprite[i].cstat&1);
@@ -2446,14 +2444,23 @@ void overheadeditor(void)
             drawline16base(searchx,searchy, +2,+1, +9,+1, col);
 
             ////// Draw the white pixel closest to mouse cursor on linehighlight
-            if (linehighlight>=0 && !m32_sideview)
+            if (linehighlight>=0)
             {
-                getclosestpointonwall(mousxplc,mousyplc, linehighlight, &dax,&day);
-                x2 = mulscale14(dax-pos.x,zoom);
-                y2 = mulscale14(day-pos.y,zoom);
+                char col = wall[linehighlight].nextsector >= 0 ? editorcolors[15] : editorcolors[5];
 
-                drawline16base(halfxdim16+x2,midydim16+y2, 0,0, 0,0,
-                               wall[linehighlight].nextsector >= 0 ? editorcolors[15] : editorcolors[5]);
+                if (m32_sideview)
+                {
+                    getclosestpointonwall(searchx,searchy, linehighlight, &dax,&day, 1);
+                    drawline16base(dax,day, 0,0, 0,0, col);
+                }
+                else
+                {
+                    getclosestpointonwall(mousxplc,mousyplc, linehighlight, &dax,&day, 0);
+                    x2 = mulscale14(dax-pos.x,zoom);
+                    y2 = mulscale14(day-pos.y,zoom);
+
+                    drawline16base(halfxdim16+x2,midydim16+y2, 0,0, 0,0, col);
+                }
             }
 
             enddrawing();	//}}}
@@ -2887,7 +2894,7 @@ void overheadeditor(void)
                 for (i=0; i<highlightsectorcnt; i++)
                     for (WALLS_OF_SECTOR(highlightsector[i], j))
                     {
-                        k = trace_loop(j, visited, NULL, NULL);
+                        k = trace_loop(j, visited, NULL, NULL, !cf);
                         if (k == 0)
                             continue;
                         else if (k < 0)
@@ -2899,6 +2906,23 @@ void overheadeditor(void)
                         wall[k-1].point2 = numwalls;
                         numwalls = k;
                     }
+
+                for (i=m; i<numwalls; i++)  // try
+                {
+                    j = YAX_NEXTWALL(i, !cf);
+                    if (j < 0)
+                    {
+                        message("Internal error while constructing sector: "
+                                "YAX_NEXTWALL(%d, %d)<0!", i, !cf);
+                        numwalls = m;
+                        goto end_yax;
+                    }
+                }
+                for (i=m; i<numwalls; i++)  // do!
+                {
+                    j = YAX_NEXTWALL(i, !cf);
+                    yax_setnextwall(j, cf, i);
+                }
 
                 // create new sector based on first highlighted one
                 i = highlightsector[0];
@@ -3202,7 +3226,7 @@ end_yax: ;
                         {
                             for (WALLS_OF_SECTOR(highlightsector[i], j))
                             {
-                                k = trace_loop(j, visited, &ignore, &refsect);
+                                k = trace_loop(j, visited, &ignore, &refsect, -1);
                                 if (k == 0)
                                     continue;
                                 else if (k < 0)
@@ -3242,6 +3266,9 @@ end_yax: ;
                                             if (wall[m].nextwall >= begwalltomove)
                                                 wall[m].nextwall += n;
                                         }
+#ifdef YAX_ENABLE
+                                        yax_tweakwalls(begwalltomove, n);
+#endif
                                         for (m=refsect+1; m<numsectors; m++)
                                             sector[m].wallptr += n;
                                         for (m=begwalltomove; m<numwalls; m++)
@@ -4473,6 +4500,9 @@ check_next_sector: ;
                                 if (wall[i].point2 >= suckwall)
                                     wall[i].point2 += j;
                             }
+#ifdef YAX_ENABLE
+                            yax_tweakwalls(suckwall, j);
+#endif
 
                             Bmemmove(&wall[suckwall+j], &wall[suckwall], (newnumwalls-suckwall)*sizeof(walltype));
                             Bmemmove(&wall[suckwall], &wall[newnumwalls], j*sizeof(walltype));
@@ -4962,12 +4992,32 @@ end_space_handling:
                 }
                 else
                 {
-                    getclosestpointonwall(mousxplc,mousyplc, linehighlight, &dax,&day);
-                    adjustmark(&dax,&day, newnumwalls);
-
+                    getclosestpointonwall(m32_sideview?searchx:mousxplc, m32_sideview?searchy:mousyplc,
+                                          linehighlight, &dax,&day, 1);
                     i = linehighlight;
+                    if (m32_sideview)
+                    {
+                        int32_t y_p, d, dx, dy, frac;
+
+                        dx = dax - m32_wallscreenxy[i][0];
+                        dy = day - m32_wallscreenxy[i][1];
+                        d = max(dx, dy);
+                        y_p = (dy>dx);
+
+                        if (d==0)
+                            goto point_not_inserted;
+
+                        frac = divscale24(d, m32_wallscreenxy[wall[i].point2][y_p]-m32_wallscreenxy[i][y_p]);
+                        dax = POINT2(i).x - wall[i].x;
+                        day = POINT2(i).y - wall[i].y;
+                        dax = wall[i].x + mulscale24(dax,frac);
+                        day = wall[i].y + mulscale24(day,frac);
+                    }
+
+                    adjustmark(&dax,&day, newnumwalls);
                     if ((wall[i].x == dax && wall[i].y == day) || (POINT2(i).x == dax && POINT2(i).y == day))
                     {
+point_not_inserted:
                         printmessage16("Point not inserted.");                        
                     }
                     else
@@ -5572,6 +5622,7 @@ void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)
 static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
 {
     int32_t i, dst, dist, closest, x1, y1, x2, y2, nx, ny;
+    int32_t daxplc, dayplc;
 
     if (numwalls == 0)
         return -1;
@@ -5583,11 +5634,23 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
         return -1;
 
     dist = 1024;
+    if (m32_sideview)
+    {
+        daxplc = searchx;
+        dayplc = searchy;
+        dist = mulscale14(dist, zoom);
+    }
+    else
+    {
+        daxplc = xplc;
+        dayplc = yplc;
+    }
+
     closest = -1;
     for (i=0; i<numwalls; i++)
     {
-        getclosestpointonwall(xplc,yplc, i, &nx,&ny);
-        dst = klabs(xplc-nx) + klabs(yplc-ny);
+        getclosestpointonwall(daxplc,dayplc, i, &nx,&ny, 1);
+        dst = klabs(daxplc-nx) + klabs(dayplc-ny);
         if (dst <= dist)
         {
             dist = dst;
@@ -5602,7 +5665,7 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
         y1 = wall[closest].y;
         x2 = POINT2(closest).x;
         y2 = POINT2(closest).y;
-        if (dmulscale32(xplc-x1,y2-y1,-(x2-x1),yplc-y1) >= 0)
+        if (dmulscale32(daxplc-x1,y2-y1,-(x2-x1),dayplc-y1) >= 0)
             closest = wall[closest].nextwall;
     }
 
@@ -5970,6 +6033,9 @@ static int32_t movewalls(int32_t start, int32_t offs)
         if (wall[i].nextwall >= start) wall[i].nextwall += offs;
         if (wall[i].point2 >= start) wall[i].point2 += offs;
     }
+#ifdef YAX_ENABLE
+    yax_tweakwalls(start, offs);
+#endif
 
     return(0);
 }
@@ -7258,7 +7324,8 @@ void showwalldata(int16_t wallnum, int16_t small)
 
     if (small)
     {
-        _printmessage16("^10Wall %d %s ^O(F8 to edit)", wallnum, ExtGetWallCaption(wallnum));
+        _printmessage16("^10Wall %d %s ^O(F8 to edit)", wallnum,
+                        ExtGetWallCaption(wallnum));
         return;
     }
 
@@ -7440,21 +7507,35 @@ void printmessage256(int32_t x, int32_t y, const char *name)
 }
 
 //Find closest point (*dax, *day) on wall (dawall) to (x, y)
-static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny)
+static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny,
+                                  int32_t maybe_screen_coord_p)
 {
-    walltype *wal;
-    int64_t i, j, dx, dy;
+    int64_t i, j, wx,wy, wx2,wy2, dx, dy;
 
-    wal = &wall[dawall];
-    dx = wall[wal->point2].x - wal->x;
-    dy = wall[wal->point2].y - wal->y;
-    i = dx*(x-wal->x) + dy*(y-wal->y);
-    if (i <= 0) { *nx = wal->x; *ny = wal->y; return; }
-    j = dx*dx+dy*dy;
-    if (i >= j) { *nx = wal->x+dx; *ny = wal->y+dy; return; }
+    if (m32_sideview && maybe_screen_coord_p)
+    {
+        wx = m32_wallscreenxy[dawall][0];
+        wy = m32_wallscreenxy[dawall][1];
+        wx2 = m32_wallscreenxy[wall[dawall].point2][0];
+        wy2 = m32_wallscreenxy[wall[dawall].point2][1];
+    }
+    else
+    {
+        wx = wall[dawall].x;
+        wy = wall[dawall].y;
+        wx2 = POINT2(dawall).x;
+        wy2 = POINT2(dawall).y;
+    }
+
+    dx = wx2 - wx;
+    dy = wy2 - wy;
+    i = dx*(x-wx) + dy*(y-wy);
+    if (i <= 0) { *nx = wx; *ny = wy; return; }
+    j = dx*dx + dy*dy;
+    if (i >= j) { *nx = wx2; *ny = wy2; return; }
     i=((i<<15)/j)<<15;
-    *nx = wal->x + ((dx*i)>>30);
-    *ny = wal->y + ((dy*i)>>30);
+    *nx = wx + ((dx*i)>>30);
+    *ny = wy + ((dy*i)>>30);
 }
 
 static void initcrc(void)

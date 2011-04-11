@@ -795,81 +795,36 @@ static int32_t tileInGroup(int32_t group, int32_t tilenum)
 
 const char *ExtGetSectorType(int32_t lotag)
 {
-    static char tempbuf[64];
-
-    Bmemset(tempbuf,0,sizeof(tempbuf));
     switch (lotag)
     {
-    case 1:
-        Bsprintf(tempbuf,"WATER (SE 7)");
-        break;
-    case 2:
-        Bsprintf(tempbuf,"UNDERWATER (SE 7)");
-        break;
-    case 9:
-        Bsprintf(tempbuf,"STAR TREK DOORS");
-        break;
-    case 15:
-        Bsprintf(tempbuf,"ELEVATOR TRANSPORT (SE 17)");
-        break;
-    case 16:
-        Bsprintf(tempbuf,"ELEVATOR PLATFORM DOWN");
-        break;
-    case 17:
-        Bsprintf(tempbuf,"ELEVATOR PLATFORM UP");
-        break;
-    case 18:
-        Bsprintf(tempbuf,"ELEVATOR DOWN");
-        break;
-    case 19:
-        Bsprintf(tempbuf,"ELEVATOR UP");
-        break;
-    case 20:
-        Bsprintf(tempbuf,"CEILING DOOR");
-        break;
-    case 21:
-        Bsprintf(tempbuf,"FLOOR DOOR");
-        break;
-    case 22:
-        Bsprintf(tempbuf,"SPLIT DOOR");
-        break;
-    case 23:
-        Bsprintf(tempbuf,"SWING DOOR (SE 11)");
-        break;
-    case 25:
-        Bsprintf(tempbuf,"SLIDE DOOR (SE 15)");
-        break;
-    case 26:
-        Bsprintf(tempbuf,"SPLIT STAR TREK DOOR");
-        break;
-    case 27:
-        Bsprintf(tempbuf,"BRIDGE (SE 20)");
-        break;
-    case 28:
-        Bsprintf(tempbuf,"DROP FLOOR (SE 21)");
-        break;
-    case 29:
-        Bsprintf(tempbuf,"TEETH DOOR (SE 22)");
-        break;
-    case 30:
-        Bsprintf(tempbuf,"ROTATE RISE BRIDGE");
-        break;
-    case 31:
-        Bsprintf(tempbuf,"2 WAY TRAIN (SE=30)");
-        break;
-    case 32767:
-        Bsprintf(tempbuf,"SECRET ROOM");
-        break;
-    case -1:
-        Bsprintf(tempbuf,"END OF LEVEL");
-        break;
-    default :
+    case 1: return "WATER (SE 7)";
+    case 2: return "UNDERWATER (SE 7)";
+    case 9: return "STAR TREK DOORS";
+    case 15: return "ELEVATOR TRANSPORT (SE 17)";
+    case 16: return "ELEVATOR PLATFORM DOWN";
+    case 17: return "ELEVATOR PLATFORM UP";
+    case 18: return "ELEVATOR DOWN";
+    case 19: return "ELEVATOR UP";
+    case 20: return "CEILING DOOR";
+    case 21: return "FLOOR DOOR";
+    case 22: return "SPLIT DOOR";
+    case 23: return "SWING DOOR (SE 11)";
+    case 25: return "SLIDE DOOR (SE 15)";
+    case 26: return "SPLIT STAR TREK DOOR";
+    case 27: return "BRIDGE (SE 20)";
+    case 28: return "DROP FLOOR (SE 21)";
+    case 29: return "TEETH DOOR (SE 22)";
+    case 30: return "ROTATE RISE BRIDGE";
+    case 31: return "2 WAY TRAIN (SE=30)";
+    case 32767: return "SECRET ROOM";
+    case -1: return "END OF LEVEL";
+    default:
         if (lotag > 10000 && lotag < 32767)
-            Bsprintf(tempbuf,"1 TIME SOUND");
-        //        else  Bsprintf(tempbuf,"%hu",lotag);
-        break;
+            return "1 TIME SOUND";
+//        else Bsprintf(tempbuf,"%hu",lotag);
     }
-    return(tempbuf);
+
+    return "";
 }
 
 const char *ExtGetSectorCaption(int16_t sectnum)
@@ -916,7 +871,19 @@ const char *ExtGetWallCaption(int16_t wallnum)
     if ((wall[wallnum].lotag|wall[wallnum].hitag) == 0)
         tempbuf[0] = 0;
     else
+    {
+#ifdef YAX_ENABLE
+        if (yax_getnextwall(wallnum, YAX_CEILING) >= 0)  // ceiling nextwall: lotag
+        {
+            if (wall[wallnum].hitag == 0)
+                tempbuf[0] = 0;
+            else
+                Bsprintf(tempbuf, "%hu,*", wall[wallnum].hitag);
+        }
+        else
+#endif
         Bsprintf(tempbuf, "%hu,%hu", wall[wallnum].hitag, wall[wallnum].lotag);
+    }
 
     return(tempbuf);
 } //end
@@ -1104,8 +1071,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     for (i=0; i<numsectors; i++)
         secrets += (sector[i].lotag==32767);
 
-    i = headspritestat[0];
-    while (i != -1)
+    for (i=headspritestat[0]; i != -1; i=nextspritestat[i])
     {
         // Count all non-player actors.
         if (tileInGroup(tilegroupActors, sprite[i].picnum))
@@ -1118,8 +1084,6 @@ void ExtShowSectorData(int16_t sectnum)   //F5
 
         if (sprite[i].picnum == RESPAWN)
             totalrespawn++;
-
-        i = nextspritestat[i];
     }
 
     Bmemset(numsprite, 0, sizeof(numsprite));
@@ -1613,7 +1577,6 @@ static void ReadHelpFile(const char *name)
     return;
 
 HELPFILE_ERROR:
-
     Bfclose(fp);
     initprintf("ReadHelpFile(): ERROR allocating memory.\n");
     return;

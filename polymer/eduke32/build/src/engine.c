@@ -192,8 +192,33 @@ int16_t editstatus = 0;
 
 // game-time YAX data structures
 static int16_t yax_bunchnum[MAXSECTORS][2];
+static int16_t yax_nextwall[MAXWALLS][2];
+
+static int32_t yax_islockededge(/*int16_t sec,*/ int16_t line, int16_t cf)
+#if 1
+{
+//    UNREFERENCED_PARAMETER(sec);
+    return !!(wall[line].cstat&(YAX_NEXTWALLBIT(cf)));
+}
+#else
+{
+    int16_t bunchnum, nextbunch;
+    int16_t ns = wall[line].nextsector;
+
+    bunchnum = yax_getbunch(sec, cf);
+
+    if (ns < 0)
+        return (bunchnum >= 0);
+
+    nextbunch = yax_getbunch(ns, cf);
+
+    return (bunchnum != nextbunch);
+}
+#endif
 
 #define YAX_BUNCHNUM(Sect, Cf) (*(int16_t *)(&sector[Sect].ceilingxpanning + 6*Cf))
+
+//// bunch getters/setters
 int16_t yax_getbunch(int16_t i, int16_t cf)
 {
     if (editstatus==0)
@@ -214,7 +239,10 @@ void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
 void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
 {
     if (editstatus==0)
+    {
         yax_bunchnum[i][cf] = bunchnum;
+        return;
+    }
 
     if (bunchnum<0)
     {
@@ -233,9 +261,38 @@ void yax_setbunches(int16_t i, int16_t cb, int16_t fb)
     yax_setbunch(i, YAX_FLOOR, fb);
 }
 
+//// nextwall getters/setters
+int16_t yax_getnextwall(int16_t wal, int16_t cf)
+{
+    if (editstatus==0)
+        return yax_nextwall[wal][cf];
+
+    if (!yax_islockededge(wal, cf))
+        return -1;
+
+    return YAX_NEXTWALL(wal, cf);
+}
+
+// unchecked!
+void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
+{
+    if (editstatus==0)
+    {
+        yax_nextwall[wal][cf] = thenextwall;
+        return;
+    }
+
+    if (thenextwall >= 0)
+        wall[wal].cstat |= YAX_NEXTWALLBIT(cf);
+    else
+        wall[wal].cstat &= ~YAX_NEXTWALLBIT(cf);
+    YAX_NEXTWALL(wal, cf) = thenextwall;
+}
+
+//// in-struct --> array transfer; list construction
 void yax_update(int32_t onlyreset)
 {
-    int32_t i, oeditstatus=editstatus;
+    int32_t i, j, oeditstatus=editstatus;
     int16_t cb, fb, tmpsect;
 
     numyaxbunches = 0;
@@ -247,6 +304,8 @@ void yax_update(int32_t onlyreset)
     }
     for (i=0; i<YAX_MAXBUNCHES; i++)
         headsectbunch[0][i] = headsectbunch[1][i] = -1;
+    for (i=0; i<MAXWALLS; i++)
+        yax_nextwall[i][0] = yax_nextwall[i][1] = -1;
 
     if (onlyreset)
         return;
@@ -261,6 +320,12 @@ void yax_update(int32_t onlyreset)
 
         if (cb >= 0)
         {
+            for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+            {
+                if (yax_islockededge(j,YAX_CEILING))
+                    yax_nextwall[j][0] = YAX_NEXTWALL(j,0);
+            }
+
             if (headsectbunch[0][cb] == -1)
             {
                 headsectbunch[0][cb] = i;
@@ -278,6 +343,12 @@ void yax_update(int32_t onlyreset)
 
         if (fb >= 0)
         {
+            for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+            {
+                if (yax_islockededge(j,YAX_FLOOR))
+                    yax_nextwall[j][1] = YAX_NEXTWALL(j,1);
+            }
+
             if (headsectbunch[1][fb] == -1)
                 headsectbunch[1][fb] = i;
             else
@@ -301,8 +372,9 @@ int16_t m32_sideang = 200;  // azimuth, 0..2047
 
 int32_t m32_sidecos, m32_sidesin;
 int32_t m32_swcnt;
-int16_t *m32_wallsprite;  // [MAXSWALLS+MAXSPRITES]
-static int32_t *m32_sidedist;  // [MAXSWALLS+MAXSPRITES]
+int32_t m32_wallscreenxy[MAXWALLS][2];
+int16_t m32_wallsprite[MAXWALLS+MAXSPRITES];
+static int32_t m32_sidedist[MAXWALLS+MAXSPRITES];
 static vec3_t m32_viewplane;
 
 
@@ -12032,6 +12104,26 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
 
     for (i=startwall; i<endwall; i++)
         if (wall[i].nextwall >= 0) wall[wall[i].nextwall].nextwall = i;
+#ifdef YAX_ENABLE
+    {
+        int16_t cb, fb;
+        yax_getbunches(sectnum, &cb, &fb);
+
+        if (cb>=0 || fb>=0)
+        {
+            for (i=startwall; i<endwall; i++)
+            {
+                j = yax_getnextwall(i, YAX_CEILING);
+                if (j >= 0)
+                    yax_setnextwall(j, YAX_FLOOR, i);
+
+                j = yax_getnextwall(i, YAX_FLOOR);
+                if (j >= 0)
+                    yax_setnextwall(j, YAX_CEILING, i);
+            }
+        }
+    }
+#endif
 
     Bfree(tmpwall);
 }
@@ -12854,6 +12946,9 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 //            if (i < wall[j].point2)
                 drawline16mid(x1,y1, x1,y1+getscreenvdisp(fzn-fz,zoome), editorcolors[col]);
         }
+
+        m32_wallscreenxy[i][0] = halfxdim16+x1;
+        m32_wallscreenxy[i][1] = midydim16+y1;
     }
 
     if (wal->cstat&64)  // if hitscan bit set
@@ -13117,18 +13212,6 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     if (qsetmode == 200) return;
 
     setup_sideview_sincos();
-    if (m32_sideview && !m32_wallsprite)
-    {
-        m32_wallsprite = Bmalloc((MAXWALLS+MAXSPRITES)*sizeof(int16_t));
-        m32_sidedist = Bmalloc((MAXWALLS+MAXSPRITES)*sizeof(m32_sidedist[0]));
-        if (!m32_wallsprite || !m32_sidedist)
-        {
-            if (m32_wallsprite) Bfree(m32_wallsprite);
-            if (m32_sidedist) { Bfree(m32_sidedist); m32_sidedist=NULL; }
-            initprintf("out of memory!");
-            m32_sideview = 0;
-        }
-    }
 
     begindrawing(); //{{{
 
