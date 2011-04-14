@@ -1086,8 +1086,8 @@ static inline void prelevel(char g)
             if (PN == SECTOREFFECTOR && SLT == 14)
                 A_Spawn(-1,i);
 
-            if (sprite[i].cstat&2048)
-                actor[i].flags |= SPRITE_NOSHADE;
+//            if (sprite[i].cstat&2048)
+//                actor[i].flags |= SPRITE_NOSHADE;
         }
 
     lotaglist = 0;

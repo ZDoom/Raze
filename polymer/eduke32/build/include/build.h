@@ -75,6 +75,9 @@ extern "C" {
 // more user tag hijacking: lotag/extra :/
 #define YAX_NEXTWALL(Wall, Cf) (*(&wall[Wall].lotag + 2*Cf))
 
+#define YAX_ITER_WALLS(Wal, Itervar, Cfvar) Cfvar=0, Itervar=(Wal); Itervar!=-1; \
+    Itervar=yax_getnextwall(Itervar, Cfvar), (void)(Itervar==-1 && Cfvar==0 && (Cfvar=1) && (Itervar=yax_getnextwall((Wal), Cfvar)))
+
 int16_t yax_getbunch(int16_t i, int16_t cf);
 void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb);
 void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum);
@@ -572,6 +575,7 @@ void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 int32_t   sectorofwall(int16_t theline);
 int32_t   sectorofwall_noquick(int16_t theline);
 int32_t   loopnumofsector(int16_t sectnum, int16_t wallnum);
+void setslope(int32_t sectnum, int32_t cf, int16_t slope);
 
 // int32_t   insertsprite(int16_t sectnum, int16_t statnum);
 // int32_t   deletesprite(int16_t spritenum);

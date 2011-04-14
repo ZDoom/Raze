@@ -141,6 +141,8 @@ void mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_
 {
     char ch;
 
+    UNREFERENCED_PARAMETER(junk);
+
     gbuf = (char *)bufplc;
     gpal = (char *)asm3;
     for (cntup16>>=16; cntup16>0; cntup16--)
@@ -157,6 +159,8 @@ void tsethlineshift(int32_t logx, int32_t logy) { glogx = logx; glogy = logy; }
 void thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, intptr_t p)
 {
     char ch;
+
+    UNREFERENCED_PARAMETER(junk);
 
     gbuf = (char *)bufplc;
     gpal = (char *)asm3;

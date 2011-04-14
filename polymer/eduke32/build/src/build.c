@@ -364,20 +364,6 @@ static void yax_resetbunchnums(void)
     yax_update(1);
 }
 
-static void setslope(int32_t sectnum, int32_t cf, int16_t slope)
-{
-    if (slope==0)
-    {
-        SECTORFLD(sectnum,stat, cf) &= ~2;
-        SECTORFLD(sectnum,heinum, cf) = 0;
-    }
-    else
-    {
-        SECTORFLD(sectnum,stat, cf) |= 2;
-        SECTORFLD(sectnum,heinum, cf) = slope;
-    }
-}
-
 // Whether a wall is constrained by sector extensions.
 // If false, it's a wall that you can freely move around,
 // attach points to, etc...
@@ -623,7 +609,8 @@ CANCEL:
 #ifdef M32_SHOWDEBUG
         if (searchstat>=0 && (searchwall<0 || searchsector<0))
         {
-            Bsprintf(m32_debugstr[m32_numdebuglines++], "inconsistent search variables!");
+            if (m32_numdebuglines<64)
+                Bsprintf(m32_debugstr[m32_numdebuglines++], "inconsistent search variables!");
             searchstat = -1;
         }
 
@@ -982,7 +969,14 @@ void editinput(void)
     mainloop_move();
 
     getzrange(&pos,cursectnum, &hiz,&hihit, &loz,&lohit, 128,CLIPMASK0);
-
+/*
+{
+    int32_t his = !(hihit&32768), los = !(lohit&32768);
+    if (m32_numdebuglines<64)
+        Bsprintf(m32_debugstr[m32_numdebuglines++], "s%d: cf[%s%d, %s%d] z(%d, %d)", cursectnum,
+                 his?"s":"w",hihit&16383, los?"s":"w",lohit&16383, hiz,loz);
+}
+*/
     oposz = pos.z;
     if (zmode == 0)
     {
@@ -1498,18 +1492,13 @@ static void ovh_whiteoutgrab(void)
     //not highlighted on both sides
     for (i=highlightsectorcnt-1; i>=0; i--)
     {
-        startwall = sector[highlightsector[i]].wallptr;
-        endwall = startwall + sector[highlightsector[i]].wallnum;
-        for (j=startwall; j<endwall; j++)
+        for (WALLS_OF_SECTOR(highlightsector[i], j))
         {
             if (wall[j].nextwall >= 0)
             {
-//                for (k=highlightsectorcnt-1; k>=0; k--)
-//                    if (highlightsector[k] == wall[j].nextsector)
-//                        break;
                 k = wall[j].nextsector;
+
                 if ((hlsectorbitmap[k>>3]&(1<<(k&7)))==0)
-//                if (k < 0)
                 {
                     NEXTWALL(j).nextwall = -1;
                     NEXTWALL(j).nextsector = -1;
@@ -1870,6 +1859,10 @@ static void copy_some_wall_members(int16_t dst, int16_t src)
     dstwal->lotag = 0; //srcwal->lotag;
     dstwal->hitag = 0; //srcwal->hitag;
     dstwal->extra = -1; //srcwal->extra;
+#ifdef YAX_ENABLE
+    yax_setnextwall(dst, YAX_CEILING, -1);
+    yax_setnextwall(dst, YAX_FLOOR, -1);
+#endif
 }
 
 // helpers for often needed ops:
@@ -1917,6 +1910,7 @@ static int32_t ask_above_or_below(void);
 //  0: continue
 // >0: newnumwalls
 // <0: error
+// ignore_ret and refsect_ret are for the 'auto-red-wall' feature
 static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, int16_t *refsect_ret,
                           int16_t trace_loop_yaxcf)
 {
@@ -1966,6 +1960,7 @@ static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, 
 
             Bmemcpy(&wall[k], &wall[j], sizeof(walltype));
             wall[k].point2 = k+1;
+// TODO: protect lotag/extra; see also hl-sector copying stuff
             wall[k].nextsector = wall[k].nextwall = wall[k].extra = -1;
 #ifdef YAX_ENABLE
             if (trace_loop_yaxcf >= 0)
@@ -2902,6 +2897,13 @@ void overheadeditor(void)
                             numwalls = m;
                             goto end_yax;
                         }
+
+                        if (numwalls != m)
+                        {
+                            message("Sectors to extend must be in one connected component");
+                            numwalls = m;
+                            goto end_yax;
+                        }
 //message("loop");
                         wall[k-1].point2 = numwalls;
                         numwalls = k;
@@ -3193,9 +3195,10 @@ end_yax: ;
                     {
                         for (WALLS_OF_SECTOR(highlightsector[i], j))
                         {
-                            if (wall[j].nextwall >= 0)
-                                checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                            didmakered |= !!checksectorpointer(j, highlightsector[i]);
+//                            if (wall[j].nextwall >= 0)
+//                                checksectorpointer(wall[j].nextwall,wall[j].nextsector);
+                            if (wall[j].nextwall < 0)
+                                didmakered |= !!checksectorpointer(j, highlightsector[i]);
 
                             if (!didmakered)
                             {
@@ -4586,6 +4589,9 @@ check_next_sector: ;
                     }
 
                     asksave = 1;
+#ifdef YAX_ENABLE
+                    yax_update(0);
+#endif
 
                     goto end_space_handling;
                 }
@@ -4809,6 +4815,10 @@ split_not_enough_walls:
                     }
 
                     newnumwalls = -1;
+                    asksave = 1;
+#ifdef YAX_ENABLE
+                    yax_update(0);
+#endif
                 }
             }
         }
@@ -4824,7 +4834,8 @@ end_space_handling:
                 {
                     startwall = sector[i].wallptr;
                     for (j=startwall; j<numwalls; j++)
-                        if (wall[j].point2 < startwall) startwall = wall[j].point2;
+                        if (startwall > wall[j].point2)
+                            startwall = wall[j].point2;
                     sector[i].wallptr = startwall;
                 }
                 for (i=numsectors-2; i>=0; i--)
@@ -4849,7 +4860,7 @@ end_space_handling:
                 if (linehighlight >= 0)
                 {
                     checksectorpointer(linehighlight,sectorofwall(linehighlight));
-                    printmessage16("Highlighted line pointers checked.");
+                    printmessage16("Checked pointers of highlighted line.");
                     asksave = 1;
                 }
             }
@@ -5023,10 +5034,68 @@ point_not_inserted:
                     else
                     {
 #ifdef YAX_ENABLE
-                        int32_t sec = sectorofwall(linehighlight);
-                        if (yax_islockedwall(sec, linehighlight))
+                        int32_t sec = sectorofwall(linehighlight), nextw=wall[linehighlight].nextwall;
+                        int32_t tmpcf;
+
+                        k = linehighlight;
+                        if (yax_islockedwall(sec, k) || yax_islockedwall(wall[k].nextsector, wall[k].nextwall))
                         {
-                            printmessage16("Inserting point in constrained wall: not implemented!");
+                            // yax'ed wall -- first find out which walls are affected
+                            for (i=0; i<numwalls; i++)
+                                wall[i].cstat &= ~(1<<14);
+
+                            // round 1
+                            for (YAX_ITER_WALLS(linehighlight, i, tmpcf))
+                                wall[i].cstat |= (1<<14);
+                            if (nextw >= 0)
+                                for (YAX_ITER_WALLS(nextw, i, tmpcf))
+                                    wall[i].cstat |= (1<<14);
+                            // round 2 (enough?)
+                            for (YAX_ITER_WALLS(linehighlight, i, tmpcf))
+                                if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
+                                    wall[wall[i].nextwall].cstat |= (1<<14);                                    
+                            if (nextw >= 0)
+                                for (YAX_ITER_WALLS(nextw, i, tmpcf))
+                                    if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
+                                        wall[wall[i].nextwall].cstat |= (1<<14);
+
+                            j = 0;
+                            for (i=0; i<numwalls; i++)
+                                j += !!(wall[i].cstat&(1<<14));
+                            if (max(numwalls,onewnumwalls)+j > MAXWALLS)
+                            {
+                                printmessage16("Inserting points would exceed wall limit.");
+                                goto end_insert_points;
+                            }
+                            m = 0;
+                            for (i=0; i<numwalls; i++)
+                            {
+                                if (wall[i].cstat&(1<<14))
+                                    if (wall[i].nextwall<0 || i<wall[i].nextwall) // || !(NEXTWALL(i).cstat&(1<<14)) ??
+                                    {
+                                        insertpoint(i, dax,day);
+                                        m += 1+(wall[i].nextwall>=0);
+                                    }
+                            }
+
+                            for (i=0; i<numwalls; i++)
+                            {
+                                if (wall[i].cstat&(1<<14))
+                                {
+                                    wall[i].cstat &= ~(1<<14);
+                                    k = yax_getnextwall(i+1, YAX_CEILING);
+                                    if (k >= 0)
+                                        yax_setnextwall(i+1, YAX_CEILING, k+1);
+                                    k = yax_getnextwall(i+1, YAX_FLOOR);
+                                    if (k >= 0)
+                                        yax_setnextwall(i+1, YAX_FLOOR, k+1);
+                                }
+                            }
+
+                            if (m==j)
+                                message("Inserted %d points for constrained wall.", m);
+                            else
+                                message("Inserted %d points for constrained wall (expected %d, WTF?).", m, j);
                         }
                         else
 #endif
@@ -5036,7 +5105,9 @@ point_not_inserted:
                         }
                     }
                 }
-
+#ifdef YAX_ENABLE
+end_insert_points:
+#endif
                 backup_drawn_walls(1);
 
                 asksave = 1;
@@ -5661,12 +5732,27 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
     if (closest>=0 && wall[closest].nextwall >= 0)
     {
         //if red line, allow highlighting of both sides
-        x1 = wall[closest].x;
-        y1 = wall[closest].y;
-        x2 = POINT2(closest).x;
-        y2 = POINT2(closest).y;
-        if (dmulscale32(daxplc-x1,y2-y1,-(x2-x1),dayplc-y1) >= 0)
-            closest = wall[closest].nextwall;
+        if (m32_sideview)
+        {
+            x1 = m32_wallscreenxy[closest][0];
+            y1 = m32_wallscreenxy[closest][1];
+            x2 = m32_wallscreenxy[wall[closest].point2][0];
+            y2 = m32_wallscreenxy[wall[closest].point2][1];
+        }
+        else
+        {
+            x1 = wall[closest].x;
+            y1 = wall[closest].y;
+            x2 = POINT2(closest).x;
+            y2 = POINT2(closest).y;
+        }
+
+        i = wall[closest].nextwall;
+        if (!m32_sideview ||
+            ((*(int64_t *)m32_wallscreenxy[closest]==*(int64_t *)m32_wallscreenxy[wall[i].point2]) &&
+             (*(int64_t *)m32_wallscreenxy[wall[closest].point2]==*(int64_t *)m32_wallscreenxy[i])))
+            if (dmulscale32(daxplc-x1,y2-y1,-(x2-x1),dayplc-y1) >= 0)
+                closest = wall[closest].nextwall;
     }
 
     return closest;
@@ -5867,7 +5953,9 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
 
     movewalls(j+1, +1);
     Bmemcpy(&wall[j+1], &wall[j], sizeof(walltype));
-
+#ifdef YAX_ENABLE
+    wall[j+1].cstat &= ~(1<<14);
+#endif
     wall[j].point2 = j+1;
     wall[j+1].x = dax;
     wall[j+1].y = day;
@@ -5888,7 +5976,9 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
 
         movewalls(k+1, +1);
         Bmemcpy(&wall[k+1], &wall[k], sizeof(walltype));
-
+#ifdef YAX_ENABLE
+        wall[k+1].cstat &= ~(1<<14);
+#endif
         wall[k].point2 = k+1;
         wall[k+1].x = dax;
         wall[k+1].y = day;

@@ -283,10 +283,15 @@ void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
     }
 
     if (thenextwall >= 0)
+    {
         wall[wal].cstat |= YAX_NEXTWALLBIT(cf);
+        YAX_NEXTWALL(wal, cf) = thenextwall;
+    }
     else
+    {
         wall[wal].cstat &= ~YAX_NEXTWALLBIT(cf);
-    YAX_NEXTWALL(wal, cf) = thenextwall;
+        YAX_NEXTWALL(wal, cf) = cf?-1:0;
+    }
 }
 
 //// in-struct --> array transfer; list construction
@@ -364,6 +369,23 @@ void yax_update(int32_t onlyreset)
 #undef YAX_BUNCHNUM
 
 #endif
+
+//
+// setslope
+//
+void setslope(int32_t sectnum, int32_t cf, int16_t slope)
+{
+    if (slope==0)
+    {
+        SECTORFLD(sectnum,stat, cf) &= ~2;
+        SECTORFLD(sectnum,heinum, cf) = 0;
+    }
+    else
+    {
+        SECTORFLD(sectnum,stat, cf) |= 2;
+        SECTORFLD(sectnum,heinum, cf) = slope;
+    }
+}
 
 ////////// editor side view //////////
 int32_t m32_sideview = 0;
@@ -931,40 +953,47 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
     x2 = (wall[wall[i].point2]).x;
     y2 = (wall[wall[i].point2]).y;
 
-    if (wall[i].nextwall >= 0)          //Check for early exit
+    k = wall[i].nextwall;
+    if (k >= 0)          //Check for early exit
     {
-        k = wall[i].nextwall;
         if (wall[k].x == x2 && wall[k].y == y2)
             if ((wall[wall[k].point2]).x == x1 && (wall[wall[k].point2]).y == y1)
-                return(0);
+                return 0;
+
+        wall[k].nextwall = wall[k].nextsector = -1;
     }
 
-    wall[i].nextsector = -1;
-    wall[i].nextwall = -1;
+    wall[i].nextsector = wall[i].nextwall = -1;
+
     for (j=0; j<numsectors; j++)
     {
         startwall = sector[j].wallptr;
         endwall = startwall + sector[j].wallnum - 1;
         for (k=startwall; k<=endwall; k++)
         {
-            if (wall[k].x == x2 && wall[k].y == y2)
-                if (wall[wall[k].point2].x == x1 && wall[wall[k].point2].y == y1)
-                    if (j != sectnum)
-                    {
-                        // Don't create link if the other side is connected to another wall.
-                        // The nextwall relation should be definitely one-to-one at all times!
-                        if (wall[k].nextwall>=0 && wall[k].nextwall != i)
-                            continue;
+            if (wall[k].x != x2 || wall[k].y != y2)
+                continue;
 
-                        if (sectnum != -2)  // -2 means dry run
-                        {
-                            wall[i].nextsector = j;
-                            wall[i].nextwall = k;
-                            wall[k].nextsector = sectnum;
-                            wall[k].nextwall = i;
-                        }
-                        numnewwalls++;
-                    }
+            if (wall[wall[k].point2].x != x1 || wall[wall[k].point2].y != y1)
+                continue;
+
+            if (j == sectnum)
+                continue;
+
+            // Don't create link if the other side is connected to another wall.
+            // The nextwall relation should be definitely one-to-one at all times!
+            if (wall[k].nextwall>=0 && wall[k].nextwall != i)
+                continue;
+
+            if (sectnum != -2 && numnewwalls==0)  // -2 means dry run
+            {
+                wall[i].nextsector = j;
+                wall[i].nextwall = k;
+                wall[k].nextsector = sectnum;
+                wall[k].nextwall = i;
+            }
+
+            numnewwalls++;  
         }
     }
     return(numnewwalls);
@@ -1305,6 +1334,7 @@ char globalxshift, globalyshift;
 int32_t globalxpanning, globalypanning, globalshade;
 int16_t globalpicnum, globalshiftval;
 int32_t globalzd, globalyscale, globalorientation;
+static int32_t globalxspan, globalyspan, globalispow2=1;  // true if texture has power-of-two x and y size
 intptr_t globalbufplc;
 int32_t globalx1, globaly1, globalx2, globaly2, globalx3, globaly3, globalzx;
 int32_t globalx, globaly, globalz;
@@ -1543,7 +1573,7 @@ static void scansector(int16_t sectnum)
             rx2[numscans] = xp2; ry2[numscans] = yp2;
             p2[numscans] = numscans+1;
             numscans++;
-            skipitaddwall:
+skipitaddwall:
 
             if ((wall[z].point2 < z) && (scanfirst < numscans))
                 p2[numscans-1] = scanfirst, scanfirst = numscans;
@@ -2877,6 +2907,59 @@ static inline void transmaskwallscan(int32_t x1, int32_t x2)
     faketimerhandler();
 }
 
+////////// NON-power-of-two replacements for mhline/thline, adapted from a.c //////////
+static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, intptr_t p)
+{
+    char ch;
+
+    char *gbuf = (char *)bufplc;
+    char *gpal = (char *)asm3;
+
+    UNREFERENCED_PARAMETER(junk);
+
+    for (cntup16>>=16; cntup16>0; cntup16--)
+    {
+        ch = gbuf[(((uint64_t)bx)/((1ull<<32)/globalxspan))*globalyspan + ((uint64_t)by)/((1ull<<32)/globalyspan)];
+        if (ch != 255) *((char *)p) = gpal[ch];
+        bx += asm1;
+        by += asm2;
+        p++;
+    }
+}
+
+static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, intptr_t p)
+{
+    char ch;
+
+    char *gbuf = (char *)bufplc;
+    char *gpal = (char *)asm3;
+
+    UNREFERENCED_PARAMETER(junk);
+
+    if (globalorientation&512)
+    {
+        for (cntup16>>=16; cntup16>0; cntup16--)
+        {
+            ch = gbuf[(((uint64_t)bx)/((1ull<<32)/globalxspan))*globalyspan + ((uint64_t)by)/((1ull<<32)/globalyspan)];
+            if (ch != 255) *((char *)p) = transluc[(*((char *)p))+(gpal[ch]<<8)];
+            bx += asm1;
+            by += asm2;
+            p++;
+        }
+    }
+    else
+    {
+        for (cntup16>>=16; cntup16>0; cntup16--)
+        {
+            ch = gbuf[(((uint64_t)bx)/((1ull<<32)/globalxspan))*globalyspan + ((uint64_t)by)/((1ull<<32)/globalyspan)];
+            if (ch != 255) *((char *)p) = transluc[((*((char *)p))<<8)+gpal[ch]];
+            bx += asm1;
+            by += asm2;
+            p++;
+        }
+    }
+}
+////////// END non-power-of-two replacements //////////
 
 //
 // ceilspritehline (internal)
@@ -2899,11 +2982,23 @@ static inline void ceilspritehline(int32_t x2, int32_t y)
 
     asm3 = FP_OFF(palookup[globalpal]) + (getpalookup((int32_t)mulscale28(klabs(v),globvis),globalshade)<<8);
 
-    if ((globalorientation&2) == 0)
-        mhline(globalbufplc,bx,(x2-x1)<<16,0L,by,ylookup[y]+x1+frameoffset);
+    if (globalispow2)
+    {
+        if ((globalorientation&2) == 0)
+            mhline(globalbufplc,bx,(x2-x1)<<16,0L,by,ylookup[y]+x1+frameoffset);
+        else
+        {
+            thline(globalbufplc,bx,(x2-x1)<<16,0L,by,ylookup[y]+x1+frameoffset);
+        }
+    }
     else
     {
-        thline(globalbufplc,bx,(x2-x1)<<16,0L,by,ylookup[y]+x1+frameoffset);
+        if ((globalorientation&2) == 0)
+            nonpow2_mhline(globalbufplc,bx,(x2-x1)<<16,0L,by,ylookup[y]+x1+frameoffset);
+        else
+        {
+            nonpow2_thline(globalbufplc,bx,(x2-x1)<<16,0L,by,ylookup[y]+x1+frameoffset);
+        }
     }
 }
 
@@ -4660,13 +4755,14 @@ static void drawsprite(int32_t snum)
         if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
 
         x = picsiz[globalpicnum]; y = ((x>>4)&15); x &= 15;
+#if 0
         if (pow2long[x] != xspan)
         {
             x++;
             globalx1 = mulscale(globalx1,xspan,x);
             globalx2 = mulscale(globalx2,xspan,x);
         }
-
+#endif
         dax = globalxpanning; day = globalypanning;
         globalxpanning = -dmulscale6(globalx1,day,globalx2,dax);
         globalypanning = -dmulscale6(globaly1,day,globaly2,dax);
@@ -4683,8 +4779,13 @@ static void drawsprite(int32_t snum)
         else
             tsethlineshift(x,y);
 
+        globalispow2 = (pow2long[x]==xspan && pow2long[y]==yspan);
+        globalxspan = xspan;
+        globalyspan = yspan;
+
         //Draw it!
         ceilspritescan(lx,rx-1);
+        globalispow2 = 1;
     }
     else if ((cstat&48) == 48)
     {
@@ -9838,19 +9939,89 @@ int32_t neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ang
 // dragpoint
 //
 void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
+#ifdef YAX_ENABLE
+{
+    int32_t thelastwall, cnt, w, clockwise;
+    int32_t i, j, numyaxwalls=0, tmpcf;
+    static int16_t yaxwalls[MAXWALLS];
+
+    uint8_t *walbitmap = (uint8_t *)tempbuf;
+
+    Bmemset(walbitmap, 0, (numwalls+7)>>3);
+    yaxwalls[numyaxwalls++] = pointhighlight;
+
+    for (i=0; i<numyaxwalls; i++)
+    {
+        w = yaxwalls[i];
+        cnt = MAXWALLS;
+
+        clockwise = 0;
+        while (1)
+        {
+            wall[w].x = dax;
+            wall[w].y = day;
+            walbitmap[w>>3] |= (1<<(w&7));
+
+            for (YAX_ITER_WALLS(w, j, tmpcf))
+            {
+                if ((walbitmap[j>>3]&(1<<(j&7)))==0)
+                {
+                    walbitmap[j>>3] |= (1<<(j&7));
+                    yaxwalls[numyaxwalls++] = j;
+                }
+            }
+
+            if (clockwise==0)  //search points CCW
+            {
+                if (wall[w].nextwall >= 0)
+                    w = wall[wall[w].nextwall].point2;
+                else
+                    clockwise = 1;
+            }
+
+            if (clockwise==1)
+            {
+                thelastwall = lastwall(w);
+                if (wall[thelastwall].nextwall >= 0)
+                    w = wall[thelastwall].nextwall;
+                else
+                    break;
+            }
+
+            cnt--;
+            if ((walbitmap[w>>3] & (1<<(w&7))) || cnt==0)
+                break;
+        }
+    }
+
+    if (editstatus)
+    {
+        for (w=0; w<numwalls; w++)
+            if (walbitmap[w>>3] & (1<<(w&7)))
+                wall[w].cstat |= (1<<14);
+        if (linehighlight >= 0 && linehighlight < MAXWALLS)
+            wall[linehighlight].cstat |= (1<<14);
+        wall[lastwall(pointhighlight)].cstat |= (1<<14);
+    }
+}
+#else
 {
     int16_t cnt, tempshort;
     int32_t thelastwall;
 
-    wall[pointhighlight].x = dax;
-    wall[pointhighlight].y = day;
-    wall[pointhighlight].cstat |= (1<<14);
-    if (linehighlight >= 0 && linehighlight < MAXWALLS)
-        wall[linehighlight].cstat |= (1<<14);
-    wall[lastwall(pointhighlight)].cstat |= (1<<14);
-
-    cnt = MAXWALLS;
     tempshort = pointhighlight;    //search points CCW
+    cnt = MAXWALLS;
+
+    wall[tempshort].x = dax;
+    wall[tempshort].y = day;
+    if (editstatus)
+    {
+        wall[pointhighlight].cstat |= (1<<14);
+        if (linehighlight >= 0 && linehighlight < MAXWALLS)
+            wall[linehighlight].cstat |= (1<<14);
+        wall[lastwall(pointhighlight)].cstat |= (1<<14);
+    }
+
     do
     {
         if (wall[tempshort].nextwall >= 0)
@@ -9886,7 +10057,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
     }
     while ((tempshort != pointhighlight) && (cnt > 0));
 }
-
+#endif
 
 //
 // lastwall
@@ -10838,7 +11009,10 @@ int32_t krand(void)
 // getzrange
 //
 
-void getzrange(const vec3_t *vect, int16_t sectnum,
+//extern char m32_debugstr[64][128];
+//extern int32_t m32_numdebuglines;
+
+void getzrange(const vec3_t *pos, int16_t sectnum,
                int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit,
                int32_t walldist, uint32_t cliptype)
 {
@@ -10869,10 +11043,10 @@ void getzrange(const vec3_t *vect, int16_t sectnum,
 
     //Extra walldist for sprites on sector lines
     i = walldist+MAXCLIPDIST+1;
-    xmin = vect->x-i; ymin = vect->y-i;
-    xmax = vect->x+i; ymax = vect->y+i;
+    xmin = pos->x-i; ymin = pos->y-i;
+    xmax = pos->x+i; ymax = pos->y+i;
 
-    getzsofslope(sectnum,vect->x,vect->y,ceilz,florz);
+    getzsofslope(sectnum,pos->x,pos->y,ceilz,florz);
     *ceilhit = sectnum+16384; *florhit = sectnum+16384;
 
     dawalclipmask = (cliptype&65535);
@@ -10916,7 +11090,7 @@ restart_grand:
                 continue;
             }
 
-            clipsprite_initindex(curidx, curspr, &clipsectcnt, vect);
+            clipsprite_initindex(curidx, curspr, &clipsectcnt, pos);
 
             for (i=0; i<clipsectnum; i++)
             {
@@ -10926,19 +11100,19 @@ restart_grand:
                 if (k==sectq[clipinfo[curidx].qend])
                     continue;
 
-                getzsofslope((int16_t)k,vect->x,vect->y,&daz,&daz2);
-                getzsofslope(sectq[clipinfo[curidx].qend],vect->x,vect->y,&cz,&fz);
+                getzsofslope((int16_t)k,pos->x,pos->y,&daz,&daz2);
+                getzsofslope(sectq[clipinfo[curidx].qend],pos->x,pos->y,&cz,&fz);
                 hitwhat = (curspr-sprite)+49152;
 
                 if ((sector[k].ceilingstat&1)==0)
                 {
-                    if (vect->z < cz && cz < *florz) { *florz = cz; *florhit = hitwhat; }
-                    if (vect->z > daz && daz > *ceilz) { *ceilz = daz; *ceilhit = hitwhat; }
+                    if (pos->z < cz && cz < *florz) { *florz = cz; *florhit = hitwhat; }
+                    if (pos->z > daz && daz > *ceilz) { *ceilz = daz; *ceilhit = hitwhat; }
                 }
                 if ((sector[k].floorstat&1)==0)
                 {
-                    if (vect->z < daz2 && daz2 < *florz) { *florz = daz2; *florhit = hitwhat; }
-                    if (vect->z > fz && fz > *ceilz) { *ceilz = fz; *ceilhit = hitwhat; }
+                    if (pos->z < daz2 && daz2 < *florz) { *florz = daz2; *florhit = hitwhat; }
+                    if (pos->z > fz && fz > *ceilz) { *ceilz = fz; *ceilhit = hitwhat; }
                 }
             }
         }
@@ -10959,7 +11133,7 @@ restart_grand:
                 if ((y1 > ymax) && (y2 > ymax)) continue;
 
                 dx = x2-x1; dy = y2-y1;
-                if (dx*(vect->y-y1) < (vect->x-x1)*dy) continue; //back
+                if (dx*(pos->y-y1) < (pos->x-x1)*dy) continue; //back
                 if (dx > 0) dax = dx*(ymin-y1); else dax = dx*(ymax-y1);
                 if (dy > 0) day = dy*(xmax-x1); else day = dy*(xmin-x1);
                 if (dax >= day) continue;
@@ -10976,8 +11150,8 @@ restart_grand:
                 }
                 else if (editstatus == 0)
                 {
-                    if (((sec->ceilingstat&1) == 0) && (vect->z <= sec->ceilingz+(3<<8))) continue;
-                    if (((sec->floorstat&1) == 0) && (vect->z >= sec->floorz-(3<<8))) continue;
+                    if (((sec->ceilingstat&1) == 0) && (pos->z <= sec->ceilingz+(3<<8))) continue;
+                    if (((sec->floorstat&1) == 0) && (pos->z >= sec->floorz-(3<<8))) continue;
                 }
 
                 for (i=clipsectnum-1; i>=0; i--)
@@ -10993,21 +11167,21 @@ restart_grand:
                 if (dax >= day) continue;
 
                 //It actually got here, through all the continue's!!!
-                getzsofslope(k, vect->x,vect->y, &daz,&daz2);
+                getzsofslope(k, pos->x,pos->y, &daz,&daz2);
                 if (curspr)
                 {
                     int32_t fz,cz, hitwhat=(curspr-sprite)+49152;
-                    getzsofslope(sectq[clipinfo[curidx].qend],vect->x,vect->y,&cz,&fz);
+                    getzsofslope(sectq[clipinfo[curidx].qend],pos->x,pos->y,&cz,&fz);
 
                     if ((sec->ceilingstat&1)==0)
                     {
-                        if (vect->z < cz && cz < *florz) { *florz = cz; *florhit = hitwhat; }
-                        if (vect->z > daz && daz > *ceilz) { *ceilz = daz; *ceilhit = hitwhat; }
+                        if (pos->z < cz && cz < *florz) { *florz = cz; *florhit = hitwhat; }
+                        if (pos->z > daz && daz > *ceilz) { *ceilz = daz; *ceilhit = hitwhat; }
                     }
                     if ((sec->floorstat&1)==0)
                     {
-                        if (vect->z < daz2 && daz2 < *florz) { *florz = daz2; *florhit = hitwhat; }
-                        if (vect->z > fz && fz > *ceilz) { *ceilz = fz; *ceilhit = hitwhat; }
+                        if (pos->z < daz2 && daz2 < *florz) { *florz = daz2; *florhit = hitwhat; }
+                        if (pos->z > fz && fz > *ceilz) { *ceilz = fz; *ceilhit = hitwhat; }
                     }
                 }
                 else
@@ -11058,7 +11232,7 @@ restart_grand:
                 {
                 case 0:
                         k = walldist+(spr->clipdist<<2)+1;
-                    if ((klabs(x1-vect->x) <= k) && (klabs(y1-vect->y) <= k))
+                    if ((klabs(x1-pos->x) <= k) && (klabs(y1-pos->y) <= k))
                     {
                         daz = spr->z;
                         k = ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
@@ -11078,7 +11252,7 @@ restart_grand:
                     l = tilesizx[tilenum]; k = (l>>1)+xoff;
                     x1 -= mulscale16(dax,k); x2 = x1+mulscale16(dax,l);
                     y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
-                    if (clipinsideboxline(vect->x,vect->y,x1,y1,x2,y2,walldist+1) != 0)
+                    if (clipinsideboxline(pos->x,pos->y,x1,y1,x2,y2,walldist+1) != 0)
                     {
                         daz = spr->z; k = ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
                         if (cstat&128) daz += k;
@@ -11092,7 +11266,7 @@ restart_grand:
                         daz = spr->z; daz2 = daz;
 
                     if ((cstat&64) != 0)
-                        if ((vect->z > daz) == ((cstat&8)==0)) continue;
+                        if ((pos->z > daz) == ((cstat&8)==0)) continue;
 
                     tilenum = spr->picnum;
                     xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
@@ -11106,8 +11280,8 @@ restart_grand:
                     yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
 
                     dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
-                    x1 += dmulscale16(sinang,dax,cosang,day)-vect->x;
-                    y1 += dmulscale16(sinang,day,-cosang,dax)-vect->y;
+                    x1 += dmulscale16(sinang,dax,cosang,day)-pos->x;
+                    y1 += dmulscale16(sinang,day,-cosang,dax)-pos->y;
                     l = xspan*xrepeat;
                     x2 = x1 - mulscale16(sinang,l);
                     y2 = y1 + mulscale16(cosang,l);
@@ -11145,8 +11319,8 @@ restart_grand:
 
                 if (clipyou != 0)
                 {
-                    if ((vect->z > daz) && (daz > *ceilz)) { *ceilz = daz; *ceilhit = j+49152; }
-                    if ((vect->z < daz2) && (daz2 < *florz)) { *florz = daz2; *florhit = j+49152; }
+                    if ((pos->z > daz) && (daz > *ceilz)) { *ceilz = daz; *ceilhit = j+49152; }
+                    if ((pos->z < daz2) && (daz2 < *florz)) { *florz = daz2; *florhit = j+49152; }
                 }
             }
         }
@@ -11178,10 +11352,10 @@ restart_grand:
             {
                 cb = yax_getbunch(origclipsectorlist[i], YAX_CEILING);
                 for (j=headsectbunch[YAX_FLOOR][cb]; j!=-1; j=nextsectbunch[YAX_FLOOR][j])
-                    if (inside(vect->x,vect->y, j)==1)
+                    if (inside(pos->x,pos->y, j)==1)
                     {
                         clipsectorlist[clipsectnum++] = j;
-                        daz = getceilzofslope(j, vect->x,vect->y);
+                        daz = getceilzofslope(j, pos->x,pos->y);
                         if (!didchange || daz > *ceilz)
                             didchange=1, *ceilhit = j+16384, *ceilz = daz;
                     }
@@ -11201,14 +11375,14 @@ restart_grand:
             {
                 fb = yax_getbunch(origclipsectorlist[i], YAX_FLOOR);
                 for (j=headsectbunch[YAX_CEILING][fb]; j!=-1; j=nextsectbunch[YAX_CEILING][j])
-                    if (inside(vect->x,vect->y, j)==1)
+                    if (inside(pos->x,pos->y, j)==1)
                     {
                         clipsectorlist[clipsectnum++] = j;
-                        daz = getflorzofslope(j, vect->x,vect->y);
+                        daz = getflorzofslope(j, pos->x,pos->y);
                         if (!didchange || daz < *florz)
                             didchange=1, *florhit = j+16384, *florz = daz;
                     }
-            }            
+            }
         }
 
         if (clipsectnum > 0)
@@ -12946,6 +13120,19 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 //            if (i < wall[j].point2)
                 drawline16mid(x1,y1, x1,y1+getscreenvdisp(fzn-fz,zoome), editorcolors[col]);
         }
+#ifdef YAX_ENABLE
+        {
+            int16_t nw = yax_getnextwall(i, YAX_CEILING);
+            if (nw >= 0)
+            {
+                int32_t odrawlinepat = drawlinepat;
+                fz2 = getflorzofslope(sectorofwall(nw), wall[nw].x,wall[nw].y);
+                drawlinepat = 0x11111111;
+                drawline16mid(x1,y1, x1,y1+getscreenvdisp(fz2-fz,zoome), editorcolors[col]);
+                drawlinepat = odrawlinepat;
+            }
+        }
+#endif
 
         m32_wallscreenxy[i][0] = halfxdim16+x1;
         m32_wallscreenxy[i][1] = midydim16+y1;

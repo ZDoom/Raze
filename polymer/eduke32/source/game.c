@@ -5692,7 +5692,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     continue;
             }
 
-        if (A_CheckSpriteFlags(t->owner,SPRITE_NOSHADE))
+        if (A_CheckSpriteFlags(t->owner,SPRITE_NOSHADE) || (t->cstat&2048))
             l = sprite[t->owner].shade;
         else
         {

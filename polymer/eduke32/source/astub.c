@@ -185,28 +185,19 @@ static uint8_t wallflag[MAXWALLS>>3];
 static uint8_t havebunch[YAX_MAXBUNCHES];
 static int32_t *tempzar[YAX_MAXBUNCHES];
 
-// check whether bunchnum has exactly one corresponding floor and ceiling
-static int32_t yax_is121(int16_t bunchnum)
+// Check whether bunchnum has exactly one corresponding floor and ceiling
+// and return it in this case. If not 1-to-1, return -1.
+static int32_t yax_is121(int16_t bunchnum, int16_t getfloor)
 {
-    int32_t i, ccnt=0, fcnt=0;
-    int16_t cb, fb;
+    int32_t i;
+    i = headsectbunch[0][bunchnum];
+    if (i<0 || nextsectbunch[0][i]>=0)
+        return -1;
+    i = headsectbunch[1][bunchnum];
+    if (i<0 || nextsectbunch[1][i]>=0)
+        return -1;
 
-    for (i=0; i<numsectors; i++)
-    {
-        yax_getbunches(i, &cb, &fb);
-        if (cb>=0 && cb==bunchnum)
-            ccnt++;
-        if (fb>=0 && fb==bunchnum)
-            fcnt++;
-
-        if (ccnt>1 || fcnt>1)
-            return 0;
-    }
-
-    if (ccnt==1 && fcnt==1)
-        return 1;
-
-    return 0;
+    return headsectbunch[getfloor][bunchnum];
 }
 
 static void silentmessage(const char *fmt, ...);
@@ -702,8 +693,8 @@ void ExtLoadMap(const char *mapname)
     getmessagetimeoff = 0;
 
     Bstrcpy(levelname,mapname);
-    pskyoff[0]=0;
-    for (i=0; i<8; i++) pskyoff[i]=0;
+    for (i=0; i<8; i++)
+        pskyoff[i] = 0;
 
     for (i=0; i<numsectors; i++)
     {
@@ -761,6 +752,110 @@ void ExtSaveMap(const char *mapname)
     UNREFERENCED_PARAMETER(mapname);
     saveboard("backup.map",&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
 }
+
+
+////////// tag labeling system //////////
+
+#define TLCHR(Cond) ((Cond)?"+":"")
+static uint64_t taglab_nolink_SEs = (1ull<<10)|(1ull<<27)|(1ull<<28)|(1ull<<29)|(1ull<<49)|(1ull<<50);
+
+// Whether the individual tags have linking semantics. Based on
+//  http://infosuite.duke4.net/index.php?page=references_special_textures
+// The return value is an OR of the following:
+//  1: lotag has linking semantics
+//  2: hitag
+//  4: extra
+//  8: xvel
+//  16: yvel
+//  32: zvel
+//  64: owner
+int32_t taglab_linktags(int32_t spritep, int32_t num)
+{
+    int32_t picnum;
+    int32_t l, link = 0;
+
+    if (spritep)
+        picnum = sprite[num].picnum;
+    else
+        picnum = wall[num].picnum;
+
+    if (spritep)
+    {
+        switch (picnum)
+        {
+        case SECTOREFFECTOR:
+            // SEs potentially link by their hitag
+            l = sprite[num].lotag;
+            if (l>=0 && l<=63 && (taglab_nolink_SEs&(1ull<<l)))
+                break;
+            if (sprite[num].hitag > 0)
+                link = 2;
+            break;
+
+            // various lotag-linkers
+        case ACTIVATOR: case TOUCHPLATE: case ACTIVATORLOCKED: case MASTERSWITCH:
+        case RESPAWN:  // ---
+        case ACCESSSWITCH: case ACCESSSWITCH2:
+        case MULTISWITCH:  // *
+        case DIPSWITCH: case TECHSWITCH: case ALIENSWITCH: case TARGET: case DUCK:
+        case REACTOR:
+        case CAMERA1:
+            if (sprite[num].lotag > 0)
+                link = 1;
+            break;
+
+            // various hitag-linkers
+        case VIEWSCREEN2: case VIEWSCREEN:
+        case CRACK1: case CRACK2: case CRACK3: case CRACK4: case FIREEXT:
+        case FEM1: case FEM2: case FEM3: case FEM4: case FEM5: case FEM6:
+        case FEM7: case FEM8: case FEM9: case FEM10: case PODFEM1: case NAKED1: //case STATUE: //?
+        case SEENINE: case OOZFILTER:
+        case CRANEPOLE: case CRANE:
+        case NATURALLIGHTNING:
+            if (sprite[num].hitag > 0)
+                link = 2;
+            break;
+        }
+    }
+    else  // walls
+    {
+        switch (picnum)
+        {
+        case TECHLIGHT2: case TECHLIGHT4: case WALLLIGHT4:
+        case WALLLIGHT3: case WALLLIGHT1: case WALLLIGHT2:
+        case BIGFORCE: case W_FORCEFIELD:
+            if (sprite[num].lotag > 0)
+                link = 1;
+            break;
+        }
+    }
+
+    if (!link)
+    {
+        // try a few that work both as sprites and as walls
+        switch (picnum)
+        {
+        case ACCESSSWITCH: case SLOTDOOR: case LIGHTSWITCH: case SPACEDOORSWITCH:
+        case SPACELIGHTSWITCH: case FRANKENSTINESWITCH: case MULTISWITCH:
+        case DIPSWITCH: case DIPSWITCH2: case TECHSWITCH: case DIPSWITCH3:
+        case ACCESSSWITCH2: case LIGHTSWITCH2: case POWERSWITCH1: case LOCKSWITCH1:
+        case POWERSWITCH2: case HANDSWITCH: case PULLSWITCH: case ALIENSWITCH:  // ---
+        case DOORTILE5: case DOORTILE6: case DOORTILE1: case DOORTILE2: case DOORTILE3:
+        case DOORTILE4: case DOORTILE7: case DOORTILE8: case DOORTILE9: case DOORTILE10:
+        case DOORTILE22: case DOORTILE18: case DOORTILE19: case DOORTILE20:
+        case DOORTILE14: case DOORTILE16: case DOORTILE15: case DOORTILE21:
+        case DOORTILE17: case DOORTILE11: case DOORTILE12: case DOORTILE23:  // ---
+            if ((!spritep && wall[num].lotag>0) || (spritep && sprite[num].lotag>0))
+                link = 1;
+            break;
+        }
+    }
+// TODO: link up with m32script to make custom defs possible
+    return link;
+}
+
+////////// end tag labeling system //////////
+
 
 static int32_t getTileGroup(const char *groupName)
 {
@@ -872,17 +967,19 @@ const char *ExtGetWallCaption(int16_t wallnum)
         tempbuf[0] = 0;
     else
     {
+        int32_t lt = taglab_linktags(0, wallnum);
 #ifdef YAX_ENABLE
         if (yax_getnextwall(wallnum, YAX_CEILING) >= 0)  // ceiling nextwall: lotag
         {
             if (wall[wallnum].hitag == 0)
                 tempbuf[0] = 0;
             else
-                Bsprintf(tempbuf, "%hu,*", wall[wallnum].hitag);
+                Bsprintf(tempbuf, "%hu%s,*", wall[wallnum].hitag, TLCHR(lt&2));
         }
         else
 #endif
-        Bsprintf(tempbuf, "%hu,%hu", wall[wallnum].hitag, wall[wallnum].lotag);
+            Bsprintf(tempbuf, "%hu%s,%hu%s", wall[wallnum].hitag, TLCHR(lt&2),
+                     wall[wallnum].lotag, TLCHR(lt&1));
     }
 
     return(tempbuf);
@@ -918,11 +1015,11 @@ const char *SectorEffectorTagText(int32_t lotag)
         "DROP FLOOR (ST 28)",
         "TEETH DOOR (ST 29)",
         "1-WAY SE7 DESTINATION (H=SE 7)",
-        "CONVAYER BELT",
+        "CONVEYER BELT",
         "ENGINE",                        // 25
         "(UNKNOWN)",
         "CAMERA FOR PLAYBACK",
-        "LIGHTNING (H= TILE#4890)",
+        "LIGHTNING (H=TILE#4890)",
         "FLOAT",
         "2 WAY TRAIN (ST=31)",           // 30
         "FLOOR RISE",
@@ -938,7 +1035,7 @@ const char *SectorEffectorTagText(int32_t lotag)
         switch (lotag)
         {
         case 36:
-            Bsprintf(tempbuf,"%d: SKRINK RAY SHOOTER",lotag);
+            Bsprintf(tempbuf,"%d: SHOOTER",lotag);
             break;
         case 49:
             Bsprintf(tempbuf,"%d: POINT LIGHT",lotag);
@@ -990,7 +1087,7 @@ const char *SectorEffectorText(int32_t spritenum)
 const char *ExtGetSpriteCaption(int16_t spritenum)
 {
     static char tempbuf[1024];
-    int32_t retfast = 0;
+    int32_t retfast = 0, lt;
 
     Bmemset(tempbuf,0,sizeof(tempbuf));
 
@@ -1004,13 +1101,17 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
     if (retfast)
         return(tempbuf);
 
+    lt = taglab_linktags(1, spritenum);
+
     if ((sprite[spritenum].lotag|sprite[spritenum].hitag) == 0)
     {
         SpriteName(spritenum,lo);
         if (lo[0]!=0)
         {
-            if (sprite[spritenum].pal==1) Bsprintf(tempbuf,"%s (MULTIPLAYER)",lo);
-            else Bsprintf(tempbuf,"%s",lo);
+            if (sprite[spritenum].pal==1)
+                Bsprintf(tempbuf,"%s (MULTIPLAYER)",lo);
+            else
+                Bsprintf(tempbuf,"%s",lo);
         }
     }
     else if (sprite[spritenum].picnum==SECTOREFFECTOR)
@@ -1018,16 +1119,19 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
         if (onnames!=8)
         {
             Bsprintf(lo,"%s",SectorEffectorText(spritenum));
-            Bsprintf(tempbuf,"%s, %hu",lo,sprite[spritenum].hitag);
+            Bsprintf(tempbuf,"%s, %hu%s",lo,sprite[spritenum].hitag, TLCHR(lt&2));
         }
     }
     else
     {
         SpriteName(spritenum,lo);
         if (sprite[spritenum].extra != -1)
-            Bsprintf(tempbuf,"%hu,%hu,%d %s",sprite[spritenum].hitag,sprite[spritenum].lotag,sprite[spritenum].extra,lo);
+            Bsprintf(tempbuf,"%hu%s,%hu%s,%d %s", sprite[spritenum].hitag, TLCHR(lt&2),
+                     sprite[spritenum].lotag, TLCHR(lt&1),
+                     sprite[spritenum].extra,lo);
         else
-            Bsprintf(tempbuf,"%hu,%hu %s",sprite[spritenum].hitag,sprite[spritenum].lotag,lo);
+            Bsprintf(tempbuf,"%hu%s,%hu%s %s", sprite[spritenum].hitag, TLCHR(lt&2),
+                     sprite[spritenum].lotag, TLCHR(lt&1), lo);
     }
 
     return(tempbuf);
@@ -1187,7 +1291,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
 
 void ExtShowWallData(int16_t wallnum)       //F6
 {
-    int32_t i, runi, nextfreetag=0, total=0, x, y, yi;
+    int32_t i, runi, nextfreetag=0, total=0, x, y, yi, l;
 
     UNREFERENCED_PARAMETER(wallnum);
 
@@ -1224,16 +1328,19 @@ void ExtShowWallData(int16_t wallnum)       //F6
         case POWERSWITCH2:
         case PULLSWITCH:
         case ALIENSWITCH:
-            if (sprite[i].lotag>nextfreetag) nextfreetag = sprite[i].lotag+1;
+            if (sprite[i].lotag > nextfreetag)
+                nextfreetag = sprite[i].lotag+1;
             break;
 
             //HITAG
         case SEENINE:
         case OOZFILTER:
         case SECTOREFFECTOR:
-            if (sprite[i].lotag==10 || sprite[i].lotag==27 || sprite[i].lotag==28 || sprite[i].lotag==29)
+            l = sprite[i].lotag;
+            if (l>=0 && l<=63 && (taglab_nolink_SEs&(1ull<<l)))
                 break;
-            else if (sprite[i].hitag>nextfreetag) nextfreetag=sprite[i].hitag+1;
+            if (sprite[i].hitag > nextfreetag)
+                nextfreetag=sprite[i].hitag+1;
             break;
         default:
             break;
@@ -3880,7 +3987,10 @@ static void tileinfo_doprint(int32_t x, int32_t y, char *buf, const char *label,
     printext256(x, y+i*pos, whitecol, -1, buf, small);
 }
 
-static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,int32_t shade,int32_t pal,int32_t cstat,int32_t lotag,int32_t hitag,int32_t extra)
+// flags: 1:draw asterisk for lotag
+//        2:draw asterisk for extra
+static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,int32_t shade,int32_t pal,int32_t cstat,
+                         int32_t lotag,int32_t hitag,int32_t extra, uint32_t flags)
 {
     char buf[64];
     int32_t small = (xdimgame<=640);
@@ -3911,9 +4021,9 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
     tileinfo_doprint(x, y, buf, "Shd", shade, 2);
     tileinfo_doprint(x, y, buf, "Pal", pal, 3);
     tileinfo_doprint(x, y, buf, "Cst", cstat, 4);
-    tileinfo_doprint(x, y, buf, "Lot", lotag, 5);
+    tileinfo_doprint(x, y, buf, (flags&1)?"Lo*":"Lot", lotag, 5);
     tileinfo_doprint(x, y, buf, "Hit", hitag, 6);
-    tileinfo_doprint(x, y, buf, "Ext", extra, 7);
+    tileinfo_doprint(x, y, buf, (flags&2)?"Ex*":"Ext", extra, 7);
 
     enddrawing();
 }
@@ -4498,14 +4608,14 @@ static void Keys3d(void)
             }
         }
 #endif
-        drawtileinfo("Clipboard",3,124,temppicnum,tempshade,temppal,tempcstat,templotag,temphitag,tempextra);
+        drawtileinfo("Clipboard",3,124,temppicnum,tempshade,temppal,tempcstat,templotag,temphitag,tempextra,0);
     }// end if usedcount
 
     if (searchsector > -1 && searchsector < numsectors)
     {
         char lines[8][64];
         int32_t dist, height1=0,height2=0,height3=0, num=0;
-        int32_t x,y;
+        int32_t x,y,flags=0;
         int16_t w;
 
         if (infobox&1)
@@ -4517,10 +4627,13 @@ static void Keys3d(void)
             case SEARCH_WALL:
             case SEARCH_MASKWALL:
                 w = SELECT_WALL();
+#ifdef YAX_ENABLE
+                flags |= (yax_getnextwall(searchwall, YAX_CEILING)>=0) + 2*(yax_getnextwall(searchwall, YAX_FLOOR)>=0);
+#endif
                 drawtileinfo("Current", WIND1X,WIND1Y,
                              AIMING_AT_WALL ? wall[w].picnum : wall[w].overpicnum,
                              wall[w].shade, wall[w].pal, wall[searchwall].cstat,
-                             wall[searchwall].lotag, wall[searchwall].hitag,wall[searchwall].extra);
+                             wall[searchwall].lotag, wall[searchwall].hitag, wall[searchwall].extra,flags);
 
                 dist = wallength(searchwall);
 
@@ -4552,7 +4665,7 @@ static void Keys3d(void)
             case SEARCH_FLOOR:
                 drawtileinfo("Current", WIND1X, WIND1Y, AIMED_CEILINGFLOOR(picnum), AIMED_CEILINGFLOOR(shade),
                              AIMED_CEILINGFLOOR(pal), AIMED_CEILINGFLOOR(stat),
-                             sector[searchsector].lotag, sector[searchsector].hitag, sector[searchsector].extra);
+                             sector[searchsector].lotag, sector[searchsector].hitag, sector[searchsector].extra,0);
 
                 {
                     int32_t xp=AIMED_CEILINGFLOOR(xpanning), yp=AIMED_CEILINGFLOOR(ypanning);
@@ -4579,7 +4692,7 @@ static void Keys3d(void)
             case SEARCH_SPRITE:
                 drawtileinfo("Current", WIND1X, WIND1Y, sprite[searchwall].picnum, sprite[searchwall].shade,
                              sprite[searchwall].pal, sprite[searchwall].cstat, sprite[searchwall].lotag,
-                             sprite[searchwall].hitag, sprite[searchwall].extra);
+                             sprite[searchwall].hitag, sprite[searchwall].extra,0);
 
                 Bsprintf(lines[num++], "Repeat:  %d,%d", sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
                 Bsprintf(lines[num++], "PosXY:   %d,%d%s", sprite[searchwall].x, sprite[searchwall].y,
@@ -4717,8 +4830,8 @@ static void Keys3d(void)
     {
         if (AIMING_AT_WALL_OR_MASK)
         {
-            wall[searchwall].cstat = 0;
-            message("Wall %d cstat = 0", searchwall);
+            wall[searchwall].cstat &= YAX_NEXTWALLBITS;
+            message("Wall %d cstat = %d", searchwall, wall[searchwall].cstat);
         }
         else if (AIMING_AT_SPRITE)
         {
@@ -4922,9 +5035,16 @@ static void Keys3d(void)
     {
         if (ASSERT_AIMING)
         {
-            Bsprintf(tempbuf, "%s extra: ", Typestr_wss[searchstat]);
-            getnumberptr256(tempbuf, &AIMED(extra), sizeof(int16_t), BTAG_MAX, 1, NULL);
-            asksave = 1;
+#ifdef YAX_ENABLE
+            if (AIMING_AT_WALL_OR_MASK && yax_getnextwall(searchwall, YAX_FLOOR)>=0)
+                message("Can't change extra in protected wall");
+            else
+#endif
+            {
+                Bsprintf(tempbuf, "%s extra: ", Typestr_wss[searchstat]);
+                getnumberptr256(tempbuf, &AIMED(extra), sizeof(int16_t), BTAG_MAX, 1, NULL);
+                asksave = 1;
+            }
         }
     }
 
@@ -5740,6 +5860,11 @@ static void Keys3d(void)
     {
         if (AIMING_AT_WALL_OR_MASK)
         {
+#ifdef YAX_ENABLE
+            if (yax_getnextwall(searchwall, YAX_CEILING)>=0)
+                message("Can't change lotag in protected wall");
+            else
+#endif
             wall[searchwall].lotag = getnumber256("Wall lotag: ", wall[searchwall].lotag, BTAG_MAX, 0);
         }
         else if (AIMING_AT_CEILING_OR_FLOOR)
@@ -5846,15 +5971,16 @@ static void Keys3d(void)
     {
         if (ASSERT_AIMING)
         {
-            int16_t opicnum = AIMED_CF_SEL(picnum), aimspr=AIMING_AT_SPRITE;
+            int16_t opicnum = AIMED_CF_SEL(picnum), aimspr=AIMING_AT_SPRITE, osearchwall=searchwall;
             static const char *Typestr_tmp[5] = { "Wall", "Sector ceiling", "Sector floor", "Sprite", "Masked wall" };
             Bsprintf(tempbuf, "%s picnum: ", Typestr_tmp[searchstat]);
             getnumberptr256(tempbuf, &AIMED_CF_SEL(picnum), sizeof(int16_t), MAXTILES-1, 0, NULL);
             if (opicnum != AIMED_CF_SEL(picnum))
                 asksave = 1;
 
+            // need to use the old value because aiming might have changed in getnumberptr256
             if (aimspr)
-                correct_sprite_yoffset(searchwall);
+                correct_sprite_yoffset(osearchwall);
         }
     }
 
@@ -5984,7 +6110,7 @@ static void Keys3d(void)
     if (tsign)
     {
 #ifdef YAX_ENABLE
-        int16_t bunchnum;
+        int16_t bunchnum, othersidesect=0;
 #endif
         if (eitherALT)
         {
@@ -5994,19 +6120,29 @@ static void Keys3d(void)
             {
                 if (AIMING_AT_CEILING || (tsign < 0 && AIMING_AT_WALL_OR_MASK))
 #ifdef YAX_ENABLE
-                if (YAXCHK((bunchnum=yax_getbunch(searchsector, YAX_CEILING)) < 0 || yax_is121(bunchnum)))
+                if (YAXCHK((bunchnum=yax_getbunch(searchsector, YAX_CEILING)) < 0 ||
+                           (othersidesect=yax_is121(bunchnum, 1))>=0))
 #endif
                 {
                     alignceilslope(searchsector, sx, sy, getceilzofslope(ns, sx, sy));
+#ifdef YAX_ENABLE
+                    if (bunchnum>=0)
+                        setslope(othersidesect, 1, sector[searchsector].ceilingheinum);
+#endif
                     message("Sector %d align ceiling to wall %d", searchsector, searchwall);
                 }
 
                 if (AIMING_AT_FLOOR || (tsign > 0 && AIMING_AT_WALL_OR_MASK))
 #ifdef YAX_ENABLE
-                if (YAXCHK((bunchnum=yax_getbunch(searchsector, YAX_FLOOR)) < 0 || yax_is121(bunchnum)))
+                if (YAXCHK((bunchnum=yax_getbunch(searchsector, YAX_FLOOR)) < 0 ||
+                           (othersidesect=yax_is121(bunchnum, 0))>=0))
 #endif
                 {
                     alignflorslope(searchsector, sx, sy, getflorzofslope(ns, sx, sy));
+#ifdef YAX_ENABLE
+                    if (bunchnum>=0)
+                        setslope(othersidesect, 0, sector[searchsector].floorheinum);
+#endif
                     message("Sector %d align floor to wall %d", searchsector, searchwall);
                 }
             }
@@ -6015,20 +6151,24 @@ static void Keys3d(void)
         {
             if (AIMING_AT_CEILING_OR_FLOOR)
 #ifdef YAX_ENABLE
-            if (YAXCHK((bunchnum=yax_getbunch(searchsector, AIMING_AT_FLOOR)) < 0 || yax_is121(bunchnum)))
+            if (YAXCHK((bunchnum=yax_getbunch(searchsector, AIMING_AT_FLOOR)) < 0 ||
+                       (othersidesect=yax_is121(bunchnum, AIMING_AT_CEILING))>=0))
 #endif
             {
+                int32_t newslope = clamp(AIMED_CEILINGFLOOR(heinum) + tsign*i, -BHEINUM_MAX, BHEINUM_MAX);
                 if (!(AIMED_CEILINGFLOOR(stat)&2))
                     AIMED_CEILINGFLOOR(heinum) = 0;
 
-                AIMED_CEILINGFLOOR(heinum) = clamp(AIMED_CEILINGFLOOR(heinum) + tsign*i,
-                                                   -BHEINUM_MAX, BHEINUM_MAX);
-
+                setslope(searchsector, AIMING_AT_FLOOR, newslope);
+#ifdef YAX_ENABLE
+                if (bunchnum >= 0)
+                    setslope(othersidesect, !AIMING_AT_FLOOR, newslope);
+#endif
                 silentmessage("Sector %d %s slope = %d", searchsector,
                               typestr[searchstat], AIMED_CEILINGFLOOR(heinum));
             }
         }
-
+/*
         if (sector[searchsector].ceilingheinum == 0)
             sector[searchsector].ceilingstat &= ~2;
         else
@@ -6038,6 +6178,7 @@ static void Keys3d(void)
             sector[searchsector].floorstat &= ~2;
         else
             sector[searchsector].floorstat |= 2;
+*/
         asksave = 1;
     }
 
@@ -6386,7 +6527,7 @@ static void Keys3d(void)
                 tempxrepeat = AIMED_SEL_WALL(xrepeat);
                 tempxrepeat = max(1, tempxrepeat);
                 tempyrepeat = AIMED_SEL_WALL(yrepeat);
-                tempcstat = AIMED_SEL_WALL(cstat);
+                tempcstat = AIMED_SEL_WALL(cstat) & ~YAX_NEXTWALLBITS;
                 templenrepquot = divscale12(wallength(searchwall), tempxrepeat);
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
@@ -6486,7 +6627,8 @@ static void Keys3d(void)
                 {
                     wall[i].xrepeat = tempxrepeat;
                     wall[i].yrepeat = tempyrepeat;
-                    wall[i].cstat = tempcstat;
+                    wall[i].cstat &= YAX_NEXTWALLBITS;
+                    wall[i].cstat |= (tempcstat & ~YAX_NEXTWALLBITS);
                     fixxrepeat(i, templenrepquot);
                 }
 
@@ -6556,9 +6698,16 @@ static void Keys3d(void)
                 {
                     wall[searchwall].xrepeat = tempxrepeat;
                     wall[searchwall].yrepeat = tempyrepeat;
-                    wall[searchwall].cstat = tempcstat;
+                    wall[searchwall].cstat &= YAX_NEXTWALLBITS;
+                    wall[searchwall].cstat |= (tempcstat & ~YAX_NEXTWALLBITS);
+#ifdef YAX_ENABLE
+                    if (yax_getnextwall(searchwall, YAX_CEILING) == -1)
+#endif
                     wall[searchwall].lotag = templotag;
                     wall[searchwall].hitag = temphitag;
+#ifdef YAX_ENABLE
+                    if (yax_getnextwall(searchwall, YAX_FLOOR) == -1)
+#endif
                     wall[searchwall].extra = tempextra;
                     fixxrepeat(searchwall, templenrepquot);
                 }
@@ -6577,9 +6726,16 @@ static void Keys3d(void)
                 {
                     wall[searchwall].xrepeat = tempxrepeat;
                     wall[searchwall].yrepeat = tempyrepeat;
-                    wall[searchwall].cstat = tempcstat;
+                    wall[searchwall].cstat &= YAX_NEXTWALLBITS;
+                    wall[searchwall].cstat |= (tempcstat & ~YAX_NEXTWALLBITS);
+#ifdef YAX_ENABLE
+                    if (yax_getnextwall(searchwall, YAX_CEILING) == -1)
+#endif
                     wall[searchwall].lotag = templotag;
                     wall[searchwall].hitag = temphitag;
+#ifdef YAX_ENABLE
+                    if (yax_getnextwall(searchwall, YAX_FLOOR) == -1)
+#endif
                     wall[searchwall].extra = tempextra;
                     fixxrepeat(searchwall, templenrepquot);
                 }
@@ -6708,7 +6864,7 @@ static void Keys3d(void)
             wall[w].ypanning = 0;
             wall[w].xrepeat = 8;
             wall[w].yrepeat = 8;
-            wall[w].cstat = 0;
+            wall[w].cstat &= YAX_NEXTWALLBITS;
             fixrepeats(searchwall);
         }
         else if (AIMING_AT_CEILING_OR_FLOOR)
@@ -7032,9 +7188,16 @@ static void Keys2d(void)
             }
             else if (linehighlight >= 0)
             {
-                i = linehighlight;
-                Bsprintf(buffer,"Wall (%d) Lo-tag: ", i);
-                wall[i].lotag = getnumber16(buffer, wall[i].lotag, BTAG_MAX, 0);
+#ifdef YAX_ENABLE
+                if (yax_getnextwall(linehighlight, YAX_CEILING)>=0)
+                    message("Can't change lotag in protected wall");
+                else
+#endif
+                {
+                    i = linehighlight;
+                    Bsprintf(buffer,"Wall (%d) Lo-tag: ", i);
+                    wall[i].lotag = getnumber16(buffer, wall[i].lotag, BTAG_MAX, 0);
+                }
             }
         }
         else
@@ -7107,9 +7270,16 @@ static void Keys2d(void)
             }
             else if (linehighlight >= 0)
             {
-                i = linehighlight;
-                Bsprintf(tempbuf,"Wall %d Extra: ",i);
-                wall[i].extra = getnumber16(tempbuf,wall[i].extra,BTAG_MAX,1);
+#ifdef YAX_ENABLE
+                if (yax_getnextwall(linehighlight, YAX_FLOOR)>=0)
+                    message("Can't change extra in protected wall");
+                else
+#endif
+                {
+                    i = linehighlight;
+                    Bsprintf(tempbuf,"Wall %d Extra: ",i);
+                    wall[i].extra = getnumber16(tempbuf,wall[i].extra,BTAG_MAX,1);
+                }
             }
         }
         else
@@ -7433,8 +7603,15 @@ static void Keys2d(void)
         }
         else if (linehighlight >= 0)
         {
-            swapshort(&wall[linehighlight].lotag, &wall[linehighlight].hitag);
-            printmessage16("Wall %d tags swapped", linehighlight);
+#ifdef YAX_ENABLE
+            if (yax_getnextwall(linehighlight, YAX_CEILING)>=0 || yax_getnextwall(searchwall, YAX_FLOOR)>=0)
+                message("Can't swap tags in protected wall");
+            else
+#endif
+            {
+                swapshort(&wall[linehighlight].lotag, &wall[linehighlight].hitag);
+                printmessage16("Wall %d tags swapped", linehighlight);
+            }
         }
     }
 
@@ -10865,8 +11042,11 @@ static void EditWallData(int16_t wallnum)
         switch (row)
         {
         case 0:
+            i = wall[wallnum].cstat&YAX_NEXTWALLBITS;
             handlemed(1, "Flags (hex)", "Flags", &wall[wallnum].cstat,
                       sizeof(wall[wallnum].cstat), 65535, 0);
+            wall[wallnum].cstat &= ~YAX_NEXTWALLBITS;
+            wall[wallnum].cstat |= i;
             break;
         case 1:
             handlemed(0, "Shade", "Shade", &wall[wallnum].shade,
