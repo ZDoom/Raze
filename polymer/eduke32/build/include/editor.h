@@ -143,6 +143,10 @@ void editinput(void);
 void clearmidstatbar16(void);
 void fade_editor_screen(void);
 
+// internal getnumber* helpers:
+extern int32_t getnumber_internal1(char ch, int32_t *danumptr, int32_t maxnumber, char sign);
+extern int32_t getnumber_autocomplete(const char *namestart, char ch, int32_t *danum, int32_t flags);
+
 int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
 #define getnumber256(namestart, num, maxnumber, sign) _getnumber256(namestart, num, maxnumber, sign, NULL)
 int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t));
@@ -150,8 +154,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
 void printmessage256(int32_t x, int32_t y, const char *name);
 void message(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
 
-// currently only for 3d mode
-const char* getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen);
+const char* getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen, int32_t completion);
 
 // like snprintf, but pads the output buffer with 'fill' at the end
 //int32_t snfillprintf(char *outbuf, size_t bufsiz, int32_t fill, const char *fmt, ...);
@@ -185,6 +188,24 @@ extern uint8_t hlsectorbitmap[MAXSECTORS>>3];
 #endif
 
 void test_map(int32_t mode);
+
+
+////////// tag labeling system //////////
+// max (strlen+1), i.e. array length to allocate for a tag label:
+#define TAGLAB_MAX 40
+
+extern int32_t taglab_load(const char *filename, int32_t flags);
+extern int32_t taglab_save(const char *mapname);
+
+extern void taglab_init();
+extern int32_t taglab_add(const char *label, int16_t tag);
+extern const char *taglab_getlabel(int16_t tag);
+extern int32_t taglab_gettag(const char *label);
+
+extern int32_t taglab_linktags(int32_t spritep, int32_t num);
+extern int32_t taglab_getnextfreetag(void);
+
+extern int32_t showtags;
 
 
 #define NEXTWALL(i) (wall[wall[i].nextwall])

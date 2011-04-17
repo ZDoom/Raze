@@ -165,6 +165,12 @@ static const char *Typestr_wss[] = { "Wall", "Sector", "Sector", "Sprite", "Wall
 static const char *ONOFF_[] = {"OFF","ON"};
 #define ONOFF(b) (ONOFF_[!!(b)])
 
+// always CRLF for us
+#ifdef _WIN32
+# define OURNEWL "\n"
+#else
+# define OURNEWL "\r\n"
+#endif
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int32_t numdirs=0, numfiles=0;
@@ -211,7 +217,7 @@ static int32_t yax_invalidop()
 #endif
 
 // tile marking in tile selector for custom creation of tile groups
-static int16_t tilemarked[(MAXTILES+7)>>3];
+static uint8_t tilemarked[(MAXTILES+7)>>3];
 
 #ifdef POLYMER
 static int16_t spritelightid[MAXSPRITES];
@@ -756,7 +762,241 @@ void ExtSaveMap(const char *mapname)
 
 ////////// tag labeling system //////////
 
-#define TLCHR(Cond) ((Cond)?"+":"")
+typedef struct
+{
+    hashtable_t hashtab;
+    char *label[32768];
+    int32_t numlabels;
+} taglab_t;
+
+static taglab_t g_taglab;
+
+static void tstrtoupper(char *s)
+{
+    int32_t i;
+    for (i=0; s[i]; i++)
+        s[i] = Btoupper(s[i]);
+}
+
+void taglab_init()
+{
+    int32_t i;
+
+    g_taglab.numlabels = 0;
+    g_taglab.hashtab.size = 16384;
+    hash_init(&g_taglab.hashtab);
+
+    for (i=0; i<32768; i++)
+    {
+        if (g_taglab.label[i])
+            Bfree(g_taglab.label[i]);
+        g_taglab.label[i] = NULL;
+    }
+}
+
+int32_t taglab_load(const char *filename, int32_t flags)
+{
+    int32_t fil, len, i;
+    char buf[BMAX_PATH], *dot, *filebuf;
+
+    taglab_init();
+
+    len = Bstrlen(filename);
+    if (len >= BMAX_PATH)
+        return -1;
+    Bmemcpy(buf, filename, len);
+
+    //
+    dot = Bstrrchr(buf, '.');
+    if (!dot)
+        dot = &buf[len];
+
+    if (dot-buf+8 >= BMAX_PATH)
+        return -1;
+    Bmemcpy(dot, ".maptags", 9);
+    //
+
+    if ((fil = kopen4load(buf,flags)) == -1)
+        return -1;
+
+    len = kfilelength(fil);
+
+    filebuf = Bmalloc(len+1);
+    if (!filebuf)
+    {
+        kclose(fil);
+        return -1;
+    }
+
+    kread(fil, filebuf, len);
+    filebuf[len] = 0;
+    kclose(fil);
+
+    // ----
+
+    {
+        int32_t tag;
+        char *cp=filebuf, *bp, *ep;
+
+        while (1)
+        {
+#define XTAGLAB_STRINGIFY(X) TAGLAB_STRINGIFY(X)
+#define TAGLAB_STRINGIFY(X) #X
+            i = sscanf(cp, "%d %" XTAGLAB_STRINGIFY(TAGLAB_MAX) "s", &tag, buf);
+#undef XTAGLAB_STRINGIFY
+#undef TAGLAB_STRINGIFY
+            if (i != 2 || !buf[0] || tag<0 || tag>=32768)
+                goto nextline;
+
+            buf[TAGLAB_MAX-1] = 0;
+
+            i = Bstrlen(buf);
+            bp = buf; while (*bp && isspace(*bp)) bp++;
+            ep = &buf[i-1]; while (ep>buf && isspace(*ep)) ep--;
+            ep++;
+
+            if (!(ep > bp))
+                goto nextline;
+            *ep = 0;
+
+            taglab_add(bp, tag);
+//initprintf("add tag %s:%d\n", bp, tag);
+nextline:
+            while (*cp && *cp!='\n')
+                cp++;
+            while (*cp=='\r' || *cp=='\n')
+                cp++;
+            if (*cp == 0)
+                break;
+        }
+    }
+
+    // ----
+    Bfree(filebuf);
+
+    return 0;
+}
+
+int32_t taglab_save(const char *mapname)
+{
+    int32_t fil, len, i;
+    char buf[BMAX_PATH], *dot;
+    const char *label;
+
+    if (g_taglab.numlabels==0)
+        return 1;
+
+    Bstrncpy(buf, mapname, BMAX_PATH);
+    buf[BMAX_PATH-1] = 0;
+
+    len = Bstrlen(buf);
+    //
+    dot = Bstrrchr(buf, '.');
+    if (!dot)
+        dot = &buf[len];
+
+    if (dot-buf+8 >= BMAX_PATH)
+        return -1;
+    Bmemcpy(dot, ".maptags", 9);
+    //
+
+    if ((fil = Bopen(buf,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
+    {
+        initprintf("Couldn't open \"%s\" for writing: %s\n", buf, strerror(errno));
+        return -1;
+    }
+
+    for (i=0; i<32768; i++)
+    {
+        label = taglab_getlabel(i);
+        if (!label)
+            continue;
+
+        len = Bsprintf(buf, "%d %s"OURNEWL, i, label);
+        if (Bwrite(fil, buf, len)!=len)
+            break;
+    }
+
+    Bclose(fil);
+
+    return (i!=32768);
+}
+
+int32_t taglab_add(const char *label, int16_t tag)
+{
+    const char *otaglabel;
+    char buf[TAGLAB_MAX];
+    int32_t olabeltag, diddel=0;
+
+    if (tag < 0)
+        return -1;
+
+    Bstrncpy(buf, label, sizeof(buf));
+    buf[sizeof(buf)-1] = 0;
+    // upcase the tag for storage and comparison
+    tstrtoupper(buf);
+
+    otaglabel = g_taglab.label[tag];
+    if (otaglabel)
+    {
+        if (!Bstrcasecmp(otaglabel, buf))
+            return 0;
+
+//        hash_delete(&g_taglab.hashtab, g_taglab.label[tag]);
+
+        // a label having the same tag number as 'tag' is deleted
+        Bfree(g_taglab.label[tag]);
+        g_taglab.label[tag] = NULL;
+        diddel |= 1;
+    }
+    else
+    {
+        olabeltag = hash_findcase(&g_taglab.hashtab, buf);
+        if (olabeltag==tag)
+            return 0;
+
+        if (olabeltag>=0)
+        {
+            // the label gets assigned to a new tag number ('tag deleted')
+            Bfree(g_taglab.label[olabeltag]);
+            g_taglab.label[olabeltag] = NULL;
+            diddel |= 2;
+        }
+    }
+
+    if (!diddel)
+        g_taglab.numlabels++;
+    g_taglab.label[tag] = Bstrdup(buf);
+//initprintf("added %s %d to hash\n", g_taglab.label[tag], tag);
+    hash_add(&g_taglab.hashtab, g_taglab.label[tag], tag, 1);
+
+    return diddel;
+}
+
+const char *taglab_getlabel(int16_t tag)
+{
+    if (tag < 0)  // || tag>=32768 implicitly
+        return NULL;
+
+    return g_taglab.label[tag];
+}
+
+int32_t taglab_gettag(const char *label)
+{
+    char buf[TAGLAB_MAX];
+
+    Bstrncpy(buf, label, TAGLAB_MAX);
+    buf[sizeof(buf)-1] = 0;
+
+    // need to upcase since hash_findcase doesn't work as expected:
+    // getting the code is still (necessarily) case-sensitive...
+    tstrtoupper(buf);
+
+    return hash_findcase(&g_taglab.hashtab, buf);
+}
+
+#define TLCHAR "+"
+#define TLCHR(Cond) ((Cond)?TLCHAR:"")
 static uint64_t taglab_nolink_SEs = (1ull<<10)|(1ull<<27)|(1ull<<28)|(1ull<<29)|(1ull<<49)|(1ull<<50);
 
 // Whether the individual tags have linking semantics. Based on
@@ -769,6 +1009,8 @@ static uint64_t taglab_nolink_SEs = (1ull<<10)|(1ull<<27)|(1ull<<28)|(1ull<<29)|
 //  16: yvel
 //  32: zvel
 //  64: owner
+// The caller is responsible for checking bounds (usually tag>0), because
+// this function is supposed to say something about the potential of a tag
 int32_t taglab_linktags(int32_t spritep, int32_t num)
 {
     int32_t picnum;
@@ -788,7 +1030,7 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
             l = sprite[num].lotag;
             if (l>=0 && l<=63 && (taglab_nolink_SEs&(1ull<<l)))
                 break;
-            if (sprite[num].hitag > 0)
+//            if (sprite[num].hitag > 0)
                 link = 2;
             break;
 
@@ -800,7 +1042,7 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
         case DIPSWITCH: case TECHSWITCH: case ALIENSWITCH: case TARGET: case DUCK:
         case REACTOR:
         case CAMERA1:
-            if (sprite[num].lotag > 0)
+//            if (sprite[num].lotag > 0)
                 link = 1;
             break;
 
@@ -812,7 +1054,7 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
         case SEENINE: case OOZFILTER:
         case CRANEPOLE: case CRANE:
         case NATURALLIGHTNING:
-            if (sprite[num].hitag > 0)
+//            if (sprite[num].hitag > 0)
                 link = 2;
             break;
         }
@@ -824,7 +1066,7 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
         case TECHLIGHT2: case TECHLIGHT4: case WALLLIGHT4:
         case WALLLIGHT3: case WALLLIGHT1: case WALLLIGHT2:
         case BIGFORCE: case W_FORCEFIELD:
-            if (sprite[num].lotag > 0)
+//            if (sprite[num].lotag > 0)
                 link = 1;
             break;
         }
@@ -845,15 +1087,70 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
         case DOORTILE22: case DOORTILE18: case DOORTILE19: case DOORTILE20:
         case DOORTILE14: case DOORTILE16: case DOORTILE15: case DOORTILE21:
         case DOORTILE17: case DOORTILE11: case DOORTILE12: case DOORTILE23:  // ---
-            if ((!spritep && wall[num].lotag>0) || (spritep && sprite[num].lotag>0))
+//            if ((!spritep && wall[num].lotag>0) || (spritep && sprite[num].lotag>0))
                 link = 1;
             break;
         }
     }
-// TODO: link up with m32script to make custom defs possible
+
+    g_iReturnVar = link;
+    VM_OnEvent(EVENT_LINKTAGS, spritep?num:-1);
+    link = g_iReturnVar;
+
     return link;
 }
 
+int32_t taglab_getnextfreetag(void)
+{
+    int32_t i, lt, nextfreetag=1;
+    for (i=0; i<MAXSPRITES; i++)
+    {
+        if (sprite[i].statnum == MAXSTATUS)
+            continue;
+
+        if (sprite[i].picnum==MULTISWITCH)
+        {
+            // MULTISWITCH needs special care
+            int32_t endtag = sprite[i].lotag+3;
+            if (nextfreetag <= endtag)
+                nextfreetag = endtag+1;
+            continue;
+        }
+
+        lt = taglab_linktags(1, i);
+        if ((lt&1) && nextfreetag <= sprite[i].lotag)
+            nextfreetag = sprite[i].lotag+1;
+        if ((lt&2) && nextfreetag <= sprite[i].hitag)
+            nextfreetag = sprite[i].hitag+1;
+    }
+
+    for (i=0; i<numwalls; i++)
+    {
+        lt = taglab_linktags(0, i);
+        if ((lt&1) && nextfreetag <= wall[i].lotag)
+            nextfreetag = wall[i].lotag+1;
+        if ((lt&2) && nextfreetag <= wall[i].hitag)
+            nextfreetag = wall[i].hitag+1;        
+    }
+
+    if (nextfreetag < 32768)
+        return nextfreetag;
+
+    return 0;
+}
+
+
+static void taglab_handle1(int32_t linktagp, int32_t tagnum, char *buf)
+{
+    const char *label = NULL;
+    if (linktagp && showtags==2)
+        label = taglab_getlabel(tagnum);
+
+    if (label)
+        Bsprintf(buf, "%hu<%s>", tagnum, label);
+    else
+        Bsprintf(buf, "%hu%s", tagnum, TLCHR(linktagp));
+}
 ////////// end tag labeling system //////////
 
 
@@ -968,18 +1265,27 @@ const char *ExtGetWallCaption(int16_t wallnum)
     else
     {
         int32_t lt = taglab_linktags(0, wallnum);
+        char histr[TAGLAB_MAX+16], lostr[TAGLAB_MAX+16];
+
+        lt &= ~(wall[wallnum].lotag<=0);
+        lt &= ~((wall[wallnum].hitag<=0)<<1);
+
+        taglab_handle1(lt&2, wall[wallnum].hitag, histr);
+
 #ifdef YAX_ENABLE
         if (yax_getnextwall(wallnum, YAX_CEILING) >= 0)  // ceiling nextwall: lotag
         {
             if (wall[wallnum].hitag == 0)
                 tempbuf[0] = 0;
             else
-                Bsprintf(tempbuf, "%hu%s,*", wall[wallnum].hitag, TLCHR(lt&2));
+                Bsprintf(tempbuf, "%s,*", histr);
         }
         else
 #endif
-            Bsprintf(tempbuf, "%hu%s,%hu%s", wall[wallnum].hitag, TLCHR(lt&2),
-                     wall[wallnum].lotag, TLCHR(lt&1));
+        {
+            taglab_handle1(lt&1, wall[wallnum].lotag, lostr);
+            Bsprintf(tempbuf, "%s,%s", histr, lostr);
+        }
     }
 
     return(tempbuf);
@@ -1099,9 +1405,11 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
         retfast = 1;
 
     if (retfast)
-        return(tempbuf);
+        return tempbuf;
 
     lt = taglab_linktags(1, spritenum);
+    lt &= ~(sprite[spritenum].lotag<=0);
+    lt &= ~((sprite[spritenum].hitag<=0)<<1);
 
     if ((sprite[spritenum].lotag|sprite[spritenum].hitag) == 0)
     {
@@ -1113,28 +1421,36 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
             else
                 Bsprintf(tempbuf,"%s",lo);
         }
-    }
-    else if (sprite[spritenum].picnum==SECTOREFFECTOR)
-    {
-        if (onnames!=8)
-        {
-            Bsprintf(lo,"%s",SectorEffectorText(spritenum));
-            Bsprintf(tempbuf,"%s, %hu%s",lo,sprite[spritenum].hitag, TLCHR(lt&2));
-        }
-    }
-    else
-    {
-        SpriteName(spritenum,lo);
-        if (sprite[spritenum].extra != -1)
-            Bsprintf(tempbuf,"%hu%s,%hu%s,%d %s", sprite[spritenum].hitag, TLCHR(lt&2),
-                     sprite[spritenum].lotag, TLCHR(lt&1),
-                     sprite[spritenum].extra,lo);
-        else
-            Bsprintf(tempbuf,"%hu%s,%hu%s %s", sprite[spritenum].hitag, TLCHR(lt&2),
-                     sprite[spritenum].lotag, TLCHR(lt&1), lo);
+
+        return tempbuf;
     }
 
-    return(tempbuf);
+    {
+        char histr[TAGLAB_MAX+16], lostr[TAGLAB_MAX+16];
+
+        taglab_handle1(lt&2, sprite[spritenum].hitag, histr);
+
+        if (sprite[spritenum].picnum==SECTOREFFECTOR)
+        {
+            if (onnames!=8)
+            {
+                Bsprintf(lo,"%s",SectorEffectorText(spritenum));
+                Bsprintf(tempbuf,"%s, %s",lo, histr);
+            }
+        }
+        else
+        {
+            taglab_handle1(lt&1, sprite[spritenum].lotag, lostr);
+
+            SpriteName(spritenum,lo);
+            if (sprite[spritenum].extra != -1)
+                Bsprintf(tempbuf,"%s,%s,%d %s", histr, lostr, sprite[spritenum].extra, lo);
+            else
+                Bsprintf(tempbuf,"%s,%s %s", histr, lostr, lo);
+        }
+    }
+
+    return tempbuf;
 
 } //end
 
@@ -1210,7 +1526,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     drawgradient();
     ydim += 8;
 
-    printmessage16("Level %s",levelname);
+    printmessage16("Level %s next tag %d", levelname, taglab_getnextfreetag());
 
 #define PRSTAT(Str, Tiledef) \
     PrintStatus(Str, numsprite[Tiledef], x, y+yi, numsprite[Tiledef]?11:7); \
@@ -1286,71 +1602,21 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     enddrawing();  //}}}
 
     ydim += 8; // ^^^^^^ see above!
-
-}// end ExtShowSectorData
+}
 
 void ExtShowWallData(int16_t wallnum)       //F6
 {
-    int32_t i, runi, nextfreetag=0, total=0, x, y, yi, l;
+    int32_t i, runi, total=0, x, y, yi;
 
     UNREFERENCED_PARAMETER(wallnum);
 
     if (qsetmode==200)
         return;
 
-    for (i=0; i<MAXSPRITES; i++)
-    {
-        if (sprite[i].statnum!=0)
-            continue;
-
-        switch (sprite[i].picnum)
-        {
-            //LOTAG
-        case ACTIVATOR:
-        case ACTIVATORLOCKED:
-        case TOUCHPLATE:
-        case MASTERSWITCH:
-        case RESPAWN:
-        case ACCESSSWITCH:
-        case SLOTDOOR:
-        case LIGHTSWITCH:
-        case SPACEDOORSWITCH:
-        case SPACELIGHTSWITCH:
-        case FRANKENSTINESWITCH:
-        case MULTISWITCH:
-        case DIPSWITCH:
-        case DIPSWITCH2:
-        case TECHSWITCH:
-        case DIPSWITCH3:
-        case ACCESSSWITCH2:
-        case POWERSWITCH1:
-        case LOCKSWITCH1:
-        case POWERSWITCH2:
-        case PULLSWITCH:
-        case ALIENSWITCH:
-            if (sprite[i].lotag > nextfreetag)
-                nextfreetag = sprite[i].lotag+1;
-            break;
-
-            //HITAG
-        case SEENINE:
-        case OOZFILTER:
-        case SECTOREFFECTOR:
-            l = sprite[i].lotag;
-            if (l>=0 && l<=63 && (taglab_nolink_SEs&(1ull<<l)))
-                break;
-            if (sprite[i].hitag > nextfreetag)
-                nextfreetag=sprite[i].hitag+1;
-            break;
-        default:
-            break;
-        }
-    } // end sprite loop
-
     clearmidstatbar16();
     drawgradient();
 
-    printmessage16("Level %s next tag %d", levelname, nextfreetag);
+    printmessage16("Level %s next tag %d", levelname, taglab_getnextfreetag());
 
 
 #define CASES_LIZTROOP \
@@ -1485,7 +1751,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
 
         enddrawing();  //}}}
     }
-}// end ExtShowWallData
+}
 
 // formerly Show2dText and Show3dText
 static void ShowFileText(const char *name, int32_t do3d)
@@ -1545,7 +1811,7 @@ static void ShowFileText(const char *name, int32_t do3d)
 
     kclose(fp);
 
-}// end ShowFileText
+}
 
 // PK_ vvvv
 typedef struct helppage_
@@ -3275,7 +3541,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         if (PRESSED_KEYSC(S))
         {
             static char laststr[25] = "";
-            const char *searchstr = getstring_simple("Search for tile name: ", laststr, MAXTILES-1);
+            const char *searchstr = getstring_simple("Search for tile name: ", laststr, sizeof(names[0])-1, 1);
             static char buf[2][25];
 
             if (searchstr && searchstr[0])
@@ -3339,7 +3605,8 @@ static int32_t m32gettile(int32_t idInitialTile)
                     if (noTilesMarked)
                     {
                         noTilesMarked = 0;
-                        TMPERRMSG_PRINT("Beginning marking tiles. To group, press Ctrl-G. To reset, press LCtrl-RShift-SPACE.");
+                        TMPERRMSG_PRINT("Beginning marking tiles. To group, press Ctrl-G."
+                                        " To reset, press LCtrl-RShift-SPACE.");
                     }
 
                     if (mark_lastk>=0 && eitherCTRL)
@@ -3424,7 +3691,7 @@ static int32_t OnSaveTileGroup(void)
         TMPERRMSG_RETURN("Cannot save tile group: too many tiles in group. Have %d, max is %d.",
                   n, MAX_TILE_GROUP_ENTRIES);
 
-    cp = getstring_simple("Hotkey for new group: ", "", 1);
+    cp = getstring_simple("Hotkey for new group: ", "", 1, 0);
     if (!cp || !*cp)
         return 1;
 
@@ -3436,7 +3703,7 @@ static int32_t OnSaveTileGroup(void)
         if (s_TileGroups[i].key1==hotkey || s_TileGroups[i].key2==Btolower(hotkey))
             TMPERRMSG_RETURN("Hotkey '%c' already in use by tile group `%s'.", hotkey, s_TileGroups[i].szText);
 
-    name = getstring_simple("Name for new tile group: ", "", 0);
+    name = getstring_simple("Name for new tile group: ", "", 63, 0);
     if (!name || !*name)
         return 1;
 
@@ -3458,9 +3725,9 @@ static int32_t OnSaveTileGroup(void)
 
 #define TTAB "\t"
 #define TBITCHK(i) ((i)<MAXTILES && (tilemarked[(i)>>3]&(1<<((i)&7))))
-        Bfprintf(fp, "\n");
-        Bfprintf(fp, "tilegroup \"%s\"\n{\n", name);
-        Bfprintf(fp, TTAB "hotkey \"%c\"\n\n", hotkey);
+        Bfprintf(fp, OURNEWL);
+        Bfprintf(fp, "tilegroup \"%s\""OURNEWL"{"OURNEWL, name);
+        Bfprintf(fp, TTAB "hotkey \"%c\""OURNEWL OURNEWL, hotkey);
 
         if (!(s_TileGroups[tile_groups].pIds = Bmalloc(n * sizeof(s_TileGroups[tile_groups].pIds[0]))))
             TMPERRMSG_RETURN("Out of memory.");
@@ -3472,9 +3739,9 @@ static int32_t OnSaveTileGroup(void)
             if (lasti>=0 && !TBITCHK(i))
             {
                 if (names[lasti][0] && names[i-1][0])
-                    Bfprintf(fp, TTAB "tilerange %s %s\n", names[lasti], names[i-1]);
+                    Bfprintf(fp, TTAB "tilerange %s %s"OURNEWL, names[lasti], names[i-1]);
                 else
-                    Bfprintf(fp, TTAB "tilerange %d %d\n", lasti, i-1);
+                    Bfprintf(fp, TTAB "tilerange %d %d"OURNEWL, lasti, i-1);
 
                 for (k=lasti; k<i; k++)
                 {
@@ -3500,39 +3767,50 @@ static int32_t OnSaveTileGroup(void)
                 s_TileGroups[tile_groups].pIds[j++] = k;
                 tilemarked[k>>3] &= ~(1<<(k&7));
             }
-            Bfprintf(fp, TTAB "tilerange %d %d\n", lasti, MAXTILES-1);
+            Bfprintf(fp, TTAB "tilerange %d %d"OURNEWL, lasti, MAXTILES-1);
         }
-        Bfprintf(fp, "\n");
+        Bfprintf(fp, OURNEWL);
 
-        // throw them all in a tiles{...} group else
-        Bfprintf(fp, TTAB "tiles\n" TTAB "{\n");
+        k = 0;
         for (i=0; i<MAXTILES; i++)
-        {
-            if (TBITCHK(i))
+            if (tilemarked[i>>3]&(1<<(i&7)))
             {
-                s_TileGroups[tile_groups].pIds[j++] = i;
+                k = 1;
+                break;
+            }
 
-                if (col==0)
-                    Bfprintf(fp, TTAB TTAB), col+=8;
-
-                if (names[i][0])
-                    col+=Bfprintf(fp, "%s ", names[i]);
-                else
-                    col+=Bfprintf(fp, "%d ", i);
-
-                if (col>80)
+        if (k)
+        {
+            // throw them all in a tiles{...} group else
+            Bfprintf(fp, TTAB "tiles\n" TTAB "{"OURNEWL);
+            for (i=0; i<MAXTILES; i++)
+            {
+                if (TBITCHK(i))
                 {
-                    Bfprintf(fp, "\n");
-                    col = 0;
+                    s_TileGroups[tile_groups].pIds[j++] = i;
+
+                    if (col==0)
+                        Bfprintf(fp, TTAB TTAB), col+=8;
+
+                    if (names[i][0])
+                        col+=Bfprintf(fp, "%s ", names[i]);
+                    else
+                        col+=Bfprintf(fp, "%d ", i);
+
+                    if (col>80)
+                    {
+                        Bfprintf(fp, OURNEWL);
+                        col = 0;
+                    }
                 }
             }
+            if (col>0)
+                Bfprintf(fp, OURNEWL);
+            Bfprintf(fp, TTAB "}"OURNEWL);
         }
-        if (col>0)
-            Bfprintf(fp, "\n");
-        Bfprintf(fp, TTAB "}\n");
 #undef TBITCHK
 #undef TTAB
-        Bfprintf(fp, "}\n");
+        Bfprintf(fp, "}"OURNEWL);
 
         Bfclose(fp);
 
@@ -4053,7 +4331,9 @@ static inline void getnumber_doint64(int64_t *ptr, int32_t num)
 static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
     char buffer[80], ch;
-    int32_t n, danum = 0, oldnum;
+    int32_t danum = 0, oldnum;
+    uint8_t flags = (sign>>1)&3;
+    sign &= 1;
 
     switch (bytes)
     {
@@ -4113,34 +4393,15 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
         }
         showframe(1);
 
-        if (ch >= '0' && ch <= '9')
-        {
-            if (danum >= 0)
-            {
-                n = (danum*10)+(ch-'0');
-                if (n <= maxnumber) danum = n;
-            }
-            else if (sign)
-            {
-                n = (danum*10)-(ch-'0');
-                if (n >= -maxnumber) danum = n;
-            }
-        }
-        else if (ch == 8 || ch == 127)  	// backspace
-        {
-            danum /= 10;
-        }
-        else if (ch == 13)
+        if (getnumber_internal1(ch, &danum, maxnumber, sign) ||
+            getnumber_autocomplete(namestart, ch, &danum, flags))
         {
             if (danum != oldnum)
                 asksave = 1;
             oldnum = danum;
             break;
         }
-        else if (ch == '-' && sign)  	// negate
-        {
-            danum = -danum;
-        }
+
         switch (bytes)
         {
         case 1:
@@ -4157,6 +4418,7 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
             break;
         }
     }
+
     clearkeys();
 
     lockclock = totalclock;  //Reset timing
@@ -4887,15 +5149,8 @@ static void Keys3d(void)
             if (pal[3] > -1)
             {
                 for (k=0; k<highlightsectorcnt; k++)
-                {
-                    w = headspritesect[highlightsector[k]];
-                    while (w >= 0)
-                    {
-                        j = nextspritesect[w];
+                    for (w=headspritesect[highlightsector[k]]; w >= 0; w=nextspritesect[w])
                         sprite[w].pal = pal[3];
-                        w = j;
-                    }
-                }
             }
         }
 
@@ -5144,8 +5399,15 @@ static void Keys3d(void)
         {
             if (ASSERT_AIMING)
             {
+                j = 0;
+                if (AIMING_AT_WALL || AIMING_AT_SPRITE)
+                {
+                    j = taglab_linktags(AIMING_AT_SPRITE, searchwall);
+                    j = 2*(j&2);
+                }
+
                 Bsprintf(tempbuf, "%s hitag: ", Typestr_wss[searchstat]);
-                getnumberptr256(tempbuf, &AIMED(hitag), sizeof(int16_t), BTAG_MAX, 0, NULL);
+                getnumberptr256(tempbuf, &AIMED(hitag), sizeof(int16_t), BTAG_MAX, 0+j, NULL);
             }
         }
         else
@@ -5858,6 +6120,13 @@ static void Keys3d(void)
 
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(T)) // ' T
     {
+        j = 0;
+        if (AIMING_AT_WALL || AIMING_AT_SPRITE)
+        {
+            j = taglab_linktags(AIMING_AT_SPRITE, searchwall);
+            j = 4*(j&1);
+        }
+
         if (AIMING_AT_WALL_OR_MASK)
         {
 #ifdef YAX_ENABLE
@@ -5865,7 +6134,7 @@ static void Keys3d(void)
                 message("Can't change lotag in protected wall");
             else
 #endif
-            wall[searchwall].lotag = getnumber256("Wall lotag: ", wall[searchwall].lotag, BTAG_MAX, 0);
+            wall[searchwall].lotag = getnumber256("Wall lotag: ", wall[searchwall].lotag, BTAG_MAX, 0+j);
         }
         else if (AIMING_AT_CEILING_OR_FLOOR)
         {
@@ -5877,14 +6146,14 @@ static void Keys3d(void)
             if (sprite[searchwall].picnum == SECTOREFFECTOR)
             {
                 sprite[searchwall].lotag =
-                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0, (void *)SectorEffectorTagText);
+                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j, (void *)SectorEffectorTagText);
             }
             else if (sprite[searchwall].picnum == MUSICANDSFX)
             {
                 int16_t oldtag = sprite[searchwall].lotag;
 
                 sprite[searchwall].lotag =
-                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0, (void *)MusicAndSFXTagText);
+                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j, (void *)MusicAndSFXTagText);
 
                 if ((sprite[searchwall].filler&1) && sprite[searchwall].lotag != oldtag)
                 {
@@ -5893,10 +6162,10 @@ static void Keys3d(void)
                 }
             }
             else
-                sprite[searchwall].lotag = getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0);
+                sprite[searchwall].lotag = getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j);
         }
     }
-
+#if 0
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(H)) // ' H
     {
         if (ASSERT_AIMING)
@@ -5908,7 +6177,7 @@ static void Keys3d(void)
                 asksave = 1;
         }
     }
-
+#endif
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(S)) // ' S
     {
         if (ASSERT_AIMING)
@@ -5974,7 +6243,7 @@ static void Keys3d(void)
             int16_t opicnum = AIMED_CF_SEL(picnum), aimspr=AIMING_AT_SPRITE, osearchwall=searchwall;
             static const char *Typestr_tmp[5] = { "Wall", "Sector ceiling", "Sector floor", "Sprite", "Masked wall" };
             Bsprintf(tempbuf, "%s picnum: ", Typestr_tmp[searchstat]);
-            getnumberptr256(tempbuf, &AIMED_CF_SEL(picnum), sizeof(int16_t), MAXTILES-1, 0, NULL);
+            getnumberptr256(tempbuf, &AIMED_CF_SEL(picnum), sizeof(int16_t), MAXTILES-1, 0+2, NULL);
             if (opicnum != AIMED_CF_SEL(picnum))
                 asksave = 1;
 
@@ -7172,18 +7441,23 @@ static void Keys2d(void)
 
         if (eitherCTRL)  //Ctrl-T
         {
-            extern int32_t showtags;
-
-            showtags ^= 1;
-            printmessage16("Show tags %s", ONOFF(showtags));
+            if (eitherSHIFT)
+                showtags--;
+            else
+                showtags++;
+            showtags += 3;
+            showtags %= 3;
+            printmessage16("Show tags %s", showtags<2?ONOFF(showtags):"LABELED");
         }
         else if (eitherALT)  //ALT
         {
             if (pointhighlight >= 16384)
             {
                 i = pointhighlight-16384;
+                j = taglab_linktags(1, i);
+                j = 4*(j&1);
                 Bsprintf(buffer,"Sprite (%d) Lo-tag: ", i);
-                sprite[i].lotag = _getnumber16(buffer, sprite[i].lotag, BTAG_MAX, 0, sprite[i].picnum==SECTOREFFECTOR ?
+                sprite[i].lotag = _getnumber16(buffer, sprite[i].lotag, BTAG_MAX, 0+j, sprite[i].picnum==SECTOREFFECTOR ?
                                                (void *)SectorEffectorTagText : NULL);
             }
             else if (linehighlight >= 0)
@@ -7195,8 +7469,10 @@ static void Keys2d(void)
 #endif
                 {
                     i = linehighlight;
+                    j = taglab_linktags(1, i);
+                    j = 4*(j&1);
                     Bsprintf(buffer,"Wall (%d) Lo-tag: ", i);
-                    wall[i].lotag = getnumber16(buffer, wall[i].lotag, BTAG_MAX, 0);
+                    wall[i].lotag = getnumber16(buffer, wall[i].lotag, BTAG_MAX, 0+j);
                 }
             }
         }
@@ -10776,6 +11052,8 @@ static void handlemed(int32_t dohex, const char *disp_membername, const char *ed
                       void *themember, int32_t thesizeof, int32_t themax, int32_t sign)
 {
     int32_t i, val;
+    int32_t flags = sign;
+    sign &= 1;
 
     if (thesizeof==sizeof(int8_t))
     {
@@ -10801,7 +11079,7 @@ static void handlemed(int32_t dohex, const char *disp_membername, const char *ed
     if (med_editval)
     {
         printmessage16("%s", med_edittext);
-        val = getnumber16(med_edittext, val, themax, sign);
+        val = getnumber16(med_edittext, val, themax, flags);
 
         if (thesizeof==sizeof(int8_t))
         {
@@ -11126,10 +11404,10 @@ static void EditSpriteData(int16_t spritenum)
 
     //    clearmidstatbar16();
 
-    showspritedata(spritenum, 0);
-
     while (keystatus[KEYSC_ESC] == 0)
     {
+        showspritedata(spritenum, 0);
+
         med_handlecommon(xpos, ypos, &row, rowmax);
 
         if (PRESSED_KEYSC(LEFT))
@@ -11276,7 +11554,7 @@ static void EditSpriteData(int16_t spritenum)
             break;
             case 5:
                 handlemed(0, "Tile number", "Tile number", &sprite[spritenum].picnum,
-                          sizeof(sprite[spritenum].picnum), MAXTILES-1, 0);
+                          sizeof(sprite[spritenum].picnum), MAXTILES-1, 0+2);
                 break;
             }
         }
@@ -11369,13 +11647,13 @@ static void GenericSpriteSearch(void)
 
     static char sign[7][3] =
     {
-        {1, 0, 1},
-        {1, 1, 1},
-        {1, 0, 1},
-        {0, 0, 1},
-        {0, 1, 0},
-        {0, 0, 0},
-        {0, 0, 1}
+        {1,   0,   1},
+        {1,   1,   1},
+        {1,   0,   1},
+        {0,   0,   1},
+        {0,   1,   0},
+        {0+4, 0+2, 0},
+        {0+4, 0,   1}
     };
 
     clearmidstatbar16();

@@ -97,7 +97,7 @@ extern int16_t searchsector, searchwall, searchstat;     //search output
 int32_t osearchx, osearchy;                               //old search input
 
 extern int16_t pointhighlight, linehighlight, highlightcnt;
-int32_t grid = 3, autogrid = 0, gridlock = 1, showtags = 1;
+int32_t grid = 3, autogrid = 0, gridlock = 1, showtags = 2;
 int32_t zoom = 768, gettilezoom = 1;
 int32_t lastpm16time = 0;
 
@@ -190,6 +190,7 @@ int8_t sideview_reversehrot = 0;
 char lastpm16buf[156];
 
 //static int32_t checksectorpointer_warn = 0;
+static int32_t saveboard_savedtags=0;
 
 char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
 static int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls);
@@ -405,6 +406,8 @@ static void reset_default_mapstate(void)
     numsprites = 0;
 
     initspritelists();
+    taglab_init();
+
 #ifdef YAX_ENABLE
     yax_resetbunchnums();
 #endif
@@ -515,6 +518,8 @@ int32_t app_main(int32_t argc, const char **argv)
     k = clipmapinfo_load("_clipshape0.map");
     if (k>0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", k);
+
+    taglab_init();
 
     if (LoadBoard(boardfilename, 1))
         reset_default_mapstate();
@@ -2257,7 +2262,7 @@ void overheadeditor(void)
             draw2dscreen(&pos,cursectnum,ang,zoom,grid);
 
             begindrawing();	//{{{
-            if (showtags == 1)
+            if (showtags)
             {
                 if (zoom >= 768)
                 {
@@ -2799,14 +2804,18 @@ void overheadeditor(void)
                 if (pointhighlight >= 16384)
                 {
                     i = pointhighlight-16384;
+                    j = taglab_linktags(1, i);
+                    j = 2*(j&2);
                     Bsprintf(buffer, "Sprite (%d) Hi-tag: ", i);
-                    sprite[i].hitag = getnumber16(buffer, sprite[i].hitag, BTAG_MAX, 0);
+                    sprite[i].hitag = getnumber16(buffer, sprite[i].hitag, BTAG_MAX, 0+j);
                 }
                 else if (linehighlight >= 0)
                 {
                     i = linehighlight;
+                    j = taglab_linktags(1, i);
+                    j = 2*(j&2);
                     Bsprintf(buffer, "Wall (%d) Hi-tag: ", i);
-                    wall[i].hitag = getnumber16(buffer, wall[i].hitag, BTAG_MAX, 0);
+                    wall[i].hitag = getnumber16(buffer, wall[i].hitag, BTAG_MAX, 0+j);
                 }
             }
             else
@@ -5366,7 +5375,8 @@ CANCEL:
                         f = SaveBoard(selectedboardfilename, 0);
 
                         if (f)
-                            printmessage16("Saved board to %s.", f);
+                            printmessage16("Saved board %sto %s.",
+                                           saveboard_savedtags?"and tags ":"", f);
                         else
                             printmessage16("Saving board failed.");
 
@@ -5390,7 +5400,8 @@ CANCEL:
                     f = SaveBoard(NULL, 0);
 
                     if (f)
-                        printmessage16("Saved board to %s.", f);
+                        printmessage16("Saved board %sto %s.",
+                                       saveboard_savedtags?"and tags ":"", f);
                     else
                         printmessage16("Saving board failed.");
 
@@ -5571,11 +5582,13 @@ static int32_t ask_above_or_below(void)
 }
 #endif
 
-// flags:  1:no ExSaveMap (backup.map)
+// flags:  1:no ExSaveMap (backup.map) and no taglabels saving
 const char *SaveBoard(const char *fn, uint32_t flags)
 {
     const char *f;
     int32_t ret;
+
+    saveboard_savedtags = 0;
 
     if (!fn)
         fn = boardfilename;
@@ -5598,7 +5611,10 @@ const char *SaveBoard(const char *fn, uint32_t flags)
     ExtPreSaveMap();
     ret = saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
     if ((flags&1)==0)
+    {
         ExtSaveMap(f);
+        saveboard_savedtags = !taglab_save(f);
+    }
 
     if (!ret)
         return f;
@@ -5610,7 +5626,7 @@ const char *SaveBoard(const char *fn, uint32_t flags)
 //         4: passed to loadboard flags (no polymer_loadboard); implies no maphack loading
 int32_t LoadBoard(const char *filename, uint32_t flags)
 {
-    int32_t i;
+    int32_t i, tagstat, loadingflags=(!pathsearchmode&&grponlymode?2:0);
 
     if (!filename)
         filename = selectedboardfilename;
@@ -5630,29 +5646,29 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
 
     ExtPreLoadMap();
-    i = loadboard(boardfilename,(flags&4)|(!pathsearchmode&&grponlymode?2:0),
-                  &pos.x,&pos.y,&pos.z,&ang,&cursectnum);
-    if (i == -2) i = loadoldboard(boardfilename,(!pathsearchmode&&grponlymode?2:0),
-                                  &pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+    i = loadboard(boardfilename,(flags&4)|loadingflags, &pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+    if (i == -2)
+        i = loadoldboard(boardfilename,loadingflags, &pos.x,&pos.y,&pos.z,&ang,&cursectnum);
     if (i < 0)
     {
 //        printmessage16("Invalid map format.");
         return i;
     }
+
+
+    if ((flags&4)==0)
+        loadmhk(0);
+
+    tagstat = taglab_load(boardfilename, loadingflags);
+    ExtLoadMap(boardfilename);
+
+    if (mapversion < 7)
+        message("Map %s loaded successfully and autoconverted to V7!",boardfilename);
     else
     {
-        if ((flags&4)==0)
-            loadmhk(0);
-
-        ExtLoadMap(boardfilename);
-
-        if (mapversion < 7) message("Map %s loaded successfully and autoconverted to V7!",boardfilename);
-        else
-        {
-            i = CheckMapCorruption(4, 0);
-            message("Loaded map %s %s",boardfilename, i==0?"successfully":
-                    (i<4 ? "(moderate corruption)" : "(HEAVY corruption)"));
-        }
+        i = CheckMapCorruption(4, 0);
+        message("Loaded map %s%s %s", boardfilename, tagstat==0?" w/tags":"",
+                i==0?"successfully": (i<4 ? "(moderate corruption)" : "(HEAVY corruption)"));
     }
 
     updatenumsprites();
@@ -6247,7 +6263,7 @@ static int32_t numloopsofsector(int16_t sectnum)
 }
 #endif
 
-static int32_t getnumber_internal1(char ch, const char *buffer, int32_t *danumptr, int32_t *oldnum, int32_t maxnumber, char sign)
+int32_t getnumber_internal1(char ch, int32_t *danumptr, int32_t maxnumber, char sign)
 {
     int32_t danum = *danumptr;
 
@@ -6271,10 +6287,6 @@ static int32_t getnumber_internal1(char ch, const char *buffer, int32_t *danumpt
     }
     else if (ch == 13)
     {
-        *oldnum = danum;
-        asksave = 1;
-        if (qsetmode!=200)
-            printmessage16("%s", buffer);
         return 1;
     }
     else if (ch == '-' && sign)  	// negate
@@ -6286,10 +6298,86 @@ static int32_t getnumber_internal1(char ch, const char *buffer, int32_t *danumpt
     return 0;
 }
 
+int32_t getnumber_autocomplete(const char *namestart, char ch, int32_t *danum, int32_t flags)
+{
+    if (flags!=1 && flags!=2)
+        return 0;
+
+    if (flags==2 && *danum<0)
+        return 0;
+
+    if (isalpha(ch))
+    {
+        char b[2];
+        const char *gotstr;
+        int32_t i, diddel;
+
+        b[0] = ch;
+        b[1] = 0;
+        gotstr = getstring_simple(namestart, b, (flags==1)?sizeof(names[0])-1:TAGLAB_MAX-1, flags);
+        if (!gotstr || !gotstr[0])
+            return 0;
+
+        if (flags==1)
+        {
+            for (i=0; i<MAXTILES; i++)
+                if (!Bstrcasecmp(names[i], gotstr))
+                {
+                    *danum = i;
+                    return 1;
+                }
+        }
+        else
+        {
+            i = taglab_gettag(gotstr);
+//initprintf("taglab: s=%s, i=%d\n",gotstr,i);
+            if (i > 0)
+            {
+                *danum = i;
+                return 1;
+            }
+            else
+            {
+                // insert new tag
+                if (*danum > 0 && *danum<32768)
+                {
+                    diddel = taglab_add(gotstr, *danum);
+                    message("Added label '%s' for tag %d%s%s", gotstr, *danum,
+                            diddel?", deleting old ":"",
+                            (!diddel)?"":(diddel==1?"label":"tag"));
+                    return 1;
+                }
+                else if (*danum==0)
+                {
+                    i = taglab_getnextfreetag();
+                    if (i >= 1)
+                    {
+                        *danum = i;
+                        diddel = taglab_add(gotstr, *danum);
+                        message("%sadded label '%s' for tag %d%s%s",
+                                diddel?"Auto-":"Automatically ", gotstr, *danum,
+                                diddel?", deleting old ":"",
+                                (!diddel)?"":(diddel==1?"label":"tag"));
+                        return 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
+// sign is now used for more than one flag:
+//  1: sign
+//  2: autocomplete names
+//  4: autocomplete taglabels
 int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
     char buffer[80], ch;
     int32_t n, danum, oldnum;
+    uint8_t flags = (sign>>1)&3;
+    sign &= 1;
 
     danum = num;
     oldnum = danum;
@@ -6310,15 +6398,24 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
 
         if (func != NULL)
         {
-            Bsprintf(buffer, "^011%s", (char *)func(danum));
+            Bsprintf(buffer, "%s", (char *)func(danum));
             // printext16(200L-24, ydim-STATUS2DSIZ+20L, editorcolors[9], editorcolors[0], buffer, 0);
-            printext16(n<<3, ydim-STATUS2DSIZ+128, editorcolors[9], -1, buffer,0);
+            printext16(n<<3, ydim-STATUS2DSIZ+128, editorcolors[11], -1, buffer,0);
         }
 
         showframe(1);
 
-        if (getnumber_internal1(ch, buffer, &danum, &oldnum, maxnumber, sign))
+        n = 0;
+        if (getnumber_internal1(ch, &danum, maxnumber, sign) ||
+            (n=getnumber_autocomplete(namestart, ch, &danum, flags)))
+        {
+            if (flags==1 || n==0)
+                printmessage16("%s", buffer);
+            if (danum != oldnum)
+                asksave = 1;
+            oldnum = danum;
             break;
+        }
     }
 
     clearkeys();
@@ -6330,6 +6427,8 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
 {
     char buffer[80], ch;
     int32_t danum, oldnum;
+    uint8_t flags = (sign>>1)&3;
+    sign &= 1;
 
     danum = num;
     oldnum = danum;
@@ -6376,8 +6475,14 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
 
         showframe(1);
 
-        if (getnumber_internal1(ch, buffer, &danum, &oldnum, maxnumber, sign))
+        if (getnumber_internal1(ch, &danum, maxnumber, sign) ||
+            getnumber_autocomplete(namestart, ch, &danum, flags))
+        {
+            if (danum != oldnum)
+                asksave = 1;
+            oldnum = danum;
             break;
+        }
     }
 
     clearkeys();
@@ -6391,22 +6496,25 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
 // defaultstr: can be NULL
 //  NO overflow checks are done when copying them!
 // maxlen: maximum length of entry string, if ==1, enter single char
-const char *getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen)
+// completion: 0=none, 1=names[][], 2=taglabels
+const char *getstring_simple(const char *querystr, const char *defaultstr, int32_t maxlen, int32_t completion)
 {
     static char buf[128];
-    int32_t ei=0, qrylen=0;
+    int32_t ei=0, qrylen=0, maxidx, havecompl=0;
     char ch;
 
     bflushchars();
     clearkeys();
 
-    if (maxlen==0)
-        maxlen = 1000;
-
     Bmemset(buf, 0, sizeof(buf));
 
     qrylen = Bstrlen(querystr);
     Bmemcpy(buf, querystr, qrylen);
+
+    if (maxlen==0)
+        maxlen = 64;
+
+    maxidx = min((signed)sizeof(buf), xdim>>3);
 
     ei = qrylen;
 
@@ -6417,25 +6525,32 @@ const char *getstring_simple(const char *querystr, const char *defaultstr, int32
         ei += deflen;
     }
 
-    buf[ei] = 0;
-
-    if (maxlen==1)
-    {
-        ei = qrylen;
-        buf[ei] = '_';
-        buf[ei+1] = 0;
-    }
+    buf[ei] = '_';
+    buf[ei+1] = 0;
 
     while (1)
     {
-        printext256(0, 0, whitecol, 0, buf, 0);
+        if (qsetmode==200)
+        {
+            char cbuf[128];
+            int32_t i;
+            for (i=0; i<min(xdim>>3, (signed)sizeof(cbuf)-1); i++)
+                cbuf[i] = ' ';
+            cbuf[i] = 0;
+            printext256(0, 0, whitecol, 0, cbuf, 0);
+        }
+
+        if (qsetmode==200)
+            printext256(0, 0, whitecol, 0, buf, 0);
+        else
+            _printmessage16("%s", buf);
+
         showframe(1);
 
         if (handleevents())
             quitevent = 0;
 
-        idle_waitevent();
-
+        idle();
         ch = bgetchar();
 
         if (ch==13)
@@ -6447,21 +6562,112 @@ const char *getstring_simple(const char *querystr, const char *defaultstr, int32
         else if (keystatus[1])
         {
             clearkeys();
-            return defaultstr;
+            return completion ? NULL : defaultstr;
         }
 
         if (maxlen!=1)
         {
+            // blink...
+            if (totalclock&32)
+            {
+                buf[ei] = '_';
+                buf[ei+1] = 0;
+            }
+            else
+            {
+                buf[ei] = 0;
+            }
+
             if (ei>qrylen && (ch==8 || ch==127))
             {
-                buf[ei] = ' ';
-                buf[--ei] = '_';
+                buf[ei--] = 0;
+                buf[ei] = '_';
+                havecompl = 0;
             }
-            else if ((unsigned)ei<sizeof(buf)-2 && ei-qrylen<maxlen && isprint(ch))
+            else if (ei<maxidx-2 && ei-qrylen<maxlen && isprint(ch))
             {
+                if (completion==2 && ch==' ')
+                    ch = '_';
                 buf[ei++] = ch;
                 buf[ei] = '_';
                 buf[ei+1] = 0;
+            }
+
+            if (completion && ((ei>qrylen && ch==9) || havecompl))  // tab: maybe do auto-completion
+            {
+                char cmpbuf[128];
+                char completions[3][16];
+                const char *cmpstr;
+                int32_t len=ei-qrylen, i, j, k=len, first=1, numcompl=0;
+
+                Bmemcpy(cmpbuf, &buf[qrylen], len);
+                cmpbuf[len] = 0;
+
+                for (i=(completion!=1); i<((completion==1)?MAXTILES:32768); i++)
+                {
+                    cmpstr = (completion==1) ? names[i] : taglab_getlabel(i);
+                    if (!cmpstr)
+                        continue;
+
+                    if (Bstrncasecmp(cmpbuf, cmpstr, len) || Bstrlen(cmpstr)==(unsigned)len)  // compare the prefix
+                        continue;
+
+                    if (ch==9)
+                    {
+                        if (first)
+                        {
+                            Bstrncpy(cmpbuf+len, cmpstr+len, sizeof(cmpbuf)-len);
+                            cmpbuf[sizeof(cmpbuf)-1] = 0;
+                            first = 0;
+                        }
+                        else
+                        {
+                            for (k=len; cmpstr[k] && cmpbuf[k] && Btolower(cmpstr[k])==Btolower(cmpbuf[k]); k++)
+                                /* nop */;
+                            cmpbuf[k] = 0;
+                        }
+                    }
+
+                    if (numcompl<3)
+                    {
+                        Bstrncpy(completions[numcompl], cmpstr+len, sizeof(completions[0]));
+                        completions[numcompl][sizeof(completions[0])-1] = 0;
+                        for (k=0; completions[numcompl][k]; k++)
+                            completions[numcompl][k] = Btolower(completions[numcompl][k]);
+                        numcompl++;
+                    }
+
+                    for (k=len; cmpbuf[k]; k++)
+                        cmpbuf[k] = Btolower(cmpbuf[k]);
+                }
+
+                ei = qrylen;
+                for (i=0; i<k && i<maxlen && ei<maxidx-2; i++)
+                    buf[ei++] = cmpbuf[i];
+
+                if (k==len && numcompl>0)  // no chars autocompleted/completion request
+                {
+                    buf[ei] = '{';
+                    buf[ei+1] = 0;
+
+                    i = ei+1;
+                    for (k=0; k<numcompl; k++)
+                    {
+                        j = 0;
+                        while (i<maxidx-1 && completions[k][j])
+                            buf[i++] = completions[k][j++];
+                        if (i<maxidx-1)
+                            buf[i++] = (k==numcompl-1) ? '}' : ',';
+                    }
+                    buf[i] = 0;
+
+                    havecompl = 1;
+                }
+                else
+                {
+                    buf[ei] = '_';
+                    buf[ei+1] = 0;
+                }
             }
         }
         else
@@ -7481,6 +7687,7 @@ void showspritedata(int16_t spritenum, int16_t small)
 
     col++;
 
+    DOPRINT(32, "^10,0                        ^O");  // 24 blanks
     DOPRINT(32, "^10%s^O", (spr->picnum>=0 && spr->picnum<MAXTILES) ? names[spr->picnum] : "!INVALID!");
     DOPRINT(48, "Flags (hex): %x", spr->cstat);
     DOPRINT(56, "Shade: %d", spr->shade);

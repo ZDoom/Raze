@@ -765,9 +765,10 @@ typedef struct
 
 void hash_init(hashtable_t *t);
 void hash_free(hashtable_t *t);
-int32_t  hash_findcase(hashtable_t *t, const char *s);
-int32_t  hash_find(hashtable_t *t, const char *s);
+int32_t  hash_findcase(const hashtable_t *t, const char *s);
+int32_t  hash_find(const hashtable_t *t, const char *s);
 void hash_add(hashtable_t *t, const char *s, int32_t key, int32_t replace);
+void hash_delete(hashtable_t *t, const char *s);
 
 #ifdef POLYMER
 # include "polymer.h"

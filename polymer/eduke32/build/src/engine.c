@@ -7521,7 +7521,7 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
 
     flags &= 3;
 
-    i = strlen(filename)-1;
+    i = Bstrlen(filename)-1;
     if (filename[i] == 255) { filename[i] = 0; flags = 1; } // JBF 20040119: "compatibility"
     if ((fil = kopen4load(filename,flags)) == -1)
         { mapversion = 7L; return(-1); }
@@ -7981,7 +7981,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
     struct walltypev6   v6wall;
     struct spritetypev6 v6spr;
 
-    i = strlen(filename)-1;
+    i = Bstrlen(filename)-1;
     if (filename[i] == 255) { filename[i] = 0; fromwhere = 1; } // JBF 20040119: "compatibility"
     if ((fil = kopen4load(filename,fromwhere)) == -1)
         { mapversion = 5L; return(-1); }
@@ -9422,6 +9422,8 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
     return(0);
 }
 
+static int32_t hitscan_hitsectcf=-1;
+
 // stat, heinum, z: either ceiling- or floor-
 // how: -1: behave like ceiling, 1: behave like floor
 static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdata_t *hitinfo,
@@ -9472,6 +9474,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
             {
                 hitinfo->hitsect = sec-sector; hitinfo->hitwall = -1; hitinfo->hitsprite = -1;
                 hitinfo->pos.x = x1; hitinfo->pos.y = y1; hitinfo->pos.z = z1;
+                hitscan_hitsectcf = (how+1)>>1;
             }
         }
         else
@@ -9531,14 +9534,19 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
     int32_t clipspritecnt, curidx=-1;
     // tmp: { (int32_t)curidx, (spritetype *)curspr, (!=0 if outer sector) }
     intptr_t tmp[3], *tmpptr=NULL;
-
+#ifdef YAX_ENABLE
+    vec3_t newsv;
+    int32_t oldhitsect = -1;
+#endif
     hitinfo->hitsect = -1; hitinfo->hitwall = -1; hitinfo->hitsprite = -1;
     if (sectnum < 0) return(-1);
 
-    hitinfo->pos.x = hitscangoalx; hitinfo->pos.y = hitscangoaly;
-
     dawalclipmask = (cliptype&65535);
     dasprclipmask = (cliptype>>16);
+#ifdef TAX_ENABLE
+restart_grand:
+#endif
+    hitinfo->pos.x = hitscangoalx; hitinfo->pos.y = hitscangoaly;
 
     clipsectorlist[0] = sectnum;
     tempshortcnt = 0; tempshortnum = 1;
@@ -9805,6 +9813,47 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
 
     if (curspr)
         mapinfo_set(NULL, &origmapinfo);
+
+#ifdef YAX_ENABLE
+    if (numyaxbunches == 0 || editstatus)
+        return 0;
+
+    if (hitinfo->hitsprite==-1 && hitinfo->hitwall==-1 && hitinfo->hitsect!=oldhitsect)
+    {
+        if (hitinfo->hitsect == -1 && oldhitsect >= 0)
+        {
+            // this is bad: we didn't hit anything after going through a ceiling/floor
+            Bmemcpy(&hitinfo->pos, &newsv, sizeof(vec3_t));
+            hitinfo->hitsect = oldhitsect;
+
+            return 0;
+        }
+
+        {
+            // 1st, 2nd, ... ceil/floor hit
+            // hitinfo->hitsect is >=0 because if oldhitsect's init and check above
+
+            int32_t hitfloor = hitscan_hitsectcf;
+            int16_t bunchnum = yax_getbunch(hitinfo->hitsect, hitfloor);
+
+            if (bunchnum >= 0)  // todo: check against cstat
+            {
+                for (i=headsectbunch[!hitfloor][bunchnum]; i!=-1; i=nextsectbunch[!hitfloor][i])
+                    if (inside(hitinfo->pos.x, hitinfo->pos.y, i) != 1)
+                        continue;
+
+                Bmemcpy(&newsv, &hitinfo->pos, sizeof(vec3_t));
+                sectnum = i;
+                sv = &newsv;
+
+                oldhitsect = hitinfo->hitsect;
+                hitinfo->hitsect = -1;
+
+                goto restart_grand;
+            }
+        }
+    }
+#endif
 
     return(0);
 }
@@ -11008,10 +11057,6 @@ int32_t krand(void)
 //
 // getzrange
 //
-
-//extern char m32_debugstr[64][128];
-//extern int32_t m32_numdebuglines;
-
 void getzrange(const vec3_t *pos, int16_t sectnum,
                int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit,
                int32_t walldist, uint32_t cliptype)
@@ -14422,7 +14467,7 @@ void hash_add(hashtable_t *t, const char *s, int32_t key, int32_t replace)
 
     if (t->items == NULL)
     {
-        initprintf("hash_replace(): table not initialized!\n");
+        initprintf("hash_add(): table not initialized!\n");
         return;
     }
 
@@ -14457,7 +14502,45 @@ void hash_add(hashtable_t *t, const char *s, int32_t key, int32_t replace)
     prev->next = cur;
 }
 
-int32_t hash_find(hashtable_t *t, const char *s)
+// delete at most once
+void hash_delete(hashtable_t *t, const char *s)
+{
+    hashitem_t *cur, *prev=NULL;
+    int32_t code;
+
+    if (t->items == NULL)
+    {
+        initprintf("hash_delete(): table not initialized!\n");
+        return;
+    }
+
+    code = hash_getcode(s) % t->size;
+    cur = t->items[code];
+
+    if (!cur)
+        return;
+
+    do
+    {
+        if (Bstrcmp(s,cur->string) == 0)
+        {
+            Bfree(cur->string);
+
+            if (!prev)
+                t->items[code] = cur->next;
+            else
+                prev->next = cur->next;
+
+            Bfree(cur);
+
+            return;
+        }
+        prev = cur;
+    }
+    while ((cur = cur->next));
+}
+
+int32_t hash_find(const hashtable_t *t, const char *s)
 {
     hashitem_t *cur;
 
@@ -14477,7 +14560,7 @@ int32_t hash_find(hashtable_t *t, const char *s)
     return -1;
 }
 
-int32_t hash_findcase(hashtable_t *t, const char *s)
+int32_t hash_findcase(const hashtable_t *t, const char *s)
 {
     hashitem_t *cur;
 
