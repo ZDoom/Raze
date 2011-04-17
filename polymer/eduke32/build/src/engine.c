@@ -9543,7 +9543,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
 
     dawalclipmask = (cliptype&65535);
     dasprclipmask = (cliptype>>16);
-#ifdef TAX_ENABLE
+#ifdef YAX_ENABLE
 restart_grand:
 #endif
     hitinfo->pos.x = hitscangoalx; hitinfo->pos.y = hitscangoaly;
