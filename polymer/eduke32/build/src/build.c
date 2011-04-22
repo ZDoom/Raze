@@ -204,7 +204,7 @@ static void deletepoint(int16_t point);
 static int32_t deletesector(int16_t sucksect);
 void fixrepeats(int16_t i);
 static int16_t loopinside(int32_t x, int32_t y, int16_t startwall);
-int32_t fillsector(int16_t sectnum, char fillcolor);
+int32_t fillsector(int16_t sectnum, int32_t fillcolor);  // fillcolor == -1: default (pulsating)
 static int16_t whitelinescan(int16_t sucksect, int16_t dalinehighlight);
 void printcoords16(int32_t posxe, int32_t posye, int16_t ange);
 static void copysector(int16_t soursector, int16_t destsector, int16_t deststartwall, char copystat, const int16_t *oldtonewsect);
@@ -363,6 +363,7 @@ static void yax_resetbunchnums(void)
     for (i=0; i<MAXSECTORS; i++)
         yax_setbunches(i, -1, -1);
     yax_update(1);
+    yax_updategrays(pos.z);
 }
 
 // Whether a wall is constrained by sector extensions.
@@ -502,6 +503,42 @@ int32_t app_main(int32_t argc, const char **argv)
 
     loadpics("tiles000.art", 1048576*16);
 
+#ifdef YAX_ENABLE
+    // init dummy texture for YAX
+    // must be after loadpics(), which inits BUILD's cache
+
+    i = MAXTILES-1;
+    if (tilesizx[i]==0 && tilesizy[i]==0)
+    {
+        static char R[8*16] = { //
+            0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
+            0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
+            0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
+            0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0,
+            0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
+            0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
+            0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0,
+        };
+
+        char *newtile;
+        int32_t sx=32, sy=32, col, j;
+
+        walock[i] = 255; // permanent tile
+        picsiz[i] = 5 + (5<<4);
+        tilesizx[i] = sx; tilesizy[i] = sy;
+        allocache(&waloff[i], sx*sy, &walock[i]);
+        newtile = (char *)waloff[i];
+
+        col = getclosestcol(128>>2, 128>>2, 0);
+        for (j=0; j<(signed)sizeof(R); j++)
+            R[j] *= col;
+
+        Bmemset(newtile, 0, sx*sy);
+        for (j=0; j<8; j++)
+            Bmemcpy(&newtile[32*j], &R[16*j], 16);
+    }
+#endif
+
     Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");
     initcrc();
 
@@ -598,6 +635,9 @@ CANCEL:
         ExtPreCheckKeys();
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
+#ifdef YAX_ENABLE
+        yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
+#endif
         ExtAnalyzeSprites();
         drawmasks();
 
@@ -1268,6 +1308,22 @@ char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck)
 
 ////////////////////// OVERHEADEDITOR //////////////////////
 
+#if 0
+static int32_t inside_nogray(int32_t x, int32_t y, int16_t sectnum)
+{
+#ifdef YAX_ENABLE
+    if (sectnum>=0 && (graysectbitmap[sectnum>>3]&(1<<(sectnum&7))))
+        return 0;
+#endif
+    return inside(x, y, sectnum);
+}
+#endif
+
+static int32_t inside_editor_curpos(int16_t sectnum)
+{
+    return inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc, sectnum);
+}
+
 int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32_t zoom,
                       int32_t x, int32_t y, int16_t sectnum)
 {
@@ -1825,7 +1881,7 @@ void correct_sprite_yoffset(int32_t i)
         sprite[i].yoffset = 0;
 }
 
-void fade_editor_screen(void)
+void fade_editor_screen(int32_t keepcol)
 {
     char blackcol=editorcolors[0], greycol=whitecol-25, *cp;
     int32_t i;
@@ -1833,10 +1889,15 @@ void fade_editor_screen(void)
     begindrawing();
     cp = (char *)frameplace;
     for (i=0; i<bytesperline*(ydim-STATUS2DSIZ2); i++, cp++)
+    {
+        if ((int32_t)(*cp) == keepcol)
+            continue;
+
         if (*cp==greycol)
             *cp = blackcol;
         else if (*cp != blackcol)
             *cp = greycol;
+    }
     enddrawing();
     showframe(1);
 }
@@ -1868,6 +1929,32 @@ static void copy_some_wall_members(int16_t dst, int16_t src)
     yax_setnextwall(dst, YAX_CEILING, -1);
     yax_setnextwall(dst, YAX_FLOOR, -1);
 #endif
+}
+
+static void init_new_wall1(int16_t *suckwall, int32_t *mousxplc, int32_t *mousyplc)
+{
+    int32_t i;
+
+    Bmemset(&wall[newnumwalls], 0, sizeof(walltype));
+    wall[newnumwalls].extra = -1;
+
+    wall[newnumwalls].x = *mousxplc;
+    wall[newnumwalls].y = *mousyplc;
+    wall[newnumwalls].nextsector = -1;
+    wall[newnumwalls].nextwall = -1;
+
+    for (i=0; i<numwalls; i++)
+    {
+        YAX_SKIPWALL(i);
+        if (wall[i].nextwall >= 0)
+            YAX_SKIPWALL(wall[i].nextwall);
+
+        if (wall[i].x == *mousxplc && wall[i].y == *mousyplc)
+            *suckwall = i;
+    }
+
+    wall[newnumwalls].point2 = newnumwalls+1;
+    newnumwalls++;
 }
 
 // helpers for often needed ops:
@@ -2069,6 +2156,62 @@ static int32_t compare_wall_coords(const void *w1, const void *w2)
     circlewall = -1; \
     circlepoints = 7; \
     } while (0)
+
+// breadth-first search helpers
+void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt)
+{
+    Bmemset(bitmap, 0, (maxnum+7)>>3);
+
+    *eltnumptr = 0;
+    list[*eltnumptr] = firstelt;
+    bitmap[*eltnumptr>>3] |= (1<<(*eltnumptr&7));
+    (*eltnumptr)++;
+}
+
+void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int16_t elt)
+{
+    if (elt < 0)
+        return;
+
+    if ((bitmap[elt>>3]&(1<<(elt&7)))==0)
+    {
+        bitmap[elt>>3] |= (1<<(elt&7));
+        list[*eltnumptr] = elt;
+        (*eltnumptr)++;
+    }
+}
+
+#ifdef YAX_ENABLE
+// whether all highlighted sectors are in one connected component
+// wrt the nextsector relation
+static int32_t highlighted_sectors_in_one_component()
+{
+    int32_t j, k, startwall, endwall, sectcnt, sectnum;
+    static int16_t sectlist[MAXSECTORS];
+    static uint8_t sectbitmap[MAXSECTORS>>3];
+
+    if (highlightsectorcnt<1)
+        return 0;
+
+    if (highlightsectorcnt==1)
+        return 1;
+
+    bfirst_search_init(sectlist, sectbitmap, &sectnum, MAXSECTORS, highlightsector[0]);
+
+    for (sectcnt=0; sectcnt<sectnum; sectcnt++)
+        for (WALLS_OF_SECTOR(sectlist[sectcnt], j))
+            bfirst_search_try(sectlist, sectbitmap, &sectnum, wall[j].nextsector);
+
+    for (k=0; k<highlightsectorcnt; k++)
+    {
+        j = highlightsector[k];
+        if ((sectbitmap[j>>3]&(1<<(j&7)))==0)
+            return 0;
+    }
+
+    return 1;
+}
+#endif
 
 void overheadeditor(void)
 {
@@ -2367,7 +2510,7 @@ void overheadeditor(void)
                 ydim16 = ydim-STATUS2DSIZ2;
                 for (i=0; i<numsectors; i++)
                     if (hlsectorbitmap[i>>3]&(1<<(i&7)))
-                        fillsector(i,2);
+                        fillsector(i, -1);
                 ydim16 = oydim16;
             }
 
@@ -2758,7 +2901,7 @@ void overheadeditor(void)
             keystatus[0x41] = 0;
 
             for (i=0; i<numsectors; i++)
-                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+                if (inside_editor_curpos(i) == 1)
                 {
                     ExtEditSectorData(i);
                     break;
@@ -2821,7 +2964,7 @@ void overheadeditor(void)
             else
             {
                 for (i=0; i<numsectors; i++)
-                    if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+                    if (inside_editor_curpos(i) == 1)
                     {
                         Bsprintf(buffer, "Sector (%d) Hi-tag: ", i);
                         sector[i].hitag = getnumber16(buffer, sector[i].hitag, BTAG_MAX, 0);
@@ -2835,7 +2978,7 @@ void overheadeditor(void)
             keystatus[0x19] = 0;
 
             for (i=0; i<numsectors; i++)
-                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+                if (inside_editor_curpos(i) == 1)
                 {
                     Bsprintf(buffer, "Sector (%d) Ceilingpal: ", i);
                     sector[i].ceilingpal = getnumber16(buffer, sector[i].ceilingpal, M32_MAXPALOOKUPS, 0);
@@ -2865,6 +3008,12 @@ void overheadeditor(void)
                 static const char *cfs[2] = {"ceiling", "floor"};
 
                 int32_t cf, thez;
+
+                if (!highlighted_sectors_in_one_component())
+                {
+                    message("Sectors to extend must be in one connected component");
+                    goto end_yax;
+                }
 
                 cf = ask_above_or_below();
                 if (cf==-1)
@@ -2906,13 +3055,6 @@ void overheadeditor(void)
                             numwalls = m;
                             goto end_yax;
                         }
-
-                        if (numwalls != m)
-                        {
-                            message("Sectors to extend must be in one connected component");
-                            numwalls = m;
-                            goto end_yax;
-                        }
 //message("loop");
                         wall[k-1].point2 = numwalls;
                         numwalls = k;
@@ -2947,6 +3089,8 @@ void overheadeditor(void)
                     setslope(numsectors, !cf, 0);
                 setslope(numsectors, cf, 0);
 
+                SECTORFLD(numsectors,stat, !cf) &= ~1;  // no plax
+
                 SECTORFLD(numsectors,z, !cf) = SECTORFLD(i,z, cf);
                 SECTORFLD(numsectors,z, cf) = SECTORFLD(i,z, cf) - (1-2*cf)*DEFAULT_YAX_HEIGHT;
 
@@ -2965,6 +3109,8 @@ void overheadeditor(void)
                 // restore red walls of the selected sectors
                 for (i=0; i<highlightsectorcnt; i++)
                 {
+                    SECTORFLD(highlightsector[i],stat, cf) &= ~1;  // no plax
+
                     for (WALLS_OF_SECTOR(highlightsector[i], j))
                         if (wall[j].nextwall < 0)
                             checksectorpointer(j, highlightsector[i]);
@@ -2980,6 +3126,7 @@ void overheadeditor(void)
 
                 numsectors++;
                 yax_update(0);
+                yax_updategrays(pos.z);
 
                 Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
                 update_highlightsector();
@@ -3221,9 +3368,9 @@ end_yax: ;
                     if (!didmakered && !hadouterpoint && newnumwalls<0)
                     {
                         // fade the screen to have the user's attention
-                        fade_editor_screen();
+                        fade_editor_screen(-1);
 
-                        didmakered |= !ask_if_sure("Insert outer loop and make red walls?", 0);
+                        didmakered |= !ask_if_sure("Insert outer loop and make red walls? (Y/N)", 0);
                         clearkeys();
                     }
 
@@ -3395,7 +3542,7 @@ end_yax: ;
 
         if (((bstatus&1) < (oldmousebstatus&1)) && highlightsectorcnt < 0)  //after dragging
         {
-            int32_t runi;
+            int32_t runi, numdelpoints=0;
 
             if (backup_drawn_walls(0))
                 goto end_after_dragging;
@@ -3435,12 +3582,10 @@ end_yax: ;
                 for (i=numwalls-1; i>=0; i--)  //delete points
                 {
                     if (wall[i].x == POINT2(i).x && wall[i].y == POINT2(i).y
-                            && sector[sectorofwall(i)].wallnum > 3
-                            && sector[sectorofwall(wall[i].point2)].wallnum > 3)
+                            && sector[sectorofwall(i)].wallnum > 3)
                     {
                         int32_t b = (wall[i].nextwall == -1 ||
-                                     (sector[sectorofwall(wall[i].nextwall)].wallnum > 3 &&
-                                      sector[sectorofwall(NEXTWALL(i).point2)].wallnum > 3));
+                                     sector[sectorofwall(wall[i].nextwall)].wallnum > 3);
                         if (runi==0 && !b)
                         {
                             printmessage16("Invalid operation, delete or join sector instead.");
@@ -3449,11 +3594,19 @@ end_yax: ;
                         else if (runi==1 && b)
                         {
                             deletepoint(i);
-                            printmessage16("Point deleted.");
-                            asksave = 1;
+                            numdelpoints++;
                         }
                     }
                 }
+
+            if (numdelpoints)
+            {
+                if (numdelpoints > 1)
+                    printmessage16("Deleted %d points.", numdelpoints);
+                else
+                    printmessage16("Point deleted.");
+                asksave = 1;
+            }
 
             for (i=0; i<numwalls; i++)     //make new red lines?
             {
@@ -3466,9 +3619,9 @@ end_yax: ;
                 }
             }
 
+end_after_dragging:
             backup_drawn_walls(1);
         }
-end_after_dragging:
 
         if ((bstatus&1) > 0)                //drag points
         {
@@ -3482,7 +3635,7 @@ end_after_dragging:
 //                    updatesector(mousxplc,mousyplc,&cursectorhighlight);
                     cursectorhighlight = -1;
                     for (i=0; i<highlightsectorcnt; i++)
-                        if (inside_editor(&pos, searchx,searchy, zoom, mousxplc, mousyplc, highlightsector[i])==1)
+                        if (inside_editor_curpos(highlightsector[i])==1)
                         {
                             cursectorhighlight = highlightsector[i];
                             break;
@@ -3663,20 +3816,17 @@ end_point_dragging:
                 int16_t cursectornum;
 
                 for (cursectornum=0; cursectornum<numsectors; cursectornum++)
-                    if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,cursectornum) == 1)
+                    if (inside_editor_curpos(cursectornum) == 1)
                         break;
 
                 if (cursectornum < numsectors)
                 {
                     if (pointhighlight >= 16384)
-                    {
-                        i = pointhighlight-16384;
-                        ExtEditSpriteData((int16_t)i);
-                    }
+                        ExtEditSpriteData(pointhighlight-16384);
                     else if ((linehighlight >= 0) && (bstatus&1 || sectorofwall(linehighlight) == cursectornum))
-                        ExtEditWallData((int16_t)linehighlight);
+                        ExtEditWallData(linehighlight);
                     else if (cursectornum >= 0)
-                        ExtEditSectorData((int16_t)cursectornum);
+                        ExtEditSectorData(cursectornum);
                 }
 
                 bstatus &= ~6;
@@ -3687,6 +3837,9 @@ end_point_dragging:
                 {
                     pos.z += divscale18(searchy-midydim16,zoom);
                     getpoint(searchx,midydim16, &pos.x, &pos.y);
+#ifdef YAX_ENABLE
+                    yax_updategrays(pos.z);
+#endif
                 }
                 else
                 {
@@ -3862,7 +4015,7 @@ end_point_dragging:
             {
                 joinsector[0] = -1;
                 for (i=0; i<numsectors; i++)
-                    if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+                    if (inside_editor_curpos(i) == 1)
                     {
                         joinsector[0] = i;
                         printmessage16("Join sector - press J again on sector to join with.");
@@ -3880,7 +4033,7 @@ end_point_dragging:
 
                 for (i=0; i<numsectors; i++)
                 {
-                    if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+                    if (inside_editor_curpos(i) == 1)
                     {
                         startwall = sector[i].wallptr;
                         endwall = startwall + sector[i].wallnum;
@@ -3906,7 +4059,7 @@ end_point_dragging:
                             }
 #endif
                             {
-                                fade_editor_screen();
+                                fade_editor_screen(-1);
 
                                 if (!ask_if_sure("Join non-adjacent sectors? (Y/N)", 0))
                                     joinsector[1] = joinsector[0];
@@ -4040,6 +4193,10 @@ end_point_dragging:
 
                     printmessage16("Sectors joined.");
                     asksave = 1;
+#ifdef YAX_ENABLE
+                    yax_update(0);
+                    yax_updategrays(pos.z);
+#endif
                 }
 
                 joinsector[0] = -1;
@@ -4094,7 +4251,7 @@ end_join_sectors:
 
             sucksect = -1;
             for (i=0; i<numsectors; i++)
-                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+                if (inside_editor_curpos(i) == 1)
                 {
                     sucksect = i;
                     break;
@@ -4299,20 +4456,7 @@ end_join_sectors:
                 suckwall = -1;
                 split = 0;
 
-                Bmemset(&wall[newnumwalls], 0, sizeof(walltype));
-                wall[newnumwalls].extra = -1;
-
-                wall[newnumwalls].x = mousxplc;
-                wall[newnumwalls].y = mousyplc;
-                wall[newnumwalls].nextsector = -1;
-                wall[newnumwalls].nextwall = -1;
-
-                for (i=0; i<numwalls; i++)
-                    if (wall[i].x == mousxplc && wall[i].y == mousyplc)
-                        suckwall = i;
-
-                wall[newnumwalls].point2 = newnumwalls+1;
-                newnumwalls++;
+                init_new_wall1(&suckwall, &mousxplc, &mousyplc);
 
                 printmessage16("Sector drawing started.");
             }
@@ -4342,6 +4486,7 @@ end_join_sectors:
 
                             for (i=0; i<numsectors; i++)
                             {
+                                YAX_SKIPSECTOR(i);
                                 if (inside(dax,day,i) != 1)
                                     continue;
 
@@ -4350,6 +4495,10 @@ end_join_sectors:
                                 for (WALLS_OF_SECTOR(i, k))
                                     if (wall[k].x==wall[numwalls].x && wall[k].y==wall[numwalls].y)
                                     {
+                                        YAX_SKIPWALL(k);
+                                        if (wall[k].nextwall >= 0)
+                                            YAX_SKIPWALL(wall[k].nextwall);
+
                                         m = k;
                                         break;
                                     }
@@ -4372,10 +4521,14 @@ end_join_sectors:
                         bad = 0;
                         for (i=0; i<numwalls; i++)
                         {
+                            YAX_SKIPWALL(i);
+
                             if (wall[i].nextwall >= 0)
                             {
                                 int32_t lastwalx = wall[newnumwalls-1].x;
                                 int32_t lastwaly = wall[newnumwalls-1].y;
+
+                                YAX_SKIPWALL(wall[i].nextwall);
 
                                 if (wall[i].x == mousxplc && wall[i].y == mousyplc)
                                     if (POINT2(i).x == lastwalx && POINT2(i).y == lastwaly)
@@ -4388,20 +4541,7 @@ end_join_sectors:
 
                         if (bad == 0)
                         {
-                            Bmemset(&wall[newnumwalls], 0, sizeof(walltype));
-                            wall[newnumwalls].extra = -1;
-
-                            wall[newnumwalls].x = mousxplc;
-                            wall[newnumwalls].y = mousyplc;
-                            wall[newnumwalls].nextsector = -1;
-                            wall[newnumwalls].nextwall = -1;
-
-                            for (i=0; i<numwalls; i++)
-                                if (wall[i].x == mousxplc && wall[i].y == mousyplc)
-                                    suckwall = i;
-
-                            wall[newnumwalls].point2 = newnumwalls+1;
-                            newnumwalls++;
+                            init_new_wall1(&suckwall, &mousxplc, &mousyplc);
                         }
                         else
                         {
@@ -4424,6 +4564,8 @@ end_join_sectors:
                         k = -1;
                         for (i=0; i<numsectors; i++)
                         {
+                            YAX_SKIPSECTOR(i);
+
                             if (inside(firstx,firsty,i) == 1)
                             {
                                 // if all points inside that one sector i,
@@ -4600,6 +4742,7 @@ check_next_sector: ;
                     asksave = 1;
 #ifdef YAX_ENABLE
                     yax_update(0);
+                    yax_updategrays(pos.z);
 #endif
 
                     goto end_space_handling;
@@ -4827,6 +4970,7 @@ split_not_enough_walls:
                     asksave = 1;
 #ifdef YAX_ENABLE
                     yax_update(0);
+                    yax_updategrays(pos.z);
 #endif
                 }
             }
@@ -4905,22 +5049,34 @@ end_space_handling:
 
         if (keystatus[0xd3] && eitherCTRL && numwalls > 0)  //sector delete
         {
+            int32_t numdelsectors = 0, didbak=0;
+            char *origframe=NULL;
+
 #ifdef YAX_ENABLE
             int16_t cb, fb;
+
+            // used as a bunch bitmap here
+            Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
 #endif
             keystatus[0xd3] = 0;
 
             sucksect = -1;
+
             for (i=0; i<numsectors; i++)
             {
-                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) != 1)
+                YAX_SKIPSECTOR(i);
+                numdelsectors += (inside_editor_curpos(i) == 1);
+            }
+
+            for (i=0; i<numsectors; i++)
+            {
+                YAX_SKIPSECTOR(i);
+
+                if (inside_editor_curpos(i) != 1)
                     continue;
-#ifdef YAX_ENABLE
-                // used as a bunch bitmap here
-                Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
-#endif
+
                 k = 0;
-                if (highlightsectorcnt >= 0)
+                if (k==0 && highlightsectorcnt >= 0)
                 {
                     for (j=0; j<highlightsectorcnt; j++)
                         if (highlightsector[j] == i)
@@ -4946,6 +5102,33 @@ end_space_handling:
 
                 if (k == 0)
                 {
+                    if (numdelsectors > 1)
+                    {
+                        if (!didbak)
+                        {
+                            origframe = Bmalloc(xdim*ydim);
+                            if (origframe)
+                            {
+                                begindrawing();
+                                Bmemcpy(origframe, (char *)frameplace, xdim*ydim);
+                                enddrawing();
+                                didbak = 1;
+                            }
+                        }
+                        else
+                        {
+                            begindrawing();
+                            Bmemcpy((char *)frameplace, origframe, xdim*ydim);
+                            enddrawing();                            
+                        }
+
+                        fillsector(i, editorcolors[9]);
+                        fade_editor_screen(editorcolors[9]);
+
+                        if (!ask_if_sure("Delete this sector? (Y/N)", 0))
+                            continue;
+                    }
+
 #ifdef YAX_ENABLE
                     yax_getbunches(i, &cb, &fb);
                     if (cb>=0) hlsectorbitmap[cb>>3] |= (1<<(cb&7));
@@ -4954,6 +5137,9 @@ end_space_handling:
                     deletesector(i);
                     printmessage16("Sector deleted.");
                 }
+
+                if (origframe)
+                    Bfree(origframe);
 
 #ifdef YAX_ENABLE
                 for (j=0; j<numsectors; j++)
@@ -4973,7 +5159,10 @@ end_space_handling:
 
                 newnumwalls = -1;
                 asksave = 1;
-
+#ifdef YAX_ENABLE
+                yax_update(0);
+                yax_updategrays(pos.z);
+#endif
                 break;
             }
         }
@@ -5112,6 +5301,9 @@ point_not_inserted:
                             insertpoint(linehighlight, dax,day);
                             printmessage16("Point inserted.");
                         }
+#ifdef YAX_ENABLE
+                        yax_updategrays(pos.z);
+#endif
                     }
                 }
 #ifdef YAX_ENABLE
@@ -5391,7 +5583,7 @@ CANCEL:
                     bad = 0;
 
                     if (CheckMapCorruption(4, 0)>=4)
-                        if (!ask_if_sure("Map is corrupt. Are you sure you want to save?", 0))
+                        if (!ask_if_sure("Map is corrupt. Are you sure you want to save? (Y/N)", 0))
                             break;
 
                     _printmessage16("Saving board...");
@@ -5708,7 +5900,7 @@ void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y)
 
 static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
 {
-    int32_t i, dst, dist, closest, x1, y1, x2, y2, nx, ny;
+    int32_t i, j, dst, dist, closest, x1, y1, x2, y2, nx, ny;
     int32_t daxplc, dayplc;
 
     if (numwalls == 0)
@@ -5736,6 +5928,9 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
     closest = -1;
     for (i=0; i<numwalls; i++)
     {
+        if (!m32_sideview)
+            YAX_SKIPWALL(i);
+
         getclosestpointonwall(daxplc,dayplc, i, &nx,&ny, 1);
         dst = klabs(daxplc-nx) + klabs(dayplc-ny);
         if (dst <= dist)
@@ -5745,7 +5940,11 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
         }
     }
 
-    if (closest>=0 && wall[closest].nextwall >= 0)
+    j = wall[closest].nextwall;
+    if (closest>=0 && j >= 0)
+#ifdef YAX_ENABLE
+    if (m32_sideview || ((graywallbitmap[j>>3]&(1<<(j&7)))==0))
+#endif
     {
         //if red line, allow highlighting of both sides
         if (m32_sideview)
@@ -5765,10 +5964,10 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
 
         i = wall[closest].nextwall;
         if (!m32_sideview ||
-            ((*(int64_t *)m32_wallscreenxy[closest]==*(int64_t *)m32_wallscreenxy[wall[i].point2]) &&
-             (*(int64_t *)m32_wallscreenxy[wall[closest].point2]==*(int64_t *)m32_wallscreenxy[i])))
+            ((*(int64_t *)m32_wallscreenxy[closest]==*(int64_t *)m32_wallscreenxy[wall[j].point2]) &&
+             (*(int64_t *)m32_wallscreenxy[wall[closest].point2]==*(int64_t *)m32_wallscreenxy[j])))
             if (dmulscale32(daxplc-x1,y2-y1,-(x2-x1),dayplc-y1) >= 0)
-                closest = wall[closest].nextwall;
+                closest = j;
     }
 
     return closest;
@@ -5789,6 +5988,10 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
         dist = 0;
 
     for (i=0; i<numsectors; i++)
+    {
+        if (!m32_sideview)
+            YAX_SKIPSECTOR(i);
+
         for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
         {
             if (!m32_sideview)
@@ -5811,13 +6014,19 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
                     dist = dst, closest = j;
             }
         }
+    }
 
     if (zoom >= 256)
         for (i=0; i<MAXSPRITES; i++)
             if (sprite[i].statnum < MAXSTATUS)
             {
+                if (!m32_sideview && sprite[i].sectnum >= 0)
+                    YAX_SKIPSECTOR(sprite[i].sectnum);
+
                 if (!m32_sideview)
+                {
                     dst = klabs(xplc-sprite[i].x) + klabs(yplc-sprite[i].y);
+                }
                 else
                 {
                     screencoords(&dax,&day, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
@@ -6440,6 +6649,9 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
             quitevent = 0;
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
+#ifdef YAX_ENABLE
+        yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
+#endif
         ExtAnalyzeSprites();
         drawmasks();
 
@@ -6704,7 +6916,7 @@ static int32_t getfilenames(const char *path, const char *kind)
     findfileshigh = findfiles;
     currentlist = 0;
     if (findfileshigh) currentlist = 1;
-
+//initprintf("path=%s || kind=%s || numfiles=%d, numdirs=%d\n", path, kind, numfiles, numdirs);
     return(0);
 }
 
@@ -7058,13 +7270,18 @@ static int32_t menuselect(void)
     return(-1);
 }
 
-int32_t fillsector(int16_t sectnum, char fillcolor)
+int32_t fillsector(int16_t sectnum, int32_t fillcolor)
 {
     int32_t x1, x2, y1, y2, sy, y;
     int32_t lborder, rborder, uborder, dborder, miny, maxy, dax;
     int16_t z, zz, startwall, endwall, fillcnt;
 
-    UNREFERENCED_PARAMETER(fillcolor);
+    char col;
+
+    if (fillcolor < 0)
+        col = 159-klabs(sintable[((totalclock<<3)&2047)]>>11);
+    else
+        col = fillcolor;
 
     lborder = 0; rborder = xdim;
     uborder = 0; dborder = ydim16;
@@ -7170,8 +7387,7 @@ int32_t fillsector(int16_t sectnum, char fillcolor)
                 if (fillist[z+1] > rborder)
                     fillist[z+1] = rborder;
 
-                drawline16(fillist[z],sy, fillist[z+1],sy, 159  //editorcolors[fillcolor]
-                           -klabs(sintable[((totalclock<<3)&2047)]>>11));
+                drawline16(fillist[z],sy, fillist[z+1],sy, col);  //editorcolors[fillcolor]
             }
         }
     }

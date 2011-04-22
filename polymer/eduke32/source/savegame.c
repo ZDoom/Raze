@@ -1804,7 +1804,7 @@ int32_t sv_readdiff(int32_t fil)
 // SVGM data description
 static void sv_postudload()
 {
-    Bmemcpy(&boardfilename[0], &currentboardfilename[0], BMAX_PATH);
+//    Bmemcpy(&boardfilename[0], &currentboardfilename[0], BMAX_PATH);
 #if 0
     ud.m_level_number = ud.level_number;
     ud.m_volume_number = ud.volume_number;

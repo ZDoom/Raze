@@ -301,7 +301,7 @@ static void message_common1(const char *tmpstr)
     Bstrcpy(getmessage,tmpstr);
 
     getmessageleng = Bstrlen(getmessage);
-    getmessagetimeoff = totalclock+120*2;
+    getmessagetimeoff = totalclock + 120*2 + getmessageleng*(120/30);
     lastmessagetime = totalclock;    
 }
 
@@ -586,6 +586,7 @@ int32_t map_undoredo(int32_t dir)
 #endif
 #ifdef YAX_ENABLE
     yax_update(0);
+    yax_updategrays(pos.z);
 #endif
     CheckMapCorruption(4, 0);
 
@@ -1990,7 +1991,7 @@ static void IntegratedHelp(void)
 
             if (keystatus[KEYSC_S])
             {
-                fade_editor_screen();
+                fade_editor_screen(-1);
             }
             else
             {
@@ -4359,6 +4360,9 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
             quitevent = 0;
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
+#ifdef YAX_ENABLE
+        yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
+#endif
         ExtAnalyzeSprites();
         drawmasks();
 #ifdef POLYMER
@@ -4565,6 +4569,9 @@ ENDFOR1:
             sprite[linebegspr].pal -= (sprite[linebegspr].pal>0);
 
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
+#ifdef YAX_ENABLE
+        yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
+#endif
         ExtAnalyzeSprites();
         drawmasks();
 #ifdef POLYMER
@@ -6064,7 +6071,11 @@ static void Keys3d(void)
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(I))  // ' i
     {
         showinvisibility = !showinvisibility;
-        message("Invisible sprite preview %s", showinvisibility?"enabled":"disabled");
+#ifndef YAX_ENABLE
+        message("Show invisible sprites %s", showinvisibility?"enabled":"disabled");
+#else
+        message("Show invisible objects %s", showinvisibility?"enabled":"disabled");
+#endif
     }
 
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(X)) // ' x
@@ -6294,10 +6305,15 @@ static void Keys3d(void)
         {
             int32_t nexti[4] = { 128, 256, 384, 0 };
             int16_t *stat = &AIMED_CEILINGFLOOR(stat);
+            const char *statmsg[4] = {"normal", "masked", "translucent", "translucent (2)"};
+
             i = (*stat&(128+256))>>7;
             i = nexti[i];
             *stat &= ~(128+256);
             *stat |= i;
+
+            message("Sector %d's %s made %s.", searchsector, typestr[searchstat], statmsg[i>>7]);
+
             asksave = 1;
         }
 
@@ -6305,8 +6321,11 @@ static void Keys3d(void)
         {
             if (ASSERT_AIMING)
             {
+                int32_t olotag = AIMED(lotag);
                 Bsprintf(tempbuf, "%s lotag: ", Typestr_wss[searchstat]);
                 AIMED(lotag) = getnumber256(tempbuf, AIMED(lotag), BTAG_MAX, 0);
+                if (olotag != AIMED(lotag))
+                    asksave = 1;
             }
         }
         else if (eitherCTRL)
@@ -6345,15 +6364,7 @@ static void Keys3d(void)
         }
     }
 
-    if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(ENTER)) // ' ENTER
-    {
-        AIMED_SELOVR_PICNUM = temppicnum;
-        message("Pasted picnum only");
-
-        if (AIMING_AT_SPRITE)
-            correct_sprite_yoffset(searchwall);
-    }
-
+    // ----------
     i = 512;
     if (keystatus[KEYSC_RSHIFT]) i = 8;
     if (keystatus[KEYSC_LSHIFT]) i = 1;
@@ -6792,6 +6803,12 @@ static void Keys3d(void)
 
             if (AIMING_AT_WALL_OR_MASK)
             {
+#ifdef YAX_ENABLE
+                if (yax_getnextwall(searchwall, YAX_CEILING) >= 0)
+                    templotag = 0;
+                if (yax_getnextwall(searchwall, YAX_FLOOR) >= 0)
+                    tempextra = -1;
+#endif
                 temppicnum = AIMED_SELOVR_WALL(picnum);
                 tempxrepeat = AIMED_SEL_WALL(xrepeat);
                 tempxrepeat = max(1, tempxrepeat);
@@ -6809,7 +6826,7 @@ static void Keys3d(void)
                 if (yax_getbunch(searchsector, AIMING_AT_FLOOR) >= 0)
                     tempxrepeat = tempyrepeat = 0;
 #endif
-                tempcstat = AIMED_CEILINGFLOOR(stat);
+                tempcstat = AIMED_CEILINGFLOOR(stat) & ~YAX_BIT;
             }
             else if (AIMING_AT_SPRITE)
             {
@@ -6824,6 +6841,20 @@ static void Keys3d(void)
 
             somethingintab = searchstat;
         }
+    }
+
+    if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(ENTER)) // ' ENTER
+    {
+        if (AIMED_SELOVR_PICNUM != temppicnum)
+        {
+            AIMED_SELOVR_PICNUM = temppicnum;
+            asksave = 1;
+        }
+
+        if (AIMING_AT_SPRITE)
+            correct_sprite_yoffset(searchwall);
+
+        message("Pasted picnum only");
     }
 
     if (PRESSED_KEYSC(ENTER))  // ENTER -- paste clipboard contents
@@ -6871,13 +6902,14 @@ static void Keys3d(void)
                     AIMED_CF_SEL(shade) = tempshade;
                     AIMED_CF_SEL(pal) = temppal;
 
+                    k = 0;
                     if (AIMING_AT_CEILING_OR_FLOOR)
                     {
                         if (somethingintab == SEARCH_CEILING || somethingintab == SEARCH_FLOOR)
-                            sector[searchsector].visibility = tempvis;
+                            k=1, sector[searchsector].visibility = tempvis;
                     }
 
-                    message("Pasted shading+pal");
+                    message("Pasted shade+pal%s", k?"+visibility":"");
                     asksave = 1;
                 }
             }
@@ -6905,81 +6937,117 @@ static void Keys3d(void)
             }
             while (i != searchwall);
 
-            message("Pasted picnum+shading+pal%s", clipboard_has_wall?"+pixelwidth":"");
+            message("Pasted picnum+shade+pal%s to wall %d's loop",
+                    clipboard_has_wall?"+pixelwidth":"", searchwall);
             asksave = 1;
         }
         else if (AIMING_AT_CEILING_OR_FLOOR && eitherCTRL && somethingintab < 255)  //Either ctrl key
         {
-            static char pskysearch[MAXSECTORS];
+            static const char *addnstr[4] = {"", "+stat+panning", "+stat", "+stat + panning (some)"};
 
-            Bmemset(pskysearch, 0, numsectors);
+            static int16_t sectlist[MAXSECTORS];
+            static uint8_t sectbitmap[MAXSECTORS>>3];
+            int32_t sectcnt, sectnum;
 
             i = searchsector;
             if (CEILINGFLOOR(i, stat)&1)
-                pskysearch[i] = 1;
-
-            while (pskysearch[i] == 1)
             {
-                CEILINGFLOOR(i, picnum) = temppicnum;
-                CEILINGFLOOR(i, shade) = tempshade;
-                CEILINGFLOOR(i, pal) = temppal;
+                // collect neighboring parallaxed sectors
+                bfirst_search_init(sectlist, sectbitmap, &sectnum, MAXSECTORS, i);
 
-                if (somethingintab == SEARCH_CEILING || somethingintab == SEARCH_FLOOR)
+                for (sectcnt=0; sectcnt<sectnum; sectcnt++)
+                    for (WALLS_OF_SECTOR(sectlist[sectcnt], j))
+                    {
+                        k = wall[j].nextsector;
+                        if (k>=0 && (CEILINGFLOOR(k, stat)&1))
+                            bfirst_search_try(sectlist, sectbitmap, &sectnum, wall[j].nextsector);
+                    }
+
+                k = 0;
+                for (sectcnt=0; sectcnt<sectnum; sectcnt++)
+                {
+                    i = sectlist[sectcnt];
+
+                    CEILINGFLOOR(i, picnum) = temppicnum;
+                    CEILINGFLOOR(i, shade) = tempshade;
+                    CEILINGFLOOR(i, pal) = temppal;
+
+                    if (somethingintab == SEARCH_CEILING || somethingintab == SEARCH_FLOOR)
+                    {
 #ifdef YAX_ENABLE
-                if (yax_getbunch(i, AIMING_AT_FLOOR) < 0)
+                        if (yax_getbunch(i, AIMING_AT_FLOOR) >= 0)
+                            k |= 2;
+                        else
 #endif
-                {
-                    CEILINGFLOOR(i, xpanning) = tempxrepeat;
-                    CEILINGFLOOR(i, ypanning) = tempyrepeat;
-                    CEILINGFLOOR(i, stat) = tempcstat;
-                }
-                pskysearch[i] = 2;
+                        {
+                            CEILINGFLOOR(i, xpanning) = tempxrepeat;
+                            CEILINGFLOOR(i, ypanning) = tempyrepeat;
+                            k |= 1;
+                        }
 
-                startwall = sector[i].wallptr;
-                endwall = startwall + sector[i].wallnum - 1;
-
-                for (j=startwall; j<=endwall; j++)
-                {
-                    k = wall[j].nextsector;
-                    if (k >= 0)
-                        if ((CEILINGFLOOR(k, stat)&1) > 0)
-                            if (pskysearch[k] == 0)
-                                pskysearch[k] = 1;
+                        SET_PROTECT_BITS(CEILINGFLOOR(i, stat), tempcstat, YAX_BIT);
+                    }
                 }
 
-                for (j=0; j<numsectors; j++)
-                    if (pskysearch[j] == 1)
-                        i = j;
+                message("Pasted picnum+shade+pal%s to parallaxed sector %ss",
+                        addnstr[k], typestr[searchstat]);
+                asksave = 1;
             }
+#ifdef YAX_ENABLE
+            else
+            {
+                k = yax_getbunch(searchsector, AIMING_AT_FLOOR);
+                if (k < 0)
+                    goto paste_ceiling_or_floor;
 
-            message("Pasted picnum+shading+pal to adjoining sector %ss", typestr[searchstat]);
-            asksave = 1;
+                j = (somethingintab==SEARCH_CEILING || somethingintab==SEARCH_FLOOR);
+
+                for (i=headsectbunch[AIMING_AT_FLOOR][k]; i!=-1; i=nextsectbunch[AIMING_AT_FLOOR][i])
+                {
+                    SECTORFLD(i,picnum, AIMING_AT_FLOOR) = temppicnum;
+                    SECTORFLD(i,shade, AIMING_AT_FLOOR) = tempshade;
+                    SECTORFLD(i,pal, AIMING_AT_FLOOR) = temppal;
+
+                    if (j)
+                        SET_PROTECT_BITS(SECTORFLD(i,stat, AIMING_AT_FLOOR), tempcstat, YAX_BIT);
+                }
+
+                message("Pasted picnum+shade+pal%s to sector %ss with bunchnum %d",
+                        j?"+stat":"", typestr[searchstat], k);
+            }
+#endif
         }
         else if (somethingintab < 255)
         {
+            // wall/overwall common:
+            if (AIMING_AT_WALL_OR_MASK && searchstat==somethingintab &&
+                    (!AIMING_AT_WALL || searchwall==searchbottomwall))
+            {
+                wall[searchwall].xrepeat = tempxrepeat;
+                wall[searchwall].yrepeat = tempyrepeat;
+
+                SET_PROTECT_BITS(wall[searchwall].cstat, tempcstat, YAX_NEXTWALLBITS);
+
+                wall[searchwall].hitag = temphitag;
+#ifdef YAX_ENABLE
+                if (yax_getnextwall(searchwall, YAX_CEILING) == -1)
+#endif
+                    wall[searchwall].lotag = templotag;
+#ifdef YAX_ENABLE
+                if (yax_getnextwall(searchwall, YAX_FLOOR) == -1)
+#endif
+                    wall[searchwall].extra = tempextra;
+
+                fixxrepeat(searchwall, templenrepquot);
+            }                
+            
+
             if (AIMING_AT_WALL)
             {
                 wall[searchbottomwall].picnum = temppicnum;
                 wall[searchbottomwall].shade = tempshade;
                 wall[searchbottomwall].pal = temppal;
 
-                if (somethingintab == SEARCH_WALL && searchwall==searchbottomwall)
-                {
-                    wall[searchwall].xrepeat = tempxrepeat;
-                    wall[searchwall].yrepeat = tempyrepeat;
-                    wall[searchwall].cstat &= YAX_NEXTWALLBITS;
-                    wall[searchwall].cstat |= (tempcstat & ~YAX_NEXTWALLBITS);
-#ifdef YAX_ENABLE
-                    if (yax_getnextwall(searchwall, YAX_CEILING) == -1)
-#endif
-                    wall[searchwall].lotag = templotag;
-                    wall[searchwall].hitag = temphitag;
-#ifdef YAX_ENABLE
-                    if (yax_getnextwall(searchwall, YAX_FLOOR) == -1)
-#endif
-                    wall[searchwall].extra = tempextra;
-                    fixxrepeat(searchwall, templenrepquot);
-                }
                 asksave = 1;
             }
             else if (AIMING_AT_MASKWALL)
@@ -6991,39 +7059,28 @@ static void Keys3d(void)
                 wall[searchwall].shade = tempshade;
                 wall[searchwall].pal = temppal;
 
-                if (somethingintab == SEARCH_MASKWALL)
-                {
-                    wall[searchwall].xrepeat = tempxrepeat;
-                    wall[searchwall].yrepeat = tempyrepeat;
-                    wall[searchwall].cstat &= YAX_NEXTWALLBITS;
-                    wall[searchwall].cstat |= (tempcstat & ~YAX_NEXTWALLBITS);
-#ifdef YAX_ENABLE
-                    if (yax_getnextwall(searchwall, YAX_CEILING) == -1)
-#endif
-                    wall[searchwall].lotag = templotag;
-                    wall[searchwall].hitag = temphitag;
-#ifdef YAX_ENABLE
-                    if (yax_getnextwall(searchwall, YAX_FLOOR) == -1)
-#endif
-                    wall[searchwall].extra = tempextra;
-                    fixxrepeat(searchwall, templenrepquot);
-                }
                 asksave = 1;
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
             {
+#ifdef YAX_ENABLE
+paste_ceiling_or_floor:
+#endif
                 AIMED_CEILINGFLOOR(picnum) = temppicnum;
                 AIMED_CEILINGFLOOR(shade) = tempshade;
                 AIMED_CEILINGFLOOR(pal) = temppal;
 
                 if (somethingintab == SEARCH_CEILING || somethingintab == SEARCH_FLOOR)
-#ifdef YAX_ENABLE
-                if (yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0)
-#endif
                 {
-                    AIMED_CEILINGFLOOR(xpanning) = tempxrepeat;
-                    AIMED_CEILINGFLOOR(ypanning) = tempyrepeat;
-                    AIMED_CEILINGFLOOR(stat) = tempcstat;
+#ifdef YAX_ENABLE
+                    if (yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0)
+#endif
+                    {
+                        AIMED_CEILINGFLOOR(xpanning) = tempxrepeat;
+                        AIMED_CEILINGFLOOR(ypanning) = tempyrepeat;
+                    }
+
+                    SET_PROTECT_BITS(AIMED_CEILINGFLOOR(stat), tempcstat, YAX_BIT);
 
                     sector[searchsector].visibility = tempvis;
                     sector[searchsector].lotag = templotag;
@@ -7066,6 +7123,7 @@ static void Keys3d(void)
                 else
                     correct_sprite_yoffset(searchwall);
             }
+
             message("Pasted clipboard");
             asksave = 1;
         }
@@ -7075,7 +7133,7 @@ static void Keys3d(void)
     {
         if (eitherALT)  // Alt-C  picnum replacer
         {
-            if (somethingintab < 255)
+            if (ASSERT_AIMING && somethingintab < 255)
             {
                 switch (searchstat)
                 {
@@ -7109,7 +7167,9 @@ static void Keys3d(void)
                             wall[i].overpicnum = temppicnum;
                     break;
                 }
-                message("Picnums replaced");
+
+                message("Replaced %ss with picnum %d to picnum %d",
+                        typestr[searchwall], j, temppicnum);
                 asksave = 1;
             }
         }
@@ -9910,6 +9970,8 @@ int32_t ExtInit(void)
     zmode = 2;
     zlock = kensplayerheight<<8;
 
+    showinvisibility = 1;
+
     ReadGamePalette();
     //  InitWater();
 
@@ -9983,7 +10045,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
     int32_t radius, xp1, yp1;
     int32_t col;
     int32_t picnum, frames;
-    int32_t ang = 0, flags, shade;
+    int32_t daang = 0, flags, shade;
 
     if (qsetmode == 200)    //In 3D mode
     {
@@ -10150,7 +10212,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
             if ((sprite[i].cstat & 48) != 0 || sprite[i].statnum == MAXSTATUS) continue;
             ii++;
             picnum = sprite[i].picnum;
-            ang = flags = frames = shade = 0;
+            daang = flags = frames = shade = 0;
 
             switch (picnum)
             {
@@ -10211,13 +10273,13 @@ void ExtPreCheckKeys(void) // just before drawrooms
                     if (k <= 4)
                     {
                         picnum += k;
-                        ang = 0;
+                        daang = 0;
                         flags &= ~4;
                     }
                     else
                     {
                         picnum += 8-k;
-                        ang = 1024;
+                        daang = 1024;
                         flags |= 4;
                     }
                 }
@@ -10253,7 +10315,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
             if (xp1 < 4 || xp1 > xdim-6 || yp1 < 4 || yp1 > ydim16-6)
                 continue;
-            rotatesprite(xp1<<16,yp1<<16,zoom<<5,ang,picnum,
+            rotatesprite(xp1<<16,yp1<<16,zoom<<5,daang,picnum,
                          shade,sprite[i].pal,flags,0,0,xdim-1,ydim16-1);
         }
     }

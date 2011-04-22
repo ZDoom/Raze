@@ -194,6 +194,9 @@ int16_t editstatus = 0;
 static int16_t yax_bunchnum[MAXSECTORS][2];
 static int16_t yax_nextwall[MAXWALLS][2];
 
+uint8_t graysectbitmap[MAXSECTORS>>3];
+uint8_t graywallbitmap[MAXWALLS>>3];
+
 static int32_t yax_islockededge(/*int16_t sec,*/ int16_t line, int16_t cf)
 #if 1
 {
@@ -216,7 +219,7 @@ static int32_t yax_islockededge(/*int16_t sec,*/ int16_t line, int16_t cf)
 }
 #endif
 
-#define YAX_BUNCHNUM(Sect, Cf) (*(int16_t *)(&sector[Sect].ceilingxpanning + 6*Cf))
+#define YAX_BUNCHNUM(Sect, Cf) (*(int16_t *)(&sector[Sect].ceilingxpanning + 8*Cf))
 
 //// bunch getters/setters
 int16_t yax_getbunch(int16_t i, int16_t cf)
@@ -246,6 +249,14 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
 
     if (bunchnum<0)
     {
+        int32_t j;
+        // TODO: for in-game too?
+        for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+        {
+            yax_setnextwall(j, YAX_CEILING, -1);
+            yax_setnextwall(j, YAX_FLOOR, -1);
+        }
+
         *(&sector[i].ceilingstat + cf) &= ~YAX_BIT;
         YAX_BUNCHNUM(i, cf) = 0;
         return;
@@ -366,6 +377,181 @@ void yax_update(int32_t onlyreset)
     }
     editstatus = oeditstatus;
 }
+
+void yax_updategrays(int32_t posze)
+{
+    int32_t i, j, k;
+    int16_t cb, fb;
+
+    Bmemset(graysectbitmap, 0, sizeof(graysectbitmap));
+    Bmemset(graywallbitmap, 0, sizeof(graywallbitmap));
+
+    if (numyaxbunches==0)
+        return;
+
+    for (i=0; i<numsectors; i++)
+    {
+        yax_getbunches(i, &cb, &fb);
+
+        if (cb<0 && fb<0)
+            continue;
+
+        k = ((cb<0 || sector[i].ceilingz < posze) && (fb<0 || posze < sector[i].floorz));
+        if (!k)  // outside bounds, gray out!
+        {
+            graysectbitmap[i>>3] |= (1<<(i&7));
+            for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+                graywallbitmap[j>>3] |= (1<<(j&7));
+        }
+    }
+}
+
+int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf, int16_t *ret_bunchnum)
+{
+    int16_t bunchnum = yax_getbunch(sectnum, cf);
+    int32_t i;
+
+    if (bunchnum < 0)
+        return -1;
+
+    for (i=headsectbunch[!cf][bunchnum]; i!=-1; i=nextsectbunch[!cf][i])
+        if (inside(x, y, i)==1)
+        {
+            if (ret_bunchnum)
+                *ret_bunchnum = bunchnum;
+            return i;
+        }
+
+    return -1;
+}
+
+static int32_t globalcf;
+
+static int yax_cmpbunches(const int16_t *b1, const int16_t *b2)
+{
+    int32_t s1,s2, w1,w2;
+    int64_t x1,y1, x2,y2, r;
+
+    s1 = headsectbunch[globalcf][*b1];
+    s2 = headsectbunch[globalcf][*b2];
+
+    w1 = sector[s1].wallptr;
+    w2 = sector[s2].wallptr;
+
+    x1 = wall[w1].x-globalposx; y1 = wall[w1].y-globalposy;
+    x2 = wall[w2].x-globalposx; y2 = wall[w2].y-globalposy;
+
+    r = (x2*x2 + y2*y2) - (x1*x1 + y1*y1);
+    if (r > 0)
+        return 1;
+    return r>>63;
+}
+
+void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectnum)
+{
+    static uint8_t havebunch[2][YAX_MAXBUNCHES>>3];
+    static int16_t bunches[2][YAX_MAXBUNCHES];
+
+    int32_t i, j, k, head, cf, diddraw = 0;
+    int32_t bnchcnt, bnchnum[2] = {0,0};
+    int16_t ourbunch[2] = {-1,-1};
+
+    static uint8_t allgotsector[MAXSECTORS>>3];
+    static int16_t opicnum[MAXSECTORS];
+
+    if (rendmode == 4 || numyaxbunches==0)
+        return;
+
+    Bmemset(&havebunch[0], 0, (numsectors+7)>>3);
+    Bmemset(&havebunch[1], 0, (numsectors+7)>>3);
+
+    if (sectnum >= 0)
+        yax_getbunches(sectnum, &ourbunch[0], &ourbunch[1]);
+
+    for (i=0; i<numsectors; i++)
+    {
+        if (!(gotsector[i>>3]&(1<<(i&7))))
+            continue;
+
+        for (cf=0; cf<2; cf++)
+        {
+            j = yax_getbunch(i, cf);
+            if (j >= 0 && !(havebunch[cf][j>>3]&(1<<(j&7))))
+            {
+                havebunch[cf][j>>3] |= (1<<(j&7));
+                bunches[cf][bnchnum[cf]++] = j;
+            }
+        }
+    }
+
+    Bmemcpy(allgotsector, gotsector, (numsectors+7)>>3);
+
+    for (cf=0; cf<2; cf++)
+    {
+        globalcf = cf;
+
+        qsort(bunches[cf], bnchnum[cf], sizeof(int16_t), (int(*)(const void *, const void *))&yax_cmpbunches);
+
+        for (bnchcnt=0; bnchcnt<bnchnum[cf]; bnchcnt++)
+        {
+            j = bunches[cf][bnchcnt];  // the actual bunchnum...
+
+            if (j==ourbunch[cf])
+            {
+                k = yax_getneighborsect(globalposx, globalposy, sectnum, cf, NULL);
+                if (k < 0)
+                    continue;
+            }
+            else
+                k = headsectbunch[!cf][j];
+
+            // tweak picnums vvv
+            head = headsectbunch[cf][j];
+            for (i=head; i!=-1; i=nextsectbunch[cf][i])
+                if ((SECTORFLD(i,stat, cf)&(128+256))==0)
+                {
+                    opicnum[i] = SECTORFLD(i,picnum, cf);
+                    if (editstatus && showinvisibility)
+                        SECTORFLD(i,picnum, cf) = MAXTILES-1;
+                    else
+                        SECTORFLD(i,picnum, cf) = 13; //FOF;
+                }
+
+            if (allgotsector[k>>3]&(1<<(k&7)))
+                continue;
+
+            // TODO: make this better
+            drawrooms(globalposx,globalposy,globalposz,globalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
+            ExtAnalyzeSprites();
+            drawmasks();
+
+            for (i=0; i<(numsectors+7)>>3; i++)
+                allgotsector[i] |= gotsector[i];
+
+            diddraw = 1;
+        }
+    }
+
+    if (diddraw)
+    {
+        drawrooms(globalposx,globalposy,globalposz,globalang,horiz,sectnum);
+
+        if (editstatus)
+        {
+            for (cf=0; cf<2; cf++)
+                for (bnchcnt=0; bnchcnt<bnchnum[cf]; bnchcnt++)
+                {
+                    j = bunches[cf][bnchcnt];  // the actual bunchnum...
+
+                    // restore picnums ^^^
+                    for (i=headsectbunch[cf][j]; i!=-1; i=nextsectbunch[cf][i])
+                        if ((SECTORFLD(i,stat, cf)&(128+256))==0)
+                            SECTORFLD(i,picnum, cf) = opicnum[i];
+                }
+        }
+    }
+}
+
 #undef YAX_BUNCHNUM
 
 #endif
@@ -967,6 +1153,8 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
 
     for (j=0; j<numsectors; j++)
     {
+        YAX_SKIPSECTOR(j);
+
         startwall = sector[j].wallptr;
         endwall = startwall + sector[j].wallnum - 1;
         for (k=startwall; k<=endwall; k++)
@@ -2109,7 +2297,9 @@ static int32_t owallmost(int16_t *mostbuf, int32_t w, int32_t z)
     }
 
     y = (scale(z,xdimenscale,iy1)<<4);
-    yinc = ((scale(z,xdimenscale,iy2)<<4)-y) / (ix2-ix1+1);
+    // PK 20110423: 'fix' for crash in 2d map view -----------|
+    // ...only with NOASM=1 apparently  :(                    v
+    yinc = ((scale(z,xdimenscale,iy2)<<4)-y) / ((ix2-ix1!=-1) ? (ix2-ix1+1) : 1);
     qinterpolatedown16short((intptr_t)&mostbuf[ix1],ix2-ix1+1,y+(globalhoriz<<16),yinc);
 
     if (mostbuf[ix1] < 0) mostbuf[ix1] = 0;
@@ -2267,7 +2457,9 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
     }
 
     y = (scale(z1,xdimenscale,iy1)<<4);
-    yinc = ((scale(z2,xdimenscale,iy2)<<4)-y) / (ix2-ix1+1);
+    // PK 20110423: 'fix' for crash in 2d map view ------------|
+    // ...only with NOASM=1 apparently  :(                     v
+    yinc = ((scale(z2,xdimenscale,iy2)<<4)-y) / ((ix2-ix1!=-1) ? (ix2-ix1+1) : 1);
     qinterpolatedown16short((intptr_t)&mostbuf[ix1],ix2-ix1+1,y+(globalhoriz<<16),yinc);
 
     if (mostbuf[ix1] < 0) mostbuf[ix1] = 0;
@@ -7630,6 +7822,8 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
     }
 #ifdef YAX_ENABLE
     yax_update(0);
+    if (editstatus)
+        yax_updategrays(*daposz);
 #endif
     for (i=0; i<numsprites; i++)
     {
@@ -9829,28 +10023,28 @@ restart_grand:
             return 0;
         }
 
+        i = yax_getneighborsect(hitinfo->pos.x, hitinfo->pos.y, hitinfo->hitsect,
+                                hitscan_hitsectcf, NULL);
+        if (i >= 0)
         {
             // 1st, 2nd, ... ceil/floor hit
             // hitinfo->hitsect is >=0 because if oldhitsect's init and check above
 
-            int32_t hitfloor = hitscan_hitsectcf;
-            int16_t bunchnum = yax_getbunch(hitinfo->hitsect, hitfloor);
+            // TODO: check against cstat
 
-            if (bunchnum >= 0)  // todo: check against cstat
-            {
-                for (i=headsectbunch[!hitfloor][bunchnum]; i!=-1; i=nextsectbunch[!hitfloor][i])
-                    if (inside(hitinfo->pos.x, hitinfo->pos.y, i) != 1)
-                        continue;
+            Bmemcpy(&newsv, &hitinfo->pos, sizeof(vec3_t));
+            sectnum = i;
+            sv = &newsv;
 
-                Bmemcpy(&newsv, &hitinfo->pos, sizeof(vec3_t));
-                sectnum = i;
-                sv = &newsv;
+            oldhitsect = hitinfo->hitsect;
+            hitinfo->hitsect = -1;
 
-                oldhitsect = hitinfo->hitsect;
-                hitinfo->hitsect = -1;
+            // sector-like sprite re-init:
+            curspr = 0;
+            curidx = -1;
+            tmpptr = NULL;
 
-                goto restart_grand;
-            }
+            goto restart_grand;
         }
     }
 #endif
@@ -11388,7 +11582,6 @@ restart_grand:
 
         mcf++;
         clipsectcnt = 0; clipsectnum = 0;
-        clipspritecnt = 0; clipspritenum = 0;
 
         didchange = 0;
         if (cb>=0 && mcf==0 && *ceilhit==sectnum+16384)
@@ -11431,7 +11624,14 @@ restart_grand:
         }
 
         if (clipsectnum > 0)
+        {
+            // sector-like sprite re-init:
+            curidx = -1;
+            curspr = NULL;
+            clipspritecnt = 0; clipspritenum = 0;
+
             goto restart_grand;
+        }
     }
 #endif
 }
@@ -13104,6 +13304,15 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         if (!m32_sideview && (j >= 0) && (i > j)) return;
     }
 
+#ifdef YAX_ENABLE
+    if ((graywallbitmap[i>>3] & (1<<(i&7))) || (j>=0 && (graywallbitmap[j>>3] & (1<<(j&7)))))
+    {
+        if (!m32_sideview)
+            return;
+        col = 8;
+    }
+    else
+#endif
     if (j < 0)
     {
         col = 15;

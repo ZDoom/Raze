@@ -85,7 +85,17 @@ void yax_setbunches(int16_t i, int16_t cb, int16_t fb);
 int16_t yax_getnextwall(int16_t wal, int16_t cf);
 void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall);
 void yax_update(int32_t onlyreset);
+void yax_updategrays(int32_t posze);
+int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf, int16_t *ret_bunchnum);
+void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectnum);
 
+#ifdef YAX_ENABLE
+# define YAX_SKIPSECTOR(i) if (graysectbitmap[(i)>>3]&(1<<((i)&7))) continue
+# define YAX_SKIPWALL(i) if (graywallbitmap[(i)>>3]&(1<<((i)&7))) continue
+#else
+# define YAX_SKIPSECTOR(i) (i)=(i)
+# define YAX_SKIPWALL(i) (i)=(i)
+#endif
 
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
