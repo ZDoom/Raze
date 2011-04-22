@@ -70,6 +70,11 @@ extern int32_t m32_osd_tryscript;
 extern int32_t showheightindicators;
 extern int32_t showambiencesounds;
 
+#ifdef YAX_ENABLE
+extern uint8_t graysectbitmap[MAXSECTORS>>3];
+extern uint8_t graywallbitmap[MAXWALLS>>3];
+#endif
+
 // editor side view
 extern int32_t m32_sideview;
 extern int32_t m32_sideelev;
@@ -86,6 +91,9 @@ extern int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz) ATTRIBUT
 extern inline int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 extern void setup_sideview_sincos(void);
 extern void m32_setkeyfilter(int32_t on);
+
+extern void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt);
+extern void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int16_t elt);
 
 extern int32_t wallength(int16_t i);
 extern void fixrepeats(int16_t i);
@@ -141,7 +149,7 @@ int32_t writesetup(const char *fn);	// from config.c
 
 void editinput(void);
 void clearmidstatbar16(void);
-void fade_editor_screen(void);
+void fade_editor_screen(int32_t keepcol);
 
 // internal getnumber* helpers:
 extern int32_t getnumber_internal1(char ch, int32_t *danumptr, int32_t maxnumber, char sign);
@@ -170,8 +178,8 @@ void DoSpriteOrnament(int32_t i);
 
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y);
 int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point);
-void update_highlight();
-void update_highlightsector();
+void update_highlight(void);
+void update_highlightsector(void);
 
 int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32_t zoom,
                       int32_t x, int32_t y, int16_t sectnum);
@@ -249,6 +257,10 @@ extern int32_t scripthistend;
     startwall=sector[(Sect)].wallptr, endwall=startwall+sector[(Sect)].wallnum, Itervar=startwall; \
     Itervar < endwall; \
     Itervar++
+
+#define SET_PROTECT_BITS(Var, Newval, Bitstoprotect) do {  \
+    (Var) &= (Bitstoprotect);  \
+    (Var) |= (Newval) & ~(Bitstoprotect); } while (0)
 
 #define BTAG_MAX 65535
 #define BZ_MAX 8388608
