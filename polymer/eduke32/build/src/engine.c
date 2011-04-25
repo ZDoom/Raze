@@ -2232,7 +2232,7 @@ static int32_t owallmost(int16_t *mostbuf, int32_t w, int32_t z)
 {
     int32_t bad, inty, xcross, y, yinc;
     int32_t s1, s2, s3, s4, ix1, ix2, iy1, iy2, t;
-    int32_t i;
+    int32_t i, tmp;
 
     z <<= 7;
     s1 = mulscale20(globaluclip,yb1[w]); s2 = mulscale20(globaluclip,yb2[w]);
@@ -2297,10 +2297,17 @@ static int32_t owallmost(int16_t *mostbuf, int32_t w, int32_t z)
     }
 
     y = (scale(z,xdimenscale,iy1)<<4);
-    // PK 20110423: 'fix' for crash in 2d map view -----------|
-    // ...only with NOASM=1 apparently  :(                    v
-    yinc = ((scale(z,xdimenscale,iy2)<<4)-y) / ((ix2-ix1!=-1) ? (ix2-ix1+1) : 1);
-    qinterpolatedown16short((intptr_t)&mostbuf[ix1],ix2-ix1+1,y+(globalhoriz<<16),yinc);
+
+//// enable for paranoia:
+//    ix1 = clamp(ix1, 0, xres-1);
+//    ix2 = clamp(ix2, 0, xres-1);
+//    if (ix2-ix1 < 0)
+//        swaplong(&ix1, &ix2);
+
+    // PK 20110423: a bit consistency checking is a good thing:
+    tmp = (ix2-ix1 >= 0) ? (ix2-ix1+1) : 1;
+    yinc = ((scale(z,xdimenscale,iy2)<<4)-y) / tmp;
+    qinterpolatedown16short((intptr_t)&mostbuf[ix1],tmp,y+(globalhoriz<<16),yinc);
 
     if (mostbuf[ix1] < 0) mostbuf[ix1] = 0;
     if (mostbuf[ix1] > ydimen) mostbuf[ix1] = ydimen;
@@ -2319,6 +2326,7 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
     int32_t bad, i, j, t, y, z, inty, intz, xcross, yinc, fw;
     int32_t x1, y1, z1, x2, y2, z2, xv, yv, dx, dy, dasqr, oz1, oz2;
     int32_t s1, s2, s3, s4, ix1, ix2, iy1, iy2;
+    int32_t tmp;
     //char datempbuf[256];
 
     if (dastat == 0)
@@ -2457,10 +2465,17 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
     }
 
     y = (scale(z1,xdimenscale,iy1)<<4);
-    // PK 20110423: 'fix' for crash in 2d map view ------------|
-    // ...only with NOASM=1 apparently  :(                     v
-    yinc = ((scale(z2,xdimenscale,iy2)<<4)-y) / ((ix2-ix1!=-1) ? (ix2-ix1+1) : 1);
-    qinterpolatedown16short((intptr_t)&mostbuf[ix1],ix2-ix1+1,y+(globalhoriz<<16),yinc);
+
+//// enable for paranoia:
+//    ix1 = clamp(ix1, 0, xres-1);
+//    ix2 = clamp(ix2, 0, xres-1);
+//    if (ix2-ix1 < 0)
+//        swaplong(&ix1, &ix2);
+
+    // PK 20110423: a bit consistency checking is a good thing:
+    tmp = (ix2-ix1 >= 0) ? (ix2-ix1+1) : 1;
+    yinc = ((scale(z2,xdimenscale,iy2)<<4)-y) / tmp;
+    qinterpolatedown16short((intptr_t)&mostbuf[ix1],tmp,y+(globalhoriz<<16),yinc);
 
     if (mostbuf[ix1] < 0) mostbuf[ix1] = 0;
     if (mostbuf[ix1] > ydimen) mostbuf[ix1] = ydimen;
@@ -7004,7 +7019,14 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     if (inpreparemirror)
     {
+        // numbunches==0 can happen if the mirror is far away... the game code decides
+        // to draw it, but scansector gets zero bunches.  Result: big screwup!
+        // Leave inpreparesector as is, it's restored by completemirror.
+        if (numbunches==0)
+            return;
+
         inpreparemirror = 0;
+
         mirrorsx1 = xdimen-1; mirrorsx2 = 0;
         for (i=numscans-1; i>=0; i--)
         {
@@ -7641,6 +7663,13 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((picanm[globalpicnum]&192) != 0) globalpicnum += animateoffs((int16_t)globalpicnum,s);
             if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
             globalbufplc = waloff[globalpicnum];
+
+            // 'loading' the tile doesn't actually guarantee that it's there afterwards.
+            // This can really happen when drawing the second frame of a floor-aligned
+            // 'storm icon' sprite (4894+1)
+            if (!globalbufplc)
+                continue;
+
             if ((sector[spr->sectnum].ceilingstat&1) > 0)
                 globalshade = ((int32_t)sector[spr->sectnum].ceilingshade);
             else
