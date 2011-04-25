@@ -39,7 +39,7 @@ struct grpfile grpfiles[numgrpfiles] =
     { "Duke Nukem 3D Mac Shareware",	        0xC5F71561, 10444391, GAME_DUKE, NULL },
     { "NAM",                        			0x75C1F07B, 43448927, GAME_NAM,  NULL },
     { "Napalm",                        			0x3DE1589A, 44365728, GAME_NAM,  NULL },
-    { "WW2GI",                         			0x907B82BF, 77939508, GAME_WW2,  NULL },
+    { "WW2GI",                         			0x907B82BF, 77939508, GAME_WW2|GAME_NAM,  NULL },
 };
 struct grpfile *foundgrps = NULL;
 

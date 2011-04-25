@@ -54,7 +54,7 @@ extern "C" {
 
 #define GAME_DUKE           0
 #define GAME_NAM            1
-#define GAME_WW2            3
+#define GAME_WW2            2
 
 #define VOLUMEALL           (g_Shareware == 0)
 #define PLUTOPAK            (g_scriptVersion == 14)
