@@ -5203,6 +5203,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     double d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
     float m[4][4];
     int32_t oxdim = xdim, oydim = ydim;
+#if defined(USE_OPENGL) && defined(POLYMER)
+    int32_t olddetailmapping, oldglowmapping;
+#endif
 
 
 #ifdef USE_OPENGL
@@ -5437,6 +5440,10 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 # ifdef POLYMER
         if (rendmode >= 4) {
             polymer_inb4rotatesprite(picnum, dapalnum, dashade);
+            olddetailmapping = r_detailmapping;
+            oldglowmapping = r_glowmapping;
+            r_detailmapping = 0;
+            r_glowmapping = 0;
         }
 # endif
     }
@@ -5594,6 +5601,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     {
 # ifdef POLYMER
         if (rendmode >= 4) {
+            r_detailmapping = olddetailmapping;
+            r_glowmapping = oldglowmapping;
             polymer_postrotatesprite();
         }
 # endif
