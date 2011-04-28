@@ -3212,6 +3212,14 @@ void G_SE40(int32_t smoothratio)
     }
 }
 
+#ifdef YAX_ENABLE
+static int32_t g_yax_smoothratio;
+static void G_AnalyzeSprites(void)
+{
+    G_DoSpriteAnimations(ud.camera.x,ud.camera.y,ud.cameraang,g_yax_smoothratio);
+}
+#endif
+
 void G_DrawRooms(int32_t snum, int32_t smoothratio)
 {
     int32_t dst,j,fz,cz;
@@ -3463,7 +3471,10 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 #endif
 
         drawrooms(ud.camera.x,ud.camera.y,ud.camera.z,ud.cameraang,ud.camerahoriz,ud.camerasect);
-
+#ifdef YAX_ENABLE
+        g_yax_smoothratio = smoothratio;
+        yax_drawrooms(G_AnalyzeSprites, ud.camerahoriz, ud.camerasect);
+#endif
         // dupe the sprites touching the portal to the other sector
 
         if (ror_sprite != -1)

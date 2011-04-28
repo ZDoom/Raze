@@ -126,7 +126,7 @@ palette_t palookupfog[MAXPALOOKUPS];
 #endif
 
 static char permanentlock = 255;
-int32_t artversion, mapversion=7L; // JBF 20040211: default mapversion to 7
+int32_t artversion, mapversion=7; // JBF 20040211: default mapversion to 7
 void *pic = NULL;
 char picsiz[MAXTILES], tilefilenum[MAXTILES];
 int32_t lastageclock;
@@ -181,6 +181,8 @@ static int16_t maphacklight[PR_MAXLIGHTS];
 inline int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome);
 
+static void scansector(int16_t sectnum);
+
 int16_t editstatus = 0;
 
 
@@ -189,6 +191,8 @@ int16_t editstatus = 0;
 #ifdef YAX_ENABLE
 // all references to floor/ceiling bunchnums should be through the
 // get/set functions!
+
+static int32_t scansector_retfast = 0;
 
 // game-time YAX data structures
 static int16_t yax_bunchnum[MAXSECTORS][2];
@@ -396,7 +400,7 @@ void yax_updategrays(int32_t posze)
         if (cb<0 && fb<0)
             continue;
 
-        k = ((cb<0 || sector[i].ceilingz < posze) && (fb<0 || posze < sector[i].floorz));
+        k = ((cb<0 || sector[i].ceilingz < posze) && (fb<0 || posze <= sector[i].floorz));
         if (!k)  // outside bounds, gray out!
         {
             graysectbitmap[i>>3] |= (1<<(i&7));
@@ -452,7 +456,7 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
     static uint8_t havebunch[2][YAX_MAXBUNCHES>>3];
     static int16_t bunches[2][YAX_MAXBUNCHES];
 
-    int32_t i, j, k, head, cf, diddraw = 0;
+    int32_t i, j, k, cf, diddraw = 0;
     int32_t bnchcnt, bnchnum[2] = {0,0};
     int16_t ourbunch[2] = {-1,-1};
 
@@ -503,11 +507,24 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                     continue;
             }
             else
-                k = headsectbunch[!cf][j];
+            {
+                scansector_retfast = 1;
+                for (k = headsectbunch[!cf][j]; k != -1; k = nextsectbunch[!cf][k])
+                {
+                    numscans = numbunches = 0;
+                    scansector(k);
+                    if (numbunches > 0)
+                        break;
+                }
+                scansector_retfast = 0;
+
+                if (k < 0)
+                    continue;
+            }
 
             // tweak picnums vvv
-            head = headsectbunch[cf][j];
-            for (i=head; i!=-1; i=nextsectbunch[cf][i])
+            for (i=headsectbunch[cf][j]; i!=-1; i=nextsectbunch[cf][i])
+            {
                 if ((SECTORFLD(i,stat, cf)&(128+256))==0)
                 {
                     opicnum[i] = SECTORFLD(i,picnum, cf);
@@ -516,11 +533,11 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                     else
                         SECTORFLD(i,picnum, cf) = 13; //FOF;
                 }
+            }
 
             if (allgotsector[k>>3]&(1<<(k&7)))
                 continue;
 
-            // TODO: make this better
             drawrooms(globalposx,globalposy,globalposz,globalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
             ExtAnalyzeSprites();
             drawmasks();
@@ -1769,7 +1786,13 @@ skipitaddwall:
 
         for (z=numscansbefore; z<numscans; z++)
             if ((wall[thewall[z]].point2 != thewall[p2[z]]) || (xb2[z] >= xb1[p2[z]]))
+            {
                 bunchfirst[numbunches++] = p2[z], p2[z] = -1;
+#ifdef YAX_ENABLE
+                if (scansector_retfast)
+                    return;
+#endif
+            }
 
         for (z=bunchfrst; z<numbunches; z++)
         {
@@ -5255,6 +5278,11 @@ static void fillpolygon(int32_t npoints)
     int16_t *ptr, *ptr2;
     intptr_t p;
 
+    // fix for bad next-point (xb1) values...
+    for (z=0; z<npoints; z++)
+        if ((unsigned)xb1[z] >= (unsigned)npoints)
+            xb1[z] = 0;
+
 #ifdef USE_OPENGL
     if (rendmode >= 3 && qsetmode == 200) { polymost_fillpolygon(npoints); return; }
 #endif
@@ -5275,8 +5303,8 @@ static void fillpolygon(int32_t npoints)
     for (z=npoints-1; z>=0; z--)
     {
         zz = xb1[z];
-        y1 = ry1[z]; day1 = (y1>>12);
-        y2 = ry1[zz]; day2 = (y2>>12);
+        y1 = ry1[z]; day1 = clamp(y1>>12, 0, ydim-1);   // clamp: crash prevention...
+        y2 = ry1[zz]; day2 = clamp(y2>>12, 0, ydim-1);
         if (day1 != day2)
         {
             x1 = rx1[z]; x2 = rx1[zz];
@@ -7004,7 +7032,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         //              *can* be negative, so let's just quit here in that case...
         if (globalcursectnum<0)
         {
-            enddrawing();
+            enddrawing();  //!!!
             return;
         }
     }
@@ -7023,7 +7051,10 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         // to draw it, but scansector gets zero bunches.  Result: big screwup!
         // Leave inpreparesector as is, it's restored by completemirror.
         if (numbunches==0)
+        {
+            enddrawing();  //!!!
             return;
+        }
 
         inpreparemirror = 0;
 
@@ -7745,10 +7776,13 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
     i = Bstrlen(filename)-1;
     if (filename[i] == 255) { filename[i] = 0; flags = 1; } // JBF 20040119: "compatibility"
     if ((fil = kopen4load(filename,flags)) == -1)
-        { mapversion = 7L; return(-1); }
+        { mapversion = 7; return(-1); }
 
     kread(fil,&mapversion,4); mapversion = B_LITTLE32(mapversion);
-    if (mapversion != 7L && mapversion != 8L) { kclose(fil); return(-2); }
+#ifdef YAX_ENABLE
+    if (mapversion != 9)
+#endif
+    if (mapversion != 7 && mapversion != 8) { kclose(fil); return(-2); }
 
     /*
     // Enable this for doing map checksum tests
@@ -7763,13 +7797,13 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
 
     initspritelists();
 
-#define MYMAXSECTORS (mapversion==7l?MAXSECTORSV7:MAXSECTORSV8)
-#define MYMAXWALLS   (mapversion==7l?MAXWALLSV7:MAXWALLSV8)
-#define MYMAXSPRITES (mapversion==7l?MAXSPRITESV7:MAXSPRITESV8)
+#define MYMAXSECTORS (mapversion==7?MAXSECTORSV7:MAXSECTORSV8)
+#define MYMAXWALLS   (mapversion==7?MAXWALLSV7:MAXWALLSV8)
+#define MYMAXSPRITES (mapversion==7?MAXSPRITESV7:MAXSPRITESV8)
 
-    clearbuf(&show2dsector[0],(int32_t)((MAXSECTORS+3)>>5),0L);
-    clearbuf(&show2dsprite[0],(int32_t)((MAXSPRITES+3)>>5),0L);
-    clearbuf(&show2dwall[0],(int32_t)((MAXWALLS+3)>>5),0L);
+    Bmemset(show2dsector, 0, sizeof(show2dsector));
+    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+    Bmemset(show2dwall, 0, sizeof(show2dwall));
 
     kread(fil,daposx,4); *daposx = B_LITTLE32(*daposx);
     kread(fil,daposy,4); *daposy = B_LITTLE32(*daposy);
@@ -7850,7 +7884,7 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
         }
     }
 #ifdef YAX_ENABLE
-    yax_update(0);
+    yax_update(mapversion<9);
     if (editstatus)
         yax_updategrays(*daposz);
 #endif
@@ -8715,7 +8749,8 @@ int32_t saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_
         return(-1);
     }
 
-    for (j=0; j<MAXSPRITES; j++)if ((unsigned)sprite[j].statnum>MAXSTATUS)
+    for (j=0; j<MAXSPRITES; j++)
+        if ((unsigned)sprite[j].statnum>MAXSTATUS)
         {
             initprintf("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",j,sprite[j].x,sprite[j].y,sprite[j].statnum);
             changespritestat(j,0);
@@ -8740,6 +8775,11 @@ int32_t saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_
     }
 #endif
 
+#ifdef YAX_ENABLE
+    if (numyaxbunches > 0)
+        mapversion = 9;
+    else
+#endif
     if (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 || numsprites > MAXSPRITESV7)
         mapversion = 8;
     else
@@ -11600,6 +11640,7 @@ restart_grand:
 #ifdef YAX_ENABLE
     if (numyaxbunches > 0)
     {
+        int32_t dasecclipmask = (dawalclipmask&1)<<9;  // blocking: walstat&1 --> secstat&512
         int16_t cb, fb, didchange;
         yax_getbunches(sectnum, &cb, &fb);
 
@@ -11617,16 +11658,27 @@ restart_grand:
         {
             for (i=0; i<origclipsectnum; i++)
             {
-                cb = yax_getbunch(origclipsectorlist[i], YAX_CEILING);
-                for (j=headsectbunch[YAX_FLOOR][cb]; j!=-1; j=nextsectbunch[YAX_FLOOR][j])
-                    if (inside(pos->x,pos->y, j)==1)
-                    {
-                        clipsectorlist[clipsectnum++] = j;
-                        daz = getceilzofslope(j, pos->x,pos->y);
-                        if (!didchange || daz > *ceilz)
-                            didchange=1, *ceilhit = j+16384, *ceilz = daz;
-                    }
+                j = origclipsectorlist[i];
+                if (yax_getbunch(j, YAX_CEILING) >= 0)
+                    if (sector[j].ceilingstat&dasecclipmask)
+                        break;
             }
+
+            if (i==origclipsectnum)
+                for (i=0; i<origclipsectnum; i++)
+                {
+                    cb = yax_getbunch(origclipsectorlist[i], YAX_CEILING);
+                    if (cb < 0)
+                        continue;
+                    for (j=headsectbunch[YAX_FLOOR][cb]; j!=-1; j=nextsectbunch[YAX_FLOOR][j])
+                        if (inside(pos->x,pos->y, j)==1)
+                        {
+                            clipsectorlist[clipsectnum++] = j;
+                            daz = getceilzofslope(j, pos->x,pos->y);
+                            if (!didchange || daz > *ceilz)
+                                didchange=1, *ceilhit = j+16384, *ceilz = daz;
+                        }
+                }
 
             if (clipsectnum==0)
                 mcf++;
@@ -11637,19 +11689,30 @@ restart_grand:
         didchange = 0;
         if (fb>=0 && mcf==1 && *florhit==sectnum+16384)
         {
-            // (almost) same as above, but with floors...
             for (i=0; i<origclipsectnum; i++)
             {
-                fb = yax_getbunch(origclipsectorlist[i], YAX_FLOOR);
-                for (j=headsectbunch[YAX_CEILING][fb]; j!=-1; j=nextsectbunch[YAX_CEILING][j])
-                    if (inside(pos->x,pos->y, j)==1)
-                    {
-                        clipsectorlist[clipsectnum++] = j;
-                        daz = getflorzofslope(j, pos->x,pos->y);
-                        if (!didchange || daz < *florz)
-                            didchange=1, *florhit = j+16384, *florz = daz;
-                    }
+                j = origclipsectorlist[i];
+                if (yax_getbunch(j, YAX_FLOOR) >= 0)
+                    if (sector[j].floorstat&dasecclipmask)
+                        break;
             }
+
+            // (almost) same as above, but with floors...
+            if (i==origclipsectnum)
+                for (i=0; i<origclipsectnum; i++)
+                {
+                    fb = yax_getbunch(origclipsectorlist[i], YAX_FLOOR);
+                    if (fb < 0)
+                        continue;
+                    for (j=headsectbunch[YAX_CEILING][fb]; j!=-1; j=nextsectbunch[YAX_CEILING][j])
+                        if (inside(pos->x,pos->y, j)==1)
+                        {
+                            clipsectorlist[clipsectnum++] = j;
+                            daz = getflorzofslope(j, pos->x,pos->y);
+                            if (!didchange || daz < *florz)
+                                didchange=1, *florhit = j+16384, *florz = daz;
+                        }
+                }
         }
 
         if (clipsectnum > 0)
@@ -13726,6 +13789,9 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
         for (j=0; j<MAXSPRITES; j++)
             if (sprite[j].statnum<MAXSTATUS && (editstatus == 1 || (show2dsprite[j>>3]&pow2char[j&7])))
             {
+                if (!m32_sideview && sprite[j].sectnum >= 0)
+                    YAX_SKIPSECTOR(sprite[j].sectnum);
+
                 if (!m32_sideview)
                     drawscreen_drawsprite(j,posxe,posye,posze,zoome);
                 else

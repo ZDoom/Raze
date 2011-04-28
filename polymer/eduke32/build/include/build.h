@@ -121,12 +121,14 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 //   bit 4: 1 = x-flip                                               "F"
 //   bit 5: 1 = y-flip                                               "F"
 //   bit 6: 1 = Align texture to first wall of sector                "R"
-//   bits 7-8:                                                       "T"
+//   bits 8-7:                                                       "T"
 //          00 = normal floors
 //          01 = masked floors
 //          10 = transluscent masked floors
 //          11 = reverse transluscent masked floors
-//   bits 9-15: reserved
+//   bit 9: 1 = blocking ceiling/floor
+//   bit 10: 1 = YAX'ed ceiling/floor
+//   bits 11-15: reserved
 
     //40 bytes
 typedef struct

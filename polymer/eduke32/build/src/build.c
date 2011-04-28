@@ -2413,6 +2413,8 @@ void overheadeditor(void)
                     {
                         int16_t secshort = i;
 
+                        YAX_SKIPSECTOR(i);
+
                         dabuffer = ExtGetSectorCaption(i);
                         if (dabuffer[0] == 0)
                             continue;
@@ -2447,6 +2449,8 @@ void overheadeditor(void)
                     if (zoom < 768 && !(wal->cstat & (1<<14)))
                         continue;
 
+                    YAX_SKIPWALL(i);
+
                     //Get average point of wall
 //                    if ((dax > x3) && (dax < x4) && (day > y3) && (day < y4))
                     {
@@ -2461,38 +2465,38 @@ void overheadeditor(void)
                     }
                 }
 
-                i = 0; j = numsprites; k=0;
                 if (zoom >= 768)
-                    while (j > 0 && i < MAXSPRITES && (!m32_sideview || k<m32_swcnt))
+                    for (i=0, k=0; (m32_sideview && k<m32_swcnt) || (!m32_sideview && i<MAXSPRITES); i++, k++)
                     {
                         if (m32_sideview)
                         {
-                            i = m32_wallsprite[k++];
+                            i = m32_wallsprite[k];
                             if (i<MAXWALLS)
                                 continue;
                             i = i-MAXWALLS;
                         }
+                        else
+                            if (sprite[i].statnum == MAXSTATUS)
+                                continue;
 
-                        if (sprite[i].statnum < MAXSTATUS)
+                        if (!m32_sideview && sprite[i].sectnum >= 0)
+                            YAX_SKIPSECTOR(sprite[i].sectnum);
+
+                        dabuffer = ExtGetSpriteCaption(i);
+                        if (dabuffer[0] != 0)
                         {
-                            dabuffer = ExtGetSpriteCaption(i);
-                            if (dabuffer[0] != 0)
-                            {
-                                int32_t blocking = (sprite[i].cstat&1);
+                            int32_t blocking = (sprite[i].cstat&1);
 
-                                col = 3 + 2*blocking;
-                                if (spritecol2d[sprite[i].picnum][blocking])
-                                    col = spritecol2d[sprite[i].picnum][blocking];
+                            col = 3 + 2*blocking;
+                            if (spritecol2d[sprite[i].picnum][blocking])
+                                col = spritecol2d[sprite[i].picnum][blocking];
 
-                                if ((i == pointhighlight-16384) && (totalclock & 32))
-                                    col += (2<<2);
+                            if ((i == pointhighlight-16384) && (totalclock & 32))
+                                col += (2<<2);
 
-                                drawsmallabel(dabuffer, editorcolors[0], editorcolors[col],
-                                               sprite[i].x, sprite[i].y, sprite[i].z);
-                            }
-                            j--;
+                            drawsmallabel(dabuffer, editorcolors[0], editorcolors[col],
+                                          sprite[i].x, sprite[i].y, sprite[i].z);
                         }
-                        i++;
                     }
             }
 
@@ -5474,7 +5478,7 @@ CANCEL:
 // __old_mapcopy_2__
                         if (LoadBoard(NULL, 4))
                         {
-                            printmessage16("Invalid map format.");
+                            message("Invalid map format, nothing loaded.");
                             if (bakstat==0)
                                 mapinfofull_free(&bakmap);
                         }
@@ -5743,17 +5747,17 @@ static int32_t ask_if_sure(const char *query, uint32_t flags)
     return 0;
 }
 
-#ifdef YAX_ENABLE
-static int32_t ask_above_or_below(void)
+int32_t editor_ask_function(const char *question, char *dachars, int32_t numchars)
 {
     char ch;
-    int32_t ret=-1;
+    int32_t i, ret=-1;
 
-    _printmessage16("Extend above (a) or below (z)?");
+    _printmessage16("%s", question);
 
     showframe(1);
     bflushchars();
 
+    // 'c' is cancel too, but can be overridden
     while ((keystatus[1]|keystatus[0x2e]) == 0 && ret==-1)
     {
         if (handleevents())
@@ -5762,15 +5766,21 @@ static int32_t ask_above_or_below(void)
         idle();
         ch = bgetchar();
 
-        if (ch == 'a' || ch == 'A')
-            ret = 0;
-        else if (ch == 'z' || ch == 'Z')
-            ret = 1;
+        for (i=0; i<numchars; i++)
+            if (ch==Btolower(dachars[i]) || ch==Btoupper(dachars[i]))
+                ret = i;
     }
 
     clearkeys();
 
     return ret;
+}
+
+#ifdef YAX_ENABLE
+static int32_t ask_above_or_below(void)
+{
+    char dachars[2] = {'a', 'z'};
+    return editor_ask_function("Extend above (a) or below (z)?", dachars, 2);
 }
 #endif
 
@@ -6581,11 +6591,12 @@ int32_t getnumber_autocomplete(const char *namestart, char ch, int32_t *danum, i
 //  1: sign
 //  2: autocomplete names
 //  4: autocomplete taglabels
+//  8: return -1 if cancelled
 int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
     char buffer[80], ch;
     int32_t n, danum, oldnum;
-    uint8_t flags = (sign>>1)&3;
+    uint8_t flags = (sign>>1)&7;
     sign &= 1;
 
     danum = num;
@@ -6626,6 +6637,9 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
             break;
         }
     }
+
+    if (keystatus[0x1] && (flags&4))
+        oldnum = -1;
 
     clearkeys();
 

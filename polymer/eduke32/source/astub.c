@@ -593,6 +593,7 @@ int32_t map_undoredo(int32_t dir)
     return 0;
 }
 
+#define M32_NUM_SPRITE_MODES ((signed)(sizeof(SpriteMode)/sizeof(SpriteMode[0])))
 static const char *SpriteMode[]=
 {
     "NONE",
@@ -625,7 +626,7 @@ static const char *SPRDSPMODE[MAXNOSPRITES]=
     "Sprite display: NO EFFECTORS OR ACTORS"
 };
 
-#define MAXHELP3D (int32_t)(sizeof(Help3d)/sizeof(Help3d[0]))
+#define MAXHELP3D ((signed)(sizeof(Help3d)/sizeof(Help3d[0])))
 static const char *Help3d[]=
 {
     "Mapster32 3D mode help",
@@ -2052,7 +2053,7 @@ static void IntegratedHelp(void)
                         for (j = (i==curhp)?(curline+1):0; j<helppage[i]->numlines; j++)
                         {
                             // entering an empty pattern will search with the last used pattern
-                            if (strstr(helppage[i]->line[j], pattern[0]?pattern:oldpattern))
+                            if (Bstrstr(helppage[i]->line[j], pattern[0]?pattern:oldpattern))
                             {
                                 curhp = i;
 
@@ -3563,7 +3564,7 @@ static int32_t m32gettile(int32_t idInitialTile)
                     Bstrupr(buf[1]);
 
                     if ((searchstr[0]=='^' && !Bstrncmp(buf[1], buf[0]+1, slen)) ||
-                        (searchstr[0]!='^' && strstr(buf[1], buf[0])))
+                        (searchstr[0]!='^' && Bstrstr(buf[1], buf[0])))
                     {
                         SelectAllTiles(i);
                         iTile = i;
@@ -5032,7 +5033,7 @@ static void Keys3d(void)
 
         visval = getnumber256("Visibility of selected sectors: ", sector[searchsector].visibility, 255, 0);
 
-        if (AskIfSure(0))
+        if (AskIfSure("Are you sure to change the visibility of all selected sectors?"))
             return;
 
         for (i=0; i<highlightsectorcnt; i++)
@@ -5488,64 +5489,49 @@ static void Keys3d(void)
                 {
                     k=eitherSHIFT?1:16;
 
-                    if (highlightsectorcnt >= 0)
-                        for (i=0; i<highlightsectorcnt; i++)
-                            if (highlightsector[i] == searchsector)
-                            {
-                                while (k > 0)
-                                {
-                                    for (i=0; i<highlightsectorcnt; i++)
-                                    {
-                                        sector[highlightsector[i]].visibility += tsign;
-
-                                        if (tsign==1)
-                                        {
-                                            if (sector[highlightsector[i]].visibility == 240)
-                                                sector[highlightsector[i]].visibility = 239;
-                                        }
-                                        else if (sector[highlightsector[i]].visibility == 239)
-                                            sector[highlightsector[i]].visibility = 240;
-                                    }
-                                    k--;
-                                }
-                                break;
-                            }
-
-                    while (k > 0)
+                    if (highlightsectorcnt > 0 && (hlsectorbitmap[searchsector>>3]&(1<<(searchsector&7))))
                     {
-                        sector[searchsector].visibility += tsign;
-
-                        if (tsign==1)
+                        while (k-- > 0)
                         {
-                            if (sector[searchsector].visibility == 240)
-                                sector[searchsector].visibility = 239;
+                            for (i=0; i<highlightsectorcnt; i++)
+                            {
+                                j = highlightsector[i];
+                                sector[j].visibility += tsign;
+
+                                if (tsign==1 && sector[j].visibility == 240)
+                                    sector[j].visibility = 239;
+                                else if (tsign==-1 && sector[j].visibility == 239)
+                                    sector[j].visibility = 240;
+                            }
                         }
-                        else if (sector[searchsector].visibility == 239)
-                            sector[searchsector].visibility = 240;
-                        k--;
                     }
+                    else
+                    {
+                        while (k-- > 0)
+                        {
+                            sector[searchsector].visibility += tsign;
+
+                            if (tsign==1 && sector[searchsector].visibility == 240)
+                                sector[searchsector].visibility = 239;
+                            else if (tsign==-1 && sector[searchsector].visibility == 239)
+                                sector[searchsector].visibility = 240;
+                        }
+                    }
+
                     message("Sector %d visibility %d",searchsector,sector[searchsector].visibility);
                     asksave = 1;
                 }
             }
             else  // if !eitherALT
             {
-                k = 0;
-                if (highlightsectorcnt >= 0)
-                {
-                    for (i=0; i<highlightsectorcnt; i++)
-                        if (highlightsector[i] == searchsector)
-                        {
-                            k = 1;
-                            break;
-                        }
-                }
+                k = (highlightsectorcnt>0 && (hlsectorbitmap[searchsector>>3]&(1<<(searchsector&7))));
+                tsign *= (1+3*eitherCTRL);
 
                 if (k == 0)
                 {
                     if (ASSERT_AIMING)
                     {
-                        AIMED_CF_SEL(shade) += tsign*(1+3*eitherCTRL);
+                        AIMED_CF_SEL(shade) += tsign;
                         message("%s %d shade %d", Typestr[searchstat], i, AIMED_CF_SEL(shade));
                     }
                 }
@@ -5555,22 +5541,19 @@ static void Keys3d(void)
                     {
                         dasector = highlightsector[i];
 
-                        sector[dasector].ceilingshade += tsign;        //sector shade
+                        // sector shade
+                        sector[dasector].ceilingshade += tsign;
                         sector[dasector].floorshade += tsign;
 
-                        startwall = sector[dasector].wallptr;   //wall shade
-                        endwall = startwall + sector[dasector].wallnum - 1;
-
-                        for (j=startwall; j<=endwall; j++)
+                        // wall shade
+                        for (WALLS_OF_SECTOR(dasector, j))
                             wall[j].shade += tsign;
 
-                        j = headspritesect[dasector];           //sprite shade
-                        while (j != -1)
-                        {
+                        // sprite shade
+                        for (j=headspritesect[dasector]; j!=-1; j=nextspritesect[j])
                             sprite[j].shade += tsign;
-                            j = nextspritesect[j];
-                        }
                     }
+                    message("Highlighted sector shade changed by %d", tsign);
                 }
                 asksave = 1;
             }
@@ -5586,7 +5569,7 @@ static void Keys3d(void)
 
             while (!tilesizx[AIMED_SELOVR_PICNUM] || !tilesizy[AIMED_SELOVR_PICNUM] || j)
             {
-                AIMED_SELOVR_PICNUM += i;
+                AIMED_SELOVR_PICNUM += i+MAXTILES;
                 AIMED_SELOVR_PICNUM %= MAXTILES;
                 j = 0;
             }
@@ -6274,18 +6257,30 @@ static void Keys3d(void)
             message("Sprite %d blocking bit %s", searchwall, ONOFF(sprite[searchwall].cstat&1));
             asksave = 1;
         }
-        else if (ASSERT_AIMING)
+        else if (AIMING_AT_WALL_OR_MASK || AIMING_AT_CEILING_OR_FLOOR)
         {
-            wall[searchwall].cstat ^= 1;
-            //                                wall[searchwall].cstat &= ~64;
-            if ((wall[searchwall].nextwall >= 0) && !eitherSHIFT)
+#ifdef YAX_ENABLE
+            if (AIMING_AT_CEILING_OR_FLOOR && yax_getbunch(searchsector, AIMING_AT_FLOOR)>=0)
             {
-                NEXTWALL(searchwall).cstat &= ~(1+64);
-                NEXTWALL(searchwall).cstat |= (wall[searchwall].cstat&1);
+                SECTORFLD(searchsector,stat, AIMING_AT_FLOOR) ^= 512;
+                message("Sector %d's %s blocking bit %s", searchsector, typestr[searchstat],
+                        ONOFF(SECTORFLD(searchsector,stat, AIMING_AT_FLOOR)&512));
+                asksave = 1;
             }
+            else
+#endif
+            {
+                wall[searchwall].cstat ^= 1;
+                //                                wall[searchwall].cstat &= ~64;
+                if ((wall[searchwall].nextwall >= 0) && !eitherSHIFT)
+                {
+                    NEXTWALL(searchwall).cstat &= ~(1+64);
+                    NEXTWALL(searchwall).cstat |= (wall[searchwall].cstat&1);
+                }
 
-            message("Wall %d blocking bit %s", searchwall, ONOFF(wall[searchwall].cstat&1));
-            asksave = 1;
+                message("Wall %d blocking bit %s", searchwall, ONOFF(wall[searchwall].cstat&1));
+                asksave = 1;
+            }
         }
     }
 
@@ -6606,7 +6601,8 @@ static void Keys3d(void)
                 {
                     while (updownunits--)
                         wall[searchwall].xrepeat = changechar(wall[searchwall].xrepeat, changedir, smooshyalign, 1);
-                    silentmessage("Wall %d repeat: %d, %d", searchwall, wall[searchwall].xrepeat, wall[searchwall].yrepeat);
+                    silentmessage("Wall %d repeat: %d, %d", searchwall,
+                                  wall[searchwall].xrepeat, wall[searchwall].yrepeat);
                 }
                 else
                 {
@@ -6658,7 +6654,8 @@ static void Keys3d(void)
                         sprite[searchwall].xrepeat = changechar(sprite[searchwall].xrepeat, changedir, smooshyalign, 1);
                     if (sprite[searchwall].xrepeat < 4)
                         sprite[searchwall].xrepeat = 4;
-                    silentmessage("Sprite %d repeat: %d, %d", searchwall, sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
+                    silentmessage("Sprite %d repeat: %d, %d", searchwall,
+                                  sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
                 }
             }
             asksave = 1;
@@ -6725,7 +6722,8 @@ static void Keys3d(void)
                 {
                     while (updownunits--)
                         wall[searchwall].yrepeat = changechar(wall[searchwall].yrepeat, changedir, smooshyalign, 1);
-                    silentmessage("Wall %d repeat: %d, %d", searchwall, wall[searchwall].xrepeat, wall[searchwall].yrepeat);
+                    silentmessage("Wall %d repeat: %d, %d", searchwall,
+                                  wall[searchwall].xrepeat, wall[searchwall].yrepeat);
                 }
                 else
                 {
@@ -6763,7 +6761,8 @@ static void Keys3d(void)
                         sprite[searchwall].yrepeat = changechar(sprite[searchwall].yrepeat, changedir, smooshyalign, 1);
                     if (sprite[searchwall].yrepeat < 4)
                         sprite[searchwall].yrepeat = 4;
-                    silentmessage("Sprite %d repeat: %d, %d", searchwall, sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
+                    silentmessage("Sprite %d repeat: %d, %d", searchwall,
+                                  sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
                 }
             }
             asksave = 1;
@@ -7275,7 +7274,7 @@ paste_ceiling_or_floor:
     if (PRESSED_KEYSC(D))   //Alt-D  (adjust sprite[].clipdist)
     {
         if (eitherALT && AIMING_AT_SPRITE)
-            sprite[searchwall].clipdist = getnumber256("Sprite clipdist: ", sprite[searchwall].clipdist, 256L, 0);
+            sprite[searchwall].clipdist = getnumber256("Sprite clipdist: ", sprite[searchwall].clipdist, 255, 0);
     }
 
     VM_OnEvent(EVENT_KEYS3D, -1);
@@ -7488,12 +7487,55 @@ static void Keys2d(void)
 
 ///__bigcomment__
 
+#ifdef YAX_ENABLE
+    if (!m32_sideview && numyaxbunches>0)
+    {
+        int32_t zsign=0, bestzdiff=INT32_MAX, hiz=0, loz=0, bottomp=0;
+
+        if (PRESSED_KEYSC(PGDN) || (eitherCTRL && PRESSED_KEYSC(DOWN)))
+            zsign = 1;
+        else if (PRESSED_KEYSC(PGUP) || (eitherCTRL && PRESSED_KEYSC(UP)))
+            zsign = -1;
+
+        if (zsign)
+        {
+            for (i=0; i<numsectors; i++)
+            {
+                if (yax_getbunch(i, YAX_FLOOR) < 0)
+                    continue;
+
+                loz = min(loz, sector[i].floorz);
+                hiz = max(hiz, sector[i].floorz);
+
+                // TODO: see if at least one sector point inside sceeen
+                j = (sector[i].floorz-pos.z)*zsign;
+                if (j>0 && j < bestzdiff)
+                    bestzdiff = j;
+            }
+
+            if (zsign==1 && bestzdiff==INT_MAX)
+                bottomp=1, bestzdiff = (hiz+1024 - pos.z);
+
+            if (bestzdiff != INT32_MAX)
+            {
+                pos.z += zsign*bestzdiff;
+                yax_updategrays(pos.z);
+
+                printmessage16("Z position: %d%s", pos.z,
+                               bottomp ? " (bottom)":(pos.z==loz ? " (top)":""));
+            }
+        }
+    }
+#endif
+
+#if 0
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(Z)) // ' z
     {
         editorzrange[0] = getnumber16("Upper Z range: ", editorzrange[0], INT32_MAX, 1);
         editorzrange[1] = getnumber16("Lower Z range: ", editorzrange[1], INT32_MAX, 1);
         // printmessage16("");
     }
+#endif
 
     if (PRESSED_KEYSC(T))  // T (tag)
     {
@@ -7542,10 +7584,10 @@ static void Keys2d(void)
                 if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                 {
                     Bsprintf(buffer,"Sector (%d) Lo-tag: ",i);
-                    j = qsetmode;
-                    qsetmode = 200;
+//                    j = qsetmode;
+//                    qsetmode = 200;
                     sector[i].lotag = _getnumber16(buffer, sector[i].lotag, BTAG_MAX, 0, (void *)ExtGetSectorType);
-                    qsetmode = j;
+//                    qsetmode = j;
 //                    break;
                 }
         }
@@ -7684,7 +7726,8 @@ static void Keys2d(void)
                 {
                     uint8_t *repeat = (k==0) ? &sprite[cursprite].xrepeat : &sprite[cursprite].yrepeat;
                     *repeat = max(4, changechar(*repeat, changedir, smooshy, 1));
-                    silentmessage("Sprite %d repeat: %d, %d", cursprite, sprite[cursprite].xrepeat, sprite[cursprite].yrepeat);
+                    silentmessage("Sprite %d repeat: %d, %d", cursprite,
+                                  sprite[cursprite].xrepeat, sprite[cursprite].yrepeat);
                 }
                 else
                 {
@@ -7696,7 +7739,8 @@ static void Keys2d(void)
                         {
                             uint8_t *panning = (k==0) ? &sector[i].floorxpanning : &sector[i].floorypanning;
                             *panning = changechar(*panning, changedir, smooshy, 0);
-                            silentmessage("Sector %d floor panning: %d, %d", searchsector, sector[i].floorxpanning, sector[i].floorypanning);
+                            silentmessage("Sector %d floor panning: %d, %d", searchsector,
+                                          sector[i].floorxpanning, sector[i].floorypanning);
                         }
                 }
 
@@ -7920,10 +7964,8 @@ static void Keys2d(void)
 
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(3)) // ' 3
     {
-        onnames = (onnames+1)%8;
+        onnames = (onnames+1)%M32_NUM_SPRITE_MODES;
         printmessage16("Mode %d %s", onnames, SpriteMode[onnames]);
-        //   clearmidstatbar16();
-        //   for(i=0;i<MAXMODE32D;i++) {printext16(0*8,ydim16+32+(i*8),15,-1,SpriteMode[i],0);
     }
     //   Ver();
 
@@ -7953,22 +7995,59 @@ static void Keys2d(void)
 
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(J)) // ' J
     {
-        pos.x = getnumber16("X-coordinate:    ", pos.x, editorgridextent, 1);
-        pos.y = getnumber16("Y-coordinate:    ", pos.y, editorgridextent, 1);
-        printmessage16("Current pos now (%d, %d)", pos.x, pos.y);
+        char dachars[4] = {'s', 'w', 'i', 'c'};
+
+        fade_editor_screen(-1);
+        i = editor_ask_function("Jump to (s)ector, (w)all, spr(i)te, or (c)oordinates?", dachars, 4);
+
+        switch (i)
+        {
+        case 0:
+            if (numsectors > 0)
+            {
+                j = getnumber16("Sector: ", 0, numsectors-1, 0+8);
+                if (j < 0)
+                    break;
+                pos.x = wall[sector[j].wallptr].x;
+                pos.y = wall[sector[j].wallptr].y;
+                printmessage16("Current pos now on sector %d's first wall-point", j);
+            }
+            break;
+        case 1:
+            if (numwalls > 0)
+            {
+                j = getnumber16("Wall: ", 0, numwalls-1, 0+8);
+                if (j < 0)
+                    break;
+                pos.x = wall[j].x;
+                pos.y = wall[j].y;
+                printmessage16("Current pos now on wall %d's point", j);
+            }
+            break;
+        case 2:
+            j = getnumber16("Sprite: ", 0, MAXSPRITES-1, 0+8);
+            if (j < 0 || sprite[j].statnum==MAXSTATUS)
+                break;
+            pos.x = sprite[j].x;
+            pos.y = sprite[j].y;
+            printmessage16("Current pos now on sprite %d", j);
+            break;
+
+        case 3:
+            pos.x = getnumber16("X-coordinate:    ", pos.x, editorgridextent, 1);
+            pos.y = getnumber16("Y-coordinate:    ", pos.y, editorgridextent, 1);
+            printmessage16("Current pos now (%d, %d)", pos.x, pos.y);
+            break;
+        }
     }
 }// end key2d
 
 static void InitCustomColors(void)
 {
-    /* blue */
-    /*    vgapal16[9*4+0] = 63;
-    vgapal16[9*4+1] = 31;
-    vgapal16[9*4+2] = 7; */
     int32_t i;
     palette_t *edcol;
-    /*
 
+    /*
     char vgapal16[4*256] =
     {
     00,00,00,00, 42,00,00,00, 00,42,00,00, 42,42,00,00, 00,00,42,00,
@@ -7985,6 +8064,7 @@ static void InitCustomColors(void)
     editorcolors[5] = getclosestcol(0,0,0);
     */
 
+    /* blue */
     vgapal16[9*4+0] = 63;
     vgapal16[9*4+1] = 31;
     vgapal16[9*4+2] = 7;
@@ -10007,7 +10087,7 @@ void app_crashhandler(void)
 {
     if (levelname[0])
     {
-        char *f = strstr(levelname,".map");
+        char *f = Bstrstr(levelname,".map");
 
         if (f)
             Bstrcpy(f,"_crash.map");

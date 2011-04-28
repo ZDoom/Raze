@@ -173,6 +173,8 @@ extern int32_t lastpm16time;
 
 extern char lastpm16buf[156];
 
+int32_t editor_ask_function(const char *question, char *dachars, int32_t numchars);
+
 void spriteoncfz(int32_t i, int32_t *czptr, int32_t *fzptr);
 void DoSpriteOrnament(int32_t i);
 

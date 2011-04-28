@@ -4472,6 +4472,44 @@ int32_t P_DoFist(DukePlayer_t *p)
     return 0;
 }
 
+#ifdef YAX_ENABLE
+static void getzsofslope_player(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+{
+    int32_t i, didceil=0, didflor=0;
+
+    if ((sector[sectnum].ceilingstat&512)==0)
+    {
+        i = yax_getneighborsect(dax, day, sectnum, YAX_CEILING, NULL);
+        if (i >= 0)
+        {
+            *ceilz = getceilzofslope(i, dax,day);
+            didceil = 1;
+        }
+    }
+
+    if ((sector[sectnum].floorstat&512)==0)
+    {
+        i = yax_getneighborsect(dax, day, sectnum, YAX_FLOOR, NULL);
+        if (i >= 0)
+        {
+            *florz = getflorzofslope(i, dax,day);
+            didflor = 1;
+        }
+    }
+
+    if (!didceil || !didflor)
+    {
+        int32_t cz, fz;
+        getzsofslope(sectnum, dax, day, &cz, &fz);
+
+        if (!didceil)
+            *ceilz = cz;
+        if (!didflor)
+            *florz = fz;
+    }
+}
+#endif
+
 void P_ProcessInput(int32_t snum)
 {
     DukePlayer_t *p = g_player[snum].ps;
@@ -4509,7 +4547,11 @@ void P_ProcessInput(int32_t snum)
     shrunk = (s->yrepeat < 32);
     getzrange((vec3_t *)p,p->cursectnum,&cz,&hz,&fz,&lz,163L,CLIPMASK0);
 
+#ifdef YAX_ENABLE
+    getzsofslope_player(p->cursectnum,p->pos.x,p->pos.y,&p->truecz,&p->truefz);
+#else
     getzsofslope(p->cursectnum,p->pos.x,p->pos.y,&p->truecz,&p->truefz);
+#endif
     j = p->truefz;
 
     truefdist = klabs(p->pos.z-j);
@@ -4920,7 +4962,6 @@ void P_ProcessInput(int32_t snum)
             p->pos.z += ((fz-(k<<8))-p->pos.z)>>1;
         if (p->pos.z < (actor[p->i].ceilingz+(18<<8)))
             p->pos.z = actor[p->i].ceilingz+(18<<8);
-
     }
     else if (psectlotag != 2)
     {
@@ -5311,11 +5352,22 @@ HORIZONLY:
     {
         p->pos.x += p->vel.x>>14;
         p->pos.y += p->vel.y>>14;
+#ifdef YAX_ENABLE
+        // TODO: only if ceiling/floor bunchnum >= 0
+        updatesectorz(p->pos.x,p->pos.y,p->pos.z,&p->cursectnum);
+#else
         updatesector(p->pos.x,p->pos.y,&p->cursectnum);
+#endif
         changespritesect(p->i,p->cursectnum);
     }
-    else if ((j = clipmove((vec3_t *)p,&p->cursectnum, p->vel.x,p->vel.y,164L,(4L<<8),i,CLIPMASK0)))
-        P_CheckTouchDamage(p, j);
+    else
+    {
+#ifdef YAX_ENABLE
+        updatesectorz(p->pos.x,p->pos.y,p->pos.z,&p->cursectnum);
+#endif
+        if ((j = clipmove((vec3_t *)p,&p->cursectnum, p->vel.x,p->vel.y,164L,(4L<<8),i,CLIPMASK0)))
+            P_CheckTouchDamage(p, j);
+    }
 
     if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
         p->pos.z += 32<<8;
