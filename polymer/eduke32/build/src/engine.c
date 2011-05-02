@@ -535,8 +535,8 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                 }
             }
 
-            if (allgotsector[k>>3]&(1<<(k&7)))
-                continue;
+//            if (allgotsector[k>>3]&(1<<(k&7)))
+//                continue;
 
             drawrooms(globalposx,globalposy,globalposz,globalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
             ExtAnalyzeSprites();
@@ -1170,6 +1170,9 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
 
     for (j=0; j<numsectors; j++)
     {
+        if (j == sectnum)
+            continue;
+
         YAX_SKIPSECTOR(j);
 
         startwall = sector[j].wallptr;
@@ -1180,9 +1183,6 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
                 continue;
 
             if (wall[wall[k].point2].x != x1 || wall[wall[k].point2].y != y1)
-                continue;
-
-            if (j == sectnum)
                 continue;
 
             // Don't create link if the other side is connected to another wall.
@@ -3928,7 +3928,27 @@ static void drawalls(int32_t bunch)
 
             if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
             wallscan(x1,x2,uplc,dplc,swall,lwall);
-
+#ifdef YAX_ENABLE
+            if ((wal->cstat&YAX_NEXTWALLBIT(YAX_FLOOR)) && globalposz > sec->floorz)
+            {
+                for (x=x1; x<=x2; x++)
+                    if (dplc[x] > umost[x] && umost[x] <= dmost[x])
+                    {
+                        umost[x] = dplc[x];
+                        if (umost[x] > dmost[x]) numhits--;
+                    }
+            }
+            else if ((wal->cstat&YAX_NEXTWALLBIT(YAX_CEILING)) && globalposz < sec->ceilingz)
+            {
+                for (x=x1; x<=x2; x++)
+                    if (uplc[x] < dmost[x] && umost[x] <= dmost[x])
+                    {
+                        dmost[x] = uplc[x];
+                        if (umost[x] > dmost[x]) numhits--;
+                    }
+            }
+            else
+#endif
             for (x=x1; x<=x2; x++)
                 if (umost[x] <= dmost[x])
                     { umost[x] = 1; dmost[x] = 0; numhits--; }
@@ -7170,7 +7190,8 @@ int32_t                 wallvisible(int32_t x, int32_t y, int16_t wallnum)
         return (1);
     return (0);
 }
-/*
+
+#if 0
 // returns the intersection point between two lines
 _point2d        intersection(_equation eq1, _equation eq2)
 {
@@ -7236,7 +7257,7 @@ static inline void    drawmaskleaf(_maskleaf* wall)
     //OSD_Printf("Drawing mask %i\n", wall->index);
     drawmaskwall(wall->index);
 }
-*/
+#endif
 
 static inline int32_t         sameside(_equation *eq, _point2d *p1, _point2d *p2)
 {

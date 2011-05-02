@@ -7398,6 +7398,7 @@ static void Keys2d(void)
     tcursectornum = -1;
     for (i=0; i<numsectors; i++)
     {
+        YAX_SKIPSECTOR(i);
         if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
         {
             tcursectornum = i;
@@ -7488,7 +7489,7 @@ static void Keys2d(void)
 ///__bigcomment__
 
 #ifdef YAX_ENABLE
-    if (!m32_sideview && numyaxbunches>0)
+    if (/*!m32_sideview &&*/ numyaxbunches>0)
     {
         int32_t zsign=0, bestzdiff=INT32_MAX, hiz=0, loz=0, bottomp=0;
 
@@ -7513,8 +7514,13 @@ static void Keys2d(void)
                     bestzdiff = j;
             }
 
-            if (zsign==1 && bestzdiff==INT_MAX)
-                bottomp=1, bestzdiff = (hiz+1024 - pos.z);
+            if (bestzdiff==INT_MAX)
+            {
+                if (zsign == 1)
+                    bottomp=1, bestzdiff = (hiz+(1024<<4) - pos.z);
+                else
+                    bestzdiff = pos.z - loz;
+            }
 
             if (bestzdiff != INT32_MAX)
             {
@@ -7824,14 +7830,14 @@ static void Keys2d(void)
                 j = 0;
                 x = wall[sector[i].wallptr].x;
                 y = wall[sector[i].wallptr].y;
-                z = pos.z;
+                z = sector[i].floorz;
                 break;
             case CORRUPT_WALL:
                 i = k&(MAXWALLS-1);
                 j = 1;
                 x = wall[i].x;
                 y = wall[i].y;
-                z = pos.z;
+                z = sector[sectorofwall(i)].floorz;
                 break;
             case CORRUPT_SPRITE:
                 i = k&(MAXSPRITES-1);
@@ -7855,6 +7861,9 @@ static void Keys2d(void)
                     pos.x = x;
                     pos.y = y;
                     pos.z = z;
+#ifdef YAX_ENABLE
+                    yax_updategrays(pos.z);
+#endif
                 }
                 else x=editorgridextent+1;
 
@@ -8010,6 +8019,7 @@ static void Keys2d(void)
                     break;
                 pos.x = wall[sector[j].wallptr].x;
                 pos.y = wall[sector[j].wallptr].y;
+                pos.z = sector[j].floorz;
                 printmessage16("Current pos now on sector %d's first wall-point", j);
             }
             break;
@@ -8021,6 +8031,7 @@ static void Keys2d(void)
                     break;
                 pos.x = wall[j].x;
                 pos.y = wall[j].y;
+                pos.z = sector[sectorofwall(j)].floorz;
                 printmessage16("Current pos now on wall %d's point", j);
             }
             break;
@@ -8030,6 +8041,7 @@ static void Keys2d(void)
                 break;
             pos.x = sprite[j].x;
             pos.y = sprite[j].y;
+            pos.z = sprite[j].z;
             printmessage16("Current pos now on sprite %d", j);
             break;
 
@@ -8039,6 +8051,9 @@ static void Keys2d(void)
             printmessage16("Current pos now (%d, %d)", pos.x, pos.y);
             break;
         }
+#ifdef YAX_ENABLE
+        yax_updategrays(pos.z);
+#endif
     }
 }// end key2d
 
@@ -10980,7 +10995,38 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
                 if (nw>=w0 && nw<=endwall)
                     CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL is its own sector's wall", j);
-
+#ifdef YAX_ENABLE
+                {
+                    int32_t cf, ynw, jp2, ynwp2;
+                    for (cf=0; cf<1; cf++)
+                    {
+                        ynw = yax_getnextwall(j, cf);
+                        if (ynw >= 0)
+                        {
+                            if (ynw >= numwalls)
+                                CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's YAX-NEXTWALL(%d)=%d out of range: numwalls=%d",
+                                                 j, cf, ynw, numwalls);
+                            else
+                            {
+                                if (j == ynw)
+                                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's YAX-NEXTWALL(%d) is itself",
+                                                     j, cf);
+                                else if (wall[j].x != wall[ynw].x || wall[j].y != wall[ynw].y)
+                                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's and its YAX-NEXTWALL(%d)=%d's coordinates not equal",
+                                                     j, cf, ynw);
+                                else
+                                {
+                                    jp2 = wall[j].point2;
+                                    ynwp2 = wall[ynw].point2;
+                                    if (wall[jp2].x != wall[ynwp2].x || wall[jp2].y != wall[ynwp2].y)
+                                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's and its YAX-NEXTWALL(%d)=%d's p2-coordinates not equal",
+                                                         j, cf, ynw);
+                                }
+                            }
+                        }
+                    }
+                }
+#endif
                 if (ns == i)
                 {
                     if (!bad)

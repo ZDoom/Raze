@@ -200,7 +200,7 @@ void keytimerstuff(void);
 static int32_t clockdir(int16_t wallstart);
 static void flipwalls(int16_t numwalls, int16_t newnumwalls);
 static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day);
-static void deletepoint(int16_t point);
+static const char *deletepoint(int16_t point, int32_t runi);
 static int32_t deletesector(int16_t sucksect);
 void fixrepeats(int16_t i);
 static int16_t loopinside(int32_t x, int32_t y, int16_t startwall);
@@ -341,19 +341,27 @@ static void M32_drawdebug(void)
 #endif
 
 #ifdef YAX_ENABLE
+static void yax_fixreverselinks(int16_t oldwall, int16_t newwall)
+{
+    int32_t cf, ynw;
+    for (cf=0; cf<2; cf++)
+    {
+        ynw = yax_getnextwall(oldwall, cf);
+        if (ynw >= 0)
+            yax_setnextwall(ynw, !cf, newwall);
+    }
+}
+
 static void yax_tweakwalls(int16_t start, int16_t offs)
 {
-    int32_t i, nw;
+    int32_t i, nw, cf;
     for (i=0; i<numwalls; i++)
-    {
-        nw = yax_getnextwall(i, YAX_CEILING);
-        if (nw >= start)
-            yax_setnextwall(i, YAX_CEILING, nw+offs);
-
-        nw = yax_getnextwall(i, YAX_FLOOR);
-        if (nw >= start)
-            yax_setnextwall(i, YAX_FLOOR, nw+offs);
-    }
+        for (cf=0; cf<2; cf++)
+        {
+            nw = yax_getnextwall(i, cf);
+            if (nw >= start)
+                yax_setnextwall(i, cf, nw+offs);
+        }
 }
 
 static void yax_resetbunchnums(void)
@@ -3547,6 +3555,7 @@ end_yax: ;
         if (((bstatus&1) < (oldmousebstatus&1)) && highlightsectorcnt < 0)  //after dragging
         {
             int32_t runi, numdelpoints=0;
+            const char *errmsg;
 
             if (backup_drawn_walls(0))
                 goto end_after_dragging;
@@ -3582,47 +3591,51 @@ end_yax: ;
                 day = sprite[pointhighlight&16383].y;
             }
 
-            for (runi=0; runi<2; runi++)
+            for (runi=0; runi<3; runi++)
                 for (i=numwalls-1; i>=0; i--)  //delete points
                 {
+                    if (runi==0)
+                        wall[i].cstat &= ~(1<<14);
+
                     if (wall[i].x == POINT2(i).x && wall[i].y == POINT2(i).y
                             && sector[sectorofwall(i)].wallnum > 3)
                     {
-                        int32_t b = (wall[i].nextwall == -1 ||
-                                     sector[sectorofwall(wall[i].nextwall)].wallnum > 3);
-                        if (runi==0 && !b)
+                        errmsg = deletepoint(i, runi);
+                        if (errmsg)
                         {
-                            printmessage16("Invalid operation, delete or join sector instead.");
+                            message("%s", errmsg);
                             goto end_after_dragging;
                         }
-                        else if (runi==1 && b)
-                        {
-                            deletepoint(i);
+                        else if (runi==2)
                             numdelpoints++;
-                        }
                     }
                 }
 
             if (numdelpoints)
             {
                 if (numdelpoints > 1)
-                    printmessage16("Deleted %d points.", numdelpoints);
+                    message("Deleted %d points.", numdelpoints);
                 else
                     printmessage16("Point deleted.");
                 asksave = 1;
             }
-
-            for (i=0; i<numwalls; i++)     //make new red lines?
+            else
             {
-                if ((wall[i].x == dax && wall[i].y == day)
-                        || (POINT2(i).x == dax && POINT2(i).y == day))
+                for (i=0; i<numwalls; i++)     //make new red lines?
                 {
-                    checksectorpointer(i, sectorofwall(i));
+                    if ((wall[i].x == dax && wall[i].y == day)
+                        || (POINT2(i).x == dax && POINT2(i).y == day))
+                    {
+                        checksectorpointer(i, sectorofwall(i));
 //                    fixrepeats(i);
-                    asksave = 1;
+                        asksave = 1;
+                    }
                 }
             }
-
+#ifdef YAX_ENABLE
+            yax_update(0);
+            yax_updategrays(pos.z);
+#endif
 end_after_dragging:
             backup_drawn_walls(1);
         }
@@ -4019,12 +4032,15 @@ end_point_dragging:
             {
                 joinsector[0] = -1;
                 for (i=0; i<numsectors; i++)
+                {
+                    YAX_SKIPSECTOR(i);
                     if (inside_editor_curpos(i) == 1)
                     {
                         joinsector[0] = i;
                         printmessage16("Join sector - press J again on sector to join with.");
                         break;
                     }
+                }
                 goto end_join_sectors;
             }
             else
@@ -4037,6 +4053,8 @@ end_point_dragging:
 
                 for (i=0; i<numsectors; i++)
                 {
+                    YAX_SKIPSECTOR(i);
+
                     if (inside_editor_curpos(i) == 1)
                     {
                         startwall = sector[i].wallptr;
@@ -4055,15 +4073,17 @@ end_point_dragging:
                         if (j == endwall && i != joinsector[0])
                         {
 #ifdef YAX_ENABLE
-                            if (cb0>=0 || fb0>=0 || cb1>=0 || fb0>=0)
+                            if (cb0>=0 || fb0>=0 || cb1>=0 || fb1>=0)
                             {
-                                printmessage16("Joining non-adjacent extended sectors not allowed!");
+                                message("Joining non-adjacent extended sectors not allowed!");
                                 joinsector[0] = joinsector[1] = -1;
                                 goto end_join_sectors;
                             }
 #endif
                             {
-                                fade_editor_screen(-1);
+                                fillsector(i, editorcolors[9]);
+                                fillsector(joinsector[0], editorcolors[9]);
+                                fade_editor_screen(editorcolors[9]);
 
                                 if (!ask_if_sure("Join non-adjacent sectors? (Y/N)", 0))
                                     joinsector[1] = joinsector[0];
@@ -4072,7 +4092,7 @@ end_point_dragging:
 #ifdef YAX_ENABLE
                         if (cb0!=cb1 || fb0!=fb1)
                         {
-                            printmessage16("Joining of extended sectors with different bunches not allowed!");
+                            message("Joining of extended sectors with different bunches not allowed!");
                             joinsector[0] = joinsector[1] = -1;
                             goto end_join_sectors;                            
                         }
@@ -4127,6 +4147,9 @@ end_point_dragging:
                             }
 
                             Bmemcpy(&wall[newnumwalls], &wall[i], sizeof(walltype));
+#ifdef YAX_ENABLE
+                            yax_fixreverselinks(newnumwalls, newnumwalls);
+#endif
                             wall[newnumwalls].point2 = newnumwalls+1;
                             newnumwalls++;
 
@@ -4148,7 +4171,7 @@ end_point_dragging:
 
                         if (loopnum==0)
                         {
-                            printmessage16("internal error while joining sectors: infloop!");
+                            message("internal error while joining sectors: infloop!");
                             newnumwalls = -1;
                         }
                     }
@@ -4255,11 +4278,14 @@ end_join_sectors:
 
             sucksect = -1;
             for (i=0; i<numsectors; i++)
+            {
+                YAX_SKIPSECTOR(i);
                 if (inside_editor_curpos(i) == 1)
                 {
                     sucksect = i;
                     break;
                 }
+            }
 
             if (sucksect >= 0)
             {
@@ -4710,6 +4736,15 @@ check_next_sector: ;
                         if (clockdir(numwalls) == 1)
                             flipwalls(numwalls,newnumwalls);
 
+                        for (i=numwalls; i<newnumwalls; i++)
+                        {
+                            copy_some_wall_members(i, suckwall);
+                            if (checksectorpointer(i, numsectors) > 0)
+                            {
+                                // if new red line, prefer the other-side wall as base
+                                suckwall = wall[i].nextwall;
+                            }
+                        }
                         sucksect = sectorofwall(suckwall);
 
                         if (numsectors != sucksect)
@@ -4725,12 +4760,6 @@ check_next_sector: ;
                         sector[numsectors].floorstat &= ~2;
                         sector[numsectors].ceilingheinum = sector[numsectors].floorheinum = 0;
                         sector[numsectors].ceilingpal = sector[numsectors].floorpal = 0;
-
-                        for (i=numwalls; i<newnumwalls; i++)
-                        {
-                            copy_some_wall_members(i, suckwall);
-                            checksectorpointer(i, numsectors);
-                        }
 #ifdef YAX_ENABLE
                         yax_setbunches(numsectors, -1, -1);
 #endif
@@ -4740,7 +4769,7 @@ check_next_sector: ;
                         numwalls = newnumwalls;
                         newnumwalls = -1;
 
-                        printmessage16("Created new sector %d based on sector %d", numsectors-1, sucksect);
+                        message("Created new sector %d based on sector %d", numsectors-1, sucksect);
                     }
 
                     asksave = 1;
@@ -4838,6 +4867,10 @@ check_next_sector: ;
                         wall[danumwalls].nextwall = -1;
                         wall[danumwalls].nextsector = -1;
                         wall[danumwalls].point2 = danumwalls+1;
+#ifdef YAX_ENABLE
+                        yax_setnextwall(danumwalls,YAX_CEILING, -1);
+                        yax_setnextwall(danumwalls,YAX_FLOOR, -1);
+#endif
                         danumwalls++;
                     }
 
@@ -4881,6 +4914,9 @@ check_next_sector: ;
                     //fix all next pointers on old sector line
                     for (j=numwalls; j<danumwalls; j++)
                     {
+#ifdef YAX_ENABLE
+                        yax_fixreverselinks(j, j);
+#endif
                         if (wall[j].nextwall >= 0)
                         {
                             NEXTWALL(j).nextwall = j;
@@ -6080,6 +6116,8 @@ static int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls)
 
     for (i=0; i<danumwalls; i++)
     {
+        YAX_SKIPWALL(i);
+
         dst = klabs((*xplc)-wall[i].x) + klabs((*yplc)-wall[i].y);
         if (dst < dist)
         {
@@ -6107,6 +6145,8 @@ static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls)
 
     for (i=0; i<danumwalls; i++)    // Check if a point should be inserted
     {
+        YAX_SKIPWALL(i);
+
         x1 = wall[i].x;
         y1 = wall[i].y;
         x2 = POINT2(i).x;
@@ -6229,9 +6269,31 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
     }
 }
 
-static void deletepoint(int16_t point)
+// runi: 0=check, 1=prepare, 2=do!
+// if runi==0, returns error message on fail, in all other cases NULL
+static const char *deletepoint(int16_t point, int32_t runi)
 {
-    int32_t i, j, k, sucksect;
+    int32_t i, j, sucksect;
+
+    if (runi==0)  // consistency check -- return !=0 on fail
+    {
+        i = wall[point].nextsector;
+        if (i >= 0 && sector[i].wallnum <= 3)
+            return "Invalid operation, delete or join sector instead.";
+
+        return NULL;
+    }
+    else if (runi==1)
+    {
+        i = wall[point].nextwall;
+        if (i >= 0)
+        {
+            NEXTWALL(i).nextwall = NEXTWALL(i).nextsector = -1;
+            wall[i].nextwall = wall[i].nextsector = -1;
+        }
+
+        return NULL;
+    }
 
     sucksect = sectorofwall(point);
 
@@ -6240,9 +6302,9 @@ static void deletepoint(int16_t point)
         sector[i].wallptr--;
 
     j = lastwall(point);
-    k = wall[point].point2;
-    wall[j].point2 = k;
+    wall[j].point2 = wall[point].point2;
 
+#if 0
     if (wall[j].nextwall >= 0)
     {
         NEXTWALL(j).nextwall = -1;
@@ -6253,10 +6315,12 @@ static void deletepoint(int16_t point)
         NEXTWALL(point).nextwall = -1;
         NEXTWALL(point).nextsector = -1;
     }
-
+#endif
     movewalls(point, -1);
 
-    checksectorpointer(j, sucksect);
+//    checksectorpointer(j, sucksect);
+
+    return NULL;
 }
 
 static int32_t deletesector(int16_t sucksect)
