@@ -804,9 +804,9 @@ int32_t taglab_load(const char *filename, int32_t flags)
     taglab_init();
 
     len = Bstrlen(filename);
-    if (len >= BMAX_PATH)
+    if (len >= BMAX_PATH-1)
         return -1;
-    Bmemcpy(buf, filename, len);
+    Bmemcpy(buf, filename, len+1);
 
     //
     dot = Bstrrchr(buf, '.');
@@ -9765,7 +9765,7 @@ static int32_t parseconsounds(scriptfile *script)
         {
             char *definedname, *filename;
             int32_t sndnum, ps, pe, pr, m, vo;
-            int32_t slen;
+            int32_t slen, duplicate=0;
 
             if (scriptfile_getsymbol(script, &sndnum)) break;
 
@@ -9776,6 +9776,7 @@ static int32_t parseconsounds(scriptfile *script)
             {
                 initprintf("Warning: invalid sound definition %s (sound number < 0 or >= MAXSOUNDS) on line %s:%d\n",
                            definedname, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                Bfree(definedname);
                 num_invalidsounds++;
                 break;
             }
@@ -9797,8 +9798,12 @@ static int32_t parseconsounds(scriptfile *script)
                 break;
             }
 
-            if (g_sounds[sndnum].filename == NULL)
-                g_sounds[sndnum].filename = Bcalloc(slen+1,sizeof(uint8_t));
+            if (g_sounds[sndnum].filename)
+            {
+                duplicate = 1;
+                Bfree(g_sounds[sndnum].filename);
+            }
+            g_sounds[sndnum].filename = Bcalloc(slen+1,sizeof(uint8_t));
             // Hopefully noone does memcpy(..., g_sounds[].filename, BMAX_PATH)
             if (!g_sounds[sndnum].filename)
             {
@@ -9823,16 +9828,27 @@ BAD:
                 break;
             }
 
+            if (g_sounds[sndnum].definedname)
+            {
+                duplicate = 1;
+                Bfree(g_sounds[sndnum].definedname);
+            }
+            if (duplicate)
+                initprintf("warning: duplicate sound #%d, overwriting\n", sndnum);
+
             g_sounds[sndnum].definedname = definedname;  // we want to keep it for display purposes
             g_sounds[sndnum].ps = ps;
             g_sounds[sndnum].pe = pe;
             g_sounds[sndnum].pr = pr;
             g_sounds[sndnum].m = m;
             g_sounds[sndnum].vo = vo;
-            g_sndnum[g_numsounds] = g_definedsndnum[g_numsounds] = sndnum;
-            g_numsounds++;
-            if (g_numsounds == MAXSOUNDS)
-                goto END;
+            if (!duplicate)
+            {
+                g_sndnum[g_numsounds] = g_definedsndnum[g_numsounds] = sndnum;
+                g_numsounds++;
+                if (g_numsounds == MAXSOUNDS)
+                    goto END;
+            }
             break;
         }
         case T_EOF:
