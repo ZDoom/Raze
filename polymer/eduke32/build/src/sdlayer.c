@@ -1586,6 +1586,13 @@ int32_t handleevents(void)
             }
             else
             {
+#ifdef __linux
+                // The pause key generates a release event right after
+                // the pressing one on linux. As a result, it gets unseen
+                // by the game most of the time.
+                if (code == 0x59)  // pause
+                    break;
+#endif
                 SetKey(code, 0);
                 if (keypresscallback)
                     keypresscallback(code, 0);
@@ -1668,6 +1675,10 @@ int32_t handleevents(void)
             }
             else
             {
+#ifdef __linux
+                if (code == 0x59)  // pause
+                    break;
+#endif
                 SetKey(code, 0);
                 if (keypresscallback)
                     keypresscallback(code, 0);

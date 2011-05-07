@@ -8,6 +8,10 @@
 #define MAXNODESPERLINE 42   //Warning: This depends on MAXYSAVES & MAXYDIM!
 #define MAXCLIPDIST 1024
 
+#ifdef YAX_ENABLE
+# define YAX_MAXDRAWS 4
+#endif
+
 extern uint8_t **basepaltableptr;
 extern uint8_t basepalcount;
 extern uint8_t curbasepal;

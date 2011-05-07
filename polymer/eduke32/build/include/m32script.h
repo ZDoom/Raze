@@ -247,16 +247,18 @@ extern int32_t halfxdim16, midydim16;
 #define M32_SECTOR_VAR_ID 1
 #define M32_WALL_VAR_ID 2
 #define M32_TSPRITE_VAR_ID 3
+#define M32_LIGHT_VAR_ID 4
 
-#define M32_THISACTOR_VAR_ID 4
-#define M32_RETURN_VAR_ID 5
-#define M32_LOTAG_VAR_ID 6
-#define M32_HITAG_VAR_ID 7
-#define M32_TEXTURE_VAR_ID 8
+#define M32_THISACTOR_VAR_ID 5
+#define M32_RETURN_VAR_ID 6
+#define M32_LOTAG_VAR_ID 7
+#define M32_HITAG_VAR_ID 8
+#define M32_TEXTURE_VAR_ID 9
 
 #define M32_LOCAL_ARRAY_ID 0
 
 #define M32_PRINTERROR(Text, ...) OSD_Printf(OSD_ERROR "Line %d, %s: " Text "\n", g_errorLineNum, keyw[g_tw], ## __VA_ARGS__)
+#define M32_ERROR(Text, ...) do { M32_PRINTERROR(Text, ## __VA_ARGS__); vm.flags |= VMFLAG_ERROR; } while (0)
 
 
 // how local gamevars are allocated:

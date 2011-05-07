@@ -70,10 +70,8 @@ extern int32_t m32_osd_tryscript;
 extern int32_t showheightindicators;
 extern int32_t showambiencesounds;
 
-#ifdef YAX_ENABLE
 extern uint8_t graysectbitmap[MAXSECTORS>>3];
 extern uint8_t graywallbitmap[MAXWALLS>>3];
-#endif
 
 // editor side view
 extern int32_t m32_sideview;
@@ -97,9 +95,10 @@ extern void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr
 
 extern int32_t wallength(int16_t i);
 extern void fixrepeats(int16_t i);
-extern void fixxrepeat(int16_t i, uint32_t lenrepquot);
+extern uint32_t getlenbyrep(int32_t len, int32_t repeat);
+extern void fixxrepeat(int16_t wallnum, uint32_t lenrepquot);
 extern void AlignWallPoint2(int32_t w0);
-extern int32_t AutoAlignWalls(int32_t w0, int32_t dorecurse, int32_t nrecurs);
+extern int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs);
 
 extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);

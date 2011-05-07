@@ -409,7 +409,14 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
          &&
                 (osectnum == dasectnum || cansee(oldx, oldy, spr->z - bg, osectnum, spr->x, spr->y, daz - bg, dasectnum))*/
        )
+    {
         spr->z = daz;
+#ifdef YAX_ENABLE
+        if (change->z && yax_getbunch(spr->sectnum, !!change->z)>=0)
+            if ((SECTORFLD(spr->sectnum,stat, !!change->z)&yax_waltosecmask(cliptype))==0)
+                setspritez(spritenum, (vec3_t *)spr);
+#endif
+    }
     else if (retval == 0) retval = 16384+dasectnum;
 
     if (retval == (16384+dasectnum))

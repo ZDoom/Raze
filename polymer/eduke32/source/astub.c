@@ -298,7 +298,8 @@ static void drawgradient(void)
 
 static void message_common1(const char *tmpstr)
 {
-    Bstrcpy(getmessage,tmpstr);
+    Bstrncpy(getmessage,tmpstr,sizeof(getmessage));
+    getmessage[sizeof(getmessage)-1] = 0;
 
     getmessageleng = Bstrlen(getmessage);
     getmessagetimeoff = totalclock + 120*2 + getmessageleng*(120/30);
@@ -1011,8 +1012,8 @@ static uint64_t taglab_nolink_SEs = (1ull<<10)|(1ull<<27)|(1ull<<28)|(1ull<<29)|
 //  16: yvel
 //  32: zvel
 //  64: owner
-// The caller is responsible for checking bounds (usually tag>0), because
-// this function is supposed to say something about the potential of a tag
+// This function is only supposed to say something about the potential of a tag:
+// it will also 'say yes' if a particular tag is zero.
 int32_t taglab_linktags(int32_t spritep, int32_t num)
 {
     int32_t picnum;
@@ -4360,12 +4361,13 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
         if (handleevents())
             quitevent = 0;
 
+        yax_preparedrawrooms();
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-#ifdef YAX_ENABLE
         yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
-#endif
+
         ExtAnalyzeSprites();
         drawmasks();
+
 #ifdef POLYMER
         if (rendmode == 4 && searchit == 2)
         {
@@ -4569,12 +4571,14 @@ ENDFOR1:
         if (PRESSED_KEYSC(PGDN))
             sprite[linebegspr].pal -= (sprite[linebegspr].pal>0);
 
+
+        yax_preparedrawrooms();
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-#ifdef YAX_ENABLE
         yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
-#endif
+
         ExtAnalyzeSprites();
         drawmasks();
+
 #ifdef POLYMER
         if (rendmode == 4 && searchit == 2)
         {
@@ -4828,6 +4832,16 @@ static void mouseaction_movesprites(int32_t *sumxvect, int32_t *sumyvect, int32_
                 setsprite(spi, &tvec);
             }
     }
+}
+
+static int32_t addtobyte(int8_t *byte, int32_t num)
+{
+    int32_t onum = *byte, clamped=0;
+    if (onum + num != (int8_t)(onum + num))
+        clamped = 1;
+    if (!clamped)
+        *byte = (onum + num);
+    return clamped;
 }
 
 static void Keys3d(void)
@@ -5200,19 +5214,22 @@ static void Keys3d(void)
             ShowFileText("sthelp.hlp", 1);
     }
 
+    // . Search & fix panning to the right (3D)
     if (AIMING_AT_WALL_OR_MASK && PRESSED_KEYSC(PERIOD))
     {
-        int32_t naligned=AutoAlignWalls(searchwall, eitherCTRL, 0);
-        message("Auto-aligned %d wall%s%s based on wall %d", naligned,
-                naligned==1?"":"s", eitherCTRL?" recursively":"", searchwall);
+        int32_t naligned=AutoAlignWalls(searchwall, eitherCTRL|((!eitherSHIFT)<<1)|eitherALT<<2, 0);
+        message("Aligned %d wall%s based on wall %d%s%s%s", naligned,
+                naligned==1?"":"s", searchwall,
+                eitherCTRL?", recursing nextwalls":"",
+                !eitherSHIFT?", iterating point2s":"",
+                eitherALT?", aligning xrepeats":"");
     }
-
 
     tsign = 0;
     tsign -= PRESSED_KEYSC(COMMA);
     tsign += PRESSED_KEYSC(PERIOD);
 
-    if (tsign) // , . Search & fix panning to the left/right (3D)
+    if (tsign)
     {
         if (AIMING_AT_SPRITE)
         {
@@ -5426,18 +5443,29 @@ static void Keys3d(void)
                 message("Sprite %d hitscan sensitivity bit %s", searchwall, ONOFF(sprite[searchwall].cstat&256));
                 asksave = 1;
             }
-            else
+            else if (AIMING_AT_WALL_OR_MASK || AIMING_AT_CEILING_OR_FLOOR)
             {
-                wall[searchwall].cstat ^= 64;
-
-                if (wall[searchwall].nextwall >= 0 && !eitherSHIFT)
+#ifdef YAX_ENABLE
+                if (AIMING_AT_CEILING_OR_FLOOR && yax_getbunch(searchsector, AIMING_AT_FLOOR)>=0)
                 {
-                    NEXTWALL(searchwall).cstat &= ~64;
-                    NEXTWALL(searchwall).cstat |= (wall[searchwall].cstat&64);
+                    SECTORFLD(searchsector,stat, AIMING_AT_FLOOR) ^= 2048;
+                    message("Sector %d's %s hitscan sensitivity bit %s", searchsector, typestr[searchstat],
+                            ONOFF(SECTORFLD(searchsector,stat, AIMING_AT_FLOOR)&2048));
+                    asksave = 1;
                 }
-                message("Wall %d hitscan sensitivity bit %s", searchwall, ONOFF(wall[searchwall].cstat&64));
+                else
+#endif
+                {
+                    wall[searchwall].cstat ^= 64;
 
-                asksave = 1;
+                    if (wall[searchwall].nextwall >= 0 && !eitherSHIFT)
+                    {
+                        NEXTWALL(searchwall).cstat &= ~64;
+                        NEXTWALL(searchwall).cstat |= (wall[searchwall].cstat&64);
+                    }
+                    message("Wall %d hitscan sensitivity bit %s", searchwall, ONOFF(wall[searchwall].cstat&64));
+                    asksave = 1;
+                }
             }
         }
     }
@@ -5524,6 +5552,8 @@ static void Keys3d(void)
             }
             else  // if !eitherALT
             {
+                int32_t clamped=0;
+
                 k = (highlightsectorcnt>0 && (hlsectorbitmap[searchsector>>3]&(1<<(searchsector&7))));
                 tsign *= (1+3*eitherCTRL);
 
@@ -5531,8 +5561,9 @@ static void Keys3d(void)
                 {
                     if (ASSERT_AIMING)
                     {
-                        AIMED_CF_SEL(shade) += tsign;
-                        message("%s %d shade %d", Typestr[searchstat], i, AIMED_CF_SEL(shade));
+                        clamped = addtobyte(&AIMED_CF_SEL(shade), tsign);
+                        message("%s %d shade %d%s", Typestr[searchstat], i, AIMED_CF_SEL(shade),
+                                clamped ? " (clamped)":"");
                     }
                 }
                 else
@@ -5542,18 +5573,19 @@ static void Keys3d(void)
                         dasector = highlightsector[i];
 
                         // sector shade
-                        sector[dasector].ceilingshade += tsign;
-                        sector[dasector].floorshade += tsign;
+                        clamped |= addtobyte(&sector[dasector].ceilingshade, tsign);
+                        clamped |= addtobyte(&sector[dasector].floorshade, tsign);
 
                         // wall shade
                         for (WALLS_OF_SECTOR(dasector, j))
-                            wall[j].shade += tsign;
+                            clamped |= addtobyte(&wall[j].shade, tsign);
 
                         // sprite shade
                         for (j=headspritesect[dasector]; j!=-1; j=nextspritesect[j])
-                            sprite[j].shade += tsign;
+                            clamped |= addtobyte(&sprite[j].shade, tsign);
                     }
-                    message("Highlighted sector shade changed by %d", tsign);
+                    message("Highlighted sector shade changed by %d%s", tsign,
+                            clamped?" (some objects' shade clamped)":"");
                 }
                 asksave = 1;
             }
@@ -5826,44 +5858,41 @@ static void Keys3d(void)
             }
             else
             {
-                k = 0;
-                if (highlightcnt > 0)
-                    for (i=0; i<highlightcnt; i++)
-                        if (highlight[i] == searchwall+16384)
+                k = !!(show2dsprite[searchwall>>3]&(1<<(searchwall&7)));
+
+                tsign *= (updownunits << ((eitherCTRL && mouseaction)*3));
+
+                for (i=0; i<highlightcnt || k==0; i++)
+                {
+                    if (k==0 || (highlight[i]&0xc000) == 16384)
+                    {
+                        int16_t sp = k==0 ? searchwall : highlight[i]&16383;
+
+                        sprite[sp].z += tsign;
+
+                        if (!spnoclip)
                         {
-                            k = 1;
+                            spriteoncfz(sp, &cz, &fz);
+                            inpclamp(&sprite[sp].z, cz, fz);
+                        }
+#ifdef YAX_ENABLE
+                        else if (sprite[sp].sectnum >= 0)
+                        {
+                            int16_t cb, fb;
+                            yax_getbunches(sprite[sp].sectnum, &cb, &fb);
+                            if (cb >= 0 || fb >= 0)
+                                setspritez(sp, (vec3_t *)&sprite[sp]);
+                        }
+#endif
+                        if (k==0)
+                        {
+                            silentmessage("Sprite %d z = %d", searchwall, sprite[searchwall].z);
                             break;
                         }
-
-                if (k == 0)
-                {
-                    sprite[searchwall].z += tsign * (updownunits << ((eitherCTRL && mouseaction)*3));
-                    if (!spnoclip)
-                    {
-                        spriteoncfz(searchwall, &cz, &fz);
-                        inpclamp(&sprite[searchwall].z, cz, fz);
                     }
 
-                    silentmessage("Sprite %d z = %d", searchwall, sprite[searchwall].z);
-
-                }
-                else
-                {
-                    for (i=0; i<highlightcnt; i++)
-                        if ((highlight[i]&0xc000) == 16384)
-                        {
-                            int16_t sp = highlight[i]&16383;
-
-                            sprite[sp].z += tsign * updownunits;
-
-                            if (!spnoclip)
-                            {
-                                spriteoncfz(searchwall, &cz, &fz);
-                                inpclamp(&sprite[searchwall].z, cz, fz);
-                            }
-                        }
-
-                    silentmessage("Sprites %s by %d units", tsign<0 ? "raised" : "lowered", updownunits);
+                    if (k==1)
+                        silentmessage("Sprites %s by %d units", tsign<0 ? "raised" : "lowered", tsign);
                 }
             }
         }
@@ -6431,8 +6460,6 @@ static void Keys3d(void)
 #endif
             {
                 int32_t newslope = clamp(AIMED_CEILINGFLOOR(heinum) + tsign*i, -BHEINUM_MAX, BHEINUM_MAX);
-                if (!(AIMED_CEILINGFLOOR(stat)&2))
-                    AIMED_CEILINGFLOOR(heinum) = 0;
 
                 setslope(searchsector, AIMING_AT_FLOOR, newslope);
 #ifdef YAX_ENABLE
@@ -6813,7 +6840,7 @@ static void Keys3d(void)
                 tempxrepeat = max(1, tempxrepeat);
                 tempyrepeat = AIMED_SEL_WALL(yrepeat);
                 tempcstat = AIMED_SEL_WALL(cstat) & ~YAX_NEXTWALLBITS;
-                templenrepquot = divscale12(wallength(searchwall), tempxrepeat);
+                templenrepquot = getlenbyrep(wallength(searchwall), tempxrepeat);
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
             {
@@ -7209,12 +7236,11 @@ paste_ceiling_or_floor:
             AIMED_CEILINGFLOOR(heinum) = 0;
 #ifdef YAX_ENABLE
             if (j >= 0)
-                for (i=0; i<numsectors; i++)
-                    if (yax_getbunch(i, !AIMING_AT_FLOOR) == j)
-                    {
-                        SECTORFLD(i,stat, !AIMING_AT_FLOOR) &= ~2;
-                        SECTORFLD(i,heinum, !AIMING_AT_FLOOR) = 0;
-                    }
+                for (i=headsectbunch[!AIMING_AT_FLOOR][j]; i != -1; i=nextsectbunch[!AIMING_AT_FLOOR][i])
+                {
+                    SECTORFLD(i,stat, !AIMING_AT_FLOOR) &= ~2;
+                    SECTORFLD(i,heinum, !AIMING_AT_FLOOR) = 0;
+                }
 #endif
         }
         else if (AIMING_AT_SPRITE)
@@ -7491,7 +7517,7 @@ static void Keys2d(void)
 #ifdef YAX_ENABLE
     if (/*!m32_sideview &&*/ numyaxbunches>0)
     {
-        int32_t zsign=0, bestzdiff=INT32_MAX, hiz=0, loz=0, bottomp=0;
+        int32_t zsign=0;
 
         if (PRESSED_KEYSC(PGDN) || (eitherCTRL && PRESSED_KEYSC(DOWN)))
             zsign = 1;
@@ -7500,9 +7526,11 @@ static void Keys2d(void)
 
         if (zsign)
         {
+            int32_t bestzdiff=INT32_MAX, hiz=0, loz=0, bottomp=0;
+
             for (i=0; i<numsectors; i++)
             {
-                if (yax_getbunch(i, YAX_FLOOR) < 0)
+                if (yax_getbunch(i, YAX_FLOOR) < 0 /*&& yax_getbunch(i, YAX_CEILING) < 0*/)
                     continue;
 
                 loz = min(loz, sector[i].floorz);
@@ -7522,17 +7550,45 @@ static void Keys2d(void)
                     bestzdiff = pos.z - loz;
             }
 
-            if (bestzdiff != INT32_MAX)
-            {
-                pos.z += zsign*bestzdiff;
-                yax_updategrays(pos.z);
+            pos.z += zsign*bestzdiff;
+            yax_updategrays(pos.z);
 
-                printmessage16("Z position: %d%s", pos.z,
-                               bottomp ? " (bottom)":(pos.z==loz ? " (top)":""));
-            }
+            printmessage16("Z position: %d%s", pos.z,
+                           bottomp ? " (bottom)":(pos.z==loz ? " (top)":""));
+            updatesectorz(pos.x, pos.y, pos.z, &cursectnum);
         }
     }
 #endif
+
+    // Ctrl-R set editor z range to hightlightsectors' c/f bounds
+    if (eitherCTRL && PRESSED_KEYSC(R))
+    {
+        if (highlightsectorcnt <= 0)
+        {
+            editorzrange[0] = INT32_MIN;
+            editorzrange[1] = INT32_MAX;
+            printmessage16("Reset Z range");
+        }
+        else
+        {
+            int32_t damin=INT_MAX, damax=INT_MIN;
+
+            for (i=0; i<highlightsectorcnt; i++)
+            {
+                damin = min(damin, sector[highlightsector[i]].ceilingz);
+                damax = max(damax, sector[highlightsector[i]].floorz);
+            }
+
+            if (damin < damax)
+            {
+                editorzrange[0] = damin;
+                editorzrange[1] = damax;
+                printmessage16("Set Z range to highlighted sector bounds (%d..%d)",
+                               editorzrange[0], editorzrange[1]);
+            }
+        }
+        yax_updategrays(pos.z);
+    }
 
 #if 0
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(Z)) // ' z
@@ -10873,9 +10929,14 @@ void ExtCheckKeys(void)
 
     if (PRESSED_KEYSC(F12))   //F12
     {
+#ifdef ENGINE_SCREENSHOT_DEBUG
+        extern int32_t engine_screenshot;
+        engine_screenshot = 1;
+#else
         Bsprintf(tempbuf, "Mapster32 %s", ExtGetVer());
-        screencapture("captxxxx.tga", keystatus[KEYSC_LSHIFT]|keystatus[KEYSC_RSHIFT], tempbuf);
+        screencapture("captxxxx.tga", eitherSHIFT, tempbuf);
         message("Saved screenshot %04d", capturecount-1);
+#endif
     }
 }
 

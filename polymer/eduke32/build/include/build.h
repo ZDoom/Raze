@@ -62,7 +62,9 @@ extern "C" {
 #define PR_LIGHT_PRIO_LOW_GAME  5
 
 ////////// yax defs //////////
-#define YAX_MAXBUNCHES (MAXSECTORS>>1)
+#define SECTORFLD(Sect,Fld, Cf) (*((Cf) ? (&sector[Sect].floor##Fld) : (&sector[Sect].ceiling##Fld)))
+
+#define YAX_MAXBUNCHES 256
 #define YAX_BIT 1024
 // "has next wall when constrained"-bit (1<<10: ceiling, 1<<11: floor)
 #define YAX_NEXTWALLBIT(Cf) (1<<(10+Cf))
@@ -70,12 +72,13 @@ extern "C" {
 #define YAX_CEILING 0  // don't change!
 #define YAX_FLOOR 1  // don't change!
 
-#define SECTORFLD(Sect,Fld, Cf) (*((Cf) ? (&sector[Sect].floor##Fld) : (&sector[Sect].ceiling##Fld)))
+void yax_updategrays(int32_t posze);
 
+#ifdef YAX_ENABLE
 // more user tag hijacking: lotag/extra :/
-#define YAX_NEXTWALL(Wall, Cf) (*(&wall[Wall].lotag + 2*Cf))
+# define YAX_NEXTWALL(Wall, Cf) (*(&wall[Wall].lotag + 2*Cf))
 
-#define YAX_ITER_WALLS(Wal, Itervar, Cfvar) Cfvar=0, Itervar=(Wal); Itervar!=-1; \
+# define YAX_ITER_WALLS(Wal, Itervar, Cfvar) Cfvar=0, Itervar=(Wal); Itervar!=-1; \
     Itervar=yax_getnextwall(Itervar, Cfvar), (void)(Itervar==-1 && Cfvar==0 && (Cfvar=1) && (Itervar=yax_getnextwall((Wal), Cfvar)))
 
 int16_t yax_getbunch(int16_t i, int16_t cf);
@@ -85,14 +88,21 @@ void yax_setbunches(int16_t i, int16_t cb, int16_t fb);
 int16_t yax_getnextwall(int16_t wal, int16_t cf);
 void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall);
 void yax_update(int32_t onlyreset);
-void yax_updategrays(int32_t posze);
 int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf, int16_t *ret_bunchnum);
-void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectnum);
 
-#ifdef YAX_ENABLE
+static inline int32_t yax_waltosecmask(int32_t walclipmask)
+{
+    // blocking: walstat&1 --> secstat&512
+    // hitscan: walstat&64 --> secstat&2048
+    return ((walclipmask&1)<<9) | ((walclipmask&64)<<5);
+}
+void yax_preparedrawrooms(void);
+void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectnum);
 # define YAX_SKIPSECTOR(i) if (graysectbitmap[(i)>>3]&(1<<((i)&7))) continue
 # define YAX_SKIPWALL(i) if (graywallbitmap[(i)>>3]&(1<<((i)&7))) continue
 #else
+# define yax_preparedrawrooms()
+# define yax_drawrooms(ExtAnalyzeSprites, horiz, sectnum)
 # define YAX_SKIPSECTOR(i) (i)=(i)
 # define YAX_SKIPWALL(i) (i)=(i)
 #endif
@@ -128,7 +138,8 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 //          11 = reverse transluscent masked floors
 //   bit 9: 1 = blocking ceiling/floor
 //   bit 10: 1 = YAX'ed ceiling/floor
-//   bits 11-15: reserved
+//   bit 11: 1 = hitscan-sensitive ceiling/floor
+//   bits 12-15: reserved
 
     //40 bytes
 typedef struct

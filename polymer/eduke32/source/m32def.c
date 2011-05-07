@@ -189,16 +189,6 @@ const char *keyw[] =
     "jump",
     "{",
     "}",
-#if 0
-    "setsector",
-    "getsector",
-    "setwall",
-    "getwall",
-    "setsprite",
-    "getsprite",
-    "gettspr",
-    "settspr",
-#endif
     "gamearray",
     "setarray",
     "getarraysize",
@@ -503,7 +493,29 @@ const memberlabel_t SpriteLabels[]=
     { "extra", SPRITE_EXTRA, 0, 0, 0 },
 // aliases
     { "filler", SPRITE_DETAIL, 1, 0, 0 },
+    { "", -1, 0, 0, 0 }     // END OF LIST
+};
 
+const memberlabel_t LightLabels[]=
+{
+    { "x", LIGHT_X, 0, -BXY_MAX, BXY_MAX },
+    { "y", LIGHT_Y, 0, -BXY_MAX, BXY_MAX },
+    { "z", LIGHT_Z, 0, 0, 0 },
+    { "horiz", LIGHT_HORIZ, 0, 0, 0 },
+    { "range", LIGHT_RANGE, 0, 0, 0 },
+    { "angle", LIGHT_ANGLE, 0, 0, 0 },
+    { "faderadius", LIGHT_FADERADIUS, 0, 0, 0 },
+    { "radius", LIGHT_RADIUS, 0, 0, 0 },
+    { "sector", LIGHT_SECTOR, 0, 0, 0 },
+    { "r", LIGHT_R, 0, 0, 255 },
+    { "g", LIGHT_G, 0, 0, 255 },
+    { "b", LIGHT_B, 0, 0, 255 },
+    { "priority", LIGHT_PRIORITY, 0, 0, PR_MAXLIGHTPRIORITY-1 },
+    { "tilenum", LIGHT_TILENUM, 0, 0, MAXTILES-1 },
+    { "minshade", LIGHT_MINSHADE, 0, -128, 127 },
+    { "maxshade", LIGHT_MAXSHADE, 0, -128, 127 },
+//
+    { "active", LIGHT_ACTIVE, 0, 0, 1 },
     { "", -1, 0, 0, 0 }     // END OF LIST
 };
 
@@ -512,6 +524,7 @@ const tokenmap_t iter_tokens[] =
     { "allsprites", ITER_ALLSPRITES },
     { "allsectors", ITER_ALLSECTORS },
     { "allwalls", ITER_ALLWALLS },
+    { "activelights", ITER_ACTIVELIGHTS },
     { "selsprites", ITER_SELSPRITES },
     { "selsectors", ITER_SELSECTORS },
     { "selwalls", ITER_SELWALLS },
@@ -523,6 +536,7 @@ const tokenmap_t iter_tokens[] =
 // vvv alternatives go here vvv
     { "selspr", ITER_SELSPRITES },
     { "selsec", ITER_SELSECTORS },
+    { "lights", ITER_ACTIVELIGHTS },
     { "sprofsec", ITER_SPRITESOFSECTOR },
     { "walofsec", ITER_WALLSOFSECTOR },
     { "", -1 }     // END OF LIST
@@ -541,6 +555,7 @@ static hashtable_t h_iter    = { ITER_END, NULL };
 static hashtable_t h_sector  = { SECTOR_END>>1, NULL };
 static hashtable_t h_wall    = { WALL_END>>1, NULL };
 static hashtable_t h_sprite  = { SPRITE_END>>1, NULL };
+static hashtable_t h_light  = { SPRITE_END>>1, NULL };
 
 
 static void C_InitHashes()
@@ -573,6 +588,10 @@ static void C_InitHashes()
     for (i=0; SpriteLabels[i].lId >=0; i++)
         hash_add(&h_sprite,SpriteLabels[i].name,i, 0);
 //    hash_add(&h_sprite,"filler", SPRITE_DETAIL, 0);
+
+    hash_init(&h_light);
+    for (i=0; LightLabels[i].lId >=0; i++)
+        hash_add(&h_light,LightLabels[i].name,i, 0);
 
     hash_init(&h_iter);
     for (i=0; iter_tokens[i].val >=0; i++)
@@ -926,7 +945,7 @@ static int32_t parse_integer_literal(int32_t *num)
     {
         long lnum;
         errno = 0;
-        lnum = strtol(textptr, NULL, 10);
+        lnum = Bstrtol(textptr, NULL, 10);
         if (errno || (sizeof(long)>4 && (lnum<INT_MIN || lnum>INT_MAX)))
         {
             C_CUSTOMERROR("integer literal exceeds bitwidth.");
@@ -1084,6 +1103,9 @@ static void C_GetNextVarType(int32_t type)
     if (*textptr == '[')  //read of array as a gamevar
     {
         int32_t lLabelID = -1, aridx;
+#ifdef POLYMER
+        int32_t lightp = 0;
+#endif
 
         textptr++;
         flags |= M32_FLAG_ARRAY;
@@ -1100,10 +1122,16 @@ static void C_GetNextVarType(int32_t type)
         {
             id = GetGamevarID(tlabel, 0);
 
-            if (id < 0 || id >= 4)
+            if (id < 0 || id >= 5)
             {
-                C_CUSTOMERROR("symbol `%s' is neither an array name nor one of `(t)sprite', `sector' or `wall'.", tlabel);
+                C_CUSTOMERROR("symbol `%s' is neither an array name nor one of `(t)sprite', `sector', `wall' or `light'.", tlabel);
                 return;
+            }
+
+            if (id==4)
+            {
+                id = 3;  // smuggle lights into tspr
+                lightp = 1;
             }
 
             flags &= ~M32_FLAG_ARRAY; // not an array
@@ -1175,7 +1203,9 @@ static void C_GetNextVarType(int32_t type)
 
             if (*textptr != '.')
             {
-                static const char *types[4] = {"sprite","sector","wall","tsprite"};
+                const char *types[4] = {"sprite","sector","wall","tsprite"};
+                if (lightp)
+                    types[3] = "light";
                 C_CUSTOMERROR("syntax error. Expected `.<label>' after `%s[...]'", types[id&3]);
                 return;
             }
@@ -1186,7 +1216,9 @@ static void C_GetNextVarType(int32_t type)
             C_GetNextLabelName(0);
 
             /*initprintf("found xxx label of '%s'\n",   label+(g_numLabels*MAXLABELLEN));*/
-            if (id==M32_SPRITE_VAR_ID || id==M32_TSPRITE_VAR_ID)
+            if (lightp)
+                lLabelID = C_GetLabelNameID(LightLabels, &h_light, Bstrtolower(tlabel));
+            else if (id==M32_SPRITE_VAR_ID || id==M32_TSPRITE_VAR_ID)
                 lLabelID = C_GetLabelNameID(SpriteLabels, &h_sprite, Bstrtolower(tlabel));
             else if (id==M32_SECTOR_VAR_ID)
                 lLabelID = C_GetLabelNameID(SectorLabels, &h_sector, Bstrtolower(tlabel));
@@ -2413,84 +2445,6 @@ repeatcase:
         return 1;
 
 // *** more basic commands
-#if 0
-    case CON_SETSECTOR:
-    case CON_GETSECTOR:
-    case CON_SETWALL:
-    case CON_GETWALL:
-    case CON_SETSPRITE:
-    case CON_GETSPRITE:
-    case CON_SETTSPR:
-    case CON_GETTSPR:
-    {
-        int32_t lLabelID;
-
-        // syntax getsector[<var>].x <VAR>
-        // gets the value of sector[<var>].xxx into <VAR>
-
-        if ((tw==CON_GETTSPR || tw==CON_SETTSPR) && cs.currentEvent != EVENT_ANALYZESPRITES)
-        {
-            C_ReportError(WARNING_OUTSIDEDRAWSPRITE);
-            g_numCompilerWarnings++;
-        }
-
-        // now get name of .xxx
-        while (*textptr != '[')
-            textptr++;
-
-        if (*textptr == '[')
-            textptr++;
-
-        // get the ID of the DEF
-        cs.labelsOnly = 1;
-        C_GetNextVar();
-        cs.labelsOnly = 0;
-
-        // now get name of .xxx
-        while (*textptr != '.')
-        {
-            if (!*textptr || *textptr == 0xa)
-                break;
-
-            textptr++;
-        }
-
-        if (*textptr!='.')
-        {
-            C_CUSTOMERROR("syntax error. Expected `.<label>' after `%s[...]'", keyw[tw]);
-            return 0;
-        }
-        textptr++;
-
-        /// now pointing at 'xxx'
-        C_GetNextLabelName(0);
-        //printf("found xxx label of '%s'\n",   label+(g_numLabels*MAXLABELLEN));
-
-        if (tw==CON_GETSECTOR || tw==CON_SETSECTOR)
-            lLabelID = C_GetLabelNameID(SectorLabels, &h_sector, Bstrtolower(tlabel));
-        else if (tw==CON_GETWALL || tw==CON_SETWALL)
-            lLabelID = C_GetLabelNameID(WallLabels, &h_wall, Bstrtolower(tlabel));
-        else // if (tw==CON_GETSPRITE || tw==CON_SETSPRITE || tw==CON_GETTSPR || tw==CON_SETTSPR)
-            lLabelID = C_GetLabelNameID(SpriteLabels, &h_sprite, Bstrtolower(tlabel));
-
-        if (lLabelID == -1)
-        {
-            g_numCompilerErrors++;
-            C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
-            return 0;
-        }
-
-        *g_scriptPtr++ = lLabelID;
-
-        // now at target VAR...
-        // get the ID of the DEF
-        if (tw==CON_GETSECTOR || tw==CON_GETWALL || tw==CON_GETSPRITE || tw==CON_GETTSPR)
-            C_GetNextVarType(GV_WRITABLE);
-        else
-            C_GetNextVar();
-        break;
-    }
-#endif
 
     case CON_GAMEVAR:
         // syntax: gamevar <var1> <initial value> <flags>

@@ -115,6 +115,56 @@ defstate printlights
     print "--ENDPRLIGHTS--"
 ends
 
+defstate insertlights
+    var sectnum
+
+    set k 0
+    for i activelights
+    {
+        insertsprite light[i].sector
+
+        // I is the inserted sprites' index now
+        set .picnum 1
+
+        set .x light[i].x
+        set .y light[i].y
+        set .z light[i].z
+
+        set .hitag light[i].range
+        set .xvel light[i].r
+        set .yvel light[i].g
+        set .zvel light[i].b
+
+        set .extra light[i].horiz
+
+        set .xoffset light[i].minshade
+        set .yoffset light[i].maxshade
+
+        set .owner light[i].tilenum
+
+        // now those that are calculated
+        ifge light[i].priority 4 or .cstat 512
+        ifge light[i].priority 2 or .cstat 2
+
+        ife light[i].radius 0
+        {
+            set .lotag 49
+        }
+        else
+        {
+            set .lotag 50
+            set j light[i].radius, shiftr j 1, sub j 128, inv j
+            clamp j -128 127
+            set .shade j
+        }
+
+        add k 1
+    }
+
+    qsprintf TQUOTE "* Inserted %d SE sprites based on active lights." k
+    print TQUOTE
+ends
+
 // convenient polymer SE light manipulation with keypad keys
 // when aiming at light SE (49 or 50):
 //  KP 4,5,6,8: angle/horiz

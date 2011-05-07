@@ -329,11 +329,8 @@ static void M32_drawdebug(void)
     if (m32_numdebuglines>0)
     {
         begindrawing();
-        for (i=0; i<m32_numdebuglines; i++)
-        {
-            y+=8;
+        for (i=0; i<m32_numdebuglines && y<ydim-8; i++, y+=8)
             printext256(x,y,whitecol,0,m32_debugstr[i],xdimgame>640?0:1);
-        }
         enddrawing();
     }
     m32_numdebuglines=0;
@@ -413,6 +410,9 @@ static void reset_default_mapstate(void)
     numsectors = 0;
     numwalls = 0;
     numsprites = 0;
+
+    editorzrange[0] = INT_MIN;
+    editorzrange[1] = INT_MAX;
 
     initspritelists();
     taglab_init();
@@ -642,10 +642,10 @@ CANCEL:
 
         ExtPreCheckKeys();
 
+        yax_preparedrawrooms();
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-#ifdef YAX_ENABLE
         yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
-#endif
+
         ExtAnalyzeSprites();
         drawmasks();
 
@@ -2229,7 +2229,7 @@ void overheadeditor(void)
     int32_t tempint, tempint1, tempint2;
     int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3, x4, y4;
     int32_t highlightx1, highlighty1, highlightx2, highlighty2;
-    int16_t pag, suckwall=0, sucksect, split=0, bad;
+    int16_t suckwall=0, sucksect, split=0, bad;
     int16_t splitsect=0, joinsector[2];
     int16_t splitstartwall=0;
     int32_t mousx, mousy, bstatus;
@@ -2256,13 +2256,14 @@ void overheadeditor(void)
     searchy = clamp(scale(searchy,ydim2d-STATUS2DSIZ2,ydimgame), 8, ydim2d-STATUS2DSIZ-8-1);
     oposz = pos.z;
 
+    yax_updategrays(pos.z);
+
     begindrawing(); //{{{
     CLEARLINES2D(0, ydim, 0);
     enddrawing(); //}}}
 
     ydim16 = ydim-STATUS2DSIZ2;
 
-    pag = 0;
     cursectorhighlight = -1;
     lastpm16time = -1;
 
@@ -3542,7 +3543,10 @@ end_yax: ;
                                 }
                             }
                             else
-                                hlsectorbitmap[i>>3] |= (1<<(i&7));
+                            {
+                                if ((graysectbitmap[i>>3]&(1<<(i&7)))==0)
+                                    hlsectorbitmap[i>>3] |= (1<<(i&7));
+                            }
                         }
                     }
 
@@ -4263,7 +4267,11 @@ end_join_sectors:
                         NEXTWALL(i).nextwall = i;
                         NEXTWALL(i).nextsector = numsectors;
                     }
-
+#ifdef YAX_ENABLE
+                    yax_setbunches(numsectors, -1, -1);
+                    yax_update(0);
+                    yax_updategrays(pos.z);
+#endif
                     numwalls = newnumwalls;
                     newnumwalls = -1;
                     numsectors++;
@@ -5872,16 +5880,12 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     if (filename != boardfilename)
         Bstrcpy(boardfilename, filename);
 
-    if ((flags&1)==0)
-    {
-        highlightcnt = -1;
-        Bmemset(show2dwall, 0, sizeof(show2dwall));  //Clear all highlights
-        Bmemset(show2dsprite, 0, sizeof(show2dsprite));
-    }
-
     for (i=0; i<MAXSECTORS; i++) sector[i].extra = -1;
     for (i=0; i<MAXWALLS; i++) wall[i].extra = -1;
     for (i=0; i<MAXSPRITES; i++) sprite[i].extra = -1;
+
+    editorzrange[0] = INT_MIN;
+    editorzrange[1] = INT_MAX;
 
     ExtPreLoadMap();
     i = loadboard(boardfilename,(flags&4)|loadingflags, &pos.x,&pos.y,&pos.z,&ang,&cursectnum);
@@ -5893,6 +5897,9 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
         return i;
     }
 
+    highlightcnt = -1;
+    Bmemset(show2dwall, 0, sizeof(show2dwall));  //Clear all highlights
+    Bmemset(show2dsprite, 0, sizeof(show2dsprite));    
 
     if ((flags&4)==0)
         loadmhk(0);
@@ -5915,9 +5922,6 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     startposz = pos.z;
     startang = ang;
     startsectnum = cursectnum;
-#ifdef YAX_ENABLE
-//    yax_resetbunchnums();
-#endif
 
     return 0;
 }
@@ -6220,7 +6224,7 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
 
     j = linehighlight;
     sucksect = sectorofwall(j);
-    templenrepquot = divscale12(wallength(j), wall[j].xrepeat);
+    templenrepquot = getlenbyrep(wallength(j), wall[j].xrepeat);
 
     sector[sucksect].wallnum++;
     for (i=sucksect+1; i<numsectors; i++)
@@ -6241,7 +6245,7 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
     if (wall[j].nextwall >= 0)
     {
         k = wall[j].nextwall;
-        templenrepquot = divscale12(wallength(k), wall[k].xrepeat);
+        templenrepquot = getlenbyrep(wallength(k), wall[k].xrepeat);
 
         sucksect = sectorofwall(k);
 
@@ -6452,12 +6456,20 @@ void fixrepeats(int16_t i)
     wall[i].xrepeat = clamp(mulscale10(dist,day), 1, 255);
 }
 
-void fixxrepeat(int16_t i, uint32_t lenrepquot)  // lenrepquot: divscale12(wallength,xrepeat)
+uint32_t getlenbyrep(int32_t len, int32_t repeat)
+{
+    if (repeat <= 0)
+        return ((uint32_t)len)<<12;
+
+    return divscale12(len, repeat);
+}
+
+void fixxrepeat(int16_t wallnum, uint32_t lenrepquot)  // lenrepquot: divscale12(wallength,xrepeat)
 {
     if (lenrepquot != 0)
     {
-        uint32_t res = (((wallength(i)<<12)+(1<<11))/lenrepquot);
-        wall[i].xrepeat = clamp(res, 1, 255);
+        uint32_t res = (((wallength(wallnum)<<12)+(1<<11))/lenrepquot);
+        wall[wallnum].xrepeat = clamp(res, 1, 255);
     }
 }
 
@@ -6726,10 +6738,10 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
         if (handleevents())
             quitevent = 0;
 
+        yax_preparedrawrooms();
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-#ifdef YAX_ENABLE
         yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
-#endif
+
         ExtAnalyzeSprites();
         drawmasks();
 
@@ -8197,11 +8209,15 @@ void AlignWallPoint2(int32_t w0)
     AlignWalls(w0,GetWallBaseZ(w0), w1,GetWallBaseZ(w1), wall[w0].picnum);
 }
 
-// pass maxrecurs=0 for unconstrained recursion
-int32_t AutoAlignWalls(int32_t w0, int32_t dorecurse, int32_t nrecurs)
+// flags:
+//  1: recurse nextwalls
+//  2: iterate point2's
+//  4: carry pixel width from first wall over to the rest
+int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 {
     int32_t z0, z1, tilenum, w1, visible, nextsec, sectnum;
-    static int32_t numaligned;
+    static int32_t numaligned, wall0;
+    static uint32_t lenrepquot;
 
     tilenum = wall[w0].picnum;
 
@@ -8211,6 +8227,8 @@ int32_t AutoAlignWalls(int32_t w0, int32_t dorecurse, int32_t nrecurs)
         Bmemset(visited, 0, sizeof(visited));
         visited[w0>>3] |= (1<<(w0&7));
         numaligned = 0;
+        lenrepquot = getlenbyrep(wallength(w0), wall[w0].xrepeat);
+        wall0 = w0;
     }
 
     z0 = GetWallBaseZ(w0);
@@ -8253,23 +8271,28 @@ int32_t AutoAlignWalls(int32_t w0, int32_t dorecurse, int32_t nrecurs)
 
             if (visible)
             {
-                numaligned++;
+                if ((flags&4) && w0!=wall0)
+                    fixxrepeat(w0, lenrepquot);
                 AlignWalls(w0,z0, w1,z1, tilenum);
+                numaligned++;
 
                 //if wall was 1-sided, no need to recurse
                 if (wall[w1].nextwall < 0)
                 {
+                    if (!(flags&2))
+                        break;
                     w0 = w1;
                     z0 = GetWallBaseZ(w0);
                     w1 = wall[w0].point2;
                     continue;
                 }
-                else if (dorecurse)
-                    AutoAlignWalls(w1, 1, nrecurs+1);
+                else if (flags&1)
+                    AutoAlignWalls(w1, flags, nrecurs+1);
             }
         }
 
-        if (wall[w1].nextwall < 0) break;
+        if (wall[w1].nextwall < 0 || !(flags&2))
+            break;
         w1 = NEXTWALL(w1).point2;
     }
 

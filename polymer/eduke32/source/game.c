@@ -3212,8 +3212,8 @@ void G_SE40(int32_t smoothratio)
     }
 }
 
-#ifdef YAX_ENABLE
 static int32_t g_yax_smoothratio;
+#ifdef YAX_ENABLE
 static void G_AnalyzeSprites(void)
 {
     G_DoSpriteAnimations(ud.camera.x,ud.camera.y,ud.cameraang,g_yax_smoothratio);
@@ -3277,11 +3277,11 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         if (getrendermode() == 4)
             polymer_setanimatesprites(G_DoSpriteAnimations, s->x, s->y, ud.cameraang, smoothratio);
 #endif
-
+        yax_preparedrawrooms();
         drawrooms(s->x,s->y,s->z-(4<<8),ud.cameraang,s->yvel,s->sectnum);
-
+        g_yax_smoothratio = smoothratio;        
+        yax_drawrooms(G_AnalyzeSprites, s->yvel, s->sectnum);
         G_DoSpriteAnimations(s->x,s->y,ud.cameraang,smoothratio);
-
         drawmasks();
     }
     else
@@ -3418,8 +3418,14 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         if (ud.camerasect >= 0)
         {
             getzsofslope(ud.camerasect,ud.camera.x,ud.camera.y,&cz,&fz);
-            if (ud.camera.z < cz+(4<<8)) ud.camera.z = cz+(4<<8);
-            if (ud.camera.z > fz-(4<<8)) ud.camera.z = fz-(4<<8);
+#ifdef YAX_ENABLE
+            if (yax_getbunch(ud.camerasect, YAX_CEILING) < 0)
+#endif
+                if (ud.camera.z < cz+(4<<8)) ud.camera.z = cz+(4<<8);
+#ifdef YAX_ENABLE
+            if (yax_getbunch(ud.camerasect, YAX_FLOOR) < 0)
+#endif
+                if (ud.camera.z > fz-(4<<8)) ud.camera.z = fz-(4<<8);
         }
 
         if (ud.camerahoriz > HORIZ_MAX) ud.camerahoriz = HORIZ_MAX;
@@ -3470,11 +3476,11 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             polymer_setanimatesprites(G_DoSpriteAnimations, ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
 #endif
 
+        yax_preparedrawrooms();
         drawrooms(ud.camera.x,ud.camera.y,ud.camera.z,ud.cameraang,ud.camerahoriz,ud.camerasect);
-#ifdef YAX_ENABLE
         g_yax_smoothratio = smoothratio;
         yax_drawrooms(G_AnalyzeSprites, ud.camerahoriz, ud.camerasect);
-#endif
+
         // dupe the sprites touching the portal to the other sector
 
         if (ror_sprite != -1)
@@ -7242,7 +7248,8 @@ void G_HandleLocalKeys(void)
         switch (ud.recstat)
         {
         case 0:
-            G_OpenDemoWrite();
+            if (SHIFTS_IS_PRESSED)
+                G_OpenDemoWrite();
             break;
         case 1:
             G_CloseDemoWrite();

@@ -26,7 +26,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "compat.h"
 #include "m32script.h"
 #include "m32def.h"
-
+#ifdef POLYMER
+# include "prlights.h"
+#endif
 
 // how: bitfield: 1=set? 2=vars? 4=use spriteext[].tspr? (otherwise use tsprite[])
 #define ACCESS_SET 1
@@ -121,10 +123,10 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLab
     }
 
 badwall:
-    M32_PRINTERROR("Invalid wall %d", i);
+    M32_ERROR("Invalid wall %d", i);
     return -1;
 readonly:
-    M32_PRINTERROR("Wall structure member `%s' is read-only.", WallLabels[lLabelID].name);
+    M32_ERROR("Wall structure member `%s' is read-only.", WallLabels[lLabelID].name);
     return -1;
 }
 
@@ -238,10 +240,10 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
     }
 
 badsector:
-    M32_PRINTERROR("Invalid sector %d", i);
+    M32_ERROR("Invalid sector %d", i);
     return -1;
 readonly:
-    M32_PRINTERROR("Sector structure member `%s' is read-only.", SectorLabels[lLabelID].name);
+    M32_ERROR("Sector structure member `%s' is read-only.", SectorLabels[lLabelID].name);
     return -1;
 }
 
@@ -254,7 +256,7 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lL
     if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
         i = Gv_GetVarX(lVar1);
 
-    if (i < 0 || i >= MAXSPRITES)
+    if ((unsigned)i >= MAXSPRITES)
         goto badsprite;
 
     if (how&ACCESS_SET)
@@ -346,41 +348,92 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lL
         return lValue;
     }
 badsprite:
-    M32_PRINTERROR("tried to set %s on invalid target sprite (%d)", SpriteLabels[lLabelID].name, i);
+    M32_ERROR("tried to set %s on invalid target sprite (%d)", SpriteLabels[lLabelID].name, i);
     return -1;
 readonly:
-    M32_PRINTERROR("sprite structure member `%s' is read-only.", SpriteLabels[lLabelID].name);
+    M32_ERROR("sprite structure member `%s' is read-only.", SpriteLabels[lLabelID].name);
     return -1;
 }
 
 // how: bitfield: 1=set? 2=vars? 4=use spriteext[].tspr? (otherwise use tsprite[])
 static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
 {
-    int32_t lValue;
+    int32_t lValue, lightp = (lLabelID >= LIGHT_X);
     int32_t i = (how&ACCESS_USEVARS) ? vm.g_i : lVar1;
-    spritetype *datspr;
+    spritetype *datspr = NULL;
+    const memberlabel_t *dalabel = lightp ? &LightLabels[lLabelID-LIGHT_X] : SpriteLabels;
 
     if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
         i = Gv_GetVarX(lVar1);
 
-    if (how&ACCESS_SPRITEEXT)
+    if (!lightp)
     {
-        if (i < 0 || i >= MAXSPRITES)
-            goto badsprite;
-        datspr = spriteext[i].tspr;
-        if (!datspr)
-            goto badtspr;
+        if (how&ACCESS_SPRITEEXT)
+        {
+            if ((unsigned)i >= MAXSPRITES)
+                goto badsprite;
+            datspr = spriteext[i].tspr;
+            if (!datspr)
+                goto badtspr;
+        }
+        else
+        {
+            if (i<0 || i>=spritesortcnt)
+                goto badsprite;
+            datspr = &tsprite[i];
+        }
     }
     else
     {
-        if (i<0 || i>=spritesortcnt)
-            goto badsprite;
-        datspr = &tsprite[i];
+        // access Polymer light
+#ifndef POLYMER
+        M32_ERROR("Polymer not compiled in, accessing lights is invalid.");
+        return -1;
+#else
+        if ((how&ACCESS_USEVARS) && lVar1 == M32_THISACTOR_VAR_ID)
+        {
+            if ((unsigned)i >= MAXSPRITES)
+                goto badsprite;
+            M32_ERROR("Polymer light access via current sprite not implemented.");
+            return -1;
+        }
+        else
+        {
+// check whether rendmode==4 ?
+            if ((unsigned)i >= PR_MAXLIGHTS)
+            {
+                M32_ERROR("invalid light index (%d)", i);
+                return -1;
+            }
+
+            if (lLabelID != LIGHT_ACTIVE && !prlights[i].flags.active)
+            {
+                M32_ERROR("light with index %d is inactive!", i);
+                return -1;
+            }
+        }
+#endif
     }
 
     if (how&ACCESS_SET)
     {
+        int32_t damin, damax;
+
+        if (!m32_script_expertmode && (dalabel->flags & 1))
+            goto readonly;
+
         lValue = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar2) : lVar2;
+
+        damin = dalabel->min;
+        damax = dalabel->max;
+
+        if (!m32_script_expertmode && (damin|damax))
+        {
+            if (lValue < damin)
+                lValue = damin;
+            if (lValue > damax)
+                lValue = damax;
+        }
 
         switch (lLabelID)
         {
@@ -411,6 +464,25 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
         case SPRITE_LOTAG: datspr->lotag=lValue; break;
         case SPRITE_HITAG: datspr->hitag=lValue; break;
         case SPRITE_EXTRA: datspr->extra=lValue; break;
+#ifdef POLYMER
+        // lights
+        case LIGHT_X: prlights[i].x = lValue; break;
+        case LIGHT_Y: prlights[i].y = lValue; break;
+        case LIGHT_Z: prlights[i].z = lValue; break;
+        case LIGHT_HORIZ: prlights[i].horiz = lValue; break;
+        case LIGHT_RANGE: prlights[i].range = lValue; break;
+        case LIGHT_ANGLE: prlights[i].angle = lValue; break;
+        case LIGHT_FADERADIUS: prlights[i].faderadius = lValue; break;
+        case LIGHT_RADIUS: prlights[i].radius = lValue; break;
+        case LIGHT_SECTOR: prlights[i].sector = lValue; break;
+        case LIGHT_R: prlights[i].color[0] = lValue; break;
+        case LIGHT_G: prlights[i].color[1] = lValue; break;
+        case LIGHT_B: prlights[i].color[2] = lValue; break;
+        case LIGHT_PRIORITY: prlights[i].priority = lValue; break;
+        case LIGHT_TILENUM: prlights[i].tilenum = lValue; break;
+        case LIGHT_MINSHADE: prlights[i].minshade = lValue; break;
+        case LIGHT_MAXSHADE: prlights[i].maxshade = lValue; break;
+#endif
         default:
             return -1;
         }
@@ -444,6 +516,26 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
         case SPRITE_LOTAG: lValue=datspr->lotag; break;
         case SPRITE_HITAG: lValue=datspr->hitag; break;
         case SPRITE_EXTRA: lValue=datspr->extra; break;
+#ifdef POLYMER
+        // lights
+        case LIGHT_X: lValue = prlights[i].x; break;
+        case LIGHT_Y: lValue = prlights[i].y; break;
+        case LIGHT_Z: lValue = prlights[i].z; break;
+        case LIGHT_HORIZ: lValue = prlights[i].horiz; break;
+        case LIGHT_RANGE: lValue = prlights[i].range; break;
+        case LIGHT_ANGLE: lValue = prlights[i].angle; break;
+        case LIGHT_FADERADIUS: lValue = prlights[i].faderadius; break;
+        case LIGHT_RADIUS: lValue = prlights[i].radius; break;
+        case LIGHT_SECTOR: lValue = prlights[i].sector; break;
+        case LIGHT_R: lValue = prlights[i].color[0]; break;
+        case LIGHT_G: lValue = prlights[i].color[1]; break;
+        case LIGHT_B: lValue = prlights[i].color[2]; break;
+        case LIGHT_PRIORITY: lValue = prlights[i].priority; break;
+        case LIGHT_TILENUM: lValue = prlights[i].tilenum; break;
+        case LIGHT_MINSHADE: lValue = prlights[i].minshade; break;
+        case LIGHT_MAXSHADE: lValue = prlights[i].maxshade; break;
+        case LIGHT_ACTIVE: lValue = !!prlights[i].flags.active; break;
+#endif
         default:
             return -1;
         }
@@ -455,10 +547,13 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
     }
 
 badsprite:
-    M32_PRINTERROR("invalid target sprite (%d)", i);
+    M32_ERROR("invalid target sprite (%d)", i);
     return -1;
 badtspr:
-    M32_PRINTERROR("Internal bug, tsprite is unavailable");
+    M32_ERROR("Internal bug, tsprite is unavailable");
+    return -1;
+readonly:
+    M32_ERROR("structure member `%s' is read-only.", dalabel->name);
     return -1;
 }
 

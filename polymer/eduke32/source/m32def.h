@@ -79,6 +79,7 @@ typedef struct
 extern const memberlabel_t SectorLabels[];
 extern const memberlabel_t WallLabels[];
 extern const memberlabel_t SpriteLabels[];
+extern const memberlabel_t LightLabels[];
 
 
 typedef struct {
@@ -202,29 +203,48 @@ enum WallLabel_t
 
 enum SpriteLabel_t
 {
-    SPRITE_X,
+    SPRITE_X,  // 0
     SPRITE_Y,
     SPRITE_Z,
     SPRITE_CSTAT,
     SPRITE_PICNUM,
-    SPRITE_SHADE,
+    SPRITE_SHADE,  // 5
     SPRITE_PAL,
     SPRITE_CLIPDIST,
     SPRITE_DETAIL,
     SPRITE_XREPEAT,
-    SPRITE_YREPEAT,
+    SPRITE_YREPEAT,  // 10
     SPRITE_XOFFSET,
     SPRITE_YOFFSET,
     SPRITE_SECTNUM,
     SPRITE_STATNUM,
-    SPRITE_ANG,
+    SPRITE_ANG,  // 15
     SPRITE_OWNER,
     SPRITE_XVEL,
     SPRITE_YVEL,
     SPRITE_ZVEL,
-    SPRITE_LOTAG,
+    SPRITE_LOTAG,  // 20
     SPRITE_HITAG,
     SPRITE_EXTRA,
+
+    LIGHT_X,  // must be first here
+    LIGHT_Y,
+    LIGHT_Z,  // 25
+    LIGHT_HORIZ,
+    LIGHT_RANGE,
+    LIGHT_ANGLE,
+    LIGHT_FADERADIUS,
+    LIGHT_RADIUS,  // 30
+    LIGHT_SECTOR,
+    LIGHT_R,
+    LIGHT_G,
+    LIGHT_B,
+    LIGHT_PRIORITY,  // 35
+    LIGHT_TILENUM,
+    LIGHT_MINSHADE,
+    LIGHT_MAXSHADE,
+    LIGHT_ACTIVE,
+
     SPRITE_END
 };
 
@@ -233,6 +253,7 @@ enum IterationTypes_t
     ITER_ALLSPRITES,
     ITER_ALLSECTORS,
     ITER_ALLWALLS,
+    ITER_ACTIVELIGHTS,
     ITER_SELSPRITES,
     ITER_SELSECTORS,
     ITER_SELWALLS,

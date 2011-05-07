@@ -310,7 +310,9 @@ void A_Fall(int32_t iActor)
 {
     spritetype *s = &sprite[iActor];
     int32_t hz,lz,c = g_spriteGravity;
-
+#ifdef YAX_ENABLE
+    int16_t fbunch;
+#endif
     if (G_CheckForSpaceFloor(s->sectnum))
         c = 0;
     else
@@ -334,12 +336,27 @@ void A_Fall(int32_t iActor)
         actor[iActor].floorz   = sector[s->sectnum].floorz;
     }
 
-    if (s->z < actor[iActor].floorz-(ZOFFSET))
+#ifdef YAX_ENABLE
+    if (sector[s->sectnum].floorstat&512)
+        fbunch = -1;
+    else
+        fbunch = yax_getbunch(s->sectnum, YAX_FLOOR);
+#endif
+    if (s->z < actor[iActor].floorz-(ZOFFSET)
+#ifdef YAX_ENABLE
+        || (fbunch >= 0)
+#endif
+        )
     {
         if (sector[s->sectnum].lotag == 2 && s->zvel > 3122)
             s->zvel = 3144;
         s->z += s->zvel = min(6144, s->zvel+c);
     }
+#ifdef YAX_ENABLE
+    if (fbunch >= 0)
+        setspritez(iActor, (vec3_t *)s);
+    if (fbunch < 0)
+#endif
     if (s->z >= actor[iActor].floorz-(ZOFFSET))
     {
         s->z = actor[iActor].floorz - ZOFFSET;
@@ -1106,7 +1123,12 @@ skip_check:
                 if (vm.g_sp->z < (actor[vm.g_i].floorz-ZOFFSET))
                 {
                     vm.g_sp->z += vm.g_sp->zvel = min(6144, vm.g_sp->zvel+j);
-
+#ifdef YAX_ENABLE
+                    j = yax_getbunch(vm.g_sp->sectnum, YAX_FLOOR);
+                    if (j >= 0 && (sector[vm.g_sp->sectnum].floorstat&512)==0)
+                        setspritez(vm.g_i, (vec3_t *)vm.g_sp);
+                    else
+#endif
                     if (vm.g_sp->z > (actor[vm.g_i].floorz - ZOFFSET))
                         vm.g_sp->z = (actor[vm.g_i].floorz - ZOFFSET);
                     continue;
