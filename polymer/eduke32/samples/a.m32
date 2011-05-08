@@ -142,6 +142,9 @@ defstate insertlights
 
         set .owner light[i].tilenum
 
+        set .xrepeat 48
+        set .yrepeat 48
+
         // now those that are calculated
         ifge light[i].priority 4 or .cstat 512
         ifge light[i].priority 2 or .cstat 2

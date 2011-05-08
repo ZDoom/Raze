@@ -7542,7 +7542,7 @@ static void Keys2d(void)
                     bestzdiff = j;
             }
 
-            if (bestzdiff==INT_MAX)
+            if (bestzdiff==INT32_MAX)
             {
                 if (zsign == 1)
                     bottomp=1, bestzdiff = (hiz+(1024<<4) - pos.z);
@@ -7571,7 +7571,7 @@ static void Keys2d(void)
         }
         else
         {
-            int32_t damin=INT_MAX, damax=INT_MIN;
+            int32_t damin=INT32_MAX, damax=INT32_MIN;
 
             for (i=0; i<highlightsectorcnt; i++)
             {
