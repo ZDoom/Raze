@@ -56,7 +56,11 @@ ifeq ($(PLATFORM),WINDOWS)
     EOBJ=eobj_win
     LIBS+= $(L_SSP) -Wl,--enable-auto-import
 else
-    LIBS+= -ldl -pthread
+    ifeq ($(PLATFORM),LINUX)
+        LIBS+= -ldl -pthread
+    else
+        LIBS+= -pthread
+    endif
     ifneq (0,$(PROFILER))
         LIBS+= -lprofiler
         debug+= -pg

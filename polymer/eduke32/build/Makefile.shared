@@ -110,6 +110,11 @@ endif
 ifeq ($(PLATFORM),BSD)
     RENDERTYPE=SDL
     BUILDCFLAGS+= -DHAVE_INTTYPES
+    ifneq ($(findstring i386, $(shell uname -m)), i386)
+        override NOASM=1
+    endif
+    override NEDMALLOC=0
+    STDCPPLIB=-lstdc++
 endif
 ifeq ($(PLATFORM),BEOS)
     RENDERTYPE=SDL
