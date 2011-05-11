@@ -16,7 +16,7 @@ endif
 CFLAGS=$(BASECFLAGS) $(F_NO_STACK_PROTECTOR)
 # for BUILD_ECHOFLAGS:
 OURCFLAGS=$(CFLAGS)
-CPPFLAGS=-I$(INC) -I$(SRC) `pkg-config --cflags vorbis` -DHAVE_VORBIS
+CPPFLAGS=-I$(INC) -I$(SRC) -DHAVE_VORBIS
 
 ifeq ($(PLATFORM),DARWIN)
     ifeq (1,$(SDL_FRAMEWORK))
@@ -42,7 +42,7 @@ ifeq ($(PLATFORM),WINDOWS)
     OBJNAME=libjfaudiolib_win32.a
     OBJ=obj_win
 else
-    CPPFLAGS+= -DHAVE_SDL
+    CPPFLAGS+= -DHAVE_SDL `pkg-config --cflags vorbis`
     OBJECTS+= $(OBJ)/driver_sdl.o
 endif
 
