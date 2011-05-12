@@ -921,11 +921,55 @@ static void resetprestat(int32_t snum,int32_t g)
 
 }
 
+static void G_MultiPskyInit(void)
+{
+    int32_t i;
+
+    // new-style multi-psky handling
+    pskymultilist[0] = MOONSKY1;
+    pskymultilist[1] = BIGORBIT1;
+    pskymultilist[2] = LA;
+    for (i=0; i<3; i++)
+    {
+        pskymultibits[i] = 3;
+        Bmemset(pskymultioff[i], 0, sizeof(pskymultioff[i]));
+    }
+
+    // MOONSKY1
+    //        earth          mountian   mountain         sun
+    pskymultioff[0][6]=1;
+    pskymultioff[0][1]=2;
+    pskymultioff[0][4]=2;
+    pskymultioff[0][2]=3;
+
+    // BIGORBIT1   // orbit
+    //       earth1         2           3           moon/sun
+    pskymultioff[1][5]=1;
+    pskymultioff[1][6]=2;
+    pskymultioff[1][7]=3;
+    pskymultioff[1][2]=4;
+
+    // LA // la city
+    //       earth1         2           3           moon/sun
+    pskymultioff[2][0]=1;
+    pskymultioff[2][1]=2;
+    pskymultioff[2][2]=1;
+    pskymultioff[2][3]=3;
+    pskymultioff[2][4]=4;
+    pskymultioff[2][5]=0;
+    pskymultioff[2][6]=2;
+    pskymultioff[2][7]=3;
+
+    pskynummultis = 3;
+}
+
 static inline void G_SetupBackdrop(int16_t sky)
 {
+    G_MultiPskyInit();
+
     Bmemset(pskyoff, 0, sizeof(pskyoff[0]) * MAXPSKYTILES);
 
-    if (parallaxyscale != 65536L)
+    if (parallaxyscale != 65536)
         parallaxyscale = 32768;
 
     switch (DynamicTileMap[sky])
