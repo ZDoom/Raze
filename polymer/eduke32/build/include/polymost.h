@@ -131,7 +131,11 @@ static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t
     f = (vis > 239) ? (float)(gvisibility*((vis-240+f)/(klabs(vis-256)))) :
         (float)(gvisibility*(vis+16+f));
 
-    fogresult = clamp(f, 0.001f, 100.f);
+    if (f < 0.001f)
+        f = 0.001f;
+    else if (f > 100.0f)
+        f = 100.0f;
+    fogresult = f;
 
     Bmemcpy(fogcol, &fogtable[pal<<2], sizeof(fogcol));
 }

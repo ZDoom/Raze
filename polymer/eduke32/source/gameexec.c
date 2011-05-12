@@ -2335,7 +2335,10 @@ nullquote:
                         j = visibility;
                         visibility = (j>>1) + (j>>2);
 
+                        yax_preparedrawrooms();
                         drawrooms(tposx,tposy,z,tang,horiz,g_mirrorSector[i]+MAXSECTORS);
+                        g_yax_smoothratio = smoothratio;
+                        yax_drawrooms(G_AnalyzeSprites, horiz, g_mirrorSector[i]+MAXSECTORS);
 
                         display_mirror = 1;
                         G_DoSpriteAnimations(tposx,tposy,tang,smoothratio);

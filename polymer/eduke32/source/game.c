@@ -3212,9 +3212,9 @@ void G_SE40(int32_t smoothratio)
     }
 }
 
-static int32_t g_yax_smoothratio;
+int32_t g_yax_smoothratio;
 #ifdef YAX_ENABLE
-static void G_AnalyzeSprites(void)
+void G_AnalyzeSprites(void)
 {
     G_DoSpriteAnimations(ud.camera.x,ud.camera.y,ud.cameraang,g_yax_smoothratio);
 }
@@ -3419,11 +3419,22 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         {
             getzsofslope(ud.camerasect,ud.camera.x,ud.camera.y,&cz,&fz);
 #ifdef YAX_ENABLE
-            if (yax_getbunch(ud.camerasect, YAX_CEILING) < 0)
+            if (yax_getbunch(ud.camerasect, YAX_CEILING) >= 0)
+            {
+                if (ud.camera.z < cz)
+                    updatesectorz(ud.camera.x, ud.camera.y, ud.camera.z, &ud.camerasect);
+            }
+            else
 #endif
                 if (ud.camera.z < cz+(4<<8)) ud.camera.z = cz+(4<<8);
+
 #ifdef YAX_ENABLE
-            if (yax_getbunch(ud.camerasect, YAX_FLOOR) < 0)
+            if (yax_getbunch(ud.camerasect, YAX_FLOOR) >= 0)
+            {
+                if (ud.camera.z > fz)
+                    updatesectorz(ud.camera.x, ud.camera.y, ud.camera.z, &ud.camerasect);
+            }
+            else
 #endif
                 if (ud.camera.z > fz-(4<<8)) ud.camera.z = fz-(4<<8);
         }
@@ -3456,7 +3467,10 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 j = visibility;
                 visibility = (j>>1) + (j>>2);
 
+                yax_preparedrawrooms();
                 drawrooms(tposx,tposy,ud.camera.z,tang,ud.camerahoriz,g_mirrorSector[i]+MAXSECTORS);
+                g_yax_smoothratio = smoothratio;
+                yax_drawrooms(G_AnalyzeSprites, ud.camerahoriz, g_mirrorSector[i]+MAXSECTORS);
 
                 display_mirror = 1;
                 G_DoSpriteAnimations(tposx,tposy,tang,smoothratio);
@@ -6281,8 +6295,10 @@ PALONLY:
             if (actor[i].dispicnum >= 0)
                 actor[i].dispicnum = t->picnum;
         }
-        else if (display_mirror == 1)
-            t->cstat |= 4;
+//        else if (display_mirror == 1)
+//            t->cstat |= 4;
+/* completemirror() already reverses the drawn frame, so the above isn't necessary.
+ * Even Polymost's and Polymer's mirror seems to function correctly this way. */
 
 skip:
         if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&

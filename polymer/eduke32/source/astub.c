@@ -191,21 +191,6 @@ static uint8_t wallflag[MAXWALLS>>3];
 static uint8_t havebunch[YAX_MAXBUNCHES];
 static int32_t *tempzar[YAX_MAXBUNCHES];
 
-// Check whether bunchnum has exactly one corresponding floor and ceiling
-// and return it in this case. If not 1-to-1, return -1.
-static int32_t yax_is121(int16_t bunchnum, int16_t getfloor)
-{
-    int32_t i;
-    i = headsectbunch[0][bunchnum];
-    if (i<0 || nextsectbunch[0][i]>=0)
-        return -1;
-    i = headsectbunch[1][bunchnum];
-    if (i<0 || nextsectbunch[1][i]>=0)
-        return -1;
-
-    return headsectbunch[getfloor][bunchnum];
-}
-
 static void silentmessage(const char *fmt, ...);
 static int32_t yax_invalidop()
 {
@@ -693,15 +678,60 @@ const char *ExtGetVer(void)
     return s_buildRev;
 }
 
+static void MultiPskyInit(void)
+{
+    int32_t i;
+
+    // new-style multi-psky handling
+    pskymultilist[0] = MOONSKY1;
+    pskymultilist[1] = BIGORBIT1;
+    pskymultilist[2] = LA;
+    for (i=0; i<3; i++)
+    {
+        pskymultibits[i] = 3;
+        Bmemset(pskymultioff[i], 0, sizeof(pskymultioff[i]));
+    }
+
+    // MOONSKY1
+    //        earth          mountian   mountain         sun
+    pskymultioff[0][6]=1;
+    pskymultioff[0][1]=2;
+    pskymultioff[0][4]=2;
+    pskymultioff[0][2]=3;
+
+    // BIGORBIT1   // orbit
+    //       earth1         2           3           moon/sun
+    pskymultioff[1][5]=1;
+    pskymultioff[1][6]=2;
+    pskymultioff[1][7]=3;
+    pskymultioff[1][2]=4;
+
+    // LA // la city
+    //       earth1         2           3           moon/sun
+    pskymultioff[2][0]=1;
+    pskymultioff[2][1]=2;
+    pskymultioff[2][2]=1;
+    pskymultioff[2][3]=3;
+    pskymultioff[2][4]=4;
+    pskymultioff[2][5]=0;
+    pskymultioff[2][6]=2;
+    pskymultioff[2][7]=3;
+
+    pskynummultis = 3;
+}
+
 void ExtLoadMap(const char *mapname)
 {
     int32_t i;
-    int32_t sky=0;
+    int32_t sky=-1;
 
     getmessageleng = 0;
     getmessagetimeoff = 0;
 
     Bstrcpy(levelname,mapname);
+
+    // old-fashioned multi-psky handling
+
     for (i=0; i<8; i++)
         pskyoff[i] = 0;
 
@@ -720,36 +750,24 @@ void ExtLoadMap(const char *mapname)
     switch (sky)
     {
     case MOONSKY1 :
-        //        earth          mountian   mountain         sun
-        pskyoff[6]=1;
-        pskyoff[1]=2;
-        pskyoff[4]=2;
-        pskyoff[2]=3;
+        // keep in sync with MultiPskyInit
+        //                           -v-
+        Bmemcpy(pskyoff, pskymultioff[0], sizeof(pskymultioff[0]));
         break;
 
     case BIGORBIT1 : // orbit
-        //       earth1         2           3           moon/sun
-        pskyoff[5]=1;
-        pskyoff[6]=2;
-        pskyoff[7]=3;
-        pskyoff[2]=4;
+        Bmemcpy(pskyoff, pskymultioff[1], sizeof(pskymultioff[0]));
         break;
 
     case LA : // la city
-        //       earth1         2           3           moon/sun
-        pskyoff[0]=1;
-        pskyoff[1]=2;
-        pskyoff[2]=1;
-        pskyoff[3]=3;
-        pskyoff[4]=4;
-        pskyoff[5]=0;
-        pskyoff[6]=2;
-        pskyoff[7]=3;
+        Bmemcpy(pskyoff, pskymultioff[2], sizeof(pskymultioff[0]));
         break;
     }
 
     pskybits=3;
     parallaxtype=0;
+
+    //////////
     Bsprintf(tempbuf, "Mapster32 - %s",mapname);
 
     map_undoredo_free();
@@ -6544,13 +6562,12 @@ static void Keys3d(void)
                 mouseay=0;
 
                 if (AIMING_AT_CEILING_OR_FLOOR)
-#ifdef YAX_ENABLE
-                if (YAXCHK(yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0))
-#endif
                 {
                     changedir = 1-2*(x1<0);
                     x1 = klabs(x1);
-
+#ifdef YAX_ENABLE
+                    if (yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0)
+#endif
                     while (x1--)
                         AIMED_CEILINGFLOOR(xpanning) = changechar(AIMED_CEILINGFLOOR(xpanning),changedir,0,0);
 
@@ -6764,9 +6781,6 @@ static void Keys3d(void)
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
             {
-#ifdef YAX_ENABLE
-                if (YAXCHK(yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0))
-#endif
                 {
                     while (updownunits--)
                         AIMED_CEILINGFLOOR(ypanning) = changechar(AIMED_CEILINGFLOOR(ypanning), changedir, smooshyalign, 0);
@@ -6839,6 +6853,8 @@ static void Keys3d(void)
                 tempxrepeat = AIMED_SEL_WALL(xrepeat);
                 tempxrepeat = max(1, tempxrepeat);
                 tempyrepeat = AIMED_SEL_WALL(yrepeat);
+                tempxpanning = AIMED_SEL_WALL(xpanning);
+                tempypanning = AIMED_SEL_WALL(ypanning);
                 tempcstat = AIMED_SEL_WALL(cstat) & ~YAX_NEXTWALLBITS;
                 templenrepquot = getlenbyrep(wallength(searchwall), tempxrepeat);
             }
@@ -6850,7 +6866,7 @@ static void Keys3d(void)
                 tempyrepeat = AIMED_CEILINGFLOOR(ypanning);
 #ifdef YAX_ENABLE
                 if (yax_getbunch(searchsector, AIMING_AT_FLOOR) >= 0)
-                    tempxrepeat = tempyrepeat = 0;
+                    tempxrepeat = 0;
 #endif
                 tempcstat = AIMED_CEILINGFLOOR(stat) & ~YAX_BIT;
             }
@@ -6954,8 +6970,12 @@ static void Keys3d(void)
                 {
                     wall[i].xrepeat = tempxrepeat;
                     wall[i].yrepeat = tempyrepeat;
-                    wall[i].cstat &= YAX_NEXTWALLBITS;
-                    wall[i].cstat |= (tempcstat & ~YAX_NEXTWALLBITS);
+
+                    wall[i].xpanning = tempxpanning;
+                    wall[i].ypanning = tempypanning;
+                    wall[i].cstat &= ~(4+8+256);
+                    wall[i].cstat |= (tempcstat & (4+8+256));
+
                     fixxrepeat(i, templenrepquot);
                 }
 
@@ -7051,6 +7071,10 @@ static void Keys3d(void)
             {
                 wall[searchwall].xrepeat = tempxrepeat;
                 wall[searchwall].yrepeat = tempyrepeat;
+                wall[searchwall].xpanning = tempxpanning;
+                wall[searchwall].ypanning = tempypanning;
+                wall[searchwall].cstat &= (4+8+256);
+                wall[searchwall].cstat |= (tempcstat & (4+8+256));
 
                 SET_PROTECT_BITS(wall[searchwall].cstat, tempcstat, YAX_NEXTWALLBITS);
 
@@ -7101,11 +7125,8 @@ paste_ceiling_or_floor:
 #ifdef YAX_ENABLE
                     if (yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0)
 #endif
-                    {
                         AIMED_CEILINGFLOOR(xpanning) = tempxrepeat;
-                        AIMED_CEILINGFLOOR(ypanning) = tempyrepeat;
-                    }
-
+                    AIMED_CEILINGFLOOR(ypanning) = tempyrepeat;
                     SET_PROTECT_BITS(AIMED_CEILINGFLOOR(stat), tempcstat, YAX_BIT);
 
                     sector[searchsector].visibility = tempvis;
@@ -7228,10 +7249,8 @@ paste_ceiling_or_floor:
             j = yax_getbunch(searchsector, AIMING_AT_FLOOR);
             if (j < 0)
 #endif
-            {
                 AIMED_CEILINGFLOOR(xpanning) = 0;
-                AIMED_CEILINGFLOOR(ypanning) = 0;
-            }
+            AIMED_CEILINGFLOOR(ypanning) = 0;
             AIMED_CEILINGFLOOR(stat) &= ~2;
             AIMED_CEILINGFLOOR(heinum) = 0;
 #ifdef YAX_ENABLE
@@ -7758,13 +7777,15 @@ static void Keys2d(void)
         {
             for (i=0; i<numsectors; i++)
                 if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
-#ifdef YAX_ENABLE
-                if (yax_getbunch(i, YAX_FLOOR) < 0)
-#endif
                 {
-                    sector[i].floorxpanning = sector[i].floorypanning = 0;
+#ifdef YAX_ENABLE
+                    if (yax_getbunch(i, YAX_FLOOR) < 0)
+#endif
+                        sector[i].floorxpanning = 0;
+                    sector[i].floorypanning = 0;
                     message("Sector %d floor panning reset", i);
                     asksave = 1;
+                    break;
                 }
         }
     }
@@ -7795,7 +7816,7 @@ static void Keys2d(void)
                 {
                     for (i=0; i<numsectors; i++)
 #ifdef YAX_ENABLE
-                        if (yax_getbunch(i, YAX_FLOOR) < 0)
+                        if (k==1 || yax_getbunch(i, YAX_FLOOR) < 0)
 #endif
                         if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
                         {
@@ -8392,6 +8413,12 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 if (!Bstrcasecmp(c+1,"namesfile"))
                 {
                     g_namesFileName = argv[i+1];
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"-nm") || Bstrcasecmp(c+1,"-ns"))
+                {
+                    COPYARG(i);
                     i++;
                     continue;
                 }
@@ -10164,6 +10191,8 @@ int32_t ExtInit(void)
 
     ReadHelpFile("m32help.hlp");
 
+    MultiPskyInit();
+
     signal(SIGINT, m32script_interrupt_handler);
 
     return rv;
@@ -11098,7 +11127,31 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                     if (wall[jp2].x != wall[ynwp2].x || wall[jp2].y != wall[ynwp2].y)
                                         CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's and its YAX-NEXTWALL(%d)=%d's p2-coordinates not equal",
                                                          j, cf, ynw);
-                                }
+                                    else
+                                    {
+                                        int32_t onumct = numcorruptthings;
+                                        ynwp2 = yax_getnextwall(ynw, !cf);
+                                        if (ynwp2 != j)
+                                        {
+                                            CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's YAX-NEXTWALL(%d)=%d's reverse link wrong"
+                                                             " (expected %d, have %d)", j, cf, ynw, j, ynwp2);
+                                            if (onumct < MAXCORRUPTTHINGS)
+                                            {
+                                                if (tryfixing & (1ull<<onumct))
+                                                {
+                                                    yax_setnextwall(ynw, !cf, j);
+                                                    OSD_Printf(CCHK_CORRECTED "auto-correction: set wall %d's yax-nextwall(%d)=%d's yax-nextwall(%d) to %d\n",
+                                                               j, cf, ynw, !cf, j);
+                                                }
+                                                else if (4>=printfromlev)
+                                                {
+                                                    OSD_Printf("   will set wall %d's yax-nextwall(%d)=%d's yax-nextwall(%d) to %d on tryfix\n",
+                                                               j, cf, ynw, !cf, j);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }   // woot!
                             }
                         }
                     }

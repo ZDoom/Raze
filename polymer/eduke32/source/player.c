@@ -5013,6 +5013,9 @@ void P_ProcessInput(int32_t snum)
                     if (j < 0)
                     {
                         if (p->cursectnum >= 0 && sector[p->cursectnum].lotag == 0 && sector[p->cursectnum].hitag == 0)
+#ifdef YAX_ENABLE
+                            if (yax_getbunch(p->cursectnum, YAX_FLOOR) < 0 || (sector[p->cursectnum].floorstat&512))
+#endif
                         {
                             switch (krand()&3)
                             {
@@ -5353,7 +5356,6 @@ HORIZONLY:
         p->pos.x += p->vel.x>>14;
         p->pos.y += p->vel.y>>14;
 #ifdef YAX_ENABLE
-        // TODO: only if ceiling/floor bunchnum >= 0
         updatesectorz(p->pos.x,p->pos.y,p->pos.z,&p->cursectnum);
 #else
         updatesector(p->pos.x,p->pos.y,&p->cursectnum);
@@ -5363,7 +5365,17 @@ HORIZONLY:
     else
     {
 #ifdef YAX_ENABLE
-        updatesectorz(p->pos.x,p->pos.y,p->pos.z,&p->cursectnum);
+        // this updatesectorz conflicts with Duke3d's way of teleporting through water,
+        // so make it a bit conditional... OTOH, this way we have an ugly z jump when
+        // changing from above water to underwater
+        if (p->cursectnum < 0 || !(sector[p->cursectnum].lotag==1 && p->on_ground && yax_getbunch(p->cursectnum, YAX_FLOOR)>=0))
+        {
+            // Do updatesectorz only if ceiling/floor bunchnum is >= 0. Otherwise, unwanted
+            // side-effects like dying when jumping into a lotag==1 sector can occur.
+            // The p->jetpack on is there because vel.z 'freezes' when using it
+            if (p->jetpack_on || (p->vel.z && p->cursectnum>=0 && yax_getbunch(p->cursectnum, (p->vel.z>0))>=0))
+                updatesectorz(p->pos.x,p->pos.y,p->pos.z,&p->cursectnum);
+        }
 #endif
         if ((j = clipmove((vec3_t *)p,&p->cursectnum, p->vel.x,p->vel.y,164L,(4L<<8),i,CLIPMASK0)))
             P_CheckTouchDamage(p, j);

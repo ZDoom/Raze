@@ -64,7 +64,13 @@ extern "C" {
 #define WW2GI               (g_gameType & GAME_WW2)
 
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
-#define BYTEVERSION_JF      198
+#ifdef YAX_ENABLE
+// we'll have to introduce a BYTEVERSION2 sooner or later anyway...:
+# define BYTEVERSION_JF      228
+//            keep in sync?  v^v
+#else
+# define BYTEVERSION_JF      198
+#endif
 #define BYTEVERSION_13      27
 #define BYTEVERSION_14      116
 #define BYTEVERSION_15      117

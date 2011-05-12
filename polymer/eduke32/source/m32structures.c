@@ -72,7 +72,11 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLab
         case WALL_NEXTWALL: wall[i].nextwall=lValue; break;
         case WALL_NEXTSECTOR: wall[i].nextsector=lValue; break;
         case WALL_CSTAT:
-            wall[i].cstat = lValue&0x03ff;
+            wall[i].cstat = lValue & (0x03ff
+#ifdef YAX_ENABLE
+                                      | (m32_script_expertmode ? YAX_NEXTWALLBITS : 0)
+#endif
+                );
             break;
         case WALL_PICNUM: wall[i].picnum=lValue; break;
         case WALL_OVERPICNUM: wall[i].overpicnum=lValue; break;

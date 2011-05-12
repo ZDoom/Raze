@@ -548,7 +548,7 @@ static int32_t defsparser(scriptfile *script)
                 //            initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
 
                 ftd = Bmalloc(xsiz*ysiz);
-                faketiledata[tile] = Bmalloc(xsiz*ysiz);
+                faketiledata[tile] = Bmalloc(xsiz*ysiz + 400);
 
                 for (i=xsiz-1; i>=0; i--)
                 {
@@ -600,7 +600,7 @@ static int32_t defsparser(scriptfile *script)
 //            initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
 
             ftd = Bmalloc(xsiz*ysiz);
-            faketiledata[tile] = Bmalloc(xsiz*ysiz);
+            faketiledata[tile] = Bmalloc(xsiz*ysiz + 400);
 
             for (i=xsiz-1; i>=0; i--)
             {

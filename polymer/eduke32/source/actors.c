@@ -412,9 +412,13 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     {
         spr->z = daz;
 #ifdef YAX_ENABLE
-        if (change->z && yax_getbunch(spr->sectnum, !!change->z)>=0)
-            if ((SECTORFLD(spr->sectnum,stat, !!change->z)&yax_waltosecmask(cliptype))==0)
+        if (change->z && yax_getbunch(spr->sectnum, (change->z>0))>=0)
+            if ((SECTORFLD(spr->sectnum,stat, (change->z>0))&yax_waltosecmask(cliptype))==0)
+            {
+//                initprintf("spr %d, sect %d: chz=%d, cfz=[%d,%d]\n", spritenum, spr->sectnum, change->z,
+//                           actor[spritenum].ceilingz, actor[spritenum].floorz);
                 setspritez(spritenum, (vec3_t *)spr);
+            }
 #endif
     }
     else if (retval == 0) retval = 16384+dasectnum;
@@ -3279,7 +3283,6 @@ ACTOR_STATIC void G_MoveTransports(void)
                         vect.x = g_player[p].ps->pos.x;
                         vect.y = g_player[p].ps->pos.y;
                         vect.z = g_player[p].ps->pos.z+PHEIGHT;
-
                         setsprite(g_player[p].ps->i,&vect);
 
                         P_UpdateScreenPal(g_player[p].ps);
@@ -5625,7 +5628,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (s->owner == -1)
             {
-                Bsprintf(tempbuf,"Could not find any locators for SE# 6 and 14 with a hitag of %" PRIdPTR ".\n",t[3]);
+                // debugging subway cars (mapping-wise) is freakin annoying
+                // let's at least have a helpful message...
+                Bsprintf(tempbuf,"Could not find any locators in sector %d"
+                         " for SE# 6 or 14 with hitag %d.\n", (int)t[0], (int)t[3]);
                 G_GameExit(tempbuf);
             }
 

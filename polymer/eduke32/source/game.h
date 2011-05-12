@@ -242,6 +242,8 @@ extern uint8_t *basepaltable[BASEPALCOUNT];
 
 extern user_defs ud;
 
+extern int32_t g_yax_smoothratio;
+
 int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss);
 int32_t A_Spawn(int32_t j,int32_t pn);
@@ -282,6 +284,9 @@ void G_HandleLocalKeys(void);
 void G_HandleSpecialKeys(void);
 void G_PrintGameQuotes(void);
 void G_SE40(int32_t smoothratio);
+#ifdef YAX_ENABLE
+void G_AnalyzeSprites(void);
+#endif
 void G_SetCrosshairColor(int32_t r,int32_t g,int32_t b);
 void G_SetStatusBarScale(int32_t sc);
 void G_Shutdown(void);

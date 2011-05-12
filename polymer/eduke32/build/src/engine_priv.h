@@ -8,8 +8,12 @@
 #define MAXNODESPERLINE 42   //Warning: This depends on MAXYSAVES & MAXYDIM!
 #define MAXCLIPDIST 1024
 
+// uncomment to clear the screen before each top-level draw
+// (classic only)
+// #define ENGINE_CLEAR_SCREEN
+
 #ifdef YAX_ENABLE
-# define YAX_MAXDRAWS 4
+# define YAX_MAXDRAWS 8
 #endif
 
 extern uint8_t **basepaltableptr;

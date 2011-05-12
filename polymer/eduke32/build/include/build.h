@@ -41,6 +41,7 @@ extern "C" {
 #define MAXYDIM 3200
 #define MAXBASEPALS 8
 #define MAXPALOOKUPS 256
+#define MAXPSKYMULTIS 8
 #define MAXPSKYTILES 256
 #define MAXSPRITESONSCREEN 4096
 #define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
@@ -81,13 +82,16 @@ void yax_updategrays(int32_t posze);
 # define YAX_ITER_WALLS(Wal, Itervar, Cfvar) Cfvar=0, Itervar=(Wal); Itervar!=-1; \
     Itervar=yax_getnextwall(Itervar, Cfvar), (void)(Itervar==-1 && Cfvar==0 && (Cfvar=1) && (Itervar=yax_getnextwall((Wal), Cfvar)))
 
+extern int16_t yax_bunchnum[MAXSECTORS][2];
+extern int16_t yax_nextwall[MAXWALLS][2];
+
 int16_t yax_getbunch(int16_t i, int16_t cf);
 void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb);
 void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum);
 void yax_setbunches(int16_t i, int16_t cb, int16_t fb);
 int16_t yax_getnextwall(int16_t wal, int16_t cf);
 void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall);
-void yax_update(int32_t onlyreset);
+void yax_update(int32_t resetstat);
 int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf, int16_t *ret_bunchnum);
 
 static inline int32_t yax_waltosecmask(int32_t walclipmask)
@@ -297,7 +301,12 @@ EXTERN int32_t visibility, parallaxvisibility;
 EXTERN int32_t windowx1, windowy1, windowx2, windowy2;
 EXTERN int16_t startumost[MAXXDIM], startdmost[MAXXDIM];
 
+// original multi-psky handling (only one per map)
 EXTERN int16_t pskyoff[MAXPSKYTILES], pskybits;
+// new multi-psky -- up to MAXPSKYMULTIS
+EXTERN int16_t pskynummultis;
+EXTERN int16_t pskymultilist[MAXPSKYMULTIS], pskymultibits[MAXPSKYMULTIS];
+EXTERN int16_t pskymultioff[MAXPSKYMULTIS][MAXPSKYTILES];
 
 EXTERN int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];

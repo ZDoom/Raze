@@ -245,6 +245,19 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&wall[0],sizeof(walltype),MAXWALLS,fil) != MAXWALLS) goto corrupt;
     if (kdfread(&numsectors,sizeof(numsectors),1,fil) != 1) goto corrupt;
     if (kdfread(&sector[0],sizeof(sectortype),MAXSECTORS,fil) != MAXSECTORS) goto corrupt;
+
+#ifdef YAX_ENABLE
+    if (kdfread(&numyaxbunches,sizeof(numyaxbunches),1,fil) != 1) goto corrupt;
+    if (numyaxbunches > 0)
+    {
+        if (kdfread(yax_bunchnum,sizeof(yax_bunchnum[0]),numsectors,fil) != numsectors) goto corrupt;
+        if (kdfread(yax_nextwall,sizeof(yax_nextwall[0]),numwalls,fil) != numsectors) goto corrupt;
+        yax_update(2);
+    }
+    else
+        yax_update(1);
+#endif
+
     if (kdfread(&sprite[0],sizeof(spritetype),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
     if (kdfread(&spriteext[0],sizeof(spriteext_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
@@ -678,6 +691,16 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&wall[0],sizeof(walltype),MAXWALLS,fil);
     dfwrite(&numsectors,sizeof(numsectors),1,fil);
     dfwrite(&sector[0],sizeof(sectortype),MAXSECTORS,fil);
+
+#ifdef YAX_ENABLE
+    dfwrite(&numyaxbunches,sizeof(numyaxbunches),1,fil);
+    if (numyaxbunches > 0)
+    {
+        dfwrite(yax_bunchnum,sizeof(yax_bunchnum[0]),numsectors,fil);
+        dfwrite(yax_nextwall,sizeof(yax_nextwall[0]),numwalls,fil);
+    }
+#endif
+
     dfwrite(&sprite[0],sizeof(spritetype),MAXSPRITES,fil);
 #ifdef USE_OPENGL
     for (i=0; i<MAXSPRITES; i++)
@@ -921,7 +944,11 @@ typedef struct dataspec_
     intptr_t cnt;
 } dataspec_t;
 
-#define SV_MAJOR_VER 0
+#ifdef YAX_ENABLE
+# define SV_MAJOR_VER 1
+#else
+# define SV_MAJOR_VER 0
+#endif
 #define SV_MINOR_VER 3
 #define SV_DEFAULTCOMPRTHRES 8
 static uint8_t savegame_diffcompress;  // 0:none, 1:Ken's LZW in cache1d.c
@@ -940,6 +967,7 @@ static uint8_t savegame_comprthres;
 #define DS_LOADFN 128  // .ptr is function that is run when loading
 #define DS_SAVEFN 256  // .ptr is function that is run when saving
 #define DS_NOCHK 1024  // don't check for diffs (and don't write out in dump) since assumed constant throughout demo
+#define DS_PROTECTFN 512
 #define DS_END (0x70000000)
 
 static int32_t ds_getcnt(const dataspec_t *sp)
@@ -1199,7 +1227,7 @@ static void cmpspecdata(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **dif
         if ((sp->flags&(DS_NOCHK|DS_STRING|DS_CMP)))
             continue;
 
-        if (sp->flags&(DS_LOADFN|DS_SAVEFN))
+        if (sp->flags&(DS_LOADFN|DS_SAVEFN) && (sp->flags&(DS_PROTECTFN))==0)
         {
             (*(void ( *)())sp->ptr)();
             continue;
@@ -1347,6 +1375,9 @@ static void sv_postudload();
 static void sv_prespriteextsave();
 static void sv_postspriteext();
 #endif
+#ifdef YAX_ENABLE
+static void sv_postyaxload();
+#endif
 static void sv_calcbitptrsize();
 static void sv_prescriptsave_once();
 static void sv_prescriptload_once();
@@ -1421,6 +1452,12 @@ static const dataspec_t svgm_secwsp[] =
     { DS_NOCHK, &numsectors, sizeof(numsectors), 1 },
     { DS_DYNAMIC|DS_CNT(numsectors), &sector, sizeof(sectortype), (intptr_t)&numsectors },
     { DS_DYNAMIC, &sprite, sizeof(spritetype), MAXSPRITES },
+#ifdef YAX_ENABLE
+    { DS_NOCHK, &numyaxbunches, sizeof(numyaxbunches), 1 },
+    { DS_CNT(numsectors), yax_bunchnum, sizeof(yax_bunchnum[0]), (intptr_t)&numsectors },
+    { DS_CNT(numwalls), yax_nextwall, sizeof(yax_nextwall[0]), (intptr_t)&numwalls },
+    { DS_LOADFN|DS_PROTECTFN, (void *)&sv_postyaxload, 0, 1 },
+#endif
     { 0, &headspritesect[0], sizeof(headspritesect[0]), MAXSECTORS+1 },
     { 0, &prevspritesect[0], sizeof(prevspritesect[0]), MAXSPRITES },
     { 0, &nextspritesect[0], sizeof(nextspritesect[0]), MAXSPRITES },
@@ -1839,6 +1876,13 @@ static void sv_postspriteext()
     for (i=0; i<MAXSPRITES; i++)
         if (spriteext[i].mdanimtims)
             spriteext[i].mdanimtims += mdtims;
+}
+#endif
+
+#ifdef YAX_ENABLE
+static void sv_postyaxload()
+{
+    yax_update(numyaxbunches>0 ? 2 : 1);
 }
 #endif
 

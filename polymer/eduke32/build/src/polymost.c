@@ -1486,7 +1486,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
             if (!picc) goto failure; else pic = picc;
             alloclen = miplen;
 
-            picc = Brealloc(packbuf, alloclen+16);
+            picc = Brealloc(packbuf, alloclen+400);
             if (!picc) goto failure; else packbuf = picc;
 
             picc = Brealloc(midbuf, miplen);

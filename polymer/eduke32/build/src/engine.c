@@ -188,10 +188,10 @@ int16_t editstatus = 0;
 
 ////////// YAX //////////
 
-#if YAX_M32_DEBUG
+#ifdef YAX_DEBUG
 extern char m32_debugstr[64][128];
 extern int32_t m32_numdebuglines;
-# define yaxdebug(fmt, ...)  do { if (m32_numdebuglines<64) Bsprintf(m32_debugstr[m32_numdebuglines++], fmt, ##__VA_ARGS__); } while (0)
+# define yaxdebug(fmt, ...)  do { if (m32_numdebuglines<64) Bsnprintf(m32_debugstr[m32_numdebuglines++], 128, fmt, ##__VA_ARGS__); } while (0)
 #else
 # define yaxdebug(fmt, ...)
 #endif
@@ -242,6 +242,7 @@ static int32_t scansector_retfast = 0;
 static int32_t scansector_collectsprites = 1;
 static int32_t yax_globalcf = -1;
 static int32_t yax_globallev = YAX_MAXDRAWS;
+//static int32_t yax_globalbunch = -1;
 
 // duplicated tsprites
 //  [i]:
@@ -252,8 +253,8 @@ static int16_t yax_spritesortcnt[1 + 2*YAX_MAXDRAWS];
 static int16_t yax_tsprite[1 + 2*YAX_MAXDRAWS][MAXSPRITESONSCREEN];
 
 // game-time YAX data structures
-static int16_t yax_bunchnum[MAXSECTORS][2];
-static int16_t yax_nextwall[MAXWALLS][2];
+int16_t yax_bunchnum[MAXSECTORS][2];
+int16_t yax_nextwall[MAXWALLS][2];
 
 static int32_t yax_islockededge(/*int16_t sec,*/ int16_t line, int16_t cf)
 #if 1
@@ -364,7 +365,10 @@ void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
 }
 
 //// in-struct --> array transfer; list construction
-void yax_update(int32_t onlyreset)
+// resetstat:  0: reset and read data from structs and construct linked lists etc.
+//             1: only reset
+//             2: read data from game-time arrays and construct linked lists etc.
+void yax_update(int32_t resetstat)
 {
 // TODO: always make bunchnums consecutive
     int32_t i, j, oeditstatus=editstatus;
@@ -374,39 +378,46 @@ void yax_update(int32_t onlyreset)
 
     for (i=0; i<MAXSECTORS; i++)
     {
-        yax_bunchnum[i][0] = yax_bunchnum[i][1] = -1;
+        if (resetstat != 2 || i>=numsectors)
+            yax_bunchnum[i][0] = yax_bunchnum[i][1] = -1;
         nextsectbunch[0][i] = nextsectbunch[1][i] = -1;
     }
     for (i=0; i<YAX_MAXBUNCHES; i++)
         headsectbunch[0][i] = headsectbunch[1][i] = -1;
     for (i=0; i<MAXWALLS; i++)
-        yax_nextwall[i][0] = yax_nextwall[i][1] = -1;
+        if (resetstat != 2 || i>=numwalls)
+            yax_nextwall[i][0] = yax_nextwall[i][1] = -1;
 
-    if (onlyreset)
+    if (resetstat==1)
         return;
 
     // constuct singly linked list of sectors-of-bunch
-    editstatus = 1;  // read bunchnums directly from the sector struct!
+    editstatus = (resetstat==0);  // read bunchnums directly from the sector struct!
     for (i=numsectors-1; i>=0; i--)
     {
         yax_getbunches(i, &cb, &fb);
-        yax_bunchnum[i][0] = cb;
-        yax_bunchnum[i][1] = fb;
+        if (resetstat==0)
+        {
+            yax_bunchnum[i][0] = cb;
+            yax_bunchnum[i][1] = fb;
+        }
 
         if (cb >= 0)
         {
-            for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
-            {
-                if (yax_islockededge(j,YAX_CEILING))
-                    yax_nextwall[j][0] = YAX_NEXTWALL(j,0);
-            }
+            if (resetstat==0)
+                for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+                {
+                    if (yax_islockededge(j,YAX_CEILING))
+                        yax_nextwall[j][0] = YAX_NEXTWALL(j,0);
+                }
 
             if (headsectbunch[0][cb] == -1)
             {
                 headsectbunch[0][cb] = i;
                 // not duplicated in floors, since every extended ceiling
                 // must have a corresponding floor:
-                numyaxbunches++;
+                if (resetstat==0)
+                    numyaxbunches++;
             }
             else
             {
@@ -418,11 +429,12 @@ void yax_update(int32_t onlyreset)
 
         if (fb >= 0)
         {
-            for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
-            {
-                if (yax_islockededge(j,YAX_FLOOR))
-                    yax_nextwall[j][1] = YAX_NEXTWALL(j,1);
-            }
+            if (resetstat==0)
+                for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+                {
+                    if (yax_islockededge(j,YAX_FLOOR))
+                        yax_nextwall[j][1] = YAX_NEXTWALL(j,1);
+                }
 
             if (headsectbunch[1][fb] == -1)
                 headsectbunch[1][fb] = i;
@@ -456,31 +468,35 @@ int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf, i
     return -1;
 }
 
-// >0 b2 is farther away than b1
+static inline int32_t yax_walldist(int32_t w)
+{
+    return klabs(wall[w].x-globalposx) + klabs(wall[w].y-globalposy);
+}
+
 static int yax_cmpbunches(const int16_t *b1, const int16_t *b2)
 {
     int32_t s1,s2, w1,w2;
-#if 1
-    int32_t dx1,dy1, dx2,dy2, r;
-#else
-    int64_t dx1,dy1, dx2,dy2, r;
-#endif
+
     s1 = headsectbunch[yax_globalcf][*b1];
     s2 = headsectbunch[yax_globalcf][*b2];
 
     w1 = sector[s1].wallptr;
     w2 = sector[s2].wallptr;
 
-    dx1 = wall[w1].x-globalposx; dy1 = wall[w1].y-globalposy;
-    dx2 = wall[w2].x-globalposx; dy2 = wall[w2].y-globalposy;
 #if 1
-    r = klabs(dx2+dy2) - klabs(dx1+dy1);
-    return r;
+    return (yax_walldist(w2) - yax_walldist(w1));
 #else
-    r = (dx2*dx2 + dy2*dy2) - (dx1*dx1 + dy1*dy1);
-    if (r > 0)
-        return 1;
-    return r>>63;
+    {
+        int64_t dx1,dy1, dx2,dy2, r;
+
+        dx1 = wall[w1].x-globalposx; dy1 = wall[w1].y-globalposy;
+        dx2 = wall[w2].x-globalposx; dy2 = wall[w2].y-globalposy;
+
+        r = (dx2*dx2 + dy2*dy2) - (dx1*dx1 + dy1*dy1);
+        if (r > 0)
+            return 1;
+        return r>>63;
+    }
 #endif
 }
 
@@ -491,27 +507,55 @@ static int32_t yax_getbestsector(int32_t bunchnum, int32_t cf, const int16_t *ou
     if (bunchnum==ourbunch[cf])
     {
         k = yax_getneighborsect(globalposx, globalposy, sectnum, cf, NULL);
-        if (k < 0)
-            k = headsectbunch[!cf][bunchnum];
-        return k;
+        if (k >= 0)
+            return k;
     }
-    else
+
     {
-//        return headsectbunch[!cf][bunchnum];
+        int32_t j, walldist, bestsec=-1, bestwalldist=INT32_MAX;
+        int32_t startwall, endwall, checkthis;
 
         scansector_retfast = 1;
         scansector_collectsprites = 0;
         for (k = headsectbunch[!cf][bunchnum]; k != -1; k = nextsectbunch[!cf][k])
         {
-            numscans = numbunches = 0;
-            scansector(k);
-            if (numbunches > 0)
-                break;
+            startwall = sector[k].wallptr;
+            endwall = startwall+sector[k].wallnum;
+
+            checkthis = 0;
+            for (j=startwall; j<endwall; j++)
+            {
+/*
+                if (wall[j].nextsector == globalcursectnum)
+                {
+                    scansector_collectsprites = 1;
+                    scansector_retfast = 0;
+                    return k;
+                }
+*/
+                walldist = yax_walldist(j);
+                if (walldist < bestwalldist)
+                {
+                    checkthis = 1;
+                    bestwalldist = walldist;
+                }
+            }
+
+            if (checkthis)
+            {
+                numscans = numbunches = 0;
+                scansector(k);
+                if (numbunches > 0)
+                    bestsec = k;
+            }
         }
         scansector_collectsprites = 1;
         scansector_retfast = 0;
 
-        return k;
+        if (bestsec < 0)
+            bestsec = headsectbunch[!cf][bunchnum];
+
+        return bestsec;
     }
 }
 
@@ -538,14 +582,15 @@ static void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
         }
 }
 
-static void yax_copytsprite(int16_t curbunchnum)
+static void yax_copytsprite(int32_t curbunchnum, int32_t resetsortcnt)
 {
     int16_t bunchnum;
     int32_t i, spritenum, gotthrough, sectnum, cf;
     int32_t sortcnt = yax_spritesortcnt[yax_globallev];
     const spritetype *spr;
 
-    spritesortcnt = 0;
+    if (resetsortcnt)
+        spritesortcnt = 0;
 
     for (i=0; i<sortcnt; i++)
     {
@@ -573,6 +618,9 @@ static void yax_copytsprite(int16_t curbunchnum)
             if (sectnum < 0)
                 continue;
         }
+
+        if (spritesortcnt >= MAXSPRITESONSCREEN)
+            break;
 
         Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(spritetype));
         spriteext[spritenum].tspr = &tsprite[spritesortcnt];
@@ -605,7 +653,9 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 
     // original (1st-draw) and accumulated ('per-level') gotsector bitmaps
     static uint8_t ogotsector[MAXSECTORS>>3], lgotsector[MAXSECTORS>>3];
-//    int32_t t;
+#ifdef YAX_DEBUG
+    int32_t t;
+#endif
 
     if (rendmode!=0 || numyaxbunches==0)
     {
@@ -649,10 +699,15 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                 j = yax_getbunch(i, cf);
                 if (j >= 0 && !(havebunch[j>>3]&(1<<(j&7))))
                 {
-                    havebunch[j>>3] |= (1<<(j&7));
-                    bunches[cf][bnchnum[cf]++] = j;
-                    bnchend[lev][cf]++;
-                    numhere++;
+                    if ((SECTORFLD(i,stat, cf)&2) ||
+                            (cf==0 && globalposz > sector[i].ceilingz) ||
+                            (cf==1 && globalposz < sector[i].floorz))
+                    {
+                        havebunch[j>>3] |= (1<<(j&7));
+                        bunches[cf][bnchnum[cf]++] = j;
+                        bnchend[lev][cf]++;
+                        numhere++;
+                    }
                 }
             }
 
@@ -668,20 +723,18 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                 for (bnchcnt=bbeg; bnchcnt < bbeg+numhere; bnchcnt++)
                 {
                     j = bunches[cf][bnchcnt];  // the actual bunchnum...
-
-//                    t=getticks();
+//                    yax_globalbunch = j;
+#ifdef YAX_DEBUG
+                    t=getticks();
+#endif
                     k = yax_getbestsector(j, cf, ourbunch, sectnum);
                     bestsec[cf][bnchcnt] = k;
                     if (k < 0)
                     {
-//                        initprintf("cf %d, lev %d: skipped bunch %d\n", cf, lev, j);
+#ifdef YAX_DEBUG
+                        initprintf("%s, l %d: skipped bunch %d\n", cf?"v":"^", lev, j);
+#endif
                         continue;
-                    }
-
-                    if (ourbunch[cf]==j)
-                    {
-                        ourbunch[cf] = yax_getbunch(k, cf);
-                        sectnum = k;
                     }
 
                     if (lev != YAX_MAXDRAWS-1)
@@ -692,8 +745,15 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                             for (i=0; i<(numsectors+7)>>3; i++)
                                 lgotsector[i] |= gotsector[i];
 
-//                        yaxdebug("cf %d, lev %d: fake-drawn sec %d (bunch %d), %d dspr, %2d ms",
-//                                 cf, lev, k, j, yax_spritesortcnt[yax_globallev], getticks()-t);
+                        yaxdebug("%s, l %d: faked sec %3d (bunch %2d),%3d dspr, ob=[%2d,%2d], sn=%3d,%3d ms",
+                                 cf?"v":"^", lev, k, j, yax_spritesortcnt[yax_globallev],
+                                 ourbunch[0],ourbunch[1],sectnum,getticks()-t);
+                    }
+
+                    if (ourbunch[cf]==j)
+                    {
+                        ourbunch[cf] = yax_getbunch(k, cf);
+                        sectnum = k;
                     }
                 }
 
@@ -716,7 +776,7 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
     g_nodraw = 0;
     scansector_collectsprites = 0;
 
-#if 0
+#ifdef ENGINE_CLEAR_SCREEN
     begindrawing();
     for (i=0; i<xdim*ydim; i++)
         *((char *)frameplace + i) = i;
@@ -728,23 +788,26 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
         for (lev=maxlev[cf]; lev>=0; lev--)
         {
             yax_globallev = YAX_MAXDRAWS + (-1 + 2*cf)*(lev+1);
+            scansector_collectsprites = (lev == YAX_MAXDRAWS-1);
 
             for (bnchcnt=bnchbeg[lev][cf]; bnchcnt<bnchend[lev][cf]; bnchcnt++)
             {
                 j = bunches[cf][bnchcnt];  // the actual bunchnum...
                 k = bestsec[cf][bnchcnt];  // best start-drawing sector
-
-//                t=getticks();
+//                yax_globalbunch = j;
+#ifdef YAX_DEBUG
+                t=getticks();
+#endif
                 yax_tweakpicnums(j, cf, 0);
                 if (k < 0)
                     continue;
 
                 drawrooms(globalposx,globalposy,globalposz,globalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
 
-                yax_copytsprite(j);
+                yax_copytsprite(j, !scansector_collectsprites);
 
-//                yaxdebug("cf %d, lev %d: DRAWN sec %d (bunch %d), %d tspr, %2d ms",
-//                         cf, lev, k, j, spritesortcnt, getticks()-t);
+                yaxdebug("%s, l %d: DRAWN sec %3d (bunch %2d),%3d tspr,%3d ms",
+                         cf?"v":"^", lev, k, j, spritesortcnt, getticks()-t);
 
                 ExtAnalyzeSprites();
                 drawmasks();
@@ -756,22 +819,23 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
         }
     }
 
-//    t=getticks();
-
+#ifdef YAX_DEBUG
+    t=getticks();
+#endif
     yax_globallev = YAX_MAXDRAWS;
+    scansector_collectsprites = 0;
 
     // draw base level
     drawrooms(globalposx,globalposy,globalposz,globalang,horiz,osectnum);
+    yaxdebug("DRAWN base level sec %d, %2d ms", osectnum, getticks()-t);
 
-    yax_copytsprite(-1);
-
+    yax_copytsprite(-1, scansector_collectsprites);
     scansector_collectsprites = 1;
 
     for (cf=0; cf<2; cf++)
         if (maxlev[cf] >= 0)
             for (bnchcnt=bnchbeg[0][cf]; bnchcnt<bnchend[0][cf]; bnchcnt++)
                 yax_tweakpicnums(bunches[cf][bnchcnt], cf, 1);  // restore picnums
-//    yaxdebug("DRAWN base level sec %d, %2d ms", osectnum, getticks()-t);
 
 #ifdef ENGINE_SCREENSHOT_DEBUG
     engine_screenshot = 0;
@@ -3710,6 +3774,10 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     int32_t j, k, l, m, n, x, z, wallnum, nextsectnum, globalhorizbak;
     int16_t *topptr, *botptr;
 
+    int16_t dapskybits;
+    static const int16_t zeropskyoff[MAXPSKYTILES];
+    const int16_t *dapskyoff;
+
     UNREFERENCED_PARAMETER(dax1);
     UNREFERENCED_PARAMETER(dax2);
 
@@ -3752,7 +3820,20 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     globalyscale = (8<<(globalshiftval-19));
     //if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
 
-    k = 11 - (picsiz[globalpicnum]&15) - pskybits;
+    dapskyoff = zeropskyoff;
+    dapskybits = pskybits;
+
+    for (j=0; j<pskynummultis; j++)
+    {
+        if (globalpicnum == pskymultilist[j])
+        {
+            dapskybits = pskymultibits[j];
+            dapskyoff = pskymultioff[j];
+            break;
+        }
+    }
+
+    k = 11 - (picsiz[globalpicnum]&15) - dapskybits;
     x = -1;
 
     for (z=bunchfirst[bunch]; z>=0; z=p2[z])
@@ -3792,7 +3873,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
         else if (x >= 0)
         {
             l = globalpicnum; m = (picsiz[globalpicnum]&15);
-            globalpicnum = l+pskyoff[lplc[x]>>m];
+            globalpicnum = l + dapskyoff[lplc[x]>>m];
 
             if (((lplc[x]^lplc[xb1[z]-1])>>m) == 0)
                 wallscan(x,xb1[z]-1,topptr,botptr,swplc,lplc);
@@ -3801,7 +3882,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
                 j = x;
                 while (x < xb1[z])
                 {
-                    n = l+pskyoff[lplc[x]>>m];
+                    n = l + dapskyoff[lplc[x]>>m];
                     if (n != globalpicnum)
                     {
                         wallscan(j,x-1,topptr,botptr,swplc,lplc);
@@ -3822,7 +3903,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     if (x >= 0)
     {
         l = globalpicnum; m = (picsiz[globalpicnum]&15);
-        globalpicnum = l+pskyoff[lplc[x]>>m];
+        globalpicnum = l + dapskyoff[lplc[x]>>m];
 
         if (((lplc[x]^lplc[xb2[bunchlast[bunch]]])>>m) == 0)
             wallscan(x,xb2[bunchlast[bunch]],topptr,botptr,swplc,lplc);
@@ -3831,7 +3912,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
             j = x;
             while (x <= xb2[bunchlast[bunch]])
             {
-                n = l+pskyoff[lplc[x]>>m];
+                n = l + dapskyoff[lplc[x]>>m];
                 if (n != globalpicnum)
                 {
                     wallscan(j,x-1,topptr,botptr,swplc,lplc);
@@ -4039,7 +4120,12 @@ static void drawalls(int32_t bunch)
             {
                 if ((fz[2] >= fz[0]) && (fz[3] >= fz[1]))
                 {
-                    if (globparaflorclip)
+                    if (globparaflorclip
+#ifdef YAX_ENABLE
+//                        || ((sec->floorstat&2) && yax_globallev < YAX_MAXDRAWS)
+//                            || yax_getbunch(wallnum, YAX_FLOOR) < 0
+#endif
+                        )
                         for (x=x1; x<=x2; x++)
                             if (dplc[x] < dmost[x])
                                 if (umost[x] <= dmost[x])
@@ -4236,13 +4322,41 @@ static void drawalls(int32_t bunch)
         }
 
 #ifdef ENGINE_SCREENSHOT_DEBUG
-        if (engine_screenshot && !g_nodraw)
+        if (engine_screenshot)
+#ifdef YAX_ENABLE
+        if (!g_nodraw)
+#endif
         {
             static char fn[BMAX_PATH];
+            static char bakframe[MAXXDIM*MAXYDIM];
+
+            char purple = getclosestcol(63, 0, 63);
+            char yellow = getclosestcol(63, 63, 0);
+
+            begindrawing();  //{{{
+            Bmemcpy(bakframe, (char *)frameplace, xdim*ydim);
+            for (x=0; x<xdim; x++)
+            {
+                if (umost[x] > dmost[x])
+                {
+                    *((char *)frameplace + (ydim/2)*bytesperline + x) = yellow;
+                    *((char *)frameplace + (ydim/2+1)*bytesperline + x) = purple;
+                    continue;
+                }
+
+                if (umost[x] >= 0 || umost[x] < ydim)
+                    *((char *)frameplace + umost[x]*bytesperline + x) = purple;
+
+                if (dmost[x]-1 >= 0 || dmost[x]-1 < ydim)
+                    *((char *)frameplace + (dmost[x]-1)*bytesperline + x) = yellow;
+            }
 
             Bsprintf(fn, "engshot%04d.png", engine_screenshot);
             screencapture(fn, 0, "BUILD engine");
             engine_screenshot++;
+
+            Bmemcpy((char *)frameplace, bakframe, xdim*ydim);
+            enddrawing();  //}}}
         }
 #endif
     }
@@ -7102,6 +7216,7 @@ int32_t initengine(void)
     xyaspect = -1;
 
     pskyoff[0] = 0; pskybits = 0;
+    pskynummultis = 0;
 
     parallaxtype = 2; parallaxyoffs = 0L; parallaxyscale = 65536;
     showinvisibility = 0;
@@ -7261,7 +7376,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     i = mulscale16(xdimenscale,viewingrangerecip);
     globalpisibility = mulscale16(parallaxvisibility,i);
-    globalvisibility = mulscale16(visibility,i);
+    globalvisibility = rendmode==0 ? mulscale16(visibility,i) : scale(visibility<<2,4,3);
     globalhisibility = mulscale16(globalvisibility,xyaspect);
     globalcisibility = mulscale8(globalhisibility,320);
 
@@ -7312,6 +7427,15 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     //============================================================================= //POLYMOST ENDS
 
     begindrawing(); //{{{
+
+#ifdef ENGINE_CLEAR_SCREEN
+#ifdef YAX_ENABLE
+    if (!g_nodraw)
+#endif
+    if (numyaxbunches==0)
+        for (i=0; i<xdim*ydim; i++)
+            *((char *)frameplace + i) = i;
+#endif
 
     //frameoffset = frameplace + viewoffset;
     frameoffset = frameplace + windowy1*bytesperline + windowx1;
@@ -10103,7 +10227,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
     intptr_t tmp[3], *tmpptr=NULL;
 #ifdef YAX_ENABLE
     vec3_t newsv;
-    int32_t oldhitsect = -1;
+    int32_t oldhitsect = -1, oldhitsect2 = -2;
 #endif
     hitinfo->hitsect = -1; hitinfo->hitwall = -1; hitinfo->hitsprite = -1;
     if (sectnum < 0) return(-1);
@@ -10385,7 +10509,8 @@ restart_grand:
     if (numyaxbunches == 0 || editstatus)
         return 0;
 
-    if (hitinfo->hitsprite==-1 && hitinfo->hitwall==-1 && hitinfo->hitsect!=oldhitsect)
+    if (hitinfo->hitsprite==-1 && hitinfo->hitwall==-1 && hitinfo->hitsect!=oldhitsect
+        && hitinfo->hitsect != oldhitsect2)  // 'ping-pong' infloop protection
     {
         if (hitinfo->hitsect == -1 && oldhitsect >= 0)
         {
@@ -10409,6 +10534,7 @@ restart_grand:
             sectnum = i;
             sv = &newsv;
 
+            oldhitsect2 = oldhitsect;
             oldhitsect = hitinfo->hitsect;
             hitinfo->hitsect = -1;
 
@@ -11679,6 +11805,10 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     dawalclipmask = (cliptype&65535);
     dasprclipmask = (cliptype>>16);
 
+#ifdef YAX_ENABLE
+    origclipsectorlist[0] = sectnum;
+    origclipsectnum = 1;
+#endif
     clipsectorlist[0] = sectnum;
     clipsectcnt = 0; clipsectnum = 1;
     clipspritecnt = clipspritenum = 0;
@@ -11792,7 +11922,10 @@ restart_grand:
                 if (dx > 0) dax += dx*MAXCLIPDIST; else dax -= dx*MAXCLIPDIST;
                 if (dy > 0) day -= dy*MAXCLIPDIST; else day += dy*MAXCLIPDIST;
                 if (dax >= day) continue;
-
+#ifdef YAX_ENABLE
+                if (mcf==-1 && curspr==NULL)
+                    origclipsectorlist[origclipsectnum++] = k;
+#endif
                 //It actually got here, through all the continue's!!!
                 getzsofslope(k, pos->x,pos->y, &daz,&daz2);
                 if (curspr)
@@ -11962,12 +12095,6 @@ restart_grand:
         int32_t dasecclipmask = yax_waltosecmask(dawalclipmask);
         int16_t cb, fb, didchange;
         yax_getbunches(sectnum, &cb, &fb);
-
-        if (mcf==-1)
-        {
-            Bmemcpy(origclipsectorlist, clipsectorlist, clipsectnum*sizeof(clipsectorlist[0]));
-            origclipsectnum = clipsectnum;
-        }
 
         mcf++;
         clipsectcnt = 0; clipsectnum = 0;

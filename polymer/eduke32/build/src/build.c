@@ -109,7 +109,7 @@ int16_t highlightsector[MAXSECTORS], highlightsectorcnt = -1;
 extern char textfont[128][8];
 
 int32_t temppicnum, tempcstat, templotag, temphitag, tempextra;
-uint32_t temppal, tempvis, tempxrepeat, tempyrepeat;
+uint32_t temppal, tempvis, tempxrepeat, tempyrepeat, tempxpanning=0, tempypanning=0;
 int32_t tempshade, tempxvel, tempyvel, tempzvel;
 char somethingintab = 255;
 
@@ -338,6 +338,21 @@ static void M32_drawdebug(void)
 #endif
 
 #ifdef YAX_ENABLE
+// Check whether bunchnum has exactly one corresponding floor and ceiling
+// and return it in this case. If not 1-to-1, return -1.
+int32_t yax_is121(int16_t bunchnum, int16_t getfloor)
+{
+    int32_t i;
+    i = headsectbunch[0][bunchnum];
+    if (i<0 || nextsectbunch[0][i]>=0)
+        return -1;
+    i = headsectbunch[1][bunchnum];
+    if (i<0 || nextsectbunch[1][i]>=0)
+        return -1;
+
+    return headsectbunch[getfloor][bunchnum];
+}
+
 static void yax_fixreverselinks(int16_t oldwall, int16_t newwall)
 {
     int32_t cf, ynw;
@@ -2241,6 +2256,7 @@ void overheadeditor(void)
     int32_t prefixarg = 0;
     int32_t resetsynctics = 0, lasttick=getticks(), waitdelay=totalclock, lastdraw=getticks();
     int32_t tsign;
+    int32_t olen[2]={0,0}, nlen[2]={0,0}, dragwall[2] = {-1, -1};
 
     m32_setkeyfilter(1);
 
@@ -2788,9 +2804,46 @@ void overheadeditor(void)
                 if (linehighlight >= 0)
                 {
                     int32_t secti = sectorofwall(linehighlight);
+#ifdef YAX_ENABLE
+                    int16_t cf, bunchnum, tempsect, tempwall;
+
+                    for (i=0; i<numwalls; i++)
+                        wall[i].cstat &= ~(1<<14);
+
+                    for (cf=0; cf<2; cf++)
+                    {
+                        tempsect = secti;
+                        tempwall = linehighlight;
+
+                        while ((bunchnum = yax_getbunch(tempsect, cf)) >= 0 &&
+                                   (tempsect=yax_is121(bunchnum, cf)) >= 0)
+                        {
+                            tempwall = yax_getnextwall(tempwall, cf);
+                            if (tempwall < 0)
+                                break;  // corrupt!
+                            wall[tempwall].cstat |= (1<<14);
+                        }
+                    }
+
+                    k = 0;
+                    for (i=0; i<numsectors; i++)
+                        for (WALLS_OF_SECTOR(i, j))
+                        {
+                            if (wall[j].cstat & (1<<14))
+                            {
+                                setfirstwall(i, j);
+                                k++;
+                                break;
+                            }
+                        }
+
+                    if (k > 0)
+                        message("Set first walls (sector[].wallptr) for %d sectors", k+1);
+                    else
+#endif
+                    printmessage16("This wall now sector %d's first wall (sector[].wallptr)", secti);
                     setfirstwall(secti, linehighlight);
                     asksave = 1;
-                    printmessage16("This wall now sector %d's first wall (sector[].wallptr)", secti);
                 }
             }
         }
@@ -3049,7 +3102,7 @@ void overheadeditor(void)
 
                     if (highlightsectorcnt>1 && SECTORFLD(highlightsector[i],stat, cf)&2)
                     {
-                        message("Sector %ss must not be sloped", cfs[cf]);
+                        message("Sector %ss must not be sloped if extending more than one", cfs[cf]);
                         goto end_yax;
                     }
                 }
@@ -3565,13 +3618,12 @@ end_yax: ;
                 goto end_after_dragging;
 
             j = 1;
-            if (highlightcnt > 0)
-                for (i=0; i<highlightcnt; i++)
-                    if (pointhighlight == highlight[i])
-                    {
-                        j = 0;
-                        break;
-                    }
+            for (i=0; i<highlightcnt; i++)
+                if (pointhighlight == highlight[i])
+                {
+                    j = 0;
+                    break;
+                }
 
             if (j == 0)
             {
@@ -3588,12 +3640,37 @@ end_yax: ;
             {
                 dax = wall[pointhighlight].x;
                 day = wall[pointhighlight].y;
+
+                for (i=0; i<2; i++)
+                {
+                    if (dragwall[i] < 0)
+                        break;
+
+                    nlen[i] = wallength(dragwall[i]);
+
+                    if (olen[i] != 0 && nlen[i] != 0)
+                    {
+                        int32_t nw = wall[dragwall[i]].nextwall;
+
+                        j = divscale10(nlen[i], olen[i]);
+
+                        k = getlenbyrep(olen[i], wall[dragwall[i]].xrepeat);
+                        fixxrepeat(dragwall[i], k);
+                        if (nw >= 0)
+                        {
+                            k = getlenbyrep(olen[i], wall[nw].xrepeat);
+                            fixxrepeat(nw, k);
+                        }
+                    }
+                }
             }
             else if ((pointhighlight&0xc000) == 16384)
             {
                 dax = sprite[pointhighlight&16383].x;
                 day = sprite[pointhighlight&16383].y;
             }
+
+            dragwall[0] = dragwall[1] = -1;
 
             for (runi=0; runi<3; runi++)
                 for (i=numwalls-1; i>=0; i--)  //delete points
@@ -3720,7 +3797,17 @@ end_after_dragging:
             else  //if (highlightsectorcnt <= 0)
             {
                 if ((bstatus&1) > (oldmousebstatus&1))
+                {
                     pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
+
+                    if (pointhighlight >= 0)
+                    {
+                        dragwall[0] = lastwall(pointhighlight);
+                        dragwall[1] = pointhighlight;
+                        olen[0] = wallength(dragwall[0]);
+                        olen[1] = wallength(dragwall[1]);
+                    }
+                }
 
                 if (pointhighlight >= 0 && (!m32_sideview || m32_sideelev>=32))
                 {
@@ -4923,7 +5010,8 @@ check_next_sector: ;
                     for (j=numwalls; j<danumwalls; j++)
                     {
 #ifdef YAX_ENABLE
-                        yax_fixreverselinks(j, j);
+//                        if (doSectorSplit || (j!=numwalls && j!=danumwalls-1))
+                            yax_fixreverselinks(j, j);
 #endif
                         if (wall[j].nextwall >= 0)
                         {
@@ -8194,7 +8282,6 @@ static void AlignWalls(int32_t w0, int32_t z0, int32_t w1, int32_t z1, int32_t t
     int32_t n;
 
     //do the x alignment
-    wall[w1].cstat &= ~0x0108;    //Set to non-flip
     wall[w1].xpanning = (uint8_t)((wall[w0].xpanning + (wall[w0].xrepeat<<3))%tilesizx[tilenum]);
 
     for (n=picsiz[tilenum]>>4; (1<<n)<tilesizy[tilenum]; n++);
@@ -8209,6 +8296,8 @@ void AlignWallPoint2(int32_t w0)
     AlignWalls(w0,GetWallBaseZ(w0), w1,GetWallBaseZ(w1), wall[w0].picnum);
 }
 
+#define ALIGN_WALLS_CSTAT_MASK (4+8+256)
+
 // flags:
 //  1: recurse nextwalls
 //  2: iterate point2's
@@ -8216,7 +8305,7 @@ void AlignWallPoint2(int32_t w0)
 int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 {
     int32_t z0, z1, tilenum, w1, visible, nextsec, sectnum;
-    static int32_t numaligned, wall0;
+    static int32_t numaligned, wall0, cstat0;
     static uint32_t lenrepquot;
 
     tilenum = wall[w0].picnum;
@@ -8229,6 +8318,7 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
         numaligned = 0;
         lenrepquot = getlenbyrep(wallength(w0), wall[w0].xrepeat);
         wall0 = w0;
+        cstat0 = wall[w0].cstat & ALIGN_WALLS_CSTAT_MASK;  // top/bottom orientation; x/y-flip
     }
 
     z0 = GetWallBaseZ(w0);
@@ -8274,6 +8364,8 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
                 if ((flags&4) && w0!=wall0)
                     fixxrepeat(w0, lenrepquot);
                 AlignWalls(w0,z0, w1,z1, tilenum);
+                wall[w1].cstat &= ~ALIGN_WALLS_CSTAT_MASK;
+                wall[w1].cstat |= cstat0;
                 numaligned++;
 
                 //if wall was 1-sided, no need to recurse

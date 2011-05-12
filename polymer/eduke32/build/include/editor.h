@@ -45,7 +45,7 @@ extern int32_t zmode, kensplayerheight, zlock;
 //extern int16_t defaultspritecstat;
 
 extern int32_t temppicnum, tempcstat, templotag, temphitag, tempextra;
-extern uint32_t temppal, tempvis, tempxrepeat, tempyrepeat;
+extern uint32_t temppal, tempvis, tempxrepeat, tempyrepeat, tempxpanning, tempypanning;
 extern int32_t tempshade, tempxvel, tempyvel, tempzvel;
 extern char somethingintab;
 
@@ -72,6 +72,10 @@ extern int32_t showambiencesounds;
 
 extern uint8_t graysectbitmap[MAXSECTORS>>3];
 extern uint8_t graywallbitmap[MAXWALLS>>3];
+
+#ifdef YAX_ENABLE
+int32_t yax_is121(int16_t bunchnum, int16_t getfloor);
+#endif
 
 // editor side view
 extern int32_t m32_sideview;
