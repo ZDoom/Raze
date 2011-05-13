@@ -465,6 +465,12 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
     cmode = (sb&ROTATESPRITE_MAX)!=0;
     sb &= ROTATESPRITE_MAX-1;
 
+    if (t == NULL)
+    {
+        OSD_Printf("minitext: NULL text!\n");
+        return 0;
+    }
+
     do
     {
         if (*t == '^' && isdigit(*(t+1)))
@@ -6782,7 +6788,7 @@ FOUNDCHEAT:
                     ud.clipping = 1-ud.clipping;
                     KB_FlushKeyBoardQueue();
                     g_player[myconnectindex].ps->cheat_phase = 0;
-                    P_DoQuote(QUOTE_CHEAT_NOCLIP-ud.clipping, g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_NOCLIP-!ud.clipping, g_player[myconnectindex].ps);
                     return;
 
                 case CHEAT_RESERVED2:
