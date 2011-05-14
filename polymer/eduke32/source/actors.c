@@ -7835,11 +7835,10 @@ int32_t A_CheckEnemyTile(int32_t pn)
 {
     //this case can't be handled by the dynamictostatic system because it adds
     //stuff to the value from names.h so handling separately
-    if ((pn >= GREENSLIME) && (pn <= GREENSLIME+7)) return 1;
-
-    if (A_CheckSpriteTileFlags(pn,SPRITE_BADGUY)) return 1;
-
-    if (ActorType[pn]) return 1;
+    if (A_CheckSpriteTileFlags(pn, SPRITE_BADGUY) || 
+        ActorType[pn] || 
+        (pn >= GREENSLIME && pn <= GREENSLIME+7))
+        return 1;
 
     switch (DynamicTileMap[pn])
     {
@@ -7870,14 +7869,6 @@ int32_t A_CheckEnemyTile(int32_t pn)
     case BOSS2__STATIC:
     case BOSS3__STATIC:
     case BOSS4__STATIC:
-        //case GREENSLIME:
-        //case GREENSLIME+1:
-        //case GREENSLIME+2:
-        //case GREENSLIME+3:
-        //case GREENSLIME+4:
-        //case GREENSLIME+5:
-        //case GREENSLIME+6:
-        //case GREENSLIME+7:
     case RAT__STATIC:
     case ROTATEGUN__STATIC:
         return 1;
@@ -7977,7 +7968,7 @@ void G_MoveWorld(void)
                 {
                     spritetype *s = &sprite[i];
 
-                    if ((s->yrepeat < 4) || (sprite[i].picnum != SECTOREFFECTOR && (s->cstat & 32768)) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
+                    if ((sprite[i].picnum != SECTOREFFECTOR && ((s->cstat & 32768) || (s->yrepeat < 4))) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
                             (A_CheckSpriteFlags(i, SPRITE_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
                     {
                         if (actor[i].lightptr != NULL)
