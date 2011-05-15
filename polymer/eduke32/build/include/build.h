@@ -82,6 +82,9 @@ void yax_updategrays(int32_t posze);
 # define YAX_ITER_WALLS(Wal, Itervar, Cfvar) Cfvar=0, Itervar=(Wal); Itervar!=-1; \
     Itervar=yax_getnextwall(Itervar, Cfvar), (void)(Itervar==-1 && Cfvar==0 && (Cfvar=1) && (Itervar=yax_getnextwall((Wal), Cfvar)))
 
+# define SECTORS_OF_BUNCH(Bunchnum, Cf, Itervar) Itervar = headsectbunch[Cf][Bunchnum]; \
+    Itervar != -1; Itervar = nextsectbunch[Cf][Itervar]
+
 extern int16_t yax_bunchnum[MAXSECTORS][2];
 extern int16_t yax_nextwall[MAXWALLS][2];
 
@@ -305,6 +308,7 @@ EXTERN int16_t startumost[MAXXDIM], startdmost[MAXXDIM];
 EXTERN int16_t pskyoff[MAXPSKYTILES], pskybits;
 // new multi-psky -- up to MAXPSKYMULTIS
 EXTERN int16_t pskynummultis;
+EXTERN int32_t pskymultiyscale[MAXPSKYMULTIS];
 EXTERN int16_t pskymultilist[MAXPSKYMULTIS], pskymultibits[MAXPSKYMULTIS];
 EXTERN int16_t pskymultioff[MAXPSKYMULTIS][MAXPSKYTILES];
 
@@ -571,6 +575,8 @@ void   updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum) ATTRIBUT
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day);
 void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
+
+extern const int16_t *chsecptr_onextwall;
 int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
 void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUTE((nonnull(1,2,3)));

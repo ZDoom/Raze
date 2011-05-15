@@ -185,35 +185,8 @@ extern hashtable_t h_arrays;
 extern hashtable_t h_gamefuncs;
 
 
-extern int16_t asksave;
-
-extern vec3_t pos;
-extern int16_t ang;
-extern int32_t horiz;
-extern int16_t cursectnum;
-extern int32_t searchx, searchy;
-
-extern int16_t pointhighlight;
-extern int16_t linehighlight;
-extern int16_t highlightcnt;
-extern int16_t highlightsectorcnt;
-
-extern int32_t startposx;
-extern int32_t startposy;
-extern int32_t startposz;
-extern int16_t startang;
-extern int16_t startsectnum;
-
 extern int32_t mousxplc;
 extern int32_t mousyplc;
-
-extern int16_t highlight[];
-extern int16_t highlightsector[];
-
-extern int32_t numsprites;
-
-extern int32_t zoom;
-extern int32_t halfxdim16, midydim16;
 
 
 // gamevar bytecode format:

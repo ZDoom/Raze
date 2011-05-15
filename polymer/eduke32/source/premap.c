@@ -929,6 +929,11 @@ static void G_MultiPskyInit(void)
     pskymultilist[0] = MOONSKY1;
     pskymultilist[1] = BIGORBIT1;
     pskymultilist[2] = LA;
+
+    pskymultiyscale[0] = 32768;
+    pskymultiyscale[1] = 32768;
+    pskymultiyscale[2] = 16384+1024;
+
     for (i=0; i<3; i++)
     {
         pskymultibits[i] = 3;
@@ -965,7 +970,13 @@ static void G_MultiPskyInit(void)
 
 static inline void G_SetupBackdrop(int16_t sky)
 {
-    G_MultiPskyInit();
+    static int32_t multiskiesinited=0;
+
+    if (!multiskiesinited)
+    {
+        multiskiesinited = 1;
+        G_MultiPskyInit();
+    }
 
     Bmemset(pskyoff, 0, sizeof(pskyoff[0]) * MAXPSKYTILES);
 

@@ -262,12 +262,8 @@ static void DeletePolymerLights(void)
         }
 }
 #endif
-extern int32_t graphicsmode;
 
 extern int32_t mskip;
-extern int16_t capturecount;
-extern int32_t editorgridextent;	// in engine.c
-extern char game_executable[BMAX_PATH];
 
 //extern int32_t fillsector(int16_t sectnum, char fillcolor);
 
@@ -288,7 +284,7 @@ static void message_common1(const char *tmpstr)
 
     getmessageleng = Bstrlen(getmessage);
     getmessagetimeoff = totalclock + 120*2 + getmessageleng*(120/30);
-    lastmessagetime = totalclock;    
+//    lastmessagetime = totalclock;
 }
 
 void message(const char *fmt, ...)
@@ -686,6 +682,11 @@ static void MultiPskyInit(void)
     pskymultilist[0] = MOONSKY1;
     pskymultilist[1] = BIGORBIT1;
     pskymultilist[2] = LA;
+
+    pskymultiyscale[0] = 32768;
+    pskymultiyscale[1] = 32768;
+    pskymultiyscale[2] = 16384+1024;
+
     for (i=0; i<3; i++)
     {
         pskymultibits[i] = 3;
@@ -718,6 +719,9 @@ static void MultiPskyInit(void)
     pskymultioff[2][7]=3;
 
     pskynummultis = 3;
+
+    // default in game:
+    parallaxyscale = 32768;
 }
 
 void ExtLoadMap(const char *mapname)
@@ -3941,6 +3945,8 @@ static int32_t OnSelectTile(int32_t iTile)
     bflushchars();
 
     setpolymost2dview();
+    bglEnable(GL_TEXTURE_2D);
+
     clearview(0);
 
     //
@@ -4066,6 +4072,7 @@ static void tilescreen_drawbox(int32_t iTopLeft, int32_t iSelected, int32_t nXTi
         char markedcol = editorcolors[14];
 
         setpolymost2dview();
+        bglEnable(GL_TEXTURE_2D);
 
         y1=max(y1, 0);
         y2=min(y2, ydim-1);
@@ -4146,10 +4153,12 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     const char *pRawPixels;
     char szT[128];
 
-    int32_t usehitilecnt=0, usehitile;
+    int32_t runi=0, usehitile;
     static uint8_t loadedhitile[(MAXTILES+7)>>3];
 
     setpolymost2dview();
+    bglEnable(GL_TEXTURE_2D);
+
     clearview(0);
 
     begindrawing();
@@ -4164,15 +4173,15 @@ restart:
             if (iTile < 0 || iTile >= localartlookupnum)
                 continue;
 
-            usehitile = usehitilecnt;
+            usehitile = runi;
 
             idTile = localartlookup[ iTile ];
             if (loadedhitile[idTile>>3]&(1<<(idTile&7)))
             {
-                if (usehitilecnt==0)
-                    usehitile = 1;
-                else
+                if (runi==1)
                     continue;
+
+                usehitile = 1;
             }
 
             // Get pointer to tile's raw pixel data
@@ -4196,7 +4205,7 @@ restart:
 
             tilescreen_drawbox(iTopLeft, iSelected, nXTiles, TileDim, offset, iTile, idTile);
 
-            if (usehitilecnt)
+            if (runi==1)
             {
                 int32_t k;
 
@@ -4231,13 +4240,13 @@ restart:
 
     if (rendmode>=3 && qsetmode==200)
     {
-        if (usehitilecnt==0)
+        if (runi==0)
         {
             enddrawing();
             showframe(1);
             begindrawing();
 
-            usehitilecnt = 1;
+            runi = 1;
             goto restart;
         }
     }
@@ -7048,7 +7057,7 @@ static void Keys3d(void)
 
                 j = (somethingintab==SEARCH_CEILING || somethingintab==SEARCH_FLOOR);
 
-                for (i=headsectbunch[AIMING_AT_FLOOR][k]; i!=-1; i=nextsectbunch[AIMING_AT_FLOOR][i])
+                for (SECTORS_OF_BUNCH(k,AIMING_AT_FLOOR, i))
                 {
                     SECTORFLD(i,picnum, AIMING_AT_FLOOR) = temppicnum;
                     SECTORFLD(i,shade, AIMING_AT_FLOOR) = tempshade;
@@ -7073,7 +7082,7 @@ static void Keys3d(void)
                 wall[searchwall].yrepeat = tempyrepeat;
                 wall[searchwall].xpanning = tempxpanning;
                 wall[searchwall].ypanning = tempypanning;
-                wall[searchwall].cstat &= (4+8+256);
+                wall[searchwall].cstat &= ~(4+8+256);
                 wall[searchwall].cstat |= (tempcstat & (4+8+256));
 
                 SET_PROTECT_BITS(wall[searchwall].cstat, tempcstat, YAX_NEXTWALLBITS);
@@ -7255,7 +7264,7 @@ paste_ceiling_or_floor:
             AIMED_CEILINGFLOOR(heinum) = 0;
 #ifdef YAX_ENABLE
             if (j >= 0)
-                for (i=headsectbunch[!AIMING_AT_FLOOR][j]; i != -1; i=nextsectbunch[!AIMING_AT_FLOOR][i])
+                for (SECTORS_OF_BUNCH(j,!AIMING_AT_FLOOR, i))
                 {
                     SECTORFLD(i,stat, !AIMING_AT_FLOOR) &= ~2;
                     SECTORFLD(i,heinum, !AIMING_AT_FLOOR) = 0;
@@ -7429,7 +7438,6 @@ NEXTSPRITE:
     printmessage16("%s Sprite search: none found", dir<0 ? "<" : ">");
 }
 
-extern int32_t graphicsmode;
 
 static void Keys2d(void)
 {
@@ -8139,23 +8147,6 @@ static void InitCustomColors(void)
     int32_t i;
     palette_t *edcol;
 
-    /*
-    char vgapal16[4*256] =
-    {
-    00,00,00,00, 42,00,00,00, 00,42,00,00, 42,42,00,00, 00,00,42,00,
-    42,00,42,00, 00,21,42,00, 42,42,42,00, 21,21,21,00, 63,21,21,00,
-    21,63,21,00, 63,63,21,00, 21,21,63,00, 63,21,63,00, 21,63,63,00,
-    63,63,63,00
-    };
-    */
-    /*    editorcolors[0] = getclosestcol(0,0,0);
-    editorcolors[1] = getclosestcol(0,0,42);
-    editorcolors[2] = getclosestcol(0,42,0);
-    editorcolors[3] = getclosestcol(0,42,42);
-    editorcolors[4] = getclosestcol(42,0,0);
-    editorcolors[5] = getclosestcol(0,0,0);
-    */
-
     /* blue */
     vgapal16[9*4+0] = 63;
     vgapal16[9*4+1] = 31;
@@ -8591,7 +8582,6 @@ static int32_t osdcmd_quit(const osdfuncparm_t *parm)
 static int32_t osdcmd_editorgridextent(const osdfuncparm_t *parm)
 {
     int32_t i;
-    extern int32_t editorgridextent;
 
     if (parm->numparms == 0)
     {
@@ -9244,6 +9234,7 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
         ty2 = daydim/ysiz;
 
         setpolymost2dview();
+        bglEnable(GL_TEXTURE_2D);
 
         for (x=0; x<=tx2; x++)
             for (y=0; y<=ty2; y++)
@@ -10962,9 +10953,11 @@ void ExtCheckKeys(void)
         extern int32_t engine_screenshot;
         engine_screenshot = 1;
 #else
+        extern int16_t capturecount;
+
         Bsprintf(tempbuf, "Mapster32 %s", ExtGetVer());
         screencapture("captxxxx.tga", eitherSHIFT, tempbuf);
-        message("Saved screenshot %04d", capturecount-1);
+        silentmessage("Saved screenshot %04d", capturecount-1);
 #endif
     }
 }

@@ -251,7 +251,7 @@ int32_t G_LoadPlayer(int32_t spot)
     if (numyaxbunches > 0)
     {
         if (kdfread(yax_bunchnum,sizeof(yax_bunchnum[0]),numsectors,fil) != numsectors) goto corrupt;
-        if (kdfread(yax_nextwall,sizeof(yax_nextwall[0]),numwalls,fil) != numsectors) goto corrupt;
+        if (kdfread(yax_nextwall,sizeof(yax_nextwall[0]),numwalls,fil) != numwalls) goto corrupt;
         yax_update(2);
     }
     else

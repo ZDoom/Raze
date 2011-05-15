@@ -28,18 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 const char *defsfilename = "duke3d.def";
 
-extern char keystatus[];
-extern int32_t horiz, qsetmode;
-extern vec3_t pos;
-extern int16_t ang, cursectnum;
-extern int16_t ceilingheinum, floorheinum;
-extern char names[MAXTILES][25];
-
-extern int32_t ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d;
-
-extern int16_t editstatus, searchit;
-extern int32_t searchx, searchy, osearchx, osearchy;      //search input
-
 #define COLOR_RED 248
 #define COLOR_WHITE 31
 
@@ -53,20 +41,15 @@ uint8_t default_buildkeys[NUMBUILDKEYS] =
 	0x9c,0x1c,0xd,0xc,0xf,0x29
 };
 
+// needed by build/src/defs.c
 int32_t nextvoxid = 0;
 
 extern int32_t whitecol;
-extern char vgapal16[4*256];
 extern char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
 extern void updatenumsprites(void);
 
-extern int32_t lastpm16time, synctics;
-extern int32_t halfxdim16, midydim16, zoom;
-
-static char autospritehelp=0,autosecthelp=0;
-//int16_t MinRate=24, MinD=3;
-//int32_t xoldtimerhandler;
-static int32_t lastmessagetime=-1;
+static char autospritehelp=0, autosecthelp=0;
+//static int32_t lastmessagetime=-1;
 
 static char tempbuf[1024];
 static int32_t numsprite[MAXTILES], multisprite[MAXTILES];
@@ -89,8 +72,6 @@ static uint8_t framerateon=1,shadepreview=0;
 int32_t autosave=180;
 static int32_t autosavetimer;
 
-extern int32_t vel, svel, hvel, angvel;
-
 static void SearchSectors(int32_t dir);
 static inline void SpriteName(int16_t spritenum, char *lo2);
 //static void PrintStatus(const char *string,int32_t num,char x,char y,char color);
@@ -98,8 +79,6 @@ void SetBOSS1Palette();
 void SetSLIMEPalette();
 void SetWATERPalette();
 void SetGAMEPalette();
-
-extern int32_t grid, autogrid;
 
 static void EditSpriteData(int16_t spritenum);
 static void EditWallData(int16_t wallnum);
@@ -118,32 +97,13 @@ static char num_tables;
 
 static int32_t updownunits=1024;
 
-extern int16_t highlightsector[MAXSECTORS], highlightsectorcnt;
-extern int16_t highlight[MAXWALLS];
-extern int16_t pointhighlight, linehighlight, highlightcnt;
-extern int16_t asksave;
 
 static char getmessage[162], getmessageleng;
 static int32_t getmessagetimeoff; //, charsperline;
 
-extern int32_t startposx, startposy, startposz;
-extern int16_t startang, startsectnum;
-
-extern int32_t numsprites;
-extern int32_t showfirstwall;
-extern char spritecol2d[MAXTILES][2];
-extern char custom2dcolors;
-
 //int32_t intro=0;
-extern int32_t ydim16, halfxdim16, midydim16, zoom;
-extern intptr_t frameplace;
-//extern char pow2char[8];
 
 static int32_t acurpalette=0;
-
-extern int32_t checksectorpointer(int16_t i, int16_t sectnum);
-
-extern double msens;
 
 //void ContextHelp(int16_t spritenum);
 //void ResetKeys();
@@ -213,4 +173,4 @@ static int32_t gs_spriteTagValue[3][7];
 static char gs_spriteTagInterested[3][7];
 static int16_t gs_cursprite=-1;
 
-int32_t g_musicSize=0;
+//int32_t g_musicSize=0;

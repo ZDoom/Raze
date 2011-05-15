@@ -58,8 +58,6 @@ static instype *x_sortingstateptr;
 
 //#include "m32structures.c"
 
-extern void message(const char *fmt, ...);
-
 // from sector.c vvv
 static int32_t ldist(const spritetype *s1, const spritetype *s2)
 {
@@ -2084,10 +2082,7 @@ badindex:
 
         case CON_FIXREPEATS:
             insptr++;
-            {
-                extern void fixrepeats(int16_t i);
-                fixrepeats(Gv_GetVarX(*insptr++));
-            }
+            fixrepeats(Gv_GetVarX(*insptr++));
             continue;
 
         case CON_GETCLOSESTCOL:

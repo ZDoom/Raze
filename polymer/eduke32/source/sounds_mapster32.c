@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 
 #include "compat.h"
+#include "baselayer.h"
 
 #include "fx_man.h"
 //#include "music.h"
@@ -37,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "macros.h"
 #include "mathutil.h"
 #include "build.h"  // vec3_t
+#include "editor.h"
 
 #ifdef WIN32
 #include "winlayer.h"
@@ -58,7 +60,6 @@ int32_t backflag,g_numEnvSoundsPlaying;
 void MUSIC_Update(void) {}  // needed when linking
 
 void S_Callback(uint32_t);
-extern void initprintf(const char *f, ...);
 
 /*
 ===================
@@ -154,9 +155,6 @@ int32_t S_LoadSound(uint32_t num)
     kclose(fp);
     return 1;
 }
-
-extern vec3_t pos;
-extern int16_t ang, cursectnum;
 
 int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 {

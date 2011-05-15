@@ -72,10 +72,7 @@ extern char default_buildkeys[NUMBUILDKEYS];
 static char *const keys = default_buildkeys;
 extern char remap[256];
 extern int32_t remapinit;
-extern double msens;
-extern int32_t editorgridextent, grid, autogrid;
 static int32_t default_grid=3;
-extern int32_t graphicsmode;
 extern int32_t AmbienceToggle, MixRate;
 extern int32_t ParentalLock;
 

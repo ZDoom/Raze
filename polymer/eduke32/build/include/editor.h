@@ -36,10 +36,23 @@ extern "C" {
 #define BK_CONSOLE  	19
 #define NUMBUILDKEYS 20
 
+extern int32_t horiz;
+extern vec3_t pos;
+extern int16_t ang, cursectnum;
+
+extern int16_t editstatus, searchit;
+extern int32_t searchx, searchy, osearchx, osearchy;      //search input
+
 extern int32_t qsetmode;
-extern int16_t searchsector, searchwall, searchstat;
+extern int16_t searchsector, searchwall, searchstat;  //search output
 extern int16_t searchbottomwall, searchisbottom;
 extern int32_t zmode, kensplayerheight, zlock;
+
+extern int16_t highlightsector[MAXSECTORS], highlightsectorcnt;
+extern int16_t highlight[MAXWALLS+MAXSPRITES];
+extern int16_t asksave;
+
+extern int16_t pointhighlight, linehighlight, highlightcnt;
 
 #define DEFAULT_SPRITE_CSTAT 0
 //extern int16_t defaultspritecstat;
@@ -49,10 +62,17 @@ extern uint32_t temppal, tempvis, tempxrepeat, tempyrepeat, tempxpanning, tempyp
 extern int32_t tempshade, tempxvel, tempyvel, tempzvel;
 extern char somethingintab;
 
+extern char names[MAXTILES][25];
 extern uint8_t buildkeys[NUMBUILDKEYS];
 
 extern double vid_gamma_3d, vid_contrast_3d, vid_brightness_3d;
+extern double msens;
 
+extern int32_t startposx, startposy, startposz;
+extern int16_t startang, startsectnum;
+
+extern int32_t lastpm16time, synctics;
+extern int32_t halfxdim16, midydim16, zoom;
 extern int32_t ydim16, xdimgame, ydimgame, bppgame, xdim2d, ydim2d, forcesetup;
 extern int32_t unrealedlook, quickmapcycling;
 extern int32_t pk_turnaccel,pk_turndecel,pk_uedaccel;
@@ -61,10 +81,21 @@ extern int32_t autosave;
 extern int32_t mlook;
 extern int16_t prefixtiles[16];
 
+extern int32_t numsprites;
+extern int32_t showfirstwall;
+
+extern int32_t graphicsmode;
+
+extern int32_t grid, autogrid;
+extern int32_t editorgridextent;	// in engine.c
+
+extern char game_executable[BMAX_PATH];
 extern char program_origcwd[BMAX_PATH];
 extern char *mapster32_fullpath;
 extern char *testplay_addparam;
 extern const char *g_namesFileName;
+
+extern const char *defsfilename;	// set in bstub.c
 
 extern int32_t m32_osd_tryscript;
 extern int32_t showheightindicators;
@@ -76,6 +107,10 @@ extern uint8_t graywallbitmap[MAXWALLS>>3];
 #ifdef YAX_ENABLE
 int32_t yax_is121(int16_t bunchnum, int16_t getfloor);
 #endif
+
+extern int32_t map_revision;
+extern int32_t map_undoredo(int32_t dir);
+extern void map_undoredo_free(void);
 
 // editor side view
 extern int32_t m32_sideview;
