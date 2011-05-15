@@ -538,8 +538,10 @@ static inline int32_t yax_walldist(int32_t w)
 // calculate distances to bunches and best start-drawing sectors
 static void yax_scanbunches(int32_t bbeg, int32_t numhere, const uint8_t *lastgotsector)
 {
-    int32_t bnchcnt, bunchnum, j, k, w, ns;
+    int32_t bnchcnt, bunchnum, j, k;
     int32_t startwall, endwall;
+
+    UNREFERENCED_PARAMETER(lastgotsector);
 
     scansector_retfast = 1;
     scansector_collectsprites = 0;

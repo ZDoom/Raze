@@ -62,6 +62,11 @@ extern "C" {
 #define PR_LIGHT_PRIO_LOW       4
 #define PR_LIGHT_PRIO_LOW_GAME  5
 
+////////// True Room over Room (YAX == rot -17 of "PRO") //////////
+#define YAX_ENABLE
+//#define YAX_DEBUG
+//#define ENGINE_SCREENSHOT_DEBUG
+
 ////////// yax defs //////////
 #define SECTORFLD(Sect,Fld, Cf) (*((Cf) ? (&sector[Sect].floor##Fld) : (&sector[Sect].ceiling##Fld)))
 

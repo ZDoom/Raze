@@ -1546,7 +1546,8 @@ static int32_t newnumwalls=-1;
 static void ovh_whiteoutgrab(void)
 {
     int32_t i, j, k, startwall, endwall;
-#ifdef YAX_ENABLE
+#if 0
+//def YAX_ENABLE
     int16_t cb, fb;
 #endif
 
@@ -2047,7 +2048,8 @@ static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, 
 {
     int16_t refsect, ignore;
     int32_t k, n, refwall;
-#ifdef YAX_ENABLE
+#if 0
+//def YAX_ENABLE
     int32_t yaxp = (ignore_ret==NULL);  // bleh
 #else
     UNREFERENCED_PARAMETER(trace_loop_yaxcf);
