@@ -620,7 +620,7 @@ static void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
             {
                 opicnum[cf][i] = SECTORFLD(i,picnum, cf);
                 if (editstatus && showinvisibility)
-                    SECTORFLD(i,picnum, cf) = MAXTILES-1;
+                    SECTORFLD(i,picnum, cf) = MAXTILES-1-((SECTORFLD(i,stat, cf)&4096)>>12);
                 else
                     SECTORFLD(i,picnum, cf) = 13; //FOF;
             }
@@ -3717,6 +3717,48 @@ static inline void ceilspritescan(int32_t x1, int32_t x2)
     faketimerhandler();
 }
 
+////////// translucent slope vline, based on a-c.c's slopevlin //////////
+static int32_t gglogx, gglogy, ggpinc;
+static char *ggbuf, *ggpal;
+
+static void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, int32_t pinc)
+{
+    setupslopevlin(logylogx, bufplc, pinc);
+    gglogx = (logylogx&255); gglogy = (logylogx>>8);
+    ggbuf = (char *)bufplc; ggpinc = pinc;
+    ggpal = palookup[globalpal] + (getpalookup(0,globalshade)<<8);
+}
+
+static void tslopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t bx, int32_t by)
+{
+    intptr_t *slopalptr;
+    int32_t bz, bzinc;
+    uint32_t u, v;
+
+    char ch;
+
+    bz = asm3; bzinc = (asm1>>3);
+    slopalptr = (intptr_t *)slopaloffs;
+
+    for (; cnt>0; cnt--)
+    {
+        i = krecipasm(bz>>6); bz += bzinc;
+        u = bx+globalx3*i;
+        v = by+globaly3*i;
+        ch = *(char *)(slopalptr[0] + ggbuf[((u>>(32-gglogx))<<gglogy)+(v>>(32-gglogy))]);
+        if (globalorientation&128)
+        {
+            if (ch != 255) *((char *)p) = transluc[*((char *)p)+(ggpal[ch]<<8)];
+        }
+        else
+        {
+            if (ch != 255) *((char *)p) = transluc[(*((char *)p)<<8)+ggpal[ch]];
+        }
+
+        slopalptr--;
+        p += ggpinc;
+    }
+}
 
 //
 // grouscan (internal)
@@ -3835,7 +3877,8 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     globvis = mulscale16(globvis,xdimscale);
     j = FP_OFF(palookup[globalpal]);
 
-    setupslopevlin(((int32_t)(picsiz[globalpicnum]&15))+(((int32_t)(picsiz[globalpicnum]>>4))<<8),waloff[globalpicnum],-ylookup[1]);
+    setupslopevlin_alsotrans(((int32_t)(picsiz[globalpicnum]&15))+(((int32_t)(picsiz[globalpicnum]>>4))<<8),
+                             waloff[globalpicnum],-ylookup[1]);
 
     l = (globalzd>>16);
 
@@ -3870,7 +3913,10 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
             globalx3 = (globalx2>>10);
             globaly3 = (globaly2>>10);
             asm3 = mulscale16(y2,globalzd) + (globalzx>>6);
-            slopevlin(ylookup[y2]+x+frameoffset,krecipasm(asm3>>3),(intptr_t)nptr2,y2-y1+1,globalx1,globaly1);
+            if ((globalorientation&256)==0)
+                slopevlin(ylookup[y2]+x+frameoffset,krecipasm(asm3>>3),(intptr_t)nptr2,y2-y1+1,globalx1,globaly1);
+            else
+                tslopevlin(ylookup[y2]+x+frameoffset,krecipasm(asm3>>3),(intptr_t)nptr2,y2-y1+1,globalx1,globaly1);
 
             if ((x&15) == 0) faketimerhandler();
         }
@@ -4193,7 +4239,11 @@ static void drawalls(int32_t bunch)
             {
                 if ((cz[2] <= cz[0]) && (cz[3] <= cz[1]))
                 {
-                    if (globparaceilclip)
+                    if (globparaceilclip
+#ifdef YAX_ENABLE
+                            || (sector[globalcursectnum].ceilingstat&4096)
+#endif
+)
                         for (x=x1; x<=x2; x++)
                             if (uplc[x] > umost[x])
                                 if (umost[x] <= dmost[x])
@@ -4285,8 +4335,7 @@ static void drawalls(int32_t bunch)
                 {
                     if (globparaflorclip
 #ifdef YAX_ENABLE
-//                        || ((sec->floorstat&2) && yax_globallev < YAX_MAXDRAWS)
-//                            || yax_getbunch(wallnum, YAX_FLOOR) < 0
+                            || (sector[globalcursectnum].floorstat&4096)
 #endif
                         )
                         for (x=x1; x<=x2; x++)
@@ -14023,21 +14072,11 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         if (!m32_sideview && (j >= 0) && (i > j)) return;
     }
 
-#if 1
-//def YAX_ENABLE
     if ((graywallbitmap[i>>3] & (1<<(i&7))) || (j>=0 && (graywallbitmap[j>>3] & (1<<(j&7)))))
     {
-#ifdef YAX_ENABLE
-        // yax'ed grayed out walls are always cleared from the overhead map.
-        // normal walls cleared out due to editorzrange are displayed, though
-        if (!m32_sideview && ((wall[i].cstat&YAX_NEXTWALLBITS) || (j>=0 && wall[j].cstat&YAX_NEXTWALLBITS)))
-            return;
-#endif
         col = 8;
     }
-    else
-#endif
-    if (j < 0)
+    else if (j < 0)
     {
         col = 15;
         if (i == linehighlight)
@@ -14395,8 +14434,16 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     m32_swcnt = 0;
 
     if (!m32_sideview)
+    {
         for (i=numwalls-1; i>=0; i--)
+#ifdef YAX_ENABLE
+            if (graywallbitmap[(i)>>3]&(1<<((i)&7)))
+                drawscreen_drawwall(i,posxe,posye,posze,zoome);
+        for (i=numwalls-1; i>=0; i--)
+            if ((graywallbitmap[(i)>>3]&(1<<((i)&7)))==0)
+#endif
             drawscreen_drawwall(i,posxe,posye,posze,zoome);
+    }
     else
     {
         for (i=0; i<numsectors; i++)
@@ -14852,7 +14899,7 @@ int32_t screencapture_png(const char *filename, char inverseit, const char *vers
     }
 
     png_set_gAMA(png_ptr, info_ptr, vid_gamma);  // 1.0/vid_gamma ?
-    png_set_sRGB(png_ptr, info_ptr, PNG_sRGB_INTENT_SATURATION);  // hm...
+//    png_set_sRGB(png_ptr, info_ptr, PNG_sRGB_INTENT_SATURATION);  // hm...
 
     text = (png_textp)png_malloc(png_ptr, 2*png_sizeof(png_text));
     text[0].compression = PNG_TEXT_COMPRESSION_NONE;

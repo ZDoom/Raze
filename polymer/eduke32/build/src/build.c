@@ -513,36 +513,40 @@ int32_t app_main(int32_t argc, const char **argv)
     // init dummy texture for YAX
     // must be after loadpics(), which inits BUILD's cache
 
-    i = MAXTILES-1;
-    if (tilesizx[i]==0 && tilesizy[i]==0)
-    {
-        static char R[8*16] = { //
-            0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
-            0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
-            0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
-            0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0,
-            0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
-            0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
-            0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0,
-        };
+    for (i=MAXTILES-1; i>=MAXTILES-2; i--)
+        if (tilesizx[i]==0 && tilesizy[i]==0)
+        {
+            static char R[8*16] = { //
+                0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
+                0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
+                0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
+                0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0,
+                0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
+                0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
+                0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0,
+            };
 
-        char *newtile;
-        int32_t sx=32, sy=32, col, j;
+            char *newtile;
+            int32_t sx=32, sy=32, col, j;
 
-        walock[i] = 255; // permanent tile
-        picsiz[i] = 5 + (5<<4);
-        tilesizx[i] = sx; tilesizy[i] = sy;
-        allocache(&waloff[i], sx*sy, &walock[i]);
-        newtile = (char *)waloff[i];
+            walock[i] = 255; // permanent tile
+            picsiz[i] = 5 + (5<<4);
+            tilesizx[i] = sx; tilesizy[i] = sy;
+            allocache(&waloff[i], sx*sy, &walock[i]);
+            newtile = (char *)waloff[i];
 
-        col = getclosestcol(128>>2, 128>>2, 0);
-        for (j=0; j<(signed)sizeof(R); j++)
-            R[j] *= col;
+            if (i==MAXTILES-1)
+                col = getclosestcol(128>>2, 128>>2, 0);
+            else
+                col = getclosestcol(63, 0, 63);
+            for (j=0; j<(signed)sizeof(R); j++)
+                if (R[j])
+                    R[j] = col;
 
-        Bmemset(newtile, 0, sx*sy);
-        for (j=0; j<8; j++)
-            Bmemcpy(&newtile[32*j], &R[16*j], 16);
-    }
+            Bmemset(newtile, 0, sx*sy);
+            for (j=0; j<8; j++)
+                Bmemcpy(&newtile[32*j], &R[16*j], 16);
+        }
 #endif
 
     Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");

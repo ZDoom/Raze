@@ -10,7 +10,7 @@
 
 // uncomment to clear the screen before each top-level draw
 // (classic only)
-// #define ENGINE_CLEAR_SCREEN
+//#define ENGINE_CLEAR_SCREEN
 
 #ifdef YAX_ENABLE
 # define YAX_MAXDRAWS 8

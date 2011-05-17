@@ -72,11 +72,12 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLab
         case WALL_NEXTWALL: wall[i].nextwall=lValue; break;
         case WALL_NEXTSECTOR: wall[i].nextsector=lValue; break;
         case WALL_CSTAT:
-            wall[i].cstat = lValue & (0x03ff
 #ifdef YAX_ENABLE
-                                      | (m32_script_expertmode ? YAX_NEXTWALLBITS : 0)
+            if (!m32_script_expertmode)
+                SET_PROTECT_BITS(wall[i].cstat, lValue, YAX_NEXTWALLBITS);
+            else
 #endif
-                );
+            wall[i].cstat = lValue;
             break;
         case WALL_PICNUM: wall[i].picnum=lValue; break;
         case WALL_OVERPICNUM: wall[i].overpicnum=lValue; break;
@@ -170,16 +171,24 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
         case SECTOR_CEILINGZ: sector[i].ceilingz=lValue; break;
         case SECTOR_FLOORZ: sector[i].floorz=lValue; break;
         case SECTOR_CEILINGSTAT:
-            sector[i].ceilingstat = lValue&0x01fd;
+#ifdef YAX_ENABLE
+            if (!m32_script_expertmode)
+                SET_PROTECT_BITS(sector[i].ceilingstat, lValue, YAX_BIT);
+            else
+#endif
+                sector[i].ceilingstat = lValue;
             break;
         case SECTOR_FLOORSTAT:
-            sector[i].floorstat = lValue&0x01fd;
+#ifdef YAX_ENABLE
+            if (!m32_script_expertmode)
+                SET_PROTECT_BITS(sector[i].floorstat, lValue, YAX_BIT);
+            else
+#endif
+                sector[i].floorstat = lValue;
             break;
         case SECTOR_CEILINGPICNUM: sector[i].ceilingpicnum=lValue; break;
         case SECTOR_CEILINGSLOPE:
-            sector[i].ceilingheinum = lValue;
-            if (lValue) sector[i].ceilingstat |= 2;
-            else sector[i].ceilingstat &= ~2;
+            setslope(i, 0, lValue);
             break;
         case SECTOR_CEILINGSHADE: sector[i].ceilingshade=lValue; break;
         case SECTOR_CEILINGPAL: sector[i].ceilingpal=lValue; break;
@@ -187,9 +196,7 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
         case SECTOR_CEILINGYPANNING: sector[i].ceilingypanning=lValue; break;
         case SECTOR_FLOORPICNUM: sector[i].floorpicnum=lValue; break;
         case SECTOR_FLOORSLOPE:
-            sector[i].floorheinum = lValue;
-            if (lValue) sector[i].floorstat |= 2;
-            else sector[i].floorstat &= ~2;
+            setslope(i, 1, lValue);
             break;
         case SECTOR_FLOORSHADE: sector[i].floorshade=lValue; break;
         case SECTOR_FLOORPAL: sector[i].floorpal=lValue; break;
