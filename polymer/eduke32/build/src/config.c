@@ -169,6 +169,7 @@ int32_t loadsetup(const char *fn)
 #ifdef USE_OPENGL
     if (readconfig(fp, "usemodels", val, VL) > 0) usemodels = !!atoi_safe(val);
     if (readconfig(fp, "usehightile", val, VL) > 0) usehightile = !!atoi_safe(val);
+    if (readconfig(fp, "lazytileselector", val, VL) > 0) g_lazy_tileselector = !!atoi_safe(val);
 
     glusetexcache = -1;
     if (readconfig(fp, "glusetexcache", val, VL) > 0)
@@ -364,6 +365,7 @@ int32_t writesetup(const char *fn)
              "; OpenGL mode options\n"
              "usemodels = %d\n"
              "usehightile = %d\n"
+             "lazytileselector = %d\n"
              "; glusetexcache: 0:no, 1:yes, 2:compressed\n"
              "glusetexcache = %d\n"
              "gltexfiltermode = %d\n"
@@ -523,7 +525,7 @@ int32_t writesetup(const char *fn)
 #endif
              editorgridextent, clamp(default_grid, 0, 9),
 #ifdef USE_OPENGL
-             usemodels, usehightile,
+             usemodels, usehightile, g_lazy_tileselector,
              glusetexcache, gltexfiltermode, glanisotropy,r_downsize,glusetexcompr,
              shadescale,
 #endif

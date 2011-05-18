@@ -1595,17 +1595,7 @@ static void duplicate_selected_sectors(void)
     int32_t i, j, startwall, endwall, newnumsectors, newwalls = 0;
     int32_t minx=INT32_MAX, maxx=INT32_MIN, miny=INT32_MAX, maxy=INT32_MIN, dx, dy;
 #ifdef YAX_ENABLE
-    int16_t cb, fb;
-
-    for (i=0; i<highlightsectorcnt; i++)
-    {
-        yax_getbunches(highlightsector[i], &cb, &fb);
-        if (cb>=0 || fb>=0)
-        {
-            printmessage16("Cannot duplicate extended sectors!");
-            return;
-        }
-    }
+    int16_t cb, fb, hadextended=0;
 #endif
 
     for (i=0; i<highlightsectorcnt; i++)
@@ -1630,6 +1620,19 @@ static void duplicate_selected_sectors(void)
         for (i=0; i<highlightsectorcnt; i++)
         {
             copysector(highlightsector[i], newnumsectors, newnumwalls, 1, oldtonewsect);
+#ifdef YAX_ENABLE
+            yax_getbunches(highlightsector[i], &cb, &fb);
+            if (cb>=0 || fb>=0)
+            {
+                hadextended = 1;
+                yax_setbunches(newnumsectors, -1, -1);
+                for (WALLS_OF_SECTOR(newnumsectors, j))
+                {
+                    yax_setnextwall(j, 0, -1);
+                    yax_setnextwall(j, 1, -1);
+                }
+            }
+#endif
             newnumsectors++;
             newnumwalls += sector[highlightsector[i]].wallnum;
         }
@@ -1695,7 +1698,12 @@ static void duplicate_selected_sectors(void)
         newnumsectors = -1;
 
         updatenumsprites();
-        printmessage16("Sectors duplicated and stamped.");
+#ifdef YAX_ENABLE
+        if (hadextended)
+            printmessage16("Sectors duplicated and stamped, clearing extensions.");
+        else
+#endif
+            printmessage16("Sectors duplicated and stamped.");
         asksave = 1;
     }
     else

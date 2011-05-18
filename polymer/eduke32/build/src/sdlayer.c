@@ -939,11 +939,12 @@ int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t fo
 int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
     int32_t regrab = 0;
+#ifdef USE_OPENGL
     static int32_t warnonce = 0;
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
     static int32_t ovsync = 1;
 #endif
-
+#endif
     if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) &&
             !videomodereset)
     {

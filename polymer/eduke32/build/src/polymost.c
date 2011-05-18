@@ -2186,7 +2186,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         {
             float pc[4];
-            int32_t shadebound = (shadescale_unbounded || globalshade>31) ? numpalookups : 31;
+            int32_t shadebound = (shadescale_unbounded || globalshade>=numpalookups) ? numpalookups : numpalookups-1;
             f = ((float)(numpalookups-min(max((globalshade * shadescale),0),shadebound)))/((float)numpalookups);
             pc[0] = pc[1] = pc[2] = f;
             switch (method&3)
@@ -4177,9 +4177,11 @@ void polymost_drawrooms()
     if (rendmode >= 3)
     {
         resizeglcheck();
-
-        if (editstatus)
-            bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+#ifdef YAX_ENABLE
+        if (numyaxbunches==0)
+#endif
+            if (editstatus)
+                bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
         bglDisable(GL_BLEND);
         bglEnable(GL_TEXTURE_2D);
@@ -5795,7 +5797,7 @@ void polymost_fillpolygon(int32_t npoints)
     pthtyp *pth;
     float f,a=0.0;
     int32_t i;
-    int32_t shadebound = (shadescale_unbounded || globalshade>31) ? numpalookups : 31;
+    int32_t shadebound = (shadescale_unbounded || globalshade>=numpalookups) ? numpalookups : numpalookups-1;
 
     globalx1 = mulscale16(globalx1,xyaspect);
     globaly2 = mulscale16(globaly2,xyaspect);

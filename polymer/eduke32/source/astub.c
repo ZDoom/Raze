@@ -97,6 +97,7 @@ static struct strllist
 const char *scripthist[SCRIPTHISTSIZ];
 int32_t scripthistend = 0;
 
+int32_t g_lazy_tileselector = 1;
 int32_t showambiencesounds=2;
 
 int32_t autocorruptcheck = 0;
@@ -3945,8 +3946,9 @@ static int32_t OnSelectTile(int32_t iTile)
     bflushchars();
 
     setpolymost2dview();
+#ifdef USE_OPENGL
     bglEnable(GL_TEXTURE_2D);
-
+#endif
     clearview(0);
 
     //
@@ -4072,7 +4074,6 @@ static void tilescreen_drawbox(int32_t iTopLeft, int32_t iSelected, int32_t nXTi
         char markedcol = editorcolors[14];
 
         setpolymost2dview();
-        bglEnable(GL_TEXTURE_2D);
 
         y1=max(y1, 0);
         y2=min(y2, ydim-1);
@@ -4157,8 +4158,9 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     static uint8_t loadedhitile[(MAXTILES+7)>>3];
 
     setpolymost2dview();
+#ifdef USE_OPENGL
     bglEnable(GL_TEXTURE_2D);
-
+#endif
     clearview(0);
 
     begindrawing();
@@ -4172,8 +4174,7 @@ restart:
 
             if (iTile < 0 || iTile >= localartlookupnum)
                 continue;
-
-            usehitile = runi;
+            usehitile = (runi || !g_lazy_tileselector);
 
             idTile = localartlookup[ iTile ];
             if (loadedhitile[idTile>>3]&(1<<(idTile&7)))
@@ -4205,7 +4206,7 @@ restart:
 
             tilescreen_drawbox(iTopLeft, iSelected, nXTiles, TileDim, offset, iTile, idTile);
 
-            if (runi==1)
+            if (runi==1 && g_lazy_tileselector)
             {
                 int32_t k;
 
@@ -4238,7 +4239,7 @@ restart:
 
     tilescreen_drawrest(iSelected, showmsg);
 
-    if (rendmode>=3 && qsetmode==200)
+    if (getrendermode()>=3 && qsetmode==200 && g_lazy_tileselector)
     {
         if (runi==0)
         {
@@ -7584,6 +7585,13 @@ static void Keys2d(void)
                            bottomp ? " (bottom)":(pos.z==loz ? " (top)":""));
             updatesectorz(pos.x, pos.y, pos.z, &cursectnum);
         }
+    }
+
+    if (eitherCTRL && PRESSED_KEYSC(A))
+    {
+        autogray = !autogray;
+        printmessage16("Automatic grayout of plain sectors %s", ONOFF(autogray));
+        yax_updategrays(pos.z);
     }
 #endif
 

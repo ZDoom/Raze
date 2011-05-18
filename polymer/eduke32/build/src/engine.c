@@ -200,6 +200,7 @@ extern int32_t m32_numdebuglines;
 
 uint8_t graysectbitmap[MAXSECTORS>>3];
 uint8_t graywallbitmap[MAXWALLS>>3];
+int32_t autogray = 0;
 
 #ifdef ENGINE_SCREENSHOT_DEBUG
 int32_t engine_screenshot = 0;
@@ -208,9 +209,12 @@ int32_t engine_screenshot = 0;
 void yax_updategrays(int32_t posze)
 {
     int32_t i, j, k=1;
-#ifndef YAX_ENABLE
+#ifdef YAX_ENABLE
+    int32_t mingoodz=INT32_MAX, maxgoodz=INT32_MIN;
+#else
     UNREFERENCED_PARAMETER(posze);
 #endif
+
     Bmemset(graysectbitmap, 0, sizeof(graysectbitmap));
     Bmemset(graywallbitmap, 0, sizeof(graywallbitmap));
 
@@ -220,18 +224,36 @@ void yax_updategrays(int32_t posze)
         int16_t cb, fb;
 
         yax_getbunches(i, &cb, &fb);
-        // update grayouts due to yax
+        // update grayouts due to yax  --v-- has to be half-open  --v--
+        // because only one level should v  be ever active          v
         k = ((cb<0 || sector[i].ceilingz < posze) && (fb<0 || posze <= sector[i].floorz));
+        if (autogray && (cb>=0 || fb>=0) && (sector[i].ceilingz <= posze && posze <= sector[i].floorz))
+        {
+            mingoodz = min(mingoodz, sector[i].ceilingz);
+            maxgoodz = max(maxgoodz, sector[i].floorz);
+        }
 #endif
         // update grayouts due to editorzrange
         k &= (sector[i].ceilingz >= editorzrange[0] && sector[i].floorz <= editorzrange[1]);
 
         if (!k)  // outside bounds, gray out!
-        {
             graysectbitmap[i>>3] |= (1<<(i&7));
+    }
+
+#ifdef YAX_ENABLE
+    if (autogray && mingoodz<=maxgoodz)
+    {
+        for (i=0; i<numsectors; i++)
+            if (!(mingoodz <= sector[i].ceilingz && sector[i].floorz <= maxgoodz))
+                graysectbitmap[i>>3] |= (1<<(i&7));
+    }
+#endif
+
+    for (i=0; i<numsectors; i++)
+    {
+        if (graysectbitmap[i>>3]&(1<<(i&7)))
             for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
                 graywallbitmap[j>>3] |= (1<<(j&7));
-        }
     }
 }
 
@@ -611,17 +633,19 @@ static int yax_cmpbunches(const int16_t *b1, const int16_t *b2)
 static void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
 {
     static int16_t opicnum[2][MAXSECTORS];
-    int32_t i;
+    int32_t i, stat;
 
     for (SECTORS_OF_BUNCH(bunchnum, cf, i))
-        if ((SECTORFLD(i,stat, cf)&(128+256))==0)
+    {
+        stat = (SECTORFLD(i,stat, cf)&(128+256+4096));
+        if ((stat&4096) || stat==0)
         {
             if (!restore)
             {
                 opicnum[cf][i] = SECTORFLD(i,picnum, cf);
                 if (editstatus && showinvisibility)
-                    SECTORFLD(i,picnum, cf) = MAXTILES-1-((SECTORFLD(i,stat, cf)&4096)>>12);
-                else
+                    SECTORFLD(i,picnum, cf) = MAXTILES-1-((stat&4096)>>12);
+                else if ((stat&(128+256))==0)
                     SECTORFLD(i,picnum, cf) = 13; //FOF;
             }
             else
@@ -629,6 +653,7 @@ static void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
                 SECTORFLD(i,picnum, cf) = opicnum[cf][i];
             }
         }
+    }
 }
 
 static void yax_copytsprite(int32_t curbunchnum, int32_t resetsortcnt)
@@ -682,7 +707,7 @@ static void yax_copytsprite(int32_t curbunchnum, int32_t resetsortcnt)
 
 void yax_preparedrawrooms(void)
 {
-    if (rendmode!=0 || numyaxbunches==0)
+    if (getrendermode()!=0 || numyaxbunches==0)
         return;
 
     g_nodraw = 1;
@@ -720,7 +745,7 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
     int32_t t;
 #endif
 
-    if (rendmode!=0 || numyaxbunches==0)
+    if (getrendermode()!=0 || numyaxbunches==0)
     {
 #ifdef ENGINE_SCREENSHOT_DEBUG
         engine_screenshot = 0;
@@ -762,7 +787,7 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                 j = yax_getbunch(i, cf);
                 if (j >= 0 && !(havebunch[j>>3]&(1<<(j&7))))
                 {
-                    if ((haveymost[j>>3]&(1<<(j&7)))==0)
+                    if (getrendermode()==0 && (haveymost[j>>3]&(1<<(j&7)))==0)
                     {
                         yaxdebug("%s, l %d: skipped bunch %d (no *most)", cf?"v":"^", lev, j);
                         continue;
@@ -847,10 +872,13 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
     scansector_collectsprites = 0;
 
 #ifdef ENGINE_CLEAR_SCREEN
-    begindrawing();
-    for (i=0; i<xdim*ydim; i++)
-        *((char *)frameplace + i) = i;
-    enddrawing();
+    if (rendmode==0)
+    {
+        begindrawing();
+        for (i=0; i<xdim*ydim; i++)
+            *((char *)frameplace + i) = i;
+        enddrawing();
+    }
 #endif
 
     for (cf=0; cf<2; cf++)
@@ -916,28 +944,31 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 #endif
 
 #ifdef YAX_DEBUG_YMOSTS
-    begindrawing();
-    for (i=0; i<numyaxbunches; i++)
+    if (rendmode==0)
     {
-        int32_t x, x1;
-        char purple = getclosestcol(63, 0, 63);
-        char yellow = getclosestcol(63, 63, 0);
-
-        if ((haveymost[i>>3]&(1<<i&7))==0)
-            continue;
-
-        x1 = i*xdimen;
-
-        for (x=x1; x<x1+xdimen; x++)
+        begindrawing();
+        for (i=0; i<numyaxbunches; i++)
         {
-            if (yumost[x] >= 0 && yumost[x] < ydim)
-                *((char *)frameplace + yumost[x]*bytesperline + x-x1) = purple;
+            int32_t x, x1;
+            char purple = getclosestcol(63, 0, 63);
+            char yellow = getclosestcol(63, 63, 0);
 
-            if (ydmost[x]-1 >= 0 && ydmost[x]-1 < ydim)
-                *((char *)frameplace + (ydmost[x]-1)*bytesperline + x-x1) = yellow;
+            if ((haveymost[i>>3]&(1<<i&7))==0)
+                continue;
+
+            x1 = i*xdimen;
+
+            for (x=x1; x<x1+xdimen; x++)
+            {
+                if (yumost[x] >= 0 && yumost[x] < ydim)
+                    *((char *)frameplace + yumost[x]*bytesperline + x-x1) = purple;
+
+                if (ydmost[x]-1 >= 0 && ydmost[x]-1 < ydim)
+                    *((char *)frameplace + (ydmost[x]-1)*bytesperline + x-x1) = yellow;
+            }
         }
+        enddrawing();
     }
-    enddrawing();
 #endif
 }
 
@@ -7588,7 +7619,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     i = mulscale16(xdimenscale,viewingrangerecip);
     globalpisibility = mulscale16(parallaxvisibility,i);
-    globalvisibility = rendmode==0 ? mulscale16(visibility,i) : scale(visibility<<2,4,3);
+    globalvisibility = getrendermode()==0 ? mulscale16(visibility,i) : scale(visibility<<2,4,3);
     globalhisibility = mulscale16(globalvisibility,xyaspect);
     globalcisibility = mulscale8(globalhisibility,320);
 
@@ -14437,12 +14468,12 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     {
         for (i=numwalls-1; i>=0; i--)
 #ifdef YAX_ENABLE
-            if (graywallbitmap[(i)>>3]&(1<<((i)&7)))
+            if (graywallbitmap[i>>3]&(1<<(i&7)))
                 drawscreen_drawwall(i,posxe,posye,posze,zoome);
         for (i=numwalls-1; i>=0; i--)
-            if ((graywallbitmap[(i)>>3]&(1<<((i)&7)))==0)
+            if ((graywallbitmap[i>>3]&(1<<(i&7)))==0)
 #endif
-            drawscreen_drawwall(i,posxe,posye,posze,zoome);
+                drawscreen_drawwall(i,posxe,posye,posze,zoome);
     }
     else
     {
@@ -14918,11 +14949,13 @@ int32_t screencapture_png(const char *filename, char inverseit, const char *vers
         buf = (png_bytep)png_malloc(png_ptr, xdim*ydim);
         Bmemcpy(buf, (char *)frameplace, xdim*ydim);
     }
+#ifdef USE_OPENGL
     else
     {
         buf = (png_bytep)png_malloc(png_ptr, xdim*ydim*3);
         bglReadPixels(0,0,xdim,ydim,GL_RGB,GL_UNSIGNED_BYTE,buf);
     }
+#endif
     enddrawing(); //}}}
 
     rowptrs = (png_bytepp)png_malloc(png_ptr, ydim*sizeof(png_bytep));
