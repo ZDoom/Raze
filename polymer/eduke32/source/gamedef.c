@@ -1838,12 +1838,7 @@ static int32_t C_CountCaseStatements()
     g_caseScriptPtr=NULL;
     //Bsprintf(g_szBuf,"CSS: %.12s",textptr);
     //AddLog(g_szBuf);
-    while (C_ParseCommand(1) == 0)
-    {
-        //Bsprintf(g_szBuf,"CSSL: %.20s",textptr);
-        //AddLog(g_szBuf);
-        ;
-    }
+    C_ParseCommand(1);
     // since we processed the endswitch, we need to re-increment g_checkingSwitch
     g_checkingSwitch++;
 
@@ -2057,7 +2052,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_GetNextVarType(GAMEVAR_READONLY);
                     break;
                 }
-                break;
+                continue;
             }
 
         case CON_GAMEVAR:
@@ -2406,8 +2401,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 C_SkipComments();
 
-                do done = C_ParseCommand(1);
-                while (!done);
+                C_ParseCommand(1);
 
                 Bstrcpy(g_szScriptFileName, parentScriptFileName);
                 g_totalLines += g_lineNumber;
@@ -2483,9 +2477,14 @@ static int32_t C_ParseCommand(int32_t loop)
                         bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                         *g_scriptPtr = k;
                         g_scriptPtr++;
-                        return 0;
+                        j = 666;
+                        break;
                     }
                 }
+
+                if (j == 666)
+                    continue;
+
                 for (k=j; k<3; k++)
                 {
                     bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
@@ -2774,7 +2773,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
         case CON_HITRADIUSVAR:
             C_GetManyVars(5);
-            break;
+            continue;
         case CON_HITRADIUS:
             C_GetNextValue(LABEL_DEFINE);
             C_GetNextValue(LABEL_DEFINE);
@@ -2788,7 +2787,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_GUTS:
             C_GetNextValue(LABEL_DEFINE);
             C_GetNextValue(LABEL_DEFINE);
-            break;
+            continue;
 
         case CON_ELSE:
             if (g_checkingIfElse)
@@ -2828,9 +2827,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_GetNextKeyword();
                     g_numBraces++;
 
-                    do
-                    done = C_ParseCommand(1);
-                    while (done == 0);
+                    C_ParseCommand(1);
                 }
                 else C_ParseCommand(0);
 
@@ -2897,7 +2894,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_GetNextVarType(GAMEVAR_READONLY);
                 else
                     C_GetNextVar();
-                break;
+                continue;
             }
 
         case CON_FINDNEARACTOR:
@@ -2927,7 +2924,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 // target var
                 // get the ID of the DEF
                 C_GetNextVarType(GAMEVAR_READONLY);
-                break;
+                continue;
             }
 
         case CON_FINDNEARACTORVAR:
@@ -2952,7 +2949,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 // target var
                 // get the ID of the DEF
                 C_GetNextVarType(GAMEVAR_READONLY);
-                break;
+                continue;
             }
 
         case CON_SQRT:
@@ -2965,7 +2962,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 // target var
                 // get the ID of the DEF
                 C_GetNextVarType(GAMEVAR_READONLY);
-                break;
+                continue;
             }
 
         case CON_SETWALL:
@@ -3027,7 +3024,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_GetNextVarType(GAMEVAR_READONLY);
                 else
                     C_GetNextVar();
-                break;
+                continue;
             }
 
         case CON_SETPLAYER:
@@ -3103,7 +3100,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_GetNextVarType(GAMEVAR_READONLY);
                 else
                     C_GetNextVar();
-                break;
+                continue;
             }
 
         case CON_SETINPUT:
@@ -3166,7 +3163,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_GetNextVarType(GAMEVAR_READONLY);
                 else
                     C_GetNextVar();
-                break;
+                continue;
             }
 
         case CON_SETUSERDEF:
@@ -3216,7 +3213,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_GetNextVarType(GAMEVAR_READONLY);
                 else
                     C_GetNextVar();
-                break;
+                continue;
             }
 
         case CON_SETACTORVAR:
@@ -3274,7 +3271,7 @@ static int32_t C_ParseCommand(int32_t loop)
                         C_GetNextVarType(GAMEVAR_READONLY);
                         g_scriptPtr++;
                     }
-                    break;
+                    continue;
                 }
 
                 /// now pointing at 'xxx'
@@ -3346,7 +3343,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_GetNextVar();
                     break;
                 }
-                break;
+                continue;
             }
 
         case CON_SETACTOR:
@@ -3420,7 +3417,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_GetNextVarType(GAMEVAR_READONLY);
                 else
                     C_GetNextVar();
-                break;
+                continue;
             }
 
         case CON_GETTSPR:
@@ -3492,12 +3489,12 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_GetNextVarType(GAMEVAR_READONLY);
                 else
                     C_GetNextVar();
-                break;
+                continue;
             }
 
         case CON_STOPACTORSOUND:
             C_GetManyVars(2);
-            break;
+            continue;
 
         case CON_SECTOROFWALL:
             C_GetNextVarType(GAMEVAR_READONLY);
@@ -3552,7 +3549,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 g_numCompilerWarnings++;
                 initprintf("%s:%d: warning: need build %d, found build %d\n",g_szScriptFileName,g_lineNumber,k,BYTEVERSION_JF);
             }
-            break;
+            continue;
 
         case CON_DYNAMICREMAP:
             g_scriptPtr--;
@@ -3562,7 +3559,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 g_numCompilerWarnings++;
             }
             else initprintf("Using dynamic tile remapping\n");
-            break;
+            continue;
 
         case CON_RANDVAR:
         case CON_ZSHOOT:
@@ -4098,7 +4095,7 @@ static int32_t C_ParseCommand(int32_t loop)
             // get the ID of the DEFs
 
             C_GetManyVars(12);
-            break;
+            continue;
 
         case CON_SHOWVIEW:
             if (g_parsingEventPtr == NULL && g_processingState == 0)
@@ -4108,18 +4105,18 @@ static int32_t C_ParseCommand(int32_t loop)
             }
 
             C_GetManyVars(10);
-            break;
+            continue;
 
         case CON_GETZRANGE:
             C_GetManyVars(4);
             C_GetManyVarsType(GAMEVAR_READONLY,4);
             C_GetManyVars(2);
-            break;
+            continue;
 
         case CON_SECTSETINTERPOLATION:
         case CON_SECTCLEARINTERPOLATION:
             C_GetNextVar();
-            break;
+            continue;
 
         case CON_CLIPMOVE:
         case CON_CLIPMOVENOSLIDE:
@@ -4128,12 +4125,12 @@ static int32_t C_ParseCommand(int32_t loop)
             C_GetNextVar();
             C_GetNextVarType(GAMEVAR_READONLY);
             C_GetManyVars(6);
-            break;
+            continue;
 
         case CON_CALCHYPOTENUSE:
             C_GetNextVarType(GAMEVAR_READONLY);
             C_GetManyVars(2);
-            break;
+            continue;
 
         case CON_LINEINTERSECT:
         case CON_RAYINTERSECT:
@@ -4141,7 +4138,7 @@ static int32_t C_ParseCommand(int32_t loop)
             // rayintersect x y z  vx vy vz  x y  x y  <intx> <inty> <intz> <ret>
             C_GetManyVars(10);
             C_GetManyVarsType(GAMEVAR_READONLY,4);
-            break;
+            continue;
 
         case CON_HITSCAN:
         case CON_CANSEE:
@@ -4149,27 +4146,27 @@ static int32_t C_ParseCommand(int32_t loop)
             C_GetManyVars(tw==CON_CANSEE?8:7);
             C_GetManyVarsType(GAMEVAR_READONLY,tw==CON_CANSEE?1:6);
             if (tw==CON_HITSCAN) C_GetNextVar();
-            break;
+            continue;
 
         case CON_CANSEESPR:
             C_GetManyVars(2);
             C_GetNextVarType(GAMEVAR_READONLY);
-            break;
+            continue;
 
         case CON_NEARTAG:
             C_GetManyVars(5);
             C_GetManyVarsType(GAMEVAR_READONLY,4);
             C_GetManyVars(2);
-            break;
+            continue;
 
         case CON_ROTATEPOINT:
             C_GetManyVars(5);
             C_GetManyVarsType(GAMEVAR_READONLY,2);
-            break;
+            continue;
 
         case CON_GETTIMEDATE:
             C_GetManyVarsType(GAMEVAR_READONLY,8);
-            break;
+            continue;
 
         case CON_MOVESPRITE:
         case CON_SETSPRITE:
@@ -4179,7 +4176,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetNextVar();
                 C_GetNextVarType(GAMEVAR_READONLY);
             }
-            break;
+            continue;
 
         case CON_MINITEXT:
         case CON_GAMETEXT:
@@ -4204,7 +4201,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetManyVars(5);
                 break;
             }
-            break;
+            continue;
 
         case CON_UPDATESECTOR:
         case CON_UPDATESECTORZ:
@@ -4212,7 +4209,7 @@ static int32_t C_ParseCommand(int32_t loop)
             if (tw==CON_UPDATESECTORZ)
                 C_GetNextVar();
             C_GetNextVarType(GAMEVAR_READONLY);
-            break;
+            continue;
 
         case CON_MYOS:
         case CON_MYOSPAL:
@@ -4236,7 +4233,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 // get the ID of the DEF
                 C_GetNextVar();
             }
-            break;
+            continue;
 
         case CON_FINDPLAYER:
         case CON_FINDOTHERPLAYER:
@@ -4247,7 +4244,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
             // Get The ID of the DEF
             C_GetNextVarType(GAMEVAR_READONLY);
-            break;
+            continue;
 
         case CON_SWITCH:
             {
@@ -4304,11 +4301,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 }
 
                 g_numCases=0;
-                while (C_ParseCommand(1) == 0)
-                {
-                    //Bsprintf(g_szBuf,"SWITCH2: '%.22s'",textptr);
-                    //AddLog(g_szBuf);
-                }
+                C_ParseCommand(1);
                 tempscrptr = (intptr_t *)(script+tempoffset);
 
                 //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr);
@@ -4354,7 +4347,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 }
                 //AddLog("End of Switch statement");
             }
-            return 0;
+            continue;
 
         case CON_CASE:
             {
@@ -4411,7 +4404,7 @@ repeatcase:
                 //AddLog(g_szBuf);
                 tempoffset = (unsigned)(tempscrptr-script);
 
-                while (C_ParseCommand(1) == 0)
+                while (C_ParseCommand(0) == 0)
                 {
                     //Bsprintf(g_szBuf,"case5 '%.25s'",textptr);
                     //AddLog(g_szBuf);
@@ -4425,7 +4418,7 @@ repeatcase:
                 }
                 tempscrptr = (intptr_t *)(script+tempoffset);
                 //AddLog("End Case");
-                return 0;
+                continue;
                 //      break;
             }
         case CON_DEFAULT:
@@ -4457,13 +4450,8 @@ repeatcase:
             }
             //Bsprintf(g_szBuf,"default: '%.22s'",textptr);
             //AddLog(g_szBuf);
-            while (C_ParseCommand(1) == 0)
-            {
-                //Bsprintf(g_szBuf,"defaultParse: '%.22s'",textptr);
-                //AddLog(g_szBuf);
-                ;
-            }
-            return 0;
+            C_ParseCommand(1);
+            continue;
 
         case CON_ENDSWITCH:
             //AddLog("End Switch");
@@ -4671,28 +4659,9 @@ repeatcase:
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_SYNTAXERROR);
             }
-            /*        if (C_GetKeyword() == CON_NULLOP)
-            {
-            //            initprintf("%s:%d: warning: 'nullop' statement has no effect\n",g_szScriptFileName,g_lineNumber);
-            C_GetNextKeyword();
-            g_scriptPtr--;
-            }
-            */
-#if 0
-            if (C_GetKeyword() == CON_RIGHTBRACE) // rewrite "{ }" into "nullop"
-            {
-                //            initprintf("%s:%d: rewriting empty braces '{ }' as 'nullop' from left\n",g_szScriptFileName,g_lineNumber);
-                *(--g_scriptPtr) = CON_NULLOP;
-                C_GetNextKeyword();
-                g_scriptPtr--;
-                continue;
-            }
-#endif
             g_numBraces++;
 
-            do
-            done = C_ParseCommand(1);
-            while (done == 0);
+            C_ParseCommand(1);
             continue;
 
         case CON_RIGHTBRACE:
@@ -4728,6 +4697,7 @@ repeatcase:
                 initprintf("%s:%d: error: found more `}' than `{'.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
             }
+
             if (g_checkingIfElse && j != CON_ELSE)
                 g_checkingIfElse--;
 
@@ -4753,7 +4723,7 @@ repeatcase:
                     g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
                 C_NextLine();
-                break;
+                continue;
             }
 
             i = 0;
@@ -4788,7 +4758,7 @@ repeatcase:
                     g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
                 C_NextLine();
-                break;
+                continue;
             }
 
             i = 0;
@@ -4840,7 +4810,7 @@ repeatcase:
                     g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
                 C_NextLine();
-                break;
+                continue;
             }
 
             i = 0;
@@ -4995,7 +4965,7 @@ repeatcase:
                 initprintf("%s:%d: error: gametype number exceeds maximum gametype count.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
                 C_NextLine();
-                break;
+                continue;
             }
             g_numGametypes = j+1;
 
@@ -5032,14 +5002,14 @@ repeatcase:
                 initprintf("%s:%d: error: volume number exceeds maximum volume count.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
                 C_NextLine();
-                break;
+                continue;
             }
             if (k < 0 || k > MAXLEVELS-1)
             {
                 initprintf("%s:%d: error: level number exceeds maximum number of levels per episode.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
                 C_NextLine();
-                break;
+                continue;
             }
 
             i = 0;
@@ -5215,7 +5185,7 @@ repeatcase:
                 initprintf("%s:%d: error: cheat redefinition attempts to redefine nonexistent cheat.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
                 C_NextLine();
-                break;
+                continue;
             }
             g_scriptPtr--;
             i = 0;
@@ -5362,11 +5332,11 @@ repeatcase:
                     initprintf("%s:%d: warning: duplicate `break'.\n",g_szScriptFileName, g_lineNumber);
                     g_numCompilerWarnings++;
                     g_scriptPtr--;
-                    return 0;
+                    continue;
                 }
                 return 1;
             }
-            return 0;
+            continue;
 
         case CON_SCRIPTSIZE:
             g_scriptPtr--;
@@ -5800,7 +5770,7 @@ void C_Compile(const char *filenam)
 
     Bstrcpy(g_szScriptFileName, filenam);   // JBF 20031130: Store currently compiling file name
 
-    while (C_ParseCommand(1) == 0);
+    C_ParseCommand(1);
 
     flushlogwindow = 1;
 
@@ -6081,9 +6051,6 @@ void C_ReportError(int32_t iError)
         break;
     case WARNING_NAMEMATCHESVAR:
         initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-        break;
-    case WARNING_REVEVENTSYNC:
-        initprintf("%s:%d: warning: found `%s' outside of a local event.\n",g_szScriptFileName,g_lineNumber,tempbuf);
         break;
     }
 }
