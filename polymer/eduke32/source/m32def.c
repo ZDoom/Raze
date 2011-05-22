@@ -496,6 +496,10 @@ const memberlabel_t SpriteLabels[]=
     { "", -1, 0, 0, 0 }     // END OF LIST
 };
 
+#ifndef POLYMER
+# define PR_MAXLIGHTPRIORITY 6
+#endif
+
 const memberlabel_t LightLabels[]=
 {
     { "x", LIGHT_X, 0, -BXY_MAX, BXY_MAX },
@@ -1103,9 +1107,7 @@ static void C_GetNextVarType(int32_t type)
     if (*textptr == '[')  //read of array as a gamevar
     {
         int32_t lLabelID = -1, aridx;
-#ifdef POLYMER
         int32_t lightp = 0;
-#endif
 
         textptr++;
         flags |= M32_FLAG_ARRAY;

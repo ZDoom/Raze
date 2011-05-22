@@ -2533,6 +2533,27 @@ static void G_ShowScores(void)
 }
 #undef SCORESHEETOFFSET
 
+#ifdef YAX_DEBUG
+// ugh...
+char m32_debugstr[64][128];
+int32_t m32_numdebuglines=0;
+
+static void M32_drawdebug(void)
+{
+    int i, col=getclosestcol(63,63,63);
+    int x=4, y=8;
+
+    if (m32_numdebuglines>0)
+    {
+        begindrawing();
+        for (i=0; i<m32_numdebuglines && y<ydim-8; i++, y+=8)
+            printext256(x,y,col,0,m32_debugstr[i],xdim>640?0:1);
+        enddrawing();
+    }
+    m32_numdebuglines=0;
+}
+#endif
+
 void G_DisplayRest(int32_t smoothratio)
 {
     int32_t a, i, j;
@@ -2799,6 +2820,10 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (ud.coords)
         G_PrintCoords(screenpeek);
+
+#ifdef YAX_DEBUG
+    M32_drawdebug();
+#endif
 
 #ifdef USE_OPENGL
     {
@@ -3473,10 +3498,17 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 j = visibility;
                 visibility = (j>>1) + (j>>2);
 
-                yax_preparedrawrooms();
-                drawrooms(tposx,tposy,ud.camera.z,tang,ud.camerahoriz,g_mirrorSector[i]+MAXSECTORS);
-                g_yax_smoothratio = smoothratio;
-                yax_drawrooms(G_AnalyzeSprites, ud.camerahoriz, g_mirrorSector[i]+MAXSECTORS);
+                if (getrendermode()==0)
+                {
+                    yax_preparedrawrooms();
+                    drawrooms(tposx,tposy,ud.camera.z,tang,ud.camerahoriz,g_mirrorSector[i]+MAXSECTORS);
+                    g_yax_smoothratio = smoothratio;
+                    yax_drawrooms(G_AnalyzeSprites, ud.camerahoriz, g_mirrorSector[i]+MAXSECTORS);
+                }
+#ifdef USE_OPENGL
+                else
+                    drawrooms(tposx,tposy,ud.camera.z,tang,ud.camerahoriz,g_mirrorSector[i]+MAXSECTORS);
+#endif
 
                 display_mirror = 1;
                 G_DoSpriteAnimations(tposx,tposy,tang,smoothratio);

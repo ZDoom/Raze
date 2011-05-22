@@ -5355,11 +5355,7 @@ HORIZONLY:
     {
         p->pos.x += p->vel.x>>14;
         p->pos.y += p->vel.y>>14;
-#ifdef YAX_ENABLE
-        updatesectorz(p->pos.x,p->pos.y,p->pos.z,&p->cursectnum);
-#else
         updatesector(p->pos.x,p->pos.y,&p->cursectnum);
-#endif
         changespritesect(p->i,p->cursectnum);
     }
     else

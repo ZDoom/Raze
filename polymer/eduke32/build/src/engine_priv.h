@@ -70,6 +70,24 @@ extern palette_t palookupfog[MAXPALOOKUPS];
 int32_t wallfront(int32_t l1, int32_t l2);
 int32_t animateoffs(int16_t tilenum, int16_t fakevar);
 
+////// yax'y stuff //////
+#ifdef USE_OPENGL
+extern void polymost_scansector(int32_t sectnum);
+#endif
+int32_t engine_addtsprite(int16_t z, int16_t sectnum);
+int32_t scansector_retfast;
+
+#ifdef YAX_DEBUG
+extern char m32_debugstr[64][128];
+extern int32_t m32_numdebuglines;
+# define yaxdebug(fmt, ...)  do { if (m32_numdebuglines<64) Bsnprintf(m32_debugstr[m32_numdebuglines++], 128, fmt, ##__VA_ARGS__); } while (0)
+# define yaxprintf(fmt, ...) do { initprintf(fmt, ##__VA_ARGS__); } while (0)
+#else
+# define yaxdebug(fmt, ...)
+# define yaxprintf(fmt, ...)
+#endif
+
+
 extern int32_t indrawroomsandmasks;
 
 

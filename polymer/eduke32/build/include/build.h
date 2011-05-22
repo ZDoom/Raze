@@ -676,8 +676,8 @@ int32_t             wallvisible(int32_t x, int32_t y, int16_t wallnum);
 #define STATUS2DSIZ 144
 #define STATUS2DSIZ2 26
 
-void   qsetmode640350(void);
-void   qsetmode640480(void);
+//void   qsetmode640350(void);
+//void   qsetmode640480(void);
 void   qsetmodeany(int32_t,int32_t);
 void   clear2dscreen(void);
 void   draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride);

@@ -3066,7 +3066,7 @@ void domost(float x0, float y0, float x1, float y1)
     }
 }
 
-static void polymost_scansector(int32_t sectnum);
+void polymost_scansector(int32_t sectnum);
 
 // variables that are set to ceiling- or floor-members, depending
 // on which one is processed right now
@@ -3219,6 +3219,10 @@ static void polymost_drawalls(int32_t bunch)
     int32_t i, x, y, z, cz, fz, wallnum, sectnum, nextsectnum;
     int32_t ypan,yoffs; // for panning correction
 
+    int16_t dapskybits;
+    static const int16_t zeropskyoff[MAXPSKYTILES];
+    const int16_t *dapskyoff;
+
     sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
 
 #if 0 // USE_OPENGL
@@ -3289,17 +3293,36 @@ static void polymost_drawalls(int32_t bunch)
         cy1 = ((float)(cz-globalposz))*ryp1 + ghoriz;
         fy1 = ((float)(fz-globalposz))*ryp1 + ghoriz;
 
-
         globalpicnum = sec->floorpicnum; globalshade = sec->floorshade; globalpal = (int32_t)((uint8_t)sec->floorpal);
         globalorientation = sec->floorstat;
         if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,sectnum);
+
+        // multi-psky stuff
+        dapskyoff = zeropskyoff;
+        dapskybits = pskybits;
+
+        for (i=0; i<pskynummultis; i++)
+        {
+            if (globalpicnum == pskymultilist[i])
+            {
+                dapskybits = pskymultibits[i];
+                dapskyoff = pskymultioff[i];
+                break;
+            }
+        }
+        //
 
         global_cf_shade = sec->floorshade, global_cf_pal = sec->floorpal; global_cf_z = sec->floorz;  // REFACT
         global_cf_xpanning = sec->floorxpanning; global_cf_ypanning = sec->floorypanning, global_cf_heinum = sec->floorheinum;
         global_getzofslope_func = &getflorzofslope;
 
         if (!(globalorientation&1))
-            polymost_internal_nonparallaxed(nx0, ny0, nx1, ny1, ryp0, ryp1, x0, x1, fy0, fy1, 1, sectnum);
+        {
+#ifdef YAX_ENABLE
+            if (globalposz <= sec->floorz || yax_getbunch(sectnum, YAX_FLOOR) < 0 || yax_getnextwall(wallnum, YAX_FLOOR) >= 0)
+#endif
+                polymost_internal_nonparallaxed(nx0, ny0, nx1, ny1, ryp0, ryp1, x0, x1, fy0, fy1, 1, sectnum);
+        }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
         {
             //Parallaxing sky... hacked for Ken's mountain texture; paper-sky only :/
@@ -3321,15 +3344,15 @@ static void polymost_drawalls(int32_t bunch)
                 }
 
                 //Use clamping for tiled sky textures
-                for (i=(1<<pskybits)-1; i>0; i--)
-                    if (pskyoff[i] != pskyoff[i-1])
+                for (i=(1<<dapskybits)-1; i>0; i--)
+                    if (dapskyoff[i] != dapskyoff[i-1])
                         { skyclamphack = r_parallaxskyclamping; break; }
             }
 #endif
             if (bpp == 8 || !usehightile || !hicfindsubst(globalpicnum,globalpal,1))
             {
                 dd[0] = (float)xdimen*.0000001; //Adjust sky depth based on screen size!
-                t = (double)((1<<(picsiz[globalpicnum]&15))<<pskybits);
+                t = (double)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
                 vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
                 vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+parallaxyoffs)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
@@ -3364,20 +3387,19 @@ static void polymost_drawalls(int32_t bunch)
                 i = globalpicnum; r = (fy1-fy0)/(x1-x0); //slope of line
                 oy = ((double)viewingrange)/(ghalfx*256.0); oz = 1/oy;
 
-                y = ((((int32_t)((x0-ghalfx)*oy))+globalang)>>(11-pskybits));
+                y = ((((int32_t)((x0-ghalfx)*oy))+globalang)>>(11-dapskybits));
                 fx = x0;
                 do
                 {
-                    globalpicnum = pskyoff[y&((1<<pskybits)-1)]+i;
-                    guo = gdo*(t*((double)(globalang-(y<<(11-pskybits))))/2048.0 + (double)((r_parallaxskypanning)?sec->floorxpanning:0)) - gux*ghalfx;
+                    globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
+                    guo = gdo*(t*((double)(globalang-(y<<(11-dapskybits))))/2048.0 + (double)((r_parallaxskypanning)?sec->floorxpanning:0)) - gux*ghalfx;
                     y++;
-                    ox = fx; fx = ((double)((y<<(11-pskybits))-globalang))*oz+ghalfx;
+                    ox = fx; fx = ((double)((y<<(11-dapskybits))-globalang))*oz+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }
 
                     pow2xsplit = 0; domost(ox,(ox-x0)*r+fy0,fx,(fx-x0)*r+fy0); //flor
                 }
                 while (i >= 0);
-
             }
             else  //NOTE: code copied from ceiling code... lots of duplicated stuff :/
             {
@@ -3567,12 +3589,32 @@ static void polymost_drawalls(int32_t bunch)
         globalorientation = sec->ceilingstat;
         if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,sectnum);
 
+        // multi-psky stuff
+        dapskyoff = zeropskyoff;
+        dapskybits = pskybits;
+
+        for (i=0; i<pskynummultis; i++)
+        {
+            if (globalpicnum == pskymultilist[i])
+            {
+                dapskybits = pskymultibits[i];
+                dapskyoff = pskymultioff[i];
+                break;
+            }
+        }
+        //
+
         global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT
         global_cf_xpanning = sec->ceilingxpanning; global_cf_ypanning = sec->ceilingypanning, global_cf_heinum = sec->ceilingheinum;
         global_getzofslope_func = &getceilzofslope;
 
         if (!(globalorientation&1))
-            polymost_internal_nonparallaxed(nx0, ny0, nx1, ny1, ryp0, ryp1, x0, x1, cy0, cy1, 0, sectnum);
+        {
+#ifdef YAX_ENABLE
+            if (globalposz >= sec->ceilingz || yax_getbunch(sectnum, YAX_CEILING) < 0 || yax_getnextwall(wallnum, YAX_CEILING) >= 0)
+#endif
+                polymost_internal_nonparallaxed(nx0, ny0, nx1, ny1, ryp0, ryp1, x0, x1, cy0, cy1, 0, sectnum);
+        }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
         {
 #ifdef USE_OPENGL
@@ -3592,8 +3634,8 @@ static void polymost_drawalls(int32_t bunch)
                     bglFogfv(GL_FOG_COLOR,fogcol);
                 }
                 //Use clamping for tiled sky textures
-                for (i=(1<<pskybits)-1; i>0; i--)
-                    if (pskyoff[i] != pskyoff[i-1])
+                for (i=(1<<dapskybits)-1; i>0; i--)
+                    if (dapskyoff[i] != dapskyoff[i-1])
                         { skyclamphack = r_parallaxskyclamping; break; }
             }
 #endif
@@ -3602,7 +3644,7 @@ static void polymost_drawalls(int32_t bunch)
             {
                 //Render for parallaxtype == 0 / paper-sky
                 dd[0] = (float)xdimen*.0000001; //Adjust sky depth based on screen size!
-                t = (double)((1<<(picsiz[globalpicnum]&15))<<pskybits);
+                t = (double)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
                 vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
                 vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+parallaxyoffs)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
@@ -3636,14 +3678,14 @@ static void polymost_drawalls(int32_t bunch)
                 i = globalpicnum; r = (cy1-cy0)/(x1-x0); //slope of line
                 oy = ((double)viewingrange)/(ghalfx*256.0); oz = 1/oy;
 
-                y = ((((int32_t)((x0-ghalfx)*oy))+globalang)>>(11-pskybits));
+                y = ((((int32_t)((x0-ghalfx)*oy))+globalang)>>(11-dapskybits));
                 fx = x0;
                 do
                 {
-                    globalpicnum = pskyoff[y&((1<<pskybits)-1)]+i;
-                    guo = gdo*(t*((double)(globalang-(y<<(11-pskybits))))/2048.0 + (double)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - gux*ghalfx;
+                    globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
+                    guo = gdo*(t*((double)(globalang-(y<<(11-dapskybits))))/2048.0 + (double)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - gux*ghalfx;
                     y++;
-                    ox = fx; fx = ((double)((y<<(11-pskybits))-globalang))*oz+ghalfx;
+                    ox = fx; fx = ((double)((y<<(11-dapskybits))-globalang))*oz+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }
                     pow2xsplit = 0; domost(fx,(fx-x0)*r+cy0,ox,(ox-x0)*r+cy0); //ceil
                 }
@@ -4068,7 +4110,7 @@ static int32_t polymost_bunchfront(int32_t b1, int32_t b2)
     return(wallfront(i,b2f));
 }
 
-static void polymost_scansector(int32_t sectnum)
+void polymost_scansector(int32_t sectnum)
 {
     double d, xp1, yp1, xp2, yp2;
     walltype *wal, *wal2;
@@ -4088,15 +4130,13 @@ static void polymost_scansector(int32_t sectnum)
         {
             spr = &sprite[z];
             if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) &&
-                    (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
-                    (spritesortcnt < MAXSPRITESONSCREEN))
+                    (spr->xrepeat > 0) && (spr->yrepeat > 0))
             {
                 xs = spr->x-globalposx; ys = spr->y-globalposy;
-                if ((spr->cstat&48) || (xs*gcosang+ys*gsinang > 0))
+                if ((spr->cstat&48) || (xs*gcosang+ys*gsinang > 0) || (usemodels && tile2model[spr->picnum].modelid>=0))
                 {
-                    copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
-                    spriteext[z].tspr = (spritetype *)&tsprite[spritesortcnt];
-                    tsprite[spritesortcnt++].owner = z;
+                    if (engine_addtsprite(z, sectnum))
+                        break;
                 }
             }
         }
@@ -4119,7 +4159,7 @@ static void polymost_scansector(int32_t sectnum)
             if ((nextsectnum >= 0) && (!(wal->cstat&32)) && (!(gotsector[nextsectnum>>3]&pow2char[nextsectnum&7])))
             {
                 d = (double)x1*(double)y2 - (double)x2*(double)y1; xp1 = (double)(x2-x1); yp1 = (double)(y2-y1);
-                if (d *d <= (xp1*xp1 + yp1*yp1)*(SCISDIST*SCISDIST*260.0))
+                if (d*d <= (xp1*xp1 + yp1*yp1)*(SCISDIST*SCISDIST*260.0))
                     sectorborder[sectorbordercnt++] = nextsectnum;
             }
 
@@ -4152,7 +4192,13 @@ static void polymost_scansector(int32_t sectnum)
 
         for (z=numscansbefore; z<numscans; z++)
             if ((wall[thewall[z]].point2 != thewall[p2[z]]) || (dxb2[z] > dxb1[p2[z]]))
-                { bunchfirst[numbunches++] = p2[z]; p2[z] = -1; }
+            {
+                bunchfirst[numbunches++] = p2[z]; p2[z] = -1;
+#ifdef YAX_ENABLE
+                if (scansector_retfast)
+                    return;
+#endif
+            }
 
         for (z=bunchfrst; z<numbunches; z++)
         {

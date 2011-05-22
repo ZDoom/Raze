@@ -79,7 +79,7 @@ extern int32_t pk_turnaccel,pk_turndecel,pk_uedaccel;
 extern int32_t revertCTRL,scrollamount;
 extern int32_t autosave;
 extern int32_t mlook;
-extern int16_t prefixtiles[16];
+extern int16_t prefixtiles[10];
 
 extern int32_t numsprites;
 extern int32_t showfirstwall;

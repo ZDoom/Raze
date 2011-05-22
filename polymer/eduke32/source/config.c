@@ -750,7 +750,7 @@ int32_t CONFIG_ReadSetup(void)
                 Bsprintf(buf,"WeaponChoice%d",i);
                 dummy = -1;
                 SCRIPT_GetNumber(ud.config.scripthandle, "Misc", buf, &dummy);
-                if (dummy >= 0) g_player[0].wchoice[i] = dummy;
+                if (dummy >= 0 && dummy<10) g_player[0].wchoice[i] = dummy;
             }
 
 #ifdef _WIN32

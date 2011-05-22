@@ -188,16 +188,6 @@ int16_t editstatus = 0;
 
 ////////// YAX //////////
 
-#ifdef YAX_DEBUG
-extern char m32_debugstr[64][128];
-extern int32_t m32_numdebuglines;
-# define yaxdebug(fmt, ...)  do { if (m32_numdebuglines<64) Bsnprintf(m32_debugstr[m32_numdebuglines++], 128, fmt, ##__VA_ARGS__); } while (0)
-# define yaxprintf(fmt, ...) do { initprintf(fmt, ##__VA_ARGS__); } while (0)
-#else
-# define yaxdebug(fmt, ...)
-# define yaxprintf(fmt, ...)
-#endif
-
 uint8_t graysectbitmap[MAXSECTORS>>3];
 uint8_t graywallbitmap[MAXWALLS>>3];
 int32_t autogray = 0;
@@ -263,7 +253,7 @@ void yax_updategrays(int32_t posze)
 // get/set functions!
 
 static int32_t g_nodraw = 0;
-static int32_t scansector_retfast = 0;
+int32_t scansector_retfast = 0;
 static int32_t scansector_collectsprites = 1;
 static int32_t yax_globalcf = -1;
 static int32_t yax_globallev = YAX_MAXDRAWS;
@@ -317,11 +307,17 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
     if (bunchnum<0)
     {
         int32_t j;
+        int16_t ynw;
+
         // TODO: for in-game too?
         for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
         {
-            yax_setnextwall(j, YAX_CEILING, -1);
-            yax_setnextwall(j, YAX_FLOOR, -1);
+            ynw = yax_getnextwall(j, cf);
+            if (ynw >= 0)
+            {
+                yax_setnextwall(ynw, !cf, -1);
+                yax_setnextwall(j, cf, -1);
+            }
         }
 
         *(&sector[i].ceilingstat + cf) &= ~YAX_BIT;
@@ -608,7 +604,12 @@ static void yax_scanbunches(int32_t bbeg, int32_t numhere, const uint8_t *lastgo
             if (checkthisec)
             {
                 numscans = numbunches = 0;
-                scansector(k);
+                if (getrendermode()==0)
+                    scansector(k);
+#ifdef USE_OPENGL
+                else
+                    polymost_scansector(k);
+#endif
                 if (numbunches > 0)
                 {
                     bestsec = k;
@@ -705,9 +706,10 @@ static void yax_copytsprite(int32_t curbunchnum, int32_t resetsortcnt)
     }
 }
 
+
 void yax_preparedrawrooms(void)
 {
-    if (getrendermode()!=0 || numyaxbunches==0)
+    if (getrendermode()==4 || numyaxbunches==0)
         return;
 
     g_nodraw = 1;
@@ -745,7 +747,7 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
     int32_t t;
 #endif
 
-    if (getrendermode()!=0 || numyaxbunches==0)
+    if (getrendermode()==4 || numyaxbunches==0)
     {
 #ifdef ENGINE_SCREENSHOT_DEBUG
         engine_screenshot = 0;
@@ -872,13 +874,19 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
     scansector_collectsprites = 0;
 
 #ifdef ENGINE_CLEAR_SCREEN
-    if (rendmode==0)
+    if (getrendermode()==0)
     {
         begindrawing();
-        for (i=0; i<xdim*ydim; i++)
+        for (i=0; i<xdimen*ydimen; i++)
             *((char *)frameplace + i) = i;
         enddrawing();
     }
+#ifdef USE_OPENGL
+    else
+    {
+        bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    }
+#endif
 #endif
 
     for (cf=0; cf<2; cf++)
@@ -944,7 +952,7 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 #endif
 
 #ifdef YAX_DEBUG_YMOSTS
-    if (rendmode==0)
+    if (getrendermode()==0)
     {
         begindrawing();
         for (i=0; i<numyaxbunches; i++)
@@ -2078,6 +2086,70 @@ static inline int32_t getpalookup(int32_t davis, int32_t dashade)
 }
 
 
+// returns: 0=continue;
+//          1=break;
+int32_t engine_addtsprite(int16_t z, int16_t sectnum)
+{
+    spritetype *spr = &sprite[z];
+#ifdef YAX_ENABLE
+    int16_t cb, fb, *sortcnt;
+    int32_t spheight, spzofs;
+
+    if (g_nodraw==0)
+    {
+#endif
+        if (spritesortcnt >= MAXSPRITESONSCREEN)
+            return 1;
+
+        copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
+        spriteext[z].tspr = (spritetype *)&tsprite[spritesortcnt];
+        tsprite[spritesortcnt++].owner = z;
+#ifdef YAX_ENABLE
+    }
+    else
+    {
+        sortcnt = &yax_spritesortcnt[yax_globallev];
+        if (*sortcnt >= MAXSPRITESONSCREEN)
+            return 0;
+
+        yax_tsprite[yax_globallev][*sortcnt] = z;
+        (*sortcnt)++;
+
+        // now check whether the tsprite needs duplication into another level
+        if ((spr->cstat&48)==32)
+            return 0;
+
+        yax_getbunches(sectnum, &cb, &fb);
+        if (cb < 0 && fb < 0)
+            return 0;
+
+        spriteheightofs(z, &spheight, &spzofs);
+
+        // TODO: get*zofslope?
+        if (cb>=0 && spr->z+spzofs-spheight < sector[sectnum].ceilingz)
+        {
+            sortcnt = &yax_spritesortcnt[yax_globallev-1];
+            if (*sortcnt < MAXSPRITESONSCREEN)
+            {
+                yax_tsprite[yax_globallev-1][*sortcnt] = z|MAXSPRITES;
+                (*sortcnt)++;
+            }
+        }
+        if (fb>=0 && spr->z+spzofs > sector[sectnum].floorz)
+        {
+            sortcnt = &yax_spritesortcnt[yax_globallev+1];
+            if (*sortcnt < MAXSPRITESONSCREEN)
+            {
+                yax_tsprite[yax_globallev+1][*sortcnt] = z|(MAXSPRITES<<1);
+                (*sortcnt)++;
+            }
+        }
+    }
+#endif
+
+    return 0;
+}
+
 //
 // scansector (internal)
 //
@@ -2088,10 +2160,6 @@ static void scansector(int16_t sectnum)
     int32_t xs, ys, x1, y1, x2, y2, xp1, yp1, xp2=0, yp2=0, tempint;
     int16_t z, zz, startwall, endwall, numscansbefore, scanfirst, bunchfrst;
     int16_t nextsectnum;
-#ifdef YAX_ENABLE
-    int16_t cb, fb, *sortcnt;
-    int32_t spheight, spzofs;
-#endif
 
     if (sectnum < 0) return;
 
@@ -2112,60 +2180,8 @@ static void scansector(int16_t sectnum)
             {
                 xs = spr->x-globalposx; ys = spr->y-globalposy;
                 if ((spr->cstat&48) || (xs*cosglobalang+ys*singlobalang > 0))
-                {
-#ifdef YAX_ENABLE
-                    if (g_nodraw==0)
-                    {
-#endif
-                        if (spritesortcnt >= MAXSPRITESONSCREEN)
-                            break;
-
-                        copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
-                        spriteext[z].tspr = (spritetype *)&tsprite[spritesortcnt];
-                        tsprite[spritesortcnt++].owner = z;
-#ifdef YAX_ENABLE
-                    }
-                    else
-                    {
-                        sortcnt = &yax_spritesortcnt[yax_globallev];
-                        if (*sortcnt >= MAXSPRITESONSCREEN)
-                            break;
-
-                        yax_tsprite[yax_globallev][*sortcnt] = z;
-                        (*sortcnt)++;
-
-                        // now check whether the tsprite needs duplication into another level
-                        if ((spr->cstat&48)==32)
-                            continue;
-
-                        yax_getbunches(sectnum, &cb, &fb);
-                        if (cb < 0 && fb < 0)
-                            continue;
-
-                        spriteheightofs(z, &spheight, &spzofs);
-
-                        // TODO: get*zofslope?
-                        if (cb>=0 && spr->z+spzofs-spheight < sector[sectnum].ceilingz)
-                        {
-                            sortcnt = &yax_spritesortcnt[yax_globallev-1];
-                            if (*sortcnt < MAXSPRITESONSCREEN)
-                            {
-                                yax_tsprite[yax_globallev-1][*sortcnt] = z|MAXSPRITES;
-                                (*sortcnt)++;
-                            }
-                        }
-                        if (fb>=0 && spr->z+spzofs > sector[sectnum].floorz)
-                        {
-                            sortcnt = &yax_spritesortcnt[yax_globallev+1];
-                            if (*sortcnt < MAXSPRITESONSCREEN)
-                            {
-                                yax_tsprite[yax_globallev+1][*sortcnt] = z|(MAXSPRITES<<1);
-                                (*sortcnt)++;
-                            }
-                        }
-                    }
-#endif
-                }
+                    if (engine_addtsprite(z, sectnum))
+                        break;
             }
         }
 
@@ -6979,6 +6995,19 @@ static void loadpalette(void)
 
     kread(fil,palookup[globalpal],numpalookups<<8);
     kread(fil,transluc,65536);
+
+    if (crc32once((uint8_t *)transluc, 65536)==0x94a1fac6)
+    {
+        int32_t i;
+        // fix up translucency table so that transluc(255,x)
+        // and transluc(x,255) is black instead of purple
+        for (i=0; i<256; i++)
+        {
+            transluc[(255<<8) + i] = transluc[i];
+            transluc[255 + (i<<8)] = transluc[i<<8];
+        }
+    }
+
     kclose(fil);
 
     initfastcolorlookup(30L,59L,11L);
@@ -7676,7 +7705,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     if (!g_nodraw)
 #endif
     if (numyaxbunches==0)
-        for (i=0; i<xdim*ydim; i++)
+        for (i=0; i<xdimen*ydimen; i++)
             *((char *)frameplace + i) = i;
 #endif
 
@@ -7948,7 +7977,7 @@ static inline int32_t         sameside(_equation *eq, _point2d *p1, _point2d *p2
 //
 void drawmasks(void)
 {
-    int32_t i, j, k, l, gap, xs, ys, xp, yp, yoff, yspan;
+    int32_t i, j, k, l, gap, xs, ys, xp, yp, yoff, yspan, modelp=0;
     // PLAG: sorting stuff
     _equation maskeq, p1eq, p2eq;
     _point2d dot, dot2, middle, pos, spr;
@@ -7966,6 +7995,9 @@ void drawmasks(void)
     {
         xs = tspriteptr[i]->x-globalposx; ys = tspriteptr[i]->y-globalposy;
         yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
+#ifdef USE_OPENGL
+        modelp = (usemodels && tile2model[tspriteptr[i]->picnum].modelid >= 0);
+#endif
         if (yp > (4<<8))
         {
             xp = dmulscale6(ys,cosglobalang,-xs,singlobalang);
@@ -7975,12 +8007,15 @@ void drawmasks(void)
         else if ((tspriteptr[i]->cstat&48) == 0)
         {
 killsprite:
-            spritesortcnt--;  //Delete face sprite if on wrong side!
-            if (i == spritesortcnt) continue;
-            tspriteptr[i] = tspriteptr[spritesortcnt];
-            spritesx[i] = spritesx[spritesortcnt];
-            spritesy[i] = spritesy[spritesortcnt];
-            continue;
+            if (!modelp)
+            {
+                spritesortcnt--;  //Delete face sprite if on wrong side!
+                if (i == spritesortcnt) continue;
+                tspriteptr[i] = tspriteptr[spritesortcnt];
+                spritesx[i] = spritesx[spritesortcnt];
+                spritesy[i] = spritesy[spritesortcnt];
+                continue;
+            }
         }
         spritesy[i] = yp;
     }
@@ -13725,7 +13760,7 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
     }
 }
 
-
+#if 0
 //
 // qsetmode640350
 //
@@ -13787,7 +13822,7 @@ void qsetmode640480(void)
 
     qsetmode = 480;
 }
-
+#endif
 
 //
 // qsetmodeany

@@ -1856,7 +1856,7 @@ static int32_t C_CountCaseStatements()
 
 static int32_t C_ParseCommand(int32_t loop)
 {
-    int32_t i, j=0, k=0, done, tw, otw;
+    int32_t i, j=0, k=0, tw, otw;
     char *temptextptr;
     intptr_t *tempscrptr = NULL;
 

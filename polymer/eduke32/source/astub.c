@@ -3861,50 +3861,10 @@ static int32_t OnSaveTileGroup(void)
 
 static int32_t OnGotoTile(int32_t iTile)
 {
-    int32_t iTemp, iNewTile;
-    char ch;
-    char szTemp[128];
-
     //Automatically press 'V'
     iTile = SelectAllTiles(iTile);
 
-    bflushchars();
-
-    iNewTile = iTemp = 0; //iTile; //PK
-
-    while (keystatus[KEYSC_ESC] == 0)
-    {
-        if (handleevents())
-            quitevent = 0;
-
-        idle_waitevent();
-
-        ch = bgetchar();
-
-        Bsprintf(szTemp, "Goto tile: %d_ ", iNewTile);
-        printext256(0, 0, whitecol, 0, szTemp, 0);
-        showframe(1);
-
-        if (ch >= '0' && ch <= '9')
-        {
-            iTemp = (iNewTile*10) + (ch-'0');
-            if (iTemp < MAXTILES)
-                iNewTile = iTemp;
-        }
-        else if (ch == 8)
-        {
-            iNewTile /= 10;
-        }
-        else if (ch == 13)
-        {
-            iTile = iNewTile;
-            break;
-        }
-    }
-
-    clearkeys();
-
-    return iTile;
+    return getnumber256("Goto tile: ", 0, MAXTILES-1, 0+2+16);
 }
 
 
@@ -7923,14 +7883,14 @@ static void Keys2d(void)
                 j = 0;
                 x = wall[sector[i].wallptr].x;
                 y = wall[sector[i].wallptr].y;
-                z = sector[i].floorz;
+                z = getflorzofslope(i, x, y);
                 break;
             case CORRUPT_WALL:
                 i = k&(MAXWALLS-1);
                 j = 1;
                 x = wall[i].x;
                 y = wall[i].y;
-                z = sector[sectorofwall(i)].floorz;
+                z = getflorzofslope(sectorofwall(i), x, y);
                 break;
             case CORRUPT_SPRITE:
                 i = k&(MAXSPRITES-1);
