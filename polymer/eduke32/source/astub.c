@@ -7426,7 +7426,7 @@ static void Keys2d(void)
     for (i=0; i<numsectors; i++)
     {
         YAX_SKIPSECTOR(i);
-        if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+        if (inside_editor_curpos(i) == 1)
         {
             tcursectornum = i;
             break;
@@ -7516,6 +7516,30 @@ static void Keys2d(void)
 ///__bigcomment__
 
 #ifdef YAX_ENABLE
+    if (eitherCTRL && PRESSED_KEYSC(U) && tcursectornum>=0)  // Ctrl-U: unlink bunch sectors
+    {
+        int16_t cf, fb = yax_getbunch(tcursectornum, YAX_FLOOR);
+        if (fb >= 0)
+        {
+            for (SECTORS_OF_BUNCH(fb,YAX_FLOOR, i))
+                fillsector(tcursectornum, editorcolors[11]);
+            fade_editor_screen(editorcolors[11]);
+
+            if (ask_if_sure("Clear all TROR extensions from marked sectors?", 0))
+            {
+                for (cf=0; cf<2; cf++)
+                    for (SECTORS_OF_BUNCH(fb,cf, i))
+                        yax_setbunch(i, cf, -1);
+            }
+
+            yax_update(0);
+            yax_updategrays(pos.z);
+
+            message("Cleared TROR bunch %d", fb);
+            asksave = 1;
+        }
+    }
+
     if (/*!m32_sideview &&*/ numyaxbunches>0)
     {
         int32_t zsign=0;
@@ -7651,7 +7675,7 @@ static void Keys2d(void)
         else
         {
             for (i=0; i<numsectors; i++)
-                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+                if (inside_editor_curpos(i) == 1)
                 {
                     Bsprintf(buffer,"Sector (%d) Lo-tag: ",i);
 //                    j = qsetmode;
@@ -7733,7 +7757,7 @@ static void Keys2d(void)
         else
         {
             for (i=0; i<numsectors; i++)
-                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+                if (inside_editor_curpos(i) == 1)
                 {
                     Bsprintf(tempbuf,"Sector %d Extra: ",i);
                     sector[i].extra = getnumber16(tempbuf,sector[i].extra,BTAG_MAX,1);
@@ -7744,7 +7768,7 @@ static void Keys2d(void)
     if (!eitherCTRL && PRESSED_KEYSC(E))  // E (expand)
     {
         for (i=0; i<numsectors; i++)
-            if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+            if (inside_editor_curpos(i) == 1)
             {
                 sector[i].floorstat ^= 8;
                 message("Sector %d floor texture expansion bit %s", i, ONOFF(sector[i].floorstat&8));
@@ -7765,7 +7789,7 @@ static void Keys2d(void)
         else if (graphicsmode != 0)
         {
             for (i=0; i<numsectors; i++)
-                if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+                if (inside_editor_curpos(i) == 1)
                 {
 #ifdef YAX_ENABLE
                     if (yax_getbunch(i, YAX_FLOOR) < 0)
@@ -7807,7 +7831,7 @@ static void Keys2d(void)
 #ifdef YAX_ENABLE
                         if (k==1 || yax_getbunch(i, YAX_FLOOR) < 0)
 #endif
-                        if (inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc,i) == 1)
+                        if (inside_editor_curpos(i) == 1)
                         {
                             uint8_t *panning = (k==0) ? &sector[i].floorxpanning : &sector[i].floorypanning;
                             *panning = changechar(*panning, changedir, smooshy, 0);

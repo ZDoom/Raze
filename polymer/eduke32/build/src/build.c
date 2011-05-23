@@ -514,40 +514,36 @@ int32_t app_main(int32_t argc, const char **argv)
     // init dummy texture for YAX
     // must be after loadpics(), which inits BUILD's cache
 
-    for (i=MAXTILES-1; i>=MAXTILES-2; i--)
-        if (tilesizx[i]==0 && tilesizy[i]==0)
-        {
-            static char R[8*16] = { //
-                0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
-                0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
-                0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
-                0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0,
-                0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
-                0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
-                0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0,
-            };
+    i = MAXTILES-1;
+    if (tilesizx[i]==0 && tilesizy[i]==0)
+    {
+        static char R[8*16] = { //
+            0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
+            0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
+            0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0,
+            0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0,
+            0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
+            0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0,
+            0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0,
+        };
 
-            char *newtile;
-            int32_t sx=32, sy=32, col, j;
+        char *newtile;
+        int32_t sx=32, sy=32, col, j;
 
-            walock[i] = 255; // permanent tile
-            picsiz[i] = 5 + (5<<4);
-            tilesizx[i] = sx; tilesizy[i] = sy;
-            allocache(&waloff[i], sx*sy, &walock[i]);
-            newtile = (char *)waloff[i];
+        walock[i] = 255; // permanent tile
+        picsiz[i] = 5 + (5<<4);
+        tilesizx[i] = sx; tilesizy[i] = sy;
+        allocache(&waloff[i], sx*sy, &walock[i]);
+        newtile = (char *)waloff[i];
 
-            if (i==MAXTILES-1)
-                col = getclosestcol(128>>2, 128>>2, 0);
-            else
-                col = getclosestcol(63, 0, 63);
-            for (j=0; j<(signed)sizeof(R); j++)
-                if (R[j])
-                    R[j] = col;
+        col = getclosestcol(128>>2, 128>>2, 0);
+        for (j=0; j<(signed)sizeof(R); j++)
+            R[j] *= col;
 
-            Bmemset(newtile, 0, sx*sy);
-            for (j=0; j<8; j++)
-                Bmemcpy(&newtile[32*j], &R[16*j], 16);
-        }
+        Bmemset(newtile, 0, sx*sy);
+        for (j=0; j<8; j++)
+            Bmemcpy(&newtile[32*j], &R[16*j], 16);
+    }
 #endif
 
     Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");
@@ -1322,8 +1318,9 @@ char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck)
 
 ////////////////////// OVERHEADEDITOR //////////////////////
 
-static int32_t inside_editor_curpos(int16_t sectnum)
+int32_t inside_editor_curpos(int16_t sectnum)
 {
+    // TODO: take care: mous[xy]plc global vs overheadeditor auto
     return inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc, sectnum);
 }
 
@@ -1922,17 +1919,26 @@ void correct_sprite_yoffset(int32_t i)
         sprite[i].yoffset = 0;
 }
 
+// keepcol >= 0 && <256: keep that idx-color
+// keepcol < 0: keep none
+// keepcol >= 256: 0x00ffffff is mask for 3 colors
 void fade_editor_screen(int32_t keepcol)
 {
-    char blackcol=editorcolors[0], greycol=whitecol-25, *cp;
-    int32_t i;
+    char blackcol=0, greycol=whitecol-25, *cp;
+    int32_t pix, i, threecols = (keepcol >= 256);
+    char cols[3] = {keepcol&0xff, (keepcol>>8)&0xff, (keepcol>>16)&0xff};
 
     begindrawing();
     cp = (char *)frameplace;
     for (i=0; i<bytesperline*(ydim-STATUS2DSIZ2); i++, cp++)
     {
-        if ((int32_t)(*cp) == keepcol)
+        pix = (uint8_t)(*cp);
+
+        if (!threecols && pix == keepcol)
             continue;
+        if (threecols)
+            if (pix==cols[0] || pix==cols[1] || pix==cols[2])
+                continue;
 
         if (*cp==greycol)
             *cp = blackcol;
@@ -2046,7 +2052,6 @@ static void updatesprite1(int16_t i)
     }
 }
 
-static int32_t ask_if_sure(const char *query, uint32_t flags);
 #ifdef YAX_ENABLE
 static int32_t ask_above_or_below(void);
 #endif
@@ -2252,21 +2257,37 @@ static int32_t collnumsects[2];
 static int16_t collsectlist[2][MAXSECTORS];
 static uint8_t collsectbitmap[2][MAXSECTORS>>3];
 
-static void collect_sectors1(int16_t *sectlist, uint8_t *sectbitmap, int32_t *numsectptr, int16_t startsec)
+static void collect_sectors1(int16_t *sectlist, uint8_t *sectbitmap, int32_t *numsectptr,
+                             int16_t startsec, int32_t alsoyaxnext)
 {
     int32_t j, startwall, endwall, sectcnt;
 
     bfirst_search_init(sectlist, sectbitmap, numsectptr, MAXSECTORS, startsec);
 
     for (sectcnt=0; sectcnt<*numsectptr; sectcnt++)
+    {
         for (WALLS_OF_SECTOR(sectlist[sectcnt], j))
             bfirst_search_try(sectlist, sectbitmap, numsectptr, wall[j].nextsector);
+
+        if (alsoyaxnext)
+        {
+            int16_t bn[2], cf;
+            yax_getbunches(sectlist[sectcnt], &bn[0], &bn[1]);
+            for (cf=0; cf<2; cf++)
+                if (bn[cf]>=0)
+                {
+                    for (SECTORS_OF_BUNCH(bn[cf], !cf, j))
+                        bfirst_search_try(sectlist, sectbitmap, numsectptr, j);
+                }
+        }
+    }
 }
 
 // whether all highlighted sectors are in one (returns 1), two (2)
 // or more (>2) connected components wrt the nextsector relation
 // -1 means error
-static int32_t highlighted_sectors_components(void)
+//  alsoyaxnext: also consider "yax-nextsector" relation
+static int32_t highlighted_sectors_components(int32_t alsoyaxnext)
 {
     int32_t j, k, tmp;
 
@@ -2276,7 +2297,8 @@ static int32_t highlighted_sectors_components(void)
     if (highlightsectorcnt==1)
         return 1;
 
-    collect_sectors1(collsectlist[0], collsectbitmap[0], &collnumsects[0], highlightsector[0]);
+    collect_sectors1(collsectlist[0], collsectbitmap[0], &collnumsects[0],
+                     highlightsector[0], alsoyaxnext);
 
     for (k=0; k<highlightsectorcnt; k++)
     {
@@ -2284,7 +2306,8 @@ static int32_t highlighted_sectors_components(void)
         if ((collsectbitmap[0][j>>3]&(1<<(j&7)))==0)
         {
             // sector j not collected --> more than 1 conn. comp.
-            collect_sectors1(collsectlist[1], collsectbitmap[1], &collnumsects[1], j);
+            collect_sectors1(collsectlist[1], collsectbitmap[1], &collnumsects[1],
+                             j, alsoyaxnext);
             break;
         }
     }
@@ -2307,7 +2330,6 @@ static int32_t highlighted_sectors_components(void)
     return 2;
 }
 
-#if 0
 static int cmpgeomwal1(const int16_t *w1, const int16_t *w2)
 {
     const walltype *wal1 = &wall[*w1];
@@ -2323,7 +2345,6 @@ static void sort_walls_geometrically(int16_t *wallist, int32_t nwalls)
 {
     qsort(wallist, nwalls, sizeof(int16_t), (int(*)(const void *, const void *))&cmpgeomwal1);
 }
-#endif
 #endif
 
 void overheadeditor(void)
@@ -3171,7 +3192,7 @@ void overheadeditor(void)
                     goto end_yax;
                 }
 
-                if (highlighted_sectors_components() != 1)
+                if (highlighted_sectors_components(0) != 1)
                 {
                     message("Sectors to extend must be in one connected component");
                     goto end_yax;
@@ -4269,18 +4290,19 @@ end_point_dragging:
                 goto end_join_sectors;
             }
 
-#if 0
-//def YAX_ENABLE
+#ifdef YAX_ENABLE
             if (highlightsectorcnt > 0 && eitherCTRL)
             {
                 // [component][ceiling(0) or floor(1)]
-                // compstat: &1: "has extension", &2: "differ in z", &4: "sloped"
-                int32_t cf, comp, compstat[2][2]={{0,0},{0,0}}, compcfz[2][2];
+                // compstat: &1: "has extension", &2: "differ in z", &4: "sloped", -1: "uninited"
+                int32_t cf, comp, compstat[2][2]={{-1,-1},{-1,-1}}, compcfz[2][2];
 
-                // joinstat:
+                // joinstat: join what to what?
                 //  &1: ceil(comp 0) <-> flor(comp 1),  &2: flor(comp 0) <-> ceil(comp 1)
                 //  (doesn't yet say which is stationary)
-                int32_t joinstat, needsdisp, dx,dy,dz;
+                // movestat: which component can be displaced?
+                //  &1: first,  &2: second
+                int32_t askres, joinstat, needsdisp, movestat, dx=0,dy=0,dz;
 
                 // tempxyar: int32_t [MAXWALLS][2]
                 int32_t numouterwalls[2] = {0,0}, numowals;
@@ -4296,7 +4318,7 @@ end_point_dragging:
 
                 // first, see whether we have exactly two connected components
                 // wrt wall[].nextsector
-                if (highlighted_sectors_components() != 2)
+                if (highlighted_sectors_components(0) != 2)
                 {
                     message("Sectors must be partitioned in two components to join");
                     goto end_join_sectors;
@@ -4309,8 +4331,11 @@ end_point_dragging:
 
                     for (cf=0; cf<2; cf++)
                     {
-                        if (k==0)
+                        if (compstat[comp][cf]==-1)
+                        {
+                            compstat[comp][cf] = 0;
                             compcfz[comp][cf] = SECTORFLD(j,z, cf);
+                        }
 
                         if (yax_getbunch(j, cf)>=0)
                             compstat[comp][cf] |= 1;
@@ -4333,6 +4358,7 @@ end_point_dragging:
                 if (joinstat==0)
                 {
                     message("No consistent joining combination found");
+                    //for (i=0; i<2; i++) for (j=0; j<2; j++) message("%d", compstat[i][j]);
                     goto end_join_sectors;
                 }
                 if (joinstat==3)
@@ -4366,7 +4392,6 @@ end_point_dragging:
                 for (comp=0; comp<2; comp++)
                     sort_walls_geometrically(outerwall[comp], numouterwalls[comp]);
 
-                needsdisp = 0;
                 for (k=0; k<numowals; k++)
                 {
                     wal0 = &wall[outerwall[0][k]];
@@ -4386,6 +4411,121 @@ end_point_dragging:
                         goto end_join_sectors;
                     }
                 }
+
+                if (joinstat == 3)
+                {
+                    char askchars[2] = {'1', 'v'};
+
+                    // now is a good time to ask...
+                    for (comp=0; comp<2; comp++)
+                        for (k=0; k<collnumsects[comp]; k++)
+                            fillsector(collsectlist[comp][k], comp==0 ? 159 : editorcolors[11]);
+
+                    fade_editor_screen(editorcolors[11] | (159<<8));
+                    askres = editor_ask_function("Connect yellow ceil w/ blue floor (1) or (v)ice versa?", askchars, 2);
+                    if (askres==-1)
+                        goto end_join_sectors;
+                    joinstat &= (1<<askres);
+                }
+
+                joinstat--;  // 0:ceil(0)<->flor(1), 1:ceil(1)<->flor(0)
+
+                dz = compcfz[1][!joinstat] - compcfz[0][joinstat];
+                needsdisp = (dx || dy || dz);
+
+                if (needsdisp)
+                {
+                    // a component can be displaced if it's not extended on the non-joining side
+                    movestat = (compstat[0][!joinstat]^1) | ((compstat[1][joinstat]^1)<<1);
+                    if (!movestat)
+                    {
+                        message("Internal error while TROR-joining: movestat inconsistent!");
+                        goto end_join_sectors;
+                    }
+
+                    if (movestat==3)
+                    {
+                        char askchars[2] = {'y', 'b'};
+
+                        for (comp=0; comp<2; comp++)
+                            for (k=0; k<collnumsects[comp]; k++)
+                                fillsector(collsectlist[comp][k], comp==0 ? 159 : editorcolors[11]);
+
+                        fade_editor_screen(editorcolors[11] | (159<<8));
+                        askres = editor_ask_function("Move (y)ellow or (b)lue component?", askchars, 2);
+                        if (askres==-1)
+                            goto end_join_sectors;
+                        movestat &= (1<<askres);
+                    }
+
+                    movestat--;  // 0:move 1st, 1:move 2nd component
+                    if (movestat==1)
+                        dx*=-1, dy*=-1, dz*=-1;
+
+                    // now need to collect them wrt. the nextsector but also
+                    // the yax-nextsector relation
+                    if (highlighted_sectors_components(1) != 2)
+                    {
+                        message("Must not have TROR connections between the two components");
+                        goto end_join_sectors;
+                    }
+
+                    // displace!
+                    for (k=0; k<collnumsects[movestat]; k++)
+                    {
+                        i = collsectlist[movestat][k];
+
+                        sector[i].floorz += dz;
+                        sector[i].ceilingz += dz;
+
+                        for (WALLS_OF_SECTOR(i, j))
+                        {
+                            wall[j].x += dx;
+                            wall[j].y += dy;
+                        }
+
+                        for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
+                        {
+                            sprite[j].x += dx;
+                            sprite[j].y += dy;
+                            sprite[j].z += dz;
+                        }
+                    }
+
+                    // restore old components
+                    highlighted_sectors_components(0);
+
+                }  // end if (needsdisp)
+
+                /*** construct the YAX connection! ***/
+                for (comp=0; comp<2; comp++)
+                {
+                    // sectors
+                    for (k=0; k<collnumsects[comp]; k++)
+                    {
+                        i = collsectlist[comp][k];
+                        yax_setbunch(i, comp^joinstat, numyaxbunches);
+                        SECTORFLD(i,stat, comp^joinstat) &= ~1;  // no plax
+
+                        // restore red walls
+                        for (WALLS_OF_SECTOR(i, j))
+                            if (wall[j].nextwall < 0)
+                                checksectorpointer(j, i);
+                    }
+
+                    // walls
+                    for (j=0; j<numowals; j++)
+                        yax_setnextwall(outerwall[comp][j], comp^joinstat, outerwall[!comp][j]);
+                }
+
+                Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
+                update_highlightsector();
+
+                yax_update(0);
+                yax_updategrays(pos.z);
+
+                message("Joined highlighted sectors to new bunch %d", numyaxbunches);
+                asksave = 1;
             }
             else
 #endif  // defined YAX_ENABLE
@@ -6124,7 +6264,7 @@ CANCEL:
 // flags:
 // 1: quit_is_yes
 // 2: don't clear keys on return
-static int32_t ask_if_sure(const char *query, uint32_t flags)
+int32_t ask_if_sure(const char *query, uint32_t flags)
 {
     char ch;
     int32_t ret=-1;
@@ -6167,7 +6307,7 @@ static int32_t ask_if_sure(const char *query, uint32_t flags)
     return 0;
 }
 
-int32_t editor_ask_function(const char *question, char *dachars, int32_t numchars)
+int32_t editor_ask_function(const char *question, const char *dachars, int32_t numchars)
 {
     char ch;
     int32_t i, ret=-1;

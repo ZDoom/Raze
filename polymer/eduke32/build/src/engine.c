@@ -634,19 +634,19 @@ static int yax_cmpbunches(const int16_t *b1, const int16_t *b2)
 static void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
 {
     static int16_t opicnum[2][MAXSECTORS];
-    int32_t i, stat;
+    int32_t i, dastat;
 
     for (SECTORS_OF_BUNCH(bunchnum, cf, i))
     {
-        stat = (SECTORFLD(i,stat, cf)&(128+256+4096));
-        if ((stat&4096) || stat==0)
+        dastat = (SECTORFLD(i,stat, cf)&(128+256));
+        if (dastat==0)
         {
             if (!restore)
             {
                 opicnum[cf][i] = SECTORFLD(i,picnum, cf);
                 if (editstatus && showinvisibility)
-                    SECTORFLD(i,picnum, cf) = MAXTILES-1-((stat&4096)>>12);
-                else if ((stat&(128+256))==0)
+                    SECTORFLD(i,picnum, cf) = MAXTILES-1;
+                else if ((dastat&(128+256))==0)
                     SECTORFLD(i,picnum, cf) = 13; //FOF;
             }
             else

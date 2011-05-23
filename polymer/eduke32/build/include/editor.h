@@ -214,7 +214,9 @@ extern int32_t lastpm16time;
 
 extern char lastpm16buf[156];
 
-int32_t editor_ask_function(const char *question, char *dachars, int32_t numchars);
+int32_t fillsector(int16_t sectnum, int32_t fillcolor);
+int32_t ask_if_sure(const char *query, uint32_t flags);
+int32_t editor_ask_function(const char *question, const char *dachars, int32_t numchars);
 
 void spriteoncfz(int32_t i, int32_t *czptr, int32_t *fzptr);
 void DoSpriteOrnament(int32_t i);
@@ -224,6 +226,7 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point);
 void update_highlight(void);
 void update_highlightsector(void);
 
+int32_t inside_editor_curpos(int16_t sectnum);
 int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32_t zoom,
                       int32_t x, int32_t y, int16_t sectnum);
 void correct_sprite_yoffset(int32_t i);
