@@ -4286,11 +4286,8 @@ static void drawalls(int32_t bunch)
             {
                 if ((cz[2] <= cz[0]) && (cz[3] <= cz[1]))
                 {
-                    if (globparaceilclip
-#ifdef YAX_ENABLE
-                            || (sector[globalcursectnum].ceilingstat&4096)
-#endif
-)
+//                    if (globparaceilclip)
+                    if (getceilzofslope(sectnum, globalposx, globalposy) <= globalposz)
                         for (x=x1; x<=x2; x++)
                             if (uplc[x] > umost[x])
                                 if (umost[x] <= dmost[x])
@@ -4380,11 +4377,8 @@ static void drawalls(int32_t bunch)
             {
                 if ((fz[2] >= fz[0]) && (fz[3] >= fz[1]))
                 {
-                    if (globparaflorclip
-#ifdef YAX_ENABLE
-                            || (sector[globalcursectnum].floorstat&4096)
-#endif
-                        )
+//                    if (globparaflorclip)
+                    if (getflorzofslope(sectnum, globalposx, globalposy) >= globalposz)
                         for (x=x1; x<=x2; x++)
                             if (dplc[x] < dmost[x])
                                 if (umost[x] <= dmost[x])
@@ -7632,7 +7626,7 @@ void initspritelists(void)
 void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
                int16_t daang, int32_t dahoriz, int16_t dacursectnum)
 {
-    int32_t i, j, cz, fz, closest;
+    int32_t i, j, /*cz, fz,*/ closest;
     int16_t *shortptr1, *shortptr2;
 
     beforedrawrooms = 0;
@@ -7751,13 +7745,13 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
             return;
         }
     }
-
+/*
     globparaceilclip = 1;
     globparaflorclip = 1;
     getzsofslope(globalcursectnum,globalposx,globalposy,&cz,&fz);
     if (globalposz < cz) globparaceilclip = 0;
     if (globalposz > fz) globparaflorclip = 0;
-
+*/
     scansector(globalcursectnum);
 
     if (inpreparemirror)

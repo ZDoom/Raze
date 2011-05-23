@@ -6068,14 +6068,27 @@ static void Keys3d(void)
         //        printext256(1*4,1*8,11,-1,tempbuf,0);
     }
 
-    if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(I))  // ' i
+    if (keystatus[KEYSC_I])
     {
-        showinvisibility = !showinvisibility;
+        keystatus[KEYSC_I] = 0;
+
+        if (keystatus[KEYSC_QUOTE])
+        {
+            if (AIMING_AT_SPRITE)
+            {
+                sprite[searchwall].cstat ^= 32768;
+                message("Sprite %d made %svisible", searchwall, (sprite[searchwall].cstat&32768) ? "in":"");
+            }
+        }
+        else  // ' i
+        {
+            showinvisibility = !showinvisibility;
 #ifndef YAX_ENABLE
-        message("Show invisible sprites %s", showinvisibility?"enabled":"disabled");
+            message("Show invisible sprites %s", showinvisibility?"enabled":"disabled");
 #else
-        message("Show invisible objects %s", showinvisibility?"enabled":"disabled");
+            message("Show invisible objects %s", showinvisibility?"enabled":"disabled");
 #endif
+        }
     }
 
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(X)) // ' x

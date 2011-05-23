@@ -5339,7 +5339,14 @@ check_next_sector: ;
 
                     //clear out old sector's next pointers for clean deletesector
                     for (j=startwall; j<=endwall; j++)
+                    {
+#ifdef YAX_ENABLE
+                        // same thing for yax-nextwalls (only forward links!)
+                        yax_setnextwall(j, YAX_CEILING, -1);
+                        yax_setnextwall(j, YAX_FLOOR, -1);
+#endif
                         wall[j].nextwall = wall[j].nextsector = -1;
+                    }
                     deletesector(splitsect);
 
                     //Check pointers
