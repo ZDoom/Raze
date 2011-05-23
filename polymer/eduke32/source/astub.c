@@ -8223,20 +8223,22 @@ void ExtPreSaveMap(void)
 static void G_ShowParameterHelp(void)
 {
     const char *s = "Usage: mapster32 [OPTIONS] [FILE]\n\n"
-              "-gFILE, -grp FILE\tUse extra group file FILE\n"
-              "-hFILE\t\tUse definitions file FILE\n"
-              "-xFILE\t\tUse FILE instead of GAME.CON for getting sound definitions"
-              "-jDIR, -game_dir DIR\n\t\tAdds DIR to the file path stack\n"
-              "-check\t\tEnables map pointer checking when saving\n"
-              "-nocheck\t\tDisables map pointer checking when saving (default)\n"  // kept for script compat
-              "-namesfile <filename>\t\tOverride NAMES.H\n"
+              "-gFILE, -grp FILE  Use extra group file FILE\n"
+              "-hFILE             Use definitions file FILE\n"
+              "-xFILE             Use FILE instead of GAME.CON for getting sound definitions\n"
+              "-jDIR, -game_dir DIR\n"
+              "                   Adds DIR to the file path stack\n"
+              "-cachesize #       Sets cache size, in Kb\n"
+              "-check             Enables map pointer checking when saving\n"
+              "-namesfile FILE    Uses FILE instead of NAMES.H for tile names\n"
+              "-nocheck           Disables map pointer checking when saving (default)\n"  // kept for script compat
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
-              "-setup\t\tDisplays the configuration dialog\n"
+              "-setup             Displays the configuration dialog\n"
 #endif
 #if !defined(_WIN32)
-              "-usecwd\t\tRead game data and configuration file from working directory\n"
+              "-usecwd            Read game data and configuration file from working directory\n"
 #endif
-              "\n-?, -help, --help\tDisplay this help message and exit"
+              "\n-?, -help, --help    Display this help message and exit"
               ;
     Bsprintf(tempbuf, "Mapster32 %s %s", VERSION, s_buildRev);
     wm_msgbox(tempbuf, "%s", s);
@@ -8348,6 +8350,24 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
                         COPYARG(i);
                         COPYARG(i+1);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"cachesize"))
+                {
+                    if (argc > i+1)
+                    {
+                        int32_t sz = atoi_safe(argv[i+1]);
+                        if (sz >= 16<<10 && sz <= 1024<<10)
+                        {
+                            g_maxCacheSize = sz<<10;
+                            initprintf("Cache size: %dkB\n",sz);
+
+                            COPYARG(i);
+                            COPYARG(i+1);
+                        }
                         i++;
                     }
                     i++;

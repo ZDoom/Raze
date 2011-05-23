@@ -96,6 +96,7 @@ extern char *testplay_addparam;
 extern const char *g_namesFileName;
 
 extern const char *defsfilename;	// set in bstub.c
+extern int32_t g_maxCacheSize;
 
 extern int32_t g_lazy_tileselector;
 extern int32_t m32_osd_tryscript;

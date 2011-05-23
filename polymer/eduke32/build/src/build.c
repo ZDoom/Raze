@@ -62,6 +62,7 @@ double vid_gamma_3d=-1, vid_contrast_3d=-1, vid_brightness_3d=-1;
 int32_t xdim2d = 640, ydim2d = 480, xdimgame = 640, ydimgame = 480, bppgame = 8;
 int32_t forcesetup = 1;
 
+int32_t g_maxCacheSize = 24<<20;
 //extern int32_t cachesize, artsize;
 
 static int16_t oldmousebstatus = 0;
@@ -507,7 +508,7 @@ int32_t app_main(int32_t argc, const char **argv)
     inittimer(TIMERINTSPERSECOND);
     installusertimercallback(keytimerstuff);
 
-    loadpics("tiles000.art", 1048576*16);
+    loadpics("tiles000.art", g_maxCacheSize);
 
 #ifdef YAX_ENABLE
     // init dummy texture for YAX
