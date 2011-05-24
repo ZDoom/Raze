@@ -2701,7 +2701,7 @@ void overheadeditor(void)
                 printext16(8,8, editorcolors[13],editorcolors[0],cbuf,0);
             }
 
-            if (keystatus[0x36] || keystatus[0xb8])  // RSHIFT || RALT
+            if (keystatus[0x36] || keystatus[0xb8] || keystatus[0x9d])  // RSHIFT || RALT || RCTRL
             {
                 if (keystatus[0x27] || keystatus[0x28])  // ' and ;
                 {
@@ -2711,8 +2711,7 @@ void overheadeditor(void)
                     if (keystatus[0x28])
                         drawline16base(searchx+16, searchy-16, 0,-4, 0,+4, col);
                 }
-
-                if (keystatus[0x36] && eitherCTRL)
+                else if (keystatus[0x36] && eitherCTRL)
                     printext16(searchx+6,searchy-6-8,editorcolors[12],-1,"S",0);
             }
 
@@ -3342,6 +3341,8 @@ end_yax: ;
             {
                 if (highlightcnt == 0)
                 {
+                    int32_t add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
+
                     if (!m32_sideview)
                     {
                         getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
@@ -3356,19 +3357,30 @@ end_yax: ;
                     // Ctrl+RShift: select all wall-points of highlighted wall's loop:
                     if (eitherCTRL && highlightx1==highlightx2 && highlighty1==highlighty2)
                     {
-                        Bmemset(show2dwall, 0, sizeof(show2dwall));
-                        Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+                        if (!setop)
+                        {
+                            Bmemset(show2dwall, 0, sizeof(show2dwall));
+                            Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+                        }
 
                         if (linehighlight >= 0 && linehighlight < MAXWALLS)
                         {
                             i = linehighlight;
                             do
                             {
-                                show2dwall[i>>3] |= (1<<(i&7));
+                                if (!sub)
+                                    show2dwall[i>>3] |= (1<<(i&7));
+                                else
+                                    show2dwall[i>>3] &= ~(1<<(i&7));
 
                                 for (j=0; j<numwalls; j++)
                                     if (j!=i && wall[j].x==wall[i].x && wall[j].y==wall[i].y)
-                                        show2dwall[j>>3] |= (1<<(j&7));
+                                    {
+                                        if (!sub)
+                                            show2dwall[j>>3] |= (1<<(j&7));
+                                        else
+                                            show2dwall[j>>3] &= ~(1<<(j&7));
+                                    }
 
                                 i = wall[i].point2;
                             }
@@ -3379,7 +3391,6 @@ end_yax: ;
                     }
                     else
                     {
-                        int32_t add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
                         int32_t tx, ty, onlySprites=eitherCTRL;
 
                         if (!setop)
@@ -3413,7 +3424,7 @@ end_yax: ;
                             {
                                 if (!sub)
                                     show2dwall[i>>3] |= (1<<(i&7));
-                                else if (sub)
+                                else
                                     show2dwall[i>>3] &= ~(1<<(i&7));
                             }
                         }
