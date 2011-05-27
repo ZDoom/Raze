@@ -5344,7 +5344,8 @@ repeatcase:
             j = *(g_scriptPtr-1);
             g_scriptPtr--;
             C_SkipComments();
-            return C_SetScriptSize(j);
+            if (C_SetScriptSize(j)) return 1;
+            continue;
 
         case CON_FALL:
         case CON_TIP:
