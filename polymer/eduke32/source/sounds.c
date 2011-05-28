@@ -301,18 +301,18 @@ void S_Cleanup(void)
     {
         uint32_t num = ldq[--ldnum];
 
-        // num + 65536 is a sound played globally for which there was no open slot to keep track of the voice
-        if (num >= 65536)
-        {
-            g_soundlocks[num-65536]--;
-            continue;
-        }
-
         // negative index is RTS playback
         if ((int32_t)num < 0)
         {
             if (rts_lumplockbyte[-(int32_t)num] >= 200)
                 rts_lumplockbyte[-(int32_t)num]--;
+            continue;
+        }
+
+        // num + 65536 is a sound played globally for which there was no open slot to keep track of the voice
+        if (num >= 65536)
+        {
+            g_soundlocks[num-65536]--;
             continue;
         }
 
