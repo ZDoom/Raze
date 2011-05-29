@@ -199,6 +199,30 @@ static int32_t yax_invalidop()
     return 0;
 }
 
+static int32_t yax_invalidslope()
+{
+    silentmessage("Firstwalls must coincide for changing slope.");
+    return 0;
+}
+
+// 1: ok
+static int32_t yax_checkslope(int16_t sectnum, int32_t othersectnum)
+{
+    int16_t w1 = sector[sectnum].wallptr, w2 = wall[w1].point2;
+    int16_t nw1 = sector[othersectnum].wallptr, nw2 = wall[nw1].point2;
+
+    if (nw1 < 0)
+        return 0;  // error
+
+    nw2 = wall[nw1].point2;
+    if (wall[w1].x != wall[nw1].x || wall[w1].y != wall[nw1].y ||
+            wall[w2].x != wall[nw2].x || wall[w2].y != wall[nw2].y)
+        return 0;
+
+    return 1;
+}
+
+# define YAXSLOPECHK(s,os)  (yax_checkslope(s,os) || yax_invalidslope())
 # define YAXCHK(p) ((p) || yax_invalidop())
 #endif
 
@@ -5650,11 +5674,7 @@ static void Keys3d(void)
         if (eitherALT)  //ALT-F (relative alignmment flip)
         {
             if (!AIMING_AT_SPRITE && ASSERT_AIMING)
-            {
-                setfirstwall(searchsector, searchwall);
-                message("Sector %d first wall", searchsector);
-                asksave = 1;
-            }
+                SetFirstWall(searchsector, searchwall);
         }
         else
         {
@@ -6426,7 +6446,8 @@ static void Keys3d(void)
                 if (AIMING_AT_CEILING || (tsign < 0 && AIMING_AT_WALL_OR_MASK))
 #ifdef YAX_ENABLE
                 if (YAXCHK((bunchnum=yax_getbunch(searchsector, YAX_CEILING)) < 0 ||
-                           (othersidesect=yax_is121(bunchnum, 1))>=0))
+                           (othersidesect=yax_is121(bunchnum, 1))>=0) &&
+                        (bunchnum < 0 || YAXSLOPECHK(searchsector, othersidesect)))
 #endif
                 {
                     alignceilslope(searchsector, sx, sy, getceilzofslope(ns, sx, sy));
@@ -6440,7 +6461,8 @@ static void Keys3d(void)
                 if (AIMING_AT_FLOOR || (tsign > 0 && AIMING_AT_WALL_OR_MASK))
 #ifdef YAX_ENABLE
                 if (YAXCHK((bunchnum=yax_getbunch(searchsector, YAX_FLOOR)) < 0 ||
-                           (othersidesect=yax_is121(bunchnum, 0))>=0))
+                           (othersidesect=yax_is121(bunchnum, 0))>=0) &&
+                        (bunchnum < 0 || YAXSLOPECHK(searchsector, othersidesect)))
 #endif
                 {
                     alignflorslope(searchsector, sx, sy, getflorzofslope(ns, sx, sy));
@@ -6457,7 +6479,8 @@ static void Keys3d(void)
             if (AIMING_AT_CEILING_OR_FLOOR)
 #ifdef YAX_ENABLE
             if (YAXCHK((bunchnum=yax_getbunch(searchsector, AIMING_AT_FLOOR)) < 0 ||
-                       (othersidesect=yax_is121(bunchnum, AIMING_AT_CEILING))>=0))
+                       (othersidesect=yax_is121(bunchnum, AIMING_AT_CEILING))>=0) &&
+                    (bunchnum < 0 || YAXSLOPECHK(searchsector, othersidesect)))
 #endif
             {
                 int32_t newslope = clamp(AIMED_CEILINGFLOOR(heinum) + tsign*i, -BHEINUM_MAX, BHEINUM_MAX);
@@ -10999,7 +11022,7 @@ void ExtCheckKeys(void)
     bad = max(bad, errlev); \
     if (numcorruptthings>=MAXCORRUPTTHINGS) \
         goto too_many_errors; \
-    corruptthings[numcorruptthings++] = what; \
+    corruptthings[numcorruptthings++] = (what); \
     if (errlev >= printfromlev) \
         OSD_Printf("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
 } while (0)
@@ -11119,6 +11142,7 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
                 if (nw>=w0 && nw<=endwall)
                     CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL is its own sector's wall", j);
+
 #ifdef YAX_ENABLE
                 {
                     int32_t cf, ynw, jp2, ynwp2;
@@ -11180,13 +11204,29 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                     if (!bad)
                     {
                         int32_t onumct = numcorruptthings;
+                        int32_t safetoclear = (nw==j || (wall[nw].nextwall==-1 && wall[nw].nextsector==-1));
+
                         CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTSECTOR is its own sector", j);
                         if (onumct < MAXCORRUPTTHINGS)
                         {
                             if (tryfixing & (1ull<<onumct))
-                                do_nextsector_correction(nw, j);
+                            {
+                                if (safetoclear)
+                                {
+                                    wall[j].nextwall = wall[j].nextsector = -1;
+                                    OSD_Printf(CCHK_CORRECTED "auto-correction: cleared wall %d's nextwall"
+                                               " and nextsector\n", j);
+                                }
+                                else
+                                    do_nextsector_correction(nw, j);
+                            }
                             else if (4>=printfromlev)
-                                suggest_nextsector_correction(nw, j);
+                            {
+                                if (safetoclear)
+                                    OSD_Printf("   will clear wall %d's nextwall and nextsector on tryfix\n", j);
+                                else
+                                    suggest_nextsector_correction(nw, j);
+                            }
                         }
                     }
                 }

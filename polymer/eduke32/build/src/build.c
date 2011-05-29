@@ -335,6 +335,19 @@ int32_t yax_is121(int16_t bunchnum, int16_t getfloor)
     return headsectbunch[getfloor][bunchnum];
 }
 
+static int32_t yax_numsectsinbunch(int16_t bunchnum, int16_t cf)
+{
+    int32_t i, n=0;
+
+    if (bunchnum<0 || bunchnum>=numyaxbunches)
+        return -1;
+
+    for (SECTORS_OF_BUNCH(bunchnum, cf, i))
+        n++;
+
+    return n;
+}
+
 static void yax_fixreverselinks(int16_t oldwall, int16_t newwall)
 {
     int32_t cf, ynw;
@@ -393,7 +406,7 @@ static int32_t yax_islockedwall(int16_t sec, int16_t line)
 }
 #endif
 
-# define DEFAULT_YAX_HEIGHT 32768
+# define DEFAULT_YAX_HEIGHT (2048<<4)
 #endif
 
 static void reset_default_mapstate(void)
@@ -2349,6 +2362,74 @@ static void sort_walls_geometrically(int16_t *wallist, int32_t nwalls)
 }
 #endif
 
+void SetFirstWall(int32_t sectnum, int32_t wallnum)
+{
+#ifdef YAX_ENABLE
+    int32_t i, j, k, startwall, endwall;
+    int16_t cf, bunchnum, tempsect, tempwall;
+
+    for (i=0; i<numwalls; i++)
+        wall[i].cstat &= ~(1<<14);
+
+    for (cf=0; cf<2; cf++)
+    {
+        tempsect = sectnum;
+        tempwall = wallnum;
+
+        while ((bunchnum = yax_getbunch(tempsect, cf)) >= 0 &&
+                   (tempsect=yax_is121(bunchnum, cf)) >= 0)
+        {
+            tempwall = yax_getnextwall(tempwall, cf);
+            if (tempwall < 0)
+                break;  // corrupt!
+            wall[tempwall].cstat |= (1<<14);
+        }
+    }
+
+    k = 0;
+    for (i=0; i<numsectors; i++)
+        for (WALLS_OF_SECTOR(i, j))
+        {
+            if (wall[j].cstat & (1<<14))
+            {
+                setfirstwall(i, j);
+                k++;
+                break;
+            }
+        }
+
+    if (k > 0)
+        message("Set first walls (sector[].wallptr) for %d sectors", k+1);
+    else
+#endif
+        message("This wall now sector %d's first wall (sector[].wallptr)", sectnum);
+
+    setfirstwall(sectnum, wallnum);
+    mkonwinvalid();
+    asksave = 1;
+}
+
+static void handlesecthighlight1(int32_t i, int32_t sub, int32_t nograycheck)
+{
+    int32_t j;
+
+    if (sub)
+    {
+        hlsectorbitmap[i>>3] &= ~(1<<(i&7));
+        for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+        {
+            if (wall[j].nextwall >= 0)
+                checksectorpointer(wall[j].nextwall,wall[j].nextsector);
+            checksectorpointer(j, i);
+        }
+    }
+    else
+    {
+        if (nograycheck || (graysectbitmap[i>>3]&(1<<(i&7)))==0)
+            hlsectorbitmap[i>>3] |= (1<<(i&7));
+    }
+}
+
 void overheadeditor(void)
 {
     char buffer[80], ch;
@@ -2913,50 +2994,7 @@ void overheadeditor(void)
             {
                 linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight);
                 if (linehighlight >= 0)
-                {
-                    int32_t secti = sectorofwall(linehighlight);
-#ifdef YAX_ENABLE
-                    int16_t cf, bunchnum, tempsect, tempwall;
-
-                    for (i=0; i<numwalls; i++)
-                        wall[i].cstat &= ~(1<<14);
-
-                    for (cf=0; cf<2; cf++)
-                    {
-                        tempsect = secti;
-                        tempwall = linehighlight;
-
-                        while ((bunchnum = yax_getbunch(tempsect, cf)) >= 0 &&
-                                   (tempsect=yax_is121(bunchnum, cf)) >= 0)
-                        {
-                            tempwall = yax_getnextwall(tempwall, cf);
-                            if (tempwall < 0)
-                                break;  // corrupt!
-                            wall[tempwall].cstat |= (1<<14);
-                        }
-                    }
-
-                    k = 0;
-                    for (i=0; i<numsectors; i++)
-                        for (WALLS_OF_SECTOR(i, j))
-                        {
-                            if (wall[j].cstat & (1<<14))
-                            {
-                                setfirstwall(i, j);
-                                k++;
-                                break;
-                            }
-                        }
-
-                    if (k > 0)
-                        message("Set first walls (sector[].wallptr) for %d sectors", k+1);
-                    else
-#endif
-                    printmessage16("This wall now sector %d's first wall (sector[].wallptr)", secti);
-                    setfirstwall(secti, linehighlight);
-                    mkonwinvalid();
-                    asksave = 1;
-                }
+                    SetFirstWall(sectorofwall(linehighlight), linehighlight);
             }
         }
 
@@ -3185,7 +3223,8 @@ void overheadeditor(void)
                 ////////// YAX //////////
                 static const char *cfs[2] = {"ceiling", "floor"};
 
-                int32_t cf, thez;
+                int32_t cf, thez, ulz[2]={0,0};
+                int16_t bn, sandwichbunch=-1;
 
                 if (numyaxbunches==YAX_MAXBUNCHES)
                 {
@@ -3206,10 +3245,30 @@ void overheadeditor(void)
                 thez = SECTORFLD(highlightsector[0],z, cf);
                 for (i=0; i<highlightsectorcnt; i++)
                 {
-                    if (yax_getbunch(highlightsector[i], cf) >= 0)
+                    bn = yax_getbunch(highlightsector[i], cf);
+
+                    if (sandwichbunch >= 0 && bn!=sandwichbunch)
                     {
-                        message("Sector %d's %s is already extended", highlightsector[i], cfs[cf]);
-                        goto end_yax;                        
+                        message("When sandwiching extension, must select only sectors of one bunch");
+                        goto end_yax;
+                    }
+
+                    if (bn >= 0)
+                    {
+                        if (cf==YAX_FLOOR)
+                        {
+                            if (sandwichbunch < 0 && i!=0)
+                            {
+                                message("When sandwiching extension, must select only sectors of the bunch");
+                                goto end_yax;
+                            }
+                            sandwichbunch = bn;
+                        }
+                        else
+                        {
+                            message("Sector %d's %s is already extended", highlightsector[i], cfs[cf]);
+                            goto end_yax;
+                        }
                     }
 
                     if (SECTORFLD(highlightsector[i],z, cf) != thez)
@@ -3218,9 +3277,77 @@ void overheadeditor(void)
                         goto end_yax;
                     }
 
-                    if (highlightsectorcnt>1 && SECTORFLD(highlightsector[i],stat, cf)&2)
+                    if ((sandwichbunch>=0 || highlightsectorcnt>1) && SECTORFLD(highlightsector[i],stat, cf)&2)
                     {
-                        message("Sector %ss must not be sloped if extending more than one", cfs[cf]);
+                        message("Sector %ss must not be sloped%s", cfs[cf],
+                                sandwichbunch>=0 ? "" : "if extending more than one");
+                        goto end_yax;
+                    }
+                }
+
+                if (sandwichbunch >= 0)
+                {
+                    // cf==YAX_FLOOR here
+
+                    int32_t tempz, oldfz, swsecheight = DEFAULT_YAX_HEIGHT/4;
+                    // highest floor z of lower sectors, lowest ceiling z of these sectors
+                    int32_t minfloorz = INT32_MAX, maxceilz = INT32_MIN;
+
+                    // some preparation for making the sandwich
+                    if (highlightsectorcnt != yax_numsectsinbunch(sandwichbunch, YAX_FLOOR))
+                    {
+                        message("When sandwiching extension, must select all sectors of the bunch");
+                        goto end_yax;
+                    }
+
+                    // "for i in sectors of sandwichbunch(floor)" is now the same as
+                    // "for i in highlighted sectors"
+
+                    oldfz = sector[highlightsector[0]].floorz;
+
+                    // check if enough room in z
+                    for (SECTORS_OF_BUNCH(sandwichbunch, YAX_CEILING, i))
+                        for (WALLS_OF_SECTOR(i, j))
+                        {
+                            tempz = getflorzofslope(i, wall[j].x, wall[j].y);
+                            minfloorz = min(minfloorz, tempz);
+                        }
+                    for (SECTORS_OF_BUNCH(sandwichbunch, YAX_FLOOR, i))
+                        for (WALLS_OF_SECTOR(i, j))
+                        {
+                            tempz = getceilzofslope(i, wall[j].x, wall[j].y);
+                            maxceilz = max(maxceilz, tempz);
+                        }
+
+                    if (minfloorz - maxceilz < 2*swsecheight)
+                    {
+                        message("Too little z headroom for sandwiching, need at least %d",
+                                2*swsecheight);
+                        goto end_yax;
+                    }
+
+                    if (maxceilz >= oldfz || oldfz >= minfloorz)
+                    {
+                        message("Internal error while sandwiching: oldfz out of bounds");
+                        goto end_yax;
+                    }
+
+                    // maxceilz   ---|
+                    //   ^           |
+                    // ulz[0]        ^
+                    //   ^          oldfz
+                    // ulz[1]        ^
+                    //   ^           |
+                    // minfloorz  ---|
+
+                    ulz[0] = oldfz - swsecheight*((double)(oldfz-maxceilz)/(minfloorz-maxceilz));
+                    ulz[0] &= ~255;
+                    ulz[1] = ulz[0] + swsecheight;
+
+                    if (maxceilz >= ulz[0] || ulz[0] >= ulz[1] || ulz[1] >= minfloorz)
+                    {
+                        message("Too little z headroom for sandwiching");
+//                        message("Internal error while sandwiching: z values wrong");
                         goto end_yax;
                     }
                 }
@@ -3254,11 +3381,32 @@ void overheadeditor(void)
                         numwalls = m;
                         goto end_yax;
                     }
+                    if (sandwichbunch >= 0)
+                    {
+                        if (YAX_NEXTWALL(j, cf) < 0)
+                        {
+                            message("Internal error while sandwiching (2): "
+                                    "YAX_NEXTWALL(%d, %d)<0!", j, cf);
+                            numwalls = m;
+                            goto end_yax;
+                        }
+                    }
                 }
                 for (i=m; i<numwalls; i++)  // do!
                 {
                     j = YAX_NEXTWALL(i, !cf);
-                    yax_setnextwall(j, cf, i);
+
+                    if (sandwichbunch >= 0)
+                    {
+                        int16_t oynw = YAX_NEXTWALL(j, cf);
+                        yax_setnextwall(j, cf, i);
+                        yax_setnextwall(i, cf, oynw);
+                        yax_setnextwall(oynw, !cf, i);
+                    }
+                    else
+                    {
+                        yax_setnextwall(j, cf, i);
+                    }
                 }
 
                 // create new sector based on first highlighted one
@@ -3267,19 +3415,31 @@ void overheadeditor(void)
                 sector[numsectors].wallptr = m;
                 sector[numsectors].wallnum = numwalls-m;
 
-                if (SECTORFLD(i,stat, cf)&2)
-                    setslope(numsectors, !cf, SECTORFLD(i,heinum, cf));
+                if (sandwichbunch < 0)
+                {
+                    if (SECTORFLD(i,stat, cf)&2)
+                        setslope(numsectors, !cf, SECTORFLD(i,heinum, cf));
+                    else
+                        setslope(numsectors, !cf, 0);
+                    setslope(numsectors, cf, 0);
+
+                    SECTORFLD(numsectors,z, !cf) = SECTORFLD(i,z, cf);
+                    SECTORFLD(numsectors,z, cf) = SECTORFLD(i,z, cf) - (1-2*cf)*DEFAULT_YAX_HEIGHT;
+                }
                 else
-                    setslope(numsectors, !cf, 0);
-                setslope(numsectors, cf, 0);
-
-                SECTORFLD(numsectors,stat, !cf) &= ~1;  // no plax
-
-                SECTORFLD(numsectors,z, !cf) = SECTORFLD(i,z, cf);
-                SECTORFLD(numsectors,z, cf) = SECTORFLD(i,z, cf) - (1-2*cf)*DEFAULT_YAX_HEIGHT;
+                {
+                    for (SECTORS_OF_BUNCH(sandwichbunch, cf, i))
+                        sector[i].floorz = ulz[0];
+                    sector[numsectors].ceilingz = ulz[0];
+                    sector[numsectors].floorz = ulz[1];
+                    for (SECTORS_OF_BUNCH(sandwichbunch, !cf, i))
+                        sector[i].ceilingz = ulz[1];
+                }
 
                 newnumwalls = numwalls;
                 numwalls = m;
+
+                SECTORFLD(numsectors,stat, !cf) &= ~1;  // no plax
 
                 // restore red walls of the selected sectors
                 for (i=0; i<highlightsectorcnt; i++)
@@ -3292,9 +3452,20 @@ void overheadeditor(void)
                 }
 
                 // link
-                yax_setbunch(numsectors, !cf, numyaxbunches);
-                for (i=0; i<highlightsectorcnt; i++)
-                    yax_setbunch(highlightsector[i], cf, numyaxbunches);
+                if (sandwichbunch < 0)
+                {
+                    yax_setbunch(numsectors, !cf, numyaxbunches);
+                    for (i=0; i<highlightsectorcnt; i++)
+                        yax_setbunch(highlightsector[i], cf, numyaxbunches);
+                }
+                else
+                {
+                    yax_setbunch(numsectors, !cf, sandwichbunch);
+                    // also relink
+                    yax_setbunch(numsectors, cf, numyaxbunches);
+                    for (SECTORS_OF_BUNCH(sandwichbunch, !cf, i))
+                        yax_setbunch(i, !cf, numyaxbunches);
+                }
 
                 numwalls = newnumwalls;
                 newnumwalls = -1;
@@ -3306,8 +3477,12 @@ void overheadeditor(void)
                 Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
                 update_highlightsector();
 
-                message("Extended %ss of highlighted sectors, creating bunch %d",
-                        cfs[cf], numyaxbunches-1);
+                if (sandwichbunch < 0)
+                    message("Extended %ss of highlighted sectors, creating bunch %d",
+                            cfs[cf], numyaxbunches-1);
+                else
+                    message("Sandwiched bunch %d, creating bunch %d",
+                            sandwichbunch, numyaxbunches-1);
                 asksave = 1;
 end_yax: ;
             }
@@ -3707,7 +3882,12 @@ end_yax: ;
                 {
                     int32_t add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
                     int32_t tx,ty, pointsel = eitherCTRL;
-
+#ifdef YAX_ENABLE
+                    // home: ceilings, end: floors
+                    int32_t fb, bunchsel = keystatus[0xcf] ? 1 : (keystatus[0xc7] ? 0 : -1);
+                    uint8_t bunchbitmap[YAX_MAXBUNCHES>>3];
+                    Bmemset(bunchbitmap, 0, sizeof(bunchbitmap));
+#endif
                     if (!m32_sideview)
                     {
                         getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
@@ -3757,21 +3937,20 @@ end_yax: ;
 
                         if (bad == 0)
                         {
-                            if (sub)
+#ifdef YAX_ENABLE
+                            if (bunchsel!=-1 && (fb = yax_getbunch(i, YAX_FLOOR))>=0)
                             {
-                                hlsectorbitmap[i>>3] &= ~(1<<(i&7));
-                                for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+                                if ((sub || (graysectbitmap[i>>3]&(1<<(i&7)))==0) &&
+                                        (bunchbitmap[fb>>3]&(1<<(fb&7)))==0)
                                 {
-                                    if (wall[j].nextwall >= 0)
-                                        checksectorpointer(wall[j].nextwall,wall[j].nextsector);
-                                    checksectorpointer(j, i);
+                                    bunchbitmap[fb>>3] |= (1<<(fb&7));
+                                    for (SECTORS_OF_BUNCH(fb, bunchsel, j))
+                                        handlesecthighlight1(j, sub, 1);
                                 }
                             }
                             else
-                            {
-                                if ((graysectbitmap[i>>3]&(1<<(i&7)))==0)
-                                    hlsectorbitmap[i>>3] |= (1<<(i&7));
-                            }
+#endif
+                                handlesecthighlight1(i, sub, 0);
                         }
                     }
 
@@ -4475,12 +4654,14 @@ end_point_dragging:
 
                 if (needsdisp)
                 {
-                    // a component can be displaced if it's not extended on the non-joining side
+                    // a component is more likely to be displaced if it's not
+                    // extended on the non-joining side
                     movestat = (!(compstat[0][!joinstat]&1)) | ((!(compstat[1][joinstat]&1))<<1);
                     if (!movestat)
                     {
-                        message("Internal error while TROR-joining: movestat inconsistent!");
-                        goto end_join_sectors;
+                        movestat = 3;
+//                        message("Internal error while TROR-joining: movestat inconsistent!");
+//                        goto end_join_sectors;
                     }
 
                     if (movestat==3)
@@ -5669,35 +5850,37 @@ end_space_handling:
 
             for (i=0; i<numsectors; i++)
             {
-                YAX_SKIPSECTOR(i);
+                if (highlightsectorcnt <= 0 || !keystatus[0x2a])
+                {
+                    YAX_SKIPSECTOR(i);
 
-                if (inside_editor_curpos(i) != 1)
-                    continue;
+                    if (inside_editor_curpos(i) != 1)
+                        continue;
+                }
 
                 k = 0;
-                if (k==0 && highlightsectorcnt >= 0)
+                if (highlightsectorcnt > 0)
                 {
-                    for (j=0; j<highlightsectorcnt; j++)
-                        if (highlightsector[j] == i)
+                    // LShift: force highlighted sector deleting
+                    if (keystatus[0x2a] || (hlsectorbitmap[i>>3]&(1<<(i&7))))
+                    {
+                        for (j=highlightsectorcnt-1; j>=0; j--)
                         {
-                            for (j=highlightsectorcnt-1; j>=0; j--)
-                            {
 #ifdef YAX_ENABLE
-                                yax_getbunches(highlightsector[j], &cb, &fb);
-                                if (cb>=0) hlsectorbitmap[cb>>3] |= (1<<(cb&7));
-                                if (fb>=0) hlsectorbitmap[fb>>3] |= (1<<(fb&7));
+                            yax_getbunches(highlightsector[j], &cb, &fb);
+                            if (cb>=0) hlsectorbitmap[cb>>3] |= (1<<(cb&7));
+                            if (fb>=0) hlsectorbitmap[fb>>3] |= (1<<(fb&7));
 #endif
-                                deletesector(highlightsector[j]);
-                                for (k=j-1; k>=0; k--)
-                                    if (highlightsector[k] >= highlightsector[j])
-                                        highlightsector[k]--;
-                            }
-
-                            printmessage16("Highlighted sectors deleted.");
-                            mkonwinvalid();
-                            k = 1;
-                            break;
+                            deletesector(highlightsector[j]);
+                            for (k=j-1; k>=0; k--)
+                                if (highlightsector[k] >= highlightsector[j])
+                                    highlightsector[k]--;
                         }
+
+                        printmessage16("Highlighted sectors deleted.");
+                        mkonwinvalid();
+                        k = 1;
+                    }
                 }
 
                 if (k == 0)
@@ -6187,8 +6370,11 @@ CANCEL:
                     bad = 0;
 
                     if (CheckMapCorruption(4, 0)>=4)
+                    {
+                        fade_editor_screen(-1);
                         if (!ask_if_sure("Map is corrupt. Are you sure you want to save? (Y/N)", 0))
                             break;
+                    }
 
                     _printmessage16("Saving board...");
                     showframe(1);
