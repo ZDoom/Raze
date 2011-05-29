@@ -42,18 +42,22 @@ int32_t g_numSelfObituaries = 0;
 
 void P_UpdateScreenPal(DukePlayer_t *p)
 {
+    int32_t intowater = 0;
+
     if (p->heat_on) p->palette = SLIMEPAL;
     else if (p->cursectnum < 0) p->palette = BASEPAL;
     else if ((sector[p->cursectnum].ceilingpicnum >= FLOORSLIME)&&(sector[p->cursectnum].ceilingpicnum <=FLOORSLIME+2))
     {
         p->palette = SLIMEPAL;
+        intowater = 1;
     }
     else
     {
         if (sector[p->cursectnum].lotag == 2) p->palette = WATERPAL;
         else p->palette = BASEPAL;
+        intowater = 1;
     }
-    g_restorePalette = 1;
+    g_restorePalette = 1+intowater;
 }
 
 static void P_IncurDamage(DukePlayer_t *p)

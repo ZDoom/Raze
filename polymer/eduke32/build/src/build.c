@@ -2210,6 +2210,7 @@ static int32_t backup_drawn_walls(int32_t restore)
     return 0;
 }
 
+#if 0
 #define GETWALCOORD(w) (*(int64_t *)&wall[*(const int32_t *)(w)].x)
 static int32_t compare_wall_coords(const void *w1, const void *w2)
 {
@@ -2220,6 +2221,7 @@ static int32_t compare_wall_coords(const void *w1, const void *w2)
     return -1;
 }
 #undef GETWALCOORD
+#endif
 
 #define RESET_EDITOR_VARS() do { \
     sectorhighlightstat = -1; \
@@ -3400,15 +3402,20 @@ end_yax: ;
                         }
 
                         for (i=0; i<numwalls; i++)
+                            wall[i].cstat &= ~(1<<14);
+
+                        for (i=0; i<numwalls; i++)
                         {
                             if (onlySprites)
                                 break;
+
+                            YAX_SKIPWALL(i);
 
                             if (!m32_sideview)
                             {
                                 tx = wall[i].x;
                                 ty = wall[i].y;
-                                wall[i].cstat &= ~(1<<14);
+//                                wall[i].cstat &= ~(1<<14);
                             }
                             else
                             {
@@ -3423,12 +3430,28 @@ end_yax: ;
                                     ty >= highlighty1 && ty <= highlighty2)
                             {
                                 if (!sub)
-                                    show2dwall[i>>3] |= (1<<(i&7));
+                                {
+                                    if (numgraysects > 0 || m32_sideview)
+                                    {
+                                        dragpoint(i, wall[i].x, wall[i].y);
+                                        dragpoint_noreset = 1;  // vvv
+                                    }
+                                    else
+                                        show2dwall[i>>3] |= (1<<(i&7));
+                                }
                                 else
                                     show2dwall[i>>3] &= ~(1<<(i&7));
                             }
                         }
+                        dragpoint_noreset = 0;  // ^^^
 
+                        if (!sub && (numgraysects > 0 || m32_sideview))
+                        {
+                            for (i=0; i<numwalls; i++)
+                                if (wall[i].cstat&(1<<14))
+                                    show2dwall[i>>3] |= (1<<(i&7));
+                        }
+#if 0
                         if (m32_sideview && numwalls>0 && !onlySprites)
                         {
                             int64_t curcoord;
@@ -3472,11 +3495,14 @@ end_yax: ;
                                 }
                             }
                         }
-
+#endif
                         for (i=0; i<MAXSPRITES; i++)
                         {
                             if (sprite[i].statnum == MAXSTATUS)
                                 continue;
+
+                            if ((unsigned)sprite[i].sectnum < MAXSECTORS)
+                                YAX_SKIPSECTOR(sprite[i].sectnum);
 
                             if (!m32_sideview)
                             {
@@ -4059,6 +4085,9 @@ try_dragging_sectors:
                             }
 
                             dragpoint(pointhighlight,dax,day);
+                            if ((unsigned)linehighlight < MAXWALLS)
+                                wall[linehighlight].cstat |= (1<<14);
+                            wall[lastwall(pointhighlight)].cstat |= (1<<14);
                         }
                         else if ((pointhighlight&0xc000) == 16384)
                         {
@@ -4447,7 +4476,7 @@ end_point_dragging:
                 if (needsdisp)
                 {
                     // a component can be displaced if it's not extended on the non-joining side
-                    movestat = (compstat[0][!joinstat]^1) | ((compstat[1][joinstat]^1)<<1);
+                    movestat = (!(compstat[0][!joinstat]&1)) | ((!(compstat[1][joinstat]&1))<<1);
                     if (!movestat)
                     {
                         message("Internal error while TROR-joining: movestat inconsistent!");

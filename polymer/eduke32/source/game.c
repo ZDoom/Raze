@@ -2598,8 +2598,18 @@ void G_DisplayRest(int32_t smoothratio)
     // reset a normal palette
     else if (g_restorePalette)
     {
-        P_SetGamePalette(pp,pp->palette,2);
-        g_restorePalette = 0;
+        static uint32_t omovethingscnt;
+
+        if (g_restorePalette < 2 || omovethingscnt+1 == g_moveThingsCount)
+        {
+            P_SetGamePalette(pp,pp->palette,2);
+            g_restorePalette = 0;
+        }
+        else
+        {
+            // delay setting the palette by one game tic
+            omovethingscnt = g_moveThingsCount;
+        }
     }
     // loogies courtesy of being snotted on
     else if (pp->loogcnt > 0)

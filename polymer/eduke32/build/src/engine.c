@@ -188,6 +188,7 @@ int16_t editstatus = 0;
 
 ////////// YAX //////////
 
+int32_t numgraysects = 0;
 uint8_t graysectbitmap[MAXSECTORS>>3];
 uint8_t graywallbitmap[MAXWALLS>>3];
 int32_t autogray = 0;
@@ -239,11 +240,15 @@ void yax_updategrays(int32_t posze)
     }
 #endif
 
+    numgraysects = 0;
     for (i=0; i<numsectors; i++)
     {
         if (graysectbitmap[i>>3]&(1<<(i&7)))
+        {
+            numgraysects++;
             for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
                 graywallbitmap[j>>3] |= (1<<(j&7));
+        }
     }
 }
 
@@ -10968,6 +10973,7 @@ int32_t neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ang
 //
 // dragpoint
 //
+int32_t dragpoint_noreset = 0;
 void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
 #ifdef YAX_ENABLE
 {
@@ -10977,7 +10983,8 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
 
     uint8_t *walbitmap = (uint8_t *)tempbuf;
 
-    Bmemset(walbitmap, 0, (numwalls+7)>>3);
+    if (!dragpoint_noreset)
+        Bmemset(walbitmap, 0, (numwalls+7)>>3);
     yaxwalls[numyaxwalls++] = pointhighlight;
 
     for (i=0; i<numyaxwalls; i++)
@@ -11029,9 +11036,6 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
         for (w=0; w<numwalls; w++)
             if (walbitmap[w>>3] & (1<<(w&7)))
                 wall[w].cstat |= (1<<14);
-        if (linehighlight >= 0 && linehighlight < MAXWALLS)
-            wall[linehighlight].cstat |= (1<<14);
-        wall[lastwall(pointhighlight)].cstat |= (1<<14);
     }
 }
 #else
@@ -14524,12 +14528,15 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     faketimerhandler();
 
-    if (zoome >= 256 || editstatus == 0)
+    if (zoome >= 256 || highlightcnt>0 /*|| editstatus == 0*/)
         for (j=0; j<MAXSPRITES; j++)
-            if (sprite[j].statnum<MAXSTATUS && (editstatus == 1 || (show2dsprite[j>>3]&pow2char[j&7])))
+            if (sprite[j].statnum<MAXSTATUS /*&& (editstatus == 1 || (show2dsprite[j>>3]&pow2char[j&7]))*/)
             {
                 if (!m32_sideview && sprite[j].sectnum >= 0)
                     YAX_SKIPSECTOR(sprite[j].sectnum);
+
+                if (zoome<256 && (show2dsprite[j>>3]&pow2char[j&7])==0)
+                    continue;
 
                 if (!m32_sideview)
                     drawscreen_drawsprite(j,posxe,posye,posze,zoome);
