@@ -878,20 +878,28 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
     g_nodraw = 0;
     scansector_collectsprites = 0;
 
-#ifdef ENGINE_CLEAR_SCREEN
-    if (getrendermode()==0)
+#if 1
+//def ENGINE_CLEAR_SCREEN
+    if (editstatus==1)
     {
-        begindrawing();
-        for (i=0; i<xdimen*ydimen; i++)
-            *((char *)frameplace + i) = i;
-        enddrawing();
-    }
+        if (getrendermode()==0)
+        {
+            begindrawing();
+            j = 0;
+            for (i=0; i<xdimen*ydimen; i++)
+            {
+                *((char *)frameplace + i) = (char)j;
+                j = (j+1)%xdimen;
+            }
+            enddrawing();
+        }
 #ifdef USE_OPENGL
-    else
-    {
-        bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-    }
+        else
+        {
+            bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        }
 #endif
+    }
 #endif
 
     for (cf=0; cf<2; cf++)
@@ -1554,11 +1562,33 @@ int32_t clipmapinfo_load(const char *filename)
 #define WALLS_ARE_CONSISTENT(k) ((wall[k].x == x2 && wall[k].y == y2)   \
                                  && ((wall[wall[k].point2]).x == x1 && (wall[wall[k].point2]).y == y1))
 
+static int32_t getscore(int32_t w1c, int32_t w1f, int32_t w2c, int32_t w2f)
+{
+    int32_t minflor, maxceil;
+
+    if (w1c > w1f)
+        swaplong(&w1c, &w1f);
+    if (w2c > w2f)
+        swaplong(&w2c, &w2f);
+
+    // now: c <= f for each "wall-vline"
+
+    maxceil = max(w1c, w2c);
+    minflor = min(w1f, w2f);
+
+    return minflor-maxceil;
+}
+
 const int16_t *chsecptr_onextwall = NULL;
 
 int32_t checksectorpointer(int16_t i, int16_t sectnum)
 {
     int32_t j, k, startwall, endwall, x1, y1, x2, y2, numnewwalls=0;
+    int32_t bestnextwall=-1, bestnextsec=-1, bestwallscore=INT32_MIN;
+    int32_t cz[4], fz[4], tmp[2], tmpscore=0;
+#ifdef YAX_ENABLE
+    int16_t cb[2], fb[2];
+#endif
 
 #if 0
     if (checksectorpointer_warn && (i<0 || i>=max(numwalls,newnumwalls)))
@@ -1589,6 +1619,7 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
 
     if (chsecptr_onextwall && (k=chsecptr_onextwall[i])>=0 && wall[k].nextwall<0)
     {
+        // old next wall found
         if (WALLS_ARE_CONSISTENT(k))
         {
             j = sectorofwall(k);
@@ -1620,18 +1651,56 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
             // The nextwall relation should be definitely one-to-one at all times!
             if (wall[k].nextwall>=0 && wall[k].nextwall != i)
                 continue;
+#ifdef YAX_ENABLE
+            yax_getbunches(sectnum, &cb[0], &fb[0]);
+            yax_getbunches(j, &cb[1], &fb[1]);
 
-            if (sectnum != -2 && numnewwalls==0)  // -2 means dry run
+            if ((cb[0]>=0 && cb[0]==cb[1]) || (fb[0]>=0 && fb[0]==fb[1]))
             {
-                wall[i].nextsector = j;
-                wall[i].nextwall = k;
-                wall[k].nextsector = sectnum;
-                wall[k].nextwall = i;
+                tmpscore = INT32_MAX;
+            }
+            else
+#endif
+            {
+                getzsofslope(sectnum, x1,y1, &cz[0],&fz[0]);
+                getzsofslope(sectnum, x2,y2, &cz[1],&fz[1]);
+                getzsofslope(j, x1,y1, &cz[2],&fz[2]);
+                getzsofslope(j, x2,y2, &cz[3],&fz[3]);
+
+                tmp[0] = getscore(cz[0],fz[0], cz[2],fz[2]);
+                tmp[1] = getscore(cz[1],fz[1], cz[3],fz[3]);
+
+                if ((tmp[0]^tmp[1]) >= 0)
+                    tmpscore = tmp[0]+tmp[1];
+                else
+                    tmpscore = max(tmp[0], tmp[1]);
             }
 
-            numnewwalls++;  
+            if (bestnextwall == -1 || tmpscore > bestwallscore)
+            {
+                bestwallscore = tmpscore;
+                bestnextwall = k;
+                bestnextsec = j;
+            }
+
+            numnewwalls++;
         }
     }
+
+    // sectnum -2 means dry run
+    if (bestnextwall >= 0 && sectnum!=-2)
+#ifdef YAX_ENABLE
+        // be conservative in case if score <=0 (meaning that no wall area is mutually
+        // visible) -- it could be that another sector is a better candidate later on
+        if ((yax_getnextwall(i, 0)<0 && yax_getnextwall(i, 1)<0) || bestwallscore>0)
+#endif
+        {
+//    initprintf("w%d new nw=%d (score %d)\n", i, bestnextwall, bestwallscore)
+            wall[i].nextsector = bestnextsec;
+            wall[i].nextwall = bestnextwall;
+            wall[bestnextwall].nextsector = sectnum;
+            wall[bestnextwall].nextwall = i;
+        }
 
     return numnewwalls;
 }
@@ -4512,6 +4581,9 @@ static void drawalls(int32_t bunch)
         }
         if ((nextsectnum < 0) || (wal->cstat&32))   //White/1-way wall
         {
+#ifdef YAX_ENABLE
+            int16_t ynw[2];
+#endif
             globalorientation = (int32_t)wal->cstat;
             if (nextsectnum < 0) globalpicnum = wal->picnum;
             else globalpicnum = wal->overpicnum;
@@ -4545,7 +4617,12 @@ static void drawalls(int32_t bunch)
             wallscan(x1,x2,uplc,dplc,swall,lwall);
 #ifdef YAX_ENABLE
             // TODO: slopes?
-            if (globalposz > sec->floorz && (x = yax_getnextwall(wallnum, YAX_FLOOR)) >= 0 && wall[x].nextwall>=0)
+            ynw[0] = yax_getnextwall(wallnum, 0);
+            ynw[1] = yax_getnextwall(wallnum, 1);
+
+            if (globalposz > sec->floorz && ((ynw[1]>=0 && wall[ynw[1]].nextwall>=0)
+//                                             || (nextsectnum>=0 && yax_getbunch(sectnum,1)>=0)
+                    ))
             {
                 for (x=x1; x<=x2; x++)
                     if (dplc[x] > umost[x] && umost[x] <= dmost[x])
@@ -4554,7 +4631,9 @@ static void drawalls(int32_t bunch)
                         if (umost[x] > dmost[x]) numhits--;
                     }
             }
-            else if (globalposz < sec->ceilingz && (x = yax_getnextwall(wallnum, YAX_CEILING)) >= 0 && wall[x].nextwall>=0)
+            else if (globalposz < sec->ceilingz && ((ynw[0]>=0 && wall[ynw[0]].nextwall>=0)
+//                                                    || (nextsectnum>=0 && yax_getbunch(sectnum,0)>=0)
+                         ))
             {
                 for (x=x1; x<=x2; x++)
                     if (uplc[x] < dmost[x] && umost[x] <= dmost[x])

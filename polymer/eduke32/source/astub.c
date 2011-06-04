@@ -57,6 +57,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <signal.h>
 
 static int32_t floor_over_floor;
+static int32_t g_fillCurSector = 0;
 
 // static char *startwin_labeltext = "Starting Mapster32...";
 static char setupfilename[]= "mapster32.cfg";
@@ -7473,7 +7474,12 @@ static void Keys2d(void)
 
     if (keystatus[KEYSC_TAB])  //TAB
     {
-        if (eitherSHIFT || eitherCTRL)
+        if (eitherCTRL)
+        {
+            g_fillCurSector = !g_fillCurSector;
+            message("Fill currently pointed-at sector: %s", ONOFF(g_fillCurSector));
+        }
+        else if (eitherSHIFT)
         {
             if (pointhighlight >= 16384)
             {
@@ -7537,6 +7543,16 @@ static void Keys2d(void)
     }
 
 ///__bigcomment__
+
+    if ((i=tcursectornum)>=0 && g_fillCurSector && (hlsectorbitmap[i>>3]&(1<<(i&7)))==0)
+    {
+        int32_t col = editorcolors[4];
+#ifdef YAX_ENABLE
+        if (yax_getbunch(tcursectornum, YAX_FLOOR)>=0)
+            col = editorcolors[12];
+#endif
+        fillsector(tcursectornum, col);
+    }
 
 #ifdef YAX_ENABLE
     if (eitherCTRL && PRESSED_KEYSC(U) && tcursectornum>=0)  // Ctrl-U: unlink bunch sectors

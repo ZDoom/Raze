@@ -300,6 +300,11 @@ int32_t OSD_IsMoving(void)
     return (osdrowscur!=-1 && osdrowscur!=osdrows);
 }
 
+int32_t OSD_GetRowsCur(void)
+{
+    return osdrowscur;
+}
+
 int32_t OSD_GetTextMode(void)
 {
     return osdtextmode;

@@ -102,6 +102,7 @@ char *OSD_GetFmtPtr(void);
 
 int32_t OSD_GetCols(void);
 int32_t OSD_IsMoving(void);
+int32_t OSD_GetRowsCur(void);
 
 // initializes things
 void OSD_Init(void);
