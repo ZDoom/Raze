@@ -4665,9 +4665,9 @@ end_point_dragging:
                         pos.z = getflorzofslope(sectorofwall(wal0-wall), pos.x, pos.y);
 
                         message("Outer wall coordinates must coincide for both components");
-                        OSD_Printf("wal0:%d (%d,%d)--(%d,%d)\n",wal0-wall, wal0->x,wal0->y,
+                        OSD_Printf("wal0:%d (%d,%d)--(%d,%d)\n",(int)(wal0-wall), wal0->x,wal0->y,
                                    wall[wal0->point2].x,wall[wal0->point2].y);
-                        OSD_Printf("wal1:%d (%d,%d)--(%d,%d)\n",wal1-wall, wal1->x,wal1->y,
+                        OSD_Printf("wal1:%d (%d,%d)--(%d,%d)\n",(int)(wal1-wall), wal1->x,wal1->y,
                                    wall[wal1->point2].x,wall[wal1->point2].y);
 
                         goto end_join_sectors;

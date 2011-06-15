@@ -37,18 +37,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "fx_man.h"
 
 #ifdef __POWERPC__
-static inline uint16_t SWAP16(uint16_t s)
-{
-    return (s >> 8) | (s << 8);
-}
-
-static inline uint32_t SWAP32(uint32_t s)
-{
-    return (s >> 24) | (s << 24) | ((s&0xff00) << 8) | ((s & 0xff0000) >> 8);
-}
-
-#define LITTLE16 SWAP16
-#define LITTLE32 SWAP32
+#define LITTLE16(s) (((uint16_t)(s) >> 8) | ((uint16_t)(s) << 8))
+#define LITTLE32(s) ((uint32_t)(s) >> 24) | ((uint32_t)(s) << 24) | (((uint32_t)(s)&0xff00) << 8) | (((uint32_t)(s) & 0xff0000) >> 8)
 #else
 #define LITTLE16
 #define LITTLE32
@@ -976,7 +966,6 @@ int32_t FX_SetPrintf(void (*function)(const char *, ...))
 
     return FX_Ok;
 }
-
 
 /*---------------------------------------------------------------------
    Function: FX_PlayLoopedAuto

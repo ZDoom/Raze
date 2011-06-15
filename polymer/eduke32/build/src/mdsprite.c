@@ -1381,7 +1381,7 @@ static md3model_t *md3load(int32_t fil)
 
 #if B_BIG_ENDIAN != 0
     {
-        int32_t *l;
+        int32_t j, *l;
 
         for (i = m->head.numframes-1; i>=0; i--)
         {
@@ -1406,7 +1406,7 @@ static md3model_t *md3load(int32_t fil)
 
 #if B_BIG_ENDIAN != 0
         {
-            int32_t *l;
+            int32_t j, *l;
             s->id = B_LITTLE32(s->id);
             l =	(int32_t *)&s->flags;
             for	(j=1+1+1+1+1+1+1+1+1+1-1; j>=0; j--) l[j] = B_LITTLE32(l[j]);
@@ -1438,7 +1438,7 @@ static md3model_t *md3load(int32_t fil)
 
 #if B_BIG_ENDIAN != 0
         {
-            int32_t *l;
+            int32_t j, *l;
 
             for (i=s->numtris-1; i>=0; i--)
             {

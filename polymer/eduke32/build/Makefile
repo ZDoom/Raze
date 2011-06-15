@@ -58,6 +58,8 @@ UTILLIBS=-lpthread
 ENGINEOBJS=
 ifeq (0,$(NOASM))
   ENGINEOBJS+= $(OBJ)/a.$o
+else
+  ENGINEOBJS+= $(OBJ)/a-c.$o
 endif
 
 ifneq ($(PLATFORM),WINDOWS)
@@ -66,7 +68,6 @@ endif
 
 
 ENGINEOBJS+= \
-	$(OBJ)/a-c.$o \
 	$(OBJ)/baselayer.$o \
 	$(OBJ)/cache1d.$o \
 	$(OBJ)/compat.$o \
@@ -109,8 +110,8 @@ endif
 ifeq ($(PLATFORM),DARWIN)
     ENGINEOBJS  += $(OBJ)/StartupWinController.editor.$o \
             $(OBJ)//osxbits.$o
-    ASFLAGS     += -f Mach-O
-    OURCFLAGS   += -fno-pic
+    ASFLAGS     += -DUNDERSCORES -f macho
+    OURCFLAGS   += -DUNDERSCORES -fno-pic
     TARGETOPTS  += -DNOASM
 endif
 ifeq ($(PLATFORM),BSD)
