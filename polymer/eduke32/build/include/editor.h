@@ -91,7 +91,7 @@ extern int32_t editorgridextent;	// in engine.c
 
 extern char game_executable[BMAX_PATH];
 extern char program_origcwd[BMAX_PATH];
-extern char *mapster32_fullpath;
+extern const char *mapster32_fullpath;
 extern char *testplay_addparam;
 extern const char *g_namesFileName;
 
@@ -113,6 +113,8 @@ extern uint8_t graywallbitmap[MAXWALLS>>3];
 extern int32_t autogray;
 int32_t yax_is121(int16_t bunchnum, int16_t getfloor);
 #endif
+
+extern int32_t kopen4loadfrommod(const char *filename, char searchfirst);
 
 extern int32_t map_revision;
 extern int32_t map_undoredo(int32_t dir);

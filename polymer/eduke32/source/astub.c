@@ -59,6 +59,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static int32_t floor_over_floor;
 static int32_t g_fillCurSector = 0;
 
+static char g_modDir[BMAX_PATH];
+
 // static char *startwin_labeltext = "Starting Mapster32...";
 static char setupfilename[]= "mapster32.cfg";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
@@ -668,6 +670,23 @@ static const char *Help3d[]=
     " HOME = PGUP/PGDN MODIFIER (256 UNITS)",
     " END = PGUP/PGDN MODIFIER (512 UNITS)",
 };
+
+int32_t kopen4loadfrommod(const char *filename, char searchfirst)
+{
+    static char fn[BMAX_PATH];
+    int32_t r=-1;
+
+    if (g_modDir[0])
+    {
+        Bsnprintf(fn,sizeof(fn),"%s/%s",g_modDir,filename);
+        r = kopen4load(fn,searchfirst);
+    }
+
+    if (r < 0)
+        r = kopen4load(filename,searchfirst);
+
+    return r;
+}
 
 static void clearfilenames(void)
 {
@@ -8355,260 +8374,266 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     int32_t i = 1, j, maxlen=0, *lengths;
     char *c, *k;
 
-    mapster32_fullpath = (char *)argv[0];
+    mapster32_fullpath = argv[0];
 
-    if (argc > 1)
+    if (argc <= 1)
+        return;
+
+    lengths = Bmalloc(argc*sizeof(int32_t));
+    for (j=1; j<argc; j++)
     {
-        lengths = Bmalloc(argc*sizeof(int32_t));
-        for (j=1; j<argc; j++)
-        {
-            lengths[j] = Bstrlen(argv[j]);
-            maxlen += lengths[j];
-        }
+        lengths[j] = Bstrlen(argv[j]);
+        maxlen += lengths[j];
+    }
 
-        testplay_addparam = Bmalloc(maxlen+argc);
-        testplay_addparam[0] = 0;
+    testplay_addparam = Bmalloc(maxlen+argc);
+    testplay_addparam[0] = 0;
 
-        j = 0;
+    j = 0;
 
-        while (i < argc)
-        {
-            c = (char *)argv[i];
-            if ((*c == '-')
+    while (i < argc)
+    {
+        c = (char *)argv[i];
+
+        if ((*c == '-')
 #ifdef _WIN32
-                || (*c == '/')
+            || (*c == '/')
 #endif
 )
+        {
+            if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
             {
-                if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
-                {
-                    G_ShowParameterHelp();
-                    exit(0);
-                }
+                G_ShowParameterHelp();
+                exit(0);
+            }
 
-                if (!Bstrcasecmp(c+1, "g") || !Bstrcasecmp(c+1,  "grp"))
+            if (!Bstrcasecmp(c+1, "g") || !Bstrcasecmp(c+1, "grp"))
+            {
+                if (argc > i+1)
                 {
-                    if (argc > i+1)
-                    {
-                        G_AddGroup(argv[i+1]);
-                        COPYARG(i);
-                        COPYARG(i+1);
-                        i++;
-                    }
+                    G_AddGroup(argv[i+1]);
+                    COPYARG(i);
+                    COPYARG(i+1);
                     i++;
-                    continue;
                 }
+                i++;
+                continue;
+            }
 
-                if (!Bstrcasecmp(c+1,"game_dir"))
+            if (!Bstrcasecmp(c+1,"game_dir"))
+            {
+                if (argc > i+1)
                 {
-                    if (argc > i+1)
-                    {
 #ifdef USE_OPENGL
-                        extern char TEXCACHEFILE[BMAX_PATH];
+                    extern char TEXCACHEFILE[BMAX_PATH];
 
-                        Bsprintf(tempbuf,"%s/%s",argv[i+1],TEXCACHEFILE);
-                        Bstrcpy(TEXCACHEFILE,tempbuf);
+                    Bsnprintf(tempbuf,sizeof(tempbuf),"%s/%s",argv[i+1],TEXCACHEFILE);
+                    Bstrncpy(TEXCACHEFILE,tempbuf, sizeof(TEXCACHEFILE));
+                    TEXCACHEFILE[sizeof(TEXCACHEFILE)-1] = 0;
 #endif
-                        AddGamePath(argv[i+1]);
+                    Bstrncpy(g_modDir, argv[i+1], sizeof(g_modDir));
+                    g_modDir[sizeof(g_modDir)-1] = 0;
+                    AddGamePath(argv[i+1]);
+
+                    COPYARG(i);
+                    COPYARG(i+1);
+                    i++;
+                }
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"cachesize"))
+            {
+                if (argc > i+1)
+                {
+                    int32_t sz = atoi_safe(argv[i+1]);
+                    if (sz >= 16<<10 && sz <= 1024<<10)
+                    {
+                        g_maxCacheSize = sz<<10;
+                        initprintf("Cache size: %dkB\n",sz);
 
                         COPYARG(i);
                         COPYARG(i+1);
-                        i++;
                     }
                     i++;
-                    continue;
                 }
-                if (!Bstrcasecmp(c+1,"cachesize"))
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"cfg"))
+            {
+                if (argc > i+1)
                 {
-                    if (argc > i+1)
-                    {
-                        int32_t sz = atoi_safe(argv[i+1]);
-                        if (sz >= 16<<10 && sz <= 1024<<10)
-                        {
-                            g_maxCacheSize = sz<<10;
-                            initprintf("Cache size: %dkB\n",sz);
-
-                            COPYARG(i);
-                            COPYARG(i+1);
-                        }
-                        i++;
-                    }
+                    Bstrcpy(setupfilename,argv[i+1]);
                     i++;
-                    continue;
                 }
-                if (!Bstrcasecmp(c+1,"cfg"))
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"gamegrp"))
+            {
+                if (argc > i+1)
                 {
-                    if (argc > i+1)
-                    {
-                        Bstrcpy(setupfilename,argv[i+1]);
-                        i++;
-                    }
-                    i++;
-                    continue;
-                }
-                if (!Bstrcasecmp(c+1,"gamegrp"))
-                {
-                    if (argc > i+1)
-                    {
-                        Bstrcpy(defaultduke3dgrp,argv[i+1]);
-                        COPYARG(i);
-                        COPYARG(i+1);
-                        i++;
-                    }
-                    i++;
-                    continue;
-                }
-                if (!Bstrcasecmp(c+1,"nam"))
-                {
-                    Bstrcpy(g_grpNamePtr, "nam.grp");
+                    Bstrcpy(defaultduke3dgrp,argv[i+1]);
                     COPYARG(i);
+                    COPYARG(i+1);
                     i++;
-                    continue;
                 }
-                if (!Bstrcasecmp(c+1,"namesfile"))
-                {
-                    g_namesFileName = argv[i+1];
-                    i++;
-                    continue;
-                }
-                if (!Bstrcasecmp(c+1,"-nm") || Bstrcasecmp(c+1,"-ns"))
-                {
-                    COPYARG(i);
-                    i++;
-                    continue;
-                }
-                if (!Bstrcasecmp(c+1,"ww2gi"))
-                {
-                    Bstrcpy(g_grpNamePtr, "ww2gi.grp");
-                    COPYARG(i);
-                    i++;
-                    continue;
-                }
-                if (!Bstrcasecmp(c+1,"check"))
-                {
-                    initprintf("Map pointer checking on saving enabled\n");
-                    fixmapbeforesaving = 1;
-                    i++;
-                    continue;
-                }
-                if (!Bstrcasecmp(c+1,"nocheck"))
-                {
-                    initprintf("Map pointer checking disabled\n");
-                    fixmapbeforesaving = 0;
-                    i++;
-                    continue;
-                }
-                if (!Bstrcasecmp(c+1,"noautoload"))
-                {
-                    initprintf("Autoload disabled\n");
-                    NoAutoLoad = 1;
-                    COPYARG(i);
-                    i++;
-                    continue;
-                }
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"nam"))
+            {
+                Bstrcpy(g_grpNamePtr, "nam.grp");
+                COPYARG(i);
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"namesfile"))
+            {
+                g_namesFileName = argv[i+1];
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"nm") || !Bstrcasecmp(c+1,"ns"))
+            {
+                COPYARG(i);
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"ww2gi"))
+            {
+                Bstrcpy(g_grpNamePtr, "ww2gi.grp");
+                COPYARG(i);
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"check"))
+            {
+                initprintf("Map pointer checking on saving enabled\n");
+                fixmapbeforesaving = 1;
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"nocheck"))
+            {
+                initprintf("Map pointer checking disabled\n");
+                fixmapbeforesaving = 0;
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"noautoload"))
+            {
+                initprintf("Autoload disabled\n");
+                NoAutoLoad = 1;
+                COPYARG(i);
+                i++;
+                continue;
+            }
 #if !defined(_WIN32)
-                if (!Bstrcasecmp(c+1,"usecwd"))
-                {
-                    usecwd = 1;
-                    COPYARG(i);
-                    i++;
-                    continue;
-                }
+            if (!Bstrcasecmp(c+1,"usecwd"))
+            {
+                usecwd = 1;
+                COPYARG(i);
+                i++;
+                continue;
+            }
 #endif
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
-                if (!Bstrcasecmp(c+1,"forcegl"))
-                {
-                    forcegl = 1;
-                    i++;
-                    continue;
-                }
-#endif
-            }
-
-            if ((*c == '-')
-#ifdef _WIN32
-                || (*c == '/')
-#endif
-)
+            if (!Bstrcasecmp(c+1,"forcegl"))
             {
-                c++;
-                switch (*c)
-                {
-                case 'h':
-                case 'H':
-                    c++;
-                    if (*c)
-                    {
-                        defsfilename = c;
-                        COPYARG(i);
-                        initprintf("Using DEF file: %s.\n",defsfilename);
-                    }
-                    break;
-                case 'j':
-                case 'J':
-                    c++;
-                    if (!*c) break;
-                    AddGamePath(c);
-                    COPYARG(i);
-                    break;
-                case 'g':
-                case 'G':
-                    c++;
-                    if (!*c) break;
-                    G_AddGroup(c);
-                    COPYARG(i);
-                    break;
-                case 'x':
-                case 'X':
-                    c++;
-                    if (!*c) break;
-                    gamecon = c;
-                    COPYARG(i);
-                    break;
-                }
+                forcegl = 1;
+                i++;
+                continue;
             }
-            else
-            {
-                k = Bstrrchr(c,'.');
-                if (k)
-                {
-                    if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
-                    {
-                        COPYARG(i);
-                        G_AddGroup(argv[i++]);
-                        continue;
-                    }
-                    else if (!Bstrcasecmp(k,".def"))
-                    {
-                        COPYARG(i);
-                        defsfilename = (char *)argv[i++];
-                        initprintf("Using DEF file: %s.\n",defsfilename);
-                        continue;
-                    }
-                    else if (!Bstrcasecmp(k,".con"))
-                    {
-                        COPYARG(i);
-                        gamecon = (char *)argv[i++];
-                        continue;
-                    }
-                }
-            }
-            i++;
+#endif
         }
 
-        Bfree(lengths);
 
-        if (j > 0)
+        if ((*c == '-')
+#ifdef _WIN32
+            || (*c == '/')
+#endif
+)
         {
-            testplay_addparam[j-1] = 0;
-            testplay_addparam = Brealloc(testplay_addparam, j*sizeof(char));
+            c++;
+            switch (*c)
+            {
+            case 'h':
+            case 'H':
+                c++;
+                if (*c)
+                {
+                    defsfilename = c;
+                    COPYARG(i);
+                    initprintf("Using DEF file: %s.\n",defsfilename);
+                }
+                break;
+            case 'j':
+            case 'J':
+                c++;
+                if (!*c) break;
+                AddGamePath(c);
+                COPYARG(i);
+                break;
+            case 'g':
+            case 'G':
+                c++;
+                if (!*c) break;
+                G_AddGroup(c);
+                COPYARG(i);
+                break;
+            case 'x':
+            case 'X':
+                c++;
+                if (!*c) break;
+                gamecon = c;
+                COPYARG(i);
+                break;
+            }
         }
         else
         {
-            Bfree(testplay_addparam);
-            testplay_addparam = NULL;
+            k = Bstrrchr(c,'.');
+            if (k)
+            {
+                if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip"))
+                {
+                    COPYARG(i);
+                    G_AddGroup(argv[i++]);
+                    continue;
+                }
+                else if (!Bstrcasecmp(k,".def"))
+                {
+                    COPYARG(i);
+                    defsfilename = (char *)argv[i++];
+                    initprintf("Using DEF file: %s.\n",defsfilename);
+                    continue;
+                }
+                else if (!Bstrcasecmp(k,".con"))
+                {
+                    COPYARG(i);
+                    gamecon = (char *)argv[i++];
+                    continue;
+                }
+            }
         }
+        i++;
     }
+
+    Bfree(lengths);
+
+    if (j > 0)
+    {
+        testplay_addparam[j-1] = 0;
+        testplay_addparam = Brealloc(testplay_addparam, j*sizeof(char));
+    }
+    else
+    {
+        Bfree(testplay_addparam);
+        testplay_addparam = NULL;
+    }
+
 }
 #undef COPYARG
 

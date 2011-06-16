@@ -110,7 +110,7 @@ int32_t revertCTRL=0,scrollamount=3;
 int32_t unrealedlook=1, quickmapcycling=1; //PK
 
 char program_origcwd[BMAX_PATH];
-char *mapster32_fullpath;
+const char *mapster32_fullpath;
 char *testplay_addparam = 0;
 
 static char boardfilename[BMAX_PATH], selectedboardfilename[BMAX_PATH];
@@ -8483,8 +8483,8 @@ int32_t loadnames(const char *namesfile)
                     }
 
                     number = p;
-                    while (*p != 0) p++;
-                    if (*p != 0) *p = 0;
+                    while (*p != 0 && *p != 32) p++;
+                    *p = 0;
 
                     // add to list
                     num = Bstrtol(number, &endptr, 10);
@@ -8509,7 +8509,6 @@ int32_t loadnames(const char *namesfile)
                     syms++;
 
                     continue;
-
                 }
                 else  	// #define_NAME with no number
                 {
@@ -8526,9 +8525,11 @@ int32_t loadnames(const char *namesfile)
         }
         else if (*p == '*' && p[1] == '/')
         {
-            comment--; continue;
+            comment--;
+            continue;
         }
-        else if (comment)continue;
+        else if (comment)
+            continue;
 badline:
         initprintf("Error: Invalid statement found at character %d on line %d\n", (int32_t)(p-buffer), line-1);
     }

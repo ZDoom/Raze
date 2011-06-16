@@ -137,8 +137,8 @@ int32_t S_LoadSound(uint32_t num)
         return 0;
     }
 
-    if (g_sounds[num].filename1) fp = kopen4load(g_sounds[num].filename1,pathsearchmode);
-    if (fp == -1) fp = kopen4load(g_sounds[num].filename,pathsearchmode);
+    if (g_sounds[num].filename1) fp = kopen4loadfrommod(g_sounds[num].filename1,0);//pathsearchmode
+    if (fp == -1) fp = kopen4loadfrommod(g_sounds[num].filename,0);
     if (fp == -1)
     {
         OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
