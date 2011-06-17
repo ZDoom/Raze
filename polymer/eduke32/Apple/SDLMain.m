@@ -21,7 +21,7 @@
 #define		SDL_USE_NIB_FILE	0
 
 /* Use this flag to determine whether we use CPS (docking) or not */
-#define		SDL_USE_CPS		1
+#define		SDL_USE_CPS
 #ifdef SDL_USE_CPS
 /* Portions of CPS.h */
 typedef struct CPSProcessSerNum
@@ -40,6 +40,8 @@ static int    gArgc;
 static char  **gArgv;
 static BOOL   gFinderLaunch;
 static BOOL   gCalledAppMainline = FALSE;
+
+static id nsapp;
 
 static NSString *getApplicationName(void)
 {
@@ -157,10 +159,10 @@ static void setApplicationMenu(void)
     /* Put menu into the menubar */
     menuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
     [menuItem setSubmenu:appleMenu];
-    [[NSApp mainMenu] addItem:menuItem];
+    [[nsapp mainMenu] addItem:menuItem];
 
     /* Tell the application object that this is now the application menu */
-    [NSApp setAppleMenu:appleMenu];
+    [nsapp setAppleMenu:appleMenu];
 
     /* Finally give up our references to the objects */
     [appleMenu release];
@@ -184,10 +186,10 @@ static void setupWindowMenu(void)
     /* Put menu into the menubar */
     windowMenuItem = [[NSMenuItem alloc] initWithTitle:@"Window" action:nil keyEquivalent:@""];
     [windowMenuItem setSubmenu:windowMenu];
-    [[NSApp mainMenu] addItem:windowMenuItem];
+    [[nsapp mainMenu] addItem:windowMenuItem];
     
     /* Tell the application object that this is now the window menu */
-    [NSApp setWindowsMenu:windowMenu];
+    [nsapp setWindowsMenu:windowMenu];
 
     /* Finally give up our references to the objects */
     [windowMenu release];
@@ -201,8 +203,8 @@ static void CustomApplicationMain (int argc, char **argv)
     SDLMain				*sdlMain;
 
     /* Ensure the application object is initialised */
-    [NSApplication sharedApplication];
-    
+    nsapp = [NSApplication sharedApplication];
+
 #ifdef SDL_USE_CPS
     {
         CPSProcessSerNum PSN;
@@ -215,16 +217,16 @@ static void CustomApplicationMain (int argc, char **argv)
 #endif /* SDL_USE_CPS */
 
     /* Set up the menubar */
-    [NSApp setMainMenu:[[NSMenu alloc] init]];
+    [nsapp setMainMenu:[[NSMenu alloc] init]];
     setApplicationMenu();
     setupWindowMenu();
 
     /* Create SDLMain and make it the app delegate */
     sdlMain = [[SDLMain alloc] init];
-    [NSApp setDelegate:sdlMain];
+    [nsapp setDelegate:sdlMain];
     
     /* Start the main event loop */
-    [NSApp run];
+    [nsapp run];
     
     [sdlMain release];
     [pool release];
@@ -292,7 +294,7 @@ static void CustomApplicationMain (int argc, char **argv)
 
 #if SDL_USE_NIB_FILE
     /* Set the main menu to contain the real app name instead of "SDL App" */
-    [self fixMenu:[NSApp mainMenu] withAppName:getApplicationName()];
+    [self fixMenu:[nsapp mainMenu] withAppName:getApplicationName()];
 #endif
 
     /* Hand off to main application code */
