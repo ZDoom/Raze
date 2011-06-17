@@ -126,8 +126,9 @@ ifeq ($(PLATFORM),DARWIN)
                 -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
                 -Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
                 -Wl,-framework,QuickTime -lm
-        # I like to have the SDLMain.m from the OSX SDL package to be in this dir:
-        LIBS += $(realpath SDLMain.m)
+        # We have SDLMain.m from the OSX SDL package in the Apple/ subdir:
+        EDITOROBJS+=$(OBJ)/SDLMain.$o
+        GAMEOBJS+=$(OBJ)/SDLMain.$o
     else
         OURCFLAGS += -fno-pic -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
         LIBS += -read_only_relocs suppress -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
@@ -136,7 +137,7 @@ ifeq ($(PLATFORM),DARWIN)
                 -Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
                 -Wl,-framework,QuickTime -lm
     endif
-    NASMFLAGS += -f Mach-O
+    NASMFLAGS += -f macho
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
@@ -262,6 +263,10 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(AS) $(NASMFLAGS) $< -o $@
 
 $(OBJ)/%.$o: $(SRC)/%.c
+	$(COMPILE_STATUS)
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
+$(OBJ)/%.$o: Apple/%.m
 	$(COMPILE_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 

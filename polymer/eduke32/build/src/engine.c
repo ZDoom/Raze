@@ -12868,6 +12868,9 @@ static inline palette_t getpal(int32_t col)
         p.b = britable[curbrightness][ curpalette[col].b ];
         p.g	= britable[curbrightness][ curpalette[col].g ];
         p.r = britable[curbrightness][ curpalette[col].r ];
+#ifdef __APPLE__
+        p.f = 0;  // make gcc on osx happy
+#endif
         return p;
     }
 }
@@ -14688,7 +14691,6 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     enddrawing();   //}}}
 }
-
 
 //
 // printext16

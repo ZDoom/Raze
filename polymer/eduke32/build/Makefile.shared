@@ -97,8 +97,12 @@ ifeq ($(PLATFORM),DARWIN)
     BUILDCFLAGS    += -DHAVE_INTTYPES
     GTKCOMPAT32    = 0
     SDL_FRAMEWORK    = 1
-    # ASM won't work on PowerPC and currently throws errors on i386 too :-/
-    override NOASM    = 1
+    ifeq (1,$(BUILD32_ON_64))
+        BUILDCFLAGS += $(F_NO_STACK_PROTECTOR) -arch i386
+    else
+        # ASM won't work on PowerPC or x86_64
+        override NOASM    = 1
+    endif
 endif
 ifeq ($(PLATFORM),WINDOWS)
     RENDERTYPE ?= WIN

@@ -145,6 +145,11 @@ static inline float nearbyintf(float x)
 # define B_SWAP16(x) __bswap16(x)
 
 #elif defined(__APPLE__)
+#if defined __i386__ && defined __GNUC__
+// PK 20110617: isidigit() crashes for me in x86 code compiled from 64-bit.
+//              This hack patches all occurences.
+#  define isdigit(c) ({ int32_t tmpc=c; tmpc>='0' && tmpc<='9';})
+# endif
 # if defined(__LITTLE_ENDIAN__)
 #  define B_LITTLE_ENDIAN 1
 #  define B_BIG_ENDIAN    0

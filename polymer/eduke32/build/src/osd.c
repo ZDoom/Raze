@@ -976,7 +976,9 @@ int32_t OSD_HandleChar(char ch)
         if (osdeditcursor < osdeditlen) osdeditcursor++;
         return 0;
     case 8:
-//    case 127:      // control h, backspace
+#ifdef __APPLE__
+    case 127:      // control h, backspace
+#endif
         if (!osdeditcursor || !osdeditlen) return 0;
         if ((osdflags & OSD_OVERTYPE) == 0)
         {
@@ -986,7 +988,9 @@ int32_t OSD_HandleChar(char ch)
         }
         osdeditcursor--;
         if (osdeditcursor<osdeditwinstart) osdeditwinstart--,osdeditwinend--;
+#ifndef __APPLE__
     case 127:  // handled in OSD_HandleScanCode (delete)
+#endif
         return 0;
     case 9:   // tab
     {

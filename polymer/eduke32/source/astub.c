@@ -7239,10 +7239,14 @@ paste_ceiling_or_floor:
                         if (wall[i].overpicnum == j)
                             wall[i].overpicnum = temppicnum;
                     break;
+                default:
+                    j = -1;
+                    break;
                 }
 
-                message("Replaced %ss with picnum %d to picnum %d",
-                        typestr[searchwall], j, temppicnum);
+                if (j>=0)
+                    message("Replaced %ss with picnum %d to picnum %d",
+                            typestr[searchwall], j, temppicnum);
                 asksave = 1;
             }
         }

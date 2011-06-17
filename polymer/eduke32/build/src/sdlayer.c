@@ -590,7 +590,7 @@ void grabmouse(char a)
     {
         if (a != mousegrab)
         {
-#ifndef DEBUGGINGAIDS
+#if !defined DEBUGGINGAIDS || defined __APPLE__
             SDL_GrabMode g;
 
             g = SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF);
@@ -1663,6 +1663,8 @@ int32_t handleevents(void)
             }
 
             // hook in the osd
+//            if (ev.type==SDL_KEYDOWN)
+//                printf("got key SDLK %d (%s), trans 0x%x\n", ev.key.keysym.sym, SDL_GetKeyName(ev.key.keysym.sym), code);
             if (OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN)) == 0)
                 break;
 

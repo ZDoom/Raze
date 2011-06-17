@@ -13,7 +13,7 @@ else
     DXROOT ?= c:/sdks/directx/dx8
 endif
 
-CFLAGS=$(BASECFLAGS) $(F_NO_STACK_PROTECTOR)
+CFLAGS=$(BASECFLAGS) $(BUILDCFLAGS) $(F_NO_STACK_PROTECTOR)
 # for BUILD_ECHOFLAGS:
 OURCFLAGS=$(CFLAGS)
 CPPFLAGS=-I$(INC) -I$(SRC) -DHAVE_VORBIS
@@ -42,7 +42,10 @@ ifeq ($(PLATFORM),WINDOWS)
     OBJNAME=libjfaudiolib_win32.a
     OBJ=obj_win
 else
-    CPPFLAGS+= -DHAVE_SDL `pkg-config --cflags vorbis`
+    CPPFLAGS+= -DHAVE_SDL
+    ifneq ($(PLATFORM),DARWIN)
+        CPPFLAGS+=`pkg-config --cflags vorbis`
+    endif
     OBJECTS+= $(OBJ)/driver_sdl.o
 endif
 
