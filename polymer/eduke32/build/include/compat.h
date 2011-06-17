@@ -146,9 +146,11 @@ static inline float nearbyintf(float x)
 
 #elif defined(__APPLE__)
 #if defined __i386__ && defined __GNUC__
-// PK 20110617: isidigit() crashes for me in x86 code compiled from 64-bit.
+// PK 20110617: is*() crashes for me in x86 code compiled from 64-bit.
 //              This hack patches all occurences.
-#  define isdigit(c) ({ int32_t tmpc=c; tmpc>='0' && tmpc<='9';})
+#  define isdigit(ch) ({ int32_t c__dontuse_=ch; c__dontuse_>='0' && c__dontuse_<='9'; })
+#  define isalpha(ch) ({ int32_t c__dontuse2_=ch; (c__dontuse2_>='A' && c__dontuse2_<='Z') || (c__dontuse2_>='a' && c__dontuse2_<='z'); })
+#  define isalnum(ch2)  ({ int32_t c2__dontuse_=ch2; isalpha(c2__dontuse_) || isdigit(c2__dontuse_); })
 # endif
 # if defined(__LITTLE_ENDIAN__)
 #  define B_LITTLE_ENDIAN 1
