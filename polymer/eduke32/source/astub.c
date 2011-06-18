@@ -100,7 +100,7 @@ static struct strllist
 const char *scripthist[SCRIPTHISTSIZ];
 int32_t scripthistend = 0;
 
-int32_t g_lazy_tileselector = 1;
+int32_t g_lazy_tileselector = 0;
 int32_t showambiencesounds=2;
 
 int32_t autocorruptcheck = 0;

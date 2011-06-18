@@ -1347,6 +1347,10 @@ static int32_t defsparser(scriptfile *script)
                     double scale=1.0;
                     scriptfile_getdouble(script,&scale);
                     voxscale[lastvoxid] = (int32_t)(65536*scale);
+#ifdef USE_OPENGL
+                    if (voxmodels[lastvoxid])
+                        voxmodels[lastvoxid]->scale = scale;
+#endif
                     break;
                 }
                 }

@@ -3094,6 +3094,9 @@ int32_t voxdraw(voxmodel_t *m, spritetype *tspr)
     //if (globalorientation&4) { m0.y = -m0.y; a0.y = -a0.y; } //x-flipping
 
     f = ((float)tspr->xrepeat)*(256.0/320.0)/64.0*m->bscale;
+    if ((sprite[tspr->owner].cstat&48)==16)
+        f *= 1.25f;
+
     m0.x *= f; a0.x *= f; f = -f;
     m0.y *= f; a0.y *= f;
     f = ((float)tspr->yrepeat)/64.0*m->bscale;

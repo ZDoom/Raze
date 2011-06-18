@@ -82,7 +82,7 @@ int32_t tiletovox[MAXTILES];
 int32_t usevoxels = 1;
 #define kloadvoxel loadvoxel
 
-int32_t novoxmips = 0;
+int32_t novoxmips = 1;
 int32_t editorgridextent = 131072;
 
 //These variables need to be copied into BUILD
@@ -965,14 +965,15 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 #endif
 
 #ifdef YAX_DEBUG_YMOSTS
-    if (getrendermode()==0)
+    if (getrendermode()==0 && numyaxbunches>0)
     {
+        char purple = getclosestcol(63, 0, 63);
+        char yellow = getclosestcol(63, 63, 0);
+
         begindrawing();
         for (i=0; i<numyaxbunches; i++)
         {
             int32_t x, x1;
-            char purple = getclosestcol(63, 0, 63);
-            char yellow = getclosestcol(63, 63, 0);
 
             if ((haveymost[i>>3]&(1<<i&7))==0)
                 continue;
@@ -981,10 +982,10 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 
             for (x=x1; x<x1+xdimen; x++)
             {
-                if (yumost[x] >= 0 && yumost[x] < ydim)
+                if (yumost[x] >= 0 && yumost[x] < ydim && (x&1))
                     *((char *)frameplace + yumost[x]*bytesperline + x-x1) = purple;
 
-                if (ydmost[x]-1 >= 0 && ydmost[x]-1 < ydim)
+                if (ydmost[x]-1 >= 0 && ydmost[x]-1 < ydim && !(x&1))
                     *((char *)frameplace + (ydmost[x]-1)*bytesperline + x-x1) = yellow;
             }
         }
@@ -2160,8 +2161,8 @@ static inline int32_t getpalookup(int32_t davis, int32_t dashade)
 }
 
 
-// returns: 0=continue;
-//          1=break;
+// returns: 0=continue sprite collecting;
+//          1=break out of sprite collecting;
 int32_t engine_addtsprite(int16_t z, int16_t sectnum)
 {
     spritetype *spr = &sprite[z];
@@ -2254,8 +2255,9 @@ static void scansector(int16_t sectnum)
             {
                 xs = spr->x-globalposx; ys = spr->y-globalposy;
                 if ((spr->cstat&48) || (xs*cosglobalang+ys*singlobalang > 0))
-                    if (engine_addtsprite(z, sectnum))
-                        break;
+                    if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-xs, sintable[spr->ang&2047],-ys) > 0)
+                        if (engine_addtsprite(z, sectnum))
+                            break;
             }
         }
 
@@ -4276,10 +4278,16 @@ static void drawalls(int32_t bunch)
                 x1 = bn[i]*xdimen;
                 for (x=x1+xb1[bunchfirst[bunch]]; x<=x1+xb2[bunchlast[bunch]]; x++)
                 {
-//                    if (i==YAX_CEILING)
+                    if (i==YAX_CEILING)
+                    {
                         yumost[x] = min(yumost[x], umost[x-x1]);
-//                    else
+                        ydmost[x] = max(ydmost[x], min(dmost[x-x1], uplc[x-x1]));
+                    }
+                    else
+                    {
+                        yumost[x] = min(yumost[x], max(umost[x-x1], dplc[x-x1]));
                         ydmost[x] = max(ydmost[x], dmost[x-x1]);
+                    }
                 }
             }
     }
@@ -4705,7 +4713,7 @@ static void drawalls(int32_t bunch)
 //
 static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasprang,
                     int32_t daxscale, int32_t dayscale, char daindex,
-                    int8_t dashade, char dapal, int32_t *daumost, int32_t *dadmost)
+                    int8_t dashade, char dapal, const int32_t *daumost, const int32_t *dadmost)
 {
     int32_t i, j, k, x, y, syoff, ggxstart, ggystart, nxoff;
     int32_t cosang, sinang, sprcosang, sprsinang, backx, backy, gxinc, gyinc;
@@ -4948,6 +4956,16 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
             }
         }
     }
+
+#if 0
+    for (x=0; x<xdimen; x++)
+    {
+        if (daumost[x]>=0 && daumost[x]<ydimen)
+            *(char *)(frameplace + x + bytesperline*daumost[x]) = editorcolors[13];
+        if (dadmost[x]>=0 && dadmost[x]<ydimen)
+            *(char *)(frameplace + x + bytesperline*dadmost[x]) = editorcolors[14];
+    }
+#endif
 
     enddrawing();   //}}}
 }
@@ -5773,7 +5791,11 @@ static void drawsprite(int32_t snum)
     }
     else if ((cstat&48) == 48)
     {
-        int32_t nxrepeat, nyrepeat;
+        int32_t nxrepeat, nyrepeat, daxrepeat;
+
+        daxrepeat = (int32_t)tspr->xrepeat;
+        if ((sprite[spritenum].cstat&48)==16)
+            daxrepeat = (daxrepeat*5)/4;
 
         lx = 0; rx = xdim-1;
         for (x=lx; x<=rx; x++)
@@ -5831,17 +5853,17 @@ static void drawsprite(int32_t snum)
 
         if (voxscale[vtilenum] == 65536)
         {
-            nxrepeat = (((int32_t)tspr->xrepeat)<<16);
+            nxrepeat = (daxrepeat<<16);
             nyrepeat = (((int32_t)tspr->yrepeat)<<16);
         }
         else
         {
-            nxrepeat = ((int32_t)tspr->xrepeat)*voxscale[vtilenum];
+            nxrepeat = daxrepeat*voxscale[vtilenum];
             nyrepeat = ((int32_t)tspr->yrepeat)*voxscale[vtilenum];
         }
 
         if (!(cstat&128)) tspr->z -= mulscale22(B_LITTLE32(longptr[5]),nyrepeat);
-        yoff = (int32_t)((int8_t)((picanm[sprite[tspr->owner].picnum]>>16)&255))+((int32_t)tspr->yoffset);
+        yoff = /*(int32_t) ((int8_t)((picanm[sprite[tspr->owner].picnum]>>16)&255)) +*/ (int32_t)tspr->yoffset;
         tspr->z -= mulscale14(yoff,nyrepeat);
 
         globvis = globalvisibility;
@@ -5899,7 +5921,7 @@ static void drawsprite(int32_t snum)
 #ifdef USE_OPENGL
         i += spriteext[tspr->owner].angoff;
 #endif
-        drawvox(tspr->x,tspr->y,tspr->z,i,(int32_t)tspr->xrepeat,(int32_t)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
+        drawvox(tspr->x,tspr->y,tspr->z,i,daxrepeat,(int32_t)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
     }
 //    if (automapping == 1) show2dsprite[spritenum>>3] |= pow2char[spritenum&7];
 }

@@ -4135,8 +4135,9 @@ void polymost_scansector(int32_t sectnum)
                 xs = spr->x-globalposx; ys = spr->y-globalposy;
                 if ((spr->cstat&48) || (xs*gcosang+ys*gsinang > 0) || (usemodels && tile2model[spr->picnum].modelid>=0))
                 {
-                    if (engine_addtsprite(z, sectnum))
-                        break;
+                    if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-xs, sintable[spr->ang&2047],-ys) > 0)
+                        if (engine_addtsprite(z, sectnum))
+                            break;
                 }
             }
         }
@@ -4769,6 +4770,7 @@ void polymost_drawsprite(int32_t snum)
     int32_t posx,posy;
     int32_t oldsizx, oldsizy;
     int32_t tsizx, tsizy;
+
     tspr = tspriteptr[snum];
     if (tspr->owner < 0 || tspr->picnum < 0 || tspr->picnum >= MAXTILES) return;
 
@@ -4782,11 +4784,11 @@ void polymost_drawsprite(int32_t snum)
     {
         int32_t flag;
         if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,spritenum+32768);
-        flag = usehightile&&h_xsize[globalpicnum];
+        flag = usehightile && h_xsize[globalpicnum];
         xoff = (int32_t)tspr->xoffset;
         yoff = (int32_t)tspr->yoffset;
-        xoff += (int8_t)((flag)?(h_xoffs[globalpicnum]):((picanm[globalpicnum]>>8)&255));
-        yoff += (int8_t)((flag)?(h_yoffs[globalpicnum]):((picanm[globalpicnum]>>16)&255));
+        xoff += (int8_t)(flag ? h_xoffs[globalpicnum] : ((picanm[globalpicnum]>>8)&255));
+        yoff += (int8_t)(flag ? h_yoffs[globalpicnum] : ((picanm[globalpicnum]>>16)&255));
     }
 
     method = 1+4;
@@ -4855,14 +4857,14 @@ void polymost_drawsprite(int32_t snum)
             if (mddraw(tspr)) return;
             break;	// else, render as flat sprite
         }
-        if (usevoxels && (tspr->cstat&48)!=48 && tiletovox[tspr->picnum] >= 0 && voxmodels[ tiletovox[tspr->picnum] ])
+        if (usevoxels && (tspr->cstat&48)!=48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
         {
-            if (voxdraw(voxmodels[ tiletovox[tspr->picnum] ], tspr)) return;
+            if (voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
             break;	// else, render as flat sprite
         }
-        if ((tspr->cstat&48)==48 && voxmodels[ tspr->picnum ])
+        if ((tspr->cstat&48)==48 && voxmodels[tspr->picnum])
         {
-            voxdraw(voxmodels[ tspr->picnum ], tspr);
+            voxdraw(voxmodels[tspr->picnum], tspr);
             return;
         }
         break;
@@ -4888,10 +4890,10 @@ void polymost_drawsprite(int32_t snum)
     }
     oldsizx=tsizx=tilesizx[globalpicnum];
     oldsizy=tsizy=tilesizy[globalpicnum];
-    if (usehightile&&h_xsize[globalpicnum])
+    if (usehightile && h_xsize[globalpicnum])
     {
-        tsizx=h_xsize[globalpicnum];
-        tsizy=h_ysize[globalpicnum];
+        tsizx = h_xsize[globalpicnum];
+        tsizy = h_ysize[globalpicnum];
     }
 
     switch ((globalorientation>>4)&3)
