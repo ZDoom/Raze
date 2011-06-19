@@ -57,13 +57,16 @@ void S_SoundStartup(void)
     initdata = (void *) win_gethwnd();
 #endif
 
-    initprintf("Initializing sound...\n");
+    initprintf("Initializing sound... ");
 
     if (FX_Init(fxdevicetype, ud.config.NumVoices, ud.config.NumChannels, ud.config.NumBits, ud.config.MixRate, initdata) != FX_Ok)
     {
-        initprintf("%s\n", FX_ErrorString(FX_Error));
+        initprintf("failed! %s\n", FX_ErrorString(FX_Error));
         return;
     }
+
+    initprintf("%d voices, %d channels, %d-bit %dKHz\n", ud.config.NumVoices, ud.config.NumChannels,
+        ud.config.NumBits, ud.config.MixRate);
 
     for (i=g_maxSoundPos; i >= 0 ; i--)
     {

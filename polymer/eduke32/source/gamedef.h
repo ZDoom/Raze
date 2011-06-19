@@ -27,6 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2
 
+#define MAXCHEATLEN             20
+#define NUMCHEATCODES           (int32_t)(sizeof(CheatStrings)/sizeof(CheatStrings[0]))
+
 extern hashtable_t h_gamevars;
 extern hashtable_t h_arrays;
 extern hashtable_t h_keywords;
@@ -162,8 +165,7 @@ enum ScriptError_t
     WARNING_DUPLICATEDEFINITION,
     WARNING_EVENTSYNC,
     WARNING_LABELSONLY,
-    WARNING_NAMEMATCHESVAR,
-    WARNING_REVEVENTSYNC
+    WARNING_NAMEMATCHESVAR
 };
 
 enum PlayerLabel_t
@@ -926,11 +928,12 @@ enum ScriptKeywords_t
     CON_IFSERVER,           // 352
     CON_SECTSETINTERPOLATION, // 353
     CON_SECTCLEARINTERPOLATION, // 354
-    CON_CLIPMOVE, // 355
-    CON_LINEINTERSECT, // 356
-    CON_RAYINTERSECT, // 357
-    CON_CALCHYPOTENUSE, // 358
-    CON_CLIPMOVENOSLIDE, // 359
+    CON_CLIPMOVE,           // 355
+    CON_LINEINTERSECT,      // 356
+    CON_RAYINTERSECT,       // 357
+    CON_CALCHYPOTENUSE,     // 358
+    CON_CLIPMOVENOSLIDE,    // 359
+    CON_INCLUDEDEFAULT,     // 360
     CON_END
 };
 #endif

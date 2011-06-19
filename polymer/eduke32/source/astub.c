@@ -62,20 +62,36 @@ static int32_t g_fillCurSector = 0;
 static char g_modDir[BMAX_PATH];
 
 // static char *startwin_labeltext = "Starting Mapster32...";
-static char setupfilename[]= "mapster32.cfg";
+static char *setupfilename = "mapster32.cfg";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char *g_grpNamePtr = defaultduke3dgrp;
+char *g_defNamePtr = defsfilename;
 static int32_t fixmapbeforesaving = 0;
 static int32_t lastsave = -180*60;
 static int32_t NoAutoLoad = 0;
 static int32_t spnoclip=1;
 
-static char default_tiles_cfg[] = "tiles.cfg";
+static char *default_tiles_cfg = "tiles.cfg";
 static int32_t pathsearchmode_oninit;
 
 // Sound in Mapster32
-static char defaultgamecon[] = "game.con";
-static char *gamecon = defaultgamecon;
+static char defaultgamecon[2][BMAX_PATH] = { "eduke.con", "game.con" };
+
+char * defaultgameconfile(void)
+{
+    int32_t script; // scriptfile *script; 
+
+    script = kopen4load(defaultgamecon[0],0); // script = scriptfile_fromfile(defaultgamecon[0]);
+
+    if (script >= 0)
+        return defaultgamecon[0];
+
+    return defaultgamecon[1];
+}
+
+static char *gamecon = "\0";
+static int32_t g_skipDefaultCons = 0;
+static int32_t g_skipDefaultDefs = 0; // primarily for NAM/WWII GI appeasement
 
 #pragma pack(push,1)
 sound_t g_sounds[MAXSOUNDS];
@@ -8489,6 +8505,10 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             if (!Bstrcasecmp(c+1,"nam"))
             {
                 Bstrcpy(g_grpNamePtr, "nam.grp");
+                Bstrcpy(defaultduke3dgrp, "nam.grp");
+                Bstrcpy(defsfilename, "nam.def");
+               // Bstrcpy(g_defNamePtr, "nam.def");
+                Bstrcpy(defaultgamecon[0], "nam.con");
                 COPYARG(i);
                 i++;
                 continue;
@@ -8508,6 +8528,10 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             if (!Bstrcasecmp(c+1,"ww2gi"))
             {
                 Bstrcpy(g_grpNamePtr, "ww2gi.grp");
+                Bstrcpy(defaultduke3dgrp, "ww2gi.grp");
+                Bstrcpy(defaultgamecon[0], "ww2gi.con");
+                Bstrcpy(defsfilename, "ww2gi.def");
+               // Bstrcpy(g_defNamePtr, "ww2gi.def");
                 COPYARG(i);
                 i++;
                 continue;
@@ -8568,9 +8592,10 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 c++;
                 if (*c)
                 {
-                    defsfilename = c;
+                    g_defNamePtr = c;
+                    g_skipDefaultDefs = 1;
                     COPYARG(i);
-                    initprintf("Using DEF file: %s.\n",defsfilename);
+                    initprintf("Using DEF file: %s.\n",g_defNamePtr);
                 }
                 break;
             case 'j':
@@ -8592,7 +8617,9 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 c++;
                 if (!*c) break;
                 gamecon = c;
+                g_skipDefaultCons = 1;
                 COPYARG(i);
+                initprintf("Using CON file '%s'.\n",gamecon);
                 break;
             }
         }
@@ -8610,14 +8637,17 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 else if (!Bstrcasecmp(k,".def"))
                 {
                     COPYARG(i);
-                    defsfilename = (char *)argv[i++];
-                    initprintf("Using DEF file: %s.\n",defsfilename);
+                    g_defNamePtr = (char *)argv[i++];
+                    g_skipDefaultDefs = 1;
+                    initprintf("Using DEF file: %s.\n",g_defNamePtr);
                     continue;
                 }
                 else if (!Bstrcasecmp(k,".con"))
                 {
                     COPYARG(i);
                     gamecon = (char *)argv[i++];
+                    g_skipDefaultCons = 1;
+                    initprintf("Using CON file '%s'.\n",gamecon);
                     continue;
                 }
             }
@@ -9392,6 +9422,7 @@ enum
     T_OFFSETA,
 
     T_DEFINESOUND,
+    T_INCLUDEDEFAULT,
 };
 
 typedef struct
@@ -9447,6 +9478,8 @@ int32_t parsegroupfiles(scriptfile *script)
     {
         { "include",         T_INCLUDE },
         { "#include",        T_INCLUDE },
+        { "includedefault",  T_INCLUDEDEFAULT },
+        { "#includedefault", T_INCLUDEDEFAULT },
         { "loadgrp",         T_LOADGRP },
         { "noautoload",      T_NOAUTOLOAD }
     };
@@ -9497,6 +9530,24 @@ int32_t parsegroupfiles(scriptfile *script)
                     parsegroupfiles(included);
                     scriptfile_close(included);
                 }
+            }
+            break;
+        }
+        break;
+        case T_INCLUDEDEFAULT:
+        {
+            scriptfile *included;
+            
+            included = scriptfile_fromfile(defsfilename);
+            if (!included)
+            {
+                initprintf("Warning: Failed including %s on line %s:%d\n",
+                           defsfilename, script->filename,scriptfile_getlinum(script,cmdtokptr));
+            }
+            else
+            {
+                parsegroupfiles(included);
+                scriptfile_close(included);
             }
             break;
         }
@@ -9883,6 +9934,8 @@ static int32_t parseconsounds(scriptfile *script)
     {
         { "include",         T_INCLUDE          },
         { "#include",        T_INCLUDE          },
+        { "includedefault",  T_INCLUDEDEFAULT   },
+        { "#includedefault", T_INCLUDEDEFAULT   },
         { "define",          T_DEFINE           },
         { "#define",         T_DEFINE           },
         { "definesound",     T_DEFINESOUND      },
@@ -9913,6 +9966,25 @@ static int32_t parseconsounds(scriptfile *script)
                     scriptfile_close(included);
                     if (tmp < 0) return tmp;
                 }
+            }
+            break;
+        }
+        case T_INCLUDEDEFAULT:
+        {
+            char * fn = defaultgameconfile();
+            scriptfile *included;
+
+            included = scriptfile_fromfile(fn);
+            if (!included)
+            {
+                initprintf("Warning: Failed including %s on line %s:%d\n",
+                           fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+            }
+            else
+            {
+                int32_t tmp = parseconsounds(included);
+                scriptfile_close(included);
+                if (tmp < 0) return tmp;
             }
             break;
         }
@@ -10178,10 +10250,15 @@ int32_t ExtInit(void)
 
     if (getenv("DUKE3DDEF"))
     {
-        defsfilename = getenv("DUKE3DDEF");
-        initprintf("Using '%s' as definitions file\n", defsfilename);
+        g_defNamePtr = getenv("DUKE3DDEF");
+        g_skipDefaultDefs = 1;
+        initprintf("Using '%s' as definitions file\n", g_defNamePtr);
     }
-    loadgroupfiles(defsfilename);
+    if (g_skipDefaultDefs == 0)
+        Bstrcpy(g_defNamePtr, defsfilename); // it MAY have changed, with NAM/WWII GI
+
+    loadgroupfiles(g_defNamePtr);
+    // the defs are actually loaded in app_main in build.c
 
     {
         struct strllist *s;
@@ -10922,7 +10999,12 @@ void ExtCheckKeys(void)
     if (!soundinit)
     {
         g_numsounds = 0;
-        loadconsounds(gamecon);
+
+        if (g_skipDefaultCons == 0)
+            loadconsounds(defaultgameconfile()); // Bstrcpy(gamecon, defaultgameconfile());
+        else
+            loadconsounds(gamecon);
+
         if (g_numsounds > 0)
         {
             if (S_SoundStartup() != 0)

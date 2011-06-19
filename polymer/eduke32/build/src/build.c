@@ -563,7 +563,7 @@ int32_t app_main(int32_t argc, const char **argv)
     Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");
     initcrc();
 
-    if (!loaddefinitionsfile(defsfilename))
+    if (!loaddefinitionsfile(g_defNamePtr))
         initprintf("Definitions file loaded.\n");
 
     k = 0;

@@ -80,7 +80,8 @@ enum scripttoken_t
     T_CACHESIZE,
     T_IMPORTTILE,
     T_MUSIC,T_ID,T_SOUND,
-    T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET
+    T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET,
+    T_INCLUDEDEFAULT
 };
 
 typedef struct { const char *text; int32_t tokenid; } tokenlist;
@@ -125,6 +126,8 @@ static int32_t defsparser(scriptfile *script)
     {
         { "include",         T_INCLUDE          },
         { "#include",        T_INCLUDE          },
+        { "includedefault",  T_INCLUDEDEFAULT   },
+        { "#includedefault", T_INCLUDEDEFAULT   },
         { "define",          T_DEFINE           },
         { "#define",         T_DEFINE           },
 
@@ -203,6 +206,23 @@ static int32_t defsparser(scriptfile *script)
                     defsparser(included);
                     scriptfile_close(included);
                 }
+            }
+            break;
+        }
+        case T_INCLUDEDEFAULT:
+        {
+            scriptfile *included;
+
+            included = scriptfile_fromfile(defsfilename);
+            if (!included)
+            {
+                initprintf("Warning: Failed including %s on line %s:%d\n",
+                           defsfilename, script->filename,scriptfile_getlinum(script,cmdtokptr));
+            }
+            else
+            {
+                defsparser(included);
+                scriptfile_close(included);
             }
             break;
         }

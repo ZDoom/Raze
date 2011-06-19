@@ -194,7 +194,8 @@ inline int32_t G_CheckPlayerInSector(int32_t sect)
 {
     int32_t i;
     TRAVERSE_CONNECT(i)
-    if (sprite[g_player[i].ps->i].sectnum == sect) return i;
+    if ((unsigned)g_player[i].ps->i < MAXSPRITES && sprite[g_player[i].ps->i].sectnum == sect)
+        return i;
     return -1;
 }
 
@@ -484,38 +485,27 @@ int32_t G_ActivateWarpElevators(int32_t s,int32_t d) //Parm = sectoreffectornum
 
     while (i >= 0)
     {
-        if (SLT == 17)
-            if (SHT == sprite[s].hitag)
-                if ((klabs(sector[sn].floorz-actor[s].t_data[2]) > SP) ||
-                        (sector[SECT].hitag == (sector[sn].hitag-d)))
-                    break;
+        if (SLT == 17 && SHT == sprite[s].hitag)
+            if ((klabs(sector[sn].floorz-actor[s].t_data[2]) > SP) ||
+                (sector[SECT].hitag == (sector[sn].hitag-d)))
+                break;
         i = nextspritestat[i];
     }
 
-    if (i==-1)
-    {
-        d = 0;
+    if (i == -1)
         return 1; // No find
-    }
     else
-    {
-        if (d == 0)
-            A_PlaySound(ELEVATOR_OFF,s);
-        else A_PlaySound(ELEVATOR_ON,s);
-    }
-
+        A_PlaySound(d ? ELEVATOR_ON : ELEVATOR_OFF, s);
 
     i = headspritestat[STAT_EFFECTOR];
-    while (i >= 0)
+    do
     {
-        if (SLT == 17)
-            if (SHT == sprite[s].hitag)
-            {
-                T1 = d;
-                T2 = d; //Make all check warp
-            }
+        if (SLT == 17 && SHT == sprite[s].hitag)
+            T1 = T2 = d; //Make all check warp
         i = nextspritestat[i];
     }
+    while (i >= 0);
+
     return 0;
 }
 
@@ -530,8 +520,7 @@ void G_OperateSectors(int32_t sn, int32_t ii)
 
     case 30:
         j = sector[sn].hitag;
-        if (actor[j].tempang == 0 ||
-                actor[j].tempang == 256)
+        if (actor[j].tempang == 0 || actor[j].tempang == 256)
             A_CallSound(sn,ii);
         if (sprite[j].extra == 1)
             sprite[j].extra = 3;
@@ -548,8 +537,7 @@ void G_OperateSectors(int32_t sn, int32_t ii)
         break;
 
     case 26: //The split doors
-        i = GetAnimationGoal(&sptr->ceilingz);
-        if (i == -1) //if the door has stopped
+        if (GetAnimationGoal(&sptr->ceilingz) == -1) //if the door has stopped
         {
             g_haltSoundHack = 1;
             sptr->lotag &= 0xff00;

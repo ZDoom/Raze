@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // #define VULGARITY
 
-const char *defsfilename = "duke3d.def";
+char defsfilename[BMAX_PATH] = "duke3d.def";
 
 #define COLOR_RED 248
 #define COLOR_WHITE 31

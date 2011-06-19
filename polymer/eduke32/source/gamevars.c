@@ -669,8 +669,7 @@ void __fastcall Gv_SetVar(register int32_t id, register int32_t lValue, register
     //Bsprintf(g_szBuf,"SGVI: %d ('%s') to %d for %d %d",id,aGameVars[id].szLabel,lValue,iActor,iPlayer);
     //AddLog(g_szBuf);
 
-    switch (aGameVars[id].dwFlags &
-            (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
+    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
     {
     default:
         aGameVars[id].val.lValue=lValue;
@@ -780,8 +779,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                 goto badvarid;
         }
 
-        switch (aGameVars[id].dwFlags &
-                (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
+        switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
         {
         default:
             return ((aGameVars[id].val.lValue ^ -negateResult) + negateResult);
@@ -813,8 +811,7 @@ wtf:
 
 void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
 {
-    switch (aGameVars[id].dwFlags &
-            (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
+    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
     {
     default:
         aGameVars[id].val.lValue=lValue;

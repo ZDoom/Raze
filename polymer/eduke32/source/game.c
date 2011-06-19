@@ -105,6 +105,7 @@ uint8_t water_pal[768],slime_pal[768],title_pal[768],dre_alms[768],ending_pal[76
 uint8_t *basepaltable[BASEPALCOUNT] = { palette, water_pal, slime_pal, dre_alms, title_pal, ending_pal, NULL };
 
 static int32_t g_skipDefaultCons = 0;
+static int32_t g_skipDefaultDefs = 0; // primarily for NAM/WWII GI appeasement
 
 int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
@@ -114,12 +115,12 @@ static int32_t g_noLogoAnim = 0;
 static int32_t g_noLogo = 0;
 
 char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
-static char defaultduke3ddef[BMAX_PATH] = "duke3d.def";
-static char defaultconfilename[BMAX_PATH] = { "EDUKE.CON" };
+char defsfilename[BMAX_PATH] = "duke3d.def";
+static char defaultconfilename[2][BMAX_PATH] = { "EDUKE.CON", "GAME.CON" };
 
 char *g_grpNamePtr = defaultduke3dgrp;
-char *g_defNamePtr = defaultduke3ddef;
-char *g_scriptNamePtr = defaultconfilename;
+char *g_defNamePtr = defsfilename;
+char *g_scriptNamePtr = defaultconfilename[0];
 char *g_gameNamePtr = NULL;
 
 extern int32_t lastvisinc;
@@ -183,6 +184,18 @@ int32_t kopen4loadfrommod(const char *filename, char searchfirst)
     return r;
 }
 
+char * defaultconfile(void)
+{
+    int32_t i;
+
+    i = kopen4load(defaultconfilename[0],0);
+
+    if (i >= 0)
+        return defaultconfilename[0];
+
+    return defaultconfilename[1];
+}
+
 enum gametokens
 {
     T_EOF = -2,
@@ -194,6 +207,7 @@ enum gametokens
     T_CACHESIZE = 2,
     T_ALLOW = 2,
     T_NOAUTOLOAD,
+    T_INCLUDEDEFAULT,
     T_MUSIC,
     T_SOUND,
     T_FILE,
@@ -1869,6 +1883,8 @@ void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
 
 void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step)
 {
+    if (getrendermode() >= 3) return;
+
     if (step > 0)
     {
         for (; start < end; start += step)
@@ -8006,6 +8022,8 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
     {
         { "include",         T_INCLUDE          },
         { "#include",        T_INCLUDE          },
+        { "includedefault",  T_INCLUDEDEFAULT   },
+        { "#includedefault", T_INCLUDEDEFAULT   },
         { "loadgrp",         T_LOADGRP          },
         { "cachesize",       T_CACHESIZE        },
         { "noautoload",      T_NOAUTOLOAD       },
@@ -8072,6 +8090,22 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
                     parsedefinitions_game(included, preload);
                     scriptfile_close(included);
                 }
+            }
+            break;
+        }
+        case T_INCLUDEDEFAULT:
+        {
+            scriptfile *included = scriptfile_fromfile(defsfilename);
+
+            if (!included)
+            {
+//                initprintf("Warning: Failed including %s on line %s:%d\n",
+//                       defsfilename, script->filename,scriptfile_getlinum(script,cmdtokptr));
+            }
+            else
+            {
+                parsedefinitions_game(included, preload);
+                scriptfile_close(included);
             }
             break;
         }
@@ -8343,18 +8377,20 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 }
                 if (!Bstrcasecmp(c+1,"nam"))
                 {
-                    Bsprintf(defaultduke3dgrp, "nam.grp");
-                    Bsprintf(defaultduke3ddef, "nam.def");
-                    Bsprintf(defaultconfilename, "nam.con");
+                    Bstrcpy(defaultduke3dgrp, "nam.grp");
+                    Bstrcpy(defsfilename, "nam.def");
+                //    Bstrcpy(g_defNamePtr, "nam.def");
+                    Bstrcpy(defaultconfilename[0], "nam.con");
                     g_gameType = GAME_NAM;
                     i++;
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"ww2gi"))
                 {
-                    Bsprintf(defaultduke3dgrp, "ww2gi.grp");
-                    Bsprintf(defaultduke3ddef, "ww2gi.def");
-                    Bsprintf(defaultconfilename, "ww2gi.con");
+                    Bstrcpy(defaultduke3dgrp, "ww2gi.grp");
+                    Bstrcpy(defsfilename, "ww2gi.def");
+                //    Bstrcpy(g_defNamePtr, "ww2gi.def");
+                    Bstrcpy(defaultconfilename[0], "ww2gi.con");
                     g_gameType = GAME_WW2;
                     i++;
                     continue;
@@ -8567,6 +8603,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     if (*c)
                     {
                         g_defNamePtr = c;
+                        g_skipDefaultDefs = 1;
                         initprintf("Using DEF file: %s.\n",g_defNamePtr);
                     }
                     break;
@@ -8739,6 +8776,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     if (!Bstrcasecmp(k,".def"))
                     {
                         g_defNamePtr = (char *)argv[i++];
+                        g_skipDefaultDefs = 1;
                         initprintf("Using DEF file: %s.\n",g_defNamePtr);
                         continue;
                     }
@@ -9002,7 +9040,7 @@ void G_Shutdown(void)
 
 static void G_CompileScripts(void)
 {
-    int32_t i, psm = pathsearchmode;
+    int32_t psm = pathsearchmode;
 
     label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (intptr_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
@@ -9013,24 +9051,15 @@ static void G_CompileScripts(void)
     pathsearchmode = 1;
     if (g_skipDefaultCons == 0)
     {
-        i = kopen4loadfrommod(g_scriptNamePtr,0);
-        if (i!=-1)
-            kclose(i);
-        else Bsprintf(g_scriptNamePtr,"GAME.CON");
+        Bsprintf(g_scriptNamePtr,defaultconfile());
     }
     C_Compile(g_scriptNamePtr);
 
-    if (g_loadFromGroupOnly)
+    if (g_loadFromGroupOnly) // g_loadFromGroupOnly is true only when compiling fails and internal defaults are utilized
     {
         if (g_skipDefaultCons == 0)
         {
-            i = kopen4loadfrommod("EDUKE.CON",1);
-            if (i!=-1)
-            {
-                Bsprintf(g_scriptNamePtr,"EDUKE.CON");
-                kclose(i);
-            }
-            else Bsprintf(g_scriptNamePtr,"GAME.CON");
+            Bsprintf(g_scriptNamePtr,defaultconfile());
         }
         C_Compile(g_scriptNamePtr);
     }
@@ -9541,7 +9570,11 @@ int32_t app_main(int32_t argc,const char **argv)
 #endif
 
     i = CONFIG_ReadSetup();
-    if (getenv("DUKE3DGRP")) g_grpNamePtr = getenv("DUKE3DGRP");
+    if (getenv("DUKE3DGRP"))
+    {
+        g_grpNamePtr = getenv("DUKE3DGRP");
+        initprintf("Using %s as main GRP file\n", g_grpNamePtr);
+    }
 
 #ifdef _WIN32
 
@@ -9649,12 +9682,13 @@ int32_t app_main(int32_t argc,const char **argv)
     {
         // overwrite the default GRP and CON so that if the user chooses
         // something different, they get what they asked for
-        Bsprintf(defaultduke3dgrp,   WW2GI ? "ww2gi.grp" : "nam.grp");
-        Bsprintf(defaultduke3ddef,   WW2GI ? "ww2gi.def" : "nam.def");
-        Bsprintf(defaultconfilename, WW2GI ? "ww2gi.con" : "nam.con");
+        Bstrcpy(defaultduke3dgrp,      WW2GI ? "ww2gi.grp" : "nam.grp");
+        Bstrcpy(defsfilename,          WW2GI ? "ww2gi.def" : "nam.def");
+       // Bstrcpy(g_defNamePtr,          WW2GI ? "ww2gi.def" : "nam.def");
+        Bstrcpy(defaultconfilename[0], WW2GI ? "ww2gi.con" : "nam.con");
 
-        Bsprintf(GametypeNames[0],"GRUNTMATCH (SPAWN)");
-        Bsprintf(GametypeNames[2],"GRUNTMATCH (NO SPAWN)");
+        Bstrcpy(GametypeNames[0],"GRUNTMATCH (SPAWN)");
+        Bstrcpy(GametypeNames[2],"GRUNTMATCH (NO SPAWN)");
     }
 
     if (g_modDir[0] != '/')
@@ -9803,6 +9837,15 @@ CLEAN_DIRECTORY:
             }
         }
     }
+
+    if (getenv("DUKE3DDEF"))
+    {
+        g_defNamePtr = getenv("DUKE3DDEF");
+        g_skipDefaultDefs = 1;
+        initprintf("Using '%s' as definitions file\n", g_defNamePtr);
+    }
+    if (g_skipDefaultDefs == 0)
+        Bstrcpy(g_defNamePtr, defsfilename); // it MAY have changed, with NAM/WWII GI
 
     flushlogwindow = 0;
     loaddefinitions_game(g_defNamePtr, TRUE);

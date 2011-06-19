@@ -51,9 +51,12 @@ int32_t g_errorLineNum;
 int32_t g_tw;
 extern int32_t ticrandomseed;
 
-GAMEEXEC_STATIC int32_t VM_Execute(int32_t once);
+GAMEEXEC_STATIC void VM_Execute(int32_t loop);
 
 #include "gamestructures.c"
+
+#define VM_CONDITIONAL(xxx) { if ((xxx) || ((insptr = (intptr_t *)*(insptr+1)) && (((*insptr) & 0xfff) == CON_ELSE))) \
+{ insptr += 2; VM_Execute(0); } }
 
 void VM_ScriptInfo(void)
 {
@@ -97,7 +100,7 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
         Bmemcpy(&vm_backup, &vm, sizeof(vmstate_t));
         Bmemcpy(&vm, &tempvm, sizeof(vmstate_t));
 
-        VM_Execute(0);
+        VM_Execute(1);
 
         if (vm.g_flags & VM_KILL)
         {
@@ -127,7 +130,7 @@ static inline int32_t VM_CheckSquished(void)
 
     if (A_CheckEnemySprite(vm.g_sp)) vm.g_sp->xvel = 0;
 
-    if (vm.g_sp->pal == 1)
+    if (vm.g_sp->pal == 1) // frozen
     {
         actor[vm.g_i].picnum = SHOTSPARK1;
         actor[vm.g_i].extra = 1;
@@ -386,10 +389,10 @@ int32_t G_GetAngleDelta(int32_t a,int32_t na)
 
 GAMEEXEC_STATIC GAMEEXEC_INLINE void VM_AlterAng(int32_t a)
 {
-    intptr_t *moveptr;
+    intptr_t *moveptr = (intptr_t *)vm.g_t[1];
     int32_t ticselapsed = (vm.g_t[0])&31;
 
-    if ((moveptr = (intptr_t *)vm.g_t[1]) < &script[0] || moveptr > &script[g_scriptSize])
+    if (moveptr < &script[0] || moveptr > &script[g_scriptSize])
     {
         vm.g_t[1] = 0;
         OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, vm.g_sp->picnum);
@@ -443,17 +446,14 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void VM_AlterAng(int32_t a)
 
     if (ticselapsed < 1)
     {
-        int32_t j = 2;
         if (a&furthestdir)
         {
-            vm.g_sp->ang = A_GetFurthestAngle(vm.g_i,j);
+            vm.g_sp->ang = A_GetFurthestAngle(vm.g_i, 2);
             vm.g_sp->owner = g_player[vm.g_p].ps->i;
         }
 
         if (a&fleeenemy)
-        {
-            vm.g_sp->ang = A_GetFurthestAngle(vm.g_i,j); // += angdif; //  = G_GetAngleDelta(aang,goalang)>>1;
-        }
+            vm.g_sp->ang = A_GetFurthestAngle(vm.g_i, 2);
     }
 }
 
@@ -480,7 +480,9 @@ GAMEEXEC_STATIC void VM_Move(void)
         return;
     }
 
-    if (a&face_player && !deadflag)
+    if (deadflag) goto dead;
+
+    if (a&face_player)
     {
         if (g_player[vm.g_p].ps->newowner >= 0)
             goalang = getangle(g_player[vm.g_p].ps->opos.x-vm.g_sp->x,g_player[vm.g_p].ps->opos.y-vm.g_sp->y);
@@ -491,10 +493,10 @@ GAMEEXEC_STATIC void VM_Move(void)
         vm.g_sp->ang += angdif;
     }
 
-    if (a&spin && !deadflag)
+    if (a&spin)
         vm.g_sp->ang += sintable[((vm.g_t[0]<<3)&2047)]>>6;
 
-    if (a&face_player_slow && !deadflag)
+    if (a&face_player_slow)
     {
         if (g_player[vm.g_p].ps->newowner >= 0)
             goalang = getangle(g_player[vm.g_p].ps->opos.x-vm.g_sp->x,g_player[vm.g_p].ps->opos.y-vm.g_sp->y);
@@ -505,13 +507,13 @@ GAMEEXEC_STATIC void VM_Move(void)
         vm.g_sp->ang += angdif;
     }
 
-    if (((a&jumptoplayer) == jumptoplayer) && !deadflag)
+    if (((a&jumptoplayer) == jumptoplayer))
     {
         if (vm.g_t[0] < 16)
             vm.g_sp->zvel -= (sintable[(512+(vm.g_t[0]<<4))&2047]>>5);
     }
 
-    if (a&face_player_smart && !deadflag)
+    if (a&face_player_smart)
     {
         int32_t newx = g_player[vm.g_p].ps->pos.x+(g_player[vm.g_p].ps->vel.x/768);
         int32_t newy = g_player[vm.g_p].ps->pos.y+(g_player[vm.g_p].ps->vel.y/768);
@@ -523,10 +525,11 @@ GAMEEXEC_STATIC void VM_Move(void)
         vm.g_sp->ang += angdif;
     }
 
+dead:
     if ((moveptr = (intptr_t *)vm.g_t[1]) < &script[0] || moveptr > &script[g_scriptSize])
     {
         vm.g_t[1] = 0;
-        OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, vm.g_sp->picnum);
+        OSD_Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, vm.g_sp->picnum);
         return;
     }
 
@@ -654,36 +657,19 @@ GAMEEXEC_STATIC void VM_Move(void)
     if (sector[vm.g_sp->sectnum].ceilingstat&1)
         vm.g_sp->shade += (sector[vm.g_sp->sectnum].ceilingshade-vm.g_sp->shade)>>1;
     else vm.g_sp->shade += (sector[vm.g_sp->sectnum].floorshade-vm.g_sp->shade)>>1;
-
-// wtf?
-    /*
-        if (sector[vm.g_sp->sectnum].floorpicnum == MIRROR)
-            deletesprite(vm.g_i);
-    */
 }
 
-GAMEEXEC_STATIC GAMEEXEC_INLINE void __fastcall VM_DoConditional(register int32_t condition)
-{
-    if (condition || ((insptr = (intptr_t *)*(insptr+1)) && (((*insptr) & 0xfff) == CON_ELSE)))
-    {
-        // skip 'else' pointer.. and...
-        insptr += 2;
-        VM_Execute(1);
-        return;
-    }
-}
-
-GAMEEXEC_STATIC int32_t VM_Execute(int32_t once)
+GAMEEXEC_STATIC void VM_Execute(int32_t loop)
 {
     register int32_t tw = *insptr;
 
     // jump directly into the loop, saving us from the checks during the first iteration
     goto skip_check;
 
-    while (!once)
+    while (loop)
     {
         if (vm.g_flags & (VM_RETURN|VM_KILL|VM_NOEXECUTE))
-            return 1;
+            return;
 
         tw = *insptr;
 
@@ -722,64 +708,72 @@ skip_check:
             }
 
         case CON_IFRND:
-            VM_DoConditional(rnd(*(++insptr)));
+            VM_CONDITIONAL(rnd(*(++insptr)));
             continue;
 
         case CON_IFCANSHOOTTARGET:
         {
             int32_t j;
+
             if (vm.g_x > 1024)
             {
-                int16_t temphit, sclip = 768, angdif = 16;
+                int16_t temphit;
 
-                j = A_CheckHitSprite(vm.g_i,&temphit);
-
-                if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->xrepeat > 56)
+                if ((j = A_CheckHitSprite(vm.g_i,&temphit)) == (1<<30))
                 {
-                    sclip = 3084;
-                    angdif = 48;
+                    VM_CONDITIONAL(1);
+                    continue;
                 }
 
-                if (j == (1<<30))
                 {
-                    VM_DoConditional(1);
-                    break;
-                }
-                if (j > sclip)
-                {
-                    if (temphit >= 0 && sprite[temphit].picnum == vm.g_sp->picnum)
-                        j = 0;
-                    else
+                    int32_t sclip = 768, angdif = 16;
+
+                    if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->xrepeat > 56)
                     {
+                        sclip = 3084;
+                        angdif = 48;
+                    }
+
+                    if (j > sclip)
+                    {
+                        if (temphit >= 0 && sprite[temphit].picnum == vm.g_sp->picnum)
+                        {
+                            VM_CONDITIONAL(0);
+                            continue;
+                        }
+
                         vm.g_sp->ang += angdif;
                         j = A_CheckHitSprite(vm.g_i,&temphit);
                         vm.g_sp->ang -= angdif;
+
                         if (j > sclip)
                         {
                             if (temphit >= 0 && sprite[temphit].picnum == vm.g_sp->picnum)
-                                j = 0;
-                            else
                             {
-                                vm.g_sp->ang -= angdif;
-                                j = A_CheckHitSprite(vm.g_i,&temphit);
-                                vm.g_sp->ang += angdif;
-                                if (j > 768)
+                                VM_CONDITIONAL(0);
+                                continue;
+                            }
+
+                            vm.g_sp->ang -= angdif;
+                            j = A_CheckHitSprite(vm.g_i,&temphit);
+                            vm.g_sp->ang += angdif;
+
+                            if (j > 768)
+                            {
+                                if (temphit >= 0 && sprite[temphit].picnum == vm.g_sp->picnum)
                                 {
-                                    if (temphit >= 0 && sprite[temphit].picnum == vm.g_sp->picnum)
-                                        j = 0;
-                                    else j = 1;
+                                    VM_CONDITIONAL(0);
+                                    continue;
                                 }
-                                else j = 0;
+
+                                VM_CONDITIONAL(1);
+                                continue;
                             }
                         }
-                        else j = 0;
                     }
                 }
-                else j =  0;
             }
-            else j = 1;
-
-            VM_DoConditional(j);
+            VM_CONDITIONAL(1);
         }
         continue;
 
@@ -788,13 +782,13 @@ skip_check:
             int32_t j = cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-((krand()&41)<<8),
                                vm.g_sp->sectnum,g_player[vm.g_p].ps->pos.x,g_player[vm.g_p].ps->pos.y,
                                g_player[vm.g_p].ps->pos.z/*-((krand()&41)<<8)*/,sprite[g_player[vm.g_p].ps->i].sectnum);
-            VM_DoConditional(j);
+            VM_CONDITIONAL(j);
             if (j) actor[vm.g_i].timetosleep = SLEEPTIME;
         }
         continue;
 
         case CON_IFACTORNOTSTAYPUT:
-            VM_DoConditional(actor[vm.g_i].actorstayput == -1);
+            VM_CONDITIONAL(actor[vm.g_i].actorstayput == -1);
             continue;
 
         case CON_IFCANSEE:
@@ -844,23 +838,23 @@ skip_check:
             if (j && (vm.g_sp->statnum == STAT_ACTOR || vm.g_sp->statnum == STAT_STANDABLE))
                 actor[vm.g_i].timetosleep = SLEEPTIME;
 
-            VM_DoConditional(j);
+            VM_CONDITIONAL(j);
             continue;
         }
 
         case CON_IFHITWEAPON:
-            VM_DoConditional(A_IncurDamage(vm.g_i) >= 0);
+            VM_CONDITIONAL(A_IncurDamage(vm.g_i) >= 0);
             continue;
 
         case CON_IFSQUISHED:
-            VM_DoConditional(VM_CheckSquished());
+            VM_CONDITIONAL(VM_CheckSquished());
             continue;
 
         case CON_IFDEAD:
             //        j = vm.g_sp->extra;
             //        if (vm.g_sp->picnum == APLAYER)
             //            j--;
-            VM_DoConditional(vm.g_sp->extra <= 0);
+            VM_CONDITIONAL(vm.g_sp->extra <= 0);
             continue;
 
         case CON_AI:
@@ -884,13 +878,13 @@ skip_check:
             continue;
 
         case CON_IFPDISTL:
-            VM_DoConditional(vm.g_x < *(++insptr));
+            VM_CONDITIONAL(vm.g_x < *(++insptr));
             if (vm.g_x > MAXSLEEPDIST && actor[vm.g_i].timetosleep == 0)
                 actor[vm.g_i].timetosleep = SLEEPTIME;
             continue;
 
         case CON_IFPDISTG:
-            VM_DoConditional(vm.g_x > *(++insptr));
+            VM_CONDITIONAL(vm.g_x > *(++insptr));
             if (vm.g_x > MAXSLEEPDIST && actor[vm.g_i].timetosleep == 0)
                 actor[vm.g_i].timetosleep = SLEEPTIME;
             continue;
@@ -921,17 +915,17 @@ skip_check:
                         if (g_player[vm.g_p].ps->weaprecs[j] == vm.g_sp->picnum)
                             break;
 
-                    VM_DoConditional(j < g_player[vm.g_p].ps->weapreccnt && vm.g_sp->owner == vm.g_i);
+                    VM_CONDITIONAL(j < g_player[vm.g_p].ps->weapreccnt && vm.g_sp->owner == vm.g_i);
                     continue;
                 }
                 else if (g_player[vm.g_p].ps->weapreccnt < MAX_WEAPONS)
                 {
                     g_player[vm.g_p].ps->weaprecs[g_player[vm.g_p].ps->weapreccnt++] = vm.g_sp->picnum;
-                    VM_DoConditional(vm.g_sp->owner == vm.g_i);
+                    VM_CONDITIONAL(vm.g_sp->owner == vm.g_i);
                     continue;
                 }
             }
-            VM_DoConditional(0);
+            VM_CONDITIONAL(0);
             continue;
 
         case CON_GETLASTPAL:
@@ -1031,7 +1025,7 @@ skip_check:
                     continue;
                 }
                 insptr--;
-                VM_DoConditional(A_CheckSoundPlaying(i,j));
+                VM_CONDITIONAL(A_CheckSoundPlaying(i,j));
             }
             continue;
 
@@ -1042,7 +1036,7 @@ skip_check:
                 insptr++;
                 continue;
             }
-            VM_DoConditional(S_CheckSoundPlaying(vm.g_i,*insptr));
+            VM_CONDITIONAL(S_CheckSoundPlaying(vm.g_i,*insptr));
             //    VM_DoConditional(SoundOwner[*insptr][0].i == vm.g_i);
             continue;
 
@@ -1203,10 +1197,10 @@ skip_check:
         case CON_ENDA:
         case CON_BREAK:
         case CON_ENDS:
-            return 1;
+            return;
         case CON_RIGHTBRACE:
             insptr++;
-            return 1;
+            return;
         case CON_ADDAMMO:
             if (((unsigned)*(++insptr) >= MAX_WEAPONS))
             {
@@ -1377,14 +1371,14 @@ skip_check:
             intptr_t *tempscrptr=insptr+2;
 
             insptr = (intptr_t *) *(insptr+1);
-            VM_Execute(0);
+            VM_Execute(1);
             insptr = tempscrptr;
         }
         continue;
 
         case CON_LEFTBRACE:
             insptr++;
-            VM_Execute(0);
+            VM_Execute(1);
             continue;
 
         case CON_MOVE:
@@ -1477,26 +1471,19 @@ skip_check:
             }
 
         case CON_OPERATERESPAWNS:
+            insptr++;
+            G_OperateRespawns(Gv_GetVarX(*insptr++));
+            continue;
+
         case CON_OPERATEMASTERSWITCHES:
+            insptr++;
+            G_OperateMasterSwitches(Gv_GetVarX(*insptr++));
+            continue;
+
         case CON_CHECKACTIVATORMOTION:
             insptr++;
-            {
-                int32_t var1 = Gv_GetVarX(*insptr++);
-
-                switch (tw)
-                {
-                case CON_OPERATERESPAWNS:
-                    G_OperateRespawns(var1);
-                    break;
-                case CON_OPERATEMASTERSWITCHES:
-                    G_OperateMasterSwitches(var1);
-                    break;
-                case CON_CHECKACTIVATORMOTION:
-                    Gv_SetVarX(g_iReturnVarID, G_CheckActivatorMotion(var1));
-                    break;
-                }
-                continue;
-            }
+            aGameVars[g_iReturnVarID].val.lValue = G_CheckActivatorMotion(Gv_GetVarX(*insptr++));
+            continue;
 
         case CON_INSERTSPRITEQ:
             insptr++;
@@ -1606,21 +1593,23 @@ skip_check:
             insptr++;
             {
                 int32_t i = Gv_GetVarX(*insptr++),
-                        f=Gv_GetVarX(*insptr++);
-                int32_t j=Gv_GetVarX(*insptr++);
-                if ((i<0 || i>=MAXQUOTES))
+                        f = Gv_GetVarX(*insptr++);
+                int32_t j = Gv_GetVarX(*insptr++);
+
+                if ((unsigned)i >= MAXQUOTES)
                     OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],i);
                 else if ((ScriptQuotes[i] == NULL))
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],i);
-                else if ((f<0 || f>=NUMGAMEFUNCTIONS))
+                else if ((unsigned)f >= NUMGAMEFUNCTIONS)
                     OSD_Printf(CON_ERROR "invalid function %d\n",g_errorLineNum,keyw[g_tw],f);
                 else
                 {
-                    if (j<2)
+                    if (j < 2)
                         Bstrcpy(tempbuf,KB_ScanCodeToString(ud.config.KeyboardKeys[f][j]));
                     else
                     {
                         Bstrcpy(tempbuf,KB_ScanCodeToString(ud.config.KeyboardKeys[f][0]));
+
                         if (!*tempbuf)
                             Bstrcpy(tempbuf,KB_ScanCodeToString(ud.config.KeyboardKeys[f][1]));
                     }
@@ -1628,8 +1617,10 @@ skip_check:
 
                 if (*tempbuf)
                     Bstrcpy(ScriptQuotes[i],tempbuf);
+
                 continue;
             }
+
         case CON_QSUBSTR:
             insptr++;
             {
@@ -1887,11 +1878,10 @@ nullquote:
                 // For each case: value, ptr to code
                 //AddLog("Processing Switch...");
                 int32_t lValue=Gv_GetVarX(*insptr++), lEnd=*insptr++, lCases=*insptr++;
-                intptr_t *lpDefault=insptr++, *lpCases=insptr, *lTempInsPtr;
+                intptr_t *lpDefault=insptr++, *lpCases=insptr;
                 int32_t bMatched=0, lCheckCase;
                 int32_t left,right;
                 insptr += lCases*2;
-                lTempInsPtr=insptr;
                 //Bsprintf(g_szBuf,"lEnd= %d *lpDefault=%d",lEnd,*lpDefault);
                 //AddLog(g_szBuf);
 
@@ -1918,7 +1908,7 @@ nullquote:
                         insptr=(intptr_t *)(lpCases[lCheckCase*2+1] + &script[0]);
                         //Bsprintf(g_szBuf,"insptr=%d. ",     (int32_t)insptr);
                         //AddLog(g_szBuf);
-                        VM_Execute(0);
+                        VM_Execute(1);
                         //AddLog("Done Executing Case");
                         bMatched=1;
                     }
@@ -1931,7 +1921,7 @@ nullquote:
                     {
                         //AddLog("No Matching Case: Using Default");
                         insptr=(intptr_t *)(*lpDefault + &script[0]);
-                        VM_Execute(0);
+                        VM_Execute(1);
                     }
                     else
                     {
@@ -1949,7 +1939,7 @@ nullquote:
         case CON_ENDSWITCH:
         case CON_ENDEVENT:
             insptr++;
-            return 1;
+            return;
 
         case CON_DISPLAYRAND:
             insptr++;
@@ -2774,29 +2764,32 @@ nullquote:
 
         case CON_SPAWN:
             insptr++;
-            if ((unsigned)vm.g_sp->sectnum < MAXSECTORS)
-                A_Spawn(vm.g_i,*insptr);
-            insptr++;
+            if ((unsigned)vm.g_sp->sectnum >= MAXSECTORS)
+            {
+                insptr++;
+                continue;
+            }
+            A_Spawn(vm.g_i,*insptr++);
             continue;
 
         case CON_IFWASWEAPON:
             insptr++;
-            VM_DoConditional(actor[vm.g_i].picnum == *insptr);
+            VM_CONDITIONAL(actor[vm.g_i].picnum == *insptr);
             continue;
 
         case CON_IFAI:
             insptr++;
-            VM_DoConditional(vm.g_t[5] == *insptr);
+            VM_CONDITIONAL(vm.g_t[5] == *insptr);
             continue;
 
         case CON_IFACTION:
             insptr++;
-            VM_DoConditional(vm.g_t[4] == *insptr);
+            VM_CONDITIONAL(vm.g_t[4] == *insptr);
             continue;
 
         case CON_IFACTIONCOUNT:
             insptr++;
-            VM_DoConditional(vm.g_t[2] >= *insptr);
+            VM_CONDITIONAL(vm.g_t[2] >= *insptr);
             continue;
 
         case CON_RESETACTIONCOUNT:
@@ -2897,7 +2890,7 @@ nullquote:
 
         case CON_IFMOVE:
             insptr++;
-            VM_DoConditional(vm.g_t[1] == *insptr);
+            VM_CONDITIONAL(vm.g_t[1] == *insptr);
             continue;
 
         case CON_RESETPLAYER:
@@ -2947,21 +2940,21 @@ nullquote:
         continue;
 
         case CON_IFONWATER:
-            VM_DoConditional(sector[vm.g_sp->sectnum].lotag == 1 && klabs(vm.g_sp->z-sector[vm.g_sp->sectnum].floorz) < (32<<8));
+            VM_CONDITIONAL(sector[vm.g_sp->sectnum].lotag == 1 && klabs(vm.g_sp->z-sector[vm.g_sp->sectnum].floorz) < (32<<8));
             continue;
 
         case CON_IFINWATER:
-            VM_DoConditional(sector[vm.g_sp->sectnum].lotag == 2);
+            VM_CONDITIONAL(sector[vm.g_sp->sectnum].lotag == 2);
             continue;
 
         case CON_IFCOUNT:
             insptr++;
-            VM_DoConditional(vm.g_t[0] >= *insptr);
+            VM_CONDITIONAL(vm.g_t[0] >= *insptr);
             continue;
 
         case CON_IFACTOR:
             insptr++;
-            VM_DoConditional(vm.g_sp->picnum == *insptr);
+            VM_CONDITIONAL(vm.g_sp->picnum == *insptr);
             continue;
 
         case CON_RESETCOUNT:
@@ -3100,13 +3093,13 @@ nullquote:
                 else
                     j = 0;
             }
-            VM_DoConditional((intptr_t) j);
+            VM_CONDITIONAL((intptr_t) j);
         }
         continue;
 
         case CON_IFSTRENGTH:
             insptr++;
-            VM_DoConditional(vm.g_sp->extra <= *insptr);
+            VM_CONDITIONAL(vm.g_sp->extra <= *insptr);
             continue;
 
         case CON_GUTS:
@@ -3116,7 +3109,7 @@ nullquote:
 
         case CON_IFSPAWNEDBY:
             insptr++;
-            VM_DoConditional(actor[vm.g_i].picnum == *insptr);
+            VM_CONDITIONAL(actor[vm.g_i].picnum == *insptr);
             continue;
 
         case CON_WACKPLAYER:
@@ -3166,27 +3159,27 @@ nullquote:
 
         case CON_IFGAPZL:
             insptr++;
-            VM_DoConditional(((actor[vm.g_i].floorz - actor[vm.g_i].ceilingz) >> 8) < *insptr);
+            VM_CONDITIONAL(((actor[vm.g_i].floorz - actor[vm.g_i].ceilingz) >> 8) < *insptr);
             continue;
 
         case CON_IFHITSPACE:
-            VM_DoConditional(TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_OPEN));
+            VM_CONDITIONAL(TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_OPEN));
             continue;
 
         case CON_IFOUTSIDE:
-            VM_DoConditional(sector[vm.g_sp->sectnum].ceilingstat&1);
+            VM_CONDITIONAL(sector[vm.g_sp->sectnum].ceilingstat&1);
             continue;
 
         case CON_IFMULTIPLAYER:
-            VM_DoConditional((g_netServer || g_netClient || ud.multimode > 1));
+            VM_CONDITIONAL((g_netServer || g_netClient || ud.multimode > 1));
             continue;
 
         case CON_IFCLIENT:
-            VM_DoConditional(g_netClient != NULL);
+            VM_CONDITIONAL(g_netClient != NULL);
             continue;
 
         case CON_IFSERVER:
-            VM_DoConditional(g_netServer != NULL);
+            VM_CONDITIONAL(g_netServer != NULL);
             continue;
 
         case CON_OPERATE:
@@ -3214,7 +3207,7 @@ nullquote:
             continue;
 
         case CON_IFINSPACE:
-            VM_DoConditional(G_CheckForSpaceCeiling(vm.g_sp->sectnum));
+            VM_CONDITIONAL(G_CheckForSpaceCeiling(vm.g_sp->sectnum));
             continue;
 
         case CON_SPRITEPAL:
@@ -3230,26 +3223,26 @@ nullquote:
             continue;
 
         case CON_IFBULLETNEAR:
-            VM_DoConditional(A_Dodge(vm.g_sp) == 1);
+            VM_CONDITIONAL(A_Dodge(vm.g_sp) == 1);
             continue;
 
         case CON_IFRESPAWN:
             if (A_CheckEnemySprite(vm.g_sp))
-                VM_DoConditional(ud.respawn_monsters);
+                VM_CONDITIONAL(ud.respawn_monsters)
             else if (A_CheckInventorySprite(vm.g_sp))
-                VM_DoConditional(ud.respawn_inventory);
+                VM_CONDITIONAL(ud.respawn_inventory)
             else
-                VM_DoConditional(ud.respawn_items);
+                VM_CONDITIONAL(ud.respawn_items)
             continue;
 
         case CON_IFFLOORDISTL:
             insptr++;
-            VM_DoConditional((actor[vm.g_i].floorz - vm.g_sp->z) <= ((*insptr)<<8));
+            VM_CONDITIONAL((actor[vm.g_i].floorz - vm.g_sp->z) <= ((*insptr)<<8));
             continue;
 
         case CON_IFCEILINGDISTL:
             insptr++;
-            VM_DoConditional((vm.g_sp->z - actor[vm.g_i].ceilingz) <= ((*insptr)<<8));
+            VM_CONDITIONAL((vm.g_sp->z - actor[vm.g_i].ceilingz) <= ((*insptr)<<8));
             continue;
 
         case CON_PALFROM:
@@ -3954,6 +3947,12 @@ nullquote:
 
         case CON_SETVAR:
             insptr++;
+            if ((aGameVars[*insptr].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK)) == 0)
+            {
+                aGameVars[*insptr].val.lValue = *(insptr+1);
+                insptr += 2;
+                continue;
+            }
             Gv_SetVarX(*insptr, *(insptr+1));
             insptr += 2;
             continue;
@@ -4080,13 +4079,19 @@ nullquote:
             continue;
 
         case CON_INV:
+            if ((aGameVars[*(insptr+1)].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK)) == 0)
+            {
+                aGameVars[*(insptr+1)].val.lValue = -aGameVars[*(insptr+1)].val.lValue;
+                insptr += 2;
+                continue;
+            }
             Gv_SetVarX(*(insptr+1), -Gv_GetVarX(*(insptr+1)));
             insptr += 2;
             continue;
 
         case CON_MULVAR:
             insptr++;
-            Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) * *(insptr+1));
+            Gv_MulVar(*insptr, *(insptr+1));
             insptr += 2;
             continue;
 
@@ -4098,7 +4103,7 @@ nullquote:
                 insptr += 2;
                 continue;
             }
-            Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) / *(insptr+1));
+            Gv_DivVar(*insptr, *(insptr+1));
             insptr += 2;
             continue;
 
@@ -4110,25 +4115,26 @@ nullquote:
                 insptr += 2;
                 continue;
             }
-            Gv_SetVarX(*insptr,Gv_GetVarX(*insptr)%*(insptr+1));
+
+            Gv_ModVar(*insptr,*(insptr+1));
             insptr += 2;
             continue;
 
         case CON_ANDVAR:
             insptr++;
-            Gv_SetVarX(*insptr,Gv_GetVarX(*insptr) & *(insptr+1));
+            Gv_AndVar(*insptr,*(insptr+1));
             insptr += 2;
             continue;
 
         case CON_ORVAR:
             insptr++;
-            Gv_SetVarX(*insptr,Gv_GetVarX(*insptr) | *(insptr+1));
+            Gv_OrVar(*insptr,*(insptr+1));
             insptr += 2;
             continue;
 
         case CON_XORVAR:
             insptr++;
-            Gv_SetVarX(*insptr,Gv_GetVarX(*insptr) ^ *(insptr+1));
+            Gv_XorVar(*insptr,*(insptr+1));
             insptr += 2;
             continue;
 
@@ -4136,6 +4142,12 @@ nullquote:
             insptr++;
             {
                 int32_t j=*insptr++;
+                if ((aGameVars[j].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK)) == 0)
+                {
+                    aGameVars[j].val.lValue = Gv_GetVarX(*insptr++);
+                    continue;
+                }
+
                 Gv_SetVarX(j, Gv_GetVarX(*insptr++));
             }
             continue;
@@ -4188,7 +4200,8 @@ nullquote:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVarX(j)*Gv_GetVarX(*insptr++));
+
+                Gv_MulVar(j, Gv_GetVarX(*insptr++));
             }
             continue;
 
@@ -4198,12 +4211,13 @@ nullquote:
                 int32_t j=*insptr++;
                 int32_t l2=Gv_GetVarX(*insptr++);
 
-                if (l2==0)
+                if (!l2)
                 {
                     OSD_Printf(CON_ERROR "Divide by zero.\n",g_errorLineNum,keyw[g_tw]);
                     continue;
                 }
-                Gv_SetVarX(j, Gv_GetVarX(j)/l2);
+
+                Gv_DivVar(j, l2);
                 continue;
             }
 
@@ -4213,13 +4227,14 @@ nullquote:
                 int32_t j=*insptr++;
                 int32_t l2=Gv_GetVarX(*insptr++);
 
-                if (l2==0)
+                if (!l2)
                 {
                     OSD_Printf(CON_ERROR "Mod by zero.\n",g_errorLineNum,keyw[g_tw]);
                     continue;
                 }
 
-                Gv_SetVarX(j, Gv_GetVarX(j) % l2);
+
+                Gv_ModVar(j, l2);
                 continue;
             }
 
@@ -4227,7 +4242,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVarX(j) & Gv_GetVarX(*insptr++));
+                Gv_AndVar(j, Gv_GetVarX(*insptr++));
             }
             continue;
 
@@ -4235,7 +4250,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVarX(j) ^ Gv_GetVarX(*insptr++));
+                Gv_XorVar(j, Gv_GetVarX(*insptr++));
             }
             continue;
 
@@ -4243,13 +4258,13 @@ nullquote:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVarX(j) | Gv_GetVarX(*insptr++));
+                Gv_OrVar(j, Gv_GetVarX(*insptr++));
             }
             continue;
 
         case CON_SUBVAR:
             insptr++;
-            Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) - *(insptr+1));
+            Gv_SubVar(*insptr, *(insptr+1));
             insptr += 2;
             continue;
 
@@ -4257,24 +4272,36 @@ nullquote:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVarX(j) - Gv_GetVarX(*insptr++));
+                Gv_SubVar(j, Gv_GetVarX(*insptr++));
             }
             continue;
 
         case CON_ADDVAR:
             insptr++;
-            Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) + *(insptr+1));
+            Gv_AddVar(*insptr, *(insptr+1));
             insptr += 2;
             continue;
 
         case CON_SHIFTVARL:
             insptr++;
+            if ((aGameVars[*insptr].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK)) == 0)
+            {
+                aGameVars[*insptr].val.lValue <<= *(insptr+1);
+                insptr += 2;
+                continue;
+            }
             Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) << *(insptr+1));
             insptr += 2;
             continue;
 
         case CON_SHIFTVARR:
             insptr++;
+            if ((aGameVars[*insptr].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK)) == 0)
+            {
+                aGameVars[*insptr].val.lValue >>= *(insptr+1);
+                insptr += 2;
+                continue;
+            }
             Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) >> *(insptr+1));
             insptr += 2;
             continue;
@@ -4295,33 +4322,33 @@ nullquote:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, Gv_GetVarX(j) + Gv_GetVarX(*insptr++));
+                Gv_AddVar(j, Gv_GetVarX(*insptr++));
             }
             continue;
 
         case CON_SPGETLOTAG:
             insptr++;
-            Gv_SetVarX(g_iLoTagID, vm.g_sp->lotag);
+            aGameVars[g_iLoTagID].val.lValue = vm.g_sp->lotag;
             continue;
 
         case CON_SPGETHITAG:
             insptr++;
-            Gv_SetVarX(g_iHiTagID, vm.g_sp->hitag);
+            aGameVars[g_iHiTagID].val.lValue = vm.g_sp->hitag;
             continue;
 
         case CON_SECTGETLOTAG:
             insptr++;
-            Gv_SetVarX(g_iLoTagID, sector[vm.g_sp->sectnum].lotag);
+            aGameVars[g_iLoTagID].val.lValue = sector[vm.g_sp->sectnum].lotag;
             continue;
 
         case CON_SECTGETHITAG:
             insptr++;
-            Gv_SetVarX(g_iHiTagID, sector[vm.g_sp->sectnum].hitag);
+            aGameVars[g_iHiTagID].val.lValue = sector[vm.g_sp->sectnum].hitag;
             continue;
 
         case CON_GETTEXTUREFLOOR:
             insptr++;
-            Gv_SetVarX(g_iTextureID, sector[vm.g_sp->sectnum].floorpicnum);
+            aGameVars[g_iTextureID].val.lValue = sector[vm.g_sp->sectnum].floorpicnum;
             continue;
 
         case CON_STARTTRACK:
@@ -4357,7 +4384,7 @@ nullquote:
 
         case CON_GETTEXTURECEILING:
             insptr++;
-            Gv_SetVarX(g_iTextureID, sector[vm.g_sp->sectnum].ceilingpicnum);
+            aGameVars[g_iTextureID].val.lValue = sector[vm.g_sp->sectnum].ceilingpicnum;
             continue;
 
         case CON_IFVARVARAND:
@@ -4366,7 +4393,7 @@ nullquote:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j &= Gv_GetVarX(*insptr++);
                 insptr--;
-                VM_DoConditional(j);
+                VM_CONDITIONAL(j);
             }
             continue;
 
@@ -4376,7 +4403,7 @@ nullquote:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j |= Gv_GetVarX(*insptr++);
                 insptr--;
-                VM_DoConditional(j);
+                VM_CONDITIONAL(j);
             }
             continue;
 
@@ -4386,7 +4413,7 @@ nullquote:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j ^= Gv_GetVarX(*insptr++);
                 insptr--;
-                VM_DoConditional(j);
+                VM_CONDITIONAL(j);
             }
             continue;
 
@@ -4396,7 +4423,7 @@ nullquote:
                 int32_t j = Gv_GetVarX(*insptr++);
                 int32_t l = Gv_GetVarX(*insptr++);
                 insptr--;
-                VM_DoConditional(j || l);
+                VM_CONDITIONAL(j || l);
             }
             continue;
 
@@ -4406,7 +4433,7 @@ nullquote:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j = (j != Gv_GetVarX(*insptr++));
                 insptr--;
-                VM_DoConditional(j);
+                VM_CONDITIONAL(j);
             }
             continue;
 
@@ -4416,7 +4443,7 @@ nullquote:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j = (j == Gv_GetVarX(*insptr++));
                 insptr--;
-                VM_DoConditional(j);
+                VM_CONDITIONAL(j);
             }
             continue;
 
@@ -4426,7 +4453,7 @@ nullquote:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j = (j > Gv_GetVarX(*insptr++));
                 insptr--;
-                VM_DoConditional(j);
+                VM_CONDITIONAL(j);
             }
             continue;
 
@@ -4436,7 +4463,7 @@ nullquote:
                 int32_t j = Gv_GetVarX(*insptr++);
                 j = (j < Gv_GetVarX(*insptr++));
                 insptr--;
-                VM_DoConditional(j);
+                VM_CONDITIONAL(j);
             }
             continue;
 
@@ -4444,7 +4471,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                VM_DoConditional(j == *insptr);
+                VM_CONDITIONAL(j == *insptr);
             }
             continue;
 
@@ -4452,7 +4479,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                VM_DoConditional(j != *insptr);
+                VM_CONDITIONAL(j != *insptr);
             }
             continue;
 
@@ -4464,7 +4491,7 @@ nullquote:
             {
                 insptr=savedinsptr;
                 j = (Gv_GetVarX(*(insptr-1)) != *insptr);
-                VM_DoConditional(j);
+                VM_CONDITIONAL(j);
             }
             while (j);
             continue;
@@ -4480,7 +4507,7 @@ nullquote:
                 j = Gv_GetVarX(*(insptr-1));
                 j = (j != Gv_GetVarX(*insptr++));
                 insptr--;
-                VM_DoConditional(j);
+                VM_CONDITIONAL(j);
             }
             while (j);
             continue;
@@ -4490,7 +4517,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                VM_DoConditional(j & *insptr);
+                VM_CONDITIONAL(j & *insptr);
             }
             continue;
 
@@ -4498,7 +4525,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                VM_DoConditional(j | *insptr);
+                VM_CONDITIONAL(j | *insptr);
             }
             continue;
 
@@ -4506,7 +4533,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                VM_DoConditional(j ^ *insptr);
+                VM_CONDITIONAL(j ^ *insptr);
             }
             continue;
 
@@ -4514,7 +4541,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                VM_DoConditional(j || *insptr);
+                VM_CONDITIONAL(j || *insptr);
             }
             continue;
 
@@ -4522,7 +4549,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                VM_DoConditional(j > *insptr);
+                VM_CONDITIONAL(j > *insptr);
             }
             continue;
 
@@ -4530,13 +4557,13 @@ nullquote:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                VM_DoConditional(j < *insptr);
+                VM_CONDITIONAL(j < *insptr);
             }
             continue;
 
         case CON_IFPHEALTHL:
             insptr++;
-            VM_DoConditional(sprite[g_player[vm.g_p].ps->i].extra < *insptr);
+            VM_CONDITIONAL(sprite[g_player[vm.g_p].ps->i].extra < *insptr);
             continue;
 
         case CON_IFPINVENTORY:
@@ -4589,7 +4616,7 @@ nullquote:
                     OSD_Printf(CON_ERROR "invalid inventory ID: %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*(insptr-1));
                 }
 
-                VM_DoConditional(j);
+                VM_CONDITIONAL(j);
                 continue;
             }
 
@@ -4635,7 +4662,7 @@ nullquote:
                     }
                 }
             }
-            VM_DoConditional(j);
+            VM_CONDITIONAL(j);
         }
         continue;
 
@@ -4674,11 +4701,11 @@ nullquote:
             continue;
 
         case CON_IFINOUTERSPACE:
-            VM_DoConditional(G_CheckForSpaceFloor(vm.g_sp->sectnum));
+            VM_CONDITIONAL(G_CheckForSpaceFloor(vm.g_sp->sectnum));
             continue;
 
         case CON_IFNOTMOVING:
-            VM_DoConditional((actor[vm.g_i].movflag&49152) > 16384);
+            VM_CONDITIONAL((actor[vm.g_i].movflag&49152) > 16384);
             continue;
 
         case CON_RESPAWNHITAG:
@@ -4708,14 +4735,14 @@ nullquote:
 
         case CON_IFSPRITEPAL:
             insptr++;
-            VM_DoConditional(vm.g_sp->pal == *insptr);
+            VM_CONDITIONAL(vm.g_sp->pal == *insptr);
             continue;
 
         case CON_IFANGDIFFL:
             insptr++;
             {
                 int32_t j = klabs(G_GetAngleDelta(g_player[vm.g_p].ps->ang,vm.g_sp->ang));
-                VM_DoConditional(j <= *insptr);
+                VM_CONDITIONAL(j <= *insptr);
             }
             continue;
 
@@ -4736,7 +4763,7 @@ nullquote:
                     break;
             }
 
-            VM_DoConditional(j < 0);
+            VM_CONDITIONAL(j < 0);
         }
         continue;
 
@@ -4747,10 +4774,7 @@ nullquote:
 
         case CON_GETTICKS:
             insptr++;
-            {
-                int32_t j=*insptr++;
-                Gv_SetVarX(j, getticks());
-            }
+            Gv_SetVarX(*insptr++, getticks());
             continue;
 
         case CON_GETCURRADDRESS:
@@ -4781,8 +4805,6 @@ nullquote:
             break;
         }
     }
-
-    return 0;
 }
 
 void A_LoadActor(int32_t iActor)
@@ -4807,7 +4829,7 @@ void A_LoadActor(int32_t iActor)
         return;
     }
 
-    VM_Execute(0);
+    VM_Execute(1);
 
     if (vm.g_flags & VM_KILL)
         deletesprite(vm.g_i);
@@ -4858,7 +4880,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
             vm.g_t[3] = 0;
     }
 
-    VM_Execute(0);
+    VM_Execute(1);
 
     if (vm.g_flags & VM_KILL)
     {

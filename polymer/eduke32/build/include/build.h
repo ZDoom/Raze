@@ -755,7 +755,11 @@ int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
 
+extern char defsfilename[BMAX_PATH];
+extern char *g_defNamePtr;
+
 #ifdef USE_OPENGL
+
 typedef struct
 {
     // maps build tiles to particular animation frames of a model
