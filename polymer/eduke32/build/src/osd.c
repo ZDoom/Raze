@@ -252,12 +252,16 @@ int32_t OSD_Exec(const char *szScript)
 
     if (fp != NULL)
     {
-        char line[255];
+        char line[256], *cp;
 
         OSD_Printf("Executing \"%s\"\n", szScript);
         osdexecscript++;
-        while (fgets(line, sizeof(line)-1, fp) != NULL)
-            OSD_Dispatch(strtok(line,"\r\n"));
+        while (fgets(line, sizeof(line), fp) != NULL)
+        {
+            cp = strtok(line,"\r\n");
+            if (cp)
+                OSD_Dispatch(cp);
+        }
         osdexecscript--;
         fclose(fp);
         return 0;

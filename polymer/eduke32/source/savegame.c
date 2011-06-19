@@ -613,22 +613,16 @@ int32_t G_LoadPlayer(int32_t spot)
 
 #ifdef POLYMER
     if (getrendermode() == 4)
-    {
-        int32_t i = 0;
-
         polymer_loadboard();
-
-        while (i < MAXSPRITES)
-        {
-            if (actor[i].lightptr)
-            {
-                actor[i].lightptr = NULL;
-                actor[i].lightId = -1;
-            }
-            i++;
-        }
-    }
 #endif
+    // this light pointer nulling needs to be outside the getrendermode check
+    // because we might be loading the savegame using another renderer but
+    // change to Polymer later
+    for (i=0; i<MAXSPRITES; i++)
+    {
+        actor[i].lightptr = NULL;
+        actor[i].lightId = -1;
+    }
 
     return(0);
 corrupt:
@@ -1930,8 +1924,8 @@ static void sv_preactordatasave()
     Bmemset(savegame_bitmap, 0, sizeof(savegame_bitmap));
     for (i=0; i<MAXSPRITES; i++)
     {
-//        Actor[i].lightptr = NULL;
-//        Actor[i].lightId = -1;
+        actor[i].lightptr = NULL;
+        actor[i].lightId = -1;
 
         if (sprite[i].statnum==MAXSTATUS || actorscrptr[PN]==NULL) continue;
         if (T2 >= j && T2 < k) savegame_bitmap[i>>3][0] |= 1<<(i&7), T2 -= j;
@@ -1951,8 +1945,9 @@ static void sv_postactordata()
 
     for (i=0; i<MAXSPRITES; i++)
     {
-//        Actor[i].lightptr = NULL;
-//        Actor[i].lightId = -1;
+        actor[i].lightptr = NULL;
+        actor[i].lightId = -1;
+
         actor[i].projectile = &SpriteProjectile[i];
 
         if (sprite[i].statnum==MAXSTATUS || actorscrptr[PN]==NULL) continue;

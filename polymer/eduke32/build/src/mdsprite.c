@@ -291,7 +291,7 @@ int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
     tile2model[tilenume].skinnum = skinnum;
     tile2model[tilenume].smoothduration = smoothduration;
 
-    return 0;
+    return i;
 }
 
 int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *frameend, int32_t fpssc, int32_t flags)
@@ -329,6 +329,108 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
     m->animations = map;
 
     return(0);
+}
+
+int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
+{
+    md3model_t *m;
+    md3surf_t *s;
+    mdanim_t *anm;
+    int32_t i, surfi, sub, usedframes;
+    static int16_t otonframe[1024];
+
+    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
+    m = (md3model_t *)models[modelid];
+    if (m->mdnum != 3) return -2;
+
+    for (anm=m->animations; anm; anm=anm->next)
+    {
+        if (anm->endframe <= anm->startframe)
+        {
+//            initprintf("backward anim %d-%d\n", anm->startframe, anm->endframe);
+            return -3;
+        }
+
+        for (i=anm->startframe; i<anm->endframe; i++)
+            usedframebitmap[i>>3] |= (1<<(i&7));
+    }
+
+    sub = 0;
+    for (i=0; i<m->numframes; i++)
+    {
+        if (!(usedframebitmap[i>>3]&(1<<(i&7))))
+        {
+            sub++;
+            otonframe[i] = -1;
+            continue;
+        }
+
+        otonframe[i] = i-sub;
+    }
+
+    usedframes = m->numframes - sub;
+    if (usedframes==0 || usedframes==m->numframes)
+        return usedframes;
+
+    //// THIN OUT! ////
+
+    for (i=0; i<m->numframes; i++)
+    {
+        if (otonframe[i]>=0 && otonframe[i] != i)
+        {
+            if (m->muladdframes)
+                Bmemcpy(&m->muladdframes[2*otonframe[i]], &m->muladdframes[2*i], 2*sizeof(point3d));
+            Bmemcpy(&m->head.frames[otonframe[i]], &m->head.frames[i], sizeof(md3frame_t));
+        }
+    }
+
+    for (surfi=0; surfi < m->head.numsurfs; surfi++)
+    {
+        s = &m->head.surfs[surfi];
+
+        for (i=0; i<m->numframes; i++)
+            if (otonframe[i]>=0 && otonframe[i] != i)
+                Bmemcpy(&s->xyzn[otonframe[i]*s->numverts], &s->xyzn[i*s->numverts], s->numverts*sizeof(md3xyzn_t));
+    }
+
+    ////// tweak frame indices in various places
+
+    for (anm=m->animations; anm; anm=anm->next)
+    {
+        if (otonframe[anm->startframe]==-1 || otonframe[anm->endframe-1]==-1)
+            initprintf("md %d WTF: anm %d %d\n", modelid, anm->startframe, anm->endframe);
+
+        anm->startframe = otonframe[anm->startframe];
+        anm->endframe = otonframe[anm->endframe-1];
+    }
+
+    for (i=0; i<MAXTILES+EXTRATILES; i++)
+        if (tile2model[i].modelid == modelid)
+        {
+            if (otonframe[tile2model[i].framenum]==-1)
+                initprintf("md %d WTF: tile %d, fr %d\n", modelid, i, tile2model[i].framenum);
+            tile2model[i].framenum = otonframe[tile2model[i].framenum];
+        }
+
+    ////// realloc & change "numframes" everywhere
+    // TODO: check if NULL
+
+    if (m->muladdframes)
+        m->muladdframes = Brealloc(m->muladdframes, 2*sizeof(point3d)*usedframes);
+    m->head.frames = Brealloc(m->head.frames, sizeof(md3frame_t)*usedframes);
+
+    for (surfi=0; surfi < m->head.numsurfs; surfi++)
+    {
+        m->head.surfs[surfi].numframes = usedframes;
+        // CAN'T do that because xyzn is offset from a larger block when loaded from md3:
+//        m->head.surfs[surfi].xyzn = Brealloc(m->head.surfs[surfi].xyzn, s->numverts*usedframes*sizeof(md3xyzn_t));
+    }
+
+    m->head.numframes = usedframes;
+    m->numframes = usedframes;
+
+    ////////////
+    return usedframes;
 }
 
 int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum, int32_t surfnum, float param, float specpower, float specfactor)
@@ -1685,13 +1787,23 @@ int      md3postload_polymer(md3model_t *m)
     int         *numtris;
     float       lat, lng, vec1[5], vec2[5], mat[9], r;
 
+    if (m->head.surfs[0].geometry)
+        return -1;  // already postprocessed
+
     // let's also repack the geometry to more usable formats
 
     surfi = 0;
     while (surfi < m->head.numsurfs)
     {
         s = &m->head.surfs[surfi];
-
+#ifdef DEBUG_MODEL_MEM
+        i = (m->head.numframes * s->numverts * sizeof(float) * 15);
+        if (i > 1<<20)
+            initprintf("size %d (%d fr, %d v): md %s surf %d/%d\n", i, m->head.numframes, s->numverts,
+                       m->indices?(char *)m->indices:"null", surfi, m->head.numsurfs);
+        if (m->indices)
+            Bfree(m->indices), m->indices=NULL;
+#endif
         s->geometry = Bcalloc(m->head.numframes * s->numverts * sizeof(float), 15);
 
         numtris = Bcalloc(s->numverts, sizeof(int));
@@ -3249,19 +3361,18 @@ mdmodel_t *mdload(const char *filnam)
 
     if (vm)
     {
+#ifdef DEBUG_MODEL_MEM
+        ((md3model_t *)vm)->indices = (void *)Bstrdup(filnam);
+#endif
         md3postload_common((md3model_t *)vm);
-#ifdef POLYMER
-// implies defined(POLYMOST) && defined(USE_OPENGL)?
-        if (glrendmode==4)
-            i = md3postload_polymer((md3model_t *)vm);
-        else
-            i = md3postload_polymer_check((md3model_t *)vm);
 
-        if (!i)
-        {
-            mdfree(vm);
-            vm = (mdmodel_t *)0;
-        }
+#ifdef POLYMER
+        if (glrendmode!=4)
+            if (!md3postload_polymer_check((md3model_t *)vm))
+            {
+                mdfree(vm);
+                vm = (mdmodel_t *)0;
+            }
 #endif
     }
 

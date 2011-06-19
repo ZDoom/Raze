@@ -3771,20 +3771,3 @@ static LPTSTR GetWindowsErrorMsg(DWORD code)
 
     return lpMsgBuf;
 }
-
-//
-// makeasmwriteable() -- removes write protection from the self-modifying assembly code
-//
-void makeasmwriteable(void)
-{
-#ifndef ENGINE_USING_A_C
-    extern int32_t dep_begin, dep_end;
-    DWORD oldprot;
-
-    if (!VirtualProtect((LPVOID)&dep_begin, (SIZE_T)&dep_end - (SIZE_T)&dep_begin, PAGE_EXECUTE_READWRITE, &oldprot))
-    {
-        ShowErrorBox("Problem making code writeable");
-    }
-#endif
-}
-

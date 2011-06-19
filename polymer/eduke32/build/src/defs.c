@@ -730,6 +730,8 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
             md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0,0);
+            if (glrendmode==4)
+                md3postload_polymer((md3model_t *)models[lastmodelid]);
 #endif
             modelskin = lastmodelskin = 0;
             seenframe = 0;
@@ -764,8 +766,6 @@ static int32_t defsparser(scriptfile *script)
             {
                 switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), 0.0f,0))
                 {
-                case 0:
-                    break;
                 case -1:
                     happy = 0; break; // invalid model id!?
                 case -2:
@@ -777,6 +777,8 @@ static int32_t defsparser(scriptfile *script)
                     initprintf("Invalid frame name on line %s:%d\n",
                                script->filename, scriptfile_getlinum(script,cmdtokptr));
                     happy = 0;
+                    break;
+                default:
                     break;
                 }
             }
@@ -934,6 +936,9 @@ static int32_t defsparser(scriptfile *script)
             char *modelend, *modelfn;
             double scale=1.0, mzadd=0.0;
             int32_t shadeoffs=0, pal=0, flags=0;
+            uint8_t usedframebitmap[1024>>3];
+
+            Bmemset(usedframebitmap, 0, sizeof(usedframebitmap));
 
             static const tokenlist modeltokens[] =
             {
@@ -983,7 +988,7 @@ static int32_t defsparser(scriptfile *script)
                 {
                     char *frametokptr = script->ltextptr;
                     char *frameend, *framename = 0, happy=1;
-                    int32_t ftilenume = -1, ltilenume = -1, tilex = 0;
+                    int32_t ftilenume = -1, ltilenume = -1, tilex = 0, framei;
                     double smoothduration = 0.1f;
 
                     static const tokenlist modelframetokens[] =
@@ -1037,10 +1042,9 @@ static int32_t defsparser(scriptfile *script)
 #ifdef USE_OPENGL
                     for (tilex = ftilenume; tilex <= ltilenume && happy; tilex++)
                     {
-                        switch (md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), smoothduration,pal))
+                        framei = md_defineframe(lastmodelid, framename, tilex, max(0,modelskin), smoothduration,pal);
+                        switch (framei)
                         {
-                        case 0:
-                            break;
                         case -1:
                             happy = 0; break; // invalid model id!?
                         case -2:
@@ -1053,6 +1057,9 @@ static int32_t defsparser(scriptfile *script)
                                        script->filename, scriptfile_getlinum(script,frametokptr));
                             happy = 0;
                             break;
+                        default:
+                            if (framei >= 0 && framei<1024)
+                                usedframebitmap[framei>>3] |= (1<<(framei&7));
                         }
                     }
 #endif
@@ -1312,6 +1319,24 @@ static int32_t defsparser(scriptfile *script)
 
 #ifdef USE_OPENGL
             md_setmisc(lastmodelid,(float)scale,shadeoffs,(float)mzadd,flags);
+
+            // thin out the loaded model by throwing away unused frames
+            if (models[lastmodelid]->mdnum==3 && ((md3model_t *)models[lastmodelid])->numframes <= 1024)
+            {
+                md3model_t *m = (md3model_t *)models[lastmodelid];
+                int32_t i, onumframes;
+                onumframes = m->numframes;
+                i = md_thinoutmodel(lastmodelid, usedframebitmap);
+#ifdef DEBUG_MODEL_MEM
+                if (i>=0 && i<onumframes)
+                    initprintf("used %d/%d frames: %s\n", i, onumframes, modelfn);
+                else if (i<0)
+                    initprintf("md_thinoutmodel returned %d: %s\n", i, modelfn);
+#endif
+            }
+
+            if (glrendmode==4)
+                md3postload_polymer((md3model_t *)models[lastmodelid]);
 #endif
 
             modelskin = lastmodelskin = 0;

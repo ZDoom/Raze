@@ -648,6 +648,8 @@ int32_t CONFIG_ReadSetup(void)
             SCRIPT_GetString(ud.config.scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
         }
 
+        Bmemset(tempbuf, 0, sizeof(tempbuf));
+//        Bmemset(dummybuf, 0, sizeof(dummybuf));
         SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);
 
         while (Bstrlen(OSD_StripColors(dummybuf,tempbuf)) > 10)

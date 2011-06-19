@@ -128,7 +128,7 @@ typedef struct
     md3shader_t *shaders;
     md3uv_t *uv;
     md3xyzn_t *xyzn;
-    float *geometry;
+    float *geometry;  // used by Polymer
 } md3surf_t;
 
 #define SIZEOF_MD3SURF_T (11*sizeof(int32_t) + 64*sizeof(char))
@@ -244,5 +244,6 @@ voxmodel_t *voxload(const char *filnam);
 int32_t voxdraw(voxmodel_t *m, spritetype *tspr);
 
 int      md3postload_polymer(md3model_t* m);
+int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap);
 
 #endif // !_mdsprite_h_
