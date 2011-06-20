@@ -388,7 +388,7 @@ int32_t baselayer_init(void)
 
 void makeasmwriteable(void)
 {
-#ifndef ENGINE_USING_A_C
+#ifndef NOASM
     extern int32_t dep_begin, dep_end;
 # if defined _WIN32
     DWORD oldprot;
