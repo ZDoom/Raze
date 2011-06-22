@@ -648,6 +648,20 @@ void Sect_ClearInterpolation(int32_t i)
     }
 }
 
+static int32_t move_fixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
+{
+    if ((FIXSPR_STATNUMP(sprite[j].statnum) || (sprite[j].picnum==SECTOREFFECTOR && (sprite[j].lotag==49||sprite[j].lotag==50)))
+            && actor[j].t_data[7]==(0x18190000|pivotspr))
+    {
+        rotatepoint(0,0, actor[j].t_data[8],actor[j].t_data[9], daang&2047, &sprite[j].x,&sprite[j].y);
+        sprite[j].x += sprite[pivotspr].x;
+        sprite[j].y += sprite[pivotspr].y;
+        return 0;
+    }
+
+    return 1;
+}
+
 static void A_MoveSector(int32_t i)
 {
     //T1,T2 and T3 are used for all the sector moving stuff!!!
@@ -1390,7 +1404,9 @@ ACTOR_STATIC void G_MoveStandables(void)
 
         if (sect < 0) KILLIT(i);
 
-        Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t));
+        // 'fixed' sprites in rotating sectors already have bpos* updated
+        if ((t[7]&(0xffff0000))!=0x18190000)
+            Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t));
 
         IFWITHIN(CRANE,CRANE+3)
         {
@@ -3301,6 +3317,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                 break;
 
             case STAT_PROJECTILE:
+                // comment out to make RPGs pass through water:
                 if (sectlotag != 0) goto JBOLT;
             case STAT_ACTOR:
                 if ((sprite[j].picnum == SHARK) || (sprite[j].picnum == COMMANDER) || (sprite[j].picnum == OCTABRAIN)
@@ -5537,7 +5554,11 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 p = headspritesect[s->sectnum];
                 while (p >= 0)
                 {
-                    if (sprite[p].statnum != STAT_EFFECTOR && sprite[p].statnum != STAT_PROJECTILE)
+                    // that hardcoded SE light behavior here should be considered temporary at best...
+                    // really need some more general system for handling them!
+                    // Are SE0's broken or what?
+                    if ((sprite[p].statnum != STAT_EFFECTOR || (sprite[p].lotag==49||sprite[p].lotag==50))
+                            && sprite[p].statnum != STAT_PROJECTILE)
                         if (sprite[p].picnum != LASERLINE)
                         {
                             if (sprite[p].picnum == APLAYER && sprite[p].owner >= 0)
@@ -5551,7 +5572,12 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                             sprite[p].z += zchange;
 
-                            rotatepoint(sprite[j].x,sprite[j].y,sprite[p].x,sprite[p].y,(q*l),&sprite[p].x,&sprite[p].y);
+                            // interpolation fix
+                            actor[p].bposx = sprite[p].x;
+                            actor[p].bposy = sprite[p].y;
+
+                            if (move_fixed_sprite(p, j, t[2]))
+                                rotatepoint(sprite[j].x,sprite[j].y,sprite[p].x,sprite[p].y,(q*l),&sprite[p].x,&sprite[p].y);
                         }
                     p = nextspritesect[p];
                 }
@@ -5746,7 +5772,15 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                              (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 49||sprite[j].lotag == 50)))
                             && sprite[j].picnum != LOCATORS)
                     {
-                        rotatepoint(s->x,s->y,sprite[j].x,sprite[j].y,q,&sprite[j].x,&sprite[j].y);
+                        if (move_fixed_sprite(j, s-sprite, t[2]))
+                            rotatepoint(s->x,s->y,sprite[j].x,sprite[j].y,q,&sprite[j].x,&sprite[j].y);
+
+                        // fix interpolation
+                        if (numplayers < 2 && !g_netServer)
+                        {
+                            actor[j].bposx = sprite[j].x;
+                            actor[j].bposy = sprite[j].y;
+                        }
 
                         sprite[j].x+= m;
                         sprite[j].y+= x;
@@ -5801,6 +5835,22 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             }
                         }
                         j = l;
+                    }
+                }
+            }
+            else
+            {
+                // fix for jittering of sprites in halted subways
+                for (j=headspritesect[s->sectnum]; j >= 0; j=nextspritesect[j])
+                {
+                    // keep this conditional in sync with above!
+                    if (sprite[j].statnum != STAT_PLAYER && sector[sprite[j].sectnum].lotag != 2 &&
+                            (sprite[j].picnum != SECTOREFFECTOR ||
+                             (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 49||sprite[j].lotag == 50)))
+                            && sprite[j].picnum != LOCATORS)
+                    {
+                        actor[j].bposx = sprite[j].x;
+                        actor[j].bposy = sprite[j].y;
                     }
                 }
             }

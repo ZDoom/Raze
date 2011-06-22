@@ -1016,6 +1016,42 @@ static inline void G_SetupBackdrop(int16_t sky)
     pskybits=3;
 }
 
+// tweak moving sectors with these SE lotags (bitmap)
+#define FIXSPR_SELOTAGP(k) ((k==0) || (k==6) || (k==14))
+
+// setup sprites in moving sectors that are to be fixed wrt a certain pivot
+// position and should not diverge from it due to roundoff error in the future.
+// has to be after the spawning stuff.
+static void premap_setup_fixed_sprites(void)
+{
+    int32_t i, j, pivot;
+
+    for (i=headspritestat[STAT_EFFECTOR]; i>=0; i=nextspritestat[i])
+    {
+        if (FIXSPR_SELOTAGP(sprite[i].lotag))
+        {
+            for (j=headspritesect[sprite[i].sectnum]; j>=0; j=nextspritesect[j])
+            {
+                // TRIPBOMB uses t_data[7] for its own purposes. Wouldn't be
+                // too useful with moving sectors anyway
+                if ((FIXSPR_STATNUMP(sprite[j].statnum) && sprite[j].picnum!=TRIPBOMB) ||
+                    (sprite[j].picnum==SECTOREFFECTOR && (sprite[j].lotag==49||sprite[j].lotag==50)))
+                {
+                    pivot = i;
+                    if (sprite[i].lotag==0)
+                        pivot = sprite[i].owner;
+                    if (pivot < 0 || pivot>=MAXSPRITES)
+                        continue;
+                    // let's hope we don't step on anyone's toes here
+                    actor[j].t_data[7] = 0x18190000 | pivot; // 'rs' magic + pivot SE sprite index
+                    actor[j].t_data[8] = sprite[j].x - sprite[pivot].x;
+                    actor[j].t_data[9] = sprite[j].y - sprite[pivot].y;
+                }
+            }
+        }
+    }
+}
+
 static inline void prelevel(char g)
 {
     int32_t i, nexti, j, startwall, endwall, lotaglist;
@@ -1140,10 +1176,9 @@ static inline void prelevel(char g)
         {
             if (PN == SECTOREFFECTOR && SLT == 14)
                 A_Spawn(-1,i);
-
-//            if (sprite[i].cstat&2048)
-//                actor[i].flags |= SPRITE_NOSHADE;
         }
+
+    premap_setup_fixed_sprites();
 
     lotaglist = 0;
 
