@@ -5556,7 +5556,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     // that hardcoded SE light behavior here should be considered temporary at best...
                     // really need some more general system for handling them!
-                    // Are SE0's broken or what?
                     if ((sprite[p].statnum != STAT_EFFECTOR || (sprite[p].lotag==49||sprite[p].lotag==50))
                             && sprite[p].statnum != STAT_PROJECTILE)
                         if (sprite[p].picnum != LASERLINE)
