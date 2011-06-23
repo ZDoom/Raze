@@ -106,6 +106,7 @@ uint8_t *basepaltable[BASEPALCOUNT] = { palette, water_pal, slime_pal, dre_alms,
 
 static int32_t g_skipDefaultCons = 0;
 static int32_t g_skipDefaultDefs = 0; // primarily for NAM/WWII GI appeasement
+static int32_t g_skipDefaultRTS = 0;
 
 int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
@@ -122,6 +123,7 @@ char *g_grpNamePtr = defaultduke3dgrp;
 char *g_defNamePtr = defsfilename;
 char *g_scriptNamePtr = defaultconfilename[0];
 char *g_gameNamePtr = NULL;
+char *g_rtsNamePtr = NULL;
 
 extern int32_t lastvisinc;
 
@@ -7820,7 +7822,7 @@ static void G_ShowParameterHelp(void)
 {
     char *s = "Usage: eduke32 [files] [options]\n"
               "Example: eduke32 -q4 -a -m -tx -map nukeland.map\n\n"
-              "Files can be *.grp/zip/con/def\n"
+              "Files can be *.grp/zip/con/def/rts\n"
               "\n"
               "-cfg [file.cfg]\tUse an alternate configuration file\n"
               "-connect [host]\tConnect to a multiplayer game\n"
@@ -7833,6 +7835,7 @@ static void G_ShowParameterHelp(void)
               "-map [file.map]\tLoads a map\n"
               "-m\t\tDisable monsters\n"
               "-nam\t\tRun in NAM/NAPALM compatibility mode\n"
+              "-rts [file.rts]\tLoad custom Remote Ridicule sound bank\n"
               "-r\t\tRecord demo\n"
               "-s#\t\tSet skill level (1-4)\n"
               "-server\t\tStart a multiplayer game for other players to join\n"
@@ -8498,6 +8501,19 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
+                if (!Bstrcasecmp(c+1,"rts"))
+                {
+                    if (argc > i+1)
+                    {
+                        Bstrcpy(ud.rtsname, (char *)argv[i+1]);
+                        g_rtsNamePtr = (char *)argv[i+1];
+                        g_skipDefaultRTS = 1;
+                        initprintf("Using .RTS file '%s'\n",ud.rtsname);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
                 if (!Bstrcasecmp(c+1,"condebug"))
                 {
                     g_scriptDebug = 1;
@@ -8778,6 +8794,14 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         g_defNamePtr = (char *)argv[i++];
                         g_skipDefaultDefs = 1;
                         initprintf("Using DEF file: %s.\n",g_defNamePtr);
+                        continue;
+                    }
+                    if (!Bstrcasecmp(k,".rts"))
+                    {
+                        g_rtsNamePtr = (char *)argv[i];
+                        Bstrcpy(ud.rtsname, (char *)argv[i++]);
+                        g_skipDefaultRTS = 1;
+                        initprintf("Using .RTS file '%s'\n",ud.rtsname);
                         continue;
                     }
                 }
@@ -9570,6 +9594,10 @@ int32_t app_main(int32_t argc,const char **argv)
 #endif
 
     i = CONFIG_ReadSetup();
+
+    if (g_skipDefaultRTS)
+        Bstrcpy(ud.rtsname, g_rtsNamePtr);
+
     if (getenv("DUKE3DGRP"))
     {
         g_grpNamePtr = getenv("DUKE3DGRP");
