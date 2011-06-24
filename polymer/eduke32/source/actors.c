@@ -5582,6 +5582,27 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
 
             }
+            else if (l==0 && (sc->floorstat&64))
+            {
+                // fix for jittering of sprites in halted rotating sectors
+                for (p=headspritesect[s->sectnum]; p>=0; p=nextspritesect[p])
+                {
+                    // keep this conditional in sync with above!
+                    if ((sprite[p].statnum != STAT_EFFECTOR || (sprite[p].lotag==49||sprite[p].lotag==50))
+                            && sprite[p].statnum != STAT_PROJECTILE)
+                        if (sprite[p].picnum != LASERLINE)
+                        {
+                            if (sprite[p].picnum == APLAYER && sprite[p].owner >= 0)
+                            {
+                                p = nextspritesect[p];
+                                continue;
+                            }
+
+                            actor[p].bposx = sprite[p].x;
+                            actor[p].bposy = sprite[p].y;
+                        }
+                }
+            }
 
             A_MoveSector(i);
         }
@@ -5771,15 +5792,15 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                              (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 49||sprite[j].lotag == 50)))
                             && sprite[j].picnum != LOCATORS)
                     {
-                        if (move_fixed_sprite(j, s-sprite, t[2]))
-                            rotatepoint(s->x,s->y,sprite[j].x,sprite[j].y,q,&sprite[j].x,&sprite[j].y);
-
                         // fix interpolation
                         if (numplayers < 2 && !g_netServer)
                         {
                             actor[j].bposx = sprite[j].x;
                             actor[j].bposy = sprite[j].y;
                         }
+
+                        if (move_fixed_sprite(j, s-sprite, t[2]))
+                            rotatepoint(s->x,s->y,sprite[j].x,sprite[j].y,q,&sprite[j].x,&sprite[j].y);
 
                         sprite[j].x+= m;
                         sprite[j].y+= x;

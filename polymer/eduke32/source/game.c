@@ -608,24 +608,37 @@ static void G_ShowCacheLocks(void)
 {
     int16_t i,k;
 
+    if (offscreenrendering)
+        return;
+
     k = 0;
     for (i=cacnum-1; i>=0; i--)
         if ((*cac[i].lock) >= 200)
         {
+            if (k >= ydim-12)
+                break;
+
             Bsprintf(tempbuf,"Locked- %d: Leng:%d, Lock:%d",i,cac[i].leng,*cac[i].lock);
             printext256(0L,k,31,-1,tempbuf,1);
             k += 6;
         }
 
-    k += 6;
+    if (k < ydim-12)
+        k += 6;
 
     for (i=10; i>=0; i--)
         if (rts_lumplockbyte[i] >= 200)
         {
+            if (k >= ydim-12)
+                break;
+
             Bsprintf(tempbuf,"RTS Locked %d:",i);
             printext256(0L,k,31,-1,tempbuf,1);
             k += 6;
         }
+
+    if (k >= ydim-12 && k<ydim-6)
+        printext256(0L,k,31,-1,"(MORE . . .)",1);
 }
 
 int32_t A_CheckInventorySprite(spritetype *s)
