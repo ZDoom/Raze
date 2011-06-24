@@ -5593,10 +5593,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         if (sprite[p].picnum != LASERLINE)
                         {
                             if (sprite[p].picnum == APLAYER && sprite[p].owner >= 0)
-                            {
-                                p = nextspritesect[p];
                                 continue;
-                            }
 
                             actor[p].bposx = sprite[p].x;
                             actor[p].bposy = sprite[p].y;
