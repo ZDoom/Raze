@@ -186,7 +186,7 @@ int32_t kopen4loadfrommod(const char *filename, char searchfirst)
     return r;
 }
 
-char * defaultconfile(void)
+char *defaultconfile(void)
 {
     int32_t i;
 
@@ -309,7 +309,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set)
         player->palette = palid;
         return;
     }
-    
+
     player->palette = palid;
 
     setbrightness(ud.brightness>>2, palid, set);
@@ -1898,7 +1898,11 @@ void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
 
 void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step)
 {
-    if (getrendermode() >= 3) return;
+    if (getrendermode() >= 3)
+    {
+        G_FadePalette(r, g, b, end);
+        return;
+    }
 
     if (step > 0)
     {
@@ -3351,7 +3355,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 #endif
         yax_preparedrawrooms();
         drawrooms(s->x,s->y,s->z-(4<<8),ud.cameraang,s->yvel,s->sectnum);
-        g_yax_smoothratio = smoothratio;        
+        g_yax_smoothratio = smoothratio;
         yax_drawrooms(G_AnalyzeSprites, s->yvel, s->sectnum);
         G_DoSpriteAnimations(s->x,s->y,ud.cameraang,smoothratio);
         drawmasks();
@@ -6321,7 +6325,7 @@ PALONLY:
             else
 #endif
                 switch (l)
-            {
+                {
                 case 2:
                     k = (((s->ang+3072+128-a)&2047)>>8)&1;
                     break;
@@ -6364,20 +6368,20 @@ PALONLY:
                 default:
                     k = 0;
                     break;
-            }
+                }
 
             t->picnum += k + (*(intptr_t *)t4) + l * t3;
 
             if (l > 0) while (tilesizx[t->picnum] == 0 && t->picnum > 0)
-                t->picnum -= l;       //Hack, for actors
+                    t->picnum -= l;       //Hack, for actors
 
             if (actor[i].dispicnum >= 0)
                 actor[i].dispicnum = t->picnum;
         }
 //        else if (display_mirror == 1)
 //            t->cstat |= 4;
-/* completemirror() already reverses the drawn frame, so the above isn't necessary.
- * Even Polymost's and Polymer's mirror seems to function correctly this way. */
+        /* completemirror() already reverses the drawn frame, so the above isn't necessary.
+         * Even Polymost's and Polymer's mirror seems to function correctly this way. */
 
 skip:
         if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
@@ -8395,7 +8399,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     Bstrcpy(defaultduke3dgrp, "nam.grp");
                     Bstrcpy(defsfilename, "nam.def");
-                //    Bstrcpy(g_defNamePtr, "nam.def");
+                    //    Bstrcpy(g_defNamePtr, "nam.def");
                     Bstrcpy(defaultconfilename[0], "nam.con");
                     g_gameType = GAME_NAM;
                     i++;
@@ -8405,7 +8409,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     Bstrcpy(defaultduke3dgrp, "ww2gi.grp");
                     Bstrcpy(defsfilename, "ww2gi.def");
-                //    Bstrcpy(g_defNamePtr, "ww2gi.def");
+                    //    Bstrcpy(g_defNamePtr, "ww2gi.def");
                     Bstrcpy(defaultconfilename[0], "ww2gi.con");
                     g_gameType = GAME_WW2;
                     i++;
@@ -9213,7 +9217,7 @@ static void G_Startup(void)
         fprintf(stderr, "G_Startup: There was a problem initializing the Build engine: %s\n", engineerrstr);
         exit(6);
     }
-    
+
     setbasepaltable(basepaltable, BASEPALCOUNT);
 
     G_InitDynamicTiles();
@@ -9725,7 +9729,7 @@ int32_t app_main(int32_t argc,const char **argv)
         // something different, they get what they asked for
         Bstrcpy(defaultduke3dgrp,      WW2GI ? "ww2gi.grp" : "nam.grp");
         Bstrcpy(defsfilename,          WW2GI ? "ww2gi.def" : "nam.def");
-       // Bstrcpy(g_defNamePtr,          WW2GI ? "ww2gi.def" : "nam.def");
+        // Bstrcpy(g_defNamePtr,          WW2GI ? "ww2gi.def" : "nam.def");
         Bstrcpy(defaultconfilename[0], WW2GI ? "ww2gi.con" : "nam.con");
 
         Bstrcpy(GametypeNames[0],"GRUNTMATCH (SPAWN)");
@@ -10227,12 +10231,12 @@ MAIN_LOOP_RESTART:
             static char buf[128];
 
             ioctl(0, FIONBIO, &flag);
-                        
+
             if ((nb = read(0, &ch, 1)) > 0 && bufpos < sizeof(buf))
             {
                 if (ch != '\n')
                     buf[bufpos++] = ch;
-                
+
                 if (ch == '\n' || bufpos >= sizeof(buf))
                 {
                     buf[bufpos] = 0;
@@ -10295,9 +10299,9 @@ MAIN_LOOP_RESTART:
                 if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
                         (g_player[myconnectindex].ps->gm&MODE_GAME))
                     G_MoveLoop();
-                
+
                 sampletimer();
-                
+
                 if (totalclock - clockbeforetic >= TICSPERFRAME)
                 {
                     // computing a tic takes longer than a tic, so we're slowing
