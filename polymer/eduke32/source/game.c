@@ -5212,6 +5212,28 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                         sector[sect].ceilingz = sp->z;
                     else
                         sector[sect].floorz = sp->z;
+#ifdef YAX_ENABLE
+                    {
+                        int16_t cf=!sp->owner, bn=yax_getbunch(sect, cf);
+                        int32_t jj, daz=SECTORFLD(sect,z, cf);
+
+                        if (bn >= 0)
+                        {
+                            for (SECTORS_OF_BUNCH(bn, cf, jj))
+                            {
+                                SECTORFLD(jj,z, cf) = daz;
+                                SECTORFLD(jj,stat, cf) &= ~256;
+                                SECTORFLD(jj,stat, cf) |= 128 + 512+2048;
+                            }
+                            for (SECTORS_OF_BUNCH(bn, !cf, jj))
+                            {
+                                SECTORFLD(jj,z, !cf) = daz;
+                                SECTORFLD(jj,stat, !cf) &= ~256;
+                                SECTORFLD(jj,stat, !cf) |= 128 + 512+2048;
+                            }
+                        }
+                    }
+#endif
                 }
                 else
                     sector[sect].ceilingz = sector[sect].floorz = sp->z;
@@ -5422,7 +5444,6 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case 16://That rotating blocker reactor thing
             case 26://ESCELATOR
             case 30://No rotational subways
-
                 if (sp->lotag == 0)
                 {
                     if (sector[sect].lotag == 30)
@@ -5477,9 +5498,12 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                         G_GameExit(tempbuf);
                     }
                 }
+
                 if (sp->lotag == 30 || sp->lotag == 6 || sp->lotag == 14 || sp->lotag == 5)
                 {
-
+#ifdef YAX_ENABLE
+                    int32_t outerwall=-1;
+#endif
                     startwall = sector[sect].wallptr;
                     endwall = startwall+sector[sect].wallnum;
 
@@ -5497,12 +5521,28 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                                 sector[ wall[ s ].nextsector].hitag == 0 &&
                                 sector[ wall[ s ].nextsector].lotag < 3)
                         {
+#ifdef YAX_ENABLE
+                            outerwall = wall[s].nextwall;
+#endif
                             s = wall[s].nextsector;
                             j = 1;
                             break;
                         }
                     }
+#ifdef YAX_ENABLE
+                    actor[i].t_data[9] = -1;
 
+                    if (outerwall >= 0)
+                    {
+                        int32_t upperwall = yax_getnextwall(outerwall, YAX_CEILING);
+
+                        if (upperwall>=0 && wall[upperwall].nextsector>=0)
+                        {
+                            Sect_SetInterpolation(wall[upperwall].nextsector);
+                            actor[i].t_data[9] = wall[upperwall].nextsector;
+                        }
+                    }
+#endif
                     if (j == 0)
                     {
                         Bsprintf(tempbuf,"Subway found no zero'd sectors with locators\nat (%d,%d).\n",sp->x,sp->y);

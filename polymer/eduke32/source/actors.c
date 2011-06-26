@@ -5696,6 +5696,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (s->xvel)
             {
+#ifdef YAX_ENABLE
+                int32_t firstrun = 1;
+#endif
                 x = getangle(sprite[s->owner].x-s->x,sprite[s->owner].y-s->y);
                 q = G_GetAngleDelta(s->ang,x)>>3;
 
@@ -5749,38 +5752,52 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 x = (s->xvel*sintable[s->ang&2047])>>14;
 
                 TRAVERSE_CONNECT(p)
-                if (sector[g_player[p].ps->cursectnum].lotag != 2)
                 {
-                    if (g_playerSpawnPoints[p].os == s->sectnum)
+                    if (g_player[p].ps->cursectnum < 0)
                     {
-                        g_playerSpawnPoints[p].ox += m;
-                        g_playerSpawnPoints[p].oy += x;
+                        // might happen when squished into void space
+//                        initprintf("cursectnum < 0!\n");
+                        break;
                     }
 
-                    if (s->sectnum == sprite[g_player[p].ps->i].sectnum)
+                    if (sector[g_player[p].ps->cursectnum].lotag != 2)
                     {
-                        rotatepoint(s->x,s->y,g_player[p].ps->pos.x,g_player[p].ps->pos.y,q,&g_player[p].ps->pos.x,&g_player[p].ps->pos.y);
-
-                        g_player[p].ps->pos.x += m;
-                        g_player[p].ps->pos.y += x;
-
-                        g_player[p].ps->bobposx += m;
-                        g_player[p].ps->bobposy += x;
-
-                        g_player[p].ps->ang += q;
-
-                        if (g_netServer || numplayers > 1)
+                        if (g_playerSpawnPoints[p].os == s->sectnum)
                         {
-                            g_player[p].ps->opos.x = g_player[p].ps->pos.x;
-                            g_player[p].ps->opos.y = g_player[p].ps->pos.y;
+                            g_playerSpawnPoints[p].ox += m;
+                            g_playerSpawnPoints[p].oy += x;
                         }
-                        if (sprite[g_player[p].ps->i].extra <= 0)
+
+                        if (s->sectnum == sprite[g_player[p].ps->i].sectnum
+#ifdef YAX_ENABLE
+                                || (t[9]>=0 && t[9] == sprite[g_player[p].ps->i].sectnum)
+#endif
+                            )
                         {
-                            sprite[g_player[p].ps->i].x = g_player[p].ps->pos.x;
-                            sprite[g_player[p].ps->i].y = g_player[p].ps->pos.y;
+                            rotatepoint(s->x,s->y,g_player[p].ps->pos.x,g_player[p].ps->pos.y,q,&g_player[p].ps->pos.x,&g_player[p].ps->pos.y);
+
+                            g_player[p].ps->pos.x += m;
+                            g_player[p].ps->pos.y += x;
+
+                            g_player[p].ps->bobposx += m;
+                            g_player[p].ps->bobposy += x;
+
+                            g_player[p].ps->ang += q;
+
+                            if (g_netServer || numplayers > 1)
+                            {
+                                g_player[p].ps->opos.x = g_player[p].ps->pos.x;
+                                g_player[p].ps->opos.y = g_player[p].ps->pos.y;
+                            }
+                            if (sprite[g_player[p].ps->i].extra <= 0)
+                            {
+                                sprite[g_player[p].ps->i].x = g_player[p].ps->pos.x;
+                                sprite[g_player[p].ps->i].y = g_player[p].ps->pos.y;
+                            }
                         }
                     }
                 }
+
                 j = headspritesect[s->sectnum];
                 while (j >= 0)
                 {
@@ -5811,6 +5828,16 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         }
                     }
                     j = nextspritesect[j];
+#ifdef YAX_ENABLE
+                    if (j < 0)
+                    {
+                        if (t[9]>=0 && firstrun)
+                        {
+                            firstrun = 0;
+                            j = headspritesect[t[9]];
+                        }
+                    }
+#endif
                 }
 
                 A_MoveSector(i);
@@ -6526,6 +6553,11 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
         case 13:
             if (t[2])
             {
+                // t[0]: ceiling z
+                // t[1]: floor z
+                // s->owner: 1 if affect ceiling, 0 if affect floor
+                // t[3]: 1 if ceiling was parallaxed at premap, 0 else
+
                 j = (SP<<5)|1;
 
                 if (s->ang == 512)
@@ -6552,7 +6584,27 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         sc->ceilingz += ksgn(t[0]-sc->ceilingz)*j;
                     sc->ceilingz = t[0];
                 }
+#ifdef YAX_ENABLE
+                if (s->ang == 512)
+                {
+                    int16_t cf=!s->owner, bn=yax_getbunch(sc-sector, cf);
+                    int32_t jj, daz=SECTORFLD(sc-sector,z, cf);
 
+                    if (bn >= 0)
+                    {
+                        for (SECTORS_OF_BUNCH(bn, cf, jj))
+                        {
+                            SECTORFLD(jj,z, cf) = daz;
+                            SECTORFLD(jj,stat, cf) &= ~(128+256 + 512+2048);
+                        }
+                        for (SECTORS_OF_BUNCH(bn, !cf, jj))
+                        {
+                            SECTORFLD(jj,z, !cf) = daz;
+                            SECTORFLD(jj,stat, !cf) &= ~(128+256 + 512+2048);
+                        }
+                    }
+                }
+#endif
                 if (t[3] == 1)
                 {
                     //Change the shades

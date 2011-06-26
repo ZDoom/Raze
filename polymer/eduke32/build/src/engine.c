@@ -9740,6 +9740,9 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 {
     int32_t i, j;
 
+    daxdim = max(640, daxdim);
+    daydim = max(480, daydim);
+
 #ifdef USE_OPENGL
     extern char nogl;
 

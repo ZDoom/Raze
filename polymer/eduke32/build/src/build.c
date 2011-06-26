@@ -3411,10 +3411,9 @@ void overheadeditor(void)
                     ulz[0] &= ~255;
                     ulz[1] = ulz[0] + swsecheight;
 
-                    if (maxceilz >= ulz[0] || ulz[0] >= ulz[1] || ulz[1] >= minfloorz)
+                    if (maxceilz >= ulz[0] || ulz[1] >= minfloorz)
                     {
                         message("Too little z headroom for sandwiching");
-//                        message("Internal error while sandwiching: z values wrong");
                         goto end_yax;
                     }
                 }
