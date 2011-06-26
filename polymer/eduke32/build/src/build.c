@@ -5918,9 +5918,7 @@ end_space_handling:
 
 #ifdef YAX_ENABLE
             int16_t cb, fb;
-
-            // used as a bunch bitmap here
-            Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
+            uint8_t bunchbitmap[YAX_MAXBUNCHES>>3];
 #endif
             keystatus[0xd3] = 0;
 
@@ -5952,8 +5950,8 @@ end_space_handling:
                         {
 #ifdef YAX_ENABLE
                             yax_getbunches(highlightsector[j], &cb, &fb);
-                            if (cb>=0) hlsectorbitmap[cb>>3] |= (1<<(cb&7));
-                            if (fb>=0) hlsectorbitmap[fb>>3] |= (1<<(fb&7));
+                            if (cb>=0) bunchbitmap[cb>>3] |= (1<<(cb&7));
+                            if (fb>=0) bunchbitmap[fb>>3] |= (1<<(fb&7));
 #endif
                             deletesector(highlightsector[j]);
                             for (k=j-1; k>=0; k--)
@@ -5998,8 +5996,8 @@ end_space_handling:
 
 #ifdef YAX_ENABLE
                     yax_getbunches(i, &cb, &fb);
-                    if (cb>=0) hlsectorbitmap[cb>>3] |= (1<<(cb&7));
-                    if (fb>=0) hlsectorbitmap[fb>>3] |= (1<<(fb&7));
+                    if (cb>=0) bunchbitmap[cb>>3] |= (1<<(cb&7));
+                    if (fb>=0) bunchbitmap[fb>>3] |= (1<<(fb&7));
 #endif
                     deletesector(i);
                     mkonwinvalid();
@@ -6013,9 +6011,9 @@ end_space_handling:
                 for (j=0; j<numsectors; j++)
                 {
                     yax_getbunches(j, &cb, &fb);
-                    if (hlsectorbitmap[cb>>3] & (1<<(cb&7)))
+                    if (bunchbitmap[cb>>3] & (1<<(cb&7)))
                         yax_setbunch(j, YAX_CEILING, -1);
-                    if (hlsectorbitmap[fb>>3] & (1<<(fb&7)))
+                    if (bunchbitmap[fb>>3] & (1<<(fb&7)))
                         yax_setbunch(j, YAX_FLOOR, -1);
                 }
 #endif
