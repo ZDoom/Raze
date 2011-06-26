@@ -1897,6 +1897,28 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                     drawingstate[wall[sec->wallptr + i].nextsector] = 1;
                 }
             }
+            
+            // queue ROR neighbors
+            if (sec->floorstat & 1024) {
+                int16_t nextsec;
+                
+                nextsec = sectorofwall(yax_getnextwall(sec->wallptr + i, YAX_FLOOR));
+                
+                if (nextsec >= 0 && !drawingstate[nextsec]) {
+                    sectorqueue[back++] = nextsec;
+                    drawingstate[nextsec] = 1;
+                }
+            }
+            if (sec->ceilingstat & 1024) {
+                int16_t nextsec;
+                
+                nextsec = sectorofwall(yax_getnextwall(sec->wallptr + i, YAX_CEILING));
+                
+                if (nextsec >= 0 && !drawingstate[nextsec]) {
+                    sectorqueue[back++] = nextsec;
+                    drawingstate[nextsec] = 1;
+                }
+            }
         }
         while (--i >= 0);
 
@@ -2646,7 +2668,7 @@ static void         polymer_drawsector(int16_t sectnum)
     bglFogf(GL_FOG_DENSITY,fogresult);
     bglFogfv(GL_FOG_COLOR,fogcol);
 
-    if (!(sec->floorstat & 1) || (searchit == 2)) {
+    if (!(sec->floorstat & 1025) || (searchit == 2)) {
         if (searchit == 2) {
             memcpy(oldcolor, s->floor.material.diffusemodulation, sizeof(GLubyte) * 4);
 
@@ -2665,7 +2687,7 @@ static void         polymer_drawsector(int16_t sectnum)
     bglFogf(GL_FOG_DENSITY,fogresult);
     bglFogfv(GL_FOG_COLOR,fogcol);
 
-    if (!(sec->ceilingstat & 1) || (searchit == 2)) {
+    if (!(sec->ceilingstat & 1025) || (searchit == 2)) {
         if (searchit == 2) {
             memcpy(oldcolor, s->ceil.material.diffusemodulation, sizeof(GLubyte) * 4);
 
