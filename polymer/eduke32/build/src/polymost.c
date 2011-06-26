@@ -2033,6 +2033,16 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         if (skyclamphack) method |= 4;
         pth = gltexcache(globalpicnum,globalpal,method&(~3));
 
+        if (!pth)
+        {
+            if (editstatus)
+            {
+                Bsprintf(ptempbuf, "pth==NULL! (bad pal?) pic=%d pal=%d", globalpicnum, globalpal);
+                polymost_printext256(8,8, editorcolors[15],editorcolors[5], ptempbuf, 0);
+            }
+            return;
+        }
+
         if (r_fullbrights && pth->flags & 16)
             if (indrawroomsandmasks)
             {
