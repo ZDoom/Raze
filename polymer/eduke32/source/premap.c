@@ -1030,7 +1030,11 @@ static void premap_setup_fixed_sprites(void)
     {
         if (FIXSPR_SELOTAGP(sprite[i].lotag))
         {
-            for (j=headspritesect[sprite[i].sectnum]; j>=0; j=nextspritesect[j])
+#ifdef YAX_ENABLE
+            int32_t firstrun = 1;
+#endif
+            j = headspritesect[sprite[i].sectnum];
+            while (j>=0)
             {
                 // TRIPBOMB uses t_data[7] for its own purposes. Wouldn't be
                 // too useful with moving sectors anyway
@@ -1040,13 +1044,26 @@ static void premap_setup_fixed_sprites(void)
                     pivot = i;
                     if (sprite[i].lotag==0)
                         pivot = sprite[i].owner;
-                    if (pivot < 0 || pivot>=MAXSPRITES)
-                        continue;
-                    // let's hope we don't step on anyone's toes here
-                    actor[j].t_data[7] = 0x18190000 | pivot; // 'rs' magic + pivot SE sprite index
-                    actor[j].t_data[8] = sprite[j].x - sprite[pivot].x;
-                    actor[j].t_data[9] = sprite[j].y - sprite[pivot].y;
+                    if (j!=i && j!=pivot && pivot>=0 && pivot<MAXSPRITES)
+                    {
+                        // let's hope we don't step on anyone's toes here
+                        actor[j].t_data[7] = 0x18190000 | pivot; // 'rs' magic + pivot SE sprite index
+                        actor[j].t_data[8] = sprite[j].x - sprite[pivot].x;
+                        actor[j].t_data[9] = sprite[j].y - sprite[pivot].y;
+                    }
                 }
+
+                j = nextspritesect[j];
+#ifdef YAX_ENABLE
+                if (j<0 && firstrun)
+                    if (sprite[i].lotag==6 || sprite[i].lotag==14)
+                    {
+                        firstrun = 0;
+                        j = actor[i].t_data[9];
+                        if (j >= 0)
+                            j = headspritesect[j];
+                    }
+#endif
             }
         }
     }

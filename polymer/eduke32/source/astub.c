@@ -1414,8 +1414,8 @@ const char *SectorEffectorTagText(int32_t lotag)
         "LIGHTNING (H=TILE#4890)",
         "FLOAT",
         "2 WAY TRAIN (ST=31)",           // 30
-        "FLOOR RISE",
-        "CEILING FALL",
+        "FLOOR RISE/FALL",
+        "CEILING RISE/FALL",
         "SPAWN JIB W/QUAKE",
     };
 

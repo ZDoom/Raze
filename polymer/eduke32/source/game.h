@@ -256,6 +256,12 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
 extern inline int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits);
 int32_t startwin_run(void);
 
+#ifdef YAX_ENABLE
+void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz);
+#else
+#define Yax_SetBunchZs(sectnum, cf, daz)
+#endif
+
 void A_SpawnCeilingGlass(int32_t i,int32_t sectnum,int32_t n);
 void A_SpawnGlass(int32_t i,int32_t n);
 void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n);

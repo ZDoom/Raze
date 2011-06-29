@@ -7512,6 +7512,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             }
                         }
                     }
+
+                    Yax_SetBunchZs(sc-sector, YAX_FLOOR, sc->floorz);
+
                     break;
                 }
 
@@ -7573,6 +7576,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         }
                     }
                 }
+
+                Yax_SetBunchZs(sc-sector, YAX_FLOOR, sc->floorz);
             }
             break;
 
@@ -7609,6 +7614,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         else sc->ceilingz +=
                                 ksgn(t[1]-sc->ceilingz)*SP;
                     }
+
+                    Yax_SetBunchZs(sc-sector, YAX_CEILING, sc->ceilingz);
+
                     break;
                 }
 
@@ -7635,6 +7643,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     }
                     else sc->ceilingz -= ksgn(s->z-t[1])*SP;
                 }
+
+                Yax_SetBunchZs(sc-sector, YAX_CEILING, sc->ceilingz);
             }
             break;
 

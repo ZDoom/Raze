@@ -3791,6 +3791,36 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     return(i);
 }
 
+#ifdef YAX_ENABLE
+void Yax_SetBunchZs(int32_t sectnum, int32_t cf, int32_t daz)
+{
+    int32_t i, bunchnum = yax_getbunch(sectnum, cf);
+
+    if (bunchnum < 0 || bunchnum >= numyaxbunches)
+        return;
+
+    for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, i))
+        SECTORFLD(i,z, YAX_CEILING) = daz;
+    for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, i))
+        SECTORFLD(i,z, YAX_FLOOR) = daz;
+}
+
+static void Yax_SetBunchInterpolation(int32_t sectnum, int32_t cf)
+{
+    int32_t i, bunchnum = yax_getbunch(sectnum, cf);
+
+    if (bunchnum < 0 || bunchnum >= numyaxbunches)
+        return;
+    
+    for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, i))
+        G_SetInterpolation(&sector[i].ceilingz);
+    for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, i))
+        G_SetInterpolation(&sector[i].floorz);
+}
+#else
+# define Yax_SetBunchInterpolation(sectnum, cf)
+#endif
+
 int32_t A_Spawn(int32_t j, int32_t pn)
 {
     int32_t i, s, startwall, endwall, sect, clostest=0;
@@ -5367,9 +5397,14 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 break;
 
             case 31:
+            {
                 T2 = sector[sect].floorz;
                 //    T3 = sp->hitag;
-                if (sp->ang != 1536) sector[sect].floorz = sp->z;
+                if (sp->ang != 1536)
+                {
+                    sector[sect].floorz = sp->z;
+                    Yax_SetBunchZs(sect, YAX_FLOOR, sp->z);
+                }
 
                 startwall = sector[sect].wallptr;
                 endwall = startwall+sector[sect].wallnum;
@@ -5378,12 +5413,19 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     if (wall[s].hitag == 0) wall[s].hitag = 9999;
 
                 G_SetInterpolation(&sector[sect].floorz);
+                Yax_SetBunchInterpolation(sect, YAX_FLOOR);
+            }
+            break;
 
-                break;
             case 32:
+            {
                 T2 = sector[sect].ceilingz;
                 T3 = sp->hitag;
-                if (sp->ang != 1536) sector[sect].ceilingz = sp->z;
+                if (sp->ang != 1536)
+                {
+                    sector[sect].ceilingz = sp->z;
+                    Yax_SetBunchZs(sect, YAX_CEILING, sp->z);
+                }
 
                 startwall = sector[sect].wallptr;
                 endwall = startwall+sector[sect].wallnum;
@@ -5392,8 +5434,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     if (wall[s].hitag == 0) wall[s].hitag = 9999;
 
                 G_SetInterpolation(&sector[sect].ceilingz);
-
-                break;
+                Yax_SetBunchInterpolation(sect, YAX_CEILING);
+            }
+            break;
 
             case 4: //Flashing lights
 

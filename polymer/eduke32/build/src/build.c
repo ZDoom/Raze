@@ -4276,8 +4276,11 @@ end_after_dragging:
                             }
                             else
                             {
-                                sprite[highlight[i]&16383].x += dax;
-                                sprite[highlight[i]&16383].y += day;
+                                spritetype *daspr = &sprite[highlight[i]&16383];
+
+                                daspr->x += dax;
+                                daspr->y += day;
+                                setsprite(daspr-sprite, (const vec3_t *)daspr);
                             }
                         }
                     }
@@ -5919,6 +5922,7 @@ end_space_handling:
 #ifdef YAX_ENABLE
             int16_t cb, fb;
             uint8_t bunchbitmap[YAX_MAXBUNCHES>>3];
+            Bmemset(bunchbitmap, 0, sizeof(bunchbitmap));
 #endif
             keystatus[0xd3] = 0;
 
@@ -6011,9 +6015,9 @@ end_space_handling:
                 for (j=0; j<numsectors; j++)
                 {
                     yax_getbunches(j, &cb, &fb);
-                    if (bunchbitmap[cb>>3] & (1<<(cb&7)))
+                    if (cb>=0 && (bunchbitmap[cb>>3] & (1<<(cb&7))))
                         yax_setbunch(j, YAX_CEILING, -1);
-                    if (bunchbitmap[fb>>3] & (1<<(fb&7)))
+                    if (fb>=0 && (bunchbitmap[fb>>3] & (1<<(fb&7))))
                         yax_setbunch(j, YAX_FLOOR, -1);
                 }
 #endif
