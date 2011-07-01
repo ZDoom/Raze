@@ -5581,8 +5581,15 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                         if (upperwall>=0 && wall[upperwall].nextsector>=0)
                         {
-                            Sect_SetInterpolation(wall[upperwall].nextsector);
-                            actor[i].t_data[9] = wall[upperwall].nextsector;
+                            int32_t jj, uppersect=wall[upperwall].nextsector;
+                            for (jj=headspritesect[uppersect]; jj>=0; jj=nextspritesect[jj])
+                                if (sprite[jj].picnum==SECTOREFFECTOR && sprite[jj].lotag==sp->lotag)
+                                    break;
+                            if (jj < 0)
+                            {
+                                Sect_SetInterpolation(wall[upperwall].nextsector);
+                                actor[i].t_data[9] = wall[upperwall].nextsector;
+                            }
                         }
                     }
 #endif
@@ -5636,7 +5643,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case 15:
             case 16:
             case 26:
-                Sect_SetInterpolation(i);
+                Sect_SetInterpolation(sprite[i].sectnum);
                 break;
             }
 

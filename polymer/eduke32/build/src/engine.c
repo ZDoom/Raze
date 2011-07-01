@@ -10468,17 +10468,40 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
 {
     sectortype *sec;
     walltype *wal, *wal2;
-    int32_t i, cnt, nexts, x, y, z, cz, fz, dasectnum, dacnt, danum;
+    int32_t cnt, nexts, x, y, z, cfz[2], dasectnum, dacnt, danum;
     int32_t x21, y21, z21, x31, y31, x34, y34, bot, t;
 
+    static uint8_t sectbitmap[MAXSECTORS>>3];
+#ifdef YAX_ENABLE
+    int16_t pendingsectnum;
+    vec3_t pendingvec;
+
+    int32_t cfz1[2], cfz2[2];  // both wrt dasectnum
+    int16_t bn[2];
+#endif
+
+    Bmemset(&pendingvec, 0, sizeof(vec3_t));  // compiler-happy
+    Bmemset(sectbitmap, 0, (numsectors+7)>>3);
+
+#ifdef YAX_ENABLE
+restart_grand:
+#endif
     if ((x1 == x2) && (y1 == y2)) return(sect1 == sect2);
 
+    pendingsectnum = -1;
     x21 = x2-x1; y21 = y2-y1; z21 = z2-z1;
 
+    sectbitmap[sect1>>3] |= (1<<(sect1&7));
     clipsectorlist[0] = sect1; danum = 1;
+
     for (dacnt=0; dacnt<danum; dacnt++)
     {
         dasectnum = clipsectorlist[dacnt]; sec = &sector[dasectnum];
+#ifdef YAX_ENABLE
+        yax_getbunches(dasectnum, &bn[0], &bn[1]);
+        getzsofslope(dasectnum, x1,y1, &cfz1[0], &cfz1[1]);
+        getzsofslope(dasectnum, x2,y2, &cfz2[0], &cfz2[1]);
+#endif
         for (cnt=sec->wallnum,wal=&wall[sec->wallptr]; cnt>0; cnt--,wal++)
         {
             wal2 = &wall[wal->point2];
@@ -10487,26 +10510,124 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
 
             bot = y21*x34-x21*y34; if (bot <= 0) continue;
             t = y21*x31-x21*y31; if ((unsigned)t >= (unsigned)bot) continue;
-            t = y31*x34-x31*y34; if ((unsigned)t >= (unsigned)bot) continue;
+            t = y31*x34-x31*y34;
+            if ((unsigned)t >= (unsigned)bot)
+            {
+                if (t >= bot)
+                {
+#ifdef YAX_ENABLE
+                    int32_t cf, frac, ns;
+                    for (cf=0; cf<2; cf++)
+                    {
+                        if ((cf==0 && bn[0]>=0 && z1 > cfz1[0] && cfz2[0] > z2) ||
+                            (cf==1 && bn[1]>=0 && z1 < cfz1[1] && cfz2[1] < z2))
+                        {
+                            if ((cfz1[cf]-cfz2[cf])-(z1-z2)==0)
+                                continue;
+                            frac = divscale24(z1-cfz1[cf], (z1-z2)-(cfz1[cf]-cfz2[cf]));
+
+                            if ((unsigned)frac >= (1<<24))
+                                continue;
+
+                            x = x1 + mulscale24(x21,frac);
+                            y = y1 + mulscale24(y21,frac);
+
+                            ns = yax_getneighborsect(x, y, dasectnum, cf, NULL);
+                            if (ns < 0)
+                                continue;
+
+                            if (!(sectbitmap[ns>>3] & (1<<(ns&7))) && pendingsectnum==-1)
+                            {
+                                sectbitmap[ns>>3] |= (1<<(ns&7));
+                                pendingsectnum = ns;
+                                pendingvec.x = x;
+                                pendingvec.y = y;
+                                pendingvec.z = z1 + mulscale24(z21,frac);
+                            }
+                        }
+                    }
+                }
+#endif
+                continue;
+            }
 
             nexts = wal->nextsector;
-            if ((nexts < 0) || (wal->cstat&32)) return(0);
+
+#ifdef YAX_ENABLE
+            if (bn[0]<0 && bn[1]<0)
+#endif
+                if ((nexts < 0) || (wal->cstat&32))
+                    return(0);
 
             t = divscale24(t,bot);
             x = x1 + mulscale24(x21,t);
             y = y1 + mulscale24(y21,t);
             z = z1 + mulscale24(z21,t);
 
-            getzsofslope((int16_t)dasectnum,x,y,&cz,&fz);
-            if ((z <= cz) || (z >= fz)) return(0);
-            getzsofslope((int16_t)nexts,x,y,&cz,&fz);
-            if ((z <= cz) || (z >= fz)) return(0);
+            getzsofslope((int16_t)dasectnum, x,y, &cfz[0],&cfz[1]);
 
-            for (i=danum-1; i>=0; i--) if (clipsectorlist[i] == nexts) break;
-            if (i < 0) clipsectorlist[danum++] = nexts;
+            if ((z <= cfz[0]) || (z >= cfz[1]))
+            {
+#ifdef YAX_ENABLE
+                int32_t cf, frac;
+
+                // XXX: Is this any good?
+                for (cf=0; cf<2; cf++)
+                    if ((cf==0 && bn[0]>=0 && z <= cfz[0] && z1 >= cfz1[0]) ||
+                        (cf==1 && bn[1]>=0 && z >= cfz[1] && z1 <= cfz1[1]))
+                    {
+                        if ((cfz1[cf]-cfz[cf])-(z1-z)==0)
+                            continue;
+
+                        frac = divscale24(z1-cfz1[cf], (z1-z)-(cfz1[cf]-cfz[cf]));
+                        t = mulscale24(t, frac);
+
+                        if ((unsigned)t < (1<<24))
+                        {
+                            x = x1 + mulscale24(x21,t);
+                            y = y1 + mulscale24(y21,t);
+
+                            nexts = yax_getneighborsect(x, y, dasectnum, cf, NULL);
+                            if (nexts >= 0)
+                                goto add_nextsector;
+                        }
+                    }
+                
+#endif
+                return(0);
+            }
+
+#ifdef YAX_ENABLE
+            if ((nexts < 0) || (wal->cstat&32))
+                return 0;
+#endif
+            getzsofslope((int16_t)nexts,x,y,&cfz[0],&cfz[1]);
+            if ((z <= cfz[0]) || (z >= cfz[1]))
+                return(0);
+
+add_nextsector:
+            if (!(sectbitmap[nexts>>3] & (1<<(nexts&7))))
+            {
+                sectbitmap[nexts>>3] |= (1<<(nexts&7));
+                clipsectorlist[danum++] = nexts;
+            }
         }
+
+#ifdef YAX_ENABLE
+        if (pendingsectnum>=0)
+        {
+            sect1 = pendingsectnum;
+            x1 = pendingvec.x;
+            y1 = pendingvec.y;
+            z1 = pendingvec.z;
+            goto restart_grand;
+        }
+#endif
     }
-    for (i=danum-1; i>=0; i--) if (clipsectorlist[i] == sect2) return(1);
+
+    if ((sectbitmap[sect2>>3] & (1<<(sect2&7))))
+        return 1;
+
     return(0);
 }
 

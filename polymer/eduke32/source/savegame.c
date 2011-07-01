@@ -583,7 +583,7 @@ int32_t G_LoadPlayer(int32_t spot)
         case 16:
         case 26:
         case 30:
-            Sect_SetInterpolation(k);
+            Sect_SetInterpolation(sprite[k].sectnum);
             break;
         }
 
@@ -2284,7 +2284,7 @@ static void postloadplayer1()
         case 16:
         case 26:
         case 30:
-            Sect_SetInterpolation(i);
+            Sect_SetInterpolation(sprite[i].sectnum);
             break;
         }
 

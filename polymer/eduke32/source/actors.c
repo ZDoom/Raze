@@ -608,9 +608,9 @@ void A_DoGutsDir(int32_t sp, int32_t gtype, int32_t n)
     }
 }
 
-void Sect_SetInterpolation(int32_t i)
+void Sect_SetInterpolation(int32_t sectnum)
 {
-    int32_t k, j = sector[SECT].wallptr, endwall = j+sector[SECT].wallnum;
+    int32_t k, j = sector[sectnum].wallptr, endwall = j+sector[sectnum].wallnum;
 
     for (; j<endwall; j++)
     {
@@ -628,9 +628,9 @@ void Sect_SetInterpolation(int32_t i)
     }
 }
 
-void Sect_ClearInterpolation(int32_t i)
+void Sect_ClearInterpolation(int32_t sectnum)
 {
-    int32_t k, j = sector[SECT].wallptr, endwall = j+sector[SECT].wallnum;
+    int32_t k, j = sector[sectnum].wallptr, endwall = j+sector[sectnum].wallnum;
 
     for (; j<endwall; j++)
     {

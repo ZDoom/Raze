@@ -2478,7 +2478,7 @@ nullquote:
         case CON_SECTCLEARINTERPOLATION:
             insptr++;
             {
-                int32_t sectnum = Gv_GetVarX(*insptr++), osectnum;
+                int32_t sectnum = Gv_GetVarX(*insptr++);
 
                 if ((unsigned)sectnum >= (unsigned)numsectors)
                 {
@@ -2486,13 +2486,10 @@ nullquote:
                     continue;
                 }
 
-                osectnum = sprite[MAXSPRITES-1].sectnum;
-                sprite[MAXSPRITES-1].sectnum = sectnum;
                 if (tw==CON_SECTSETINTERPOLATION)
-                    Sect_SetInterpolation(MAXSPRITES-1);
+                    Sect_SetInterpolation(sectnum);
                 else
-                    Sect_ClearInterpolation(MAXSPRITES-1);
-                sprite[MAXSPRITES-1].sectnum = osectnum;
+                    Sect_ClearInterpolation(sectnum);
 
                 continue;
             }
@@ -5184,6 +5181,7 @@ void G_RestoreMapState(mapstate_t *save)
                 }
         }
 
+        // TODO: sync with TROR special interpolations? (e.g. upper floor of subway)
         g_numInterpolations = 0;
         startofdynamicinterpolations = 0;
 
@@ -5215,7 +5213,7 @@ void G_RestoreMapState(mapstate_t *save)
             case 16:
             case 26:
             case 30:
-                Sect_SetInterpolation(k);
+                Sect_SetInterpolation(sprite[k].sectnum);
                 break;
             }
 

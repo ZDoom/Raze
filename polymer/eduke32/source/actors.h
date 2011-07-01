@@ -196,7 +196,8 @@ void                G_SetInterpolation(int32_t *posptr);
 void                G_StopInterpolation(int32_t *posptr);
 extern inline void  G_UpdateInterpolations(void);
 
-void                Sect_ClearInterpolation(int32_t i);
-void                Sect_SetInterpolation(int32_t i);
+// PK 20110701: changed input argument: int32_t i (== sprite, whose sectnum...) --> sectnum directly
+void                Sect_ClearInterpolation(int32_t sectnum);
+void                Sect_SetInterpolation(int32_t sectnum);
 
 #endif
