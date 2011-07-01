@@ -938,8 +938,6 @@ static int32_t defsparser(scriptfile *script)
             int32_t shadeoffs=0, pal=0, flags=0;
             uint8_t usedframebitmap[1024>>3];
 
-            Bmemset(usedframebitmap, 0, sizeof(usedframebitmap));
-
             static const tokenlist modeltokens[] =
             {
                 { "scale",    T_SCALE    },
@@ -955,6 +953,8 @@ static int32_t defsparser(scriptfile *script)
                 { "hud",      T_HUD      },
                 { "flags",    T_FLAGS    },
             };
+
+            Bmemset(usedframebitmap, 0, sizeof(usedframebitmap));
 
             modelskin = lastmodelskin = 0;
             seenframe = 0;

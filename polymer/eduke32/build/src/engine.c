@@ -9740,14 +9740,14 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 {
     int32_t i, j;
 
-    daxdim = max(320, daxdim);
-    daydim = max(200, daydim);
-
 #ifdef USE_OPENGL
     extern char nogl;
 
     if (nogl) dabpp = 8;
 #endif
+    daxdim = max(320, daxdim);
+    daydim = max(200, daydim);
+
     if ((qsetmode == 200) && (videomodereset == 0) &&
             (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp)
             /*
