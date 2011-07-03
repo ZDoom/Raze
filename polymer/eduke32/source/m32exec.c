@@ -42,6 +42,7 @@ vmstate_t vm_default =
     0,
     NULL,
     0,
+    0,
     0
 };
 
@@ -191,6 +192,13 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
         {
             update_highlight();
             vm.updatehighlight = 0;
+        }
+
+        if (vm.updatehighlightsector)
+        {
+            update_highlightsector();
+            ovh_whiteoutgrab(1);
+            vm.updatehighlightsector = 0;
         }
 
         // restore old values...
@@ -1160,6 +1168,58 @@ skip_check:
             continue;
         }
 
+        case CON_COLLECTSECTORS:
+            insptr++;
+            {
+                int32_t aridx=*insptr++, startsectnum=Gv_GetVarX(*insptr++);
+                int32_t numsectsVar=*insptr++, state=*insptr++;
+
+                int32_t o_g_st=vm.g_st, arsize = aGameArrays[aridx].size;
+                instype *end=insptr;
+                int32_t sectcnt, numsects=0;
+                int16_t *sectlist = aGameArrays[aridx].vals;  // actually an int32_t array
+                int32_t *sectlist32 = (int32_t *)sectlist;
+                int32_t j, startwall, endwall, ns;
+                static uint8_t sectbitmap[MAXSECTORS>>3];
+
+                X_ERROR_INVALIDSECT(startsectnum);
+                if (arsize < numsectors)
+                {
+                    M32_ERROR("Array size must be at least numsectors (=%d) for collecting!",
+                              numsectors);
+                    continue;
+                }
+
+                // collect!
+                bfirst_search_init(sectlist, sectbitmap, &numsects, MAXSECTORS, startsectnum);
+
+                for (sectcnt=0; sectcnt<numsects; sectcnt++)
+                    for (WALLS_OF_SECTOR(sectlist[sectcnt], j))
+                        if ((ns=wall[j].nextsector) >= 0 && wall[j].nextsector<numsectors)
+                        {
+                            if (sectbitmap[ns>>3]&(1<<(ns&7)))
+                                continue;
+                            vm.g_st = 1+MAXEVENTS+state;
+                            insptr = script + statesinfo[state].ofs;
+                            g_iReturnVar = ns;
+                            VM_Execute(0);
+                            if (g_iReturnVar)
+                                bfirst_search_try(sectlist, sectbitmap, &numsects, wall[j].nextsector);
+                        }
+
+                // short->int sector list
+                for (j=numsects-1; j>=0; j--)
+                    sectlist32[j] = sectlist[j];
+
+                Gv_SetVarX(numsectsVar, numsects);
+                g_iReturnVar = 0;
+
+                // restore some VM state
+                vm.g_st = o_g_st;
+                insptr = end;
+            }
+            continue;
+
         case CON_SORT:
             insptr++;
             {
@@ -2099,10 +2159,21 @@ badindex:
             update_highlight();
             continue;
 
+        case CON_UPDATEHIGHLIGHTSECTOR:
+            insptr++;
+            update_highlightsector();
+            continue;
+
         case CON_SETHIGHLIGHT:
             insptr++;
             {
                 int32_t what=Gv_GetVarX(*insptr++), index=Gv_GetVarX(*insptr++), doset = Gv_GetVarX(*insptr++);
+
+                if (highlightsectorcnt >= 0)
+                {
+                    M32_ERROR("sector highlight active or pending, cannot highlight sprites/walls");
+                    continue;
+                }
 
                 if (what&16384)
                 {
@@ -2118,10 +2189,13 @@ badindex:
                     else
                         show2dsprite[index>>3] &= ~(1<<(index&7));
                 }
-                else if (index < 0 || index>=numwalls)
+                else
                 {
-                    M32_ERROR("Invalid wall index %d", index);
-                    continue;
+                    if (index < 0 || index>=numwalls)
+                    {
+                        M32_ERROR("Invalid wall index %d", index);
+                        continue;
+                    }
 
                     if (doset)
                         show2dwall[index>>3] |= (1<<(index&7));
@@ -2130,6 +2204,29 @@ badindex:
                 }
 
                 vm.updatehighlight = 1;
+
+                continue;
+            }
+
+        case CON_SETHIGHLIGHTSECTOR:
+            insptr++;
+            {
+                int32_t index=Gv_GetVarX(*insptr++), doset = Gv_GetVarX(*insptr++);
+
+                if (highlightcnt >= 0)
+                {
+                    M32_ERROR("sprite/wall highlight active or pending, cannot highlight sectors");
+                    continue;
+                }
+
+                X_ERROR_INVALIDSECT(index);
+
+                if (doset)
+                    hlsectorbitmap[index>>3] |= (1<<(index&7));
+                else
+                    hlsectorbitmap[index>>3] &= ~(1<<(index&7));
+
+                vm.updatehighlightsector = 1;
 
                 continue;
             }

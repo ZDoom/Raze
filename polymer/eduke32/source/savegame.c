@@ -1221,9 +1221,10 @@ static void cmpspecdata(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **dif
         if ((sp->flags&(DS_NOCHK|DS_STRING|DS_CMP)))
             continue;
 
-        if (sp->flags&(DS_LOADFN|DS_SAVEFN) && (sp->flags&(DS_PROTECTFN))==0)
+        if (sp->flags&(DS_LOADFN|DS_SAVEFN))
         {
-            (*(void ( *)())sp->ptr)();
+            if ((sp->flags&(DS_PROTECTFN))==0)
+                (*(void ( *)())sp->ptr)();
             continue;
         }
 

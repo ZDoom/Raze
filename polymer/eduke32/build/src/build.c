@@ -1559,13 +1559,21 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
 
 static int32_t newnumwalls=-1;
 
-static void ovh_whiteoutgrab(void)
+void ovh_whiteoutgrab(int32_t restoreredwalls)
 {
     int32_t i, j, k, startwall, endwall;
 #if 0
 //def YAX_ENABLE
     int16_t cb, fb;
 #endif
+
+    if (restoreredwalls)
+    {
+        // restore onextwalls first
+        for (i=0; i<numsectors; i++)
+            for (WALLS_OF_SECTOR(i, j))
+                checksectorpointer(j, i);
+    }
 
     for (i=0; i<MAXWALLS; i++)
         onextwall[i] = -1;
@@ -2533,7 +2541,7 @@ void overheadeditor(void)
     lastpm16time = -1;
 
     update_highlightsector();
-    ovh_whiteoutgrab();
+    ovh_whiteoutgrab(0);
 
     highlightcnt = -1;
     Bmemset(show2dwall, 0, sizeof(show2dwall));  //Clear all highlights
@@ -4021,7 +4029,7 @@ end_yax: ;
                     }
 
                     update_highlightsector();
-                    ovh_whiteoutgrab();
+                    ovh_whiteoutgrab(0);
                 }
             }
         }
@@ -4559,7 +4567,7 @@ end_point_dragging:
                 // tempxyar: int32_t [MAXWALLS][2]
                 int32_t numouterwalls[2] = {0,0}, numowals;
                 static int16_t outerwall[2][MAXWALLS];
-                const walltype *wal0, *wal1;
+                const walltype *wal0, *wal1, *wal0p2, *wal1p2;
 
                 // join sector ceilings/floors to a new bunch
                 if (numyaxbunches==YAX_MAXBUNCHES)
@@ -4635,7 +4643,8 @@ end_point_dragging:
 
                 if (numouterwalls[0] != numouterwalls[1])
                 {
-                    message("Number of outer walls must be equal for both components");
+                    message("Number of outer walls must be equal for both components"
+                            " (have %d and %d)", numouterwalls[0], numouterwalls[1]);
                     if (numouterwalls[0]>0 && numouterwalls[1]>0)
                         delayerr = 1;
                     else
@@ -4652,6 +4661,9 @@ end_point_dragging:
                     wal0 = &wall[outerwall[0][k]];
                     wal1 = &wall[outerwall[1][k]];
 
+                    wal0p2 = &wall[wal0->point2];
+                    wal1p2 = &wall[wal1->point2];
+
                     if (k==0)
                     {
                         dx = wal1->x - wal0->x;
@@ -4659,18 +4671,18 @@ end_point_dragging:
                     }
 
                     if (wal1->x - wal0->x != dx || wal1->y - wal0->y != dy ||
-                            wall[wal1->point2].x - wall[wal0->point2].x != dx ||
-                            wall[wal1->point2].y - wall[wal0->point2].y != dy)
+                            wal1p2->x - wal0p2->x != dx || wal1p2->y - wal0p2->y != dy)
                     {
-                        pos.x = wal0->x;
-                        pos.y = wal0->y;
+                        pos.x = wal0->x + (wal0p2->x - wal0->x)/4;
+                        pos.y = wal0->y + (wal0p2->y - wal0->y)/4;
                         pos.z = getflorzofslope(sectorofwall(wal0-wall), pos.x, pos.y);
 
-                        message("Outer wall coordinates must coincide for both components");
-                        OSD_Printf("wal0:%d (%d,%d)--(%d,%d)\n",(int)(wal0-wall), wal0->x,wal0->y,
-                                   wall[wal0->point2].x,wall[wal0->point2].y);
-                        OSD_Printf("wal1:%d (%d,%d)--(%d,%d)\n",(int)(wal1-wall), wal1->x,wal1->y,
-                                   wall[wal1->point2].x,wall[wal1->point2].y);
+                        if (!delayerr)
+                            message("Outer wall coordinates must coincide for both components");
+                        OSD_Printf("wal0:%d (%d,%d)--(%d,%d)\n",(int)(wal0-wall),
+                                   wal0->x,wal0->y, wal0p2->x,wal0p2->y);
+                        OSD_Printf("wal1:%d (%d,%d)--(%d,%d)\n",(int)(wal1-wall),
+                                   wal1->x,wal1->y, wal1p2->x,wal1p2->y);
 
                         goto end_join_sectors;
                     }

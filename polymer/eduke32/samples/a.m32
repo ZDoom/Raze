@@ -58,6 +58,9 @@ gamevar dang 0 0
 gamevar tmp 0 0
 gamevar cnt 0 0
 
+gamevar sec 0 0
+gamevar wal 0 0
+
 gamevar drawcol 9 0
 
 
@@ -478,7 +481,32 @@ onevent EVENT_ENTER3DMODE
         state setas
 endevent
 
+////// sector collecting stuff
+gamearray collectedsectors MAXSECTORS
 
+defstate try_nextsector
+    var nexts
+    set nexts RETURN
+
+    set RETURN 0
+    for i spritesofsector nexts
+    {
+        ife .picnum SECTOREFFECTOR ife .lotag 7
+        {
+            set RETURN 1
+            break
+        }
+    }
+ends
+
+defstate collect_teleporting_sectors // (sec)
+    var numsects
+    collectsectors collectedsectors sec numsects try_nextsector
+    for i range numsects
+        sethighlightsector collectedsectors[i] 1
+ends
+
+////// show LOCATORS
 defstate cmp_by_lotag  // comparator subroutine for sorting
     set RETURN sprite[SV2].lotag
     sub RETURN sprite[SV1].lotag
@@ -1036,9 +1064,6 @@ defstate js  // jump to current sprite
     updatecursectnum
 ends
 
-var sec 0 0
-var wal 0 0
-
 defstate jumptowal  // (wal)
     ifge wal 0 ifl wal numwalls nullop else return
     set posx wall[wal].x
@@ -1159,7 +1184,6 @@ defstate chselshade
             set wall[j].shade tempshade
     }
 ends
-
 
 ////////// USER AREA //////////
 

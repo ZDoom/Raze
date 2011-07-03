@@ -231,6 +231,7 @@ void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y);
 int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point);
 void update_highlight(void);
 void update_highlightsector(void);
+void ovh_whiteoutgrab(int32_t restoreredwalls);
 
 int32_t inside_editor_curpos(int16_t sectnum);
 int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32_t zoom,

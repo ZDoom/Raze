@@ -98,6 +98,7 @@ typedef struct {
     spritetype *g_sp;
     uint32_t flags; //g_errorFlag, g_returnFlag;
     uint32_t updatehighlight;
+    uint32_t updatehighlightsector;
 } vmstate_t;
 
 #define VMFLAG_RETURN 1
@@ -363,6 +364,7 @@ enum ScriptKeywords_t
     CON_A2XY,
     CON_AH2XYZ,
 
+    CON_COLLECTSECTORS,
     CON_SORT,
     CON_FOR,
 
@@ -473,7 +475,9 @@ enum ScriptKeywords_t
 
 // stuff
     CON_UPDATEHIGHLIGHT,
+    CON_UPDATEHIGHLIGHTSECTOR,
     CON_SETHIGHLIGHT,
+    CON_SETHIGHLIGHTSECTOR,
     CON_ADDLOGVAR,
     CON_ADDLOG,
     CON_DEBUG,

@@ -242,6 +242,7 @@ const char *keyw[] =
     "a2xy",
     "ah2xyz",
 
+    "collectsectors",
     "sort",
     "for",  // *
 
@@ -339,7 +340,9 @@ const char *keyw[] =
     "getclosestcol",
 
     "updatehighlight",
+    "updatehighlightsector",
     "sethighlight",
+    "sethighlightsector",
     "addlogvar",
     "addlog",
     "debug",
@@ -1950,6 +1953,7 @@ static int32_t C_ParseCommand(void)
         return 0;
 
 
+    case CON_COLLECTSECTORS:
     case CON_SORT:
         if (C_GetNextLabelName(1))
             return 1;
@@ -1963,16 +1967,30 @@ static int32_t C_ParseCommand(void)
                 C_ReportError(ERROR_ARRAYREADONLY);
                 g_numCompilerErrors++;
             }
+
+            if (aGameArrays[i].dwFlags & GAMEARRAY_TYPE_MASK)
+            {
+                C_CUSTOMERROR("Array for %s must be user-defined.",
+                              tw==CON_SORT?"sorting":"collecting sectors");
+                g_numCompilerErrors++;
+            }
         }
         else
         {
             C_ReportError(ERROR_NOTAGAMEARRAY);
             g_numCompilerErrors++;
         }
-        C_SkipComments();
-        C_GetNextVar();  // element count to sort
 
-        if (C_GetKeyword() >= 0)
+        C_SkipComments();
+        // element count to sort (SORT) / starting sector (COLLECTSECTORS):
+        C_GetNextVar();
+
+        if (tw==CON_COLLECTSECTORS)
+        {
+            // the variable to store the number of collected sectors
+            C_GetNextVarType(GV_WRITABLE);
+        }
+        else if (C_GetKeyword() >= 0)
         {
             // default sorting state that compares values numerically
             *g_scriptPtr++ = -1;
@@ -3036,15 +3054,15 @@ repeatcase:
         break;
 
     case CON_CALCHYPOTENUSE:
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         C_GetManyVars(2);
         break;
 
     case CON_CLIPMOVE:
         // <retvar>,<x>,<y>,z,<sectnum>, xvect,yvect,walldist,floordist,ceildist,clipmask
-        C_GetManyVarsType(GAMEVAR_READONLY,3);
+        C_GetManyVarsType(GV_WRITABLE,3);
         C_GetNextVar();
-        C_GetNextVarType(GAMEVAR_READONLY);
+        C_GetNextVarType(GV_WRITABLE);
         C_GetManyVars(6);
         break;
 
@@ -3053,7 +3071,7 @@ repeatcase:
         // lineintersect x y z  x y z  x y  x y  <intx> <inty> <intz> <ret>
         // rayintersect x y z  vx vy vz  x y  x y  <intx> <inty> <intz> <ret>
         C_GetManyVars(10);
-        C_GetManyVarsType(GAMEVAR_READONLY,4);
+        C_GetManyVarsType(GV_WRITABLE,4);
         break;
 
     case CON_HITSCAN:
@@ -3127,6 +3145,11 @@ repeatcase:
         C_GetManyVars(3);
         return 0;
 
+    case CON_SETHIGHLIGHTSECTOR:
+        // sethighlightsector <index> <set_or_unset>
+        C_GetManyVars(2);
+        return 0;
+
     case CON_ADDLOGVAR:
         // syntax: addlogvar <var>
         // prints the line number in the log file.
@@ -3134,6 +3157,7 @@ repeatcase:
         return 0;
 
     case CON_UPDATEHIGHLIGHT:
+    case CON_UPDATEHIGHLIGHTSECTOR:
     case CON_ADDLOG:
         // syntax: addlog
         // prints the line number in the log file.
