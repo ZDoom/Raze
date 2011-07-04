@@ -107,9 +107,9 @@ extern int32_t dragpoint_noreset;
 extern int32_t numgraysects;
 extern uint8_t graysectbitmap[MAXSECTORS>>3];
 extern uint8_t graywallbitmap[MAXWALLS>>3];
+extern int32_t autogray, showinnergray;
 
 #ifdef YAX_ENABLE
-extern int32_t autogray;
 int32_t yax_is121(int16_t bunchnum, int16_t getfloor);
 #endif
 

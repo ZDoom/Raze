@@ -7664,9 +7664,17 @@ static void Keys2d(void)
 
     if (eitherCTRL && PRESSED_KEYSC(A))
     {
-        autogray = !autogray;
-        printmessage16("Automatic grayout of plain sectors %s", ONOFF(autogray));
-        yax_updategrays(pos.z);
+        if (eitherALT)
+        {
+            showinnergray = !showinnergray;
+            printmessage16("Display inner gray walls: %s", ONOFF(showinnergray));
+        }
+        else
+        {
+            autogray = !autogray;
+            printmessage16("Automatic grayout of plain sectors %s", ONOFF(autogray));
+            yax_updategrays(pos.z);
+        }
     }
 #endif
 

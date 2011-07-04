@@ -191,7 +191,7 @@ int16_t editstatus = 0;
 int32_t numgraysects = 0;
 uint8_t graysectbitmap[MAXSECTORS>>3];
 uint8_t graywallbitmap[MAXWALLS>>3];
-int32_t autogray = 0;
+int32_t autogray = 0, showinnergray = 1;
 
 #ifdef ENGINE_SCREENSHOT_DEBUG
 int32_t engine_screenshot = 0;
@@ -14743,15 +14743,29 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     if (!m32_sideview)
     {
+#ifndef YAX_ENABLE
+        for (i=numwalls-1; i>=0; i--)
+            drawscreen_drawwall(i,posxe,posye,posze,zoome, 0);
+#else
+        int32_t alwaysshowgray = (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT_MAX));
 
         for (i=numwalls-1; i>=0; i--)
-#ifdef YAX_ENABLE
             if (graybitmap[i>>3]&(1<<(i&7)))
-                drawscreen_drawwall(i,posxe,posye,posze,zoome, 1);
+            {
+                if (alwaysshowgray)
+                    drawscreen_drawwall(i,posxe,posye,posze,zoome, 1);
+                else
+                {
+                    j = sectorofwall(i);  // ugh...
+                    if ((yax_getbunch(j,0)<0 || yax_getnextwall(i,0)>=0) &&
+                            (yax_getbunch(j,1)<0 || yax_getnextwall(i,1)>=0))
+                        drawscreen_drawwall(i,posxe,posye,posze,zoome, 1);
+                }
+            }
         for (i=numwalls-1; i>=0; i--)
             if ((graybitmap[i>>3]&(1<<(i&7)))==0)
-#endif
                 drawscreen_drawwall(i,posxe,posye,posze,zoome, 0);
+#endif
     }
     else
     {

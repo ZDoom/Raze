@@ -1645,12 +1645,17 @@ static void duplicate_selected_sectors(void)
             if (cb>=0 || fb>=0)
             {
                 hadextended = 1;
-                yax_setbunches(newnumsectors, -1, -1);
+
+                // clearing yax-nextwalls has to be before setting the bunchnum to -1
+                // because the latter would automatically also clear the reverse (i.e.
+                // original) wall links
                 for (WALLS_OF_SECTOR(newnumsectors, j))
                 {
                     yax_setnextwall(j, 0, -1);
                     yax_setnextwall(j, 1, -1);
                 }
+
+                yax_setbunches(newnumsectors, -1, -1);
             }
 #endif
             newnumsectors++;
@@ -2083,7 +2088,11 @@ static void updatesprite1(int16_t i)
 }
 
 #ifdef YAX_ENABLE
+// highlighted OR grayed-out sectors:
+static uint8_t hlorgraysectbitmap[MAXSECTORS>>3];
 static int32_t ask_above_or_below(void);
+#else
+# define hlorgraysectbitmap hlsectorbitmap
 #endif
 
 // returns:
@@ -2115,7 +2124,7 @@ static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, 
     if (ignore_ret)
     {
         refsect = -1;
-        updatesectorexclude(wall[j].x, wall[j].y, &refsect, hlsectorbitmap);
+        updatesectorexclude(wall[j].x, wall[j].y, &refsect, hlorgraysectbitmap);
         if (refsect<0)
             return -1;
     }
@@ -3780,6 +3789,9 @@ end_yax: ;
                         }
 
                         update_highlight();
+
+                        for (i=0; i<numwalls; i++)
+                            wall[i].cstat &= ~(1<<14);
                     }
                 }
             }
@@ -3805,11 +3817,16 @@ end_yax: ;
                 }
                 else
                 {
+                    // didmakered: 'bad'!
                     int32_t didmakered = (highlightsectorcnt<0), hadouterpoint=0;
-                    int16_t tmprefsect = -1;
-
+#ifdef YAX_ENABLE
+                    for (i=0; i<MAXSECTORS; i++)
+                        hlorgraysectbitmap[i] = hlsectorbitmap[i]|graysectbitmap[i];
+#endif
                     for (i=0; i<highlightsectorcnt; i++)
                     {
+                        int16_t tmpsect = -1;
+
                         for (WALLS_OF_SECTOR(highlightsector[i], j))
                         {
 //                            if (wall[j].nextwall >= 0)
@@ -3819,37 +3836,43 @@ end_yax: ;
 
                             if (!didmakered)
                             {
-                                updatesectorexclude(wall[j].x, wall[j].y, &tmprefsect, hlsectorbitmap);
-                                if (tmprefsect<0)
+                                updatesectorexclude(wall[j].x, wall[j].y, &tmpsect, hlorgraysectbitmap);
+                                if (tmpsect<0)
                                     hadouterpoint = 1;
                             }
                         }
+#ifdef YAX_ENABLE
+                        {
+                            int16_t cb, fb;
+
+                            yax_getbunches(highlightsector[i], &cb, &fb);
+                            if (cb>=0 || fb>=0)
+                            {
+                                // TROR stuff in the pasted sectors would really
+                                // complicate things, so don't allow this
+                                didmakered=1;
+                            }
+                        }
+#endif
                     }
 
                     if (!didmakered && !hadouterpoint && newnumwalls<0)
                     {
-#ifdef YAX_ENABLE
-                        int16_t cb, fb;
+                        // fade the screen to have the user's attention
+                        fade_editor_screen(-1);
 
-                        yax_getbunches(tmprefsect, &cb, &fb);
-                        if (cb>=0 || fb>=0)
-                            didmakered = 1;
-                        else
-#endif
-                        {
-                            // fade the screen to have the user's attention
-                            fade_editor_screen(-1);
-
-                            didmakered |= !ask_if_sure("Insert outer loop and make red walls? (Y/N)", 0);
-                            clearkeys();
-                        }
+                        didmakered |= !ask_if_sure("Insert outer loop and make red walls? (Y/N)", 0);
+                        clearkeys();
                     }
 
                     if (!didmakered && !hadouterpoint && newnumwalls<0)
                     {
                         int16_t ignore, refsect;
                         int32_t n;
-
+#ifdef YAX_ENABLE
+                        int16_t refsectbn[2]={-1,-1};
+                        int32_t refextcf=-1;
+#endif
                         Bmemset(visited, 0, sizeof(visited));
 
                         for (i=0; i<highlightsectorcnt; i++)
@@ -3860,14 +3883,71 @@ end_yax: ;
                                 if (k == 0)
                                     continue;
                                 else if (k < 0)
-                                {
-                                    i = highlightsectorcnt;
-                                    break;  // outer loop too
-                                }
+                                    goto end_autoredwall;
 
                                 if (ignore)
                                     continue;
-                                
+
+                                // done tracing one outer loop
+#ifdef YAX_ENABLE
+                                yax_getbunches(refsect, &refsectbn[0], &refsectbn[1]);
+                                if (refsectbn[0]>=0 || refsectbn[1]>=0)
+                                {
+                                    if (refsectbn[0]>=0 && refsectbn[1]>=0)
+                                    {
+                                        // at least one of ceiling/floor must be non-extended
+                                        didmakered = 1;
+                                    }
+                                    else
+                                    {
+                                        // ... and the other must be non-sloped
+                                        refextcf = (refsectbn[1]>=0);
+                                        if (SECTORFLD(refsect,stat, !refextcf)&2)
+                                            didmakered = 1;
+                                    }
+                                }
+
+                                if (didmakered)
+                                    goto end_autoredwall;
+
+                                if (refextcf >= 0)
+                                {
+                                    int32_t refz = SECTORFLD(refsect,z, refextcf), tmpsect;
+                                    int32_t neededzofs=0;
+
+                                    // the reference sector is extended on one side
+                                    // (given by refextcf) and non-sloped on the other
+                                    if (highlighted_sectors_components(0,0) != 1)
+                                    {
+                                        message("Highlighted sectors must be in one connected component");
+                                        goto end_autoredwall;
+                                    }
+
+                                    for (m=0; m<highlightsectorcnt; m++)
+                                    {
+                                        tmpsect = highlightsector[m];
+                                        yax_setbunch(tmpsect, refextcf, refsectbn[refextcf]);
+                                        // walls: not needed, since they're all inner to the bunch
+
+                                        SECTORFLD(tmpsect,z, refextcf) = refz;
+                                        setslope(tmpsect, refextcf, 0);
+                                        if (refextcf==0)
+                                            neededzofs = max(neededzofs, refz-sector[tmpsect].floorz);
+                                        else
+                                            neededzofs = max(neededzofs, sector[tmpsect].ceilingz-refz);
+                                    }
+
+                                    if (neededzofs > 0)
+                                    {
+                                        neededzofs += ksgn(neededzofs)*(512<<4);
+                                        neededzofs &= ~((256<<4)-1);
+                                        if (refextcf==1)
+                                            neededzofs *= -1;
+                                        for (m=0; m<highlightsectorcnt; m++)
+                                            SECTORFLD(highlightsector[m],z, !refextcf) += neededzofs;
+                                    }
+                                }
+#endif
                                 wall[k-1].point2 = numwalls;  // close the loop
                                 newnumwalls = k;
                                 n = (newnumwalls-numwalls);  // number of walls in just constructed loop
@@ -3930,17 +4010,34 @@ end_yax: ;
                                         if (checksectorpointer(m, refsect) > 0)
                                             if (onwwasvalid && onextwall[wall[m].nextwall]>=0)
                                             {
-                                                initprintf("%d %d\n", m, onextwall[wall[m].nextwall]);
+//initprintf("%d %d\n", m, onextwall[wall[m].nextwall]);
                                                 copy_some_wall_members(m, onextwall[wall[m].nextwall], 0);
                                             }
 
+#ifndef YAX_ENABLE
                                     message("Attached new inner loop to sector %d", refsect);
+#else
+                                    {
+                                        const char *cfstr[2] = {"ceiling","floor"};
+                                        message("Attached new inner loop to %s%ssector %d",
+                                                refextcf>=0 ? cfstr[refextcf] : "",
+                                                refextcf>=0 ? "-extended " : "", refsect);
+                                    }
+
+                                    if (refextcf >= 0)
+                                    {
+                                        yax_update(0);
+                                        goto end_autoredwall;
+                                    }
+#endif
                                 }
-                                
                             }
                         }
-
+end_autoredwall:
                         newnumwalls = -1;
+#ifdef YAX_ENABLE
+                        yax_updategrays(pos.z);
+#endif
                     }
 
                     highlightx1 = searchx;
@@ -4361,7 +4458,7 @@ end_point_dragging:
                 {
                     if (pointhighlight >= 16384)
                         ExtEditSpriteData(pointhighlight-16384);
-                    else if ((linehighlight >= 0) && (bstatus&1 || sectorofwall(linehighlight) == cursectornum))
+                    else if ((linehighlight >= 0) && ((bstatus&1) || sectorofwall(linehighlight) == cursectornum))
                         ExtEditWallData(linehighlight);
                     else if (cursectornum >= 0)
                         ExtEditSectorData(cursectornum);

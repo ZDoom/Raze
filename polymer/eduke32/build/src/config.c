@@ -266,6 +266,11 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "showambiencesounds", val, VL) > 0)
         showambiencesounds = clamp(atoi_safe(val), 0, 2);
 
+    if (readconfig(fp, "autogray", val, VL) > 0)
+        autogray = !!atoi_safe(val);
+    if (readconfig(fp, "showinnergray", val, VL) > 0)
+        showinnergray = !!atoi_safe(val);
+
     if (readconfig(fp, "graphicsmode", val, VL) > 0)
         graphicsmode = clamp(atoi_safe(val), 0, 2);
 
@@ -460,6 +465,12 @@ int32_t writesetup(const char *fn)
              "; Ambience sound circles (0:none, 1:only in current sector, 2:all)\n"
              "showambiencesounds = %d\n"
              "\n"
+             "; TROR: Automatic grayout of plain (non-extended) sectors,\n"
+             ";       toggled with Ctrl-A:\n"
+             "autogray = %d\n"
+             "; TROR: Show inner gray walls, toggled with Ctrl-Alt-A:\n"
+             "showinnergray = %d\n"
+             "\n"
              "; 2D mode display type (0:classic, 1:textured, 2:textured/animated)\n"
              "graphicsmode = %d\n"
              "\n"
@@ -546,7 +557,9 @@ int32_t writesetup(const char *fn)
              msens, unrealedlook, pk_uedaccel, quickmapcycling,
              sideview_reversehrot,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,autocorruptcheck,
-             showheightindicators,showambiencesounds,graphicsmode,
+             showheightindicators,showambiencesounds,
+             autogray,showinnergray,
+             graphicsmode,
              MixRate,AmbienceToggle,ParentalLock, !!m32_osd_tryscript,
 #if 1
              keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
@@ -566,6 +579,7 @@ int32_t writesetup(const char *fn)
     Bfprintf(fp,"\n\n");
 
     // save m32script history
+    Bfprintf(fp,"; Mapster32-script history\n");
     first = 1;
     for (i=scripthistend, j=0; first || i!=scripthistend; i=(i+1)%SCRIPTHISTSIZ, first=0)
     {

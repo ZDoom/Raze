@@ -77,7 +77,7 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLab
                 SET_PROTECT_BITS(wall[i].cstat, lValue, YAX_NEXTWALLBITS);
             else
 #endif
-            wall[i].cstat = lValue;
+                wall[i].cstat = lValue;
             break;
         case WALL_PICNUM: wall[i].picnum=lValue; break;
         case WALL_OVERPICNUM: wall[i].overpicnum=lValue; break;
@@ -87,9 +87,21 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLab
         case WALL_YREPEAT: wall[i].yrepeat=lValue; break;
         case WALL_XPANNING: wall[i].xpanning=lValue; break;
         case WALL_YPANNING: wall[i].ypanning=lValue; break;
-        case WALL_LOTAG: wall[i].lotag=lValue; break;
+        case WALL_LOTAG:
+#ifdef YAX_ENABLE
+            if (!m32_script_expertmode && numyaxbunches>0 && yax_getnextwall(i,YAX_CEILING)>=0)
+                goto yax_readonly;
+#endif
+            wall[i].lotag=lValue;
+            break;
         case WALL_HITAG: wall[i].hitag=lValue; break;
-        case WALL_EXTRA: wall[i].extra=lValue; break;
+        case WALL_EXTRA:
+#ifdef YAX_ENABLE
+            if (!m32_script_expertmode && numyaxbunches>0 && yax_getnextwall(i,YAX_FLOOR)>=0)
+                goto yax_readonly;
+#endif
+            wall[i].extra=lValue;
+            break;
         default:
             return -1;
         }
@@ -133,6 +145,12 @@ badwall:
 readonly:
     M32_ERROR("Wall structure member `%s' is read-only.", WallLabels[lLabelID].name);
     return -1;
+#ifdef YAX_ENABLE
+yax_readonly:
+    M32_ERROR("Wall structure member `%s' is read-only because it is used for TROR",
+              WallLabels[lLabelID].name);
+    return -1;
+#endif
 }
 
 // how: bitfield: 1=set? 2=vars?
