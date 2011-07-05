@@ -9383,7 +9383,7 @@ static void G_Startup(void)
             if (wm_ynbox("Upgrade to the full version of Duke Nukem 3D",tempbuf))
             {
                 SHELLEXECUTEINFOA sinfo;
-                char *p = "http://www.gog.com/en/gamecard/duke_nukem_3d_atomic_edition/pp/6c1e671f9af5b46d9c1a52067bdf0e53685674f7";
+                char *p = "http://www.gog.com/en/gamecard/duke_nukem_3d_atomic_edition/?pp=6c1e671f9af5b46d9c1a52067bdf0e53685674f7";
 
                 Bmemset(&sinfo, 0, sizeof(sinfo));
                 sinfo.cbSize = sizeof(sinfo);
