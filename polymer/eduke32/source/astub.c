@@ -60,6 +60,7 @@ static int32_t floor_over_floor;
 static int32_t g_fillCurSector = 0;
 
 static char g_modDir[BMAX_PATH];
+char defsfilename[BMAX_PATH] = "duke3d.def";
 
 // static char *startwin_labeltext = "Starting Mapster32...";
 static char *setupfilename = "mapster32.cfg";
@@ -5004,8 +5005,8 @@ static void Keys3d(void)
 #ifdef YAX_ENABLE
                     int32_t notextended = 1;
                     if (yax_getbunch(searchsector, AIMING_AT_FLOOR) >= 0)
-                        xp = yp = notextended = 0;
-                    Bsprintf(lines[num++],"Panning:  %d, %d%s", xp, yp, notextended?"":" *");
+                        notextended = 0;
+                    Bsprintf(lines[num++],"Panning:  %d%s, %d", xp, notextended?"":"*", yp);
 #else
                     Bsprintf(lines[num++],"Panning:  %d, %d", xp, yp);
 #endif
@@ -10280,7 +10281,8 @@ int32_t ExtInit(void)
         initprintf("Using '%s' as definitions file\n", g_defNamePtr);
     }
     if (g_skipDefaultDefs == 0)
-        Bstrcpy(g_defNamePtr, defsfilename); // it MAY have changed, with NAM/WWII GI
+        if (g_defNamePtr != defsfilename)
+            Bstrcpy(g_defNamePtr, defsfilename); // it MAY have changed, with NAM/WWII GI
 
     loadgroupfiles(g_defNamePtr);
     // the defs are actually loaded in app_main in build.c

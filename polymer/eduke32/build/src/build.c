@@ -123,7 +123,7 @@ static int32_t currentlist=0;
 
 static int32_t fillist[640];
 // used for fillsector and point selection in side-view mode:
-static int32_t tempxyar[MAXWALLS][2] ATTRIBUTE((aligned(8)));
+static int32_t tempxyar[MAXWALLS][2];
 
 static int32_t mousx, mousy;
 int16_t prefixtiles[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
@@ -2503,6 +2503,20 @@ static int32_t hl_all_bunch_sectors_p()
 }
 #endif
 
+static int32_t find_nextwall(int32_t sectnum, int32_t sectnum2)
+{
+    int32_t j, startwall, endwall;
+
+    if (sectnum<0 || sectnum2<0)
+        return -1;
+
+    for (WALLS_OF_SECTOR(sectnum, j))
+        if (wall[j].nextsector == sectnum2)
+            return j;
+
+    return -1;
+}
+
 void overheadeditor(void)
 {
     char buffer[80], ch;
@@ -3709,51 +3723,7 @@ end_yax: ;
                                 if (wall[i].cstat&(1<<14))
                                     show2dwall[i>>3] |= (1<<(i&7));
                         }
-#if 0
-                        if (m32_sideview && numwalls>0 && !onlySprites)
-                        {
-                            int64_t curcoord;
-                            int32_t begwall=0, mustselect=0;
 
-                            // also select walls that would be dragged but
-                            // maybe were missed
-
-                            for (i=0; i<numwalls; i++)
-                                tempxyar[i][0] = i;
-                            qsort(tempxyar, numwalls, sizeof(tempxyar[0]), compare_wall_coords);
-
-                            i = 0;
-                            k = tempxyar[i][0];  // the actual wallnum...
-                            curcoord = *(int64_t *)&wall[k].x;
-                            while (i<numwalls)
-                            {
-                                //OSD_Printf("%5d: wall %5d: %8d,%8d\n", i, k, wall[k].x, wall[k].y);
-                                mustselect |= (show2dwall[k>>3]&(1<<(k&7)));
-                                i++;
-                                if (i==numwalls || ((k=tempxyar[i][0]), (*(int64_t *)&wall[k].x != curcoord)))
-                                {
-                                    if (mustselect)
-                                    {
-                                        // select all from begwall to i-1
-                                        for (j=begwall; j<i; j++)
-                                        {
-                                            //OSD_Printf("sel %5d: wall %5d: %8d,%8d\n", j, tempxyar[j][0],
-                                            //wall[tempxyar[j][0]].x, wall[tempxyar[j][0]].y);
-                                            show2dwall[tempxyar[j][0]>>3] |= (1<<(tempxyar[j][0]&7));
-                                        }
-
-                                        mustselect = 0;
-                                    }
-
-                                    if (i==numwalls)
-                                        break;
-
-                                    begwall = i;
-                                    curcoord = *(int64_t *)&wall[tempxyar[i][0]].x;
-                                }
-                            }
-                        }
-#endif
                         for (i=0; i<MAXSPRITES; i++)
                         {
                             if (sprite[i].statnum == MAXSTATUS)
@@ -4963,9 +4933,10 @@ end_point_dragging:
             }
             else
             {
-                int16_t joink;
+                int32_t joink, s1to0wall;
 #ifdef YAX_ENABLE
-                int16_t cb0,fb0, cb1,fb1;
+                int16_t jbn[2][2];  // [join index][c/f]
+                int32_t uneqbn;  // unequal bunchnums (bitmap): 1:above, 2:below
 #endif
                 joinsector[1] = -1;
 
@@ -4975,23 +4946,18 @@ end_point_dragging:
 
                     if (inside_editor_curpos(i) == 1)
                     {
-                        startwall = sector[i].wallptr;
-                        endwall = startwall + sector[i].wallnum;
-                        for (j=startwall; j<endwall; j++)
-                            if (wall[j].nextsector == joinsector[0])
-                                break;
-
+                        s1to0wall = find_nextwall(i, joinsector[0]);
                         joinsector[1] = i;
 #ifdef YAX_ENABLE
-                        yax_getbunches(joinsector[0], &cb0, &fb0);
-                        yax_getbunches(joinsector[1], &cb1, &fb1);
+                        for (k=0; k<2; k++)
+                            yax_getbunches(joinsector[k], &jbn[k][YAX_CEILING], &jbn[k][YAX_FLOOR]);
 #endif
                         // pressing J into the same sector is the same as saying 'no'
                         //                  v----------------v
-                        if (j == endwall && i != joinsector[0])
+                        if (s1to0wall == -1 && i != joinsector[0])
                         {
 #ifdef YAX_ENABLE
-                            if (cb0>=0 || fb0>=0 || cb1>=0 || fb1>=0)
+                            if (jbn[0][0]>=0 || jbn[0][1]>=0 || jbn[1][0]>=0 || jbn[1][1]>=0)
                             {
                                 message("Joining non-adjacent extended sectors not allowed!");
                                 joinsector[0] = joinsector[1] = -1;
@@ -5008,9 +4974,95 @@ end_point_dragging:
                             }
                         }
 #ifdef YAX_ENABLE
-                        if (cb0!=cb1 || fb0!=fb1)
+                        uneqbn = (jbn[0][YAX_CEILING]!=jbn[1][YAX_CEILING]) |
+                            ((jbn[0][YAX_FLOOR]!=jbn[1][YAX_FLOOR])<<1);
+                        if (uneqbn)
                         {
-                            message("Joining of extended sectors with different bunches not allowed!");
+                            const int32_t cf=YAX_FLOOR;
+                            int32_t whybad=0, jsynw[2];
+
+                            if (uneqbn == 1)
+                            {
+                                message("Can't join two sectors with different ceiling bunchnums."
+                                        " To make them equal, join their upper neighbor's floors.");
+                                printmessage16("Can't join two sectors with different ceiling bunchnums. See OSD");
+                                joinsector[0] = joinsector[1] = -1;
+                                goto end_join_sectors;
+                            }
+
+                            // both must be extended
+                            if (jbn[0][cf]<0 || jbn[1][cf]<0)
+                                uneqbn &= ~(1<<cf), whybad|=1;
+                            // if any sloped, can't join
+                            if ((SECTORFLD(joinsector[0],stat, cf)&2) || (SECTORFLD(joinsector[1],stat, cf)&2))
+                                uneqbn &= ~(1<<cf), whybad|=2;
+                            // if on unequal heights, can't join either
+                            if (SECTORFLD(joinsector[0],z, cf) != SECTORFLD(joinsector[1],z, cf))
+                                uneqbn &= ~(1<<cf), whybad|=4;
+
+                            // check whether the lower neighbors have a red-wall link to each other
+                            jsynw[1] = yax_getnextwall(s1to0wall, cf);
+                            jsynw[0] = yax_getnextwall(wall[s1to0wall].nextwall, cf);
+                            if (jsynw[0]<0 || jsynw[1]<0)  // this shouldn't happen
+                                uneqbn &= ~(1<<cf), whybad|=8;
+                            else if (wall[jsynw[1]].nextwall != jsynw[0])
+                            {
+                                if (find_nextwall(sectorofwall(jsynw[1]), sectorofwall(jsynw[0])) < 0)
+                                    uneqbn &= ~(1<<cf), whybad|=16;
+                            }
+
+                            if ((uneqbn&2)==0)
+                            {
+                                if (whybad&1)
+                                    message("Can't make floor bunchnums equal: both floors must be extended");
+                                else if (whybad&2)
+                                    message("Can't make floor bunchnums equal: both floors must be non-sloped");
+                                else if (whybad&4)
+                                    message("Can't make floor bunchnums equal: both floors must have equal height");
+                                else if (whybad&8)
+                                    message("Can't make floor bunchnums equal: INTERNAL ERROR");
+                                else if (whybad&16)
+                                    message("Can't make floor bunchnums equal: lower neighbors must be linked");
+                            }
+                            else
+                            {
+                                int32_t vcf, newbn, ynw;
+
+                                // we're good to go for making floor bunchnums equal
+                                for (SECTORS_OF_BUNCH(jbn[1][cf], YAX_FLOOR, k))
+                                    yax_setbunch(k, YAX_FLOOR, jbn[0][cf]);
+                                for (SECTORS_OF_BUNCH(jbn[1][cf], YAX_CEILING, k))
+                                    yax_setbunch(k, YAX_CEILING, jbn[0][cf]);
+
+                                yax_update(0);
+                                // now we can iterate the sectors with the new bunchnums
+                                newbn = yax_getbunch(joinsector[0], cf);
+
+                                // clear all yax-nextwall links on walls that are inside the bunch
+                                for (vcf=0; vcf<2; vcf++)
+                                    for (SECTORS_OF_BUNCH(newbn, vcf, k))
+                                        for (WALLS_OF_SECTOR(k, m))
+                                        {
+                                            ynw = yax_getnextwall(m, vcf);
+                                            if (ynw < 0 || wall[m].nextsector < 0)
+                                                continue;
+
+                                            if (yax_getbunch(wall[m].nextsector, vcf) == newbn)
+                                            {
+                                                yax_setnextwall(ynw, !vcf, -1);
+                                                yax_setnextwall(m, vcf, -1);
+                                            }
+                                        }
+
+                                // shouldn't be needed again for the editor, but can't harm either:
+                                yax_update(0);
+                                yax_updategrays(pos.z);
+
+                                printmessage16("Made sector %d and %d floor bunchnums equal",
+                                               joinsector[0], joinsector[1]);
+                                asksave = 1;
+                            }
+
                             joinsector[0] = joinsector[1] = -1;
                             goto end_join_sectors;                            
                         }
@@ -5127,9 +5179,16 @@ end_point_dragging:
                     numwalls = newnumwalls;
                     newnumwalls = -1;
 
+                    // clean out nextwall links for deletesector
                     for (k=0; k<2; k++)
                         for (WALLS_OF_SECTOR(joinsector[k], j))
+                        {
                             wall[j].nextwall = wall[j].nextsector = -1;
+#ifdef YAX_ENABLE
+                            yax_setnextwall(j, YAX_CEILING, -1);
+                            yax_setnextwall(j, YAX_FLOOR, -1);
+#endif
+                        }
 
                     deletesector(joinsector[0]);
                     if (joinsector[0] < joinsector[1])
@@ -7452,9 +7511,12 @@ static void clearministatbar16(void)
 
     CLEARLINES2D(i, ydim-i, 0);
 
-    Bsprintf(tempbuf, "Mapster32 %s", ExtGetVer());
-    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3, ydim2d-STATUS2DSIZ2+10, editorcolors[4],-1, tempbuf, 0);
-    printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2, ydim2d-STATUS2DSIZ2+9, editorcolors[12],-1, tempbuf, 0);
+    if (xdim >= 800)
+    {
+        Bsprintf(tempbuf, "Mapster32 %s", ExtGetVer());
+        printext16(xdim2d-(Bstrlen(tempbuf)<<3)-3, ydim2d-STATUS2DSIZ2+10, editorcolors[4],-1, tempbuf, 0);
+        printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2, ydim2d-STATUS2DSIZ2+9, editorcolors[12],-1, tempbuf, 0);
+    }
 
     enddrawing();
 }
@@ -8673,11 +8735,29 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
 
     if (highlightcnt<=0 && highlightsectorcnt<=0)
     {
-        Bsprintf(snotbuf,"%d/%d %s. %d/%d walls %d/%d spri.",
-                 numsectors, v8?MAXSECTORSV8:MAXSECTORSV7,
-                 numyaxbunches>0 ? "SECT":"sect",
-                 numwalls, v8?MAXWALLSV8:MAXWALLSV7,
-                 numsprites, v8?MAXSPRITESV8:MAXSPRITESV7);
+        m = Bsprintf(snotbuf,"%d/%d %s. %d",
+                     numsectors, v8?MAXSECTORSV8:MAXSECTORSV7,
+                     numyaxbunches>0 ? "SEC":"sec", numwalls);
+        if (numyaxbunches > 0)
+        {
+            if (xdim >= 800)
+                Bsprintf(&snotbuf[m], "/%d wal. %d/16k spr. %d/256 bn.",
+                         MAXWALLSV8, numsprites, numyaxbunches);
+            else
+                Bsprintf(&snotbuf[m], " wal. %d spr. %d/256 bn.",
+                         numsprites, numyaxbunches);
+        }
+        else
+        {
+            if (xdim >= 800)
+                Bsprintf(&snotbuf[m], "/%d wal. %d/%d spr.",
+                         v8?MAXWALLSV8:MAXWALLSV7, numsprites,
+                         v8?MAXSPRITESV8:MAXSPRITESV7);
+            else
+                Bsprintf(&snotbuf[m], "/%dk wal. %d/%dk spr.",
+                         (v8?MAXWALLSV8:MAXWALLSV7)/1000, numsprites,
+                         (v8?MAXSPRITESV8:MAXSPRITESV7)/1000);
+        }
     }
     else
     {
@@ -8693,7 +8773,7 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
         else
             snotbuf[0] = 0;
 
-        v8 = 1;
+        v8 = 1;  // yellow color
     }
 
     m = xdim/8 - 264/8;

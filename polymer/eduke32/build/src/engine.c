@@ -7538,7 +7538,7 @@ int32_t preinitengine(void)
     tsprite = tsprite_s;
     spriteext = spriteext_s;
     spritesmooth = spritesmooth_s;
-    state_compress = (qlz_state_compress *) Bmalloc(sizeof(qlz_state_compress) + sizeof(qlz_state_decompress));
+    state_compress = (qlz_state_compress *) Bcalloc(sizeof(qlz_state_compress) + sizeof(qlz_state_decompress), 1);
     state_decompress = (qlz_state_decompress *)((int8_t *)(state_compress) + sizeof(qlz_state_compress));
 #endif
 
