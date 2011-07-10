@@ -179,6 +179,7 @@ extern const char *SaveBoard(const char *fn, uint32_t flags);
 #define MAXCORRUPTTHINGS 64
 extern int32_t corruptlevel, numcorruptthings, corruptthings[MAXCORRUPTTHINGS];
 extern int32_t autocorruptcheck;
+extern int32_t corruptcheck_noalreadyrefd;
 extern int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing);
 
 extern int32_t m32_script_expertmode;  // if true, make read-only vars writable

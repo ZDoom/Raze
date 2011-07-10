@@ -2352,6 +2352,18 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
         Gv_SetVarX(lVar2, sector[iSector].extra);
         return;
 
+    case SECTOR_CEILINGBUNCH:
+    case SECTOR_FLOORBUNCH:
+        if (!iSet)
+        {
+#ifdef YAX_ENABLE
+            Gv_SetVarX(lVar2, yax_getbunch(iSector, lLabelID==SECTOR_FLOORBUNCH));
+#else
+            Gv_SetVarX(lVar2, -1);
+#endif
+        }
+        return;
+
     default:
         return;
     }
@@ -3459,6 +3471,13 @@ static int32_t __fastcall VM_AccessSectorX(int32_t iSector, int32_t lLabelID)
     case SECTOR_LOTAG: return sector[iSector].lotag;
     case SECTOR_HITAG: return sector[iSector].hitag;
     case SECTOR_EXTRA: return sector[iSector].extra;
+    case SECTOR_CEILINGBUNCH:
+    case SECTOR_FLOORBUNCH:
+#ifdef YAX_ENABLE
+        return yax_getbunch(iSector, lLabelID==SECTOR_FLOORBUNCH);
+#else
+        return -1;
+#endif
     default: return -1;
     }
 }

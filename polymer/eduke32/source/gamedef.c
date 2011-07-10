@@ -590,6 +590,8 @@ const memberlabel_t SectorLabels[]=
     { "lotag", SECTOR_LOTAG, 0, 0 },
     { "hitag", SECTOR_HITAG, 0, 0 },
     { "extra", SECTOR_EXTRA, 0, 0 },
+    { "ceilingbunch", SECTOR_EXTRA, 0, 0 },
+    { "floorbunch", SECTOR_EXTRA, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 

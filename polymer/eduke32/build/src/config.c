@@ -191,14 +191,18 @@ int32_t loadsetup(const char *fn)
         r_downsizevar = r_downsize;
     }
     if (readconfig(fp, "r_texcompr", val, VL) > 0)
-    {
         glusetexcompr = !!atoi_safe(val);
-    }
     if (readconfig(fp, "r_shadescale", val, VL) > 0)
-    {
         shadescale = clampd(Bstrtod(val, NULL), 0.0, 10.0);
-    }
 #endif
+    if (readconfig(fp, "r_usenewaspect", val, VL) > 0)
+        r_usenewaspect = !!atoi_safe(val);
+    if (readconfig(fp, "r_screenxy", val, VL) > 0)
+    {
+        r_screenxy = clamp(atoi_safe(val), 0, 9999);
+        if (r_screenxy/100==0 || r_screenxy%100==0)
+            r_screenxy = 403;
+    }
 
     if (readconfig(fp, "gameexecutable", val, VL) > 0)
         Bstrcpy(game_executable, val);
@@ -260,6 +264,8 @@ int32_t loadsetup(const char *fn)
 //    if (readconfig(fp, "autosave", val, VL) > 0) autosave = atoi_safe(val)*60;
     if (readconfig(fp, "autosavesec", val, VL) > 0) autosave = max(0, atoi_safe(val));
     if (readconfig(fp, "autocorruptchecksec", val, VL) > 0) autocorruptcheck = max(0, atoi_safe(val));
+    if (readconfig(fp, "corruptcheck_noalreadyrefd", val, VL) > 0)
+        corruptcheck_noalreadyrefd = !!atoi_safe(val);
 
     if (readconfig(fp, "showheightindicators", val, VL) > 0)
         showheightindicators = clamp(atoi_safe(val), 0, 2);
@@ -384,6 +390,11 @@ int32_t writesetup(const char *fn)
              "r_shadescale = %g\n"
              "\n"
 #endif
+             "; Use new aspect determination code? (classic/Polymost)\n"
+             "r_usenewaspect = %d\n"
+             "; Screen aspect for fullscreen, in the form WWHH (e.g. 1609 for 16:9)\n"
+             "r_screenxy = %d\n"
+             "\n"
 
 #ifdef RENDERTYPEWIN
              "; Maximum OpenGL mode refresh rate (Windows only, in Hertz)\n"
@@ -458,6 +469,10 @@ int32_t writesetup(const char *fn)
              "\n"
              "; Auto corruption check interval (seconds)\n"
              "autocorruptchecksec = %d\n"
+             "\n"
+             "; Ignore 'already referenced wall' warnings\n"
+             "; (toggled with 'corruptcheck noalreadyrefd')\n"
+             "corruptcheck_noalreadyrefd = %d\n"
              "\n"
              "; Height indicators (0:none, 1:only 2-sided&different, 2:all)\n"
              "showheightindicators = %d\n"
@@ -544,6 +559,7 @@ int32_t writesetup(const char *fn)
              glusetexcache, gltexfiltermode, glanisotropy,r_downsize,glusetexcompr,
              shadescale,
 #endif
+             r_usenewaspect, r_screenxy,
 #ifdef RENDERTYPEWIN
              maxrefreshfreq, windowpos, windowx, windowy,
 #endif
@@ -557,7 +573,7 @@ int32_t writesetup(const char *fn)
              msens, unrealedlook, pk_uedaccel, quickmapcycling,
              sideview_reversehrot,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,autocorruptcheck,
-             showheightindicators,showambiencesounds,
+             corruptcheck_noalreadyrefd, showheightindicators,showambiencesounds,
              autogray,showinnergray,
              graphicsmode,
              MixRate,AmbienceToggle,ParentalLock, !!m32_osd_tryscript,

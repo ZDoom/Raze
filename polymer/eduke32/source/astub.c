@@ -123,6 +123,7 @@ int32_t showambiencesounds=2;
 int32_t autocorruptcheck = 0;
 static int32_t corruptchecktimer;
 static int32_t curcorruptthing=-1, corrupt_tryfix_alt=0;
+int32_t corruptcheck_noalreadyrefd=0;
 
 int32_t corruptlevel=0, numcorruptthings=0, corruptthings[MAXCORRUPTTHINGS];
 
@@ -8913,7 +8914,14 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
 
         if (parm->numparms >= 1 || tryfix)
         {
-            if (!Bstrcasecmp(parm->parms[0], "now"))
+            if (!Bstrcasecmp(parm->parms[0], "noalreadyrefd"))
+            {
+                corruptcheck_noalreadyrefd = !corruptcheck_noalreadyrefd;
+                OSD_Printf("%sgnore 'already referenced' corruption\n",
+                           corruptcheck_noalreadyrefd?"I":"Don't i");
+                return OSDCMD_OK;
+            }
+            else if (!Bstrcasecmp(parm->parms[0], "now"))
             {
                 int32_t printfromlevel = 1;
                 if (parm->numparms > 1)
@@ -11270,10 +11278,13 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
         return bad;
     }
 
-    seen_nextwalls = Bcalloc((numwalls+7)>>3,1);
-    if (!seen_nextwalls) return 5;
-    lastnextwallsource = Bmalloc(numwalls*sizeof(lastnextwallsource[0]));
-    if (!lastnextwallsource) { Bfree(seen_nextwalls); return 5; }
+    if (!corruptcheck_noalreadyrefd)
+    {
+        seen_nextwalls = Bcalloc((numwalls+7)>>3,1);
+        if (!seen_nextwalls) return 5;
+        lastnextwallsource = Bmalloc(numwalls*sizeof(lastnextwallsource[0]));
+        if (!lastnextwallsource) { Bfree(seen_nextwalls); return 5; }
+    }
 
     for (i=0; i<numsectors; i++)
     {
@@ -11421,7 +11432,7 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                     }
                 }
 
-                if (nw>=0 && nw<numwalls)
+                if (!corruptcheck_noalreadyrefd && nw>=0 && nw<numwalls)
                 {
                     if (seen_nextwalls[nw>>3]&(1<<(nw&7)))
                     {
