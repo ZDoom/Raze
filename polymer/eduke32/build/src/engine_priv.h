@@ -4,6 +4,7 @@
 #define MAXCLIPNUM 1024
 #define MAXPERMS 512
 #define MAXTILEFILES 256
+// MAXYSAVES is 983040 (!) right now:
 #define MAXYSAVES ((MAXXDIM*MAXSPRITES)>>7)
 #define MAXNODESPERLINE 42   //Warning: This depends on MAXYSAVES & MAXYDIM!
 #define MAXCLIPDIST 1024

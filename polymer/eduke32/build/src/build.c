@@ -4953,7 +4953,7 @@ end_point_dragging:
                             yax_getbunches(joinsector[k], &jbn[k][YAX_CEILING], &jbn[k][YAX_FLOOR]);
 #endif
                         // pressing J into the same sector is the same as saying 'no'
-                        //                  v----------------v
+                        //                     v----------------v
                         if (s1to0wall == -1 && i != joinsector[0])
                         {
 #ifdef YAX_ENABLE
@@ -5013,16 +5013,48 @@ end_point_dragging:
 
                             if ((uneqbn&2)==0)
                             {
-                                if (whybad&1)
-                                    message("Can't make floor bunchnums equal: both floors must be extended");
-                                else if (whybad&2)
-                                    message("Can't make floor bunchnums equal: both floors must be non-sloped");
-                                else if (whybad&4)
-                                    message("Can't make floor bunchnums equal: both floors must have equal height");
-                                else if (whybad&8)
-                                    message("Can't make floor bunchnums equal: INTERNAL ERROR");
-                                else if (whybad&16)
-                                    message("Can't make floor bunchnums equal: lower neighbors must be linked");
+                                if (whybad==1+8 && jbn[0][cf]>=0 && jbn[1][cf]<0)
+                                {
+                                    // 1st join sector extended, 2nd not... let's see
+                                    // if the latter is inner to the former one
+
+                                    m = 1;
+                                    for (WALLS_OF_SECTOR(joinsector[1], k))
+                                        if (wall[k].nextsector != joinsector[0])
+                                        {
+                                            m = 0;
+                                            break;
+                                        }
+
+                                    if (m==1)
+                                    {
+                                        yax_setbunch(joinsector[1], YAX_FLOOR, jbn[0][cf]);
+                                        yax_update(0);
+                                        yax_updategrays(pos.z);
+                                        asksave = 1;
+
+                                        printmessage16("Added sector %d's floor to bunch %d",
+                                                       joinsector[1], jbn[0][cf]);
+                                    }
+                                    else
+                                    {
+                                        printmessage16("Can't add sector %d's floor to bunch %d: not inner to sector %d",
+                                                       joinsector[1], jbn[0][cf], joinsector[0]);
+                                    }
+                                }
+                                else
+                                {
+                                    if (whybad&1)
+                                        message("Can't make floor bunchnums equal: both floors must be extended");
+                                    else if (whybad&2)
+                                        message("Can't make floor bunchnums equal: both floors must be non-sloped");
+                                    else if (whybad&4)
+                                        message("Can't make floor bunchnums equal: both floors must have equal height");
+                                    else if (whybad&8)
+                                        message("Can't make floor bunchnums equal: INTERNAL ERROR");
+                                    else if (whybad&16)
+                                        message("Can't make floor bunchnums equal: lower neighbors must be linked");
+                                }
                             }
                             else
                             {
