@@ -24,9 +24,11 @@ BUILD32_ON_64 ?= 0
 # DO NOT SET THIS TO 1 AND COMMIT IT.
 NEDMALLOC = 0
 USE_LIBPNG = 0
+USE_LIBVPX = 0
 
 ifeq (0,$(USE_OPENGL))
     POLYMER = 0
+    USE_LIBVPX = 0
 endif
 
 
@@ -69,6 +71,9 @@ LIBS=-lm
 ifneq (0,$(USE_LIBPNG))
     LIBS+= -lpng
 endif
+ifneq (0,$(USE_LIBVPX))
+    LIBS+= -lvpx
+endif
 
 ifneq (0,$(RELEASE))
     # Debugging disabled
@@ -104,10 +109,13 @@ W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
 
 BASECFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
-        $(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) \
+	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) \
 	-Wextra	-Wstrict-overflow=1 #-Wwrite-strings -Waddress -Wlogical-op
 ifneq (0,$(USE_LIBPNG))
     BASECFLAGS+= -DUSE_LIBPNG
+endif
+ifneq (0,$(USE_LIBVPX))
+    BASECFLAGS+= -DUSE_LIBVPX
 endif
 
 BASECXXFLAGS= -fno-exceptions -fno-rtti

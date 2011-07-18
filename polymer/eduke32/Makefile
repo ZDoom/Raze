@@ -107,6 +107,9 @@ EDITOROBJS=$(OBJ)/astub.$o \
 	$(OBJ)/mathutil.$o \
 	$(OBJ)/sounds_mapster32.$o
 
+ifneq ($(USE_LIBVPX),0)
+    GAMEOBJS+= $(OBJ)/animvpx.$o
+endif
 # PLATFORM SPECIFIC SETTINGS
 
 ifeq ($(PLATFORM),LINUX)

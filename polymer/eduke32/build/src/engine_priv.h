@@ -6,7 +6,7 @@
 #define MAXTILEFILES 256
 // MAXYSAVES is 983040 (!) right now:
 #define MAXYSAVES ((MAXXDIM*MAXSPRITES)>>7)
-#define MAXNODESPERLINE 42   //Warning: This depends on MAXYSAVES & MAXYDIM!
+#define MAXNODESPERLINE (MAXYSAVES/MAXYDIM)  // 307
 #define MAXCLIPDIST 1024
 
 // uncomment to clear the screen before each top-level draw

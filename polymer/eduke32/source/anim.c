@@ -25,6 +25,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "mouse.h"
 #include "compat.h"
 
+#ifdef USE_LIBVPX
+# include "animvpx.h"
+#endif
+
 void endanimsounds(int32_t fr)
 {
     switch (ud.volume_number)
@@ -219,6 +223,106 @@ void G_PlayAnim(const char *fn,char t)
         goto ENDOFANIMLOOP;
     }
 
+#ifdef USE_LIBVPX
+    while (getrendermode() >= 3 && glinfo.glsl)  // if, really
+    {
+        char vpxfn[BMAX_PATH], *dot;
+        animvpx_ivf_header_t info;
+
+        animvpx_codec_ctx codec;
+        uint8_t *pic;
+        uint32_t msecsperframe, nextframetime;
+        int32_t running = 1;
+
+        Bstrncpy(vpxfn, fn, BMAX_PATH);
+        vpxfn[BMAX_PATH-1] = 0;
+
+        dot = Bstrrchr(vpxfn, '.');
+        if (!dot || (dot-vpxfn)+4 >= BMAX_PATH)
+            break;
+
+        dot[1] = 'i';
+        dot[2] = 'v';
+        dot[3] = 'f';
+        dot[4] = 0;
+
+        handle = kopen4loadfrommod(vpxfn, 0);
+        if (handle == -1)
+            break;
+
+        i = animvpx_read_ivf_header(handle, &info);
+        if (i)
+        {
+            OSD_Printf("Failed reading IVF file: %s\n",
+                       animvpx_read_ivf_header_errmsg[i]);
+            kclose(handle);
+            break;
+        }
+
+        animvpx_setup_glstate();
+        if (animvpx_init_codec(&info, handle, &codec))
+        {
+            animvpx_restore_glstate();
+            break;
+        }
+
+        msecsperframe = ((uint64_t)info.fpsdenom*1000)/info.fpsnumer;
+//        OSD_Printf("msecs per frame: %d\n", msecsperframe);
+
+        nextframetime = getticks();
+
+        while (running)
+        {
+            nextframetime += msecsperframe;
+
+            i = animvpx_nextpic(&codec, &pic);
+            if (i)
+            {
+                OSD_Printf("Failed getting next pic: %s\n",
+                           animvpx_nextpic_errmsg[i]);
+                if (codec.errmsg)
+                {
+                    OSD_Printf("  %s\n", codec.errmsg);
+                    if (codec.errmsg_detail)
+                        OSD_Printf("  detail: %s\n", codec.errmsg_detail);
+                }
+                break;
+            }
+
+            if (!pic)
+                break;  // no more pics!
+
+            animvpx_render_frame(&codec);
+
+            // this and showframe() instead of nextpage() are so that
+            // nobody tramples on our carefully set up GL state!
+            palfadedelta = 0;
+            showframe(0);
+
+            while (getticks() < nextframetime)
+            {
+                handleevents();
+                Net_GetPackets();
+
+                if (KB_KeyWaiting() || (MOUSE_GetButtons()&LEFT_MOUSE))
+                {
+                    running = 0;
+                    break;
+                }
+            }
+        }
+
+        //
+        kclose(handle);
+        animvpx_restore_glstate();
+        animvpx_uninit_codec(&codec);
+
+        MOUSE_ClearButton(LEFT_MOUSE);
+        return;  // done with playing VP8!
+    }
+#endif
+    // ANM playback --- v v v ---
+
     handle = kopen4load((char *)fn,0);
     if (handle == -1) return;
     length = kfilelength(handle);
@@ -236,7 +340,7 @@ void G_PlayAnim(const char *fn,char t)
     ANIM_LoadAnim(animbuf);
     numframes = ANIM_NumFrames();
     anim_pal = ANIM_GetPalette();
-    
+
     basepaltable[ANIMPAL] = anim_pal;
 
     //setpalette(0L,256L,tempbuf);
