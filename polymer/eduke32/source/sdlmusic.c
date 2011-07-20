@@ -29,6 +29,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <errno.h>
 
+#if defined __APPLE__ && defined __BIG_ENDIAN__
+// is* hacks for ppc...
+# include "compat.h"
+#endif
+
 #include "duke3d.h"
 #include "cache1d.h"
 

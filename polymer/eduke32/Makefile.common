@@ -93,6 +93,7 @@ else
         debug+= -fmudflapth
     endif
     ifneq (0,$(PROFILER))
+        # might need to be disabled for Darwin:
         LIBS+= -lprofiler
         debug+= -pg
     endif
@@ -109,7 +110,7 @@ W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
 
 BASECFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
-	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) \
+	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH) \
 	-Wextra	-Wstrict-overflow=1 #-Wwrite-strings -Waddress -Wlogical-op
 ifneq (0,$(USE_LIBPNG))
     BASECFLAGS+= -DUSE_LIBPNG

@@ -29,7 +29,9 @@
 # include "osxbits.h"
 #elif defined HAVE_GTK2
 # include "gtkbits.h"
-#else
+#endif
+
+#if (!defined __APPLE__ && !defined HAVE_GTK2) || (defined __APPLE__ && defined __BIG_ENDIAN__)
 int32_t startwin_open(void) { return 0; }
 int32_t startwin_close(void) { return 0; }
 int32_t startwin_puts(const char *s) { s=s; return 0; }
@@ -185,6 +187,7 @@ int32_t main(int32_t argc, char *argv[])
     _buildargc = argc;
     _buildargv = (const char **)argv;
 
+#if !(defined __APPLE__ && defined __BIG_ENDIAN__)
     // pipe standard outputs to files
     if ((argp = Bgetenv("BUILD_LOGSTDOUT")) != NULL)
         if (!Bstrcasecmp(argp, "TRUE"))
@@ -201,6 +204,7 @@ int32_t main(int32_t argc, char *argv[])
                 *stderr = *fp;
             }
         }
+#endif
 
 #ifdef USE_OPENGL
     if ((argp = Bgetenv("BUILD_NOFOG")) != NULL)
@@ -231,7 +235,7 @@ void setvsync(int32_t sync)
 static void attach_debugger_here(void) {}
 
 /* XXX: libexecinfo could be used on systems without gnu libc. */
-#if defined __GNUC__ && !defined __OpenBSD__
+#if defined __GNUC__ && !defined __OpenBSD__ && !(defined __APPLE__ && defined __BIG_ENDIAN__)
 # define PRINTSTACKONSEGV 1
 # include <execinfo.h>
 #endif
@@ -426,7 +430,7 @@ void initprintf(const char *f, ...)
 //
 void debugprintf(const char *f, ...)
 {
-#ifdef DEBUGGINGAIDS
+#if defined DEBUGGINGAIDS && !(defined __APPLE__ && defined __BIG_ENDIAN__)
     va_list va;
 
     va_start(va,f);

@@ -9304,7 +9304,7 @@ static void G_Startup(void)
         wm_msgbox("Build Engine Initialization Error",
                   "There was a problem initializing the Build engine: %s", engineerrstr);
         G_Cleanup();
-        fprintf(stderr, "G_Startup: There was a problem initializing the Build engine: %s\n", engineerrstr);
+        ERRprintf("G_Startup: There was a problem initializing the Build engine: %s\n", engineerrstr);
         exit(6);
     }
 
@@ -9764,7 +9764,7 @@ int32_t app_main(int32_t argc,const char **argv)
     {
         wm_msgbox("Build Engine Initialization Error",
                   "There was a problem initializing the Build engine: %s", engineerrstr);
-        fprintf(stderr, "app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
+        ERRprintf("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
         exit(2);
     }
 
@@ -10125,7 +10125,7 @@ CLEAN_DIRECTORY:
     {
         if (CONTROL_Startup(1, &GetTime, TICRATE))
         {
-            fprintf(stderr, "There was an error initializing the CONTROL system.\n");
+            ERRprintf("There was an error initializing the CONTROL system.\n");
             uninitengine();
             exit(5);
         }

@@ -7459,7 +7459,7 @@ static void sighandler(int32_t sig, const siginfo_t *info, void *ctx)
             default:
                     s = "?! (unknown)"; break;
             }
-        fprintf(stderr, "Caught SIGFPE at address %p, code %s. Aborting.\n", info->si_addr, s);
+        ERRprintf("Caught SIGFPE at address %p, code %s. Aborting.\n", info->si_addr, s);
         break;
     default:
             break;

@@ -34,8 +34,7 @@ else
 endif
 
 OURCFLAGS=$(BASECFLAGS) \
-    -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(JAUDIOLIBDIR)/include -I$(ENETDIR)/include \
-    $(ARCH)
+    -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(JAUDIOLIBDIR)/include -I$(ENETDIR)/include
 
 OURCXXFLAGS=$(BASECXXFLAGS)
 NASMFLAGS=$(BASEASFLAGS)
@@ -62,7 +61,9 @@ else
         LIBS+= -pthread
     endif
     ifneq (0,$(PROFILER))
-        LIBS+= -lprofiler
+        ifneq ($(PLATFORM),DARWIN)
+            LIBS+= -lprofiler
+        endif
         debug+= -pg
     endif
     OBJ=obj

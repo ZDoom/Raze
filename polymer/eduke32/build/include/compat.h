@@ -120,6 +120,9 @@ static inline float nearbyintf(float x)
 # define NULL ((void *)0)
 #endif
 
+// redefined for apple/ppc, which chokes on stderr when linking...
+#define ERRprintf(fmt, ...) fprintf(stderr, fmt, ## __VA_ARGS__)
+
 #if defined(__linux)
 # include <endian.h>
 # if __BYTE_ORDER == __LITTLE_ENDIAN
@@ -145,12 +148,18 @@ static inline float nearbyintf(float x)
 # define B_SWAP16(x) __bswap16(x)
 
 #elif defined(__APPLE__)
-#if defined __i386__ && defined __GNUC__
-// PK 20110617: is*() crashes for me in x86 code compiled from 64-bit.
+#if !defined __x86_64__ && defined __GNUC__
+// PK 20110617: is*() crashes for me in x86 code compiled from 64-bit, and gives link errors on ppc
 //              This hack patches all occurences.
 #  define isdigit(ch) ({ int32_t c__dontuse_=ch; c__dontuse_>='0' && c__dontuse_<='9'; })
 #  define isalpha(ch) ({ int32_t c__dontuse2_=ch; (c__dontuse2_>='A' && c__dontuse2_<='Z') || (c__dontuse2_>='a' && c__dontuse2_<='z'); })
 #  define isalnum(ch2)  ({ int32_t c2__dontuse_=ch2; isalpha(c2__dontuse_) || isdigit(c2__dontuse_); })
+#  if defined __BIG_ENDIAN__
+#    define isspace(ch)  ({ int32_t c__dontuse_=ch; (c__dontuse_==' ' || c__dontuse_=='\t' || c__dontuse_=='\n' || c__dontuse_=='\v' || c__dontuse_=='\f' || c__dontuse_=='\r'); })
+#    define isprint(ch)  ({ int32_t c__dontuse_=ch; (c__dontuse_>=0x20 && c__dontuse_<0x7f); })
+#    undef ERRprintf
+#    define ERRprintf(fmt, ...) printf(fmt, ## __VA_ARGS__)
+#  endif
 # endif
 # if defined(__LITTLE_ENDIAN__)
 #  define B_LITTLE_ENDIAN 1

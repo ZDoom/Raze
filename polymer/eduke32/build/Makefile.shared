@@ -101,6 +101,9 @@ ifeq ($(PLATFORM),DARWIN)
         BUILDCFLAGS += $(F_NO_STACK_PROTECTOR) -arch i386
     else
         # ASM won't work on PowerPC or x86_64
+        ifeq ($(findstring ppc,$(ARCH)),ppc)
+            BUILDCFLAGS += $(F_NO_STACK_PROTECTOR)
+        endif
         override NOASM    = 1
     endif
 endif

@@ -108,8 +108,10 @@ ifeq ($(PLATFORM),LINUX)
     ASFLAGS+= -f elf
 endif
 ifeq ($(PLATFORM),DARWIN)
-    ENGINEOBJS  += $(OBJ)/StartupWinController.editor.$o \
-            $(OBJ)//osxbits.$o
+    ifneq ($(findstring ppc,$(ARCH)),ppc)
+        ENGINEOBJS  += $(OBJ)/StartupWinController.editor.$o
+    endif
+    ENGINEOBJS += $(OBJ)/osxbits.$o
     ASFLAGS     += -DUNDERSCORES -f macho
     OURCFLAGS   += -DUNDERSCORES -fno-pic
     TARGETOPTS  += -DNOASM
