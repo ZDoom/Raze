@@ -650,7 +650,9 @@ void Sect_ClearInterpolation(int32_t sectnum)
 
 static int32_t move_fixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
 {
-    if ((FIXSPR_STATNUMP(sprite[j].statnum) || (sprite[j].picnum==SECTOREFFECTOR && (sprite[j].lotag==49||sprite[j].lotag==50)))
+    if ((FIXSPR_STATNUMP(sprite[j].statnum) ||
+         (sprite[j].picnum==SECTOREFFECTOR && (sprite[j].lotag==49||sprite[j].lotag==50)) ||
+         ((sprite[j].statnum==1 || sprite[j].statnum==2) && (ActorType[sprite[j].picnum]&4)))
             && actor[j].t_data[7]==(0x18190000|pivotspr))
     {
         rotatepoint(0,0, actor[j].t_data[8],actor[j].t_data[9], daang&2047, &sprite[j].x,&sprite[j].y);

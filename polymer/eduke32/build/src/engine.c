@@ -1290,6 +1290,12 @@ int32_t clipmapinfo_load(const char *filename)
             if (pn<=0 || pn>=MAXTILES || k<0 || k>=numsectors || (sectoidx[k]&CM_OUTER))
                 continue;
 
+            if (numclipmaps >= CM_MAX)
+            {
+                initprintf("warning: reached max clip map number %d, not processing any more\n", CM_MAX);
+                break;
+            }
+
             // chain
             if (pictoidx[pn]>=0)
             {
@@ -9310,6 +9316,8 @@ int32_t loadmaphack(const char *filename)
     static char fn[BMAX_PATH];
 
 #ifdef POLYMER
+    int32_t toomanylights = 0;
+
     for (i=0; i<PR_MAXLIGHTS; i++)
         maphacklight[i] = -1;
 #endif
@@ -9492,6 +9500,9 @@ int32_t loadmaphack(const char *filename)
 #pragma pack(push,1)
                 _prlight light;
 #pragma pack(pop)
+                if (toomanylights)
+                    break;  // ignore further light defs
+
                 scriptfile_getnumber(script, &value);
                 light.sector = value;
                 scriptfile_getnumber(script, &value);
@@ -9526,11 +9537,19 @@ int32_t loadmaphack(const char *filename)
                 light.tilenum = value;
 
                 if (rendmode == 4)
-        {
-            lightid = polymer_addlight(&light);
-                if (lightid>=0)
-                    maphacklight[maphacklightcnt++] = lightid;
-            }
+                {
+                    if (maphacklightcnt == PR_MAXLIGHTS)
+                    {
+                        initprintf("warning: max light count %d exceeded, "
+                                   "ignoring further light defs\n", PR_MAXLIGHTS);
+                        toomanylights = 1;
+                        break;
+                    }
+
+                    lightid = polymer_addlight(&light);
+                    if (lightid>=0)
+                        maphacklight[maphacklightcnt++] = lightid;
+                }
 
         break;
         }

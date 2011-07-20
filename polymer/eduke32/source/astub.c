@@ -4091,7 +4091,7 @@ static void tilescreen_drawbox(int32_t iTopLeft, int32_t iSelected, int32_t nXTi
         int32_t x1 = ((iTile-iTopLeft) % nXTiles)*TileDim;
         int32_t y1 = ((iTile - ((iTile-iTopLeft) % nXTiles) - iTopLeft)/nXTiles)*TileDim + offset;
         int32_t x2 = x1+TileDim-1;
-        int32_t y2 = y1+TileDim-1;
+        int32_t y2 = y1+TileDim-1, oydim16=ydim16;
 
         char markedcol = editorcolors[14];
 
@@ -4099,6 +4099,9 @@ static void tilescreen_drawbox(int32_t iTopLeft, int32_t iSelected, int32_t nXTi
 
         y1=max(y1, 0);
         y2=min(y2, ydim-1);
+
+        // plotlines2d uses drawline16, which clips against ydim16...
+        ydim16 = ydim;
 
         {
             // box
@@ -4117,6 +4120,8 @@ static void tilescreen_drawbox(int32_t iTopLeft, int32_t iSelected, int32_t nXTi
             swaplong(&yy[0], &yy[1]);
             plotlines2d(xx, yy, 2, markedcol);
         }
+
+        ydim16 = oydim16;
     }
 }
 

@@ -1016,7 +1016,7 @@ static inline void G_SetupBackdrop(int16_t sky)
     pskybits=3;
 }
 
-// tweak moving sectors with these SE lotags (bitmap)
+// tweak moving sectors with these SE lotags
 #define FIXSPR_SELOTAGP(k) ((k==0) || (k==6) || (k==14))
 
 // setup sprites in moving sectors that are to be fixed wrt a certain pivot
@@ -1039,7 +1039,8 @@ static void premap_setup_fixed_sprites(void)
                 // TRIPBOMB uses t_data[7] for its own purposes. Wouldn't be
                 // too useful with moving sectors anyway
                 if ((FIXSPR_STATNUMP(sprite[j].statnum) && sprite[j].picnum!=TRIPBOMB) ||
-                    (sprite[j].picnum==SECTOREFFECTOR && (sprite[j].lotag==49||sprite[j].lotag==50)))
+                    (sprite[j].picnum==SECTOREFFECTOR && (sprite[j].lotag==49||sprite[j].lotag==50)) ||
+                    ((sprite[j].statnum==1 || sprite[j].statnum==2) && (ActorType[sprite[j].picnum]&4)))
                 {
                     pivot = i;
                     if (sprite[i].lotag==0)

@@ -2648,10 +2648,12 @@ static int32_t C_ParseCommand(int32_t loop)
             {
                 j = *g_scriptPtr;
 
-                if (j > 2)
+                if (j > 6 || (j&3)==3)
                 {
                     C_ReportError(-1);
-                    initprintf("%s:%d: warning: invalid useractor type.\n",g_szScriptFileName,g_lineNumber);
+                    initprintf("%s:%d: warning: invalid useractor type. Must be 0, 1, 2"
+                               " (notenemy, enemy, enemystayput) or have 4 added ('doesn't move').\n",
+                               g_szScriptFileName,g_lineNumber);
                     g_numCompilerWarnings++;
                     j = 0;
                 }
