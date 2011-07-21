@@ -43,7 +43,7 @@ cd $top
 head=`svn update | tail -n1 | awk '{ print $NF }' | cut -d. -f1`
 echo "HEAD is revision $head."
 
-lastrevision=`ls -A1 $output | tail -n1 | cut -d- -f2`
+lastrevision=`ls -A1 $output/????????-???? | tail -n1 | cut -d- -f2 | cut -d. -f1`
 
 # if the output dir is empty, we build no matter what
 if [ ! $lastrevision ]
@@ -75,6 +75,7 @@ then
 
     # throw the svn revision into a header.  this is ugly.
     echo "const char *s_buildRev = \"r$head\";" > source/rev.h
+
     # clean the tree and build debug first
     echo "${make[@]}" RELEASE=0 $clean all
     "${make[@]}" RELEASE=0 $clean all
@@ -118,7 +119,7 @@ then
     # package the binary snapshot
     echo zip -9 $output/$date-$head/${basename}_${platform}_$date-$head.zip ${bin_packaged[@]}
     zip -9 $output/$date-$head/${basename}_${platform}_$date-$head.zip ${bin_packaged[@]}
-    
+
     # hack to restore [e]obj/keep.me
     echo svn update -r $head
     svn update -r $head
@@ -151,6 +152,9 @@ then
     # like in whatever script executes this one
     chmod -R g+w $output/$date-$head
     chown -R :$group $output/$date-$head
+
+   # link eduke32_latest.zip to the new archive
+    ln -sf $output/$date-$head/${basename}_${platform}_$date-$head.zip $output/eduke32_latest.zip
 
     rm -r $lockfile
 else
