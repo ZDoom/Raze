@@ -7269,7 +7269,7 @@ paste_ceiling_or_floor:
 
                 if (j>=0)
                     message("Replaced %ss with picnum %d to picnum %d",
-                            typestr[searchwall], j, temppicnum);
+                            typestr[searchstat], j, temppicnum);
                 asksave = 1;
             }
         }
