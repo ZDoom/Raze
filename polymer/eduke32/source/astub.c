@@ -94,6 +94,11 @@ static char *gamecon = "\0";
 static int32_t g_skipDefaultCons = 0;
 static int32_t g_skipDefaultDefs = 0; // primarily for NAM/WWII GI appeasement
 
+char **g_scriptModules = NULL;
+int g_scriptModulesNum = 0;
+char **g_defModules = NULL;
+int g_defModulesNum = 0;
+
 #pragma pack(push,1)
 sound_t g_sounds[MAXSOUNDS];
 #pragma pack(pop)
@@ -8340,22 +8345,24 @@ void ExtPreSaveMap(void)
 static void G_ShowParameterHelp(void)
 {
     const char *s = "Usage: mapster32 [OPTIONS] [FILE]\n\n"
-              "-gFILE, -grp FILE  Use extra group file FILE\n"
-              "-hFILE             Use definitions file FILE\n"
-              "-xFILE             Use FILE instead of GAME.CON for getting sound definitions\n"
+              "-gFILE, -grp FILE\tUse extra group file FILE\n"
+              "-hFILE\t\tUse definitions file FILE\n"
+              "-xFILE\t\tUse FILE instead of GAME.CON for getting sound definitions\n"
+              "-mh FILE\t\tInclude additional definitions module FILE\n"
+              "-mx FILE\t\tInclude additional CON module FILE for getting sound definitions\n"
               "-jDIR, -game_dir DIR\n"
-              "                   Adds DIR to the file path stack\n"
-              "-cachesize #       Sets cache size, in Kb\n"
-              "-check             Enables map pointer checking when saving\n"
-              "-namesfile FILE    Uses FILE instead of NAMES.H for tile names\n"
-              "-nocheck           Disables map pointer checking when saving (default)\n"  // kept for script compat
+              "\t\tAdds DIR to the file path stack\n"
+              "-cachesize #\tSets cache size, in Kb\n"
+              "-check\t\tEnables map pointer checking when saving\n"
+              "-namesfile FILE\tUses FILE instead of NAMES.H for tile names\n"
+              "-nocheck\t\tDisables map pointer checking when saving (default)\n"  // kept for script compat
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
-              "-setup             Displays the configuration dialog\n"
+              "-setup\t\tDisplays the configuration dialog\n"
 #endif
 #if !defined(_WIN32)
-              "-usecwd            Read game data and configuration file from working directory\n"
+              "-usecwd\t\tRead game data and configuration file from working directory\n"
 #endif
-              "\n-?, -help, --help    Display this help message and exit"
+              "\n-?, -help, --help\tDisplay this help message and exit"
               ;
     Bsprintf(tempbuf, "Mapster32 %s %s", VERSION, s_buildRev);
     wm_msgbox(tempbuf, "%s", s);
@@ -8531,6 +8538,32 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             if (!Bstrcasecmp(c+1,"namesfile"))
             {
                 g_namesFileName = argv[i+1];
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"mx"))
+            {
+                if (argc > i+1)
+                {
+                    g_scriptModules = (char **) Brealloc (g_scriptModules, (g_scriptModulesNum+1) * sizeof(char *));
+                    g_scriptModules[g_scriptModulesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
+                    Bstrcpy(g_scriptModules[g_scriptModulesNum], (char *)argv[i+1]);
+                    ++g_scriptModulesNum;
+                    i++;
+                }
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"mh"))
+            {
+                if (argc > i+1)
+                {
+                    g_defModules = (char **) Brealloc (g_defModules, (g_defModulesNum+1) * sizeof(char *));
+                    g_defModules[g_defModulesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
+                    Bstrcpy(g_defModules[g_defModulesNum], (char *)argv[i+1]);
+                    ++g_defModulesNum;
+                    i++;
+                }
                 i++;
                 continue;
             }
@@ -9288,7 +9321,7 @@ static int32_t registerosdcommands(void)
 #endif
 
     // M32 script
-    OSD_RegisterFunction("include", "include <filnames...>: compiles one or more M32 script files", osdcmd_include);
+    OSD_RegisterFunction("include", "include <filenames...>: compiles one or more M32 script files", osdcmd_include);
     OSD_RegisterFunction("do", "do (m32 script ...): executes M32 script statements", osdcmd_do);
     OSD_RegisterFunction("script_info", "script_info: shows information about compiled M32 script", osdcmd_scriptinfo);
     OSD_RegisterFunction("script_expertmode", "script_expertmode: toggles M32 script expert mode", osdcmd_vars_pk);
@@ -9508,6 +9541,28 @@ static void DoAutoload(const char *fn)
     }
 }
 
+int32_t parsegroupfiles(scriptfile *script);
+
+void parsegroupfiles_include(const char *fn, scriptfile *script, char *cmdtokptr)
+{
+    scriptfile *included;
+
+    included = scriptfile_fromfile(fn);
+    if (!included)
+    {
+        if (!Bstrcasecmp(cmdtokptr,"null"))
+            initprintf("Warning: Failed including %s as module\n", fn);
+        else
+            initprintf("Warning: Failed including %s on line %s:%d\n",
+                       fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+    }
+    else
+    {
+        parsegroupfiles(included);
+        scriptfile_close(included);
+    }
+}
+
 int32_t parsegroupfiles(scriptfile *script)
 {
     int32_t tokn;
@@ -9555,39 +9610,13 @@ int32_t parsegroupfiles(scriptfile *script)
         {
             char *fn;
             if (!scriptfile_getstring(script,&fn))
-            {
-                scriptfile *included;
-
-                included = scriptfile_fromfile(fn);
-                if (!included)
-                {
-                    initprintf("Warning: Failed including %s on line %s:%d\n",
-                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                }
-                else
-                {
-                    parsegroupfiles(included);
-                    scriptfile_close(included);
-                }
-            }
+                parsegroupfiles_include(fn, script, cmdtokptr);
             break;
         }
         break;
         case T_INCLUDEDEFAULT:
         {
-            scriptfile *included;
-            
-            included = scriptfile_fromfile(defsfilename);
-            if (!included)
-            {
-                initprintf("Warning: Failed including %s on line %s:%d\n",
-                           defsfilename, script->filename,scriptfile_getlinum(script,cmdtokptr));
-            }
-            else
-            {
-                parsegroupfiles(included);
-                scriptfile_close(included);
-            }
+            parsegroupfiles_include(defsfilename, script, cmdtokptr);
             break;
         }
         break;
@@ -9606,11 +9635,15 @@ int32_t parsegroupfiles(scriptfile *script)
 int32_t loadgroupfiles(const char *fn)
 {
     scriptfile *script;
+    int32_t i;
 
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
 
     parsegroupfiles(script);
+
+    for (i=0; i < g_defModulesNum; ++i)
+        parsegroupfiles_include(g_defModules[i], NULL, "null");
 
     scriptfile_close(script);
     scriptfile_clearsymbols();
@@ -9963,6 +9996,34 @@ static int32_t loadtilegroups(const char *fn)
 }
 
 /// vvv Parse CON files partially to get sound definitions
+static int32_t parseconsounds(scriptfile *script);
+
+static void parseconsounds_include(const char *fn, scriptfile *script, char *cmdtokptr)
+{
+    scriptfile *included;
+
+    included = scriptfile_fromfile(fn);
+    if (!included)
+    {
+        if (!Bstrcasecmp(cmdtokptr,"null"))
+            initprintf("Warning: Failed including %s as module\n", fn);
+        else
+            initprintf("Warning: Failed including %s on line %s:%d\n",
+                       fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+    }
+    else
+    {
+        parseconsounds(included);
+        scriptfile_close(included);
+/*
+        // why?
+        int32_t tmp = parseconsounds(included);
+        scriptfile_close(included);
+        if (tmp < 0) return tmp;
+*/
+    }
+}
+
 static int32_t parseconsounds(scriptfile *script)
 {
     int32_t tokn;
@@ -9990,41 +10051,12 @@ static int32_t parseconsounds(scriptfile *script)
         {
             char *fn;
             if (!scriptfile_getstring(script,&fn))
-            {
-                scriptfile *included;
-
-                included = scriptfile_fromfile(fn);
-                if (!included)
-                {
-                    initprintf("Warning: Failed including %s on line %s:%d\n",
-                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                }
-                else
-                {
-                    int32_t tmp = parseconsounds(included);
-                    scriptfile_close(included);
-                    if (tmp < 0) return tmp;
-                }
-            }
+                parseconsounds_include(fn, script, cmdtokptr);
             break;
         }
         case T_INCLUDEDEFAULT:
         {
-            char * fn = defaultgameconfile();
-            scriptfile *included;
-
-            included = scriptfile_fromfile(fn);
-            if (!included)
-            {
-                initprintf("Warning: Failed including %s on line %s:%d\n",
-                           fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-            }
-            else
-            {
-                int32_t tmp = parseconsounds(included);
-                scriptfile_close(included);
-                if (tmp < 0) return tmp;
-            }
+            parseconsounds_include(defaultgameconfile(), script, cmdtokptr);
             break;
         }
         case T_DEFINE:
@@ -10142,7 +10174,7 @@ END:
 static int32_t loadconsounds(const char *fn)
 {
     scriptfile *script;
-    int32_t ret;
+    int32_t ret, i;
 
     initprintf("Loading sounds from '%s'\n",fn);
 
@@ -10153,6 +10185,14 @@ static int32_t loadconsounds(const char *fn)
         return -1;
     }
     ret = parseconsounds(script);
+
+    for (i=0; i < g_scriptModulesNum; ++i)
+    {
+        parseconsounds_include(g_scriptModules[i], NULL, "null");
+        Bfree(g_scriptModules[i]);
+    }
+    Bfree(g_scriptModules);
+
     if (ret < 0)
         initprintf("There was an error parsing '%s'.\n", fn);
     else if (ret == 0)
@@ -10297,8 +10337,7 @@ int32_t ExtInit(void)
         if (g_defNamePtr != defsfilename)
             Bstrcpy(g_defNamePtr, defsfilename); // it MAY have changed, with NAM/WWII GI
 
-    loadgroupfiles(g_defNamePtr);
-    // the defs are actually loaded in app_main in build.c
+    loadgroupfiles(g_defNamePtr); // the defs are actually loaded in app_main in build.c
 
     {
         struct strllist *s;

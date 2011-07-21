@@ -1858,6 +1858,67 @@ static int32_t C_CountCaseStatements()
     return lCount;
 }
 
+static void C_Include(const char *confile)
+{
+    int32_t temp_ScriptLineNumber;
+    int32_t temp_ifelse_check;
+    int32_t j;
+    char *origtptr, *mptr;
+    char parentScriptFileName[255];
+    int32_t fp;
+
+    fp = kopen4loadfrommod(confile,g_loadFromGroupOnly);
+    if (fp < 0)
+    {
+        g_numCompilerErrors++;
+        initprintf("%s:%d: error: could not find file `%s'.\n",g_szScriptFileName,g_lineNumber,confile);
+        return;
+    }
+
+    j = kfilelength(fp);
+
+    mptr = (char *)Bmalloc(j+1);
+    if (!mptr)
+    {
+        kclose(fp);
+        g_numCompilerErrors++;
+        initprintf("%s:%d: error: could not allocate %d bytes to include `%s'.\n",
+            g_szScriptFileName,g_lineNumber,j,confile);
+        return;
+    }
+
+    initprintf("Including: %s (%d bytes)\n",confile, j);
+    kread(fp, mptr, j);
+    kclose(fp);
+    mptr[j] = 0;
+
+    if (*textptr == '"') // skip past the closing quote if it's there so we don't screw up the next line
+        textptr++;
+    origtptr = textptr;
+
+    Bstrcpy(parentScriptFileName, g_szScriptFileName);
+    Bstrcpy(g_szScriptFileName, confile);
+    temp_ScriptLineNumber = g_lineNumber;
+    g_lineNumber = 1;
+    temp_ifelse_check = g_checkingIfElse;
+    g_checkingIfElse = 0;
+
+    textptr = mptr;
+
+    C_SkipComments();
+
+    C_ParseCommand(1);
+
+    Bstrcpy(g_szScriptFileName, parentScriptFileName);
+    g_totalLines += g_lineNumber;
+    g_lineNumber = temp_ScriptLineNumber;
+    g_checkingIfElse = temp_ifelse_check;
+
+    textptr = origtptr;
+
+    Bfree(mptr);
+}
+
 static int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw, otw;
@@ -2358,129 +2419,12 @@ static int32_t C_ParseCommand(int32_t loop)
             }
             tempbuf[j] = '\0';
 
-            {
-                int32_t temp_ScriptLineNumber;
-                int32_t temp_ifelse_check;
-                char *origtptr, *mptr;
-                char parentScriptFileName[255];
-                int32_t fp;
-
-                fp = kopen4loadfrommod(tempbuf,g_loadFromGroupOnly);
-                if (fp < 0)
-                {
-                    g_numCompilerErrors++;
-                    initprintf("%s:%d: error: could not find file `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
-                    continue;
-                }
-
-                j = kfilelength(fp);
-
-                mptr = (char *)Bmalloc(j+1);
-                if (!mptr)
-                {
-                    kclose(fp);
-                    g_numCompilerErrors++;
-                    initprintf("%s:%d: error: could not allocate %d bytes to include `%s'.\n",
-                        g_szScriptFileName,g_lineNumber,j,tempbuf);
-                    continue;
-                }
-
-                initprintf("Including: %s (%d bytes)\n",tempbuf, j);
-                kread(fp, mptr, j);
-                kclose(fp);
-                mptr[j] = 0;
-
-                if (*textptr == '"') // skip past the closing quote if it's there so we don't screw up the next line
-                    textptr++;
-                origtptr = textptr;
-
-                Bstrcpy(parentScriptFileName, g_szScriptFileName);
-                Bstrcpy(g_szScriptFileName, tempbuf);
-                temp_ScriptLineNumber = g_lineNumber;
-                g_lineNumber = 1;
-                temp_ifelse_check = g_checkingIfElse;
-                g_checkingIfElse = 0;
-
-                textptr = mptr;
-
-                C_SkipComments();
-
-                C_ParseCommand(1);
-
-                Bstrcpy(g_szScriptFileName, parentScriptFileName);
-                g_totalLines += g_lineNumber;
-                g_lineNumber = temp_ScriptLineNumber;
-                g_checkingIfElse = temp_ifelse_check;
-
-                textptr = origtptr;
-
-                Bfree(mptr);
-            }
+            C_Include(tempbuf);
             continue;
 
         case CON_INCLUDEDEFAULT:
             C_SkipComments();
-
-            {
-                char * confile = defaultconfile();
-
-                int32_t temp_ScriptLineNumber;
-                int32_t temp_ifelse_check;
-                char *origtptr, *mptr;
-                char parentScriptFileName[255];
-                int32_t fp;
-
-                fp = kopen4loadfrommod(confile,g_loadFromGroupOnly);
-                if (fp < 0)
-                {
-                    g_numCompilerErrors++;
-                    initprintf("%s:%d: error: could not find file `%s'.\n",g_szScriptFileName,g_lineNumber,confile);
-                    continue;
-                }
-
-                j = kfilelength(fp);
-
-                mptr = (char *)Bmalloc(j+1);
-                if (!mptr)
-                {
-                    kclose(fp);
-                    g_numCompilerErrors++;
-                    initprintf("%s:%d: error: could not allocate %d bytes to include `%s'.\n",
-                        g_szScriptFileName,g_lineNumber,j,confile);
-                    continue;
-                }
-
-                initprintf("Including: %s (%d bytes)\n",confile, j);
-                kread(fp, mptr, j);
-                kclose(fp);
-                mptr[j] = 0;
-
-                if (*textptr == '"') // skip past the closing quote if it's there so we don't screw up the next line
-                    textptr++;
-                origtptr = textptr;
-
-                Bstrcpy(parentScriptFileName, g_szScriptFileName);
-                Bstrcpy(g_szScriptFileName, confile);
-                temp_ScriptLineNumber = g_lineNumber;
-                g_lineNumber = 1;
-                temp_ifelse_check = g_checkingIfElse;
-                g_checkingIfElse = 0;
-
-                textptr = mptr;
-
-                C_SkipComments();
-
-                C_ParseCommand(1);
-
-                Bstrcpy(g_szScriptFileName, parentScriptFileName);
-                g_totalLines += g_lineNumber;
-                g_lineNumber = temp_ScriptLineNumber;
-                g_checkingIfElse = temp_ifelse_check;
-
-                textptr = origtptr;
-
-                Bfree(mptr);
-            }
+            C_Include(defaultconfile());
             continue;
 
         case CON_AI:
@@ -5843,6 +5787,13 @@ void C_Compile(const char *filenam)
     Bstrcpy(g_szScriptFileName, filenam);   // JBF 20031130: Store currently compiling file name
 
     C_ParseCommand(1);
+
+    for (i=0; i < g_scriptModulesNum; ++i)
+    {
+        C_Include(g_scriptModules[i]);
+        Bfree(g_scriptModules[i]);
+    }
+    Bfree(g_scriptModules);
 
     flushlogwindow = 1;
 

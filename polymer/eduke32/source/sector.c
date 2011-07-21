@@ -2181,13 +2181,9 @@ void A_DamageObject(int32_t i,int32_t sn)
         break;
 
     case BROKEHYDROPLANT__STATIC:
-        if (CS&1)
-        {
-            A_PlaySound(GLASS_BREAKING,i);
-            SZ += 16<<8;
-            CS = 0;
-            A_SpawnWallGlass(i,-1,5);
-        }
+        A_PlaySound(GLASS_BREAKING,i);
+        A_SpawnWallGlass(i,-1,5);
+        deletesprite(i);
         break;
 
     case TOILET__STATIC:

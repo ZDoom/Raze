@@ -758,6 +758,9 @@ int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, i
 extern char defsfilename[BMAX_PATH];
 extern char *g_defNamePtr;
 
+extern char **g_defModules;
+extern int g_defModulesNum;
+
 #ifdef USE_OPENGL
 
 typedef struct

@@ -566,6 +566,10 @@ int32_t app_main(int32_t argc, const char **argv)
     if (!loaddefinitionsfile(g_defNamePtr))
         initprintf("Definitions file loaded.\n");
 
+    for (i=0; i < g_defModulesNum; ++i)
+        Bfree (g_defModules[i]);
+    Bfree (g_defModules);
+
     k = 0;
     for (i=0; i<256; i++)
     {

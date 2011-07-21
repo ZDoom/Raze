@@ -117,6 +117,28 @@ static const char *skyfaces[6] =
     "left face", "top face", "bottom face"
 };
 
+static int32_t defsparser(scriptfile *script);
+
+static void defsparser_include(const char *fn, scriptfile *script, char *cmdtokptr)
+{
+    scriptfile *included;
+
+    included = scriptfile_fromfile(fn);
+    if (!included)
+    {
+        if (!Bstrcasecmp(cmdtokptr,"null"))
+            initprintf("Warning: Failed including %s as module\n", fn);
+        else
+            initprintf("Warning: Failed including %s on line %s:%d\n",
+                       fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+    }
+    else
+    {
+        defsparser(included);
+        scriptfile_close(included);
+    }
+}
+
 static int32_t defsparser(scriptfile *script)
 {
     int32_t tokn;
@@ -192,38 +214,12 @@ static int32_t defsparser(scriptfile *script)
         {
             char *fn;
             if (!scriptfile_getstring(script,&fn))
-            {
-                scriptfile *included;
-
-                included = scriptfile_fromfile(fn);
-                if (!included)
-                {
-                    initprintf("Warning: Failed including %s on line %s:%d\n",
-                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                }
-                else
-                {
-                    defsparser(included);
-                    scriptfile_close(included);
-                }
-            }
+                defsparser_include(fn, script, cmdtokptr);
             break;
         }
         case T_INCLUDEDEFAULT:
         {
-            scriptfile *included;
-
-            included = scriptfile_fromfile(defsfilename);
-            if (!included)
-            {
-                initprintf("Warning: Failed including %s on line %s:%d\n",
-                           defsfilename, script->filename,scriptfile_getlinum(script,cmdtokptr));
-            }
-            else
-            {
-                defsparser(included);
-                scriptfile_close(included);
-            }
+            defsparser_include(defsfilename, script, cmdtokptr);
             break;
         }
         case T_DEFINE:
@@ -1970,6 +1966,7 @@ int32_t loaddefinitionsfile(const char *fn)
 {
     scriptfile *script;
     int32_t f = flushlogwindow;
+    int32_t i;
 
     script = scriptfile_fromfile(fn);
     if (!script) return -1;
@@ -1978,6 +1975,9 @@ int32_t loaddefinitionsfile(const char *fn)
     initprintf("Loading '%s'\n",fn);
     flushlogwindow = 0;
     defsparser(script);
+
+    for (i=0; i < g_defModulesNum; ++i)
+        defsparser_include(g_defModules[i], NULL, "null");
 
     flushlogwindow = f;
     scriptfile_close(script);

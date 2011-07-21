@@ -125,6 +125,11 @@ char *g_scriptNamePtr = defaultconfilename[0];
 char *g_gameNamePtr = NULL;
 char *g_rtsNamePtr = NULL;
 
+char **g_scriptModules = NULL;
+int g_scriptModulesNum = 0;
+char **g_defModules = NULL;
+int g_defModulesNum = 0;
+
 extern int32_t lastvisinc;
 
 int32_t g_Shareware = 0;
@@ -6614,9 +6619,6 @@ skip:
         case WATERSPLASH2__STATIC:
             t->picnum = WATERSPLASH2+t1;
             break;
-        case REACTOR2__STATIC:
-            t->picnum = s->picnum + T3;
-            break;
         case SHELL__STATIC:
             t->picnum = s->picnum+(T1&1);
         case SHOTGUNSHELL__STATIC:
@@ -6641,7 +6643,11 @@ skip:
                     if (!actor[s->owner].dispicnum)
                         t->picnum = actor[i].t_data[1];
                     else t->picnum = actor[s->owner].dispicnum;
-                    t->pal = sprite[s->owner].pal;
+
+                    if (sector[t->sectnum].floorpal && sector[t->sectnum].floorpal < g_numRealPalettes && !A_CheckSpriteFlags(s->owner,SPRITE_NOPAL))
+                        t->pal = sector[t->sectnum].floorpal;
+                    else t->pal = sprite[s->owner].pal;
+
                     t->shade = sprite[s->owner].shade;
                     t->ang = sprite[s->owner].ang;
                     t->cstat = 2|sprite[s->owner].cstat;
@@ -7940,6 +7946,8 @@ static void G_ShowParameterHelp(void)
               "-j[dir]\t\tAdds a directory to EDuke32's search list\n"
               "-l#\t\tWarp to level #, see -v\n"
               "-map [file.map]\tLoads a map\n"
+              "-mh [file.def]\tInclude an additional def module\n"
+              "-mx [file.con]\tInclude an additional CON script module\n"
               "-m\t\tDisable monsters\n"
               "-nam\t\tRun in NAM/NAPALM compatibility mode\n"
               "-rts [file.rts]\tLoad custom Remote Ridicule sound bank\n"
@@ -7980,7 +7988,7 @@ static void G_ShowDebugHelp(void)
               "-name [name]\tPlayer name in multiplay\n"
               "-nD\t\tDump default gamevars to gamevars.txt\n"
               "-noautoload\tDisable loading content from autoload dir\n"
-              "-nodinput\tDisable DirectInput (joystick) support\n"
+              "-nodinput\t\tDisable DirectInput (joystick) support\n"
               "-nologo\t\tSkip the logo anim\n"
               "-ns/-nm\t\tDisable sound or music\n"
               "-q#\t\tFake multiplayer with # (2-8) players\n"
@@ -8123,6 +8131,33 @@ static int32_t S_DefineMusic(char *ID,char *name)
     return 0;
 }
 
+static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload);
+
+static void parsedefinitions_game_include(const char *fn, scriptfile *script, char *cmdtokptr, const int32_t preload)
+{
+    scriptfile *included = scriptfile_fromfile(fn);
+
+    if (!included)
+    {
+        if (!Bstrcasecmp(cmdtokptr,"null") || script == NULL) // this is a bit overboard to prevent unused parameter warnings
+            {
+           // initprintf("Warning: Failed including %s as module\n", fn);
+            }
+/*
+        else
+            {
+            initprintf("Warning: Failed including %s on line %s:%d\n",
+                       fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+            }
+*/
+    }
+    else
+    {
+        parsedefinitions_game(included, preload);
+        scriptfile_close(included);
+    }
+}
+
 static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
 {
     int32_t tokn;
@@ -8187,36 +8222,12 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
         {
             char *fn;
             if (!scriptfile_getstring(script,&fn))
-            {
-                scriptfile *included = scriptfile_fromfile(fn);
-
-                if (!included)
-                {
-//                    initprintf("Warning: Failed including %s on line %s:%d\n",
-//                               fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
-                }
-                else
-                {
-                    parsedefinitions_game(included, preload);
-                    scriptfile_close(included);
-                }
-            }
+                parsedefinitions_game_include(fn, script, cmdtokptr, preload);
             break;
         }
         case T_INCLUDEDEFAULT:
         {
-            scriptfile *included = scriptfile_fromfile(defsfilename);
-
-            if (!included)
-            {
-//                initprintf("Warning: Failed including %s on line %s:%d\n",
-//                       defsfilename, script->filename,scriptfile_getlinum(script,cmdtokptr));
-            }
-            else
-            {
-                parsedefinitions_game(included, preload);
-                scriptfile_close(included);
-            }
+            parsedefinitions_game_include(defsfilename, script, cmdtokptr, preload);
             break;
         }
         case T_NOAUTOLOAD:
@@ -8340,11 +8351,15 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
 static int32_t loaddefinitions_game(const char *fn, int32_t preload)
 {
     scriptfile *script;
+    int32_t i;
 
     script = scriptfile_fromfile((char *)fn);
     if (!script) return -1;
 
     parsedefinitions_game(script, preload);
+
+    for (i=0; i < g_defModulesNum; ++i)
+        parsedefinitions_game_include(g_defModules[i], NULL, "null", preload);
 
     scriptfile_close(script);
     scriptfile_clearsymbols();
@@ -8616,6 +8631,32 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         g_rtsNamePtr = (char *)argv[i+1];
                         g_skipDefaultRTS = 1;
                         initprintf("Using .RTS file '%s'\n",ud.rtsname);
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"mx"))
+                {
+                    if (argc > i+1)
+                    {
+                        g_scriptModules = (char **) Brealloc (g_scriptModules, (g_scriptModulesNum+1) * sizeof(char *));
+                        g_scriptModules[g_scriptModulesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
+                        Bstrcpy(g_scriptModules[g_scriptModulesNum], (char *)argv[i+1]);
+                        ++g_scriptModulesNum;
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"mh"))
+                {
+                    if (argc > i+1)
+                    {
+                        g_defModules = (char **) Brealloc (g_defModules, (g_defModulesNum+1) * sizeof(char *));
+                        g_defModules[g_defModulesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
+                        Bstrcpy(g_defModules[g_defModulesNum], (char *)argv[i+1]);
+                        ++g_defModulesNum;
                         i++;
                     }
                     i++;
@@ -10070,6 +10111,10 @@ CLEAN_DIRECTORY:
         initprintf("Definitions file '%s' loaded.\n",g_defNamePtr);
         loaddefinitions_game(g_defNamePtr, FALSE);
     }
+
+    for (i=0; i < g_defModulesNum; ++i)
+        Bfree (g_defModules[i]);
+    Bfree (g_defModules);
 
     if (numplayers == 1 && boardfilename[0] != 0)
     {
