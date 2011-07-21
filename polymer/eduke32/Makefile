@@ -313,8 +313,8 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 
 clean:
 	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
-	echo "" > $(OBJ)/keep.me
+	echo -n "" > $(OBJ)/keep.me
 
 veryclean: clean
 	-rm -f $(EOBJ)/* $(RSRC)/*banner*
-	echo "" > $(EOBJ)/keep.me
+	echo -n "" > $(EOBJ)/keep.me
