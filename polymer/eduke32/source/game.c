@@ -10021,7 +10021,8 @@ CLEAN_DIRECTORY:
         initprintf("Using '%s' as definitions file\n", g_defNamePtr);
     }
     if (g_skipDefaultDefs == 0)
-        Bstrcpy(g_defNamePtr, defsfilename); // it MAY have changed, with NAM/WWII GI
+        if (g_defNamePtr != defsfilename)
+            Bstrcpy(g_defNamePtr, defsfilename); // it MAY have changed, with NAM/WWII GI
 
     flushlogwindow = 0;
     loaddefinitions_game(g_defNamePtr, TRUE);

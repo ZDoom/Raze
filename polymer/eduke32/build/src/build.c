@@ -569,6 +569,7 @@ int32_t app_main(int32_t argc, const char **argv)
     for (i=0; i < g_defModulesNum; ++i)
         Bfree (g_defModules[i]);
     Bfree (g_defModules);
+    g_defModules = NULL;  // be defensive...
 
     k = 0;
     for (i=0; i<256; i++)

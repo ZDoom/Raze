@@ -147,6 +147,7 @@ int32_t glanisotropy = 1;            // 0 = maximum supported by card
 int32_t glusetexcompr = 1;
 int32_t gltexfiltermode = 2; // GL_NEAREST_MIPMAP_NEAREST
 int32_t glusetexcache = 2;
+static int32_t glusememcache = 1;
 int32_t glmultisample = 0, glnvmultisamplehint = 0;
 int32_t gltexmaxsize = 0;      // 0 means autodetection on first run
 int32_t gltexmiplevel = 0;		// discards this many mipmap levels
@@ -285,6 +286,8 @@ FILE *cacheindexptr = NULL;
 uint8_t *memcachedata = NULL;
 int32_t memcachesize = -1;
 int32_t cachepos = 0;
+// Set to 1 when we failed (re)allocating space for the memcache:
+static int32_t dont_alloc_memcache = 0;
 
 hashtable_t h_texcache    = { 1024, NULL };
 
@@ -564,11 +567,24 @@ void polymost_cachesync(void)
     if (memcachedata && cachefilehandle != -1 && filelength(cachefilehandle) > memcachesize)
     {
         size_t len = filelength(cachefilehandle);
-        initprintf("Syncing memcache to texcache\n");
-        memcachedata = (uint8_t *)Brealloc(memcachedata, len);
-        Blseek(cachefilehandle, memcachesize, BSEEK_SET);
-        Bread(cachefilehandle, memcachedata + memcachesize, len - memcachesize);
-        memcachesize = len;
+        uint8_t *tmpptr = (uint8_t *)Brealloc(memcachedata, len);
+
+        if (!tmpptr)
+        {
+            Bfree(memcachedata);
+            memcachedata = NULL;
+            memcachesize = -1;
+            initprintf("Failed syncing memcache to texcache, disabling memcache.\n");
+            dont_alloc_memcache = 1;
+        }
+        else
+        {
+            initprintf("Syncing memcache to texcache\n");
+            memcachedata = tmpptr;
+            Blseek(cachefilehandle, memcachesize, BSEEK_SET);
+            Bread(cachefilehandle, memcachedata + memcachesize, len - memcachesize);
+            memcachesize = len;
+        }
     }
 }
 
@@ -781,23 +797,35 @@ void polymost_glinit()
         return;
     }
 
-    memcachesize = filelength(cachefilehandle);
-
-    if (memcachesize > 0)
+    if (glusememcache && !dont_alloc_memcache)
     {
-        memcachedata = (uint8_t *)Brealloc(memcachedata, memcachesize);
+        memcachesize = filelength(cachefilehandle);
 
-        if (!memcachedata)
+        if (memcachesize > 0)
         {
-            initprintf("Failed allocating %d bytes for memcache\n", memcachesize);
-            memcachesize = -1;
-        }
+            uint8_t *tmpptr = (uint8_t *)Brealloc(memcachedata, memcachesize);
 
-        if (Bread(cachefilehandle, memcachedata, memcachesize) != memcachesize)
-        {
-            initprintf("Failed reading texcache into memcache!\n");
-            Bfree(memcachedata);
-            memcachesize = -1;
+            if (!tmpptr)
+            {
+                initprintf("Failed allocating %d bytes for memcache, disabling memcache.\n", memcachesize);
+                if (memcachedata)
+                    Bfree(memcachedata);
+                memcachedata = NULL;
+                memcachesize = -1;
+                dont_alloc_memcache = 1;
+            }
+            else
+            {
+                memcachedata = tmpptr;
+
+                if (Bread(cachefilehandle, memcachedata, memcachesize) != memcachesize)
+                {
+                    initprintf("Failed reading texcache into memcache!\n");
+                    Bfree(memcachedata);
+                    memcachedata = NULL;
+                    memcachesize = -1;
+                }
+            }
         }
     }
 
@@ -6269,6 +6297,7 @@ void polymost_initosdfuncs(void)
         { "r_shadescale_unbounded","r_shadescale_unbounded: enable/disable allowance of complete blackness",(void *) &shadescale_unbounded, CVAR_BOOL, 0, 1 },
         { "r_swapinterval","r_swapinterval: sets the GL swap interval (VSync)",(void *) &vsync, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "r_texcache","r_texcache: enable/disable OpenGL compressed texture cache",(void *) &glusetexcache, CVAR_INT, 0, 2 },
+        { "r_memcache","r_memcache: enable/disable texture cache memory cache",(void *) &glusememcache, CVAR_BOOL, 0, 1 },
         { "r_texcompr","r_texcompr: enable/disable OpenGL texture compression",(void *) &glusetexcompr, CVAR_BOOL, 0, 1 },
         { "r_textureanisotropy", "r_textureanisotropy: changes the OpenGL texture anisotropy setting", (void *) &glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 16 },
         { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",(void *) &gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 4096 },

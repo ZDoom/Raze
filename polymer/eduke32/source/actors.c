@@ -705,6 +705,7 @@ void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t 
 #pragma pack(push,1)
         _prlight mylight;
 #pragma pack(pop)
+        Bmemset(&mylight, 0, sizeof(mylight));
 
         mylight.sector = s->sectnum;
         mylight.x = s->x;

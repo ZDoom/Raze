@@ -1296,7 +1296,7 @@ void                polymer_updatesprite(int32_t snum)
             return;
         }
 
-        prsprites[tspr->owner]->plane.buffer = (GLfloat *) Bmalloc(4 * sizeof(GLfloat) * 5);
+        prsprites[tspr->owner]->plane.buffer = (GLfloat *) Bcalloc(4, sizeof(GLfloat) * 5);  // XXX
         prsprites[tspr->owner]->plane.vertcount = 4;
     }
 
@@ -2799,7 +2799,7 @@ static void         polymer_updatewall(int16_t wallnum)
     }
 
     if (w->wall.buffer == NULL) {
-        w->wall.buffer = Bmalloc(4 * sizeof(GLfloat) * 5);
+        w->wall.buffer = Bcalloc(4, sizeof(GLfloat) * 5);  // XXX
         w->wall.vertcount = 4;
     }
 
