@@ -1552,6 +1552,12 @@ void Gv_Init(void)
 {
     // only call ONCE
 
+    // (... not true anymore)
+    static int32_t inited=0;
+    if (inited)
+        return;
+    inited = 1;
+
     //  initprintf("Initializing game variables\n");
     //AddLog("Gv_Init");
 

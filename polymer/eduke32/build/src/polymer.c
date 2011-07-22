@@ -648,8 +648,13 @@ int32_t             polymer_init(void)
         return (0);
     }
 
+    polymer_freeboard();
+
     Bmemset(&prsectors[0], 0, sizeof(prsectors[0]) * MAXSECTORS);
     Bmemset(&prwalls[0], 0, sizeof(prwalls[0]) * MAXWALLS);
+
+    if (prtess)
+        bgluDeleteTess(prtess);
 
     prtess = bgluNewTess();
     if (prtess == 0)
@@ -698,6 +703,9 @@ int32_t             polymer_init(void)
         {
             if (prhighpalookups[i][j].data)
             {
+                if (prhighpalookups[i][j].map)
+                    bglDeleteTextures(1, &prhighpalookups[i][j].map);
+
                 bglGenTextures(1, &prhighpalookups[i][j].map);
                 bglBindTexture(GL_TEXTURE_3D, prhighpalookups[i][j].map);
                 bglTexImage3D(GL_TEXTURE_3D,                // target
@@ -2225,6 +2233,7 @@ static void         polymer_freeboard(void)
         {
             if (prwalls[i]->bigportal) Bfree(prwalls[i]->bigportal);
             if (prwalls[i]->mask.buffer) Bfree(prwalls[i]->mask.buffer);
+            if (prwalls[i]->over.buffer) Bfree(prwalls[i]->over.buffer);
             if (prwalls[i]->cap) Bfree(prwalls[i]->cap);
             if (prwalls[i]->wall.buffer) Bfree(prwalls[i]->wall.buffer);
             if (prwalls[i]->wall.vbo) bglDeleteBuffersARB(1, &prwalls[i]->wall.vbo);
@@ -5330,6 +5339,21 @@ static void         polymer_prepareshadows(void)
 static void         polymer_initrendertargets(int32_t count)
 {
     int32_t         i;
+
+    static int32_t ocount;
+    if (prrts)
+    {
+        for (i=0; i<ocount; i++)
+        {
+            if (!i)
+                bglDeleteTextures(1, &prrts[i].color);
+            bglDeleteTextures(1, &prrts[i].z);
+            bglDeleteFramebuffersEXT(1, &prrts[i].fbo);
+        }
+
+        Bfree(prrts);
+    }
+    ocount = count;
 
     prrts = Bcalloc(count, sizeof(_prrt));
 

@@ -260,6 +260,7 @@ void (APIENTRY *bgluTessNormal)(GLUtesselator *tess, GLdouble valueX, GLdouble v
 void (APIENTRY *bgluTessProperty)(GLUtesselator *tess, GLenum which, GLdouble data);
 void (APIENTRY *bgluTessVertex)(GLUtesselator *tess, GLdouble *location, GLvoid *data);
 GLUtesselator *(APIENTRY *bgluNewTess)(void);
+void (APIENTRY * bgluDeleteTess)(GLUtesselator *tess);
 
 void (APIENTRY *bgluPerspective)(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
@@ -944,6 +945,7 @@ int32_t loadglulibrary(const char *driver)
     bgluTessProperty = GLUGETPROC("gluTessProperty");
     bgluTessVertex = GLUGETPROC("gluTessVertex");
     bgluNewTess = GLUGETPROC("gluNewTess");
+    bgluDeleteTess = GLUGETPROC("gluDeleteTess");
 
     bgluPerspective = GLUGETPROC("gluPerspective");
 
@@ -986,6 +988,7 @@ int32_t unloadglulibrary(void)
     bgluTessProperty        = NULL;
     bgluTessVertex          = NULL;
     bgluNewTess             = NULL;
+    bgluDeleteTess          = NULL;
 
     bgluPerspective         = NULL;
 

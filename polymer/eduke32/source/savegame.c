@@ -304,7 +304,7 @@ int32_t G_LoadPlayer(int32_t spot)
 
     if (kdfread(&g_scriptSize,sizeof(g_scriptSize),1,fil) != 1) goto corrupt;
     if (!g_scriptSize) goto corrupt;
-    scriptptrs = Bcalloc(1,g_scriptSize * sizeof(scriptptrs));
+//    scriptptrs = Bcalloc(1,g_scriptSize * sizeof(scriptptrs));
     Bfree(bitptr);
     bitptr = Bcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
     if (kdfread(&bitptr[0],sizeof(uint8_t),(g_scriptSize+7)>>3,fil) != ((g_scriptSize+7)>>3)) goto corrupt;
@@ -334,7 +334,7 @@ int32_t G_LoadPlayer(int32_t spot)
             actorLoadEventScrptr[i] = (intptr_t *)j;
         }
 
-    scriptptrs = Brealloc(scriptptrs, MAXSPRITES * sizeof(scriptptrs));
+    scriptptrs = Bmalloc(MAXSPRITES * sizeof(scriptptrs));
 
     if (kdfread(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
     if (kdfread(&actor[0],sizeof(actor_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
@@ -347,6 +347,8 @@ int32_t G_LoadPlayer(int32_t spot)
         if (scriptptrs[i]&4) T6 += j;
         actor[i].projectile = &SpriteProjectile[i];
     }
+
+    Bfree(scriptptrs);
 
     if (kdfread(&lockclock,sizeof(lockclock),1,fil) != 1) goto corrupt;
     if (kdfread(&pskybits,sizeof(pskybits),1,fil) != 1) goto corrupt;
@@ -842,6 +844,8 @@ int32_t G_SavePlayer(int32_t spot)
         if (scriptptrs[i]&4)
             T6 += j;
     }
+
+    Bfree(scriptptrs);
 
     dfwrite(&lockclock,sizeof(lockclock),1,fil);
     dfwrite(&pskybits,sizeof(pskybits),1,fil);

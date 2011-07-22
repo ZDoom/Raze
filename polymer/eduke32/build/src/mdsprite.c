@@ -2486,6 +2486,8 @@ static void md3free(md3model_t *m)
                 if (s->xyzn) Bfree(s->xyzn);
                 if (s->geometry) Bfree(s->geometry);
             }
+            else
+                if (s->geometry) Bfree(s->geometry);  // ?
         }
         Bfree(m->head.surfs);
     }

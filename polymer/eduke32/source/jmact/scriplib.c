@@ -101,9 +101,20 @@ void SCRIPT_FreeSection(ScriptSectionType * section)
     while (section->entries->nextentry != section->entries)
     {
         e = section->entries->nextentry;
+
+        if (section->entries->name)
+            Bfree(section->entries->name);
+        if (section->entries->value)
+            Bfree(section->entries->value);
+
         Bfree(section->entries);
         section->entries = e;
     }
+
+    if (section->entries->name)
+        Bfree(section->entries->name);
+    if (section->entries->value)
+        Bfree(section->entries->value);
 
     Bfree(section->entries);
     Bfree(section->name);

@@ -293,6 +293,7 @@ extern void             (APIENTRY * bgluTessNormal) (GLUtesselator* tess, GLdoub
 extern void             (APIENTRY * bgluTessProperty) (GLUtesselator* tess, GLenum which, GLdouble data);
 extern void             (APIENTRY * bgluTessVertex) (GLUtesselator* tess, GLdouble *location, GLvoid* data);
 extern GLUtesselator*   (APIENTRY * bgluNewTess) (void);
+extern void             (APIENTRY * bgluDeleteTess) (GLUtesselator* tess);
 
 extern void             (APIENTRY * bgluPerspective) (GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
