@@ -112,6 +112,8 @@ static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 float shadescale = 1.3f;
 int32_t shadescale_unbounded = 0;
 
+int32_t r_usenewshading = 1;
+
 double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
 double gcosang, gsinang, gcosang2, gsinang2;
 double gchang, gshang, gctang, gstang, gvisibility;
@@ -6303,6 +6305,7 @@ void polymost_initosdfuncs(void)
         { "r_texturemaxsize","r_texturemaxsize: changes the maximum OpenGL texture size limit",(void *) &gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 4096 },
         { "r_texturemiplevel","r_texturemiplevel: changes the highest OpenGL mipmap level used",(void *) &gltexmiplevel, CVAR_INT, 0, 6 },
         { "r_texturemode", "r_texturemode: changes the texture filtering settings", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
+        { "r_usenewshading", "r_usenewshading: enable/disable new shading/visibility code", (void *) &r_usenewshading, CVAR_BOOL, 0, 1 },
         { "r_vbocount","r_vbocount: sets the number of Vertex Buffer Objects to use when drawing models",(void *) &r_vbocount, CVAR_INT, 1, 256 },
         { "r_vbos","r_vbos: enable/disable using Vertex Buffer Objects when drawing models",(void *) &r_vbos, CVAR_BOOL, 0, 1 },
         { "r_vertexarrays","r_vertexarrays: enable/disable using vertex arrays when drawing models",(void *) &r_vertexarrays, CVAR_BOOL, 0, 1 },

@@ -5621,9 +5621,20 @@ static void Keys3d(void)
                 {
                     if (ASSERT_AIMING)
                     {
-                        clamped = addtobyte(&AIMED_CF_SEL(shade), tsign);
-                        message("%s %d shade %d%s", Typestr[searchstat], i, AIMED_CF_SEL(shade),
-                                clamped ? " (clamped)":"");
+                        if (AIMING_AT_SPRITE && (show2dsprite[searchwall>>3]&(1<<(searchwall&7))))
+                        {
+                            for (i=0; i<highlightcnt; i++)
+                                if (highlight[i]&16384)
+                                    clamped = addtobyte(&sprite[highlight[i]&16383].shade, tsign);
+                            message("Highlighted sprite shade changed by %d%s", tsign,
+                                    clamped?" (some sprites' shade clamped)":"");
+                        }
+                        else
+                        {
+                            clamped = addtobyte(&AIMED_CF_SEL(shade), tsign);
+                            message("%s %d shade %d%s", Typestr[searchstat], i, AIMED_CF_SEL(shade),
+                                    clamped ? " (clamped)":"");
+                        }
                     }
                 }
                 else

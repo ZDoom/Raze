@@ -648,13 +648,11 @@ int32_t             polymer_init(void)
         return (0);
     }
 
-    polymer_freeboard();
+    // clean up existing stuff since it will be initialized again if we're re-entering here
+    polymer_uninit();
 
     Bmemset(&prsectors[0], 0, sizeof(prsectors[0]) * MAXSECTORS);
     Bmemset(&prwalls[0], 0, sizeof(prwalls[0]) * MAXWALLS);
-
-    if (prtess)
-        bgluDeleteTess(prtess);
 
     prtess = bgluNewTess();
     if (prtess == 0)
@@ -693,7 +691,7 @@ int32_t             polymer_init(void)
     polymersearching = FALSE;
 
     polymer_initrendertargets(pr_shadowcount + 1);
-    
+
     // Prime highpalookup maps
     i = 0;
     while (i < MAXBASEPALS)
@@ -703,9 +701,6 @@ int32_t             polymer_init(void)
         {
             if (prhighpalookups[i][j].data)
             {
-                if (prhighpalookups[i][j].map)
-                    bglDeleteTextures(1, &prhighpalookups[i][j].map);
-
                 bglGenTextures(1, &prhighpalookups[i][j].map);
                 bglBindTexture(GL_TEXTURE_3D, prhighpalookups[i][j].map);
                 bglTexImage3D(GL_TEXTURE_3D,                // target
@@ -739,8 +734,16 @@ void                polymer_uninit(void)
 {
     int32_t         i, j;
 
+    if (prtess)
+    {
+        bgluDeleteTess(prtess);
+        prtess = NULL;
+    }
+
     polymer_freeboard();
-    
+
+    polymer_initrendertargets(0);
+
     i = 0;
     while (i < MAXBASEPALS)
     {
@@ -5341,19 +5344,34 @@ static void         polymer_initrendertargets(int32_t count)
     int32_t         i;
 
     static int32_t ocount;
-    if (prrts)
+
+    if (count == 0)  // uninit
     {
-        for (i=0; i<ocount; i++)
+        if (prrts)
         {
-            if (!i)
-                bglDeleteTextures(1, &prrts[i].color);
-            bglDeleteTextures(1, &prrts[i].z);
-            bglDeleteFramebuffersEXT(1, &prrts[i].fbo);
+            for (i=0; i<ocount; i++)
+            {
+                if (prrts[i].color)
+                {
+                    bglDeleteTextures(1, &prrts[i].color);
+                    prrts[i].color = 0;
+                }
+                bglDeleteTextures(1, &prrts[i].z);
+                prrts[i].z = 0;
+
+                bglDeleteFramebuffersEXT(1, &prrts[i].fbo);
+                prrts[i].fbo = 0;
+            }
+            Bfree(prrts);
+            prrts = NULL;
         }
 
-        Bfree(prrts);
+        ocount = 0;
+        return;
     }
+
     ocount = count;
+    //////////
 
     prrts = Bcalloc(count, sizeof(_prrt));
 

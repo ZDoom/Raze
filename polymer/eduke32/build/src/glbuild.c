@@ -999,5 +999,100 @@ int32_t unloadglulibrary(void)
 
     return 0;
 }
-#endif
 
+
+//////// glGenTextures/glDeleteTextures debugging ////////
+# if defined DEBUGGINGAIDS && defined DEBUG_TEXTURE_NAMES
+static uint8_t *texnameused;  // bitmap
+static uint32_t *texnamefromwhere;  // hash of __FILE__
+static uint32_t texnameallocsize;
+
+// djb3 algorithm
+static inline uint32_t texdbg_getcode(const char *s)
+{
+    uint32_t h = 5381;
+    int32_t ch;
+
+    while ((ch = *s++) != '\0')
+        h = ((h << 5) + h) ^ ch;
+
+    return h;
+}
+
+static void texdbg_realloc(uint32_t maxtexname)
+{
+    uint32_t newsize = texnameallocsize ? texnameallocsize : 64;
+
+    if (texnameallocsize >= maxtexname)
+        return;
+
+    while (newsize < maxtexname)
+        newsize <<= 1;
+//    initprintf("texdebug: new size %u\n", newsize);
+
+    texnameused = Brealloc(texnameused, newsize>>3);
+    texnamefromwhere = Brealloc(texnamefromwhere, newsize*sizeof(uint32_t));
+
+    Bmemset(texnameused + (texnameallocsize>>3), 0, (newsize-texnameallocsize)>>3);
+    Bmemset(texnamefromwhere + texnameallocsize, 0, (newsize-texnameallocsize)*sizeof(uint32_t));
+
+    texnameallocsize = newsize;
+}
+
+#undef bglGenTextures
+void texdbg_bglGenTextures(GLsizei n, GLuint *textures, const char *srcfn)
+{
+    int32_t i;
+    uint32_t hash = srcfn ? texdbg_getcode(srcfn) : 0;
+
+    for (i=0; i<n; i++)
+        if (textures[i] < texnameallocsize && (texnameused[textures[i]>>3]&(1<<(textures[i]&7))))
+            initprintf("texdebug %x Gen: overwriting used tex name %u from %x\n", hash, textures[i], texnamefromwhere[textures[i]]);
+
+    bglGenTextures(n, textures);
+
+    {
+        GLuint maxtexname = 0;
+
+        for (i=0; i<n; i++)
+            maxtexname = max(maxtexname, textures[i]);
+
+        texdbg_realloc(maxtexname);
+
+        for (i=0; i<n; i++)
+        {
+            texnameused[textures[i]>>3] |= (1<<(textures[i]&7));
+            texnamefromwhere[textures[i]] = hash;
+        }
+    }
+}
+
+#undef bglDeleteTextures
+void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *srcfn)
+{
+    int32_t i;
+    uint32_t hash = srcfn ? texdbg_getcode(srcfn) : 0;
+
+    for (i=0; i<n; i++)
+        if (textures[i] < texnameallocsize)
+        {
+            if ((texnameused[textures[i]>>3]&(1<<(textures[i]&7)))==0)
+                initprintf("texdebug %x Del: deleting unused tex name %u\n", hash, textures[i]);
+            else if ((texnameused[textures[i]>>3]&(1<<(textures[i]&7))) &&
+                         texnamefromwhere[textures[i]] != hash)
+                initprintf("texdebug %x Del: deleting foreign tex name %u from %x\n", hash,
+                           textures[i], texnamefromwhere[textures[i]]);
+        }
+
+    bglDeleteTextures(n, textures);
+
+    if (texnameallocsize)
+        for (i=0; i<n; i++)
+        {
+            texnameused[textures[i]>>3] &= ~(1<<(textures[i]&7));
+            texnamefromwhere[textures[i]] = 0;
+        }
+}
+# endif  // defined DEBUGGINGAIDS
+
+#endif

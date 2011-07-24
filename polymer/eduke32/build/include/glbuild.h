@@ -317,6 +317,9 @@ extern BOOL (WINAPI * bwglSetPixelFormat)(HDC,int32_t,const PIXELFORMATDESCRIPTO
 extern BOOL (WINAPI * bwglSwapIntervalEXT)(int32_t);
 #endif
 
+//////// glGenTextures/glDeleteTextures debugging ////////
+void texdbg_bglGenTextures(GLsizei n, GLuint *textures, const char *srcfn);
+void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *srcfn);
 #endif //USE_OPENGL
 
 extern char *gldriver;

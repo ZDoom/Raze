@@ -2883,8 +2883,16 @@ void overheadeditor(void)
                     if (keystatus[0x28])
                         drawline16base(searchx+16, searchy-16, 0,-4, 0,+4, col);
                 }
-                else if (keystatus[0x36] && eitherCTRL)
-                    printext16(searchx+6,searchy-6-8,editorcolors[12],-1,"S",0);
+
+                if (keystatus[0x36])
+                {
+                    if (eitherCTRL)
+                        printext16(searchx+6,searchy-6-8,editorcolors[12],-1,"S",0);
+#ifdef YAX_ENABLE
+                    if (keystatus[0xcf])
+                        printext16(searchx+6,searchy-6+8,editorcolors[12],-1,"A",0);
+#endif
+                }
             }
 
             drawline16base(searchx,searchy, +0,-8, +0,-1, col);
@@ -3734,7 +3742,8 @@ end_yax: ;
                             if (sprite[i].statnum == MAXSTATUS)
                                 continue;
 
-                            if ((unsigned)sprite[i].sectnum < MAXSECTORS)
+                            //  v v v: if END pressed, also permit sprites from grayed out sectors
+                            if (!keystatus[0xcf] && (unsigned)sprite[i].sectnum < MAXSECTORS)
                                 YAX_SKIPSECTOR(sprite[i].sectnum);
 
                             if (!m32_sideview)

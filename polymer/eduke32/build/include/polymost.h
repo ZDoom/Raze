@@ -87,6 +87,8 @@ extern float shadescale;
 extern int32_t shadescale_unbounded;
 extern float alphahackarray[MAXTILES];
 
+extern int32_t r_usenewshading;
+
 typedef struct pthtyp_t
 {
     struct pthtyp_t *next;
@@ -119,22 +121,33 @@ extern double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdo
 extern double gcosang, gsinang, gcosang2, gsinang2;
 extern double gchang, gshang, gctang, gstang, gvisibility;
 
-#define FOGSCALE 0.0000768
+//#define FOGSCALE 0.0000768
+#define FOGSCALE ((0.0000768+0.0000128)/(1 + 0.5f*(getrendermode()==4)))
 
 extern float fogresult, fogcol[4], fogtable[4*MAXPALOOKUPS];
 
 static inline void fogcalc(const int32_t shade, const int32_t vis, const int32_t pal)
 {
-    float f = (shade < 0) ? shade * 3.5f :
-        shade * .66f;
+    float f;
 
-    f = (vis > 239) ? (float)(gvisibility*((vis-240+f)/(klabs(vis-256)))) :
-        (float)(gvisibility*(vis+16+f));
+    if (r_usenewshading)
+    {
+        f = 0.9f * shade;
+        f = (vis > 239) ? (float)(gvisibility*((vis-240+f))) :
+            (float)(gvisibility*(vis+16+f));
+    }
+    else
+    {
+        f = (shade < 0) ? shade * 3.5f : shade * .66f;
+        f = (vis > 239) ? (float)(gvisibility*((vis-240+f)/(klabs(vis-256)))) :
+            (float)(gvisibility*(vis+16+f));
+    }
 
     if (f < 0.001f)
         f = 0.001f;
     else if (f > 100.0f)
         f = 100.0f;
+
     fogresult = f;
 
     Bmemcpy(fogcol, &fogtable[pal<<2], sizeof(fogcol));

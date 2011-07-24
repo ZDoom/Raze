@@ -292,7 +292,7 @@ read_ivf_frame:
 
 
 /////////////// DRAWING! ///////////////
-static GLuint texname = -1;
+static GLuint texname = 0;
 static int32_t texuploaded;
 
 // YUV->RGB conversion fragment shader adapted from
@@ -409,7 +409,7 @@ void animvpx_restore_glstate(void)
     bglPopAttrib();
 
     bglDeleteTextures(1, &texname);
-    texname = -1;
+    texname = 0;
     texuploaded = 0;
 }
 
