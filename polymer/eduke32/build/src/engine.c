@@ -7755,7 +7755,27 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     i = mulscale16(xdimenscale,viewingrangerecip);
     globalpisibility = mulscale16(parallaxvisibility,i);
-    globalvisibility = getrendermode()==0 ? mulscale16(visibility,i) : scale(visibility<<2,4,3);
+    switch (getrendermode())
+    {
+        // switch on renderers to make fog look almost the same everywhere
+
+    case 0:
+        globalvisibility = mulscale16(visibility,i);
+        break;
+#ifdef USE_OPENGL
+    case 3:
+        // I have no idea what the significance of this constant is,
+        // it was found out experimentally.             v  v
+        globalvisibility = scale(visibility<<2, xdimen, 1100);
+        break;
+# ifdef POLYMER
+    case 4:
+        globalvisibility = visibility<<2;
+        break;
+# endif
+#endif
+    }
+
     globalhisibility = mulscale16(globalvisibility,xyaspect);
     globalcisibility = mulscale8(globalhisibility,320);
 
