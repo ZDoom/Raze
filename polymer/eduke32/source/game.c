@@ -1748,6 +1748,8 @@ static void G_PrintCoords(int32_t snum)
     printext256(250L,y+45L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"THOLD= %d",g_player[snum].ps->transporter_hold);
     printext256(250L,y+54L+7,31,-1,tempbuf,0);
+    Bsprintf(tempbuf,"GAMETIC= %d",g_moveThingsCount);
+    printext256(250L,y+63L+7,31,-1,tempbuf,0);
 }
 
 // this handles both multiplayer and item pickup message type text
