@@ -1,7 +1,7 @@
 // Duke Nukem 3D Sample Defs file
 //
-// For an explanation of the contents of this file, read releasenotes.html
-// in the section titled "DEF-file Language"
+// For an explanation of the contents of this file, read
+// http://wiki.eduke32.com/wiki/DEF_Language
 
 include DEFS.CON
 
