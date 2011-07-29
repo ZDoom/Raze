@@ -25,10 +25,38 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "premap.h"
 #include "menus.h"
 #include "prlights.h"
+#include "savegame.h"
 
 extern char *bitptr;
 
 #define BITPTR_POINTER 1
+
+// For storing pointers in files.
+//  back_p==0: ptr -> "small int"
+//  back_p==1: "small int" -> ptr
+//
+//  mode: see enum in savegame.h
+void G_Util_PtrToIdx(void *ptr, uint32_t len, const void *base, int32_t mode)
+{
+    uint32_t i;
+    intptr_t *iptr = ptr, ibase = (intptr_t)base;
+    int32_t back_p = mode&P2I_BACK_BIT;
+    int32_t onlynon0_p = mode&P2I_ONLYNON0_BIT;
+
+    // TODO: convert to proper offsets/indices for (a step towards) cross-
+    //       compatibility between 32- and 64-bit systems in the netplay.
+    //       REMEMBER to bump BYTEVERSION then.
+
+    for (i=0; i<len; i++)
+        // WARNING: C std doesn't say that bit pattern of NULL is necessarily 0!
+        if (!onlynon0_p || iptr[i])
+        {
+            if (!back_p)
+                iptr[i] -= ibase;
+            else
+                iptr[i] += ibase;
+        }
+}
 
 // TODO: sync with TROR special interpolations? (e.g. upper floor of subway)
 void G_ResetInterpolations(void)
@@ -355,6 +383,7 @@ int32_t G_LoadPlayer(int32_t spot)
     Bfree(bitptr);
     bitptr = Bcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
     if (kdfread(&bitptr[0],sizeof(uint8_t),(g_scriptSize+7)>>3,fil) != ((g_scriptSize+7)>>3)) goto corrupt;
+
     if (script != NULL)
         Bfree(script);
     script = Bcalloc(1,g_scriptSize * sizeof(intptr_t));
@@ -367,19 +396,10 @@ int32_t G_LoadPlayer(int32_t spot)
         }
 
     if (kdfread(&actorscrptr[0],sizeof(actorscrptr[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
-    for (i=0; i<MAXTILES; i++)
-        if (actorscrptr[i])
-        {
-            j = (intptr_t)actorscrptr[i]+(intptr_t)&script[0];
-            actorscrptr[i] = (intptr_t *)j;
-        }
+    G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_BACK_NON0);
+
     if (kdfread(&actorLoadEventScrptr[0],sizeof(&actorLoadEventScrptr[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
-    for (i=0; i<MAXTILES; i++)
-        if (actorLoadEventScrptr[i])
-        {
-            j = (intptr_t)actorLoadEventScrptr[i]+(intptr_t)&script[0];
-            actorLoadEventScrptr[i] = (intptr_t *)j;
-        }
+    G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_BACK_NON0);
 
     scriptptrs = Bmalloc(MAXSPRITES * sizeof(scriptptrs));
 
@@ -388,7 +408,7 @@ int32_t G_LoadPlayer(int32_t spot)
 
     for (i=0; i<MAXSPRITES; i++)
     {
-        j = (intptr_t)(&script[0]);
+        j = (intptr_t)script;
         if (scriptptrs[i]&1) T2 += j;
         if (scriptptrs[i]&2) T5 += j;
         if (scriptptrs[i]&4) T6 += j;
@@ -404,7 +424,8 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&g_animateCount,sizeof(g_animateCount),1,fil) != 1) goto corrupt;
     if (kdfread(&animatesect[0],sizeof(animatesect[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
     if (kdfread(&animateptr[0],sizeof(animateptr[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
-    for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+    G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_BACK);
+
     if (kdfread(&animategoal[0],sizeof(animategoal[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
     if (kdfread(&animatevel[0],sizeof(animatevel[0]),MAXANIMATES,fil) != MAXANIMATES) goto corrupt;
 
@@ -780,33 +801,13 @@ int32_t G_SavePlayer(int32_t spot)
             script[i] = j;
         }
 
-    for (i=0; i<MAXTILES; i++)
-        if (actorscrptr[i])
-        {
-            j = (intptr_t)actorscrptr[i]-(intptr_t)&script[0];
-            actorscrptr[i] = (intptr_t *)j;
-        }
+    G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_FWD_NON0);
     dfwrite(&actorscrptr[0],sizeof(actorscrptr[0]),MAXTILES,fil);
-    for (i=0; i<MAXTILES; i++)
-        if (actorscrptr[i])
-        {
-            j = (intptr_t)actorscrptr[i]+(intptr_t)&script[0];
-            actorscrptr[i] = (intptr_t *)j;
-        }
+    G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_BACK_NON0);
 
-    for (i=0; i<MAXTILES; i++)
-        if (actorLoadEventScrptr[i])
-        {
-            j = (intptr_t)actorLoadEventScrptr[i]-(intptr_t)&script[0];
-            actorLoadEventScrptr[i] = (intptr_t *)j;
-        }
+    G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_FWD_NON0);
     dfwrite(&actorLoadEventScrptr[0],sizeof(actorLoadEventScrptr[0]),MAXTILES,fil);
-    for (i=0; i<MAXTILES; i++)
-        if (actorLoadEventScrptr[i])
-        {
-            j = (intptr_t)actorLoadEventScrptr[i]+(intptr_t)&script[0];
-            actorLoadEventScrptr[i] = (intptr_t *)j;
-        }
+    G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_BACK_NON0);
 
     Bfree(scriptptrs);
     scriptptrs = Bcalloc(1, MAXSPRITES * sizeof(scriptptrs));
@@ -859,9 +860,11 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&pskyoff[0],sizeof(pskyoff[0]),MAXPSKYTILES,fil);
     dfwrite(&g_animateCount,sizeof(g_animateCount),1,fil);
     dfwrite(&animatesect[0],sizeof(animatesect[0]),MAXANIMATES,fil);
-    for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]-(intptr_t)(&sector[0]));
+
+    G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_FWD);
     dfwrite(&animateptr[0],sizeof(animateptr[0]),MAXANIMATES,fil);
-    for (i = g_animateCount-1; i>=0; i--) animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)(&sector[0]));
+    G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_BACK);
+
     dfwrite(&animategoal[0],sizeof(animategoal[0]),MAXANIMATES,fil);
     dfwrite(&animatevel[0],sizeof(animatevel[0]),MAXANIMATES,fil);
 
@@ -1902,12 +1905,9 @@ static void sv_prescriptsave_once()
     for (i=0; i<g_scriptSize; i++)
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
             script[i] = (intptr_t)((intptr_t *)script[i] - &script[0]);
-    for (i=0; i<MAXTILES; i++)
-        if (actorscrptr[i])
-            actorscrptr[i] = (intptr_t *)(actorscrptr[i]-&script[0]);
-    for (i=0; i<MAXTILES; i++)
-        if (actorLoadEventScrptr[i])
-            actorLoadEventScrptr[i] = (intptr_t *)(actorLoadEventScrptr[i]-&script[0]);
+
+    G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_FWD_NON0);
+    G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_FWD_NON0);
 }
 static void sv_prescriptload_once()
 {
@@ -1918,12 +1918,10 @@ static void sv_prescriptload_once()
 static void sv_postscript_once()
 {
     int32_t i;
-    for (i=0; i<MAXTILES; i++)
-        if (actorLoadEventScrptr[i])
-            actorLoadEventScrptr[i] = (intptr_t)actorLoadEventScrptr[i] + &script[0];
-    for (i=0; i<MAXTILES; i++)
-        if (actorscrptr[i])
-            actorscrptr[i] = (intptr_t)actorscrptr[i] + &script[0];
+
+    G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_BACK_NON0);
+    G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_BACK_NON0);
+
     for (i=0; i<g_scriptSize; i++)
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
             script[i] = (intptr_t)(script[i] + &script[0]);
@@ -1948,7 +1946,7 @@ static void sv_preactordatasave()
 static void sv_postactordata()
 {
     int32_t i;
-    intptr_t j=(intptr_t)&script[0];
+    intptr_t j=(intptr_t)script;
 
 #if POLYMER
     if (getrendermode() == 4)
@@ -1971,15 +1969,11 @@ static void sv_postactordata()
 
 static void sv_preanimateptrsave()
 {
-    int32_t i;
-    for (i=g_animateCount-1; i>=0; i--)
-        animateptr[i] = (int32_t *)((intptr_t)animateptr[i]-(intptr_t)&sector[0]);
+    G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_FWD);
 }
 static void sv_postanimateptr()
 {
-    int32_t i;
-    for (i=g_animateCount-1; i>=0; i--)
-        animateptr[i] = (int32_t *)((intptr_t)animateptr[i]+(intptr_t)&sector[0]);
+    G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_BACK);
 }
 static void sv_prequote()
 {

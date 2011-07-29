@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "gamedef.h"
 #include "gameexec.h"
+#include "savegame.h"
 
 #include "osd.h"
 
@@ -1126,27 +1127,9 @@ static int32_t C_SetScriptSize(int32_t newsize)
         else scriptptrs[i] = 0;
     }
 
-    for (i=MAXTILES-1; i>=0; i--)
-    {
-        if (actorscrptr[i])
-        {
-            j = (intptr_t)actorscrptr[i]-(intptr_t)&script[0];
-            actorscrptr[i] = (intptr_t *)j;
-        }
-
-        if (actorLoadEventScrptr[i])
-        {
-            j = (intptr_t)actorLoadEventScrptr[i]-(intptr_t)&script[0];
-            actorLoadEventScrptr[i] = (intptr_t *)j;
-        }
-    }
-
-    for (i=MAXGAMEEVENTS-1; i>=0; i--)
-        if (apScriptGameEvent[i])
-        {
-            j = (intptr_t)apScriptGameEvent[i]-(intptr_t)&script[0];
-            apScriptGameEvent[i] = (intptr_t *)j;
-        }
+    G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_FWD_NON0);
+    G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_FWD_NON0);
+    G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_FWD_NON0);
 
     initprintf("Resizing code buffer to %d*%d bytes\n",newsize, (int32_t)sizeof(intptr_t));
 
@@ -1206,26 +1189,9 @@ static int32_t C_SetScriptSize(int32_t newsize)
             script[i] = j;
         }
 
-    for (i=MAXTILES-1; i>=0; i--)
-    {
-        if (actorscrptr[i])
-        {
-            j = (intptr_t)actorscrptr[i]+(intptr_t)&script[0];
-            actorscrptr[i] = (intptr_t *)j;
-        }
-        if (actorLoadEventScrptr[i])
-        {
-            j = (intptr_t)actorLoadEventScrptr[i]+(intptr_t)&script[0];
-            actorLoadEventScrptr[i] = (intptr_t *)j;
-        }
-    }
-
-    for (i=MAXGAMEEVENTS-1; i>=0; i--)
-        if (apScriptGameEvent[i])
-        {
-            j = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
-            apScriptGameEvent[i] = (intptr_t *)j;
-        }
+    G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_BACK_NON0);
+    G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_BACK_NON0);
+    G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_BACK_NON0);
 
     Bfree(scriptptrs);
     return 0;

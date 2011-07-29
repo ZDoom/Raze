@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gamevars.h"
 #include "gamedef.h"
 #include "osd.h"
+#include "savegame.h"
 
 #define _gamevars_c_
 #include "gamestructures.c"
@@ -165,12 +166,7 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
     if (kdfread(apScriptGameEvent,sizeof(apScriptGameEvent),1,fil) != 1) goto corrupt;
-    for (i=0; i<MAXGAMEEVENTS; i++)
-        if (apScriptGameEvent[i])
-        {
-            l = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
-            apScriptGameEvent[i] = (intptr_t *)l;
-        }
+    G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_BACK_NON0);
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
@@ -280,19 +276,9 @@ void Gv_WriteSave(FILE *fil, int32_t newbehav)
         dfwrite(aGameArrays[i].plValues,sizeof(intptr_t) * aGameArrays[i].size, 1, fil);
     }
 
-    for (i=0; i<MAXGAMEEVENTS; i++)
-        if (apScriptGameEvent[i])
-        {
-            l = (intptr_t)apScriptGameEvent[i]-(intptr_t)&script[0];
-            apScriptGameEvent[i] = (intptr_t *)l;
-        }
+    G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_FWD_NON0);
     dfwrite(apScriptGameEvent,sizeof(apScriptGameEvent),1,fil);
-    for (i=0; i<MAXGAMEEVENTS; i++)
-        if (apScriptGameEvent[i])
-        {
-            l = (intptr_t)apScriptGameEvent[i]+(intptr_t)&script[0];
-            apScriptGameEvent[i] = (intptr_t *)l;
-        }
+    G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_BACK_NON0);
 
     for (i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
         if (MapInfo[i].savedstate != NULL)

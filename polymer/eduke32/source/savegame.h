@@ -43,4 +43,18 @@ int32_t G_LoadPlayer(int32_t spot);
 int32_t G_LoadSaveHeader(char spot,struct savehead *saveh);
 void ReadSaveGameHeaders(void);
 extern char *bitptr;
+
+enum
+{
+    P2I_BACK_BIT = 1,
+    P2I_ONLYNON0_BIT = 2,
+
+    P2I_FWD = 0,
+    P2I_BACK = 1,
+
+    P2I_FWD_NON0 = 0+2,
+    P2I_BACK_NON0 = 1+2,
+};
+void G_Util_PtrToIdx(void *ptr, uint32_t len, const void *base, int32_t mode);
+
 #endif
