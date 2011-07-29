@@ -47,5 +47,6 @@ void P_ResetStatus(int32_t snum);
 void P_ResetWeapons(int32_t snum);
 void G_ClearFIFO(void);
 void G_SetupCamTile(int32_t i,int32_t wn);
+void G_ResetInterpolations(void);
 
 #endif

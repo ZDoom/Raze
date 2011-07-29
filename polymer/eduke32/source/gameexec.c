@@ -5066,7 +5066,7 @@ void G_RestoreMapState(mapstate_t *save)
 {
     if (save != NULL)
     {
-        int32_t i, k, x;
+        int32_t i, x;
         intptr_t j;
         char phealth[MAXPLAYERS];
 
@@ -5181,48 +5181,7 @@ void G_RestoreMapState(mapstate_t *save)
                 }
         }
 
-        // TODO: sync with TROR special interpolations? (e.g. upper floor of subway)
-        g_numInterpolations = 0;
-        startofdynamicinterpolations = 0;
-
-        k = headspritestat[STAT_EFFECTOR];
-        while (k >= 0)
-        {
-            switch (sprite[k].lotag)
-            {
-            case 31:
-                G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
-                break;
-            case 32:
-                G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 25:
-                G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
-                G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 17:
-                G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
-                G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
-                break;
-            case 0:
-            case 5:
-            case 6:
-            case 11:
-            case 14:
-            case 15:
-            case 16:
-            case 26:
-            case 30:
-                Sect_SetInterpolation(sprite[k].sectnum);
-                break;
-            }
-
-            k = nextspritestat[k];
-        }
-
-        for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
-        for (i = g_animateCount-1; i>=0; i--)
-            G_SetInterpolation(animateptr[i]);
+        G_ResetInterpolations();
 
         Net_ResetPrediction();
 

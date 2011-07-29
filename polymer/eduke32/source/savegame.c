@@ -30,6 +30,54 @@ extern char *bitptr;
 
 #define BITPTR_POINTER 1
 
+// TODO: sync with TROR special interpolations? (e.g. upper floor of subway)
+void G_ResetInterpolations(void)
+{
+    int32_t k, i;
+
+    g_numInterpolations = 0;
+    startofdynamicinterpolations = 0;
+
+    k = headspritestat[STAT_EFFECTOR];
+    while (k >= 0)
+    {
+        switch (sprite[k].lotag)
+        {
+        case 31:
+            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
+            break;
+        case 32:
+            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
+            break;
+        case 25:
+            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
+            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
+            break;
+        case 17:
+            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
+            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
+            break;
+        case 0:
+        case 5:
+        case 6:
+        case 11:
+        case 14:
+        case 15:
+        case 16:
+        case 26:
+        case 30:
+            Sect_SetInterpolation(sprite[k].sectnum);
+            break;
+        }
+
+        k = nextspritestat[k];
+    }
+
+    for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
+    for (i = g_animateCount-1; i>=0; i--)
+        G_SetInterpolation(animateptr[i]);
+}
+
 void ReadSaveGameHeaders(void)
 {
     int32_t dummy,j;
@@ -128,7 +176,6 @@ corrupt:
 
 int32_t G_LoadPlayer(int32_t spot)
 {
-    int32_t k;
     char fn[13];
     char mpfn[13];
     char *fnptr, *scriptptrs;
@@ -304,7 +351,7 @@ int32_t G_LoadPlayer(int32_t spot)
 
     if (kdfread(&g_scriptSize,sizeof(g_scriptSize),1,fil) != 1) goto corrupt;
     if (!g_scriptSize) goto corrupt;
-//    scriptptrs = Bcalloc(1,g_scriptSize * sizeof(scriptptrs));
+
     Bfree(bitptr);
     bitptr = Bcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
     if (kdfread(&bitptr[0],sizeof(uint8_t),(g_scriptSize+7)>>3,fil) != ((g_scriptSize+7)>>3)) goto corrupt;
@@ -554,47 +601,7 @@ int32_t G_LoadPlayer(int32_t spot)
             }
     }
 
-    g_numInterpolations = 0;
-    startofdynamicinterpolations = 0;
-
-    k = headspritestat[STAT_EFFECTOR];
-    while (k >= 0)
-    {
-        switch (sprite[k].lotag)
-        {
-        case 31:
-            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
-            break;
-        case 32:
-            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
-            break;
-        case 25:
-            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
-            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
-            break;
-        case 17:
-            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
-            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
-            break;
-        case 0:
-        case 5:
-        case 6:
-        case 11:
-        case 14:
-        case 15:
-        case 16:
-        case 26:
-        case 30:
-            Sect_SetInterpolation(sprite[k].sectnum);
-            break;
-        }
-
-        k = nextspritestat[k];
-    }
-
-    for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
-    for (i = g_animateCount-1; i>=0; i--)
-        G_SetInterpolation(animateptr[i]);
+    G_ResetInterpolations();
 
     g_showShareware = 0;
     everyothertime = 0;
@@ -2258,47 +2265,7 @@ static void postloadplayer1()
 #endif
 
     //5
-    g_numInterpolations = 0;
-    startofdynamicinterpolations = 0;
-
-    i = headspritestat[STAT_EFFECTOR];
-    while (i >= 0)
-    {
-        switch (sprite[i].lotag)
-        {
-        case 31:
-            G_SetInterpolation(&sector[sprite[i].sectnum].floorz);
-            break;
-        case 32:
-            G_SetInterpolation(&sector[sprite[i].sectnum].ceilingz);
-            break;
-        case 25:
-            G_SetInterpolation(&sector[sprite[i].sectnum].floorz);
-            G_SetInterpolation(&sector[sprite[i].sectnum].ceilingz);
-            break;
-        case 17:
-            G_SetInterpolation(&sector[sprite[i].sectnum].floorz);
-            G_SetInterpolation(&sector[sprite[i].sectnum].ceilingz);
-            break;
-        case 0:
-        case 5:
-        case 6:
-        case 11:
-        case 14:
-        case 15:
-        case 16:
-        case 26:
-        case 30:
-            Sect_SetInterpolation(sprite[i].sectnum);
-            break;
-        }
-
-        i = nextspritestat[i];
-    }
-
-    for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
-    for (i = g_animateCount-1; i>=0; i--)
-        G_SetInterpolation(animateptr[i]);
+    G_ResetInterpolations();
 
     //6
     g_showShareware = 0;
