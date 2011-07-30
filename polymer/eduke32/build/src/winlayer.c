@@ -1228,7 +1228,7 @@ static void UninitDirectInput(void)
 static void GetKeyNames(void)
 {
     int32_t i;
-    char tbuf[MAX_PATH];
+    char tbuf[MAX_PATH], *cp;
 
     memset(key_names,0,sizeof(key_names));
 
@@ -1237,6 +1237,9 @@ static void GetKeyNames(void)
         tbuf[0] = 0;
         GetKeyNameText((i>128?(i+128):i)<<16, tbuf, sizeof(key_names[i])-1);
         Bstrncpy(&key_names[i][0], tbuf, sizeof(key_names[i])-1);
+        for (cp=key_names[i]; *cp; cp++)
+            if (!(*cp>=32 && *cp<127))
+                *cp = '?';
     }
 }
 
