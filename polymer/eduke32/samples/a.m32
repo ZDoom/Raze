@@ -1185,6 +1185,51 @@ defstate chselshade
     }
 ends
 
+defstate correctslopes
+    for i allsectors
+    {
+        set j sector[i].ceilingstat, and j 2
+        ife j 2
+        {
+            ife sector[i].ceilingheinum 0
+            {
+                sub sector[i].ceilingstat 2
+                qsprintf TQUOTE "sec %d ceilingstat cleared bit 2" i
+                quote TQUOTE
+            }
+        }
+        else
+        {
+            ifn sector[i].ceilingheinum 0
+            {
+                set sector[i].ceilingheinum 0
+                qsprintf TQUOTE "sec %d ceilingheinum set to 0" i
+                quote TQUOTE
+            }
+        }
+
+        set j sector[i].floorstat, and j 2
+        ife j 2
+        {
+            ife sector[i].floorheinum 0
+            {
+                sub sector[i].floorstat 2
+                qsprintf TQUOTE "sec %d floorstat cleared bit 2" i
+                quote TQUOTE
+            }
+        }
+        else
+        {
+            ifn sector[i].floorheinum 0
+            {
+                set sector[i].floorheinum 0
+                qsprintf TQUOTE "sec %d floorheinum set to 0" i
+                quote TQUOTE
+            }
+        }
+    }
+ends
+
 ////////// USER AREA //////////
 
 // key settings

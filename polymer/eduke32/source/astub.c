@@ -25,10 +25,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "editor.h"
 #include "pragmas.h"
 #include "baselayer.h"
-#include "names.h"
 #include "osd.h"
-#include "osdfuncs.h"
 #include "cache1d.h"
+
+#include "osdfuncs.h"
+#include "names.h"
 
 #include "mapster32.h"
 #include "keys.h"
@@ -9194,7 +9195,8 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
         if (vm.updatehighlightsector)
         {
             update_highlightsector();
-            ovh_whiteoutgrab(1);
+            if (qsetmode != 200)
+                ovh_whiteoutgrab(1);
             vm.updatehighlightsector = 0;
         }
 
@@ -10498,6 +10500,15 @@ void ExtPreCheckKeys(void) // just before drawrooms
     {
         if (shadepreview)
         {
+            for (i=0; i<highlightsectorcnt; i++)
+            {
+                ii = highlightsector[i];
+                sectorpals[ii][0] = sector[ii].floorpal;
+                sectorpals[ii][1] = sector[ii].ceilingpal;
+
+                sector[ii].floorpal = sector[ii].ceilingpal = 6;
+            }
+
 //            int32_t i = 0;
             for (i=0; i<MAXSPRITES; i++)
             {
@@ -11105,8 +11116,15 @@ void ExtCheckKeys(void)
 
     if (qsetmode == 200 && shadepreview)
     {
-        int32_t i = 0;
+        int32_t i = 0, ii;
         int32_t w, isec, start_wall, end_wall;
+
+        for (i=0; i<highlightsectorcnt; i++)
+        {
+            ii = highlightsector[i];
+            sector[ii].floorpal = sectorpals[ii][0];
+            sector[ii].ceilingpal = sectorpals[ii][1];
+        }
 
         for (i=0; i<MAXSPRITES; i++)
         {

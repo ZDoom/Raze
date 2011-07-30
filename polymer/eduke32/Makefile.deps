@@ -4,10 +4,13 @@ duke3d_h=\
     $(EINC)/build.h \
     $(EINC)/baselayer.h \
     $(EINC)/polymer.h \
+    $(EINC)/polymost.h \
     $(EINC)/cache1d.h \
     $(SRC)/jmact/file_lib.h \
     $(SRC)/jmact/keyboard.h \
     $(SRC)/jmact/control.h \
+    $(SRC)/jmact/mathutil.h \
+    $(SRC)/macros.h \
     $(INC)/gamedefs.h \
     $(INC)/function.h \
     $(INC)/config.h \
@@ -52,9 +55,43 @@ $(OBJ)/osdcmds.$o: $(SRC)/osdcmds.c $(INC)/osdcmds.h $(EINC)/osd.h $(duke3d_h)
 
 $(OBJ)/animvpx.$o: $(SRC)/animvpx.c $(SRC)/animvpx.h $(duke3d_h) $(EINC)/glbuild.h
 
+# editor objects
+m32_script_hs=$(EINC)/m32script.h $(SRC)/m32def.h
+$(OBJ)/astub.$o: $(SRC)/astub.c \
+    $(EINC)/compat.h \
+    $(EINC)/build.h \
+    $(EINC)/editor.h \
+    $(EINC)/pragmas.h \
+    $(EINC)/baselayer.h \
+    $(EINC)/osd.h \
+    $(EINC)/cache1d.h \
+    $(EINC)/crc32.h \
+    $(EINC)/scriptfile.h \
+    $(EINC)/quicklz.h \
+    $(SRC)/macros.h \
+    $(SRC)/osdfuncs.h \
+    $(SRC)/names.h \
+    $(SRC)/mapster32.h \
+    $(SRC)/keys.h \
+    $(m32_script_hs)
+$(OBJ)/sounds_mapster32.$o: $(SRC)/sounds_mapster32.c \
+    $(SRC)/sounds_mapster32.h \
+    $(EINC)/compat.h \
+    $(EINC)/baselayer.h \
+    $(EINC)/cache1d.h \
+    $(EINC)/build.h \
+    $(EINC)/editor.h \
+    $(EINC)/osd.h \
+    $(SRC)/macros.h \
+    $(JAUDIOLIBDIR)/include/fx_man.h \
+    $(SRC)/jmact/mathutil.h
 
-$(OBJ)/astub.$o: $(SRC)/astub.c $(SRC)/mapster32.h $(EINC)/build.h $(EINC)/pragmas.h $(EINC)/compat.h $(EINC)/editor.h
+$(OBJ)/m32def.$o: $(SRC)/m32def.c $(m32_script_hs) $(EINC)/cache1d.h $(SRC)/sounds_mapster32.h $(SRC)/keys.h
+$(OBJ)/m32exec.$o: $(SRC)/m32exec.c $(m32_script_hs) $(SRC)/sounds_mapster32.h $(EINC)/osd.h $(SRC)/keys.h $(JAUDIOLIBDIR)/include/fx_man.h
+$(OBJ)/m32structures.$o: $(SRC)/m32structures.c $(m32_script_hs) $(EINC)/compat.h $(EINC)/prlights.h
+$(OBJ)/m32vars.$o: $(SRC)/m32vars.c $(SRC)/m32structures.c $(m32_script_hs) $(EINC)/osd.h $(SRC)/keys.h $(EINC)/polymer.h 
 
+# misc objects
 $(OBJ)/game_icon.$o: $(RSRC)/game_icon.c
 $(OBJ)/build_icon.$o: $(RSRC)/build_icon.c
 
@@ -71,7 +108,7 @@ $(OBJ)/file_lib.$o: $(SRC)/jmact/file_lib.c $(SRC)/jmact/file_lib.h
 $(OBJ)/control.$o: $(SRC)/jmact/control.c $(SRC)/jmact/control.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/mouse.h $(EINC)/baselayer.h
 $(OBJ)/keyboard.$o: $(SRC)/jmact/keyboard.c $(SRC)/jmact/keyboard.h $(EINC)/compat.h $(EINC)/baselayer.h
 $(OBJ)/mouse.$o: $(SRC)/jmact/mouse.c $(SRC)/jmact/mouse.h $(EINC)/baselayer.h
-$(OBJ)/mathutil.$o: $(SRC)/jmact/mathutil.c
+$(OBJ)/mathutil.$o: $(SRC)/jmact/mathutil.c $(EINC)/compat.h $(EINC)/pragmas.h
 $(OBJ)/scriplib.$o: $(SRC)/jmact/scriplib.c $(SRC)/jmact/scriplib.h $(SRC)/jmact/_scrplib.h $(EINC)/compat.h
 
 # jAudioLib objects
@@ -83,7 +120,7 @@ $(OBJ)/mv_mix-c.$o: $(SRC)/jaudiolib/mv_mix-c.c
 $(OBJ)/mvreverb-c.$o: $(SRC)/jaudiolib/mvreverb-c.c
 $(OBJ)/pitch.$o: $(SRC)/jaudiolib/pitch.c $(SRC)/jaudiolib/pitch.h
 $(OBJ)/multivoc.$o: $(SRC)/jaudiolib/multivoc.c $(SRC)/jaudiolib/linklist.h $(SRC)/jaudiolib/pitch.h $(SRC)/jaudiolib/multivoc.h $(SRC)/jaudiolib/_multivc.h
-$(OBJ)/fx_man.$o: $(SRC)/jaudiolib/fx_man.c $(SRC)/jaudiolib/multivoc.h $(SRC)/jaudiolib/ll_man.h $(SRC)/jaudiolib/fx_man.h
+$(OBJ)/fx_man.$o: $(SRC)/jaudiolib/fx_man.c $(SRC)/jaudiolib/multivoc.h $(SRC)/jaudiolib/ll_man.h $(JAUDIOLIBDIR)/include/fx_man.h
 $(OBJ)/dsoundout.$o: $(SRC)/jaudiolib/dsoundout.c $(SRC)/jaudiolib/dsoundout.h
 $(OBJ)/openal.$o: $(SRC)/jaudiolib/openal.c $(SRC)/jaudiolib/openal.h
 $(OBJ)/dsl.$o: $(SRC)/jaudiolib/dsl.c $(SRC)/jaudiolib/dsl.h $(EINC)/compat.h

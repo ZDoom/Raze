@@ -197,7 +197,8 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
         if (vm.updatehighlightsector)
         {
             update_highlightsector();
-            ovh_whiteoutgrab(1);
+            if (qsetmode != 200)
+                ovh_whiteoutgrab(1);
             vm.updatehighlightsector = 0;
         }
 

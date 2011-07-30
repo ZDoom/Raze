@@ -4699,6 +4699,9 @@ end_point_dragging:
                 if (joinstat==0)
                 {
                     message("No consistent joining combination found");
+                    OSD_Printf("comp0: c=%d,f=%d;  comp1: c=%d,f=%d  (1:extended, 2:z mismatch, 4:sloped)\n",
+                               compstat[0][YAX_CEILING], compstat[0][YAX_FLOOR],
+                               compstat[1][YAX_CEILING], compstat[1][YAX_FLOOR]);
                     //for (i=0; i<2; i++) for (j=0; j<2; j++) message("%d", compstat[i][j]);
                     goto end_join_sectors;
                 }

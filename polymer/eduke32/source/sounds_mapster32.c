@@ -22,7 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Stripped sounds.c for use in Mapster32, breaks all ties to game & music
 
-//#include <conio.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -30,8 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "baselayer.h"
 
 #include "fx_man.h"
-//#include "music.h"
-//#include "duke3d.h"
 #include "osd.h"
 
 #include "cache1d.h"
