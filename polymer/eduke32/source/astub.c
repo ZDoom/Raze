@@ -11262,10 +11262,73 @@ void ExtCheckKeys(void)
         OSD_Printf("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
 } while (0)
 
-static int32_t walls_are_consistent(int32_t nw, int32_t j)
+#ifdef YAX_ENABLE
+static int32_t walls_have_equal_endpoints(int32_t w1, int32_t w2)
 {
-    return (wall[j].x==POINT2(nw).x && wall[j].y==POINT2(nw).y
-                && POINT2(j).x==wall[nw].x && POINT2(j).y==wall[nw].y);
+    int32_t n1 = wall[w1].point2, n2 = wall[w2].point2;
+
+    return (wall[w1].x==wall[w2].x && wall[w1].y==wall[w2].y &&
+            wall[n1].x==wall[n2].x && wall[n1].y==wall[n2].y);
+}
+
+static void correct_yax_nextwall(int32_t wallnum, int32_t bunchnum, int32_t cf, int32_t tryfixingp)
+{
+    int32_t i, j, startwall, endwall;
+    int32_t nummatching=0, lastwall[2]={-1,-1};
+
+    for (SECTORS_OF_BUNCH(bunchnum, !cf, i))
+        for (WALLS_OF_SECTOR(i, j))
+        {
+            //  v v v shouldn't happen, 'stupidity safety'
+            if (j!=wallnum && walls_have_equal_endpoints(wallnum, j))
+            {
+                lastwall[nummatching++] = j;
+                if (nummatching==2)
+                    goto outofloop;
+            }
+        }
+outofloop:
+    if (nummatching==1)
+    {
+        if (!tryfixingp)
+        {
+            OSD_Printf("    will set wall %d's yax-nextwall(%d) to %d on tryfix\n",
+                       wallnum, cf, lastwall[0]);
+        }
+        else
+        {
+            int32_t setreverse = 0;
+            yax_setnextwall(wallnum, cf, lastwall[0]);
+            if (yax_getnextwall(lastwall[0], !cf) < 0)
+            {
+                setreverse = 1;
+                yax_setnextwall(lastwall[0], !cf, wallnum);
+            }
+
+            OSD_Printf("auto-correction: set wall %d's yax-nextwall(%d) to %d%s\n",
+                       wallnum, cf, lastwall[0], setreverse?" and its reverse link":"");
+        }
+    }
+    else if (!tryfixingp)
+    {
+        if (nummatching > 1)
+        {
+            OSD_Printf("    found more than one matching wall: at least %d and %d\n",
+                       lastwall[0], lastwall[1]);
+        }
+        else if (nummatching == 0)
+        {
+            OSD_Printf("    found no matching walls!\n");
+        }
+    }
+}
+#endif
+
+// in reverse orientation
+static int32_t walls_are_consistent(int32_t w1, int32_t w2)
+{
+    return (wall[w2].x==POINT2(w1).x && wall[w2].y==POINT2(w1).y &&
+            wall[w1].x==POINT2(w2).x && wall[w1].y==POINT2(w2).y);
 }
 
 static void suggest_nextsector_correction(int32_t nw, int32_t j)
@@ -11419,8 +11482,9 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
 #ifdef YAX_ENABLE
                 {
-                    int32_t cf, ynw, jp2, ynwp2;
-                    for (cf=0; cf<1; cf++)
+                    int32_t cf, ynw, ynwp2;
+
+                    for (cf=0; cf<2; cf++)
                     {
                         ynw = yax_getnextwall(j, cf);
                         if (ynw >= 0)
@@ -11430,40 +11494,59 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                                  j, cf, ynw, numwalls);
                             else
                             {
+                                int32_t ynextwallok = 1;
+
                                 if (j == ynw)
+                                {
                                     CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's YAX-NEXTWALL(%d) is itself",
                                                      j, cf);
-                                else if (wall[j].x != wall[ynw].x || wall[j].y != wall[ynw].y)
-                                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's and its YAX-NEXTWALL(%d)=%d's coordinates not equal",
+                                    ynextwallok = 0;
+                                }
+                                else if (!walls_have_equal_endpoints(j, ynw))
+                                {
+                                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's and its YAX-NEXTWALL(%d)=%d's endpoints are inconsistent",
                                                      j, cf, ynw);
+                                    ynextwallok = 0;
+                                }
+
+                                if (!ynextwallok)
+                                {
+                                    int16_t bunchnum = yax_getbunch(i, cf);
+                                    int32_t onumct = numcorruptthings;
+
+                                    if (bunchnum < 0 || bunchnum >= numyaxbunches)
+                                    {
+                                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d has YAX-NEXTWALL(%d)=%d, "
+                                                         "but its bunchnum(%d)=%d is invalid\n", j, cf, ynw,
+                                                         cf, bunchnum);
+                                    }
+                                    else if (onumct < MAXCORRUPTTHINGS)
+                                    {
+                                        if ((tryfixing & (1ull<<onumct)) || 4>=printfromlev)
+                                            correct_yax_nextwall(j, bunchnum, cf, tryfixing!=0ull);
+                                    }
+                                }
                                 else
                                 {
-                                    jp2 = wall[j].point2;
-                                    ynwp2 = wall[ynw].point2;
-                                    if (wall[jp2].x != wall[ynwp2].x || wall[jp2].y != wall[ynwp2].y)
-                                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's and its YAX-NEXTWALL(%d)=%d's p2-coordinates not equal",
-                                                         j, cf, ynw);
-                                    else
+                                    int32_t onumct = numcorruptthings;
+
+                                    ynwp2 = yax_getnextwall(ynw, !cf);
+                                    if (ynwp2 != j)
                                     {
-                                        int32_t onumct = numcorruptthings;
-                                        ynwp2 = yax_getnextwall(ynw, !cf);
-                                        if (ynwp2 != j)
+                                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's YAX-NEXTWALL(%d)=%d's reverse link wrong"
+                                                         " (expected %d, have %d)", j, cf, ynw, j, ynwp2);
+                                        if (onumct < MAXCORRUPTTHINGS)
                                         {
-                                            CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's YAX-NEXTWALL(%d)=%d's reverse link wrong"
-                                                             " (expected %d, have %d)", j, cf, ynw, j, ynwp2);
-                                            if (onumct < MAXCORRUPTTHINGS)
+                                            if (tryfixing & (1ull<<onumct))
                                             {
-                                                if (tryfixing & (1ull<<onumct))
-                                                {
-                                                    yax_setnextwall(ynw, !cf, j);
-                                                    OSD_Printf(CCHK_CORRECTED "auto-correction: set wall %d's yax-nextwall(%d)=%d's yax-nextwall(%d) to %d\n",
-                                                               j, cf, ynw, !cf, j);
-                                                }
-                                                else if (4>=printfromlev)
-                                                {
-                                                    OSD_Printf("   will set wall %d's yax-nextwall(%d)=%d's yax-nextwall(%d) to %d on tryfix\n",
-                                                               j, cf, ynw, !cf, j);
-                                                }
+                                                yax_setnextwall(ynw, !cf, j);
+                                                OSD_Printf(CCHK_CORRECTED "auto-correction: set wall %d's yax-nextwall(%d)=%d's yax-nextwall(%d) to %d\n",
+                                                           j, cf, ynw, !cf, j);
+                                            }
+                                            else if (4>=printfromlev)
+                                            {
+                                                OSD_Printf("   will set wall %d's yax-nextwall(%d)=%d's yax-nextwall(%d) to %d on tryfix\n",
+                                                           j, cf, ynw, !cf, j);
                                             }
                                         }
                                     }
@@ -11611,6 +11694,8 @@ too_many_errors:
     {
         if (printfromlev<=errlevel)
             OSD_Printf("-- corruption level: %d\n", errlevel);
+        if (tryfixing)
+            OSD_Printf("--\n");
     }
 
     if (seen_nextwalls)
