@@ -300,6 +300,7 @@ const char *keyw[] =
     "ifaimingsprite",
     "ifaimingwall",
     "ifaimingsector",
+    "ifinteractive",
 
 // BUILD functions
     "resetkey",
@@ -359,6 +360,7 @@ const char *keyw[] =
     "drawlabel",
     "getnumber16",
     "getnumber256",
+    "getnumberfromuser",
     "qsprintf",
     "qstrcat",
     "qstrcpy",
@@ -953,7 +955,7 @@ static int32_t parse_integer_literal(int32_t *num)
         long lnum;
         errno = 0;
         lnum = Bstrtol(textptr, NULL, 10);
-        if (errno || (sizeof(long)>4 && (lnum<INT_MIN || lnum>INT_MAX)))
+        if (errno || (sizeof(long)>4 && (lnum<INT32_MIN || lnum>INT32_MAX)))
         {
             C_CUSTOMERROR("integer literal exceeds bitwidth.");
             return 1;
@@ -1828,6 +1830,29 @@ static int32_t C_ParseCommand(void)
             statesinfo[j].numlocals = 0;
             Bsprintf(g_szCurrentBlockName, "%s", statesinfo[j].name);
 
+            if (C_GetKeyword() < 0)
+            {
+                ofstype *oscriptptr = g_scriptPtr;
+
+                if (C_GetNextVarOrString() == 1)  // inline string
+                {
+                    const char *menufuncname = (const char *)(oscriptptr+1);
+                    registerMenuFunction(menufuncname, j);
+
+                    g_scriptPtr = oscriptptr;
+                }
+                else
+                {
+                    C_CUSTOMERROR("expected inline string to be used as menu name.");
+                    return 1;
+                }
+            }
+            else if (j != g_stateCount)
+            {
+                // unregister that state with the menu if redefining and no menu name
+                registerMenuFunction(NULL, j);
+            }
+
             return 0;
         }
 
@@ -2380,7 +2405,7 @@ repeatcase:
             C_CUSTOMERROR("found `default' statement when not in switch");
             return 1;
         }
-        if (cs.caseScriptPtr && cs.caseScriptPtr[0]!=0)
+        if (cs.caseScriptPtr && cs.caseScriptPtr[0]!=-1)
         {
             C_CUSTOMERROR("multiple `default' statements found in switch");
         }
@@ -2934,6 +2959,7 @@ repeatcase:
     case CON_IFAIMINGSPRITE:
     case CON_IFAIMINGWALL:
     case CON_IFAIMINGSECTOR:
+    case CON_IFINTERACTIVE:
     {
         ofstype offset;
         ofstype lastScriptOfs = (g_scriptPtr-script-1);
@@ -3272,10 +3298,13 @@ repeatcase:
 
     case CON_GETNUMBER16:
     case CON_GETNUMBER256:
+    case CON_GETNUMBERFROMUSER:  // <<retvar>> "quote" <max> <flags>(1|2|4|8|(16))
         C_GetNextVarType(GV_WRITABLE);
         if (C_GetNextVarOrString()==-1)
             return 1;
         C_GetNextVar();
+        if (tw==CON_GETNUMBERFROMUSER)
+            C_GetNextVar();
         return 0;
 
     case CON_QSPRINTF:

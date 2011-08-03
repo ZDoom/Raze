@@ -25,6 +25,7 @@ ends
 // various tests of m32-script features
 
 defstate arraytest
+    "Array test"
     getarraysize ar tmp
     resizearray ar 65536
     getticks parm[2]
@@ -42,6 +43,7 @@ defstate arraytest
 ends
 
 defstate itertest
+    "Iteration test"
     var gi gj gk
     // iteration and break test
 
@@ -82,6 +84,7 @@ define MIN_CONSTANT -2147483648
 
 // tests various combinations of constants and labels
 defstate consttest
+    "Constants test"
     quote " --- Constants test ---", quote " "
 
     quote "Should be 0:"
@@ -154,6 +157,7 @@ defstate consttest
 ends
 
 defstate anmtest
+    "Sprite yoffsets"
     var yo
 
     for i range MAXTILES
@@ -174,4 +178,68 @@ defstate anmtest
             }
         }
     }
+ends
+
+// switch/break/default regression test, inspired by
+// http://forums.duke4.net/topic/1348-mapster32-problems-and-bugs/page__view__findpost__p__101510
+defstate switchtest
+    "'switch' test"
+    set i 3622
+    whilevarn i 3779
+    {
+        // test for many things at once:
+
+        // sorting of key values
+        switch i
+        case 3625 set j 666  /* fall-through */
+        default set j -1 break
+        case 3622 set j 3919 break
+        case 3626 set j -100
+        case 3623 set j 3685 break
+        case 3627 set j 1234 break
+        endswitch
+
+        // 'break' should always lead us here
+        ifle i 3627
+        {
+            qsprintf TQUOTE "j=%d" j
+            quote TQUOTE
+        }
+
+        add i 1
+    }
+
+    quote "----"
+
+    // same thing, slightly different syntax
+    set i 3622
+    whilevarn i 3779
+    {
+        switch i
+        {
+            case 3625 set j 666
+            default set j -1 break
+            case 3622 set j 3919 break
+            case 3626 set j -100
+            case 3623 set j 3685 break
+            case 3627 set j 1234 break
+        }
+        endswitch
+
+        ifle i 3627
+        {
+            qsprintf TQUOTE "j=%d" j
+            quote TQUOTE
+        }
+
+        add i 1
+    }
+
+    // correct output:
+    // j=3919
+    // j=3685
+    // j=-1
+    // j=-1
+    // j=3685
+    // j=1234
 ends

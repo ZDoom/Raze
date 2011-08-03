@@ -56,6 +56,9 @@ extern instype *g_scriptPtr;
 void C_Compile(const char *filenameortext, int32_t isfilename);
 void C_CompilationInfo(void);
 
+void registerMenuFunction(const char *funcname, ofstype scriptofs);
+void M32_PostScriptExec(void);
+
 typedef struct
 {
     int32_t ofs;  // offset into script[]
@@ -89,6 +92,19 @@ typedef struct {
 
 extern const tokenmap_t iter_tokens[];
 
+enum vmflags
+{
+    VMFLAG_RETURN = 1,
+    VMFLAG_BREAK = 2,
+    VMFLAG_ERROR = 4,
+};
+
+enum miscvmflags
+{
+    VMFLAG_MISC_UPDATEHL = 1,
+    VMFLAG_MISC_UPDATEHLSECT = 2,
+    VMFLAG_MISC_INTERACTIVE = 4,
+};
 
 typedef struct {
     int32_t g_i;
@@ -97,13 +113,10 @@ typedef struct {
     int32_t g_st;
     spritetype *g_sp;
     uint32_t flags; //g_errorFlag, g_returnFlag;
-    uint32_t updatehighlight;
-    uint32_t updatehighlightsector;
-} vmstate_t;
 
-#define VMFLAG_RETURN 1
-#define VMFLAG_BREAK 2
-#define VMFLAG_ERROR 4
+    // 1:updatehighlight, 2:updatehighlightsector, 4:interactive (from menu)?
+    uint32_t miscflags;
+} vmstate_t;
 
 extern vmstate_t vm;
 extern vmstate_t vm_default;
@@ -434,6 +447,7 @@ enum ScriptKeywords_t
     CON_IFAIMINGSPRITE,
     CON_IFAIMINGWALL,
     CON_IFAIMINGSECTOR,
+    CON_IFINTERACTIVE,
 
 // BUILD functions
     CON_RESETKEY,
@@ -495,6 +509,7 @@ enum ScriptKeywords_t
     CON_DRAWLABEL,
     CON_GETNUMBER16,
     CON_GETNUMBER256,
+    CON_GETNUMBERFROMUSER,
     CON_QSPRINTF,
     CON_QSTRCAT,
     CON_QSTRCPY,

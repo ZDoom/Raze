@@ -9133,7 +9133,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 {
     intptr_t oscrofs;
     char *tp;
-    int32_t i, j, slen, ofs;
+    int32_t i, j, slen, ofs, dontsavehist;
     int32_t onumconstants=g_numSavedConstants;
 
     if (parm->numparms==0)
@@ -9146,6 +9146,10 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
     tp = Bmalloc(slen+2);
     if (!tp) goto OUTOFMEM;
     Bmemcpy(tp, parm->raw+ofs, slen);
+
+    // explicitly typed space at beginning of command (really? not eaten by OSD
+    // code?) or M32script call from 'special functions' menu
+    dontsavehist = (slen==0 || tp[0]==' ');
 
     // needed so that subsequent commands won't execute old stuff.
     tp[slen] = '\n';
@@ -9184,23 +9188,17 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
             vm.g_sp = &sprite[vm.g_i];
         }
 
+        // If OSD is down, that would interfere with user input, so don't consider
+        // m32script executed from the console as 'interactive'. Which leaves only
+        // that from the 'special functions' menu
+        if (OSD_GetRowsCur() < 0)
+            vm.miscflags |= VMFLAG_MISC_INTERACTIVE;
+
         VM_Execute(0);
 
-        if (vm.updatehighlight)
-        {
-            update_highlight();
-            vm.updatehighlight = 0;
-        }
+        M32_PostScriptExec();
 
-        if (vm.updatehighlightsector)
-        {
-            update_highlightsector();
-            if (qsetmode != 200)
-                ovh_whiteoutgrab(1);
-            vm.updatehighlightsector = 0;
-        }
-
-        if (!(vm.flags&VMFLAG_ERROR))
+        if (!(vm.flags&VMFLAG_ERROR) && !dontsavehist)
         {
             int32_t idx, dosave=1;
 
@@ -12507,9 +12505,10 @@ static void GenericSpriteSearch(void)
     keystatus[KEYSC_ESC] = 0;
 }
 
-// Build edit
+////////// SPECIAL FUNCTIONS MENU //////////
 
-static const char *FuncMenuStrings[] =
+static int32_t numMenuFunctions = 8;
+static char *funcMenuStrings[8*3] =
 {
     "Replace invalid tiles",
     "Delete all spr of tile #",
@@ -12519,38 +12518,111 @@ static const char *FuncMenuStrings[] =
     "Resize selection",
     "Global shade divide",
     "Global visibility divide"
+    // dynamic menu entries start here
 };
+
+static ofstype funcMenuStatenum[8*2];
+
+void registerMenuFunction(const char *funcname, int32_t stateidx)
+{
+    char fn[25];
+    int32_t i;
+
+    if (funcname == NULL)  // unregister stateidx
+    {
+        int32_t j;
+
+        for (i=8; i<numMenuFunctions; i++)
+            if (funcMenuStatenum[i-8]==stateidx)
+            {
+                Bfree(funcMenuStrings[i]);
+
+                for (j=i; j<numMenuFunctions-1; j++)
+                {
+                    funcMenuStatenum[j] = funcMenuStatenum[j+1];
+                    funcMenuStrings[j] = funcMenuStrings[j+1];
+                }
+
+                funcMenuStatenum[j] = 0;
+                funcMenuStrings[j] = NULL;
+
+                numMenuFunctions--;
+
+                break;
+            }
+
+        return;
+    }
+
+    // register menu entry named FUNCNAME to call the M32script
+    // state with index STATEIDX
+    Bstrncpy(fn, funcname, sizeof(fn));
+    fn[sizeof(fn)-1] = 0;
+
+    for (i=8; i<numMenuFunctions; i++)
+    {
+        if (funcMenuStatenum[i-8]==stateidx)
+        {
+            // same stateidx, different name
+            Bfree(funcMenuStrings[i]);
+            funcMenuStrings[i] = Bstrdup(fn);
+            return;
+        }
+        else if (!Bstrcmp(funcMenuStrings[i], fn))
+        {
+            // same name, different stateidx
+            funcMenuStatenum[i-8] = stateidx;
+            return;
+        }
+    }
+
+    if (numMenuFunctions == 3*8)
+        return;  // max reached
+
+    funcMenuStrings[numMenuFunctions] = Bstrdup(fn);
+    funcMenuStatenum[numMenuFunctions-8] = stateidx;
+
+    numMenuFunctions++;
+}
 
 #define MENU_Y_SPACING 8
 #define MENU_BASE_Y ydim-STATUS2DSIZ+32
 
+static int32_t correct_picnum(int16_t *picnumptr)
+{
+    int32_t picnum = *picnumptr;
+
+    if ((unsigned)picnum >= MAXTILES || tilesizx[picnum] <= 0)
+    {
+        *picnumptr = 0;
+        return 1;
+    }
+
+    return 0;
+}
 
 static void FuncMenuOpts(void)
 {
     int32_t x = 8;
     int32_t y = MENU_BASE_Y+16;
-    int32_t i = 0;
-    //  int32_t x2 = 0;
-    //    static int32_t x2_max = 0;
+    int32_t i;
 
-    int32_t numopts = (sizeof(FuncMenuStrings)/sizeof(FuncMenuStrings[0]));
-
-    do
+    for (i=0; i<numMenuFunctions; i++)
     {
-        //        x2 =
-        printext16(x,y,editorcolors[11],editorcolors[0],FuncMenuStrings[i],0);
-        //    if (x2 > x2_max) x2_max = x2;
+        if (i==8 || i==16)
+        {
+            x += 208;
+            y = MENU_BASE_Y+16;
+        }
+
+        printext16(x,y,editorcolors[11],editorcolors[0],funcMenuStrings[i],0);
         y += MENU_Y_SPACING;
     }
-    while (++i < numopts);
-    //    drawline16(x-1,y,x2_max+1,y,1);
-    //  drawline16(x-1,MENU_BASE_Y-4,x-1,y,1);
 
-    //    x2 =
-    printext16(x,MENU_BASE_Y,editorcolors[11],-1,"Special functions",0);
-    //    drawline16(x-1,MENU_BASE_Y-4,x2+1,MENU_BASE_Y-4,1);
-    //  drawline16(x2_max+1,MENU_BASE_Y+16-4,x2_max+1,y-1,1);
-    //drawline16(x2+1,MENU_BASE_Y+16-1,x2_max+1,MENU_BASE_Y+16-1,1);
+    printext16(numMenuFunctions>8 ? 216 : 8, MENU_BASE_Y,
+               editorcolors[11], -1, "Special functions", 0);
+
+    clearkeys();
 }
 
 static void FuncMenu(void)
@@ -12558,6 +12630,15 @@ static void FuncMenu(void)
     char disptext[80];
     int32_t col=0, row=0, rowmax=7, dispwidth = 24, editval = 0, i = -1, j;
     int32_t xpos = 8, ypos = MENU_BASE_Y+16;
+    int32_t crowmax[3] = {7, -1, -1};
+
+    if (numMenuFunctions > 16)
+    {
+        crowmax[2] = numMenuFunctions-16-1;
+        crowmax[1] = 7;
+    }
+    else if (numMenuFunctions > 8)
+        crowmax[1] = numMenuFunctions-8-1;
 
     drawgradient();
 
@@ -12589,27 +12670,15 @@ static void FuncMenu(void)
                 row--;
             }
         }
-#if 0
+#if 1
         if (PRESSED_KEYSC(LEFT))
         {
-            /*            if (col == 2)
-            {
-            printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
-            col = 1;
-            xpos = 200;
-            rowmax = 6;
-            dispwidth = 24;
-            disptext[dispwidth] = 0;
-            if (row > rowmax) row = rowmax;
-            }
-            else */
-            if (col == 1)
+            if (col==1 || col==2)
             {
                 printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
-                col = 0;
-                xpos = 8;
-                rowmax = 7;
-                dispwidth = 24;
+                col--;
+                xpos -= 208;
+                rowmax = crowmax[col];
                 disptext[dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
@@ -12617,26 +12686,15 @@ static void FuncMenu(void)
 
         if (PRESSED_KEYSC(RIGHT))
         {
-            if (col == 0)
+            if ((col==0 || col==1) && crowmax[col+1]>=0)
             {
                 printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
-                col = 1;
-                xpos = 200;
-                rowmax = 0;
-                dispwidth = 24;
+                col++;
+                xpos += 208;
+                rowmax = crowmax[col];
                 disptext[dispwidth] = 0;
                 if (row > rowmax) row = rowmax;
             }
-            /*            else if (col == 1)
-            {
-            printext16(xpos,ypos+row*8,editorcolors[11],0,disptext,0);
-            col = 2;
-            xpos = 400;
-            rowmax = 6;
-            dispwidth = 26;
-            disptext[dispwidth] = 0;
-            if (row > rowmax) row = rowmax;
-            } */
         }
 #endif
         if (PRESSED_KEYSC(ENTER))
@@ -12644,33 +12702,60 @@ static void FuncMenu(void)
 
         switch (col)
         {
+        case 1:
+        case 2:
+        {
+            for (i=Bsnprintf(disptext,dispwidth,"%s",funcMenuStrings[col*8 + row]); i < dispwidth; i++)
+                disptext[i] = ' ';
+
+            if (editval)
+            {
+                char *statename = statesinfo[funcMenuStatenum[(col-1)*8 + row]].name;
+                int32_t snlen = Bstrlen(statename);
+                char *tmpscript = Bmalloc(1+5+1+snlen+1);
+
+                if (!tmpscript)
+                    break;
+
+                tmpscript[0] = ' ';  // don't save in history
+                Bmemcpy(&tmpscript[1], "state", 5);
+                tmpscript[1+5] = ' ';
+                Bmemcpy(&tmpscript[1+5+1], statename, snlen);
+                tmpscript[1+5+1+snlen] = 0;
+
+                M32RunScript(tmpscript);
+                Bfree(tmpscript);
+
+                if (vm.flags&VMFLAG_ERROR)
+                    printmessage16("There were errors while executing the menu function");
+                else
+                    printmessage16("Menu function executed successfully");
+            }
+
+            break;
+        }
         case 0:
             switch (row)
             {
             case 0:
             {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j = 0;
                     for (i=0; i<MAXSECTORS; i++)
                     {
-                        if (tilesizx[sector[i].ceilingpicnum] <= 0)
-                            sector[i].ceilingpicnum = 0,j++;
-                        if (tilesizx[sector[i].floorpicnum] <= 0)
-                            sector[i].floorpicnum = 0,j++;
+                        j += correct_picnum(&sector[i].ceilingpicnum);
+                        j += correct_picnum(&sector[i].floorpicnum);
                     }
                     for (i=0; i<MAXWALLS; i++)
                     {
-                        if (tilesizx[wall[i].picnum] <= 0)
-                            wall[i].picnum = 0,j++;
-                        if (tilesizx[wall[i].overpicnum] <= 0)
-                            wall[i].overpicnum = 0,j++;
+                        j += correct_picnum(&wall[i].picnum);
+                        j += correct_picnum(&wall[i].overpicnum);
                     }
                     for (i=0; i<MAXSPRITES; i++)
                     {
-                        if (tilesizx[sprite[i].picnum] <= 0)
-                            sprite[i].picnum = 0,j++;
+                        j += correct_picnum(&sprite[i].picnum);
                     }
                     printmessage16("Replaced %d invalid tiles",j);
                 }
@@ -12678,7 +12763,7 @@ static void FuncMenu(void)
             break;
             case 1:
             {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     Bsprintf(tempbuf,"Delete all sprites of tile #: ");
@@ -12697,7 +12782,7 @@ static void FuncMenu(void)
             break;
             case 2:
             {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Set map sky shade:    ",0,128,1);
@@ -12713,7 +12798,7 @@ static void FuncMenu(void)
             break;
             case 3:
             {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Set map sky height:    ",0,16777216,1);
@@ -12732,7 +12817,7 @@ static void FuncMenu(void)
             break;
             case 4:
             {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Z offset:    ",0,16777216,1);
@@ -12753,7 +12838,7 @@ static void FuncMenu(void)
             break;
             case 5:
             {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Percentage of original:    ",100,1000,0);
@@ -12794,7 +12879,7 @@ static void FuncMenu(void)
             break;
             case 6:
             {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Shade divisor:    ",1,128,1);
@@ -12817,7 +12902,7 @@ static void FuncMenu(void)
             break;
             case 7:
             {
-                for (i=Bsprintf(disptext,"%s",FuncMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
+                for (i=Bsprintf(disptext,"%s",funcMenuStrings[row]); i < dispwidth; i++) disptext[i] = ' ';
                 if (editval)
                 {
                     j=getnumber16("Visibility divisor:    ",1,128,0);
@@ -12838,6 +12923,7 @@ static void FuncMenu(void)
             }
             break;
         }
+
         printext16(xpos,ypos+row*MENU_Y_SPACING,editorcolors[11],editorcolors[1],disptext,0);
 
         showframe(1);

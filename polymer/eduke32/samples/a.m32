@@ -86,6 +86,7 @@ gamearray parm 8
 
 // prints out maphack light definitions based on SE lights in map
 defstate printlights
+    "Print Polymer lights"
     var flags
 
     print "--PRLIGHTS--"
@@ -119,6 +120,7 @@ defstate printlights
 ends
 
 defstate insertlights
+    "Insert active SE lights"
     var sectnum
 
     set k 0
@@ -204,8 +206,7 @@ defstate fiddlewithlights
         ifeitherctrl mul j 10
 
         switch k
-  // "break" breaks too far or there's something wrong with the switch -- needs to be looked at
-//        case 0: break;
+        case 0: break;
         case 1:
         {
             set k pr_parallaxscale
@@ -250,7 +251,7 @@ defstate fiddlewithlights
         ifeitherctrl mul j 10
 
         switch k
-//        case 0: break;
+        case 0: break;
         case 3:
         {
             set k pr_specularfactor
@@ -500,7 +501,16 @@ defstate try_nextsector
 ends
 
 defstate collect_teleporting_sectors // (sec)
+    "Collect telep. sectors"
     var numsects
+
+    set numsects numsectors, sub numsects 1
+    ifinteractive
+    {
+        getnumberfromuser sec "starting sectnum: " numsects 8
+        ifl sec 0, return
+    }
+
     collectsectors collectedsectors sec numsects try_nextsector
     for i range numsects
         sethighlightsector collectedsectors[i] 1
@@ -1186,6 +1196,7 @@ defstate chselshade
 ends
 
 defstate correctslopes
+    "Correct cstat&2/heinum"
     for i allsectors
     {
         set j sector[i].ceilingstat, and j 2

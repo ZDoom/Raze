@@ -38,12 +38,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 vmstate_t vm;
 vmstate_t vm_default =
 {
-    -1,
-    0,
-    NULL,
-    0,
-    0,
-    0
+    -1,   // g_i
+    0,    // g_st
+    NULL, // g_sp
+    0,    // flags
+    0,    // miscflags
 };
 
 int32_t g_errorLineNum, g_tw;
@@ -135,6 +134,23 @@ void VM_ScriptInfo(void)
     }
 }
 
+void M32_PostScriptExec(void)
+{
+    if (vm.miscflags&VMFLAG_MISC_UPDATEHL)
+    {
+        update_highlight();
+        vm.miscflags &= ~VMFLAG_MISC_UPDATEHL;
+    }
+
+    if (vm.miscflags&VMFLAG_MISC_UPDATEHLSECT)
+    {
+        update_highlightsector();
+        if (qsetmode != 200)
+            ovh_whiteoutgrab(1);
+        vm.miscflags &= ~VMFLAG_MISC_UPDATEHLSECT;
+    }
+}
+
 void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
 {
     if (iEventID < 0 || iEventID >= MAXEVENTS)
@@ -188,19 +204,7 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
             message("ERROR executing %s. Event disabled.", label+(iEventID*MAXLABELLEN));
         }
 
-        if (vm.updatehighlight)
-        {
-            update_highlight();
-            vm.updatehighlight = 0;
-        }
-
-        if (vm.updatehighlightsector)
-        {
-            update_highlightsector();
-            if (qsetmode != 200)
-                ovh_whiteoutgrab(1);
-            vm.updatehighlightsector = 0;
-        }
+        M32_PostScriptExec();
 
         // restore old values...
         Bmemcpy(&vm, &vm_backup, sizeof(vmstate_t));
@@ -461,6 +465,7 @@ skip_check:
 //                    }
                 }
                 insptr = (instype *)(lCodeInsPtr + lEnd);
+                vm.flags &= ~VMFLAG_BREAK;
                 //Bsprintf(g_szBuf,"insptr=%d. ",     (int32_t)insptr); AddLog(g_szBuf);
                 //AddLog("Done Processing Switch");
                 continue;
@@ -1776,7 +1781,7 @@ badindex:
                 int64_t dax=Gv_GetVarX(*insptr++), day=Gv_GetVarX(*insptr++);
                 int64_t hypsq = dax*dax + day*day;
 
-                if (hypsq > (int64_t)INT_MAX)
+                if (hypsq > (int64_t)INT32_MAX)
                     Gv_SetVarX(retvar, (int32_t)sqrt((double)hypsq));
                 else
                     Gv_SetVarX(retvar, ksqrt((int32_t)hypsq));
@@ -2204,7 +2209,7 @@ badindex:
                         show2dwall[index>>3] &= ~(1<<(index&7));
                 }
 
-                vm.updatehighlight = 1;
+                vm.miscflags |= VMFLAG_MISC_UPDATEHL;
 
                 continue;
             }
@@ -2227,7 +2232,7 @@ badindex:
                 else
                     hlsectorbitmap[index>>3] &= ~(1<<(index&7));
 
-                vm.updatehighlightsector = 1;
+                vm.miscflags |= VMFLAG_MISC_UPDATEHLSECT;
 
                 continue;
             }
@@ -2368,8 +2373,9 @@ badindex:
             OSD_Printf("%s", ScriptQuotes[*insptr++]);
             continue;
 
-        case CON_GETNUMBER16:
-        case CON_GETNUMBER256:
+        case CON_GETNUMBER16:  /* deprecated */
+        case CON_GETNUMBER256:  /* deprecated */
+        case CON_GETNUMBERFROMUSER:
             insptr++;
             {
                 int32_t var=*insptr++, quote=*insptr++;
@@ -2378,18 +2384,24 @@ badindex:
                     continue;
 
                 {
-                    int32_t max=Gv_GetVarX(*insptr++), sign=(max<=0);
+                    int32_t max=Gv_GetVarX(*insptr++);
+                    int32_t sign = (tw==CON_GETNUMBERFROMUSER) ? Gv_GetVarX(*insptr++) : (max<=0);
                     char buf[64];  // buffers in getnumber* are 80 bytes long
 
-                    // no danger of accessing unallocated memory since we took care in C_SetScriptSize()
-                    Bmemcpy(buf, quotetext, sizeof(buf));
+                    Bstrncpy(buf, quotetext, sizeof(buf));
                     buf[sizeof(buf)-1]='\0';
 
                     if (max==0)
-                        max = INT_MAX;
+                        max = INT32_MAX;
 
 //OSD_Printf("max:%d, sign:%d\n", max, sign);
-                    if (tw==CON_GETNUMBER16)
+                    if (tw==CON_GETNUMBERFROMUSER)
+                    {
+                        Gv_SetVarX(var, (qsetmode==200) ?
+                                   getnumber256(quotetext, Gv_GetVarX(var), max, sign) :
+                                   getnumber16(quotetext, Gv_GetVarX(var), max, sign));
+                    }
+                    else if (tw==CON_GETNUMBER16)
                         Gv_SetVarX(var, getnumber16(quotetext, Gv_GetVarX(var), max, sign));
                     else
                         Gv_SetVarX(var, getnumber256(quotetext, Gv_GetVarX(var), max, sign));
@@ -2994,6 +3006,9 @@ dodefault:
             continue;
         case CON_IFAIMINGSECTOR:
             VM_DoConditional(AIMING_AT_CEILING_OR_FLOOR);
+            continue;
+        case CON_IFINTERACTIVE:
+            VM_DoConditional(vm.miscflags&VMFLAG_MISC_INTERACTIVE);
             continue;
 
         case CON_GETSOUNDFLAGS:

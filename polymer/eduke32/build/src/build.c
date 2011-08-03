@@ -7722,20 +7722,25 @@ int32_t getnumber_autocomplete(const char *namestart, char ch, int32_t *danum, i
     return 0;
 }
 
-// sign is now used for more than one flag:
+// sign is now used for more than one flag (also _getnumber256):
 //  1: sign
 //  2: autocomplete names
 //  4: autocomplete taglabels
 //  8: return -1 if cancelled
 int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
-    char buffer[80], ch;
+    char buffer[80], ournamestart[80-17], ch;
     int32_t n, danum, oldnum;
-    uint8_t flags = (sign>>1)&7;
+    uint8_t flags = (sign&(2|4|8))>>1;
     sign &= 1;
 
     danum = num;
     oldnum = danum;
+
+    // need to have 4+11+2==17 chars room at the end
+    // ("^011", max. string length of an int32, "_ ")
+    Bstrncpy(ournamestart, namestart, sizeof(ournamestart));
+    ournamestart[sizeof(ournamestart)-1] = 0;
 
     bflushchars();
     while (keystatus[0x1] == 0)
@@ -7746,14 +7751,16 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
         idle();
         ch = bgetchar();
 
-        Bsprintf(buffer,"%s^011%d", namestart, danum);
-        n = Bstrlen(buffer);
-        if (totalclock & 32) Bstrcat(buffer,"_ ");
+        Bsprintf(buffer, "%s^011%d", ournamestart, danum);
+        n = Bstrlen(buffer);  // maximum is 62+4+11 == 77
+        if (totalclock & 32)
+            Bstrcat(buffer,"_ ");
+        // max strlen now 79
         _printmessage16("%s", buffer);
 
         if (func != NULL)
         {
-            Bsprintf(buffer, "%s", (char *)func(danum));
+            Bsnprintf(buffer, sizeof(buffer), "%s", (char *)func(danum));
             // printext16(200L-24, ydim-STATUS2DSIZ+20L, editorcolors[9], editorcolors[0], buffer, 0);
             printext16(n<<3, ydim-STATUS2DSIZ+128, editorcolors[11], -1, buffer,0);
         }
@@ -7762,7 +7769,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
 
         n = 0;
         if (getnumber_internal1(ch, &danum, maxnumber, sign) ||
-            (n=getnumber_autocomplete(namestart, ch, &danum, flags)))
+            (n=getnumber_autocomplete(ournamestart, ch, &danum, flags&(1+2))))
         {
             if (flags==1 || n==0)
                 printmessage16("%s", buffer);
@@ -7794,13 +7801,18 @@ static void getnumber_clearline(void)
 // sign: |16: don't draw scene
 int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, char sign, void *(func)(int32_t))
 {
-    char buffer[80], ch;
+    char buffer[80], ournamestart[80-13], ch;
     int32_t danum, oldnum;
-    uint8_t flags = (sign>>1)&(3|8);
+    uint8_t flags = (sign&(2|4|8|16))>>1;
     sign &= 1;
 
     danum = num;
     oldnum = danum;
+
+    // need to have 11+2==13 chars room at the end
+    // (max. string length of an int32, "_ ")
+    Bstrncpy(ournamestart, namestart, sizeof(ournamestart));
+    ournamestart[sizeof(ournamestart)-1] = 0;
 
     bflushchars();
     while (keystatus[0x1] == 0)
@@ -7842,19 +7854,22 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
 
         getnumber_clearline();
 
-        Bsprintf(buffer,"%s%d",namestart,danum);
-        if (totalclock & 32) Bstrcat(buffer,"_ ");
+        Bsprintf(buffer,"%s%d",ournamestart,danum);
+        // max strlen now 66+11==77
+        if (totalclock & 32)
+            Bstrcat(buffer,"_ ");
+        // max strlen now 79
         printmessage256(0, 0, buffer);
         if (func != NULL)
         {
-            Bsprintf(buffer, "%s", (char *)func(danum));
+            Bsnprintf(buffer, sizeof(buffer), "%s", (char *)func(danum));
             printmessage256(0, 9, buffer);
         }
 
         showframe(1);
 
         if (getnumber_internal1(ch, &danum, maxnumber, sign) ||
-            getnumber_autocomplete(namestart, ch, &danum, flags&(1+2)))
+            getnumber_autocomplete(ournamestart, ch, &danum, flags&(1+2)))
         {
             if (danum != oldnum)
                 asksave = 1;
@@ -7862,6 +7877,9 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
             break;
         }
     }
+
+    if (keystatus[0x1] && (flags&4))
+        oldnum = -1;
 
     clearkeys();
 
@@ -9172,7 +9190,7 @@ void _printmessage16(const char *fmt, ...)
     va_list va;
 
     va_start(va, fmt);
-    Bvsnprintf(tmpstr, 156, fmt, va);
+    Bvsnprintf(tmpstr, sizeof(tmpstr), fmt, va);
     va_end(va);
 
     i = 0;
