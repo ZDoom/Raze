@@ -121,6 +121,8 @@ extern int32_t g_tw;
 extern int32_t ticrandomseed;
 extern vmstate_t vm;
 
+extern int32_t g_currentEventExec;
+
 void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist);
 void A_Fall(int32_t iActor);
 int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_t *day);

@@ -51,6 +51,8 @@ int32_t g_errorLineNum;
 int32_t g_tw;
 extern int32_t ticrandomseed;
 
+int32_t g_currentEventExec = -1;
+
 GAMEEXEC_STATIC void VM_Execute(int32_t loop);
 
 #include "gamestructures.c"
@@ -95,6 +97,7 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
         vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
                              &sprite[iActor], 0 };
 
+        g_currentEventExec = iEventID;
         insptr = apScriptGameEvent[iEventID];
 
         Bmemcpy(&vm_backup, &vm, sizeof(vmstate_t));
@@ -113,6 +116,8 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
 
         Bmemcpy(&vm, &vm_backup, sizeof(vmstate_t));
         insptr = oinsptr;
+
+        g_currentEventExec = -1;
     }
 }
 
@@ -4958,6 +4963,12 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(&save->numsectors,&numsectors,sizeof(numsectors));
         Bmemcpy(&save->sector[0],&sector[0],sizeof(sectortype)*MAXSECTORS);
         Bmemcpy(&save->sprite[0],&sprite[0],sizeof(spritetype)*MAXSPRITES);
+
+        if (g_currentEventExec == EVENT_ANIMATESPRITES)
+            initprintf("Line %d: savemapstate called from EVENT_ANIMATESPRITES. WHY?\n", g_errorLineNum);
+        else
+            for (i=0; i<MAXSPRITES; i++)
+                spriteext[i].tspr = NULL;
         Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
         Bmemcpy(&save->headspritesect[0],&headspritesect[0],sizeof(headspritesect));
         Bmemcpy(&save->prevspritesect[0],&prevspritesect[0],sizeof(prevspritesect));
@@ -5085,6 +5096,11 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&sector[0],&save->sector[0],sizeof(sectortype)*MAXSECTORS);
         Bmemcpy(&sprite[0],&save->sprite[0],sizeof(spritetype)*MAXSPRITES);
         Bmemcpy(&spriteext[0],&save->spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
+        if (g_currentEventExec == EVENT_ANIMATESPRITES)
+            initprintf("Line %d: loadmapstate called from EVENT_ANIMATESPRITES. WHY?\n",g_errorLineNum);
+        else
+            for (i=0; i<MAXSPRITES; i++)
+                spriteext[i].tspr = NULL;
         Bmemcpy(&headspritesect[0],&save->headspritesect[0],sizeof(headspritesect));
         Bmemcpy(&prevspritesect[0],&save->prevspritesect[0],sizeof(prevspritesect));
         Bmemcpy(&nextspritesect[0],&save->nextspritesect[0],sizeof(nextspritesect));

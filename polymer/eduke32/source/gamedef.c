@@ -3771,6 +3771,15 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_FLASH:
         case CON_SAVEMAPSTATE:
         case CON_LOADMAPSTATE:
+            if (tw != CON_FLASH)
+            {
+                if (g_currentEvent == EVENT_ANIMATESPRITES)
+                {
+                    initprintf("%s:%d: warning: found `%s' inside EVENT_ANIMATESPRITES\n",
+                               g_szScriptFileName,g_lineNumber,tempbuf);
+                    g_numCompilerWarnings++;
+                }
+            }
             continue;
 
         case CON_DRAGPOINT:

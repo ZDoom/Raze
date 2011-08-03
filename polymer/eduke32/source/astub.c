@@ -9147,8 +9147,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
     if (!tp) goto OUTOFMEM;
     Bmemcpy(tp, parm->raw+ofs, slen);
 
-    // explicitly typed space at beginning of command (really? not eaten by OSD
-    // code?) or M32script call from 'special functions' menu
+    // M32script call from 'special functions' menu
     dontsavehist = (slen==0 || tp[0]==' ');
 
     // needed so that subsequent commands won't execute old stuff.
