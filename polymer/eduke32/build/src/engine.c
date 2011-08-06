@@ -104,7 +104,7 @@ int32_t dommxoverlay = 1, beforedrawrooms = 1, indrawroomsandmasks = 0;
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
 // r_usenewaspect is the cvar, newaspect_enable to trigger the new behaviour in the code
-int32_t r_usenewaspect = 0, newaspect_enable=0;
+int32_t r_usenewaspect = 1, newaspect_enable=0;
 uint32_t r_screenxy = 403;  // 4:3 aspect ratio
 
 int32_t curbrightness = 0, gammabrightness = 0;
@@ -14402,10 +14402,10 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     else
 #endif
     {
-        if (!m32_sideview && (j >= 0) && (i > j)) return;
+        if (!m32_sideview && !(grayp&2) && (j >= 0) && (i > j)) return;
     }
 
-    if (grayp)
+    if (grayp&1)
     {
         col = 8;
     }
@@ -14746,6 +14746,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     int32_t posxe=pos->x, posye=pos->y, posze=pos->z;
     uint8_t *graybitmap = (uint8_t *)tempbuf;
+    int32_t alwaysshowgray = (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT_MAX));
 
     if (qsetmode == 200) return;
 
@@ -14773,8 +14774,8 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     {
         for (i=0; i<numwalls; i++)
         {
-            if ((graywallbitmap[i>>3]&(1<<(i&7))) ||
-                ((j=wall[i].nextwall)>=0 && (graywallbitmap[j>>3]&(1<<(j&7)))))
+            j = wall[i].nextwall;
+            if ((graywallbitmap[i>>3]&(1<<(i&7))) && (j < 0 || (graywallbitmap[j>>3]&(1<<(j&7)))))
                 graybitmap[i>>3] |= (1<<(i&7));
             else
                 graybitmap[i>>3] &= ~(1<<(i&7));
@@ -14787,24 +14788,14 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
         for (i=numwalls-1; i>=0; i--)
             drawscreen_drawwall(i,posxe,posye,posze,zoome, 0);
 #else
-        int32_t alwaysshowgray = (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT_MAX));
+        if (alwaysshowgray)
+            for (i=numwalls-1; i>=0; i--)
+                if (graybitmap[i>>3]&(1<<(i&7)))
+                    drawscreen_drawwall(i,posxe,posye,posze,zoome, 1+2);
 
         for (i=numwalls-1; i>=0; i--)
-            if (graybitmap[i>>3]&(1<<(i&7)))
-            {
-                if (alwaysshowgray)
-                    drawscreen_drawwall(i,posxe,posye,posze,zoome, 1);
-                else
-                {
-                    j = sectorofwall(i);  // ugh...
-                    if ((yax_getbunch(j,0)<0 || yax_getnextwall(i,0)>=0) &&
-                            (yax_getbunch(j,1)<0 || yax_getnextwall(i,1)>=0))
-                        drawscreen_drawwall(i,posxe,posye,posze,zoome, 1);
-                }
-            }
-        for (i=numwalls-1; i>=0; i--)
             if ((graybitmap[i>>3]&(1<<(i&7)))==0)
-                drawscreen_drawwall(i,posxe,posye,posze,zoome, 0);
+                drawscreen_drawwall(i,posxe,posye,posze,zoome, 2);
 #endif
     }
     else
@@ -14856,7 +14847,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
         {
             j = m32_wallsprite[i];
             if (j<MAXWALLS)
-                drawscreen_drawwall(j,posxe,posye,posze,zoome,(graybitmap[j>>3]&(1<<(j&7))));
+                drawscreen_drawwall(j,posxe,posye,posze,zoome,!!(graybitmap[j>>3]&(1<<(j&7))));
             else
                 drawscreen_drawsprite(j-MAXWALLS,posxe,posye,posze,zoome);
         }

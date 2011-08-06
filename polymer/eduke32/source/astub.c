@@ -7691,7 +7691,7 @@ static void Keys2d(void)
         if (eitherALT)
         {
             showinnergray = !showinnergray;
-            printmessage16("Display inner gray walls: %s", ONOFF(showinnergray));
+            printmessage16("Display grayed out walls: %s", ONOFF(showinnergray));
         }
         else
         {
@@ -7784,16 +7784,12 @@ static void Keys2d(void)
         }
         else
         {
-            for (i=0; i<numsectors; i++)
-                if (inside_editor_curpos(i) == 1)
-                {
-                    Bsprintf(buffer,"Sector (%d) Lo-tag: ",i);
-//                    j = qsetmode;
-//                    qsetmode = 200;
-                    sector[i].lotag = _getnumber16(buffer, sector[i].lotag, BTAG_MAX, 0, (void *)ExtGetSectorType);
-//                    qsetmode = j;
-//                    break;
-                }
+            if (tcursectornum >= 0)
+            {
+                Bsprintf(buffer,"Sector (%d) Lo-tag: ", tcursectornum);
+                sector[tcursectornum].lotag =
+                    _getnumber16(buffer, sector[tcursectornum].lotag, BTAG_MAX, 0, (void *)ExtGetSectorType);                
+            }
         }
     }
 
@@ -7866,24 +7862,23 @@ static void Keys2d(void)
         }
         else
         {
-            for (i=0; i<numsectors; i++)
-                if (inside_editor_curpos(i) == 1)
-                {
-                    Bsprintf(tempbuf,"Sector %d Extra: ",i);
-                    sector[i].extra = getnumber16(tempbuf,sector[i].extra,BTAG_MAX,1);
-                }
+            if (tcursectornum >= 0)
+            {
+                Bsprintf(tempbuf,"Sector %d Extra: ",tcursectornum);
+                sector[tcursectornum].extra = getnumber16(tempbuf,sector[tcursectornum].extra,BTAG_MAX,1);                
+            }
         }
     }
 
     if (!eitherCTRL && PRESSED_KEYSC(E))  // E (expand)
     {
-        for (i=0; i<numsectors; i++)
-            if (inside_editor_curpos(i) == 1)
-            {
-                sector[i].floorstat ^= 8;
-                message("Sector %d floor texture expansion bit %s", i, ONOFF(sector[i].floorstat&8));
-                asksave = 1;
-            }
+        if (tcursectornum >= 0)
+        {
+            sector[tcursectornum].floorstat ^= 8;
+            message("Sector %d floor texture expansion bit %s", tcursectornum,
+                    ONOFF(sector[tcursectornum].floorstat&8));
+            asksave = 1;
+        }
     }
 
     if (PRESSED_KEYSC(SLASH))  // /     Reset panning&repeat to 0
@@ -7898,18 +7893,18 @@ static void Keys2d(void)
         }
         else if (graphicsmode != 0)
         {
-            for (i=0; i<numsectors; i++)
-                if (inside_editor_curpos(i) == 1)
-                {
+            i = tcursectornum;
+
+            if (i >= 0)
+            {
 #ifdef YAX_ENABLE
-                    if (yax_getbunch(i, YAX_FLOOR) < 0)
+                if (yax_getbunch(i, YAX_FLOOR) < 0)
 #endif
-                        sector[i].floorxpanning = 0;
-                    sector[i].floorypanning = 0;
-                    message("Sector %d floor panning reset", i);
-                    asksave = 1;
-                    break;
-                }
+                    sector[i].floorxpanning = 0;
+                sector[i].floorypanning = 0;
+                message("Sector %d floor panning reset", i);
+                asksave = 1;
+            }
         }
     }
 
@@ -7937,11 +7932,12 @@ static void Keys2d(void)
                 }
                 else
                 {
-                    for (i=0; i<numsectors; i++)
+                    i = tcursectornum;
+
+                    if (i >= 0)
 #ifdef YAX_ENABLE
                         if (k==1 || yax_getbunch(i, YAX_FLOOR) < 0)
 #endif
-                        if (inside_editor_curpos(i) == 1)
                         {
                             uint8_t *panning = (k==0) ? &sector[i].floorxpanning : &sector[i].floorypanning;
                             *panning = changechar(*panning, changedir, smooshy, 0);

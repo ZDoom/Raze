@@ -3230,6 +3230,8 @@ void overheadeditor(void)
             for (i=0; i<numsectors; i++)
                 if (inside_editor_curpos(i) == 1)
                 {
+                    YAX_SKIPSECTOR(i);
+
                     ExtEditSectorData(i);
                     break;
                 }
@@ -3293,6 +3295,8 @@ void overheadeditor(void)
                 for (i=0; i<numsectors; i++)
                     if (inside_editor_curpos(i) == 1)
                     {
+                        YAX_SKIPSECTOR(i);
+
                         Bsprintf(buffer, "Sector (%d) Hi-tag: ", i);
                         sector[i].hitag = getnumber16(buffer, sector[i].hitag, BTAG_MAX, 0);
                         break;
@@ -3307,6 +3311,8 @@ void overheadeditor(void)
             for (i=0; i<numsectors; i++)
                 if (inside_editor_curpos(i) == 1)
                 {
+                    YAX_SKIPSECTOR(i);
+
                     Bsprintf(buffer, "Sector (%d) Ceilingpal: ", i);
                     sector[i].ceilingpal = getnumber16(buffer, sector[i].ceilingpal, M32_MAXPALOOKUPS, 0);
 

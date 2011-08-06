@@ -274,8 +274,8 @@ int32_t loadsetup(const char *fn)
 
     if (readconfig(fp, "autogray", val, VL) > 0)
         autogray = !!atoi_safe(val);
-    if (readconfig(fp, "showinnergray", val, VL) > 0)
-        showinnergray = !!atoi_safe(val);
+//    if (readconfig(fp, "showinnergray", val, VL) > 0)
+//        showinnergray = !!atoi_safe(val);
 
     if (readconfig(fp, "graphicsmode", val, VL) > 0)
         graphicsmode = clamp(atoi_safe(val), 0, 2);
