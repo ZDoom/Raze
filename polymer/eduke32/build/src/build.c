@@ -9321,6 +9321,9 @@ static void AlignWalls(int32_t w0, int32_t z0, int32_t w1, int32_t z1, int32_t t
 {
     int32_t n;
 
+    if (tilesizx[tilenum]==0 || tilesizy[tilenum]==0)
+        return;
+
     //do the x alignment
     wall[w1].xpanning = (uint8_t)((wall[w0].xpanning + (wall[w0].xrepeat<<3))%tilesizx[tilenum]);
 
