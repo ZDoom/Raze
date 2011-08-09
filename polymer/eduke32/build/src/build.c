@@ -4375,7 +4375,7 @@ end_after_dragging:
 
                                 daspr->x += dax;
                                 daspr->y += day;
-                                setsprite(daspr-sprite, (const vec3_t *)daspr);
+                                setspritez(daspr-sprite, (const vec3_t *)daspr);
                             }
                         }
                     }
@@ -4404,7 +4404,7 @@ end_after_dragging:
                             vec.x = dax;
                             vec.y = day;
                             vec.z = sprite[daspr].z;
-                            if (setsprite(daspr, &vec) == -1 && osec>=0)
+                            if (setspritez(daspr, &vec) == -1 && osec>=0)
                                 Bmemcpy(&sprite[daspr], &ovec, sizeof(vec3_t));
 #if 0
                             daz = spriteheight(daspr, NULL);

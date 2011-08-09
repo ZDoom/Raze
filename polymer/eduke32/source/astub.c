@@ -1848,12 +1848,12 @@ void ExtShowWallData(int16_t wallnum)       //F6
 }
 
 // formerly Show2dText and Show3dText
-static void ShowFileText(const char *name, int32_t do3d)
+static void ShowFileText(const char *name)
 {
-    int32_t fp,t;
+    int32_t fp,t, in3dmode=(qsetmode==200);
     uint8_t x=0,y=4,xmax=0,xx=0,col=0;
 
-    if (!do3d)
+    if (!in3dmode)
     {
         clearmidstatbar16();
         drawgradient();
@@ -1862,7 +1862,7 @@ static void ShowFileText(const char *name, int32_t do3d)
     if ((fp=kopen4load(name,0)) == -1)
     {
         Bsprintf(tempbuf, "ERROR: file '%s' not found.", name);
-        if (do3d)
+        if (in3dmode)
             printext256(1*4,4*8,whitecol,-1,tempbuf,0);
         else
             printext16(1*4,ydim-STATUS2DSIZ+4*8,editorcolors[11],-1,tempbuf,0);
@@ -1886,7 +1886,7 @@ static void ShowFileText(const char *name, int32_t do3d)
         }
         tempbuf[x]=0;
 
-        if (do3d)
+        if (in3dmode)
             printext256(xx*4,(y*6)+2,whitecol,-1,tempbuf,1);
         else
             printext16(xx*4,ydim-STATUS2DSIZ+(y*6)+2,editorcolors[11],-1,tempbuf,1);
@@ -2722,14 +2722,8 @@ void ExtShowSpriteData(int16_t spritenum)   //F6
 {
     UNREFERENCED_PARAMETER(spritenum);
     if (qsetmode != 200)
-        ShowFileText("sehelp.hlp", 0);
-    /*    if (qsetmode == 200)                // In 3D mode
-    return;
-
-    while (KEY_PRESSED(KEYSC_F6));
-    ResetKeys();
-    ContextHelp(spritenum);             // Get context sensitive help */
-}// end ExtShowSpriteData
+        ShowFileText("sehelp.hlp");
+}
 
 // Floor Over Floor (duke3d)
 
@@ -2930,7 +2924,6 @@ static void SE40Code(int32_t x,int32_t y,int32_t z,int32_t a,int32_t h)
 
 void ExtEditSectorData(int16_t sectnum)    //F7
 {
-    //    if (qsetmode != 200) ShowFileText("sthelp.hlp", 0);
     if (qsetmode == 200)
         return;
 
@@ -5270,9 +5263,9 @@ static void Keys3d(void)
     if (autospritehelp && helpon==0)
     {
         if (AIMING_AT_SPRITE && sprite[searchwall].picnum==SECTOREFFECTOR)
-            ShowFileText("sehelp.hlp", 1);
+            ShowFileText("sehelp.hlp");
         else if (AIMING_AT_CEILING_OR_FLOOR)
-            ShowFileText("sthelp.hlp", 1);
+            ShowFileText("sthelp.hlp");
     }
 
     // . Search & fix panning to the right (3D)
@@ -7826,7 +7819,7 @@ static void Keys2d(void)
     }
 
     if (keystatus[KEYSC_F9]) // F9 f1=3b
-        ShowFileText("sthelp.hlp", 0);
+        ShowFileText("sthelp.hlp");
 
     /* start Mapster32 */
 
@@ -11256,6 +11249,9 @@ void ExtCheckKeys(void)
 } while (0)
 
 #ifdef YAX_ENABLE
+static char *yupdownwall[2] = {"upwall","downwall"};
+static char *YUPDOWNWALL[2] = {"UPWALL","DOWNWALL"};
+
 static int32_t walls_have_equal_endpoints(int32_t w1, int32_t w2)
 {
     int32_t n1 = wall[w1].point2, n2 = wall[w2].point2;
@@ -11285,8 +11281,8 @@ outofloop:
     {
         if (!tryfixingp)
         {
-            OSD_Printf("    will set wall %d's yax-nextwall(%d) to %d on tryfix\n",
-                       wallnum, cf, lastwall[0]);
+            OSD_Printf("    will set wall %d's %s to %d on tryfix\n",
+                       wallnum, yupdownwall[cf], lastwall[0]);
         }
         else
         {
@@ -11298,8 +11294,8 @@ outofloop:
                 yax_setnextwall(lastwall[0], !cf, wallnum);
             }
 
-            OSD_Printf("auto-correction: set wall %d's yax-nextwall(%d) to %d%s\n",
-                       wallnum, cf, lastwall[0], setreverse?" and its reverse link":"");
+            OSD_Printf("auto-correction: set wall %d's %s to %d%s\n",
+                       wallnum, yupdownwall[cf], lastwall[0], setreverse?" and its reverse link":"");
         }
     }
     else if (!tryfixingp)
@@ -11483,22 +11479,22 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                         if (ynw >= 0)
                         {
                             if (ynw >= numwalls)
-                                CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's YAX-NEXTWALL(%d)=%d out of range: numwalls=%d",
-                                                 j, cf, ynw, numwalls);
+                                CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's %s=%d out of range: numwalls=%d",
+                                                 j, YUPDOWNWALL[cf], ynw, numwalls);
                             else
                             {
                                 int32_t ynextwallok = 1;
 
                                 if (j == ynw)
                                 {
-                                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's YAX-NEXTWALL(%d) is itself",
-                                                     j, cf);
+                                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's %s is itself",
+                                                     j, YUPDOWNWALL[cf]);
                                     ynextwallok = 0;
                                 }
                                 else if (!walls_have_equal_endpoints(j, ynw))
                                 {
-                                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's and its YAX-NEXTWALL(%d)=%d's endpoints are inconsistent",
-                                                     j, cf, ynw);
+                                    CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's and its %s=%d's "
+                                                     "endpoints are inconsistent", j, YUPDOWNWALL[cf], ynw);
                                     ynextwallok = 0;
                                 }
 
@@ -11509,9 +11505,9 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
                                     if (bunchnum < 0 || bunchnum >= numyaxbunches)
                                     {
-                                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d has YAX-NEXTWALL(%d)=%d, "
-                                                         "but its bunchnum(%d)=%d is invalid\n", j, cf, ynw,
-                                                         cf, bunchnum);
+                                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d has %s=%d, "
+                                                         "but its bunchnum(%d)=%d is invalid\n",
+                                                         j, YUPDOWNWALL[cf], ynw, cf, bunchnum);
                                     }
                                     else if (onumct < MAXCORRUPTTHINGS)
                                     {
@@ -11526,20 +11522,20 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                     ynwp2 = yax_getnextwall(ynw, !cf);
                                     if (ynwp2 != j)
                                     {
-                                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's YAX-NEXTWALL(%d)=%d's reverse link wrong"
-                                                         " (expected %d, have %d)", j, cf, ynw, j, ynwp2);
+                                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d's %s=%d's reverse link wrong"
+                                                         " (expected %d, have %d)", j, YUPDOWNWALL[cf], ynw, j, ynwp2);
                                         if (onumct < MAXCORRUPTTHINGS)
                                         {
                                             if (tryfixing & (1ull<<onumct))
                                             {
                                                 yax_setnextwall(ynw, !cf, j);
-                                                OSD_Printf(CCHK_CORRECTED "auto-correction: set wall %d's yax-nextwall(%d)=%d's yax-nextwall(%d) to %d\n",
-                                                           j, cf, ynw, !cf, j);
+                                                OSD_Printf(CCHK_CORRECTED "auto-correction: set wall %d's %s=%d's %s to %d\n",
+                                                           j, yupdownwall[cf], ynw, yupdownwall[!cf], j);
                                             }
                                             else if (4>=printfromlev)
                                             {
-                                                OSD_Printf("   will set wall %d's yax-nextwall(%d)=%d's yax-nextwall(%d) to %d on tryfix\n",
-                                                           j, cf, ynw, !cf, j);
+                                                OSD_Printf("   will set wall %d's %s=%d's %s to %d on tryfix\n",
+                                                           j, yupdownwall[cf], ynw, yupdownwall[!cf], j);
                                             }
                                         }
                                     }
