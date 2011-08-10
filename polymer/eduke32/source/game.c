@@ -1742,7 +1742,7 @@ static void G_PrintCoords(int32_t snum)
     printext256(250L,y+18L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"OG= %d",g_player[snum].ps->on_ground);
     printext256(250L,y+27L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"SECTL= %d",sector[g_player[snum].ps->cursectnum].lotag);
+    Bsprintf(tempbuf,"SECT= %d (LO=%d)",g_player[snum].ps->cursectnum,sector[g_player[snum].ps->cursectnum].lotag);
     printext256(250L,y+36L,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"SEED= %d",randomseed);
     printext256(250L,y+45L,31,-1,tempbuf,0);
@@ -3383,6 +3383,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         {
             tmpvr = i;
             tmpyx = (65536*ydim*8)/(xdim*5);
+
+            setaspect(mulscale16(tmpvr,viewingrange), yxaspect);
         }
 
         if (g_screenCapture)
@@ -9646,6 +9648,7 @@ int32_t app_main(int32_t argc,const char **argv)
     );
     Bstrcpy(tempbuf, APPNAME);
     wm_setapptitle(tempbuf);
+//initprintf("sizeof(mapstate_t)=%d\n", (int32_t)sizeof(mapstate_t));
 
     initprintf(HEAD2 " %s\n", s_buildRev);
     initprintf("Compiled %s\n", __DATE__" "__TIME__);

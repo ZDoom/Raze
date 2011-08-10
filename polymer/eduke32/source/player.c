@@ -4529,6 +4529,7 @@ void P_ProcessInput(int32_t snum)
     int32_t fz, cz, hz, lz, truefdist, x, y, psectlotag;
     uint8_t *kb = &p->kickback_pic;
     int16_t tempsect;
+    int32_t jetpackdz = 0;
 
     if (g_player[snum].playerquitflag == 0)
         return;
@@ -4928,6 +4929,7 @@ void P_ProcessInput(int32_t snum)
         if (p->jetpack_on < 11)
         {
             p->jetpack_on++;
+            jetpackdz -= (p->jetpack_on<<7);
             p->pos.z -= (p->jetpack_on<<7); //Goin up
         }
         else if (p->jetpack_on == 11 && !A_CheckSoundPlaying(p->i,DUKE_JETPACK_IDLE))
@@ -4943,6 +4945,7 @@ void P_ProcessInput(int32_t snum)
             VM_OnEvent(EVENT_SOARUP,p->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
+                jetpackdz -= j;
                 p->pos.z -= j;
                 p->crack_time = 777;
             }
@@ -4955,6 +4958,7 @@ void P_ProcessInput(int32_t snum)
             VM_OnEvent(EVENT_SOARDOWN,p->i,snum, -1);
             if (aGameVars[g_iReturnVarID].val.lValue == 0)
             {
+                jetpackdz += j;
                 p->pos.z += j;
                 p->crack_time = 777;
             }
@@ -5372,13 +5376,32 @@ HORIZONLY:
         // this updatesectorz conflicts with Duke3d's way of teleporting through water,
         // so make it a bit conditional... OTOH, this way we have an ugly z jump when
         // changing from above water to underwater
-        if (p->cursectnum < 0 || !(sector[p->cursectnum].lotag==1 && p->on_ground && yax_getbunch(p->cursectnum, YAX_FLOOR)>=0))
+        if (p->cursectnum >= 0 && !(sector[p->cursectnum].lotag==1 &&
+                                    p->on_ground && yax_getbunch(p->cursectnum, YAX_FLOOR)>=0))
         {
+            int32_t tmpdz = 0;
+
             // Do updatesectorz only if ceiling/floor bunchnum is >= 0. Otherwise, unwanted
-            // side-effects like dying when jumping into a lotag==1 sector can occur.
-            // The p->jetpack on is there because vel.z 'freezes' when using it
-            if (p->jetpack_on || (p->vel.z && p->cursectnum>=0 && yax_getbunch(p->cursectnum, (p->vel.z>0))>=0))
+            // side-effects like dying when jumping into a lotag==1 sector or on other
+            // occasions can occur.
+            // The 'if' is divided in two disjunct cases (jetpack off or on), because we can't
+            // trust p->vel.z when we're flying. In this case, jetpackdz gives the z delta for
+            // this tic.
+            // The (!shrunk || ...) part is so that we don't 'squish' when taking off shrunk.
+            if (p->jetpack_on)
+            {
+                if (!shrunk || p->jetpack_on==11)
+                    tmpdz = jetpackdz;
+            }
+            else if (p->jetpack_on && p->vel.z)
+            {
+                tmpdz = p->vel.z;
+            }
+
+            if (tmpdz && yax_getbunch(p->cursectnum, (tmpdz>0))>=0)
+            {
                 updatesectorz(p->pos.x,p->pos.y,p->pos.z,&p->cursectnum);
+            }
         }
 #endif
         if ((j = clipmove((vec3_t *)p,&p->cursectnum, p->vel.x,p->vel.y,164L,(4L<<8),i,CLIPMASK0)))
@@ -5410,7 +5433,7 @@ HORIZONLY:
     setsprite(p->i,(vec3_t *)&p->pos.x);
     p->pos.z -= PHEIGHT;
 
-    if (psectlotag < 3)
+    if (p->cursectnum >= 0 && psectlotag < 3)
     {
 //        p->cursectnum = s->sectnum;
 
