@@ -963,7 +963,7 @@ void resizeglcheck()
     {
         double ratio = 1.05;
 
-        if (glwidescreen == 1)
+        if (glwidescreen && !r_usenewaspect)
             ratio = 1.2f;
         else if (glprojectionhacks == 1)
         {
@@ -981,9 +981,12 @@ void resizeglcheck()
         glox1 = (float)windowx1; gloy1 = (float)windowy1;
         glox2 = (float)windowx2; gloy2 = (float)windowy2;
 
-        fovcorrect = (int32_t)(glprojectionhacks?(glwidescreen?0:(((windowx2-windowx1+1) * ratio) - (windowx2-windowx1+1))):0);
+        fovcorrect = (int32_t)(glprojectionhacks ?
+                               ((glwidescreen && !r_usenewaspect) ? 0 :
+                                (((windowx2-windowx1+1) * ratio) - (windowx2-windowx1+1))):0);
 
-        bglViewport(windowx1 - (fovcorrect / 2), yres-(windowy2+1),windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
+        bglViewport(windowx1-(fovcorrect/2), yres-(windowy2+1),
+                    windowx2-windowx1+1 + fovcorrect, windowy2-windowy1+1);
 
         bglMatrixMode(GL_PROJECTION);
         memset(m,0,sizeof(m));
@@ -4381,7 +4384,7 @@ void polymost_drawrooms()
         double ratio = 1.05;
 
 #ifdef USE_OPENGL
-        if (glwidescreen == 1)
+        if (glwidescreen)
             ratio = 1.2f;
         else if (glprojectionhacks == 1)
         {
