@@ -12758,7 +12758,7 @@ void setaspect_new()
         setaspect(vr, yx);
     }
     else
-        setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+        setaspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 //

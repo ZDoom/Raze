@@ -3396,6 +3396,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         }
         else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))
         {
+            int32_t oviewingrange = viewingrange;  // save it from setviewtotile()
+
             if (ud.screen_tilting) tang = p->rotscrnang;
             else tang = 0;
 
@@ -3435,8 +3437,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
             i = (tang&511);
             if (i > 256) i = 512-i;
-            i = sintable[i+512]*8 + sintable[i]*5L;
-            setaspect(i>>1,yxaspect);
+            i = sintable[i+512]*8 + sintable[i]*5;
+//            setaspect(i>>1, yxaspect);
+            setaspect(mulscale16(oviewingrange,i>>1), yxaspect);
 
             tmpvr = i>>1;
             tmpyx = (65536*ydim*8)/(xdim*5);
@@ -3640,7 +3643,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 picanm[TILE_TILT] &= 0xff0000ff;
                 i = (tang&511);
                 if (i > 256) i = 512-i;
-                i = sintable[i+512]*8 + sintable[i]*5L;
+                i = sintable[i+512]*8 + sintable[i]*5;
                 if ((1-ud.detail) == 0) i >>= 1;
                 i>>=(tiltcs-1); // JBF 20030807
                 rotatesprite(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64,windowx1,windowy1,windowx2,windowy2);
