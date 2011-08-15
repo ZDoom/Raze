@@ -4376,7 +4376,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         programbits |= prprogrambits[PR_BIT_MIRROR_MAP].bit;
 
     // PR_BIT_FOG
-    if (!material.mirrormap)
+    if (!curlight && !material.mirrormap)
         programbits |= prprogrambits[PR_BIT_FOG].bit;
 
     // PR_BIT_GLOW_MAP
