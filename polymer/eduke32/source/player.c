@@ -5393,7 +5393,7 @@ HORIZONLY:
                 if (!shrunk || p->jetpack_on==11)
                     tmpdz = jetpackdz;
             }
-            else if (p->jetpack_on && p->vel.z)
+            else if (!p->jetpack_on && p->vel.z)
             {
                 tmpdz = p->vel.z;
             }
