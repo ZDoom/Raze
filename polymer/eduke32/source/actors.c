@@ -3267,7 +3267,10 @@ ACTOR_STATIC void G_MoveTransports(void)
                             g_player[p].ps->vel.z += 512;
                     }
 
-                    if (onfloorz && sectlotag == 2 && g_player[p].ps->pos.z <= sector[sect].ceilingz /*&& g_player[p].ps->vel.z == 0*/)
+                    // r1449-:
+                    if (onfloorz && sectlotag == 2 && g_player[p].ps->pos.z < (sector[sect].ceilingz+1080) && g_player[p].ps->vel.z == 0)
+                    // r1450+, breaks submergible slime in bobsp2:
+//                    if (onfloorz && sectlotag == 2 && g_player[p].ps->pos.z <= sector[sect].ceilingz /*&& g_player[p].ps->vel.z == 0*/)
                     {
                         k = 1;
                         //                            if( sprite[j].extra <= 0) break;
@@ -3320,8 +3323,8 @@ ACTOR_STATIC void G_MoveTransports(void)
                 break;
 
             case STAT_PROJECTILE:
-                // comment out to make RPGs pass through water:
-                if (sectlotag != 0) goto JBOLT;
+                // comment out to make RPGs pass through water: (r1450 breaks this)
+//                if (sectlotag != 0) goto JBOLT;
             case STAT_ACTOR:
                 if ((sprite[j].picnum == SHARK) || (sprite[j].picnum == COMMANDER) || (sprite[j].picnum == OCTABRAIN)
                         || ((sprite[j].picnum >= GREENSLIME) && (sprite[j].picnum <= GREENSLIME+7)))
@@ -8088,7 +8091,9 @@ void G_MoveWorld(void)
 
     {
         int32_t i, p, j, k = MAXSTATUS-1, pl;
-
+#ifdef POLYMER
+        int32_t numsavedfires = 0;
+#endif
         do
         {
             i = headspritestat[k];
@@ -8222,6 +8227,10 @@ void G_MoveWorld(void)
                         case BURNING2__STATIC:
                             {
                                 uint32_t color;
+                                int32_t jj;
+
+                                static int32_t savedfires[32][4];  // sectnum x y z
+
                                 /*
                                 if (Actor[i].floorz - Actor[i].ceilingz < 128) break;
                                 if (s->z > Actor[i].floorz+2048) break;
@@ -8235,7 +8244,21 @@ void G_MoveWorld(void)
                                 default: color = 255+(95<<8); break;
                                 }
 
-                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, color, PR_LIGHT_PRIO_HIGH_GAME);
+                                for (jj=numsavedfires-1; jj>=0; jj--)
+                                    if (savedfires[jj][0]==s->sectnum && savedfires[jj][1]==(s->x>>3) &&
+                                            savedfires[jj][2]==(s->y>>3) && savedfires[jj][3]==(s->z>>7))
+                                        break;
+
+                                if (jj==-1 && numsavedfires<32)
+                                {
+                                    jj = numsavedfires;
+                                    G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2, color, PR_LIGHT_PRIO_HIGH_GAME);
+                                    savedfires[jj][0] = s->sectnum;
+                                    savedfires[jj][1] = s->x>>3;
+                                    savedfires[jj][2] = s->y>>3;
+                                    savedfires[jj][3] = s->z>>7;
+                                    numsavedfires++;
+                                }
                             }
                             break;
 
