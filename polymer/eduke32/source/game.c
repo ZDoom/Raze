@@ -1898,8 +1898,14 @@ void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
     if ((e&128) == 0)
     {
         int32_t tc;
+
         nextpage();
-        for (tc = totalclock; totalclock < tc + 4; handleevents(), Net_GetPackets());
+        tc = totalclock;
+        while (totalclock < tc + 4)
+        {
+            handleevents();
+            Net_GetPackets();
+        }
     }
 }
 
@@ -9020,7 +9026,7 @@ static void G_DisplayLogo(void)
             //G_FadePalette(0,0,0,63);
             if (logoflags & LOGO_3DRSCREEN)
             {
-                P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 11);    // JBF 20040308
+                P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8+2+1);    // JBF 20040308
                 fadepal(0,0,0, 0,64,7);
                 flushperms();
                 rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
@@ -9051,7 +9057,7 @@ static void G_DisplayLogo(void)
         if (logoflags & LOGO_TITLESCREEN)
         {
             //g_player[myconnectindex].ps->palette = titlepal;
-            P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2+1);   // JBF 20040308
             flushperms();
             rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16,0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
@@ -10803,7 +10809,7 @@ void G_BonusScreen(int32_t bonusonly)
         case 0:
             if (ud.lockout == 0)
             {
-                P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, 11); // JBF 20040308
+                P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, 8+2+1); // JBF 20040308
                 clearview(0L);
                 rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
                 nextpage();
@@ -10866,7 +10872,7 @@ void G_BonusScreen(int32_t bonusonly)
 
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
 
             rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
             fadepal(0,0,0, 63,0,-1);
@@ -10899,7 +10905,7 @@ void G_BonusScreen(int32_t bonusonly)
             setview(0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
             rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
             fadepal(0,0,0, 63,0,-1);
             while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
@@ -10939,7 +10945,7 @@ void G_BonusScreen(int32_t bonusonly)
             KB_FlushKeyBoardQueue();
 
             //g_player[myconnectindex].ps->palette = palette;
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 11);   // JBF 20040308
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
             G_FadePalette(0,0,0,63);
             clearview(0L);
             menutext(160,60,0,0,"THANKS TO ALL OUR");
@@ -11069,7 +11075,7 @@ ENDANM:
 FRAGBONUS:
 
     //g_player[myconnectindex].ps->palette = palette;
-    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 11);   // JBF 20040308
+    P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
     G_FadePalette(0,0,0,63);   // JBF 20031228
     KB_FlushKeyboardQueue();
     totalclock = 0;

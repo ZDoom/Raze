@@ -90,7 +90,7 @@ int32_t editorgridextent = 131072;
 #define MAXYSIZ 256
 #define MAXZSIZ 255
 #define MAXVOXMIPS 5
-intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; char voxlock[MAXVOXELS][MAXVOXMIPS];
+static intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; char voxlock[MAXVOXELS][MAXVOXMIPS];
 int32_t voxscale[MAXVOXELS];
 
 static int32_t ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
@@ -120,23 +120,24 @@ static int16_t *dotp1[MAXYDIM], *dotp2[MAXYDIM];
 static int8_t tempbuf[MAXWALLS];
 
 int32_t ebpbak, espbak;
-intptr_t slopalookup[16384];    // was 2048
+static intptr_t slopalookup[16384];    // was 2048
 #if defined(USE_OPENGL)
 palette_t palookupfog[MAXPALOOKUPS];
 #endif
 
-static char permanentlock = 255;
 int32_t artversion, mapversion=7; // JBF 20040211: default mapversion to 7
-void *pic = NULL;
-char picsiz[MAXTILES], tilefilenum[MAXTILES];
-int32_t lastageclock;
-int32_t tilefileoffs[MAXTILES];
+char picsiz[MAXTILES];
+static void *pic = NULL;
+static char permanentlock = 255;
+static char tilefilenum[MAXTILES];
+static int32_t tilefileoffs[MAXTILES];
+static int32_t lastageclock;
 
 int32_t artsize = 0, cachesize = 0;
 
-// unlikely to occur, but .art files with less than 256 tiles are certainly possible
-// this would be 60 (MAXTILES/256) if we just assumed there were 256 tiles per .art as in Duke
-char *artptrs[256];
+// max tilesXXX <- num to be checked for:
+#define MAX_TILEFILEI 64
+static char *artptrs[MAX_TILEFILEI];
 
 static int16_t radarang2[MAXXDIM];
 static uint16_t sqrtable[4096], shlookup[4096+256];
@@ -2125,7 +2126,7 @@ int16_t searchbottomwall, searchisbottom;
 double msens = 1.0;
 
 static char artfilename[20];
-static int32_t numtilefiles, artfil = -1, artfilnum, artfilplc;
+static int32_t artfil = -1, artfilnum, artfilplc;
 
 char inpreparemirror = 0;
 static int32_t mirrorsx1, mirrorsy1, mirrorsx2, mirrorsy2;
@@ -7662,12 +7663,11 @@ void uninitengine(void)
             Bfclose(cacheindexptr); */
 #endif
 
-    if (artfil != -1) kclose(artfil);
-
-    i=(sizeof(artptrs)/sizeof(intptr_t))-1;
+    if (artfil != -1)
+        kclose(artfil);
 
     // this leaves a bunch of invalid pointers in waloff... fixme?
-    for (; i>=0; i--)
+    for (i=0; i<MAX_TILEFILEI; i++)
     {
         if (artptrs[i])
         {
@@ -9274,9 +9274,11 @@ void delete_maphack_lights()
     int32_t i;
     for (i=0; i<maphacklightcnt; i++)
     {
-        polymer_deletelight(maphacklight[i]);
+        if (maphacklight[i] >= 0)
+            polymer_deletelight(maphacklight[i]);
         maphacklight[i] = -1;
     }
+
     maphacklightcnt = 0;
 }
 #else
@@ -9338,8 +9340,7 @@ int32_t loadmaphack(const char *filename)
 #ifdef POLYMER
     int32_t toomanylights = 0;
 
-    for (i=0; i<PR_MAXLIGHTS; i++)
-        maphacklight[i] = -1;
+    delete_maphack_lights();
 #endif
 
     if (filename)
@@ -9350,7 +9351,10 @@ int32_t loadmaphack(const char *filename)
         script = scriptfile_fromfile(filename);
     }
     else if (fn[0])
+    {
+        // re-load
         script = scriptfile_fromfile(fn);
+    }
 
     if (!script)
     {
@@ -9423,7 +9427,7 @@ int32_t loadmaphack(const char *filename)
                 if (scriptfile_getnumber(script, &pitch)) break;
 
                 if (whichsprite < 0)
-            {
+                {
                 // no sprite directive preceeding
                 initprintf("Ignoring pitch directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -9438,7 +9442,7 @@ int32_t loadmaphack(const char *filename)
                 if (scriptfile_getnumber(script, &roll)) break;
 
                 if (whichsprite < 0)
-            {
+                {
                 // no sprite directive preceeding
                 initprintf("Ignoring roll directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -9453,7 +9457,7 @@ int32_t loadmaphack(const char *filename)
                 if (scriptfile_getnumber(script, &i)) break;
 
                 if (whichsprite < 0)
-            {
+                {
                 // no sprite directive preceeding
                 initprintf("Ignoring mdxoff directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -9468,7 +9472,7 @@ int32_t loadmaphack(const char *filename)
                 if (scriptfile_getnumber(script, &i)) break;
 
                 if (whichsprite < 0)
-            {
+                {
                 // no sprite directive preceeding
                 initprintf("Ignoring mdyoff directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -9483,7 +9487,7 @@ int32_t loadmaphack(const char *filename)
                 if (scriptfile_getnumber(script, &i)) break;
 
                 if (whichsprite < 0)
-            {
+                {
                 // no sprite directive preceeding
                 initprintf("Ignoring mdzoff directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -9955,27 +9959,22 @@ void nextpage(void)
 int32_t loadpics(const char *filename, int32_t askedsize)
 {
     int32_t offscount, localtilestart, localtileend, dasiz;
-    int16_t fil, i, j, k;
+    int16_t fil, i, j;
+    int32_t tilefilei, numtiles_dummy;
 
     Bstrcpy(artfilename,filename);
 
-    for (i=0; i<MAXTILES; i++)
+    Bmemset(tilesizx, 0, sizeof(tilesizx));
+    Bmemset(tilesizy, 0, sizeof(tilesizy));
+    Bmemset(picanm, 0, sizeof(picanm));
+
+    artsize = 0;
+
+    for (tilefilei=0; tilefilei<MAX_TILEFILEI; tilefilei++)
     {
-        tilesizx[i] = 0;
-        tilesizy[i] = 0;
-        picanm[i] = 0L;
-    }
-
-    artsize = 0L;
-
-    numtilefiles = 0;
-    do
-    {
-        k = numtilefiles;
-
-        artfilename[7] = (k%10)+48;
-        artfilename[6] = ((k/10)%10)+48;
-        artfilename[5] = ((k/100)%10)+48;
+        artfilename[7] = (tilefilei%10)+48;
+        artfilename[6] = ((tilefilei/10)%10)+48;
+        artfilename[5] = ((tilefilei/100)%10)+48;
 
         if ((fil = kopen4load(artfilename,0)) != -1)
         {
@@ -9983,11 +9982,18 @@ int32_t loadpics(const char *filename, int32_t askedsize)
             if (artversion != 1)
             {
                 Bprintf("loadpics(): Invalid art file version in %s\n", artfilename);
+                kclose(fil);
                 return(-1);
             }
-            kread(fil,&numtiles,4);       numtiles       = B_LITTLE32(numtiles);
+            kread(fil,&numtiles_dummy,4);
             kread(fil,&localtilestart,4); localtilestart = B_LITTLE32(localtilestart);
             kread(fil,&localtileend,4);   localtileend   = B_LITTLE32(localtileend);
+            if ((uint32_t)localtilestart >= MAXTILES || localtileend < localtilestart)
+            {
+                Bprintf("loadpics(): Invalid localtilestart or localtileend in %s\n", artfilename);
+                kclose(fil);
+                continue;
+            }
             kread(fil,&tilesizx[localtilestart],(localtileend-localtilestart+1)<<1);
             kread(fil,&tilesizy[localtilestart],(localtileend-localtilestart+1)<<1);
             kread(fil,&picanm[localtilestart],(localtileend-localtilestart+1)<<2);
@@ -10001,7 +10007,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
             offscount = 4+4+4+4+((localtileend-localtilestart+1)<<3);
             for (i=localtilestart; i<=localtileend; i++)
             {
-                tilefilenum[i] = k;
+                tilefilenum[i] = tilefilei;
                 tilefileoffs[i] = offscount;
                 dasiz = (int32_t)(tilesizx[i]*tilesizy[i]);
                 offscount += dasiz;
@@ -10012,18 +10018,16 @@ int32_t loadpics(const char *filename, int32_t askedsize)
             if (filegrp[fil] == 254) // from zip
             {
                 i = kfilelength(fil);
-                artptrs[numtilefiles] = Brealloc(artptrs[numtilefiles], i);
+                artptrs[tilefilei] = Brealloc(artptrs[tilefilei], i);
                 klseek(fil, 0, BSEEK_SET);
-                kread(fil, artptrs[numtilefiles], i);
+                kread(fil, artptrs[tilefilei], i);
             }
 #endif
             kclose(fil);
         }
-        numtilefiles++;
     }
-    while (k != numtilefiles && k < 64);
 
-    clearbuf(&gotpic[0],(int32_t)((MAXTILES+31)>>5),0L);
+    Bmemset(gotpic, 0, sizeof(gotpic));
 
     //cachesize = min((int32_t)((Bgetsysmemsize()/100)*60),max(artsize,askedsize));
     if (Bgetsysmemsize() <= (uint32_t)askedsize)
@@ -10036,7 +10040,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
         cachesize -= 65536L;
         if (cachesize < 65536) return(-1);
     }
-    initcache((intptr_t) pic, cachesize);
+    initcache((intptr_t)pic, cachesize);
 
     for (i=0; i<MAXTILES; i++)
     {
@@ -10067,7 +10071,8 @@ void loadtile(int16_t tilenume)
     if ((dasiz = tilesizx[tilenume]*tilesizy[tilenume]) <= 0) return;
 
 #ifdef WITHKPLIB
-    if (artptrs[(i = tilefilenum[tilenume])]) // from zip
+    i = tilefilenum[tilenume];
+    if (artptrs[i]) // from zip
     {
         waloff[tilenume] = (intptr_t)(artptrs[i]) + tilefileoffs[tilenume];
         faketimerhandler();

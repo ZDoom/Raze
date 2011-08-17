@@ -34,7 +34,7 @@ extern palette_t CrosshairColors;
 int32_t G_EnterLevel(int32_t g);
 int32_t G_FindLevelByFile(const char *fn);
 void G_CacheMapData(void);
-void G_FadeLoad(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step);
+void G_FadeLoad(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t ticwait);
 void G_FreeMapState(int32_t mapnum);
 void G_NewGame(int32_t vn,int32_t ln,int32_t sk);
 void G_ResetTimers(void);

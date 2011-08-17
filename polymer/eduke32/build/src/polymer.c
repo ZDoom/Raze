@@ -750,13 +750,13 @@ void                polymer_uninit(void)
         j = 0;
         while (j < MAXPALOOKUPS)
         {
-            if (prhighpalookups[i][j].data) {
-                Bfree(prhighpalookups[i][j].data);
-                prhighpalookups[i][j].data = NULL;
-            }
+//            if (prhighpalookups[i][j].data) {
+//                Bfree(prhighpalookups[i][j].data);
+//                prhighpalookups[i][j].data = NULL;
+//            }
             if (prhighpalookups[i][j].map) {
                 bglDeleteTextures(1, &prhighpalookups[i][j].map);
-                prhighpalookups[i][j].map = 0;
+//                prhighpalookups[i][j].map = 0;
             }
             j++;
         }        

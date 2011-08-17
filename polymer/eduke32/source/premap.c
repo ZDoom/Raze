@@ -356,13 +356,17 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
             clearview(0L);
         }
 
-        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
-
-        if (j > MAXTILES-1)
+        if ((uint32_t)j < 2*MAXTILES)
+        {
+            rotatesprite(320<<15,200<<15,65536L,0, j > MAXTILES-1?j-MAXTILES:j,0,0,
+                         2+8+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+        }
+        else
         {
             nextpage();
             return;
         }
+
         if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
         {
             menutext(160,90,0,0,"LOADING USER MAP");
@@ -405,15 +409,22 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
         }
         /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
+
         aGameVars[g_iReturnVarID].val.lValue = LOADSCREEN;
         VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
         j = aGameVars[g_iReturnVarID].val.lValue;
-        rotatesprite(320<<15,200<<15,65536L,0,j > MAXTILES-1?j-MAXTILES:j,0,0,2+8+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
-        if (j > MAXTILES-1)
+
+        if ((uint32_t)j < 2*MAXTILES)
+        {
+            rotatesprite(320<<15,200<<15,65536L, 0,j > MAXTILES-1?j-MAXTILES:j,0,0,
+                         2+8+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+        }
+        else
         {
             nextpage();
             return;
         }
+
         menutext(160,105,0,0,"LOADING...");
         if (statustext) gametext(160,180,statustext,0,2+8+16);
         VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
@@ -1072,10 +1083,12 @@ static void premap_setup_fixed_sprites(void)
 
 static inline void prelevel(char g)
 {
-    int32_t i, nexti, j, startwall, endwall, lotaglist;
-    int32_t lotags[MAXSPRITES];
+    int32_t i, nexti, j, startwall, endwall;
     int32_t switchpicnum;
     extern char ror_protectedsectors[MAXSECTORS];
+
+    uint8_t tagbitmap[65536>>3];
+    Bmemset(tagbitmap, 0, sizeof(tagbitmap));
 
     clearbufbyte(show2dsector,sizeof(show2dsector),0L);
     clearbufbyte(show2dwall,sizeof(show2dwall),0L);
@@ -1198,10 +1211,7 @@ static inline void prelevel(char g)
 
     premap_setup_fixed_sprites();
 
-    lotaglist = 0;
-
-    i = headspritestat[STAT_DEFAULT];
-    while (i >= 0)
+    for (i=headspritestat[STAT_DEFAULT]; i>=0; i=nextspritestat[i])
     {
         int32_t ii, dx, dy;
         int16_t sprsec;
@@ -1242,32 +1252,27 @@ static inline void prelevel(char g)
                     sprite[i].cstat |= 32768;
                 }
 
-                // invisi-make for both switch states, but the lower code only for one
-                if (ii==1)
-                    break;
-
-                for (j=0; j<lotaglist; j++)
-                    if (SLT == lotags[j])
-                        break;
-
-                if (j == lotaglist)
+                // invisi-make for both switch states, but the lower code only
+                // for the 'on' state (*)
+                if (ii==0)
                 {
-                    lotags[lotaglist] = SLT;
-                    lotaglist++;
-                    if (lotaglist > MAXSPRITES-1)
-                        G_GameExit("\nToo many switches.");
-
-                    for (j=headspritestat[STAT_EFFECTOR]; j>=0; j=nextspritestat[j])
-                    {
-                        if (sprite[j].lotag == 12 && sprite[j].hitag == SLT)
-                            actor[j].t_data[0] = 1;
-                    }
+                    j = sprite[i].lotag+32768;
+                    tagbitmap[j>>3] |= 1<<(j&7);
                 }
+
                 break;
             }
-
-        i = nextspritestat[i];
     }
+
+    // initially 'on' SE 12 light (*)
+    for (j=headspritestat[STAT_EFFECTOR]; j>=0; j=nextspritestat[j])
+    {
+        int32_t t = sprite[j].hitag+32768;
+
+        if (sprite[j].lotag == 12 && tagbitmap[t>>3]&(1<<(t&7)))
+            actor[j].t_data[0] = 1;
+    }
+
 
     g_mirrorCount = 0;
 
@@ -1730,34 +1735,28 @@ int32_t G_FindLevelByFile(const char *fn)
     return MAXLEVELS*MAXVOLUMES;
 }
 
-void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step)
+void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t ticwait)
 {
-    if (step > 0)
-    {
-        for (; start < end; start += step)
-        {
-            if (KB_KeyPressed(sc_Space))
-            {
-                KB_ClearKeyDown(sc_Space);
-                return;
-            }
-            G_FadePalette(r,g,b,start);
-            flushperms();
-            G_DoLoadScreen(" ", -1);
+    int32_t m = (step < 0) ? -1 : 1;
 
-        }
-    }
-    else for (; start >= end; start += step)
+    int32_t nexttic = totalclock;
+
+    for (; m*start <= m*end; start += step)
+    {
+        while (totalclock < nexttic)
+            sampletimer();
+        nexttic += ticwait;
+
+        if (KB_KeyPressed(sc_Space))
         {
-            if (KB_KeyPressed(sc_Space))
-            {
-                KB_ClearKeyDown(sc_Space);
-                return;
-            }
-            G_FadePalette(r,g,b,start);
-            flushperms();
-            G_DoLoadScreen(" ", -1);
+            KB_ClearKeyDown(sc_Space);
+            return;
         }
+
+        G_FadePalette(r,g,b,start|128);
+        flushperms();
+        G_DoLoadScreen(" ", -1);
+    }
 }
 
 
@@ -1948,9 +1947,9 @@ int32_t G_EnterLevel(int32_t g)
     }
     else
     {
-        i = strlen(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
-        copybufbyte(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,&levname[0],i);
-        levname[i] = 255;
+        i = Bstrlen(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+        Bmemcpy(levname, MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename, i);
+        levname[i] = 255;  // leads to flags=1 for kopen4load
         levname[i+1] = 0;
 
         if (loadboard(levname,1,&g_player[0].ps->pos.x, &g_player[0].ps->pos.y,
@@ -1967,8 +1966,8 @@ int32_t G_EnterLevel(int32_t g)
     }
 
     g_precacheCount = 0;
-    clearbufbyte(gotpic,sizeof(gotpic),0L);
-    clearbufbyte(precachehightile, sizeof(precachehightile), 0l);
+    Bmemset(gotpic, 0, sizeof(gotpic));
+    Bmemset(precachehightile, 0, sizeof(precachehightile));
 
     //clearbufbyte(Actor,sizeof(Actor),0l); // JBF 20040531: yes? no?
 
@@ -1980,9 +1979,9 @@ int32_t G_EnterLevel(int32_t g)
     //cachedebug = 0;
 //    automapping = 0;
 
-    G_FadeLoad(0,0,0, 63, 0, -7);
+    G_FadeLoad(0,0,0, 63,0, -7, 4);
     G_CacheMapData();
-    G_FadeLoad(0,0,0, 0 ,64, 7);
+    G_FadeLoad(0,0,0, 0,63, 7, 4);
 
     if (ud.recstat != 2)
     {

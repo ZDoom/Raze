@@ -345,7 +345,7 @@ void G_PlayAnim(const char *fn,char t)
 
     //setpalette(0L,256L,tempbuf);
     //setbrightness(ud.brightness>>2,tempbuf,2);
-    P_SetGamePalette(g_player[myconnectindex].ps,ANIMPAL,10);
+    P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 8+2);
 
 #ifdef USE_OPENGL
     gltexfiltermode = 0;
@@ -377,7 +377,7 @@ void G_PlayAnim(const char *fn,char t)
 
             if (g_restorePalette == 1)
             {
-                P_SetGamePalette(g_player[myconnectindex].ps,ANIMPAL,0);
+                P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 0);
                 g_restorePalette = 0;
             }
 

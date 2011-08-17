@@ -326,7 +326,7 @@ EXTERN int16_t tilesizx[MAXTILES], tilesizy[MAXTILES];
 EXTERN char picsiz[MAXTILES];
 EXTERN char walock[MAXTILES];
 EXTERN int32_t pow2long[32];
-EXTERN int32_t numtiles, picanm[MAXTILES];
+EXTERN int32_t picanm[MAXTILES];
 EXTERN intptr_t waloff[MAXTILES];  // stores pointers to cache  -- SA
 
 EXTERN int32_t windowpos, windowx, windowy;
