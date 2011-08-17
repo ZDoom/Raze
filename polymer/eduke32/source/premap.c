@@ -1203,42 +1203,69 @@ static inline void prelevel(char g)
     i = headspritestat[STAT_DEFAULT];
     while (i >= 0)
     {
-        switch (DynamicTileMap[PN-1])
-        {
-        case DIPSWITCH__STATIC:
-        case DIPSWITCH2__STATIC:
-        case PULLSWITCH__STATIC:
-        case HANDSWITCH__STATIC:
-        case SLOTDOOR__STATIC:
-        case LIGHTSWITCH__STATIC:
-        case SPACELIGHTSWITCH__STATIC:
-        case SPACEDOORSWITCH__STATIC:
-        case FRANKENSTINESWITCH__STATIC:
-        case LIGHTSWITCH2__STATIC:
-        case POWERSWITCH1__STATIC:
-        case LOCKSWITCH1__STATIC:
-        case POWERSWITCH2__STATIC:
-            for (j=0; j<lotaglist; j++)
-                if (SLT == lotags[j])
+        int32_t ii, dx, dy;
+        int16_t sprsec;
+
+        for (ii=0; ii<2; ii++)
+            switch (DynamicTileMap[PN-1+ii])
+            {
+            case DIPSWITCH__STATIC:
+            case DIPSWITCH2__STATIC:
+            case PULLSWITCH__STATIC:
+            case HANDSWITCH__STATIC:
+            case SLOTDOOR__STATIC:
+            case LIGHTSWITCH__STATIC:
+            case SPACELIGHTSWITCH__STATIC:
+            case SPACEDOORSWITCH__STATIC:
+            case FRANKENSTINESWITCH__STATIC:
+            case LIGHTSWITCH2__STATIC:
+            case POWERSWITCH1__STATIC:
+            case LOCKSWITCH1__STATIC:
+            case POWERSWITCH2__STATIC:
+
+                dx = sintable[(sprite[i].ang+512)&2047]>>9;
+                dy = sintable[(sprite[i].ang)&2047]>>9;
+
+                sprsec = sprite[i].sectnum;
+
+                // check if in 'air' (and not inside something 'solid' like
+                // sprite #624 in E4L1):
+                updatesectorz(sprite[i].x, sprite[i].y, sprite[i].z, &sprsec);
+
+                // check 2 (slightly different from 'would generate light?'):
+                if (sprsec >= 0)
+                    updatesectorz(sprite[i].x+dx, sprite[i].y+dy, sprite[i].z, &sprsec);
+                if (sprsec < 0)
+                {
+                    // dynamic re-check occurs in G_MoveWorld():
+                    spriteext[i].flags |= SPREXT_TEMPINVISIBLE;
+                    sprite[i].cstat |= 32768;
+                }
+
+                // invisi-make for both switch states, but the lower code only for one
+                if (ii==1)
                     break;
 
-            if (j == lotaglist)
-            {
-                lotags[lotaglist] = SLT;
-                lotaglist++;
-                if (lotaglist > MAXSPRITES-1)
-                    G_GameExit("\nToo many switches.");
+                for (j=0; j<lotaglist; j++)
+                    if (SLT == lotags[j])
+                        break;
 
-                j = headspritestat[STAT_EFFECTOR];
-                while (j >= 0)
+                if (j == lotaglist)
                 {
-                    if (sprite[j].lotag == 12 && sprite[j].hitag == SLT)
-                        actor[j].t_data[0] = 1;
-                    j = nextspritestat[j];
+                    lotags[lotaglist] = SLT;
+                    lotaglist++;
+                    if (lotaglist > MAXSPRITES-1)
+                        G_GameExit("\nToo many switches.");
+
+                    for (j=headspritestat[STAT_EFFECTOR]; j>=0; j=nextspritestat[j])
+                    {
+                        if (sprite[j].lotag == 12 && sprite[j].hitag == SLT)
+                            actor[j].t_data[0] = 1;
+                    }
                 }
+                break;
             }
-            break;
-        }
+
         i = nextspritestat[i];
     }
 

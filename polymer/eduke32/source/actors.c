@@ -8093,6 +8093,7 @@ void G_MoveWorld(void)
         int32_t i, p, j, k = MAXSTATUS-1, pl;
 #ifdef POLYMER
         int32_t numsavedfires = 0;
+        int32_t ii;
 #endif
         do
         {
@@ -8128,73 +8129,47 @@ void G_MoveWorld(void)
                             }
                         }
 
-                        switch (DynamicTileMap[sprite[i].picnum-1])
-                        {
-                        case DIPSWITCH__STATIC:
-                        case DIPSWITCH2__STATIC:
-                        case DIPSWITCH3__STATIC:
-                        case PULLSWITCH__STATIC:
-                        case SLOTDOOR__STATIC:
-                        case LIGHTSWITCH__STATIC:
-                        case SPACELIGHTSWITCH__STATIC:
-                        case SPACEDOORSWITCH__STATIC:
-                        case FRANKENSTINESWITCH__STATIC:
-                        case POWERSWITCH1__STATIC:
-                        case LOCKSWITCH1__STATIC:
-                        case POWERSWITCH2__STATIC:
-                        case TECHSWITCH__STATIC:
-                        case ACCESSSWITCH__STATIC:
-                        case ACCESSSWITCH2__STATIC:
-                        {
-                            int32_t x, y;
-
-                            if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
-                                    !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                        for (ii=0; ii<2; ii++)
+                            switch (DynamicTileMap[sprite[i].picnum-1+ii])
                             {
-                                if (actor[i].lightptr != NULL)
+                            case DIPSWITCH__STATIC:
+                            case DIPSWITCH2__STATIC:
+                            case DIPSWITCH3__STATIC:
+                            case PULLSWITCH__STATIC:
+                            case SLOTDOOR__STATIC:
+                            case LIGHTSWITCH__STATIC:
+                            case SPACELIGHTSWITCH__STATIC:
+                            case SPACEDOORSWITCH__STATIC:
+                            case FRANKENSTINESWITCH__STATIC:
+                            case POWERSWITCH1__STATIC:
+                            case LOCKSWITCH1__STATIC:
+                            case POWERSWITCH2__STATIC:
+                            case TECHSWITCH__STATIC:
+                            case ACCESSSWITCH__STATIC:
+                            case ACCESSSWITCH2__STATIC:
+                            {
+                                int32_t dx = sintable[(s->ang+512)&2047];
+                                int32_t dy = sintable[(s->ang)&2047];
+                                int32_t madevisagain = 0;
+
+                                // dynamic make-invisible check for 'hidden' switches
+                                if (spriteext[i].flags&SPREXT_TEMPINVISIBLE)
                                 {
-                                    polymer_deletelight(actor[i].lightId);
-                                    actor[i].lightId = -1;
-                                    actor[i].lightptr = NULL;
+                                    int16_t sprsect = s->sectnum;
+
+                                    updatesectorz(s->x, s->y, s->z, &sprsect);
+
+                                    if (sprsect < 0)
+                                        s->cstat |= 32768;
+                                    else if (inside(s->x+(dx>>9), s->y+(dx>>9), s->sectnum)==1)
+                                    {
+                                        s->cstat &= ~32768;
+                                        madevisagain = 1;
+                                    }
                                 }
-                                break;
-                            }
-
-                            x = ((sintable[(s->ang+512)&2047])>>7);
-                            y = ((sintable[(s->ang)&2047])>>7);
-
-                            s->x += x;
-                            s->y += y;
-
-                            G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024, 48+(255<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
-                            s->x -= x;
-                            s->y -= y;
-                        }
-                        break;
-                        }
-
-                        switch (DynamicTileMap[sprite[i].picnum])
-                        {
-                        case DIPSWITCH__STATIC:
-                        case DIPSWITCH2__STATIC:
-                        case DIPSWITCH3__STATIC:
-                        case PULLSWITCH__STATIC:
-                        case SLOTDOOR__STATIC:
-                        case LIGHTSWITCH__STATIC:
-                        case SPACELIGHTSWITCH__STATIC:
-                        case SPACEDOORSWITCH__STATIC:
-                        case FRANKENSTINESWITCH__STATIC:
-                        case POWERSWITCH1__STATIC:
-                        case LOCKSWITCH1__STATIC:
-                        case POWERSWITCH2__STATIC:
-                        case TECHSWITCH__STATIC:
-                        case ACCESSSWITCH__STATIC:
-                        case ACCESSSWITCH2__STATIC:
-                            {
-                                int32_t x, y;
 
                                 if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
-                                    !inside(s->x+((sintable[(s->ang+512)&2047])>>9), s->y+((sintable[(s->ang)&2047])>>9), s->sectnum))
+                                        (madevisagain==0 && !inside(s->x+(dx>>9), s->y+(dx>>9), s->sectnum)))
                                 {
                                     if (actor[i].lightptr != NULL)
                                     {
@@ -8205,18 +8180,20 @@ void G_MoveWorld(void)
                                     break;
                                 }
 
-                                x = ((sintable[(s->ang+512)&2047])>>7);
-                                y = ((sintable[(s->ang)&2047])>>7);
+                                s->x += dx>>7;
+                                s->y += dy>>7;
 
-                                s->x += x;
-                                s->y += y;
+                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 1024-ii*256,
+                                               ii==0 ? (48+(255<<8)+(48<<16)) : 255+(48<<8)+(48<<16), PR_LIGHT_PRIO_LOW);
 
-                                G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), 768, 255+(48<<8)+(48<<16),PR_LIGHT_PRIO_LOW);
-                                s->x -= x;
-                                s->y -= y;
+                                s->x -= dx>>7;
+                                s->y -= dy>>7;
                             }
                             break;
+                            }
 
+                        switch (DynamicTileMap[sprite[i].picnum])
+                        {
                         case ATOMICHEALTH__STATIC:
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2 * 3, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
                             break;

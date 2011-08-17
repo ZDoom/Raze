@@ -251,6 +251,7 @@ typedef struct {
 #define SPREXT_AWAY1 4
 #define SPREXT_AWAY2 8
 #define SPREXT_TSPRACCESS 16
+#define SPREXT_TEMPINVISIBLE 32
 
 EXTERN spriteext_t *spriteext;
 EXTERN spritesmooth_t *spritesmooth;
