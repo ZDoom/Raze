@@ -2776,6 +2776,10 @@ void overheadeditor(void)
                 }
 
                 if (zoom >= 768)
+                {
+                    int32_t alwaysshowgray =
+                        (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT_MAX));
+
                     for (i=0, k=0; (m32_sideview && k<m32_swcnt) || (!m32_sideview && i<MAXSPRITES); i++, k++)
                     {
                         if (m32_sideview)
@@ -2789,7 +2793,7 @@ void overheadeditor(void)
                             if (sprite[i].statnum == MAXSTATUS)
                                 continue;
 
-                        if (!m32_sideview && sprite[i].sectnum >= 0)
+                        if ((!m32_sideview || !alwaysshowgray) && sprite[i].sectnum >= 0)
                             YAX_SKIPSECTOR(sprite[i].sectnum);
 
                         dabuffer = ExtGetSpriteCaption(i);
@@ -2808,6 +2812,7 @@ void overheadeditor(void)
                                           sprite[i].x, sprite[i].y, sprite[i].z);
                         }
                     }
+                }
             }
 
             // stick this event right between begin- end enddrawing()...
@@ -7080,6 +7085,7 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
 {
     int32_t i, j, dst, dist = 512, closest = -1;
     int32_t dax,day;
+    int32_t alwaysshowgray = (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT_MAX));
 
     if (numwalls == 0)
         return -1;
@@ -7092,7 +7098,7 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
 
     for (i=0; i<numsectors; i++)
     {
-        if (!m32_sideview)
+        if (!m32_sideview || !alwaysshowgray)
             YAX_SKIPSECTOR(i);
 
         for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
@@ -7123,7 +7129,7 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
         for (i=0; i<MAXSPRITES; i++)
             if (sprite[i].statnum < MAXSTATUS)
             {
-                if (!m32_sideview && sprite[i].sectnum >= 0)
+                if ((!m32_sideview || !alwaysshowgray) && sprite[i].sectnum >= 0)
                     YAX_SKIPSECTOR(sprite[i].sectnum);
 
                 if (!m32_sideview)

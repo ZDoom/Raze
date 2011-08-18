@@ -273,7 +273,7 @@ void G_DoSectorAnimations(void)
             // elevator had stopped.
             if (animateptr[i] == &sector[animatesect[i]].floorz)
                 for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
-                    if (sprite[j].statnum != 3)
+                    if (sprite[j].statnum != STAT_EFFECTOR)
                         actor[j].bposz = sprite[j].z;
 
             g_animateCount--;
@@ -1111,18 +1111,16 @@ void G_OperateForceFields(int32_t s, int32_t low)
         i = animwall[p].wallnum;
 
         if (low == wall[i].lotag || low == -1)
-            if (((wall[i].overpicnum >= W_FORCEFIELD)&&(wall[i].overpicnum <= W_FORCEFIELD+2))||(wall[i].overpicnum == BIGFORCE))
+            if (((wall[i].overpicnum >= W_FORCEFIELD) && (wall[i].overpicnum <= W_FORCEFIELD+2))
+                    || (wall[i].overpicnum == BIGFORCE))
             {
-
-
                 animwall[p].tag = 0;
 
                 if (wall[i].cstat)
                 {
                     wall[i].cstat   = 0;
 
-                    if (s >= 0 && sprite[s].picnum == SECTOREFFECTOR &&
-                            sprite[s].lotag == 30)
+                    if (s >= 0 && sprite[s].picnum == SECTOREFFECTOR && sprite[s].lotag == 30)
                         wall[i].lotag = 0;
                 }
                 else

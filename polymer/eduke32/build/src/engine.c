@@ -14852,9 +14852,17 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
         {
             j = m32_wallsprite[i];
             if (j<MAXWALLS)
-                drawscreen_drawwall(j,posxe,posye,posze,zoome,!!(graybitmap[j>>3]&(1<<(j&7))));
+            {
+                if (alwaysshowgray || !(graybitmap[j>>3]&(1<<(j&7))))
+                    drawscreen_drawwall(j,posxe,posye,posze,zoome,!!(graybitmap[j>>3]&(1<<(j&7))));
+            }
             else
+            {
+                if (!alwaysshowgray && sprite[j-MAXWALLS].sectnum>=0)
+                    YAX_SKIPSECTOR(sprite[j-MAXWALLS].sectnum);
+
                 drawscreen_drawsprite(j-MAXWALLS,posxe,posye,posze,zoome);
+            }
         }
 
         faketimerhandler();

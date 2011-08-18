@@ -33,9 +33,10 @@ struct dynitem
     const int16_t vstat;
     int16_t val;
 };
-hashtable_t h_names = {512, NULL};
 
-struct dynitem list[]=
+static hashtable_t h_names = {512, NULL};
+
+static struct dynitem list[]=
 {
     {"SECTOREFFECTOR",&SECTOREFFECTOR,SECTOREFFECTOR__STATIC,1},
     {"ACTIVATOR",&ACTIVATOR,ACTIVATOR__STATIC,2},
