@@ -4239,10 +4239,6 @@ static void drawalls(int32_t bunch)
     int32_t z, wallnum, sectnum, nextsectnum;
     int32_t startsmostwallcnt, startsmostcnt, gotswall;
     char andwstat1, andwstat2;
-#ifdef YAX_ENABLE
-    int32_t baselevp, checkcf;
-    int16_t bn[2];
-#endif
 
     z = bunchfirst[bunch];
     sectnum = thesector[z]; sec = &sector[sectnum];
@@ -4257,6 +4253,15 @@ static void drawalls(int32_t bunch)
 #ifdef YAX_ENABLE
     if (g_nodraw)
     {
+        int32_t baselevp, checkcf;
+        int16_t bn[2];
+# if 0
+        int32_t obunchchk = (1 && yax_globalbunch>=0 &&
+                             haveymost[yax_globalbunch>>3]&(1<<(yax_globalbunch&7)));
+
+        // if (obunchchk)
+        x2 = yax_globalbunch*xdimen;
+# endif
         baselevp = (yax_globallev == YAX_MAXDRAWS);
 
         yax_getbunches(sectnum, &bn[0], &bn[1]);
@@ -4296,6 +4301,13 @@ static void drawalls(int32_t bunch)
                         yumost[x] = min(yumost[x], max(umost[x-x1], dplc[x-x1]));
                         ydmost[x] = max(ydmost[x], dmost[x-x1]);
                     }
+# if 0
+                    if (obunchchk)
+                    {
+                        yumost[x] = max(yumost[x], yumost[x-x1+x2]);
+                        ydmost[x] = min(ydmost[x], ydmost[x-x1+x2]);
+                    }
+# endif
                 }
             }
     }
@@ -5182,6 +5194,9 @@ static void drawsprite(int32_t snum)
         }
 
         //sprite
+#ifdef YAX_ENABLE
+        if (yax_globallev==YAX_MAXDRAWS || searchit==2)
+#endif
         if ((searchit >= 1) && (searchx >= lx) && (searchx <= rx))
             if ((searchy >= uwall[searchx]) && (searchy < dwall[searchx]))
             {
@@ -5462,6 +5477,9 @@ static void drawsprite(int32_t snum)
         }
 
         //sprite
+#ifdef YAX_ENABLE
+        if (yax_globallev==YAX_MAXDRAWS || searchit==2)
+#endif
         if ((searchit >= 1) && (searchx >= xb1[MAXWALLSB-1]) && (searchx <= xb2[MAXWALLSB-1]))
             if ((searchy >= uwall[searchx]) && (searchy <= dwall[searchx]))
             {
@@ -5745,6 +5763,9 @@ static void drawsprite(int32_t snum)
         }
 
         //sprite
+#ifdef YAX_ENABLE
+        if (yax_globallev==YAX_MAXDRAWS || searchit==2)
+#endif
         if ((searchit >= 1) && (searchx >= lx) && (searchx <= rx))
             if ((searchy >= uwall[searchx]) && (searchy <= dwall[searchx]))
             {
@@ -5877,6 +5898,9 @@ static void drawsprite(int32_t snum)
         globvis = globalvisibility;
         if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
 
+#ifdef YAX_ENABLE
+        if (yax_globallev==YAX_MAXDRAWS || searchit==2)
+#endif
         if ((searchit >= 1) && (yp > (4<<8)) && (searchy >= lwall[searchx]) && (searchy < swall[searchx]))
         {
             siz = divscale19(xdimenscale,yp);
