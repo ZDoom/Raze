@@ -1567,7 +1567,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                     }
                 }
 
-                if (wall[sec->wallptr + i].cstat & 48)
+                if ((wall[sec->wallptr + i].cstat & 48) == 16)
                     localmaskwall[localmaskwallcnt++] = sec->wallptr + i;
 
                 if (!depth && (overridematerial & prprogrambits[PR_BIT_MIRROR_MAP].bit) &&
