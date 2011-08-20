@@ -412,6 +412,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define JIBBED_ACTOR15                 391
 #define INTRO4_B                       392
 #define BIGBANG                        393
-#define SMACKIT                        394
+#define HORNSND                        394
 #define BELLSND                        395
-// MAXIMUM NUMBER OF SOUNDS: 450 ( 0-449 )
+#define GOAWAY                         396
+#define JOKE                           397
