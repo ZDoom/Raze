@@ -206,7 +206,7 @@ void overheadeditor(void);
 static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line);
 void fixspritesectors(void);
 static int32_t movewalls(int32_t start, int32_t offs);
-int32_t loadnames(const char *namesfile);
+int32_t loadnames(const char *namesfile, int8_t root);
 void updatenumsprites(void);
 static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny,
                                   int32_t maybe_screen_coord_p);
@@ -513,7 +513,7 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 #endif
 
-    loadnames(g_namesFileName);
+    loadnames(g_namesFileName, 1);
 
     if (initinput()) return -1;
 
@@ -8658,21 +8658,16 @@ static int16_t whitelinescan(int16_t sucksect, int16_t dalinehighlight)
         return(tnewnumwalls);
 }
 
-int32_t loadnames(const char *namesfile)
+int32_t loadnames(const char *namesfile, int8_t root)
 {
     char buffer[1024], *p, *name, *number, *endptr;
-    int32_t num, syms=0, line=0, a, comment=0;
+    static int32_t syms=0;
+    int32_t num, line=0, a, comment=0;
+    int8_t quotes=0, anglebrackets=0;
     BFILE *fp;
 
     Bstrncpy(buffer, namesfile, sizeof(buffer));
     buffer[sizeof(buffer)-1] = 0;
-
-    p = buffer;
-    while (*p)
-    {
-        *p = Btoupper(*p);
-        p++;
-    }
 
     fp = fopenfrompath(buffer,"r");
     if (!fp)
@@ -8691,8 +8686,9 @@ int32_t loadnames(const char *namesfile)
         }
     }
 
-    //clearbufbyte(names, sizeof(names), 0);
-    Bmemset(names,0,sizeof(names));
+    if (root)
+        //clearbufbyte(names, sizeof(names), 0);
+        Bmemset(names,0,sizeof(names));
 
     initprintf("Loading %s\n", buffer);
 
@@ -8708,14 +8704,28 @@ int32_t loadnames(const char *namesfile)
 
         p = buffer;
         line++;
-        while (*p == 32) p++;
-        if (*p == 0) continue;	// blank line
+        while (*p == 32) p++; // 32 == 0x20 == space
+        if (*p == 0) continue; // blank line
 
-        if (*p == '#' && !comment)
-        {
+        if (*p == '#') // make '#' optional for compatibility
             p++;
+
+        if (*p == '/')
+        {
+            if (*(p+1) == '/') continue; // comment
+            if (*(p+1) == '*') {comment++; continue;} /* comment */
+        }
+        else if (*p == '*' && p[1] == '/')
+        {
+            comment--;
+            continue;
+        }
+        else if (comment)
+            continue;
+        else if (!comment)
+        {
             while (*p == 32) p++;
-            if (*p == 0) continue;	// null directive
+            if (*p == 0) continue; // null directive
 
             if (!Bstrncmp(p, "define ", 7))
             {
@@ -8774,24 +8784,67 @@ int32_t loadnames(const char *namesfile)
                     continue;
                 }
             }
-            else goto badline;
+            else if (!Bstrncmp(p, "include ", 8))
+            {
+                // #include_...
+                p += 8;
+                while (*p == 32) p++;
+                if (*p == 0)
+                {
+                    initprintf("Error: Malformed #include at line %d\n", line-1);
+                    continue;
+                }
+
+                if (*p == '\"')
+                    {
+                    quotes = 1;
+                    p++;
+                    }
+                else if (*p == '<')
+                    {
+                    anglebrackets = 1;
+                    p++;
+                    }
+
+                name = p;
+                if (quotes == 1)
+                    {
+                        while (*p != '\"' && *p != 0) p++;
+                        quotes = 0;
+                        if (*p == 0)
+                        {
+                            initprintf("Error: Missing \'\"\' in #include at line %d\n", line-1);
+                            continue;
+                        }
+                        *p = 0;
+                    }
+                else if (anglebrackets == 1)
+                    {
+                        while (*p != '>' && *p != 0) p++;
+                        anglebrackets = 0;
+                        if (*p == 0)
+                        {
+                            initprintf("Error: Missing \'>\' in #include at line %d\n", line-1);
+                            continue;
+                        }
+                        *p = 0;
+                    }
+                else
+                    {
+                    while (*p != 32 && *p != 0) p++;
+                    *p = 0;
+                    }
+
+                loadnames(name, 0);
+
+                continue;
+            }
         }
-        else if (*p == '/')
-        {
-            if (*(p+1) == '*') {comment++; continue;}
-            if (*(p+1) == '/') continue;	// comment
-        }
-        else if (*p == '*' && p[1] == '/')
-        {
-            comment--;
-            continue;
-        }
-        else if (comment)
-            continue;
 badline:
         initprintf("Error: Invalid statement found at character %d on line %d\n", (int32_t)(p-buffer), line-1);
     }
-    initprintf("Read %d lines, loaded %d names.\n", line, syms);
+    if (root)
+        initprintf("Loaded %d names.\n", syms);
 
     Bfclose(fp);
     return 0;
