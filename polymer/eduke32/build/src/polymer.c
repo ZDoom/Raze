@@ -1075,20 +1075,23 @@ void                polymer_drawmasks(void)
 //         polymer_drawsprite(spritesortcnt);
 //     }
 
-    // We (kind of) queue sector masks near to far, so drawing them in reverse
-    // order is the sane approach here. Of course impossible cases will arise.
-    while (*cursectormaskcount) {
-        polymer_drawsector(cursectormasks[--(*cursectormaskcount)], TRUE);
-    }
+    if (cursectormaskcount) {
+        // We (kind of) queue sector masks near to far, so drawing them in reverse
+        // order is the sane approach here. Of course impossible cases will arise.
+        while (*cursectormaskcount) {
+            polymer_drawsector(cursectormasks[--(*cursectormaskcount)], TRUE);
+        }
 
-    // This should _always_ be called after a corresponding pr_displayrooms().
-    // Both the top-level game drawrooms and the recursive internal passes
-    // should be accounted for here. If these free cause corruption, there's
-    // an accounting bug somewhere.
-    Bfree(cursectormaskcount);
-    cursectormaskcount = NULL;
-    Bfree(cursectormasks);
-    cursectormasks = NULL;
+        // This should _always_ be called after a corresponding pr_displayrooms()
+        // unless we're in "external view" mode, which was checked above.
+        // Both the top-level game drawrooms and the recursive internal passes
+        // should be accounted for here. If these free cause corruption, there's
+        // an accounting bug somewhere.
+        Bfree(cursectormaskcount);
+        cursectormaskcount = NULL;
+        Bfree(cursectormasks);
+        cursectormasks = NULL;
+    }
 
 //     bglDisable(GL_POLYGON_OFFSET_FILL);
     bglDisable(GL_BLEND);
@@ -2529,7 +2532,7 @@ static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
 
         if (searchit == 2)
             memcpy(s->floor.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
-    } else if (!domasks && sec->floorstat & 384) {
+    } else if (!domasks && cursectormaskcount && sec->floorstat & 384) {
         // If we just skipped a mask, queue it for later
         cursectormasks[(*cursectormaskcount)++] = sectnum;
         // Don't queue it twice if the ceiling is also a mask, though.
@@ -2566,7 +2569,8 @@ static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
 
         if (searchit == 2)
             memcpy(s->ceil.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
-    } else if (!domasks && !queuedmask && (sec->ceilingstat & 384)) {
+    } else if (!domasks && !queuedmask && cursectormaskcount &&
+               (sec->ceilingstat & 384)) {
         // If we just skipped a mask, queue it for later
         cursectormasks[(*cursectormaskcount)++] = sectnum;
     }
