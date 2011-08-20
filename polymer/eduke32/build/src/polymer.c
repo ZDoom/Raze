@@ -2261,8 +2261,6 @@ static int32_t      polymer_updatesector(int16_t sectnum)
         wal = &wall[sec->wallptr + i];
     }
 
-    s->floorstat = sec->floorstat;
-    s->ceilingstat = sec->ceilingstat;
     s->floorxpanning = sec->floorxpanning;
     s->ceilingxpanning = sec->ceilingxpanning;
     s->floorypanning = sec->floorypanning;
@@ -2281,6 +2279,8 @@ attributes:
     }
 
     if ((!s->flags.empty) && (!s->flags.invalidtex) &&
+            (sec->floorstat == s->floorstat) &&
+            (sec->ceilingstat == s->ceilingstat) &&
             (sec->floorshade == s->floorshade) &&
             (sec->ceilingshade == s->ceilingshade) &&
             (sec->floorpal == s->floorpal) &&
@@ -2290,10 +2290,29 @@ attributes:
         goto finish;
 
     polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade, 0);
+
+    if (s->floorstat & 256) {
+        if (s->floorstat & 128) {
+            s->floor.material.diffusemodulation[3] = 0x55;
+        } else {
+            s->floor.material.diffusemodulation[3] = 0xAA;
+        }
+    }
+
     polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade, 0);
+
+    if (s->ceilingstat & 256) {
+        if (s->ceilingstat & 128) {
+            s->ceil.material.diffusemodulation[3] = 0x55;
+        } else {
+            s->ceil.material.diffusemodulation[3] = 0xAA;
+        }
+    }
 
     s->flags.invalidtex = 0;
 
+    s->floorstat = sec->floorstat;
+    s->ceilingstat = sec->ceilingstat;
     s->floorshade = sec->floorshade;
     s->ceilingshade = sec->ceilingshade;
     s->floorpal = sec->floorpal;
