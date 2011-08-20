@@ -1077,20 +1077,6 @@ void                polymer_drawmasks(void)
     bglDisable(GL_ALPHA_TEST);
 }
 
-static inline GLfloat dot2f(GLfloat *v1, GLfloat *v2)
-{
-    return v1[0]*v2[0] + v1[1]*v2[1];
-}
-static inline GLfloat dot3f(GLfloat *v1, GLfloat *v2) 	 
-{ 	 
-    return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
-}
-static inline void relvec2f(GLfloat *v1, GLfloat *v2, GLfloat *out)
-{
-    out[0] = v2[0]-v1[0];
-    out[1] = v2[1]-v1[1];
-}
-
 void                polymer_editorpick(void)
 {
     GLubyte         picked[3];
@@ -1280,240 +1266,6 @@ void                polymer_drawmaskwall(int32_t damaskwallcnt)
 
     bglDisable(GL_CULL_FACE);
 }
-
-void                polymer_updatesprite(int32_t snum)
-{
-    int32_t         curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff, i, j, cs;
-    spritetype      *tspr = tspriteptr[snum];
-    float           xratio, yratio, ang;
-    float           spos[3];
-    const GLfloat   *inbuffer;
-    uint8_t         flipu, flipv;
-    _prsprite       *s;
-
-    if (pr_verbosity >= 3) OSD_Printf("PR : Updating sprite %i...\n", snum);
-
-    if (tspr->owner < 0 || tspr->picnum < 0) return;
-
-    cs = tspr->cstat;
-
-    if (prsprites[tspr->owner] == NULL)
-    {
-        prsprites[tspr->owner] = (_prsprite *) Bcalloc(sizeof(_prsprite), 1);
-
-        if (prsprites[tspr->owner] == NULL)
-        {
-            if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sprite %i : Bmalloc failed.\n", tspr->owner);
-            return;
-        }
-
-        prsprites[tspr->owner]->plane.buffer = (GLfloat *) Bcalloc(4, sizeof(GLfloat) * 5);  // XXX
-        prsprites[tspr->owner]->plane.vertcount = 4;
-    }
-
-    if ((tspr->cstat & 48) && (pr_vbos > 0) && !prsprites[tspr->owner]->plane.vbo)
-    {
-        bglGenBuffersARB(1, &prsprites[tspr->owner]->plane.vbo);
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prsprites[tspr->owner]->plane.vbo);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, NULL, mapvbousage);
-    }
-
-    s = prsprites[tspr->owner];
-
-    curpicnum = tspr->picnum;
-    if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);
-
-    if (tspr->cstat & 48 && searchit != 2)
-    {
-        uint32_t crc = crc32once((uint8_t *)tspr, offsetof(spritetype, owner));
-        int32_t curpriority = 0;
-
-        if (crc == s->crc && tspr->picnum == curpicnum) return;
-        s->crc = crc;
-
-        polymer_resetplanelights(&s->plane);
-
-        while ((curpriority < pr_maxlightpriority) && (!depth || mirrors[depth-1].plane))
-        {
-            i = j = 0;
-            while (j < lightcount)
-            {
-                while (!prlights[i].flags.active)
-                    i++;
-
-                if (prlights[i].priority != curpriority)
-                {
-                    i++;
-                    j++;
-                    continue;
-                }
-
-                if (polymer_planeinlight(&s->plane, &prlights[i]))
-                    polymer_addplanelight(&s->plane, i);
-                i++;
-                j++;
-            }
-            curpriority++;
-        }
-    }
-
-    polymer_getbuildmaterial(&s->plane.material, curpicnum, tspr->pal, tspr->shade, 4);
-
-    if (tspr->cstat & 2)
-    {
-        if (tspr->cstat & 512)
-            s->plane.material.diffusemodulation[3] = 0x55;
-        else
-            s->plane.material.diffusemodulation[3] = 0xAA;
-    }
-
-    s->plane.material.diffusemodulation[3] *=  (1.0f - spriteext[tspr->owner].alpha);
-
-    if (searchit == 2)
-    {
-        s->plane.material.diffusemodulation[0] = 0x03;
-        s->plane.material.diffusemodulation[1] = ((GLubyte *)(&tspr->owner))[0];
-        s->plane.material.diffusemodulation[2] = ((GLubyte *)(&tspr->owner))[1];
-        s->plane.material.diffusemodulation[3] = 0xFF;
-        s->crc = 0xdeadbeef;
-    }
-
-    curpicnum = tspr->picnum;
-    if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);
-
-    if (((tspr->cstat>>4) & 3) == 0)
-        xratio = (float)(tspr->xrepeat) * 0.20f; // 32 / 160
-    else
-        xratio = (float)(tspr->xrepeat) * 0.25f;
-
-    yratio = (float)(tspr->yrepeat) * 0.25f;
-
-    xsize = tilesizx[curpicnum];
-    ysize = tilesizy[curpicnum];
-
-    if (usehightile && h_xsize[curpicnum])
-    {
-        xsize = h_xsize[curpicnum];
-        ysize = h_ysize[curpicnum];
-    }
-
-    xsize = (int32_t)(xsize * xratio);
-    ysize = (int32_t)(ysize * yratio);
-
-    tilexoff = (int32_t)tspr->xoffset;
-    tileyoff = (int32_t)tspr->yoffset;
-    tilexoff += (int8_t)((usehightile&&h_xsize[curpicnum])?(h_xoffs[curpicnum]):((picanm[curpicnum]>>8)&255));
-    tileyoff += (int8_t)((usehightile&&h_xsize[curpicnum])?(h_yoffs[curpicnum]):((picanm[curpicnum]>>16)&255));
-
-    xoff = (int32_t)(tilexoff * xratio);
-    yoff = (int32_t)(tileyoff * yratio);
-
-    if ((tspr->cstat & 128) && (((tspr->cstat>>4) & 3) != 2))
-        yoff -= ysize / 2;
-
-    spos[0] = (float)tspr->y;
-    spos[1] = -(float)(tspr->z) / 16.0f;
-    spos[2] = -(float)tspr->x;
-
-    bglMatrixMode(GL_MODELVIEW);
-    bglPushMatrix();
-    bglLoadIdentity();
-
-    inbuffer = vertsprite;
-
-    flipu = flipv = 0;
-
-    if (pr_billboardingmode && !((tspr->cstat>>4) & 3))
-    {
-        // do surgery on the face tspr to make it look like a wall sprite
-        tspr->cstat |= 16;
-        tspr->ang = (viewangle + 1024) & 2047;
-    }
-
-    switch ((tspr->cstat>>4) & 3)
-    {
-    case 0:
-        ang = (float)((viewangle) & 2047) / (2048.0f / 360.0f);
-
-        bglTranslatef(spos[0], spos[1], spos[2]);
-        bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-        bglRotatef(-horizang, 1.0f, 0.0f, 0.0f);
-        bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
-        bglScalef((float)(xsize), (float)(ysize), 1.0f);
-        break;
-    case 1:
-        ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
-
-        bglTranslatef(spos[0], spos[1], spos[2]);
-        bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-        bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
-        bglScalef((float)(xsize), (float)(ysize), 1.0f);
-        break;
-    case 2:
-        ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
-
-        bglTranslatef(spos[0], spos[1], spos[2]);
-        bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
-        if (tspr->cstat & 8) {
-            bglRotatef(-180.0, 0.0f, 0.0f, 1.0f);
-            flipu = !flipu;
-        }
-        bglTranslatef((float)(-xoff), 1.0f, (float)(yoff));
-        bglScalef((float)(xsize), 1.0f, (float)(ysize));
-
-        inbuffer = horizsprite;
-        break;
-    }
-
-    if ((tspr->cstat & 4) && (((tspr->cstat>>4) & 3) != 2))
-        flipu = !flipu;
-
-    if (!(tspr->cstat & 4) && (((tspr->cstat>>4) & 3) == 2))
-        flipu = !flipu;
-
-    if ((tspr->cstat & 8) && (((tspr->cstat>>4) & 3) != 2))
-        flipv = !flipv;
-
-    bglGetFloatv(GL_MODELVIEW_MATRIX, spritemodelview);
-    bglPopMatrix();
-
-    Bmemcpy(s->plane.buffer, inbuffer, sizeof(GLfloat) * 4 * 5);
-
-    if (flipu || flipv)
-    {
-        i = 0;
-        do
-        {
-            if (flipu)
-                s->plane.buffer[(i * 5) + 3] =
-                (s->plane.buffer[(i * 5) + 3] - 1.0f) * -1.0f;
-            if (flipv)
-                s->plane.buffer[(i * 5) + 4] =
-                (s->plane.buffer[(i * 5) + 4] - 1.0f) * -1.0f;
-        }
-        while (++i < 4);
-    }
-
-    i = 0;
-    do
-        polymer_transformpoint(&inbuffer[i * 5], &s->plane.buffer[i * 5], spritemodelview);
-    while (++i < 4);
-
-    polymer_computeplane(&s->plane);
-
-    if ((cs & 48) && (pr_vbos > 0))
-    {
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->plane.vbo);
-        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, s->plane.buffer);
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-    }
-    else if (s->plane.vbo) // clean up the vbo if a wall/floor sprite becomes a face sprite
-    {
-        bglDeleteBuffersARB(1, &s->plane.vbo);
-        s->plane.vbo = 0;
-    }
-}
-
 
 void                polymer_drawsprite(int32_t snum)
 {
@@ -3301,8 +3053,6 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);
 }
 
-#define INDICE(n) ((p->indices) ? (p->indices[(i+n)%p->indicescount]*5) : (((i+n)%p->vertcount)*5))
-
 // HSR
 static void         polymer_computeplane(_prplane* p)
 {
@@ -3508,6 +3258,239 @@ static inline void  polymer_scansprites(int16_t sectnum, spritetype* localtsprit
             copybufbyte(spr,&localtsprite[*localspritesortcnt],sizeof(spritetype));
             localtsprite[(*localspritesortcnt)++].owner = i;
         }
+    }
+}
+
+void                polymer_updatesprite(int32_t snum)
+{
+    int32_t         curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff, i, j, cs;
+    spritetype      *tspr = tspriteptr[snum];
+    float           xratio, yratio, ang;
+    float           spos[3];
+    const GLfloat   *inbuffer;
+    uint8_t         flipu, flipv;
+    _prsprite       *s;
+
+    if (pr_verbosity >= 3) OSD_Printf("PR : Updating sprite %i...\n", snum);
+
+    if (tspr->owner < 0 || tspr->picnum < 0) return;
+
+    cs = tspr->cstat;
+
+    if (prsprites[tspr->owner] == NULL)
+    {
+        prsprites[tspr->owner] = (_prsprite *) Bcalloc(sizeof(_prsprite), 1);
+
+        if (prsprites[tspr->owner] == NULL)
+        {
+            if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sprite %i : Bmalloc failed.\n", tspr->owner);
+            return;
+        }
+
+        prsprites[tspr->owner]->plane.buffer = (GLfloat *) Bcalloc(4, sizeof(GLfloat) * 5);  // XXX
+        prsprites[tspr->owner]->plane.vertcount = 4;
+    }
+
+    if ((tspr->cstat & 48) && (pr_vbos > 0) && !prsprites[tspr->owner]->plane.vbo)
+    {
+        bglGenBuffersARB(1, &prsprites[tspr->owner]->plane.vbo);
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prsprites[tspr->owner]->plane.vbo);
+        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, NULL, mapvbousage);
+    }
+
+    s = prsprites[tspr->owner];
+
+    curpicnum = tspr->picnum;
+    if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);
+
+    if (tspr->cstat & 48 && searchit != 2)
+    {
+        uint32_t crc = crc32once((uint8_t *)tspr, offsetof(spritetype, owner));
+        int32_t curpriority = 0;
+
+        if (crc == s->crc && tspr->picnum == curpicnum) return;
+        s->crc = crc;
+
+        polymer_resetplanelights(&s->plane);
+
+        while ((curpriority < pr_maxlightpriority) && (!depth || mirrors[depth-1].plane))
+        {
+            i = j = 0;
+            while (j < lightcount)
+            {
+                while (!prlights[i].flags.active)
+                    i++;
+
+                if (prlights[i].priority != curpriority)
+                {
+                    i++;
+                    j++;
+                    continue;
+                }
+
+                if (polymer_planeinlight(&s->plane, &prlights[i]))
+                    polymer_addplanelight(&s->plane, i);
+                i++;
+                j++;
+            }
+            curpriority++;
+        }
+    }
+
+    polymer_getbuildmaterial(&s->plane.material, curpicnum, tspr->pal, tspr->shade, 4);
+
+    if (tspr->cstat & 2)
+    {
+        if (tspr->cstat & 512)
+            s->plane.material.diffusemodulation[3] = 0x55;
+        else
+            s->plane.material.diffusemodulation[3] = 0xAA;
+    }
+
+    s->plane.material.diffusemodulation[3] *=  (1.0f - spriteext[tspr->owner].alpha);
+
+    if (searchit == 2)
+    {
+        s->plane.material.diffusemodulation[0] = 0x03;
+        s->plane.material.diffusemodulation[1] = ((GLubyte *)(&tspr->owner))[0];
+        s->plane.material.diffusemodulation[2] = ((GLubyte *)(&tspr->owner))[1];
+        s->plane.material.diffusemodulation[3] = 0xFF;
+        s->crc = 0xdeadbeef;
+    }
+
+    curpicnum = tspr->picnum;
+    if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);
+
+    if (((tspr->cstat>>4) & 3) == 0)
+        xratio = (float)(tspr->xrepeat) * 0.20f; // 32 / 160
+    else
+        xratio = (float)(tspr->xrepeat) * 0.25f;
+
+    yratio = (float)(tspr->yrepeat) * 0.25f;
+
+    xsize = tilesizx[curpicnum];
+    ysize = tilesizy[curpicnum];
+
+    if (usehightile && h_xsize[curpicnum])
+    {
+        xsize = h_xsize[curpicnum];
+        ysize = h_ysize[curpicnum];
+    }
+
+    xsize = (int32_t)(xsize * xratio);
+    ysize = (int32_t)(ysize * yratio);
+
+    tilexoff = (int32_t)tspr->xoffset;
+    tileyoff = (int32_t)tspr->yoffset;
+    tilexoff += (int8_t)((usehightile&&h_xsize[curpicnum])?(h_xoffs[curpicnum]):((picanm[curpicnum]>>8)&255));
+    tileyoff += (int8_t)((usehightile&&h_xsize[curpicnum])?(h_yoffs[curpicnum]):((picanm[curpicnum]>>16)&255));
+
+    xoff = (int32_t)(tilexoff * xratio);
+    yoff = (int32_t)(tileyoff * yratio);
+
+    if ((tspr->cstat & 128) && (((tspr->cstat>>4) & 3) != 2))
+        yoff -= ysize / 2;
+
+    spos[0] = (float)tspr->y;
+    spos[1] = -(float)(tspr->z) / 16.0f;
+    spos[2] = -(float)tspr->x;
+
+    bglMatrixMode(GL_MODELVIEW);
+    bglPushMatrix();
+    bglLoadIdentity();
+
+    inbuffer = vertsprite;
+
+    flipu = flipv = 0;
+
+    if (pr_billboardingmode && !((tspr->cstat>>4) & 3))
+    {
+        // do surgery on the face tspr to make it look like a wall sprite
+        tspr->cstat |= 16;
+        tspr->ang = (viewangle + 1024) & 2047;
+    }
+
+    switch ((tspr->cstat>>4) & 3)
+    {
+    case 0:
+        ang = (float)((viewangle) & 2047) / (2048.0f / 360.0f);
+
+        bglTranslatef(spos[0], spos[1], spos[2]);
+        bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+        bglRotatef(-horizang, 1.0f, 0.0f, 0.0f);
+        bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
+        bglScalef((float)(xsize), (float)(ysize), 1.0f);
+        break;
+    case 1:
+        ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
+
+        bglTranslatef(spos[0], spos[1], spos[2]);
+        bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+        bglTranslatef((float)(-xoff), (float)(yoff), 0.0f);
+        bglScalef((float)(xsize), (float)(ysize), 1.0f);
+        break;
+    case 2:
+        ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
+
+        bglTranslatef(spos[0], spos[1], spos[2]);
+        bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
+        if (tspr->cstat & 8) {
+            bglRotatef(-180.0, 0.0f, 0.0f, 1.0f);
+            flipu = !flipu;
+        }
+        bglTranslatef((float)(-xoff), 1.0f, (float)(yoff));
+        bglScalef((float)(xsize), 1.0f, (float)(ysize));
+
+        inbuffer = horizsprite;
+        break;
+    }
+
+    if ((tspr->cstat & 4) && (((tspr->cstat>>4) & 3) != 2))
+        flipu = !flipu;
+
+    if (!(tspr->cstat & 4) && (((tspr->cstat>>4) & 3) == 2))
+        flipu = !flipu;
+
+    if ((tspr->cstat & 8) && (((tspr->cstat>>4) & 3) != 2))
+        flipv = !flipv;
+
+    bglGetFloatv(GL_MODELVIEW_MATRIX, spritemodelview);
+    bglPopMatrix();
+
+    Bmemcpy(s->plane.buffer, inbuffer, sizeof(GLfloat) * 4 * 5);
+
+    if (flipu || flipv)
+    {
+        i = 0;
+        do
+        {
+            if (flipu)
+                s->plane.buffer[(i * 5) + 3] =
+                (s->plane.buffer[(i * 5) + 3] - 1.0f) * -1.0f;
+            if (flipv)
+                s->plane.buffer[(i * 5) + 4] =
+                (s->plane.buffer[(i * 5) + 4] - 1.0f) * -1.0f;
+        }
+        while (++i < 4);
+    }
+
+    i = 0;
+    do
+        polymer_transformpoint(&inbuffer[i * 5], &s->plane.buffer[i * 5], spritemodelview);
+    while (++i < 4);
+
+    polymer_computeplane(&s->plane);
+
+    if ((cs & 48) && (pr_vbos > 0))
+    {
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->plane.vbo);
+        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, s->plane.buffer);
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+    }
+    else if (s->plane.vbo) // clean up the vbo if a wall/floor sprite becomes a face sprite
+    {
+        bglDeleteBuffersARB(1, &s->plane.vbo);
+        s->plane.vbo = 0;
     }
 }
 

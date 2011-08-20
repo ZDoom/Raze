@@ -337,7 +337,7 @@ static inline void  polymer_pokesector(int16_t sectnum);
 static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum);
 static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum);
 static inline void  polymer_scansprites(int16_t sectnum, spritetype* tsprite, int32_t* spritesortcnt);
-static inline void  polymer_updatesprite(int32_t snum);
+static void         polymer_updatesprite(int32_t snum);
 // SKIES
 static void         polymer_getsky(void);
 static void         polymer_drawsky(int16_t tilenum, char palnum, int8_t shade);
@@ -368,6 +368,24 @@ static inline void  polymer_culllight(int16_t lighti);
 static void         polymer_prepareshadows(void);
 // RENDER TARGETS
 static void         polymer_initrendertargets(int32_t count);
+
+#define INDICE(n) ((p->indices) ? (p->indices[(i+n)%p->indicescount]*5) : (((i+n)%p->vertcount)*5))
+
+static inline GLfloat dot2f(GLfloat *v1, GLfloat *v2)
+{
+    return v1[0]*v2[0] + v1[1]*v2[1];
+}
+
+static inline GLfloat dot3f(GLfloat *v1, GLfloat *v2)
+{
+    return v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
+}
+
+static inline void relvec2f(GLfloat *v1, GLfloat *v2, GLfloat *out)
+{
+    out[0] = v2[0]-v1[0];
+    out[1] = v2[1]-v1[1];
+}
 
 // the following from gle/vvector.h
 
