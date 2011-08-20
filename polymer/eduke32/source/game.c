@@ -7953,7 +7953,7 @@ static void G_ShowParameterHelp(void)
               "-cfg [file.cfg]\tUse an alternate configuration file\n"
               "-connect [host]\tConnect to a multiplayer game\n"
               "-c#\t\tUse MP mode #, 1 = Dukematch, 2 = Coop, 3 = Dukematch(no spawn)\n"
-              "-d[file.dmo]\tPlay a demo\n"
+              "-d[file.edm]\tPlay a demo\n"
               "-g[file.grp]\tUse additional game data\n"
               "-h[file.def]\tUse an alternate def\n"
               "-j[dir]\t\tAdds a directory to EDuke32's search list\n"
@@ -7999,7 +7999,6 @@ static void G_ShowDebugHelp(void)
               "-game_dir [dir]\tDuke3d_w32 compatibility option, see -j\n"
               "-gamegrp   \tSelects which file to use as main grp\n"
               "-name [name]\tPlayer name in multiplay\n"
-              "-nD\t\tDump default gamevars to gamevars.txt\n"
               "-noautoload\tDisable loading content from autoload dir\n"
               "-nodinput\t\tDisable DirectInput (joystick) support\n"
               "-nologo\t\tSkip the logo anim\n"
@@ -8766,7 +8765,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 case 'd':
                     c++;
                     if (strchr(c,'.') == 0)
-                        Bstrcat(c,".dmo");
+                        Bstrcat(c,".edm");
                     initprintf("Play demo %s.\n",c);
                     Bstrcpy(firstdemofile,c);
                     break;
