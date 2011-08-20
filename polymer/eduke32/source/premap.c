@@ -1213,9 +1213,11 @@ static inline void prelevel(char g)
 
     for (i=headspritestat[STAT_DEFAULT]; i>=0; i=nextspritestat[i])
     {
-        int32_t ii, dx, dy;
+        int32_t ii;
+#if 0
+        int32_t dx, dy;
         int16_t sprsec;
-
+#endif
         for (ii=0; ii<2; ii++)
             switch (DynamicTileMap[PN-1+ii])
             {
@@ -1232,7 +1234,7 @@ static inline void prelevel(char g)
             case POWERSWITCH1__STATIC:
             case LOCKSWITCH1__STATIC:
             case POWERSWITCH2__STATIC:
-
+#if 0
                 dx = sintable[(sprite[i].ang+512)&2047]>>9;
                 dy = sintable[(sprite[i].ang)&2047]>>9;
 
@@ -1251,7 +1253,7 @@ static inline void prelevel(char g)
                     spriteext[i].flags |= SPREXT_TEMPINVISIBLE;
                     sprite[i].cstat |= 32768;
                 }
-
+#endif
                 // invisi-make for both switch states, but the lower code only
                 // for the 'on' state (*)
                 if (ii==0)
