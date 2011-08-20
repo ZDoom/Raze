@@ -1535,10 +1535,6 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         i = sec->wallnum-1;
         do
         {
-            // this is a couple of fps faster for me... does it mess anything up?
-            if (wallvisible(globalposx, globalposy, sec->wallptr + i))
-                polymer_drawwall(sectorqueue[front], sec->wallptr + i);
-
             // if we have a level boundary somewhere in the sector,
             // consider these walls as visportals
             if (wall[sec->wallptr + i].nextsector < 0)
@@ -1636,6 +1632,16 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
             i--;
         }
+
+        // Cram as much CPU or GPU work as we can between queuing the
+        // occlusion queries and reaping them.
+        i = sec->wallnum-1;
+        do
+        {
+            if (wallvisible(globalposx, globalposy, sec->wallptr + i))
+                polymer_drawwall(sectorqueue[front], sec->wallptr + i);
+        }
+        while (--i >= 0);
 
         // queue ROR neighbors
         if ((sec->floorstat & 1024) &&
