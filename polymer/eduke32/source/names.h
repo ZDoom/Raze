@@ -159,7 +159,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DOORTILE18 447
 #define DOORTILE19 448
 #define DOORTILE20 449
-// #define SPACESHUTTLE 487
+#define SPACESHUTTLE 487
 #define SATELLITE 489
 #define VIEWSCREEN2 499
 #define VIEWSCREENBROKE 501
@@ -438,7 +438,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define HEADJIB1 1768
 #define ARMJIB1 1772
 #define LEGJIB1 1776
+#define CANNON 1810
 #define CANNONBALL 1817
+#define CANNONBALLS 1818
 #define OCTABRAIN 1820
 #define OCTABRAINSTAYPUT 1821
 #define OCTATOP 1845

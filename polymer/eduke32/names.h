@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 1996, 2003 - 3D Realms Entertainment
+Copyright (C) 2010 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -17,9 +17,6 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-Original Source: 1996 - Todd Replogle
-Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
@@ -162,7 +159,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #define DOORTILE18 447
 #define DOORTILE19 448
 #define DOORTILE20 449
-// #define SPACESHUTTLE 487
+#define SPACESHUTTLE 487
 #define SATELLITE 489
 #define VIEWSCREEN2 499
 #define VIEWSCREENBROKE 501
@@ -441,7 +438,9 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #define HEADJIB1 1768
 #define ARMJIB1 1772
 #define LEGJIB1 1776
+#define CANNON 1810
 #define CANNONBALL 1817
+#define CANNONBALLS 1818
 #define OCTABRAIN 1820
 #define OCTABRAINSTAYPUT 1821
 #define OCTATOP 1845
