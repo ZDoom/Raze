@@ -366,7 +366,7 @@ static void silentmessage(const char *fmt, ...)
     message_common1(tmpstr);
 }
 
-
+#if M32_UNDO
 typedef struct _mapundo
 {
     int32_t numsectors;
@@ -626,6 +626,7 @@ int32_t map_undoredo(int32_t dir)
 
     return 0;
 }
+#endif
 
 #define M32_NUM_SPRITE_MODES ((signed)(sizeof(SpriteMode)/sizeof(SpriteMode[0])))
 static const char *SpriteMode[]=
@@ -842,8 +843,9 @@ void ExtLoadMap(const char *mapname)
 
     //////////
     Bsprintf(tempbuf, "Mapster32 - %s",mapname);
-
+#if M32_UNDO
     map_undoredo_free();
+#endif
     wm_setapptitle(tempbuf);
 }
 
@@ -7513,7 +7515,7 @@ static void Keys2d(void)
         }
     }
     searchsector = tcursectornum;
-
+#if M32_UNDO
     if (eitherCTRL && PRESSED_KEYSC(Z)) // CTRL+Z
     {
         if (eitherSHIFT)
@@ -7527,7 +7529,7 @@ static void Keys2d(void)
             else message("Revision %d undone",map_revision);
         }
     }
-
+#endif
     if (keystatus[KEYSC_TAB])  //TAB
     {
         if (eitherCTRL)
@@ -10964,7 +10966,7 @@ void ExtAnalyzeSprites(void)
 static void Keys2d3d(void)
 {
     int32_t i;
-
+#if M32_UNDO
     if (mapstate == NULL)
     {
         //        map_revision = 0;
@@ -10972,7 +10974,7 @@ static void Keys2d3d(void)
         //        Bfree(mapstate->next);
         //        mapstate = mapstate->prev;
     }
-
+#endif
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(A)) // 'A
     {
         if (qsetmode == 200)
@@ -11179,7 +11181,11 @@ void ExtCheckKeys(void)
 
     if (asksave == 1)
         asksave++;
-    else if (asksave == 2 && (bstatus + lastbstatus) == 0 && mapstate)
+    else if (asksave == 2 && (bstatus + lastbstatus) == 0
+#if M32_UNDO
+             && mapstate
+#endif
+        )
     {
         int32_t i;
         // check keys so that e.g. bulk deletions won't produce
@@ -11189,7 +11195,9 @@ void ExtCheckKeys(void)
                 break;
         if (i==-1)
         {
+#if M32_UNDO
             create_map_snapshot();
+#endif
             asksave++;
         }
     }

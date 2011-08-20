@@ -6488,7 +6488,11 @@ CANCEL:
             m32_setkeyfilter(0);
 
             keystatus[1] = 0;
+#if M32_UNDO
             _printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (T)est map, (U)ndo, (R)edo, (Q)uit");
+#else
+            _printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (T)est map, (Q)uit");
+#endif
             showframe(1);
             bflushchars();
             bad = 1;
@@ -6541,8 +6545,9 @@ CANCEL:
                         reset_default_mapstate();
 
                         Bstrcpy(boardfilename,"newboard.map");
+#if M32_UNDO
                         map_undoredo_free();
-
+#endif
                         if (bakstat==0)
                         {
                             bakstat = restore_highlighted_map(&bakmap);
@@ -6707,6 +6712,7 @@ CANCEL:
                 {
                     test_map(0);
                 }
+#if M32_UNDO
                 else if (ch == 'u' || ch == 'U')
                 {
                     bad = 0;
@@ -6719,6 +6725,7 @@ CANCEL:
                     if (map_undoredo(1)) printmessage16("Nothing to redo!");
                     else printmessage16("Restored revision %d",map_revision-1);
                 }
+#endif
                 else if (ch == 'q' || ch == 'Q')  //Q
                 {
                     bad = 0;
@@ -8796,8 +8803,11 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
     int32_t i, m;
     int32_t v8 = (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 ||
                   numsprites > MAXSPRITESV7 || numyaxbunches > 0);
-
+#if M32_UNDO
     Bsprintf(snotbuf,"x:%d y:%d ang:%d r%d",posxe,posye,ange,map_revision-1);
+#else
+    Bsprintf(snotbuf,"x:%d y:%d ang:%d",posxe,posye,ange);
+#endif
     i = 0;
     while ((snotbuf[i] != 0) && (i < 33))
         i++;

@@ -115,6 +115,8 @@ int32_t yax_is121(int16_t bunchnum, int16_t getfloor);
 
 extern int32_t kopen4loadfrommod(const char *filename, char searchfirst);
 
+// set to 1 to enable:
+#define M32_UNDO 0
 extern int32_t map_revision;
 extern int32_t map_undoredo(int32_t dir);
 extern void map_undoredo_free(void);
