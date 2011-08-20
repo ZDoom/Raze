@@ -1244,10 +1244,6 @@ void                polymer_drawmaskwall(int32_t damaskwallcnt)
     wal = &wall[maskwall[damaskwallcnt]];
     w = prwalls[maskwall[damaskwallcnt]];
 
-    fogcalc(wal->shade,sec->visibility,sec->floorpal);
-    bglFogf(GL_FOG_DENSITY,fogresult);
-    bglFogfv(GL_FOG_COLOR,fogcol);
-
     bglEnable(GL_CULL_FACE);
 
     if (searchit == 2) {
@@ -1257,6 +1253,10 @@ void                polymer_drawmaskwall(int32_t damaskwallcnt)
         w->mask.material.diffusemodulation[1] = ((GLubyte *)(&maskwall[damaskwallcnt]))[0];
         w->mask.material.diffusemodulation[2] = ((GLubyte *)(&maskwall[damaskwallcnt]))[1];
         w->mask.material.diffusemodulation[3] = 0xFF;
+    } else {
+        fogcalc(wal->shade, sec->visibility, sec->floorpal);
+        bglFogf(GL_FOG_DENSITY, fogresult);
+        bglFogfv(GL_FOG_COLOR, fogcol);
     }
 
     polymer_drawplane(&w->mask);
@@ -1285,9 +1285,10 @@ void                polymer_drawsprite(int32_t snum)
     if ((tspr->cstat & 16384) && (!depth || mirrors[depth-1].plane))
         return;
 
-    fogcalc(tspr->shade,sector[tspr->sectnum].visibility,sector[tspr->sectnum].floorpal);
-    bglFogf(GL_FOG_DENSITY,fogresult);
-    bglFogfv(GL_FOG_COLOR,fogcol);
+    fogcalc(tspr->shade, sector[tspr->sectnum].visibility,
+            sector[tspr->sectnum].floorpal);
+    bglFogf(GL_FOG_DENSITY, fogresult);
+    bglFogfv(GL_FOG_COLOR, fogcol);
 
     if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 &&
         tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0 &&
@@ -2462,10 +2463,6 @@ static void         polymer_drawsector(int16_t sectnum)
     sec = &sector[sectnum];
     s = prsectors[sectnum];
 
-    fogcalc(sec->floorshade,sec->visibility,sec->floorpal);
-    bglFogf(GL_FOG_DENSITY,fogresult);
-    bglFogfv(GL_FOG_COLOR,fogcol);
-
     if (!(sec->floorstat & 1025) || (searchit == 2)) {
         if (searchit == 2) {
             memcpy(oldcolor, s->floor.material.diffusemodulation, sizeof(GLubyte) * 4);
@@ -2474,16 +2471,17 @@ static void         polymer_drawsector(int16_t sectnum)
             s->floor.material.diffusemodulation[1] = ((GLubyte *)(&sectnum))[0];
             s->floor.material.diffusemodulation[2] = ((GLubyte *)(&sectnum))[1];
             s->floor.material.diffusemodulation[3] = 0xFF;
+        } else {
+            fogcalc(sec->floorshade, sec->visibility, sec->floorpal);
+            bglFogf(GL_FOG_DENSITY, fogresult);
+            bglFogfv(GL_FOG_COLOR, fogcol);
         }
+
         polymer_drawplane(&s->floor);
 
         if (searchit == 2)
             memcpy(s->floor.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
     }
-
-    fogcalc(sec->ceilingshade,sec->visibility,sec->ceilingpal);
-    bglFogf(GL_FOG_DENSITY,fogresult);
-    bglFogfv(GL_FOG_COLOR,fogcol);
 
     if (!(sec->ceilingstat & 1025) || (searchit == 2)) {
         if (searchit == 2) {
@@ -2493,7 +2491,12 @@ static void         polymer_drawsector(int16_t sectnum)
             s->ceil.material.diffusemodulation[1] = ((GLubyte *)(&sectnum))[0];
             s->ceil.material.diffusemodulation[2] = ((GLubyte *)(&sectnum))[1];
             s->ceil.material.diffusemodulation[3] = 0xFF;
+        } else {
+            fogcalc(sec->ceilingshade, sec->visibility, sec->ceilingpal);
+            bglFogf(GL_FOG_DENSITY, fogresult);
+            bglFogfv(GL_FOG_COLOR, fogcol);
         }
+
         polymer_drawplane(&s->ceil);
 
         if (searchit == 2)
