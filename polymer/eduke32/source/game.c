@@ -1878,7 +1878,8 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
 
     if (p->ftq != q)
     {
-        if (p == g_player[screenpeek].ps)
+        if (p == g_player[screenpeek].ps
+            && Bstrcmp(ScriptQuotes[q],"")) // avoid printing blank quotes
         {
             if (cq) OSD_Printf(OSDTEXT_BLUE "%s\n",ScriptQuotes[q]);
             else OSD_Printf("%s\n",ScriptQuotes[q]);
