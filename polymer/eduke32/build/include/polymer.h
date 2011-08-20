@@ -323,7 +323,7 @@ void PR_CALLBACK    polymer_tesserror(GLenum error);
 void PR_CALLBACK    polymer_tessedgeflag(GLenum error);
 void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector);
 static int32_t      polymer_buildfloor(int16_t sectnum);
-static void         polymer_drawsector(int16_t sectnum);
+static void         polymer_drawsector(int16_t sectnum, int32_t domasks);
 // WALLS
 static int32_t      polymer_initwall(int16_t wallnum);
 static void         polymer_updatewall(int16_t wallnum);

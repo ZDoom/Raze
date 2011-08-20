@@ -610,6 +610,9 @@ static int16_t  querydelay[MAXSECTORS];
 static GLuint   queryid[MAXWALLS];
 static int16_t  drawingstate[MAXSECTORS];
 
+int16_t         *cursectormasks;
+int16_t         *cursectormaskcount;
+
 float           horizang;
 int16_t         viewangle;
 
@@ -1020,7 +1023,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
         while (i >= 0)
         {
             polymer_updatesector(i);
-            polymer_drawsector(i);
+            polymer_drawsector(i, FALSE);
             polymer_scansprites(i, tsprite, &spritesortcnt);
             i--;
         }
@@ -1064,15 +1067,30 @@ void                polymer_drawmasks(void)
 {
     bglEnable(GL_ALPHA_TEST);
     bglEnable(GL_BLEND);
-    bglEnable(GL_POLYGON_OFFSET_FILL);
+//     bglEnable(GL_POLYGON_OFFSET_FILL);
 
-    while (--spritesortcnt)
-    {
-        tspriteptr[spritesortcnt] = &tsprite[spritesortcnt];
-        polymer_drawsprite(spritesortcnt);
+//     while (--spritesortcnt)
+//     {
+//         tspriteptr[spritesortcnt] = &tsprite[spritesortcnt];
+//         polymer_drawsprite(spritesortcnt);
+//     }
+
+    // We (kind of) queue sector masks near to far, so drawing them in reverse
+    // order is the sane approach here. Of course impossible cases will arise.
+    while (*cursectormaskcount) {
+        polymer_drawsector(cursectormasks[--(*cursectormaskcount)], TRUE);
     }
 
-    bglDisable(GL_POLYGON_OFFSET_FILL);
+    // This should _always_ be called after a corresponding pr_displayrooms().
+    // Both the top-level game drawrooms and the recursive internal passes
+    // should be accounted for here. If these free cause corruption, there's
+    // an accounting bug somewhere.
+    Bfree(cursectormaskcount);
+    cursectormaskcount = NULL;
+    Bfree(cursectormasks);
+    cursectormasks = NULL;
+
+//     bglDisable(GL_POLYGON_OFFSET_FILL);
     bglDisable(GL_BLEND);
     bglDisable(GL_ALPHA_TEST);
 }
@@ -1492,6 +1510,8 @@ static void         polymer_displayrooms(int16_t dacursectnum)
     int16_t         localmaskwallcnt;
     _prmirror       mirrorlist[10];
     int             mirrorcount;
+    int16_t         *localsectormasks;
+    int16_t         *localsectormaskcount;
     int32_t         gx, gy, gz, px, py, pz;
     GLdouble        plane[4];
     float           coeff;
@@ -1515,6 +1535,11 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
     mirrorcount = 0;
 
+    localsectormasks = Bmalloc(sizeof(int16_t) * numsectors);
+    localsectormaskcount = Bcalloc(sizeof(int16_t), 1);
+    cursectormasks = localsectormasks;
+    cursectormaskcount = localsectormaskcount;
+
     bglDisable(GL_DEPTH_TEST);
     bglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     polymer_drawsky(cursky, curskypal, curskyshade);
@@ -1528,7 +1553,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         sec = &sector[sectorqueue[front]];
 
         polymer_pokesector(sectorqueue[front]);
-        polymer_drawsector(sectorqueue[front]);
+        polymer_drawsector(sectorqueue[front], FALSE);
         polymer_scansprites(sectorqueue[front], localtsprite, &localspritesortcnt);
 
         doquery = 0;
@@ -1787,6 +1812,9 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         mirrors[depth++] = mirrorlist[i];
         polymer_displayrooms(mirrorlist[i].sectnum);
         depth--;
+
+        cursectormasks = localsectormasks;
+        cursectormaskcount = localsectormaskcount;
 
         globalposx = gx;
         globalposy = gy;
@@ -2452,18 +2480,38 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
     return (1);
 }
 
-static void         polymer_drawsector(int16_t sectnum)
+static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
 {
     sectortype      *sec;
     _prsector*      s;
     GLubyte         oldcolor[4];
+    int32_t         draw;
+    int32_t         queuedmask;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing sector %i...\n", sectnum);
 
     sec = &sector[sectnum];
     s = prsectors[sectnum];
 
-    if (!(sec->floorstat & 1025) || (searchit == 2)) {
+    queuedmask = FALSE;
+
+    // If you're thinking of 'optimizing' the following logic, you'd better
+    // provide compelling evidence that the generated code is more efficient
+    // than what GCC can come up with on its own.
+
+    draw = TRUE;
+    // Draw masks regardless; avoid all non-masks TROR links
+    if (sec->floorstat & 384) {
+        draw = domasks;
+    } else if (sec->floorstat & 1024) {
+        draw = FALSE;
+    }
+    // Parallaxed
+    if (sec->floorstat & 1) {
+        draw = FALSE;
+    }
+
+    if (draw || (searchit == 2)) {
         if (searchit == 2) {
             memcpy(oldcolor, s->floor.material.diffusemodulation, sizeof(GLubyte) * 4);
 
@@ -2481,9 +2529,26 @@ static void         polymer_drawsector(int16_t sectnum)
 
         if (searchit == 2)
             memcpy(s->floor.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
+    } else if (!domasks && sec->floorstat & 384) {
+        // If we just skipped a mask, queue it for later
+        cursectormasks[(*cursectormaskcount)++] = sectnum;
+        // Don't queue it twice if the ceiling is also a mask, though.
+        queuedmask = TRUE;
     }
 
-    if (!(sec->ceilingstat & 1025) || (searchit == 2)) {
+    draw = TRUE;
+    // Draw masks regardless; avoid all non-masks TROR links
+    if (sec->ceilingstat & 384) {
+        draw = domasks;
+    } else if (sec->ceilingstat & 1024) {
+        draw = FALSE;
+    }
+    // Parallaxed
+    if (sec->ceilingstat & 1) {
+        draw = FALSE;
+    }
+
+    if (draw || (searchit == 2)) {
         if (searchit == 2) {
             memcpy(oldcolor, s->ceil.material.diffusemodulation, sizeof(GLubyte) * 4);
 
@@ -2501,6 +2566,9 @@ static void         polymer_drawsector(int16_t sectnum)
 
         if (searchit == 2)
             memcpy(s->ceil.material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
+    } else if (!domasks && !queuedmask && (sec->ceilingstat & 384)) {
+        // If we just skipped a mask, queue it for later
+        cursectormasks[(*cursectormaskcount)++] = sectnum;
     }
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing sector %i...\n", sectnum);
