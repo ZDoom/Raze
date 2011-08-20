@@ -1475,6 +1475,8 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 {
     sectortype      *sec;
     int32_t         i;
+    int16_t         bunchnum;
+    int16_t         ns;
     GLint           result;
     int16_t         doquery;
     int32_t         front;
@@ -1635,6 +1637,35 @@ static void         polymer_displayrooms(int16_t dacursectnum)
             i--;
         }
 
+        // queue ROR neighbors
+        if ((sec->floorstat & 1024) &&
+            (bunchnum = yax_getbunch(sectorqueue[front], YAX_FLOOR)) >= 0) {
+
+            for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, ns)) {
+
+                if (ns >= 0 && !drawingstate[ns] &&
+                    polymer_planeinfrustum(&prsectors[ns]->ceil, frustum)) {
+
+                    sectorqueue[back++] = ns;
+                    drawingstate[ns] = 1;
+                }
+            }
+        }
+
+        if ((sec->ceilingstat & 1024) &&
+            (bunchnum = yax_getbunch(sectorqueue[front], YAX_CEILING)) >= 0) {
+
+            for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, ns)) {
+
+                if (ns >= 0 && !drawingstate[ns] &&
+                    polymer_planeinfrustum(&prsectors[ns]->floor, frustum)) {
+
+                    sectorqueue[back++] = ns;
+                    drawingstate[ns] = 1;
+                }
+            }
+        }
+
         i = sec->wallnum-1;
         do
         {
@@ -1658,28 +1689,6 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                 {
                     sectorqueue[back++] = wall[sec->wallptr + i].nextsector;
                     drawingstate[wall[sec->wallptr + i].nextsector] = 1;
-                }
-            }
-            
-            // queue ROR neighbors
-            if (sec->floorstat & 1024) {
-                int16_t nextsec;
-                
-                nextsec = sectorofwall(yax_getnextwall(sec->wallptr + i, YAX_FLOOR));
-                
-                if (nextsec >= 0 && !drawingstate[nextsec]) {
-                    sectorqueue[back++] = nextsec;
-                    drawingstate[nextsec] = 1;
-                }
-            }
-            if (sec->ceilingstat & 1024) {
-                int16_t nextsec;
-                
-                nextsec = sectorofwall(yax_getnextwall(sec->wallptr + i, YAX_CEILING));
-                
-                if (nextsec >= 0 && !drawingstate[nextsec]) {
-                    sectorqueue[back++] = nextsec;
-                    drawingstate[nextsec] = 1;
                 }
             }
         }
