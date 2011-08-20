@@ -5228,6 +5228,9 @@ static inline void  polymer_culllight(int16_t lighti)
     int32_t         i;
     int32_t         j;
     int32_t         zdiff;
+    int32_t         checkror;
+    int16_t         bunchnum;
+    int16_t         ns;
     _prsector       *s;
     _prwall         *w;
     sectortype      *sec;
@@ -5244,16 +5247,39 @@ static inline void  polymer_culllight(int16_t lighti)
 
         polymer_pokesector(sectorqueue[front]);
 
+        checkror = FALSE;
+
         zdiff = light->z - s->floorz;
         if (zdiff < 0)
             zdiff = -zdiff;
         zdiff >>= 4;
 
         if (!light->radius && !(sec->floorstat & 1)) {
-            if (zdiff < light->range)
+            if (zdiff < light->range) {
                 polymer_addplanelight(&s->floor, lighti);
-        } else if (polymer_planeinlight(&s->floor, light))
+                checkror = TRUE;
+            }
+        } else if (polymer_planeinlight(&s->floor, light)) {
             polymer_addplanelight(&s->floor, lighti);
+            checkror = TRUE;
+        }
+
+        // queue ROR neighbors
+        if (checkror && (sec->floorstat & 1024) &&
+            (bunchnum = yax_getbunch(sectorqueue[front], YAX_FLOOR)) >= 0) {
+
+            for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, ns)) {
+
+                if (ns >= 0 && !drawingstate[ns] &&
+                    polymer_planeinlight(&prsectors[ns]->ceil, light)) {
+
+                    sectorqueue[back++] = ns;
+                    drawingstate[ns] = 1;
+                }
+            }
+        }
+
+        checkror = FALSE;
 
         zdiff = light->z - s->ceilingz;
         if (zdiff < 0)
@@ -5261,10 +5287,29 @@ static inline void  polymer_culllight(int16_t lighti)
         zdiff >>= 4;
 
         if (!light->radius && !(sec->ceilingstat & 1)) {
-            if (zdiff < light->range)
+            if (zdiff < light->range) {
                 polymer_addplanelight(&s->ceil, lighti);
-        } else if (polymer_planeinlight(&s->ceil, light))
+                checkror = TRUE;
+            }
+        } else if (polymer_planeinlight(&s->ceil, light)) {
             polymer_addplanelight(&s->ceil, lighti);
+            checkror = TRUE;
+        }
+
+        // queue ROR neighbors
+        if (checkror && (sec->ceilingstat & 1024) &&
+            (bunchnum = yax_getbunch(sectorqueue[front], YAX_CEILING)) >= 0) {
+
+            for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, ns)) {
+
+                if (ns >= 0 && !drawingstate[ns] &&
+                    polymer_planeinlight(&prsectors[ns]->floor, light)) {
+
+                    sectorqueue[back++] = ns;
+                    drawingstate[ns] = 1;
+                }
+            }
+        }
 
         i = 0;
         while (i < sec->wallnum)
