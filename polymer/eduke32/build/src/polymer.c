@@ -2327,8 +2327,8 @@ attributes:
 
     polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade, 0);
 
-    if (s->floorstat & 256) {
-        if (s->floorstat & 128) {
+    if (sec->floorstat & 256) {
+        if (sec->floorstat & 128) {
             s->floor.material.diffusemodulation[3] = 0x55;
         } else {
             s->floor.material.diffusemodulation[3] = 0xAA;
@@ -2337,8 +2337,8 @@ attributes:
 
     polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade, 0);
 
-    if (s->ceilingstat & 256) {
-        if (s->ceilingstat & 128) {
+    if (sec->ceilingstat & 256) {
+        if (sec->ceilingstat & 128) {
             s->ceil.material.diffusemodulation[3] = 0x55;
         } else {
             s->ceil.material.diffusemodulation[3] = 0xAA;
