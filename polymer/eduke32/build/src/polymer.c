@@ -1075,6 +1075,8 @@ void                polymer_drawmasks(void)
 //         polymer_drawsprite(spritesortcnt);
 //     }
 
+    bglEnable(GL_CULL_FACE);
+
     if (cursectormaskcount) {
         // We (kind of) queue sector masks near to far, so drawing them in reverse
         // order is the sane approach here. Of course impossible cases will arise.
@@ -1092,6 +1094,8 @@ void                polymer_drawmasks(void)
         Bfree(cursectormasks);
         cursectormasks = NULL;
     }
+
+    bglDisable(GL_CULL_FACE);
 
 //     bglDisable(GL_POLYGON_OFFSET_FILL);
     bglDisable(GL_BLEND);
