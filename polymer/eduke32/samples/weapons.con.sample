@@ -166,22 +166,22 @@ state G_DrawWeaponTile
     // basic fading between player weapon shades
     ifvarvarn hud_shade hud_shadef
     {
-        setvar hud_temp 0
-        ifvare hud_pal 0 setvar hud_temp 1
-        ifvarvare hud_pal hud_palf setvar hud_temp 1
-        ifvare hud_temp 1
+        setvar hud_G_Draw_temp 0
+        ifvare hud_pal 0 setvar hud_G_Draw_temp 1
+        ifvarvare hud_pal hud_palf setvar hud_G_Draw_temp 1
+        ifvare hud_G_Draw_temp 1
         {
-            setvarvar hud_temp hud_shade
-            subvarvar hud_temp hud_shadef
-            setvarvar hud_temp2 hud_temp
-            shiftvarr hud_temp 2
-            addvarvar hud_shadef hud_temp
+            setvarvar hud_G_Draw_temp hud_shade
+            subvarvar hud_G_Draw_temp hud_shadef
+            setvarvar hud_G_Draw_temp2 hud_G_Draw_temp
+            shiftvarr hud_G_Draw_temp 2
+            addvarvar hud_shadef hud_G_Draw_temp
             
-            ifvare hud_temp 0
+            ifvare hud_G_Draw_temp 0
             {
-                shiftvarr hud_temp2 1
-                addvarvar hud_shadef hud_temp2
-                ifvare hud_temp2 0
+                shiftvarr hud_G_Draw_temp2 1
+                addvarvar hud_shadef hud_G_Draw_temp2
+                ifvare hud_G_Draw_temp2 0
                     setvarvar hud_shadef hud_shade
             }
         }
@@ -199,17 +199,17 @@ state G_DrawWeaponTile_crystal
     // basic fading between player weapon shades
     ifvarvarn hud_shade hud_shadef_crystal
     {
-        setvarvar hud_temp hud_shade
-        subvarvar hud_temp hud_shadef_crystal
-        setvarvar hud_temp2 hud_temp
-        shiftvarr hud_temp 2
-        addvarvar hud_shadef_crystal hud_temp
+        setvarvar hud_G_Draw_temp hud_shade
+        subvarvar hud_G_Draw_temp hud_shadef_crystal
+        setvarvar hud_G_Draw_temp2 hud_G_Draw_temp
+        shiftvarr hud_G_Draw_temp 2
+        addvarvar hud_shadef_crystal hud_G_Draw_temp
         
-        ifvare hud_temp 0
+        ifvare hud_G_Draw_temp 0
         {
-            shiftvarr hud_temp2 1
-            addvarvar hud_shadef_crystal hud_temp2
-            ifvare hud_temp2 0
+            shiftvarr hud_G_Draw_temp2 1
+            addvarvar hud_shadef_crystal hud_G_Draw_temp2
+            ifvare hud_G_Draw_temp2 0
                 setvarvar hud_shadef_crystal hud_shade
         }
     }
