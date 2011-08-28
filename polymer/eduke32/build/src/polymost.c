@@ -91,6 +91,8 @@ Low priority:
 extern int32_t filelength(int h); // kplib.c
 #endif
 
+//#define OBSOLETE_RENDMODES
+
 extern char textfont[2048], smalltextfont[2048];
 
 int32_t rendmode=0;
@@ -105,6 +107,7 @@ static int32_t vcnt, gtag;
 static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 
 #define SCISDIST 1.0 //1.0: Close plane clipping distance
+// the following three are for the obsolete rendmodes 1 and 2:
 #define USEZBUFFER 1 //1:use zbuffer (slow, nice sprite rendering), 0:no zbuffer (fast, bad sprite rendering)
 #define LINTERPSIZ 4 //log2 of interpolation size. 4:pretty fast&acceptable quality, 0:best quality/slow!
 #define DEPTHDEBUG 0 //1:render distance instead of texture, for debugging only!, 0:default
@@ -124,9 +127,11 @@ double gdo, gdx, gdy;
 
 static int32_t preview_mouseaim=0;  // when 1, displays a CROSSHAIR tsprite at the _real_ aimed position
 
-#if (USEZBUFFER != 0)
-int32_t  zbufysiz = 0, zbufbpl = 0, *zbufoff = 0;
-intptr_t zbufmem = 0;
+#ifdef OBSOLETE_RENDMODES
+# if (USEZBUFFER != 0)
+static int32_t  zbufysiz = 0, zbufbpl = 0, *zbufoff = 0;
+static intptr_t zbufmem = 0;
+# endif
 #endif
 
 #ifdef USE_OPENGL
@@ -1968,13 +1973,19 @@ static int32_t pow2xsplit = 0, skyclamphack = 0;
 
 void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 {
-    double ngdx = 0.0, ngdy = 0.0, ngdo = 0.0, ngux = 0.0, nguy = 0.0, nguo = 0.0;
-    double ngvx = 0.0, ngvy = 0.0, ngvo = 0.0, dp, up, vp, rdp, du0 = 0.0, du1 = 0.0, dui, duj;
+#ifdef OBSOLETE_RENDMODES
+    double rdp;
     double ngdx2, ngux2, ngvx2;
+    int32_t x, y, z, mini, maxi, tsizxm1 = 0, tsizym1 = 0, ltsizy = 0;
+    int32_t xi, d0, u0, v0, d1, u1, v1, xmodnice = 0, ymulnice = 0;
+    char dacol = 0, *palptr = NULL, *vidp, *vide;
+#endif
+    double ngdx = 0.0, ngdy = 0.0, ngdo = 0.0, ngux = 0.0, nguy = 0.0, nguo = 0.0;
+    double ngvx = 0.0, ngvy = 0.0, ngvo = 0.0, dp, up, vp, du0 = 0.0, du1 = 0.0, dui, duj;
     double f, r, ox, oy, oz, ox2, oy2, oz2, dd[16], uu[16], vv[16], px[16], py[16], uoffs;
-    int32_t i, j, k, x, y, z, nn, ix0, ix1, mini, maxi, tsizx, tsizy, tsizxm1 = 0, tsizym1 = 0, ltsizy = 0;
-    int32_t xx, yy, xi, d0, u0, v0, d1, u1, v1, xmodnice = 0, ymulnice = 0, dorot;
-    char dacol = 0, *walptr, *palptr = NULL, *vidp, *vide;
+    int32_t i, j, k, nn, ix0, ix1, tsizx, tsizy;
+    int32_t xx, yy, dorot;
+    char *walptr;
 #ifdef USE_OPENGL
     pthtyp *pth, *detailpth, *glowpth;
     int32_t texunits = GL_TEXTURE0_ARB;
@@ -2458,7 +2469,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     }
 #endif
 
-#if 0
+#ifdef OBSOLETE_RENDMODES
     if (rendmode == 2)
     {
 #if (USEZBUFFER != 0)
@@ -2520,7 +2531,6 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         ltsizy = (picsiz[globalpicnum]>>4);
     }
     else
-#endif
     {
         dacol = palookup[0][(int32_t)(*(char *)(waloff[globalpicnum]))+(min(max((int32_t)(globalshade * shadescale),0),numpalookups-1)<<8)];
     }
@@ -2576,11 +2586,9 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
                 ix1 = (x>>14); if (ix1 > xdimen) ix1 = xdimen;
                 if (ix0 < ix1)
                 {
-#if 0
                     if (rendmode == 1)
                         memset((void *)(ylookup[y]+ix0+frameoffset),dacol,ix1-ix0);
                     else
-#endif
                     {
                         vidp = (char *)(ylookup[y]+frameoffset+ix0);
                         dp = ngdx*(double)ix0 + ngdy*(double)y + ngdo;
@@ -2764,7 +2772,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
         i = j;
     }
     while (i != maxi);
-#if 0
+
     if (rendmode == 1)
     {
         if (method&3) //Only draw border around sprites/maskwalls
@@ -3702,11 +3710,11 @@ static void polymost_drawalls(int32_t bunch)
                 else if ((oy < cy0) != (oy < cy1))
                 {
                     /*         cy1        cy0
-                                                                         //        /             \
-                                                                         //oy----------      oy---------
-                                                                         //    /                    \
-                                                                         //  cy0                     cy1
-                                                                         */
+                    //        /              \
+                    //oy----------      oy---------
+                    //    /                   \
+                    //  cy0                     cy1
+                    */
                     ox = (oy-cy0)*(x1-x0)/(cy1-cy0) + x0;
                     if (oy < cy0) { domost(ox,oy,x0,oy); domost(x1,cy1,ox,oy); }
                     else { domost(ox,oy,x0,cy0); domost(x1,oy,ox,oy); }
