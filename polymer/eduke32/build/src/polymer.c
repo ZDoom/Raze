@@ -1659,7 +1659,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                             bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
                         }
                     } else
-                        queryid[sec->wallptr + i] = 1;
+                        queryid[sec->wallptr + i] = 0xFFFFFFFF;
                 }
             }
 
@@ -1729,6 +1729,11 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                     sectorqueue[back++] = wall[sec->wallptr + i].nextsector;
                     drawingstate[wall[sec->wallptr + i].nextsector] = 1;
                 }
+            } else if (queryid[sec->wallptr + i] &&
+                       queryid[sec->wallptr + i] != 0xFFFFFFFF)
+            {
+                bglDeleteQueriesARB(1, &queryid[sec->wallptr + i]);
+                queryid[sec->wallptr + i] = 0;
             }
         }
         while (--i >= 0);
