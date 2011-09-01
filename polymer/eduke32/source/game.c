@@ -9701,7 +9701,12 @@ int32_t app_main(int32_t argc,const char **argv)
         while (CommandPaths)
         {
             s = CommandPaths->next;
-            addsearchpath(CommandPaths->str);
+            i = addsearchpath(CommandPaths->str);
+            if (i < 0)
+            {
+                initprintf("Failed adding %s for game data: %s\n", CommandPaths->str,
+                           i==-1 ? "not a directory" : "no such directory");
+            }
 
             Bfree(CommandPaths->str);
             Bfree(CommandPaths);

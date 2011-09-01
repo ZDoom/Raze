@@ -5337,15 +5337,8 @@ static void Keys3d(void)
             break;
         }
 
-        if (sector[searchsector].ceilingheinum == 0)
-            sector[searchsector].ceilingstat &= ~2;
-        else
-            sector[searchsector].ceilingstat |= 2;
-
-        if (sector[searchsector].floorheinum == 0)
-            sector[searchsector].floorstat &= ~2;
-        else
-            sector[searchsector].floorstat |= 2;
+        setslope(searchsector, YAX_CEILING, sector[searchsector].ceilingheinum);
+        setslope(searchsector, YAX_FLOOR, sector[searchsector].floorheinum);
 
         asksave = 1;
         noclip = i;
@@ -6538,7 +6531,8 @@ static void Keys3d(void)
                     (bunchnum < 0 || YAXSLOPECHK(searchsector, othersidesect)))
 #endif
             {
-                int32_t newslope = clamp(AIMED_CEILINGFLOOR(heinum) + tsign*i, -BHEINUM_MAX, BHEINUM_MAX);
+                int32_t oldslope = (AIMED_CEILINGFLOOR(stat)&2) ? AIMED_CEILINGFLOOR(heinum) : 0;
+                int32_t newslope = clamp(oldslope + tsign*i, -BHEINUM_MAX, BHEINUM_MAX);
 
                 setslope(searchsector, AIMING_AT_FLOOR, newslope);
 #ifdef YAX_ENABLE
@@ -6549,17 +6543,7 @@ static void Keys3d(void)
                               typestr[searchstat], AIMED_CEILINGFLOOR(heinum));
             }
         }
-/*
-        if (sector[searchsector].ceilingheinum == 0)
-            sector[searchsector].ceilingstat &= ~2;
-        else
-            sector[searchsector].ceilingstat |= 2;
 
-        if (sector[searchsector].floorheinum == 0)
-            sector[searchsector].floorstat &= ~2;
-        else
-            sector[searchsector].floorstat |= 2;
-*/
         asksave = 1;
     }
 
@@ -10258,7 +10242,12 @@ int32_t ExtInit(void)
         while (CommandPaths)
         {
             s = CommandPaths->next;
-            addsearchpath(CommandPaths->str);
+            i = addsearchpath(CommandPaths->str);
+            if (i < 0)
+            {
+                initprintf("Failed adding %s for game data: %s\n", CommandPaths->str,
+                           i==-1 ? "not a directory" : "no such directory");
+            }
 
             Bfree(CommandPaths->str);
             Bfree(CommandPaths);
@@ -11443,6 +11432,33 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
         if (endwall > numwalls)
             CORRUPTCHK_PRINT(4, CORRUPT_SECTOR|i, "SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d", i, endwall, numwalls);
 
+        // inconsistent cstat&2 and heinum checker
+        {
+            int32_t cs, hn;
+            const char *cflabel[2] = {"ceiling", "floor"};
+
+            for (j=0; j<2; j++)
+            {
+                cs = !!(SECTORFLD(i,stat, j)&2);
+                hn = (SECTORFLD(i,heinum, j)!=0);
+
+                if (cs != hn)
+                {
+                    if (numcorruptthings < MAXCORRUPTTHINGS && (tryfixing & (1ull<<numcorruptthings)))
+                    {
+                        setslope(i, j, 0);
+                        OSD_Printf(CCHK_CORRECTED "auto-correction: reset sector %d's %s slope\n",
+                                   i, cflabel[j]);
+                    }
+                    else
+                    {
+                        CORRUPTCHK_PRINT(2, CORRUPT_SECTOR|i,
+                                         "SECTOR[%d]: inconsistent %sstat&2 and heinum", i, cflabel[j]);
+                    }
+                }
+            }
+        }
+
         errlevel = max(errlevel, bad);
 
         if (bad<4)
@@ -11951,6 +11967,7 @@ static void EditSectorData(int16_t sectnum)
             case 5:
                 handlemed(0, "Ceiling heinum", "Ceiling Heinum", &sector[sectnum].ceilingheinum,
                           sizeof(sector[sectnum].ceilingheinum), BHEINUM_MAX, 1);
+                setslope(sectnum, YAX_CEILING, sector[sectnum].ceilingheinum);
                 break;
             case 6:
                 handlemed(0, "Palookup number", "Ceiling Palookup Number", &sector[sectnum].ceilingpal,
@@ -12002,6 +12019,7 @@ static void EditSectorData(int16_t sectnum)
             case 5:
                 handlemed(0, "Floor heinum", "Floor Heinum", &sector[sectnum].floorheinum,
                           sizeof(sector[sectnum].floorheinum), BHEINUM_MAX, 1);
+                setslope(sectnum, YAX_FLOOR, sector[sectnum].floorheinum);
                 break;
             case 6:
                 handlemed(0, "Palookup number", "Floor Palookup Number", &sector[sectnum].floorpal,

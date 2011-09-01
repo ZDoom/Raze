@@ -5801,9 +5801,9 @@ check_next_sector: ;
                         sector[numsectors].extra = -1;
                         sector[numsectors].lotag = sector[numsectors].hitag = 0;
 
-                        sector[numsectors].ceilingstat &= ~2;
-                        sector[numsectors].floorstat &= ~2;
-                        sector[numsectors].ceilingheinum = sector[numsectors].floorheinum = 0;
+                        setslope(numsectors, YAX_CEILING, 0);
+                        setslope(numsectors, YAX_FLOOR, 0);
+
                         sector[numsectors].ceilingpal = sector[numsectors].floorpal = 0;
 #ifdef YAX_ENABLE
                         yax_setbunches(numsectors, -1, -1);
