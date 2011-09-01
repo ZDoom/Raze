@@ -216,6 +216,9 @@ static char spritepals[MAXSPRITES];
 static uint8_t wallflag[MAXWALLS>>3];
 
 #ifdef YAX_ENABLE
+static char *yupdownwall[2] = {"upwall","downwall"};
+static char *YUPDOWNWALL[2] = {"UPWALL","DOWNWALL"};
+
 static uint8_t havebunch[YAX_MAXBUNCHES];
 static int32_t *tempzar[YAX_MAXBUNCHES];
 
@@ -5248,6 +5251,47 @@ static void Keys3d(void)
                 S_StopEnvSound(sprite[searchwall].lotag, searchwall);
             }
             asksave = 1;
+        }
+    }
+
+    if (PRESSED_KEYSC(BS))  // backspace
+    {
+        if (AIMING_AT_WALL_OR_MASK)
+        {
+#ifdef YAX_ENABLE
+            int16_t ynw, cf=-1;
+
+            if (eitherSHIFT && !eitherCTRL)
+                cf = 0;
+            else if (!eitherSHIFT && eitherCTRL)
+                cf = 1;
+
+            if (cf >= 0)
+            {
+                // clear TROR uplink/downlink
+                ynw = yax_getnextwall(searchwall, cf);
+                if (ynw >= 0)
+                {
+                    yax_setnextwall(ynw, !cf, -1);
+                    yax_setnextwall(searchwall, cf, -1);
+                }
+
+                message("Cleared wall %d's %s link to wall %d", searchwall, yupdownwall[cf], ynw);
+            }
+            else
+#endif
+            if (!eitherSHIFT && !eitherCTRL)
+            {
+                int32_t nw = wall[searchwall].nextwall;
+
+                if ((unsigned)nw < (unsigned)numwalls)
+                {
+                    wall[nw].nextsector = wall[nw].nextwall = -1;
+                    wall[searchwall].nextsector = wall[searchwall].nextwall = -1;
+
+                    message("Cleared connection between wall %d and %d", searchwall, nw);
+                }
+            }
         }
     }
 
@@ -11246,9 +11290,6 @@ void ExtCheckKeys(void)
 } while (0)
 
 #ifdef YAX_ENABLE
-static char *yupdownwall[2] = {"upwall","downwall"};
-static char *YUPDOWNWALL[2] = {"UPWALL","DOWNWALL"};
-
 static int32_t walls_have_equal_endpoints(int32_t w1, int32_t w2)
 {
     int32_t n1 = wall[w1].point2, n2 = wall[w2].point2;
