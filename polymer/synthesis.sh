@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # some paths
 top=/var/www/synthesis/eduke32
