@@ -12194,17 +12194,27 @@ void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *
     *sectnum = -1;
 }
 
+// new: if *sectnum >= MAXSECTORS, *sectnum-=MAXSECTORS is considered instead
+//      as starting sector and the 'initial' z check is skipped
+//      (not initial anymore because it follows the sector updating due to TROR)
 void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
 {
     walltype *wal;
     int32_t i, j, cz, fz;
 
-    if ((*sectnum >= 0) && (*sectnum < numsectors))
+    if ((uint32_t)(*sectnum) < 2*MAXSECTORS)
     {
+        int32_t nofirstzcheck = 0;
+
+        if (*sectnum >= MAXSECTORS)
+        {
+            *sectnum -= MAXSECTORS;
+            nofirstzcheck = 1;
+        }
+
         // this block used to be outside the "if" and caused crashes in Polymost Mapster32
         getzsofslope(*sectnum, x, y, &cz, &fz);
-        if ((z >= cz) && (z <= fz))
-            if (inside(x,y,*sectnum) != 0) return;
+
 #ifdef YAX_ENABLE
         if (z < cz)
         {
@@ -12219,6 +12229,8 @@ void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
                 { *sectnum = i; return; }
         }
 #endif
+        if (nofirstzcheck || ((z >= cz) && (z <= fz)))
+            if (inside(x,y,*sectnum) != 0) return;
 
         wal = &wall[sector[*sectnum].wallptr];
         j = sector[*sectnum].wallnum;
