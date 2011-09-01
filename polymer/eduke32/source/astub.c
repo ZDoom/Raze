@@ -5261,10 +5261,13 @@ static void Keys3d(void)
 #ifdef YAX_ENABLE
             int16_t ynw, cf=-1;
 
-            if (eitherSHIFT && !eitherCTRL)
-                cf = 0;
-            else if (!eitherSHIFT && eitherCTRL)
-                cf = 1;
+            if (m32_script_expertmode)
+            {
+                if (eitherSHIFT && !eitherCTRL)
+                    cf = 0;
+                else if (!eitherSHIFT && eitherCTRL)
+                    cf = 1;
+            }
 
             if (cf >= 0)
             {
