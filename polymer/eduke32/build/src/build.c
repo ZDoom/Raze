@@ -6916,7 +6916,9 @@ const char *SaveBoard(const char *fn, uint32_t flags)
     }
 
     fixspritesectors();   //Do this before saving!
-    updatesector(startposx,startposy,&startsectnum);
+    updatesectorz(startposx,startposy,startposz,&startsectnum);
+    if (startsectnum < 0)
+        updatesector(startposx,startposy,&startsectnum);
     ExtPreSaveMap();
     ret = saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
     if ((flags&1)==0)
