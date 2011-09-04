@@ -9981,8 +9981,7 @@ void nextpage(void)
 int32_t loadpics(const char *filename, int32_t askedsize)
 {
     int32_t offscount, localtilestart, localtileend, dasiz;
-    int16_t fil, i, j;
-    int32_t tilefilei, numtiles_dummy;
+    int32_t i, j, fil, tilefilei, numtiles_dummy;
 
     Bstrcpy(artfilename,filename);
 

@@ -2813,7 +2813,6 @@ static void vsp_finalize_init(vsptyp *vsp, int32_t vcnt)
 //                /          \
 // (px[3],py[3]).--------------.(px[2],py[2])
 */
-static inline int32_t vsinsaft(vsptyp *vsp, int32_t i);
 
 void initmosts(double *px, double *py, int32_t n)
 {
