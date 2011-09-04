@@ -99,10 +99,10 @@ int32_t rendmode=0;
 int32_t usemodels=1, usehightile=1;
 
 #include <math.h> //<-important!
-typedef struct { float x, cy[2], fy[2]; int32_t n, p, tag, ctag, ftag; } vsptyp;
+typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 4096 //<- careful!
 static vsptyp vsp[VSPMAX];
-static int32_t vcnt, gtag;
+static int32_t gtag;
 
 static double dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 
@@ -1993,7 +1993,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     // backup of the n for possible redrawing of fullbright
     int32_t n_ = n, method_ = method;
 
-    if (method == -1) return;
+    if (method == -1 || g_nodraw) return;
 
     if (n == 3)
     {
@@ -2788,15 +2788,36 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 #endif
 }
 
+
+static void vsp_finalize_init(vsptyp *vsp, int32_t vcnt)
+{
+    int32_t i;
+
+    for (i=0; i<vcnt; i++)
+    {
+        vsp[i].cy[1] = vsp[i+1].cy[0]; vsp[i].ctag = i;
+        vsp[i].fy[1] = vsp[i+1].fy[0]; vsp[i].ftag = i;
+        vsp[i].n = i+1; vsp[i].p = i-1;
+//        vsp[i].tag = -1;
+    }
+    vsp[vcnt-1].n = 0; vsp[0].p = vcnt-1;
+
+    //VSPMAX-1 is dummy empty node
+    for (i=vcnt; i<VSPMAX; i++) { vsp[i].n = i+1; vsp[i].p = i-1; }
+    vsp[VSPMAX-1].n = vcnt; vsp[vcnt].p = VSPMAX-1;
+}
+
 /*Init viewport boundary (must be 4 point convex loop):
 //      (px[0],py[0]).----.(px[1],py[1])
 //                  /      \
 //                /          \
 // (px[3],py[3]).--------------.(px[2],py[2])
 */
+static inline int32_t vsinsaft(vsptyp *vsp, int32_t i);
+
 void initmosts(double *px, double *py, int32_t n)
 {
-    int32_t i, j, k, imin;
+    int32_t i, j, k, imin, vcnt;
 
     vcnt = 1; //0 is dummy solid node
 
@@ -2857,22 +2878,11 @@ void initmosts(double *px, double *py, int32_t n)
         vcnt++;
     }
 
-
-    for (i=0; i<vcnt; i++)
-    {
-        vsp[i].cy[1] = vsp[i+1].cy[0]; vsp[i].ctag = i;
-        vsp[i].fy[1] = vsp[i+1].fy[0]; vsp[i].ftag = i;
-        vsp[i].n = i+1; vsp[i].p = i-1;
-    }
-    vsp[vcnt-1].n = 0; vsp[0].p = vcnt-1;
+    vsp_finalize_init(vsp, vcnt);
     gtag = vcnt;
-
-    //VSPMAX-1 is dummy empty node
-    for (i=vcnt; i<VSPMAX; i++) { vsp[i].n = i+1; vsp[i].p = i-1; }
-    vsp[VSPMAX-1].n = vcnt; vsp[vcnt].p = VSPMAX-1;
 }
 
-static inline void vsdel(int32_t i)
+static inline void vsdel(vsptyp *vsp, int32_t i)
 {
     int32_t pi, ni;
     //Delete i
@@ -2888,7 +2898,7 @@ static inline void vsdel(int32_t i)
     vsp[VSPMAX-1].n = i;
 }
 
-static inline int32_t vsinsaft(int32_t i)
+static inline int32_t vsinsaft(vsptyp *vsp, int32_t i)
 {
     int32_t r;
     //i = next element from empty list
@@ -2923,7 +2933,7 @@ void domost(float x0, float y0, float x1, float y1)
 {
     double dpx[4], dpy[4];
     float d, f, n, t, slop, dx, dx0, dx1, nx, nx0, ny0, nx1, ny1;
-    float spx[4], spy[4], cy[2], cv[2];
+    float spx[4], /*spy[4],*/ cy[2], cv[2];
     int32_t i, j, k, z, ni, vcnt = 0, scnt, newi, dir, spt[4];
 
     if (x0 < x1)
@@ -2956,7 +2966,7 @@ void domost(float x0, float y0, float x1, float y1)
         {
             t = (x0-nx0)*cv[dir] - (y0-cy[dir])*dx;
             if (((!dir) && (t < 0)) || ((dir) && (t > 0)))
-                { spx[scnt] = x0; spy[scnt] = y0; spt[scnt] = -1; scnt++; }
+                { spx[scnt] = x0; /*spy[scnt] = y0;*/ spt[scnt] = -1; scnt++; }
         }
 
         //Test for intersection on umost (j == 0) and dmost (j == 1)
@@ -2969,7 +2979,7 @@ void domost(float x0, float y0, float x1, float y1)
                 t = n/d; nx = (x1-x0)*t + x0;
                 if ((nx > nx0) && (nx < nx1))
                 {
-                    spx[scnt] = nx; spy[scnt] = (y1-y0)*t + y0;
+                    spx[scnt] = nx; /* spy[scnt] = (y1-y0)*t + y0; */
                     spt[scnt] = j; scnt++;
                 }
             }
@@ -2979,7 +2989,7 @@ void domost(float x0, float y0, float x1, float y1)
         if ((scnt >= 2) && (spx[scnt-1] < spx[scnt-2]))
         {
             f = spx[scnt-1]; spx[scnt-1] = spx[scnt-2]; spx[scnt-2] = f;
-            f = spy[scnt-1]; spy[scnt-1] = spy[scnt-2]; spy[scnt-2] = f;
+            /* f = spy[scnt-1]; spy[scnt-1] = spy[scnt-2]; spy[scnt-2] = f; */
             j = spt[scnt-1]; spt[scnt-1] = spt[scnt-2]; spt[scnt-2] = j;
         }
 
@@ -2988,7 +2998,7 @@ void domost(float x0, float y0, float x1, float y1)
         {
             t = (x1-nx0)*cv[dir] - (y1-cy[dir])*dx;
             if (((!dir) && (t < 0)) || ((dir) && (t > 0)))
-                { spx[scnt] = x1; spy[scnt] = y1; spt[scnt] = -1; scnt++; }
+                { spx[scnt] = x1; /* spy[scnt] = y1; */ spt[scnt] = -1; scnt++; }
         }
 
         vsp[i].tag = vsp[newi].tag = -1;
@@ -2996,7 +3006,7 @@ void domost(float x0, float y0, float x1, float y1)
         {
             if (z < scnt)
             {
-                vcnt = vsinsaft(i);
+                vcnt = vsinsaft(vsp, i);
                 t = (spx[z]-nx0)/dx;
                 vsp[i].cy[1] = t*cv[0] + cy[0];
                 vsp[i].fy[1] = t*cv[1] + cy[1];
@@ -3033,31 +3043,26 @@ void domost(float x0, float y0, float x1, float y1)
 
             if (!dir)
             {
+                dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
+                dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
+
                 switch (k)
                 {
                 case 1:
                 case 2:
-                    dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
-                    dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
                     dpx[2] = dx0; dpy[2] = ny0; drawpoly(dpx,dpy,3,domostpolymethod);
                     vsp[i].cy[0] = ny0; vsp[i].ctag = gtag; break;
                 case 3:
                 case 6:
-                    dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
-                    dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
                     dpx[2] = dx1; dpy[2] = ny1; drawpoly(dpx,dpy,3,domostpolymethod);
                     vsp[i].cy[1] = ny1; vsp[i].ctag = gtag; break;
                 case 4:
                 case 5:
                 case 7:
-                    dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
-                    dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
                     dpx[2] = dx1; dpy[2] = ny1;
                     dpx[3] = dx0; dpy[3] = ny0; drawpoly(dpx,dpy,4,domostpolymethod);
                     vsp[i].cy[0] = ny0; vsp[i].cy[1] = ny1; vsp[i].ctag = gtag; break;
                 case 8:
-                    dpx[0] = dx0; dpy[0] = vsp[i].cy[0];
-                    dpx[1] = dx1; dpy[1] = vsp[i].cy[1];
                     dpx[2] = dx1; dpy[2] = vsp[i].fy[1];
                     dpx[3] = dx0; dpy[3] = vsp[i].fy[0]; drawpoly(dpx,dpy,4,domostpolymethod);
                     vsp[i].ctag = vsp[i].ftag = -1; break;
@@ -3110,9 +3115,16 @@ void domost(float x0, float y0, float x1, float y1)
     while (i)
     {
         ni = vsp[i].n;
-        if ((vsp[i].cy[0] >= vsp[i].fy[0]) && (vsp[i].cy[1] >= vsp[i].fy[1])) { vsp[i].ctag = vsp[i].ftag = -1; }
+
+        if ((vsp[i].cy[0] >= vsp[i].fy[0]) && (vsp[i].cy[1] >= vsp[i].fy[1]))
+            vsp[i].ctag = vsp[i].ftag = -1;
+
         if ((vsp[i].ctag == vsp[ni].ctag) && (vsp[i].ftag == vsp[ni].ftag))
-            { vsp[i].cy[1] = vsp[ni].cy[1]; vsp[i].fy[1] = vsp[ni].fy[1]; vsdel(ni); }
+        {
+            vsp[i].cy[1] = vsp[ni].cy[1];
+            vsp[i].fy[1] = vsp[ni].fy[1];
+            vsdel(vsp, ni);
+        }
         else i = ni;
     }
 }

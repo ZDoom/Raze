@@ -76,7 +76,10 @@ int32_t animateoffs(int16_t tilenum, int16_t fakevar);
 extern void polymost_scansector(int32_t sectnum);
 #endif
 int32_t engine_addtsprite(int16_t z, int16_t sectnum);
-int32_t scansector_retfast;
+extern int32_t g_nodraw, scansector_retfast;
+#ifdef YAX_ENABLE
+extern uint8_t haveymost[YAX_MAXBUNCHES>>3];
+#endif
 
 #ifdef YAX_DEBUG
 extern char m32_debugstr[64][128];

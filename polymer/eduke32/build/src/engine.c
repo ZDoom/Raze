@@ -258,7 +258,7 @@ void yax_updategrays(int32_t posze)
 // all references to floor/ceiling bunchnums should be through the
 // get/set functions!
 
-static int32_t g_nodraw = 0;
+int32_t g_nodraw = 0;
 int32_t scansector_retfast = 0;
 static int32_t scansector_collectsprites = 1;
 static int32_t yax_globalcf = -1;
@@ -526,7 +526,7 @@ static int16_t bunchsec[YAX_MAXBUNCHES], bunchdist[YAX_MAXBUNCHES];
 
 static int32_t ymostallocsize = 0;  // numyaxbunches*xdimen (no sizeof(int16_t) here!)
 static int16_t *yumost=NULL, *ydmost=NULL;  // used as if [numyaxbunches][xdimen]
-static uint8_t haveymost[YAX_MAXBUNCHES>>3];
+uint8_t haveymost[YAX_MAXBUNCHES>>3];
 
 // adapted from build.c
 static void yax_getclosestpointonwall(int32_t dawall, int32_t *closestx, int32_t *closesty)
@@ -722,7 +722,7 @@ void yax_preparedrawrooms(void)
     Bmemset(yax_spritesortcnt, 0, sizeof(yax_spritesortcnt));
     Bmemset(haveymost, 0, (numyaxbunches+7)>>3);
 
-    if (ymostallocsize < xdimen*numyaxbunches)
+    if (getrendermode()==0 && ymostallocsize < xdimen*numyaxbunches)
     {
         ymostallocsize = xdimen*numyaxbunches;
         yumost = Brealloc(yumost, ymostallocsize*sizeof(int16_t));
