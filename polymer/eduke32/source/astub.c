@@ -8344,6 +8344,11 @@ static void InitCustomColors(void)
 
 void ExtPreSaveMap(void)
 {
+    fixspritesectors();   //Do this before saving!
+    updatesectorz(startposx,startposy,startposz,&startsectnum);
+    if (startsectnum < 0)
+        updatesector(startposx,startposy,&startsectnum);
+
     if (fixmapbeforesaving)
     {
         int32_t i, startwall, j, endwall;

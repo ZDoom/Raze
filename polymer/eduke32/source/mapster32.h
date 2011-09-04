@@ -106,7 +106,6 @@ static int32_t acurpalette=0;
 //void ContextHelp(int16_t spritenum);
 //void ResetKeys();
 
-extern void fixspritesectors(void);
 //#define KEY_PRESSED(sc) KB_KeyPressed((sc))
 
 // This table defines the various zoom levels, the numbers being the pixel width
@@ -165,7 +164,6 @@ static int32_t numalphabets = 0;
 extern int16_t localartfreq[MAXTILES];
 extern int16_t localartlookup[MAXTILES], localartlookupnum;
 extern int32_t lockclock;
-extern void clearkeys(void);
 
 static int32_t gs_spriteTagValue[3][7];
 static char gs_spriteTagInterested[3][7];

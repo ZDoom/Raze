@@ -6915,10 +6915,6 @@ const char *SaveBoard(const char *fn, uint32_t flags)
             f++;
     }
 
-    fixspritesectors();   //Do this before saving!
-    updatesectorz(startposx,startposy,startposz,&startsectnum);
-    if (startsectnum < 0)
-        updatesector(startposx,startposy,&startsectnum);
     ExtPreSaveMap();
     ret = saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
     if ((flags&1)==0)
@@ -9568,7 +9564,6 @@ void test_map(int32_t mode)
         }
         Bstrcat(fullparam, param);
 
-        fixspritesectors();   //Do this before saving!
         ExtPreSaveMap();
         if (mode)
             saveboard(PLAYTEST_MAPNAME,&startposx,&startposy,&startposz,&startang,&startsectnum);

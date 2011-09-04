@@ -149,6 +149,8 @@ extern void AlignWallPoint2(int32_t w0);
 extern int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs);
 
 extern void SetFirstWall(int32_t sectnum, int32_t wallnum);
+extern void fixspritesectors(void);
+extern void clearkeys(void);
 
 extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
