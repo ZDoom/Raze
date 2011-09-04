@@ -828,7 +828,7 @@ void spriteoncfz(int32_t i, int32_t *czptr, int32_t *fzptr)
     int32_t cz,fz, height, zofs;
 
     getzsofslope(sprite[i].sectnum, sprite[i].x,sprite[i].y, &cz, &fz);
-    spriteheightofs(i, &height, &zofs);
+    spriteheightofs(i, &height, &zofs, 0);
 
     if (czptr)
         *czptr = cz + height - zofs;

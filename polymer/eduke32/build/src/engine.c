@@ -665,7 +665,6 @@ static void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
 
 static void yax_copytsprite(int32_t curbunchnum, int32_t resetsortcnt)
 {
-    int16_t bunchnum;
     int32_t i, spritenum, gotthrough, sectnum, cf;
     int32_t sortcnt = yax_spritesortcnt[yax_globallev];
     const spritetype *spr;
@@ -691,9 +690,9 @@ static void yax_copytsprite(int32_t curbunchnum, int32_t resetsortcnt)
 
         if (cf != -1)
         {
-            bunchnum = yax_getbunch(sectnum, cf);
-            if (yax_globallev != YAX_MAXDRAWS && curbunchnum != bunchnum)
-                continue;
+            if ((yax_globallev-YAX_MAXDRAWS)*(-1 + 2*cf) > 0)
+                if (yax_getbunch(sectnum, cf) != curbunchnum)
+                    continue;
 
             sectnum = yax_getneighborsect(spr->x, spr->y, sectnum, cf, NULL);
             if (sectnum < 0)
@@ -2206,7 +2205,7 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
         if (cb < 0 && fb < 0)
             return 0;
 
-        spriteheightofs(z, &spheight, &spzofs);
+        spriteheightofs(z, &spheight, &spzofs, 1);
 
         // TODO: get*zofslope?
         if (cb>=0 && spr->z+spzofs-spheight < sector[sectnum].ceilingz)
@@ -10370,7 +10369,7 @@ int32_t krecip(int32_t num)
     return(krecipasm(num));
 }
 
-void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs)
+void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs, int32_t alsotileyofs)
 {
     int32_t hei, flooraligned=((sprite[i].cstat&48)==32);
 
@@ -10389,6 +10388,10 @@ void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs)
     {
         if (sprite[i].cstat&128)
             *zofs = hei>>1;
+
+        if (alsotileyofs && (unsigned)sprite[i].picnum < MAXTILES)
+            if (picanm[sprite[i].picnum]&0x00ff0000)
+                *zofs -= ((int8_t)((picanm[sprite[i].picnum]>>16)&255))*sprite[i].yrepeat<<2;
     }
     *height = hei;
 }

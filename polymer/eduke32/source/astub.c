@@ -4294,28 +4294,6 @@ restart:
 #undef TMPERRMSG_PRINT
 #undef TMPERRMSG_RETURN
 
-#if 0
-static int32_t spriteonceilingz(int32_t i)
-{
-    int32_t z = getceilzofslope(searchsector, sprite[i].x,sprite[i].y);
-    int32_t height, zofs;
-
-    spriteheightofs(i, &height, &ofs);
-
-    return z + height-ofs;
-}
-
-static int32_t spriteongroundz(int32_t i)
-{
-    int32_t z = getflorzofslope(searchsector, sprite[i].x,sprite[i].y);
-    int32_t zofs;
-
-    spriteheightofs(i, NULL, &ofs);
-
-    return z - ofs;
-}
-#endif
-
 #define WIND1X   3
 #define WIND1Y 150
 
