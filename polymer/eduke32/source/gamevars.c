@@ -422,7 +422,7 @@ int32_t Gv_NewArray(const char *pszLabel, int32_t asize)
     return 1;
 }
 
-int32_t Gv_NewVar(const char *pszLabel, int32_t lValue, uint32_t dwFlags)
+int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
 {
     int32_t i, j;
 

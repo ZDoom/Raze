@@ -83,7 +83,7 @@ int32_t __fastcall Gv_GetVar(register int32_t id,register int32_t iActor,registe
 int32_t __fastcall Gv_GetVarX(register int32_t id);
 int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t lDefault,int32_t iActor,int32_t iPlayer);
 int32_t Gv_NewArray(const char *pszLabel,int32_t asize);
-int32_t Gv_NewVar(const char *pszLabel,int32_t lValue,uint32_t dwFlags);
+int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 int32_t Gv_ReadSave(int32_t fil,int32_t newbehav);
 void __fastcall A_ResetVars(register int32_t iActor);
 void __fastcall Gv_SetVar(register int32_t id,register int32_t lValue,register int32_t iActor,register int32_t iPlayer);
