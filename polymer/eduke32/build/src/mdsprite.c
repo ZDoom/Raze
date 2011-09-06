@@ -1616,19 +1616,28 @@ static inline void  invertmatrix(float *m, float *out)
     det -= m[1] * (m[3]*m[8] - m[5] * m[6]);
     det += m[2] * (m[3]*m[7] - m[4] * m[6]);
 
-    det = 1.0f / det;
+    if (det != 0.0f)
+    {
+        det = 1.0f / det;
 
-    out[0] = det * (m[4] * m[8] - m[5] * m[7]);
-    out[3] = det * (m[5] * m[6] - m[3] * m[8]);
-    out[6] = det * (m[3] * m[7] - m[1] * m[6]);
+        out[0] = det * (m[4] * m[8] - m[5] * m[7]);
+        out[3] = det * (m[5] * m[6] - m[3] * m[8]);
+        out[6] = det * (m[3] * m[7] - m[1] * m[6]);
 
-    out[1] = det * (m[2] * m[7] - m[1] * m[8]);
-    out[4] = det * (m[0] * m[8] - m[2] * m[6]);
-    out[7] = det * (m[1] * m[6] - m[0] * m[7]);
+        out[1] = det * (m[2] * m[7] - m[1] * m[8]);
+        out[4] = det * (m[0] * m[8] - m[2] * m[6]);
+        out[7] = det * (m[1] * m[6] - m[0] * m[7]);
 
-    out[2] = det * (m[1] * m[5] - m[2] * m[4]);
-    out[5] = det * (m[2] * m[3] - m[0] * m[5]);
-    out[8] = det * (m[0] * m[4] - m[1] * m[3]);
+        out[2] = det * (m[1] * m[5] - m[2] * m[4]);
+        out[5] = det * (m[2] * m[3] - m[0] * m[5]);
+        out[8] = det * (m[0] * m[4] - m[1] * m[3]);
+    }
+    else
+    {
+        out[0] = 1.0; out[1] = 0.0; out[2] = 0.0;
+        out[3] = 0.0; out[4] = 1.0; out[5] = 0.0;
+        out[6] = 0.0; out[7] = 0.0; out[8] = 1.0;
+    }
 }
 
 static inline void  normalize(float *vec)
@@ -1637,11 +1646,14 @@ static inline void  normalize(float *vec)
 
     norm = vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2];
 
-    norm = sqrt(norm);
-    norm = 1.0 / norm;
-    vec[0] *= norm;
-    vec[1] *= norm;
-    vec[2] *= norm;
+    if (norm != 0.0)
+    {
+        norm = sqrt(norm);
+        norm = 1.0 / norm;
+        vec[0] *= norm;
+        vec[1] *= norm;
+        vec[2] *= norm;
+    }
 }
 
 static void      md3postload_common(md3model_t *m)
@@ -1765,7 +1777,7 @@ static int md3postload_polymer_check(md3model_t *m)
                     s->tris[trii].i[2] >= s->numverts || s->tris[trii].i[2] < 0)
             {
                 // corrupt model
-                OSD_Printf("Triangle index out of bounds!\n");
+                OSD_Printf("%s: Triangle index out of bounds!\n", m->head.nam);
                 return 0;
             }
 
@@ -1800,9 +1812,7 @@ int      md3postload_polymer(md3model_t *m)
         i = (m->head.numframes * s->numverts * sizeof(float) * 15);
         if (i > 1<<20)
             initprintf("size %d (%d fr, %d v): md %s surf %d/%d\n", i, m->head.numframes, s->numverts,
-                       m->indices?(char *)m->indices:"null", surfi, m->head.numsurfs);
-        if (m->indices)
-            Bfree(m->indices), m->indices=NULL;
+                       m->head.nam, surfi, m->head.numsurfs);
 #endif
         s->geometry = Bcalloc(m->head.numframes * s->numverts * sizeof(float), 15);
 
@@ -1840,7 +1850,7 @@ int      md3postload_polymer(md3model_t *m)
             {
                 // corrupt model
                 Bfree(numtris);
-                OSD_Printf("Triangle index out of bounds!\n");
+//                OSD_Printf("Triangle index out of bounds!\n");
                 return 0;
             }
             numtris[s->tris[trii].i[0]]++;
@@ -1868,21 +1878,30 @@ int      md3postload_polymer(md3model_t *m)
                 vec2[3] = s->uv[s->tris[trii].i[2]].u - s->uv[s->tris[trii].i[1]].u;
                 vec2[4] = s->uv[s->tris[trii].i[2]].v - s->uv[s->tris[trii].i[1]].v;
 
-                r = 1.0 / (vec1[3] * vec2[4] - vec2[3] * vec1[4]);
+                r = (vec1[3] * vec2[4] - vec2[3] * vec1[4]);
+                if (r != 0.0f)
+                {
+                    r = 1.0 / r;
 
-                // tangent
-                mat[0] = (vec2[4] * vec1[0] - vec1[4] * vec2[0]) * r;
-                mat[1] = (vec2[4] * vec1[1] - vec1[4] * vec2[1]) * r;
-                mat[2] = (vec2[4] * vec1[2] - vec1[4] * vec2[2]) * r;
+                    // tangent
+                    mat[0] = (vec2[4] * vec1[0] - vec1[4] * vec2[0]) * r;
+                    mat[1] = (vec2[4] * vec1[1] - vec1[4] * vec2[1]) * r;
+                    mat[2] = (vec2[4] * vec1[2] - vec1[4] * vec2[2]) * r;
 
-                normalize(&mat[0]);
+                    normalize(&mat[0]);
 
-                // bitangent
-                mat[3] = (vec1[3] * vec2[0] - vec2[3] * vec1[0]) * r;
-                mat[4] = (vec1[3] * vec2[1] - vec2[3] * vec1[1]) * r;
-                mat[5] = (vec1[3] * vec2[2] - vec2[3] * vec1[2]) * r;
+                    // bitangent
+                    mat[3] = (vec1[3] * vec2[0] - vec2[3] * vec1[0]) * r;
+                    mat[4] = (vec1[3] * vec2[1] - vec2[3] * vec1[1]) * r;
+                    mat[5] = (vec1[3] * vec2[2] - vec2[3] * vec1[2]) * r;
 
-                normalize(&mat[3]);
+                    normalize(&mat[3]);
+                }
+                else
+                {
+                    mat[0] = mat[1] = mat[2] = 0.0f;
+                    mat[3] = mat[4] = mat[5] = 0.0f;
+                }
 
                 // T and B are shared for the three vertices in that triangle
                 i = 0;
@@ -1904,12 +1923,23 @@ int      md3postload_polymer(md3model_t *m)
         verti = 0;
         while (verti < (m->head.numframes * s->numverts))
         {
-            i = 6;
-            while (i < 12)
+            int32_t curnumtris = numtris[verti % s->numverts];
+
+            if (curnumtris > 0)
             {
-                s->geometry[(verti * 15) + i] /= numtris[verti % s->numverts];
-                i++;
+                i = 6;
+                while (i < 12)
+                {
+                    s->geometry[(verti * 15) + i] /= curnumtris;
+                    i++;
+                }
             }
+#ifdef DEBUG_MODEL_MEM
+            else if (verti == verti%s->numverts)
+            {
+                OSD_Printf("%s: vert %d is unused\n", m->head.nam, verti);
+            }
+#endif
             // copy N over
             s->geometry[(verti * 15) + 12] = s->geometry[(verti * 15) + 3];
             s->geometry[(verti * 15) + 13] = s->geometry[(verti * 15) + 4];
@@ -3363,14 +3393,18 @@ mdmodel_t *mdload(const char *filnam)
 
     if (vm)
     {
-#ifdef DEBUG_MODEL_MEM
-        ((md3model_t *)vm)->indices = (void *)Bstrdup(filnam);
-#endif
-        md3postload_common((md3model_t *)vm);
+        md3model_t *vm3 = (md3model_t *)vm;
+
+        // smuggle the file name into the model struct.
+        // head.nam is unused as far as I can tell
+        Bstrncpy(vm3->head.nam, filnam, sizeof(vm3->head.nam));
+        vm3->head.nam[sizeof(vm3->head.nam)-1] = 0;
+
+        md3postload_common(vm3);
 
 #ifdef POLYMER
         if (glrendmode!=4)
-            if (!md3postload_polymer_check((md3model_t *)vm))
+            if (!md3postload_polymer_check(vm3))
             {
                 mdfree(vm);
                 vm = (mdmodel_t *)0;
