@@ -130,11 +130,11 @@ extern int32_t m32_swcnt;
 extern int32_t m32_wallscreenxy[MAXWALLS][2];
 extern int16_t m32_wallsprite[MAXWALLS+MAXSPRITES];
 extern int8_t sideview_reversehrot;
-extern inline int32_t scalescreeny(int32_t sy);
+extern int32_t scalescreeny(int32_t sy);
 extern void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome) ATTRIBUTE((nonnull));
 //extern void invscreencoords(int32_t *dx, int32_t *dy, int32_t sx, int32_t sy, int32_t zoome);
 extern int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz) ATTRIBUTE((nonnull));
-extern inline int32_t getscreenvdisp(int32_t bz, int32_t zoome);
+extern int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 extern void setup_sideview_sincos(void);
 extern void m32_setkeyfilter(int32_t on);
 

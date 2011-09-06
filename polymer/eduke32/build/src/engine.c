@@ -14184,7 +14184,7 @@ void clear2dscreen(void)
 
 ////////// editor side view //////////
 
-inline int32_t scalescreeny(int32_t sy)
+int32_t scalescreeny(int32_t sy)
 {
     if (m32_sideview)
         return mulscale14(sy, m32_sidesin);
@@ -14227,7 +14227,7 @@ int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz)
 }
 
 // return vertical screen coordinate displacement for BUILD z coord
-inline int32_t getscreenvdisp(int32_t bz, int32_t zoome)
+int32_t getscreenvdisp(int32_t bz, int32_t zoome)
 {
     return mulscale32(bz,zoome*m32_sidecos);
 }

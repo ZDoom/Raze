@@ -60,7 +60,7 @@ static uint16_t SSWAPIL(uint16_t a) { return((a>>8)+(a<<8)); }
 typedef long long  __int64;
 static __inline int32_t _lrotl(int32_t i, int sh)
 { return((i>>(-sh))|(i<<sh)); }
-__inline int32_t filelength(int h)
+/*__inline*/ int32_t filelength(int h)
 {
     struct stat st;
     if (fstat(h,&st) < 0) return(-1);
