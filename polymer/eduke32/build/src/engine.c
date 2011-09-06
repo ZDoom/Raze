@@ -11895,11 +11895,15 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
         hitwall = raytrace(pos->x, pos->y, &intx, &inty);
         if (hitwall >= 0)
         {
+            uint64_t tempull;
+
             lx = clipit[hitwall].x2-clipit[hitwall].x1;
             ly = clipit[hitwall].y2-clipit[hitwall].y1;
-            tempint2 = lx*lx + ly*ly;
-            if (tempint2 > 0)
+            tempull = (int64_t)lx*(int64_t)lx + (int64_t)ly*(int64_t)ly;
+            if (tempull > 0 && tempull < INT32_MAX)
             {
+                tempint2 = (int32_t)tempull;
+
                 tempint1 = (goalx-intx)*lx + (goaly-inty)*ly;
 
                 if ((klabs(tempint1)>>11) < tempint2)
@@ -11909,8 +11913,6 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 goalx = mulscale20(lx,i)+intx;
                 goaly = mulscale20(ly,i)+inty;
             }
-//            else if (tempint2<0)
-//                Bprintf("!! tempint2<0 !!\n");
 
             tempint1 = dmulscale6(lx,oxvect,ly,oyvect);
             for (i=cnt+1; i<=clipmoveboxtracenum; i++)

@@ -4503,8 +4503,8 @@ void polymost_drawrooms()
                 int32_t scrv[2] = {(vx>>12), (vy>>12)};
                 int32_t scrv_r[2] = {scrv[1], -scrv[0]};
                 walltype *wal = &wall[sector[searchsector].wallptr];
-                int32_t wdistsq, bestwdistsq=0x7fffffff;
-                int16_t k, bestk=-1;
+                uint64_t wdistsq, bestwdistsq=0x7fffffff;
+                int32_t k, bestk=-1;
 
                 for (k=0; k<sector[searchsector].wallnum; k++)
                 {
@@ -4516,6 +4516,7 @@ void polymost_drawrooms()
                     float w1d = (float)(scrv_r[0]*pw1[0] + scrv_r[1]*pw1[1]);
                     float w2d = (float)(scrv_r[0]*pw2[0] + scrv_r[1]*pw2[1]);
                     int32_t ptonline[2], scrp[2];
+                    int64_t t1, t2;
 
                     w2d = -w2d;
                     if ((w1d==0 && w2d==0) || (w1d<0 || w2d<0))
@@ -4526,7 +4527,8 @@ void polymost_drawrooms()
                     scrp[1] = ptonline[1]-vect.y;
                     if (scrv[0]*scrp[0] + scrv[1]*scrp[1] <= 0)
                         continue;
-                    wdistsq = scrp[0]*scrp[0] + scrp[1]*scrp[1];
+                    t1=scrp[0]; t2=scrp[1];
+                    wdistsq = t1*t1 + t2*t2;
                     if (wdistsq < bestwdistsq)
                     {
                         bestk = k;
