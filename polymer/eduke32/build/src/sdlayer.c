@@ -1715,7 +1715,7 @@ int32_t handleevents(void)
                 rv=-1;
             }
             break;
-#endif
+#endif  // SDL version
 
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
@@ -1766,9 +1766,9 @@ int32_t handleevents(void)
                 mousex += ev.motion.xrel;
                 mousey += ev.motion.yrel;
 
-#ifndef DEBUGGINGAIDS
+//#ifndef DEBUGGINGAIDS
                 SDL_WarpMouse(xdim>>1, ydim>>1);
-#endif
+//#endif
             }
             break;
 
