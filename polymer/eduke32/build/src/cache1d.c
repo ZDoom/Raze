@@ -969,14 +969,14 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
 
         do
         {
+            strcpy(buf, d);
             if (!pathsearchmode)
             {
                 // Fix for "autoload" dir in multi-user environments - NY00123
-                strcpy(buf, d);
                 strcat(buf, path);
                 if (*path) strcat(buf, "/");
             }
-            else strcpy(buf, d);
+
             dir = Bopendir(buf);
             if (dir)
             {

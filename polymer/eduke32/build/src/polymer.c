@@ -2448,7 +2448,7 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
 
     if (s->floor.indices == NULL)
     {
-        s->indicescount = (sec->wallnum - 2) * 3;
+        s->indicescount = (max(3, sec->wallnum) - 2) * 3;
         s->floor.indices = Bcalloc(s->indicescount, sizeof(GLushort));
         s->ceil.indices = Bcalloc(s->indicescount, sizeof(GLushort));
     }
