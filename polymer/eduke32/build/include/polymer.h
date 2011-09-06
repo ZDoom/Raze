@@ -287,6 +287,9 @@ typedef struct      s_pranimatespritesinfo {
     int32_t         x, y, a, smoothratio;
 }                   _pranimatespritesinfo;
 
+// this one has to be provided by the application
+extern void G_Polymer_UnInit(void);
+
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void);
 void                polymer_uninit(void);

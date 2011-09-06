@@ -484,6 +484,23 @@ ACTOR_INLINE int32_t A_SetSprite(int32_t i,uint32_t cliptype)
 
 int32_t block_deletesprite = 0;
 
+#ifdef POLYMER
+static void A_DeletePolymerLight(int32_t s)
+{
+    polymer_deletelight(actor[s].lightId);
+    actor[s].lightId = -1;
+    actor[s].lightptr = NULL;
+}
+
+void G_Polymer_UnInit(void)
+{
+    int32_t i;
+
+    for (i=0; i<MAXSPRITES; i++)
+        A_DeletePolymerLight(i);
+}
+#endif
+
 // all calls to deletesprite() from the game are wrapped by this function
 void A_DeleteSprite(int32_t s)
 {
@@ -506,9 +523,7 @@ void A_DeleteSprite(int32_t s)
 #ifdef POLYMER
     if (getrendermode() == 4 && actor[s].lightptr != NULL)
     {
-        polymer_deletelight(actor[s].lightId);
-        actor[s].lightId = -1;
-        actor[s].lightptr = NULL;
+        A_DeletePolymerLight(s);
     }
 #endif
 
@@ -8111,9 +8126,7 @@ void G_MoveWorld(void)
                     {
                         if (actor[i].lightptr != NULL)
                         {
-                            polymer_deletelight(actor[i].lightId);
-                            actor[i].lightId = -1;
-                            actor[i].lightptr = NULL;
+                            A_DeletePolymerLight(i);
                         }
                     }
                     else
@@ -8123,9 +8136,7 @@ void G_MoveWorld(void)
                         {
                             if (!(--actor[i].lightcount))
                             {
-                                polymer_deletelight(actor[i].lightId);
-                                actor[i].lightId = -1;
-                                actor[i].lightptr = NULL;
+                                A_DeletePolymerLight(i);
                             }
                         }
 
@@ -8173,9 +8184,7 @@ void G_MoveWorld(void)
                                 {
                                     if (actor[i].lightptr != NULL)
                                     {
-                                        polymer_deletelight(actor[i].lightId);
-                                        actor[i].lightId = -1;
-                                        actor[i].lightptr = NULL;
+                                        A_DeletePolymerLight(i);
                                     }
                                     break;
                                 }

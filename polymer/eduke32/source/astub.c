@@ -316,6 +316,11 @@ static void DeletePolymerLights(void)
             spritelightptr[i] = NULL;
         }
 }
+
+void G_Polymer_UnInit(void)
+{
+    DeletePolymerLights();
+}
 #endif
 
 extern int32_t mskip;

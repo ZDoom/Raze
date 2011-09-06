@@ -15698,7 +15698,10 @@ int32_t setrendermode(int32_t renderer)
             renderer = 3;
     }
     else if (rendmode==4)  // going from Polymer to another renderer
+    {
+        G_Polymer_UnInit();
         polymer_uninit();
+    }
 # else
     else renderer = 3;
 # endif
