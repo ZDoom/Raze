@@ -11770,28 +11770,28 @@ void SetBOSS1Palette(void)
 {
     if (acurpalette==3) return;
     acurpalette=3;
-    setbrightness(GAMMA_CALC,5,0);
+    setbrightness(GAMMA_CALC,5,2);
 }
 
 void SetSLIMEPalette(void)
 {
     if (acurpalette==2) return;
     acurpalette=2;
-    setbrightness(GAMMA_CALC,2,0);
+    setbrightness(GAMMA_CALC,2,2);
 }
 
 void SetWATERPalette(void)
 {
     if (acurpalette==1) return;
     acurpalette=1;
-    setbrightness(GAMMA_CALC,1,0);
+    setbrightness(GAMMA_CALC,1,2);
 }
 
 void SetGAMEPalette(void)
 {
     if (acurpalette==0) return;
     acurpalette=0;
-    setbrightness(GAMMA_CALC,6,0);
+    setbrightness(GAMMA_CALC,6,2);
 }
 
 static void SearchSectors(int32_t dir)  // <0: backwards, >=0: forwards
