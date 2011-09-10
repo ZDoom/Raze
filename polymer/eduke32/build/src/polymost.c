@@ -677,6 +677,9 @@ void polymost_glreset()
         }
 
     polymost_cachesync();
+#ifdef DEBUGGINGAIDS
+    OSD_Printf("polymost_glreset()\n");
+#endif
 }
 
 // one-time initialization of OpenGL for polymost
@@ -855,6 +858,9 @@ void invalidatecache(void)
 {
     int32_t i;
 
+#ifdef DEBUGGINGAIDS
+    OSD_Printf("invalidatecache()\n");
+#endif
     r_downsizevar = r_downsize; // update the cvar representation when the menu changes r_downsize
 
     polymost_glreset();
@@ -1993,7 +1999,10 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     // backup of the n for possible redrawing of fullbright
     int32_t n_ = n, method_ = method;
 
-    if (method == -1 || g_nodraw) return;
+    if (method == -1) return;
+#ifdef YAX_ENABLE
+    if (g_nodraw) return;
+#endif
 
     if (n == 3)
     {

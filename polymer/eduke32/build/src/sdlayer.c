@@ -990,7 +990,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         }
         attributes[] =
         {
-#if 0
+# if 0
             { SDL_GL_RED_SIZE, 8 },
             { SDL_GL_GREEN_SIZE, 8 },
             { SDL_GL_BLUE_SIZE, 8 },
@@ -1002,14 +1002,14 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             { SDL_GL_ACCUM_BLUE_SIZE, 0 },
             { SDL_GL_ACCUM_ALPHA_SIZE, 0 },
             { SDL_GL_DEPTH_SIZE, 24 },
-#endif
+# endif
             { SDL_GL_DOUBLEBUFFER, 1 },
             { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
             { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
             { SDL_GL_STENCIL_SIZE, 1 },
-#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
+# if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
             { SDL_GL_SWAP_CONTROL, vsync },
-#endif
+# endif
         };
 
         if (nogl) return -1;
@@ -1034,7 +1034,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             /* HACK: changing SDL GL attribs only works before surface creation,
                so we have to create a new surface in a different format first
                to force the surface we WANT to be recreated instead of reused. */
-#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
+# if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
             if (vsync != ovsync)
             {
                 if (sdl_surface)
@@ -1045,7 +1045,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 }
                 ovsync = vsync;
             }
-#endif
+# endif
             sdl_surface = SDL_SetVideoMode(x, y, c, SDL_OPENGL | ((fs&1)?SDL_FULLSCREEN:0));
             if (!sdl_surface)
             {
@@ -1062,7 +1062,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         while (multisamplecheck--);
     }
     else
-#endif
+#endif  // defined USE_OPENGL
     {
         initprintf("Setting video mode %dx%d (%d-bpp %s)\n",
                    x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
@@ -1648,9 +1648,9 @@ int32_t handleevents(void)
                         }
                         break;
                         */
-// #print "Using SDL 1.3"
+// #warning "Using SDL 1.3"
 #else  // SDL 1.3 ^^^ | vvv SDL 1.2
-// #print "Using SDL 1.2"
+// #warning "Using SDL 1.2"
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.sym];

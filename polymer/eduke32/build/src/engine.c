@@ -12995,7 +12995,7 @@ void makepalookup(int32_t palnum, char *remapbuf, int8_t r, int8_t g, int8_t b, 
     }
 }
 
-
+#if 0
 void setvgapalette(void)
 {
     int32_t i;
@@ -13008,6 +13008,7 @@ void setvgapalette(void)
     }
     setpalette(0,256);
 }
+#endif
 
 //
 // setbasepaltable
@@ -13097,9 +13098,9 @@ static inline palette_t getpal(int32_t col)
         p.b = britable[curbrightness][ curpalette[col].b ];
         p.g	= britable[curbrightness][ curpalette[col].g ];
         p.r = britable[curbrightness][ curpalette[col].r ];
-#ifdef __APPLE__
+//#ifdef __APPLE__
         p.f = 0;  // make gcc on osx happy
-#endif
+//#endif
         return p;
     }
 }
@@ -13966,6 +13967,8 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
         intptr_t p;
         int32_t xp, yp, xpbpl, ypbpl, d, de, dse, patc=0;
 
+        uint32_t uxres = xres, uydim16 = ydim16;
+
         if (r < 0) r = -r;
         if (x1+r < 0 || x1-r >= xres) return;
         if (y1+r < 0 || y1-r >= ydim16) return;
@@ -13993,14 +13996,14 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
 
         if (drawlinepat & pow2long[(patc++)&31])
         {
-            if ((uint32_t)y1 < (uint32_t)ydim16 && (uint32_t)(x1+r) < (uint32_t)xres)
-                drawpixel_safe((char *)(p+r), col);          // a
-            if ((uint32_t)x1 < (uint32_t)xres   && (uint32_t)(y1+r) < (uint32_t)ydim16)
-                drawpixel_safe((char *)(p+(r*bytesperline)), col);   // b
-            if ((uint32_t)y1 < (uint32_t)ydim16 && (uint32_t)(x1-r) < (uint32_t)xres)
-                drawpixel_safe((char *)(p-r), col);          // c
-            if ((uint32_t)x1 < (uint32_t)xres   && (uint32_t)(y1-r) < (uint32_t)ydim16)
-                drawpixel_safe((char *)(p-(r*bytesperline)), col);   // d
+            if ((uint32_t)y1 < uydim16 && (uint32_t)(x1+r) < uxres)
+                drawpixel((char *)(p+r), col);    // a
+            if ((uint32_t)x1 < uxres   && (uint32_t)(y1+r) < uydim16)
+                drawpixel((char *)(p+(r*bytesperline)), col);    // b
+            if ((uint32_t)y1 < uydim16 && (uint32_t)(x1-r) < uxres)
+                drawpixel((char *)(p-r), col);    // c
+            if ((uint32_t)x1 < uxres   && (uint32_t)(y1-r) < uydim16)
+                drawpixel((char *)(p-(r*bytesperline)), col);    // d
         }
 
         do
@@ -14025,21 +14028,21 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
             xpbpl = xp*bytesperline;
             if (drawlinepat & pow2long[(patc++)&31])
             {
-                if ((uint32_t)(x1+yp) < (uint32_t)xres && (uint32_t)(y1+xp) < (uint32_t)ydim16)
+                if ((uint32_t)(x1+yp) < uxres && (uint32_t)(y1+xp) < uydim16)
                     drawpixel_safe((char *)(p+yp+xpbpl), col);   // 1
-                if ((uint32_t)(x1+xp) < (uint32_t)xres && (uint32_t)(y1+yp) < (uint32_t)ydim16)
+                if ((uint32_t)(x1+xp) < uxres && (uint32_t)(y1+yp) < uydim16)
                     drawpixel_safe((char *)(p+xp+ypbpl), col);   // 2
-                if ((uint32_t)(x1-xp) < (uint32_t)xres && (uint32_t)(y1+yp) < (uint32_t)ydim16)
+                if ((uint32_t)(x1-xp) < uxres && (uint32_t)(y1+yp) < uydim16)
                     drawpixel_safe((char *)(p-xp+ypbpl), col);   // 3
-                if ((uint32_t)(x1-yp) < (uint32_t)xres && (uint32_t)(y1+xp) < (uint32_t)ydim16)
+                if ((uint32_t)(x1-yp) < uxres && (uint32_t)(y1+xp) < uydim16)
                     drawpixel_safe((char *)(p-yp+xpbpl), col);   // 4
-                if ((uint32_t)(x1-yp) < (uint32_t)xres && (uint32_t)(y1-xp) < (uint32_t)ydim16)
+                if ((uint32_t)(x1-yp) < uxres && (uint32_t)(y1-xp) < uydim16)
                     drawpixel_safe((char *)(p-yp-xpbpl), col);   // 5
-                if ((uint32_t)(x1-xp) < (uint32_t)xres && (uint32_t)(y1-yp) < (uint32_t)ydim16)
+                if ((uint32_t)(x1-xp) < uxres && (uint32_t)(y1-yp) < uydim16)
                     drawpixel_safe((char *)(p-xp-ypbpl), col);   // 6
-                if ((uint32_t)(x1+xp) < (uint32_t)xres && (uint32_t)(y1-yp) < (uint32_t)ydim16)
+                if ((uint32_t)(x1+xp) < uxres && (uint32_t)(y1-yp) < uydim16)
                     drawpixel_safe((char *)(p+xp-ypbpl), col);   // 7
-                if ((uint32_t)(x1+yp) < (uint32_t)xres && (uint32_t)(y1-xp) < (uint32_t)ydim16)
+                if ((uint32_t)(x1+yp) < uxres && (uint32_t)(y1-xp) < uydim16)
                     drawpixel_safe((char *)(p+yp-xpbpl), col);   // 8
             }
         }
@@ -14069,70 +14072,6 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
     }
 }
 
-#if 0
-//
-// qsetmode640350
-//
-void qsetmode640350(void)
-{
-    if (qsetmode != 350)
-    {
-        if (setvideomode(640, 350, 8, fullscreen) < 0)
-        {
-            //fprintf(stderr, "Couldn't set 640x350 video mode for some reason.\n");
-            return;
-        }
-
-        xdim = xres;
-        ydim = yres;
-
-//        setvgapalette();
-
-        ydim16 = 350;
-        halfxdim16 = 320;
-        midydim16 = 146;
-
-        begindrawing(); //{{{
-        clearbuf((char *)frameplace, (bytesperline*350L) >> 2, 0);
-        enddrawing();   //}}}
-    }
-
-    qsetmode = 350;
-}
-
-
-//
-// qsetmode640480
-//
-void qsetmode640480(void)
-{
-    if (qsetmode != 480)
-    {
-        if (setvideomode(640, 480, 8, fullscreen) < 0)
-        {
-            //fprintf(stderr, "Couldn't set 640x480 video mode for some reason.\n");
-            return;
-        }
-
-        xdim = xres;
-        ydim = yres;
-
-//        setvgapalette();
-
-        ydim16 = 336;
-        halfxdim16 = 320;
-        midydim16 = 200;
-
-        begindrawing(); //{{{
-        clearbuf((char *)(frameplace + (336l*bytesperline)), (bytesperline*144L) >> 2, 0x08080808l);
-        clearbuf((char *)frameplace, (bytesperline*336L) >> 2, 0L);
-        enddrawing();   //}}}
-    }
-
-    qsetmode = 480;
-}
-#endif
-
 //
 // qsetmodeany
 //
@@ -14149,15 +14088,12 @@ void qsetmodeany(int32_t daxdim, int32_t daydim)
         xdim = xres;
         ydim = yres;
 
-//        setvgapalette();
-
         ydim16 = yres - STATUS2DSIZ2;
         halfxdim16 = xres >> 1;
         midydim16 = ydim16 >> 1; // scale(200,yres,480);
 
         begindrawing(); //{{{
-        clearbuf((char *)(frameplace + (ydim16*bytesperline)), (bytesperline*STATUS2DSIZ2) >> 2, 0x08080808l);
-        clearbuf((char *)frameplace, (ydim16*bytesperline) >> 2, 0L);
+        Bmemset((char *)frameplace, 0, yres*bytesperline);
         enddrawing();   //}}}
     }
 
@@ -14173,13 +14109,11 @@ void clear2dscreen(void)
     int32_t clearsz;
 
     begindrawing(); //{{{
-    if (qsetmode == 350) clearsz = 350;
+    if (ydim16 <= yres-STATUS2DSIZ2)
+        clearsz = yres - STATUS2DSIZ2;
     else
-    {
-        if (ydim16 <= yres-STATUS2DSIZ2) clearsz = yres - STATUS2DSIZ2;
-        else clearsz = yres;
-    }
-    clearbuf((char *)frameplace, (bytesperline*clearsz) >> 2, 0);
+        clearsz = yres;
+    Bmemset((char *)frameplace, 0, bytesperline*clearsz);
     enddrawing();   //}}}
 }
 
