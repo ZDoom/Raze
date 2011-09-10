@@ -2146,6 +2146,7 @@ uint8_t **basepaltableptr;
 uint8_t basepalcount;
 uint8_t curbasepal;
 
+static uint32_t g_lastpalettesum = 0;
 palette_t curpalette[256];			// the current palette, unadjusted for brightness or tint
 palette_t curpalettefaded[256];		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
 palette_t palfadergb = { 0,0,0,0 };
@@ -9833,6 +9834,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
     j = bpp;
 
+    g_lastpalettesum = 0;
     if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return(-1);
 
     // Workaround possible bugs in the GL driver
@@ -13027,7 +13029,7 @@ void setbasepaltable(uint8_t **thebasepaltable, uint8_t thebasepalcount)
 //
 void setbrightness(char dabrightness, uint8_t dapalid, char noapply)
 {
-    int32_t i, k, j;
+    int32_t i, k, j, paldidchange=0;
     uint8_t *dapal;
 //    uint32_t lastbright = curbrightness;
     
@@ -13062,26 +13064,34 @@ void setbrightness(char dabrightness, uint8_t dapalid, char noapply)
         curpalettefaded[i].f = 0;
     }
 
-    if ((noapply&1) == 0) setpalette(0,256);
+    {
+        static uint32_t lastpalettesum=0;
+        uint32_t newpalettesum = crc32once((uint8_t *)curpalettefaded, sizeof(curpalettefaded));
+
+        paldidchange = (newpalettesum != lastpalettesum);
+
+        if (paldidchange || newpalettesum != g_lastpalettesum)
+        {
+            if ((noapply&1) == 0) setpalette(0,256);
+        }
+
+        g_lastpalettesum = lastpalettesum = newpalettesum;
+    }
 
 #ifdef USE_OPENGL
     if (rendmode >= 3)
     {
-        static uint32_t lastpalettesum = 0;
-        uint32_t newpalettesum = crc32once((uint8_t *)curpalettefaded, sizeof(curpalettefaded));
-
         // only reset the textures if the preserve flag (bit 1 of noapply) is clear and
         // either (a) the new palette is different to the last, or (b) the brightness
         // changed and we couldn't set it using hardware gamma
-        if (!(noapply&2) && (newpalettesum != lastpalettesum))
+        if (!(noapply&2) && paldidchange)
             gltexinvalidateall();
-        if (!(noapply&8) && (newpalettesum != lastpalettesum))
+        if (!(noapply&8) && paldidchange)
             gltexinvalidate8();
 #ifdef POLYMER
-        if ((rendmode == 4) && (newpalettesum != lastpalettesum))
+        if ((rendmode == 4) && paldidchange)
             polymer_texinvalidate();
 #endif
-        lastpalettesum = newpalettesum;
     }
 #endif
 
@@ -13131,7 +13141,17 @@ void setpalettefade(char r, char g, char b, char offset)
         curpalettefaded[i].f = 0;
     }
 
-    setpalette(0,256);
+    {
+        static uint32_t lastpalettesum=0;
+        uint32_t newpalettesum = crc32once((uint8_t *)curpalettefaded, sizeof(curpalettefaded));
+
+        if (newpalettesum != lastpalettesum || newpalettesum != g_lastpalettesum)
+        {
+            setpalette(0,256);
+        }
+
+        g_lastpalettesum = lastpalettesum = newpalettesum;
+    }
 }
 
 
@@ -14082,6 +14102,7 @@ void qsetmodeany(int32_t daxdim, int32_t daydim)
 
     if (qsetmode != ((daxdim<<16)|(daydim&0xffff)))
     {
+        g_lastpalettesum = 0;
         if (setvideomode(daxdim, daydim, 8, fullscreen) < 0)
             return;
 
