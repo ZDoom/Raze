@@ -11414,6 +11414,7 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
     int32_t ewall=0;  // expected wall index
 
     int32_t errlevel=0, bad=0;
+    int32_t heinumcheckstat = 0;  // 1, 2
 
     uint8_t *seen_nextwalls = NULL;
     int16_t *lastnextwallsource = NULL;
@@ -11474,19 +11475,24 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                 cs = !!(SECTORFLD(i,stat, j)&2);
                 hn = (SECTORFLD(i,heinum, j)!=0);
 
-                if (cs != hn)
+                if (cs != hn && heinumcheckstat <= 1)
                 {
-                    if (numcorruptthings < MAXCORRUPTTHINGS && (tryfixing & (1ull<<numcorruptthings)))
+                    if (numcorruptthings < MAXCORRUPTTHINGS &&
+                        (heinumcheckstat==1 || (heinumcheckstat==0 && (tryfixing & (1ull<<numcorruptthings)))))
                     {
                         setslope(i, j, 0);
                         OSD_Printf(CCHK_CORRECTED "auto-correction: reset sector %d's %s slope\n",
                                    i, cflabel[j]);
+                        heinumcheckstat = 1;
                     }
-                    else
+                    else if (heinumcheckstat==0)
                     {
-                        CORRUPTCHK_PRINT(2, CORRUPT_SECTOR|i,
+                        CORRUPTCHK_PRINT(1, CORRUPT_SECTOR|i,
                                          "SECTOR[%d]: inconsistent %sstat&2 and heinum", i, cflabel[j]);
                     }
+
+                    if (heinumcheckstat != 1)
+                        heinumcheckstat = 2;
                 }
             }
         }
