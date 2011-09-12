@@ -581,6 +581,12 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
                     if (ActorLabels[label].flags & LABEL_HASPARM2)
                         parm2 = Gv_GetVar(*insptr++, iActor, iPlayer);
 
+                    if ((unsigned)index >= MAXSPRITES)
+                    {
+                        iPlayer = index;
+                        goto badsprite;
+                    }
+
                     return ((VM_AccessSpriteX(index, label, parm2) ^ -negateResult) + negateResult);
                 }
                 case 3: //else if (id == g_iPlayerVarID)
@@ -591,6 +597,13 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
                         parm2 = Gv_GetVar(*insptr++, iActor, iPlayer);
 
                     if (index == vm.g_i) index = vm.g_p;
+
+                    if ((unsigned)index >= MAXPLAYERS)
+                    {
+                        iPlayer = index;
+                        goto badplayer;
+                    }
+
                     return ((VM_AccessPlayerX(index, label, parm2) ^ -negateResult) + negateResult);
                 }
                 case 4: //else if (id == g_iActorVarID)
@@ -641,6 +654,14 @@ badvarid:
 
 badindex:
     OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,iActor);
+    return -1;
+
+badplayer:
+    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid player ID %d\n",g_errorLineNum,keyw[g_tw], iPlayer);
+    return -1;
+
+badsprite:
+    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw], iPlayer);
     return -1;
 
 wtf:
@@ -735,6 +756,12 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                     if (ActorLabels[label].flags & LABEL_HASPARM2)
                         parm2 = Gv_GetVarX(*insptr++);
 
+                    if ((unsigned)index >= MAXSPRITES)
+                    {
+                        id = index;
+                        goto badsprite;
+                    }
+
                     return ((VM_AccessSpriteX(index, label, parm2) ^ -negateResult) + negateResult);
                 }
                 case 3: //else if (id == g_iPlayerVarID)
@@ -745,6 +772,12 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                         parm2 = Gv_GetVarX(*insptr++);
 
                     if (index == vm.g_i) index = vm.g_p;
+
+                    if ((unsigned)index >= MAXPLAYERS)
+                    {
+                        id = index;
+                        goto badplayer;
+                    }
                     return ((VM_AccessPlayerX(index, label, parm2) ^ -negateResult) + negateResult);
                 }
                 case 4: //else if (id == g_iActorVarID)
@@ -787,6 +820,14 @@ badindex:
 
 badvarid:
         OSD_Printf(CON_ERROR "Gv_GetVar(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
+        return -1;
+
+badplayer:
+        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid player ID %d\n",g_errorLineNum,keyw[g_tw], id);
+        return -1;
+
+badsprite:
+        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw], id);
         return -1;
 
 wtf:
