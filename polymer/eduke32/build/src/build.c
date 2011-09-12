@@ -5300,6 +5300,10 @@ end_join_sectors:
                     {
                         NEXTWALL(i).nextwall = i;
                         NEXTWALL(i).nextsector = numsectors;
+#ifdef YAX_ENABLE
+                        yax_setnextwall(i, YAX_CEILING, -1);
+                        yax_setnextwall(i, YAX_FLOOR, -1);
+#endif
                     }
 #ifdef YAX_ENABLE
                     yax_setbunches(numsectors, -1, -1);
@@ -5310,6 +5314,7 @@ end_join_sectors:
                     newnumwalls = -1;
                     numsectors++;
 
+                    asksave = 1;
                     printmessage16("Inner loop made into new sector.");
                 }
             }
@@ -6554,6 +6559,8 @@ CANCEL:
                             if (bakstat == -1)
                                 message("Can't copy highlighted portion of old map: limits exceeded.");
                         }
+
+                        CheckMapCorruption(4, 0);
 
                         break;
                     }

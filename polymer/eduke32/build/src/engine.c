@@ -9743,40 +9743,42 @@ int32_t saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_
 
         ts = B_LITTLE16(numsprites);    Bwrite(fil,&ts,2);
 
-        tspri = (spritetype *)Bmalloc(sizeof(spritetype) * numsprites);
-
-        if (tspri == NULL)
-            break;
-
-
-        spri=tspri;
-
-        for (j=0; j<MAXSPRITES; j++)
+        if (numsprites > 0)
         {
-            if (sprite[j].statnum != MAXSTATUS)
-            {
-                Bmemcpy(spri,&sprite[j],sizeof(spritetype));
-                spri->x       = B_LITTLE32(spri->x);
-                spri->y       = B_LITTLE32(spri->y);
-                spri->z       = B_LITTLE32(spri->z);
-                spri->cstat   = B_LITTLE16(spri->cstat);
-                spri->picnum  = B_LITTLE16(spri->picnum);
-                spri->sectnum = B_LITTLE16(spri->sectnum);
-                spri->statnum = B_LITTLE16(spri->statnum);
-                spri->ang     = B_LITTLE16(spri->ang);
-                spri->owner   = B_LITTLE16(spri->owner);
-                spri->xvel    = B_LITTLE16(spri->xvel);
-                spri->yvel    = B_LITTLE16(spri->yvel);
-                spri->zvel    = B_LITTLE16(spri->zvel);
-                spri->lotag   = B_LITTLE16(spri->lotag);
-                spri->hitag   = B_LITTLE16(spri->hitag);
-                spri->extra   = B_LITTLE16(spri->extra);
-                spri++;
-            }
-        }
+            tspri = (spritetype *)Bmalloc(sizeof(spritetype) * numsprites);
 
-        Bwrite(fil,&tspri[0],sizeof(spritetype) * numsprites);
-        Bfree(tspri);
+            if (tspri == NULL)
+                break;
+
+            spri=tspri;
+
+            for (j=0; j<MAXSPRITES; j++)
+            {
+                if (sprite[j].statnum != MAXSTATUS)
+                {
+                    Bmemcpy(spri,&sprite[j],sizeof(spritetype));
+                    spri->x       = B_LITTLE32(spri->x);
+                    spri->y       = B_LITTLE32(spri->y);
+                    spri->z       = B_LITTLE32(spri->z);
+                    spri->cstat   = B_LITTLE16(spri->cstat);
+                    spri->picnum  = B_LITTLE16(spri->picnum);
+                    spri->sectnum = B_LITTLE16(spri->sectnum);
+                    spri->statnum = B_LITTLE16(spri->statnum);
+                    spri->ang     = B_LITTLE16(spri->ang);
+                    spri->owner   = B_LITTLE16(spri->owner);
+                    spri->xvel    = B_LITTLE16(spri->xvel);
+                    spri->yvel    = B_LITTLE16(spri->yvel);
+                    spri->zvel    = B_LITTLE16(spri->zvel);
+                    spri->lotag   = B_LITTLE16(spri->lotag);
+                    spri->hitag   = B_LITTLE16(spri->hitag);
+                    spri->extra   = B_LITTLE16(spri->extra);
+                    spri++;
+                }
+            }
+
+            Bwrite(fil,&tspri[0],sizeof(spritetype) * numsprites);
+            Bfree(tspri);
+        }
 
         Bclose(fil);
         return(0);
