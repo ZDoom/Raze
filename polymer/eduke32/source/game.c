@@ -5596,18 +5596,18 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                     if (outerwall >= 0)
                     {
-                        int32_t upperwall = yax_getnextwall(outerwall, YAX_CEILING);
+                        int32_t uppersect = yax_vnextsec(outerwall, YAX_CEILING);
 
-                        if (upperwall>=0 && wall[upperwall].nextsector>=0)
+                        if (uppersect >= 0)
                         {
-                            int32_t jj, uppersect=wall[upperwall].nextsector;
+                            int32_t jj;
                             for (jj=headspritesect[uppersect]; jj>=0; jj=nextspritesect[jj])
                                 if (sprite[jj].picnum==SECTOREFFECTOR && sprite[jj].lotag==sp->lotag)
                                     break;
                             if (jj < 0)
                             {
-                                Sect_SetInterpolation(wall[upperwall].nextsector);
-                                actor[i].t_data[9] = wall[upperwall].nextsector;
+                                Sect_SetInterpolation(uppersect);
+                                actor[i].t_data[9] = uppersect;
                             }
                         }
                     }

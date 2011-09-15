@@ -4961,7 +4961,7 @@ end_point_dragging:
             }
             else
             {
-                int32_t joink, s1to0wall;
+                int32_t joink, s1to0wall, s0to1wall;
 #ifdef YAX_ENABLE
                 int16_t jbn[2][2];  // [join index][c/f]
                 int32_t uneqbn;  // unequal bunchnums (bitmap): 1:above, 2:below
@@ -4975,6 +4975,7 @@ end_point_dragging:
                     if (inside_editor_curpos(i) == 1)
                     {
                         s1to0wall = find_nextwall(i, joinsector[0]);
+                        s0to1wall = wall[s1to0wall].nextwall;
                         joinsector[1] = i;
 #ifdef YAX_ENABLE
                         for (k=0; k<2; k++)
@@ -5011,9 +5012,15 @@ end_point_dragging:
 
                             if (uneqbn == 1)
                             {
-                                message("Can't join two sectors with different ceiling bunchnums."
-                                        " To make them equal, join their upper neighbor's floors.");
+                                OSD_Printf("Can't join two sectors with different ceiling bunchnums."
+                                           " To make them equal, join their upper neighbor's floors.");
                                 printmessage16("Can't join two sectors with different ceiling bunchnums. See OSD");
+                                joinsector[0] = joinsector[1] = -1;
+                                goto end_join_sectors;
+                            }
+                            if (s0to1wall < 0)
+                            {
+                                printmessage16("INTERNAL ERROR: nextwalls inconsistent!");
                                 joinsector[0] = joinsector[1] = -1;
                                 goto end_join_sectors;
                             }
@@ -5030,31 +5037,34 @@ end_point_dragging:
 
                             // check whether the lower neighbors have a red-wall link to each other
                             jsynw[1] = yax_getnextwall(s1to0wall, cf);
-                            jsynw[0] = yax_getnextwall(wall[s1to0wall].nextwall, cf);
+                            jsynw[0] = yax_getnextwall(s0to1wall, cf);
                             if (jsynw[0]<0 || jsynw[1]<0)  // this shouldn't happen
                                 uneqbn &= ~(1<<cf), whybad|=8;
                             else if (wall[jsynw[1]].nextwall != jsynw[0])
                             {
-                                if (find_nextwall(sectorofwall(jsynw[1]), sectorofwall(jsynw[0])) < 0)
+//                                if (find_nextwall(sectorofwall(jsynw[1]), sectorofwall(jsynw[0])) < 0)
                                     uneqbn &= ~(1<<cf), whybad|=16;
                             }
 
                             if ((uneqbn&2)==0)
                             {
-                                if (whybad==1+8 && jbn[0][cf]>=0 && jbn[1][cf]<0)
+                                if (0) //(whybad==1+8 && jbn[0][cf]>=0 && jbn[1][cf]<0)
                                 {
                                     // 1st join sector extended, 2nd not... let's see
                                     // if the latter is inner to the former one
 
-                                    m = 1;
-                                    for (WALLS_OF_SECTOR(joinsector[1], k))
-                                        if (wall[k].nextsector != joinsector[0])
-                                        {
-                                            m = 0;
-                                            break;
-                                        }
+                                    int32_t lowerstartsec = yax_vnextsec(s0to1wall, cf);
 
-                                    if (m==1)
+                                    m = (lowerstartsec < 0)<<1;
+                                    for (WALLS_OF_SECTOR(joinsector[1], k))
+                                    {
+                                        if (m) break;
+
+                                        m |= (wall[k].nextsector>=0 && wall[k].nextsector != joinsector[0]);
+                                        m |= (wall[k].nextwall>=0 && yax_vnextsec(wall[k].nextwall, cf)!=lowerstartsec)<<1;
+                                    }
+
+                                    if (m==0)
                                     {
                                         yax_setbunch(joinsector[1], YAX_FLOOR, jbn[0][cf]);
                                         yax_update(0);
@@ -5066,8 +5076,16 @@ end_point_dragging:
                                     }
                                     else
                                     {
-                                        printmessage16("Can't add sector %d's floor to bunch %d: not inner to sector %d",
-                                                       joinsector[1], jbn[0][cf], joinsector[0]);
+                                        if (m&1)
+                                        {
+                                            message("Can't add sector %d's floor to bunch %d: not inner to sector %d",
+                                                    joinsector[1], jbn[0][cf], joinsector[0]);
+                                        }
+                                        else // if (m&2)
+                                        {
+                                            message("Can't add sector %d's floor to bunch %d: must have lower neighbor",
+                                                    joinsector[1], jbn[0][cf]);
+                                        }
                                     }
                                 }
                                 else

@@ -768,7 +768,7 @@ REDODOOR:
             i = headspritesect[sn];
             while (i >= 0)
             {
-                if (sprite[i].statnum == 3 && SLT==9)
+                if (sprite[i].statnum == STAT_EFFECTOR && SLT==9)
                 {
                     j = SZ;
                     break;
