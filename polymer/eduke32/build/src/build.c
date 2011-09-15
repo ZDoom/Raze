@@ -760,12 +760,10 @@ CANCEL:
     }
 
 
-//    clearfilenames();
     ExtUnInit();
-//    uninitengine();
-    uninitsystem();
+//    clearfilenames();
+    uninitengine();
 
-// not reached...
 //    Bprintf("Memory status: %d(%d) bytes\n",cachesize,artsize);
 //    Bprintf("%s\n",kensig);
     return(0);
@@ -3964,7 +3962,8 @@ end_yax: ;
                                         {
                                             message("out of memory!");
                                             ExtUnInit();
-                                            uninitsystem();
+//                                            clearfilenames();
+                                            uninitengine();
                                             exit(1);
                                         }
 
@@ -6776,10 +6775,8 @@ CANCEL:
 
                         ExtUnInit();
 //                        clearfilenames();
-                        uninittimer();
-                        uninitinput();
-//                        uninitengine();
-                        uninitsystem();
+                        uninitengine();
+
                         exit(0);
                     }
 
@@ -6814,10 +6811,8 @@ CANCEL:
     {
         initprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
         ExtUnInit();
-        uninitinput();
-        uninittimer();
-        uninitsystem();
 //        clearfilenames();
+        uninitengine();
         exit(1);
     }
 

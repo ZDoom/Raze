@@ -8765,8 +8765,9 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
 static int32_t osdcmd_quit(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
-    clearfilenames();
+
     ExtUnInit();
+//    clearfilenames();
     uninitengine();
 
     exit(0);

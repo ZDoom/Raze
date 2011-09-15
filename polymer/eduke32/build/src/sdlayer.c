@@ -374,7 +374,6 @@ int32_t initsystem(void)
 void uninitsystem(void)
 {
     uninitinput();
-    uninitmouse();
     uninittimer();
 
     if (appicon)
