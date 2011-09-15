@@ -2016,8 +2016,10 @@ inline int32_t getkensmessagecrc(int32_t b)
 #endif
 
 
-int32_t xb1[MAXWALLSB], yb1[MAXWALLSB], xb2[MAXWALLSB], yb2[MAXWALLSB];
-int32_t rx1[MAXWALLSB], ry1[MAXWALLSB], rx2[MAXWALLSB], ry2[MAXWALLSB];
+int32_t xb1[MAXWALLSB];  // Polymost uses this as a temp array
+static int32_t yb1[MAXWALLSB], xb2[MAXWALLSB], yb2[MAXWALLSB];
+int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
+static int32_t rx2[MAXWALLSB], ry2[MAXWALLSB];
 int16_t p2[MAXWALLSB], thesector[MAXWALLSB];
 int16_t thewall[MAXWALLSB];
 
@@ -2035,14 +2037,15 @@ static int32_t spritesy[MAXSPRITESONSCREEN+1];
 static int32_t spritesz[MAXSPRITESONSCREEN];
 spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 
-int16_t umost[MAXXDIM], dmost[MAXXDIM];
+static int16_t umost[MAXXDIM], dmost[MAXXDIM];
 static int16_t bakumost[MAXXDIM], bakdmost[MAXXDIM];
-int16_t uplc[MAXXDIM], dplc[MAXXDIM];
+static int16_t uplc[MAXXDIM], dplc[MAXXDIM];
 static int16_t uwall[MAXXDIM], dwall[MAXXDIM];
 static int32_t swplc[MAXXDIM], lplc[MAXXDIM];
 static int32_t swall[MAXXDIM], lwall[MAXXDIM+4];
 int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
-int32_t wx1, wy1, wx2, wy2, ydimen;
+static int32_t wx1, wy1, wx2, wy2;
+int32_t ydimen;
 intptr_t /*viewoffset,*/ frameoffset;
 
 static int32_t nrx1[8], nry1[8], nrx2[8], nry2[8]; // JBF 20031206: Thanks Ken
@@ -7828,18 +7831,25 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     //clearbufbyte(&gotsector[0],(int32_t)((numsectors+7)>>3),0L);
     Bmemset(&gotsector[0],0,(int32_t)((numsectors+7)>>3));
 
-    shortptr1 = (int16_t *)&startumost[windowx1];
-    shortptr2 = (int16_t *)&startdmost[windowx1];
-    i = xdimen-1;
-    do
+    if (getrendermode()!=0
+#ifdef YAX_ENABLE
+        || yax_globallev==YAX_MAXDRAWS
+#endif
+        )
     {
-        umost[i] = shortptr1[i]-windowy1;
-        dmost[i] = shortptr2[i]-windowy1;
-        i--;
+        shortptr1 = (int16_t *)&startumost[windowx1];
+        shortptr2 = (int16_t *)&startdmost[windowx1];
+        i = xdimen-1;
+        do
+        {
+            umost[i] = shortptr1[i]-windowy1;
+            dmost[i] = shortptr2[i]-windowy1;
+            i--;
+        }
+        while (i != 0);
+        umost[0] = shortptr1[0]-windowy1;
+        dmost[0] = shortptr2[0]-windowy1;
     }
-    while (i != 0);
-    umost[0] = shortptr1[0]-windowy1;
-    dmost[0] = shortptr2[0]-windowy1;
 
 #ifdef USE_OPENGL
 # ifdef POLYMER
@@ -7857,8 +7867,8 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     polymost_drawrooms();
     if (rendmode)
         return;
-#endif
     //============================================================================= //POLYMOST ENDS
+#endif
 
     begindrawing(); //{{{
 
