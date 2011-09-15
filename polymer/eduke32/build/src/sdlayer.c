@@ -712,6 +712,28 @@ uint32_t getticks(void)
     return (uint32_t)SDL_GetTicks();
 }
 
+// high-resolution timers for profiling
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
+uint64_t gethiticks(void)
+{
+    return SDL_GetTicks();
+}
+
+uint64_t gethitickspersec(void)
+{
+    return 1000;
+}
+#else  // SDL 1.3
+uint64_t gethiticks(void)
+{
+    return SDL_GetPerformanceCounter();
+}
+
+uint64_t gethitickspersec(void)
+{
+    return SDL_GetPerformanceFrequency();
+}
+#endif
 
 //
 // gettimerfreq() -- returns the number of ticks per second the timer is configured to generate

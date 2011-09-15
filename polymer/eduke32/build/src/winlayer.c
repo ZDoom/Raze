@@ -1574,6 +1574,19 @@ uint32_t getticks(void)
     return (uint32_t)(i*longlong(1000)/timerfreq);
 }
 
+// high-resolution timers for profiling
+uint64_t gethiticks(void)
+{
+    uint64_t i;
+    if (timerfreq == 0) return 0;
+    QueryPerformanceCounter((LARGE_INTEGER *)&i);
+    return i;
+}
+
+uint64_t gethitickspersec(void)
+{
+    return timerfreq;
+}
 
 //
 // gettimerfreq() -- returns the number of ticks per second the timer is configured to generate

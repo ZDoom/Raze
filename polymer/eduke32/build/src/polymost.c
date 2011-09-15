@@ -6398,8 +6398,9 @@ void polymost_initosdfuncs(void)
 
     for (i=0; i<sizeof(cvars_polymost)/sizeof(cvars_polymost[0]); i++)
     {
-        if (editstatus==0 && !Bstrcmp(cvars_polymost[i].name, "r_preview_mouseaim"))
-            continue;
+        // can't do this: editstatus is set after this function
+//        if (editstatus==0 && !Bstrcmp(cvars_polymost[i].name, "r_preview_mouseaim"))
+//            continue;
 
         if (OSD_RegisterCvar(&cvars_polymost[i]))
             continue;

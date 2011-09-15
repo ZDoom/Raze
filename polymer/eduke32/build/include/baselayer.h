@@ -141,6 +141,8 @@ void uninittimer(void);
 void sampletimer(void);
 uint32_t getticks(void);
 int32_t gettimerfreq(void);
+uint64_t gethiticks(void);
+uint64_t gethitickspersec(void);
 void (*installusertimercallback(void (*callback)(void)))(void);
 
 int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced);
