@@ -2540,7 +2540,7 @@ void overheadeditor(void)
     int32_t prefixarg = 0;
     int32_t resetsynctics = 0, lasttick=getticks(), waitdelay=totalclock, lastdraw=getticks();
     int32_t tsign;
-    int32_t olen[2]={0,0}, nlen[2]={0,0}, dragwall[2] = {-1, -1};
+    int32_t olen[2]={0,0}, /*nlen[2]={0,0},*/ dragwall[2] = {-1, -1};
 
     m32_setkeyfilter(1);
 
@@ -4162,20 +4162,24 @@ end_autoredwall:
                     if (dragwall[i] < 0)
                         break;
 
-                    nlen[i] = wallength(dragwall[i]);
-
-                    if (olen[i] != 0 && nlen[i] != 0)
+                    if (olen[i] != 0)
                     {
-                        int32_t nw = wall[dragwall[i]].nextwall;
-
-                        j = divscale10(nlen[i], olen[i]);
-
-                        k = getlenbyrep(olen[i], wall[dragwall[i]].xrepeat);
-                        fixxrepeat(dragwall[i], k);
-                        if (nw >= 0)
+#ifndef YAX_ENABLE
+                        j = dragwall[i];
+#else
+                        int32_t cf;
+                        for (YAX_ITER_WALLS(dragwall[i], j, cf))
+#endif
                         {
-                            k = getlenbyrep(olen[i], wall[nw].xrepeat);
-                            fixxrepeat(nw, k);
+                            int32_t nw = wall[j].nextwall;
+
+                            k = getlenbyrep(olen[i], wall[j].xrepeat);
+                            fixxrepeat(j, k);
+                            if (nw >= 0)
+                            {
+                                k = getlenbyrep(olen[i], wall[nw].xrepeat);
+                                fixxrepeat(nw, k);
+                            }
                         }
                     }
                 }
