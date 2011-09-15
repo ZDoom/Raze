@@ -383,6 +383,11 @@ void G_AnimateCamSprite(void)
                 allocatepermanenttile(TILE_VIEWSCR,tilesizx[PN],tilesizy[PN]);
             else walock[TILE_VIEWSCR] = 255;
             G_SetupCamTile(OW,/*PN*/TILE_VIEWSCR);
+#ifdef POLYMER
+            // HACK: force texture update on viewscreen sprite in Polymer!
+            if (rendmode==4)
+                sprite[i].filler ^= (1<<1);
+#endif
         }
     }
     else T1++;
