@@ -7655,12 +7655,13 @@ int32_t initengine(void)
     searchit = 0; searchstat = -1;
 
     for (i=0; i<MAXPALOOKUPS; i++) palookup[i] = NULL;
-
+/*
     clearbuf(&waloff[0],(int32_t)MAXTILES,0L);
 
     clearbuf(&show2dsector[0],(int32_t)((MAXSECTORS+3)>>5),0L);
     clearbuf(&show2dsprite[0],(int32_t)((MAXSPRITES+3)>>5),0L);
     clearbuf(&show2dwall[0],(int32_t)((MAXWALLS+3)>>5),0L);
+*/
 //    automapping = 0;
 
     totalclock = 0;
@@ -7971,7 +7972,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     while ((numbunches > 0) && (numhits > 0))
     {
-        clearbuf(&tempbuf[0],(int32_t)((numbunches+3)>>2),0L);
+        Bmemset(tempbuf, 0, numbunches);
         tempbuf[0] = 1;
 
         closest = 0;              //Almost works, but not quite :(
@@ -13242,8 +13243,7 @@ void clearallviews(int32_t dacol)
 #endif
 
     begindrawing(); //{{{
-    //clearbufbyte((void*)frameplace,imageSize,0L);
-    Bmemset((void *)frameplace,dacol,imageSize);
+    Bmemset((void *)frameplace,dacol,bytesperline*yres);
     enddrawing();   //}}}
     //nextpage();
 

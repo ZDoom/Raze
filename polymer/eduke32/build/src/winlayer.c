@@ -111,7 +111,6 @@ int32_t yres=-1;
 int32_t fullscreen=0;
 int32_t bpp=0;
 int32_t bytesperline=0;
-int32_t imageSize=0;
 int32_t lockcount=0;
 int32_t glcolourdepth=32;
 int32_t vsync=0;
@@ -1935,7 +1934,6 @@ void begindrawing(void)
         if (offscreenrendering) return;
         frameplace = 0;
         bytesperline = 0;
-        imageSize = 0;
         modechange = 0;
         return;
     }
@@ -1960,7 +1958,6 @@ void begindrawing(void)
         bytesperline = xres|1;
     }
 
-    imageSize = bytesperline*yres;
     setvlinebpl(bytesperline);
 
     {
@@ -3230,7 +3227,6 @@ static BOOL CreateAppWindow(int32_t modenum)
 
     // bytesperline is set when framebuffer is locked
     //bytesperline = width;
-    //imageSize = bytesperline*yres;
 
     modechange = 1;
     OSD_ResizeDisplay(xres,yres);

@@ -60,7 +60,7 @@ char quitevent=0, appactive=1, novideo=0;
 
 // video
 static SDL_Surface *sdl_surface;
-int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline, imageSize;
+int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline;
 intptr_t frameplace=0;
 int32_t lockcount=0;
 char modechange=1;
@@ -1266,7 +1266,6 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     bpp = c;
     fullscreen = fs;
     //bytesperline = sdl_surface->pitch;
-    //imageSize = bytesperline*yres;
     numpages = c>8?2:1;
     frameplace = 0;
     lockcount = 0;
@@ -1320,7 +1319,6 @@ void begindrawing(void)
         if (offscreenrendering) return;
         frameplace = 0;
         bytesperline = 0;
-        imageSize = 0;
         modechange = 0;
         return;
     }
@@ -1337,7 +1335,6 @@ void begindrawing(void)
     if (sdl_surface->pitch != bytesperline || modechange)
     {
         bytesperline = sdl_surface->pitch;
-        imageSize = bytesperline*yres;
         setvlinebpl(bytesperline);
 
         j = 0;

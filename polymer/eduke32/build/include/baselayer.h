@@ -31,7 +31,7 @@ extern int32_t startwin_idle(void *);
 // video
 extern int32_t r_usenewaspect, newaspect_enable;
 extern uint32_t r_screenxy;
-extern int32_t xres, yres, bpp, fullscreen, bytesperline, imageSize;
+extern int32_t xres, yres, bpp, fullscreen, bytesperline;
 extern intptr_t frameplace;
 extern char offscreenrendering;
 
