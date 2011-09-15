@@ -342,11 +342,15 @@ int32_t MUSIC_StopSong(void)
         if (external_midi_pid > 0)
         {
             int32_t ret;
+            struct timespec ts;
 
             external_midi_restart = 0;  // make SIGCHLD handler a no-op
 
+            ts.tv_sec = 0;
+            ts.tv_nsec = 5000000;  // sleep 5ms at most
+
             kill(external_midi_pid, SIGTERM);
-            nanosleep(&(const struct timespec) { .tv_sec=0, .tv_nsec=5000000 }, NULL); // sleep 5ms at most
+            nanosleep(&ts, NULL);
             ret = waitpid(external_midi_pid, NULL, WNOHANG|WUNTRACED);
 //            printf("(%d)", ret);
 
@@ -419,13 +423,16 @@ static void sigchld_handler(int signo)
     {
         int status;
 
-        if (waitpid(external_midi_pid, &status, WUNTRACED)==-1)
-            perror("waitpid (3)");
-
-        if (WIFEXITED(status) && WEXITSTATUS(status)==0)
+        if (external_midi_pid > 0)
         {
-            // loop ...
-            playmusic();
+            if (waitpid(external_midi_pid, &status, WUNTRACED)==-1)
+                perror("waitpid (3)");
+
+            if (WIFEXITED(status) && WEXITSTATUS(status)==0)
+            {
+                // loop ...
+                playmusic();
+            }
         }
     }
 }

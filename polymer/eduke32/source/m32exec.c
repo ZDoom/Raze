@@ -2907,7 +2907,7 @@ dodefault:
                 }
 
                 drawlinepat = m32_drawlinepat;
-                drawline16(xofs+x1,yofs+y1, xofs+x2,yofs+y2, col>=0?editorcolors[col&15]:(-col&255));
+                drawline16(xofs+x1,yofs+y1, xofs+x2,yofs+y2, col>=0?editorcolors[col&15]:((-col)&255));
                 drawlinepat = odrawlinepat;
                 continue;
             }
@@ -2935,7 +2935,7 @@ dodefault:
                 }
 
                 drawlinepat = m32_drawlinepat;
-                drawcircle16(xofs+x1, yofs+y1, r, eccen, col>=0?editorcolors[col&15]:(-col&255));
+                drawcircle16(xofs+x1, yofs+y1, r, eccen, col>=0?editorcolors[col&15]:((-col)&255));
                 drawlinepat = odrawlinepat;
                 continue;
             }
