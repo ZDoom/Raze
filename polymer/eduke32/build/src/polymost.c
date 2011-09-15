@@ -3321,6 +3321,11 @@ static void polymost_drawalls(int32_t bunch)
         nextsectnum = wal->nextsector;
         nextsec = nextsectnum>=0 ? &sector[nextsectnum] : NULL;
 
+#ifdef YAX_ENABLE
+        if (yax_nomaskpass==1 && yax_isislandwall(wallnum, !yax_globalcf) && (yax_nomaskdidit=1))
+            continue;
+#endif
+
         //Offset&Rotate 3D coordinates to screen 3D space
         x = wal->x-globalposx; y = wal->y-globalposy;
         xp0 = (double)y*gcosang  - (double)x*gsinang;
@@ -4228,6 +4233,9 @@ void polymost_scansector(int32_t sectnum)
             x2 = wal2->x-globalposx; y2 = wal2->y-globalposy;
 
             nextsectnum = wal->nextsector; //Scan close sectors
+#ifdef YAX_ENABLE
+            if (yax_nomaskpass==0 || !yax_isislandwall(z, !yax_globalcf) || (yax_nomaskdidit=1, 0))
+#endif
             if ((nextsectnum >= 0) && (!(wal->cstat&32)) && (!(gotsector[nextsectnum>>3]&pow2char[nextsectnum&7])))
             {
                 d = (double)x1*(double)y2 - (double)x2*(double)y1; xp1 = (double)(x2-x1); yp1 = (double)(y2-y1);

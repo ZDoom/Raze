@@ -261,7 +261,8 @@ void yax_updategrays(int32_t posze)
 int32_t g_nodraw = 0;
 int32_t scansector_retfast = 0;
 static int32_t scansector_collectsprites = 1;
-static int32_t yax_globalcf = -1, yax_nomaskpass=0;
+int32_t yax_globalcf = -1, yax_nomaskpass=0, yax_nomaskdidit;  // engine internal
+int32_t r_tror_nomaskpass = 1;  // cvar
 int32_t yax_globallev = YAX_MAXDRAWS;
 int32_t yax_globalbunch = -1;
 
@@ -273,6 +274,9 @@ int32_t yax_globalbunch = -1;
 static int16_t yax_spritesortcnt[1 + 2*YAX_MAXDRAWS];
 static int16_t yax_tsprite[1 + 2*YAX_MAXDRAWS][MAXSPRITESONSCREEN];
 
+// drawn sectors
+uint8_t yax_gotsector[MAXSECTORS>>3];  // engine internal
+
 // game-time YAX data structures
 int16_t yax_bunchnum[MAXSECTORS][2];
 int16_t yax_nextwall[MAXWALLS][2];
@@ -280,11 +284,6 @@ int16_t yax_nextwall[MAXWALLS][2];
 static int32_t yax_islockededge(int32_t line, int32_t cf)
 {
     return !!(wall[line].cstat&(YAX_NEXTWALLBIT(cf)));
-}
-
-static int32_t yax_isislandwall(int32_t line, int32_t cf)
-{
-    return (yax_vnextsec(line, cf)>=0);
 }
 
 #define YAX_BUNCHNUM(Sect, Cf) (*(&sector[Sect].ceilingxpanning + 8*Cf))
@@ -758,7 +757,7 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 {
     static uint8_t havebunch[YAX_MAXBUNCHES>>3];
 
-    int32_t i, j, k, lev, cf;
+    int32_t i, j, k, lev, cf, nmp;
     int32_t bnchcnt, bnchnum[2] = {0,0}, maxlev[2];
     int16_t ourbunch[2] = {-1,-1}, osectnum=sectnum;
     int32_t bnchbeg[YAX_MAXDRAWS][2], bnchend[YAX_MAXDRAWS][2];
@@ -865,8 +864,8 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                             for (i=0; i<(numsectors+7)>>3; i++)
                                 lgotsector[i] |= gotsector[i];
 
-                        yaxdebug("%s, l %d: faked sec %3d (bunch %2d),%3d dspr, ob=[%2d,%2d], sn=%3d,%3d ms",
-                                 cf?"v":"^", lev, k, j, yax_spritesortcnt[yax_globallev],
+                        yaxdebug("l%d: faked sec %3d (bunch %2d),%3d dspr, ob=[%2d,%2d], sn=%3d,%3d ms",
+                                 yax_globallev-YAX_MAXDRAWS, k, j, yax_spritesortcnt[yax_globallev],
                                  ourbunch[0],ourbunch[1],sectnum,getticks()-t);
                     }
 
@@ -941,12 +940,27 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                 if (k < 0)
                     continue;
 
-                drawrooms(globalposx,globalposy,globalposz,globalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
+                yax_nomaskdidit = 0;
+                for (nmp=r_tror_nomaskpass; nmp>=0; nmp--)
+                {
+                    yax_nomaskpass = nmp;
+                    drawrooms(globalposx,globalposy,globalposz,globalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
+
+                    yaxdebug("l%d nm%d: DRAWN sec %3d (bn %2d),%3d tspr,%3d ms",
+                             yax_globallev-YAX_MAXDRAWS, nmp, k, j, spritesortcnt, getticks()-t);
+
+                    if (nmp==1)
+                    {
+                        if (!yax_nomaskdidit)
+                        {
+                            yax_nomaskpass = 0;
+                            break;  // no need to draw the same stuff twice
+                        }
+                        Bmemcpy(yax_gotsector, gotsector, (numsectors+7)>>3);
+                    }
+                }
 
                 yax_copytsprite(j, !scansector_collectsprites);
-
-                yaxdebug("%s, l %d: DRAWN sec %3d (bunch %2d),%3d tspr,%3d ms",
-                         cf?"v":"^", lev, k, j, spritesortcnt, getticks()-t);
 
                 ExtAnalyzeSprites();
                 drawmasks();
@@ -961,7 +975,7 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 #ifdef YAX_DEBUG
     t=getticks();
 #endif
-    yax_globalcf = -1;  // remove?
+    yax_globalcf = -1;
     yax_globalbunch = -1;
     yax_globallev = YAX_MAXDRAWS;
     scansector_collectsprites = 0;
@@ -2029,7 +2043,7 @@ static int32_t smostcnt;
 static int16_t smost[MAXYSAVES];
 static int16_t smoststart[MAXWALLSB];
 static char smostwalltype[MAXWALLSB];
-static int32_t smostwall[MAXWALLSB], smostwallcnt = -1L;
+static int32_t smostwall[MAXWALLSB], smostwallcnt = -1;
 
 int16_t maskwall[MAXWALLSB], maskwallcnt;
 static int32_t spritesx[MAXSPRITESONSCREEN];
@@ -2201,16 +2215,24 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
 
     if (g_nodraw==0)
     {
+        if (numyaxbunches==0)
+        {
 #endif
-        if (spritesortcnt >= MAXSPRITESONSCREEN)
-            return 1;
 
-        copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
-        spriteext[z].tspr = (spritetype *)&tsprite[spritesortcnt];
-        tsprite[spritesortcnt++].owner = z;
+            if (spritesortcnt >= MAXSPRITESONSCREEN)
+                return 1;
+
+            copybufbyte(spr,&tsprite[spritesortcnt],sizeof(spritetype));
+            spriteext[z].tspr = (spritetype *)&tsprite[spritesortcnt];
+            tsprite[spritesortcnt++].owner = z;
+
 #ifdef YAX_ENABLE
+        }
     }
     else
+#ifdef YAX_ENABLE
+        if (yax_nomaskpass==0)
+#endif
     {
         sortcnt = &yax_spritesortcnt[yax_globallev];
         if (*sortcnt >= MAXSPRITESONSCREEN)
@@ -2307,6 +2329,9 @@ static void scansector(int16_t sectnum)
             x2 = wal2->x-globalposx; y2 = wal2->y-globalposy;
 
             if ((nextsectnum >= 0) && ((wal->cstat&32) == 0))
+#ifdef YAX_ENABLE
+                if (yax_nomaskpass==0 || !yax_isislandwall(z, !yax_globalcf) || (yax_nomaskdidit=1, 0))
+#endif
                 if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
                 {
                     tempint = x1*y2-x2*y1;
@@ -4336,6 +4361,11 @@ static void drawalls(int32_t bunch)
 #endif
     {
         if ((andwstat1&3) != 3)     //draw ceilings
+#ifdef YAX_ENABLE
+            // this is to prevent double-drawing of translucent masked ceilings
+            if (r_tror_nomaskpass==0 || yax_globallev==YAX_MAXDRAWS || (sec->ceilingstat&256)==0 ||
+                yax_nomaskpass==1 || !(yax_gotsector[sectnum>>3]&(1<<(sectnum&7))))
+#endif
         {
             if ((sec->ceilingstat&3) == 2)
                 grouscan(xb1[bunchfirst[bunch]],xb2[bunchlast[bunch]],sectnum,0);
@@ -4344,6 +4374,12 @@ static void drawalls(int32_t bunch)
             else
                 parascan(xb1[bunchfirst[bunch]],xb2[bunchlast[bunch]],sectnum,0,bunch);
         }
+
+#ifdef YAX_ENABLE
+        // this is to prevent double-drawing of translucent masked floors
+        if (r_tror_nomaskpass==0 || yax_globallev==YAX_MAXDRAWS || (sec->floorstat&256)==0 ||
+            yax_nomaskpass==1 || !(yax_gotsector[sectnum>>3]&(1<<(sectnum&7))))
+#endif
         if ((andwstat2&12) != 12)   //draw floors
         {
             if ((sec->floorstat&3) == 2)
@@ -4395,6 +4431,9 @@ static void drawalls(int32_t bunch)
             }
         }
 
+#ifdef YAX_ENABLE
+        if (yax_nomaskpass==0 || !yax_isislandwall(wallnum, !yax_globalcf) || (yax_nomaskdidit=1, 0))
+#endif
         if (nextsectnum >= 0)
         {
             getzsofslope((int16_t)sectnum,wal->x,wal->y,&cz[0],&fz[0]);
@@ -4496,6 +4535,7 @@ static void drawalls(int32_t bunch)
                     }
                 }
             }
+
             if (((sec->floorstat&1) == 0) || ((nextsec->floorstat&1) == 0))
             {
                 if ((fz[2] >= fz[0]) && (fz[3] >= fz[1]))
@@ -4604,6 +4644,7 @@ static void drawalls(int32_t bunch)
                     }
                 }
             }
+
             if (numhits < 0) return;
             if ((!(wal->cstat&32)) && ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0))
             {
@@ -4706,7 +4747,7 @@ static void drawalls(int32_t bunch)
         if (!g_nodraw)
 #endif
         {
-            static char fn[BMAX_PATH];
+            static char fn[32], tmpbuf[80];
             static char bakframe[MAXXDIM*MAXYDIM];
 
             char purple = getclosestcol(63, 0, 63);
@@ -4729,6 +4770,10 @@ static void drawalls(int32_t bunch)
                 if (dmost[x]-1 >= 0 && dmost[x]-1 < ydim)
                     *((char *)frameplace + (dmost[x]-1)*bytesperline + x) = yellow;
             }
+
+            Bsprintf(tmpbuf, "nmp%d l%d b%d s%d w%d", yax_nomaskpass, yax_globallev-YAX_MAXDRAWS,
+                     yax_globalbunch, sectnum, wallnum);
+            printext256(8,8, whitecol,0, tmpbuf, 0);
 
             Bsprintf(fn, "engshot%04d.png", engine_screenshot);
             screencapture(fn, 0, "BUILD engine");

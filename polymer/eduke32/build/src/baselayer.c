@@ -340,6 +340,9 @@ int32_t baselayer_init(void)
         { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",(void *) &novoxmips, CVAR_BOOL, 0, 1 },
         { "r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",(void *) &usevoxels, CVAR_BOOL, 0, 1 },
         /*        { "r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars, CVAR_FUNCPTR, 0, 0 },*/
+#ifdef YAX_ENABLE
+        { "r_tror_nomaskpass", "r_tror_nomaskpass: enable/disable additional pass in TROR software rendering", (void *)&r_tror_nomaskpass, CVAR_BOOL, 0, 1 },
+#endif
         { "vid_gamma","vid_gamma <gamma>: adjusts gamma ramp",(void *) &vid_gamma, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
         { "vid_contrast","vid_contrast <gamma>: adjusts gamma ramp",(void *) &vid_contrast, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },
         { "vid_brightness","vid_brightness <gamma>: adjusts gamma ramp",(void *) &vid_brightness, CVAR_DOUBLE|CVAR_FUNCPTR, 0, 10 },

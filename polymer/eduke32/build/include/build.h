@@ -90,6 +90,8 @@ void yax_updategrays(int32_t posze);
 # define SECTORS_OF_BUNCH(Bunchnum, Cf, Itervar) Itervar = headsectbunch[Cf][Bunchnum]; \
     Itervar != -1; Itervar = nextsectbunch[Cf][Itervar]
 
+extern int32_t r_tror_nomaskpass;
+
 extern int16_t yax_bunchnum[MAXSECTORS][2];
 extern int16_t yax_nextwall[MAXWALLS][2];
 

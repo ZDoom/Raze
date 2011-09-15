@@ -79,7 +79,14 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum);
 #ifdef YAX_ENABLE
 extern int32_t g_nodraw, scansector_retfast;
 extern int32_t yax_globallev, yax_globalbunch;
+extern int32_t yax_globalcf, yax_nomaskpass, yax_nomaskdidit;
 extern uint8_t haveymost[YAX_MAXBUNCHES>>3];
+extern uint8_t yax_gotsector[MAXSECTORS>>3];
+
+static inline int32_t yax_isislandwall(int32_t line, int32_t cf)
+{
+    return (yax_vnextsec(line, cf)>=0);
+}
 #endif
 
 #ifdef YAX_DEBUG
