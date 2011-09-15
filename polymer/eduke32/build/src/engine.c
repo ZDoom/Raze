@@ -261,9 +261,9 @@ void yax_updategrays(int32_t posze)
 int32_t g_nodraw = 0;
 int32_t scansector_retfast = 0;
 static int32_t scansector_collectsprites = 1;
-static int32_t yax_globalcf = -1;
-static int32_t yax_globallev = YAX_MAXDRAWS;
-static int32_t yax_globalbunch = -1;
+static int32_t yax_globalcf = -1, yax_nomaskpass=0;
+int32_t yax_globallev = YAX_MAXDRAWS;
+int32_t yax_globalbunch = -1;
 
 // duplicated tsprites
 //  [i]:
@@ -277,9 +277,14 @@ static int16_t yax_tsprite[1 + 2*YAX_MAXDRAWS][MAXSPRITESONSCREEN];
 int16_t yax_bunchnum[MAXSECTORS][2];
 int16_t yax_nextwall[MAXWALLS][2];
 
-static int32_t yax_islockededge(int16_t line, int16_t cf)
+static int32_t yax_islockededge(int32_t line, int32_t cf)
 {
     return !!(wall[line].cstat&(YAX_NEXTWALLBIT(cf)));
+}
+
+static int32_t yax_isislandwall(int32_t line, int32_t cf)
+{
+    return (yax_vnextsec(line, cf)>=0);
 }
 
 #define YAX_BUNCHNUM(Sect, Cf) (*(&sector[Sect].ceilingxpanning + 8*Cf))
@@ -373,6 +378,19 @@ void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
         YAX_NEXTWALL(wal, cf) = cf?-1:0;
     }
 }
+
+// make one step in the vertical direction, and if the wall we arrive at
+// is red, return its nextsector.
+int16_t yax_vnextsec(int16_t line, int16_t cf)
+{
+    int16_t ynw = yax_getnextwall(line, cf);
+
+    if (ynw < 0)
+        return -1;
+
+    return wall[ynw].nextsector;
+}
+
 
 //// in-struct --> array transfer (only resetstat==0); list construction
 // resetstat:  0: reset and read data from structs and construct linked lists etc.
@@ -4607,11 +4625,9 @@ static void drawalls(int32_t bunch)
                 }
             }
         }
+
         if ((nextsectnum < 0) || (wal->cstat&32))   //White/1-way wall
         {
-#ifdef YAX_ENABLE
-            int16_t ynw[2];
-#endif
             globalorientation = (int32_t)wal->cstat;
             if (nextsectnum < 0) globalpicnum = wal->picnum;
             else globalpicnum = wal->overpicnum;
@@ -4643,14 +4659,11 @@ static void drawalls(int32_t bunch)
 
             if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
             wallscan(x1,x2,uplc,dplc,swall,lwall);
+
 #ifdef YAX_ENABLE
             // TODO: slopes?
-            ynw[0] = yax_getnextwall(wallnum, 0);
-            ynw[1] = yax_getnextwall(wallnum, 1);
 
-            if (globalposz > sec->floorz && ((ynw[1]>=0 && wall[ynw[1]].nextwall>=0)
-//                                             || (nextsectnum>=0 && yax_getbunch(sectnum,1)>=0)
-                    ))
+            if (globalposz > sec->floorz && yax_isislandwall(wallnum, YAX_FLOOR))
             {
                 for (x=x1; x<=x2; x++)
                     if (dplc[x] > umost[x] && umost[x] <= dmost[x])
@@ -4659,9 +4672,7 @@ static void drawalls(int32_t bunch)
                         if (umost[x] > dmost[x]) numhits--;
                     }
             }
-            else if (globalposz < sec->ceilingz && ((ynw[0]>=0 && wall[ynw[0]].nextwall>=0)
-//                                                    || (nextsectnum>=0 && yax_getbunch(sectnum,0)>=0)
-                         ))
+            else if (globalposz < sec->ceilingz && yax_isislandwall(wallnum, YAX_CEILING))
             {
                 for (x=x1; x<=x2; x++)
                     if (uplc[x] < dmost[x] && umost[x] <= dmost[x])

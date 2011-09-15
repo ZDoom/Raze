@@ -99,6 +99,7 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum);
 void yax_setbunches(int16_t i, int16_t cb, int16_t fb);
 int16_t yax_getnextwall(int16_t wal, int16_t cf);
 void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall);
+int16_t yax_vnextsec(int16_t line, int16_t cf);
 void yax_update(int32_t resetstat);
 int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf, int16_t *ret_bunchnum);
 
