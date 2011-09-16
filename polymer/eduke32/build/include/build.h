@@ -392,7 +392,6 @@ EXTERN int32_t h_xsize[MAXTILES], h_ysize[MAXTILES];
 EXTERN int8_t h_xoffs[MAXTILES], h_yoffs[MAXTILES];
 
 extern const char *engineerrstr;
-extern char noclip;
 
 EXTERN int32_t editorzrange[2];
 

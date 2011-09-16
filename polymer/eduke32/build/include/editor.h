@@ -40,6 +40,8 @@ extern int32_t horiz;
 extern vec3_t pos;
 extern int16_t ang, cursectnum;
 
+extern int8_t m32_clipping;  // 0: none, 1: only white walls, 2: like game
+
 extern int16_t editstatus, searchit;
 extern int32_t searchx, searchy, osearchx, osearchy;      //search input
 

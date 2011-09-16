@@ -27,7 +27,7 @@ static char kensig[64];
 
 extern const char *ExtGetVer(void);
 
-char noclip=0;
+int8_t m32_clipping=2;
 
 // 0   1     2     3      4       5      6      7
 // up, down, left, right, lshift, rctrl, lctrl, space
@@ -836,15 +836,17 @@ void spriteoncfz(int32_t i, int32_t *czptr, int32_t *fzptr)
 
 static void move_and_update(int32_t xvect, int32_t yvect, int32_t addshr)
 {
-    if (noclip)
+    if (m32_clipping==0)
     {
         pos.x += xvect>>(14+addshr);
         pos.y += yvect>>(14+addshr);
         updatesector(pos.x,pos.y, &cursectnum);
     }
     else
+    {
         clipmove(&pos,&cursectnum, xvect>>addshr,yvect>>addshr,
-                 128,4<<8,4<<8, CLIPMASK0);
+                 128,4<<8,4<<8, (m32_clipping==1) ? 0 : CLIPMASK0);
+    }
 }
 
 static void mainloop_move(void)
@@ -1040,7 +1042,7 @@ void editinput(void)
 
     mainloop_move();
 
-    getzrange(&pos,cursectnum, &hiz,&hihit, &loz,&lohit, 128,CLIPMASK0);
+    getzrange(&pos,cursectnum, &hiz,&hihit, &loz,&lohit, 128, (m32_clipping==1)?0:CLIPMASK0);
 /*
 {
     int32_t his = !(hihit&32768), los = !(lohit&32768);
@@ -1118,11 +1120,11 @@ void editinput(void)
             }
         }
 
-        if (!noclip)
+        if (m32_clipping)
             inpclamp(&goalz, hiz+(4<<8), loz-(4<<8));
 
         if (zmode == 1) goalz = loz-zlock;
-        if (!noclip && (goalz < hiz+(4<<8)))
+        if (m32_clipping && (goalz < hiz+(4<<8)))
             goalz = ((loz+hiz)>>1);  //ceiling&floor too close
         if (zmode == 1) pos.z = goalz;
 
@@ -1137,7 +1139,7 @@ void editinput(void)
 
             pos.z += hvel;
 
-            if (!noclip)
+            if (m32_clipping)
             {
                 if (pos.z > loz-(4<<8)) pos.z = loz-(4<<8), hvel = 0;
                 if (pos.z < hiz+(4<<8)) pos.z = hiz+(4<<8), hvel = 0;

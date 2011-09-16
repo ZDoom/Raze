@@ -5330,8 +5330,8 @@ static void Keys3d(void)
     if (YAXCHK(!AIMING_AT_CEILING_OR_FLOOR || yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0))
 #endif
     {
-        i = noclip;
-        noclip = 1;
+        i = m32_clipping;
+        m32_clipping = 0;
 
         switch (searchstat)
         {
@@ -5371,7 +5371,7 @@ static void Keys3d(void)
         setslope(searchsector, YAX_FLOOR, sector[searchsector].floorheinum);
 
         asksave = 1;
-        noclip = i;
+        m32_clipping = i;
     }
 
 
@@ -8835,8 +8835,11 @@ static int32_t osdcmd_sensitivity(const osdfuncparm_t *parm)
 static int32_t osdcmd_noclip(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
-    noclip = !noclip;
-    OSD_Printf("Clipping %s\n", noclip?"disabled":"enabled");
+    m32_clipping--;
+    if (m32_clipping < 0)
+        m32_clipping = 2;
+    OSD_Printf("Clipping %s\n", m32_clipping==0 ? "disabled" :
+               (m32_clipping==1 ? "non-masks only" : "enabled"));
 
     return OSDCMD_OK;
 }
@@ -9321,7 +9324,7 @@ static int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
 
-    OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
+    OSD_RegisterFunction("m32_clipping","m32_clipping: toggles clipping mode", osdcmd_noclip);
 
     OSD_RegisterFunction("quit","quit: exits the editor immediately", osdcmd_quit);
     OSD_RegisterFunction("exit","exit: exits the editor immediately", osdcmd_quit);
@@ -11013,8 +11016,11 @@ static void Keys2d3d(void)
 
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(N)) // 'N
     {
-        noclip = !noclip;
-        message("Clipping %s", noclip?"disabled":"enabled");
+        m32_clipping--;
+        if (m32_clipping < 0)
+            m32_clipping = 2;
+        message("Clipping %s", m32_clipping==0 ? "disabled" :
+                (m32_clipping==1 ? "non-masks only" : "enabled"));
     }
 
     if (eitherCTRL && PRESSED_KEYSC(N)) // CTRL+N
