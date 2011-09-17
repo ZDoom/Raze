@@ -4427,7 +4427,7 @@ static void drawalls(int32_t bunch)
         {
             if (searchy <= uplc[searchx]
 #ifdef YAX_ENABLE
-                && umost[searchx] <= searchy && getceilzofslope(sectnum, globalposx, globalposz) <= globalposz
+                && umost[searchx] <= searchy && getceilzofslope(sectnum, globalposx, globalposy) <= globalposz
                 && (yax_getbunch(sectnum, YAX_CEILING) < 0 || showinvisibility || (sec->ceilingstat&(256+128)) || klabs(yax_globallev-YAX_MAXDRAWS)==YAX_MAXDRAWS)
 #endif
                 ) //ceiling
@@ -4437,7 +4437,7 @@ static void drawalls(int32_t bunch)
             }
             else if (dplc[searchx] <= searchy
 #ifdef YAX_ENABLE
-                     && searchy < dmost[searchx] && getflorzofslope(sectnum, globalposx, globalposz) >= globalposz
+                     && searchy < dmost[searchx] && getflorzofslope(sectnum, globalposx, globalposy) >= globalposz
                      && (yax_getbunch(sectnum, YAX_FLOOR) < 0 || showinvisibility || (sec->floorstat&(256+128)) || klabs(yax_globallev-YAX_MAXDRAWS)==YAX_MAXDRAWS)
 #endif
                 ) //floor
