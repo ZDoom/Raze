@@ -2674,7 +2674,13 @@ void overheadeditor(void)
 
             if (graphicsmode && !m32_sideview)
             {
-                Bmemset(show2dsector, 0xff, sizeof(show2dsector));
+                Bmemset(show2dsector, 0, sizeof(show2dsector));
+                for (i=0; i<numsectors; i++)
+                {
+                    YAX_SKIPSECTOR(i);
+                    show2dsector[i>>3] |= (1<<(i&7));
+                }
+
                 setview(0, 0, xdim-1, ydim16-1);
 
                 if (graphicsmode == 2)
