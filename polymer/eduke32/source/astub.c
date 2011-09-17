@@ -5853,21 +5853,21 @@ static void Keys3d(void)
         if (k)
         {
             sect = highlightsector[0];
-            havetop = AIMING_AT_WALL;
+            havetop = AIMING_AT_WALL_OR_MASK;
         }
         else
         {
-            if (AIMING_AT_WALL && wall[searchwall].nextsector>=0
+            if (AIMING_AT_WALL_OR_MASK && wall[searchwall].nextsector>=0
                     && eitherALT && !(bstatus&1))
             {
                 sect = wall[searchwall].nextsector;
-                havebtm = searchisbottom;
+                havebtm = !AIMING_AT_MASKWALL && searchisbottom;
                 havetop = !havebtm;
             }
             else
             {
                 sect = searchsector;
-                havetop = AIMING_AT_WALL;
+                havetop = AIMING_AT_WALL_OR_MASK;
             }
         }
 

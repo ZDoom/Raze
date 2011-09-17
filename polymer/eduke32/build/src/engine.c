@@ -4425,12 +4425,22 @@ static void drawalls(int32_t bunch)
 
         if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
         {
-            if (searchy <= uplc[searchx]) //ceiling
+            if (searchy <= uplc[searchx]
+#ifdef YAX_ENABLE
+                && umost[searchx] <= searchy && getceilzofslope(sectnum, globalposx, globalposz) <= globalposz
+                && (yax_getbunch(sectnum, YAX_CEILING) < 0 || showinvisibility || (sec->ceilingstat&(256+128)) || klabs(yax_globallev-YAX_MAXDRAWS)==YAX_MAXDRAWS)
+#endif
+                ) //ceiling
             {
                 searchsector = sectnum; searchwall = wallnum;
                 searchstat = 1; searchit = 1;
             }
-            else if (searchy >= dplc[searchx]) //floor
+            else if (dplc[searchx] <= searchy
+#ifdef YAX_ENABLE
+                     && searchy < dmost[searchx] && getflorzofslope(sectnum, globalposx, globalposz) >= globalposz
+                     && (yax_getbunch(sectnum, YAX_FLOOR) < 0 || showinvisibility || (sec->floorstat&(256+128)) || klabs(yax_globallev-YAX_MAXDRAWS)==YAX_MAXDRAWS)
+#endif
+                ) //floor
             {
                 searchsector = sectnum; searchwall = wallnum;
                 searchstat = 2; searchit = 1;
@@ -4471,6 +4481,9 @@ static void drawalls(int32_t bunch)
                         for (i=x1; i<=x2; i++) if (dwall[i] > dplc[i]) dwall[i] = dplc[i];
 
                     if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
+#ifdef YAX_ENABLE
+                        if (uplc[searchx] <= searchy)
+#endif
                         if (searchy <= dwall[searchx]) //wall
                         {
                             searchsector = sectnum; searchbottomwall = searchwall = wallnum;
@@ -4563,6 +4576,9 @@ static void drawalls(int32_t bunch)
                         for (i=x1; i<=x2; i++) if (uwall[i] < uplc[i]) uwall[i] = uplc[i];
 
                     if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
+#ifdef YAX_ENABLE
+                        if (dplc[searchx] >= searchy)
+#endif
                         if (searchy >= uwall[searchx]) //wall
                         {
                             searchsector = sectnum; searchbottomwall = searchwall = wallnum;
@@ -4740,7 +4756,10 @@ static void drawalls(int32_t bunch)
             smostwalltype[smostwallcnt] = 0;
             smostwallcnt++;
 
-            if ((searchit == 2) && (searchx >= x1) && (searchx <= x2))
+            if ((searchit == 2) && (x1 <= searchx) && (searchx <= x2))
+#ifdef YAX_ENABLE
+                if (uplc[searchx] <= searchy && searchy < dplc[searchx])
+#endif
             {
                 searchit = 1; searchsector = sectnum; searchbottomwall = searchwall = wallnum;
                 if (nextsectnum < 0) searchstat = 0; else searchstat = 4;
