@@ -5542,7 +5542,9 @@ static void Keys3d(void)
                         NEXTWALL(searchwall).cstat &= ~64;
                         NEXTWALL(searchwall).cstat |= (wall[searchwall].cstat&64);
                     }
-                    message("Wall %d hitscan sensitivity bit %s", searchwall, ONOFF(wall[searchwall].cstat&64));
+
+                    message("Wall %d hitscan sensitivity bit %s%s", searchwall,
+                            ONOFF(wall[searchwall].cstat&64), eitherSHIFT?" (one-sided)":"");
                     asksave = 1;
                 }
             }
@@ -6406,7 +6408,8 @@ static void Keys3d(void)
                     NEXTWALL(searchwall).cstat |= (wall[searchwall].cstat&1);
                 }
 
-                message("Wall %d blocking bit %s", searchwall, ONOFF(wall[searchwall].cstat&1));
+                message("Wall %d blocking bit %s%s", searchwall, ONOFF(wall[searchwall].cstat&1),
+                        eitherSHIFT ? " (one-sided)":"");
                 asksave = 1;
             }
         }
@@ -7048,8 +7051,9 @@ static void Keys3d(void)
 
                     wall[i].xpanning = tempxpanning;
                     wall[i].ypanning = tempypanning;
-                    wall[i].cstat &= ~(4+8+256);
-                    wall[i].cstat |= (tempcstat & (4+8+256));
+
+                    wall[i].cstat &= ~(4 + 1+64 + 8+256);
+                    wall[i].cstat |= (tempcstat & (4 + 1+64 + 8+256));
 
                     fixxrepeat(i, templenrepquot);
                 }
@@ -7148,10 +7152,8 @@ static void Keys3d(void)
                 wall[searchwall].yrepeat = tempyrepeat;
                 wall[searchwall].xpanning = tempxpanning;
                 wall[searchwall].ypanning = tempypanning;
-                wall[searchwall].cstat &= ~(4+8+256);
-                wall[searchwall].cstat |= (tempcstat & (4+8+256));
 
-                SET_PROTECT_BITS(wall[searchwall].cstat, tempcstat, YAX_NEXTWALLBITS);
+                SET_PROTECT_BITS(wall[searchwall].cstat, tempcstat, YAX_NEXTWALLBITS|(4 + 1+64 + 8+256));
 
                 wall[searchwall].hitag = temphitag;
 #ifdef YAX_ENABLE
@@ -7165,7 +7167,7 @@ static void Keys3d(void)
 
                 fixxrepeat(searchwall, templenrepquot);
             }                
-            
+
 
             if (AIMING_AT_WALL)
             {
@@ -7183,8 +7185,6 @@ static void Keys3d(void)
 
                 wall[searchwall].shade = tempshade;
                 wall[searchwall].pal = temppal;
-
-                asksave = 1;
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
             {
@@ -7202,14 +7202,13 @@ paste_ceiling_or_floor:
 #endif
                         AIMED_CEILINGFLOOR(xpanning) = tempxrepeat;
                     AIMED_CEILINGFLOOR(ypanning) = tempyrepeat;
-                    SET_PROTECT_BITS(AIMED_CEILINGFLOOR(stat), tempcstat, YAX_BIT);
+                    SET_PROTECT_BITS(AIMED_CEILINGFLOOR(stat), tempcstat, YAX_BIT|2);
 
                     sector[searchsector].visibility = tempvis;
                     sector[searchsector].lotag = templotag;
                     sector[searchsector].hitag = temphitag;
                     sector[searchsector].extra = tempextra;
                 }
-                asksave = 1;
             }
             else if (AIMING_AT_SPRITE)
             {
