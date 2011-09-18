@@ -629,6 +629,8 @@ _pranimatespritesinfo asi;
 
 int32_t         polymersearching;
 
+int32_t         culledface;
+
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void)
 {
@@ -802,7 +804,7 @@ void                polymer_glinit(void)
         bglPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     else
         bglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    
+
     polymer_setaspect(pr_fov);
 
     bglMatrixMode(GL_MODELVIEW);
@@ -813,8 +815,10 @@ void                polymer_glinit(void)
 
     bglDisable(GL_FOG);
 
-    bglEnable(GL_CULL_FACE);
+    culledface = GL_BACK;
     bglCullFace(GL_BACK);
+
+    bglEnable(GL_CULL_FACE);
 }
 
 void                polymer_resetlights(void)
@@ -1319,7 +1323,11 @@ void                polymer_drawsprite(int32_t snum)
         tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0 &&
         !(spriteext[tspr->owner].flags & SPREXT_NOTMD))
     {
+        bglEnable(GL_CULL_FACE);
+        SWITCH_CULL_DIRECTION;
         polymer_drawmdsprite(tspr);
+        SWITCH_CULL_DIRECTION;
+        bglDisable(GL_CULL_FACE);
         return;
     }
 
@@ -1785,7 +1793,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
         bglClipPlane(GL_CLIP_PLANE0, plane);
         polymer_inb4mirror(mirrorlist[i].plane->buffer, mirrorlist[i].plane->plane);
-        bglCullFace(GL_FRONT);
+        SWITCH_CULL_DIRECTION;
         //bglEnable(GL_CLIP_PLANE0);
 
         if (mirrorlist[i].wallnum >= 0)
@@ -1833,7 +1841,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
         globalposz = gz;
 
         bglDisable(GL_CLIP_PLANE0);
-        bglCullFace(GL_BACK);
+        SWITCH_CULL_DIRECTION;
         bglMatrixMode(GL_MODELVIEW);
         bglPopMatrix();
 
