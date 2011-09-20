@@ -1,0 +1,8 @@
+{
+sector;
+wall;
+sprite;
+
+numsectors;
+numwalls;
+};

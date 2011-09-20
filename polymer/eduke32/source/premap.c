@@ -35,6 +35,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #endif
 
+#ifdef LUNATIC_ENABLE
+# include "lunatic.h"
+extern El_State g_ElState;
+#endif
+
 extern char pow2char[];
 
 static int32_t g_whichPalForPlayer = 9;
@@ -1434,6 +1439,19 @@ static inline void prelevel(char g)
                 wall[j].pal = 4;
         }
     }
+
+#ifdef LUNATIC_ENABLE
+    if (El_IsInitialized(&g_ElState))
+    {
+        i = El_RunOnce(&g_ElState, "test.elua");
+        if (i)
+            OSD_Printf("Error running the test ELua script (code %d)\n", i);
+        else
+            initprintf("ELua test script run ok!\n");
+    }
+    else
+        initprintf("ELua test script: not inited!\n");
+#endif
 }
 
 

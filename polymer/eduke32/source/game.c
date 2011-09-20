@@ -52,6 +52,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "anim.h"
 #include "demo.h"
 
+#ifdef LUNATIC_ENABLE
+# include "lunatic.h"
+#endif
+
 #define ROTATESPRITE_MAX 2048
 
 #if KRANDDEBUG
@@ -129,6 +133,10 @@ char **g_scriptModules = NULL;
 int g_scriptModulesNum = 0;
 char **g_defModules = NULL;
 int g_defModulesNum = 0;
+
+#ifdef LUNATIC_ENABLE
+El_State g_ElState;
+#endif
 
 extern int32_t lastvisinc;
 
@@ -10220,6 +10228,23 @@ CLEAN_DIRECTORY:
         initprintf("There was an error loading the sprite clipping map (status %d).\n", i);
 
     OSD_Exec("autoexec.cfg");
+
+#ifdef LUNATIC_ENABLE
+    i = El_CreateState(&g_ElState, "test");
+    if (i)
+    {
+        initprintf("Lunatic: Error initializing global ELua state (code %d)\n", i);
+    }
+    else
+    {
+        i = El_RunOnce(&g_ElState, "defs.ilua");
+        if (i)
+        {
+            initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);
+            El_DestroyState(&g_ElState);
+        }
+    }
+#endif
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {

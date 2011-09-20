@@ -55,6 +55,8 @@ $(OBJ)/osdcmds.$o: $(SRC)/osdcmds.c $(INC)/osdcmds.h $(EINC)/osd.h $(duke3d_h)
 
 $(OBJ)/animvpx.$o: $(SRC)/animvpx.c $(SRC)/animvpx.h $(duke3d_h) $(EINC)/glbuild.h
 
+$(OBJ)/lunatic/lunatic.$o: $(SRC)/lunatic/lunatic.c $(SRC)/lunatic/lunatic.h $(EINC)/cache1d.h $(EINC)/osd.h
+
 # editor objects
 m32_script_hs=$(EINC)/m32script.h $(SRC)/m32def.h
 $(OBJ)/astub.$o: $(SRC)/astub.c \

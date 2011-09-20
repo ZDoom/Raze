@@ -1,0 +1,101 @@
+-- definitions of BUILD and game types for the Lunatic Interpreter
+-- INTERNAL!
+
+local ffi = require("ffi")
+
+-- sector, wall, sprite
+ffi.cdef[[
+#pragma pack(push,1)
+typedef struct
+{
+    const int16_t wallptr, wallnum;
+    int32_t ceilingz, floorz;
+    int16_t ceilingstat, floorstat;
+    int16_t ceilingpicnum, ceilingheinum;
+    int8_t ceilingshade;
+    uint8_t ceilingpal, ceilingxpanning, ceilingypanning;
+    int16_t floorpicnum, floorheinum;
+    int8_t floorshade;
+    uint8_t floorpal, floorxpanning, floorypanning;
+    uint8_t visibility, filler;
+    int16_t lotag, hitag, extra;
+} sectortype;
+
+typedef struct
+{
+    int32_t x, y;
+    int16_t point2, nextwall, nextsector, cstat;
+    int16_t picnum, overpicnum;
+    int8_t shade;
+    uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
+    int16_t lotag, hitag, extra;
+} walltype;
+
+typedef struct
+{
+    int32_t x, y, z;
+    int16_t cstat, picnum;
+    int8_t shade;
+    uint8_t pal, clipdist, filler;
+    uint8_t xrepeat, yrepeat;
+    int8_t xoffset, yoffset;
+    int16_t sectnum, statnum;
+    int16_t ang, owner, xvel, yvel, zvel;
+    int16_t lotag, hitag, extra;
+} spritetype;
+#pragma pack(pop)
+]]
+
+ffi.cdef[[
+sectortype *sector;
+walltype *wall;
+spritetype *sprite;
+
+const int16_t numsectors, numwalls;
+]]
+
+--
+
+sector = {}
+local tmpmt = {
+    __index = function(tab, key)
+                  if (key >= 0 and key < ffi.C.numsectors) then return ffi.C.sector[key] end
+                  error('out-of-bounds sector[] read access')
+              end,
+
+    __newindex = function(tab, key, val) error('cannot write to sector[] structs directly') end
+}
+setmetatable(sector, tmpmt)
+
+wall = {}
+local tmpmt = {
+    __index = function(tab, key)
+                  if (key >= 0 and key < ffi.C.numwalls) then return ffi.C.wall[key] end
+                  error('out-of-bounds wall[] read access')
+              end,
+
+    __newindex = function(tab, key, val) error('cannot write to wall[] structs directly') end
+}
+setmetatable(wall, tmpmt)
+
+sprite = {}
+local tmpmt = {
+    __index = function(tab, key)
+                  -- MAXSPRITES == 16384
+                  if (key >= 0 and key < 16384) then return ffi.C.sprite[key] end
+                  error('out-of-bounds sprite[] read access')
+              end,
+
+    __newindex = function(tab, key, val) error('cannot write to sprite[] structs directly') end
+}
+setmetatable(sprite, tmpmt)
+
+-- yes, this does export a couple of other stuff that users ought not see,
+-- but without the ffi.cdef declarations, they will just sit there and
+-- refuse to be accessed.
+gv = ffi.C
+
+-- nope, this would create two numeric variables with their initial values, but
+-- certainly not references to numsectors and numwalls like we want:
+--numsectors = ffi.C.numsectors
+--numwalls = ffi.C.numwalls

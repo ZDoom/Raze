@@ -13,6 +13,8 @@ else
     #DXROOT=c:/sdks/directx/dx8
 endif
 
+# Lunatic development, do not touch!
+LUNATIC=0
 
 # Build locations
 SRC=source
@@ -38,6 +40,8 @@ OURCFLAGS=$(BASECFLAGS) \
 
 OURCXXFLAGS=$(BASECXXFLAGS)
 NASMFLAGS=$(BASEASFLAGS)
+
+MISCLINKOPTS=
 
 
 JAUDIOLIBDIR=$(SRC)/jaudiolib
@@ -111,6 +115,15 @@ EDITOROBJS=$(OBJ)/astub.$o \
 ifneq ($(USE_LIBVPX),0)
     GAMEOBJS+= $(OBJ)/animvpx.$o
 endif
+
+# Lunatic devel, currently linux-only
+ifneq (0,$(LUNATIC))
+    OURCFLAGS+= -I/usr/local/include/luajit-2.0 -I$(SRC)/lunatic -DLUNATIC_ENABLE
+    LIBS+= -L/usr/local/lib -lluajit-5.1
+    GAMEOBJS+= $(OBJ)/lunatic.$o
+    MISCLINKOPTS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
+endif
+
 # PLATFORM SPECIFIC SETTINGS
 
 ifeq ($(PLATFORM),LINUX)
@@ -177,7 +190,6 @@ endif
 OURCFLAGS+= $(BUILDCFLAGS)
 OURCXXFLAGS+= $(BUILDCFLAGS)
 
-MISCLINKOPTS=
 ifeq ($(PLATFORM),WINDOWS)
     MISCLINKOPTS+= -Wl,--large-address-aware
 endif
@@ -267,6 +279,10 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(AS) $(NASMFLAGS) $< -o $@
 
 $(OBJ)/%.$o: $(SRC)/%.c
+	$(COMPILE_STATUS)
+	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
+$(OBJ)/%.$o: $(SRC)/lunatic/%.c
 	$(COMPILE_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
