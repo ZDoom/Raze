@@ -10,7 +10,7 @@ $(OBJ)/config.$o: $(SRC)/config.c $(INC)/compat.h $(INC)/osd.h $(INC)/editor.h
 $(OBJ)/crc32.$o: $(SRC)/crc32.c $(INC)/crc32.h
 $(OBJ)/defs.$o: $(SRC)/defs.c $(INC)/build.h $(INC)/baselayer.h $(INC)/scriptfile.h $(INC)/compat.h
 $(OBJ)/engine.$o: $(SRC)/engine.c $(INC)/compat.h $(INC)/build.h $(INC)/pragmas.h $(INC)/cache1d.h $(INC)/a.h $(INC)/osd.h $(INC)/baselayer.h $(SRC)/engine_priv.h $(INC)/polymost.h $(INC)/hightile.h $(INC)/mdsprite.h $(INC)/polymer.h
-$(OBJ)/polymost.$o: $(SRC)/polymost.c $(INC)/md4.h $(INC)/quicklz.h $(INC)/lzwnew.h $(SRC)/engine_priv.h $(INC)/polymost.h $(INC)/hightile.h $(INC)/mdsprite.h
+$(OBJ)/polymost.$o: $(SRC)/polymost.c $(INC)/md4.h $(INC)/quicklz.h $(INC)/lzwnew.h $(INC)/compat.h $(INC)/build.h $(SRC)/engine_priv.h $(INC)/polymost.h $(INC)/hightile.h $(INC)/mdsprite.h
 $(OBJ)/hightile.$o: $(SRC)/hightile.c $(INC)/kplib.h $(INC)/hightile.h
 $(OBJ)/mdsprite.$o: $(SRC)/mdsprite.c $(SRC)/engine_priv.h $(INC)/polymost.h $(INC)/hightile.h $(INC)/mdsprite.h
 $(OBJ)/textfont.$o: $(SRC)/textfont.c

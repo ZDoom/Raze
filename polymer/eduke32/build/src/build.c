@@ -5818,6 +5818,8 @@ check_next_sector: ;
                         for (i=numwalls; i<newnumwalls; i++)
                         {
                             copy_some_wall_members(i, suckwall, 1);
+                            wall[i].cstat &= ~(1+16+32+64);
+
                             if (checksectorpointer(i, numsectors) > 0)
                             {
                                 // if new red line, prefer the other-side wall as base
