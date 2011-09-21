@@ -58,6 +58,10 @@ ifeq ($(PLATFORM),WINDOWS)
     OBJ=obj_win
     EOBJ=eobj_win
     LIBS+= $(L_SSP) -Wl,--enable-auto-import
+    ifneq (0,$(USE_LIBVPX))
+        LIBS+= -L$(OBJ)/../Windows/lib
+        OURCFLAGS+= -I$(OBJ)/../Windows/include #-I$(OBJ)/../Windows/include/vpx
+    endif
 else
     ifeq ($(PLATFORM),LINUX)
         LIBS+= -ldl -pthread
