@@ -50,6 +50,10 @@ JAUDIOLIB=libjfaudiolib.a
 ENETDIR=$(SRC)/enet
 ENETLIB=libenet.a
 
+EBACKTRACEDLL=ebacktrace1.dll
+EBACKTRACEDLL_TARGET=
+
+
 include $(EROOT)/Makefile.shared
 
 
@@ -58,9 +62,12 @@ ifeq ($(PLATFORM),WINDOWS)
     OBJ=obj_win
     EOBJ=eobj_win
     LIBS+= $(L_SSP) -Wl,--enable-auto-import
+    ifeq (0,$(RELEASE))
+        EBACKTRACEDLL_TARGET=$(EBACKTRACEDLL)
+    endif
     ifneq (0,$(USE_LIBVPX))
-        LIBS+= -L$(OBJ)/../Windows/lib
-        OURCFLAGS+= -I$(OBJ)/../Windows/include #-I$(OBJ)/../Windows/include/vpx
+        LIBS+= -LWindows/lib
+        OURCFLAGS+= -IWindows/include
     endif
 else
     ifeq ($(PLATFORM),LINUX)
@@ -221,7 +228,7 @@ all:
 notice:
 	$(BUILD_STARTED)
 
-eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB)
+eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB) $(EBACKTRACEDLL_TARGET)
 	$(LINK_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB) $(MISCLINKOPTS); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
@@ -230,7 +237,7 @@ ifeq (1,$(RELEASE))
   endif
 endif
 
-mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
+mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(EBACKTRACEDLL_TARGET)
 	$(LINK_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB) $(MISCLINKOPTS); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
@@ -278,6 +285,9 @@ endif
 
 
 # RULES
+$(EBACKTRACEDLL): Windows/src/backtrace.c
+	if $(CC) -O2 -shared -Wall -Wextra -o $@ $^ -lbfd -liberty -limagehlp; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
 $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(COMPILE_STATUS)
 	$(AS) $(NASMFLAGS) $< -o $@
