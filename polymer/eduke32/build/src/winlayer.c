@@ -363,7 +363,12 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 #endif
 
 #ifdef DEBUGGINGAIDS
-    LoadLibraryA("backtrace.dll");
+    LoadLibraryA("ebacktrace1.dll");
+/*
+        wm_msgbox("boo","didn't load backtrace DLL (code %d)\n", (int)GetLastError());
+    else
+        wm_msgbox("yay","loaded backtrace DLL\n");
+*/
 #endif
 
     hdc = GetDC(NULL);

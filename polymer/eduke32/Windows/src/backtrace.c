@@ -32,6 +32,9 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include <sys/stat.h>
+#include <time.h>
+
 #define BUFFER_MAX (16*1024)
 
 struct bfd_ctx {
@@ -315,13 +318,22 @@ exception_filter(LPEXCEPTION_POINTERS info)
 		SymCleanup(GetCurrentProcess());
 	}
 
-    int logfd = open("eduke32_or_mapster32.crashlog", O_APPEND | O_CREAT | O_WRONLY);
+    int logfd = open("eduke32_or_mapster32.crashlog", O_APPEND | O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     int written;
 
     if (logfd) {
         while ((written = write(logfd, g_output, strlen(g_output)))) {
             g_output += written;
         }
+
+        time_t curtime = time(NULL);
+        struct tm *curltime = localtime(&curtime);
+        const char *theasctime = curltime ? asctime(curltime) : NULL;
+        const char *finistr = "---------------\n";
+
+        if (theasctime)
+            write(logfd, theasctime, strlen(theasctime));
+        write(logfd, finistr, strlen(finistr));
         close(logfd);
     }
 

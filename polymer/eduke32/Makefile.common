@@ -78,7 +78,10 @@ endif
 
 ifneq (0,$(RELEASE))
     # Debugging disabled
-    debug=-fomit-frame-pointer -funswitch-loops -O$(OPTLEVEL)
+    debug=-funswitch-loops -O$(OPTLEVEL)
+    ifeq (0,$(DEBUGANYWAY))
+        debug+= -fomit-frame-pointer
+    endif
     ifneq (0,$(LTO))
         LIBS+= -flto
         debug+= -flto
