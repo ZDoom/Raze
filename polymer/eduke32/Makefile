@@ -346,5 +346,5 @@ clean:
 	echo -n "" > $(OBJ)/keep.me
 
 veryclean: clean
-	-rm -f $(EOBJ)/* $(RSRC)/*banner*
+	-rm -f $(EOBJ)/* $(RSRC)/*banner* $(EBACKTRACEDLL)
 	echo -n "" > $(EOBJ)/keep.me
