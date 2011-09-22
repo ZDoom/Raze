@@ -4232,6 +4232,8 @@ end_autoredwall:
             {
                 for (i=0; i<numwalls; i++)     //make new red lines?
                 {
+                    YAX_SKIPWALL(i);
+
                     if ((wall[i].x == dax && wall[i].y == day)
                         || (POINT2(i).x == dax && POINT2(i).y == day))
                     {
