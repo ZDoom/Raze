@@ -1927,7 +1927,8 @@ static int32_t insert_sprite_common(int32_t sucksect, int32_t dax, int32_t day)
 
     Bmemset(localartfreq, 0, sizeof(localartfreq));
     for (k=0; k<MAXSPRITES; k++)
-        localartfreq[sprite[k].picnum] += (sprite[k].statnum < MAXSTATUS);
+        if (sprite[k].statnum < MAXSTATUS && k!=i)
+            localartfreq[sprite[k].picnum]++;
 
     j = 0;
     for (k=0; k<MAXTILES; k++)
