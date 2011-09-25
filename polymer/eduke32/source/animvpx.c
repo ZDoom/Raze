@@ -208,6 +208,11 @@ const char *animvpx_nextpic_errmsg[] = {
 // retrieves one picture-frame from the stream
 //  pic format:  lines of [Y U V 0] pixels
 //  *picptr==NULL means EOF has been reached
+#ifdef DEBUGGINGAIDS
+ATTRIBUTE((optimize("O1")))
+#else
+ATTRIBUTE((optimize("O3")))
+#endif
 int32_t animvpx_nextpic(animvpx_codec_ctx *codec, uint8_t **picptr)
 {
     int32_t ret, corrupted;
@@ -277,14 +282,11 @@ read_ivf_frame:
     /*** 3 planes --> packed conversion ***/
     for (y=0; y<img->d_h; y++)
         for (x=0; x<img->d_w; x++)
+        {
             codec->pic[(img->d_w*y + x)<<2] = img->planes[VPX_PLANE_Y][img->stride[VPX_PLANE_Y]*y + x];
-
-    for (y=0; y<img->d_h; y++)
-        for (x=0; x<img->d_w; x++)
             codec->pic[((img->d_w*y + x)<<2) + 1] = img->planes[VPX_PLANE_U][img->stride[VPX_PLANE_U]*(y>>1) + (x>>1)];
-    for (y=0; y<img->d_h; y++)
-        for (x=0; x<img->d_w; x++)
             codec->pic[((img->d_w*y + x)<<2) + 2] = img->planes[VPX_PLANE_V][img->stride[VPX_PLANE_V]*(y>>1) + (x>>1)];
+        }
 
     *picptr = codec->pic;
     return 0;
