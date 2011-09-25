@@ -5,4 +5,8 @@ sprite;
 
 numsectors;
 numwalls;
+
+headspritesect; headspritestat;
+prevspritesect; prevspritestat;
+nextspritesect; nextspritestat;
 };

@@ -3,7 +3,7 @@
 
 local ffi = require("ffi")
 
--- sector, wall, sprite
+---- sector, wall, sprite ----
 ffi.cdef[[
 #pragma pack(push,1)
 typedef struct
@@ -24,7 +24,7 @@ typedef struct
 typedef struct
 {
     int32_t x, y;
-    int16_t point2, nextwall, nextsector, cstat;
+    const int16_t point2, nextwall, nextsector; int16_t cstat;
     int16_t picnum, overpicnum;
     int8_t shade;
     uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
@@ -52,50 +52,130 @@ walltype *wall;
 spritetype *sprite;
 
 const int16_t numsectors, numwalls;
+
+const int16_t headspritesect[16384+1], headspritestat[1024+1];
+const int16_t prevspritesect[16384], prevspritestat[16384];
+const int16_t nextspritesect[16384], nextspritestat[16384];
 ]]
 
 --
 
+---- Set up restricted access to ffi.C from lunatic. ----
+local ffiC = ffi.C
+
+local det = {}  -- dummy empty table
+local tmpmt = {
+    __index = function() error('dummy variable: read access forbidden') end,
+    __newindex = function() error('dummy variable: write access forbidden') end,
+    __metatable = true  -- forbid setting the metatable
+}
+setmetatable(det, tmpmt)
+
+-- GLOBAL gv: provides access to C global *scalars*
+gv = {
+    -- all non-scalars need to be explicitly listed
+    -- and access to them is redirected to the dummy
+    -- empty table... this is somewhat ugly
+    sector = det,
+    wall = det,
+    sprite = det,
+
+    headspritesect = det, headspritestat = det,
+    prevspritesect = det, prevspritestat = det,
+    nextspritesect = det, nextspritestat = det,
+}
+local tmpmt = {
+    __index = ffiC,
+    __newindex = function() error("cannot create new fields in 'gv'") end,
+    __metatable = true,
+}
+setmetatable(gv, tmpmt)
+
+---- indirect C array access ----
 sector = {}
 local tmpmt = {
     __index = function(tab, key)
-                  if (key >= 0 and key < ffi.C.numsectors) then return ffi.C.sector[key] end
+                  if (key >= 0 and key < ffiC.numsectors) then return ffiC.sector[key] end
                   error('out-of-bounds sector[] read access')
               end,
 
-    __newindex = function(tab, key, val) error('cannot write to sector[] structs directly') end
+    __newindex = function(tab, key, val) error('cannot write to sector[] struct directly') end,
+    __metatable = true,
 }
 setmetatable(sector, tmpmt)
 
 wall = {}
 local tmpmt = {
     __index = function(tab, key)
-                  if (key >= 0 and key < ffi.C.numwalls) then return ffi.C.wall[key] end
+                  if (key >= 0 and key < ffiC.numwalls) then return ffiC.wall[key] end
                   error('out-of-bounds wall[] read access')
               end,
 
-    __newindex = function(tab, key, val) error('cannot write to wall[] structs directly') end
+    __newindex = function(tab, key, val) error('cannot write to wall[] struct directly') end,
+    __metatable = true,
 }
 setmetatable(wall, tmpmt)
 
-sprite = {}
-local tmpmt = {
-    __index = function(tab, key)
-                  -- MAXSPRITES == 16384
-                  if (key >= 0 and key < 16384) then return ffi.C.sprite[key] end
-                  error('out-of-bounds sprite[] read access')
-              end,
+-- create a safe indirection for a ffi.C array
+local function creategtab(ctab, maxidx, name)
+    local tab = {}
+    local tmpmt = {
+        __index = function(tab, key)
+                      if (key>=0 and key < maxidx) then
+                          return ctab[key]
+                      end
+                      error('out-of-bounds '..name..' read access')
+                  end,
+        __newindex = function(tab, key, val)
+                         error('cannot write to '..name)
+                     end,
+        __metatable = true,
+    }
+    setmetatable(tab, tmpmt)
+    return tab
+end
 
-    __newindex = function(tab, key, val) error('cannot write to sprite[] structs directly') end
-}
-setmetatable(sprite, tmpmt)
+sprite = creategtab(ffiC.sprite, 16384, 'sprite[] struct')
+headspritesect = creategtab(ffiC.headspritesect, 16384, 'headspritesect[]')
+headspritestat = creategtab(ffiC.headspritestat, 1024, 'headspritestat[]')
+nextspritesect = creategtab(ffiC.nextspritesect, 16384, 'nextspritesect[]')
+nextspritestat = creategtab(ffiC.nextspritestat, 16384, 'nextspritestat[]')
+prevspritesect = creategtab(ffiC.prevspritesect, 16384, 'prevspritesect[]')
+prevspritestat = creategtab(ffiC.prevspritestat, 16384, 'prevspritestat[]')
 
--- yes, this does export a couple of other stuff that users ought not see,
--- but without the ffi.cdef declarations, they will just sit there and
--- refuse to be accessed.
-gv = ffi.C
+---- per-sector/per-statnum sprite iterators ----
+local function iter_spritesofsect(sect, i)
+    if (i < 0) then
+        i = ffiC.headspritesect[sect]
+    else
+        i = ffiC.nextspritesect[i]
+    end
 
--- nope, this would create two numeric variables with their initial values, but
--- certainly not references to numsectors and numwalls like we want:
---numsectors = ffi.C.numsectors
---numwalls = ffi.C.numwalls
+    if (i >= 0) then return i, i end
+end
+
+function spritesofsect(sect)
+    assert(sect >= 0 and sect < ffiC.numsectors, "passed invalid sectnum to spritesofsect iterator")
+
+    return iter_spritesofsect, sect, -1
+end
+
+local function iter_spritesofstat(stat, i)
+    if (i < 0) then
+        i = ffiC.headspritestat[stat]
+    else
+        i = ffiC.nextspritestat[i]
+    end
+
+    if (i >= 0) then return i, i end
+end
+
+function spritesofstat(stat)
+    assert(stat >= 0 and stat < 1024, "passed invalid statnum to spritesofstat iterator")
+
+    return iter_spritesofstat , stat, -1
+end
+
+-- restrict access to potentially unsafe standard Lua modules (not yet done)
+os = nil
+io = nil

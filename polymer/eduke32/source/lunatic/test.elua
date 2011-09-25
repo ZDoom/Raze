@@ -2,6 +2,15 @@
 
 print('--- ELua Test script ---')
 
+local function checkfail(funcstr)
+    local status, res = pcall(loadstring(funcstr))
+    if (status) then
+        print('ERROR: '..funcstr.." DIDN'T fail")
+    else
+        print('SUCCESS: '..funcstr.." failed: "..res)
+    end
+end
+
 local i
 
 print('tweaking sector pals')
@@ -10,12 +19,30 @@ for i = 0, gv.numsectors/2 do
     sector[i].ceilingpal = 2;
 end
 
-print(gv.numsectors)
-print(gv.numwalls)
+checkfail('gv.sprite[0].yrepeat = 100')  -- direct gv array access forbidden
+print('tweaking some sprites')
+for spr in spritesofsect(307) do  -- some fence sprites in E1L1
+    print('spr', spr)
+    sprite[spr].pal = 6
+end
+for spr in spritesofsect(236) do
+    print('#spr', spr)
+end
+
+print('_G contains:')
+for k,v in pairs(_G) do
+    print(k, v)
+end
+
+checkfail('print(sprite[100000].ceilingpal)')  -- oob read access
+checkfail('setmetatable(sprite, {})')  -- set metatable forbidden
+checkfail('sector[-1].ceilingpal = 4')  -- oob write access
+checkfail('sector[0].wallnum = 0')  -- wallnum member is read-only
+checkfail('gv.numsectors = 4')  -- gv.numsectors is read-only
+checkfail('sector[4] = sector[6]')  -- direct sector write access forbidden
+
 
 print('--- end test script ---')
 
---sector[-1].ceilingpal = 4;  -- this must FAIL!
---sector[0].wallnum = 0;  -- as must this
---gv.numsectors = 4  -- and this
---sector[4] = sector[6]  -- this is forbidden, too
+os = require("os")
+print('clk', os.clock())
