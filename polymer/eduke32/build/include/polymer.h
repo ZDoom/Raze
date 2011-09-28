@@ -310,6 +310,7 @@ void                polymer_deletelight(int16_t lighti);
 void                polymer_invalidatelights(void);
 void                polymer_texinvalidate(void);
 void                polymer_definehighpalookup(char basepalnum, char palnum, char *fn);
+int32_t             polymer_havehighpalookup(int32_t basepalnum, int32_t palnum);
 
 # ifdef POLYMER_C
 

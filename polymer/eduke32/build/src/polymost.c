@@ -212,7 +212,7 @@ int32_t r_parallaxskypanning = 0;
 
 extern int16_t editstatus;
 
-#define MIN_CACHETIME_PRINT 5
+#define MIN_CACHETIME_PRINT 10
 
 
 static inline int32_t imod(int32_t a, int32_t b)
@@ -314,8 +314,8 @@ pthtyp *gltexcachead[GLTEXCACHEADSIZ];
 
 int32_t drawingskybox = 0;
 
-int32_t gloadtile_art(int32_t,int32_t,int32_t,pthtyp *,int32_t);
-int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t,char);
+static int32_t gloadtile_art(int32_t,int32_t,int32_t,pthtyp *,int32_t);
+static int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t,char);
 static int32_t hicprecaching = 0;
 pthtyp *gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 {
@@ -806,6 +806,8 @@ void polymost_glinit()
         glusetexcache = 0;
         return;
     }
+    else
+        initprintf("Opened '%s' as cache file\n", TEXCACHEFILE);
 
     if (glusememcache && !dont_alloc_memcache)
     {
@@ -930,6 +932,8 @@ void invalidatecache(void)
         glusetexcache = 0;
         return;
     }
+    else
+        initprintf("Deleted and reopened '%s' as cache file\n", TEXCACHEFILE);
 }
 
 void resizeglcheck()
@@ -1158,7 +1162,7 @@ void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt
 #endif
 }
 
-int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth, int32_t doalloc)
+static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
     coltype *pic, *wpptr;
     int32_t x, y, x2, y2, xsiz, ysiz, dacol, tsizx, tsizy;
@@ -1685,8 +1689,7 @@ failure:
     return -1;
 }
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
-//static
-int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr, int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
+static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr, int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
 {
     coltype *pic = NULL, *rpptr;
     int32_t j, x, y, xsiz=0, ysiz=0, tsizx, tsizy;
@@ -6774,7 +6777,7 @@ int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf,
 }
 #endif
 
-#else /* POLYMOST */
+#else /* if !defined USE_OPENGL */
 
 #include "inttypes.h"
 int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen,

@@ -2546,6 +2546,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     makepalookup(CROSSHAIR_PAL,tempbuf,CrosshairColors.r>>2, CrosshairColors.g>>2, CrosshairColors.b>>2,1);
 
 #ifdef USE_OPENGL
+    // XXX: this makes us also load all hightile textures tinted with the crosshair color!
     Bmemcpy(&hictinting[CROSSHAIR_PAL], &CrosshairColors, sizeof(palette_t));
     hictinting[CROSSHAIR_PAL].f = 9;
 #endif

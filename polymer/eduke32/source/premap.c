@@ -514,8 +514,17 @@ void G_CacheMapData(void)
                 for (type=0; type<=1; type++)
                     if (precachehightile[type][i>>3] & pow2char[i&7])
                     {
+                        k = 0;
                         for (k=0; k<MAXPALOOKUPS-RESERVEDPALS && !KB_KeyPressed(sc_Space); k++)
-                            polymost_precache(i,k,type);
+                        {
+                            // this is the CROSSHAIR_COLOR, see comment in game.c
+                            if (k == MAXPALOOKUPS-RESERVEDPALS-1)
+                                break;
+
+                            if (rendmode!=4 || !polymer_havehighpalookup(0, k))
+                                polymost_precache(i,k,type);
+                        }
+
                         if (r_detailmapping && !KB_KeyPressed(sc_Space))
                             polymost_precache(i,DETAILPAL,type);
                         if (r_glowmapping && !KB_KeyPressed(sc_Space))

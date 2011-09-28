@@ -23,7 +23,7 @@ int32_t curextra=MAXTILES;
 // #define MODEL_POOL_SIZE 20971520
 #define model_data_pool (nedpool *) 0 // take it out of the system pool
 
-#define MIN_CACHETIME_PRINT 5
+#define MIN_CACHETIME_PRINT 10
 
 static void QuitOnFatalError(const char *msg)
 {

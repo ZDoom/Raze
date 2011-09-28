@@ -634,7 +634,7 @@ int32_t         culledface;
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void)
 {
-    int32_t         i, j;
+    int32_t         i, j, t = getticks();
 
     if (pr_verbosity >= 1) OSD_Printf("Initializing Polymer subsystem...\n");
 
@@ -730,7 +730,7 @@ int32_t             polymer_init(void)
         i++;
     }
 
-    if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete.\n");
+    if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete in %d ms.\n", getticks()-t);
 
     return (1);
 }
@@ -761,7 +761,7 @@ void                polymer_uninit(void)
 //            }
             if (prhighpalookups[i][j].map) {
                 bglDeleteTextures(1, &prhighpalookups[i][j].map);
-//                prhighpalookups[i][j].map = 0;
+                prhighpalookups[i][j].map = 0;
             }
             j++;
         }        
@@ -1503,6 +1503,15 @@ void                polymer_definehighpalookup(char basepalnum, char palnum, cha
     
     Bmemcpy(prhighpalookups[basepalnum][palnum].data, data, PR_HIGHPALOOKUP_DATA_SIZE);
 }
+
+int32_t polymer_havehighpalookup(int32_t basepalnum, int32_t palnum)
+{
+    if ((uint32_t)basepalnum >= MAXBASEPALS || (uint32_t)palnum >= MAXPALOOKUPS)
+        return 0;
+
+    return (prhighpalookups[basepalnum][palnum].data != NULL);
+}
+
 
 // CORE
 static void         polymer_displayrooms(int16_t dacursectnum)
