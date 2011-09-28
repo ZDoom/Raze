@@ -275,7 +275,8 @@ int32_t yax_globalbunch = -1;
 //   i<MAXDRAWS: MAXDRAWS-i-1 is level towards ceiling
 //   i>MAXDRAWS: i-MAXDRAWS-1 is level towards floor
 static int16_t yax_spritesortcnt[1 + 2*YAX_MAXDRAWS];
-static int16_t yax_tsprite[1 + 2*YAX_MAXDRAWS][MAXSPRITESONSCREEN];
+static uint16_t yax_tsprite[1 + 2*YAX_MAXDRAWS][MAXSPRITESONSCREEN];
+static uint8_t yax_tsprfrombunch[1 + 2*YAX_MAXDRAWS][MAXSPRITESONSCREEN];
 
 // drawn sectors
 uint8_t yax_gotsector[MAXSECTORS>>3];  // engine internal
@@ -683,40 +684,46 @@ static void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
     }
 }
 
-static void yax_copytsprite(int32_t curbunchnum, int32_t resetsortcnt)
+static void yax_copytsprites()
 {
-    int32_t i, spritenum, gotthrough, sectnum, cf;
+    int32_t i, spritenum, gotthrough, sectnum;
     int32_t sortcnt = yax_spritesortcnt[yax_globallev];
     const spritetype *spr;
-
-    if (resetsortcnt)
-        spritesortcnt = 0;
 
     for (i=0; i<sortcnt; i++)
     {
         spritenum = yax_tsprite[yax_globallev][i];
 
-        gotthrough = spritenum&((MAXSPRITES<<1)+MAXSPRITES);
+        gotthrough = spritenum&(MAXSPRITES|(MAXSPRITES<<1));
+
         spritenum &= MAXSPRITES-1;
         spr = &sprite[spritenum];
-
         sectnum = spr->sectnum;
 
-        cf = -1;
-        if (gotthrough & MAXSPRITES)
-            cf = YAX_CEILING;  // sprite got here through the ceiling of lower sector
-        else if (gotthrough & (MAXSPRITES<<1))
-            cf = YAX_FLOOR;  // sprite got here through the floor of upper sector
-
-        if (cf != -1)
+        if (gotthrough == (MAXSPRITES|(MAXSPRITES<<1)))
         {
-            if ((yax_globallev-YAX_MAXDRAWS)*(-1 + 2*cf) > 0)
-                if (yax_getbunch(sectnum, cf) != curbunchnum)
-                    continue;
-
-            sectnum = yax_getneighborsect(spr->x, spr->y, sectnum, cf, NULL);
-            if (sectnum < 0)
+            if (yax_globalbunch != yax_tsprfrombunch[yax_globallev][i])
                 continue;
+        }
+        else
+        {
+            int32_t cf = -1;
+
+            if (gotthrough == MAXSPRITES)
+                cf = YAX_CEILING;  // sprite got here through the ceiling of lower sector
+            else if (gotthrough == (MAXSPRITES<<1))
+                cf = YAX_FLOOR;  // sprite got here through the floor of upper sector
+
+            if (cf != -1)
+            {
+                if ((yax_globallev-YAX_MAXDRAWS)*(-1 + 2*cf) > 0)
+                    if (yax_getbunch(sectnum, cf) != yax_globalbunch)
+                        continue;
+
+                sectnum = yax_getneighborsect(spr->x, spr->y, sectnum, cf, NULL);
+                if (sectnum < 0)
+                    continue;
+            }
         }
 
         if (spritesortcnt >= MAXSPRITESONSCREEN)
@@ -726,7 +733,7 @@ static void yax_copytsprite(int32_t curbunchnum, int32_t resetsortcnt)
         spriteext[spritenum].tspr = &tsprite[spritesortcnt];
         tsprite[spritesortcnt].owner = spritenum;
 
-        tsprite[spritesortcnt].sectnum = sectnum;  // tweak sectnum!
+        tsprite[spritesortcnt].sectnum = sectnum;  // potentially tweak sectnum!
         spritesortcnt++;
     }
 }
@@ -861,14 +868,17 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 
                     if (lev != YAX_MAXDRAWS-1)
                     {
+#ifdef YAX_DEBUG
+                        int32_t odsprcnt = yax_spritesortcnt[yax_globallev];
+#endif
                         // +MAXSECTORS: force
                         drawrooms(globalposx,globalposy,globalposz,globalang,horiz,k+MAXSECTORS);
                         if (numhere > 1)
                             for (i=0; i<(numsectors+7)>>3; i++)
                                 lgotsector[i] |= gotsector[i];
 
-                        yaxdebug("l%d: faked sec %3d (bunch %2d),%3d dspr, ob=[%2d,%2d], sn=%3d, %.3f ms",
-                                 yax_globallev-YAX_MAXDRAWS, k, j, yax_spritesortcnt[yax_globallev],
+                        yaxdebug("l%d: faked (bn %2d) sec %4d,%3d dspr, ob=[%2d,%2d], sn=%4d, %.3f ms",
+                                 yax_globallev-YAX_MAXDRAWS, j, k, yax_spritesortcnt[yax_globallev]-odsprcnt,
                                  ourbunch[0],ourbunch[1],sectnum,
                                  (double)(1000*(gethiticks()-t))/hitickspersec);
                     }
@@ -950,12 +960,12 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                     yax_nomaskpass = nmp;
                     drawrooms(globalposx,globalposy,globalposz,globalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
 
-                    yaxdebug("l%d nm%d: DRAWN sec %3d (bn %2d),%3d tspr, %.3f ms",
-                             yax_globallev-YAX_MAXDRAWS, nmp, k, j, spritesortcnt,
-                             (double)(1000*(gethiticks()-t))/hitickspersec);
-
                     if (nmp==1)
                     {
+                        yaxdebug("nm1 l%d: DRAWN (bn %2d) sec %4d,          %.3f ms",
+                                 yax_globallev-YAX_MAXDRAWS, j, k,
+                                 (double)(1000*(gethiticks()-t))/hitickspersec);
+
                         if (!yax_nomaskdidit)
                         {
                             yax_nomaskpass = 0;
@@ -965,7 +975,12 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                     }
                 }
 
-                yax_copytsprite(j, !scansector_collectsprites);
+                if (!scansector_collectsprites)
+                    spritesortcnt = 0;
+                yax_copytsprites();
+                yaxdebug("nm0 l%d: DRAWN (bn %2d) sec %4d,%3d tspr, %.3f ms",
+                         yax_globallev-YAX_MAXDRAWS, j, k, spritesortcnt,
+                         (double)(1000*(gethiticks()-t))/hitickspersec);
 
                 ExtAnalyzeSprites();
                 drawmasks();
@@ -987,10 +1002,11 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 
     // draw base level
     drawrooms(globalposx,globalposy,globalposz,globalang,horiz,osectnum);
-    yaxdebug("DRAWN base level sec %d, %.3f ms", osectnum,
-             (double)(1000*(gethiticks()-t))/hitickspersec);
-
-    yax_copytsprite(-1, scansector_collectsprites);
+//    if (scansector_collectsprites)
+//        spritesortcnt = 0;
+    yax_copytsprites();
+    yaxdebug("DRAWN base level sec %d,%3d tspr, %.3f ms", osectnum,
+             spritesortcnt, (double)(1000*(gethiticks()-t))/hitickspersec);
     scansector_collectsprites = 1;
 
     for (cf=0; cf<2; cf++)
@@ -2245,6 +2261,11 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
             return 0;
 
         yax_tsprite[yax_globallev][*sortcnt] = z;
+        if (yax_globalbunch >= 0)
+        {
+            yax_tsprite[yax_globallev][*sortcnt] |= (MAXSPRITES|(MAXSPRITES<<1));
+            yax_tsprfrombunch[yax_globallev][*sortcnt] = yax_globalbunch;
+        }
         (*sortcnt)++;
 
         // now check whether the tsprite needs duplication into another level
