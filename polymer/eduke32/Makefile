@@ -57,6 +57,17 @@ EBACKTRACEDLL_TARGET=
 include $(EROOT)/Makefile.shared
 
 
+ifneq (0,$(USE_LIBVPX))
+    ifeq ($(PLATFORM),WINDOWS)
+        LIBS+= -LWindows/lib
+        OURCFLAGS+= -IWindows/include
+    endif
+    ifeq ($(PLATFORM),DARWIN)
+        # vpx headers and lib from 'port install libvpx'
+        LIBS+= -L/opt/local/lib
+        OURCFLAGS+= -I/opt/local/include
+    endif
+endif
 
 ifeq ($(PLATFORM),WINDOWS)
     OBJ=obj_win
@@ -64,10 +75,6 @@ ifeq ($(PLATFORM),WINDOWS)
     LIBS+= $(L_SSP) -Wl,--enable-auto-import
     ifeq (0,$(RELEASE))
         EBACKTRACEDLL_TARGET=$(EBACKTRACEDLL)
-    endif
-    ifneq (0,$(USE_LIBVPX))
-        LIBS+= -LWindows/lib
-        OURCFLAGS+= -IWindows/include
     endif
 else
     ifeq ($(PLATFORM),LINUX)
