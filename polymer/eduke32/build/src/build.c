@@ -3072,7 +3072,7 @@ void overheadeditor(void)
                 {
                     for (WALLS_OF_SECTOR(i, j))
                         if (wall[j].nextsector >= 0)
-                            checksectorpointer(j, i);
+                            checksectorpointer(j, highlightsector[i]);
                 }
 
                 printmessage16("Selected sector(s) flipped");
