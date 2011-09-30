@@ -2989,6 +2989,9 @@ void overheadeditor(void)
 
                     for (j=startwall; j<=endwall; j++)
                     {
+                        // NEXTWALL tweak: keep nextsector!
+                        wall[j].nextwall = -1;
+
                         //fix position of walls
                         if (about_x)
                         {
@@ -3060,6 +3063,16 @@ void overheadeditor(void)
 
                         j = nextspritesect[j];
                     }
+                }
+
+                mkonwinvalid();
+
+                // NEXTWALL tweak: finally, construct the nextwalls for the new arrangement!
+                for (i=0; i<highlightsectorcnt; i++)
+                {
+                    for (WALLS_OF_SECTOR(i, j))
+                        if (wall[j].nextsector >= 0)
+                            checksectorpointer(j, i);
                 }
 
                 printmessage16("Selected sector(s) flipped");
@@ -4026,6 +4039,8 @@ end_yax: ;
                                                 refextcf>=0 ? cfstr[refextcf] : "",
                                                 refextcf>=0 ? "-extended " : "", refsect);
                                     }
+
+                                    asksave = 1;
 
                                     if (refextcf >= 0)
                                     {
@@ -5809,6 +5824,7 @@ check_next_sector: ;
 #endif
                             printmessage16("Added inner loop to sector %d", k);
                             mkonwinvalid();
+                            asksave = 1;
                         }
                     }
                     else  // if connected to at least one other sector

@@ -1644,6 +1644,7 @@ const int16_t *chsecptr_onextwall = NULL;
 
 int32_t checksectorpointer(int16_t i, int16_t sectnum)
 {
+    int32_t startsec, endsec;
     int32_t j, k, startwall, endwall, x1, y1, x2, y2, numnewwalls=0;
     int32_t bestnextwall=-1, bestnextsec=-1, bestwallscore=INT32_MIN;
     int32_t cz[4], fz[4], tmp[2], tmpscore=0;
@@ -1676,6 +1677,19 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
         wall[k].nextwall = wall[k].nextsector = -1;
     }
 
+    if ((unsigned)wall[i].nextsector < (unsigned)numsectors && wall[i].nextwall < 0)
+    {
+        // if we have a nextsector but no nextwall, take this as a hint
+        // to search only the walls of that sector
+        startsec = wall[i].nextsector;
+        endsec = startsec+1;
+    }
+    else
+    {
+        startsec = 0;
+        endsec = numsectors;
+    }
+
     wall[i].nextsector = wall[i].nextwall = -1;
 
     if (chsecptr_onextwall && (k=chsecptr_onextwall[i])>=0 && wall[k].nextwall<0)
@@ -1694,7 +1708,7 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
         }
     }
 
-    for (j=0; j<numsectors; j++)
+    for (j=startsec; j<endsec; j++)
     {
         if (j == sectnum)
             continue;
@@ -1751,8 +1765,9 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
     // sectnum -2 means dry run
     if (bestnextwall >= 0 && sectnum!=-2)
 #ifdef YAX_ENABLE
-        // be conservative in case if score <=0 (meaning that no wall area is mutually
-        // visible) -- it could be that another sector is a better candidate later on
+        // for walls with TROR neighbors, be conservative in case if score <=0
+        // (meaning that no wall area is mutually visible) -- it could be that
+        // another sector is a better candidate later on
         if ((yax_getnextwall(i, 0)<0 && yax_getnextwall(i, 1)<0) || bestwallscore>0)
 #endif
         {
@@ -13776,7 +13791,9 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
     if (dagoalloop > 0)
     {
         j = 0;
-        while (loopnumofsector(sectnum,j+startwall) != dagoalloop) j++;
+        while (loopnumofsector(sectnum,j+startwall) != dagoalloop)
+            j++;
+
         for (i=0; i<danumwalls; i++)
         {
             k = i+j; if (k >= danumwalls) k -= danumwalls;
@@ -13787,8 +13804,10 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
                 wall[startwall+i].point2 -= danumwalls;
             wall[startwall+i].point2 += startwall;
         }
+
         newfirstwall += danumwalls-j;
-        if (newfirstwall >= startwall+danumwalls) newfirstwall -= danumwalls;
+        if (newfirstwall >= startwall+danumwalls)
+            newfirstwall -= danumwalls;
     }
 
     for (i=0; i<numwallsofloop; i++)
@@ -13806,7 +13825,9 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
     }
 
     for (i=startwall; i<endwall; i++)
-        if (wall[i].nextwall >= 0) wall[wall[i].nextwall].nextwall = i;
+        if (wall[i].nextwall >= 0)
+            wall[wall[i].nextwall].nextwall = i;
+
 #ifdef YAX_ENABLE
     {
         int16_t cb, fb;
