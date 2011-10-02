@@ -21,12 +21,10 @@
 #include "scriptfile.h"
 
 #ifdef USE_OPENGL
-# ifdef USE_OPENGL
-#  include "glbuild.h"
-#  include "mdsprite.h"
-#  ifdef POLYMER
-#   include "polymer.h"
-#  endif
+# include "glbuild.h"
+# include "mdsprite.h"
+# ifdef POLYMER
+#  include "polymer.h"
 # endif
 # include "hightile.h"
 # include "polymost.h"
@@ -5132,9 +5130,7 @@ static void drawsprite(int32_t snum)
     if (rendmode == 3)
     {
         polymost_drawsprite(snum);
-# ifdef USE_OPENGL
         bglDisable(GL_POLYGON_OFFSET_FILL);
-# endif
         return;
     }
 # ifdef POLYMER
