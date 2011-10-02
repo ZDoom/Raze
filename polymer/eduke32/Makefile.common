@@ -123,6 +123,11 @@ ifneq (0,$(USE_LIBVPX))
     BASECFLAGS+= -DUSE_LIBVPX
 endif
 
+ifneq (0,$(EFENCE))
+    LIBS+= -lefence
+    BASECFLAGS+= -DEFENCE
+endif
+
 BASECXXFLAGS= -fno-exceptions -fno-rtti
 BASEASFLAGS=-s #-g
 

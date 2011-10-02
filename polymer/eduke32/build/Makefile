@@ -151,11 +151,6 @@ ifeq ($(RENDERTYPE),WIN)
     EDITOROBJS+= $(OBJ)/startwin.editor.$o
 endif
 
-ifneq (0,$(EFENCE))
-    LIBS+= -lefence
-    OURCFLAGS+= -DEFENCE
-endif
-
 OURCFLAGS+= $(BUILDCFLAGS)
 
 .SILENT:
