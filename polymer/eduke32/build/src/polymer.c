@@ -456,7 +456,7 @@ _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "uniform sampler2D lightMap;\n"
         "\n",
         // frag_prog
-        "  lightTexel = texture2D(lightMap, gl_TexCoord[2].st / gl_TexCoord[2].q).rgb;\n"
+        "  lightTexel = texture2D(lightMap, vec2(gl_TexCoord[2].s, -gl_TexCoord[2].t) / gl_TexCoord[2].q).rgb;\n"
         "\n",
     },
     {
