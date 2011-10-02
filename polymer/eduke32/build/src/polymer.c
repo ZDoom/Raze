@@ -1449,8 +1449,27 @@ int16_t             polymer_addlight(_prlight* light)
 
     Bmemcpy(&prlights[lighti], light, sizeof(_prlight));
 
-    if (light->radius)
+    if (light->radius) {
         polymer_processspotlight(&prlights[lighti]);
+
+        // get the texture handle for the lightmap
+        if (light->tilenum > 0) {
+            int16_t     picnum = light->tilenum;
+            pthtyp*     pth;
+
+            if (picanm[picnum] & 192)
+                picnum += animateoffs(picnum, 0);
+
+            if (!waloff[picnum])
+                loadtile(picnum);
+
+            pth = NULL;
+            pth = gltexcache(picnum, 0, 0);
+
+            if (pth)
+                light->lightmap = pth->glpic;
+        }
+    }
 
     prlights[lighti].flags.isinview = 0;
     prlights[lighti].flags.active = 1;
@@ -5066,20 +5085,42 @@ static void         polymer_updatelights(void)
 
     do
     {
-        if (prlights[i].flags.active && prlights[i].flags.invalidate) {
+        _prlight* light = &prlights[i];
+
+        if (light->flags.active && light->flags.invalidate) {
             // highly suboptimal
             polymer_removelight(i);
 
-            if (prlights[i].radius)
-                polymer_processspotlight(&prlights[i]);
+            if (light->radius)
+                polymer_processspotlight(light);
 
             polymer_culllight(i);
 
-            prlights[i].flags.invalidate = 0;
+            light->flags.invalidate = 0;
         }
 
-        if (prlights[i].flags.active)
-            prlights[i].rtindex = -1;
+        if (light->flags.active) {
+            // get the texture handle for the lightmap
+            if (light->radius && light->tilenum > 0)
+            {
+                int16_t     picnum = light->tilenum;
+                pthtyp*     pth;
+
+                if (picanm[picnum] & 192)
+                    picnum += animateoffs(picnum, 0);
+
+                if (!waloff[picnum])
+                    loadtile(picnum);
+
+                pth = NULL;
+                pth = gltexcache(picnum, 0, 0);
+
+                if (pth)
+                    light->lightmap = pth->glpic;
+            }
+
+            light->rtindex = -1;
+        }
     }
     while (++i < PR_MAXLIGHTS);
 }
@@ -5259,26 +5300,7 @@ static void         polymer_processspotlight(_prlight* light)
     polymer_extractfrustum(light->transform, light->proj, light->frustum);
 
     light->rtindex = -1;
-
-    // get the texture handle for the lightmap
     light->lightmap = 0;
-    if (light->tilenum > 0)
-    {
-        int16_t     picnum = light->tilenum;
-        pthtyp*     pth;
-
-        if (picanm[picnum] & 192)
-            picnum += animateoffs(picnum, 0);
-
-        if (!waloff[picnum])
-            loadtile(picnum);
-
-        pth = NULL;
-        pth = gltexcache(picnum, 0, 0);
-
-        if (pth)
-            light->lightmap = pth->glpic;
-    }
 }
 
 static inline void  polymer_culllight(int16_t lighti)
