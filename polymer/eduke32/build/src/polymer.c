@@ -5217,7 +5217,6 @@ static void         polymer_invalidatesectorlights(int16_t sectnum)
 static void         polymer_processspotlight(_prlight* light)
 {
     float           radius, ang, horizang, lightpos[3];
-    pthtyp*         pth;
 
     // hack to avoid lights beams perpendicular to walls
     if ((light->horiz <= 100) && (light->horiz > 90))
@@ -5259,11 +5258,17 @@ static void         polymer_processspotlight(_prlight* light)
     light->lightmap = 0;
     if (light->tilenum > 0)
     {
-        if (!waloff[light->tilenum])
-            loadtile(light->tilenum);
+        int16_t     picnum = light->tilenum;
+        pthtyp*     pth;
+
+        if (picanm[picnum] & 192)
+            picnum += animateoffs(picnum, 0);
+
+        if (!waloff[picnum])
+            loadtile(picnum);
 
         pth = NULL;
-        pth = gltexcache(light->tilenum, 0, 0);
+        pth = gltexcache(picnum, 0, 0);
 
         if (pth)
             light->lightmap = pth->glpic;
