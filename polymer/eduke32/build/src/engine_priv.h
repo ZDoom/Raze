@@ -42,6 +42,8 @@ extern int16_t globalpicnum;
 extern int32_t globalx1, globaly2;
 extern int32_t globalorientation;
 
+extern int16_t editstatus;
+
 extern int16_t searchit;
 extern int32_t searchx, searchy;
 extern int16_t searchsector, searchwall, searchstat;

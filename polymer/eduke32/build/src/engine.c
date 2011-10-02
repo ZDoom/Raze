@@ -664,20 +664,38 @@ static void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
     for (SECTORS_OF_BUNCH(bunchnum, cf, i))
     {
         dastat = (SECTORFLD(i,stat, cf)&(128+256));
-        if (dastat==0)
+
+        if (dastat==0 || (restore==1 && opicnum[cf][i]&0x8000))
         {
             if (!restore)
             {
                 opicnum[cf][i] = SECTORFLD(i,picnum, cf);
                 if (editstatus && showinvisibility)
                     SECTORFLD(i,picnum, cf) = MAXTILES-1;
-                else if ((dastat&(128+256))==0)
+                else //if ((dastat&(128+256))==0)
                     SECTORFLD(i,picnum, cf) = 13; //FOF;
             }
             else
             {
                 SECTORFLD(i,picnum, cf) = opicnum[cf][i];
             }
+#ifdef POLYMER
+            // will be called only in editor
+            if (rendmode==4)
+            {
+                if (!restore)
+                {
+                    SECTORFLD(i,stat, cf) |= 128;
+                    opicnum[cf][i] |= 0x8000;
+                }
+                else
+                {
+                    SECTORFLD(i,stat, cf) &= ~128;
+                    SECTORFLD(i,picnum, cf) &= 0x7fff;
+                    opicnum[cf][i] = 0;
+                }
+            }
+#endif
         }
     }
 }
@@ -7964,6 +7982,16 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 # ifdef POLYMER
     if (rendmode == 4)
     {
+        // BEGIN TWEAK ceiling/floor fake 'TROR' pics
+        if (editstatus && showinvisibility)
+        {
+            for (i=0; i<numyaxbunches; i++)
+            {
+                yax_tweakpicnums(i, YAX_CEILING, 0);
+                yax_tweakpicnums(i, YAX_FLOOR, 0);
+            }
+        }
+
         polymer_glinit();
         polymer_drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
         bglDisable(GL_CULL_FACE);
@@ -8439,6 +8467,16 @@ killsprite:
 #ifdef POLYMER
     if (rendmode == 4) {
         polymer_drawmasks();
+
+        // END TWEAK ceiling/floor fake 'TROR' pics
+        if (editstatus && showinvisibility)
+        {
+            for (i=0; i<numyaxbunches; i++)
+            {
+                yax_tweakpicnums(i, YAX_CEILING, 1);
+                yax_tweakpicnums(i, YAX_FLOOR, 1);
+            }
+        }
     }
 #endif
 

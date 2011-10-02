@@ -210,8 +210,6 @@ static char ptempbuf[MAXWALLSB<<1];
 int32_t r_parallaxskyclamping = 1;
 int32_t r_parallaxskypanning = 0;
 
-extern int16_t editstatus;
-
 #define MIN_CACHETIME_PRINT 10
 
 
