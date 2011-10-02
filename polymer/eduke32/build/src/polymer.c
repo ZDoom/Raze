@@ -3882,7 +3882,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
         spos[0] = (float)tspr->y;
         spos[1] = -(float)(tspr->z) / 16.0f;
         spos[2] = -(float)tspr->x;
-        
+
         spos2[0] = spos2[1] = spos2[2] = 0.0f;
     }
 
@@ -4010,7 +4010,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
 
     color[0] = color[1] = color[2] =
         ((float)(numpalookups-min(max((tspr->shade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups) * 0xFF;
-    
+
     usinghighpal = (pr_highpalookups &&
                     prhighpalookups[curbasepal][tspr->pal].map);
 
@@ -4163,11 +4163,11 @@ static void         polymer_drawmdsprite(spritetype *tspr)
             mdspritematerial.specmaterial[1] = sk->specfactor;
             foundpalskin = 1;
         }
-        
+
         // If we have a global palette tint, the palskin won't do us any good
         if (curbasepal)
             foundpalskin = 0;
-        
+
         if (!foundpalskin && usinghighpal) {
             // We don't have a specific skin defined for this palette
             // Use the base skin instead and plug in our highpalookup map
