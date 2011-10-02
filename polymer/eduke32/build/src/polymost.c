@@ -569,6 +569,43 @@ float glox1, gloy1, glox2, gloy2;
 static int32_t gltexcacnum = -1;
 extern void freevbos(void);
 
+
+static void Cachefile_CloseBoth(void)
+{
+    if (cachefilehandle != -1)
+    {
+        Bclose(cachefilehandle);
+        cachefilehandle = -1;
+    }
+
+    if (cacheindexptr)
+    {
+        Bfclose(cacheindexptr);
+        cacheindexptr = NULL;
+    }
+}
+
+static void Cachefile_RemoveDups(void)
+{
+    int32_t i;
+
+    for (i = numcacheentries-1; i >= 0; i--)
+        if (cacheptrs[i])
+        {
+            int32_t ii;
+            for (ii = numcacheentries-1; ii >= 0; ii--)
+                if (i != ii && cacheptrs[ii] == cacheptrs[i])
+                {
+                    /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
+                    cacheptrs[ii] = NULL;
+                }
+
+            Bfree(cacheptrs[i]);
+            cacheptrs[i] = NULL;
+        }
+}
+
+
 void polymost_cachesync(void)
 {
     if (memcachedata && cachefilehandle != -1 && filelength(cachefilehandle) > memcachesize)
@@ -647,34 +684,7 @@ void polymost_glreset()
     memset(gltexcachead,0,sizeof(gltexcachead));
     glox1 = -1;
 
-    /*
-        if (cachefilehandle != -1)
-        {
-            Bclose(cachefilehandle);
-            cachefilehandle = -1;
-        }
-
-        if (cacheindexptr)
-        {
-            Bfclose(cacheindexptr);
-            cacheindexptr = NULL;
-        }
-    */
-
-    for (i = numcacheentries-1; i >= 0; i--)
-        if (cacheptrs[i])
-        {
-            int32_t ii;
-            for (ii = numcacheentries-1; ii >= 0; ii--)
-                if (i != ii && cacheptrs[ii] == cacheptrs[i])
-                {
-                    /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
-                    cacheptrs[ii] = NULL;
-                }
-
-            Bfree(cacheptrs[i]);
-            cacheptrs[i] = NULL;
-        }
+    Cachefile_RemoveDups();
 
     polymost_cachesync();
 #ifdef DEBUGGINGAIDS
@@ -737,17 +747,7 @@ void polymost_glinit()
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    if (cachefilehandle != -1)
-    {
-        Bclose(cachefilehandle);
-        cachefilehandle = -1;
-    }
-
-    if (cacheindexptr)
-    {
-        Bfclose(cacheindexptr);
-        cacheindexptr = NULL;
-    }
+    Cachefile_CloseBoth();
 
     if (memcachedata)
     {
@@ -756,20 +756,7 @@ void polymost_glinit()
         memcachesize = -1;
     }
 
-    for (i = numcacheentries-1; i >= 0; i--)
-        if (cacheptrs[i])
-        {
-            int32_t ii;
-            for (ii = numcacheentries-1; ii >= 0; ii--)
-                if (i != ii && cacheptrs[ii] == cacheptrs[i])
-                {
-                    /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
-                    cacheptrs[ii] = NULL;
-                }
-
-            Bfree(cacheptrs[i]);
-            cacheptrs[i] = NULL;
-        }
+    Cachefile_RemoveDups();
 
     curcacheindex = firstcacheindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
     numcacheentries = 0;
@@ -858,8 +845,6 @@ void polymost_glinit()
 
 void invalidatecache(void)
 {
-    int32_t i;
-
 #ifdef DEBUGGINGAIDS
     OSD_Printf("invalidatecache()\n");
 #endif
@@ -867,17 +852,7 @@ void invalidatecache(void)
 
     polymost_glreset();
 
-    if (cachefilehandle != -1)
-    {
-        Bclose(cachefilehandle);
-        cachefilehandle = -1;
-    }
-
-    if (cacheindexptr)
-    {
-        Bfclose(cacheindexptr);
-        cacheindexptr = NULL;
-    }
+    Cachefile_CloseBoth();
 
     if (memcachedata)
     {
@@ -886,20 +861,7 @@ void invalidatecache(void)
         memcachesize = -1;
     }
 
-    for (i = numcacheentries-1; i >= 0; i--)
-        if (cacheptrs[i])
-        {
-            int32_t ii;
-            for (ii = numcacheentries-1; ii >= 0; ii--)
-                if (i != ii && cacheptrs[ii] == cacheptrs[i])
-                {
-                    /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
-                    cacheptrs[ii] = NULL;
-                }
-
-            Bfree(cacheptrs[i]);
-            cacheptrs[i] = NULL;
-        }
+    Cachefile_RemoveDups();
 
     curcacheindex = firstcacheindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
     numcacheentries = 0;
