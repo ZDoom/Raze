@@ -95,6 +95,8 @@ then
     mv eduke32.exe eduke32.debug.exe
     echo mv mapster32.exe mapster32.debug.exe
     mv mapster32.exe mapster32.debug.exe
+    echo mv ebacktrace1.dll ebacktrace1.debug.dll
+    mv ebacktrace1.dll ebacktrace1.debug.dll
 
     # clean the tree and build release
     echo "${make[@]}" $clean all
@@ -109,6 +111,10 @@ then
             exit
         fi
     done
+
+    # move this back where it belongs
+    echo mv ebacktrace1.debug.dll ebacktrace1.dll
+    mv ebacktrace1.debug.dll ebacktrace1.dll
 
     # get the date in the YYYYMMDD format (ex: 20091001)
     date=`date +%Y%m%d`
