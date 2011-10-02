@@ -1482,16 +1482,26 @@ void                polymer_invalidatelights(void)
 
 void                polymer_texinvalidate(void)
 {
-    int32_t         i = numsectors-1;
+    int32_t         i;
+
+    i = 0;
+
+    while (i < MAXSPRITES) {
+        if (prsprites[i])
+            prsprites[i]->crc = 0xDEADBEEF;
+        i++;
+    }
+
+    i = numsectors - 1;
 
     if (!numsectors || !prsectors[i])
         return;
-    
+
     do
         prsectors[i--]->flags.invalidtex = 1;
     while (i >= 0);
 
-    i = numwalls-1;
+    i = numwalls - 1;
     do
         prwalls[i--]->flags.invalidtex = 1;
     while (i >= 0);
