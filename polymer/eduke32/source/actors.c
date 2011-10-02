@@ -7855,8 +7855,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         actor[i].lightptr = &prlights[actor[i].lightId];
 
                     // Hack in case polymer_addlight tweaked the horiz value
-                    if (prlights[i].horiz != SH)
-                        SH = prlights[i].horiz;
+                    if (actor[i].lightptr->horiz != SH)
+                        SH = actor[i].lightptr->horiz;
                     break;
                 }
 
