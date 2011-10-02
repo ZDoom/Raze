@@ -10784,20 +10784,21 @@ void G_BonusScreen(int32_t bonusonly)
 
     int32_t breathe[] =
     {
-        0,  30,VICTORY1+1,176,59,
-        30,  60,VICTORY1+2,176,59,
-        60,  90,VICTORY1+1,176,59,
-        90, 120,0         ,176,59
+         0,  30, VICTORY1+1, 176, 59,
+        30,  60, VICTORY1+2, 176, 59,
+        60,  90, VICTORY1+1, 176, 59,
+        90, 120,          0, 176, 59
     };
 
     int32_t bossmove[] =
     {
-        0, 120,VICTORY1+3,86,59,
-        220, 260,VICTORY1+4,86,59,
-        260, 290,VICTORY1+5,86,59,
-        290, 320,VICTORY1+6,86,59,
-        320, 350,VICTORY1+7,86,59,
-        350, 380,VICTORY1+8,86,59
+          0, 120, VICTORY1+3, 86, 59,
+        220, 260, VICTORY1+4, 86, 59,
+        260, 290, VICTORY1+5, 86, 59,
+        290, 320, VICTORY1+6, 86, 59,
+        320, 350, VICTORY1+7, 86, 59,
+        350, 380, VICTORY1+8, 86, 59,
+        350, 380, VICTORY1+8, 86, 59 // duplicate row to alleviate overflow in the for loop below "boss"
     };
 
     if (g_networkMode == NET_DEDICATED_SERVER)
