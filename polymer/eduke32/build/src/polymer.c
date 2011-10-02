@@ -3943,6 +3943,12 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     if (tspr->cstat & 4)
         bglScalef(1.0f, -1.0f, 1.0f);
 
+    if (!(tspr->cstat & 4) != !(tspr->cstat & 8)) {
+        // Only inverting one coordinate will reverse the winding order of
+        // faces, so we need to account for that when culling.
+        SWITCH_CULL_DIRECTION;
+    }
+
     bglScalef(scale * tspr->xrepeat, scale * tspr->xrepeat, scale * tspr->yrepeat);
     bglTranslatef(0.0f, 0.0, m->zadd * 64);
 
@@ -4271,6 +4277,10 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     }
 
     bglPopMatrix();
+
+    if (!(tspr->cstat & 4) != !(tspr->cstat & 8)) {
+        SWITCH_CULL_DIRECTION;
+    }
 
     globalnoeffect = 0;
 }

@@ -375,7 +375,7 @@ static void         polymer_initrendertargets(int32_t count);
 
 #define INDICE(n) ((p->indices) ? (p->indices[(i+n)%p->indicescount]*5) : (((i+n)%p->vertcount)*5))
 
-#define SWITCH_CULL_DIRECTION culledface = (culledface == GL_FRONT) ? GL_BACK : GL_FRONT; bglCullFace(culledface)
+#define SWITCH_CULL_DIRECTION { culledface = (culledface == GL_FRONT) ? GL_BACK : GL_FRONT; bglCullFace(culledface); }
 
 static inline GLfloat dot2f(GLfloat *v1, GLfloat *v2)
 {
