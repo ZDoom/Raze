@@ -730,6 +730,12 @@ int32_t             polymer_init(void)
         i++;
     }
 
+    if (glinfo.debugoutput) {
+        // Enable everything.
+        bglDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
+        bglDebugMessageCallbackARB(polymer_debugoutputcallback, NULL);
+    }
+
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete in %d ms.\n", getticks()-t);
 
     return (1);
@@ -1514,7 +1520,7 @@ void                polymer_definehighpalookup(char basepalnum, char palnum, cha
     Bmemcpy(prhighpalookups[basepalnum][palnum].data, data, PR_HIGHPALOOKUP_DATA_SIZE);
 }
 
-int32_t polymer_havehighpalookup(int32_t basepalnum, int32_t palnum)
+int32_t             polymer_havehighpalookup(int32_t basepalnum, int32_t palnum)
 {
     if ((uint32_t)basepalnum >= MAXBASEPALS || (uint32_t)palnum >= MAXPALOOKUPS)
         return 0;
@@ -5631,6 +5637,19 @@ static void         polymer_initrendertargets(int32_t count)
 
         i++;
     }
+}
+
+// DEBUG OUTPUT
+void                polymer_debugoutputcallback(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam)
+{
+    UNREFERENCED_PARAMETER(source);
+    UNREFERENCED_PARAMETER(type);
+    UNREFERENCED_PARAMETER(id);
+    UNREFERENCED_PARAMETER(severity);
+    UNREFERENCED_PARAMETER(length);
+    UNREFERENCED_PARAMETER(userParam);
+
+    OSD_Printf("PR : Received OpenGL debug message: %s\n", message);
 }
 
 #endif

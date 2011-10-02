@@ -250,6 +250,10 @@ void (APIENTRY *bglBindAttribLocationARB)(GLhandleARB, GLuint, const GLcharARB *
 void (APIENTRY *bglGetActiveAttribARB)(GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
 GLint(APIENTRY *bglGetAttribLocationARB)(GLhandleARB, const GLcharARB *);
 
+// Debug Output
+void (APIENTRY * bglDebugMessageControlARB)(GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint *ids, GLboolean enabled);
+void (APIENTRY * bglDebugMessageCallbackARB)(GLDEBUGPROCARB callback, const GLvoid *userParam);
+
 // GLU
 void (APIENTRY *bgluTessBeginContour)(GLUtesselator *tess);
 void (APIENTRY *bgluTessBeginPolygon)(GLUtesselator *tess, GLvoid *data);
@@ -614,6 +618,10 @@ int32_t loadglextensions(void)
     bglBindAttribLocationARB = GETPROCEXTSOFT("glBindAttribLocationARB");
     bglGetActiveAttribARB = GETPROCEXTSOFT("glGetActiveAttribARB");
     bglGetAttribLocationARB = GETPROCEXTSOFT("glGetAttribLocationARB");
+
+    // Debug Output
+    bglDebugMessageControlARB = GETPROCEXTSOFT("glDebugMessageControlARB");
+    bglDebugMessageCallbackARB = GETPROCEXTSOFT("glDebugMessageCallbackARB");
 
 #ifdef RENDERTYPEWIN
     bwglSwapIntervalEXT	    = GETPROCEXTSOFT("wglSwapIntervalEXT");

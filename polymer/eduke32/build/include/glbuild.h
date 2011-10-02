@@ -283,6 +283,10 @@ extern void (APIENTRY * bglBindAttribLocationARB)(GLhandleARB, GLuint, const GLc
 extern void (APIENTRY * bglGetActiveAttribARB)(GLhandleARB, GLuint, GLsizei, GLsizei *, GLint *, GLenum *, GLcharARB *);
 extern GLint (APIENTRY * bglGetAttribLocationARB)(GLhandleARB, const GLcharARB *);
 
+// Debug Output
+extern void (APIENTRY * bglDebugMessageControlARB)(GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint *ids, GLboolean enabled);
+extern void (APIENTRY * bglDebugMessageCallbackARB)(GLDEBUGPROCARB callback, const GLvoid *userParam);
+
 // GLU
 extern void             (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);
 extern void             (APIENTRY * bgluTessBeginPolygon) (GLUtesselator* tess, GLvoid* data);

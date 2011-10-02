@@ -2978,6 +2978,10 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             {
                 glinfo.glsl = 1;
             }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_debug_output"))
+            {
+                glinfo.debugoutput = 1;
+            }
         }
         Bfree(p);
     }

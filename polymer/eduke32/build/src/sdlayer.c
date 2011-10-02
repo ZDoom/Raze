@@ -1269,6 +1269,10 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             {
                 glinfo.glsl = 1;
             }
+            else if (!Bstrcmp((char *)p2, "GL_ARB_debug_output"))
+            {
+                glinfo.debugoutput = 1;
+            }
         }
         Bfree(p);
 

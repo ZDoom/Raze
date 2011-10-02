@@ -135,6 +135,7 @@ struct glinfo_t glinfo =
     0,          // Shader Model 4 support
     0,          // Occlusion Queries
     0,          // GLSL
+    0,          // Debug Output
     0,          // GL info dumped
 };
 #endif
@@ -247,6 +248,7 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
                " Shader Model 4:          %s\n"
                " Occlusion queries:       %s\n"
                " GLSL:                    %s\n"
+               " Debug Output:            %s\n"
                " Extensions:\n",
                glinfo.maxanisotropy, glinfo.maxanisotropy>1.0?"":" (no anisotropic filtering)",
                glinfo.bgra ? "supported": "not supported",
@@ -265,7 +267,8 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
                glinfo.vbos ? "supported": "not supported",
                glinfo.sm4 ? "supported": "not supported",
                glinfo.occlusionqueries ? "supported": "not supported",
-               glinfo.glsl ? "supported": "not supported"
+               glinfo.glsl ? "supported": "not supported",
+               glinfo.debugoutput ? "supported": "not supported"
               );
 
     s = Bstrdup(glinfo.extensions);
