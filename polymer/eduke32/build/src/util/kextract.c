@@ -37,13 +37,17 @@ int main(int argc, char **argv)
 {
 	int i, j, k, l, fil, fil2;
 
-	if (argc < 3)
+	int onlylist = (argc==2);
+
+	if (argc < 2)
 	{
-		printf("KEXTRACT [grouped file][@file or filespec...]           by Kenneth Silverman\n");
+		printf("KEXTRACT <groupfile.grp> [@file or filespec...]           by Kenneth Silverman\n");
 		printf("   This program extracts files from a previously grouped group file.\n");
 		printf("   You can extract files using the ? and * wildcards.\n");
 		printf("   Ex: kextract stuff.dat tiles000.art nukeland.map palette.dat\n");
-		printf("      (stuff.dat is the group file, the rest are the files to extract)\n");
+		printf("         (stuff.dat is the group file, the rest are the files to extract)\n");
+		printf("       kextract stuff.grp\n");
+        printf("         (simply lists the contents of stuff.grp)\n");
 		return(0);
 	}
 
@@ -76,6 +80,14 @@ int main(int argc, char **argv)
 		j += k;
 	}
 	fileoffs[numfiles] = j;
+
+    if (onlylist)
+    {
+        for (i=0; i<numfiles; i++)
+            printf("%s\t\t%d\n", filelist[i], fileoffs[i+1]-fileoffs[i]);
+
+        return 0;
+    }
 
 	for(i=0;i<numfiles;i++) marked4extraction[i] = 0;
 
