@@ -287,6 +287,7 @@ int32_t (WINAPI *bwglDescribePixelFormat)(HDC,int32_t,UINT,LPPIXELFORMATDESCRIPT
 int32_t (WINAPI *bwglGetPixelFormat)(HDC);
 BOOL (WINAPI *bwglSetPixelFormat)(HDC,int32_t,const PIXELFORMATDESCRIPTOR *);
 BOOL (WINAPI *bwglSwapIntervalEXT)(int32_t);
+HGLRC (WINAPI * bwglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext, const int *attribList);
 
 static HANDLE hGLDLL, hGLUDLL;
 #else
@@ -625,6 +626,7 @@ int32_t loadglextensions(void)
 
 #ifdef RENDERTYPEWIN
     bwglSwapIntervalEXT	    = GETPROCEXTSOFT("wglSwapIntervalEXT");
+    bwglCreateContextAttribsARB = GETPROCEXTSOFT("wglCreateContextAttribsARB");
 #endif
     return err;
 }

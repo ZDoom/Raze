@@ -373,7 +373,7 @@ static void         polymer_prepareshadows(void);
 // RENDER TARGETS
 static void         polymer_initrendertargets(int32_t count);
 // DEBUG OUTPUT
-static void         polymer_debugoutputcallback(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam);
+void PR_CALLBACK    polymer_debugoutputcallback(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam);
 
 #define INDICE(n) ((p->indices) ? (p->indices[(i+n)%p->indicescount]*5) : (((i+n)%p->vertcount)*5))
 

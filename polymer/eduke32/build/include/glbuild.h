@@ -319,6 +319,7 @@ extern int32_t (WINAPI * bwglDescribePixelFormat)(HDC,int32_t,UINT,LPPIXELFORMAT
 extern int32_t (WINAPI * bwglGetPixelFormat)(HDC);
 extern BOOL (WINAPI * bwglSetPixelFormat)(HDC,int32_t,const PIXELFORMATDESCRIPTOR*);
 extern BOOL (WINAPI * bwglSwapIntervalEXT)(int32_t);
+extern HGLRC (WINAPI * bwglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext, const int *attribList);
 #endif
 
 //////// glGenTextures/glDeleteTextures debugging ////////

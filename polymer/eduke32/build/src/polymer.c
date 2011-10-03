@@ -5662,7 +5662,7 @@ static void         polymer_initrendertargets(int32_t count)
 }
 
 // DEBUG OUTPUT
-void                polymer_debugoutputcallback(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam)
+void PR_CALLBACK    polymer_debugoutputcallback(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam)
 {
     UNREFERENCED_PARAMETER(source);
     UNREFERENCED_PARAMETER(type);

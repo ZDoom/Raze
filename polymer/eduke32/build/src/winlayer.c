@@ -2803,6 +2803,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
     }
 
     hGLRC = bwglCreateContext(hDC);
+
     if (!hGLRC)
     {
         ReleaseOpenGL();
@@ -2815,6 +2816,32 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         ReleaseOpenGL();
         ShowErrorBox("Can't activate GL RC");
         return TRUE;
+    }
+
+    loadglextensions();
+
+    // We should really be checking for the new WGL extension string instead
+    // Enable this to leverage ARB_debug_output
+    if (bwglCreateContextAttribsARB && 0) {
+        HGLRC debuggingContext = hGLRC;
+
+        // This corresponds to WGL_CONTEXT_FLAGS_ARB set to WGL_CONTEXT_DEBUG_BIT_ARB
+        // I'm too lazy to get a new wglext.h
+        int attribs[] = {
+            0x2094, 0x1,
+            0
+        };
+
+        debuggingContext = bwglCreateContextAttribsARB(hDC, NULL, attribs);
+
+        if (debuggingContext) {
+            bwglDeleteContext(hGLRC);
+            bwglMakeCurrent(hDC, debuggingContext);
+            hGLRC = debuggingContext;
+
+            // This should be able to get the ARB_debug_output symbols
+            loadglextensions();
+        }
     }
 
     polymost_glreset();
@@ -3233,10 +3260,6 @@ static BOOL CreateAppWindow(int32_t modenum)
             }
         }
     }
-
-#ifdef USE_OPENGL
-    if (bitspp > 8) loadglextensions();
-#endif
 
     xres = width;
     yres = height;
