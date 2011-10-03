@@ -11443,7 +11443,7 @@ int32_t dragpoint_noreset = 0;
 void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
 #ifdef YAX_ENABLE
 {
-    int32_t thelastwall, cnt, w, clockwise;
+    int32_t thelastwall, cnt, w, tmpstartwall, clockwise;
     int32_t i, j, numyaxwalls=0, tmpcf;
     static int16_t yaxwalls[MAXWALLS];
 
@@ -11456,6 +11456,8 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
     for (i=0; i<numyaxwalls; i++)
     {
         w = yaxwalls[i];
+        tmpstartwall = w;
+
         cnt = MAXWALLS;
 
         clockwise = 0;
@@ -11479,7 +11481,10 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
                 if (wall[w].nextwall >= 0)
                     w = wall[wall[w].nextwall].point2;
                 else
+                {
+                    w = tmpstartwall;
                     clockwise = 1;
+                }
             }
 
             if (clockwise==1)
@@ -11514,6 +11519,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
 
     wall[tempshort].x = dax;
     wall[tempshort].y = day;
+
     if (editstatus)
     {
         wall[pointhighlight].cstat |= (1<<14);
@@ -11527,6 +11533,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
         if (wall[tempshort].nextwall >= 0)
         {
             tempshort = wall[wall[tempshort].nextwall].point2;
+
             wall[tempshort].x = dax;
             wall[tempshort].y = day;
             wall[tempshort].cstat |= (1<<14);
