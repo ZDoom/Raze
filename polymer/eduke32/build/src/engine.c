@@ -457,7 +457,7 @@ void yax_update(int32_t resetstat)
             yax_getbunches(i, &cb, &fb);
             if (cb>=0)
                 yax_setbunch(i, YAX_CEILING, bunchmap[cb]);
-            if (fb>=0)            
+            if (fb>=0)
                 yax_setbunch(i, YAX_FLOOR, bunchmap[fb]);
         }
     }
@@ -15831,6 +15831,7 @@ int32_t setrendermode(int32_t renderer)
     }
     else if (rendmode==4)  // going from Polymer to another renderer
     {
+        delete_maphack_lights();
         G_Polymer_UnInit();
         polymer_uninit();
     }

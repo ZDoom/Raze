@@ -1995,7 +1995,7 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
             m->cframe < 0 || m->cframe >= m->numframes ||
             m->nframe < 0 || m->nframe >= m->numframes)
     {
-        OSD_Printf("Model frame out of bounds!\n");
+        OSD_Printf("%s: Model frame out of bounds!\n", m->head.nam);
         if (m->interpol < 0)
             m->interpol = 0;
         if (m->interpol > 1)
