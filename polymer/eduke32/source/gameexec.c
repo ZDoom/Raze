@@ -125,11 +125,26 @@ static inline int32_t VM_CheckSquished(void)
 {
     sectortype *sc = &sector[vm.g_sp->sectnum];
 
-    if ((vm.g_sp->picnum == APLAYER && ud.clipping) || sc->lotag == 23 || 
-        (vm.g_sp->pal == 1 ?
-        !(sc->floorz - sc->ceilingz < (32<<8) && (sc->lotag&32768) == 0) :
-    !(sc->floorz - sc->ceilingz < (12<<8))))
+    if ((vm.g_sp->picnum == APLAYER && ud.clipping) || sc->lotag == 23)
         return 0;
+
+    {
+        int32_t fz=sc->floorz, cz=sc->ceilingz;
+#ifdef YAX_ENABLE
+        int16_t cb, fb;
+
+        yax_getbunches(vm.g_sp->sectnum, &cb, &fb);
+        if (cb >= 0 && (sc->ceilingstat&512)==0)  // if ceiling non-blocking...
+            cz -= (32<<8);  // don't squish unconditionally... yax_getneighborsect is slowish :/
+        if (fb >= 0 && (sc->floorstat&512)==0)
+            fz += (32<<8);
+#endif
+
+        if (vm.g_sp->pal == 1 ?
+            (fz - cz >= (32<<8) || (sc->lotag&32768)) :
+            (fz - cz >= (12<<8)))
+        return 0;
+    }
 
     P_DoQuote(QUOTE_SQUISHED, g_player[vm.g_p].ps);
 
