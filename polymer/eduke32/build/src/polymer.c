@@ -1474,6 +1474,8 @@ int16_t             polymer_addlight(_prlight* light)
     prlights[lighti].flags.isinview = 0;
     prlights[lighti].flags.active = 1;
 
+    prlights[lighti].flags.invalidate = 0;
+
     prlights[lighti].planecount = 0;
     prlights[lighti].planelist = NULL;
 

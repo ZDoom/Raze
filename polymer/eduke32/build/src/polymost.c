@@ -1708,7 +1708,12 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
 
         picfil = (char *)Bmalloc(picfillen+1); if (!picfil) { kclose(filh); return 1; }
-        kread(filh, picfil, picfillen);
+        if (kread(filh, picfil, picfillen) != picfillen)
+            initprintf("warning: didn't fully read %s\n", fn);
+        // prevent
+        // Conditional jump or move depends on uninitialised value(s)
+        //  at kpegrend (kplib.c:1655)
+        picfil[picfillen] = 0;
         kclose(filh);
 
         // tsizx/y = replacement texture's natural size
