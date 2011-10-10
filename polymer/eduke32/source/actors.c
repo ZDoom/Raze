@@ -1775,6 +1775,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 if (actor[i].t_data[6] != 1)
                 {
                     // we're on a trip wire
+                    int16_t cursectnum;
 
                     while (x > 0)
                     {
@@ -1792,6 +1793,11 @@ ACTOR_STATIC void G_MoveStandables(void)
                             break;
                         }
                         x -= 1024;
+
+                        cursectnum = s->sectnum;
+                        updatesector(s->x, s->y, &cursectnum);
+                        if (cursectnum < 0)
+                            break;
                     }
                 }
 
