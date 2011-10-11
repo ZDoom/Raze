@@ -251,8 +251,10 @@ void (APIENTRY *bglGetActiveAttribARB)(GLhandleARB, GLuint, GLsizei, GLsizei *, 
 GLint(APIENTRY *bglGetAttribLocationARB)(GLhandleARB, const GLcharARB *);
 
 // Debug Output
+#ifndef __APPLE__
 void (APIENTRY * bglDebugMessageControlARB)(GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint *ids, GLboolean enabled);
 void (APIENTRY * bglDebugMessageCallbackARB)(GLDEBUGPROCARB callback, const GLvoid *userParam);
+#endif
 
 // GLU
 void (APIENTRY *bgluTessBeginContour)(GLUtesselator *tess);
@@ -621,8 +623,10 @@ int32_t loadglextensions(void)
     bglGetAttribLocationARB = GETPROCEXTSOFT("glGetAttribLocationARB");
 
     // Debug Output
+#ifndef __APPLE__
     bglDebugMessageControlARB = GETPROCEXTSOFT("glDebugMessageControlARB");
     bglDebugMessageCallbackARB = GETPROCEXTSOFT("glDebugMessageCallbackARB");
+#endif
 
 #ifdef RENDERTYPEWIN
     bwglSwapIntervalEXT	    = GETPROCEXTSOFT("wglSwapIntervalEXT");

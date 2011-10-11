@@ -284,8 +284,10 @@ extern void (APIENTRY * bglGetActiveAttribARB)(GLhandleARB, GLuint, GLsizei, GLs
 extern GLint (APIENTRY * bglGetAttribLocationARB)(GLhandleARB, const GLcharARB *);
 
 // Debug Output
+#ifndef __APPLE__
 extern void (APIENTRY * bglDebugMessageControlARB)(GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint *ids, GLboolean enabled);
 extern void (APIENTRY * bglDebugMessageCallbackARB)(GLDEBUGPROCARB callback, const GLvoid *userParam);
+#endif
 
 // GLU
 extern void             (APIENTRY * bgluTessBeginContour) (GLUtesselator* tess);

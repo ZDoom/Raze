@@ -730,11 +730,13 @@ int32_t             polymer_init(void)
         i++;
     }
 
+#ifndef __APPLE__
     if (glinfo.debugoutput) {
         // Enable everything.
         bglDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
         bglDebugMessageCallbackARB(polymer_debugoutputcallback, NULL);
     }
+#endif
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete in %d ms.\n", getticks()-t);
 
