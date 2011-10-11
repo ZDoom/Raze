@@ -139,7 +139,15 @@ ifneq (0,$(LUNATIC))
     OURCFLAGS+= -I/usr/local/include/luajit-2.0 -I$(SRC)/lunatic -DLUNATIC_ENABLE
     LIBS+= -L/usr/local/lib -lluajit-5.1
     GAMEOBJS+= $(OBJ)/lunatic.$o
-    MISCLINKOPTS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
+    # strip on OSX says: removing global symbols from a final linked no longer supported.
+    #                    Use -exported_symbols_list at link time when building
+    # But, not doing this does not give us the symbols! wtf?
+    STRIP+= -s $(SRC)/lunatic/dynsymlist_osx
+    ifeq ($(PLATFORM),DARWIN)
+        MISCLINKOPTS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(SRC)/lunatic/aliases_list #-exported_symbols_list $(SRC)/lunatic/dynsymlist_osx
+    else
+        MISCLINKOPTS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
+    endif
 endif
 
 # PLATFORM SPECIFIC SETTINGS
@@ -306,6 +314,12 @@ $(OBJ)/%.$o: $(SRC)/%.c
 $(OBJ)/%.$o: $(SRC)/lunatic/%.c
 	$(COMPILE_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
+$(SRC)/lunatic/dynsymlist_osx: $(SRC)/lunatic/dynsymlist
+	sed 's/[{};]//g;s/[A-Za-z_][A-Za-z_0-9]*/_&/g' $< > $@
+
+$(SRC)/lunatic/aliases_list: $(SRC)/lunatic/dynsymlist_osx
+	sed 's/_\([A-Za-z_][A-Za-z_0-9]*\)/_\1 \1/g' $< > $@
 
 $(OBJ)/%.$o: Apple/%.m
 	$(COMPILE_STATUS)

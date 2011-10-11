@@ -58,7 +58,56 @@ const int16_t prevspritesect[16384], prevspritestat[16384];
 const int16_t nextspritesect[16384], nextspritestat[16384];
 ]]
 
---
+---- _G tweaks -- pull in only 'safe' stuff ----
+
+local G_ = {}  -- our soon-to-be global environment
+local oG = _G
+
+G_.coroutine = coroutine
+G_.assert = assert
+G_.tostring = tostring
+G_.tonumber = tonumber
+--rawget
+G_.xpcall = xpcall
+G_.ipairs = ipairs
+G_.print = print
+G_.pcall = pcall
+--gcinfo --DEPRECATED
+--module
+--setfenv
+--require
+--rawset
+--jit
+G_.bit = bit
+--package
+G_.error = error
+--debug
+--loadfile
+--rawequal
+--load
+G_.unpack = unpack
+G_.pairs = pairs
+G_.table = table
+G_._VERSION = _VERSION
+--newproxy --NOT STD?
+--collectgarbage
+--dofile
+G_.next = next
+G_.math = math
+--loadstring
+--_G
+G_.select = select
+G_.string = string
+G_.type = type
+--getmetatable
+--getfenv
+--setmetatable
+
+G_._G = G_
+
+-- REMOVE this for release
+DBG_ = {}
+DBG_.loadstring = oG.loadstring
 
 ---- Set up restricted access to ffi.C from lunatic. ----
 local ffiC = ffi.C
@@ -69,7 +118,7 @@ local tmpmt = {
     __newindex = function() error('dummy variable: write access forbidden') end,
     __metatable = true  -- forbid setting the metatable
 }
-setmetatable(det, tmpmt)
+oG.setmetatable(det, tmpmt)
 
 -- GLOBAL gv: provides access to C global *scalars*
 gv = {
@@ -89,7 +138,7 @@ local tmpmt = {
     __newindex = function() error("cannot create new fields in 'gv'") end,
     __metatable = true,
 }
-setmetatable(gv, tmpmt)
+oG.setmetatable(gv, tmpmt)
 
 ---- indirect C array access ----
 sector = {}
@@ -102,7 +151,7 @@ local tmpmt = {
     __newindex = function(tab, key, val) error('cannot write to sector[] struct directly') end,
     __metatable = true,
 }
-setmetatable(sector, tmpmt)
+oG.setmetatable(sector, tmpmt)
 
 wall = {}
 local tmpmt = {
@@ -114,7 +163,7 @@ local tmpmt = {
     __newindex = function(tab, key, val) error('cannot write to wall[] struct directly') end,
     __metatable = true,
 }
-setmetatable(wall, tmpmt)
+oG.setmetatable(wall, tmpmt)
 
 -- create a safe indirection for a ffi.C array
 local function creategtab(ctab, maxidx, name)
@@ -131,7 +180,7 @@ local function creategtab(ctab, maxidx, name)
                      end,
         __metatable = true,
     }
-    setmetatable(tab, tmpmt)
+    oG.setmetatable(tab, tmpmt)
     return tab
 end
 
@@ -176,6 +225,21 @@ function spritesofstat(stat)
     return iter_spritesofstat , stat, -1
 end
 
--- restrict access to potentially unsafe standard Lua modules (not yet done)
-os = nil
-io = nil
+
+-- add new variables/functions living in the global environment
+G_.DBG_ = DBG_  -- REMOVE this for release
+G_.gv = gv
+G_.sector = sector
+G_.wall = wall
+G_.sprite = sprite
+G_.headspritesect = headspritesect
+G_.headspritestat = headspritestat
+G_.nextspritesect = nextspritesect
+G_.nextspritestat = nextspritestat
+G_.prevspritesect = prevspritesect
+G_.prevspritestat = prevspritestat
+G_.spritesofsect = spritesofsect
+G_.spritesofstat = spritesofstat
+
+-- change the environment of the running Lua thread to the table G_
+setfenv(0, G_)

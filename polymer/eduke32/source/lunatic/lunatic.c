@@ -25,7 +25,7 @@ int32_t El_CreateState(El_State *estate, const char *name)
     {
         Bfree((char *)estate->name);
         estate->name = NULL;
-        return -1;
+        return -2;
     }
 
     luaL_openlibs(estate->L);  // XXX: only for internal use and testing, obviously
