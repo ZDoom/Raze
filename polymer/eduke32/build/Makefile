@@ -65,6 +65,12 @@ endif
 ifneq ($(PLATFORM),WINDOWS)
     LIBS+= -ldl -pthread
 endif
+ifeq ($(PLATFORM),DARWIN)
+    ifneq ($(USE_LIBPNG),0)
+        OURCFLAGS+= -I/opt/local/include
+        LIBS+= -L/opt/local/lib -lpng
+    endif
+endif
 
 
 ENGINEOBJS+= \
@@ -109,12 +115,11 @@ ifeq ($(PLATFORM),LINUX)
 endif
 ifeq ($(PLATFORM),DARWIN)
     ifneq ($(findstring ppc,$(ARCH)),ppc)
-        ENGINEOBJS  += $(OBJ)/StartupWinController.editor.$o
+#        ENGINEOBJS  += $(OBJ)/StartupWinController.editor.$o
     endif
     ENGINEOBJS += $(OBJ)/osxbits.$o
-    ASFLAGS     += -DUNDERSCORES -f macho
-    OURCFLAGS   += -DUNDERSCORES -fno-pic
-    TARGETOPTS  += -DNOASM
+    ASFLAGS     += -f macho -DUNDERSCORES
+    OURCFLAGS   += -fno-pic -DUNDERSCORES
 endif
 ifeq ($(PLATFORM),BSD)
     ASFLAGS+= -f elf

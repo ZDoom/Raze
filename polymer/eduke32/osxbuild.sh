@@ -30,7 +30,7 @@ if [ $onlyzip -eq 0 ]; then
     # fi
 
     make veryclean
-    WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 make -j 3
+    WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3
     if [ $? ]; then
         echo 64-bit release build succeeded.
         cp mapster32 mapster32.x64
@@ -50,7 +50,7 @@ if [ $onlyzip -eq 0 ]; then
     # fi
 
     make veryclean
-    WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=1 make -j 3
+    WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3
     if [ $? ]; then
         echo 32-bit release build succeeded.
         cp mapster32 mapster32.x86
@@ -70,7 +70,7 @@ if [ $onlyzip -eq 0 ]; then
     # fi
 
     make veryclean
-    ARCH='-arch ppc' WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 make -j 3
+    ARCH='-arch ppc' WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3
     if [ $? ]; then
         echo PowerPC release build succeeded.
         cp mapster32 mapster32.ppc

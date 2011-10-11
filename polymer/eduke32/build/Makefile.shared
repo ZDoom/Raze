@@ -94,16 +94,16 @@ ifeq ($(PLATFORM),LINUX)
 endif
 ifeq ($(PLATFORM),DARWIN)
     RENDERTYPE    = SDL
-    BUILDCFLAGS    += -DHAVE_INTTYPES
+    BUILDCFLAGS    += -DHAVE_INTTYPES #-fno-leading-underscore
     GTKCOMPAT32    = 0
     SDL_FRAMEWORK    = 1
     ifeq (1,$(BUILD32_ON_64))
         BUILDCFLAGS += $(F_NO_STACK_PROTECTOR) -arch i386
     else
-        # ASM won't work on PowerPC or x86_64
         ifeq ($(findstring ppc,$(ARCH)),ppc)
             BUILDCFLAGS += $(F_NO_STACK_PROTECTOR)
         endif
+        # ASM won't work on PowerPC or x86_64
         override NOASM    = 1
     endif
 endif
