@@ -2180,6 +2180,8 @@ static int32_t C_ParseCommand(void)
 //            initprintf("    o:%d s:%d\n", aEventOffsets[j], aEventSizes[j]);
         }
 
+        aEventEnabled[j] = 1;
+
         g_didDefineSomething = 1;
 
         cs.parsingEventOfs = -1;
