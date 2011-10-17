@@ -12957,7 +12957,7 @@ restart_grand:
 
 void setaspect_new()
 {
-    if (r_usenewaspect && newaspect_enable)
+    if (r_usenewaspect && newaspect_enable && getrendermode()!=4)
     {
         // the correction factor 100/107 has been found
         // out experimentally. squares ftw!
@@ -13020,7 +13020,7 @@ void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 void setaspect(int32_t daxrange, int32_t daaspect)
 {
     viewingrange = daxrange;
-    viewingrangerecip = divscale32(1L,daxrange);
+    viewingrangerecip = divscale32(1,daxrange);
 
     yxaspect = daaspect;
     xyaspect = divscale32(1,yxaspect);

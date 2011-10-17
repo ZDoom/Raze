@@ -780,6 +780,9 @@ void                polymer_uninit(void)
 void                polymer_setaspect(int32_t ang)
 {
     float           aspect;
+    float fang = ang;
+
+    fang *= atanf((float)viewingrange/65536.0f)/(PI/4);
 
     if (pr_customaspect != 0.0f)
         aspect = pr_customaspect;
@@ -789,7 +792,7 @@ void                polymer_setaspect(int32_t ang)
 
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
-    bgluPerspective((float)(ang) / (2048.0f / 360.0f), aspect, 0.01f, 100.0f);
+    bgluPerspective(fang / (2048.0f / 360.0f), aspect, 0.01f, 100.0f);
 }
 
 void                polymer_glinit(void)

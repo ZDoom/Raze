@@ -2182,11 +2182,10 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     char col;
     walltype *wal, *wal2;
     spritetype *spr;
-    int32_t oydim=ydim;
 
-    ydim = (int32_t)((double)xdim * 0.625f);
-    setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
-    ydim = oydim;
+    int32_t tmpydim = (xdim*5)/8;
+
+    setaspect(65536, divscale16(tmpydim*320, xdim*200));
 
     xvect = sintable[(-cang)&2047] * czoom;
     yvect = sintable[(1536-cang)&2047] * czoom;
@@ -3171,7 +3170,6 @@ void G_DrawBackground(void)
 
 static int32_t ror_sprite = -1;
 
-static int32_t oyrepeat=-1;
 extern float r_ambientlight;
 
 char ror_protectedsectors[MAXSECTORS];
@@ -3389,11 +3387,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         if (!r_usenewaspect)
         {
-//            if (i != oyrepeat)
-            {
-                oyrepeat = i;
-                setaspect(oyrepeat,yxaspect);
-            }
+            setaspect(i, yxaspect);
         }
         else
         {
