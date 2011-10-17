@@ -4383,10 +4383,10 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
     switch (bytes)
     {
     case 1:
-        danum = *(char *)num;
+        danum = sign ? *(int8_t *)num : *(uint8_t *)num;
         break;
     case 2:
-        danum = *(int16_t *)num;
+        danum = sign ? *(int16_t *)num : *(uint16_t *)num;
         break;
     case 4:
         danum = *(int32_t *)num;
@@ -6364,15 +6364,18 @@ static void Keys3d(void)
     {
         if (ASSERT_AIMING)
         {
-            int16_t opicnum = AIMED_CF_SEL(picnum), aimspr=AIMING_AT_SPRITE, osearchwall=searchwall;
+            int32_t aiming_at_sprite = AIMING_AT_SPRITE, osearchwall=searchwall;
+            int16_t *picnumptr = AIMING_AT_WALL_OR_MASK ? &AIMED_SELOVR_PICNUM : &AIMED_CF_SEL(picnum);
+
             static const char *Typestr_tmp[5] = { "Wall", "Sector ceiling", "Sector floor", "Sprite", "Masked wall" };
+
             Bsprintf(tempbuf, "%s picnum: ", Typestr_tmp[searchstat]);
-            getnumberptr256(tempbuf, &AIMED_CF_SEL(picnum), sizeof(int16_t), MAXTILES-1, 0+2, NULL);
-            if (opicnum != AIMED_CF_SEL(picnum))
+            getnumberptr256(tempbuf, picnumptr, sizeof(int16_t), MAXTILES-1, 0+2, NULL);
+            if (*picnumptr != AIMED_CF_SEL(picnum))
                 asksave = 1;
 
             // need to use the old value because aiming might have changed in getnumberptr256
-            if (aimspr)
+            if (aiming_at_sprite)
                 correct_sprite_yoffset(osearchwall);
         }
     }
