@@ -433,9 +433,17 @@ static void reset_default_mapstate(void)
 #endif
 }
 
+#undef STARTUP_SETUP_WINDOW
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+# define STARTUP_SETUP_WINDOW
+#endif
+
 int32_t app_main(int32_t argc, const char **argv)
 {
-    char quitflag, cmdsetup = 0;
+#ifdef STARTUP_SETUP_WINDOW
+    char cmdsetup = 0;
+#endif
+    char quitflag;
     int32_t i, j, k;
 
     pathsearchmode = 1;		// unrestrict findfrompath so that full access to the filesystem can be had
@@ -461,8 +469,11 @@ int32_t app_main(int32_t argc, const char **argv)
     {
         if (argv[i][0] == '-')
         {
+#ifdef STARTUP_SETUP_WINDOW
             if (!Bstrcmp(argv[i], "-setup")) cmdsetup = 1;
-            else if (!Bstrcmp(argv[i], "-help") || !Bstrcmp(argv[i], "--help") || !Bstrcmp(argv[i], "-?"))
+            else
+#endif
+            if (!Bstrcmp(argv[i], "-help") || !Bstrcmp(argv[i], "--help") || !Bstrcmp(argv[i], "-?"))
             {
                 char *s =
                     "Mapster32\n"
@@ -470,11 +481,11 @@ int32_t app_main(int32_t argc, const char **argv)
                     "Options:\n"
                     "\t-grp\tUse an extra GRP or ZIP file.\n"
                     "\t-g\tSame as above.\n"
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+#ifdef STARTUP_SETUP_WINDOW
                     "\t-setup\tDisplays the configuration dialogue box before entering the editor.\n"
 #endif
                     ;
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+#ifdef STARTUP_SETUP_WINDOW
                 wm_msgbox("Mapster32","%s",s);
 #else
                 puts(s);
@@ -500,7 +511,7 @@ int32_t app_main(int32_t argc, const char **argv)
     //Bcanonicalisefilename(boardfilename,0);
 
     if ((i = ExtInit()) < 0) return -1;
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+#ifdef STARTUP_SETUP_WINDOW
     if (i || forcesetup || cmdsetup)
     {
         extern int32_t startwin_run(void);
@@ -2529,14 +2540,14 @@ void overheadeditor(void)
     const char *dabuffer;
     int32_t i, j, k, m=0, mousxplc, mousyplc, firstx=0, firsty=0, oposz, col;
     int32_t tempint, tempint1, tempint2;
-    int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3, x4, y4;
+    int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3; //, x4, y4;
     int32_t highlightx1, highlighty1, highlightx2, highlighty2;
     int16_t suckwall=0, sucksect, split=0, bad;
     int16_t splitsect=0, joinsector[2];
     int16_t splitstartwall=0;
     int32_t mousx, mousy, bstatus;
     int32_t centerx, centery, circlerad;
-    int16_t circlepoints, circleang1, circleang2, circleangdir;
+    int16_t circlepoints, circleang1, circleang2; //, circleangdir;
     int32_t sectorhighlightx=0, sectorhighlighty=0;
     int16_t cursectorhighlight, sectorhighlightstat;
     walltype *wal;
@@ -2745,8 +2756,8 @@ void overheadeditor(void)
 
                 x3 = pos.x + divscale14(-halfxdim16,zoom);
                 y3 = pos.y + divscale14(-(midydim16-4),zoom);
-                x4 = pos.x + divscale14(halfxdim16,zoom);
-                y4 = pos.y + divscale14(ydim16-(midydim16-4),zoom);
+//                x4 = pos.x + divscale14(halfxdim16,zoom);
+//                y4 = pos.y + divscale14(ydim16-(midydim16-4),zoom);
 
                 if (newnumwalls >= 0)
                 {
@@ -5492,11 +5503,11 @@ end_join_sectors:
                 circleang1 = getangle(x1-centerx,y1-centery);
                 circleang2 = getangle(x2-centerx,y2-centery);
 
-                circleangdir = 1;
+//                circleangdir = 1;
                 k = ((circleang2-circleang1)&2047);
                 if (mulscale4(x3-x1,y2-y1) < mulscale4(x2-x1,y3-y1))
                 {
-                    circleangdir = -1;
+//                    circleangdir = -1;
                     k = -((circleang1-circleang2)&2047);
                 }
 

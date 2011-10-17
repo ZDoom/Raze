@@ -1610,7 +1610,7 @@ static int32_t C_CountCaseStatements()
 static int32_t C_ParseCommand(void)
 {
     int32_t i, j=0, k=0, done, tw;
-    const char *temptextptr;
+//    const char *temptextptr;
     instype *tempscrptr = NULL;
 
     if (g_numCompilerErrors >= ABORTERRCNT || (*textptr == '\0') || (*(textptr+1) == '\0'))
@@ -2266,7 +2266,7 @@ static int32_t C_ParseCommand(void)
         cs.caseScriptPtr = g_scriptPtr;        // the first case's pointer.
         *g_scriptPtr++ = -1; // leave spot for 'default' offset to cases' code (-1 if none)
 
-        temptextptr = textptr;
+//        temptextptr = textptr;
         // probably does not allow nesting...
         //AddLog("Counting Case Statements...");
         j = C_CountCaseStatements();

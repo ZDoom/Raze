@@ -10769,7 +10769,7 @@ static void G_DoOrderScreen(void)
 
 void G_BonusScreen(int32_t bonusonly)
 {
-    int32_t t, tinc,gfx_offset;
+    int32_t t, /*tinc,*/ gfx_offset;
     int32_t i, y,xfragtotal,yfragtotal;
     int32_t bonuscnt;
     int32_t clockpad = 2;
@@ -10844,7 +10844,7 @@ void G_BonusScreen(int32_t bonusonly)
 
                 KB_FlushKeyboardQueue();
                 totalclock = 0;
-                tinc = 0;
+//                tinc = 0;
                 while (1)
                 {
                     clearview(0L);
@@ -11105,7 +11105,7 @@ FRAGBONUS:
     G_FadePalette(0,0,0,63);   // JBF 20031228
     KB_FlushKeyboardQueue();
     totalclock = 0;
-    tinc = 0;
+//    tinc = 0;
     bonuscnt = 0;
 
     S_StopMusic();
@@ -11228,7 +11228,7 @@ FRAGBONUS:
     fadepal(0,0,0, 63,0,-1);
     bonuscnt = 0;
     totalclock = 0;
-    tinc = 0;
+//    tinc = 0;
 
     playerbest = CONFIG_GetMapBestTime(MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].filename);
 

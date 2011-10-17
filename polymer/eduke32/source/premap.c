@@ -1562,7 +1562,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
 static void resetpspritevars(char g)
 {
-    int16_t i, j, nexti,circ;
+    int16_t i, j, nexti; //circ;
 //    int32_t firstx,firsty;
     spritetype *s;
     uint8_t aimmode[MAXPLAYERS],autoaim[MAXPLAYERS],weaponswitch[MAXPLAYERS];
@@ -1613,7 +1613,7 @@ static void resetpspritevars(char g)
     }
 
     g_numPlayerSprites = 0;
-    circ = 2048/ud.multimode;
+//    circ = 2048/ud.multimode;
 
     g_whichPalForPlayer = 9;
     j = 0;

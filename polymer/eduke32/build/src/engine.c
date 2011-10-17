@@ -75,10 +75,10 @@ static void drawpixel_safe(void *s, char a)
 #endif
 }
 
-void loadvoxel(int32_t voxindex) { voxindex=0; }
+//void loadvoxel(int32_t voxindex) { UNREFERENCED_PARAMATER(voxindex); }
 int32_t tiletovox[MAXTILES];
 int32_t usevoxels = 1;
-#define kloadvoxel loadvoxel
+//#define kloadvoxel loadvoxel
 
 int32_t novoxmips = 1;
 int32_t editorgridextent = 131072;
@@ -4873,7 +4873,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
 {
     int32_t i, j, k, x, y, syoff, ggxstart, ggystart, nxoff;
     int32_t cosang, sinang, sprcosang, sprsinang, backx, backy, gxinc, gyinc;
-    int32_t daxsiz, daysiz, dazsiz, daxpivot, daypivot, dazpivot;
+    int32_t daxsiz, daysiz, /*dazsiz,*/ daxpivot, daypivot, dazpivot;
     int32_t daxscalerecip, dayscalerecip, cnt, gxstart, gystart, odayscale;
     int32_t l1, l2, /*slabxoffs,*/ xyvoxoffs, *longptr;
     intptr_t slabxoffs;
@@ -4921,7 +4921,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
     dayscalerecip = (1<<30)/dayscale;
 
     longptr = (int32_t *)davoxptr;
-    daxsiz = B_LITTLE32(longptr[0]); daysiz = B_LITTLE32(longptr[1]); dazsiz = B_LITTLE32(longptr[2]);
+    daxsiz = B_LITTLE32(longptr[0]); daysiz = B_LITTLE32(longptr[1]); //dazsiz = B_LITTLE32(longptr[2]);
     daxpivot = B_LITTLE32(longptr[3]); daypivot = B_LITTLE32(longptr[4]); dazpivot = B_LITTLE32(longptr[5]);
     davoxptr += (6<<2);
 
@@ -6004,14 +6004,14 @@ static void drawsprite(int32_t snum)
                 if (lwall[x] < swall[x]) break;
             if (x == rx) return;
         }
-
+/*
         for (i=0; i<MAXVOXMIPS; i++)
             if (!voxoff[vtilenum][i])
             {
                 kloadvoxel(vtilenum);
                 break;
             }
-
+*/
         longptr = (int32_t *)voxoff[vtilenum][0];
 
         if (voxscale[vtilenum] == 65536)
@@ -8805,7 +8805,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, int32_t *daposz,
                   int16_t *daang, int16_t *dacursectnum)
 {
-    int16_t fil, i, numsprites, dq[MAXSPRITES], dnum = 0;
+    int16_t fil, i, numsprites; /*dq[MAXSPRITES], dnum = 0;*/
 #ifdef POLYMER
     char myflags = flags&(~3);
 #endif
@@ -8918,7 +8918,7 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
         if (sprite[i].picnum<0||sprite[i].picnum>=MAXTILES)
         {
             initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal picnum(%d). Map is corrupt!\n",i,sprite[i].x,sprite[i].y,sprite[i].picnum);
-            dq[dnum++] = i;
+//            dq[dnum++] = i;
             sprite[i].picnum = 0;
         }
     }
@@ -8929,14 +8929,14 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
 #endif
     for (i=0; i<numsprites; i++)
     {
-        int32_t k;
         /*
+        int32_t k;
                 int16_t sect;
         */
 
         if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
 
-        k = insertsprite(sprite[i].sectnum,sprite[i].statnum);
+        /*k =*/ insertsprite(sprite[i].sectnum,sprite[i].statnum);
 
         /*
                 sect = sprite[k].sectnum;
@@ -12170,14 +12170,14 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
     sectortype *sec, *sec2;
     walltype *wal;
     int32_t i, j, k, t, dx, dy, dax, day, daz, daz2, bad, dir;
-    int32_t dasprclipmask, dawalclipmask;
+    int32_t /*dasprclipmask,*/ dawalclipmask;
     int16_t startwall, endwall, clipsectcnt;
     char bad2;
 
     if ((*sectnum) < 0) return(-1);
 
     dawalclipmask = (cliptype&65535);
-    dasprclipmask = (cliptype>>16);
+//    dasprclipmask = (cliptype>>16);
 
     k = 32;
     dir = 1;
@@ -13206,7 +13206,7 @@ void setbasepaltable(uint8_t **thebasepaltable, uint8_t thebasepalcount)
 //
 void setbrightness(char dabrightness, uint8_t dapalid, char noapply)
 {
-    int32_t i, k, j, paldidchange=0;
+    int32_t i, j, paldidchange=0;
     uint8_t *dapal;
 //    uint32_t lastbright = curbrightness;
     
@@ -13226,7 +13226,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, char noapply)
 
     if (setgamma()) j = curbrightness; else j = 0;
 
-    for (k=i=0; i<256; i++)
+    for (i=0; i<256; i++)
     {
         // save palette without any brightness adjustment
         curpalette[i].r = dapal[i*3+0] << 2;

@@ -1888,7 +1888,7 @@ static void C_Include(const char *confile)
 static int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw, otw;
-    char *temptextptr;
+//    char *temptextptr;
     intptr_t *tempscrptr = NULL;
 
     do
@@ -1906,7 +1906,7 @@ static int32_t C_ParseCommand(int32_t loop)
         if (g_scriptDebug)
             C_ReportError(-1);
 
-        tempscrptr = NULL, temptextptr = NULL;
+        tempscrptr = NULL; // temptextptr = NULL;
         otw = g_lastKeyword;
 
         switch ((g_lastKeyword = tw = C_GetNextKeyword()))
@@ -4253,7 +4253,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++=0; // leave spot for 'default' location (null if none)
 
-                temptextptr=textptr;
+//                temptextptr=textptr;
                 // probably does not allow nesting...
 
                 j=C_CountCaseStatements();

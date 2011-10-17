@@ -127,13 +127,15 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
     char *command = getenv("EDUKE32_MUSIC_CMD");
     const SDL_version *linked = Mix_Linked_Version();
 
+    UNREFERENCED_PARAMETER(SoundCard);
+    UNREFERENCED_PARAMETER(Address);
+
     if (music_initialized)
     {
         setErrorMessage("Music system is already initialized.");
         return(MUSIC_Error);
     } // if
 
-    UNREFERENCED_PARAMETER(Address);
     if (SDL_VERSIONNUM(linked->major,linked->minor,linked->patch) < MIX_REQUIREDVERSION)
     {
         // reject running with SDL_Mixer versions older than what is stated in sdl_inc.h
@@ -222,7 +224,6 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
                 }
         */
 #endif
-        SoundCard = 1;
         music_initialized = 1;
         return(MUSIC_Ok);
 
@@ -254,7 +255,6 @@ fallback:
         Bfclose(fp);
     }
 
-    SoundCard = 1;
     music_initialized = 1;
     return(MUSIC_Ok);
 } // MUSIC_Init

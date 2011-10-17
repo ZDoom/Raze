@@ -1962,18 +1962,20 @@ void A_DamageObject(int32_t i,int32_t sn)
     int16_t j;
     int32_t k, p, rpg=0;
     spritetype *s;
-    int32_t switchpicnum = PN;
+//    int32_t switchpicnum = PN;
 
     i &= (MAXSPRITES-1);
 
     if (A_CheckSpriteFlags(sn,SPRITE_PROJECTILE))
         if (SpriteProjectile[sn].workslike & PROJECTILE_RPG)
             rpg = 1;
+/*
     switchpicnum = PN;
     if ((PN > WATERFOUNTAIN)&&(PN < WATERFOUNTAIN+3))
     {
         switchpicnum = WATERFOUNTAIN;
     }
+*/
     switch (DynamicTileMap[PN])
     {
     case OCEANSPRITE1__STATIC:

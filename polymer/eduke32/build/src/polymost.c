@@ -1341,7 +1341,6 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
 
     {
         int32_t offset = 0;
-        int32_t len = 0;
         int32_t i;
 
         i = hash_find(&h_texcache,cachefn);
@@ -1351,10 +1350,7 @@ int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcache
             if (!t)
                 i = -1;
             else
-            {
-                len = t->len;
                 offset = t->offset;
-            }
             /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
         }
 
@@ -1953,13 +1949,13 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     int32_t x, y, z, mini, maxi, tsizxm1 = 0, tsizym1 = 0, ltsizy = 0;
     int32_t xi, d0, u0, v0, d1, u1, v1, xmodnice = 0, ymulnice = 0;
     char dacol = 0, *palptr = NULL, *vidp, *vide;
+    char *walptr;
 #endif
     double ngdx = 0.0, ngdy = 0.0, ngdo = 0.0, ngux = 0.0, nguy = 0.0, nguo = 0.0;
     double ngvx = 0.0, ngvy = 0.0, ngvo = 0.0, dp, up, vp, du0 = 0.0, du1 = 0.0, dui, duj;
     double f, r, ox, oy, oz, ox2, oy2, oz2, dd[16], uu[16], vv[16], px[16], py[16], uoffs;
     int32_t i, j, k, nn, ix0, ix1, tsizx, tsizy;
     int32_t xx, yy, dorot;
-    char *walptr;
 #ifdef USE_OPENGL
     pthtyp *pth, *detailpth, *glowpth;
     int32_t texunits = GL_TEXTURE0_ARB;
@@ -1999,7 +1995,9 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             tsizx = tsizy = 1; method = 1; //Hack to update Z-buffer for invalid mirror textures
         }
     }
+#ifdef OBSOLETE_RENDMODES
     walptr = (char *)waloff[globalpicnum];
+#endif
 
     j = 0; dorot = ((gchang != 1.0) || (gctang != 1.0));
     if (dorot)
@@ -3448,7 +3446,7 @@ static void polymost_drawalls(int32_t bunch)
             else  //NOTE: code copied from ceiling code... lots of duplicated stuff :/
             {
                 //Skybox code for parallax ceiling!
-                double _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1, _nx0, _ny0, _nx1, _ny1;
+                double _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1; // _nx0, _ny0, _nx1, _ny1;
                 double _ryp0, _ryp1, _x0, _x1, _cy0, _fy0, _cy1, _fy1, _ox0, _ox1;
                 double nfy0, nfy1;
                 int32_t skywalx[4] = {-512,512,512,-512}, skywaly[4] = {-512,-512,512,512};
@@ -3472,17 +3470,17 @@ static void polymost_drawalls(int32_t bunch)
                     {
                         if (_yp1 < SCISDIST) continue;
                         _t0 = (SCISDIST-_yp0)/(_yp1-_yp0); _xp0 = (_xp1-_xp0)*_t0+_xp0; _yp0 = SCISDIST;
-                        _nx0 = (skywalx[(i+1)&3]-skywalx[i&3])*_t0+skywalx[i&3];
-                        _ny0 = (skywaly[(i+1)&3]-skywaly[i&3])*_t0+skywaly[i&3];
+//                        _nx0 = (skywalx[(i+1)&3]-skywalx[i&3])*_t0+skywalx[i&3];
+//                        _ny0 = (skywaly[(i+1)&3]-skywaly[i&3])*_t0+skywaly[i&3];
                     }
-                    else { _t0 = 0.f; _nx0 = skywalx[i&3]; _ny0 = skywaly[i&3]; }
+                    else { _t0 = 0.f; /*_nx0 = skywalx[i&3]; _ny0 = skywaly[i&3];*/ }
                     if (_yp1 < SCISDIST)
                     {
                         _t1 = (SCISDIST-_oyp0)/(_yp1-_oyp0); _xp1 = (_xp1-_oxp0)*_t1+_oxp0; _yp1 = SCISDIST;
-                        _nx1 = (skywalx[(i+1)&3]-skywalx[i&3])*_t1+skywalx[i&3];
-                        _ny1 = (skywaly[(i+1)&3]-skywaly[i&3])*_t1+skywaly[i&3];
+//                        _nx1 = (skywalx[(i+1)&3]-skywalx[i&3])*_t1+skywalx[i&3];
+//                        _ny1 = (skywaly[(i+1)&3]-skywaly[i&3])*_t1+skywaly[i&3];
                     }
-                    else { _t1 = 1.f; _nx1 = skywalx[(i+1)&3]; _ny1 = skywaly[(i+1)&3]; }
+                    else { _t1 = 1.f; /*_nx1 = skywalx[(i+1)&3]; _ny1 = skywaly[(i+1)&3];*/ }
 
                     _ryp0 = 1.f/_yp0; _ryp1 = 1.f/_yp1;
 
@@ -3738,7 +3736,7 @@ static void polymost_drawalls(int32_t bunch)
             else
             {
                 //Skybox code for parallax ceiling!
-                double _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1, _nx0, _ny0, _nx1, _ny1;
+                double _xp0, _yp0, _xp1, _yp1, _oxp0, _oyp0, _t0, _t1; // _nx0, _ny0, _nx1, _ny1;
                 double _ryp0, _ryp1, _x0, _x1, _cy0, _fy0, _cy1, _fy1, _ox0, _ox1;
                 double ncy0, ncy1;
                 int32_t skywalx[4] = {-512,512,512,-512}, skywaly[4] = {-512,-512,512,512};
@@ -3762,17 +3760,17 @@ static void polymost_drawalls(int32_t bunch)
                     {
                         if (_yp1 < SCISDIST) continue;
                         _t0 = (SCISDIST-_yp0)/(_yp1-_yp0); _xp0 = (_xp1-_xp0)*_t0+_xp0; _yp0 = SCISDIST;
-                        _nx0 = (skywalx[(i+1)&3]-skywalx[i&3])*_t0+skywalx[i&3];
-                        _ny0 = (skywaly[(i+1)&3]-skywaly[i&3])*_t0+skywaly[i&3];
+//                        _nx0 = (skywalx[(i+1)&3]-skywalx[i&3])*_t0+skywalx[i&3];
+//                        _ny0 = (skywaly[(i+1)&3]-skywaly[i&3])*_t0+skywaly[i&3];
                     }
-                    else { _t0 = 0.f; _nx0 = skywalx[i&3]; _ny0 = skywaly[i&3]; }
+                    else { _t0 = 0.f; /*_nx0 = skywalx[i&3]; _ny0 = skywaly[i&3];*/ }
                     if (_yp1 < SCISDIST)
                     {
                         _t1 = (SCISDIST-_oyp0)/(_yp1-_oyp0); _xp1 = (_xp1-_oxp0)*_t1+_oxp0; _yp1 = SCISDIST;
-                        _nx1 = (skywalx[(i+1)&3]-skywalx[i&3])*_t1+skywalx[i&3];
-                        _ny1 = (skywaly[(i+1)&3]-skywaly[i&3])*_t1+skywaly[i&3];
+//                        _nx1 = (skywalx[(i+1)&3]-skywalx[i&3])*_t1+skywalx[i&3];
+//                        _ny1 = (skywaly[(i+1)&3]-skywaly[i&3])*_t1+skywaly[i&3];
                     }
-                    else { _t1 = 1.f; _nx1 = skywalx[(i+1)&3]; _ny1 = skywaly[(i+1)&3]; }
+                    else { _t1 = 1.f; /*_nx1 = skywalx[(i+1)&3]; _ny1 = skywaly[(i+1)&3];*/ }
 
                     _ryp0 = 1.f/_yp0; _ryp1 = 1.f/_yp1;
 

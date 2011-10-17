@@ -2757,7 +2757,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
     static int32_t tempsectorz[MAXSECTORS];
     static int32_t tempsectorpicnum[MAXSECTORS];
 
-    int32_t i=0,j=0,k=0;
+    int32_t j=0,k=0;
     int32_t floor1=0,floor2=0,ok=0,fofmode=0,draw_both=0;
     int32_t offx,offy,offz;
 
@@ -2831,7 +2831,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
         }
     }
 
-    i=floor1;
+//    i=floor1;
     offx=sprite[floor2].x-sprite[floor1].x;
     offy=sprite[floor2].y-sprite[floor1].y;
     offz=0;

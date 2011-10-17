@@ -1319,10 +1319,13 @@ static int32_t defsparser(scriptfile *script)
             // thin out the loaded model by throwing away unused frames
             if (models[lastmodelid]->mdnum==3 && ((md3model_t *)models[lastmodelid])->numframes <= 1024)
             {
+#ifdef DEBUG_MODEL_MEM
                 md3model_t *m = (md3model_t *)models[lastmodelid];
                 int32_t i, onumframes;
                 onumframes = m->numframes;
-                i = md_thinoutmodel(lastmodelid, usedframebitmap);
+                i =
+#endif
+                md_thinoutmodel(lastmodelid, usedframebitmap);
 #ifdef DEBUG_MODEL_MEM
                 if (i>=0 && i<onumframes)
                     initprintf("used %d/%d frames: %s\n", i, onumframes, modelfn);
