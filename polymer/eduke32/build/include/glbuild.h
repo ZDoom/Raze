@@ -5,6 +5,9 @@
 #include <windows.h>
 #endif
 
+// Tell gl.h to not include glext.h, we'll include our own copy in a minute
+#define GL_GLEXT_LEGACY
+
 #if defined(__APPLE__)
 # include <OpenGL/gl.h>
 # include <OpenGL/glu.h>
