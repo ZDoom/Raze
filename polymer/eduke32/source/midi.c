@@ -1716,7 +1716,7 @@ static void _MIDI_InitEMIDI
 {
     int32_t    event;
     int32_t    command;
-    int32_t    channel;
+//    int32_t    channel;
     int32_t    length;
     int32_t    IncludeFound;
     track *Track;
@@ -1807,7 +1807,7 @@ static void _MIDI_InitEMIDI
                 Track->pos--;
             }
 
-            channel = GET_MIDI_CHANNEL(event);
+//            channel = GET_MIDI_CHANNEL(event);
             command = GET_MIDI_COMMAND(event);
             length = _MIDI_CommandLengths[ command ];
 
