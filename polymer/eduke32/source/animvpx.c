@@ -378,18 +378,18 @@ void animvpx_setup_glstate(void)
 
     bglPushAttrib(GL_ENABLE_BIT);
     bglDisable(GL_ALPHA_TEST);
-    bglDisable(GL_LIGHTING);
+//    bglDisable(GL_LIGHTING);
     bglDisable(GL_DEPTH_TEST);
     bglDisable(GL_BLEND);
     bglDisable(GL_CULL_FACE);
-    bglDisable(GL_SCISSOR_TEST);
+//    bglDisable(GL_SCISSOR_TEST);
     bglEnable(GL_TEXTURE_2D);
 
 
     bglActiveTextureARB(GL_TEXTURE0_ARB);
     bglGenTextures(1, &texname);
-    gli = bglGetUniformLocationARB(PHandle,"tex");
-    bglUniform1iARB(gli,0);  // 0: texture unit
+//    gli = bglGetUniformLocationARB(PHandle,"tex");
+//    bglUniform1iARB(gli,0);  // 0: texture unit
     bglBindTexture(GL_TEXTURE_2D, texname);
 
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
