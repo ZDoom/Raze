@@ -8171,6 +8171,7 @@ void G_MoveWorld(void)
                             {
                                 int32_t dx = sintable[(s->ang+512)&2047];
                                 int32_t dy = sintable[(s->ang)&2047];
+#if 0
                                 int32_t madevisagain = 0;
 
                                 // dynamic make-invisible check for 'hidden' switches
@@ -8188,9 +8189,9 @@ void G_MoveWorld(void)
                                         madevisagain = 1;
                                     }
                                 }
-
-                                if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT) ||
-                                        (madevisagain==0 && !inside(s->x+(dx>>9), s->y+(dx>>9), s->sectnum)))
+#endif
+                                if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SPRITE_NOLIGHT))
+//                                        || (madevisagain==0 && !inside(s->x+(dx>>9), s->y+(dx>>9), s->sectnum))
                                 {
                                     if (actor[i].lightptr != NULL)
                                     {
