@@ -40,6 +40,8 @@
 #define ANY_WINDOWED_SIZE
 
 static mutex_t m_initprintf;
+static int32_t winlayer_uselastgamma = -1;
+static int32_t winlayer_have_ATI = 0;
 
 int32_t   _buildargc = 0;
 const char **_buildargv = NULL;
@@ -2160,6 +2162,13 @@ int32_t setpalette(int32_t start, int32_t num)
             return -1;
         }
 
+        if (winlayer_have_ATI)
+        {
+            winlayer_uselastgamma = (winlayer_uselastgamma!=-1);
+            setgamma();
+            winlayer_uselastgamma = 0;
+        }
+
         return 0;
     }
 
@@ -2242,13 +2251,14 @@ static int32_t setgammaramp(WORD gt[3][256])
         IDirectDrawGammaControl_Release(gam);
         return 0;
     }
-    else return 0;
+
+    return 0;
 }
 
 int32_t setgamma(void)
 {
     int32_t i;
-    WORD gammaTable[3][256];
+    static WORD gammaTable[3][256];
     float gamma = max(0.1f,min(4.f,vid_gamma));
     float contrast = max(0.1f,min(3.f,vid_contrast));
     float bright = max(-0.8f,min(0.8f,vid_brightness));
@@ -2258,16 +2268,20 @@ int32_t setgamma(void)
 
     if (!hWindow) return -1;
 
+    if (winlayer_have_ATI && bpp==8 && fullscreen)
+        return -1;
+
     // This formula is taken from Doomsday
 
-    for (i = 0; i < 256; i++)
-    {
-        double val = i * contrast - (contrast - 1) * 127;
-        if (gamma != 1) val = pow(val, invgamma) / norm;
-        val += bright * 128;
+    if (!winlayer_uselastgamma)
+        for (i = 0; i < 256; i++)
+        {
+            double val = i * contrast - (contrast - 1) * 127;
+            if (gamma != 1) val = pow(val, invgamma) / norm;
+            val += bright * 128;
 
-        gammaTable[0][i] = gammaTable[1][i] = gammaTable[2][i] = (WORD)max(0.f,(double)min(0xffff,val*256));
-    }
+            gammaTable[0][i] = gammaTable[1][i] = gammaTable[2][i] = (WORD)max(0.f,(double)min(0xffff,val*256));
+        }
     return setgammaramp(gammaTable);
 }
 
@@ -2886,6 +2900,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         {
             if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
             {
+                winlayer_have_ATI = 1;
 #ifdef POLYMER
                 pr_ati_fboworkaround = 1;
                 initprintf("Enabling ATI FBO color attachment workaround.\n");
