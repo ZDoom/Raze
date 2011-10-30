@@ -1348,6 +1348,15 @@ char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck)
 
 ////////////////////// OVERHEADEDITOR //////////////////////
 
+// some 2d mode state
+static struct overheadstate
+{
+    // state related to line drawing
+    int16_t suckwall, split;
+    int16_t splitsect;
+    int16_t splitstartwall;
+} ovh;
+
 int32_t inside_editor_curpos(int16_t sectnum)
 {
     // TODO: take care: mous[xy]plc global vs overheadeditor auto
@@ -2042,15 +2051,15 @@ static void copy_some_wall_members(int16_t dst, int16_t src, int32_t reset_some)
     }
 }
 
-static void init_new_wall1(int16_t *suckwall, int32_t *mousxplc, int32_t *mousyplc)
+static void init_new_wall1(int16_t *suckwall_ret, int32_t mousxplc, int32_t mousyplc)
 {
     int32_t i;
 
     Bmemset(&wall[newnumwalls], 0, sizeof(walltype));
     wall[newnumwalls].extra = -1;
 
-    wall[newnumwalls].x = *mousxplc;
-    wall[newnumwalls].y = *mousyplc;
+    wall[newnumwalls].x = mousxplc;
+    wall[newnumwalls].y = mousyplc;
     wall[newnumwalls].nextsector = -1;
     wall[newnumwalls].nextwall = -1;
 
@@ -2060,8 +2069,8 @@ static void init_new_wall1(int16_t *suckwall, int32_t *mousxplc, int32_t *mousyp
         if (wall[i].nextwall >= 0)
             YAX_SKIPWALL(wall[i].nextwall);
 
-        if (wall[i].x == *mousxplc && wall[i].y == *mousyplc)
-            *suckwall = i;
+        if (wall[i].x == mousxplc && wall[i].y == mousyplc)
+            *suckwall_ret = i;
     }
 
     wall[newnumwalls].point2 = newnumwalls+1;
@@ -2220,6 +2229,10 @@ static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, 
 }
 
 // Backup drawn walls for carrying out other operations in the middle.
+//  0: back up, set newnumwalls to -1
+//  1: restore drawn walls and free mem
+//  2: only free memory needed for backing up walls but don't restore walls
+//     (use this if the map has been mangled too much for a safe restoration)
 // Context that needs special treatment: suckwall, splitsect, splitstartwall
 static int32_t backup_drawn_walls(int32_t restore)
 {
@@ -2254,12 +2267,16 @@ static int32_t backup_drawn_walls(int32_t restore)
     // restore
     if (wallsdrawn != -1)
     {
-        int32_t i;
+        if (restore==1)
+        {
+            int32_t i;
 
-        Bmemcpy(&wall[numwalls], tmpwall, wallsdrawn*sizeof(walltype));
-        newnumwalls = numwalls + wallsdrawn;
-        for (i=numwalls; i<newnumwalls; i++)
-            wall[i].point2 = i+1;
+            Bmemcpy(&wall[numwalls], tmpwall, wallsdrawn*sizeof(walltype));
+
+            newnumwalls = numwalls + wallsdrawn;
+            for (i=numwalls; i<newnumwalls; i++)
+                wall[i].point2 = i+1;
+        }
 
         Bfree(tmpwall);
         tmpwall = NULL;
@@ -2544,9 +2561,7 @@ void overheadeditor(void)
     int32_t numwalls_bak;
     int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3; //, x4, y4;
     int32_t highlightx1, highlighty1, highlightx2, highlighty2;
-    int16_t suckwall=0, split=0, bad;
-    int16_t splitsect=0, joinsector[2];
-    int16_t splitstartwall=0;
+    int16_t bad, joinsector[2];
     int32_t mousx, mousy, bstatus;
     int16_t circlepoints;
     int32_t sectorhighlightx=0, sectorhighlighty=0;
@@ -2554,6 +2569,11 @@ void overheadeditor(void)
     int32_t prefixarg = 0, tsign;
     int32_t resetsynctics = 0, lasttick=getticks(), waitdelay=totalclock, lastdraw=getticks();
     int32_t olen[2]={0,0}, dragwall[2] = {-1, -1};
+
+    ovh.suckwall = -1;
+    ovh.split = 0;
+    ovh.splitsect = -1;
+    ovh.splitstartwall = -1;
 
     m32_setkeyfilter(1);
 
@@ -4165,6 +4185,10 @@ end_autoredwall:
         {
             int32_t runi, numdelpoints=0;
             const char *errmsg;
+            int32_t havedrawnwalls = (newnumwalls!=-1), restorestat=1;
+
+            // restorestat is set to 2 whenever the drawn walls should NOT be
+            // restored afterwards
 
             if (backup_drawn_walls(0))
                 goto end_after_dragging;
@@ -4237,6 +4261,24 @@ end_autoredwall:
                     if (wall[i].x == POINT2(i).x && wall[i].y == POINT2(i).y
                             && sector[sectorofwall(i)].wallnum > 3)
                     {
+                        if (havedrawnwalls)
+                        {
+                            if (i==ovh.suckwall || (ovh.split && i==ovh.splitstartwall))
+                            {
+                                // if we're about to delete a wall that participates
+                                // in splitting, discard the already drawn walls
+                                restorestat = 2;
+                            }
+                            else if (runi == 1)
+                            {
+                                // correct drawn wall anchors
+                                if (ovh.suckwall > i)
+                                    ovh.suckwall--;
+                                if (ovh.split && ovh.splitstartwall > i)
+                                    ovh.splitstartwall--;
+                            }
+                        }
+
                         errmsg = deletepoint(i, runi);
                         if (errmsg)
                         {
@@ -4251,9 +4293,11 @@ end_autoredwall:
             if (numdelpoints)
             {
                 if (numdelpoints > 1)
-                    message("Deleted %d points.", numdelpoints);
+                    message("Deleted %d points%s", numdelpoints,
+                            (havedrawnwalls && restorestat==2) ? " and cleared drawn walls":"");
                 else
-                    printmessage16("Point deleted.");
+                    printmessage16("Point deleted%s", (havedrawnwalls && restorestat==2) ?
+                                   ", cleared drawn walls":"");
                 asksave = 1;
             }
             else
@@ -4276,7 +4320,7 @@ end_autoredwall:
             yax_updategrays(pos.z);
 #endif
 end_after_dragging:
-            backup_drawn_walls(1);
+            backup_drawn_walls(restorestat);
         }
 
         if ((bstatus&1) > 0)                //drag points
@@ -5596,10 +5640,10 @@ end_join_sectors:
                 firstx = mousxplc;
                 firsty = mousyplc;  //Make first point
                 newnumwalls = numwalls;
-                suckwall = -1;
-                split = 0;
+                ovh.suckwall = -1;
+                ovh.split = 0;
 
-                init_new_wall1(&suckwall, &mousxplc, &mousyplc);
+                init_new_wall1(&ovh.suckwall, mousxplc, mousyplc);
 
                 printmessage16("Sector drawing started.");
             }
@@ -5650,9 +5694,9 @@ end_join_sectors:
                                 if (m>=0 && (POINT2(k).x != mousxplc || POINT2(k).y != mousyplc))
                                     if (wall[lastwall(k)].x != mousxplc || wall[lastwall(k)].y != mousyplc)
                                     {
-                                        split = 1;
-                                        splitsect = i;
-                                        splitstartwall = m;
+                                        ovh.split = 1;
+                                        ovh.splitsect = i;
+                                        ovh.splitstartwall = m;
                                         break;
                                     }
                             }
@@ -5684,7 +5728,7 @@ end_join_sectors:
 
                         if (bad == 0)
                         {
-                            init_new_wall1(&suckwall, &mousxplc, &mousyplc);
+                            init_new_wall1(&ovh.suckwall, mousxplc, mousyplc);
                         }
                         else
                         {
@@ -5697,12 +5741,12 @@ end_join_sectors:
                 ////////// newnumwalls is at most MAXWALLS here //////////
 
                 //if not split and back to first point
-                if (!split && newnumwalls >= numwalls+3
+                if (!ovh.split && newnumwalls >= numwalls+3
                         && firstx==mousxplc && firsty==mousyplc)
                 {
                     wall[newnumwalls-1].point2 = numwalls;
 
-                    if (suckwall == -1)  //if no connections to other sectors
+                    if (ovh.suckwall == -1)  //if no connections to other sectors
                     {
                         k = -1;
                         for (i=0; i<numsectors; i++)
@@ -5788,27 +5832,27 @@ check_next_sector: ;
                             sector[k].wallnum += j;
                             for (i=k+1; i<numsectors; i++)
                                 sector[i].wallptr += j;
-                            suckwall = sector[k].wallptr;
+                            ovh.suckwall = sector[k].wallptr;
 
                             for (i=0; i<numwalls; i++)
                             {
-                                if (wall[i].nextwall >= suckwall)
+                                if (wall[i].nextwall >= ovh.suckwall)
                                     wall[i].nextwall += j;
-                                if (wall[i].point2 >= suckwall)
+                                if (wall[i].point2 >= ovh.suckwall)
                                     wall[i].point2 += j;
                             }
 #ifdef YAX_ENABLE
-                            yax_tweakwalls(suckwall, j);
+                            yax_tweakwalls(ovh.suckwall, j);
 #endif
 
-                            Bmemmove(&wall[suckwall+j], &wall[suckwall], (newnumwalls-suckwall)*sizeof(walltype));
-                            Bmemmove(&wall[suckwall], &wall[newnumwalls], j*sizeof(walltype));
+                            Bmemmove(&wall[ovh.suckwall+j], &wall[ovh.suckwall], (newnumwalls-ovh.suckwall)*sizeof(walltype));
+                            Bmemmove(&wall[ovh.suckwall], &wall[newnumwalls], j*sizeof(walltype));
 
-                            for (i=suckwall; i<suckwall+j; i++)
+                            for (i=ovh.suckwall; i<ovh.suckwall+j; i++)
                             {
-                                wall[i].point2 += (suckwall-numwalls);
+                                wall[i].point2 += (ovh.suckwall-numwalls);
 
-                                copy_some_wall_members(i, suckwall+j, 1);
+                                copy_some_wall_members(i, ovh.suckwall+j, 1);
                                 wall[i].cstat &= ~(1+16+32+64);
                             }
 
@@ -5817,7 +5861,7 @@ check_next_sector: ;
 #ifdef YAX_ENABLE
                             if (extendedSector)
                             {
-                                newnumwalls = whitelinescan(k, suckwall);
+                                newnumwalls = whitelinescan(k, ovh.suckwall);
                                 if (newnumwalls != newnumwalls2)
                                     message("YAX: WTF?");
                                 for (i=numwalls; i<newnumwalls2; i++)
@@ -5833,7 +5877,7 @@ check_next_sector: ;
                                 numsectors++;
                             }
 #endif
-                            setfirstwall(k, suckwall+j);  // restore old first wall
+                            setfirstwall(k, ovh.suckwall+j);  // restore old first wall
 #ifdef YAX_ENABLE
                             if (extendedSector)
                                 printmessage16("Added inner loop to sector %d and made new inner sector", k);
@@ -5855,16 +5899,16 @@ check_next_sector: ;
 
                         for (i=numwalls; i<newnumwalls; i++)
                         {
-                            copy_some_wall_members(i, suckwall, 1);
+                            copy_some_wall_members(i, ovh.suckwall, 1);
                             wall[i].cstat &= ~(1+16+32+64);
 
                             if (checksectorpointer(i, numsectors) > 0)
                             {
                                 // if new red line, prefer the other-side wall as base
-                                suckwall = wall[i].nextwall;
+                                ovh.suckwall = wall[i].nextwall;
                             }
                         }
-                        sucksect = sectorofwall(suckwall);
+                        sucksect = sectorofwall(ovh.suckwall);
 
                         if (numsectors != sucksect)
                             Bmemcpy(&sector[numsectors], &sector[sucksect], sizeof(sectortype));
@@ -5900,14 +5944,14 @@ check_next_sector: ;
                     goto end_space_handling;
                 }
                 ////////// split sector //////////
-                else if (split == 1)
+                else if (ovh.split == 1)
                 {
                     int16_t danumwalls, splitendwall, doSectorSplit;
                     int16_t secondstartwall=-1;  // used only with splitting
                     int32_t expectedNumwalls = numwalls+2*(newnumwalls-numwalls-1), loopnum;
 
-                    startwall = sector[splitsect].wallptr;
-                    endwall = startwall + sector[splitsect].wallnum - 1;
+                    startwall = sector[ovh.splitsect].wallptr;
+                    endwall = startwall + sector[ovh.splitsect].wallnum - 1;
 
 //                    OSD_Printf("numwalls: %d, newnumwalls: %d\n", numwalls, newnumwalls);
                     i = -1;
@@ -5918,12 +5962,12 @@ check_next_sector: ;
                             break;
                         }
                     //           vvvv shouldn't happen, but you never know...
-                    if (i==-1 || k==splitstartwall)
+                    if (i==-1 || k==ovh.splitstartwall)
                         goto end_space_handling;
 
                     splitendwall = k;
-                    doSectorSplit = (loopnumofsector(splitsect,splitstartwall)
-                                     == loopnumofsector(splitsect,splitendwall));
+                    doSectorSplit = (loopnumofsector(ovh.splitsect,ovh.splitstartwall)
+                                     == loopnumofsector(ovh.splitsect,splitendwall));
 
                     if (expectedNumwalls > MAXWALLS)
                     {
@@ -5947,15 +5991,15 @@ check_next_sector: ;
                     if (doSectorSplit)
                     {
                         // Copy outer loop of first sector
-                        if (do_while_copyloop1(splitendwall, splitstartwall, &danumwalls, numwalls))
+                        if (do_while_copyloop1(splitendwall, ovh.splitstartwall, &danumwalls, numwalls))
                             goto split_not_enough_walls;
 
                         //Add other loops for 1st sector
-                        i = loopnum = loopnumofsector(splitsect,splitstartwall);
+                        i = loopnum = loopnumofsector(ovh.splitsect,ovh.splitstartwall);
 
                         for (j=startwall; j<=endwall; j++)
                         {
-                            k = loopnumofsector(splitsect,j);
+                            k = loopnumofsector(ovh.splitsect,j);
                             if (k == i)
                                 continue;
 
@@ -5996,27 +6040,27 @@ check_next_sector: ;
                     //copy rest of loop next
                     if (doSectorSplit)
                     {
-                        if (do_while_copyloop1(splitstartwall, splitendwall, &danumwalls, secondstartwall))
+                        if (do_while_copyloop1(ovh.splitstartwall, splitendwall, &danumwalls, secondstartwall))
                             goto split_not_enough_walls;
                     }
                     else
                     {
-                        if (do_while_copyloop1(splitstartwall, splitstartwall, &danumwalls, numwalls))
+                        if (do_while_copyloop1(ovh.splitstartwall, ovh.splitstartwall, &danumwalls, numwalls))
                             goto split_not_enough_walls;
                     }
 
                     //Add other loops for 2nd sector
-                    i = loopnum = loopnumofsector(splitsect,splitstartwall);
+                    i = loopnum = loopnumofsector(ovh.splitsect,ovh.splitstartwall);
 
                     for (j=startwall; j<=endwall; j++)
                     {
-                        k = loopnumofsector(splitsect, j);
+                        k = loopnumofsector(ovh.splitsect, j);
                         if (k==i)
                             continue;
 
                         if (doSectorSplit && k==loopnum)
                             continue;
-                        if (!doSectorSplit && (k == loopnumofsector(splitsect,splitstartwall) || k == loopnumofsector(splitsect,splitendwall)))
+                        if (!doSectorSplit && (k == loopnumofsector(ovh.splitsect,ovh.splitstartwall) || k == loopnumofsector(ovh.splitsect,splitendwall)))
                             continue;
 
                         i = k;
@@ -6049,7 +6093,7 @@ check_next_sector: ;
                     }
 
                     //copy sector attributes & fix wall pointers
-                    Bmemcpy(&sector[numsectors], &sector[splitsect], sizeof(sectortype));
+                    Bmemcpy(&sector[numsectors], &sector[ovh.splitsect], sizeof(sectortype));
                     sector[numsectors].wallptr = numwalls;
                     sector[numsectors].wallnum = (doSectorSplit?secondstartwall:danumwalls) - numwalls;
 
@@ -6065,13 +6109,13 @@ check_next_sector: ;
                             wall[m].nextsector = numsectors;
                         }
 
-                        Bmemcpy(&sector[numsectors+1], &sector[splitsect], sizeof(sectortype));
+                        Bmemcpy(&sector[numsectors+1], &sector[ovh.splitsect], sizeof(sectortype));
                         sector[numsectors+1].wallptr = secondstartwall;
                         sector[numsectors+1].wallnum = danumwalls-secondstartwall;
                     }
 
                     //fix sprites
-                    j = headspritesect[splitsect];
+                    j = headspritesect[ovh.splitsect];
                     while (j != -1)
                     {
                         k = nextspritesect[j];
@@ -6098,7 +6142,7 @@ check_next_sector: ;
 #endif
                         wall[j].nextwall = wall[j].nextsector = -1;
                     }
-                    deletesector(splitsect);
+                    deletesector(ovh.splitsect);
 
                     //Check pointers
                     for (j=numwalls-k; j<numwalls; j++)
@@ -6360,6 +6404,7 @@ end_space_handling:
             {
                 int32_t onewnumwalls = newnumwalls;
                 int32_t wallis2sided = (wall[linehighlight].nextwall>=0);
+                int32_t havedrawnwalls = (newnumwalls!=-1);
 
                 if (backup_drawn_walls(0))
                 {
