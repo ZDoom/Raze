@@ -385,27 +385,10 @@ static void yax_resetbunchnums(void)
 // Whether a wall is constrained by sector extensions.
 // If false, it's a wall that you can freely move around,
 // attach points to, etc...
-static int32_t yax_islockedwall(int16_t sec, int16_t line)
-#if 1
+static int32_t yax_islockedwall(int16_t line)
 {
-    UNREFERENCED_PARAMETER(sec);
     return !!(wall[line].cstat&YAX_NEXTWALLBITS);
 }
-#else
-{
-    int16_t cb,fb, cbn,fbn;
-    int16_t ns = wall[line].nextsector;
-
-    yax_getbunches(sec, &cb, &fb);
-
-    if (ns < 0)
-        return (cb>=0 || fb>=0);
-
-    yax_getbunches(ns, &cbn, &fbn);
-
-    return (cb!=cbn || fb!=fbn);
-}
-#endif
 
 # define DEFAULT_YAX_HEIGHT (2048<<4)
 #endif
@@ -5517,7 +5500,10 @@ end_join_sectors:
                 if (linehighlight >= 0)
                 {
 #ifdef YAX_ENABLE
-                    if (yax_islockedwall(sectorofwall(linehighlight), linehighlight))
+                    j = linehighlight;
+
+                    if (yax_islockedwall(j) ||
+                            (wall[j].nextwall >= 0 && yax_islockedwall(wall[j].nextwall)))
                         printmessage16("Can't make circle in wall constrained by sector extension.");
                     else
 #endif
@@ -6469,11 +6455,10 @@ point_not_inserted:
                     else
                     {
 #ifdef YAX_ENABLE
-                        int32_t sec = sectorofwall(linehighlight), nextw=wall[linehighlight].nextwall;
+                        int32_t nextw = wall[linehighlight].nextwall;
                         int32_t tmpcf;
 
-                        k = linehighlight;
-                        if (yax_islockedwall(sec, k) || yax_islockedwall(wall[k].nextsector, wall[k].nextwall))
+                        if (yax_islockedwall(linehighlight) || (nextw>=0 && yax_islockedwall(nextw)))
                         {
                             // yax'ed wall -- first find out which walls are affected
                             for (i=0; i<numwalls; i++)
