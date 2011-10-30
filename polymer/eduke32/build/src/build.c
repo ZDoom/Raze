@@ -1914,11 +1914,11 @@ static void get_sectors_center(const int16_t *sectors, int32_t numsecs, int32_t 
     *cy = day;
 }
 
-static int32_t insert_sprite_common(int32_t sucksect, int32_t dax, int32_t day)
+static int32_t insert_sprite_common(int32_t sectnum, int32_t dax, int32_t day)
 {
     int32_t i, j, k;
 
-    i = insertsprite(sucksect,0);
+    i = insertsprite(sectnum,0);
     if (i < 0)
         return -1;
 
@@ -2219,6 +2219,8 @@ static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, 
     return k;
 }
 
+// Backup drawn walls for carrying out other operations in the middle.
+// Context that needs special treatment: suckwall, splitsect, splitstartwall
 static int32_t backup_drawn_walls(int32_t restore)
 {
     static int32_t wallsdrawn = -1;
@@ -2536,25 +2538,22 @@ static int32_t find_nextwall(int32_t sectnum, int32_t sectnum2)
 
 void overheadeditor(void)
 {
-    char buffer[80], ch;
+    char buffer[80];
     const char *dabuffer;
     int32_t i, j, k, m=0, mousxplc, mousyplc, firstx=0, firsty=0, oposz, col;
-    int32_t tempint, tempint1, tempint2;
+    int32_t numwalls_bak;
     int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3; //, x4, y4;
     int32_t highlightx1, highlighty1, highlightx2, highlighty2;
-    int16_t suckwall=0, sucksect, split=0, bad;
+    int16_t suckwall=0, split=0, bad;
     int16_t splitsect=0, joinsector[2];
     int16_t splitstartwall=0;
     int32_t mousx, mousy, bstatus;
-    int32_t centerx, centery, circlerad;
-    int16_t circlepoints, circleang1, circleang2; //, circleangdir;
+    int16_t circlepoints;
     int32_t sectorhighlightx=0, sectorhighlighty=0;
     int16_t cursectorhighlight, sectorhighlightstat;
-    walltype *wal;
-    int32_t prefixarg = 0;
+    int32_t prefixarg = 0, tsign;
     int32_t resetsynctics = 0, lasttick=getticks(), waitdelay=totalclock, lastdraw=getticks();
-    int32_t tsign;
-    int32_t olen[2]={0,0}, /*nlen[2]={0,0},*/ dragwall[2] = {-1, -1};
+    int32_t olen[2]={0,0}, dragwall[2] = {-1, -1};
 
     m32_setkeyfilter(1);
 
@@ -2669,10 +2668,10 @@ void overheadeditor(void)
         ydim16 = ydim;// - STATUS2DSIZ2;
         midydim16 = ydim>>1;
 
-        tempint = numwalls;
+        numwalls_bak = numwalls;
         numwalls = newnumwalls;
         if (numwalls < 0)
-            numwalls = tempint;
+            numwalls = numwalls_bak;
 
         if ((getticks() - lastdraw) >= 5 || (vel|angvel|svel) || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN)
                 || mousx || mousy || bstatus || keystatus[0x10] || keystatus[0x11]
@@ -2761,7 +2760,7 @@ void overheadeditor(void)
 
                 if (newnumwalls >= 0)
                 {
-                    for (i=newnumwalls; i>=tempint; i--)
+                    for (i=newnumwalls; i>=numwalls_bak; i--)
                         wall[i].cstat |= (1<<14);
                 }
 
@@ -2769,8 +2768,10 @@ void overheadeditor(void)
                 j = numsectors-1;
                 if (newnumwalls >= 0)
                     i = newnumwalls-1;
-                for (wal=&wall[i]; i>=0; i--,wal--)
+                for (; i>=0; i--)
                 {
+                    const walltype *wal = &wall[i];
+
                     if (sector[j].wallptr > i)
                         j--;
 
@@ -2839,7 +2840,7 @@ void overheadeditor(void)
 
             printcoords16(pos.x,pos.y,ang);
 
-            numwalls = tempint;
+            numwalls = numwalls_bak;
 
             if (highlightsectorcnt >= 0)
             {
@@ -5379,9 +5380,10 @@ end_join_sectors:
         }
         else if (keystatus[0x1f])  //S
         {
+            int16_t sucksect = -1;
+
             keystatus[0x1f] = 0;
 
-            sucksect = -1;
             for (i=0; i<numsectors; i++)
             {
                 YAX_SKIPSECTOR(i);
@@ -5478,6 +5480,8 @@ end_join_sectors:
 
         if (circlewall >= 0)
         {
+            int32_t tempint1, tempint2;
+
             x1 = wall[circlewall].x;
             y1 = wall[circlewall].y;
             x2 = POINT2(circlewall).x;
@@ -5491,6 +5495,8 @@ end_join_sectors:
             if (tempint2 != 0)
             {
                 int32_t ps = 2, goodtogo;  // pointsize
+                int32_t centerx, centery, circlerad;
+                int16_t circleang1, circleang2; //, circleangdir;
 
                 centerx = ((x1+x2) + scale(y1-y2,tempint1,tempint2))>>1;
                 centery = ((y1+y2) + scale(x2-x1,tempint1,tempint2))>>1;
@@ -5840,6 +5846,8 @@ check_next_sector: ;
                     }
                     else  // if connected to at least one other sector
                     {
+                        int16_t sucksect;
+
                         //add new sector with connections
 
                         if (clockdir(numwalls) == 1)
@@ -6220,8 +6228,6 @@ end_space_handling:
 #endif
             keystatus[0xd3] = 0;
 
-            sucksect = -1;
-
             for (i=0; i<numsectors; i++)
             {
                 YAX_SKIPSECTOR(i);
@@ -6564,6 +6570,8 @@ CANCEL:
             bad = 1;
             while (bad == 1)
             {
+                char ch;
+
                 if (handleevents())
                 {
                     if (quitevent)

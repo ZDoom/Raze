@@ -11442,6 +11442,15 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
         return bad;
     }
 
+    if (numsectors==0 || numwalls==0)
+    {
+        if (numsectors>0)
+            CORRUPTCHK_PRINT(5, 0, CCHK_PANIC " Have sectors but no walls!");
+        if (numwalls>0)
+            CORRUPTCHK_PRINT(5, 0, CCHK_PANIC " Have walls but no sectors!");
+        return bad;
+    }
+
     if (!corruptcheck_noalreadyrefd)
     {
         seen_nextwalls = Bcalloc((numwalls+7)>>3,1);
