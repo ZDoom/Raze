@@ -192,7 +192,7 @@ static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls);
 void keytimerstuff(void);
 static int32_t clockdir(int16_t wallstart);
 static void flipwalls(int16_t numwalls, int16_t newnumwalls);
-static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day);
+static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day);
 static const char *deletepoint(int16_t point, int32_t runi);
 static int32_t deletesector(int16_t sucksect);
 void fixrepeats(int16_t i);
@@ -1351,6 +1351,9 @@ char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck)
 // some 2d mode state
 static struct overheadstate
 {
+    // number of backed up drawn walls
+    int32_t bak_wallsdrawn;
+
     // state related to line drawing
     int16_t suckwall, split;
     int16_t splitsect;
@@ -2236,50 +2239,49 @@ static int32_t trace_loop(int32_t j, uint8_t *visitedwall, int16_t *ignore_ret, 
 // Context that needs special treatment: suckwall, splitsect, splitstartwall
 static int32_t backup_drawn_walls(int32_t restore)
 {
-    static int32_t wallsdrawn = -1;
     static walltype *tmpwall;
 
     // back up
     if (restore==0)
     {
-        if (newnumwalls == -1)
-        {
-            wallsdrawn = -1;
-        }
-        else
-        {
-            wallsdrawn = newnumwalls-numwalls;
+        // ovh.bak_wallsdrawn should be 0 here
 
-            tmpwall = Bmalloc(wallsdrawn * sizeof(walltype));
+        if (newnumwalls != -1)
+        {
+            if (newnumwalls <= numwalls)  // shouldn't happen
+                return 2;
+
+            tmpwall = Bmalloc((newnumwalls-numwalls) * sizeof(walltype));
             if (!tmpwall)
-            {
-                wallsdrawn = -1;
                 return 1;
-            }
 
-            Bmemcpy(tmpwall, &wall[numwalls], wallsdrawn*sizeof(walltype));
+            ovh.bak_wallsdrawn = newnumwalls-numwalls;
+
+            Bmemcpy(tmpwall, &wall[numwalls], ovh.bak_wallsdrawn*sizeof(walltype));
             newnumwalls = -1;
         }
 
         return 0;
     }
 
-    // restore
-    if (wallsdrawn != -1)
+    // restore/clear
+    if (tmpwall)
     {
-        if (restore==1)
+        if (restore==1)  // really restore
         {
             int32_t i;
 
-            Bmemcpy(&wall[numwalls], tmpwall, wallsdrawn*sizeof(walltype));
+            Bmemcpy(&wall[numwalls], tmpwall, ovh.bak_wallsdrawn*sizeof(walltype));
 
-            newnumwalls = numwalls + wallsdrawn;
+            newnumwalls = numwalls + ovh.bak_wallsdrawn;
             for (i=numwalls; i<newnumwalls; i++)
                 wall[i].point2 = i+1;
         }
 
         Bfree(tmpwall);
         tmpwall = NULL;
+
+        ovh.bak_wallsdrawn = 0;
     }
 
     return 0;
@@ -4190,8 +4192,13 @@ end_autoredwall:
             // restorestat is set to 2 whenever the drawn walls should NOT be
             // restored afterwards
 
-            if (backup_drawn_walls(0))
+            int32_t err = backup_drawn_walls(0);
+
+            if (err)
+            {
+                message("Error backing up drawn walls (code %d)!", err);
                 goto end_after_dragging;
+            }
 
             j = 1;
             for (i=0; i<highlightcnt; i++)
@@ -5538,9 +5545,9 @@ end_join_sectors:
 
             if (tempint2 != 0)
             {
-                int32_t ps = 2, goodtogo;  // pointsize
+                int32_t ps = 2, goodtogo, err=0;
                 int32_t centerx, centery, circlerad;
-                int16_t circleang1, circleang2; //, circleangdir;
+                int16_t circleang1, circleang2;
 
                 centerx = ((x1+x2) + scale(y1-y2,tempint1,tempint2))>>1;
                 centery = ((y1+y2) + scale(x2-x1,tempint1,tempint2))>>1;
@@ -5563,6 +5570,17 @@ end_join_sectors:
 
                 circlerad = ksqrt(dmulscale4(centerx-x1,centerx-x1, centery-y1,centery-y1))<<2;
                 goodtogo = (numwalls+circlepoints <= MAXWALLS);
+
+                if (bad > 0 && goodtogo)
+                {
+                    err = backup_drawn_walls(0);
+
+                    if (err)
+                    {
+                        message("Error backing up drawn walls (code %d)!", err);
+                        goodtogo = 0;
+                    }
+                }
 
                 for (i=circlepoints; i>0; i--)
                 {
@@ -5588,6 +5606,9 @@ end_join_sectors:
                     drawline16base(halfxdim16+dax,midydim16+day, -ps,+ps, -ps,-ps, editorcolors[14]);
 //                    drawcircle16(halfxdim16+dax, midydim16+day, 3, 14);
                 }
+
+                if (bad > 0 && goodtogo)
+                    backup_drawn_walls(1);
 
                 if (bad > 0)
                 {
@@ -6404,11 +6425,12 @@ end_space_handling:
             {
                 int32_t onewnumwalls = newnumwalls;
                 int32_t wallis2sided = (wall[linehighlight].nextwall>=0);
-                int32_t havedrawnwalls = (newnumwalls!=-1);
 
-                if (backup_drawn_walls(0))
+                int32_t err = backup_drawn_walls(0);
+
+                if (err)
                 {
-                    message("OUT OF MEMORY!");
+                    message("Error backing up drawn walls (code %d)!", err);
                 }
                 else if (max(numwalls,onewnumwalls) >= MAXWALLS-wallis2sided)
                 {
@@ -6486,8 +6508,7 @@ point_not_inserted:
                                 if (wall[i].cstat&(1<<14))
                                     if (wall[i].nextwall<0 || i<wall[i].nextwall) // || !(NEXTWALL(i).cstat&(1<<14)) ??
                                     {
-                                        insertpoint(i, dax,day);
-                                        m += 1+(wall[i].nextwall>=0);
+                                        m += insertpoint(i, dax,day);
                                     }
                             }
 
@@ -7400,7 +7421,7 @@ static void flipwalls(int16_t numwalls, int16_t newnumwalls)
     }
 }
 
-static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
+static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
 {
     int16_t sucksect;
     int32_t i, j, k;
@@ -7454,7 +7475,11 @@ static void insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
         wall[j+1].nextwall = k;
         wall[k].nextwall = j+1;
         wall[k+1].nextwall = j;
+
+        return 2;
     }
+
+    return 1;
 }
 
 // runi: 0=check, 1=prepare, 2=do!
@@ -7608,6 +7633,14 @@ static int32_t movewalls(int32_t start, int32_t offs)
     {
         for (i=numwalls+offs-1; i>=start+offs; i--)
             Bmemcpy(&wall[i], &wall[i-offs], sizeof(walltype));
+
+        if (ovh.bak_wallsdrawn > 0)
+        {
+            if (ovh.suckwall >= start)
+                ovh.suckwall += offs;
+            if (ovh.splitstartwall >= start)
+                ovh.splitstartwall += offs;
+        }
     }
 
     numwalls += offs;
