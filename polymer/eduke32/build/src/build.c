@@ -1057,7 +1057,7 @@ void editinput(void)
         {
             goalz -= (16<<8);
             if (DOWN_BK(RUN))
-                goalz -= (24<<8);   
+                goalz -= (24<<8);
         }
         if (DOWN_BK(MOVEDOWN))  //Z (stand low)
         {
@@ -2537,6 +2537,32 @@ static int32_t find_nextwall(int32_t sectnum, int32_t sectnum2)
 
     return -1;
 }
+
+static int32_t bakframe_fillandfade(char **origframeptr, int32_t sectnum, const char *querystr)
+{
+    if (!*origframeptr)
+    {
+        *origframeptr = Bmalloc(xdim*ydim);
+        if (*origframeptr)
+        {
+            begindrawing();
+            Bmemcpy(*origframeptr, (char *)frameplace, xdim*ydim);
+            enddrawing();
+        }
+    }
+    else
+    {
+        begindrawing();
+        Bmemcpy((char *)frameplace, *origframeptr, xdim*ydim);
+        enddrawing();
+    }
+
+    fillsector(sectnum, editorcolors[9]);
+    fade_editor_screen(editorcolors[9]);
+
+    return ask_if_sure(querystr, 0);
+}
+
 
 void overheadeditor(void)
 {
@@ -5021,18 +5047,34 @@ end_point_dragging:
 #endif  // defined YAX_ENABLE
             if (joinsector[0] < 0)
             {
-                joinsector[0] = -1;
+                int32_t numjoincandidates = 0;
+                char *origframe=NULL;
+
+                for (i=0; i<numsectors; i++)
+                {
+                    YAX_SKIPSECTOR(i);
+                    numjoincandidates += (inside_editor_curpos(i) == 1);
+                }
+
                 for (i=0; i<numsectors; i++)
                 {
                     YAX_SKIPSECTOR(i);
                     if (inside_editor_curpos(i) == 1)
                     {
+                        if (numjoincandidates > 1)
+                        {
+                            if (!bakframe_fillandfade(&origframe, i, "Use this as first joining sector? (Y/N)"))
+                                continue;
+                        }
+
                         joinsector[0] = i;
                         printmessage16("Join sector - press J again on sector to join with.");
                         break;
                     }
                 }
-                goto end_join_sectors;
+
+                if (origframe)
+                    Bfree(origframe);
             }
             else
             {
@@ -5041,7 +5083,16 @@ end_point_dragging:
                 int16_t jbn[2][2];  // [join index][c/f]
                 int32_t uneqbn;  // unequal bunchnums (bitmap): 1:above, 2:below
 #endif
+                char *origframe = NULL;
+                int32_t numjoincandidates = 0;
+
                 joinsector[1] = -1;
+
+                for (i=0; i<numsectors; i++)
+                {
+                    YAX_SKIPSECTOR(i);
+                    numjoincandidates += (inside_editor_curpos(i) == 1);
+                }
 
                 for (i=0; i<numsectors; i++)
                 {
@@ -5049,6 +5100,12 @@ end_point_dragging:
 
                     if (inside_editor_curpos(i) == 1)
                     {
+                        if (numjoincandidates > 1)
+                        {
+                            if (!bakframe_fillandfade(&origframe, i, "Use this as second joining sector? (Y/N)"))
+                                continue;
+                        }
+
                         s1to0wall = find_nextwall(i, joinsector[0]);
                         s0to1wall = wall[s1to0wall].nextwall;
                         joinsector[1] = i;
@@ -5123,7 +5180,8 @@ end_point_dragging:
 
                             if ((uneqbn&2)==0)
                             {
-                                if (0) //(whybad==1+8 && jbn[0][cf]>=0 && jbn[1][cf]<0)
+#if 0
+                                if (whybad==1+8 && jbn[0][cf]>=0 && jbn[1][cf]<0)
                                 {
                                     // 1st join sector extended, 2nd not... let's see
                                     // if the latter is inner to the former one
@@ -5164,6 +5222,7 @@ end_point_dragging:
                                     }
                                 }
                                 else
+#endif
                                 {
                                     if (whybad&1)
                                         message("Can't make floor bunchnums equal: both floors must be extended");
@@ -5217,7 +5276,7 @@ end_point_dragging:
                             }
 
                             joinsector[0] = joinsector[1] = -1;
-                            goto end_join_sectors;                            
+                            goto end_join_sectors;
                         }
 #endif
                         break;
@@ -5358,9 +5417,11 @@ end_point_dragging:
                 }
 
                 joinsector[0] = -1;
+end_join_sectors:
+                if (origframe)
+                    Bfree(origframe);
             }
         }
-end_join_sectors:
 
 // PK
         for (i=0x02; i<=0x0b; i++)  // keys '1' to '0' on the upper row
@@ -6269,7 +6330,7 @@ end_space_handling:
 
         if (keystatus[0xd3] && eitherCTRL && numwalls > 0)  //sector delete
         {
-            int32_t numdelsectors = 0, didbak=0;
+            int32_t numdelsectors = 0;
             char *origframe=NULL;
 
 #ifdef YAX_ENABLE
@@ -6324,28 +6385,7 @@ end_space_handling:
                 {
                     if (numdelsectors > 1)
                     {
-                        if (!didbak)
-                        {
-                            origframe = Bmalloc(xdim*ydim);
-                            if (origframe)
-                            {
-                                begindrawing();
-                                Bmemcpy(origframe, (char *)frameplace, xdim*ydim);
-                                enddrawing();
-                                didbak = 1;
-                            }
-                        }
-                        else
-                        {
-                            begindrawing();
-                            Bmemcpy((char *)frameplace, origframe, xdim*ydim);
-                            enddrawing();                            
-                        }
-
-                        fillsector(i, editorcolors[9]);
-                        fade_editor_screen(editorcolors[9]);
-
-                        if (!ask_if_sure("Delete this sector? (Y/N)", 0))
+                        if (!bakframe_fillandfade(&origframe, i, "Delete this sector? (Y/N)"))
                             continue;
                     }
 
@@ -6450,7 +6490,7 @@ end_space_handling:
                     if ((wall[i].x == dax && wall[i].y == day) || (POINT2(i).x == dax && POINT2(i).y == day))
                     {
 point_not_inserted:
-                        printmessage16("Point not inserted.");                        
+                        printmessage16("Point not inserted.");
                     }
                     else
                     {
@@ -6473,7 +6513,7 @@ point_not_inserted:
                             // round 2 (enough?)
                             for (YAX_ITER_WALLS(linehighlight, i, tmpcf))
                                 if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
-                                    wall[wall[i].nextwall].cstat |= (1<<14);                                    
+                                    wall[wall[i].nextwall].cstat |= (1<<14);
                             if (nextw >= 0)
                                 for (YAX_ITER_WALLS(nextw, i, tmpcf))
                                     if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
@@ -7085,7 +7125,7 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
 
     highlightcnt = -1;
     Bmemset(show2dwall, 0, sizeof(show2dwall));  //Clear all highlights
-    Bmemset(show2dsprite, 0, sizeof(show2dsprite));    
+    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
 
     if ((flags&4)==0)
         loadmhk(0);
