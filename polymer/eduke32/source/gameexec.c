@@ -2288,7 +2288,7 @@ nullquote:
                 int32_t y2=scale(Gv_GetVarX(*insptr++),ydim,200);
                 int32_t smoothratio = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
 #ifdef USE_OPENGL
-                int32_t j;
+                int32_t oprojhacks;
 #endif
 
                 if (g_screenCapture) continue;
@@ -2308,7 +2308,7 @@ nullquote:
                 }
 
 #ifdef USE_OPENGL
-                j = glprojectionhacks;
+                oprojhacks = glprojectionhacks;
                 glprojectionhacks = 0;
 #endif
                 setview(x1,y1,x2,y2);
@@ -2373,7 +2373,7 @@ nullquote:
                 G_RestoreInterpolations();
                 G_UpdateScreenArea();
 #ifdef USE_OPENGL
-                glprojectionhacks = j;
+                glprojectionhacks = oprojhacks;
 #endif
                 continue;
             }
@@ -2394,7 +2394,13 @@ nullquote:
                     y<<=16;
                 }
 
-                if (x < (-320)<<16 || x >= (640<<16) || y < (-200)<<16 || y >= (400<<16))
+                if ((unsigned)tilenum >= MAXTILES)
+                {
+                    OSD_Printf(CON_ERROR "invalid tilenum %d\n", g_errorLineNum, keyw[g_tw], tilenum);
+                    continue;
+                }
+
+                if (x < -(320<<16) || x >= (640<<16) || y < -(200<<16) || y >= (400<<16))
                 {
                     OSD_Printf(CON_ERROR "invalid coordinates: %d, %d\n",g_errorLineNum, keyw[g_tw], x, y);
                     continue;
@@ -2415,6 +2421,18 @@ nullquote:
                 int32_t x1=Gv_GetVarX(*insptr++), y1=Gv_GetVarX(*insptr++);
                 int32_t x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++);
                 int32_t z = (tw == CON_GAMETEXTZ) ? Gv_GetVarX(*insptr++) : 65536;
+
+                if (tilenum < 0 || tilenum+255 >= MAXTILES)
+                {
+                    OSD_Printf(CON_ERROR "invalid base tilenum %d\n", g_errorLineNum, keyw[g_tw], tilenum);
+                    continue;
+                }
+
+                if ((unsigned)q >= MAXQUOTES)
+                {
+                    OSD_Printf(CON_ERROR "invalid quote ID %d\n", g_errorLineNum, keyw[g_tw], q);
+                    continue;
+                }
 
                 if ((ScriptQuotes[q] == NULL))
                 {
@@ -2440,6 +2458,12 @@ nullquote:
                 int32_t x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++);
                 int32_t z = (tw == CON_DIGITALNUMBERZ) ? Gv_GetVarX(*insptr++) : 65536;
 
+                if (tilenum < 0 || tilenum+'9' >= MAXTILES)
+                {
+                    OSD_Printf(CON_ERROR "invalid base tilenum %d\n", g_errorLineNum, keyw[g_tw], tilenum);
+                    continue;
+                }
+
                 G_DrawTXDigiNumZ(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2,z);
                 continue;
             }
@@ -2449,6 +2473,12 @@ nullquote:
             {
                 int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), q=Gv_GetVarX(*insptr++);
                 int32_t shade=Gv_GetVarX(*insptr++), pal=Gv_GetVarX(*insptr++);
+
+                if ((unsigned)q >= MAXQUOTES)
+                {
+                    OSD_Printf(CON_ERROR "invalid quote ID %d\n", g_errorLineNum, keyw[g_tw], q);
+                    continue;
+                }
 
                 if ((ScriptQuotes[q] == NULL))
                 {

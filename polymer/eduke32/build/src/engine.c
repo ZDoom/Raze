@@ -10719,9 +10719,10 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
 
     int32_t cfz1[2], cfz2[2];  // both wrt dasectnum
     int16_t bn[2];
-#endif
 
     Bmemset(&pendingvec, 0, sizeof(vec3_t));  // compiler-happy
+#endif
+
     Bmemset(sectbitmap, 0, (numsectors+7)>>3);
 
 #ifdef YAX_ENABLE
@@ -15824,7 +15825,8 @@ int32_t setrendermode(int32_t renderer)
                 }
 
                 if (!md3postload_polymer((md3model_t *)models[i]))
-                    OSD_Printf("INTERNAL ERROR: mdmodel %d failed postprocessing!\n", i);
+                    OSD_Printf("INTERNAL ERROR: mdmodel %s failed postprocessing!\n",
+                               ((md3model_t *)models[i])->head.nam);
 
                 if (((md3model_t *)models[i])->head.surfs[0].geometry == NULL)
                     OSD_Printf("INTERNAL ERROR: wtf?\n");

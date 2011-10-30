@@ -2,6 +2,7 @@
 
 if [ -z "$1" ]; then
     echo 'Usage: checkdefs.sh <some.def> [[<some_dir>] -patch]'
+    exit 1
 fi
 deffn="$1"
 
@@ -14,6 +15,7 @@ fi
 if [ -n "$3" ]; then
     if [ "$3" != "-patch" ]; then
         echo 'Usage: checkdefs.sh <some.def> [[<some_dir>] -patch]'
+        exit 1
     fi
 fi
 

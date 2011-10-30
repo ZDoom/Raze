@@ -922,10 +922,9 @@ static void G_DrawWeapAmounts(DukePlayer_t *p,int32_t x,int32_t y,int32_t u)
 static void G_DrawDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
 {
     int32_t i, j = 0, k, p, c;
-    char b[10];
+    char b[12];
 
-    Bsnprintf(b,10,"%d",n);
-    i = Bstrlen(b);
+    i = Bsprintf(b,"%d",n);
 
     for (k=i-1; k>=0; k--)
     {
@@ -947,16 +946,15 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
                       int32_t cs,int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t z)
 {
     int32_t i, j = 0, k, p, c;
-    char b[10];
+    char b[12];
     int32_t shift = (cs&ROTATESPRITE_MAX)?0:16;
 
     //ltoa(n,b,10);
-    Bsnprintf(b,10,"%d",n);
-    i = Bstrlen(b);
+    i = Bsprintf(b,"%d",n);
 
     for (k=i-1; k>=0; k--)
     {
-        p = starttile+*(b+k)-'0';
+        p = starttile + b[k]-'0';
         j += ((1+tilesizx[p])*z)>>16;
     }
     if (cs&ROTATESPRITE_MAX) j<<=16;
@@ -965,7 +963,7 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
     j = 0;
     for (k=0; k<i; k++)
     {
-        p = starttile+*(b+k)-'0';
+        p = starttile + b[k]-'0';
         rotatesprite((c+j)<<shift,y<<shift,z,0,p,s,pal,2|cs,x1,y1,x2,y2);
         j += (((1+tilesizx[p])*z)>>((cs&ROTATESPRITE_MAX)?0:16));
     }
@@ -974,15 +972,14 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
 static void G_DrawAltDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
 {
     int32_t i, j = 0, k, p, c;
-    char b[10];
+    char b[12];
     int32_t rev = (x < 0);
     int32_t shd = (y < 0);
 
     if (rev) x = -x;
     if (shd) y = -y;
 
-    Bsnprintf(b,10,"%d",n);
-    i = Bstrlen(b);
+    i = Bsprintf(b,"%d",n);
 
     for (k=i-1; k>=0; k--)
     {
