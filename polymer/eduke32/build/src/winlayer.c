@@ -2273,7 +2273,7 @@ int32_t setgamma(void)
 
     // This formula is taken from Doomsday
 
-    if (!winlayer_uselastgamma)
+    if (winlayer_uselastgamma <= 0)
         for (i = 0; i < 256; i++)
         {
             double val = i * contrast - (contrast - 1) * 127;
