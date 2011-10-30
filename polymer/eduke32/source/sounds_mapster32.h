@@ -43,7 +43,7 @@ typedef struct {
     char *definedname;  // new
 } sound_t;
 
-#define MAXSOUNDS 2560
+#define MAXSOUNDS 4096
 extern sound_t g_sounds[MAXSOUNDS];
 
 int32_t S_SoundStartup(void);

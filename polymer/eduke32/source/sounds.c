@@ -312,10 +312,11 @@ void S_Cleanup(void)
             continue;
         }
 
-        // num + 65536 is a sound played globally for which there was no open slot to keep track of the voice
-        if (num >= 65536)
+        // num + (MAXSOUNDS*MAXSOUNDINSTANCES) is a sound played globally
+        // for which there was no open slot to keep track of the voice
+        if (num >= (MAXSOUNDS*MAXSOUNDINSTANCES))
         {
-            g_soundlocks[num-65536]--;
+            g_soundlocks[num-(MAXSOUNDS*MAXSOUNDINSTANCES)]--;
             continue;
         }
 
@@ -601,7 +602,7 @@ int32_t S_PlaySound(int32_t num)
 
         if (j >= MAXSOUNDINSTANCES) // still no slots available
         {
-            FX_SetVoiceCallback(voice, num + 65536);
+            FX_SetVoiceCallback(voice, num + (MAXSOUNDS*MAXSOUNDINSTANCES));
             return voice;
         }
 
