@@ -2116,6 +2116,9 @@ cheat_for_port_credits:
                 {
                     if (currentlist) findfileshigh = seeker;
                     else finddirshigh = seeker;
+                    // clear keys, don't play the kick sound a dozen times!
+                    KB_ClearKeyDown(sc_End);
+                    KB_ClearKeyDown(sc_Home);
                     S_PlaySound(KICK_HIT);
                 }
             }
@@ -2133,6 +2136,9 @@ cheat_for_port_credits:
                 {
                     if (currentlist) findfileshigh = seeker;
                     else finddirshigh = seeker;
+                    // clear keys, don't play the kick sound a dozen times!
+                    KB_ClearKeyDown(sc_PgDn);
+                    KB_ClearKeyDown(sc_PgUp);
                     S_PlaySound(KICK_HIT);
                 }
             }
