@@ -52,7 +52,6 @@ static char autospritehelp=0, autosecthelp=0;
 static char tempbuf[1024];
 static int32_t numsprite[MAXTILES], multisprite[MAXTILES];
 static char lo[64];
-static char levelname[BMAX_PATH];
 static int16_t curwall=0, curwallnum=0;
 static int16_t /*cursearchsprite=0,*/ cursearchspritenum=0, cursector_lotag=0, cursectornum=0;
 static int16_t search_lotag=0,search_hitag=0;

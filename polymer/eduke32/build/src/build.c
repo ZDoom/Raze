@@ -114,6 +114,7 @@ const char *mapster32_fullpath;
 char *testplay_addparam = 0;
 
 static char boardfilename[BMAX_PATH], selectedboardfilename[BMAX_PATH];
+extern char levelname[BMAX_PATH];  // in astub.c   XXX: clean up this mess!!!
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int32_t numdirs=0, numfiles=0;
@@ -142,6 +143,7 @@ typedef struct
 
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo);
 static int32_t restore_highlighted_map(mapinfofull_t *mapinfo);
+static const char *GetSaveBoardFilename(void);
 
 /*
 static char scantoasc[128] =
@@ -6656,6 +6658,8 @@ CANCEL:
 #else
             _printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (T)est map, (Q)uit");
 #endif
+            printext16(16*8, ydim-STATUS2DSIZ2-12, editorcolors[15], -1, GetSaveBoardFilename(), 0);
+
             showframe(1);
             bflushchars();
             bad = 1;
@@ -6710,6 +6714,7 @@ CANCEL:
                         reset_default_mapstate();
 
                         Bstrcpy(boardfilename,"newboard.map");
+                        ExtLoadMap(boardfilename);
 #if M32_UNDO
                         map_undoredo_free();
 #endif
@@ -7053,6 +7058,27 @@ static int32_t ask_above_or_below(void)
     return editor_ask_function("Extend above (a) or below (z)?", dachars, 2);
 }
 #endif
+
+// get the file name of the file that would be written if SaveBoard(NULL, 0) was called
+static const char *GetSaveBoardFilename(void)
+{
+    const char *fn = boardfilename, *f;
+
+    if (pathsearchmode)
+        f = fn;
+    else
+    {
+        // virtual filesystem mode can't save to directories so drop the file into
+        // the current directory
+        f = Bstrrchr(fn, '/');
+        if (!f)
+            f = fn;
+        else
+            f++;
+    }
+
+    return f;
+}
 
 // flags:  1:no ExSaveMap (backup.map) and no taglabels saving
 const char *SaveBoard(const char *fn, uint32_t flags)

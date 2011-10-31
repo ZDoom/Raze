@@ -62,6 +62,7 @@ static int32_t g_fillCurSector = 0;
 
 static char g_modDir[BMAX_PATH];
 char defsfilename[BMAX_PATH] = "duke3d.def";
+char levelname[BMAX_PATH];
 
 // static char *startwin_labeltext = "Starting Mapster32...";
 static char *setupfilename = "mapster32.cfg";
@@ -805,7 +806,7 @@ static void MultiPskyInit(void)
 void ExtLoadMap(const char *mapname)
 {
     int32_t i;
-    int32_t sky=-1;
+    int32_t sky=LA;
 
     getmessageleng = 0;
     getmessagetimeoff = 0;
@@ -7552,6 +7553,7 @@ static void Keys2d(void)
         {
             g_fillCurSector = !g_fillCurSector;
             message("Fill currently pointed-at sector: %s", ONOFF(g_fillCurSector));
+            keystatus[KEYSC_TAB] = 0;
         }
         else if (eitherSHIFT)
         {
@@ -11048,11 +11050,15 @@ static void Keys2d3d(void)
                 i = CheckMapCorruption(4, 0);
                 if (i<4)
                 {
-                    SaveBoard(levelname, 0);
+                    Bsprintf(tempbuf, "Save to %s?", levelname);
+                    if (!AskIfSure(tempbuf))
+                    {
+                        SaveBoard(levelname, 0);
 
-                    message("Board saved");
-                    asksave = 0;
-                    lastsave=totalclock;
+                        message("Board saved to %s", levelname);
+                        asksave = 0;
+                        lastsave=totalclock;
+                    }
                 }
                 else
                     message("Map is heavily corrupted, not saving. See OSD for details.");
