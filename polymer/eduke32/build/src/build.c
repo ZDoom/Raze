@@ -114,7 +114,7 @@ const char *mapster32_fullpath;
 char *testplay_addparam = 0;
 
 static char boardfilename[BMAX_PATH], selectedboardfilename[BMAX_PATH];
-extern char levelname[BMAX_PATH];  // in astub.c   XXX: clean up this mess!!!
+//extern char levelname[BMAX_PATH];  // in astub.c   XXX: clean up this mess!!!
 
 static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
 static int32_t numdirs=0, numfiles=0;

@@ -62,7 +62,7 @@ static int32_t g_fillCurSector = 0;
 
 static char g_modDir[BMAX_PATH];
 char defsfilename[BMAX_PATH] = "duke3d.def";
-char levelname[BMAX_PATH];
+static char levelname[BMAX_PATH];
 
 // static char *startwin_labeltext = "Starting Mapster32...";
 static char *setupfilename = "mapster32.cfg";
