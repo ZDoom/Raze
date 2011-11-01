@@ -11477,7 +11477,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
                 }
             }
 
-            if (clockwise==0)  //search points CCW
+            if (!clockwise)  //search points CCW
             {
                 if (wall[w].nextwall >= 0)
                     w = wall[wall[w].nextwall].point2;
@@ -11488,7 +11488,15 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
                 }
             }
 
-            if (clockwise==1)
+            cnt--;
+            if (cnt==0)
+            {
+                initprintf("dragpoint %d: infloop!\n", pointhighlight);
+                i = numyaxwalls;
+                break;
+            }
+
+            if (clockwise)
             {
                 thelastwall = lastwall(w);
                 if (wall[thelastwall].nextwall >= 0)
@@ -11497,9 +11505,15 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
                     break;
             }
 
-            cnt--;
-            if ((walbitmap[w>>3] & (1<<(w&7))) || cnt==0)
-                break;
+            if ((walbitmap[w>>3] & (1<<(w&7))))
+            {
+                if (clockwise)
+                    break;
+
+                w = tmpstartwall;
+                clockwise = 1;
+                continue;
+            }
         }
     }
 
