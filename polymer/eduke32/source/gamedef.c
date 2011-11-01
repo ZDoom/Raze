@@ -5632,16 +5632,17 @@ static void C_InitProjectiles(void)
         int8_t shade, xrepeat, yrepeat, pal; // 4b
         int8_t velmult; // 1b
         uint8_t clipdist; // 1b
+        int8_t filler[6]; // 6b
     } defaultprojectile_t;
 
     defaultprojectile_t DefaultProjectile =
     {
         1, -1, 2048, 0, 0, SMALLSMOKE, -1, -1, 600, BULLETHOLE, -1, 0, 0, 448, g_numFreezeBounces, PIPEBOMB_BOUNCE, 1,
-        100, -1, -1, -1, -1, -1, -96, 18, 18, 0, 1, 32
+        100, -1, -1, -1, -1, -1, -96, 18, 18, 0, 1, 32, {0,0,0,0,0,0},
     };
 
     // this will only happen if I forget to update this function...
-    if (offsetof(projectile_t, filler) != sizeof(DefaultProjectile))
+    if (sizeof(projectile_t) != sizeof(DefaultProjectile))
         G_GameExit("ERROR: C_InitProjectiles(): projectile_t mismatch!");
 
     for (i=MAXTILES-1; i>=0; i--)

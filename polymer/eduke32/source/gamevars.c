@@ -803,6 +803,11 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
         default:
             return ((aGameVars[id].val.lValue ^ -negateResult) + negateResult);
         case GAMEVAR_PERPLAYER:
+            if ((unsigned)vm.g_p >= MAXPLAYERS)
+            {
+                id = vm.g_p;
+                goto badplayer;
+            }
             return ((aGameVars[id].val.plValues[vm.g_p] ^ -negateResult) + negateResult);
         case GAMEVAR_PERACTOR:
             return ((aGameVars[id].val.plValues[vm.g_i] ^ -negateResult) + negateResult);
