@@ -1820,7 +1820,6 @@ int32_t MV_StartDemandFeedPlayback
     voice->DemandFeed  = function;
     voice->LoopStart   = NULL;
     voice->LoopCount   = 0;
-    voice->BlockLength = 0;
     voice->position    = 0;
     voice->sound       = NULL;
     voice->length      = 0;
@@ -1913,6 +1912,7 @@ int32_t MV_PlayLoopedRaw
     voice->channels    = 1;
     voice->GetSound    = MV_GetNextRawBlock;
     voice->Playing     = TRUE;
+    voice->Paused     = FALSE;
     voice->NextBlock   = ptr;
     voice->position    = 0;
     voice->BlockLength = length;
@@ -2282,6 +2282,8 @@ int32_t MV_PlayLoopedVOC
         return(MV_Error);
     }
 
+    voice->Playing = TRUE;
+    voice->Paused = FALSE;
     voice->wavetype    = VOC;
     voice->bits        = 8;
     voice->channels    = 1;
