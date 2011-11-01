@@ -143,8 +143,8 @@ static void (*MV_MixFunction)(VoiceNode *voice, int32_t buffer);
 
 char  *MV_HarshClipTable;
 char  *MV_MixDestination;
-int16_t *MV_LeftVolume;
-int16_t *MV_RightVolume;
+const int16_t *MV_LeftVolume;
+const int16_t *MV_RightVolume;
 int32_t    MV_SampleSize = 1;
 int32_t    MV_RightChannelOffset;
 
@@ -232,7 +232,7 @@ const char *MV_ErrorString(int32_t ErrorNumber)
 
 static void MV_Mix(VoiceNode *voice,int32_t buffer)
 {
-    char          *start;
+    const char          *start;
     int32_t            length;
     int32_t            voclength;
     uint32_t   position;
@@ -751,7 +751,8 @@ static playbackstatus MV_GetNextDemandFeedBlock(VoiceNode *voice)
         return(NoMoreData);
 
     voice->position     = 0;
-    (voice->DemandFeed)(&voice->sound, &voice->BlockLength);
+    // TODO: learn how to properly attach the 'const' in pointer-pointers :O
+    (voice->DemandFeed)((char **)&voice->sound, &voice->BlockLength);
     voice->length       = min(voice->BlockLength, 0x8000);
     voice->BlockLength -= voice->length;
     voice->length     <<= 16;
@@ -2189,7 +2190,7 @@ int32_t MV_PlayVOC3D
 
     volume = MIX_VOLUME(distance);
 
-    // Ensure angle is within 0 - 31
+    // Ensure angle is within 0 - 127
     angle &= MV_MAXPANPOSITION;
 
     left  = MV_PanTable[ angle ][ volume ].left;

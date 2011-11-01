@@ -195,7 +195,7 @@ static playbackstatus MV_GetNextVorbisBlock
       voice->channels = vi->channels;
       voice->SamplingRate = vi->rate;
       voice->RateScale    = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;
-      voice->FixedPointBufferSize = ( voice->RateScale * MixBufferSize ) - voice->RateScale;
+      voice->FixedPointBufferSize = ( voice->RateScale * MV_MIXBUFFERSIZE ) - voice->RateScale;
       MV_SetVoiceMixMode( voice );
       vd->lastbitstream = bitstream;
    }
@@ -245,13 +245,13 @@ int32_t MV_PlayVorbis3D
    if ( distance < 0 )
    {
       distance  = -distance;
-      angle    += MV_NumPanPositions / 2;
+      angle    += MV_NUMPANPOSITIONS / 2;
    }
    
    volume = MIX_VOLUME( distance );
    
-   // Ensure angle is within 0 - 31
-   angle &= MV_MaxPanPosition;
+   // Ensure angle is within 0 - 127
+   angle &= MV_MAXPANPOSITION;
    
    left  = MV_PanTable[ angle ][ volume ].left;
    right = MV_PanTable[ angle ][ volume ].right;
@@ -395,7 +395,7 @@ int32_t MV_PlayLoopedVorbis
    
    voice->SamplingRate = vi->rate;
    voice->RateScale    = ( voice->SamplingRate * voice->PitchScale ) / MV_MixRate;
-   voice->FixedPointBufferSize = ( voice->RateScale * MixBufferSize ) -
+   voice->FixedPointBufferSize = ( voice->RateScale * MV_MIXBUFFERSIZE ) -
       voice->RateScale;
    MV_SetVoiceMixMode( voice );
 

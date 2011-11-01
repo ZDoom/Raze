@@ -120,11 +120,11 @@ typedef struct VoiceNode
    playbackstatus ( *GetSound )( struct VoiceNode *voice );
 
    void ( *mix )( uint32_t position, uint32_t rate,
-      char *start, uint32_t length );
+      const char *start, uint32_t length );
 
-   char         *NextBlock;
-   char         *LoopStart;
-   char         *LoopEnd;
+   const char         *NextBlock;
+   const char         *LoopStart;
+   const char         *LoopEnd;
    unsigned      LoopCount;
    uint32_t  LoopSize;
    uint32_t  BlockLength;
@@ -132,7 +132,7 @@ typedef struct VoiceNode
    uint32_t  PitchScale;
    uint32_t  FixedPointBufferSize;
 
-   char         *sound;
+   const char         *sound;
    uint32_t  length;
    uint32_t  SamplingRate;
    uint32_t  RateScale;
@@ -146,8 +146,8 @@ typedef struct VoiceNode
    void          ( *DemandFeed )( char **ptr, uint32_t *length );
    void         *extra;
 
-   int16_t        *LeftVolume;
-   int16_t        *RightVolume;
+   const int16_t        *LeftVolume;
+   const int16_t        *RightVolume;
 
    uint32_t  callbackval;
 
@@ -240,28 +240,28 @@ void MV_ReleaseVorbisVoice( VoiceNode * voice );
 void ClearBuffer_DW( void *ptr, unsigned data, int32_t length );
 
 void MV_Mix8BitMono( uint32_t position, uint32_t rate,
-   char *start, uint32_t length );
+   const char *start, uint32_t length );
 
 void MV_Mix8BitStereo( uint32_t position,
-   uint32_t rate, char *start, uint32_t length );
+   uint32_t rate, const char *start, uint32_t length );
 
 void MV_Mix16BitMono( uint32_t position,
-   uint32_t rate, char *start, uint32_t length );
+   uint32_t rate, const char *start, uint32_t length );
 
 void MV_Mix16BitStereo( uint32_t position,
-   uint32_t rate, char *start, uint32_t length );
+   uint32_t rate, const char *start, uint32_t length );
 
 void MV_Mix16BitMono16( uint32_t position,
-   uint32_t rate, char *start, uint32_t length );
+   uint32_t rate, const char *start, uint32_t length );
 
 void MV_Mix8BitMono16( uint32_t position, uint32_t rate,
-   char *start, uint32_t length );
+   const char *start, uint32_t length );
 
 void MV_Mix8BitStereo16( uint32_t position,
-   uint32_t rate, char *start, uint32_t length );
+   uint32_t rate, const char *start, uint32_t length );
 
 void MV_Mix16BitStereo16( uint32_t position,
-   uint32_t rate, char *start, uint32_t length );
+   uint32_t rate, const char *start, uint32_t length );
 
 void MV_16BitReverb( char *src, char *dest, VOLUME16 *volume, int32_t count );
 
@@ -275,27 +275,40 @@ void MV_8BitReverbFast( int8_t *src, int8_t *dest, int32_t count, int32_t shift 
 void ClearBuffer_DW( void *ptr, unsigned data, int32_t length );
 
 void MV_Mix8BitMono8Stereo( uint32_t position, uint32_t rate,
-							char *start, uint32_t length );
+							const char *start, uint32_t length );
 
 void MV_Mix8BitStereo8Stereo( uint32_t position,
-							  uint32_t rate, char *start, uint32_t length );
+							  uint32_t rate, const char *start, uint32_t length );
 
 void MV_Mix16BitMono8Stereo( uint32_t position,
-							 uint32_t rate, char *start, uint32_t length );
+							 uint32_t rate, const char *start, uint32_t length );
 
 void MV_Mix16BitStereo8Stereo( uint32_t position,
-								uint32_t rate, char *start, uint32_t length );
+								uint32_t rate, const char *start, uint32_t length );
 
 void MV_Mix16BitMono16Stereo( uint32_t position,
-								uint32_t rate, char *start, uint32_t length );
+								uint32_t rate, const char *start, uint32_t length );
 
 void MV_Mix8BitMono16Stereo( uint32_t position, uint32_t rate,
-							  char *start, uint32_t length );
+							  const char *start, uint32_t length );
 
 void MV_Mix8BitStereo16Stereo( uint32_t position,
-								 uint32_t rate, char *start, uint32_t length );
+								 uint32_t rate, const char *start, uint32_t length );
 
 void MV_Mix16BitStereo16Stereo( uint32_t position,
-								  uint32_t rate, char *start, uint32_t length );
+								  uint32_t rate, const char *start, uint32_t length );
+
+
+extern char  *MV_HarshClipTable;
+extern char  *MV_MixDestination;			// pointer to the next output sample
+extern uint32_t MV_MixPosition;		// return value of where the source pointer got to
+extern const int16_t *MV_LeftVolume;
+extern const int16_t *MV_RightVolume;
+extern int32_t    MV_SampleSize;
+extern int32_t    MV_RightChannelOffset;
+
+#ifdef __POWERPC__
+# define BIGENDIAN
+#endif
 
 #endif
