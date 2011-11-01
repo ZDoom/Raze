@@ -86,14 +86,14 @@ static inline uint32_t SWAP32(uint32_t s)
 #ifndef max
 #define max(x,y) ((x) > (y) ? (x) : (y))
 #endif
-
+/*
 #define RoundFixed( fixedval, bits )            \
         (                                       \
           (                                     \
             (fixedval) + ( 1 << ( (bits) - 1 ) )\
           ) >> (bits)                           \
         )
-
+*/
 #define IS_QUIET( ptr )  ( ( void * )( ptr ) == ( void * )&MV_VolumeTable[ 0 ] )
 
 static int32_t       MV_ReverbLevel;
@@ -244,8 +244,8 @@ static void MV_Mix(VoiceNode *voice,int32_t buffer)
     uint32_t   rate;
     uint32_t   FixedPointBufferSize;
 
-    /* cheap fix for a crash under 64-bit linux --\
-                                                  v */
+    /* cheap fix for a crash under 64-bit linux */
+    /*                            v  v  v  v    */
     if (voice->length == 0 && (!voice->GetSound || voice->GetSound(voice) != KeepPlaying))
         return;
 
@@ -329,7 +329,7 @@ void MV_PlayVoice(VoiceNode *voice)
    Removes the voice from the play list and adds it to the free list.
 ---------------------------------------------------------------------*/
 
-void MV_StopVoice(VoiceNode *voice)
+static void MV_StopVoice(VoiceNode *voice)
 {
     DisableInterrupts();
 
@@ -363,7 +363,7 @@ void MV_StopVoice(VoiceNode *voice)
            MV_GetNextWAVBlock
            MV_SetVoiceMixMode
 ---------------------------------------------------------------------*/
-void MV_ServiceVoc(void)
+static void MV_ServiceVoc(void)
 {
     VoiceNode *voice;
     VoiceNode *next;
@@ -394,7 +394,7 @@ void MV_ServiceVoc(void)
         int32_t   count;
         int32_t   length;
 
-        end = MV_MixBuffer[ 0 ] + MV_BufferLength;;
+        end = MV_MixBuffer[ 0 ] + MV_BufferLength;
         dest = MV_MixBuffer[ MV_MixPage ];
         source = MV_MixBuffer[ MV_MixPage ] - MV_ReverbDelay;
 
@@ -453,6 +453,7 @@ void MV_ServiceVoc(void)
 
         MV_MixFunction(voice, MV_MixPage);
 
+
         // Is this voice done?
         if (!voice->Playing)
         {
@@ -482,7 +483,7 @@ void MV_ServiceVoc(void)
    Interpret the information of a VOC format sound file.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
+static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
 {
     uint8_t *ptr;
     int32_t            blocktype;
@@ -738,7 +739,7 @@ playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
    Controls playback of demand fed data.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextDemandFeedBlock(VoiceNode *voice)
+static playbackstatus MV_GetNextDemandFeedBlock(VoiceNode *voice)
 {
     if (voice->BlockLength > 0)
     {
@@ -770,7 +771,7 @@ playbackstatus MV_GetNextDemandFeedBlock(VoiceNode *voice)
    Controls playback of demand fed data.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextRawBlock(VoiceNode *voice)
+static playbackstatus MV_GetNextRawBlock(VoiceNode *voice)
 {
     if (voice->BlockLength <= 0)
     {
@@ -803,7 +804,7 @@ playbackstatus MV_GetNextRawBlock(VoiceNode *voice)
    Controls playback of demand fed data.
 ---------------------------------------------------------------------*/
 
-playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
+static playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
 {
     if (voice->BlockLength <= 0)
     {
@@ -836,7 +837,7 @@ playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
    Locates the voice with the specified handle.
 ---------------------------------------------------------------------*/
 
-VoiceNode *MV_GetVoice(int32_t handle)
+static VoiceNode *MV_GetVoice(int32_t handle)
 {
     VoiceNode *voice;
 
@@ -1090,7 +1091,7 @@ int32_t MV_VoiceAvailable(int32_t priority)
    Sets the pitch for the specified voice.
 ---------------------------------------------------------------------*/
 
-void MV_SetVoicePitch
+static void MV_SetVoicePitch
 (
     VoiceNode *voice,
     uint32_t rate,
@@ -1183,11 +1184,7 @@ int32_t MV_SetFrequency
    volume.
 ---------------------------------------------------------------------*/
 
-static int16_t *MV_GetVolumeTable
-(
-    int32_t vol
-)
-
+static int16_t *MV_GetVolumeTable(int32_t vol)
 {
     int32_t volume;
     int16_t *table;
@@ -1220,20 +1217,16 @@ static int16_t *MV_GetVolumeTable
 --------------------------+---------------------------+-------------
                      X    |                      X    | Mix16BitStereo16Stereo
                      X    |                X          | Mix16BitStereo8Stereo
-					X          |                      X    | Mix8BitStereo16Stereo
+               X          |                      X    | Mix8BitStereo16Stereo
                X          |                X          | Mix8BitStereo8Stereo
-		  X                 |                      X    | Mix16BitMono16Stereo
+        X                 |                      X    | Mix16BitMono16Stereo
         X                 |                X          | Mix16BitMono8Stereo
   X                       |                      X    | Mix8BitMono16Stereo
   X                       |                X          | Mix8BitMono8Stereo
 
 ---------------------------------------------------------------------*/
 
-void MV_SetVoiceMixMode
-(
-    VoiceNode *voice
-)
-
+void MV_SetVoiceMixMode(VoiceNode *voice)
 {
     //int32_t flags;
     int32_t test;
@@ -1467,11 +1460,7 @@ int32_t MV_PauseVoice
    without stoping the sound.
 ---------------------------------------------------------------------*/
 
-int32_t MV_EndLooping
-(
-    int32_t handle
-)
-
+int32_t MV_EndLooping(int32_t handle)
 {
     VoiceNode *voice;
 
@@ -1586,11 +1575,7 @@ int32_t MV_Pan3D
    Sets the level of reverb to add to mix.
 ---------------------------------------------------------------------*/
 
-void MV_SetReverb
-(
-    int32_t reverb
-)
-
+void MV_SetReverb(int32_t reverb)
 {
     MV_ReverbLevel = MIX_VOLUME(reverb);
     MV_ReverbTable = &MV_VolumeTable[ MV_ReverbLevel ];
@@ -1603,11 +1588,7 @@ void MV_SetReverb
    Sets the level of reverb to add to mix.
 ---------------------------------------------------------------------*/
 
-void MV_SetFastReverb
-(
-    int32_t reverb
-)
-
+void MV_SetFastReverb(int32_t reverb)
 {
     MV_ReverbLevel = max(0, min(16, reverb));
     MV_ReverbTable = NULL;
@@ -1620,11 +1601,7 @@ void MV_SetFastReverb
    Returns the maximum delay time for reverb.
 ---------------------------------------------------------------------*/
 
-int32_t MV_GetMaxReverbDelay
-(
-    void
-)
-
+int32_t MV_GetMaxReverbDelay(void)
 {
     int32_t maxdelay;
 
@@ -1640,11 +1617,7 @@ int32_t MV_GetMaxReverbDelay
    Returns the current delay time for reverb.
 ---------------------------------------------------------------------*/
 
-int32_t MV_GetReverbDelay
-(
-    void
-)
-
+int32_t MV_GetReverbDelay(void)
 {
     return MV_ReverbDelay / MV_SampleSize;
 }
@@ -1656,11 +1629,7 @@ int32_t MV_GetReverbDelay
    Sets the delay level of reverb to add to mix.
 ---------------------------------------------------------------------*/
 
-void MV_SetReverbDelay
-(
-    int32_t delay
-)
-
+void MV_SetReverbDelay(int32_t delay)
 {
     int32_t maxdelay;
 
@@ -1676,7 +1645,7 @@ void MV_SetReverbDelay
    Prepares Multivoc to play stereo of mono digitized sounds.
 ---------------------------------------------------------------------*/
 
-int32_t MV_SetMixMode
+static int32_t MV_SetMixMode
 (
     int32_t numchannels,
     int32_t samplebits
@@ -1745,11 +1714,7 @@ int32_t MV_SetMixMode
    Starts the sound playback engine.
 ---------------------------------------------------------------------*/
 
-int32_t MV_StartPlayback
-(
-    void
-)
-
+static int32_t MV_StartPlayback(void)
 {
     int32_t status;
     int32_t buffer;
@@ -1791,11 +1756,7 @@ int32_t MV_StartPlayback
    Stops the sound playback engine.
 ---------------------------------------------------------------------*/
 
-void MV_StopPlayback
-(
-    void
-)
-
+static void MV_StopPlayback(void)
 {
     VoiceNode   *voice;
     VoiceNode   *next;
@@ -2364,7 +2325,7 @@ int32_t MV_PlayLoopedVOC
    level.
 ---------------------------------------------------------------------*/
 
-void MV_CreateVolumeTable
+static void MV_CreateVolumeTable
 (
     int32_t index,
     int32_t volume,
@@ -2407,11 +2368,7 @@ void MV_CreateVolumeTable
    level.
 ---------------------------------------------------------------------*/
 
-void MV_CalcVolume
-(
-    int32_t MaxVolume
-)
-
+static void MV_CalcVolume(int32_t MaxVolume)
 {
     int32_t volume;
 
@@ -2441,11 +2398,7 @@ void MV_CalcVolume
    a sound located at a specific angle and distance from the listener.
 ---------------------------------------------------------------------*/
 
-void MV_CalcPanTable
-(
-    void
-)
-
+static void MV_CalcPanTable(void)
 {
     int32_t   level;
     int32_t   angle;
@@ -2483,11 +2436,7 @@ void MV_CalcPanTable
    Sets the volume of digitized sound playback.
 ---------------------------------------------------------------------*/
 
-void MV_SetVolume
-(
-    int32_t volume
-)
-
+void MV_SetVolume(int32_t volume)
 {
     volume = max(0, volume);
     volume = min(volume, MV_MaxTotalVolume);
@@ -2505,11 +2454,7 @@ void MV_SetVolume
    Returns the volume of digitized sound playback.
 ---------------------------------------------------------------------*/
 
-int32_t MV_GetVolume
-(
-    void
-)
-
+int32_t MV_GetVolume(void)
 {
     return(MV_TotalVolume);
 }
@@ -2521,11 +2466,7 @@ int32_t MV_GetVolume
    Set the function to call when a voice stops.
 ---------------------------------------------------------------------*/
 
-void MV_SetCallBack
-(
-    void (*function)(uint32_t)
-)
-
+void MV_SetCallBack(void (*function)(uint32_t))
 {
     MV_CallBackFunc = function;
 }
@@ -2537,11 +2478,7 @@ void MV_SetCallBack
    Set the orientation of the left and right channels.
 ---------------------------------------------------------------------*/
 
-void MV_SetReverseStereo
-(
-    int32_t setting
-)
-
+void MV_SetReverseStereo(int32_t setting)
 {
     MV_SwapLeftRight = setting;
 }
@@ -2553,11 +2490,7 @@ void MV_SetReverseStereo
    Returns the orientation of the left and right channels.
 ---------------------------------------------------------------------*/
 
-int32_t MV_GetReverseStereo
-(
-    void
-)
-
+int32_t MV_GetReverseStereo(void)
 {
     return(MV_SwapLeftRight);
 }
@@ -2688,11 +2621,7 @@ int32_t MV_Init
    Restore any resources allocated by Multivoc back to the system.
 ---------------------------------------------------------------------*/
 
-int32_t MV_Shutdown
-(
-    void
-)
-
+int32_t MV_Shutdown(void)
 {
     int32_t      buffer;
 
