@@ -55,17 +55,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define T_RIGHTQUIET   32
 #define T_DEFAULT      T_SIXTEENBIT_STEREO
 
-#define MV_MaxPanPosition  127
-#define MV_NumPanPositions ( MV_MaxPanPosition + 1 )
-#define MV_MaxTotalVolume  255
-//#define MV_MaxVolume       63
-#define MV_NumVoices       8
+#define MV_MAXPANPOSITION  127  /* formerly 31 */
+#define MV_NUMPANPOSITIONS ( MV_MAXPANPOSITION + 1 )
+#define MV_MAXTOTALVOLUME  255
+#define MV_MAXVOLUME       255  /* formerly 63 */
+#define MV_NUMVOICES       8
 
 // mirrors FX_MUSIC_PRIORITY from fx_man.h
 #define MV_MUSIC_PRIORITY INT_MAX
 
 #define MIX_VOLUME( volume ) \
-   ( ( max( 0, min( ( volume ), 255 ) ) * ( MV_MaxVolume + 1 ) ) >> 8 )
+   ( ( max( 0, min( ( volume ), 255 ) ) * ( MV_MAXVOLUME + 1 ) ) >> 8 )
 //   ( ( max( 0, min( ( volume ), 255 ) ) ) >> 2 )
 
 #define STEREO      1
@@ -86,12 +86,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SILENCE_8BIT      0x80808080
 //#define SILENCE_16BIT_PAS 0
 
-#define MixBufferSize     256
+#define MV_MIXBUFFERSIZE     256
+#define MV_NUMBEROFBUFFERS   16
+#define MV_TOTALBUFFERSIZE   ( MV_MIXBUFFERSIZE * MV_NUMBEROFBUFFERS )
 
-#define NumberOfBuffers   16
-#define TotalBufferSize   ( MixBufferSize * NumberOfBuffers )
-
-#define PI                3.1415926536
+//#define PI                3.1415926536
 
 typedef enum
    {
@@ -99,7 +98,7 @@ typedef enum
    VOC,
    DemandFeed,
    WAV,
-	Vorbis
+   Vorbis
    } wavedata;
 
 typedef enum
@@ -116,7 +115,7 @@ typedef struct VoiceNode
 
    wavedata      wavetype;
    char          bits;
-	char          channels;
+   char          channels;
 
    playbackstatus ( *GetSound )( struct VoiceNode *voice );
 
@@ -219,12 +218,11 @@ typedef struct
 typedef MONO8  VOLUME8[ 256 ];
 typedef MONO16 VOLUME16[ 256 ];
 
-extern Pan MV_PanTable[ MV_NumPanPositions ][ 255 + 1 ];
+extern Pan MV_PanTable[ MV_NUMPANPOSITIONS ][ MV_MAXVOLUME + 1 ];
 extern int32_t MV_ErrorCode;
 extern int32_t MV_Installed;
-extern int32_t MV_MaxVolume;
 extern int32_t MV_MixRate;
-typedef char HARSH_CLIP_TABLE_8[ MV_NumVoices * 256 ];
+typedef char HARSH_CLIP_TABLE_8[ MV_NUMVOICES * 256 ];
 
 #define MV_SetErrorCode( status ) \
    MV_ErrorCode   = ( status );

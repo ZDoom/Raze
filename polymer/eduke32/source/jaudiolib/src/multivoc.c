@@ -100,20 +100,17 @@ static int32_t       MV_ReverbLevel;
 static int32_t       MV_ReverbDelay;
 static VOLUME16 *MV_ReverbTable = NULL;
 
-//static int16_t MV_VolumeTable[ MV_MaxVolume + 1 ][ 256 ];
-static int16_t MV_VolumeTable[ 255 + 1 ][ 256 ];
-
-//static Pan MV_PanTable[ MV_NumPanPositions ][ MV_MaxVolume + 1 ];
-Pan MV_PanTable[ MV_NumPanPositions ][ 255 + 1 ];
+static int16_t MV_VolumeTable[ MV_MAXVOLUME + 1 ][ 256 ];
+Pan MV_PanTable[ MV_NUMPANPOSITIONS ][ MV_MAXVOLUME + 1 ];
 
 int32_t MV_Installed   = FALSE;
-static int32_t MV_TotalVolume = MV_MaxTotalVolume;
+static int32_t MV_TotalVolume = MV_MAXTOTALVOLUME;
 static int32_t MV_MaxVoices   = 1;
 
-static int32_t MV_BufferSize = MixBufferSize;
+static int32_t MV_BufferSize = MV_MIXBUFFERSIZE;
 static int32_t MV_BufferLength;
 
-static int32_t MV_NumberOfBuffers = NumberOfBuffers;
+static int32_t MV_NumberOfBuffers = MV_NUMBEROFBUFFERS;
 
 static int32_t MV_MixMode    = MONO_8BIT;
 static int32_t MV_Channels   = 1;
@@ -129,8 +126,8 @@ static int32_t MV_BuffShift;
 
 static int32_t MV_TotalMemory;
 
-static int32_t   MV_BufferEmpty[ NumberOfBuffers ];
-char *MV_MixBuffer[ NumberOfBuffers + 1 ];
+static int32_t   MV_BufferEmpty[ MV_NUMBEROFBUFFERS ];
+char *MV_MixBuffer[ MV_NUMBEROFBUFFERS + 1 ];
 
 static VoiceNode *MV_Voices = NULL;
 
@@ -138,13 +135,11 @@ static volatile VoiceNode VoiceList;
 static volatile VoiceNode VoicePool;
 
 static int32_t MV_MixPage      = 0;
-static int32_t MV_VoiceHandle  = MV_MinVoiceHandle;
+static int32_t MV_VoiceHandle  = MV_MINVOICEHANDLE;
 
 void (*MV_Printf)(const char *fmt, ...) = NULL;
 static void (*MV_CallBackFunc)(uint32_t) = NULL;
 static void (*MV_MixFunction)(VoiceNode *voice, int32_t buffer);
-
-int32_t MV_MaxVolume = 255;
 
 char  *MV_HarshClipTable;
 char  *MV_MixDestination;
@@ -249,7 +244,7 @@ static void MV_Mix(VoiceNode *voice,int32_t buffer)
     if (voice->length == 0 && (!voice->GetSound || voice->GetSound(voice) != KeepPlaying))
         return;
 
-    length               = MixBufferSize;
+    length               = MV_MIXBUFFERSIZE;
     FixedPointBufferSize = voice->FixedPointBufferSize;
 
     MV_MixDestination    = MV_MixBuffer[ buffer ];
@@ -697,8 +692,8 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
         voice->SamplingRate = samplespeed;
         voice->RateScale    = (voice->SamplingRate * voice->PitchScale) / MV_MixRate;
 
-        // Multiply by MixBufferSize - 1
-        voice->FixedPointBufferSize = (voice->RateScale * MixBufferSize) -
+        // Multiply by MV_MIXBUFFERSIZE - 1
+        voice->FixedPointBufferSize = (voice->RateScale * MV_MIXBUFFERSIZE) -
                                       voice->RateScale;
 
         if (voice->LoopEnd != NULL)
@@ -841,7 +836,7 @@ static VoiceNode *MV_GetVoice(int32_t handle)
 {
     VoiceNode *voice;
 
-    if (handle < MV_MinVoiceHandle || handle > MV_MaxVoices)
+    if (handle < MV_MINVOICEHANDLE || handle > MV_MaxVoices)
     {
         if (MV_Printf)
             MV_Printf("MV_GetVoice(): bad handle (%d)!\n", handle);
@@ -1019,7 +1014,7 @@ VoiceNode *MV_AllocVoice(int32_t priority)
                 voice = node;
         }
 
-        if (priority >= voice->priority && voice != &VoiceList && voice->handle >= MV_MinVoiceHandle)
+        if (priority >= voice->priority && voice != &VoiceList && voice->handle >= MV_MINVOICEHANDLE)
             MV_Kill(voice->handle);
 
         if (LL_Empty(&VoicePool, next, prev))
@@ -1034,13 +1029,13 @@ VoiceNode *MV_AllocVoice(int32_t priority)
     LL_Remove(voice, next, prev);
     RestoreInterrupts();
 
-    MV_VoiceHandle = MV_MinVoiceHandle;
+    MV_VoiceHandle = MV_MINVOICEHANDLE;
 
     // Find a free voice handle
     do
     {
-        if (++MV_VoiceHandle < MV_MinVoiceHandle || MV_VoiceHandle > MV_MaxVoices)
-            MV_VoiceHandle = MV_MinVoiceHandle;
+        if (++MV_VoiceHandle < MV_MINVOICEHANDLE || MV_VoiceHandle > MV_MaxVoices)
+            MV_VoiceHandle = MV_MINVOICEHANDLE;
     }
     while (MV_VoicePlaying(MV_VoiceHandle));
 
@@ -1103,8 +1098,8 @@ static void MV_SetVoicePitch
     voice->PitchScale   = PITCH_GetScale(pitchoffset);
     voice->RateScale    = (rate * voice->PitchScale) / MV_MixRate;
 
-    // Multiply by MixBufferSize - 1
-    voice->FixedPointBufferSize = (voice->RateScale * MixBufferSize) -
+    // Multiply by MV_MIXBUFFERSIZE - 1
+    voice->FixedPointBufferSize = (voice->RateScale * MV_MIXBUFFERSIZE) -
                                   voice->RateScale;
 }
 
@@ -1551,13 +1546,13 @@ int32_t MV_Pan3D
     if (distance < 0)
     {
         distance  = -distance;
-        angle    += MV_NumPanPositions / 2;
+        angle    += MV_NUMPANPOSITIONS / 2;
     }
 
     volume = MIX_VOLUME(distance);
 
-    // Ensure angle is within 0 - 31
-    angle &= MV_MaxPanPosition;
+    // Ensure angle is within 0 - 127
+    angle &= MV_MAXPANPOSITION;
 
     left  = MV_PanTable[ angle ][ volume ].left;
     right = MV_PanTable[ angle ][ volume ].right;
@@ -1605,7 +1600,7 @@ int32_t MV_GetMaxReverbDelay(void)
 {
     int32_t maxdelay;
 
-    maxdelay = MixBufferSize * MV_NumberOfBuffers;
+    maxdelay = MV_MIXBUFFERSIZE * MV_NumberOfBuffers;
 
     return maxdelay;
 }
@@ -1634,7 +1629,7 @@ void MV_SetReverbDelay(int32_t delay)
     int32_t maxdelay;
 
     maxdelay = MV_GetMaxReverbDelay();
-    MV_ReverbDelay = max(MixBufferSize, min(delay, maxdelay));
+    MV_ReverbDelay = max(MV_MIXBUFFERSIZE, min(delay, maxdelay));
     MV_ReverbDelay *= MV_SampleSize;
 }
 
@@ -1698,9 +1693,9 @@ static int32_t MV_SetMixMode
         MV_SampleSize *= 2;
     }
 
-    MV_BufferSize = MixBufferSize * MV_SampleSize;
-    MV_NumberOfBuffers = TotalBufferSize / MV_BufferSize;
-    MV_BufferLength = TotalBufferSize;
+    MV_BufferSize = MV_MIXBUFFERSIZE * MV_SampleSize;
+    MV_NumberOfBuffers = MV_TOTALBUFFERSIZE / MV_BufferSize;
+    MV_BufferLength = MV_TOTALBUFFERSIZE;
 
     MV_RightChannelOffset = MV_SampleSize / 2;
 
@@ -1720,7 +1715,7 @@ static int32_t MV_StartPlayback(void)
     int32_t buffer;
 
     // Initialize the buffers
-    ClearBuffer_DW(MV_MixBuffer[ 0 ], MV_Silence, TotalBufferSize >> 2);
+    ClearBuffer_DW(MV_MixBuffer[ 0 ], MV_Silence, MV_TOTALBUFFERSIZE >> 2);
     for (buffer = 0; buffer < MV_NumberOfBuffers; buffer++)
     {
         MV_BufferEmpty[ buffer ] = TRUE;
@@ -2000,13 +1995,13 @@ int32_t MV_PlayWAV3D
     if (distance < 0)
     {
         distance  = -distance;
-        angle    += MV_NumPanPositions / 2;
+        angle    += MV_NUMPANPOSITIONS / 2;
     }
 
     volume = MIX_VOLUME(distance);
 
-    // Ensure angle is within 0 - 31
-    angle &= MV_MaxPanPosition;
+    // Ensure angle is within 0 - 127
+    angle &= MV_MAXPANPOSITION;
 
     left  = MV_PanTable[ angle ][ volume ].left;
     right = MV_PanTable[ angle ][ volume ].right;
@@ -2189,13 +2184,13 @@ int32_t MV_PlayVOC3D
     if (distance < 0)
     {
         distance  = -distance;
-        angle    += MV_NumPanPositions / 2;
+        angle    += MV_NUMPANPOSITIONS / 2;
     }
 
     volume = MIX_VOLUME(distance);
 
     // Ensure angle is within 0 - 31
-    angle &= MV_MaxPanPosition;
+    angle &= MV_MAXPANPOSITION;
 
     left  = MV_PanTable[ angle ][ volume ].left;
     right = MV_PanTable[ angle ][ volume ].right;
@@ -2337,14 +2332,14 @@ static void MV_CreateVolumeTable
     int32_t level;
     int32_t i;
 
-    level = (volume * MaxVolume) / MV_MaxTotalVolume;
+    level = (volume * MaxVolume) / MV_MAXTOTALVOLUME;
     if (MV_Bits == 16)
     {
         for (i = 0; i < 65536; i += 256)
         {
             val   = i - 0x8000;
             val  *= level;
-            val  /= MV_MaxVolume;
+            val  /= MV_MAXVOLUME;
             MV_VolumeTable[ index ][ i / 256 ] = val;
         }
     }
@@ -2354,7 +2349,7 @@ static void MV_CreateVolumeTable
         {
             val   = i - 0x80;
             val  *= level;
-            val  /= MV_MaxVolume;
+            val  /= MV_MAXVOLUME;
             MV_VolumeTable[ volume ][ i ] = val;
         }
     }
@@ -2384,7 +2379,7 @@ static void MV_CalcVolume(int32_t MaxVolume)
 
     // For each volume level, create a translation table with the
     // appropriate volume calculated.
-    for (volume = 0; volume <= MV_MaxVolume; volume++)
+    for (volume = 0; volume <= MV_MAXVOLUME; volume++)
     {
         MV_CreateVolumeTable(volume, volume, MaxVolume);
     }
@@ -2406,25 +2401,25 @@ static void MV_CalcPanTable(void)
     int32_t   HalfAngle;
     int32_t   ramp;
 
-    HalfAngle = (MV_NumPanPositions / 2);
+    HalfAngle = (MV_NUMPANPOSITIONS / 2);
 
-    for (distance = 0; distance <= MV_MaxVolume; distance++)
+    for (distance = 0; distance <= MV_MAXVOLUME; distance++)
     {
-        level = (255 * (MV_MaxVolume - distance)) / MV_MaxVolume;
+        level = (255 * (MV_MAXVOLUME - distance)) / MV_MAXVOLUME;
         for (angle = 0; angle <= HalfAngle / 2; angle++)
         {
             ramp = level - ((level * angle) /
-                            (MV_NumPanPositions / 4));
+                            (MV_NUMPANPOSITIONS / 4));
 
             MV_PanTable[ angle ][ distance ].left = ramp;
             MV_PanTable[ HalfAngle - angle ][ distance ].left = ramp;
             MV_PanTable[ HalfAngle + angle ][ distance ].left = level;
-            MV_PanTable[ MV_MaxPanPosition - angle ][ distance ].left = level;
+            MV_PanTable[ MV_MAXPANPOSITION - angle ][ distance ].left = level;
 
             MV_PanTable[ angle ][ distance ].right = level;
             MV_PanTable[ HalfAngle - angle ][ distance ].right = level;
             MV_PanTable[ HalfAngle + angle ][ distance ].right = ramp;
-            MV_PanTable[ MV_MaxPanPosition - angle ][ distance ].right = ramp;
+            MV_PanTable[ MV_MAXPANPOSITION - angle ][ distance ].right = ramp;
         }
     }
 }
@@ -2439,7 +2434,7 @@ static void MV_CalcPanTable(void)
 void MV_SetVolume(int32_t volume)
 {
     volume = max(0, volume);
-    volume = min(volume, MV_MaxTotalVolume);
+    volume = min(volume, MV_MAXTOTALVOLUME);
 
     MV_TotalVolume = volume;
 
@@ -2526,7 +2521,7 @@ int32_t MV_Init
 
     MV_SetErrorCode(MV_Ok);
 
-    MV_TotalMemory = Voices * sizeof(VoiceNode) + sizeof(HARSH_CLIP_TABLE_8) + TotalBufferSize;
+    MV_TotalMemory = Voices * sizeof(VoiceNode) + sizeof(HARSH_CLIP_TABLE_8) + MV_TOTALBUFFERSIZE;
     ptr = (char *) calloc(1, MV_TotalMemory);
     if (!ptr)
     {
@@ -2598,7 +2593,7 @@ int32_t MV_Init
     // Calculate pan table
     MV_CalcPanTable();
 
-    MV_SetVolume(MV_MaxTotalVolume);
+    MV_SetVolume(MV_MAXTOTALVOLUME);
 
     // Start the playback engine
     status = MV_StartPlayback();
@@ -2651,7 +2646,7 @@ int32_t MV_Shutdown(void)
     MV_MaxVoices = 1;
 
     // Release the descriptor from our mix buffer
-    for (buffer = 0; buffer < NumberOfBuffers; buffer++)
+    for (buffer = 0; buffer < MV_NUMBEROFBUFFERS; buffer++)
     {
         MV_MixBuffer[ buffer ] = NULL;
     }

@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UNREFERENCED_PARAMETER(x) x=x
 #endif
 
-#define MV_MinVoiceHandle  1
+#define MV_MINVOICEHANDLE  1
 
 extern int32_t MV_ErrorCode;
 
@@ -46,13 +46,13 @@ enum MV_Errors
    MV_Ok      = 0,
    MV_UnsupportedCard,
    MV_NotInstalled,
-	MV_DriverError,
+   MV_DriverError,
    MV_NoVoices,
    MV_NoMem,
    MV_VoiceNotFound,
    MV_InvalidVOCFile,
    MV_InvalidWAVFile,
-	MV_InvalidVorbisFile,
+   MV_InvalidVorbisFile,
    MV_InvalidMixMode,
    MV_NullRecordFunction
    };
