@@ -5593,7 +5593,7 @@ static void Keys3d(void)
                         visibility <<= (visibility < 16384);
                     else
                         visibility >>= (visibility > 32);
-                    message("Global visibility %d", visibility);
+                    silentmessage("Global visibility %d", visibility);
                 }
                 else
                 {
@@ -5628,7 +5628,7 @@ static void Keys3d(void)
                         }
                     }
 
-                    message("Sector %d visibility %d",searchsector,sector[searchsector].visibility);
+                    silentmessage("Sector %d visibility %d",searchsector,sector[searchsector].visibility);
                     asksave = 1;
                 }
             }
@@ -5648,14 +5648,16 @@ static void Keys3d(void)
                             for (i=0; i<highlightcnt; i++)
                                 if (highlight[i]&16384)
                                     clamped = addtobyte(&sprite[highlight[i]&16383].shade, tsign);
-                            message("Highlighted sprite shade changed by %d%s", tsign,
-                                    clamped?" (some sprites' shade clamped)":"");
+                            (clamped ? message : silentmessage)
+                                ("Highlighted sprite shade changed by %d%s",
+                                 tsign, clamped?" (some sprites' shade clamped)":"");
                         }
                         else
                         {
                             clamped = addtobyte(&AIMED_CF_SEL(shade), tsign);
-                            message("%s %d shade %d%s", Typestr[searchstat], i, AIMED_CF_SEL(shade),
-                                    clamped ? " (clamped)":"");
+                            (clamped ? message : silentmessage)
+                                ("%s %d shade %d%s", Typestr[searchstat], i,
+                                 AIMED_CF_SEL(shade), clamped ? " (clamped)":"");
                         }
                     }
                 }
@@ -5677,7 +5679,7 @@ static void Keys3d(void)
                         for (j=headspritesect[dasector]; j!=-1; j=nextspritesect[j])
                             clamped |= addtobyte(&sprite[j].shade, tsign);
                     }
-                    message("Highlighted sector shade changed by %d%s", tsign,
+                    (clamped ? message : silentmessage)("Highlighted sector shade changed by %d%s", tsign,
                             clamped?" (some objects' shade clamped)":"");
                 }
                 asksave = 1;
