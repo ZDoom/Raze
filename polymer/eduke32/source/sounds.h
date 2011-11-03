@@ -89,5 +89,6 @@ void S_SoundStartup(void);
 void S_StopEnvSound(int32_t num,int32_t i);
 void S_StopMusic(void);
 void S_Update(void);
+void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset);
 
 #endif

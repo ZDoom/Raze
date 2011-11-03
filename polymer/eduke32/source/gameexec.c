@@ -1089,6 +1089,22 @@ skip_check:
                 continue;
             }
 
+        case CON_SETACTORSOUNDPITCH:
+            insptr++;
+            {
+                int32_t i = Gv_GetVarX(*insptr++), j = Gv_GetVarX(*insptr++), pitchoffset = Gv_GetVarX(*insptr++);
+
+                if ((j<0 || j>=MAXSOUNDS))
+                {
+                    OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);
+                    continue;
+                }
+
+                S_ChangeSoundPitch(j,i,pitchoffset);
+
+                continue;
+            }
+
         case CON_GLOBALSOUND:
             if (((unsigned)*(++insptr) >= MAXSOUNDS))
             {
