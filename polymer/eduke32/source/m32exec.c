@@ -618,7 +618,7 @@ skip_check:
 
         case CON_DISPLAYRANDVAR:
             insptr++;
-            Gv_SetVarX(*insptr, mulscale15((uint16_t)rand(), *(insptr+1)+1));
+            Gv_SetVarX(*insptr, mulscale15(system_15bit_rand(), *(insptr+1)+1));
             insptr += 2;
             continue;
 
@@ -688,7 +688,7 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j,mulscale(krand(), Gv_GetVarX(*insptr++)+1, 16));
+                Gv_SetVarX(j,mulscale16(krand(), Gv_GetVarX(*insptr++)+1));
             }
             continue;
 
@@ -696,7 +696,7 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j,mulscale((uint16_t)rand(), Gv_GetVarX(*insptr++)+1, 15));
+                Gv_SetVarX(j,mulscale15(system_15bit_rand(), Gv_GetVarX(*insptr++)+1));
             }
             continue;
 
@@ -833,7 +833,7 @@ skip_check:
 
         case CON_DISPLAYRAND:
             insptr++;
-            Gv_SetVarX(*insptr++, rand());
+            Gv_SetVarX(*insptr++, system_15bit_rand());
             continue;
 
 // *** other math

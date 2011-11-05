@@ -419,25 +419,30 @@ int32_t		Bclosedir(BDIR *dir);
   typedef int32_t bssize_t;
 #endif
 
+#if RAND_MAX == 32767
+static inline uint16_t system_15bit_rand(void) { return (uint16_t)rand(); }
+#else  // RAND_MAX > 32767, assumed to be of the form 2^k - 1
+static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7fff; }
+#endif
 
 #ifdef __compat_h_macrodef__
 # define Brand rand
 # define Balloca alloca
-#ifdef NEDMALLOC
-# define Bmalloc nedmalloc
-# define Bcalloc nedcalloc
-# define Brealloc nedrealloc
-# define Bfree nedfree
-# define Bstrdup nedstrdup
-# define Bmemalign nedmemalign
-#else
-# define Bmalloc malloc
-# define Bcalloc calloc
-# define Brealloc realloc
-# define Bfree free
-# define Bstrdup strdup
-# define Bmemalign memalign
-#endif
+# ifdef NEDMALLOC
+#  define Bmalloc nedmalloc
+#  define Bcalloc nedcalloc
+#  define Brealloc nedrealloc
+#  define Bfree nedfree
+#  define Bstrdup nedstrdup
+#  define Bmemalign nedmemalign
+# else
+#  define Bmalloc(x) ({if (x<=0) *(int *)123=234; malloc(x);})
+#  define Bcalloc(x,y) ({if (x<=0||y<=0) *(int *)123=234; calloc(x,y);})
+#  define Brealloc(p,x) ({if (x<=0) *(int *)123=234; realloc(p,x);})
+#  define Bfree free
+#  define Bstrdup strdup
+#  define Bmemalign memalign
+# endif
 # define Bopen open
 # define Bclose close
 # define Bwrite write

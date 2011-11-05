@@ -644,8 +644,8 @@ dead:
                 }
                 else
                 {
-                    g_player[vm.g_p].ps->vel.x = mulscale(g_player[vm.g_p].ps->vel.x,g_player[vm.g_p].ps->runspeed-0x2000,16);
-                    g_player[vm.g_p].ps->vel.y = mulscale(g_player[vm.g_p].ps->vel.y,g_player[vm.g_p].ps->runspeed-0x2000,16);
+                    g_player[vm.g_p].ps->vel.x = mulscale16(g_player[vm.g_p].ps->vel.x,g_player[vm.g_p].ps->runspeed-0x2000);
+                    g_player[vm.g_p].ps->vel.y = mulscale16(g_player[vm.g_p].ps->vel.y,g_player[vm.g_p].ps->runspeed-0x2000);
                 }
             }
             else if (vm.g_sp->picnum != DRONE && vm.g_sp->picnum != SHARK && vm.g_sp->picnum != COMMANDER)
@@ -1979,7 +1979,7 @@ nullquote:
 
         case CON_DISPLAYRAND:
             insptr++;
-            Gv_SetVarX(*insptr++, rand());
+            Gv_SetVarX(*insptr++, system_15bit_rand());
             continue;
 
         case CON_DRAGPOINT:
@@ -4137,7 +4137,7 @@ nullquote:
 
         case CON_DISPLAYRANDVAR:
             insptr++;
-            Gv_SetVarX(*insptr, mulscale15((uint16_t)rand(), *(insptr+1)+1));
+            Gv_SetVarX(*insptr, mulscale15(system_15bit_rand(), *(insptr+1)+1));
             insptr += 2;
             continue;
 
@@ -4219,7 +4219,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j,mulscale(krand(), Gv_GetVarX(*insptr++)+1, 16));
+                Gv_SetVarX(j,mulscale16(krand(), Gv_GetVarX(*insptr++)+1));
             }
             continue;
 
@@ -4227,7 +4227,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j,mulscale((uint16_t)rand(), Gv_GetVarX(*insptr++)+1, 15));
+                Gv_SetVarX(j,mulscale15(system_15bit_rand(), Gv_GetVarX(*insptr++)+1));
             }
             continue;
 
