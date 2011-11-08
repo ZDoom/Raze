@@ -771,7 +771,7 @@ void polymost_glinit()
     if (!cacheindexptr)
     {
         glusetexcache = 0;
-        initprintf("Unable to open cache index: %s\n",strerror(errno));
+        initprintf("Unable to open cache index '%s': %s\n", ptempbuf, strerror(errno));
         return;
     }
 
@@ -787,7 +787,7 @@ void polymost_glinit()
 
     if (cachefilehandle < 0)
     {
-        initprintf("Unable to open cache file: %s\n",strerror(errno));
+        initprintf("Unable to open cache file '%s': %s\n", TEXCACHEFILE, strerror(errno));
         glusetexcache = 0;
         return;
     }
@@ -878,7 +878,7 @@ void invalidatecache(void)
     if (!cacheindexptr)
     {
         glusetexcache = 0;
-        initprintf("Unable to open cache index: %s\n",strerror(errno));
+        initprintf("Unable to open cache index '%s': %s\n", ptempbuf, strerror(errno));
         return;
     }
 
@@ -888,7 +888,7 @@ void invalidatecache(void)
 
     if (cachefilehandle < 0)
     {
-        initprintf("Unable to open cache file: %s\n",strerror(errno));
+        initprintf("Unable to open cache file '%s': %s\n", TEXCACHEFILE, strerror(errno));
         glusetexcache = 0;
         return;
     }
@@ -6289,8 +6289,8 @@ void polymost_initosdfuncs(void)
         { "r_fullbrights","r_fullbrights: enable/disable fullbright textures",(void *) &r_fullbrights, CVAR_BOOL, 0, 1 },
         { "r_glowmapping","r_glowmapping: enable/disable glow mapping",(void *) &r_glowmapping, CVAR_BOOL, 0, 1 },
         /*
-                { "r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",(void *)&r_glowmapping, CVAR_BOOL, 0, 1 }
-                { "r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",(void *)&glnvmultisamplehint, CVAR_BOOL, 0, 1 }
+          { "r_multisample","r_multisample: sets the number of samples used for antialiasing (0 = off)",(void *)&glmultisample, CVAR_BOOL, 0, 1 },
+          { "r_nvmultisamplehint","r_nvmultisamplehint: enable/disable Nvidia multisampling hinting",(void *)&glnvmultisamplehint, CVAR_BOOL, 0, 1 },
         */
         {
             "r_parallaxskyclamping","r_parallaxskyclamping: enable/disable parallaxed floor/ceiling sky texture clamping",
