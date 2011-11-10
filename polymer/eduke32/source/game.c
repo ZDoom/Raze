@@ -8001,7 +8001,10 @@ static void G_ShowDebugHelp(void)
               "-gamegrp   \tSelects which file to use as main grp\n"
               "-name [name]\tPlayer name in multiplay\n"
               "-noautoload\tDisable loading content from autoload dir\n"
+#ifdef _WIN32
               "-nodinput\t\tDisable DirectInput (joystick) support\n"
+              "-nopause\t\tDisable the pause key\n"
+#endif
               "-nologo\t\tSkip the logo anim\n"
               "-ns/-nm\t\tDisable sound or music\n"
               "-q#\t\tFake multiplayer with # (2-8) players\n"
@@ -8551,6 +8554,13 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     initprintf("DirectInput (joystick) support disabled\n");
                     di_disabled = 1;
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"nopause"))
+                {
+                    initprintf("Pause key disabled\n");
+                    rawinput_nopause = 1;
                     i++;
                     continue;
                 }

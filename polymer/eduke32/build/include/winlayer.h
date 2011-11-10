@@ -10,6 +10,7 @@ extern uint32_t maxrefreshfreq;
 
 extern int32_t glusecds;
 
+extern char rawinput_nopause;
 extern char di_disabled;
 
 int32_t win_gethwnd(void);
