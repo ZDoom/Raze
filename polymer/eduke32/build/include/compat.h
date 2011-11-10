@@ -436,9 +436,9 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 #  define Bstrdup nedstrdup
 #  define Bmemalign nedmemalign
 # else
-#  define Bmalloc(x) ({if (x<=0) *(int *)123=234; malloc(x);})
-#  define Bcalloc(x,y) ({if (x<=0||y<=0) *(int *)123=234; calloc(x,y);})
-#  define Brealloc(p,x) ({if (x<=0) *(int *)123=234; realloc(p,x);})
+#  define Bmalloc malloc
+#  define Bcalloc calloc
+#  define Brealloc realloc
 #  define Bfree free
 #  define Bstrdup strdup
 #  define Bmemalign memalign
