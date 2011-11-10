@@ -84,7 +84,7 @@ ifneq (0,$(RELEASE))
     endif
     ifneq (0,$(LTO))
         LIBS+= -flto
-        debug+= -flto
+        debug+= -DUSING_LTO -flto
     endif
 else
     # Debugging enabled
