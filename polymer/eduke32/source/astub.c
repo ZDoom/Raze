@@ -5902,9 +5902,9 @@ static void Keys3d(void)
                 // (ceiling if floor and vice versa)
 
                 if (moveCeilings && (dz > 0) && sector[sect].ceilingz+dz > sector[sect].floorz)
-                    dz = (k<=1) ? 0 : min(sector[sect].floorz - sector[sect].ceilingz, dz);
+                    dz = (k > 1) ? 0 : min(sector[sect].floorz - sector[sect].ceilingz, dz);
                 else if (moveFloors && (dz < 0) && sector[sect].floorz+dz < sector[sect].ceilingz)
-                    dz = (k<=1) ? 0 : max(sector[sect].ceilingz - sector[sect].floorz, dz);
+                    dz = (k > 1) ? 0 : max(sector[sect].ceilingz - sector[sect].floorz, dz);
 
                 if (dz == 0)
                     break;
