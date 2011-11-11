@@ -266,6 +266,8 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "autocorruptchecksec", val, VL) > 0) autocorruptcheck = max(0, atoi_safe(val));
     if (readconfig(fp, "corruptcheck_noalreadyrefd", val, VL) > 0)
         corruptcheck_noalreadyrefd = !!atoi_safe(val);
+    if (readconfig(fp, "fixmaponsave_sprites", val, VL) > 0)
+        fixmaponsave_sprites = !!atoi_safe(val);
 
     if (readconfig(fp, "showheightindicators", val, VL) > 0)
         showheightindicators = clamp(atoi_safe(val), 0, 2);
@@ -474,6 +476,9 @@ int32_t writesetup(const char *fn)
              "; (toggled with 'corruptcheck noalreadyrefd')\n"
              "corruptcheck_noalreadyrefd = %d\n"
              "\n"
+             "; Fix sprite sectnums when saving a map or entering 3D mode\n"
+             "fixmaponsave_sprites = %d\n"
+             "\n"
              "; Height indicators (0:none, 1:only 2-sided&different, 2:all)\n"
              "showheightindicators = %d\n"
              "\n"
@@ -573,7 +578,7 @@ int32_t writesetup(const char *fn)
              msens, unrealedlook, pk_uedaccel, quickmapcycling,
              sideview_reversehrot,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,autocorruptcheck,
-             corruptcheck_noalreadyrefd, showheightindicators,showambiencesounds,
+             corruptcheck_noalreadyrefd, fixmaponsave_sprites, showheightindicators,showambiencesounds,
              autogray,showinnergray,
              graphicsmode,
              MixRate,AmbienceToggle,ParentalLock, !!m32_osd_tryscript,

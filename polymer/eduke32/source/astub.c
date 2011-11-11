@@ -69,7 +69,8 @@ static char *setupfilename = "mapster32.cfg";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char *g_grpNamePtr = defaultduke3dgrp;
 char *g_defNamePtr = defsfilename;
-static int32_t fixmapbeforesaving = 0;
+int32_t fixmaponsave_sprites = 1;
+static int32_t fixmaponsave_walls = 0;
 static int32_t lastsave = -180*60;
 static int32_t NoAutoLoad = 0;
 static int32_t spnoclip=1;
@@ -803,6 +804,15 @@ static void MultiPskyInit(void)
     parallaxyscale = 32768;
 }
 
+
+void ExtSetupMapFilename(const char *mapname)
+{
+    Bstrcpy(levelname, mapname);
+
+    Bsprintf(tempbuf, "Mapster32 - %s", mapname);
+    wm_setapptitle(tempbuf);
+}
+
 void ExtLoadMap(const char *mapname)
 {
     int32_t i;
@@ -811,7 +821,7 @@ void ExtLoadMap(const char *mapname)
     getmessageleng = 0;
     getmessagetimeoff = 0;
 
-    Bstrcpy(levelname,mapname);
+    ExtSetupMapFilename(mapname);
 
     // old-fashioned multi-psky handling
 
@@ -851,11 +861,9 @@ void ExtLoadMap(const char *mapname)
     parallaxtype=0;
 
     //////////
-    Bsprintf(tempbuf, "Mapster32 - %s",mapname);
 #if M32_UNDO
     map_undoredo_free();
 #endif
-    wm_setapptitle(tempbuf);
 }
 
 void ExtSaveMap(const char *mapname)
@@ -8331,14 +8339,16 @@ static void InitCustomColors(void)
     }
 }
 
-void ExtPreSaveMap(void)
+int32_t ExtPreSaveMap(void)
 {
-    fixspritesectors();   //Do this before saving!
+    int32_t numfixedsprites;
+
+    numfixedsprites = fixspritesectors();   //Do this before saving!
     updatesectorz(startposx,startposy,startposz,&startsectnum);
     if (startsectnum < 0)
         updatesector(startposx,startposy,&startsectnum);
 
-    if (fixmapbeforesaving)
+    if (fixmaponsave_walls)
     {
         int32_t i, startwall, j, endwall;
 
@@ -8348,6 +8358,9 @@ void ExtPreSaveMap(void)
             for (j=startwall; j<numwalls; j++)
                 if (wall[j].point2 < startwall)
                     startwall = wall[j].point2;
+            if (sector[i].wallptr != startwall)
+                initprintf("Warning: set sector %d's wallptr to %d (was %d)\n", i,
+                           sector[i].wallptr, startwall);
             sector[i].wallptr = startwall;
         }
 
@@ -8355,6 +8368,11 @@ void ExtPreSaveMap(void)
             sector[i].wallnum = sector[i+1].wallptr-sector[i].wallptr;
         sector[numsectors-1].wallnum = numwalls - sector[numsectors-1].wallptr;
 
+#ifdef YAX_ENABLE
+        // setting redwalls from scratch would very likely wreak havoc with TROR maps
+        if (numyaxbunches > 0)
+            return numfixedsprites;
+#endif
         for (i=0; i<numwalls; i++)
         {
             wall[i].nextsector = -1;
@@ -8368,6 +8386,8 @@ void ExtPreSaveMap(void)
                 checksectorpointer(j, i);
         }
     }
+
+    return numfixedsprites;
 }
 
 static void G_ShowParameterHelp(void)
@@ -8614,15 +8634,15 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             }
             if (!Bstrcasecmp(c+1,"check"))
             {
-                initprintf("Map pointer checking on saving enabled\n");
-                fixmapbeforesaving = 1;
+                initprintf("Map wall checking on save enabled\n");
+                fixmaponsave_walls = 1;
                 i++;
                 continue;
             }
             if (!Bstrcasecmp(c+1,"nocheck"))
             {
-                initprintf("Map pointer checking disabled\n");
-                fixmapbeforesaving = 0;
+                initprintf("Map wall checking on save disabled\n");
+                fixmaponsave_walls = 0;
                 i++;
                 continue;
             }
@@ -8953,6 +8973,11 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
             OSD_Printf("M32 Script expert mode ENABLED.  Be sure to know what you are doing!\n");
         else
             OSD_Printf("M32 Script expert mode DISABLED.\n");
+    }
+    else if (!Bstrcasecmp(parm->name, "fixmaponsave_sprites"))
+    {
+        OSD_Printf("Fix sprite sectnums on map saving: %s\n",
+                   (fixmaponsave_sprites = !fixmaponsave_sprites) ? "enabled":"disabled");
     }
     else if (!Bstrcasecmp(parm->name, "show_heightindicators"))
     {

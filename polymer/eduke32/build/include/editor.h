@@ -151,7 +151,7 @@ extern void AlignWallPoint2(int32_t w0);
 extern int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs);
 
 extern void SetFirstWall(int32_t sectnum, int32_t wallnum);
-extern void fixspritesectors(void);
+extern int32_t fixspritesectors(void);
 extern void clearkeys(void);
 
 extern int32_t ExtInit(void);
@@ -161,8 +161,9 @@ extern void ExtPreCheckKeys(void);
 extern void ExtAnalyzeSprites(void);
 extern void ExtCheckKeys(void);
 extern void ExtPreLoadMap(void);
+extern void ExtSetupMapFilename(const char *mapname);
 extern void ExtLoadMap(const char *mapname);
-extern void ExtPreSaveMap(void);
+extern int32_t ExtPreSaveMap(void);
 extern void ExtSaveMap(const char *mapname);
 extern const char *ExtGetSectorCaption(int16_t sectnum);
 extern const char *ExtGetWallCaption(int16_t wallnum);
@@ -188,6 +189,7 @@ extern int32_t autocorruptcheck;
 extern int32_t corruptcheck_noalreadyrefd;
 extern int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing);
 
+extern int32_t fixmaponsave_sprites;
 extern int32_t m32_script_expertmode;  // if true, make read-only vars writable
 
 extern void showsectordata(int16_t sectnum, int16_t small);

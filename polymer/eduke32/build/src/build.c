@@ -143,6 +143,7 @@ typedef struct
 
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo);
 static int32_t restore_highlighted_map(mapinfofull_t *mapinfo);
+static void SaveBoardAndPrintMessage(const char *fn);
 static const char *GetSaveBoardFilename(void);
 
 /*
@@ -185,7 +186,7 @@ int8_t sideview_reversehrot = 0;
 char lastpm16buf[156];
 
 //static int32_t checksectorpointer_warn = 0;
-static int32_t saveboard_savedtags=0;
+static int32_t saveboard_savedtags, saveboard_fixedsprites;
 
 char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
 static int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls);
@@ -206,7 +207,7 @@ static void copysector(int16_t soursector, int16_t destsector, int16_t deststart
 int32_t drawtilescreen(int32_t pictopleft, int32_t picbox);
 void overheadeditor(void);
 static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line);
-void fixspritesectors(void);
+int32_t fixspritesectors(void);
 static int32_t movewalls(int32_t start, int32_t offs);
 int32_t loadnames(const char *namesfile, int8_t root);
 void updatenumsprites(void);
@@ -6829,7 +6830,6 @@ CANCEL:
                     }
                     else if (bad == 2)
                     {
-                        const char *f;
                         char *slash;
 
                         keystatus[0x1c] = 0;
@@ -6839,25 +6839,15 @@ CANCEL:
                         slash = Bstrrchr(selectedboardfilename,'/');
                         Bstrcpy(slash ? slash+1 : selectedboardfilename, boardfilename);
 
-                        _printmessage16("Saving board...");
-                        showframe(1);
-
-                        f = SaveBoard(selectedboardfilename, 0);
-
-                        if (f)
-                            printmessage16("Saved board %sto %s.",
-                                           saveboard_savedtags?"and tags ":"", f);
-                        else
-                            printmessage16("Saving board failed.");
+                        SaveBoardAndPrintMessage(selectedboardfilename);
 
                         Bstrcpy(boardfilename, selectedboardfilename);
+                        ExtSetupMapFilename(boardfilename);
                     }
                     bad = 0;
                 }
                 else if (ch == 's' || ch == 'S')  //S
                 {
-                    const char *f;
-
                     bad = 0;
 
                     if (CheckMapCorruption(4, 0)>=4)
@@ -6867,16 +6857,7 @@ CANCEL:
                             break;
                     }
 
-                    _printmessage16("Saving board...");
-                    showframe(1);
-
-                    f = SaveBoard(NULL, 0);
-
-                    if (f)
-                        printmessage16("Saved board %sto %s.",
-                                       saveboard_savedtags?"and tags ":"", f);
-                    else
-                        printmessage16("Saving board failed.");
+                    SaveBoardAndPrintMessage(NULL);
 
                     showframe(1);
                 }
@@ -7059,6 +7040,33 @@ static int32_t ask_above_or_below(void)
 }
 #endif
 
+static void SaveBoardAndPrintMessage(const char *fn)
+{
+    const char *f;
+
+    _printmessage16("Saving board...");
+    showframe(1);
+
+    f = SaveBoard(fn, 0);
+
+    if (f)
+    {
+        if (saveboard_fixedsprites)
+            printmessage16("Saved board %sto %s (changed sectnums of %d sprites).",
+                           saveboard_savedtags?"and tags ":"", f, saveboard_fixedsprites);
+        else
+            printmessage16("Saved board %sto %s.", saveboard_savedtags?"and tags ":"", f);
+    }
+    else
+    {
+        if (saveboard_fixedsprites)
+            printmessage16("Saving board failed (changed sectnums of %d sprites).",
+                           saveboard_fixedsprites);
+        else
+            printmessage16("Saving board failed.");
+    }
+}
+
 // get the file name of the file that would be written if SaveBoard(NULL, 0) was called
 static const char *GetSaveBoardFilename(void)
 {
@@ -7080,7 +7088,7 @@ static const char *GetSaveBoardFilename(void)
     return f;
 }
 
-// flags:  1:no ExSaveMap (backup.map) and no taglabels saving
+// flags:  1:no ExtSaveMap (backup.map) and no taglabels saving
 const char *SaveBoard(const char *fn, uint32_t flags)
 {
     const char *f;
@@ -7104,7 +7112,7 @@ const char *SaveBoard(const char *fn, uint32_t flags)
             f++;
     }
 
-    ExtPreSaveMap();
+    saveboard_fixedsprites = ExtPreSaveMap();
     ret = saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
     if ((flags&1)==0)
     {
@@ -7635,16 +7643,20 @@ static int32_t deletesector(int16_t sucksect)
     return(0);
 }
 
-void fixspritesectors(void)
+int32_t fixspritesectors(void)
 {
     int32_t i, j, dax, day, cz, fz;
+    int32_t numfixedsprites = 0, printfirsttime = 0;
 
     for (i=numsectors-1; i>=0; i--)
         if (sector[i].wallnum <= 0 || sector[i].wallptr >= numwalls)
+        {
             deletesector(i);
+            initprintf("Deleted sector %d which had corrupt .wallnum or .wallptr\n", i);
+        }
 
     if (m32_script_expertmode)
-        return;
+        return 0;
 
     for (i=0; i<MAXSPRITES; i++)
         if (sprite[i].statnum < MAXSTATUS)
@@ -7663,12 +7675,25 @@ void fixspritesectors(void)
 
                     if (cz <= sprite[i].z && sprite[i].z <= fz)
                     {
-                        changespritesect(i, j);
+                        if (fixmaponsave_sprites || (sprite[i].sectnum < 0 || sprite[i].sectnum >= numsectors))
+                        {
+                            numfixedsprites++;
+
+                            if (printfirsttime == 0)
+                            {
+                                initprintf("--------------------\n");
+                                printfirsttime = 1;
+                            }
+                            initprintf("Changed sectnum of sprite %d from %d to %d\n", i, sprite[i].sectnum, j);
+                            changespritesect(i, j);
+                        }
                         break;
                     }
                 }
             }
         }
+
+    return numfixedsprites;
 }
 
 static int32_t movewalls(int32_t start, int32_t offs)
