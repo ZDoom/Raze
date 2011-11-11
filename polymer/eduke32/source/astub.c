@@ -5890,6 +5890,7 @@ static void Keys3d(void)
 
         if (moveCeilings || moveFloors)
         {
+            int32_t dz = tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
             static const char *cfs[2] = { "ceiling", "floor" };
 #ifdef YAX_ENABLE
             int16_t bunchnum=-1, maxbunchnum=-1, cb, fb;
@@ -5897,53 +5898,69 @@ static void Keys3d(void)
 #endif
             for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
             {
-                for (i=headspritesect[sect]; i!=-1; i=nextspritesect[i])
-                {
-                    spriteoncfz(i, &cz, &fz);
-                    if ((moveCeilings && sprite[i].z == cz) || (moveFloors && sprite[i].z == fz))
-                        sprite[i].z += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
-                }
+                // stage one: see if we don't move beyond the other side
+                // (ceiling if floor and vice versa)
 
-                SECTORFLD(sect,z, moveFloors) += tsign * (updownunits << (eitherCTRL<<1));   // JBF 20031128
-#ifdef YAX_ENABLE
-                bunchnum = yax_getbunch(sect, moveFloors);
-                if (bunchnum >= 0 && !(havebunch[bunchnum>>3]&(1<<(bunchnum&7))))
+                if (moveCeilings && (dz > 0) && sector[sect].ceilingz+dz > sector[sect].floorz)
+                    dz = (k<=1) ? 0 : min(sector[sect].floorz - sector[sect].ceilingz, dz);
+                else if (moveFloors && (dz < 0) && sector[sect].floorz+dz < sector[sect].ceilingz)
+                    dz = (k<=1) ? 0 : max(sector[sect].ceilingz - sector[sect].floorz, dz);
+
+                if (dz == 0)
+                    break;
+            }
+
+            if (dz)
+            {
+                // now truly move things if we're clear to go!
+                sect = sect0;
+                for (j=0; j<(k?k:1); j++, sect=highlightsector[j])
                 {
-                    maxbunchnum = max(maxbunchnum, bunchnum);
-                    havebunch[bunchnum>>3] |= (1<<(bunchnum&7));
-                    tempzar[bunchnum] = &SECTORFLD(sect,z, moveFloors);
-                }
+                    for (i=headspritesect[sect]; i!=-1; i=nextspritesect[i])
+                    {
+                        spriteoncfz(i, &cz, &fz);
+                        if ((moveCeilings && sprite[i].z == cz) || (moveFloors && sprite[i].z == fz))
+                            sprite[i].z += dz;
+                    }
+
+                    SECTORFLD(sect,z, moveFloors) += dz;
+#ifdef YAX_ENABLE
+                    bunchnum = yax_getbunch(sect, moveFloors);
+                    if (bunchnum >= 0 && !(havebunch[bunchnum>>3]&(1<<(bunchnum&7))))
+                    {
+                        maxbunchnum = max(maxbunchnum, bunchnum);
+                        havebunch[bunchnum>>3] |= (1<<(bunchnum&7));
+                        tempzar[bunchnum] = &SECTORFLD(sect,z, moveFloors);
+                    }
 #endif
-            }
-
-            if (k<=1 && sector[sect0].floorz < sector[sect0].ceilingz)
-            {
-                if (moveFloors)
-                    sector[sect0].floorz = sector[sect0].ceilingz;
-                else
-                    sector[sect0].ceilingz = sector[sect0].floorz;
+                }
             }
 
 #ifdef YAX_ENABLE
-            // sync z values of extended sectors' ceilings/floors
-            for (i=0; i<numsectors; i++)
+            if (dz)
             {
-                yax_getbunches(i, &cb, &fb);
-                if (cb >= 0 && (havebunch[cb>>3]&(1<<(cb&7))))
-                    sector[i].ceilingz = *tempzar[cb];
-                if (fb >= 0 && (havebunch[fb>>3]&(1<<(fb&7))))
-                    sector[i].floorz = *tempzar[fb];
+                // sync z values of extended sectors' ceilings/floors
+                for (i=0; i<numsectors; i++)
+                {
+                    yax_getbunches(i, &cb, &fb);
+                    if (cb >= 0 && (havebunch[cb>>3]&(1<<(cb&7))))
+                        sector[i].ceilingz = *tempzar[cb];
+                    if (fb >= 0 && (havebunch[fb>>3]&(1<<(fb&7))))
+                        sector[i].floorz = *tempzar[fb];
+                }
             }
 
-            if (k==0 && bunchnum>=0)
+            if (!dz)
+                silentmessage("Didn't move sector %ss", cfs[moveFloors]);
+            else if (k<=1 && bunchnum>=0)
                 silentmessage("Bunch %d's ceilings and floors = %d", bunchnum, SECTORFLD(sect0,z, moveFloors));
             else
 #endif
-            if (k==0)
+            if (k<=1)
                 silentmessage("Sector %d %sz = %d", sect0, cfs[moveFloors], SECTORFLD(sect0,z, moveFloors));
             else
                 silentmessage("%s %d sector %ss by %d units", tsign<0 ? "Raised" : "Lowered",
-                              k, cfs[moveFloors], (updownunits << (eitherCTRL<<1)));
+                              k, cfs[moveFloors], dz*tsign);
         }
 
         if (AIMING_AT_SPRITE)
