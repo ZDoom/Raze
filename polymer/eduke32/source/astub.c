@@ -4205,6 +4205,9 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     setpolymost2dview();
 #ifdef USE_OPENGL
     bglEnable(GL_TEXTURE_2D);
+
+	if (rendmode >= 3 && g_lazy_tileselector)
+		bglDrawBuffer(GL_FRONT_AND_BACK);
 #endif
     clearview(0);
 
@@ -4272,6 +4275,10 @@ restart:
                 {
                     enddrawing();
                     showframe(1);
+#ifdef USE_OPENGL
+                    if (rendmode >= 3 && g_lazy_tileselector)
+                        bglDrawBuffer(GL_BACK);
+#endif
                     return 1;
                 }
 
@@ -4299,6 +4306,11 @@ restart:
 
     enddrawing();
     showframe(1);
+
+#ifdef USE_OPENGL
+	if (rendmode >= 3 && g_lazy_tileselector)
+		bglDrawBuffer(GL_BACK);
+#endif
 
     return 0;
 
