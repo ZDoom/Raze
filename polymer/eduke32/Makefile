@@ -220,7 +220,11 @@ ifeq ($(PLATFORM),WINDOWS)
     MISCLINKOPTS+= -Wl,--large-address-aware
 endif
 #ifneq (0,$(KRANDDEBUG))
+ifeq ($(PLATFORM),DARWIN)
+    MISCLINKOPTS+=-Wl,-map -Wl,$@.memmap
+else
     MISCLINKOPTS+=-Wl,-Map=$@.memmap
+endif
 #endif
 ifneq (0,$(PROFILER))
     MISCLINKOPTS+=-pg

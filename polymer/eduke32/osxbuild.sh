@@ -92,6 +92,8 @@ if [ -f mapster32.x64 ] && [ -f eduke32.x86 ] && [ -f eduke32.ppc ]; then
     echo "This archive was produced from revision $rev by the osxbuild.sh script." > README.OSX
     echo "EDuke32 home: http://www.eduke32.com" >> README.OSX
     echo "OSX build discussion on Duke4.net: http://forums.duke4.net/topic/4242-building-eduke-on-mac-os-x/" >> README.OSX
+    echo "The 64-bit build in this archive has LibVPX (http://www.webmproject.org/code/)" >> README.OSX
+    echo "from MacPorts (http://www.macports.org/) statically linked into it." >> README.OSX
     rm -f "$arfilename"
     zip "$arfilename" mapster32 eduke32 README.OSX
 fi
