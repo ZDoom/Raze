@@ -977,12 +977,14 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
                       uint32_t callbackval)
 {
     int32_t handle = -1;
+#if 0
     {
         int32_t fmtstr[2];
         fmtstr[0] = *(int32_t *)ptr;
         ((char *)fmtstr)[4] = 0;
         printf("FX_PlayLoopedAuto %s\n",(char *)fmtstr);
     }
+#endif
     switch (*(int32_t *)ptr)
     {
     case LITTLE32('C'+('r'<<8)+('e'<<16)+('a'<<24)):
