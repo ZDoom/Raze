@@ -6,7 +6,6 @@
 #include "scancodes.h"
 #include "build.h"
 
-char rawinput_nopause = 0;
 static BOOL rawinput_started = 0;
 static uint8_t KeyboardState[256] = {0}; // VKeys
 static int8_t MWheel = 0;
@@ -129,9 +128,6 @@ static inline void RI_ProcessKeyboard(const RAWKEYBOARD *rkbd)
     case VK_RETURN:
         if (rkbd->Flags & RI_KEY_E0) key = sc_kpad_Enter; break;
     case VK_PAUSE:
-        if (rawinput_nopause)
-            return;
-
         KeyboardState[VKey] = 1 - (rkbd->Flags & RI_KEY_BREAK);
         if (rkbd->Flags & RI_KEY_BREAK) return;
 
