@@ -177,6 +177,9 @@ static char scantoascwithshift[128] =
 
 #define DOWN_BK(BuildKey) (keystatus[buildkeys[BK_##BuildKey]])
 
+#define CLOCKDIR_CW 0
+#define CLOCKDIR_CCW 1
+
 int32_t pk_turnaccel=16;
 int32_t pk_turndecel=12;
 int32_t pk_uedaccel=3;
@@ -2643,10 +2646,13 @@ static int32_t vec2eq(const vec2_t *v1, const vec2_t *v2)
 }
 
 // precondition: [numwalls, newnumwalls-1] form a new loop (may be of wrong orientation)
+// ret_ofirstwallofs: if != NULL, *ret_ofirstwallofs will contain the offset of the old
+//                    first wall from the new first wall of the sector k, and the automatic
+//                    restoring of the old first wll will not be carried out
 // returns:
 //  -1, -2: errors
 //   0,  1: OK, 1 means it was an extended sector and an inner loop has been added automatically
-static int32_t AddLoopToSector(int32_t k)
+static int32_t AddLoopToSector(int32_t k, int32_t *ret_ofirstwallofs)
 {
     int32_t extendedSector=0, firstwall, i, j;
 #ifdef YAX_ENABLE
@@ -2678,7 +2684,7 @@ static int32_t AddLoopToSector(int32_t k)
         }
     }
 #endif
-    if (clockdir(numwalls) == 0)
+    if (clockdir(numwalls) == CLOCKDIR_CW)
         flipwalls(numwalls,newnumwalls);
 
     sector[k].wallnum += j;
@@ -2730,10 +2736,16 @@ static int32_t AddLoopToSector(int32_t k)
         numsectors++;
     }
 #endif
-    setfirstwall(k, firstwall+j);  // restore old first wall
+    if (ret_ofirstwallofs)
+        *ret_ofirstwallofs = j;
+    else
+        setfirstwall(k, firstwall+j);  // restore old first wall
 
     return extendedSector;
 }
+
+#define EDITING_MAP_P() (newnumwalls>=0 || joinsector[0]>=0 || circlewall>=0 || (bstatus&1))
+
 
 void overheadeditor(void)
 {
@@ -3837,8 +3849,248 @@ void overheadeditor(void)
                     message("Sandwiched bunch %d, creating bunch %d",
                             sandwichbunch, numyaxbunches-1);
                 asksave = 1;
-end_yax: ;
             }
+            else if (highlightcnt > 0)
+            {
+                /// 'punch' wall loop through extension
+
+                int32_t loopstartwall = -1, numloopwalls, cf;
+                int32_t srcsect, dstsect, ofirstwallofs;
+                int16_t cb, fb, bunchnum;
+
+                if (EDITING_MAP_P())
+                {
+                    printmessage16("Must not be editing map to punch loop");
+                    goto end_yax;
+                }
+
+                if (numyaxbunches >= YAX_MAXBUNCHES)
+                {
+                    message("TROR bunch limit reached, cannot punch loop");
+                    goto end_yax;
+                }
+
+                // determine start wall
+                for (i=0; i<highlightcnt; i++)
+                    if ((highlight[i]&16384)==0 && clockdir(highlight[i])==CLOCKDIR_CCW)
+                    {
+                        YAX_SKIPWALL(highlight[i]);
+
+                        if (loopstartwall >= 0)
+                        {
+                            message("Must have a unique highlighted CCW loop to punch");
+                            goto end_yax;
+                        }
+
+                        loopstartwall = highlight[i];
+                    }
+
+                if (loopstartwall == -1)
+                {
+                    message("Didn't find any non-grayed out loop start walls");
+                    goto end_yax;
+                }
+
+                // determine sector
+                srcsect = sectorofwall(loopstartwall);
+                yax_getbunches(srcsect, &cb, &fb);
+                if (cb < 0 && fb < 0)
+                {
+                    message("Ceiling or floor must be extended to punch loop");
+                    goto end_yax;
+                }
+
+                /// determine c/f
+                cf = -1;
+                if (fb < 0)
+                    cf = YAX_CEILING;
+                else if (cb < 0)
+                    cf = YAX_FLOOR;
+
+                // query top/bottom
+                if (cf == -1)
+                {
+                    char dachars[2] = {'a', 'z'};
+                    cf = editor_ask_function("Punch loop above (a) or below (z)?", dachars, 2);
+                    if (cf == -1)
+                        goto end_yax;
+                }
+                else
+                {
+                    // ask even if only one choice -- I find it more
+                    // consistent with 'extend sector' this way
+                    if (-1 == editor_ask_function(cf==YAX_CEILING ? "Punch loop above (a)?" :
+                                                  "Punch loop below (z)?", cf==YAX_CEILING?"a":"z", 1))
+                        goto end_yax;
+                }
+
+                bunchnum = (cf==YAX_CEILING) ? cb : fb;
+
+                // check 1
+                j = loopstartwall;  // will be real start wall of loop
+                numloopwalls = 1;  // will be number of walls in loop
+                for (i=wall[loopstartwall].point2; i!=loopstartwall; i=wall[i].point2)
+                {
+                    numloopwalls++;
+                    if (i < j)
+                        j = i;
+
+                    if ((show2dwall[i>>3]&(1<<(i&7)))==0)
+                    {
+                        message("All loop points must be highlighted to punch");
+                        goto end_yax;
+                    }
+
+                    if (yax_getnextwall(loopstartwall, cf) >= 0 || yax_getnextwall(i, cf) >= 0)
+                    {
+                        // somewhat redundant, since it would also be caught by check 2
+                        message("Loop walls must not already have TROR neighbors");
+                        goto end_yax;
+                    }
+
+                    if (wall[loopstartwall].nextwall < 0 || wall[i].nextwall < 0)
+                    {
+                        message("INTERNAL ERROR: All loop walls are expected to be red");
+                        goto end_yax;
+                    }
+                }
+                loopstartwall = j;
+
+                if (numwalls + 2*numloopwalls > MAXWALLS || numsectors+1 > MAXSECTORS)
+                {
+                    message("Punching loop through extension would exceed limits");
+                    goto end_yax;
+                }
+
+                // get other-side sector, j==loopstartwall
+                dstsect = yax_getneighborsect(wall[j].x, wall[j].y, srcsect, cf, NULL);
+                if (dstsect < 0)
+                {
+                    message("Punch loop INTERNAL ERROR: dstsect < 0. Map corrupt?");
+                    goto end_yax;
+                }
+
+                // check 2
+                i = loopstartwall;
+                do
+                {
+                    j = wall[i].point2;
+
+                    for (WALLS_OF_SECTOR(dstsect, k))
+                    {
+                        vec2_t pint;
+                        if (lineintersect2v((vec2_t *)&wall[i], (vec2_t *)&wall[j],
+                                                (vec2_t *)&wall[k], (vec2_t *)&POINT2(k), &pint))
+                        {
+                            message("Loop lines must not intersect any destination sector's walls");
+                            goto end_yax;
+                        }
+                    }
+                }
+                while ((i = j) != loopstartwall);
+
+                // construct new loop and (dummy yet) sector
+                Bmemcpy(&wall[numwalls], &wall[loopstartwall], numloopwalls*sizeof(walltype));
+                newnumwalls = numwalls+numloopwalls;
+
+                for (i=numwalls; i<newnumwalls; i++)
+                {
+                    wall[i].point2 += (numwalls - loopstartwall);
+                    wall[i].nextsector = wall[i].nextwall = -1;
+                }
+
+                sector[numsectors].wallptr = numwalls;
+                sector[numsectors].wallnum = numloopwalls;
+                numsectors++; // temp
+
+                // check 3
+                for (SECTORS_OF_BUNCH(bunchnum, !cf, i))
+                    for (WALLS_OF_SECTOR(i, j))
+                    {
+                        if (inside(wall[i].x, wall[i].y, numsectors-1)==1)
+                        {
+                            numsectors--;
+                            newnumwalls = -1;
+                            message("A point of bunch %d's sectors lies inside the loop to punch",
+                                    bunchnum);
+                            goto end_yax;
+                        }
+                    }
+
+                numsectors--;
+
+                // clear wall & sprite highlights
+                //  TODO: see about consistency with update_highlight() after other ops
+                Bmemset(show2dwall, 0, sizeof(show2dwall));
+                Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+                update_highlight();
+
+                // construct the loop!
+                i = AddLoopToSector(dstsect, &ofirstwallofs);
+
+                if (i <= 0)
+                {
+                    message("Punch loop INTERNAL ERROR with AddLoopToSector!");
+                }
+                else
+                {
+                    int32_t oneinnersect = -1, innerdstsect = numsectors-1;
+
+                    if (dstsect < srcsect)
+                        loopstartwall += numloopwalls;
+
+                    /// handle bunchnums! (specifically, create a new one)
+
+                    // collect sectors inside source loop; for that, first break the
+                    // inner->outer nextwall links
+                    for (i=loopstartwall; i<loopstartwall+numloopwalls; i++)
+                    {
+                        // all src loop walls are red!
+                        NEXTWALL(i).nextwall = NEXTWALL(i).nextsector = -1;
+                        oneinnersect = wall[i].nextsector;
+                    }
+
+                    // vvv
+                    // expect oneinnersect >= 0 here!  Assumption: we collect exactly
+                    // one connected component of sectors
+                    collect_sectors1(collsectlist[0], collsectbitmap[0],
+                                     &collnumsects[0], oneinnersect, 0, 0);
+
+                    // set new bunchnums
+                    for (i=0; i<collnumsects[0]; i++)
+                        yax_setbunch(collsectlist[0][i], cf, numyaxbunches);
+                    yax_setbunch(innerdstsect, !cf, numyaxbunches);
+                    // ^^^
+
+                    // restore inner->outer nextwall links
+                    for (i=loopstartwall; i<loopstartwall+numloopwalls; i++)
+                    {
+                        NEXTWALL(i).nextwall = i;
+                        NEXTWALL(i).nextsector = srcsect;
+
+                        // set yax-nextwalls!
+                        j = (i-loopstartwall) + sector[dstsect].wallptr;
+                        yax_setnextwall(i, cf, j);
+                        yax_setnextwall(j, !cf, i);
+
+                        yax_setnextwall(wall[i].nextwall, cf, wall[j].nextwall);
+                        yax_setnextwall(wall[j].nextwall, !cf, wall[i].nextwall);
+                    }
+
+                    setfirstwall(dstsect, sector[dstsect].wallptr+ofirstwallofs);
+
+                    message("Punched loop starting w/ wall %d into %s sector %d%s",
+                            loopstartwall, cf==YAX_CEILING?"upper":"lower", dstsect,
+                            (oneinnersect>=0) ? "" : " (ERRORS)");
+                }
+
+                mkonwinvalid();
+                asksave = 1;
+
+                yax_update(0);
+                yax_updategrays(pos.z);
+            }
+end_yax: ;
 #endif
         }
 
@@ -3903,6 +4155,9 @@ end_yax: ;
                                 else
                                     show2dwall[i>>3] &= ~(1<<(i&7));
 
+                                // XXX: this selects too many walls, need something more like
+                                //      those of dragpoint() -- could be still too many for
+                                //      loop punching though
                                 for (j=0; j<numwalls; j++)
                                     if (j!=i && wall[j].x==wall[i].x && wall[j].y==wall[i].y)
                                     {
@@ -4179,7 +4434,7 @@ end_yax: ;
                                 newnumwalls = k;
                                 n = (newnumwalls-numwalls);  // number of walls in just constructed loop
 
-                                if (clockdir(numwalls)==0)
+                                if (clockdir(numwalls)==CLOCKDIR_CW)
                                 {
                                     int16_t begwalltomove = sector[refsect].wallptr+sector[refsect].wallnum;
                                     int32_t onwwasvalid = onwisvalid();
@@ -4805,7 +5060,7 @@ end_point_dragging:
         if (keystatus[0x3d])  // F3
         {
             keystatus[0x3d]=0;
-            if (!m32_sideview && (newnumwalls>=0 || joinsector[0]>=0 || circlewall>=0 || (bstatus&1)))
+            if (!m32_sideview && EDITING_MAP_P())
                 message("Must not be editing map while switching to side view mode.");
             else
             {
@@ -6010,7 +6265,7 @@ check_next_sector: ;
                         if (k == -1)   //if not inside another sector either
                         {
                             //add island sector
-                            if (clockdir(numwalls) == 1)
+                            if (clockdir(numwalls) == CLOCKDIR_CCW)
                                 flipwalls(numwalls,newnumwalls);
 
                             Bmemset(&sector[numsectors], 0, sizeof(sectortype));
@@ -6036,7 +6291,7 @@ check_next_sector: ;
                         }
                         else       //else add loop to sector
                         {
-                            int32_t ret = AddLoopToSector(k);
+                            int32_t ret = AddLoopToSector(k, NULL);
 
                             if (ret < 0)
                                 goto end_space_handling;
@@ -6056,7 +6311,7 @@ check_next_sector: ;
 
                         //add new sector with connections
 
-                        if (clockdir(numwalls) == 1)
+                        if (clockdir(numwalls) == CLOCKDIR_CCW)
                             flipwalls(numwalls,newnumwalls);
 
                         for (i=numwalls; i<newnumwalls; i++)
@@ -9003,7 +9258,7 @@ static int16_t whitelinescan(int16_t sucksect, int16_t dalinehighlight)
         wall[i].point2 = i+1;
     wall[tnewnumwalls-1].point2 = numwalls;
 
-    if (clockdir(numwalls) == 1)
+    if (clockdir(numwalls) == CLOCKDIR_CCW)
         return(-1);
     else
         return(tnewnumwalls);
