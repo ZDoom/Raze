@@ -5629,9 +5629,6 @@ end_join_sectors:
 
                 if (bad > 0)
                 {
-                    bad = 0;
-                    keystatus[0x39] = 0;
-
                     if (goodtogo)
                     {
                         asksave = 1;
@@ -5644,6 +5641,9 @@ end_join_sectors:
                         printmessage16("Inserting circle points would exceed wall limit.");
                 }
             }
+
+            bad = 0;
+            keystatus[0x39] = 0;
         }
 
         if (bad > 0)   //Space bar test
