@@ -1621,7 +1621,10 @@ void ovh_whiteoutgrab(int32_t restoreredwalls)
             wall[j].nextsector = -1;
         }
 
-    mkonwvalid();
+    if (highlightsectorcnt > 0)
+        mkonwvalid();
+    else
+        mkonwinvalid();
 }
 
 static void duplicate_selected_sectors(void)
@@ -6896,6 +6899,7 @@ CANCEL:
             checksectorpointer(j, highlightsector[i]);
         }
     }
+    mkonwinvalid();
 
     fixspritesectors();
 

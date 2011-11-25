@@ -11290,6 +11290,8 @@ void ExtCheckKeys(void)
         {
 #if M32_UNDO
             create_map_snapshot();
+#else
+            CheckMapCorruption(6, 0);
 #endif
             asksave++;
         }
