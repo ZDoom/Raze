@@ -123,7 +123,7 @@ static int32_t currentlist=0;
 //static int32_t repeatcountx, repeatcounty;
 
 static int32_t fillist[640];
-// used for fillsector and point selection in side-view mode:
+// used for fillsector and batch point insertion
 static int32_t tempxyar[MAXWALLS][2];
 
 static int32_t mousx, mousy;
@@ -195,7 +195,7 @@ static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls);
 void keytimerstuff(void);
 static int32_t clockdir(int16_t wallstart);
 static void flipwalls(int16_t numwalls, int16_t newnumwalls);
-static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day);
+static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day, int32_t *mapwallnum);
 static const char *deletepoint(int16_t point, int32_t runi);
 static int32_t deletesector(int16_t sucksect);
 void fixrepeats(int16_t i);
@@ -2552,7 +2552,8 @@ static int32_t bakframe_fillandfade(char **origframeptr, int32_t sectnum, const 
 
 // high-level insert point, handles TROR constrained walls too
 //  onewnumwalls: old numwalls + drawn walls
-static int32_t M32_InsertPoint(int32_t thewall, int32_t dax, int32_t day, int32_t onewnumwalls)
+//  mapwallnum: see insertpoint()
+static int32_t M32_InsertPoint(int32_t thewall, int32_t dax, int32_t day, int32_t onewnumwalls, int32_t *mapwallnum)
 {
 #ifdef YAX_ENABLE
     int32_t nextw = wall[thewall].nextwall;
@@ -2586,13 +2587,15 @@ static int32_t M32_InsertPoint(int32_t thewall, int32_t dax, int32_t day, int32_
         {
             return 0;  // no points inserted, would exceed limits
         }
+
+        // the actual insertion!
         m = 0;
-        for (i=0; i<numwalls; i++)
+        for (i=0; i<numwalls /* rises with ins. */; i++)
         {
             if (wall[i].cstat&(1<<14))
                 if (wall[i].nextwall<0 || i<wall[i].nextwall) // || !(NEXTWALL(i).cstat&(1<<14)) ??
                 {
-                    m += insertpoint(i, dax,day);
+                    m += insertpoint(i, dax,day, mapwallnum);
                 }
         }
 
@@ -2618,11 +2621,26 @@ static int32_t M32_InsertPoint(int32_t thewall, int32_t dax, int32_t day, int32_
     else
 #endif
     {
-        insertpoint(thewall, dax,day);
+        insertpoint(thewall, dax,day, mapwallnum);
         return 1;
     }
 }
 
+
+static int32_t lineintersect2v(const vec2_t *p1, const vec2_t *p2,  // line segment 1
+                               const vec2_t *q1, const vec2_t *q2,  // line segment 2
+                               vec2_t *pint)
+{
+    int32_t intz;
+    return lineintersect(p1->x, p1->y, 0, p2->x, p2->y, 0,
+                         q1->x, q1->y, q2->x, q2->y,
+                         &pint->x, &pint->y, &intz);
+}
+
+static int32_t vec2eq(const vec2_t *v1, const vec2_t *v2)
+{
+    return (v1->x==v2->x && v1->y==v2->y);
+}
 
 void overheadeditor(void)
 {
@@ -4813,7 +4831,6 @@ end_point_dragging:
                 int32_t askres, joinstat, needsdisp, moveonwp;
                 int32_t movestat, dx=0,dy=0,dz, delayerr=0;
 
-                // tempxyar: int32_t [MAXWALLS][2]
                 int32_t numouterwalls[2] = {0,0}, numowals;
                 static int16_t outerwall[2][MAXWALLS];
                 const walltype *wal0, *wal1, *wal0p2, *wal1p2;
@@ -5696,7 +5713,7 @@ end_join_sectors:
 
                     if (bad > 0 && goodtogo)
                     {
-                        insertpoint(circlewall,dax,day);
+                        insertpoint(circlewall,dax,day,NULL);
                         if (wall[circlewall].nextwall >= 0 && wall[circlewall].nextwall < circlewall)
                             circlewall++;
                     }
@@ -6353,7 +6370,70 @@ end_space_handling:
             }
             else  // NOT (LCtrl + LShift)
             {
-                if (linehighlight >= 0)
+                if (newnumwalls > numwalls)  // batch insert points
+                {
+                    int32_t numdrawnwalls = newnumwalls-numwalls;
+                    vec2_t *point = (vec2_t *)tempxyar;  // [MAXWALLS][2]
+                    int32_t insdpoints = 0;
+
+                    // back up the points of the line strip
+                    for (i=0; i<numdrawnwalls+1; i++)
+                    {
+                        point[i].x = wall[numwalls+i].x;
+                        point[i].y = wall[numwalls+i].y;
+                    }
+
+                    newnumwalls = -1;
+
+                    for (i=0; i<numdrawnwalls; i++)
+                    {
+                        for (j=numwalls-1; j>=0; j--)  /* j may be modified in loop */
+                        {
+                            vec2_t pint;
+                            int32_t inspts;
+
+                            YAX_SKIPWALL(j);
+
+                            if (!lineintersect2v((vec2_t *)&wall[j], (vec2_t *)&POINT2(j),
+                                                 &point[i], &point[i+1], &pint))
+                                continue;
+
+                            if (vec2eq(&pint, (vec2_t *)&wall[j]) || vec2eq(&pint, (vec2_t *)&POINT2(j)))
+                                continue;
+
+                            inspts = M32_InsertPoint(j, pint.x, pint.y, -1, &j);  /* maybe modify j */
+
+                            if (inspts==0)
+                            {
+                                printmessage16("Wall limit exceeded while inserting points.");
+                                goto end_batch_insert_points;
+                            }
+                            else if (inspts > 0 && inspts < 65536)
+                            {
+                                insdpoints += inspts;
+                            }
+                            else  // inspts >= 65536
+                            {
+                                message("ERR: Inserted %d points for constr. wall (exp. %d; %d already ins'd)",
+                                        inspts&65535, inspts>>16, insdpoints);
+                                goto end_batch_insert_points;
+                            }
+                        }
+                    }
+
+                    message("Batch-inserted %d points in total", insdpoints);
+end_batch_insert_points:
+
+                    if (insdpoints != 0)
+                    {
+#ifdef YAX_ENABLE
+                        yax_updategrays(pos.z);
+#endif
+                        mkonwinvalid();
+                        asksave = 1;
+                    }
+                }
+                else if (linehighlight >= 0)
                 {
                     checksectorpointer(linehighlight,sectorofwall(linehighlight));
                     printmessage16("Checked pointers of highlighted line.");
@@ -6556,7 +6636,7 @@ point_not_inserted:
                     }
                     else
                     {
-                        int32_t insdpoints = M32_InsertPoint(linehighlight, dax, day, onewnumwalls);
+                        int32_t insdpoints = M32_InsertPoint(linehighlight, dax, day, onewnumwalls, NULL);
 
                         if (insdpoints == 0)
                         {
@@ -7426,7 +7506,7 @@ static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls)
             if ((x1 <= dax && dax <= x2) || (x2 <= dax && dax <= x1))
                 if ((y1 <= day && day <= y2) || (y2 <= day && day <= y1))
                     if ((dax-x1)*(y2-y1) == (day-y1)*(x2-x1))
-                        return(1);          //insertpoint((short)i,dax,day);
+                        return(1);          //insertpoint((short)i,dax,day,NULL);
     }
 
     return(0);
@@ -7485,7 +7565,10 @@ static void flipwalls(int16_t numwalls, int16_t newnumwalls)
     }
 }
 
-static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
+// returns number of points inserted (1; or 2 if wall had a nextwall)
+//  *mapwallnum contains the new wallnum of the former (pre-insertpoint) *mapwallnum
+//  (the new one can only be >= than the old one; ptr may be NULL if we don't care)
+static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day, int32_t *mapwallnum)
 {
     int16_t sucksect;
     int32_t i, j, k;
@@ -7499,6 +7582,8 @@ static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
     for (i=sucksect+1; i<numsectors; i++)
         sector[i].wallptr++;
 
+    if (mapwallnum && *mapwallnum >= j+1)
+        (*mapwallnum)++;
     movewalls(j+1, +1);
     Bmemcpy(&wall[j+1], &wall[j], sizeof(walltype));
 #ifdef YAX_ENABLE
@@ -7522,6 +7607,8 @@ static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day)
         for (i=sucksect+1; i<numsectors; i++)
             sector[i].wallptr++;
 
+        if (mapwallnum && *mapwallnum >= k+1)
+            (*mapwallnum)++;
         movewalls(k+1, +1);
         Bmemcpy(&wall[k+1], &wall[k], sizeof(walltype));
 #ifdef YAX_ENABLE

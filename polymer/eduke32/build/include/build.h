@@ -184,7 +184,7 @@ typedef struct
 //   bit 8: 1 = y-flipped, 0 = normal                                "F"
 //   bit 9: 1 = Transluscence reversing, 0 = normal                  "T"
 //   bits 10 and 11: reserved (in use by YAX)
-//   bits 12-15: reserved
+//   bits 12-15: reserved  (14: temp use by editor)
 
     //32 bytes
 typedef struct
