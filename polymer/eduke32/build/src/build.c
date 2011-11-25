@@ -3872,9 +3872,19 @@ void overheadeditor(void)
 
                 // determine start wall
                 for (i=0; i<highlightcnt; i++)
-                    if ((highlight[i]&16384)==0 && clockdir(highlight[i])==CLOCKDIR_CCW)
+                {
+                    j = highlight[i];
+
+                    if (j&16384)
+                        continue;
+
+                    // we only want loop-starting walls
+                    if (j>0 && wall[j-1].point2==j)
+                        continue;
+
+                    if (clockdir(j)==CLOCKDIR_CCW)
                     {
-                        YAX_SKIPWALL(highlight[i]);
+                        YAX_SKIPWALL(j);
 
                         if (loopstartwall >= 0)
                         {
@@ -3882,8 +3892,9 @@ void overheadeditor(void)
                             goto end_yax;
                         }
 
-                        loopstartwall = highlight[i];
+                        loopstartwall = j;
                     }
+                }
 
                 if (loopstartwall == -1)
                 {
@@ -4007,7 +4018,7 @@ void overheadeditor(void)
                 for (SECTORS_OF_BUNCH(bunchnum, !cf, i))
                     for (WALLS_OF_SECTOR(i, j))
                     {
-                        if (inside(wall[i].x, wall[i].y, numsectors-1)==1)
+                        if (inside(wall[j].x, wall[j].y, numsectors-1)==1)
                         {
                             numsectors--;
                             newnumwalls = -1;
@@ -7802,6 +7813,7 @@ static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls)
     return(0);
 }
 
+// wallstart has to be the starting wall of a loop!
 static int32_t clockdir(int16_t wallstart)   //Returns: 0 is CW, 1 is CCW
 {
     int16_t i, themin;
@@ -8195,6 +8207,7 @@ static void clearministatbar16(void)
     enddrawing();
 }
 
+// startwall has to be the starting wall of a loop!
 static int16_t loopinside(int32_t x, int32_t y, int16_t startwall)
 {
     int32_t x1, y1, x2, y2;
