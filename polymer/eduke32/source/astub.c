@@ -4202,12 +4202,16 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     int32_t runi=0, usehitile;
     static uint8_t loadedhitile[(MAXTILES+7)>>3];
 
-    setpolymost2dview();
 #ifdef USE_OPENGL
-    bglEnable(GL_TEXTURE_2D);
+    setpolymost2dview();
 
-	if (rendmode >= 3 && g_lazy_tileselector)
-		bglDrawBuffer(GL_FRONT_AND_BACK);
+	if (rendmode >= 3)
+    {
+        bglEnable(GL_TEXTURE_2D);
+
+        if (g_lazy_tileselector)
+            bglDrawBuffer(GL_FRONT_AND_BACK);
+    }
 #endif
     clearview(0);
 
