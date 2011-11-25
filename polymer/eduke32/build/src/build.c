@@ -5943,6 +5943,7 @@ check_next_sector: ;
                         }
                         else       //else add loop to sector
                         {
+                            int32_t firstwall;
 #ifdef YAX_ENABLE
                             int16_t cbunch, fbunch;
                             int32_t extendedSector, newnumwalls2;
@@ -5977,27 +5978,27 @@ check_next_sector: ;
                             sector[k].wallnum += j;
                             for (i=k+1; i<numsectors; i++)
                                 sector[i].wallptr += j;
-                            ovh.suckwall = sector[k].wallptr;
+                            firstwall = sector[k].wallptr;
 
                             for (i=0; i<numwalls; i++)
                             {
-                                if (wall[i].nextwall >= ovh.suckwall)
+                                if (wall[i].nextwall >= firstwall)
                                     wall[i].nextwall += j;
-                                if (wall[i].point2 >= ovh.suckwall)
+                                if (wall[i].point2 >= firstwall)
                                     wall[i].point2 += j;
                             }
 #ifdef YAX_ENABLE
-                            yax_tweakwalls(ovh.suckwall, j);
+                            yax_tweakwalls(firstwall, j);
 #endif
 
-                            Bmemmove(&wall[ovh.suckwall+j], &wall[ovh.suckwall], (newnumwalls-ovh.suckwall)*sizeof(walltype));
-                            Bmemmove(&wall[ovh.suckwall], &wall[newnumwalls], j*sizeof(walltype));
+                            Bmemmove(&wall[firstwall+j], &wall[firstwall], (newnumwalls-firstwall)*sizeof(walltype));
+                            Bmemmove(&wall[firstwall], &wall[newnumwalls], j*sizeof(walltype));
 
-                            for (i=ovh.suckwall; i<ovh.suckwall+j; i++)
+                            for (i=firstwall; i<firstwall+j; i++)
                             {
-                                wall[i].point2 += (ovh.suckwall-numwalls);
+                                wall[i].point2 += (firstwall-numwalls);
 
-                                copy_some_wall_members(i, ovh.suckwall+j, 1);
+                                copy_some_wall_members(i, firstwall+j, 1);
                                 wall[i].cstat &= ~(1+16+32+64);
                             }
 
@@ -6006,7 +6007,7 @@ check_next_sector: ;
 #ifdef YAX_ENABLE
                             if (extendedSector)
                             {
-                                newnumwalls = whitelinescan(k, ovh.suckwall);
+                                newnumwalls = whitelinescan(k, firstwall);
                                 if (newnumwalls != newnumwalls2)
                                     message("YAX: WTF?");
                                 for (i=numwalls; i<newnumwalls2; i++)
@@ -6022,7 +6023,7 @@ check_next_sector: ;
                                 numsectors++;
                             }
 #endif
-                            setfirstwall(k, ovh.suckwall+j);  // restore old first wall
+                            setfirstwall(k, firstwall+j);  // restore old first wall
 #ifdef YAX_ENABLE
                             if (extendedSector)
                                 printmessage16("Added inner loop to sector %d and made new inner sector", k);
