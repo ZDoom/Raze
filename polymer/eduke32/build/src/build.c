@@ -2665,7 +2665,7 @@ static int32_t AddLoopToSector(int32_t k)
         if ((cbunch>=0 && (sector[k].ceilingstat&2))
             || (fbunch>=0 && (sector[k].floorstat&2)))
         {
-            message("Sloped extended sectors cannot be subdivided.");
+            printmessage16("Sloped extended sectors cannot be subdivided.");
             newnumwalls--;
             return -1;
         }
@@ -6136,9 +6136,23 @@ check_next_sector: ;
                         printmessage16("%s would exceed wall limit.", bad==0 ?
                                        "Splitting sector" : "Joining sector loops");
                         newnumwalls--;
-                        break;
+                        goto end_space_handling;
                     }
+#ifdef YAX_ENABLE
+                    {
+                        int16_t cb, fb;
 
+                        yax_getbunches(ovh.splitsect, &cb, &fb);
+
+                        if ((cb>=0 && (sector[ovh.splitsect].ceilingstat&2))
+                                || (fb>=0 && (sector[ovh.splitsect].floorstat&2)))
+                        {
+                            printmessage16("Sloped extended sectors cannot be split.");
+                            newnumwalls--;
+                            goto end_space_handling;
+                        }
+                    }
+#endif
                     ////////// common code for splitting/loop joining //////////
 
                     newnumwalls--;  //first fix up the new walls
