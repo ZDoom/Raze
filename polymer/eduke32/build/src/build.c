@@ -6319,33 +6319,39 @@ end_space_handling:
             keystatus[0x1c] = 0;
             if (keystatus[0x2a] && keystatus[0x1d])  // LCtrl+LShift
             {
-                printmessage16("CHECKING ALL POINTERS!");
-                for (i=0; i<numsectors; i++)
+#ifdef YAX_ENABLE
+                if (numyaxbunches == 0 ||
+                    (fade_editor_screen(-1), ask_if_sure("Really check all wall pointers in TROR map?", 0)))
+#endif
                 {
-                    startwall = sector[i].wallptr;
-                    for (j=startwall; j<numwalls; j++)
-                        if (startwall > wall[j].point2)
-                            startwall = wall[j].point2;
-                    sector[i].wallptr = startwall;
-                }
-                for (i=numsectors-2; i>=0; i--)
-                    sector[i].wallnum = sector[i+1].wallptr-sector[i].wallptr;
-                sector[numsectors-1].wallnum = numwalls-sector[numsectors-1].wallptr;
+                    printmessage16("CHECKING ALL POINTERS!");
+                    for (i=0; i<numsectors; i++)
+                    {
+                        startwall = sector[i].wallptr;
+                        for (j=startwall; j<numwalls; j++)
+                            if (startwall > wall[j].point2)
+                                startwall = wall[j].point2;
+                        sector[i].wallptr = startwall;
+                    }
+                    for (i=numsectors-2; i>=0; i--)
+                        sector[i].wallnum = sector[i+1].wallptr-sector[i].wallptr;
+                    sector[numsectors-1].wallnum = numwalls-sector[numsectors-1].wallptr;
 
-                for (i=0; i<numwalls; i++)
-                {
-                    wall[i].nextsector = -1;
-                    wall[i].nextwall = -1;
+                    for (i=0; i<numwalls; i++)
+                    {
+                        wall[i].nextsector = -1;
+                        wall[i].nextwall = -1;
+                    }
+                    for (i=0; i<numsectors; i++)
+                    {
+                        for (WALLS_OF_SECTOR(i, j))
+                            checksectorpointer(j, i);
+                    }
+                    printmessage16("ALL POINTERS CHECKED!");
+                    asksave = 1;
                 }
-                for (i=0; i<numsectors; i++)
-                {
-                    for (WALLS_OF_SECTOR(i, j))
-                        checksectorpointer(j, i);
-                }
-                printmessage16("ALL POINTERS CHECKED!");
-                asksave = 1;
             }
-            else
+            else  // NOT (LCtrl + LShift)
             {
                 if (linehighlight >= 0)
                 {
