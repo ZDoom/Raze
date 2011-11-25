@@ -1496,6 +1496,7 @@ badindex:
         case CON_IFHITKEY:
         case CON_IFHOLDKEY:
         case CON_RESETKEY:
+        case CON_SETKEY:
             insptr++;
             {
                 int32_t key=Gv_GetVarX(*insptr);
@@ -1505,7 +1506,7 @@ badindex:
                     continue;
                 }
 
-                if (tw != CON_RESETKEY)
+                if (tw == CON_IFHITKEY || tw == CON_IFHOLDKEY)
                     VM_DoConditional(keystatus[key]);
                 else
                     insptr++;
@@ -1515,7 +1516,7 @@ badindex:
                     if (!(key==0 || key==KEYSC_ESC || key==KEYSC_TILDE || key==KEYSC_gENTER ||
                             key==KEYSC_LALT || key==KEYSC_RALT || key==KEYSC_LCTRL || key==KEYSC_RCTRL ||
                             key==KEYSC_LSHIFT || key==KEYSC_RSHIFT))
-                        keystatus[key] = 0;
+                        keystatus[key] = (tw==CON_SETKEY);
                 }
             }
             continue;

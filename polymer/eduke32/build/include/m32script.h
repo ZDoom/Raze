@@ -95,6 +95,7 @@ enum GameEvent_t {
     EVENT_PREKEYS2D,
     EVENT_PREKEYS3D,
     EVENT_LINKTAGS,
+    EVENT_KEYPRESS,
     MAXEVENTS
 };
 

@@ -449,8 +449,11 @@ enum ScriptKeywords_t
     CON_IFAIMINGSECTOR,
     CON_IFINTERACTIVE,
 
-// BUILD functions
+// keyboard
     CON_RESETKEY,
+    CON_SETKEY,
+
+// BUILD functions
     CON_INSERTSPRITE,
     CON_DUPSPRITE,
     CON_TDUPSPRITE,

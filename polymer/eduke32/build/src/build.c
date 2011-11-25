@@ -419,6 +419,12 @@ static void reset_default_mapstate(void)
 #endif
 }
 
+static void m32_keypresscallback(int32_t code, int32_t downp)
+{
+    g_iReturnVar = code;
+    VM_OnEvent(EVENT_KEYPRESS, -1);
+}
+
 #undef STARTUP_SETUP_WINDOW
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
 # define STARTUP_SETUP_WINDOW
@@ -589,6 +595,8 @@ int32_t app_main(int32_t argc, const char **argv)
     totalclock = 0;
 
     updatesector(pos.x,pos.y,&cursectnum);
+
+    setkeypresscallback(&m32_keypresscallback);
 
     if (cursectnum == -1)
     {

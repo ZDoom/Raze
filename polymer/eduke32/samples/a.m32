@@ -30,6 +30,9 @@ gamevar use_custom_aspect 0 0  // this is now the same as r_usenewaspect
 gamevar davr 65536 0
 gamevar dayx 65536 0
 
+// whether to remap certain widely-available keys to rare ones
+// (notebook/netbook convenience, see EVENT_KEYPRESS for details)
+gamevar use_notebook_keys 0 0
 
 // see end of file for more user settings and examples
 
@@ -300,7 +303,7 @@ defstate fiddlewithlights
                 getnumber256 .yvel "YVEL: " 0
                 getnumber256 .zvel "ZVEL: " 0
             }
-            else ifhitkey KEY_KP2
+            else ifeithershift ifhitkey KEY_KP2 // alt-kp2 collides with KP* replacement
             {
                 getnumber256 .owner "OWNER: " 0
                 ifl .owner 0 set .owner -1
@@ -1201,6 +1204,66 @@ ends
 defstate userkeys_3d
     ifholdkey KEY_SEMI ifhitkey KEY_C state chselshade
 ends
+
+// convenience rebindings for notebooks:
+//  Alt-F11 --> SCROLL LOCK (set first position)
+//  Alt-arrows --> KP arrows (change pan/repeat in 3D mode)
+onevent EVENT_KEYPRESS
+    var thekey
+    set thekey RETURN
+
+    ifvare use_notebook_keys 0, return
+/*
+    ifholdkey thekey
+        qsprintf TQUOTE "pressed %d" thekey
+    else
+        qsprintf TQUOTE "released %d" thekey
+    print TQUOTE
+*/
+    ifholdkey thekey  // if the callback key was pressed (and not released)
+    {
+        ifholdkey KEY_LALT
+        {
+            ifhitkey KEY_F11, setkey KEY_SCROLL
+
+            ifhitkey KEY_UP, setkey KEY_KP8
+            ifhitkey KEY_DOWN, setkey KEY_KP2
+            ifhitkey KEY_LEFT, setkey KEY_KP4
+            ifhitkey KEY_RIGHT, setkey KEY_KP6
+
+// would be 'cleaner' (only checking cb key) but is too much code for my taste:
+/*
+            switch (thekey)
+            {
+                case KEY_F11: setkey KEY_SCROLL; resetkey thekey; break;
+
+                // and so on with the rest...
+            }
+            endswitch
+*/
+        }
+    }
+    else  // cb key was released
+    {
+        switch (thekey)
+        {
+            case KEY_LALT:
+            {
+                resetkey KEY_KP8;
+                resetkey KEY_KP2;
+                resetkey KEY_KP4;
+                resetkey KEY_KP6;
+                break;
+            }
+
+            case KEY_UP: resetkey KEY_KP8; break;
+            case KEY_DOWN: resetkey KEY_KP2; break;
+            case KEY_LEFT: resetkey KEY_KP4; break;
+            case KEY_RIGHT: resetkey KEY_KP6; break;
+        }
+        endswitch
+    }
+endevent
 
 /*
 // example for custom labels

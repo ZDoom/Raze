@@ -304,6 +304,7 @@ const char *keyw[] =
 
 // BUILD functions
     "resetkey",
+    "setkey",
     "insertsprite",
     "dupsprite",
     "tdupsprite",
@@ -1253,7 +1254,7 @@ static void C_GetNextVarType(int32_t type)
     id = GetGamevarID(tlabel, 1);
     if (id < 0)   //gamevar not found
     {
-        if (!type && !cs.labelsOnly)
+        if (!(type&GV_WRITABLE) && !cs.labelsOnly)
         {
             //try looking for a define instead
             id = hash_find(&h_labels, tlabel);
@@ -3053,6 +3054,7 @@ repeatcase:
             g_numCompilerWarnings++;
         }
     case CON_RESETKEY:
+    case CON_SETKEY:
     case CON_INSERTSPRITE:
     case CON_DUPSPRITE:
     case CON_DELETESPRITE:
@@ -3503,6 +3505,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("EVENT_PREKEYS2D", EVENT_PREKEYS2D, LABEL_EVENT);
     C_AddDefinition("EVENT_PREKEYS3D", EVENT_PREKEYS3D, LABEL_EVENT);
     C_AddDefinition("EVENT_LINKTAGS", EVENT_LINKTAGS, LABEL_EVENT);
+    C_AddDefinition("EVENT_KEYPRESS", EVENT_KEYPRESS, LABEL_EVENT);
 
     C_AddDefinition("CLIPMASK0", CLIPMASK0, LABEL_DEFINE);
     C_AddDefinition("CLIPMASK1", CLIPMASK1, LABEL_DEFINE);
@@ -3607,6 +3610,8 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("KEY_gSTAR", KEYSC_gSTAR, LABEL_DEFINE);
     C_AddDefinition("KEY_gUP", KEYSC_gUP, LABEL_DEFINE);
 
+    C_AddDefinition("KEY_SCROLL", KEYSC_SCROLL, LABEL_DEFINE);
+
     C_AddDefinition("KEY_HOME", KEYSC_HOME, LABEL_DEFINE);
     C_AddDefinition("KEY_UP", KEYSC_UP, LABEL_DEFINE);
     C_AddDefinition("KEY_PGUP", KEYSC_PGUP, LABEL_DEFINE);
@@ -3617,6 +3622,19 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("KEY_PGDN", KEYSC_PGDN, LABEL_DEFINE);
     C_AddDefinition("KEY_INSERT", KEYSC_INSERT, LABEL_DEFINE);
     C_AddDefinition("KEY_DELETE", KEYSC_DELETE, LABEL_DEFINE);
+
+    C_AddDefinition("KEY_F1", KEYSC_F1, LABEL_DEFINE);
+    C_AddDefinition("KEY_F2", KEYSC_F2, LABEL_DEFINE);
+    C_AddDefinition("KEY_F3", KEYSC_F3, LABEL_DEFINE);
+    C_AddDefinition("KEY_F4", KEYSC_F4, LABEL_DEFINE);
+    C_AddDefinition("KEY_F5", KEYSC_F5, LABEL_DEFINE);
+    C_AddDefinition("KEY_F6", KEYSC_F6, LABEL_DEFINE);
+    C_AddDefinition("KEY_F7", KEYSC_F7, LABEL_DEFINE);
+    C_AddDefinition("KEY_F8", KEYSC_F8, LABEL_DEFINE);
+    C_AddDefinition("KEY_F9", KEYSC_F9, LABEL_DEFINE);
+    C_AddDefinition("KEY_F10", KEYSC_F10, LABEL_DEFINE);
+    C_AddDefinition("KEY_F11", KEYSC_F11, LABEL_DEFINE);
+    C_AddDefinition("KEY_F12", KEYSC_F12, LABEL_DEFINE);
 // end keys
 
 //    C_AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME, LABEL_DEFINE);
