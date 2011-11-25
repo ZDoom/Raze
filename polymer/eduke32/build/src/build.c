@@ -2642,6 +2642,99 @@ static int32_t vec2eq(const vec2_t *v1, const vec2_t *v2)
     return (v1->x==v2->x && v1->y==v2->y);
 }
 
+// precondition: [numwalls, newnumwalls-1] form a new loop (may be of wrong orientation)
+// returns:
+//  -1, -2: errors
+//   0,  1: OK, 1 means it was an extended sector and an inner loop has been added automatically
+static int32_t AddLoopToSector(int32_t k)
+{
+    int32_t extendedSector=0, firstwall, i, j;
+#ifdef YAX_ENABLE
+    int16_t cbunch, fbunch;
+    int32_t newnumwalls2;
+
+    yax_getbunches(k, &cbunch, &fbunch);
+    extendedSector = (cbunch>=0 || fbunch>=0);
+#endif
+    j = newnumwalls-numwalls;
+#ifdef YAX_ENABLE
+    newnumwalls2 = newnumwalls + j;
+
+    if (extendedSector)
+    {
+        if ((cbunch>=0 && (sector[k].ceilingstat&2))
+            || (fbunch>=0 && (sector[k].floorstat&2)))
+        {
+            message("Sloped extended sectors cannot be subdivided.");
+            newnumwalls--;
+            return -1;
+        }
+
+        if (newnumwalls + j > MAXWALLS || numsectors+1 > MAXSECTORS)
+        {
+            message("Automatically adding inner sector to new extended sector would exceed limits!");
+            newnumwalls--;
+            return -2;
+        }
+    }
+#endif
+    if (clockdir(numwalls) == 0)
+        flipwalls(numwalls,newnumwalls);
+
+    sector[k].wallnum += j;
+    for (i=k+1; i<numsectors; i++)
+        sector[i].wallptr += j;
+    firstwall = sector[k].wallptr;
+
+    for (i=0; i<numwalls; i++)
+    {
+        if (wall[i].nextwall >= firstwall)
+            wall[i].nextwall += j;
+        if (wall[i].point2 >= firstwall)
+            wall[i].point2 += j;
+    }
+#ifdef YAX_ENABLE
+    yax_tweakwalls(firstwall, j);
+#endif
+
+    Bmemmove(&wall[firstwall+j], &wall[firstwall], (newnumwalls-firstwall)*sizeof(walltype));
+    // add new loop to beginning of sector
+    Bmemmove(&wall[firstwall], &wall[newnumwalls], j*sizeof(walltype));
+
+    for (i=firstwall; i<firstwall+j; i++)
+    {
+        wall[i].point2 += (firstwall-numwalls);
+
+        copy_some_wall_members(i, firstwall+j, 1);
+        wall[i].cstat &= ~(1+16+32+64);
+    }
+
+    numwalls = newnumwalls;
+    newnumwalls = -1;
+#ifdef YAX_ENABLE
+    if (extendedSector)
+    {
+        newnumwalls = whitelinescan(k, firstwall);
+        if (newnumwalls != newnumwalls2)
+            message("AddLoopToSector: newnumwalls != newnumwalls2!!! WTF?");
+        for (i=numwalls; i<newnumwalls; i++)
+        {
+            NEXTWALL(i).nextwall = i;
+            NEXTWALL(i).nextsector = numsectors;
+        }
+
+        yax_setbunches(numsectors, cbunch, fbunch);
+
+        numwalls = newnumwalls;
+        newnumwalls = -1;
+        numsectors++;
+    }
+#endif
+    setfirstwall(k, firstwall+j);  // restore old first wall
+
+    return extendedSector;
+}
+
 void overheadeditor(void)
 {
     char buffer[80];
@@ -5943,93 +6036,16 @@ check_next_sector: ;
                         }
                         else       //else add loop to sector
                         {
-                            int32_t firstwall;
+                            int32_t ret = AddLoopToSector(k);
+
+                            if (ret < 0)
+                                goto end_space_handling;
 #ifdef YAX_ENABLE
-                            int16_t cbunch, fbunch;
-                            int32_t extendedSector, newnumwalls2;
-
-                            yax_getbunches(k, &cbunch, &fbunch);
-                            extendedSector = (cbunch>=0 || fbunch>=0);
-#endif
-                            j = newnumwalls-numwalls;
-#ifdef YAX_ENABLE
-                            newnumwalls2 = newnumwalls + j;
-                            if (extendedSector)
-                            {
-                                if ((cbunch>=0 && (sector[k].ceilingstat&2))
-                                        || (fbunch>=0 && (sector[k].floorstat&2)))
-                                {
-                                    message("Sloped extended sectors cannot be subdivided.");
-                                    newnumwalls--;
-                                    goto end_space_handling;
-                                }
-
-                                if (newnumwalls + j > MAXWALLS || numsectors+1 > MAXSECTORS)
-                                {
-                                    message("Automatically adding inner sector to new extended sector would exceed limits!");
-                                    newnumwalls--;
-                                    goto end_space_handling;
-                                }
-                            }
-#endif
-                            if (clockdir(numwalls) == 0)
-                                flipwalls(numwalls,newnumwalls);
-
-                            sector[k].wallnum += j;
-                            for (i=k+1; i<numsectors; i++)
-                                sector[i].wallptr += j;
-                            firstwall = sector[k].wallptr;
-
-                            for (i=0; i<numwalls; i++)
-                            {
-                                if (wall[i].nextwall >= firstwall)
-                                    wall[i].nextwall += j;
-                                if (wall[i].point2 >= firstwall)
-                                    wall[i].point2 += j;
-                            }
-#ifdef YAX_ENABLE
-                            yax_tweakwalls(firstwall, j);
-#endif
-
-                            Bmemmove(&wall[firstwall+j], &wall[firstwall], (newnumwalls-firstwall)*sizeof(walltype));
-                            Bmemmove(&wall[firstwall], &wall[newnumwalls], j*sizeof(walltype));
-
-                            for (i=firstwall; i<firstwall+j; i++)
-                            {
-                                wall[i].point2 += (firstwall-numwalls);
-
-                                copy_some_wall_members(i, firstwall+j, 1);
-                                wall[i].cstat &= ~(1+16+32+64);
-                            }
-
-                            numwalls = newnumwalls;
-                            newnumwalls = -1;
-#ifdef YAX_ENABLE
-                            if (extendedSector)
-                            {
-                                newnumwalls = whitelinescan(k, firstwall);
-                                if (newnumwalls != newnumwalls2)
-                                    message("YAX: WTF?");
-                                for (i=numwalls; i<newnumwalls2; i++)
-                                {
-                                    NEXTWALL(i).nextwall = i;
-                                    NEXTWALL(i).nextsector = numsectors;
-                                }
-
-                                yax_setbunches(numsectors, cbunch, fbunch);
-
-                                numwalls = newnumwalls2;
-                                newnumwalls = -1;
-                                numsectors++;
-                            }
-#endif
-                            setfirstwall(k, firstwall+j);  // restore old first wall
-#ifdef YAX_ENABLE
-                            if (extendedSector)
+                            else if (ret > 0)
                                 printmessage16("Added inner loop to sector %d and made new inner sector", k);
                             else
 #endif
-                            printmessage16("Added inner loop to sector %d", k);
+                                printmessage16("Added inner loop to sector %d", k);
                             mkonwinvalid();
                             asksave = 1;
                         }
