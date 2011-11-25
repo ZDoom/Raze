@@ -1153,6 +1153,8 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     char st[BMAX_PATH];
     int32_t i, j, k;
 
+    int32_t ournumskins, ournumglcmds;
+
     m = (md2model_t *)Bcalloc(1,sizeof(md2model_t)); if (!m) return(0);
     m->mdnum = 2; m->scale = .01f;
 
@@ -1169,6 +1171,9 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 
     if ((head.id != 0x32504449) || (head.vers != 8)) { Bfree(m); return(0); } //"IDP2"
 
+    ournumskins = head.numskins ? head.numskins : 1;
+    ournumglcmds = head.numglcmds ? head.numglcmds : 1;
+
     m->numskins = head.numskins;
     m->numframes = head.numframes;
     m->numverts = head.numverts;
@@ -1176,7 +1181,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m->framebytes = head.framebytes;
 
     m->frames = (char *)Bmalloc(m->numframes*m->framebytes); if (!m->frames) { Bfree(m); return(0); }
-    m->glcmds = (int32_t *)Bmalloc(m->numglcmds*sizeof(int32_t)); if (!m->glcmds) { Bfree(m->frames); Bfree(m); return(0); }
+    m->glcmds = (int32_t *)Bmalloc(ournumglcmds*sizeof(int32_t)); if (!m->glcmds) { Bfree(m->frames); Bfree(m); return(0); }
     m->tris = (md2tri_t *)Bmalloc(head.numtris*sizeof(md2tri_t)); if (!m->tris) { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     m->uv = (md2uv_t *)Bmalloc(head.numuv*sizeof(md2uv_t)); if (!m->uv) { Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
@@ -1184,9 +1189,12 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
         { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
-    klseek(fil,head.ofsglcmds,SEEK_SET);
-    if (kread(fil,(char *)m->glcmds,m->numglcmds*sizeof(int32_t)) != (int32_t)(m->numglcmds*sizeof(int32_t)))
-        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    if (m->numglcmds > 0)
+    {
+        klseek(fil,head.ofsglcmds,SEEK_SET);
+        if (kread(fil,(char *)m->glcmds,m->numglcmds*sizeof(int32_t)) != (int32_t)(m->numglcmds*sizeof(int32_t)))
+            { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    }
 
     klseek(fil,head.ofstris,SEEK_SET);
     if (kread(fil,(char *)m->tris,head.numtris*sizeof(md2tri_t)) != (int32_t)(head.numtris*sizeof(md2tri_t)))
@@ -1239,12 +1247,15 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     m->basepath = (char *)Bmalloc(i+1); if (!m->basepath) { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     strcpy(m->basepath, st);
 
-    m->skinfn = (char *)Bmalloc(m->numskins*64); if (!m->skinfn) { Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
-    klseek(fil,head.ofsskins,SEEK_SET);
-    if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
-        { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    m->skinfn = (char *)Bmalloc(ournumskins*64); if (!m->skinfn) { Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    if (m->numskins > 0)
+    {
+        klseek(fil,head.ofsskins,SEEK_SET);
+        if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
+            { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+    }
 
-    m->texid = (GLuint *)Bcalloc(m->numskins, sizeof(GLuint) * (HICEFFECTMASK+1));
+    m->texid = (GLuint *)Bcalloc(ournumskins, sizeof(GLuint) * (HICEFFECTMASK+1));
     if (!m->texid) { Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
 
     maxmodelverts = max(maxmodelverts, m->numverts);
