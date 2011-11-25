@@ -769,9 +769,6 @@ int32_t handleevents(void)
 
     sampletimer();
 
-    if (after_handleevents_hook)
-        after_handleevents_hook();
-
     return rv;
 }
 

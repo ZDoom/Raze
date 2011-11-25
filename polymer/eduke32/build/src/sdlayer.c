@@ -75,6 +75,8 @@ char nogl=0;
 #endif
 int32_t vsync=0;
 
+//#define KEY_PRINT_DEBUG
+
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
 static char keytranslation[SDLK_LAST];
 #else
@@ -1676,7 +1678,10 @@ int32_t handleevents(void)
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.sym];
-
+#ifdef KEY_PRINT_DEBUG
+            printf("keytranslation[%d] = %s (%d)  %s\n", ev.key.keysym.sym,
+                   key_names[code], code, ev.key.type==SDL_KEYDOWN?"DOWN":"UP");
+#endif
             if (code != OSD_OSDKey() && ev.key.keysym.unicode != 0 && ev.key.type == SDL_KEYDOWN &&
                     (ev.key.keysym.unicode & 0xff80) == 0 &&
                     ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
@@ -1880,9 +1885,6 @@ int32_t handleevents(void)
     startwin_idle(NULL);
 
 #undef SetKey
-
-    if (after_handleevents_hook)
-        after_handleevents_hook();
 
     return rv;
 }

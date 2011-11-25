@@ -95,7 +95,7 @@ extern char textfont[128][8];
 // only valid when highlightsectorcnt>0 and no structural
 // modifications (deleting/inserting sectors or points, setting new firstwall)
 // have been made
-static int16_t onextwall[MAXWALLS];  // onextwall[i]>=0 implies wall[j].nextwall < 0
+static int16_t onextwall[MAXWALLS];  // onextwall[i]>=0 implies wall[i].nextwall < 0
 static void mkonwvalid(void) { chsecptr_onextwall = onextwall; }
 static void mkonwinvalid(void) { chsecptr_onextwall = NULL; }
 static int32_t onwisvalid(void) { return chsecptr_onextwall != NULL; }
@@ -1857,35 +1857,6 @@ void update_highlightsector(void)
     }
 }
 
-// hook run after handleevents in side view
-static void sideview_filter_keys(void)
-{
-    uint32_t i;
-
-    for (i=0; i<sizeof(keystatus)/sizeof(keystatus[0]); i++)
-    {
-        switch (i)
-        {
-//        case 0xd2: case 0xd3:  // ins, del
-        case 0x2e: case 0x39:  // c, space
-//        case 0xb8:  // ralt
-            keystatus[i] = 0;
-            break;
-        }
-    }
-}
-
-void m32_setkeyfilter(int32_t on)
-{
-    if (m32_sideview && on)
-    {
-        after_handleevents_hook = &sideview_filter_keys;
-        clearkeys();
-    }
-    else
-        after_handleevents_hook = 0;
-}
-
 // Get average point of sectors
 static void get_sectors_center(const int16_t *sectors, int32_t numsecs, int32_t *cx, int32_t *cy)
 {
@@ -2588,8 +2559,6 @@ void overheadeditor(void)
     ovh.split = 0;
     ovh.splitsect = -1;
     ovh.splitstartwall = -1;
-
-    m32_setkeyfilter(1);
 
     qsetmodeany(xdim2d,ydim2d);
     xdim2d = xdim;
@@ -4645,8 +4614,6 @@ end_point_dragging:
             {
                 m32_sideview = !m32_sideview;
                 printmessage16("Side view %s", m32_sideview?"enabled":"disabled");
-
-                m32_setkeyfilter(1);
             }
         }
 
@@ -5554,12 +5521,11 @@ end_join_sectors:
                 duplicate_selected_sectors();
             else if (highlightcnt > 0)
                 duplicate_selected_sprites();
-
             else if (circlewall >= 0)
             {
                 circlewall = -1;
             }
-            else
+            else if (!m32_sideview)
             {
                 if (linehighlight >= 0)
                 {
@@ -5574,10 +5540,11 @@ end_join_sectors:
                     circlewall = linehighlight;
                 }
             }
+
             keystatus[0x2e] = 0;
         }
 
-        bad = keystatus[0x39];  //Gotta do this to save lots of 3 spaces!
+        bad = keystatus[0x39] && !m32_sideview;  //Gotta do this to save lots of 3 spaces!
 
         if (circlewall >= 0)
         {
@@ -6651,8 +6618,6 @@ nextmap:
 CANCEL:
         if (keystatus[1])
         {
-            m32_setkeyfilter(0);
-
             keystatus[1] = 0;
 #if M32_UNDO
             _printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (T)est map, (U)ndo, (R)edo, (Q)uit");
@@ -6915,8 +6880,6 @@ CANCEL:
             }
 
             clearkeys();
-
-            m32_setkeyfilter(1);
         }
 
         VM_OnEvent(EVENT_KEYS2D, -1);
@@ -6951,8 +6914,6 @@ CANCEL:
 
     searchx = clamp(scale(searchx,xdimgame,xdim2d), 8, xdimgame-8-1);
     searchy = clamp(scale(searchy,ydimgame,ydim2d-STATUS2DSIZ), 8, ydimgame-8-1);
-
-    m32_setkeyfilter(0);
 
     VM_OnEvent(EVENT_ENTER3DMODE, -1);
 }

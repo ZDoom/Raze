@@ -138,7 +138,6 @@ extern void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int
 extern int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz) ATTRIBUTE((nonnull));
 extern int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 extern void setup_sideview_sincos(void);
-extern void m32_setkeyfilter(int32_t on);
 
 extern void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt);
 extern void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int16_t elt);

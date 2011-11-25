@@ -7853,11 +7853,7 @@ static void Keys2d(void)
     {
         // PK_
         if (numhelppages>0)
-        {
-            m32_setkeyfilter(0);
             IntegratedHelp();
-            m32_setkeyfilter(1);
-        }
         else
             printmessage16("m32help.hlp invalid or not found!");
     }
@@ -7865,9 +7861,7 @@ static void Keys2d(void)
     if (PRESSED_KEYSC(F2))
         if (g_numsounds > 0)
         {
-            m32_setkeyfilter(0);
             SoundDisplay();
-            m32_setkeyfilter(1);
         }
 
     // F3: side view toggle (handled in build.c)

@@ -105,7 +105,6 @@ void initprintf(const char *, ...) ATTRIBUTE((format(printf,1,2)));
 void debugprintf(const char *,...) ATTRIBUTE((format(printf,1,2)));
 
 int32_t handleevents(void);
-extern void (*after_handleevents_hook)(void);
 extern inline void idle(void);
 extern inline void idle_waitevent(void);
 extern inline void idle_waitevent_timeout(uint32_t timeout);
