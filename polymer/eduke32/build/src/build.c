@@ -421,6 +421,8 @@ static void reset_default_mapstate(void)
 
 static void m32_keypresscallback(int32_t code, int32_t downp)
 {
+    UNREFERENCED_PARAMETER(downp);
+
     g_iReturnVar = code;
     VM_OnEvent(EVENT_KEYPRESS, -1);
 }
@@ -2546,6 +2548,79 @@ static int32_t bakframe_fillandfade(char **origframeptr, int32_t sectnum, const 
     fade_editor_screen(editorcolors[9]);
 
     return ask_if_sure(querystr, 0);
+}
+
+// high-level insert point, handles TROR constrained walls too
+//  onewnumwalls: old numwalls + drawn walls
+static int32_t M32_InsertPoint(int32_t thewall, int32_t dax, int32_t day, int32_t onewnumwalls)
+{
+#ifdef YAX_ENABLE
+    int32_t nextw = wall[thewall].nextwall;
+    int32_t i, j, k, m, tmpcf;
+
+    if (yax_islockedwall(thewall) || (nextw>=0 && yax_islockedwall(nextw)))
+    {
+        // yax'ed wall -- first find out which walls are affected
+        for (i=0; i<numwalls; i++)
+            wall[i].cstat &= ~(1<<14);
+
+        // round 1
+        for (YAX_ITER_WALLS(thewall, i, tmpcf))
+            wall[i].cstat |= (1<<14);
+        if (nextw >= 0)
+            for (YAX_ITER_WALLS(nextw, i, tmpcf))
+                wall[i].cstat |= (1<<14);
+        // round 2 (enough?)
+        for (YAX_ITER_WALLS(thewall, i, tmpcf))
+            if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
+                wall[wall[i].nextwall].cstat |= (1<<14);
+        if (nextw >= 0)
+            for (YAX_ITER_WALLS(nextw, i, tmpcf))
+                if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
+                    wall[wall[i].nextwall].cstat |= (1<<14);
+
+        j = 0;
+        for (i=0; i<numwalls; i++)
+            j += !!(wall[i].cstat&(1<<14));
+        if (max(numwalls,onewnumwalls)+j > MAXWALLS)
+        {
+            return 0;  // no points inserted, would exceed limits
+        }
+        m = 0;
+        for (i=0; i<numwalls; i++)
+        {
+            if (wall[i].cstat&(1<<14))
+                if (wall[i].nextwall<0 || i<wall[i].nextwall) // || !(NEXTWALL(i).cstat&(1<<14)) ??
+                {
+                    m += insertpoint(i, dax,day);
+                }
+        }
+
+        for (i=0; i<numwalls; i++)
+        {
+            if (wall[i].cstat&(1<<14))
+            {
+                wall[i].cstat &= ~(1<<14);
+                k = yax_getnextwall(i+1, YAX_CEILING);
+                if (k >= 0)
+                    yax_setnextwall(i+1, YAX_CEILING, k+1);
+                k = yax_getnextwall(i+1, YAX_FLOOR);
+                if (k >= 0)
+                    yax_setnextwall(i+1, YAX_FLOOR, k+1);
+            }
+        }
+
+        if (m==j)
+            return m;
+        else
+            return m|(j<<16);
+    }
+    else
+#endif
+    {
+        insertpoint(thewall, dax,day);
+        return 1;
+    }
 }
 
 
@@ -6475,84 +6550,35 @@ point_not_inserted:
                     }
                     else
                     {
-#ifdef YAX_ENABLE
-                        int32_t nextw = wall[linehighlight].nextwall;
-                        int32_t tmpcf;
+                        int32_t insdpoints = M32_InsertPoint(linehighlight, dax, day, onewnumwalls);
 
-                        if (yax_islockedwall(linehighlight) || (nextw>=0 && yax_islockedwall(nextw)))
+                        if (insdpoints == 0)
                         {
-                            // yax'ed wall -- first find out which walls are affected
-                            for (i=0; i<numwalls; i++)
-                                wall[i].cstat &= ~(1<<14);
-
-                            // round 1
-                            for (YAX_ITER_WALLS(linehighlight, i, tmpcf))
-                                wall[i].cstat |= (1<<14);
-                            if (nextw >= 0)
-                                for (YAX_ITER_WALLS(nextw, i, tmpcf))
-                                    wall[i].cstat |= (1<<14);
-                            // round 2 (enough?)
-                            for (YAX_ITER_WALLS(linehighlight, i, tmpcf))
-                                if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
-                                    wall[wall[i].nextwall].cstat |= (1<<14);
-                            if (nextw >= 0)
-                                for (YAX_ITER_WALLS(nextw, i, tmpcf))
-                                    if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
-                                        wall[wall[i].nextwall].cstat |= (1<<14);
-
-                            j = 0;
-                            for (i=0; i<numwalls; i++)
-                                j += !!(wall[i].cstat&(1<<14));
-                            if (max(numwalls,onewnumwalls)+j > MAXWALLS)
-                            {
-                                printmessage16("Inserting points would exceed wall limit.");
-                                goto end_insert_points;
-                            }
-                            m = 0;
-                            for (i=0; i<numwalls; i++)
-                            {
-                                if (wall[i].cstat&(1<<14))
-                                    if (wall[i].nextwall<0 || i<wall[i].nextwall) // || !(NEXTWALL(i).cstat&(1<<14)) ??
-                                    {
-                                        m += insertpoint(i, dax,day);
-                                    }
-                            }
-
-                            for (i=0; i<numwalls; i++)
-                            {
-                                if (wall[i].cstat&(1<<14))
-                                {
-                                    wall[i].cstat &= ~(1<<14);
-                                    k = yax_getnextwall(i+1, YAX_CEILING);
-                                    if (k >= 0)
-                                        yax_setnextwall(i+1, YAX_CEILING, k+1);
-                                    k = yax_getnextwall(i+1, YAX_FLOOR);
-                                    if (k >= 0)
-                                        yax_setnextwall(i+1, YAX_FLOOR, k+1);
-                                }
-                            }
-
-                            mkonwinvalid();
-                            if (m==j)
-                                message("Inserted %d points for constrained wall.", m);
-                            else
-                                message("Inserted %d points for constrained wall (expected %d, WTF?).", m, j);
+                            printmessage16("Inserting points would exceed wall limit.");
+                            goto end_insert_points;
                         }
-                        else
-#endif
+                        else if (insdpoints == 1)
                         {
-                            insertpoint(linehighlight, dax,day);
-                            mkonwinvalid();
                             printmessage16("Point inserted.");
                         }
+                        else if (insdpoints > 1 && insdpoints < 65536)
+                        {
+                            message("Inserted %d points for constrained wall.", insdpoints);
+                        }
+                        else  // insdpoints >= 65536
+                        {
+                            message("Inserted %d points for constrained wall (expected %d, WTF?).",
+                                    insdpoints&65535, insdpoints>>16);
+                        }
+
 #ifdef YAX_ENABLE
                         yax_updategrays(pos.z);
 #endif
+                        mkonwinvalid();
                     }
                 }
-#ifdef YAX_ENABLE
+
 end_insert_points:
-#endif
                 backup_drawn_walls(1);
 
                 asksave = 1;
