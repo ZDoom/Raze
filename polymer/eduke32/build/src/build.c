@@ -2767,7 +2767,7 @@ void overheadeditor(void)
             // if we're in the process of drawing a wall, set the end point's coordinates
             dax = mousxplc;
             day = mousyplc;
-            adjustmark(&dax,&day,newnumwalls);
+            adjustmark(&dax,&day,numwalls+!ovh.split);
             wall[newnumwalls].x = dax;
             wall[newnumwalls].y = day;
         }
@@ -5177,6 +5177,12 @@ end_point_dragging:
                         {
                             if (!bakframe_fillandfade(&origframe, i, "Use this as second joining sector? (Y/N)"))
                                 continue;
+
+                            if (origframe)
+                            {
+                                Bfree(origframe);
+                                origframe = NULL;
+                            }
                         }
 
                         s1to0wall = find_nextwall(i, joinsector[0]);
@@ -5490,11 +5496,9 @@ end_point_dragging:
                 }
 
                 joinsector[0] = -1;
-end_join_sectors:
-                if (origframe)
-                    Bfree(origframe);
             }
         }
+end_join_sectors:
 
 // PK
         for (i=0x02; i<=0x0b; i++)  // keys '1' to '0' on the upper row
@@ -7458,7 +7462,7 @@ static int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls)
 
     pointlockdist = 0;
     if (grid > 0 && gridlock)
-        pointlockdist = (128>>grid);
+        pointlockdist = (256>>grid);
 
     dist = pointlockdist;
     dax = *xplc;
