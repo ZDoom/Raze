@@ -11640,7 +11640,6 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                     ynextwallok = 0;
                                 }
 
-                                if (!ynextwallok)
                                 {
                                     int16_t bunchnum = yax_getbunch(i, cf);
                                     int32_t onumct = numcorruptthings;
@@ -11648,16 +11647,18 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                     if (bunchnum < 0 || bunchnum >= numyaxbunches)
                                     {
                                         CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d has %s=%d, "
-                                                         "but its bunchnum(%d)=%d is invalid\n",
-                                                         j, YUPDOWNWALL[cf], ynw, cf, bunchnum);
+                                                         "but its %s bunchnum=%d is invalid\n",
+                                                         j, YUPDOWNWALL[cf], ynw,
+                                                         cf==YAX_CEILING? "ceiling":"floor", bunchnum);
                                     }
-                                    else if (onumct < MAXCORRUPTTHINGS)
+                                    else if (!ynextwallok && onumct < MAXCORRUPTTHINGS)
                                     {
                                         if ((tryfixing & (1ull<<onumct)) || 4>=printfromlev)
                                             correct_yax_nextwall(j, bunchnum, cf, tryfixing!=0ull);
                                     }
                                 }
-                                else
+
+                                if (ynextwallok)
                                 {
                                     int32_t onumct = numcorruptthings;
 
