@@ -2154,7 +2154,7 @@ static inline void G_MoveClouds(void)
 {
     int32_t i;
 
-    if (totalclock <= cloudtotalclock || totalclock >= (cloudtotalclock-7))
+    if (totalclock <= cloudtotalclock && totalclock >= (cloudtotalclock-7))
         return;
 
     cloudtotalclock = totalclock+6;
