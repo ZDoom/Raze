@@ -1122,6 +1122,13 @@ void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt
 #endif
 }
 
+
+// TODO: make configurable
+static int32_t tile_is_sky(int32_t tilenum)
+{
+    return (tilenum >= 78 /*CLOUDYOCEAN*/ && tilenum <= 99 /*REDSKY2*/);
+}
+
 static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
     coltype *pic, *wpptr;
@@ -1230,7 +1237,8 @@ static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthty
 
     if (!(dameth&4))
     {
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,!tile_is_sky(dapic) ? GL_REPEAT:
+                         (glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP));
         bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
     }
     else
@@ -1871,7 +1879,8 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
 
     if (!(dameth&4))
     {
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, !tile_is_sky(dapic) ? GL_REPEAT:
+                         (glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP));
         bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
     }
     else
