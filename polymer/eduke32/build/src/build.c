@@ -136,9 +136,15 @@ static uint8_t visited[MAXWALLS>>3];  // used for AlignWalls and trace_loop
 typedef struct
 {
     int16_t numsectors, numwalls, numsprites;
+#ifdef YAX_ENABLE
+    int16_t numyaxbunches;
+    int16_t *bunchnum;  // [numsectors][2]
+    int16_t *ynextwall;  // [numwalls][2]
+#endif
     sectortype *sector;
     walltype *wall;
     spritetype *sprite;
+
 } mapinfofull_t;
 
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo);
@@ -1432,6 +1438,17 @@ void drawsmallabel(const char *text, char col, char backcol, int32_t dax, int32_
     }
 }
 
+static void free_n_ptrs(void **ptrptr, int32_t n)
+{
+    int32_t i;
+
+    for (i=0; i<n; i++)
+    {
+        Bfree(ptrptr[i]);
+        ptrptr[i] = NULL;
+    }
+}
+
 // backup highlighted sectors with sprites as mapinfo for later restoration
 // return values:
 //  -1: highlightsectorcnt<=0
@@ -1440,11 +1457,22 @@ void drawsmallabel(const char *text, char col, char backcol, int32_t dax, int32_
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 {
     int32_t i, j, k, m, tmpnumwalls=0, tmpnumsprites=0;
-    int16_t *otonsect = (int16_t *)tempxyar;
-    int16_t *otonwall = (int16_t *)(tempxyar+MAXWALLS);
+    int16_t *const otonsect = (int16_t *)tempxyar;
+    int16_t *const otonwall = ((int16_t *)tempxyar) + MAXWALLS;
+#ifdef YAX_ENABLE
+    int16_t otonbunch[YAX_MAXBUNCHES];
+    int16_t numsectsofbunch[YAX_MAXBUNCHES];  // ceilings + floors
+#endif
+    int32_t np = 0;
+    void *ptrs[5];
 
     if (highlightsectorcnt <= 0)
         return -1;
+
+#ifdef YAX_ENABLE
+    for (i=0; i<numyaxbunches; i++)
+        numsectsofbunch[i] = 0;
+#endif
 
     // set up old-->new mappings
     j = 0;
@@ -1455,6 +1483,14 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 
         if (hlsectorbitmap[i>>3]&(1<<(i&7)))
         {
+#ifdef YAX_ENABLE
+            int16_t bn[2], cf;
+
+            yax_getbunches(i, &bn[0], &bn[1]);
+            for (cf=0; cf<2; cf++)
+                if (bn[cf] >= 0)
+                    numsectsofbunch[bn[cf]]++;
+#endif
             otonsect[i] = j++;
 
             for (WALLS_OF_SECTOR(i, m))
@@ -1468,6 +1504,19 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
                 otonwall[m] = -1;
         }
     }
+
+#ifdef YAX_ENABLE
+    j = 0;
+    for (i=0; i<numyaxbunches; i++)
+    {
+        // only back up complete bunches
+        if (numsectsofbunch[i] == yax_numsectsinbunch(i, 0)+yax_numsectsinbunch(i, 1))
+            otonbunch[i] = j++;
+        else
+            otonbunch[i] = -1;
+    }
+    mapinfo->numyaxbunches = j;
+#endif
 
     // count walls & sprites
     for (i=0; i<highlightsectorcnt; i++)
@@ -1483,21 +1532,31 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
     }
 
     // allocate temp storage
-    mapinfo->sector = Bmalloc(highlightsectorcnt * sizeof(sectortype));
+    ptrs[np++] = mapinfo->sector = Bmalloc(highlightsectorcnt * sizeof(sectortype));
     if (!mapinfo->sector) return -2;
 
-    mapinfo->wall = Bmalloc(tmpnumwalls * sizeof(walltype));
-    if (!mapinfo->wall) { Bfree(mapinfo->sector); return -2; }
+    ptrs[np++] = mapinfo->wall = Bmalloc(tmpnumwalls * sizeof(walltype));
+    if (!mapinfo->wall) { free_n_ptrs(ptrs, np-1); return -2; }
+
+#ifdef YAX_ENABLE
+    if (mapinfo->numyaxbunches > 0)
+    {
+        ptrs[np++] = mapinfo->bunchnum = Bmalloc(highlightsectorcnt*2*sizeof(int16_t));
+        if (!mapinfo->bunchnum) { free_n_ptrs(ptrs, np-1); return -2; }
+
+        ptrs[np++] = mapinfo->ynextwall = Bmalloc(tmpnumwalls*2*sizeof(int16_t));
+        if (!mapinfo->ynextwall) { free_n_ptrs(ptrs, np-1); return -2; }
+    }
+    else
+    {
+        mapinfo->bunchnum = mapinfo->ynextwall = NULL;
+    }
+#endif
 
     if (tmpnumsprites>0)
     {
-        mapinfo->sprite = Bmalloc(tmpnumsprites * sizeof(spritetype));
-        if (!mapinfo->sprite)
-        {
-            Bfree(mapinfo->sector);
-            Bfree(mapinfo->wall);
-            return -2;
-        }
+        ptrs[np++] = mapinfo->sprite = Bmalloc(tmpnumsprites * sizeof(spritetype));
+        if (!mapinfo->sprite) { free_n_ptrs(ptrs, np-1); return -2; }
     }
     else
     {
@@ -1515,11 +1574,35 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
         Bmemcpy(&mapinfo->sector[i], &sector[k], sizeof(sectortype));
         mapinfo->sector[i].wallptr = tmpnumwalls;
 
+#ifdef YAX_ENABLE
+        if (mapinfo->numyaxbunches > 0)
+        {
+            int16_t bn[2];
+
+            yax_getbunches(k, &bn[0], &bn[1]);
+            for (j=0; j<2; j++)
+                mapinfo->bunchnum[2*i + j] = (bn[j]>=0) ? otonbunch[bn[j]] : -1;
+        }
+#endif
+
         for (j=0; j<sector[k].wallnum; j++)
         {
-            Bmemcpy(&mapinfo->wall[tmpnumwalls+j], &wall[sector[k].wallptr+j], sizeof(walltype));
-            mapinfo->wall[tmpnumwalls+j].point2 += (tmpnumwalls-sector[k].wallptr);
+            m = sector[k].wallptr;
+            Bmemcpy(&mapinfo->wall[tmpnumwalls+j], &wall[m+j], sizeof(walltype));
+            mapinfo->wall[tmpnumwalls+j].point2 += (tmpnumwalls-m);
 
+#ifdef YAX_ENABLE
+            if (mapinfo->numyaxbunches > 0)
+            {
+                int32_t ynw, cf;
+
+                for (cf=0; cf<2; cf++)
+                {
+                    ynw = yax_getnextwall(m+j, cf);
+                    mapinfo->ynextwall[2*(tmpnumwalls+j) + cf] = (ynw >= 0) ? otonwall[ynw] : -1;
+                }
+            }
+#endif
             m = mapinfo->wall[tmpnumwalls+j].nextsector;
             if (m < 0 || otonsect[m] < 0)
             {
@@ -1556,6 +1639,13 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 static void mapinfofull_free(mapinfofull_t *mapinfo)
 {
     Bfree(mapinfo->sector);
+#ifdef YAX_ENABLE
+    if (mapinfo->numyaxbunches > 0)
+    {
+        Bfree(mapinfo->bunchnum);
+        Bfree(mapinfo->ynextwall);
+    }
+#endif
     Bfree(mapinfo->wall);
     if (mapinfo->numsprites>0)
         Bfree(mapinfo->sprite);
@@ -1572,6 +1662,9 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
 
     updatenumsprites();
     if (numsectors+mapinfo->numsectors>MAXSECTORS || numwalls+mapinfo->numwalls>MAXWALLS
+#ifdef YAX_ENABLE
+            || numyaxbunches+mapinfo->numyaxbunches > YAX_MAXBUNCHES
+#endif
             || numsprites+mapinfo->numsprites>MAXSPRITES)
     {
         mapinfofull_free(mapinfo);
@@ -1586,8 +1679,6 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
     Bmemcpy(&wall[numwalls], mapinfo->wall, mapinfo->numwalls*sizeof(walltype));
 
     // tweak index members
-    for (i=numsectors; i<newnumsectors; i++)
-        sector[i].wallptr += numwalls;
     for (i=numwalls; i<newnumwalls; i++)
     {
         wall[i].point2 += numwalls;
@@ -1597,17 +1688,37 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
             wall[i].nextsector += numsectors;
             wall[i].nextwall += numwalls;
         }
+#ifdef YAX_ENABLE
+        for (j=0; j<2; j++)
+        {
+            if (mapinfo->numyaxbunches > 0)
+                yax_setnextwall(i, j, mapinfo->ynextwall[2*(i-numwalls) + j]>=0 ?
+                                numwalls+mapinfo->ynextwall[2*(i-numwalls) + j] : -1);
+            else
+                yax_setnextwall(i, j, -1);
+        }
+#endif
     }
+    for (i=numsectors; i<newnumsectors; i++)
+        sector[i].wallptr += numwalls;
 
     // highlight copied sectors
+
     numsectors = newnumsectors;
 
     Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
     for (i=onumsectors; i<newnumsectors; i++)
     {
         hlsectorbitmap[i>>3] |= (1<<(i&7));
+
 #ifdef YAX_ENABLE
-        yax_setbunches(i, -1, -1);
+        for (j=0; j<2; j++)
+            if (mapinfo->numyaxbunches > 0)
+                yax_setbunch(i, j, mapinfo->bunchnum[2*(i-onumsectors)+j] >= 0 ?
+                             numyaxbunches + mapinfo->bunchnum[2*(i-onumsectors)+j] : -2);
+            else
+                yax_setbunch(i, j, -2);
+        // -2 clears forward yax-nextwall links
 #endif
     }
 
@@ -1620,12 +1731,19 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
         sprite[j].sectnum = sect;
     }
 
+    mapinfofull_free(mapinfo);
+
     numwalls = newnumwalls;
     updatenumsprites();
 
     update_highlightsector();
 
-    mapinfofull_free(mapinfo);
+#ifdef YAX_ENABLE
+    if (mapinfo->numyaxbunches > 0)
+        yax_update(0);
+#endif
+    yax_updategrays(pos.z);
+
     return 0;
 }
 

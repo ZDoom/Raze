@@ -308,6 +308,9 @@ void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
     *fb = yax_getbunch(i, YAX_FLOOR);
 }
 
+// bunchnum: -1: also clear yax-nextwalls (forward and reverse)
+//           -2: don't clear reverse yax-nextwalls
+//           -3: don't clear either forward or reverse yax-nextwalls
 void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
 {
     if (editstatus==0)
@@ -316,19 +319,23 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
         return;
     }
 
-    if (bunchnum<0)
+    if (bunchnum < 0)
     {
         int32_t j;
         int16_t ynw;
 
-        // TODO: for in-game too?
-        for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+        if (bunchnum > -3)
         {
-            ynw = yax_getnextwall(j, cf);
-            if (ynw >= 0)
+            // TODO: for in-game too?
+            for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
             {
-                yax_setnextwall(ynw, !cf, -1);
-                yax_setnextwall(j, cf, -1);
+                ynw = yax_getnextwall(j, cf);
+                if (ynw >= 0)
+                {
+                    if (bunchnum > -2)
+                        yax_setnextwall(ynw, !cf, -1);
+                    yax_setnextwall(j, cf, -1);
+                }
             }
         }
 
