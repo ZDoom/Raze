@@ -1446,6 +1446,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
     if (highlightsectorcnt <= 0)
         return -1;
 
+    // set up old-->new mappings
     j = 0;
     k = 0;
     for (i=0; i<numsectors; i++)
@@ -1484,8 +1485,10 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
     // allocate temp storage
     mapinfo->sector = Bmalloc(highlightsectorcnt * sizeof(sectortype));
     if (!mapinfo->sector) return -2;
+
     mapinfo->wall = Bmalloc(tmpnumwalls * sizeof(walltype));
     if (!mapinfo->wall) { Bfree(mapinfo->sector); return -2; }
+
     if (tmpnumsprites>0)
     {
         mapinfo->sprite = Bmalloc(tmpnumsprites * sizeof(spritetype));
@@ -1495,6 +1498,11 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
             Bfree(mapinfo->wall);
             return -2;
         }
+    }
+    else
+    {
+        // would never be accessed because mapinfo->numsprites is 0, but cleaner
+        mapinfo->sprite = NULL;
     }
 
 
@@ -1596,7 +1604,12 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
 
     Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
     for (i=onumsectors; i<newnumsectors; i++)
+    {
         hlsectorbitmap[i>>3] |= (1<<(i&7));
+#ifdef YAX_ENABLE
+        yax_setbunches(i, -1, -1);
+#endif
+    }
 
     // insert sprites
     for (i=0; i<mapinfo->numsprites; i++)
