@@ -3273,7 +3273,7 @@ void overheadeditor(void)
                 printext16(8,8, editorcolors[13],editorcolors[0],cbuf,0);
             }
 
-            if (keystatus[0x36] || keystatus[0xb8] || keystatus[0x9d])  // RSHIFT || RALT || RCTRL
+            if (highlightsectorcnt==0 || highlightcnt==0)
             {
                 if (keystatus[0x27] || keystatus[0x28])  // ' and ;
                 {
@@ -3284,13 +3284,17 @@ void overheadeditor(void)
                         drawline16base(searchx+16, searchy-16, 0,-4, 0,+4, col);
                 }
 
-                if (keystatus[0x36])
+                if (highlightsectorcnt == 0)
+                    if (keystatus[0x36])
+                        printext16(searchx+6, searchy-2+8,editorcolors[12],-1,"ALL",0);
+
+                if (highlightcnt == 0)
                 {
-                    if (eitherCTRL)
-                        printext16(searchx+6,searchy-6-8,editorcolors[12],-1,"S",0);
+                    if (eitherCTRL && (highlightx1!=highlightx2 || highlighty1!=highlighty2))
+                        printext16(searchx+6,searchy-6-8,editorcolors[12],-1,"SPR ONLY",0);
 #ifdef YAX_ENABLE
-                    if (keystatus[0xcf])
-                        printext16(searchx+6,searchy-6+8,editorcolors[12],-1,"A",0);
+                    if (keystatus[0xcf])  // End
+                        printext16(searchx+6,searchy-2+8,editorcolors[12],-1,"ALL",0);
 #endif
                 }
             }
@@ -4781,7 +4785,7 @@ end_autoredwall:
                             }
                             else
 #endif
-                                handlesecthighlight1(i, sub, 0);
+                                handlesecthighlight1(i, sub, eitherSHIFT);
                         }
                     }
 
