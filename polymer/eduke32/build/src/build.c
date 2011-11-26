@@ -123,7 +123,7 @@ static int32_t currentlist=0;
 //static int32_t repeatcountx, repeatcounty;
 
 static int32_t fillist[640];
-// used for fillsector and batch point insertion
+// used for fillsector, batch point insertion, backup_highlighted_map
 static int32_t tempxyar[MAXWALLS][2];
 
 static int32_t mousx, mousy;
@@ -1440,9 +1440,33 @@ void drawsmallabel(const char *text, char col, char backcol, int32_t dax, int32_
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 {
     int32_t i, j, k, m, tmpnumwalls=0, tmpnumsprites=0;
+    int16_t *otonsect = (int16_t *)tempxyar;
+    int16_t *otonwall = (int16_t *)(tempxyar+MAXWALLS);
 
     if (highlightsectorcnt <= 0)
         return -1;
+
+    j = 0;
+    k = 0;
+    for (i=0; i<numsectors; i++)
+    {
+        int32_t startwall, endwall;
+
+        if (hlsectorbitmap[i>>3]&(1<<(i&7)))
+        {
+            otonsect[i] = j++;
+
+            for (WALLS_OF_SECTOR(i, m))
+                otonwall[m] = k++;
+        }
+        else
+        {
+            otonsect[i] = -1;
+
+            for (WALLS_OF_SECTOR(i, m))
+                otonwall[m] = -1;
+        }
+    }
 
     // count walls & sprites
     for (i=0; i<highlightsectorcnt; i++)
@@ -1487,8 +1511,19 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
         {
             Bmemcpy(&mapinfo->wall[tmpnumwalls+j], &wall[sector[k].wallptr+j], sizeof(walltype));
             mapinfo->wall[tmpnumwalls+j].point2 += (tmpnumwalls-sector[k].wallptr);
-            mapinfo->wall[tmpnumwalls+j].nextsector = -1;
-            mapinfo->wall[tmpnumwalls+j].nextwall = -1;
+
+            m = mapinfo->wall[tmpnumwalls+j].nextsector;
+            if (m < 0 || otonsect[m] < 0)
+            {
+                mapinfo->wall[tmpnumwalls+j].nextsector = -1;
+                mapinfo->wall[tmpnumwalls+j].nextwall = -1;
+            }
+            else
+            {
+                mapinfo->wall[tmpnumwalls+j].nextsector = otonsect[m];
+                m = mapinfo->wall[tmpnumwalls+j].nextwall;
+                mapinfo->wall[tmpnumwalls+j].nextwall = otonwall[m];
+            }
         }
         tmpnumwalls += j;
 
@@ -1496,7 +1531,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
         while (m != -1)
         {
             Bmemcpy(&mapinfo->sprite[tmpnumsprites], &sprite[m], sizeof(spritetype));
-            mapinfo->sprite[tmpnumsprites].sectnum = i;
+            mapinfo->sprite[tmpnumsprites].sectnum = otonsect[highlightsector[i]];
             m = nextspritesect[m];
             tmpnumsprites++;
         }
@@ -1548,22 +1583,20 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
     for (i=numwalls; i<newnumwalls; i++)
     {
         wall[i].point2 += numwalls;
-        wall[i].x += BXY_MAX*2;
+
+        if (wall[i].nextsector >= 0)
+        {
+            wall[i].nextsector += numsectors;
+            wall[i].nextwall += numwalls;
+        }
     }
 
-    // reconstruct wall connections
-    numsectors=newnumsectors;  // needed now for checksectorpointer
-//    checksectorpointer_warn = 0;
+    // highlight copied sectors
+    numsectors = newnumsectors;
+
     Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
     for (i=onumsectors; i<newnumsectors; i++)
-    {
-        for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
-            checksectorpointer(j, i);
         hlsectorbitmap[i>>3] |= (1<<(i&7));
-    }
-    for (i=numwalls; i<newnumwalls; i++)
-        wall[i].x -= BXY_MAX*2;
-//    checksectorpointer_warn = 1;
 
     // insert sprites
     for (i=0; i<mapinfo->numsprites; i++)
