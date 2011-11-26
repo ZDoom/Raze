@@ -148,7 +148,7 @@ typedef struct
 } mapinfofull_t;
 
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo);
-static int32_t restore_highlighted_map(mapinfofull_t *mapinfo);
+static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal);
 static void SaveBoardAndPrintMessage(const char *fn);
 static const char *GetSaveBoardFilename(void);
 
@@ -212,7 +212,7 @@ static int16_t loopinside(int32_t x, int32_t y, int16_t startwall);
 int32_t fillsector(int16_t sectnum, int32_t fillcolor);  // fillcolor == -1: default (pulsating)
 static int16_t whitelinescan(int16_t sucksect, int16_t dalinehighlight);
 void printcoords16(int32_t posxe, int32_t posye, int16_t ange);
-static void copysector(int16_t soursector, int16_t destsector, int16_t deststartwall, char copystat, const int16_t *oldtonewsect);
+//static void copysector(int16_t soursector, int16_t destsector, int16_t deststartwall, char copystat, const int16_t *oldtonewsect);
 int32_t drawtilescreen(int32_t pictopleft, int32_t picbox);
 void overheadeditor(void);
 static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line);
@@ -1656,7 +1656,8 @@ static void mapinfofull_free(mapinfofull_t *mapinfo)
 // return values:
 //  -1: limits exceeded
 //   0: ok
-static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
+// forreal: if 0, only test if we have enough space (same return values)
+static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal)
 {
     int32_t i, j, sect, onumsectors=numsectors, newnumsectors, newnumwalls;
 
@@ -1670,6 +1671,9 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo)
         mapinfofull_free(mapinfo);
         return -1;
     }
+
+    if (!forreal)
+        return 0;
 
     newnumsectors = numsectors + mapinfo->numsectors;
     newnumwalls = numwalls + mapinfo->numwalls;
@@ -1806,6 +1810,102 @@ void ovh_whiteoutgrab(int32_t restoreredwalls)
 
 static void duplicate_selected_sectors(void)
 {
+    mapinfofull_t mapinfo;
+    int32_t i, j, onumsectors;
+#ifdef YAX_ENABLE
+    int32_t onumyaxbunches;
+#endif
+    int32_t minx=INT32_MAX, maxx=INT32_MIN, miny=INT32_MAX, maxy=INT32_MIN, dx, dy;
+
+    i = backup_highlighted_map(&mapinfo);
+
+    if (i < 0)
+    {
+        message("Out of memory!");
+        return;
+    }
+
+    i = restore_highlighted_map(&mapinfo, 0);
+    if (i < 0)
+    {
+        // XXX: no, might be another limit too.  Better message needed.
+        printmessage16("Copying sectors would exceed sector or wall limit.");
+        return;
+    }
+
+    // restoring would succeed, tweak things...
+    Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
+    for (i=0; i<highlightsectorcnt; i++)
+    {
+        int32_t startwall, endwall;
+
+        // first, make red lines of old selected sectors, effectively
+        // restoring the original state
+        for (WALLS_OF_SECTOR(highlightsector[i], j))
+        {
+            if (wall[j].nextwall >= 0)
+                checksectorpointer(wall[j].nextwall,wall[j].nextsector);
+            checksectorpointer(j, highlightsector[i]);
+
+            minx = min(minx, wall[j].x);
+            maxx = max(maxx, wall[j].x);
+            miny = min(miny, wall[j].y);
+            maxy = max(maxy, wall[j].y);
+        }
+    }
+
+    // displace walls & sprites of new sectors by a small amount:
+    // calculate displacement
+    if (grid>0 && grid<9)
+        dx = max(2048>>grid, 128);
+    else
+        dx = 512;
+    dy = -dx;
+    if (maxx+dx >= editorgridextent) dx*=-1;
+    if (minx+dx <= -editorgridextent) dx*=-1;
+    if (maxy+dy >= editorgridextent) dy*=-1;
+    if (miny+dy <= -editorgridextent) dy*=-1;
+
+    onumsectors = numsectors;
+    onumyaxbunches = numyaxbunches;
+
+    // restore! this will not fail.
+    restore_highlighted_map(&mapinfo, 1);
+
+    // displace
+    for (i=onumsectors; i<numsectors; i++)
+    {
+        for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+        {
+            wall[j].x += dx;
+            wall[j].y += dy;
+        }
+
+        for (j=headspritesect[i]; j>=0; j=nextspritesect[j])
+        {
+            sprite[j].x += dx;
+            sprite[j].y += dy;
+        }
+    }
+
+#ifdef YAX_ENABLE
+    if (numyaxbunches > onumyaxbunches)
+        printmessage16("Sectors duplicated, creating %d new bunches.", numyaxbunches-onumyaxbunches);
+    else
+#endif
+        printmessage16("Sectors duplicated and stamped.");
+    asksave = 1;
+
+#ifdef YAX_ENABLE
+    if (numyaxbunches > onumyaxbunches)
+        yax_update(0);
+#endif
+    yax_updategrays(pos.z);
+}
+
+#if 0
+static void duplicate_selected_sectors(void)
+{
     int32_t i, j, startwall, endwall, newnumsectors, newwalls = 0;
     int32_t minx=INT32_MAX, maxx=INT32_MIN, miny=INT32_MAX, maxy=INT32_MIN, dx, dy;
 #ifdef YAX_ENABLE
@@ -1930,6 +2030,7 @@ static void duplicate_selected_sectors(void)
         printmessage16("Copying sectors would exceed sector or wall limit.");
     }
 }
+#endif
 
 static void duplicate_selected_sprites(void)
 {
@@ -7278,7 +7379,7 @@ CANCEL:
 #endif
                         if (bakstat==0)
                         {
-                            bakstat = restore_highlighted_map(&bakmap);
+                            bakstat = restore_highlighted_map(&bakmap, 1);
                             if (bakstat == -1)
                                 message("Can't copy highlighted portion of old map: limits exceeded.");
                         }
@@ -7321,7 +7422,7 @@ CANCEL:
 
                             if (bakstat==0)
                             {
-                                bakstat = restore_highlighted_map(&bakmap);
+                                bakstat = restore_highlighted_map(&bakmap, 1);
                                 if (bakstat == -1)
                                     message("Can't copy highlighted portion of old map: limits exceeded.");
                             }
@@ -9730,6 +9831,7 @@ void updatenumsprites(void)
         numsprites += (sprite[i].statnum != MAXSTATUS);
 }
 
+#if 0
 static void copysector(int16_t soursector, int16_t destsector, int16_t deststartwall, char copystat,
                        const int16_t *oldtonewsect)
 {
@@ -9825,6 +9927,7 @@ nonextsector:
         }
     }
 }
+#endif
 
 #define DOPRINT(Yofs, fmt, ...) \
     Bsprintf(snotbuf, fmt, ## __VA_ARGS__); \
