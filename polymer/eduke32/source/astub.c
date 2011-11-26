@@ -11646,10 +11646,22 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
                                     if (bunchnum < 0 || bunchnum >= numyaxbunches)
                                     {
-                                        CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d has %s=%d, "
-                                                         "but its %s bunchnum=%d is invalid\n",
-                                                         j, YUPDOWNWALL[cf], ynw,
-                                                         cf==YAX_CEILING? "ceiling":"floor", bunchnum);
+                                        if (tryfixing == 0ull)
+                                        {
+                                            CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL %d has %s=%d, "
+                                                             "but its %s bunchnum=%d is invalid",
+                                                             j, YUPDOWNWALL[cf], ynw,
+                                                             cf==YAX_CEILING? "ceiling":"floor", bunchnum);
+                                            OSD_Printf("    will clear wall %d's %s to -1 on tryfix\n",
+                                                       j, yupdownwall[cf]);
+
+                                        }
+                                        else if (tryfixing & (1ull<<onumct))
+                                        {
+                                            yax_setnextwall(j, cf, -1);
+                                            OSD_Printf(CCHK_CORRECTED "auto-correction: cleared wall %d's %s to -1\n",
+                                                       j, yupdownwall[cf]);
+                                        }
                                     }
                                     else if (!ynextwallok && onumct < MAXCORRUPTTHINGS)
                                     {
