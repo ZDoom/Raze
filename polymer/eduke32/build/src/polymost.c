@@ -1123,11 +1123,15 @@ void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt
 }
 
 
+#if 0
 // TODO: make configurable
 static int32_t tile_is_sky(int32_t tilenum)
 {
-    return (tilenum >= 78 /*CLOUDYOCEAN*/ && tilenum <= 99 /*REDSKY2*/);
+    return return (tilenum >= 78 /*CLOUDYOCEAN*/ && tilenum <= 99 /*REDSKY2*/);
 }
+#else
+# define tile_is_sky(x) (0)
+#endif
 
 static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
