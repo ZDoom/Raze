@@ -176,6 +176,10 @@ int32_t loadsetup(const char *fn)
     {
         glusetexcache = clamp(atoi_safe(val), 0, 2);
     }
+    if (readconfig(fp, "glusememcache", val, VL) > 0)
+    {
+        glusememcache = !!atoi_safe(val);
+    }
     if (readconfig(fp, "gltexfiltermode", val, VL) > 0)
     {
         gltexfiltermode = atoi_safe(val);
@@ -385,6 +389,7 @@ int32_t writesetup(const char *fn)
              "; glusetexcache: 0:no, 1:yes, 2:compressed\n"
              "; For best performance, keep this setting in sync with EDuke32\n"
              "glusetexcache = %d\n"
+             "glusememcache = %d\n"
              "gltexfiltermode = %d\n"
              "glanisotropy = %d\n"
              "r_downsize = %d\n"
@@ -561,7 +566,7 @@ int32_t writesetup(const char *fn)
              editorgridextent, clamp(default_grid, 0, 9),
 #ifdef USE_OPENGL
              usemodels, usehightile, g_lazy_tileselector,
-             glusetexcache, gltexfiltermode, glanisotropy,r_downsize,glusetexcompr,
+             glusetexcache, glusememcache, gltexfiltermode, glanisotropy,r_downsize,glusetexcompr,
              shadescale,
 #endif
              r_usenewaspect, r_screenxy,

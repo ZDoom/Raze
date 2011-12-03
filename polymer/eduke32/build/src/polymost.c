@@ -153,8 +153,7 @@ struct glfiltermodes glfiltermodes[numglfiltermodes] =
 int32_t glanisotropy = 1;            // 0 = maximum supported by card
 int32_t glusetexcompr = 1;
 int32_t gltexfiltermode = 2; // GL_NEAREST_MIPMAP_NEAREST
-int32_t glusetexcache = 2;
-static int32_t glusememcache = 1;
+int32_t glusetexcache = 2, glusememcache = 1;
 int32_t glmultisample = 0, glnvmultisamplehint = 0;
 int32_t gltexmaxsize = 0;      // 0 means autodetection on first run
 int32_t gltexmiplevel = 0;		// discards this many mipmap levels
