@@ -134,21 +134,46 @@ ifneq ($(USE_LIBVPX),0)
     GAMEOBJS+= $(OBJ)/animvpx.$o
 endif
 
-# Lunatic devel, currently linux-only
+
+## Lunatic devel
+
+# for LJ headers:
+LUAJIT_WIN_SRC:= g:/mod/LuaJIT-2.0.0-beta8/src
+
 ifneq (0,$(LUNATIC))
-    OURCFLAGS+= -I/usr/local/include/luajit-2.0 -I$(SRC)/lunatic -DLUNATIC_ENABLE
-    LIBS+= -L/usr/local/lib -lluajit-5.1
-    GAMEOBJS+= $(OBJ)/lunatic.$o
-    # strip on OSX says: removing global symbols from a final linked no longer supported.
-    #                    Use -exported_symbols_list at link time when building
-    # But, not doing this does not give us the symbols! wtf?
-    STRIP+= -s $(SRC)/lunatic/dynsymlist_osx
-    ifeq ($(PLATFORM),DARWIN)
-        MISCLINKOPTS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(SRC)/lunatic/aliases_list #-exported_symbols_list $(SRC)/lunatic/dynsymlist_osx
+    ifeq ($(PLATFORM),WINDOWS)
+        OURCFLAGS+= -I$(LUAJIT_WIN_SRC)
     else
+        OURCFLAGS+= -I/usr/local/include/luajit-2.0
+    endif
+    OURCFLAGS+= -I$(SRC)/lunatic -DLUNATIC_ENABLE
+
+    ifeq ($(PLATFORM),WINDOWS)
+        LIBS+= -LWindows/lib -lluajit
+    else
+        LIBS+= -L/usr/local/lib -lluajit-5.1
+    endif
+    GAMEOBJS+= $(OBJ)/lunatic.$o
+
+    # now, take care of having the necessary symbols (sector, wall, etc.) in the
+    # executable no matter what the debugging level
+
+    ifeq ($(PLATFORM),DARWIN)
+        # strip on OSX says: removing global symbols from a final linked no longer supported.
+        #                    Use -exported_symbols_list at link time when building
+        # But, following _their_ directions does not give us the symbols! wtf?
+        STRIP+= -s $(SRC)/lunatic/dynsymlist_osx
+
+        MISCLINKOPTS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(SRC)/lunatic/aliases_list #-exported_symbols_list $(SRC)/lunatic/dynsymlist_osx
+    endif
+    ifeq ($(PLATFORM),WINDOWS)
+        MISCLINKOPTS+= $(SRC)/lunatic/eduke32.def
+    endif
+    ifeq ($(PLATFORM),LINUX)
         MISCLINKOPTS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
     endif
 endif
+
 
 # PLATFORM SPECIFIC SETTINGS
 
@@ -324,6 +349,10 @@ $(SRC)/lunatic/dynsymlist_osx: $(SRC)/lunatic/dynsymlist
 
 $(SRC)/lunatic/aliases_list: $(SRC)/lunatic/dynsymlist_osx
 	sed 's/_\([A-Za-z_][A-Za-z_0-9]*\)/_\1 \1/g' $< > $@
+
+$(SRC)/lunatic/eduke32.def: $(SRC)/lunatic/dynsymlist
+	echo EXPORTS > $@
+	sed 's/[{};]//g' $< >> $@
 
 $(OBJ)/%.$o: Apple/%.m
 	$(COMPILE_STATUS)
