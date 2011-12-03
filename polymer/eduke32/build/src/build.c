@@ -129,7 +129,7 @@ static int32_t tempxyar[MAXWALLS][2];
 static int32_t mousx, mousy;
 int16_t prefixtiles[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 uint8_t hlsectorbitmap[MAXSECTORS>>3];  // show2dsector is already taken...
-static int32_t minhlsectorfloorz = 0;
+static int32_t minhlsectorfloorz, numhlsecwalls;
 
 static uint8_t visited[MAXWALLS>>3];  // used for AlignWalls and trace_loop
 
@@ -1993,6 +1993,7 @@ void update_highlightsector(void)
     int32_t i;
 
     minhlsectorfloorz = INT32_MAX;
+    numhlsecwalls = 0;
 
     highlightsectorcnt = 0;
     for (i=0; i<numsectors; i++)
@@ -2000,6 +2001,7 @@ void update_highlightsector(void)
         {
             highlightsector[highlightsectorcnt++] = i;
             minhlsectorfloorz = min(minhlsectorfloorz, sector[i].floorz);
+            numhlsecwalls += sector[i].wallnum;
         }
 
     if (highlightsectorcnt==0)
@@ -9670,7 +9672,7 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
             Bsprintf(snotbuf, "%d sprites, %d walls selected", m, highlightcnt-m);
         }
         else if (highlightsectorcnt>0)
-            Bsprintf(snotbuf, "%d sectors selected", highlightsectorcnt);
+            Bsprintf(snotbuf, "%d sectors with a total of %d walls selected", highlightsectorcnt, numhlsecwalls);
         else
             snotbuf[0] = 0;
 
