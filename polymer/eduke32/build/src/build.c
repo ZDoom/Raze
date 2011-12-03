@@ -3781,7 +3781,8 @@ void overheadeditor(void)
 
                     if (SECTORFLD(highlightsector[i],z, cf) != thez)
                     {
-                        message("All sectors must have the same %s height", cfs[cf]);
+                        message("Sector %d's %s height doesn't match sector %d's\n",
+                                highlightsector[i], cfs[cf], highlightsector[0]);
                         goto end_yax;
                     }
 
