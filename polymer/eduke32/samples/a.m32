@@ -486,7 +486,8 @@ onevent EVENT_ENTER3DMODE
 endevent
 
 ////// sector collecting stuff
-gamearray collectedsectors MAXSECTORS
+gamevar ohlsecs 0 0
+gamearray collectedsectors MAXSECTORS  // shared with 'old-highlighted sectors'
 
 defstate try_nextsector
     var nexts
@@ -503,6 +504,26 @@ defstate try_nextsector
     }
 ends
 
+// save or restore highlighted sectors
+defstate save_restore_hlsectors
+    "Save/restore hl. sectors"
+
+    ifge highlightsectorcnt 0
+    {
+        // save
+        for i range highlightsectorcnt
+            set collectedsectors[i] highlightsector[i]
+        set ohlsecs highlightsectorcnt
+        quote "Highlighted sectors saved"
+    }
+    else ifl highlightcnt 0
+    {
+        for i range ohlsecs
+            sethighlightsector collectedsectors[i] 1
+        quote "Highlighted sectors restored"
+    }
+ends
+
 defstate collect_teleporting_sectors // (sec)
     "Collect telep. sectors"
     var numsects
@@ -513,6 +534,8 @@ defstate collect_teleporting_sectors // (sec)
         getnumberfromuser sec "starting sectnum: " numsects 8
         ifl sec 0, return
     }
+
+    set ohlsecs 0  // reset old hl'd sectors
 
     collectsectors collectedsectors sec numsects try_nextsector
     for i range numsects
