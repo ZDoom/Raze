@@ -1664,9 +1664,18 @@ static int32_t C_GetNextValue(int32_t type)
                 initprintf("%s:%d: debug: accepted %s label `%s'.\n",g_szScriptFileName,g_lineNumber,gl,label+(i<<6));
                 Bfree(gl);
             }
+#if 0
             if (labeltype[i] != LABEL_DEFINE && labelcode[i] >= (intptr_t)&script[0] && labelcode[i] < (intptr_t)&script[g_scriptSize])
                 bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
-            else bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+            else
+                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+#else
+            if ((labeltype[i]&LABEL_DEFINE)==0)
+                bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
+            else  // the 'define' label type is the only one that doesn't reference the script
+                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+#endif
+
             *(g_scriptPtr++) = labelcode[i];
             textptr += l;
             return labeltype[i];
@@ -1956,9 +1965,14 @@ static int32_t C_ParseCommand(int32_t loop)
                     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
                         initprintf("%s:%d: debug: accepted state label `%s'.\n",g_szScriptFileName,g_lineNumber,label+(j<<6));
                     *g_scriptPtr = labelcode[j];
+#if 0
                     if (labelcode[j] >= (intptr_t)&script[0] && labelcode[j] < (intptr_t)&script[g_scriptSize])
                         bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
                     else bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+#else
+                    // 'state' type labels are always script addresses, as far as I can see
+                    bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
+#endif
                     g_scriptPtr++;
                     continue;
                 }
