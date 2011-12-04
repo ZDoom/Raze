@@ -2,6 +2,7 @@
 sector;
 wall;
 sprite;
+spriteext;
 
 numsectors;
 numwalls;

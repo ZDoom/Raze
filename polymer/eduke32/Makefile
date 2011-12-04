@@ -134,6 +134,8 @@ ifneq ($(USE_LIBVPX),0)
     GAMEOBJS+= $(OBJ)/animvpx.$o
 endif
 
+MISCGAMEDEPS=
+
 
 ## Lunatic devel
 
@@ -164,9 +166,11 @@ ifneq (0,$(LUNATIC))
         # But, following _their_ directions does not give us the symbols! wtf?
         STRIP+= -s $(SRC)/lunatic/dynsymlist_osx
 
+        MISCGAMEDEPS+= $(SRC)/lunatic/dynsymlist_osx
         MISCLINKOPTS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(SRC)/lunatic/aliases_list #-exported_symbols_list $(SRC)/lunatic/dynsymlist_osx
     endif
     ifeq ($(PLATFORM),WINDOWS)
+        MISCGAMEDEPS+= $(SRC)/lunatic/eduke32.def
         MISCLINKOPTS+= $(SRC)/lunatic/eduke32.def
     endif
     ifeq ($(PLATFORM),LINUX)
@@ -272,7 +276,7 @@ all:
 notice:
 	$(BUILD_STARTED)
 
-eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB)
+eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB) $(MISCGAMEDEPS)
 	$(LINK_STATUS)
 	if $(CC) $(CFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STDCPPLIB) $(MISCLINKOPTS); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
@@ -298,7 +302,7 @@ enginelib editorlib:
 ifeq ($(PRETTY_OUTPUT),1)	
 	printf "\033[K\033[0;35mChanging dir to \033[1;35m$(CURDIR)/$(EROOT)\033[0;35m \033[0m\n"
 endif
-	$(MAKE) -C $(EROOT)/ "OBJ=../$(EOBJ)" $@
+	$(MAKE) -C $(EROOT)/ "OBJ=../$(EOBJ)" $@ LUNATIC=$(LUNATIC)
 #\
 		DEBUGANYWAY=$(DEBUGANYWAY) KRANDDEBUG=$(KRANDDEBUG)\
 		USE_OPENGL=$(USE_OPENGL) BUILD32_ON_64=$(BUILD32_ON_64) PROFILER=$(PROFILER)\

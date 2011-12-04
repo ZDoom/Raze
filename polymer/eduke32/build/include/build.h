@@ -240,6 +240,11 @@ typedef struct {
     uint8_t filler;
     float alpha;
     spritetype *tspr;
+#if defined LUNATIC_ENABLE && UINTPTR_MAX == 0xffffffff
+    /* On a 32-bit build, pad the struct so it has the same size everywhere.
+     * REMINDER: Will break savegames. */
+    void *dummy_;
+#endif
 } spriteext_t;
 
 typedef struct {

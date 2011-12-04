@@ -21,7 +21,12 @@ for i = 0, gv.numsectors/2 do
 end
 
 checkfail('gv.sprite[0].yrepeat = 100')  -- direct gv array access forbidden
-print('tweaking some sprites')
+print('tweaking some sprites 2')
+i = 562
+spriteext[i].alpha = 0.5;
+sprite[i].cstat = bit.bor(sprite[i].cstat, 2+512);
+spriteext[i].pitch = 128;
+spriteext[i].roll = 256;
 for spr in spritesofsect(307) do  -- some fence sprites in E1L1
     print('spr', spr)
     sprite[spr].pal = 6

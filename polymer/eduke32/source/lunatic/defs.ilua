@@ -3,7 +3,7 @@
 
 local ffi = require("ffi")
 
----- sector, wall, sprite ----
+---- sector, wall, sprite, ... ----
 ffi.cdef[[
 #pragma pack(push,1)
 typedef struct
@@ -39,10 +39,23 @@ typedef struct
     uint8_t pal, clipdist, filler;
     uint8_t xrepeat, yrepeat;
     int8_t xoffset, yoffset;
-    int16_t sectnum, statnum;
+    const int16_t sectnum, statnum;
     int16_t ang, owner, xvel, yvel, zvel;
     int16_t lotag, hitag, extra;
 } spritetype;
+
+typedef struct {
+    const uint32_t mdanimtims;
+    const int16_t mdanimcur;
+    int16_t angoff, pitch, roll;
+    int32_t xoff, yoff, zoff;
+    uint8_t flags;
+    uint8_t xpanning, ypanning;
+    const uint8_t filler;
+    float alpha;
+    const int32_t _do_not_use1;
+    const int32_t _do_not_use2;
+} spriteext_t;
 #pragma pack(pop)
 ]]
 
@@ -50,6 +63,7 @@ ffi.cdef[[
 sectortype *sector;
 walltype *wall;
 spritetype *sprite;
+spriteext_t *spriteext;
 
 const int16_t numsectors, numwalls;
 
@@ -128,6 +142,7 @@ gv = {
     sector = det,
     wall = det,
     sprite = det,
+    spriteext = det,
 
     headspritesect = det, headspritestat = det,
     prevspritesect = det, prevspritestat = det,
@@ -185,6 +200,7 @@ local function creategtab(ctab, maxidx, name)
 end
 
 sprite = creategtab(ffiC.sprite, 16384, 'sprite[] struct')
+spriteext = creategtab(ffiC.spriteext, 16384, 'spriteext[] struct')
 headspritesect = creategtab(ffiC.headspritesect, 16384, 'headspritesect[]')
 headspritestat = creategtab(ffiC.headspritestat, 1024, 'headspritestat[]')
 nextspritesect = creategtab(ffiC.nextspritesect, 16384, 'nextspritesect[]')
@@ -232,6 +248,7 @@ G_.gv = gv
 G_.sector = sector
 G_.wall = wall
 G_.sprite = sprite
+G_.spriteext = spriteext
 G_.headspritesect = headspritesect
 G_.headspritestat = headspritestat
 G_.nextspritesect = nextspritesect

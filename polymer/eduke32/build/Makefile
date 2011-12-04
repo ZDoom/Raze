@@ -50,6 +50,10 @@ OURCFLAGS=$(BASECFLAGS) -Wno-char-subscripts -I$(INC) $(ARCH)
 OURCXXFLAGS=$(BASECXXFLAGS)
 ASFLAGS=$(BASEASFLAGS)
 
+ifneq ($(LUNATIC),0)
+    OURCFLAGS+= -DLUNATIC_ENABLE
+endif
+
 include Makefile.shared
 
 
