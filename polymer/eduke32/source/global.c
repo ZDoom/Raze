@@ -112,8 +112,8 @@ int32_t screenpeek;
 char ready2send;
 int32_t vel, svel, angvel, horiz, ototalclock, g_actorRespawnTime=768, g_itemRespawnTime=768, g_groupFileHandle;
 
-intptr_t *g_scriptPtr,*insptr,*labelcode;
-int32_t *labeltype;
+intptr_t *g_scriptPtr,*insptr;
+int32_t *labelcode, *labeltype;
 int32_t g_numLabels,g_numDefaultLabels;
 intptr_t *actorscrptr[MAXTILES],*g_parsingActorPtr;
 char *label;

@@ -9230,7 +9230,7 @@ static void G_CompileScripts(void)
     int32_t psm = pathsearchmode;
 
     label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
-    labelcode = (intptr_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
+    labelcode = (int32_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
     labeltype = (int32_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
 
     Bcorrectfilename(g_scriptNamePtr,0);
@@ -9256,18 +9256,18 @@ static void G_CompileScripts(void)
     else
     {
         char *newlabel;
-        intptr_t *newlabelcode;
+        int32_t *newlabelcode;
 
-        newlabel     = (char *)Bmalloc(g_numLabels<<6);
-        newlabelcode = (intptr_t *)Bmalloc(g_numLabels*sizeof(intptr_t));
+        newlabel     = Bmalloc(g_numLabels<<6);
+        newlabelcode = Bmalloc(g_numLabels*sizeof(int32_t));
 
         if (!newlabel || !newlabelcode)
         {
             G_GameExit("Error: out of memory retaining labels\n");
         }
 
-        copybuf(label,     newlabel, (g_numLabels*64)/4);
-        copybuf(labelcode, newlabelcode, (g_numLabels*sizeof(intptr_t))/4);
+        Bmemcpy(newlabel, label, g_numLabels*64);
+        Bmemcpy(newlabelcode, labelcode, g_numLabels*sizeof(int32_t));
 
         label = newlabel;
         labelcode = newlabelcode;

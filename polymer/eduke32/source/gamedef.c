@@ -1103,14 +1103,14 @@ static int32_t C_SetScriptSize(int32_t newsize)
     int32_t osize = g_scriptSize;
     char *scriptptrs;
     char *newbitptr;
-
+#if 0
     for (i=MAXSECTORS-1; i>=0; i--)
         if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
         {
             j = (intptr_t)labelcode[i]-(intptr_t)&script[0];
             labelcode[i] = (intptr_t)j;
         }
-
+#endif
     scriptptrs = Bcalloc(1, g_scriptSize * sizeof(uint8_t));
 
     for (i=g_scriptSize-1; i>=0; i--)
@@ -1174,7 +1174,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
 
     if (g_parsingActorPtr)
         g_parsingActorPtr = (intptr_t *)(script+oparsingActorPtr);
-
+#if 0
     for (i=MAXSECTORS-1; i>=0; i--)
     {
         if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
@@ -1183,7 +1183,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
             labelcode[i] = j;
         }
     }
-
+#endif
     for (i=(((newsize>=osize)?osize:newsize))-1; i>=0; i--)
         if (scriptptrs[i])
         {
@@ -1676,7 +1676,10 @@ static int32_t C_GetNextValue(int32_t type)
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
 #endif
 
-            *(g_scriptPtr++) = labelcode[i];
+            if ((labeltype[i]&LABEL_DEFINE)==0)
+                *(g_scriptPtr++) = (intptr_t)(script + labelcode[i]);
+            else
+                *(g_scriptPtr++) = labelcode[i];
             textptr += l;
             return labeltype[i];
         }
@@ -1932,7 +1935,7 @@ static int32_t C_ParseCommand(int32_t loop)
             {
                 C_GetNextLabelName();
                 g_scriptPtr--;
-                labelcode[g_numLabels] = (intptr_t) g_scriptPtr;
+                labelcode[g_numLabels] = g_scriptPtr-script;
                 labeltype[g_numLabels] = LABEL_STATE;
 
                 g_processingState = 1;
@@ -1964,7 +1967,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 {
                     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
                         initprintf("%s:%d: debug: accepted state label `%s'.\n",g_szScriptFileName,g_lineNumber,label+(j<<6));
-                    *g_scriptPtr = labelcode[j];
+                    *g_scriptPtr = (intptr_t)(script+labelcode[j]);
 #if 0
                     if (labelcode[j] >= (intptr_t)&script[0] && labelcode[j] < (intptr_t)&script[g_scriptSize])
                         bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
@@ -2308,7 +2311,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 {
                     hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
                     labeltype[g_numLabels] = LABEL_MOVE;
-                    labelcode[g_numLabels++] = (intptr_t) g_scriptPtr;
+                    labelcode[g_numLabels++] = g_scriptPtr-script;
                 }
 
                 for (j=1; j>=0; j--)
@@ -2445,7 +2448,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 {
                     labeltype[g_numLabels] = LABEL_AI;
                     hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
-                    labelcode[g_numLabels++] = (intptr_t) g_scriptPtr;
+                    labelcode[g_numLabels++] = g_scriptPtr-script;
                 }
 
                 for (j=0; j<3; j++)
@@ -2525,7 +2528,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 if (i == -1)
                 {
                     labeltype[g_numLabels] = LABEL_ACTION;
-                    labelcode[g_numLabels] = (intptr_t) g_scriptPtr;
+                    labelcode[g_numLabels] = g_scriptPtr-script;
                     hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
                     g_numLabels++;
                 }
