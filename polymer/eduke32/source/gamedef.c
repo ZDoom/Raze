@@ -1773,9 +1773,10 @@ static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
 
 static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
 {
-    // ifrnd, ifhitweapon and ifcansee actually do something when the condition is executed
+    // ifrnd and the others actually do something when the condition is executed
     if ((Bstrncmp(keyw[tw], "if", 2) && tw != CON_ELSE) ||
-            tw == CON_IFRND || tw == CON_IFHITWEAPON || tw == CON_IFCANSEE)
+            tw == CON_IFRND || tw == CON_IFHITWEAPON || tw == CON_IFCANSEE || tw == CON_IFCANSEETARGET ||
+            tw == CON_IFPDISTL || tw == CON_IFPDISTG || tw == CON_IFGOTWEAPONCE)
     {
         g_ifElseAborted = 0;
         return 0;
