@@ -9231,7 +9231,7 @@ static void G_CompileScripts(void)
 
     label     = (char *)&sprite[0];     // V8: 16384*44/64 = 11264  V7: 4096*44/64 = 2816
     labelcode = (intptr_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
-    labeltype = (intptr_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
+    labeltype = (int32_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
 
     Bcorrectfilename(g_scriptNamePtr,0);
     // if we compile for a V7 engine wall[] should be used for label names since it's bigger
