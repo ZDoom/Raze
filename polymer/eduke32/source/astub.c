@@ -7680,7 +7680,7 @@ static void Keys2d(void)
         if (fb >= 0)
         {
             for (SECTORS_OF_BUNCH(fb,YAX_FLOOR, i))
-                fillsector(tcursectornum, editorcolors[11]);
+                fillsector(i, editorcolors[11]);
             fade_editor_screen(editorcolors[11]);
 
             if (ask_if_sure("Clear all TROR extensions from marked sectors?", 0))
@@ -7688,13 +7688,13 @@ static void Keys2d(void)
                 for (cf=0; cf<2; cf++)
                     for (SECTORS_OF_BUNCH(fb,cf, i))
                         yax_setbunch(i, cf, -1);
+
+                yax_update(0);
+                yax_updategrays(pos.z);
+
+                message("Cleared TROR bunch %d", fb);
+                asksave = 1;
             }
-
-            yax_update(0);
-            yax_updategrays(pos.z);
-
-            message("Cleared TROR bunch %d", fb);
-            asksave = 1;
         }
     }
 
