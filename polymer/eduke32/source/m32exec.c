@@ -3073,7 +3073,7 @@ dodefault:
                        "Please e-mail the file mapster32.log along with every M32 file\n"
                        "you're using and instructions how to reproduce this error to\n"
                        "helixhorned@gmail.com.\n\n"
-                       "Thank you!");
+                       "Thank you!\n");
             vm.flags |= VMFLAG_ERROR;
             return 1;
         }

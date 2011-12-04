@@ -43,6 +43,7 @@ typedef struct
 {
     int32_t currentStateIdx;
     ofstype currentStateOfs;  // the offset to the start of the currently parsed states' code
+    char *curStateMenuName;
     int32_t currentEvent;
     ofstype parsingEventOfs;
 
@@ -57,7 +58,7 @@ typedef struct
 } compilerstate_t;
 
 static compilerstate_t cs;
-static compilerstate_t cs_default = {-1, -1, -1, -1, 0, 0, NULL, NULL, 0, 0, 0, 0};
+static compilerstate_t cs_default = {-1, -1, NULL, -1, -1, 0, 0, NULL, NULL, 0, 0, 0, 0};
 ////// -------------------
 
 instype *script = NULL;
@@ -1831,15 +1832,17 @@ static int32_t C_ParseCommand(void)
             statesinfo[j].numlocals = 0;
             Bsprintf(g_szCurrentBlockName, "%s", statesinfo[j].name);
 
+            if (cs.curStateMenuName)
+                Bfree(cs.curStateMenuName);
+            cs.curStateMenuName = NULL;
+
             if (C_GetKeyword() < 0)
             {
                 ofstype *oscriptptr = g_scriptPtr;
 
                 if (C_GetNextVarOrString() == 1)  // inline string
                 {
-                    const char *menufuncname = (const char *)(oscriptptr+1);
-                    registerMenuFunction(menufuncname, j);
-
+                    cs.curStateMenuName = Bstrdup((const char *)(oscriptptr+1));
                     g_scriptPtr = oscriptptr;
                 }
                 else
@@ -1967,6 +1970,13 @@ static int32_t C_ParseCommand(void)
 //                    initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
             }
             g_scriptPtr -= osize;
+        }
+
+        if (cs.curStateMenuName)
+        {
+            registerMenuFunction(cs.curStateMenuName, j);
+            Bfree(cs.curStateMenuName);
+            cs.curStateMenuName = NULL;
         }
 
         g_didDefineSomething = 1;
