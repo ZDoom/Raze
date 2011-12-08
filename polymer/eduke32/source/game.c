@@ -10545,9 +10545,9 @@ MAIN_LOOP_RESTART:
                 i = 65536;
 
             G_DrawRooms(screenpeek,i);
-            G_DisplayRest(i);
             if (getrendermode() >= 3)
                 G_DrawBackground();
+            G_DisplayRest(i);
 
             framewaiting++;
         }
