@@ -4456,7 +4456,7 @@ end_yax: ;
                     // didmakered: 'bad'!
                     int32_t didmakered = (highlightsectorcnt<0), hadouterpoint=0;
 #ifdef YAX_ENABLE
-                    for (i=0; i<MAXSECTORS; i++)
+                    for (i=0; i<MAXSECTORS>>3; i++)
                         hlorgraysectbitmap[i] = hlsectorbitmap[i]|graysectbitmap[i];
 #endif
                     for (i=0; i<highlightsectorcnt; i++)
