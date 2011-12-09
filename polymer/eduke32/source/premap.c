@@ -1331,34 +1331,38 @@ static inline void prelevel(char g)
         {
             switchpicnum = W_FORCEFIELD;
         }
-        switch (DynamicTileMap[switchpicnum])
+
+        if (switchpicnum >= 0)
         {
-        case FANSHADOW__STATIC:
-        case FANSPRITE__STATIC:
-            wall->cstat |= 65;
-            animwall[g_numAnimWalls].wallnum = i;
-            g_numAnimWalls++;
-            break;
+            switch (DynamicTileMap[switchpicnum])
+            {
+            case FANSHADOW__STATIC:
+            case FANSPRITE__STATIC:
+                wall->cstat |= 65;
+                animwall[g_numAnimWalls].wallnum = i;
+                g_numAnimWalls++;
+                break;
 
-        case W_FORCEFIELD__STATIC:
-            if (wal->overpicnum==W_FORCEFIELD__STATIC)
-                for (j=0; j<3; j++)
-                    tloadtile(W_FORCEFIELD+j, 0);
-            if (wal->shade > 31)
-                wal->cstat = 0;
-            else wal->cstat |= 85+256;
+            case W_FORCEFIELD__STATIC:
+                if (wal->overpicnum==W_FORCEFIELD__STATIC)
+                    for (j=0; j<3; j++)
+                        tloadtile(W_FORCEFIELD+j, 0);
+                if (wal->shade > 31)
+                    wal->cstat = 0;
+                else wal->cstat |= 85+256;
 
 
-            if (wal->lotag && wal->nextwall >= 0)
-                wall[wal->nextwall].lotag =
-                    wal->lotag;
+                if (wal->lotag && wal->nextwall >= 0)
+                    wall[wal->nextwall].lotag =
+                        wal->lotag;
 
-        case BIGFORCE__STATIC:
+            case BIGFORCE__STATIC:
 
-            animwall[g_numAnimWalls].wallnum = i;
-            g_numAnimWalls++;
+                animwall[g_numAnimWalls].wallnum = i;
+                g_numAnimWalls++;
 
-            continue;
+                continue;
+            }
         }
 
         wal->extra = -1;
