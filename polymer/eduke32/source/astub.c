@@ -2018,7 +2018,8 @@ static void ReadHelpFile(const char *name)
             if (charsread>0)
             {
                 tempbuf[charsread-1]=0;
-                if (tempbuf[charsread-2]==0x0d) tempbuf[charsread-2]=0;
+                if (charsread>=2 && tempbuf[charsread-2]==0x0d)
+                    tempbuf[charsread-2]=0;
             }
 
             Bmemcpy(hp->line[j], tempbuf, 80);
