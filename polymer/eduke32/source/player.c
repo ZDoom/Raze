@@ -2231,7 +2231,7 @@ void P_DisplayScuba(int32_t snum)
 
 static int32_t P_DisplayTip(int32_t gs,int32_t snum)
 {
-    int32_t p,looking_arc;
+    int32_t p,looking_arc, i, tipy;
     static int16_t tip_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 
     if (g_player[snum].ps->tipincs == 0) return 0;
@@ -2249,8 +2249,15 @@ static int32_t P_DisplayTip(int32_t gs,int32_t snum)
         else
             p = wall[g_player[snum].ps->access_wallnum].pal;
       */
+
+    // FIXME?
+    // OOB access of tip_y[] happens in 'Spider Den' of WGR2 SVN r72
+    i = g_player[snum].ps->tipincs;
+    tipy = ((unsigned)i < sizeof(tip_y)/sizeof(tip_y[0])) ? (tip_y[i]>>1) : 0;
+
     G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),
-                     (tip_y[g_player[snum].ps->tipincs]>>1)+looking_arc+240-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),TIP+((26-g_player[snum].ps->tipincs)>>4),gs,262144,p);
+                     tipy+looking_arc+240-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),
+                     TIP+((26-g_player[snum].ps->tipincs)>>4),gs,262144,p);
 
     return 1;
 }
