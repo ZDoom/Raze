@@ -1029,7 +1029,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
 
         if (fil)
         {
-            if (((sp->flags&DS_CNTMASK)==0 && sp->size *cnt<=(int32_t)savegame_comprthres)
+            if (((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=savegame_comprthres)
                     || (sp->flags&DS_CMP))
                 fwrite(ptr, sp->size, cnt, fil);
             else
@@ -1097,7 +1097,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
         {
             mem = (dump && (sp->flags&DS_NOCHK)==0) ? dump : ptr;
 
-            if ((sp->flags&DS_CNTMASK)==0 && sp->size *cnt<=(int32_t)savegame_comprthres)
+            if ((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=savegame_comprthres)
             {
                 i = kread(fil, mem, cnt*sp->size);
                 j = cnt*sp->size;
@@ -1111,7 +1111,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
             {
                 OSD_Printf("rsd: spec=%p, sp=%p, mem=%p ", spec, sp, mem);
                 OSD_Printf("rsd: %s: read %d, expected %d!\n",
-                           ((sp->flags&DS_CNTMASK)==0 && sp->size *cnt<=(int32_t)savegame_comprthres)?
+                           ((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=savegame_comprthres)?
                            "UNCOMP":"COMPR", i, j);
 
                 if (i==-1)

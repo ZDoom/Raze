@@ -1260,9 +1260,9 @@ static void taglab_handle1(int32_t linktagp, int32_t tagnum, char *buf)
         label = taglab_getlabel(tagnum);
 
     if (label)
-        Bsprintf(buf, "%hu<%s>", tagnum, label);
+        Bsprintf(buf, "%d<%s>", tagnum, label);
     else
-        Bsprintf(buf, "%hu%s", tagnum, TLCHR(linktagp));
+        Bsprintf(buf, "%d%s", tagnum, TLCHR(linktagp));
 }
 ////////// end tag labeling system //////////
 
