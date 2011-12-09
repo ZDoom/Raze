@@ -89,6 +89,9 @@ ifneq (0,$(RELEASE))
 else
     # Debugging enabled
     debug=-ggdb -O0 -DDEBUGGINGAIDS
+    ifeq ($(CC),clang)
+        debug+= -fcatch-undefined-behavior
+    endif
     ifeq ($(PLATFORM),LINUX)
         LIBS+=-rdynamic
     endif
