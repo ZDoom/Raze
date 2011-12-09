@@ -1717,7 +1717,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                                 num = (num<<8)+((int32_t)ch); curbits += 8;
                                             }
                                             curbits -= daval; v = ((unsigned)num >> curbits) & pow2mask[daval];
-                                            if (v <= pow2mask[daval-1]) v -= pow2mask[daval];
+                                            if (daval>=1 /* FIXME ? */ && v <= pow2mask[daval-1]) v -= pow2mask[daval];
                                             dcflag |= dcflagor[z];
                                             if (!dctbuf) dc[unzig[z]] = v; else dcs[z] = (int16_t)(v<<Al);
                                         }
