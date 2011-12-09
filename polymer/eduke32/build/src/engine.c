@@ -8690,7 +8690,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((spr->cstat&4) > 0) xoff = -xoff;
             if ((spr->cstat&8) > 0) yoff = -yoff;
 
-            k = spr->ang;
+            k = spr->ang&2047;  // FIXME ?  See DNE_BUG_HERE
             cosang = sintable[(k+512)&2047]; sinang = sintable[k];
             xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
             yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
@@ -11230,7 +11230,7 @@ restart_grand:
                 if ((cstat&4) > 0) xoff = -xoff;
                 if ((cstat&8) > 0) yoff = -yoff;
 
-                ang = spr->ang;
+                ang = spr->ang&2047;  // FIXME ? See DNE_BUG_HERE
                 cosang = sintable[(ang+512)&2047]; sinang = sintable[ang];
                 xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
                 yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
@@ -12042,7 +12042,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                     if ((cstat&4) > 0) xoff = -xoff;
                     if ((cstat&8) > 0) yoff = -yoff;
 
-                    k = spr->ang;
+                    k = spr->ang&2047;  // FIXME ?  See DNE_BUG_HERE
                     cosang = sintable[(k+512)&2047]; sinang = sintable[k];
                     xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
                     yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
@@ -12844,7 +12844,10 @@ restart_grand:
                     if ((cstat&4) > 0) xoff = -xoff;
                     if ((cstat&8) > 0) yoff = -yoff;
 
-                    ang = spr->ang;
+                    // &2047: FIXME ?  DNE_BUG_HERE
+                    // DNE 1.3D lights camera action (1st level), spr->ang==2306
+                    ang = spr->ang&2047;
+
                     cosang = sintable[(ang+512)&2047]; sinang = sintable[ang];
                     xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
                     yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
