@@ -4243,6 +4243,15 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
         globalhoriz = mulscale16(globalhoriz-(ydimen>>1),dapyscale) + (ydimen>>1);
 
     k = 11 - (picsiz[globalpicnum]&15) - dapskybits;
+
+    // WGR2 SVN: select new episode after playing wgmicky1 with Polymer
+    //  (maybe switched to classic earlier).
+    //  --> rendmode==0, glrendmode==4, we end up with globalpicnum==266,
+    //      picsiz...==9 and dapskybits==3
+    // FIXME ?
+    if (k < 0)
+        k = 0;
+
     x = -1;
 
     for (z=bunchfirst[bunch]; z>=0; z=p2[z])
