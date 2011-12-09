@@ -315,6 +315,7 @@ static void DeletePolymerLights(void)
         if (spritelightptr[i] != NULL)
         {
             polymer_deletelight(spritelightid[i]);
+            spritelightid[i] = -1;
             spritelightptr[i] = NULL;
         }
 }

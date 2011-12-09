@@ -487,7 +487,8 @@ int32_t block_deletesprite = 0;
 #ifdef POLYMER
 static void A_DeletePolymerLight(int32_t s)
 {
-    polymer_deletelight(actor[s].lightId);
+    if (actor[s].lightId >= 0)
+        polymer_deletelight(actor[s].lightId);
     actor[s].lightId = -1;
     actor[s].lightptr = NULL;
 }

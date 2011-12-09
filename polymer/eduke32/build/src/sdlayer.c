@@ -319,6 +319,7 @@ int32_t initsystem(void)
     }
 
     signal(SIGSEGV, sighandler);
+    signal(SIGILL, sighandler);  /* clang -fcatch-undefined-behavior uses an ill. insn */
     signal(SIGABRT, sighandler);
     signal(SIGFPE, sighandler);
 
