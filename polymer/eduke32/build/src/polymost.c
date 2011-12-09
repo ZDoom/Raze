@@ -6047,20 +6047,25 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     GLfloat tx, ty, txc, tyc;
     int32_t c;
     palette_t p,b;
+    int32_t arbackcol = backcol >= 0 ? backcol : 0;
+
+    // FIXME?
+    if (col < 0)
+        col = 0;
 
     if (gammabrightness)
     {
         p = curpalette[col];
-        b = curpalette[backcol];
+        b = curpalette[arbackcol];
     }
     else
     {
         p.r = britable[curbrightness][ curpalette[col].r ];
         p.g = britable[curbrightness][ curpalette[col].g ];
         p.b = britable[curbrightness][ curpalette[col].b ];
-        b.r = britable[curbrightness][ curpalette[backcol].r ];
-        b.g = britable[curbrightness][ curpalette[backcol].g ];
-        b.b = britable[curbrightness][ curpalette[backcol].b ];
+        b.r = britable[curbrightness][ curpalette[arbackcol].r ];
+        b.g = britable[curbrightness][ curpalette[arbackcol].g ];
+        b.b = britable[curbrightness][ curpalette[arbackcol].b ];
     }
 
     if ((rendmode < 3) || (qsetmode != 200)) return(-1);
@@ -6157,7 +6162,9 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
                 c++;
             }
             smallbuf[bi++]=0;
-            if (col)col = atol(smallbuf);
+            if (col)col = atol(smallbuf);  /* FIXME: atol is unsafe */
+            if ((unsigned)col >= 256)
+                col = 0;
 
             if (gammabrightness)
             {
