@@ -9186,7 +9186,7 @@ static void G_Cleanup(void)
     }
 
     if (label != NULL && label != (char *)&sprite[0]) Bfree(label);
-    if (labelcode != NULL && labelcode != (intptr_t *)&sector[0]) Bfree(labelcode);
+    if (labelcode != NULL && labelcode != (int32_t *)&sector[0]) Bfree(labelcode);
     if (script != NULL) Bfree(script);
     if (bitptr != NULL) Bfree(bitptr);
 
