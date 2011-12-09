@@ -94,8 +94,10 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
     {
         intptr_t *oinsptr=insptr;
         vmstate_t vm_backup;
-        vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
-                             &sprite[iActor], 0 };
+        vmstate_t tempvm = { iActor, iPlayer, lDist,
+                             iActor >= 0 ? &actor[iActor].t_data[0] : NULL,
+                             iActor >= 0 ? &sprite[iActor] : NULL,
+                             0 };
 
         g_currentEventExec = iEventID;
         insptr = apScriptGameEvent[iEventID];
