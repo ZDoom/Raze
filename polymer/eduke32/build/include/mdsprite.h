@@ -3,11 +3,11 @@
 
 #include "hightile.h"
 
-#ifdef __POWERPC__
+//#ifdef __POWERPC__
 #define SHIFTMOD32(a) ((a)&31)
-#else
-#define SHIFTMOD32(a) (a)
-#endif
+//#else
+//#define SHIFTMOD32(a) (a)
+//#endif
 
 typedef struct
 {
