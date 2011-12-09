@@ -109,13 +109,21 @@ ifneq (0,$(DEBUGANYWAY))
     debug+=-ggdb
 endif
 
-W_NO_UNUSED_RESULT := $(shell echo '' | $(CC) -E -Wno-unused-result - 2>/dev/null && echo -Wno-unused-result)
-W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
+ifneq ($(CC),clang)
+    W_NO_UNUSED_RESULT := $(shell echo '' | $(CC) -E -Wno-unused-result - 2>/dev/null && echo -Wno-unused-result)
+    W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
+else
+    W_NO_UNUSED_RESULT :=
+endif
 
 BASECFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
 	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH) \
 	-Wextra	#-Wwrite-strings -Waddress -Wlogical-op
+ifeq ($(CC),clang)
+    BASECFLAGS+= -Wno-unused-value -Wno-parentheses
+endif
+
 ifneq (3,$(GCC_MAJOR))
 	BASECFLAGS+= -Wstrict-overflow=1
 endif

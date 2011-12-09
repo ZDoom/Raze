@@ -182,7 +182,9 @@ endif
 # PLATFORM SPECIFIC SETTINGS
 
 ifeq ($(PLATFORM),LINUX)
-    OURCFLAGS	+= -fno-pic
+    ifneq ($(CC),clang)
+        OURCFLAGS	+= -fno-pic
+    endif
     NASMFLAGS	+= -f elf
     LIBS		+= -lvorbisfile -lvorbis -logg
 endif
