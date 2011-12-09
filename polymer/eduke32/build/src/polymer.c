@@ -2747,7 +2747,7 @@ static void         polymer_updatewall(int16_t wallnum)
     wallpicnum = wal->picnum;
     if (picanm[wallpicnum]&192) wallpicnum += animateoffs(wallpicnum,wallnum+16384);
     walloverpicnum = wal->overpicnum;
-    if (picanm[walloverpicnum]&192) walloverpicnum += animateoffs(walloverpicnum,wallnum+16384);
+    if (walloverpicnum>=0 && picanm[walloverpicnum]&192) walloverpicnum += animateoffs(walloverpicnum,wallnum+16384);
     if (nwallnum >= 0 && nwallnum < numwalls)
     {
         nwallpicnum = wall[nwallnum].picnum;
