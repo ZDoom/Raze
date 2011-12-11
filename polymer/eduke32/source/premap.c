@@ -1236,6 +1236,9 @@ static inline void prelevel(char g)
         int32_t dx, dy;
         int16_t sprsec;
 #endif
+        if (PN <= 0)  // oob safety for switch below
+            continue;
+
         for (ii=0; ii<2; ii++)
             switch (DynamicTileMap[PN-1+ii])
             {

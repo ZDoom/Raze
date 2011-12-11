@@ -8045,6 +8045,10 @@ inline int32_t A_CheckEnemySprite(spritetype *s)
 int32_t A_CheckSwitchTile(int32_t i)
 {
     int32_t j;
+
+    if (PN <= 0)  // picnum 0 would oob in the switch below
+        return 0;
+
     //MULTISWITCH has 4 states so deal with it separately
     if ((PN >= MULTISWITCH) && (PN <=MULTISWITCH+3)) return 1;
     // ACCESSSWITCH and ACCESSSWITCH2 are only active in 1 state so deal with them separately
@@ -8152,6 +8156,10 @@ void G_MoveWorld(void)
                         }
 
                         for (ii=0; ii<2; ii++)
+                        {
+                            if (sprite[i].picnum <= 0)  // oob safety
+                                break;
+
                             switch (DynamicTileMap[sprite[i].picnum-1+ii])
                             {
                             case DIPSWITCH__STATIC:
@@ -8212,6 +8220,7 @@ void G_MoveWorld(void)
                             }
                             break;
                             }
+                        }
 
                         switch (DynamicTileMap[sprite[i].picnum])
                         {

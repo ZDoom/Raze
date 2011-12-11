@@ -1293,7 +1293,6 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
             }
             switch (DynamicTileMap[switchpicnum])
             {
-
             case DIPSWITCH__STATIC:
             case TECHSWITCH__STATIC:
             case ALIENSWITCH__STATIC:
@@ -1319,9 +1318,11 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
                 sprite[i].picnum++;
                 break;
             default:
+                if (switchpicnum <= 0)  // oob safety
+                    break;
+
                 switch (DynamicTileMap[switchpicnum-1])
                 {
-
                 case TECHSWITCH__STATIC:
                 case DIPSWITCH__STATIC:
                 case ALIENSWITCH__STATIC:
@@ -1363,9 +1364,9 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
                     wall[x].picnum = MULTISWITCH;
 
             }
+
             switch (DynamicTileMap[wall[x].picnum])
             {
-
             case DIPSWITCH__STATIC:
             case TECHSWITCH__STATIC:
             case ALIENSWITCH__STATIC:
@@ -1391,9 +1392,11 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
                 wall[x].picnum++;
                 break;
             default:
+                if (wall[x].picnum <= 0)  // oob safety
+                    break;
+
                 switch (DynamicTileMap[wall[x].picnum-1])
                 {
-
                 case TECHSWITCH__STATIC:
                 case DIPSWITCH__STATIC:
                 case ALIENSWITCH__STATIC:
