@@ -3567,7 +3567,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                     yax_preparedrawrooms();
                     drawrooms(tposx,tposy,ud.camera.z,tang,ud.camerahoriz,g_mirrorSector[i]+MAXSECTORS);
                     g_yax_smoothratio = smoothratio;
-                    yax_drawrooms(G_AnalyzeSprites, ud.camerahoriz, g_mirrorSector[i]+MAXSECTORS);
+                    yax_drawrooms(G_AnalyzeSprites, ud.camerahoriz, g_mirrorSector[i]);
                 }
 #ifdef USE_OPENGL
                 else
