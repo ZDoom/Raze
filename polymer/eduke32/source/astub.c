@@ -3333,7 +3333,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         {
             temp = i;
 
-            while (localartfreq[temp]<localartfreq[temp+gap] && temp >= 0)
+            while (temp >= 0 && localartfreq[temp]<localartfreq[temp+gap])
             {
                 int32_t tempint;
 
