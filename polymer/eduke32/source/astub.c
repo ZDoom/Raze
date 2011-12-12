@@ -8279,8 +8279,8 @@ static void Keys2d(void)
                 j = getnumber16("Wall: ", 0, numwalls-1, 0+8);
                 if (j < 0)
                     break;
-                pos.x = wall[j].x + (wall[wall[j].point2].x-wall[j].x)/2;
-                pos.y = wall[j].y + (wall[wall[j].point2].y-wall[j].y)/2;
+                pos.x = wall[j].x + (wall[wall[j].point2].x-wall[j].x)/4;
+                pos.y = wall[j].y + (wall[wall[j].point2].y-wall[j].y)/4;
                 pos.z = getflorzofslope(sectorofwall(j), pos.x, pos.y);
                 printmessage16("Current pos now on wall %d's midpoint", j);
             }

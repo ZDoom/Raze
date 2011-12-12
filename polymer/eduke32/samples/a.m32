@@ -745,6 +745,50 @@ onevent EVENT_INSERTSPRITE2D
     }
 endevent
 
+defstate print_parallel_midpts  // print the midpoints of parallel wall-lines
+    var p0 p1 p2 s1dx s1dy s2dx s2dy tmp nw
+
+    quote "----------------"
+    for p1 allwalls
+    {
+        lastwall p1 p0  // get the 'inverse point2'
+        set p2 wall[p1].point2  // ... and the forward one
+
+        set tmp 0
+
+        // both white: OK  (may be false positive due to TROR)
+        ifl wall[p0].nextwall 0 ifl wall[p1].nextwall 0 set tmp 1
+
+        // both red and no wall originating from midpoint on the other side: OK
+        ifge wall[p0].nextwall 0 ifge wall[p1].nextwall 0
+        {
+            set nw wall[p1].nextwall
+            ifl p1 nw, ife wall[p0].nextwall wall[nw].point2, set tmp 1
+        }
+
+        ife tmp 1
+        {
+            set s1dx wall[p1].x, sub s1dx wall[p0].x
+            set s1dy wall[p1].y, sub s1dy wall[p0].y
+
+            set s2dx wall[p2].x, sub s2dx wall[p1].x
+            set s2dy wall[p2].y, sub s2dy wall[p1].y
+
+            // now have segment dx/dy's
+
+            mul s1dx -s2dy
+            mul s1dy s2dx
+            set tmp s1dx, add tmp s1dy  // tmp = (s1dx, s1dy) . (-s2dy, s2dx)
+
+            ife tmp 0
+            {
+                qsprintf TQUOTE "%d" p1
+                quote TQUOTE
+            }
+        }
+    }
+ends
+
 
 //////////////////// SPRITE DUPLICATORS ////////////////////
 
