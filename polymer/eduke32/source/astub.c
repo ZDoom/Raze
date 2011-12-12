@@ -5330,12 +5330,14 @@ static void Keys3d(void)
     // . Search & fix panning to the right (3D)
     if (AIMING_AT_WALL_OR_MASK && PRESSED_KEYSC(PERIOD))
     {
-        int32_t naligned=AutoAlignWalls(searchwall, eitherCTRL|((!eitherSHIFT)<<1)|eitherALT<<2, 0);
-        message("Aligned %d wall%s based on wall %d%s%s%s", naligned,
+        int32_t naligned=AutoAlignWalls(searchwall, eitherCTRL|((!eitherSHIFT)<<1)|
+                                        (eitherALT<<2)|((!!keystatus[KEYSC_QUOTE])<<3), 0);
+        message("Aligned %d wall%s based on wall %d%s%s%s%s", naligned,
                 naligned==1?"":"s", searchwall,
                 eitherCTRL?", recursing nextwalls":"",
                 !eitherSHIFT?", iterating point2s":"",
-                eitherALT?", aligning xrepeats":"");
+                eitherALT?", aligning xrepeats":"",
+                keystatus[KEYSC_QUOTE]?", aligning TROR-nextwalls":"");
     }
 
     tsign = 0;

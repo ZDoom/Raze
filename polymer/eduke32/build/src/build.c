@@ -10052,15 +10052,17 @@ static int32_t GetWallBaseZ(int32_t wallnum)
     return(z);
 }
 
-static void AlignWalls(int32_t w0, int32_t z0, int32_t w1, int32_t z1, int32_t tilenum)
+static void AlignWalls(int32_t w0, int32_t z0, int32_t w1, int32_t z1, int32_t doxpanning)
 {
     int32_t n;
+    int32_t tilenum = wall[w0].picnum;
 
     if (tilesizx[tilenum]==0 || tilesizy[tilenum]==0)
         return;
 
     //do the x alignment
-    wall[w1].xpanning = (uint8_t)((wall[w0].xpanning + (wall[w0].xrepeat<<3))%tilesizx[tilenum]);
+    if (doxpanning)
+        wall[w1].xpanning = (uint8_t)((wall[w0].xpanning + (wall[w0].xrepeat<<3))%tilesizx[tilenum]);
 
     for (n=picsiz[tilenum]>>4; (1<<n)<tilesizy[tilenum]; n++);
 
@@ -10071,7 +10073,7 @@ static void AlignWalls(int32_t w0, int32_t z0, int32_t w1, int32_t z1, int32_t t
 void AlignWallPoint2(int32_t w0)
 {
     int32_t w1 = wall[w0].point2;
-    AlignWalls(w0,GetWallBaseZ(w0), w1,GetWallBaseZ(w1), wall[w0].picnum);
+    AlignWalls(w0,GetWallBaseZ(w0), w1,GetWallBaseZ(w1), 1);
 }
 
 #define ALIGN_WALLS_CSTAT_MASK (4+8+256)
@@ -10080,6 +10082,7 @@ void AlignWallPoint2(int32_t w0)
 //  1: recurse nextwalls
 //  2: iterate point2's
 //  4: carry pixel width from first wall over to the rest
+//  8: align TROR nextwalls
 int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 {
     int32_t z0, z1, tilenum, w1, visible, nextsec, sectnum;
@@ -10103,7 +10106,7 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 
     w1 = wall[w0].point2;
 
-    //loop through walls at this vertex in CCW order
+    //loop through walls at this vertex in point2 order
     while (1)
     {
         //break if this wall would connect us in a loop
@@ -10112,6 +10115,26 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 
         visited[w1>>3] |= (1<<(w1&7));
 
+#ifdef YAX_ENABLE
+        if (flags&8)
+        {
+            int32_t cf, ynw;
+
+            for (cf=0; cf<2; cf++)
+            {
+                ynw = yax_getnextwall(w0, cf);
+
+                if (ynw >= 0 && wall[ynw].picnum==tilenum && (visited[ynw>>3]&(1<<(ynw&7)))==0)
+                {
+                    wall[ynw].xrepeat = wall[w0].xrepeat;
+                    wall[ynw].xpanning = wall[w0].xpanning;
+                    AlignWalls(w0,z0, ynw,GetWallBaseZ(ynw), 0);  // initial vertical alignment
+
+//                    AutoAlignWalls(ynw, flags&~8, nrecurs+1);  // recurse once
+                }
+            }
+        }
+#endif
         //break if reached back of left wall
         if (wall[w1].nextwall == w0)
             break;
@@ -10141,7 +10164,7 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
             {
                 if ((flags&4) && w0!=wall0)
                     fixxrepeat(w0, lenrepquot);
-                AlignWalls(w0,z0, w1,z1, tilenum);
+                AlignWalls(w0,z0, w1,z1, 1);
                 wall[w1].cstat &= ~ALIGN_WALLS_CSTAT_MASK;
                 wall[w1].cstat |= cstat0;
                 numaligned++;
