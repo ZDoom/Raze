@@ -5082,7 +5082,10 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
                 rx -= lx;
 
                 l1 = distrecip[(ny-yoff)>>14];
-                l2 = distrecip[(ny+yoff)>>14];
+                // FIXME! AMCTC RC2/beta shotgun voxel
+                // (e.g. training map right after M16 shooting):
+                l2 = clamp((ny+yoff)>>14, 0, 65535);
+                l2 = distrecip[l2];
                 for (; voxptr<voxend; voxptr+=voxptr[1]+3)
                 {
                     j = (voxptr[0]<<15)-syoff;
