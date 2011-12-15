@@ -2194,7 +2194,7 @@ void P_DoWeaponSpawn(DukePlayer_t *p)
 {
     int32_t j, snum = sprite[p->i].yvel;
 
-    if (!aplWeaponSpawn[p->curr_weapon][snum])
+    if (aplWeaponSpawn[p->curr_weapon][snum] <= 0)  // <=0 : AMC TC beta/RC2 has WEAPONx_SPAWN -1
         return;
 
     j = A_Spawn(p->i, aplWeaponSpawn[p->curr_weapon][snum]);
