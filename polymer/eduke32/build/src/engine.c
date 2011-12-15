@@ -1806,6 +1806,13 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
 
 #undef WALLS_ARE_CONSISTENT
 
+#ifdef __clang__
+int32_t engine_dummy_function_to_keep_symbols(void)
+{
+    return shlookup[0] | sqrtable[0];
+}
+#endif
+
 
 #if defined(_MSC_VER) && !defined(NOASM)
 

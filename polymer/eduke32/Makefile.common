@@ -78,7 +78,10 @@ endif
 
 ifneq (0,$(RELEASE))
     # Debugging disabled
-    debug=-funswitch-loops -O$(OPTLEVEL)
+    debug=-O$(OPTLEVEL)
+    ifneq ($(CC),clang)
+        debug=-funswitch-loops
+    endif
     ifeq (0,$(DEBUGANYWAY))
         debug+= -fomit-frame-pointer
     endif

@@ -188,6 +188,13 @@ static int32_t gotcmov = -2, abstab10[1024] ASMNAME("abstab10");
 static int32_t qhufval0[1<<LOGQHUFSIZ0], qhufval1[1<<LOGQHUFSIZ1];
 static uint8_t qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
 
+#ifdef __clang__
+int32_t kplib_dummy_function_to_keep_symbols(void)
+{
+    return abstab10[0] | trnsrgb;
+}
+#endif
+
 #if defined(_MSC_VER) && !defined(NOASM)
 
 static _inline uint32_t bswap(uint32_t a)
