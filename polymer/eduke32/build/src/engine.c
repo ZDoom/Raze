@@ -2303,7 +2303,7 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
     {
         sortcnt = &yax_spritesortcnt[yax_globallev];
         if (*sortcnt >= MAXSPRITESONSCREEN)
-            return 0;
+            return 1;
 
         yax_tsprite[yax_globallev][*sortcnt] = z;
         if (yax_globalbunch >= 0)
