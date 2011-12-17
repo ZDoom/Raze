@@ -128,6 +128,7 @@ enum sflags_t {
     SPRITE_NOLIGHT      = 0x00000100,
     SPRITE_USEACTIVATOR = 0x00000200,
     SPRITE_NULL         = 0x00000400, // null sprite in multiplayer
+    SPRITE_NOCLIP       = 0x00000800, // clipmove it with cliptype 0
 };
 
 // custom projectiles

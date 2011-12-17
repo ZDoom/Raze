@@ -11969,6 +11969,9 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
         if (curspr)
             continue;  // next sector of this index
 
+        if (!dasprclipmask)
+            continue;
+
         for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
         {
             spr = &sprite[j];

@@ -670,7 +670,8 @@ dead:
                                (daxvel*(sintable[angdif&2047]))>>14, vm.g_sp->zvel
                              };
 
-            actor[vm.g_i].movflag = A_MoveSprite(vm.g_i,&tmpvect,CLIPMASK0);
+            actor[vm.g_i].movflag = A_MoveSprite(
+                vm.g_i,&tmpvect, (A_CheckSpriteFlags(vm.g_i, SPRITE_NOCLIP) ? 0 : CLIPMASK0));
         }
     }
 
