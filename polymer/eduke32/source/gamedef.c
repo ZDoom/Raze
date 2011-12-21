@@ -5689,9 +5689,9 @@ void C_Compile(const char *filenam)
     char *mptr;
     int32_t i;
     int32_t fs,fp;
-    int32_t startcompiletime;
+    uint32_t startcompiletime;
 
-    clearbuf(apScriptGameEvent,MAXGAMEEVENTS,0L);
+    Bmemset(apScriptGameEvent, 0, sizeof(apScriptGameEvent));
 
     C_InitHashes();
     Gv_Init();

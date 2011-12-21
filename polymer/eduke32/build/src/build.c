@@ -3320,6 +3320,7 @@ void overheadeditor(void)
             if (highlightsectorcnt > 0 && !hl_all_bunch_sectors_p())
             {
                 printmessage16("To flip extended sectors, all sectors of a bunch must be selected");
+                keystatus[0x2d] = keystatus[0x15] = 0;
             }
             else
 #endif
