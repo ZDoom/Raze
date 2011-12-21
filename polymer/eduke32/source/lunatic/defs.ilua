@@ -59,6 +59,28 @@ typedef struct {
 #pragma pack(pop)
 ]]
 
+-- game structs
+ffi.cdef[[
+#pragma pack(push,1)
+// ACTOR_T, might still need to make some fields read-only
+typedef struct
+{
+    const int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
+    int16_t picnum,ang,extra,owner; //8b
+    int16_t movflag,tempang,timetosleep; //6b
+
+    int32_t flags, bposx,bposy,bposz; //16b
+    int32_t floorz,ceilingz,lastvx,lastvy; //16b
+    int32_t lasttransport; //4b
+
+    const int16_t lightId, lightcount, lightmaxrange, cgg; //8b
+    int16_t actorstayput, dispicnum, shootzvel; // 6b
+
+    const int8_t _do_not_use[24];
+} actor_t;
+#pragma pack(pop)
+]]
+
 ffi.cdef[[
 sectortype *sector;
 walltype *wall;
@@ -70,6 +92,10 @@ const int16_t numsectors, numwalls;
 const int16_t headspritesect[16384+1], headspritestat[1024+1];
 const int16_t prevspritesect[16384], prevspritestat[16384];
 const int16_t nextspritesect[16384], nextspritestat[16384];
+]]
+
+ffi.cdef[[
+actor_t actor[16384];
 ]]
 
 ---- _G tweaks -- pull in only 'safe' stuff ----
@@ -147,6 +173,8 @@ gv = {
     headspritesect = det, headspritestat = det,
     prevspritesect = det, prevspritestat = det,
     nextspritesect = det, nextspritestat = det,
+
+    actor = det,
 }
 local tmpmt = {
     __index = ffiC,
@@ -208,6 +236,8 @@ nextspritestat = creategtab(ffiC.nextspritestat, 16384, 'nextspritestat[]')
 prevspritesect = creategtab(ffiC.prevspritesect, 16384, 'prevspritesect[]')
 prevspritestat = creategtab(ffiC.prevspritestat, 16384, 'prevspritestat[]')
 
+actor = creategtab(ffiC.actor, 16384, 'actor[]')
+
 ---- per-sector/per-statnum sprite iterators ----
 local function iter_spritesofsect(sect, i)
     if (i < 0) then
@@ -255,6 +285,9 @@ G_.nextspritesect = nextspritesect
 G_.nextspritestat = nextspritestat
 G_.prevspritesect = prevspritesect
 G_.prevspritestat = prevspritestat
+
+G_.actor = actor
+
 G_.spritesofsect = spritesofsect
 G_.spritesofstat = spritesofstat
 

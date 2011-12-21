@@ -13,4 +13,6 @@ prevspritesect;
 prevspritestat;
 nextspritesect;
 nextspritestat;
+
+actor;
 };

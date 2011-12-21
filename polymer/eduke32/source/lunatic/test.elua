@@ -34,6 +34,9 @@ end
 for spr in spritesofsect(236) do
     print('#spr', spr)
 end
+
+actor[562].flags = bit.bor(actor[562].flags, 2);   -- pal 6 with goggles on front SEENINE
+
 --]]
 print('_G contains:')
 for k,v in pairs(_G) do
