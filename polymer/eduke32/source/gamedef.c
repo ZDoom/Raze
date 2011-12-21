@@ -2646,6 +2646,7 @@ static int32_t C_ParseCommand(int32_t loop)
                         C_GetNextValue(LABEL_ACTION);
                         break;
                     case 2:
+                        // XXX: LABEL_MOVE|LABEL_DEFINE, what is this shit? compatibility?
                         if ((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1))
                         {
                             C_ReportError(-1);
@@ -5768,9 +5769,9 @@ void C_Compile(const char *filenam)
     kread(fp,(char *)textptr,fs);
     kclose(fp);
 
-    clearbuf(actorscrptr,MAXTILES,0L);  // JBF 20040531: MAXSPRITES? I think Todd meant MAXTILES...
-    clearbuf(actorLoadEventScrptr,MAXTILES,0L); // I think this should be here...
-    clearbufbyte(ActorType,MAXTILES,0L);
+    Bmemset(actorscrptr, 0, sizeof(actorscrptr));
+    Bmemset(actorLoadEventScrptr, 0, sizeof(actorLoadEventScrptr));
+    Bmemset(ActorType, 0, sizeof(ActorType));
 //    clearbufbyte(script,sizeof(script),0l); // JBF 20040531: yes? no?
     if (script != NULL)
         Bfree(script);
