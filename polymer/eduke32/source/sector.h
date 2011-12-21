@@ -108,7 +108,7 @@ void G_OperateForceFields(int32_t s,int32_t low);
 void G_OperateMasterSwitches(int32_t low);
 void G_OperateRespawns(int32_t low);
 void G_OperateSectors(int32_t sn,int32_t ii);
-int32_t GetAnimationGoal(int32_t *animptr);
+int32_t GetAnimationGoal(const int32_t *animptr);
 int32_t isanearoperator(int32_t lotag);
 int32_t isanunderoperator(int32_t lotag);
 int32_t ldist(spritetype *s1,spritetype *s2);
