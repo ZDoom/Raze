@@ -1580,9 +1580,9 @@ static void C_GetNextVarType(int32_t type)
                     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
                         initprintf("%s:%d: debug: accepted defined label `%s' instead of gamevar.\n",g_szScriptFileName,g_lineNumber,label+(i<<6));
                     bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                    *g_scriptPtr++=MAXGAMEVARS;
+                    *g_scriptPtr++ = MAXGAMEVARS;
                     bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                    *g_scriptPtr++=labelcode[i];
+                    *g_scriptPtr++ = labelcode[i];
                     return;
                 }
             }
@@ -1669,17 +1669,21 @@ static int32_t C_GetNextValue(int32_t type)
                 bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
             else
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-#else
+            *(g_scriptPtr++) = labelcode[i];
+#elif !defined SAMESIZE_ACTOR_T
             if ((labeltype[i]&LABEL_DEFINE)==0)
                 bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
             else  // the 'define' label type is the only one that doesn't reference the script
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-#endif
 
             if ((labeltype[i]&LABEL_DEFINE)==0)
                 *(g_scriptPtr++) = (intptr_t)(script + labelcode[i]);
             else
                 *(g_scriptPtr++) = labelcode[i];
+#else
+            bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+            *(g_scriptPtr++) = labelcode[i];
+#endif
             textptr += l;
             return labeltype[i];
         }

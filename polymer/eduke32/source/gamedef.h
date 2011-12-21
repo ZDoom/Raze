@@ -23,6 +23,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _gamedef_h_
 #define _gamedef_h_
 
+// Uncomment to have the same sizeof(actor_t) and sizeof(netactor_t) across
+// 32- and 64-bit builds;  KEEPINSYNC with same #define in actors.h:
+//#define SAMESIZE_ACTOR_T
+
 #define MAXGAMEEVENTS   128
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2
@@ -119,7 +123,11 @@ enum vmflags_t {
 
 typedef struct {
     int32_t g_i, g_p, g_x;
+#ifdef SAMESIZE_ACTOR_T
+    int32_t *g_t;
+#else
     intptr_t *g_t;
+#endif
     spritetype *g_sp;
     int32_t g_flags;
 } vmstate_t;

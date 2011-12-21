@@ -23,6 +23,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __actors_h__
 #define __actors_h__
 
+// Uncomment to have the same sizeof(actor_t) and sizeof(netactor_t) across
+// 32- and 64-bit builds;  KEEPINSYNC with same #define in gamedef.h:
+//#define SAMESIZE_ACTOR_T
+
 #define MAXSLEEPDIST        16384
 #define SLEEPTIME           1536
 #define ZOFFSET             (1<<8)
@@ -81,9 +85,13 @@ typedef struct {
     int8_t filler[6]; // 6b
 } projectile_t;
 
+// (+ 40 8 6 16 16 4 8 6 4 4 16)
 typedef struct {
+#ifdef SAMESIZE_ACTOR_T
+    int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
+#else
     intptr_t t_data[10]; // 40b/80b sometimes used to hold pointers to con code
-
+#endif
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; //6b
 
@@ -102,12 +110,22 @@ typedef struct {
 
     projectile_t *projectile; //4b/8b
 
+#if !defined SAMESIZE_ACTOR_T || UINTPTR_MAX == 0xffffffff
+    /* 32-bit or old, same-declaration version */
     int8_t filler[16]; // pad struct to 128 bytes
+#else
+    /* 64-bit, will break older savegames */
+    int8_t filler[8];
+#endif
 } actor_t;
 
 // this struct needs to match the beginning of actor_t above
 typedef struct {
+#ifdef SAMESIZE_ACTOR_T
+    int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
+#else
     intptr_t t_data[10]; // 40b/80b sometimes used to hold pointers to con code
+#endif
 
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; // 6b

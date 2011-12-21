@@ -8323,6 +8323,7 @@ void drawmasks(void)
         xs = tspriteptr[i]->x-globalposx; ys = tspriteptr[i]->y-globalposy;
         yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
 #ifdef USE_OPENGL
+        // WGR2 SVN sanguis regalis (vae victis)  ->picnum == -3 or -4 (hard to reproduce)
         modelp = (usemodels && tile2model[tspriteptr[i]->picnum].modelid >= 0);
 #endif
         if (yp > (4<<8))

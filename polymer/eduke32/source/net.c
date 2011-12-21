@@ -611,8 +611,10 @@ int32_t Net_UnpackSprite(int32_t i, uint8_t *pbuf)
     if (flags & NET_ACTOR_T2)
     {
         actor[i].t_data[1] = *(int32_t *)&pbuf[j];
+#if !defined SAMESIZE_ACTOR_T
         if (flags & NET_ACTOR_PTR1)
             actor[i].t_data[1] += (intptr_t)&script[0];
+#endif
         j += sizeof(int32_t);
     }
 
@@ -631,16 +633,20 @@ int32_t Net_UnpackSprite(int32_t i, uint8_t *pbuf)
     if (flags & NET_ACTOR_T5)
     {
         actor[i].t_data[4] = *(int32_t *)&pbuf[j];
+#if !defined SAMESIZE_ACTOR_T
         if (flags & NET_ACTOR_PTR2)
             actor[i].t_data[4] += (intptr_t)&script[0];
+#endif
         j += sizeof(int32_t);
     }
 
     if (flags & NET_ACTOR_T6)
     {
         actor[i].t_data[5] = *(int32_t *)&pbuf[j];
+#if !defined SAMESIZE_ACTOR_T
         if (flags & NET_ACTOR_PTR3)
             actor[i].t_data[5] += (intptr_t)&script[0];
+#endif
         j += sizeof(int32_t);
     }
 
@@ -939,13 +945,15 @@ int32_t Net_PackSprite(int32_t i, uint8_t *pbuf)
     if (!lastupdate[i] || actor[i].t_data[1] != netactor[i].t_data[1])
     {
         *flags |= NET_ACTOR_T2;
-
+#if !defined SAMESIZE_ACTOR_T
         if (T2 >= (intptr_t)&script[0] && T2 < (intptr_t)(&script[g_scriptSize]))
         {
             *flags |= NET_ACTOR_PTR1;
             *(int32_t *)&pbuf[j] = (int32_t)(actor[i].t_data[1] - (intptr_t)&script[0]);
         }
-        else *(int32_t *)&pbuf[j] = actor[i].t_data[1];
+        else
+#endif
+            *(int32_t *)&pbuf[j] = actor[i].t_data[1];
         j += sizeof(int32_t);
     }
 
@@ -966,25 +974,30 @@ int32_t Net_PackSprite(int32_t i, uint8_t *pbuf)
     if (!lastupdate[i] || actor[i].t_data[4] != netactor[i].t_data[4])
     {
         *flags |= NET_ACTOR_T5;
-
+#if !defined SAMESIZE_ACTOR_T
         if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
         {
             *flags |= NET_ACTOR_PTR2;
             *(int32_t *)&pbuf[j] = (int32_t)(actor[i].t_data[4] - (intptr_t)&script[0]);
         }
-        else *(int32_t *)&pbuf[j] = actor[i].t_data[4];
+        else
+#endif
+            *(int32_t *)&pbuf[j] = actor[i].t_data[4];
         j += sizeof(int32_t);
     }
 
     if (!lastupdate[i] || actor[i].t_data[5] != netactor[i].t_data[5])
     {
         *flags |= NET_ACTOR_T6;
+#if !defined SAMESIZE_ACTOR_T
         if (T6 >= (intptr_t)&script[0] && T6 < (intptr_t)(&script[g_scriptSize]))
         {
             *flags |= NET_ACTOR_PTR3;
             *(int32_t *)&pbuf[j] = (int32_t)(actor[i].t_data[5] - (intptr_t)&script[0]);
         }
-        else *(int32_t *)&pbuf[j] = actor[i].t_data[5];
+        else
+#endif
+            *(int32_t *)&pbuf[j] = actor[i].t_data[5];
         j += sizeof(int32_t);
     }
 
@@ -1810,6 +1823,10 @@ void Net_ParseServerPacket(ENetEvent *event)
             i = g_player[l].ps->i;
 
             {
+#if defined SAMESIZE_ACTOR_T
+                j++;
+                Bmemcpy(&T5, &pbuf[j], sizeof(T5));
+#else
                 int16_t jj = j++;
                 int32_t oa = (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)&script[g_scriptSize]) ? T5-(intptr_t)&script[0] : T5;
 
@@ -1818,6 +1835,7 @@ void Net_ParseServerPacket(ENetEvent *event)
 
                 if (oa != T5) T3 = T4 = 0;
                 if (pbuf[jj] & 2) T5 += (intptr_t)&script[0];
+#endif
             }
 
             do
@@ -2794,10 +2812,13 @@ void Net_UpdateClients(void)
         i = g_player[l].ps->i;
 
         {
-            int32_t jj, oa;
-
+            int32_t jj;
+#if !defined SAMESIZE_ACTOR_T
+            int32_t oa;
+#endif
             packbuf[(jj = j++)] = 0;
 
+#if !defined SAMESIZE_ACTOR_T
             if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
             {
                 packbuf[jj] |= 2;
@@ -2805,13 +2826,15 @@ void Net_UpdateClients(void)
             }
 
             oa = T5;
-
+#endif
             Bmemcpy(&packbuf[j], &T5, sizeof(T5));
             j += sizeof(T5);
 
+#if !defined SAMESIZE_ACTOR_T
             if (oa != T5) T3 = T4 = 0;
 
             if (packbuf[jj] & 2) T5 += (intptr_t)&script[0];
+#endif
         }
 
         {

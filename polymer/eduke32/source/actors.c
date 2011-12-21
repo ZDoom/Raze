@@ -704,9 +704,15 @@ static void A_MoveSector(int32_t i)
     }
 }
 
+#ifdef SAMESIZE_ACTOR_T
+# define LIGHTRAD_PICOFS (T5 ? *(script+T5) + (*(script+T5+2))*T4 : 0)
+#else
+# define LIGHTRAD_PICOFS (T5 ? (*(intptr_t *)T5) + *(((intptr_t *)T5)+2) * T4 : 0)
+#endif
+
 // this is the same crap as in game.c's tspr manipulation.  puke.
-#define LIGHTRAD (s->yrepeat * tilesizy[s->picnum+(T5?(*(intptr_t *)T5) + *(((intptr_t *)T5)+2) * T4:0)])
-#define LIGHTRAD2 (((s->yrepeat) + (rand()%(s->yrepeat>>2))) * tilesizy[s->picnum+(T5?(*(intptr_t *)T5) + *(((intptr_t *)T5)+2) * T4:0)])
+#define LIGHTRAD (s->yrepeat * tilesizy[s->picnum+LIGHTRAD_PICOFS])
+#define LIGHTRAD2 (((s->yrepeat) + (rand()%(s->yrepeat>>2))) * tilesizy[s->picnum+LIGHTRAD_PICOFS])
 
 void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority)
 {
@@ -1409,7 +1415,11 @@ ACTOR_STATIC void G_MoveStandables(void)
 {
     int32_t i = headspritestat[STAT_STANDABLE], j, k, nexti, nextj, p=0, sect, switchpicnum;
     int32_t l=0, x;
+#ifdef SAMESIZE_ACTOR_T
+    int32_t *t;
+#else
     intptr_t *t;
+#endif
     spritetype *s;
     int16_t m;
 
@@ -3520,7 +3530,11 @@ static int16_t A_FindLocator(int32_t n,int32_t sn)
 ACTOR_STATIC void G_MoveActors(void)
 {
     int32_t x, m, l;
+#ifdef SAMESIZE_ACTOR_T
+    int32_t *t;
+#else
     intptr_t *t;
+#endif
     int32_t a, j, nexti, nextj, sect, p, switchpicnum, k;
     spritetype *s;
     int32_t i = headspritestat[STAT_ACTOR];
@@ -4872,7 +4886,11 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 {
     int16_t i, j, nexti, sect, p;
     int32_t l, x;
+#ifdef SAMESIZE_ACTOR_T
+    int32_t *t;
+#else
     intptr_t *t;
+#endif
     spritetype *s;
     int32_t switchpicnum;
 
@@ -5433,8 +5451,12 @@ BOLT:
 
 ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 {
-    int32_t q=0,  m, x, st, j;
-    intptr_t *t,l;
+    int32_t q=0,  m, x, st, j, l;
+#ifdef SAMESIZE_ACTOR_T
+    int32_t *t;
+#else
+    intptr_t *t;
+#endif
     int32_t i = headspritestat[STAT_EFFECTOR], nexti, nextk, p, sh, nextj;
     int16_t k;
     spritetype *s;
@@ -7091,33 +7113,35 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
         case 21: // Cascading effect
+        {
+            int32_t *zptr;
 
             if (t[0] == 0) break;
 
             if (s->ang == 1536)
-                l = (intptr_t) &sc->ceilingz;
+                zptr = &sc->ceilingz;
             else
-                l = (intptr_t) &sc->floorz;
+                zptr = &sc->floorz;
 
             if (t[0] == 1)   //Decide if the s->sectnum should go up or down
             {
-                s->zvel = ksgn(s->z-*(int32_t *)l) * (SP<<4);
+                s->zvel = ksgn(s->z-*zptr) * (SP<<4);
                 t[0]++;
             }
 
             if (sc->extra == 0)
             {
-                *(int32_t *)l += s->zvel;
+                *zptr += s->zvel;
 
-                if (klabs(*(int32_t *)l-s->z) < 1024)
+                if (klabs(*zptr-s->z) < 1024)
                 {
-                    *(int32_t *)l = s->z;
+                    *zptr = s->z;
                     KILLIT(i); //All done
                 }
             }
             else sc->extra--;
             break;
-
+        }
         case 22:
 
             if (t[1])

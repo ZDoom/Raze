@@ -104,7 +104,6 @@ static void Gv_Clear(void)
 int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
 {
     int32_t i, j;
-    intptr_t l;
     char savedstate[MAXVOLUMES*MAXLEVELS];
     char tbuf[12];
 
@@ -205,6 +204,8 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
 
     if (!newbehav)
     {
+        intptr_t l;
+
         if (kdfread(&l,sizeof(l),1,fil) != 1) goto corrupt;
         if (kdfread(g_szBuf,l,1,fil) != 1) goto corrupt;
         g_szBuf[l]=0;
@@ -237,7 +238,6 @@ corrupt:
 void Gv_WriteSave(FILE *fil, int32_t newbehav)
 {
     int32_t i, j;
-    intptr_t l;
     char savedstate[MAXVOLUMES*MAXLEVELS];
 
     Bmemset(&savedstate,0,sizeof(savedstate));
@@ -306,6 +306,8 @@ void Gv_WriteSave(FILE *fil, int32_t newbehav)
 
     if (!newbehav)
     {
+        intptr_t l;
+
         Bsprintf(g_szBuf,"EOF: EDuke32");
         l=Bstrlen(g_szBuf);
         dfwrite(&l,sizeof(l),1,fil);
