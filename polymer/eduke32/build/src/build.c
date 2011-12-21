@@ -496,10 +496,11 @@ int32_t app_main(int32_t argc, const char **argv)
             }
             continue;
         }
+
         if (!boardfilename[0])
         {
             Bstrncpy(boardfilename, argv[i], BMAX_PATH);
-            boardfilename[i-BMAX_PATH] = 0;
+            boardfilename[BMAX_PATH-1] = 0;
         }
     }
     if (boardfilename[0] == 0)
