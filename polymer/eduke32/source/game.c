@@ -6510,67 +6510,66 @@ skip:
         }
 
         if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
-            if (t->statnum != TSPR_TEMP && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE)
-                if (s->picnum != HOTMEAT)
+            if (t->statnum != TSPR_TEMP && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE && s->picnum != HOTMEAT)
+            {
+                if (actor[i].dispicnum < 0)
                 {
-                    if (actor[i].dispicnum < 0)
-                    {
-                        actor[i].dispicnum++;
-                        continue;
-                    }
-                    else if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2) && getrendermode() != 4)
-                    {
-                        int32_t daz,xrep,yrep;
+                    actor[i].dispicnum++;
+                    continue;
+                }
+                else if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2) && getrendermode() != 4)
+                {
+                    int32_t daz,xrep,yrep;
 
-                        if ((sector[sect].lotag&0xff) > 2 || s->statnum == STAT_PROJECTILE || s->statnum == 5 || s->picnum == DRONE || s->picnum == COMMANDER)
-                            daz = sector[sect].floorz;
-                        else
-                            daz = actor[i].floorz;
+                    if ((sector[sect].lotag&0xff) > 2 || s->statnum == STAT_PROJECTILE || s->statnum == 5 || s->picnum == DRONE || s->picnum == COMMANDER)
+                        daz = sector[sect].floorz;
+                    else
+                        daz = actor[i].floorz;
 
-                        if ((s->z-daz) < (8<<8))
-                            if (g_player[screenpeek].ps->pos.z < daz)
-                            {
-                                Bmemcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
+                    if ((s->z-daz) < (8<<8))
+                        if (g_player[screenpeek].ps->pos.z < daz)
+                        {
+                            Bmemcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)t,sizeof(spritetype));
 
-                                tsprite[spritesortcnt].statnum = TSPR_TEMP;
+                            tsprite[spritesortcnt].statnum = TSPR_TEMP;
 
-                                tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
-                                if (t->yrepeat < 4) t->yrepeat = 4;
+                            tsprite[spritesortcnt].yrepeat = (t->yrepeat>>3);
+                            if (t->yrepeat < 4) t->yrepeat = 4;
 
-                                tsprite[spritesortcnt].shade = 127;
-                                tsprite[spritesortcnt].cstat |= 2;
+                            tsprite[spritesortcnt].shade = 127;
+                            tsprite[spritesortcnt].cstat |= 2;
 
-                                tsprite[spritesortcnt].z = daz;
-                                xrep = tsprite[spritesortcnt].xrepeat;// - (klabs(daz-t->z)>>11);
-                                tsprite[spritesortcnt].xrepeat = xrep;
-                                tsprite[spritesortcnt].pal = 4;
+                            tsprite[spritesortcnt].z = daz;
+                            xrep = tsprite[spritesortcnt].xrepeat;// - (klabs(daz-t->z)>>11);
+                            tsprite[spritesortcnt].xrepeat = xrep;
+                            tsprite[spritesortcnt].pal = 4;
 
-                                yrep = tsprite[spritesortcnt].yrepeat;// - (klabs(daz-t->z)>>11);
-                                tsprite[spritesortcnt].yrepeat = yrep;
+                            yrep = tsprite[spritesortcnt].yrepeat;// - (klabs(daz-t->z)>>11);
+                            tsprite[spritesortcnt].yrepeat = yrep;
 
 #ifdef USE_OPENGL
-                                if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
-                                {
-                                    tsprite[spritesortcnt].yrepeat = 0;
-                                    // 512:trans reverse
-                                    //1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
-                                    tsprite[spritesortcnt].cstat |= (512+1024);
-                                }
-                                else if (getrendermode() >= 3)
-                                {
-                                    int32_t ii;
-
-                                    ii = getangle(tsprite[spritesortcnt].x-g_player[screenpeek].ps->pos.x,
-                                                  tsprite[spritesortcnt].y-g_player[screenpeek].ps->pos.y);
-
-                                    tsprite[spritesortcnt].x += sintable[(ii+2560)&2047]>>9;
-                                    tsprite[spritesortcnt].y += sintable[(ii+2048)&2047]>>9;
-                                }
-#endif
-                                spritesortcnt++;
+                            if (getrendermode() >= 3 && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
+                            {
+                                tsprite[spritesortcnt].yrepeat = 0;
+                                // 512:trans reverse
+                                //1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
+                                tsprite[spritesortcnt].cstat |= (512+1024);
                             }
-                    }
+                            else if (getrendermode() >= 3)
+                            {
+                                int32_t ii;
+
+                                ii = getangle(tsprite[spritesortcnt].x-g_player[screenpeek].ps->pos.x,
+                                              tsprite[spritesortcnt].y-g_player[screenpeek].ps->pos.y);
+
+                                tsprite[spritesortcnt].x += sintable[(ii+2560)&2047]>>9;
+                                tsprite[spritesortcnt].y += sintable[(ii+2048)&2047]>>9;
+                            }
+#endif
+                            spritesortcnt++;
+                        }
                 }
+            }
 
         switch (DynamicTileMap[s->picnum])
         {

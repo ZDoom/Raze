@@ -282,13 +282,13 @@ void A_GetZLimits(int32_t iActor)
 
 //    if (s->statnum == STAT_PLAYER || s->statnum == STAT_STANDABLE || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_ACTOR || s->statnum == STAT_PROJECTILE)
     {
-        int32_t hz,lz,zr = 127L;
+        int32_t hz,lz,zr = 127;
         int32_t cstat = s->cstat;
 
         s->cstat = 0;
 
         if (s->statnum == STAT_PROJECTILE)
-            zr = 4L;
+            zr = 4;
 
         s->z -= ZOFFSET;
         getzrange((vec3_t *)s,s->sectnum,&actor[iActor].ceilingz,&hz,&actor[iActor].floorz,&lz,zr,CLIPMASK0);
@@ -298,28 +298,22 @@ void A_GetZLimits(int32_t iActor)
 
         if ((lz&49152) == 49152 && (sprite[lz&(MAXSPRITES-1)].cstat&48) == 0)
         {
+            const spritetype *hitspr = &sprite[lz&(MAXSPRITES-1)];
+
             lz &= (MAXSPRITES-1);
-            if (A_CheckEnemySprite(&sprite[lz]) && sprite[lz].pal != 1)
-            {
-                if (s->statnum != 4)
-                {
-                    actor[iActor].dispicnum = -4; // No shadows on actors
-                    s->xvel = -256;
-                    A_SetSprite(iActor,CLIPMASK0);
-                }
-            }
-            else if (sprite[lz].picnum == APLAYER && A_CheckEnemySprite(s))
+
+            if ((A_CheckEnemySprite(hitspr) && hitspr->pal != 1 && s->statnum != STAT_PROJECTILE)
+                    || (hitspr->picnum == APLAYER && A_CheckEnemySprite(s)))
             {
                 actor[iActor].dispicnum = -4; // No shadows on actors
                 s->xvel = -256;
                 A_SetSprite(iActor,CLIPMASK0);
             }
-            else if (s->statnum == STAT_PROJECTILE && sprite[lz].picnum == APLAYER)
-                if (s->owner == lz)
-                {
-                    actor[iActor].ceilingz = sector[s->sectnum].ceilingz;
-                    actor[iActor].floorz   = sector[s->sectnum].floorz;
-                }
+            else if (s->statnum == STAT_PROJECTILE && hitspr->picnum == APLAYER && s->owner==lz)
+            {
+                actor[iActor].ceilingz = sector[s->sectnum].ceilingz;
+                actor[iActor].floorz   = sector[s->sectnum].floorz;
+            }
         }
     }
     /*

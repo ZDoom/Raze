@@ -8061,7 +8061,7 @@ int32_t A_CheckEnemyTile(int32_t pn)
     return 0;
 }
 
-inline int32_t A_CheckEnemySprite(spritetype *s)
+inline int32_t A_CheckEnemySprite(const spritetype *s)
 {
     return(A_CheckEnemyTile(s->picnum));
 }
