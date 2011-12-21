@@ -299,7 +299,7 @@ void G_PlayAnim(const char *fn,char t)
             palfadedelta = 0;
             showframe(0);
 
-            while (getticks() < nextframetime)
+            do
             {
                 handleevents();
                 Net_GetPackets();
@@ -310,6 +310,7 @@ void G_PlayAnim(const char *fn,char t)
                     break;
                 }
             }
+            while (getticks() < nextframetime);
         }
 
         //
