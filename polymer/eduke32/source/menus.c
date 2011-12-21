@@ -472,10 +472,10 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
 #define MWIN(X) rotatesprite( 320<<15,200<<15,X,0,MENUSCREEN,-16,0,10+64,0,0,xdim-1,ydim-1)
 #define MWINXY(X,OX,OY) rotatesprite( ( 320+(OX) )<<15, ( 200+(OY) )<<15,X,0,MENUSCREEN,-16,0,10+64,0,0,xdim-1,ydim-1)
 
-extern int32_t G_LoadSaveHeader(char spot,struct savehead *saveh);
+extern int32_t G_LoadSaveHeader(char spot,struct savehead_ *saveh);
 
 #pragma pack(push,1)
-static struct savehead savehead;
+static struct savehead_ savehead;
 #pragma pack(pop)
 
 //static int32_t volnum,levnum,plrskl,numplr;
@@ -496,7 +496,20 @@ static void M_DisplaySaveGameList(void)
     rotatesprite(103<<16,144<<16,65536L,1024+512,WINDOWBORDER1,24,0,10,0,0,xdim-1,ydim-1);
 
     for (x=0; x<=9; x++)
-        minitext(c,48+(12*x),ud.savegame[x],2,10+16);
+    {
+        if (ud.savegame[x][0])
+        {
+            minitext(c,48+(12*x),ud.savegame[x],2,10+16);
+        }
+        else if (ud.savegame[x][20]==32 && g_currentMenu!=360+x)
+        {
+            // old version and not entering new name
+            char buf[22];
+            Bmemcpy(buf, ud.savegame[x], 22);
+            buf[0] = '?';
+            minitext(c,48+(12*x),buf,13,10+16);
+        }
+    }
 }
 
 static void clearfilenames(void)
@@ -540,6 +553,24 @@ void G_CheckPlayerColor(int32_t *color, int32_t prev_color)
             else (*color)--;
             i=0;
         }
+    }
+}
+
+static void Menus_LoadSave_DisplayCommon1(void)
+{
+    if (lastsavehead != probey)
+        G_LoadSaveHeader(probey,&savehead);
+    lastsavehead = probey;
+
+    rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
+
+    if (ud.savegame[probey][20] == 32)
+    {
+        menutext(40,70,0,0,"OLD VERSION");
+        Bsprintf(tempbuf,"SAVED: %d", savehead.byteversion);
+        mgametext(40,82,tempbuf,0,2+8+16);
+        Bsprintf(tempbuf,"OUR: %d", BYTEVERSION);
+        mgametext(40+16,92,tempbuf,0,2+8+16);
     }
 }
 
@@ -4737,15 +4768,11 @@ cheat_for_port_credits:
 
         if (g_currentMenu == 300)
         {
-            if (ud.savegame[probey][0])
+            // load game
+            if (ud.savegame[probey][0] || ud.savegame[probey][20]==32) // ...[20]==32: old version
             {
-                if (lastsavehead != probey)
-                {
-                    G_LoadSaveHeader(probey,&savehead);
-                    lastsavehead = probey;
-                }
+                Menus_LoadSave_DisplayCommon1();
 
-                rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
                 Bsprintf(tempbuf,"PLAYERS: %-2d                      ",savehead.numplr);
                 mgametext(160,156,tempbuf,0,2+8+16);
                 Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+savehead.volnum,1+savehead.levnum,savehead.plrskl);
@@ -4753,18 +4780,20 @@ cheat_for_port_credits:
                 if (savehead.volnum == 0 && savehead.levnum == 7)
                     mgametext(160,180,savehead.boardfn,0,2+8+16);
             }
-            else menutext(69,70,0,0,"EMPTY");
+            else
+            {
+                menutext(69,70,0,0,"EMPTY");
+            }
         }
         else
         {
-            if (ud.savegame[probey][0])
+            // save game
+            if (ud.savegame[probey][0] || ud.savegame[probey][20]==32) // ...[20]==32: old version
             {
-                if (lastsavehead != probey)
-                    G_LoadSaveHeader(probey,&savehead);
-                lastsavehead = probey;
-                rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
+                Menus_LoadSave_DisplayCommon1();
             }
             else menutext(69,70,0,0,"EMPTY");
+
             Bsprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
             mgametext(160,156,tempbuf,0,2+8+16);
             Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);

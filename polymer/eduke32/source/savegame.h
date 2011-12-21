@@ -24,9 +24,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __savegame_h__
 
 #pragma pack(push,1)
-struct savehead 
+struct savehead_
 {
     char name[21];
+    int32_t byteversion;
     int32_t numplr,volnum,levnum,plrskl;
     char boardfn[BMAX_PATH];
 };
@@ -40,7 +41,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil,int32_t recdiffs,int32_t diffcompress,i
 void sv_freemem();
 int32_t G_SavePlayer(int32_t spot);
 int32_t G_LoadPlayer(int32_t spot);
-int32_t G_LoadSaveHeader(char spot,struct savehead *saveh);
+int32_t G_LoadSaveHeader(char spot,struct savehead_ *saveh);
 void ReadSaveGameHeaders(void);
 extern char *bitptr;
 

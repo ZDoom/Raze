@@ -32,7 +32,7 @@ extern int32_t g_lastSaveSlot;
 extern int32_t g_quitDeadline;
 extern int32_t probey;
 extern int32_t voting;
-int32_t G_LoadSaveHeader(char spot,struct savehead *saveh);
+int32_t G_LoadSaveHeader(char spot,struct savehead_ *saveh);
 int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits);
 void ChangeToMenu(int32_t cm);
 void G_CheckPlayerColor(int32_t *color,int32_t prev_color);

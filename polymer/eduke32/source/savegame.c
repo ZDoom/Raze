@@ -117,6 +117,8 @@ void ReadSaveGameHeaders(void)
 
     for (i=0; i<10; i++)
     {
+        int32_t oldver=0;
+
         fn[4] = i+'0';
         if ((fil = kopen4loadfrommod(fn,0)) == -1) continue;
         if (kdfread(&j,sizeof(int32_t),1,fil) != 1)
@@ -136,9 +138,11 @@ void ReadSaveGameHeaders(void)
         }
         if (dummy != BYTEVERSION)
         {
-            kclose(fil);
-            continue;
+            oldver = 1;
+//            kclose(fil);
+//            continue;
         }
+
         if (kdfread(&dummy,sizeof(dummy),1,fil) != 1)
         {
             kclose(fil);
@@ -147,14 +151,26 @@ void ReadSaveGameHeaders(void)
         if (kdfread(&ud.savegame[i][0],21,1,fil) != 1)
         {
             ud.savegame[i][0] = 0;
+
+            ud.savegame[i][20] = 0;
+            ud.savegame[i][21] = 0;
         }
         else ud.savegame[i][19] = 0;
+
+        if (oldver)
+        {
+//            Bmemset(ud.savegame[i], 0, 20);
+            ud.savegame[i][0] = 0;
+
+            ud.savegame[i][20] = 32;
+            ud.savegame[i][21] = 0;
+        }
 
         kclose(fil);
     }
 }
 
-int32_t G_LoadSaveHeader(char spot,struct savehead *saveh)
+int32_t G_LoadSaveHeader(char spot,struct savehead_ *saveh)
 {
     char fn[13];
     int32_t fil;
@@ -179,6 +195,7 @@ int32_t G_LoadSaveHeader(char spot,struct savehead *saveh)
             kclose(fil);
             return 1;
         }*/
+    saveh->byteversion = bv;
 
     if (kdfread(&saveh->numplr,sizeof(int32_t),1,fil) != 1) goto corrupt;
 
