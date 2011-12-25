@@ -3765,8 +3765,6 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     Bmemset(&actor[i], 0, sizeof(actor_t));
     Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t)); // update bposx/y/z
 
-    actor[i].projectile = &SpriteProjectile[i];
-
     if (s_ow > -1 && s_ow < MAXSPRITES)
     {
         actor[i].picnum = sprite[s_ow].picnum;
@@ -3863,8 +3861,6 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         if (PN == SECTOREFFECTOR && SLT == 50)
             actor[i].picnum = OW;
-
-        actor[i].projectile = &SpriteProjectile[i];
 
         OW = actor[i].owner = i;
 

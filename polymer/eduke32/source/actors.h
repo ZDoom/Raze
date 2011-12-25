@@ -108,14 +108,12 @@ typedef struct {
     void *lightptr;
 #endif
 
-    projectile_t *projectile; //4b/8b
-
 #if !defined SAMESIZE_ACTOR_T || UINTPTR_MAX == 0xffffffff
     /* 32-bit or old, same-declaration version */
-    int8_t filler[16]; // pad struct to 128 bytes
+    int8_t filler[24]; // pad struct to 128 bytes
 #else
     /* 64-bit, will break older savegames */
-    int8_t filler[8];
+    int8_t filler[16];
 #endif
 } actor_t;
 

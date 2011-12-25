@@ -436,7 +436,6 @@ int32_t G_LoadPlayer(int32_t spot)
         if (scriptptrs[i]&2) T5 += j;
         if (scriptptrs[i]&4) T6 += j;
 #endif
-        actor[i].projectile = &SpriteProjectile[i];
     }
 
 #if !defined SAMESIZE_ACTOR_T
@@ -1994,8 +1993,6 @@ static void sv_postactordata()
     {
         actor[i].lightptr = NULL;
         actor[i].lightId = -1;
-
-        actor[i].projectile = &SpriteProjectile[i];
 
 #if !defined SAMESIZE_ACTOR_T
         if (sprite[i].statnum==MAXSTATUS || actorscrptr[PN]==NULL) continue;

@@ -722,7 +722,6 @@ int32_t Net_UnpackSprite(int32_t i, uint8_t *pbuf)
         j += sizeof(int32_t);
     }
 
-    actor[i].projectile = &SpriteProjectile[i];
 #ifdef POLYMER
     actor[i].lightptr = mylight;
     actor[i].lightId = lightid;
