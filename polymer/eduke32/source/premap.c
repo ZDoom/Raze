@@ -1726,9 +1726,8 @@ static inline void clearfrags(void)
 
         p->ps->frag = p->ps->fraggedself = 0;
 
-        if (i == MAXPLAYERS-1)
-            break;
-        p = &g_player[i+1];
+        if (i == 0)
+            continue;
 
         Bmemset(p->frags, 0, sizeof(g_player[i].frags));
         Bmemset(p->wchoice, 0, sizeof(g_player[i].wchoice));
