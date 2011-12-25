@@ -240,10 +240,13 @@ typedef struct {
     uint8_t filler;
     float alpha;
     spritetype *tspr;
-#if defined LUNATIC_ENABLE && UINTPTR_MAX == 0xffffffff
+#if !defined UINTPTR_MAX
+# error Need UINTPTR_MAX define to select between 32- and 64-bit structs
+#endif
+#if UINTPTR_MAX == 0xffffffff
     /* On a 32-bit build, pad the struct so it has the same size everywhere.
      * REMINDER: Will break savegames. */
-    void *dummy_;
+    const intptr_t dummy_;
 #endif
 } spriteext_t;
 

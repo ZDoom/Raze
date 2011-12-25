@@ -21,11 +21,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
-#include "gamedef.h"
+//#include "gamedef.h"
 #include "premap.h"
-#include "menus.h"
+#include "menus.h"  // menutext
 #include "prlights.h"
 #include "savegame.h"
+
+#include <assert.h>
 
 extern char *bitptr;
 
@@ -108,6 +110,51 @@ void G_ResetInterpolations(void)
 
 void ReadSaveGameHeaders(void)
 {
+    char fn[16];
+    int32_t fil, i;
+
+    savehead_t h;
+
+    Bstrcpy(fn, "dukesav0.esv");
+
+    for (i=0; i<10; i++)
+    {
+        int32_t k;
+
+        fn[7] = i + '0';
+        fil = kopen4loadfrommod(fn, 0);
+        if (fil == -1)
+        {
+            Bmemset(ud.savegame[i], 0, sizeof(ud.savegame[i]));
+            continue;
+        }
+
+        k = sv_loadheader(fil, i, &h);
+        if (k)
+        {
+            if (k==2 || k==3)
+            {
+                // old version, signal to menu code (which should be rewritten
+                // more cleanly)
+
+                h.savename[0] = 0;
+
+                h.savename[20] = 32;
+                h.savename[21] = 0;
+            }
+            // else h.savename is all zeros (fatal failure, like wrong header
+            // magic or too short header)
+        }
+
+        Bmemcpy(ud.savegame[i], h.savename, sizeof(ud.savegame[i]));
+
+        kclose(fil);
+    }
+}
+
+#if 0
+void ReadSaveGameHeaders(void)
+{
     int32_t dummy,j;
     int32_t i;
     char fn[13];
@@ -169,7 +216,51 @@ void ReadSaveGameHeaders(void)
         kclose(fil);
     }
 }
+#endif
 
+int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh)
+{
+    char fn[16];
+    int32_t fil, screenshotofs;
+
+    Bstrcpy(fn, "dukesav0.esv");
+    fn[7] = spot + '0';
+
+    fil = kopen4loadfrommod(fn, 0);
+    if (fil == -1)
+        return -1;
+
+    if (sv_loadheader(fil, spot, saveh))
+        goto corrupt;
+
+    if (kread(fil, &screenshotofs, 4) != 4)
+        goto corrupt;
+
+    walock[TILE_LOADSHOT] = 255;
+    if (waloff[TILE_LOADSHOT] == 0)
+        allocache(&waloff[TILE_LOADSHOT], 320*200, &walock[TILE_LOADSHOT]);
+    tilesizx[TILE_LOADSHOT] = 200;
+    tilesizy[TILE_LOADSHOT] = 320;
+    if (screenshotofs)
+    {
+        if (kdfread((char *)waloff[TILE_LOADSHOT], 320, 200, fil) != 200)
+            goto corrupt;
+    }
+    else
+    {
+        Bmemset((char *)waloff[TILE_LOADSHOT], 0, 320*200);
+    }
+    invalidatetile(TILE_LOADSHOT, 0, 255);
+
+    kclose(fil);
+    return 0;
+
+corrupt:
+    kclose(fil);
+    return 1;
+}
+
+#if 0
 int32_t G_LoadSaveHeader(char spot,struct savehead_ *saveh)
 {
     char fn[13];
@@ -218,7 +309,114 @@ corrupt:
     kclose(fil);
     return 1;
 }
+#endif
 
+static void sv_postudload();
+
+// TODO: need to see: keyboard input 'blocked' after load fail ? (at least ESC?)
+int32_t G_LoadPlayer(int32_t spot)
+{
+    char fn[16];
+    int32_t fil, i;
+
+    savehead_t h;
+
+    Bstrcpy(fn, "dukesav0.esv");
+    fn[7] = spot + '0';
+
+    fil = kopen4loadfrommod(fn, 0);
+    if (fil == -1)
+        return -1;
+
+    ready2send = 0;
+
+    i = sv_loadheader(fil, spot, &h);
+    if (i || h.numplayers!=ud.multimode)
+    {
+        if (i == 2 || i == 3)
+            P_DoQuote(QUOTE_SAVE_BAD_VERSION, g_player[myconnectindex].ps);
+        else if (h.numplayers!=ud.multimode)
+            P_DoQuote(QUOTE_SAVE_BAD_PLAYERS, g_player[myconnectindex].ps);
+
+        kclose(fil);
+        ototalclock = totalclock;
+        ready2send = 1;
+
+        return 1;
+    }
+
+    // some setup first
+    ud.multimode = h.numplayers;
+
+    if (numplayers > 1)
+    {
+        pub = NUMPAGES;
+        pus = NUMPAGES;
+        G_UpdateScreenArea();
+        G_DrawBackground();
+        menutext(160,100, 0,0, "LOADING...");
+        nextpage();
+    }
+
+    Net_WaitForServer();
+
+    FX_StopAllSounds();
+    S_ClearSoundLocks();
+
+    if (spot >= 0 && numplayers==1)
+    {
+        Bmemcpy(ud.savegame[spot], h.savename, sizeof(ud.savegame[0]));
+        ud.savegame[spot][sizeof(ud.savegame[0])-1] = 0;
+    }
+
+    // non-"m_" fields will be loaded from svgm_udnetw
+    ud.m_volume_number = h.volnum;
+    ud.m_level_number = h.levnum;
+    ud.m_player_skill = h.skill;
+
+    Bstrcpy(boardfilename, h.boardfn);
+
+    if (boardfilename[0])
+        Bstrcpy(currentboardfilename, boardfilename);
+    else if (MapInfo[h.volnum*MAXLEVELS + h.levnum].filename)
+        Bstrcpy(currentboardfilename, MapInfo[h.volnum*MAXLEVELS + h.levnum].filename);
+
+    // TODO: this stuff needs to be factored out, too...
+    if (currentboardfilename[0])
+    {
+        char *p;
+
+        p = Bstrrchr(currentboardfilename,'.');
+        if (!p) Bstrcat(currentboardfilename,".mhk");
+        else
+        {
+            p[1]='m';
+            p[2]='h';
+            p[3]='k';
+            p[4]=0;
+        }
+
+        loadmaphack(currentboardfilename);
+    }
+
+    Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
+
+    // read the rest...
+    i = sv_loadsnapshot(fil, spot, &h);
+    if (i)
+    {
+        // in theory, we could load into an initial dump first and trivially
+        // recover if things go wrong...
+        Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", fn, i);
+        G_GameExit(tempbuf);
+    }
+
+    sv_postudload();  // ud.m_XXX = ud.XXX
+
+    return 0;
+}
+
+#if 0
 int32_t G_LoadPlayer(int32_t spot)
 {
     char fn[13];
@@ -265,7 +463,8 @@ int32_t G_LoadPlayer(int32_t spot)
         P_DoQuote(QUOTE_SAVE_BAD_PLAYERS,g_player[myconnectindex].ps);
         return 1;
     }
-    else ud.multimode = nump;
+
+    ud.multimode = nump;
 
     if (numplayers > 1)
     {
@@ -273,7 +472,7 @@ int32_t G_LoadPlayer(int32_t spot)
         pus = NUMPAGES;
         G_UpdateScreenArea();
         G_DrawBackground();
-        menutext(160,100,0,0,"LOADING...");
+        menutext(160,100, 0, 0,"LOADING...");
         nextpage();
     }
 
@@ -357,6 +556,8 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&spriteext[0],sizeof(spriteext_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
 #ifdef POLYMER
+    // what's the point of doing this when we polymer_resetlights() through polymer_loadboard()
+    // later on anyway?
     if (kdfread(&lightcount,sizeof(lightcount),1,fil) != 1) goto corrupt;
     if (kdfread(&prlights[0],sizeof(_prlight),lightcount,fil) != lightcount) goto corrupt;
 #else
@@ -531,6 +732,8 @@ int32_t G_LoadPlayer(int32_t spot)
 
     kclose(fil);
 
+
+    //1
     if (g_player[myconnectindex].ps->over_shoulder_on != 0)
     {
         g_cameraDistance = 0;
@@ -538,46 +741,53 @@ int32_t G_LoadPlayer(int32_t spot)
         g_player[myconnectindex].ps->over_shoulder_on = 1;
     }
 
+    //2
     screenpeek = myconnectindex;
 
-    clearbufbyte(gotpic,sizeof(gotpic),0L);
-    S_ClearSoundLocks();
-    G_CacheMapData();
-
-    i = g_musicIndex;
-    g_musicIndex = (ud.volume_number*MAXLEVELS) + ud.level_number;
-
-    if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
+    // 2.5
     {
-        char levname[BMAX_PATH];
+        Bmemset(gotpic, 0, sizeof(gotpic));
+        S_ClearSoundLocks();
+        G_CacheMapData();
 
-        G_SetupFilenameBasedMusic(levname, boardfilename, ud.level_number);
-    }
+        i = g_musicIndex;
+        g_musicIndex = (ud.volume_number*MAXLEVELS) + ud.level_number;
 
-    if (ud.config.MusicToggle)
-    {
-        if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL &&
-            (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].alt_musicfn))
+        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
         {
-            S_StopMusic();
-            S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
+            char levname[BMAX_PATH];
+
+            G_SetupFilenameBasedMusic(levname, boardfilename, ud.level_number);
         }
 
-        S_PauseMusic(0);
+        if (ud.config.MusicToggle)
+        {
+            if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL &&
+                (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].alt_musicfn))
+            {
+                S_StopMusic();
+                S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0], g_musicIndex);
+            }
+
+            S_PauseMusic(0);
+        }
+
+        g_player[myconnectindex].ps->gm = MODE_GAME;
+        ud.recstat = 0;
+
+        if (g_player[myconnectindex].ps->jetpack_on)
+            A_PlaySound(DUKE_JETPACK_IDLE, g_player[myconnectindex].ps->i);
     }
 
-    g_player[myconnectindex].ps->gm = MODE_GAME;
-    ud.recstat = 0;
-
-    if (g_player[myconnectindex].ps->jetpack_on)
-        A_PlaySound(DUKE_JETPACK_IDLE,g_player[myconnectindex].ps->i);
-
-    g_restorePalette = 1;
+//    g_restorePalette = 1;
+    //3
     P_UpdateScreenPal(g_player[myconnectindex].ps);
-    G_UpdateScreenArea();
 
+    //3.5
+    G_UpdateScreenArea();
     FX_SetReverb(0);
 
+    //4
     if (ud.lockout == 0)
     {
         for (x=0; x<g_numAnimWalls; x++)
@@ -599,24 +809,29 @@ int32_t G_LoadPlayer(int32_t spot)
             }
     }
 
+    //5
     G_ResetInterpolations();
 
+    //6
     g_showShareware = 0;
     everyothertime = 0;
 
+    //7
     for (i=0; i<MAXPLAYERS; i++)
         g_player[i].playerquitflag = 1;
 
-    Net_ResetPrediction();
+    Net_ResetPrediction(); //OBSOLETE
 
+    //7.5
     ready2send = 1;
-
     G_ClearFIFO();
     Net_WaitForServer();
 
+    //8
     G_ResetTimers();
 
 #ifdef POLYMER
+    //8
     if (getrendermode() == 4)
         polymer_loadboard();
 #endif
@@ -635,7 +850,58 @@ corrupt:
     G_GameExit(tempbuf);
     return -1;
 }
+#endif
 
+int32_t G_SavePlayer(int32_t spot)
+{
+    char fn[16];
+//    char mpfn[16];
+    FILE *fil;
+    int32_t ret;
+
+    Bstrcpy(fn, "dukesav0.esv");
+    fn[7] = spot + '0';
+
+//    Bstrcpy(mpfn, "edukA_00.esv");
+
+    Net_WaitForServer();
+    ready2send = 0;
+
+    {
+        char temp[BMAX_PATH];
+
+        // TODO: factor this out someday...
+        if (g_modDir[0] != '/')
+            Bsnprintf(temp, sizeof(temp), "%s/%s", g_modDir, fn);
+        else
+            Bsnprintf(temp, sizeof(temp), "%s", fn);
+        temp[sizeof(temp)-1] = 0;
+
+        fil = fopen(temp, "wb");
+        if (!fil)
+            return -1;
+    }
+
+    // SAVE!
+    ret = sv_saveandmakesnapshot(fil, spot, 0, 0, 0);
+
+    fclose(fil);
+
+    if (!g_netServer && ud.multimode < 2)
+    {
+        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "GAME SAVED");
+        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+    }
+
+    ready2send = 1;
+    Net_WaitForServer();
+
+    ototalclock = totalclock;
+
+    return 0;
+}
+
+#if 0
 int32_t G_SavePlayer(int32_t spot)
 {
     int32_t i;
@@ -662,6 +928,7 @@ int32_t G_SavePlayer(int32_t spot)
         if (g_modDir[0] != '/')
             Bsprintf(temp,"%s/%s",g_modDir,fnptr);
         else Bsprintf(temp,"%s",fnptr);
+
         if ((fil = fopen(temp,"wb")) == 0) return(-1);
     }
 
@@ -905,7 +1172,7 @@ int32_t G_SavePlayer(int32_t spot)
 
     fclose(fil);
 
-    if ((!g_netServer && ud.multimode < 2))
+    if (!g_netServer && ud.multimode < 2)
     {
         strcpy(ScriptQuotes[QUOTE_RESERVED4],"GAME SAVED");
         P_DoQuote(QUOTE_RESERVED4,g_player[myconnectindex].ps);
@@ -919,6 +1186,7 @@ int32_t G_SavePlayer(int32_t spot)
 
     return(0);
 }
+#endif
 
 
 ////////// GENERIC SAVING/LOADING SYSTEM //////////
@@ -930,18 +1198,6 @@ typedef struct dataspec_
     uint32_t size;
     intptr_t cnt;
 } dataspec_t;
-
-#ifdef YAX_ENABLE
-# define SV_MAJOR_VER 1
-#else
-# define SV_MAJOR_VER 0
-#endif
-
-#ifdef SAMESIZE_ACTOR_T
-# define SV_MINOR_VER 4
-#else
-# define SV_MINOR_VER 3
-#endif
 
 #define SV_DEFAULTCOMPRTHRES 8
 static uint8_t savegame_diffcompress;  // 0:none, 1:Ken's LZW in cache1d.c
@@ -996,7 +1252,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
         if (sp->flags&(DS_SAVEFN|DS_LOADFN))
         {
             if (sp->flags&DS_SAVEFN)
-                (*(void ( *)(void))sp->ptr)();
+                (*(void (*)(void))sp->ptr)();
             continue;
         }
 
@@ -1064,11 +1320,11 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
             j=kread(fil, cmpstrbuf, i);
             if (j!=i || Bmemcmp(sp->ptr, cmpstrbuf, i))
             {
-                OSD_Printf("rsd: spec=%p, sp=%p ", spec, sp);
+                OSD_Printf("rsd: spec=%s, idx=%d:\n", (char *)spec->ptr, sp-spec);
                 if (j!=i)
-                    OSD_Printf("     kread returned %d, expected %d.\n", j, i);
+                    OSD_Printf("    kread returned %d, expected %d.\n", j, i);
                 else
-                    OSD_Printf("     sp->ptr and cmpstrbuf not identical!\n");
+                    OSD_Printf("    sp->ptr and cmpstrbuf not identical!\n");
                 return -1;
             }
             continue;
@@ -1093,10 +1349,10 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
             }
             if (i!=j)
             {
-                OSD_Printf("rsd: spec=%p, sp=%p, mem=%p\n", spec, sp, mem);
-                OSD_Printf("     %s: read %d, expected %d!\n",
+                OSD_Printf("rsd: spec=%s, idx=%d, mem=%p\n", (char *)spec->ptr, sp-spec, mem);
+                OSD_Printf("     (%s): read %d, expected %d!\n",
                            ((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=savegame_comprthres)?
-                           "UNCOMP":"COMPR", i, j);
+                           "uncompressed":"compressed", i, j);
 
                 if (i==-1)
                     OSD_Printf("     read: %s\n", strerror(errno));
@@ -1221,7 +1477,7 @@ static void cmpspecdata(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **dif
         if (sp->flags&(DS_LOADFN|DS_SAVEFN))
         {
             if ((sp->flags&(DS_PROTECTFN))==0)
-                (*(void ( *)())sp->ptr)();
+                (*(void (*)())sp->ptr)();
             continue;
         }
 
@@ -1360,7 +1616,6 @@ static uint32_t calcsz(const dataspec_t *spec)
     return dasiz;
 }
 
-static void sv_postudload();
 #ifdef USE_OPENGL
 static void sv_prespriteextsave();
 static void sv_postspriteext();
@@ -1428,7 +1683,7 @@ static const dataspec_t svgm_udnetw[] =
     { DS_NOCHK, &ud.playerai, sizeof(ud.playerai), 1 },
     { 0, &ud.pause_on, sizeof(ud.pause_on), 1 },
     { DS_NOCHK, &currentboardfilename[0], BMAX_PATH, 1 },
-    { DS_LOADFN, (void *)&sv_postudload, 0, 1 },
+//    { DS_LOADFN, (void *)&sv_postudload, 0, 1 },
     { 0, connectpoint2, sizeof(connectpoint2), 1 },
     { 0, &randomseed, sizeof(randomseed), 1 },
     { 0, &g_globalRandom, sizeof(g_globalRandom), 1 },
@@ -1555,10 +1810,9 @@ static const dataspec_t svgm_anmisc[] =
 };
 
 static dataspec_t *svgm_vars=NULL;
-static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem);
-static int32_t doloadplayer2(int32_t spot, int32_t fil, uint8_t **memptr);
-static void postloadplayer1();
-static void postloadplayer2();
+static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem);
+static int32_t doloadplayer2(int32_t fil, uint8_t **memptr);
+static void postloadplayer(int32_t savegamep);
 
 // SVGM snapshot system
 static uint32_t svsnapsiz;
@@ -1644,127 +1898,246 @@ static int32_t doallocsnap(int32_t allocinit)
     return 0;
 }
 
-int32_t sv_saveandmakesnapshot(FILE *fil, int32_t recdiffs, int32_t diffcompress, int32_t synccompress)
+
+// make snapshot only if spot < 0 (demo)
+int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress)
 {
-    uint8_t *p, tb;
-    uint16_t ts;
+    savehead_t h;
 
-    fwrite("EDuke32demo", 11, 1, fil);//0 11b
-    tb = SV_MAJOR_VER;
-    fwrite(&tb, sizeof(tb), 1, fil);  //11 1b
-    tb = SV_MINOR_VER;
-    fwrite(&tb, sizeof(tb), 1, fil);  //12 1b
-    tb = sizeof(intptr_t);
-    fwrite(&tb, sizeof(tb), 1, fil);  //13 1b
+    assert(sizeof(savehead_t) == 310);
 
-    ts = BYTEVERSION;
-    fwrite(&ts, sizeof(ts), 1, fil);  //14 2b
-
+    // set a few savegame system globals
     savegame_comprthres = SV_DEFAULTCOMPRTHRES;
-    fwrite(&savegame_comprthres, sizeof(savegame_comprthres), 1, fil);  //16 1b
+    savegame_diffcompress = diffcompress;
 
-    tb = recdiffs;
-    fwrite(&tb, sizeof(tb), 1, fil);  //17 1b
-
-    savegame_diffcompress = (uint8_t)diffcompress;
-    fwrite(&savegame_diffcompress, sizeof(savegame_diffcompress), 1, fil);  //18 1b
-
-    tb = (uint8_t)synccompress;
-    fwrite(&tb, sizeof(tb), 1, fil);  //19 1b
-
+    // calculate total snapshot size
     sv_makevarspec();
-    svsnapsiz = 0;
-    fwrite(&svsnapsiz, sizeof(svsnapsiz), 1, fil);  // 20 4b record count for demos
     svsnapsiz = calcsz(svgm_vars);
     svsnapsiz += calcsz(svgm_udnetw) + calcsz(svgm_secwsp) + calcsz(svgm_script) + calcsz(svgm_anmisc);
-    fwrite(&svsnapsiz, sizeof(svsnapsiz), 1, fil);  // 24 4b
 
-    OSD_Printf("sv_saveandmakesnapshot: size: %d bytes.\n", svsnapsiz);
 
-    if (doallocsnap(0))
+    // create header
+    Bmemcpy(h.headerstr, "EDuke32SAVE", 11);
+    h.majorver = SV_MAJOR_VER;
+    h.minorver = SV_MINOR_VER;
+    h.ptrsize = sizeof(intptr_t);
+    h.bytever = BYTEVERSION;
+
+    h.comprthres = savegame_comprthres;
+    h.recdiffsp = recdiffsp;
+    h.diffcompress = savegame_diffcompress;
+    h.synccompress = synccompress;
+
+    h.reccnt = 0;
+    h.snapsiz = svsnapsiz;
+
+    // the following is kinda redundant, but we save it here to be able to quickly fetch
+    // it in a savegame header read
+    h.numplayers = ud.multimode;
+    h.volnum = ud.volume_number;
+    h.levnum = ud.level_number;
+    h.skill = ud.player_skill;
+    Bstrncpy(h.boardfn, currentboardfilename, sizeof(h.boardfn));
+
+    if (spot >= 0)
     {
-        OSD_Printf("sv_saveandmakesnapshot: failed allocating memory.\n");
-        return 1;
+        // savegame
+        Bstrncpy(h.savename, ud.savegame[spot], sizeof(h.savename));
+        h.savename[sizeof(h.savename)-1] = 0;
+    }
+    else
+    {
+        // demo
+
+        const time_t t=time(NULL);
+        struct tm *st;
+
+        Bstrncpy(h.savename, "Eduke32 demo", sizeof(h.savename));
+        if (t>=0 && (st = localtime(&t)))
+            Bsprintf(h.savename, "Edemo32 %04d%02d%02d", st->tm_year+1900, st->tm_mon+1, st->tm_mday);
     }
 
-    p = dosaveplayer2(-1, fil, svsnapshot);
-    if (p != svsnapshot+svsnapsiz)
-        OSD_Printf("sv_saveandmakesnapshot: ptr-(snapshot end)=%d!\n", (int32_t)(p-(svsnapshot+svsnapsiz)));
+
+    // write header
+    fwrite(&h, sizeof(savehead_t), 1, fil);
+
+    // for savegames, the file offset after the screenshot goes here;
+    // for demos, we keep it 0 to signify that we didn't save one
+    fwrite("\0\0\0\0", 4, 1, fil);
+    if (spot >= 0 && waloff[TILE_SAVESHOT])
+    {
+        int32_t ofs;
+
+        // write the screenshot compressed
+        dfwrite((char *)waloff[TILE_SAVESHOT], 320, 200, fil);
+
+        // write the current file offset right after the header
+        ofs = ftell(fil);
+        fseek(fil, sizeof(savehead_t), SEEK_SET);
+        fwrite(&ofs, 4, 1, fil);
+        fseek(fil, ofs, SEEK_SET);
+    }
+
+#ifdef DEBUGGINGAIDS
+    OSD_Printf("sv_saveandmakesnapshot: snapshot size: %d bytes.\n", svsnapsiz);
+#endif
+
+    if (spot >= 0)
+    {
+        // savegame
+        dosaveplayer2(fil, NULL);
+    }
+    else
+    {
+        uint8_t *p;
+
+        // demo
+        if (doallocsnap(0))
+        {
+            OSD_Printf("sv_saveandmakesnapshot: failed allocating memory.\n");
+            return 1;
+        }
+
+        p = dosaveplayer2(fil, svsnapshot);
+        if (p != svsnapshot+svsnapsiz)
+        {
+            OSD_Printf("sv_saveandmakesnapshot: ptr-(snapshot end)=%d!\n", (int32_t)(p-(svsnapshot+svsnapsiz)));
+            return 1;
+        }
+    }
 
     return 0;
 }
 
-int32_t sv_loadsnapshot(int32_t fil, int32_t *ret_hasdiffs, int32_t *ret_demoticcnt, int32_t *ret_synccompress)
+// if file is not an EDuke32 savegame/demo, h->headerstr will be all zeros
+int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
 {
-    uint8_t *p, tmpbuf[11];
-    int32_t i;
+    int32_t havedemo = (spot < 0);
 
-    if (kread(fil, tmpbuf, 11) != 11) goto corrupt;
-    if (Bmemcmp(tmpbuf, "EDuke32demo", 11))
+    assert(sizeof(savehead_t) == 310);
+
+    if (kread(fil, h, sizeof(savehead_t)) != sizeof(savehead_t))
     {
-        OSD_Printf("Missing demo header.\n");
+        OSD_Printf("%s %d header corrupt.\n", havedemo ? "Demo":"Savegame", havedemo ? -spot : spot);
+        Bmemset(h->headerstr, 0, sizeof(h->headerstr));
+        return -1;
+    }
+
+    if (Bmemcmp(h->headerstr, "EDuke32SAVE", 11))
+    {
+        h->headerstr[sizeof(h->headerstr)-1] = 0;
+        OSD_Printf("%s %d header reads \"%s\", expected \"EDuke32SAVE\".\n",
+                   havedemo ? "Demo":"Savegame", havedemo ? -spot : spot, h->headerstr);
+        Bmemset(h->headerstr, 0, sizeof(h->headerstr));
         return 1;
     }
 
-    if (kread(fil, tmpbuf, 9) != 9) goto corrupt;
-    if (tmpbuf[0] != SV_MAJOR_VER || tmpbuf[1] != SV_MINOR_VER || *(uint16_t *)&tmpbuf[3] != BYTEVERSION)
+    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != BYTEVERSION)
     {
-        OSD_Printf("Incompatible demo version. Expected %d.%d.%d, found %d.%d.%d\n",
-                   SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
-                   (int)tmpbuf[0], (int)tmpbuf[1], (int)(*(uint16_t *)&tmpbuf[3]));
+        if (havedemo)
+            OSD_Printf("Incompatible demo version. Expected %d.%d.%d, found %d.%d.%d\n",
+                       SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
+                       h->majorver, h->minorver, h->bytever);
         return 2;
     }
-    if (tmpbuf[2] != sizeof(intptr_t))
+
+    if (h->ptrsize != sizeof(intptr_t))
     {
-        OSD_Printf("Demo incompatible. Expected pointer size %d, found %d.\n",
-                   (int32_t)sizeof(intptr_t), (int32_t)tmpbuf[2]);
+        if (havedemo)
+            OSD_Printf("Demo incompatible. Expected pointer size %d, found %d\n",
+                       (int32_t)sizeof(intptr_t), h->ptrsize);
         return 3;
     }
 
-    savegame_comprthres = tmpbuf[5];
-    *ret_hasdiffs = (int32_t)tmpbuf[6];
-    savegame_diffcompress = tmpbuf[7];
-    *ret_synccompress = (int32_t)tmpbuf[8];
+    return 0;
+}
 
-    if (kread(fil, ret_demoticcnt, sizeof(*ret_demoticcnt)) != sizeof(*ret_demoticcnt)) goto corrupt;
-    if (kread(fil, &svsnapsiz, sizeof(svsnapsiz)) != sizeof(svsnapsiz)) goto corrupt;
+int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h)
+{
+    uint8_t *p;
+    int32_t i;
 
-
-    OSD_Printf("sv_loadsnapshot: size: %d bytes.\n", svsnapsiz);
-
-    if (doallocsnap(1))
+    if (spot < 0)
     {
-        OSD_Printf("sv_loadsnapshot: failed allocating memory.\n");
-        return 4;
+        // demo
+        i = sv_loadheader(fil, spot, h);
+        if (i)
+            return i;
+
+        // Used to be in doloadplayer2(), now redundant for savegames since
+        // we checked before. Multiplayer demos need still to be taken care of.
+        if (h->numplayers != numplayers)
+            return 9;
+    }
+    // else (if savegame), we just read the header and are now at offset sizeof(savehead_t)
+
+#ifdef DEBUGGINGAIDS
+    OSD_Printf("sv_loadsnapshot: snapshot size: %d bytes.\n", h->snapsiz);
+#endif
+
+    if (kread(fil, &i, 4) != 4)
+    {
+        OSD_Printf("sv_snapshot: couldn't read 4 bytes after header.\n");
+        return 7;
+    }
+    if (i > 0)
+    {
+        if (klseek(fil, i, SEEK_SET) != i)
+        {
+            OSD_Printf("sv_snapshot: failed skipping over the screenshot.\n");
+            return 8;
+        }
     }
 
-    p = svsnapshot;
-    i = doloadplayer2(-1, fil, &p);
-    if (i)
+    if (spot >= 0)
     {
-        OSD_Printf("sv_loadsnapshot: doloadplayer2() returned %d.\n", i);
-        sv_freemem();
-        return 5;
+        // savegame
+        i = doloadplayer2(fil, NULL);
+        if (i)
+        {
+            OSD_Printf("sv_loadsnapshot: doloadplayer2() returned %d.\n", i);
+            return 5;
+        }
+    }
+    else
+    {
+        // demo
+        savegame_comprthres = h->comprthres;
+        savegame_diffcompress = h->diffcompress;
+
+        svsnapsiz = h->snapsiz;
+
+        if (doallocsnap(1))
+        {
+            OSD_Printf("sv_loadsnapshot: failed allocating memory.\n");
+            return 4;
+        }
+
+        p = svsnapshot;
+        i = doloadplayer2(fil, &p);
+        if (i)
+        {
+            OSD_Printf("sv_loadsnapshot: doloadplayer2() returned %d.\n", i);
+            sv_freemem();
+            return 5;
+        }
+
+        if (p != svsnapshot+svsnapsiz)
+        {
+            OSD_Printf("sv_loadsnapshot: internal error: p-(snapshot end)=%d!\n",
+                       (int32_t)(p-(svsnapshot+svsnapsiz)));
+            sv_freemem();
+            return 6;
+        }
+
+        Bmemcpy(svinitsnap, svsnapshot, svsnapsiz);
     }
 
-    Bmemcpy(svinitsnap, svsnapshot, svsnapsiz);
-
-    postloadplayer1();
-    postloadplayer2();
-
-    if (p != svsnapshot+svsnapsiz)
-    {
-        OSD_Printf("sv_loadsnapshot: internal error: p-(snapshot end)=%d!\n",
-                   (int32_t)(p-(svsnapshot+svsnapsiz)));
-        sv_freemem();
-        return 6;
-    }
+    postloadplayer((spot >= 0));
 
     return 0;
-corrupt:
-    OSD_Printf("Demo header corrupt.\n");
-    return 8;
 }
+
 
 uint32_t sv_writediff(FILE *fil)
 {
@@ -1835,8 +2208,8 @@ int32_t sv_readdiff(int32_t fil)
 // SVGM data description
 static void sv_postudload()
 {
-//    Bmemcpy(&boardfilename[0], &currentboardfilename[0], BMAX_PATH);
-#if 0
+//    Bmemcpy(&boardfilename[0], &currentboardfilename[0], BMAX_PATH);  // DON'T do this in demos!
+#if 1
     ud.m_level_number = ud.level_number;
     ud.m_volume_number = ud.volume_number;
     ud.m_player_skill = ud.player_skill;
@@ -1937,7 +2310,7 @@ static void sv_postactordata()
 {
     int32_t i;
 
-#if POLYMER
+#if 0  // POLYMER
     if (getrendermode() == 4)
         polymer_resetlights();
 #endif
@@ -1988,7 +2361,7 @@ static void sv_quoteload()
         if (savegame_quotedef[i>>3]&(1<<(i&7)))
         {
             if (!ScriptQuotes[i])
-                ScriptQuotes[i] = Bcalloc(1,MAXQUOTELEN);
+                ScriptQuotes[i] = Bcalloc(1, MAXQUOTELEN);
             Bmemcpy(ScriptQuotes[i], savegame_quotes[i], MAXQUOTELEN);
         }
     }
@@ -2039,14 +2412,19 @@ static void sv_restsave()
         else
             CPDAT(&dummy_ps, sizeof(DukePlayer_t));
     }
-#if 0  // POLYMER  this will have to wait...
+#ifdef POLYMER
+    // what's the point of doing this when we polymer_resetlights() through polymer_loadboard()
+    // later on anyway?
     CPDAT(&lightcount, sizeof(lightcount));
     for (i=0; i<lightcount; i++)
     {
         CPDAT(&prlights[i], sizeof(_prlight));
-        ((prlight_ *)(mem-sizeof(_prlight)))->planelist = NULL;
+        ((_prlight *)(mem-sizeof(_prlight)))->planelist = NULL;
     }
 #endif
+
+    assert((savegame_restdata+SVARDATALEN)-mem >= 0);
+
     Bmemset(mem, 0, (savegame_restdata+SVARDATALEN)-mem);
 #undef CPDAT
 }
@@ -2068,57 +2446,26 @@ static void sv_restload()
         else
             CPDAT(&dummy_ps, sizeof(DukePlayer_t));
     }
-#if 0  // POLYMER
-    CPDAT(&lightcount, sizeof(lightcount));
-    for (i=0; i<lightcount; i++)
-        CPDAT(&prlights[i], sizeof(_prlight));
+#ifdef POLYMER
+//    CPDAT(&lightcount, sizeof(lightcount));
+//    for (i=0; i<lightcount; i++)
+//        CPDAT(&prlights[i], sizeof(_prlight));
 #endif
 #undef CPDAT
 }
 
-#define SAVEWR(ptr, sz, cnt) do { if (fil) dfwrite(ptr,sz,cnt,fil); } while (0)
-#define SAVEWRU(ptr, sz, cnt) do { if (fil) fwrite(ptr,sz,cnt,fil); } while (0)
-
 #ifdef DEBUGGINGAIDS
-# define PRINTSIZE(name) do { OSD_Printf(name ": %d\n", (int32_t)(mem-tmem)); tmem=mem; } while (0)
+# define PRINTSIZE(name) do { if (mem) OSD_Printf(name ": %d\n", (int32_t)(mem-tmem)); tmem=mem; } while (0)
 #else
 # define PRINTSIZE(name) do { tmem=mem; } while (0)
 #endif
 
-static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem)
+static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
 {
     uint8_t *tmem = mem;
 
     mem=writespecdata(svgm_udnetw, fil, mem);  // user settings, players & net
     PRINTSIZE("ud");
-
-    if (spot>=0)
-    {
-        SAVEWRU(&ud.savegame[spot][0], 21, 1);
-
-        SAVEWRU("1", 1, 1);
-        if (!waloff[TILE_SAVESHOT])
-        {
-            walock[TILE_SAVESHOT] = 254;
-            allocache(&waloff[TILE_SAVESHOT], 200*320, &walock[TILE_SAVESHOT]);
-            Bmemset((void *)waloff[TILE_SAVESHOT], 0, 320*200);
-            walock[TILE_SAVESHOT] = 1;
-        }
-        SAVEWR((char *)waloff[TILE_SAVESHOT], 320, 200);
-    }
-    else
-    {
-        char buf[21];
-        const time_t t=time(NULL);
-        struct tm *st;
-        Bsprintf(buf, "Eduke32 demo");
-        if (t>=0 && (st = localtime(&t)))
-            Bsprintf(buf, "Edemo32 %04d%02d%02d", st->tm_year+1900, st->tm_mon+1, st->tm_mday);
-        SAVEWRU(&buf, 21, 1);
-
-        SAVEWRU("\0", 1, 1);  // demos don't save screenshot
-    }
-
     mem=writespecdata(svgm_secwsp, fil, mem);  // sector, wall, sprite
     PRINTSIZE("sws");
     mem=writespecdata(svgm_script, fil, mem);  // script
@@ -2136,37 +2483,12 @@ static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem)
 #define LOADRD(ptr, sz, cnt) (kdfread(ptr,sz,cnt,fil)!=(cnt))
 #define LOADRDU(ptr, sz, cnt) (kread(fil,ptr,(sz)*(cnt))!=(sz)*(cnt))
 
-static int32_t doloadplayer2(int32_t spot, int32_t fil, uint8_t **memptr)
+static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
 {
     uint8_t *mem = memptr ? *memptr : NULL, *tmem=mem;
-    char tbuf[21];
-    int32_t i;
 
-    if (readspecdata(svgm_udnetw, fil, &mem))
-        return -2;
+    if (readspecdata(svgm_udnetw, fil, &mem)) return -2;
     PRINTSIZE("ud");
-    if (spot >= 0 && ud.multimode!=numplayers)
-        return 2;
-
-    if (spot<0 || numplayers > 1)
-    {
-        if (LOADRDU(&tbuf, 21, 1)) return -3;
-    }
-    else if (LOADRDU(&ud.savegame[spot][0], 21, 1)) return -3;
-    else ud.savegame[spot][19] = 0;
-
-    if (LOADRDU(tbuf, 1, 1)) return -3;
-    if (tbuf[0])
-    {
-        //Fake read because lseek won't work with compression
-        walock[TILE_LOADSHOT] = 1;
-        if (waloff[TILE_LOADSHOT] == 0) allocache(&waloff[TILE_LOADSHOT],320*200,&walock[TILE_LOADSHOT]);
-        tilesizx[TILE_LOADSHOT] = 200;
-        tilesizy[TILE_LOADSHOT] = 320;
-        if (LOADRD((char *)waloff[TILE_LOADSHOT], 320, 200)) return -3;
-        invalidatetile(TILE_LOADSHOT,0,255);
-    }
-
     if (readspecdata(svgm_secwsp, fil, &mem)) return -4;
     PRINTSIZE("sws");
     if (readspecdata(svgm_script, fil, &mem)) return -5;
@@ -2178,6 +2500,8 @@ static int32_t doloadplayer2(int32_t spot, int32_t fil, uint8_t **memptr)
 
     if (mem)
     {
+        int32_t i;
+
         sv_makevarspec();
         for (i=1; svgm_vars[i].flags!=DS_END; i++)
         {
@@ -2213,17 +2537,19 @@ int32_t sv_updatestate(int32_t frominit)
     }
 
     if (frominit)
-    {
-        postloadplayer1();
-        postloadplayer2();
-    }
+        postloadplayer(0);
+#ifdef POLYMER
+    if (getrendermode()==4)
+        polymer_resetlights();  // must do it after polymer_loadboard() !!!
+#endif
 
     return 0;
 }
 
-static void postloadplayer1()
+static void postloadplayer(int32_t savegamep)
 {
     int32_t i;
+
     //1
     if (g_player[myconnectindex].ps->over_shoulder_on != 0)
     {
@@ -2232,51 +2558,108 @@ static void postloadplayer1()
         g_player[myconnectindex].ps->over_shoulder_on = 1;
     }
 
-    screenpeek = myconnectindex;
     //2
+    screenpeek = myconnectindex;
+
+    //2.5
+    if (savegamep)
+    {
+        Bmemset(gotpic, 0, sizeof(gotpic));
+        S_ClearSoundLocks();
+        G_CacheMapData();
+
+        i = g_musicIndex;
+        g_musicIndex = (ud.volume_number*MAXLEVELS) + ud.level_number;
+
+        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
+        {
+            char levname[BMAX_PATH];
+
+            G_SetupFilenameBasedMusic(levname, boardfilename, ud.level_number);
+        }
+
+        if (ud.config.MusicToggle)
+        {
+            if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL &&
+                (i != g_musicIndex || MapInfo[MAXVOLUMES*MAXLEVELS+2].alt_musicfn))
+            {
+                S_StopMusic();
+                S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0], g_musicIndex);
+            }
+
+            S_PauseMusic(0);
+        }
+
+        g_player[myconnectindex].ps->gm = MODE_GAME;
+        ud.recstat = 0;
+
+        if (g_player[myconnectindex].ps->jetpack_on)
+            A_PlaySound(DUKE_JETPACK_IDLE, g_player[myconnectindex].ps->i);
+    }
+
     //3
     P_UpdateScreenPal(g_player[myconnectindex].ps);
+
+    //3.5
+    if (savegamep)
+    {
+        G_UpdateScreenArea();
+        FX_SetReverb(0);
+    }
+
     //4
-#if 0
-    if (ud.lockout == 0)
+    if (savegamep)
     {
-        for (i=0; i<g_numAnimWalls; i++)
-            if (wall[animwall[i].wallnum].extra >= 0)
-                wall[animwall[i].wallnum].picnum = wall[animwall[i].wallnum].extra;
+        if (ud.lockout == 0)
+        {
+            for (i=0; i<g_numAnimWalls; i++)
+                if (wall[animwall[i].wallnum].extra >= 0)
+                    wall[animwall[i].wallnum].picnum = wall[animwall[i].wallnum].extra;
+        }
+        else
+        {
+            for (i=0; i<g_numAnimWalls; i++)
+                switch (DynamicTileMap[wall[animwall[i].wallnum].picnum])
+                {
+                case FEMPIC1__STATIC:
+                    wall[animwall[i].wallnum].picnum = BLANKSCREEN;
+                    break;
+                case FEMPIC2__STATIC:
+                case FEMPIC3__STATIC:
+                    wall[animwall[i].wallnum].picnum = SCREENBREAK6;
+                    break;
+                }
+        }
     }
-    else
-    {
-        for (i=0; i<g_numAnimWalls; i++)
-            switch (DynamicTileMap[wall[animwall[i].wallnum].picnum])
-            {
-            case FEMPIC1__STATIC:
-                wall[animwall[i].wallnum].picnum = BLANKSCREEN;
-                break;
-            case FEMPIC2__STATIC:
-            case FEMPIC3__STATIC:
-                wall[animwall[i].wallnum].picnum = SCREENBREAK6;
-                break;
-            }
-    }
-#endif
 
     //5
     G_ResetInterpolations();
 
     //6
     g_showShareware = 0;
-//    everyothertime = 0;
+    if (savegamep)
+        everyothertime = 0;
 
+    //7
     for (i=0; i<MAXPLAYERS; i++)
         g_player[i].playerquitflag = 1;
-}
 
-static void postloadplayer2()
-{
-    //7
+    // ----------
+
+    //7.5
+    if (savegamep)
+    {
+        ready2send = 1;
+        G_ClearFIFO();
+        Net_WaitForServer();
+    }
+
+    //8
+    // if (savegamep)  ?
     G_ResetTimers();
 
 #ifdef POLYMER
+    //9
     if (getrendermode() == 4)
         polymer_loadboard();
 #elif 0
@@ -2297,6 +2680,14 @@ static void postloadplayer2()
         }
     }
 #endif
+    // this light pointer nulling needs to be outside the getrendermode check
+    // because we might be loading the savegame using another renderer but
+    // change to Polymer later
+    for (i=0; i<MAXSPRITES; i++)
+    {
+        actor[i].lightptr = NULL;
+        actor[i].lightId = -1;
+    }
 }
 
 ////////// END GENERIC SAVING/LOADING SYSTEM //////////

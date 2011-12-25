@@ -34,7 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/stat.h>
 
 extern char inputloc;
-extern int32_t g_demo_recFilePtr;
 int16_t g_skillSoundID=-1;
 int32_t probey=0;
 static int32_t lastsavehead=0,last_menu_pos=0,last_menu,sh,onbar,buttonstat;
@@ -472,10 +471,11 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
 #define MWIN(X) rotatesprite( 320<<15,200<<15,X,0,MENUSCREEN,-16,0,10+64,0,0,xdim-1,ydim-1)
 #define MWINXY(X,OX,OY) rotatesprite( ( 320+(OX) )<<15, ( 200+(OY) )<<15,X,0,MENUSCREEN,-16,0,10+64,0,0,xdim-1,ydim-1)
 
-extern int32_t G_LoadSaveHeader(char spot,struct savehead_ *saveh);
+//extern int32_t G_LoadSaveHeader(char spot,struct savehead_ *saveh);
 
 #pragma pack(push,1)
-static struct savehead_ savehead;
+static savehead_t savehead;
+//static struct savehead_ savehead;
 #pragma pack(pop)
 
 //static int32_t volnum,levnum,plrskl,numplr;
@@ -559,7 +559,7 @@ void G_CheckPlayerColor(int32_t *color, int32_t prev_color)
 static void Menus_LoadSave_DisplayCommon1(void)
 {
     if (lastsavehead != probey)
-        G_LoadSaveHeader(probey,&savehead);
+        G_LoadSaveHeaderNew(probey, &savehead);
     lastsavehead = probey;
 
     rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
@@ -567,9 +567,9 @@ static void Menus_LoadSave_DisplayCommon1(void)
     if (ud.savegame[probey][20] == 32)
     {
         menutext(40,70,0,0,"OLD VERSION");
-        Bsprintf(tempbuf,"SAVED: %d", savehead.byteversion);
+        Bsprintf(tempbuf,"SAVED: %d.%d.%d", savehead.majorver, savehead.minorver, savehead.bytever);
         mgametext(40,82,tempbuf,0,2+8+16);
-        Bsprintf(tempbuf,"OUR: %d", BYTEVERSION);
+        Bsprintf(tempbuf,"OUR: %d.%d.%d", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION);
         mgametext(40+16,92,tempbuf,0,2+8+16);
     }
 }
@@ -1342,10 +1342,13 @@ void M_DisplayMenus(void)
             KB_ClearKeysDown();
             FX_StopAllSounds();
 
-            if ((g_netServer || ud.multimode > 1))
+            if (g_netServer || ud.multimode > 1)
             {
-                G_LoadPlayer(-1-g_lastSaveSlot);
-                g_player[myconnectindex].ps->gm = MODE_GAME;
+                Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "MULTIPLAYER LOADING NOT SUPPORTED YET");
+                P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+
+//                G_LoadPlayer(-1-g_lastSaveSlot);
+//                g_player[myconnectindex].ps->gm = MODE_GAME;
             }
             else
             {
@@ -1477,10 +1480,11 @@ void M_DisplayMenus(void)
 
         M_DisplaySaveGameList();
 
-        Bsprintf(tempbuf,"PLAYERS: %-2d                      ",savehead.numplr);
+        Bsprintf(tempbuf,"PLAYERS: %-2d                      ",savehead.numplayers);
         mgametext(160,156,tempbuf,0,2+8+16);
 
-        Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+savehead.volnum,1+savehead.levnum,savehead.plrskl);
+        Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",
+                 1+savehead.volnum, 1+savehead.levnum, savehead.skill);
         mgametext(160,168,tempbuf,0,2+8+16);
 
         if (savehead.volnum == 0 && savehead.levnum == 7)
@@ -4740,9 +4744,16 @@ cheat_for_port_credits:
                     ud.savegame[g_currentMenu-360][20] = 127;
                 }
 
-                if ((g_netServer || ud.multimode > 1))
-                    G_SavePlayer(-1-(g_currentMenu-360));
-                else G_SavePlayer(g_currentMenu-360);
+                if (g_netServer || ud.multimode > 1)
+                {
+                    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "MULTIPLAYER SAVING NOT SUPPORTED YET");
+                    P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+                    //G_SavePlayer(-1-(g_currentMenu-360));
+                }
+                else
+                {
+                    G_SavePlayer(g_currentMenu-360);
+                }
                 g_lastSaveSlot = g_currentMenu-360;
                 g_player[myconnectindex].ps->gm = MODE_GAME;
 
@@ -4773,9 +4784,10 @@ cheat_for_port_credits:
             {
                 Menus_LoadSave_DisplayCommon1();
 
-                Bsprintf(tempbuf,"PLAYERS: %-2d                      ",savehead.numplr);
+                Bsprintf(tempbuf,"PLAYERS: %-2d                      ", savehead.numplayers);
                 mgametext(160,156,tempbuf,0,2+8+16);
-                Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+savehead.volnum,1+savehead.levnum,savehead.plrskl);
+                Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",
+                         1+savehead.volnum, 1+savehead.levnum, savehead.skill);
                 mgametext(160,168,tempbuf,0,2+8+16);
                 if (savehead.volnum == 0 && savehead.levnum == 7)
                     mgametext(160,180,savehead.boardfn,0,2+8+16);

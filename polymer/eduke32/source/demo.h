@@ -43,7 +43,6 @@ extern int32_t g_demo_showStats;
 extern int32_t g_demo_soundToggle;
 extern int32_t g_demo_totalCnt;
 
-int32_t G_OpenDemoRead(int32_t g_whichDemo);
 int32_t G_PlaybackDemo(void);
 void demo_preparewarp(void);
 void G_CloseDemoWrite(void);

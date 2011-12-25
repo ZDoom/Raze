@@ -27,14 +27,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern char inputloc;
 extern int16_t g_skillSoundID;
-extern int32_t g_demo_recFilePtr;
 extern int32_t g_lastSaveSlot;
 extern int32_t g_quitDeadline;
 extern int32_t probey;
 extern int32_t voting;
-int32_t G_LoadSaveHeader(char spot,struct savehead_ *saveh);
 int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits);
 void ChangeToMenu(int32_t cm);
 void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
 void M_DisplayMenus(void);
+
 #endif

@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "menus.h"
 #include "savegame.h"
 
+#include <assert.h>
+
 char firstdemofile[BMAX_PATH];
 
 FILE *g_demo_filePtr = (FILE *)NULL;
@@ -35,7 +37,7 @@ int32_t g_demo_soundToggle;
 int32_t g_demo_paused=0;
 int32_t g_demo_rewind=0;
 int32_t g_demo_showStats=1;
-int32_t g_demo_recFilePtr;
+int32_t g_demo_recFilePtr = -1;
 
 static int32_t demo_hasdiffs, demorec_diffs=1, demorec_difftics = 2*(TICRATE/TICSPERFRAME);
 int32_t demoplay_diffs=1;
@@ -69,10 +71,12 @@ void demo_preparewarp(void)
 }
 
 
-int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
+static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 {
     char d[14];
     int32_t i;
+
+    savehead_t saveh;
 
     Bstrcpy(d, "edemo_.edm");
 
@@ -87,40 +91,36 @@ int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     }
     else if ((g_demo_recFilePtr = kopen4loadfrommod(d,g_loadFromGroupOnly)) == -1) return(0);
 
-    i=sv_loadsnapshot(g_demo_recFilePtr, &demo_hasdiffs, &g_demo_totalCnt, &demo_synccompress);
-    if (i==0)
-    {
-        demo_hasseeds = demo_synccompress&2;
-        demo_synccompress &= 1;
-
-        i = g_demo_totalCnt/(TICRATE/TICSPERFRAME);
-        OSD_Printf("demo duration: %d min %d sec\n", i/60, i%60);
-
-        g_demo_cnt=1;
-        ud.reccnt = 0;
-
-        ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
-        ud.clipping = ud.scrollmode = ud.overhead_on = 0; //= ud.pause_on = 0;
-
-        //        G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
-        //        G_ResetTimers();
-        totalclock = ototalclock = lockclock = 0;
-
-        return 1;
-    }
-    else
+    assert(g_whichDemo >= 1);
+    i = sv_loadsnapshot(g_demo_recFilePtr, -g_whichDemo, &saveh);
+    if (i)
     {
         OSD_Printf(OSD_ERROR "There were errors opening demo %d (code: %d).\n", g_whichDemo, i);
-        kclose(g_demo_recFilePtr);
+        kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
         return 0;
     }
-#if 0
-corrupt:
-    OSD_Printf(OSD_ERROR "Demo %d header is corrupt.\n",g_whichDemo);
+
+    demo_hasdiffs = saveh.recdiffsp;
+    g_demo_totalCnt = saveh.reccnt;
+    demo_synccompress = saveh.synccompress;
+
+    demo_hasseeds = demo_synccompress&2;
+    demo_synccompress &= 1;
+
+    i = g_demo_totalCnt/(TICRATE/TICSPERFRAME);
+    OSD_Printf("demo duration: %d min %d sec\n", i/60, i%60);
+
+    g_demo_cnt=1;
     ud.reccnt = 0;
-    kclose(g_demo_recFilePtr);
-    return 0;
-#endif
+
+    ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
+    ud.clipping = ud.scrollmode = ud.overhead_on = 0; //= ud.pause_on = 0;
+
+    //        G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
+    //        G_ResetTimers();
+    totalclock = ototalclock = lockclock = 0;
+
+    return 1;
 }
 
 #if KRANDDEBUG
@@ -133,7 +133,11 @@ void G_OpenDemoWrite(void)
     char d[14];
     int32_t i, demonum=1;
 
-    if (ud.recstat == 2) kclose(g_demo_recFilePtr);
+    if (ud.recstat == 2)
+    {
+        kclose(g_demo_recFilePtr);
+        g_demo_recFilePtr = -1;
+    }
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) && g_player[myconnectindex].ps->dead_flag)
     {
@@ -178,7 +182,7 @@ void G_OpenDemoWrite(void)
 
         if ((g_demo_filePtr = Bfopen(d,"wb")) == NULL) return;
 
-        i=sv_saveandmakesnapshot(g_demo_filePtr, demorec_diffs_cvar, demorec_diffcompress_cvar,
+        i=sv_saveandmakesnapshot(g_demo_filePtr, -1, demorec_diffs_cvar, demorec_diffcompress_cvar,
             demorec_synccompress_cvar|(demorec_seeds_cvar<<1));
         if (i)
         {
@@ -260,8 +264,9 @@ void G_CloseDemoWrite(void)
 
         fwrite("EnD!", 4, 1, g_demo_filePtr);
 
-        if (fseek(g_demo_filePtr, 20, SEEK_SET))
-            perror("G_CloseDemoWrite: fseek");
+        // lastly, we need to write the number of written recsyncs to the demo file
+        if (fseek(g_demo_filePtr, offsetof(savehead_t, reccnt), SEEK_SET))
+            perror("G_CloseDemoWrite: final fseek");
         else
             fwrite(&g_demo_cnt, sizeof(g_demo_cnt), 1, g_demo_filePtr);
 
@@ -411,7 +416,6 @@ RECHECK:
                 }
                 else
                 {
-                    //                    j = sv_loadsnapshot(g_demo_recFilePtr, &g_demo_totalCnt);
                     j = doupdatestate(1);
                     if (!j)
                     {
@@ -486,7 +490,7 @@ corrupt:
 nextdemo:
                         foundemo = 0;
                         ud.reccnt = 0;
-                        kclose(g_demo_recFilePtr);
+                        kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
                         g_player[myconnectindex].ps->gm |= MODE_MENU;
                         if (g_demo_goalCnt>0)
                         {
@@ -502,7 +506,7 @@ nextdemo:
 
                 TRAVERSE_CONNECT(j)
                 {
-                    copybufbyte(&recsync[bigi], &inputfifo[0][j], sizeof(input_t));
+                    Bmemcpy(&inputfifo[0][j], &recsync[bigi], sizeof(input_t));
                     bigi++;
                     ud.reccnt--;
                 }
@@ -663,13 +667,13 @@ nextdemo:
 #if KRANDDEBUG
                 krd_print("krandplay.log");
 #endif
-                kclose(g_demo_recFilePtr);
+                kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
             }
             return 0;
         }
     }
     ud.multimode = numplayers;  // fixes 2 infinite loops after watching demo
-    kclose(g_demo_recFilePtr);
+    kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
 
 #if 0
     {

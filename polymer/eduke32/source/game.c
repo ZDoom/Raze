@@ -7784,9 +7784,16 @@ FAKE_F3:
                 /*                inputloc = Bstrlen(&ud.savegame[g_lastSaveSlot][0]);
                                 g_currentMenu = 360+g_lastSaveSlot;
                                 probey = g_lastSaveSlot; */
-                if ((g_netServer || ud.multimode > 1))
-                    G_SavePlayer(-1-(g_lastSaveSlot));
-                else G_SavePlayer(g_lastSaveSlot);
+                if (g_netServer || ud.multimode > 1)
+                {
+                    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "MULTIPLAYER SAVING NOT SUPPORTED YET");
+                    P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+                    //G_SavePlayer(-1-(g_lastSaveSlot));
+                }
+                else
+                {
+                    G_SavePlayer(g_lastSaveSlot);
+                }
             }
         }
 
@@ -7844,10 +7851,13 @@ FAKE_F3:
                 KB_ClearKeysDown();
                 FX_StopAllSounds();
 
-                if ((g_netServer || ud.multimode > 1))
+                if (g_netServer || ud.multimode > 1)
                 {
-                    G_LoadPlayer(-1-g_lastSaveSlot);
-                    g_player[myconnectindex].ps->gm = MODE_GAME;
+                    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "MULTIPLAYER LOADING NOT SUPPORTED YET");
+                    P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+
+//                    G_LoadPlayer(-1-g_lastSaveSlot);
+//                    g_player[myconnectindex].ps->gm = MODE_GAME;
                 }
                 else
                 {

@@ -85,7 +85,7 @@ typedef struct {
     int8_t filler[6]; // 6b
 } projectile_t;
 
-// (+ 40 8 6 16 16 4 8 6 4 4 16)
+// (+ 40 8 6 16 16 4 8 6 4 20)
 typedef struct {
 #ifdef SAMESIZE_ACTOR_T
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
@@ -108,12 +108,16 @@ typedef struct {
     void *lightptr;
 #endif
 
-#if !defined SAMESIZE_ACTOR_T || UINTPTR_MAX == 0xffffffff
-    /* 32-bit or old, same-declaration version */
-    int8_t filler[24]; // pad struct to 128 bytes
+// pad struct to 128 bytes
+#if !defined UINTPTR_MAX
+# error Need UINTPTR_MAX define to select between 32- and 64-bit structs
+#endif
+#if UINTPTR_MAX == 0xffffffff
+    /* 32-bit */
+    const int8_t filler[20];
 #else
-    /* 64-bit, will break older savegames */
-    int8_t filler[16];
+    /* 64-bit */
+    const int8_t filler[12];
 #endif
 } actor_t;
 
