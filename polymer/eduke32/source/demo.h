@@ -45,8 +45,6 @@ extern int32_t g_demo_totalCnt;
 
 int32_t G_OpenDemoRead(int32_t g_whichDemo);
 int32_t G_PlaybackDemo(void);
-int32_t sv_loadsnapshot(int32_t fil,int32_t *ret_hasdiffs,int32_t *ret_demoticcnt,int32_t *ret_synccompress);
-int32_t sv_updatestate(int32_t frominit);
 void demo_preparewarp(void);
 void G_CloseDemoWrite(void);
 void G_DemoRecord(void);

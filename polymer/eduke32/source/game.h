@@ -326,11 +326,6 @@ extern char forcegl;
 #endif
 #endif
 
-#if KRANDDEBUG
-int32_t krd_print(const char *filename);
-void krd_enable(int32_t which);
-#endif
-
 #define minitextshade(x, y, t, s, p, sb) minitext_(x,y,t,s,p,sb)
 #define minitext(x, y, t, p, sb) minitext_(x,y,t,0,p,sb)
 #define menutext(x,y,s,p,t) menutext_(x,y,s,p,(char *)OSD_StripColors(menutextbuf,t),10+16)

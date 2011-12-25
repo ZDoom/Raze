@@ -23,8 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "demo.h"
 #include "menus.h"
+#include "savegame.h"
 
-char firstdemofile[80] = { '\0' };
+char firstdemofile[80];
 
 FILE *g_demo_filePtr = (FILE *)NULL;
 int32_t g_demo_cnt;
@@ -67,7 +68,6 @@ void demo_preparewarp(void)
     S_ClearSoundLocks();
 }
 
-extern int32_t sv_loadsnapshot(int32_t fil, int32_t *ret_hasdiffs, int32_t *ret_demoticcnt, int32_t *ret_synccompress);
 
 int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 {
@@ -132,7 +132,6 @@ void G_OpenDemoWrite(void)
 {
     char d[14];
     int32_t i, demonum=1;
-    extern int32_t sv_saveandmakesnapshot(FILE* fil, int32_t recdiffs, int32_t diffcompress, int32_t synccompress);
 
     if (ud.recstat == 2) kclose(g_demo_recFilePtr);
 
@@ -230,7 +229,6 @@ static void dowritesync()
 void G_DemoRecord(void)
 {
     int16_t i;
-    extern uint32_t sv_writediff(FILE *fil);
 
     g_demo_cnt++;
 
@@ -255,8 +253,6 @@ void G_DemoRecord(void)
 
 void G_CloseDemoWrite(void)
 {
-    extern void sv_freemem();
-
     if (ud.recstat == 1)
     {
         if (ud.reccnt > 0)
@@ -283,7 +279,6 @@ void G_CloseDemoWrite(void)
 }
 
 static int32_t g_whichDemo = 1;
-extern int32_t sv_updatestate(int32_t frominit);
 
 static int32_t doupdatestate(int32_t frominit)
 {
@@ -416,7 +411,6 @@ RECHECK:
                 }
                 else
                 {
-                    //loadfrombeg:
                     //                    j = sv_loadsnapshot(g_demo_recFilePtr, &g_demo_totalCnt);
                     j = doupdatestate(1);
                     if (!j)
@@ -459,8 +453,6 @@ RECHECK:
                         DOREADSYNC(3);
                     else if (demo_hasdiffs && Bmemcmp(tmpbuf, "dIfF", 4)==0)
                     {
-                        extern int32_t sv_readdiff(int32_t fil);
-
                         k=sv_readdiff(g_demo_recFilePtr);
                         if (k)
                         {
