@@ -1726,7 +1726,7 @@ static inline void clearfrags(void)
 
         p->ps->frag = p->ps->fraggedself = 0;
 
-        if (i == MAXPLAYERS)
+        if (i == MAXPLAYERS-1)
             break;
         p = &g_player[i+1];
 
