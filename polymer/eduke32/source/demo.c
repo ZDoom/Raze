@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "menus.h"
 #include "savegame.h"
 
-char firstdemofile[80];
+char firstdemofile[BMAX_PATH];
 
 FILE *g_demo_filePtr = (FILE *)NULL;
 int32_t g_demo_cnt;

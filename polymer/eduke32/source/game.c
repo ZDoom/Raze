@@ -8770,12 +8770,17 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     ud.m_coop--;
                     break;
                 case 'd':
+                {
+                    char *dot;
+
                     c++;
-                    if (strchr(c,'.') == 0)
-                        Bstrcat(c,".edm");
-                    initprintf("Play demo %s.\n",c);
                     Bstrcpy(firstdemofile,c);
+                    dot = Bstrchr(firstdemofile,'.');
+                    if (!dot && Bstrlen(firstdemofile)+4 < sizeof(firstdemofile))
+                        Bstrcat(firstdemofile,".edm");
+                    initprintf("Play demo %s.\n",firstdemofile);
                     break;
+                }
                 case 'g':
                     c++;
                     if (!*c) break;
