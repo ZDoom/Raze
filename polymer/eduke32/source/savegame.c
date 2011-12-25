@@ -553,24 +553,24 @@ int32_t G_LoadPlayer(int32_t spot)
         char levname[BMAX_PATH];
         int32_t fil;
 
-        strcpy(levname, boardfilename);
+        Bstrcpy(levname, boardfilename);
+
         // usermap music based on map filename
         Bcorrectfilename(levname,0);
         p = Bstrrchr(levname,'.');
-        if (!p) strcat(levname,".ogg");
-        else
+        if (!p)
         {
-            p[1]='o';
-            p[2]='g';
-            p[3]='g';
-            p[4]=0;
+            p = levname + Bstrlen(levname);
+            p[0] = '.';
         }
 
+        Bmemcpy(p+1, "ogg", 4);
         fil = kopen4loadfrommod(levname,0);
 
         if (fil > -1)
         {
             kclose(fil);
+
             if (MapInfo[ud.level_number].alt_musicfn == NULL)
                 MapInfo[ud.level_number].alt_musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
             else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.level_number].alt_musicfn))
@@ -583,15 +583,11 @@ int32_t G_LoadPlayer(int32_t spot)
             MapInfo[ud.level_number].alt_musicfn = NULL;
         }
 
-        p[1]='m';
-        p[2]='i';
-        p[3]='d';
-        p[4]=0;
-
+        Bmemcpy(p+1, "mid", 4);
         fil = kopen4loadfrommod(levname,0);
 
         if (fil == -1)
-            Bsprintf(levname,"dethtoll.mid");
+            Bstrcpy(levname,"dethtoll.mid");
         else kclose(fil);
 
         if (MapInfo[ud.level_number].musicfn == NULL)
@@ -1936,7 +1932,7 @@ static void sv_prescriptsave_once()
     int32_t i;
     for (i=0; i<g_scriptSize; i++)
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
-            script[i] = (intptr_t)((intptr_t *)script[i] - &script[0]);
+            script[i] = (intptr_t *)script[i] - script;
 
     G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_FWD_NON0);
     G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_FWD_NON0);
@@ -1956,7 +1952,7 @@ static void sv_postscript_once()
 
     for (i=0; i<g_scriptSize; i++)
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
-            script[i] = (intptr_t)(script[i] + &script[0]);
+            script[i] = (intptr_t)(script + script[i]);
 }
 
 static void sv_preactordatasave()
@@ -2126,23 +2122,29 @@ static void sv_restload()
 #define SAVEWR(ptr, sz, cnt) do { if (fil) dfwrite(ptr,sz,cnt,fil); } while (0)
 #define SAVEWRU(ptr, sz, cnt) do { if (fil) fwrite(ptr,sz,cnt,fil); } while (0)
 
-#define PRINTSIZE(name) OSD_Printf(#name ": %d\n", (int32_t)(mem-tmem)), tmem=mem
+#ifdef DEBUGGINGAIDS
+# define PRINTSIZE(name) do { OSD_Printf(name ": %d\n", (int32_t)(mem-tmem)); tmem=mem; } while (0)
+#else
+# define PRINTSIZE(name) do { tmem=mem; } while (0)
+#endif
 
 static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem)
 {
     uint8_t *tmem = mem;
+
     mem=writespecdata(svgm_udnetw, fil, mem);  // user settings, players & net
-    PRINTSIZE(ud);
+    PRINTSIZE("ud");
 
     if (spot>=0)
     {
         SAVEWRU(&ud.savegame[spot][0], 21, 1);
+
         SAVEWRU("1", 1, 1);
         if (!waloff[TILE_SAVESHOT])
         {
             walock[TILE_SAVESHOT] = 254;
-            allocache(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
-            clearbuf((void *)waloff[TILE_SAVESHOT],(200*320)/4,0);
+            allocache(&waloff[TILE_SAVESHOT], 200*320, &walock[TILE_SAVESHOT]);
+            Bmemset((void *)waloff[TILE_SAVESHOT], 0, 320*200);
             walock[TILE_SAVESHOT] = 1;
         }
         SAVEWR((char *)waloff[TILE_SAVESHOT], 320, 200);
@@ -2156,19 +2158,20 @@ static uint8_t *dosaveplayer2(int32_t spot, FILE *fil, uint8_t *mem)
         if (t>=0 && (st = localtime(&t)))
             Bsprintf(buf, "Edemo32 %04d%02d%02d", st->tm_year+1900, st->tm_mon+1, st->tm_mday);
         SAVEWRU(&buf, 21, 1);
+
         SAVEWRU("\0", 1, 1);  // demos don't save screenshot
     }
 
     mem=writespecdata(svgm_secwsp, fil, mem);  // sector, wall, sprite
-    PRINTSIZE(sws);
+    PRINTSIZE("sws");
     mem=writespecdata(svgm_script, fil, mem);  // script
-    PRINTSIZE(script);
+    PRINTSIZE("script");
     mem=writespecdata(svgm_anmisc, fil, mem);  // animates, quotes & misc.
-    PRINTSIZE(animisc);
+    PRINTSIZE("animisc");
 
     Gv_WriteSave(fil, 1);  // gamevars
     mem=writespecdata(svgm_vars, 0, mem);
-    PRINTSIZE(vars);
+    PRINTSIZE("vars");
 
     return mem;
 }
@@ -2184,7 +2187,7 @@ static int32_t doloadplayer2(int32_t spot, int32_t fil, uint8_t **memptr)
 
     if (readspecdata(svgm_udnetw, fil, &mem))
         return -2;
-    PRINTSIZE(ud);
+    PRINTSIZE("ud");
     if (spot >= 0 && ud.multimode!=numplayers)
         return 2;
 
@@ -2208,22 +2211,24 @@ static int32_t doloadplayer2(int32_t spot, int32_t fil, uint8_t **memptr)
     }
 
     if (readspecdata(svgm_secwsp, fil, &mem)) return -4;
-    PRINTSIZE(sws);
+    PRINTSIZE("sws");
     if (readspecdata(svgm_script, fil, &mem)) return -5;
-    PRINTSIZE(script);
+    PRINTSIZE("script");
     if (readspecdata(svgm_anmisc, fil, &mem)) return -6;
-    PRINTSIZE(animisc);
+    PRINTSIZE("animisc");
 
     if (Gv_ReadSave(fil, 1)) return -7;
-    sv_makevarspec();
 
     if (mem)
+    {
+        sv_makevarspec();
         for (i=1; svgm_vars[i].flags!=DS_END; i++)
         {
             Bmemcpy(mem, svgm_vars[i].ptr, svgm_vars[i].size*svgm_vars[i].cnt);  // careful! works because there are no DS_DYNAMIC's!
             mem += svgm_vars[i].size*svgm_vars[i].cnt;
         }
-    PRINTSIZE(vars);
+        PRINTSIZE("vars");
+    }
 
     if (memptr)
         *memptr = mem;
@@ -2245,7 +2250,10 @@ int32_t sv_updatestate(int32_t frominit)
     if (readspecdata(svgm_vars, -1, &p)) return -8;
 
     if (p != pbeg+svsnapsiz)
+    {
         OSD_Printf("sv_updatestate: ptr-(snapshot end)=%d\n", (int32_t)(p-(pbeg+svsnapsiz)));
+        return -9;
+    }
 
     if (frominit)
     {
@@ -2313,10 +2321,7 @@ static void postloadplayer2()
 
 #ifdef POLYMER
     if (getrendermode() == 4)
-    {
         polymer_loadboard();
-        polymer_resetlights();
-    }
 #elif 0
     if (getrendermode() == 4)
     {
