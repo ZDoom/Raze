@@ -221,7 +221,7 @@ void ReadSaveGameHeaders(void)
 int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh)
 {
     char fn[16];
-    int32_t fil, screenshotofs;
+    int32_t fil, screenshotofs, i;
 
     Bstrcpy(fn, "dukesav0.esv");
     fn[7] = spot + '0';
@@ -230,7 +230,8 @@ int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh)
     if (fil == -1)
         return -1;
 
-    if (sv_loadheader(fil, spot, saveh))
+    i = sv_loadheader(fil, spot, saveh);
+    if (i && (i != 2 && i != 3))
         goto corrupt;
 
     if (kread(fil, &screenshotofs, 4) != 4)
@@ -244,7 +245,10 @@ int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh)
     if (screenshotofs)
     {
         if (kdfread((char *)waloff[TILE_LOADSHOT], 320, 200, fil) != 200)
+        {
+            OSD_Printf("G_LoadSaveHeaderNew(%d): failed reading screenshot\n", spot);
             goto corrupt;
+        }
     }
     else
     {
