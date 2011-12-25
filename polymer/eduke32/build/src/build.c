@@ -1867,8 +1867,9 @@ static void duplicate_selected_sectors(void)
     if (miny+dy <= -editorgridextent) dy*=-1;
 
     onumsectors = numsectors;
+#ifdef YAX_ENABLE
     onumyaxbunches = numyaxbunches;
-
+#endif
     // restore! this will not fail.
     restore_highlighted_map(&mapinfo, 1);
 

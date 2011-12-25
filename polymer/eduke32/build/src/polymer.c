@@ -1734,7 +1734,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                 polymer_drawwall(sectorqueue[front], sec->wallptr + i);
         }
         while (--i >= 0);
-
+#ifdef YAX_ENABLE
         // queue ROR neighbors
         if ((sec->floorstat & 1024) &&
             (bunchnum = yax_getbunch(sectorqueue[front], YAX_FLOOR)) >= 0) {
@@ -1763,7 +1763,7 @@ static void         polymer_displayrooms(int16_t dacursectnum)
                 }
             }
         }
-
+#endif
         i = sec->wallnum-1;
         do
         {
@@ -5354,6 +5354,7 @@ static inline void  polymer_culllight(int16_t lighti)
             checkror = TRUE;
         }
 
+#ifdef YAX_ENABLE
         // queue ROR neighbors
         if (checkror && (sec->floorstat & 1024) &&
             (bunchnum = yax_getbunch(sectorqueue[front], YAX_FLOOR)) >= 0) {
@@ -5368,7 +5369,7 @@ static inline void  polymer_culllight(int16_t lighti)
                 }
             }
         }
-
+#endif
         checkror = FALSE;
 
         zdiff = light->z - s->ceilingz;
@@ -5386,6 +5387,7 @@ static inline void  polymer_culllight(int16_t lighti)
             checkror = TRUE;
         }
 
+#ifdef YAX_ENABLE
         // queue ROR neighbors
         if (checkror && (sec->ceilingstat & 1024) &&
             (bunchnum = yax_getbunch(sectorqueue[front], YAX_CEILING)) >= 0) {
@@ -5400,7 +5402,7 @@ static inline void  polymer_culllight(int16_t lighti)
                 }
             }
         }
-
+#endif
         i = 0;
         while (i < sec->wallnum)
         {

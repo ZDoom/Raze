@@ -255,6 +255,10 @@ void yax_updategrays(int32_t posze)
 }
 
 
+#if !defined YAX_ENABLE
+# warning Non-TROR builds are supported only for debugging. Expect savegame breakage etc...
+#endif
+
 #ifdef YAX_ENABLE
 // all references to floor/ceiling bunchnums should be through the
 // get/set functions!
@@ -8008,6 +8012,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 # ifdef POLYMER
     if (rendmode == 4)
     {
+#  ifdef YAX_ENABLE
         // BEGIN TWEAK ceiling/floor fake 'TROR' pics
         if (editstatus && showinvisibility)
         {
@@ -8017,7 +8022,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
                 yax_tweakpicnums(i, YAX_FLOOR, 0);
             }
         }
-
+#  endif
         polymer_glinit();
         polymer_drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
         bglDisable(GL_CULL_FACE);
@@ -8494,7 +8499,7 @@ killsprite:
 #ifdef POLYMER
     if (rendmode == 4) {
         polymer_drawmasks();
-
+# ifdef YAX_ENABLE
         // END TWEAK ceiling/floor fake 'TROR' pics
         if (editstatus && showinvisibility)
         {
@@ -8504,6 +8509,7 @@ killsprite:
                 yax_tweakpicnums(i, YAX_FLOOR, 1);
             }
         }
+# endif
     }
 #endif
 
@@ -10757,7 +10763,9 @@ restart_grand:
 #endif
     if ((x1 == x2) && (y1 == y2)) return(sect1 == sect2);
 
+#ifdef YAX_ENABLE
     pendingsectnum = -1;
+#endif
     x21 = x2-x1; y21 = y2-y1; z21 = z2-z1;
 
     sectbitmap[sect1>>3] |= (1<<(sect1&7));
@@ -10782,9 +10790,9 @@ restart_grand:
             t = y31*x34-x31*y34;
             if ((unsigned)t >= (unsigned)bot)
             {
+#ifdef YAX_ENABLE
                 if (t >= bot)
                 {
-#ifdef YAX_ENABLE
                     int32_t cf, frac, ns;
                     for (cf=0; cf<2; cf++)
                     {
