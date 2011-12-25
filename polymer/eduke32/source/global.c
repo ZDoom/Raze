@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "rev.h"
 
-const char *s_buildDate = "20110319";
+const char *s_buildDate = "20111222";
 char *MusicPtr = NULL;
 int32_t g_musicSize;
 
@@ -36,7 +36,6 @@ int32_t neartaghitdist,lockclock,g_startArmorAmount;
 // JBF: g_spriteGravity modified to default to Atomic ed. default when using 1.3d CONs
 int32_t g_spriteGravity=176;
 
-// int32_t temp_data[MAXSPRITES][6];
 actor_t actor[MAXSPRITES];
 
 int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos,g_spriteDeleteQueueSize=64;
@@ -44,7 +43,6 @@ animwalltype animwall[MAXANIMWALLS];
 int16_t g_numAnimWalls;
 int32_t *animateptr[MAXANIMATES];
 int32_t animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
-// int32_t oanimateval[MAXANIMATES];
 int16_t animatesect[MAXANIMATES];
 int32_t msx[2048],msy[2048];
 int16_t cyclers[MAXCYCLERS][6],g_numCyclers;
@@ -82,7 +80,6 @@ int32_t g_currentFrameRate;
 char g_numVolumes = 3;
 
 int32_t g_timerTicsPerSecond=TICRATE;
-//fx_device device;
 
 char g_numPlayerSprites,g_loadFromGroupOnly=0,g_earthquakeTime;
 
@@ -102,13 +99,10 @@ input_t loc;
 input_t recsync[RECSYNCBUFSIZ];
 input_t avg;
 
-int32_t movefifosendplc;
-
 //Multiplayer syncing variables
 int32_t screenpeek;
 
 //Game recording variables
-
 char ready2send;
 int32_t vel, svel, angvel, horiz, ototalclock, g_actorRespawnTime=768, g_itemRespawnTime=768, g_groupFileHandle;
 
@@ -157,11 +151,9 @@ int16_t myhoriz, omyhoriz, myhorizoff, omyhorizoff;
 int16_t myang, omyang, mycursectnum, myjumpingcounter;
 
 char myjumpingtoggle, myonground, myhardlanding, myreturntocenter;
-int8_t multiwho, multipos, multiwhat, multiflag;
 
 int32_t g_playerFriction = 0xcc00, g_showShareware;
 
-int16_t myangbak[MOVEFIFOSIZ];
 char szPlayerName[32];
 int32_t g_damageCameras,g_freezerSelfDamage=0,g_tripbombLaserMode=0;
 int32_t g_gameQuit = 0;
@@ -177,8 +169,6 @@ int32_t g_interpolationLock = 0;
 int32_t oldipos[MAXINTERPOLATIONS];
 int32_t bakipos[MAXINTERPOLATIONS];
 int32_t *curipos[MAXINTERPOLATIONS];
-
-int32_t nextvoxid = 0;
 
 int32_t SpriteFlags[MAXTILES];
 

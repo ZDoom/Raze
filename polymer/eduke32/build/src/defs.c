@@ -105,7 +105,7 @@ static int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 }
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
-extern int32_t nextvoxid;
+int32_t nextvoxid = 0;
 
 #ifdef USE_OPENGL
 extern float alphahackarray[MAXTILES];
