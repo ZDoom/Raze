@@ -1718,12 +1718,21 @@ static void resetpspritevars(char g)
 
 static inline void clearfrags(void)
 {
-    int32_t i = 0;
+    int32_t i;
 
-    while (i<ud.multimode)
+    for (i=0; i<ud.multimode; i++)
     {
-        g_player[i].ps->frag = g_player[i].ps->fraggedself = 0, i++;
-        clearbufbyte(&g_player[i].frags[0],MAXPLAYERS<<1,0L);
+        playerdata_t *p = &g_player[i];
+
+        p->ps->frag = p->ps->fraggedself = 0;
+
+        if (i == MAXPLAYERS)
+            break;
+        p = &g_player[i+1];
+
+        Bmemset(p->frags, 0, sizeof(g_player[i].frags));
+        Bmemset(p->wchoice, 0, sizeof(g_player[i].wchoice));
+        p->vote = p->gotvote = p->pingcnt = p->playerquitflag = 0;
     }
 }
 
@@ -1731,10 +1740,10 @@ void G_ResetTimers(void)
 {
     vel = svel = angvel = horiz = 0;
 
-    totalclock = 0L;
-    cloudtotalclock = 0L;
-    ototalclock = 0L;
-    lockclock = 0L;
+    totalclock = 0;
+    cloudtotalclock = 0;
+    ototalclock = 0;
+    lockclock = 0;
     ready2send = 1;
     g_levelTextTime = 85;
     g_moveThingsCount = 0;
