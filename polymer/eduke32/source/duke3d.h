@@ -65,7 +65,7 @@ extern "C" {
 
 // Uncomment to have the same sizeof(actor_t) and sizeof(netactor_t) across
 // 32- and 64-bit builds;  KEEPINSYNC with same #define in actors.h and gamedef.h:
-//#define SAMESIZE_ACTOR_T
+#define SAMESIZE_ACTOR_T
 
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 #ifdef YAX_ENABLE

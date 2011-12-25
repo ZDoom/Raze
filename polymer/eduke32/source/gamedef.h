@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Uncomment to have the same sizeof(actor_t) and sizeof(netactor_t) across
 // 32- and 64-bit builds;  KEEPINSYNC with same #define in actors.h:
-//#define SAMESIZE_ACTOR_T
+#define SAMESIZE_ACTOR_T
 
 #define MAXGAMEEVENTS   128
 #define LABEL_HASPARM2  1
