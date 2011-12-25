@@ -31,6 +31,7 @@ extern int32_t g_levelTextTime;
 extern int32_t g_numRealPalettes;
 extern int32_t voting,vote_map,vote_episode;
 extern palette_t CrosshairColors;
+void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int32_t level_number);
 int32_t G_EnterLevel(int32_t g);
 int32_t G_FindLevelByFile(const char *fn);
 void G_CacheMapData(void);

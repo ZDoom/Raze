@@ -1831,6 +1831,58 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
         initprintf("Loaded map hack file '%s'\n",outbuf);
 }
 
+static void realloc_and_copy_musicfn(int32_t level_number, const char *levnamebuf, int32_t altp)
+{
+    char **musicfn = altp ? &MapInfo[level_number].alt_musicfn : &MapInfo[level_number].musicfn;
+    int32_t dastrlen = Bstrlen(levnamebuf);
+
+    *musicfn = Brealloc(*musicfn, dastrlen+1);
+    Bstrcpy(*musicfn, levnamebuf);
+}
+
+// levnamebuf should have at least size BMAX_PATH
+void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int32_t level_number)
+{
+    char *p;
+    int32_t fil;
+
+    Bstrcpy(levnamebuf, boardfilename);
+
+    // usermap music based on map filename
+    Bcorrectfilename(levnamebuf,0);
+
+    p = Bstrrchr(levnamebuf,'.');
+    if (!p)
+    {
+        p = levnamebuf + Bstrlen(levnamebuf);
+        p[0] = '.';
+    }
+
+    Bmemcpy(p+1, "ogg", 4);
+    fil = kopen4loadfrommod(levnamebuf,0);
+
+    if (fil > -1)
+    {
+        kclose(fil);
+
+        realloc_and_copy_musicfn(level_number, levnamebuf, 1);
+    }
+    else if (MapInfo[level_number].alt_musicfn != NULL)
+    {
+        Bfree(MapInfo[level_number].alt_musicfn);
+        MapInfo[level_number].alt_musicfn = NULL;
+    }
+
+    Bmemcpy(p+1, "mid", 4);
+    fil = kopen4loadfrommod(levnamebuf,0);
+
+    if (fil == -1)
+        Bstrcpy(levnamebuf, "dethtoll.mid");
+    else kclose(fil);
+
+    realloc_and_copy_musicfn(level_number, levnamebuf, 0);
+}
+
 int32_t G_EnterLevel(int32_t g)
 {
     int32_t i;
@@ -1929,58 +1981,9 @@ int32_t G_EnterLevel(int32_t g)
                 return 1;
             }
 
-            {
-                char *p;
+            G_LoadMapHack(levname, boardfilename);
 
-                G_LoadMapHack(levname, boardfilename);
-
-                // usermap music based on map filename
-                Bcorrectfilename(levname,0);
-                p = Bstrrchr(levname,'.');
-                if (p)
-                {
-                    int32_t fil;
-
-                    p[1]='o';
-                    p[2]='g';
-                    p[3]='g';
-                    p[4]=0;
-
-                    fil = kopen4loadfrommod(levname,0);
-
-                    if (fil > -1)
-                    {
-                        kclose(fil);
-                        if (MapInfo[ud.m_level_number].alt_musicfn == NULL)
-                            MapInfo[ud.m_level_number].alt_musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
-                        else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.m_level_number].alt_musicfn))
-                            MapInfo[ud.m_level_number].alt_musicfn = Brealloc(MapInfo[ud.m_level_number].alt_musicfn,(Bstrlen(levname)+1));
-                        Bstrcpy(MapInfo[ud.m_level_number].alt_musicfn,levname);
-                    }
-                    else if (MapInfo[ud.m_level_number].alt_musicfn != NULL)
-                    {
-                        Bfree(MapInfo[ud.m_level_number].alt_musicfn);
-                        MapInfo[ud.m_level_number].alt_musicfn = NULL;
-                    }
-
-                    p[1]='m';
-                    p[2]='i';
-                    p[3]='d';
-                    p[4]=0;
-
-                    fil = kopen4loadfrommod(levname,0);
-
-                    if (fil == -1)
-                        Bsprintf(levname,"dethtoll.mid");
-                    else kclose(fil);
-
-                    if (MapInfo[ud.m_level_number].musicfn == NULL)
-                        MapInfo[ud.m_level_number].musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
-                    else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.m_level_number].musicfn))
-                        MapInfo[ud.m_level_number].musicfn = Brealloc(MapInfo[ud.m_level_number].musicfn,(Bstrlen(levname)+1));
-                    Bstrcpy(MapInfo[ud.m_level_number].musicfn,levname);
-                }
-            }
+            G_SetupFilenameBasedMusic(levname, boardfilename, ud.m_level_number);
         }
         else if (loadboard(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,0,&g_player[0].ps->pos.x,
                            &g_player[0].ps->pos.y, &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)

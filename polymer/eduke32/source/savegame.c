@@ -549,52 +549,9 @@ int32_t G_LoadPlayer(int32_t spot)
 
     if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
     {
-        char *p;
         char levname[BMAX_PATH];
-        int32_t fil;
 
-        Bstrcpy(levname, boardfilename);
-
-        // usermap music based on map filename
-        Bcorrectfilename(levname,0);
-        p = Bstrrchr(levname,'.');
-        if (!p)
-        {
-            p = levname + Bstrlen(levname);
-            p[0] = '.';
-        }
-
-        Bmemcpy(p+1, "ogg", 4);
-        fil = kopen4loadfrommod(levname,0);
-
-        if (fil > -1)
-        {
-            kclose(fil);
-
-            if (MapInfo[ud.level_number].alt_musicfn == NULL)
-                MapInfo[ud.level_number].alt_musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
-            else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.level_number].alt_musicfn))
-                MapInfo[ud.level_number].alt_musicfn = Brealloc(MapInfo[ud.level_number].alt_musicfn,(Bstrlen(levname)+1));
-            Bstrcpy(MapInfo[ud.level_number].alt_musicfn,levname);
-        }
-        else if (MapInfo[ud.level_number].alt_musicfn != NULL)
-        {
-            Bfree(MapInfo[ud.level_number].alt_musicfn);
-            MapInfo[ud.level_number].alt_musicfn = NULL;
-        }
-
-        Bmemcpy(p+1, "mid", 4);
-        fil = kopen4loadfrommod(levname,0);
-
-        if (fil == -1)
-            Bstrcpy(levname,"dethtoll.mid");
-        else kclose(fil);
-
-        if (MapInfo[ud.level_number].musicfn == NULL)
-            MapInfo[ud.level_number].musicfn = Bcalloc(Bstrlen(levname)+1,sizeof(uint8_t));
-        else if ((Bstrlen(levname)+1) > sizeof(MapInfo[ud.level_number].musicfn))
-            MapInfo[ud.level_number].musicfn = Brealloc(MapInfo[ud.level_number].musicfn,(Bstrlen(levname)+1));
-        Bstrcpy(MapInfo[ud.level_number].musicfn,levname);
+        G_SetupFilenameBasedMusic(levname, boardfilename, ud.level_number);
     }
 
     if (ud.config.MusicToggle)
