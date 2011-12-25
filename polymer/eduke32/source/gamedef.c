@@ -5781,7 +5781,7 @@ void C_Compile(const char *filenam)
 //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     g_numLabels = g_numDefaultLabels = 0;
-    g_scriptPtr = script+1;
+    g_scriptPtr = script+3;  // move permits constants 0 and 1; moveptr[1] would be script[2] (reachable?)
     g_numCompilerWarnings = 0;
     g_numCompilerErrors = 0;
     g_lineNumber = 1;
