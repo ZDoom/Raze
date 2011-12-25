@@ -68,21 +68,8 @@ extern "C" {
 #define SAMESIZE_ACTOR_T
 
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
-#ifdef YAX_ENABLE
-// we'll have to introduce a BYTEVERSION2 sooner or later anyway...:
-# ifdef SAMESIZE_ACTOR_T
-#  define BYTEVERSION_JF      231
-# else
-#  define BYTEVERSION_JF      228
-# endif
-//            keep in sync?  v^v
-#else
-# ifdef SAMESIZE_ACTOR_T
-#  define BYTEVERSION_JF      201
-# else
-#  define BYTEVERSION_JF      198
-# endif
-#endif
+#define BYTEVERSION_JF      234
+
 #define BYTEVERSION_13      27
 #define BYTEVERSION_14      116
 #define BYTEVERSION_15      117
