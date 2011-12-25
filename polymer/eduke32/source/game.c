@@ -3765,7 +3765,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     Bmemset(&actor[i], 0, sizeof(actor_t));
     Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t)); // update bposx/y/z
 
-    if (s_ow > -1 && s_ow < MAXSPRITES)
+    if ((unsigned)s_ow < MAXSPRITES)
     {
         actor[i].picnum = sprite[s_ow].picnum;
         actor[i].floorz = actor[s_ow].floorz;
@@ -3788,8 +3788,8 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     if (show2dsector[SECT>>3]&(1<<(SECT&7))) show2dsprite[i>>3] |= (1<<(i&7));
     else show2dsprite[i>>3] &= ~(1<<(i&7));
 
-    clearbufbyte(&spriteext[i], sizeof(spriteext_t), 0);
-    clearbufbyte(&spritesmooth[i], sizeof(spritesmooth_t), 0);
+    Bmemset(&spriteext[i], 0, sizeof(spriteext_t));
+    Bmemset(&spritesmooth[i], 0, sizeof(spritesmooth_t));
 
     A_ResetVars(i);
 
@@ -6175,16 +6175,6 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
             if (g_player[p].ps->over_shoulder_on > 0 && g_player[p].ps->newowner < 0)
             {
-                /*
-                                                if (screenpeek == myconnectindex && numplayers >= 2)
-                                                {
-                                                    t->x = omy.x+mulscale16((int32_t)(my.x-omy.x),smoothratio);
-                                                    t->y = omy.y+mulscale16((int32_t)(my.y-omy.y),smoothratio);
-                                                    t->z = omy.z+mulscale16((int32_t)(my.z-omy.z),smoothratio)+PHEIGHT;
-                                                    t->ang = omyang+mulscale16((int32_t)(((myang+1024-omyang)&2047)-1024),smoothratio);
-                                                    t->sectnum = mycursectnum;
-                                                }
-                                                else*/
                 t->ang = g_player[p].ps->ang+mulscale16((int32_t)(((g_player[p].ps->ang+1024- g_player[p].ps->oang)&2047)-1024),smoothratio);
 #ifdef USE_OPENGL
                 if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0)
@@ -7892,9 +7882,9 @@ FAKE_F3:
             if (BUTTON(gamefunc_Shrink_Screen))
                 g_player[myconnectindex].ps->zoom -= mulscale6(j,max(g_player[myconnectindex].ps->zoom,256));
 
-            if ((g_player[myconnectindex].ps->zoom > 2048))
+            if (g_player[myconnectindex].ps->zoom > 2048)
                 g_player[myconnectindex].ps->zoom = 2048;
-            if ((g_player[myconnectindex].ps->zoom < 48))
+            if (g_player[myconnectindex].ps->zoom < 48)
                 g_player[myconnectindex].ps->zoom = 48;
 
         }
@@ -9377,7 +9367,7 @@ static void G_Startup(void)
 
     G_InitDynamicTiles();
 
-    if ((g_netServer || ud.multimode > 1)) G_CheckGametype();
+    if (g_netServer || ud.multimode > 1) G_CheckGametype();
 
     if (g_noSound) ud.config.SoundToggle = 0;
     if (g_noMusic) ud.config.MusicToggle = 0;
@@ -10156,7 +10146,7 @@ CLEAN_DIRECTORY:
 
     // getnames();
 
-    if ((g_netServer || ud.multimode > 1))
+    if (g_netServer || ud.multimode > 1)
     {
         if (ud.warp_on == 0)
         {

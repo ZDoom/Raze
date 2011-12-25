@@ -9015,7 +9015,7 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
         Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
 
 #ifdef USE_OPENGL
-        Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
+        Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
 
 //    polymost_cachesync();
 
@@ -9483,8 +9483,8 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
     kclose(fil);
 
 #ifdef USE_OPENGL
-    memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-    memset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
+    Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
+    Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
 #endif
     guniqhudid = 0;
 
@@ -9568,8 +9568,8 @@ int32_t loadmaphack(const char *filename)
 
     if (filename)
     {
-        memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-        memset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
+        Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
+        Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
         Bstrcpy(fn, filename);
         script = scriptfile_fromfile(filename);
     }
