@@ -93,7 +93,7 @@ int32_t voxscale[MAXVOXELS];
 
 static int32_t ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
 static int32_t lowrecip[1024], nytooclose, nytoofar;
-static uint32_t distrecip[65536];
+static uint32_t distrecip[65536+256];
 
 static intptr_t *lookups = NULL;
 static char lookupsalloctype = 255;
@@ -5085,6 +5085,8 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
                 voxend = (char *)(B_LITTLE16(shortptr[y+1])+slabxoffs);
                 if (voxptr == voxend) continue;
 
+                // AMCTC V1 MEGABASE: (ny+y1)>>14 == 65547
+                // (after long corridor with the blinds)
                 lx = mulscale32(nx>>3,distrecip[(ny+y1)>>14])+halfxdimen;
                 if (lx < 0) lx = 0;
                 rx = mulscale32((nx+nxoff)>>3,distrecip[(ny+y2)>>14])+halfxdimen;
@@ -7167,7 +7169,8 @@ static void dosetaspect(void)
             if (j != 0) j = mulscale16((int32_t)radarang[k+1]-(int32_t)radarang[k],j);
             radarang2[i] = (int16_t)(((int32_t)radarang[k]+j)>>6);
         }
-        for (i=1; i<65536; i++) distrecip[i] = divscale20(xdimen,i);
+        for (i=1; i<(int32_t)(sizeof(distrecip)/sizeof(distrecip[0])); i++)
+            distrecip[i] = divscale20(xdimen,i);
         nytooclose = xdimen*2100;
         nytoofar = 65536*16384-1048576;
     }
