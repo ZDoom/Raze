@@ -2323,7 +2323,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
                     k = spr->ang;
                     cosang = sintable[(k+512)&2047];
-                    sinang = sintable[k];
+                    sinang = sintable[k&2047];
                     xspan = tilesizx[tilenum];
                     xrepeat = spr->xrepeat;
                     yspan = tilesizy[tilenum];
