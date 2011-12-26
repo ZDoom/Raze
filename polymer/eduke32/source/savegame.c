@@ -1324,7 +1324,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
             j=kread(fil, cmpstrbuf, i);
             if (j!=i || Bmemcmp(sp->ptr, cmpstrbuf, i))
             {
-                OSD_Printf("rsd: spec=%s, idx=%d:\n", (char *)spec->ptr, sp-spec);
+                OSD_Printf("rsd: spec=%s, idx=%d:\n", (char *)spec->ptr, (int32_t)(sp-spec));
                 if (j!=i)
                     OSD_Printf("    kread returned %d, expected %d.\n", j, i);
                 else
@@ -1353,7 +1353,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
             }
             if (i!=j)
             {
-                OSD_Printf("rsd: spec=%s, idx=%d, mem=%p\n", (char *)spec->ptr, sp-spec, mem);
+                OSD_Printf("rsd: spec=%s, idx=%d, mem=%p\n", (char *)spec->ptr, (int32_t)(sp-spec), mem);
                 OSD_Printf("     (%s): read %d, expected %d!\n",
                            ((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=savegame_comprthres)?
                            "uncompressed":"compressed", i, j);
@@ -2093,6 +2093,8 @@ int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h)
         }
     }
 
+    savegame_comprthres = h->comprthres;
+
     if (spot >= 0)
     {
         // savegame
@@ -2106,7 +2108,6 @@ int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h)
     else
     {
         // demo
-        savegame_comprthres = h->comprthres;
         savegame_diffcompress = h->diffcompress;
 
         svsnapsiz = h->snapsiz;
