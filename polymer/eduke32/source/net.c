@@ -1826,6 +1826,7 @@ void Net_ParseServerPacket(ENetEvent *event)
 #if defined SAMESIZE_ACTOR_T
                 j++;
                 Bmemcpy(&T5, &pbuf[j], sizeof(T5));
+                j += sizeof(T5);
 #else
                 int16_t jj = j++;
                 int32_t oa = (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)&script[g_scriptSize]) ? T5-(intptr_t)&script[0] : T5;
