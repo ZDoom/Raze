@@ -2112,7 +2112,7 @@ int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
 static int32_t smostcnt;
 static int16_t smost[MAXYSAVES];
-static int16_t smoststart[MAXWALLSB];
+static int32_t smoststart[MAXWALLSB];
 static char smostwalltype[MAXWALLSB];
 static int32_t smostwall[MAXWALLSB], smostwallcnt = -1;
 
