@@ -586,7 +586,7 @@ void M_DisplayMenus(void)
 
     if (g_netSync)
     {
-        P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 11);
+        P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2/*+1*/);
         rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
         rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);

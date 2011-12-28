@@ -67,7 +67,7 @@ typedef enum basepal_ {
     SLIMEPAL,
     DREALMSPAL,
     TITLEPAL,
-    ENDINGPAL,
+    ENDINGPAL,  // 5
     ANIMPAL,
     BASEPALCOUNT
 } basepal_t; 

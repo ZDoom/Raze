@@ -351,10 +351,11 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
         VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
         j = aGameVars[g_iReturnVarID].val.lValue;
 
+        //g_player[myconnectindex].ps->palette = palette;
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0 /*1*/);    // JBF 20040308
+
         if (!statustext)
         {
-            //g_player[myconnectindex].ps->palette = palette;
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
             i = ud.screen_size;
             ud.screen_size = 0;
             G_UpdateScreenArea();
