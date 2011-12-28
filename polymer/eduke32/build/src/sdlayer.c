@@ -11,7 +11,7 @@
 #include "compat.h"
 #include "sdlayer.h"
 #include "cache1d.h"
-#include "pragmas.h"
+//#include "pragmas.h"
 #include "a.h"
 #include "build.h"
 #include "osd.h"
@@ -76,6 +76,9 @@ extern int32_t curbrightness, gammabrightness;
 char nogl=0;
 #endif
 int32_t vsync=0;
+
+// last gamma, contrast, brightness
+static float lastvidgcb[3];
 
 //#define KEY_PRINT_DEBUG
 
@@ -998,6 +1001,9 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     if (bpp > 8 && sdl_surface) polymost_glreset();
 #endif
 
+    // clear last gamma/contrast/brightness so that it will be set anew
+    lastvidgcb[0] = lastvidgcb[1] = lastvidgcb[2] = 0.0f;
+
     // restore gamma before we change video modes if it was changed
     if (sdl_surface && gammabrightness)
     {
@@ -1524,6 +1530,9 @@ int32_t setgamma(void)
 
     if (novideo) return 0;
 
+    if (lastvidgcb[0]==gamma && lastvidgcb[1]==contrast && lastvidgcb[2]==bright)
+        return 0;
+
     // This formula is taken from Doomsday
 
     for (i = 0; i < 256; i++)
@@ -1534,7 +1543,17 @@ int32_t setgamma(void)
 
         gammaTable[i] = gammaTable[i + 256] = gammaTable[i + 512] = (uint16_t)max(0.f,(double)min(0xffff,val*256));
     }
-    return SDL_SetGammaRamp(&gammaTable[0],&gammaTable[256],&gammaTable[512]);
+
+    i = SDL_SetGammaRamp(&gammaTable[0],&gammaTable[256],&gammaTable[512]);
+
+    if (i != -1)
+    {
+        lastvidgcb[0] = gamma;
+        lastvidgcb[1] = contrast;
+        lastvidgcb[2] = bright;
+    }
+
+    return i;
 }
 
 #ifndef __APPLE__
