@@ -4847,9 +4847,9 @@ static void drawalls(int32_t bunch)
 
 #ifdef ENGINE_SCREENSHOT_DEBUG
         if (engine_screenshot)
-#ifdef YAX_ENABLE
+# ifdef YAX_ENABLE
         if (!g_nodraw)
-#endif
+# endif
         {
             static char fn[32], tmpbuf[80];
             static char bakframe[MAXXDIM*MAXYDIM];
@@ -15415,15 +15415,15 @@ static int32_t screencapture_common1(char *fn, const char *ext, BFILE** filptr)
 
 #ifdef USE_LIBPNG
 // PNG screenshots -- adapted from libpng example.c
-int32_t screencapture_png(const char *filename, char inverseit, const char *versionstr)
+static int32_t screencapture_png(const char *filename, char inverseit, const char *versionstr)
 {
     int32_t i;
     BFILE *fp;
-#ifdef USE_OPENGL
-# define HICOLOR (rendmode>=3 && qsetmode==200)
-#else
-# define HICOLOR 0
-#endif
+# ifdef USE_OPENGL
+#  define HICOLOR (rendmode>=3 && qsetmode==200)
+# else
+#  define HICOLOR 0
+# endif
     png_structp png_ptr;
     png_infop info_ptr;
     png_colorp palette = NULL;
@@ -15434,19 +15434,17 @@ int32_t screencapture_png(const char *filename, char inverseit, const char *vers
 
     char fn[32];  // careful...
 
-    UNREFERENCED_PARAMETER(inverseit);
-
     Bstrcpy(fn, filename);
     i = screencapture_common1(fn, "png", &fp);
     if (i)
         return i;
 
     /* Create and initialize the png_struct with default error handling. */
-#ifndef NEDMALLOC
+# ifndef NEDMALLOC
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-#else
+# else
     png_ptr = png_create_write_struct_2(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL, Bmalloc, Bfree);
-#endif
+# endif
     if (png_ptr == NULL)
     {
         Bfclose(fp);
@@ -15493,9 +15491,9 @@ int32_t screencapture_png(const char *filename, char inverseit, const char *vers
     {
         for (i=0; i<256; i++)
         {
-            palette[i].red = curpalettefaded[i].r;
-            palette[i].green = curpalettefaded[i].g;
-            palette[i].blue = curpalettefaded[i].b;
+            palette[i].red = inverseit ? 255-curpalettefaded[i].r : curpalettefaded[i].r;
+            palette[i].green = inverseit ? 255-curpalettefaded[i].g : curpalettefaded[i].g;
+            palette[i].blue = inverseit ? 255-curpalettefaded[i].b : curpalettefaded[i].b;
         }
 
         png_set_PLTE(png_ptr, info_ptr, palette, 256);
@@ -15521,13 +15519,13 @@ int32_t screencapture_png(const char *filename, char inverseit, const char *vers
         buf = (png_bytep)png_malloc(png_ptr, xdim*ydim);
         Bmemcpy(buf, (char *)frameplace, xdim*ydim);
     }
-#ifdef USE_OPENGL
+# ifdef USE_OPENGL
     else
     {
         buf = (png_bytep)png_malloc(png_ptr, xdim*ydim*3);
         bglReadPixels(0,0,xdim,ydim,GL_RGB,GL_UNSIGNED_BYTE,buf);
     }
-#endif
+# endif
     enddrawing(); //}}}
 
     rowptrs = (png_bytepp)png_malloc(png_ptr, ydim*sizeof(png_bytep));
@@ -15558,10 +15556,11 @@ int32_t screencapture_png(const char *filename, char inverseit, const char *vers
     capturecount++;
     return 0;
 }
-#undef HICOLOR
-#endif  // defined USE_LIBPNG
+# undef HICOLOR
 
-int32_t screencapture_tga(const char *filename, char inverseit)
+#else  // if !defined USE_LIBPNG
+
+static int32_t screencapture_tga(const char *filename, char inverseit)
 {
     int32_t i,j;
     char *ptr, head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
@@ -15573,7 +15572,7 @@ int32_t screencapture_tga(const char *filename, char inverseit)
     if (i)
         return i;
 
-#ifdef USE_OPENGL
+# ifdef USE_OPENGL
     if (rendmode >= 3 && qsetmode == 200)
     {
         head[1] = 0;    // no colourmap
@@ -15585,7 +15584,7 @@ int32_t screencapture_tga(const char *filename, char inverseit)
         head[7] = 0;    // colourmap entry size
         head[16] = 24;  // 24 bits per pixel
     }
-#endif
+# endif
 
     head[12] = xdim & 0xff;
     head[13] = (xdim >> 8) & 0xff;
@@ -15598,39 +15597,42 @@ int32_t screencapture_tga(const char *filename, char inverseit)
     ptr = (char *)frameplace;
 
     // palette first
-#ifdef USE_OPENGL
+# ifdef USE_OPENGL
     if (rendmode < 3 || (rendmode >= 3 && qsetmode != 200))
     {
-#endif
+# endif
         //getpalette(0,256,palette);
         for (i=0; i<256; i++)
         {
-            Bfputc(curpalettefaded[i].b, fil);  // b
-            Bfputc(curpalettefaded[i].g, fil);  // g
-            Bfputc(curpalettefaded[i].r, fil);  // r
+            Bfputc(inverseit ? 255-curpalettefaded[i].b : curpalettefaded[i].b, fil);  // b
+            Bfputc(inverseit ? 255-curpalettefaded[i].g : curpalettefaded[i].g, fil);  // g
+            Bfputc(inverseit ? 255-curpalettefaded[i].r : curpalettefaded[i].r, fil);  // r
         }
-#ifdef USE_OPENGL
+# ifdef USE_OPENGL
     }
-#endif
+# endif
 
+# if 0
     // targa renders bottom to top, from left to right
     if (inverseit && qsetmode != 200)
     {
-        inversebuf = (char *)Bmalloc(bytesperline);
+        inversebuf = Bmalloc(bytesperline);
         if (inversebuf)
         {
             for (i=ydim-1; i>=0; i--)
             {
-                copybuf(ptr+i*bytesperline, inversebuf, xdim >> 2);
-                for (j=0; j < (bytesperline>>2); j++)((int32_t *)inversebuf)[j] ^= 0x0f0f0f0fL;
+                Bmemcpy(inversebuf, ptr+i*bytesperline, xdim);
+                for (j=0; j<xdim; j++)  /* used to be j<bytesperline */
+                    inversebuf[j] ^= 0x0f;
                 Bfwrite(inversebuf, xdim, 1, fil);
             }
             Bfree(inversebuf);
         }
     }
     else
+# endif
     {
-#ifdef USE_OPENGL
+# ifdef USE_OPENGL
         if (rendmode >= 3 && qsetmode == 200)
         {
             char c;
@@ -15651,13 +15653,11 @@ int32_t screencapture_tga(const char *filename, char inverseit)
             }
         }
         else
+# endif
         {
-#endif
             for (i=ydim-1; i>=0; i--)
                 Bfwrite(ptr+i*bytesperline, xdim, 1, fil);
-#ifdef USE_OPENGL
         }
-#endif
     }
 
     enddrawing();   //}}}
@@ -15668,6 +15668,8 @@ int32_t screencapture_tga(const char *filename, char inverseit)
     capturecount++;
     return(0);
 }
+# endif
+
 
 #if 0
 // PCX is nasty, which is why I've lifted these functions from the PCX spec by ZSoft
@@ -15841,14 +15843,10 @@ int32_t screencapture(const char *filename, char inverseit, const char *versions
 {
 #ifndef USE_LIBPNG
     UNREFERENCED_PARAMETER(versionstr);
+    return screencapture_tga(filename,inverseit);
 #else
-    if (!inverseit)
-        return screencapture_png(filename,inverseit,versionstr);
-    else
+    return screencapture_png(filename,inverseit,versionstr);
 #endif
-//    if (captureformat == 0)
-        return screencapture_tga(filename,inverseit);
-//    else return screencapture_pcx(filename,inverseit);
 }
 
 
