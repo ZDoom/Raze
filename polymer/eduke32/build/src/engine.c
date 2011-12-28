@@ -2275,6 +2275,8 @@ static inline int32_t getpalookup(int32_t davis, int32_t dashade)
     return(min(max(dashade+(davis>>8),0),numpalookups-1));
 }
 
+static void setpalettefade_calc(uint8_t offset);
+
 
 // returns: 0=continue sprite collecting;
 //          1=break out of sprite collecting;
@@ -13254,6 +13256,7 @@ void setbasepaltable(uint8_t **thebasepaltable, uint8_t thebasepalcount)
 //  2: don't gltexinvalidateall()
 //  4: don't calc curbrightness from dabrightness,  DON'T USE THIS FLAG!
 //  8: don't gltexinvalidate8()
+// 16: don't reset palfade*
 void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 {
     int32_t i, j, paldidchange=0;
@@ -13295,6 +13298,9 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
         curpalettefaded[i].f = 0;
     }
 
+    if ((flags&16) && palfadedelta)  // keep the fade
+        setpalettefade_calc(palfadedelta>>2);
+
     {
         static uint32_t lastpalettesum=0;
         uint32_t newpalettesum = crc32once((uint8_t *)curpalettefaded, sizeof(curpalettefaded));
@@ -13326,8 +13332,11 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
     }
 #endif
 
-    palfadergb.r = palfadergb.g = palfadergb.b = 0;
-    palfadedelta = 0;
+    if ((flags&16)==0)
+    {
+        palfadergb.r = palfadergb.g = palfadergb.b = 0;
+        palfadedelta = 0;
+    }
 }
 
 static inline palette_t getpal(int32_t col)
@@ -13346,18 +13355,10 @@ static inline palette_t getpal(int32_t col)
     }
 }
 
-//
-// setpalettefade
-//
-void setpalettefade(char r, char g, char b, char offset)
+static void setpalettefade_calc(uint8_t offset)
 {
     int32_t i;
     palette_t p;
-
-    palfadergb.r = min(63,r) << 2;
-    palfadergb.g = min(63,g) << 2;
-    palfadergb.b = min(63,b) << 2;
-    palfadedelta = min(63,offset) << 2;
 
     for (i=0; i<256; i++)
     {
@@ -13371,6 +13372,19 @@ void setpalettefade(char r, char g, char b, char offset)
             p.r + (((palfadergb.r - p.r) * offset) >> 6);
         curpalettefaded[i].f = 0;
     }
+}
+
+//
+// setpalettefade
+//
+void setpalettefade(char r, char g, char b, char offset)
+{
+    palfadergb.r = min(63,r) << 2;
+    palfadergb.g = min(63,g) << 2;
+    palfadergb.b = min(63,b) << 2;
+    palfadedelta = min(63,offset) << 2;
+
+    setpalettefade_calc(offset);
 
     {
         static uint32_t lastpalettesum=0;
@@ -13961,14 +13975,7 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 #ifdef USE_OPENGL
     if (rendmode >= 3)
     {
-        palette_t p;
-        if (gammabrightness) p = curpalette[col];
-        else
-        {
-            p.r = britable[curbrightness][ curpalette[col].r ];
-            p.g = britable[curbrightness][ curpalette[col].g ];
-            p.b = britable[curbrightness][ curpalette[col].b ];
-        }
+        palette_t p = getpal(col);
 
         setpolymost2dview();	// JBF 20040205: more efficient setup
 
