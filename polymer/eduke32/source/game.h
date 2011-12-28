@@ -240,7 +240,7 @@ extern uint8_t *basepaltable[BASEPALCOUNT];
 
 extern user_defs ud;
 
-extern int32_t g_yax_smoothratio;
+//extern int32_t g_yax_smoothratio;
 
 int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss);
@@ -275,6 +275,7 @@ void G_DisplayRest(int32_t smoothratio);
 void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio);
 void G_DrawBackground(void);
 void G_DrawFrags(void);
+void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio);
 void G_DrawRooms(int32_t snum,int32_t smoothratio);
 void G_DrawTXDigiNumZ(int32_t starttile,int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,int32_t cs,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
 void G_DrawTile(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation);

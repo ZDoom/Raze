@@ -3314,11 +3314,63 @@ void G_AnalyzeSprites(void)
 }
 #endif
 
+void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio)
+{
+
+    if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7)))
+#ifdef POLYMER
+        && (getrendermode() != 4)
+#endif
+        )
+    {
+        int32_t j, i = 0, k, dst = 0x7fffffff;
+
+        for (k=g_mirrorCount-1; k>=0; k--)
+        {
+            j = klabs(wall[g_mirrorWall[k]].x - x);
+            j += klabs(wall[g_mirrorWall[k]].y - y);
+            if (j < dst) dst = j, i = k;
+        }
+
+        if (wall[g_mirrorWall[i]].overpicnum == MIRROR)
+        {
+            int32_t tposx,tposy;
+            int16_t tang;
+
+            preparemirror(x,y,z,a,horiz,g_mirrorWall[i],g_mirrorSector[i],&tposx,&tposy,&tang);
+
+            j = visibility;
+            visibility = (j>>1) + (j>>2);
+
+            if (getrendermode()==0)
+            {
+                yax_preparedrawrooms();
+                drawrooms(tposx,tposy,z,tang,horiz,g_mirrorSector[i]+MAXSECTORS);
+                g_yax_smoothratio = smoothratio;
+                yax_drawrooms(G_AnalyzeSprites, horiz, g_mirrorSector[i]);
+            }
+#ifdef USE_OPENGL
+            else
+                drawrooms(tposx,tposy,ud.camera.z,tang,ud.camerahoriz,g_mirrorSector[i]+MAXSECTORS);
+            // XXX: Sprites don't get drawn with TROR/Polymost
+#endif
+            display_mirror = 1;
+            G_DoSpriteAnimations(tposx,tposy,tang,smoothratio);
+            display_mirror = 0;
+
+            drawmasks();
+            completemirror();   //Reverse screen x-wise in this function
+            visibility = j;
+        }
+
+        gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
+    }
+}
+
 void G_DrawRooms(int32_t snum, int32_t smoothratio)
 {
-    int32_t dst,j,fz,cz;
-    int32_t tposx,tposy,i;
-    int16_t k;
+    int32_t j,fz,cz;
+    int32_t i;
     DukePlayer_t *p = g_player[snum].ps;
     int16_t tang;
     int32_t tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
@@ -3540,50 +3592,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         if (apScriptGameEvent[EVENT_DISPLAYROOMS])
             VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1);
 
-        if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
-#ifdef USE_OPENGL
-                && (getrendermode() != 4)
-#endif
-           )
-        {
-            dst = 0x7fffffff;
-            i = 0;
-            for (k=g_mirrorCount-1; k>=0; k--)
-            {
-                j = klabs(wall[g_mirrorWall[k]].x-ud.camera.x);
-                j += klabs(wall[g_mirrorWall[k]].y-ud.camera.y);
-                if (j < dst) dst = j, i = k;
-            }
-
-            if (wall[g_mirrorWall[i]].overpicnum == MIRROR)
-            {
-                preparemirror(ud.camera.x,ud.camera.y,ud.camera.z,ud.cameraang,ud.camerahoriz,g_mirrorWall[i],g_mirrorSector[i],&tposx,&tposy,&tang);
-
-                j = visibility;
-                visibility = (j>>1) + (j>>2);
-
-                if (getrendermode()==0)
-                {
-                    yax_preparedrawrooms();
-                    drawrooms(tposx,tposy,ud.camera.z,tang,ud.camerahoriz,g_mirrorSector[i]+MAXSECTORS);
-                    g_yax_smoothratio = smoothratio;
-                    yax_drawrooms(G_AnalyzeSprites, ud.camerahoriz, g_mirrorSector[i]);
-                }
-#ifdef USE_OPENGL
-                else
-                    drawrooms(tposx,tposy,ud.camera.z,tang,ud.camerahoriz,g_mirrorSector[i]+MAXSECTORS);
-#endif
-
-                display_mirror = 1;
-                G_DoSpriteAnimations(tposx,tposy,tang,smoothratio);
-                display_mirror = 0;
-
-                drawmasks();
-                completemirror();   //Reverse screen x-wise in this function
-                visibility = j;
-            }
-            gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
-        }
+        G_HandleMirror(ud.camera.x, ud.camera.y, ud.camera.z, ud.cameraang, ud.camerahoriz, smoothratio);
 
         G_SE40(smoothratio);
 

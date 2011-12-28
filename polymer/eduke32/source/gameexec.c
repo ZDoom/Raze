@@ -2372,47 +2372,7 @@ nullquote:
 #endif
                 G_DoInterpolations(smoothratio);
 
-                if (((gotpic[MIRROR>>3]&(1<<(MIRROR&7))) > 0)
-#if defined(POLYMER) && defined(USE_OPENGL)
-                        && (getrendermode() != 4)
-#endif
-                   )
-                {
-                    int32_t j, i = 0, k, dst = 0x7fffffff;
-
-                    for (k=g_mirrorCount-1; k>=0; k--)
-                    {
-                        j = klabs(wall[g_mirrorWall[k]].x-x);
-                        j += klabs(wall[g_mirrorWall[k]].y-y);
-                        if (j < dst) dst = j, i = k;
-                    }
-
-                    if (wall[g_mirrorWall[i]].overpicnum == MIRROR)
-                    {
-                        int32_t tposx,tposy;
-                        int16_t tang;
-
-                        preparemirror(x,y,z,a,horiz,g_mirrorWall[i],g_mirrorSector[i],&tposx,&tposy,&tang);
-
-                        j = visibility;
-                        visibility = (j>>1) + (j>>2);
-
-                        yax_preparedrawrooms();
-                        drawrooms(tposx,tposy,z,tang,horiz,g_mirrorSector[i]+MAXSECTORS);
-                        g_yax_smoothratio = smoothratio;
-                        yax_drawrooms(G_AnalyzeSprites, horiz, g_mirrorSector[i]);
-
-                        display_mirror = 1;
-                        G_DoSpriteAnimations(tposx,tposy,tang,smoothratio);
-                        display_mirror = 0;
-
-                        drawmasks();
-                        completemirror();   //Reverse screen x-wise in this function
-                        visibility = j;
-                    }
-                    gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
-                }
-
+                G_HandleMirror(x, y, z, a, horiz, smoothratio);
 #ifdef POLYMER
                 if (getrendermode() == 4)
                     polymer_setanimatesprites(G_DoSpriteAnimations, x,y,a,smoothratio);
