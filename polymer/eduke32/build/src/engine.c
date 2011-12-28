@@ -43,6 +43,7 @@
 #endif
 
 #include <math.h>
+#include <assert.h>
 
 #include "engine_priv.h"
 
@@ -13233,21 +13234,6 @@ void makepalookup(int32_t palnum, char *remapbuf, int8_t r, int8_t g, int8_t b, 
     }
 }
 
-#if 0
-void setvgapalette(void)
-{
-    int32_t i;
-
-    for (i=0; i<256; i++)
-    {
-        curpalettefaded[i].b = curpalette[i].b = vgapal16[4*i] << 2;
-        curpalettefaded[i].g = curpalette[i].g = vgapal16[4*i+1] << 2;
-        curpalettefaded[i].r = curpalette[i].r = vgapal16[4*i+2] << 2;
-    }
-    setpalette(0,256);
-}
-#endif
-
 //
 // setbasepaltable
 //
@@ -13263,27 +13249,36 @@ void setbasepaltable(uint8_t **thebasepaltable, uint8_t thebasepalcount)
 //
 // setbrightness
 //
-void setbrightness(char dabrightness, uint8_t dapalid, char noapply)
+// flags:
+//  1: don't setpalette(),  DON'T USE THIS FLAG!
+//  2: don't gltexinvalidateall()
+//  4: don't calc curbrightness from dabrightness,  DON'T USE THIS FLAG!
+//  8: don't gltexinvalidate8()
+void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 {
     int32_t i, j, paldidchange=0;
     uint8_t *dapal;
 //    uint32_t lastbright = curbrightness;
-    
+
+    assert((flags&(1+4))==0);
+
     if (dapalid >= basepalcount)
         dapalid = 0;
-    
+
     curbasepal = dapalid;
-    
+
     dapal = basepaltableptr[dapalid];
 
-    if (!(noapply&4))
+    if (!(flags&4))
     {
         curbrightness = min(max((int32_t)dabrightness,0),15);
 //        if (lastbright != (unsigned)curbrightness)
 //            vid_gamma = 1.0 + ((float)curbrightness / 10.0);
     }
 
-    if (setgamma()) j = curbrightness; else j = 0;
+    j = 0;
+    if (setgamma())
+        j = curbrightness;
 
     for (i=0; i<256; i++)
     {
@@ -13308,7 +13303,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, char noapply)
 
         if (paldidchange || newpalettesum != g_lastpalettesum)
         {
-            if ((noapply&1) == 0) setpalette(0,256);
+            if ((flags&1) == 0) setpalette(0,256);
         }
 
         g_lastpalettesum = lastpalettesum = newpalettesum;
@@ -13317,12 +13312,12 @@ void setbrightness(char dabrightness, uint8_t dapalid, char noapply)
 #ifdef USE_OPENGL
     if (rendmode >= 3)
     {
-        // only reset the textures if the preserve flag (bit 1 of noapply) is clear and
+        // only reset the textures if the corresponding preserve flags are clear and
         // either (a) the new palette is different to the last, or (b) the brightness
         // changed and we couldn't set it using hardware gamma
-        if (!(noapply&2) && paldidchange)
+        if (!(flags&2) && paldidchange)
             gltexinvalidateall();
-        if (!(noapply&8) && paldidchange)
+        if (!(flags&8) && paldidchange)
             gltexinvalidate8();
 #ifdef POLYMER
         if ((rendmode == 4) && paldidchange)

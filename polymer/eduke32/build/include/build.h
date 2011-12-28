@@ -546,7 +546,7 @@ void   copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, 
 void   makepalookup(int32_t palnum, char *remapbuf, int8_t r, int8_t g, int8_t b, char dastat);
 //void   setvgapalette(void);
 void   setbasepaltable(uint8_t **basepaltable, uint8_t basepalcount);
-void   setbrightness(char dabrightness, uint8_t dapalid, char noapply);
+void   setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags);
 void   setpalettefade(char r, char g, char b, char offset);
 void   squarerotatetile(int16_t tilenume);
 
