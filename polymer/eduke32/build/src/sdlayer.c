@@ -1397,6 +1397,8 @@ void enddrawing(void)
     if (SDL_MUSTLOCK(sdl_surface)) SDL_UnlockSurface(sdl_surface);
 }
 
+static int32_t needpalupdate;
+static SDL_Color sdlayer_pal[256];
 
 //
 // showframe() -- update the display
@@ -1451,6 +1453,15 @@ void showframe(int32_t w)
         while (lockcount) enddrawing();
     }
 
+    // deferred palette updating
+    if (needpalupdate)
+    {
+        SDL_SetColors(sdl_surface, sdlayer_pal, 0, 256);
+        // same as:
+        //SDL_SetPalette(sdl_surface, SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
+        needpalupdate = 0;
+    }
+
     SDL_Flip(sdl_surface);
 }
 
@@ -1460,25 +1471,24 @@ void showframe(int32_t w)
 //
 int32_t setpalette(int32_t start, int32_t num)
 {
-    SDL_Color pal[256];
     int32_t i,n;
 
     if (bpp > 8) return 0;	// no palette in opengl
 
-    copybuf(curpalettefaded, pal, 256);
+    Bmemcpy(sdlayer_pal, curpalettefaded, 256*4);
 
     for (i=start, n=num; n>0; i++, n--)
-        curpalettefaded[i].f = pal[i].unused = 0;
+        curpalettefaded[i].f = sdlayer_pal[i].unused = 0;
 
-    //return SDL_SetPalette(sdl_surface, SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
+    needpalupdate = 1;
 
-    return sdl_surface ? SDL_SetColors(sdl_surface, pal, 0, 256) : 0;
+    return 0;
 }
 
 //
 // getpalette() -- get palette values
 //
-/*
+#if 0
 int32_t getpalette(int32_t start, int32_t num, char *dapal)
 {
     int32_t i;
@@ -1496,7 +1506,7 @@ int32_t getpalette(int32_t start, int32_t num, char *dapal)
 
     return 1;
 }
-*/
+#endif
 
 //
 // setgamma
