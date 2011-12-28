@@ -861,7 +861,6 @@ int32_t G_SavePlayer(int32_t spot)
     char fn[16];
 //    char mpfn[16];
     FILE *fil;
-    int32_t ret;
 
     Bstrcpy(fn, "dukesav0.esv");
     fn[7] = spot + '0';
@@ -887,7 +886,7 @@ int32_t G_SavePlayer(int32_t spot)
     }
 
     // SAVE!
-    ret = sv_saveandmakesnapshot(fil, spot, 0, 0, 0);
+    sv_saveandmakesnapshot(fil, spot, 0, 0, 0);
 
     fclose(fil);
 
@@ -2460,15 +2459,18 @@ static void sv_restload()
 }
 
 #ifdef DEBUGGINGAIDS
-# define PRINTSIZE(name) do { if (mem) OSD_Printf(name ": %d\n", (int32_t)(mem-tmem)); tmem=mem; } while (0)
+# define PRINTSIZE(name) do { if (mem) OSD_Printf(name ": %d\n", (int32_t)(mem-tmem)); \
+        OSD_Printf(name ": %d ms\n", getticks()-t); t=getticks(); tmem=mem; } while (0)
 #else
-# define PRINTSIZE(name) do { tmem=mem; } while (0)
+# define PRINTSIZE(name) do { } while (0)
 #endif
 
 static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
 {
+#ifdef DEBUGGINGAIDS
     uint8_t *tmem = mem;
-
+    int32_t t=getticks();
+#endif
     mem=writespecdata(svgm_udnetw, fil, mem);  // user settings, players & net
     PRINTSIZE("ud");
     mem=writespecdata(svgm_secwsp, fil, mem);  // sector, wall, sprite
@@ -2490,8 +2492,11 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
 
 static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
 {
-    uint8_t *mem = memptr ? *memptr : NULL, *tmem=mem;
-
+    uint8_t *mem = memptr ? *memptr : NULL;
+#ifdef DEBUGGINGAIDS
+    uint8_t *tmem=mem;
+    int32_t t=getticks();
+#endif
     if (readspecdata(svgm_udnetw, fil, &mem)) return -2;
     PRINTSIZE("ud");
     if (readspecdata(svgm_secwsp, fil, &mem)) return -4;
@@ -2513,8 +2518,8 @@ static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
             Bmemcpy(mem, svgm_vars[i].ptr, svgm_vars[i].size*svgm_vars[i].cnt);  // careful! works because there are no DS_DYNAMIC's!
             mem += svgm_vars[i].size*svgm_vars[i].cnt;
         }
-        PRINTSIZE("vars");
     }
+    PRINTSIZE("vars");
 
     if (memptr)
         *memptr = mem;
