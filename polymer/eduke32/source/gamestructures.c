@@ -1455,6 +1455,8 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
         Gv_SetVarX(lVar2, (g_player[iPlayer].ps->gotweapon & (1<<lParm2)) != 0); return;
     case PLAYER_REFRESH_INVENTORY:
         Gv_SetVarX(lVar2, g_player[iPlayer].ps->refresh_inventory); return;
+    case PLAYER_PALETTE:  // no set
+        Gv_SetVarX(lVar2, g_player[iPlayer].ps->palette); return;
     case PLAYER_TOGGLE_KEY_FLAG:
         Gv_SetVarX(lVar2, g_player[iPlayer].ps->toggle_key_flag); return;
     case PLAYER_KNUCKLE_INCS:
