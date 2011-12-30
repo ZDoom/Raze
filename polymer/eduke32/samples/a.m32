@@ -347,9 +347,12 @@ defstate fiddlewithlights
         ifeithershift set j 10
         else ifeitherctrl set j 1000
         else set j 100
-        ifhitkey KEY_KP9 add .hitag j
-        else ifhitkey KEY_KP7 sub .hitag j
-        clamp .hitag 0 16000
+
+        set k .hitag
+        ifhitkey KEY_KP9 add k j
+        else ifhitkey KEY_KP7 sub k j
+        clamp k 0 32767
+        set .hitag k
 
         // min/max shade
         ifeithershift set j -1 else set j 1
