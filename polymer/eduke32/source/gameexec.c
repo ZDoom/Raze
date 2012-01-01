@@ -69,12 +69,18 @@ void VM_ScriptInfo(void)
 
     if (insptr)
     {
+        initprintf("\n");
+
         for (p=insptr-20; p<insptr+20; p++)
         {
+            initprintf("%5d: %3d: ",(int32_t)(p - script),(int32_t)(p - insptr));
+
             if (*p>>12&&(*p&0xFFF)<CON_END)
-                initprintf("\n%5d: %5d %s ",(int32_t)(p-script),(int32_t)(*p>>12),keyw[*p&0xFFF]);
+                initprintf("%5d %s",(int32_t)(*p>>12),keyw[*p&0xFFF]);
             else
-                initprintf(" %d",(int32_t)*p);
+                initprintf("%d",(int32_t)*p);
+
+            initprintf("\n");
         }
 
         initprintf("\n");

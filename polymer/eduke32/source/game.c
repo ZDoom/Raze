@@ -3689,6 +3689,9 @@ static void G_DumpDebugInfo(void)
     int32_t i,j,x;
     //    FILE * fp=fopen("condebug.log","w");
 
+    VM_ScriptInfo();
+    OSD_Printf("\n");
+
     OSD_Printf("Current gamevar values:\n");
     for (i=0; i<MAX_WEAPONS; i++)
     {
