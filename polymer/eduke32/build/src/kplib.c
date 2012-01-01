@@ -1408,7 +1408,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
     int32_t i, j, v, leng, xdim = 0, ydim = 0, index, prec, restartcnt, restartinterval;
     int32_t x, y, z, xx, yy, zz, *dc = NULL, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr = NULL;
     int32_t passcnt = 0, ghsampmax = 0, gvsampmax = 0, glhsampmax = 0, glvsampmax = 0, glhstep, glvstep;
-    int32_t eobrun, Ss, Se, Ah, Al, Alut[2], dctx[12], dcty[12], ldctx[12], ldcty[12], lshx[4], lshy[4];
+    int32_t eobrun, Ss, Se, Ah, Al, Alut[2], dctx[12], dcty[12], ldctx[12], /* ldcty[12], */ lshx[4], lshy[4];
     int16_t *dctbuf = 0, *dctptr[12], *ldctptr[12], *dcs = NULL;
     uint8_t ch, marker, dcflag;
     const uint8_t *kfileptr;
@@ -1568,7 +1568,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                     {
                         ldctptr[z] = dctptr[zz];
                         ldctx[z] = dctx[zz];
-                        ldcty[z] = dcty[zz];
+                       // ldcty[z] = dcty[zz];
                         lcomphsamp[z] = gcomphsamp[zz];
                         lcompvsamp[z] = gcompvsamp[zz];
                         lcompquantab[z] = gcompquantab[zz];
