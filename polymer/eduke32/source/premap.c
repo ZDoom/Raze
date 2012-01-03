@@ -1536,6 +1536,10 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
     Gv_InitWeaponPointers();
 
+    // PK: Gv_ResetVars() might trip up the system (pointer) gamevars,
+    // e.g. if some earlier-version CON code had been loaded before
+    Gv_RefreshPointers();
+
     Gv_ResetSystemDefaults();
 
     for (i=0; i<(MAXVOLUMES*MAXLEVELS); i++)

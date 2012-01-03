@@ -360,6 +360,7 @@ void Gv_DumpValues(void)
     OSD_Printf("\n// end of game definitions\n");
 }
 
+// XXX: This function is very strange.
 void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
 {
     int32_t i;
