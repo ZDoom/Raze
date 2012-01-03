@@ -1658,7 +1658,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                                     {
                                         while (curbits < 16) //Getbits
                                         {
-                                            ch = *kfileptr++;
+                                            ch = *kfileptr++;  // BUF_LENG_READ
                                             if (ch == 255) kfileptr++;
                                             num = (num<<8)+((int32_t)ch); curbits += 8;
                                         }
@@ -3294,7 +3294,8 @@ void kpzload(const char *filnam, intptr_t *pic, int32_t *bpl, int32_t *xsiz, int
     (*pic) = 0;
     if (handle < 0) return;
     leng = kfilelength(handle);
-    buf = (char *)Bmalloc(leng); if (!buf) return;
+    buf = (char *)Bmalloc(leng+1); if (!buf) return;
+    buf[leng]=0;  // FIXME: buf[leng] read in kpegrend(), see BUF_LENG_READ
     kread(handle,buf,leng);
     kclose(handle);
 
