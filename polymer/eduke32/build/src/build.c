@@ -232,7 +232,6 @@ static void correct_ornamented_sprite(int32_t i, int32_t hitw);
 
 static int32_t getfilenames(const char *path, const char *kind);
 static void clearfilenames(void);
-void loadmhk(int32_t domessage);
 
 void clearkeys(void) { Bmemset(keystatus,0,sizeof(keystatus)); }
 
@@ -801,7 +800,7 @@ void showmouse(void)
 */
 
 static int32_t mhk=0;
-void loadmhk(int32_t domessage)
+static void loadmhk(int32_t domessage)
 {
     char *p; char levname[BMAX_PATH];
 

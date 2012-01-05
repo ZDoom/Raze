@@ -880,7 +880,8 @@ void                polymer_resetlights(void)
 
     lightcount = 0;
 
-    loadmaphack(NULL);
+    if (!loadmaphack(NULL))
+        OSD_Printf("polymer_resetlights: reloaded maphack\n");
 }
 
 void                polymer_loadboard(void)
@@ -1494,7 +1495,15 @@ int16_t             polymer_addlight(_prlight* light)
 void                polymer_deletelight(int16_t lighti)
 {
     if (!prlights[lighti].flags.active)
+    {
+#ifdef DEBUGGINGAIDS
+        if (pr_verbosity >= 1)
+            OSD_Printf("PR : Called polymer_deletelight on inactive light\n");
+        // currently known cases: when reloading maphack lights (didn't set maphacklightcnt=0
+        // but did loadmaphack()->delete_maphack_lights() after polymer_resetlights())
+#endif
         return;
+    }
 
     polymer_removelight(lighti);
 

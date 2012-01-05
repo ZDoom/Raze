@@ -522,7 +522,8 @@ int32_t G_LoadPlayer(int32_t spot)
             p[4]=0;
         }
 
-        loadmaphack(currentboardfilename);
+        if (!loadmaphack(currentboardfilename))
+            OSD_Printf("Loaded map hack file '%s'\n",currentboardfilename);
     }
 
     Bmemcpy(&currentboardfilename[0],&boardfilename[0],BMAX_PATH);
@@ -884,6 +885,11 @@ int32_t G_SavePlayer(int32_t spot)
         if (!fil)
             return -1;
     }
+
+#ifdef POLYMER
+    if (rendmode == 4)
+        polymer_resetlights();
+#endif
 
     // SAVE!
     sv_saveandmakesnapshot(fil, spot, 0, 0, 0);
