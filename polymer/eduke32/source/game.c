@@ -10156,8 +10156,9 @@ CLEAN_DIRECTORY:
     }
 
     for (i=0; i < g_defModulesNum; ++i)
-        Bfree (g_defModules[i]);
-    Bfree (g_defModules);
+        Bfree(g_defModules[i]);
+    Bfree(g_defModules);
+    g_defModules = NULL;
 
     if (numplayers == 1 && boardfilename[0] != 0)
     {

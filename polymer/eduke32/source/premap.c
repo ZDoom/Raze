@@ -1309,10 +1309,11 @@ static inline void prelevel(char g)
         {
             j = wal->nextsector;
 
-            if (g_mirrorCount > 63)
-                G_GameExit("\nToo many mirrors (64 max.)");
             if ((j >= 0) && sector[j].ceilingpicnum != MIRROR)
             {
+                if (g_mirrorCount > 63)
+                    G_GameExit("\nToo many mirrors (64 max.)");
+
                 sector[j].ceilingpicnum = MIRROR;
                 sector[j].floorpicnum = MIRROR;
                 g_mirrorWall[g_mirrorCount] = i;
