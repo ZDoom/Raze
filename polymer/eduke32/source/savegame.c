@@ -1233,7 +1233,7 @@ static int32_t ds_getcnt(const dataspec_t *sp)
     }
 }
 
-static void ds_get(const dataspec_t *sp, const void **ptr, int32_t *cnt)
+static void ds_get(const dataspec_t *sp, void **ptr, int32_t *cnt)
 {
     *cnt = ds_getcnt(sp);
 
@@ -1247,7 +1247,7 @@ static void ds_get(const dataspec_t *sp, const void **ptr, int32_t *cnt)
 static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
 {
     int32_t cnt;
-    const void *ptr;
+    void *ptr;
     const dataspec_t *sp=spec;
 
     for (; sp->flags!=DS_END; sp++)
@@ -1333,7 +1333,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
             continue;
         }
 
-        ds_get(sp, (const void **)&ptr, &cnt);
+        ds_get(sp, &ptr, &cnt);
         if (cnt < 0) { OSD_Printf("rsd: cnt<0... wtf?\n"); return -1; }
 
         if (fil>=0)
@@ -1461,7 +1461,7 @@ static int32_t getnumvar(const dataspec_t *spec)
 // update dump at *dumpvar with new state and write diff to *diffvar
 static void cmpspecdata(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **diffvar)
 {
-    const void *ptr;
+    void *ptr;
     uint8_t *dump=*dumpvar, *diff=*diffvar, *tmptr;
     const dataspec_t *sp=spec;
     int32_t cnt, eltnum=0, nbytes=(getnumvar(spec)+7)>>3, l=Bstrlen(spec->ptr);
