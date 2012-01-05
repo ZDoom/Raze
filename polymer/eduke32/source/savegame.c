@@ -2620,13 +2620,7 @@ static void postloadplayer(int32_t savegamep)
     //4
     if (savegamep)
     {
-        if (ud.lockout == 0)
-        {
-            for (i=0; i<g_numAnimWalls; i++)
-                if (wall[animwall[i].wallnum].extra >= 0)
-                    wall[animwall[i].wallnum].picnum = wall[animwall[i].wallnum].extra;
-        }
-        else
+        if (ud.lockout)
         {
             for (i=0; i<g_numAnimWalls; i++)
                 switch (DynamicTileMap[wall[animwall[i].wallnum].picnum])
@@ -2640,6 +2634,14 @@ static void postloadplayer(int32_t savegamep)
                     break;
                 }
         }
+#if 0
+        else
+        {
+            for (i=0; i<g_numAnimWalls; i++)
+                if (wall[animwall[i].wallnum].extra >= 0)
+                    wall[animwall[i].wallnum].picnum = wall[animwall[i].wallnum].extra;
+        }
+#endif
     }
 
     //5

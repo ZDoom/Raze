@@ -1395,14 +1395,14 @@ void M_DisplayMenus(void)
                 {
                     ud.lockout = 0;
                     buf[0] = 0;
-
+#if 0
                     for (x=0; x<g_numAnimWalls; x++)
                         if (wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                                 wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
                                 wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)
                             if (wall[animwall[x].wallnum].extra >= 0)
                                 wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
-
+#endif
                 }
                 g_currentMenu = 10000;
                 KB_ClearKeyDown(sc_Enter);
@@ -1419,12 +1419,14 @@ void M_DisplayMenus(void)
                     if (ud.pwlockout[0] == 0)
                     {
                         ud.lockout = 0;
+#if 0
                         for (x=0; x<g_numAnimWalls; x++)
                             if (wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                                     wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
                                     wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)
                                 if (wall[animwall[x].wallnum].extra >= 0)
                                     wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
+#endif
                     }
                     else
                     {

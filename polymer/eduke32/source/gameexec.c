@@ -5266,13 +5266,7 @@ void G_RestoreMapState(mapstate_t *save)
 
         screenpeek = myconnectindex;
 
-        if (ud.lockout == 0)
-        {
-            for (x=g_numAnimWalls-1; x>=0; x--)
-                if (wall[animwall[x].wallnum].extra >= 0)
-                    wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
-        }
-        else
+        if (ud.lockout)
         {
             for (x=g_numAnimWalls-1; x>=0; x--)
                 switch (DynamicTileMap[wall[animwall[x].wallnum].picnum])
@@ -5286,6 +5280,14 @@ void G_RestoreMapState(mapstate_t *save)
                     break;
                 }
         }
+#if 0
+        else
+        {
+            for (x=g_numAnimWalls-1; x>=0; x--)
+                if (wall[animwall[x].wallnum].extra >= 0)
+                    wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
+        }
+#endif
 
         G_ResetInterpolations();
 
