@@ -934,6 +934,8 @@ static int32_t defsparser(scriptfile *script)
             int32_t shadeoffs=0, pal=0, flags=0;
             uint8_t usedframebitmap[1024>>3];
 
+            int32_t model_ok = 1;
+
             static const tokenlist modeltokens[] =
             {
                 { "scale",    T_SCALE    },
@@ -1020,6 +1022,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (ftilenume < 0) initprintf("Error: missing 'first tile number' for frame definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,frametokptr)), happy = 0;
                     if (ltilenume < 0) initprintf("Error: missing 'last tile number' for frame definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,frametokptr)), happy = 0;
+                    model_ok &= happy;
                     if (!happy) break;
 
                     if (ltilenume < ftilenume)
@@ -1057,6 +1060,8 @@ static int32_t defsparser(scriptfile *script)
                             if (framei >= 0 && framei<1024)
                                 usedframebitmap[framei>>3] |= (1<<(framei&7));
                         }
+
+                        model_ok &= happy;
                     }
 #endif
                     seenframe = 1;
@@ -1095,6 +1100,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (!startframe) initprintf("Error: missing 'start frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr)), happy = 0;
                     if (!endframe) initprintf("Error: missing 'end frame' for anim definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,animtokptr)), happy = 0;
+                    model_ok &= happy;
                     if (!happy) break;
 
                     if (lastmodelid < 0)
@@ -1112,14 +1118,17 @@ static int32_t defsparser(scriptfile *script)
                     case -2:
                         initprintf("Invalid starting frame name on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,animtokptr));
+                        model_ok = 0;
                         break;
                     case -3:
                         initprintf("Invalid ending frame name on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,animtokptr));
+                        model_ok = 0;
                         break;
                     case -4:
                         initprintf("Out of memory on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,animtokptr));
+                        model_ok = 0;
                         break;
                     }
 #endif
@@ -1168,6 +1177,7 @@ static int32_t defsparser(scriptfile *script)
                     if (!skinfn)
                     {
                         initprintf("Error: missing 'skin filename' for skin definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skintokptr));
+                        model_ok = 0;
                         break;
                     }
 
@@ -1201,14 +1211,17 @@ static int32_t defsparser(scriptfile *script)
                     case -2:
                         initprintf("Invalid skin filename on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,skintokptr));
+                        model_ok = 0;
                         break;
                     case -3:
                         initprintf("Invalid palette number on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,skintokptr));
+                        model_ok = 0;
                         break;
                     case -4:
                         initprintf("Out of memory on line %s:%d\n",
                                    script->filename, scriptfile_getlinum(script,skintokptr));
+                        model_ok = 0;
                         break;
                     }
 #endif
@@ -1271,6 +1284,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (ftilenume < 0) initprintf("Error: missing 'first tile number' for hud definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,hudtokptr)), happy = 0;
                     if (ltilenume < 0) initprintf("Error: missing 'last tile number' for hud definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,hudtokptr)), happy = 0;
+                    model_ok &= happy;
                     if (!happy) break;
 
                     if (ltilenume < ftilenume)
@@ -1306,11 +1320,24 @@ static int32_t defsparser(scriptfile *script)
                             happy = 0;
                             break;
                         }
+
+                        model_ok &= happy;
                     }
 #endif
                 }
                 break;
                 }
+            }
+
+            if (!model_ok)
+            {
+                if (lastmodelid >= 0)
+                {
+                    initprintf("Removing model %d due to errors.\n", lastmodelid);
+                    md_undefinemodel(lastmodelid);
+                    nextmodelid--;
+                }
+                break;
             }
 
 #ifdef USE_OPENGL

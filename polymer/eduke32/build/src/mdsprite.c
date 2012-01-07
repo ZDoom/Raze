@@ -34,7 +34,7 @@ static void QuitOnFatalError(const char *msg)
 }
 
 
-int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
+static int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
 {
     UNREFERENCED_PARAMETER(model);
     if (curextra==MAXTILES+EXTRATILES-2)return curextra;
@@ -75,7 +75,7 @@ static GLuint *indexvbos = NULL;
 
 mdmodel_t *mdload(const char *);
 int32_t mddraw(spritetype *);
-void mdfree(mdmodel_t *);
+static void mdfree(mdmodel_t *);
 int32_t globalnoeffect=0;
 
 extern int32_t timerticspersec;
@@ -501,6 +501,8 @@ int32_t md_undefinetile(int32_t tile)
     return 0;
 }
 
+/* this function is problematic, it leaves NULL holes in model[]
+ * (which runs from 0 to nextmodelid-1) */
 int32_t md_undefinemodel(int32_t modelid)
 {
     int32_t i;
@@ -520,8 +522,8 @@ int32_t md_undefinemodel(int32_t modelid)
     return 0;
 }
 
-md2model_t *modelhead;
-mdskinmap_t *skhead;
+static md2model_t *modelhead;
+static mdskinmap_t *skhead;
 
 static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy, int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect)
 {
