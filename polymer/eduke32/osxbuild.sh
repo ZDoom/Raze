@@ -69,23 +69,23 @@ if [ $onlyzip -eq 0 ]; then
     #     echo PowerPC debug build failed.
     # fi
 
-    make veryclean
-    ARCH='-arch ppc' WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3
-    if [ $? ]; then
-        echo PowerPC release build succeeded.
-        cp mapster32 mapster32.ppc
-        cp eduke32 eduke32.ppc
-    else
-        echo PowerPC release build failed.
-    fi
+    # make veryclean
+    # ARCH='-arch ppc' WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3
+    # if [ $? ]; then
+    #     echo PowerPC release build succeeded.
+    #     cp mapster32 mapster32.ppc
+    #     cp eduke32 eduke32.ppc
+    # else
+    #     echo PowerPC release build failed.
+    # fi
 fi
 
 # Almost done...
 if [ -f mapster32.x64 ] && [ -f eduke32.x86 ] && [ -f eduke32.ppc ]; then
     echo Creating fat binaries.
-    lipo -create mapster32.x64 mapster32.x86 mapster32.ppc -output mapster32
+    lipo -create mapster32.x64 mapster32.x86  -output mapster32
 #    lipo -create mapster32.debug.x64 mapster32.debug.x86 -output mapster32.debug
-    lipo -create eduke32.x64 eduke32.x86 eduke32.ppc -output eduke32
+    lipo -create eduke32.x64 eduke32.x86  -output eduke32
 #    lipo -create eduke32.debug.x64 eduke32.debug.x86 -output eduke32.debug
     rev=`svn info | grep Revision | awk '{ print $2 }'`
     arfilename="eduke32-osx-$rev.zip"
