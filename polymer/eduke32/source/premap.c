@@ -1008,7 +1008,7 @@ static inline void G_SetupBackdrop(int16_t sky)
         G_MultiPskyInit();
     }
 
-    Bmemset(pskyoff, 0, sizeof(pskyoff[0]) * MAXPSKYTILES);
+    Bmemset(pskyoff, 0, sizeof(pskyoff));
 
     if (parallaxyscale != 65536)
         parallaxyscale = 32768;

@@ -1457,7 +1457,11 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
 
     if (Bwrite(cachefilehandle, head, sizeof(texcacheheader)) != sizeof(texcacheheader)) goto failure;
 
-    bglGetError();
+    while (bglGetError() != GL_NO_ERROR)
+    {
+        /* no-op*/
+    }
+
     for (level = 0; level==0 || (padx > 1 || pady > 1); level++)
     {
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_ARB, (GLint *)&gi);

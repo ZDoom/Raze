@@ -183,7 +183,7 @@ int32_t scriptfile_getbraces(scriptfile *sf, char **braceend)
 }
 
 
-int32_t scriptfile_getlinum(scriptfile *sf, char *ptr)
+int32_t scriptfile_getlinum(const scriptfile *sf, const char *ptr)
 {
     int32_t i, stp;
     intptr_t ind;

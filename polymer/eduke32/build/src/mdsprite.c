@@ -73,7 +73,7 @@ static int32_t allocvbos = 0, curvbo = 0;
 static GLuint *vertvbos = NULL;
 static GLuint *indexvbos = NULL;
 
-mdmodel_t *mdload(const char *);
+static mdmodel_t *mdload(const char *);
 int32_t mddraw(spritetype *);
 static void mdfree(mdmodel_t *);
 int32_t globalnoeffect=0;
@@ -725,7 +725,10 @@ static int32_t mdloadskin_cached(int32_t fil, texcacheheader *head, int32_t *doa
     }
     bglBindTexture(GL_TEXTURE_2D,*glpic);
 
-    bglGetError();
+    while (bglGetError() != GL_NO_ERROR)
+    {
+        /* no-op*/
+    }
 
     // load the mipmaps
     for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
