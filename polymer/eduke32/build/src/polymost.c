@@ -300,8 +300,8 @@ char TEXCACHEFILE[BMAX_PATH] = "textures";
 int32_t mdtims, omdtims;
 float alphahackarray[MAXTILES];
 
-texcacheindex *firstcacheindex = NULL;
-texcacheindex *curcacheindex = NULL;
+static texcacheindex *firstcacheindex = NULL;
+static texcacheindex *curcacheindex = NULL;
 texcacheindex *cacheptrs[MAXTILES<<1];
 int32_t numcacheentries = 0;
 
@@ -689,6 +689,28 @@ void polymost_glreset()
 #endif
 }
 
+static void clear_cache_internal(void)
+{
+    Cachefile_CloseBoth();
+
+    if (memcachedata)
+    {
+        Bfree(memcachedata);
+        memcachedata = NULL;
+        memcachesize = -1;
+    }
+
+    Cachefile_RemoveDups();
+
+    curcacheindex = firstcacheindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
+    numcacheentries = 0;
+
+//    Bmemset(&firstcacheindex, 0, sizeof(texcacheindex));
+//    Bmemset(&cacheptrs[0], 0, sizeof(cacheptrs));
+
+    hash_init(&h_texcache);
+}
+
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
 {
@@ -744,24 +766,8 @@ void polymost_glinit()
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    Cachefile_CloseBoth();
+    clear_cache_internal();
 
-    if (memcachedata)
-    {
-        Bfree(memcachedata);
-        memcachedata = NULL;
-        memcachesize = -1;
-    }
-
-    Cachefile_RemoveDups();
-
-    curcacheindex = firstcacheindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
-    numcacheentries = 0;
-
-//    Bmemset(&firstcacheindex, 0, sizeof(texcacheindex));
-//    Bmemset(&cacheptrs[0], 0, sizeof(cacheptrs));
-
-    hash_init(&h_texcache);
     LoadCacheOffsets();
 
     Bstrcpy(ptempbuf,TEXCACHEFILE);
@@ -849,24 +855,8 @@ void invalidatecache(void)
 
     polymost_glreset();
 
-    Cachefile_CloseBoth();
+    clear_cache_internal();
 
-    if (memcachedata)
-    {
-        Bfree(memcachedata);
-        memcachedata = NULL;
-        memcachesize = -1;
-    }
-
-    Cachefile_RemoveDups();
-
-    curcacheindex = firstcacheindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
-    numcacheentries = 0;
-
-//    Bmemset(&firstcacheindex, 0, sizeof(texcacheindex));
-//    Bmemset(&cacheptrs[0], 0, sizeof(cacheptrs));
-
-    hash_init(&h_texcache);
 //    LoadCacheOffsets();
 
     Bstrcpy(ptempbuf,TEXCACHEFILE);
@@ -1328,7 +1318,7 @@ void phex(char v, char *s)
     s[1] = x<10 ? (x+'0') : (x-10+'a');
 }
 
-int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
+static int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
 {
     int32_t fp, err=0;
     char cachefn[BMAX_PATH], *cp;
@@ -1565,7 +1555,7 @@ success:
     if (packbuf) Bfree(packbuf);
 }
 
-int32_t gloadtile_cached(int32_t fil, texcacheheader *head, int32_t *doalloc, pthtyp *pth,int32_t dapalnum)
+static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t *doalloc, pthtyp *pth,int32_t dapalnum)
 {
     int32_t level, r;
     texcachepicture pict;

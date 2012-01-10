@@ -73,8 +73,8 @@ typedef struct cacheitem_t texcacheindex;
 
 #define TEXCACHEMAGIC "QLZ1"
 
-extern texcacheindex *firstcacheindex;
-extern texcacheindex *curcacheindex;
+//extern texcacheindex *firstcacheindex;
+//extern texcacheindex *curcacheindex;
 extern texcacheindex *cacheptrs[MAXTILES<<1];
 extern int32_t numcacheentries;
 
