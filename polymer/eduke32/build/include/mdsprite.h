@@ -3,11 +3,7 @@
 
 #include "hightile.h"
 
-//#ifdef __POWERPC__
 #define SHIFTMOD32(a) ((a)&31)
-//#else
-//#define SHIFTMOD32(a) (a)
-//#endif
 
 typedef struct
 {
@@ -205,22 +201,6 @@ typedef struct
     float xpiv, ypiv, zpiv;
     int32_t is8bit;
 } voxmodel_t;
-
-/*
-typedef struct
-{
-    // maps build tiles to particular animation frames of a model
-    int32_t     modelid;
-    int32_t     skinnum;
-    int32_t     framenum;   // calculate the number from the name when declaring
-    float   smoothduration;
-    int32_t     next;
-    char    pal;
-} tile2model_t;
-
-#define EXTRATILES MAXTILES
-EXTERN tile2model_t tile2model[MAXTILES+EXTRATILES];
-*/
 
 EXTERN mdmodel_t **models;
 

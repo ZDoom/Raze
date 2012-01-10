@@ -4534,6 +4534,12 @@ static void drawalls(int32_t bunch)
 #endif
         if (nextsectnum >= 0)
         {
+            // 2       <---       3
+            // x------------------x
+            // 0       --->       1
+            //
+            //     4 (our pos)
+
             getzsofslope((int16_t)sectnum,wal->x,wal->y,&cz[0],&fz[0]);
             getzsofslope((int16_t)sectnum,wall[wal->point2].x,wall[wal->point2].y,&cz[1],&fz[1]);
             getzsofslope((int16_t)nextsectnum,wal->x,wal->y,&cz[2],&fz[2]);
@@ -4622,6 +4628,7 @@ static void drawalls(int32_t bunch)
                             }
                     }
                 }
+
                 if ((cz[2] < cz[0]) || (cz[3] < cz[1]) || (globalposz < cz[4]))
                 {
                     i = x2-x1+1;
@@ -4734,6 +4741,7 @@ static void drawalls(int32_t bunch)
                             }
                     }
                 }
+
                 if ((fz[2] > fz[0]) || (fz[3] > fz[1]) || (globalposz > fz[4]))
                 {
                     i = x2-x1+1;
@@ -7249,8 +7257,6 @@ static void initfastcolorlookup(int32_t rscale, int32_t gscale, int32_t bscale)
         j += 129-(i<<1);
     }
 
-    //clearbufbyte(colhere,sizeof(colhere),0L);
-    //clearbufbyte(colhead,sizeof(colhead),0L);
     Bmemset(colhere,0,sizeof(colhere));
     Bmemset(colhead,0,sizeof(colhead));
 
@@ -7855,13 +7861,9 @@ void uninitengine(void)
     polymost_glreset();
     hicinit();
     freeallmodels();
-#ifdef POLYMER
+# ifdef POLYMER
     polymer_uninit();
-#endif
-    /*    if (cachefilehandle > -1)
-            Bclose(cachefilehandle);
-        if (cacheindexptr != NULL)
-            Bfclose(cacheindexptr); */
+# endif
 #endif
 
     if (artfil != -1)
@@ -8110,7 +8112,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     {
         // numbunches==0 can happen if the mirror is far away... the game code decides
         // to draw it, but scansector gets zero bunches.  Result: big screwup!
-        // Leave inpreparesector as is, it's restored by completemirror.
+        // Leave inpreparemirror as is, it's restored by completemirror.
         if (numbunches==0)
         {
             enddrawing();  //!!!
@@ -13686,7 +13688,7 @@ void completemirror(void)
     if (mirrorsx2 < mirrorsx1) return;
 
     begindrawing();
-    p = frameplace+ylookup[windowy1+mirrorsy1]+windowx1+mirrorsx1;
+    p = frameplace + ylookup[windowy1+mirrorsy1] + windowx1+mirrorsx1;
     i = windowx2-windowx1-mirrorsx2-mirrorsx1; mirrorsx2 -= mirrorsx1;
     for (dy=mirrorsy2-mirrorsy1-1; dy>=0; dy--)
     {

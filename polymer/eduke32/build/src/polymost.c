@@ -1280,7 +1280,7 @@ static int32_t LoadCacheOffsets(void)
 
     while (!scriptfile_eof(script))
     {
-        if (scriptfile_getstring(script, &fname)) break;	// filename
+        if (scriptfile_getstring(script, &fname)) break;	// hashed filename
         if (scriptfile_getnumber(script, &foffset)) break;	// offset in cache
         if (scriptfile_getnumber(script, &fsize)) break;	// size
 
@@ -1886,7 +1886,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
     if (pic) Bfree(pic);
 
     if (tsizx>>r_downsize <= tilesizx[dapic] || tsizy>>r_downsize <= tilesizy[dapic])
-        hicr->flags |= 17;
+        hicr->flags |= (16+1);
 
     pth->picnum = dapic;
     pth->effects = effect;
@@ -1908,7 +1908,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
                 if (xsiz == pow2long[j]) { x |= 1; }
                 if (ysiz == pow2long[j]) { x |= 2; }
             }
-            cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0) | (hicr->flags & 16?8:0); // handle nocompress
+            cachead.flags = (x!=3) | (hasalpha != 255 ? 2 : 0) | (hicr->flags&16 ? 8 : 0); // handle nocompress
 ///            OSD_Printf("Caching \"%s\"\n", fn);
             writexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
 

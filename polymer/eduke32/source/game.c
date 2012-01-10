@@ -8116,7 +8116,7 @@ static int32_t S_DefineSound(int32_t ID,char *name)
 {
     if (ID >= MAXSOUNDS)
         return 1;
-    g_sounds[ID].filename1 =S_OggifyFilename(g_sounds[ID].filename1,name,g_sounds[ID].filename);
+    g_sounds[ID].filename1 = S_OggifyFilename(g_sounds[ID].filename1,name,g_sounds[ID].filename);
 //    initprintf("(%s)(%s)(%s)\n",g_sounds[ID].filename1,name,g_sounds[ID].filename);
 //    S_LoadSound(ID);
     return 0;
@@ -8163,7 +8163,7 @@ static int32_t S_DefineMusic(char *ID,char *name)
     return 0;
 }
 
-static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload);
+static int32_t parsedefinitions_game(scriptfile *script, int32_t preload);
 
 static void parsedefinitions_game_include(const char *fn, scriptfile *script, char *cmdtokptr, const int32_t preload)
 {
@@ -8190,7 +8190,7 @@ static void parsedefinitions_game_include(const char *fn, scriptfile *script, ch
     }
 }
 
-static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
+static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
 {
     int32_t tokn;
     char *cmdtokptr;

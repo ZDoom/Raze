@@ -227,14 +227,6 @@ int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, i
     return 0;
 }
 
-/*
-int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
-{
-    if (!mdinited) return -1;
-    return tile2model[Ptile2tile(tilenume,pal)].modelid;
-}
-*/
-
 static int32_t framename2index(mdmodel_t *vm, const char *nam)
 {
     int32_t i = 0;
@@ -522,9 +514,6 @@ int32_t md_undefinemodel(int32_t modelid)
     return 0;
 }
 
-static md2model_t *modelhead;
-static mdskinmap_t *skhead;
-
 static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy, int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect)
 {
     int32_t picfillen, j,y,x;
@@ -801,8 +790,6 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
     int32_t startticks, willprint=0;
 
-    modelhead=m; // for palmaps
-
     if (m->mdnum == 2) surf = 0;
 
     if ((unsigned)pal >= (unsigned)MAXPALOOKUPS) return 0;
@@ -847,7 +834,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             //OSD_Printf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
         }
     }
-    skhead=sk; // for palmaps
+
     if (!skinfile[0]) return 0;
 
     if (*texidx) return *texidx;
