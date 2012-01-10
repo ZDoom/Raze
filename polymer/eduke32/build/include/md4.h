@@ -32,7 +32,7 @@ typedef struct {
   unsigned char buffer[64];		/* input buffer */
 } MD4_CTX;
 
-void md4once(unsigned char *block, unsigned int len, unsigned char digest[16]);
+void md4once(const unsigned char *block, unsigned int len, unsigned char digest[16]);
 void md4init(MD4_CTX *);
-void md4block(MD4_CTX *, unsigned char *, unsigned int);
+void md4block(MD4_CTX *, const unsigned char *, unsigned int);
 void md4finish(unsigned char [16], MD4_CTX *);

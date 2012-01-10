@@ -46,9 +46,9 @@ typedef unsigned int  UINT4;
 #define S33 11
 #define S34 15
 
-static void MD4Transform(UINT4 [4], unsigned char [64]);
-static void Encode(unsigned char *, UINT4 *, unsigned int);
-static void Decode(UINT4 *, unsigned char *, unsigned int);
+static void MD4Transform(UINT4 [4], const unsigned char [64]);
+static void Encode(unsigned char *, const UINT4 *, unsigned int);
+static void Decode(UINT4 *, const unsigned char *, unsigned int);
 #define MD4_memcpy Bmemcpy
 #define MD4_memset memset
 
@@ -84,7 +84,7 @@ static unsigned char PADDING[64] =
     (a) = ROTATE_LEFT ((a), (s)); \
   }
 
-void md4once(unsigned char *block, unsigned int len, unsigned char digest[16])
+void md4once(const unsigned char *block, unsigned int len, unsigned char digest[16])
 {
     MD4_CTX ctx;
 
@@ -111,7 +111,7 @@ void md4init(MD4_CTX *context)
      operation, processing another message block, and updating the
      context.
  */
-void md4block(MD4_CTX *context, unsigned char *input, unsigned int inputLen)
+void md4block(MD4_CTX *context, const unsigned char *input, unsigned int inputLen)
 {
     unsigned int i, index, partLen;
 
@@ -176,7 +176,7 @@ void md4finish(unsigned char digest[16], MD4_CTX *context)
 
 /* MD4 basic transformation. Transforms state based on block.
  */
-static void MD4Transform(UINT4 state[4], unsigned char block[64])
+static void MD4Transform(UINT4 state[4], const unsigned char block[64])
 {
     UINT4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 
@@ -249,7 +249,7 @@ static void MD4Transform(UINT4 state[4], unsigned char block[64])
 /* Encodes input (UINT4) into output (unsigned char). Assumes len is
      a multiple of 4.
  */
-static void Encode(unsigned char *output, UINT4 *input, unsigned int len)
+static void Encode(unsigned char *output, const UINT4 *input, unsigned int len)
 {
     unsigned int i, j;
 
@@ -265,7 +265,7 @@ static void Encode(unsigned char *output, UINT4 *input, unsigned int len)
 /* Decodes input (unsigned char) into output (UINT4). Assumes len is
      a multiple of 4.
  */
-static void Decode(UINT4 *output, unsigned char *input, unsigned int len)
+static void Decode(UINT4 *output, const unsigned char *input, unsigned int len)
 {
     unsigned int i, j;
 
