@@ -317,13 +317,10 @@ void G_PlayAnim(const char *fn,char t)
 
             // after rendering the frame but before displaying: maybe play sound...
             framenum++;
-            if (soundidx < numtotalsounds)
+            while (soundidx < numtotalsounds && anim_hi_sounds[animidx][2*soundidx] == framenum)
             {
-                if (anim_hi_sounds[animidx][2*soundidx] == framenum)
-                {
-                    S_PlaySound(anim_hi_sounds[animidx][2*soundidx+1]);
-                    soundidx++;
-                }
+                S_PlaySound(anim_hi_sounds[animidx][2*soundidx+1]);
+                soundidx++;
             }
 
             // this and showframe() instead of nextpage() are so that
