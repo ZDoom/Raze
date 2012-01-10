@@ -218,7 +218,6 @@ ATTRIBUTE((optimize("O3")))
 int32_t animvpx_nextpic(animvpx_codec_ctx *codec, uint8_t **picptr)
 {
     int32_t ret, corrupted;
-    uint32_t x, y;
     vpx_image_t *img;
 
     if (codec->initstate <= 0)  // not inited or error
@@ -282,13 +281,31 @@ read_ivf_frame:
     }
 
     /*** 3 planes --> packed conversion ***/
-    for (y=0; y<img->d_h; y++)
-        for (x=0; x<img->d_w; x++)
-        {
-            codec->pic[(img->d_w*y + x)<<2] = img->planes[VPX_PLANE_Y][img->stride[VPX_PLANE_Y]*y + x];
-            codec->pic[((img->d_w*y + x)<<2) + 1] = img->planes[VPX_PLANE_U][img->stride[VPX_PLANE_U]*(y>>1) + (x>>1)];
-            codec->pic[((img->d_w*y + x)<<2) + 2] = img->planes[VPX_PLANE_V][img->stride[VPX_PLANE_V]*(y>>1) + (x>>1)];
-        }
+    {
+//        int32_t t=getticks();
+        uint8_t *const dstpic = codec->pic;
+
+        const uint8_t *const yplane = img->planes[VPX_PLANE_Y];
+        const uint8_t *const uplane = img->planes[VPX_PLANE_U];
+        const uint8_t *const vplane = img->planes[VPX_PLANE_V];
+
+        int32_t ystride = img->stride[VPX_PLANE_Y];
+        int32_t ustride = img->stride[VPX_PLANE_U];
+        int32_t vstride = img->stride[VPX_PLANE_V];
+
+        int32_t x, y;
+        const int32_t width=img->d_w, height = img->d_h;
+
+        for (y=0; y<height; y++)
+            for (x=0; x<width; x++)
+            {
+                dstpic[(width*y + x)<<2] = yplane[ystride*y + x];
+                dstpic[((width*y + x)<<2) + 1] = uplane[ustride*(y>>1) + (x>>1)];
+                dstpic[((width*y + x)<<2) + 2] = vplane[vstride*(y>>1) + (x>>1)];
+            }
+
+//        initprintf("%d ms\n", getticks()-t);
+    }
 
     *picptr = codec->pic;
     return 0;
