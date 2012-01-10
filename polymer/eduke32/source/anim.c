@@ -25,11 +25,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "mouse.h"
 #include "compat.h"
 
+#include "anim.h"
+
 #ifdef USE_LIBVPX
 # include "animvpx.h"
+
+uint16_t anim_hi_numsounds[NUM_HARDCODED_ANIMS], *anim_hi_sounds[NUM_HARDCODED_ANIMS];
 #endif
 
-void endanimsounds(int32_t fr)
+static void endanimsounds(int32_t fr)
 {
     switch (ud.volume_number)
     {
@@ -94,7 +98,7 @@ void endanimsounds(int32_t fr)
     }
 }
 
-void logoanimsounds(int32_t fr)
+static void logoanimsounds(int32_t fr)
 {
     switch (fr)
     {
@@ -107,7 +111,7 @@ void logoanimsounds(int32_t fr)
     }
 }
 
-void intro4animsounds(int32_t fr)
+static void intro4animsounds(int32_t fr)
 {
     switch (fr)
     {
@@ -124,7 +128,7 @@ void intro4animsounds(int32_t fr)
     }
 }
 
-void first4animsounds(int32_t fr)
+static void first4animsounds(int32_t fr)
 {
     switch (fr)
     {
@@ -143,7 +147,7 @@ void first4animsounds(int32_t fr)
     }
 }
 
-void intro42animsounds(int32_t fr)
+static void intro42animsounds(int32_t fr)
 {
     switch (fr)
     {
@@ -153,7 +157,7 @@ void intro42animsounds(int32_t fr)
     }
 }
 
-void endanimvol41(int32_t fr)
+static void endanimvol41(int32_t fr)
 {
     switch (fr)
     {
@@ -166,7 +170,7 @@ void endanimvol41(int32_t fr)
     }
 }
 
-void endanimvol42(int32_t fr)
+static void endanimvol42(int32_t fr)
 {
     switch (fr)
     {
@@ -185,7 +189,7 @@ void endanimvol42(int32_t fr)
     }
 }
 
-void endanimvol43(int32_t fr)
+static void endanimvol43(int32_t fr)
 {
     switch (fr)
     {
@@ -212,7 +216,19 @@ void G_PlayAnim(const char *fn,char t)
     int32_t handle=-1;
     int32_t frametime = 0;
 
-    //    return;
+    // t parameter:
+    //
+    // 1: cineov2
+    // 2: cineov3
+    // 3: RADLOGO
+    // 4: DUKETEAM
+    // 5: logo
+    // 6: vol41a
+    // 7: vol42a
+    // 8: vol4e1
+    // 9: vol43a
+    // 10: vol4e2
+    // 11: vol4e3
 
     if (t != 7 && t != 9 && t != 10 && t != 11)
         KB_FlushKeyboardQueue();
@@ -233,6 +249,7 @@ void G_PlayAnim(const char *fn,char t)
         uint8_t *pic;
         uint32_t msecsperframe, nextframetime;
         int32_t running = 1;
+        int32_t animidx, framenum=0, soundidx=0, numtotalsounds=0;  // custom anim sounds
 
         Bstrncpy(vpxfn, fn, BMAX_PATH);
         vpxfn[BMAX_PATH-1] = 0;
@@ -266,6 +283,10 @@ void G_PlayAnim(const char *fn,char t)
             break;
         }
 
+        animidx = t-1;
+        if ((unsigned)animidx < NUM_HARDCODED_ANIMS && anim_hi_sounds[animidx])
+            numtotalsounds = anim_hi_numsounds[animidx];
+
         msecsperframe = ((uint64_t)info.fpsdenom*1000)/info.fpsnumer;
 //        OSD_Printf("msecs per frame: %d\n", msecsperframe);
 
@@ -293,6 +314,17 @@ void G_PlayAnim(const char *fn,char t)
                 break;  // no more pics!
 
             animvpx_render_frame(&codec);
+
+            // after rendering the frame but before displaying: maybe play sound...
+            framenum++;
+            if (soundidx < numtotalsounds)
+            {
+                if (anim_hi_sounds[animidx][2*soundidx] == framenum)
+                {
+                    S_PlaySound(anim_hi_sounds[animidx][2*soundidx+1]);
+                    soundidx++;
+                }
+            }
 
             // this and showframe() instead of nextpage() are so that
             // nobody tramples on our carefully set up GL state!

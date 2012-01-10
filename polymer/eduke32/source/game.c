@@ -226,6 +226,7 @@ enum gametokens
     T_MUSIC,
     T_SOUND,
     T_FILE,
+    T_ANIMSOUNDS,
     T_ID
 };
 
@@ -8205,6 +8206,9 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
         { "noautoload",      T_NOAUTOLOAD       },
         { "music",           T_MUSIC            },
         { "sound",           T_SOUND            },
+#ifdef USE_LIBVPX
+        { "animsounds",      T_ANIMSOUNDS       },
+#endif
     };
 
     static const tokenlist sound_musictokens[] =
@@ -8316,6 +8320,130 @@ static int32_t parsedefinitions_game(scriptfile *script, const int32_t preload)
             }
         }
         break;
+
+#ifdef USE_LIBVPX
+        case T_ANIMSOUNDS:
+        {
+            char *otokptr = script->ltextptr;
+            char *animsoundsend = NULL;
+            int32_t animnum, numpairs=0, allocsz=4, bad, lastframenum=INT32_MIN;
+
+            static const tokenlist hardcoded_anim_tokens[] =
+            {
+                { "cineov2", 0 },
+                { "cineov3", 1 },
+                { "RADLOGO", 2 },
+                { "DUKETEAM", 3 },
+                { "logo", 4 },
+                { "vol41a", 5 },
+                { "vol42a", 6 },
+                { "vol4e1", 7 },
+                { "vol43a", 8 },
+                { "vol4e2", 9 },
+                { "vol4e3", 10 },
+                // NUM_HARDCODED_ANIMS
+            };
+
+            animnum = getatoken(script, hardcoded_anim_tokens, NUM_HARDCODED_ANIMS);
+            if ((unsigned)animnum >= NUM_HARDCODED_ANIMS)
+                initprintf("Error: expected a hardcoded anim file name (sans extension) on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script, otokptr));
+
+            if (scriptfile_getbraces(script, &animsoundsend)) break;
+
+            if (anim_hi_sounds[animnum])
+            {
+                initprintf("Warning: overwriting already defined hi-anim %s's sounds on line %s:%d\n",
+                           hardcoded_anim_tokens[animnum].text, script->filename,
+                           scriptfile_getlinum(script, otokptr));
+                Bfree(anim_hi_sounds[animnum]);
+                anim_hi_numsounds[animnum] = 0;
+            }
+
+            if (!preload)
+                anim_hi_sounds[animnum] = Bcalloc(allocsz, 2*sizeof(anim_hi_sounds[0]));
+            while (script->textptr < animsoundsend)
+            {
+                int32_t framenum, soundnum;
+
+                if (preload)
+                {
+                    // dummy
+                    getatoken(script, hardcoded_anim_tokens, NUM_HARDCODED_ANIMS);
+                    continue;
+                }
+
+                // XXX: ugly, will produce error when it encounters the closing '}'
+                if (scriptfile_getnumber(script, &framenum)) break;
+
+                bad=1;
+
+                if (anim_hi_sounds[animnum]==NULL)  // Bcalloc check
+                    break;
+
+                if (scriptfile_getsymbol(script, &soundnum)) break;
+
+                // frame numbers start at 1 for us
+                if (framenum <= 0)
+                {
+                    initprintf("Error: frame number must be greater zero on line %s:%d\n",
+                               script->filename, scriptfile_getlinum(script, script->ltextptr));
+                    break;
+                }
+
+                if (framenum < lastframenum)
+                {
+                    initprintf("Error: frame numbers must be in (not necessarily strictly)"
+                               " ascending order (line %s:%d)\n",
+                               script->filename, scriptfile_getlinum(script, script->ltextptr));
+                    break;
+                }
+                lastframenum = framenum;
+
+                if ((unsigned)soundnum >= MAXSOUNDS)
+                {
+                    initprintf("Error: sound number #%d invalid on line %s:%d\n", soundnum,
+                               script->filename, scriptfile_getlinum(script, script->ltextptr));
+                    break;
+                }
+
+                if (numpairs >= allocsz)
+                {
+                    void *newptr;
+
+                    allocsz *= 2;
+                    newptr = Brealloc(anim_hi_sounds[animnum], allocsz*2*sizeof(anim_hi_sounds[0]));
+
+                    if (!newptr) break;
+                    anim_hi_sounds[animnum] = newptr;
+                }
+
+                bad=0;
+
+                anim_hi_sounds[animnum][2*numpairs] = framenum;
+                anim_hi_sounds[animnum][2*numpairs+1] = soundnum;
+                numpairs++;
+            }
+
+            if (!preload)
+            {
+                if (!bad)
+                {
+                    anim_hi_numsounds[animnum] = numpairs;
+                    initprintf("Defined sound sequence for hi-anim '%s' with %d frame/sound pairs\n",
+                               hardcoded_anim_tokens[animnum].text, numpairs);
+                }
+                else
+                {
+                    Bfree(anim_hi_sounds[animnum]);
+                    anim_hi_sounds[animnum] = NULL;
+                    initprintf("Failed defining sound sequence for hi-anim '%s'.\n",
+                               hardcoded_anim_tokens[animnum].text);
+                }
+            }
+        }
+        break;
+#endif  // defined USE_LIBVPX
 
         case T_SOUND:
         {

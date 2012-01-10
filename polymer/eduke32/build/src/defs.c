@@ -81,7 +81,8 @@ enum scripttoken_t
     T_IMPORTTILE,
     T_MUSIC,T_ID,T_SOUND,
     T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET,
-    T_INCLUDEDEFAULT
+    T_INCLUDEDEFAULT,
+    T_ANIMSOUNDS,
 };
 
 typedef struct { const char *text; int32_t tokenid; } tokenlist;
@@ -175,7 +176,9 @@ static int32_t defsparser(scriptfile *script)
         { "tile",            T_TEXTURE          },
         { "music",           T_MUSIC            },
         { "sound",           T_SOUND            },
-
+#ifdef USE_LIBVPX
+        { "animsounds",      T_ANIMSOUNDS       },  // dummy
+#endif
         // other stuff
         { "undefmodel",      T_UNDEFMODEL       },
         { "undefmodelrange", T_UNDEFMODELRANGE  },
@@ -1957,6 +1960,24 @@ static int32_t defsparser(scriptfile *script)
                     hicclearsubst(r0,i);
         }
         break;
+
+#ifdef USE_LIBVPX
+        case T_ANIMSOUNDS:
+        {
+            char *dummy;
+
+            static const tokenlist dummytokens[] = { { "id",   T_ID  }, };
+
+            if (scriptfile_getstring(script, &dummy)) break;
+            if (scriptfile_getbraces(script,&dummy)) break;
+            while (script->textptr < dummy)
+            {
+                // XXX?
+                getatoken(script,dummytokens,sizeof(dummytokens)/sizeof(dummytokens));
+            }
+        }
+        break;
+#endif
 
         case T_SOUND:
         case T_MUSIC:

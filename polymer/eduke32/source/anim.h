@@ -23,7 +23,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __anim_h__
 #define __anim_h__
 
+#define NUM_HARDCODED_ANIMS 11
+
+# ifdef USE_LIBVPX
+extern uint16_t anim_hi_numsounds[NUM_HARDCODED_ANIMS], *anim_hi_sounds[NUM_HARDCODED_ANIMS];
+# endif
+
 void G_PlayAnim(const char *fn,char t);
+/*
 void endanimvol43(int32_t fr);
 void endanimvol42(int32_t fr);
 void endanimvol41(int32_t fr);
@@ -32,4 +39,5 @@ void first4animsounds(int32_t fr);
 void intro4animsounds(int32_t fr);
 void logoanimsounds(int32_t fr);
 void endanimsounds(int32_t fr);
+*/
 #endif
