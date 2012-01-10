@@ -351,7 +351,7 @@ int32_t S_LoadSound(uint32_t num)
 {
     int32_t   fp = -1, l;
 
-    if ((int32_t)num > g_maxSoundPos || ud.config.SoundToggle == 0 || ud.config.FXDevice < 0) return 0;
+    if (num > (unsigned)g_maxSoundPos || ud.config.SoundToggle == 0 || ud.config.FXDevice < 0) return 0;
 
     if (g_sounds[num].filename == NULL && g_sounds[num].filename1 == NULL)
     {
@@ -385,7 +385,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     int32_t cs;
     int32_t voice, sndang, ca, pitch;
 
-    if (num > g_maxSoundPos ||
+    if ((unsigned)num > (unsigned)g_maxSoundPos ||
             ud.config.FXDevice < 0 ||
             ((g_sounds[num].m&8) && ud.lockout) ||
             ud.config.SoundToggle == 0 ||
@@ -548,13 +548,15 @@ int32_t S_PlaySound(int32_t num)
     if (ud.config.FXDevice < 0) return -1;
     if (ud.config.SoundToggle==0) return -1;
     if (!(ud.config.VoiceToggle&1) && (g_sounds[num].m&4)) return -1;
-    if ((g_sounds[num].m&8) && ud.lockout) return -1;
-    if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return -1;
-    if (num > g_maxSoundPos || (g_sounds[num].filename == NULL && g_sounds[num].filename1 == NULL))
+
+    if ((unsigned)num > (unsigned)g_maxSoundPos || (g_sounds[num].filename == NULL && g_sounds[num].filename1 == NULL))
     {
         OSD_Printf("WARNING: invalid sound #%d\n",num);
         return -1;
     }
+
+    if ((g_sounds[num].m&8) && ud.lockout) return -1;
+    if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return -1;
 
     pitch = (cx = klabs(g_sounds[num].pe-g_sounds[num].ps)) ?
             (g_sounds[num].ps < g_sounds[num].pe ? g_sounds[num].ps :
