@@ -3706,7 +3706,14 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         // someone stole the palette so try and steal it back
         if (bDDrawInited && bpp == 8 && fullscreen)
         {
-            int32_t result = IDirectDrawSurface_SetPalette(lpDDSPrimary, lpDDPalette);
+            int32_t result;
+
+            // PK: for me, happens on Vista when changing from fullscreen 8-bit to 32-bit
+            if (!lpDDSPrimary || !lpDDPalette)
+                break;
+
+            result = IDirectDrawSurface_SetPalette(lpDDSPrimary, lpDDPalette);
+
             if (result != DD_OK)
             {
                 initprintf("Palette set failed: %s\n", GetDDrawError(result));
