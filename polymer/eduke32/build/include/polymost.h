@@ -32,8 +32,7 @@ struct glfiltermodes {
 #define numglfiltermodes 6
 extern struct glfiltermodes glfiltermodes[numglfiltermodes];
 
-extern const char *TEXCACHEDIR;
-void phex(char v, char *s);
+//void phex(char v, char *s);
 void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt, int32_t texfmt, coltype *pic, int32_t tsizx, int32_t tsizy, int32_t dameth);
 void polymost_drawsprite(int32_t snum);
 void polymost_drawmaskwall(int32_t damaskwallcnt);
@@ -76,12 +75,14 @@ typedef struct cacheitem_t texcacheindex;
 //extern texcacheindex *firstcacheindex;
 //extern texcacheindex *curcacheindex;
 extern texcacheindex *cacheptrs[MAXTILES<<1];
-extern int32_t numcacheentries;
+//extern int32_t numcacheentries;
 
-int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, uint32_t miplen);
-int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked);
+int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, void *midbuf, char *packbuf, uint32_t miplen);
+int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked);
 
-void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head);
+void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head);
+int32_t polymost_trytexcache(const char *fn, int32_t len, int32_t dameth, char effect,
+                             texcacheheader *head, int32_t modelp);
 
 extern float shadescale;
 extern int32_t shadescale_unbounded;
@@ -105,21 +106,12 @@ typedef struct pthtyp_t
     struct pthtyp_t *ofb; // only fullbright
 } pthtyp;
 
-pthtyp * gltexcache (int32_t dapicnum, int32_t dapalnum, int32_t dameth);
+pthtyp *gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
 
-extern palette_t hictinting[MAXPALOOKUPS];
-extern float     gtang;
-extern int32_t globalposx, globalposy, globalposz, globalhoriz;
-extern int16_t globalang, globalcursectnum;
-extern int32_t globalpal, cosglobalang, singlobalang;
-extern int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
-extern float shadescale;
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;
 
-extern double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
-extern double gcosang, gsinang, gcosang2, gsinang2;
-extern double gchang, gshang, gctang, gstang, gvisibility;
+extern double gyxscale, gxyaspect, /*gviewxrange,*/ ghalfx, grhalfxdown10, ghoriz;
 
 #define FOGSCALE 0.0000768
 

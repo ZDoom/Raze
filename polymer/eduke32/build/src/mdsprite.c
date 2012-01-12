@@ -610,105 +610,7 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
 }
 
 // JONOF'S COMPRESSED TEXTURE CACHE STUFF ---------------------------------------------------
-int32_t mdloadskin_trytexcache(char *fn, int32_t len, int32_t pal, char effect, texcacheheader *head)
-{
-    int32_t fp, err=0;
-    char cachefn[BMAX_PATH], *cp;
-    uint8_t mdsum[16];
-
-    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache || !cacheindexptr || cachefilehandle < 0) return -1;
-    if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
-    {
-        // lacking the necessary extensions to do this
-        OSD_Printf("Warning: the GL driver lacks necessary functions to use caching\n");
-        glusetexcache = 0;
-        return -1;
-    }
-
-    md4once((uint8_t *)fn, strlen(fn), mdsum);
-//    for (cp = cachefn, fp = 0; (*cp = TEXCACHEFILE[fp]); cp++,fp++);
-//    *(cp++) = '/';
-    cp = cachefn;
-    for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
-    Bsprintf(cp, "-%x-%x%x", len, pal, effect);
-
-//    fil = kopen4load(cachefn, 0);
-//    if (fil < 0) return -1;
-
-    {
-        int32_t offset = 0;
-        int32_t len = 0;
-        int32_t i;
-        /*
-                texcacheindex *cacheindexptr = &firstcacheindex;
-
-                do
-                {
-        //            initprintf("checking %s against %s\n",cachefn,cacheindexptr->name);
-                    if (!Bstrcmp(cachefn,cacheindexptr->name))
-                    {
-                        offset = cacheindexptr->offset;
-                        len = cacheindexptr->len;
-        //                initprintf("got a match for %s offset %d\n",cachefn,offset);
-                        break;
-                    }
-                    cacheindexptr = cacheindexptr->next;
-                }
-                while (cacheindexptr->next);
-                */
-        i = hash_find(&h_texcache,cachefn);
-        if (i != -1)
-        {
-            texcacheindex *cacheindexptr = cacheptrs[i];
-            len = cacheindexptr->len;
-            offset = cacheindexptr->offset;
-            // initprintf("got a match for %s offset %d\n",cachefn,offset);
-        }
-        if (len == 0) return -1; // didn't find it
-        cachepos = offset;
-    }
-
-//    initprintf("Loading cached skin: %s\n", cachefn);
-
-    if (memcachedata && memcachesize >= (signed)(cachepos + sizeof(texcacheheader)))
-    {
-        //        initprintf("using memcache!\n");
-        Bmemcpy(head, memcachedata + cachepos, sizeof(texcacheheader));
-        cachepos += sizeof(texcacheheader);
-    }
-    else
-    {
-        Blseek(cachefilehandle, cachepos, BSEEK_SET);
-        if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader))
-        {
-            cachepos += sizeof(texcacheheader);
-            err = 1;
-            goto failure;
-        }
-        cachepos += sizeof(texcacheheader);
-    }
-
-    if (memcmp(head->magic, TEXCACHEMAGIC, 4)) { err=2; goto failure; }
-
-    head->xdim = B_LITTLE32(head->xdim);
-    head->ydim = B_LITTLE32(head->ydim);
-    head->flags = B_LITTLE32(head->flags);
-    head->quality = B_LITTLE32(head->quality);
-
-    if (head->quality != r_downsize) { err=3; goto failure; }
-    if ((head->flags & 4) && glusetexcache != 2) { err=4; goto failure; }
-    if (!(head->flags & 4) && glusetexcache == 2) { err=5; goto failure; }
-    if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) { err=6; goto failure; }
-    if (!glinfo.texnpot && (head->flags & 1)) { err=7; goto failure; }
-
-    return cachefilehandle;
-failure:
-//    kclose(fil);
-    initprintf("skin cache miss: %d\n", err);
-    return -1;
-}
-
-static int32_t mdloadskin_cached(int32_t fil, texcacheheader *head, int32_t *doalloc, GLuint *glpic, int32_t *xsiz, int32_t *ysiz, int32_t pal)
+static int32_t mdloadskin_cached(int32_t fil, const texcacheheader *head, int32_t *doalloc, GLuint *glpic, int32_t *xsiz, int32_t *ysiz, int32_t pal)
 {
     int32_t level, r;
     texcachepicture pict;
@@ -866,7 +768,8 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
     startticks = getticks();
 
-    cachefil = mdloadskin_trytexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), &cachead);
+    cachefil = polymost_trytexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK),
+                                    &cachead, 1);
     if (cachefil >= 0 && !mdloadskin_cached(cachefil, &cachead, &doalloc, texidx, &xsiz, &ysiz, pal))
     {
         osizx = cachead.xdim;

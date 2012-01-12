@@ -117,7 +117,8 @@ int32_t shadescale_unbounded = 0;
 
 int32_t r_usenewshading = 1;
 
-double gyxscale, gxyaspect, gviewxrange, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
+static double gviewxrange;
+double gyxscale, gxyaspect, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
 double gcosang, gsinang, gcosang2, gsinang2;
 double gchang, gshang, gctang, gstang, gvisibility;
 float gtang = 0.0;
@@ -303,11 +304,11 @@ float alphahackarray[MAXTILES];
 static texcacheindex *firstcacheindex = NULL;
 static texcacheindex *curcacheindex = NULL;
 texcacheindex *cacheptrs[MAXTILES<<1];
-int32_t numcacheentries = 0;
+static int32_t numcacheentries = 0;
 
 
 #define GLTEXCACHEADSIZ 8192
-pthtyp *gltexcachead[GLTEXCACHEADSIZ];
+static pthtyp *gltexcachead[GLTEXCACHEADSIZ];
 
 int32_t drawingskybox = 0;
 
@@ -582,7 +583,7 @@ static void Cachefile_CloseBoth(void)
     }
 }
 
-static void Cachefile_RemoveDups(void)
+static void Cachefile_Free(void)
 {
     int32_t i;
 
@@ -681,7 +682,7 @@ void polymost_glreset()
     memset(gltexcachead,0,sizeof(gltexcachead));
     glox1 = -1;
 
-    Cachefile_RemoveDups();
+    Cachefile_Free();
 
     polymost_cachesync();
 #ifdef DEBUGGINGAIDS
@@ -700,7 +701,7 @@ static void clear_cache_internal(void)
         memcachesize = -1;
     }
 
-    Cachefile_RemoveDups();
+    Cachefile_Free();
 
     curcacheindex = firstcacheindex = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));
     numcacheentries = 0;
@@ -1309,7 +1310,7 @@ static int32_t LoadCacheOffsets(void)
     return 0;
 }
 
-void phex(char v, char *s)
+static void phex(char v, char *s)
 {
     int32_t x;
     x = v>>4;
@@ -1318,12 +1319,14 @@ void phex(char v, char *s)
     s[1] = x<10 ? (x+'0') : (x-10+'a');
 }
 
-static int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
+int32_t polymost_trytexcache(const char *fn, int32_t len, int32_t dameth, char effect,
+                             texcacheheader *head, int32_t modelp)
 {
     int32_t fp, err=0;
     char cachefn[BMAX_PATH], *cp;
     uint8_t mdsum[16];
 
+    // in the former mdloadskin_trytexcache, glinfo.texcompr used to be in the first check
     if (!glusetexcompr || !glusetexcache || !cacheindexptr || cachefilehandle < 0) return -1;
     if (!glinfo.texcompr || !bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
     {
@@ -1333,7 +1336,7 @@ static int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, t
         return -1;
     }
 
-    md4once((uint8_t *)fn, strlen(fn), mdsum);
+    md4once((const uint8_t *)fn, strlen(fn), mdsum);
 //    for (cp = cachefn, fp = 0; (*cp = TEXCACHEFILE[fp]); cp++,fp++);
 //    *(cp++) = '/';
     cp = cachefn;
@@ -1341,24 +1344,13 @@ static int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, t
     Bsprintf(cp, "-%x-%x%x", len, dameth, effect);
 
     {
-        int32_t offset = 0;
-        int32_t i;
+        int32_t i = hash_find(&h_texcache,cachefn);
 
-        i = hash_find(&h_texcache,cachefn);
-        if (i > -1)
-        {
-            texcacheindex *t = cacheptrs[i];
-            if (!t)
-                i = -1;
-            else
-                offset = t->offset;
-            /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
-        }
+        if (i < 0 || !cacheptrs[i])
+            return -1;  // didn't find it
 
-        if (i < 0)
-            return -1; // didn't find it
-
-        cachepos = offset;
+        cachepos = cacheptrs[i]->offset;
+//        initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);
     }
 
 //    initprintf("Loading cached tex: %s\n", cachefn);
@@ -1375,32 +1367,58 @@ static int32_t trytexcache(char *fn, int32_t len, int32_t dameth, char effect, t
         if (Bread(cachefilehandle, head, sizeof(texcacheheader)) < (int32_t)sizeof(texcacheheader))
         {
             cachepos += sizeof(texcacheheader);
-            err = 1;
+            err = 0;
             goto failure;
         }
         cachepos += sizeof(texcacheheader);
     }
 
-    if (Bmemcmp(head->magic, TEXCACHEMAGIC, 4)) { err=2; goto failure; }
+    // checks...
+    if (Bmemcmp(head->magic, TEXCACHEMAGIC, 4)) { err=1; goto failure; }
+
     head->xdim = B_LITTLE32(head->xdim);
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
     head->quality = B_LITTLE32(head->quality);
 
+    if (modelp)
+        if (head->quality != r_downsize)
+        {
+            err=2;
+            goto failure;
+        }
+
     if ((head->flags & 4) && glusetexcache != 2) { err=3; goto failure; }
     if (!(head->flags & 4) && glusetexcache == 2) { err=4; goto failure; }
 
-    if (!(head->flags & 8) && head->quality != r_downsize) return -1; // handle nocompress
+    if (!modelp)  // handle nocompress
+        if (!(head->flags & 8) && head->quality != r_downsize)
+            return -1;
+
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize))) { err=5; goto failure; }
     if (!glinfo.texnpot && (head->flags & 1)) { err=6; goto failure; }
 
     return cachefilehandle;
+
 failure:
-    initprintf("cache miss: %d\n", err);
+    {
+        static const char *error_msgs[] = {
+            "failed reading texture cache header",  // 0
+            "header magic string doesn't match",  // 1
+            "r_downsize doesn't match",  // 2  (skins only)
+            "compression doesn't match: cache contains compressed tex",  // 3
+            "compression doesn't match: cache contains uncompressed tex",  // 4
+            "texture in cache exceeds maximum supported size",  // 5
+            "texture in cache has non-power-of-two size, unsupported",  // 6
+        };
+
+        initprintf("%s cache miss: %s\n", modelp?"Skin":"Texture", error_msgs[err]);
+    }
+
     return -1;
 }
 
-void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
+void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
 {
     int32_t fp;
     char cachefn[BMAX_PATH], *cp;
@@ -1435,7 +1453,7 @@ void writexcache(char *fn, int32_t len, int32_t dameth, char effect, texcachehea
         return;
     }
 
-    md4once((uint8_t *)fn, strlen(fn), mdsum);
+    md4once((const uint8_t *)fn, strlen(fn), mdsum);
 
     cp = cachefn;
     for (fp = 0; fp < 16; phex(mdsum[fp++], cp), cp+=2);
@@ -1695,7 +1713,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
 
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
-    cachefil = trytexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead);
+    cachefil = polymost_trytexcache(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead, 0);
     if (cachefil >= 0 && !gloadtile_cached(cachefil, &cachead, &doalloc, pth, dapalnum))
     {
         tsizx = cachead.xdim;
@@ -6485,7 +6503,7 @@ Description of Ken's filter to improve LZW compression of DXT1 format by ~15%: (
  */
 
 #ifdef USE_OPENGL
-int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, uint32_t miplen)
+int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, void *midbuf, char *packbuf, uint32_t miplen)
 {
     void *writebuf;
     uint32_t j, k, offs, stride, cleng;
@@ -6554,7 +6572,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     cptr = midbuf;
     for (j=0; (unsigned)j<miplen; j+=stride)
     {
-        char *c2 = &pic[j+offs+4];
+        const char *c2 = &pic[j+offs+4];
         cptr[0] = ((c2[0]>>0)&3) + (((c2[1]>>0)&3)<<2) + (((c2[2]>>0)&3)<<4) + (((c2[3]>>0)&3)<<6);
         cptr[1] = ((c2[0]>>2)&3) + (((c2[1]>>2)&3)<<2) + (((c2[2]>>2)&3)<<4) + (((c2[3]>>2)&3)<<6);
         cptr[2] = ((c2[0]>>4)&3) + (((c2[1]>>4)&3)<<2) + (((c2[2]>>4)&3)<<4) + (((c2[3]>>4)&3)<<6);
@@ -6583,7 +6601,7 @@ int32_t dxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, c
     return 0;
 }
 
-int32_t dedxtfilter(int32_t fil, texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked)
+int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *midbuf, char *packbuf, int32_t ispacked)
 {
     void *inbuf;
     int32_t j, k, offs, stride, cleng;
