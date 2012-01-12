@@ -974,9 +974,9 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     int32_t regrab = 0;
 #ifdef USE_OPENGL
     static int32_t warnonce = 0;
-#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
+# if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
     static int32_t ovsync = 1;
-#endif
+# endif
 #endif
     if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) &&
             !videomodereset)
@@ -1109,7 +1109,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 #if 0
     {
         char flags[512] = "";
-#define FLAG(x,y) if ((sdl_surface->flags & x) == x) { strcat(flags, y); strcat(flags, " "); }
+# define FLAG(x,y) if ((sdl_surface->flags & x) == x) { strcat(flags, y); strcat(flags, " "); }
         FLAG(SDL_HWSURFACE, "HWSURFACE") else
             FLAG(SDL_SWSURFACE, "SWSURFACE")
             FLAG(SDL_ASYNCBLIT, "ASYNCBLIT")
@@ -1125,7 +1125,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             FLAG(SDL_RLEACCEL, "RLEACCEL")
             FLAG(SDL_SRCALPHA, "SRCALPHA")
             FLAG(SDL_PREALLOC, "PREALLOC")
-#undef FLAG
+# undef FLAG
             initprintf("SDL Surface flags: %s\n", flags);
     }
 #endif
@@ -1155,7 +1155,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         glinfo.version    = (const char *)bglGetString(GL_VERSION);
         glinfo.extensions = (const char *)bglGetString(GL_EXTENSIONS);
 
-#ifdef POLYMER
+# ifdef POLYMER
         if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
         {
             pr_ati_fboworkaround = 1;
@@ -1168,7 +1168,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             }
             else
                 pr_ati_nodepthoffset = 0;
-#ifdef __APPLE__
+#  ifdef __APPLE__
             //See bug description at http://lists.apple.com/archives/mac-opengl/2005/Oct/msg00169.html
             if (!Bstrncmp(glinfo.renderer,"ATI Radeon 9600", 15))
             {
@@ -1177,11 +1177,11 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             }
             else
                 pr_ati_textureformat_one = 0;
-#endif
+#  endif
         }
         else
             pr_ati_fboworkaround = 0;
-#endif
+# endif  // defined POLYMER
 
         glinfo.maxanisotropy = 1.0;
         glinfo.bgra = 0;
@@ -1296,7 +1296,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             bpp = oldbpp;
         }
     }
-#endif
+#endif  // defined USE_OPENGL
 
     xres = x;
     yres = y;
@@ -1648,13 +1648,13 @@ int32_t handleevents(void)
             }
             else
             {
-#ifdef __linux
+# ifdef __linux
                 // The pause key generates a release event right after
                 // the pressing one on linux. As a result, it gets unseen
                 // by the game most of the time.
                 if (code == 0x59)  // pause
                     break;
-#endif
+# endif
                 SetKey(code, 0);
                 if (keypresscallback)
                     keypresscallback(code, 0);
@@ -1665,23 +1665,23 @@ int32_t handleevents(void)
             {
             case SDL_WINDOWEVENT_FOCUS_GAINED:
                 appactive = 1;
-#ifndef DEBUGGINGAIDS
+# ifndef DEBUGGINGAIDS
                 if (mousegrab && moustat)
                 {
                     SDL_WM_GrabInput(SDL_GRAB_ON);
                     SDL_ShowCursor(SDL_DISABLE);
                 }
-#endif
+# endif
                 break;
             case SDL_WINDOWEVENT_FOCUS_LOST:
                 appactive = 0;
-#ifndef DEBUGGINGAIDS
+# ifndef DEBUGGINGAIDS
                 if (mousegrab && moustat)
                 {
                     SDL_WM_GrabInput(SDL_GRAB_OFF);
                     SDL_ShowCursor(SDL_ENABLE);
                 }
-#endif
+# endif
                 break;
             }
             break;
@@ -1710,10 +1710,10 @@ int32_t handleevents(void)
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.sym];
-#ifdef KEY_PRINT_DEBUG
+# ifdef KEY_PRINT_DEBUG
             printf("keytranslation[%d] = %s (%d)  %s\n", ev.key.keysym.sym,
                    key_names[code], code, ev.key.type==SDL_KEYDOWN?"DOWN":"UP");
-#endif
+# endif
             if (code != OSD_OSDKey() && ev.key.keysym.unicode != 0 && ev.key.type == SDL_KEYDOWN &&
                     (ev.key.keysym.unicode & 0xff80) == 0 &&
                     ((keyasciififoend+1)&(KEYFIFOSIZ-1)) != keyasciififoplc)
@@ -1742,10 +1742,10 @@ int32_t handleevents(void)
             }
             else
             {
-#ifdef __linux
+# ifdef __linux
                 if (code == 0x59)  // pause
                     break;
-#endif
+# endif
                 SetKey(code, 0);
                 if (keypresscallback)
                     keypresscallback(code, 0);
@@ -1756,7 +1756,7 @@ int32_t handleevents(void)
             if (ev.active.state & SDL_APPINPUTFOCUS)
             {
                 appactive = ev.active.gain;
-#ifndef DEBUGGINGAIDS
+# ifndef DEBUGGINGAIDS
                 if (mousegrab && moustat)
                 {
                     if (appactive)
@@ -1770,7 +1770,7 @@ int32_t handleevents(void)
                         SDL_ShowCursor(SDL_ENABLE);
                     }
                 }
-#endif
+# endif
                 rv=-1;
             }
             break;
