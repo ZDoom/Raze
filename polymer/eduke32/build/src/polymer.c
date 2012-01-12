@@ -1497,7 +1497,7 @@ void                polymer_deletelight(int16_t lighti)
     if (!prlights[lighti].flags.active)
     {
 #ifdef DEBUGGINGAIDS
-        if (pr_verbosity >= 1)
+        if (pr_verbosity >= 2)
             OSD_Printf("PR : Called polymer_deletelight on inactive light\n");
         // currently known cases: when reloading maphack lights (didn't set maphacklightcnt=0
         // but did loadmaphack()->delete_maphack_lights() after polymer_resetlights())
@@ -4978,9 +4978,14 @@ static void         polymer_compileprogram(int32_t programbits)
 
     prprograms[programbits].handle = program;
 
-    if (pr_verbosity >= 2) OSD_Printf("PR : Compiling GPU program with bits %i...\n", programbits);
+#ifdef DEBUGGINGAIDS
+    if (pr_verbosity >= 1)
+#else
+    if (pr_verbosity >= 2)
+#endif
+        OSD_Printf("PR : Compiling GPU program with bits (octal) %o...\n", (unsigned)programbits);
     if (!linkstatus) {
-        OSD_Printf("PR : Failed to compile GPU program with bits %i!\n", programbits);
+        OSD_Printf("PR : Failed to compile GPU program with bits (octal) %o!\n", (unsigned)programbits);
         if (pr_verbosity >= 1) OSD_Printf("PR : Compilation log:\n%s\n", infobuffer);
         bglGetShaderSourceARB(vert, PR_INFO_LOG_BUFFER_SIZE, NULL, infobuffer);
         if (pr_verbosity >= 1) OSD_Printf("PR : Vertex source dump:\n%s\n", infobuffer);
