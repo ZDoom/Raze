@@ -44,6 +44,7 @@ RELEASE?=1
 DEBUGANYWAY?=0
 KRANDDEBUG?=0
 EFENCE?=0
+DMALLOC?=0
 OPTLEVEL?=2
 PROFILER?=0
 MUDFLAP?=0
@@ -144,6 +145,10 @@ endif
 ifneq (0,$(EFENCE))
     LIBS+= -lefence
     BASECFLAGS+= -DEFENCE
+endif
+ifneq (0,$(DMALLOC))
+    LIBS+= -ldmalloc
+    BASECFLAGS+= -DDMALLOC
 endif
 
 BASECXXFLAGS= -fno-exceptions -fno-rtti

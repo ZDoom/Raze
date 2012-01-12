@@ -93,6 +93,8 @@
 
 #ifdef EFENCE
 # include <efence.h>
+#elif defined DMALLOC
+# include <dmalloc.h>
 #endif
 
 #if defined(_MSC_VER)
