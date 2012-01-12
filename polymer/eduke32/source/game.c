@@ -6513,10 +6513,17 @@ skip:
             {
                 if (actor[i].dispicnum < 0)
                 {
+                    // a negative actor[i].dispicnum used to mean 'no floor shadow please' but
+                    // that was a bad hack since the value could propagate to sprite[].picnum
+                    OSD_Printf(OSD_ERROR "actor[%d].dispicnum = %d\n", i, actor[i].dispicnum);
                     actor[i].dispicnum++;
                     continue;
                 }
-                else if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2) && getrendermode() != 4)
+
+                if (actor[i].flags & SPRITE_NOFLOORSHADOW)
+                    continue;
+
+                if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2) && getrendermode() != 4)
                 {
                     int32_t daz,xrep,yrep;
 

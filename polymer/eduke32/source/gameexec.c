@@ -302,6 +302,8 @@ void A_GetZLimits(int32_t iActor)
 
         s->cstat = cstat;
 
+        actor[iActor].flags &= ~SPRITE_NOFLOORSHADOW;
+
         if ((lz&49152) == 49152 && (sprite[lz&(MAXSPRITES-1)].cstat&48) == 0)
         {
             const spritetype *hitspr = &sprite[lz&(MAXSPRITES-1)];
@@ -311,7 +313,8 @@ void A_GetZLimits(int32_t iActor)
             if ((A_CheckEnemySprite(hitspr) && hitspr->pal != 1 && s->statnum != STAT_PROJECTILE)
                     || (hitspr->picnum == APLAYER && A_CheckEnemySprite(s)))
             {
-                actor[iActor].dispicnum = -4; // No shadows on actors
+                actor[iActor].flags |= SPRITE_NOFLOORSHADOW;  // No shadows on actors
+//                actor[iActor].dispicnum = -4; // No shadows on actors
                 s->xvel = -256;
                 A_SetSprite(iActor,CLIPMASK0);
             }
