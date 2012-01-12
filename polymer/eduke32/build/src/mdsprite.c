@@ -18,7 +18,7 @@
 #include <math.h>
 
 voxmodel_t *voxmodels[MAXVOXELS];
-int32_t curextra=MAXTILES;
+static int32_t curextra=MAXTILES;
 // nedpool *model_data_pool;
 // #define MODEL_POOL_SIZE 20971520
 #define model_data_pool (nedpool *) 0 // take it out of the system pool
@@ -74,7 +74,6 @@ static GLuint *vertvbos = NULL;
 static GLuint *indexvbos = NULL;
 
 static mdmodel_t *mdload(const char *);
-int32_t mddraw(spritetype *);
 static void mdfree(mdmodel_t *);
 int32_t globalnoeffect=0;
 
@@ -323,6 +322,8 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
     return(0);
 }
 
+#if 0
+// FIXME: CURRENTLY DISABLED: interpolation may access frames we consider 'unused'?
 int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
 {
     md3model_t *m;
@@ -424,6 +425,7 @@ int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap)
     ////////////
     return usedframes;
 }
+#endif
 
 int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum, int32_t surfnum, float param, float specpower, float specfactor)
 {
@@ -898,7 +900,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 }
 
 //Note: even though it says md2model, it works for both md2model&md3model
-void updateanimation(md2model_t *m, spritetype *tspr)
+void updateanimation(md2model_t *m, const spritetype *tspr)
 {
     mdanim_t *anim;
     int32_t i, j, k;
@@ -1870,7 +1872,7 @@ int      md3postload_polymer(md3model_t *m)
 }
 
 
-static int32_t md3draw(md3model_t *m, spritetype *tspr)
+static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 {
     point3d fp, fp1, fp2, m0, m1, a0;
     md3xyzn_t *v0, *v1;
@@ -1901,7 +1903,8 @@ static int32_t md3draw(md3model_t *m, spritetype *tspr)
             m->cframe < 0 || m->cframe >= m->numframes ||
             m->nframe < 0 || m->nframe >= m->numframes)
     {
-        OSD_Printf("%s: Model frame out of bounds!\n", m->head.nam);
+        OSD_Printf("%s: mdframe oob: c:%d n:%d total:%d interpol:%.02f\n",
+                   m->head.nam, m->cframe, m->nframe, m->numframes, m->interpol);
         if (m->interpol < 0)
             m->interpol = 0;
         if (m->interpol > 1)
@@ -3116,7 +3119,7 @@ voxmodel_t *voxload(const char *filnam)
 }
 
 //Draw voxel model as perfect cubes
-int32_t voxdraw(voxmodel_t *m, spritetype *tspr)
+int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
 {
     point3d fp, m0, a0;
     int32_t i, j, fi, xx, yy, zz;
@@ -3321,7 +3324,7 @@ mdmodel_t *mdload(const char *filnam)
     return(vm);
 }
 
-int32_t mddraw(spritetype *tspr)
+int32_t mddraw(const spritetype *tspr)
 {
     mdmodel_t *vm;
     int32_t i;
