@@ -963,6 +963,7 @@ void releaseallbuttons(void)
         if (mouseb & 8) mousepresscallback(4, 0);
         if (mousewheel[0]>0) mousepresscallback(5,0);
         if (mousewheel[1]>0) mousepresscallback(6,0);
+        if (mouseb & 64) mousepresscallback(7, 0);
     }
     mousewheel[0]=mousewheel[1]=0;
     mouseb = 0;

@@ -14,8 +14,8 @@ extern volatile uint8_t moustat, mousegrab;
 extern uint32_t mousewheel[2];
 extern void SetKey(int32_t key, int32_t state);
 
-#define MASK_DOWN (1<<(i<<1))
-#define MASK_UP (MASK_DOWN<<1)
+//#define MASK_DOWN (1<<(i<<1))
+//#define MASK_UP (MASK_DOWN<<1)
 #define MouseWheelFakePressTime 50
 #ifndef GET_RAWINPUT_CODE_WPARAM
 #define GET_RAWINPUT_CODE_WPARAM(wParam)    ((wParam) & 0xff)
@@ -42,21 +42,31 @@ static inline void RI_ProcessMouse(const RAWMOUSE *rmouse)
         mousey -= pos.y;
     }
 
-    for (i = 0, mask = 1; i < 4; i++)
+    for (i = 0, mask = (1<<0); mask < (1<<8); i++, mask<<=2)
     {
+        // usButtonFlags:
+        //  1<<0: left down   -> 1 / 1<<0
+        //  1<<2: middle down -> 2 / 1<<1
+        //  1<<4: right down  -> 3 / 1<<2
+        //  1<<6: x1 down     -> 4 / 1<<3
+        //                    ----------- mwheel here
+        //  1<<8: x2 down     -> 7 / 1<<6
+
+        if (mask == 1<<8)
+            i = 6;
+
         if (rmouse->usButtonFlags & mask) // button down
         {
             if (mousepresscallback)
-                mousepresscallback(i, 1);
+                mousepresscallback(i+1, 1);
             mouseb |= 1<<i;
         }
         else if (rmouse->usButtonFlags & (mask<<1)) // button up
         {
             if (mousepresscallback)
-                mousepresscallback(i, 0);
+                mousepresscallback(i+1, 0);
             mouseb &= ~(1<<i);
         }
-        mask <<= 2;
     }
 
     MWheel = (rmouse->usButtonFlags & RI_MOUSE_WHEEL) ? rmouse->usButtonData : 0;

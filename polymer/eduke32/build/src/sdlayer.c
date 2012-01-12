@@ -1778,6 +1778,8 @@ int32_t handleevents(void)
 
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
+//if (ev.button.button>=0)
+//    initprintf("BTN %d\n", ev.button.button);
             switch (ev.button.button)
             {
                 // some of these get reordered to match winlayer
@@ -1789,9 +1791,13 @@ int32_t handleevents(void)
                 j = 1; break;
             case SDL_BUTTON_MIDDLE:
                 j = 2; break;
-            case SDL_BUTTON_WHEELUP:
-            case SDL_BUTTON_WHEELDOWN:
+            case 8 /*SDL_BUTTON_X1*/:  // 8 --> 3
+                j = 3; break;
+            case SDL_BUTTON_WHEELUP:  // 4
+            case SDL_BUTTON_WHEELDOWN:  // 5
                 j = ev.button.button; break;
+            case 9 /*SDL_BUTTON_X2*/:  // 9 --> 6
+                j = 6; break;
             }
             if (j<0) break;
 
