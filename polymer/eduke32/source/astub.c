@@ -817,7 +817,7 @@ void ExtSetupMapFilename(const char *mapname)
 void ExtLoadMap(const char *mapname)
 {
     int32_t i;
-    int32_t sky=LA;
+    int32_t sky=0;
 
     getmessageleng = 0;
     getmessagetimeoff = 0;
@@ -826,8 +826,7 @@ void ExtLoadMap(const char *mapname)
 
     // old-fashioned multi-psky handling
 
-    for (i=0; i<8; i++)
-        pskyoff[i] = 0;
+    Bmemset(pskyoff, 0, sizeof(pskyoff));
 
     for (i=0; i<numsectors; i++)
     {
