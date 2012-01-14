@@ -2421,29 +2421,6 @@ static int32_t compare_wall_coords(const void *w1, const void *w2)
     } while (0)
 
 
-// breadth-first search helpers
-void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt)
-{
-    Bmemset(bitmap, 0, (maxnum+7)>>3);
-
-    list[0] = firstelt;
-    bitmap[firstelt>>3] |= (1<<(firstelt&7));
-    *eltnumptr = 1;
-}
-
-void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int16_t elt)
-{
-    if (elt < 0)
-        return;
-
-    if ((bitmap[elt>>3]&(1<<(elt&7)))==0)
-    {
-        bitmap[elt>>3] |= (1<<(elt&7));
-        list[*eltnumptr] = elt;
-        (*eltnumptr)++;
-    }
-}
-
 #ifdef YAX_ENABLE
 static int32_t collnumsects[2];
 static int16_t collsectlist[2][MAXSECTORS];

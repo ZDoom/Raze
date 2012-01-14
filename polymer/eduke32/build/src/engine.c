@@ -12362,6 +12362,30 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
 }
 
 
+// breadth-first search helpers
+void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt)
+{
+    Bmemset(bitmap, 0, (maxnum+7)>>3);
+
+    list[0] = firstelt;
+    bitmap[firstelt>>3] |= (1<<(firstelt&7));
+    *eltnumptr = 1;
+}
+
+void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int16_t elt)
+{
+    if (elt < 0)
+        return;
+
+    if ((bitmap[elt>>3]&(1<<(elt&7)))==0)
+    {
+        bitmap[elt>>3] |= (1<<(elt&7));
+        list[*eltnumptr] = elt;
+        (*eltnumptr)++;
+    }
+}
+
+
 //
 // updatesector[z]
 //
@@ -12397,6 +12421,39 @@ void updatesector(int32_t x, int32_t y, int16_t *sectnum)
             *sectnum = i;
             return;
         }
+
+    *sectnum = -1;
+}
+
+void updatesector_onlynextwalls(int32_t x, int32_t y, int16_t *sectnum)
+{
+    static int16_t sectlist[MAXSECTORS];
+    static uint8_t sectbitmap[MAXSECTORS>>3];
+    int32_t nsecs, sectcnt, j;
+
+    if ((unsigned)(*sectnum) >= (unsigned)numsectors)
+        return;
+
+    bfirst_search_init(sectlist, sectbitmap, &nsecs, numsectors, *sectnum);
+
+    for (sectcnt=0; sectcnt<nsecs; sectcnt++)
+    {
+        const sectortype *sec = &sector[sectlist[sectcnt]];
+        int32_t startwall = sec->wallptr;
+        int32_t endwall = sec->wallptr + sec->wallnum;
+
+        if (inside(x,y, sectlist[sectcnt]) == 1)
+        {
+            *sectnum = sectlist[sectcnt];
+            return;
+        }
+
+        for (j=startwall; j<endwall; j++)
+        {
+            if (wall[j].nextsector >= 0)
+                bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
+        }
+    }
 
     *sectnum = -1;
 }

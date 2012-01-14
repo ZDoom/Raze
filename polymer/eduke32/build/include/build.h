@@ -576,6 +576,9 @@ void   drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
 int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
 void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
 
+void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt);
+void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int16_t elt);
+
 extern int32_t clipmoveboxtracenum;
 int32_t   clipmove(vec3_t *vect, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
 int32_t   clipinsidebox(int32_t x, int32_t y, int16_t wallnum, int32_t walldist);
@@ -586,6 +589,7 @@ int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int
 int32_t   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch) ATTRIBUTE((nonnull(6,7,8)));
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 void   updatesector(int32_t x, int32_t y, int16_t *sectnum) ATTRIBUTE((nonnull(3)));
+void updatesector_onlynextwalls(int32_t x, int32_t y, int16_t *sectnum) ATTRIBUTE((nonnull(3)));
 void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *excludesectbitmap) ATTRIBUTE((nonnull(3)));
 void   updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum) ATTRIBUTE((nonnull(4)));
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);

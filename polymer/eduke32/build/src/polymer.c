@@ -993,10 +993,11 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     bglGetFloatv(GL_MODELVIEW_MATRIX, rootmodelviewmatrix);
 
     cursectnum = dacursectnum;
-    updatesector(daposx, daposy, &cursectnum);
-
+    updatesector_onlynextwalls(daposx, daposy, &cursectnum);
     if ((cursectnum >= 0) && (cursectnum < numsectors))
         dacursectnum = cursectnum;
+    else if (pr_verbosity>=2)
+        OSD_Printf("PR : got sector %d after update!\n", cursectnum);
 
     // unflag all sectors
     i = numsectors-1;
@@ -1034,6 +1035,9 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
             (daposz > cursectflorz) ||
             (daposz < cursectceilz))
     {
+        if (!editstatus && pr_verbosity>=1)
+            OSD_Printf("PR : EXT sec=%d  z=%d (%d, %d)\n", dacursectnum, daposz, cursectflorz, cursectceilz);
+
         curmodelviewmatrix = rootmodelviewmatrix;
         i = numsectors-1;
         while (i >= 0)
