@@ -124,7 +124,8 @@ static intptr_t slopalookup[16384];    // was 2048
 palette_t palookupfog[MAXPALOOKUPS];
 #endif
 
-int32_t artversion, mapversion=7; // JBF 20040211: default mapversion to 7
+static int32_t artversion;
+int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 char picsiz[MAXTILES];
 static void *pic = NULL;
 static char permanentlock = 255;
@@ -132,7 +133,7 @@ static char tilefilenum[MAXTILES];
 static int32_t tilefileoffs[MAXTILES];
 static int32_t lastageclock;
 
-int32_t artsize = 0, cachesize = 0;
+static int32_t artsize = 0, cachesize = 0;
 
 // maximum number of ART files
 static char *artptrs[MAXTILEFILES];
@@ -164,7 +165,7 @@ int32_t showfirstwall=0;
 int32_t showheightindicators=2;
 int32_t circlewall=-1;
 
-char cachedebug = 0;
+//char cachedebug = 0;
 
 qlz_state_compress *state_compress = NULL;
 qlz_state_decompress *state_decompress = NULL;
@@ -5040,32 +5041,32 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
         switch (i)
         {
         case 6:
-            case 7:
-                    x1 = 0; y1 = 0; break;
+        case 7:
+            x1 = 0; y1 = 0; break;
         case 8:
-            case 5:
-                    x1 = gxinc; y1 = gyinc; break;
+        case 5:
+            x1 = gxinc; y1 = gyinc; break;
         case 0:
-            case 3:
-                    x1 = gyinc; y1 = -gxinc; break;
+        case 3:
+            x1 = gyinc; y1 = -gxinc; break;
         case 2:
-            case 1:
-                    x1 = gxinc+gyinc; y1 = gyinc-gxinc; break;
+        case 1:
+            x1 = gxinc+gyinc; y1 = gyinc-gxinc; break;
         }
         switch (i)
         {
         case 2:
-            case 5:
-                    x2 = 0; y2 = 0; break;
+        case 5:
+            x2 = 0; y2 = 0; break;
         case 0:
-            case 1:
-                    x2 = gxinc; y2 = gyinc; break;
+        case 1:
+            x2 = gxinc; y2 = gyinc; break;
         case 8:
-            case 7:
-                    x2 = gyinc; y2 = -gxinc; break;
+        case 7:
+            x2 = gyinc; y2 = -gxinc; break;
         case 6:
-            case 3:
-                    x2 = gxinc+gyinc; y2 = gyinc-gxinc; break;
+        case 3:
+            x2 = gxinc+gyinc; y2 = gyinc-gxinc; break;
         }
         oand = pow2char[(xs<backx)+0]+pow2char[(ys<backy)+2];
         oand16 = oand+16;
@@ -7292,7 +7293,7 @@ static void loadpalette(void)
 
     if ((palookup[0] = (char *)Bmalloc(numpalookups<<8)) == NULL)
         allocache((intptr_t *)&palookup[0],numpalookups<<8,&permanentlock);
-    if ((transluc = (char *)Bmalloc(65536L)) == NULL)
+    if ((transluc = (char *)Bmalloc(65536)) == NULL)
         allocache((intptr_t *)&transluc,65536,&permanentlock);
 
     globalpalwritten = palookup[0]; globalpal = 0;
@@ -7317,13 +7318,13 @@ static void loadpalette(void)
 
     kclose(fil);
 
-    initfastcolorlookup(30L,59L,11L);
+    initfastcolorlookup(30, 59, 11);
 
     {
         int32_t i, j, k = 0;
         for (i=0; i<256; i++)
         {
-            j = ((int32_t)palette[i*3])+((int32_t)palette[i*3+1])+((int32_t)palette[i*3+2]);
+            j = palette[i*3] + palette[i*3+1] + palette[i*3+2];
             if (j > k) { k = j; whitecol = i; }
         }
     }
@@ -10275,7 +10276,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
 
     while ((pic = Bmalloc(cachesize)) == NULL)
     {
-        cachesize -= 65536L;
+        cachesize -= 65536;
         if (cachesize < 65536) return(-1);
     }
     initcache((intptr_t)pic, cachesize);
@@ -10332,7 +10333,7 @@ void loadtile(int16_t tilenume)
         faketimerhandler();
     }
 
-    if (cachedebug) OSD_Printf("Tile:%d\n",tilenume);
+//    if (cachedebug) OSD_Printf("Tile:%d\n",tilenume);
 
     // dummy tiles for highres replacements and tilefromtexture definitions
     if (faketilesiz[tilenume])

@@ -63,11 +63,10 @@ int32_t xdim2d = 640, ydim2d = 480, xdimgame = 640, ydimgame = 480, bppgame = 8;
 int32_t forcesetup = 1;
 
 int32_t g_maxCacheSize = 24<<20;
-//extern int32_t cachesize, artsize;
 
 static int16_t oldmousebstatus = 0;
 char game_executable[BMAX_PATH] = DEFAULT_GAME_LOCAL_EXEC;
-int32_t zlock = 0x7fffffff, zmode = 0, whitecol, kensplayerheight = 32;
+int32_t zlock = 0x7fffffff, zmode = 0, kensplayerheight = 32;
 //int16_t defaultspritecstat = 0;
 
 int16_t localartfreq[MAXTILES];
@@ -445,7 +444,7 @@ int32_t app_main(int32_t argc, const char **argv)
     char cmdsetup = 0;
 #endif
     char quitflag;
-    int32_t i, j, k;
+    int32_t i, k;
 
     pathsearchmode = 1;		// unrestrict findfrompath so that full access to the filesystem can be had
 
@@ -584,12 +583,7 @@ int32_t app_main(int32_t argc, const char **argv)
     Bfree (g_defModules);
     g_defModules = NULL;  // be defensive...
 
-    k = 0;
-    for (i=0; i<256; i++)
-    {
-        j = ((int32_t)palette[i*3])+((int32_t)palette[i*3+1])+((int32_t)palette[i*3+2]);
-        if (j > k) { k = j; whitecol = i; }
-    }
+    // Here used to be the 'whitecol' calculation
 
     k = clipmapinfo_load("_clipshape0.map");
     if (k>0)
@@ -779,8 +773,6 @@ CANCEL:
 //    clearfilenames();
     uninitengine();
 
-//    Bprintf("Memory status: %d(%d) bytes\n",cachesize,artsize);
-//    Bprintf("%s\n",kensig);
     return(0);
 }
 

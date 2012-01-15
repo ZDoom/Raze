@@ -39,7 +39,6 @@ uint8_t default_buildkeys[NUMBUILDKEYS] =
 	0x9c,0x1c,0xd,0xc,0xf,0x29
 };
 
-extern int32_t whitecol;
 extern char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
 extern void updatenumsprites(void);
 

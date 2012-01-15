@@ -8545,8 +8545,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 if (argc > i+1)
                 {
 #ifdef USE_OPENGL
-                    extern char TEXCACHEFILE[BMAX_PATH];
-
                     Bsnprintf(tempbuf,sizeof(tempbuf),"%s/%s",argv[i+1],TEXCACHEFILE);
                     Bstrncpy(TEXCACHEFILE,tempbuf, sizeof(TEXCACHEFILE));
                     TEXCACHEFILE[sizeof(TEXCACHEFILE)-1] = 0;
