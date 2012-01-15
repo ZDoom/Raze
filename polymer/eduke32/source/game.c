@@ -8380,7 +8380,14 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                     continue;
                 }
 
-                // XXX: ugly, will produce error when it encounters the closing '}'
+                // HACK: we've reached the end of the list
+                //  (hack because it relies on knowledge of
+                //   how scriptfile_* preprocesses the text)
+                if (animsoundsend - script->textptr == 1)
+                    break;
+
+                // would produce error when it encounters the closing '}'
+                // without the above hack
                 if (scriptfile_getnumber(script, &framenum)) break;
 
                 bad=1;
