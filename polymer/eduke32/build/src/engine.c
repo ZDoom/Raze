@@ -134,9 +134,8 @@ static int32_t lastageclock;
 
 int32_t artsize = 0, cachesize = 0;
 
-// max tilesXXX <- num to be checked for:
-#define MAX_TILEFILEI 64
-static char *artptrs[MAX_TILEFILEI];
+// maximum number of ART files
+static char *artptrs[MAXTILEFILES];
 
 static int16_t radarang2[MAXXDIM];
 static uint16_t sqrtable[4096], shlookup[4096+256];
@@ -7870,7 +7869,7 @@ void uninitengine(void)
         kclose(artfil);
 
     // this leaves a bunch of invalid pointers in waloff... fixme?
-    for (i=0; i<MAX_TILEFILEI; i++)
+    for (i=0; i<MAXTILEFILES; i++)
     {
         if (artptrs[i])
         {
@@ -10203,7 +10202,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
 
     artsize = 0;
 
-    for (tilefilei=0; tilefilei<MAX_TILEFILEI; tilefilei++)
+    for (tilefilei=0; tilefilei<MAXTILEFILES; tilefilei++)
     {
         artfilename[7] = (tilefilei%10)+48;
         artfilename[6] = ((tilefilei/10)%10)+48;
@@ -10214,16 +10213,22 @@ int32_t loadpics(const char *filename, int32_t askedsize)
             kread(fil,&artversion,4); artversion = B_LITTLE32(artversion);
             if (artversion != 1)
             {
-                Bprintf("loadpics(): Invalid art file version in %s\n", artfilename);
+                initprintf("loadpics: Invalid art file version in %s\n", artfilename);
                 kclose(fil);
-                return(-1);
+                continue;
             }
             kread(fil,&numtiles_dummy,4);
             kread(fil,&localtilestart,4); localtilestart = B_LITTLE32(localtilestart);
             kread(fil,&localtileend,4);   localtileend   = B_LITTLE32(localtileend);
-            if ((uint32_t)localtilestart >= MAXTILES || localtileend < localtilestart)
+            if ((uint32_t)localtilestart >= MAXTILES || (uint32_t)localtileend >= MAXTILES)
             {
-                Bprintf("loadpics(): Invalid localtilestart or localtileend in %s\n", artfilename);
+                initprintf("loadpics: Invalid localtilestart or localtileend in %s\n", artfilename);
+                kclose(fil);
+                continue;
+            }
+            if (localtileend <= localtilestart)
+            {
+                initprintf("loadpics: localtileend <= localtilestart in %s\n", artfilename);
                 kclose(fil);
                 continue;
             }
