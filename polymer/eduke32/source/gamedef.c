@@ -1026,17 +1026,17 @@ char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 hashtable_t h_gamevars    = { MAXGAMEVARS>>1, NULL };
 hashtable_t h_arrays      = { MAXGAMEARRAYS>>1, NULL };
 hashtable_t h_labels      = { 11264>>1, NULL };
-hashtable_t h_keywords       = { CON_END>>1, NULL };
+static hashtable_t h_keywords       = { CON_END>>1, NULL };
 
-hashtable_t sectorH     = { SECTOR_END>>1, NULL };
-hashtable_t wallH       = { WALL_END>>1, NULL };
-hashtable_t userdefH    = { USERDEFS_END>>1, NULL };
+static hashtable_t sectorH     = { SECTOR_END>>1, NULL };
+static hashtable_t wallH       = { WALL_END>>1, NULL };
+static hashtable_t userdefH    = { USERDEFS_END>>1, NULL };
 
-hashtable_t projectileH = { PROJ_END>>1, NULL };
-hashtable_t playerH     = { PLAYER_END>>1, NULL };
-hashtable_t inputH      = { INPUT_END>>1, NULL };
-hashtable_t actorH      = { ACTOR_END>>1, NULL };
-hashtable_t tspriteH    = { ACTOR_END>>1, NULL };
+static hashtable_t projectileH = { PROJ_END>>1, NULL };
+static hashtable_t playerH     = { PLAYER_END>>1, NULL };
+static hashtable_t inputH      = { INPUT_END>>1, NULL };
+static hashtable_t actorH      = { ACTOR_END>>1, NULL };
+static hashtable_t tspriteH    = { ACTOR_END>>1, NULL };
 
 void inithashnames();
 void freehashnames();
@@ -1103,14 +1103,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
     int32_t osize = g_scriptSize;
     char *scriptptrs;
     char *newbitptr;
-#if 0
-    for (i=MAXSECTORS-1; i>=0; i--)
-        if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
-        {
-            j = (intptr_t)labelcode[i]-(intptr_t)&script[0];
-            labelcode[i] = (intptr_t)j;
-        }
-#endif
+
     scriptptrs = Bcalloc(1, g_scriptSize * sizeof(uint8_t));
 
     for (i=g_scriptSize-1; i>=0; i--)
@@ -1174,16 +1167,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
 
     if (g_parsingActorPtr)
         g_parsingActorPtr = (intptr_t *)(script+oparsingActorPtr);
-#if 0
-    for (i=MAXSECTORS-1; i>=0; i--)
-    {
-        if (labelcode[i] && labeltype[i] != LABEL_DEFINE)
-        {
-            j = (intptr_t)labelcode[i]+(intptr_t)&script[0];
-            labelcode[i] = j;
-        }
-    }
-#endif
+
     for (i=(((newsize>=osize)?osize:newsize))-1; i>=0; i--)
         if (scriptptrs[i])
         {
@@ -1664,13 +1648,7 @@ static int32_t C_GetNextValue(int32_t type)
                 initprintf("%s:%d: debug: accepted %s label `%s'.\n",g_szScriptFileName,g_lineNumber,gl,label+(i<<6));
                 Bfree(gl);
             }
-#if 0
-            if (labeltype[i] != LABEL_DEFINE && labelcode[i] >= (intptr_t)&script[0] && labelcode[i] < (intptr_t)&script[g_scriptSize])
-                bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
-            else
-                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-            *(g_scriptPtr++) = labelcode[i];
-#elif !defined SAMESIZE_ACTOR_T
+#if !defined SAMESIZE_ACTOR_T
             if ((labeltype[i]&LABEL_DEFINE)==0)
                 bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
             else  // the 'define' label type is the only one that doesn't reference the script
@@ -1972,14 +1950,10 @@ static int32_t C_ParseCommand(int32_t loop)
                     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
                         initprintf("%s:%d: debug: accepted state label `%s'.\n",g_szScriptFileName,g_lineNumber,label+(j<<6));
                     *g_scriptPtr = (intptr_t)(script+labelcode[j]);
-#if 0
-                    if (labelcode[j] >= (intptr_t)&script[0] && labelcode[j] < (intptr_t)&script[g_scriptSize])
-                        bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
-                    else bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-#else
+
                     // 'state' type labels are always script addresses, as far as I can see
                     bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
-#endif
+
                     g_scriptPtr++;
                     continue;
                 }

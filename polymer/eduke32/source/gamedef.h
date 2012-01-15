@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern hashtable_t h_gamevars;
 extern hashtable_t h_arrays;
-extern hashtable_t h_keywords;
+//extern hashtable_t h_keywords;
 extern hashtable_t h_gamefuncs;
 extern hashtable_t h_labels;
 
