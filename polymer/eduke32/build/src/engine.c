@@ -97,7 +97,6 @@ static int32_t lowrecip[1024], nytooclose, nytoofar;
 static uint32_t distrecip[65536+256];
 
 static intptr_t *lookups = NULL;
-static char lookupsalloctype = 255;
 int32_t dommxoverlay = 1, beforedrawrooms = 1, indrawroomsandmasks = 0;
 
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
@@ -7883,8 +7882,7 @@ void uninitengine(void)
     if (pic != NULL) { Bfree(pic); pic = NULL; }
     if (lookups != NULL)
     {
-        if (lookupsalloctype == 0) Bfree((void *)lookups);
-        //if (lookupsalloctype == 1) suckcache(lookups);  //Cache already gone
+        Bfree((void *)lookups);
         lookups = NULL;
     }
 
@@ -10061,16 +10059,14 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     j = ydim*4*sizeof(intptr_t);  //Leave room for horizlookup&horizlookup2
 
     if (lookups != NULL)
+        Bfree((void *)lookups);
+    lookups = Bmalloc(j<<1);
+
+    if (lookups == NULL)
     {
-        if (lookupsalloctype == 0) Bfree((void *)lookups);
-        if (lookupsalloctype == 1) suckcache(lookups);
-        lookups = NULL;
-    }
-    lookupsalloctype = 0;
-    if ((lookups = (intptr_t *)Bmalloc(j<<1)) == NULL)
-    {
-        allocache((intptr_t *)&lookups,j<<1,&permanentlock);
-        lookupsalloctype = 1;
+        initprintf("OUT OF MEMORY in setgamemode!\n");
+        uninitengine();
+        exit(1);
     }
 
     horizlookup = lookups;

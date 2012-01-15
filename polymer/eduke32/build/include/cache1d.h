@@ -17,7 +17,7 @@ extern char filegrp[MAXOPENFILES];
 
 void	initcache(intptr_t dacachestart, int32_t dacachesize);
 void	allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr);
-void	suckcache(intptr_t *suckptr);
+//void	suckcache(intptr_t *suckptr);
 void	agecache(void);
 
 extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)

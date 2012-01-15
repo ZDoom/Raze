@@ -181,6 +181,7 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
     cac[bestz].lock = &zerochar;
 }
 
+#if 0
 void suckcache(intptr_t *suckptr)
 {
     int32_t i;
@@ -198,16 +199,17 @@ void suckcache(intptr_t *suckptr)
             if ((i > 0) && (*cac[i-1].lock == 0))
             {
                 cac[i-1].leng += cac[i].leng;
-                cacnum--; copybuf(&cac[i+1],&cac[i],(cacnum-i)*sizeof(cactype));
+                cacnum--; copybuf(&cac[i+1],&cac[i],(cacnum-i)*sizeof(cactype));  // XXX: this looks suspicious, copybuf already multiplies by 4...
             }
             else if ((i < cacnum-1) && (*cac[i+1].lock == 0))
             {
                 cac[i+1].leng += cac[i].leng;
-                cacnum--; copybuf(&cac[i+1],&cac[i],(cacnum-i)*sizeof(cactype));
+                cacnum--; copybuf(&cac[i+1],&cac[i],(cacnum-i)*sizeof(cactype));  // XXX: see above
             }
         }
     }
 }
+#endif
 
 void agecache(void)
 {
