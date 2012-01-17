@@ -210,7 +210,7 @@ int32_t md_loadmodel(const char *fn)
     return(nextmodelid-1);
 }
 
-int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, int32_t flags)
+int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, float yoffset, int32_t flags)
 {
     mdmodel_t *m;
 
@@ -221,6 +221,7 @@ int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, i
     m->bscale = scale;
     m->shadeoff = shadeoff;
     m->zadd = zadd;
+    m->yoffset = yoffset;
     m->flags = flags;
 
     return 0;
@@ -1947,6 +1948,9 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         k0 -= (float)((tilesizy[tspr->picnum]*tspr->yrepeat)<<2);
     }
     if (globalorientation&4) { m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y; } //x-flipping
+
+    // yoffset differs from zadd in that it does not follow cstat&8 y-flipping
+    a0.z += m->yoffset*m->scale;
 
     f = ((float)tspr->xrepeat)/64*m->bscale;
     m0.x *= f; m1.x *= f; a0.x *= f; f = -f;   // 20040610: backwards models aren't cool

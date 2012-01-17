@@ -3989,6 +3989,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     if ((tspr->cstat & 128) && (((tspr->cstat>>4) & 3) != 2))
         bglTranslatef(0.0f, 0.0, -(float)(tilesizy[tspr->picnum] * tspr->yrepeat) / 8.0f);
 
+    // yoffset differs from zadd in that it does not follow cstat&8 y-flipping
+    bglTranslatef(0.0f, 0.0, m->yoffset * 64 * scale * tspr->yrepeat);
+
     if (tspr->cstat & 8)
     {
         bglTranslatef(0.0f, 0.0, (float)(tilesizy[tspr->picnum] * tspr->yrepeat) / 4.0f);

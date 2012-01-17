@@ -767,7 +767,7 @@ int32_t hicclearsubst(int32_t picnum, int32_t palnum);
 
 int32_t Ptile2tile(int32_t tile, int32_t pallet);
 int32_t md_loadmodel(const char *fn);
-int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, int32_t flags);
+int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, float yoffset, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
 
 extern char defsfilename[BMAX_PATH];

@@ -9,7 +9,7 @@ typedef struct
 {
     int32_t mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
     int32_t shadeoff;
-    float scale, bscale, zadd;
+    float scale, bscale, zadd, yoffset;
     GLuint *texid;	// skins
     int32_t flags;
 } mdmodel_t;
@@ -68,7 +68,7 @@ typedef struct
     //WARNING: This top block is a union between md2model&md3model: Make sure it matches!
     int32_t mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
     int32_t shadeoff;
-    float scale, bscale, zadd;
+    float scale, bscale, zadd, yoffset;
     GLuint *texid;   // texture ids for base skin if no mappings defined
     int32_t flags;
 
@@ -154,7 +154,7 @@ typedef struct
     //WARNING: This top block is a union between md2model&md3model: Make sure it matches!
     int32_t mdnum; //VOX=1, MD2=2, MD3=3. NOTE: must be first in structure!
     int32_t shadeoff;
-    float scale, bscale, zadd;
+    float scale, bscale, zadd, yoffset;
     uint32_t *texid;   // texture ids for base skin if no mappings defined
     int32_t flags;
 

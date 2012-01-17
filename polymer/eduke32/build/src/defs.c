@@ -728,7 +728,7 @@ static int32_t defsparser(scriptfile *script)
                 initprintf("Warning: Failed loading MD2/MD3 model \"%s\"\n", modelfn);
                 break;
             }
-            md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0,0);
+            md_setmisc(lastmodelid,(float)scale, shadeoffs,0.0,0.0,0);
             if (glrendmode==4)
                 md3postload_polymer((md3model_t *)models[lastmodelid]);
 #endif
@@ -933,7 +933,7 @@ static int32_t defsparser(scriptfile *script)
         case T_MODEL:
         {
             char *modelend, *modelfn;
-            double scale=1.0, mzadd=0.0;
+            double scale=1.0, mzadd=0.0, myoffset=0.0;
             int32_t shadeoffs=0, pal=0, flags=0;
             uint8_t usedframebitmap[1024>>3];
 
@@ -944,6 +944,7 @@ static int32_t defsparser(scriptfile *script)
                 { "scale",    T_SCALE    },
                 { "shade",    T_SHADE    },
                 { "zadd",     T_ZADD     },
+                { "yoffset",  T_YOFFSET  },
                 { "frame",    T_FRAME    },
                 { "anim",     T_ANIM     },
                 { "skin",     T_SKIN     },
@@ -983,6 +984,8 @@ static int32_t defsparser(scriptfile *script)
                     scriptfile_getnumber(script,&shadeoffs); break;
                 case T_ZADD:
                     scriptfile_getdouble(script,&mzadd); break;
+                case T_YOFFSET:
+                    scriptfile_getdouble(script,&myoffset); break;
                 case T_FLAGS:
                     scriptfile_getnumber(script,&flags); break;
                 case T_FRAME:
@@ -1344,7 +1347,7 @@ static int32_t defsparser(scriptfile *script)
             }
 
 #ifdef USE_OPENGL
-            md_setmisc(lastmodelid,(float)scale,shadeoffs,(float)mzadd,flags);
+            md_setmisc(lastmodelid,(float)scale,shadeoffs,(float)mzadd,(float)myoffset,flags);
 
             // thin out the loaded model by throwing away unused frames
             // FIXME: CURRENTLY DISABLED: interpolation may access frames we consider 'unused'?
