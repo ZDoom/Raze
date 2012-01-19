@@ -40,7 +40,10 @@ static int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
 
     UNREFERENCED_PARAMETER(model);
     if (curextra==MAXTILES+EXTRATILES-1)
+    {
+        initprintf("warning: max EXTRATILES reached\n");
         return curextra;
+    }
 
     if (tile2model[tile].modelid==-1)
     {

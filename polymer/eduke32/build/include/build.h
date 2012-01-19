@@ -33,7 +33,7 @@ extern "C" {
 #define M32_FIXME_WALLS 512
 #define M32_FIXME_SECTORS 2
 
-#define MAXTILES 15360
+#define MAXTILES 30720
 #define MAXVOXELS 4096
 #define MAXSTATUS 1024
 #define MAXPLAYERS 16
@@ -786,7 +786,7 @@ typedef struct
     char    pal;
 } tile2model_t;
 
-# define EXTRATILES MAXTILES
+# define EXTRATILES (MAXTILES/8)
 
 EXTERN int32_t mdinited;
 EXTERN tile2model_t tile2model[MAXTILES+EXTRATILES];
