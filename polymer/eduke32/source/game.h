@@ -309,7 +309,7 @@ static inline int32_t G_GetTeamPalette(int32_t team)
 {
     int8_t pal[] = { 3, 10, 11, 12 };
 
-    if (team > (int32_t)(sizeof(pal)/sizeof(pal[0])) || team < 0)
+    if ((unsigned)team >= (sizeof(pal)/sizeof(pal[0])))
         return 0;
 
     return pal[team];

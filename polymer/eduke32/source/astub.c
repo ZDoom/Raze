@@ -5723,8 +5723,8 @@ static void Keys3d(void)
 
             while (!tilesizx[AIMED_SELOVR_PICNUM] || !tilesizy[AIMED_SELOVR_PICNUM] || j)
             {
-                AIMED_SELOVR_PICNUM += i+MAXTILES;
-                AIMED_SELOVR_PICNUM %= MAXTILES;
+                i += AIMED_SELOVR_PICNUM + MAXTILES;
+                AIMED_SELOVR_PICNUM = i % MAXTILES;
                 j = 0;
             }
 

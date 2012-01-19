@@ -387,7 +387,7 @@ extern int32_t dommxoverlay, novoxmips;
 
 extern float debug1, debug2;
 
-extern int32_t tiletovox[MAXTILES];
+extern int16_t tiletovox[MAXTILES];
 extern int32_t usevoxels, voxscale[MAXVOXELS];
 
 #ifdef USE_OPENGL

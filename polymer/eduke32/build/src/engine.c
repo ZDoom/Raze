@@ -77,7 +77,7 @@ static void drawpixel_safe(void *s, char a)
 }
 
 //void loadvoxel(int32_t voxindex) { UNREFERENCED_PARAMATER(voxindex); }
-int32_t tiletovox[MAXTILES];
+int16_t tiletovox[MAXTILES];
 int32_t usevoxels = 1;
 //#define kloadvoxel loadvoxel
 
