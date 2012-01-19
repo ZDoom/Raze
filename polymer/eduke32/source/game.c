@@ -10389,8 +10389,10 @@ CLEAN_DIRECTORY:
         Bfree(ptr);
     }
 
+#if !defined DEBUG_MAIN_ARRAYS
     if ((i = clipmapinfo_load("_clipshape0.map")) > 0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", i);
+#endif
 
     OSD_Exec("autoexec.cfg");
 

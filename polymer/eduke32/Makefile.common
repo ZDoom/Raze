@@ -92,7 +92,13 @@ ifneq (0,$(RELEASE))
     endif
 else
     # Debugging enabled
-    debug=-ggdb -O0 -DDEBUGGINGAIDS
+    debug=-ggdb -O0
+    ifeq (0,$(DEBUGANYWAY))
+        debug+= -DDEBUGGINGAIDS
+    else
+        debug+= -DDEBUGGINGAIDS=2
+    endif
+
     ifeq ($(CC),clang)
         debug+= -fcatch-undefined-behavior
     endif

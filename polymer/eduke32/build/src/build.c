@@ -585,9 +585,11 @@ int32_t app_main(int32_t argc, const char **argv)
 
     // Here used to be the 'whitecol' calculation
 
+#if !defined DEBUG_MAIN_ARRAYS
     k = clipmapinfo_load("_clipshape0.map");
     if (k>0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", k);
+#endif
 
     taglab_init();
 

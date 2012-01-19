@@ -122,6 +122,10 @@ static inline float nearbyintf(float x)
 # define NULL ((void *)0)
 #endif
 
+#if DEBUGGINGAIDS>=2
+# define DEBUG_MAIN_ARRAYS
+#endif
+
 // redefined for apple/ppc, which chokes on stderr when linking...
 #define ERRprintf(fmt, ...) fprintf(stderr, fmt, ## __VA_ARGS__)
 

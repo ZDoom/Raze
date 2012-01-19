@@ -1700,14 +1700,20 @@ static const dataspec_t svgm_udnetw[] =
     { DS_END, 0, 0, 0 }
 };
 
+#if !defined DEBUG_MAIN_ARRAYS
+# define DS_MAINAR DS_DYNAMIC
+#else
+# define DS_MAINAR 0
+#endif
+
 static const dataspec_t svgm_secwsp[] =
 {
     { DS_STRING, "blK:swsp", 0, 1 },
     { DS_NOCHK, &numwalls, sizeof(numwalls), 1 },
-    { DS_DYNAMIC|DS_CNT(numwalls), &wall, sizeof(walltype), (intptr_t)&numwalls },
+    { DS_MAINAR|DS_CNT(numwalls), &wall, sizeof(walltype), (intptr_t)&numwalls },
     { DS_NOCHK, &numsectors, sizeof(numsectors), 1 },
-    { DS_DYNAMIC|DS_CNT(numsectors), &sector, sizeof(sectortype), (intptr_t)&numsectors },
-    { DS_DYNAMIC, &sprite, sizeof(spritetype), MAXSPRITES },
+    { DS_MAINAR|DS_CNT(numsectors), &sector, sizeof(sectortype), (intptr_t)&numsectors },
+    { DS_MAINAR, &sprite, sizeof(spritetype), MAXSPRITES },
 #ifdef YAX_ENABLE
     { DS_NOCHK, &numyaxbunches, sizeof(numyaxbunches), 1 },
     { DS_CNT(numsectors), yax_bunchnum, sizeof(yax_bunchnum[0]), (intptr_t)&numsectors },
@@ -1723,7 +1729,7 @@ static const dataspec_t svgm_secwsp[] =
 #ifdef USE_OPENGL
     { DS_SAVEFN, (void *)&sv_prespriteextsave, 0, 1 },
 #endif
-    { DS_DYNAMIC, &spriteext, sizeof(spriteext_t), MAXSPRITES },
+    { DS_MAINAR, &spriteext, sizeof(spriteext_t), MAXSPRITES },
 #ifdef USE_OPENGL
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postspriteext, 0, 1 },
 #endif

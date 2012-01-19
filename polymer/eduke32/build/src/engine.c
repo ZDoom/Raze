@@ -49,6 +49,10 @@
 
 #define CACHEAGETIME 16
 
+#if !defined DEBUG_MAIN_ARRAYS
+# define HAVE_CLIPSHAPE_FEATURE
+#endif
+
 float debug1, debug2;
 
 static void drawpixel_safe(void *s, char a)
@@ -1110,6 +1114,7 @@ static vec3_t m32_viewplane;
 
 
 ////// sector-like clipping for sprites //////
+#ifdef HAVE_CLIPSHAPE_FEATURE
 typedef struct
 {
     int16_t numsectors, numwalls;
@@ -1644,7 +1649,7 @@ int32_t clipmapinfo_load(const char *filename)
 
     return 0;
 }
-
+#endif
 ////// //////
 
 #define WALLS_ARE_CONSISTENT(k) ((wall[k].x == x2 && wall[k].y == y2)   \
@@ -7676,12 +7681,14 @@ static int32_t preinitcalled = 0;
 // #define DYNALLOC_ARRAYS
 
 #ifndef DYNALLOC_ARRAYS
+# if !defined DEBUG_MAIN_ARRAYS
 static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];
 static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
 static sectortype sector_s[MAXSECTORS + M32_FIXME_SECTORS];
 static walltype wall_s[MAXWALLS + M32_FIXME_WALLS];
 static spritetype sprite_s[MAXSPRITES];
 static spritetype tsprite_s[MAXSPRITESONSCREEN];
+# endif
 #else
 void *blockptr = NULL;
 #endif
@@ -7739,12 +7746,14 @@ int32_t preinitengine(void)
     }
 
 #else
+# if !defined DEBUG_MAIN_ARRAYS
     sector = sector_s;
     wall = wall_s;
     sprite = sprite_s;
     tsprite = tsprite_s;
     spriteext = spriteext_s;
     spritesmooth = spritesmooth_s;
+# endif
     state_compress = (qlz_state_compress *) Bcalloc(sizeof(qlz_state_compress) + sizeof(qlz_state_decompress), 1);
     state_decompress = (qlz_state_decompress *)((int8_t *)(state_compress) + sizeof(qlz_state_compress));
 #endif
@@ -7761,9 +7770,9 @@ int32_t preinitengine(void)
     getvalidmodes();
 
     initcrc32table();
-
+#ifdef HAVE_CLIPSHAPE_FEATURE
     clipmapinfo_init();
-
+#endif
     preinitcalled = 1;
     return 0;
 }
@@ -9014,7 +9023,9 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
 
     kclose(fil);
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
     if (!quickloadboard)
+#endif
     {
         Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
 
@@ -10985,6 +10996,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
                     hitinfo->pos.x = x1; hitinfo->pos.y = y1; hitinfo->pos.z = z1;
                 }
             }
+#ifdef HAVE_CLIPSHAPE_FEATURE
             else
             {
                 for (i=clipinfo[curidx].qbeg; i<clipinfo[curidx].qend; i++)
@@ -10997,6 +11009,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
                     }
                 }
             }
+#endif
         }
     }
 
@@ -11047,6 +11060,7 @@ restart_grand:
     clipspritecnt = clipspritenum = 0;
     do
     {
+#ifdef HAVE_CLIPSHAPE_FEATURE
         if (tempshortcnt >= tempshortnum)
         {
             // one bunch of sectors completed, prepare the next
@@ -11077,10 +11091,11 @@ restart_grand:
             tempshortnum = (int16_t)clipsectnum;
             tempshortcnt = 0;
         }
-
+#endif
         dasector = clipsectorlist[tempshortcnt]; sec = &sector[dasector];
 
         i = 1;
+#ifdef HAVE_CLIPSHAPE_FEATURE
         if (curspr)
         {
             if (dasector == sectq[clipinfo[curidx].qend])
@@ -11090,7 +11105,7 @@ restart_grand:
             }
             else tmp[2] = 0;
         }
-
+#endif
         if (hitscan_trysector(sv, sec, hitinfo, vx,vy,vz, sec->ceilingstat, sec->ceilingheinum, sec->ceilingz, -i, tmpptr))
             continue;
         if (hitscan_trysector(sv, sec, hitinfo, vx,vy,vz, sec->floorstat, sec->floorheinum, sec->floorz, i, tmpptr))
@@ -11127,6 +11142,7 @@ restart_grand:
                     continue;
                 }
             }
+#ifdef HAVE_CLIPSHAPE_FEATURE
             else
             {
                 int32_t cz,fz;
@@ -11147,15 +11163,15 @@ restart_grand:
                     continue;
                 }
             }
-
+#endif
             for (zz=tempshortnum-1; zz>=0; zz--)
                 if (clipsectorlist[zz] == nextsector) break;
             if (zz < 0) clipsectorlist[tempshortnum++] = nextsector;
         }
-
+#ifdef HAVE_CLIPSHAPE_FEATURE
         if (curspr)
             continue;
-
+#endif
         for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
             spr = &sprite[z];
@@ -11165,6 +11181,7 @@ restart_grand:
 #endif
                 if ((cstat&dasprclipmask) == 0) continue;
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
             // try and see whether this sprite's picnum has sector-like clipping data
             i = pictoidx[spr->picnum];
             // handle sector-like floor sprites separately
@@ -11175,7 +11192,7 @@ restart_grand:
                 clipspritelist[clipspritenum++] = z;
                 continue;
             }
-
+#endif
             x1 = spr->x; y1 = spr->y; z1 = spr->z;
             switch (cstat&48)
             {
@@ -11305,8 +11322,10 @@ restart_grand:
     }
     while (++tempshortcnt < tempshortnum || clipspritecnt < clipspritenum);
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
     if (curspr)
         mapinfo_set(NULL, &origmapinfo);
+#endif
 
 #ifdef YAX_ENABLE
     if (numyaxbunches == 0 || editstatus)
@@ -11650,6 +11669,7 @@ int32_t lastwall(int16_t point)
 
 int32_t clipmoveboxtracenum = 3;
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
 static int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)
 {
     int32_t i,k,tempint1,tempint2;
@@ -11773,7 +11793,7 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
 
     return flipmul;
 }
-
+#endif
 
 static int32_t clipmove_warned=0;
 
@@ -11844,6 +11864,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
     clipspritecnt = 0; clipspritenum = 0;
     do
     {
+#ifdef HAVE_CLIPSHAPE_FEATURE
         if (clipsectcnt>=clipsectnum)
         {
             // one bunch of sectors completed (either the very first
@@ -11878,7 +11899,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
             clipsprite_initindex(curidx, curspr, &clipsectcnt, pos);
         }
-
+#endif
 
         dasect = clipsectorlist[clipsectcnt++];
 //if (curspr)
@@ -11904,6 +11925,8 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             if (dax >= day) continue;
 
             clipyou = 0;
+
+#ifdef HAVE_CLIPSHAPE_FEATURE
             if (curspr)
             {
                 if (wal->nextsector>=0)
@@ -11933,7 +11956,9 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                     }
                 }
             }
-            else if ((wal->nextsector < 0) || (wal->cstat&dawalclipmask)) clipyou = 1;
+            else
+#endif
+            if ((wal->nextsector < 0) || (wal->cstat&dawalclipmask)) clipyou = 1;
             else if (editstatus == 0)
             {
                 if (rintersect(pos->x,pos->y,0,gx,gy,0,x1,y1,x2,y2,&dax,&day,&daz) == 0)
@@ -11983,9 +12008,10 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             }
         }
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
         if (curspr)
             continue;  // next sector of this index
-
+#endif
         if (!dasprclipmask)
             continue;
 
@@ -11995,9 +12021,10 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             cstat = spr->cstat;
             if ((cstat&dasprclipmask) == 0) continue;
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
             if (clipsprite_try(spr, xmin,ymin, xmax,ymax))
                 continue;
-
+#endif
             x1 = spr->x; y1 = spr->y;
 
             switch (cstat&48)
@@ -12118,6 +12145,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
     }
     while (clipsectcnt < clipsectnum || clipspritecnt < clipspritenum);
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
     if (curspr)
     {
         // restore original map
@@ -12126,6 +12154,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
         clipsectnum = origclipsectnum;
         Bmemcpy(clipsectorlist, origclipsectorlist, clipsectnum*sizeof(clipsectorlist[0]));
     }
+#endif
 
     hitwall = 0;
     cnt = clipmoveboxtracenum;
@@ -12710,6 +12739,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     clipsectcnt = 0; clipsectnum = 1;
     clipspritecnt = clipspritenum = 0;
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
     if (0)
     {
 beginagain:
@@ -12717,12 +12747,14 @@ beginagain:
         mapinfo_set(&origmapinfo, &clipmapinfo);
         clipsectcnt = clipsectnum;  // should be a nop, "safety"...
     }
+#endif
 
 #ifdef YAX_ENABLE
 restart_grand:
 #endif
     do  //Collect sectors inside your square first
     {
+#ifdef HAVE_CLIPSHAPE_FEATURE
         if (clipsectcnt>=clipsectnum)
         {
             // one set of clip-sprite sectors completed, prepare the next
@@ -12770,7 +12802,7 @@ restart_grand:
                 }
             }
         }
-
+#endif
         sec = &sector[clipsectorlist[clipsectcnt]];
         startwall = sec->wallptr; endwall = startwall + sec->wallnum;
         for (j=startwall,wal=&wall[startwall]; j<endwall; j++,wal++)
@@ -12795,6 +12827,7 @@ restart_grand:
                 if (wal->cstat&dawalclipmask) continue;
                 sec = &sector[k];
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
                 if (curspr)
                 {
                     if (k==sectq[clipinfo[curidx].qend])
@@ -12802,7 +12835,9 @@ restart_grand:
                     if ((sec->ceilingstat&1) && (sec->floorstat&1))
                         continue;
                 }
-                else if (editstatus == 0)
+                else
+#endif
+                if (editstatus == 0)
                 {
                     if (((sec->ceilingstat&1) == 0) && (pos->z <= sec->ceilingz+(3<<8))) continue;
                     if (((sec->floorstat&1) == 0) && (pos->z >= sec->floorz-(3<<8))) continue;
@@ -12825,6 +12860,8 @@ restart_grand:
 #endif
                 //It actually got here, through all the continue's!!!
                 getzsofslope(k, pos->x,pos->y, &daz,&daz2);
+
+#ifdef HAVE_CLIPSHAPE_FEATURE
                 if (curspr)
                 {
                     int32_t fz,cz, hitwhat=(curspr-sprite)+49152;
@@ -12842,6 +12879,7 @@ restart_grand:
                     }
                 }
                 else
+#endif
                 {
 #ifdef YAX_ENABLE
                     int16_t cb, fb;
@@ -12865,11 +12903,13 @@ restart_grand:
     }
     while (clipsectcnt < clipsectnum || clipspritecnt < clipspritenum);
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
     if (curspr)
     {
         mapinfo_set(NULL, &origmapinfo);  // restore original map
         clipsectnum = clipspritenum = 0;  // skip the next for loop and check afterwards
     }
+#endif
 
     for (i=0; i<clipsectnum; i++)
     {
@@ -12879,9 +12919,10 @@ restart_grand:
             cstat = spr->cstat;
             if (cstat&dasprclipmask)
             {
+#ifdef HAVE_CLIPSHAPE_FEATURE
                 if (clipsprite_try(spr, xmin,ymin, xmax,ymax))
                     continue;
-
+#endif
                 x1 = spr->x; y1 = spr->y;
 
                 clipyou = 0;
@@ -12986,8 +13027,10 @@ restart_grand:
         }
     }
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
     if (clipspritenum>0)
         goto beginagain;
+#endif
 
 #ifdef YAX_ENABLE
     if (numyaxbunches > 0)

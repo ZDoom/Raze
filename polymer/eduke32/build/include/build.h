@@ -264,19 +264,30 @@ typedef struct {
 #define SPREXT_TSPRACCESS 16
 #define SPREXT_TEMPINVISIBLE 32
 
+EXTERN int32_t guniqhudid;
+EXTERN int32_t spritesortcnt;
+
+#if !defined DEBUG_MAIN_ARRAYS
 EXTERN spriteext_t *spriteext;
 EXTERN spritesmooth_t *spritesmooth;
-EXTERN int32_t guniqhudid;
 
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
+EXTERN spritetype *sprite;
+EXTERN spritetype *tsprite;
+#else
+EXTERN spriteext_t spriteext[MAXSPRITES+MAXUNIQHUDID];
+EXTERN spritesmooth_t spritesmooth[MAXSPRITES+MAXUNIQHUDID];
+
+EXTERN sectortype sector[MAXSECTORS + M32_FIXME_SECTORS];
+EXTERN walltype wall[MAXWALLS + M32_FIXME_WALLS];
+EXTERN spritetype sprite[MAXSPRITES];
+EXTERN spritetype tsprite[MAXSPRITESONSCREEN];
+#endif
+
 EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN int16_t thewall[MAXWALLSB];
-EXTERN spritetype *sprite;
 EXTERN spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
-
-EXTERN int32_t spritesortcnt;
-EXTERN spritetype *tsprite;
 
 EXTERN int32_t xdim, ydim, numpages;
 EXTERN int32_t yxaspect, viewingrange;
@@ -534,7 +545,9 @@ void   initspritelists(void);
 int32_t   loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
 int32_t   loadmaphack(const char *filename);
 void delete_maphack_lights();
+#if !defined DEBUG_MAIN_ARRAYS
 int32_t clipmapinfo_load(const char *filename);
+#endif
 int32_t   saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
 int32_t   loadpics(const char *filename, int32_t askedsize);
 void   loadtile(int16_t tilenume);
