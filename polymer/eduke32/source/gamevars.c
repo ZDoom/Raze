@@ -932,6 +932,8 @@ void Gv_ResetSystemDefaults(void)
             aplWeaponFlags[i][j]=Gv_GetVarByLabel(aszBuf,0, -1, j);
             Bsprintf(aszBuf,"WEAPON%d_SHOOTS",i);
             aplWeaponShoots[i][j]=Gv_GetVarByLabel(aszBuf,0, -1, j);
+            if ((unsigned)aplWeaponShoots[i][j] >= MAXTILES)
+                aplWeaponShoots[i][j] = 0;
             Bsprintf(aszBuf,"WEAPON%d_SPAWNTIME",i);
             aplWeaponSpawnTime[i][j]=Gv_GetVarByLabel(aszBuf,0, -1, j);
             Bsprintf(aszBuf,"WEAPON%d_SPAWN",i);

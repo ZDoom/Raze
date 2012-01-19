@@ -346,26 +346,27 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
         }
 
 #ifdef POLYMER
-        switch (DynamicTileMap[atwith])
-        {
-        case FIRELASER__STATIC:
-        case SHOTGUN__STATIC:
-        case SHOTSPARK1__STATIC:
-        case CHAINGUN__STATIC:
-        case RPG__STATIC:
-        case MORTER__STATIC:
-        {
-            int32_t x = ((sintable[(s->ang+512)&2047])>>7), y = ((sintable[(s->ang)&2047])>>7);
-            s-> x += x;
-            s-> y += y;
-            G_AddGameLight(0, i, PHEIGHT, 8192, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
-            actor[i].lightcount = 2;
-            s-> x -= x;
-            s-> y -= y;
-        }
+        if (atwith >= 0)
+            switch (DynamicTileMap[atwith])
+            {
+            case FIRELASER__STATIC:
+            case SHOTGUN__STATIC:
+            case SHOTSPARK1__STATIC:
+            case CHAINGUN__STATIC:
+            case RPG__STATIC:
+            case MORTER__STATIC:
+            {
+                int32_t x = ((sintable[(s->ang+512)&2047])>>7), y = ((sintable[(s->ang)&2047])>>7);
+                s-> x += x;
+                s-> y += y;
+                G_AddGameLight(0, i, PHEIGHT, 8192, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                actor[i].lightcount = 2;
+                s-> x -= x;
+                s-> y -= y;
+            }
 
-        break;
-        }
+            break;
+            }
 #endif // POLYMER
     }
 
@@ -1044,7 +1045,7 @@ DOSKIPBULLETHOLE:
         }
 
     }
-    else
+    else if (atwith >= 0)
     {
         switch (DynamicTileMap[atwith])
         {
