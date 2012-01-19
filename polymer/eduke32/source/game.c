@@ -1947,7 +1947,7 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
         }
 }
 
-void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t tile)
+static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t tile)
 {
     if (step > 0)
     {
@@ -3171,9 +3171,9 @@ static int32_t ror_sprite = -1;
 extern float r_ambientlight;
 
 char ror_protectedsectors[MAXSECTORS];
-int32_t drawing_ror = 0;
+static int32_t drawing_ror = 0;
 
-void G_SE40(int32_t smoothratio)
+static void G_SE40(int32_t smoothratio)
 {
     if (ror_sprite != -1)
     {
@@ -6802,7 +6802,7 @@ enum cheatindex_t
     CHEAT_COMEGETSOME,
 };
 
-void G_CheatGetInv(void)
+static void G_CheatGetInv(void)
 {
     Gv_SetVar(g_iReturnVarID, 400, g_player[myconnectindex].ps->i, myconnectindex);
     VM_OnEvent(EVENT_CHEATGETSTEROIDS, g_player[myconnectindex].ps->i, myconnectindex, -1);
@@ -6869,7 +6869,7 @@ void G_CheatGetInv(void)
     }
 }
 
-int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
+static int8_t cheatbuf[MAXCHEATLEN], cheatbuflen;
 
 GAME_STATIC void G_DoCheats(void)
 {
@@ -9702,7 +9702,7 @@ void G_BackToMenu(void)
     wm_setapptitle(tempbuf);
 }
 
-int32_t G_EndOfLevel(void)
+static int32_t G_EndOfLevel(void)
 {
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
     P_UpdateScreenPal(g_player[myconnectindex].ps);

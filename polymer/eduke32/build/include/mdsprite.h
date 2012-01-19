@@ -216,7 +216,7 @@ typedef struct { float xadd, yadd, zadd; int16_t angadd, flags, fov; } hudtyp;
 EXTERN hudtyp hudmem[2][MAXTILES];
 
 EXTERN int32_t mdpause;
-EXTERN int32_t nummodelsalloced, nextmodelid;
+EXTERN int32_t nextmodelid;
 EXTERN voxmodel_t *voxmodels[MAXVOXELS];
 
 void voxfree(voxmodel_t *m);

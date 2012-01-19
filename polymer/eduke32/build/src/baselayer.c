@@ -304,23 +304,6 @@ static int32_t osdcmd_cvar_set_baselayer(const osdfuncparm_t *parm)
 
     if (r != OSDCMD_OK) return r;
 
-    /*
-            if (!Bstrcasecmp(parm->name, "r_scrcaptureformat"))
-            {
-                const char *fmts[] = {"TGA", "PCX"};
-                if (showval) { OSD_Printf("r_scrcaptureformat is %s\n", fmts[captureformat]); }
-                else
-                {
-                    int32_t j;
-                    for (j=0; j<2; j++)
-                        if (!Bstrcasecmp(parm->parms[0], fmts[j])) break;
-                    if (j == 2) return OSDCMD_SHOWHELP;
-                    captureformat = j;
-                }
-                return OSDCMD_OK;
-            }
-            else */
-
     if (!Bstrcasecmp(parm->name, "vid_gamma") || !Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
     {
         setbrightness(GAMMA_CALC,0,0);
@@ -341,7 +324,6 @@ int32_t baselayer_init(void)
         { "r_screenaspect","r_screenaspect: if using the new aspect code and in fullscreen, screen aspect ratio in the form XXYY, e.g. 1609 for 16:9",(void *) &r_screenxy, CVAR_UINT, 100, 9999 },
         { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",(void *) &novoxmips, CVAR_BOOL, 0, 1 },
         { "r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",(void *) &usevoxels, CVAR_BOOL, 0, 1 },
-        /*        { "r_scrcaptureformat","r_scrcaptureformat: sets the output format for screenshots (TGA or PCX)",osdcmd_vars, CVAR_FUNCPTR, 0, 0 },*/
 #ifdef YAX_ENABLE
         { "r_tror_nomaskpass", "r_tror_nomaskpass: enable/disable additional pass in TROR software rendering", (void *)&r_tror_nomaskpass, CVAR_BOOL, 0, 1 },
 #endif

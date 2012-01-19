@@ -202,7 +202,7 @@ extern int32_t althud_numberpal;
 extern int32_t althud_numbertile;
 extern int32_t althud_shadows;
 extern int32_t cacnum;
-extern int32_t drawing_ror;
+//extern int32_t drawing_ror;
 extern int32_t g_Shareware;
 extern int32_t g_cameraClock;
 extern int32_t g_cameraDistance;
@@ -228,7 +228,7 @@ extern int32_t ticrandomseed;
 extern int32_t vote_map;
 extern int32_t voting;
 
-extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
+//extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
 extern palette_t CrosshairColors;
 extern palette_t DefaultCrosshairColors;
@@ -246,7 +246,7 @@ int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss);
 int32_t A_Spawn(int32_t j,int32_t pn);
 int32_t G_DoMoveThings(void);
-int32_t G_EndOfLevel(void);
+//int32_t G_EndOfLevel(void);
 int32_t G_GameTextLen(int32_t x,const char *t);
 int32_t G_PrintGameText(int32_t f,int32_t tile,int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t o,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
 int32_t GetTime(void);
@@ -270,7 +270,7 @@ void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n);
 void G_AddUserQuote(const char *daquote);
 void G_BackToMenu(void);
 void G_BonusScreen(int32_t bonusonly);
-void G_CheatGetInv(void);
+//void G_CheatGetInv(void);
 void G_DisplayRest(int32_t smoothratio);
 void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio);
 void G_DrawBackground(void);
@@ -289,7 +289,7 @@ void G_GetCrosshairColor(void);
 void G_HandleLocalKeys(void);
 void G_HandleSpecialKeys(void);
 void G_PrintGameQuotes(void);
-void G_SE40(int32_t smoothratio);
+//void G_SE40(int32_t smoothratio);
 #ifdef YAX_ENABLE
 void G_AnalyzeSprites(void);
 #endif
@@ -303,8 +303,7 @@ void P_SetGamePalette(DukePlayer_t *player,uint8_t palid,int32_t set);
 int32_t app_main(int32_t argc,const char **argv);
 void computergetinput(int32_t snum,input_t *syn);
 void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step);
-void fadepaltile(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t tile);
-void sendscore(const char *s);
+//void fadepaltile(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t tile);
 
 static inline int32_t G_GetTeamPalette(int32_t team)
 {

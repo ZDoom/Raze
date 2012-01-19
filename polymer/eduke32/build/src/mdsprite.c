@@ -36,17 +36,31 @@ static void QuitOnFatalError(const char *msg)
 
 static int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
 {
+    // tile >= 0 && tile < MAXTILES
+
     UNREFERENCED_PARAMETER(model);
-    if (curextra==MAXTILES+EXTRATILES-2)return curextra;
-    if (tile2model[tile].modelid==-1) {tile2model[tile].pal=pallet; return tile;}
-    if (tile2model[tile].pal==pallet)return tile;
+    if (curextra==MAXTILES+EXTRATILES-1)
+        return curextra;
+
+    if (tile2model[tile].modelid==-1)
+    {
+        tile2model[tile].pal=pallet;
+        return tile;
+    }
+
+    if (tile2model[tile].pal==pallet)
+        return tile;
+
     while (tile2model[tile].next!=-1)
     {
         tile=tile2model[tile].next;
-        if (tile2model[tile].pal==pallet)return tile;
+        if (tile2model[tile].pal==pallet)
+            return tile;
     }
+
     tile2model[tile].next=curextra;
     tile2model[curextra].pal=pallet;
+
     return curextra++;
 }
 int32_t Ptile2tile(int32_t tile,int32_t pallet)
@@ -63,7 +77,8 @@ int32_t mdinited=0;
 int32_t mdpause=0;
 
 #define MODELALLOCGROUP 256
-int32_t nummodelsalloced = 0, nextmodelid = 0;
+static int32_t nummodelsalloced = 0;
+int32_t nextmodelid = 0;
 
 static int32_t maxmodelverts = 0, allocmodelverts = 0;
 static int32_t maxmodeltris = 0, allocmodeltris = 0;

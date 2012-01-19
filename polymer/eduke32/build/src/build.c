@@ -307,8 +307,8 @@ int32_t m32_numdebuglines=0;
 
 static void M32_drawdebug(void)
 {
-    int i;
-    int x=4, y=8;
+    int32_t i;
+    int32_t x=4, y=8;
 
 #if 0
     {

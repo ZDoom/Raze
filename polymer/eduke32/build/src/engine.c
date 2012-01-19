@@ -7821,7 +7821,7 @@ int32_t initengine(void)
 
     searchit = 0; searchstat = -1;
 
-    for (i=0; i<MAXPALOOKUPS; i++) palookup[i] = NULL;
+//    for (i=0; i<MAXPALOOKUPS; i++) palookup[i] = NULL;
 /*
     clearbuf(&waloff[0],(int32_t)MAXTILES,0L);
 
@@ -7834,8 +7834,6 @@ int32_t initengine(void)
     totalclock = 0;
     visibility = 512;
     parallaxvisibility = 512;
-
-    captureformat = 0;
 
     loadpalette();
 #ifdef USE_OPENGL
@@ -10397,7 +10395,7 @@ int32_t allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     return(waloff[tilenume]);
 }
 
-
+#if 0
 //
 // copytilepiece
 //
@@ -10437,7 +10435,7 @@ void copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, in
         }
     }
 }
-
+#endif
 
 //
 // qloadkvx

@@ -1918,7 +1918,7 @@ static int32_t C_ParseCommand(void)
 
             if (nsize == osize)
             {
-                int ii, equal=2, linedif = 0, ow, nw;
+                int32_t ii, equal=2, linedif = 0, ow, nw;
 
                 for (ii=0; ii<nsize; ii++)
                 {
@@ -2129,7 +2129,7 @@ static int32_t C_ParseCommand(void)
 
             if (osize == nsize)
             {
-                int ii, equal=2, linedif=0, nw, ow;
+                int32_t ii, equal=2, linedif=0, nw, ow;
 
                 for (ii=0; ii<nsize; ii++)
                 {
