@@ -3563,14 +3563,19 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             else if (ud.camera.z > (p->truefz - (4<<8))) ud.camera.z = fz - (4<<8);
         }
 
-        if (ud.camerasect >= 0)
+        while (ud.camerasect >= 0)  // if, really
         {
             getzsofslope(ud.camerasect,ud.camera.x,ud.camera.y,&cz,&fz);
 #ifdef YAX_ENABLE
             if (yax_getbunch(ud.camerasect, YAX_CEILING) >= 0)
             {
                 if (ud.camera.z < cz)
+                {
                     updatesectorz(ud.camera.x, ud.camera.y, ud.camera.z, &ud.camerasect);
+                    break;  // since ud.camerasect might have been updated to -1
+                    // NOTE: fist discovered in WGR2 SVN r134, til' death level 1
+                    //  (Lochwood Hollow).  A problem REMAINS with Polymost, maybe classic!
+                }
             }
             else
 #endif
@@ -3585,6 +3590,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             else
 #endif
                 if (ud.camera.z > fz-(4<<8)) ud.camera.z = fz-(4<<8);
+
+            break;
         }
 
         if (ud.camerahoriz > HORIZ_MAX) ud.camerahoriz = HORIZ_MAX;
