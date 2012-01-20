@@ -17,6 +17,9 @@
 # define YAX_MAXDRAWS 8
 #endif
 
+//#define OBSOLETE_RENDMODES
+
+
 extern uint8_t **basepaltableptr;
 extern uint8_t basepalcount;
 extern uint8_t curbasepal;
@@ -54,7 +57,9 @@ extern char inpreparemirror;
 extern int32_t curbrightness, gammabrightness;
 extern char britable[16][256];
 extern char picsiz[MAXTILES];
+#ifdef OBSOLETE_RENDMODES
 extern int32_t lastx[MAXYDIM];
+#endif
 extern char *transluc;
 extern int16_t sectorborder[256], sectorbordercnt;
 extern int32_t qsetmode;

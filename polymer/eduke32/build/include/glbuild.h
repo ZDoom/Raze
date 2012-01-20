@@ -1,3 +1,7 @@
+
+#ifndef BGLBUILD_H_INCLUDED_
+#define BGLBUILD_H_INCLUDED_
+
 #ifdef USE_OPENGL
 
 #ifdef RENDERTYPEWIN
@@ -340,3 +344,5 @@ int32_t unloadgldriver(void);
 
 int32_t loadglulibrary(const char *driver);
 int32_t unloadglulibrary(void);
+
+#endif

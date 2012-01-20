@@ -2161,11 +2161,15 @@ int32_t globalx, globaly, globalz;
 
 int16_t sectorborder[256], sectorbordercnt;
 static char tablesloaded = 0;
-int32_t pageoffset, ydim16, qsetmode = 0;
+int32_t ydim16, qsetmode = 0;
 int32_t startposx, startposy, startposz;
 int16_t startang, startsectnum;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
+#ifndef OBSOLETE_RENDMODES
+static int32_t lastx[MAXYDIM];
+#else
 int32_t lastx[MAXYDIM];
+#endif
 char *transluc = NULL, paletteloaded = 0;
 
 int32_t halfxdim16, midydim16;
@@ -5916,20 +5920,20 @@ static void drawsprite(int32_t snum)
             switch (smostwalltype[i])
             {
             case 0:
-                    if (dalx2 <= darx2)
-                    {
-                        if ((dalx2 == lx) && (darx2 == rx)) return;
-                        //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
-                        for (x=dalx2; x<=darx2; x++) dwall[x] = 0;
-                    }
+                if (dalx2 <= darx2)
+                {
+                    if ((dalx2 == lx) && (darx2 == rx)) return;
+                    //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
+                    for (x=dalx2; x<=darx2; x++) dwall[x] = 0;
+                }
                 break;
             case 1:
-                    k = smoststart[i] - xb1[j];
+                k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                 break;
             case 2:
-                    k = smoststart[i] - xb1[j];
+                k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
                 break;

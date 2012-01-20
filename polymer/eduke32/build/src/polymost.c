@@ -91,8 +91,6 @@ Low priority:
 extern int32_t filelength(int h); // kplib.c
 #endif
 
-//#define OBSOLETE_RENDMODES
-
 extern char textfont[2048], smalltextfont[2048];
 
 int32_t rendmode=0;
