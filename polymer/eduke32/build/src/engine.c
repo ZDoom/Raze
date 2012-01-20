@@ -15158,15 +15158,19 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     faketimerhandler();
 
-    if (zoome >= 256 || highlightcnt>0 /*|| editstatus == 0*/)
+    if (zoome >= 256 || highlightcnt>0)
         for (j=0; j<MAXSPRITES; j++)
-            if (sprite[j].statnum<MAXSTATUS /*&& (editstatus == 1 || (show2dsprite[j>>3]&pow2char[j&7]))*/)
+            if (sprite[j].statnum<MAXSTATUS)
             {
-                if (!m32_sideview && sprite[j].sectnum >= 0)
-                    YAX_SKIPSECTOR(sprite[j].sectnum);
+                // if sprite is highlighted, always draw it
+                if ((show2dsprite[j>>3]&pow2char[j&7])==0)
+                {
+                    if (!m32_sideview && sprite[j].sectnum >= 0)
+                        YAX_SKIPSECTOR(sprite[j].sectnum);
 
-                if (zoome<256 && (show2dsprite[j>>3]&pow2char[j&7])==0)
-                    continue;
+                    if (zoome<256)
+                        continue;
+                }
 
                 if (!m32_sideview)
                     drawscreen_drawsprite(j,posxe,posye,posze,zoome);
