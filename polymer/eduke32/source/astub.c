@@ -4206,7 +4206,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 #ifdef USE_OPENGL
     setpolymost2dview();
 
-	if (rendmode >= 3)
+    if (rendmode >= 3)
     {
         bglEnable(GL_TEXTURE_2D);
 
@@ -4313,8 +4313,8 @@ restart:
     showframe(1);
 
 #ifdef USE_OPENGL
-	if (rendmode >= 3 && g_lazy_tileselector)
-		bglDrawBuffer(GL_BACK);
+    if (rendmode >= 3 && g_lazy_tileselector)
+        bglDrawBuffer(GL_BACK);
 #endif
 
     return 0;
@@ -4751,7 +4751,7 @@ ENDFOR1:
             day -= ((sp->xrepeat*spcgap[alphidx]*sintable[(daang+512)&2047])>>17);
             doingspace = 1;
         }
-        else if (ch == 8)  	// backspace
+        else if (ch == 8)  // backspace
         {
             if (doingspace)
                 doingspace = 0;
@@ -7348,7 +7348,7 @@ paste_ceiling_or_floor:
                 asksave = 1;
             }
         }
-        else	//C
+        else  //C
         {
             if (AIMING_AT_SPRITE)
             {
