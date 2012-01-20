@@ -1450,7 +1450,7 @@ static void free_n_ptrs(void **ptrptr, int32_t n)
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 {
     int32_t i, j, k, m, tmpnumwalls=0, tmpnumsprites=0;
-    int16_t *const otonsect = (int16_t *)tempxyar;
+    int16_t *const otonsect = (int16_t *)tempxyar;  // STRICTALIASING
     int16_t *const otonwall = ((int16_t *)tempxyar) + MAXWALLS;
 #ifdef YAX_ENABLE
     int16_t otonbunch[YAX_MAXBUNCHES];
@@ -3298,7 +3298,14 @@ void overheadeditor(void)
 #endif
             if (highlightsectorcnt > 0)
             {
+                int16_t *const otonwall = onextwall;  // OK, since we make old-nextwalls invalid
+
+                mkonwinvalid();
+
                 keystatus[0x2d] = keystatus[0x15] = 0;
+
+                for (j=0; j<numwalls; j++)
+                    otonwall[j] = j;
 
                 get_sectors_center(highlightsector, highlightsectorcnt, &dax, &day);
 
@@ -3328,9 +3335,6 @@ void overheadeditor(void)
 
                     for (j=startwall; j<=endwall; j++)
                     {
-                        // NEXTWALL tweak: keep nextsector!
-                        wall[j].nextwall = -1;
-
                         //fix position of walls
                         if (about_x)
                         {
@@ -3367,6 +3371,9 @@ void overheadeditor(void)
                                 Bmemcpy(&tempwall, &wall[startofloop+w], sizeof(walltype));
                                 Bmemcpy(&wall[startofloop+w], &wall[endofloop-w+1], sizeof(walltype));
                                 Bmemcpy(&wall[endofloop-w+1], &tempwall, sizeof(walltype));
+
+                                otonwall[startofloop+w] = endofloop-w+1;
+                                otonwall[endofloop-w+1] = startofloop+w;
                             }
 
                             //make point2 point to next wall in loop
@@ -3404,14 +3411,23 @@ void overheadeditor(void)
                     }
                 }
 
-                mkonwinvalid();
-
-                // NEXTWALL tweak: finally, construct the nextwalls for the new arrangement!
+                // finally, construct the nextwalls and yax-nextwalls
+                // for the new arrangement!
                 for (i=0; i<highlightsectorcnt; i++)
                 {
                     for (WALLS_OF_SECTOR(i, j))
-                        if (wall[j].nextsector >= 0)
-                            checksectorpointer(j, highlightsector[i]);
+                    {
+                        if (wall[j].nextwall >= 0)
+                            wall[j].nextwall = otonwall[wall[j].nextwall];
+#ifdef YAX_ENABLE
+                        {
+                            int32_t cf, ynw;
+                            for (cf=0; cf<2; cf++)
+                                if ((ynw = yax_getnextwall(j, cf)) >= 0)
+                                    yax_setnextwall(j, cf, otonwall[ynw]);
+                        }
+#endif
+                    }
                 }
 
                 printmessage16("Selected sector(s) flipped");
