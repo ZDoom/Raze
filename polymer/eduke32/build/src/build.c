@@ -7752,8 +7752,7 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line)
         }
     }
 
-    j = wall[closest].nextwall;
-    if (closest>=0 && j >= 0)
+    if (closest>=0 && (j = wall[closest].nextwall) >= 0)
 #ifdef YAX_ENABLE
     if (m32_sideview || ((graywallbitmap[j>>3]&(1<<(j&7)))==0))
 #endif
