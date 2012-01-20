@@ -142,7 +142,7 @@ static int32_t artsize = 0, cachesize = 0;
 static char *artptrs[MAXTILEFILES];
 
 static int16_t radarang2[MAXXDIM];
-static uint16_t sqrtable[4096], shlookup[4096+256];
+static uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
 char pow2char[8] = {1,2,4,8,16,32,64,128};
 int32_t pow2long[32] =
 {
@@ -1814,13 +1814,6 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
 }
 
 #undef WALLS_ARE_CONSISTENT
-
-#ifdef __clang__
-int32_t engine_dummy_function_to_keep_symbols(void)
-{
-    return shlookup[0] | sqrtable[0];
-}
-#endif
 
 
 #if defined(_MSC_VER) && !defined(NOASM)

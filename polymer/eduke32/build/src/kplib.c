@@ -174,26 +174,19 @@ static int32_t bakr = 0x80, bakg = 0x80, bakb = 0x80; //this used to be public..
 static int32_t gslidew = 0, gslider = 0, xm, xmn[4], xr0, xr1, xplc, yplc;
 static intptr_t nfplace;
 static int32_t clen[320], cclen[19], bitpos, filt, xsiz, ysiz;
-static int32_t xsizbpl, ixsiz, ixoff, iyoff, ixstp, iystp, intlac, nbpl, trnsrgb ASMNAME("trnsrgb");
+static int32_t xsizbpl, ixsiz, ixoff, iyoff, ixstp, iystp, intlac, nbpl, ATTRIBUTE((used)) trnsrgb ASMNAME("trnsrgb");
 static int32_t ccind[19] = {16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15};
 static int32_t hxbit[59][2], ibuf0[288], nbuf0[32], ibuf1[32], nbuf1[32];
 static const uint8_t *filptr;
 static uint8_t slidebuf[32768], opixbuf0[4], opixbuf1[4];
 static uint8_t pnginited = 0, olinbuf[131072] ASMNAME("olinbuf"); //WARNING:max xres is: 131072/bpp-1
-static int32_t gotcmov = -2, abstab10[1024] ASMNAME("abstab10");
+static int32_t gotcmov = -2, ATTRIBUTE((used)) abstab10[1024] ASMNAME("abstab10");
 
 //Variables to speed up dynamic Huffman decoding:
 #define LOGQHUFSIZ0 9
 #define LOGQHUFSIZ1 6
 static int32_t qhufval0[1<<LOGQHUFSIZ0], qhufval1[1<<LOGQHUFSIZ1];
 static uint8_t qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
-
-#ifdef __clang__
-int32_t kplib_dummy_function_to_keep_symbols(void)
-{
-    return abstab10[0] | trnsrgb;
-}
-#endif
 
 #if defined(_MSC_VER) && !defined(NOASM)
 
