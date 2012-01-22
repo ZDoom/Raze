@@ -3896,7 +3896,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     mdskinmap_t*    sk;
     float           *v0, *v1;
     md3surf_t       *s;
-    char            lpal, targetpal, usinghighpal, foundpalskin;
+    char            targetpal, usinghighpal, foundpalskin;
     float           spos2[3], spos[3], tspos[3], lpos[3], tlpos[3], vec[3], mat[4][4];
     float           ang;
     float           scale;
@@ -3909,10 +3909,10 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     char            modellightcount;
     uint8_t         curpriority;
 
-    m = (md3model_t*)models[tile2model[Ptile2tile(tspr->picnum,sprite[tspr->owner].pal)].modelid];
-    updateanimation((md2model_t *)m,tspr);
+    uint8_t lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
-    lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
+    m = (md3model_t*)models[tile2model[Ptile2tile(tspr->picnum,lpal)].modelid];
+    updateanimation((md2model_t *)m,tspr,lpal);
 
     if ((pr_vbos > 1) && (m->indices == NULL))
         polymer_loadmodelvbos(m);

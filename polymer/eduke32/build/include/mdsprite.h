@@ -204,7 +204,7 @@ typedef struct
 
 EXTERN mdmodel_t **models;
 
-void updateanimation(md2model_t *m, const spritetype *tspr);
+void updateanimation(md2model_t *m, const spritetype *tspr, uint8_t lpal);
 int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf);
 void mdinit(void);
 void freeallmodels(void);

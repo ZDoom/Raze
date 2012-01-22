@@ -919,12 +919,11 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 }
 
 //Note: even though it says md2model, it works for both md2model&md3model
-void updateanimation(md2model_t *m, const spritetype *tspr)
+void updateanimation(md2model_t *m, const spritetype *tspr, uint8_t lpal)
 {
     mdanim_t *anim;
     int32_t i, j, k;
     int32_t fps;
-    char lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
     if (m->numframes < 2)
     {
@@ -1905,14 +1904,14 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     void               *vbotemp;
     point3d            *vertexhandle = NULL;
     uint16_t     *indexhandle;
-    char lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
+    uint8_t lpal = (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal;
 
     if (r_vbos && (m->vbos == NULL))
         mdloadvbos(m);
 
     //    if ((tspr->cstat&48) == 32) return 0;
 
-    updateanimation((md2model_t *)m,tspr);
+    updateanimation((md2model_t *)m, tspr, lpal);
 
     //create current&next frame's vertex list from whole list
 
