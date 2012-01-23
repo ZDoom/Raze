@@ -285,13 +285,13 @@ void S_PlaySound(int32_t num)
 
     if (!SM32_havesound) return;
     if (SoundToggle==0) return;
-//    if ((g_sounds[num].m&8) && ud.lockout) return;
-    if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return;
-    if (num < 0 || num > MAXSOUNDS-1 || !g_sounds[num].filename)
+    if ((unsigned)num >= MAXSOUNDS || !g_sounds[num].filename)
     {
         OSD_Printf("WARNING: invalid sound #%d\n",num);
         return;
     }
+//    if ((g_sounds[num].m&8) && ud.lockout) return;
+    if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return;
 
     pitchs = g_sounds[num].ps;
     pitche = g_sounds[num].pe;
@@ -323,11 +323,13 @@ void S_PlaySound(int32_t num)
     }
     else
     {
-        voice = FX_PlayAuto3D(g_sounds[ num ].ptr, g_sounds[num].soundsiz, pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
+        voice = FX_PlayAuto3D(g_sounds[num].ptr, g_sounds[num].soundsiz,
+                              pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
     }
 
-    if (voice >= FX_Ok)// return;
+    if (voice >= FX_Ok)
     {
+        g_sounds[num].SoundOwner[g_sounds[num].num].i = -1;
         g_sounds[num].SoundOwner[g_sounds[num].num].voice = voice;
         g_sounds[num].num++;
         return;
@@ -449,11 +451,14 @@ void S_Callback(uint32_t num)
             for (j=0; j<k; j++)
             {
                 i = g_sounds[num].SoundOwner[j].i;
+                if (i < 0)
+                    continue;
+
                 if (sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
                 {
 //                    ActorExtra[i].temp_data[0] = 0;
                     sprite[i].filler &= (~1);
-                    if ((j + 1) < k)
+                    if (j < k-1)
                     {
                         g_sounds[num].SoundOwner[j].voice = g_sounds[num].SoundOwner[k-1].voice;
                         g_sounds[num].SoundOwner[j].i     = g_sounds[num].SoundOwner[k-1].i;
