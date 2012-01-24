@@ -6207,11 +6207,7 @@ end_join_sectors:
                     inpclamp(&day, -editorgridextent, editorgridextent);
 
                     if (bad > 0 && goodtogo)
-                    {
-                        insertpoint(circlewall,dax,day,NULL);
-                        if (wall[circlewall].nextwall >= 0 && wall[circlewall].nextwall < circlewall)
-                            circlewall++;
-                    }
+                        insertpoint(circlewall, dax,day, &circlewall);
 
                     dax = mulscale14(dax-pos.x,zoom);
                     day = mulscale14(day-pos.y,zoom);
