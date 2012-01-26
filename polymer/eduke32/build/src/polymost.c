@@ -4550,6 +4550,10 @@ void polymost_drawrooms()
 
     numscans = numbunches = 0;
 
+    // MASKWALL_BAD_ACCESS
+    // Fixes access of stale maskwall[maskwallcnt] (a "scan" index, in BUILD lingo):
+    maskwallcnt = 0;
+
     if (globalcursectnum >= MAXSECTORS)
         globalcursectnum -= MAXSECTORS;
     else
@@ -4624,6 +4628,11 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     z = maskwall[damaskwallcnt];
     wal = &wall[thewall[z]]; wal2 = &wall[wal->point2];
     sectnum = thesector[z]; sec = &sector[sectnum];
+
+//    if (wal->nextsector < 0) return;
+    // Without MASKWALL_BAD_ACCESS fix:
+    // wal->nextsector is -1, WGR2 SVN Lochwood Hollow (Til' Death L1)  (or trueror1.map)
+
     nsec = &sector[wal->nextsector];
     z1 = max(nsec->ceilingz,sec->ceilingz);
     z2 = min(nsec->floorz,sec->floorz);
