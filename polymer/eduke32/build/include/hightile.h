@@ -8,10 +8,10 @@ struct hicskybox_t {
 
 typedef struct hicreplc_t {
     struct hicreplc_t *next;
-    char palnum, ignore, flags, filler;
     char *filename;
-    float alphacut, xscale, yscale, specpower, specfactor;
     struct hicskybox_t *skybox;
+    char palnum, ignore, flags, filler;
+    float alphacut, xscale, yscale, specpower, specfactor;
 } hicreplctyp;
 
 extern palette_t hictinting[MAXPALOOKUPS];
