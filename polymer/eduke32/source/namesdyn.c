@@ -1544,7 +1544,9 @@ void freehashnames()
 void G_InitDynamicTiles(void)
 {
     int32_t i = 0;
-    clearbufbyte(DynamicTileMap,MAXTILES,0);
+
+    Bmemset(DynamicTileMap, 0, sizeof(DynamicTileMap));
+
     while (list[i].val)
     {
         DynamicTileMap[list[i].val]=list[i].vstat;
