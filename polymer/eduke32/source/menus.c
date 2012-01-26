@@ -51,7 +51,10 @@ static int32_t vidsets[16] = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 }
 static int32_t curvidset, newvidset = 0;
 static int32_t soundbits, soundvoices, soundrate;
 #undef MAXMOUSEBUTTONS
-#define MAXMOUSEBUTTONS 6 // FIXME: menu needs an update for extra buttons
+//#define MAXMOUSEBUTTONS 7 // FIXME: menu needs an update for extra buttons
+#define NUMDOUBLEMBTNS 3  // # of mouse buttons that can be double-clicked (mouse1 - mouse3)
+#define NUMSINGLEMBTNS 4  // # of mouse buttons that can only be single-clicked (the rest)
+#define NUMMOUSEFUNCTIONS (NUMDOUBLEMBTNS*2+NUMSINGLEMBTNS)
 static char *mousebuttonnames[] = { "Mouse1", "Mouse2", "Mouse3", "Mouse4", "Wheel Up", "Wheel Down", "Mouse5", "Mouse6", "Mouse7", "Mouse8"};
 
 extern int32_t voting;
@@ -3626,11 +3629,11 @@ cheat_for_port_credits:
 
         c = 60-4;
 
-        onbar = (probey == (MAXMOUSEBUTTONS-2)*2+2);
-        if (probey < (MAXMOUSEBUTTONS-2)*2+2)
-            x = probesm(73,38,8,(MAXMOUSEBUTTONS-2)*2+2+2+2+1);
+        onbar = (probey == NUMMOUSEFUNCTIONS);
+        if (probey < NUMMOUSEFUNCTIONS)
+            x = probesm(73,38,8,NUMMOUSEFUNCTIONS+2+2+1);
         else
-            x = probesm(40,123-((MAXMOUSEBUTTONS-2)*2+2)*9,9,(MAXMOUSEBUTTONS-2)*2+2+2+2+1);
+            x = probesm(40,123-(NUMMOUSEFUNCTIONS)*9,9,NUMMOUSEFUNCTIONS+2+2+1);
 
         if (x==-1)
         {
@@ -3638,27 +3641,27 @@ cheat_for_port_credits:
             probey = 5;
             break;
         }
-        else if (x == (MAXMOUSEBUTTONS-2)*2+2)
+        else if (x == NUMMOUSEFUNCTIONS)
         {
             // sensitivity
         }
-        else if (x == (MAXMOUSEBUTTONS-2)*2+2+1)
+        else if (x == NUMMOUSEFUNCTIONS+1)
         {
             // mouse aiming toggle
             if (!ud.mouseaiming) g_myAimMode = 1-g_myAimMode;
         }
-        else if (x == (MAXMOUSEBUTTONS-2)*2+2+2)
+        else if (x == NUMMOUSEFUNCTIONS+2)
         {
             // invert mouse aim
             ud.mouseflip = 1-ud.mouseflip;
         }
-        else if (x == (MAXMOUSEBUTTONS-2)*2+2+2+1)
+        else if (x == NUMMOUSEFUNCTIONS+2+1)
         {
             //input smoothing
             ud.config.SmoothInput = !ud.config.SmoothInput;
             control_smoothmouse = ud.config.SmoothInput;
         }
-        else if (x == (MAXMOUSEBUTTONS-2)*2+2+2+2)
+        else if (x == NUMMOUSEFUNCTIONS+2+2)
         {
             //advanced
             ChangeToMenu(212);
@@ -3670,18 +3673,18 @@ cheat_for_port_credits:
             ChangeToMenu(211);
             function = 0;
             whichkey = x;
-            if (x < (MAXMOUSEBUTTONS-2)*2)
+            if (x < NUMDOUBLEMBTNS*2)
                 probey = ud.config.MouseFunctions[x>>1][x&1];
             else
-                probey = ud.config.MouseFunctions[x-4][0];
+                probey = ud.config.MouseFunctions[x-NUMDOUBLEMBTNS][0];
             if (probey < 0) probey = NUMGAMEFUNCTIONS-1;
             break;
         }
 
-        for (l=0; l < (MAXMOUSEBUTTONS-2)*2+2; l++)
+        for (l=0; l < NUMMOUSEFUNCTIONS; l++)
         {
             tempbuf[0] = 0;
-            if (l < (MAXMOUSEBUTTONS-2)*2)
+            if (l < NUMDOUBLEMBTNS*2)
             {
                 if (l&1)
                 {
@@ -3694,8 +3697,8 @@ cheat_for_port_credits:
             }
             else
             {
-                Bstrcpy(tempbuf, mousebuttonnames[l-(MAXMOUSEBUTTONS-2)]);
-                m = ud.config.MouseFunctions[l-(MAXMOUSEBUTTONS-2)][0];
+                Bstrcpy(tempbuf, mousebuttonnames[l-NUMDOUBLEMBTNS]);
+                m = ud.config.MouseFunctions[l-NUMDOUBLEMBTNS][0];
             }
 
             minitextshade(c+20,34+l*8,tempbuf,(l==probey)?0:16,1,10+16);
@@ -3710,39 +3713,40 @@ cheat_for_port_credits:
             }
         }
 
-        mgametextpal(40,118,"Base mouse sensitivity",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),10);
-        mgametextpal(40,118+9,"Use mouse aiming",!ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):DISABLEDMENUSHADE,10);
-        mgametextpal(40,118+9+9,"Invert mouse",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2),10);
-        mgametextpal(40,118+9+9+9,"Smooth mouse movement",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1),10);
-        mgametextpal(40,118+9+9+9+9,"Advanced mouse setup",MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+2),10);
+        mgametextpal(40,118,"Base mouse sensitivity",MENUHIGHLIGHT(NUMMOUSEFUNCTIONS),10);
+        mgametextpal(40,118+9,"Use mouse aiming",!ud.mouseaiming?MENUHIGHLIGHT(NUMMOUSEFUNCTIONS+1):DISABLEDMENUSHADE,10);
+        mgametextpal(40,118+9+9,"Invert mouse",MENUHIGHLIGHT(NUMMOUSEFUNCTIONS+2),10);
+        mgametextpal(40,118+9+9+9,"Smooth mouse movement",MENUHIGHLIGHT(NUMMOUSEFUNCTIONS+2+1),10);
+        mgametextpal(40,118+9+9+9+9,"Advanced mouse setup",MENUHIGHLIGHT(NUMMOUSEFUNCTIONS+2+2),10);
 
         {
             int32_t sense = (int32_t)(CONTROL_MouseSensitivity * 4.0f);
             sense = clamp(sense, 0, 63);
-            barsm(248,126,&sense,2,x==(MAXMOUSEBUTTONS-2)*2+2,MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2),PHX(-7));
+            barsm(248,126,&sense,2,x==NUMMOUSEFUNCTIONS,MENUHIGHLIGHT(NUMMOUSEFUNCTIONS),PHX(-7));
             CONTROL_MouseSensitivity = sense / 4.0f;
         }
 
-        if (!ud.mouseaiming) modval(0,1,(int32_t *)&g_myAimMode,1,probey == (MAXMOUSEBUTTONS-2)*2+2+1);
-        else if (probey == (MAXMOUSEBUTTONS-2)*2+2+1)
+        if (!ud.mouseaiming) modval(0,1,(int32_t *)&g_myAimMode,1,probey == NUMMOUSEFUNCTIONS+1);
+        else if (probey == NUMMOUSEFUNCTIONS+1)
         {
             mgametext(160,140+9+9+9,"SET MOUSE AIM TYPE TO TOGGLE ON/OFF",0,2+8+16);
             mgametext(160,140+9+9+9+9,"IN THE PLAYER SETUP MENU TO ENABLE",0,2+8+16);
         }
 
-        modval(0,1,(int32_t *)&ud.mouseflip,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2);
-        modval(0,1,(int32_t *)&ud.config.SmoothInput,1,probey == (MAXMOUSEBUTTONS-2)*2+2+2+1);
-        if (probey == (MAXMOUSEBUTTONS-2)*2+2+2+1)
+        modval(0,1,(int32_t *)&ud.mouseflip,1,probey == NUMMOUSEFUNCTIONS+2);
+        modval(0,1,(int32_t *)&ud.config.SmoothInput,1,probey == NUMMOUSEFUNCTIONS+2+1);
+        if (probey == NUMMOUSEFUNCTIONS+2+1)
         {
 //            mgametext(160,160+9,"THIS OPTION INCURS A MOVEMENT DELAY",0,2+8+16);
             control_smoothmouse = ud.config.SmoothInput;
         }
 
-        mgametextpal(240,118+9, g_myAimMode && !ud.mouseaiming ? "Yes" : "No", !ud.mouseaiming?MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+1):DISABLEDMENUSHADE, 0);
-        mgametextpal(240,118+9+9, !ud.mouseflip ? "Yes" : "No", MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2), 0);
-        mgametextpal(240,118+9+9+9, ud.config.SmoothInput ? "Yes" : "No", MENUHIGHLIGHT((MAXMOUSEBUTTONS-2)*2+2+2+1), 0);
+        mgametextpal(240,118+9, g_myAimMode && !ud.mouseaiming ? "Yes" : "No",
+                     !ud.mouseaiming?MENUHIGHLIGHT(NUMMOUSEFUNCTIONS+1):DISABLEDMENUSHADE, 0);
+        mgametextpal(240,118+9+9, !ud.mouseflip ? "Yes" : "No", MENUHIGHLIGHT(NUMMOUSEFUNCTIONS+2), 0);
+        mgametextpal(240,118+9+9+9, ud.config.SmoothInput ? "Yes" : "No", MENUHIGHLIGHT(NUMMOUSEFUNCTIONS+2+1), 0);
 
-        if (probey < (MAXMOUSEBUTTONS-2)*2+2)
+        if (probey < NUMMOUSEFUNCTIONS)
         {
             mgametext(160,160+9,"UP/DOWN = SELECT BUTTON",0,2+8+16);
             mgametext(160,160+9+9,"ENTER = MODIFY",0,2+8+16);
@@ -3792,7 +3796,7 @@ cheat_for_port_credits:
 
             if (function == 0)
             {
-                if (whichkey < (MAXMOUSEBUTTONS-2)*2)
+                if (whichkey < NUMDOUBLEMBTNS*2)
                 {
                     ud.config.MouseFunctions[whichkey>>1][whichkey&1] = x;
                     CONTROL_MapButton(x, whichkey>>1, whichkey&1, controldevice_mouse);
@@ -3800,9 +3804,9 @@ cheat_for_port_credits:
                 }
                 else
                 {
-                    ud.config.MouseFunctions[whichkey-(MAXMOUSEBUTTONS-2)][0] = x;
-                    CONTROL_MapButton(x, whichkey-(MAXMOUSEBUTTONS-2), 0, controldevice_mouse);
-                    MouseBindings[whichkey-(MAXMOUSEBUTTONS-2)].cmd[0] = 0;
+                    ud.config.MouseFunctions[whichkey-NUMDOUBLEMBTNS][0] = x;
+                    CONTROL_MapButton(x, whichkey-NUMDOUBLEMBTNS, 0, controldevice_mouse);
+                    MouseBindings[whichkey-NUMDOUBLEMBTNS].cmd[0] = 0;
                 }
                 ChangeToMenu(205);
                 probey = whichkey;
@@ -3843,10 +3847,10 @@ cheat_for_port_credits:
 
         if (function == 0)
         {
-            if (whichkey < (MAXMOUSEBUTTONS-2)*2)
+            if (whichkey < NUMDOUBLEMBTNS*2)
                 Bsprintf(tempbuf,"TO %s%s", (whichkey&1)?"DOUBLE-CLICKED ":"", mousebuttonnames[whichkey>>1]);
             else
-                Bstrcpy(tempbuf, mousebuttonnames[whichkey-(MAXMOUSEBUTTONS-2)]);
+                Bstrcpy(tempbuf, mousebuttonnames[whichkey-NUMDOUBLEMBTNS]);
         }
         else if (function == 1)
         {
@@ -3898,9 +3902,7 @@ cheat_for_port_credits:
             S_PlaySound(KICK_HIT);
         }
 
-        m = probey - 6;
-        if (m < 0) m = 0;
-        else if (m + 13 >= NUMGAMEFUNCTIONS) m = NUMGAMEFUNCTIONS-13;
+        m = clamp(probey-6, 0, NUMGAMEFUNCTIONS-13);
 
         for (l=0; l < min(13,NUMGAMEFUNCTIONS); l++)
         {
@@ -3940,7 +3942,7 @@ cheat_for_port_credits:
         {
         case -1:
             ChangeToMenu(205);
-            probey = (MAXMOUSEBUTTONS-2)*2+2+2+2;
+            probey = NUMMOUSEFUNCTIONS+2+2;
             break;
 
         case 0:
