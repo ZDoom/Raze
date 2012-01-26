@@ -2127,8 +2127,8 @@ static int16_t uwall[MAXXDIM], dwall[MAXXDIM];
 static int32_t swplc[MAXXDIM], lplc[MAXXDIM];
 static int32_t swall[MAXXDIM], lwall[MAXXDIM+4];
 int32_t xdimen = -1, xdimenrecip, halfxdimen, xdimenscale, xdimscale;
-static int32_t wx1, wy1, wx2, wy2;
 int32_t ydimen;
+static int32_t wx1, wy1, wx2, wy2;
 intptr_t /*viewoffset,*/ frameoffset;
 
 static int32_t nrx1[8], nry1[8], nrx2[8], nry2[8]; // JBF 20031206: Thanks Ken
@@ -2141,23 +2141,29 @@ int32_t globalposx, globalposy, globalposz, globalhoriz;
 int16_t globalang, globalcursectnum;
 int32_t globalpal, cosglobalang, singlobalang;
 int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
-char *globalpalwritten;
-int32_t globaluclip, globaldclip, globvis;
-int32_t globalvisibility, globalhisibility, globalpisibility, globalcisibility;
-char globparaceilclip, globparaflorclip;
+static char *globalpalwritten;
+static int32_t globaluclip, globaldclip, globvis;
+int32_t globalvisibility;
+static int32_t globalhisibility, globalpisibility, globalcisibility;
+//char globparaceilclip, globparaflorclip;
 
-int32_t xyaspect, viewingrangerecip;
+int32_t xyaspect;
+static int32_t viewingrangerecip;
 
-intptr_t asm1, asm2, asm3, asm4,palookupoffse[4];
+intptr_t asm1, asm2, asm3, asm4, palookupoffse[4];
 int32_t vplce[4], vince[4], bufplce[4];
-char globalxshift, globalyshift;
-int32_t globalxpanning, globalypanning, globalshade;
-int16_t globalpicnum, globalshiftval;
-int32_t globalzd, globalyscale, globalorientation;
+static char globalxshift, globalyshift;
+static int32_t globalxpanning, globalypanning;
+int32_t globalshade, globalorientation;
+int16_t globalpicnum;
+static int16_t globalshiftval;
+static int32_t globalzd, globalyscale;
 static int32_t globalxspan, globalyspan, globalispow2=1;  // true if texture has power-of-two x and y size
-intptr_t globalbufplc;
-int32_t globalx1, globaly1, globalx2, globaly2, globalx3, globaly3, globalzx;
-int32_t globalx, globaly, globalz;
+static intptr_t globalbufplc;
+
+int32_t globalx1, globaly2, globalx3, globaly3;
+static int32_t globaly1, globalx2, globalzx;
+static int32_t globalx, globaly, globalz;
 
 int16_t sectorborder[256], sectorbordercnt;
 static char tablesloaded = 0;
@@ -2167,10 +2173,13 @@ int16_t startang, startsectnum;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 #ifndef OBSOLETE_RENDMODES
 static int32_t lastx[MAXYDIM];
+static char *transluc;
 #else
 int32_t lastx[MAXYDIM];
+char *transluc;
 #endif
-char *transluc = NULL, paletteloaded = 0;
+
+static char paletteloaded = 0;
 
 int32_t halfxdim16, midydim16;
 
@@ -2206,7 +2215,8 @@ typedef struct
 static permfifotype permfifo[MAXPERMS];
 static int32_t permhead = 0, permtail = 0;
 
-int16_t numscans, numhits, numbunches;
+int16_t numscans, numbunches;
+static int16_t numhits;
 int16_t capturecount = 0;
 
 char vgapal16[4*256] =
@@ -2250,7 +2260,7 @@ int32_t totalclocklock;
 
 char apptitle[256] = "Build Engine";
 
-uint8_t **basepaltableptr;
+static uint8_t **basepaltableptr;
 uint8_t basepalcount;
 uint8_t curbasepal;
 
@@ -3846,8 +3856,8 @@ static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
 {
     char ch;
 
-    char *gbuf = (char *)bufplc;
-    char *gpal = (char *)asm3;
+    const char *const gbuf = (char *)bufplc;
+    const char *const gpal = (char *)asm3;
 
     UNREFERENCED_PARAMETER(junk);
 
@@ -3865,8 +3875,8 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
 {
     char ch;
 
-    char *gbuf = (char *)bufplc;
-    char *gpal = (char *)asm3;
+    const char *const gbuf = (char *)bufplc;
+    const char *const gpal = (char *)asm3;
 
     UNREFERENCED_PARAMETER(junk);
 
@@ -10166,8 +10176,8 @@ void nextpage(void)
         break;
 
     case 350:
-        case 480:
-                break;
+    case 480:
+        break;
     }
     faketimerhandler();
 

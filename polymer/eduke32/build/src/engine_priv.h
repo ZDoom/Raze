@@ -20,7 +20,6 @@
 //#define OBSOLETE_RENDMODES
 
 
-extern uint8_t **basepaltableptr;
 extern uint8_t basepalcount;
 extern uint8_t curbasepal;
 
@@ -59,8 +58,8 @@ extern char britable[16][256];
 extern char picsiz[MAXTILES];
 #ifdef OBSOLETE_RENDMODES
 extern int32_t lastx[MAXYDIM];
-#endif
 extern char *transluc;
+#endif
 extern int16_t sectorborder[256], sectorbordercnt;
 extern int32_t qsetmode;
 extern int32_t hitallsprites;
@@ -68,7 +67,7 @@ extern int32_t hitallsprites;
 extern int32_t xb1[MAXWALLSB];
 extern int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
 extern int16_t p2[MAXWALLSB];
-extern int16_t numscans, numhits, numbunches;
+extern int16_t numscans, numbunches;
 
 #ifdef USE_OPENGL
 extern palette_t palookupfog[MAXPALOOKUPS];
