@@ -141,8 +141,15 @@ static int32_t artsize = 0, cachesize = 0;
 // maximum number of ART files
 static char *artptrs[MAXTILEFILES];
 
+// GCC 4.6 LTO build fix
+#ifdef USING_LTO
+# define B_ENGINE_STATIC
+#else
+# define B_ENGINE_STATIC static
+#endif
+
 static int16_t radarang2[MAXXDIM];
-static uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
+B_ENGINE_STATIC uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
 char pow2char[8] = {1,2,4,8,16,32,64,128};
 int32_t pow2long[32] =
 {

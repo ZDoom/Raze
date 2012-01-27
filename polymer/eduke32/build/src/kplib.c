@@ -169,18 +169,28 @@ int8_t coltype, filtype, bitdepth;
 //   * 16-bit color depth
 //   * Some useless ancillary chunks, like: gAMA(gamma) & pHYs(aspect ratio)
 
+// GCC 4.6 LTO build fix
+#ifdef USING_LTO
+# define B_KPLIB_STATIC
+#else
+# define B_KPLIB_STATIC static
+#endif
+
 //.PNG specific variables:
 static int32_t bakr = 0x80, bakg = 0x80, bakb = 0x80; //this used to be public...
 static int32_t gslidew = 0, gslider = 0, xm, xmn[4], xr0, xr1, xplc, yplc;
 static intptr_t nfplace;
 static int32_t clen[320], cclen[19], bitpos, filt, xsiz, ysiz;
-static int32_t xsizbpl, ixsiz, ixoff, iyoff, ixstp, iystp, intlac, nbpl, ATTRIBUTE((used)) trnsrgb ASMNAME("trnsrgb");
+int32_t xsizbpl, ixsiz, ixoff, iyoff, ixstp, iystp, intlac, nbpl;
+B_KPLIB_STATIC int32_t ATTRIBUTE((used)) trnsrgb ASMNAME("trnsrgb");
 static int32_t ccind[19] = {16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15};
 static int32_t hxbit[59][2], ibuf0[288], nbuf0[32], ibuf1[32], nbuf1[32];
 static const uint8_t *filptr;
 static uint8_t slidebuf[32768], opixbuf0[4], opixbuf1[4];
-static uint8_t pnginited = 0, olinbuf[131072] ASMNAME("olinbuf"); //WARNING:max xres is: 131072/bpp-1
-static int32_t gotcmov = -2, ATTRIBUTE((used)) abstab10[1024] ASMNAME("abstab10");
+static uint8_t pnginited = 0;
+B_KPLIB_STATIC uint8_t olinbuf[131072] ASMNAME("olinbuf"); //WARNING:max xres is: 131072/bpp-1
+static int32_t gotcmov = -2;
+B_KPLIB_STATIC int32_t ATTRIBUTE((used)) abstab10[1024] ASMNAME("abstab10");
 
 //Variables to speed up dynamic Huffman decoding:
 #define LOGQHUFSIZ0 9
