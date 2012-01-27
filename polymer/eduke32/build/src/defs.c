@@ -176,9 +176,7 @@ static int32_t defsparser(scriptfile *script)
         { "tile",            T_TEXTURE          },
         { "music",           T_MUSIC            },
         { "sound",           T_SOUND            },
-#ifdef USE_LIBVPX
         { "animsounds",      T_ANIMSOUNDS       },  // dummy
-#endif
         // other stuff
         { "undefmodel",      T_UNDEFMODEL       },
         { "undefmodelrange", T_UNDEFMODELRANGE  },
@@ -757,7 +755,9 @@ static int32_t defsparser(scriptfile *script)
 
             if (lastmodelid < 0)
             {
+#ifdef USE_OPENGL
                 initprintf("Warning: Ignoring frame definition.\n");
+#endif
                 break;
             }
 #ifdef USE_OPENGL
@@ -798,7 +798,9 @@ static int32_t defsparser(scriptfile *script)
 
             if (lastmodelid < 0)
             {
+#ifdef USE_OPENGL
                 initprintf("Warning: Ignoring animation definition.\n");
+#endif
                 break;
             }
 #ifdef USE_OPENGL
@@ -1041,7 +1043,9 @@ static int32_t defsparser(scriptfile *script)
 
                     if (lastmodelid < 0)
                     {
+#ifdef USE_OPENGL
                         initprintf("Warning: Ignoring frame definition.\n");
+#endif
                         break;
                     }
 #ifdef USE_OPENGL
@@ -1111,7 +1115,9 @@ static int32_t defsparser(scriptfile *script)
 
                     if (lastmodelid < 0)
                     {
+#ifdef USE_OPENGL
                         initprintf("Warning: Ignoring animation definition.\n");
+#endif
                         break;
                     }
 #ifdef USE_OPENGL
@@ -1303,7 +1309,9 @@ static int32_t defsparser(scriptfile *script)
 
                     if (lastmodelid < 0)
                     {
+#ifdef USE_OPENGL
                         initprintf("Warning: Ignoring frame definition.\n");
+#endif
                         break;
                     }
 #ifdef USE_OPENGL
@@ -1967,7 +1975,6 @@ static int32_t defsparser(scriptfile *script)
         }
         break;
 
-#ifdef USE_LIBVPX
         case T_ANIMSOUNDS:
         {
             char *dummy;
@@ -1983,7 +1990,6 @@ static int32_t defsparser(scriptfile *script)
             }
         }
         break;
-#endif
 
         case T_SOUND:
         case T_MUSIC:
