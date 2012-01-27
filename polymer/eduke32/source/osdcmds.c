@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osdcmds.h"
 #include "baselayer.h"
 #include "duke3d.h"
+#include "game.h"
+#include "net.h"
 #include "premap.h"
 #include "menus.h"
 #include "osd.h"
@@ -699,7 +701,6 @@ static int32_t osdcmd_give(const osdfuncparm_t *parm)
 void onvideomodechange(int32_t newmode)
 {
     uint8_t palid;
-    extern int32_t g_crosshairSum;
 
     if (newmode)
     {
@@ -1132,7 +1133,6 @@ static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
 
 static int32_t osdcmd_disconnect(const osdfuncparm_t *parm)
 {
-    extern int32_t g_netDisconnect;
     UNREFERENCED_PARAMETER(parm);
     g_netDisconnect = 1;
     return OSDCMD_OK;
@@ -1150,8 +1150,6 @@ static int32_t osdcmd_connect(const osdfuncparm_t *parm)
 
 static int32_t osdcmd_password(const osdfuncparm_t *parm)
 {
-    extern char g_netPassword[32];
-
     if (parm->numparms < 1)
     {
         Bmemset(g_netPassword, 0, sizeof(g_netPassword));

@@ -9326,7 +9326,6 @@ static void G_DisplayLogo(void)
 static void G_Cleanup(void)
 {
     int32_t i;
-    extern char *bitptr;
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
     {
@@ -9733,7 +9732,6 @@ static int32_t G_EndOfLevel(void)
             ud.eog = 0;
             if ((!g_netServer && ud.multimode < 2))
             {
-                extern int32_t probey;
                 if (!VOLUMEALL)
                     G_DoOrderScreen();
                 g_player[myconnectindex].ps->gm = MODE_MENU;

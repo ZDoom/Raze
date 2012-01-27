@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "baselayer.h"
 #include "duke3d.h"
+#include "game.h"
 #include "scriplib.h"
 #include "osd.h"
 #include "osdcmds.h"
@@ -611,7 +612,6 @@ int32_t CONFIG_ReadSetup(void)
 {
     int32_t dummy, i = 0;
     char commmacro[] = "CommbatMacro# ";
-    extern int32_t g_forceWeaponChoice;
     char tempbuf[1024];
 
     CONTROL_ClearAssignments();
@@ -681,11 +681,8 @@ int32_t CONFIG_ReadSetup(void)
         }
 // #endif
 
-        {
-            extern char defaultduke3dgrp[BMAX_PATH];
-            if (!Bstrcmp(defaultduke3dgrp,"duke3d.grp"))
-                SCRIPT_GetString(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr[0]);
-        }
+        if (!Bstrcmp(defaultduke3dgrp,"duke3d.grp"))
+            SCRIPT_GetString(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr[0]);
 
         if (!NAM)
         {

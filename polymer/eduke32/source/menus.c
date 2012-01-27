@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
+#include "net.h"
+#include "player.h"
 #include "mouse.h"
 #include "osd.h"
 #include "osdcmds.h"
@@ -579,7 +581,6 @@ static void Menus_LoadSave_DisplayCommon1(void)
 
 void M_DisplayMenus(void)
 {
-    extern int32_t g_netSync;
     CACHE1D_FIND_REC *dir;
     int32_t c,x,i;
     int32_t l,m;
@@ -4246,7 +4247,6 @@ cheat_for_port_credits:
             ud.config.JoystickAnalogueAxes[thispage*2+(x==7)] = l;
             CONTROL_MapAnalogAxis(thispage*2+(x==7),l,controldevice_joystick);
             {
-                extern int32_t mouseyaxismode;	// player.c
                 mouseyaxismode = -1;
             }
             break;

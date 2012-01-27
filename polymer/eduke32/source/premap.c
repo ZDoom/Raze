@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
+#include "game.h"
 #include "osd.h"
 #include "gamedef.h"
 #include "premap.h"
@@ -1104,7 +1105,6 @@ static inline void prelevel(char g)
 {
     int32_t i, nexti, j, startwall, endwall;
     int32_t switchpicnum;
-    extern char ror_protectedsectors[MAXSECTORS];
 
     uint8_t tagbitmap[65536>>3];
     Bmemset(tagbitmap, 0, sizeof(tagbitmap));
@@ -2149,4 +2149,3 @@ void G_FreeMapState(int32_t mapnum)
     Bfree(MapInfo[mapnum].savedstate);
     MapInfo[mapnum].savedstate = NULL;
 }
-
