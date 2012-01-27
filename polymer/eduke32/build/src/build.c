@@ -247,6 +247,7 @@ static int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 
     return OSDCMD_OK;
 }
+#endif
 
 static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 {
@@ -254,6 +255,7 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 
     switch (parm->numparms)
     {
+#ifdef USE_OPENGL
     case 1:	// bpp switch
         tmp = Batol(parm->parms[0]);
         if (tmp==8 || tmp==16 || tmp==32)
@@ -265,6 +267,7 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
         tmp = Batol(parm->parms[2]);
         if (tmp==8 || tmp==16 || tmp==32)
             newbpp = tmp;
+#endif
     case 2: // res switch
         newx = Batol(parm->parms[0]);
         newy = Batol(parm->parms[1]);
@@ -298,7 +301,6 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 
     return OSDCMD_OK;
 }
-#endif
 
 
 #ifdef M32_SHOWDEBUG
@@ -451,8 +453,9 @@ int32_t app_main(int32_t argc, const char **argv)
 #ifdef USE_OPENGL
     OSD_RegisterFunction("restartvid","restartvid: reinitialize the video mode",osdcmd_restartvid);
     OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim> <bpp> <fullscreen>: immediately change the video mode",osdcmd_vidmode);
+#else
+    OSD_RegisterFunction("vidmode","vidmode <xdim> <ydim>: immediately change the video mode",osdcmd_vidmode);
 #endif
-
     wm_setapptitle("Mapster32");
 
     editstatus = 1;
