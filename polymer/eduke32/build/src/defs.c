@@ -1335,6 +1335,7 @@ static int32_t defsparser(scriptfile *script)
                 }
             }
 
+#ifdef USE_OPENGL
             if (!model_ok)
             {
                 if (lastmodelid >= 0)
@@ -1346,7 +1347,6 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-#ifdef USE_OPENGL
             md_setmisc(lastmodelid,(float)scale,shadeoffs,(float)mzadd,(float)myoffset,flags);
 
             // thin out the loaded model by throwing away unused frames

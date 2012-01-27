@@ -2099,8 +2099,8 @@ static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
 
 inline int32_t getkensmessagecrc(int32_t b)
 {
+    UNREFERENCED_PARAMETER(b);
     return 0x56c764d4l;
-    b=b;
 }
 
 #endif
