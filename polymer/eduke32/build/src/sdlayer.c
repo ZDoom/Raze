@@ -660,7 +660,7 @@ void releaseallbuttons(void)
 
 static Uint32 timerfreq=0;
 static Uint32 timerlastsample=0;
-Uint32 timerticspersec=0;
+int32_t timerticspersec=0;
 static void(*usertimercallback)(void) = NULL;
 
 //
