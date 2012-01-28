@@ -657,7 +657,7 @@ static void G_ShowCacheLocks(void)
 
 int32_t A_CheckInventorySprite(spritetype *s)
 {
-    switch (DynamicTileMap[s->picnum])
+    switch (DYNAMICTILEMAP(s->picnum))
     {
     case FIRSTAID__STATIC:
     case STEROIDS__STATIC:
@@ -3970,7 +3970,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             }
         }
     }
-    else switch (DynamicTileMap[sp->picnum])
+    else switch (DYNAMICTILEMAP(sp->picnum))
         {
         default:
             if (actorscrptr[sp->picnum])
@@ -4840,7 +4840,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             if (sp->pal == 0)
             {
-                switch (DynamicTileMap[sp->picnum])
+                switch (DYNAMICTILEMAP(sp->picnum))
                 {
                 case LIZTROOPONTOILET__STATIC:
                 case LIZTROOPSHOOT__STATIC:
@@ -5826,7 +5826,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         i = t->owner;
         s = &sprite[i];
 
-        switch (DynamicTileMap[s->picnum])
+        switch (DYNAMICTILEMAP(s->picnum))
         {
         case SECTOREFFECTOR__STATIC:
             if (s->lotag == 40 || s->lotag == 41)
@@ -5860,7 +5860,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         }
 
         if (t->picnum < GREENSLIME || t->picnum > GREENSLIME+7)
-            switch (DynamicTileMap[t->picnum])
+            switch (DYNAMICTILEMAP(t->picnum))
             {
             case BLOODPOOL__STATIC:
             case PUKE__STATIC:
@@ -5952,7 +5952,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         i = t->owner;
         s = (i < 0 ? &tsprite[j] : &sprite[i]);
 
-        switch (DynamicTileMap[s->picnum])
+        switch (DYNAMICTILEMAP(s->picnum))
         {
         case NATURALLIGHTNING__STATIC:
             t->shade = -127;
@@ -6054,7 +6054,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         else if ((s->picnum==MONEY+1)||(s->picnum==MAIL+1)||(s->picnum==PAPER+1))
             switchpic--;
 
-        switch (DynamicTileMap[switchpic])
+        switch (DYNAMICTILEMAP(switchpic))
         {
         case DUKELYINGDEAD__STATIC:
             t->z += (24<<8);
@@ -6584,7 +6584,7 @@ skip:
                 }
             }
 
-        switch (DynamicTileMap[s->picnum])
+        switch (DYNAMICTILEMAP(s->picnum))
         {
         case LASERLINE__STATIC:
             if (sector[t->sectnum].lotag == 2) t->pal = 8;

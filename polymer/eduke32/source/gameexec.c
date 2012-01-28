@@ -1230,7 +1230,7 @@ skip_check:
             }
             else if (sector[vm.g_sp->sectnum].lotag == 1)
             {
-                switch (DynamicTileMap[vm.g_sp->picnum])
+                switch (DYNAMICTILEMAP(vm.g_sp->picnum))
                 {
                 default:
                     // fix for flying/jumping monsters getting stuck in water
@@ -4778,7 +4778,7 @@ nullquote:
 
         case CON_RESPAWNHITAG:
             insptr++;
-            switch (DynamicTileMap[vm.g_sp->picnum])
+            switch (DYNAMICTILEMAP(vm.g_sp->picnum))
             {
             case FEM1__STATIC:
             case FEM2__STATIC:
@@ -4995,7 +4995,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
             }
       */
     if (vm.g_sp->statnum == STAT_STANDABLE)
-        switch (DynamicTileMap[vm.g_sp->picnum])
+        switch (DYNAMICTILEMAP(vm.g_sp->picnum))
         {
         case RUBBERCAN__STATIC:
         case EXPLODINGBARREL__STATIC:
@@ -5272,7 +5272,7 @@ void G_RestoreMapState(mapstate_t *save)
         if (ud.lockout)
         {
             for (x=g_numAnimWalls-1; x>=0; x--)
-                switch (DynamicTileMap[wall[animwall[x].wallnum].picnum])
+                switch (DYNAMICTILEMAP(wall[animwall[x].wallnum].picnum))
                 {
                 case FEMPIC1__STATIC:
                     wall[animwall[x].wallnum].picnum = BLANKSCREEN;

@@ -802,7 +802,7 @@ int32_t G_LoadPlayer(int32_t spot)
     else
     {
         for (x=0; x<g_numAnimWalls; x++)
-            switch (DynamicTileMap[wall[animwall[x].wallnum].picnum])
+            switch (DYNAMICTILEMAP(wall[animwall[x].wallnum].picnum))
             {
             case FEMPIC1__STATIC:
                 wall[animwall[x].wallnum].picnum = BLANKSCREEN;
@@ -2635,7 +2635,7 @@ static void postloadplayer(int32_t savegamep)
         if (ud.lockout)
         {
             for (i=0; i<g_numAnimWalls; i++)
-                switch (DynamicTileMap[wall[animwall[i].wallnum].picnum])
+                switch (DYNAMICTILEMAP(wall[animwall[i].wallnum].picnum))
                 {
                 case FEMPIC1__STATIC:
                     wall[animwall[i].wallnum].picnum = BLANKSCREEN;

@@ -123,7 +123,7 @@ int32_t G_CheckActivatorMotion(int32_t lotag)
 
 int32_t CheckDoorTile(int32_t dapic)
 {
-    switch (DynamicTileMap[dapic])
+    switch (DYNAMICTILEMAP(dapic))
     {
     case DOORTILE1__STATIC:
     case DOORTILE2__STATIC:
@@ -403,7 +403,7 @@ void G_AnimateWalls(void)
         i = animwall[p].wallnum;
         j = wall[i].picnum;
 
-        switch (DynamicTileMap[j])
+        switch (DYNAMICTILEMAP(j))
         {
         case SCREENBREAK1__STATIC:
         case SCREENBREAK2__STATIC:
@@ -1196,7 +1196,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         switchpicnum = MULTISWITCH;
     }
 
-    switch (DynamicTileMap[switchpicnum])
+    switch (DYNAMICTILEMAP(switchpicnum))
     {
     case DIPSWITCH__STATIC:
         //    case DIPSWITCH+1:
@@ -1291,7 +1291,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
                     sprite[i].picnum = MULTISWITCH;
 
             }
-            switch (DynamicTileMap[switchpicnum])
+            switch (DYNAMICTILEMAP(switchpicnum))
             {
             case DIPSWITCH__STATIC:
             case TECHSWITCH__STATIC:
@@ -1321,7 +1321,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
                 if (switchpicnum <= 0)  // oob safety
                     break;
 
-                switch (DynamicTileMap[switchpicnum-1])
+                switch (DYNAMICTILEMAP(switchpicnum-1))
                 {
                 case TECHSWITCH__STATIC:
                 case DIPSWITCH__STATIC:
@@ -1365,7 +1365,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
 
             }
 
-            switch (DynamicTileMap[wall[x].picnum])
+            switch (DYNAMICTILEMAP(wall[x].picnum))
             {
             case DIPSWITCH__STATIC:
             case TECHSWITCH__STATIC:
@@ -1395,7 +1395,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
                 if (wall[x].picnum <= 0)  // oob safety
                     break;
 
-                switch (DynamicTileMap[wall[x].picnum-1])
+                switch (DYNAMICTILEMAP(wall[x].picnum-1))
                 {
                 case TECHSWITCH__STATIC:
                 case DIPSWITCH__STATIC:
@@ -1474,7 +1474,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         switchpicnum = MULTISWITCH;
     }
 
-    switch (DynamicTileMap[switchpicnum])
+    switch (DYNAMICTILEMAP(switchpicnum))
     {
     default:
         if (CheckDoorTile(picnum) == 0) break;
@@ -1645,7 +1645,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
 
     if (wal->overpicnum == MIRROR && wal->pal != 4)
     {
-        switch (DynamicTileMap[atwith])
+        switch (DYNAMICTILEMAP(atwith))
         {
         case HEAVYHBOMB__STATIC:
         case RADIUSEXPLOSION__STATIC:
@@ -1672,7 +1672,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
                 int32_t switchpicnum = wal->overpicnum;
                 if ((switchpicnum > W_FORCEFIELD)&&(switchpicnum <= W_FORCEFIELD+2))
                     switchpicnum = W_FORCEFIELD;
-                switch (DynamicTileMap[switchpicnum])
+                switch (DYNAMICTILEMAP(switchpicnum))
                 {
                 case W_FORCEFIELD__STATIC:
                     //case W_FORCEFIELD+1:
@@ -1740,7 +1740,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
                 }
             }
 
-    switch (DynamicTileMap[wal->picnum])
+    switch (DYNAMICTILEMAP(wal->picnum))
     {
     case COLAMACHINE__STATIC:
     case VENDMACHINE__STATIC:
@@ -1890,7 +1890,7 @@ int32_t Sect_DamageCeiling(int32_t sn)
 {
     int32_t i, j;
 
-    switch (DynamicTileMap[sector[sn].ceilingpicnum])
+    switch (DYNAMICTILEMAP(sector[sn].ceilingpicnum))
     {
     case WALLLIGHT1__STATIC:
     case WALLLIGHT2__STATIC:
@@ -1979,7 +1979,7 @@ void A_DamageObject(int32_t i,int32_t sn)
         switchpicnum = WATERFOUNTAIN;
     }
 */
-    switch (DynamicTileMap[PN])
+    switch (DYNAMICTILEMAP(PN))
     {
     case OCEANSPRITE1__STATIC:
     case OCEANSPRITE2__STATIC:
@@ -2026,7 +2026,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                 T1 = 1;
                 A_Spawn(i,BURNING);
             }
-        switch (DynamicTileMap[sprite[sn].picnum])
+        switch (DYNAMICTILEMAP(sprite[sn].picnum))
         {
         case RADIUSEXPLOSION__STATIC:
         case RPG__STATIC:
@@ -2052,7 +2052,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                 sprite[j].pal = 8;
             }
         //        case CACTUSBROKE:
-        switch (DynamicTileMap[sprite[sn].picnum])
+        switch (DYNAMICTILEMAP(sprite[sn].picnum))
         {
         case RADIUSEXPLOSION__STATIC:
         case RPG__STATIC:
@@ -2250,7 +2250,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     case PIPE4__STATIC:
     case PIPE5__STATIC:
     case PIPE6__STATIC:
-        switch (DynamicTileMap[PN])
+        switch (DYNAMICTILEMAP(PN))
         {
         case PIPE1__STATIC:
             PN=PIPE1B;
@@ -3171,7 +3171,7 @@ void P_CheckSectors(int32_t snum)
                 neartag(p->pos.x,p->pos.y,p->pos.z+(16<<8),sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,3);
                 if (neartagsprite >= 0)
                 {
-                    switch (DynamicTileMap[sprite[neartagsprite].picnum])
+                    switch (DYNAMICTILEMAP(sprite[neartagsprite].picnum))
                     {
                     case FEM1__STATIC:
                     case FEM2__STATIC:
@@ -3215,7 +3215,7 @@ void P_CheckSectors(int32_t snum)
         {
             if (P_ActivateSwitch(snum,neartagsprite,1)) return;
 
-            switch (DynamicTileMap[sprite[neartagsprite].picnum])
+            switch (DYNAMICTILEMAP(sprite[neartagsprite].picnum))
             {
             case TOILET__STATIC:
             case STALL__STATIC:

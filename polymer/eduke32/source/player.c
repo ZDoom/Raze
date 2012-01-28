@@ -213,7 +213,7 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
         {
             if (A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (ProjectileData[atwith].workslike & PROJECTILE_RPG))
                 return -1;
-            else switch (DynamicTileMap[atwith])
+            else switch (DYNAMICTILEMAP(atwith))
                 {
                 case TONGUE__STATIC:
                 case FREEZEBLAST__STATIC:
@@ -347,7 +347,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
 
 #ifdef POLYMER
         if (atwith >= 0)
-            switch (DynamicTileMap[atwith])
+            switch (DYNAMICTILEMAP(atwith))
             {
             case FIRELASER__STATIC:
             case SHOTGUN__STATIC:
@@ -1047,7 +1047,7 @@ DOSKIPBULLETHOLE:
     }
     else if (atwith >= 0)
     {
-        switch (DynamicTileMap[atwith])
+        switch (DYNAMICTILEMAP(atwith))
         {
         case BLOODSPLAT1__STATIC:
         case BLOODSPLAT2__STATIC:
@@ -3667,7 +3667,7 @@ void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
         if ((switchpicnum>W_FORCEFIELD)&&(switchpicnum<=W_FORCEFIELD+2))
             switchpicnum=W_FORCEFIELD;
 
-        switch (DynamicTileMap[switchpicnum])
+        switch (DYNAMICTILEMAP(switchpicnum))
         {
         case W_FORCEFIELD__STATIC:
             //        case W_FORCEFIELD+1:
@@ -3716,7 +3716,7 @@ int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
     int32_t ret = 0;
     spritetype *s = &sprite[p->i];
 
-    switch (DynamicTileMap[j])
+    switch (DYNAMICTILEMAP(j))
     {
     case HURTRAIL__STATIC:
         if (rnd(32))
@@ -5310,7 +5310,7 @@ void P_ProcessInput(int32_t snum)
                         j = sprite[lz&(MAXSPRITES-1)].picnum;
                     else j = sector[p->cursectnum].floorpicnum;
 
-                    switch (DynamicTileMap[j])
+                    switch (DYNAMICTILEMAP(j))
                     {
                     case PANNEL1__STATIC:
                     case PANNEL2__STATIC:
@@ -5580,7 +5580,7 @@ HORIZONLY:
                 A_Spawn(p->actorsqu,BLOODPOOL);
                 A_PlaySound(SQUISHED,p->actorsqu);
 
-                switch (DynamicTileMap[sprite[p->actorsqu].picnum])
+                switch (DYNAMICTILEMAP(sprite[p->actorsqu].picnum))
                 {
                 case FEM1__STATIC:
                 case FEM2__STATIC:
@@ -5624,7 +5624,7 @@ HORIZONLY:
 //UPDATE THIS FILE OVER THE OLD GETSPRITESCORE/COMPUTERGETINPUT FUNCTIONS
 int32_t getspritescore(int32_t snum, int32_t dapicnum)
 {
-    switch (DynamicTileMap[dapicnum])
+    switch (DYNAMICTILEMAP(dapicnum))
     {
     case FIRSTGUNSPRITE__STATIC:
         return(20);
@@ -5806,7 +5806,7 @@ void computergetinput(int32_t snum, input_t *syn)
 
     for (j=headspritestat[STAT_PROJECTILE]; j>=0; j=nextspritestat[j])
     {
-        switch (DynamicTileMap[sprite[j].picnum])
+        switch (DYNAMICTILEMAP(sprite[j].picnum))
         {
         case TONGUE__STATIC:
             k = 4;

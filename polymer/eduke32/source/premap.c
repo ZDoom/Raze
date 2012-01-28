@@ -98,7 +98,7 @@ static void G_CacheSpriteNum(int32_t i)
         for (j = PN; j <= SpriteCacheList[PN][1]; j++)
             tloadtile(j,1);
 
-    switch (DynamicTileMap[PN])
+    switch (DYNAMICTILEMAP(PN))
     {
     case HYDRENT__STATIC:
         tloadtile(BROKEFIREHYDRENT,1);
@@ -1014,7 +1014,7 @@ static inline void G_SetupBackdrop(int16_t sky)
     if (parallaxyscale != 65536)
         parallaxyscale = 32768;
 
-    switch (DynamicTileMap[sky])
+    switch (DYNAMICTILEMAP(sky))
     {
     case CLOUDYOCEAN__STATIC:
         parallaxyscale = 65536L;
@@ -1174,7 +1174,7 @@ static inline void prelevel(char g)
             g_player[0].ps->exitx = SX;
             g_player[0].ps->exity = SY;
         }
-        else switch (DynamicTileMap[PN])
+        else switch (DYNAMICTILEMAP(PN))
             {
             case GPSPEED__STATIC:
                 sector[SECT].extra = SLT;
@@ -1241,7 +1241,7 @@ static inline void prelevel(char g)
             continue;
 
         for (ii=0; ii<2; ii++)
-            switch (DynamicTileMap[PN-1+ii])
+            switch (DYNAMICTILEMAP(PN-1+ii))
             {
             case DIPSWITCH__STATIC:
             case DIPSWITCH2__STATIC:
@@ -1339,7 +1339,7 @@ static inline void prelevel(char g)
 
         if (switchpicnum >= 0)
         {
-            switch (DynamicTileMap[switchpicnum])
+            switch (DYNAMICTILEMAP(switchpicnum))
             {
             case FANSHADOW__STATIC:
             case FANSPRITE__STATIC:
@@ -1372,7 +1372,7 @@ static inline void prelevel(char g)
 
         wal->extra = -1;
 
-        switch (DynamicTileMap[wal->picnum])
+        switch (DYNAMICTILEMAP(wal->picnum))
         {
         case WATERTILE2__STATIC:
             for (j=0; j<3; j++)
@@ -2065,7 +2065,7 @@ int32_t G_EnterLevel(int32_t g)
         P_DoQuote(QUOTE_F1HELP,g_player[myconnectindex].ps);
 
     TRAVERSE_CONNECT(i)
-    switch (DynamicTileMap[sector[sprite[g_player[i].ps->i].sectnum].floorpicnum])
+    switch (DYNAMICTILEMAP(sector[sprite[g_player[i].ps->i].sectnum].floorpicnum))
     {
     case HURTRAIL__STATIC:
     case FLOORSLIME__STATIC:

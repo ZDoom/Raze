@@ -28,6 +28,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "namesdyn.h"
 #include "global.h"
 
+int16_t DynamicTileMap[MAXTILES];
+
+#ifdef DYNTILEREMAP_ENABLE
 struct dynitem
 {
     char *str;
@@ -1517,8 +1520,6 @@ int32_t RESERVEDSLOT10 = RESERVEDSLOT10__STATIC;
 int32_t RESERVEDSLOT11 = RESERVEDSLOT11__STATIC;
 int32_t RESERVEDSLOT12 = RESERVEDSLOT12__STATIC;
 
-int16_t DynamicTileMap[MAXTILES];
-
 void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue)
 {
     int32_t i;
@@ -1584,3 +1585,4 @@ void G_InitDynamicTiles(void)
     WeaponPickupSprites[10] = HEAVYHBOMB;
     WeaponPickupSprites[11] = SHRINKERSPRITE;
 }
+#endif

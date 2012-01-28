@@ -1445,7 +1445,7 @@ void M_DisplayMenus(void)
                     ud.lockout = 1;
 
                     for (x=0; x<g_numAnimWalls; x++)
-                        switch (DynamicTileMap[wall[animwall[x].wallnum].picnum])
+                        switch (DYNAMICTILEMAP(wall[animwall[x].wallnum].picnum))
                         {
                         case FEMPIC1__STATIC:
                             wall[animwall[x].wallnum].picnum = BLANKSCREEN;

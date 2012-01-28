@@ -832,7 +832,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
 
                     //             j = 1;
 
-                    if (j) switch (DynamicTileMap[s->picnum])
+                    if (j) switch (DYNAMICTILEMAP(s->picnum))
                         {
                         case RUBBERCAN__STATIC:
                         case EXPLODINGBARREL__STATIC:
@@ -956,7 +956,7 @@ int32_t A_IncurDamage(int32_t sn)
                         actor[sn].extra*(sintable[actor[sn].ang&2047])<<1;
                 }
 
-                switch (DynamicTileMap[actor[sn].picnum])
+                switch (DYNAMICTILEMAP(actor[sn].picnum))
                 {
                 case RADIUSEXPLOSION__STATIC:
                 case RPG__STATIC:
@@ -1225,7 +1225,7 @@ ACTOR_STATIC void G_MoveFX(void)
 
         nexti = nextspritestat[i];
 
-        switch (DynamicTileMap[s->picnum])
+        switch (DYNAMICTILEMAP(s->picnum))
         {
         case RESPAWN__STATIC:
             if (sprite[i].extra == 66)
@@ -2069,7 +2069,7 @@ DETONATE:
                         }
                         else if (sprite[j].statnum == STAT_STANDABLE)
                         {
-                            switch (DynamicTileMap[sprite[j].picnum])
+                            switch (DYNAMICTILEMAP(sprite[j].picnum))
                             {
                             case SEENINE__STATIC:
                             case OOZFILTER__STATIC:
@@ -2094,7 +2094,7 @@ DETONATE:
             switchpicnum = BOLT1;
         }
 
-        switch (DynamicTileMap[switchpicnum])
+        switch (DYNAMICTILEMAP(switchpicnum))
         {
         case VIEWSCREEN__STATIC:
         case VIEWSCREEN2__STATIC:
@@ -2830,7 +2830,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
         {
 
             // here
-            switch (DynamicTileMap[s->picnum])
+            switch (DYNAMICTILEMAP(s->picnum))
             {
             case RADIUSEXPLOSION__STATIC:
             case KNEE__STATIC:
@@ -2905,10 +2905,10 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 A_GetZLimits(i);
                 qq = CLIPMASK1;
 
-                switch (DynamicTileMap[s->picnum])
+                switch (DYNAMICTILEMAP(s->picnum))
                 {
                 case RPG__STATIC:
-                    if (DynamicTileMap[s->picnum] == RPG__STATIC && actor[i].picnum != BOSS2 &&
+                    if (DYNAMICTILEMAP(s->picnum) == RPG__STATIC && actor[i].picnum != BOSS2 &&
                             s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
                     {
                         j = A_Spawn(i,SMALLSMOKE);
@@ -3391,7 +3391,7 @@ ACTOR_STATIC void G_MoveTransports(void)
 
                     if (warpspriteto && A_CheckSpriteFlags(j,SPRITE_DECAL)) goto JBOLT;
 
-                    if (warpspriteto) switch (DynamicTileMap[sprite[j].picnum])
+                    if (warpspriteto) switch (DYNAMICTILEMAP(sprite[j].picnum))
                         {
                         case TRANSPORTERSTAR__STATIC:
                         case TRANSPORTERBEAM__STATIC:
@@ -3559,7 +3559,7 @@ ACTOR_STATIC void G_MoveActors(void)
         {
             switchpicnum = GREENSLIME;
         }
-        switch (DynamicTileMap[switchpicnum])
+        switch (DYNAMICTILEMAP(switchpicnum))
         {
         case DUCK__STATIC:
         case TARGET__STATIC:
@@ -4303,7 +4303,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 j = headspritesect[sect];
                 while (j>=0)
                 {
-                    switch (DynamicTileMap[sprite[j].picnum])
+                    switch (DYNAMICTILEMAP(sprite[j].picnum))
                     {
                     case LIZTROOP__STATIC:
                     case LIZMAN__STATIC:
@@ -4580,7 +4580,7 @@ DETONATEB:
 
                     x = s->extra;
                     m = 0;
-                    switch (DynamicTileMap[s->picnum])
+                    switch (DYNAMICTILEMAP(s->picnum))
                     {
                     case HEAVYHBOMB__STATIC:
                         m = g_pipebombBlastRadius;
@@ -4686,7 +4686,7 @@ DETONATEB:
                 j = headspritesect[sect];
                 while (j >= 0)
                 {
-                    switch (DynamicTileMap[sprite[j].picnum])
+                    switch (DYNAMICTILEMAP(sprite[j].picnum))
                     {
                     case SECTOREFFECTOR__STATIC:
                         if (sprite[j].lotag == 1)
@@ -4922,7 +4922,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
         }
         if ((s->picnum == MONEY+1) || (s->picnum == MAIL+1) || (s->picnum == PAPER+1))
             actor[i].floorz = s->z = getflorzofslope(s->sectnum,s->x,s->y);
-        else switch (DynamicTileMap[switchpicnum])
+        else switch (DYNAMICTILEMAP(switchpicnum))
             {
             case APLAYER__STATIC:
                 s->cstat = 32768;
@@ -7170,7 +7170,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     switch (sprite[j].statnum)
                     {
                     case STAT_MISC:
-                        switch (DynamicTileMap[sprite[j].picnum])
+                        switch (DYNAMICTILEMAP(sprite[j].picnum))
                         {
                         case BLOODPOOL__STATIC:
                         case PUKE__STATIC:
@@ -7953,7 +7953,7 @@ BOLT:
 void A_PlayAlertSound(int32_t i)
 {
     if (sprite[i].extra > 0)
-        switch (DynamicTileMap[PN])
+        switch (DYNAMICTILEMAP(PN))
         {
         case LIZTROOPONTOILET__STATIC:
         case LIZTROOPJUSTSIT__STATIC:
@@ -8025,7 +8025,7 @@ int32_t A_CheckEnemyTile(int32_t pn)
         (pn >= GREENSLIME && pn <= GREENSLIME+7))
         return 1;
 
-    switch (DynamicTileMap[pn])
+    switch (DYNAMICTILEMAP(pn))
     {
     case SHARK__STATIC:
     case RECON__STATIC:
@@ -8080,7 +8080,7 @@ int32_t A_CheckSwitchTile(int32_t i)
     //loop to catch both states of switches
     for (j=1; j>=0; j--)
     {
-        switch (DynamicTileMap[PN-j])
+        switch (DYNAMICTILEMAP(PN-j))
         {
         case HANDPRINTSWITCH__STATIC:
             //case HANDPRINTSWITCH+1:
@@ -8184,7 +8184,7 @@ void G_MoveWorld(void)
                             if (sprite[i].picnum <= 0)  // oob safety
                                 break;
 
-                            switch (DynamicTileMap[sprite[i].picnum-1+ii])
+                            switch (DYNAMICTILEMAP(sprite[i].picnum-1+ii))
                             {
                             case DIPSWITCH__STATIC:
                             case DIPSWITCH2__STATIC:
@@ -8246,7 +8246,7 @@ void G_MoveWorld(void)
                             }
                         }
 
-                        switch (DynamicTileMap[sprite[i].picnum])
+                        switch (DYNAMICTILEMAP(sprite[i].picnum))
                         {
                         case ATOMICHEALTH__STATIC:
                             G_AddGameLight(0, i, ((s->yrepeat*tilesizy[s->picnum])<<1), LIGHTRAD2 * 3, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
