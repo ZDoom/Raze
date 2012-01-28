@@ -3543,7 +3543,11 @@ static int32_t C_ParseCommand(int32_t loop)
 #ifdef DYNTILEREMAP_ENABLE
             else initprintf("Using dynamic tile remapping\n");
 #else
-            else initprintf("Would be using dynamic tile remapping\n");
+            else
+            {
+                initprintf("%s:%d: warning: dynamic tile remapping is disabled in this build\n",g_szScriptFileName,g_lineNumber);
+                g_numCompilerWarnings++;
+            }
 #endif
             continue;
 
