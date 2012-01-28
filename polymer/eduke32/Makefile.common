@@ -77,11 +77,21 @@ ifneq (0,$(USE_LIBVPX))
     LIBS+= -lvpx
 endif
 
+
+ifneq ($(RELEASE)$(DEBUGANYWAY),10)
+    # debug build or DEBUGANYWAY=1 --> -g flag
+    ifeq ($(CC),clang)
+        debug=-g
+    else
+        debug=-ggdb
+    endif
+endif
+
 ifneq (0,$(RELEASE))
     # Debugging disabled
-    debug=-O$(OPTLEVEL)
+    debug+= -O$(OPTLEVEL)
     ifneq ($(CC),clang)
-        debug=-funswitch-loops
+        debug+= -funswitch-loops
     endif
     ifeq (0,$(DEBUGANYWAY))
         debug+= -fomit-frame-pointer -DNDEBUG
@@ -92,7 +102,8 @@ ifneq (0,$(RELEASE))
     endif
 else
     # Debugging enabled
-    debug=-ggdb -O0
+    debug+= -O0
+
     ifeq (0,$(DEBUGANYWAY))
         debug+= -DDEBUGGINGAIDS
     else
@@ -100,7 +111,11 @@ else
     endif
 
     ifeq ($(CC),clang)
+#        CLANG_MAJOR := $(shell clang -dM -E -x c /dev/null | grep __clang_major__ | awk '{ print $$3 }')
         debug+= -fcatch-undefined-behavior
+#        ifeq ($(CLANG_MAJOR),3)
+#            debug+= -faddress-sanitizer
+#        endif
     endif
     ifeq ($(PLATFORM),LINUX)
         LIBS+=-rdynamic
@@ -117,9 +132,6 @@ else
     ifneq (0,$(KRANDDEBUG))
         debug+=-DKRANDDEBUG=1
     endif
-endif
-ifneq (0,$(DEBUGANYWAY))
-    debug+=-ggdb
 endif
 
 ifneq ($(CC),clang)

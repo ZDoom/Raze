@@ -86,6 +86,11 @@ static __inline int32_t _lrotl(int32_t i, int sh)
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 #endif
 
+#if defined __clang__ && __clang_major__==3
+// clang 3.1 SVN r149129, assertion failure with inline asm
+# define NOASM 1
+#endif
+
 #if defined(__GNUC__)
 #define _inline inline
 #endif
