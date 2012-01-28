@@ -14,6 +14,8 @@ end
 local i
 
 print('tweaking sector pals')
+print('numsectors: ' .. gv.numsectors)
+
 ---[[
 for i = 0, gv.numsectors/2 do
     sector[i].floorpal = 1;
@@ -35,6 +37,9 @@ for spr in spritesofsect(236) do
     print('#spr', spr)
 end
 
+--this is a problem
+--actor = {}
+
 actor[562].flags = bit.bor(actor[562].flags, 2);   -- pal 6 with goggles on front SEENINE
 
 --]]
@@ -48,8 +53,13 @@ checkfail('setmetatable(sprite, {})')  -- set metatable forbidden
 checkfail('sector[-1].ceilingpal = 4')  -- oob write access
 checkfail('sector[0].wallnum = 0')  -- wallnum member is read-only
 checkfail('gv.numsectors = 4')  -- gv.numsectors is read-only
+checkfail('gv.QWE = 4')  -- cannot create new fields in 'gv'
 checkfail('sector[4] = sector[6]')  -- direct sector write access forbidden
+checkfail('nextspritesect[4] = -666')  -- that would be horrible...
+checkfail('print(nextspritesect[4].whatfield)')  -- we're indexing a plain array!
+checkfail('wall[4].QWE = 123')  -- creating new keys forbidden... handled by LuaJit
 checkfail("require('os')")  -- 'require' has been thrown away to be replaced by
                             -- something more restricted later
+checkfail("new_global = 345")  -- we should declare globals
 
 print('--- end test script ---')
