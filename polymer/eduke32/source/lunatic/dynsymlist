@@ -8,6 +8,7 @@ spriteext;
 
 numsectors;
 numwalls;
+numyaxbunches;
 
 headspritesect;
 headspritestat;
@@ -16,5 +17,9 @@ prevspritestat;
 nextspritesect;
 nextspritestat;
 
+headsectbunch;
+nextsectbunch;
+
 actor;
+ud;
 };

@@ -56,6 +56,10 @@ typedef struct {
     const int32_t _do_not_use1;
     const int32_t _do_not_use2;
 } spriteext_t;
+
+typedef struct {
+    int32_t x, y, z;
+} vec3_t;
 #pragma pack(pop)
 ]]
 
@@ -80,6 +84,111 @@ typedef struct
 } actor_t;
 #pragma pack(pop)
 
+//#define MAXMOUSEBUTTONS 10
+//#define MAXMOUSEAXES 2
+//#define MAXJOYBUTTONS (32+4)  // XXX
+//#define MAXJOYAXES 8
+//#define NUMGAMEFUNCTIONS 56
+
+typedef struct {
+    vec3_t camera;
+    int32_t const_visibility,uw_framerate;
+    int32_t camera_time,folfvel,folavel,folx,foly,fola;
+    int32_t reccnt,crosshairscale;
+
+    int32_t runkey_mode,statusbarscale,mouseaiming,weaponswitch,drawweapon;   // JBF 20031125
+    int32_t democams,color,msgdisptime,statusbarmode;
+    int32_t m_noexits,noexits,autovote,automsg,idplayers;
+    int32_t team, viewbob, weaponsway, althud, weaponscale, textscale;
+
+    int32_t entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
+    int32_t coords,tickrate,levelstats,m_coop,coop,screen_size,lockout,crosshair;
+    int32_t playerai,angleinterpolation,obituaries;
+
+    int32_t respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;
+    int32_t m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off,detail;
+    int32_t m_ffire,ffire,m_player_skill,m_level_number,m_volume_number,multimode;
+    int32_t player_skill,level_number,volume_number,m_marker,marker,mouseflip;
+
+    int32_t configversion;
+
+    int16_t cameraang, camerasect, camerahoriz;
+    int16_t pause_on,from_bonus;
+    int16_t camerasprite,last_camsprite;
+    int16_t last_level,secretlevel, bgstretch;
+
+    struct {
+        int32_t UseJoystick;
+        int32_t UseMouse;
+        int32_t AutoAim;
+        int32_t ShowOpponentWeapons;
+        int32_t MouseDeadZone,MouseBias;
+        int32_t SmoothInput;
+
+        // JBF 20031211: Store the input settings because
+        // (currently) jmact can't regurgitate them
+        int32_t MouseFunctions[10][2];  // MAXMOUSEBUTTONS
+        int32_t MouseDigitalFunctions[2][2];  // MAXMOUSEAXES
+        int32_t MouseAnalogueAxes[2];  // MAXMOUSEAXES
+        int32_t MouseAnalogueScale[2];  // MAXMOUSEAXES
+        int32_t JoystickFunctions[32+4][2];  // MAXJOYBUTTONS
+        int32_t JoystickDigitalFunctions[8][2];  // MAXJOYAXES
+        int32_t JoystickAnalogueAxes[8];  // MAXJOYAXES
+        int32_t JoystickAnalogueScale[8];  // MAXJOYAXES
+        int32_t JoystickAnalogueDead[8];  // MAXJOYAXES
+        int32_t JoystickAnalogueSaturate[8];  // MAXJOYAXES
+        uint8_t KeyboardKeys[56][2];  // NUMGAMEFUNCTIONS
+
+        //
+        // Sound variables
+        //
+        int32_t FXDevice;
+        int32_t MusicDevice;
+        int32_t FXVolume;
+        int32_t MusicVolume;
+        int32_t SoundToggle;
+        int32_t MusicToggle;
+        int32_t VoiceToggle;
+        int32_t AmbienceToggle;
+
+        int32_t NumVoices;
+        int32_t NumChannels;
+        int32_t NumBits;
+        int32_t MixRate;
+
+        int32_t ReverseStereo;
+
+        //
+        // Screen variables
+        //
+
+        int32_t ScreenMode;
+
+        int32_t ScreenWidth;
+        int32_t ScreenHeight;
+        int32_t ScreenBPP;
+
+        int32_t ForceSetup;
+        int32_t NoAutoLoad;
+
+        int32_t scripthandle;
+        int32_t setupread;
+
+        int32_t CheckForUpdates;
+        int32_t LastUpdateCheck;
+        int32_t useprecache;
+    } config;
+
+    char overhead_on,last_overhead,showweapons;
+    char god,warp_on,cashman,eog,showallmap;
+    char show_help,scrollmode,clipping;
+    char ridecule[10][40];
+    char savegame[10][22];
+    char pwlockout[128],rtsname[128];
+    char display_bonus_screen;
+    char show_level_text;
+} user_defs;
+
 int32_t engine_main_arrays_are_static;
 ]]
 
@@ -101,14 +210,18 @@ end
 
 ffi.cdef[[
 const int16_t numsectors, numwalls;
+const int32_t numyaxbunches;
 
 const int16_t headspritesect[16384+1], headspritestat[1024+1];
 const int16_t prevspritesect[16384], prevspritestat[16384];
 const int16_t nextspritesect[16384], nextspritestat[16384];
+
+const int16_t headsectbunch[2][256], nextsectbunch[2][4096];
 ]]
 
 ffi.cdef[[
 actor_t actor[16384];
+user_defs ud;
 ]]
 
 ---- _G tweaks -- pull in only 'safe' stuff ----
@@ -165,12 +278,12 @@ DBG_.loadstring = oG.loadstring
 ---- Set up restricted access to ffi.C from lunatic. ----
 local ffiC = ffi.C
 
--- TODO: error(...) --> error(..., 2) to blame the caller?
+-- error(..., 2) is to blame the caller and get its line numbers
 
 local det = {}  -- dummy empty table
 local tmpmt = {
-    __index = function() error('dummy variable: read access forbidden') end,
-    __newindex = function() error('dummy variable: write access forbidden') end,
+    __index = function() error('dummy variable: read access forbidden', 2) end,
+    __newindex = function() error('dummy variable: write access forbidden', 2) end,
     __metatable = true  -- forbid setting the metatable
 }
 oG.setmetatable(det, tmpmt)
@@ -190,10 +303,14 @@ gv = {
     nextspritesect = det, nextspritestat = det,
 
     actor = det,
+
+    -- "constants", actually you'd be able to assign to them now...
+    CEILING = 0,
+    FLOOR = 1,
 }
 local tmpmt = {
     __index = ffiC,
-    __newindex = function() error("cannot create new or write into existing fields of 'gv'") end,
+    __newindex = function() error("cannot create new or write into existing fields of 'gv'", 2) end,
     __metatable = true,
 }
 oG.setmetatable(gv, tmpmt)
@@ -203,10 +320,10 @@ sector = {}
 local tmpmt = {
     __index = function(tab, key)
                   if (key >= 0 and key < ffiC.numsectors) then return ffiC.sector[key] end
-                  error('out-of-bounds sector[] read access')
+                  error('out-of-bounds sector[] read access', 2)
               end,
 
-    __newindex = function(tab, key, val) error('cannot write directly to sector[] struct') end,
+    __newindex = function(tab, key, val) error('cannot write directly to sector[] struct', 2) end,
     __metatable = true,
 }
 oG.setmetatable(sector, tmpmt)
@@ -215,10 +332,10 @@ wall = {}
 local tmpmt = {
     __index = function(tab, key)
                   if (key >= 0 and key < ffiC.numwalls) then return ffiC.wall[key] end
-                  error('out-of-bounds wall[] read access')
+                  error('out-of-bounds wall[] read access', 2)
               end,
 
-    __newindex = function(tab, key, val) error('cannot write directly to wall[] struct') end,
+    __newindex = function(tab, key, val) error('cannot write directly to wall[] struct', 2) end,
     __metatable = true,
 }
 oG.setmetatable(wall, tmpmt)
@@ -231,10 +348,10 @@ local function creategtab(ctab, maxidx, name)
                       if (key>=0 and key < maxidx) then
                           return ctab[key]
                       end
-                      error('out-of-bounds '..name..' read access')
+                      error('out-of-bounds '..name..' read access', 2)
                   end,
         __newindex = function(tab, key, val)
-                         error('cannot write directly to '..name)
+                         error('cannot write directly to '..name, 2)
                      end,
         __metatable = true,
     }
@@ -253,6 +370,10 @@ prevspritestat = creategtab(ffiC.prevspritestat, 16384, 'prevspritestat[]')
 
 actor = creategtab(ffiC.actor, 16384, 'actor[]')
 
+function TEMP_getvollev()  -- REMOVE
+    return ffiC.ud.volume_number+1, ffiC.ud.level_number+1
+end
+
 ---- per-sector/per-statnum sprite iterators ----
 local function iter_spritesofsect(sect, i)
     if (i < 0) then
@@ -261,11 +382,13 @@ local function iter_spritesofsect(sect, i)
         i = ffiC.nextspritesect[i]
     end
 
-    if (i >= 0) then return i, i end
+    if (i >= 0) then return i end
 end
 
 function spritesofsect(sect)
-    assert(sect >= 0 and sect < ffiC.numsectors, "passed invalid sectnum to spritesofsect iterator")
+    if (sect < 0 or sect >= ffiC.numsectors) then
+        error("passed invalid sectnum to spritesofsect iterator", 2)
+    end
 
     return iter_spritesofsect, sect, -1
 end
@@ -277,13 +400,44 @@ local function iter_spritesofstat(stat, i)
         i = ffiC.nextspritestat[i]
     end
 
-    if (i >= 0) then return i, i end
+    if (i >= 0) then return i end
 end
 
 function spritesofstat(stat)
-    assert(stat >= 0 and stat < 1024, "passed invalid statnum to spritesofstat iterator")
+    if (stat < 0 or stat >= 1024) then
+        error("passed invalid statnum to spritesofstat iterator", 2)
+    end
 
-    return iter_spritesofstat , stat, -1
+    return iter_spritesofstat, stat, -1
+end
+
+-- TROR iterators
+local function iter_sectorsofbunch(cf, i)
+    if (i < 0) then
+        i = ffiC.headsectbunch[cf][-i-1];
+    else
+        i = ffiC.nextsectbunch[cf][i];
+    end
+
+    if (i >= 0) then return i end
+end
+
+function sectorsofbunch(bunchnum, cf)
+    if (bunchnum < 0 or bunchnum >= ffiC.numyaxbunches) then
+        error("passed invalid bunchnum to sectorsofbunch iterator", 2)
+    end
+    if (cf ~= 0 and cf ~= 1) then
+        error("passed invalid 'cf' to sectorsofbunch iterator, must be 0 or 1", 2)
+    end
+
+    return iter_sectorsofbunch, cf, -bunchnum-1
+end
+
+
+-- 'simple' code for prohibiting initial assignments to create new variables,
+-- from 14.2 of PiL
+function gamevar(name, initval)  -- aka 'declare'
+    rawset(G_, name, initval or false)
 end
 
 
@@ -303,15 +457,15 @@ G_.prevspritestat = prevspritestat
 
 G_.actor = actor
 
+-- functions
 G_.spritesofsect = spritesofsect
 G_.spritesofstat = spritesofstat
+G_.sectorsofbunch = sectorsofbunch
 
--- 'simple' code for prohibiting initial assignments to create new variables,
--- from 14.2 of PiL
-function gamevar(name, initval)  -- aka 'declare'
-    rawset(G_, name, initval or false)
-end
+G_.TEMP_getvollev = TEMP_getvollev  -- REMOVE
+G_.gamevar = gamevar
 
+-- 14.2 continued
 setmetatable(
     G_, {
         __newindex = function (_, n)
