@@ -319,7 +319,7 @@ static inline int32_t bitrev(int32_t b, int32_t c)
 
 static inline int32_t testflag(int32_t c) { UNREFERENCED_PARAMETER(c); return(0); }
 
-static inline void cpuid(int32_t a, int32_t *s) { UNREFERENCED_PARAMETER(a); UNREFERENCED_PARAMETER(s);}
+static inline void cpuid(int32_t a, int32_t *s) { UNREFERENCED_PARAMETER(a); s[0]=0; }
 
 #endif
 
