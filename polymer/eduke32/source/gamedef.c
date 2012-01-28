@@ -3540,7 +3540,11 @@ static int32_t C_ParseCommand(int32_t loop)
                 initprintf("%s:%d: warning: duplicate dynamicremap statement\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerWarnings++;
             }
+#ifdef DYNTILEREMAP_ENABLE
             else initprintf("Using dynamic tile remapping\n");
+#else
+            else initprintf("Would be using dynamic tile remapping\n");
+#endif
             continue;
 
         case CON_RANDVAR:
