@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
+#include "namesdyn.h"
 #include "gamedef.h"
 #include "gameexec.h"
 #include "savegame.h"
@@ -1037,9 +1038,6 @@ static hashtable_t playerH     = { PLAYER_END>>1, NULL };
 static hashtable_t inputH      = { INPUT_END>>1, NULL };
 static hashtable_t actorH      = { ACTOR_END>>1, NULL };
 static hashtable_t tspriteH    = { ACTOR_END>>1, NULL };
-
-void inithashnames();
-void freehashnames();
 
 void C_InitHashes()
 {

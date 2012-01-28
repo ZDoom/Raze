@@ -23,6 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void G_InitDynamicTiles(void);
 void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue);
 
+void inithashnames(void);
+void freehashnames(void);
+
 extern int32_t SECTOREFFECTOR;
 #define SECTOREFFECTOR__STATIC 1
 extern int32_t ACTIVATOR;

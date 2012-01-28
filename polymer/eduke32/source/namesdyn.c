@@ -1531,7 +1531,7 @@ void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue)
         *(list[i].dynvalptr) = lValue;
 }
 
-void inithashnames()
+void inithashnames(void)
 {
     int32_t i;
 
@@ -1541,7 +1541,7 @@ void inithashnames()
         hash_add(&h_names, list[i].str, i, 0);
 }
 
-void freehashnames()
+void freehashnames(void)
 {
     hash_free(&h_names);
 }
