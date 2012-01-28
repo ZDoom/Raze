@@ -51,6 +51,9 @@
 
 #if !defined DEBUG_MAIN_ARRAYS
 # define HAVE_CLIPSHAPE_FEATURE
+const int32_t engine_main_arrays_are_static = 0;  // for Lunatic
+#else
+const int32_t engine_main_arrays_are_static = 1;
 #endif
 
 float debug1, debug2;

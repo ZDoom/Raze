@@ -79,14 +79,27 @@ typedef struct
     const int8_t _do_not_use[24];
 } actor_t;
 #pragma pack(pop)
+
+int32_t engine_main_arrays_are_static;
 ]]
 
-ffi.cdef[[
+if (ffi.C.engine_main_arrays_are_static) then
+    ffi.cdef[[
+sectortype sector[];
+walltype wall[];
+spritetype sprite[];
+spriteext_t spriteext[];
+]]
+else
+    ffi.cdef[[
 sectortype *sector;
 walltype *wall;
 spritetype *sprite;
 spriteext_t *spriteext;
+]]
+end
 
+ffi.cdef[[
 const int16_t numsectors, numwalls;
 
 const int16_t headspritesect[16384+1], headspritestat[1024+1];

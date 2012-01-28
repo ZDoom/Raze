@@ -1,4 +1,6 @@
 {
+engine_main_arrays_are_static;
+
 sector;
 wall;
 sprite;
