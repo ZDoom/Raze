@@ -763,9 +763,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int16_t DynamicTileMap[MAXTILES];
 
+void G_InitDynamicTiles(void);
+
 #ifdef DYNTILEREMAP_ENABLE
 
-void G_InitDynamicTiles(void);
 void G_ProcessDynamicTileMapping(const char *szLabel, int32_t lValue);
 
 void inithashnames(void);
@@ -1513,7 +1514,6 @@ extern int32_t RESERVEDSLOT12;
 
 #else  /* if !defined DYNTILEREMAP_ENABLE */
 
-#define G_InitDynamicTiles() ((void)(0))
 #define G_ProcessDynamicTileMapping(x, y) ((void)(0))
 
 #define inithashnames() ((void)0)
