@@ -5073,7 +5073,8 @@ end_after_dragging:
                         }
                         else if ((pointhighlight&0xc000) == 16384)
                         {
-                            int32_t daspr=pointhighlight&16383, osec=sprite[daspr].sectnum;
+                            int32_t daspr=pointhighlight&16383;
+                            int16_t osec=sprite[daspr].sectnum, nsec=osec;
                             vec3_t vec, ovec;
 
                             Bmemcpy(&ovec, (vec3_t *)&sprite[daspr], sizeof(vec3_t));
@@ -5081,24 +5082,23 @@ end_after_dragging:
                             vec.y = day;
                             vec.z = sprite[daspr].z;
                             if (setspritez(daspr, &vec) == -1 && osec>=0)
-                                Bmemcpy(&sprite[daspr], &ovec, sizeof(vec3_t));
-#if 0
-                            daz = spriteheight(daspr, NULL);
+                            {
+                                updatesector_onlynextwalls(dax, day, &nsec);
 
-                            for (i=0; i<numsectors; i++)
-                                if (inside(dax,day,i) == 1)
-                                    if (sprite[daspr].z >= getceilzofslope(i,dax,day))
-                                        if (sprite[daspr].z-daz <= getflorzofslope(i,dax,day))
-                                        {
-                                            sprite[daspr].x = dax;
-                                            sprite[daspr].y = day;
-                                            if (sprite[daspr].sectnum != i)
-                                                changespritesect(daspr,(int16_t)i);
-                                            break;
-                                        }
-#endif
+                                if (nsec >= 0)
+                                {
+                                    sprite[daspr].x = dax;
+                                    sprite[daspr].y = day;
+                                    // z updating is after we released the mouse button
+                                    if (sprite[daspr].sectnum != nsec)
+                                        changespritesect(daspr, nsec);
+                                }
+                                else
+                                    Bmemcpy(&sprite[daspr], &ovec, sizeof(vec3_t));
+                            }
                         }
                     }
+
                     asksave = 1;
                 }
             }
