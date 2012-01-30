@@ -2650,14 +2650,15 @@ void G_DisplayRest(int32_t smoothratio)
         g_restorePalette = 1;     // JBF 20040101
         applyTint = 1;
     }
+
     // reset a normal palette
-    else if (g_restorePalette)
+    if (g_restorePalette)
     {
         static uint32_t omovethingscnt;
 
         if (g_restorePalette < 2 || omovethingscnt+1 == g_moveThingsCount)
         {
-            P_SetGamePalette(pp,pp->palette,2);
+            P_SetGamePalette(pp,pp->palette,2+16);
             g_restorePalette = 0;
         }
         else
@@ -2667,12 +2668,13 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
     // loogies courtesy of being snotted on
-    else if (pp->loogcnt > 0)
+    else if (pp->pals.f==0 && pp->loogcnt > 0)
     {
         palette_t lp = { 0, 64, 0, pp->loogcnt>>1 };
         Bmemcpy(&tempFade, &lp, sizeof(palette_t));
         applyTint = 1;
     }
+
     if (tempFade.f > tempTint.f)
         Bmemcpy(&tempTint, &tempFade, sizeof(palette_t));
 
