@@ -3090,14 +3090,14 @@ void overheadeditor(void)
                 }
 
                 i = numwalls-1;
-                j = numsectors-1;
+                j = numsectors-1;  // might be -1 if empty map!
                 if (newnumwalls >= 0)
                     i = newnumwalls-1;
                 for (; i>=0; i--)
                 {
                     const walltype *wal = &wall[i];
 
-                    if (sector[j].wallptr > i)
+                    if (j>=0 && sector[j].wallptr > i)
                         j--;
 
                     if (zoom < 768 && !(wal->cstat & (1<<14)))
@@ -3115,7 +3115,7 @@ void overheadeditor(void)
                         dax = (wal->x+wall[wal->point2].x)>>1;
                         day = (wal->y+wall[wal->point2].y)>>1;
                         drawsmallabel(dabuffer, editorcolors[0], editorcolors[31],
-                                       dax, day, getflorzofslope(j, dax,day));
+                                      dax, day, (i >= numwalls || j<0) ? 0 : getflorzofslope(j, dax,day));
                     }
                 }
 
