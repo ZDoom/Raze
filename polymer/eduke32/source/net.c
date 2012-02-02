@@ -2590,12 +2590,12 @@ void Net_GetPackets(void)
 
                         g_multiMapState = (mapstate_t *)Brealloc(g_multiMapState, sizeof(mapstate_t));
 
-                        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+                        rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64);
 
-                        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-                        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+                        rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8);
+                        rotatesprite_fs(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8);
                         if (PLUTOPAK)   // JBF 20030804
-                            rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+                            rotatesprite_fs(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8);
 
                         if (buf && event.packet->dataLength == SYNCPACKETSIZE)
                         {
@@ -3213,12 +3213,12 @@ void Net_WaitForServer(void)
     {
         if (quitevent || keystatus[1]) G_GameExit("");
 
-        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64);
 
-        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8);
+        rotatesprite_fs(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8);
         if (PLUTOPAK)   // JBF 20030804
-            rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8);
 
         gametext(160,170,"WAITING FOR SERVER",14,2);
         nextpage();

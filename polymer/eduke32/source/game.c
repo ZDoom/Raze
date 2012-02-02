@@ -527,8 +527,8 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
         }
         else ac = ch - '!' + MINIFONT;
 
-        if (cmode) rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,ac,s,p,sb,0,0,xdim-1,ydim-1);
-        else rotatesprite(x<<16,y<<16,65536L,0,ac,s,p,sb,0,0,xdim-1,ydim-1);
+        if (cmode) rotatesprite_fs(sbarx(x),sbary(y),sbarsc(65536L),0,ac,s,p,sb);
+        else rotatesprite_fs(x<<16,y<<16,65536L,0,ac,s,p,sb);
         x += 4; // tilesizx[ac]+1;
 
     }
@@ -732,37 +732,37 @@ static void G_DrawInvNum(int32_t x,int32_t y,char num1,char ha,int32_t sbits)
     {
         if (shd && ud.screen_size == 4 && getrendermode() >= 3 && althud_shadows)
         {
-            rotatesprite(sbarx(x-4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(sbarx(x-4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits);
+            rotatesprite_fs(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits);
+            rotatesprite_fs(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,4,POLYMOSTTRANS|sbits);
         }
-        rotatesprite(sbarx(x-4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(x-4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits);
+        rotatesprite_fs(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits);
+        rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,0,sbits);
         return;
     }
     if (num1 > 9)
     {
         if (shd && ud.screen_size == 4 && getrendermode() >= 3 && althud_shadows)
         {
-            rotatesprite(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits);
+            rotatesprite_fs(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits);
         }
 
-        rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits);
+        rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits);
         return;
     }
-    rotatesprite(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,sbits,0,0,xdim-1,ydim-1);
-    rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits,0,0,xdim-1,ydim-1);
+    rotatesprite_fs(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,sbits);
+    rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits);
 }
 
 static void G_DrawWeapNum(int16_t ind,int32_t x,int32_t y,int32_t num1, int32_t num2,int32_t ha)
 {
     char dabuf[80] = {0};
 
-    rotatesprite(sbarx(x-7),sbary(y),sbarsc(65536L),0,THREEBYFIVE+ind+1,ha-10,7,10,0,0,xdim-1,ydim-1);
-    rotatesprite(sbarx(x-3),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10,0,0,xdim-1,ydim-1);
+    rotatesprite_fs(sbarx(x-7),sbary(y),sbarsc(65536L),0,THREEBYFIVE+ind+1,ha-10,7,10);
+    rotatesprite_fs(sbarx(x-3),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10);
 
     if (VOLUMEONE && (ind > HANDBOMB_WEAPON || ind < 0))
     {
@@ -770,7 +770,7 @@ static void G_DrawWeapNum(int16_t ind,int32_t x,int32_t y,int32_t num1, int32_t 
         return;
     }
 
-    rotatesprite(sbarx(x+9),sbary(y),sbarsc(65536L),0,THREEBYFIVE+11,ha,0,10,0,0,xdim-1,ydim-1);
+    rotatesprite_fs(sbarx(x+9),sbary(y),sbarsc(65536L),0,THREEBYFIVE+11,ha,0,10);
 
     if (num1 > 99) num1 = 99;
     if (num2 > 99) num2 = 99;
@@ -778,58 +778,58 @@ static void G_DrawWeapNum(int16_t ind,int32_t x,int32_t y,int32_t num1, int32_t 
     Bsprintf(dabuf,"%d",num1);
     if (num1 > 9)
     {
-        rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
     }
-    else rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+    else rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
 
     Bsprintf(dabuf,"%d",num2);
     if (num2 > 9)
     {
-        rotatesprite(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
         return;
     }
-    rotatesprite(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+    rotatesprite_fs(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
 }
 
 static void G_DrawWeapNum2(char ind,int32_t x,int32_t y,int32_t num1, int32_t num2,char ha)
 {
     char dabuf[80] = {0};
 
-    rotatesprite(sbarx(x-7),sbary(y),sbarsc(65536L),0,THREEBYFIVE+ind+1,ha-10,7,10,0,0,xdim-1,ydim-1);
-    rotatesprite(sbarx(x-4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10,0,0,xdim-1,ydim-1);
-    rotatesprite(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+11,ha,0,10,0,0,xdim-1,ydim-1);
+    rotatesprite_fs(sbarx(x-7),sbary(y),sbarsc(65536L),0,THREEBYFIVE+ind+1,ha-10,7,10);
+    rotatesprite_fs(sbarx(x-4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10);
+    rotatesprite_fs(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+11,ha,0,10);
 
     Bsprintf(dabuf,"%d",num1);
     if (num1 > 99)
     {
-        rotatesprite(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(x+8),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+8),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,0,10);
     }
     else if (num1 > 9)
     {
-        rotatesprite(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(x+8),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+8),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
     }
-    else rotatesprite(sbarx(x+8),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+    else rotatesprite_fs(sbarx(x+8),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
 
     Bsprintf(dabuf,"%d",num2);
     if (num2 > 99)
     {
-        rotatesprite(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(x+21),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+21),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,0,10);
     }
     else if (num2 > 9)
     {
-        rotatesprite(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(x+21),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+21),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
         return;
     }
     else
-        rotatesprite(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
 }
 
 static void G_DrawWeapAmounts(DukePlayer_t *p,int32_t x,int32_t y,int32_t u)
@@ -938,7 +938,7 @@ static void G_DrawDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
     for (k=0; k<i; k++)
     {
         p = DIGITALNUM+*(b+k)-'0';
-        rotatesprite(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,0,cs,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,0,cs);
         j += tilesizx[p]+1;
     }
 }
@@ -996,8 +996,8 @@ static void G_DrawAltDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
         {
             p = althud_numbertile+*(b+k)-'0';
             if (shd && getrendermode() >= 3 && althud_shadows)
-                rotatesprite(sbarxr(c+j-1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarxr(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs,0,0,xdim-1,ydim-1);
+                rotatesprite_fs(sbarxr(c+j-1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|POLYMOSTTRANS2);
+            rotatesprite_fs(sbarxr(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs);
             j -= tilesizx[p]+1;
         }
         return;
@@ -1007,8 +1007,8 @@ static void G_DrawAltDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
     {
         p = althud_numbertile+*(b+k)-'0';
         if (shd && getrendermode() >= 3 && althud_shadows)
-            rotatesprite(sbarx(c+j+1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
-        rotatesprite(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(sbarx(c+j+1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|POLYMOSTTRANS2);
+        rotatesprite_fs(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs);
         j += tilesizx[p]+1;
     }
 }
@@ -1084,10 +1084,10 @@ void G_DrawFrags(void)
     TRAVERSE_CONNECT(i)
     if (i > j) j = i;
 
-    rotatesprite(0,0,65600L,0,FRAGBAR,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
-    if (j >= 4) rotatesprite(319,(8)<<16,65600L,0,FRAGBAR,0,0,10+16+64,0,0,xdim-1,ydim-1);
-    if (j >= 8) rotatesprite(319,(16)<<16,65600L,0,FRAGBAR,0,0,10+16+64,0,0,xdim-1,ydim-1);
-    if (j >= 12) rotatesprite(319,(24)<<16,65600L,0,FRAGBAR,0,0,10+16+64,0,0,xdim-1,ydim-1);
+    rotatesprite_fs(0,0,65600L,0,FRAGBAR,0,0,2+8+16+64);
+    if (j >= 4) rotatesprite_fs(319,(8)<<16,65600L,0,FRAGBAR,0,0,10+16+64);
+    if (j >= 8) rotatesprite_fs(319,(16)<<16,65600L,0,FRAGBAR,0,0,10+16+64);
+    if (j >= 12) rotatesprite_fs(319,(24)<<16,65600L,0,FRAGBAR,0,0,10+16+64);
 
     TRAVERSE_CONNECT(i)
     {
@@ -1148,11 +1148,11 @@ static void G_DrawStatusBar(int32_t snum)
                 Bmemcpy(ammo_sprites,asprites,sizeof(ammo_sprites));
             }
 
-//            rotatesprite(sbarx(5+1),sbary(200-25+1),sbarsc(49152L),0,SIXPAK,0,4,10+16+1+32,0,0,xdim-1,ydim-1);
-//            rotatesprite(sbarx(5),sbary(200-25),sbarsc(49152L),0,SIXPAK,0,0,10+16,0,0,xdim-1,ydim-1);
+//            rotatesprite_fs(sbarx(5+1),sbary(200-25+1),sbarsc(49152L),0,SIXPAK,0,4,10+16+1+32);
+//            rotatesprite_fs(sbarx(5),sbary(200-25),sbarsc(49152L),0,SIXPAK,0,0,10+16);
             if (getrendermode() >= 3 && althud_shadows)
-                rotatesprite(sbarx(2+1),sbary(200-21+1),sbarsc(49152L),0,COLA,0,4,10+16+256+POLYMOSTTRANS2,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(2),sbary(200-21),sbarsc(49152L),0,COLA,0,0,10+16+256,0,0,xdim-1,ydim-1);
+                rotatesprite_fs(sbarx(2+1),sbary(200-21+1),sbarsc(49152L),0,COLA,0,4,10+16+256+POLYMOSTTRANS2);
+            rotatesprite_fs(sbarx(2),sbary(200-21),sbarsc(49152L),0,COLA,0,0,10+16+256);
 
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
                 G_DrawAltDigiNum(40,-(200-22),1,-16,10+16+256);
@@ -1165,8 +1165,8 @@ static void G_DrawStatusBar(int32_t snum)
             }
 
             if (getrendermode() >= 3 && althud_shadows)
-                rotatesprite(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+POLYMOSTTRANS2+256,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarx(62),sbary(200-25),sbarsc(49152L),0,SHIELD,0,0,10+16+256,0,0,xdim-1,ydim-1);
+                rotatesprite_fs(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+POLYMOSTTRANS2+256);
+            rotatesprite_fs(sbarx(62),sbary(200-25),sbarsc(49152L),0,SHIELD,0,0,10+16+256);
 
             {
                 int32_t lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
@@ -1176,20 +1176,20 @@ static void G_DrawStatusBar(int32_t snum)
 
             if (getrendermode() >= 3 && althud_shadows)
             {
-                if (p->got_access&1) rotatesprite(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512,0,0,xdim-1,ydim-1);
-                if (p->got_access&4) rotatesprite(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512,0,0,xdim-1,ydim-1);
-                if (p->got_access&2) rotatesprite(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512,0,0,xdim-1,ydim-1);
+                if (p->got_access&1) rotatesprite_fs(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
+                if (p->got_access&4) rotatesprite_fs(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
+                if (p->got_access&2) rotatesprite_fs(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
             }
 
-            if (p->got_access&1) rotatesprite(sbarxr(39),sbary(200-43),sbarsc(32768),0,ACCESSCARD,0,0,10+16+512,0,0,xdim-1,ydim-1);
-            if (p->got_access&4) rotatesprite(sbarxr(34),sbary(200-41),sbarsc(32768),0,ACCESSCARD,0,23,10+16+512,0,0,xdim-1,ydim-1);
-            if (p->got_access&2) rotatesprite(sbarxr(29),sbary(200-39),sbarsc(32768),0,ACCESSCARD,0,21,10+16+512,0,0,xdim-1,ydim-1);
+            if (p->got_access&1) rotatesprite_fs(sbarxr(39),sbary(200-43),sbarsc(32768),0,ACCESSCARD,0,0,10+16+512);
+            if (p->got_access&4) rotatesprite_fs(sbarxr(34),sbary(200-41),sbarsc(32768),0,ACCESSCARD,0,23,10+16+512);
+            if (p->got_access&2) rotatesprite_fs(sbarxr(29),sbary(200-39),sbarsc(32768),0,ACCESSCARD,0,21,10+16+512);
 
             i = (p->curr_weapon == PISTOL_WEAPON) ? 16384 : 32768;
 
             if (getrendermode() >= 3 && althud_shadows)
-                rotatesprite(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,10+POLYMOSTTRANS2+512,0,0,xdim-1,ydim-1);
-            rotatesprite(sbarxr(57),sbary(200-15),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,10+512,0,0,xdim-1,ydim-1);
+                rotatesprite_fs(sbarxr(57-1),sbary(200-15+1),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,4,10+POLYMOSTTRANS2+512);
+            rotatesprite_fs(sbarxr(57),sbary(200-15),sbarsc(i),0,ammo_sprites[p->curr_weapon],0,0,10+512);
 
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
             else i = p->curr_weapon;
@@ -1232,8 +1232,8 @@ static void G_DrawStatusBar(int32_t snum)
                 if (i >= 0)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        rotatesprite(sbarx(231-o+1),sbary(200-21-2+1),sbarsc(65536L),0,i,0,4,10+16+permbit+POLYMOSTTRANS2+256,0,0,xdim-1,ydim-1);
-                    rotatesprite(sbarx(231-o),sbary(200-21-2),sbarsc(65536L),0,i,0,0,10+16+permbit+256,0,0,xdim-1,ydim-1);
+                        rotatesprite_fs(sbarx(231-o+1),sbary(200-21-2+1),sbarsc(65536L),0,i,0,4,10+16+permbit+POLYMOSTTRANS2+256);
+                    rotatesprite_fs(sbarx(231-o),sbary(200-21-2),sbarsc(65536L),0,i,0,0,10+16+permbit+256);
                 }
 
                 if (getrendermode() >= 3 && althud_shadows)
@@ -1292,15 +1292,15 @@ static void G_DrawStatusBar(int32_t snum)
             return;
         }
 
-        rotatesprite(sbarx(5),sbary(200-28),sbarsc(65536L),0,HEALTHBOX,0,21,10+16+256,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(5),sbary(200-28),sbarsc(65536L),0,HEALTHBOX,0,21,10+16+256);
         if (p->inven_icon)
-            rotatesprite(sbarx(69),sbary(200-30),sbarsc(65536L),0,INVENTORYBOX,0,21,10+16+256,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(sbarx(69),sbary(200-30),sbarsc(65536L),0,INVENTORYBOX,0,21,10+16+256);
 
         if (sprite[p->i].pal == 1 && p->last_extra < 2) // frozen
             G_DrawDigiNum(20,200-17,1,-16,10+16+256);
         else G_DrawDigiNum(20,200-17,p->last_extra,-16,10+16+256);
 
-        rotatesprite(sbarx(37),sbary(200-28),sbarsc(65536L),0,AMMOBOX,0,21,10+16+256,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(sbarx(37),sbary(200-28),sbarsc(65536L),0,AMMOBOX,0,21,10+16+256);
 
         if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
         else i = p->curr_weapon;
@@ -1336,7 +1336,7 @@ static void G_DrawStatusBar(int32_t snum)
             default:
                 i = -1;
             }
-            if (i >= 0) rotatesprite(sbarx(231-o),sbary(200-21),sbarsc(65536L),0,i,0,0,10+16+permbit+256,0,0,xdim-1,ydim-1);
+            if (i >= 0) rotatesprite_fs(sbarx(231-o),sbary(200-21),sbarsc(65536L),0,i,0,0,10+16+permbit+256);
 
             minitext(292-30-o,190,"%",6,10+16+permbit+256 + ROTATESPRITE_MAX);
 
@@ -1530,7 +1530,7 @@ static void G_DrawStatusBar(int32_t snum)
     {
         G_PatchStatusBar(0,0,320,200);
         if ((g_netServer || (g_netServer || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
-            rotatesprite(sbarx(277+1),sbary(SBY+7-1),sbarsc(65536L),0,KILLSICON,0,0,10+16,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(sbarx(277+1),sbary(SBY+7-1),sbarsc(65536L),0,KILLSICON,0,0,10+16);
     }
     if ((g_netServer || (g_netServer || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
     {
@@ -1545,9 +1545,9 @@ static void G_DrawStatusBar(int32_t snum)
         if (u&16384)
         {
             if (u != -1) G_PatchStatusBar(275,SBY+18,299,SBY+18+12);
-            if (p->got_access&4) rotatesprite(sbarx(275),sbary(SBY+16),sbarsc(65536L),0,ACCESS_ICON,0,23,10+16,0,0,xdim-1,ydim-1);
-            if (p->got_access&2) rotatesprite(sbarx(288),sbary(SBY+16),sbarsc(65536L),0,ACCESS_ICON,0,21,10+16,0,0,xdim-1,ydim-1);
-            if (p->got_access&1) rotatesprite(sbarx(281),sbary(SBY+23),sbarsc(65536L),0,ACCESS_ICON,0,0,10+16,0,0,xdim-1,ydim-1);
+            if (p->got_access&4) rotatesprite_fs(sbarx(275),sbary(SBY+16),sbarsc(65536L),0,ACCESS_ICON,0,23,10+16);
+            if (p->got_access&2) rotatesprite_fs(sbarx(288),sbary(SBY+16),sbarsc(65536L),0,ACCESS_ICON,0,21,10+16);
+            if (p->got_access&1) rotatesprite_fs(sbarx(281),sbary(SBY+23),sbarsc(65536L),0,ACCESS_ICON,0,0,10+16);
         }
     }
     if (u&(4+8+16+32+64+128+256+512+65536L)) G_DrawWeapAmounts(p,96,SBY+16,u);
@@ -1625,7 +1625,7 @@ static void G_DrawStatusBar(int32_t snum)
                     i = BOOT_ICON;
                     break;
                 }
-                rotatesprite(sbarx(231-o),sbary(SBY+13),sbarsc(65536L),0,i,0,0,10+16+permbit,0,0,xdim-1,ydim-1);
+                rotatesprite_fs(sbarx(231-o),sbary(SBY+13),sbarsc(65536L),0,i,0,0,10+16+permbit);
                 minitext(292-30-o,SBY+24,"%",6,10+16+permbit + ROTATESPRITE_MAX);
                 if (p->inven_icon >= 6) minitext(284-35-o,SBY+14,"AUTO",2,10+16+permbit + ROTATESPRITE_MAX);
             }
@@ -1958,7 +1958,7 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
                 KB_ClearKeyDown(sc_Space);
                 return;
             }
-            rotatesprite(0,0,65536L,0,tile,0,0,2+8+16+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+            rotatesprite_fs(0,0,65536L,0,tile,0,0,2+8+16+(ud.bgstretch?1024:0));
             G_FadePalette(r,g,b,start);
         }
     }
@@ -1969,7 +1969,7 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
                 KB_ClearKeyDown(sc_Space);
                 return;
             }
-            rotatesprite(0,0,65536L,0,tile,0,0,2+8+16+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+            rotatesprite_fs(0,0,65536L,0,tile,0,0,2+8+16+(ud.bgstretch?1024:0));
             G_FadePalette(r,g,b,start);
         }
 }
@@ -1989,7 +1989,7 @@ static void G_DisplayExtraScreens(void)
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0 /*1*/);    // JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
-        rotatesprite(0,0,65536L,0,3291,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+        rotatesprite_fs(0,0,65536L,0,3291,0,0,2+8+16+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7, 3291);
         while (!KB_KeyWaiting())
         {
@@ -1999,7 +1999,7 @@ static void G_DisplayExtraScreens(void)
 
         fadepaltile(0,0,0, 0,64,7, 3291);
         KB_FlushKeyboardQueue();
-        rotatesprite(0,0,65536L,0,3290,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+        rotatesprite_fs(0,0,65536L,0,3290,0,0,2+8+16+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7,3290);
         while (!KB_KeyWaiting())
         {
@@ -2016,7 +2016,7 @@ static void G_DisplayExtraScreens(void)
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0 /*1*/);    // JBF 20040308
         fadepal(0,0,0, 0,64,7);
         KB_FlushKeyboardQueue();
-        rotatesprite(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+        rotatesprite_fs(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7,TENSCREEN);
         while (!KB_KeyWaiting() && totalclock < 2400)
         {
@@ -2145,8 +2145,8 @@ int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32
     }
 
     if (small&1)
-        rotatesprite(textsc(x)<<16,(y<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8,0,0,xdim-1,ydim-1);
-    else rotatesprite((x+((small&1)?4:8))<<16,((y+((small&1)?0:4))<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(textsc(x)<<16,(y<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8);
+    else rotatesprite_fs((x+((small&1)?4:8))<<16,((y+((small&1)?0:4))<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8);
     return (0);
 }
 
@@ -2690,10 +2690,10 @@ void G_DisplayRest(int32_t smoothratio)
         switch (ud.show_help)
         {
         case 1:
-            rotatesprite(0,0,65536L,0,TEXTSTORY,0,0,10+16+64, 0,0,xdim-1,ydim-1);
+            rotatesprite_fs(0,0,65536L,0,TEXTSTORY,0,0,10+16+64);
             break;
         case 2:
-            rotatesprite(0,0,65536L,0,F1HELP,0,0,10+16+64, 0,0,xdim-1,ydim-1);
+            rotatesprite_fs(0,0,65536L,0,F1HELP,0,0,10+16+64);
             break;
         }
 
@@ -2976,7 +2976,7 @@ void G_DisplayRest(int32_t smoothratio)
     if (VOLUMEONE)
     {
         if (ud.show_help == 0 && g_showShareware > 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
-            rotatesprite((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128,0,0,xdim-1,ydim-1);
+            rotatesprite_fs((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128);
     }
 
     if (g_player[myconnectindex].ps->gm&MODE_TYPE)
@@ -3084,9 +3084,9 @@ void G_DrawBackground(void)
         {
             for (y=y1; y<y2; y+=tilesizy[aGameVars[g_iReturnVarID].val.lValue])
                 for (x=0; x<xdim; x+=tilesizx[aGameVars[g_iReturnVarID].val.lValue])
-                    rotatesprite(x<<16,y<<16,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,8+16+64,0,0,xdim-1,ydim-1);
+                    rotatesprite_fs(x<<16,y<<16,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,8+16+64);
         }
-        else rotatesprite(320<<15,200<<15,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,2+8+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+        else rotatesprite_fs(320<<15,200<<15,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,2+8+64+(ud.bgstretch?1024:0));
         return;
     }
 
@@ -9210,13 +9210,13 @@ static void G_DisplayLogo(void)
                 P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8+2/*+1*/);    // JBF 20040308
                 fadepal(0,0,0, 0,64,7);
                 flushperms();
-                rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+                rotatesprite_fs(0,0,65536L,0,DREALMS,0,0,2+8+16+(ud.bgstretch?1024:0));
                 nextpage();
                 fadepaltile(0,0,0, 63,0,-7,DREALMS);
                 totalclock = 0;
                 while (totalclock < (120*7) && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE  && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
                 {
-                    rotatesprite(0,0,65536L,0,DREALMS,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+                    rotatesprite_fs(0,0,65536L,0,DREALMS,0,0,2+8+16+64+(ud.bgstretch?1024:0));
                     handleevents();
                     Net_GetPackets();
                     if (g_restorePalette)
@@ -9240,14 +9240,14 @@ static void G_DisplayLogo(void)
             //g_player[myconnectindex].ps->palette = titlepal;
             P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2/*+1*/);   // JBF 20040308
             flushperms();
-            rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16);
             KB_FlushKeyboardQueue();
             fadepaltile(0,0,0, 63,0,-7,BETASCREEN);
             totalclock = 0;
 
             while (totalclock < (860+120) && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE  && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
             {
-                rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+                rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0));
                 if (logoflags & LOGO_DUKENUKEM)
                 {
                     if (totalclock > 120 && totalclock < (120+60))
@@ -9257,10 +9257,10 @@ static void G_DisplayLogo(void)
                             soundanm++;
                             S_PlaySound(PIPEBOMB_EXPLODE);
                         }
-                        rotatesprite(160<<16,104<<16,(totalclock-120)<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+                        rotatesprite_fs(160<<16,104<<16,(totalclock-120)<<10,0,DUKENUKEM,0,0,2+8);
                     }
                     else if (totalclock >= (120+60))
-                        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+                        rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8);
                 }
                 else soundanm++;
 
@@ -9274,11 +9274,11 @@ static void G_DisplayLogo(void)
                             S_PlaySound(PIPEBOMB_EXPLODE);
                         }
 
-                        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-                        rotatesprite(160<<16,(129)<<16,(totalclock - 220)<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+                        rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8);
+                        rotatesprite_fs(160<<16,(129)<<16,(totalclock - 220)<<11,0,THREEDEE,0,0,2+8);
                     }
                     else if (totalclock >= (220+30))
-                        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+                        rotatesprite_fs(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8);
                 }
                 else soundanm++;
 
@@ -9287,7 +9287,7 @@ static void G_DisplayLogo(void)
                     // JBF 20030804
                     if (totalclock >= 280 && totalclock < 395)
                     {
-                        rotatesprite(160<<16,(151)<<16,(410-totalclock)<<12,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+                        rotatesprite_fs(160<<16,(151)<<16,(410-totalclock)<<12,0,PLUTOPAKSPRITE+1,0,0,2+8);
                         if (soundanm == 2)
                         {
                             soundanm++;
@@ -9301,7 +9301,7 @@ static void G_DisplayLogo(void)
                             soundanm++;
                             S_PlaySound(PIPEBOMB_EXPLODE);
                         }
-                        rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+                        rotatesprite_fs(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8);
                     }
                 }
 
@@ -10472,7 +10472,7 @@ CLEAN_DIRECTORY:
         //g_player[myconnectindex].ps->palette = palette;
         //G_FadePalette(0,0,0,0);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
-        rotatesprite(320<<15,200<<15,65536L,0,LOADSCREEN,0,0,2+8+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,200<<15,65536L,0,LOADSCREEN,0,0,2+8+64+(ud.bgstretch?1024:0));
         menutext(160,105,0,0,"LOADING SAVED GAME...");
         nextpage();
 
@@ -10907,7 +10907,7 @@ static void G_DoOrderScreen(void)
     //g_player[myconnectindex].ps->palette = palette;
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0 /*1*/);    // JBF 20040308
     KB_FlushKeyboardQueue();
-    rotatesprite(0,0,65536L,0,ORDERING,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+    rotatesprite_fs(0,0,65536L,0,ORDERING,0,0,2+8+16+64+(ud.bgstretch?1024:0));
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
     {
@@ -10917,7 +10917,7 @@ static void G_DoOrderScreen(void)
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
-    rotatesprite(0,0,65536L,0,ORDERING+1,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+    rotatesprite_fs(0,0,65536L,0,ORDERING+1,0,0,2+8+16+64+(ud.bgstretch?1024:0));
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
     {
@@ -10927,7 +10927,7 @@ static void G_DoOrderScreen(void)
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
-    rotatesprite(0,0,65536L,0,ORDERING+2,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+    rotatesprite_fs(0,0,65536L,0,ORDERING+2,0,0,2+8+16+64+(ud.bgstretch?1024:0));
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
     {
@@ -10937,7 +10937,7 @@ static void G_DoOrderScreen(void)
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
-    rotatesprite(0,0,65536L,0,ORDERING+3,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+    rotatesprite_fs(0,0,65536L,0,ORDERING+3,0,0,2+8+16+64+(ud.bgstretch?1024:0));
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
     {
@@ -11016,7 +11016,7 @@ void G_BonusScreen(int32_t bonusonly)
             {
                 P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, 8+2/*+1*/); // JBF 20040308
                 clearview(0L);
-                rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+                rotatesprite_fs(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
                 nextpage();
                 //g_player[myconnectindex].ps->palette = endingpal;
                 fadepal(0,0,0, 63,0,-1);
@@ -11027,7 +11027,7 @@ void G_BonusScreen(int32_t bonusonly)
                 while (1)
                 {
                     clearview(0L);
-                    rotatesprite(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+                    rotatesprite_fs(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
 
                     // boss
                     if (totalclock > 390 && totalclock < 780)
@@ -11039,7 +11039,7 @@ void G_BonusScreen(int32_t bonusonly)
                                     S_PlaySound(SQUISHED);
                                     bonuscnt++;
                                 }
-                                rotatesprite(bossmove[t+3]<<16,bossmove[t+4]<<16,65536L,0,bossmove[t+2],0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+                                rotatesprite_fs(bossmove[t+3]<<16,bossmove[t+4]<<16,65536L,0,bossmove[t+2],0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
                             }
 
                     // Breathe
@@ -11047,7 +11047,7 @@ void G_BonusScreen(int32_t bonusonly)
                     {
                         if (totalclock >= 750)
                         {
-                            rotatesprite(86<<16,59<<16,65536L,0,VICTORY1+8,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+                            rotatesprite_fs(86<<16,59<<16,65536L,0,VICTORY1+8,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
                             if (totalclock >= 750 && bonuscnt == 2)
                             {
                                 S_PlaySound(DUKETALKTOBOSS);
@@ -11063,7 +11063,7 @@ void G_BonusScreen(int32_t bonusonly)
                                     S_PlaySound(BOSSTALKTODUKE);
                                     bonuscnt++;
                                 }
-                                rotatesprite(breathe[t+3]<<16,breathe[t+4]<<16,65536L,0,breathe[t+2],0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+                                rotatesprite_fs(breathe[t+3]<<16,breathe[t+4]<<16,65536L,0,breathe[t+2],0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
                             }
                     }
                     handleevents();
@@ -11079,7 +11079,7 @@ void G_BonusScreen(int32_t bonusonly)
             //g_player[myconnectindex].ps->palette = palette;
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2/*+1*/);   // JBF 20040308
 
-            rotatesprite(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+            rotatesprite_fs(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0));
             fadepal(0,0,0, 63,0,-1);
             while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
             {
@@ -11111,7 +11111,7 @@ void G_BonusScreen(int32_t bonusonly)
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2/*+1*/);   // JBF 20040308
-            rotatesprite(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+            rotatesprite_fs(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0));
             fadepal(0,0,0, 63,0,-1);
             while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
             {
@@ -11296,10 +11296,10 @@ FRAGBONUS:
         if (!(ud.config.MusicToggle == 0 || ud.config.MusicDevice < 0))
             S_PlaySound(BONUSMUSIC);
 
-        rotatesprite(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
-        rotatesprite(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(0,0,65536L,0,MENUSCREEN,16,0,2+8+16+64+(ud.bgstretch?1024:0));
+        rotatesprite_fs(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10);
         if (PLUTOPAK)   // JBF 20030804
-            rotatesprite((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8,0,0,xdim-1,ydim-1);
+            rotatesprite_fs((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8);
         gametext(160,58+2,"MULTIPLAYER TOTALS",0,2+8+16);
         gametext(160,58+10,MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name,0,2+8+16);
 
@@ -11391,7 +11391,7 @@ FRAGBONUS:
         break;
     }
 
-    rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+    rotatesprite_fs(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
 
     if (lastmapname)
         menutext(160,20-6,0,0,lastmapname);
@@ -11443,7 +11443,7 @@ FRAGBONUS:
 
         if (g_player[myconnectindex].ps->gm&MODE_EOL)
         {
-            rotatesprite(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+            rotatesprite_fs(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
 
             if (totalclock > (1000000000L) && totalclock < (1000000320L))
             {
@@ -11473,11 +11473,11 @@ FRAGBONUS:
                 case 1:
                 case 4:
                 case 5:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+3+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+                    rotatesprite_fs(199<<16,31<<16,65536L,0,BONUSSCREEN+3+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
                     break;
                 case 2:
                 case 3:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+4+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+                    rotatesprite_fs(199<<16,31<<16,65536L,0,BONUSSCREEN+4+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
                     break;
                 }
             }
@@ -11488,10 +11488,10 @@ FRAGBONUS:
                 {
                 case 1:
                 case 3:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+1+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+                    rotatesprite_fs(199<<16,31<<16,65536L,0,BONUSSCREEN+1+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
                     break;
                 case 2:
-                    rotatesprite(199<<16,31<<16,65536L,0,BONUSSCREEN+2+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0),0,0,xdim-1,ydim-1);
+                    rotatesprite_fs(199<<16,31<<16,65536L,0,BONUSSCREEN+2+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
                     break;
                 }
             }

@@ -1949,9 +1949,9 @@ static void P_DisplaySpit(int32_t snum)
         z = 4096+((g_player[snum].ps->loogcnt+i)<<9);
         x = (-g_player[snum].sync->avel)+(sintable[((g_player[snum].ps->loogcnt+i)<<6)&2047]>>10);
 
-        rotatesprite(
+        rotatesprite_fs(
             (g_player[snum].ps->loogiex[i]+x)<<16,(200+g_player[snum].ps->loogiey[i]-y)<<16,z-(i<<8),256-a,
-            LOOGIE,0,0,2,0,0,xdim-1,ydim-1);
+            LOOGIE,0,0,2);
     }
 }
 

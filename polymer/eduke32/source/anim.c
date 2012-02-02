@@ -411,7 +411,7 @@ void G_PlayAnim(const char *fn,char t)
                 g_restorePalette = 0;
             }
 
-            rotatesprite(0<<16,0<<16,65536L,512,TILE_ANIM,0,0,2+4+8+16+64+(ud.bgstretch?1024:0), 0,0,xdim-1,ydim-1);
+            rotatesprite_fs(0<<16,0<<16,65536L,512,TILE_ANIM,0,0,2+4+8+16+64+(ud.bgstretch?1024:0));
             nextpage();
         }
 

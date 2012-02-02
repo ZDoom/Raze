@@ -40,7 +40,7 @@ void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
     ac = ch-'!'+STARTALPHANUM;
     if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
     usehightile = (osdhightile && ht);
-    rotatesprite(((x<<3)+x)<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
+    rotatesprite_fs(((x<<3)+x)<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16);
     usehightile = ht;
 }
 
@@ -93,7 +93,7 @@ void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade,
         ac = *ch-'!'+STARTALPHANUM;
         if (ac < STARTALPHANUM || ac > ENDALPHANUM) { usehightile = ht; return; }
 
-        rotatesprite(x<<16, (y<<3)<<16, 65536, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
+        rotatesprite_fs(x<<16, (y<<3)<<16, 65536, 0, ac, shade, pal, 8|16);
         x += OSDCHAR_WIDTH+1;
         ch++;
     }
@@ -110,7 +110,7 @@ void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress
     else ac = '_'-'!'+STARTALPHANUM;
 
     if (!((GetTime()-lastkeypress) & 0x40l))
-        rotatesprite(((x<<3)+x)<<16, ((y<<3)+(type?-1:2))<<16, 65536l, 0, ac, 0, 8, 8|16, 0, 0, xdim-1, ydim-1);
+        rotatesprite_fs(((x<<3)+x)<<16, ((y<<3)+(type?-1:2))<<16, 65536l, 0, ac, 0, 8, 8|16);
 }
 
 int32_t GAME_getcolumnwidth(int32_t w)

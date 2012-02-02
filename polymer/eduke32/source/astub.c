@@ -4356,7 +4356,7 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
 
     setaspect(65536L, (int32_t)divscale16(ydim*320L,xdim*200L));
     // +1024: prevents rotatesprite from setting aspect itself
-    rotatesprite((x1+13)<<16,(y+11)<<16,scale,0, picnum,shade,pal, 2+1024, 0,0,xdim-1,ydim-1);
+    rotatesprite_fs((x1+13)<<16,(y+11)<<16,scale,0, picnum,shade,pal, 2+1024);
     setaspect(oviewingrange, oyxaspect);
 
     x *= xdimgame/320.0;
@@ -9429,7 +9429,7 @@ void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
     ac = ch-'!'+STARTALPHANUM;
     if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
 
-    rotatesprite(((x<<3)+x)<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
+    rotatesprite_fs(((x<<3)+x)<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16);
 }
 
 void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade, int32_t pal)
@@ -9446,7 +9446,7 @@ void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade,
         ac = *ch-'!'+STARTALPHANUM;
         if (ac < STARTALPHANUM || ac > ENDALPHANUM) return;
 
-        rotatesprite(x<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16, 0, 0, xdim-1, ydim-1);
+        rotatesprite_fs(x<<16, (y<<3)<<16, 65536l, 0, ac, shade, pal, 8|16);
         if (*ch >= '0' && *ch <= '9') x+=8;
         else x += tilesizx[ac];
     }
@@ -9467,7 +9467,7 @@ void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress
     else ac = '_'-'!'+STARTALPHANUM;
 
     if (!((GetTime()-lastkeypress) & 0x40l))
-        rotatesprite(((x<<3)+x)<<16, ((y<<3)+(type?-1:2))<<16, 65536l, 0, ac, 0, 8, 8|16, 0, 0, xdim-1, ydim-1);
+        rotatesprite_fs(((x<<3)+x)<<16, ((y<<3)+(type?-1:2))<<16, 65536l, 0, ac, 0, 8, 8|16);
 }
 
 int32_t GAME_getcolumnwidth(int32_t w)

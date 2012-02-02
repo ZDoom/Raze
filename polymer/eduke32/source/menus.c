@@ -157,14 +157,14 @@ static int32_t probe_(int32_t type,int32_t x,int32_t y,int32_t i,int32_t n)
     {
         if (centre)
         {
-            //        rotatesprite(((320>>1)+(centre)+54)<<16,(y+(probey*i)-4)<<16,65536L,0,SPINNINGNUKEICON+6-((6+(totalclock>>3))%7),sh,0,10,0,0,xdim-1,ydim-1);
-            //        rotatesprite(((320>>1)-(centre)-54)<<16,(y+(probey*i)-4)<<16,65536L,0,SPINNINGNUKEICON+((totalclock>>3)%7),sh,0,10,0,0,xdim-1,ydim-1);
+            //        rotatesprite_fs(((320>>1)+(centre)+54)<<16,(y+(probey*i)-4)<<16,65536L,0,SPINNINGNUKEICON+6-((6+(totalclock>>3))%7),sh,0,10);
+            //        rotatesprite_fs(((320>>1)-(centre)-54)<<16,(y+(probey*i)-4)<<16,65536L,0,SPINNINGNUKEICON+((totalclock>>3)%7),sh,0,10);
 
-            rotatesprite(((320>>1)+(centre>>1)+70)<<16,(y+(probey*i)-4)<<16,65536L>>type,0,SPINNINGNUKEICON+6-((6+(totalclock>>3))%7),sh,0,10,0,0,xdim-1,ydim-1);
-            rotatesprite(((320>>1)-(centre>>1)-70)<<16,(y+(probey*i)-4)<<16,65536L>>type,0,SPINNINGNUKEICON+((totalclock>>3)%7),sh,0,10,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(((320>>1)+(centre>>1)+70)<<16,(y+(probey*i)-4)<<16,65536L>>type,0,SPINNINGNUKEICON+6-((6+(totalclock>>3))%7),sh,0,10);
+            rotatesprite_fs(((320>>1)-(centre>>1)-70)<<16,(y+(probey*i)-4)<<16,65536L>>type,0,SPINNINGNUKEICON+((totalclock>>3)%7),sh,0,10);
         }
         else
-            rotatesprite((x<<16)-((tilesizx[BIGFNTCURSOR]-4)<<(16-type)),(y+(probey*i)-(4>>type))<<16,65536L>>type,0,SPINNINGNUKEICON+(((totalclock>>3))%7),sh,0,10,0,0,xdim-1,ydim-1);
+            rotatesprite_fs((x<<16)-((tilesizx[BIGFNTCURSOR]-4)<<(16-type)),(y+(probey*i)-(4>>type))<<16,65536L>>type,0,SPINNINGNUKEICON+(((totalclock>>3))%7),sh,0,10);
     }
 
     if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Enter) || (LMB && !onbar))
@@ -319,7 +319,7 @@ int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits)
                 continue;
             }
 
-        rotatesprite(x<<16,y<<16,65536L,0,ac,s,p,bits,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(x<<16,y<<16,65536L,0,ac,s,p,bits);
 
         x += tilesizx[ac];
         t++;
@@ -376,11 +376,11 @@ static void _bar(int32_t type, int32_t x,int32_t y,int32_t *p,int32_t dainc,int3
     }
 
     xloc = *p;
-    rotatesprite((x<<16)+(22<<(16-type)),(y<<16)-(3<<(16-type)),65536L>>type,0,SLIDEBAR,s,pa,10,0,0,xdim-1,ydim-1);
+    rotatesprite_fs((x<<16)+(22<<(16-type)),(y<<16)-(3<<(16-type)),65536L>>type,0,SLIDEBAR,s,pa,10);
     if (rev == 0)
-        rotatesprite((x<<16)+((scale(64,xloc-min,max-min)+1)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs((x<<16)+((scale(64,xloc-min,max-min)+1)<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10);
     else
-        rotatesprite((x<<16)+((65-scale(64,xloc-min,max-min))<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs((x<<16)+((65-scale(64,xloc-min,max-min))<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10);
 }
 
 #define bar(x,y,p,dainc,damodify,s,pa) _bar(0,x,y,p,dainc,damodify,s,pa,0,63);
@@ -493,12 +493,12 @@ static void M_DisplaySaveGameList(void)
 
     c += 64;
     for (x = 0; x <= 108; x += 12)
-        rotatesprite((c+91-64)<<16,(x+56)<<16,65536L,0,TEXTBOX,24,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs((c+91-64)<<16,(x+56)<<16,65536L,0,TEXTBOX,24,0,10);
 
-    rotatesprite(22<<16,97<<16,65536L,0,WINDOWBORDER2,24,0,10,0,0,xdim-1,ydim-1);
-    rotatesprite(180<<16,97<<16,65536L,1024,WINDOWBORDER2,24,0,10,0,0,xdim-1,ydim-1);
-    rotatesprite(99<<16,50<<16,65536L,512,WINDOWBORDER1,24,0,10,0,0,xdim-1,ydim-1);
-    rotatesprite(103<<16,144<<16,65536L,1024+512,WINDOWBORDER1,24,0,10,0,0,xdim-1,ydim-1);
+    rotatesprite_fs(22<<16,97<<16,65536L,0,WINDOWBORDER2,24,0,10);
+    rotatesprite_fs(180<<16,97<<16,65536L,1024,WINDOWBORDER2,24,0,10);
+    rotatesprite_fs(99<<16,50<<16,65536L,512,WINDOWBORDER1,24,0,10);
+    rotatesprite_fs(103<<16,144<<16,65536L,1024+512,WINDOWBORDER1,24,0,10);
 
     for (x=0; x<=9; x++)
     {
@@ -567,7 +567,7 @@ static void Menus_LoadSave_DisplayCommon1(void)
         G_LoadSaveHeaderNew(probey, &savehead);
     lastsavehead = probey;
 
-    rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
+    rotatesprite_fs(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
 
     if (ud.savegame[probey][20] == 32)
     {
@@ -591,12 +591,12 @@ void M_DisplayMenus(void)
     if (g_netSync)
     {
         P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2/*+1*/);
-        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64);
 
-        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
-        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8);
+        rotatesprite_fs(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8);
         if (PLUTOPAK)   // JBF 20030804
-            rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8);
 
         gametext(160,190,"Transferring gamestate",14,2);
         nextpage();
@@ -635,7 +635,7 @@ void M_DisplayMenus(void)
         int32_t x,y=0;
         for (; y<ydim; y+=tilesizy[MENUSCREEN])
             for (x=0; x<xdim; x+=tilesizx[MENUSCREEN])
-                rotatesprite(x<<16,y<<16,65536L,0,MENUSCREEN,80,0,1+8+16,0,0,xdim-1,ydim-1);
+                rotatesprite_fs(x<<16,y<<16,65536L,0,MENUSCREEN,80,0,1+8+16);
     }
 
     if (!(g_currentMenu >= 1000 && g_currentMenu <= 2999 && g_currentMenu >= 300 && g_currentMenu <= 369))
@@ -716,7 +716,7 @@ void M_DisplayMenus(void)
         break;
 
     case 20001:
-        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"NETWORK GAME");
 
         x = M_Probe(160,100-18,18,3);
@@ -733,7 +733,7 @@ void M_DisplayMenus(void)
 
     case 20002:
     case 20003:
-        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"PLAYER SETUP");
         c = (320>>1)-120;
         {
@@ -764,7 +764,7 @@ void M_DisplayMenus(void)
             if (probey == 2)
                 x = G_GetTeamPalette(ud.team);
 
-            rotatesprite((260)<<16,(24+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,x,10,0,0,xdim-1,ydim-1);
+            rotatesprite_fs((260)<<16,(24+(tilesizy[APLAYER]>>1))<<16,49152L,0,1441-((((4-(totalclock>>4)))&3)*5),0,x,10);
 
             for (ii=io=0; opts[ii]; ii++)
             {
@@ -992,7 +992,7 @@ void M_DisplayMenus(void)
         }
     case 20004:
     case 20005:
-        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"MULTIPLAYER MACROS");
 
         if (g_currentMenu == 20004)
@@ -1041,7 +1041,7 @@ void M_DisplayMenus(void)
 
 #if 0
     case 20010:
-        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"HOST NETWORK GAME");
 
         x = M_Probe(46,50,80,2);
@@ -1087,7 +1087,7 @@ void M_DisplayMenus(void)
 
     case 20011:
         c = (320>>1) - 120;
-        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"NET GAME OPTIONS");
 
         x = M_Probe(c,57-8,16,8);
@@ -1228,7 +1228,7 @@ void M_DisplayMenus(void)
     case 20020:
     case 20021: // editing server
     case 20022: // editing port
-        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"JOIN NETWORK GAME");
 
         if (g_currentMenu == 20020)
@@ -1370,7 +1370,7 @@ void M_DisplayMenus(void)
     case 10001:
 
         c = 60;
-        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"ADULT MODE");
 
         x = M_Probe(60,50+16,16,2);
@@ -1479,10 +1479,10 @@ void M_DisplayMenus(void)
     case 1008:
     case 1009:
 
-        rotatesprite(160<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64,0,0,xdim-1,ydim-1);
-        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64);
+        rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"LOAD GAME");
-        rotatesprite(101<<16,97<<16,65536>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(101<<16,97<<16,65536>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
 
         M_DisplaySaveGameList();
 
@@ -1582,11 +1582,11 @@ void M_DisplayMenus(void)
     case 2008:
     case 2009:
 
-        rotatesprite(160<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64,0,0,xdim-1,ydim-1);
-        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64);
+        rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"SAVE GAME");
 
-        rotatesprite(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
         Bsprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
         mgametext(160,156,tempbuf,0,2+8+16);
 
@@ -1634,8 +1634,8 @@ void M_DisplayMenus(void)
         c = 160;
         if (!VOLUMEALL || !PLUTOPAK)
         {
-            //rotatesprite(c<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64,0,0,xdim-1,ydim-1);
-            rotatesprite(c<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+            //rotatesprite_fs(c<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64);
+            rotatesprite_fs(c<<16,19<<16,65536L,0,MENUBAR,16,0,10);
             menutext(c,24,0,0,g_currentMenu == 998 ? "ABOUT EDUKE32" : "CREDITS");
 
             l = 8;
@@ -1818,11 +1818,11 @@ void M_DisplayMenus(void)
         case 990:
         case 991:
         case 992:
-            rotatesprite(160<<16,200<<15,65536L,0,2504+g_currentMenu-990,0,0,10+64,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(160<<16,200<<15,65536L,0,2504+g_currentMenu-990,0,0,10+64);
             break;
         case 993:   // JBF 20031220
-            rotatesprite(160<<16,200<<15,65536L,0,MENUSCREEN,0,0,10+64,0,0,xdim-1,ydim-1);
-            rotatesprite(c<<16,19<<16,65536L,0,MENUBAR,0,0,10,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(160<<16,200<<15,65536L,0,MENUSCREEN,0,0,10+64);
+            rotatesprite_fs(c<<16,19<<16,65536L,0,MENUBAR,0,0,10);
             menutext(160,24,0,0,"ABOUT EDUKE32");
 
 cheat_for_port_credits:
@@ -1908,9 +1908,9 @@ cheat_for_port_credits:
 
     case 0:
         c = (320>>1);
-        rotatesprite(c<<16,28<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(c<<16,28<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10);
         if (PLUTOPAK)   // JBF 20030804
-            rotatesprite((c+100)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,(sintable[(totalclock<<4)&2047]>>11),0,2+8,0,0,xdim-1,ydim-1);
+            rotatesprite_fs((c+100)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,(sintable[(totalclock<<4)&2047]>>11),0,2+8);
         x = M_Probe(c,67,16,6);
         if (x >= 0)
         {
@@ -1987,9 +1987,9 @@ cheat_for_port_credits:
 
     case 50:
         c = (320>>1);
-        rotatesprite(c<<16,32<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(c<<16,32<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10);
         if (PLUTOPAK)   // JBF 20030804
-            rotatesprite((c+100)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,(sintable[(totalclock<<4)&2047]>>11),0,2+8,0,0,xdim-1,ydim-1);
+            rotatesprite_fs((c+100)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,(sintable[(totalclock<<4)&2047]>>11),0,2+8);
         x = M_Probe(c,67,16,7);
         switch (x)
         {
@@ -2067,7 +2067,7 @@ cheat_for_port_credits:
         break;
 
     case 100:
-        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"SELECT AN EPISODE");
         x = M_Probe(160,VOLUMEONE?60:60-(g_numVolumes*2),20,VOLUMEONE?3:g_numVolumes+1);
         if (x >= 0)
@@ -2135,7 +2135,7 @@ cheat_for_port_credits:
         ChangeToMenu(102);
         KB_FlushKeyboardQueue();
     case 102:
-        rotatesprite(160<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"SELECT A USER MAP");
 
         // black translucent background underneath file lists
@@ -2348,7 +2348,7 @@ cheat_for_port_credits:
 
     case 110:
         c = (320>>1);
-        rotatesprite(c<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(c<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(c,24,0,0,"SELECT SKILL");
         x = M_Probe(c,70,19,4);
         if (x >= 0)
@@ -2406,7 +2406,7 @@ cheat_for_port_credits:
         break;
     case 230:
 #ifdef USE_OPENGL
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"RENDERER SETUP");
 
         c = (320>>1)-120;
@@ -2607,7 +2607,7 @@ cheat_for_port_credits:
         break;
     case 231:
     case 232:
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"COLOR CORRECTION");
 
         c = (320>>1)-120;
@@ -2695,7 +2695,7 @@ cheat_for_port_credits:
 
     case 200:
 
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"GAME SETUP");
 
         c = (320>>1)-120;
@@ -2868,7 +2868,7 @@ cheat_for_port_credits:
 
     case 201:
 
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"GAME SETUP");
 
         c = (320>>1)-120;
@@ -3038,7 +3038,7 @@ cheat_for_port_credits:
 
         // JBF 20031205: Second level options menu selection
     case 202:
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"OPTIONS");
 
         c = 50;
@@ -3120,7 +3120,7 @@ cheat_for_port_credits:
 
         // JBF 20031206: Video settings menu
     case 203:
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"VIDEO SETUP");
 
         c = (320>>1)-120;
@@ -3484,7 +3484,7 @@ cheat_for_port_credits:
         break;
 
     case 204:
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"KEYBOARD SETUP");
 
         c = (320>>1)-120;
@@ -3584,7 +3584,7 @@ cheat_for_port_credits:
     case 210:
     {
         int32_t sc;
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"KEYBOARD SETUP");
 
         mgametext(320>>1,90,"PRESS THE KEY TO ASSIGN AS",0,2+8+16);
@@ -3625,7 +3625,7 @@ cheat_for_port_credits:
         break;
     }
     case 205:
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"MOUSE SETUP");
 
         c = 60-4;
@@ -3755,7 +3755,7 @@ cheat_for_port_credits:
         break;
 
     case 211:
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         if (function == 0) menutext(320>>1,24,0,0,"MOUSE SETUP");
         else if (function == 1) menutext(320>>1,24,0,0,"ADVANCED MOUSE");
         else if (function == 2) menutext(320>>1,24,0,0,"JOYSTICK BUTTONS");
@@ -3921,7 +3921,7 @@ cheat_for_port_credits:
         break;
 
     case 212:
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"ADVANCED MOUSE");
 
         c = (320>>1)-120;
@@ -4009,7 +4009,7 @@ cheat_for_port_credits:
         l = ud.config.MouseDeadZone>>1;
         bar(c+160+40,46+16+16,&l,2,x==2,MENUHIGHLIGHT(2),0);
         ud.config.MouseDeadZone = l<<1;
-        rotatesprite(320<<15,94<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,94<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,43+16+16+16+8,0,0,"DIGITAL AXES SETUP");
 
         if (ud.config.MouseDeadZone == 0)
@@ -4063,7 +4063,7 @@ cheat_for_port_credits:
         break;
 
     case 206:
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"JOYSTICK SETUP");
 
         x = M_Probe(160,100-18,18,3);
@@ -4090,7 +4090,7 @@ cheat_for_port_credits:
         break;
 
     case 207:
-        rotatesprite(320<<15,10<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,10<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,15,0,0,"JOYSTICK BUTTONS");
 
         c = 2*joynumbuttons + 4*(joynumhats>0);
@@ -4172,7 +4172,7 @@ cheat_for_port_credits:
     {
         int32_t thispage, twothispage;
 
-        rotatesprite(320<<15,10<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,10<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,15,0,0,"JOYSTICK AXES");
 
         thispage = (g_currentMenu < 217) ? (g_currentMenu-208) : (g_currentMenu-217)+2;
@@ -4358,7 +4358,7 @@ cheat_for_port_credits:
     {
         // Pray this is enough pages for now :-|
         int32_t first,last;
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"JOY DEAD ZONES");
 
         first = 4*(g_currentMenu-213);
@@ -4419,7 +4419,7 @@ cheat_for_port_credits:
     case 701:
 
         c = (320>>1)-120;
-        rotatesprite(320<<15,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"SOUND SETUP");
 
         if (!(changesmade & 8))
@@ -4709,8 +4709,8 @@ cheat_for_port_credits:
     case 300:
 
         c = 320>>1;
-        rotatesprite(c<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64,0,0,xdim-1,ydim-1);
-        rotatesprite(c<<16,19<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(c<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64);
+        rotatesprite_fs(c<<16,19<<16,65536L,0,MENUBAR,16,0,10);
 
         if (g_currentMenu == 300) menutext(c,24,0,0,"LOAD GAME");
         else menutext(c,24,0,0,"SAVE GAME");
@@ -4771,9 +4771,9 @@ cheat_for_port_credits:
                 crc = 0;
             }
 
-            rotatesprite(101<<16,97<<16,65536>>1,512,TILE_SAVESHOT,-32,0,2+4+8+64,0,0,xdim-1,ydim-1);
+            rotatesprite_fs(101<<16,97<<16,65536>>1,512,TILE_SAVESHOT,-32,0,2+4+8+64);
             M_DisplaySaveGameList();
-            rotatesprite((c+67+strlen(&ud.savegame[g_currentMenu-360][0])*4)<<16,(50+12*probey)<<16,32768L-10240,0,SPINNINGNUKEICON+(((totalclock)>>3)%7),0,0,10,0,0,xdim-1,ydim-1);
+            rotatesprite_fs((c+67+strlen(&ud.savegame[g_currentMenu-360][0])*4)<<16,(50+12*probey)<<16,32768L-10240,0,SPINNINGNUKEICON+(((totalclock)>>3)%7),0,0,10);
             break;
         }
 
@@ -4933,7 +4933,7 @@ DISPLAYNAMES:
         }
 
         flushperms();
-        rotatesprite(0,0,65536L,0,ORDERING+g_currentMenu-400,0,0,10+16+64,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(0,0,65536L,0,ORDERING+g_currentMenu-400,0,0,10+16+64);
 
         break;
 VOLUME_ALL_40x:
@@ -5012,10 +5012,10 @@ VOLUME_ALL_40x:
         switch (g_currentMenu)
         {
         case 400:
-            rotatesprite(0,0,65536L,0,TEXTSTORY,0,0,10+16+64, 0,0,xdim-1,ydim-1);
+            rotatesprite_fs(0,0,65536L,0,TEXTSTORY,0,0,10+16+64);
             break;
         case 401:
-            rotatesprite(0,0,65536L,0,F1HELP,0,0,10+16+64, 0,0,xdim-1,ydim-1);
+            rotatesprite_fs(0,0,65536L,0,F1HELP,0,0,10+16+64);
             break;
         }
 
@@ -5091,7 +5091,7 @@ VOLUME_ALL_40x:
 
     case 601:
         G_DrawFrags();
-        rotatesprite(160<<16,29<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,29<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,34,0,0,&g_player[myconnectindex].user_name[0]);
 
         Bsprintf(tempbuf,"Waiting for master");
@@ -5216,7 +5216,7 @@ VOLUME_ALL_40x:
         c = (320>>1) - 120;
         if ((g_player[myconnectindex].ps->gm&MODE_GAME) != MODE_GAME)
             G_DrawFrags();
-        rotatesprite(160<<16,26<<16,65536L,0,MENUBAR,16,0,10,0,0,xdim-1,ydim-1);
+        rotatesprite_fs(160<<16,26<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,31,0,0,&g_player[myconnectindex].user_name[0]);
 
         x = M_Probe(c,57-8,16,8);

@@ -590,7 +590,7 @@ nextdemo:
                     rotatesprite(150<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16+1024,(xdim*155)/320,0,xdim-1,ydim-1);
 
                     j = (182<<16) - ((((120*(g_demo_totalCnt-g_demo_cnt))<<4)/g_demo_totalCnt)<<12);
-                    rotatesprite(j,(16<<16)+(1<<15),32768,0,SLIDEBAR+1,0,0,2+8+16+1024,0,0,xdim-1,ydim-1);
+                    rotatesprite_fs(j,(16<<16)+(1<<15),32768,0,SLIDEBAR+1,0,0,2+8+16+1024);
 
                     j=(g_demo_totalCnt-g_demo_cnt)/(TICRATE/TICSPERFRAME);
                     Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, g_demo_paused?"   ^15PAUSED":"");
@@ -654,7 +654,7 @@ nextdemo:
         if (VOLUMEONE)
         {
             if (ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
-                rotatesprite((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128,0,0,xdim-1,ydim-1);
+                rotatesprite_fs((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128);
         }
         handleevents();
         Net_GetPackets();
