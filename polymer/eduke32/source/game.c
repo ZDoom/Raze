@@ -2658,7 +2658,8 @@ void G_DisplayRest(int32_t smoothratio)
 
         if (g_restorePalette < 2 || omovethingscnt+1 == g_moveThingsCount)
         {
-            P_SetGamePalette(pp,pp->palette,2+16);
+            // g_restorePalette < 0: reset tinting, too (e.g. when loading new game)
+            P_SetGamePalette(pp,pp->palette, 2 + (g_restorePalette>0)*16);
             g_restorePalette = 0;
         }
         else
@@ -7443,7 +7444,7 @@ void G_HandleLocalKeys(void)
         CONTROL_ClearButton(gamefunc_See_Coop_View);
         screenpeek = connectpoint2[screenpeek];
         if (screenpeek == -1) screenpeek = 0;
-        g_restorePalette = 1;
+        g_restorePalette = -1;
     }
 
     if ((g_netServer || ud.multimode > 1) && BUTTON(gamefunc_Show_Opponents_Weapon))

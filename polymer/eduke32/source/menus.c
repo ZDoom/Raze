@@ -3348,7 +3348,7 @@ cheat_for_port_credits:
                 }
                 else onvideomodechange(nbpp > 8);
 
-                g_restorePalette = 1;
+                g_restorePalette = -1;
                 G_UpdateScreenArea();
                 setrendermode(nrend);
 

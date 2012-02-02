@@ -733,7 +733,7 @@ void onvideomodechange(int32_t newmode)
 #endif
 
     setbrightness(ud.brightness>>2, palid, 0);
-    g_restorePalette = 1;
+    g_restorePalette = -1;
     g_crosshairSum = 0;
 }
 

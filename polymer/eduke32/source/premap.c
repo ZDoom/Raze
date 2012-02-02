@@ -2099,7 +2099,7 @@ int32_t G_EnterLevel(int32_t g)
 
     for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
 
-    g_restorePalette = 1;
+    g_restorePalette = -1;
 
 //        mmulti_flushpackets();
 
