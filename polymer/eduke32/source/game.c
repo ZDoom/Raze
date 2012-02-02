@@ -2621,7 +2621,6 @@ void G_DisplayRest(int32_t smoothratio)
     int32_t cposx, cposy, cang;
 
 #ifdef USE_OPENGL
-
     // this takes care of fullscreen tint for OpenGL
     if (getrendermode() >= 3)
     {
@@ -2642,13 +2641,20 @@ void G_DisplayRest(int32_t smoothratio)
             hictinting[MAXPALOOKUPS-1].b = 255;
         }
     }
-#endif /* USE_OPENGL && POLYMOST */
-    // this does pain tinting etc from the CON
-    if (pp->pals.f > 0 && pp->loogcnt == 0) // JBF 20040101: pals.f > 0 now >= 0
+#endif  // USE_OPENGL
+
     {
-        Bmemcpy(&tempFade, &pp->pals, sizeof(palette_t));
-        g_restorePalette = 1;     // JBF 20040101
-        applyTint = 1;
+        static int32_t lastpalsf;  // HACK
+
+        // this does pain tinting etc from the CON
+        if ((pp->pals.f > 0 && pp->loogcnt == 0) || (lastpalsf>0 && pp->pals.f==0)) // JBF 20040101: pals.f > 0 now >= 0
+        {
+            Bmemcpy(&tempFade, &pp->pals, sizeof(palette_t));
+            g_restorePalette = 1;     // JBF 20040101
+            applyTint = 1;
+        }
+
+        lastpalsf = pp->pals.f;
     }
 
     // reset a normal palette
@@ -2676,7 +2682,7 @@ void G_DisplayRest(int32_t smoothratio)
         applyTint = 1;
     }
 
-    if (tempFade.f > tempTint.f)
+    if (tempFade.f > 0 /*tempTint.f*/)
         Bmemcpy(&tempTint, &tempFade, sizeof(palette_t));
 
     if (ud.show_help)
