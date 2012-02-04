@@ -723,7 +723,7 @@ void G_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, in
 static void G_DrawInvNum(int32_t x,int32_t y,char num1,char ha,int32_t sbits)
 {
     char dabuf[80] = {0};
-    int32_t shd = (x < 0);
+    int32_t i, shd = (x < 0);
 
     if (shd) x = -x;
 
@@ -732,13 +732,12 @@ static void G_DrawInvNum(int32_t x,int32_t y,char num1,char ha,int32_t sbits)
     {
         if (shd && ud.screen_size == 4 && getrendermode() >= 3 && althud_shadows)
         {
-            rotatesprite_fs(sbarx(x-4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits);
-            rotatesprite_fs(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits);
-            rotatesprite_fs(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,4,POLYMOSTTRANS|sbits);
+            for (i=0; i<=2; i++)
+                rotatesprite_fs(sbarx(x+(-4+4*i)+1),sbary(y+1),sbarsc(65536),0,THREEBYFIVE+dabuf[i]-'0',ha, 4, POLYMOSTTRANS|sbits);
         }
-        rotatesprite_fs(sbarx(x-4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits);
-        rotatesprite_fs(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits);
-        rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,0,sbits);
+
+        for (i=0; i<=2; i++)
+            rotatesprite_fs(sbarx(x+(-4+4*i)),sbary(y),sbarsc(65536),0,THREEBYFIVE+dabuf[i]-'0',ha, 0, sbits);
         return;
     }
     if (num1 > 9)
@@ -1790,20 +1789,18 @@ void G_PrintGameQuotes(void)
     j = scale(j,ydim,200);
     for (i=MAXUSERQUOTES-1; i>=0; i--)
     {
-        if (user_quote_time[i] <= 0) continue;
+        int32_t sh;
+
+        if (user_quote_time[i] <= 0)
+            continue;
         k = user_quote_time[i];
-        if (hud_glowingquotes)
-        {
-            if (k > 4) { mpgametext(j,user_quote[i],(sintable[((totalclock+(i<<2))<<5)&2047]>>11),2+8+16); j += textsc(8); }
-            else if (k > 2) { mpgametext(j,user_quote[i],(sintable[((totalclock+(i<<2))<<5)&2047]>>11),2+8+16+1); j += textsc(k<<1); }
-            else { mpgametext(j,user_quote[i],(sintable[((totalclock+(i<<2))<<5)&2047]>>11),2+8+16+1+32); j += textsc(k<<1); }
-        }
-        else
-        {
-            if (k > 4) { mpgametext(j,user_quote[i],0,2+8+16); j += textsc(8); }
-            else if (k > 2) { mpgametext(j,user_quote[i],0,2+8+16+1); j += textsc(k<<1); }
-            else { mpgametext(j,user_quote[i],0,2+8+16+1+32); j += textsc(k<<1); }
-        }
+
+        sh = hud_glowingquotes ? (sintable[((totalclock+(i<<2))<<5)&2047]>>11) : 0;
+
+        if (k > 4) { mpgametext(j,user_quote[i], sh, 2+8+16); j += textsc(8); }
+        else if (k > 2) { mpgametext(j,user_quote[i], sh, 2+8+16+1); j += textsc(k<<1); }
+        else { mpgametext(j,user_quote[i], sh, 2+8+16+1+32); j += textsc(k<<1); }
+
         l = G_GameTextLen(USERQUOTE_LEFTOFFSET,OSD_StripColors(tempbuf,user_quote[i]));
         while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
         {
@@ -1846,16 +1843,13 @@ void G_PrintGameQuotes(void)
     }
 
     j = g_player[screenpeek].ps->fta;
-    if (!hud_glowingquotes)
-    {
-        if (j > 4) gametext(320>>1,k,ScriptQuotes[g_player[screenpeek].ps->ftq],0,2+8+16);
-        else if (j > 2) gametext(320>>1,k,ScriptQuotes[g_player[screenpeek].ps->ftq],0,2+8+16+1);
-        else gametext(320>>1,k,ScriptQuotes[g_player[screenpeek].ps->ftq],0,2+8+16+1+32);
-        return;
-    }
-    if (j > 4) gametext(320>>1,k,ScriptQuotes[g_player[screenpeek].ps->ftq],quotepulseshade,2+8+16);
-    else if (j > 2) gametext(320>>1,k,ScriptQuotes[g_player[screenpeek].ps->ftq],quotepulseshade,2+8+16+1);
-    else gametext(320>>1,k,ScriptQuotes[g_player[screenpeek].ps->ftq],quotepulseshade,2+8+16+1+32);
+    l = hud_glowingquotes ? quotepulseshade : 0;
+    // flags:
+    if (j > 4) i = 2+8+16;
+    else if (j > 2) i = 2+8+16+1;
+    else i = 2+8+16+1+32;
+
+    gametext(320>>1,k,ScriptQuotes[g_player[screenpeek].ps->ftq], l, i);
 }
 
 void P_DoQuote(int32_t q, DukePlayer_t *p)
