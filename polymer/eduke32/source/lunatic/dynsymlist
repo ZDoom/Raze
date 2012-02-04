@@ -10,6 +10,8 @@ numsectors;
 numwalls;
 numyaxbunches;
 
+yax_getbunch;
+
 headspritesect;
 headspritestat;
 prevspritesect;

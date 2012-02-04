@@ -67,7 +67,47 @@ assert(ffi.sizeof('sectortype')==40)
 assert(ffi.sizeof('walltype')==32)
 assert(ffi.sizeof('spritetype')==44)
 
--- game structs
+---- engine data and functions ----
+
+ffi.cdef[[int32_t engine_main_arrays_are_static;]]
+
+-- NOTE TO SELF: This is not C, never EVER write
+--    if (x)
+-- when checking a C variable x for 'thuthiness'
+if (ffi.C.engine_main_arrays_are_static ~= 0) then
+--    print('main arrays are static');
+    ffi.cdef[[
+sectortype sector[];
+walltype wall[];
+spritetype sprite[];
+spriteext_t spriteext[];
+]]
+else
+--    print('main arrays are pointers');
+    ffi.cdef[[
+sectortype *sector;
+walltype *wall;
+spritetype *sprite;
+spriteext_t *spriteext;
+]]
+end
+
+ffi.cdef[[
+const int16_t numsectors, numwalls;
+const int32_t numyaxbunches;
+
+const int16_t headspritesect[16384+1], headspritestat[1024+1];
+const int16_t prevspritesect[16384], prevspritestat[16384];
+const int16_t nextspritesect[16384], nextspritestat[16384];
+
+const int16_t headsectbunch[2][256], nextsectbunch[2][4096];
+
+
+int16_t yax_getbunch(int16_t i, int16_t cf);
+]]
+
+
+---- game structs ----
 ffi.cdef[[
 #pragma pack(push,1)
 // ACTOR_T, might still need to make some fields read-only
@@ -192,40 +232,6 @@ typedef struct {
     char display_bonus_screen;
     char show_level_text;
 } user_defs;
-
-int32_t engine_main_arrays_are_static;
-]]
-
--- NOTE TO SELF: This is not C, never EVER write
---    if (x)
--- when checking a C variable x for 'thuthiness'
-if (ffi.C.engine_main_arrays_are_static ~= 0) then
---    print('main arrays are static');
-    ffi.cdef[[
-sectortype sector[];
-walltype wall[];
-spritetype sprite[];
-spriteext_t spriteext[];
-]]
-else
---    print('main arrays are pointers');
-    ffi.cdef[[
-sectortype *sector;
-walltype *wall;
-spritetype *sprite;
-spriteext_t *spriteext;
-]]
-end
-
-ffi.cdef[[
-const int16_t numsectors, numwalls;
-const int32_t numyaxbunches;
-
-const int16_t headspritesect[16384+1], headspritestat[1024+1];
-const int16_t prevspritesect[16384], prevspritestat[16384];
-const int16_t nextspritesect[16384], nextspritestat[16384];
-
-const int16_t headsectbunch[2][256], nextsectbunch[2][4096];
 ]]
 
 ffi.cdef[[
@@ -442,6 +448,17 @@ function sectorsofbunch(bunchnum, cf)
     return iter_sectorsofbunch, cf, -bunchnum-1
 end
 
+function getbunch(sectnum, cf)
+    if (sectnum < 0 or sectnum >= ffiC.numsectors) then
+        error('out-of-bounds sector[] read access', 2)
+    end
+    if (cf ~= 0 and cf ~= 1) then
+        error("passed invalid 'cf' to getbunch, must be 0 or 1", 2)
+    end
+
+    return yax_getbunch(sectnum, cf)
+end
+
 
 -- 'simple' code for prohibiting initial assignments to create new variables,
 -- from 14.2 of PiL
@@ -470,6 +487,7 @@ G_.actor = actor
 G_.spritesofsect = spritesofsect
 G_.spritesofstat = spritesofstat
 G_.sectorsofbunch = sectorsofbunch
+G_.getbunch = getbunch
 
 G_.TEMP_getvollev = TEMP_getvollev  -- REMOVE
 G_.gamevar = gamevar
