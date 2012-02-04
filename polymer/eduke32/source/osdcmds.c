@@ -371,12 +371,17 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 {
     int32_t newbpp = ud.config.ScreenBPP, newwidth = ud.config.ScreenWidth,
             newheight = ud.config.ScreenHeight, newfs = ud.config.ScreenMode;
+    int32_t tmp;
+
     if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
 
     switch (parm->numparms)
     {
     case 1: // bpp switch
-        newbpp = Batol(parm->parms[0]);
+        tmp = Batol(parm->parms[0]);
+        if (!(tmp==8 || tmp==16 || tmp==32))
+            return OSDCMD_SHOWHELP;
+        newbpp = tmp;
         break;
     case 2: // res switch
         newwidth = Batol(parm->parms[0]);
@@ -386,7 +391,10 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
     case 4:
         newwidth = Batol(parm->parms[0]);
         newheight = Batol(parm->parms[1]);
-        newbpp = Batol(parm->parms[2]);
+        tmp = Batol(parm->parms[2]);
+        if (!(tmp==8 || tmp==16 || tmp==32))
+            return OSDCMD_SHOWHELP;
+        newbpp = tmp;
         if (parm->numparms == 4)
             newfs = (Batol(parm->parms[3]) != 0);
         break;

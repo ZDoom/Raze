@@ -258,15 +258,16 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 #ifdef USE_OPENGL
     case 1:	// bpp switch
         tmp = Batol(parm->parms[0]);
-        if (tmp==8 || tmp==16 || tmp==32)
-            newbpp = tmp;
-        break;
+        if (!(tmp==8 || tmp==16 || tmp==32))
+            return OSDCMD_SHOWHELP;
+        newbpp = tmp;
     case 4:	// fs, res, bpp switch
         newfullscreen = (Batol(parm->parms[3]) != 0);
     case 3:	// res & bpp switch
         tmp = Batol(parm->parms[2]);
-        if (tmp==8 || tmp==16 || tmp==32)
-            newbpp = tmp;
+        if (!(tmp==8 || tmp==16 || tmp==32))
+            return OSDCMD_SHOWHELP;
+        newbpp = tmp;
 #endif
     case 2: // res switch
         newx = Batol(parm->parms[0]);
