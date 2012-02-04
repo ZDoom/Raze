@@ -40,6 +40,7 @@ extern "C" {
 
 extern char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN];
 extern char keydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN];
+extern const char oldkeydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN];
 
 enum GameFunction_t
    {

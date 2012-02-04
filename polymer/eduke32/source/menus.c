@@ -126,31 +126,80 @@ static int32_t probe_(int32_t type,int32_t x,int32_t y,int32_t i,int32_t n)
 
     if (!buttonstat || buttonstat == 16 || buttonstat == 32)
     {
-        if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_PgUp) || KB_KeyPressed(sc_kpad_8) || mi < -8192 || WHEELUP)
+        if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_kpad_8) || mi < -8192 || WHEELUP)
         {
             mi = mii = 0;
             KB_ClearKeyDown(sc_UpArrow);
             KB_ClearKeyDown(sc_kpad_8);
-            KB_ClearKeyDown(sc_PgUp);
             MOUSE_ClearButton(WHEELUP_MOUSE);
+
             S_PlaySound(KICK_HIT);
 
             probey--;
-            if (probey < 0) probey = n-1;
+            if (probey < 0)
+                probey = n-1;
         }
-        if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_PgDn) || KB_KeyPressed(sc_kpad_2) || mi > 8192 || WHEELDOWN)
+        if (KB_KeyPressed(sc_PgUp))
+        {
+            // n is >= NUMGAMEFUNCTIONS from mouse/keyboard setup
+            int32_t step = (n >= NUMGAMEFUNCTIONS) ? 13/2 : n/2;
+
+            KB_ClearKeyDown(sc_PgUp);
+
+            S_PlaySound(KICK_HIT);
+
+//            if (probey == 0) probey = n-1; else
+            probey = max(0, probey-step);
+        }
+        if (KB_KeyPressed(sc_Home))
+        {
+            // does not get in the way of special HOME handling in user map list
+            KB_ClearKeyDown(sc_Home);
+
+            S_PlaySound(KICK_HIT);
+
+            probey = 0;
+        }
+
+        if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_kpad_2) || mi > 8192 || WHEELDOWN)
         {
             mi = mii = 0;
             KB_ClearKeyDown(sc_DownArrow);
             KB_ClearKeyDown(sc_kpad_2);
             KB_ClearKeyDown(sc_PgDn);
             MOUSE_ClearButton(WHEELDOWN_MOUSE);
+
             S_PlaySound(KICK_HIT);
+
             probey++;
+            if (probey >= n)
+                probey = 0;
+        }
+        if (KB_KeyPressed(sc_PgDn))
+        {
+            int32_t step = (n >= NUMGAMEFUNCTIONS) ? 13/2 : n/2;
+
+            KB_ClearKeyDown(sc_PgDn);
+
+            S_PlaySound(KICK_HIT);
+
+//            if (probey == n-1) probey = 0; else
+            probey = min(n-1, probey+step);
+        }
+        if (KB_KeyPressed(sc_End))
+        {
+            // does not get in the way of special END handling in user map list
+            KB_ClearKeyDown(sc_End);
+
+            S_PlaySound(KICK_HIT);
+
+            probey = n-1;
         }
     }
 
-    if (probey >= n)
+    // XXX: check for probey < 0 needed here? (we have M_Probe(..., 0) calls)
+
+    if (probey >= n)  // not sure if still necessary
         probey = 0;
 
     if (x || y)
@@ -3518,9 +3567,7 @@ cheat_for_port_credits:
         }
 
         // the top of our list
-        m = probey - 6;
-        if (m < 0) m = 0;
-        else if (m + 13 >= NUMGAMEFUNCTIONS) m = NUMGAMEFUNCTIONS-13;
+        m = clamp(probey-6, 0, NUMGAMEFUNCTIONS-13);
 
         if (probey == gamefunc_Show_Console) currentlist = 0;
         else if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) ||
@@ -3553,7 +3600,9 @@ cheat_for_port_credits:
 
             strcpy(tempbuf, p);
             for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-            minitextshade(70,34+l*8,tempbuf,(m+l == probey)?0:16,1,10+16);
+            // game function name redefined --> pal 8 text
+            minitextshade(70,34+l*8,tempbuf,(m+l == probey)?0:16,
+                          Bstrcmp(keydefaults[3*(m+l)],oldkeydefaults[3*(m+l)]) ? 8 : 1, 10+16);
 
             //strcpy(tempbuf, KB_ScanCodeToString(ud.config.KeyboardKeys[m+l][0]));
             strcpy(tempbuf, (char *)getkeyname(ud.config.KeyboardKeys[m+l][0]));
@@ -3885,19 +3934,6 @@ cheat_for_port_credits:
 
         mgametext(320>>1,31+9,tempbuf,0,2+8+16);
 
-        if (KB_KeyPressed(sc_End))
-        {
-            KB_ClearKeyDown(sc_End);
-            probey = NUMGAMEFUNCTIONS-1;
-            S_PlaySound(KICK_HIT);
-        }
-        else if (KB_KeyPressed(sc_Home))
-        {
-            KB_ClearKeyDown(sc_Home);
-            probey = 0;
-            S_PlaySound(KICK_HIT);
-        }
-
         m = clamp(probey-6, 0, NUMGAMEFUNCTIONS-13);
 
         for (l=0; l < min(13,NUMGAMEFUNCTIONS); l++)
@@ -3908,7 +3944,8 @@ cheat_for_port_credits:
                 strcpy(tempbuf, CONFIG_FunctionNumToName(m+l));
 
             for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
-            minitext(100,51+l*8,tempbuf,(m+l == probey)?0:16,10+16);
+            minitextshade(100,51+l*8,tempbuf,(m+l == probey)?0:16,
+                          Bstrcmp(keydefaults[3*(m+l)],oldkeydefaults[3*(m+l)]) ? 8 : 1, 10+16);
         }
 
         mgametext(320>>1,161,"PRESS \"ESCAPE\" TO CANCEL",0,2+8+16);
