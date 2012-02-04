@@ -626,17 +626,12 @@ void M_DisplayMenus(void)
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
     g_player[myconnectindex].ps->fta = 0;
 
-    x = 0;
+//    x = 0;
 
     sh = 4-(sintable[(totalclock<<4)&2047]>>11);
 
-    if (getrendermode() >= 3)
-    {
-        int32_t x,y=0;
-        for (; y<ydim; y+=tilesizy[MENUSCREEN])
-            for (x=0; x<xdim; x+=tilesizx[MENUSCREEN])
-                rotatesprite_fs(x<<16,y<<16,65536L,0,MENUSCREEN,80,0,1+8+16);
-    }
+    // black translucent background
+    fade_screen_black(1);
 
     if (!(g_currentMenu >= 1000 && g_currentMenu <= 2999 && g_currentMenu >= 300 && g_currentMenu <= 369))
         G_UpdateScreenArea();
@@ -1895,8 +1890,8 @@ cheat_for_port_credits:
                 for (m=0,i=(totalclock/104)%numlines; m<6; m++,i++)
                 {
                     if (i==numlines) i=0;
-                    minitext(161-(Bstrlen(scroller[i])<<1), 101+10+10+8+4+(m*7)-l, (char *)scroller[i], 4, 10+16+128);
-                    minitext(160-(Bstrlen(scroller[i])<<1), 100+10+10+8+4+(m*7)-l, (char *)scroller[i], 8, 10+16+128);
+                    minitext(161-(Bstrlen(scroller[i])<<1), 101+10+10+8+4+(m*7)-l, scroller[i], 4, 10+16+128);
+                    minitext(160-(Bstrlen(scroller[i])<<1), 100+10+10+8+4+(m*7)-l, scroller[i], 8, 10+16+128);
                 }
             }
 

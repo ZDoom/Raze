@@ -567,6 +567,7 @@ void   setbasepaltable(uint8_t **basepaltable, uint8_t basepalcount);
 void   setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags);
 void   setpalettefade(char r, char g, char b, char offset);
 void   squarerotatetile(int16_t tilenume);
+void fade_screen_black(int32_t moreopaquep);
 
 int32_t   setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp);
 void   nextpage(void);

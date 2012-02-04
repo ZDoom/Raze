@@ -2298,6 +2298,28 @@ static inline int32_t getpalookup(int32_t davis, int32_t dashade)
 
 static void setpalettefade_calc(uint8_t offset);
 
+void fade_screen_black(int32_t moreopaquep)
+{
+    if (getrendermode() >= 3)
+    {
+        // we have a ~1 px horizontal line if we don't shift y by -1,
+        // might need a fix in rotatesprite!
+        rotatesprite_fs(0, -(1<<16), 65536<<3, 0, 0,0,4,10+16+1+((!moreopaquep)*32)+1024);  // tile 0: 64x32
+    }
+    else
+    {
+        int32_t i;
+        const int32_t shiftamnt = ((!!moreopaquep)*8);
+
+        assert(!offscreenrendering);
+
+        begindrawing();
+        for (i=0; i<xdim*ydim; i++)
+            ((uint8_t *)frameplace)[i] = transluc[(((uint8_t *)frameplace)[i])<<shiftamnt];
+        enddrawing();
+    }
+}
+
 
 // returns: 0=continue sprite collecting;
 //          1=break out of sprite collecting;
