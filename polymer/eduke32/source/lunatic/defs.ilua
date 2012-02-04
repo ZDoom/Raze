@@ -63,6 +63,10 @@ typedef struct {
 #pragma pack(pop)
 ]]
 
+assert(ffi.sizeof('sectortype')==40)
+assert(ffi.sizeof('walltype')==32)
+assert(ffi.sizeof('spritetype')==44)
+
 -- game structs
 ffi.cdef[[
 #pragma pack(push,1)
@@ -192,7 +196,11 @@ typedef struct {
 int32_t engine_main_arrays_are_static;
 ]]
 
-if (ffi.C.engine_main_arrays_are_static) then
+-- NOTE TO SELF: This is not C, never EVER write
+--    if (x)
+-- when checking a C variable x for 'thuthiness'
+if (ffi.C.engine_main_arrays_are_static ~= 0) then
+--    print('main arrays are static');
     ffi.cdef[[
 sectortype sector[];
 walltype wall[];
@@ -200,6 +208,7 @@ spritetype sprite[];
 spriteext_t spriteext[];
 ]]
 else
+--    print('main arrays are pointers');
     ffi.cdef[[
 sectortype *sector;
 walltype *wall;
@@ -465,7 +474,7 @@ G_.sectorsofbunch = sectorsofbunch
 G_.TEMP_getvollev = TEMP_getvollev  -- REMOVE
 G_.gamevar = gamevar
 
--- 14.2 continued
+-- PiL 14.2 continued
 setmetatable(
     G_, {
         __newindex = function (_, n)

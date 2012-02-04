@@ -50,6 +50,7 @@ if (vol==1 and lev==1) then  -- E1L1
 end
 
 if (vol==1 and lev==8) then
+    print('tweaking bunch 1');
     -- trueror1.map
     for i in sectorsofbunch(1, gv.CEILING) do
         sector[i].ceilingz = sector[i].ceilingz - 3*1024;
