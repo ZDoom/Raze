@@ -2016,9 +2016,9 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     if (getrendermode() >= 3 && usemodels && md_tilehasmodel(tilenum,p) > 0)
         y += (224-weapsc(224));
 #endif
-    rotatesprite(weapsc((orientation&1024)?x:(x<<16))+((xoff-weapsc(xoff))<<16),
-                 weapsc((orientation&1024)?y:(y<<16))+((200-weapsc(200))<<16),
-                 weapsc(65536L),a,tilenum,shade,p,(2|orientation),windowx1,windowy1,windowx2,windowy2);
+    rotatesprite_win(weapsc((orientation&1024)?x:(x<<16))+((xoff-weapsc(xoff))<<16),
+                     weapsc((orientation&1024)?y:(y<<16))+((200-weapsc(200))<<16),
+                     weapsc(65536L),a,tilenum,shade,p,(2|orientation));
 }
 
 static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p, uint8_t slot)
@@ -2067,9 +2067,9 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
         case HANDREMOTE_WEAPON:
         case HANDBOMB_WEAPON:
         case SHOTGUN_WEAPON:
-            rotatesprite(160<<16,(180+(g_player[screenpeek].ps->weapon_pos*g_player[screenpeek].ps->weapon_pos))<<16,
-                         scale(65536,ud.statusbarscale,100),0,g_currentweapon==GROW_WEAPON?GROWSPRITEICON:WeaponPickupSprites[g_currentweapon],
-                         0,0,2,windowx1,windowy1,windowx2,windowy2);
+            rotatesprite_win(160<<16,(180+(g_player[screenpeek].ps->weapon_pos*g_player[screenpeek].ps->weapon_pos))<<16,
+                             scale(65536,ud.statusbarscale,100),0,g_currentweapon==GROW_WEAPON?GROWSPRITEICON:WeaponPickupSprites[g_currentweapon],
+                             0,0,2);
             return;
         default:
             return;
@@ -2225,8 +2225,8 @@ void P_DisplayScuba(int32_t snum)
 
     if (g_player[snum].ps->scuba_on)
     {
-        rotatesprite(43<<16,(200-tilesizy[SCUBAMASK])<<16,65536,0,SCUBAMASK,0,p,2+16,windowx1,windowy1,windowx2,windowy2);
-        rotatesprite((320-43)<<16,(200-tilesizy[SCUBAMASK])<<16,65536,1024,SCUBAMASK,0,p,2+4+16,windowx1,windowy1,windowx2,windowy2);
+        rotatesprite_win(43<<16,(200-tilesizy[SCUBAMASK])<<16,65536,0,SCUBAMASK,0,p,2+16);
+        rotatesprite_win((320-43)<<16,(200-tilesizy[SCUBAMASK])<<16,65536,1024,SCUBAMASK,0,p,2+4+16);
     }
 }
 

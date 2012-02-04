@@ -679,8 +679,8 @@ void G_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t or
     if (orientation&4)
         a = 1024;
 
-    rotatesprite((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
-                 65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite_win((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
+                     65536L,a,tilenum,shade,p,2|orientation);
 }
 
 void G_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
@@ -690,8 +690,8 @@ void G_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t
     if (orientation&4)
         a = 1024;
 
-    rotatesprite((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
-                 65536L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite_win((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
+                     65536L,a,tilenum,shade,p,2|orientation);
 }
 
 void G_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
@@ -701,8 +701,8 @@ void G_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32
     if (orientation&4)
         a = 1024;
 
-    rotatesprite((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
-                 32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite_win((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
+                     32768L,a,tilenum,shade,p,2|orientation);
 }
 
 void G_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
@@ -712,8 +712,8 @@ void G_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, in
     if (orientation&4)
         a = 1024;
 
-    rotatesprite((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
-                 32768L,a,tilenum,shade,p,2|orientation,windowx1,windowy1,windowx2,windowy2);
+    rotatesprite_win((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
+                     32768L,a,tilenum,shade,p,2|orientation);
 }
 
 #define POLYMOSTTRANS (1)
@@ -1044,32 +1044,32 @@ static void G_DrawInventory(DukePlayer_t *p)
             switch (n&(1<<j))
             {
             case 1:
-                rotatesprite(xoff<<16,y<<16,65536L,0,FIRSTAID_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite_win(xoff<<16,y<<16,65536L,0,FIRSTAID_ICON,0,0,2+16);
                 break;
             case 2:
-                rotatesprite((xoff+1)<<16,y<<16,65536L,0,STEROIDS_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite_win((xoff+1)<<16,y<<16,65536L,0,STEROIDS_ICON,0,0,2+16);
                 break;
             case 4:
-                rotatesprite((xoff+2)<<16,y<<16,65536L,0,HOLODUKE_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite_win((xoff+2)<<16,y<<16,65536L,0,HOLODUKE_ICON,0,0,2+16);
                 break;
             case 8:
-                rotatesprite(xoff<<16,y<<16,65536L,0,JETPACK_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite_win(xoff<<16,y<<16,65536L,0,JETPACK_ICON,0,0,2+16);
                 break;
             case 16:
-                rotatesprite(xoff<<16,y<<16,65536L,0,HEAT_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite_win(xoff<<16,y<<16,65536L,0,HEAT_ICON,0,0,2+16);
                 break;
             case 32:
-                rotatesprite(xoff<<16,y<<16,65536L,0,AIRTANK_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite_win(xoff<<16,y<<16,65536L,0,AIRTANK_ICON,0,0,2+16);
                 break;
             case 64:
-                rotatesprite(xoff<<16,(y-1)<<16,65536L,0,BOOT_ICON,0,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite_win(xoff<<16,(y-1)<<16,65536L,0,BOOT_ICON,0,0,2+16);
                 break;
             }
 
             xoff += 22;
 
             if (p->inven_icon == j+1)
-                rotatesprite((xoff-2)<<16,(y+19)<<16,65536L,1024,ARROW,-32,0,2+16,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite_win((xoff-2)<<16,(y+19)<<16,65536L,1024,ARROW,-32,0,2+16);
         }
 
         j++;
@@ -2449,9 +2449,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             if (j < 22000) j = 22000;
             else if (j > (65536<<1)) j = (65536<<1);
 
-            rotatesprite((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),j,daang,i,sprite[g_player[p].ps->i].shade,
-                         (g_player[p].ps->cursectnum > -1)?sector[g_player[p].ps->cursectnum].floorpal:0,
-                         0,windowx1,windowy1,windowx2,windowy2);
+            rotatesprite_win((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),j,daang,i,sprite[g_player[p].ps->i].shade,
+                             (g_player[p].ps->cursectnum > -1)?sector[g_player[p].ps->cursectnum].floorpal:0, 0);
         }
     }
 }
@@ -2865,8 +2864,8 @@ void G_DisplayRest(int32_t smoothratio)
         if (apScriptGameEvent[EVENT_DISPLAYCROSSHAIR])
             VM_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1);
         if (aGameVars[g_iReturnVarID].val.lValue == 0)
-            rotatesprite((160L-(g_player[myconnectindex].ps->look_ang>>1))<<16,100L<<16,scale(65536,ud.crosshairscale,100),
-                         0,CROSSHAIR,0,CROSSHAIR_PAL,2+1,windowx1,windowy1,windowx2,windowy2);
+            rotatesprite_win((160L-(g_player[myconnectindex].ps->look_ang>>1))<<16,100L<<16,scale(65536,ud.crosshairscale,100),
+                             0,CROSSHAIR,0, CROSSHAIR_PAL,2+1);
     }
 #if 0
     if (GametypeFlags[ud.coop] & GAMETYPE_TDM)
@@ -2877,7 +2876,7 @@ void G_DisplayRest(int32_t smoothratio)
             {
                 j = min(max((G_GetAngleDelta(getangle(g_player[i].ps->pos.x-g_player[myconnectindex].ps->pos.x,
                                                       g_player[i].ps->pos.y-g_player[myconnectindex].ps->pos.y),g_player[myconnectindex].ps->ang))>>1,-160),160);
-                rotatesprite((160-j)<<16,100L<<16,65536L,0,DUKEICON,0,0,2+1,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite_win((160-j)<<16,100L<<16,65536L,0,DUKEICON,0,0,2+1);
             }
         }
     }
@@ -3673,7 +3672,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 i = sintable[i+512]*8 + sintable[i]*5;
                 if ((1-ud.detail) == 0) i >>= 1;
                 i>>=(tiltcs-1); // JBF 20030807
-                rotatesprite(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite_win(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64);
                 walock[TILE_TILT] = 199;
             }
         }
@@ -11673,19 +11672,19 @@ static void G_DrawCameraText(int16_t i)
 
     if (!T1)
     {
-        rotatesprite(24<<16,33<<16,65536L,0,CAMCORNER,0,0,2,windowx1,windowy1,windowx2,windowy2);
-        rotatesprite((320-26)<<16,34<<16,65536L,0,CAMCORNER+1,0,0,2,windowx1,windowy1,windowx2,windowy2);
-        rotatesprite(22<<16,163<<16,65536L,512,CAMCORNER+1,0,0,2+4,windowx1,windowy1,windowx2,windowy2);
-        rotatesprite((310-10)<<16,163<<16,65536L,512,CAMCORNER+1,0,0,2,windowx1,windowy1,windowx2,windowy2);
+        rotatesprite_win(24<<16,33<<16,65536L,0,CAMCORNER,0,0,2);
+        rotatesprite_win((320-26)<<16,34<<16,65536L,0,CAMCORNER+1,0,0,2);
+        rotatesprite_win(22<<16,163<<16,65536L,512,CAMCORNER+1,0,0,2+4);
+        rotatesprite_win((310-10)<<16,163<<16,65536L,512,CAMCORNER+1,0,0,2);
         if (totalclock&16)
-            rotatesprite(46<<16,32<<16,65536L,0,CAMLIGHT,0,0,2,windowx1,windowy1,windowx2,windowy2);
+            rotatesprite_win(46<<16,32<<16,65536L,0,CAMLIGHT,0,0,2);
     }
     else
     {
         flipbits = (totalclock<<1)&48;
         for (x=0; x<394; x+=64)
             for (y=0; y<200; y+=64)
-                rotatesprite(x<<16,y<<16,65536L,0,STATIC,0,0,2+flipbits,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite_win(x<<16,y<<16,65536L,0,STATIC,0,0,2+flipbits);
     }
 }
 

@@ -9389,7 +9389,7 @@ static int32_t registerosdcommands(void)
 
 #define DUKEOSD
 #ifdef DUKEOSD
-#if 0
+# if 0
 void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
 {
     int32_t ac;
@@ -9420,14 +9420,14 @@ void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade,
         else x += tilesizx[ac];
     }
 }
-#endif
+# endif
 
 static int32_t GetTime(void)
 {
     return totalclock;
 }
 
-#if 0
+# if 0
 void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress)
 {
     int32_t ac;
@@ -9448,7 +9448,7 @@ int32_t GAME_getrowheight(int32_t w)
 {
     return w>>3;
 }
-#endif
+# endif
 
 //#define BGTILE 311
 //#define BGTILE 1156
@@ -9463,7 +9463,7 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
 {
     UNREFERENCED_PARAMETER(numcols);
 
-#ifdef USE_OPENGL
+# ifdef USE_OPENGL
 //    if (getrendermode() < 3) bits = BITS;
 //    else 
     if (rendmode>=3 && qsetmode==200)
@@ -9497,7 +9497,7 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
 
         return;
     }
-#endif
+# endif
 
     CLEARLINES2D(0, min(ydim, numrows*8+8), editorcolors[16]);
 }
@@ -9518,9 +9518,7 @@ static void m32_osdsetfunctions(void)
         NULL
     );
 }
-
-
-#endif
+#endif  // defined DUKEOSD
 
 enum
 {
