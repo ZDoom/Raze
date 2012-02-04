@@ -261,6 +261,7 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
         if (!(tmp==8 || tmp==16 || tmp==32))
             return OSDCMD_SHOWHELP;
         newbpp = tmp;
+        break;
     case 4:	// fs, res, bpp switch
         newfullscreen = (Batol(parm->parms[3]) != 0);
     case 3:	// res & bpp switch
