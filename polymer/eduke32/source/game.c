@@ -8349,7 +8349,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         {
             char *otokptr = script->ltextptr;
             char *animsoundsend = NULL;
-            int32_t animnum, numpairs=0, allocsz=4, bad, lastframenum=INT32_MIN;
+            int32_t animnum, numpairs=0, allocsz=4, bad=1, lastframenum=INT32_MIN;
 
             static const tokenlist hardcoded_anim_tokens[] =
             {
