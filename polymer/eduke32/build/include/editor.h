@@ -115,6 +115,8 @@ extern int32_t autogray, showinnergray;
 int32_t yax_is121(int16_t bunchnum, int16_t getfloor);
 #endif
 
+extern void M32_DrawRoomsAndMasks(void);
+
 extern int32_t kopen4loadfrommod(const char *filename, char searchfirst);
 
 // set to 1 to enable:

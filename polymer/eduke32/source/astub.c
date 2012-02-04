@@ -4429,22 +4429,7 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
         if (handleevents())
             quitevent = 0;
 
-        yax_preparedrawrooms();
-        drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-        yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
-
-        ExtAnalyzeSprites();
-        drawmasks();
-
-#ifdef POLYMER
-        if (rendmode == 4 && searchit == 2)
-        {
-            polymer_editorpick();
-            drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-            ExtAnalyzeSprites();
-            drawmasks();
-        }
-#endif
+        M32_DrawRoomsAndMasks();
 
         ch = bgetchar();
 
@@ -4639,23 +4624,7 @@ ENDFOR1:
         if (PRESSED_KEYSC(PGDN))
             sprite[linebegspr].pal -= (sprite[linebegspr].pal>0);
 
-
-        yax_preparedrawrooms();
-        drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-        yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
-
-        ExtAnalyzeSprites();
-        drawmasks();
-
-#ifdef POLYMER
-        if (rendmode == 4 && searchit == 2)
-        {
-            polymer_editorpick();
-            drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-            ExtAnalyzeSprites();
-            drawmasks();
-        }
-#endif
+        M32_DrawRoomsAndMasks();
 
         ch = bgetchar();
 

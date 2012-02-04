@@ -436,6 +436,26 @@ static void m32_keypresscallback(int32_t code, int32_t downp)
     VM_OnEvent(EVENT_KEYPRESS, -1);
 }
 
+void M32_DrawRoomsAndMasks(void)
+{
+    yax_preparedrawrooms();
+    drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
+    yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
+
+    ExtAnalyzeSprites();
+    drawmasks();
+
+#ifdef POLYMER
+    if (rendmode == 4 && searchit == 2)
+    {
+        polymer_editorpick();
+        drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
+        ExtAnalyzeSprites();
+        drawmasks();
+    }
+#endif
+}
+
 #undef STARTUP_SETUP_WINDOW
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
 # define STARTUP_SETUP_WINDOW
@@ -677,22 +697,7 @@ CANCEL:
 
         ExtPreCheckKeys();
 
-        yax_preparedrawrooms();
-        drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-        yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
-
-        ExtAnalyzeSprites();
-        drawmasks();
-
-#ifdef POLYMER
-        if (rendmode == 4 && searchit == 2)
-        {
-            polymer_editorpick();
-            drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-            ExtAnalyzeSprites();
-            drawmasks();
-        }
-#endif
+        M32_DrawRoomsAndMasks();
 
 #ifdef M32_SHOWDEBUG
         if (searchstat>=0 && (searchwall<0 || searchsector<0))
@@ -8590,24 +8595,7 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
             quitevent = 0;
 
         if ((flags&8)==0)
-        {
-            yax_preparedrawrooms();
-            drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-            yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
-
-            ExtAnalyzeSprites();
-            drawmasks();
-
-#ifdef POLYMER
-            if (rendmode == 4 && searchit == 2)
-            {
-                polymer_editorpick();
-                drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-                ExtAnalyzeSprites();
-                drawmasks();
-            }
-#endif
-        }
+            M32_DrawRoomsAndMasks();
 
         ch = bgetchar();
         if (keystatus[0x1])
