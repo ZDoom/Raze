@@ -61,6 +61,19 @@ typedef struct {
     int32_t x, y, z;
 } vec3_t;
 #pragma pack(pop)
+
+enum
+{
+    MAXSECTORS = 4096,
+    MAXWALLS = 16384,
+    MAXSPRITES = 16384,
+
+    MAXSTATUS = 1024,
+
+    MAXBUNCHES = 256,
+    CEILING = 0,
+    FLOOR = 1,
+};
 ]]
 
 assert(ffi.sizeof('sectortype')==40)
@@ -96,11 +109,11 @@ ffi.cdef[[
 const int16_t numsectors, numwalls;
 const int32_t numyaxbunches;
 
-const int16_t headspritesect[16384+1], headspritestat[1024+1];
-const int16_t prevspritesect[16384], prevspritestat[16384];
-const int16_t nextspritesect[16384], nextspritestat[16384];
+const int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
+const int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
+const int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
-const int16_t headsectbunch[2][256], nextsectbunch[2][4096];
+const int16_t headsectbunch[2][MAXBUNCHES], nextsectbunch[2][MAXSECTORS];
 
 
 int16_t yax_getbunch(int16_t i, int16_t cf);
@@ -128,11 +141,14 @@ typedef struct
 } actor_t;
 #pragma pack(pop)
 
-//#define MAXMOUSEBUTTONS 10
-//#define MAXMOUSEAXES 2
-//#define MAXJOYBUTTONS (32+4)  // XXX
-//#define MAXJOYAXES 8
-//#define NUMGAMEFUNCTIONS 56
+enum
+{
+    MAXMOUSEBUTTONS = 10,
+    MAXMOUSEAXES = 2,
+    MAXJOYBUTTONS = (32+4),
+    MAXJOYAXES = 8,
+    NUMGAMEFUNCTIONS = 56,
+};
 
 typedef struct {
     vec3_t camera;
@@ -171,17 +187,17 @@ typedef struct {
 
         // JBF 20031211: Store the input settings because
         // (currently) jmact can't regurgitate them
-        int32_t MouseFunctions[10][2];  // MAXMOUSEBUTTONS
-        int32_t MouseDigitalFunctions[2][2];  // MAXMOUSEAXES
-        int32_t MouseAnalogueAxes[2];  // MAXMOUSEAXES
-        int32_t MouseAnalogueScale[2];  // MAXMOUSEAXES
-        int32_t JoystickFunctions[32+4][2];  // MAXJOYBUTTONS
-        int32_t JoystickDigitalFunctions[8][2];  // MAXJOYAXES
-        int32_t JoystickAnalogueAxes[8];  // MAXJOYAXES
-        int32_t JoystickAnalogueScale[8];  // MAXJOYAXES
-        int32_t JoystickAnalogueDead[8];  // MAXJOYAXES
-        int32_t JoystickAnalogueSaturate[8];  // MAXJOYAXES
-        uint8_t KeyboardKeys[56][2];  // NUMGAMEFUNCTIONS
+        int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
+        int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
+        int32_t MouseAnalogueAxes[MAXMOUSEAXES];
+        int32_t MouseAnalogueScale[MAXMOUSEAXES];
+        int32_t JoystickFunctions[MAXJOYBUTTONS][2];
+        int32_t JoystickDigitalFunctions[MAXJOYAXES][2];
+        int32_t JoystickAnalogueAxes[MAXJOYAXES];
+        int32_t JoystickAnalogueScale[MAXJOYAXES];
+        int32_t JoystickAnalogueDead[MAXJOYAXES];
+        int32_t JoystickAnalogueSaturate[MAXJOYAXES];
+        uint8_t KeyboardKeys[NUMGAMEFUNCTIONS][2];
 
         //
         // Sound variables
@@ -235,7 +251,7 @@ typedef struct {
 ]]
 
 ffi.cdef[[
-actor_t actor[16384];
+actor_t actor[MAXSPRITES];
 user_defs ud;
 ]]
 
@@ -318,10 +334,7 @@ gv = {
     nextspritesect = det, nextspritestat = det,
 
     actor = det,
-
-    -- "constants", actually you'd be able to assign to them now...
-    CEILING = 0,
-    FLOOR = 1,
+    ud = det,
 }
 local tmpmt = {
     __index = ffiC,
@@ -374,16 +387,16 @@ local function creategtab(ctab, maxidx, name)
     return tab
 end
 
-sprite = creategtab(ffiC.sprite, 16384, 'sprite[] struct')
-spriteext = creategtab(ffiC.spriteext, 16384, 'spriteext[] struct')
-headspritesect = creategtab(ffiC.headspritesect, 16384, 'headspritesect[]')
-headspritestat = creategtab(ffiC.headspritestat, 1024, 'headspritestat[]')
-nextspritesect = creategtab(ffiC.nextspritesect, 16384, 'nextspritesect[]')
-nextspritestat = creategtab(ffiC.nextspritestat, 16384, 'nextspritestat[]')
-prevspritesect = creategtab(ffiC.prevspritesect, 16384, 'prevspritesect[]')
-prevspritestat = creategtab(ffiC.prevspritestat, 16384, 'prevspritestat[]')
+sprite = creategtab(ffiC.sprite, ffiC.MAXSPRITES, 'sprite[] struct')
+spriteext = creategtab(ffiC.spriteext, ffiC.MAXSPRITES, 'spriteext[] struct')
+headspritesect = creategtab(ffiC.headspritesect, ffiC.MAXSECTORS, 'headspritesect[]')
+headspritestat = creategtab(ffiC.headspritestat, ffiC.MAXSTATUS, 'headspritestat[]')
+nextspritesect = creategtab(ffiC.nextspritesect, ffiC.MAXSPRITES, 'nextspritesect[]')
+nextspritestat = creategtab(ffiC.nextspritestat, ffiC.MAXSPRITES, 'nextspritestat[]')
+prevspritesect = creategtab(ffiC.prevspritesect, ffiC.MAXSPRITES, 'prevspritesect[]')
+prevspritestat = creategtab(ffiC.prevspritestat, ffiC.MAXSPRITES, 'prevspritestat[]')
 
-actor = creategtab(ffiC.actor, 16384, 'actor[]')
+actor = creategtab(ffiC.actor, ffiC.MAXSPRITES, 'actor[]')
 
 function TEMP_getvollev()  -- REMOVE
     return ffiC.ud.volume_number+1, ffiC.ud.level_number+1
@@ -419,7 +432,7 @@ local function iter_spritesofstat(stat, i)
 end
 
 function spritesofstat(stat)
-    if (stat < 0 or stat >= 1024) then
+    if (stat < 0 or stat >= ffiC.MAXSTATUS) then
         error("passed invalid statnum to spritesofstat iterator", 2)
     end
 

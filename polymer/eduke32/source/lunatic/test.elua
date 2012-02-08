@@ -14,7 +14,7 @@ end
 local i
 
 print('tweaking sector pals')
-print('numsectors: ' .. gv.numsectors)
+print('numsectors: ' .. gv.numsectors .. ' of ' .. gv.MAXSECTORS)
 
 ---[[
 for i = 0, gv.numsectors/2 do
@@ -79,5 +79,6 @@ checkfail('wall[4].QWE = 123')  -- creating new keys forbidden... handled by Lua
 checkfail("require('os')")  -- 'require' has been thrown away to be replaced by
                             -- something more restricted later
 checkfail("new_global = 345")  -- we should declare globals
+checkfail('gv.CEILING = 3')  -- can't redefine constants in 'gv'
 
 print('--- end test script ---')
