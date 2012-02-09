@@ -82,3 +82,6 @@ checkfail("new_global = 345")  -- we should declare globals
 checkfail('gv.CEILING = 3')  -- can't redefine constants in 'gv'
 
 print('--- end test script ---')
+
+
+setevent(gv.EVENT_JUMP, function() print("jump!") end)

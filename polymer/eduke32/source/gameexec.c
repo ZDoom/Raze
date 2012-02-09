@@ -34,6 +34,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 #include "menus.h"
 
+#ifdef LUNATIC_ENABLE
+# include "lunatic.h"
+extern El_State g_ElState;  // this needs to go into a header sometime
+#endif
+
 #if KRANDDEBUG
 # define GAMEEXEC_INLINE
 # define GAMEEXEC_STATIC
@@ -94,6 +99,10 @@ void VM_ScriptInfo(void)
 
 void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int32_t iPlayer, register int32_t lDist)
 {
+#ifdef LUNATIC_ENABLE
+    if (El_IsInitialized(&g_ElState))
+        El_CallEvent(&g_ElState, iEventID);
+#endif
     if (!apScriptGameEvent[iEventID])
         return;
 

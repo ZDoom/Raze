@@ -9,7 +9,17 @@
 #include "cache1d.h"
 #include "osd.h"
 
+#include "gameexec.h"
+#include "gamedef.h"  // EventNames[]
 #include "lunatic.h"
+
+// this serves two purposes:
+// the values as booleans and the addresses as keys to the Lua registry
+static uint8_t g_elEvents[MAXEVENTS];
+
+
+// forward-decls...
+static int32_t SetEvent_luacf(lua_State *L);
 
 
 // 0: success, -1: failure
@@ -29,6 +39,10 @@ int32_t El_CreateState(El_State *estate, const char *name)
     }
 
     luaL_openlibs(estate->L);  // XXX: only for internal use and testing, obviously
+
+    // create misc. global functions in the Lua state
+    lua_pushcfunction(estate->L, SetEvent_luacf);
+    lua_setglobal(estate->L, "setevent");
 
     return 0;
 }
@@ -107,6 +121,53 @@ int32_t El_RunOnce(El_State *estate, const char *fn)
     if (i == LUA_ERRRUN)
     {
         OSD_Printf("state '%s' runtime error: %s\n", estate->name, lua_tostring(estate->L, 1));  // get err msg
+        lua_pop(estate->L, 1);
+        return 4;
+    }
+
+    return 0;
+}
+
+// setupevent(EVENT_..., lua_function)
+static int32_t SetEvent_luacf(lua_State *L)
+{
+    int32_t eventidx = luaL_checkint(L, 1);
+
+    luaL_argcheck(L, (unsigned)eventidx < MAXEVENTS, 1, "must be an event number (0 .. MAXEVENTS-1)");
+    luaL_checktype(L, 2, LUA_TFUNCTION);
+
+    lua_pushlightuserdata(L, &g_elEvents[eventidx]);  // 3, push address
+    lua_pushvalue(L, 2);  // 4, push copy of lua function
+
+    lua_settable(L, LUA_REGISTRYINDEX);  // "registry[&g_elEvents[eventidx]] = <lua function>"
+    g_elEvents[eventidx] = 1;
+
+    return 0;
+}
+
+int32_t El_CallEvent(El_State *estate, int32_t eventidx)
+{
+    // XXX: estate must be the one where the events were registered...
+    //      make a global?
+
+    int32_t i;
+
+    if (!g_elEvents[eventidx])
+        return 0;
+
+    lua_pushlightuserdata(estate->L, &g_elEvents[eventidx]);  // push address
+    lua_gettable(estate->L, LUA_REGISTRYINDEX);  // get lua function
+
+    // -- call it! --
+
+    i = lua_pcall(estate->L, 0, 0, 0);
+    if (i == LUA_ERRMEM)  // XXX: should be more sophisticated.  Clean up stack? Do GC?
+        return -1;
+
+    if (i == LUA_ERRRUN)
+    {
+        OSD_Printf("event '%s' (state '%s') runtime error: %s\n", EventNames[eventidx].text,
+                   estate->name, lua_tostring(estate->L, 1));  // get err msg
         lua_pop(estate->L, 1);
         return 4;
     }
