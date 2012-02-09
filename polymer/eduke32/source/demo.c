@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 #include "demo.h"
+//#include "premap.h"  // G_UpdateScreenArea()
 #include "menus.h"
 #include "savegame.h"
 
@@ -554,16 +555,44 @@ nextdemo:
             G_DrawBackground();
         else
         {
+            static uint32_t nextrender = 0, framewaiting = 0;
+            uint32_t tt;
+
             G_HandleLocalKeys();
 
             //            j = min(max((totalclock-lockclock)*(65536/TICSPERFRAME),0),65536);
 
-            j = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
-            if (g_demo_paused && g_demo_rewind)
-                j = 65536-j;
+            if (framewaiting)
+            {
+                framewaiting--;
+#if 0
+                if (ud.statusbarmode == 1 && (ud.statusbarscale == 100 || !getrendermode()))
+                {
+                    ud.statusbarmode = 0;
+                    G_UpdateScreenArea();
+                }
+#endif
+                nextpage();
+            }
 
-            G_DrawRooms(screenpeek,j);
-            G_DisplayRest(j);
+            tt = getticks();
+
+            if (r_maxfps == 0 || tt >= nextrender)
+            {
+                if (tt > nextrender+g_frameDelay)
+                    nextrender = tt;
+
+                nextrender += g_frameDelay;
+
+                j = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
+                if (g_demo_paused && g_demo_rewind)
+                    j = 65536-j;
+
+                G_DrawRooms(screenpeek,j);
+                G_DisplayRest(j);
+
+                framewaiting++;
+            }
 
             if ((g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             {
@@ -658,7 +687,7 @@ nextdemo:
         }
         handleevents();
         Net_GetPackets();
-        nextpage();
+//        nextpage();
 
         if (g_player[myconnectindex].ps->gm == MODE_GAME)
         {
