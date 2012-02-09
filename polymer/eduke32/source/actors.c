@@ -2425,6 +2425,29 @@ ACTOR_STATIC void A_DoProjectileBounce(int32_t i)
     s->ang = getangle(xvect,yvect);
 }
 
+ACTOR_STATIC void A_HandleBeingSpitOn(DukePlayer_t *ps)
+{
+    ps->horiz += 32;
+    ps->return_to_center = 8;
+
+    if (ps->loogcnt == 0)
+    {
+        int32_t j, x;
+
+        if (!A_CheckSoundPlaying(ps->i, DUKE_LONGTERM_PAIN))
+            A_PlaySound(DUKE_LONGTERM_PAIN,ps->i);
+
+        j = 3+(krand()&3);
+        ps->numloogs = j;
+        ps->loogcnt = 24*4;
+        for (x=0; x < j; x++)
+        {
+            ps->loogiex[x] = krand()%xdim;
+            ps->loogiey[x] = krand()%ydim;
+        }
+    }
+}
+
 ACTOR_STATIC void G_MoveWeapons(void)
 {
     int32_t i = headspritestat[STAT_PROJECTILE], j=0, k, f, nexti, p, q;
@@ -2665,25 +2688,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                             A_PlaySound(PISTOL_BODYHIT,j);
 
                             if (SpriteProjectile[i].workslike & PROJECTILE_SPIT)
-                            {
-                                g_player[p].ps->horiz += 32;
-                                g_player[p].ps->return_to_center = 8;
-
-                                if (g_player[p].ps->loogcnt == 0)
-                                {
-                                    if (!A_CheckSoundPlaying(g_player[p].ps->i, DUKE_LONGTERM_PAIN))
-                                        A_PlaySound(DUKE_LONGTERM_PAIN,g_player[p].ps->i);
-
-                                    j = 3+(krand()&3);
-                                    g_player[p].ps->numloogs = j;
-                                    g_player[p].ps->loogcnt = 24*4;
-                                    for (x=0; x < j; x++)
-                                    {
-                                        g_player[p].ps->loogiex[x] = krand()%xdim;
-                                        g_player[p].ps->loogiey[x] = krand()%ydim;
-                                    }
-                                }
-                            }
+                                A_HandleBeingSpitOn(g_player[p].ps);
                         }
 
                         if (SpriteProjectile[i].workslike & PROJECTILE_RPG_IMPACT)
@@ -3003,25 +3008,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                             A_PlaySound(PISTOL_BODYHIT,j);
 
                             if (s->picnum == SPIT)
-                            {
-                                g_player[p].ps->horiz += 32;
-                                g_player[p].ps->return_to_center = 8;
-
-                                if (g_player[p].ps->loogcnt == 0)
-                                {
-                                    if (!A_CheckSoundPlaying(g_player[p].ps->i, DUKE_LONGTERM_PAIN))
-                                        A_PlaySound(DUKE_LONGTERM_PAIN,g_player[p].ps->i);
-
-                                    j = 3+(krand()&3);
-                                    g_player[p].ps->numloogs = j;
-                                    g_player[p].ps->loogcnt = 24*4;
-                                    for (x=0; x < j; x++)
-                                    {
-                                        g_player[p].ps->loogiex[x] = krand()%xdim;
-                                        g_player[p].ps->loogiey[x] = krand()%ydim;
-                                    }
-                                }
-                            }
+                                A_HandleBeingSpitOn(g_player[p].ps);
                         }
                     }
                     else if ((j&49152) == 32768)
@@ -5852,8 +5839,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 while (j >= 0)
                 {
                     if (sprite[j].statnum != STAT_PLAYER && sector[sprite[j].sectnum].lotag != 2 &&
-                            (sprite[j].picnum != SECTOREFFECTOR ||
-                             (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 49||sprite[j].lotag == 50)))
+                            (sprite[j].picnum != SECTOREFFECTOR || (sprite[j].lotag == 49||sprite[j].lotag == 50))
                             && sprite[j].picnum != LOCATORS)
                     {
                         // fix interpolation
@@ -5939,8 +5925,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     // keep this conditional in sync with above!
                     if (sprite[j].statnum != STAT_PLAYER && sector[sprite[j].sectnum].lotag != 2 &&
-                            (sprite[j].picnum != SECTOREFFECTOR ||
-                             (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 49||sprite[j].lotag == 50)))
+                            (sprite[j].picnum != SECTOREFFECTOR || (sprite[j].lotag == 49||sprite[j].lotag == 50))
                             && sprite[j].picnum != LOCATORS)
                     {
                         actor[j].bposx = sprite[j].x;
