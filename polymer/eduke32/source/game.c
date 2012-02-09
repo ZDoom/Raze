@@ -6969,43 +6969,6 @@ FOUNDCHEAT:
 
                 case CHEAT_CORNHOLIO:
                 case CHEAT_KROZ:
-                    ud.god = 1-ud.god;
-
-                    if (ud.god)
-                    {
-                        pus = 1;
-                        pub = 1;
-                        sprite[g_player[myconnectindex].ps->i].cstat = 257;
-
-                        actor[g_player[myconnectindex].ps->i].t_data[0] = 0;
-                        actor[g_player[myconnectindex].ps->i].t_data[1] = 0;
-                        actor[g_player[myconnectindex].ps->i].t_data[2] = 0;
-                        actor[g_player[myconnectindex].ps->i].t_data[3] = 0;
-                        actor[g_player[myconnectindex].ps->i].t_data[4] = 0;
-                        actor[g_player[myconnectindex].ps->i].t_data[5] = 0;
-
-                        sprite[g_player[myconnectindex].ps->i].hitag = 0;
-                        sprite[g_player[myconnectindex].ps->i].lotag = 0;
-                        sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].ps->palookup;
-
-                        P_DoQuote(QUOTE_CHEAT_GODMODE_ON,g_player[myconnectindex].ps);
-                    }
-                    else
-                    {
-                        ud.god = 0;
-                        sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
-                        actor[g_player[myconnectindex].ps->i].extra = -1;
-                        g_player[myconnectindex].ps->last_extra = g_player[myconnectindex].ps->max_player_health;
-                        P_DoQuote(QUOTE_CHEAT_GODMODE_OFF,g_player[myconnectindex].ps);
-                    }
-
-                    sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
-                    actor[g_player[myconnectindex].ps->i].extra = 0;
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    g_player[myconnectindex].ps->dead_flag = 0;
-                    KB_FlushKeyBoardQueue();
-                    return;
-
                 case CHEAT_COMEGETSOME:
                     ud.god = 1-ud.god;
 
@@ -7025,30 +6988,40 @@ FOUNDCHEAT:
                         sprite[g_player[myconnectindex].ps->i].hitag = 0;
                         sprite[g_player[myconnectindex].ps->i].lotag = 0;
                         sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].ps->palookup;
-                        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4],"COME GET SOME!");
-                        S_PlaySound(DUKE_GETWEAPON2);
-                        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-                        G_CheatGetInv();
-                        for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
-                            g_player[myconnectindex].ps->gotweapon |= (1<<weapon);
 
-                        for (weapon = PISTOL_WEAPON;
-                                weapon < (MAX_WEAPONS);
-                                weapon++)
-                            P_AddAmmo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
-                        g_player[myconnectindex].ps->got_access = 7;
+                        if (k != CHEAT_COMEGETSOME)
+                        {
+                            P_DoQuote(QUOTE_CHEAT_GODMODE_ON,g_player[myconnectindex].ps);
+                        }
+                        else
+                        {
+                            Bstrcpy(ScriptQuotes[QUOTE_RESERVED4],"COME GET SOME!");
+
+                            S_PlaySound(DUKE_GETWEAPON2);
+                            P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+                            G_CheatGetInv();
+                            for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
+                                g_player[myconnectindex].ps->gotweapon |= (1<<weapon);
+
+                            for (weapon = PISTOL_WEAPON; weapon < (MAX_WEAPONS); weapon++)
+                                P_AddAmmo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
+                            g_player[myconnectindex].ps->got_access = 7;
+                        }
+
                     }
                     else
                     {
                         sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
                         actor[g_player[myconnectindex].ps->i].extra = -1;
                         g_player[myconnectindex].ps->last_extra = g_player[myconnectindex].ps->max_player_health;
-                        P_DoQuote(QUOTE_CHEAT_GODMODE_OFF, g_player[myconnectindex].ps);
+                        P_DoQuote(QUOTE_CHEAT_GODMODE_OFF,g_player[myconnectindex].ps);
                     }
 
                     sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
                     actor[g_player[myconnectindex].ps->i].extra = 0;
                     g_player[myconnectindex].ps->cheat_phase = 0;
+                    if (k != CHEAT_COMEGETSOME)
+                        g_player[myconnectindex].ps->dead_flag = 0;
                     KB_FlushKeyBoardQueue();
                     return;
 
