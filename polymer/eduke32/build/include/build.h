@@ -732,7 +732,6 @@ int32_t   drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
 void   drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col);
 
 int32_t   setrendermode(int32_t renderer);
-int32_t   getrendermode(void);
 
 #ifdef USE_OPENGL
 void    setrollangle(int32_t rolla);

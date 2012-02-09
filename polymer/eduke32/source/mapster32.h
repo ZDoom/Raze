@@ -68,10 +68,6 @@ static int32_t autosavetimer;
 static void SearchSectors(int32_t dir);
 static inline void SpriteName(int16_t spritenum, char *lo2);
 //static void PrintStatus(const char *string,int32_t num,char x,char y,char color);
-void SetBOSS1Palette();
-void SetSLIMEPalette();
-void SetWATERPalette();
-void SetGAMEPalette();
 
 static void EditSpriteData(int16_t spritenum);
 static void EditWallData(int16_t wallnum);

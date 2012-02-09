@@ -45,7 +45,6 @@ extern int8_t m32_clipping;  // 0: none, 1: only white walls, 2: like game
 extern int16_t editstatus, searchit;
 extern int32_t searchx, searchy, osearchx, osearchy;      //search input
 
-extern int32_t qsetmode;
 extern int16_t searchsector, searchwall, searchstat;  //search output
 extern int16_t searchbottomwall, searchisbottom;
 extern int32_t zmode, kensplayerheight, zlock;
@@ -223,7 +222,6 @@ const char* getstring_simple(const char *querystr, const char *defaultstr, int32
 //int32_t snfillprintf(char *outbuf, size_t bufsiz, int32_t fill, const char *fmt, ...);
 void _printmessage16(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
 
-extern int32_t lastpm16time;
 #define printmessage16(fmt, ...) lastpm16time = totalclock, _printmessage16(fmt, ## __VA_ARGS__)
 
 extern char lastpm16buf[156];
