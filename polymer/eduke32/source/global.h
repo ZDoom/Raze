@@ -121,7 +121,7 @@ G_EXTERN intptr_t *actorscrptr[MAXTILES],*g_parsingActorPtr;
 G_EXTERN intptr_t *g_scriptPtr,*insptr;
 G_EXTERN int32_t *labelcode,*labeltype;
 G_EXTERN intptr_t *script;
-G_EXTERN map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS];
+G_EXTERN map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS];  // +1 volume for "intro", "briefing" music
 G_EXTERN playerdata_t g_player[MAXPLAYERS];
 G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
 G_EXTERN projectile_t ProjectileData[MAXTILES],DefaultProjectileData[MAXTILES],SpriteProjectile[MAXSPRITES];

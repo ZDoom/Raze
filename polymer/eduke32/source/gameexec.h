@@ -23,7 +23,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __gameexec_h__
 #define __gameexec_h__
 
+#include "build.h"
+#include "sector.h"  // mapstate_t
+#include "gamedef.h"  // vmstate_t
+
 // the order of these can't be changed or else compatibility with EDuke 2.0 mods will break
+// KEEPINSYNC2 with EventNames[] and same enum in defs.ilua
 enum GameEvent_t {
     EVENT_INIT,
     EVENT_ENTERLEVEL,

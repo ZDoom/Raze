@@ -24,6 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __sector_h__
 
 #include "gamevars.h"
+#include "actors.h"  // actor_t
+#include "player.h"  // playerspawn_t
+
 
 #define MAXCYCLERS      1024
 #define MAXANIMATES     256
@@ -85,7 +88,7 @@ typedef struct {
     mapstate_t *savedstate;
 } map_t;
 
-extern map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
+//extern map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 
 void G_ActivateBySector(int32_t sect,int32_t j);
 int32_t A_CallSound(int32_t sn,int32_t whatsprite);
