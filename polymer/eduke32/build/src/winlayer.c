@@ -1155,10 +1155,12 @@ static BOOL InitDirectInput(void)
 
         axisdefs = (struct _joydef *)Bcalloc(didc.dwAxes, sizeof(struct _joydef));
         buttondefs = (struct _joydef *)Bcalloc(didc.dwButtons, sizeof(struct _joydef));
-        hatdefs = (struct _joydef *)Bcalloc(didc.dwPOVs, sizeof(struct _joydef));
+        if (didc.dwPOVs)
+            hatdefs = (struct _joydef *)Bcalloc(didc.dwPOVs, sizeof(struct _joydef));
 
         joyaxis = (int32_t *)Bcalloc(didc.dwAxes, sizeof(int32_t));
-        joyhat = (int32_t *)Bcalloc(didc.dwPOVs, sizeof(int32_t));
+        if (didc.dwPOVs)
+            joyhat = (int32_t *)Bcalloc(didc.dwPOVs, sizeof(int32_t));
 
         result = IDirectInputDevice7_EnumObjects(dev2, InitDirectInput_enumobjects, (LPVOID)typecounts, DIDFT_ALL);
         if (FAILED(result)) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting controller features", result); }
