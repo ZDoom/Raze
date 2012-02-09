@@ -6809,71 +6809,27 @@ enum cheatindex_t
     CHEAT_COMEGETSOME,
 };
 
+static void doinvcheat(int32_t invidx, int32_t defaultnum, int32_t event)
+{
+    Gv_SetVar(g_iReturnVarID, defaultnum, g_player[myconnectindex].ps->i, myconnectindex);
+    VM_OnEvent(event, g_player[myconnectindex].ps->i, myconnectindex, -1);
+    if (aGameVars[g_iReturnVarID].val.lValue >=0)
+    {
+        g_player[myconnectindex].ps->inv_amount[invidx] =
+            aGameVars[g_iReturnVarID].val.lValue;
+    }
+}
+
 static void G_CheatGetInv(void)
 {
-    Gv_SetVar(g_iReturnVarID, 400, g_player[myconnectindex].ps->i, myconnectindex);
-    VM_OnEvent(EVENT_CHEATGETSTEROIDS, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (aGameVars[g_iReturnVarID].val.lValue >=0)
-    {
-        g_player[myconnectindex].ps->inv_amount[GET_STEROIDS] =
-            aGameVars[g_iReturnVarID].val.lValue;
-    }
-
-    Gv_SetVar(g_iReturnVarID, 1200, g_player[myconnectindex].ps->i, myconnectindex);
-    VM_OnEvent(EVENT_CHEATGETHEAT, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (aGameVars[g_iReturnVarID].val.lValue >=0)
-    {
-        g_player[myconnectindex].ps->inv_amount[GET_HEATS]     =
-            aGameVars[g_iReturnVarID].val.lValue;
-    }
-
-    Gv_SetVar(g_iReturnVarID, 200, g_player[myconnectindex].ps->i, myconnectindex);
-    VM_OnEvent(EVENT_CHEATGETBOOT, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (aGameVars[g_iReturnVarID].val.lValue >=0)
-    {
-        g_player[myconnectindex].ps->inv_amount[GET_BOOTS]          =
-            aGameVars[g_iReturnVarID].val.lValue;
-    }
-
-    Gv_SetVar(g_iReturnVarID, 100, g_player[myconnectindex].ps->i, myconnectindex);
-    VM_OnEvent(EVENT_CHEATGETSHIELD, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (aGameVars[g_iReturnVarID].val.lValue >=0)
-    {
-        g_player[myconnectindex].ps->inv_amount[GET_SHIELD] =
-            aGameVars[g_iReturnVarID].val.lValue;
-    }
-
-    Gv_SetVar(g_iReturnVarID, 6400, g_player[myconnectindex].ps->i, myconnectindex);
-    VM_OnEvent(EVENT_CHEATGETSCUBA, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (aGameVars[g_iReturnVarID].val.lValue >=0)
-    {
-        g_player[myconnectindex].ps->inv_amount[GET_SCUBA] =
-            aGameVars[g_iReturnVarID].val.lValue;
-    }
-
-    Gv_SetVar(g_iReturnVarID, 2400, g_player[myconnectindex].ps->i, myconnectindex);
-    VM_OnEvent(EVENT_CHEATGETHOLODUKE, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (aGameVars[g_iReturnVarID].val.lValue >=0)
-    {
-        g_player[myconnectindex].ps->inv_amount[GET_HOLODUKE] =
-            aGameVars[g_iReturnVarID].val.lValue;
-    }
-
-    Gv_SetVar(g_iReturnVarID, 1600, g_player[myconnectindex].ps->i, myconnectindex);
-    VM_OnEvent(EVENT_CHEATGETJETPACK, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (aGameVars[g_iReturnVarID].val.lValue >=0)
-    {
-        g_player[myconnectindex].ps->inv_amount[GET_JETPACK] =
-            aGameVars[g_iReturnVarID].val.lValue;
-    }
-
-    Gv_SetVar(g_iReturnVarID, g_player[myconnectindex].ps->max_player_health, g_player[myconnectindex].ps->i, myconnectindex);
-    VM_OnEvent(EVENT_CHEATGETFIRSTAID, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (aGameVars[g_iReturnVarID].val.lValue >=0)
-    {
-        g_player[myconnectindex].ps->inv_amount[GET_FIRSTAID] =
-            aGameVars[g_iReturnVarID].val.lValue;
-    }
+    doinvcheat(GET_STEROIDS, 400, EVENT_CHEATGETSTEROIDS);
+    doinvcheat(GET_HEATS, 1200, EVENT_CHEATGETHEAT);
+    doinvcheat(GET_BOOTS, 200, EVENT_CHEATGETBOOT);
+    doinvcheat(GET_SHIELD, 100, EVENT_CHEATGETSHIELD);
+    doinvcheat(GET_SCUBA, 6400, EVENT_CHEATGETSCUBA);
+    doinvcheat(GET_HOLODUKE, 2400, EVENT_CHEATGETHOLODUKE);
+    doinvcheat(GET_JETPACK, 1600, EVENT_CHEATGETJETPACK);
+    doinvcheat(GET_FIRSTAID, g_player[myconnectindex].ps->max_player_health, EVENT_CHEATGETFIRSTAID);
 }
 
 static int8_t cheatbuf[MAXCHEATLEN], cheatbuflen;
