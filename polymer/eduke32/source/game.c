@@ -2636,29 +2636,27 @@ void G_DisplayRest(int32_t smoothratio)
     }
 #endif  // USE_OPENGL
 
-    {
-        static int32_t lastpalsf;  // HACK
+//    {
+//        static int32_t lastpalsf;  // HACK
 
         // this does pain tinting etc from the CON
-        if ((pp->pals.f > 0 && pp->loogcnt == 0) || (lastpalsf>0 && pp->pals.f==0)) // JBF 20040101: pals.f > 0 now >= 0
-        {
-            Bmemcpy(&tempFade, &pp->pals, sizeof(palette_t));
-            g_restorePalette = 1;     // JBF 20040101
-            applyTint = 1;
-        }
-
-        lastpalsf = pp->pals.f;
+    if ((pp->pals.f > 0 && pp->loogcnt == 0) /*|| (lastpalsf>0 && pp->pals.f==0)*/) // JBF 20040101: pals.f > 0 now >= 0
+    {
+        Bmemcpy(&tempFade, &pp->pals, sizeof(palette_t));
+        g_restorePalette = 1;     // JBF 20040101
+        applyTint = 1;
     }
-
+//        lastpalsf = pp->pals.f;
+//    }
     // reset a normal palette
-    if (g_restorePalette)
+    else if (g_restorePalette)
     {
         static uint32_t omovethingscnt;
 
         if (g_restorePalette < 2 || omovethingscnt+1 == g_moveThingsCount)
         {
             // g_restorePalette < 0: reset tinting, too (e.g. when loading new game)
-            P_SetGamePalette(pp,pp->palette, 2 + (g_restorePalette>0)*16);
+            P_SetGamePalette(pp,pp->palette, 2 /*+ (g_restorePalette>0)*16*/);
             g_restorePalette = 0;
         }
         else
