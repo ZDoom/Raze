@@ -625,19 +625,13 @@ void CONTROL_PollDevices(ControlInfo *info)
         int32_t i = MAXMOUSEAXES-1;
 
         CONTROL_GetMouseDelta();
-        do
+        for (; i>=0; i--)
         {
             CONTROL_DigitizeAxis(i, controldevice_mouse);
             CONTROL_ScaleAxis(i, controldevice_mouse);
             LIMITCONTROL(&CONTROL_MouseAxes[i].analog);
             CONTROL_ApplyAxis(i, info, controldevice_mouse);
         }
-        while (--i);
-
-        CONTROL_DigitizeAxis(0, controldevice_mouse);
-        CONTROL_ScaleAxis(0, controldevice_mouse);
-        LIMITCONTROL(&CONTROL_MouseAxes[0].analog);
-        CONTROL_ApplyAxis(0, info, controldevice_mouse);
     }
 
     if (CONTROL_JoystickEnabled)
@@ -645,19 +639,13 @@ void CONTROL_PollDevices(ControlInfo *info)
         int32_t i = MAXJOYAXES-1;
 
         CONTROL_GetJoyDelta();
-        do
+        for (; i>=0; i--)
         {
             CONTROL_DigitizeAxis(i, controldevice_joystick);
             CONTROL_ScaleAxis(i, controldevice_joystick);
             LIMITCONTROL(&CONTROL_JoyAxes[i].analog);
             CONTROL_ApplyAxis(i, info, controldevice_joystick);
         }
-        while (--i);
-
-        CONTROL_DigitizeAxis(0, controldevice_joystick);
-        CONTROL_ScaleAxis(0, controldevice_joystick);
-        LIMITCONTROL(&CONTROL_JoyAxes[0].analog);
-        CONTROL_ApplyAxis(0, info, controldevice_joystick);
     }
 
     CONTROL_GetDeviceButtons();
@@ -848,17 +836,17 @@ int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t
     //	case controltype_keyboardandjoystick:
     CONTROL_NumJoyAxes    = min(MAXJOYAXES,joynumaxes);
     CONTROL_NumJoyButtons = min(MAXJOYBUTTONS,joynumbuttons + 4*(joynumhats>0));
-    CONTROL_JoyPresent    = CONTROL_StartJoy(0);;
+    CONTROL_JoyPresent    = CONTROL_StartJoy(0);
     CONTROL_JoystickEnabled = CONTROL_JoyPresent;
     //		break;
     //}
 
-    /*
+#if 0
     if (CONTROL_MousePresent)
         initprintf("CONTROL_Startup: Mouse Present\n");
     if (CONTROL_JoyPresent)
         initprintf("CONTROL_Startup: Joystick Present\n");
-    */
+#endif
 
     CONTROL_ButtonState     = 0;
     CONTROL_ButtonHeldState = 0;
