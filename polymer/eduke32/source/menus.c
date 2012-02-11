@@ -680,7 +680,8 @@ void M_DisplayMenus(void)
     sh = 4-(sintable[(totalclock<<4)&2047]>>11);
 
     // black translucent background
-    fade_screen_black(1);
+    if ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2)
+        fade_screen_black(1);
 
     if (!(g_currentMenu >= 1000 && g_currentMenu <= 2999 && g_currentMenu >= 300 && g_currentMenu <= 369))
         G_UpdateScreenArea();
