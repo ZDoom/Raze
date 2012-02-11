@@ -518,7 +518,8 @@ int32_t initinput(void)
                        joynumaxes,joynumbuttons,joynumhats);
 
             joyaxis = (int32_t *)Bcalloc(joynumaxes, sizeof(int32_t));
-            joyhat = (int32_t *)Bcalloc(joynumhats, sizeof(int32_t));
+            if (joynumhats)
+                joyhat = (int32_t *)Bcalloc(joynumhats, sizeof(int32_t));
 
             for (i = 0; i < joynumhats; i++)
                 joyhat[i] = -1; // centre
