@@ -551,7 +551,7 @@ nextdemo:
             totalclock = lockclock;
         }
 
-        if (foundemo == 0)
+        if (foundemo == 0)   // XXX: not better "demo is playing"?
             G_DrawBackground();
         else
         {
@@ -687,7 +687,8 @@ nextdemo:
         }
         handleevents();
         Net_GetPackets();
-//        nextpage();
+        if (!ud.recstat)
+            nextpage();
 
         if (g_player[myconnectindex].ps->gm == MODE_GAME)
         {
