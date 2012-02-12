@@ -3445,6 +3445,10 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             walock[TILE_SAVESHOT] = 199;
             if (waloff[TILE_SAVESHOT] == 0)
                 allocache(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
+#ifdef DEBUG_VALGRIND_NO_SMC
+            Bmemset((void *)waloff[TILE_SAVESHOT], 0, 200*320);
+            return;
+#endif
             setviewtotile(TILE_SAVESHOT,200L,320L);
         }
         else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))

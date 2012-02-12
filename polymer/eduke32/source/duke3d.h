@@ -108,6 +108,10 @@ extern "C" {
 // JBF 20040604: sync is a function on some platforms
 #define sync                dsync
 
+// Uncomment the following to remove calls to a.nasm functions with the GL renderers
+// so that debugging with valgrind --smc-check=none is possible:
+//#define DEBUG_VALGRIND_NO_SMC
+
 #include "namesdyn.h"
 #include "function.h"
 #include "macros.h"

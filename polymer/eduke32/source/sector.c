@@ -369,6 +369,9 @@ void G_AnimateCamSprite(void)
 {
     int32_t i = camsprite;
 
+#ifdef DEBUG_VALGRIND_NO_SMC
+    return;
+#endif
     if (camsprite <= 0) return;
 
     if (T1 >= 4)
