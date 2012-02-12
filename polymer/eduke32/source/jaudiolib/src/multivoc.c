@@ -2524,7 +2524,24 @@ int32_t MV_Init
 
     MV_SetErrorCode(MV_Ok);
 
-    MV_TotalMemory = Voices * sizeof(VoiceNode) + sizeof(HARSH_CLIP_TABLE_8) + MV_TOTALBUFFERSIZE;
+    // MV_TotalMemory + 2: FIXME
+    //  Thread 3:
+    //  Invalid read of size 2
+    //     at 0x8730513: MV_Mix16BitStereo16Stereo (mixst.c:272)
+    //     by 0x872A5A2: MV_Mix (multivoc.c:285)
+    //     by 0x872B0EA: MV_ServiceVoc (multivoc.c:449)
+    //     by 0x87342C1: fillData (driver_sdl.c:80)
+    //     by 0x428F2AD: ??? (in /usr/lib/libSDL_mixer-1.2.so.0.2.6)
+    //             . . .
+    //   Address 0x11e9fa10 is 0 bytes after a block of size 9,728 alloc'd
+    //     at 0x402732C: calloc (vg_replace_malloc.c:467)
+    //     by 0x87288C8: MV_Init (multivoc.c:2528)
+    //     by 0x871BD20: FX_Init (fx_man.c:160)
+    //     by 0x84597CA: S_SoundStartup (sounds.c:62)
+    //     by 0x80D7869: app_main (game.c:10378)
+    //     by 0x870C9C0: main (sdlayer.c:222)
+    MV_TotalMemory = Voices * sizeof(VoiceNode) + sizeof(HARSH_CLIP_TABLE_8) + MV_TOTALBUFFERSIZE + 2;
+
     ptr = (char *) calloc(1, MV_TotalMemory);
     if (!ptr)
     {
