@@ -6696,11 +6696,6 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     intptr_t p, bufplc, palookupoffs;
     int32_t xsiz, ysiz, xoff, yoff, npoints, yplc, yinc, lx, rx;
     int32_t xv, yv, xv2, yv2;
-#ifndef ENGINE_USING_A_C
-    char bad;
-    int32_t ny1, ny2, xx, xend;
-    int32_t qlinemode=0, y1ve[4], y2ve[4], u4, d4;
-#endif
 
     UNREFERENCED_PARAMETER(uniqid);
     //============================================================================= //POLYMOST BEGINS
@@ -6847,6 +6842,10 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     if ((dastat&1) == 0)
     {
+        char bad;
+        int32_t ny1, ny2, xx, xend;
+        int32_t qlinemode=0, y1ve[4], y2ve[4], u4, d4;
+
         if (((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
         {
             if (dastat&64) setupvlineasm(24L); else setupmvlineasm(24L);
@@ -6881,8 +6880,19 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                 p = x+frameplace;
 
-                u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
-                d4 = min(min(y2ve[0],y2ve[1]),min(y2ve[2],y2ve[3]));
+                assert(!(bad&1));
+                u4 = y1ve[0];
+                d4 = y2ve[0];
+                for (xx=1; xx<4; xx++)
+                    if (!(bad&pow2char[xx]))
+                    {
+                        u4 = max(u4, y1ve[xx]);
+                        d4 = min(d4, y2ve[xx]);
+                    }
+                // This version may access uninitialized y?ve[] values with
+                // thin tiles, e.g. 3085 (MINIFONT period, 1x5):
+//                u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
+//                d4 = min(min(y2ve[0],y2ve[1]),min(y2ve[2],y2ve[3]));
 
                 if (dastat&64)
                 {
