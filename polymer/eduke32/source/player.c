@@ -2280,12 +2280,20 @@ static int32_t P_DisplayAccess(int32_t gs,int32_t snum)
     //        p = wall[g_player[snum].ps->access_wallnum].pal;
 
     if ((g_player[snum].ps->access_incs-3) > 0 && (g_player[snum].ps->access_incs-3)>>3)
+    {
+        guniqhudid = 200;
         G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),
                          looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGLASER+(g_player[snum].ps->access_incs>>3),
                          gs,262144,p);
+        guniqhudid = 0;
+    }
     else
+    {
+        guniqhudid = 201;
         G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),
                          looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGACCESS,gs,4+262144,p);
+        guniqhudid = 0;
+    }
 
     return 1;
 }
