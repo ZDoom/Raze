@@ -42,7 +42,7 @@ static inline void RI_ProcessMouse(const RAWMOUSE *rmouse)
         mousey -= pos.y;
     }
 
-    for (i = 0, mask = (1<<0); mask < (1<<8); i++, mask<<=2)
+    for (i = 0, mask = (1<<0); mask <= (1<<8); i++, mask<<=2)
     {
         // usButtonFlags:
         //  1<<0: left down   -> 1 / 1<<0
