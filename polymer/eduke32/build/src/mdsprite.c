@@ -331,7 +331,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
     ma.fpssc = fpssc;
     ma.flags = flags;
 
-    map = (mdanim_t *)Bcalloc(1,sizeof(mdanim_t));
+    map = Bmalloc(sizeof(mdanim_t));
     if (!map) return(-4);
     Bmemcpy(map, &ma, sizeof(ma));
 
@@ -921,9 +921,13 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 //Note: even though it says md2model, it works for both md2model&md3model
 void updateanimation(md2model_t *m, const spritetype *tspr, uint8_t lpal)
 {
-    mdanim_t *anim;
+    const mdanim_t *anim;
     int32_t i, j, k;
     int32_t fps;
+
+    int32_t tile, smoothdurationp;
+    spritesmooth_t *smooth;
+    spriteext_t *sprext;
 
     if (m->numframes < 2)
     {
@@ -931,80 +935,105 @@ void updateanimation(md2model_t *m, const spritetype *tspr, uint8_t lpal)
         return;
     }
 
-    m->cframe = m->nframe = tile2model[Ptile2tile(tspr->picnum,lpal)].framenum;
+    tile = Ptile2tile(tspr->picnum,lpal);
+    m->cframe = m->nframe = tile2model[tile].framenum;
+#ifdef DEBUGGINGAIDS
+    if (m->cframe >= m->numframes)
+        OSD_Printf("1: c > n\n");
+#endif
 
-    for (anim = m->animations;
-            anim && anim->startframe != m->cframe;
-            anim = anim->next) ;
-    if (!anim)
+    smoothdurationp = (r_animsmoothing && (tile2model[tile].smoothduration != 0));
+
+    smooth = ((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? &spritesmooth[tspr->owner] : NULL;
+    sprext = ((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? &spriteext[tspr->owner] : NULL;
+
+    for (anim = m->animations; anim && anim->startframe != m->cframe; anim = anim->next)
     {
-        if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdoldframe != m->cframe))
-        {
-            if (spritesmooth[tspr->owner].mdsmooth == 0)
-            {
-                spriteext[tspr->owner].mdanimtims = mdtims;
-                m->interpol = 0;
-                spritesmooth[tspr->owner].mdsmooth = 1;
-                spritesmooth[tspr->owner].mdcurframe = m->cframe;
-            }
-            if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
-            {
-                spriteext[tspr->owner].mdanimtims = mdtims;
-                m->interpol = 0;
-                spritesmooth[tspr->owner].mdsmooth = 1;
-                spritesmooth[tspr->owner].mdoldframe = spritesmooth[tspr->owner].mdcurframe;
-                spritesmooth[tspr->owner].mdcurframe = m->cframe;
-            }
-        }
-        else if (r_animsmoothing && (tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration != 0) && (spritesmooth[tspr->owner].mdcurframe != m->cframe))
-        {
-            spriteext[tspr->owner].mdanimtims = mdtims;
-            m->interpol = 0;
-            spritesmooth[tspr->owner].mdsmooth = 1;
-            spritesmooth[tspr->owner].mdoldframe = spritesmooth[tspr->owner].mdcurframe;
-            spritesmooth[tspr->owner].mdcurframe = m->cframe;
-        }
-        else
-        {
-            m->interpol = 0;
-            return;
-        }
+        /* do nothing */;
     }
 
-    if (anim && (((int32_t)spriteext[tspr->owner].mdanimcur) != anim->startframe))
+    if (!anim)
     {
-        //if (spriteext[tspr->owner].flags & SPREXT_NOMDANIM) OSD_Printf("SPREXT_NOMDANIM\n");
-        //OSD_Printf("smooth launched ! oldanim %i new anim %i\n", spriteext[tspr->owner].mdanimcur, anim->startframe);
-        spriteext[tspr->owner].mdanimcur = (int16_t)anim->startframe;
-        spriteext[tspr->owner].mdanimtims = mdtims;
-        m->interpol = 0;
-        if (!r_animsmoothing || (tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration == 0))
+        if (!smoothdurationp || ((smooth->mdoldframe == m->cframe) && (smooth->mdcurframe == m->cframe)))
         {
-            m->cframe = m->nframe = anim->startframe;
+            m->interpol = 0;
             return;
         }
+
+        // assert(smoothdurationp && ((smooth->mdoldframe != m->cframe) || (smooth->mdcurframe != m->cframe)))
+
+        if (smooth->mdoldframe != m->cframe)
+        {
+            if (smooth->mdsmooth == 0)
+            {
+                sprext->mdanimtims = mdtims;
+                m->interpol = 0;
+                smooth->mdsmooth = 1;
+                smooth->mdcurframe = m->cframe;
+            }
+
+            if (smooth->mdcurframe != m->cframe)
+            {
+                sprext->mdanimtims = mdtims;
+                m->interpol = 0;
+                smooth->mdsmooth = 1;
+                smooth->mdoldframe = smooth->mdcurframe;
+                smooth->mdcurframe = m->cframe;
+            }
+        }
+        else  // if (smooth->mdcurframe != m->cframe)
+        {
+            sprext->mdanimtims = mdtims;
+            m->interpol = 0;
+            smooth->mdsmooth = 1;
+            smooth->mdoldframe = smooth->mdcurframe;
+            smooth->mdcurframe = m->cframe;
+        }
+    }
+    else if (/* anim && */ sprext->mdanimcur != anim->startframe)
+    {
+        //if (sprext->flags & SPREXT_NOMDANIM) OSD_Printf("SPREXT_NOMDANIM\n");
+        //OSD_Printf("smooth launched ! oldanim %i new anim %i\n", sprext->mdanimcur, anim->startframe);
+        sprext->mdanimcur = (int16_t)anim->startframe;
+        sprext->mdanimtims = mdtims;
+        m->interpol = 0;
+
+        if (!smoothdurationp)
+        {
+            m->cframe = m->nframe = anim->startframe;
+#ifdef DEBUGGINGAIDS
+            if (m->cframe >= m->numframes)
+                OSD_Printf("2: c > n\n");
+#endif
+            return;
+        }
+
         m->nframe = anim->startframe;
-        m->cframe = spritesmooth[tspr->owner].mdoldframe;
-        spritesmooth[tspr->owner].mdsmooth = 1;
+        m->cframe = smooth->mdoldframe;
+#ifdef DEBUGGINGAIDS
+        if (m->cframe >= m->numframes)
+            OSD_Printf("3: c > n\n");
+#endif
+        smooth->mdsmooth = 1;
         return;
     }
 
-    if (spritesmooth[tspr->owner].mdsmooth)
-        ftol((1.0f / (float)(tile2model[Ptile2tile(tspr->picnum,lpal)].smoothduration)) * 66.f, &fps);
+    if (smooth->mdsmooth)  // VERIFY: (smooth->mdsmooth) implies (tile2model[tile].smoothduration!=0) ?
+        ftol((1.0f / (float)(tile2model[tile].smoothduration)) * 66.f, &fps);
     else
         fps = anim->fpssc;
 
-    i = (mdtims-spriteext[tspr->owner].mdanimtims)*((fps*timerticspersec)/120);
+    i = (mdtims - sprext->mdanimtims)*((fps*timerticspersec)/120);
 
-    if (spritesmooth[tspr->owner].mdsmooth)
+    if (smooth->mdsmooth)
         j = 65536;
     else
         j = ((anim->endframe+1-anim->startframe)<<16);
-    //Just in case you play the game for a VERY int32_t time...
-    if (i < 0) { i = 0; spriteext[tspr->owner].mdanimtims = mdtims; }
+    // XXX: Just in case you play the game for a VERY long time...
+    if (i < 0) { i = 0; sprext->mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
-    if ((anim) && (i >= j+j) && (fps) && !mdpause) //Keep mdanimtims close to mdtims to avoid the use of MOD
-        spriteext[tspr->owner].mdanimtims += j/((fps*timerticspersec)/120);
+    if (anim && (i >= j+j) && (fps) && !mdpause) //Keep mdanimtims close to mdtims to avoid the use of MOD
+        sprext->mdanimtims += j/((fps*timerticspersec)/120);
 
     k = i;
 
@@ -1012,18 +1041,26 @@ void updateanimation(md2model_t *m, const spritetype *tspr, uint8_t lpal)
         { if (i > j-65536) i = j-65536; }
     else { if (i >= j) { i -= j; if (i >= j) i %= j; } }
 
-    if (r_animsmoothing && spritesmooth[tspr->owner].mdsmooth)
+    if (r_animsmoothing && smooth->mdsmooth)
     {
-        m->nframe = (anim) ? anim->startframe : spritesmooth[tspr->owner].mdcurframe;
-        m->cframe = spritesmooth[tspr->owner].mdoldframe;
+        m->nframe = anim ? anim->startframe : smooth->mdcurframe;
+        m->cframe = smooth->mdoldframe;
+#ifdef DEBUGGINGAIDS
+        if (m->cframe >= m->numframes)
+            OSD_Printf("4: c > n\n");
+#endif
         //OSD_Printf("smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
         if (k > 65535)
         {
-            spriteext[tspr->owner].mdanimtims = mdtims;
+            sprext->mdanimtims = mdtims;
             m->interpol = 0;
-            spritesmooth[tspr->owner].mdsmooth = 0;
-            m->cframe = m->nframe = (anim) ? anim->startframe : spritesmooth[tspr->owner].mdcurframe;
-            spritesmooth[tspr->owner].mdoldframe = m->cframe;
+            smooth->mdsmooth = 0;
+            m->cframe = m->nframe; // = anim ? anim->startframe : smooth->mdcurframe;
+#ifdef DEBUGGINGAIDS
+            if (m->cframe >= m->numframes)
+                OSD_Printf("5: c > n\n");
+#endif
+            smooth->mdoldframe = m->cframe;
             //OSD_Printf("smooth stopped !\n");
             return;
         }
@@ -1031,10 +1068,18 @@ void updateanimation(md2model_t *m, const spritetype *tspr, uint8_t lpal)
     else
     {
         m->cframe = (i>>16)+anim->startframe;
-        m->nframe = m->cframe+1; if (m->nframe > anim->endframe) m->nframe = anim->startframe;
-        spritesmooth[tspr->owner].mdoldframe = m->cframe;
+#ifdef DEBUGGINGAIDS
+        if (m->cframe >= m->numframes)
+            OSD_Printf("6: c > n\n");
+#endif
+        m->nframe = m->cframe+1;
+        if (m->nframe > anim->endframe)  // VERIFY: (!(r_animsmoothing && smooth->mdsmooth)) implies (anim!=NULL) ?
+            m->nframe = anim->startframe;
+
+        smooth->mdoldframe = m->cframe;
         //OSD_Printf("not smoothing... cframe %i nframe %i\n", m->cframe, m->nframe);
     }
+
     m->interpol = ((float)(i&65535))/65536.f;
     //OSD_Printf("interpol %f\n", m->interpol);
 }
@@ -1921,8 +1966,10 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
             m->cframe < 0 || m->cframe >= m->numframes ||
             m->nframe < 0 || m->nframe >= m->numframes)
     {
+#ifdef DEBUGGINGAIDS
         OSD_Printf("%s: mdframe oob: c:%d n:%d total:%d interpol:%.02f\n",
                    m->head.nam, m->cframe, m->nframe, m->numframes, m->interpol);
+#endif
         if (m->interpol < 0)
             m->interpol = 0;
         if (m->interpol > 1)
@@ -2098,6 +2145,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         k2 = (float)sintable[(spriteext[tspr->owner].roll+512)&2047] / 16384.0;
         k3 = (float)sintable[spriteext[tspr->owner].roll&2047] / 16384.0;
     }
+
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
         s = &m->head.surfs[surfi];
