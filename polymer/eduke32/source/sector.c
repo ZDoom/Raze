@@ -3208,7 +3208,7 @@ void P_CheckSectors(int32_t snum)
             return;
 
         if (neartagsprite == -1 && neartagwall == -1)
-            if (sector[p->cursectnum].lotag == 2)
+            if (p->cursectnum >= 0 && sector[p->cursectnum].lotag == 2)
             {
                 oldz = A_CheckHitSprite(p->i,&neartagsprite);
                 if (oldz > 1280) neartagsprite = -1;

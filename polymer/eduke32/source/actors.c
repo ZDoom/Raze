@@ -1041,18 +1041,21 @@ void A_MoveDummyPlayers(void)
 
     while (i >= 0)
     {
+        int32_t psectnum;
+
         nexti = nextspritestat[i];
 
         p = sprite[OW].yvel;
+        psectnum = g_player[p].ps->cursectnum;
 
-        if (g_player[p].ps->on_crane >= 0 || (g_player[p].ps->cursectnum >= 0 && sector[g_player[p].ps->cursectnum].lotag != 1) || sprite[g_player[p].ps->i].extra <= 0)
+        if (g_player[p].ps->on_crane >= 0 || (psectnum >= 0 && sector[psectnum].lotag != 1) || sprite[g_player[p].ps->i].extra <= 0)
         {
             g_player[p].ps->dummyplayersprite = -1;
             KILLIT(i);
         }
         else
         {
-            if (g_player[p].ps->on_ground && g_player[p].ps->on_warping_sector == 1 && sector[g_player[p].ps->cursectnum].lotag == 1)
+            if (g_player[p].ps->on_ground && g_player[p].ps->on_warping_sector == 1 && psectnum >= 0 && sector[psectnum].lotag == 1)
             {
                 CS = 257;
                 SZ = sector[SECT].ceilingz+(27<<8);
@@ -2833,7 +2836,6 @@ ACTOR_STATIC void G_MoveWeapons(void)
         }
         else
         {
-
             // here
             switch (DYNAMICTILEMAP(s->picnum))
             {

@@ -10822,6 +10822,10 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
     int32_t cfz1[2], cfz2[2];  // both wrt dasectnum
     int16_t bn[2];
 
+    // invalid sectnums can happen, for example if the player is using noclip
+    if (sect1 < 0 || sect2 < 0)
+        return 0;
+
     Bmemset(&pendingvec, 0, sizeof(vec3_t));  // compiler-happy
 #endif
 

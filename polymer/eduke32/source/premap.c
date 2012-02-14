@@ -1581,8 +1581,11 @@ static void resetpspritevars(char g)
     uint8_t aimmode[MAXPLAYERS],autoaim[MAXPLAYERS],weaponswitch[MAXPLAYERS];
     DukeStatus_t tsbar[MAXPLAYERS];
 
-    A_InsertSprite(g_player[0].ps->cursectnum,g_player[0].ps->pos.x,g_player[0].ps->pos.y,g_player[0].ps->pos.z,
-                   APLAYER,0,0,0,g_player[0].ps->ang,0,0,0,10);
+    if (g_player[0].ps->cursectnum >= 0)  // < 0 may happen if we start a map in void space (e.g. testing it)
+    {
+        A_InsertSprite(g_player[0].ps->cursectnum,g_player[0].ps->pos.x,g_player[0].ps->pos.y,g_player[0].ps->pos.z,
+                       APLAYER,0,0,0,g_player[0].ps->ang,0,0,0,10);
+    }
 
     if (ud.recstat != 2)
         TRAVERSE_CONNECT(i)
