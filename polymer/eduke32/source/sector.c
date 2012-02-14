@@ -3046,6 +3046,8 @@ static int32_t P_FindWall(DukePlayer_t *p,int16_t *hitw)
             0,&hitinfo,CLIPMASK0);
 
     *hitw = hitinfo.hitwall;
+    if (hitinfo.hitwall < 0)
+        return INT32_MAX;
 
     return (FindDistance2D(hitinfo.pos.x-p->pos.x,hitinfo.pos.y-p->pos.y));
 }
@@ -3145,7 +3147,7 @@ void P_CheckSectors(int32_t snum)
 
         i = P_FindWall(p,&hitscanwall);
 
-        if (i < 1280 && hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR)
+        if (hitscanwall >= 0 && i < 1280 && wall[hitscanwall].overpicnum == MIRROR)
             if (wall[hitscanwall].lotag > 0 && !A_CheckSoundPlaying(p->i,wall[hitscanwall].lotag) && snum == screenpeek)
             {
                 A_PlaySound(wall[hitscanwall].lotag,p->i);
