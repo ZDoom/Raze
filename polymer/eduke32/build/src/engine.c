@@ -5647,7 +5647,8 @@ static void drawsprite(int32_t snum)
                                 x = (xp1-globalposx) + scale(xp2-xp1,z1,z1-z2);
                                 y = (yp1-globalposy) + scale(yp2-yp1,z1,z1-z2);
 
-                                yp1 = dmulscale14(x,cosglobalang,y,singlobalang);
+                                yp1 = dmulscale14(x,cosviewingrangeglobalang,y,sinviewingrangeglobalang);
+
                                 if (yp1 > 0)
                                 {
                                     xp1 = dmulscale14(y,cosglobalang,-x,singlobalang);
