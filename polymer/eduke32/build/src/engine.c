@@ -2335,7 +2335,6 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
         if (numyaxbunches==0)
         {
 #endif
-
             if (spritesortcnt >= MAXSPRITESONSCREEN)
                 return 1;
 
@@ -5341,7 +5340,7 @@ static void drawsprite(int32_t snum)
         if ((sec->floorstat&3) == 0)
             startdm = globalhoriz+mulscale24(siz,sec->floorz-globalposz)+1;
         else
-            startdm = 0x7fffffff;
+            startdm = INT32_MAX;
         if ((y1>>8) > startum) startum = (y1>>8);
         if ((y2>>8) < startdm) startdm = (y2>>8);
 
@@ -5614,7 +5613,7 @@ static void drawsprite(int32_t snum)
             {
                 if (min(yb1[MAXWALLSB-1],yb2[MAXWALLSB-1]) > max(yb1[j],yb2[j]))
                 {
-                    x = 0x80000000;
+                    x = INT32_MIN;
                 }
                 else
                 {
@@ -5637,9 +5636,9 @@ static void drawsprite(int32_t snum)
                             if ((xp2-xp1)*(tspr->y-yp1) == (tspr->x-xp1)*(yp2-yp1))
                             {
                                 if (wall[thewall[j]].nextsector == tspr->sectnum)
-                                    x = 0x80000000;
+                                    x = INT32_MIN;
                                 else
-                                    x = 0x7fffffff;
+                                    x = INT32_MAX;
                             }
                             else
                             {
@@ -5660,18 +5659,20 @@ static void drawsprite(int32_t snum)
                                         { if (dalx2 < x) dalx2 = x; }
                                     else
                                         { if (darx2 > x) darx2 = x; }
-                                    x = 0x80000001;
+                                    x = INT32_MIN+1;
                                 }
                                 else
-                                    x = 0x7fffffff;
+                                    x = INT32_MAX;
                             }
                         }
                     }
                 }
+
                 if (x < 0)
                 {
                     if (dalx2 < xb1[MAXWALLSB-1]) dalx2 = xb1[MAXWALLSB-1];
                     if (darx2 > xb2[MAXWALLSB-1]) darx2 = xb2[MAXWALLSB-1];
+
                     switch (smostwalltype[i])
                     {
                     case 0:
@@ -5891,8 +5892,8 @@ static void drawsprite(int32_t snum)
         if (npoints <= 2) return;
 
         //Project onto screen
-        lpoint = -1; lmax = 0x7fffffff;
-        rpoint = -1; rmax = 0x80000000;
+        lpoint = -1; lmax = INT32_MAX;
+        rpoint = -1; rmax = INT32_MIN;
         for (z=0; z<npoints; z++)
         {
             xsi[z] = scale(rxi[z],xdimen<<15,rzi[z]) + (xdimen<<15);
@@ -6158,7 +6159,7 @@ static void drawsprite(int32_t snum)
                     if ((sec->floorstat&3) == 0)
                         startdm = globalhoriz+mulscale24(siz,sec->floorz-globalposz)+1;
                     else
-                        startdm = 0x7fffffff;
+                        startdm = INT32_MAX;
 
                     //sprite
                     if ((searchy >= max(startum,(y1>>8))) && (searchy < min(startdm,(y2>>8))))
@@ -6316,7 +6317,7 @@ static void fillpolygon(int32_t npoints)
     if (rendmode >= 3 && qsetmode == 200) { polymost_fillpolygon(npoints); return; }
 #endif
 
-    miny = 0x7fffffff; maxy = 0x80000000;
+    miny = INT32_MAX; maxy = INT32_MIN;
     for (z=npoints-1; z>=0; z--)
         { y = ry1[z]; miny = min(miny,y); maxy = max(maxy,y); }
     miny = (miny>>12); maxy = (maxy>>12);
@@ -7426,7 +7427,7 @@ int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
     }
     if (retcol >= 0) return(retcol);
 
-    mindist = 0x7fffffff;
+    mindist = INT32_MAX;
     pal1 = (char *)&palette[768-3];
     for (i=255; i>=0; i--,pal1-=3)
     {
@@ -8886,6 +8887,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     }
 
     enddrawing();   //}}}
+
     if (r_usenewaspect)
         setaspect(oviewingrange, oyxaspect);
     else
@@ -10188,7 +10190,7 @@ void nextpage(void)
     switch (qsetmode)
     {
     case 200:
-            begindrawing(); //{{{
+        begindrawing(); //{{{
         for (i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
             per = &permfifo[i];
@@ -10744,7 +10746,7 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, in
     int32_t i, testz, nextz;
     int16_t sectortouse;
 
-    if (direction == 1) nextz = 0x7fffffff; else nextz = 0x80000000;
+    if (direction == 1) nextz = INT32_MAX; else nextz = INT32_MIN;
 
     sectortouse = -1;
 
@@ -10989,7 +10991,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
                                  int32_t vx, int32_t vy, int32_t vz,
                                  int16_t stat, int16_t heinum, int32_t z, int32_t how, const intptr_t *tmp)
 {
-    int32_t x1 = 0x7fffffff, y1, z1;
+    int32_t x1 = INT32_MAX, y1, z1;
     int32_t dax, day, i, j;
     walltype *wal, *wal2;
 
@@ -11025,7 +11027,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
         }
     }
 
-    if ((x1 != 0x7fffffff) && (klabs(x1-sv->x)+klabs(y1-sv->y) < klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)))
+    if ((x1 != INT32_MAX) && (klabs(x1-sv->x)+klabs(y1-sv->y) < klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y)))
     {
         if (tmp==NULL)
         {
@@ -12270,7 +12272,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             return(retval);
         }
 
-    *sectnum = -1; tempint1 = 0x7fffffff;
+    *sectnum = -1; tempint1 = INT32_MAX;
     for (j=numsectors-1; j>=0; j--)
         if (inside(pos->x,pos->y,j) == 1)
         {
@@ -12769,8 +12771,8 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
 
     if (sectnum < 0)
     {
-        *ceilz = 0x80000000; *ceilhit = -1;
-        *florz = 0x7fffffff; *florhit = -1;
+        *ceilz = INT32_MIN; *ceilhit = -1;
+        *florz = INT32_MAX; *florhit = -1;
         return;
     }
 
@@ -15143,7 +15145,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     int32_t posxe=pos->x, posye=pos->y, posze=pos->z;
     uint8_t *graybitmap = (uint8_t *)tempbuf;
-    int32_t alwaysshowgray = (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT_MAX));
+    int32_t alwaysshowgray = (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT32_MAX));
 
     if (qsetmode == 200) return;
 
