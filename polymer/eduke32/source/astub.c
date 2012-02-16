@@ -2887,6 +2887,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
     drawrooms(x+offx,y+offy,z+offz,a,h,sprite[floor2].sectnum);
     ExtAnalyzeSprites();
     drawmasks();
+    M32_ResetFakeRORTiles();
 
     if (draw_both)
     {
@@ -2912,6 +2913,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
         drawrooms(x+offx,y+offy,z+offz,a,h,sprite[floor2].sectnum);
         ExtAnalyzeSprites();
         drawmasks();
+        M32_ResetFakeRORTiles();
     }
 
 } // end SE40

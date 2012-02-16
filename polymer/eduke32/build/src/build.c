@@ -437,6 +437,25 @@ static void m32_keypresscallback(int32_t code, int32_t downp)
     VM_OnEvent(EVENT_KEYPRESS, -1);
 }
 
+void M32_ResetFakeRORTiles(void)
+{
+#ifdef POLYMER
+# ifdef YAX_ENABLE
+        // END_TWEAK ceiling/floor fake 'TROR' pics, see BEGIN_TWEAK in engine.c
+        if (rendmode==4 && showinvisibility)
+        {
+            int32_t i;
+
+            for (i=0; i<numyaxbunches; i++)
+            {
+                yax_tweakpicnums(i, YAX_CEILING, 1);
+                yax_tweakpicnums(i, YAX_FLOOR, 1);
+            }
+        }
+# endif
+#endif
+}
+
 void M32_DrawRoomsAndMasks(void)
 {
     yax_preparedrawrooms();
@@ -445,6 +464,7 @@ void M32_DrawRoomsAndMasks(void)
 
     ExtAnalyzeSprites();
     drawmasks();
+    M32_ResetFakeRORTiles();
 
 #ifdef POLYMER
     if (rendmode == 4 && searchit == 2)
@@ -453,6 +473,7 @@ void M32_DrawRoomsAndMasks(void)
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
         ExtAnalyzeSprites();
         drawmasks();
+        M32_ResetFakeRORTiles();
     }
 #endif
 }

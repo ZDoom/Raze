@@ -694,13 +694,21 @@ static int yax_cmpbunches(const int16_t *b1, const int16_t *b2)
     return (bunchdist[*b2] - bunchdist[*b1]);
 }
 
-static void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
+
+void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
 {
     // for polymer, this is called before polymer_drawrooms() with restore==0
     // and after polymer_drawmasks() with restore==1
 
-    static int16_t opicnum[2][MAXSECTORS];
     int32_t i, dastat;
+    static int16_t opicnum[2][MAXSECTORS];
+#ifdef DEBUGGINGAIDS
+    static uint8_t expect_restore[2][YAX_MAXBUNCHES];
+
+    // must call this with restore == 0, 1,  0, 1,  0, 1,  ...
+    assert(expect_restore[cf][bunchnum] == restore);
+    expect_restore[cf][bunchnum] = !expect_restore[cf][bunchnum];
+#endif
 
     for (SECTORS_OF_BUNCH(bunchnum, cf, i))
     {
@@ -8091,7 +8099,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     if (rendmode == 4)
     {
 #  ifdef YAX_ENABLE
-        // BEGIN TWEAK ceiling/floor fake 'TROR' pics
+        // BEGIN_TWEAK ceiling/floor fake 'TROR' pics, see END_TWEAK in build.c
         if (editstatus && showinvisibility)
         {
             for (i=0; i<numyaxbunches; i++)
@@ -8577,17 +8585,6 @@ killsprite:
 #ifdef POLYMER
     if (rendmode == 4) {
         polymer_drawmasks();
-# ifdef YAX_ENABLE
-        // END TWEAK ceiling/floor fake 'TROR' pics
-        if (editstatus && showinvisibility)
-        {
-            for (i=0; i<numyaxbunches; i++)
-            {
-                yax_tweakpicnums(i, YAX_CEILING, 1);
-                yax_tweakpicnums(i, YAX_FLOOR, 1);
-            }
-        }
-# endif
     }
 #endif
 
