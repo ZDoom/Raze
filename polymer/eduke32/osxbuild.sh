@@ -19,6 +19,8 @@ if [ $1 ]; then
 fi
 
 if [ $onlyzip -eq 0 ]; then
+    rm -f eduke32.x86 eduke32.x64 mapster32.x86 mapster32.x64
+
     # make veryclean
     # WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=0 make -j 3
     # if [ $? ]; then
@@ -87,7 +89,11 @@ if [ -f mapster32.x64 ] && [ -f eduke32.x86 ] && [ -f eduke32.ppc ]; then
 #    lipo -create mapster32.debug.x64 mapster32.debug.x86 -output mapster32.debug
     lipo -create eduke32.x64 eduke32.x86  -output eduke32
 #    lipo -create eduke32.debug.x64 eduke32.debug.x86 -output eduke32.debug
-    rev=`svn info | grep Revision | awk '{ print $2 }'`
+    if [ -d ".svn" ]; then
+        rev=`svn info | grep Revision | awk '{ print $2 }'`
+    else
+        rev=`git svn info | grep 'Revision:' | awk '{ print $2 }'`
+    fi
     arfilename="eduke32-osx-$rev.zip"
     echo "This archive was produced from revision $rev by the osxbuild.sh script." > README.OSX
     echo "EDuke32 home: http://www.eduke32.com" >> README.OSX
