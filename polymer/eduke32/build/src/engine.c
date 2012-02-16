@@ -13076,8 +13076,26 @@ restart_grand:
 
                 if (clipyou != 0)
                 {
-                    if ((pos->z > daz) && (daz > *ceilz)) { *ceilz = daz; *ceilhit = j+49152; }
-                    if ((pos->z < daz2) && (daz2 < *florz)) { *florz = daz2; *florhit = j+49152; }
+                    if ((pos->z > daz) && (daz > *ceilz
+#ifdef YAX_ENABLE
+                                           || (daz == *ceilz && yax_getbunch(clipsectorlist[i], YAX_CEILING)>=0)
+#endif
+                            ))
+                    {
+                        *ceilz = daz;
+                        *ceilhit = j+49152;
+                    }
+
+                    if ((pos->z < daz2) && (daz2 < *florz
+#ifdef YAX_ENABLE
+                                            // can have a floor-sprite laying directly on the floor!
+                                            || (daz2 == *florz && yax_getbunch(clipsectorlist[i], YAX_FLOOR)>=0)
+#endif
+                            ))
+                    {
+                        *florz = daz2;
+                        *florhit = j+49152;
+                    }
                 }
             }
         }
