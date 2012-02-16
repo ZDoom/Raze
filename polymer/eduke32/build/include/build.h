@@ -82,7 +82,8 @@ void yax_updategrays(int32_t posze);
 
 #ifdef YAX_ENABLE
 // more user tag hijacking: lotag/extra :/
-# define YAX_NEXTWALL(Wall, Cf) (*(&wall[Wall].lotag + 2*Cf))
+# define YAX_PTRNEXTWALL(Ptr, Wall, Cf) (*(&Ptr[Wall].lotag + 2*Cf))
+# define YAX_NEXTWALL(Wall, Cf) YAX_PTRNEXTWALL(wall, Wall, Cf)
 
 # define YAX_ITER_WALLS(Wal, Itervar, Cfvar) Cfvar=0, Itervar=(Wal); Itervar!=-1; \
     Itervar=yax_getnextwall(Itervar, Cfvar), (void)(Itervar==-1 && Cfvar==0 && (Cfvar=1) && (Itervar=yax_getnextwall((Wal), Cfvar)))

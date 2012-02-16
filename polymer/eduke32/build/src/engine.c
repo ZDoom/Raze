@@ -306,7 +306,8 @@ static int32_t yax_islockededge(int32_t line, int32_t cf)
     return !!(wall[line].cstat&(YAX_NEXTWALLBIT(cf)));
 }
 
-#define YAX_BUNCHNUM(Sect, Cf) (*(&sector[Sect].ceilingxpanning + 8*Cf))
+#define YAX_PTRBUNCHNUM(Ptr, Sect, Cf) (*(&Ptr[Sect].ceilingxpanning + 8*Cf))
+#define YAX_BUNCHNUM(Sect, Cf) YAX_PTRBUNCHNUM(sector, Sect, Cf)
 
 //// bunch getters/setters
 int16_t yax_getbunch(int16_t i, int16_t cf)
@@ -446,7 +447,10 @@ void yax_update(int32_t resetstat)
         return;
 
     // constuct singly linked list of sectors-of-bunch
-    editstatus = (resetstat==0);  // read bunchnums directly from the sector struct!
+
+    // read bunchnums directly from the sector struct in yax_[gs]etbunch{es}!
+    editstatus = (resetstat==0);
+    // use oeditstatus to check for in-gamedness from here on!
 
     if (resetstat==0)
     {
@@ -503,7 +507,11 @@ void yax_update(int32_t resetstat)
                 for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
                 {
                     if (yax_islockededge(j,YAX_CEILING))
+                    {
                         yax_nextwall[j][0] = YAX_NEXTWALL(j,0);
+                        if (oeditstatus==0)
+                            YAX_NEXTWALL(j,0) = 0;  // reset lotag!
+                    }
                 }
 
             if (headsectbunch[0][cb] == -1)
@@ -528,7 +536,11 @@ void yax_update(int32_t resetstat)
                 for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
                 {
                     if (yax_islockededge(j,YAX_FLOOR))
+                    {
                         yax_nextwall[j][1] = YAX_NEXTWALL(j,1);
+                        if (oeditstatus==0)
+                            YAX_NEXTWALL(j,1) = -1;  // reset extra!
+                    }
                 }
 
             if (headsectbunch[1][fb] == -1)
@@ -541,6 +553,7 @@ void yax_update(int32_t resetstat)
             }
         }
     }
+
     editstatus = oeditstatus;
 }
 
@@ -683,6 +696,9 @@ static int yax_cmpbunches(const int16_t *b1, const int16_t *b2)
 
 static void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
 {
+    // for polymer, this is called before polymer_drawrooms() with restore==0
+    // and after polymer_drawmasks() with restore==1
+
     static int16_t opicnum[2][MAXSECTORS];
     int32_t i, dastat;
 
@@ -690,6 +706,7 @@ static void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
     {
         dastat = (SECTORFLD(i,stat, cf)&(128+256));
 
+        // only consider non-masked ceilings/floors
         if (dastat==0 || (restore==1 && opicnum[cf][i]&0x8000))
         {
             if (!restore)
@@ -1088,8 +1105,6 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
     }
 #endif
 }
-
-#undef YAX_BUNCHNUM
 
 #endif
 
@@ -4579,7 +4594,7 @@ static void drawalls(int32_t bunch)
             // x------------------x
             // 0       --->       1
             //
-            //     4 (our pos)
+            //     4 (our pos, z wrt the nextsector!)
 
             getzsofslope((int16_t)sectnum,wal->x,wal->y,&cz[0],&fz[0]);
             getzsofslope((int16_t)sectnum,wall[wal->point2].x,wall[wal->point2].y,&cz[1],&fz[1]);
@@ -9974,6 +9989,17 @@ int32_t saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_
             sec->lotag         = B_LITTLE16(sec->lotag);
             sec->hitag         = B_LITTLE16(sec->hitag);
             sec->extra         = B_LITTLE16(sec->extra);
+#ifdef YAX_ENABLE
+            if (editstatus == 0)
+            {
+                // if in-game, pack game-time bunchnum data back into structs
+                int32_t cf, bn;
+
+                for (cf=0; cf<2; cf++)
+                    if ((bn=yax_getbunch(i, cf)) >= 0)
+                        YAX_PTRBUNCHNUM(tsect, i, cf) = bn;
+            }
+#endif
         }
 
         Bwrite(fil,&tsect[0],sizeof(sectortype) * numsectors);
@@ -10000,6 +10026,17 @@ int32_t saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_
             wal->cstat      = B_LITTLE16(wal->cstat);
             wal->picnum     = B_LITTLE16(wal->picnum);
             wal->overpicnum = B_LITTLE16(wal->overpicnum);
+#ifdef YAX_ENABLE
+            if (editstatus == 0)
+            {
+                // if in-game, pack game-time yax-nextwall data back into structs
+                int16_t ynw;
+                if ((ynw=yax_getnextwall(i, YAX_CEILING))>=0)
+                    YAX_PTRNEXTWALL(twall,i,YAX_CEILING) = ynw;
+                if ((ynw=yax_getnextwall(i, YAX_FLOOR))>=0)
+                    YAX_PTRNEXTWALL(twall,i,YAX_FLOOR) = ynw;
+            }
+#endif
             wal->lotag      = B_LITTLE16(wal->lotag);
             wal->hitag      = B_LITTLE16(wal->hitag);
             wal->extra      = B_LITTLE16(wal->extra);
