@@ -122,12 +122,15 @@ typedef struct VoiceNode
    void ( *mix )( uint32_t position, uint32_t rate,
       const char *start, uint32_t length );
 
+   const uint8_t *rawdataptr;
    const char         *NextBlock;
    const char         *LoopStart;
    const char         *LoopEnd;
    unsigned      LoopCount;
    uint32_t  LoopSize;
    uint32_t  BlockLength;
+
+   int32_t ptrlength;  // ptrlength-1 is the max permissible index for rawdataptr
 
    uint32_t  PitchScale;
    uint32_t  FixedPointBufferSize;

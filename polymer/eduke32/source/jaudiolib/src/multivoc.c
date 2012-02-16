@@ -480,7 +480,7 @@ static void MV_ServiceVoc(void)
 
 static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
 {
-    uint8_t *ptr;
+    const uint8_t *ptr;
     int32_t            blocktype;
     int32_t            lastblocktype;
     uint32_t   blocklength;
@@ -524,13 +524,27 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
             break;
         }
 
-        blocktype = (int32_t)*ptr;
-        blocklength = LITTLE32(*(uint32_t *)(ptr + 1)) & 0x00ffffff;
+        // terminator is not mandatory according to
+        // http://wiki.multimedia.cx/index.php?title=Creative_Voice
+
+        if (ptr - voice->rawdataptr >= voice->ptrlength)
+            blocktype = 0;  // fake a terminator
+        else
+            blocktype = *ptr;
+
+        if (blocktype != 0)
+            blocklength = ptr[1]|(ptr[2]<<8)|(ptr[3]<<16);
+        else
+            blocklength = 0;
+        // would need one byte pad at end of alloc'd region:
+//        blocklength = LITTLE32(*(uint32_t *)(ptr + 1)) & 0x00ffffff;
+
         ptr += 4;
 
         switch (blocktype)
         {
         case 0 :
+end_of_data:
             // End of data
             if ((voice->LoopStart == NULL) ||
                     ((intptr_t) voice->LoopStart >= ((intptr_t) ptr - 4)))
@@ -571,6 +585,9 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
             {
                 done = TRUE;
             }
+            if (ptr - voice->rawdataptr >= voice->ptrlength)
+                goto end_of_data;
+
             voicemode = 0;
             break;
 
@@ -671,6 +688,13 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
             {
                 ptr += blocklength;
             }
+
+            // CAUTION:
+            //  SNAKRM.VOC is corrupt!  blocklength gets us beyond the
+            //  end of the file.
+            if (ptr - voice->rawdataptr >= voice->ptrlength)
+                goto end_of_data;
+
             break;
 
         default :
@@ -2043,7 +2067,6 @@ int32_t MV_PlayLoopedWAV
     VoiceNode     *voice;
     int32_t length;
 
-    UNREFERENCED_PARAMETER(ptrlength);
     UNREFERENCED_PARAMETER(loopend);
 
     if (!MV_Installed)
@@ -2126,6 +2149,8 @@ int32_t MV_PlayLoopedWAV
         length    /= 2;
     }
 
+    voice->rawdataptr = (uint8_t *)ptr;
+    voice->ptrlength = ptrlength;
     voice->Playing     = TRUE;
     voice->Paused      = FALSE;
     voice->DemandFeed  = NULL;
@@ -2258,8 +2283,6 @@ int32_t MV_PlayLoopedVOC
     VoiceNode   *voice;
     int32_t          status;
 
-    UNREFERENCED_PARAMETER(ptrlength);
-
     if (!MV_Installed)
     {
         MV_SetErrorCode(MV_NotInstalled);
@@ -2282,6 +2305,8 @@ int32_t MV_PlayLoopedVOC
         return(MV_Error);
     }
 
+    voice->rawdataptr = (uint8_t *)ptr;
+    voice->ptrlength = ptrlength;
     voice->Playing = TRUE;
     voice->Paused = FALSE;
     voice->wavetype    = VOC;
