@@ -4200,6 +4200,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     const char *pRawPixels;
     char szT[128];
 
+    int32_t lazyselector = g_lazy_tileselector && usehightile;
     int32_t runi=0, usehitile;
     static uint8_t loadedhitile[(MAXTILES+7)>>3];
 
@@ -4210,7 +4211,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     {
         bglEnable(GL_TEXTURE_2D);
 
-        if (g_lazy_tileselector)
+        if (lazyselector)
             bglDrawBuffer(GL_FRONT_AND_BACK);
     }
 #endif
@@ -4227,7 +4228,7 @@ restart:
 
             if (iTile < 0 || iTile >= localartlookupnum)
                 continue;
-            usehitile = (runi || !g_lazy_tileselector);
+            usehitile = (runi || !lazyselector);
 
             idTile = localartlookup[ iTile ];
             if (loadedhitile[idTile>>3]&(1<<(idTile&7)))
@@ -4259,7 +4260,7 @@ restart:
 
             tilescreen_drawbox(iTopLeft, iSelected, nXTiles, TileDim, offset, iTile, idTile);
 
-            if (runi==1 && g_lazy_tileselector)
+            if (runi==1 && lazyselector)
             {
                 int32_t k;
 
@@ -4281,7 +4282,7 @@ restart:
                     enddrawing();
                     showframe(1);
 #ifdef USE_OPENGL
-                    if (rendmode >= 3 && g_lazy_tileselector)
+                    if (rendmode >= 3 && lazyselector)
                         bglDrawBuffer(GL_BACK);
 #endif
                     return 1;
@@ -4296,7 +4297,7 @@ restart:
 
     tilescreen_drawrest(iSelected, showmsg);
 
-    if (getrendermode()>=3 && qsetmode==200 && g_lazy_tileselector)
+    if (getrendermode()>=3 && qsetmode==200 && lazyselector)
     {
         if (runi==0)
         {
@@ -4313,7 +4314,7 @@ restart:
     showframe(1);
 
 #ifdef USE_OPENGL
-    if (rendmode >= 3 && g_lazy_tileselector)
+    if (rendmode >= 3 && lazyselector)
         bglDrawBuffer(GL_BACK);
 #endif
 
