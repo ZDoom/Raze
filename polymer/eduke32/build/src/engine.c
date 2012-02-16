@@ -4027,30 +4027,29 @@ static void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, int32_t 
     ggpal = palookup[globalpal] + (getpalookup(0,globalshade)<<8);
 }
 
-static void tslopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t bx, int32_t by)
+static void tslopevlin(uint8_t *p, int32_t i, const intptr_t *slopalptr, int32_t cnt, int32_t bx, int32_t by)
 {
-    intptr_t *slopalptr;
     int32_t bz, bzinc;
     uint32_t u, v;
 
-    char ch;
+    uint8_t ch;
 
     bz = asm3; bzinc = (asm1>>3);
-    slopalptr = (intptr_t *)slopaloffs;
 
     for (; cnt>0; cnt--)
     {
         i = krecipasm(bz>>6); bz += bzinc;
         u = bx+globalx3*i;
         v = by+globaly3*i;
-        ch = *(char *)(slopalptr[0] + ggbuf[((u>>(32-gglogx))<<gglogy)+(v>>(32-gglogy))]);
+        ch = *(uint8_t *)(slopalptr[0] + ggbuf[((u>>(32-gglogx))<<gglogy)+(v>>(32-gglogy))]);
+
         if (globalorientation&128)
         {
-            if (ch != 255) *((char *)p) = transluc[*((char *)p)+(ggpal[ch]<<8)];
+            if (ch != 255) *p = transluc[*p+(ggpal[ch]<<8)];
         }
         else
         {
-            if (ch != 255) *((char *)p) = transluc[(*((char *)p)<<8)+ggpal[ch]];
+            if (ch != 255) *p = transluc[(*p<<8)+ggpal[ch]];
         }
 
         slopalptr--;
@@ -4214,7 +4213,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
             if ((globalorientation&256)==0)
                 slopevlin(ylookup[y2]+x+frameoffset,krecipasm(asm3>>3),(intptr_t)nptr2,y2-y1+1,globalx1,globaly1);
             else
-                tslopevlin(ylookup[y2]+x+frameoffset,krecipasm(asm3>>3),(intptr_t)nptr2,y2-y1+1,globalx1,globaly1);
+                tslopevlin((uint8_t *)(ylookup[y2]+x+frameoffset),0,nptr2,y2-y1+1,globalx1,globaly1);
 
             if ((x&15) == 0) faketimerhandler();
         }
