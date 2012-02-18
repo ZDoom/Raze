@@ -863,7 +863,11 @@ static int32_t klistaddentry(CACHE1D_FIND_REC **rec, const char *name, int32_t t
             else if (source == CACHE1D_SOURCE_ZIP || attach->source == CACHE1D_SOURCE_ZIP)
                 insensitive = 1;
             else
-                insensitive = 0;
+            {
+                extern int16_t editstatus;  // XXX
+                insensitive = !editstatus;
+            }
+            // ^ in the game, don't show file list case-sensitive
 #endif
             if (insensitive) v = Bstrcasecmp(name, attach->name);
             else v = Bstrcmp(name, attach->name);
