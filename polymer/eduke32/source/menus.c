@@ -377,6 +377,9 @@ int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits)
     return (x);
 }
 
+
+// This function depends on the 'onbar' variable which should be set to the
+// 'probey' indices where there's a slider bar.
 static void _bar(int32_t type, int32_t x,int32_t y,int32_t *p,int32_t dainc,int32_t damodify,int32_t s, int32_t pa, int32_t min, int32_t max)
 {
     int32_t xloc;
@@ -681,7 +684,8 @@ void M_DisplayMenus(void)
 
     // black translucent background
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2)
-        fade_screen_black(1);
+        if (g_currentMenu != 231 && g_currentMenu != 232)  // not in 'color correction' menu
+            fade_screen_black(1);
 
     if (!(g_currentMenu >= 1000 && g_currentMenu <= 2999 && g_currentMenu >= 300 && g_currentMenu <= 369))
         G_UpdateScreenArea();
@@ -2450,7 +2454,6 @@ cheat_for_port_credits:
         menutext(c,70+19+19+19,MENUHIGHLIGHT(3),PHX(-5),SkillNames[3]);
         break;
     case 230:
-#ifdef USE_OPENGL
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"RENDERER SETUP");
 
@@ -2458,12 +2461,13 @@ cheat_for_port_credits:
 
         {
             int32_t io, ii, yy, d=c+160+40, enabled;
-            char *opts[] =
+            static const char *const opts[] =
             {
                 "Aspect ratio",
+                "Ambient light level",
+#ifdef USE_OPENGL
                 "Anisotropic filtering",
                 "Use VSync",
-                "Ambient light level",
                 "-",
                 "Enable hires textures",
                 "Hires texture quality",
@@ -2472,12 +2476,16 @@ cheat_for_port_credits:
                 "Use detail textures",
                 "-",
                 "Use models",
+#endif
                 NULL
             };
 
             yy = 37;
             for (ii=io=0; opts[ii]; ii++)
             {
+                if (getrendermode()==0 && io >= 2)
+                    break;
+
                 if (opts[ii][0] == '-' && !opts[ii][1])
                 {
                     if (io <= probey) yy += 4;
@@ -2487,7 +2495,7 @@ cheat_for_port_credits:
                 io++;
             }
 
-            onbar = (probey==3||probey==5);
+            onbar = (probey==1||probey==5);
             x = probesm(c,yy+5,0,io);
 
             if (x == -1)
@@ -2500,20 +2508,46 @@ cheat_for_port_credits:
             yy = 37;
             for (ii=io=0; opts[ii]; ii++)
             {
+                if (getrendermode()==0 && io >= 2)
+                    break;
+
                 if (opts[ii][0] == '-' && !opts[ii][1])
                 {
                     yy += 4;
                     continue;
                 }
+
                 enabled = 1;
                 switch (io)
                 {
                 case 0:
-                    if (getrendermode() == 3)
+                    if (getrendermode() <= 3)
                     {
-                        if (x==io) glwidescreen = 1-glwidescreen;
-                        modval(0,1,(int32_t *)&glwidescreen,1,probey==io);
-                        mgametextpal(d,yy, glwidescreen ? "Wide" : "Regular", MENUHIGHLIGHT(io), 0);
+#ifdef USE_OPENGL
+                        int32_t tmp = r_usenewaspect ? 2 : glwidescreen;
+
+                        if (x==io)
+                        {
+                            tmp = tmp+1;
+                            if (tmp > 2)
+                                tmp = 0;
+                        }
+                        modval(0,2,&tmp,1,probey==io);
+
+                        r_usenewaspect = (tmp==2);
+
+                        // with r_usenewaspect, glwidescreen has no effect...
+                        glwidescreen = (tmp < 2) ? tmp : 0;
+                        mgametextpal(d,yy, r_usenewaspect ? "Auto" :
+                                     (glwidescreen ? "Old wide" : "Old reg."),
+                                     MENUHIGHLIGHT(io), 0);
+#else
+                        if (x==io)
+                            r_usenewaspect = !r_usenewaspect;
+                        modval(0,1,&r_usenewaspect,1,probey==io);
+                        mgametextpal(d,yy, r_usenewaspect ? "Auto" : "Old reg.",
+                                     MENUHIGHLIGHT(io), 0);
+#endif
                     }
 #ifdef POLYMER
                     else
@@ -2550,6 +2584,22 @@ cheat_for_port_credits:
                     break;
                 case 1:
                 {
+                    int32_t i = (int32_t)(r_ambientlight*1024.f);
+                    int32_t j = i;
+
+                    _bar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),0,128,4096);
+                    Bsprintf(tempbuf,"%.2f",r_ambientlight);
+                    mgametextpal(d-35,yy, tempbuf, MENUHIGHLIGHT(io), 0);
+                    if (i != j)
+                    {
+                        r_ambientlight = (float)i/1024.f;
+                        r_ambientlightrecip = 1.f/r_ambientlight;
+                    }
+                    break;
+                }
+#ifdef USE_OPENGL
+                case 2:
+                {
                     int32_t dummy = glanisotropy;
                     modval(0,(int32_t)glinfo.maxanisotropy+1,(int32_t *)&dummy,1,probey==io);
                     if (dummy > glanisotropy) glanisotropy *= 2;
@@ -2564,7 +2614,7 @@ cheat_for_port_credits:
                     mgametextpal(d,yy, tempbuf, MENUHIGHLIGHT(io), 0);
                     break;
                 }
-                case 2:
+                case 3:
                 {
                     int32_t ovsync = vsync;
                     if (x==io) vsync = !vsync;
@@ -2572,20 +2622,6 @@ cheat_for_port_credits:
                     mgametextpal(d,yy, vsync? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     if (vsync != ovsync)
                         setvsync(vsync);
-                    break;
-                }
-                case 3:
-                {
-                    int32_t i = (int32_t)(r_ambientlight*1024.f);
-                    int32_t j = i;
-                    _bar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),0,128,4096);
-                    Bsprintf(tempbuf,"%.2f",r_ambientlight);
-                    mgametextpal(d-35,yy, tempbuf, MENUHIGHLIGHT(io), 0);
-                    if (i != j)
-                    {
-                        r_ambientlight = (float)i/1024.f;
-                        r_ambientlightrecip = 1.f/r_ambientlight;
-                    }
                     break;
                 }
                 case 4:
@@ -2640,6 +2676,7 @@ cheat_for_port_credits:
                     modval(0,1,(int32_t *)&usemodels,1,probey==io);
                     mgametextpal(d,yy, usemodels ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
+#endif
                 default:
                     break;
                 }
@@ -2648,7 +2685,6 @@ cheat_for_port_credits:
                 yy += 8;
             }
         }
-#endif
         break;
     case 231:
     case 232:
@@ -3419,31 +3455,16 @@ cheat_for_port_credits:
                 break;
             }
 #ifdef USE_OPENGL
-            /*            switch (gltexfiltermode)
-                        {
-                        case 0:
-                            gltexfiltermode = 3;
-                            break;
-                        case 3:
-                            gltexfiltermode = 5;
-                            break;
-                        case 5:
-                            gltexfiltermode = 0;
-                            break;
-                        default:
-                            gltexfiltermode = 3;
-                            break;
-                        }*/
             gltexfiltermode++;
             if (gltexfiltermode > 5)
                 gltexfiltermode = 0;
             gltexapplyprops();
             break;
+#endif
         case 6:
-            if (!getrendermode()) break;
+//            if (!getrendermode()) break;
             ChangeToMenu(230);
             break;
-#endif
         }
 
         menutext(c,50,MENUHIGHLIGHT(0),0,"RESOLUTION");
@@ -3474,21 +3495,9 @@ cheat_for_port_credits:
         */
         if (!getrendermode())
         {
-            int32_t i = (int32_t)(r_ambientlight*1024.f);
-            int32_t j = i;
             menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"PIXEL DOUBLING");
             menutext(c+168,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");
             modval(0,1,(int32_t *)&ud.detail,1,probey==5);
-            menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),PHX(-6),"AMBIENT LIGHT");
-            _bar(0,c+185,50+62+16+16+16,&i,128,x==6,MENUHIGHLIGHT(6),g_netServer || numplayers>1,128,4096);
-            Bsprintf(tempbuf,"%.2f",r_ambientlight);
-            mgametextpal(c+185+9,50+62+16+16+16+4, tempbuf, MENUHIGHLIGHT(6), 0);
-
-            if (i != j)
-            {
-                r_ambientlight = (float)i/1024.f;
-                r_ambientlightrecip = 1.f/r_ambientlight;
-            }
         }
 #ifdef USE_OPENGL
         else
@@ -3523,9 +3532,9 @@ cheat_for_port_credits:
             if (gltexfiltermode != filter)
                 gltexapplyprops();
             mgametextpal(c+168,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),!getrendermode());
-            menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),bpp==8,"RENDERER SETUP");
         }
 #endif
+        menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),0 /*bpp==8*/,"RENDERER SETUP");
         break;
 
     case 204:
