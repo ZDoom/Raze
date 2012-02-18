@@ -2996,17 +2996,17 @@ inline int32_t animateoffs(int16_t tilenum, int16_t fakevar)
         switch (picanm[tilenum]&192)
         {
         case 64:
-                k = (i%((picanm[tilenum]&63)<<1));
+            k = (i%((picanm[tilenum]&63)<<1));
             if (k < (picanm[tilenum]&63))
                 offs = k;
             else
                 offs = (((picanm[tilenum]&63)<<1)-k);
             break;
         case 128:
-                offs = (i%((picanm[tilenum]&63)+1));
+            offs = (i%((picanm[tilenum]&63)+1));
             break;
         case 192:
-                offs = -(i%((picanm[tilenum]&63)+1));
+            offs = -(i%((picanm[tilenum]&63)+1));
         }
     }
     return(offs);
@@ -3401,14 +3401,14 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
     switch (globalorientation&0x180)
     {
     case 128:
-            msethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
+        msethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 256:
-            settransnormal();
+        settransnormal();
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 384:
-            settransreverse();
+        settransreverse();
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     }
@@ -3572,14 +3572,14 @@ static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
     switch (globalorientation&0x180)
     {
     case 128:
-            msethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
+        msethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 256:
-            settransnormal();
+        settransnormal();
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     case 384:
-            settransreverse();
+        settransreverse();
         tsethlineshift(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4);
         break;
     }
@@ -5068,21 +5068,21 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
         switch (cnt)
         {
         case 0:
-                xs = 0;        ys = 0;        xi = 1;  yi = 1;  break;
+            xs = 0;        ys = 0;        xi = 1;  yi = 1;  break;
         case 1:
-                xs = daxsiz-1; ys = 0;        xi = -1; yi = 1;  break;
+            xs = daxsiz-1; ys = 0;        xi = -1; yi = 1;  break;
         case 2:
-                xs = 0;        ys = daysiz-1; xi = 1;  yi = -1; break;
+            xs = 0;        ys = daysiz-1; xi = 1;  yi = -1; break;
         case 3:
-                xs = daxsiz-1; ys = daysiz-1; xi = -1; yi = -1; break;
+            xs = daxsiz-1; ys = daysiz-1; xi = -1; yi = -1; break;
         case 4:
-                xs = 0;        ys = cbacky;   xi = 1;  yi = 2;  break;
+            xs = 0;        ys = cbacky;   xi = 1;  yi = 2;  break;
         case 5:
-                xs = daxsiz-1; ys = cbacky;   xi = -1; yi = 2;  break;
+            xs = daxsiz-1; ys = cbacky;   xi = -1; yi = 2;  break;
         case 6:
-                xs = cbackx;   ys = 0;        xi = 2;  yi = 1;  break;
+            xs = cbackx;   ys = 0;        xi = 2;  yi = 1;  break;
         case 7:
-                xs = cbackx;   ys = daysiz-1; xi = 2;  yi = -1; break;
+            xs = cbackx;   ys = daysiz-1; xi = 2;  yi = -1; break;
         }
         xe = cbackx; ye = cbacky;
         if (cnt < 4)
@@ -5405,21 +5405,21 @@ static void drawsprite(int32_t snum)
             switch (smostwalltype[i])
             {
             case 0:
-                    if (dalx2 <= darx2)
-                    {
-                        if ((dalx2 == lx) && (darx2 == rx)) return;
-                        //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
-                        for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
-                    }
+                if (dalx2 <= darx2)
+                {
+                    if ((dalx2 == lx) && (darx2 == rx)) return;
+                    //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
+                    for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
+                }
                 break;
             case 1:
-                    k = smoststart[i] - xb1[j];
+                k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                 if ((dalx2 == lx) && (darx2 == rx)) daclip |= 1;
                 break;
             case 2:
-                    k = smoststart[i] - xb1[j];
+                k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
                 if ((dalx2 == lx) && (darx2 == rx)) daclip |= 2;
@@ -5698,20 +5698,20 @@ static void drawsprite(int32_t snum)
                     switch (smostwalltype[i])
                     {
                     case 0:
-                            if (dalx2 <= darx2)
-                            {
-                                if ((dalx2 == xb1[MAXWALLSB-1]) && (darx2 == xb2[MAXWALLSB-1])) return;
-                                //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
-                                for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
-                            }
+                        if (dalx2 <= darx2)
+                        {
+                            if ((dalx2 == xb1[MAXWALLSB-1]) && (darx2 == xb2[MAXWALLSB-1])) return;
+                            //clearbufbyte(&dwall[dalx2],(darx2-dalx2+1)*sizeof(dwall[0]),0L);
+                            for (k=dalx2; k<=darx2; k++) dwall[k] = 0;
+                        }
                         break;
                     case 1:
-                            k = smoststart[i] - xb1[j];
+                        k = smoststart[i] - xb1[j];
                         for (x=dalx2; x<=darx2; x++)
                             if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
                         break;
                     case 2:
-                            k = smoststart[i] - xb1[j];
+                        k = smoststart[i] - xb1[j];
                         for (x=dalx2; x<=darx2; x++)
                             if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
                         break;
@@ -6088,20 +6088,20 @@ static void drawsprite(int32_t snum)
             switch (smostwalltype[i])
             {
             case 0:
-                    if (dalx2 <= darx2)
-                    {
-                        if ((dalx2 == lx) && (darx2 == rx)) return;
-                        //clearbufbyte(&swall[dalx2],(darx2-dalx2+1)*sizeof(swall[0]),0L);
-                        for (x=dalx2; x<=darx2; x++) swall[x] = 0;
-                    }
+                if (dalx2 <= darx2)
+                {
+                    if ((dalx2 == lx) && (darx2 == rx)) return;
+                    //clearbufbyte(&swall[dalx2],(darx2-dalx2+1)*sizeof(swall[0]),0L);
+                    for (x=dalx2; x<=darx2; x++) swall[x] = 0;
+                }
                 break;
             case 1:
-                    k = smoststart[i] - xb1[j];
+                k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] > lwall[x]) lwall[x] = smost[k+x];
                 break;
             case 2:
-                    k = smoststart[i] - xb1[j];
+                k = smoststart[i] - xb1[j];
                 for (x=dalx2; x<=darx2; x++)
                     if (smost[k+x] < swall[x]) swall[x] = smost[k+x];
                 break;
@@ -6241,10 +6241,14 @@ static void drawmaskwall(int16_t damaskwallcnt)
 
     wallmost(uwall,z,sectnum,(uint8_t)0);
     wallmost(uplc,z,(int32_t)wal->nextsector,(uint8_t)0);
-    for (x=xb1[z]; x<=xb2[z]; x++) if (uplc[x] > uwall[x]) uwall[x] = uplc[x];
+    for (x=xb1[z]; x<=xb2[z]; x++)
+        if (uplc[x] > uwall[x])
+            uwall[x] = uplc[x];
     wallmost(dwall,z,sectnum,(uint8_t)1);
     wallmost(dplc,z,(int32_t)wal->nextsector,(uint8_t)1);
-    for (x=xb1[z]; x<=xb2[z]; x++) if (dplc[x] < dwall[x]) dwall[x] = dplc[x];
+    for (x=xb1[z]; x<=xb2[z]; x++)
+        if (dplc[x] < dwall[x])
+            dwall[x] = dplc[x];
     prepwall(z,wal);
 
     globalorientation = (int32_t)wal->cstat;
@@ -6279,20 +6283,20 @@ static void drawmaskwall(int16_t damaskwallcnt)
         switch (smostwalltype[i])
         {
         case 0:
-                if (lx <= rx)
-                {
-                    if ((lx == xb1[z]) && (rx == xb2[z])) return;
-                    //clearbufbyte(&dwall[lx],(rx-lx+1)*sizeof(dwall[0]),0L);
-                    for (x=lx; x<=rx; x++) dwall[x] = 0;
-                }
+            if (lx <= rx)
+            {
+                if ((lx == xb1[z]) && (rx == xb2[z])) return;
+                //clearbufbyte(&dwall[lx],(rx-lx+1)*sizeof(dwall[0]),0L);
+                for (x=lx; x<=rx; x++) dwall[x] = 0;
+            }
             break;
         case 1:
-                k = smoststart[i] - xb1[j];
+            k = smoststart[i] - xb1[j];
             for (x=lx; x<=rx; x++)
                 if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
             break;
         case 2:
-                k = smoststart[i] - xb1[j];
+            k = smoststart[i] - xb1[j];
             for (x=lx; x<=rx; x++)
                 if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
             break;
@@ -6364,12 +6368,20 @@ static void fillpolygon(int32_t npoints)
             if (day2 > day1)
             {
                 x1 += mulscale12((day1<<12)+4095-y1,xinc);
-                for (y=day1; y<day2; y++) { if (!dotp2[y]) { x1 += xinc; continue; } *dotp2[y]++ = (x1>>12); x1 += xinc; }
+                for (y=day1; y<day2; y++)
+                {
+                    if (!dotp2[y]) { x1 += xinc; continue; }
+                    *dotp2[y]++ = (x1>>12); x1 += xinc;
+                }
             }
             else
             {
                 x2 += mulscale12((day2<<12)+4095-y2,xinc);
-                for (y=day2; y<day1; y++) { if (!dotp1[y]) { x2 += xinc; continue; } *dotp1[y]++ = (x2>>12); x2 += xinc; }
+                for (y=day2; y<day1; y++)
+                {
+                    if (!dotp1[y]) { x2 += xinc; continue; }
+                    *dotp1[y]++ = (x2>>12); x2 += xinc;
+                }
             }
         }
     }
@@ -7117,13 +7129,13 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
             switch (y1-oy)
             {
             case -1:
-                    bx -= xv; by -= yv; oy = y1; break;
+                bx -= xv; by -= yv; oy = y1; break;
             case 0:
-                    break;
+                break;
             case 1:
-                    bx += xv; by += yv; oy = y1; break;
+                bx += xv; by += yv; oy = y1; break;
             default:
-                    bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1; break;
+                bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1; break;
             }
 
             p = ylookup[y1]+x+frameplace;
@@ -7172,13 +7184,13 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         switch (y1-oy)
         {
         case -1:
-                bx -= xv; by -= yv; oy = y1; break;
+            bx -= xv; by -= yv; oy = y1; break;
         case 0:
-                break;
+            break;
         case 1:
-                bx += xv; by += yv; oy = y1; break;
+            bx += xv; by += yv; oy = y1; break;
         default:
-                bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1; break;
+            bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1; break;
         }
 
         p = ylookup[y1]+x+frameplace;
@@ -7340,7 +7352,9 @@ static void initfastcolorlookup(int32_t rscale, int32_t gscale, int32_t bscale)
     pal1 = (char *)&palette[768-3];
     for (i=255; i>=0; i--,pal1-=3)
     {
-        j = (pal1[0]>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(pal1[1]>>3)*FASTPALGRIDSIZ+(pal1[2]>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
+        j = (pal1[0]>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
+            + (pal1[1]>>3)*FASTPALGRIDSIZ + (pal1[2]>>3)
+            + FASTPALGRIDSIZ*FASTPALGRIDSIZ + FASTPALGRIDSIZ+1;
         if (colhere[j>>3]&pow2char[j&7]) colnext[i] = colhead[j]; else colnext[i] = -1;
         colhead[j] = i;
         colhere[j>>3] |= pow2char[j&7];
@@ -7418,7 +7432,10 @@ int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
     int32_t i, j, k, dist, mindist, retcol;
     char *pal1;
 
-    j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ+(g>>3)*FASTPALGRIDSIZ+(b>>3)+FASTPALGRIDSIZ*FASTPALGRIDSIZ+FASTPALGRIDSIZ+1;
+    j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
+        + (g>>3)*FASTPALGRIDSIZ + (b>>3)
+        + FASTPALGRIDSIZ*FASTPALGRIDSIZ
+        + FASTPALGRIDSIZ+1;
     mindist = min(rdist[coldist[r&7]+64+8],gdist[coldist[g&7]+64+8]);
     mindist = min(mindist,bdist[coldist[b&7]+64+8]);
     mindist++;
@@ -7716,31 +7733,31 @@ static void sighandler(int32_t sig, const siginfo_t *info, void *ctx)
     switch (sig)
     {
     case SIGFPE:
-            switch (info->si_code)
-            {
-            case FPE_INTDIV:
-                    s = "FPE_INTDIV (integer divide by zero)"; break;
-            case FPE_INTOVF:
-                    s = "FPE_INTOVF (integer overflow)"; break;
-            case FPE_FLTDIV:
-                    s = "FPE_FLTDIV (floating-point divide by zero)"; break;
-            case FPE_FLTOVF:
-                    s = "FPE_FLTOVF (floating-point overflow)"; break;
-            case FPE_FLTUND:
-                    s = "FPE_FLTUND (floating-point underflow)"; break;
-            case FPE_FLTRES:
-                    s = "FPE_FLTRES (floating-point inexact result)"; break;
-            case FPE_FLTINV:
-                    s = "FPE_FLTINV (floating-point invalid operation)"; break;
-            case FPE_FLTSUB:
-                    s = "FPE_FLTSUB (floating-point subscript out of range)"; break;
-            default:
-                    s = "?! (unknown)"; break;
-            }
+        switch (info->si_code)
+        {
+        case FPE_INTDIV:
+            s = "FPE_INTDIV (integer divide by zero)"; break;
+        case FPE_INTOVF:
+            s = "FPE_INTOVF (integer overflow)"; break;
+        case FPE_FLTDIV:
+            s = "FPE_FLTDIV (floating-point divide by zero)"; break;
+        case FPE_FLTOVF:
+            s = "FPE_FLTOVF (floating-point overflow)"; break;
+        case FPE_FLTUND:
+            s = "FPE_FLTUND (floating-point underflow)"; break;
+        case FPE_FLTRES:
+            s = "FPE_FLTRES (floating-point inexact result)"; break;
+        case FPE_FLTINV:
+            s = "FPE_FLTINV (floating-point invalid operation)"; break;
+        case FPE_FLTSUB:
+            s = "FPE_FLTSUB (floating-point subscript out of range)"; break;
+        default:
+            s = "?! (unknown)"; break;
+        }
         ERRprintf("Caught SIGFPE at address %p, code %s. Aborting.\n", info->si_addr, s);
         break;
     default:
-            break;
+        break;
     }
     abort();
 }
@@ -9415,7 +9432,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-                kread(fil,&v5sect,sizeof(struct sectortypev5));
+            kread(fil,&v5sect,sizeof(struct sectortypev5));
             v5sect.wallptr = B_LITTLE16(v5sect.wallptr);
             v5sect.wallnum = B_LITTLE16(v5sect.wallnum);
             v5sect.ceilingpicnum = B_LITTLE16(v5sect.ceilingpicnum);
@@ -9429,7 +9446,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
             v5sect.extra = B_LITTLE16(v5sect.extra);
             break;
         case 6:
-                kread(fil,&v6sect,sizeof(struct sectortypev6));
+            kread(fil,&v6sect,sizeof(struct sectortypev6));
             v6sect.wallptr = B_LITTLE16(v6sect.wallptr);
             v6sect.wallnum = B_LITTLE16(v6sect.wallnum);
             v6sect.ceilingpicnum = B_LITTLE16(v6sect.ceilingpicnum);
@@ -9446,9 +9463,9 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-                convertv5sectv6(&v5sect,&v6sect);
+            convertv5sectv6(&v5sect,&v6sect);
         case 6:
-                convertv6sectv7(&v6sect,&sector[i]);
+            convertv6sectv7(&v6sect,&sector[i]);
         }
     }
 
@@ -9459,7 +9476,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-                kread(fil,&v5wall,sizeof(struct walltypev5));
+            kread(fil,&v5wall,sizeof(struct walltypev5));
             v5wall.x = B_LITTLE32(v5wall.x);
             v5wall.y = B_LITTLE32(v5wall.y);
             v5wall.point2 = B_LITTLE16(v5wall.point2);
@@ -9475,7 +9492,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
             v5wall.extra = B_LITTLE16(v5wall.extra);
             break;
         case 6:
-                kread(fil,&v6wall,sizeof(struct walltypev6));
+            kread(fil,&v6wall,sizeof(struct walltypev6));
             v6wall.x = B_LITTLE32(v6wall.x);
             v6wall.y = B_LITTLE32(v6wall.y);
             v6wall.point2 = B_LITTLE16(v6wall.point2);
@@ -9492,9 +9509,9 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-                convertv5wallv6(&v5wall,&v6wall,i);
+            convertv5wallv6(&v5wall,&v6wall,i);
         case 6:
-                convertv6wallv7(&v6wall,&wall[i]);
+            convertv6wallv7(&v6wall,&wall[i]);
         }
     }
 
@@ -9505,7 +9522,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-                kread(fil,&v5spr,sizeof(struct spritetypev5));
+            kread(fil,&v5spr,sizeof(struct spritetypev5));
             v5spr.x = B_LITTLE32(v5spr.x);
             v5spr.y = B_LITTLE32(v5spr.y);
             v5spr.z = B_LITTLE32(v5spr.z);
@@ -9522,7 +9539,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
             v5spr.extra = B_LITTLE16(v5spr.extra);
             break;
         case 6:
-                kread(fil,&v6spr,sizeof(struct spritetypev6));
+            kread(fil,&v6spr,sizeof(struct spritetypev6));
             v6spr.x = B_LITTLE32(v6spr.x);
             v6spr.y = B_LITTLE32(v6spr.y);
             v6spr.z = B_LITTLE32(v6spr.z);
@@ -9543,9 +9560,9 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
         switch (mapversion)
         {
         case 5:
-                convertv5sprv6(&v5spr,&v6spr);
+            convertv5sprv6(&v5spr,&v6spr);
         case 6:
-                convertv6sprv7(&v6spr,&sprite[i]);
+            convertv6sprv7(&v6spr,&sprite[i]);
         }
     }
 
@@ -9675,7 +9692,7 @@ int32_t loadmaphack(const char *filename)
         switch (legaltokens[i].tokenid)
         {
         case T_SPRITE:     // sprite <xx>
-                if (scriptfile_getnumber(script, &whichsprite)) break;
+            if (scriptfile_getnumber(script, &whichsprite)) break;
 
             if ((unsigned)whichsprite >= (unsigned)MAXSPRITES)
             {
@@ -9688,201 +9705,201 @@ int32_t loadmaphack(const char *filename)
 
             break;
         case T_ANGOFF:     // angoff <xx>
-            {
-                int32_t ang;
-                if (scriptfile_getnumber(script, &ang)) break;
+        {
+            int32_t ang;
+            if (scriptfile_getnumber(script, &ang)) break;
 
-                if (whichsprite < 0)
+            if (whichsprite < 0)
             {
                 // no sprite directive preceeding
                 initprintf("Ignoring angle offset directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                    break;
-                }
-        spriteext[whichsprite].angoff = (int16_t)ang;
+                break;
+            }
+            spriteext[whichsprite].angoff = (int16_t)ang;
         }
         break;
         case T_NOMODEL:      // notmd
-                if (whichsprite < 0)
-                {
-                    // no sprite directive preceeding
-                    initprintf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line %s:%d\n",
-                               script->filename, scriptfile_getlinum(script,cmdtokptr));
-                    break;
-                }
+            if (whichsprite < 0)
+            {
+                // no sprite directive preceeding
+                initprintf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
             spriteext[whichsprite].flags |= SPREXT_NOTMD;
             break;
         case T_NOANIM:      // nomdanim
-                if (whichsprite < 0)
-                {
-                    // no sprite directive preceeding
-                    initprintf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line %s:%d\n",
-                               script->filename, scriptfile_getlinum(script,cmdtokptr));
-                    break;
-                }
+            if (whichsprite < 0)
+            {
+                // no sprite directive preceeding
+                initprintf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
             spriteext[whichsprite].flags |= SPREXT_NOMDANIM;
             break;
         case T_PITCH:     // pitch <xx>
-            {
-                int32_t pitch;
-                if (scriptfile_getnumber(script, &pitch)) break;
+        {
+            int32_t pitch;
+            if (scriptfile_getnumber(script, &pitch)) break;
 
-                if (whichsprite < 0)
-                {
+            if (whichsprite < 0)
+            {
                 // no sprite directive preceeding
                 initprintf("Ignoring pitch directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                    break;
-                }
-        spriteext[whichsprite].pitch = (int16_t)pitch;
+                break;
+            }
+            spriteext[whichsprite].pitch = (int16_t)pitch;
         }
         break;
         case T_ROLL:     // roll <xx>
-            {
-                int32_t roll;
-                if (scriptfile_getnumber(script, &roll)) break;
+        {
+            int32_t roll;
+            if (scriptfile_getnumber(script, &roll)) break;
 
-                if (whichsprite < 0)
-                {
+            if (whichsprite < 0)
+            {
                 // no sprite directive preceeding
                 initprintf("Ignoring roll directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                    break;
-                }
-        spriteext[whichsprite].roll = (int16_t)roll;
+                break;
+            }
+            spriteext[whichsprite].roll = (int16_t)roll;
         }
         break;
         case T_MDXOFF:     // mdxoff <xx>
-            {
-                int32_t i;
-                if (scriptfile_getnumber(script, &i)) break;
+        {
+            int32_t i;
+            if (scriptfile_getnumber(script, &i)) break;
 
-                if (whichsprite < 0)
-                {
+            if (whichsprite < 0)
+            {
                 // no sprite directive preceeding
                 initprintf("Ignoring mdxoff directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                    break;
-                }
-        spriteext[whichsprite].xoff = i;
+                break;
+            }
+            spriteext[whichsprite].xoff = i;
         }
         break;
         case T_MDYOFF:     // mdyoff <xx>
-            {
-                int32_t i;
-                if (scriptfile_getnumber(script, &i)) break;
+        {
+            int32_t i;
+            if (scriptfile_getnumber(script, &i)) break;
 
-                if (whichsprite < 0)
-                {
+            if (whichsprite < 0)
+            {
                 // no sprite directive preceeding
                 initprintf("Ignoring mdyoff directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                    break;
-                }
-        spriteext[whichsprite].yoff = i;
+                break;
+            }
+            spriteext[whichsprite].yoff = i;
         }
         break;
         case T_MDZOFF:     // mdzoff <xx>
-            {
-                int32_t i;
-                if (scriptfile_getnumber(script, &i)) break;
+        {
+            int32_t i;
+            if (scriptfile_getnumber(script, &i)) break;
 
-                if (whichsprite < 0)
-                {
+            if (whichsprite < 0)
+            {
                 // no sprite directive preceeding
                 initprintf("Ignoring mdzoff directive because of absent/invalid sprite number on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-                    break;
-                }
-        spriteext[whichsprite].zoff = i;
+                break;
+            }
+            spriteext[whichsprite].zoff = i;
         }
         break;
         case T_AWAY1:      // away1
-                if (whichsprite < 0)
-                {
-                    // no sprite directive preceeding
-                    initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
-                               script->filename, scriptfile_getlinum(script,cmdtokptr));
-                    break;
-                }
+            if (whichsprite < 0)
+            {
+                // no sprite directive preceeding
+                initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
             spriteext[whichsprite].flags |= SPREXT_AWAY1;
             break;
         case T_AWAY2:      // away2
-                if (whichsprite < 0)
-                {
-                    // no sprite directive preceeding
-                    initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
-                               script->filename, scriptfile_getlinum(script,cmdtokptr));
-                    break;
-                }
+            if (whichsprite < 0)
+            {
+                // no sprite directive preceeding
+                initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
             spriteext[whichsprite].flags |= SPREXT_AWAY2;
             break;
 #ifdef POLYMER
         case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority tilenum
-            {
-                int32_t value;
-                int16_t lightid;
+        {
+            int32_t value;
+            int16_t lightid;
 #pragma pack(push,1)
-                _prlight light;
+            _prlight light;
 #pragma pack(pop)
-                if (toomanylights)
-                    break;  // ignore further light defs
+            if (toomanylights)
+                break;  // ignore further light defs
 
-                scriptfile_getnumber(script, &value);
-                light.sector = value;
-                scriptfile_getnumber(script, &value);
-                light.x = value;
-                scriptfile_getnumber(script, &value);
-                light.y = value;
-                scriptfile_getnumber(script, &value);
-                light.z = value;
-                scriptfile_getnumber(script, &value);
-                light.range = value;
-                scriptfile_getnumber(script, &value);
-                light.color[0] = value;
-                scriptfile_getnumber(script, &value);
-                light.color[1] = value;
-                scriptfile_getnumber(script, &value);
-                light.color[2] = value;
-                scriptfile_getnumber(script, &value);
-                light.radius = value;
-                scriptfile_getnumber(script, &value);
-                light.faderadius = value;
-                scriptfile_getnumber(script, &value);
-                light.angle = value;
-                scriptfile_getnumber(script, &value);
-                light.horiz = value;
-                scriptfile_getnumber(script, &value);
-                light.minshade = value;
-                scriptfile_getnumber(script, &value);
-                light.maxshade = value;
-                scriptfile_getnumber(script, &value);
-                light.priority = value;
-                scriptfile_getnumber(script, &value);
-                light.tilenum = value;
+            scriptfile_getnumber(script, &value);
+            light.sector = value;
+            scriptfile_getnumber(script, &value);
+            light.x = value;
+            scriptfile_getnumber(script, &value);
+            light.y = value;
+            scriptfile_getnumber(script, &value);
+            light.z = value;
+            scriptfile_getnumber(script, &value);
+            light.range = value;
+            scriptfile_getnumber(script, &value);
+            light.color[0] = value;
+            scriptfile_getnumber(script, &value);
+            light.color[1] = value;
+            scriptfile_getnumber(script, &value);
+            light.color[2] = value;
+            scriptfile_getnumber(script, &value);
+            light.radius = value;
+            scriptfile_getnumber(script, &value);
+            light.faderadius = value;
+            scriptfile_getnumber(script, &value);
+            light.angle = value;
+            scriptfile_getnumber(script, &value);
+            light.horiz = value;
+            scriptfile_getnumber(script, &value);
+            light.minshade = value;
+            scriptfile_getnumber(script, &value);
+            light.maxshade = value;
+            scriptfile_getnumber(script, &value);
+            light.priority = value;
+            scriptfile_getnumber(script, &value);
+            light.tilenum = value;
 
-                if (rendmode == 4)
+            if (rendmode == 4)
+            {
+                if (maphacklightcnt == PR_MAXLIGHTS)
                 {
-                    if (maphacklightcnt == PR_MAXLIGHTS)
-                    {
-                        initprintf("warning: max light count %d exceeded, "
-                                   "ignoring further light defs\n", PR_MAXLIGHTS);
-                        toomanylights = 1;
-                        break;
-                    }
-
-                    lightid = polymer_addlight(&light);
-                    if (lightid>=0)
-                        maphacklight[maphacklightcnt++] = lightid;
+                    initprintf("warning: max light count %d exceeded, "
+                               "ignoring further light defs\n", PR_MAXLIGHTS);
+                    toomanylights = 1;
+                    break;
                 }
 
-        break;
+                lightid = polymer_addlight(&light);
+                if (lightid>=0)
+                    maphacklight[maphacklightcnt++] = lightid;
+            }
+
+            break;
         }
 #endif // POLYMER
 
         default:
-                // unrecognised token
-                break;
+            // unrecognised token
+            break;
         }
     }
 
@@ -11286,7 +11303,7 @@ restart_grand:
             switch (cstat&48)
             {
             case 0:
-                    topt = vx*(x1-sv->x) + vy*(y1-sv->y); if (topt <= 0) continue;
+                topt = vx*(x1-sv->x) + vy*(y1-sv->y); if (topt <= 0) continue;
                 bot = vx*vx + vy*vy; if (bot == 0) continue;
 
                 intz = sv->z+scale(vz,topt,bot);
@@ -11311,9 +11328,9 @@ restart_grand:
                 hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
                 break;
             case 16:
-                    //These lines get the 2 points of the rotated sprite
-                    //Given: (x1, y1) starts out as the center point
-                    tilenum = spr->picnum;
+                //These lines get the 2 points of the rotated sprite
+                //Given: (x1, y1) starts out as the center point
+                tilenum = spr->picnum;
                 xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
                 if ((cstat&4) > 0) xoff = -xoff;
                 k = spr->ang; l = spr->xrepeat;
@@ -11339,7 +11356,7 @@ restart_grand:
                 }
                 break;
             case 32:
-                    if (vz == 0) continue;
+                if (vz == 0) continue;
                 intz = z1;
                 if (((intz-sv->z)^vz) < 0) continue;
                 if ((cstat&64) != 0)
@@ -12119,22 +12136,22 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             switch (cstat&48)
             {
             case 0:
-                    if ((x1 >= xmin) && (x1 <= xmax) && (y1 >= ymin) && (y1 <= ymax))
+                if ((x1 >= xmin) && (x1 <= xmax) && (y1 >= ymin) && (y1 <= ymax))
+                {
+                    k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
+                    if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
+                    if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                    if (((pos->z) < daz+ceildist) && ((pos->z) > daz-k-flordist))
                     {
-                        k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
-                        if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
-                        if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
-                        if (((pos->z) < daz+ceildist) && ((pos->z) > daz-k-flordist))
-                        {
-                            bsz = (spr->clipdist<<2)+walldist; if (gx < 0) bsz = -bsz;
-                            addclipline(x1-bsz,y1-bsz,x1-bsz,y1+bsz,(int16_t)j+49152);
-                            bsz = (spr->clipdist<<2)+walldist; if (gy < 0) bsz = -bsz;
-                            addclipline(x1+bsz,y1-bsz,x1-bsz,y1-bsz,(int16_t)j+49152);
-                        }
+                        bsz = (spr->clipdist<<2)+walldist; if (gx < 0) bsz = -bsz;
+                        addclipline(x1-bsz,y1-bsz,x1-bsz,y1+bsz,(int16_t)j+49152);
+                        bsz = (spr->clipdist<<2)+walldist; if (gy < 0) bsz = -bsz;
+                        addclipline(x1+bsz,y1-bsz,x1-bsz,y1-bsz,(int16_t)j+49152);
                     }
+                }
                 break;
             case 16:
-                    k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
+                k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
                 if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
                 if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
                 daz2 = daz-k;
@@ -12168,14 +12185,14 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
                         //Side blocker
                         if ((x2-x1)*((pos->x)-x1) + (y2-y1)*((pos->y)-y1) < 0)
-                            { addclipline(x1-day,y1+dax,x1+dax,y1+day,(int16_t)j+49152); }
+                            addclipline(x1-day,y1+dax,x1+dax,y1+day,(int16_t)j+49152); 
                         else if ((x1-x2)*((pos->x)-x2) + (y1-y2)*((pos->y)-y2) < 0)
-                            { addclipline(x2+day,y2-dax,x2-dax,y2-day,(int16_t)j+49152); }
+                            addclipline(x2+day,y2-dax,x2-dax,y2-day,(int16_t)j+49152);
                     }
                 }
                 break;
             case 32:
-                    daz = spr->z+ceildist;
+                daz = spr->z+ceildist;
                 daz2 = spr->z-flordist;
                 if (((pos->z) < daz) && ((pos->z) > daz2))
                 {
@@ -13018,7 +13035,7 @@ restart_grand:
                 switch (cstat&48)
                 {
                 case 0:
-                        k = walldist+(spr->clipdist<<2)+1;
+                    k = walldist+(spr->clipdist<<2)+1;
                     if ((klabs(x1-pos->x) <= k) && (klabs(y1-pos->y) <= k))
                     {
                         daz = spr->z;
@@ -13031,7 +13048,7 @@ restart_grand:
                     }
                     break;
                 case 16:
-                        tilenum = spr->picnum;
+                    tilenum = spr->picnum;
                     xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
                     if ((cstat&4) > 0) xoff = -xoff;
                     k = spr->ang; l = spr->xrepeat;
@@ -13050,7 +13067,7 @@ restart_grand:
                     }
                     break;
                 case 32:
-                        daz = spr->z; daz2 = daz;
+                    daz = spr->z; daz2 = daz;
 
                     if ((cstat&64) != 0)
                         if ((pos->z > daz) == ((cstat&8)==0)) continue;
