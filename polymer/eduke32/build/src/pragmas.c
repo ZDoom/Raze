@@ -88,7 +88,7 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
         );
 }
 
-void copybufbyte(void *S, void *D, int32_t c)
+void copybufbyte(const void *S, void *D, int32_t c)
 {
     ASM(
         "cmpl $4, %%ecx\n\t"		// cmp ecx, 4
@@ -129,7 +129,7 @@ void copybufbyte(void *S, void *D, int32_t c)
         );
 }
 
-void copybufreverse(void *S, void *D, int32_t c)
+void copybufreverse(const void *S, void *D, int32_t c)
 {
     ASM(
         "shrl $1, %%ecx\n\t"
@@ -191,13 +191,16 @@ void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t 
 
 void clearbuf(void *d, int32_t c, int32_t a)
 {
-    int32_t *p = (int32_t *)d;
+    int32_t *p = d;
+
     while ((c--) > 0) *(p++) = a;
 }
 
-void copybuf(void *s, void *d, int32_t c)
+void copybuf(const void *s, void *d, int32_t c)
 {
-    int32_t *p = (int32_t *)s, *q = (int32_t *)d;
+    const int32_t *p = s;
+    int32_t *q = (int32_t *)d;
+
     while ((c--) > 0) *(q++) = *(p++);
 }
 
@@ -228,15 +231,19 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
     }
 }
 
-void copybufbyte(void *S, void *D, int32_t c)
+void copybufbyte(const void *S, void *D, int32_t c)
 {
-    char *p = (char *)S, *q = (char *)D;
+    const char *p = S;
+    char *q = D;
+
     while ((c--) > 0) *(q++) = *(p++);
 }
 
-void copybufreverse(void *S, void *D, int32_t c)
+void copybufreverse(const void *S, void *D, int32_t c)
 {
-    char *p = (char *)S, *q = (char *)D;
+    const char *p = S;
+    char *q = D;
+
     while ((c--) > 0) *(q++) = *(p--);
 }
 

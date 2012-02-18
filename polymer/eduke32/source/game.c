@@ -10734,7 +10734,8 @@ int32_t G_DoMoveThings(void)
         randomseed = ticrandomseed;
 
     TRAVERSE_CONNECT(i)
-    copybufbyte(&inputfifo[(g_netServer && myconnectindex == i) ? 1 : 0][i],g_player[i].sync,sizeof(input_t));
+        Bmemcpy(g_player[i].sync, &inputfifo[(g_netServer && myconnectindex == i) ? 1 : 0][i],
+                sizeof(input_t));
 
     G_UpdateInterpolations();
 

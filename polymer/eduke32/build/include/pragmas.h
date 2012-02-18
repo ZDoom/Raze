@@ -60,8 +60,8 @@ static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return d
 // maybe one day I'll make these into macros
 int32_t boundmulscale(int32_t a, int32_t b, int32_t c);
 void clearbufbyte(void *D, int32_t c, int32_t a);
-void copybufbyte(void *S, void *D, int32_t c);
-void copybufreverse(void *S, void *D, int32_t c);
+void copybufbyte(const void *S, void *D, int32_t c);
+void copybufreverse(const void *S, void *D, int32_t c);
 
 
 #ifdef NO_GCC_BUILTINS
@@ -964,7 +964,7 @@ void copybufreverse(void *S, void *D, int32_t c);
 		: "=&D" (__D), "=&c" (__c) : "0" (__D), "1" (__c), "a" (__a) : "memory", "cc"); \
 	 0; })
 #define copybuf(S,D,c) \
-	({ void *__S=(S), *__D=(D); int32_t __c=(c); \
+	({ const void *__S=(S), *__D=(D); int32_t __c=(c); \
 	   __asm__ __volatile__ ("rep; movsl" \
 		: "=&S" (__S), "=&D" (__D), "=&c" (__c) : "0" (__S), "1" (__D), "2" (__c) : "memory", "cc"); \
 	 0; })
@@ -1442,7 +1442,7 @@ static __inline void clearbufbyte(void *d, int32_t c, int32_t a)
 	}
 }
 
-static __inline void copybuf(void *s, void *d, int32_t c)
+static __inline void copybuf(const void *s, void *d, int32_t c)
 {
 	_asm {
 		mov esi, s
@@ -1452,7 +1452,7 @@ static __inline void copybuf(void *s, void *d, int32_t c)
 	}
 }
 
-static __inline void copybufbyte(void *s, void *d, int32_t c)
+static __inline void copybufbyte(const void *s, void *d, int32_t c)
 {
 	_asm {
 		mov esi, s
@@ -1492,7 +1492,7 @@ static __inline void copybufbyte(void *s, void *d, int32_t c)
 	}
 }
 
-static __inline void copybufreverse(void *s, void *d, int32_t c)
+static __inline void copybufreverse(const void *s, void *d, int32_t c)
 {
 	_asm {
 		mov esi, s
@@ -1892,12 +1892,12 @@ void qinterpolatedown16 (intptr_t bufptr, int32_t num, int32_t val, int32_t add)
 void qinterpolatedown16short (intptr_t bufptr, int32_t num, int32_t val, int32_t add);
 
 void clearbuf(void* d, int32_t c, int32_t a);
-void copybuf(void* s, void* d, int32_t c);
+void copybuf(const void* s, void* d, int32_t c);
 void swapbuf4(void* a, void* b, int32_t c);
 
 void clearbufbyte(void *D, int32_t c, int32_t a);
-void copybufbyte(void *S, void *D, int32_t c);
-void copybufreverse(void *S, void *D, int32_t c);
+void copybufbyte(const void *S, void *D, int32_t c);
+void copybufreverse(const void *S, void *D, int32_t c);
 
 #endif
 

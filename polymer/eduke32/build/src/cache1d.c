@@ -168,7 +168,8 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 
     //Remove all blocks except 1
     suckz -= (bestz+1); cacnum -= suckz;
-    copybufbyte(&cac[bestz+suckz],&cac[bestz],(cacnum-bestz)*sizeof(cactype));
+//    copybufbyte(&cac[bestz+suckz],&cac[bestz],(cacnum-bestz)*sizeof(cactype));
+    Bmemmove(&cac[bestz], &cac[bestz+suckz], (cacnum-bestz)*sizeof(cactype));
     cac[bestz].hand = newhandle; *newhandle = cachestart+(intptr_t)besto;
     cac[bestz].leng = newbytes;
     cac[bestz].lock = newlockptr;
@@ -213,12 +214,16 @@ void suckcache(intptr_t *suckptr)
             if ((i > 0) && (*cac[i-1].lock == 0))
             {
                 cac[i-1].leng += cac[i].leng;
-                cacnum--; copybuf(&cac[i+1],&cac[i],(cacnum-i)*sizeof(cactype));  // XXX: this looks suspicious, copybuf already multiplies by 4...
+                cacnum--;
+                //copybuf(&cac[i+1],&cac[i],(cacnum-i)*sizeof(cactype));  // this looks suspicious, copybuf already multiplies by 4...
+                Bmemmove(&cac[i], &cac[i+1], (cacnum-i)*sizeof(cactype));
             }
             else if ((i < cacnum-1) && (*cac[i+1].lock == 0))
             {
                 cac[i+1].leng += cac[i].leng;
-                cacnum--; copybuf(&cac[i+1],&cac[i],(cacnum-i)*sizeof(cactype));  // XXX: see above
+                cacnum--;
+                //copybuf(&cac[i+1],&cac[i],(cacnum-i)*sizeof(cactype));  // see above
+                Bmemmove(&cac[i], &cac[i+1], (cacnum-i)*sizeof(cactype));
             }
         }
     }
@@ -1166,8 +1171,8 @@ failure:
 static char *lzwbuf1, *lzwbuf4, *lzwbuf5, lzwbuflock[5];
 static int16_t *lzwbuf2, *lzwbuf3;
 
-static int32_t lzwcompress(char *lzwinbuf, int32_t uncompleng, char *lzwoutbuf);
-static int32_t lzwuncompress(char *lzwinbuf, int32_t compleng, char *lzwoutbuf);
+static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwoutbuf);
+static int32_t lzwuncompress(const char *lzwinbuf, int32_t compleng, char *lzwoutbuf);
 
 int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
 {
@@ -1247,11 +1252,11 @@ int32_t dfread(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
     return count;
 }
 
-void kdfwrite(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
+void kdfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
 {
     uint32_t i, j, k;
     int16_t leng, swleng;
-    char *ptr;
+    const char *ptr;
 
     lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 200;
     if (lzwbuf1 == NULL) allocache((intptr_t *)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
@@ -1261,7 +1266,7 @@ void kdfwrite(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
     if (lzwbuf5 == NULL) allocache((intptr_t *)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
 
     if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
-    ptr = (char *)buffer;
+    ptr = buffer;
 
     copybufbyte(ptr,lzwbuf4,(int32_t)dasizeof);
     k = dasizeof;
@@ -1291,11 +1296,11 @@ void kdfwrite(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
     lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 1;
 }
 
-void dfwrite(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
+void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
 {
     uint32_t i, j, k;
     int16_t leng, swleng;
-    char *ptr;
+    const char *ptr;
 
     lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 200;
     if (lzwbuf1 == NULL) allocache((intptr_t *)&lzwbuf1,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[0]);
@@ -1305,7 +1310,7 @@ void dfwrite(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
     if (lzwbuf5 == NULL) allocache((intptr_t *)&lzwbuf5,LZWSIZE+(LZWSIZE>>4),&lzwbuflock[4]);
 
     if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
-    ptr = (char *)buffer;
+    ptr = buffer;
 
     copybufbyte(ptr,lzwbuf4,(int32_t)dasizeof);
     k = dasizeof;
@@ -1335,7 +1340,7 @@ void dfwrite(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
     lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 1;
 }
 
-static int32_t lzwcompress(char *lzwinbuf, int32_t uncompleng, char *lzwoutbuf)
+static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwoutbuf)
 {
     int32_t i, addr, newaddr, addrcnt, zx, *intptr;
     int32_t bytecnt1, bitcnt, numbits, oneupnumbits;
@@ -1399,13 +1404,14 @@ static int32_t lzwcompress(char *lzwinbuf, int32_t uncompleng, char *lzwoutbuf)
     return(uncompleng+4);
 }
 
-static int32_t lzwuncompress(char *lzwinbuf, int32_t compleng, char *lzwoutbuf)
+static int32_t lzwuncompress(const char *lzwinbuf, int32_t compleng, char *lzwoutbuf)
 {
     int32_t strtot, currstr, numbits, oneupnumbits;
-    int32_t i, dat, leng, bitcnt, outbytecnt, *intptr;
-    int16_t *shortptr;
+    int32_t i, dat, leng, bitcnt, outbytecnt;
+    const int32_t *intptr;
+    const int16_t *shortptr;
 
-    shortptr = (int16_t *)lzwinbuf;
+    shortptr = (const int16_t *)lzwinbuf;
     strtot = (int32_t)B_LITTLE16(shortptr[1]);
     if (strtot == 0)
     {
@@ -1417,7 +1423,7 @@ static int32_t lzwuncompress(char *lzwinbuf, int32_t compleng, char *lzwoutbuf)
     numbits = 8; oneupnumbits = (1<<8);
     do
     {
-        intptr = (int32_t *)&lzwinbuf[bitcnt>>3];
+        intptr = (const int32_t *)&lzwinbuf[bitcnt>>3];
         dat = ((B_LITTLE32(intptr[0])>>(bitcnt&7)) & (oneupnumbits-1));
         bitcnt += numbits;
         if ((dat&((oneupnumbits>>1)-1)) > ((currstr-1)&((oneupnumbits>>1)-1)))

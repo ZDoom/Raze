@@ -3445,7 +3445,9 @@ static inline void  polymer_scansprites(int16_t sectnum, spritetype* localtsprit
                 (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
                 (*localspritesortcnt < MAXSPRITESONSCREEN))
         {
-            copybufbyte(spr,&localtsprite[*localspritesortcnt],sizeof(spritetype));
+            // this function's localtsprite is either the tsprite global or
+            // polymer_drawroom's locattsprite, so no aliasing
+            Bmemcpy(&localtsprite[*localspritesortcnt], spr, sizeof(spritetype));
             localtsprite[(*localspritesortcnt)++].owner = i;
         }
     }

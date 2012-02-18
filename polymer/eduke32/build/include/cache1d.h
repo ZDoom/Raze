@@ -62,8 +62,8 @@ CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int32_t type);
 
 int32_t	kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil);
 int32_t	dfread(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil);
-void	kdfwrite(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil);
-void	dfwrite(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil);
+void	kdfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil);
+void	dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil);
 
 #ifdef __cplusplus
 }
