@@ -15609,10 +15609,7 @@ static int32_t screencapture_common1(char *fn, const char *ext, BFILE** filptr)
 
     *filptr = Bfopen(fn,"wb");
     if (*filptr == NULL)
-    {
-        Bfree(fn);
         return -1;
-    }
 
     return 0;
 }
@@ -15774,7 +15771,10 @@ static int32_t screencapture_tga(const char *filename, char inverseit)
 
     i = screencapture_common1(fn, "tga", &fil);
     if (i)
+    {
+        Bfree(fn);
         return i;
+    }
 
 # ifdef USE_OPENGL
     if (rendmode >= 3 && qsetmode == 200)
