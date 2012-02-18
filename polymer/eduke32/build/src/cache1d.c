@@ -57,6 +57,9 @@ static intptr_t kzipopen(const char *filnam)
 //           After calling uninitcache, it is still ok to call allocache
 //           without first calling initcache.
 
+// Uncomment for easier allocache-allocated bound checking (e.g. with Valgrind)
+//#define DEBUG_ALLOCACHE_AS_MALLOC
+
 #define MAXCACHEOBJECTS 9216
 
 static int32_t cachesize = 0;
@@ -101,6 +104,16 @@ void initcache(intptr_t dacachestart, int32_t dacachesize)
     initprintf("Initialized %.1fM cache\n", (float)(dacachesize/1024.f/1024.f));
 }
 
+#ifdef DEBUG_ALLOCACHE_AS_MALLOC
+void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
+{
+    UNREFERENCED_PARAMETER(newlockptr);
+
+    *newhandle = (intptr_t)Bmalloc(newbytes);
+    if (!*newhandle)
+        reportandexit("OUT OF MEMORY in allocache as malloc wrapper!");
+}
+#else
 void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 {
     int32_t i, /*j,*/ z, zz, bestz=0, daval, bestval, besto=0, o1, o2, sucklen, suckz;
@@ -180,6 +193,7 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
     cac[bestz].leng = sucklen;
     cac[bestz].lock = &zerochar;
 }
+#endif
 
 #if 0
 void suckcache(intptr_t *suckptr)
@@ -213,6 +227,7 @@ void suckcache(intptr_t *suckptr)
 
 void agecache(void)
 {
+#ifndef DEBUG_ALLOCACHE_AS_MALLOC
     int32_t cnt = (cacnum>>4);
 
     if (agecount >= cacnum) agecount = cacnum-1;
@@ -226,10 +241,12 @@ void agecache(void)
         agecount--;
         if (agecount < 0) agecount = cacnum-1;
     }
+#endif
 }
 
 static void reportandexit(const char *errormessage)
 {
+#ifndef DEBUG_ALLOCACHE_AS_MALLOC
     int32_t i, j;
 
     //setvmode(0x3);
@@ -247,8 +264,9 @@ static void reportandexit(const char *errormessage)
     Bprintf("Cachesize = %d\n",cachesize);
     Bprintf("Cacnum = %d\n",cacnum);
     Bprintf("Cache length sum = %d\n",j);
+#endif
     initprintf("ERROR: %s\n",errormessage);
-    exit(0);
+    exit(1);
 }
 
 #include <errno.h>
