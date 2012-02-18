@@ -4201,8 +4201,11 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     int32_t i, x, y;
     const char *pRawPixels;
     char szT[128];
-
+#ifdef USE_OPENGL
     int32_t lazyselector = g_lazy_tileselector && usehightile;
+#else
+    int32_t lazyselector = g_lazy_tileselector;
+#endif
     int32_t runi=0, usehitile;
     static uint8_t loadedhitile[(MAXTILES+7)>>3];
 
