@@ -6874,8 +6874,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         else if (dastat&8)
              permanentupdate = 1; */
 
-#ifndef ENGINE_USING_A_C
-
+#if !defined ENGINE_USING_A_C
     if ((dastat&1) == 0)
     {
         char bad;
@@ -7046,8 +7045,10 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                             }
                             else rmhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x+frameplace);
                         }
+
                         while (y1 > ny1) lastx[y1--] = x;
                     }
+
                     while (y2 > ny2)
                     {
                         y2--; if ((y2&31) == 0) faketimerhandler();
@@ -7061,6 +7062,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                         }
                         else rmhlineasm4(x-lastx[y2],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y2]+x+frameplace);
                     }
+
                     while (y2 < ny2) lastx[y2++] = x;
                 }
                 else
@@ -7078,6 +7080,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                         }
                         else rmhlineasm4(x-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x+frameplace);
                     }
+
                     if (x == x2-1) { bx += xv2; by += yv2; break; }
                     y1 = uplc[x+1];
                     if (((dastat&8) == 0) && (startumost[x+1] > y1)) y1 = startumost[x+1];
@@ -7085,6 +7088,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                 }
                 bx += xv2; by += yv2;
             }
+
             while (y1 < y2-1)
             {
                 y1++; if ((y1&31) == 0) faketimerhandler();
@@ -7101,13 +7105,21 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         }
     }
     else
+#endif  // !defined ENGINE_USING_A_C
     {
         if ((dastat&1) == 0)
         {
+#if !defined ENGINE_USING_A_C
             if (dastat&64)
                 setupspritevline(palookupoffs,(xv>>16)*ysiz,xv<<16,ysiz,yv,0L);
             else
                 msetupspritevline(palookupoffs,(xv>>16)*ysiz,xv<<16,ysiz,yv,0L);
+#else
+            if (dastat&64)
+                setupspritevline(palookupoffs,xv,yv,ysiz);
+            else
+                msetupspritevline(palookupoffs,xv,yv,ysiz);
+#endif
         }
         else
         {
@@ -7142,75 +7154,31 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
             if ((dastat&1) == 0)
             {
+#if !defined ENGINE_USING_A_C
                 if (dastat&64)
                     spritevline(0L,by<<16,y2-y1+1,bx<<16,(bx>>16)*ysiz+(by>>16)+bufplc,p);
                 else
                     mspritevline(0L,by<<16,y2-y1+1,bx<<16,(bx>>16)*ysiz+(by>>16)+bufplc,p);
+#else
+                if (dastat&64)
+                    spritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
+                else
+                    mspritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
+#endif
             }
             else
             {
+#if !defined ENGINE_USING_A_C
                 tspritevline(0L,by<<16,y2-y1+1,bx<<16,(bx>>16)*ysiz+(by>>16)+bufplc,p);
+#else
+                tspritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
+                //transarea += (y2-y1);
+#endif
             }
+
             faketimerhandler();
         }
     }
-
-#else   // ENGINE_USING_A_C
-
-    if ((dastat&1) == 0)
-    {
-        if (dastat&64)
-            setupspritevline(palookupoffs,xv,yv,ysiz);
-        else
-            msetupspritevline(palookupoffs,xv,yv,ysiz);
-    }
-    else
-    {
-        tsetupspritevline(palookupoffs,xv,yv,ysiz);
-        if (dastat&32) settransreverse(); else settransnormal();
-    }
-    for (x=x1; x<x2; x++)
-    {
-        bx += xv2; by += yv2;
-
-        y1 = uplc[x]; y2 = dplc[x];
-        if ((dastat&8) == 0)
-        {
-            if (startumost[x] > y1) y1 = startumost[x];
-            if (startdmost[x] < y2) y2 = startdmost[x];
-        }
-        if (y2 <= y1) continue;
-
-        switch (y1-oy)
-        {
-        case -1:
-            bx -= xv; by -= yv; oy = y1; break;
-        case 0:
-            break;
-        case 1:
-            bx += xv; by += yv; oy = y1; break;
-        default:
-            bx += xv*(y1-oy); by += yv*(y1-oy); oy = y1; break;
-        }
-
-        p = ylookup[y1]+x+frameplace;
-
-        if ((dastat&1) == 0)
-        {
-            if (dastat&64)
-                spritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
-            else
-                mspritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
-        }
-        else
-        {
-            tspritevline(bx&65535,by&65535,y2-y1+1,(bx>>16)*ysiz+(by>>16)+bufplc,p);
-            //transarea += (y2-y1);
-        }
-        faketimerhandler();
-    }
-
-#endif
 
     /*  if ((dastat&128) && (origbuffermode == 0))
         {
