@@ -1213,6 +1213,7 @@ int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
     return count;
 }
 
+#if 0
 int32_t dfread(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
 {
     uint32_t i, j, k, kgoal;
@@ -1295,6 +1296,7 @@ void kdfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
     }
     lzwbuflock[0] = lzwbuflock[1] = lzwbuflock[2] = lzwbuflock[3] = lzwbuflock[4] = 1;
 }
+#endif
 
 void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
 {
