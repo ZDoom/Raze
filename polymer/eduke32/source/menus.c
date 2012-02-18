@@ -380,7 +380,7 @@ int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits)
 
 // This function depends on the 'onbar' variable which should be set to the
 // 'probey' indices where there's a slider bar.
-static void _bar(int32_t type, int32_t x,int32_t y,int32_t *p,int32_t dainc,int32_t damodify,int32_t s, int32_t pa, int32_t min, int32_t max)
+static void sliderbar(int32_t type, int32_t x,int32_t y,int32_t *p,int32_t dainc,int32_t damodify,int32_t s, int32_t pa, int32_t min, int32_t max)
 {
     int32_t xloc;
     char rev;
@@ -435,8 +435,8 @@ static void _bar(int32_t type, int32_t x,int32_t y,int32_t *p,int32_t dainc,int3
         rotatesprite_fs((x<<16)+((65-scale(64,xloc-min,max-min))<<(16-type)),(y<<16)+(1<<(16-type)),65536L>>type,0,SLIDEBAR+1,s,pa,10);
 }
 
-#define bar(x,y,p,dainc,damodify,s,pa) _bar(0,x,y,p,dainc,damodify,s,pa,0,63);
-#define barsm(x,y,p,dainc,damodify,s,pa) _bar(1,x,y,p,dainc,damodify,s,pa,0,63);
+#define bar(x,y,p,dainc,damodify,s,pa) sliderbar(0,x,y,p,dainc,damodify,s,pa,0,63);
+#define barsm(x,y,p,dainc,damodify,s,pa) sliderbar(1,x,y,p,dainc,damodify,s,pa,0,63);
 
 static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t damodify)
 {
@@ -2587,7 +2587,7 @@ cheat_for_port_credits:
                     int32_t i = (int32_t)(r_ambientlight*1024.f);
                     int32_t j = i;
 
-                    _bar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),0,128,4096);
+                    sliderbar(1,d+8,yy+7, &i,128,x==io,MENUHIGHLIGHT(io),0,128,4096);
                     Bsprintf(tempbuf,"%.2f",r_ambientlight);
                     mgametextpal(d-35,yy, tempbuf, MENUHIGHLIGHT(io), 0);
                     if (i != j)
@@ -2633,7 +2633,7 @@ cheat_for_port_credits:
                 {
                     i = r_downsize;
                     enabled = usehightile;
-                    _bar(1,d+8,yy+7, &r_downsize,-1,enabled && x==io,MENUHIGHLIGHT(io),!enabled,0,2);
+                    sliderbar(1,d+8,yy+7, &r_downsize,-1,enabled && x==io,MENUHIGHLIGHT(io),!enabled,0,2);
                     if (r_downsize != i)
                     {
                         invalidatecache();
@@ -2734,7 +2734,7 @@ cheat_for_port_credits:
 
         {
             int32_t b = (int32_t)(vid_gamma*40960.f);
-            _bar(0,c+177,98,&b,4096,x==0,MENUHIGHLIGHT(0),0,8192,163840);
+            sliderbar(0,c+177,98,&b,4096,x==0,MENUHIGHLIGHT(0),0,8192,163840);
 
             if (b != (double)(vid_gamma*40960.f))
             {
@@ -2745,7 +2745,7 @@ cheat_for_port_credits:
             }
 
             b = (int32_t)(vid_contrast*40960.f);
-            _bar(0,c+177,98+16,&b,2048,x==1,MENUHIGHLIGHT(1),0,4096,110592);
+            sliderbar(0,c+177,98+16,&b,2048,x==1,MENUHIGHLIGHT(1),0,4096,110592);
 
             if (b != (vid_contrast*40960.f))
             {
@@ -2754,7 +2754,7 @@ cheat_for_port_credits:
             }
 
             b = (int32_t)(vid_brightness*40960.f);
-            _bar(0,c+177,98+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32768,32768);
+            sliderbar(0,c+177,98+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32768,32768);
 
             if (b != (vid_brightness*40960.f))
             {
@@ -2853,7 +2853,7 @@ cheat_for_port_credits:
                 case 2:
                 {
                     int32_t sbs = ud.crosshairscale;
-                    _bar(1,d+8,yy+7, &sbs,5,x==io,MENUHIGHLIGHT(io),0,25,100);
+                    sliderbar(1,d+8,yy+7, &sbs,5,x==io,MENUHIGHLIGHT(io),0,25,100);
                     ud.crosshairscale = min(100,max(10,sbs));
                 }
                 break;
@@ -2892,7 +2892,7 @@ cheat_for_port_credits:
                 break;
                 case 5:
                 {
-                    _bar(1,d+8,yy+7, &ud.textscale,50,enabled && x==io,MENUHIGHLIGHT(io),0,100,400);
+                    sliderbar(1,d+8,yy+7, &ud.textscale,50,enabled && x==io,MENUHIGHLIGHT(io),0,100,400);
                 }
                 break;
                 case 6:
@@ -4563,7 +4563,7 @@ cheat_for_port_credits:
                 {
                     enabled = (ud.config.SoundToggle && ud.config.FXDevice >= 0);
                     l = ud.config.FXVolume;
-                    _bar(1,d+8,yy+7, &ud.config.FXVolume,15,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,255);
+                    sliderbar(1,d+8,yy+7, &ud.config.FXVolume,15,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,255);
                     if (l != ud.config.FXVolume)
                         FX_SetVolume((int16_t) ud.config.FXVolume);
                 }
@@ -4597,7 +4597,7 @@ cheat_for_port_credits:
                 {
                     enabled = (ud.config.MusicToggle && ud.config.MusicDevice >= 0);
                     l = ud.config.MusicVolume;
-                    _bar(1,d+8,yy+7, &ud.config.MusicVolume,15,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,255);
+                    sliderbar(1,d+8,yy+7, &ud.config.MusicVolume,15,probey==io,enabled?MENUHIGHLIGHT(io):UNSELMENUSHADE,!enabled,0,255);
                     if (l != ud.config.MusicVolume)
                         S_MusicVolume((int16_t) ud.config.MusicVolume);
                 }
