@@ -7123,7 +7123,11 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         }
         else
         {
+#if !defined ENGINE_USING_A_C
             tsetupspritevline(palookupoffs,(xv>>16)*ysiz,xv<<16,ysiz,yv,0L);
+#else
+            tsetupspritevline(palookupoffs,xv,yv,ysiz);
+#endif
             if (dastat&32) settransreverse(); else settransnormal();
         }
         for (x=x1; x<x2; x++)
