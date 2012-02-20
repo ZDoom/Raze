@@ -2305,7 +2305,9 @@ cheat_for_port_credits:
                         tempbuf[len++] = '.';
                 }
                 tempbuf[len] = 0;
-                minitextshade(180,1+12+32+8*(6-i),tempbuf,c,2,26);
+                minitextshade(180,1+12+32+8*(6-i),tempbuf,c,
+                              dir->source==CACHE1D_SOURCE_ZIP ? 8 : 2,
+                              26);
             }
         }
 
