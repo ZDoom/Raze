@@ -1918,7 +1918,8 @@ badindex:
                 int32_t neartaghitdist;
 
                 X_ERROR_INVALIDSECT(sectnum);
-                neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, neartagrange, tagsearch);
+                neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite,
+                        &neartaghitdist, neartagrange, tagsearch, NULL);
 
                 Gv_SetVarX(neartagsectorvar, neartagsector);
                 Gv_SetVarX(neartagwallvar, neartagwall);

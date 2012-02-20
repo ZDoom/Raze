@@ -11456,7 +11456,8 @@ restart_grand:
 // neartag
 //
 void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall,
-                int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch)
+             int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch,
+             int32_t (*blacklist_sprite_func)(int32_t))
 {
     walltype *wal, *wal2;
     spritetype *spr;
@@ -11526,6 +11527,9 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
 
         for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
+            if (blacklist_sprite_func && blacklist_sprite_func(z))
+                continue;
+
             spr = &sprite[z];
 
             good = 0;

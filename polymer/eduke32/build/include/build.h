@@ -618,7 +618,10 @@ int32_t   clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_
 int32_t   pushmove(vec3_t *vect, int16_t *sectnum, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
 void   getzrange(const vec3_t *vect, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
 int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz, hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
-void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch) ATTRIBUTE((nonnull(6,7,8)));
+void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
+               int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite,
+               int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch,
+               int32_t (*blacklist_sprite_func)(int32_t)) ATTRIBUTE((nonnull(6,7,8)));
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 void   updatesector(int32_t x, int32_t y, int16_t *sectnum) ATTRIBUTE((nonnull(3)));
 void updatesector_onlynextwalls(int32_t x, int32_t y, int16_t *sectnum) ATTRIBUTE((nonnull(3)));

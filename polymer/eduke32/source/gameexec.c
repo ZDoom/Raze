@@ -2735,7 +2735,8 @@ nullquote:
                     OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
                     continue;
                 }
-                neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, neartagrange, tagsearch);
+                neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite,
+                        &neartaghitdist, neartagrange, tagsearch, NULL);
 
                 Gv_SetVarX(neartagsectorvar, neartagsector);
                 Gv_SetVarX(neartagwallvar, neartagwall);
@@ -3264,7 +3265,8 @@ nullquote:
             if (sector[vm.g_sp->sectnum].lotag == 0)
             {
                 neartag(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-(32<<8),vm.g_sp->sectnum,vm.g_sp->ang,
-                        &neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,768L,5);
+                        &neartagsector,&neartagwall,&neartagsprite,&neartaghitdist, 768, 4+1, NULL);
+
                 if (neartagsector >= 0 && isanearoperator(sector[neartagsector].lotag))
                     if ((sector[neartagsector].lotag&0xff) == 23 || sector[neartagsector].floorz == sector[neartagsector].ceilingz)
                         if ((sector[neartagsector].lotag&16384) == 0)

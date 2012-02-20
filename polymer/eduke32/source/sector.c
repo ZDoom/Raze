@@ -3052,6 +3052,11 @@ static int32_t P_FindWall(DukePlayer_t *p,int16_t *hitw)
     return (FindDistance2D(hitinfo.pos.x-p->pos.x,hitinfo.pos.y-p->pos.y));
 }
 
+// returns 1 if sprite i should not be considered by neartag
+static int32_t our_neartag_blacklist(int32_t i)
+{
+    return sprite[i].picnum >= SECTOREFFECTOR__STATIC && sprite[i].picnum <= GPSPEED__STATIC;
+}
 
 void P_CheckSectors(int32_t snum)
 {
@@ -3163,17 +3168,22 @@ void P_CheckSectors(int32_t snum)
             }
 
         if (p->newowner >= 0)
-            neartag(p->opos.x,p->opos.y,p->opos.z,sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
+            neartag(p->opos.x,p->opos.y,p->opos.z,sprite[p->i].sectnum,p->oang,&neartagsector,
+                    &neartagwall,&neartagsprite,&neartaghitdist, 1280, 1, our_neartag_blacklist);
         else
         {
-            neartag(p->pos.x,p->pos.y,p->pos.z,sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
+            neartag(p->pos.x,p->pos.y,p->pos.z,sprite[p->i].sectnum,p->oang,&neartagsector,
+                    &neartagwall,&neartagsprite,&neartaghitdist, 1280, 1, our_neartag_blacklist);
             if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
-                neartag(p->pos.x,p->pos.y,p->pos.z+(8<<8),sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
+                neartag(p->pos.x,p->pos.y,p->pos.z+(8<<8),sprite[p->i].sectnum,p->oang,&neartagsector,
+                        &neartagwall,&neartagsprite,&neartaghitdist, 1280, 1, our_neartag_blacklist);
             if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
-                neartag(p->pos.x,p->pos.y,p->pos.z+(16<<8),sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,1);
+                neartag(p->pos.x,p->pos.y,p->pos.z+(16<<8),sprite[p->i].sectnum,p->oang,&neartagsector,
+                        &neartagwall,&neartagsprite,&neartaghitdist, 1280, 1, our_neartag_blacklist);
             if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
             {
-                neartag(p->pos.x,p->pos.y,p->pos.z+(16<<8),sprite[p->i].sectnum,p->oang,&neartagsector,&neartagwall,&neartagsprite,&neartaghitdist,1280L,3);
+                neartag(p->pos.x,p->pos.y,p->pos.z+(16<<8),sprite[p->i].sectnum,p->oang,&neartagsector,
+                        &neartagwall,&neartagsprite,&neartaghitdist, 1280, 3, our_neartag_blacklist);
                 if (neartagsprite >= 0)
                 {
                     switch (DYNAMICTILEMAP(sprite[neartagsprite].picnum))
