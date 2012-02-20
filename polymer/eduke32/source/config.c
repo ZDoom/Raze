@@ -719,26 +719,27 @@ int32_t CONFIG_ReadSetup(void)
                     G_CheckPlayerColor((int32_t *)&ud.color,-1);
                     g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
                     tempbuf[0] = 0;
-                    SCRIPT_GetString(ud.config.scripthandle, "Misc", "CrosshairColor",&tempbuf[0]);
-                    if (tempbuf[0])
-                    {
-                        char *ptr = strtok(tempbuf,",");
-                        palette_t temppal;
-                        char *palptr = (char *)&temppal;
-
-                        i = 0;
-                        while (ptr != NULL && i < 3)
-                        {
-                            palptr[i++] = Batoi(ptr);
-                            ptr = strtok(NULL,",");
-                        }
-                        if (i == 3)
-                        {
-                            Bmemcpy(&CrosshairColors,&temppal,sizeof(palette_t));
-                            DefaultCrosshairColors.f = 1;
-                        }
-                    }
         */
+
+        SCRIPT_GetString(ud.config.scripthandle, "Misc", "CrosshairColor",&tempbuf[0]);
+        if (tempbuf[0])
+        {
+            char *ptr = strtok(tempbuf,",");
+            palette_t temppal;
+            char *palptr = (char *)&temppal;
+
+            i = 0;
+            while (ptr != NULL && i < 3)
+            {
+                palptr[i++] = Batoi(ptr);
+                ptr = strtok(NULL,",");
+            }
+            if (i == 3)
+            {
+                Bmemcpy(&CrosshairColors,&temppal,sizeof(palette_t));
+                DefaultCrosshairColors.f = 1;
+            }
+        }
 
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions",&ud.executions);
 
