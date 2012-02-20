@@ -1170,7 +1170,8 @@ failure:
 #define LZWSIZE 16384           //Watch out for shorts!
 #define LZWSIZEPAD (LZWSIZE+(LZWSIZE>>4))
 
-static char lzwtmpbuf[LZWSIZEPAD], lzwrawbuf[LZWSIZE], lzwcompbuf[LZWSIZEPAD];
+// lzwrawbuf LZWSIZE+1: see (*) below
+static char lzwtmpbuf[LZWSIZEPAD], lzwrawbuf[LZWSIZE+1], lzwcompbuf[LZWSIZEPAD];
 static int16_t lzwbuf2[LZWSIZEPAD], lzwbuf3[LZWSIZEPAD];
 
 static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwoutbuf);
@@ -1182,14 +1183,17 @@ int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
     int16_t leng;
     char *ptr;
 
-    if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
+    if (dasizeof > LZWSIZE)
+    {
+        count *= dasizeof;
+        dasizeof = 1;
+    }
+
     ptr = (char *)buffer;
 
     if (kread(fil,&leng,2) != 2) return -1; leng = B_LITTLE16(leng);
     if (kread(fil,lzwcompbuf,(int32_t)leng) != leng) return -1;
-
-    k = 0;
-    kgoal = lzwuncompress(lzwcompbuf,(int32_t)leng,lzwrawbuf);
+    k = 0; kgoal = lzwuncompress(lzwcompbuf,(int32_t)leng,lzwrawbuf);
 
     copybufbyte(lzwrawbuf,ptr,(int32_t)dasizeof);
     k += (int32_t)dasizeof;
@@ -1213,57 +1217,69 @@ int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
     return count;
 }
 
+static uint32_t compress_part(uint32_t k, BFILE *fil)
+{
+    int16_t leng, swleng;
+
+    leng = (int16_t)lzwcompress(lzwrawbuf,k,lzwcompbuf); swleng = B_LITTLE16(leng);
+    Bfwrite(&swleng,2,1,fil); Bfwrite(lzwcompbuf,(int32_t)leng,1,fil);
+
+    return 0;
+}
+
 void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
 {
     uint32_t i, j, k;
-    int16_t leng, swleng;
     const char *ptr;
 
-    if (dasizeof > LZWSIZE) { count *= dasizeof; dasizeof = 1; }
+    if (dasizeof > LZWSIZE)
+    {
+        count *= dasizeof;
+        dasizeof = 1;
+    }
+
     ptr = buffer;
 
-    copybufbyte(ptr,lzwrawbuf,(int32_t)dasizeof);
-    k = dasizeof;
+    Bmemcpy(lzwrawbuf, ptr, (int32_t)dasizeof);
 
+    k = dasizeof;
     if (k > LZWSIZE-dasizeof)
-    {
-        leng = (int16_t)lzwcompress(lzwrawbuf,k,lzwcompbuf); k = 0; swleng = B_LITTLE16(leng);
-        Bfwrite(&swleng,2,1,fil); Bfwrite(lzwcompbuf,(int32_t)leng,1,fil);
-    }
+        k = compress_part(k, fil);
 
     for (i=1; i<count; i++)
     {
         for (j=0; j<dasizeof; j++)
             lzwrawbuf[j+k] = ((ptr[j+dasizeof]-ptr[j])&255);
+
         k += dasizeof;
         if (k > LZWSIZE-dasizeof)
-        {
-            leng = (int16_t)lzwcompress(lzwrawbuf,k,lzwcompbuf); k = 0; swleng = B_LITTLE16(leng);
-            Bfwrite(&swleng,2,1,fil); Bfwrite(lzwcompbuf,(int32_t)leng,1,fil);
-        }
+            k = compress_part(k, fil);
+
         ptr += dasizeof;
     }
+
     if (k > 0)
-    {
-        leng = (int16_t)lzwcompress(lzwrawbuf,k,lzwcompbuf); swleng = B_LITTLE16(leng);
-        Bfwrite(&swleng,2,1,fil); Bfwrite(lzwcompbuf,(int32_t)leng,1,fil);
-    }
+        compress_part(k, fil);
 }
 
 static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwoutbuf)
 {
-    int32_t i, addr, newaddr, addrcnt, *intptr;
+    int32_t i, addr, addrcnt, *intptr;
     int32_t bytecnt1, bitcnt, numbits, oneupnumbits;
     int16_t *shortptr;
+
+    int16_t *const lzwcodehead = lzwbuf2;
+    int16_t *const lzwcodenext = lzwbuf3;
 
     for (i=255; i>=0; i--)
     {
         lzwtmpbuf[i] = i;
-        lzwbuf3[i] = (i+1)&255;
-        lzwbuf2[i] = -1;
+        lzwcodenext[i] = (i+1)&255;
+        lzwcodehead[i] = -1;
     }
 
-    clearbuf(lzwoutbuf,((uncompleng+15)+3)>>2,0L);
+    Bmemset(lzwoutbuf, 0, 4+uncompleng+1);
+//    clearbuf(lzwoutbuf,((uncompleng+15)+3)>>2,0L);
 
     addrcnt = 256; bytecnt1 = 0; bitcnt = (4<<3);
     numbits = 8; oneupnumbits = (1<<8);
@@ -1272,27 +1288,38 @@ static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwou
         addr = lzwinbuf[bytecnt1];
         do
         {
+            int32_t newaddr;
+
             bytecnt1++;
-            if (bytecnt1 == uncompleng) break;
+            if (bytecnt1 == uncompleng)
+                break;  // (*) see XXX below
 
-            if (lzwbuf2[addr] < 0) {lzwbuf2[addr] = addrcnt; break;}
-
-            newaddr = lzwbuf2[addr];
-            while (lzwtmpbuf[newaddr] != lzwinbuf[bytecnt1])
+            if (lzwcodehead[addr] < 0)
             {
-                int32_t zx = lzwbuf3[newaddr];
-                if (zx < 0) {lzwbuf3[newaddr] = addrcnt; break;}
-                newaddr = zx;
+                lzwcodehead[addr] = addrcnt;
+                break;
             }
 
-            if (lzwbuf3[newaddr] == addrcnt) break;
+            newaddr = lzwcodehead[addr];
+            while (lzwtmpbuf[newaddr] != lzwinbuf[bytecnt1])
+            {
+                if (lzwcodenext[newaddr] < 0)
+                {
+                    lzwcodenext[newaddr] = addrcnt;
+                    break;
+                }
+                newaddr = lzwcodenext[newaddr];
+            }
+
+            if (lzwcodenext[newaddr] == addrcnt)
+                break;
             addr = newaddr;
         }
         while (addr >= 0);
 
-        lzwtmpbuf[addrcnt] = lzwinbuf[bytecnt1];
-        lzwbuf2[addrcnt] = -1;
-        lzwbuf3[addrcnt] = -1;
+        lzwtmpbuf[addrcnt] = lzwinbuf[bytecnt1];  // XXX: potential oob access of lzwinbuf via (*) above
+        lzwcodehead[addrcnt] = -1;
+        lzwcodenext[addrcnt] = -1;
 
         intptr = (int32_t *)&lzwoutbuf[bitcnt>>3];
         intptr[0] |= B_LITTLE32(addr<<(bitcnt&7));
