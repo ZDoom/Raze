@@ -729,7 +729,7 @@ int32_t CONFIG_ReadSetup(void)
                         i = 0;
                         while (ptr != NULL && i < 3)
                         {
-                            palptr[i++] = atoi(ptr);
+                            palptr[i++] = Batoi(ptr);
                             ptr = strtok(NULL,",");
                         }
                         if (i == 3)

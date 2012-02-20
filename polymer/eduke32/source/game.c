@@ -401,14 +401,14 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
             {
                 smallbuf[0] = *(t);
                 smallbuf[1] = '\0';
-                p = atoi(smallbuf);
+                p = Batoi(smallbuf);
                 continue;
             }
 
             smallbuf[0] = *(t++);
             smallbuf[1] = *(t);
             smallbuf[2] = '\0';
-            p = atoi(smallbuf);
+            p = Batoi(smallbuf);
             continue;
         }
 
@@ -503,13 +503,13 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
             {
                 smallbuf[0] = *(t);
                 smallbuf[1] = '\0';
-                p = atoi(smallbuf);
+                p = Batoi(smallbuf);
                 continue;
             }
             smallbuf[0] = *(t++);
             smallbuf[1] = *(t);
             smallbuf[2] = '\0';
-            p = atoi(smallbuf);
+            p = Batoi(smallbuf);
             continue;
         }
         ch = Btoupper(*t);
@@ -8668,7 +8668,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        g_netPort = atoi(argv[i+1]);
+                        g_netPort = Batoi(argv[i+1]);
                         i++;
                     }
                     i++;
@@ -8778,7 +8778,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        uint32_t j = atol((char *)argv[i+1]);
+                        uint32_t j = Batol((char *)argv[i+1]);
                         if (j>=10000000 && j<=99999999)
                         {
                             g_scriptDateVersion = j;
@@ -8809,7 +8809,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        uint32_t j = atol((char *)argv[i+1]);
+                        uint32_t j = Batol((char *)argv[i+1]);
                         MAXCACHE1DSIZE = j<<10;
                         initprintf("Cache size: %dkB\n",j);
                         i++;
@@ -8890,7 +8890,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 case 'l':
                     ud.warp_on = 1;
                     c++;
-                    ud.m_level_number = ud.level_number = (atoi(c)-1)%MAXLEVELS;
+                    ud.m_level_number = ud.level_number = (Batoi(c)-1)%MAXLEVELS;
                     break;
                 case 'm':
                     if (*(c+1) != 'a' && *(c+1) != 'A')
@@ -8921,7 +8921,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 case 'q':
                     initprintf("Fake multiplayer mode.\n");
                     if (*(++c) == 0) ud.multimode = 1;
-                    else ud.multimode = atoi(c)%17;
+                    else ud.multimode = Batoi(c)%17;
                     ud.m_coop = ud.coop = 0;
                     ud.m_marker = ud.marker = 1;
                     ud.m_respawn_monsters = ud.respawn_monsters = 1;
@@ -8934,7 +8934,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     break;
                 case 's':
                     c++;
-                    ud.m_player_skill = ud.player_skill = (atoi(c)%5);
+                    ud.m_player_skill = ud.player_skill = (Batoi(c)%5);
                     if (ud.m_player_skill == 4)
                         ud.m_respawn_monsters = ud.respawn_monsters = 1;
                     break;
@@ -8992,7 +8992,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 case 'v':
                     c++;
                     ud.warp_on = 1;
-                    ud.m_volume_number = ud.volume_number = atoi(c)-1;
+                    ud.m_volume_number = ud.volume_number = Batoi(c)-1;
                     break;
                 case 'w':
                     ud.coords = 1;
@@ -9020,7 +9020,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     break;
                 case 'z':
                     c++;
-                    g_scriptDebug = atoi(c);
+                    g_scriptDebug = Batoi(c);
                     if (!g_scriptDebug)
                         g_scriptDebug = 1;
                     break;
@@ -9869,7 +9869,7 @@ int32_t app_main(int32_t argc,const char **argv)
 
 #ifdef _WIN32
 
-//    initprintf("build %d\n",(uint8_t)atoi(BUILDDATE));
+//    initprintf("build %d\n",(uint8_t)Batoi(BUILDDATE));
 
     if (ud.config.CheckForUpdates == 1)
     {
@@ -9878,10 +9878,10 @@ int32_t app_main(int32_t argc,const char **argv)
             initprintf("Checking for updates...\n");
             if (G_GetVersionFromWebsite(tempbuf))
             {
-                initprintf("Current version is %d",atoi(tempbuf));
+                initprintf("Current version is %d",Batoi(tempbuf));
                 ud.config.LastUpdateCheck = time(NULL);
 
-                if (atoi(tempbuf) > atoi(s_buildDate))
+                if (Batoi(tempbuf) > atoi(s_buildDate))
                 {
                     if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
                                  "Browse to http://eduke32.sourceforge.net now?"))

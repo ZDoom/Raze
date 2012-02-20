@@ -15405,7 +15405,7 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
                     smallbuf[1] = '\0';
                 }
                 if (!(fontsize & 4))
-                    col = editorcolors[atol(smallbuf)];
+                    col = editorcolors[Batol(smallbuf)];
 
                 if (name[i+1] == ',' && isdigit(name[i+2]))
                 {
@@ -15432,7 +15432,7 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
                     }
 
                     if (!(fontsize & 4))
-                        backcol = editorcolors[atol(smallbuf)];
+                        backcol = editorcolors[Batol(smallbuf)];
                 }
                 continue;
             }
@@ -15511,7 +15511,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
                 }
                 smallbuf[bi++]=0;
                 if (col)
-                    col = atol(smallbuf);
+                    col = Batol(smallbuf);
 
                 p = getpal(col);
 
@@ -15564,7 +15564,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
                 i++;
             }
             smallbuf[bi++]=0;
-            if (col)col = atol(smallbuf);
+            if (col)col = Batol(smallbuf);
             continue;
         }
         letptr = &fontptr[name[i]<<3];

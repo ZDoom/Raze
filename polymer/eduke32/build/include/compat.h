@@ -499,8 +499,8 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # define Bstrlen strlen
 # define Bstrchr strchr
 # define Bstrrchr strrchr
-# define Batoi atoi
-# define Batol atol
+# define Batoi(str) ((int32_t)strtol(str, NULL, 10))
+# define Batol(str) (strtol(str, NULL, 10))
 # define Bstrtol strtol
 # define Bstrtoul strtoul
 # define Bstrtod strtod

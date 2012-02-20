@@ -237,20 +237,20 @@ char *Bstrrchr(const char *s, int32_t c)
 
 int32_t Batoi(const char *nptr)
 {
-    return atoi(nptr);
+    return strtol(nptr, NULL, 10);
 }
 
 int32_t Batol(const char *nptr)
 {
-    return atol(nptr);
+    return strtol(nptr, NULL, 10);
 }
 
-int32_t int32_t Bstrtol(const char *nptr, char **endptr, int32_t base)
+int32_t Bstrtol(const char *nptr, char **endptr, int32_t base)
 {
     return strtol(nptr,endptr,base);
 }
 
-uint32_t int32_t Bstrtoul(const char *nptr, char **endptr, int32_t base)
+uint32_t Bstrtoul(const char *nptr, char **endptr, int32_t base)
 {
     return strtoul(nptr,endptr,base);
 }

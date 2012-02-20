@@ -631,9 +631,9 @@ static int32_t osdcmd_crosshaircolor(const osdfuncparm_t *parm)
         OSD_Printf("crosshaircolor: r:%d g:%d b:%d\n",CrosshairColors.r,CrosshairColors.g,CrosshairColors.b);
         return OSDCMD_SHOWHELP;
     }
-    r = atol(parm->parms[0]);
-    g = atol(parm->parms[1]);
-    b = atol(parm->parms[2]);
+    r = Batol(parm->parms[0]);
+    g = Batol(parm->parms[1]);
+    b = Batol(parm->parms[2]);
     G_SetCrosshairColor(r,g,b);
     OSD_Printf("%s\n", parm->raw);
     return OSDCMD_OK;
@@ -647,7 +647,7 @@ static int32_t osdcmd_setbrightness(const osdfuncparm_t *parm)
 //        OSD_Printf("\"setbri\" \"%d\"\n",ud.brightness>>2);
         return OSDCMD_SHOWHELP;
     }
-    ud.brightness = atoi(parm->parms[0])<<2;
+    ud.brightness = Batoi(parm->parms[0])<<2;
     setbrightness(ud.brightness>>2,&g_player[screenpeek].ps->palette[0],0);
     OSD_Printf("setbrightness %d\n",ud.brightness>>2);
     return OSDCMD_OK;
@@ -1127,7 +1127,7 @@ static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
     }
 
-    j = atol(parm->parms[0]);
+    j = Batol(parm->parms[0]);
     if (g_timerTicsPerSecond == j)
         return OSDCMD_OK;
     uninittimer();

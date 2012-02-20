@@ -81,7 +81,7 @@ void Net_Connect(const char *srvaddr)
 
     addrstr = strtok((char *)srvaddr, ":");
     enet_address_set_host(&address, addrstr);
-    address.port = atoi((addrstr = strtok(NULL, ":")) == NULL ? "23513" : addrstr);
+    address.port = Batoi((addrstr = strtok(NULL, ":")) == NULL ? "23513" : addrstr);
 
     g_netClientPeer = enet_host_connect(g_netClient, &address, CHAN_MAX, 0);
 

@@ -1579,14 +1579,14 @@ void OSD_Printf(const char *fmt, ...)
                 {
                     smallbuf[0] = *(chp);
                     smallbuf[1] = '\0';
-                    p = atol(smallbuf);
+                    p = Batol(smallbuf);
                     continue;
                 }
 
                 smallbuf[0] = *(chp++);
                 smallbuf[1] = *(chp);
                 smallbuf[2] = '\0';
-                p = atol(smallbuf);
+                p = Batol(smallbuf);
                 continue;
             }
 
@@ -2064,7 +2064,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
                 return OSDCMD_OK;
             }
 
-            val = atoi(parm->parms[0]);
+            val = Batoi(parm->parms[0]);
             if (cvars[i].type & CVAR_BOOL) val = val != 0;
 
             if (val < cvars[i].min || val > cvars[i].max)

@@ -1471,13 +1471,13 @@ static void C_GetNextVarType(int32_t type)
     if (!type && !g_labelsOnly && (isdigit(*textptr) || ((*textptr == '-') && (isdigit(*(textptr+1))))))
     {
         if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-            initprintf("%s:%d: debug: accepted constant %ld in place of gamevar.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+            initprintf("%s:%d: debug: accepted constant %ld in place of gamevar.\n",g_szScriptFileName,g_lineNumber,Batol(textptr));
         bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
         *g_scriptPtr++=MAXGAMEVARS;
         if (tolower(textptr[1])=='x')
             sscanf(textptr+2,"%" PRIxPTR "",g_scriptPtr);
         else
-            *g_scriptPtr=atoi(textptr);
+            *g_scriptPtr=Batoi(textptr);
         bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
         g_scriptPtr++;
 #if 1
@@ -1492,7 +1492,7 @@ static void C_GetNextVarType(int32_t type)
         if (!type)
         {
             if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-                initprintf("%s:%d: debug: flagging gamevar as negative.\n",g_szScriptFileName,g_lineNumber); //,atol(textptr));
+                initprintf("%s:%d: debug: flagging gamevar as negative.\n",g_szScriptFileName,g_lineNumber); //,Batol(textptr));
             f = (MAXGAMEVARS<<1);
         }
         else
@@ -1802,13 +1802,13 @@ static int32_t C_GetNextValue(int32_t type)
     while (i > 0);
 
     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
-        initprintf("%s:%d: debug: accepted constant %ld.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+        initprintf("%s:%d: debug: accepted constant %ld.\n",g_szScriptFileName,g_lineNumber,Batol(textptr));
     bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
 
     if (tolower(textptr[1])=='x')
         sscanf(textptr+2,"%" PRIxPTR "",g_scriptPtr);
     else
-        *g_scriptPtr = atol(textptr);
+        *g_scriptPtr = Batol(textptr);
 
     g_scriptPtr++;
 

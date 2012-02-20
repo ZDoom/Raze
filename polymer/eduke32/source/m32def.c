@@ -997,7 +997,7 @@ static void C_GetNextVarType(int32_t type)
         // literal numeric constant where gamevar expected
 
 //        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-//            initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+//            initprintf("%s:%d: debug: accepted constant %d in place of gamevar.\n",g_szScriptFileName,g_lineNumber,Batol(textptr));
 
         parse_integer_literal(&num);
 //thenum=num;
@@ -1087,7 +1087,7 @@ static void C_GetNextVarType(int32_t type)
         if (type==0)
         {
 //            if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-//                initprintf("%s:%d: debug: flagging gamevar as negative.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+//                initprintf("%s:%d: debug: flagging gamevar as negative.\n",g_szScriptFileName,g_lineNumber,Batol(textptr));
             flags = M32_FLAG_NEGATE;
         }
         else
@@ -1507,7 +1507,7 @@ static int32_t C_GetNextValue(int32_t type)
     while (i > 0);
 
 //    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
-//        initprintf("%s:%d: debug: accepted constant %d.\n",g_szScriptFileName,g_lineNumber,atol(textptr));
+//        initprintf("%s:%d: debug: accepted constant %d.\n",g_szScriptFileName,g_lineNumber,Batol(textptr));
 
     parse_integer_literal(g_scriptPtr);
 

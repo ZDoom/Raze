@@ -6203,7 +6203,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
                 c++;
             }
             smallbuf[bi++]=0;
-            if (col)col = atol(smallbuf);  /* FIXME: atol is unsafe */
+            if (col)col = Batol(smallbuf);
             if ((unsigned)col >= 256)
                 col = 0;
 
