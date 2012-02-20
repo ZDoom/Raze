@@ -11455,7 +11455,7 @@ restart_grand:
 //
 // neartag
 //
-int32_t neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall,
+void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall,
                 int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch)
 {
     walltype *wal, *wal2;
@@ -11468,7 +11468,7 @@ int32_t neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ang
     *neartagsector = -1; *neartagwall = -1; *neartagsprite = -1;
     *neartaghitdist = 0;
 
-    if (sectnum < 0 || (tagsearch & 3) == 0) return(0);
+    if (sectnum < 0 || (tagsearch & 3) == 0) return;
 
     vx = mulscale14(sintable[(ange+2560)&2047],neartagrange); xe = xs+vx;
     vy = mulscale14(sintable[(ange+2048)&2047],neartagrange); ye = ys+vy;
@@ -11573,7 +11573,8 @@ int32_t neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ang
         }
     }
     while (tempshortcnt < tempshortnum);
-    return(0);
+
+    return;
 }
 
 
