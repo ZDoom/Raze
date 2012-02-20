@@ -1583,6 +1583,9 @@ static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t
     void *midbuf = NULL;
     int32_t alloclen=0;
 
+    int32_t err=0;
+    GLenum glerr=GL_NO_ERROR;
+
     UNREFERENCED_PARAMETER(dapalnum);
 
     if (*doalloc&1)
@@ -1595,7 +1598,10 @@ static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t
     pth->sizx = head->xdim;
     pth->sizy = head->ydim;
 
-    bglGetError();
+    while (bglGetError() != GL_NO_ERROR)
+    {
+        /* no-op*/
+    }
 
     // load the mipmaps
     for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
@@ -1611,7 +1617,7 @@ static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t
             Blseek(fil, cachepos, BSEEK_SET);
             r = Bread(fil, &pict, sizeof(texcachepicture));
             cachepos += sizeof(texcachepicture);
-            if (r < (int32_t)sizeof(texcachepicture)) goto failure;
+            if (r < (int32_t)sizeof(texcachepicture)) { err=1; goto failure; }
         }
 
         pict.size = B_LITTLE32(pict.size);
@@ -1634,21 +1640,24 @@ static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t
             if (!picc) goto failure; else midbuf = picc;
         }
 
-        if (dedxtfilter(fil, &pict, pic, midbuf, packbuf, (head->flags&4)==4)) goto failure;
+        if (dedxtfilter(fil, &pict, pic, midbuf, packbuf, (head->flags&4)==4))
+        {
+            err=2; goto failure;
+        }
 
         bglCompressedTexImage2DARB(GL_TEXTURE_2D,level,pict.format,pict.xdim,pict.ydim,pict.border,
                                    pict.size,pic);
-        if (bglGetError() != GL_NO_ERROR) goto failure;
+        if ((glerr=bglGetError()) != GL_NO_ERROR) { err=3; goto failure; }
 
         {
             GLint format;
             bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &format);
-            if (bglGetError() != GL_NO_ERROR) goto failure;
+            if ((glerr = bglGetError()) != GL_NO_ERROR) { err=4; goto failure; }
 //            format = B_LITTLE32(format);
             if (pict.format != format)
             {
-                OSD_Printf("invalid texture cache file format %d %d\n",pict.format, format);
-                goto failure;
+                OSD_Printf("gloadtile_cached: invalid texture cache file format %d %d\n", pict.format, format);
+                err = -1; goto failure;
             }
         }
 
@@ -1658,8 +1667,21 @@ static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t
     if (pic) Bfree(pic);
     if (packbuf) Bfree(packbuf);
     return 0;
+
 failure:
-    initprintf("failure!!!\n");
+    {
+        static const char *errmsgs[5] = {
+            "out of memory!",
+            "read too few bytes from cache file",
+            "dedxtfilter failed",
+            "bglCompressedTexImage2DARB failed",
+            "bglGetTexLevelParameteriv failed",
+        };
+
+        if (err >= 0)
+            initprintf("gloadtile_cached: %s  (glerr=%x)\n", errmsgs[err], glerr);
+    }
+
     if (midbuf) Bfree(midbuf);
     if (pic) Bfree(pic);
     if (packbuf) Bfree(packbuf);
