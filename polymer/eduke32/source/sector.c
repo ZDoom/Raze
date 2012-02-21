@@ -2596,7 +2596,7 @@ void G_HandleSharedKeys(int32_t snum)
                 P_UpdateScreenPal(p);
                 p->inven_icon = 5;
                 A_PlaySound(NITEVISION_ONOFF,p->i);
-                P_DoQuote(QUOTE_NVG_OFF-p->heat_on,p);
+                P_DoQuote(QUOTE_NVG_OFF-!!p->heat_on,p);
             }
         }
 
