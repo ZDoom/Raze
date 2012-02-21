@@ -7123,7 +7123,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 if (klabs(*zptr-s->z) < 1024)
                 {
                     *zptr = s->z;
-                    KILLIT(i); //All done
+                    KILLIT(i); //All done   // SE_21_KILLIT, see sector.c
                 }
             }
             else sc->extra--;

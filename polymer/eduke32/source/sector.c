@@ -963,22 +963,26 @@ REDODOOR:
         j = headspritesect[sn];
         while (j >= 0)
         {
-            if (sprite[j].statnum==3 && (sprite[j].lotag&0xff)==21)
+            if (sprite[j].statnum==STAT_EFFECTOR && (sprite[j].lotag&0xff)==21)
                 break; //Found it
             j = nextspritesect[j];
         }
 
-        j = sprite[j].hitag;
-
-        l = headspritestat[STAT_EFFECTOR];
-        while (l >= 0)
+        if (j >= 0)  // PK: The matching SE21 might have gone, see SE_21_KILLIT in actors.c
         {
-            if ((sprite[l].lotag&0xff)==21 && !actor[l].t_data[0] &&
+            j = sprite[j].hitag;
+
+            l = headspritestat[STAT_EFFECTOR];
+            while (l >= 0)
+            {
+                if ((sprite[l].lotag&0xff)==21 && !actor[l].t_data[0] &&
                     (sprite[l].hitag) == j)
-                actor[l].t_data[0] = 1;
-            l = nextspritestat[l];
+                    actor[l].t_data[0] = 1;
+                l = nextspritestat[l];
+            }
+
+            A_CallSound(sn,ii);
         }
-        A_CallSound(sn,ii);
 
         return;
     }
