@@ -29,9 +29,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define GTFLAGS(x) (GametypeFlags[ud.coop] & x)
 
-#define TRAVERSE_SPRITE_SECT(l, o, n)    for ((o) = (l); ((o) != -1) && ((n) = nextspritesect[o]); (o) = (n))
-#define TRAVERSE_SPRITE_STAT(l, o, n)    for ((o) = (l); ((o) != -1) && ((n) = nextspritestat[o]); (o) = (n))
-#define TRAVERSE_CONNECT(i)              for (i = 0; i != -1; i = connectpoint2[i])
+#define TRAVERSE_SPRITE_SECT(l, o, n)    (o) = (l); ((o) != -1) && ((n) = nextspritesect[o]); (o) = (n)
+#define TRAVERSE_SPRITE_STAT(l, o, n)    (o) = (l); ((o) != -1) && ((n) = nextspritestat[o]); (o) = (n)
+#define TRAVERSE_CONNECT(i)              i = 0; i != -1; i = connectpoint2[i]
 
 #define TEST(flags,mask) ((flags) & (mask))
 #define SET(flags,mask) ((flags) |= (mask))

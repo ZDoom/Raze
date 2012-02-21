@@ -193,9 +193,9 @@ int32_t isanearoperator(int32_t lotag)
 inline int32_t G_CheckPlayerInSector(int32_t sect)
 {
     int32_t i;
-    TRAVERSE_CONNECT(i)
-    if ((unsigned)g_player[i].ps->i < MAXSPRITES && sprite[g_player[i].ps->i].sectnum == sect)
-        return i;
+    for (TRAVERSE_CONNECT(i))
+        if ((unsigned)g_player[i].ps->i < MAXSPRITES && sprite[g_player[i].ps->i].sectnum == sect)
+            return i;
     return -1;
 }
 
@@ -239,7 +239,7 @@ int32_t __fastcall A_FindPlayer(spritetype *s, int32_t *d)
         int32_t j, closest_player = 0;
         int32_t x, closest = 0x7fffffff;
 
-        TRAVERSE_CONNECT(j)
+        for (TRAVERSE_CONNECT(j))
         {
             x = klabs(g_player[j].ps->opos.x-s->x) + klabs(g_player[j].ps->opos.y-s->y) + ((klabs(g_player[j].ps->opos.z-s->z+(28<<8)))>>4);
             if (x < closest && sprite[g_player[j].ps->i].extra > 0)
@@ -302,19 +302,19 @@ void G_DoSectorAnimations(void)
 
         if (animateptr[i] == &sector[animatesect[i]].floorz)
         {
-            TRAVERSE_CONNECT(p)
-            if (g_player[p].ps->cursectnum == dasect)
-                if ((sector[dasect].floorz-g_player[p].ps->pos.z) < (64<<8))
-                    if (sprite[g_player[p].ps->i].owner >= 0)
-                    {
-                        g_player[p].ps->pos.z += v;
-                        g_player[p].ps->vel.z = 0;
-                        if (p == myconnectindex)
+            for (TRAVERSE_CONNECT(p))
+                if (g_player[p].ps->cursectnum == dasect)
+                    if ((sector[dasect].floorz-g_player[p].ps->pos.z) < (64<<8))
+                        if (sprite[g_player[p].ps->i].owner >= 0)
                         {
-                            my.z += v;
-                            myvel.z = 0;
+                            g_player[p].ps->pos.z += v;
+                            g_player[p].ps->vel.z = 0;
+                            if (p == myconnectindex)
+                            {
+                                my.z += v;
+                                myvel.z = 0;
+                            }
                         }
-                    }
 
             for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
                 if (sprite[j].statnum != 3)
@@ -3078,8 +3078,8 @@ void P_CheckSectors(int32_t snum)
             p->secret_rooms++;
             return;
         case -1:
-            TRAVERSE_CONNECT(i)
-            g_player[i].ps->gm = MODE_EOL;
+            for (TRAVERSE_CONNECT(i))
+                g_player[i].ps->gm = MODE_EOL;
             sector[p->cursectnum].lotag = 0;
             if (ud.from_bonus)
             {

@@ -1073,15 +1073,15 @@ void G_DrawFrags(void)
 {
     int32_t i, j = 0;
 
-    TRAVERSE_CONNECT(i)
-    if (i > j) j = i;
+    for (TRAVERSE_CONNECT(i))
+        if (i > j) j = i;
 
     rotatesprite_fs(0,0,65600L,0,FRAGBAR,0,0,2+8+16+64);
     if (j >= 4) rotatesprite_fs(319,(8)<<16,65600L,0,FRAGBAR,0,0,10+16+64);
     if (j >= 8) rotatesprite_fs(319,(16)<<16,65600L,0,FRAGBAR,0,0,10+16+64);
     if (j >= 12) rotatesprite_fs(319,(24)<<16,65600L,0,FRAGBAR,0,0,10+16+64);
 
-    TRAVERSE_CONNECT(i)
+    for (TRAVERSE_CONNECT(i))
     {
         minitext(21+(73*(i&3)),2+((i&28)<<1),&g_player[i].user_name[0],/*sprite[g_player[i].ps->i].pal*/g_player[i].ps->palookup,2+8+16);
         Bsprintf(tempbuf,"%d",g_player[i].ps->frag-g_player[i].ps->fraggedself);
@@ -1107,17 +1107,17 @@ static void G_DrawStatusBar(int32_t snum)
             G_DrawFrags();
         else
         {
-            TRAVERSE_CONNECT(i)
-            if (g_player[i].ps->frag != sbar.frag[i])
-            {
-                G_DrawFrags();
-                break;
-            }
+            for (TRAVERSE_CONNECT(i))
+                if (g_player[i].ps->frag != sbar.frag[i])
+                {
+                    G_DrawFrags();
+                    break;
+                }
 
         }
-        TRAVERSE_CONNECT(i)
-        if (i != myconnectindex)
-            sbar.frag[i] = g_player[i].ps->frag;
+        for (TRAVERSE_CONNECT(i))
+            if (i != myconnectindex)
+                sbar.frag[i] = g_player[i].ps->frag;
     }
 
     if (ss == 4)   //DRAW MINI STATUS BAR:
@@ -1762,8 +1762,8 @@ void G_PrintGameQuotes(void)
     {
         j = 0;
         k += 8;
-        TRAVERSE_CONNECT(i)
-        if (i > j) j = i;
+        for (TRAVERSE_CONNECT(i))
+            if (i > j) j = i;
 
         if (j >= 4 && j <= 8) k += 8;
         else if (j > 8 && j <= 12) k += 16;
@@ -1827,8 +1827,8 @@ void G_PrintGameQuotes(void)
     {
         j = 0;
         k = 8;
-        TRAVERSE_CONNECT(i)
-        if (i > j) j = i;
+        for (TRAVERSE_CONNECT(i))
+            if (i > j) j = i;
 
         if (j >= 4 && j <= 8) k += 8;
         else if (j > 8 && j <= 12) k += 16;
@@ -2413,7 +2413,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
     setaspect_new();
 
-    TRAVERSE_CONNECT(p)
+    for (TRAVERSE_CONNECT(p))
     {
         if (ud.scrollmode && p == screenpeek) continue;
 
@@ -5178,9 +5178,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             {
                 int32_t j, nextj;
 
-                TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], j, nextj)
-                if (sprite[j].picnum == ACTIVATOR || sprite[j].picnum == ACTIVATORLOCKED)
-                    actor[i].flags |= SPRITE_USEACTIVATOR;
+                for (TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], j, nextj))
+                    if (sprite[j].picnum == ACTIVATOR || sprite[j].picnum == ACTIVATORLOCKED)
+                        actor[i].flags |= SPRITE_USEACTIVATOR;
             }
             changespritestat(i, STAT_EFFECTOR);
             goto SPAWN_END;
@@ -10421,7 +10421,7 @@ MAIN_LOOP_RESTART:
                 ud.m_respawn_monsters = 1;
             else ud.m_respawn_monsters = 0;
 
-            TRAVERSE_CONNECT(i)
+            for (TRAVERSE_CONNECT(i))
             {
                 P_ResetWeapons(i);
                 P_ResetInventory(i);
@@ -10546,7 +10546,7 @@ MAIN_LOOP_RESTART:
             /*
                         if (ud.playerai && (g_netServer || ud.multimode > 1))
                         {
-                            TRAVERSE_CONNECT(i)
+                            for (TRAVERSE_CONNECT(i))
                                 if (i != myconnectindex)
                                 {
                                     //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t),0L);
@@ -10733,7 +10733,7 @@ int32_t G_DoMoveThings(void)
     if (g_netServer || g_netClient)
         randomseed = ticrandomseed;
 
-    TRAVERSE_CONNECT(i)
+    for (TRAVERSE_CONNECT(i))
         Bmemcpy(g_player[i].sync, &inputfifo[(g_netServer && myconnectindex == i) ? 1 : 0][i],
                 sizeof(input_t));
 
@@ -10741,7 +10741,7 @@ int32_t G_DoMoveThings(void)
 
     /*
         j = -1;
-        TRAVERSE_CONNECT(i)
+        for (TRAVERSE_CONNECT(i))
         {
             if (g_player[i].playerquitflag == 0 || TEST_SYNC_KEY(g_player[i].sync->bits,SK_GAMEQUIT) == 0)
             {
@@ -10768,7 +10768,7 @@ int32_t G_DoMoveThings(void)
         A_MoveDummyPlayers();//ST 13
     }
 
-    TRAVERSE_CONNECT(i)
+    for (TRAVERSE_CONNECT(i))
     {
         if (g_player[i].sync->extbits&(1<<6))
         {

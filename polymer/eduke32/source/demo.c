@@ -246,7 +246,7 @@ void G_DemoRecord(void)
     if (demorec_seeds)
         g_demo_seedbuf[ud.reccnt] = (uint8_t)(randomseed>>24);
 
-    TRAVERSE_CONNECT(i)
+    for (TRAVERSE_CONNECT(i))
     {
         Bmemcpy(&recsync[ud.reccnt], g_player[i].sync, sizeof(input_t));
         ud.reccnt++;
@@ -505,7 +505,7 @@ nextdemo:
                 if (demo_hasseeds)
                     outofsync = (uint8_t)(randomseed>>24) != g_demo_seedbuf[bigi];
 
-                TRAVERSE_CONNECT(j)
+                for (TRAVERSE_CONNECT(j))
                 {
                     Bmemcpy(&inputfifo[0][j], &recsync[bigi], sizeof(input_t));
                     bigi++;

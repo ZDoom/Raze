@@ -344,7 +344,7 @@ void Net_SyncPlayer(ENetEvent *event)
     S_PlaySound(DUKE_GETWEAPON2);
 
     // open a new slot if necessary and save off the resulting slot # for future reference
-    TRAVERSE_CONNECT(i) if (g_player[i].playerquitflag == 0) break;
+    for (TRAVERSE_CONNECT(i)) if (g_player[i].playerquitflag == 0) break;
     event->peer->data = (void *)((intptr_t)(i = (i == -1 ? playerswhenstarted++ : i)));
 
     g_player[i].netsynctime = totalclock;
@@ -353,7 +353,7 @@ void Net_SyncPlayer(ENetEvent *event)
     for (j=0; j<playerswhenstarted-1; j++) connectpoint2[j] = j+1;
     connectpoint2[playerswhenstarted-1] = -1;
 
-//    TRAVERSE_CONNECT(j)
+//    for (TRAVERSE_CONNECT(j))
 //    {
         if (!g_player[i].ps) g_player[i].ps = (DukePlayer_t *) Bcalloc(1, sizeof(DukePlayer_t));
         if (!g_player[i].sync) g_player[i].sync = (input_t *) Bcalloc(1, sizeof(input_t));
@@ -1714,7 +1714,7 @@ void Net_ParseServerPacket(ENetEvent *event)
         j += sizeof(int32_t);
         ud.pause_on = pbuf[j++];
 
-        TRAVERSE_CONNECT(i)
+        for (TRAVERSE_CONNECT(i))
         {
             g_player[i].ps->dead_flag = *(int16_t *)&pbuf[j];
             j += sizeof(int16_t);
@@ -1970,7 +1970,7 @@ void Net_ParseServerPacket(ENetEvent *event)
         ud.m_ffire = ud.ffire = pbuf[10];
         ud.m_noexits = ud.noexits = pbuf[11];
 
-        TRAVERSE_CONNECT(i)
+        for (TRAVERSE_CONNECT(i))
         {
             P_ResetWeapons(i);
             P_ResetInventory(i);
@@ -2264,11 +2264,11 @@ void Net_ParseClientPacket(ENetEvent *event)
             int32_t zz, i, nexti;
 
             for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])); zz++)
-                TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti)
-            {
-                if (lastupdate[i] >= g_player[other].netsynctime)
-                    lastupdate[i] = 0;
-            }
+                for (TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti))
+                {
+                    if (lastupdate[i] >= g_player[other].netsynctime)
+                        lastupdate[i] = 0;
+                }
         }
 
         for (i=numwalls-1; i>=0; i--)
@@ -2318,7 +2318,7 @@ void Net_ParseClientPacket(ENetEvent *event)
         ud.m_ffire = ud.ffire = pbuf[10];
         ud.m_noexits = ud.noexits = pbuf[11];
 
-        TRAVERSE_CONNECT(i)
+        for (TRAVERSE_CONNECT(i))
         {
             P_ResetWeapons(i);
             P_ResetInventory(i);
@@ -2740,7 +2740,7 @@ void Net_UpdateClients(void)
     j += sizeof(int32_t);
     packbuf[j++] = ud.pause_on;
 
-    TRAVERSE_CONNECT(i)
+    for (TRAVERSE_CONNECT(i))
     {
         Bmemcpy(&osyn[i], &nsyn[i], offsetof(input_t, filler));
 
@@ -2898,22 +2898,22 @@ void Net_UpdateClients(void)
         j += sizeof(int16_t);
 
         for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])) && j <= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)); zz++)
-            TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti)
-        {
-            // only send newly spawned sprites
-            if (!lastupdate[i] && sprite[i].statnum != MAXSTATUS)
+            for (TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti))
             {
-                int32_t ii;
+                // only send newly spawned sprites
+                if (!lastupdate[i] && sprite[i].statnum != MAXSTATUS)
+                {
+                    int32_t ii;
 
-                j += (ii = Net_PackSprite(i, (uint8_t *)&packbuf[j]));
-                if (ii) k++;
+                    j += (ii = Net_PackSprite(i, (uint8_t *)&packbuf[j]));
+                    if (ii) k++;
 
-                lastupdate[i] = totalclock;
+                    lastupdate[i] = totalclock;
 
-                if (j >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
-                    break;
+                    if (j >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
+                        break;
+                }
             }
-        }
 
         *(int16_t *)&packbuf[zj] = k;
         j += sizeof(int16_t);
@@ -2952,29 +2952,29 @@ void Net_StreamLevel(void)
     j += sizeof(uint16_t);
 
     for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])) && j <= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)); zz++)
-        TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti)
-    {
-        // only send STAT_MISC sprites at spawn time and let the client handle it from there
-        if (totalclock > (lastupdate[i] + TICRATE) && sprite[i].statnum != STAT_MISC)
+        for (TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti))
         {
-            l = crc32once((uint8_t *)&sprite[i], sizeof(spritetype));
-
-            if (!lastupdate[i] || spritecrc[i] != l)
+            // only send STAT_MISC sprites at spawn time and let the client handle it from there
+            if (totalclock > (lastupdate[i] + TICRATE) && sprite[i].statnum != STAT_MISC)
             {
-                int32_t ii;
-                /*initprintf("updating sprite %d (%d)\n",i,sprite[i].picnum);*/
-                spritecrc[i] = l;
+                l = crc32once((uint8_t *)&sprite[i], sizeof(spritetype));
 
-                j += (ii = Net_PackSprite(i, (uint8_t *)&packbuf[j]));
-                if (ii) k++;
+                if (!lastupdate[i] || spritecrc[i] != l)
+                {
+                    int32_t ii;
+                    /*initprintf("updating sprite %d (%d)\n",i,sprite[i].picnum);*/
+                    spritecrc[i] = l;
 
-                lastupdate[i] = totalclock;
+                    j += (ii = Net_PackSprite(i, (uint8_t *)&packbuf[j]));
+                    if (ii) k++;
 
-                if (j >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
-                    break;
+                    lastupdate[i] = totalclock;
+
+                    if (j >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
+                        break;
+                }
             }
         }
-    }
 
     *(uint16_t *)&packbuf[zj] = k;
     k = 0;
@@ -3114,7 +3114,7 @@ void Net_EnterMessage(void)
             j = 50;
             gametext(320>>1,j,"SEND MESSAGE TO...",0,2+8+16);
             j += 8;
-            TRAVERSE_CONNECT(i)
+            for (TRAVERSE_CONNECT(i))
             {
                 if (i == myconnectindex)
                 {

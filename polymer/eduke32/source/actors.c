@@ -428,46 +428,46 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
         {
             int32_t i, nexti;
 
-            TRAVERSE_SPRITE_STAT(headspritestat[STAT_TRANSPORT], i, nexti)
-            if (sprite[i].sectnum == dasectnum)
-            {
-                switch (sector[dasectnum].lotag)
+            for (TRAVERSE_SPRITE_STAT(headspritestat[STAT_TRANSPORT], i, nexti))
+                if (sprite[i].sectnum == dasectnum)
                 {
-                case 1:
-                    if (daz >= actor[spritenum].floorz)
+                    switch (sector[dasectnum].lotag)
                     {
-                        if (totalclock > actor[spritenum].lasttransport)
+                    case 1:
+                        if (daz >= actor[spritenum].floorz)
                         {
-                            actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
+                            if (totalclock > actor[spritenum].lasttransport)
+                            {
+                                actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
 
-                            spr->x += (sprite[OW].x-SX);
-                            spr->y += (sprite[OW].y-SY);
-                            spr->z = sector[sprite[OW].sectnum].ceilingz - daz + sector[sprite[i].sectnum].floorz;
+                                spr->x += (sprite[OW].x-SX);
+                                spr->y += (sprite[OW].y-SY);
+                                spr->z = sector[sprite[OW].sectnum].ceilingz - daz + sector[sprite[i].sectnum].floorz;
 
-                            Bmemcpy(&actor[spritenum].bposx, &sprite[spritenum], sizeof(vec3_t));
-                            changespritesect(spritenum,sprite[OW].sectnum);
+                                Bmemcpy(&actor[spritenum].bposx, &sprite[spritenum], sizeof(vec3_t));
+                                changespritesect(spritenum,sprite[OW].sectnum);
+                            }
+
+                            return 0;
                         }
-
-                        return 0;
-                    }
-                case 2:
-                    if (daz <= actor[spritenum].ceilingz)
-                    {
-                        if (totalclock > actor[spritenum].lasttransport)
+                    case 2:
+                        if (daz <= actor[spritenum].ceilingz)
                         {
-                            actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
-                            spr->x += (sprite[OW].x-SX);
-                            spr->y += (sprite[OW].y-SY);
-                            spr->z = sector[sprite[OW].sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
+                            if (totalclock > actor[spritenum].lasttransport)
+                            {
+                                actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
+                                spr->x += (sprite[OW].x-SX);
+                                spr->y += (sprite[OW].y-SY);
+                                spr->z = sector[sprite[OW].sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
 
-                            Bmemcpy(&actor[spritenum].bposx, &sprite[spritenum], sizeof(vec3_t));
-                            changespritesect(spritenum,sprite[OW].sectnum);
+                                Bmemcpy(&actor[spritenum].bposx, &sprite[spritenum], sizeof(vec3_t));
+                                changespritesect(spritenum,sprite[OW].sectnum);
+                            }
+
+                            return 0;
                         }
-
-                        return 0;
                     }
                 }
-            }
         }
 
     return(retval);
@@ -1300,13 +1300,13 @@ ACTOR_STATIC void G_MoveFX(void)
                 {
                     if (T5 > 0) T5--;
                     else
-                        TRAVERSE_CONNECT(p)
-                        if (p == myconnectindex && g_player[p].ps->cursectnum == s->sectnum)
-                        {
-                            j = s->lotag+((unsigned)g_globalRandom%(s->hitag+1));
-                            S_PlaySound(j);
-                            T5 =  GAMETICSPERSEC*40 + (g_globalRandom%(GAMETICSPERSEC*40));
-                        }
+                        for (TRAVERSE_CONNECT(p))
+                            if (p == myconnectindex && g_player[p].ps->cursectnum == s->sectnum)
+                            {
+                                j = s->lotag+((unsigned)g_globalRandom%(s->hitag+1));
+                                S_PlaySound(j);
+                                T5 =  GAMETICSPERSEC*40 + (g_globalRandom%(GAMETICSPERSEC*40));
+                            }
                 }
             }
             break;
@@ -3206,12 +3206,12 @@ ACTOR_STATIC void G_MoveTransports(void)
                                 A_PlaySound(TELEPORTER,i);
                             }
 
-                            TRAVERSE_CONNECT(k)
-                            if (g_player[k].ps->cursectnum == sprite[OW].sectnum)
-                            {
-                                g_player[k].ps->frag_ps = p;
-                                sprite[g_player[k].ps->i].extra = 0;
-                            }
+                            for (TRAVERSE_CONNECT(k))
+                                if (g_player[k].ps->cursectnum == sprite[OW].sectnum)
+                                {
+                                    g_player[k].ps->frag_ps = p;
+                                    sprite[g_player[k].ps->i].extra = 0;
+                                }
 
                             g_player[p].ps->ang = sprite[OW].ang;
 
@@ -5564,7 +5564,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (l && (sc->floorstat&64))
             {
-                TRAVERSE_CONNECT(p)
+                for (TRAVERSE_CONNECT(p))
                 {
                     if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground == 1)
                     {
@@ -5770,27 +5770,27 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
                     if (ud.clipping == 0 && s->xvel >= 192)
-                        TRAVERSE_CONNECT(p)
-                        if (sprite[g_player[p].ps->i].extra > 0)
-                        {
-                            k = g_player[p].ps->cursectnum;
-                            updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                            if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                        for (TRAVERSE_CONNECT(p))
+                            if (sprite[g_player[p].ps->i].extra > 0)
                             {
-                                g_player[p].ps->pos.x = s->x;
-                                g_player[p].ps->pos.y = s->y;
-                                g_player[p].ps->cursectnum = s->sectnum;
+                                k = g_player[p].ps->cursectnum;
+                                updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
+                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                                {
+                                    g_player[p].ps->pos.x = s->x;
+                                    g_player[p].ps->pos.y = s->y;
+                                    g_player[p].ps->cursectnum = s->sectnum;
 
-                                setsprite(g_player[p].ps->i,(vec3_t *)s);
-                                P_QuickKill(g_player[p].ps);
+                                    setsprite(g_player[p].ps->i,(vec3_t *)s);
+                                    P_QuickKill(g_player[p].ps);
+                                }
                             }
-                        }
                 }
 
                 m = (s->xvel*sintable[(s->ang+512)&2047])>>14;
                 x = (s->xvel*sintable[s->ang&2047])>>14;
 
-                TRAVERSE_CONNECT(p)
+                for (TRAVERSE_CONNECT(p))
                 {
                     if (g_player[p].ps->cursectnum < 0)
                     {
@@ -5884,21 +5884,21 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
                     if (ud.clipping == 0 && s->xvel >= 192)
-                        TRAVERSE_CONNECT(p)
-                        if (sprite[g_player[p].ps->i].extra > 0)
-                        {
-                            k = g_player[p].ps->cursectnum;
-                            updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                            if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                        for (TRAVERSE_CONNECT(p))
+                            if (sprite[g_player[p].ps->i].extra > 0)
                             {
-                                g_player[p].ps->opos.x = g_player[p].ps->pos.x = s->x;
-                                g_player[p].ps->opos.y = g_player[p].ps->pos.y = s->y;
-                                g_player[p].ps->cursectnum = s->sectnum;
+                                k = g_player[p].ps->cursectnum;
+                                updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
+                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                                {
+                                    g_player[p].ps->opos.x = g_player[p].ps->pos.x = s->x;
+                                    g_player[p].ps->opos.y = g_player[p].ps->pos.y = s->y;
+                                    g_player[p].ps->cursectnum = s->sectnum;
 
-                                setsprite(g_player[p].ps->i,(vec3_t *)s);
-                                P_QuickKill(g_player[p].ps);
+                                    setsprite(g_player[p].ps->i,(vec3_t *)s);
+                                    P_QuickKill(g_player[p].ps);
+                                }
                             }
-                        }
 
                     j = headspritesect[sprite[OW].sectnum];
                     while (j >= 0)
@@ -5999,23 +5999,23 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                     if (ud.clipping == 0)
-                        TRAVERSE_CONNECT(p)
-                        if (sprite[g_player[p].ps->i].extra > 0)
-                        {
-                            k = g_player[p].ps->cursectnum;
-                            updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                            if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                        for (TRAVERSE_CONNECT(p))
+                            if (sprite[g_player[p].ps->i].extra > 0)
                             {
-                                g_player[p].ps->pos.x = s->x;
-                                g_player[p].ps->pos.y = s->y;
-                                g_player[p].ps->cursectnum = s->sectnum;
+                                k = g_player[p].ps->cursectnum;
+                                updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
+                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                                {
+                                    g_player[p].ps->pos.x = s->x;
+                                    g_player[p].ps->pos.y = s->y;
+                                    g_player[p].ps->cursectnum = s->sectnum;
 
-                                setsprite(g_player[p].ps->i,(vec3_t *)s);
-                                P_QuickKill(g_player[p].ps);
+                                    setsprite(g_player[p].ps->i,(vec3_t *)s);
+                                    P_QuickKill(g_player[p].ps);
+                                }
                             }
-                        }
 
-                TRAVERSE_CONNECT(p)
+                for (TRAVERSE_CONNECT(p))
                 {
                     if (sprite[g_player[p].ps->i].sectnum == s->sectnum)
                     {
@@ -6068,25 +6068,25 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
                     if (ud.clipping == 0)
-                        TRAVERSE_CONNECT(p)
-                        if (sprite[g_player[p].ps->i].extra > 0)
-                        {
-                            k = g_player[p].ps->cursectnum;
-                            updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                            if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                        for (TRAVERSE_CONNECT(p))
+                            if (sprite[g_player[p].ps->i].extra > 0)
                             {
-                                g_player[p].ps->pos.x = s->x;
-                                g_player[p].ps->pos.y = s->y;
+                                k = g_player[p].ps->cursectnum;
+                                updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
+                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                                {
+                                    g_player[p].ps->pos.x = s->x;
+                                    g_player[p].ps->pos.y = s->y;
 
-                                g_player[p].ps->opos.x = g_player[p].ps->pos.x;
-                                g_player[p].ps->opos.y = g_player[p].ps->pos.y;
+                                    g_player[p].ps->opos.x = g_player[p].ps->pos.x;
+                                    g_player[p].ps->opos.y = g_player[p].ps->pos.y;
 
-                                g_player[p].ps->cursectnum = s->sectnum;
+                                    g_player[p].ps->cursectnum = s->sectnum;
 
-                                setsprite(g_player[p].ps->i,(vec3_t *)s);
-                                P_QuickKill(g_player[p].ps);
+                                    setsprite(g_player[p].ps->i,(vec3_t *)s);
+                                    P_QuickKill(g_player[p].ps);
+                                }
                             }
-                        }
 
                     j = headspritesect[sprite[OW].sectnum];
                     while (j >= 0)
@@ -6153,15 +6153,15 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 x = (s->xvel*sintable[s->ang&2047])>>14;
 
 
-                TRAVERSE_CONNECT(p)
-                if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
-                {
-                    g_player[p].ps->pos.x += m;
-                    g_player[p].ps->pos.y += x;
+                for (TRAVERSE_CONNECT(p))
+                    if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
+                    {
+                        g_player[p].ps->pos.x += m;
+                        g_player[p].ps->pos.y += x;
 
-                    g_player[p].ps->bobposx += m;
-                    g_player[p].ps->bobposy += x;
-                }
+                        g_player[p].ps->bobposx += m;
+                        g_player[p].ps->bobposy += x;
+                    }
 
                 j = headspritesect[s->sectnum];
                 while (j >= 0)
@@ -6438,10 +6438,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 j = 1;
 
                 if ((sc->lotag&0xff) != 27)
-                    TRAVERSE_CONNECT(p)
-                    if (sc->lotag != 30 && sc->lotag != 31 && sc->lotag != 0)
-                        if (s->sectnum == sprite[g_player[p].ps->i].sectnum)
-                            j = 0;
+                    for (TRAVERSE_CONNECT(p))
+                        if (sc->lotag != 30 && sc->lotag != 31 && sc->lotag != 0)
+                            if (s->sectnum == sprite[g_player[p].ps->i].sectnum)
+                                j = 0;
 
                 if (j == 1)
                 {
@@ -7076,19 +7076,19 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 dragpoint((int16_t)t[1],wall[t[1]].x+x,wall[t[1]].y+l);
                 dragpoint((int16_t)t[2],wall[t[2]].x+x,wall[t[2]].y+l);
 
-                TRAVERSE_CONNECT(p)
-                if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
-                {
-                    g_player[p].ps->pos.x += x;
-                    g_player[p].ps->pos.y += l;
+                for (TRAVERSE_CONNECT(p))
+                    if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
+                    {
+                        g_player[p].ps->pos.x += x;
+                        g_player[p].ps->pos.y += l;
 
-                    g_player[p].ps->opos.x = g_player[p].ps->pos.x;
-                    g_player[p].ps->opos.y = g_player[p].ps->pos.y;
+                        g_player[p].ps->opos.x = g_player[p].ps->pos.x;
+                        g_player[p].ps->opos.y = g_player[p].ps->pos.y;
 
-                    g_player[p].ps->pos.z += PHEIGHT;
-                    setsprite(g_player[p].ps->i,(vec3_t *)g_player[p].ps);
-                    g_player[p].ps->pos.z -= PHEIGHT;
-                }
+                        g_player[p].ps->pos.z += PHEIGHT;
+                        setsprite(g_player[p].ps->i,(vec3_t *)g_player[p].ps);
+                        g_player[p].ps->pos.z -= PHEIGHT;
+                    }
 
                 sc->floorxpanning-=x>>3;
                 sc->floorypanning-=l>>3;
@@ -7327,9 +7327,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 fricyv += x<<5;
             }
 
-            TRAVERSE_CONNECT(p)
-            if (sprite[g_player[p].ps->i].sectnum == s->sectnum && g_player[p].ps->on_ground)
-                g_player[p].ps->pos.z += s->zvel;
+            for (TRAVERSE_CONNECT(p))
+                if (sprite[g_player[p].ps->i].sectnum == s->sectnum && g_player[p].ps->on_ground)
+                    g_player[p].ps->pos.z += s->zvel;
 
             A_MoveSector(i);
             setsprite(i,(vec3_t *)s);

@@ -5208,7 +5208,7 @@ VOLUME_ALL_40x:
 
                 ud.m_respawn_inventory = 1;
 
-                TRAVERSE_CONNECT(c)
+                for (TRAVERSE_CONNECT(c))
                 {
                     P_ResetWeapons(c);
                     P_ResetInventory(c);

@@ -3790,19 +3790,19 @@ int32_t P_FindOtherPlayer(int32_t p,int32_t *d)
     int32_t j, closest_player = p;
     int32_t x, closest = 0x7fffffff;
 
-    TRAVERSE_CONNECT(j)
-    if (p != j && sprite[g_player[j].ps->i].extra > 0)
-    {
-        x = klabs(g_player[j].ps->opos.x-g_player[p].ps->pos.x) +
-            klabs(g_player[j].ps->opos.y-g_player[p].ps->pos.y) +
-            (klabs(g_player[j].ps->opos.z-g_player[p].ps->pos.z)>>4);
-
-        if (x < closest)
+    for (TRAVERSE_CONNECT(j))
+        if (p != j && sprite[g_player[j].ps->i].extra > 0)
         {
-            closest_player = j;
-            closest = x;
+            x = klabs(g_player[j].ps->opos.x-g_player[p].ps->pos.x) +
+                klabs(g_player[j].ps->opos.y-g_player[p].ps->pos.y) +
+                (klabs(g_player[j].ps->opos.z-g_player[p].ps->pos.z)>>4);
+
+            if (x < closest)
+            {
+                closest_player = j;
+                closest = x;
+            }
         }
-    }
 
     *d = closest;
     return closest_player;
@@ -4459,8 +4459,8 @@ int32_t P_DoFist(DukePlayer_t *p)
     {
         int32_t i;
 
-        TRAVERSE_CONNECT(i)
-        g_player[i].ps->gm = MODE_EOL;
+        for (TRAVERSE_CONNECT(i))
+            g_player[i].ps->gm = MODE_EOL;
 
         if (p->buttonpalette && ud.from_bonus == 0)
         {
@@ -4670,8 +4670,8 @@ void P_ProcessInput(int32_t snum)
         }
         else if (p->timebeforeexit == 1)
         {
-            TRAVERSE_CONNECT(i)
-            g_player[i].ps->gm = MODE_EOL;
+            for (TRAVERSE_CONNECT(i))
+                g_player[i].ps->gm = MODE_EOL;
 
             ud.m_level_number = ud.level_number++;
 
@@ -5784,24 +5784,24 @@ void computergetinput(int32_t snum, input_t *syn)
     if ((goalplayer[snum] == snum) || (g_player[goalplayer[snum]].ps->dead_flag != 0))
     {
         j = 0x7fffffff;
-        TRAVERSE_CONNECT(i)
-        if (i != snum && !(GTFLAGS(GAMETYPE_TDM) && g_player[snum].ps->team == g_player[i].ps->team))
-        {
-            dist = ksqrt((sprite[g_player[i].ps->i].x-x1)*(sprite[g_player[i].ps->i].x-x1)+(sprite[g_player[i].ps->i].y-y1)*(sprite[g_player[i].ps->i].y-y1));
-
-            x2 = sprite[g_player[i].ps->i].x;
-            y2 = sprite[g_player[i].ps->i].y;
-            z2 = sprite[g_player[i].ps->i].z;
-            if (!cansee(x1,y1,z1-(48<<8),damysect,x2,y2,z2-(48<<8),sprite[g_player[i].ps->i].sectnum))
-                dist <<= 1;
-
-            if (dist < j)
+        for (TRAVERSE_CONNECT(i))
+            if (i != snum && !(GTFLAGS(GAMETYPE_TDM) && g_player[snum].ps->team == g_player[i].ps->team))
             {
-                j = dist;
-                goalplayer[snum] = i;
-            }
+                dist = ksqrt((sprite[g_player[i].ps->i].x-x1)*(sprite[g_player[i].ps->i].x-x1)+(sprite[g_player[i].ps->i].y-y1)*(sprite[g_player[i].ps->i].y-y1));
 
-        }
+                x2 = sprite[g_player[i].ps->i].x;
+                y2 = sprite[g_player[i].ps->i].y;
+                z2 = sprite[g_player[i].ps->i].z;
+                if (!cansee(x1,y1,z1-(48<<8),damysect,x2,y2,z2-(48<<8),sprite[g_player[i].ps->i].sectnum))
+                    dist <<= 1;
+
+                if (dist < j)
+                {
+                    j = dist;
+                    goalplayer[snum] = i;
+                }
+
+            }
     }
 
     x2 = sprite[g_player[goalplayer[snum]].ps->i].x;
