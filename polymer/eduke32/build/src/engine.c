@@ -5282,7 +5282,7 @@ static void drawsprite(int32_t snum)
     spritenum = tspr->owner;
     cstat = tspr->cstat;
 
-    if (tilenum < 0 || tilenum >= MAXSPRITES) return;
+    if (tilenum < 0 || tilenum >= MAXTILES) return;
 
     if ((cstat&48)==48) vtilenum = tilenum; // if the game wants voxels, it gets voxels
     else if ((cstat&48)!=48 && (usevoxels) && (tiletovox[tilenum] != -1)
