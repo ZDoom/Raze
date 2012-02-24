@@ -328,7 +328,7 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
 {
     int32_t ac;
     char centre;
-    int32_t squishtext = ((f&2) != 0);
+    const int32_t squishtext = ((f&2) != 0);
     int32_t shift = 16, widthx = 320;
     int32_t ox, oy, origx = x, origy = y;
 
@@ -341,7 +341,8 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
         shift = 0;
     }
 
-    if ((centre = (x == (widthx>>1))))
+    centre = (x == (widthx>>1));
+    if (centre)
     {
         const char *oldt = t;
         int32_t newx = 0;
@@ -358,7 +359,10 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
 
             if (*t == '^' && isdigit(*(t+1)))
             {
-                t += 1 + isdigit(*(t+2));
+                t++;
+                if (isdigit(*(t+1)))
+                    t++;
+//                t += 1 + isdigit(*(t+2));   // This code is wrong, see C99 6.5.16 #3
                 continue;
             }
 
@@ -366,7 +370,8 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
 
             if (ac < tile || ac > (tile + 93)) break;
 
-            newx += i = ((((f & 8) ? 8 : tilesizx[ac]) - squishtext) * z)>>16;
+            i = ((((f & 8) ? 8 : tilesizx[ac]) - squishtext) * z)>>16;
+            newx += i;
 
             if (*t >= '0' && *t <= '9')
                 newx -= i - ((8 * z)>>16);
