@@ -613,8 +613,20 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
                     return ((Gv_GetVar(*insptr++, index, iPlayer) ^ -negateResult) + negateResult);
                 case 1: //else if (id == g_iSectorVarID)
                     if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
+                    if ((unsigned)index >= MAXSECTORS)
+                    {
+                        iPlayer = index;
+                        insptr++;
+                        goto badsector;
+                    }
                     return ((VM_AccessSectorX(index, *insptr++) ^ -negateResult) + negateResult);
                 case 2: //else if (id == g_iWallVarID)
+                    if ((unsigned)index >= MAXWALLS)
+                    {
+                        iPlayer = index;
+                        insptr++;
+                        goto badwall;
+                    }
                     return ((VM_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
                 default:
                     goto wtf;
@@ -665,6 +677,14 @@ badplayer:
 
 badsprite:
     OSD_Printf(CON_ERROR "Gv_GetVar(): invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw], iPlayer);
+    return -1;
+
+badsector:
+    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid sector ID %d\n",g_errorLineNum,keyw[g_tw], iPlayer);
+    return -1;
+
+badwall:
+    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid wall ID %d\n",g_errorLineNum,keyw[g_tw], iPlayer);
     return -1;
 
 wtf:
@@ -787,8 +807,20 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
                     return ((Gv_GetVar(*insptr++, index, vm.g_p) ^ -negateResult) + negateResult);
                 case 1: //else if (id == g_iSectorVarID)
                     if (index == vm.g_i) index = sprite[vm.g_i].sectnum;
+                    if ((unsigned)index >= MAXSECTORS)
+                    {
+                        id = index;
+                        insptr++;
+                        goto badsector;
+                    }
                     return ((VM_AccessSectorX(index, *insptr++) ^ -negateResult) + negateResult);
                 case 2: //else if (id == g_iWallVarID)
+                    if ((unsigned)index >= MAXWALLS)
+                    {
+                        id = index;
+                        insptr++;
+                        goto badwall;
+                    }
                     return ((VM_AccessWallX(index, *insptr++) ^ -negateResult) + negateResult);
                 default:
                     goto wtf;
@@ -823,19 +855,27 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
         }
 
 badindex:
-        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,(int32_t)negateResult);
+        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,(int32_t)negateResult);
         return -1;
 
 badvarid:
-        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
+        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
         return -1;
 
 badplayer:
-        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid player ID %d\n",g_errorLineNum,keyw[g_tw], id);
+        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid player ID %d\n",g_errorLineNum,keyw[g_tw], id);
         return -1;
 
 badsprite:
-        OSD_Printf(CON_ERROR "Gv_GetVar(): invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw], id);
+        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw], id);
+        return -1;
+
+badsector:
+        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid sector ID %d\n",g_errorLineNum,keyw[g_tw], id);
+        return -1;
+
+badwall:
+        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid wall ID %d\n",g_errorLineNum,keyw[g_tw], id);
         return -1;
 
 wtf:

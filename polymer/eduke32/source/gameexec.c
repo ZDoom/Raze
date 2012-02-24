@@ -4748,6 +4748,13 @@ nullquote:
         case CON_QUOTE:
             insptr++;
 
+            if ((unsigned)(*insptr) >= MAXQUOTES)
+            {
+                OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],(int32_t)(*insptr));
+                insptr++;
+                continue;
+            }
+
             if ((ScriptQuotes[*insptr] == NULL))
             {
                 OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
@@ -4769,6 +4776,13 @@ nullquote:
             insptr++;
             {
                 int32_t i=Gv_GetVarX(*insptr++);
+
+                if ((unsigned)i >= MAXQUOTES)
+                {
+                    OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],i);
+                    insptr++;
+                    continue;
+                }
 
                 if ((ScriptQuotes[i] == NULL))
                 {
