@@ -286,6 +286,10 @@ ifeq (1,$(RELEASE))
 	$(STRIP) eduke32$(EXESUFFIX)
   endif
 endif
+ifeq ($(PLATFORM),DARWIN)
+    cp -f "Apple/bundles/EDuke32.app" "./"
+    mv -f "eduke32$(EXESUFFIX)" "EDuke32.app/Contents/MacOS/"
+endif
 
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
 	$(LINK_STATUS)
@@ -294,6 +298,10 @@ ifeq (1,$(RELEASE))
   ifeq (0,$(DEBUGANYWAY))
 	$(STRIP) mapster32$(EXESUFFIX)
   endif
+endif
+ifeq ($(PLATFORM),DARWIN)
+    cp -f "Apple/bundles/Mapster32.app" "./"
+    mv -f "mapster32$(EXESUFFIX)" "Mapster32.app/Contents/MacOS/"
 endif
 
 include Makefile.deps
@@ -402,7 +410,7 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 # PHONIES	
 
 clean:
-	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) eduke32$(EXESUFFIX).memmap mapster32$(EXESUFFIX) mapster32$(EXESUFFIX).memmap core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
+	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) eduke32$(EXESUFFIX).memmap EDuke32.app mapster32$(EXESUFFIX) mapster32$(EXESUFFIX).memmap Mapster32.app core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
 	echo -n "" > $(OBJ)/keep.me
 
 veryclean: clean
