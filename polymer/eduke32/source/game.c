@@ -3315,7 +3315,6 @@ void G_AnalyzeSprites(void)
 
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio)
 {
-
     if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7)))
 #ifdef POLYMER
         && (getrendermode() != 4)
@@ -3324,11 +3323,39 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
     {
         int32_t j, i = 0, k, dst = 0x7fffffff;
 
+        if (g_mirrorCount==0)
+        {
+            // XXX: can we have g_mirrorCount==0 but gotpic'd MIRROR?
+            gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
+#ifdef DEBUGGINGAIDS
+            initprintf("Called G_HandleMirror() with g_mirrorCount==0!\n");
+#endif
+            return;
+        }
+
         for (k=g_mirrorCount-1; k>=0; k--)
         {
             j = klabs(wall[g_mirrorWall[k]].x - x);
             j += klabs(wall[g_mirrorWall[k]].y - y);
             if (j < dst) dst = j, i = k;
+        }
+
+        if (wall[g_mirrorWall[i]].overpicnum != MIRROR)
+        {
+            // try to find a new mirror wall
+
+            int32_t startwall = sector[g_mirrorSector[i]].wallptr;
+            int32_t endwall = startwall + sector[g_mirrorSector[i]].wallnum;
+
+            for (k=startwall; k<endwall; k++)
+            {
+                j = wall[k].nextwall;
+                if (j >= 0 && (wall[j].cstat&32) && wall[j].overpicnum==MIRROR)  // cmp. premap.c
+                {
+                    g_mirrorWall[i] = j;
+                    break;
+                }
+            }
         }
 
         if (wall[g_mirrorWall[i]].overpicnum == MIRROR)
