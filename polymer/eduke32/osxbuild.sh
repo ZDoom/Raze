@@ -91,7 +91,7 @@ fi
 # fi
 
 # Almost done...
-if [ -f mapster32.x64 ] && [ -f eduke32.x86 ] && [ -f eduke32.ppc ]; then
+if [ -f mapster32.x64 ] && [ -f eduke32.x86 ]; then # && [ -f eduke32.ppc ]; then
     echo Creating fat binaries.
 
     lipo -create mapster32.x64 mapster32.x86  -output mapster32
