@@ -3905,7 +3905,19 @@ static inline void transmaskwallscan(int32_t x1, int32_t x2)
     faketimerhandler();
 }
 
+
 ////////// NON-power-of-two replacements for mhline/thline, adapted from a.c //////////
+#if defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
+// from pragmas.h
+# define ourdivscale32(d,b) \
+	({ int32_t __d=(d), __b=(b), __r; \
+	   __asm__ __volatile__ ("xorl %%eax, %%eax; idivl %%ebx" \
+		: "=a" (__r), "=d" (__d) : "d" (__d), "b" (__b) : "cc"); \
+	 __r; })
+#else
+# define ourdivscale32(d,b) divscale32(d,b)
+#endif
+
 static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, intptr_t p)
 {
     char ch;
@@ -3913,11 +3925,14 @@ static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
     const char *const gbuf = (char *)bufplc;
     const char *const gpal = (char *)asm3;
 
+    const uint32_t xdiv = globalxspan > 1 ? ourdivscale32(1, globalxspan) : UINT32_MAX;
+    const uint32_t ydiv = globalyspan > 1 ? ourdivscale32(1, globalyspan) : UINT32_MAX;
+
     UNREFERENCED_PARAMETER(junk);
 
     for (cntup16>>=16; cntup16>0; cntup16--)
     {
-        ch = gbuf[(((uint64_t)bx)/((1ull<<32)/globalxspan))*globalyspan + ((uint64_t)by)/((1ull<<32)/globalyspan)];
+        ch = gbuf[(bx/xdiv)*globalyspan + by/ydiv];
         if (ch != 255) *((char *)p) = gpal[ch];
         bx += asm1;
         by += asm2;
@@ -3932,13 +3947,16 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
     const char *const gbuf = (char *)bufplc;
     const char *const gpal = (char *)asm3;
 
+    const uint32_t xdiv = globalxspan > 1 ? ourdivscale32(1, globalxspan) : UINT32_MAX;
+    const uint32_t ydiv = globalyspan > 1 ? ourdivscale32(1, globalyspan) : UINT32_MAX;
+
     UNREFERENCED_PARAMETER(junk);
 
     if (globalorientation&512)
     {
         for (cntup16>>=16; cntup16>0; cntup16--)
         {
-            ch = gbuf[(((uint64_t)bx)/((1ull<<32)/globalxspan))*globalyspan + ((uint64_t)by)/((1ull<<32)/globalyspan)];
+            ch = gbuf[(bx/xdiv)*globalyspan + by/ydiv];
             if (ch != 255) *((char *)p) = transluc[(*((char *)p))+(gpal[ch]<<8)];
             bx += asm1;
             by += asm2;
@@ -3949,7 +3967,7 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
     {
         for (cntup16>>=16; cntup16>0; cntup16--)
         {
-            ch = gbuf[(((uint64_t)bx)/((1ull<<32)/globalxspan))*globalyspan + ((uint64_t)by)/((1ull<<32)/globalyspan)];
+            ch = gbuf[(bx/xdiv)*globalyspan + by/ydiv];
             if (ch != 255) *((char *)p) = transluc[((*((char *)p))<<8)+gpal[ch]];
             bx += asm1;
             by += asm2;
