@@ -104,7 +104,8 @@ static int32_t lowrecip[1024], nytooclose, nytoofar;
 static uint32_t distrecip[65536+256];
 
 static intptr_t *lookups = NULL;
-int32_t dommxoverlay = 1, beforedrawrooms = 1, indrawroomsandmasks = 0;
+static int32_t dommxoverlay = 1, beforedrawrooms = 1;
+int32_t indrawroomsandmasks = 0;
 
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 

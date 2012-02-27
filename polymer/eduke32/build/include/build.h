@@ -402,7 +402,7 @@ typedef struct {
 extern palette_t curpalette[256], curpalettefaded[256], palfadergb;
 extern char palfadedelta;
 
-extern int32_t dommxoverlay, novoxmips;
+extern int32_t novoxmips;
 
 extern float debug1, debug2;
 
