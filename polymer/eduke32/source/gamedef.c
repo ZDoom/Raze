@@ -1462,6 +1462,37 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
     return -1;
 }
 
+static int32_t parse_decimal_number(void)  // (textptr)
+{
+    // decimal constants -- this is finicky business
+    int64_t num = strtoll(textptr, NULL, 10);  // assume long long to be int64_t
+
+    if (num >= INT32_MIN && num <= INT32_MAX)
+    {
+        // all OK
+    }
+    else if (num > INT32_MAX && num <= UINT32_MAX)
+    {
+        // Number interpreted as uint32, but packed as int32 (on 32-bit archs)
+        // (CON code in the wild exists that does this).  Note that such conversion
+        // is implementation-defined (C99 6.3.1.3) but GCC does the 'expected' thing.
+
+        initprintf("%s:%d: warning: number greater than INT32_MAX converted to a negative one.\n",
+                   g_szScriptFileName,g_lineNumber);
+        g_numCompilerWarnings++;
+    }
+    else
+    {
+        // out of range, this is arguably worse
+
+        initprintf("%s:%d: warning: number out of the range of a 32-bit integer encountered.\n",
+                   g_szScriptFileName,g_lineNumber);
+        g_numCompilerWarnings++;
+    }
+
+    return (int32_t)num;
+}
+
 static void C_GetNextVarType(int32_t type)
 {
     int32_t i=0,f=0;
@@ -1470,14 +1501,19 @@ static void C_GetNextVarType(int32_t type)
 
     if (!type && !g_labelsOnly && (isdigit(*textptr) || ((*textptr == '-') && (isdigit(*(textptr+1))))))
     {
-        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-            initprintf("%s:%d: debug: accepted constant %ld in place of gamevar.\n",g_szScriptFileName,g_lineNumber,Batol(textptr));
         bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
-        *g_scriptPtr++=MAXGAMEVARS;
-        if (tolower(textptr[1])=='x')
+
+        *g_scriptPtr++ = MAXGAMEVARS;
+
+        if (tolower(textptr[1])=='x')  // hex constants
             sscanf(textptr+2,"%" PRIxPTR "",g_scriptPtr);
         else
-            *g_scriptPtr=Batoi(textptr);
+            *g_scriptPtr = parse_decimal_number();
+
+        if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
+            initprintf("%s:%d: debug: accepted constant %ld in place of gamevar.\n",
+                       g_szScriptFileName,g_lineNumber,(long)*g_scriptPtr);
+
         bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
         g_scriptPtr++;
 #if 1
@@ -1505,6 +1541,7 @@ static void C_GetNextVarType(int32_t type)
 
         textptr++;
     }
+
     C_GetNextLabelName();
 
     if (!g_skipKeywordCheck && hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
@@ -1801,14 +1838,16 @@ static int32_t C_GetNextValue(int32_t type)
     }
     while (i > 0);
 
-    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
-        initprintf("%s:%d: debug: accepted constant %ld.\n",g_szScriptFileName,g_lineNumber,Batol(textptr));
     bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
 
     if (tolower(textptr[1])=='x')
         sscanf(textptr+2,"%" PRIxPTR "",g_scriptPtr);
     else
-        *g_scriptPtr = Batol(textptr);
+        *g_scriptPtr = parse_decimal_number();
+
+    if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
+        initprintf("%s:%d: debug: accepted constant %ld.\n",
+                   g_szScriptFileName,g_lineNumber,(long)*g_scriptPtr);
 
     g_scriptPtr++;
 
