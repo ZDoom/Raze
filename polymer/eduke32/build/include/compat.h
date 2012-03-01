@@ -431,6 +431,11 @@ static inline uint16_t system_15bit_rand(void) { return (uint16_t)rand(); }
 static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7fff; }
 #endif
 
+#if defined(_MSC_VER)
+// XXX: non-__compat_h_macrodef__ version?
+#define strtoll _strtoi64
+#endif
+
 #ifdef __compat_h_macrodef__
 # define Brand rand
 # define Balloca alloca
