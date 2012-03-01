@@ -881,9 +881,14 @@ int32_t G_SavePlayer(int32_t spot)
             Bsnprintf(temp, sizeof(temp), "%s", fn);
         temp[sizeof(temp)-1] = 0;
 
+        errno = 0;
         fil = fopen(temp, "wb");
         if (!fil)
+        {
             return -1;
+            OSD_Printf("G_SavePlayer: failed opening '%s' for writing: %s\n",
+                       temp, strerror(errno));
+        }
     }
 
 #ifdef POLYMER
