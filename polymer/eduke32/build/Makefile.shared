@@ -96,6 +96,7 @@ ifeq ($(PLATFORM),LINUX)
 endif
 ifeq ($(PLATFORM),DARWIN)
     RENDERTYPE    = SDL
+    STDCPPLIB    = -lstdc++
     BUILDCFLAGS    += -DHAVE_INTTYPES #-fno-leading-underscore
     GTKCOMPAT32    = 0
     SDL_FRAMEWORK    = 1
