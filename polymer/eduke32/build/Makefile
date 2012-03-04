@@ -56,8 +56,11 @@ endif
 
 include Makefile.shared
 
-
-UTILLIBS=-lpthread
+UTILLIBS=  # -lpthread
+UTILADDOBJS=
+ifneq (0,$(NEDMALLOC))
+    UTILADDOBJS+= $(OBJ)/nedmalloc.$o
+endif
 
 ENGINEOBJS=
 ifeq (0,$(NOASM))
@@ -160,7 +163,7 @@ endif
 OURCFLAGS+= $(BUILDCFLAGS)
 
 .SILENT:
-.PHONY: clean veryclean all utils enginelib editorlib
+.PHONY: clean cleanutils veryclean all utils enginelib editorlib
 
 # TARGETS
 
@@ -183,29 +186,39 @@ $(OBJ)/$(EDITORLIB): $(EDITOROBJS)
 	if $(AR) rc $@ $^; then $(ARCHIVE_OK); else $(ARCHIVE_FAILED); fi
 	$(RANLIB) $@
 
-pragmacheck$(EXESUFFIX): $(OBJ)/pragmacheck.$o $(OBJ)/pragmas.$o
-	$(CC) $(subst -Dmain=app_main,,$(OURCFLAGS)) -o $@ $^
+#pragmacheck$(EXESUFFIX): $(OBJ)/pragmacheck.$o $(OBJ)/pragmas.$o
+#	$(CC) $(subst -Dmain=app_main,,$(OURCFLAGS)) -o $@ $^
 
-kextract$(EXESUFFIX): $(OBJ)/kextract.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(UTILLIBS)
-kgroup$(EXESUFFIX): $(OBJ)/kgroup.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(UTILLIBS)
-transpal$(EXESUFFIX): $(OBJ)/transpal.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(UTILLIBS)
-wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(UTILLIBS)
-wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(UTILLIBS)
-md2tool$(EXESUFFIX): $(OBJ)/md2tool.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(UTILLIBS)
+kextract$(EXESUFFIX): $(OBJ)/kextract.$o $(OBJ)/compat.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+kgroup$(EXESUFFIX): $(OBJ)/kgroup.$o $(OBJ)/compat.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+transpal$(EXESUFFIX): $(OBJ)/transpal.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+md2tool$(EXESUFFIX): $(OBJ)/md2tool.$o $(OBJ)/compat.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
 generateicon$(EXESUFFIX): $(OBJ)/generateicon.$o $(OBJ)/kplib.$o
-	$(CC) -o $@ $^ $(UTILLIBS)
-cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o $(OBJ)/nedmalloc.$o
-	$(CC) -o $@ $^ $(UTILLIBS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
 enumdisplay$(EXESUFFIX): src/misc/enumdisplay.c
-	$(CC) -g -Os -o $@ $^ $(UTILLIBS) -I$(DXROOT)/include -lgdi32
+	$(ONESTEP_STATUS)
+	if $(CC) -g -Os -o $@ $^ $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); fi
 mapdump$(EXESUFFIX): $(OBJ)/mapdump.$o
-	$(CC) -o $@ $^ $(UTILLIBS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
 
 # DEPENDENCIES
 include Makefile.deps
@@ -254,8 +267,11 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 clean:
 	-rm -f $(OBJ)/*
 
-veryclean: clean
-	-rm -f $(ENGINELIB) $(EDITORLIB) $(UTILS)
+cleanutils:
+	-rm -f $(UTILS)
+
+veryclean: clean cleanutils
+	-rm -f $(ENGINELIB) $(EDITORLIB)
 
 .PHONY: fixlineends
 fixlineends:
