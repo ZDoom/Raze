@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IBClasses</key>
+	<array>
+		<dict>
+			<key>CLASS</key>
+			<string>FirstResponder</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>SUPERCLASS</key>
+			<string>NSObject</string>
+		</dict>
+		<dict>
+			<key>ACTIONS</key>
+			<dict>
+				<key>alwaysShowClicked</key>
+				<string>id</string>
+				<key>cancel</key>
+				<string>id</string>
+				<key>fullscreenClicked</key>
+				<string>id</string>
+				<key>start</key>
+				<string>id</string>
+			</dict>
+			<key>CLASS</key>
+			<string>StartupWinController</string>
+			<key>LANGUAGE</key>
+			<string>ObjC</string>
+			<key>OUTLETS</key>
+			<dict>
+				<key>alwaysShowButton</key>
+				<string>NSButton</string>
+				<key>cancelButton</key>
+				<string>NSButton</string>
+				<key>fullscreenButton</key>
+				<string>NSButton</string>
+				<key>gameList</key>
+				<string>NSScrollView</string>
+				<key>messagesView</key>
+				<string>NSTextView</string>
+				<key>soundQualityPUButton</key>
+				<string>NSPopUpButton</string>
+				<key>startButton</key>
+				<string>NSButton</string>
+				<key>tabView</key>
+				<string>NSTabView</string>
+				<key>videoMode3DPUButton</key>
+				<string>NSPopUpButton</string>
+			</dict>
+			<key>SUPERCLASS</key>
+			<string>NSWindowController</string>
+		</dict>
+	</array>
+	<key>IBVersion</key>
+	<string>1</string>
+</dict>
+</plist>

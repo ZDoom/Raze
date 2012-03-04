@@ -28,6 +28,8 @@
 	<string>2.0</string>
         <key>CSResourcesFileMapped</key>
         <true/>
+	<key>NSMainNibFile</key>
+	<string>game.osxmain</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright EDuke32 Team</string>
 	<key>NSPrincipalClass</key>

@@ -7957,7 +7957,7 @@ static void G_ShowParameterHelp(void)
               "-r\t\tRecord demo\n"
               "-s#\t\tSet skill level (1-4)\n"
               "-server\t\tStart a multiplayer game for other players to join\n"
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && (defined __APPLE__ || defined HAVE_GTK2))
               "-setup/nosetup\tEnables/disables startup window\n"
 #endif
               "-t#\t\tSet respawn mode: 1 = Monsters, 2 = Items, 3 = Inventory, x = All\n"
@@ -9988,7 +9988,7 @@ int32_t app_main(int32_t argc,const char **argv)
         else if (!fg) g_gameNamePtr = "Unknown GRP";
     }
 
-#if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2))
+#if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && (defined __APPLE__ || defined HAVE_GTK2)))
     if (i < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_JF || ud.config.ForceSetup)) || g_commandSetup)
     {
         if (quitevent || !startwin_run())

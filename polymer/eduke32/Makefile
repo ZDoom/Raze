@@ -190,9 +190,9 @@ ifeq ($(PLATFORM),LINUX)
 endif
 
 ifeq ($(PLATFORM),DARWIN)
+    OURCFLAGS += -fno-pic -I$(abspath Apple) -I$(abspath Apple/include)
     ifeq (1,$(SDL_FRAMEWORK))
-        APPLE_INCLUDE_DIR=$(abspath Apple/include)
-        OURCFLAGS += -fno-pic -I$(APPLE_INCLUDE_DIR) -I/Library/Frameworks/SDL.framework/Headers \
+        OURCFLAGS += -I/Library/Frameworks/SDL.framework/Headers \
                 -I/Library/Frameworks/SDL_mixer.framework/Headers
         LIBS += -read_only_relocs suppress -LApple/lib -lvorbisfile -lvorbis -logg -lm \
                 -Wl,-framework,SDL -Wl,-framework,SDL_mixer Apple/lib/libSDLmain.a \
@@ -204,13 +204,15 @@ ifeq ($(PLATFORM),DARWIN)
         EDITOROBJS+=$(OBJ)/SDLMain.$o
         GAMEOBJS+=$(OBJ)/SDLMain.$o
     else
-        OURCFLAGS += -fno-pic -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
+        OURCFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
         LIBS += -read_only_relocs suppress -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
                 -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
                 -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
                 -Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
                 -Wl,-framework,QuickTime -lm
     endif
+    EDITOROBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
+    GAMEOBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
     NASMFLAGS += -f macho
 endif
 

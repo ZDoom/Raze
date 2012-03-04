@@ -13,7 +13,7 @@
 	<key>CFBundleIconFile</key>
 	<string>mapster32.icns</string>
         <key>CFBundleIdentifier</key>
-        <string>com.mapster32</string>
+        <string>com.eduke32.mapster32</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -28,6 +28,8 @@
 	<string>2.0</string>
         <key>CSResourcesFileMapped</key>
         <true/>
+	<key>NSMainNibFile</key>
+	<string>build.osxmain</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright EDuke32 Team</string>
 	<key>NSPrincipalClass</key>

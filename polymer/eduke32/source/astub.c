@@ -8409,7 +8409,7 @@ static void G_ShowParameterHelp(void)
               "-check\t\tEnables map pointer checking when saving\n"
               "-namesfile FILE\tUses FILE instead of NAMES.H for tile names\n"
               "-nocheck\t\tDisables map pointer checking when saving (default)\n"  // kept for script compat
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && !defined __APPLE__ && defined HAVE_GTK2)
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && (defined __APPLE__ || defined HAVE_GTK2))
               "-setup\t\tDisplays the configuration dialog\n"
 #endif
 #if !defined(_WIN32)
