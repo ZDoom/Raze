@@ -63,9 +63,9 @@ ifneq (0,$(USE_LIBVPX))
         OURCFLAGS+= -IWindows/include
     endif
     ifeq ($(PLATFORM),DARWIN)
-        # vpx headers and lib from 'port install libvpx'
-        LIBS+= -L/opt/local/lib
-        OURCFLAGS+= -I/opt/local/include
+        # vpx headers and lib from 'port install libvpx' or 'brew install libvpx'
+        LIBS+= -L/opt/local/lib -L/usr/local/lib
+        OURCFLAGS+= -I/opt/local/include -I/usr/local/include
     endif
 endif
 
