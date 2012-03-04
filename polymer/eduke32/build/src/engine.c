@@ -4069,34 +4069,43 @@ static void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, int32_t 
     ggpal = palookup[globalpal] + (getpalookup(0,globalshade)<<8);
 }
 
+// cnt iterations
 static void tslopevlin(uint8_t *p, int32_t i, const intptr_t *slopalptr, int32_t cnt, int32_t bx, int32_t by)
 {
-    int32_t bz, bzinc;
-    uint32_t u, v;
+    const char *const buf = ggbuf;
+    const char *const pal = ggpal;
+    const char *const trans = transluc;
+    const int32_t bzinc = (asm1>>3), pinc = ggpinc;
 
-    uint8_t ch;
+    const int32_t transmode = (globalorientation&128);
+    const int32_t xtou = globalx3, ytov = globaly3;
+    const int32_t logx = gglogx, logy = gglogy;
 
-    bz = asm3; bzinc = (asm1>>3);
+    int32_t bz = asm3;
 
-    for (; cnt>0; cnt--)
+    do
     {
-        i = krecipasm(bz>>6); bz += bzinc;
-        u = bx+globalx3*i;
-        v = by+globaly3*i;
-        ch = *(uint8_t *)(slopalptr[0] + ggbuf[((u>>(32-gglogx))<<gglogy)+(v>>(32-gglogy))]);
+        uint8_t ch;
+        uint32_t u, v;
 
-        if (globalorientation&128)
+        i = krecipasm(bz>>6); bz += bzinc;
+        u = bx + xtou*i;
+        v = by + ytov*i;
+        ch = *(uint8_t *)(slopalptr[0] + buf[((u>>(32-logx))<<logy)+(v>>(32-logy))]);
+
+        if (transmode)
         {
-            if (ch != 255) *p = transluc[*p+(ggpal[ch]<<8)];
+            if (ch != 255) *p = trans[*p|(pal[ch]<<8)];
         }
         else
         {
-            if (ch != 255) *p = transluc[(*p<<8)+ggpal[ch]];
+            if (ch != 255) *p = trans[(*p<<8)|pal[ch]];
         }
 
         slopalptr--;
-        p += ggpinc;
+        p += pinc;
     }
+    while (--cnt);
 }
 
 //
