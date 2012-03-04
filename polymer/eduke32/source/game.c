@@ -3623,11 +3623,10 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             break;
         }
 
-        if (ud.camerahoriz > HORIZ_MAX) ud.camerahoriz = HORIZ_MAX;
-        else if (ud.camerahoriz < HORIZ_MIN) ud.camerahoriz = HORIZ_MIN;
-
         if (apScriptGameEvent[EVENT_DISPLAYROOMS])
             VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1);
+
+        ud.camerahoriz = clamp(ud.camerahoriz, HORIZ_MIN, HORIZ_MAX);
 
         G_HandleMirror(ud.camera.x, ud.camera.y, ud.camera.z, ud.cameraang, ud.camerahoriz, smoothratio);
 
