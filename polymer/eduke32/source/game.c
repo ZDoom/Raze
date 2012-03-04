@@ -11209,13 +11209,49 @@ void G_BonusScreen(int32_t bonusonly)
             MOUSE_ClearButton(LEFT_MOUSE);
             KB_FlushKeyBoardQueue();
             totalclock = 0;
-            while (!KB_KeyWaiting() && totalclock < 120 && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
+			if (PLUTOPAK)
             {
-                handleevents();
-                Net_GetPackets();
-            }
+                while (!KB_KeyWaiting() && totalclock < 120 && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
+                {
+                    handleevents();
+                    Net_GetPackets();
+                }
+			}
+            else
+            {
+                while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
+                {
+                    handleevents();
+                    Net_GetPackets();
+                }
+			}
 
 ENDANM:
+
+			if (!PLUTOPAK)
+            {
+				FX_StopAllSounds();
+                S_ClearSoundLocks();
+				S_PlaySound(ENDSEQVOL3SND4);
+
+				clearview(0L);
+				nextpage();
+
+				G_PlayAnim("DUKETEAM.ANM",4);
+
+                KB_FlushKeyBoardQueue();
+                MOUSE_ClearButton(LEFT_MOUSE);
+                while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
+                {
+                    handleevents();
+                    Net_GetPackets();
+                }
+
+                clearview(0L);
+                nextpage();
+                G_FadePalette(0,0,0,63);
+			}
+
             MOUSE_ClearButton(LEFT_MOUSE);
             FX_StopAllSounds();
             S_ClearSoundLocks();
