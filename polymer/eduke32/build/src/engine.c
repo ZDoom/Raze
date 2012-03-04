@@ -8060,7 +8060,9 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     globalposx = daposx; globalposy = daposy; globalposz = daposz;
     globalang = (daang&2047);
 
-    globalhoriz = mulscale16(dahoriz-100,xdimenscale)+(ydimen>>1);
+    // xdimenscale is scale(xdimen,yxaspect,320);
+    // normalization by viewingrange so that center-of-aim doesn't depend on it
+    globalhoriz = mulscale16(dahoriz-100,divscale16(xdimenscale,viewingrange))+(ydimen>>1);
 
     globaluclip = (0-globalhoriz)*xdimscale;
     globaldclip = (ydimen-globalhoriz)*xdimscale;
