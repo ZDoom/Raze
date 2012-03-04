@@ -2711,7 +2711,8 @@ CHECKINV1:
                     {
                         static const int32_t i[8] = { QUOTE_MEDKIT, QUOTE_STEROIDS, QUOTE_HOLODUKE,
                                                       QUOTE_JETPACK, QUOTE_NVG, QUOTE_SCUBA, QUOTE_BOOTS, 0 };
-                        P_DoQuote(i[dainv-1], p);
+                        if (dainv>=1 && dainv<=9)
+                            P_DoQuote(i[dainv-1], p);
                     }
                 }
             }
