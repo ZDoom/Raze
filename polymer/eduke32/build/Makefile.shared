@@ -161,7 +161,7 @@ endif
 ifeq ($(RENDERTYPE),SDL)
     ifeq ($(SDL_FRAMEWORK),1)
         LIBS        += -Wl,-framework,SDL
-        SDLCONFIG_CFLAGS+= -I/Library/Frameworks/SDL.framework/Headers
+        SDLCONFIG_CFLAGS+= -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers
     else
     ifneq ($(SDLCONFIG),)
         LIBS+= $(shell $(SDLCONFIG) --libs)

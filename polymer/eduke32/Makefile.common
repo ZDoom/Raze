@@ -10,6 +10,10 @@ PRETTY_OUTPUT ?= 1
 # at different directory levels
 DXROOT_OVERRIDE:=
 
+# Mac OS X Frameworks location
+# Like above, use absolute paths.
+APPLE_FRAMEWORKS ?=/Library/Frameworks
+
 # Engine options
 #  USE_OPENGL     - enables basic OpenGL Polymost renderer
 #  POLYMER        - enables fancy Polymer renderer

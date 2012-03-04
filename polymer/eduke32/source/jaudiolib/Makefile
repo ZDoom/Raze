@@ -21,8 +21,8 @@ CPPFLAGS=-I$(INC) -I$(SRC) -DHAVE_VORBIS
 ifeq ($(PLATFORM),DARWIN)
     ifeq (1,$(SDL_FRAMEWORK))
         APPLE_INCLUDE_DIR:=../../Apple/include
-        OURCFLAGS += -DSDL_FRAMEWORK -I$(APPLE_INCLUDE_DIR) -I/Library/Frameworks/SDL.framework/Headers \
-                -I/Library/Frameworks/SDL_mixer.framework/Headers
+        OURCFLAGS += -DSDL_FRAMEWORK -I$(APPLE_INCLUDE_DIR) -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
+                -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
     endif
 endif
 

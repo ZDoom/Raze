@@ -192,8 +192,8 @@ endif
 ifeq ($(PLATFORM),DARWIN)
     OURCFLAGS += -fno-pic -I$(abspath Apple) -I$(abspath Apple/include)
     ifeq (1,$(SDL_FRAMEWORK))
-        OURCFLAGS += -I/Library/Frameworks/SDL.framework/Headers \
-                -I/Library/Frameworks/SDL_mixer.framework/Headers
+        OURCFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
+                -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
         LIBS += -read_only_relocs suppress -LApple/lib -lvorbisfile -lvorbis -logg -lm \
                 -Wl,-framework,SDL -Wl,-framework,SDL_mixer Apple/lib/libSDLmain.a \
                 -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
