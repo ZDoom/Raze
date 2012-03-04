@@ -35,6 +35,8 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#include "compat.h"
+
 #define BUFFER_MAX (16*1024)
 
 struct bfd_ctx {
@@ -365,11 +367,8 @@ backtrace_unregister(void)
 }
 
 BOOL WINAPI 
-DllMain(HANDLE hinstDLL, DWORD dwReason, LPVOID lpvReserved)
+DllMain(HANDLE hinstDLL ATTRIBUTE((unused)), DWORD dwReason, LPVOID lpvReserved ATTRIBUTE((unused)))
 {
-    hinstDLL = hinstDLL;
-    lpvReserved = lpvReserved;
-
 	switch (dwReason) {
 	case DLL_PROCESS_ATTACH:
 		backtrace_register();
@@ -383,10 +382,8 @@ DllMain(HANDLE hinstDLL, DWORD dwReason, LPVOID lpvReserved)
 
 
 /* cut dependence on libintl... libbfd needs this */
-char *libintl_dgettext (const char *domain_name, const char *msgid)
+char *libintl_dgettext (const char *domain_name ATTRIBUTE((unused)), const char *msgid ATTRIBUTE((unused)))
 {
     static char buf[1024] = "XXX placeholder XXX";
-    domain_name = domain_name;
-    msgid = msgid;
     return buf;
 }

@@ -348,7 +348,7 @@ endif
 
 # RULES
 $(EBACKTRACEDLL): Windows/src/backtrace.c
-	if $(CC) -O2 -shared -Wall -Wextra -o $@ $^ -lbfd -liberty -limagehlp; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) -O2 -shared -Wall -Wextra -I$(EINC) -o $@ $^ -lbfd -liberty -limagehlp; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(COMPILE_STATUS)
