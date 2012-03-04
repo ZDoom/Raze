@@ -18,6 +18,21 @@ if [ $1 ]; then
     fi
 fi
 
+rev=`svn info | grep Revision | awk '{ print $2 }'`
+vc=svn
+if [ -z "$ref" ]; then
+    vc=git
+    rev=`git svn info | grep 'Revision' | awk '{ print $2 }'`
+fi
+
+if [ -n "$ref" ]; then
+    # throw the svn revision into a header.  this is ugly.
+    echo "const char *s_buildRev = \"r$rev\";" > source/rev.h
+else
+    rev=unknown
+    vc=none
+fi
+
 if [ $onlyzip -eq 0 ]; then
     rm -f eduke32.x86 eduke32.x64 mapster32.x86 mapster32.x64
 
@@ -82,6 +97,13 @@ if [ $onlyzip -eq 0 ]; then
     # fi
 fi
 
+# clean up, clean up, everybody everywhere, clean up, clean up, everybody do your share
+if [ "$vc" == "svn" ]; then
+    svn revert "source/rev.h"
+elif [ "$vc" == "git" ]; then
+    git checkout "source/rev.h"
+fi
+
 # Duplicating .app bundles for debug build:
 # if [ -d "Mapster32.app" ]; then
     # cp "Mapster32.app" "Mapster32.debug.app"
@@ -106,11 +128,6 @@ if [ -f mapster32.x64 ] && [ -f eduke32.x86 ]; then # && [ -f eduke32.ppc ]; the
 #    lipo -create eduke32.debug.x64 eduke32.debug.x86 -output eduke32.debug
 #    cp -f eduke32 "EDuke32.debug.app/Contents/MacOS/eduke32"
 
-    if [ -d ".svn" ]; then
-        rev=`svn info | grep Revision | awk '{ print $2 }'`
-    else
-        rev=`git svn info | grep 'Revision:' | awk '{ print $2 }'`
-    fi
     arfilename="eduke32-osx-$rev.zip"
     echo "This archive was produced from revision $rev by the osxbuild.sh script." > README.OSX
     echo "EDuke32 home: http://www.eduke32.com" >> README.OSX

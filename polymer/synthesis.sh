@@ -11,7 +11,7 @@ clean=veryclean
 # the following file paths are relative to $source
 targets=( eduke32.exe mapster32.exe )
 bin_packaged=( eduke32.exe eduke32.debug.exe mapster32.exe mapster32.debug.exe ebacktrace1.dll SEHELP.HLP STHELP.HLP names.h buildlic.txt GNU.TXT m32help.hlp nedmalloc.dll tiles.cfg samples/* )
-not_src_packaged=( psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple )
+not_src_packaged=( psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple/lib )
 
 # group that owns the resulting packages
 group=dukeworld
@@ -150,6 +150,8 @@ then
     # output the changelog since last snapshot in the output directory
     if [  $lastrevision ]
     then
+        # add one so that we only include what is new to this update
+        let lastrevision+=1
         cd $top/$source
         svn log -r $head:$lastrevision > $output/$date-$head/ChangeLog.txt
     fi
