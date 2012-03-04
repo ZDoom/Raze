@@ -115,8 +115,8 @@ int32_t shadescale_unbounded = 0;
 
 int32_t r_usenewshading = 1;
 
-static double gviewxrange;
-double gyxscale, gxyaspect, ghalfx, grhalfxdown10, grhalfxdown10x, ghoriz;
+static double gviewxrange, ghoriz;
+double gyxscale, gxyaspect, ghalfx, grhalfxdown10, grhalfxdown10x;
 double gcosang, gsinang, gcosang2, gsinang2;
 double gchang, gshang, gctang, gstang, gvisibility;
 float gtang = 0.0;
@@ -4446,7 +4446,9 @@ void polymost_drawrooms()
         }
 #endif
 
-        ox2 = (searchx-ghalfx)/ratio; oy2 = (searchy-ghoriz)/ ratio; oz2 = ghalfx;
+        ox2 = (searchx-ghalfx)/ratio;
+        oy2 = (searchy-ghoriz)/ratio;  // ghoriz is (ydimen>>1) here
+        oz2 = ghalfx;
 
         //Tilt rotation
         ox = ox2*gctang + oy2*gstang;

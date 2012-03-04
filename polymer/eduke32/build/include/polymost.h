@@ -111,7 +111,7 @@ pthtyp *gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;
 
-extern double gyxscale, gxyaspect, /*gviewxrange,*/ ghalfx, grhalfxdown10, ghoriz;
+extern double gyxscale, gxyaspect, /*gviewxrange,*/ ghalfx, grhalfxdown10 /*, ghoriz*/;
 
 #define FOGSCALE 0.0000768
 
