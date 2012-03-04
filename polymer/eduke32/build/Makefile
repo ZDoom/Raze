@@ -167,7 +167,9 @@ OURCFLAGS+= $(BUILDCFLAGS)
 
 # TARGETS
 
-UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) md2tool$(EXESUFFIX)
+UTILOBJS=$(OBJ)/kextract.$o $(OBJ)/kgroup.$o $(OBJ)/transpal.$o $(OBJ)/wad2art.$o $(OBJ)/wad2map.$o $(OBJ)/md2tool.$o \
+    $(OBJ)/compat.$o $(OBJ)/pragmas.$o
+UTILS=kextract kgroup transpal wad2art wad2map md2tool
 
 # all: $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB)
 utils: $(UTILS)
@@ -268,7 +270,7 @@ clean:
 	-rm -f $(OBJ)/*
 
 cleanutils:
-	-rm -f $(UTILS)
+	-rm -f $(UTILS) $(UTILOBJS)
 
 veryclean: clean cleanutils
 	-rm -f $(ENGINELIB) $(EDITORLIB)

@@ -125,8 +125,8 @@ void initfastcolorlookup(int rscale, int gscale, int bscale)
 		j += 129-(i<<1);
 	}
 
-	clearbufbyte(FP_OFF(colhere),sizeof(colhere),0L);
-	clearbufbyte(FP_OFF(colhead),sizeof(colhead),0L);
+    Bmemset(colhere, 0, sizeof(colhere));
+    Bmemset(colhead, 0, sizeof(colhead));
 
 	ptr = (char *)&palette[768-3];
 	for(i=255;i>=0;i--,ptr-=3)
