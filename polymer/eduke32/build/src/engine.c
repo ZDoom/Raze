@@ -2332,14 +2332,20 @@ void fade_screen_black(int32_t moreopaquep)
     }
     else
     {
-        int32_t i;
-        const int32_t shiftamnt = ((!!moreopaquep)*8);
-
         assert(!offscreenrendering);
 
         begindrawing();
-        for (i=0; i<xdim*ydim; i++)
-            ((uint8_t *)frameplace)[i] = transluc[(((uint8_t *)frameplace)[i])<<shiftamnt];
+        {
+            char *const p = (char *)frameplace;
+            const char *const trans = transluc;
+            const int32_t shiftamnt = ((!!moreopaquep)*8);
+            const int32_t dimprod = xdim*ydim;
+
+            int32_t i;
+
+            for (i=0; i<dimprod; i++)
+                p[i] = trans[p[i]<<shiftamnt];
+        }
         enddrawing();
     }
 }
