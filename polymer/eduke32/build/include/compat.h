@@ -395,7 +395,7 @@ static inline __attribute__((warn_unused_result)) int clamp(int in, int min, int
 static inline int clamp(int in, int min, int max)
 #endif
 {
-    return in <= min ? min : in >= max ? max : in;
+    return in <= min ? min : (in >= max ? max : in);
 }
 
 #define BMAX_PATH 256
@@ -504,6 +504,10 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # define Bstrlen strlen
 # define Bstrchr strchr
 # define Bstrrchr strrchr
+// XXX: different across 32- and 64-bit archs (e.g.
+// parsing the decimal representation of 0xffffffff,
+// 4294967295 -- long is signed, so strtol would
+// return LONG_MAX (== 0x7fffffff on 32-bit archs))
 # define Batoi(str) ((int32_t)strtol(str, NULL, 10))
 # define Batol(str) (strtol(str, NULL, 10))
 # define Bstrtol strtol
