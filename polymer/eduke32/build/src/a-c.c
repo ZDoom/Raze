@@ -30,28 +30,36 @@ void settransnormal(void) { transmode = 0; }
 void settransreverse(void) { transmode = 1; }
 
 
-//Ceiling/floor horizontal line functions
+///// Ceiling/floor horizontal line functions /////
+
 void sethlinesizes(int32_t logx, int32_t logy, intptr_t bufplc)
 { glogx = logx; glogy = logy; gbuf = (char *)bufplc; }
 void setpalookupaddress(char *paladdr) { ghlinepal = paladdr; }
 void setuphlineasm4(int32_t bxinc, int32_t byinc) { gbxinc = bxinc; gbyinc = byinc; }
 void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, uint32_t bx, intptr_t p)
 {
-    char *palptr;
-
-    palptr = (char *)&ghlinepal[paloffs];
     if (!skiploadincs) { gbxinc = asm1; gbyinc = asm2; }
-    for (; cnt>=0; cnt--)
+
     {
-        *((char *)p) = palptr[gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))]];
-        bx -= gbxinc;
-        by -= gbyinc;
-        p--;
+        const char *const palptr = &ghlinepal[paloffs];
+        const char *const buf = gbuf;
+        const int32_t bxinc = gbxinc, byinc = gbyinc;
+        const int32_t logx = glogx, logy = glogy;
+        char *pp = (char *)p;
+
+        for (; cnt>=0; cnt--)
+        {
+            *pp = palptr[buf[((bx>>(32-logx))<<logy)+(by>>(32-logy))]];
+            bx -= bxinc;
+            by -= byinc;
+            pp--;
+        }
     }
 }
 
 
-//Sloped ceiling/floor vertical line functions
+///// Sloped ceiling/floor vertical line functions /////
+
 void setupslopevlin(int32_t logylogx, intptr_t bufplc, int32_t pinc)
 {
     glogx = (logylogx&255); glogy = (logylogx>>8);
@@ -77,61 +85,85 @@ void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t 
 }
 
 
-//Wall,face sprite/wall sprite vertical line functions
+///// Wall,face sprite/wall sprite vertical line functions /////
+
 void setupvlineasm(int32_t neglogy) { glogy = neglogy; }
+// cnt+1 loop iterations!
 void vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
 {
-    gbuf = (char *)bufplc;
-    gpal = (char *)paloffs;
-    for (; cnt>=0; cnt--)
+    const char *const buf = (char *)bufplc;
+    const char *const pal = (char *)paloffs;
+    const int32_t logy = glogy, ourbpl = bpl;
+    char *pp = (char *)p;
+
+    cnt++;
+
+    do
     {
-        *((char *)p) = gpal[gbuf[vplc>>glogy]];
-        p += bpl;
+        *pp = pal[buf[vplc>>logy]];
+        pp += ourbpl;
         vplc += vinc;
     }
+    while (--cnt);
 }
 
 void setupmvlineasm(int32_t neglogy) { glogy = neglogy; }
+// cnt+1 loop iterations!
 void mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
 {
     char ch;
 
-    gbuf = (char *)bufplc;
-    gpal = (char *)paloffs;
-    for (; cnt>=0; cnt--)
+    const char *const buf = (char *)bufplc;
+    const char *const pal = (char *)paloffs;
+    const int32_t logy = glogy, ourbpl = bpl;
+    char *pp = (char *)p;
+
+    cnt++;
+
+    do
     {
-        ch = gbuf[vplc>>glogy]; if (ch != 255) *((char *)p) = gpal[ch];
-        p += bpl;
+        ch = buf[vplc>>logy]; if (ch != 255) *pp = pal[ch];
+        pp += ourbpl;
         vplc += vinc;
     }
+    while (--cnt);
 }
 
 void setuptvlineasm(int32_t neglogy) { glogy = neglogy; }
+// cnt+1 loop iterations!
 void tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
 {
     char ch;
 
-    gbuf = (char *)bufplc;
-    gpal = (char *)paloffs;
-    if (transmode)
+    const char *const buf = (char *)bufplc;
+    const char *const pal = (char *)paloffs;
+    const char *const trans = (char *)gtrans;
+    const int32_t logy = glogy, ourbpl = bpl, transm = transmode;
+    char *pp = (char *)p;
+
+    cnt++;
+
+    if (transm)
     {
-        for (; cnt>=0; cnt--)
+        do
         {
-            ch = gbuf[vplc>>glogy];
-            if (ch != 255) *((char *)p) = gtrans[(*((char *)p))+(gpal[ch]<<8)];
-            p += bpl;
+            ch = buf[vplc>>glogy];
+            if (ch != 255) *pp = trans[(*pp)|(pal[ch]<<8)];
+            pp += ourbpl;
             vplc += vinc;
         }
+        while (--cnt);
     }
     else
     {
-        for (; cnt>=0; cnt--)
+        do
         {
-            ch = gbuf[vplc>>glogy];
-            if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<8)+gpal[ch]];
-            p += bpl;
+            ch = buf[vplc>>logy];
+            if (ch != 255) *pp = trans[((*pp)<<8)|pal[ch]];
+            pp += ourbpl;
             vplc += vinc;
         }
+        while (--cnt);
     }
 }
 
