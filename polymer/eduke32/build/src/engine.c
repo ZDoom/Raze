@@ -3925,37 +3925,45 @@ static inline void transmaskwallscan(int32_t x1, int32_t x2)
 # define ourdivscale32(d,b) divscale32(d,b)
 #endif
 
-static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, intptr_t p)
+// cntup16>>16 iterations
+static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, char *p)
 {
     char ch;
 
-    const char *const gbuf = (char *)bufplc;
-    const char *const gpal = (char *)asm3;
+    const char *const buf = (char *)bufplc;
+    const char *const pal = (char *)asm3;
 
-    const uint32_t xdiv = globalxspan > 1 ? ourdivscale32(1, globalxspan) : UINT32_MAX;
-    const uint32_t ydiv = globalyspan > 1 ? ourdivscale32(1, globalyspan) : UINT32_MAX;
+    const uint32_t xdiv = globalxspan > 1 ? (uint32_t)ourdivscale32(1, globalxspan) : UINT32_MAX;
+    const uint32_t ydiv = globalyspan > 1 ? (uint32_t)ourdivscale32(1, globalyspan) : UINT32_MAX;
+    const uint32_t yspan = globalyspan;
+    const int32_t xinc = asm1, yinc = asm2;
 
     UNREFERENCED_PARAMETER(junk);
 
     for (cntup16>>=16; cntup16>0; cntup16--)
     {
-        ch = gbuf[(bx/xdiv)*globalyspan + by/ydiv];
-        if (ch != 255) *((char *)p) = gpal[ch];
-        bx += asm1;
-        by += asm2;
+        ch = buf[(bx/xdiv)*yspan + by/ydiv];
+
+        if (ch != 255) *p = pal[ch];
+        bx += xinc;
+        by += yinc;
         p++;
     }
 }
 
-static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, intptr_t p)
+// cntup16>>16 iterations
+static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, char *p)
 {
     char ch;
 
-    const char *const gbuf = (char *)bufplc;
-    const char *const gpal = (char *)asm3;
+    const char *const buf = (char *)bufplc;
+    const char *const pal = (char *)asm3;
+    const char *const trans = transluc;
 
-    const uint32_t xdiv = globalxspan > 1 ? ourdivscale32(1, globalxspan) : UINT32_MAX;
-    const uint32_t ydiv = globalyspan > 1 ? ourdivscale32(1, globalyspan) : UINT32_MAX;
+    const uint32_t xdiv = globalxspan > 1 ? (uint32_t)ourdivscale32(1, globalxspan) : UINT32_MAX;
+    const uint32_t ydiv = globalyspan > 1 ? (uint32_t)ourdivscale32(1, globalyspan) : UINT32_MAX;
+    const uint32_t yspan = globalyspan;
+    const int32_t xinc = asm1, yinc = asm2;
 
     UNREFERENCED_PARAMETER(junk);
 
@@ -3963,10 +3971,10 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
     {
         for (cntup16>>=16; cntup16>0; cntup16--)
         {
-            ch = gbuf[(bx/xdiv)*globalyspan + by/ydiv];
-            if (ch != 255) *((char *)p) = transluc[(*((char *)p))+(gpal[ch]<<8)];
-            bx += asm1;
-            by += asm2;
+            ch = buf[(bx/xdiv)*yspan + by/ydiv];
+            if (ch != 255) *p = trans[(*p)|(pal[ch]<<8)];
+            bx += xinc;
+            by += yinc;
             p++;
         }
     }
@@ -3974,10 +3982,10 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
     {
         for (cntup16>>=16; cntup16>0; cntup16--)
         {
-            ch = gbuf[(bx/xdiv)*globalyspan + by/ydiv];
-            if (ch != 255) *((char *)p) = transluc[((*((char *)p))<<8)+gpal[ch]];
-            bx += asm1;
-            by += asm2;
+            ch = buf[(bx/xdiv)*yspan + by/ydiv];
+            if (ch != 255) *p = trans[((*p)<<8)|pal[ch]];
+            bx += xinc;
+            by += yinc;
             p++;
         }
     }
@@ -4017,10 +4025,10 @@ static inline void ceilspritehline(int32_t x2, int32_t y)
     else
     {
         if ((globalorientation&2) == 0)
-            nonpow2_mhline(globalbufplc,bx,(x2-x1)<<16,0L,by,ylookup[y]+x1+frameoffset);
+            nonpow2_mhline(globalbufplc,bx,(x2-x1)<<16,0L,by,(char *)(ylookup[y]+x1+frameoffset));
         else
         {
-            nonpow2_thline(globalbufplc,bx,(x2-x1)<<16,0L,by,ylookup[y]+x1+frameoffset);
+            nonpow2_thline(globalbufplc,bx,(x2-x1)<<16,0L,by,(char *)(ylookup[y]+x1+frameoffset));
         }
     }
 }
