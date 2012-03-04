@@ -3442,8 +3442,6 @@ static void polymost_drawalls(int32_t bunch)
                 vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
                 vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+parallaxyoffs)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
-                vv[0] += dd[0]*((double)((r_parallaxskypanning)?sec->floorypanning:0))*((double)i)/256.0;
-
 
                 //Hack to draw black rectangle below sky when looking down...
                 gdx = 0; gdy = gxyaspect / 262144.0; gdo = -ghoriz*gdy;
@@ -3464,6 +3462,8 @@ static void polymost_drawalls(int32_t bunch)
                 }
                 else domost(x0,fy0,x1,fy1);
 
+                if (r_parallaxskypanning)
+                    vv[0] += dd[0]*((double)sec->floorypanning)*((double)i)/256.0;
 
                 gdx = 0; gdy = 0; gdo = dd[0];
                 gux = gdo*(t*((double)xdimscale)*((double)yxaspect)*((double)viewingrange))/(16384.0*65536.0*65536.0*5.0*1024.0);
@@ -3734,13 +3734,13 @@ static void polymost_drawalls(int32_t bunch)
                 vv[1] = dd[0]*((double)xdimscale*(double)viewingrange)/(65536.0*65536.0);
                 vv[0] = dd[0]*((double)((tilesizy[globalpicnum]>>1)+parallaxyoffs)) - vv[1]*ghoriz;
                 i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesizy[globalpicnum]) i += i;
-                vv[0] += dd[0]*((double)((r_parallaxskypanning)?sec->ceilingypanning:0))*((double)i)/256.0;
 
                 //Hack to draw black rectangle below sky when looking down...
                 gdx = 0; gdy = gxyaspect / -262144.0; gdo = -ghoriz*gdy;
                 gux = 0; guy = 0; guo = 0;
                 gvx = 0; gvy = 0; gvo = 0;
                 oy = -vv[0]/vv[1];
+
                 if ((oy < cy0) && (oy < cy1)) domost(x1,oy,x0,oy);
                 else if ((oy < cy0) != (oy < cy1))
                 {
@@ -3755,6 +3755,9 @@ static void polymost_drawalls(int32_t bunch)
                     else { domost(ox,oy,x0,cy0); domost(x1,oy,ox,oy); }
                 }
                 else domost(x1,cy1,x0,cy0);
+
+                if (r_parallaxskypanning)
+                    vv[0] += dd[0]*((double)sec->ceilingypanning)*((double)i)/256.0;
 
                 gdx = 0; gdy = 0; gdo = dd[0];
                 gux = gdo*(t*((double)xdimscale)*((double)yxaspect)*((double)viewingrange))/(16384.0*65536.0*65536.0*5.0*1024.0);
