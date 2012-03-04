@@ -1726,9 +1726,14 @@ static void G_PrintFPS(void)
     LastMS = ms;
 }
 
+// yxaspect and viewingrange just before the 'main' drawrooms call
+static int32_t dr_yxaspect, dr_viewingrange;
+
 static void G_PrintCoords(int32_t snum)
 {
+    const int32_t x = 250;
     int32_t y = 16;
+    const int32_t sectnum = g_player[snum].ps->cursectnum;
 
     if ((GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
     {
@@ -1738,21 +1743,31 @@ static void G_PrintCoords(int32_t snum)
             y = 24;
     }
     Bsprintf(tempbuf,"XYZ= (%d,%d,%d)",g_player[snum].ps->pos.x,g_player[snum].ps->pos.y,g_player[snum].ps->pos.z);
-    printext256(250L,y,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"A/H= %d,%d",g_player[snum].ps->ang,g_player[snum].ps->horiz);
-    printext256(250L,y+9L,31,-1,tempbuf,0);
+    printext256(x,y,31,-1,tempbuf,0);
+    Bsprintf(tempbuf,"A/H/HO= %d,%d,%d",g_player[snum].ps->ang,g_player[snum].ps->horiz,g_player[snum].ps->horizoff);
+    printext256(x,y+9,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"ZV= %d",g_player[snum].ps->vel.z);
-    printext256(250L,y+18L,31,-1,tempbuf,0);
+    printext256(x,y+18,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"OG= %d",g_player[snum].ps->on_ground);
-    printext256(250L,y+27L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"SECT= %d (LO=%d)",g_player[snum].ps->cursectnum,sector[g_player[snum].ps->cursectnum].lotag);
-    printext256(250L,y+36L,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"SEED= %d",randomseed);
-    printext256(250L,y+45L,31,-1,tempbuf,0);
+    printext256(x,y+27,31,-1,tempbuf,0);
+    if (sectnum >= 0)
+        Bsprintf(tempbuf,"SECT= %d (LO=%d EX=%d)",sectnum,sector[sectnum].lotag,sector[sectnum].extra);
+    else
+        Bsprintf(tempbuf,"SECT= %d", sectnum);
+    printext256(x,y+36,31,-1,tempbuf,0);
+//    Bsprintf(tempbuf,"SEED= %d",randomseed);
+//    printext256(x,y+45,31,-1,tempbuf,0);
+    y -= 9;
+
+    y += 7;
     Bsprintf(tempbuf,"THOLD= %d",g_player[snum].ps->transporter_hold);
-    printext256(250L,y+54L+7,31,-1,tempbuf,0);
+    printext256(x,y+54,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"GAMETIC= %d",g_moveThingsCount);
-    printext256(250L,y+63L+7,31,-1,tempbuf,0);
+    printext256(x,y+63,31,-1,tempbuf,0);
+
+    y += 7;
+    Bsprintf(tempbuf,"VR=%.03f  YX=%.03f",(double)dr_viewingrange/65536.0,(double)dr_yxaspect/65536.0);
+    printext256(x,y+72,31,-1,tempbuf,0);
 }
 
 // this handles both multiplayer and item pickup message type text
@@ -3636,11 +3651,15 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         if (getrendermode() == 4)
             polymer_setanimatesprites(G_DoSpriteAnimations, ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
 #endif
+        // for G_PrintCoords
+        dr_viewingrange = viewingrange;
+        dr_yxaspect = yxaspect;
 
         yax_preparedrawrooms();
         drawrooms(ud.camera.x,ud.camera.y,ud.camera.z,ud.cameraang,ud.camerahoriz,ud.camerasect);
         g_yax_smoothratio = smoothratio;
         yax_drawrooms(G_AnalyzeSprites, ud.camerahoriz, ud.camerasect);
+
 
         // dupe the sprites touching the portal to the other sector
 
