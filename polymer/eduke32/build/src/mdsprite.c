@@ -3021,7 +3021,11 @@ static int32_t loadkvx(const char *filnam)
     vbit = (int32_t *)Bmalloc(i); if (!vbit) { Bfree(xyoffs); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
-    for (vcolhashsizm1=4096; vcolhashsizm1<(mip1leng>>1); vcolhashsizm1<<=1); vcolhashsizm1--; //approx to numvoxs!
+    for (vcolhashsizm1=4096; vcolhashsizm1<(mip1leng>>1); vcolhashsizm1<<=1)
+    {
+        /* do nothing */
+    }
+    vcolhashsizm1--; //approx to numvoxs!
     vcolhashead = (int32_t *)Bmalloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { Bfree(xyoffs); kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
@@ -3077,7 +3081,11 @@ static int32_t loadkv6(const char *filnam)
     vbit = (int32_t *)Bmalloc(i); if (!vbit) { Bfree(ylen); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
-    for (vcolhashsizm1=4096; vcolhashsizm1<numvoxs; vcolhashsizm1<<=1); vcolhashsizm1--;
+    for (vcolhashsizm1=4096; vcolhashsizm1<numvoxs; vcolhashsizm1<<=1)
+    {
+        /* do nothing */
+    }
+    vcolhashsizm1--;
     vcolhashead = (int32_t *)Bmalloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { Bfree(ylen); kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 

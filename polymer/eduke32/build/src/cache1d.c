@@ -303,18 +303,26 @@ int32_t addsearchpath(const char *p)
     if (!srch) return -1;
 
     srch->next    = searchpathhead;
-    srch->pathlen = strlen(p)+1;
+    srch->pathlen = Bstrlen(p)+1;
     srch->path    = (char *)Bmalloc(srch->pathlen + 1);
     if (!srch->path)
     {
         Bfree(srch);
         return -1;
     }
-    strcpy(srch->path, p);
-    for (s=srch->path; *s; s++) ; s--; if (s<srch->path || toupperlookup[*s] != '/') strcat(srch->path, "/");
+
+    Bstrcpy(srch->path, p);
+    for (s=srch->path; *s; s++)
+    {
+        /* do nothing */
+    }
+    s--;
+    if (s<srch->path || toupperlookup[*s] != '/')
+        Bstrcat(srch->path, "/");
 
     searchpathhead = srch;
-    if (srch->pathlen > maxsearchpathlen) maxsearchpathlen = srch->pathlen;
+    if (srch->pathlen > maxsearchpathlen)
+        maxsearchpathlen = srch->pathlen;
 
     Bcorrectfilename(srch->path,0);
 
@@ -1061,7 +1069,11 @@ CACHE1D_FIND_REC *klistpath(const char *_path, const char *mask, int32_t type)
 
             // scan for the end of the string and shift
             // everything left a char in the process
-            for (i=1; (buf[i-1]=buf[i]); i++) ; i-=2;
+            for (i=1; (buf[i-1]=buf[i]); i++)
+            {
+                /* do nothing */
+            }
+            i-=2;
 
             // if there's a slash at the end, this is a directory entry
             if (toupperlookup[buf[i]] == '/') { ftype = CACHE1D_FIND_DIR; buf[i] = 0; }

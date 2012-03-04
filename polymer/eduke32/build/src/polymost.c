@@ -2221,8 +2221,16 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         if (!glinfo.texnpot)
         {
-            for (xx=1; xx<tsizx; xx+=xx); ox2 = (double)1.0/(double)xx;
-            for (yy=1; yy<tsizy; yy+=yy); oy2 = (double)1.0/(double)yy;
+            for (xx=1; xx<tsizx; xx+=xx)
+            {
+                /* do nothing */
+            }
+            ox2 = (double)1.0/(double)xx;
+            for (yy=1; yy<tsizy; yy+=yy)
+            {
+                /* do nothing */
+            }
+            oy2 = (double)1.0/(double)yy;
         }
         else
         {
