@@ -387,3 +387,50 @@ char *libintl_dgettext (const char *domain_name ATTRIBUTE((unused)), const char 
     static char buf[1024] = "XXX placeholder XXX";
     return buf;
 }
+
+int libintl_fprintf ( FILE * stream, const char * format, ... );
+int libintl_sprintf ( char * str, const char * format, ... );
+int libintl_snprintf ( char *buffer, int buf_size, const char *format, ... );
+int libintl_vprintf ( const char * format, va_list arg );
+int libintl_vfprintf ( FILE * stream, const char * format, va_list arg );
+int libintl_vsprintf ( char * str, const char * format, va_list arg );
+
+int libintl_fprintf ( FILE * stream, const char * format, ... )
+{
+    int value;
+    va_list arg;
+    va_start(arg, format);
+    value = vfprintf ( stream, format, arg );
+    va_end(arg);
+    return value;
+}
+int libintl_sprintf ( char * str, const char * format, ... )
+{
+    int value;
+    va_list arg;
+    va_start(arg, format);
+    value = vsprintf ( str, format, arg );
+    va_end(arg);
+    return value;
+}
+int libintl_snprintf ( char *buffer, int buf_size, const char *format, ... )
+{
+    int value;
+    va_list arg;
+    va_start(arg, format);
+    value = vsnprintf ( buffer, buf_size, format, arg );
+    va_end(arg);
+    return value;
+}
+int libintl_vprintf ( const char * format, va_list arg )
+{
+    return vprintf ( format, arg );
+}
+int libintl_vfprintf ( FILE * stream, const char * format, va_list arg )
+{
+    return vfprintf ( stream, format, arg );
+}
+int libintl_vsprintf ( char * str, const char * format, va_list arg )
+{
+    return vsprintf ( str, format, arg );
+}
