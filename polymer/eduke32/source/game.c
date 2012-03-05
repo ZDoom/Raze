@@ -110,7 +110,6 @@ uint8_t *basepaltable[BASEPALCOUNT] = { palette, water_pal, slime_pal, dre_alms,
 
 static int32_t g_skipDefaultCons = 0;
 static int32_t g_skipDefaultDefs = 0; // primarily for NAM/WWII GI appeasement
-static int32_t g_skipDefaultRTS = 0;
 
 int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
@@ -122,6 +121,7 @@ static int32_t g_noLogo = 0;
 char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 char defsfilename[BMAX_PATH] = "duke3d.def";
 static char defaultconfilename[2][BMAX_PATH] = { "EDUKE.CON", "GAME.CON" };
+char defaultrtsfilename[128] = "DUKE.RTS";
 
 char *g_grpNamePtr = defaultduke3dgrp;
 char *g_defNamePtr = defsfilename;
@@ -8783,9 +8783,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        Bstrcpy(ud.rtsname, (char *)argv[i+1]);
                         g_rtsNamePtr = (char *)argv[i+1];
-                        g_skipDefaultRTS = 1;
+                        Bstrcpy(ud.rtsname, g_rtsNamePtr);
                         initprintf("Using .RTS file '%s'\n",ud.rtsname);
                         i++;
                     }
@@ -9107,9 +9106,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     }
                     if (!Bstrcasecmp(k,".rts"))
                     {
-                        g_rtsNamePtr = (char *)argv[i];
-                        Bstrcpy(ud.rtsname, (char *)argv[i++]);
-                        g_skipDefaultRTS = 1;
+                        g_rtsNamePtr = (char *)argv[i++];
+                        Bstrcpy(ud.rtsname, g_rtsNamePtr);
                         initprintf("Using .RTS file '%s'\n",ud.rtsname);
                         continue;
                     }
@@ -9908,9 +9906,6 @@ int32_t app_main(int32_t argc,const char **argv)
 
     i = CONFIG_ReadSetup();
 
-    if (g_skipDefaultRTS)
-        Bstrcpy(ud.rtsname, g_rtsNamePtr);
-
     if (getenv("DUKE3DGRP"))
     {
         g_grpNamePtr = getenv("DUKE3DGRP");
@@ -10304,17 +10299,18 @@ CLEAN_DIRECTORY:
     playerswhenstarted = ud.multimode;
     ud.last_level = 0;
 
-    if (!Bstrcasecmp(ud.rtsname,"DUKE.RTS") ||
+    if (g_rtsNamePtr == NULL &&
+            (!Bstrcasecmp(ud.rtsname,defaultrtsfilename) ||
             !Bstrcasecmp(ud.rtsname,"WW2GI.RTS") ||
-            !Bstrcasecmp(ud.rtsname,"NAM.RTS"))
+            !Bstrcasecmp(ud.rtsname,"NAM.RTS")))
     {
-        // ud.last_level is used as a flag here to reset the string to DUKE.RTS after load
+        // ud.last_level is used as a flag here to reset the string to default after load
         if (WW2GI)
             ud.last_level = (Bstrcpy(ud.rtsname, "WW2GI.RTS") == ud.rtsname);
         else if (NAM)
             ud.last_level = (Bstrcpy(ud.rtsname, "NAM.RTS") == ud.rtsname);
         else
-            ud.last_level = (Bstrcpy(ud.rtsname, "DUKE.RTS") == ud.rtsname);
+            ud.last_level = (Bstrcpy(ud.rtsname, defaultrtsfilename) == ud.rtsname);
     }
 
     RTS_Init(ud.rtsname);
@@ -10323,7 +10319,7 @@ CLEAN_DIRECTORY:
         initprintf("Using .RTS file '%s'\n",ud.rtsname);
 
     if (ud.last_level)
-        Bstrcpy(ud.rtsname, "DUKE.RTS");
+        Bstrcpy(ud.rtsname, defaultrtsfilename);
 
     ud.last_level = -1;
 

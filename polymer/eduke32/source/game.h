@@ -190,6 +190,7 @@ extern char CheatStrings[][MAXCHEATLEN];
 extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
 extern char boardfilename[BMAX_PATH];
 extern char defaultduke3dgrp[BMAX_PATH];
+extern char defaultrtsfilename[128];
 extern char g_modDir[BMAX_PATH];
 extern char g_modDir[BMAX_PATH];
 extern char inputloc;
