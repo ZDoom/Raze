@@ -1369,7 +1369,7 @@ skip_check:
 
         case CON_DEBUG:
             insptr++;
-            initprintf("%"PRIdPTR"\n",*insptr++);
+            initprintf("%" PRIdPTR "\n",*insptr++);
             continue;
 
         case CON_ENDOFGAME:
@@ -4790,6 +4790,27 @@ nullquote:
                     continue;
                 }
                 G_AddUserQuote(ScriptQuotes[i]);
+            }
+            continue;
+
+        case CON_ECHO:
+            insptr++;
+            {
+                int32_t i=Gv_GetVarX(*insptr++);
+
+                if ((unsigned)i >= MAXQUOTES)
+                {
+                    OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],i);
+                    insptr++;
+                    continue;
+                }
+
+                if ((ScriptQuotes[i] == NULL))
+                {
+                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],i);
+                    continue;
+                }
+                OSD_Printf("%s\n",ScriptQuotes[i]);
             }
             continue;
 

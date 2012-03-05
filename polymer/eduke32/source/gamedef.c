@@ -85,6 +85,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_CLIPMOVENOSLIDE, 20101009 },
     { CON_INCLUDEDEFAULT, 20110615 },
     { CON_SETACTORSOUNDPITCH, 20111102 },
+    { CON_ECHO, 20120304 },
 };
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
@@ -565,6 +566,7 @@ const char *keyw[] =
     "clipmovenoslide",          // 359
     "includedefault",           // 360
     "setactorsoundpitch",       // 361
+    "echo",                     // 362
     "<null>"
 };
 
@@ -3645,6 +3647,7 @@ static int32_t C_ParseCommand(int32_t loop)
         case CON_SAVEGAMEVAR:
         case CON_READGAMEVAR:
         case CON_USERQUOTE:
+        case CON_ECHO:
         case CON_STARTTRACKVAR:
         case CON_CLEARMAPSTATE:
         case CON_ACTIVATECHEAT:

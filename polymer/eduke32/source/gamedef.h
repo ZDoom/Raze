@@ -951,7 +951,8 @@ enum ScriptKeywords_t
     CON_CALCHYPOTENUSE,     // 358
     CON_CLIPMOVENOSLIDE,    // 359
     CON_INCLUDEDEFAULT,     // 360
-    CON_SETACTORSOUNDPITCH,     // 361
+    CON_SETACTORSOUNDPITCH, // 361
+    CON_ECHO,               // 362
     CON_END
 };
 #endif
