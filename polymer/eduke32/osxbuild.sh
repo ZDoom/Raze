@@ -135,6 +135,6 @@ if [ -f mapster32.x64 ] && [ -f eduke32.x86 ]; then # && [ -f eduke32.ppc ]; the
     echo "The 64-bit build in this archive has LibVPX (http://www.webmproject.org/code/)" >> README.OSX
     echo "from MacPorts (http://www.macports.org/) statically linked into it." >> README.OSX
     rm -f "$arfilename"
-    zip -r "$arfilename" Mapster32.app EDuke32.app README.OSX
+    zip -r -y "$arfilename" Mapster32.app EDuke32.app README.OSX -x "*.svn*" "*.git*"
     # Mapster32.debug.app EDuke32.debug.app
 fi
