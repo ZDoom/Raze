@@ -3476,7 +3476,10 @@ cheat_for_port_credits:
         mgametext(c+168,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
 
         menutext(c,50+16,MENUHIGHLIGHT(1),0,"RENDERER");
-        Bsprintf(tempbuf,(vidsets[newvidset]&0x20000)?"%d-bit OpenGL":"Software", vidsets[newvidset]&0x0ffff);
+        if (vidsets[newvidset]&0x20000)
+            Bsprintf(tempbuf,"%d-bit OpenGL", vidsets[newvidset]&0x0ffff);
+        else
+            Bsprintf(tempbuf,"Software");
         mgametext(c+168,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
         menutext(c,50+16+16,MENUHIGHLIGHT(2),0,"FULLSCREEN");

@@ -686,7 +686,7 @@ void initprintf(const char *f, ...)
     Bvsnprintf(buf, sizeof(buf), f, va);
     va_end(va);
 
-    OSD_Printf(buf);
+    OSD_Printf("%s",buf);
 
     mutex_lock(&m_initprintf);
     if ((Bstrlen(dabuf) + Bstrlen(buf) + 2) > sizeof(dabuf))

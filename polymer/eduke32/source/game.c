@@ -7992,7 +7992,7 @@ static void G_ShowParameterHelp(void)
               ;
 #if defined RENDERTYPEWIN
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
-    wm_msgbox(tempbuf,s);
+    wm_msgbox(tempbuf,"%s",s);
 #else
     initprintf("%s\n",s);
 #endif
@@ -8019,7 +8019,7 @@ static void G_ShowDebugHelp(void)
               ;
 #if defined RENDERTYPEWIN
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
-    wm_msgbox(tempbuf,s);
+    wm_msgbox(tempbuf,"%s",s);
 #else
     initprintf("%s\n",s);
 #endif
@@ -9579,7 +9579,7 @@ static void G_Startup(void)
             Bsprintf(tempbuf, "You have run Duke Nukem 3D shareware %d times.  It is now time to upgrade to the complete version!\n\n"
                      "Purchase Duke Nukem 3D for $5.99 now?\n", ud.executions);
 
-            if (wm_ynbox("Upgrade to the full version of Duke Nukem 3D",tempbuf))
+            if (wm_ynbox("Upgrade to the full version of Duke Nukem 3D","%s",tempbuf))
             {
                 SHELLEXECUTEINFOA sinfo;
                 char *p = "http://www.gog.com/en/gamecard/duke_nukem_3d_atomic_edition/?pp=6c1e671f9af5b46d9c1a52067bdf0e53685674f7";

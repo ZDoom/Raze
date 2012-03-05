@@ -5744,7 +5744,7 @@ void C_Compile(const char *filenam)
                      "(Clicking yes will bring you to our web store)",
                      g_grpNamePtr,g_grpNamePtr);
 
-            if (wm_ynbox("Important - Duke Nukem 3D not found - EDuke32",tempbuf))
+            if (wm_ynbox("Important - Duke Nukem 3D not found - EDuke32","%s",tempbuf))
             {
                 SHELLEXECUTEINFOA sinfo;
                 char *p = "http://www.gog.com/en/gamecard/duke_nukem_3d_atomic_edition/?pp=6c1e671f9af5b46d9c1a52067bdf0e53685674f7";
