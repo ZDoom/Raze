@@ -380,7 +380,7 @@ EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
 # define B_ATTRIBUTE_USED
 #endif
 
-EXTERN char B_ATTRIBUTE_USED gotpic[(MAXTILES+7)>>3];
+EXTERN char gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN char editorcolors[256];
