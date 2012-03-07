@@ -983,11 +983,18 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
         if (getrendermode()==0)
         {
             begindrawing();
-            j = 0;
-            for (i=0; i<xdimen*ydimen; i++)
             {
-                *((char *)frameplace + i) = (char)j;
-                j = (j+1)%xdimen;
+                const int32_t dimenprod = xdimen*ydimen;
+                char *const p = (char *)frameplace;
+
+                j = 0;
+                for (i=0; i<dimenprod; i++)
+                {
+                    p[i] = (char)j;
+                    j++;
+                    if (j >= xdimen)
+                        j = 0;
+                }
             }
             enddrawing();
         }
