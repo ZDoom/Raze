@@ -169,54 +169,70 @@ void tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intp
 
 //Floor sprite horizontal line functions
 void msethlineshift(int32_t logx, int32_t logy) { glogx = logx; glogy = logy; }
+// cntup16>>16 + 1 iterations
 void mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, intptr_t p)
 {
     char ch;
 
+    const int32_t xinc = asm1, yinc = asm2;
+
     UNREFERENCED_PARAMETER(junk);
 
     gbuf = (char *)bufplc;
     gpal = (char *)asm3;
-    for (cntup16>>=16; cntup16>0; cntup16--)
+
+    cntup16>>=16;
+    cntup16++;
+    do
     {
         ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
         if (ch != 255) *((char *)p) = gpal[ch];
-        bx += asm1;
-        by += asm2;
+        bx += xinc;
+        by += yinc;
         p++;
     }
+    while (--cntup16);
 }
 
 void tsethlineshift(int32_t logx, int32_t logy) { glogx = logx; glogy = logy; }
+// cntup16>>16 + 1 iterations
 void thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, intptr_t p)
 {
     char ch;
 
+    const int32_t xinc = asm1, yinc = asm2;
+
     UNREFERENCED_PARAMETER(junk);
 
     gbuf = (char *)bufplc;
     gpal = (char *)asm3;
+
+    cntup16>>=16;
+    cntup16++;
+
     if (transmode)
     {
-        for (cntup16>>=16; cntup16>0; cntup16--)
+        do
         {
             ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
-            if (ch != 255) *((char *)p) = gtrans[(*((char *)p))+(gpal[ch]<<8)];
-            bx += asm1;
-            by += asm2;
+            if (ch != 255) *((char *)p) = gtrans[(*((char *)p))|(gpal[ch]<<8)];
+            bx += xinc;
+            by += yinc;
             p++;
         }
+        while (--cntup16);
     }
     else
     {
-        for (cntup16>>=16; cntup16>0; cntup16--)
+        do
         {
             ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
-            if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<8)+gpal[ch]];
-            bx += asm1;
-            by += asm2;
+            if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<8)|gpal[ch]];
+            bx += xinc;
+            by += yinc;
             p++;
         }
+        while (--cntup16);
     }
 }
 
