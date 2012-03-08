@@ -213,7 +213,7 @@ ifeq ($(PLATFORM),DARWIN)
                 -Wl,-framework,QuickTime -lm
     endif
     ifneq (0,$(OSX_STARTUPWINDOW))
-        EDITOROBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
+#        EDITOROBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
         GAMEOBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
     endif
     NASMFLAGS += -f macho

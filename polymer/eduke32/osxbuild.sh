@@ -47,7 +47,7 @@ if [ $onlyzip -eq 0 ]; then
     # fi
 
     make veryclean
-    WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3
+    OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3
     if [ $? ]; then
         echo 64-bit release build succeeded.
         cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.x64
@@ -67,7 +67,7 @@ if [ $onlyzip -eq 0 ]; then
     # fi
 
     make veryclean
-    WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3
+    OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3
     if [ $? ]; then
         echo 32-bit release build succeeded.
         cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.x86
@@ -86,15 +86,15 @@ if [ $onlyzip -eq 0 ]; then
     #     echo PowerPC debug build failed.
     # fi
 
-    # make veryclean
-    # ARCH='-arch ppc' WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3
-    # if [ $? ]; then
-    #     echo PowerPC release build succeeded.
-    #     cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.ppc
-    #     cp "EDuke32.app/Contents/MacOS/eduke32" eduke32.ppc
-    # else
-    #     echo PowerPC release build failed.
-    # fi
+    make veryclean
+    ARCH='-arch ppc' OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3
+    if [ $? ]; then
+        echo PowerPC release build succeeded.
+        cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.ppc
+        cp "EDuke32.app/Contents/MacOS/eduke32" eduke32.ppc
+    else
+        echo PowerPC release build failed.
+    fi
 fi
 
 # clean up, clean up, everybody everywhere, clean up, clean up, everybody do your share
@@ -113,16 +113,16 @@ fi
 # fi
 
 # Almost done...
-if [ -f mapster32.x64 ] && [ -f eduke32.x86 ]; then # && [ -f eduke32.ppc ]; then
+if [ -f mapster32.x64 ] && [ -f eduke32.x86 ] && [ -f eduke32.ppc ]; then
     echo Creating fat binaries.
 
-    lipo -create mapster32.x64 mapster32.x86  -output mapster32
+    lipo -create mapster32.x64 mapster32.x86 mapster32.ppc -output mapster32
     cp -f mapster32 "Mapster32.app/Contents/MacOS/mapster32"
 
 #    lipo -create mapster32.debug.x64 mapster32.debug.x86 -output mapster32.debug
 #    cp -f mapster32 "Mapster32.debug.app/Contents/MacOS/mapster32"
 
-    lipo -create eduke32.x64 eduke32.x86  -output eduke32
+    lipo -create eduke32.x64 eduke32.x86 mapster32.ppc -output eduke32
     cp -f eduke32 "EDuke32.app/Contents/MacOS/eduke32"
 
 #    lipo -create eduke32.debug.x64 eduke32.debug.x86 -output eduke32.debug

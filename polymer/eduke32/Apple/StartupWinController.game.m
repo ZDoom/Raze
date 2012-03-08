@@ -4,6 +4,7 @@
 
 #define GetTime xGetTime
 #include "duke3d.h"
+#include "game.h"
 #undef GetTime
 #include "build.h"
 #include "compat.h"
@@ -399,7 +400,6 @@ int startwin_idle(void *v)
     return 0;
 }
 
-extern char *duke3dgrp;
 
 int startwin_run(void)
 {
@@ -407,16 +407,16 @@ int startwin_run(void)
     
     if (startwin == nil) return 0;
     
-    settings.fullscreen = ScreenMode;
-    settings.xdim3d = ScreenWidth;
-    settings.ydim3d = ScreenHeight;
-    settings.bpp3d = ScreenBPP;
-    settings.samplerate = MixRate;
-    settings.bitspersample = NumBits;
-    settings.channels = NumChannels;
-    settings.forcesetup = ForceSetup;
-    settings.game = gametype;
-    strncpy(settings.selectedgrp, duke3dgrp, BMAX_PATH);
+    settings.fullscreen = ud.config.ScreenMode;
+    settings.xdim3d = ud.config.ScreenWidth;
+    settings.ydim3d = ud.config.ScreenHeight;
+    settings.bpp3d = ud.config.ScreenBPP;
+    settings.samplerate = ud.config.MixRate;
+    settings.bitspersample = ud.config.NumBits;
+    settings.channels = ud.config.NumChannels;
+    settings.forcesetup = ud.config.ForceSetup;
+//    settings.game = gametype;
+    strncpy(settings.selectedgrp, defaultduke3dgrp, BMAX_PATH);
     
     [startwin setupRunMode];
     
@@ -429,16 +429,16 @@ int startwin_run(void)
     [startwin setupMessagesMode];
     
     if (retval) {
-        ScreenMode = settings.fullscreen;
-        ScreenWidth = settings.xdim3d;
-        ScreenHeight = settings.ydim3d;
-        ScreenBPP = settings.bpp3d;
-        MixRate = settings.samplerate;
-        NumBits = settings.bitspersample;
-        NumChannels = settings.channels;        
-        ForceSetup = settings.forcesetup;
-        duke3dgrp = settings.selectedgrp;
-        gametype = settings.game;
+        ud.config.ScreenMode = settings.fullscreen;
+        ud.config.ScreenWidth = settings.xdim3d;
+        ud.config.ScreenHeight = settings.ydim3d;
+        ud.config.ScreenBPP = settings.bpp3d;
+        ud.config.MixRate = settings.samplerate;
+        ud.config.NumBits = settings.bitspersample;
+        ud.config.NumChannels = settings.channels;        
+        ud.config.ForceSetup = settings.forcesetup;
+        strncpy(defaultduke3dgrp, settings.selectedgrp, BMAX_PATH);
+//        gametype = settings.game;
     }
     
     return retval;
