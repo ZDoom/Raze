@@ -13,6 +13,8 @@ DXROOT_OVERRIDE:=
 # Mac OS X Frameworks location
 # Like above, use absolute paths.
 APPLE_FRAMEWORKS ?=/Library/Frameworks
+# Since the OS X startup window is generating errors, disable it by default.
+OSX_STARTUPWINDOW ?= 0
 
 # Engine options
 #  USE_OPENGL     - enables basic OpenGL Polymost renderer
@@ -162,6 +164,9 @@ ifneq (0,$(USE_LIBPNG))
 endif
 ifneq (0,$(USE_LIBVPX))
     BASECFLAGS+= -DUSE_LIBVPX
+endif
+ifneq (0,$(OSX_STARTUPWINDOW))
+    BASECFLAGS+= -DOSX_STARTUPWINDOW
 endif
 
 ifneq (0,$(EFENCE))

@@ -121,7 +121,10 @@ ifeq ($(PLATFORM),LINUX)
     ASFLAGS+= -f elf
 endif
 ifeq ($(PLATFORM),DARWIN)
-    ENGINEOBJS += $(OBJ)/osxbits.$o $(OBJ)/StartupWinController.editor.$o
+    ENGINEOBJS += $(OBJ)/osxbits.$o
+    ifneq (0,$(OSX_STARTUPWINDOW))
+        ENGINEOBJS += $(OBJ)/StartupWinController.editor.$o
+    endif
     ASFLAGS     += -f macho -DUNDERSCORES
     OURCFLAGS   += -fno-pic -DUNDERSCORES
 endif

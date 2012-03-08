@@ -479,7 +479,7 @@ void M32_DrawRoomsAndMasks(void)
 }
 
 #undef STARTUP_SETUP_WINDOW
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && (defined __APPLE__ || defined HAVE_GTK2))
+#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
 # define STARTUP_SETUP_WINDOW
 #endif
 

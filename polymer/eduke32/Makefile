@@ -212,8 +212,10 @@ ifeq ($(PLATFORM),DARWIN)
                 -Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
                 -Wl,-framework,QuickTime -lm
     endif
-    EDITOROBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
-    GAMEOBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
+    ifneq (0,$(OSX_STARTUPWINDOW))
+        EDITOROBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
+        GAMEOBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
+    endif
     NASMFLAGS += -f macho
 endif
 
