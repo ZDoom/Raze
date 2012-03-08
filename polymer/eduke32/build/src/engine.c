@@ -7943,7 +7943,7 @@ int32_t initengine(void)
 
 //    for (i=0; i<MAXPALOOKUPS; i++) palookup[i] = NULL;
 /*
-    clearbuf(&waloff[0],(int32_t)MAXTILES,0L);
+    Bmemset(waloff, 0, sizeof(waloff));
 
     clearbuf(&show2dsector[0],(int32_t)((MAXSECTORS+3)>>5),0L);
     clearbuf(&show2dsprite[0],(int32_t)((MAXSPRITES+3)>>5),0L);
@@ -8228,6 +8228,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     if (inpreparemirror)
     {
+        // INPREPAREMIRROR_NO_BUNCHES
         // numbunches==0 can happen if the mirror is far away... the game code decides
         // to draw it, but scansector gets zero bunches.  Result: big screwup!
         // Leave inpreparemirror as is, it's restored by completemirror.

@@ -4604,10 +4604,15 @@ void polymost_drawrooms()
     {
         grhalfxdown10x = -grhalfxdown10;
         inpreparemirror = 0;
-        polymost_drawalls(0);
-        numbunches--;
-        bunchfirst[0] = bunchfirst[numbunches];
-        bunchlast[0] = bunchlast[numbunches];
+
+        // see engine.c: INPREPAREMIRROR_NO_BUNCHES
+        if (numbunches > 0)
+        {
+            polymost_drawalls(0);
+            numbunches--;
+            bunchfirst[0] = bunchfirst[numbunches];
+            bunchlast[0] = bunchlast[numbunches];
+        }
     }
     else
         grhalfxdown10x = grhalfxdown10;
