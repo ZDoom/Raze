@@ -2,6 +2,8 @@
 
 #include "baselayer.h"
 
+static id nsapp;
+
 @interface StartupWinController : NSWindowController
 {
 	IBOutlet NSButton *alwaysShowButton;
@@ -39,13 +41,13 @@
 
 - (IBAction)cancel:(id)sender
 {
-	[NSApp abortModal];
+	[nsapp abortModal];
 }
 
 - (IBAction)start:(id)sender
 {
 	// XXX: write the states of the form controls to their respective homes
-	[NSApp stopModal];
+	[nsapp stopModal];
 }
 
 - (void)setupRunMode
@@ -114,6 +116,8 @@ static StartupWinController *startwin = nil;
 
 int startwin_open(void)
 {
+    nsapp = [NSApplication sharedApplication];
+
 	if (startwin != nil) return 1;
 	
 	startwin = [[StartupWinController alloc] initWithWindowNibName:@"startwin.editor"];
@@ -177,7 +181,7 @@ int startwin_run(void)
 	
 	[startwin setupRunMode];
 	
-	switch ([NSApp runModalForWindow:[startwin window]]) {
+	switch ([nsapp runModalForWindow:[startwin window]]) {
 		case NSRunStoppedResponse: retval = 1; break;
 		case NSRunAbortedResponse: retval = 0; break;
 		default: retval = -1;

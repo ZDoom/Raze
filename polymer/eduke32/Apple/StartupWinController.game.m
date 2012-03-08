@@ -13,6 +13,8 @@
 #import "GrpFile.game.h"
 #import "GameListSource.game.h"
 
+static id nsapp;
+
 static struct {
     int fullscreen;
     int xdim3d, ydim3d, bpp3d;
@@ -186,7 +188,7 @@ static struct soundQuality_t {
 
 - (IBAction)cancel:(id)sender
 {
-    [NSApp abortModal];
+    [nsapp abortModal];
 }
 
 - (IBAction)start:(id)sender
@@ -217,7 +219,7 @@ static struct soundQuality_t {
     
     settings.forcesetup = [alwaysShowButton state] == NSOnState;
     
-    [NSApp stopModal];
+    [nsapp stopModal];
 }
 
 - (void)setupRunMode
@@ -305,6 +307,12 @@ static StartupWinController *startwin = nil;
 
 int startwin_open(void)
 {
+    // PK: is this the entry point?
+
+    // fix for "ld: absolute address to symbol _NSApp in a different linkage unit not supported"
+    // (OS X 10.6) when building for PPC
+    nsapp = [NSApplication sharedApplication];
+
     if (startwin != nil) return 1;
     
     startwin = [[StartupWinController alloc] initWithWindowNibName:@"startwin.game"];
@@ -412,7 +420,7 @@ int startwin_run(void)
     
     [startwin setupRunMode];
     
-    switch ([NSApp runModalForWindow:[startwin window]]) {
+    switch ([nsapp runModalForWindow:[startwin window]]) {
         case NSRunStoppedResponse: retval = 1; break;
         case NSRunAbortedResponse: retval = 0; break;
         default: retval = -1;
