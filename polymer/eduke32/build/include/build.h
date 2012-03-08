@@ -373,13 +373,6 @@ EXTERN char show2dwall[(MAXWALLS+7)>>3];
 EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
 //EXTERN char automapping;
 
-// GCC 4.6 LTO build fix
-#ifdef USING_LTO
-# define B_ATTRIBUTE_USED ATTRIBUTE((used))
-#else
-# define B_ATTRIBUTE_USED
-#endif
-
 EXTERN char gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
