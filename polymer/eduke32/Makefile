@@ -199,7 +199,7 @@ ifeq ($(PLATFORM),DARWIN)
                 -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
                 -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
                 -Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
-                -Wl,-framework,QuickTime -lm
+                -Wl,-framework,QuickTime -lm \
                 -Wl,-rpath -Wl,"@loader_path/../Frameworks"
         # We have SDLMain.m from the OSX SDL package in the Apple/ subdir:
         EDITOROBJS+=$(OBJ)/SDLMain.$o

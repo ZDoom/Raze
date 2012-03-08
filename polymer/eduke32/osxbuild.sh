@@ -20,12 +20,12 @@ fi
 
 rev=`svn info | grep Revision | awk '{ print $2 }'`
 vc=svn
-if [ -z "$ref" ]; then
+if [ -z "$rev" ]; then
     vc=git
     rev=`git svn info | grep 'Revision' | awk '{ print $2 }'`
 fi
 
-if [ -n "$ref" ]; then
+if [ -n "$rev" ]; then
     # throw the svn revision into a header.  this is ugly.
     echo "const char *s_buildRev = \"r$rev\";" > source/rev.h
 else
