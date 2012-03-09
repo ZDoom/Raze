@@ -179,15 +179,15 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 
         sz = (numargs+2)*sizeof(char *) + (c-command+1);
         sz = ((sz+pagesize-1)/pagesize)*pagesize;
-# ifdef NEDMALLOC
+#if defined(NEDMALLOC) || (defined(__APPLE__) && defined(DARWIN9))
         external_midi_argv = Bcalloc(1,sz+pagesize);
         if (!external_midi_argv)
             goto fallback;
         external_midi_argv = (char **)((intptr_t)external_midi_argv + (pagesize-(((intptr_t)external_midi_argv)&(pagesize-1))));
-# else
+#else
         if (posix_memalign((void **)&external_midi_argv, pagesize, sz))
             goto fallback;
-# endif
+#endif
         cmd = (char *)external_midi_argv + (numargs+2)*sizeof(char *);
         Bmemcpy(cmd, command, c-command+1);
 

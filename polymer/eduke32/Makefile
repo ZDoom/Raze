@@ -292,7 +292,7 @@ ifeq (1,$(RELEASE))
   endif
 endif
 ifeq ($(PLATFORM),DARWIN)
-	cp -rf "Apple/bundles/EDuke32.app" "./"
+	cp -RPf "Apple/bundles/EDuke32.app" "./"
 	mkdir -p "EDuke32.app/Contents/MacOS"
 	cp -f "eduke32$(EXESUFFIX)" "EDuke32.app/Contents/MacOS/"
 endif
@@ -306,7 +306,7 @@ ifeq (1,$(RELEASE))
   endif
 endif
 ifeq ($(PLATFORM),DARWIN)
-	cp -rf "Apple/bundles/Mapster32.app" "./"
+	cp -RPf "Apple/bundles/Mapster32.app" "./"
 	mkdir -p "Mapster32.app/Contents/MacOS"
 	cp -f "mapster32$(EXESUFFIX)" "Mapster32.app/Contents/MacOS/"
 endif

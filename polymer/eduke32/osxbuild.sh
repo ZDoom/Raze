@@ -106,10 +106,10 @@ fi
 
 # Duplicating .app bundles for debug build:
 # if [ -d "Mapster32.app" ]; then
-    # cp "Mapster32.app" "Mapster32.debug.app"
+    # cp -RP "Mapster32.app" "Mapster32.debug.app"
 # fi
 # if [ -d "EDuke32.app" ]; then
-    # cp "EDuke32.app" "EDuke32.debug.app"
+    # cp -RP "EDuke32.app" "EDuke32.debug.app"
 # fi
 
 # Almost done...

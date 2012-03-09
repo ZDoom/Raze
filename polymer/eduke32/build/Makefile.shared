@@ -95,11 +95,22 @@ ifeq ($(PLATFORM),LINUX)
     endif
 endif
 ifeq ($(PLATFORM),DARWIN)
+    DARWINVERSION?=$(strip $(shell uname -r | cut -d . -f 1))
+    ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 10)))
+        DARWIN9 = 1
+    endif
+
     RENDERTYPE    = SDL
     STDCPPLIB    = -lstdc++
     BUILDCFLAGS    += -DHAVE_INTTYPES #-fno-leading-underscore
     GTKCOMPAT32    = 0
     SDL_FRAMEWORK    = 1
+
+    ifeq (1,$(DARWIN9))
+        BUILDCFLAGS += -DDARWIN9
+        F_JUMP_TABLES :=
+    endif
+
     ifeq (1,$(BUILD32_ON_64))
         BUILDCFLAGS += $(F_NO_STACK_PROTECTOR) -arch i386
     else
