@@ -668,7 +668,7 @@ static void G_ShowCacheLocks(void)
                     break;
 
                 Bsprintf(tempbuf, "snd #%d inst %d: voice %d, ow %d", i, j,
-                         g_sounds[i].SoundOwner[j].voice, g_sounds[i].SoundOwner[j].i);
+                         g_sounds[i].SoundOwner[j].voice, g_sounds[i].SoundOwner[j].ow);
                 printext256(240,k,31,-1,tempbuf,0);
 
                 k += 9;

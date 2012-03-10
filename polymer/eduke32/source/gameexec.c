@@ -1095,7 +1095,7 @@ skip_check:
                 continue;
             }
             VM_CONDITIONAL(S_CheckSoundPlaying(vm.g_i,*insptr));
-            //    VM_DoConditional(SoundOwner[*insptr][0].i == vm.g_i);
+            //    VM_DoConditional(SoundOwner[*insptr][0].ow == vm.g_i);
             continue;
 
         case CON_STOPSOUND:
@@ -4869,7 +4869,7 @@ nullquote:
 
                 for (; k<MAXSOUNDINSTANCES; k++)
                 {
-                    if (g_sounds[j].SoundOwner[k].i == vm.g_i)
+                    if (g_sounds[j].SoundOwner[k].ow == vm.g_i)
                         break;
                 }
 

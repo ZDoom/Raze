@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 /// vvv sound structs from duke3d.h
 typedef struct {
     int32_t voice;
-    int32_t i;
+    int32_t ow;
 } SOUNDOWNER;
 
 typedef struct {

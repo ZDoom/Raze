@@ -232,7 +232,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     if (g_sounds[num].num > 0 && PN != MUSICANDSFX)
     {
-        if (g_sounds[num].SoundOwner[0].i == i) S_StopSound(num);
+        if (g_sounds[num].SoundOwner[0].ow == i) S_StopSound(num);
         else if (g_sounds[num].num > 1) S_StopSound(num);
 //        else if (A_CheckEnemySprite(&sprite[i]) && sprite[i].extra <= 0) S_StopSound(num);
     }
@@ -270,7 +270,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     if (voice >= FX_Ok)
     {
-        g_sounds[num].SoundOwner[g_sounds[num].num].i = i;
+        g_sounds[num].SoundOwner[g_sounds[num].num].ow = i;
         g_sounds[num].SoundOwner[g_sounds[num].num].voice = voice;
         g_sounds[num].num++;
     }
@@ -329,7 +329,7 @@ void S_PlaySound(int32_t num)
 
     if (voice >= FX_Ok)
     {
-        g_sounds[num].SoundOwner[g_sounds[num].num].i = -1;
+        g_sounds[num].SoundOwner[g_sounds[num].num].ow = -1;
         g_sounds[num].SoundOwner[g_sounds[num].num].voice = voice;
         g_sounds[num].num++;
         return;
@@ -368,7 +368,7 @@ void S_StopEnvSound(int32_t num,int32_t i)
         {
             k = g_sounds[num].num;
             for (j=0; j<k; j++)
-                if (g_sounds[num].SoundOwner[j].i == i)
+                if (g_sounds[num].SoundOwner[j].ow == i)
                 {
                     FX_StopSound(g_sounds[num].SoundOwner[j].voice);
                     break;
@@ -392,7 +392,7 @@ void S_Update(void)
     for (j=0; j<MAXSOUNDS; j++)
         for (k=0; k<g_sounds[j].num; k++)
         {
-            i = g_sounds[j].SoundOwner[k].i;
+            i = g_sounds[j].SoundOwner[k].ow;
 
             sx = sprite[i].x;
             sy = sprite[i].y;
@@ -450,7 +450,7 @@ void S_Callback(uint32_t num)
         if ((g_sounds[num].m&16) == 0)
             for (j=0; j<k; j++)
             {
-                i = g_sounds[num].SoundOwner[j].i;
+                i = g_sounds[num].SoundOwner[j].ow;
                 if (i < 0)
                     continue;
 
@@ -461,14 +461,14 @@ void S_Callback(uint32_t num)
                     if (j < k-1)
                     {
                         g_sounds[num].SoundOwner[j].voice = g_sounds[num].SoundOwner[k-1].voice;
-                        g_sounds[num].SoundOwner[j].i     = g_sounds[num].SoundOwner[k-1].i;
+                        g_sounds[num].SoundOwner[j].ow     = g_sounds[num].SoundOwner[k-1].ow;
                     }
                     break;
                 }
             }
 
         g_sounds[num].num--;
-        g_sounds[num].SoundOwner[k-1].i = -1;
+        g_sounds[num].SoundOwner[k-1].ow = -1;
     }
 
     g_sounds[num].lock--;

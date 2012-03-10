@@ -2988,7 +2988,7 @@ dodefault:
         {
             int32_t j = MAXSOUNDS-1;
             for (; j>=0; j--)
-                if (g_sounds[j].SoundOwner[0].i == vm.g_i)
+                if (g_sounds[j].SoundOwner[0].ow == vm.g_i)
                     break;
 
             VM_DoConditional(j < 0);

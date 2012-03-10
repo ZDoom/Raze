@@ -76,7 +76,7 @@ void S_SoundStartup(void)
         {
             g_sounds[i].num = 0;
             g_sounds[i].SoundOwner[j].voice = 0;
-            g_sounds[i].SoundOwner[j].i = -1;
+            g_sounds[i].SoundOwner[j].ow = -1;
         }
 
         g_soundlocks[i] = 199;
@@ -326,7 +326,7 @@ void S_Cleanup(void)
 
             num = (num - j) / MAXSOUNDINSTANCES;
 
-            i = g_sounds[num].SoundOwner[j].i;
+            i = g_sounds[num].SoundOwner[j].ow;
 
             if (g_sounds[num].num > MAXSOUNDINSTANCES)
                 OSD_Printf(OSD_ERROR "S_Cleanup(): num exceeds MAXSOUNDINSTANCES! g_sounds[%d].num %d wtf?\n", num, g_sounds[num].num);
@@ -338,7 +338,7 @@ void S_Cleanup(void)
             if (i != -1 && sprite[i].picnum == MUSICANDSFX && sector[sprite[i].sectnum].lotag < 3 && sprite[i].lotag < 999)
                 actor[i].t_data[0] = 0;
 
-            g_sounds[num].SoundOwner[j].i = -1;
+            g_sounds[num].SoundOwner[j].ow = -1;
             g_sounds[num].SoundOwner[j].voice = 0;
         }
         g_soundlocks[num]--;
@@ -409,7 +409,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             return -1;
         }
 
-        g_sounds[num].SoundOwner[j].i = i;
+        g_sounds[num].SoundOwner[j].ow = i;
 
         return voice;
     }
@@ -535,7 +535,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     }
 
     g_sounds[num].num++;
-    g_sounds[num].SoundOwner[j].i = i;
+    g_sounds[num].SoundOwner[j].ow = i;
     g_sounds[num].SoundOwner[j].voice = voice;
     return voice;
 }
@@ -613,7 +613,7 @@ int32_t S_PlaySound(int32_t num)
     }
 
     g_sounds[num].num++;
-    g_sounds[num].SoundOwner[j].i = -1;
+    g_sounds[num].SoundOwner[j].ow = -1;
     g_sounds[num].SoundOwner[j].voice = voice;
     return voice;
 }
@@ -637,14 +637,14 @@ void S_StopEnvSound(int32_t num, int32_t i)
         {
             initprintf(OSD_ERROR "S_StopEnvSound(): too many iterations! The following IDs are still active for sound %d:\n", num);
             for (j=MAXSOUNDINSTANCES-1; j>=0; j--)
-                if (g_sounds[num].SoundOwner[j].i == i)
-                    initprintf(OSD_ERROR "slot %d, voice %d, sprite %d\n", j, g_sounds[num].SoundOwner[j].voice, g_sounds[num].SoundOwner[j].i);
+                if (g_sounds[num].SoundOwner[j].ow == i)
+                    initprintf(OSD_ERROR "slot %d, voice %d, sprite %d\n", j, g_sounds[num].SoundOwner[j].voice, g_sounds[num].SoundOwner[j].ow);
             return;
         }
 
         for (j=MAXSOUNDINSTANCES-1; j>=0; j--)
         {
-            if ((i == -1 && g_sounds[num].SoundOwner[j].voice > FX_Ok) || (i != -1 && g_sounds[num].SoundOwner[j].i == i))
+            if ((i == -1 && g_sounds[num].SoundOwner[j].voice > FX_Ok) || (i != -1 && g_sounds[num].SoundOwner[j].ow == i))
             {
                 if (i >= 0 && g_sounds[num].SoundOwner[j].voice <= FX_Ok)
                     initprintf(OSD_ERROR "S_StopEnvSound(): bad voice %d for sound ID %d index %d!\n", g_sounds[num].SoundOwner[j].voice, num, j);
@@ -677,7 +677,7 @@ void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset)
     {
         int32_t voice = g_sounds[num].SoundOwner[j].voice;
 
-        if ((i == -1 && voice > FX_Ok) || (i != -1 && g_sounds[num].SoundOwner[j].i == i))
+        if ((i == -1 && voice > FX_Ok) || (i != -1 && g_sounds[num].SoundOwner[j].ow == i))
         {
             if (i >= 0 && voice <= FX_Ok)
                 initprintf(OSD_ERROR "S_ChangeSoundPitch(): bad voice %d for sound ID %d index %d!\n", voice, num, j);
@@ -719,7 +719,7 @@ void S_Update(void)
     {
         for (k=MAXSOUNDINSTANCES-1; k>=0; k--)
         {
-            i = g_sounds[j].SoundOwner[k].i;
+            i = g_sounds[j].SoundOwner[k].ow;
 
             if ((unsigned)i >= MAXSPRITES || g_sounds[j].num == 0 || g_sounds[j].SoundOwner[k].voice <= FX_Ok)
                 continue;
@@ -728,7 +728,7 @@ void S_Update(void)
             {
                 /*
                                 OSD_Printf("S_Update(): stale voice %d from sound %d position %d sprite %d\n",
-                                    g_sounds[j].SoundOwner[k].voice, j, k, g_sounds[j].SoundOwner[k].i);
+                                    g_sounds[j].SoundOwner[k].voice, j, k, g_sounds[j].SoundOwner[k].ow);
                 */
                 continue;
             }
@@ -808,7 +808,7 @@ int32_t A_CheckSoundPlaying(int32_t i, int32_t num)
         int32_t j=MAXSOUNDINSTANCES-1;
 
         for (; j>=0; j--)
-            if (g_sounds[num].SoundOwner[j].i == i)
+            if (g_sounds[num].SoundOwner[j].ow == i)
                 return 1;
     }
 
