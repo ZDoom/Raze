@@ -645,12 +645,35 @@ static void G_ShowCacheLocks(void)
                 break;
 
             Bsprintf(tempbuf,"RTS Locked %d:",i);
-            printext256(0L,k,31,-1,tempbuf,1);
+            printext256(0,k,31,-1,tempbuf,1);
             k += 6;
         }
 
     if (k >= ydim-12 && k<ydim-6)
-        printext256(0L,k,31,-1,"(MORE . . .)",1);
+        printext256(0,k,31,-1,"(MORE . . .)",1);
+
+    // sounds
+    if (xdim < 640)
+        return;
+
+    k = 18;
+    for (i=0; i<=g_maxSoundPos; i++)
+        if (g_sounds[i].num > 0)
+        {
+            int32_t j, n=g_sounds[i].num;
+
+            for (j=0; j<n; j++)
+            {
+                if (k >= ydim-12)
+                    break;
+
+                Bsprintf(tempbuf, "snd #%d inst %d: voice %d, ow %d", i, j,
+                         g_sounds[i].SoundOwner[j].voice, g_sounds[i].SoundOwner[j].i);
+                printext256(240,k,31,-1,tempbuf,0);
+
+                k += 9;
+            }
+        }
 }
 
 int32_t A_CheckInventorySprite(spritetype *s)

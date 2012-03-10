@@ -395,7 +395,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             (g_player[myconnectindex].ps->timebeforeexit > 0 && g_player[myconnectindex].ps->timebeforeexit <= GAMETICSPERSEC*3) ||
             g_player[myconnectindex].ps->gm&MODE_MENU) return -1;
 
-    if (g_sounds[num].m&128)
+    if (g_sounds[num].m&128)  // Duke-Tag sound
     {
         if ((voice = S_PlaySound(num)) <= FX_Ok)
             return -1;
@@ -469,7 +469,8 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
         break;
     }
 
-    if (g_player[screenpeek].ps->sound_pitch) pitch += g_player[screenpeek].ps->sound_pitch;
+    if (g_player[screenpeek].ps->sound_pitch)
+        pitch += g_player[screenpeek].ps->sound_pitch;
 
     if (g_sounds[num].num > 0 && PN != MUSICANDSFX)
         S_StopEnvSound(num, i);
