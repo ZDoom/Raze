@@ -62,23 +62,26 @@ static intptr_t kzipopen(const char *filnam)
 
 #define MAXCACHEOBJECTS 9216
 
+#ifndef DEBUG_ALLOCACHE_AS_MALLOC
 static int32_t cachesize = 0;
-int32_t cachecount = 0;
-char zerochar = 0;
-intptr_t cachestart = 0;
-int32_t cacnum = 0, agecount = 0;
-cactype cac[MAXCACHEOBJECTS];
+//static int32_t cachecount = 0;
+static char zerochar = 0;
+static intptr_t cachestart = 0;
+static int32_t agecount = 0;
 static int32_t lockrecip[200];
+#endif
+
+int32_t cacnum = 0;
+cactype cac[MAXCACHEOBJECTS];
 
 static char toupperlookup[256];
 
 static void reportandexit(const char *errormessage);
 
-extern char pow2char[8];
-
 
 void initcache(intptr_t dacachestart, int32_t dacachesize)
 {
+#ifndef DEBUG_ALLOCACHE_AS_MALLOC
     int32_t i;
 
     for (i=1; i<200; i++) lockrecip[i] = (1<<28)/(200-i);
@@ -102,6 +105,10 @@ void initcache(intptr_t dacachestart, int32_t dacachesize)
     cacnum = 1;
 
     initprintf("Initialized %.1fM cache\n", (float)(dacachesize/1024.f/1024.f));
+#else
+    UNREFERENCED_PARAMETER(dacachestart);
+    UNREFERENCED_PARAMETER(dacachesize);
+#endif
 }
 
 #ifdef DEBUG_ALLOCACHE_AS_MALLOC
@@ -173,7 +180,7 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
     cac[bestz].hand = newhandle; *newhandle = cachestart+(intptr_t)besto;
     cac[bestz].leng = newbytes;
     cac[bestz].lock = newlockptr;
-    cachecount++;
+//    cachecount++;
 
     //Add new empty block if necessary
     if (sucklen <= 0) return;
@@ -558,10 +565,7 @@ int32_t initgroupfile(const char *filename)
     {
         groupfilpos[numgroupfiles] = 0;
         Bread(groupfil[numgroupfiles],buf,16);
-        if ((buf[0] != 'K') || (buf[1] != 'e') || (buf[2] != 'n') ||
-                (buf[3] != 'S') || (buf[4] != 'i') || (buf[5] != 'l') ||
-                (buf[6] != 'v') || (buf[7] != 'e') || (buf[8] != 'r') ||
-                (buf[9] != 'm') || (buf[10] != 'a') || (buf[11] != 'n'))
+        if (Bmemcmp(buf, "KenSilverman", 12))
         {
             Bclose(groupfil[numgroupfiles]);
             groupfil[numgroupfiles] = -1;
@@ -570,9 +574,15 @@ int32_t initgroupfile(const char *filename)
         gnumfiles[numgroupfiles] = B_LITTLE32(*((int32_t *)&buf[12]));
 
         if ((gfilelist[numgroupfiles] = (char *)Bmalloc(gnumfiles[numgroupfiles]<<4)) == 0)
-            { Bprintf("Not enough memory for file grouping system\n"); exit(0); }
+        {
+            Bprintf("Not enough memory for file grouping system\n");
+            exit(1);
+        }
         if ((gfileoffs[numgroupfiles] = (int32_t *)Bmalloc((gnumfiles[numgroupfiles]+1)<<2)) == 0)
-            { Bprintf("Not enough memory for file grouping system\n"); exit(0); }
+        {
+            Bprintf("Not enough memory for file grouping system\n");
+            exit(1);
+        }
 
         Bread(groupfil[numgroupfiles],gfilelist[numgroupfiles],gnumfiles[numgroupfiles]<<4);
 
@@ -716,7 +726,10 @@ int32_t kopen4load(const char *filename, char searchfirst)
                 {
                     if (!filename[j]) break;
                     if (toupperlookup[filename[j]] != toupperlookup[gfileptr[j]])
-                        { bad = 1; break; }
+                    {
+                        bad = 1;
+                        break;
+                    }
                 }
                 if (bad) continue;
                 if (j<13 && gfileptr[j]) continue;   // JBF: because e1l1.map might exist before e1l1
