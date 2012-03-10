@@ -2315,7 +2315,6 @@ ENDFOR1:
 }
 
 #define SOUND_NUMDISPLINES IHELP_NUMDISPLINES
-//extern char SoundToggle;
 
 static int32_t compare_sounds_s(int16_t k1, int16_t k2)
 {
@@ -2462,8 +2461,6 @@ static void SoundDisplay(void)
         // cursnd is the first displayed line, cursnd+curofs is where the cursor is
         static int32_t cursnd=0, curofs=0;
         char disptext[SOUND_NUMDISPLINES][80];
-
-        //        SoundToggle = 1;
 
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F2]==0
                 && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
@@ -2645,7 +2642,6 @@ static void SoundDisplay(void)
 
         FX_StopAllSounds();
         S_ClearSoundLocks();
-        //        SoundToggle = 0;
 
         keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F2] = 0;
     }
@@ -2668,9 +2664,7 @@ static int32_t dist(spritetype *s1,spritetype *s2)
     }
 }
 
-extern int32_t NumVoices;
-extern int32_t g_numEnvSoundsPlaying;
-int32_t AmbienceToggle = 1; //SoundToggle;
+int32_t AmbienceToggle = 1;
 int32_t ParentalLock = 0;
 #undef T1
 #define T1 (s->filler)

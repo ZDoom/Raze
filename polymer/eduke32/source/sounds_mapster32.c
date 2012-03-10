@@ -48,11 +48,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static char SM32_havesound = 0;
 
-char SoundToggle = 1;
+static char SoundToggle = 1;
 int32_t NumVoices = 32;
 int32_t MixRate = 44100;
 
-int32_t backflag,g_numEnvSoundsPlaying;
+int32_t g_numEnvSoundsPlaying;
 
 void MUSIC_Update(void) {}  // needed when linking
 

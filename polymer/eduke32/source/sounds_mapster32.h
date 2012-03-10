@@ -46,6 +46,9 @@ typedef struct {
 #define MAXSOUNDS 4096
 extern sound_t g_sounds[MAXSOUNDS];
 
+extern int32_t g_numEnvSoundsPlaying;
+extern int32_t NumVoices;
+
 int32_t S_SoundStartup(void);
 void S_SoundShutdown(void);
 int32_t S_PlaySound3D(int32_t, int32_t, const vec3_t*);

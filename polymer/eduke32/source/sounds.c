@@ -65,7 +65,7 @@ void S_SoundStartup(void)
         return;
     }
 
-    initprintf("%d voices, %d channels, %d-bit %dKHz\n", ud.config.NumVoices, ud.config.NumChannels,
+    initprintf("%d voices, %d channels, %d-bit %d Hz\n", ud.config.NumVoices, ud.config.NumChannels,
         ud.config.NumBits, ud.config.MixRate);
 
     for (i=g_maxSoundPos; i >= 0 ; i--)
