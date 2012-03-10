@@ -830,8 +830,8 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_DEFINEMODELSKIN:
         {
-            int32_t palnum;
-            char *skinfn;
+            int32_t palnum, i;
+            char *skinfn, *tfn = NULL;
 
             if (scriptfile_getsymbol(script,&palnum)) break;
             if (scriptfile_getstring(script,&skinfn)) break; //skin filename
@@ -850,6 +850,24 @@ static int32_t defsparser(scriptfile *script)
             // definemodelframe "foo3" 1005 1006   // these use skin 0
             if (seenframe) { modelskin = ++lastmodelskin; }
             seenframe = 0;
+
+            i = pathsearchmode;
+            pathsearchmode = 1;
+            if (findfrompath(skinfn,&tfn) < 0)
+            {
+                char buf[BMAX_PATH];
+
+                Bstrcpy(buf,skinfn);
+                kzfindfilestart(buf);
+                if (!kzfindfile(buf))
+                {
+                    initprintf("Error: file '%s' does not exist\n",skinfn);
+                    pathsearchmode = i;
+                    break;
+                }
+            }
+            else Bfree(tfn);
+            pathsearchmode = i;
 
 #ifdef USE_OPENGL
             switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f, 1.0f, 1.0f))
@@ -1151,8 +1169,8 @@ static int32_t defsparser(scriptfile *script)
                 case T_SKIN: case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
                 {
                     char *skintokptr = script->ltextptr;
-                    char *skinend, *skinfn = 0;
-                    int32_t palnum = 0, surfnum = 0;
+                    char *skinend, *skinfn = 0, *tfn = NULL;
+                    int32_t palnum = 0, surfnum = 0, i;
                     double param = 1.0, specpower = 1.0, specfactor = 1.0;
 
                     static const tokenlist modelskintokens[] =
@@ -1214,6 +1232,24 @@ static int32_t defsparser(scriptfile *script)
                         palnum = NORMALPAL;
                         break;
                     }
+
+                    i = pathsearchmode;
+                    pathsearchmode = 1;
+                    if (findfrompath(skinfn,&tfn) < 0)
+                    {
+                        char buf[BMAX_PATH];
+
+                        Bstrcpy(buf,skinfn);
+                        kzfindfilestart(buf);
+                        if (!kzfindfile(buf))
+                        {
+                            initprintf("Error: file '%s' does not exist\n",skinfn);
+                            pathsearchmode = i;
+                            break;
+                        }
+                    }
+                    else Bfree(tfn);
+                    pathsearchmode = i;
 
 #ifdef USE_OPENGL
                     switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param, specpower, specfactor))
