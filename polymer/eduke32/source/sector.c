@@ -1141,7 +1141,7 @@ void G_OperateForceFields(int32_t s, int32_t low)
     }
 }
 
-int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
+int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite)
 {
     int32_t switchpal, switchpicnum;
     int32_t i, x, lotag,hitag,picnum,correctdips = 1, numdips = 0;
@@ -1149,7 +1149,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
 
     if (w < 0) return 0;
 
-    if (switchtype == 1) // A wall sprite
+    if (switchissprite == 1) // A wall sprite
     {
         if (actor[w].lasttransport == totalclock) return 0;
         actor[w].lasttransport = totalclock;
@@ -1175,7 +1175,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         picnum = wall[w].picnum;
         switchpal = wall[w].pal;
     }
-    //     initprintf("P_ActivateSwitch called picnum=%i switchtype=%i\n",picnum,switchtype);
+    //     initprintf("P_ActivateSwitch called picnum=%i switchissprite=%i\n",picnum,switchissprite);
     switchpicnum = picnum;
     if ((picnum==DIPSWITCH+1)
             || (picnum==TECHSWITCH+1)
@@ -1239,7 +1239,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
 
             if (g_player[snum].ps->access_incs == 1)
             {
-                if (switchtype == 0)
+                if (switchissprite == 0)
                     g_player[snum].ps->access_wallnum = w;
                 else
                     g_player[snum].ps->access_spritenum = w;
@@ -1303,7 +1303,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
             case DIPSWITCH__STATIC:
             case TECHSWITCH__STATIC:
             case ALIENSWITCH__STATIC:
-                if (switchtype == 1 && w == i) PN++;
+                if (switchissprite == 1 && w == i) PN++;
                 else if (SHT == 0) correctdips++;
                 numdips++;
                 break;
@@ -1333,7 +1333,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
                 case TECHSWITCH__STATIC:
                 case DIPSWITCH__STATIC:
                 case ALIENSWITCH__STATIC:
-                    if (switchtype == 1 && w == i) PN--;
+                    if (switchissprite == 1 && w == i) PN--;
                     else if (SHT == 1) correctdips++;
                     numdips++;
                     break;
@@ -1377,7 +1377,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
             case DIPSWITCH__STATIC:
             case TECHSWITCH__STATIC:
             case ALIENSWITCH__STATIC:
-                if (switchtype == 0 && i == w) wall[x].picnum++;
+                if (switchissprite == 0 && i == w) wall[x].picnum++;
                 else if (wall[x].hitag == 0) correctdips++;
                 numdips++;
                 break;
@@ -1407,7 +1407,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
                 case TECHSWITCH__STATIC:
                 case DIPSWITCH__STATIC:
                 case ALIENSWITCH__STATIC:
-                    if (switchtype == 0 && i == w) wall[x].picnum--;
+                    if (switchissprite == 0 && i == w) wall[x].picnum--;
                     else if (wall[x].hitag == 1) correctdips++;
                     numdips++;
                     break;
@@ -1497,13 +1497,13 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         {
             if (picnum == ALIENSWITCH || picnum == ALIENSWITCH+1)
             {
-                if (switchtype == 1)
+                if (switchissprite == 1)
                     S_PlaySound3D(ALIEN_SWITCH1, w, &davector);
                 else S_PlaySound3D(ALIEN_SWITCH1,g_player[snum].ps->i,&davector);
             }
             else
             {
-                if (switchtype == 1)
+                if (switchissprite == 1)
                     S_PlaySound3D(SWITCH_ON, w, &davector);
                 else S_PlaySound3D(SWITCH_ON,g_player[snum].ps->i,&davector);
             }
@@ -1587,13 +1587,13 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
 
         if (hitag == 0 && CheckDoorTile(picnum) == 0)
         {
-            if (switchtype == 1)
+            if (switchissprite == 1)
                 S_PlaySound3D(SWITCH_ON,w,&davector);
             else S_PlaySound3D(SWITCH_ON,g_player[snum].ps->i,&davector);
         }
         else if (hitag != 0)
         {
-            if (switchtype == 1 && (g_sounds[hitag].m&4) == 0)
+            if (switchissprite == 1 && (g_sounds[hitag].m&4) == 0)
                 S_PlaySound3D(hitag,w,&davector);
             else A_PlaySound(hitag,g_player[snum].ps->i);
         }
@@ -1601,7 +1601,6 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchtype)
         return 1;
     }
     return 0;
-
 }
 
 void G_ActivateBySector(int32_t sect,int32_t j)
