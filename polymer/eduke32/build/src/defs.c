@@ -83,6 +83,7 @@ enum scripttoken_t
     T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET,
     T_INCLUDEDEFAULT,
     T_ANIMSOUNDS,
+    T_ECHO,
 };
 
 typedef struct { const char *text; int32_t tokenid; } tokenlist;
@@ -197,6 +198,7 @@ static int32_t defsparser(scriptfile *script)
         { "cachesize",       T_CACHESIZE        },
         { "dummytilefrompic",T_IMPORTTILE       },
         { "tilefromtexture", T_TILEFROMTEXTURE  },
+        { "echo",            T_ECHO             },
     };
 
     while (1)
@@ -2014,6 +2016,14 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 }
             }
+        }
+        break;
+
+        case T_ECHO:
+        {
+            char *string = NULL;
+            scriptfile_getstring(script,&string);
+            initprintf("%s\n",string);
         }
         break;
 
