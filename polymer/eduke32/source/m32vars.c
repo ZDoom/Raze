@@ -660,11 +660,11 @@ static void Gv_AddSystemVars(void)
                 GAMEARRAY_READONLY|GAMEARRAY_OFSHORT|GAMEARRAY_VARSIZE);
 
     Gv_NewArray("hsect", (void *)headspritesect, MAXSECTORS+1, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("nsect", (void *)prevspritesect, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("psect", (void *)nextspritesect, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("psect", (void *)prevspritesect, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("nsect", (void *)nextspritesect, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
     Gv_NewArray("hstat", (void *)headspritestat, MAXSTATUS+1, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("nstat", (void *)prevspritestat, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("pstat", (void *)nextspritestat, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("pstat", (void *)prevspritestat, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("nstat", (void *)nextspritestat, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
 #ifdef YAX_ENABLE
     Gv_NewArray("headsectbunchc", (void *)headsectbunch[0], YAX_MAXBUNCHES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
     Gv_NewArray("nextsectbunchc", (void *)nextsectbunch[0], MAXSECTORS, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
