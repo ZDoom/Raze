@@ -4865,7 +4865,7 @@ nullquote:
             }
             continue;
 
-        case CON_JUMP:
+        case CON_JUMP:  // XXX XXX XXX
             insptr++;
             {
                 int32_t j = Gv_GetVarX(*insptr++);
@@ -4887,6 +4887,7 @@ nullquote:
     }
 }
 
+// NORECURSE
 void A_LoadActor(int32_t iActor)
 {
     vm.g_i = iActor;    // Sprite ID
@@ -4910,11 +4911,13 @@ void A_LoadActor(int32_t iActor)
     }
 
     VM_Execute(1);
+    insptr = NULL;
 
     if (vm.g_flags & VM_KILL)
         A_DeleteSprite(vm.g_i);
 }
 
+// NORECURSE
 void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 {
     vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
@@ -4963,6 +4966,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     }
 
     VM_Execute(1);
+    insptr = NULL;
 
     if (vm.g_flags & VM_KILL)
     {
