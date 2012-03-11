@@ -112,10 +112,10 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
     case USERDEFS_CLIPPING:
         if (iSet)
         {
-            ud.clipping = lValue;
+            ud.noclip = lValue;
             return;
         }
-        Gv_SetVarX(lVar2, ud.clipping);
+        Gv_SetVarX(lVar2, ud.noclip);
         return;
 
         //  case USERDEFS_USER_NAME:

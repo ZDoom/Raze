@@ -138,7 +138,7 @@ static inline int32_t VM_CheckSquished(void)
 {
     sectortype *sc = &sector[vm.g_sp->sectnum];
 
-    if ((vm.g_sp->picnum == APLAYER && ud.clipping) || sc->lotag == 23)
+    if ((vm.g_sp->picnum == APLAYER && ud.noclip) || sc->lotag == 23)
         return 0;
 
     {

@@ -7011,10 +7011,10 @@ FOUNDCHEAT:
                     break;
 
                 case CHEAT_CLIP:
-                    ud.clipping = 1-ud.clipping;
+                    ud.noclip = 1-ud.noclip;
                     KB_FlushKeyBoardQueue();
                     g_player[myconnectindex].ps->cheat_phase = 0;
-                    P_DoQuote(QUOTE_CHEAT_NOCLIP-!ud.clipping, g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_NOCLIP-!ud.noclip, g_player[myconnectindex].ps);
                     return;
 
                 case CHEAT_RESERVED2:

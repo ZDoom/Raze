@@ -165,7 +165,7 @@ typedef struct {
 
     char overhead_on,last_overhead,showweapons;
     char god,warp_on,cashman,eog,showallmap;
-    char show_help,scrollmode,clipping;
+    char show_help,scrollmode,noclip;
     char ridecule[10][40];
     char savegame[10][22];
     char pwlockout[128],rtsname[128];

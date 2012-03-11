@@ -4557,7 +4557,7 @@ void P_ProcessInput(int32_t snum)
 
     if (p->cursectnum == -1)
     {
-        if (s->extra > 0 && ud.clipping == 0)
+        if (s->extra > 0 && ud.noclip == 0)
         {
             P_QuickKill(p);
             A_PlaySound(SQUISHED,p->i);
@@ -4823,7 +4823,7 @@ void P_ProcessInput(int32_t snum)
     if (p->on_ground)
         p->bobcounter += sprite[p->i].xvel>>1;
 
-    if (ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS))
+    if (ud.noclip == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS))
     {
         p->pos.x = p->opos.x;
         p->pos.y = p->opos.y;
@@ -5375,7 +5375,7 @@ HORIZONLY:
     if (p->cursectnum >= 0 && sector[p->cursectnum].lotag == 2) k = 0;
     else k = 1;
 
-    if (ud.clipping)
+    if (ud.noclip)
     {
         p->pos.x += p->vel.x>>14;
         p->pos.y += p->vel.y>>14;
@@ -5436,7 +5436,7 @@ HORIZONLY:
     {
 //        p->cursectnum = s->sectnum;
 
-        if (!ud.clipping && sector[p->cursectnum].lotag == 31)
+        if (!ud.noclip && sector[p->cursectnum].lotag == 31)
         {
             if (sprite[sector[p->cursectnum].hitag].xvel && actor[sector[p->cursectnum].hitag].t_data[0] == 0)
             {
@@ -5453,7 +5453,7 @@ HORIZONLY:
     if (p->cursectnum >=0 && p->cursectnum != s->sectnum)
         changespritesect(p->i, p->cursectnum);
 
-    if (p->cursectnum >= 0 && ud.clipping == 0)
+    if (p->cursectnum >= 0 && ud.noclip == 0)
     {
         j = (pushmove((vec3_t *)p,&p->cursectnum,164L,(4L<<8),(4L<<8),CLIPMASK0) < 0 && A_GetFurthestAngle(p->i,8) < 512);
 

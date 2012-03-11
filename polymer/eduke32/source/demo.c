@@ -115,7 +115,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     ud.reccnt = 0;
 
     ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
-    ud.clipping = ud.scrollmode = ud.overhead_on = 0; //= ud.pause_on = 0;
+    ud.noclip = ud.scrollmode = ud.overhead_on = 0; //= ud.pause_on = 0;
 
     //        G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
     //        G_ResetTimers();
@@ -427,7 +427,7 @@ RECHECK:
                         ud.reccnt = 0;
 
                         //                        ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
-                        //                        ud.clipping = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;
+                        //                        ud.noclip = ud.scrollmode = ud.overhead_on = ud.pause_on = 0;
 
                         totalclock = ototalclock = lockclock = 0;
                     }

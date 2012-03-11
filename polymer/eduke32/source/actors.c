@@ -5754,13 +5754,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
-                    if (ud.clipping == 0 && s->xvel >= 192)
+                    if (ud.noclip == 0 && s->xvel >= 192)
                         for (TRAVERSE_CONNECT(p))
                             if (sprite[g_player[p].ps->i].extra > 0)
                             {
                                 k = g_player[p].ps->cursectnum;
                                 updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                                if ((k == -1 && ud.noclip == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
                                 {
                                     g_player[p].ps->pos.x = s->x;
                                     g_player[p].ps->pos.y = s->y;
@@ -5868,13 +5868,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
-                    if (ud.clipping == 0 && s->xvel >= 192)
+                    if (ud.noclip == 0 && s->xvel >= 192)
                         for (TRAVERSE_CONNECT(p))
                             if (sprite[g_player[p].ps->i].extra > 0)
                             {
                                 k = g_player[p].ps->cursectnum;
                                 updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                                if ((k == -1 && ud.noclip == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
                                 {
                                     g_player[p].ps->opos.x = g_player[p].ps->pos.x = s->x;
                                     g_player[p].ps->opos.y = g_player[p].ps->pos.y = s->y;
@@ -5983,13 +5983,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 x = (s->xvel*sintable[s->ang&2047])>>14;
 
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
-                    if (ud.clipping == 0)
+                    if (ud.noclip == 0)
                         for (TRAVERSE_CONNECT(p))
                             if (sprite[g_player[p].ps->i].extra > 0)
                             {
                                 k = g_player[p].ps->cursectnum;
                                 updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                                if ((k == -1 && ud.noclip == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
                                 {
                                     g_player[p].ps->pos.x = s->x;
                                     g_player[p].ps->pos.y = s->y;
@@ -6052,13 +6052,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
-                    if (ud.clipping == 0)
+                    if (ud.noclip == 0)
                         for (TRAVERSE_CONNECT(p))
                             if (sprite[g_player[p].ps->i].extra > 0)
                             {
                                 k = g_player[p].ps->cursectnum;
                                 updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                                if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+                                if ((k == -1 && ud.noclip == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
                                 {
                                     g_player[p].ps->pos.x = s->x;
                                     g_player[p].ps->pos.y = s->y;
