@@ -5605,7 +5605,7 @@ HORIZONLY:
                 case STATUE__STATIC:
                     if (sprite[p->actorsqu].yvel)
                         G_OperateRespawns(sprite[p->actorsqu].yvel);
-                    deletesprite(p->actorsqu);
+                    A_DeleteSprite(p->actorsqu);
                     break;
                 case APLAYER__STATIC:
                     P_QuickKill(g_player[sprite[p->actorsqu].yvel].ps);
@@ -5614,7 +5614,7 @@ HORIZONLY:
                 default:
                     if (A_CheckEnemySprite(&sprite[p->actorsqu]))
                         p->actors_killed++;
-                    deletesprite(p->actorsqu);
+                    A_DeleteSprite(p->actorsqu);
                     break;
                 }
             }

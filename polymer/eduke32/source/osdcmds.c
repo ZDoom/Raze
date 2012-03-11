@@ -494,7 +494,7 @@ static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
         if (setsprite(idx, &vect) < 0)
         {
             OSD_Printf("spawn: Sprite can't be spawned into null space\n");
-            deletesprite(idx);
+            A_DeleteSprite(idx);
         }
     }
 

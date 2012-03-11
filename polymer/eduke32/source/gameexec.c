@@ -124,7 +124,7 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
             if (vm.g_p >= 0 && g_player[vm.g_p].ps->actorsqu == vm.g_i)
                 g_player[vm.g_p].ps->actorsqu = -1;
 
-            deletesprite(vm.g_i);
+            A_DeleteSprite(vm.g_i);
         }
 
         Bmemcpy(&vm, &vm_backup, sizeof(vmstate_t));
@@ -4905,14 +4905,14 @@ void A_LoadActor(int32_t iActor)
     {
         //      if(A_CheckEnemySprite(vm.g_sp))
         //          g_player[vm.g_p].ps->actors_killed++;
-        deletesprite(vm.g_i);
+        A_DeleteSprite(vm.g_i);
         return;
     }
 
     VM_Execute(1);
 
     if (vm.g_flags & VM_KILL)
-        deletesprite(vm.g_i);
+        A_DeleteSprite(vm.g_i);
 }
 
 void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
@@ -4923,7 +4923,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 
     if (g_netClient && A_CheckSpriteFlags(iActor, SPRITE_NULL))
     {
-        deletesprite(iActor);
+        A_DeleteSprite(iActor);
         return;
     }
 
@@ -4938,7 +4938,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     {
         if (A_CheckEnemySprite(vm.g_sp))
             g_player[vm.g_p].ps->actors_killed++;
-        deletesprite(vm.g_i);
+        A_DeleteSprite(vm.g_i);
         return;
     }
 
@@ -4970,7 +4970,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
         if (vm.g_p >= 0 && g_player[vm.g_p].ps->actorsqu == vm.g_i)
             g_player[vm.g_p].ps->actorsqu = -1;
 
-        deletesprite(vm.g_i);
+        A_DeleteSprite(vm.g_i);
         return;
     }
 

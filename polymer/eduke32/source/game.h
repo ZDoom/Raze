@@ -72,7 +72,6 @@ typedef enum basepal_ {
     BASEPALCOUNT
 } basepal_t; 
 
-#define deletesprite A_DeleteSprite
 void A_DeleteSprite(int32_t s);
 
 typedef struct {

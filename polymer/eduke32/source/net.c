@@ -567,7 +567,7 @@ int32_t Net_UnpackSprite(int32_t i, uint8_t *pbuf)
     {
 //        j += sizeof(netactor_t);
         if (sprite[i].sectnum != MAXSECTORS && sprite[i].statnum != MAXSTATUS)
-            deletesprite(i);
+            A_DeleteSprite(i);
         return j;
     }
 
@@ -577,7 +577,7 @@ int32_t Net_UnpackSprite(int32_t i, uint8_t *pbuf)
         int16_t sprs[MAXSPRITES], z = 0;
         while ((sprs[z++] = insertsprite(sect, statnum)) != i);
         z--;
-        while (z--) deletesprite(sprs[z]);
+        while (z--) A_DeleteSprite(sprs[z]);
     }
     else
     {

@@ -1178,7 +1178,7 @@ static inline void prelevel(char g)
             {
             case GPSPEED__STATIC:
                 sector[SECT].extra = SLT;
-                deletesprite(i);
+                A_DeleteSprite(i);
                 break;
 
             case CYCLER__STATIC:
@@ -1194,7 +1194,7 @@ static inline void prelevel(char g)
                 cyclers[g_numCyclers][4] = SHT;
                 cyclers[g_numCyclers][5] = (SA == 1536);
                 g_numCyclers++;
-                deletesprite(i);
+                A_DeleteSprite(i);
                 break;
 
             case SECTOREFFECTOR__STATIC:
@@ -1720,7 +1720,7 @@ static void resetpspritevars(char g)
 
             j++;
         }
-        else deletesprite(i);
+        else A_DeleteSprite(i);
         i = nexti;
     }
 }

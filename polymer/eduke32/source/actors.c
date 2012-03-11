@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # define ACTOR_STATIC static
 #endif
 
-#define KILLIT(KX) { deletesprite(KX); goto BOLT; }
+#define KILLIT(KX) { A_DeleteSprite(KX); goto BOLT; }
 
 extern int32_t g_numEnvSoundsPlaying;
 extern int32_t g_noEnemies;
@@ -501,7 +501,7 @@ void G_Polymer_UnInit(void)
 }
 #endif
 
-// all calls to deletesprite() from the game are wrapped by this function
+// deletesprite() game wrapper
 void A_DeleteSprite(int32_t s)
 {
     if (block_deletesprite)
@@ -527,16 +527,14 @@ void A_DeleteSprite(int32_t s)
     }
 #endif
 
-#undef deletesprite
     deletesprite(s);
-#define deletesprite A_DeleteSprite
 }
 
 void A_AddToDeleteQueue(int32_t i)
 {
     if (g_netClientPeer || g_spriteDeleteQueueSize == 0)
     {
-        deletesprite(i);
+        A_DeleteSprite(i);
         return;
     }
 
@@ -4777,7 +4775,7 @@ DETONATEB:
 
                         if (j != i)
                         {
-                            deletesprite(j);
+                            A_DeleteSprite(j);
                             break;
                         }
                         j = l;
@@ -5008,7 +5006,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     t[1]++;
                 }
                 if (t[1] == 5)
-                    deletesprite(i);
+                    A_DeleteSprite(i);
                 goto BOLT;
             case FRAMEEFFECT1_13__STATIC:
                 if (PLUTOPAK) goto BOLT;	// JBF: ideally this should never happen...
@@ -5900,7 +5898,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             {
                                 A_DoGutsDir(j,JIBS6,72);
                                 A_PlaySound(SQUISHED,i);
-                                deletesprite(j);
+                                A_DeleteSprite(j);
                             }
                         }
                         j = l;
@@ -6090,7 +6088,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                                 {
                                     A_DoGutsDir(j,JIBS6,24);
                                     A_PlaySound(SQUISHED,j);
-                                    deletesprite(j);
+                                    A_DeleteSprite(j);
                                 }
                             }
 
