@@ -3831,6 +3831,8 @@ static void transmaskvline2(int32_t x)
     int32_t i, y1, y2, x2;
     int16_t y1ve[2], y2ve[2];
 
+    uintptr_t p;
+
     if ((x < 0) || (x >= xdimen)) return;
     if (x == xdimen-1) { transmaskvline(x); return; }
 
@@ -3864,21 +3866,21 @@ static void transmaskvline2(int32_t x)
     y1 = max(y1ve[0],y1ve[1]);
     y2 = min(y2ve[0],y2ve[1]);
 
-    i = x+frameoffset;
+    p = x+frameoffset;
 
     if (y1ve[0] != y1ve[1])
     {
         if (y1ve[0] < y1)
-            vplce[0] = tvlineasm1(vince[0],palookupoffse[0],y1-y1ve[0]-1,vplce[0],bufplce[0],ylookup[y1ve[0]]+i);
+            vplce[0] = tvlineasm1(vince[0],palookupoffse[0],y1-y1ve[0]-1,vplce[0],bufplce[0],ylookup[y1ve[0]]+p);
         else
-            vplce[1] = tvlineasm1(vince[1],palookupoffse[1],y1-y1ve[1]-1,vplce[1],bufplce[1],ylookup[y1ve[1]]+i+1);
+            vplce[1] = tvlineasm1(vince[1],palookupoffse[1],y1-y1ve[1]-1,vplce[1],bufplce[1],ylookup[y1ve[1]]+p+1);
     }
 
     if (y2 > y1)
     {
         asm1 = vince[1];
-        asm2 = ylookup[y2]+i+1;
-        tvlineasm2(vplce[1],vince[0],bufplce[0],bufplce[1],vplce[0],ylookup[y1]+i);
+        asm2 = ylookup[y2]+p+1;
+        tvlineasm2(vplce[1],vince[0],bufplce[0],bufplce[1],vplce[0],ylookup[y1]+p);
     }
     else
     {
@@ -3887,9 +3889,9 @@ static void transmaskvline2(int32_t x)
     }
 
     if (y2ve[0] > y2ve[1])
-        tvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y2-1,asm1,bufplce[0],ylookup[y2+1]+i);
+        tvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y2-1,asm1,bufplce[0],ylookup[y2+1]+p);
     else if (y2ve[0] < y2ve[1])
-        tvlineasm1(vince[1],palookupoffse[1],y2ve[1]-y2-1,asm2,bufplce[1],ylookup[y2+1]+i+1);
+        tvlineasm1(vince[1],palookupoffse[1],y2ve[1]-y2-1,asm2,bufplce[1],ylookup[y2+1]+p+1);
 
     faketimerhandler();
 }

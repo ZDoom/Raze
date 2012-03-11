@@ -65,7 +65,7 @@ SECTION .text
 %define setuptvlineasm2		_setuptvlineasm2
 %define tvlineasm2		_tvlineasm2
 %define setupslopevlin2		_setupslopevlin2
-%define slopevlin2		_slopevlin2
+;%define slopevlin2		_slopevlin2
 %define setupslopevlin		_setupslopevlin
 %define slopevlin		_slopevlin
 %define setuprhlineasm4		_setuprhlineasm4
@@ -76,7 +76,7 @@ SECTION .text
 %define qrhlineasm4		_qrhlineasm4
 %define setupdrawslab		_setupdrawslab
 %define drawslab		_drawslab
-%define stretchhline		_stretchhline
+;%define stretchhline		_stretchhline
 %define mmxoverlay		_mmxoverlay
 
 %define dep_begin		_dep_begin
@@ -213,7 +213,7 @@ SECTION .text
 	GLOBAL setuptvlineasm2
 	GLOBAL tvlineasm2
 	GLOBAL setupslopevlin2
-	GLOBAL slopevlin2
+;	GLOBAL slopevlin2
 	GLOBAL setupslopevlin
 	GLOBAL slopevlin
 	GLOBAL setuprhlineasm4
@@ -224,7 +224,7 @@ SECTION .text
 	GLOBAL qrhlineasm4			;4 pixels in 9 cycles!  2.25 cycles/pixel
 	GLOBAL setupdrawslab
 	GLOBAL drawslab
-	GLOBAL stretchhline
+;	GLOBAL stretchhline
 	GLOBAL mmxoverlay
 
 	GLOBAL dep_begin
@@ -1880,6 +1880,8 @@ CDECLENDSET 6
 BITSOFPRECISION equ 3
 BITSOFPRECISIONPOW equ 8
 
+%if 0  							; SLOPEVLIN2 is unused as of 2012-02-26
+
 ;Double-texture mapping with palette lookup
 ;eax:  ylo1------------|----dat|----dat
 ;ebx:  ylo2--------------------|----cnt
@@ -1949,7 +1951,7 @@ slop9: lea edi, [edi+88888888h]			;pinc
 
 CDECLENDSET 6
 	ret
-
+%endif							; SLOPEVLIN2 %if 0
 
 	ALIGN 16
 setupslopevlin:
@@ -2592,6 +2594,8 @@ voxskipslab5:
 CDECLENDSET 6
 	ret
 
+
+%if 0  							; STRETCHHLINE is unused as of 2012-02-26
 ;modify: loinc
 ;eax: |  dat   |  dat   |   dat  |   dat  |
 ;ebx: |      loplc1                       |
@@ -2659,6 +2663,7 @@ loinc4: sub ecx, 88888888h
 
 CDECLENDSET 6
 	ret
+%endif  						; %if 0 of STRETCHHLINE
 
 
 mmxoverlay:

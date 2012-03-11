@@ -147,7 +147,7 @@ void tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intp
     {
         do
         {
-            ch = buf[vplc>>glogy];
+            ch = buf[vplc>>logy];
             if (ch != 255) *pp = trans[(*pp)|(pal[ch]<<8)];
             pp += ourbpl;
             vplc += vinc;
@@ -330,6 +330,7 @@ void drawslab(int32_t dx, int32_t v, int32_t dy, int32_t vi, intptr_t vptr, intp
     }
 }
 
+#if 0
 void stretchhline(intptr_t p0, int32_t u, int32_t cnt, int32_t uinc, intptr_t rptr, intptr_t p)
 {
     p0 = p-(cnt<<2);
@@ -340,7 +341,7 @@ void stretchhline(intptr_t p0, int32_t u, int32_t cnt, int32_t uinc, intptr_t rp
     }
     while (p > p0);
 }
-
+#endif
 
 void mmxoverlay() { }
 
