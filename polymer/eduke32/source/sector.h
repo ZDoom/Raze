@@ -77,6 +77,11 @@ typedef struct {
     spriteext_t spriteext[MAXSPRITES];
     spritetype sprite[MAXSPRITES];
     walltype wall[MAXWALLS];
+#ifdef YAX_ENABLE
+    int32_t numyaxbunches;
+    int16_t yax_bunchnum[MAXSECTORS][2];
+    int16_t yax_nextwall[MAXWALLS][2];
+#endif
 } mapstate_t;
 
 extern void G_SaveMapState(mapstate_t *save);

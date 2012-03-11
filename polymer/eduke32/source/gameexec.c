@@ -5100,6 +5100,11 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(&save->headspritestat[0],&headspritestat[0],sizeof(headspritestat));
         Bmemcpy(&save->prevspritestat[0],&prevspritestat[0],sizeof(prevspritestat));
         Bmemcpy(&save->nextspritestat[0],&nextspritestat[0],sizeof(nextspritestat));
+#ifdef YAX_ENABLE
+        Bmemcpy(&save->numyaxbunches, &numyaxbunches, sizeof(numyaxbunches));
+        Bmemcpy(save->yax_bunchnum, yax_bunchnum, sizeof(yax_bunchnum));
+        Bmemcpy(save->yax_nextwall, yax_nextwall, sizeof(yax_nextwall));
+#endif
 #if !defined SAMESIZE_ACTOR_T
         for (i=MAXSPRITES-1; i>=0; i--)
         {
@@ -5236,6 +5241,11 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(&headspritestat[0],&save->headspritestat[0],sizeof(headspritestat));
         Bmemcpy(&prevspritestat[0],&save->prevspritestat[0],sizeof(prevspritestat));
         Bmemcpy(&nextspritestat[0],&save->nextspritestat[0],sizeof(nextspritestat));
+#ifdef YAX_ENABLE
+        Bmemcpy(&numyaxbunches, &save->numyaxbunches, sizeof(numyaxbunches));
+        Bmemcpy(yax_bunchnum, save->yax_bunchnum, sizeof(yax_bunchnum));
+        Bmemcpy(yax_nextwall, save->yax_nextwall, sizeof(yax_nextwall));
+#endif
         Bmemcpy(&actor[0],&save->actor[0],sizeof(actor_t)*MAXSPRITES);
 #if !defined SAMESIZE_ACTOR_T
         for (i=MAXSPRITES-1; i>=0; i--)
@@ -5333,7 +5343,9 @@ void G_RestoreMapState(mapstate_t *save)
                     wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
         }
 #endif
-
+#ifdef YAX_ENABLE
+        sv_postyaxload();
+#endif
         G_ResetInterpolations();
 
         Net_ResetPrediction();

@@ -68,7 +68,7 @@ extern "C" {
 #define SAMESIZE_ACTOR_T
 
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
-#define BYTEVERSION_JF      237
+#define BYTEVERSION_JF      240
 
 #define BYTEVERSION_13      27
 #define BYTEVERSION_14      116

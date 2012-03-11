@@ -1634,9 +1634,6 @@ static uint32_t calcsz(const dataspec_t *spec)
 static void sv_prespriteextsave();
 static void sv_postspriteext();
 #endif
-#ifdef YAX_ENABLE
-static void sv_postyaxload();
-#endif
 static void sv_calcbitptrsize();
 static void sv_prescriptsave_once();
 static void sv_prescriptload_once();
@@ -2268,7 +2265,7 @@ static void sv_postspriteext()
 #endif
 
 #ifdef YAX_ENABLE
-static void sv_postyaxload()
+void sv_postyaxload(void)
 {
     yax_update(numyaxbunches>0 ? 2 : 1);
 }

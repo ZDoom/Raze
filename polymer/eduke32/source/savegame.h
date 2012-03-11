@@ -71,6 +71,11 @@ int32_t G_LoadPlayer(int32_t spot);
 int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh);
 //int32_t G_LoadSaveHeader(char spot,struct savehead_ *saveh);
 void ReadSaveGameHeaders(void);
+
+#ifdef YAX_ENABLE
+extern void sv_postyaxload(void);
+#endif
+
 extern char *bitptr;
 
 enum
