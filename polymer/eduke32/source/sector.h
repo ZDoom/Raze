@@ -65,9 +65,7 @@ typedef struct {
 
     uint8_t g_earthquakeTime;
     uint8_t g_numPlayerSprites;
-#if !defined SAMESIZE_ACTOR_T
-    uint8_t scriptptrs[MAXSPRITES];
-#endif
+
     uint8_t show2dsector[(MAXSECTORS+7)>>3];
 
     actor_t actor[MAXSPRITES];

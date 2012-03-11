@@ -1778,20 +1778,10 @@ static int32_t C_GetNextValue(int32_t type)
                 initprintf("%s:%d: debug: accepted %s label `%s'.\n",g_szScriptFileName,g_lineNumber,gl,label+(i<<6));
                 Bfree(gl);
             }
-#if !defined SAMESIZE_ACTOR_T
-            if ((labeltype[i]&LABEL_DEFINE)==0)
-                bitptr[(g_scriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_scriptPtr-script)&7));
-            else  // the 'define' label type is the only one that doesn't reference the script
-                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
 
-            if ((labeltype[i]&LABEL_DEFINE)==0)
-                *(g_scriptPtr++) = (intptr_t)(script + labelcode[i]);
-            else
-                *(g_scriptPtr++) = labelcode[i];
-#else
             bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
             *(g_scriptPtr++) = labelcode[i];
-#endif
+
             textptr += l;
             return labeltype[i];
         }

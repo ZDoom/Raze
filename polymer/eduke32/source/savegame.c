@@ -426,9 +426,6 @@ int32_t G_LoadPlayer(int32_t spot)
     char fn[13];
     char mpfn[13];
     char *fnptr;
-#if !defined SAMESIZE_ACTOR_T
-    char *scriptptrs;
-#endif
     int32_t fil, bv, i, x;
     intptr_t j;
     int32_t nump;
@@ -627,26 +624,8 @@ int32_t G_LoadPlayer(int32_t spot)
     if (kdfread(&actorLoadEventScrptr[0],sizeof(&actorLoadEventScrptr[0]),MAXTILES,fil) != MAXTILES) goto corrupt;
     G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_BACK_NON0);
 
-#if !defined SAMESIZE_ACTOR_T
-    scriptptrs = Bmalloc(MAXSPRITES * sizeof(scriptptrs));
-
-    if (kdfread(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
-#endif
     if (kdfread(&actor[0],sizeof(actor_t),MAXSPRITES,fil) != MAXSPRITES) goto corrupt;
 
-    for (i=0; i<MAXSPRITES; i++)
-    {
-#if !defined SAMESIZE_ACTOR_T
-        j = (intptr_t)script;
-        if (scriptptrs[i]&1) T2 += j;
-        if (scriptptrs[i]&2) T5 += j;
-        if (scriptptrs[i]&4) T6 += j;
-#endif
-    }
-
-#if !defined SAMESIZE_ACTOR_T
-    Bfree(scriptptrs);
-#endif
     if (kdfread(&lockclock,sizeof(lockclock),1,fil) != 1) goto corrupt;
     if (kdfread(&pskybits,sizeof(pskybits),1,fil) != 1) goto corrupt;
     if (kdfread(&pskyoff[0],sizeof(pskyoff[0]),MAXPSKYTILES,fil) != MAXPSKYTILES) goto corrupt;
@@ -923,9 +902,6 @@ int32_t G_SavePlayer(int32_t spot)
     char fn[13];
     char mpfn[13];
     char *fnptr;
-#if !defined SAMESIZE_ACTOR_T
-    char *scriptptrs;
-#endif
     FILE *fil;
     int32_t bv = BYTEVERSION;
 
@@ -1065,55 +1041,7 @@ int32_t G_SavePlayer(int32_t spot)
     dfwrite(&actorLoadEventScrptr[0],sizeof(actorLoadEventScrptr[0]),MAXTILES,fil);
     G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_BACK_NON0);
 
-#if !defined SAMESIZE_ACTOR_T
-    scriptptrs = Bcalloc(1, MAXSPRITES * sizeof(scriptptrs));
-
-    for (i=0; i<MAXSPRITES; i++)
-    {
-        scriptptrs[i] = 0;
-
-        if (actorscrptr[PN] == 0) continue;
-
-        j = (intptr_t)&script[0];
-
-        if (T2 >= j && T2 < (intptr_t)(&script[g_scriptSize]))
-        {
-            scriptptrs[i] |= 1;
-            T2 -= j;
-        }
-        if (T5 >= j && T5 < (intptr_t)(&script[g_scriptSize]))
-        {
-            scriptptrs[i] |= 2;
-            T5 -= j;
-        }
-        if (T6 >= j && T6 < (intptr_t)(&script[g_scriptSize]))
-        {
-            scriptptrs[i] |= 4;
-            T6 -= j;
-        }
-    }
-
-    dfwrite(&scriptptrs[0],sizeof(scriptptrs),MAXSPRITES,fil);
-#endif
-
     dfwrite(&actor[0],sizeof(actor_t),MAXSPRITES,fil);
-
-#if !defined SAMESIZE_ACTOR_T
-    for (i=0; i<MAXSPRITES; i++)
-    {
-        if (actorscrptr[PN] == 0) continue;
-        j = (intptr_t)&script[0];
-
-        if (scriptptrs[i]&1)
-            T2 += j;
-        if (scriptptrs[i]&2)
-            T5 += j;
-        if (scriptptrs[i]&4)
-            T6 += j;
-    }
-
-    Bfree(scriptptrs);
-#endif
 
     dfwrite(&lockclock,sizeof(lockclock),1,fil);
     dfwrite(&pskybits,sizeof(pskybits),1,fil);
@@ -1656,9 +1584,6 @@ static void sv_restload();
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
       +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS + sizeof(_prlight)*PR_MAXLIGHTS + sizeof(lightcount))
 
-#if !defined SAMESIZE_ACTOR_T
-static uint8_t savegame_bitmap[MAXSPRITES>>3][3];
-#endif
 static uint32_t savegame_bitptrsize;
 static uint8_t savegame_quotedef[MAXQUOTES>>3];
 static char(*savegame_quotes)[MAXQUOTELEN];
@@ -1770,9 +1695,6 @@ static const dataspec_t svgm_script[] =
     { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_postscript_once, 0, 1 },
 
     { DS_SAVEFN, (void *)&sv_preactordatasave, 0, 1 },
-#if !defined SAMESIZE_ACTOR_T
-    { 0, &savegame_bitmap, sizeof(savegame_bitmap), 1 },
-#endif
     { 0, &actor[0], sizeof(actor_t), MAXSPRITES },
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postactordata, 0, 1 },
 
@@ -2306,21 +2228,11 @@ static void sv_postscript_once()
 static void sv_preactordatasave()
 {
     int32_t i;
-#if !defined SAMESIZE_ACTOR_T
-    intptr_t j=(intptr_t)&script[0], k=(intptr_t)&script[g_scriptSize];
-    Bmemset(savegame_bitmap, 0, sizeof(savegame_bitmap));
-#endif
+
     for (i=0; i<MAXSPRITES; i++)
     {
         actor[i].lightptr = NULL;
         actor[i].lightId = -1;
-
-#if !defined SAMESIZE_ACTOR_T
-        if (sprite[i].statnum==MAXSTATUS || actorscrptr[PN]==NULL) continue;
-        if (T2 >= j && T2 < k) savegame_bitmap[i>>3][0] |= 1<<(i&7), T2 -= j;
-        if (T5 >= j && T5 < k) savegame_bitmap[i>>3][1] |= 1<<(i&7), T5 -= j;
-        if (T6 >= j && T6 < k) savegame_bitmap[i>>3][2] |= 1<<(i&7), T6 -= j;
-#endif
     }
 }
 
@@ -2337,13 +2249,6 @@ static void sv_postactordata()
     {
         actor[i].lightptr = NULL;
         actor[i].lightId = -1;
-
-#if !defined SAMESIZE_ACTOR_T
-        if (sprite[i].statnum==MAXSTATUS || actorscrptr[PN]==NULL) continue;
-        if (savegame_bitmap[i>>3][0]&(1<<(i&7))) T2 += (intptr_t)script;
-        if (savegame_bitmap[i>>3][1]&(1<<(i&7))) T5 += (intptr_t)script;
-        if (savegame_bitmap[i>>3][2]&(1<<(i&7))) T6 += (intptr_t)script;
-#endif
     }
 }
 

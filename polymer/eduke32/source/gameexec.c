@@ -421,22 +421,16 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void VM_AlterAng(int32_t a)
 {
     int32_t ticselapsed = (vm.g_t[0])&31;
 
-#ifdef SAMESIZE_ACTOR_T
     const intptr_t *moveptr;
     if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize)
-#else
-    const intptr_t *moveptr = (intptr_t *)vm.g_t[1];
-    if (moveptr < &script[0] || moveptr >= &script[g_scriptSize])
-#endif
+
     {
         vm.g_t[1] = 0;
         OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, vm.g_sp->picnum);
         return;
     }
 
-#ifdef SAMESIZE_ACTOR_T
     moveptr = script + vm.g_t[1];  // RESEARCH: what's with move 0 and >>> 1 <<<?
-#endif
 
     vm.g_sp->xvel += (*moveptr-vm.g_sp->xvel)/5;
     if (vm.g_sp->zvel < 648) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)/5;
@@ -565,20 +559,14 @@ GAMEEXEC_STATIC void VM_Move(void)
     }
 
 dead:
-#ifdef SAMESIZE_ACTOR_T
     if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize)
-#else
-    if ((moveptr = (intptr_t *)vm.g_t[1]) < &script[0] || moveptr >= &script[g_scriptSize])
-#endif
     {
         vm.g_t[1] = 0;
         OSD_Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, vm.g_sp->picnum);
         return;
     }
 
-#ifdef SAMESIZE_ACTOR_T
     moveptr = script + vm.g_t[1];  // RESEARCH: what's with move 0 and >>> 1 <<<?
-#endif
 
     if (a&geth) vm.g_sp->xvel += ((*moveptr)-vm.g_sp->xvel)>>1;
     if (a&getv) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)>>1;
@@ -909,15 +897,11 @@ skip_check:
             insptr++;
             //Following changed to use pointersizes
             vm.g_t[5] = *insptr++; // Ai
-#ifdef SAMESIZE_ACTOR_T
+
             vm.g_t[4] = *(script + vm.g_t[5]);  // Action
             if (vm.g_t[5]) vm.g_t[1] = *(script + vm.g_t[5] + 1);  // move
             vm.g_sp->hitag = *(script + vm.g_t[5] + 2);  // move flags
-#else
-            vm.g_t[4] = *(intptr_t *)(vm.g_t[5]);       // Action
-            if (vm.g_t[5]) vm.g_t[1] = *(((intptr_t *)vm.g_t[5])+1);       // move
-            vm.g_sp->hitag = *(((intptr_t *)vm.g_t[5])+2);    // move flags
-#endif
+
             vm.g_t[0] = vm.g_t[2] = vm.g_t[3] = 0; // count, actioncount... vm.g_t[3] = ??
             if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
                 continue;
@@ -1240,18 +1224,11 @@ skip_check:
                 default:
                     // fix for flying/jumping monsters getting stuck in water
                 {
-#ifdef SAMESIZE_ACTOR_T
                     int32_t moveScriptOfs = vm.g_t[1];
-#else
-                    const intptr_t *moveptr = (intptr_t *)vm.g_t[1];
-#endif
+
                     if (vm.g_sp->hitag & jumptoplayer ||
                         (actorscrptr[vm.g_sp->picnum] &&
-#ifdef SAMESIZE_ACTOR_T
                          (unsigned)moveScriptOfs < (unsigned)g_scriptSize - 1 && *(script + moveScriptOfs + 1)
-#else
-                        (unsigned)(moveptr - script) < (unsigned)g_scriptSize - 1 && *(moveptr+1)
-#endif
                             ))
                     {
                         //                    OSD_Printf("%d\n",*(moveptr+1));
@@ -1872,17 +1849,10 @@ nullquote:
 
                     if (actorscrptr[sprite[i].picnum])
                     {
-#ifdef SAMESIZE_ACTOR_T
                         // offsets
                         T5 = *(actorscrptr[sprite[i].picnum]+1);  // action
                         T2 = *(actorscrptr[sprite[i].picnum]+2);  // move
                         sprite[i].hitag = *(actorscrptr[sprite[i].picnum]+3);  // ai bits
-#else
-                        // pointers
-                        T5 = *(actorscrptr[sprite[i].picnum]+1);
-                        T2 = *(actorscrptr[sprite[i].picnum]+2);
-                        sprite[i].hitag = *(actorscrptr[sprite[i].picnum]+3);
-#endif
                     }
                 }
                 changespritestat(i,j);
@@ -4976,34 +4946,19 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
      * (whether it is int32_t vs intptr_t), Although it is specifically cast to intptr_t*
      * which might be corrected if the code is converted to use offsets */
     /* Helixhorned: let's do away with intptr_t's... */
-#ifdef SAMESIZE_ACTOR_T
     if ((unsigned)vm.g_t[4] + 4 < (unsigned)g_scriptSize)
-#else
-    if ((unsigned)(vm.g_t[4]-(intptr_t)&script[0]) <= (unsigned)((intptr_t)&script[g_scriptSize]-(intptr_t)&script[0]))
-#endif
     {
         vm.g_sp->lotag += TICSPERFRAME;
 
-#ifdef SAMESIZE_ACTOR_T
         if (vm.g_sp->lotag > *(script + vm.g_t[4] + 4))
-#else
-        if (vm.g_sp->lotag > *(intptr_t *)(vm.g_t[4]+4*sizeof(*insptr)))
-#endif
         {
             vm.g_t[2]++;
             vm.g_sp->lotag = 0;
-#ifdef SAMESIZE_ACTOR_T
+
             vm.g_t[3] +=  *(script + vm.g_t[4] + 3);
-#else
-            vm.g_t[3] +=  *(intptr_t *)(vm.g_t[4]+3*sizeof(*insptr));
-#endif
         }
 
-#ifdef SAMESIZE_ACTOR_T
         if (klabs(vm.g_t[3]) >= klabs(*(script + vm.g_t[4] + 1) * *(script + vm.g_t[4] + 3)))
-#else
-        if (klabs(vm.g_t[3]) >= klabs(*(intptr_t *)(vm.g_t[4]+sizeof(*insptr)) * *(intptr_t *)(vm.g_t[4]+3*sizeof(*insptr))))
-#endif
             vm.g_t[3] = 0;
     }
 
@@ -5105,53 +5060,8 @@ void G_SaveMapState(mapstate_t *save)
         Bmemcpy(save->yax_bunchnum, yax_bunchnum, sizeof(yax_bunchnum));
         Bmemcpy(save->yax_nextwall, yax_nextwall, sizeof(yax_nextwall));
 #endif
-#if !defined SAMESIZE_ACTOR_T
-        for (i=MAXSPRITES-1; i>=0; i--)
-        {
-            intptr_t j;
-
-            save->scriptptrs[i] = 0;
-
-            if (actorscrptr[PN] == 0) continue;
-
-            j = (intptr_t)&script[0];
-
-            if (T2 >= j && T2 < (intptr_t)(&script[g_scriptSize]))
-            {
-                save->scriptptrs[i] |= 1;
-                T2 -= j;
-            }
-            if (T5 >= j && T5 < (intptr_t)(&script[g_scriptSize]))
-            {
-                save->scriptptrs[i] |= 2;
-                T5 -= j;
-            }
-            if (T6 >= j && T6 < (intptr_t)(&script[g_scriptSize]))
-            {
-                save->scriptptrs[i] |= 4;
-                T6 -= j;
-            }
-        }
-#endif
-
         Bmemcpy(&save->actor[0],&actor[0],sizeof(actor_t)*MAXSPRITES);
 
-#if !defined SAMESIZE_ACTOR_T
-        for (i=MAXSPRITES-1; i>=0; i--)
-        {
-            intptr_t j;
-
-            if (actorscrptr[PN] == 0) continue;
-            j = (intptr_t)&script[0];
-
-            if (save->scriptptrs[i]&1)
-                T2 += j;
-            if (save->scriptptrs[i]&2)
-                T5 += j;
-            if (save->scriptptrs[i]&4)
-                T6 += j;
-        }
-#endif
         Bmemcpy(&save->g_numCyclers,&g_numCyclers,sizeof(g_numCyclers));
         Bmemcpy(&save->cyclers[0][0],&cyclers[0][0],sizeof(cyclers));
         Bmemcpy(&save->g_playerSpawnPoints[0],&g_playerSpawnPoints[0],sizeof(g_playerSpawnPoints));
@@ -5247,17 +5157,7 @@ void G_RestoreMapState(mapstate_t *save)
         Bmemcpy(yax_nextwall, save->yax_nextwall, sizeof(yax_nextwall));
 #endif
         Bmemcpy(&actor[0],&save->actor[0],sizeof(actor_t)*MAXSPRITES);
-#if !defined SAMESIZE_ACTOR_T
-        for (i=MAXSPRITES-1; i>=0; i--)
-        {
-            intptr_t j;
 
-            j = (intptr_t)(&script[0]);
-            if (save->scriptptrs[i]&1) T2 += j;
-            if (save->scriptptrs[i]&2) T5 += j;
-            if (save->scriptptrs[i]&4) T6 += j;
-        }
-#endif
         Bmemcpy(&g_numCyclers,&save->g_numCyclers,sizeof(g_numCyclers));
         Bmemcpy(&cyclers[0][0],&save->cyclers[0][0],sizeof(cyclers));
         Bmemcpy(&g_playerSpawnPoints[0],&save->g_playerSpawnPoints[0],sizeof(g_playerSpawnPoints));

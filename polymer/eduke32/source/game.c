@@ -6496,17 +6496,11 @@ PALONLY:
                     t->ang = sprpos[i].ang;
             }
             */
-#ifdef SAMESIZE_ACTOR_T
+
             if ((unsigned)t4 + 2 >= (unsigned)g_scriptSize)
                 goto skip;
 
             l = *(script + t4 + 2);
-#else
-            if ((unsigned)((intptr_t *)t4 - script + 2) >= (unsigned)g_scriptSize)
-                goto skip;
-
-            l = *(((intptr_t *)t4)+2); //For TerminX: was *(int32_t *)(t4+8)
-#endif
 
 #ifdef USE_OPENGL
             if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
@@ -6561,11 +6555,9 @@ PALONLY:
                     k = 0;
                     break;
                 }
-#ifdef SAMESIZE_ACTOR_T
+
             t->picnum += k + *(script + t4) + l*t3;
-#else
-            t->picnum += k + (*(intptr_t *)t4) + l * t3;
-#endif
+
             if (l > 0) while (tilesizx[t->picnum] == 0 && t->picnum > 0)
                     t->picnum -= l;       //Hack, for actors
 
