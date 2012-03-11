@@ -81,7 +81,7 @@ if [ $onlyzip -eq 0 ]; then
     if [ $build64 == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3
+            ARCH='-arch x86_64' OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3
             if [ $? ]; then
                 echo x86_64 debug build succeeded.
                 cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.debug.x64
@@ -92,7 +92,7 @@ if [ $onlyzip -eq 0 ]; then
         fi
 
         make veryclean
-        OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3
+        ARCH='-arch x86_64' OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3
         if [ $? ]; then
             echo x86_64 release build succeeded.
             cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.x64

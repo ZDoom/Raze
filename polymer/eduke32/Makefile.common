@@ -147,20 +147,10 @@ else
     W_NO_UNUSED_RESULT :=
 endif
 
-W_STRICT_OVERFLOW := -Wstrict-overflow=1
-ifeq (3,$(GCC_MAJOR))
-    W_STRICT_OVERFLOW :=
-endif
-ifeq ($(PLATFORM),DARWIN)
-    ifeq (1,$(DARWIN9))
-        W_STRICT_OVERFLOW :=
-    endif
-endif
-
 BASECFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
 	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH) \
-	-Wextra $(W_STRICT_OVERFLOW) #-Wwrite-strings -Waddress -Wlogical-op
+	-Wextra #-Wwrite-strings -Waddress -Wlogical-op
 ifeq ($(CC),clang)
     BASECFLAGS+= -Wno-unused-value -Wno-parentheses
 endif

@@ -30,8 +30,8 @@ ifeq (4,$(GCC_MAJOR))
     M_TUNE_GENERIC := -mtune=generic
     M_STACKREALIGN := -mstackrealign
     L_SSP := -lssp
+    W_STRICT_OVERFLOW := -Wstrict-overflow=1
 endif
-
 
 ifndef ARCH
     ifeq ($(findstring i686, $(shell uname -m)), i686)
@@ -109,6 +109,7 @@ ifeq ($(PLATFORM),DARWIN)
     ifeq (1,$(DARWIN9))
         BUILDCFLAGS += -DDARWIN9
         F_JUMP_TABLES :=
+        W_STRICT_OVERFLOW :=
     endif
 
     ifeq (1,$(BUILD32_ON_64))
@@ -207,7 +208,7 @@ else
 endif
 
 
-BUILDCFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1
+BUILDCFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1 $(W_STRICT_OVERFLOW)
 
 ifneq (0,$(USE_OPENGL))
     BUILDCFLAGS+= -DUSE_OPENGL
