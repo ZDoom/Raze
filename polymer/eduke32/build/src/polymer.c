@@ -4387,7 +4387,7 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
 
     // PR_BIT_ANIM_INTERPOLATION
     material->frameprogress = 0.0f;
-    material->nextframedata = NULL;
+    material->nextframedata = (float*)-1;
     // PR_BIT_NORMAL_MAP
     material->normalmap = 0;
     material->normalbias[0] = material->normalbias[1] = 0.0f;
@@ -4523,7 +4523,7 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     // --------- bit validation
 
     // PR_BIT_ANIM_INTERPOLATION
-    if (material.nextframedata)
+    if (material.nextframedata != ((float*)-1))
         programbits |= prprogrambits[PR_BIT_ANIM_INTERPOLATION].bit;
 
     // PR_BIT_LIGHTING_PASS
