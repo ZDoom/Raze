@@ -37,7 +37,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int32_t g_numEnvSoundsPlaying;
 extern int32_t g_noEnemies;
-extern int32_t ticrandomseed;
 
 inline void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
 {

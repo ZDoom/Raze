@@ -47,14 +47,10 @@ extern El_State g_ElState;  // this needs to go into a header sometime
 # define GAMEEXEC_STATIC static
 #endif
 
-void G_RestoreMapState(mapstate_t *save);
-void G_SaveMapState(mapstate_t *save);
-
 vmstate_t vm;
 
 int32_t g_errorLineNum;
 int32_t g_tw;
-extern int32_t ticrandomseed;
 
 int32_t g_currentEventExec = -1;
 
