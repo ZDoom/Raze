@@ -33,10 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MAXQUOTES 2048
 #define MAXQUOTELEN 128
 
-// Some misc #defines
-//#define NO       0
-//#define YES      1
-
 typedef int32_t instype;
 typedef int32_t ofstype;
 

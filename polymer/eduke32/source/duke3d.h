@@ -91,9 +91,6 @@ extern "C" {
 #define TICSPERFRAME        4
 #define TICRATE             120
 
-#define NO                  0
-#define YES                 1
-
 #define PACKBUF_SIZE        2048
 
 #define TILE_SAVESHOT       (MAXTILES-1)
