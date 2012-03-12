@@ -45,6 +45,7 @@ endif
 #  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
 #  OPTLEVEL	- 0..3 = GCC optimization strategy
 #  LTO - 1 = enable link-time optimization, for GCC 4.5 and up
+#  CLANG - 1 = enable the Clang/LLVM compiler
 #
 RELEASE?=1
 DEBUGANYWAY?=0
@@ -55,6 +56,7 @@ OPTLEVEL?=2
 PROFILER?=0
 MUDFLAP?=0
 LTO?=0
+CLANG?=0
 
 ifneq (0,$(KRANDDEBUG))
     RELEASE=0
@@ -72,6 +74,13 @@ AR=ar
 RC=windres
 RANLIB=ranlib
 STRIP=strip
+
+ifneq (0,$(CLANG))
+    CC=clang
+    CXX=clang++
+    AR=llvm-ar
+    RANLIB=llvm-ranlib
+endif
 
 # compiler flags etc.
 LIBS=-lm
