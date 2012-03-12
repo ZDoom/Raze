@@ -809,12 +809,14 @@ uint32_t Bgetsysmemsize(void)
             if (aGlobalMemoryStatusEx(&memst))
                 siz = (uint32_t)min(UINT_MAX, memst.ullTotalPhys);
         }
+        /*
         else
         {
             // Yeah, there's enough Win9x hatred here that a perfectly good workaround
             // has been replaced by an error message.  Oh well, we don't support 9x anyway.
-            initprintf("Bgetsysmemsize(): error determining system memory size!\n");
+            // initprintf("Bgetsysmemsize(): error determining system memory size!\n");
         }
+        */
 
         FreeLibrary(lib);
     }

@@ -16,7 +16,8 @@ include ../Makefile.common
 ifneq ($(DXROOT_OVERRIDE),)
     DXROOT=$(DXROOT_OVERRIDE)
 else
-    DXROOT=c:/sdks/directx/dx61
+    DXROOT=../sdk/dx
+    #DXROOT=c:/sdks/directx/dx8
 endif
 FMODROOTWIN=c:/sdks/fmodapi374win/api
 
@@ -172,7 +173,7 @@ OURCFLAGS+= $(BUILDCFLAGS)
 
 UTILOBJS=$(OBJ)/kextract.$o $(OBJ)/kgroup.$o $(OBJ)/transpal.$o $(OBJ)/wad2art.$o $(OBJ)/wad2map.$o $(OBJ)/md2tool.$o \
     $(OBJ)/compat.$o $(OBJ)/pragmas.$o
-UTILS=kextract kgroup transpal wad2art wad2map md2tool
+UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) md2tool$(EXESUFFIX)
 
 # all: $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB)
 utils: $(UTILS)
@@ -271,6 +272,7 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 
 clean:
 	-rm -f $(OBJ)/*
+	echo -n "" > $(OBJ)/keep.me
 
 cleanutils:
 	-rm -f $(UTILS) $(UTILOBJS)
