@@ -20,7 +20,7 @@ darwinversion=`uname -r | cut -d . -f 1`
 
 if [ `expr $darwinversion \< 9` == 1 ]; then
     build64=0
-    echo OS X 10.4 is the minimum requirement for building.
+    echo OS X 10.5 is the minimum requirement for building.
     exit 1
 fi
 if [ `expr $darwinversion \> 10` == 1 ]; then
