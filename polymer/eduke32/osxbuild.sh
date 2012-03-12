@@ -18,12 +18,10 @@ fi
 # Detect and account for OS X version:
 darwinversion=`uname -r | cut -d . -f 1`
 
-if [ `expr $darwinversion \< 8` == 1 ]; then
-    echo OS X 10.4 is the minimum requirement for building.
-    exit 1
-fi
 if [ `expr $darwinversion \< 9` == 1 ]; then
     build64=0
+    echo OS X 10.4 is the minimum requirement for building.
+    exit 1
 fi
 if [ `expr $darwinversion \> 10` == 1 ]; then
     buildppc=0
@@ -51,7 +49,7 @@ for i in $*; do
         ;;
 
         *)
-            echo usage: osxbuild [onlyzip] [noppc] [no86] [no64] [--debug=\<0|1\>]
+            echo usage: osxbuild [onlyzip] [noppc] [no86] [no64] [--debug=\<0\|1\>]
             exit 1
         ;;
     esac
@@ -168,7 +166,7 @@ if [ $builddebug == 1 ]; then
 fi
 
 # Begin assembling archive contents:
-arcontents="README.OSX"
+arcontents="README.OSX Changelog.txt"
 
 echo Creating fat binaries.
 success=0
@@ -201,6 +199,24 @@ if [ $success == 1 ]; then
     echo "The 64-bit build in this archive has LibVPX (http://www.webmproject.org/code/)" >> README.OSX
     echo "from MacPorts (http://www.macports.org/) statically linked into it." >> README.OSX
 
+    # Generate Changelog:
+    lastrevision=`ls -A1 eduke32-osx* | tail -n1 | cut -d- -f3 | cut -d. -f1`
+
+    if [ -z $lastrevision ]; then
+        let lastrevision=rev-1
+    elif [ $lastrevision -lt $rev ]; then
+        let lastrevision+=1
+    else
+        let lastrevision=rev-1
+    fi
+
+    if [ "$vc" == "svn" ]; then
+            svn log -r $rev:$lastrevision > Changelog.txt
+    elif [ "$vc" == "git" ]; then
+            git svn log -r $rev:$lastrevision > Changelog.txt
+    fi
+
+    # Package
     arfilename="eduke32-osx-$rev.zip"
     rm -f "$arfilename"
     zip -r -y "$arfilename" $arcontents -x "*.svn*" "*.git*"
