@@ -736,6 +736,26 @@ char *Bstrtoken(char *s, const char *delim, char **ptrptr, int32_t chop)
     return start;
 }
 
+char *Bstrtolower(char *str)
+{
+    if (!str) return NULL;
+
+    {
+        int32_t i = 0, len = Bstrlen(str);
+
+        if (len <= 0) return str;
+
+        do
+        {
+            *(str+i) = Btolower(*(str+i));
+            i++;
+        }
+        while (--len);
+    }
+
+    return str;
+}
+
 
 //Brute-force case-insensitive, slash-insensitive, * and ? wildcard matcher
 //Given: string i and string j. string j can have wildcards
@@ -809,14 +829,12 @@ uint32_t Bgetsysmemsize(void)
             if (aGlobalMemoryStatusEx(&memst))
                 siz = (uint32_t)min(UINT_MAX, memst.ullTotalPhys);
         }
-        /*
         else
         {
             // Yeah, there's enough Win9x hatred here that a perfectly good workaround
             // has been replaced by an error message.  Oh well, we don't support 9x anyway.
-            // initprintf("Bgetsysmemsize(): error determining system memory size!\n");
+            initprintf("Bgetsysmemsize(): error determining system memory size!\n");
         }
-        */
 
         FreeLibrary(lib);
     }

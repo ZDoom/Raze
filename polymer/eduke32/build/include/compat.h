@@ -592,6 +592,7 @@ int32_t Bcanonicalisefilename(char *filename, int32_t removefn);
 char *Bgetsystemdrives(void);
 int32_t Bfilelength(int32_t fd);
 char *Bstrtoken(char *s, const char *delim, char **ptrptr, int32_t chop);
+char *Bstrtolower(char *str);
 int32_t Bwildmatch (const char *i, const char *j);
 
 #if !defined(_WIN32)

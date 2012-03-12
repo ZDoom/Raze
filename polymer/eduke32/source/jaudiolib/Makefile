@@ -10,12 +10,15 @@ INC=include
 ifneq ($(DXROOT_OVERRIDE),)
     DXROOT ?= $(DXROOT_OVERRIDE)
 else
-    DXROOT ?= c:/sdks/directx/dx8
+    DXROOT=../../../sdk/dx
+    #DXROOT ?= c:/sdks/directx/dx8
 endif
 
 CFLAGS=$(BASECFLAGS) $(BUILDCFLAGS) $(F_NO_STACK_PROTECTOR)
 # for BUILD_ECHOFLAGS:
 OURCFLAGS=$(CFLAGS)
+OURCONLYFLAGS=$(BASECONLYFLAGS)
+OURCXXFLAGS=$(BASECXXFLAGS)
 CPPFLAGS=-I$(INC) -I$(SRC) -DHAVE_VORBIS
 
 ifeq ($(PLATFORM),DARWIN)
@@ -59,7 +62,7 @@ $(OBJNAME): $(OBJECTS)
 $(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c
 	-mkdir -p $(OBJ)
 	$(COMPILE_STATUS)
-	if $(CC) $(CPPFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(CPPFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:

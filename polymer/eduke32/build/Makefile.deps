@@ -38,10 +38,15 @@ $(OBJ)/startgtk.editor.$o: $(SRC)/startgtk.editor.c $(INC)/baselayer.h $(INC)/bu
 
 $(OBJ)/build_icon.$o: $(RSRC)/build_icon.c
 
+$(OBJ)/compat_tools.$o: $(SRC)/util/compat_tools.c
 $(OBJ)/kextract.$o: $(SRC)/util/kextract.c $(INC)/compat.h
 $(OBJ)/kgroup.$o: $(SRC)/util/kgroup.c $(INC)/compat.h
 $(OBJ)/transpal.$o: $(SRC)/util/transpal.c $(INC)/compat.h $(INC)/pragmas.h
 $(OBJ)/wad2art.$o: $(SRC)/util/wad2art.c $(INC)/compat.h $(INC)/pragmas.h
 $(OBJ)/wad2map.$o: $(SRC)/util/wad2map.c $(INC)/compat.h $(INC)/pragmas.h
-$(OBJ)/generateicon.$o: $(SRC)/util/generateicon.c
+$(OBJ)/md2tool.$o: $(SRC)/util/md2tool.c $(INC)/compat.h $(INC)/build.h $(INC)/glbuild.h $(INC)/mdsprite.h
+$(OBJ)/generateicon.$o: $(SRC)/util/generateicon.c $(INC)/kplib.h $(INC)/compat.h
 $(OBJ)/cacheinfo.$o: $(SRC)/util/cacheinfo.c $(INC)/compat.h
+$(OBJ)/arttool.$o: $(SRC)/util/arttool.cc
+$(OBJ)/givedepth.$o: $(SRC)/util/givedepth.c
+$(OBJ)/mkpalette.$o: $(SRC)/util/mkpalette.c

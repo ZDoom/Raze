@@ -139,26 +139,6 @@ struct glinfo_t glinfo =
 };
 #endif
 
-char *Bstrtolower(char *str)
-{
-    if (!str) return NULL;
-
-    {
-        int32_t i = 0, len = Bstrlen(str);
-
-        if (len <= 0) return str;
-
-        do
-        {
-            *(str+i) = Btolower(*(str+i));
-            i++;
-        }
-        while (--len);
-    }
-
-    return str;
-}
-
 int32_t flushlogwindow = 1;
 
 static void onvideomodechange(int32_t newmode) { UNREFERENCED_PARAMETER(newmode); }

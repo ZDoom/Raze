@@ -6,7 +6,7 @@
 #include <dos.h>
 #include <stdio.h>
 
-void main(void)
+int main(void)
 {
 	int font, width, height, numchars;
 	struct REGPACK r;
@@ -136,4 +136,5 @@ void main(void)
 		}
 	} while (font != 6);
 
+    return 0;
 }

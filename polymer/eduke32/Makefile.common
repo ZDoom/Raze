@@ -147,7 +147,7 @@ else
     W_NO_UNUSED_RESULT :=
 endif
 
-BASECFLAGS=$(debug) -W -Wall -Wimplicit -Werror-implicit-function-declaration \
+BASECFLAGS=$(debug) -W -Wall -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
 	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH) \
 	-Wextra #-Wwrite-strings -Waddress -Wlogical-op
@@ -174,6 +174,7 @@ ifneq (0,$(DMALLOC))
     BASECFLAGS+= -DDMALLOC
 endif
 
+BASECONLYFLAGS=-Wimplicit
 BASECXXFLAGS= -fno-exceptions -fno-rtti
 BASEASFLAGS=-s #-g
 

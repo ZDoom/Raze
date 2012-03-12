@@ -22,7 +22,7 @@ char source[MAXPATH], output[MAXPATH], bytesize;
 int PathAddExt(char *path, char *ext);
 
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	printf("BIN2C - Binary to C data converter\n"
 			 "Copyright (c) 1999 Jonathon Fowler\n\n");
@@ -133,6 +133,8 @@ void main(int argc, char *argv[])
 
 	fclose(out);
 	fclose(in);
+
+    return 0;
 }
 
 

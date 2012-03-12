@@ -231,8 +231,8 @@ ifneq (0,$(NEDMALLOC))
 endif
 
 ifeq ($(PRETTY_OUTPUT),1)
-BUILD_STARTED = printf "\033[K\033[1;36mBuild started using \"$(CC) $(OURCFLAGS)\"\033[0m\n"
-BUILD_ECHOFLAGS = printf "\033[K\033[1;36mEnded compilation in this directory using \"$(CC) $(OURCFLAGS)\"\033[0m\n"
+BUILD_STARTED = printf "\033[K\033[1;36mBuild started using \"$(CC) $(OURCFLAGS) $(OURCONLYFLAGS) $(OURCXXFLAGS)\"\033[0m\n"
+BUILD_ECHOFLAGS = printf "\033[K\033[1;36mEnded compilation in this directory using \"$(CC) $(OURCFLAGS) $(OURCONLYFLAGS) $(OURCXXFLAGS)\"\033[0m\n"
 BUILD_FINISHED = printf "\033[K\033[1;36mBuild successful:\033[0m\n"
 COMPILE_STATUS = printf "\033[K\033[0mBuilding object \033[1m$@\033[0m...\033[0m\r"
 ONESTEP_STATUS = printf "\033[K\033[0mBuilding executable \033[1m$@\033[0m...\033[0m\r"

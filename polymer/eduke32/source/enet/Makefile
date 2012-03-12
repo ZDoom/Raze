@@ -9,6 +9,8 @@ INC=include
 CFLAGS=$(BASECFLAGS) $(BUILDCFLAGS) $(F_NO_STACK_PROTECTOR)
 # for BUILD_ECHOFLAGS:
 OURCFLAGS=$(CFLAGS)
+OURCONLYFLAGS=$(BASECONLYFLAGS)
+OURCXXFLAGS=$(BASECXXFLAGS)
 CPPFLAGS=-I$(INC) -I$(SRC) -I../../$(EROOT)/include
 
 
@@ -38,7 +40,7 @@ $(OBJNAME): $(OBJECTS)
 $(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c $(INC)/enet/*.h
 	-mkdir -p $(OBJ)
 	$(COMPILE_STATUS)
-	if $(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(CPPFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
