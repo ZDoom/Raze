@@ -1,6 +1,6 @@
 // A.ASM replacement using C
 // Mainly by Ken Silverman, with things melded with my port by
-// Jonathon Fowler (jonof@edgenetwork.org)
+// Jonathon Fowler (jf@jonof.id.au)
 //
 // "Build Engine & Tools" Copyright (c) 1993-1997 Ken Silverman
 // Ken Silverman's official web site: "http://www.advsys.net/ken"

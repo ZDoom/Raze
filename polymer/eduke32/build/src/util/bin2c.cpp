@@ -1,5 +1,5 @@
 // BIN2C.CPP
-// by Jonathon Fowler (jonof@edgenetwork.org)
+// by Jonathon Fowler (jf@jonof.id.au)
 
 // Converts a binary file to C source
 // This is a DOS program originally written with Borland Turbo C++ for DOS 3.1

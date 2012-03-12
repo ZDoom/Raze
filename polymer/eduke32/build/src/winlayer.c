@@ -1,5 +1,5 @@
 // Windows DIB/DirectDraw interface layer for the Build Engine
-// Originally by Jonathon Fowler (jonof@edgenetwk.com)
+// Originally by Jonathon Fowler (jf@jonof.id.au)
 
 #define DIRECTINPUT_VERSION 0x0700
 #define DIRECTDRAW_VERSION  0x0600

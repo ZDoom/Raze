@@ -1,6 +1,6 @@
 // Windows DIB/DirectDraw interface layer
 // for the Build Engine
-// by Jonathon Fowler (jonof@edgenetwk.com)
+// by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef __build_interface_layer__
 #define __build_interface_layer__ WIN

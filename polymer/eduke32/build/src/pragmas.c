@@ -1,5 +1,5 @@
 // Function-wrapped Watcom pragmas
-// by Jonathon Fowler (jonof@edgenetwk.com)
+// by Jonathon Fowler (jf@jonof.id.au)
 //
 // These functions represent some of the more longer-winded pragmas
 // from the original pragmas.h wrapped into functions for easier

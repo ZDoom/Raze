@@ -1,6 +1,6 @@
 /* MD4.H - header file for MD4C.C
    Modified from original version published in RFC1320 by
-   Jonathon Fowler (jonof@edgenetwork.org)
+   Jonathon Fowler (jf@jonof.id.au)
  */
 
 /* Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All

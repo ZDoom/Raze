@@ -1,6 +1,6 @@
 // On-screen Display (ie. console)
 // for the Build Engine
-// by Jonathon Fowler (jonof@edgenetwk.com)
+// by Jonathon Fowler (jf@jonof.id.au)
 
 #include "build.h"
 #include "osd.h"

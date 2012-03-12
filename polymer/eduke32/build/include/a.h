@@ -1,6 +1,6 @@
 // Assembly-language function wrappers for a.asm functions
 // for the Build Engine
-// by Jonathon Fowler (jonof@edgenetwk.com)
+// by Jonathon Fowler (jf@jonof.id.au)
 
 
 #ifndef __a_h__

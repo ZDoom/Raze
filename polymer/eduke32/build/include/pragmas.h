@@ -1,5 +1,5 @@
 // This file has been modified from Ken Silverman's original release
-// by Jonathon Fowler (jonof@edgenetwk.com)
+// by Jonathon Fowler (jf@jonof.id.au)
 
 
 #ifndef __pragmas_h__

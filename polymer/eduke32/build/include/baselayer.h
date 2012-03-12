@@ -1,6 +1,6 @@
 // Base services interface declaration
 // for the Build Engine
-// by Jonathon Fowler (jonof@edgenetwk.com)
+// by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef __baselayer_h__
 #define __baselayer_h__

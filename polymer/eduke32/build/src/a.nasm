@@ -3,7 +3,7 @@
 ; See the included license file "BUILDLIC.TXT" for license info.
 ;
 ; This file has been modified from Ken Silverman's original release
-; by Jonathon Fowler (jonof@edgenetwk.com)
+; by Jonathon Fowler (jf@jonof.id.au)
 
 ;CPU 586
 

@@ -1,6 +1,6 @@
 /* MD4C.C - RSA Data Security, Inc., MD4 message-digest algorithm
    Modified from original version published in RFC1320 by
-   Jonathon Fowler (jonof@edgenetwork.org)
+   Jonathon Fowler (jf@jonof.id.au)
  */
 
 /* Copyright (C) 1990-2, RSA Data Security, Inc. All rights reserved.

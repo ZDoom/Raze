@@ -13,7 +13,7 @@ FILE *output = NULL;
 void usage(void)
 {
 	printf(
-	"enumdisplay by Jonathon Fowler (jonof@edgenetwork.org)\n"
+	"enumdisplay by Jonathon Fowler (jf@jonof.id.au)\n"
 	"Options:\n"
 	"   -h, -?, --help     This message\n"
 	"   -o <filename>      Use different output file (default: "
