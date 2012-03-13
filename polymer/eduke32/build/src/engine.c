@@ -7512,12 +7512,15 @@ int32_t insertspritesect(int16_t sectnum)
     if ((sectnum >= MAXSECTORS) || (headspritesect[MAXSECTORS] == -1))
         return(-1);  //list full
 
+    // remove one sprite from the sectnum-freelist
     blanktouse = headspritesect[MAXSECTORS];
-
     headspritesect[MAXSECTORS] = nextspritesect[blanktouse];
+
+    // make 'previous' link of the new freelist head point to nil
     if (headspritesect[MAXSECTORS] >= 0)
         prevspritesect[headspritesect[MAXSECTORS]] = -1;
 
+    // insert the fetched sprite at the head of the sectnum list
     prevspritesect[blanktouse] = -1;
     nextspritesect[blanktouse] = headspritesect[sectnum];
     if (headspritesect[sectnum] >= 0)
@@ -7535,17 +7538,20 @@ int32_t insertspritesect(int16_t sectnum)
 //
 int32_t insertspritestat(int16_t statnum)
 {
-    int16_t blanktouse;
+    int16_t blanktouse;  // a spritenum with no assigned statnum
 
     if ((statnum >= MAXSTATUS) || (headspritestat[MAXSTATUS] == -1))
         return(-1);  //list full
 
+    // remove one sprite from the statnum-freelist
     blanktouse = headspritestat[MAXSTATUS];
-
     headspritestat[MAXSTATUS] = nextspritestat[blanktouse];
+
+    // make 'previous' link of the new freelist head point to nil
     if (headspritestat[MAXSTATUS] >= 0)
         prevspritestat[headspritestat[MAXSTATUS]] = -1;
 
+    // insert the fetched sprite at the head of the statnum list
     prevspritestat[blanktouse] = -1;
     nextspritestat[blanktouse] = headspritestat[statnum];
     if (headspritestat[statnum] >= 0)
@@ -7563,8 +7569,9 @@ int32_t insertspritestat(int16_t statnum)
 //
 int32_t deletespritesect(int16_t deleteme)
 {
+    // only non-redundant from deletesprite():
     if (sprite[deleteme].sectnum == MAXSECTORS)
-        return(-1);
+        return(-1);  // already not in the world
 
     if (headspritesect[sprite[deleteme].sectnum] == deleteme)
         headspritesect[sprite[deleteme].sectnum] = nextspritesect[deleteme];
@@ -7572,12 +7579,14 @@ int32_t deletespritesect(int16_t deleteme)
     if (prevspritesect[deleteme] >= 0) nextspritesect[prevspritesect[deleteme]] = nextspritesect[deleteme];
     if (nextspritesect[deleteme] >= 0) prevspritesect[nextspritesect[deleteme]] = prevspritesect[deleteme];
 
+    // put the deleted sprite at the head of the sectnum-freelist
     if (headspritesect[MAXSECTORS] >= 0) prevspritesect[headspritesect[MAXSECTORS]] = deleteme;
     prevspritesect[deleteme] = -1;
     nextspritesect[deleteme] = headspritesect[MAXSECTORS];
     headspritesect[MAXSECTORS] = deleteme;
 
     sprite[deleteme].sectnum = MAXSECTORS;
+
     return(0);
 }
 
@@ -7587,8 +7596,9 @@ int32_t deletespritesect(int16_t deleteme)
 //
 int32_t deletespritestat(int16_t deleteme)
 {
+    // only non-redundant from deletesprite():
     if (sprite[deleteme].statnum == MAXSTATUS)
-        return(-1);
+        return(-1);  // already not in the world
 
     if (headspritestat[sprite[deleteme].statnum] == deleteme)
         headspritestat[sprite[deleteme].statnum] = nextspritestat[deleteme];
@@ -7596,12 +7606,14 @@ int32_t deletespritestat(int16_t deleteme)
     if (prevspritestat[deleteme] >= 0) nextspritestat[prevspritestat[deleteme]] = nextspritestat[deleteme];
     if (nextspritestat[deleteme] >= 0) prevspritestat[nextspritestat[deleteme]] = prevspritestat[deleteme];
 
+    // put the deleted sprite at the head of the statnum-freelist
     if (headspritestat[MAXSTATUS] >= 0) prevspritestat[headspritestat[MAXSTATUS]] = deleteme;
     prevspritestat[deleteme] = -1;
     nextspritestat[deleteme] = headspritestat[MAXSTATUS];
     headspritestat[MAXSTATUS] = deleteme;
 
     sprite[deleteme].statnum = MAXSTATUS;
+
     return(0);
 }
 
@@ -8026,6 +8038,16 @@ void uninitengine(void)
 void initspritelists(void)
 {
     int32_t i;
+
+    // initial list state for sector lists (analogous for statnum lists):
+    //
+    //  sector 0: nil
+    //  sector 1: nil
+    //     . . .
+    //  sector MAXSECTORS-1: nil
+    //  "sector MAXSECTORS": nil <- 0 <-> 1 <-> 2 <-> ... <-> MAXSPRITES-1 -> nil
+    //
+    // That is, the dummy MAXSECTORS sector has all sprites.
 
     for (i=0; i<MAXSECTORS; i++)   //Init doubly-linked sprite sector lists
         headspritesect[i] = -1;
@@ -10750,11 +10772,16 @@ int32_t setspritez(int16_t spritenum, const vec3_t *new)
 //
 int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
 {
-    if ((newsectnum < 0) || (newsectnum > MAXSECTORS)) return(-1);
-    if (sprite[spritenum].sectnum == newsectnum) return(0);
-    if (sprite[spritenum].sectnum == MAXSECTORS) return(-1);
-    if (deletespritesect(spritenum) < 0) return(-1);
+    if ((newsectnum < 0) || (newsectnum > MAXSECTORS))
+        return(-1);
+    if (sprite[spritenum].sectnum == newsectnum)
+        return(0);
+    if (sprite[spritenum].sectnum == MAXSECTORS)
+        return(-1);
+
+    deletespritesect(spritenum);
     insertspritesect(newsectnum);
+
     return(0);
 }
 
@@ -10764,11 +10791,16 @@ int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
 //
 int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
 {
-    if ((newstatnum < 0) || (newstatnum > MAXSTATUS)) return(-1);
-    if (sprite[spritenum].statnum == newstatnum) return(0);
-    if (sprite[spritenum].statnum == MAXSTATUS) return(-1);
-    if (deletespritestat(spritenum) < 0) return(-1);
+    if ((newstatnum < 0) || (newstatnum > MAXSTATUS))
+        return(-1);
+    if (sprite[spritenum].statnum == newstatnum)
+        return(0);  // sprite already has desired statnum
+    if (sprite[spritenum].statnum == MAXSTATUS)
+        return(-1);  // can't set the statnum of a sprite not in the world
+
+    deletespritestat(spritenum);
     insertspritestat(newstatnum);
+
     return(0);
 }
 
