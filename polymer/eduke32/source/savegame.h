@@ -27,17 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SV_MINOR_VER 2
 
 #pragma pack(push,1)
-# if 0
-struct savehead_
-{
-    char name[21];
-    int32_t byteversion;
-    int32_t numplr,volnum,levnum,plrskl;
-    char boardfn[BMAX_PATH];
-};
-# endif
-
-
 typedef struct
 {
     char headerstr[11];

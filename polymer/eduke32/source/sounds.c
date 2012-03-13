@@ -295,7 +295,8 @@ void S_Cleanup(void)
         return;
     }
 
-    Bmemcpy(ldq, (void *)dq, sizeof(int32_t) *(ldnum = dnum));
+    ldnum = dnum;
+    Bmemcpy(ldq, (void *)dq, ldnum*sizeof(int32_t));
     dnum = 0;
 
     mutex_unlock(&s_mutex);
@@ -372,7 +373,7 @@ int32_t S_LoadSound(uint32_t num)
     g_soundlocks[num] = 200;
 
     allocache((intptr_t *)&g_sounds[num].ptr, l, (char *)&g_soundlocks[num]);
-    l = kread(fp, g_sounds[num].ptr , l);
+    l = kread(fp, g_sounds[num].ptr, l);
     kclose(fp);
 
     return l;

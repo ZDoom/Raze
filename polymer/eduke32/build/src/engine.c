@@ -4595,6 +4595,7 @@ static void drawalls(int32_t bunch)
         }
     }
 
+
     //DRAW WALLS SECTION!
     for (z=bunchfirst[bunch]; z>=0; z=p2[z])
     {

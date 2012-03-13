@@ -320,7 +320,7 @@ EXTERN int16_t headsectbunch[2][YAX_MAXBUNCHES], nextsectbunch[2][MAXSECTORS];
 
 EXTERN int16_t numsectors, numwalls;
 EXTERN char display_mirror;
-EXTERN /*volatile*/ int32_t totalclock;
+EXTERN int32_t totalclock;
 EXTERN int32_t numframes, randomseed;
 EXTERN int16_t sintable[2048];
 EXTERN uint8_t palette[768];
@@ -496,7 +496,7 @@ TILE VARIABLES:
         NUMTILES - the number of tiles found TILES.DAT.
         TILESIZX[MAXTILES] - simply the x-dimension of the tile number.
         TILESIZY[MAXTILES] - simply the y-dimension of the tile number.
-        WALOFF[MAXTILES] - the actual 32-bit offset pointing to the top-left
+        WALOFF[MAXTILES] - the actual address pointing to the top-left
                                  corner of the tile.
         PICANM[MAXTILES] - flags for animating the tile.
 

@@ -29,7 +29,7 @@ duke3d_h=\
 
 gamedef_h=$(SRC)/gamedef.h $(SRC)/gameexec.h $(SRC)/gamevars.h
 
-$(OBJ)/game.$o: $(SRC)/game.c $(SRC)/jmact/scriplib.h $(duke3d_h) $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h $(INC)/demo.h
+$(OBJ)/game.$o: $(SRC)/game.c $(SRC)/jmact/scriplib.h $(duke3d_h) $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h $(INC)/demo.h $(EINC)/hightile.h
 $(OBJ)/actors.$o: $(SRC)/actors.c $(duke3d_h)
 $(OBJ)/anim.$o: $(SRC)/anim.c $(duke3d_h) $(SRC)/jmact/animlib.h $(SRC)/animvpx.h
 $(OBJ)/demo.$o: $(SRC)/demo.c $(duke3d_h)
