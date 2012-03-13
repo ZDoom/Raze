@@ -341,6 +341,11 @@ EXTERN int32_t pskymultiyscale[MAXPSKYMULTIS];
 EXTERN int16_t pskymultilist[MAXPSKYMULTIS], pskymultibits[MAXPSKYMULTIS];
 EXTERN int16_t pskymultioff[MAXPSKYMULTIS][MAXPSKYTILES];
 
+// last sprite in the freelist, that is the spritenum for which
+//   .statnum==MAXSTATUS && nextspritestat[spritenum]==-1
+// (or -1 if freelist is empty):
+EXTERN int16_t tailspritefree;
+
 EXTERN int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];

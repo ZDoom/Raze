@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __savegame_h__
 
 #define SV_MAJOR_VER 1
-#define SV_MINOR_VER 1
+#define SV_MINOR_VER 2
 
 #pragma pack(push,1)
 # if 0

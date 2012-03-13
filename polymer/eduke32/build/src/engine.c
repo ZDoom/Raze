@@ -7505,7 +7505,7 @@ int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 
 ////////// SPRITE LIST MANIPULATION FUNCTIONS //////////
 
-///// sprite lists /////
+///// sector lists of sprites /////
 
 // insert sprite at the head of sector list, change .sectnum
 static void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum)
@@ -7556,23 +7556,9 @@ static void do_deletespritesect(int16_t deleteme)
         prevspritesect[next] = prev;
 }
 
-// deletespritesect (internal)
-static int32_t deletespritesect(int16_t deleteme)
-{
-    // only non-redundant from deletesprite():
-    if (sprite[deleteme].sectnum == MAXSECTORS)
-        return(-1);  // already not in the world
-
-    do_deletespritesect(deleteme);
-    // put the deleted sprite at the head of the sectnum-freelist:
-    do_insertsprite_at_headofsect(deleteme, MAXSECTORS);
-
-    return(0);
-}
-
 ///// the same thing, now for status lists /////
 
-// insert sprite at the head of status list, change .statnum
+// insert sprite at head of status list, change .statnum
 static void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum)
 {
     int16_t ohead = headspritestat[statnum];
@@ -7601,6 +7587,8 @@ static int32_t insertspritestat(int16_t statnum)
     // make back-link of the new freelist head point to nil
     if (headspritestat[MAXSTATUS] >= 0)
         prevspritestat[headspritestat[MAXSTATUS]] = -1;
+    else
+        tailspritefree = -1;
 
     do_insertsprite_at_headofstat(blanktouse, statnum);
 
@@ -7621,20 +7609,6 @@ static void do_deletespritestat(int16_t deleteme)
         prevspritestat[next] = prev;
 }
 
-// deletespritestat (internal)
-static int32_t deletespritestat(int16_t deleteme)
-{
-    // only non-redundant from deletesprite():
-    if (sprite[deleteme].statnum == MAXSTATUS)
-        return(-1);  // already not in the world
-
-    do_deletespritestat(deleteme);
-    // put the deleted sprite at the head of the statnum-freelist
-    do_insertsprite_at_headofstat(deleteme, MAXSTATUS);
-
-    return(0);
-}
-
 
 //
 // insertsprite
@@ -7650,8 +7624,36 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 //
 int32_t deletesprite(int16_t spritenum)
 {
-    deletespritestat(spritenum);
-    return(deletespritesect(spritenum));
+    assert((sprite[spritenum].statnum == MAXSTATUS)
+           == (sprite[spritenum].sectnum == MAXSECTORS));
+
+    if (sprite[spritenum].statnum == MAXSTATUS)
+        return(-1);  // already not in the world
+
+    do_deletespritestat(spritenum);
+    do_deletespritesect(spritenum);
+
+    // insert at tail of sector freelist
+    prevspritesect[spritenum] = tailspritefree;
+    nextspritesect[spritenum] = -1;
+    if (tailspritefree >= 0)
+        nextspritesect[tailspritefree] = spritenum;
+    else
+        headspritesect[MAXSECTORS] = spritenum;
+    sprite[spritenum].sectnum = MAXSECTORS;
+
+    // insert at tail of status freelist
+    prevspritestat[spritenum] = tailspritefree;
+    nextspritestat[spritenum] = -1;
+    if (tailspritefree >= 0)
+        nextspritestat[tailspritefree] = spritenum;
+    else
+        headspritestat[MAXSTATUS] = spritenum;
+    sprite[spritenum].statnum = MAXSTATUS;
+
+    tailspritefree = spritenum;
+
+    return 0;
 }
 
 //
@@ -8148,6 +8150,8 @@ void initspritelists(void)
     }
     prevspritestat[0] = -1;
     nextspritestat[MAXSPRITES-1] = -1;
+
+    tailspritefree = MAXSPRITES-1;
 }
 
 
