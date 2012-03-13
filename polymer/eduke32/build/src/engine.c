@@ -7503,9 +7503,25 @@ int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 }
 
 
-//
+////////// SPRITE LIST MANIPULATION FUNCTIONS //////////
+
+///// sprite lists /////
+
+// insert sprite at the head of sector list, change .sectnum
+static void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum)
+{
+    int16_t ohead = headspritesect[sectnum];
+
+    prevspritesect[spritenum] = -1;
+    nextspritesect[spritenum] = ohead;
+    if (ohead >= 0)
+        prevspritesect[ohead] = spritenum;
+    headspritesect[sectnum] = spritenum;
+
+    sprite[spritenum].sectnum = sectnum;
+}
+
 // insertspritesect (internal)
-//
 static int32_t insertspritesect(int16_t sectnum)
 {
     int16_t blanktouse;
@@ -7517,29 +7533,63 @@ static int32_t insertspritesect(int16_t sectnum)
     blanktouse = headspritesect[MAXSECTORS];
     headspritesect[MAXSECTORS] = nextspritesect[blanktouse];
 
-    // make 'previous' link of the new freelist head point to nil
+    // make back-link of the new freelist head point to nil
     if (headspritesect[MAXSECTORS] >= 0)
         prevspritesect[headspritesect[MAXSECTORS]] = -1;
 
-    // insert the fetched sprite at the head of the sectnum list
-    prevspritesect[blanktouse] = -1;
-    nextspritesect[blanktouse] = headspritesect[sectnum];
-    if (headspritesect[sectnum] >= 0)
-        prevspritesect[headspritesect[sectnum]] = blanktouse;
-    headspritesect[sectnum] = blanktouse;
-
-    sprite[blanktouse].sectnum = sectnum;
+    do_insertsprite_at_headofsect(blanktouse, sectnum);
 
     return(blanktouse);
 }
 
+// remove sprite 'deleteme' from its sector list
+static void do_deletespritesect(int16_t deleteme)
+{
+    int32_t sectnum = sprite[deleteme].sectnum;
+    int32_t prev = prevspritesect[deleteme], next = nextspritesect[deleteme];
 
-//
+    if (headspritesect[sectnum] == deleteme)
+        headspritesect[sectnum] = next;
+    if (prev >= 0)
+        nextspritesect[prev] = next;
+    if (next >= 0)
+        prevspritesect[next] = prev;
+}
+
+// deletespritesect (internal)
+static int32_t deletespritesect(int16_t deleteme)
+{
+    // only non-redundant from deletesprite():
+    if (sprite[deleteme].sectnum == MAXSECTORS)
+        return(-1);  // already not in the world
+
+    do_deletespritesect(deleteme);
+    // put the deleted sprite at the head of the sectnum-freelist:
+    do_insertsprite_at_headofsect(deleteme, MAXSECTORS);
+
+    return(0);
+}
+
+///// the same thing, now for status lists /////
+
+// insert sprite at the head of status list, change .statnum
+static void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum)
+{
+    int16_t ohead = headspritestat[statnum];
+
+    prevspritestat[spritenum] = -1;
+    nextspritestat[spritenum] = ohead;
+    if (ohead >= 0)
+        prevspritestat[ohead] = spritenum;
+    headspritestat[statnum] = spritenum;
+
+    sprite[spritenum].statnum = statnum;
+}
+
 // insertspritestat (internal)
-//
 static int32_t insertspritestat(int16_t statnum)
 {
-    int16_t blanktouse;  // a spritenum with no assigned statnum
+    int16_t blanktouse;
 
     if ((statnum >= MAXSTATUS) || (headspritestat[MAXSTATUS] == -1))
         return(-1);  //list full
@@ -7548,72 +7598,39 @@ static int32_t insertspritestat(int16_t statnum)
     blanktouse = headspritestat[MAXSTATUS];
     headspritestat[MAXSTATUS] = nextspritestat[blanktouse];
 
-    // make 'previous' link of the new freelist head point to nil
+    // make back-link of the new freelist head point to nil
     if (headspritestat[MAXSTATUS] >= 0)
         prevspritestat[headspritestat[MAXSTATUS]] = -1;
 
-    // insert the fetched sprite at the head of the statnum list
-    prevspritestat[blanktouse] = -1;
-    nextspritestat[blanktouse] = headspritestat[statnum];
-    if (headspritestat[statnum] >= 0)
-        prevspritestat[headspritestat[statnum]] = blanktouse;
-    headspritestat[statnum] = blanktouse;
-
-    sprite[blanktouse].statnum = statnum;
+    do_insertsprite_at_headofstat(blanktouse, statnum);
 
     return(blanktouse);
 }
 
-
-//
-// deletespritesect (internal)
-//
-static int32_t deletespritesect(int16_t deleteme)
+// remove sprite 'deleteme' from its status list
+static void do_deletespritestat(int16_t deleteme)
 {
-    // only non-redundant from deletesprite():
-    if (sprite[deleteme].sectnum == MAXSECTORS)
-        return(-1);  // already not in the world
+    int32_t sectnum = sprite[deleteme].statnum;
+    int32_t prev = prevspritestat[deleteme], next = nextspritestat[deleteme];
 
-    if (headspritesect[sprite[deleteme].sectnum] == deleteme)
-        headspritesect[sprite[deleteme].sectnum] = nextspritesect[deleteme];
-
-    if (prevspritesect[deleteme] >= 0) nextspritesect[prevspritesect[deleteme]] = nextspritesect[deleteme];
-    if (nextspritesect[deleteme] >= 0) prevspritesect[nextspritesect[deleteme]] = prevspritesect[deleteme];
-
-    // put the deleted sprite at the head of the sectnum-freelist
-    if (headspritesect[MAXSECTORS] >= 0) prevspritesect[headspritesect[MAXSECTORS]] = deleteme;
-    prevspritesect[deleteme] = -1;
-    nextspritesect[deleteme] = headspritesect[MAXSECTORS];
-    headspritesect[MAXSECTORS] = deleteme;
-
-    sprite[deleteme].sectnum = MAXSECTORS;
-
-    return(0);
+    if (headspritestat[sectnum] == deleteme)
+        headspritestat[sectnum] = next;
+    if (prev >= 0)
+        nextspritestat[prev] = next;
+    if (next >= 0)
+        prevspritestat[next] = prev;
 }
 
-
-//
 // deletespritestat (internal)
-//
 static int32_t deletespritestat(int16_t deleteme)
 {
     // only non-redundant from deletesprite():
     if (sprite[deleteme].statnum == MAXSTATUS)
         return(-1);  // already not in the world
 
-    if (headspritestat[sprite[deleteme].statnum] == deleteme)
-        headspritestat[sprite[deleteme].statnum] = nextspritestat[deleteme];
-
-    if (prevspritestat[deleteme] >= 0) nextspritestat[prevspritestat[deleteme]] = nextspritestat[deleteme];
-    if (nextspritestat[deleteme] >= 0) prevspritestat[nextspritestat[deleteme]] = prevspritestat[deleteme];
-
+    do_deletespritestat(deleteme);
     // put the deleted sprite at the head of the statnum-freelist
-    if (headspritestat[MAXSTATUS] >= 0) prevspritestat[headspritestat[MAXSTATUS]] = deleteme;
-    prevspritestat[deleteme] = -1;
-    nextspritestat[deleteme] = headspritestat[MAXSTATUS];
-    headspritestat[MAXSTATUS] = deleteme;
-
-    sprite[deleteme].statnum = MAXSTATUS;
+    do_insertsprite_at_headofstat(deleteme, MAXSTATUS);
 
     return(0);
 }
