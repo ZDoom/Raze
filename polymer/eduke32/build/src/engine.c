@@ -7654,6 +7654,46 @@ int32_t deletesprite(int16_t spritenum)
     return(deletespritesect(spritenum));
 }
 
+//
+// changespritesect
+//
+int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
+{
+    if ((newsectnum < 0) || (newsectnum > MAXSECTORS))
+        return(-1);
+    if (sprite[spritenum].sectnum == newsectnum)
+        return(0);
+    if (sprite[spritenum].sectnum == MAXSECTORS)
+        return(-1);
+
+    deletespritesect(spritenum);
+    insertspritesect(newsectnum);
+//    do_deletespritesect(spritenum);
+//    do_insertsprite_at_headofsect(spritenum, newsectnum);
+
+    return(0);
+}
+
+//
+// changespritestat
+//
+int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
+{
+    if ((newstatnum < 0) || (newstatnum > MAXSTATUS))
+        return(-1);
+    if (sprite[spritenum].statnum == newstatnum)
+        return(0);  // sprite already has desired statnum
+    if (sprite[spritenum].statnum == MAXSTATUS)
+        return(-1);  // can't set the statnum of a sprite not in the world
+
+    deletespritestat(spritenum);
+    insertspritestat(newstatnum);
+//    do_deletespritestat(spritenum);
+//    do_insertsprite_at_headofstat(spritenum, newstatnum);
+
+    return(0);
+}
+
 
 //
 // lintersect (internal)
@@ -10800,43 +10840,6 @@ int32_t setspritez(int16_t spritenum, const vec3_t *new)
         return(-1);
     if (tempsectnum != sprite[spritenum].sectnum)
         changespritesect(spritenum,tempsectnum);
-
-    return(0);
-}
-
-//
-// changespritesect
-//
-int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
-{
-    if ((newsectnum < 0) || (newsectnum > MAXSECTORS))
-        return(-1);
-    if (sprite[spritenum].sectnum == newsectnum)
-        return(0);
-    if (sprite[spritenum].sectnum == MAXSECTORS)
-        return(-1);
-
-    deletespritesect(spritenum);
-    insertspritesect(newsectnum);
-
-    return(0);
-}
-
-
-//
-// changespritestat
-//
-int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
-{
-    if ((newstatnum < 0) || (newstatnum > MAXSTATUS))
-        return(-1);
-    if (sprite[spritenum].statnum == newstatnum)
-        return(0);  // sprite already has desired statnum
-    if (sprite[spritenum].statnum == MAXSTATUS)
-        return(-1);  // can't set the statnum of a sprite not in the world
-
-    deletespritestat(spritenum);
-    insertspritestat(newstatnum);
 
     return(0);
 }
