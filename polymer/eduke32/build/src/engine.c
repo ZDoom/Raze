@@ -4579,12 +4579,12 @@ static void drawalls(int32_t bunch)
                 parascan(xb1[bunchfirst[bunch]],xb2[bunchlast[bunch]],sectnum,0,bunch);
         }
 
-#ifdef YAX_ENABLE
-        // this is to prevent double-drawing of translucent masked floors
-        if (r_tror_nomaskpass==0 || yax_globallev==YAX_MAXDRAWS || (sec->floorstat&256)==0 ||
-            yax_nomaskpass==1 || !(yax_gotsector[sectnum>>3]&(1<<(sectnum&7))))
-#endif
         if ((andwstat2&12) != 12)   //draw floors
+#ifdef YAX_ENABLE
+            // this is to prevent double-drawing of translucent masked floors
+            if (r_tror_nomaskpass==0 || yax_globallev==YAX_MAXDRAWS || (sec->floorstat&256)==0 ||
+                yax_nomaskpass==1 || !(yax_gotsector[sectnum>>3]&(1<<(sectnum&7))))
+#endif
         {
             if ((sec->floorstat&3) == 2)
                 grouscan(xb1[bunchfirst[bunch]],xb2[bunchlast[bunch]],sectnum,1);
@@ -8129,6 +8129,7 @@ void initspritelists(void)
     for (i=0; i<MAXSECTORS; i++)   //Init doubly-linked sprite sector lists
         headspritesect[i] = -1;
     headspritesect[MAXSECTORS] = 0;
+
     for (i=0; i<MAXSPRITES; i++)
     {
         prevspritesect[i] = i-1;
@@ -8142,6 +8143,7 @@ void initspritelists(void)
     for (i=0; i<MAXSTATUS; i++)   //Init doubly-linked sprite status lists
         headspritestat[i] = -1;
     headspritestat[MAXSTATUS] = 0;
+
     for (i=0; i<MAXSPRITES; i++)
     {
         prevspritestat[i] = i-1;
@@ -8745,17 +8747,14 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     int32_t s, w, ox, oy, startwall, cx1, cy1, cx2, cy2;
     int32_t bakgxvect, bakgyvect, sortnum, gap, npoints;
     int32_t xvect, yvect, xvect2, yvect2, daslope;
-    int32_t oydim=ydim;
 
     int32_t oyxaspect=yxaspect, oviewingrange=viewingrange;
 
-    ydim = (int32_t)((double)xdim * 0.625f);
-    setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
-    ydim = oydim;
+    setaspect(65536, divscale16((xdim*320*5)/8, xdim*200));
 
     beforedrawrooms = 0;
 
-    clearbuf(&gotsector[0],(int32_t)((numsectors+31)>>5),0L);
+    Bmemset(gotsector, 0, (numsectors+7)>>3);
 
     cx1 = (windowx1<<12); cy1 = (windowy1<<12);
     cx2 = ((windowx2+1)<<12)-1; cy2 = ((windowy2+1)<<12)-1;
@@ -9032,7 +9031,8 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             asm1 = (globaly1<<2); globalx1 <<= 2; globalposx <<= (20+2);
             asm2 = (globalx2<<2); globaly2 <<= 2; globalposy <<= (20+2);
 
-            globalorientation = ((spr->cstat&2)<<7) | ((spr->cstat&512)>>2);    // so polymost can get the translucency. ignored in software mode.
+            // so polymost can get the translucency. ignored in software mode:
+            globalorientation = ((spr->cstat&2)<<7) | ((spr->cstat&512)>>2);
             fillpolygon(npoints);
         }
     }
@@ -9042,7 +9042,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     if (r_usenewaspect)
         setaspect(oviewingrange, oyxaspect);
     else
-        setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+        setaspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 
@@ -9071,13 +9071,6 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
     if (mapversion != 9)
 #endif
     if (mapversion != 7 && mapversion != 8) { kclose(fil); return(-2); }
-
-    /*
-    // Enable this for doing map checksum tests
-    clearbufbyte(&wall,   sizeof(wall),   0);
-    clearbufbyte(&sector, sizeof(sector), 0);
-    clearbufbyte(&sprite, sizeof(sprite), 0);
-    */
 
 #ifdef NEDMALLOC
     nedtrimthreadcache(0, 0);
@@ -9500,9 +9493,9 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
 
     initspritelists();
 
-    clearbuf(&show2dsector[0],(int32_t)((MAXSECTORS+3)>>5),0L);
-    clearbuf(&show2dsprite[0],(int32_t)((MAXSPRITES+3)>>5),0L);
-    clearbuf(&show2dwall[0],(int32_t)((MAXWALLS+3)>>5),0L);
+    Bmemset(show2dsector, 0, sizeof(show2dsector));
+    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+    Bmemset(show2dwall, 0, sizeof(show2dwall));
 
     kread(fil,daposx,4); *daposx = B_LITTLE32(*daposx);
     kread(fil,daposy,4); *daposy = B_LITTLE32(*daposy);
@@ -10220,16 +10213,11 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     daydim = max(200, daydim);
 
     if ((qsetmode == 200) && (videomodereset == 0) &&
-            (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp)
-            /*
-            #ifdef POLYMER
-                        && glrendmode != 4
-            #endif // POLYMER
-            */
-       )
+            (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp))
         return(0);
 
-    strcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI.  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
+    Bstrcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
+           "  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
     //  if (getkensmessagecrc(FP_OFF(kensmessage)) != 0x56c764d4)
     //      { OSD_Printf("Nice try.\n"); exit(0); }
 
@@ -11385,6 +11373,7 @@ restart_grand:
                 hitinfo->hitsect = dasector; hitinfo->hitwall = -1; hitinfo->hitsprite = z;
                 hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
                 break;
+
             case 16:
                 //These lines get the 2 points of the rotated sprite
                 //Given: (x1, y1) starts out as the center point
@@ -11413,6 +11402,7 @@ restart_grand:
                     hitinfo->pos.x = intx; hitinfo->pos.y = inty; hitinfo->pos.z = intz;
                 }
                 break;
+
             case 32:
                 if (vz == 0) continue;
                 intz = z1;
