@@ -7506,7 +7506,7 @@ int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 //
 // insertspritesect (internal)
 //
-int32_t insertspritesect(int16_t sectnum)
+static int32_t insertspritesect(int16_t sectnum)
 {
     int16_t blanktouse;
 
@@ -7537,7 +7537,7 @@ int32_t insertspritesect(int16_t sectnum)
 //
 // insertspritestat (internal)
 //
-int32_t insertspritestat(int16_t statnum)
+static int32_t insertspritestat(int16_t statnum)
 {
     int16_t blanktouse;  // a spritenum with no assigned statnum
 
@@ -7568,7 +7568,7 @@ int32_t insertspritestat(int16_t statnum)
 //
 // deletespritesect (internal)
 //
-int32_t deletespritesect(int16_t deleteme)
+static int32_t deletespritesect(int16_t deleteme)
 {
     // only non-redundant from deletesprite():
     if (sprite[deleteme].sectnum == MAXSECTORS)
@@ -7595,7 +7595,7 @@ int32_t deletespritesect(int16_t deleteme)
 //
 // deletespritestat (internal)
 //
-int32_t deletespritestat(int16_t deleteme)
+static int32_t deletespritestat(int16_t deleteme)
 {
     // only non-redundant from deletesprite():
     if (sprite[deleteme].statnum == MAXSTATUS)
@@ -7620,9 +7620,28 @@ int32_t deletespritestat(int16_t deleteme)
 
 
 //
+// insertsprite
+//
+int32_t insertsprite(int16_t sectnum, int16_t statnum)
+{
+    insertspritestat(statnum);
+    return(insertspritesect(sectnum));
+}
+
+//
+// deletesprite
+//
+int32_t deletesprite(int16_t spritenum)
+{
+    deletespritestat(spritenum);
+    return(deletespritesect(spritenum));
+}
+
+
+//
 // lintersect (internal)
 //
-static inline int32_t lintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t x3,
+static int32_t lintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t x3,
                                  int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 to p2 is a line segment
@@ -7661,7 +7680,7 @@ int32_t lineintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2
 //
 // rintersect (internal)
 //
-static inline int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
+static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
                                  int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 towards p2 is a ray
