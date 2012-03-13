@@ -8113,8 +8113,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     if ((xyaspect != oxyaspect) || (xdimen != oxdimen) || (viewingrange != oviewingrange))
         dosetaspect();
 
-    //clearbufbyte(&gotsector[0],(int32_t)((numsectors+7)>>3),0L);
-    Bmemset(&gotsector[0],0,(int32_t)((numsectors+7)>>3));
+    Bmemset(gotsector, 0, ((numsectors+7)>>3));
 
     if (getrendermode()!=0
 #ifdef YAX_ENABLE
@@ -8457,7 +8456,6 @@ void drawmasks(void)
         xs = tspriteptr[i]->x-globalposx; ys = tspriteptr[i]->y-globalposy;
         yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
 #ifdef USE_OPENGL
-        // WGR2 SVN sanguis regalis (vae victis)  ->picnum == -3 or -4 (hard to reproduce)
         modelp = (usemodels && tile2model[tspriteptr[i]->picnum].modelid >= 0);
 #endif
         if (yp > (4<<8))
@@ -8957,7 +8955,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, int32_t *daposz,
                   int16_t *daang, int16_t *dacursectnum)
 {
-    int16_t fil, i, numsprites; /*dq[MAXSPRITES], dnum = 0;*/
+    int16_t fil, i, numsprites;
 #ifdef POLYMER
     char myflags = flags&(~3);
 #endif
@@ -9065,12 +9063,12 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
         {
             initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal sector(%d). Map is corrupt!\n",i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
             updatesector(sprite[i].x, sprite[i].y, &sprite[i].sectnum);
+            // TODO: maybe put it into sector 0 if it's still in void space?
         }
 
         if (sprite[i].picnum<0||sprite[i].picnum>=MAXTILES)
         {
             initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal picnum(%d). Map is corrupt!\n",i,sprite[i].x,sprite[i].y,sprite[i].picnum);
-//            dq[dnum++] = i;
             sprite[i].picnum = 0;
         }
     }
@@ -9081,48 +9079,10 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
 #endif
     for (i=0; i<numsprites; i++)
     {
-        /*
-        int32_t k;
-                int16_t sect;
-        */
-
         if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
 
-        /*k =*/ insertsprite(sprite[i].sectnum,sprite[i].statnum);
-
-        /*
-                sect = sprite[k].sectnum;
-                updatesector(sprite[k].x, sprite[k].y, &sect);
-
-                if (sect == -1)
-                {
-                    int32_t ii, jj;
-
-                    for (ii=32; ii >= 0; ii--)
-                    {
-                        for (jj=32; jj >= 0; jj--)
-                        {
-                            updatesector(sprite[k].x+ii-16, sprite[k].y+jj-16, &sect);
-                            if (sect != -1) break;
-                        }
-                        if (sect != -1) break;
-                    }
-
-                    / * fuck it, the sprite is clearly not legitimately in any sector at this point
-                    so let's queue it up for deletion * /
-                    if (sect == -1)
-                        dq[dnum++] = k;
-                }
-        */
+        insertsprite(sprite[i].sectnum,sprite[i].statnum);
     }
-
-    /*
-        while (dnum--)
-        {
-            initprintf(OSD_ERROR "Map error: removing sprite #%d(%d,%d) in null space. Map is corrupt!\n",dq[dnum],sprite[dq[dnum]].x,sprite[dq[dnum]].y);
-            deletesprite(dq[dnum]);
-        }
-    */
 
     //Must be after loading sectors, etc!
     updatesector(*daposx,*daposy,dacursectnum);
