@@ -7666,10 +7666,8 @@ int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
     if (sprite[spritenum].sectnum == MAXSECTORS)
         return(-1);
 
-    deletespritesect(spritenum);
-    insertspritesect(newsectnum);
-//    do_deletespritesect(spritenum);
-//    do_insertsprite_at_headofsect(spritenum, newsectnum);
+    do_deletespritesect(spritenum);
+    do_insertsprite_at_headofsect(spritenum, newsectnum);
 
     return(0);
 }
@@ -7686,10 +7684,8 @@ int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
     if (sprite[spritenum].statnum == MAXSTATUS)
         return(-1);  // can't set the statnum of a sprite not in the world
 
-    deletespritestat(spritenum);
-    insertspritestat(newstatnum);
-//    do_deletespritestat(spritenum);
-//    do_insertsprite_at_headofstat(spritenum, newstatnum);
+    do_deletespritestat(spritenum);
+    do_insertsprite_at_headofstat(spritenum, newstatnum);
 
     return(0);
 }
