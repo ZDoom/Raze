@@ -41,8 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern El_State g_ElState;
 #endif
 
-extern char pow2char[];
-
 static int32_t g_whichPalForPlayer = 9;
 int32_t g_numRealPalettes;
 int16_t SpriteCacheList[MAXTILES][3];

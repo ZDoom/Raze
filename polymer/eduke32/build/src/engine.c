@@ -96,7 +96,8 @@ int32_t editorgridextent = 131072;
 #define MAXYSIZ 256
 #define MAXZSIZ 255
 #define MAXVOXMIPS 5
-static intptr_t voxoff[MAXVOXELS][MAXVOXMIPS]; char voxlock[MAXVOXELS][MAXVOXMIPS];
+static intptr_t voxoff[MAXVOXELS][MAXVOXMIPS];
+static char voxlock[MAXVOXELS][MAXVOXMIPS];
 int32_t voxscale[MAXVOXELS];
 
 static int32_t ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
@@ -142,7 +143,7 @@ static int32_t lastageclock;
 
 static int32_t artsize = 0, cachesize = 0;
 
-// maximum number of ART files
+// Whole ART file contents loaded from ZIPs in memory.
 static char *artptrs[MAXTILEFILES];
 
 // GCC 4.6 LTO build fix
@@ -154,8 +155,8 @@ static char *artptrs[MAXTILEFILES];
 
 static int16_t radarang2[MAXXDIM];
 B_ENGINE_STATIC uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
-char pow2char[8] = {1,2,4,8,16,32,64,128};
-int32_t pow2long[32] =
+const char pow2char[8] = {1,2,4,8,16,32,64,128};
+const int32_t pow2long[32] =
 {
     1L,2L,4L,8L,
     16L,32L,64L,128L,

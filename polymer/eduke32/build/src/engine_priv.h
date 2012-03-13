@@ -23,8 +23,8 @@
 extern uint8_t basepalcount;
 extern uint8_t curbasepal;
 
-extern char pow2char[8];
-extern int32_t pow2int[32];
+extern const char pow2char[8];
+extern const int32_t pow2int[32];
 
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];

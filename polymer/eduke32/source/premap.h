@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __premap_h__
 
 extern char *g_gameNamePtr;
-extern char pow2char[];
+extern const char pow2char[];
 
 extern int16_t SpriteCacheList[MAXTILES][3];
 extern int32_t g_levelTextTime;
