@@ -142,7 +142,6 @@ typedef struct
     sectortype *sector;
     walltype *wall;
     spritetype *sprite;
-
 } mapinfofull_t;
 
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo);
@@ -1928,9 +1927,10 @@ static void duplicate_selected_sprites(void)
     int32_t i, j, k=0;
 
     for (i=0; i<highlightcnt; i++)
-        k += ((highlight[i]&0xc000) == 16384);
+        if ((highlight[i]&0xc000) == 16384)
+            k++;
 
-    if (highlightcnt + k <= MAXSPRITES)
+    if (Numsprites + k <= MAXSPRITES)
     {
         for (i=0; i<highlightcnt; i++)
             if ((highlight[i]&0xc000) == 16384)
