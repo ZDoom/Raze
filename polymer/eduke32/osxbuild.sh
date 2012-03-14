@@ -6,6 +6,7 @@
 buildppc=1
 build86=1
 build64=1
+buildtools=0
 builddebug=0
 onlyzip=0
 
@@ -44,12 +45,16 @@ for i in $*; do
             build64=0
         ;;
 
+        tools)
+            buildtools=1
+        ;;
+
         --debug=*)
         builddebug=${i#*=}
         ;;
 
         *)
-            echo usage: osxbuild [onlyzip] [noppc] [no86] [no64] [--debug=\<0\|1\>]
+            echo usage: osxbuild [onlyzip] [noppc] [no86] [no64] [tools] [--debug=\<0\|1\>]
             exit 1
         ;;
     esac
@@ -69,6 +74,109 @@ if [ -n "$rev" ]; then
 else
     rev=unknown
     vc=none
+fi
+
+# Building the buildtools:
+if [ $buildtools -eq 1 ] && [ -d "build" ]; then
+    cd build
+
+    rm -f *{.x86,.x64,.ppc}
+    make veryclean
+    EXESUFFIX_OVERRIDE=.debug make veryclean
+
+    if [ $build64 == 1 ]; then
+        if [ $builddebug == 1 ]; then
+            make veryclean
+            ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.debug.x64 OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3 utils
+            if [ $? ]; then
+                echo buildtools: x86_64 debug build succeeded.
+            else
+                echo buildtools: x86_64 debug build failed.
+            fi
+        fi
+
+        make veryclean
+        ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.x64 OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3 utils
+        if [ $? ]; then
+            echo buildtools: x86_64 release build succeeded.
+        else
+            echo buildtools: x86_64 release build failed.
+        fi
+    fi
+
+    if [ $build86 == 1 ]; then
+        if [ $builddebug == 1 ]; then
+            make veryclean
+            EXESUFFIX_OVERRIDE=.debug.x86 OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3 utils
+            if [ $? ]; then
+                echo buildtools: x86 debug build succeeded.
+            else
+                echo buildtools: x86 debug build failed.
+            fi
+        fi
+
+        make veryclean
+        EXESUFFIX_OVERRIDE=.x86 OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3 utils
+        if [ $? ]; then
+            echo buildtools: x86 release build succeeded.
+        else
+            echo buildtools: x86 release build failed.
+        fi
+    fi
+
+    if [ $buildppc == 1 ]; then
+        if [ $builddebug == 1 ]; then
+            make veryclean
+            ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.debug.ppc OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3 utils
+            if [ $? ]; then
+                echo buildtools: PowerPC debug build succeeded.
+            else
+                echo buildtools: PowerPC debug build failed.
+            fi
+        fi
+
+        make veryclean
+        ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.ppc OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3 utils
+        if [ $? ]; then
+            echo buildtools: PowerPC release build succeeded.
+        else
+            echo buildtools: PowerPC release build failed.
+        fi
+    fi
+
+    echo buildtools: Creating fat binaries.
+    utils=`make printutils` `EXESUFFIX_OVERRIDE=.debug make printutils`
+    for i in $utils; do
+        binaries=
+        for j in ${i}.{x86,x64,ppc}; do
+            if [ -f "$j" ]; then
+                binaries="$binaries $j"
+            fi
+        done
+        if [ -n "$binaries" ]; then
+            lipo -create $binaries -output $i
+        fi
+    done
+
+    if [ -d "/opt/local/bin" ]; then
+        echo buildtools: Installing to MacPorts search path.
+        for i in $utils; do
+            if [ -f "$i" ]; then
+                cp -f "$i" "/opt/local/bin/"
+            fi
+        done
+    fi
+
+    if [ -d "/usr/local/bin" ]; then
+        echo buildtools: Installing to Homebrew search path.
+        for i in $utils; do
+            if [ -f "$i" ]; then
+                cp -f "$i" "/usr/local/bin/"
+            fi
+        done
+    fi
+
+    cd ..
 fi
 
 # The build process itself:

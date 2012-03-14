@@ -5,6 +5,9 @@
 # Use colored output
 PRETTY_OUTPUT ?= 1
 
+# Binary suffix override:
+EXESUFFIX_OVERRIDE ?=
+
 # DirectX SDK location - if nonempty, overrides the DXROOTs of the individual
 # Makefiles. Should be set to an absolute path since this Makefile is included
 # at different directory levels

@@ -230,6 +230,10 @@ ifneq (0,$(NEDMALLOC))
     BUILDCFLAGS+= -DNEDMALLOC
 endif
 
+ifneq ($(EXESUFFIX_OVERRIDE),)
+    EXESUFFIX=$(EXESUFFIX_OVERRIDE)
+endif
+
 ifeq ($(PRETTY_OUTPUT),1)
 BUILD_STARTED = printf "\033[K\033[1;36mBuild started using \"$(CC) $(OURCFLAGS) $(OURCONLYFLAGS) $(OURCXXFLAGS)\"\033[0m\n"
 BUILD_ECHOFLAGS = printf "\033[K\033[1;36mEnded compilation in this directory using \"$(CC) $(OURCFLAGS) $(OURCONLYFLAGS) $(OURCXXFLAGS)\"\033[0m\n"

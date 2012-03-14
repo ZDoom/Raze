@@ -315,6 +315,9 @@ clean:
 cleanutils:
 	-rm -f $(UTILS) $(UTILOBJS) $(UTILADDOBJS)
 
+printutils:
+	echo "$(UTILS)"
+
 veryclean: clean cleanutils
 	-rm -f $(ENGINELIB) $(EDITORLIB)
 
