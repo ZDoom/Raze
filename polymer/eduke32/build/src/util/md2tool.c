@@ -135,7 +135,7 @@ int main(int argc, char **argv)
     uint8_t maxv[3]={0,0,0};
     uint8_t minv[3]={255,255,255};
 
-    md2frame_t *fr;        
+    md2frame_t *fr;
     uint8_t *vp;
 
     md2model_t *m;
