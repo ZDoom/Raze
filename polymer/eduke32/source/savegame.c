@@ -878,6 +878,7 @@ static const dataspec_t svgm_secwsp[] =
     { DS_CNT(numwalls), yax_nextwall, sizeof(yax_nextwall[0]), (intptr_t)&numwalls },
     { DS_LOADFN|DS_PROTECTFN, (void *)&sv_postyaxload, 0, 1 },
 #endif
+    { 0, &Numsprites, sizeof(Numsprites), 1 },
     { 0, &tailspritefree, sizeof(tailspritefree), 1 },
     { 0, &headspritesect[0], sizeof(headspritesect[0]), MAXSECTORS+1 },
     { 0, &prevspritesect[0], sizeof(prevspritesect[0]), MAXSPRITES },
