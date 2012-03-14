@@ -173,8 +173,8 @@ OURCFLAGS+= $(BUILDCFLAGS)
 # TARGETS
 
 UTILOBJS=$(OBJ)/kextract.$o $(OBJ)/kgroup.$o $(OBJ)/transpal.$o $(OBJ)/wad2art.$o $(OBJ)/wad2map.$o $(OBJ)/md2tool.$o \
-    $(OBJ)/generateicon.$o $(OBJ)/cacheinfo.$o $(OBJ)/arttool.$o $(OBJ)/givedepth.$o $(OBJ)/mkpalette.$o \
-    $(OBJ)/compat.$o $(OBJ)/pragmas.$o
+    $(OBJ)/generateicon.$o $(OBJ)/cacheinfo.$o $(OBJ)/enumdisplay.$o $(OBJ)/arttool.$o $(OBJ)/givedepth.$o $(OBJ)/mkpalette.$o \
+    $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(OBJ)/pragmas.$o $(OBJ)/kplib.$o $(OBJ)/cache1d.$o
 UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) md2tool$(EXESUFFIX) \
     generateicon$(EXESUFFIX) cacheinfo$(EXESUFFIX) arttool$(EXESUFFIX) givedepth$(EXESUFFIX) mkpalette$(EXESUFFIX)
 
@@ -223,15 +223,16 @@ wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)
 md2tool$(EXESUFFIX): $(OBJ)/md2tool.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
-generateicon$(EXESUFFIX): $(OBJ)/generateicon.$o $(OBJ)/compat.$o $(OBJ)/pragmas.$o $(OBJ)/kplib.$o $(OBJ)/cache1d.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
+generateicon$(EXESUFFIX): $(OBJ)/generateicon.$o $(OBJ)/compat.$o $(OBJ)/pragmas.$o $(OBJ)/kplib.$o \
+        $(OBJ)/cache1d.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
 cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
-enumdisplay$(EXESUFFIX): src/misc/enumdisplay.c
+enumdisplay$(EXESUFFIX): $(OBJ)/enumdisplay.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -g -Os -o $@ $^ $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); fi
 arttool$(EXESUFFIX): $(OBJ)/arttool.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(CXX) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
@@ -269,6 +270,10 @@ $(OBJ)/%.$o: $(SRC)/%.cpp
 $(OBJ)/%.$o: $(SRC)/%.cxx
 	$(COMPILE_STATUS)
 	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
+$(OBJ)/%.$o: $(SRC)/misc/%.c
+	$(COMPILE_STATUS)
+	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(COMPILE_STATUS)
@@ -308,7 +313,7 @@ clean:
 	echo -n "" > $(OBJ)/keep.me
 
 cleanutils:
-	-rm -f $(UTILS) $(UTILOBJS)
+	-rm -f $(UTILS) $(UTILOBJS) $(UTILADDOBJS)
 
 veryclean: clean cleanutils
 	-rm -f $(ENGINELIB) $(EDITORLIB)

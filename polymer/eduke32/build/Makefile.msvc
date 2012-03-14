@@ -43,7 +43,7 @@ flags_lib=/LTCG
 CC=cl
 AS=ml
 RC=rc
-LINK=link /opt:ref /nologo 
+LINK=link /opt:ref /nologo
 CFLAGS=$(CFLAGS) /nologo /MT /J $(flags_cl) $(TARGETOPTS) /I$(INC)
 ASFLAGS=/nologo /coff /c
 EXESUFFIX=.exe
@@ -107,13 +107,19 @@ CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1 /W2
 {$(SRC)}.c{$(OBJ)}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
+{$(SRC)}.cc{$(OBJ)}.$o:
+	$(CC) /c $(CFLAGS) /Fo$@ $<
+
 {$(SRC)}.cpp{$(OBJ)}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
+{$(SRC)}.cxx{$(OBJ)}.$o:
+	$(CC) /c $(CFLAGS) /Fo$@ $<
+
 # TARGETS
-UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX)
- 
-all: $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB);
+UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) md2tool$(EXESUFFIX) generateicon$(EXESUFFIX) cacheinfo$(EXESUFFIX) arttool$(EXESUFFIX) givedepth$(EXESUFFIX) mkpalette$(EXESUFFIX)
+
+all: $(OBJ)\$(ENGINELIB) $(OBJ)\$(EDITORLIB);
 utils: $(UTILS) ;
 
 enginelib: $(OBJ)\$(ENGINELIB) ;
@@ -125,32 +131,56 @@ $(OBJ)\$(EDITORLIB): $(EDITOROBJS)
 	lib $(flags_lib) /out:$@ /nologo $**
 
 # the tools
-kextract$(EXESUFFIX): $(OBJ)\kextract.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS) 
+kextract$(EXESUFFIX): $(OBJ)\kextract.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 	
-kgroup$(EXESUFFIX): $(OBJ)\kgroup.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS) 
+kgroup$(EXESUFFIX): $(OBJ)\kgroup.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-transpal$(EXESUFFIX): $(OBJ)\transpal.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS) 
+transpal$(EXESUFFIX): $(OBJ)\transpal.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-wad2map$(EXESUFFIX): $(OBJ)\wad2map.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS) 
+wad2map$(EXESUFFIX): $(OBJ)\wad2map.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
-wad2art$(EXESUFFIX): $(OBJ)\wad2art.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\nedmalloc.$o
-	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS) 
+wad2art$(EXESUFFIX): $(OBJ)\wad2art.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
+	$(MT) -manifest $@.manifest -outputresource:$@
+
+md2tool$(EXESUFFIX): $(OBJ)\md2tool.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
+	$(MT) -manifest $@.manifest -outputresource:$@
+
+generateicon$(EXESUFFIX): $(OBJ)\generateicon.$o $(OBJ)\compat.$o $(OBJ)\pragmas.$o $(OBJ)\kplib.$o $(OBJ)\cache1d.$o $(OBJ)\compat_tools.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
+	$(MT) -manifest $@.manifest -outputresource:$@
+
+cacheinfo$(EXESUFFIX): $(OBJ)\cacheinfo.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
+	$(MT) -manifest $@.manifest -outputresource:$@
+
+arttool$(EXESUFFIX): $(OBJ)\arttool.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
+	$(MT) -manifest $@.manifest -outputresource:$@
+
+givedepth$(EXESUFFIX): $(OBJ)\givedepth.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
+	$(MT) -manifest $@.manifest -outputresource:$@
+
+mkpalette$(EXESUFFIX): $(OBJ)\mkpalette.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
 # DEPENDENCIES
 !include Makefile.deps
 
-# PHONIES	
+# PHONIES
 clean:
-	-del /Q $(ENGINEOBJS) $(EDITOROBJS) $(OBJ)\kextract.$o $(OBJ)\kgroup.$o $(OBJ)\transpal.$o $(OBJ)\wad2map.$o $(OBJ)\wad2art.$o
+	-del /Q $(ENGINEOBJS) $(EDITOROBJS) $(OBJ)\kextract.$o $(OBJ)\kgroup.$o $(OBJ)\transpal.$o $(OBJ)\wad2art.$o $(OBJ)\wad2map.$o $(OBJ)\md2tool.$o $(OBJ)\generateicon.$o $(OBJ)\cacheinfo.$o $(OBJ)\arttool.$o $(OBJ)\givedepth.$o $(OBJ)\mkpalette.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\pragmas.$o $(OBJ)\kplib.$o $(OBJ)\cache1d.$o $(OBJ)\nedmalloc.$o
 veryclean: clean
 	-del /Q $(OBJ)\$(ENGINELIB) $(OBJ)\$(EDITORLIB) $(UTILS) *.map *.manifest *.pdb
 
