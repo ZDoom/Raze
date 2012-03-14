@@ -51,9 +51,9 @@ int writeicon(FILE *fp, struct icon *ico)
 int main(int argc, char **argv)
 {
 	struct icon icon;
-	int bpl, xsiz, ysiz;
-	int i,j,k,c;
-	unsigned char *mask, *maskp, bm, *pp;
+	int bpl;
+	int i;
+	unsigned char *maskp, bm, *pp;
 
 	if (argc<2) {
 		fprintf(stderr, "generateicon <picture file>\n");

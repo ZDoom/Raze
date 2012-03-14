@@ -100,4 +100,6 @@ int main(int argc, char **argv)
     fwrite(palette,768,1,voxfh);
 
     free(tiledata);
+
+    return 0;
 }

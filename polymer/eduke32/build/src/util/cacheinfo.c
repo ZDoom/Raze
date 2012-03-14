@@ -21,7 +21,7 @@ typedef struct {
 	int border, depth;
 } texcachepicture;
 
-int main(int argc, char **argv)
+int main(void)
 {
 	DIR *dir;
 	struct dirent *dirent;

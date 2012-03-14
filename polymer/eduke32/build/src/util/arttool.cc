@@ -10,6 +10,8 @@
 #include <string>
 #include <cstdlib>
 
+#include "compat.h"
+
 using namespace std;
 
 void usage()
@@ -338,7 +340,7 @@ public:
         left = markprelength_;
         while (left > 0) {
             i = left;
-            if (i > sizeof(blk)) {
+            if ((unsigned int)i > sizeof(blk)) {
                 i = sizeof(blk);
             }
             infile.read(blk, i);
@@ -359,7 +361,7 @@ public:
         left = markpostlength_;
         while (left > 0) {
             i = left;
-            if (i > sizeof(blk)) {
+            if ((unsigned int)i > sizeof(blk)) {
                 i = sizeof(blk);
             }
             infile.read(blk, i);
@@ -390,7 +392,7 @@ public:
  * @param imgdatah receives the decoded image height
  * @return 0 on success, 1 if the format is invalid
  */
-int loadimage_pcx(unsigned char * data, int datalen, char ** imgdata, int& imgdataw, int& imgdatah)
+int loadimage_pcx(unsigned char * data, int datalen ATTRIBUTE((unused)), char ** imgdata, int& imgdataw, int& imgdatah)
 {
     if (data[0] != 10 ||
         data[1] != 5 ||
@@ -482,7 +484,7 @@ protected:
 
 public:
     typedef enum {
-        NO_ERROR = 0,
+        ERR_NO_ERROR = 0,
         ERR_BAD_OPTION = 1,
         ERR_BAD_VALUE = 2,
         ERR_TOO_MANY_PARAMS = 3,
@@ -490,10 +492,10 @@ public:
         ERR_INVALID_IMAGE = 5,
     } Result;
 
-    static char const * const translateResult(Result r)
+    static char const * translateResult(Result r)
     {
         switch (r) {
-            case NO_ERROR: return "no error";
+            case ERR_NO_ERROR: return "no error";
             case ERR_BAD_OPTION: return "bad option";
             case ERR_BAD_VALUE: return "bad value";
             case ERR_TOO_MANY_PARAMS: return "too many parameters given";
@@ -556,10 +558,10 @@ public:
         } else {
             return ERR_BAD_OPTION;
         }
-        return NO_ERROR;
+        return ERR_NO_ERROR;
     }
 
-    virtual Result setParameter(int number, string value)
+    virtual Result setParameter(int number ATTRIBUTE((unused)), string value ATTRIBUTE((unused)))
     {
         return ERR_TOO_MANY_PARAMS;
     }
@@ -571,7 +573,7 @@ public:
         art.init(offset_, ntiles_);
         art.write();
 
-        return NO_ERROR;
+        return ERR_NO_ERROR;
     }
 };
 
@@ -612,7 +614,7 @@ public:
         } else {
             return ERR_BAD_OPTION;
         }
-        return NO_ERROR;
+        return ERR_NO_ERROR;
     }
 
     virtual Result setParameter(int number, string value)
@@ -620,10 +622,10 @@ public:
         switch (number) {
             case 0:
                 tilenum_ = atoi(value.c_str());
-                return NO_ERROR;
+                return ERR_NO_ERROR;
             case 1:
                 filename_ = value;
-                return NO_ERROR;
+                return ERR_NO_ERROR;
             default:
                 return ERR_TOO_MANY_PARAMS;
         }
@@ -634,7 +636,7 @@ public:
         int tilesperfile = 0, nextstart = 0;
         int filenum = 0;
         char * imgdata = 0;
-        int imgdatalen = 0, imgdataw = 0, imgdatah = 0;
+        int imgdataw = 0, imgdatah = 0;
 
         // open the first art file to get the file size used by default
         {
@@ -683,7 +685,7 @@ public:
                 art.write();
             }
             if (done) {
-                return NO_ERROR;
+                return ERR_NO_ERROR;
             }
         }
 
@@ -701,7 +703,7 @@ private:
 public:
     RmTileOp() : tilenum_(-1) { }
 
-    virtual Result setOption(string opt, string value)
+    virtual Result setOption(string opt ATTRIBUTE((unused)), string value ATTRIBUTE((unused)))
     {
         return ERR_BAD_OPTION;
     }
@@ -711,7 +713,7 @@ public:
         switch (number) {
             case 0:
                 tilenum_ = atoi(value.c_str());
-                return NO_ERROR;
+                return ERR_NO_ERROR;
             default:
                 return ERR_TOO_MANY_PARAMS;
         }
@@ -734,7 +736,7 @@ public:
             if (tilenum_ >= art.getFirstTile() && tilenum_ <= art.getLastTile()) {
                 art.removeTile(tilenum_);
                 art.write();
-                return NO_ERROR;
+                return ERR_NO_ERROR;
             }
         }
 
@@ -793,7 +795,7 @@ public:
         } else {
             return ERR_BAD_OPTION;
         }
-        return NO_ERROR;
+        return ERR_NO_ERROR;
     }
 
     virtual Result setParameter(int number, string value)
@@ -801,7 +803,7 @@ public:
         switch (number) {
             case 0:
                 tilenum_ = atoi(value.c_str());
-                return NO_ERROR;
+                return ERR_NO_ERROR;
             default:
                 return ERR_TOO_MANY_PARAMS;
         }
@@ -812,7 +814,7 @@ public:
         int filenum = 0;
 
         if (settings_ == 0) {
-            return NO_ERROR;
+            return ERR_NO_ERROR;
         }
 
         // open art files until we find one that encompasses the range we need
@@ -842,7 +844,7 @@ public:
                     art.setAnimType(tilenum_, animtype_);
                 }
                 art.write();
-                return NO_ERROR;
+                return ERR_NO_ERROR;
             }
         }
 
@@ -854,7 +856,7 @@ int main(int argc, char ** argv)
 {
     int showusage = 0;
     Operation * oper = 0;
-    Operation::Result err;
+    Operation::Result err = Operation::ERR_NO_ERROR;
 
     if (argc < 2) {
         showusage = 1;
@@ -889,7 +891,7 @@ int main(int argc, char ** argv)
                     i++;
 
                     switch (err = oper->setOption(opt, value)) {
-                        case Operation::NO_ERROR: break;
+                        case Operation::ERR_NO_ERROR: break;
                         default:
                             cerr << "error: " << Operation::translateResult(err) << endl;
                             showusage = 2;
@@ -898,7 +900,7 @@ int main(int argc, char ** argv)
                 } else {
                     value = string(argv[i]);
                     switch (oper->setParameter(unnamedParm, value)) {
-                        case Operation::NO_ERROR: break;
+                        case Operation::ERR_NO_ERROR: break;
                         default:
                             cerr << "error: " << Operation::translateResult(err) << endl;
                             showusage = 2;
@@ -919,7 +921,7 @@ int main(int argc, char ** argv)
         delete oper;
 
         switch (err) {
-            case Operation::NO_ERROR: return 0;
+            case Operation::ERR_NO_ERROR: return 0;
             default:
                 cerr << "error: " << Operation::translateResult(err) << endl;
                 return 1;

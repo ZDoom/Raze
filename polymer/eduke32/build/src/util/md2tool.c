@@ -121,7 +121,7 @@ static void usage_and_quit()
 int main(int argc, char **argv)
 {
     char *fn=NULL, *cp;
-    int32_t fd=-1, i, j, slen;
+    int32_t fd=-1, i, j;
 
     int32_t doinfo=1;
 
@@ -146,7 +146,6 @@ int main(int argc, char **argv)
     for (i=1; i<argc; i++)
     {
         cp = argv[i];
-        slen = strlen(cp);
 
         if (cp[0]=='-')
         {

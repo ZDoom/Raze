@@ -139,7 +139,7 @@ static short texturelookup[4096];
 
 static char tagtypemode = 0;
 static int tagnum[1024], tagnum2[1024], tagoff[1024], numtags = 0;
-static char tagstruct[4096], tagop[4096];
+static char tagop[4096];
 static short tagfield[4096];
 static int tagval[4096], tagopnum = 0;
 
@@ -296,11 +296,11 @@ int readline(void)
 
 void parsescript(void)
 {
-	int i, j, k, l, lasti, breakout, tstart, tend, textnum, frontbackstat;
+	int i, j, k, l, lasti, breakout, tstart, tend, textnum = 0, frontbackstat;
 	int spritenumstat, slen;
 	char ch;
 
-	clearbufbyte(FP_OFF(sectspri),MAXSECTS*8*sizeof(short),0xffffffff);
+	clearbufbyte(&sectspri[0], sizeof(short) * MAXSECTS * 8, 0xffffffff);
 
 	if (scriptname[0] == 0)
 	{
@@ -625,7 +625,7 @@ void parsescript(void)
 						if ((tempbuf[k+1] >= 48) && (tempbuf[k+1] <= 57))
 							tagval[tagopnum] = atol(&tempbuf[k+1]);
 						else if (Bstrcasecmp("tag",&tempbuf[k+1]) == 0)
-							tagval[tagopnum] = 0x80000000;
+							tagval[tagopnum] = INT32_MIN;
 						else
 						{
 							for(l=0;l<numdefines;l++)
@@ -706,7 +706,7 @@ void parsescript(void)
 						if ((tempbuf[k+1] >= 48) && (tempbuf[k+1] <= 57))
 							secval[secopnum] = atol(&tempbuf[k+1]);
 						else if (Bstrcasecmp("tag",&tempbuf[k+1]) == 0)
-							secval[secopnum] = 0x80000000;
+							secval[secopnum] = INT32_MIN;
 						else
 						{
 							for(l=0;l<numdefines;l++)
@@ -913,13 +913,13 @@ int main(int argc, char **argv)
 {
 	char argstring[5][80];
 	char iwadfil[80], pwadfil[80], doommap[16], buildmap[16], picstr[16];
-	int w, numwads, numtexts, startnumtexts, danumtexts, numpnames;
-	int x, y, z, zz, zzz, zzx, zx, cx, cy, gap, p, pp, i, j, k, l, offs;
-	int dnumpoints, dnumlines, dnumsides, dnumsectors, dnumthings, good;
-	int minx, maxx, miny, maxy, numsectors, numwalls, wadtype;
-	int startnumwalls, l1, l2, startpoint2, dapoint2, area;
+	int w, numtexts, startnumtexts, danumtexts, numpnames;
+	int x, y, z, zz, zzz, zzx, zx, cx, cy, gap, i, j, k, l, offs;
+	int dnumpoints = 0, dnumlines = 0, dnumsides, dnumsectors, dnumthings;
+	int minx, maxx, miny, maxy, numwalls, wadtype;
+	int startnumwalls, l1, l2, startpoint2;
 	int fil, ifil, pfil, x1, y1, x2, y2, startwall, endwall;
-	int mapversion, posx, posy, posz, tempint, cnt, boardwadindex;
+	int mapversion, posx, posy, posz, boardwadindex;
 	short ang, cursectnum;
 
 	printf("Wad2Map!                                       Copyright 1995 by Ken Silverman\n");
@@ -1050,9 +1050,9 @@ int main(int argc, char **argv)
 		}
 	}
 
-	clearbufbyte(FP_OFF(sector),MAXSECTORS*sizeof(sectortype),0L);
-	clearbufbyte(FP_OFF(wall),MAXWALLS*sizeof(walltype),0L);
-	clearbufbyte(FP_OFF(sprite),MAXSPRITES*sizeof(spritetype),0L);
+	clearbufbyte(&sector[0], sizeof(sectortype) * MAXSECTORS, 0);
+	clearbufbyte(&wall[0], sizeof(walltype) * MAXWALLS, 0);
+	clearbufbyte(&sprite[0], sizeof(spritetype) * MAXSPRITES, 0);
 	for(i=0;i<MAXSECTORS;i++) sector[i].extra = -1;
 	for(i=0;i<MAXWALLS;i++) wall[i].extra = -1;
 	for(i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
@@ -1228,7 +1228,8 @@ int main(int argc, char **argv)
 		startpoint2 = startnumwalls;
 		for(zz=startnumwalls;zz<numwalls;zz++)
 		{
-			dapoint2 = -1; x = wx2[zz]; y = wy2[zz];
+            x = wx2[zz];
+            y = wy2[zz];
 			j = 0;
 			for(zzz=zz+1;zzz<numwalls;zzz++)
 				if ((wx[zzz] == x) && (wy[zzz] == y))
@@ -1419,7 +1420,7 @@ int main(int argc, char **argv)
 			for(j=tagoff[i];j<tagoff[i+1];j++)
 			{
 				k = (tagfield[j]&127);
-				zz = tagval[j]; if (zz == 0x80000000) zz = line[z].tag;
+				zz = tagval[j]; if (zz == INT32_MIN) zz = line[z].tag;
 				if (k < 32)
 				{
 					l = sectorofwall[zx];
@@ -1498,7 +1499,7 @@ int main(int argc, char **argv)
 				for(j=secoff[i];j<secoff[i+1];j++)
 				{
 					k = (secfield[j]&127);
-					zz = secval[j]; if (zz == 0x80000000) zz = sect[l].tag;
+					zz = secval[j]; if (zz == INT32_MIN) zz = sect[l].tag;
 					if (k < 32)
 					{
 						zzz = sectspri[l][(secfield[j]>>8)&7];

@@ -90,44 +90,28 @@ void saveart (short tilenum, short xlen, short ylen)
 
 void savenames(void)
 {
-	char buffer[160];
-	int fil3, i, j;
+	BFILE * fil3;
+    int i;
 
-	if ((fil3 = Bopen("names.h",BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
-		return;
+	fil3 = Bfopen("names.h","w");
 
-	strcpy(&buffer,"//Be careful when changing this file - it is parsed by Editart and Build.");
-	buffer[73] = 13, buffer[74] = 10, buffer[75] = 0;
-	Bwrite(fil3,&buffer[0],75);
+    if (fil3 != NULL)
+    {
+        Bfprintf(fil3,"//Be careful when changing this file - it is parsed by Editart and Build.\n");
 
-	strcpy(&buffer,"#define ");
-	for(i=0;i<numwads;i++)
-		if (wadata[i][0] != 0)
-		{
-			j = 8;
-			while ((j < 16) && (wadata[i][j-8] != 0))
-				{ buffer[j] = wadata[i][j-8]; j++; }
-			buffer[j++] = 32;
+        for(i=0; i<numwads; i++)
+            if (wadata[i][0] != 0)
+                Bfprintf(fil3,"#define %s %d\n", wadata[i], i);
 
-			if (i >= 10000) buffer[j++] = ((i/10000)%10)+48;
-			if (i >= 1000) buffer[j++] = ((i/1000)%10)+48;
-			if (i >= 100) buffer[j++] = ((i/100)%10)+48;
-			if (i >= 10) buffer[j++] = ((i/10)%10)+48;
-			buffer[j++] = (i%10)+48;
-
-			buffer[j++] = 13;
-			buffer[j++] = 10;
-			Bwrite(fil3,&buffer[0],j);
-		}
-
-	Bclose(fil3);
+        Bfclose(fil3);
+    }
 }
 
 void showart (char *part)
 {
-	char yoff, ylen;
+	char yoff;
 	short xsiz, ysiz;
-	int i, j, z, zx, zzx, x, y, p, pend, junk, curplc;
+	int i, z, zx, x, p, pend, curplc;
 
 	curplc = -1;
 	if ((Bstrncasecmp(part,"L_START",7) == 0) || (Bstrncasecmp(part,"S_START",7) == 0) || (Bstrncasecmp(part,"P_START",7) == 0))
