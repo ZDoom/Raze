@@ -82,7 +82,6 @@ extern int32_t autosave;
 extern int32_t mlook;
 extern int16_t prefixtiles[10];
 
-extern int32_t numsprites;
 extern int32_t showfirstwall;
 
 extern int32_t graphicsmode;

@@ -318,6 +318,7 @@ EXTERN int32_t numyaxbunches;
 EXTERN int16_t headsectbunch[2][YAX_MAXBUNCHES], nextsectbunch[2][MAXSECTORS];
 #endif
 
+EXTERN int32_t Numsprites;
 EXTERN int16_t numsectors, numwalls;
 EXTERN char display_mirror;
 EXTERN int32_t totalclock;

@@ -457,7 +457,6 @@ void create_map_snapshot(void)
     }
 
     fixspritesectors();
-    updatenumsprites();
 
     mapstate->numsectors = numsectors;
     mapstate->numwalls = numwalls;
@@ -506,7 +505,7 @@ void create_map_snapshot(void)
             }
         }
 
-        if (numsprites)
+        if (Numsprites)
         {
             tempcrc = crc32once((uint8_t *)&sprite[0],sizeof(spritetype) * MAXSPRITES);
 
@@ -520,11 +519,11 @@ void create_map_snapshot(void)
             else
             {
                 int32_t i = 0;
-                spritetype *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites + 1),
+                spritetype *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * Numsprites + 1),
                             *spri = &tspri[0];
-                mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * numsprites + QADDNSZ);
+                mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * Numsprites + QADDNSZ);
 
-                for (j=0; j<MAXSPRITES && i < numsprites; j++)
+                for (j=0; j<MAXSPRITES && i < Numsprites; j++)
                 {
                     if (sprite[j].statnum != MAXSTATUS)
                     {
@@ -534,7 +533,7 @@ void create_map_snapshot(void)
                 }
 
                 mapstate->spritesiz = j = qlz_compress(&tspri[0], (char *)&mapstate->sprites[0],
-                                                       sizeof(spritetype) * numsprites, state_compress);
+                                                       sizeof(spritetype) * Numsprites, state_compress);
                 mapstate->sprites = (spritetype *)Brealloc(mapstate->sprites, j);
                 mapstate->spritecrc = tempcrc;
                 Bfree(tspri);
@@ -596,10 +595,7 @@ int32_t map_undoredo(int32_t dir)
 
     numsectors = mapstate->numsectors;
     numwalls = mapstate->numwalls;
-    numsprites = mapstate->numsprites;
     map_revision = mapstate->revision;
-
-    initspritelists();
 
     Bmemset(show2dsector, 0, sizeof(show2dsector));
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
@@ -617,13 +613,15 @@ int32_t map_undoredo(int32_t dir)
             qlz_decompress((const char *)&mapstate->sprites[0],  &sprite[0], state_decompress);
     }
 
-    updatenumsprites();
+    initspritelists();
 
-    for (i=0; i<numsprites; i++)
+    for (i=0; i<mapstate->numsprites; i++)
     {
         if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
         insertsprite(sprite[i].sectnum,sprite[i].statnum);
     }
+
+    assert(Numsprites == mapstate->numsprites);
 
 #ifdef POLYMER
     if (qsetmode == 200 && rendmode == 4)
@@ -4576,8 +4574,6 @@ ENDFOR1:
     cursor = insertsprite(sprite[startspr].sectnum,0);
     if (cursor < 0) goto ERROR_TOOMANYSPRITES;
 
-    updatenumsprites();
-
     sp = &sprite[cursor];
     Bmemcpy(sp, &sprite[startspr], sizeof(spritetype));
     sp->yoffset = 0;
@@ -4676,7 +4672,7 @@ ENDFOR1:
 
             sect = sprite[curspr].sectnum;
             updatesector(dax,day,&sect);
-            if (numsprites < MAXSPRITES && sect >= 0)
+            if (Numsprites < MAXSPRITES && sect >= 0)
             {
                 i = insertsprite(sect,0);
                 Bmemcpy(&sprite[i], &sprite[linebegspr], sizeof(spritetype));
@@ -4702,7 +4698,6 @@ ENDFOR1:
                 curspr = i;
                 doingspace = 0;
 
-                updatenumsprites();
                 asksave = 1;
 
                 if (numletters >= stackallocsize)
@@ -4745,15 +4740,14 @@ ENDFOR1:
                     numletters--;
                     deletesprite(last);
 
-                    updatenumsprites();
                     asksave = 1;
                 }
                 else
                 {
                     numletters--;
                     deletesprite(last);
+
                     curspr = linebegspr;
-                    updatenumsprites();
                     asksave = 1;
                 }
             }
@@ -4775,7 +4769,6 @@ ENDFOR1:
 ERROR_TOOMANYSPRITES:
     if (cursor < 0) message("Too many sprites in map!");
     else deletesprite(cursor);
-    updatenumsprites();
 
 ERROR_NOMEMORY:
     if (spritenums) Bfree(spritenums);
@@ -5221,7 +5214,7 @@ static void Keys3d(void)
         if (AIMING_AT_SPRITE)
         {
             deletesprite(searchwall);
-            updatenumsprites();
+
             message("Sprite %d deleted",searchwall);
             if (AmbienceToggle)
             {
@@ -10707,7 +10700,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
     if (graphicsmode && !m32_sideview && zoom >= 256)
     {
-        for (i=ii=0; i<MAXSPRITES && ii < numsprites; i++)
+        for (i=ii=0; i<MAXSPRITES && ii < Numsprites; i++)
         {
             if ((sprite[i].cstat & 48) != 0 || sprite[i].statnum == MAXSTATUS) continue;
             ii++;

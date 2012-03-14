@@ -1666,7 +1666,7 @@ badindex:
                 int32_t dasectnum = Gv_GetVarX(*insptr++), ret;
 
                 X_ERROR_INVALIDSECT(dasectnum);
-                if (numsprites >= MAXSPRITES)
+                if (Numsprites >= MAXSPRITES)
                 {
                     M32_ERROR("Maximum number of sprites reached.");
                     continue;
@@ -1675,7 +1675,6 @@ badindex:
                 ret = insertsprite(dasectnum, 0);
                 vm.g_i = ret;
                 vm.g_sp = &sprite[ret];
-                numsprites++;
             }
             continue;
 
@@ -1689,7 +1688,7 @@ badindex:
                 {
                     M32_ERROR("Tried to duplicate nonexistent sprite %d", ospritenum);
                 }
-                if ((tw==CON_DUPSPRITE && numsprites >= MAXSPRITES) ||
+                if ((tw==CON_DUPSPRITE && Numsprites >= MAXSPRITES) ||
                         (tw==CON_DUPSPRITE && spritesortcnt >= MAXSPRITESONSCREEN))
                 {
                     M32_ERROR("Maximum number of sprites reached.");
@@ -1709,7 +1708,6 @@ badindex:
                     Bmemcpy(&sprite[nspritenum], &sprite[ospritenum], sizeof(spritetype));
                     vm.g_i = nspritenum;
                     vm.g_sp = &sprite[nspritenum];
-                    numsprites++;
                 }
                 else
                 {
@@ -1730,8 +1728,6 @@ badindex:
                 X_ERROR_INVALIDSPRI(daspritenum);
                 ret = deletesprite(daspritenum);
                 g_iReturnVar = ret;
-                if (ret==0)
-                    numsprites--;
             }
             continue;
 

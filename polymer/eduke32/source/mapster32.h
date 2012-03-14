@@ -40,7 +40,6 @@ uint8_t default_buildkeys[NUMBUILDKEYS] =
 };
 
 extern char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
-extern void updatenumsprites(void);
 
 static char autospritehelp=0, autosecthelp=0;
 //static int32_t lastmessagetime=-1;

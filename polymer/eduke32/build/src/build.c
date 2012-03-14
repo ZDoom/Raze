@@ -84,7 +84,6 @@ int32_t grid = 3, autogrid = 0, gridlock = 1, showtags = 2;
 int32_t zoom = 768, gettilezoom = 1;
 int32_t lastpm16time = 0;
 
-int32_t numsprites;
 extern int32_t mapversion;
 
 int16_t highlight[MAXWALLS+MAXSPRITES];
@@ -217,7 +216,6 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line);
 int32_t fixspritesectors(void);
 static int32_t movewalls(int32_t start, int32_t offs);
 int32_t loadnames(const char *namesfile, int8_t root);
-void updatenumsprites(void);
 static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny,
                                   int32_t maybe_screen_coord_p);
 static void initcrc(void);
@@ -416,7 +414,6 @@ static void reset_default_mapstate(void)
 
     numsectors = 0;
     numwalls = 0;
-    numsprites = 0;
 
     editorzrange[0] = INT32_MIN;
     editorzrange[1] = INT32_MAX;
@@ -1277,7 +1274,6 @@ void editinput(void)
 
                     correct_sprite_yoffset(i);
 
-                    updatenumsprites();
                     asksave = 1;
 
                     VM_OnEvent(EVENT_INSERTSPRITE3D, i);
@@ -1685,12 +1681,11 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal)
 {
     int32_t i, j, sect, onumsectors=numsectors, newnumsectors, newnumwalls;
 
-    updatenumsprites();
     if (numsectors+mapinfo->numsectors>MAXSECTORS || numwalls+mapinfo->numwalls>MAXWALLS
 #ifdef YAX_ENABLE
             || numyaxbunches+mapinfo->numyaxbunches > YAX_MAXBUNCHES
 #endif
-            || numsprites+mapinfo->numsprites>MAXSPRITES)
+            || Numsprites+mapinfo->numsprites>MAXSPRITES)
     {
         mapinfofull_free(mapinfo);
         return -1;
@@ -1762,7 +1757,6 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal)
     mapinfofull_free(mapinfo);
 
     numwalls = newnumwalls;
-    updatenumsprites();
 
     update_highlightsector();
 
@@ -1948,7 +1942,7 @@ static void duplicate_selected_sprites(void)
 //                sprite[j].sectnum = sprite[k].sectnum;   //Don't let memcpy overwrite sector!
 //                setsprite(j,(vec3_t *)&sprite[j]);
             }
-        updatenumsprites();
+
         printmessage16("Sprites duplicated and stamped.");
         asksave = 1;
     }
@@ -6136,7 +6130,7 @@ end_join_sectors:
                     correct_sprite_yoffset(i);
 
                     printmessage16("Sprite inserted.");
-                    updatenumsprites();
+
                     asksave = 1;
 
                     VM_OnEvent(EVENT_INSERTSPRITE2D, i);
@@ -7036,7 +7030,7 @@ end_batch_insert_points:
             {
                 deletesprite(pointhighlight&16383);
                 printmessage16("Sprite deleted.");
-                updatenumsprites();
+
                 update_highlight();
                 asksave = 1;
             }
@@ -7721,7 +7715,6 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
                 i==0?"successfully": (i<4 ? "(moderate corruption)" : "(HEAVY corruption)"));
     }
 
-    updatenumsprites();
     startposx = pos.x;      //this is same
     startposy = pos.y;
     startposz = pos.z;
@@ -8153,7 +8146,6 @@ static int32_t deletesector(int16_t sucksect)
 
     while (headspritesect[sucksect] >= 0)
         deletesprite(headspritesect[sucksect]);
-    updatenumsprites();
 
     startwall = sector[sucksect].wallptr;
     endwall = startwall + sector[sucksect].wallnum - 1;
@@ -9615,7 +9607,7 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
     char snotbuf[80];
     int32_t i, m;
     int32_t v8 = (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 ||
-                  numsprites > MAXSPRITESV7 || numyaxbunches > 0);
+                  Numsprites > MAXSPRITESV7 || numyaxbunches > 0);
 #if M32_UNDO
     Bsprintf(snotbuf,"x:%d y:%d ang:%d r%d",posxe,posye,ange,map_revision-1);
 #else
@@ -9644,20 +9636,20 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
         {
             if (xdim >= 800)
                 Bsprintf(&snotbuf[m], "/%d wal. %d/16k spr. %d/256 bn.",
-                         MAXWALLSV8, numsprites, numyaxbunches);
+                         MAXWALLSV8, Numsprites, numyaxbunches);
             else
                 Bsprintf(&snotbuf[m], " wal. %d spr. %d/256 bn.",
-                         numsprites, numyaxbunches);
+                         Numsprites, numyaxbunches);
         }
         else
         {
             if (xdim >= 800)
                 Bsprintf(&snotbuf[m], "/%d wal. %d/%d spr.",
-                         v8?MAXWALLSV8:MAXWALLSV7, numsprites,
+                         v8?MAXWALLSV8:MAXWALLSV7, Numsprites,
                          v8?MAXSPRITESV8:MAXSPRITESV7);
             else
                 Bsprintf(&snotbuf[m], "/%dk wal. %d/%dk spr.",
-                         (v8?MAXWALLSV8:MAXWALLSV7)/1000, numsprites,
+                         (v8?MAXWALLSV8:MAXWALLSV7)/1000, Numsprites,
                          (v8?MAXSPRITESV8:MAXSPRITESV7)/1000);
         }
     }
@@ -9692,15 +9684,6 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
     snotbuf[m] = 0;
 
     printext16(264, ydim-STATUS2DSIZ+128, v8?editorcolors[10]:whitecol, -1, snotbuf,0);
-}
-
-void updatenumsprites(void)
-{
-    int32_t i;
-
-    numsprites = 0;
-    for (i=0; i<MAXSPRITES; i++)
-        numsprites += (sprite[i].statnum != MAXSTATUS);
 }
 
 #define DOPRINT(Yofs, fmt, ...) \

@@ -1268,7 +1268,7 @@ int32_t clipmapinfo_load(const char *filename)
 
     char fn[BMAX_PATH], loadedwhich[32]={0}, *lwcp=loadedwhich;
     int32_t slen, fi, fisec[10], fispr[10];
-    int32_t ournumsectors=0, ournumwalls=0, ournumsprites=0, numsprites;
+    int32_t ournumsectors=0, ournumwalls=0, ournumsprites=0;
 
     clipmapinfo_init();
 
@@ -1298,14 +1298,11 @@ int32_t clipmapinfo_load(const char *filename)
         i = loadboard(fn, 0, &px,&py,&pz, &ang,&cs);
         if (i<0)
             continue;
-
-        for (numsprites=0; numsprites<MAXSPRITES; numsprites++)
-            if (sprite[numsprites].statnum == MAXSTATUS)
-                break;
+        // Numsprites will now be set!
 
         if (ournumsectors+numsectors>MAXSECTORS ||
                 ournumwalls+numwalls>MAXWALLS ||
-                ournumsprites+numsprites>MAXSPRITES)
+                ournumsprites+Numsprites>MAXSPRITES)
         {
             initprintf("clip map: warning: exceeded limits when loading %s, aborting.\n", fn);
             break;
@@ -1313,7 +1310,7 @@ int32_t clipmapinfo_load(const char *filename)
 
         Bmemcpy(loadsector+ournumsectors, sector, numsectors*sizeof(sectortype));
         Bmemcpy(loadwall+ournumwalls, wall, numwalls*sizeof(walltype));
-        Bmemcpy(loadsprite+ournumsprites, sprite, numsprites*sizeof(spritetype));
+        Bmemcpy(loadsprite+ournumsprites, sprite, Numsprites*sizeof(spritetype));
         for (i=ournumsectors; i<ournumsectors+numsectors; i++)
             loadsector[i].wallptr += ournumwalls;
         for (i=ournumwalls; i<ournumwalls+numwalls; i++)
@@ -1326,12 +1323,12 @@ int32_t clipmapinfo_load(const char *filename)
                 loadwall[i].nextsector += ournumsectors;
             }
         }
-        for (i=ournumsprites; i<ournumsprites+numsprites; i++)
+        for (i=ournumsprites; i<ournumsprites+Numsprites; i++)
             if (loadsprite[i].sectnum>=0)
                 loadsprite[i].sectnum += ournumsectors;
         ournumsectors += numsectors;
         ournumwalls += numwalls;
-        ournumsprites += numsprites;
+        ournumsprites += Numsprites;
 
         if (lwcp != loadedwhich)
         {
@@ -7598,7 +7595,10 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
     int32_t newspritenum = insertspritestat(statnum);
 
     if (newspritenum >= 0)
+    {
         do_insertsprite_at_headofsect(newspritenum, sectnum);
+        Numsprites++;
+    }
 
     return newspritenum;
 
@@ -7632,6 +7632,7 @@ int32_t deletesprite(int16_t spritenum)
     sprite[spritenum].statnum = MAXSTATUS;
 
     tailspritefree = spritenum;
+    Numsprites--;
 
     return 0;
 }
@@ -8132,6 +8133,7 @@ void initspritelists(void)
     nextspritestat[MAXSPRITES-1] = -1;
 
     tailspritefree = MAXSPRITES-1;
+    Numsprites = 0;
 }
 
 
@@ -10016,6 +10018,7 @@ int32_t saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_
             numsprites++;
     }
 #endif
+    assert(numsprites == Numsprites);
 
 #ifdef YAX_ENABLE
     if (numyaxbunches > 0)
