@@ -460,7 +460,7 @@ void create_map_snapshot(void)
 
     mapstate->numsectors = numsectors;
     mapstate->numwalls = numwalls;
-    mapstate->numsprites = numsprites;
+    mapstate->numsprites = Numsprites;
 
     tempcrc = crc32once((uint8_t *)&sector[0],sizeof(sectortype) * numsectors);
 
@@ -519,8 +519,9 @@ void create_map_snapshot(void)
             else
             {
                 int32_t i = 0;
-                spritetype *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * Numsprites + 1),
-                            *spri = &tspri[0];
+                spritetype *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * Numsprites + 1);
+                spritetype *spri = tspri;
+
                 mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * Numsprites + QADDNSZ);
 
                 for (j=0; j<MAXSPRITES && i < Numsprites; j++)
@@ -621,6 +622,8 @@ int32_t map_undoredo(int32_t dir)
         insertsprite(sprite[i].sectnum,sprite[i].statnum);
     }
 
+    // XXX: this fails currently! the decompressed sprites have
+    //  .statnum==MAXSTATUS and .sectnum==MAXSECTORS.  WTF?!
     assert(Numsprites == mapstate->numsprites);
 
 #ifdef POLYMER
