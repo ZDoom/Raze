@@ -7522,27 +7522,6 @@ static void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum)
     sprite[spritenum].sectnum = sectnum;
 }
 
-// insertspritesect (internal)
-static int32_t insertspritesect(int16_t sectnum)
-{
-    int16_t blanktouse;
-
-    if ((sectnum >= MAXSECTORS) || (headspritesect[MAXSECTORS] == -1))
-        return(-1);  //list full
-
-    // remove one sprite from the sectnum-freelist
-    blanktouse = headspritesect[MAXSECTORS];
-    headspritesect[MAXSECTORS] = nextspritesect[blanktouse];
-
-    // make back-link of the new freelist head point to nil
-    if (headspritesect[MAXSECTORS] >= 0)
-        prevspritesect[headspritesect[MAXSECTORS]] = -1;
-
-    do_insertsprite_at_headofsect(blanktouse, sectnum);
-
-    return(blanktouse);
-}
-
 // remove sprite 'deleteme' from its sector list
 static void do_deletespritesect(int16_t deleteme)
 {
@@ -7557,7 +7536,7 @@ static void do_deletespritesect(int16_t deleteme)
         prevspritesect[next] = prev;
 }
 
-///// the same thing, now for status lists /////
+///// now, status lists /////
 
 // insert sprite at head of status list, change .statnum
 static void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum)
@@ -7616,8 +7595,13 @@ static void do_deletespritestat(int16_t deleteme)
 //
 int32_t insertsprite(int16_t sectnum, int16_t statnum)
 {
-    insertspritestat(statnum);
-    return(insertspritesect(sectnum));
+    int32_t newspritenum = insertspritestat(statnum);
+
+    if (newspritenum >= 0)
+        do_insertsprite_at_headofsect(newspritenum, sectnum);
+
+    return newspritenum;
+
 }
 
 //
@@ -7634,13 +7618,8 @@ int32_t deletesprite(int16_t spritenum)
     do_deletespritestat(spritenum);
     do_deletespritesect(spritenum);
 
-    // insert at tail of sector freelist
-    prevspritesect[spritenum] = tailspritefree;
-    nextspritesect[spritenum] = -1;
-    if (tailspritefree >= 0)
-        nextspritesect[tailspritefree] = spritenum;
-    else
-        headspritesect[MAXSECTORS] = spritenum;
+    // (dummy) insert at tail of sector freelist, compat
+    // for code that checks .sectnum==MAXSECTOR
     sprite[spritenum].sectnum = MAXSECTORS;
 
     // insert at tail of status freelist
