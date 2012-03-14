@@ -3,6 +3,8 @@
 #include <windows.h>
 #include <ddraw.h>
 
+#include "compat.h"
+
 #define DEFAULT_OUTPUT_FILE "enumdisplay.txt"
 char *outputfile = DEFAULT_OUTPUT_FILE;
 
@@ -27,26 +29,26 @@ void dumpdevmode(DEVMODE *devmode)
     if (devmode->dmFields & DM_PELSWIDTH) fprintf(output, " DM_PELSWIDTH");
     if (devmode->dmFields & DM_PELSHEIGHT) fprintf(output, " DM_PELSHEIGHT");
     if (devmode->dmFields & DM_BITSPERPEL) fprintf(output, " DM_BITSPERPEL");
-    fprintf(output, "\n\tdmPelsWidth = %d\n", devmode->dmPelsWidth);
-    fprintf(output, "\tdmPelsHeight = %d\n", devmode->dmPelsHeight);
-    fprintf(output, "\tdmBitsPerPel = %d\n", devmode->dmBitsPerPel);
+    fprintf(output, "\n\tdmPelsWidth = %lu\n", devmode->dmPelsWidth);
+    fprintf(output, "\tdmPelsHeight = %lu\n", devmode->dmPelsHeight);
+    fprintf(output, "\tdmBitsPerPel = %lu\n", devmode->dmBitsPerPel);
 }
 
-HRESULT WINAPI ddenum(DDSURFACEDESC *ddsd, VOID *udata)
+HRESULT WINAPI ddenum(DDSURFACEDESC *ddsd, VOID *udata ATTRIBUTE((unused)))
 {
     fprintf(output, "\tdwFlags has");
     if (ddsd->dwFlags & DDSD_WIDTH) fprintf(output, " DDSD_WIDTH");
     if (ddsd->dwFlags & DDSD_HEIGHT) fprintf(output, " DDSD_HEIGHT");
     if (ddsd->dwFlags & DDSD_PIXELFORMAT) fprintf(output, " DDSD_PIXELFORMAT");
-    fprintf(output, "\n\tdwWidth = %d\n", ddsd->dwWidth);
-    fprintf(output, "\tdwHeight = %d\n", ddsd->dwHeight);
+    fprintf(output, "\n\tdwWidth = %lu\n", ddsd->dwWidth);
+    fprintf(output, "\tdwHeight = %lu\n", ddsd->dwHeight);
     fprintf(output, "\tddpfPixelFormat.dwFlags has");
     if (ddsd->ddpfPixelFormat.dwFlags & DDPF_PALETTEINDEXED1) fprintf(output, " DDPF_PALETTEINDEXED1");
     if (ddsd->ddpfPixelFormat.dwFlags & DDPF_PALETTEINDEXED2) fprintf(output, " DDPF_PALETTEINDEXED2");
     if (ddsd->ddpfPixelFormat.dwFlags & DDPF_PALETTEINDEXED4) fprintf(output, " DDPF_PALETTEINDEXED4");
     if (ddsd->ddpfPixelFormat.dwFlags & DDPF_PALETTEINDEXED8) fprintf(output, " DDPF_PALETTEINDEXED8");
     if (ddsd->ddpfPixelFormat.dwFlags & DDPF_RGB) fprintf(output, " DDPF_RGB");
-    fprintf(output, "\n\tddpfPixelFormat.dwRGBBitCount = %d\n", ddsd->ddpfPixelFormat.dwRGBBitCount);
+    fprintf(output, "\n\tddpfPixelFormat.dwRGBBitCount = %lu\n", ddsd->ddpfPixelFormat.dwRGBBitCount);
     fprintf(output, "\n");
 
     return(DDENUMRET_OK);
@@ -57,7 +59,6 @@ int InitDirectDraw(void)
     HRESULT result;
     HRESULT (WINAPI *aDirectDrawCreate)(GUID *, LPDIRECTDRAW *, IUnknown *);
     HRESULT (WINAPI *aDirectDrawEnumerate)(LPDDENUMCALLBACK, LPVOID);
-    DDCAPS ddcaps;
 
     hDDrawDLL = LoadLibrary("DDRAW.DLL");
     if (!hDDrawDLL) { fprintf(output, "Failed loading DDRAW.DLL\n"); return -1; }
@@ -69,7 +70,7 @@ int InitDirectDraw(void)
     if (!aDirectDrawCreate) { fprintf(output, "Error fetching DirectDrawCreate\n"); return -1; }
 
     result = aDirectDrawCreate(NULL, &lpDD, NULL);
-    if (result != DD_OK) { fprintf(output, "DirectDrawCreate() failed (%d)\n", result); return -1; }
+    if (result != DD_OK) { fprintf(output, "DirectDrawCreate() failed (%ld)\n", result); return -1; }
 
     return 0;
 }
@@ -144,7 +145,7 @@ int main(int argc, char **argv)
                );
         hresult = IDirectDraw_EnumDisplayModes(lpDD, 0, NULL, (LPVOID)0, ddenum);
         if (hresult != DD_OK) {
-            fprintf(output, "\tIDirectDraw::EnumDisplayModes() FAILED! (%d)\n", hresult);
+            fprintf(output, "\tIDirectDraw::EnumDisplayModes() FAILED! (%ld)\n", hresult);
         }
     }
     UninitDirectDraw();
