@@ -603,6 +603,8 @@ int32_t map_undoredo(int32_t dir)
     Bmemset(show2dwall, 0, sizeof(show2dwall));
     Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
 
+    initspritelists();
+
     if (mapstate->numsectors)
     {
         qlz_decompress((const char *)&mapstate->sectors[0],  &sector[0], state_decompress);
@@ -613,8 +615,6 @@ int32_t map_undoredo(int32_t dir)
         if (mapstate->numsprites)
             qlz_decompress((const char *)&mapstate->sprites[0],  &sprite[0], state_decompress);
     }
-
-    initspritelists();
 
     for (i=0; i<mapstate->numsprites; i++)
     {
