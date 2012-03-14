@@ -7592,10 +7592,13 @@ static void do_deletespritestat(int16_t deleteme)
 //
 int32_t insertsprite(int16_t sectnum, int16_t statnum)
 {
+    // TODO: guard against bad sectnum?
     int32_t newspritenum = insertspritestat(statnum);
 
     if (newspritenum >= 0)
     {
+        assert((unsigned)sectnum < MAXSECTORS);
+
         do_insertsprite_at_headofsect(newspritenum, sectnum);
         Numsprites++;
     }
@@ -9135,14 +9138,25 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
 
         if (sprite[i].sectnum<0||sprite[i].sectnum>=MYMAXSECTORS)
         {
-            initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal sector(%d). Map is corrupt!\n",i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
+            initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal sector(%d). Map is corrupt!\n",
+                       i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
             updatesector(sprite[i].x, sprite[i].y, &sprite[i].sectnum);
-            // TODO: maybe put it into sector 0 if it's still in void space?
+
+            if (sprite[i].sectnum < 0)
+                sprite[i].sectnum = 0;
+        }
+
+        if (sprite[i].statnum<0||sprite[i].statnum>=MAXSTATUS)
+        {
+            initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal statnum(%d). Map is corrupt!\n",
+                       i,sprite[i].x,sprite[i].y,sprite[i].statnum);
+            sprite[i].statnum = 0;
         }
 
         if (sprite[i].picnum<0||sprite[i].picnum>=MAXTILES)
         {
-            initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal picnum(%d). Map is corrupt!\n",i,sprite[i].x,sprite[i].y,sprite[i].picnum);
+            initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal picnum(%d). Map is corrupt!\n",
+                       i,sprite[i].x,sprite[i].y,sprite[i].picnum);
             sprite[i].picnum = 0;
         }
     }
@@ -9153,7 +9167,8 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
 #endif
     for (i=0; i<numsprites; i++)
     {
-        if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
+        if ((sprite[i].cstat & 48) == 48)
+            sprite[i].cstat &= ~48;
 
         insertsprite(sprite[i].sectnum,sprite[i].statnum);
     }
@@ -9994,30 +10009,31 @@ int32_t saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_
     }
 
     for (j=0; j<MAXSPRITES; j++)
-        if ((unsigned)sprite[j].statnum>MAXSTATUS)
+    {
+        if ((unsigned)sprite[j].statnum > MAXSTATUS)
         {
-            initprintf("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",j,sprite[j].x,sprite[j].y,sprite[j].statnum);
+            initprintf("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",
+                       j,sprite[j].x,sprite[j].y,sprite[j].statnum);
             changespritestat(j,0);
         }
 
-    numsprites = 0;
-#if 0
-    for (j=0; j<MAXSTATUS; j++)
-    {
-        i = headspritestat[j];
-        while (i != -1)
+        if ((unsigned)sprite[j].sectnum > MAXSECTORS)
         {
-            numsprites++;
-            i = nextspritestat[i];
+            initprintf("Map error: sprite #%d(%d,%d) with an illegal sectnum(%d)\n",
+                       j,sprite[j].x,sprite[j].y,sprite[j].sectnum);
+            changespritesect(j,0);
         }
     }
-#else
+
+
+
+    numsprites = 0;
     for (j=0; j<MAXSPRITES; j++)
     {
         if (sprite[j].statnum != MAXSTATUS)
             numsprites++;
     }
-#endif
+
     assert(numsprites == Numsprites);
 
 #ifdef YAX_ENABLE
