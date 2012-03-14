@@ -91,6 +91,8 @@
 # endif
 #endif
 
+#include <assert.h>
+
 #ifdef EFENCE
 # include <efence.h>
 #elif defined DMALLOC

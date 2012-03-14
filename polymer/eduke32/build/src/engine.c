@@ -43,7 +43,6 @@
 #endif
 
 #include <math.h>
-#include <assert.h>
 
 #include "engine_priv.h"
 
