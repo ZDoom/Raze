@@ -622,8 +622,6 @@ int32_t map_undoredo(int32_t dir)
         insertsprite(sprite[i].sectnum,sprite[i].statnum);
     }
 
-    // XXX: this fails currently! the decompressed sprites have
-    //  .statnum==MAXSTATUS and .sectnum==MAXSECTORS.  WTF?!
     assert(Numsprites == mapstate->numsprites);
 
 #ifdef POLYMER

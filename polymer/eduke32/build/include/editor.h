@@ -121,7 +121,7 @@ extern void M32_ResetFakeRORTiles(void);
 extern int32_t kopen4loadfrommod(const char *filename, char searchfirst);
 
 // set to 1 to enable:
-#define M32_UNDO 0
+#define M32_UNDO 1
 extern int32_t map_revision;
 extern int32_t map_undoredo(int32_t dir);
 extern void map_undoredo_free(void);
