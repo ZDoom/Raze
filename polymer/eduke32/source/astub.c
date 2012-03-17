@@ -542,7 +542,7 @@ void create_map_snapshot(void)
         }
     }
 
-    CheckMapCorruption(6, 0);
+    CheckMapCorruption(5, 0);
 }
 
 void map_undoredo_free(void)
@@ -11234,7 +11234,7 @@ void ExtCheckKeys(void)
 #if M32_UNDO
             create_map_snapshot();
 #else
-            CheckMapCorruption(6, 0);
+            CheckMapCorruption(5, 0);
 #endif
             asksave++;
         }
@@ -11246,7 +11246,7 @@ void ExtCheckKeys(void)
     {
         if (asksave == 4)
         {
-            if (CheckMapCorruption(6, 0)>=4)
+            if (CheckMapCorruption(5, 0)>=4)
             {
                 SaveBoard("autosave_corrupt.map", 1);
                 message("Board autosaved to AUTOSAVE_CORRUPT.MAP");
@@ -11869,7 +11869,10 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
             continue;
 
         if (sprite[i].sectnum<0 || sprite[i].sectnum>=numsectors)
-            CORRUPTCHK_PRINT(2, CORRUPT_SPRITE|i, "SPRITE[%d].SECTNUM=%d. Expect problems!", i, sprite[i].sectnum);
+            CORRUPTCHK_PRINT(4, CORRUPT_SPRITE|i, "SPRITE[%d].SECTNUM=%d. Expect problems!", i, sprite[i].sectnum);
+
+        if (sprite[i].statnum<0 || sprite[i].statnum>MAXSTATUS)
+            CORRUPTCHK_PRINT(4, CORRUPT_SPRITE|i, "SPRITE[%d].STATNUM=%d. Expect problems!", i, sprite[i].statnum);
 
         if (sprite[i].picnum<0 || sprite[i].picnum>=MAXTILES)
         {
