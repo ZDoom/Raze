@@ -7528,12 +7528,12 @@ static void Keys2d(void)
         if (eitherSHIFT)
         {
             if (map_undoredo(1)) message("Nothing to redo!");
-            else message("Restored revision %d",map_revision-1);
+            else message("Redo: restored revision %d", map_revision-1);
         }
         else
         {
             if (map_undoredo(0)) message("Nothing to undo!");
-            else message("Revision %d undone",map_revision);
+            else message("Undo: restored revision %d", map_revision-1);
         }
     }
 #endif
