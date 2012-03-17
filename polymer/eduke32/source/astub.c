@@ -377,24 +377,24 @@ static void silentmessage(const char *fmt, ...)
     message_common1(tmpstr);
 }
 
+
+static int32_t osdcmd_quit(const osdfuncparm_t *parm);
+
+////////// UNDO/REDO SYSTEM //////////
 #if M32_UNDO
-typedef struct _mapundo
+typedef struct mapundo_
 {
-    int32_t numsectors;
-    int32_t numwalls;
-    int32_t numsprites;
-
-    sectortype *sectors;
-    walltype *walls;
-    spritetype *sprites;
-
     int32_t revision;
+    int32_t num[3];  // numsectors, numwalls, numsprites
 
-    uint32_t sectcrc, wallcrc, spritecrc;
-    uint32_t sectsiz, wallsiz, spritesiz;
+    // These exist temporarily as sector/wall/sprite data, but are compressed
+    // most of the time.  +4 bytes refcount at the beginning.
+    char *sws[3];  // sector, wall, sprite
 
-    struct _mapundo *next; // 'redo' loads this
-    struct _mapundo *prev; // 'undo' loads this
+    uint32_t crc[3];
+
+    struct mapundo_ *next;  // 'redo' loads this
+    struct mapundo_ *prev;  // 'undo' loads this
 } mapundo_t;
 
 mapundo_t *mapstate = NULL;
@@ -403,140 +403,148 @@ int32_t map_revision = 1;
 
 #define QADDNSZ 400
 
+
+static int32_t try_match_with_prev(int32_t idx, int32_t numsthgs, uint32_t crc)
+{
+    if (mapstate->prev && mapstate->prev->num[idx]==numsthgs && mapstate->prev->crc[idx]==crc)
+    {
+        // found match!
+        mapstate->sws[idx] = mapstate->prev->sws[idx];
+        (*(int32_t *)mapstate->sws[idx])++;  // increase refcount!
+
+        return 1;
+    }
+
+    return 0;
+}
+
+static void create_compressed_block(int32_t idx, const void *srcdata, uint32_t size, uint32_t crc)
+{
+    uint32_t j;
+
+    // allocate
+    mapstate->sws[idx] = Bmalloc(4 + size + QADDNSZ);
+    if (!mapstate->sws[idx]) { initprintf("OUT OF MEM in undo/redo\n"); osdcmd_quit(NULL); }
+
+    // compress & realloc
+    j = qlz_compress(srcdata, mapstate->sws[idx]+4, size, state_compress);
+    mapstate->sws[idx] = Brealloc(mapstate->sws[idx], 4 + j);
+    if (!mapstate->sws[idx]) { initprintf("COULD not realloc in undo/redo\n"); osdcmd_quit(NULL); }
+
+    // write refcount
+    *(int32_t *)mapstate->sws[idx] = 1;
+
+    mapstate->crc[idx] = crc;
+}
+
+static void free_self_and_successors(mapundo_t *mapst)
+{
+    mapundo_t *cur = mapst;
+
+    mapst->prev = NULL;  // break the back link
+
+    while (cur->next)
+        cur = cur->next;
+
+    while (1)
+    {
+        int32_t i;
+        mapundo_t *const prev = cur->prev;
+
+        for (i=0; i<3; i++)
+        {
+            int32_t *const refcnt = (int32_t *)cur->sws[i];
+
+            if (refcnt)
+            {
+                (*refcnt)--;
+                if (*refcnt == 0)
+                    Bfree(refcnt);  // free the block!
+            }
+        }
+
+        Bfree(cur);
+
+        if (!prev)
+            break;
+
+        cur = prev;
+    }
+}
+
+// NOTE: only _consecutive_ matching (size+crc) sector/wall/sprite blocks are
+// shared!
 void create_map_snapshot(void)
 {
-    int32_t j;
-    uint32_t tempcrc;
-
-    /*
-    if (mapstate->prev == NULL && mapstate->next != NULL) // should be the first map version
-    mapstate = mapstate->next;
-    */
-
     if (mapstate == NULL)
     {
-        mapstate = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
-        mapstate->revision = map_revision = 1;
+        // create initial mapstate
+
+        map_revision = 1;
+
+        mapstate = Bcalloc(1, sizeof(mapundo_t));
+        mapstate->revision = map_revision;
         mapstate->prev = mapstate->next = NULL;
     }
     else
     {
-        if (mapstate->next != NULL)
-        {
-            mapundo_t *cur = mapstate->next;
-            cur->prev = NULL;
+        if (mapstate->next)
+            free_self_and_successors(mapstate->next);
+        // now, have no successors
 
-            while (cur->next)
-                cur = cur->next;
-
-            do
-            {
-                if (cur->sectors && (cur->prev == NULL || (cur->sectcrc != cur->prev->sectcrc)))
-                    Bfree(cur->sectors);
-                if (cur->walls && (cur->prev == NULL || (cur->wallcrc != cur->prev->wallcrc)))
-                    Bfree(cur->walls);
-                if (cur->sprites && (cur->prev == NULL || (cur->spritecrc != cur->prev->spritecrc)))
-                    Bfree(cur->sprites);
-                if (!cur->prev)
-                {
-                    Bfree(cur);
-                    break;
-                }
-
-                cur = cur->prev;
-                Bfree(cur->next);
-            }
-            while (cur);
-        }
-
-        mapstate->next = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
+        // calloc because not everything may be set in the following:
+        mapstate->next = Bcalloc(1, sizeof(mapundo_t));
         mapstate->next->prev = mapstate;
 
         mapstate = mapstate->next;
+
         mapstate->revision = ++map_revision;
     }
 
+
     fixspritesectors();
 
-    mapstate->numsectors = numsectors;
-    mapstate->numwalls = numwalls;
-    mapstate->numsprites = Numsprites;
-
-    tempcrc = crc32once((uint8_t *)&sector[0],sizeof(sectortype) * numsectors);
+    mapstate->num[0] = numsectors;
+    mapstate->num[1] = numwalls;
+    mapstate->num[2] = Numsprites;
 
 
     if (numsectors)
     {
-        if (mapstate->prev && mapstate->prev->sectcrc == tempcrc)
-        {
-            mapstate->sectors = mapstate->prev->sectors;
-            mapstate->sectsiz = mapstate->prev->sectsiz;
-            mapstate->sectcrc = tempcrc;
-            /* OSD_Printf("found a match between undo sectors\n"); */
-        }
-        else
-        {
-            mapstate->sectors = (sectortype *)Bcalloc(1, sizeof(sectortype) * numsectors + QADDNSZ);
-            mapstate->sectsiz = j = qlz_compress(&sector[0], (char *)&mapstate->sectors[0],
-                                                 sizeof(sectortype) * numsectors, state_compress);
-            mapstate->sectors = (sectortype *)Brealloc(mapstate->sectors, j);
-            mapstate->sectcrc = tempcrc;
-        }
+        int32_t j;
+        uint32_t tempcrc = crc32once((uint8_t *)sector, numsectors*sizeof(sectortype));
+
+        if (!try_match_with_prev(0, numsectors, tempcrc))
+            create_compressed_block(0, sector, numsectors*sizeof(sectortype), tempcrc);
 
         if (numwalls)
         {
-            tempcrc = crc32once((uint8_t *)&wall[0],sizeof(walltype) * numwalls);
+            tempcrc = crc32once((uint8_t *)wall, numwalls*sizeof(walltype));
 
-
-            if (mapstate->prev && mapstate->prev->wallcrc == tempcrc)
-            {
-                mapstate->walls = mapstate->prev->walls;
-                mapstate->wallsiz = mapstate->prev->wallsiz;
-                mapstate->wallcrc = tempcrc;
-                /* OSD_Printf("found a match between undo walls\n"); */
-            }
-            else
-            {
-                mapstate->walls = (walltype *)Bcalloc(1, sizeof(walltype) * numwalls + QADDNSZ);
-                mapstate->wallsiz = j = qlz_compress(&wall[0], (char *)&mapstate->walls[0],
-                                                     sizeof(walltype) * numwalls, state_compress);
-                mapstate->walls = (walltype *)Brealloc(mapstate->walls, j);
-                mapstate->wallcrc = tempcrc;
-            }
+            if (!try_match_with_prev(1, numwalls, tempcrc))
+                create_compressed_block(1, wall, numwalls*sizeof(walltype), tempcrc);
         }
 
         if (Numsprites)
         {
-            tempcrc = crc32once((uint8_t *)&sprite[0],sizeof(spritetype) * MAXSPRITES);
+            tempcrc = crc32once((uint8_t *)sprite, MAXSPRITES*sizeof(spritetype));
 
-            if (mapstate->prev && mapstate->prev->spritecrc == tempcrc)
-            {
-                mapstate->sprites = mapstate->prev->sprites;
-                mapstate->spritesiz = mapstate->prev->spritesiz;
-                mapstate->spritecrc = tempcrc;
-                /*OSD_Printf("found a match between undo sprites\n");*/
-            }
-            else
+            if (!try_match_with_prev(2, Numsprites, tempcrc))
             {
                 int32_t i = 0;
-                spritetype *tspri = (spritetype *)Bcalloc(1, sizeof(spritetype) * Numsprites + 1);
+                spritetype *const tspri = Bmalloc(Numsprites*sizeof(spritetype) + 4);
                 spritetype *spri = tspri;
 
-                mapstate->sprites = (spritetype *)Bcalloc(1, sizeof(spritetype) * Numsprites + QADDNSZ);
+                if (!tspri) { initprintf("OUT OF MEM in undo/redo (2)\n"); osdcmd_quit(NULL); }
 
                 for (j=0; j<MAXSPRITES && i < Numsprites; j++)
-                {
                     if (sprite[j].statnum != MAXSTATUS)
                     {
                         Bmemcpy(spri++, &sprite[j], sizeof(spritetype));
                         i++;
                     }
-                }
 
-                mapstate->spritesiz = j = qlz_compress(&tspri[0], (char *)&mapstate->sprites[0],
-                                                       sizeof(spritetype) * Numsprites, state_compress);
-                mapstate->sprites = (spritetype *)Brealloc(mapstate->sprites, j);
-                mapstate->spritecrc = tempcrc;
+                create_compressed_block(2, tspri, Numsprites*sizeof(spritetype), tempcrc);
                 Bfree(tspri);
             }
         }
@@ -549,24 +557,7 @@ void map_undoredo_free(void)
 {
     if (mapstate)
     {
-        while (mapstate->next)
-            mapstate = mapstate->next;
-
-        while (mapstate->prev)
-        {
-            mapundo_t *state = mapstate->prev;
-            if (mapstate->sectors && (mapstate->sectcrc != mapstate->prev->sectcrc)) Bfree(mapstate->sectors);
-            if (mapstate->walls && (mapstate->wallcrc != mapstate->prev->wallcrc)) Bfree(mapstate->walls);
-            if (mapstate->sprites && (mapstate->spritecrc != mapstate->prev->spritecrc)) Bfree(mapstate->sprites);
-            Bfree(mapstate);
-            mapstate = state;
-        }
-
-        if (mapstate->sectors) Bfree(mapstate->sectors);
-        if (mapstate->walls) Bfree(mapstate->walls);
-        if (mapstate->sprites) Bfree(mapstate->sprites);
-
-        Bfree(mapstate);
+        free_self_and_successors(mapstate);
         mapstate = NULL;
     }
 
@@ -581,21 +572,21 @@ int32_t map_undoredo(int32_t dir)
 
     if (dir)
     {
-        if (mapstate->next == NULL || !mapstate->next->numsectors) return 1;
+        if (mapstate->next == NULL || !mapstate->next->num[0]) return 1;
 
         //        while (map_revision+1 != mapstate->revision && mapstate->next)
         mapstate = mapstate->next;
     }
     else
     {
-        if (mapstate->prev == NULL || !mapstate->prev->numsectors) return 1;
+        if (mapstate->prev == NULL || !mapstate->prev->num[0]) return 1;
 
         //        while (map_revision-1 != mapstate->revision && mapstate->prev)
         mapstate = mapstate->prev;
     }
 
-    numsectors = mapstate->numsectors;
-    numwalls = mapstate->numwalls;
+    numsectors = mapstate->num[0];
+    numwalls = mapstate->num[1];
     map_revision = mapstate->revision;
 
     Bmemset(show2dsector, 0, sizeof(show2dsector));
@@ -605,24 +596,28 @@ int32_t map_undoredo(int32_t dir)
 
     initspritelists();
 
-    if (mapstate->numsectors)
+    if (mapstate->num[0])
     {
-        qlz_decompress((const char *)&mapstate->sectors[0],  &sector[0], state_decompress);
+        // restore sector[]
+        qlz_decompress(mapstate->sws[0]+4, sector, state_decompress);
 
-        if (mapstate->numwalls)
-            qlz_decompress((const char *)&mapstate->walls[0],  &wall[0], state_decompress);
+        if (mapstate->num[1])  // restore wall[]
+            qlz_decompress(mapstate->sws[1]+4, wall, state_decompress);
 
-        if (mapstate->numsprites)
-            qlz_decompress((const char *)&mapstate->sprites[0],  &sprite[0], state_decompress);
+        if (mapstate->num[2])  // restore sprite[]
+            qlz_decompress(mapstate->sws[2]+4, sprite, state_decompress);
     }
 
-    for (i=0; i<mapstate->numsprites; i++)
+    // insert sprites
+    for (i=0; i<mapstate->num[2]; i++)
     {
         if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
-        insertsprite(sprite[i].sectnum,sprite[i].statnum);
+        assert((unsigned)sprite[i].sectnum < (unsigned)numsectors
+                   && (unsigned)sprite[i].statnum < MAXSTATUS);
+        insertsprite(sprite[i].sectnum, sprite[i].statnum);
     }
 
-    assert(Numsprites == mapstate->numsprites);
+    assert(Numsprites == mapstate->num[2]);
 
 #ifdef POLYMER
     if (qsetmode == 200 && rendmode == 4)
