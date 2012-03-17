@@ -24,9 +24,10 @@ if [ `expr $darwinversion \< 9` == 1 ]; then
     echo OS X 10.5 is the minimum requirement for building.
     exit 1
 fi
-if [ `expr $darwinversion \> 10` == 1 ]; then
+if [ `expr $darwinversion \> 9` == 1 ]; then
     buildppc=0
 fi
+
 
 # Parse arguments:
 for i in $*; do
@@ -35,18 +36,18 @@ for i in $*; do
             onlyzip=1
         ;;
 
-        noppc)
-            buildppc=0
+        --buildppc=*)
+            buildppc=${i#*=}
         ;;
-        no86)
-            build86=0
+        --build86=*)
+            build86=${i#*=}
         ;;
-        no64)
-            build64=0
+        --build64=*)
+            build64=${i#*=}
         ;;
 
-        tools)
-            buildtools=1
+        --tools=*)
+            buildtools=${i#*=}
         ;;
 
         --debug=*)
@@ -54,7 +55,7 @@ for i in $*; do
         ;;
 
         *)
-            echo usage: osxbuild [onlyzip] [noppc] [no86] [no64] [tools] [--debug=\<0\|1\>]
+            echo usage: osxbuild [onlyzip] [--buildppc=\<0\|1\>] [--build86=\<0\|1\>] [--build64=\<0\|1\>] [--tools=\<0\|1\>] [--debug=\<0\|1\>]
             exit 1
         ;;
     esac
@@ -76,6 +77,12 @@ else
     vc=none
 fi
 
+# A little factoring:
+commonargs="OSX_STARTUPWINDOW=1 WITHOUT_GTK=1"
+if [ $buildppc == 1 ]; then
+    commonargs="$commonargs DARWIN9=1"
+fi
+
 # Building the buildtools:
 if [ $buildtools -eq 1 ] && [ -d "build" ]; then
     cd build
@@ -87,7 +94,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
     if [ $build64 == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.debug.x64 OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3 utils
+            ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.debug.x64 $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3 utils
             if [ $? ]; then
                 echo buildtools: x86_64 debug build succeeded.
             else
@@ -96,7 +103,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
         fi
 
         make veryclean
-        ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.x64 OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3 utils
+        ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.x64 $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3 utils
         if [ $? ]; then
             echo buildtools: x86_64 release build succeeded.
         else
@@ -107,7 +114,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
     if [ $build86 == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            EXESUFFIX_OVERRIDE=.debug.x86 OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3 utils
+            EXESUFFIX_OVERRIDE=.debug.x86 $commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3 utils
             if [ $? ]; then
                 echo buildtools: x86 debug build succeeded.
             else
@@ -116,7 +123,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
         fi
 
         make veryclean
-        EXESUFFIX_OVERRIDE=.x86 OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3 utils
+        EXESUFFIX_OVERRIDE=.x86 $commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3 utils
         if [ $? ]; then
             echo buildtools: x86 release build succeeded.
         else
@@ -127,7 +134,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
     if [ $buildppc == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.debug.ppc OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3 utils
+            ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.debug.ppc $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3 utils
             if [ $? ]; then
                 echo buildtools: PowerPC debug build succeeded.
             else
@@ -136,7 +143,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
         fi
 
         make veryclean
-        ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.ppc OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3 utils
+        ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.ppc $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3 utils
         if [ $? ]; then
             echo buildtools: PowerPC release build succeeded.
         else
@@ -187,7 +194,7 @@ if [ $onlyzip -eq 0 ]; then
     if [ $build64 == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            ARCH='-arch x86_64' OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3
+            ARCH='-arch x86_64' $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3
             if [ $? ]; then
                 echo x86_64 debug build succeeded.
                 cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.debug.x64
@@ -198,7 +205,7 @@ if [ $onlyzip -eq 0 ]; then
         fi
 
         make veryclean
-        ARCH='-arch x86_64' OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3
+        ARCH='-arch x86_64' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3
         if [ $? ]; then
             echo x86_64 release build succeeded.
             cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.x64
@@ -211,7 +218,7 @@ if [ $onlyzip -eq 0 ]; then
     if [ $build86 == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3
+            $commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3
             if [ $? ]; then
                 echo x86 debug build succeeded.
                 cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.debug.x86
@@ -222,7 +229,7 @@ if [ $onlyzip -eq 0 ]; then
         fi
 
         make veryclean
-        OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3
+        $commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3
         if [ $? ]; then
             echo x86 release build succeeded.
             cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.x86
@@ -235,7 +242,7 @@ if [ $onlyzip -eq 0 ]; then
     if [ $buildppc == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            ARCH='-arch ppc' OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3
+            ARCH='-arch ppc' $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3
             if [ $? ]; then
                 echo PowerPC debug build succeeded.
                 cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.debug.ppc
@@ -246,7 +253,7 @@ if [ $onlyzip -eq 0 ]; then
         fi
 
         make veryclean
-        ARCH='-arch ppc' OSX_STARTUPWINDOW=1 WITHOUT_GTK=1 RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3
+        ARCH='-arch ppc' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3
         if [ $? ]; then
             echo PowerPC release build succeeded.
             cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.ppc
