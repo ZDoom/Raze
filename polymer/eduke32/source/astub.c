@@ -2301,16 +2301,10 @@ ENDFOR1:
             showframe(1);
         }
 
-        overridepm16y = -1;
-        //        i=ydim16;
-        //        ydim16=ydim;
-        //        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
-        //        ydim16=i;
-        //        // printmessage16("");
-        //        showframe(1);
-
-        keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F1] = 0;
+        clearkeys();
     }
+
+    overridepm16y = -1;
 }
 
 #define SOUND_NUMDISPLINES IHELP_NUMDISPLINES
@@ -2456,10 +2450,12 @@ static void SoundDisplay(void)
     overridepm16y = ydim;//3*STATUS2DSIZ;
 
     {
-        int32_t i, j;
         // cursnd is the first displayed line, cursnd+curofs is where the cursor is
         static int32_t cursnd=0, curofs=0;
-        char disptext[SOUND_NUMDISPLINES][80];
+        char disptext[80];
+
+        int32_t i, j;
+        const int32_t halfpage = (ydim-64)/(2*9);
 
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F2]==0
                 && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
@@ -2491,10 +2487,10 @@ static void SoundDisplay(void)
                 {
                     if (i<SOUND_NUMDISPLINES)
                         cursnd = 0, curofs = i;
-                    else if (i>=g_numsounds- 32/*SOUND_NUMDISPLINES*/)
-                        cursnd = g_numsounds-32/*SOUND_NUMDISPLINES*/, curofs = i-cursnd;
+                    else if (i>=g_numsounds-halfpage)
+                        cursnd = g_numsounds-halfpage, curofs = i-cursnd;
                     else
-                        curofs = 32/*SOUND_NUMDISPLINES*//2, cursnd = i-curofs;
+                        curofs = halfpage/2, cursnd = i-curofs;
                 }
             }
             else if (PRESSED_KEYSC(UP))    // scroll up
@@ -2504,14 +2500,15 @@ static void SoundDisplay(void)
             }
             else if (PRESSED_KEYSC(DOWN))    // scroll down
             {
-                if (curofs<32/*SOUND_NUMDISPLINES*/-1 && cursnd+curofs<g_numsounds-1)
+                if (curofs < halfpage-1 && cursnd+curofs<g_numsounds-1)
                     curofs++;
-                else if (cursnd+32/*SOUND_NUMDISPLINES*/ < g_numsounds)
+                else if (cursnd + halfpage < g_numsounds)
                     cursnd++;
             }
             else if (PRESSED_KEYSC(PGUP))    // scroll one page up
             {
-                i=SOUND_NUMDISPLINES;
+                i = halfpage/2;
+
                 while (i>0 && curofs>0)
                     i--, curofs--;
                 while (i>0 && cursnd>0)
@@ -2519,11 +2516,11 @@ static void SoundDisplay(void)
             }
             else if (PRESSED_KEYSC(PGDN))    // scroll one page down
             {
-                i=SOUND_NUMDISPLINES;
+                i = halfpage/2;
 
-                while (i>0 && curofs<32/*SOUND_NUMDISPLINES*/-1 && cursnd+curofs<g_numsounds-1)
+                while (i>0 && curofs < halfpage-1 && cursnd+curofs<g_numsounds-1)
                     i--, curofs++;
-                while (i>0 && cursnd+32/*SOUND_NUMDISPLINES*/ < g_numsounds)
+                while (i>0 && cursnd + halfpage < g_numsounds)
                     i--, cursnd++;
             }
             else if (PRESSED_KEYSC(SPACE) || PRESSED_KEYSC(ENTER))   // play/stop sound
@@ -2542,8 +2539,8 @@ static void SoundDisplay(void)
             }
             else if (PRESSED_KEYSC(END))    // goto last sound#
             {
-                if ((cursnd=g_numsounds-32/*SOUND_NUMDISPLINES*/) >= 0)
-                    curofs=32/*SOUND_NUMDISPLINES*/-1;
+                if ((cursnd = g_numsounds - halfpage) >= 0)
+                    curofs = halfpage-1;
                 else
                 {
                     cursnd = 0;
@@ -2560,14 +2557,14 @@ static void SoundDisplay(void)
 
                 if (ydim-overridepm16y+28+i*9+32 >= ydim) break;
 
-                Bsprintf(disptext[i],
+                Bsprintf(disptext,
                          "%4d .................... ................ %6d:%-6d %3d %c%c%c%c%c %6d",
                          //   5678901234567890X23456789012345678901234567
                          k, snd->ps, snd->pe, snd->pr,
                          snd->m&1 ? 'R':'-', snd->m&2 ? 'M':'-', snd->m&4 ? 'D':'-',
                          snd->m&8 ? 'P':'-', snd->m&16 ? 'G':'-', snd->vo);
-                for (l = Bsnprintf(disptext[i]+5, 20, "%s", snd->definedname); l<20; l++)
-                    disptext[i][5+l] = ' ';
+                for (l = Bsnprintf(disptext+5, 20, "%s", snd->definedname); l<20; l++)
+                    disptext[5+l] = ' ';
                 if (snd->filename)
                 {
                     l = Bstrlen(snd->filename);
@@ -2575,16 +2572,16 @@ static void SoundDisplay(void)
                         cp = snd->filename;
                     else
                         cp = snd->filename + l-15;
-                    for (m = Bsnprintf(disptext[i]+26, 16, "%s", cp); m<16; m++)
-                        disptext[i][26+m] = ' ';
+                    for (m = Bsnprintf(disptext+26, 16, "%s", cp); m<16; m++)
+                        disptext[26+m] = ' ';
                     if (l>16)
-                        disptext[i][26] = disptext[i][27] = disptext[i][28] = '.';
+                        disptext[26] = disptext[27] = disptext[28] = '.';
                 }
 
                 printext16(8, ydim-overridepm16y+28+i*9,
                            keystatus[KEYSC_S]?editorcolors[8] : (S_CheckSoundPlaying(-1, k) ? editorcolors[2] : editorcolors[10]),
                            j==cursnd+curofs ? editorcolors[1] : -1,
-                           disptext[i], 0);
+                           disptext, 0);
             }
 
             if (keystatus[KEYSC_S])    // sorting
@@ -2615,34 +2612,18 @@ static void SoundDisplay(void)
                     }
                 }
 
-                if (bad==1)
-                {
-                    keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F2] = 0;
-                }
-
-                if (bad==2)
-                {
-                    keystatus[KEYSC_S] = keystatus[KEYSC_D] = keystatus[KEYSC_F] = 0;
-                    keystatus[KEYSC_G] = keystatus[KEYSC_1] = keystatus[KEYSC_2] = 0;
-                    keystatus[KEYSC_3] = keystatus[KEYSC_4] = keystatus[KEYSC_5] = 0;
-                }
+                clearkeys();
             }
             else
                 showframe(1);
         }
 
         overridepm16y = -1;
-        //        i=ydim16;
-        //        ydim16=ydim;
-        //        drawline16(0,ydim-STATUS2DSIZ,xdim-1,ydim-STATUS2DSIZ,editorcolors[1]);
-        //        ydim16=i;
-        //        // printmessage16("");
-        //        showframe(1);
 
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
-        keystatus[KEYSC_ESC] = keystatus[KEYSC_Q] = keystatus[KEYSC_F2] = 0;
+        clearkeys();
     }
 }
 // PK_ ^^^^
