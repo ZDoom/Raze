@@ -11422,6 +11422,116 @@ static void do_nextsector_correction(int32_t nw, int32_t j)
     }
 }
 
+
+static int32_t csc_s, csc_i;
+// 1: corrupt, 0: OK
+static int32_t check_spritelist_consistency()
+{
+    int32_t s, i, ournumsprites=0;
+    static uint8_t havesprite[MAXSPRITES>>3];
+
+    csc_s = csc_i = -1;
+
+    if ((unsigned)Numsprites >= MAXSPRITES)
+        return 1;
+
+    for (i=0; i<MAXSPRITES; i++)
+    {
+        csc_i = i;
+
+        if ((sprite[i].statnum==MAXSTATUS) != (sprite[i].sectnum==MAXSECTORS))
+            return 2;  // violation of .statnum==MAXSTATUS iff .sectnum==MAXSECTORS
+
+        if ((unsigned)sprite[i].statnum > MAXSTATUS || (unsigned)sprite[i].sectnum > MAXSECTORS)
+            return 3;  // oob sectnum or statnum
+
+        if (sprite[i].statnum != MAXSTATUS)
+            ournumsprites++;
+    }
+
+    if (ournumsprites != Numsprites)
+        return 4;  // counting sprites by statnum!=MAXSTATUS inconsistent with Numsprites
+
+    // SECTOR LIST
+
+    Bmemset(havesprite, 0, (Numsprites+7)>>3);
+
+    for (s=0; s<numsectors; s++)
+    {
+        csc_s = s;
+
+        for (i=headspritesect[s]; i>=0; i=nextspritesect[i])
+        {
+            csc_i = i;
+
+            if (i >= MAXSPRITES)
+                return 5;  // oob sprite index in list, or Numsprites inconsistent
+
+            if (havesprite[i>>3]&(1<<(i&7)))
+                return 6;  // have a cycle in the list
+
+            havesprite[i>>3] |= (1<<(i&7));
+
+            if (sprite[i].sectnum != s)
+                return 7;  // .sectnum inconsistent with list
+        }
+
+        if (i!=-1)
+            return 8;  // various code checks for -1 to break loop
+    }
+
+    csc_s = -1;
+    for (i=0; i<MAXSPRITES; i++)
+    {
+        csc_i = i;
+
+        if (sprite[i].statnum!=MAXSTATUS && !(havesprite[i>>3]&(1<<(i&7))))
+            return 9;  // have a sprite in the world not in sector list
+    }
+
+
+    // STATUS LIST -- we now clear havesprite[] bits
+
+    for (s=0; s<MAXSTATUS; s++)
+    {
+        csc_s = s;
+
+        for (i=headspritestat[s]; i>=0; i=nextspritestat[i])
+        {
+            csc_i = i;
+
+            if (i >= MAXSPRITES)
+                return 10;  // oob sprite index in list, or Numsprites inconsistent
+
+            // have a cycle in the list, or status list inconsistent with
+            // sector list (*)
+            if (!(havesprite[i>>3]&(1<<(i&7))))
+                return 11;
+
+            havesprite[i>>3] &= ~(1<<(i&7));
+
+            if (sprite[i].statnum != s)
+                return 12;  // .statnum inconsistent with list
+        }
+
+        if (i!=-1)
+            return 13;  // various code checks for -1 to break loop
+    }
+
+    csc_s = -1;
+    for (i=0; i<Numsprites; i++)
+    {
+        csc_i = i;
+
+        // Status list contains only a proper subset of the sprites in the
+        // sector list.  Reverse case is handled by (*)
+        if (havesprite[i>>3]&(1<<(i&7)))
+            return 14;
+    }
+
+    return 0;
+}
+
 int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 {
     int32_t i, j, w0, numw, endwall, ns, nw;
@@ -11767,6 +11877,11 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
             CORRUPTCHK_PRINT(0, CORRUPT_SPRITE|i, "SPRITE[%d].PICNUM=%d out of range, resetting to 0", i, sprite[i].picnum);
         }
     }
+
+    i = check_spritelist_consistency();
+    if (i)
+        CORRUPTCHK_PRINT(5, i<0?0:(CORRUPT_SPRITE|i), CCHK_PANIC "SPRITE LISTS CORRUPTED: error code %d, s=%d, i=%d!",
+                         i, csc_s, csc_i);
 
     if (0)
     {
