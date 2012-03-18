@@ -3875,7 +3875,7 @@ static void transmaskvline(int32_t x)
 //
 // transmaskvline2 (internal)
 //
-#ifndef ENGINE_USING_A_C
+#if 1 //ndef ENGINE_USING_A_C
 static void transmaskvline2(int32_t x)
 {
     int32_t i, y1, y2, x2;
@@ -3950,7 +3950,7 @@ static void transmaskvline2(int32_t x)
 //
 // transmaskwallscan (internal)
 //
-static inline void transmaskwallscan(int32_t x1, int32_t x2)
+static void transmaskwallscan(int32_t x1, int32_t x2)
 {
     int32_t x;
 
@@ -3963,7 +3963,7 @@ static inline void transmaskwallscan(int32_t x1, int32_t x2)
 
     x = x1;
     while ((startumost[x+windowx1] > startdmost[x+windowx1]) && (x <= x2)) x++;
-#ifndef ENGINE_USING_A_C
+#if 1 //ndef ENGINE_USING_A_C
     if ((x <= x2) && (x&1)) transmaskvline(x), x++;
     while (x < x2) transmaskvline2(x), x += 2;
 #endif

@@ -22,6 +22,7 @@ extern void *reciptable;
 static int32_t bpl, transmode = 0;
 static int32_t glogx, glogy, gbxinc, gbyinc, gpinc;
 static char *gbuf, *gpal, *ghlinepal, *gtrans;
+static char *gpal2;
 
 //Global variable functions
 void setvlinebpl(int32_t dabpl) { bpl = dabpl; }
@@ -208,7 +209,7 @@ void mvlineasm4(int32_t cnt, char *p)
 
 void setuptvlineasm(int32_t neglogy) { glogy = neglogy; }
 // cnt+1 loop iterations!
-void tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
+int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
 {
     char ch;
 
@@ -242,7 +243,70 @@ void tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intp
         }
         while (--cnt);
     }
+
+    return vplc;
 }
+
+void setuptvlineasm2(int32_t neglogy, intptr_t paloffs1, intptr_t paloffs2)
+{
+    glogy = neglogy;
+    gpal = (char *)paloffs1;
+    gpal2 = (char *)paloffs2;
+}
+// Pass: asm1=vinc2, asm2=pend
+// Return: asm1=vplc1, asm2=vplc2
+void tvlineasm2(uint32_t vplc2, int32_t vinc1, intptr_t bufplc1, intptr_t bufplc2, uint32_t vplc1, intptr_t p)
+{
+    char ch;
+
+    int32_t cnt = (asm2-p-1)/bpl;  // >= 1
+    const int32_t vinc2 = asm1;
+
+    const char *const buf1 = (char *)bufplc1;
+    const char *const buf2 = (char *)bufplc2;
+    const int32_t logy = glogy, ourbpl = bpl, transm = transmode;
+
+    char *pp = (char *)p;
+
+    cnt++;
+
+    if (transm)
+    {
+        do
+        {
+            ch = buf1[vplc1>>logy];
+            if (ch != 255) pp[0] = gtrans[pp[0]|(gpal[ch]<<8)];
+            vplc1 += vinc1;
+
+            ch = buf2[vplc2>>logy];
+            if (ch != 255) pp[1] = gtrans[pp[1]|(gpal2[ch]<<8)];
+            vplc2 += vinc2;
+
+            pp += ourbpl;
+        }
+        while (--cnt > 0);
+    }
+    else
+    {
+        do
+        {
+            ch = buf1[vplc1>>logy];
+            if (ch != 255) pp[0] = gtrans[(pp[0]<<8)|gpal[ch]];
+            vplc1 += vinc1;
+
+            ch = buf2[vplc2>>logy];
+            if (ch != 255) pp[1] = gtrans[(pp[1]<<8)|gpal2[ch]];
+            vplc2 += vinc2;
+
+            pp += ourbpl;
+        }
+        while (--cnt);
+    }
+
+    asm1 = vplc1;
+    asm2 = vplc2;
+}
+
 
 //Floor sprite horizontal line functions
 void msethlineshift(int32_t logx, int32_t logy) { glogx = logx; glogy = logy; }

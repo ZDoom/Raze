@@ -135,6 +135,9 @@ void mvlineasm4(int32_t cnt, char *p);
 void setuptvlineasm(int32_t neglogy);
 int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p);
 
+void setuptvlineasm2(int32_t neglogy, intptr_t paloffs1, intptr_t paloffs2);
+void tvlineasm2(uint32_t vplc2, int32_t vinc1, intptr_t bufplc1, intptr_t bufplc2, uint32_t vplc1, intptr_t p);
+
 void msethlineshift(int32_t logx, int32_t logy);
 void mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, intptr_t p);
 
