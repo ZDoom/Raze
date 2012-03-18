@@ -638,6 +638,7 @@ int32_t map_undoredo(int32_t dir)
 }
 #endif
 
+
 #define M32_NUM_SPRITE_MODES ((signed)(sizeof(SpriteMode)/sizeof(SpriteMode[0])))
 static const char *SpriteMode[]=
 {
@@ -1173,18 +1174,24 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
     }
     else  // walls
     {
+#ifdef YAX_ENABLE
+        if (yax_getnextwall(num, YAX_CEILING) < 0)
+#endif
         switch (picnum)
         {
         case TECHLIGHT2: case TECHLIGHT4: case WALLLIGHT4:
         case WALLLIGHT3: case WALLLIGHT1: case WALLLIGHT2:
         case BIGFORCE: case W_FORCEFIELD:
-//            if (sprite[num].lotag > 0)
+//            if (wall[num].lotag > 0)
                 link = 1;
             break;
         }
     }
 
     if (!link)
+#ifdef YAX_ENABLE
+    if (spritep || yax_getnextwall(num, YAX_CEILING) < 0)
+#endif
     {
         // try a few that work both as sprites and as walls
         switch (picnum)
