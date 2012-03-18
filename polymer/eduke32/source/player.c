@@ -5739,8 +5739,10 @@ static int32_t fdmatrix[12][12] =
 static int32_t goalx[MAXPLAYERS], goaly[MAXPLAYERS], goalz[MAXPLAYERS];
 static int32_t goalsect[MAXPLAYERS], goalwall[MAXPLAYERS], goalsprite[MAXPLAYERS], goalspritescore[MAXPLAYERS];
 static int32_t goalplayer[MAXPLAYERS], clipmovecount[MAXPLAYERS];
-int16_t searchsect[MAXSECTORS], searchparent[MAXSECTORS];
-char dashow2dsector[(MAXSECTORS+7)>>3];
+
+static int16_t searchsect[MAXSECTORS], searchparent[MAXSECTORS];
+static char dashow2dsector[(MAXSECTORS+7)>>3];
+
 void computergetinput(int32_t snum, input_t *syn)
 {
     int32_t i, j, k, l, x1, y1, z1, x2, y2, z2, x3, y3, z3, dx, dy;

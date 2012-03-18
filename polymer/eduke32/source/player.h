@@ -246,8 +246,8 @@ extern input_t          inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 extern playerspawn_t    g_playerSpawnPoints[MAXPLAYERS];
 extern playerdata_t     g_player[MAXPLAYERS];
 #pragma pack(pop)
-extern char             dashow2dsector[(MAXSECTORS+7)>>3];
-extern int16_t          searchsect[MAXSECTORS],searchparent[MAXSECTORS];
+//extern char             dashow2dsector[(MAXSECTORS+7)>>3];
+//extern int16_t          searchsect[MAXSECTORS],searchparent[MAXSECTORS];
 extern int16_t          WeaponPickupSprites[MAX_WEAPONS];
 extern int32_t          g_currentweapon;
 extern int32_t          g_gs;

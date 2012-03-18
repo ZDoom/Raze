@@ -1693,7 +1693,9 @@ badindex:
                 {
                     M32_ERROR("Maximum number of sprites reached.");
                 }
-                if (vm.flags&VMFLAG_ERROR) continue;
+
+                if (vm.flags&VMFLAG_ERROR)
+                    continue;
 
                 if (tw==CON_DUPSPRITE)
                 {
