@@ -1285,10 +1285,10 @@ int32_t clipmapinfo_load(void)
         return 1;
     }
 
-    fisec = (int32_t *) Bcalloc(g_clipMapFilesNum, sizeof (int32_t));
-    assert(fisec);
-    fispr = (int32_t *) Bcalloc(g_clipMapFilesNum, sizeof (int32_t));
-    assert(fispr);
+    if (g_clipMapFilesNum)
+        fisec = (int32_t *) Bcalloc(g_clipMapFilesNum, sizeof (int32_t));
+    if (g_clipMapFilesNum)
+        fispr = (int32_t *) Bcalloc(g_clipMapFilesNum, sizeof (int32_t));
 
     quickloadboard = 1;
     for (fi = 0; fi < g_clipMapFilesNum; ++fi)
@@ -1341,10 +1341,8 @@ int32_t clipmapinfo_load(void)
     {
         clipmapinfo_init();
 
-        free(fisec);
-        fisec = NULL;
-        free(fispr);
-        fispr = NULL;
+        Bfree(fisec);
+        Bfree(fispr);
 
         return -1;
     }
@@ -1366,10 +1364,8 @@ int32_t clipmapinfo_load(void)
     {
         clipmapinfo_init();
 
-        free(fisec);
-        fisec = NULL;
-        free(fispr);
-        fispr = NULL;
+        Bfree(fisec);
+        Bfree(fispr);
 
         return 1;
     }
@@ -1411,10 +1407,8 @@ int32_t clipmapinfo_load(void)
         {
             clipmapinfo_init();
 
-            free(fisec);
-            fisec = NULL;
-            free(fispr);
-            fispr = NULL;
+            Bfree(fisec);
+            Bfree(fispr);
 
             return 1;
         }
@@ -1449,10 +1443,8 @@ int32_t clipmapinfo_load(void)
                                clipinfo[sectoidx[k]].picnum);
                     clipmapinfo_init();
 
-                    free(fisec);
-                    fisec = NULL;
-                    free(fispr);
-                    fispr = NULL;
+                    Bfree(fisec);
+                    Bfree(fispr);
 
                     return 2;
                 }
@@ -1515,10 +1507,8 @@ int32_t clipmapinfo_load(void)
                                            " for sprite %d.\n", g_clipMapFiles[fi], outersect-fisec[fi], ns-fisec[fi], i-fispr[fi]);
                                 clipmapinfo_init();
 
-                                free(fisec);
-                                fisec = NULL;
-                                free(fispr);
-                                fispr = NULL;
+                                Bfree(fisec);
+                                Bfree(fispr);
 
                                 return 3;
                             }
@@ -1536,10 +1526,8 @@ int32_t clipmapinfo_load(void)
                                        g_clipMapFiles[fi], ns-fisec[fi], sectoidx[ns], i-fispr[fi], numclipmaps);
                             clipmapinfo_init();
 
-                            free(fisec);
-                            fisec = NULL;
-                            free(fispr);
-                            fispr = NULL;
+                            Bfree(fisec);
+                            Bfree(fispr);
 
                             return 4;
                         }
@@ -1553,10 +1541,8 @@ int32_t clipmapinfo_load(void)
                 initprintf("clip map: INTERNAL ERROR: outersect==-1!\n");
                 clipmapinfo_init();
 
-                free(fisec);
-                fisec = NULL;
-                free(fispr);
-                fispr = NULL;
+                Bfree(fisec);
+                Bfree(fispr);
 
                 return 5;
             }
@@ -1660,10 +1646,8 @@ int32_t clipmapinfo_load(void)
     {
         clipmapinfo_init();
 
-        free(fisec);
-        fisec = NULL;
-        free(fispr);
-        fispr = NULL;
+        Bfree(fisec);
+        Bfree(fispr);
 
         return 1;
     }
@@ -1732,10 +1716,8 @@ int32_t clipmapinfo_load(void)
     if (lwcp > 0)
         initprintf("Loaded clip map%s.\n", lwcp==1?"":"s");
 
-    free(fisec);
-    fisec = NULL;
-    free(fispr);
-    fispr = NULL;
+    Bfree(fisec);
+    Bfree(fispr);
 
     return 0;
 }

@@ -8614,8 +8614,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     {
         clipshape[10] = j;
         g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-        g_clipMapFiles[g_clipMapFilesNum] = Bmalloc(Bstrlen(clipshape) + 1);
-        Bstrcpy(g_clipMapFiles[g_clipMapFilesNum], clipshape);
+        g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(clipshape);
         ++g_clipMapFilesNum;
     }
 
@@ -8853,8 +8852,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     if (argc > i+1)
                     {
                         g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-                        g_clipMapFiles[g_clipMapFilesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
-                        Bstrcpy(g_clipMapFiles[g_clipMapFilesNum], (char *)argv[i+1]);
+                        g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(argv[i+1]);
                         ++g_clipMapFilesNum;
                         i++;
                     }

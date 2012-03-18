@@ -8448,6 +8448,15 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
     mapster32_fullpath = argv[0];
 
+    // pre-form the default 10 clipmaps
+    for (j = '0'; j<='9'; ++j)
+    {
+        clipshape[10] = j;
+        g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
+        g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(clipshape);
+        ++g_clipMapFilesNum;
+    }
+
     if (argc <= 1)
         return;
 
@@ -8460,16 +8469,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
     testplay_addparam = Bmalloc(maxlen+argc);
     testplay_addparam[0] = 0;
-
-    // pre-form the default 10 clipmaps
-    for (j = '0'; j<='9'; ++j)
-    {
-        clipshape[10] = j;
-        g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-        g_clipMapFiles[g_clipMapFilesNum] = Bmalloc(Bstrlen(clipshape) + 1);
-        Bstrcpy(g_clipMapFiles[g_clipMapFilesNum], clipshape);
-        ++g_clipMapFilesNum;
-    }
 
     j = 0;
 
@@ -8610,8 +8609,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 if (argc > i+1)
                 {
                     g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-                    g_clipMapFiles[g_clipMapFilesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
-                    Bstrcpy(g_clipMapFiles[g_clipMapFilesNum], (char *)argv[i+1]);
+                    g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(argv[i+1]);
                     ++g_clipMapFilesNum;
                     i++;
                 }
