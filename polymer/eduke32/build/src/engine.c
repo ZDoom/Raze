@@ -13519,12 +13519,15 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, 
 //
 // makepalookup
 //
-void makepalookup(int32_t palnum, char *remapbuf, int8_t r, int8_t g, int8_t b, char dastat)
+void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8_t b, char dastat)
 {
     int32_t i, j, palscale;
     char *ptr, *ptr2;
 
     if (paletteloaded == 0) return;
+
+    if ((unsigned)palnum >= MAXPALOOKUPS)
+        return;
 
     if (palookup[palnum] == NULL)
     {

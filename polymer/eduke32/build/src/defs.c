@@ -380,7 +380,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&g)) break;
             if (scriptfile_getnumber(script,&b)) break;
 
-            if (col < 256)
+            if ((unsigned)col < 256)
             {
                 vgapal16[col*4+0] = b; // blue
                 vgapal16[col*4+1] = g; // green
