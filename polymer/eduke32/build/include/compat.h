@@ -478,6 +478,8 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # define Bfread fread
 # define Bfwrite fwrite
 # define Bfprintf fprintf
+# define Bfscanf fscanf
+# define Bfseek fseek
 # define Bstrcpy strcpy
 # define Bstrncpy strncpy
 # define Bstrcmp strcmp

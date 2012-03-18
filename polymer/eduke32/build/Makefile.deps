@@ -51,3 +51,5 @@ $(OBJ)/enumdisplay.$o: $(SRC)/misc/enumdisplay.c
 $(OBJ)/arttool.$o: $(SRC)/util/arttool.cc
 $(OBJ)/givedepth.$o: $(SRC)/util/givedepth.c
 $(OBJ)/mkpalette.$o: $(SRC)/util/mkpalette.c
+$(OBJ)/unpackssi.$o: $(SRC)/util/unpackssi.c
+$(OBJ)/bsuite.$o: $(SRC)/util/bsuite.c

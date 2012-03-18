@@ -174,9 +174,11 @@ OURCFLAGS+= $(BUILDCFLAGS)
 
 UTILOBJS=$(OBJ)/kextract.$o $(OBJ)/kgroup.$o $(OBJ)/transpal.$o $(OBJ)/wad2art.$o $(OBJ)/wad2map.$o $(OBJ)/md2tool.$o \
     $(OBJ)/generateicon.$o $(OBJ)/cacheinfo.$o $(OBJ)/enumdisplay.$o $(OBJ)/arttool.$o $(OBJ)/givedepth.$o $(OBJ)/mkpalette.$o \
+    $(OBJ)/unpackssi.$o $(OBJ)/bsuite.$o \
     $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(OBJ)/pragmas.$o $(OBJ)/kplib.$o $(OBJ)/cache1d.$o
 UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) md2tool$(EXESUFFIX) \
-    generateicon$(EXESUFFIX) cacheinfo$(EXESUFFIX) arttool$(EXESUFFIX) givedepth$(EXESUFFIX) mkpalette$(EXESUFFIX)
+    generateicon$(EXESUFFIX) cacheinfo$(EXESUFFIX) arttool$(EXESUFFIX) givedepth$(EXESUFFIX) mkpalette$(EXESUFFIX) \
+    unpackssi$(EXESUFFIX) bsuite$(EXESUFFIX)
 
 # all: $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB)
 utils: start $(UTILS) finish
@@ -240,6 +242,12 @@ givedepth$(EXESUFFIX): $(OBJ)/givedepth.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
 mkpalette$(EXESUFFIX): $(OBJ)/mkpalette.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+unpackssi$(EXESUFFIX): $(OBJ)/unpackssi.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+bsuite$(EXESUFFIX): $(OBJ)/bsuite.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
 
