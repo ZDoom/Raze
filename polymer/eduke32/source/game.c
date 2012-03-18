@@ -130,9 +130,14 @@ char *g_gameNamePtr = NULL;
 char *g_rtsNamePtr = NULL;
 
 char **g_scriptModules = NULL;
-int g_scriptModulesNum = 0;
+int32_t g_scriptModulesNum = 0;
 char **g_defModules = NULL;
-int g_defModulesNum = 0;
+int32_t g_defModulesNum = 0;
+
+#ifdef HAVE_CLIPSHAPE_FEATURE
+char **g_clipMapFiles = NULL;
+int32_t g_clipMapFilesNum = 0;
+#endif
 
 #ifdef LUNATIC_ENABLE
 El_State g_ElState;
@@ -8583,6 +8588,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
     int16_t i = 1, j;
     char *c, *k;
+    char clipshape[16] = "_clipshape0.map";
 
     ud.fta_on = 1;
     ud.god = 0;
@@ -8602,6 +8608,16 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     g_player[0].wchoice[7] = 2;
     g_player[0].wchoice[8] = 9;
     g_player[0].wchoice[9] = 1;
+
+    // pre-form the default 10 clipmaps
+    for (j = '0'; j<='9'; ++j)
+    {
+        clipshape[10] = j;
+        g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
+        g_clipMapFiles[g_clipMapFilesNum] = Bmalloc(Bstrlen(clipshape) + 1);
+        Bstrcpy(g_clipMapFiles[g_clipMapFilesNum], clipshape);
+        ++g_clipMapFilesNum;
+    }
 
     if (argc > 1)
     {
@@ -8827,6 +8843,19 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         g_defModules[g_defModulesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
                         Bstrcpy(g_defModules[g_defModulesNum], (char *)argv[i+1]);
                         ++g_defModulesNum;
+                        i++;
+                    }
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"clipmap"))
+                {
+                    if (argc > i+1)
+                    {
+                        g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
+                        g_clipMapFiles[g_clipMapFilesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
+                        Bstrcpy(g_clipMapFiles[g_clipMapFilesNum], (char *)argv[i+1]);
+                        ++g_clipMapFilesNum;
                         i++;
                     }
                     i++;
@@ -10374,9 +10403,14 @@ CLEAN_DIRECTORY:
         Bfree(ptr);
     }
 
-#if !defined DEBUG_MAIN_ARRAYS
-    if ((i = clipmapinfo_load("_clipshape0.map")) > 0)
+#ifdef HAVE_CLIPSHAPE_FEATURE
+    if ((i = clipmapinfo_load()) > 0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", i);
+
+    for (i=0; i < g_clipMapFilesNum; ++i)
+        Bfree (g_clipMapFiles[i]);
+    Bfree (g_clipMapFiles);
+    g_clipMapFiles = NULL;
 #endif
 
     OSD_Exec("autoexec.cfg");

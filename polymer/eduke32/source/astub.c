@@ -98,9 +98,14 @@ static int32_t g_skipDefaultCons = 0;
 static int32_t g_skipDefaultDefs = 0; // primarily for NAM/WWII GI appeasement
 
 char **g_scriptModules = NULL;
-int g_scriptModulesNum = 0;
+int32_t g_scriptModulesNum = 0;
 char **g_defModules = NULL;
-int g_defModulesNum = 0;
+int32_t g_defModulesNum = 0;
+
+#ifdef HAVE_CLIPSHAPE_FEATURE
+char **g_clipMapFiles = NULL;
+int32_t g_clipMapFilesNum = 0;
+#endif
 
 #pragma pack(push,1)
 sound_t g_sounds[MAXSOUNDS];
@@ -8432,6 +8437,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
     int32_t i = 1, j, maxlen=0, *lengths;
     char *c, *k;
+    char clipshape[16] = "_clipshape0.map";
 
     mapster32_fullpath = argv[0];
 
@@ -8447,6 +8453,16 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
     testplay_addparam = Bmalloc(maxlen+argc);
     testplay_addparam[0] = 0;
+
+    // pre-form the default 10 clipmaps
+    for (j = '0'; j<='9'; ++j)
+    {
+        clipshape[10] = j;
+        g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
+        g_clipMapFiles[g_clipMapFilesNum] = Bmalloc(Bstrlen(clipshape) + 1);
+        Bstrcpy(g_clipMapFiles[g_clipMapFilesNum], clipshape);
+        ++g_clipMapFilesNum;
+    }
 
     j = 0;
 
@@ -8577,6 +8593,19 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     g_defModules[g_defModulesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
                     Bstrcpy(g_defModules[g_defModulesNum], (char *)argv[i+1]);
                     ++g_defModulesNum;
+                    i++;
+                }
+                i++;
+                continue;
+            }
+            if (!Bstrcasecmp(c+1,"clipmap"))
+            {
+                if (argc > i+1)
+                {
+                    g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
+                    g_clipMapFiles[g_clipMapFilesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
+                    Bstrcpy(g_clipMapFiles[g_clipMapFilesNum], (char *)argv[i+1]);
+                    ++g_clipMapFilesNum;
                     i++;
                 }
                 i++;

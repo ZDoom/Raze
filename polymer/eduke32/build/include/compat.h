@@ -128,6 +128,10 @@ static inline float nearbyintf(float x)
 # define DEBUG_MAIN_ARRAYS
 #endif
 
+#if !defined DEBUG_MAIN_ARRAYS
+# define HAVE_CLIPSHAPE_FEATURE
+#endif
+
 // redefined for apple/ppc, which chokes on stderr when linking...
 #define ERRprintf(fmt, ...) fprintf(stderr, fmt, ## __VA_ARGS__)
 

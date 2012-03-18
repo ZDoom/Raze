@@ -49,7 +49,6 @@
 #define CACHEAGETIME 16
 
 #if !defined DEBUG_MAIN_ARRAYS
-# define HAVE_CLIPSHAPE_FEATURE
 const int32_t engine_main_arrays_are_static = 0;  // for Lunatic
 #else
 const int32_t engine_main_arrays_are_static = 1;
@@ -1258,15 +1257,19 @@ static void clipmapinfo_init()
     numwalls = 0;
 }
 
-// loads the clip maps 0 through 9.
+// loads the clip maps.
 // this should be called before any real map is loaded.
-int32_t clipmapinfo_load(const char *filename)
+int32_t clipmapinfo_load(void)
 {
     int32_t i,k,w, px,py,pz;
     int16_t ang,cs;
 
-    char fn[BMAX_PATH], loadedwhich[32]={0}, *lwcp=loadedwhich;
-    int32_t slen, fi, fisec[10], fispr[10];
+    int32_t lwcp = 0;
+    int32_t fi;
+
+    int32_t *fisec = NULL;
+    int32_t *fispr = NULL;
+
     int32_t ournumsectors=0, ournumwalls=0, ournumsprites=0;
 
     clipmapinfo_init();
@@ -1281,29 +1284,29 @@ int32_t clipmapinfo_load(const char *filename)
         return 1;
     }
 
-    Bmemset(fisec, 0, sizeof(fisec));
-    Bmemset(fispr, 0, sizeof(fispr));
-
-    Bstrcpy(fn, filename);
-    slen = Bstrlen(fn);
+    fisec = (int32_t *) Bcalloc(g_clipMapFilesNum, sizeof (int32_t));
+    assert(fisec);
+    fispr = (int32_t *) Bcalloc(g_clipMapFilesNum, sizeof (int32_t));
+    assert(fispr);
 
     quickloadboard = 1;
-    for (fi='0'; fi<='9'; fi++)
+    for (fi = 0; fi < g_clipMapFilesNum; ++fi)
     {
-        fisec[fi-'0'] = ournumsectors;
-        fispr[fi-'0'] = ournumsprites;
+        fisec[fi] = ournumsectors;
+        fispr[fi] = ournumsprites;
 
-        fn[slen-5] = fi;
-        i = loadboard(fn, 0, &px,&py,&pz, &ang,&cs);
+        i = loadboard(g_clipMapFiles[fi], 0, &px,&py,&pz, &ang,&cs);
         if (i<0)
             continue;
         // Numsprites will now be set!
+
+        initprintf("Loading clip map: %s\n", g_clipMapFiles[fi]);
 
         if (ournumsectors+numsectors>MAXSECTORS ||
                 ournumwalls+numwalls>MAXWALLS ||
                 ournumsprites+Numsprites>MAXSPRITES)
         {
-            initprintf("clip map: warning: exceeded limits when loading %s, aborting.\n", fn);
+            initprintf("clip map: warning: exceeded limits when loading %s, aborting.\n", g_clipMapFiles[fi]);
             break;
         }
 
@@ -1329,19 +1332,19 @@ int32_t clipmapinfo_load(const char *filename)
         ournumwalls += numwalls;
         ournumsprites += Numsprites;
 
-        if (lwcp != loadedwhich)
-        {
-            *lwcp++ = ',';
-            *lwcp++ = ' ';
-        }
-        *lwcp++ = fi;
-        *lwcp = 0;
+        ++lwcp;
     }
     quickloadboard = 0;
 
     if (ournumsectors==0 || ournumwalls==0 || ournumsprites==0)  // nothing loaded
     {
         clipmapinfo_init();
+
+        free(fisec);
+        fisec = NULL;
+        free(fispr);
+        fispr = NULL;
+
         return -1;
     }
 
@@ -1361,6 +1364,12 @@ int32_t clipmapinfo_load(const char *filename)
     if (!sectoidx || !sector || !wall)
     {
         clipmapinfo_init();
+
+        free(fisec);
+        fisec = NULL;
+        free(fispr);
+        fispr = NULL;
+
         return 1;
     }
     for (i=0; i<numsectors; i++)
@@ -1400,6 +1409,12 @@ int32_t clipmapinfo_load(const char *filename)
         if (!sectq || !tempictoidx)
         {
             clipmapinfo_init();
+
+            free(fisec);
+            fisec = NULL;
+            free(fispr);
+            fispr = NULL;
+
             return 1;
         }
         for (i=0; i<MAXTILES; i++)
@@ -1425,13 +1440,19 @@ int32_t clipmapinfo_load(const char *filename)
             {
                 if (sectoidx[k]&CM_SOME)
                 {
-                    for (fi=0; fi<9; fi++)
+                    for (fi = 0; fi < g_clipMapFilesNum; ++fi)
                         if (k>=fisec[fi])
                             break;
-                    initprintf("clip map %d: error: tried to chain picnum %d (sprite %d) in sector %d which"
-                               " already belongs to picnum %d.\n", fi, pn, i-fispr[fi], k-fisec[fi],
+                    initprintf("clip map \"%s\": error: tried to chain picnum %d (sprite %d) in sector %d which"
+                               " already belongs to picnum %d.\n", g_clipMapFiles[fi], pn, i-fispr[fi], k-fisec[fi],
                                clipinfo[sectoidx[k]].picnum);
                     clipmapinfo_init();
+
+                    free(fisec);
+                    fisec = NULL;
+                    free(fispr);
+                    fispr = NULL;
+
                     return 2;
                 }
 
@@ -1449,11 +1470,11 @@ int32_t clipmapinfo_load(const char *filename)
             {
                 if (sprite[i].ang!=1536 && sprite[i].ang!=512)
                 {
-                    for (fi=0; fi<9; fi++)
+                    for (fi = 0; fi < g_clipMapFilesNum; ++fi)
                         if (i>=fispr[fi])
                             break;
-                    initprintf("clip map %d: warning: sprite %d pointing neither northward nor southward. %s will be wrong.\n",
-                               fi, i-fispr[fi], (sprite[i].cstat&48)==32 ? "Scaling and flipping" : "X-flipping");
+                    initprintf("clip map \"%s\": warning: sprite %d pointing neither northward nor southward. %s will be wrong.\n",
+                               g_clipMapFiles[fi], i-fispr[fi], (sprite[i].cstat&48)==32 ? "Scaling and flipping" : "X-flipping");
                 }
             }
 
@@ -1486,12 +1507,18 @@ int32_t clipmapinfo_load(const char *filename)
                         {
                             if (outersect>=0 && ns!=outersect)
                             {
-                                for (fi=0; fi<9; fi++)
+                                for (fi = 0; fi < g_clipMapFilesNum; ++fi)
                                     if (ns>=fisec[fi])
                                         break;
-                                initprintf("clip map %d: error: encountered more than one outer sector (%d and %d)"
-                                           " for sprite %d.\n", fi, outersect-fisec[fi], ns-fisec[fi], i-fispr[fi]);
+                                initprintf("clip map \"%s\": error: encountered more than one outer sector (%d and %d)"
+                                           " for sprite %d.\n", g_clipMapFiles[fi], outersect-fisec[fi], ns-fisec[fi], i-fispr[fi]);
                                 clipmapinfo_init();
+
+                                free(fisec);
+                                fisec = NULL;
+                                free(fispr);
+                                fispr = NULL;
+
                                 return 3;
                             }
 
@@ -1500,13 +1527,19 @@ int32_t clipmapinfo_load(const char *filename)
                         }
                         else if (sectoidx[ns]!=numclipmaps)
                         {
-                            for (fi=0; fi<9; fi++)
+                            for (fi = 0; fi < g_clipMapFilesNum; ++fi)
                                 if (ns>=fisec[fi])
                                     break;
-                            initprintf("clip map %d: error: encountered sector %d belonging to index %d"
+                            initprintf("clip map \"%s\": error: encountered sector %d belonging to index %d"
                                        " while collecting sectors for sprite %d (index %d).\n",
-                                       fi, ns-fisec[fi], sectoidx[ns], i-fispr[fi], numclipmaps);
+                                       g_clipMapFiles[fi], ns-fisec[fi], sectoidx[ns], i-fispr[fi], numclipmaps);
                             clipmapinfo_init();
+
+                            free(fisec);
+                            fisec = NULL;
+                            free(fispr);
+                            fispr = NULL;
+
                             return 4;
                         }
                     }
@@ -1518,6 +1551,12 @@ int32_t clipmapinfo_load(const char *filename)
             {
                 initprintf("clip map: INTERNAL ERROR: outersect==-1!\n");
                 clipmapinfo_init();
+
+                free(fisec);
+                fisec = NULL;
+                free(fispr);
+                fispr = NULL;
+
                 return 5;
             }
 
@@ -1619,6 +1658,12 @@ int32_t clipmapinfo_load(const char *filename)
     if (!loadwallinv)
     {
         clipmapinfo_init();
+
+        free(fisec);
+        fisec = NULL;
+        free(fispr);
+        fispr = NULL;
+
         return 1;
     }
 
@@ -1683,7 +1728,13 @@ int32_t clipmapinfo_load(const char *filename)
     numwalls = 0;
     initspritelists();
 
-    initprintf("Loaded clip map%s %s.\n", lwcp==loadedwhich+1?"":"s", loadedwhich);
+    if (lwcp > 0)
+        initprintf("Loaded clip map%s.\n", lwcp==1?"":"s");
+
+    free(fisec);
+    fisec = NULL;
+    free(fispr);
+    fispr = NULL;
 
     return 0;
 }

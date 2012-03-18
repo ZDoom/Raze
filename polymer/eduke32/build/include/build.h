@@ -552,8 +552,8 @@ void   initspritelists(void);
 int32_t   loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
 int32_t   loadmaphack(const char *filename);
 void delete_maphack_lights();
-#if !defined DEBUG_MAIN_ARRAYS
-int32_t clipmapinfo_load(const char *filename);
+#ifdef HAVE_CLIPSHAPE_FEATURE
+int32_t clipmapinfo_load(void);
 #endif
 int32_t   saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
 int32_t   loadpics(const char *filename, int32_t askedsize);
@@ -783,7 +783,12 @@ extern char defsfilename[BMAX_PATH];
 extern char *g_defNamePtr;
 
 extern char **g_defModules;
-extern int g_defModulesNum;
+extern int32_t g_defModulesNum;
+
+#ifdef HAVE_CLIPSHAPE_FEATURE
+extern char **g_clipMapFiles;
+extern int32_t g_clipMapFilesNum;
+#endif
 
 #ifdef USE_OPENGL
 typedef struct

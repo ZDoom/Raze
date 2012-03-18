@@ -184,7 +184,7 @@ extern char *g_scriptNamePtr;
 extern char *g_gameNamePtr;
 extern char *g_rtsNamePtr;
 extern char **g_scriptModules;
-extern int g_scriptModulesNum;
+extern int32_t g_scriptModulesNum;
 extern char CheatStrings[][MAXCHEATLEN];
 extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
 extern char boardfilename[BMAX_PATH];
