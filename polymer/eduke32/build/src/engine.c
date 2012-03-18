@@ -6976,8 +6976,12 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         else if (dastat&8)
              permanentupdate = 1; */
 
-#if !defined ENGINE_USING_A_C
+#if defined ENGINE_USING_A_C
+    if ((dastat&1)==0 && ((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
+#else
+//#if !defined ENGINE_USING_A_C  // (1)
     if ((dastat&1) == 0)
+#endif
     {
         char bad;
         int32_t ny1, ny2, xx, xend;
@@ -7083,6 +7087,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                 faketimerhandler();
             }
         }
+#ifndef ENGINE_USING_A_C
         else
         {
             if (dastat&64)
@@ -7205,9 +7210,10 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                 else rmhlineasm4(x2-lastx[y1],(bx>>16)*ysiz+(by>>16)+bufplc,0L,bx<<16,by<<16,ylookup[y1]+x2+frameplace);
             }
         }
+#endif  // !defined ENGINE_USING_A_C
     }
     else
-#endif  // !defined ENGINE_USING_A_C
+//#endif  // !defined ENGINE_USING_A_C  // (1)
     {
         if ((dastat&1) == 0)
         {
@@ -7232,6 +7238,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 #endif
             if (dastat&32) settransreverse(); else settransnormal();
         }
+
         for (x=x1; x<x2; x++)
         {
             bx += xv2; by += yv2;
