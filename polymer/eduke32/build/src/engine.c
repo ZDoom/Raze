@@ -2240,7 +2240,8 @@ int32_t xyaspect;
 static int32_t viewingrangerecip;
 
 intptr_t asm1, asm2, asm3, asm4, palookupoffse[4];
-int32_t vplce[4], vince[4], bufplce[4];
+int32_t vplce[4], vince[4];
+intptr_t bufplce[4];
 static char globalxshift, globalyshift;
 static int32_t globalxpanning, globalypanning;
 int32_t globalshade, globalorientation;
@@ -2637,9 +2638,9 @@ skipitaddwall:
 static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32_t *swal, int32_t *lwal)
 {
     int32_t x,/* startx,*/ xnice, ynice;
-    intptr_t startx, p, fpalookup;
-    int32_t y1ve[4], y2ve[4], /* p,*/ tsizx, tsizy;
-#ifndef ENGINE_USING_A_C
+    intptr_t startx, p, pp, fpalookup;
+    int32_t y1ve[4], y2ve[4], tsizx, tsizy;
+#if 1 //ndef ENGINE_USING_A_C
     char bad;
     int32_t i, u4, d4, dax, z;
 #endif
@@ -2667,7 +2668,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
 
     setupmvlineasm(globalshiftval);
 
-#ifndef ENGINE_USING_A_C
+#if 1 //ndef ENGINE_USING_A_C
 
     x = startx;
     while ((startumost[x+windowx1] > startdmost[x+windowx1]) && (x <= x2)) x++;
@@ -2741,13 +2742,13 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         if (u4 > y1ve[2]) vplce[2] = mvlineasm1(vince[2],palookupoffse[2],u4-y1ve[2]-1,vplce[2],bufplce[2],ylookup[y1ve[2]]+p+2);
         if (u4 > y1ve[3]) vplce[3] = mvlineasm1(vince[3],palookupoffse[3],u4-y1ve[3]-1,vplce[3],bufplce[3],ylookup[y1ve[3]]+p+3);
 
-        if (d4 >= u4) mvlineasm4(d4-u4+1,ylookup[u4]+p);
+        if (d4 >= u4) mvlineasm4(d4-u4+1, (char *)ylookup[u4]+p);
 
-        i = p+ylookup[d4+1];
-        if (y2ve[0] > d4) mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],i+0);
-        if (y2ve[1] > d4) mvlineasm1(vince[1],palookupoffse[1],y2ve[1]-d4-1,vplce[1],bufplce[1],i+1);
-        if (y2ve[2] > d4) mvlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],i+2);
-        if (y2ve[3] > d4) mvlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],i+3);
+        pp = p+ylookup[d4+1];
+        if (y2ve[0] > d4) mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],pp+0);
+        if (y2ve[1] > d4) mvlineasm1(vince[1],palookupoffse[1],y2ve[1]-d4-1,vplce[1],bufplce[1],pp+1);
+        if (y2ve[2] > d4) mvlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],pp+2);
+        if (y2ve[3] > d4) mvlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],pp+3);
     }
     for (; x<=x2; x++,p++)
     {
@@ -3686,9 +3687,10 @@ static void wallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32
     int32_t x, xnice, ynice;
     intptr_t fpalookup;
     int32_t y1ve[4], y2ve[4], tsizx, tsizy;
-#ifndef ENGINE_USING_A_C
+#if 1 //ndef ENGINE_USING_A_C
     char bad;
     int32_t i, u4, d4, z;
+    uintptr_t p;
 #endif
 #ifdef YAX_ENABLE
     if (g_nodraw)
@@ -3714,7 +3716,7 @@ static void wallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32
 
     setupvlineasm(globalshiftval);
 
-#ifndef ENGINE_USING_A_C
+#if 1 //ndef ENGINE_USING_A_C
 
     x = x1;
     while ((umost[x] > dmost[x]) && (x <= x2)) x++;
@@ -3786,13 +3788,13 @@ static void wallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, int32
         if (u4 > y1ve[2]) vplce[2] = prevlineasm1(vince[2],palookupoffse[2],u4-y1ve[2]-1,vplce[2],bufplce[2],ylookup[y1ve[2]]+x+frameoffset+2);
         if (u4 > y1ve[3]) vplce[3] = prevlineasm1(vince[3],palookupoffse[3],u4-y1ve[3]-1,vplce[3],bufplce[3],ylookup[y1ve[3]]+x+frameoffset+3);
 
-        if (d4 >= u4) vlineasm4(d4-u4+1,ylookup[u4]+x+frameoffset);
+        if (d4 >= u4) vlineasm4(d4-u4+1, (char *)ylookup[u4]+x+frameoffset);
 
-        i = x+frameoffset+ylookup[d4+1];
-        if (y2ve[0] > d4) prevlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],i+0);
-        if (y2ve[1] > d4) prevlineasm1(vince[1],palookupoffse[1],y2ve[1]-d4-1,vplce[1],bufplce[1],i+1);
-        if (y2ve[2] > d4) prevlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],i+2);
-        if (y2ve[3] > d4) prevlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],i+3);
+        p = x+frameoffset+ylookup[d4+1];
+        if (y2ve[0] > d4) prevlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],p+0);
+        if (y2ve[1] > d4) prevlineasm1(vince[1],palookupoffse[1],y2ve[1]-d4-1,vplce[1],bufplce[1],p+1);
+        if (y2ve[2] > d4) prevlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],p+2);
+        if (y2ve[3] > d4) prevlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],p+3);
     }
     for (; x<=x2; x++)
     {
@@ -7045,7 +7047,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                     if (u4 > y1ve[2]) vplce[2] = prevlineasm1(vince[2],palookupoffse[2],u4-y1ve[2]-1,vplce[2],bufplce[2],ylookup[y1ve[2]]+p+2);
                     if (u4 > y1ve[3]) vplce[3] = prevlineasm1(vince[3],palookupoffse[3],u4-y1ve[3]-1,vplce[3],bufplce[3],ylookup[y1ve[3]]+p+3);
 
-                    if (d4 >= u4) vlineasm4(d4-u4+1,ylookup[u4]+p);
+                    if (d4 >= u4) vlineasm4(d4-u4+1, (char *)ylookup[u4]+p);
 
                     i = p+ylookup[d4+1];
                     if (y2ve[0] > d4) prevlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],i+0);
@@ -7069,7 +7071,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                     if (u4 > y1ve[2]) vplce[2] = mvlineasm1(vince[2],palookupoffse[2],u4-y1ve[2]-1,vplce[2],bufplce[2],ylookup[y1ve[2]]+p+2);
                     if (u4 > y1ve[3]) vplce[3] = mvlineasm1(vince[3],palookupoffse[3],u4-y1ve[3]-1,vplce[3],bufplce[3],ylookup[y1ve[3]]+p+3);
 
-                    if (d4 >= u4) mvlineasm4(d4-u4+1,ylookup[u4]+p);
+                    if (d4 >= u4) mvlineasm4(d4-u4+1, (char *)ylookup[u4]+p);
 
                     i = p+ylookup[d4+1];
                     if (y2ve[0] > d4) mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],i+0);

@@ -35,9 +35,9 @@ extern int32_t __cdecl setuptvlineasm2(int32_t,int32_t,int32_t);
 extern int32_t __cdecl tvlineasm2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl mvlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl setupvlineasm(int32_t);
-extern int32_t __cdecl vlineasm4(int32_t,int32_t);
+extern int32_t __cdecl vlineasm4(int32_t,char *);
 extern int32_t __cdecl setupmvlineasm(int32_t);
-extern int32_t __cdecl mvlineasm4(int32_t,int32_t);
+extern int32_t __cdecl mvlineasm4(int32_t,char *);
 extern int32_t __cdecl setupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl spritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl msetupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
@@ -81,9 +81,9 @@ extern int32_t _cdecl setuptvlineasm2(int32_t,int32_t,int32_t);
 extern int32_t _cdecl tvlineasm2(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t _cdecl mvlineasm1(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t _cdecl setupvlineasm(int32_t);
-extern int32_t _cdecl vlineasm4(int32_t,int32_t);
+extern int32_t _cdecl vlineasm4(int32_t,char *);
 extern int32_t _cdecl setupmvlineasm(int32_t);
-extern int32_t _cdecl mvlineasm4(int32_t,int32_t);
+extern int32_t _cdecl mvlineasm4(int32_t,char *);
 extern int32_t _cdecl setupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t _cdecl spritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t _cdecl msetupspritevline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
@@ -109,6 +109,8 @@ extern void _cdecl stretchhline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t)
 #define ENGINE_USING_A_C
 #include <stdint.h>
 
+#define prevlineasm1 vlineasm1
+
 void setvlinebpl(int32_t dabpl);
 void fixtransluscence(intptr_t datransoff);
 void settransnormal(void);
@@ -123,13 +125,15 @@ void setupslopevlin(int32_t logylogx, intptr_t bufplc, int32_t pinc);
 void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t bx, int32_t by);
 
 void setupvlineasm(int32_t neglogy);
-void vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p);
+int32_t vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p);
+void vlineasm4(int32_t cnt, char *p);
 
 void setupmvlineasm(int32_t neglogy);
-void mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p);
+int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p);
+void mvlineasm4(int32_t cnt, char *p);
 
 void setuptvlineasm(int32_t neglogy);
-void tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p);
+int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p);
 
 void msethlineshift(int32_t logx, int32_t logy);
 void mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, intptr_t p);

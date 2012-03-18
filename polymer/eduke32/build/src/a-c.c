@@ -89,7 +89,7 @@ void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t 
 
 void setupvlineasm(int32_t neglogy) { glogy = neglogy; }
 // cnt+1 loop iterations!
-void vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
+int32_t vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
 {
     const char *const buf = (char *)bufplc;
     const char *const pal = (char *)paloffs;
@@ -105,11 +105,58 @@ void vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intpt
         vplc += vinc;
     }
     while (--cnt);
+
+    return vplc;
+}
+
+
+extern intptr_t palookupoffse[4];
+extern int32_t vplce[4], vince[4];
+extern intptr_t bufplce[4];
+
+// cnt >= 1
+void vlineasm4(int32_t cnt, char *p)
+{
+    char ch;
+    int32_t i;
+#if 1
+    // this gives slightly more stuff in registers in the loop
+    // (on x86_64 at least)
+    char *const pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
+    char *const buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
+    const int32_t vinc[4] = {vince[0], vince[1], vince[2], vince[3]};
+    uint32_t vplc[4] = {vplce[0], vplce[1], vplce[2], vplce[3]};
+#else
+    char *pal[4];
+    char *buf[4];
+    int32_t vinc[4];
+    uint32_t vplc[4];
+
+    Bmemcpy(pal, palookupoffse, sizeof(pal));
+    Bmemcpy(buf, bufplce, sizeof(buf));
+    Bmemcpy(vinc, vince, sizeof(vinc));
+    Bmemcpy(vplc, vplce, sizeof(vplc));
+#endif
+
+    const int32_t logy = glogy, ourbpl = bpl;
+
+    do
+    {
+        for (i=0; i<4; i++)
+        {
+            ch = buf[i][vplc[i]>>logy]; p[i] = pal[i][ch];
+            vplc[i] += vinc[i];
+        }
+        p += ourbpl;
+    }
+    while (--cnt);
+
+    Bmemcpy(vplce, vplc, sizeof(vplce));
 }
 
 void setupmvlineasm(int32_t neglogy) { glogy = neglogy; }
 // cnt+1 loop iterations!
-void mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
+int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
 {
     char ch;
 
@@ -127,7 +174,37 @@ void mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intp
         vplc += vinc;
     }
     while (--cnt);
+
+    return vplc;
 }
+
+// cnt >= 1
+void mvlineasm4(int32_t cnt, char *p)
+{
+    char ch;
+    int32_t i;
+
+    char *const pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
+    char *const buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
+    const int32_t vinc[4] = {vince[0], vince[1], vince[2], vince[3]};
+    uint32_t vplc[4] = {vplce[0], vplce[1], vplce[2], vplce[3]};
+
+    const int32_t logy = glogy, ourbpl = bpl;
+
+    do
+    {
+        for (i=0; i<4; i++)
+        {
+            ch = buf[i][vplc[i]>>logy]; if (ch != 255) p[i] = pal[i][ch];
+            vplc[i] += vinc[i];
+        }
+        p += ourbpl;
+    }
+    while (--cnt);
+
+    Bmemcpy(vplce, vplc, sizeof(vplce));
+}
+
 
 void setuptvlineasm(int32_t neglogy) { glogy = neglogy; }
 // cnt+1 loop iterations!
