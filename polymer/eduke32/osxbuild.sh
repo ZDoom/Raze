@@ -94,7 +94,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
     if [ $build64 == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            cmdline="ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.debug.x64 $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3 utils"
+            cmdline="ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.debug.x64 $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -k utils"
             eval $cmdline
             if [ $? ]; then
                 echo buildtools: x86_64 debug build succeeded.
@@ -104,7 +104,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
         fi
 
         make veryclean
-        cmdline="ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.x64 $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3 utils"
+        cmdline="ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.x64 $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -k utils"
         eval $cmdline
         if [ $? ]; then
             echo buildtools: x86_64 release build succeeded.
@@ -116,7 +116,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
     if [ $build86 == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            cmdline="EXESUFFIX_OVERRIDE=.debug.x86 $commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3 utils"
+            cmdline="EXESUFFIX_OVERRIDE=.debug.x86 $commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make -k utils"
             eval $cmdline
             if [ $? ]; then
                 echo buildtools: x86 debug build succeeded.
@@ -126,7 +126,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
         fi
 
         make veryclean
-        cmdline="EXESUFFIX_OVERRIDE=.x86 $commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3 utils"
+        cmdline="EXESUFFIX_OVERRIDE=.x86 $commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -k utils"
         eval $cmdline
         if [ $? ]; then
             echo buildtools: x86 release build succeeded.
@@ -138,7 +138,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
     if [ $buildppc == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            cmdline="ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.debug.ppc $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3 utils"
+            cmdline="ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.debug.ppc $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make -k utils"
             eval $cmdline
             if [ $? ]; then
                 echo buildtools: PowerPC debug build succeeded.
@@ -148,7 +148,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
         fi
 
         make veryclean
-        cmdline="ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.ppc $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3 utils"
+        cmdline="ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.ppc $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -k utils"
         eval $cmdline
         if [ $? ]; then
             echo buildtools: PowerPC release build succeeded.
@@ -200,7 +200,7 @@ if [ $onlyzip -eq 0 ]; then
     if [ $build64 == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            cmdline="ARCH='-arch x86_64' $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3"
+            cmdline="ARCH='-arch x86_64' $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make"
             eval $cmdline
             if [ $? ]; then
                 echo x86_64 debug build succeeded.
@@ -212,7 +212,7 @@ if [ $onlyzip -eq 0 ]; then
         fi
 
         make veryclean
-        cmdline="ARCH='-arch x86_64' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -j 3"
+        cmdline="ARCH='-arch x86_64' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make"
         eval $cmdline
         if [ $? ]; then
             echo x86_64 release build succeeded.
@@ -226,7 +226,7 @@ if [ $onlyzip -eq 0 ]; then
     if [ $build86 == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            cmdline="$commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3"
+            cmdline="$commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make"
             eval $cmdline
             if [ $? ]; then
                 echo x86 debug build succeeded.
@@ -238,7 +238,7 @@ if [ $onlyzip -eq 0 ]; then
         fi
 
         make veryclean
-        cmdline="$commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -j 3"
+        cmdline="$commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make"
         eval $cmdline
         if [ $? ]; then
             echo x86 release build succeeded.
@@ -252,7 +252,7 @@ if [ $onlyzip -eq 0 ]; then
     if [ $buildppc == 1 ]; then
         if [ $builddebug == 1 ]; then
             make veryclean
-            cmdline="ARCH='-arch ppc' $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3"
+            cmdline="ARCH='-arch ppc' $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make"
             eval $cmdline
             if [ $? ]; then
                 echo PowerPC debug build succeeded.
@@ -264,7 +264,7 @@ if [ $onlyzip -eq 0 ]; then
         fi
 
         make veryclean
-        cmdline="ARCH='-arch ppc' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -j 3"
+        cmdline="ARCH='-arch ppc' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make"
         eval $cmdline
         if [ $? ]; then
             echo PowerPC release build succeeded.
