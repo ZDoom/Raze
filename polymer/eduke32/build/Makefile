@@ -81,7 +81,7 @@ endif
 ifeq ($(PLATFORM),DARWIN)
     ifneq ($(USE_LIBPNG),0)
         OURCFLAGS+= -I/opt/local/include -I/usr/local/include
-        LIBS+= -L/opt/local/lib -L/usr/local/lib -lpng
+        LIBS+= -L/opt/local/lib -L/usr/local/lib -lpng -lz
     endif
 endif
 
