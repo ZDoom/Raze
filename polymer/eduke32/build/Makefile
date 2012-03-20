@@ -73,11 +73,15 @@ endif
 
 ifneq ($(PLATFORM),WINDOWS)
     LIBS+= -ldl -pthread
+    ifneq ($(USE_LIBPNG),0)
+        LIBS+= -LWindows/lib -lpng -lz
+        OURCFLAGS+= -IWindows/include
+    endif
 endif
 ifeq ($(PLATFORM),DARWIN)
     ifneq ($(USE_LIBPNG),0)
-        OURCFLAGS+= -I/opt/local/include
-        LIBS+= -L/opt/local/lib -lpng
+        OURCFLAGS+= -I/opt/local/include -I/usr/local/include
+        LIBS+= -L/opt/local/lib -L/usr/local/lib -lpng
     endif
 endif
 
