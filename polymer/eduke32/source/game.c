@@ -9475,20 +9475,19 @@ static inline void G_CheckGametype(void)
 
 static void G_LoadExtraPalettes(void)
 {
-    int32_t j,fp;
-    int8_t look_pos;
-    char *lookfn = "lookup.dat";
+    int32_t j, fp;
+    uint8_t tmpbyte;
 
-    fp = kopen4loadfrommod(lookfn,0);
+    fp = kopen4loadfrommod("lookup.dat", 0);
     if (fp != -1)
-        kread(fp,(char *)&g_numRealPalettes,1);
+        kread(fp, &tmpbyte, 1);
     else
         G_GameExit("\nERROR: File 'lookup.dat' not found.");
 
+    g_numRealPalettes = tmpbyte;
 #if defined(__APPLE__) && B_BIG_ENDIAN != 0
     // this is almost as bad as just setting the value to 25 :P
-    g_numRealPalettes = ((g_numRealPalettes * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
-
+//    g_numRealPalettes = ((g_numRealPalettes * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
 #endif
 
     for (j = 0; j < 256; j++)
@@ -9499,9 +9498,11 @@ static void G_LoadExtraPalettes(void)
 
     for (j=g_numRealPalettes-1; j>=0; j--)
     {
-        kread(fp,(char *)&look_pos,1);
-        kread(fp,tempbuf,256);
-        makepalookup((int32_t)look_pos,tempbuf,0,0,0,1);
+        uint8_t look_pos;
+
+        kread(fp, &look_pos, 1);
+        kread(fp, tempbuf, 256);
+        makepalookup(look_pos, tempbuf, 0,0,0, 1);
     }
 
     for (j = 255; j>=0; j--)
