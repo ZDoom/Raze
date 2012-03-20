@@ -2267,8 +2267,8 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         {
             float pc[4];
-            int32_t shadebound = (shadescale_unbounded || globalshade>=numpalookups) ? numpalookups : numpalookups-1;
-            f = ((float)(numpalookups-min(max((globalshade * shadescale),0),shadebound)))/((float)numpalookups);
+            int32_t shadebound = (shadescale_unbounded || globalshade>=numshades) ? numshades : numshades-1;
+            f = ((float)(numshades-min(max((globalshade * shadescale),0),shadebound)))/((float)numshades);
             pc[0] = pc[1] = pc[2] = f;
             switch (method&3)
             {
@@ -2548,7 +2548,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             nguo = uu[0] - ox*ngux - oy*nguy;
             ngvo = vv[0] - ox*ngvx - oy*ngvy;
         }
-        palptr = &palookup[globalpal][min(max((int32_t)(globalshade * shadescale),0),numpalookups-1)<<8]; //<-need to make shade not static!
+        palptr = &palookup[globalpal][min(max((int32_t)(globalshade * shadescale),0),numshades-1)<<8]; //<-need to make shade not static!
 
         tsizxm1 = tsizx-1; xmodnice = (!(tsizxm1&tsizx));
         tsizym1 = tsizy-1; ymulnice = (!(tsizym1&tsizy));
@@ -2559,7 +2559,7 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
     }
     else
     {
-        dacol = palookup[0][(int32_t)(*(char *)(waloff[globalpicnum]))+(min(max((int32_t)(globalshade * shadescale),0),numpalookups-1)<<8)];
+        dacol = palookup[0][(int32_t)(*(char *)(waloff[globalpicnum]))+(min(max((int32_t)(globalshade * shadescale),0),numshades-1)<<8)];
     }
 
     if (grhalfxdown10x < 0) //Hack for mirrors
@@ -5963,7 +5963,7 @@ void polymost_fillpolygon(int32_t npoints)
     pthtyp *pth;
     float f,a=0.0;
     int32_t i;
-    int32_t shadebound = (shadescale_unbounded || globalshade>=numpalookups) ? numpalookups : numpalookups-1;
+    int32_t shadebound = (shadescale_unbounded || globalshade>=numshades) ? numshades : numshades-1;
 
     globalx1 = mulscale16(globalx1,xyaspect);
     globaly2 = mulscale16(globaly2,xyaspect);
@@ -5987,7 +5987,7 @@ void polymost_fillpolygon(int32_t npoints)
     pth = gltexcache(globalpicnum,globalpal,0);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
-    f = ((float)(numpalookups-min(max((globalshade * shadescale),0),shadebound)))/((float)numpalookups);
+    f = ((float)(numshades-min(max((globalshade * shadescale),0),shadebound)))/((float)numshades);
     switch ((globalorientation>>7)&3)
     {
     case 0:

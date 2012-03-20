@@ -3767,7 +3767,7 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
         glpics[i] = pth ? pth->glpic : 0;
 
         glcolors[i][0] = glcolors[i][1] = glcolors[i][2] =
-                ((float)(numpalookups-min(max(shade*shadescale,0),numpalookups)))/((float)numpalookups);
+                ((float)(numshades-min(max(shade*shadescale,0),numshades)))/((float)numshades);
 
         if (pth && (pth->flags & 2))
         {
@@ -3848,7 +3848,7 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
         pth = gltexcache(tilenum, palnum, 4);
 
         color[0] = color[1] = color[2] =
-                ((float)(numpalookups-min(max(shade*shadescale,0),numpalookups)))/((float)numpalookups);
+                ((float)(numshades-min(max(shade*shadescale,0),numshades)))/((float)numshades);
 
         if (pth && (pth->flags & 2))
         {
@@ -4075,7 +4075,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     color = mdspritematerial.diffusemodulation;
 
     color[0] = color[1] = color[2] =
-        ((float)(numpalookups-min(max((tspr->shade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups) * 0xFF;
+        ((float)(numshades-min(max((tspr->shade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades) * 0xFF;
 
     usinghighpal = (pr_highpalookups &&
                     prhighpalookups[curbasepal][tspr->pal].map);
@@ -4458,7 +4458,7 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
-            ((float)(numpalookups-min(max((shade  * shadescale),0),numpalookups)))/((float)numpalookups) * 0xFF;
+            ((float)(numshades-min(max((shade  * shadescale),0),numshades)))/((float)numshades) * 0xFF;
  
         if (pth->flags & 2)
         {

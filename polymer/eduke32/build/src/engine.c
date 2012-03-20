@@ -2356,7 +2356,7 @@ char palfadedelta = 0;
 //
 static inline int32_t getpalookup(int32_t davis, int32_t dashade)
 {
-    return(min(max(dashade+(davis>>8),0),numpalookups-1));
+    return(min(max(dashade+(davis>>8),0),numshades-1));
 }
 
 static void setpalettefade_calc(uint8_t offset);
@@ -7444,10 +7444,10 @@ static void loadpalette(void)
     if ((fil = kopen4load("palette.dat",0)) == -1) return;
 
     kread(fil,palette,768);
-    kread(fil,&numpalookups,2); numpalookups = B_LITTLE16(numpalookups);
+    kread(fil,&numshades,2); numshades = B_LITTLE16(numshades);
 
-    if ((palookup[0] = (char *)Bmalloc(numpalookups<<8)) == NULL)
-        allocache((intptr_t *)&palookup[0],numpalookups<<8,&permanentlock);
+    if ((palookup[0] = (char *)Bmalloc(numshades<<8)) == NULL)
+        allocache((intptr_t *)&palookup[0],numshades<<8,&permanentlock);
     if ((transluc = (char *)Bmalloc(65536)) == NULL)
         allocache((intptr_t *)&transluc,65536,&permanentlock);
 
@@ -7456,7 +7456,7 @@ static void loadpalette(void)
 
     fixtransluscence(FP_OFF(transluc));
 
-    kread(fil,palookup[globalpal],numpalookups<<8);
+    kread(fil,palookup[globalpal],numshades<<8);
     kread(fil,transluc,65536);
 
     if (crc32once((uint8_t *)transluc, 65536)==0x94a1fac6)
@@ -8872,7 +8872,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((picanm[globalpicnum]&192) != 0) globalpicnum += animateoffs((int16_t)globalpicnum,s);
             if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
             globalbufplc = waloff[globalpicnum];
-            globalshade = max(min(sec->floorshade,numpalookups-1),0);
+            globalshade = max(min(sec->floorshade,numshades-1),0);
             globvis = globalhisibility;
             if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
             globalpolytype = 0;
@@ -9018,7 +9018,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 globalshade = ((int32_t)sector[spr->sectnum].ceilingshade);
             else
                 globalshade = ((int32_t)sector[spr->sectnum].floorshade);
-            globalshade = max(min(globalshade+spr->shade+6,numpalookups-1),0);
+            globalshade = max(min(globalshade+spr->shade+6,numshades-1),0);
             asm3 = FP_OFF(palookup[spr->pal]+(globalshade<<8));
             globvis = globalhisibility;
             if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
@@ -13515,8 +13515,8 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
     if (palookup[palnum] == NULL)
     {
         //Allocate palookup buffer
-        if ((palookup[palnum] = (char *)Bmalloc(numpalookups<<8)) == NULL)
-            allocache((intptr_t *)&palookup[palnum],numpalookups<<8,&permanentlock);
+        if ((palookup[palnum] = (char *)Bmalloc(numshades<<8)) == NULL)
+            allocache((intptr_t *)&palookup[palnum],numshades<<8,&permanentlock);
     }
 
     if (dastat == 0) return;
@@ -13528,7 +13528,7 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
         {
             ptr = (char *)(FP_OFF(palookup[0])+remapbuf[i]);
             ptr2 = (char *)(FP_OFF(palookup[palnum])+i);
-            for (j=0; j<numpalookups; j++)
+            for (j=0; j<numshades; j++)
                 { *ptr2 = *ptr; ptr += 256; ptr2 += 256; }
         }
 #if defined(USE_OPENGL)
@@ -13540,9 +13540,9 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
     else
     {
         ptr2 = palookup[palnum];
-        for (i=0; i<numpalookups; i++)
+        for (i=0; i<numshades; i++)
         {
-            palscale = divscale16(i,numpalookups);
+            palscale = divscale16(i,numshades);
             for (j=0; j<256; j++)
             {
                 ptr = (char *)&palette[remapbuf[j]*3];

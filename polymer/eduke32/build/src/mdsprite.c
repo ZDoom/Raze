@@ -2083,7 +2083,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 
     bglEnable(GL_TEXTURE_2D);
 
-    pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max((globalshade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
+    pc[0] = pc[1] = pc[2] = ((float)(numshades-min(max((globalshade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades);
     if (!(hictinting[globalpal].f&4))
     {
         if (!(m->flags&1) || (!(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0))
@@ -3278,7 +3278,7 @@ int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
 
     bglEnable(GL_TEXTURE_2D);
 
-    pc[0] = pc[1] = pc[2] = ((float)(numpalookups-min(max((globalshade * shadescale)+m->shadeoff,0),numpalookups)))/((float)numpalookups);
+    pc[0] = pc[1] = pc[2] = ((float)(numshades-min(max((globalshade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades);
     pc[0] *= (float)hictinting[globalpal].r / 255.0;
     pc[1] *= (float)hictinting[globalpal].g / 255.0;
     pc[2] *= (float)hictinting[globalpal].b / 255.0;
