@@ -15857,9 +15857,8 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     rowptrs = (png_bytepp)png_malloc(png_ptr, ydim*sizeof(png_bytep));
     if (!palette)
     {
-        int32_t k = xdim*(1+2*!palette);
         for (i=0; i<ydim; i++)
-            rowptrs[i] = &buf[k*(ydim-i-1)];
+            rowptrs[i] = &buf[ylookup[ydim-i-1]];
     }
     else
     {
