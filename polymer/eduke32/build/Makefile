@@ -237,7 +237,7 @@ enumdisplay$(EXESUFFIX): $(OBJ)/enumdisplay.$o $(UTILADDOBJS)
 	if $(CC) -o $@ $^ $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); fi
 arttool$(EXESUFFIX): $(OBJ)/arttool.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CXX) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CXX) -o $@ $^ $(STATICSTDCPP) $(UTILLIBS); then $(ONESTEP_OK); fi
 givedepth$(EXESUFFIX): $(OBJ)/givedepth.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
