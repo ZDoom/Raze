@@ -8826,8 +8826,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     if (argc > i+1)
                     {
                         g_scriptModules = (char **) Brealloc (g_scriptModules, (g_scriptModulesNum+1) * sizeof(char *));
-                        g_scriptModules[g_scriptModulesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
-                        Bstrcpy(g_scriptModules[g_scriptModulesNum], (char *)argv[i+1]);
+                        g_scriptModules[g_scriptModulesNum] = Bstrdup(argv[i+1]);
                         ++g_scriptModulesNum;
                         i++;
                     }
@@ -8839,8 +8838,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     if (argc > i+1)
                     {
                         g_defModules = (char **) Brealloc (g_defModules, (g_defModulesNum+1) * sizeof(char *));
-                        g_defModules[g_defModulesNum] = Bmalloc(Bstrlen((char *)argv[i+1]) + 1);
-                        Bstrcpy(g_defModules[g_defModulesNum], (char *)argv[i+1]);
+                        g_defModules[g_defModulesNum] = Bstrdup(argv[i+1]);
                         ++g_defModulesNum;
                         i++;
                     }
