@@ -196,6 +196,7 @@ inline int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome);
 
 static void scansector(int16_t sectnum);
+static void draw_rainbow_background(void);
 
 int16_t editstatus = 0;
 
@@ -983,19 +984,7 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
         if (getrendermode()==0)
         {
             begindrawing();
-            {
-                const int32_t dimenprod = xdimen*ydimen;
-                char *const p = (char *)frameplace;
-
-                j = 0;
-                for (i=0; i<dimenprod; i++)
-                {
-                    p[i] = (char)j;
-                    j++;
-                    if (j >= xdimen)
-                        j = 0;
-                }
-            }
+            draw_rainbow_background();
             enddrawing();
         }
 #ifdef USE_OPENGL
@@ -1122,8 +1111,28 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
 #endif
 }
 
-#endif
+#endif  // defined YAX_ENABLE
 
+// must have writable frame buffer, i.e. done begindrawing()
+static void draw_rainbow_background(void)
+{
+    int32_t i, j;
+    const int32_t dimenprod = bytesperline*ydimen;
+    char *const p = (char *)frameplace;
+
+    j = 0;
+    for (i=0; i<dimenprod; i++)
+    {
+        p[i] = (char)j;
+        j++;
+        if (j >= xdimen)
+        {
+            while (j < bytesperline)
+                i++, j++;
+            j = 0;
+        }
+    }
+}
 //
 // setslope
 //
@@ -8300,8 +8309,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     if (!g_nodraw)
 #endif
     if (numyaxbunches==0)
-        for (i=0; i<xdimen*ydimen; i++)
-            *((char *)frameplace + i) = i;
+        draw_rainbow_background();
 #endif
 
     //frameoffset = frameplace + viewoffset;
