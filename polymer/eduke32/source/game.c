@@ -108,6 +108,8 @@ uint8_t water_pal[768],slime_pal[768],title_pal[768],dre_alms[768],ending_pal[76
 
 uint8_t *basepaltable[BASEPALCOUNT] = { palette, water_pal, slime_pal, dre_alms, title_pal, ending_pal, NULL /*anim_pal*/ };
 
+static int8_t g_noFloorPal[MAXPALOOKUPS];  // 1 if sprite pal should not be taken over from floor pal
+
 static int32_t g_skipDefaultCons = 0;
 static int32_t g_skipDefaultDefs = 0; // primarily for NAM/WWII GI appeasement
 
@@ -230,6 +232,7 @@ enum gametokens
     T_SOUND,
     T_FILE,
     T_ANIMSOUNDS,
+    T_NOFLOORPALRANGE,
     T_ID
 };
 
@@ -5876,6 +5879,20 @@ SPAWN_END:
     return i;
 }
 
+static int32_t maybe_take_on_pal_of_floor(spritetype *datspr, int32_t sect)
+{
+    int32_t dapal = sector[sect].floorpal;
+
+    if (dapal && !g_noFloorPal[dapal] && dapal < g_numRealPalettes
+            && !A_CheckSpriteFlags(datspr->owner,SPRITE_NOPAL))
+    {
+        datspr->pal = dapal;
+        return 1;
+    }
+
+    return 0;
+}
+
 #if 0 // def _MSC_VER
 // Visual C thought this was a bit too hard to optimise so we'd better
 // tell it not to try... such a pussy it is.
@@ -6430,9 +6447,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                         t->pal = g_player[p].ps->palookup;
                     }
 PALONLY:
-
-            if (sector[sect].floorpal && sector[sect].floorpal < g_numRealPalettes && !A_CheckSpriteFlags(t->owner,SPRITE_NOPAL))
-                t->pal = sector[sect].floorpal;
+            maybe_take_on_pal_of_floor(t, sect);
 
             if (s->owner == -1) continue;
 
@@ -6472,8 +6487,7 @@ PALONLY:
             else t->picnum += T1;
             t->shade -= 6;
 
-            if (sector[sect].floorpal && sector[sect].floorpal < g_numRealPalettes && !A_CheckSpriteFlags(t->owner,SPRITE_NOPAL))
-                t->pal = sector[sect].floorpal;
+            maybe_take_on_pal_of_floor(t, sect);
             break;
 
         case WATERBUBBLE__STATIC:
@@ -6483,8 +6497,7 @@ PALONLY:
                 break;
             }
         default:
-            if (sector[sect].floorpal && sector[sect].floorpal < g_numRealPalettes && !A_CheckSpriteFlags(t->owner,SPRITE_NOPAL))
-                t->pal = sector[sect].floorpal;
+            maybe_take_on_pal_of_floor(t, sect);
             break;
         }
 
@@ -6744,9 +6757,8 @@ skip:
                         t->picnum = actor[i].t_data[1];
                     else t->picnum = actor[s->owner].dispicnum;
 
-                    if (sector[t->sectnum].floorpal && sector[t->sectnum].floorpal < g_numRealPalettes && !A_CheckSpriteFlags(s->owner,SPRITE_NOPAL))
-                        t->pal = sector[t->sectnum].floorpal;
-                    else t->pal = sprite[s->owner].pal;
+                    if (!maybe_take_on_pal_of_floor(t, sect))
+                        t->pal = sprite[s->owner].pal;
 
                     t->shade = sprite[s->owner].shade;
                     t->ang = sprite[s->owner].ang;
@@ -8217,6 +8229,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
 #ifdef USE_LIBVPX
         { "animsounds",      T_ANIMSOUNDS       },
 #endif
+        { "nofloorpalrange", T_NOFLOORPALRANGE  },
     };
 
     static const tokenlist sound_musictokens[] =
@@ -8459,7 +8472,20 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         }
         break;
 #endif  // defined USE_LIBVPX
+        case T_NOFLOORPALRANGE:
+        {
+            int32_t b,e,i;
 
+            if (scriptfile_getnumber(script,&b)) break;
+            if (scriptfile_getnumber(script,&e)) break;
+
+            b = max(b, 1);
+            e = min(e, MAXPALOOKUPS);
+
+            for (i=b; i<=e; i++)
+                g_noFloorPal[i] = 1;
+        }
+        break;
         case T_SOUND:
         {
             char *tinttokptr = script->ltextptr;
