@@ -7445,12 +7445,12 @@ static void initfastcolorlookup(int32_t rscale, int32_t gscale, int32_t bscale)
 //
 // loadpalette (internal)
 //
-static void loadpalette(void)
+static int32_t loadpalette(void)
 {
     int32_t fil;
 
-    if (paletteloaded != 0) return;
-    if ((fil = kopen4load("palette.dat",0)) == -1) return;
+    if (paletteloaded != 0) return 0;
+    if ((fil = kopen4load("palette.dat",0)) == -1) return -1;
 
     kread(fil,palette,768);
     kread(fil,&numshades,2); numshades = B_LITTLE16(numshades);
@@ -7465,10 +7465,12 @@ static void loadpalette(void)
 
     fixtransluscence(FP_OFF(transluc));
 
-    kread(fil,palookup[globalpal],numshades<<8);
-    kread(fil,transluc,65536);
+    kread(fil,palookup[globalpal],numshades<<8);  // read base shade table (palookup 0)
+    kread(fil,transluc,65536);  // read translucency (blending) table
 
-    if (crc32once((uint8_t *)transluc, 65536)==0x94a1fac6)
+    kclose(fil);
+
+    if (crc32once((uint8_t *)transluc, 65536)==0x94a1fac6)  // Duke3D 1.5 GRP
     {
         int32_t i;
         // fix up translucency table so that transluc(255,x)
@@ -7479,8 +7481,6 @@ static void loadpalette(void)
             transluc[255 + (i<<8)] = transluc[i<<8];
         }
     }
-
-    kclose(fil);
 
     initfastcolorlookup(30, 59, 11);
 
@@ -7494,6 +7494,8 @@ static void loadpalette(void)
     }
 
     paletteloaded = 1;
+
+    return 0;
 }
 
 
@@ -8040,7 +8042,8 @@ int32_t initengine(void)
         hitickspersec = 1.0;
 #endif
 
-    if (loadtables()) return 1;
+    if (loadtables())
+        return 1;
 
     xyaspect = -1;
 
@@ -8079,7 +8082,9 @@ int32_t initengine(void)
     visibility = 512;
     parallaxvisibility = 512;
 
-    loadpalette();
+    if (loadpalette())
+        return 1;
+
 #ifdef USE_OPENGL
     if (!hicfirstinit) hicinit();
     if (!mdinited) mdinit();
