@@ -1955,6 +1955,21 @@ static void P_DisplaySpit(int32_t snum)
     }
 }
 
+static int32_t get_hud_pal(const DukePlayer_t *p)
+{
+    if (sprite[p->i].pal == 1)
+        return 1;
+
+    if (p->cursectnum >= 0)
+    {
+        int32_t dapal = sector[p->cursectnum].floorpal;
+        if (!g_noFloorPal[dapal])
+            return dapal;
+    }
+
+    return 0;
+}
+
 static int32_t P_DisplayFist(int32_t gs,int32_t snum)
 {
     int32_t looking_arc,fisti,fistpal;
@@ -1973,11 +1988,7 @@ static int32_t P_DisplayFist(int32_t gs,int32_t snum)
         fistzoom = 40290;
     fistz = 194 + (sintable[((6+fisti)<<7)&2047]>>9);
 
-    if (sprite[g_player[snum].ps->i].pal == 1)
-        fistpal = 1;
-    else if (g_player[snum].ps->cursectnum >= 0)
-        fistpal = sector[g_player[snum].ps->cursectnum].floorpal;
-    else fistpal = 0;
+    fistpal = get_hud_pal(g_player[snum].ps);
 
     rotatesprite(
         (-fisti+222+(g_player[snum].sync->avel>>4))<<16,
@@ -2080,7 +2091,7 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
 static int32_t P_DisplayKnee(int32_t gs,int32_t snum)
 {
     static int8_t knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
-    int32_t looking_arc, pal = g_player[snum].ps->palookup;
+    int32_t looking_arc, pal;
 
     if (g_player[snum].ps->knee_incs > 11 || g_player[snum].ps->knee_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
 
@@ -2088,14 +2099,9 @@ static int32_t P_DisplayKnee(int32_t gs,int32_t snum)
 
     looking_arc -= (g_player[snum].ps->hard_landing<<3);
 
-    if (sprite[g_player[snum].ps->i].pal == 1)
-        pal = 1;
-    else if (g_player[snum].ps->cursectnum >= 0)
-    {
-        pal = sector[g_player[snum].ps->cursectnum].floorpal;
-        if (pal == 0)
-            pal = g_player[snum].ps->palookup;
-    }
+    pal = get_hud_pal(g_player[snum].ps);
+    if (pal == 0)
+        pal = g_player[snum].ps->palookup;
 
     G_DrawTileScaled(105+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(knee_y[g_player[snum].ps->knee_incs]>>2),
                      looking_arc+280-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),KNEE,gs,4+262144,pal);
@@ -2106,7 +2112,7 @@ static int32_t P_DisplayKnee(int32_t gs,int32_t snum)
 static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
 {
     static int8_t knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
-    int32_t looking_arc, pal = 0;
+    int32_t looking_arc, pal;
 
     if (g_player[snum].ps->knuckle_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
 
@@ -2114,10 +2120,7 @@ static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
 
     looking_arc -= (g_player[snum].ps->hard_landing<<3);
 
-    if (sprite[g_player[snum].ps->i].pal == 1)
-        pal = 1;
-    else if (g_player[snum].ps->cursectnum >= 0)
-        pal = sector[g_player[snum].ps->cursectnum].floorpal;
+    pal = get_hud_pal(g_player[snum].ps);
 
     G_DrawTileScaled(160+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),
                      looking_arc+180-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),
@@ -2217,11 +2220,7 @@ void P_DisplayScuba(int32_t snum)
 {
     int32_t p;
 
-    if (sprite[g_player[snum].ps->i].pal == 1)
-        p = 1;
-    else if (g_player[snum].ps->cursectnum >= 0)
-        p = sector[g_player[snum].ps->cursectnum].floorpal;
-    else p = 0;
+    p = get_hud_pal(g_player[snum].ps);
 
     if (g_player[snum].ps->scuba_on)
     {
@@ -2240,10 +2239,7 @@ static int32_t P_DisplayTip(int32_t gs,int32_t snum)
     looking_arc = klabs(g_player[snum].ps->look_ang)/9;
     looking_arc -= (g_player[snum].ps->hard_landing<<3);
 
-    if (sprite[g_player[snum].ps->i].pal == 1)
-        p = 1;
-    else
-        p = sector[g_player[snum].ps->cursectnum].floorpal;
+    p = get_hud_pal(g_player[snum].ps);
 
     /*    if(g_player[snum].ps->access_spritenum >= 0)
             p = sprite[g_player[snum].ps->access_spritenum].pal;
@@ -2360,15 +2356,9 @@ void P_DisplayWeapon(int32_t snum)
         j = 14-p->quick_kick;
         if (j != 14 || p->last_quick_kick)
         {
-            if (sprite[p->i].pal == 1)
-                pal = 1;
-            else
-            {
-                if (p->cursectnum >= 0)
-                    pal = sector[p->cursectnum].floorpal;
-                if (pal == 0)
-                    pal = p->palookup;
-            }
+            pal = get_hud_pal(p);
+            if (pal == 0)
+                pal = p->palookup;
 
             guniqhudid = 100;
             if (j < 6 || j > 12)
@@ -2408,15 +2398,10 @@ void P_DisplayWeapon(int32_t snum)
                 {
                     if ((*kb) > 0)
                     {
-                        if (sprite[p->i].pal == 1)
-                            pal = 1;
-                        else
-                        {
-                            if (p->cursectnum >= 0)
-                                pal = sector[p->cursectnum].floorpal;
-                            if (pal == 0)
-                                pal = p->palookup;
-                        }
+                        pal = get_hud_pal(p);
+                        if (pal == 0)
+                            pal = p->palookup;
+
                         guniqhudid = cw;
                         if ((*kb) < 5 || (*kb) > 9)
                             G_DrawTileScaled(weapon_xoffset+220-(p->look_ang>>1),
@@ -2436,11 +2421,7 @@ void P_DisplayWeapon(int32_t snum)
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    if (sprite[p->i].pal == 1)
-                        pal = 1;
-                    else if (p->cursectnum >= 0)
-                        pal = sector[p->cursectnum].floorpal;
-                    else pal = 0;
+                    pal = get_hud_pal(p);
 
                     weapon_xoffset += 8;
                     gun_pos -= 10;
@@ -2474,11 +2455,7 @@ void P_DisplayWeapon(int32_t snum)
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    if (sprite[p->i].pal == 1)
-                        pal = 1;
-                    else if (p->cursectnum >= 0)
-                        pal = sector[p->cursectnum].floorpal;
-                    else pal = 0;
+                    pal = get_hud_pal(p);
 
                     weapon_xoffset -= sintable[(768+((*kb)<<7))&2047]>>11;
                     gun_pos += sintable[(768+((*kb)<<7))&2047]>>11;
@@ -2504,12 +2481,7 @@ void P_DisplayWeapon(int32_t snum)
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    if (sprite[p->i].pal == 1)
-                        pal = 1;
-                    else if (p->cursectnum >= 0)
-                        pal = sector[p->cursectnum].floorpal;
-                    else pal = 0;
-
+                    pal = get_hud_pal(p);
 
                     weapon_xoffset -= 8;
 
@@ -2605,11 +2577,7 @@ void P_DisplayWeapon(int32_t snum)
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    if (sprite[p->i].pal == 1)
-                        pal = 1;
-                    else if (p->cursectnum >= 0)
-                        pal = sector[p->cursectnum].floorpal;
-                    else pal = 0;
+                    pal = get_hud_pal(p);
 
                     if (*kb > 0)
                         gun_pos -= sintable[(*kb)<<7]>>12;
@@ -2657,11 +2625,7 @@ void P_DisplayWeapon(int32_t snum)
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    if (sprite[p->i].pal == 1)
-                        pal = 1;
-                    else if (p->cursectnum >= 0)
-                        pal = sector[p->cursectnum].floorpal;
-                    else pal = 0;
+                    pal = get_hud_pal(p);
 
                     if ((*kb) < *aplWeaponTotalTime[PISTOL_WEAPON]+1)
                     {
@@ -2731,11 +2695,8 @@ void P_DisplayWeapon(int32_t snum)
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    if (sprite[p->i].pal == 1)
-                        pal = 1;
-                    else if (p->cursectnum >= 0)
-                        pal = sector[p->cursectnum].floorpal;
-                    else pal = 0;
+                    pal = get_hud_pal(p);
+
                     guniqhudid = cw;
                     if ((*kb))
                     {
@@ -2769,11 +2730,8 @@ void P_DisplayWeapon(int32_t snum)
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     static uint8_t remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
-                    if (sprite[p->i].pal == 1)
-                        pal = 1;
-                    else if (p->cursectnum >= 0)
-                        pal = sector[p->cursectnum].floorpal;
-                    else pal = 0;
+
+                    pal = get_hud_pal(p);
 
                     weapon_xoffset = -48;
                     guniqhudid = cw;
@@ -2793,11 +2751,7 @@ void P_DisplayWeapon(int32_t snum)
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    if (sprite[p->i].pal == 1)
-                        pal = 1;
-                    else if (p->cursectnum >= 0)
-                        pal = sector[p->cursectnum].floorpal;
-                    else pal = 0;
+                    pal = get_hud_pal(p);
 
                     if ((*kb) < (*aplWeaponTotalTime[DEVISTATOR_WEAPON]+1) && (*kb) > 0)
                     {
@@ -2840,11 +2794,8 @@ void P_DisplayWeapon(int32_t snum)
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    if (sprite[p->i].pal == 1)
-                        pal = 1;
-                    else if (p->cursectnum >= 0)
-                        pal = sector[p->cursectnum].floorpal;
-                    else pal = 0;
+                    pal = get_hud_pal(p);
+
                     if ((*kb) < (aplWeaponTotalTime[p->curr_weapon][snum]+1) && (*kb) > 0)
                     {
                         static uint8_t cat_frames[] = { 0,0,1,1,2,2 };
@@ -2879,11 +2830,9 @@ void P_DisplayWeapon(int32_t snum)
                 {
                     weapon_xoffset += 28;
                     looking_arc += 18;
-                    if (sprite[p->i].pal == 1)
-                        pal = 1;
-                    else if (p->cursectnum >= 0)
-                        pal = sector[p->cursectnum].floorpal;
-                    else pal = 0;
+
+                    pal = get_hud_pal(p);
+
                     {
                         if ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum] && (*kb) > 0)
                         {
@@ -2929,11 +2878,9 @@ void P_DisplayWeapon(int32_t snum)
                 {
                     weapon_xoffset += 28;
                     looking_arc += 18;
-                    if (sprite[p->i].pal == 1)
-                        pal = 1;
-                    else if (p->cursectnum >= 0)
-                        pal = sector[p->cursectnum].floorpal;
-                    else pal = 0;
+
+                    pal = get_hud_pal(p);
+
                     if (((*kb) > 0) && ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum]))
                     {
                         if (sprite[p->i].pal != 1)
