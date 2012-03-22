@@ -104,9 +104,9 @@ static char g_rootDir[BMAX_PATH];
 char g_modDir[BMAX_PATH] = "/";
 
 
-uint8_t water_pal[768],slime_pal[768],title_pal[768],dre_alms[768],ending_pal[768],*anim_pal;
+uint8_t water_pal[768],slime_pal[768],title_pal[768],dre_alms[768],ending_pal[768];
 
-uint8_t *basepaltable[BASEPALCOUNT] = { palette, water_pal, slime_pal, dre_alms, title_pal, ending_pal, NULL };
+uint8_t *basepaltable[BASEPALCOUNT] = { palette, water_pal, slime_pal, dre_alms, title_pal, ending_pal, NULL /*anim_pal*/ };
 
 static int32_t g_skipDefaultCons = 0;
 static int32_t g_skipDefaultDefs = 0; // primarily for NAM/WWII GI appeasement

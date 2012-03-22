@@ -369,9 +369,8 @@ void G_PlayAnim(const char *fn,char t)
 
     ANIM_LoadAnim(animbuf);
     numframes = ANIM_NumFrames();
-    anim_pal = ANIM_GetPalette();
 
-    basepaltable[ANIMPAL] = anim_pal;
+    basepaltable[ANIMPAL] = ANIM_GetPalette();
 
     //setpalette(0L,256L,tempbuf);
     //setbrightness(ud.brightness>>2,tempbuf,2);
