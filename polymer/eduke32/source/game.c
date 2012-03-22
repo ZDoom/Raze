@@ -169,8 +169,6 @@ static void G_DrawCameraText(int16_t i);
 GAME_STATIC GAME_INLINE int32_t G_MoveLoop(void);
 static void G_DoOrderScreen(void);
 
-extern void computergetinput(int32_t snum, input_t *syn);
-
 #define quotepulseshade (sintable[(totalclock<<5)&2047]>>11)
 
 int32_t althud_numbertile = 2930;

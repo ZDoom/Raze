@@ -268,9 +268,8 @@ extern int32_t          ticrandomseed;
 
 int32_t     A_GetHitscanRange(int32_t i);
 int32_t     A_Shoot(int32_t i,int32_t atwith);
-void        computergetinput(int32_t snum,input_t *syn);
+//void        computergetinput(int32_t snum,input_t *syn);
 void        getinput(int32_t snum);
-int32_t     getspritescore(int32_t snum,int32_t dapicnum);
 void        P_AddAmmo(int32_t weapon,DukePlayer_t *p,int32_t amount);
 void        P_AddWeapon(DukePlayer_t *p,int32_t weapon);
 void        P_AddWeaponNoSwitch(DukePlayer_t *p,int32_t weapon);

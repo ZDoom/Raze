@@ -5629,8 +5629,10 @@ HORIZONLY:
     P_ProcessWeapon(snum);
 }
 
+#if 0
+
 //UPDATE THIS FILE OVER THE OLD GETSPRITESCORE/COMPUTERGETINPUT FUNCTIONS
-int32_t getspritescore(int32_t snum, int32_t dapicnum)
+static int32_t getspritescore(int32_t snum, int32_t dapicnum)
 {
     switch (DYNAMICTILEMAP(dapicnum))
     {
@@ -6213,4 +6215,5 @@ void computergetinput(int32_t snum, input_t *syn)
         syn->avel = min(max((((daang+1024-damyang)&2047)-1024)>>3,-127),127);
     }
 }
+#endif
 
