@@ -7374,7 +7374,8 @@ static int32_t loadtables(void)
     {
         initksqrt();
 
-        for (i=0; i<2048; i++) reciptable[i] = divscale30(2048L,i+2048);
+        for (i=0; i<2048; i++)
+            reciptable[i] = divscale30(2048, i+2048);
 
         if ((fil = kopen4load("tables.dat",0)) != -1)
         {
@@ -7407,7 +7408,7 @@ static int32_t loadtables(void)
 static void initfastcolorlookup(int32_t rscale, int32_t gscale, int32_t bscale)
 {
     int32_t i, j, x, y, z;
-    char *pal1;
+    const char *pal1;
 
     j = 0;
     for (i=64; i>=0; i--)
@@ -7505,7 +7506,7 @@ static int32_t loadpalette(void)
 int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 {
     int32_t i, j, k, dist, mindist, retcol;
-    char *pal1;
+    const char *pal1;
 
     j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
         + (g>>3)*FASTPALGRIDSIZ + (b>>3)
@@ -8154,15 +8155,15 @@ void initspritelists(void)
 {
     int32_t i;
 
-    // initial list state for sector lists (analogous for statnum lists):
+    // initial list state for statnum lists:
     //
-    //  sector 0: nil
-    //  sector 1: nil
+    //  statnum 0: nil
+    //  statnum 1: nil
     //     . . .
-    //  sector MAXSECTORS-1: nil
-    //  "sector MAXSECTORS": nil <- 0 <-> 1 <-> 2 <-> ... <-> MAXSPRITES-1 -> nil
+    //  statnum MAXSTATUS-1: nil
+    //  "statnum MAXSTATUS": nil <- 0 <-> 1 <-> 2 <-> ... <-> MAXSPRITES-1 -> nil
     //
-    // That is, the dummy MAXSECTORS sector has all sprites.
+    // That is, the dummy MAXSTATUS statnum has all sprites.
 
     for (i=0; i<MAXSECTORS; i++)   //Init doubly-linked sprite sector lists
         headspritesect[i] = -1;
@@ -13522,7 +13523,8 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, 
 void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8_t b, char dastat)
 {
     int32_t i, j, palscale;
-    char *ptr, *ptr2;
+    const char *ptr;
+    char *ptr2;
 
     if (paletteloaded == 0) return;
 
@@ -13541,6 +13543,8 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
 
     if ((r|g|b) == 0)
     {
+        // "black fog"/visibility case -- only remap color indices
+
         for (i=0; i<256; i++)
         {
             ptr = (char *)(FP_OFF(palookup[0])+remapbuf[i]);
@@ -13556,16 +13560,19 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
     }
     else
     {
+        // colored fog case
+
         ptr2 = palookup[palnum];
+
         for (i=0; i<numshades; i++)
         {
             palscale = divscale16(i,numshades);
             for (j=0; j<256; j++)
             {
                 ptr = (char *)&palette[remapbuf[j]*3];
-                *ptr2++ = getclosestcol((int32_t)ptr[0]+mulscale16(r-ptr[0],palscale),
-                                        (int32_t)ptr[1]+mulscale16(g-ptr[1],palscale),
-                                        (int32_t)ptr[2]+mulscale16(b-ptr[2],palscale));
+                *ptr2++ = getclosestcol(ptr[0] + mulscale16(r-ptr[0],palscale),
+                                        ptr[1] + mulscale16(g-ptr[1],palscale),
+                                        ptr[2] + mulscale16(b-ptr[2],palscale));
             }
         }
 #if defined(USE_OPENGL)
@@ -13600,7 +13607,7 @@ void setbasepaltable(uint8_t **thebasepaltable, uint8_t thebasepalcount)
 void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 {
     int32_t i, j, paldidchange=0;
-    uint8_t *dapal;
+    const uint8_t *dapal;
 //    uint32_t lastbright = curbrightness;
 
     assert((flags&(1+4))==0);

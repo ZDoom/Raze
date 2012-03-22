@@ -11,7 +11,7 @@ void initcrc32table(void)
     {
         j = i;
         for (k=8; k; k--)
-            j = (j&1) ? (0xedb88320L ^(j>>1)) : (j>>1);
+            j = (j&1) ? (0xedb88320L^(j>>1)) : (j>>1);
         crc32table[i] = j;
     }
 }
