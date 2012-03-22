@@ -73,12 +73,12 @@ static void EditWallData(int16_t wallnum);
 static void EditSectorData(int16_t sectnum);
 static void FuncMenu(void);
 
-#define BASEPALCOUNT 7
+#define BASEPALCOUNT 6
 
-static uint8_t GAMEpalette[768], WATERpalette[768], SLIMEpalette[768], TITLEpalette[768];
+static uint8_t WATERpalette[768], SLIMEpalette[768], TITLEpalette[768];
 static uint8_t REALMSpalette[768], BOSS1palette[768];
 
-uint8_t *basepaltable[BASEPALCOUNT] = { palette, WATERpalette, SLIMEpalette, TITLEpalette, REALMSpalette, BOSS1palette, GAMEpalette };
+static uint8_t *basepaltable[BASEPALCOUNT] = { palette, WATERpalette, SLIMEpalette, TITLEpalette, REALMSpalette, BOSS1palette };
 
 
 static char num_tables;

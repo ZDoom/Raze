@@ -3044,23 +3044,6 @@ static void ReadPaletteTable(void)
     //    initprintf("success.\n");
 }// end ReadPaletteTable
 
-static void ReadGamePalette(void)
-{
-    int32_t fp;
-    if ((fp=kopen4load("palette.dat",0)) == -1)
-        if ((fp=kopen4load("palette.dat",1)) == -1)
-        {
-            initprintf("!!! PALETTE.DAT NOT FOUND !!!\n");
-            Bsprintf(tempbuf, "Mapster32 %s %s", VERSION, s_buildRev);
-            wm_msgbox(tempbuf,"palette.dat not found");
-            exit(0);
-        }
-    //    initprintf("Loading game palette... ");
-    kread(fp,GAMEpalette,768);
-    kclose(fp);
-    //    initprintf("success.\n");
-    ReadPaletteTable();
-}
 
 static void m32_showmouse(void)
 {
@@ -10463,8 +10446,7 @@ int32_t ExtInit(void)
 
     showinvisibility = 1;
 
-    ReadGamePalette();
-    //  InitWater();
+    ReadPaletteTable();
 
     InitCustomColors();
 
@@ -11972,7 +11954,7 @@ void SetGAMEPalette(void)
 {
     if (acurpalette==0) return;
     acurpalette=0;
-    setbrightness(GAMMA_CALC,6,2);
+    setbrightness(GAMMA_CALC,0,2);
 }
 
 static void SearchSectors(int32_t dir)  // <0: backwards, >=0: forwards
