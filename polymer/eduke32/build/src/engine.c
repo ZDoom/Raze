@@ -8802,6 +8802,10 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     for (s=0,sec=&sector[s]; s<numsectors; s++,sec++)
         if (show2dsector[s>>3]&pow2char[s&7])
         {
+#ifdef YAX_ENABLE
+            if (yax_getbunch(s, YAX_FLOOR) >= 0 && (sector[s].floorstat&(256+128))==0)
+                continue;
+#endif
             npoints = 0; i = 0;
             startwall = sec->wallptr;
 #if 0
