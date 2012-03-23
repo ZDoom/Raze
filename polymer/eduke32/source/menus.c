@@ -1907,24 +1907,27 @@ cheat_for_port_credits:
                     "Thanks to the following people for their contributions:",
                     " ",
                     "Adam Fazakerley",   // netcode stuff
+                    "Alan Ondra",        // testing
                     "Charlie Honig",     // showview command
                     "Dan Gaskill",       // testing
+                    "David Koenig",      // Merged a couple of things from duke3d_w32
                     "Ed Coolidge",       // Mapster32 improvements
-                    "Hunter_rus",        // tons of shit
+                    "Ferry Landzaat",    // ? (listed on the wiki page)
+                    "Hunter_rus",        // tons of stuff
                     "James Bentler",     // Mapster32 improvements
                     "Javier Martinez",   // EDuke 2.1.1 stuff I think
                     "Jeff Hart",         // website graphics
                     "Jonathan Smith",    // testing
                     "Jose del Castillo", // EDuke 2.1.1 stuff I think
                     "Lachlan McDonald",  // official EDuke32 icon
-                    "Marcus Herbert",    // OSX compatibility work
+                    "Marcus Herbert",    // OS X compatibility work
                     "Matthew Palmer",    // testing and eduke32.com domain
                     "Ozkan Sezer",       // SDL/GTK version checking improvements
                     "Peter Green",       // dynamic remapping, custom gametypes
                     "Peter Veenstra",    // port to 64-bit
+                    "Philipp Kutin",     // Mapster32 improvements, TROR, VP8, clipmaps, cleanup, and tons of other stuff
                     "Randy Heit",        // random snippets of ZDoom here and there
                     "Robin Green",       // CON array support
-                    "Philipp Kutin",     // Mapster32 improvements
                     "Ryan Gordon",       // icculus.org Duke3D port sound code
                     "Stephen Anthony",   // early 64-bit porting work
                     " ",
