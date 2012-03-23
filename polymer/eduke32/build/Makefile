@@ -154,7 +154,25 @@ endif
 
 ifeq ($(RENDERTYPE),SDL)
     ENGINEOBJS+= $(OBJ)/sdlayer.$o
-    OURCFLAGS+= $(subst -Dmain=SDL_main,,$(SDLCONFIG_CFLAGS))
+
+    ifeq ($(PLATFORM),DARWIN)
+        ifeq (1,$(SDL_FRAMEWORK))
+            OURCFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
+                    -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
+            UTILLIBS += -read_only_relocs suppress \
+                    -Wl,-framework,SDL -Wl,-framework,SDL_mixer Apple/lib/libSDLmain.a
+        else
+            OURCFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
+            UTILLIBS += -read_only_relocs suppress -lSDL_mixer
+        endif
+    endif
+
+    ifeq (0,$(SDL_FRAMEWORK))
+        OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
+        UTILLIBS+= -lSDL_mixer
+    else
+        OURCFLAGS   += -DSDL_FRAMEWORK
+    endif
 
     ifeq (1,$(HAVE_GTK2))
         OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
@@ -177,11 +195,13 @@ OURCFLAGS+= $(BUILDCFLAGS)
 
 # TARGETS
 
-UTILOBJS=$(OBJ)/kextract.$o $(OBJ)/kgroup.$o $(OBJ)/transpal.$o $(OBJ)/wad2art.$o $(OBJ)/wad2map.$o $(OBJ)/md2tool.$o \
+UTILOBJS=$(OBJ)/kextract.$o $(OBJ)/kgroup.$o $(OBJ)/transpal.$o $(OBJ)/wad2art.$o $(OBJ)/wad2map.$o $(OBJ)/kmd2tool.$o \
+    $(OBJ)/md2tool.$o \
     $(OBJ)/generateicon.$o $(OBJ)/cacheinfo.$o $(OBJ)/enumdisplay.$o $(OBJ)/arttool.$o $(OBJ)/givedepth.$o $(OBJ)/mkpalette.$o \
     $(OBJ)/unpackssi.$o $(OBJ)/bsuite.$o \
     $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(OBJ)/pragmas.$o $(OBJ)/kplib.$o $(OBJ)/cache1d.$o
-UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) md2tool$(EXESUFFIX) \
+UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) kmd2tool$(EXESUFFIX) \
+    md2tool$(EXESUFFIX) \
     generateicon$(EXESUFFIX) cacheinfo$(EXESUFFIX) arttool$(EXESUFFIX) givedepth$(EXESUFFIX) mkpalette$(EXESUFFIX) \
     unpackssi$(EXESUFFIX) bsuite$(EXESUFFIX)
 
@@ -227,6 +247,9 @@ wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)
 wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+kmd2tool$(EXESUFFIX): $(OBJ)/kmd2tool.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 md2tool$(EXESUFFIX): $(OBJ)/md2tool.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
@@ -240,6 +263,12 @@ cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.
 enumdisplay$(EXESUFFIX): $(OBJ)/enumdisplay.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); fi
+getdxdidf$(EXESUFFIX): $(OBJ)/getdxdidf.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -ldinput; then $(ONESTEP_OK); fi
+makesdlkeytrans$(EXESUFFIX): $(OBJ)/makesdlkeytrans.$o $(UTILADDOBJS)
+	$(ONESTEP_STATUS)
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 arttool$(EXESUFFIX): $(OBJ)/arttool.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
 	if $(CXX) -o $@ $^ $(OURLDFLAGS) $(STATICSTDCPP) $(UTILLIBS); then $(ONESTEP_OK); fi
@@ -326,7 +355,9 @@ clean:
 	echo -n "" > $(OBJ)/keep.me
 
 cleanutils:
-	-rm -f $(UTILS) $(UTILOBJS) $(UTILADDOBJS)
+	-rm -f $(UTILS) $(UTILOBJS) $(UTILADDOBJS) \
+    enumdisplay$(EXESUFFIX) getdxdidf$(EXESUFFIX) makesdlkeytrans$(EXESUFFIX) \
+    $(OBJ)/compat.$o $(OBJ)/getdxdidf.$o $(OBJ)/makesdlkeytrans.$o
 
 printutils:
 	echo "$(UTILS)"

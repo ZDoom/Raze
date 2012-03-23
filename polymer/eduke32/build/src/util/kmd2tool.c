@@ -7,48 +7,91 @@ kmd2tool.exe: kmd2tool.c; cl kmd2tool.c /Ox /G6fy /MD /link /opt:nowin98
 #include <stdio.h>
 #include <io.h>
 #include <math.h>
+#include "compat.h"
 
 typedef struct { float x, y, z; } point3d;
 
 typedef struct
-{  int id, vers, skinxsiz, skinysiz, framebytes; //id:"IPD2", vers:8
+{  int id, vers, skinxsiz, skinysiz, framebytes; // id:"IPD2", vers:8
     int numskins, numverts, numuv, numtris, numglcmds, numframes;
-    int ofsskins, ofsuv, ofstris, ofsframes, ofsglcmds, ofseof; //ofsskins: skin names (64 bytes each)
+    int ofsskins, ofsuv, ofstris, ofsframes, ofsglcmds, ofseof; // ofsskins: skin names (64 bytes each)
 } md2typ;
 
 typedef struct { point3d mul, add; } frametyp;
 
-int main (int argc, char **argv)
+int main (const int argc, const char **argv)
 {
-    FILE *fil;
+    BFILE *fil;
     int i, leng;
     char *fbuf;
+    float zoffset = 0.0f;
     md2typ *head;
     frametyp *fptr;
 
-    if (argc != 4) { puts("KMD2TOOL [MD2 in file] [MD2 out file] [z offset]                    by Ken Silverman"); return(0); }
-    if (!stricmp(argv[1],argv[2])) { puts("input&output filenames can't be same"); return(0); }
-
-    fil = fopen(argv[1],"rb"); if (!fil) { puts("error"); return(0); }
-    leng = filelength(_fileno(fil));
-    fbuf = (char *)malloc(leng); if (!fbuf) { puts("error"); return(0); }
-    fread(fbuf,leng,1,fil);
-    fclose(fil);
-
-    head = (md2typ *)fbuf;
-    if ((head->id != 0x32504449) && (head->vers != 8)) { free(fbuf); puts("error"); return(0); } //"IDP2"
-    for(i=0;i<head->numframes;i++)
+    if (argc != 4)
     {
-        fptr = (frametyp *)&fbuf[head->ofsframes+head->framebytes*i];
-        printf("frame %2d scale:%f,%f,%f offs:%f,%f,%f\n",i,fptr->mul.x,fptr->mul.y,fptr->mul.z,fptr->add.x,fptr->add.y,fptr->add.z);
-        fptr->add.z += atof(argv[3]);
+        Bputs("KMD2TOOL <MD2 in file> <MD2 out file> <z offset>              by Ken Silverman");
+        return(1);
+    }
+    if (!Bstrcasecmp(argv[1],argv[2]))
+    {
+        Bputs("Error: input and output filenames cannot be the same");
+        return(2);
     }
 
-    fil = fopen(argv[2],"wb"); if (!fil) { puts("error"); return(0); }
-    fwrite(fbuf,leng,1,fil);
-    fclose(fil);
+    zoffset = Batof(argv[3]);
+    if (0.0f == zoffset)
+    {
+        Bputs("Error: offset of zero");
+        return(3);
+    }
 
-    free(fbuf);
+    fil = Bfopen(argv[1],"rb");
+    if (!fil)
+    {
+        Bputs("Error: could not open input MD2");
+        return(4);
+    }
+
+    Bfseek(fil, 0, SEEK_END);
+    leng = Bftell(fil);
+    Bfseek(fil, 0, SEEK_SET);
+
+    fbuf = (char *)Bmalloc(leng * sizeof(char));
+    if (!fbuf)
+    {
+        Bputs("Error: Could not allocate buffer");
+        return(5);
+    }
+
+    Bfread(fbuf,leng,1,fil);
+    Bfclose(fil);
+
+    head = (md2typ *)fbuf;
+    if ((head->id != 0x32504449) && (head->vers != 8)) // "IDP2"
+    {
+        Bfree(fbuf);
+        Bputs("Error: input is not an MD2 file");
+        return(6);
+    }
+
+    for(i=0; i<head->numframes; ++i)
+    {
+        fptr = (frametyp *)&fbuf[head->ofsframes+head->framebytes*i];
+        Bprintf("frame %2d scale:%f,%f,%f offs:%f,%f,%f\n",i,fptr->mul.x,fptr->mul.y,fptr->mul.z,fptr->add.x,fptr->add.y,fptr->add.z);
+        fptr->add.z += zoffset;
+    }
+
+    fil = Bfopen(argv[2],"wb");
+    if (!fil)
+    {
+        Bputs("Error: could not open output file for writing");
+        return(7);
+    }
+    Bfwrite(fbuf,leng,1,fil);
+    Bfclose(fil);
+
+    Bfree(fbuf);
 
     return(0);
 }

@@ -44,10 +44,13 @@ $(OBJ)/kgroup.$o: $(SRC)/util/kgroup.c $(INC)/compat.h
 $(OBJ)/transpal.$o: $(SRC)/util/transpal.c $(INC)/compat.h $(INC)/pragmas.h
 $(OBJ)/wad2art.$o: $(SRC)/util/wad2art.c $(INC)/compat.h $(INC)/pragmas.h
 $(OBJ)/wad2map.$o: $(SRC)/util/wad2map.c $(INC)/compat.h $(INC)/pragmas.h
+$(OBJ)/kmd2tool.$o: $(SRC)/util/kmd2tool.c $(INC)/compat.h
 $(OBJ)/md2tool.$o: $(SRC)/util/md2tool.c $(INC)/compat.h $(INC)/build.h $(INC)/glbuild.h $(INC)/mdsprite.h
 $(OBJ)/generateicon.$o: $(SRC)/util/generateicon.c $(INC)/kplib.h $(INC)/compat.h
 $(OBJ)/cacheinfo.$o: $(SRC)/util/cacheinfo.c $(INC)/compat.h
-$(OBJ)/enumdisplay.$o: $(SRC)/misc/enumdisplay.c
+$(OBJ)/enumdisplay.$o: $(SRC)/misc/enumdisplay.c $(INC)/compat.h
+$(OBJ)/getdxdidf.$o: $(SRC)/misc/getdxdidf.c $(INC)/compat.h
+$(OBJ)/makesdlkeytrans.$o: $(SRC)/misc/makesdlkeytrans.c
 $(OBJ)/arttool.$o: $(SRC)/util/arttool.cc
 $(OBJ)/givedepth.$o: $(SRC)/util/givedepth.c
 $(OBJ)/mkpalette.$o: $(SRC)/util/mkpalette.c

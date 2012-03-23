@@ -81,7 +81,7 @@ void findfiles(const char *dafilespec)
         numfiles++;
         if (numfiles > MAXFILES)
         {
-            printf("FATAL ERROR: TOO MANY FILES SELECTED! (MAX is 4096)\n");
+            Bprintf("FATAL ERROR: TOO MANY FILES SELECTED! (MAX is 4096)\n");
             exit(0);
         }
     }
@@ -95,11 +95,11 @@ int main(int argc, char **argv)
 
     if (argc < 3)
     {
-        printf("KGROUP [grouped file][@file or filespec...]           by Kenneth Silverman\n");
-        printf("   This program collects many files into 1 big uncompressed file called a\n");
-        printf("   group file\n");
-        printf("   Ex: kgroup stuff.dat *.art *.map *.k?? palette.dat tables.dat\n");
-        printf("      (stuff.dat is the group file, the rest are the files to add)\n");
+        Bprintf("KGROUP <grouped file><@file or filespec...>               by Kenneth Silverman\n");
+        Bprintf("   This program collects many files into 1 big uncompressed file called a\n");
+        Bprintf("   group file\n");
+        Bprintf("   Ex: kgroup stuff.dat *.art *.map *.k?? palette.dat tables.dat\n");
+        Bprintf("      (stuff.dat is the group file, the rest are the files to add)\n");
         exit(0);
     }
 
@@ -133,7 +133,7 @@ int main(int argc, char **argv)
 
     if ((fil = Bopen(argv[1],BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
     {
-        printf("Error: %s could not be opened\n",argv[1]);
+        Bprintf("Error: %s could not be opened\n",argv[1]);
         exit(0);
     }
     Bwrite(fil,"KenSilverman",12);
@@ -142,10 +142,10 @@ int main(int argc, char **argv)
 
     for(i=0;i<numfiles;i++)
     {
-        printf("Adding %s...\n",filespec[i]);
+        Bprintf("Adding %s...\n",filespec[i]);
         if ((fil2 = Bopen(filespec[i],BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
         {
-            printf("Error: %s not found\n",filespec[i]);
+            Bprintf("Error: %s not found\n",filespec[i]);
             Bclose(fil);
             return(0);
         }
@@ -157,14 +157,14 @@ int main(int argc, char **argv)
             {
                 Bclose(fil2);
                 Bclose(fil);
-                printf("OUT OF HD SPACE!\n");
+                Bprintf("OUT OF HD SPACE!\n");
                 return(0);
             }
         }
         Bclose(fil2);
     }
     Bclose(fil);
-    printf("Saved to %s.\n",argv[1]);
+    Bprintf("Saved to %s.\n",argv[1]);
 
     return 0;
 }

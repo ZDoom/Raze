@@ -61,7 +61,7 @@ void convpalette(void)
     Bread(fil1,palookup,8192);
 
     if ((fil3 = Bopen("palette.dat",BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
-        { printf("Cannot save palette.dat\n"); exit(0); }
+        { Bprintf("Cannot save palette.dat\n"); exit(0); }
     Bwrite(fil3,pal,768);
     danumshades = 32;
     Bwrite(fil3,&danumshades,2);
@@ -83,7 +83,7 @@ void saveart (short tilenum, short xlen, short ylen)
             tempbuf[i++] = screen[p];
     if (Bwrite(fil2,&tempbuf[0],i) < 0)
     {
-        printf("NOT ENOUGH DISK SPACE!\n");
+        Bprintf("NOT ENOUGH DISK SPACE!\n");
         exit(0);
     }
 }
@@ -206,44 +206,44 @@ int main(int argc, char **argv)
     int i, j, endoffile;
     char wadfile[80];
 
-    printf("Wad2Art!                                       Copyright 1995 by Ken Silverman\n");
+    Bprintf("Wad2Art!                                       Copyright 1995 by Ken Silverman\n");
 
     if (argc != 2)
     {
-        printf("Command line parameters: Wad2Art [Doom IWAD file]\n");
-        printf("   Creates TILES000.ART, PALETTE.DAT, and NAMES.H in current directory.\n");
-        printf("   Ex: wad2art c:\\doom\\doom.wad\n");
+        Bprintf("Command line parameters: Wad2Art <Doom IWAD file>\n");
+        Bprintf("   Creates TILES000.ART, PALETTE.DAT, and NAMES.H in current directory.\n");
+        Bprintf("   Ex: wad2art c:\\doom\\doom.wad\n");
         exit(0);
     }
 
     strcpy(wadfile,argv[1]);
     if (strchr(wadfile,'.') == 0) strcat(wadfile,".wad");
     if ((fil1 = Bopen(wadfile,BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
-        { printf("Wad not found\n"); exit(0); }
+        { Bprintf("Wad not found\n"); exit(0); }
     if ((fil2 = Bopen("tiles000.art",BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
-        { printf("Can't open art file\n"); exit(0); }
+        { Bprintf("Can't open art file\n"); exit(0); }
 
     j = 0;
     for(i=0;i<256;i++) { ylookup[i] = j; j += 320; }
 
-    printf("Loading wad header...\n");
+    Bprintf("Loading wad header...\n");
     loadwadheader();
     Blseek(fil2,16+(numwads<<3),SEEK_SET);
     for(i=0;i<numwads;i++)
         { tilesizx[i] = 0; tilesizy[i] = 0; picanm[i] = 0L; }
 
-    printf("Saving names.h\n");
+    Bprintf("Saving names.h\n");
     savenames();
-    printf("Converting palette\n");
+    Bprintf("Converting palette\n");
     convpalette();
 
-    printf("Saving tiles000.art\n");
+    Bprintf("Saving tiles000.art\n");
     showart("L_START");
     showart("S_START");
     showart("P_START");
     showart("F_START");
 
-    printf("Saving tiles000.art header\n");
+    Bprintf("Saving tiles000.art header\n");
     artversion = 1; localtilestart = 0; localtileend = numwads-1;
 
     endoffile = Btell(fil2);
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
     Bclose(fil2);
     Bclose(fil1);
 
-    printf("Congratulations!  Your disk actually had enough space this time!\n");
+    Bprintf("Congratulations!  Your disk actually had enough space this time!\n");
 
     return 0;
 }

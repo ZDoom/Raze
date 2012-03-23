@@ -484,6 +484,8 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # define Bfprintf fprintf
 # define Bfscanf fscanf
 # define Bfseek fseek
+# define Bftell ftell
+# define Bputs puts
 # define Bstrcpy strcpy
 # define Bstrncpy strncpy
 # define Bstrcmp strcmp
@@ -518,6 +520,7 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 // return LONG_MAX (== 0x7fffffff on 32-bit archs))
 # define Batoi(str) ((int32_t)strtol(str, NULL, 10))
 # define Batol(str) (strtol(str, NULL, 10))
+# define Batof(str) (strtod(str, NULL))
 # define Bstrtol strtol
 # define Bstrtoul strtoul
 # define Bstrtod strtod
@@ -529,7 +532,9 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # define Bmemchr memchr
 # define Bmemset memset
 # define Bmemcmp memcmp
+# define Bscanf scanf
 # define Bprintf printf
+# define Bsscanf sscanf
 # define Bsprintf sprintf
 # ifdef _MSC_VER
 #  define Bsnprintf _snprintf

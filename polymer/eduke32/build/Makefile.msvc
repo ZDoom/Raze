@@ -117,7 +117,7 @@ CFLAGS=$(CFLAGS) /DRENDERTYPE$(RENDERTYPE)=1 /W2
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 # TARGETS
-UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) md2tool$(EXESUFFIX) generateicon$(EXESUFFIX) cacheinfo$(EXESUFFIX) arttool$(EXESUFFIX) givedepth$(EXESUFFIX) mkpalette$(EXESUFFIX) unpackssi$(EXESUFFIX) bsuite$(EXESUFFIX)
+UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) kmd2tool$(EXESUFFIX) md2tool$(EXESUFFIX) generateicon$(EXESUFFIX) cacheinfo$(EXESUFFIX) arttool$(EXESUFFIX) givedepth$(EXESUFFIX) mkpalette$(EXESUFFIX) unpackssi$(EXESUFFIX) bsuite$(EXESUFFIX)
 
 all: $(OBJ)\$(ENGINELIB) $(OBJ)\$(EDITORLIB);
 utils: $(UTILS) ;
@@ -148,6 +148,10 @@ wad2map$(EXESUFFIX): $(OBJ)\wad2map.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
 wad2art$(EXESUFFIX): $(OBJ)\wad2art.$o $(OBJ)\pragmas.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\nedmalloc.$o
+	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
+	$(MT) -manifest $@.manifest -outputresource:$@
+
+kmd2tool$(EXESUFFIX): $(OBJ)\kmd2tool.$o $(OBJ)\nedmalloc.$o
 	$(LINK) /OUT:$@ /SUBSYSTEM:CONSOLE $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $@.manifest -outputresource:$@
 
@@ -188,7 +192,7 @@ bsuite$(EXESUFFIX): $(OBJ)\bsuite.$o $(OBJ)\nedmalloc.$o
 
 # PHONIES
 clean:
-	-del /Q $(ENGINEOBJS) $(EDITOROBJS) $(OBJ)\kextract.$o $(OBJ)\kgroup.$o $(OBJ)\transpal.$o $(OBJ)\wad2art.$o $(OBJ)\wad2map.$o $(OBJ)\md2tool.$o $(OBJ)\generateicon.$o $(OBJ)\cacheinfo.$o $(OBJ)\arttool.$o $(OBJ)\givedepth.$o $(OBJ)\mkpalette.$o $(OBJ)\unpackssi.$o $(OBJ)\bsuite.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\pragmas.$o $(OBJ)\kplib.$o $(OBJ)\cache1d.$o $(OBJ)\nedmalloc.$o
+	-del /Q $(ENGINEOBJS) $(EDITOROBJS) $(OBJ)\kextract.$o $(OBJ)\kgroup.$o $(OBJ)\transpal.$o $(OBJ)\wad2art.$o $(OBJ)\wad2map.$o $(OBJ)\kmd2tool.$o $(OBJ)\md2tool.$o $(OBJ)\generateicon.$o $(OBJ)\cacheinfo.$o $(OBJ)\arttool.$o $(OBJ)\givedepth.$o $(OBJ)\mkpalette.$o $(OBJ)\unpackssi.$o $(OBJ)\bsuite.$o $(OBJ)\compat.$o $(OBJ)\compat_tools.$o $(OBJ)\pragmas.$o $(OBJ)\kplib.$o $(OBJ)\cache1d.$o $(OBJ)\nedmalloc.$o
 veryclean: clean
 	-del /Q $(OBJ)\$(ENGINELIB) $(OBJ)\$(EDITORLIB) $(UTILS) *.map *.manifest *.pdb
 

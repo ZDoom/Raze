@@ -14,3 +14,5 @@ void initprintf(const char *f, ...)
     Bvsnprintf(buf, sizeof(buf), f, va);
     va_end(va);
 }
+
+int32_t editstatus = 1;

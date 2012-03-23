@@ -41,19 +41,19 @@ int main(int argc, char **argv)
 
     if (argc < 2)
     {
-        printf("KEXTRACT <groupfile.grp> [@file or filespec...]           by Kenneth Silverman\n");
-        printf("   This program extracts files from a previously grouped group file.\n");
-        printf("   You can extract files using the ? and * wildcards.\n");
-        printf("   Ex: kextract stuff.dat tiles000.art nukeland.map palette.dat\n");
-        printf("         (stuff.dat is the group file, the rest are the files to extract)\n");
-        printf("       kextract stuff.grp\n");
-        printf("         (simply lists the contents of stuff.grp)\n");
+        Bprintf("KEXTRACT <groupfile.grp> [@file or filespec...]           by Kenneth Silverman\n");
+        Bprintf("   This program extracts files from a previously grouped group file.\n");
+        Bprintf("   You can extract files using the ? and * wildcards.\n");
+        Bprintf("   Ex: kextract stuff.dat tiles000.art nukeland.map palette.dat\n");
+        Bprintf("         (stuff.dat is the group file, the rest are the files to extract)\n");
+        Bprintf("       kextract stuff.grp\n");
+        Bprintf("         (simply lists the contents of stuff.grp)\n");
         return(0);
     }
 
     if ((fil = Bopen(argv[1],BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
     {
-        printf("Error: %s could not be opened\n",argv[1]);
+        Bprintf("Error: %s could not be opened\n",argv[1]);
         return(0);
     }
 
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
          (buf[9] != 'm') || (buf[10] != 'a') || (buf[11] != 'n'))
     {
         Bclose(fil);
-        printf("Error: %s not a valid group file\n",argv[1]);
+        Bprintf("Error: %s not a valid group file\n",argv[1]);
         return(0);
     }
     numfiles = *((int*)&buf[12]); numfiles = B_LITTLE32(numfiles);
@@ -84,7 +84,7 @@ int main(int argc, char **argv)
     if (onlylist)
     {
         for (i=0; i<numfiles; i++)
-            printf("%s\t\t%d\n", filelist[i], fileoffs[i+1]-fileoffs[i]);
+            Bprintf("%s\t\t%d\n", filelist[i], fileoffs[i+1]-fileoffs[i]);
 
         return 0;
     }
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
     if (anyfiles4extraction == 0)
     {
         Bclose(fil);
-        printf("No files found in group file with those names\n");
+        Bprintf("No files found in group file with those names\n");
         return(0);
     }
 
@@ -134,10 +134,10 @@ int main(int argc, char **argv)
 
         if ((fil2 = Bopen(filelist[i],BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
         {
-            printf("Error: Could not write to %s\n",filelist[i]);
+            Bprintf("Error: Could not write to %s\n",filelist[i]);
             continue;
         }
-        printf("Extracting %s...\n",filelist[i]);
+        Bprintf("Extracting %s...\n",filelist[i]);
         Blseek(fil,fileoffs[i]+((numfiles+1)<<4),SEEK_SET);
         for(j=0;j<fileleng[i];j+=65536)
         {
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
             Bread(fil,buf,k);
             if (Bwrite(fil2,buf,k) < k)
             {
-                printf("Write error (drive full?)\n");
+                Bprintf("Write error (drive full?)\n");
                 Bclose(fil2);
                 Bclose(fil);
                 return(0);

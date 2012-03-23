@@ -6,7 +6,7 @@
 #include <windows.h>
 #include <dinput.h>
 #include <stdio.h>
-
+#include "compat.h"
 
 char *WhatGUID(const GUID *guid)
 {
@@ -30,7 +30,7 @@ char *WhatGUID(const GUID *guid)
 
 
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance ATTRIBUTE((unused)), HINSTANCE hPrevInstance ATTRIBUTE((unused)), LPSTR lpCmdLine ATTRIBUTE((unused)), int nCmdShow ATTRIBUTE((unused)))
 {
     FILE *fp;
     DWORD i;
@@ -48,7 +48,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     for (i=0; i<c_dfDIKeyboard.dwNumObjs; i++) {
         fprintf(fp,
-            "\t{ %s, %d, 0x%08X, 0x%08X },\n",
+            "\t{ %s, %lu, 0x%08lu, 0x%08lu },\n",
                 WhatGUID(c_dfDIKeyboard.rgodf[i].pguid),
                 c_dfDIKeyboard.rgodf[i].dwOfs,
                 c_dfDIKeyboard.rgodf[i].dwType,
@@ -58,7 +58,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     fprintf(fp,
         "};\n"
         "\n"
-        "const DIDATAFORMAT c_dfDIKeyboard = { %d, %d, 0x%08X, %d, %d, c_dfDIKeyboard_odf };\n\n",
+        "const DIDATAFORMAT c_dfDIKeyboard = { %lu, %lu, 0x%08lu, %lu, %lu, c_dfDIKeyboard_odf };\n\n",
         c_dfDIKeyboard.dwSize,
             c_dfDIKeyboard.dwObjSize,
             c_dfDIKeyboard.dwFlags,
@@ -76,7 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     for (i=0; i<c_dfDIMouse.dwNumObjs; i++) {
         fprintf(fp,
-            "\t{ %s, %d, 0x%08X, 0x%08X },\n",
+            "\t{ %s, %lu, 0x%08lu, 0x%08lu },\n",
                 WhatGUID(c_dfDIMouse.rgodf[i].pguid),
                 c_dfDIMouse.rgodf[i].dwOfs,
                 c_dfDIMouse.rgodf[i].dwType,
@@ -86,7 +86,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     fprintf(fp,
         "};\n"
         "\n"
-        "const DIDATAFORMAT c_dfDIMouse = { %d, %d, 0x%08X, %d, %d, c_dfDIMouse_odf };\n\n",
+        "const DIDATAFORMAT c_dfDIMouse = { %lu, %lu, 0x%08lu, %lu, %lu, c_dfDIMouse_odf };\n\n",
         c_dfDIMouse.dwSize,
             c_dfDIMouse.dwObjSize,
             c_dfDIMouse.dwFlags,
@@ -104,7 +104,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     for (i=0; i<c_dfDIJoystick.dwNumObjs; i++) {
         fprintf(fp,
-            "\t{ %s, %d, 0x%08X, 0x%08X },\n",
+            "\t{ %s, %lu, 0x%08lu, 0x%08lu },\n",
                 WhatGUID(c_dfDIJoystick.rgodf[i].pguid),
                 c_dfDIJoystick.rgodf[i].dwOfs,
                 c_dfDIJoystick.rgodf[i].dwType,
@@ -114,7 +114,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     fprintf(fp,
         "};\n"
         "\n"
-        "const DIDATAFORMAT c_dfDIJoystick = { %d, %d, 0x%08X, %d, %d, c_dfDIJoystick_odf };\n\n",
+        "const DIDATAFORMAT c_dfDIJoystick = { %lu, %lu, 0x%08lu, %lu, %lu, c_dfDIJoystick_odf };\n\n",
         c_dfDIJoystick.dwSize,
             c_dfDIJoystick.dwObjSize,
             c_dfDIJoystick.dwFlags,

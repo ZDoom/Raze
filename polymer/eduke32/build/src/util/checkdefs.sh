@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$1" ]; then
-    echo 'Usage: checkdefs.sh <some.def> [[<some_dir>] {-patch,-con,-conpatch}]'
+    echo 'Usage: checkdefs.sh <some.def> [[<search_path_base_dir>] {-patch,-con,-conpatch}]'
     exit 1
 fi
 deffn="$1"
@@ -16,7 +16,7 @@ dopatch=""
 docon=""
 if [ -n "$3" ]; then
     if [ "$3" != "-patch" -a "$3" != "-con" -a "$3" != "-conpatch" ]; then
-        echo 'Usage: checkdefs.sh <some.def> [[<some_dir>] {-patch,-con,-conpatch}]'
+        echo 'Usage: checkdefs.sh <some.def> [[<search_path_base_dir>] {-patch,-con,-conpatch}]'
         exit 1
     fi
     if [ "$3" == "-patch" ]; then

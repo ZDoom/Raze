@@ -163,25 +163,25 @@ int main(int argc, char **argv)
 
     if ((argc != 3) && (argc != 6))
     {
-        printf("TRANSPAL [-t] [numshades][trans#(0-inv,256-opa)][r][g][b]     by Kenneth Silverman\n");
-        printf("   Ex #1: transpal 32 170 30 59 11      (I use these values in my BUILD demo)\n");
-        printf("                          юддаддаддд The RGB scales are optional\n");
-        printf("   Ex #2: transpal 64 160\n\n");
-        printf("Once tables are generated, the optional -t switch determines what to save:\n");
-        printf("   Exclude -t to update both the shade table and transluscent table\n");
-        printf("   Include -t to update the transluscent table ONLY\n");
+        Bprintf("TRANSPAL [-t]<numshades><trans#(0-inv,256-opa)><r><g><b>  by Kenneth Silverman\n");
+        Bprintf("   Ex #1: transpal 32 170 30 59 11      (I use these values in my BUILD demo)\n");
+        Bprintf("                          юддаддаддд The RGB scales are optional\n");
+        Bprintf("   Ex #2: transpal 64 160\n\n");
+        Bprintf("Once tables are generated, the optional -t switch determines what to save:\n");
+        Bprintf("   Exclude -t to update both the shade table and transluscent table\n");
+        Bprintf("   Include -t to update the transluscent table ONLY\n");
         exit(0);
     }
 
-    strcpy(palettefilename,"palette.dat");
-    numpalookups = atol(argv[1]);
-    transratio = atol(argv[2]);
+    Bstrcpy(palettefilename,"palette.dat");
+    numpalookups = Batol(argv[1]);
+    transratio = Batol(argv[2]);
 
     if (argc == 6)
     {
-        rscale = atol(argv[3]);
-        gscale = atol(argv[4]);
-        bscale = atol(argv[5]);
+        rscale = Batol(argv[3]);
+        gscale = Batol(argv[4]);
+        bscale = Batol(argv[5]);
     }
     else
     {
@@ -191,13 +191,13 @@ int main(int argc, char **argv)
     }
 
     if ((numpalookups < 1) || (numpalookups > 256))
-        { printf("Invalid number of shades\n"); exit(0); }
+        { Bprintf("Invalid number of shades\n"); exit(0); }
     if ((transratio < 0) || (transratio > 256))
-        { printf("Invalid transluscent ratio\n"); exit(0); }
+        { Bprintf("Invalid transluscent ratio\n"); exit(0); }
 
     if ((fil = Bopen(palettefilename,BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
     {
-        printf("%s not found",palettefilename);
+        Bprintf("%s not found",palettefilename);
         return(0);
     }
     Bread(fil,palette,768);
@@ -242,28 +242,28 @@ int main(int argc, char **argv)
     {
         short s;
         if ((fil = Bopen(palettefilename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
-            { printf("Couldn't save file %s",palettefilename); return(0); }
+            { Bprintf("Couldn't save file %s",palettefilename); return(0); }
         Bwrite(fil,palette,768);
         s = B_LITTLE16(numpalookups); Bwrite(fil,&s,2);
         Bwrite(fil,palookup,numpalookups<<8);
         Bwrite(fil,transluc,65536);
         Bclose(fil);
-        printf("Shade table AND transluscent table updated\n");
+        Bprintf("Shade table AND transluscent table updated\n");
     }
     else if (ch == 32)
     {
         short s;
         if ((fil = Bopen(palettefilename,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
-            { printf("Couldn't save file %s",palettefilename); return(0); }
+            { Bprintf("Couldn't save file %s",palettefilename); return(0); }
         Bwrite(fil,palette,768);
         s = B_LITTLE16(orignumpalookups); Bwrite(fil,&s,2);
         Bwrite(fil,origpalookup,(int)orignumpalookups<<8);
         Bwrite(fil,transluc,65536);
         Bclose(fil);
-        printf("Transluscent table updated\n");
+        Bprintf("Transluscent table updated\n");
     }
     else
-        printf("Palette file wasn't touched\n");
+        Bprintf("Palette file wasn't touched\n");
 
     return 0;
 }

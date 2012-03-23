@@ -24,7 +24,7 @@ static md2model_t *md2load(int *fd, const char *filename, int32_t ronly)
     fil = Bopen(filename, ronly?BO_RDONLY:BO_RDWR);
     if (fil<0)
     {
-        fprintf(stderr, "Couldn't open `%s': %s\n", filename, strerror(errno));
+        Bfprintf(stderr, "Couldn't open `%s': %s\n", filename, strerror(errno));
         quit(2);
     }
 
@@ -45,7 +45,7 @@ static md2model_t *md2load(int *fd, const char *filename, int32_t ronly)
 
     if ((head.id != 0x32504449) || (head.vers != 8))
     {
-        fprintf(stderr, "File `%s' is not an md2 file.\n", filename);
+        Bfprintf(stderr, "File `%s' is not an md2 file.\n", filename);
         quit(3);
     } //"IDP2"
 
@@ -109,7 +109,7 @@ static md2model_t *md2load(int *fd, const char *filename, int32_t ronly)
 
 static void usage_and_quit()
 {
-    fprintf(stderr,
+    Bfprintf(stderr,
             "Usage:\n"
             "   md2tool <modelfile>.md2:  display info about model\n"
             "   md2tool -minmax <minx>,<miny>,<minz>:<maxx>,<maxy>,<maxz> <modelfile>.md2:\n"
@@ -154,13 +154,13 @@ int main(int argc, char **argv)
                 doinfo=0;
                 if (i+1 >= argc)
                     usage_and_quit();
-                if (sscanf(argv[i+1], "%f,%f,%f:%f,%f,%f", &dminx,&dminy,&dminz, &dmaxx,&dmaxy,&dmaxz)!=6)
+                if (Bsscanf(argv[i+1], "%f,%f,%f:%f,%f,%f", &dminx,&dminy,&dminz, &dmaxx,&dmaxy,&dmaxz)!=6)
                     usage_and_quit();
                 i++;
             }
             else
             {
-                fprintf(stderr, "unrecognized option `%s'\n", cp);
+                Bfprintf(stderr, "unrecognized option `%s'\n", cp);
                 quit(2);
             }
         }
@@ -188,23 +188,23 @@ int main(int argc, char **argv)
 
     if (doinfo)
     {
-        printf("------ %s ------\n", fn);
-        printf("numframes: %d\n", m->numframes);
-        printf("numverts: %d\n", m->numverts);
-        printf("numtris: %d\n", head.numtris);
-        printf("\n");
-        printf("ofsframes: %x\n", head.ofsframes);
-        printf("framebytes: %d\n", head.framebytes);
-//        printf("framebytes: %d, calculated=%d\n", head.framebytes, sizeof(md2frame_t)+(m->numverts-1)*sizeof(md2vert_t));
-        printf("\n");
+        Bprintf("------ %s ------\n", fn);
+        Bprintf("numframes: %d\n", m->numframes);
+        Bprintf("numverts: %d\n", m->numverts);
+        Bprintf("numtris: %d\n", head.numtris);
+        Bprintf("\n");
+        Bprintf("ofsframes: %x\n", head.ofsframes);
+        Bprintf("framebytes: %d\n", head.framebytes);
+//        Bprintf("framebytes: %d, calculated=%d\n", head.framebytes, sizeof(md2frame_t)+(m->numverts-1)*sizeof(md2vert_t));
+        Bprintf("\n");
 
-        printf("mul=%f %f %f\n", mx, my, mz);
-        printf("add=%f %f %f\n", ax, ay, az);
+        Bprintf("mul=%f %f %f\n", mx, my, mz);
+        Bprintf("add=%f %f %f\n", ax, ay, az);
 
-        printf("min xyz (s+t) = %f %f %f\n", minv[0]*mx+ax, minv[1]*my+ay, minv[2]*mz+az);
-        printf("max xyz (s+t) = %f %f %f\n", maxv[0]*mx+ax, maxv[1]*my+ay, maxv[2]*mz+az);
+        Bprintf("min xyz (s+t) = %f %f %f\n", minv[0]*mx+ax, minv[1]*my+ay, minv[2]*mz+az);
+        Bprintf("max xyz (s+t) = %f %f %f\n", maxv[0]*mx+ax, maxv[1]*my+ay, maxv[2]*mz+az);
 
-        printf("\n");
+        Bprintf("\n");
     }
     else
     {
@@ -214,7 +214,7 @@ int main(int argc, char **argv)
 
         if (mx==0||my==0||mz==0)
         {
-            fprintf(stderr, "max[x,y,z]-min[x,y,z] must each be grater 0!\n");
+            Bfprintf(stderr, "max[x,y,z]-min[x,y,z] must each be grater 0!\n");
             quit(2);
         }
 
@@ -228,7 +228,7 @@ int main(int argc, char **argv)
         if (ISNAN(mx)||ISNAN(my)||ISNAN(mz)||ISNAN(ax)||ISNAN(ay)||ISNAN(az)||
             ISINF(mx)||ISINF(my)||ISINF(mz)||ISINF(ax)||ISINF(ay)||ISINF(az))
         {
-            fprintf(stderr, "Calculation resulted in NaN or Inf.\n");
+            Bfprintf(stderr, "Calculation resulted in NaN or Inf.\n");
             quit(2);
         }
 
@@ -241,7 +241,7 @@ int main(int argc, char **argv)
         if (Bwrite(fd, &az, sizeof(az))!=sizeof(az)) { perror("write"); quit(3); }
         Bclose(fd);
 
-        printf("wrote scale and translate of `%s'.\n", fn);
+        Bprintf("wrote scale and translate of `%s'.\n", fn);
     }
 
     return 0;

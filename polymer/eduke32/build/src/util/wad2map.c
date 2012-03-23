@@ -310,7 +310,7 @@ void parsescript(void)
 
     if ((filhandle = Bopen(scriptname,BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
     {
-        printf("Could not find %s\n",scriptname);
+        Bprintf("Could not find %s\n",scriptname);
         exit(0);
     }
     filpos = 0; fileng = Bfilelength(filhandle);
@@ -348,12 +348,12 @@ void parsescript(void)
                         if (tempbuf[k] == '-')
                         {
                             tempbuf[k] = 0;
-                            thingnum[numthings] = atol(&tempbuf[lasti]);
-                            thingnum2[numthings] = atol(&tempbuf[k+1]);
+                            thingnum[numthings] = Batol(&tempbuf[lasti]);
+                            thingnum2[numthings] = Batol(&tempbuf[k+1]);
                         }
                         else
                         {
-                            thingnum[numthings] = atol(&tempbuf[lasti]);
+                            thingnum[numthings] = Batol(&tempbuf[lasti]);
                             thingnum2[numthings] = thingnum[numthings];
                         }
 
@@ -373,13 +373,13 @@ void parsescript(void)
                             if (tempbuf[k] == '-')
                             {
                                 tempbuf[k] = 0;
-                                tstart = atol(&tempbuf[lasti]);
-                                tend = atol(&tempbuf[k+1]);
+                                tstart = Batol(&tempbuf[lasti]);
+                                tend = Batol(&tempbuf[k+1]);
                                 for(k=tstart;k<=tend;k++)
                                     tempshort[textnum++] = k;
                             }
                             else
-                                tempshort[textnum++] = atol(&tempbuf[lasti]);
+                                tempshort[textnum++] = Batol(&tempbuf[lasti]);
                         }
                         else
                         {
@@ -419,12 +419,12 @@ void parsescript(void)
                         if (tempbuf[k] == '-')
                         {
                             tempbuf[k] = 0;
-                            tagnum[numtags] = atol(&tempbuf[lasti]);
-                            tagnum2[numtags] = atol(&tempbuf[k+1]);
+                            tagnum[numtags] = Batol(&tempbuf[lasti]);
+                            tagnum2[numtags] = Batol(&tempbuf[k+1]);
                         }
                         else
                         {
-                            tagnum[numtags] = atol(&tempbuf[lasti]);
+                            tagnum[numtags] = Batol(&tempbuf[lasti]);
                             tagnum2[numtags] = tagnum[numtags];
                         }
 
@@ -443,12 +443,12 @@ void parsescript(void)
                         if (tempbuf[k] == '-')
                         {
                             tempbuf[k] = 0;
-                            secnum[numsecs] = atol(&tempbuf[lasti]);
-                            secnum2[numsecs] = atol(&tempbuf[k+1]);
+                            secnum[numsecs] = Batol(&tempbuf[lasti]);
+                            secnum2[numsecs] = Batol(&tempbuf[k+1]);
                         }
                         else
                         {
-                            secnum[numsecs] = atol(&tempbuf[lasti]);
+                            secnum[numsecs] = Batol(&tempbuf[lasti]);
                             secnum2[numsecs] = secnum[numsecs];
                         }
                         numsecs++;
@@ -468,7 +468,7 @@ void parsescript(void)
                     }
                     else if (definemode == 2)
                     {
-                        defineval[numdefines++] = atol(&tempbuf[lasti]);
+                        defineval[numdefines++] = Batol(&tempbuf[lasti]);
                         definemode = 0;
                     }
 
@@ -508,7 +508,7 @@ void parsescript(void)
                         if (Bstrcasecmp(&tempbuf[lasti],"extra") == 0) thingfield[thingopnum] = 21;
 
                         if ((tempbuf[k+1] >= 48) && (tempbuf[k+1] <= 57))
-                            thingval[thingopnum] = atol(&tempbuf[k+1]);
+                            thingval[thingopnum] = Batol(&tempbuf[k+1]);
                         else
                         {
                             for(l=0;l<numdefines;l++)
@@ -522,7 +522,7 @@ void parsescript(void)
                     if ((texturelookupmode == 1) && (j == 1))
                     {
                         if ((tempbuf[lasti] >= 48) && (tempbuf[lasti] <= 57))
-                            l = atol(&tempbuf[lasti]);
+                            l = Batol(&tempbuf[lasti]);
                         else
                         {
                             for(l=0;l<numdefines;l++)
@@ -623,7 +623,7 @@ void parsescript(void)
                         tagfield[tagopnum] += (frontbackstat<<7) + (spritenumstat<<8);
 
                         if ((tempbuf[k+1] >= 48) && (tempbuf[k+1] <= 57))
-                            tagval[tagopnum] = atol(&tempbuf[k+1]);
+                            tagval[tagopnum] = Batol(&tempbuf[k+1]);
                         else if (Bstrcasecmp("tag",&tempbuf[k+1]) == 0)
                             tagval[tagopnum] = INT32_MIN;
                         else
@@ -704,7 +704,7 @@ void parsescript(void)
                         secfield[secopnum] += (spritenumstat<<8);
 
                         if ((tempbuf[k+1] >= 48) && (tempbuf[k+1] <= 57))
-                            secval[secopnum] = atol(&tempbuf[k+1]);
+                            secval[secopnum] = Batol(&tempbuf[k+1]);
                         else if (Bstrcasecmp("tag",&tempbuf[k+1]) == 0)
                             secval[secopnum] = INT32_MIN;
                         else
@@ -922,15 +922,15 @@ int main(int argc, char **argv)
     int mapversion, posx, posy, posz, boardwadindex;
     short ang, cursectnum;
 
-    printf("Wad2Map!                                       Copyright 1995 by Ken Silverman\n");
+    Bprintf("Wad2Map!                                       Copyright 1995 by Ken Silverman\n");
 
     if ((argc < 3) || (argc > 5))
     {
-        printf("Command line parameters: Wad2Map (PWADName) IWADName MapName (ScriptName)\n");
-        printf("   Ex #1: wad2map c:\\doom\\doom.wad e1m1\n");
-        printf("   Ex #2: wad2map c:\\doom\\doom.wad e1m1 kenbuild.txt\n");
-        printf("   Ex #3: wad2map c:\\doom\\mypwad.wad c:\\doom\\doom.wad e1m1\n");
-        printf("   Ex #4: wad2map c:\\doom\\mypwad.wad c:\\doom\\doom.wad e1m1 kenbuild.txt\n");
+        Bprintf("Command line parameters: Wad2Map (PWADName) IWADName MapName (ScriptName)\n");
+        Bprintf("   Ex #1: wad2map c:\\doom\\doom.wad e1m1\n");
+        Bprintf("   Ex #2: wad2map c:\\doom\\doom.wad e1m1 kenbuild.txt\n");
+        Bprintf("   Ex #3: wad2map c:\\doom\\mypwad.wad c:\\doom\\doom.wad e1m1\n");
+        Bprintf("   Ex #4: wad2map c:\\doom\\mypwad.wad c:\\doom\\doom.wad e1m1 kenbuild.txt\n");
         exit(0);
     }
 
@@ -939,12 +939,12 @@ int main(int argc, char **argv)
     strcpy(iwadfil,argstring[1]);     //"c:\games\doom\doom.wad"
     if (strchr(iwadfil,'.') == 0) strcat(iwadfil,".wad");
     if ((ifil = Bopen(iwadfil,BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
-        { printf("Could not find %s\n",iwadfil); exit(0); }
+        { Bprintf("Could not find %s\n",iwadfil); exit(0); }
 
     Bread(ifil,&wadtype,4);
     if (wadtype == 0x44415749) wadtype = 0;       //IWAD
     else if (wadtype == 0x44415750) wadtype = 1;  //PWAD
-    else { Bclose(ifil); printf("Invalid WAD header\n"); exit(0); }
+    else { Bclose(ifil); Bprintf("Invalid WAD header\n"); exit(0); }
 
     strcpy(pwadfil,iwadfil); pfil = ifil;
     if (wadtype == 1)
@@ -952,13 +952,13 @@ int main(int argc, char **argv)
         strcpy(iwadfil,argstring[2]);
         if (strchr(iwadfil,'.') == 0) strcat(iwadfil,".wad");
         if ((ifil = Bopen(iwadfil,BO_BINARY|BO_RDONLY,BS_IREAD)) == -1)
-            { Bclose(pfil); printf("Could not find %s\n",iwadfil); exit(0); }
+            { Bclose(pfil); Bprintf("Could not find %s\n",iwadfil); exit(0); }
 
         Bread(ifil,&wadtype,4);
         if (wadtype != 0x44415749)        //!= IWAD
         {
             Bclose(ifil); Bclose(pfil);
-            printf("Wad a' you think I am?  That ain't no IWAD!\n");
+            Bprintf("Wad a' you think I am?  That ain't no IWAD!\n");
             exit(0);
         }
 
@@ -1058,7 +1058,7 @@ int main(int argc, char **argv)
     for(i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;
 
     if ((w = getwadindex("TEXTURE1")) < 0)
-        { printf("TEXTURE1 not found!\n"); exit(0); }
+        { Bprintf("TEXTURE1 not found!\n"); exit(0); }
     Blseek(ifil,iwadplc[w],BSEEK_SET);
     Bread(ifil,&numtexts,4);
     Bread(ifil,textoffs,numtexts*sizeof(int));
@@ -1094,7 +1094,7 @@ int main(int argc, char **argv)
     }
 
     if ((w = getwadindex("PNAMES")) < 0)
-        { printf("PNAMES not found!\n"); exit(0); }
+        { Bprintf("PNAMES not found!\n"); exit(0); }
     Blseek(ifil,iwadplc[w],BSEEK_SET);
     Bread(ifil,&numpnames,4);
     Bread(ifil,tempbuf,numpnames*8);
@@ -1109,7 +1109,7 @@ int main(int argc, char **argv)
     }
 
     if ((w = getwadindex(doommap)) < 0)
-        { printf("Board not found!\n"); exit(0); }
+        { Bprintf("Board not found!\n"); exit(0); }
     boardwadindex = w;
     for(w=boardwadindex+10;w>=boardwadindex;w--)
     {
@@ -1591,7 +1591,7 @@ int main(int argc, char **argv)
     if (strchr(buildmap,'.') == 0) strcat(buildmap,".map");
     if ((fil = Bopen(buildmap,BO_BINARY|BO_TRUNC|BO_CREAT|BO_WRONLY,BS_IREAD|BS_IWRITE)) == -1)
     {
-        printf("Could not write to %s\n",buildmap);
+        Bprintf("Could not write to %s\n",buildmap);
         exit(0);
     }
     Bwrite(fil,&mapversion,4);
@@ -1608,7 +1608,7 @@ int main(int argc, char **argv)
     Bwrite(fil,sprite,sizeof(spritetype)*dnumthings);
     Bclose(fil);
 
-    printf("Map converted.\n");
+    Bprintf("Map converted.\n");
 
     return 0;
 }
