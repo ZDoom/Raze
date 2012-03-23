@@ -15,7 +15,6 @@ SDL_FRAMEWORK	= 0
 
 # Overridden for OSes that don't have the cutdown stdc++ that is supc++
 STDCPPLIB=-lsupc++
-BUILDCFLAGS=
 
 # GCC version, for conditional selection of flags.
 # This is easier than trying to squeeze it out of gcc --version:
@@ -40,6 +39,9 @@ ifndef ARCH
         ARCH=
     endif
 endif
+
+BUILDCFLAGS=$(ARCH)
+BUILDLDFLAGS=$(ARCH)
 
 # Detect the platform if it wasn't explicitly given to us from
 # the outside world. This allows cross-compilation by overriding
@@ -113,7 +115,8 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 
     ifeq (1,$(BUILD32_ON_64))
-        BUILDCFLAGS += $(F_NO_STACK_PROTECTOR) -arch i386
+        BUILDCFLAGS += $(F_NO_STACK_PROTECTOR)
+        ARCH=-arch i386
     else
         ifeq ($(findstring ppc,$(ARCH)),ppc)
             BUILDCFLAGS += $(F_NO_STACK_PROTECTOR)

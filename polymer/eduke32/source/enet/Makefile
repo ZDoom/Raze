@@ -6,12 +6,14 @@ OBJNAME=libenet.a
 SRC=src
 INC=include
 
-CFLAGS=$(BASECFLAGS) $(BUILDCFLAGS) $(F_NO_STACK_PROTECTOR)
 # for BUILD_ECHOFLAGS:
-OURCFLAGS=$(CFLAGS)
+OURCFLAGS=$(BASECFLAGS) $(BUILDCFLAGS) -I$(INC) -I$(SRC) -I../../$(EROOT)/include
+ifneq ($(RELEASE),0)
+    # Debugging disabled
+    debug+= $(F_NO_STACK_PROTECTOR)
+endif
 OURCONLYFLAGS=$(BASECONLYFLAGS)
 OURCXXFLAGS=$(BASECXXFLAGS)
-CPPFLAGS=-I$(INC) -I$(SRC) -I../../$(EROOT)/include
 
 
 OBJECTS=$(OBJ)/callbacks.o \
@@ -40,7 +42,7 @@ $(OBJNAME): $(OBJECTS)
 $(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c $(INC)/enet/*.h
 	-mkdir -p $(OBJ)
 	$(COMPILE_STATUS)
-	if $(CC) $(CPPFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:

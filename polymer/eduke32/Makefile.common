@@ -86,6 +86,11 @@ ifneq (0,$(CLANG))
 endif
 
 # compiler flags etc.
+BASECONLYFLAGS=-Wimplicit
+BASECXXFLAGS= -fno-exceptions -fno-rtti
+BASEASFLAGS=-s #-g
+BASELDFLAGS=
+
 LIBS=-lm
 ifneq (0,$(USE_LIBPNG))
     LIBS+= -lpng
@@ -115,7 +120,7 @@ ifneq (0,$(RELEASE))
         debug+= -fomit-frame-pointer -DNDEBUG
     endif
     ifneq (0,$(LTO))
-        LIBS+= -flto
+        BASELDFLAGS+= -flto
         debug+= -DUSING_LTO -flto
     endif
 else
@@ -185,11 +190,6 @@ ifneq (0,$(DMALLOC))
     LIBS+= -ldmalloc
     BASECFLAGS+= -DDMALLOC
 endif
-
-BASECONLYFLAGS=-Wimplicit
-BASECXXFLAGS= -fno-exceptions -fno-rtti
-BASEASFLAGS=-s #-g
-
 
 # Misc. stuff that is constant between Makefiles
 EROOT:=build

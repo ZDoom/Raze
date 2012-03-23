@@ -40,9 +40,8 @@ OURCFLAGS=$(BASECFLAGS) \
 
 OURCXXFLAGS=$(BASECXXFLAGS)
 OURCONLYFLAGS=$(BASECONLYFLAGS)
-NASMFLAGS=$(BASEASFLAGS)
-
-MISCLINKOPTS=
+OURASFLAGS=$(BASEASFLAGS)
+OURLDFLAGS=$(BASELDFLAGS) $(BUILDLDFLAGS)
 
 
 JAUDIOLIBDIR=$(SRC)/jaudiolib
@@ -168,14 +167,14 @@ ifneq (0,$(LUNATIC))
         STRIP+= -s $(SRC)/lunatic/dynsymlist_osx
 
         MISCGAMEDEPS+= $(SRC)/lunatic/dynsymlist_osx
-        MISCLINKOPTS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(SRC)/lunatic/aliases_list #-exported_symbols_list $(SRC)/lunatic/dynsymlist_osx
+        OURLDFLAGS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(SRC)/lunatic/aliases_list #-exported_symbols_list $(SRC)/lunatic/dynsymlist_osx
     endif
     ifeq ($(PLATFORM),WINDOWS)
         MISCGAMEDEPS+= $(SRC)/lunatic/eduke32.def
-        MISCLINKOPTS+= $(SRC)/lunatic/eduke32.def
+        OURLDFLAGS+= $(SRC)/lunatic/eduke32.def
     endif
     ifeq ($(PLATFORM),LINUX)
-        MISCLINKOPTS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
+        OURLDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
     endif
 endif
 
@@ -186,7 +185,7 @@ ifeq ($(PLATFORM),LINUX)
     ifneq ($(CC),clang)
         OURCFLAGS	+= -fno-pic
     endif
-    NASMFLAGS	+= -f elf
+    OURASFLAGS	+= -f elf
     LIBS		+= -lvorbisfile -lvorbis -logg
 endif
 
@@ -217,12 +216,12 @@ ifeq ($(PLATFORM),DARWIN)
 #        EDITOROBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
         GAMEOBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
     endif
-    NASMFLAGS += -f macho
+    OURASFLAGS += -f macho
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
     OURCFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include
-    NASMFLAGS+= -DUNDERSCORES -f win32
+    OURASFLAGS+= -DUNDERSCORES -f win32
     LIBS		+= -L$(JAUDIOLIBDIR)/third-party/mingw32/lib -lvorbisfile -lvorbis -logg -lwsock32 -lws2_32 -lwinmm -ldsound
     GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o $(OBJ)/music.$o $(OBJ)/midi.$o $(OBJ)/mpu401.$o
     EDITOROBJS+= $(OBJ)/buildres.$o
@@ -253,17 +252,17 @@ endif
 OURCFLAGS+= $(BUILDCFLAGS)
 
 ifeq ($(PLATFORM),WINDOWS)
-    MISCLINKOPTS+= -Wl,--large-address-aware
+    OURLDFLAGS+= -Wl,--large-address-aware
 endif
 #ifneq (0,$(KRANDDEBUG))
 ifeq ($(PLATFORM),DARWIN)
-    MISCLINKOPTS+=-Wl,-map -Wl,$@.memmap
+    OURLDFLAGS+=-Wl,-map -Wl,$@.memmap
 else
-    MISCLINKOPTS+=-Wl,-Map=$@.memmap
+    OURLDFLAGS+=-Wl,-Map=$@.memmap
 endif
 #endif
 ifneq (0,$(PROFILER))
-    MISCLINKOPTS+=-pg
+    OURLDFLAGS+=-pg
 endif
 
 ifeq ($(PRETTY_OUTPUT),1)
@@ -285,7 +284,7 @@ notice:
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB) $(MISCGAMEDEPS)
 	$(LINK_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STATICSTDCPP) $(STDCPPLIB) $(MISCLINKOPTS); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
   ifeq (0,$(DEBUGANYWAY))
 	$(STRIP) eduke32$(EXESUFFIX)
@@ -299,7 +298,7 @@ endif
 
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
 	$(LINK_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(LIBS) $(STATICSTDCPP) $(STDCPPLIB) $(MISCLINKOPTS); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
   ifeq (0,$(DEBUGANYWAY))
 	$(STRIP) mapster32$(EXESUFFIX)
@@ -355,15 +354,15 @@ $(EBACKTRACEDLL): Windows/src/backtrace.c
 
 $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(COMPILE_STATUS)
-	$(AS) $(NASMFLAGS) $< -o $@
+	$(AS) $(OURASFLAGS) $< -o $@
 
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/lunatic/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(SRC)/lunatic/dynsymlist_osx: $(SRC)/lunatic/dynsymlist
 	sed 's/[{};]//g;s/[A-Za-z_][A-Za-z_0-9]*/_&/g' $< > $@
@@ -377,7 +376,7 @@ $(SRC)/lunatic/eduke32.def: $(SRC)/lunatic/dynsymlist
 
 $(OBJ)/%.$o: Apple/%.m
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.cc
 	$(COMPILE_STATUS)
@@ -393,7 +392,7 @@ $(OBJ)/%.$o: $(SRC)/%.cxx
 
 $(OBJ)/%.$o: $(SRC)/jmact/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(COMPILE_STATUS)
@@ -401,19 +400,19 @@ $(OBJ)/%.$o: $(SRC)/misc/%.rc
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(RSRC)/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/game_banner.$o: $(RSRC)/game_banner.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(RSRC)/game_banner.c: $(RSRC)/game.bmp
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@

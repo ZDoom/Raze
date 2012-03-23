@@ -14,12 +14,14 @@ else
     #DXROOT ?= c:/sdks/directx/dx8
 endif
 
-CFLAGS=$(BASECFLAGS) $(BUILDCFLAGS) $(F_NO_STACK_PROTECTOR)
 # for BUILD_ECHOFLAGS:
-OURCFLAGS=$(CFLAGS)
+OURCFLAGS=$(BASECFLAGS) $(BUILDCFLAGS) -I$(INC) -I$(SRC) -DHAVE_VORBIS
+ifneq ($(RELEASE),0)
+    # Debugging disabled
+    debug+= $(F_NO_STACK_PROTECTOR)
+endif
 OURCONLYFLAGS=$(BASECONLYFLAGS)
 OURCXXFLAGS=$(BASECXXFLAGS)
-CPPFLAGS=-I$(INC) -I$(SRC) -DHAVE_VORBIS
 
 ifeq ($(PLATFORM),DARWIN)
     ifeq (1,$(SDL_FRAMEWORK))
@@ -40,14 +42,14 @@ OBJECTS=$(OBJ)/drivers.o \
 	$(OBJ)/driver_nosound.o
 
 ifeq ($(PLATFORM),WINDOWS)
-    CPPFLAGS+= -I$(DXROOT)/include -Ithird-party/mingw32/include
+    OURCFLAGS+= -I$(DXROOT)/include -Ithird-party/mingw32/include
     OBJECTS+= $(OBJ)/driver_directsound.o
     OBJNAME=libjfaudiolib_win32.a
     OBJ=obj_win
 else
-    CPPFLAGS+= -DHAVE_SDL
+    OURCFLAGS+= -DHAVE_SDL
     ifneq ($(PLATFORM),DARWIN)
-        CPPFLAGS+=`pkg-config --cflags vorbis`
+        OURCFLAGS+=`pkg-config --cflags vorbis`
     endif
     OBJECTS+= $(OBJ)/driver_sdl.o
 endif
@@ -62,7 +64,7 @@ $(OBJNAME): $(OBJECTS)
 $(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c
 	-mkdir -p $(OBJ)
 	$(COMPILE_STATUS)
-	if $(CC) $(CPPFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:

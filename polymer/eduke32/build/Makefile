@@ -47,16 +47,17 @@ else
     LIBS+= $(L_SSP) -Wl,--enable-auto-import
 endif
 
-OURCFLAGS=$(BASECFLAGS) -Wno-char-subscripts -I$(INC) $(ARCH)
+include Makefile.shared
+
+OURCFLAGS=$(BASECFLAGS) -Wno-char-subscripts -I$(INC)
 OURCONLYFLAGS=$(BASECONLYFLAGS)
 OURCXXFLAGS=$(BASECXXFLAGS)
-ASFLAGS=$(BASEASFLAGS)
+OURASFLAGS=$(BASEASFLAGS)
+OURLDFLAGS=$(BASELDFLAGS) $(BUILDLDFLAGS)
 
 ifneq ($(LUNATIC),0)
     OURCFLAGS+= -DLUNATIC_ENABLE
 endif
-
-include Makefile.shared
 
 UTILLIBS=  # -lpthread
 UTILADDOBJS=
@@ -124,31 +125,31 @@ EDITOROBJS=$(OBJ)/build.$o \
 # PLATFORM SPECIFIC SETTINGS
 
 ifeq ($(PLATFORM),LINUX)
-    ASFLAGS+= -f elf
+    OURASFLAGS+= -f elf
 endif
 ifeq ($(PLATFORM),DARWIN)
     ENGINEOBJS += $(OBJ)/osxbits.$o
     ifneq (0,$(OSX_STARTUPWINDOW))
         ENGINEOBJS += $(OBJ)/StartupWinController.editor.$o
     endif
-    ASFLAGS     += -f macho -DUNDERSCORES
+    OURASFLAGS     += -f macho -DUNDERSCORES
     OURCFLAGS   += -fno-pic -DUNDERSCORES
 endif
 ifeq ($(PLATFORM),BSD)
-    ASFLAGS+= -f elf
+    OURASFLAGS+= -f elf
     OURCFLAGS+= -I/usr/X11R6/include
 endif
 ifeq ($(PLATFORM),WINDOWS)
     OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc # -I$(ENETROOT)/include
     LIBS+= -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
-    ASFLAGS+= -DUNDERSCORES -f win32
+    OURASFLAGS+= -DUNDERSCORES -f win32
 endif
 ifeq ($(PLATFORM),BEOS)
-    ASFLAGS+= -f elf
+    OURASFLAGS+= -f elf
     TARGETOPTS+= -DNOASM
 endif
 ifeq ($(PLATFORM),SYLLABLE)
-    ASFLAGS+= -f elf
+    OURASFLAGS+= -f elf
 endif
 
 ifeq ($(RENDERTYPE),SDL)
@@ -213,47 +214,47 @@ $(OBJ)/$(EDITORLIB): $(EDITOROBJS)
 
 kextract$(EXESUFFIX): $(OBJ)/kextract.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 kgroup$(EXESUFFIX): $(OBJ)/kgroup.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 transpal$(EXESUFFIX): $(OBJ)/transpal.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 md2tool$(EXESUFFIX): $(OBJ)/md2tool.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 generateicon$(EXESUFFIX): $(OBJ)/generateicon.$o $(OBJ)/compat.$o $(OBJ)/pragmas.$o $(OBJ)/kplib.$o \
         $(OBJ)/cache1d.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 enumdisplay$(EXESUFFIX): $(OBJ)/enumdisplay.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); fi
 arttool$(EXESUFFIX): $(OBJ)/arttool.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CXX) -o $@ $^ $(STATICSTDCPP) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CXX) -o $@ $^ $(OURLDFLAGS) $(STATICSTDCPP) $(UTILLIBS); then $(ONESTEP_OK); fi
 givedepth$(EXESUFFIX): $(OBJ)/givedepth.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 mkpalette$(EXESUFFIX): $(OBJ)/mkpalette.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 unpackssi$(EXESUFFIX): $(OBJ)/unpackssi.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 bsuite$(EXESUFFIX): $(OBJ)/bsuite.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 
 # DEPENDENCIES
 include Makefile.deps
@@ -261,15 +262,15 @@ include Makefile.deps
 # RULES
 $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(COMPILE_STATUS)
-	if $(AS) $(ASFLAGS) $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(AS) $(OURASFLAGS) $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.m
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.cc
 	$(COMPILE_STATUS)
@@ -285,7 +286,7 @@ $(OBJ)/%.$o: $(SRC)/%.cxx
 
 $(OBJ)/%.$o: $(SRC)/misc/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(COMPILE_STATUS)
@@ -293,7 +294,7 @@ $(OBJ)/%.$o: $(SRC)/misc/%.rc
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/util/%.cc
 	$(COMPILE_STATUS)
@@ -309,7 +310,7 @@ $(OBJ)/%.$o: $(SRC)/util/%.cxx
 
 $(OBJ)/%.$o: $(RSRC)/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(CFLAGS) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@
