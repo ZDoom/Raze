@@ -44,7 +44,6 @@ ifneq ($(RELEASE),0)
 else
     # Debugging enabled
     debug+= -DNOSDLPARACHUTE
-    LIBS+= $(L_SSP) -Wl,--enable-auto-import
 endif
 
 include Makefile.shared
@@ -72,19 +71,6 @@ else
   ENGINEOBJS+= $(OBJ)/a-c.$o
 endif
 
-ifneq ($(PLATFORM),WINDOWS)
-    LIBS+= -ldl -pthread
-    ifneq ($(USE_LIBPNG),0)
-        LIBS+= -LWindows/lib -lpng -lz
-        OURCFLAGS+= -IWindows/include
-    endif
-endif
-ifeq ($(PLATFORM),DARWIN)
-    ifneq ($(USE_LIBPNG),0)
-        OURCFLAGS+= -I/opt/local/include -I/usr/local/include
-        LIBS+= -L/opt/local/lib -L/usr/local/lib -lpng -lz
-    endif
-endif
 
 
 ENGINEOBJS+= \
@@ -141,7 +127,6 @@ ifeq ($(PLATFORM),BSD)
 endif
 ifeq ($(PLATFORM),WINDOWS)
     OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc # -I$(ENETROOT)/include
-    LIBS+= -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
     OURASFLAGS+= -DUNDERSCORES -f win32
 endif
 ifeq ($(PLATFORM),BEOS)
@@ -160,7 +145,7 @@ ifeq ($(RENDERTYPE),SDL)
             OURCFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
                     -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
             UTILLIBS += -read_only_relocs suppress \
-                    -Wl,-framework,SDL -Wl,-framework,SDL_mixer Apple/lib/libSDLmain.a
+                    -Wl,-framework,SDL -Wl,-framework,SDL_mixer ../Apple/lib/libSDLmain.a
         else
             OURCFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
             UTILLIBS += -read_only_relocs suppress -lSDL_mixer

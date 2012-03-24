@@ -1,11 +1,5 @@
-#if 0
-kmd2tool.exe: kmd2tool.c; cl kmd2tool.c /Ox /G6fy /MD /link /opt:nowin98
-    del kmd2tool.obj
-!if 0
-#endif
 
 #include <stdio.h>
-#include <io.h>
 #include <math.h>
 #include "compat.h"
 
@@ -95,7 +89,3 @@ int main (const int argc, const char **argv)
 
     return(0);
 }
-
-#if 0
-!endif
-#endif

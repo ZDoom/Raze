@@ -245,6 +245,31 @@ ifeq (0,$(STATICSTDCPP))
     STATICSTDCPP= -shared
 endif
 
+
+ifneq ($(PLATFORM),WINDOWS)
+    LIBS+= -ldl -pthread
+endif
+
+ifeq ($(PLATFORM),WINDOWS)
+    ifneq ($(USE_LIBPNG),0)
+        LIBS+= -LWindows/lib -lpng -lz
+        BUILDCFLAGS+= -IWindows/include
+    endif
+endif
+ifeq ($(PLATFORM),DARWIN)
+    ifneq ($(USE_LIBPNG),0)
+        BUILDCFLAGS+= -I/opt/local/include -I/usr/local/include
+        LIBS+= -L/opt/local/lib -L/usr/local/lib -lpng -lz
+    endif
+endif
+
+LIBS+= $(L_SSP) -Wl,--enable-auto-import
+
+ifeq ($(PLATFORM),WINDOWS)
+    LIBS+= -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
+endif
+
+
 ifeq ($(PRETTY_OUTPUT),1)
 BUILD_STARTED = printf "\033[K\033[1;36mBuild started using \"$(CC) $(OURCFLAGS) $(OURCONLYFLAGS) $(OURCXXFLAGS)\"\033[0m\n"
 BUILD_ECHOFLAGS = printf "\033[K\033[1;36mEnded compilation in this directory using \"$(CC) $(OURCFLAGS) $(OURCONLYFLAGS) $(OURCXXFLAGS)\"\033[0m\n"

@@ -4,11 +4,10 @@
  * @license Artistic License 2.0 (http://www.perlfoundation.org/artistic_license_2_0)
  */
 
-#include <iostream>
+#include <cstdio>
 #include <fstream>
 #include <cstring>
 #include <string>
-#include <cstdlib>
 
 #include "compat.h"
 
@@ -16,35 +15,35 @@ using namespace std;
 
 void usage()
 {
-    cout << "BUILD ART file editing tool" << endl;
-    cout << "Copyright (C) 2008 Jonathon Fowler <jf@jonof.id.au>" << endl;
-    cout << "Released under the Artistic License 2.0" << endl;
-    cout << endl;
-    cout << "  arttool create [options]" << endl;
-    cout << "    -f <filenum>   Selects which numbered ART file to create (default 0)" << endl;
-    cout << "    -o <offset>    Specifies the first tile in the file (default 0)" << endl;
-    cout << "    -n <ntiles>    The number of tiles for the art file (default 256)" << endl;
-    cout << "    Creates an empty ART file named 'tilesXXX.art'" << endl;
-    cout << endl;
-    cout << "  arttool addtile [options] <tilenum> <filename>" << endl;
-    cout << "    -x <pixels>    X-centre" << endl;
-    cout << "    -y <pixels>    Y-centre" << endl;
-    cout << "    -ann <frames>  Animation frame span" << endl;
-    cout << "    -ant <type>    Animation type (0=none, 1=oscillate, 2=forward, 3=reverse)" << endl;
-    cout << "    -ans <speed>   Animation speed" << endl;
-    cout << "    Adds a tile to the 'tilesXXX.art' set from a TGA or PCX source" << endl;
-    cout << endl;
-    cout << "  arttool rmtile <tilenum>" << endl;
-    cout << "    Removes a tile from the 'tilesXXX.art' set" << endl;
-    cout << endl;
-    cout << "  arttool tileprop [options] <tilenum>" << endl;
-    cout << "    -x <pixels>    X-centre" << endl;
-    cout << "    -y <pixels>    Y-centre" << endl;
-    cout << "    -ann <frames>  Animation frame span, may be -ve" << endl;
-    cout << "    -ant <type>    Animation type (0=none, 1=oscillate, 2=forward, 3=reverse)" << endl;
-    cout << "    -ans <speed>   Animation speed" << endl;
-    cout << "    Changes tile properties" << endl;
-    cout << endl;
+    Bprintf("BUILD ART file editing tool\n");
+    Bprintf("Copyright (C) 2008 Jonathon Fowler <jf@jonof.id.au>\n");
+    Bprintf("Released under the Artistic License 2.0\n");
+    Bprintf("\n");
+    Bprintf("  arttool create [options]\n");
+    Bprintf("    -f <filenum>   Selects which numbered ART file to create (default 0)\n");
+    Bprintf("    -o <offset>    Specifies the first tile in the file (default 0)\n");
+    Bprintf("    -n <ntiles>    The number of tiles for the art file (default 256)\n");
+    Bprintf("    Creates an empty ART file named 'tilesXXX.art'\n");
+    Bprintf("\n");
+    Bprintf("  arttool addtile [options] <tilenum> <filename>\n");
+    Bprintf("    -x <pixels>    X-centre\n");
+    Bprintf("    -y <pixels>    Y-centre\n");
+    Bprintf("    -ann <frames>  Animation frame span\n");
+    Bprintf("    -ant <type>    Animation type (0=none, 1=oscillate, 2=forward, 3=reverse)\n");
+    Bprintf("    -ans <speed>   Animation speed\n");
+    Bprintf("    Adds a tile to the 'tilesXXX.art' set from a TGA or PCX source\n");
+    Bprintf("\n");
+    Bprintf("  arttool rmtile <tilenum>\n");
+    Bprintf("    Removes a tile from the 'tilesXXX.art' set\n");
+    Bprintf("\n");
+    Bprintf("  arttool tileprop [options] <tilenum>\n");
+    Bprintf("    -x <pixels>    X-centre\n");
+    Bprintf("    -y <pixels>    Y-centre\n");
+    Bprintf("    -ann <frames>  Animation frame span, may be -ve\n");
+    Bprintf("    -ant <type>    Animation type (0=none, 1=oscillate, 2=forward, 3=reverse)\n");
+    Bprintf("    -ans <speed>   Animation speed\n");
+    Bprintf("    Changes tile properties\n");
+    Bprintf("\n");
 }
 
 class ARTFile {
@@ -893,7 +892,7 @@ int main(int argc, char ** argv)
                     switch (err = oper->setOption(opt, value)) {
                         case Operation::ERR_NO_ERROR: break;
                         default:
-                            cerr << "error: " << Operation::translateResult(err) << endl;
+                            Bfprintf(stderr, "error: %s\n", Operation::translateResult(err));
                             showusage = 2;
                             break;
                     }
@@ -902,7 +901,7 @@ int main(int argc, char ** argv)
                     switch (oper->setParameter(unnamedParm, value)) {
                         case Operation::ERR_NO_ERROR: break;
                         default:
-                            cerr << "error: " << Operation::translateResult(err) << endl;
+                            Bfprintf(stderr, "error: %s\n", Operation::translateResult(err));
                             showusage = 2;
                             break;
                     }
@@ -923,7 +922,7 @@ int main(int argc, char ** argv)
         switch (err) {
             case Operation::ERR_NO_ERROR: return 0;
             default:
-                cerr << "error: " << Operation::translateResult(err) << endl;
+                Bfprintf(stderr, "error: %s\n", Operation::translateResult(err));
                 return 1;
         }
     }

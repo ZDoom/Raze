@@ -93,7 +93,7 @@ BASELDFLAGS=
 
 LIBS=-lm
 ifneq (0,$(USE_LIBPNG))
-    LIBS+= -lpng
+    LIBS+= -lpng -lz
 endif
 ifneq (0,$(USE_LIBVPX))
     # On Windows, we link statically to libvpx
