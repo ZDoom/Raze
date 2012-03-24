@@ -2218,12 +2218,10 @@ void P_DoWeaponSpawn(DukePlayer_t *p)
 
 void P_DisplayScuba(int32_t snum)
 {
-    int32_t p;
-
-    p = get_hud_pal(g_player[snum].ps);
-
     if (g_player[snum].ps->scuba_on)
     {
+        int32_t p = get_hud_pal(g_player[snum].ps);
+
         rotatesprite_win(43<<16,(200-tilesizy[SCUBAMASK])<<16,65536,0,SCUBAMASK,0,p,2+16);
         rotatesprite_win((320-43)<<16,(200-tilesizy[SCUBAMASK])<<16,65536,1024,SCUBAMASK,0,p,2+4+16);
     }

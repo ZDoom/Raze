@@ -8480,7 +8480,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             if (scriptfile_getnumber(script,&e)) break;
 
             b = max(b, 1);
-            e = min(e, MAXPALOOKUPS);
+            e = min(e, MAXPALOOKUPS-1);
 
             for (i=b; i<=e; i++)
                 g_noFloorPal[i] = 1;
