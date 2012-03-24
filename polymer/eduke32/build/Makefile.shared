@@ -263,9 +263,8 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 endif
 
-LIBS+= $(L_SSP) -Wl,--enable-auto-import
-
 ifeq ($(PLATFORM),WINDOWS)
+    LIBS+= $(L_SSP) -Wl,--enable-auto-import
     LIBS+= -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
 endif
 
