@@ -8612,7 +8612,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
     int16_t i = 1, j;
     char *c, *k;
-    char clipshape[16] = "_clipshape0.map";
 
     ud.fta_on = 1;
     ud.god = 0;
@@ -8633,14 +8632,18 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     g_player[0].wchoice[8] = 9;
     g_player[0].wchoice[9] = 1;
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
     // pre-form the default 10 clipmaps
     for (j = '0'; j<='9'; ++j)
     {
+        char clipshape[16] = "_clipshape0.map";
+
         clipshape[10] = j;
         g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
         g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(clipshape);
         ++g_clipMapFilesNum;
     }
+#endif
 
     if (argc > 1)
     {
@@ -8869,6 +8872,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
+#ifdef HAVE_CLIPSHAPE_FEATURE
                 if (!Bstrcasecmp(c+1,"clipmap"))
                 {
                     if (argc > i+1)
@@ -8881,6 +8885,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
+#endif
                 if (!Bstrcasecmp(c+1,"condebug"))
                 {
                     g_scriptDebug = 1;

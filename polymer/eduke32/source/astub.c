@@ -8427,18 +8427,21 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
     int32_t i = 1, j, maxlen=0, *lengths;
     char *c, *k;
-    char clipshape[16] = "_clipshape0.map";
 
     mapster32_fullpath = argv[0];
 
+#ifdef HAVE_CLIPSHAPE_FEATURE
     // pre-form the default 10 clipmaps
     for (j = '0'; j<='9'; ++j)
     {
+        char clipshape[16] = "_clipshape0.map";
+
         clipshape[10] = j;
         g_clipMapFiles = (char **) Brealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
         g_clipMapFiles[g_clipMapFilesNum] = Bstrdup(clipshape);
         ++g_clipMapFilesNum;
     }
+#endif
 
     if (argc <= 1)
         return;
@@ -8585,6 +8588,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 i++;
                 continue;
             }
+#ifdef HAVE_CLIPSHAPE_FEATURE
             if (!Bstrcasecmp(c+1,"clipmap"))
             {
                 if (argc > i+1)
@@ -8597,6 +8601,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 i++;
                 continue;
             }
+#endif
             if (!Bstrcasecmp(c+1,"nm") || !Bstrcasecmp(c+1,"ns"))
             {
                 COPYARG(i);
