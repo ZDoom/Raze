@@ -13333,6 +13333,9 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, 
     int32_t i;
     permfifotype *per, *per2;
 
+    if ((unsigned)picnum >= MAXTILES)
+        return;
+
     if ((cx1 > cx2) || (cy1 > cy2)) return;
     if (z <= 16) return;
     if (picanm[picnum]&192) picnum += animateoffs(picnum,(int16_t)0xc000);

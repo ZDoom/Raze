@@ -2454,7 +2454,8 @@ nullquote:
                 int32_t x2=Gv_GetVarX(*insptr++), y2=Gv_GetVarX(*insptr++);
                 int32_t z = (tw == CON_DIGITALNUMBERZ) ? Gv_GetVarX(*insptr++) : 65536;
 
-                if (tilenum < 0 || tilenum+'9' >= MAXTILES)
+                // NOTE: '-' not taken into account, but we have rotatesprite() bound check now anyway
+                if (tilenum < 0 || tilenum+9 >= MAXTILES)
                 {
                     OSD_Printf(CON_ERROR "invalid base tilenum %d\n", g_errorLineNum, keyw[g_tw], tilenum);
                     continue;
