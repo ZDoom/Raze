@@ -3329,38 +3329,35 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
 }
 
 
-//
-// ceilscan (internal)
-//
-static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
+static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
+                                 int32_t picnum, int32_t shade, int32_t stat,
+                                 int32_t xpanning, int32_t ypanning, int32_t x1)
 {
-    int32_t i, j, ox, oy, x, y1, y2, twall, bwall;
-    sectortype *sec;
+    int32_t i, j, ox, oy;
 
-    sec = &sector[sectnum];
-    if (palookup[sec->ceilingpal] != globalpalwritten)
+    if (palookup[pal] != globalpalwritten)
     {
-        globalpalwritten = palookup[sec->ceilingpal];
+        globalpalwritten = palookup[pal];
         if (!globalpalwritten) globalpalwritten = palookup[globalpal];  // JBF: fixes null-pointer crash
         setpalookupaddress(globalpalwritten);
     }
 
-    globalzd = sec->ceilingz-globalposz;
-    if (globalzd > 0) return;
-    globalpicnum = sec->ceilingpicnum;
-    if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
+    globalzd = zd;
+    if (globalzd > 0) return 1;
+
+    globalpicnum = picnum;
+    if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
     setgotpic(globalpicnum);
-    if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) return;
-    if (picanm[globalpicnum]&192) globalpicnum += animateoffs((int16_t)globalpicnum,(int16_t)sectnum);
+    if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) return 1;
+    if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum, 0);
 
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
     globalbufplc = waloff[globalpicnum];
 
-    globalshade = (int32_t)sec->ceilingshade;
+    globalshade = shade;
     globvis = globalcisibility;
-    if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
-    globalorientation = (int32_t)sec->ceilingstat;
-
+    if (sec->visibility != 0) globvis = mulscale4(globvis, (int32_t)((uint8_t)(sec->visibility+16)));
+    globalorientation = stat;
 
     if ((globalorientation&64) == 0)
     {
@@ -3404,8 +3401,8 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
     globalx1 <<= globalxshift; globaly1 <<= globalxshift;
     globalx2 <<= globalyshift;  globaly2 <<= globalyshift;
     globalxpanning <<= globalxshift; globalypanning <<= globalyshift;
-    globalxpanning += (((int32_t)sec->ceilingxpanning)<<24);
-    globalypanning += (((int32_t)sec->ceilingypanning)<<24);
+    globalxpanning += (xpanning<<24);
+    globalypanning += (ypanning<<24);
     globaly1 = (-globalx1-globaly1)*halfxdimen;
     globalx2 = (globalx2-globaly2)*halfxdimen;
 
@@ -3418,6 +3415,23 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
     globaly1 = mulscale16(globaly1,globalzd);
     globaly2 = mulscale16(globaly2,globalzd);
     globvis = klabs(mulscale10(globvis,globalzd));
+
+    return 0;
+}
+
+//
+// ceilscan (internal)
+//
+static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
+{
+    int32_t x, y1, y2;
+    int32_t twall, bwall;
+    const sectortype *sec = &sector[sectnum];
+
+    if (setup_globals_cf1(sec, sec->ceilingpal, sec->ceilingz-globalposz,
+                          sec->ceilingpicnum, sec->ceilingshade, sec->ceilingstat,
+                          sec->ceilingxpanning, sec->ceilingypanning, x1))
+        return;
 
     if (!(globalorientation&0x180))
     {
@@ -3505,90 +3519,14 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
 //
 static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
 {
-    int32_t i, j, ox, oy, x, y1, y2, twall, bwall;
-    sectortype *sec;
+     int32_t x, y1, y2;
+     int32_t twall, bwall;
+     const sectortype *sec = &sector[sectnum];
 
-    sec = &sector[sectnum];
-    if (palookup[sec->floorpal] != globalpalwritten)
-    {
-        globalpalwritten = palookup[sec->floorpal];
-        if (!globalpalwritten) globalpalwritten = palookup[globalpal];  // JBF: fixes null-pointer crash
-        setpalookupaddress(globalpalwritten);
-    }
-
-    globalzd = globalposz-sec->floorz;
-    if (globalzd > 0) return;
-    globalpicnum = sec->floorpicnum;
-    if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-    setgotpic(globalpicnum);
-    if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) return;
-    if (picanm[globalpicnum]&192) globalpicnum += animateoffs((int16_t)globalpicnum,(int16_t)sectnum);
-
-    if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
-    globalbufplc = waloff[globalpicnum];
-
-    globalshade = (int32_t)sec->floorshade;
-    globvis = globalcisibility;
-    if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
-    globalorientation = (int32_t)sec->floorstat;
-
-
-    if ((globalorientation&64) == 0)
-    {
-        globalx1 = singlobalang; globalx2 = singlobalang;
-        globaly1 = cosglobalang; globaly2 = cosglobalang;
-        globalxpanning = (globalposx<<20);
-        globalypanning = -(globalposy<<20);
-    }
-    else
-    {
-        j = sec->wallptr;
-        ox = wall[wall[j].point2].x - wall[j].x;
-        oy = wall[wall[j].point2].y - wall[j].y;
-        i = nsqrtasm(ox*ox+oy*oy); if (i == 0) i = 1024; else i = 1048576/i;
-        globalx1 = mulscale10(dmulscale10(ox,singlobalang,-oy,cosglobalang),i);
-        globaly1 = mulscale10(dmulscale10(ox,cosglobalang,oy,singlobalang),i);
-        globalx2 = -globalx1;
-        globaly2 = -globaly1;
-
-        ox = ((wall[j].x-globalposx)<<6); oy = ((wall[j].y-globalposy)<<6);
-        i = dmulscale14(oy,cosglobalang,-ox,singlobalang);
-        j = dmulscale14(ox,cosglobalang,oy,singlobalang);
-        ox = i; oy = j;
-        globalxpanning = globalx1*ox - globaly1*oy;
-        globalypanning = globaly2*ox + globalx2*oy;
-    }
-    globalx2 = mulscale16(globalx2,viewingrangerecip);
-    globaly1 = mulscale16(globaly1,viewingrangerecip);
-    globalxshift = (8-(picsiz[globalpicnum]&15));
-    globalyshift = (8-(picsiz[globalpicnum]>>4));
-    if (globalorientation&8) { globalxshift++; globalyshift++; }
-
-    if ((globalorientation&0x4) > 0)
-    {
-        i = globalxpanning; globalxpanning = globalypanning; globalypanning = i;
-        i = globalx2; globalx2 = -globaly1; globaly1 = -i;
-        i = globalx1; globalx1 = globaly2; globaly2 = i;
-    }
-    if ((globalorientation&0x10) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalxpanning = -globalxpanning;
-    if ((globalorientation&0x20) > 0) globalx2 = -globalx2, globaly2 = -globaly2, globalypanning = -globalypanning;
-    globalx1 <<= globalxshift; globaly1 <<= globalxshift;
-    globalx2 <<= globalyshift;  globaly2 <<= globalyshift;
-    globalxpanning <<= globalxshift; globalypanning <<= globalyshift;
-    globalxpanning += (((int32_t)sec->floorxpanning)<<24);
-    globalypanning += (((int32_t)sec->floorypanning)<<24);
-    globaly1 = (-globalx1-globaly1)*halfxdimen;
-    globalx2 = (globalx2-globaly2)*halfxdimen;
-
-    sethlinesizes(picsiz[globalpicnum]&15,picsiz[globalpicnum]>>4,globalbufplc);
-
-    globalx2 += globaly2*(x1-1);
-    globaly1 += globalx1*(x1-1);
-    globalx1 = mulscale16(globalx1,globalzd);
-    globalx2 = mulscale16(globalx2,globalzd);
-    globaly1 = mulscale16(globaly1,globalzd);
-    globaly2 = mulscale16(globaly2,globalzd);
-    globvis = klabs(mulscale10(globvis,globalzd));
+     if (setup_globals_cf1(sec, sec->floorpal, globalposz-sec->floorz,
+                           sec->floorpicnum, sec->floorshade, sec->floorstat,
+                           sec->floorxpanning, sec->floorypanning, x1))
+         return;
 
     if (!(globalorientation&0x180))
     {
