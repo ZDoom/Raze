@@ -4928,10 +4928,10 @@ repeatcase:
             j = *g_scriptPtr;
             C_SkipComments();
 
-            if (j < 0 || j > 4)
+            if (j < 0 || j >= MAXSKILLS)
             {
-                initprintf("%s:%d: error: skill number exceeds maximum skill count.\n",
-                    g_szScriptFileName,g_lineNumber);
+                initprintf("%s:%d: error: skill number exceeds maximum skill count %d.\n",
+                           g_szScriptFileName,g_lineNumber, MAXSKILLS);
                 g_numCompilerErrors++;
                 C_NextLine();
                 continue;
@@ -4952,7 +4952,14 @@ repeatcase:
                     break;
                 }
             }
+
             SkillNames[j][i] = '\0';
+
+            for (i=0; i<MAXSKILLS; i++)
+                if (SkillNames[i][0] == 0)
+                    break;
+            g_numSkills = i;
+
             continue;
 
         case CON_SETGAMENAME:

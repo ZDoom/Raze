@@ -2401,10 +2401,14 @@ cheat_for_port_credits:
         break;
 
     case 110:
+    {
+        // 4 skills (orig) --> 70
+        const int32_t ybase = 70 + (4-g_numSkills)*6;
+
         c = (320>>1);
         rotatesprite_fs(c<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(c,24,0,0,"SELECT SKILL");
-        x = M_Probe(c,70,19,4);
+        x = M_Probe(c,ybase,19,g_numSkills);
         if (x >= 0)
         {
             switch (x)
@@ -2453,11 +2457,11 @@ cheat_for_port_credits:
             KB_FlushKeyboardQueue();
         }
 
-        menutext(c,70,MENUHIGHLIGHT(0),PHX(-2),SkillNames[0]);
-        menutext(c,70+19,MENUHIGHLIGHT(1),PHX(-3),SkillNames[1]);
-        menutext(c,70+19+19,MENUHIGHLIGHT(2),PHX(-4),SkillNames[2]);
-        menutext(c,70+19+19+19,MENUHIGHLIGHT(3),PHX(-5),SkillNames[3]);
+        for (i=0; i<g_numSkills; i++)
+            menutext(c,ybase+i*19,MENUHIGHLIGHT(i),PHX(-2-i),SkillNames[i]);
         break;
+    }
+
     case 230:
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(320>>1,24,0,0,"RENDERER SETUP");

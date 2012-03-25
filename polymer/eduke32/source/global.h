@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // duke3d global soup :(
 
 #define MAXINTERPOLATIONS MAXSPRITES
+#define MAXSKILLS 7
 
 G_EXTERN int32_t myconnectindex, numplayers;
 G_EXTERN int32_t connectpoint2[MAXPLAYERS];
@@ -50,12 +51,13 @@ G_EXTERN char CheatKeys[2];
 G_EXTERN char EnvMusicFilename[MAXVOLUMES+1][BMAX_PATH];
 G_EXTERN char EpisodeNames[MAXVOLUMES][33];
 G_EXTERN char GametypeNames[MAXGAMETYPES][33];
-G_EXTERN char SkillNames[5][33];
+G_EXTERN char SkillNames[MAXSKILLS][33];
 G_EXTERN char g_RTSPlaying;
 G_EXTERN char g_musicIndex;
 G_EXTERN char g_numGametypes;
 G_EXTERN char g_numPlayerSprites,g_loadFromGroupOnly;
 G_EXTERN char g_numVolumes;
+G_EXTERN char g_numSkills;
 G_EXTERN char myjumpingtoggle,myonground,myhardlanding,myreturntocenter;
 G_EXTERN char pus,pub;
 G_EXTERN char ready2send;

@@ -9886,6 +9886,7 @@ int32_t app_main(int32_t argc,const char **argv)
     addsearchpath("/Library/Application Support/EDuke32");
 #endif
 
+    g_numSkills = 4;
     ud.multimode = 1;
 
     // this needs to happen before G_CheckCommandLine because G_GameExit accesses g_player[0]
