@@ -1645,7 +1645,7 @@ static int32_t defsparser(scriptfile *script)
                 kclose(fd);
                 kpgetdim(filebuf, filesize, &xsiz, &ysiz);
 
-                if (xsiz != PR_HIGHPALOOKUP_DIM *PR_HIGHPALOOKUP_DIM || ysiz != PR_HIGHPALOOKUP_DIM)
+                if (xsiz != PR_HIGHPALOOKUP_DIM*PR_HIGHPALOOKUP_DIM || ysiz != PR_HIGHPALOOKUP_DIM)
                 {
                     initprintf("Error: image dimensions of '%s' must be %dx%d.\n",
                                fn, PR_HIGHPALOOKUP_DIM*PR_HIGHPALOOKUP_DIM, PR_HIGHPALOOKUP_DIM);

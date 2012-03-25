@@ -6861,8 +6861,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 #endif
     {
         char bad;
-        int32_t ny1, ny2, xx, xend;
-        int32_t qlinemode=0, y1ve[4], y2ve[4], u4, d4;
+        int32_t xx, xend;
+        int32_t y1ve[4], y2ve[4], u4, d4;
 
         if (((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
         {
@@ -6966,6 +6966,9 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 #ifndef ENGINE_USING_A_C
         else
         {
+            int32_t ny1, ny2;
+            int32_t qlinemode = 0;
+
             if (dastat&64)
             {
                 if ((xv2&0x0000ffff) == 0)

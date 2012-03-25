@@ -1107,9 +1107,9 @@ static inline void prelevel(char g)
     uint8_t tagbitmap[65536>>3];
     Bmemset(tagbitmap, 0, sizeof(tagbitmap));
 
-    clearbufbyte(show2dsector,sizeof(show2dsector),0L);
-    clearbufbyte(show2dwall,sizeof(show2dwall),0L);
-    clearbufbyte(show2dsprite,sizeof(show2dsprite),0L);
+    Bmemset(show2dsector, 0, sizeof(show2dsector));
+    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+    Bmemset(show2dwall, 0, sizeof(show2dwall));
 
     Bmemset(ror_protectedsectors, 0, MAXSECTORS);
 
