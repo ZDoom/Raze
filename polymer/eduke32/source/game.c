@@ -8567,12 +8567,13 @@ static int32_t loaddefinitions_game(const char *fn, int32_t preload)
     return 0;
 }
 
+
+// CODEDUP astub.c
 static void G_AddGroup(const char *buffer)
 {
-    struct strllist *s;
     char buf[BMAX_PATH];
 
-    s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
+    struct strllist *s = Bcalloc(1,sizeof(struct strllist));
 
     Bstrcpy(buf, buffer);
 
@@ -8591,10 +8592,10 @@ static void G_AddGroup(const char *buffer)
     CommandGrps = s;
 }
 
+// CODEDUP astub.c
 static void G_AddPath(const char *buffer)
 {
-    struct strllist *s;
-    s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
+    struct strllist *s = Bcalloc(1,sizeof(struct strllist));
     s->str = Bstrdup(buffer);
 
     if (CommandPaths)

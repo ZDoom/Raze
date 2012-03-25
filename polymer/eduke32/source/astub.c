@@ -8380,10 +8380,11 @@ static void G_ShowParameterHelp(void)
     wm_msgbox(tempbuf, "%s", s);
 }
 
-static void AddGamePath(const char *buffer)
+
+// CODEDUP game.c
+static void G_AddPath(const char *buffer)
 {
-    struct strllist *s;
-    s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
+    struct strllist *s = Bcalloc(1,sizeof(struct strllist));
     s->str = Bstrdup(buffer);
 
     if (CommandPaths)
@@ -8393,16 +8394,23 @@ static void AddGamePath(const char *buffer)
         t->next = s;
         return;
     }
+
     CommandPaths = s;
 }
 
+// CODEDUP game.c
 static void G_AddGroup(const char *buffer)
 {
-    struct strllist *s;
-    s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
-    s->str = Bstrdup(buffer);
-    if (Bstrchr(s->str,'.') == 0)
-        Bstrcat(s->str,".grp");
+    char buf[BMAX_PATH];
+
+    struct strllist *s = Bcalloc(1,sizeof(struct strllist));
+
+    Bstrcpy(buf, buffer);
+
+    if (Bstrchr(buf,'.') == 0)
+        Bstrcat(buf,".grp");
+
+    s->str = Bstrdup(buf);
 
     if (CommandGrps)
     {
@@ -8498,7 +8506,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 #endif
                     Bstrncpy(g_modDir, argv[i+1], sizeof(g_modDir));
                     g_modDir[sizeof(g_modDir)-1] = 0;
-                    AddGamePath(argv[i+1]);
+                    G_AddPath(argv[i+1]);
 
                     COPYARG(i);
                     COPYARG(i+1);
@@ -8685,7 +8693,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             case 'J':
                 c++;
                 if (!*c) break;
-                AddGamePath(c);
+                G_AddPath(c);
                 COPYARG(i);
                 break;
             case 'g':
