@@ -6898,10 +6898,9 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                 p = x+frameplace;
 
-                assert(!(bad&1));
-                u4 = y1ve[0];
-                d4 = y2ve[0];
-                for (xx=1; xx<4; xx++)
+                u4 = INT32_MIN;
+                d4 = INT32_MAX;
+                for (xx=0; xx<4; xx++)
                     if (!(bad&pow2char[xx]))
                     {
                         u4 = max(u4, y1ve[xx]);
