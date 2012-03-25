@@ -4519,6 +4519,45 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
 }
 
 
+// set orientation, panning, shade, pal; picnum
+static void setup_globals_wall1(const walltype *wal, int32_t dapicnum)
+{
+    globalorientation = wal->cstat;
+
+    globalpicnum = dapicnum;
+    if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
+    if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum, 0);
+
+    globalxpanning = wal->xpanning;
+    globalypanning = wal->ypanning;
+
+    globalshade = wal->shade;
+    globalpal = wal->pal;
+    if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes crash
+}
+
+static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int32_t topzref, int32_t botzref)
+{
+    globvis = globalvisibility;
+    if (secvisibility != 0)
+        globvis = mulscale4(globvis, (int32_t)((uint8_t)(secvisibility+16)));
+
+    globalshiftval = (picsiz[globalpicnum]>>4);
+    if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
+    globalshiftval = 32-globalshiftval;
+
+    globalyscale = (wal->yrepeat<<(globalshiftval-19));
+
+    if ((globalorientation&4) == 0)
+        globalzd = (((globalposz-topzref)*globalyscale)<<8);
+    else  // bottom-aligned
+        globalzd = (((globalposz-botzref)*globalyscale)<<8);
+    globalzd += (globalypanning<<24);
+
+    if (globalorientation&256)  // y-flipped
+        globalyscale = -globalyscale, globalzd = -globalzd;
+}
+
 //
 // drawalls (internal)
 //
@@ -4737,27 +4776,8 @@ static void drawalls(int32_t bunch)
                             searchstat = 0; searchit = 1;
                         }
 
-                    globalorientation = (int32_t)wal->cstat;
-                    globalpicnum = wal->picnum;
-                    if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-                    globalxpanning = (int32_t)wal->xpanning;
-                    globalypanning = (int32_t)wal->ypanning;
-                    globalshiftval = (picsiz[globalpicnum]>>4);
-                    if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
-                    globalshiftval = 32-globalshiftval;
-                    if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,(int16_t)wallnum+16384);
-                    globalshade = (int32_t)wal->shade;
-                    globvis = globalvisibility;
-                    if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
-                    globalpal = (int32_t)wal->pal;
-                    if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes crash
-                    globalyscale = (wal->yrepeat<<(globalshiftval-19));
-                    if ((globalorientation&4) == 0)
-                        globalzd = (((globalposz-nextsec->ceilingz)*globalyscale)<<8);
-                    else
-                        globalzd = (((globalposz-sec->ceilingz)*globalyscale)<<8);
-                    globalzd += (globalypanning<<24);
-                    if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
+                    setup_globals_wall1(wal, wal->picnum);
+                    setup_globals_wall2(wal, sec->visibility, nextsec->ceilingz, sec->ceilingz);
 
                     if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
                     wallscan(x1,x2,uplc,dwall,swall,lwall);
@@ -4834,43 +4854,12 @@ static void drawalls(int32_t bunch)
                             searchstat = 0; searchit = 1;
                         }
 
-                    if ((wal->cstat&2) > 0)
                     {
-                        wallnum = wal->nextwall; wal = &wall[wallnum];
-                        globalorientation = (int32_t)wal->cstat;
-                        globalpicnum = wal->picnum;
-                        if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-                        globalxpanning = (int32_t)wal->xpanning;
-                        globalypanning = (int32_t)wal->ypanning;
-                        if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,(int16_t)wallnum+16384);
-                        globalshade = (int32_t)wal->shade;
-                        globalpal = (int32_t)wal->pal;
-                        wallnum = thewall[z]; wal = &wall[wallnum];
+                        const walltype *twal = (wal->cstat&2) ? &wall[wal->nextwall] : wal;
+                        setup_globals_wall1(twal, twal->picnum);
                     }
-                    else
-                    {
-                        globalorientation = (int32_t)wal->cstat;
-                        globalpicnum = wal->picnum;
-                        if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-                        globalxpanning = (int32_t)wal->xpanning;
-                        globalypanning = (int32_t)wal->ypanning;
-                        if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,(int16_t)wallnum+16384);
-                        globalshade = (int32_t)wal->shade;
-                        globalpal = (int32_t)wal->pal;
-                    }
-                    if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes crash
-                    globvis = globalvisibility;
-                    if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
-                    globalshiftval = (picsiz[globalpicnum]>>4);
-                    if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
-                    globalshiftval = 32-globalshiftval;
-                    globalyscale = (wal->yrepeat<<(globalshiftval-19));
-                    if ((globalorientation&4) == 0)
-                        globalzd = (((globalposz-nextsec->floorz)*globalyscale)<<8);
-                    else
-                        globalzd = (((globalposz-sec->ceilingz)*globalyscale)<<8);
-                    globalzd += (globalypanning<<24);
-                    if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
+
+                    setup_globals_wall2(wal, sec->visibility, nextsec->floorz, sec->ceilingz);
 
                     if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
                     wallscan(x1,x2,uwall,dplc,swall,lwall);
@@ -4942,34 +4931,10 @@ static void drawalls(int32_t bunch)
 
         if ((nextsectnum < 0) || (wal->cstat&32))   //White/1-way wall
         {
-            globalorientation = (int32_t)wal->cstat;
-            if (nextsectnum < 0) globalpicnum = wal->picnum;
-            else globalpicnum = wal->overpicnum;
-            if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-            globalxpanning = (int32_t)wal->xpanning;
-            globalypanning = (int32_t)wal->ypanning;
-            if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,(int16_t)wallnum+16384);
-            globalshade = (int32_t)wal->shade;
-            globvis = globalvisibility;
-            if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
-            globalpal = (int32_t)wal->pal;
-            if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes crash
-            globalshiftval = (picsiz[globalpicnum]>>4);
-            if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
-            globalshiftval = 32-globalshiftval;
-            globalyscale = (wal->yrepeat<<(globalshiftval-19));
-            if (nextsectnum >= 0)
-            {
-                if ((globalorientation&4) == 0) globalzd = globalposz-nextsec->ceilingz;
-                else globalzd = globalposz-sec->ceilingz;
-            }
-            else
-            {
-                if ((globalorientation&4) == 0) globalzd = globalposz-sec->ceilingz;
-                else globalzd = globalposz-sec->floorz;
-            }
-            globalzd = ((globalzd*globalyscale)<<8) + (globalypanning<<24);
-            if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
+            setup_globals_wall1(wal, (nextsectnum < 0) ? wal->picnum : wal->overpicnum);
+            setup_globals_wall2(wal, sec->visibility,
+                                (nextsectnum >= 0) ? nextsec->ceilingz : sec->ceilingz,
+                                (nextsectnum >= 0) ? sec->ceilingz : sec->floorz);
 
             if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
             wallscan(x1,x2,uplc,dplc,swall,lwall);
@@ -6345,26 +6310,8 @@ static void drawmaskwall(int16_t damaskwallcnt)
             dwall[x] = dplc[x];
     prepwall(z,wal);
 
-    globalorientation = (int32_t)wal->cstat;
-    globalpicnum = wal->overpicnum;
-    if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-    globalxpanning = (int32_t)wal->xpanning;
-    globalypanning = (int32_t)wal->ypanning;
-    if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,(int16_t)thewall[z]+16384);
-    globalshade = (int32_t)wal->shade;
-    globvis = globalvisibility;
-    if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
-    globalpal = (int32_t)wal->pal;
-    globalshiftval = (picsiz[globalpicnum]>>4);
-    if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
-    globalshiftval = 32-globalshiftval;
-    globalyscale = (wal->yrepeat<<(globalshiftval-19));
-    if ((globalorientation&4) == 0)
-        globalzd = (((globalposz-z1)*globalyscale)<<8);
-    else
-        globalzd = (((globalposz-z2)*globalyscale)<<8);
-    globalzd += (globalypanning<<24);
-    if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
+    setup_globals_wall1(wal, wal->overpicnum);
+    setup_globals_wall2(wal, sec->visibility, z1, z2);
 
     for (i=smostwallcnt-1; i>=0; i--)
     {
