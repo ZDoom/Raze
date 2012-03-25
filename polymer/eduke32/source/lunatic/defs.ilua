@@ -24,7 +24,8 @@ typedef struct
 typedef struct
 {
     int32_t x, y;
-    const int16_t point2, nextwall, nextsector; int16_t cstat;
+    const int16_t point2, nextwall, nextsector;
+    int16_t cstat;
     int16_t picnum, overpicnum;
     int8_t shade;
     uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
@@ -566,9 +567,28 @@ function getbunch(sectnum, cf)
 end
 
 
--- 'simple' code for prohibiting initial assignments to create new variables,
--- from 14.2 of PiL
+-- code for prohibiting initial assignments to create new variables,
+-- based on 14.2 of PiL
 function gamevar(name, initval)  -- aka 'declare'
+    local declaredNames = {}
+
+    if (type(name) ~= "string") then
+        error("First argument to 'gamevar' must be a string", 2);
+    end
+
+    if (~string.match(name, "^[%a_][%w_]*$")) then
+        error("First argument to 'gamevar' must be a valid identifier", 2);
+    end
+
+    if (declaredNames[name]) then
+        error(string.format("Duplicate declaration of identifier '%s'", name), 2)
+    end
+
+    if (rawget(G_, name) ~= nil) then
+        error(string.format("Identifier name '%s' is already used in the global environment", name), 2)
+    end
+
+    declaredNames[name] = true
     rawset(G_, name, initval or false)
 end
 
