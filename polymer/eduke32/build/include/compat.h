@@ -396,9 +396,9 @@ static inline void dtol(double d, int32_t *a)
 #endif
 
 #if __GNUC__ >= 4
-static inline __attribute__((warn_unused_result)) int clamp(int in, int min, int max)
+static inline __attribute__((warn_unused_result)) int32_t clamp(int32_t in, int32_t min, int32_t max)
 #else
-static inline int clamp(int in, int min, int max)
+static inline int32_t clamp(int32_t in, int32_t min, int32_t max)
 #endif
 {
     return in <= min ? min : (in >= max ? max : in);
