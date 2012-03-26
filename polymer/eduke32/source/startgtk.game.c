@@ -447,9 +447,9 @@ static void PopulateForm(unsigned char pgs)
 
         for (fg = foundgrps; fg; fg=fg->next)
         {
-            for (i = 0; i<numgrpfiles; i++)
+            for (i = 0; i<NUMGRPFILES; i++)
                 if (fg->crcval == grpfiles[i].crcval) break;
-            if (i == numgrpfiles) continue;	// unrecognised grp file
+            if (i == NUMGRPFILES) continue;	// unrecognised grp file
 
             gtk_list_store_append(list, &iter);
             gtk_list_store_set(list, &iter, 0, grpfiles[i].name, 1, fg->name, 2, (gpointer)fg, -1);
@@ -918,8 +918,8 @@ int32_t startwin_run(void)
         if (settings.autoload) ud.config.NoAutoLoad = FALSE;
         else ud.config.NoAutoLoad = TRUE;
 
-        for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;
-        if (i != numgrpfiles)
+        for (i = 0; i<NUMGRPFILES; i++) if (settings.crcval == grpfiles[i].crcval) break;
+        if (i != NUMGRPFILES)
             g_gameNamePtr = (char *)grpfiles[i].name;
     }
 

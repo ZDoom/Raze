@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "duke3d.h"
 #include "grpscan.h"
 
-struct grpfile grpfiles[numgrpfiles] =
+struct grpfile grpfiles[NUMGRPFILES] =
 {
     { "Duke Nukem 3D",						    0xBBC9CE44, 26524524, GAME_DUKE, NULL },
     { "Duke Nukem 3D: Atomic Edition",		    0xF514A6AC, 44348015, GAME_DUKE, NULL },

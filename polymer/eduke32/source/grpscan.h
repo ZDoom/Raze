@@ -24,14 +24,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __grpscan_h__
 
 // List of internally-known GRP files
-#define numgrpfiles 8
+#define NUMGRPFILES 8
 struct grpfile {
 	const char *name;
 	int32_t crcval;
 	int32_t size;
 	int32_t game;
 	struct grpfile *next;
-} grpfiles[numgrpfiles], *foundgrps;
+} grpfiles[NUMGRPFILES], *foundgrps;
 
 int32_t ScanGroups(void);
 void FreeGroups(void);

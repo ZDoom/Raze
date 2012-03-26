@@ -254,8 +254,8 @@ static void PopulateForm(int32_t pgs)
 
         for (fg = foundgrps; fg; fg=fg->next)
         {
-            for (i = 0; i<numgrpfiles; i++) if (fg->crcval == grpfiles[i].crcval) break;
-            if (i == numgrpfiles) continue;	// unrecognised grp file
+            for (i = 0; i<NUMGRPFILES; i++) if (fg->crcval == grpfiles[i].crcval) break;
+            if (i == NUMGRPFILES) continue;	// unrecognised grp file
             Bsprintf(buf, "%s\t%s", grpfiles[i].name, fg->name);
             j = ListBox_AddString(hwnd, buf);
             (void)ListBox_SetItemData(hwnd, j, (LPARAM)fg);
@@ -782,8 +782,8 @@ int32_t startwin_run(void)
             Bstrcpy(g_modDir,settings.gamedir);
         else Bsprintf(g_modDir,"/");
 
-        for (i = 0; i<numgrpfiles; i++) if (settings.crcval == grpfiles[i].crcval) break;
-        if (i != numgrpfiles)
+        for (i = 0; i<NUMGRPFILES; i++) if (settings.crcval == grpfiles[i].crcval) break;
+        if (i != NUMGRPFILES)
             g_gameNamePtr = (char *)grpfiles[i].name;
     }
 

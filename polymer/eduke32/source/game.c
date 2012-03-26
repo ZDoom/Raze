@@ -10009,8 +10009,8 @@ int32_t app_main(int32_t argc,const char **argv)
         int32_t i;
         for (fg = foundgrps; fg; fg=fg->next)
         {
-            for (i = 0; i<numgrpfiles; i++) if (fg->crcval == grpfiles[i].crcval) break;
-            if (i == numgrpfiles) continue; // unrecognised grp file
+            for (i = 0; i<NUMGRPFILES; i++) if (fg->crcval == grpfiles[i].crcval) break;
+            if (i == NUMGRPFILES) continue; // unrecognised grp file
             fg->game = grpfiles[i].game;
             if (!first) first = fg;
             if (!Bstrcasecmp(fg->name, defaultduke3dgrp))
