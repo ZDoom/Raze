@@ -3505,7 +3505,7 @@ void                polymer_updatesprite(int32_t snum)
 
         polymer_resetplanelights(&s->plane);
 
-        while ((curpriority < pr_maxlightpriority) && (!depth || mirrors[depth-1].plane))
+        while (curpriority < pr_maxlightpriority)
         {
             i = j = 0;
             while (j < lightcount)
