@@ -81,8 +81,8 @@ STRIP=strip
 ifneq (0,$(CLANG))
     CC=clang
     CXX=clang++
-    AR=llvm-ar
-    RANLIB=llvm-ranlib
+#    AR=llvm-ar
+#    RANLIB=llvm-ranlib
 endif
 
 # compiler flags etc.
