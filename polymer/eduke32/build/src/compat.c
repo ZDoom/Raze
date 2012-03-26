@@ -47,6 +47,11 @@
 
 #ifndef __compat_h_macrodef__
 
+void Bassert(int expr)
+{
+    assert(expr);
+}
+
 int32_t Brand(void)
 {
     return rand();

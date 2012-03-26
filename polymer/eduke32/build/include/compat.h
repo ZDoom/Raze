@@ -443,6 +443,7 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 #endif
 
 #ifdef __compat_h_macrodef__
+# define Bassert assert
 # define Brand rand
 # define Balloca alloca
 # ifdef NEDMALLOC
@@ -550,6 +551,7 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 
 #else
 
+void Bassert(int);
 int32_t Brand(void);
 void *Bmalloc(bsize_t size);
 void Bfree(void *ptr);
