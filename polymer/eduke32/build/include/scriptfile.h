@@ -1,3 +1,7 @@
+
+#ifndef BUILD_SCRIPTFILE_H_
+#define BUILD_SCRIPTFILE_H_
+
 typedef struct {
 	char *textbuf;
 	uint32_t textlength;
@@ -25,3 +29,5 @@ int32_t scriptfile_eof(scriptfile *sf);
 int32_t scriptfile_getsymbolvalue(char *name, int32_t *val);
 int32_t scriptfile_addsymbolvalue(char *name, int32_t val);
 void scriptfile_clearsymbols(void);
+
+#endif
