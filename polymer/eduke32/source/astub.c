@@ -9476,8 +9476,6 @@ static void m32_osdsetfunctions(void)
 
 enum
 {
-    T_EOF = -2,
-    T_ERROR = -1,
     T_INCLUDE = 0,
     T_DEFINE = 1,
     T_LOADGRP,
@@ -9500,30 +9498,6 @@ enum
     T_DEFINESOUND,
     T_INCLUDEDEFAULT,
 };
-
-typedef struct
-{
-    const char *text;
-    int32_t tokenid;
-}
-tokenlist;
-
-static int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
-{
-    char *tok;
-    int32_t i;
-
-    if (!sf) return T_ERROR;
-    tok = scriptfile_gettoken(sf);
-    if (!tok) return T_EOF;
-
-    for (i=0; i<ntokens; i++)
-    {
-        if (!Bstrcasecmp(tok, tl[i].text))
-            return tl[i].tokenid;
-    }
-    return T_ERROR;
-}
 
 static void DoAutoload(const char *fn)
 {

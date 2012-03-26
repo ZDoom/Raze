@@ -212,8 +212,6 @@ char *defaultconfile(void)
 
 enum gametokens
 {
-    T_EOF = -2,
-    T_ERROR = -1,
     T_INCLUDE = 0,
     T_INTERFACE = 0,
     T_LOADGRP = 1,
@@ -230,22 +228,6 @@ enum gametokens
     T_ID
 };
 
-static int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
-{
-    char *tok;
-    int32_t i;
-
-    if (!sf) return T_ERROR;
-    tok = scriptfile_gettoken(sf);
-    if (!tok) return T_EOF;
-
-    for (i=ntokens-1; i>=0; i--)
-    {
-        if (!Bstrcasecmp(tok, tl[i].text))
-            return tl[i].tokenid;
-    }
-    return T_ERROR;
-}
 
 inline void G_SetStatusBarScale(int32_t sc)
 {

@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _gamedef_h_
 #define _gamedef_h_
 
+#include "common.h"  // tokenlist
+
 #define MAXGAMEEVENTS   128
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2
@@ -84,12 +86,6 @@ typedef struct
     int32_t flags;
     int32_t maxParm2;
 } memberlabel_t;
-
-typedef struct
-{
-    const char *text;
-    int32_t tokenid;
-} tokenlist;
 
 extern const tokenlist EventNames[];  // MAXEVENTS
 extern const memberlabel_t SectorLabels[];

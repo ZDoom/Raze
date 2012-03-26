@@ -13,11 +13,10 @@
 #include "cache1d.h"
 #include "kplib.h"
 #include "quicklz.h"
+#include "common.h"  // tokenlist
 
 enum scripttoken_t
 {
-    T_EOF = -2,
-    T_ERROR = -1,
     T_INCLUDE = 0,
     T_DEFINE,
     T_DEFINETEXTURE,
@@ -85,26 +84,6 @@ enum scripttoken_t
     T_ANIMSOUNDS,
     T_ECHO,
 };
-
-typedef struct { const char *text; int32_t tokenid; } tokenlist;
-
-static int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
-{
-    char *tok;
-    int32_t i;
-
-    if (!sf) return T_ERROR;
-    tok = scriptfile_gettoken(sf);
-    if (!tok) return T_EOF;
-
-    for (i=ntokens-1; i>=0; i--)
-    {
-        if (!Bstrcasecmp(tok, tl[i].text))
-            return tl[i].tokenid;
-    }
-
-    return T_ERROR;
-}
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
 int32_t nextvoxid = 0;

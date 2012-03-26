@@ -9633,8 +9633,6 @@ int32_t loadmaphack(const char *filename)
 #ifdef USE_OPENGL
     enum
     {
-        T_EOF = -2,
-        T_ERROR = -1,
         T_SPRITE = 0,
         T_ANGOFF,
         T_NOMODEL,
