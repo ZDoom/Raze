@@ -708,7 +708,7 @@ void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
     static uint8_t expect_restore[2][YAX_MAXBUNCHES];
 
     // must call this with restore == 0, 1,  0, 1,  0, 1,  ...
-    assert(expect_restore[cf][bunchnum] == restore);
+    Bassert(expect_restore[cf][bunchnum] == restore);
     expect_restore[cf][bunchnum] = !expect_restore[cf][bunchnum];
 #endif
 
@@ -2380,7 +2380,7 @@ void fade_screen_black(int32_t moreopaquep)
     }
     else
     {
-        assert(!offscreenrendering);
+        Bassert(!offscreenrendering);
 
         begindrawing();
         {
@@ -7538,7 +7538,7 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 
     if (newspritenum >= 0)
     {
-        assert((unsigned)sectnum < MAXSECTORS);
+        Bassert((unsigned)sectnum < MAXSECTORS);
 
         do_insertsprite_at_headofsect(newspritenum, sectnum);
         Numsprites++;
@@ -7553,8 +7553,8 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 //
 int32_t deletesprite(int16_t spritenum)
 {
-    assert((sprite[spritenum].statnum == MAXSTATUS)
-           == (sprite[spritenum].sectnum == MAXSECTORS));
+    Bassert((sprite[spritenum].statnum == MAXSTATUS)
+            == (sprite[spritenum].sectnum == MAXSECTORS));
 
     if (sprite[spritenum].statnum == MAXSTATUS)
         return(-1);  // already not in the world
@@ -9981,7 +9981,7 @@ int32_t saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_
             numsprites++;
     }
 
-    assert(numsprites == Numsprites);
+    Bassert(numsprites == Numsprites);
 
 #ifdef YAX_ENABLE
     if (numyaxbunches > 0)
@@ -13500,7 +13500,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
     const uint8_t *dapal;
 //    uint32_t lastbright = curbrightness;
 
-    assert((flags&(1+4))==0);
+    Bassert((flags&(1+4))==0);
 
     if (dapalid >= basepalcount)
         dapalid = 0;

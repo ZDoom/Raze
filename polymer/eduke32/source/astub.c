@@ -611,12 +611,12 @@ int32_t map_undoredo(int32_t dir)
     for (i=0; i<mapstate->num[2]; i++)
     {
         if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
-        assert((unsigned)sprite[i].sectnum < (unsigned)numsectors
+        Bassert((unsigned)sprite[i].sectnum < (unsigned)numsectors
                    && (unsigned)sprite[i].statnum < MAXSTATUS);
         insertsprite(sprite[i].sectnum, sprite[i].statnum);
     }
 
-    assert(Numsprites == mapstate->num[2]);
+    Bassert(Numsprites == mapstate->num[2]);
 
 #ifdef POLYMER
     if (qsetmode == 200 && rendmode == 4)

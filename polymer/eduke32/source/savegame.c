@@ -1076,7 +1076,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
 {
     savehead_t h;
 
-    assert(sizeof(savehead_t) == 310);
+    Bassert(sizeof(savehead_t) == 310);
 
     // set a few savegame system globals
     savegame_comprthres = SV_DEFAULTCOMPRTHRES;
@@ -1186,7 +1186,7 @@ int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
 {
     int32_t havedemo = (spot < 0);
 
-    assert(sizeof(savehead_t) == 310);
+    Bassert(sizeof(savehead_t) == 310);
 
     if (kread(fil, h, sizeof(savehead_t)) != sizeof(savehead_t))
     {
@@ -1579,7 +1579,7 @@ static void sv_restsave()
     }
 #endif
 
-    assert((savegame_restdata+SVARDATALEN)-mem >= 0);
+    Bassert((savegame_restdata+SVARDATALEN)-mem >= 0);
 
     Bmemset(mem, 0, (savegame_restdata+SVARDATALEN)-mem);
 #undef CPDAT

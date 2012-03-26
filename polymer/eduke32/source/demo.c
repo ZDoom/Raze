@@ -90,7 +90,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     }
     else if ((g_demo_recFilePtr = kopen4loadfrommod(d,g_loadFromGroupOnly)) == -1) return(0);
 
-    assert(g_whichDemo >= 1);
+    Bassert(g_whichDemo >= 1);
     i = sv_loadsnapshot(g_demo_recFilePtr, -g_whichDemo, &saveh);
     if (i)
     {
