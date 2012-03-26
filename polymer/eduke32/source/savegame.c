@@ -332,7 +332,7 @@ int32_t G_SavePlayer(int32_t spot)
         if (!fil)
         {
             return -1;
-            OSD_Printf("G_SavePlayer: failed opening '%s' for writing: %s\n",
+            OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
                        temp, strerror(errno));
         }
     }

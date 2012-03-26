@@ -107,7 +107,7 @@ int32_t El_RunOnce(El_State *estate, const char *fn)
 
     if (i == LUA_ERRSYNTAX)
     {
-        OSD_Printf("state '%s' syntax error: %s\n", estate->name, lua_tostring(estate->L, 1));  // get err msg
+        OSD_Printf("state \"%s\" syntax error: %s\n", estate->name, lua_tostring(estate->L, 1));  // get err msg
         lua_pop(estate->L, 1);
         return 3;
     }
@@ -120,7 +120,7 @@ int32_t El_RunOnce(El_State *estate, const char *fn)
 
     if (i == LUA_ERRRUN)
     {
-        OSD_Printf("state '%s' runtime error: %s\n", estate->name, lua_tostring(estate->L, 1));  // get err msg
+        OSD_Printf("state \"%s\" runtime error: %s\n", estate->name, lua_tostring(estate->L, 1));  // get err msg
         lua_pop(estate->L, 1);
         return 4;
     }
@@ -166,7 +166,7 @@ int32_t El_CallEvent(El_State *estate, int32_t eventidx)
 
     if (i == LUA_ERRRUN)
     {
-        OSD_Printf("event '%s' (state '%s') runtime error: %s\n", EventNames[eventidx].text,
+        OSD_Printf("event \"%s\" (state \"%s\") runtime error: %s\n", EventNames[eventidx].text,
                    estate->name, lua_tostring(estate->L, 1));  // get err msg
         lua_pop(estate->L, 1);
         return 4;

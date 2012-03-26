@@ -228,7 +228,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
 
     if (fp < 0)
     {
-        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open '%s' for playback!\n",fn);
+        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open \"%s\" for playback!\n",fn);
         return 0;
     }
 
@@ -238,7 +238,7 @@ int32_t S_PlayMusic(const char *fn, const int32_t sel)
 
     if ((g_musicSize = kread(fp, (char *)MusicPtr, MusicLen)) != MusicLen)
     {
-        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: read %d bytes from '%s', expected %d\n",g_musicSize, fn, MusicLen);
+        OSD_Printf(OSD_ERROR "S_PlayMusic(): error: read %d bytes from \"%s\", expected %d\n",g_musicSize, fn, MusicLen);
         kclose(fp);
         g_musicSize = 0;
         return 0;

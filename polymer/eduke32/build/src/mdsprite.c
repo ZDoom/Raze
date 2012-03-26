@@ -3366,7 +3366,7 @@ mdmodel_t *mdload(const char *filnam)
     switch (B_LITTLE32(i))
     {
     case 0x32504449:
-//        initprintf("Warning: model '%s' is version IDP2; wanted version IDP3\n",filnam);
+//        initprintf("Warning: model \"%s\" is version IDP2; wanted version IDP3\n",filnam);
         vm = (mdmodel_t *)md2load(fil,filnam);
         break; //IDP2
     case 0x33504449:

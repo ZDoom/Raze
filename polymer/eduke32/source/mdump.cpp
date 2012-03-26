@@ -79,20 +79,20 @@ LONG MiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInfo )
 					BOOL bOK = pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, &ExInfo, NULL, NULL );
 					if (bOK)
 					{
-						sprintf( szScratch, "Saved dump file to '%s'", szDumpPath );
+						sprintf( szScratch, "Saved dump file to \"%s\"", szDumpPath );
 						szResult = szScratch;
 						retval = EXCEPTION_EXECUTE_HANDLER;
 					}
 					else
 					{
-						sprintf( szScratch, "Failed to save dump file to '%s' (error %d)", szDumpPath, GetLastError() );
+						sprintf( szScratch, "Failed to save dump file to \"%s\" (error %d)", szDumpPath, GetLastError() );
 						szResult = szScratch;
 					}
 					::CloseHandle(hFile);
 				}
 				else
 				{
-					sprintf( szScratch, "Failed to create dump file '%s' (error %d)", szDumpPath, GetLastError() );
+					sprintf( szScratch, "Failed to create dump file \"%s\" (error %d)", szDumpPath, GetLastError() );
 					szResult = szScratch;
 				}
 			}

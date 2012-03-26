@@ -848,15 +848,15 @@ static void loadmhk(int32_t domessage)
     if (!loadmaphack(levname))
     {
         if (domessage)
-            message("Loaded map hack file '%s'",levname);
+            message("Loaded map hack file \"%s\"",levname);
         else
-            initprintf("Loaded map hack file '%s'\n",levname);
+            initprintf("Loaded map hack file \"%s\"\n",levname);
     }
     else
     {
         mhk=2;
         if (domessage)
-            message("No maphack found for map '%s'",boardfilename);
+            message("No maphack found for map \"%s\"",boardfilename);
     }
 }
 
@@ -8489,7 +8489,7 @@ int32_t getnumber_autocomplete(const char *namestart, char ch, int32_t *danum, i
                 if (*danum > 0 && *danum<32768)
                 {
                     diddel = taglab_add(gotstr, *danum);
-                    message("Added label '%s' for tag %d%s%s", gotstr, *danum,
+                    message("Added label \"%s\" for tag %d%s%s", gotstr, *danum,
                             diddel?", deleting old ":"",
                             (!diddel)?"":(diddel==1?"label":"tag"));
                     return 1;
@@ -8501,7 +8501,7 @@ int32_t getnumber_autocomplete(const char *namestart, char ch, int32_t *danum, i
                     {
                         *danum = i;
                         diddel = taglab_add(gotstr, *danum);
-                        message("%sadded label '%s' for tag %d%s%s",
+                        message("%sadded label \"%s\" for tag %d%s%s",
                                 diddel?"Auto-":"Automatically ", gotstr, *danum,
                                 diddel?", deleting old ":"",
                                 (!diddel)?"":(diddel==1?"label":"tag"));

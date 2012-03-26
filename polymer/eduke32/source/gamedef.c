@@ -1620,7 +1620,7 @@ static void C_GetNextVarType(int32_t type)
             textptr++;
             /// now pointing at 'xxx'
             C_GetNextLabelName();
-            /*initprintf("found xxx label of '%s'\n",   label+(g_numLabels<<6));*/
+            /*initprintf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));*/
 
             if (i == g_iSpriteVarID)
                 lLabelID=C_GetLabelNameOffset(&actorH,Bstrtolower(label+(g_numLabels<<6)));
@@ -2174,7 +2174,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 textptr++;
                 /// now pointing at 'xxx'
                 C_GetNextLabelName();
-                //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
+                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
 
                 lLabelID=C_GetLabelNameOffset(&projectileH,Bstrtolower(label+(g_numLabels<<6)));
                 //printf("LabelID is %d\n",lLabelID);
@@ -2240,7 +2240,7 @@ static int32_t C_ParseCommand(int32_t loop)
             //printf("Done Translating number.  '%.20s'\n",textptr);
 
             C_GetNextValue(LABEL_DEFINE); // get flags
-            //Bsprintf(g_szBuf,"Adding GameVar='%s', val=%l, flags=%lX",label+(g_numLabels<<6),
+            //Bsprintf(g_szBuf,"Adding GameVar=\"%s\", val=%l, flags=%lX",label+(g_numLabels<<6),
             //      *(g_scriptPtr-2), *(g_scriptPtr-1));
             //AddLog(g_szBuf);
             if ((*(g_scriptPtr-1)&GAMEVAR_USER_MASK)==3)
@@ -2330,7 +2330,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 //printf("Translated. '%.20s'\n",textptr);
                 if (i == -1)
                 {
-                    //              printf("Defining Definition '%s' to be '%d'\n",label+(g_numLabels<<6),*(g_scriptPtr-1));
+                    //              printf("Defining Definition \"%s\" to be '%d'\n",label+(g_numLabels<<6),*(g_scriptPtr-1));
                     hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
                     labeltype[g_numLabels] = LABEL_DEFINE;
                     labelcode[g_numLabels++] = *(g_scriptPtr-1);
@@ -2976,7 +2976,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 textptr++;
                 /// now pointing at 'xxx'
                 C_GetNextLabelName();
-                //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
+                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
 
                 lLabelID=C_GetLabelNameID(SectorLabels,&sectorH,Bstrtolower(label+(g_numLabels<<6)));
 
@@ -3106,7 +3106,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 textptr++;
                 /// now pointing at 'xxx'
                 C_GetNextLabelName();
-                //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
+                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
 
                 lLabelID=C_GetLabelNameID(WallLabels,&wallH,Bstrtolower(label+(g_numLabels<<6)));
 
@@ -3168,7 +3168,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 textptr++;
                 /// now pointing at 'xxx'
                 C_GetNextLabelName();
-                //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
+                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
 
                 lLabelID=C_GetLabelNameOffset(&playerH,Bstrtolower(label+(g_numLabels<<6)));
                 //printf("LabelID is %d\n",lLabelID);
@@ -3244,7 +3244,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 textptr++;
                 /// now pointing at 'xxx'
                 C_GetNextLabelName();
-                //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
+                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
 
                 lLabelID=C_GetLabelNameOffset(&inputH,Bstrtolower(label+(g_numLabels<<6)));
                 //printf("LabelID is %d\n",lLabelID);
@@ -3295,7 +3295,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 textptr++;
                 /// now pointing at 'xxx'
                 C_GetNextLabelName();
-                //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
+                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
 
                 lLabelID=C_GetLabelNameID(UserdefsLabels,&userdefH,Bstrtolower(label+(g_numLabels<<6)));
 
@@ -3380,7 +3380,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
                 // get the ID of the DEF
                 C_GetNextLabelName();
-                //printf("found label of '%s'\n",   label+(g_numLabels<<6));
+                //printf("found label of \"%s\"\n",   label+(g_numLabels<<6));
 
                 // Check to see if it's a keyword
                 if (hash_find(&h_keywords,label+(g_numLabels<<6))>=0)
@@ -3391,7 +3391,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 }
 
                 i=GetDefID(label+(g_numLabels<<6));
-                //printf("Label '%s' ID is %d\n",label+(g_numLabels<<6), i);
+                //printf("Label \"%s\" ID is %d\n",label+(g_numLabels<<6), i);
                 if (i<0)
                 {
                     // not a defined DEF
@@ -3489,7 +3489,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 /// now pointing at 'xxx'
 
                 C_GetNextLabelName();
-                //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
+                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
 
                 lLabelID=C_GetLabelNameOffset(&actorH,Bstrtolower(label+(g_numLabels<<6)));
                 //printf("LabelID is %d\n",lLabelID);
@@ -3568,7 +3568,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 textptr++;
                 /// now pointing at 'xxx'
                 C_GetNextLabelName();
-                //printf("found xxx label of '%s'\n",   label+(g_numLabels<<6));
+                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
 
                 lLabelID=C_GetLabelNameOffset(&tspriteH,Bstrtolower(label+(g_numLabels<<6)));
                 //printf("LabelID is %d\n",lLabelID);
@@ -5061,7 +5061,7 @@ repeatcase:
                     else setupfilename[0] = 0;
                     Bstrcat(setupfilename,temp);
 
-                    initprintf("Using config file '%s'.\n",setupfilename);
+                    initprintf("Using config file \"%s\".\n",setupfilename);
 
                     CONFIG_ReadSetup();
 
@@ -5733,8 +5733,8 @@ void C_Compile(const char *filenam)
         if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {
 #ifdef WIN32
-            Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of '%s' or other compatible data is needed to run EDuke32.\n\n"
-                     "You can find '%s' in the 'DN3DINST' or 'ATOMINST' directory on your Duke Nukem 3D installation CD.\n\n"
+            Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n\n"
+                     "You can find \"%s\" in the 'DN3DINST' or 'ATOMINST' directory on your Duke Nukem 3D installation CD.\n\n"
                      "If you don't already own a copy of Duke or haven't seen your disc in years, don't worry -- you can download the full, registered "
                      "version of Duke Nukem 3D: Atomic Edition immediately for only $5.99 through our partnership with GOG.com.\n\n"
                      "Not a typo; it's less than 6 bucks.  Get Duke now?\n\n"
@@ -5759,8 +5759,8 @@ void C_Compile(const char *filenam)
             }
             G_GameExit("");
 #else
-            Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of '%s' or other compatible data is needed to run EDuke32.\n"
-                     "You can find '%s' in the 'DN3DINST' or 'ATOMINST' directory on your Duke Nukem 3D installation CD-ROM.\n\n"
+            Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n"
+                     "You can find \"%s\" in the 'DN3DINST' or 'ATOMINST' directory on your Duke Nukem 3D installation CD-ROM.\n\n"
                      "EDuke32 will now close.",
                      g_grpNamePtr,g_grpNamePtr);
             G_GameExit(tempbuf);

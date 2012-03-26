@@ -456,7 +456,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         if (aGameVars[i].dwFlags & (GAMEVAR_PTR_MASK))
         {
             //  			   warning++;
-            //  			   initprintf("%s:%d: warning: Internal gamevar '%s' cannot be redefined.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+            //  			   initprintf("%s:%d: warning: Internal gamevar \"%s\" cannot be redefined.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
             C_ReportError(-1);
             initprintf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
             return 0;
@@ -696,7 +696,7 @@ void __fastcall Gv_SetVar(register int32_t id, register int32_t lValue, register
 {
     if ((unsigned)id >= (unsigned)g_gameVarCount) goto badvarid;
 
-    //Bsprintf(g_szBuf,"SGVI: %d ('%s') to %d for %d %d",id,aGameVars[id].szLabel,lValue,iActor,iPlayer);
+    //Bsprintf(g_szBuf,"SGVI: %d (\"%s\") to %d for %d %d",id,aGameVars[id].szLabel,lValue,iActor,iPlayer);
     //AddLog(g_szBuf);
 
     switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))

@@ -16076,7 +16076,7 @@ void hash_free(hashtable_t *t)
         {
             tmp = cur;
             cur = cur->next;
-//          initprintf("Free %4d '%s'\n",tmp->key,(tmp->string)?tmp->string:".");
+//          initprintf("Free %4d \"%s\"\n",tmp->key,(tmp->string)?tmp->string:".");
             if (tmp->string)
             {
                 Bfree(tmp->string);

@@ -1224,7 +1224,7 @@ static void C_GetNextVarType(int32_t type)
 
             C_GetNextLabelName(0);
 
-            /*initprintf("found xxx label of '%s'\n",   label+(g_numLabels*MAXLABELLEN));*/
+            /*initprintf("found xxx label of \"%s\"\n",   label+(g_numLabels*MAXLABELLEN));*/
             if (lightp)
                 lLabelID = C_GetLabelNameID(LightLabels, &h_light, Bstrtolower(tlabel));
             else if (id==M32_SPRITE_VAR_ID || id==M32_TSPRITE_VAR_ID)
@@ -1679,7 +1679,7 @@ static int32_t C_ParseCommand(void)
         i = hash_find(&h_labels, tlabel);
         if (i == -1)
         {
-            // printf("Defining Definition '%s' to be '%d'\n",label+(g_numLabels*MAXLABELLEN),*(g_scriptPtr-1));
+            // printf("Defining Definition \"%s\" to be '%d'\n",label+(g_numLabels*MAXLABELLEN),*(g_scriptPtr-1));
 //            Bmemcpy(label+(g_numLabels*MAXLABELLEN), tlabel, MAXLABELLEN);
             C_CopyLabel();
             hash_add(&h_labels, label+(g_numLabels*MAXLABELLEN), g_numLabels, 0);
@@ -2520,7 +2520,7 @@ repeatcase:
 
             C_GetNextValue(LABEL_DEFINE); // get initial value
             C_GetNextValue(LABEL_DEFINE); // get flags
-            //Bsprintf(g_szBuf,"Adding GameVar='%s', val=%l, flags=%lX",label+(g_numLabels*MAXLABELLEN), *(g_scriptPtr-2), *(g_scriptPtr-1)); AddLog(g_szBuf);
+            //Bsprintf(g_szBuf,"Adding GameVar=\"%s\", val=%l, flags=%lX",label+(g_numLabels*MAXLABELLEN), *(g_scriptPtr-2), *(g_scriptPtr-1)); AddLog(g_szBuf);
 
             // global var: can't define default
             if (g_numCompilerErrors==0)

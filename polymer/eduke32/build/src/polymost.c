@@ -775,7 +775,7 @@ void polymost_glinit()
     if (!cacheindexptr)
     {
         glusetexcache = 0;
-        initprintf("Unable to open cache index '%s': %s\n", ptempbuf, strerror(errno));
+        initprintf("Unable to open cache index \"%s\": %s\n", ptempbuf, strerror(errno));
         return;
     }
 
@@ -791,12 +791,12 @@ void polymost_glinit()
 
     if (cachefilehandle < 0)
     {
-        initprintf("Unable to open cache file '%s': %s\n", TEXCACHEFILE, strerror(errno));
+        initprintf("Unable to open cache file \"%s\": %s\n", TEXCACHEFILE, strerror(errno));
         glusetexcache = 0;
         return;
     }
     else
-        initprintf("Opened '%s' as cache file\n", TEXCACHEFILE);
+        initprintf("Opened \"%s\" as cache file\n", TEXCACHEFILE);
 
     if (glusememcache && !dont_alloc_memcache)
     {
@@ -866,7 +866,7 @@ void invalidatecache(void)
     if (!cacheindexptr)
     {
         glusetexcache = 0;
-        initprintf("Unable to open cache index '%s': %s\n", ptempbuf, strerror(errno));
+        initprintf("Unable to open cache index \"%s\": %s\n", ptempbuf, strerror(errno));
         return;
     }
 
@@ -876,12 +876,12 @@ void invalidatecache(void)
 
     if (cachefilehandle < 0)
     {
-        initprintf("Unable to open cache file '%s': %s\n", TEXCACHEFILE, strerror(errno));
+        initprintf("Unable to open cache file \"%s\": %s\n", TEXCACHEFILE, strerror(errno));
         glusetexcache = 0;
         return;
     }
     else
-        initprintf("Deleted and reopened '%s' as cache file\n", TEXCACHEFILE);
+        initprintf("Deleted and reopened \"%s\" as cache file\n", TEXCACHEFILE);
 }
 
 void resizeglcheck()

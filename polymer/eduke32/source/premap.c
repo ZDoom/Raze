@@ -1834,7 +1834,7 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
     }
 
     if (!loadmaphack(outbuf))
-        initprintf("Loaded map hack file '%s'\n",outbuf);
+        initprintf("Loaded map hack file \"%s\"\n",outbuf);
 }
 
 static void realloc_and_copy_musicfn(int32_t level_number, const char *levnamebuf, int32_t altp)
@@ -1982,7 +1982,7 @@ int32_t G_EnterLevel(int32_t g)
             if (loadboard(boardfilename,0,&g_player[0].ps->pos.x, &g_player[0].ps->pos.y,
                           &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
             {
-                OSD_Printf(OSD_ERROR "Map '%s' not found!\n",boardfilename);
+                OSD_Printf(OSD_ERROR "Map \"%s\" not found!\n",boardfilename);
                 //G_GameExit(tempbuf);
                 return 1;
             }
@@ -2013,7 +2013,7 @@ int32_t G_EnterLevel(int32_t g)
         if (loadboard(levname,1,&g_player[0].ps->pos.x, &g_player[0].ps->pos.y,
                       &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) == -1)
         {
-            OSD_Printf(OSD_ERROR "Map '%s' not found!\n",MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+            OSD_Printf(OSD_ERROR "Map \"%s\" not found!\n",MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
             //G_GameExit(tempbuf);
             return 1;
         }

@@ -1032,7 +1032,7 @@ int32_t OSD_HandleChar(char ch)
                         if (!lastmatch->next) break;
                         symb=findsymbol(osdedittmp, lastmatch->next);
                     }
-                    OSD_Printf(OSDTEXT_RED "Found %d possible completions for '%s':\n",num,osdedittmp);
+                    OSD_Printf(OSDTEXT_RED "Found %d possible completions for \"%s\":\n",num,osdedittmp);
                     maxwidth += 3;
                     symb = tabc;
                     OSD_Printf("  ");

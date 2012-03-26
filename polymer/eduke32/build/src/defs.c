@@ -263,7 +263,7 @@ static int32_t defsparser(scriptfile *script)
                 kzfindfilestart(buf);
                 if (!kzfindfile(buf))
                 {
-                    initprintf("Error: file '%s' does not exist\n",fn);
+                    initprintf("Error: file \"%s\" does not exist\n",fn);
                     pathsearchmode = i;
                     break;
                 }
@@ -295,7 +295,7 @@ static int32_t defsparser(scriptfile *script)
                     kzfindfilestart(buf);
                     if (!kzfindfile(buf))
                     {
-                        initprintf("Error: file '%s' does not exist\n",fn[i]);
+                        initprintf("Error: file \"%s\" does not exist\n",fn[i]);
                         happy = 0;
                     }
                 }
@@ -539,7 +539,7 @@ static int32_t defsparser(scriptfile *script)
                     kzfindfilestart(buf);
                     if (!kzfindfile(buf))
                     {
-                        initprintf("Error: file '%s' does not exist\n",fn);
+                        initprintf("Error: file \"%s\" does not exist\n",fn);
                         pathsearchmode = i;
                         break;
                     }
@@ -861,7 +861,7 @@ static int32_t defsparser(scriptfile *script)
                 kzfindfilestart(buf);
                 if (!kzfindfile(buf))
                 {
-                    initprintf("Error: file '%s' does not exist\n",skinfn);
+                    initprintf("Error: file \"%s\" does not exist\n",skinfn);
                     pathsearchmode = i;
                     break;
                 }
@@ -1243,7 +1243,7 @@ static int32_t defsparser(scriptfile *script)
                         kzfindfilestart(buf);
                         if (!kzfindfile(buf))
                         {
-                            initprintf("Error: file '%s' does not exist\n",skinfn);
+                            initprintf("Error: file \"%s\" does not exist\n",skinfn);
                             pathsearchmode = i;
                             break;
                         }
@@ -1542,7 +1542,7 @@ static int32_t defsparser(scriptfile *script)
                     kzfindfilestart(buf);
                     if (!kzfindfile(buf))
                     {
-                        initprintf("Error: file '%s' does not exist\n",fn[i]);
+                        initprintf("Error: file \"%s\" does not exist\n",fn[i]);
                         happy = 0;
                     }
                 }
@@ -1615,7 +1615,7 @@ static int32_t defsparser(scriptfile *script)
                 kzfindfilestart(buf);
                 if (!kzfindfile(buf))
                 {
-                    initprintf("Error: file '%s' does not exist\n",fn);
+                    initprintf("Error: file \"%s\" does not exist\n",fn);
                     pathsearchmode = oldpathsearchmode;
                     break;
                 }
@@ -1640,14 +1640,14 @@ static int32_t defsparser(scriptfile *script)
 
                 klseek(fd, 0, SEEK_SET);
                 if (kread(fd, filebuf, filesize)!=filesize)
-                    { kclose(fd); Bfree(highpaldata); initprintf("Error: didn't read all of '%s'.\n", fn); break; }
+                    { kclose(fd); Bfree(highpaldata); initprintf("Error: didn't read all of \"%s\".\n", fn); break; }
 
                 kclose(fd);
                 kpgetdim(filebuf, filesize, &xsiz, &ysiz);
 
                 if (xsiz != PR_HIGHPALOOKUP_DIM*PR_HIGHPALOOKUP_DIM || ysiz != PR_HIGHPALOOKUP_DIM)
                 {
-                    initprintf("Error: image dimensions of '%s' must be %dx%d.\n",
+                    initprintf("Error: image dimensions of \"%s\" must be %dx%d.\n",
                                fn, PR_HIGHPALOOKUP_DIM*PR_HIGHPALOOKUP_DIM, PR_HIGHPALOOKUP_DIM);
                     Bfree(filebuf); Bfree(highpaldata);
                     break;
@@ -1656,7 +1656,7 @@ static int32_t defsparser(scriptfile *script)
                 i = kprender(filebuf, filesize, (intptr_t)highpaldata, xsiz*sizeof(coltype), xsiz, ysiz, 0, 0);
                 Bfree(filebuf);
                 if (i)
-                    { Bfree(highpaldata); initprintf("Error: failed rendering '%s'.\n", fn); break; }
+                    { Bfree(highpaldata); initprintf("Error: failed rendering \"%s\".\n", fn); break; }
             }
 
             polymer_definehighpalookup(basepal, pal, highpaldata);
@@ -1799,7 +1799,7 @@ static int32_t defsparser(scriptfile *script)
                         kzfindfilestart(buf);
                         if (!kzfindfile(buf))
                         {
-                            initprintf("Error: file '%s' does not exist\n",fn);
+                            initprintf("Error: file \"%s\" does not exist\n",fn);
                             pathsearchmode = i;
                             break;
                         }
@@ -1874,7 +1874,7 @@ static int32_t defsparser(scriptfile *script)
                         kzfindfilestart(buf);
                         if (!kzfindfile(buf))
                         {
-                            initprintf("Error: file '%s' does not exist\n",fn);
+                            initprintf("Error: file \"%s\" does not exist\n",fn);
                             pathsearchmode = i;
                             break;
                         }
@@ -2081,7 +2081,7 @@ int32_t loaddefinitionsfile(const char *fn)
     if (!script) return -1;
 
     flushlogwindow = 1;
-    initprintf("Loading '%s'\n",fn);
+    initprintf("Loading \"%s\"\n",fn);
     flushlogwindow = 0;
     defsparser(script);
 

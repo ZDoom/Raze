@@ -1886,7 +1886,7 @@ static void ShowFileText(const char *name)
 
     if ((fp=kopen4load(name,0)) == -1)
     {
-        Bsprintf(tempbuf, "ERROR: file '%s' not found.", name);
+        Bsprintf(tempbuf, "ERROR: file \"%s\" not found.", name);
         if (in3dmode)
             printext256(1*4,4*8,whitecol,-1,tempbuf,0);
         else
@@ -8356,25 +8356,28 @@ int32_t ExtPreSaveMap(void)
 
 static void G_ShowParameterHelp(void)
 {
-    const char *s = "Usage: mapster32 [OPTIONS] [FILE]\n\n"
-              "-gFILE, -grp FILE\tUse extra group file FILE\n"
-              "-hFILE\t\tUse definitions file FILE\n"
-              "-xFILE\t\tUse FILE instead of GAME.CON for getting sound definitions\n"
-              "-mh FILE\t\tInclude additional definitions module FILE\n"
-              "-mx FILE\t\tInclude additional CON module FILE for getting sound definitions\n"
-              "-jDIR, -game_dir DIR\n"
-              "\t\tAdds DIR to the file path stack\n"
-              "-cachesize #\tSets cache size, in Kb\n"
-              "-check\t\tEnables map pointer checking when saving\n"
-              "-namesfile FILE\tUses FILE instead of NAMES.H for tile names\n"
-              "-nocheck\t\tDisables map pointer checking when saving (default)\n"  // kept for script compat
+    const char *s = "Usage: mapster32 [files] [options]\n\n"
+              "-g[file.grp], -grp [file.grp]\tLoad extra group file\n"
+              "-h[file.def]\t\tLoad an alternate definitions file\n"
+              "-x[game.con]\t\tLoad a custom CON script for getting sound definitions\n"
+              "-mh [file.def]\t\tInclude additional definitions module\n"
+              "-mx [file.con]\t\tInclude additional CON module for getting sound definitions\n"
+              "-j[dir], -game_dir [dir]\n"
+              "\t\t\tAdds a directory to the file path stack\n"
+              "-cachesize #\t\tSets cache size, in Kb\n"
+              "-check\t\t\tEnables map pointer checking when saving\n"
+#ifdef HAVE_CLIPSHAPE_FEATURE
+              "-clipmap [file.map]\t\tLoad an additional clipping map for use with clipshape\n"
+#endif
+              "-namesfile [file.h]\t\tLoad a custom NAMES.H for tile names\n"
+              "-nocheck\t\t\tDisables map pointer checking when saving (default)\n"  // kept for script compat
 #if defined RENDERTYPEWIN || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
-              "-setup\t\tDisplays the configuration dialog\n"
+              "-setup\t\t\tDisplays the configuration dialog\n"
 #endif
 #if !defined(_WIN32)
-              "-usecwd\t\tRead game data and configuration file from working directory\n"
+              "-usecwd\t\t\tRead game data and configuration file from working directory\n"
 #endif
-              "\n-?, -help, --help\tDisplay this help message and exit"
+              "\n-?, -help, --help\t\tDisplay this help message and exit"
               ;
     Bsprintf(tempbuf, "Mapster32 %s %s", VERSION, s_buildRev);
     wm_msgbox(tempbuf, "%s", s);
@@ -8686,7 +8689,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     g_defNamePtr = c;
                     g_skipDefaultDefs = 1;
                     COPYARG(i);
-                    initprintf("Using DEF file: %s.\n",g_defNamePtr);
+                    initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
                 }
                 break;
             case 'j':
@@ -8710,7 +8713,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 gamecon = c;
                 g_skipDefaultCons = 1;
                 COPYARG(i);
-                initprintf("Using CON file '%s'.\n",gamecon);
+                initprintf("Using CON file \"%s\".\n",gamecon);
                 break;
             }
         }
@@ -8730,7 +8733,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     COPYARG(i);
                     g_defNamePtr = (char *)argv[i++];
                     g_skipDefaultDefs = 1;
-                    initprintf("Using DEF file: %s.\n",g_defNamePtr);
+                    initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
                     continue;
                 }
                 else if (!Bstrcasecmp(k,".con"))
@@ -8738,7 +8741,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     COPYARG(i);
                     gamecon = (char *)argv[i++];
                     g_skipDefaultCons = 1;
-                    initprintf("Using CON file '%s'.\n",gamecon);
+                    initprintf("Using CON file \"%s\".\n",gamecon);
                     continue;
                 }
             }
@@ -9582,7 +9585,7 @@ static void DoAutoload(const char *fn)
         while (findfiles)
         {
             Bsprintf(tempbuf, "autoload/%s/%s", fn, findfiles->name);
-            initprintf("Using group file '%s'.\n", tempbuf);
+            initprintf("Using group file \"%s\".\n", tempbuf);
             initgroupfile(tempbuf);
             findfiles = findfiles->next;
         }
@@ -9642,10 +9645,10 @@ int32_t parsegroupfiles(scriptfile *script)
                 int32_t j = initgroupfile(fn);
 
                 if (j == -1)
-                    initprintf("Could not find group file '%s'.\n",fn);
+                    initprintf("Could not find group file \"%s\".\n",fn);
                 else
                 {
-                    initprintf("Using group file '%s'.\n",fn);
+                    initprintf("Using group file \"%s\".\n",fn);
                     if (!NoAutoLoad)
                         DoAutoload(fn);
                 }
@@ -10224,12 +10227,12 @@ static int32_t loadconsounds(const char *fn)
     scriptfile *script;
     int32_t ret, i;
 
-    initprintf("Loading sounds from '%s'\n",fn);
+    initprintf("Loading sounds from \"%s\"\n",fn);
 
     script = scriptfile_fromfile(fn);
     if (!script)
     {
-        initprintf("Error loading sounds: file '%s' not found.\n", fn);
+        initprintf("Error loading sounds: file \"%s\" not found.\n", fn);
         return -1;
     }
     ret = parseconsounds(script);
@@ -10242,9 +10245,9 @@ static int32_t loadconsounds(const char *fn)
     Bfree(g_scriptModules);
 
     if (ret < 0)
-        initprintf("There was an error parsing '%s'.\n", fn);
+        initprintf("There was an error parsing \"%s\".\n", fn);
     else if (ret == 0)
-        initprintf("'%s' doesn't contain sound definitions. No sounds loaded.\n", fn);
+        initprintf("\"%s\" doesn't contain sound definitions. No sounds loaded.\n", fn);
     else
         initprintf("Loaded %d sound definitions.\n", ret);
 
@@ -10354,7 +10357,7 @@ int32_t ExtInit(void)
     if (getenv("DUKE3DGRP"))
     {
         g_grpNamePtr = getenv("DUKE3DGRP");
-        initprintf("Using %s as main GRP file\n", g_grpNamePtr);
+        initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
     }
 
     i = initgroupfile(g_grpNamePtr);
@@ -10370,7 +10373,7 @@ int32_t ExtInit(void)
             while (findfiles)
             {
                 Bsprintf(tempbuf,"autoload/%s",findfiles->name);
-                initprintf("Using group file '%s'.\n",tempbuf);
+                initprintf("Using group file \"%s\".\n",tempbuf);
                 initgroupfile(tempbuf);
                 findfiles = findfiles->next;
             }
@@ -10384,7 +10387,7 @@ int32_t ExtInit(void)
     {
         g_defNamePtr = getenv("DUKE3DDEF");
         g_skipDefaultDefs = 1;
-        initprintf("Using '%s' as definitions file\n", g_defNamePtr);
+        initprintf("Using \"%s\" as definitions file\n", g_defNamePtr);
     }
     if (g_skipDefaultDefs == 0)
         if (g_defNamePtr != defsfilename)
@@ -10401,10 +10404,10 @@ int32_t ExtInit(void)
         {
             s = CommandGrps->next;
             j = initgroupfile(CommandGrps->str);
-            if (j == -1) initprintf("Could not find group file '%s'.\n",CommandGrps->str);
+            if (j == -1) initprintf("Could not find group file \"%s\".\n",CommandGrps->str);
             else
             {
-                initprintf("Using group file '%s'.\n",CommandGrps->str);
+                initprintf("Using group file \"%s\".\n",CommandGrps->str);
                 if (!NoAutoLoad)
                     DoAutoload(CommandGrps->str);
             }
@@ -10422,7 +10425,7 @@ int32_t ExtInit(void)
     glusetexcache = -1;
 
     if (Bstrcmp(setupfilename, "mapster32.cfg"))
-        initprintf("Using config file '%s'.\n",setupfilename);
+        initprintf("Using config file \"%s\".\n",setupfilename);
 
     if (loadsetup(setupfilename) < 0)
         initprintf("Configuration file not found, using defaults.\n"), rv = 1;

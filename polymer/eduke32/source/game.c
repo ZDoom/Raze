@@ -7989,19 +7989,22 @@ static void G_ShowParameterHelp(void)
               "Files can be *.grp/zip/con/def/rts\n"
               "\n"
               "-cfg [file.cfg]\tUse an alternate configuration file\n"
+#ifdef HAVE_CLIPSHAPE_FEATURE
+              "-clipmap [file.map]\tLoad an additional clipping map for use with clipshape\n"
+#endif
               "-connect [host]\tConnect to a multiplayer game\n"
               "-c#\t\tUse MP mode #, 1 = Dukematch, 2 = Coop, 3 = Dukematch(no spawn)\n"
               "-d[file.edm]\tPlay a demo\n"
-              "-g[file.grp]\tUse additional game data\n"
-              "-h[file.def]\tUse an alternate def\n"
+              "-g[file.grp]\tLoad additional game data\n"
+              "-h[file.def]\tLoad an alternate definitions file\n"
               "-j[dir]\t\tAdds a directory to EDuke32's search list\n"
               "-l#\t\tWarp to level #, see -v\n"
               "-map [file.map]\tLoads a map\n"
-              "-mh [file.def]\tInclude an additional def module\n"
+              "-mh [file.def]\tInclude an additional definitions module\n"
               "-mx [file.con]\tInclude an additional CON script module\n"
               "-m\t\tDisable monsters\n"
               "-nam\t\tRun in NAM/NAPALM compatibility mode\n"
-              "-rts [file.rts]\tLoad custom Remote Ridicule sound bank\n"
+              "-rts [file.rts]\tLoad a custom Remote Ridicule sound bank\n"
               "-r\t\tRecord demo\n"
               "-s#\t\tSet skill level (1-4)\n"
               "-server\t\tStart a multiplayer game for other players to join\n"
@@ -8099,7 +8102,7 @@ static void G_DoAutoload(const char *fn)
         while (findfiles)
         {
             Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name);
-            initprintf("Using file '%s' as game data.\n",tempbuf);
+            initprintf("Using file \"%s\" as game data.\n",tempbuf);
             initgroupfile(tempbuf);
             findfiles = findfiles->next;
         }
@@ -8254,10 +8257,10 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 int32_t j = initgroupfile(fn);
 
                 if (j == -1)
-                    initprintf("Could not find file '%s'.\n",fn);
+                    initprintf("Could not find file \"%s\".\n",fn);
                 else
                 {
-                    initprintf("Using file '%s' as game data.\n",fn);
+                    initprintf("Using file \"%s\" as game data.\n",fn);
                     if (!g_noAutoLoad && !ud.config.NoAutoLoad)
                         G_DoAutoload(fn);
                 }
@@ -8328,7 +8331,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                     kzfindfilestart(buf);
                     if (!kzfindfile(buf))
                     {
-                        initprintf("Error: file '%s' does not exist\n",fn);
+                        initprintf("Error: file \"%s\" does not exist\n",fn);
                         pathsearchmode = i;
                         break;
                     }
@@ -8458,14 +8461,14 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 if (!bad)
                 {
                     anim_hi_numsounds[animnum] = numpairs;
-                    initprintf("Defined sound sequence for hi-anim '%s' with %d frame/sound pairs\n",
+                    initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
                                hardcoded_anim_tokens[animnum].text, numpairs);
                 }
                 else
                 {
                     Bfree(anim_hi_sounds[animnum]);
                     anim_hi_sounds[animnum] = NULL;
-                    initprintf("Failed defining sound sequence for hi-anim '%s'.\n",
+                    initprintf("Failed defining sound sequence for hi-anim \"%s\".\n",
                                hardcoded_anim_tokens[animnum].text);
                 }
             }
@@ -8526,7 +8529,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                     kzfindfilestart(buf);
                     if (!kzfindfile(buf))
                     {
-                        initprintf("Error: file '%s' does not exist\n",fn);
+                        initprintf("Error: file \"%s\" does not exist\n",fn);
                         pathsearchmode = i;
                         break;
                     }
@@ -8843,7 +8846,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     {
                         g_rtsNamePtr = (char *)argv[i+1];
                         Bstrcpy(ud.rtsname, g_rtsNamePtr);
-                        initprintf("Using .RTS file '%s'\n",ud.rtsname);
+                        initprintf("Using RTS file \"%s\".\n",ud.rtsname);
                         i++;
                     }
                     i++;
@@ -8998,7 +9001,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     {
                         g_defNamePtr = c;
                         g_skipDefaultDefs = 1;
-                        initprintf("Using DEF file: %s.\n",g_defNamePtr);
+                        initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
                     }
                     break;
                 case 'j':
@@ -9122,7 +9125,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     {
                         g_scriptNamePtr = c;
                         g_skipDefaultCons = 1;
-                        initprintf("Using CON file '%s'.\n",g_scriptNamePtr);
+                        initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
                     }
                     break;
                 case '0':
@@ -9164,21 +9167,21 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     {
                         g_scriptNamePtr = (char *)argv[i++];
                         g_skipDefaultCons = 1;
-                        initprintf("Using CON file '%s'.\n",g_scriptNamePtr);
+                        initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
                         continue;
                     }
                     if (!Bstrcasecmp(k,".def"))
                     {
                         g_defNamePtr = (char *)argv[i++];
                         g_skipDefaultDefs = 1;
-                        initprintf("Using DEF file: %s.\n",g_defNamePtr);
+                        initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
                         continue;
                     }
                     if (!Bstrcasecmp(k,".rts"))
                     {
                         g_rtsNamePtr = (char *)argv[i++];
                         Bstrcpy(ud.rtsname, g_rtsNamePtr);
-                        initprintf("Using .RTS file '%s'\n",ud.rtsname);
+                        initprintf("Using RTS file \"%s\".\n",ud.rtsname);
                         continue;
                     }
                 }
@@ -9627,12 +9630,12 @@ static void G_Startup(void)
             i = kopen4loadfrommod(boardfilename,0);
             if (i!=-1)
             {
-                initprintf("Using level: '%s'.\n",boardfilename);
+                initprintf("Using level: \"%s\".\n",boardfilename);
                 kclose(i);
             }
             else
             {
-                initprintf("Level '%s' not found.\n",boardfilename);
+                initprintf("Level \"%s\" not found.\n",boardfilename);
                 boardfilename[0] = 0;
             }
         }
@@ -9690,7 +9693,7 @@ static void G_Startup(void)
         if (g_modDir[0] != '/' && (cwd = (char *)getcwd(NULL, 0)))
         {
             chdir(g_modDir);
-//            initprintf("g_rootDir '%s'\nmod '%s'\ncwd '%s'\n",g_rootDir,mod_dir,cwd);
+//            initprintf("g_rootDir \"%s\"\nmod \"%s\"\ncwd \"%s\"\n",g_rootDir,mod_dir,cwd);
             if (loadpics("tiles000.art",MAXCACHE1DSIZE) < 0)
             {
                 chdir(cwd);
@@ -9981,7 +9984,7 @@ int32_t app_main(int32_t argc,const char **argv)
     if (getenv("DUKE3DGRP"))
     {
         g_grpNamePtr = getenv("DUKE3DGRP");
-        initprintf("Using %s as main GRP file\n", g_grpNamePtr);
+        initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
     }
 
 #ifdef _WIN32
@@ -10042,7 +10045,7 @@ int32_t app_main(int32_t argc,const char **argv)
     }
 
     if (Bstrcmp(setupfilename, SETUPFILENAME))
-        initprintf("Using config file '%s'.\n",setupfilename);
+        initprintf("Using config file \"%s\".\n",setupfilename);
 
     ScanGroups();
     {
@@ -10148,12 +10151,12 @@ int32_t app_main(int32_t argc,const char **argv)
                     Bsprintf(tempbuf,"%stexcache",dir);
                     getfilenames(tempbuf,"*");
 CLEAN_DIRECTORY:
-                    // initprintf("Cleaning '%s'\n",tempbuf);
+                    // initprintf("Cleaning \"%s\"\n",tempbuf);
                     while (findfiles)
                     {
                         Bsprintf(g_szBuf,"%s/%s",tempbuf,findfiles->name);
                         if (unlink(g_szBuf))
-                            initprintf("ERROR: couldn't remove '%s': %s\n",g_szBuf,strerror(errno));
+                            initprintf("ERROR: couldn't remove \"%s\": %s\n",g_szBuf,strerror(errno));
                         findfiles = findfiles->next;
                     }
                     while (finddirs)
@@ -10175,12 +10178,12 @@ CLEAN_DIRECTORY:
                             }
                             else
                             {
-                                initprintf("ERROR: couldn't remove '%s': %s\n",g_szBuf,strerror(errno));
+                                initprintf("ERROR: couldn't remove \"%s\": %s\n",g_szBuf,strerror(errno));
                             }
                         }
                         else
                         {
-                            initprintf("Removed '%s'\n",g_szBuf);
+                            initprintf("Removed \"%s\"\n",g_szBuf);
                             finddirs = finddirs->next;
                         }
                     }
@@ -10195,8 +10198,8 @@ CLEAN_DIRECTORY:
 
                     Bsprintf(tempbuf,"%stexcache",dir);
                     if (rmdir(tempbuf))
-                        initprintf("ERROR: couldn't remove '%s': %s\n",tempbuf,strerror(errno));
-                    else initprintf("Removed '%s'\n",tempbuf);
+                        initprintf("ERROR: couldn't remove \"%s\": %s\n",tempbuf,strerror(errno));
+                    else initprintf("Removed \"%s\"\n",tempbuf);
                 }
             }
         }
@@ -10204,9 +10207,9 @@ CLEAN_DIRECTORY:
 #endif
 
     if ((i = initgroupfile(g_grpNamePtr)) == -1)
-        initprintf("Warning: could not find main data file '%s'!\n",g_grpNamePtr);
+        initprintf("Warning: could not find main data file \"%s\"!\n",g_grpNamePtr);
     else
-        initprintf("Using '%s' as main game data file.\n", g_grpNamePtr);
+        initprintf("Using \"%s\" as main game data file.\n", g_grpNamePtr);
 
     if (!g_noAutoLoad && !ud.config.NoAutoLoad)
     {
@@ -10218,7 +10221,7 @@ CLEAN_DIRECTORY:
             while (findfiles)
             {
                 Bsprintf(tempbuf,"autoload/%s",findfiles->name);
-                initprintf("Using file '%s' as game data.\n",tempbuf);
+                initprintf("Using file \"%s\" as game data.\n",tempbuf);
                 initgroupfile(tempbuf);
                 findfiles = findfiles->next;
             }
@@ -10239,7 +10242,7 @@ CLEAN_DIRECTORY:
             while (findfiles)
             {
                 Bsprintf(tempbuf,"%s/%s",g_modDir,findfiles->name);
-                initprintf("Using file '%s' as game data.\n",tempbuf);
+                initprintf("Using file \"%s\" as game data.\n",tempbuf);
                 initgroupfile(tempbuf);
                 findfiles = findfiles->next;
             }
@@ -10250,7 +10253,7 @@ CLEAN_DIRECTORY:
     {
         g_defNamePtr = getenv("DUKE3DDEF");
         g_skipDefaultDefs = 1;
-        initprintf("Using '%s' as definitions file\n", g_defNamePtr);
+        initprintf("Using \"%s\" as definitions file\n", g_defNamePtr);
     }
     if (g_skipDefaultDefs == 0)
         if (g_defNamePtr != defsfilename)
@@ -10269,11 +10272,11 @@ CLEAN_DIRECTORY:
             s = CommandGrps->next;
 
             if ((j = initgroupfile(CommandGrps->str)) == -1)
-                initprintf("Could not find file '%s'.\n",CommandGrps->str);
+                initprintf("Could not find file \"%s\".\n",CommandGrps->str);
             else
             {
                 g_groupFileHandle = j;
-                initprintf("Using file '%s' as game data.\n",CommandGrps->str);
+                initprintf("Using file \"%s\" as game data.\n",CommandGrps->str);
                 if (!g_noAutoLoad && !ud.config.NoAutoLoad)
                     G_DoAutoload(CommandGrps->str);
             }
@@ -10341,7 +10344,7 @@ CLEAN_DIRECTORY:
 
     if (!loaddefinitionsfile(g_defNamePtr))
     {
-        initprintf("Definitions file '%s' loaded.\n",g_defNamePtr);
+        initprintf("Definitions file \"%s\" loaded.\n",g_defNamePtr);
         loaddefinitions_game(g_defNamePtr, FALSE);
     }
 
@@ -10388,7 +10391,7 @@ CLEAN_DIRECTORY:
     RTS_Init(ud.rtsname);
 
     if (rts_numlumps)
-        initprintf("Using .RTS file '%s'\n",ud.rtsname);
+        initprintf("Using RTS file \"%s\".\n",ud.rtsname);
 
     if (ud.last_level)
         Bstrcpy(ud.rtsname, defaultrtsfilename);
