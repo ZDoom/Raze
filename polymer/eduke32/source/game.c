@@ -9389,7 +9389,9 @@ static void G_CompileScripts(void)
     pathsearchmode = 1;
     if (g_skipDefaultCons == 0)
     {
-        Bsprintf(g_scriptNamePtr,"%s",defaultconfile());
+        const char *cp = defaultconfile();
+        if (cp != g_scriptNamePtr)
+            Bsprintf(g_scriptNamePtr, "%s", cp);
     }
     C_Compile(g_scriptNamePtr);
 
@@ -9397,7 +9399,9 @@ static void G_CompileScripts(void)
     {
         if (g_skipDefaultCons == 0)
         {
-            Bsprintf(g_scriptNamePtr,"%s",defaultconfile());
+            const char *cp = defaultconfile();
+            if (cp != g_scriptNamePtr)
+                Bsprintf(g_scriptNamePtr, "%s", cp);
         }
         C_Compile(g_scriptNamePtr);
     }
