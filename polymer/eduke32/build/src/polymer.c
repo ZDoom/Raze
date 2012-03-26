@@ -3498,35 +3498,9 @@ void                polymer_updatesprite(int32_t snum)
     if (tspr->cstat & 48 && searchit != 2)
     {
         uint32_t crc = crc32once((uint8_t *)tspr, offsetof(spritetype, owner));
-        int32_t curpriority = 0;
 
         if (crc == s->crc && tspr->picnum == curpicnum) return;
         s->crc = crc;
-
-        polymer_resetplanelights(&s->plane);
-
-        while (curpriority < pr_maxlightpriority)
-        {
-            i = j = 0;
-            while (j < lightcount)
-            {
-                while (!prlights[i].flags.active)
-                    i++;
-
-                if (prlights[i].priority != curpriority)
-                {
-                    i++;
-                    j++;
-                    continue;
-                }
-
-                if (polymer_planeinlight(&s->plane, &prlights[i]))
-                    polymer_addplanelight(&s->plane, i);
-                i++;
-                j++;
-            }
-            curpriority++;
-        }
     }
 
     polymer_getbuildmaterial(&s->plane.material, curpicnum, tspr->pal, tspr->shade, 4);
@@ -3683,6 +3657,36 @@ void                polymer_updatesprite(int32_t snum)
     {
         bglDeleteBuffersARB(1, &s->plane.vbo);
         s->plane.vbo = 0;
+    }
+
+    if (tspr->cstat & 48)
+    {
+        int32_t curpriority = 0;
+
+        polymer_resetplanelights(&s->plane);
+
+        while (curpriority < pr_maxlightpriority)
+        {
+            i = j = 0;
+            while (j < lightcount)
+            {
+                while (!prlights[i].flags.active)
+                    i++;
+
+                if (prlights[i].priority != curpriority)
+                {
+                    i++;
+                    j++;
+                    continue;
+                }
+
+                if (polymer_planeinlight(&s->plane, &prlights[i]))
+                    polymer_addplanelight(&s->plane, i);
+                i++;
+                j++;
+            }
+            curpriority++;
+        }
     }
 }
 
