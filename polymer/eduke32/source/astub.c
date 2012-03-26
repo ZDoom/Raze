@@ -66,7 +66,7 @@ char defsfilename[BMAX_PATH] = "duke3d.def";
 static char levelname[BMAX_PATH];
 
 // static char *startwin_labeltext = "Starting Mapster32...";
-static char *setupfilename = "mapster32.cfg";
+static char setupfilename[BMAX_PATH] = "mapster32.cfg";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 static char *g_grpNamePtr = defaultduke3dgrp;
 char *g_defNamePtr = defsfilename;
@@ -8493,7 +8493,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             {
                 if (argc > i+1)
                 {
-                    Bstrcpy(setupfilename,argv[i+1]);
+                    Bstrncpyz(setupfilename, argv[i+1], sizeof(setupfilename));
                     i++;
                 }
                 i++;
