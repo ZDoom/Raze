@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osdfuncs.h"
 #include "names.h"
 
+#include "common.h"
 #include "mapster32.h"
 #include "keys.h"
 
@@ -119,13 +120,6 @@ static int32_t lastupdate, mousecol, mouseadd = 1, bstatus;
 #if !defined(_WIN32)
 static int32_t usecwd = 0;
 #endif
-
-static struct strllist
-{
-    struct strllist *next;
-    char *str;
-}
-*CommandPaths = NULL, *CommandGrps = NULL;
 
 const char *scripthist[SCRIPTHISTSIZ];
 int32_t scripthistend = 0;
@@ -8383,47 +8377,6 @@ static void G_ShowParameterHelp(void)
     wm_msgbox(tempbuf, "%s", s);
 }
 
-
-// CODEDUP game.c
-static void G_AddPath(const char *buffer)
-{
-    struct strllist *s = Bcalloc(1,sizeof(struct strllist));
-    s->str = Bstrdup(buffer);
-
-    if (CommandPaths)
-    {
-        struct strllist *t;
-        for (t = CommandPaths; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-
-    CommandPaths = s;
-}
-
-// CODEDUP game.c
-static void G_AddGroup(const char *buffer)
-{
-    char buf[BMAX_PATH];
-
-    struct strllist *s = Bcalloc(1,sizeof(struct strllist));
-
-    Bstrcpy(buf, buffer);
-
-    if (Bstrchr(buf,'.') == 0)
-        Bstrcat(buf,".grp");
-
-    s->str = Bstrdup(buf);
-
-    if (CommandGrps)
-    {
-        struct strllist *t;
-        for (t = CommandGrps; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-    CommandGrps = s;
-}
 
 #define COPYARG(i) \
     Bmemcpy(&testplay_addparam[j], argv[i], lengths[i]); \

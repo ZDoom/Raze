@@ -103,6 +103,7 @@ JMACTOBJ=$(OBJ)/file_lib.$o \
 GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/actors.$o \
 	$(OBJ)/anim.$o \
+	$(OBJ)/common.$o \
 	$(OBJ)/config.$o \
 	$(OBJ)/demo.$o \
 	$(OBJ)/gamedef.$o \
@@ -124,6 +125,7 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(JMACTOBJ)
 
 EDITOROBJS=$(OBJ)/astub.$o \
+	$(OBJ)/common.$o \
 	$(OBJ)/m32def.$o \
 	$(OBJ)/m32exec.$o \
 	$(OBJ)/m32vars.$o \

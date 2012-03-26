@@ -51,6 +51,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "savegame.h"
 #include "anim.h"
 #include "demo.h"
+#include "common.h"
 
 #ifdef LUNATIC_ENABLE
 # include "lunatic.h"
@@ -90,13 +91,6 @@ static int32_t g_noMusic = 0;
 static char *CommandMap = NULL;
 static char *CommandName = NULL;
 int32_t g_forceWeaponChoice = 0;
-
-static struct strllist
-{
-    struct strllist *next;
-    char *str;
-}
-*CommandPaths = NULL, *CommandGrps = NULL;
 
 char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
 
@@ -8568,47 +8562,6 @@ static int32_t loaddefinitions_game(const char *fn, int32_t preload)
     scriptfile_clearsymbols();
 
     return 0;
-}
-
-
-// CODEDUP astub.c
-static void G_AddGroup(const char *buffer)
-{
-    char buf[BMAX_PATH];
-
-    struct strllist *s = Bcalloc(1,sizeof(struct strllist));
-
-    Bstrcpy(buf, buffer);
-
-    if (Bstrchr(buf,'.') == 0)
-        Bstrcat(buf,".grp");
-
-    s->str = Bstrdup(buf);
-
-    if (CommandGrps)
-    {
-        struct strllist *t;
-        for (t = CommandGrps; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-    CommandGrps = s;
-}
-
-// CODEDUP astub.c
-static void G_AddPath(const char *buffer)
-{
-    struct strllist *s = Bcalloc(1,sizeof(struct strllist));
-    s->str = Bstrdup(buffer);
-
-    if (CommandPaths)
-    {
-        struct strllist *t;
-        for (t = CommandPaths; t->next; t=t->next) ;
-        t->next = s;
-        return;
-    }
-    CommandPaths = s;
 }
 
 
