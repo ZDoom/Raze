@@ -60,10 +60,10 @@ map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" mu
 sound_t g_sounds[ MAXSOUNDS ];
 volatile char g_soundlocks[MAXSOUNDS];
 
-char EpisodeNames[MAXVOLUMES][33] = { "L.A. MELTDOWN", "LUNAR APOCALYPSE", "SHRAPNEL CITY" };
-char SkillNames[MAXSKILLS][33] = { "PIECE OF CAKE", "LET'S ROCK", "COME GET SOME", "DAMN I'M GOOD" };
+char EpisodeNames[MAXVOLUMES][33] = { "L.A. Meltdown", "Lunar Apocalypse", "Shrapnel City" };
+char SkillNames[MAXSKILLS][33] = { "Piece Of Cake", "Let's Rock", "Come Get Some", "Damn I'm Good" };
 
-char GametypeNames[MAXGAMETYPES][33] = { "DUKEMATCH (SPAWN)","COOPERATIVE PLAY","DUKEMATCH (NO SPAWN)","TEAM DM (SPAWN)","TEAM DM (NO SPAWN)"};
+char GametypeNames[MAXGAMETYPES][33] = { "DukeMatch (Spawn)","Cooperative Play","DukeMatch (No Spawn)","Team DM (Spawn)","Team DM (No Spawn)"};
 
 int32_t GametypeFlags[MAXGAMETYPES] =
 {

@@ -349,7 +349,7 @@ int32_t G_SavePlayer(int32_t spot)
 
     if (!g_netServer && ud.multimode < 2)
     {
-        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "GAME SAVED");
+        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Game Saved");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
     }
 

@@ -629,7 +629,7 @@ nextdemo:
                 Net_GetPackets();
 
             if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
-                gametext(160,60,"PRESS F1 TO ACCEPT, F2 TO DECLINE",0,2+8+16);
+                gametext(160,60,"Press F1 to Accept, F2 to Decline",0,2+8+16);
         }
 
         if ((g_player[myconnectindex].ps->gm&MODE_MENU) && (g_player[myconnectindex].ps->gm&MODE_EOL))

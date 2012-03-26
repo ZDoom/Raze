@@ -1298,21 +1298,21 @@ static void G_DrawStatusBar(int32_t snum)
                 if (j > 0)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        minitext(288-30-o+1,180-3+1,"ON",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
-                    minitext(288-30-o,180-3,"ON",0,10+16+permbit+256 + ROTATESPRITE_MAX);
+                        minitext(288-30-o+1,180-3+1,"On",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
+                    minitext(288-30-o,180-3,"On",0,10+16+permbit+256 + ROTATESPRITE_MAX);
                 }
                 else if ((uint32_t)j != 0x80000000)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        minitext(284-30-o+1,180-3+1,"OFF",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
-                    minitext(284-30-o,180-3,"OFF",2,10+16+permbit+256 + ROTATESPRITE_MAX);
+                        minitext(284-30-o+1,180-3+1,"Off",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
+                    minitext(284-30-o,180-3,"Off",2,10+16+permbit+256 + ROTATESPRITE_MAX);
                 }
 
                 if (p->inven_icon >= 6)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        minitext(284-35-o+1,180-3+1,"AUTO",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
-                    minitext(284-35-o,180-3,"AUTO",2,10+16+permbit+256 + ROTATESPRITE_MAX);
+                        minitext(284-35-o+1,180-3+1,"Auto",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
+                    minitext(284-35-o,180-3,"Auto",2,10+16+permbit+256 + ROTATESPRITE_MAX);
                 }
             }
             return;
@@ -1395,9 +1395,9 @@ static void G_DrawStatusBar(int32_t snum)
                 break;
             }
             G_DrawInvNum(284-30-o,200-6,(uint8_t)i,0,10+permbit+256);
-            if (j > 0) minitext(288-30-o,180,"ON",0,10+16+permbit+256 + ROTATESPRITE_MAX);
-            else if ((uint32_t)j != 0x80000000) minitext(284-30-o,180,"OFF",2,10+16+permbit+256 + ROTATESPRITE_MAX);
-            if (p->inven_icon >= 6) minitext(284-35-o,180,"AUTO",2,10+16+permbit+256 + ROTATESPRITE_MAX);
+            if (j > 0) minitext(288-30-o,180,"On",0,10+16+permbit+256 + ROTATESPRITE_MAX);
+            else if ((uint32_t)j != 0x80000000) minitext(284-30-o,180,"Off",2,10+16+permbit+256 + ROTATESPRITE_MAX);
+            if (p->inven_icon >= 6) minitext(284-35-o,180,"Auto",2,10+16+permbit+256 + ROTATESPRITE_MAX);
         }
         return;
     }
@@ -1653,7 +1653,7 @@ static void G_DrawStatusBar(int32_t snum)
                 }
                 rotatesprite_fs(sbarx(231-o),sbary(SBY+13),sbarsc(65536L),0,i,0,0,10+16+permbit);
                 minitext(292-30-o,SBY+24,"%",6,10+16+permbit + ROTATESPRITE_MAX);
-                if (p->inven_icon >= 6) minitext(284-35-o,SBY+14,"AUTO",2,10+16+permbit + ROTATESPRITE_MAX);
+                if (p->inven_icon >= 6) minitext(284-35-o,SBY+14,"Auto",2,10+16+permbit + ROTATESPRITE_MAX);
             }
             if (u&(2048+4096))
             {
@@ -1671,8 +1671,8 @@ static void G_DrawStatusBar(int32_t snum)
                 default:
                     j = 0x80000000;
                 }
-                if (j > 0) minitext(288-30-o,SBY+14,"ON",0,10+16+permbit  + ROTATESPRITE_MAX);
-                else if ((uint32_t)j != 0x80000000) minitext(284-30-o,SBY+14,"OFF",2,10+16+permbit + ROTATESPRITE_MAX);
+                if (j > 0) minitext(288-30-o,SBY+14,"On",0,10+16+permbit  + ROTATESPRITE_MAX);
+                else if ((uint32_t)j != 0x80000000) minitext(284-30-o,SBY+14,"Off",2,10+16+permbit + ROTATESPRITE_MAX);
             }
             if (u&8192)
             {
@@ -2592,14 +2592,14 @@ static void G_ShowScores(void)
 
     if (playerswhenstarted > 1 && (GametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
-        gametext(160,SCORESHEETOFFSET+58+2,"MULTIPLAYER TOTALS",0,2+8+16);
+        gametext(160,SCORESHEETOFFSET+58+2,"Multiplayer Totals",0,2+8+16);
         gametext(160,SCORESHEETOFFSET+58+10,MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name,0,2+8+16);
 
         t = 0;
-        minitext(70,SCORESHEETOFFSET+80,"NAME",8,2+8+16+ROTATESPRITE_MAX);
-        minitext(170,SCORESHEETOFFSET+80,"FRAGS",8,2+8+16+ROTATESPRITE_MAX);
-        minitext(200,SCORESHEETOFFSET+80,"DEATHS",8,2+8+16+ROTATESPRITE_MAX);
-        minitext(235,SCORESHEETOFFSET+80,"PING",8,2+8+16+ROTATESPRITE_MAX);
+        minitext(70,SCORESHEETOFFSET+80,"Name",8,2+8+16+ROTATESPRITE_MAX);
+        minitext(170,SCORESHEETOFFSET+80,"Frags",8,2+8+16+ROTATESPRITE_MAX);
+        minitext(200,SCORESHEETOFFSET+80,"Deaths",8,2+8+16+ROTATESPRITE_MAX);
+        minitext(235,SCORESHEETOFFSET+80,"Ping",8,2+8+16+ROTATESPRITE_MAX);
 
         for (i=playerswhenstarted-1; i>=0; i--)
         {
@@ -2923,7 +2923,7 @@ void G_DisplayRest(int32_t smoothratio)
 #endif
 
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
-        menutext(160,100,0,0,"GAME PAUSED");
+        menutext(160,100,0,0,"Game Paused");
 
     if (ud.coords)
         G_PrintCoords(screenpeek);
@@ -2995,11 +2995,11 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
     {
-        Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE FOR MAP",g_player[voting].user_name);
+        Bsprintf(tempbuf,"%s^00 has called a vote for map",g_player[voting].user_name);
         gametext(160,40,tempbuf,0,2+8+16);
         Bsprintf(tempbuf,"%s (E%dL%d)",MapInfo[vote_episode*MAXLEVELS + vote_map].name,vote_episode+1,vote_map+1);
         gametext(160,48,tempbuf,0,2+8+16);
-        gametext(160,70,"PRESS F1 TO ACCEPT, F2 TO DECLINE",0,2+8+16);
+        gametext(160,70,"Press F1 to Accept, F2 to Decline",0,2+8+16);
     }
 
     if (BUTTON(gamefunc_Show_DukeMatch_Scores)) G_ShowScores();
@@ -7019,9 +7019,9 @@ FOUNDCHEAT:
                     g_player[myconnectindex].ps->cheat_phase = 0;
 
                     G_DumpDebugInfo();
-                    Bsprintf(tempbuf,"GAMEVARS DUMPED TO LOG");
+                    Bsprintf(tempbuf,"Gamevars dumped to log");
                     G_AddUserQuote(tempbuf);
-                    Bsprintf(tempbuf,"MAP DUMPED TO DEBUG.MAP");
+                    Bsprintf(tempbuf,"Map dumped to debug.map");
                     G_AddUserQuote(tempbuf);
                     break;
 
@@ -7072,7 +7072,7 @@ FOUNDCHEAT:
                         }
                         else
                         {
-                            Bstrcpy(ScriptQuotes[QUOTE_RESERVED4],"COME GET SOME!");
+                            Bstrcpy(ScriptQuotes[QUOTE_RESERVED4],"Come Get Some!");
 
                             S_PlaySound(DUKE_GETWEAPON2);
                             P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
@@ -7294,14 +7294,14 @@ FOUNDCHEAT:
 
                 case CHEAT_MONSTERS:
                 {
-                    char *s[] = { "ON", "OFF" };
+                    char *s[] = { "On", "Off" };
 
                     if (++g_noEnemies == 3)
                         g_noEnemies = 0;
 
                     g_player[screenpeek].ps->cheat_phase = 0;
 
-                    Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "MONSTERS: %s", s[g_noEnemies & 1]);
+                    Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "Monsters: %s", s[g_noEnemies & 1]);
                     P_DoQuote(QUOTE_RESERVED4,g_player[myconnectindex].ps);
 
                     KB_FlushKeyBoardQueue();
@@ -7384,7 +7384,7 @@ void G_HandleLocalKeys(void)
                 enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
 
 
-            G_AddUserQuote("VOTE CAST");
+            G_AddUserQuote("Vote Cast");
             g_player[myconnectindex].gotvote = 1;
             KB_ClearKeyDown(sc_F1);
             KB_ClearKeyDown(sc_F2);
@@ -7614,9 +7614,9 @@ void G_HandleLocalKeys(void)
                     if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
                     {
                         if (S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex))
-                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"PLAYING %s",&MapInfo[(uint8_t)g_musicIndex].alt_musicfn[0]);
+                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s",&MapInfo[(uint8_t)g_musicIndex].alt_musicfn[0]);
                         else
-                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"PLAYING %s",&MapInfo[(uint8_t)g_musicIndex].musicfn[0]);
+                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s",&MapInfo[(uint8_t)g_musicIndex].musicfn[0]);
                         P_DoQuote(QUOTE_MUSIC,g_player[myconnectindex].ps);
                     }
                     return;
@@ -7819,7 +7819,7 @@ FAKE_F3:
                                 probey = g_lastSaveSlot; */
                 if (g_netServer || ud.multimode > 1)
                 {
-                    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "MULTIPLAYER SAVING NOT SUPPORTED YET");
+                    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");
                     P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
                     //G_SavePlayer(-1-(g_lastSaveSlot));
                 }
@@ -7852,7 +7852,7 @@ FAKE_F3:
             else if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
             {
                 Bstrcpy(ScriptQuotes[QUOTE_MUSIC],&MapInfo[(uint8_t)g_musicIndex].musicfn[0]);
-                Bstrcat(ScriptQuotes[QUOTE_MUSIC],".  USE SHIFT-F5 TO CHANGE.");
+                Bstrcat(ScriptQuotes[QUOTE_MUSIC],".  Use SHIFT-F5 to change.");
             }
             else ScriptQuotes[QUOTE_MUSIC][0] = '\0';
             P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
@@ -7886,7 +7886,7 @@ FAKE_F3:
 
                 if (g_netServer || ud.multimode > 1)
                 {
-                    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "MULTIPLAYER LOADING NOT SUPPORTED YET");
+                    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Multiplayer Loading Not Yet Supported");
                     P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
 //                    G_LoadPlayer(-1-g_lastSaveSlot);
@@ -11197,11 +11197,11 @@ void G_BonusScreen(int32_t bonusonly)
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2/*+1*/);   // JBF 20040308
             G_FadePalette(0,0,0,63);
             clearview(0L);
-            menutext(160,60,0,0,"THANKS TO ALL OUR");
-            menutext(160,60+16,0,0,"FANS FOR GIVING");
-            menutext(160,60+16+16,0,0,"US BIG HEADS.");
-            menutext(160,70+16+16+16,0,0,"LOOK FOR A DUKE NUKEM 3D");
-            menutext(160,70+16+16+16+16,0,0,"SEQUEL SOON.");
+            menutext(160,60,0,0,"Thanks to all our");
+            menutext(160,60+16,0,0,"fans for giving");
+            menutext(160,60+16+16,0,0,"us big heads.");
+            menutext(160,70+16+16+16,0,0,"Look for a Duke Nukem 3D");
+            menutext(160,70+16+16+16+16,0,0,"sequel soon.");
             nextpage();
 
             fadepal(0,0,0, 63,0,-3);
@@ -11380,13 +11380,13 @@ FRAGBONUS:
         rotatesprite_fs(160<<16,34<<16,65536L,0,INGAMEDUKETHREEDEE,0,0,10);
         if (PLUTOPAK)   // JBF 20030804
             rotatesprite_fs((260)<<16,36<<16,65536L,0,PLUTOPAKSPRITE+2,0,0,2+8);
-        gametext(160,58+2,"MULTIPLAYER TOTALS",0,2+8+16);
+        gametext(160,58+2,"Multiplayer Totals",0,2+8+16);
         gametext(160,58+10,MapInfo[(ud.volume_number*MAXLEVELS)+ud.last_level-1].name,0,2+8+16);
 
-        gametext(160,165,"PRESS ANY KEY OR BUTTON TO CONTINUE",quotepulseshade,2+8+16);
+        gametext(160,165,"Press any key or button to continue",quotepulseshade,2+8+16);
 
         t = 0;
-        minitext(23,80,"   NAME                                           KILLS",8,2+8+16+128);
+        minitext(23,80,"   Name                                         Kills",8,2+8+16+128);
         for (i=0; i<playerswhenstarted; i++)
         {
             Bsprintf(tempbuf,"%-4d",i+1);
@@ -11436,7 +11436,7 @@ FRAGBONUS:
             minitext(92+(y*23),96+(8*7),tempbuf,2,2+8+16+128);
         }
 
-        minitext(45,96+(8*7),"DEATHS",8,2+8+16+128);
+        minitext(45,96+(8*7),"Deaths",8,2+8+16+128);
         nextpage();
 
         fadepal(0,0,0, 63,0,-7);
@@ -11475,9 +11475,9 @@ FRAGBONUS:
 
     if (lastmapname)
         menutext(160,20-6,0,0,lastmapname);
-    menutext(160,36-6,0,0,"COMPLETED");
+    menutext(160,36-6,0,0,"Completed");
 
-    gametext(160,192,"PRESS ANY KEY OR BUTTON TO CONTINUE",quotepulseshade,2+8+16);
+    gametext(160,192,"Press any key or button to continue",quotepulseshade,2+8+16);
 
     if (!(ud.config.MusicToggle == 0 || ud.config.MusicDevice < 0))
         S_PlaySound(BONUSMUSIC);
@@ -11578,9 +11578,9 @@ FRAGBONUS:
 
             if (lastmapname)
                 menutext(160,20-6,0,0,lastmapname);
-            menutext(160,36-6,0,0,"COMPLETED");
+            menutext(160,36-6,0,0,"Completed");
 
-            gametext(160,192,"PRESS ANY KEY OR BUTTON TO CONTINUE",quotepulseshade,2+8+16);
+            gametext(160,192,"Press any key or button to continue",quotepulseshade,2+8+16);
 
             if (totalclock > (60*3))
             {

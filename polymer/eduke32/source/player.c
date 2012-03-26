@@ -3816,12 +3816,12 @@ void P_FragPlayer(int32_t snum)
 
             if (snum == screenpeek)
             {
-                Bsprintf(ScriptQuotes[QUOTE_RESERVED],"KILLED BY %s",&g_player[p->frag_ps].user_name[0]);
+                Bsprintf(ScriptQuotes[QUOTE_RESERVED],"Killed by %s",&g_player[p->frag_ps].user_name[0]);
                 P_DoQuote(QUOTE_RESERVED,p);
             }
             else
             {
-                Bsprintf(ScriptQuotes[QUOTE_RESERVED2],"KILLED %s",&g_player[snum].user_name[0]);
+                Bsprintf(ScriptQuotes[QUOTE_RESERVED2],"Killed %s",&g_player[snum].user_name[0]);
                 P_DoQuote(QUOTE_RESERVED2,g_player[p->frag_ps].ps);
             }
 

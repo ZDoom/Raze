@@ -1661,7 +1661,7 @@ void Net_ParseServerPacket(ENetEvent *event)
     input_t *nsyn;
 
 #if 0
-    initprintf("RECEIVED PACKET: type: %d : len %d\n", pbuf[0], packbufleng);
+    initprintf("Received Packet: type: %d : len %d\n", pbuf[0], packbufleng);
 #endif
     switch (pbuf[0])
     {
@@ -1907,7 +1907,7 @@ void Net_ParseServerPacket(ENetEvent *event)
 
     case PACKET_NEW_GAME:
         if ((vote_map + vote_episode + voting) != -3)
-            G_AddUserQuote("VOTE SUCCEEDED");
+            G_AddUserQuote("Vote Succeeded");
 
         ud.m_level_number = ud.level_number = pbuf[1];
         ud.m_volume_number = ud.volume_number = pbuf[2];
@@ -2075,7 +2075,7 @@ void Net_ParseServerPacket(ENetEvent *event)
         {
             g_player[(uint8_t)pbuf[1]].gotvote = 1;
             g_player[(uint8_t)pbuf[1]].vote = pbuf[2];
-            Bsprintf(tempbuf,"CONFIRMED VOTE FROM %s",g_player[(uint8_t)pbuf[1]].user_name);
+            Bsprintf(tempbuf,"Confirmed vote from %s",g_player[(uint8_t)pbuf[1]].user_name);
             G_AddUserQuote(tempbuf);
         }
         break;
@@ -2085,13 +2085,13 @@ void Net_ParseServerPacket(ENetEvent *event)
         vote_episode = pbuf[2];
         vote_map = pbuf[3];
 
-        Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",
+        Bsprintf(tempbuf,"%s^00 has called a vote to change map to %s (E%dL%d)",
                  g_player[(uint8_t)pbuf[1]].user_name,
                  MapInfo[(uint8_t)(pbuf[2]*MAXLEVELS + pbuf[3])].name,
                  pbuf[2]+1,pbuf[3]+1);
         G_AddUserQuote(tempbuf);
 
-        Bsprintf(tempbuf,"PRESS F1 TO ACCEPT, F2 TO DECLINE");
+        Bsprintf(tempbuf,"Press F1 to Accept, F2 to Decline");
         G_AddUserQuote(tempbuf);
 
         for (i=MAXPLAYERS-1; i>=0; i--)
@@ -2111,8 +2111,8 @@ void Net_ParseServerPacket(ENetEvent *event)
                 i += g_player[j].gotvote;
 
             if (i != numplayers)
-                Bsprintf(tempbuf,"%s^00 HAS CANCELED THE VOTE",g_player[(uint8_t)pbuf[1]].user_name);
-            else Bsprintf(tempbuf,"VOTE FAILED");
+                Bsprintf(tempbuf,"%s^00 has canceled the vote",g_player[(uint8_t)pbuf[1]].user_name);
+            else Bsprintf(tempbuf,"Vote Failed");
             for (i=MAXPLAYERS-1; i>=0; i--)
             {
                 g_player[i].vote = 0;
@@ -2133,7 +2133,7 @@ void Net_ParseClientPacket(ENetEvent *event)
     input_t *nsyn;
 
 #if 0
-    initprintf("RECEIVED PACKET: type: %d : len %d\n", pbuf[0], packbufleng);
+    initprintf("Received Packet: type: %d : len %d\n", pbuf[0], packbufleng);
 #endif
     switch (pbuf[0])
     {
@@ -2255,7 +2255,7 @@ void Net_ParseClientPacket(ENetEvent *event)
 
     case PACKET_NEW_GAME:
         if ((vote_map + vote_episode + voting) != -3)
-            G_AddUserQuote("VOTE SUCCEEDED");
+            G_AddUserQuote("Vote Succeeded");
 
         ud.m_level_number = ud.level_number = pbuf[1];
         ud.m_volume_number = ud.volume_number = pbuf[2];
@@ -2343,7 +2343,7 @@ void Net_ParseClientPacket(ENetEvent *event)
         {
             g_player[(uint8_t)pbuf[1]].gotvote = 1;
             g_player[(uint8_t)pbuf[1]].vote = pbuf[2];
-            Bsprintf(tempbuf,"CONFIRMED VOTE FROM %s",g_player[(uint8_t)pbuf[1]].user_name);
+            Bsprintf(tempbuf,"Confirmed vote from %s",g_player[(uint8_t)pbuf[1]].user_name);
             G_AddUserQuote(tempbuf);
         }
         break;
@@ -2353,13 +2353,13 @@ void Net_ParseClientPacket(ENetEvent *event)
         vote_episode = pbuf[2];
         vote_map = pbuf[3];
 
-        Bsprintf(tempbuf,"%s^00 HAS CALLED A VOTE TO CHANGE MAP TO %s (E%dL%d)",
+        Bsprintf(tempbuf,"%s^00 has called a vote to change map to %s (E%dL%d)",
                  g_player[(uint8_t)pbuf[1]].user_name,
                  MapInfo[(uint8_t)(pbuf[2]*MAXLEVELS + pbuf[3])].name,
                  pbuf[2]+1,pbuf[3]+1);
         G_AddUserQuote(tempbuf);
 
-        Bsprintf(tempbuf,"PRESS F1 TO ACCEPT, F2 TO DECLINE");
+        Bsprintf(tempbuf,"Press F1 to Accept, F2 to Decline");
         G_AddUserQuote(tempbuf);
 
         for (i=MAXPLAYERS-1; i>=0; i--)
@@ -2379,8 +2379,8 @@ void Net_ParseClientPacket(ENetEvent *event)
                 i += g_player[j].gotvote;
 
             if (i != numplayers)
-                Bsprintf(tempbuf,"%s^00 HAS CANCELED THE VOTE",g_player[(uint8_t)pbuf[1]].user_name);
-            else Bsprintf(tempbuf,"VOTE FAILED");
+                Bsprintf(tempbuf,"%s^00 has canceled the vote",g_player[(uint8_t)pbuf[1]].user_name);
+            else Bsprintf(tempbuf,"Vote Failed");
             for (i=MAXPLAYERS-1; i>=0; i--)
             {
                 g_player[i].vote = 0;
@@ -2554,7 +2554,7 @@ void Net_GetPackets(void)
                             Bmemcpy((uint8_t *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
                             datasiz += SYNCPACKETSIZE;
 
-                            Bsprintf(tbuf, "RECEIVED %d BYTES\n", (int32_t)datasiz);
+                            Bsprintf(tbuf, "Received %d bytes\n", (int32_t)datasiz);
                             gametext(160,190,tbuf,14,2);
                         }
                         // last packet of mapstate sequence
@@ -2574,7 +2574,7 @@ void Net_GetPackets(void)
                                 packbuf[1] = myconnectindex;
                                 enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&packbuf[0], 2, ENET_PACKET_FLAG_RELIABLE));
 
-                                gametext(160,190,"TRANSFER COMPLETE",14,2);
+                                gametext(160,190,"Transfer Complete",14,2);
                             }
                             else
                             {
@@ -2584,7 +2584,7 @@ void Net_GetPackets(void)
                                 g_netDisconnect = 1;
                                 g_netSync = 0;
 
-                                gametext(160,190,"TRANSFER ERROR",14,2);
+                                gametext(160,190,"Transfer Error",14,2);
                             }
                         }
                         else
@@ -2593,7 +2593,7 @@ void Net_GetPackets(void)
                             g_netDisconnect = 1;
                             g_netSync = 0;
 
-                            gametext(160,190,"TRANSFER ERROR",14,2);
+                            gametext(160,190,"Transfer Error",14,2);
                         }
 
                         nextpage();
@@ -3046,7 +3046,7 @@ void Net_EnterMessage(void)
         else if (g_chatPlayer == -1)
         {
             j = 50;
-            gametext(320>>1,j,"SEND MESSAGE TO...",0,2+8+16);
+            gametext(320>>1,j,"Send message to...",0,2+8+16);
             j += 8;
             for (TRAVERSE_CONNECT(i))
             {
@@ -3154,7 +3154,7 @@ void Net_WaitForServer(void)
         if (PLUTOPAK)   // JBF 20030804
             rotatesprite_fs(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8);
 
-        gametext(160,170,"WAITING FOR SERVER",14,2);
+        gametext(160,170,"Waiting for server",14,2);
         nextpage();
 
         packbuf[0] = PACKET_PLAYER_PING;

@@ -374,12 +374,12 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
 
         if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
         {
-            menutext(160,90,0,0,"LOADING USER MAP");
+            menutext(160,90,0,0,"Loading User Map");
             gametextpal(160,90+10,boardfilename,14,2);
         }
         else
         {
-            menutext(160,90,0,0,"LOADING");
+            menutext(160,90,0,0,"Loading");
             if (MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
                 menutext(160,90+16+8,0,0,MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
         }
@@ -430,7 +430,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
             return;
         }
 
-        menutext(160,105,0,0,"LOADING...");
+        menutext(160,105,0,0,"Loading...");
         if (statustext) gametext(160,180,statustext,0,2+8+16);
         VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
         nextpage();
@@ -1947,7 +1947,7 @@ int32_t G_EnterLevel(int32_t g)
             if (MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name == NULL)
             {
                 MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name = Bcalloc(16,sizeof(uint8_t));
-                Bsprintf(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name,"USER MAP");
+                Bsprintf(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name,"User Map");
             }
         }
         else

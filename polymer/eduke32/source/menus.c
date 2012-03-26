@@ -623,10 +623,10 @@ static void Menus_LoadSave_DisplayCommon1(void)
 
     if (ud.savegame[probey][20] == 32)
     {
-        menutext(40,70,0,0,"OLD VERSION");
-        Bsprintf(tempbuf,"SAVED: %d.%d.%d", savehead.majorver, savehead.minorver, savehead.bytever);
+        menutext(40,70,0,0,"Old Version");
+        Bsprintf(tempbuf,"Saved: %d.%d.%d", savehead.majorver, savehead.minorver, savehead.bytever);
         mgametext(40,82,tempbuf,0,2+8+16);
-        Bsprintf(tempbuf,"OUR: %d.%d.%d", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION);
+        Bsprintf(tempbuf,"Our: %d.%d.%d", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION);
         mgametext(40+16,92,tempbuf,0,2+8+16);
     }
 }
@@ -728,8 +728,8 @@ void M_DisplayMenus(void)
     switch (g_currentMenu)
     {
     case 25000:
-        mgametext(160,90,"SELECT A SAVE SPOT BEFORE",0,2+8+16);
-        mgametext(160,90+9,"YOU QUICK RESTORE.",0,2+8+16);
+        mgametext(160,90,"Select a save spot before",0,2+8+16);
+        mgametext(160,90+9,"you quick restore.",0,2+8+16);
 
         x = M_Probe(186,124,0,1);
         if (x >= -1)
@@ -745,28 +745,28 @@ void M_DisplayMenus(void)
 
     case 20000:
         x = M_Probe(326,190,0,1);
-        mgametext(160,41-8,"YOU ARE PLAYING THE SHAREWARE",0,2+8+16);
-        mgametext(160,50-8,"VERSION OF DUKE NUKEM 3D.  WHILE",0,2+8+16);
-        mgametext(160,59-8,"THIS VERSION IS REALLY COOL, YOU",0,2+8+16);
-        mgametext(160,68-8,"ARE MISSING OVER 75%% OF THE TOTAL",0,2+8+16);
-        mgametext(160,77-8,"GAME, ALONG WITH OTHER GREAT EXTRAS",0,2+8+16);
-        mgametext(160,86-8,"AND GAMES, WHICH YOU'LL GET WHEN",0,2+8+16);
-        mgametext(160,95-8,"YOU ORDER THE COMPLETE VERSION AND",0,2+8+16);
-        mgametext(160,104-8,"GET THE FINAL THREE EPISODES.",0,2+8+16);
+        mgametext(160,41-8,"You are playing the shareware",0,2+8+16);
+        mgametext(160,50-8,"version of Duke Nukem 3D.  While",0,2+8+16);
+        mgametext(160,59-8,"this version is really cool, you",0,2+8+16);
+        mgametext(160,68-8,"are missing over 75%% of the total",0,2+8+16);
+        mgametext(160,77-8,"game, along with other great extras",0,2+8+16);
+        mgametext(160,86-8,"and games, which you'll get when",0,2+8+16);
+        mgametext(160,95-8,"you order the complete version and",0,2+8+16);
+        mgametext(160,104-8,"get the final three episodes.",0,2+8+16);
 
-        mgametext(160,104+8,"PLEASE READ THE 'HOW TO ORDER' ITEM",0,2+8+16);
-        mgametext(160,113+8,"ON THE MAIN MENU OR VISIT",0,2+8+16);
-        mgametext(160,122+8,"HTTP://WWW.EDUKE32.COM",0,2+8+16);
-        mgametext(160,131+8,"TO UPGRADE TO THE FULL REGISTERED",0,2+8+16);
-        mgametext(160,139+8,"VERSION OF DUKE NUKEM 3D.",0,2+8+16);
-        mgametext(160,148+16,"PRESS ANY KEY...",0,2+8+16);
+        mgametext(160,104+8,"Please read the 'How To Order' item",0,2+8+16);
+        mgametext(160,113+8,"on the main menu or visit",0,2+8+16);
+        mgametext(160,122+8,"http://www.eduke32.com",0,2+8+16);
+        mgametext(160,131+8,"to upgrade to the full registered",0,2+8+16);
+        mgametext(160,139+8,"version of Duke Nukem 3D.",0,2+8+16);
+        mgametext(160,148+16,"Press any key...",0,2+8+16);
 
         if (x >= -1) ChangeToMenu(100);
         break;
 
     case 20001:
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(160,24,0,0,"NETWORK GAME");
+        menutext(160,24,0,0,"Network Game");
 
         x = M_Probe(160,100-18,18,3);
 
@@ -775,15 +775,15 @@ void M_DisplayMenus(void)
         else if (x == 1) ChangeToMenu(20020);
         else if (x == 0) ChangeToMenu(20002);
 
-        menutext(160,100-18,MENUHIGHLIGHT(0),0,"PLAYER SETUP");
-        menutext(160,100,MENUHIGHLIGHT(1),0,"JOIN GAME");
-        menutext(160,100+18,MENUHIGHLIGHT(2),0,"HOST GAME");
+        menutext(160,100-18,MENUHIGHLIGHT(0),0,"Player Setup");
+        menutext(160,100,MENUHIGHLIGHT(1),0,"Join Game");
+        menutext(160,100+18,MENUHIGHLIGHT(2),0,"Host Game");
         break;
 
     case 20002:
     case 20003:
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(160,24,0,0,"PLAYER SETUP");
+        menutext(160,24,0,0,"Player Setup");
         c = (320>>1)-120;
         {
             int32_t io, ii, yy = 37, d=c+140, enabled;
@@ -1042,7 +1042,7 @@ void M_DisplayMenus(void)
     case 20004:
     case 20005:
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(160,24,0,0,"MULTIPLAYER MACROS");
+        menutext(160,24,0,0,"Multiplayer Macros");
 
         if (g_currentMenu == 20004)
         {
@@ -1084,14 +1084,14 @@ void M_DisplayMenus(void)
             mgametextpal(26,40+(i<<3),ud.ridecule[i],MENUHIGHLIGHT(i),0);
         }
 
-        mgametext(160,144,"ACTIVATE IN-GAME WITH SHIFT-F#",0,2+8+16);
+        mgametext(160,144,"Activate in-game with SHIFT-F#",0,2+8+16);
 
         break;
 
 #if 0
     case 20010:
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(160,24,0,0,"HOST NETWORK GAME");
+        menutext(160,24,0,0,"Host Network Game");
 
         x = M_Probe(46,50,80,2);
 
@@ -1102,16 +1102,16 @@ void M_DisplayMenus(void)
         }
         else if (x == 0) ChangeToMenu(20011);
 
-        menutext(40,50,0,0,        "GAME OPTIONS");
-        minitext(90,60,            "GAME TYPE"    ,2,26);
-        minitext(90,60+8,          "EPISODE"      ,2,26);
-        minitext(90,60+8+8,        "LEVEL"        ,2,26);
-        minitext(90,60+8+8+8,      "MONSTERS"     ,2,26);
+        menutext(40,50,0,0,        "Game Options");
+        minitext(90,60,            "Game Type"    ,2,26);
+        minitext(90,60+8,          "Episode"      ,2,26);
+        minitext(90,60+8+8,        "Level"        ,2,26);
+        minitext(90,60+8+8+8,      "Monsters"     ,2,26);
         if (ud.m_coop == 0)
-            minitext(90,60+8+8+8+8,    "MARKERS"      ,2,26);
+            minitext(90,60+8+8+8+8,    "Markers"      ,2,26);
         else if (ud.m_coop == 1)
-            minitext(90,60+8+8+8+8,    "FRIENDLY FIRE",2,26);
-        minitext(90,60+8+8+8+8+8,  "USER MAP"     ,2,26);
+            minitext(90,60+8+8+8+8,    "Friendly Fire",2,26);
+        minitext(90,60+8+8+8+8+8,  "User Map"     ,2,26);
 
         mgametext(90+60,60,GametypeNames[ud.m_coop],0,26);
 
@@ -1119,25 +1119,25 @@ void M_DisplayMenus(void)
         minitext(90+60,60+8+8,    level_names[MAXLEVELS*ud.m_volume_number+ud.m_level_number],0,26);
         if (ud.m_monsters_off == 0 || ud.m_player_skill > 0)
             minitext(90+60,60+8+8+8,  SkillNames[ud.m_player_skill],0,26);
-        else minitext(90+60,60+8+8+8,  "NONE",0,28);
+        else minitext(90+60,60+8+8+8,  "None",0,28);
         if (ud.m_coop == 0)
         {
-            if (ud.m_marker) minitext(90+60,60+8+8+8+8,"ON",0,26);
-            else minitext(90+60,60+8+8+8+8,"OFF",0,26);
+            if (ud.m_marker) minitext(90+60,60+8+8+8+8,"On",0,26);
+            else minitext(90+60,60+8+8+8+8,"Off",0,26);
         }
         else if (ud.m_coop == 1)
         {
-            if (ud.m_ffire) minitext(90+60,60+8+8+8+8,"ON",0,26);
-            else minitext(90+60,60+8+8+8+8,"OFF",0,26);
+            if (ud.m_ffire) minitext(90+60,60+8+8+8+8,"On",0,26);
+            else minitext(90+60,60+8+8+8+8,"Off",0,26);
         }
 
-        menutext(40,50+80,0,0,"LAUNCH GAME");
+        menutext(40,50+80,0,0,"Launch Game");
         break;
 
     case 20011:
         c = (320>>1) - 120;
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(160,24,0,0,"NET GAME OPTIONS");
+        menutext(160,24,0,0,"Net Game Options");
 
         x = M_Probe(c,57-8,16,8);
 
@@ -1212,9 +1212,9 @@ void M_DisplayMenus(void)
 
         c += 40;
 
-        //         if(ud.m_coop==1) mgametext(c+70,57-7-9,"COOPERATIVE PLAY",0,2+8+16);
-        //         else if(ud.m_coop==2) mgametext(c+70,57-7-9,"DUKEMATCH (NO SPAWN)",0,2+8+16);
-        //         else mgametext(c+70,57-7-9,"DUKEMATCH (SPAWN)",0,2+8+16);
+        //         if(ud.m_coop==1) mgametext(c+70,57-7-9,"Cooperative Play",0,2+8+16);
+        //         else if(ud.m_coop==2) mgametext(c+70,57-7-9,"DukeMatch (No Spawn)",0,2+8+16);
+        //         else mgametext(c+70,57-7-9,"DukeMatch (Spawn)",0,2+8+16);
         mgametext(c+70,57-7-9,GametypeNames[ud.m_coop],0,26);
 
         mgametext(c+70,57+16-7-9,EpisodeNames[ud.m_volume_number],0,2+8+16);
@@ -1223,62 +1223,62 @@ void M_DisplayMenus(void)
 
         if (ud.m_monsters_off == 0 || ud.m_player_skill > 0)
             mgametext(c+70,57+16+16+16-7-9,SkillNames[ud.m_player_skill],0,2+8+16);
-        else mgametext(c+70,57+16+16+16-7-9,"NONE",0,2+8+16);
+        else mgametext(c+70,57+16+16+16-7-9,"None",0,2+8+16);
 
         if (ud.m_coop == 0)
         {
             if (ud.m_marker)
-                mgametext(c+70,57+16+16+16+16-7-9,"ON",0,2+8+16);
-            else mgametext(c+70,57+16+16+16+16-7-9,"OFF",0,2+8+16);
+                mgametext(c+70,57+16+16+16+16-7-9,"On",0,2+8+16);
+            else mgametext(c+70,57+16+16+16+16-7-9,"Off",0,2+8+16);
         }
 
         if (ud.m_coop == 1)
         {
             if (ud.m_ffire)
-                mgametext(c+70,57+16+16+16+16+16-7-9,"ON",0,2+8+16);
-            else mgametext(c+70,57+16+16+16+16+16-7-9,"OFF",0,2+8+16);
+                mgametext(c+70,57+16+16+16+16+16-7-9,"On",0,2+8+16);
+            else mgametext(c+70,57+16+16+16+16+16-7-9,"Off",0,2+8+16);
         }
 
         c -= 44;
 
-        menutext(c,57-9,MENUHIGHLIGHT(0),PHX(-2),"GAME TYPE");
+        menutext(c,57-9,MENUHIGHLIGHT(0),PHX(-2),"Game Type");
 
-        sprintf(tempbuf,"EPISODE %d",ud.m_volume_number+1);
+        sprintf(tempbuf,"Episode %d",ud.m_volume_number+1);
         menutext(c,57+16-9,MENUHIGHLIGHT(1),PHX(-3),tempbuf);
 
-        sprintf(tempbuf,"LEVEL %d",ud.m_level_number+1);
+        sprintf(tempbuf,"Level %d",ud.m_level_number+1);
         menutext(c,57+16+16-9,MENUHIGHLIGHT(2),PHX(-4),tempbuf);
 
-        menutext(c,57+16+16+16-9,MENUHIGHLIGHT(3),PHX(-5),"MONSTERS");
+        menutext(c,57+16+16+16-9,MENUHIGHLIGHT(3),PHX(-5),"Monsters");
 
         if (ud.m_coop == 0)
-            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),PHX(-6),"MARKERS");
+            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),PHX(-6),"Markers");
         else
-            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),1,"MARKERS");
+            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),1,"Markers");
 
         if (ud.m_coop == 1)
-            menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),PHX(-6),"FR. FIRE");
-        else menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),1,"FR. FIRE");
+            menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),PHX(-6),"Fr. Fire");
+        else menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),1,"Fr. Fire");
 
         if (VOLUMEALL)
         {
-            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),boardfilename[0] == 0,"USER MAP");
+            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),boardfilename[0] == 0,"User Map");
             if (boardfilename[0] != 0)
                 mgametext(c+70+44,57+16+16+16+16+16,boardfilename,0,2+8+16);
         }
         else
         {
-            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),1,"USER MAP");
+            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),1,"User Map");
         }
 
-        menutext(c,57+16+16+16+16+16+16+16-9,MENUHIGHLIGHT(7),PHX(-8),"ACCEPT");
+        menutext(c,57+16+16+16+16+16+16+16-9,MENUHIGHLIGHT(7),PHX(-8),"Accept");
         break;
 
     case 20020:
     case 20021: // editing server
     case 20022: // editing port
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(160,24,0,0,"JOIN NETWORK GAME");
+        menutext(160,24,0,0,"Join Network Game");
 
         if (g_currentMenu == 20020)
         {
@@ -1342,17 +1342,17 @@ void M_DisplayMenus(void)
             }
         }
 
-        menutext(40,50,0,0,"SERVER");
+        menutext(40,50,0,0,"Server");
         if (g_currentMenu != 20021) mgametext(40+100,50-9,"server",0,2+8+16);
 
-        menutext(40,50+20,0,0,"PORT");
+        menutext(40,50+20,0,0,"Port");
         if (g_currentMenu != 20022)
         {
             sprintf(tempbuf,"%d",19014);
             mgametext(40+100,50+20-9,tempbuf,0,2+8+16);
         }
 
-        menutext(160,50+20+20,0,0,"CONNECT");
+        menutext(160,50+20+20,0,0,"Connect");
 
 
         // ADDRESS
@@ -1397,7 +1397,7 @@ void M_DisplayMenus(void)
 
             if (g_netServer || ud.multimode > 1)
             {
-                Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "MULTIPLAYER LOADING NOT SUPPORTED YET");
+                Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Multiplayer Loading Not Yet Supported");
                 P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
 //                G_LoadPlayer(-1-g_lastSaveSlot);
@@ -1420,7 +1420,7 @@ void M_DisplayMenus(void)
 
         c = 60;
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(160,24,0,0,"ADULT MODE");
+        menutext(160,24,0,0,"Adult Mode");
 
         x = M_Probe(60,50+16,16,2);
         if (x == -1)
@@ -1430,14 +1430,14 @@ void M_DisplayMenus(void)
             break;
         }
 
-        menutext(c,50+16,MENUHIGHLIGHT(0),PHX(-2),"ADULT MODE");
-        menutext(c,50+16+16,MENUHIGHLIGHT(1),PHX(-3),"ENTER PASSWORD");
+        menutext(c,50+16,MENUHIGHLIGHT(0),PHX(-2),"Adult Mode");
+        menutext(c,50+16+16,MENUHIGHLIGHT(1),PHX(-3),"Enter Password");
 
-        menutext(c+160+40,50+16,MENUHIGHLIGHT(0),0,ud.lockout?"OFF":"ON");
+        menutext(c+160+40,50+16,MENUHIGHLIGHT(0),0,ud.lockout?"Off":"On");
 
         if (g_currentMenu == 10001)
         {
-            mgametext(160,50+16+16+16+16-12,"ENTER PASSWORD",0,2+8+16);
+            mgametext(160,50+16+16+16+16-12,"Enter Password",0,2+8+16);
             x = G_EnterText((320>>1),50+16+16+16+16,buf,19, 998);
 
             if (x)
@@ -1530,15 +1530,15 @@ void M_DisplayMenus(void)
 
         rotatesprite_fs(160<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64);
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(160,24,0,0,"LOAD GAME");
+        menutext(160,24,0,0,"Load Game");
         rotatesprite_fs(101<<16,97<<16,65536>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
 
         M_DisplaySaveGameList();
 
-        Bsprintf(tempbuf,"PLAYERS: %-2d                      ",savehead.numplayers);
+        Bsprintf(tempbuf,"Players: %-2d                      ",savehead.numplayers);
         mgametext(160,156,tempbuf,0,2+8+16);
 
-        Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",
+        Bsprintf(tempbuf,"Episode: %-2d / Level: %-2d / Skill: %-2d",
                  1+savehead.volnum, 1+savehead.levnum, savehead.skill);
         mgametext(160,168,tempbuf,0,2+8+16);
 
@@ -1633,13 +1633,13 @@ void M_DisplayMenus(void)
 
         rotatesprite_fs(160<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64);
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(160,24,0,0,"SAVE GAME");
+        menutext(160,24,0,0,"Save Game");
 
         rotatesprite_fs(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
-        Bsprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
+        Bsprintf(tempbuf,"Players: %-2d                      ",ud.multimode);
         mgametext(160,156,tempbuf,0,2+8+16);
 
-        Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
+        Bsprintf(tempbuf,"Episode: %-2d / Level: %-2d / Skill: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
         mgametext(160,168,tempbuf,0,2+8+16);
 
         if (ud.volume_number == 0 && ud.level_number == 7)
@@ -1685,7 +1685,7 @@ void M_DisplayMenus(void)
         {
             //rotatesprite_fs(c<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64);
             rotatesprite_fs(c<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-            menutext(c,24,0,0,g_currentMenu == 998 ? "ABOUT EDUKE32" : "CREDITS");
+            menutext(c,24,0,0,g_currentMenu == 998 ? "About EDuke32" : "Credits");
 
             l = 8;
         }
@@ -1750,109 +1750,109 @@ void M_DisplayMenus(void)
             switch (g_currentMenu)
             {
             case 990:
-                mgametext(c,40,                      "ORIGINAL CONCEPT",0,2+8+16);
-                mgametext(c,40+9,                    "TODD REPLOGLE",0,2+8+16);
-                mgametext(c,40+9+9,                  "ALLEN H. BLUM III",0,2+8+16);
+                mgametext(c,40,                      "Original Concept",0,2+8+16);
+                mgametext(c,40+9,                    "Todd Replogle",0,2+8+16);
+                mgametext(c,40+9+9,                  "Allen H. Blum III",0,2+8+16);
 
-                mgametext(c,40+9+9+9+9,              "PRODUCED & DIRECTED BY",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9,            "GREG MALONE",0,2+8+16);
+                mgametext(c,40+9+9+9+9,              "Produced & Directed By",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9,            "Greg Malone",0,2+8+16);
 
-                mgametext(c,40+9+9+9+9+9+9+9,        "EXECUTIVE PRODUCER",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9+9+9+9,      "GEORGE BROUSSARD",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9,        "Executive Producer",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9+9,      "George Broussard",0,2+8+16);
 
-                mgametext(c,40+9+9+9+9+9+9+9+9+9+9,  "BUILD ENGINE",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9+9+9+9+9+9+9,"KEN SILVERMAN",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9+9+9+9,  "BUILD Engine",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9+9+9+9+9,"Ken Silverman",0,2+8+16);
                 break;
             case 991:
-                mgametext(c,40,                      "GAME PROGRAMMING",0,2+8+16);
-                mgametext(c,40+9,                    "TODD REPLOGLE",0,2+8+16);
+                mgametext(c,40,                      "Game Programming",0,2+8+16);
+                mgametext(c,40+9,                    "Todd Replogle",0,2+8+16);
 
-                mgametext(c,40+9+9+9,                "3D ENGINE/TOOLS/NET",0,2+8+16);
-                mgametext(c,40+9+9+9+9,              "KEN SILVERMAN",0,2+8+16);
+                mgametext(c,40+9+9+9,                "3D Engine/Tools/Net",0,2+8+16);
+                mgametext(c,40+9+9+9+9,              "Ken Silverman",0,2+8+16);
 
-                mgametext(c,40+9+9+9+9+9+9,          "NETWORK LAYER/SETUP PROGRAM",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9+9+9,        "MARK DOCHTERMANN",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9,          "Network Layer/Setup Program",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9,        "Mark Dochtermann",0,2+8+16);
                 break;
             case 992:
-                mgametext(c,40,                      "MAP DESIGN",0,2+8+16);
-                mgametext(c,40+9,                    "ALLEN H BLUM III",0,2+8+16);
-                mgametext(c,40+9+9,                  "RICHARD GRAY",0,2+8+16);
+                mgametext(c,40,                      "Map Design",0,2+8+16);
+                mgametext(c,40+9,                    "Allen H. Blum III",0,2+8+16);
+                mgametext(c,40+9+9,                  "Richard Gray",0,2+8+16);
 
-                mgametext(c,40+9+9+9+9,              "3D MODELING",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9,            "CHUCK JONES",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9+9,          "SAPPHIRE CORPORATION",0,2+8+16);
+                mgametext(c,40+9+9+9+9,              "3D Modeling",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9,            "Chuck Jones",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9,          "Sapphire Corporation",0,2+8+16);
 
-                mgametext(c,40+9+9+9+9+9+9+9+9,      "ARTWORK",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9+9+9+9+9,    "DIRK JONES, STEPHEN HORNBACK",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9+9+9+9+9+9,  "JAMES STOREY, DAVID DEMARET",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9+9+9+9+9+9+9,"DOUGLAS R WOOD",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9+9,      "Artwork",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9+9+9,    "Dirk Jones, Stephen Hornback",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9+9+9+9,  "James Storey, David Demaret",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9+9+9+9+9,"Douglas R. Wood",0,2+8+16);
                 break;
             case 993:
-                mgametext(c,40,                      "SOUND ENGINE",0,2+8+16);
-                mgametext(c,40+9,                    "JIM DOSE",0,2+8+16);
+                mgametext(c,40,                      "Sound Engine",0,2+8+16);
+                mgametext(c,40+9,                    "Jim Dose",0,2+8+16);
 
-                mgametext(c,40+9+9+9,                "SOUND & MUSIC DEVELOPMENT",0,2+8+16);
-                mgametext(c,40+9+9+9+9,              "ROBERT PRINCE",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9,            "LEE JACKSON",0,2+8+16);
+                mgametext(c,40+9+9+9,                "Sound & Music Development",0,2+8+16);
+                mgametext(c,40+9+9+9+9,              "Robert Prince",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9,            "Lee Jackson",0,2+8+16);
 
-                mgametext(c,40+9+9+9+9+9+9+9,        "VOICE TALENT",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9+9+9+9,      "LANI MINELLA - VOICE PRODUCER",0,2+8+16);
-                mgametext(c,40+9+9+9+9+9+9+9+9+9,    "JON ST. JOHN AS \"DUKE NUKEM\"",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9,        "Voice Talent",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9+9,      "Lani Minella - Voice Producer",0,2+8+16);
+                mgametext(c,40+9+9+9+9+9+9+9+9+9,    "Jon St. John as \"Duke Nukem\"",0,2+8+16);
                 break;
             case 994:
-                mgametext(c,60,                      "GRAPHIC DESIGN",0,2+8+16);
-                mgametext(c,60+9,                    "PACKAGING, MANUAL, ADS",0,2+8+16);
-                mgametext(c,60+9+9,                  "ROBERT M. ATKINS",0,2+8+16);
-                mgametext(c,60+9+9+9,                "MICHAEL HADWIN",0,2+8+16);
+                mgametext(c,60,                      "Graphic Design",0,2+8+16);
+                mgametext(c,60+9,                    "Packaging, Manual, Ads",0,2+8+16);
+                mgametext(c,60+9+9,                  "Robert M. Atkins",0,2+8+16);
+                mgametext(c,60+9+9+9,                "Michael Hadwin",0,2+8+16);
 
-                mgametext(c,60+9+9+9+9+9,            "SPECIAL THANKS TO",0,2+8+16);
-                mgametext(c,60+9+9+9+9+9+9,          "STEVEN BLACKBURN, TOM HALL",0,2+8+16);
-                mgametext(c,60+9+9+9+9+9+9+9,        "SCOTT MILLER, JOE SIEGLER",0,2+8+16);
-                mgametext(c,60+9+9+9+9+9+9+9+9,      "TERRY NAGY, COLLEEN COMPTON",0,2+8+16);
-                mgametext(c,60+9+9+9+9+9+9+9+9+9,    "HASH INC., FORMGEN, INC.",0,2+8+16);
+                mgametext(c,60+9+9+9+9+9,            "Special Thanks To",0,2+8+16);
+                mgametext(c,60+9+9+9+9+9+9,          "Steven Blackburn, Tom Hall",0,2+8+16);
+                mgametext(c,60+9+9+9+9+9+9+9,        "Scott Miller, Joe Siegler",0,2+8+16);
+                mgametext(c,60+9+9+9+9+9+9+9+9,      "Terry Nagy, Colleen Compton",0,2+8+16);
+                mgametext(c,60+9+9+9+9+9+9+9+9+9,    "HASH, Inc., FormGen, Inc.",0,2+8+16);
                 break;
             case 995:
-                mgametext(c,49,                      "THE 3D REALMS BETA TESTERS",0,2+8+16);
+                mgametext(c,49,                      "The 3D Realms Beta Testers",0,2+8+16);
 
-                mgametext(c,49+9+9,                  "NATHAN ANDERSON, WAYNE BENNER",0,2+8+16);
-                mgametext(c,49+9+9+9,                "GLENN BRENSINGER, ROB BROWN",0,2+8+16);
-                mgametext(c,49+9+9+9+9,              "ERIK HARRIS, KEN HECKBERT",0,2+8+16);
-                mgametext(c,49+9+9+9+9+9,            "TERRY HERRIN, GREG HIVELY",0,2+8+16);
-                mgametext(c,49+9+9+9+9+9+9,          "HANK LEUKART, ERIC BAKER",0,2+8+16);
-                mgametext(c,49+9+9+9+9+9+9+9,        "JEFF RAUSCH, KELLY ROGERS",0,2+8+16);
-                mgametext(c,49+9+9+9+9+9+9+9+9,      "MIKE DUNCAN, DOUG HOWELL",0,2+8+16);
-                mgametext(c,49+9+9+9+9+9+9+9+9+9,    "BILL BLAIR",0,2+8+16);
+                mgametext(c,49+9+9,                  "Nathan Anderson, Wayne Benner",0,2+8+16);
+                mgametext(c,49+9+9+9,                "Glenn Brensinger, Rob Brown",0,2+8+16);
+                mgametext(c,49+9+9+9+9,              "Erik Harris, Ken Heckbert",0,2+8+16);
+                mgametext(c,49+9+9+9+9+9,            "Terry Herrin, Greg Hively",0,2+8+16);
+                mgametext(c,49+9+9+9+9+9+9,          "Hank Leukart, Eric Baker",0,2+8+16);
+                mgametext(c,49+9+9+9+9+9+9+9,        "Jeff Rausch, Kelly Rogers",0,2+8+16);
+                mgametext(c,49+9+9+9+9+9+9+9+9,      "Mike Duncan, Doug Howell",0,2+8+16);
+                mgametext(c,49+9+9+9+9+9+9+9+9+9,    "Bill Blair",0,2+8+16);
                 break;
             case 996:
-                mgametext(c,32,                      "COMPANY PRODUCT SUPPORT",0,2+8+16);
+                mgametext(c,32,                      "Company Product Support",0,2+8+16);
 
-                mgametext(c,32+9+9,                  "THE FOLLOWING COMPANIES WERE COOL",0,2+8+16);
-                mgametext(c,32+9+9+9,                "ENOUGH TO GIVE US LOTS OF STUFF",0,2+8+16);
-                mgametext(c,32+9+9+9+9,              "DURING THE MAKING OF DUKE NUKEM 3D.",0,2+8+16);
+                mgametext(c,32+9+9,                  "The following companies were cool",0,2+8+16);
+                mgametext(c,32+9+9+9,                "enough to give us lots of stuff",0,2+8+16);
+                mgametext(c,32+9+9+9+9,              "during the making of Duke Nukem 3D.",0,2+8+16);
 
-                mgametext(c,32+9+9+9+9+9+9,          "ALTEC LANSING MULTIMEDIA",0,2+8+16);
-                mgametext(c,32+9+9+9+9+9+9+9,        "FOR TONS OF SPEAKERS AND THE",0,2+8+16);
-                mgametext(c,32+9+9+9+9+9+9+9+9,      "THX-LICENSED SOUND SYSTEM",0,2+8+16);
-                mgametext(c,32+9+9+9+9+9+9+9+9+9,    "FOR INFO CALL 1-800-548-0620",0,2+8+16);
+                mgametext(c,32+9+9+9+9+9+9,          "Altec Lansing Multimedia",0,2+8+16);
+                mgametext(c,32+9+9+9+9+9+9+9,        "for tons of speakers and the",0,2+8+16);
+                mgametext(c,32+9+9+9+9+9+9+9+9,      "THX-licensed sound system.",0,2+8+16);
+                mgametext(c,32+9+9+9+9+9+9+9+9+9,    "For info call 1-800-548-0620",0,2+8+16);
 
-                mgametext(c,32+9+9+9+9+9+9+9+9+9+9+9,"CREATIVE LABS, INC.",0,2+8+16);
+                mgametext(c,32+9+9+9+9+9+9+9+9+9+9+9,"Creative Labs, Inc.",0,2+8+16);
 
-                mgametext(c,32+9+9+9+9+9+9+9+9+9+9+9+9+9,"THANKS FOR THE HARDWARE, GUYS.",0,2+8+16);
+                mgametext(c,32+9+9+9+9+9+9+9+9+9+9+9+9+9,"Thanks for the hardware, guys.",0,2+8+16);
                 break;
             case 997:
-                mgametext(c,50,                      "DUKE NUKEM IS A TRADEMARK OF",0,2+8+16);
-                mgametext(c,50+9,                    "3D REALMS ENTERTAINMENT",0,2+8+16);
+                mgametext(c,50,                      "Duke Nukem is a trademark of",0,2+8+16);
+                mgametext(c,50+9,                    "3D Realms Entertainment",0,2+8+16);
 
-                mgametext(c,50+9+9+9,                "DUKE NUKEM",0,2+8+16);
-                mgametext(c,50+9+9+9+9,              "(C) 1996 3D REALMS ENTERTAINMENT",0,2+8+16);
+                mgametext(c,50+9+9+9,                "Duke Nukem",0,2+8+16);
+                mgametext(c,50+9+9+9+9,              "(C) 1996 3D Realms Entertainment",0,2+8+16);
 
                 if (VOLUMEONE)
                 {
-                    mgametext(c,106,                     "PLEASE READ LICENSE.DOC FOR SHAREWARE",0,2+8+16);
-                    mgametext(c,106+9,                   "DISTRIBUTION GRANTS AND RESTRICTIONS",0,2+8+16);
+                    mgametext(c,106,                     "Please read LICENSE.DOC for shareware",0,2+8+16);
+                    mgametext(c,106+9,                   "distribution grants and restrictions.",0,2+8+16);
                 }
 
-                mgametext(c,VOLUMEONE?134:115,       "MADE IN DALLAS, TEXAS USA",0,2+8+16);
+                mgametext(c,VOLUMEONE?134:115,       "Made in Dallas, Texas USA",0,2+8+16);
                 break;
             case 998:
                 l = 10;
@@ -1872,31 +1872,31 @@ void M_DisplayMenus(void)
         case 993:   // JBF 20031220
             rotatesprite_fs(160<<16,200<<15,65536L,0,MENUSCREEN,0,0,10+64);
             rotatesprite_fs(c<<16,19<<16,65536L,0,MENUBAR,0,0,10);
-            menutext(160,24,0,0,"ABOUT EDUKE32");
+            menutext(160,24,0,0,"About EDuke32");
 
 cheat_for_port_credits:
             if (g_scriptVersion == 13) l = (-2);
-            mgametext(160,38-l,"PROGRAMMING AND PROJECT MANAGEMENT",0,2+8+16);
+            mgametext(160,38-l,"Programming and Project Management",0,2+8+16);
             p = "Richard \"TerminX\" Gobeille";
             minitext(161-(Bstrlen(p)<<1), 39+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 38+10-l, p, 8, 10+16+128);
 
-            mgametext(160,57-l,"POLYMER RENDERING SYSTEM",0,2+8+16);
+            mgametext(160,57-l,"Polymer Rendering System",0,2+8+16);
             p = "Pierre-Loup \"Plagman\" Griffais";
             minitext(161-(Bstrlen(p)<<1), 58+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 57+10-l, p, 8, 10+16+128);
 
-            mgametext(160,76-l,"ENGINE AND GAME PORTING WORK",0,2+8+16);
+            mgametext(160,76-l,"Engine and Game Porting Work",0,2+8+16);
             p = "Jonathon \"JonoF\" Fowler";
             minitext(161-(Bstrlen(p)<<1), 77+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 76+10-l, p, 8, 10+16+128);
 
-            mgametext(160,95-l,"BUILD ENGINE AND POLYMOST RENDERER",0,2+8+16);
+            mgametext(160,95-l,"BUILD Engine and Polymost Renderer",0,2+8+16);
             p = "Ken \"Awesoken\" Silverman";
             minitext(161-(Bstrlen(p)<<1), 96+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 95+10-l, p, 8, 10+16+128);
 
-            mgametext(160,122-l,"LICENSE AND OTHER CONTRIBUTORS",0,2+8+16);
+            mgametext(160,122-l,"License and Other Contributors",0,2+8+16);
             {
                 const char *scroller[] =
                 {
@@ -2012,29 +2012,29 @@ cheat_for_port_credits:
             }
         }
 
-        menutext(c,67,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
+        menutext(c,67,MENUHIGHLIGHT(0),PHX(-2),"New Game");
 
         //    menutext(c,67+16,0,1,"NETWORK GAME");
 
-        menutext(c,67+16/*+16*/,MENUHIGHLIGHT(1),PHX(-3),"OPTIONS");
+        menutext(c,67+16/*+16*/,MENUHIGHLIGHT(1),PHX(-3),"Options");
 
-        menutext(c,67+16+16/*+16*/,MENUHIGHLIGHT(2),PHX(-4),"LOAD GAME");
+        menutext(c,67+16+16/*+16*/,MENUHIGHLIGHT(2),PHX(-4),"Load Game");
 
         if (!VOLUMEALL)
         {
 
-            menutext(c,67+16+16+16/*+16*/,MENUHIGHLIGHT(3),PHX(-5),"HOW TO ORDER");
+            menutext(c,67+16+16+16/*+16*/,MENUHIGHLIGHT(3),PHX(-5),"How To Order");
         }
         else
         {
 
-            menutext(c,67+16+16+16/*+16*/,MENUHIGHLIGHT(3),PHX(-5),"HELP");
+            menutext(c,67+16+16+16/*+16*/,MENUHIGHLIGHT(3),PHX(-5),"Help");
         }
 
-        menutext(c,67+16+16+16+16/*+16*/,MENUHIGHLIGHT(4),PHX(-6),"CREDITS");
+        menutext(c,67+16+16+16+16/*+16*/,MENUHIGHLIGHT(4),PHX(-6),"Credits");
 
 
-        menutext(c,67+16+16+16+16+16/*+16*/,MENUHIGHLIGHT(5),PHX(-7),"QUIT");
+        menutext(c,67+16+16+16+16+16/*+16*/,MENUHIGHLIGHT(5),PHX(-7),"Quit");
         break;
 
     case 50:
@@ -2099,28 +2099,28 @@ cheat_for_port_credits:
         if (KB_KeyPressed(sc_Q))
             ChangeToMenu(500);
 
-        menutext(c,67                  ,MENUHIGHLIGHT(0),PHX(-2),"NEW GAME");
-        menutext(c,67+16               ,MENUHIGHLIGHT(1),PHX(-3),"SAVE GAME");
-        menutext(c,67+16+16            ,MENUHIGHLIGHT(2),PHX(-4),"LOAD GAME");
+        menutext(c,67                  ,MENUHIGHLIGHT(0),PHX(-2),"New Game");
+        menutext(c,67+16               ,MENUHIGHLIGHT(1),PHX(-3),"Save Game");
+        menutext(c,67+16+16            ,MENUHIGHLIGHT(2),PHX(-4),"Load Game");
 
-        menutext(c,67+16+16+16         ,MENUHIGHLIGHT(3),PHX(-5),"OPTIONS");
+        menutext(c,67+16+16+16         ,MENUHIGHLIGHT(3),PHX(-5),"Options");
         if (!VOLUMEALL)
         {
-            menutext(c,67+16+16+16+16      ,MENUHIGHLIGHT(4),PHX(-6),"HOW TO ORDER");
+            menutext(c,67+16+16+16+16      ,MENUHIGHLIGHT(4),PHX(-6),"How To Order");
         }
         else
         {
-            menutext(c,67+16+16+16+16      ,MENUHIGHLIGHT(4),PHX(-6)," HELP");
+            menutext(c,67+16+16+16+16      ,MENUHIGHLIGHT(4),PHX(-6),"Help");
         }
         if (g_netServer || numplayers > 1)
-            menutext(c,67+16+16+16+16+16   ,MENUHIGHLIGHT(5),1,"QUIT TO TITLE");
-        else menutext(c,67+16+16+16+16+16   ,MENUHIGHLIGHT(5),PHX(-7),"QUIT TO TITLE");
-        menutext(c,67+16+16+16+16+16+16,MENUHIGHLIGHT(6),PHX(-8),"QUIT GAME");
+            menutext(c,67+16+16+16+16+16   ,MENUHIGHLIGHT(5),1,"Quit To Title");
+        else menutext(c,67+16+16+16+16+16   ,MENUHIGHLIGHT(5),PHX(-7),"Quit To Title");
+        menutext(c,67+16+16+16+16+16+16,MENUHIGHLIGHT(6),PHX(-8),"Quit Game");
         break;
 
     case 100:
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(160,24,0,0,"SELECT AN EPISODE");
+        menutext(160,24,0,0,"Select An Episode");
         x = M_Probe(160,VOLUMEONE?60:60-(g_numVolumes*2),20,VOLUMEONE?3:g_numVolumes+1);
         if (x >= 0)
         {
@@ -2176,7 +2176,7 @@ cheat_for_port_credits:
             for (i=0; i<g_numVolumes; i++)
                 menutext(160,60-(g_numVolumes*2)+(20*i),MENUHIGHLIGHT(i),PHX(-2),EpisodeNames[i]);
 
-            menutext(160,60-(g_numVolumes*2)+(20*i),MENUHIGHLIGHT(i),PHX(-6),"USER MAP");
+            menutext(160,60-(g_numVolumes*2)+(20*i),MENUHIGHLIGHT(i),PHX(-6),"User Map");
         }
         break;
 
@@ -2188,7 +2188,7 @@ cheat_for_port_credits:
         KB_FlushKeyboardQueue();
     case 102:
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(160,24,0,0,"SELECT A USER MAP");
+        menutext(160,24,0,0,"Select A User Map");
 
         // black translucent background underneath file lists
         rotatesprite(0<<16, 0<<16, 65536l<<5, 0, BLANK, 0, 0, 10+16+1+32,
@@ -2258,7 +2258,7 @@ cheat_for_port_credits:
                 }
             }
         }
-        mgametext(40+4,32,"DIRECTORIES",0,2+8+16);
+        mgametext(40+4,32,"Directories",0,2+8+16);
 
         if (finddirshigh)
         {
@@ -2285,7 +2285,7 @@ cheat_for_port_credits:
             }
         }
 
-        mgametext(180+4,32,"MAP FILES",0,2+8+16);
+        mgametext(180+4,32,"Map Files",0,2+8+16);
 
         if (findfileshigh)
         {
@@ -2407,7 +2407,7 @@ cheat_for_port_credits:
 
         c = (320>>1);
         rotatesprite_fs(c<<16,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(c,24,0,0,"SELECT SKILL");
+        menutext(c,24,0,0,"Select Skill");
         x = M_Probe(c,ybase,19,g_numSkills);
         if (x >= 0)
         {
@@ -2464,7 +2464,7 @@ cheat_for_port_credits:
 
     case 230:
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"RENDERER SETUP");
+        menutext(320>>1,24,0,0,"Renderer Setup");
 
         c = (320>>1)-120;
 
@@ -2618,7 +2618,7 @@ cheat_for_port_credits:
                     if (glanisotropy > glinfo.maxanisotropy) glanisotropy = 1;
                     else if (glanisotropy < 1) glanisotropy = (int32_t)glinfo.maxanisotropy;
                     gltexapplyprops();
-                    if (glanisotropy == 1) strcpy(tempbuf,"NONE");
+                    if (glanisotropy == 1) strcpy(tempbuf,"None");
                     else Bsprintf(tempbuf,"%dx",glanisotropy);
                     mgametextpal(d,yy, tempbuf, MENUHIGHLIGHT(io), 0);
                     break;
@@ -2698,7 +2698,7 @@ cheat_for_port_credits:
     case 231:
     case 232:
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"COLOR CORRECTION");
+        menutext(320>>1,24,0,0,"Color Correction");
 
         c = (320>>1)-120;
 
@@ -2726,10 +2726,10 @@ cheat_for_port_credits:
             break;
         }
 
-        menutext(c,98,MENUHIGHLIGHT(0),0,"GAMMA");
-        menutext(c,98+16,MENUHIGHLIGHT(1),0,"CONTRAST");
-        menutext(c,98+16+16,MENUHIGHLIGHT(2),0,"BRIGHTNESS");
-        menutext(c,98+16+16+16+8,MENUHIGHLIGHT(3),0,"RESET TO DEFAULTS");
+        menutext(c,98,MENUHIGHLIGHT(0),0,"Gamma");
+        menutext(c,98+16,MENUHIGHLIGHT(1),0,"Contrast");
+        menutext(c,98+16+16,MENUHIGHLIGHT(2),0,"Brightness");
+        menutext(c,98+16+16+16+8,MENUHIGHLIGHT(3),0,"Reset To Defaults");
 
         Bsprintf(tempbuf,"%s%.2f",vid_gamma>=0?" ":"",vid_gamma);
         mgametext(c+177-56,98-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
@@ -2786,7 +2786,7 @@ cheat_for_port_credits:
     case 200:
 
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"GAME SETUP");
+        menutext(320>>1,24,0,0,"Game Setup");
 
         c = (320>>1)-120;
 
@@ -2959,7 +2959,7 @@ cheat_for_port_credits:
     case 201:
 
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"GAME SETUP");
+        menutext(320>>1,24,0,0,"Game Setup");
 
         c = (320>>1)-120;
 
@@ -3129,7 +3129,7 @@ cheat_for_port_credits:
         // JBF 20031205: Second level options menu selection
     case 202:
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"OPTIONS");
+        menutext(320>>1,24,0,0,"Options");
 
         c = 50;
 
@@ -3199,19 +3199,19 @@ cheat_for_port_credits:
             break;
         }
 
-        menutext(160,c,                  MENUHIGHLIGHT(0),0,"GAME SETUP");
-        menutext(160,c+18,               MENUHIGHLIGHT(1),0,"SOUND SETUP");
-        menutext(160,c+18+18,            MENUHIGHLIGHT(2),0,"VIDEO SETUP");
-        menutext(160,c+18+18+18,         MENUHIGHLIGHT(3),ud.recstat == 1,"PLAYER SETUP");
-        menutext(160,c+18+18+18+18,      MENUHIGHLIGHT(4),0,"KEYBOARD SETUP");
-        menutext(160,c+18+18+18+18+18,   MENUHIGHLIGHT(5),0,"MOUSE SETUP");
-        menutext(160,c+18+18+18+18+18+18,MENUHIGHLIGHT(6),CONTROL_JoyPresent==0,"JOYSTICK SETUP");
+        menutext(160,c,                  MENUHIGHLIGHT(0),0,"Game Setup");
+        menutext(160,c+18,               MENUHIGHLIGHT(1),0,"Sound Setup");
+        menutext(160,c+18+18,            MENUHIGHLIGHT(2),0,"Video Setup");
+        menutext(160,c+18+18+18,         MENUHIGHLIGHT(3),ud.recstat == 1,"Player Setup");
+        menutext(160,c+18+18+18+18,      MENUHIGHLIGHT(4),0,"Keyboard Setup");
+        menutext(160,c+18+18+18+18+18,   MENUHIGHLIGHT(5),0,"Mouse Setup");
+        menutext(160,c+18+18+18+18+18+18,MENUHIGHLIGHT(6),CONTROL_JoyPresent==0,"Joystick Setup");
         break;
 
         // JBF 20031206: Video settings menu
     case 203:
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"VIDEO SETUP");
+        menutext(320>>1,24,0,0,"Video Setup");
 
         c = (320>>1)-120;
 
@@ -3476,25 +3476,25 @@ cheat_for_port_credits:
             break;
         }
 
-        menutext(c,50,MENUHIGHLIGHT(0),0,"RESOLUTION");
+        menutext(c,50,MENUHIGHLIGHT(0),0,"Resolution");
         Bsprintf(tempbuf,"%d x %d",
                  (newvidmode==validmodecnt)?xdim:validmode[newvidmode].xdim,
                  (newvidmode==validmodecnt)?ydim:validmode[newvidmode].ydim);
         mgametext(c+168,50-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
 
-        menutext(c,50+16,MENUHIGHLIGHT(1),0,"RENDERER");
+        menutext(c,50+16,MENUHIGHLIGHT(1),0,"Renderer");
         if (vidsets[newvidset]&0x20000)
             Bsprintf(tempbuf,"%d-bit OpenGL", vidsets[newvidset]&0x0ffff);
         else
             Bsprintf(tempbuf,"Software");
         mgametext(c+168,50+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
-        menutext(c,50+16+16,MENUHIGHLIGHT(2),0,"FULLSCREEN");
-        menutext(c+168,50+16+16,MENUHIGHLIGHT(2),0,newfullscreen?"YES":"NO");
+        menutext(c,50+16+16,MENUHIGHLIGHT(2),0,"Fullscreen");
+        menutext(c+168,50+16+16,MENUHIGHLIGHT(2),0,newfullscreen?"Yes":"No");
 
-        menutext(c+16,50+16+16+22,MENUHIGHLIGHT(3),changesmade==0,"APPLY CHANGES");
+        menutext(c+16,50+16+16+22,MENUHIGHLIGHT(3),changesmade==0,"Apply Changes");
 
-        menutext(c,50+62+16,MENUHIGHLIGHT(4),PHX(-6),"COLOR CORRECTION");
+        menutext(c,50+62+16,MENUHIGHLIGHT(4),PHX(-6),"Color Correction");
         /*        {
                     short ss = ud.brightness;
                     bar(c+171,50+62+16,&ss,8,x==4,MENUHIGHLIGHT(4),PHX(-6));
@@ -3507,37 +3507,37 @@ cheat_for_port_credits:
         */
         if (!getrendermode())
         {
-            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"PIXEL DOUBLING");
-            menutext(c+168,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"OFF":"ON");
+            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"Pixel Doubling");
+            menutext(c+168,50+62+16+16,MENUHIGHLIGHT(5),0,ud.detail?"Off":"On");
             modval(0,1,(int32_t *)&ud.detail,1,probey==5);
         }
 #ifdef USE_OPENGL
         else
         {
             int32_t filter = gltexfiltermode;
-            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"TEXTURE FILTER");
+            menutext(c,50+62+16+16,MENUHIGHLIGHT(5),0,"Texture Filter");
             switch (gltexfiltermode)
             {
             case 0:
-                strcpy(tempbuf,"NEAREST");
+                strcpy(tempbuf,"Nearest");
                 break;
             case 1:
-                strcpy(tempbuf,"LINEAR");
+                strcpy(tempbuf,"Linear");
                 break;
             case 2:
-                strcpy(tempbuf,"NEAR_MM_NEAR");
+                strcpy(tempbuf,"Near_MM_Near");
                 break;
             case 3:
-                strcpy(tempbuf,"BILINEAR");
+                strcpy(tempbuf,"Bilinear");
                 break;
             case 4:
-                strcpy(tempbuf,"NEAR_MM_LIN");
+                strcpy(tempbuf,"Near_MM_Lin");
                 break;
             case 5:
-                strcpy(tempbuf,"TRILINEAR");
+                strcpy(tempbuf,"Trilinear");
                 break;
             default:
-                strcpy(tempbuf,"OTHER");
+                strcpy(tempbuf,"Other");
                 break;
             }
             modval(0,5,(int32_t *)&gltexfiltermode,1,probey==5);
@@ -3546,12 +3546,12 @@ cheat_for_port_credits:
             mgametextpal(c+168,50+62+16+16-8,tempbuf,MENUHIGHLIGHT(5),!getrendermode());
         }
 #endif
-        menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),0 /*bpp==8*/,"RENDERER SETUP");
+        menutext(c,50+62+16+16+16,MENUHIGHLIGHT(6),0 /*bpp==8*/,"Renderer Setup");
         break;
 
     case 204:
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"KEYBOARD SETUP");
+        menutext(320>>1,24,0,0,"Keyboard Setup");
 
         c = (320>>1)-120;
 
@@ -3639,11 +3639,11 @@ cheat_for_port_credits:
                           (m+l == probey && currentlist?0:16),2,10+16);
         }
 
-        mgametextpal(160,140,  "RESET KEYS TO DEFAULTS",MENUHIGHLIGHT(NUMGAMEFUNCTIONS),10);
-        mgametextpal(160,140+7,"SET CLASSIC KEY LAYOUT",MENUHIGHLIGHT(NUMGAMEFUNCTIONS+1),10);
-        mgametext(160,144+9+3,"UP/DOWN = SELECT ACTION",0,2+8+16);
-        mgametext(160,144+9+9+3,"LEFT/RIGHT = SELECT LIST",0,2+8+16);
-        mgametext(160,144+9+9+9+3,"ENTER = MODIFY   DELETE = CLEAR",0,2+8+16);
+        mgametextpal(160,140,  "Reset Keys To Defaults",MENUHIGHLIGHT(NUMGAMEFUNCTIONS),10);
+        mgametextpal(160,140+7,"Set Classic Key Layout",MENUHIGHLIGHT(NUMGAMEFUNCTIONS+1),10);
+        mgametext(160,144+9+3,"Up/Down = Select Action",0,2+8+16);
+        mgametext(160,144+9+9+3,"Left/Right = Select List",0,2+8+16);
+        mgametext(160,144+9+9+9+3,"Enter = Modify   Delete = Clear",0,2+8+16);
 
         break;
 
@@ -3651,12 +3651,12 @@ cheat_for_port_credits:
     {
         int32_t sc;
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"KEYBOARD SETUP");
+        menutext(320>>1,24,0,0,"Keyboard Setup");
 
-        mgametext(320>>1,90,"PRESS THE KEY TO ASSIGN AS",0,2+8+16);
-        Bsprintf(tempbuf,"%s FOR \"%s\"", whichkey?"SECONDARY":"PRIMARY", CONFIG_FunctionNumToName(function));
+        mgametext(320>>1,90,"Press the key to assign as",0,2+8+16);
+        Bsprintf(tempbuf,"%s for \"%s\"", whichkey?"secondary":"primary", CONFIG_FunctionNumToName(function));
         mgametext(320>>1,90+9,tempbuf,0,2+8+16);
-        mgametext(320>>1,90+9+9+9,"PRESS \"ESCAPE\" TO CANCEL",0,2+8+16);
+        mgametext(320>>1,90+9+9+9,"Press \"Escape\" To Cancel",0,2+8+16);
 
         sc = KB_GetLastScanCode();
         if (sc != sc_None || RMB)
@@ -3692,7 +3692,7 @@ cheat_for_port_credits:
     }
     case 205:
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"MOUSE SETUP");
+        menutext(320>>1,24,0,0,"Mouse Setup");
 
         c = 60-4;
 
@@ -3771,7 +3771,7 @@ cheat_for_port_credits:
             minitextshade(c+20,34+l*8,tempbuf,(l==probey)?0:16,1,10+16);
 
             if (m == -1)
-                minitextshade(c+100+20,34+l*8,"  -NONE-",(l==probey)?0:16,2,10+16);
+                minitextshade(c+100+20,34+l*8,"  -None-",(l==probey)?0:16,2,10+16);
             else
             {
                 strcpy(tempbuf, CONFIG_FunctionNumToName(m));
@@ -3796,15 +3796,15 @@ cheat_for_port_credits:
         if (!ud.mouseaiming) modval(0,1,(int32_t *)&g_myAimMode,1,probey == NUMMOUSEFUNCTIONS+1);
         else if (probey == NUMMOUSEFUNCTIONS+1)
         {
-            mgametext(160,140+9+9+9,"SET MOUSE AIM TYPE TO TOGGLE ON/OFF",0,2+8+16);
-            mgametext(160,140+9+9+9+9,"IN THE PLAYER SETUP MENU TO ENABLE",0,2+8+16);
+            mgametext(160,140+9+9+9,"Set mouse aim type to toggle on/off",0,2+8+16);
+            mgametext(160,140+9+9+9+9,"in the Player Setup menu to enable",0,2+8+16);
         }
 
         modval(0,1,(int32_t *)&ud.mouseflip,1,probey == NUMMOUSEFUNCTIONS+2);
         modval(0,1,(int32_t *)&ud.config.SmoothInput,1,probey == NUMMOUSEFUNCTIONS+2+1);
         if (probey == NUMMOUSEFUNCTIONS+2+1)
         {
-//            mgametext(160,160+9,"THIS OPTION INCURS A MOVEMENT DELAY",0,2+8+16);
+//            mgametext(160,160+9,"This option incurs a movement delay",0,2+8+16);
             control_smoothmouse = ud.config.SmoothInput;
         }
 
@@ -3815,17 +3815,17 @@ cheat_for_port_credits:
 
         if (probey < NUMMOUSEFUNCTIONS)
         {
-            mgametext(160,160+9,"UP/DOWN = SELECT BUTTON",0,2+8+16);
-            mgametext(160,160+9+9,"ENTER = MODIFY",0,2+8+16);
+            mgametext(160,160+9,"Up/Down = Select Button",0,2+8+16);
+            mgametext(160,160+9+9,"Enter = Modify",0,2+8+16);
         }
         break;
 
     case 211:
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        if (function == 0) menutext(320>>1,24,0,0,"MOUSE SETUP");
-        else if (function == 1) menutext(320>>1,24,0,0,"ADVANCED MOUSE");
-        else if (function == 2) menutext(320>>1,24,0,0,"JOYSTICK BUTTONS");
-        else if (function == 3) menutext(320>>1,24,0,0,"JOYSTICK AXES");
+        if (function == 0) menutext(320>>1,24,0,0,"Mouse Setup");
+        else if (function == 1) menutext(320>>1,24,0,0,"Advanced Mouse");
+        else if (function == 2) menutext(320>>1,24,0,0,"Joystick Buttons");
+        else if (function == 3) menutext(320>>1,24,0,0,"Joystick Axes");
 
         x = M_Probe(0,0,0,NUMGAMEFUNCTIONS);
 
@@ -3910,31 +3910,31 @@ cheat_for_port_credits:
             break;
         }
 
-        mgametext(320>>1,31,"SELECT A FUNCTION TO ASSIGN",0,2+8+16);
+        mgametext(320>>1,31,"Select a function to assign",0,2+8+16);
 
         if (function == 0)
         {
             if (whichkey < NUMDOUBLEMBTNS*2)
-                Bsprintf(tempbuf,"TO %s%s", (whichkey&1)?"DOUBLE-CLICKED ":"", mousebuttonnames[whichkey>>1]);
+                Bsprintf(tempbuf,"to %s%s", (whichkey&1)?"double-clicked ":"", mousebuttonnames[whichkey>>1]);
             else
                 Bstrcpy(tempbuf, mousebuttonnames[whichkey-NUMDOUBLEMBTNS]);
         }
         else if (function == 1)
         {
-            Bstrcpy(tempbuf,"TO DIGITAL ");
+            Bstrcpy(tempbuf,"to digital ");
             switch (whichkey)
             {
             case 0:
-                Bstrcat(tempbuf, "LEFT");
+                Bstrcat(tempbuf, "Left");
                 break;
             case 1:
-                Bstrcat(tempbuf, "RIGHT");
+                Bstrcat(tempbuf, "Right");
                 break;
             case 2:
-                Bstrcat(tempbuf, "UP");
+                Bstrcat(tempbuf, "Up");
                 break;
             case 3:
-                Bstrcat(tempbuf, "DOWN");
+                Bstrcat(tempbuf, "Down");
                 break;
             }
         }
@@ -3942,16 +3942,16 @@ cheat_for_port_credits:
         {
             static char *directions[] =
             {
-                "UP", "RIGHT", "DOWN", "LEFT"
+                "Up", "Right", "Down", "Left"
             };
             if (whichkey < 2*joynumbuttons)
-                Bsprintf(tempbuf,"TO %s%s", (whichkey&1)?"DOUBLE-CLICKED ":"", getjoyname(1,whichkey>>1));
+                Bsprintf(tempbuf,"to %s%s", (whichkey&1)?"double-clicked ":"", getjoyname(1,whichkey>>1));
             else
-                Bsprintf(tempbuf,"TO HAT %s", directions[whichkey-2*joynumbuttons]);
+                Bsprintf(tempbuf,"to hat %s", directions[whichkey-2*joynumbuttons]);
         }
         else if (function == 3)
         {
-            Bsprintf(tempbuf,"TO DIGITAL %s %s",getjoyname(0,whichkey>>1),(whichkey&1)?"POSITIVE":"NEGATIVE");
+            Bsprintf(tempbuf,"to digital %s %s",getjoyname(0,whichkey>>1),(whichkey&1)?"positive":"negative");
         }
 
         mgametext(320>>1,31+9,tempbuf,0,2+8+16);
@@ -3961,7 +3961,7 @@ cheat_for_port_credits:
         for (l=0; l < min(13,NUMGAMEFUNCTIONS); l++)
         {
             if (l+m == NUMGAMEFUNCTIONS-1)
-                strcpy(tempbuf, "  -NONE-");
+                strcpy(tempbuf, "  -None-");
             else
                 strcpy(tempbuf, CONFIG_FunctionNumToName(m+l));
 
@@ -3970,13 +3970,13 @@ cheat_for_port_credits:
                           Bstrcmp(keydefaults[3*(m+l)],oldkeydefaults[3*(m+l)]) ? 8 : 1, 10+16);
         }
 
-        mgametext(320>>1,161,"PRESS \"ESCAPE\" TO CANCEL",0,2+8+16);
+        mgametext(320>>1,161,"Press \"Escape\" To Cancel",0,2+8+16);
 
         break;
 
     case 212:
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"ADVANCED MOUSE");
+        menutext(320>>1,24,0,0,"Advanced Mouse");
 
         c = (320>>1)-120;
 
@@ -4030,12 +4030,12 @@ cheat_for_port_credits:
         case 4:
         case 5:
         case 6:
-            mgametext(160,144+9+9,"DIGITAL AXES ARE NOT FOR MOUSE LOOK",0,2+8+16);
-            mgametext(160,144+9+9+9,"OR FOR AIMING UP AND DOWN",0,2+8+16);
+            mgametext(160,144+9+9,"Digital axes are not for mouse look",0,2+8+16);
+            mgametext(160,144+9+9+9,"or for aiming up and down",0,2+8+16);
             break;
         }
 
-        menutext(c,46,MENUHIGHLIGHT(0),0,"X-AXIS SCALE");
+        menutext(c,46,MENUHIGHLIGHT(0),0,"X-Axis Scale");
         l = (ud.config.MouseAnalogueScale[0]+262144) >> 13;
         bar(c+160+40,46,&l,1,x==0,MENUHIGHLIGHT(0),0);
         l = (l<<13)-262144;
@@ -4047,7 +4047,7 @@ cheat_for_port_credits:
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
         mgametext(c+160-16,46-8,tempbuf,MENUHIGHLIGHT(0),2+8+16);
 
-        menutext(c,46+16,MENUHIGHLIGHT(1),0,"Y-AXIS SCALE");
+        menutext(c,46+16,MENUHIGHLIGHT(1),0,"Y-Axis Scale");
         l = (ud.config.MouseAnalogueScale[1]+262144) >> 13;
         bar(c+160+40,46+16,&l,1,x==1,MENUHIGHLIGHT(1),0);
         l = (l<<13)-262144;
@@ -4059,55 +4059,55 @@ cheat_for_port_credits:
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
         mgametext(c+160-16,46+16-8,tempbuf,MENUHIGHLIGHT(1),2+8+16);
 
-        menutext(c,46+16+16,MENUHIGHLIGHT(2),0,"DEAD ZONE");
+        menutext(c,46+16+16,MENUHIGHLIGHT(2),0,"Dead Zone");
         l = ud.config.MouseDeadZone>>1;
         bar(c+160+40,46+16+16,&l,2,x==2,MENUHIGHLIGHT(2),0);
         ud.config.MouseDeadZone = l<<1;
         rotatesprite_fs(320<<15,94<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,43+16+16+16+8,0,0,"DIGITAL AXES SETUP");
+        menutext(320>>1,43+16+16+16+8,0,0,"Digital Axes Setup");
 
         if (ud.config.MouseDeadZone == 0)
-            Bsprintf(tempbuf," OFF");
+            Bsprintf(tempbuf," Off");
         else if (ud.config.MouseDeadZone < 48)
-            Bsprintf(tempbuf," LOW");
+            Bsprintf(tempbuf," Low");
         else if (ud.config.MouseDeadZone < 96)
-            Bsprintf(tempbuf," MED");
+            Bsprintf(tempbuf," Med");
         else if (ud.config.MouseDeadZone < 128)
-            Bsprintf(tempbuf,"HIGH");
+            Bsprintf(tempbuf,"High");
 
         mgametext(c+160-16,46+16+16-8,tempbuf,MENUHIGHLIGHT(2),2+8+16);
 
 
-        mgametextpal(c+10,92+16,"UP:",MENUHIGHLIGHT(3),10);
+        mgametextpal(c+10,92+16,"Up:",MENUHIGHLIGHT(3),10);
         if (ud.config.MouseDigitalFunctions[1][0] < 0)
-            strcpy(tempbuf, "  -NONE-");
+            strcpy(tempbuf, "  -None-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[1][0]));
 
         for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,93+16,tempbuf,MENUHIGHLIGHT(3),0,10+16);
 
-        mgametextpal(c+10,92+16+9,"DOWN:",MENUHIGHLIGHT(4),10);
+        mgametextpal(c+10,92+16+9,"Down:",MENUHIGHLIGHT(4),10);
         if (ud.config.MouseDigitalFunctions[1][1] < 0)
-            strcpy(tempbuf, "  -NONE-");
+            strcpy(tempbuf, "  -None-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[1][1]));
 
         for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,93+16+9,tempbuf,MENUHIGHLIGHT(4),0,10+16);
 
-        mgametextpal(c+10,92+16+9+9,"LEFT:",MENUHIGHLIGHT(5),10);
+        mgametextpal(c+10,92+16+9+9,"Left:",MENUHIGHLIGHT(5),10);
         if (ud.config.MouseDigitalFunctions[0][0] < 0)
-            strcpy(tempbuf, "  -NONE-");
+            strcpy(tempbuf, "  -None-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[0][0]));
 
         for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitextshade(c+10+60,93+16+9+9,tempbuf,MENUHIGHLIGHT(5),0,10+16);
 
-        mgametextpal(c+10,92+16+9+9+9,"RIGHT:",MENUHIGHLIGHT(6),10);
+        mgametextpal(c+10,92+16+9+9+9,"Right:",MENUHIGHLIGHT(6),10);
         if (ud.config.MouseDigitalFunctions[0][1] < 0)
-            strcpy(tempbuf, "  -NONE-");
+            strcpy(tempbuf, "  -None-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[0][1]));
 
@@ -4118,7 +4118,7 @@ cheat_for_port_credits:
 
     case 206:
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"JOYSTICK SETUP");
+        menutext(320>>1,24,0,0,"Joystick Setup");
 
         x = M_Probe(160,100-18,18,3);
 
@@ -4137,15 +4137,15 @@ cheat_for_port_credits:
             break;
         }
 
-        menutext(160,100-18,0,0,"EDIT BUTTONS");
-        menutext(160,100,0,0,"EDIT AXES");
-        menutext(160,100+18,0,0,"DEAD ZONES");
+        menutext(160,100-18,0,0,"Edit Buttons");
+        menutext(160,100,0,0,"Edit Axes");
+        menutext(160,100+18,0,0,"Dead Zones");
 
         break;
 
     case 207:
         rotatesprite_fs(320<<15,10<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,15,0,0,"JOYSTICK BUTTONS");
+        menutext(320>>1,15,0,0,"Joystick Buttons");
 
         c = 2*joynumbuttons + 4*(joynumhats>0);
 
@@ -4202,7 +4202,7 @@ cheat_for_port_credits:
             minitextshade(80-4,33+l*8,tempbuf,(m+l == probey)?0:16,1,10+16);
 
             if (x == -1)
-                minitextshade(176,33+l*8,"  -NONE-",(m+l==probey)?0:16,2,10+16);
+                minitextshade(176,33+l*8,"  -None-",(m+l==probey)?0:16,2,10+16);
             else
             {
                 strcpy(tempbuf, CONFIG_FunctionNumToName(x));
@@ -4227,7 +4227,7 @@ cheat_for_port_credits:
         int32_t thispage, twothispage;
 
         rotatesprite_fs(320<<15,10<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,15,0,0,"JOYSTICK AXES");
+        menutext(320>>1,15,0,0,"Joystick Axes");
 
         thispage = (g_currentMenu < 217) ? (g_currentMenu-208) : (g_currentMenu-217)+2;
         twothispage = (thispage*2+1 < joynumaxes);
@@ -4315,7 +4315,7 @@ cheat_for_port_credits:
             Bstrcpy(tempbuf,(char *)getjoyname(0,thispage*2+1));
             menutext(42,32+64,0,0,tempbuf);
         }
-        mgametext(76,38,"SCALE",0,2+8+16);
+        mgametext(76,38,"Scale",0,2+8+16);
         l = (ud.config.JoystickAnalogueScale[thispage*2]+262144) >> 13;
         bar(140+56,38+8,&l,1,x==0,0,0);
         l = (l<<13)-262144;
@@ -4327,9 +4327,9 @@ cheat_for_port_credits:
         Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
         mgametext(140,38,tempbuf,0,2+8+16);
 
-        mgametext(76,38+15,"DIGITAL",0,2+8+16);
+        mgametext(76,38+15,"Digital",0,2+8+16);
         if (ud.config.JoystickDigitalFunctions[thispage*2][0] < 0)
-            strcpy(tempbuf, "  -NONE-");
+            strcpy(tempbuf, "  -None-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2][0]));
 
@@ -4337,14 +4337,14 @@ cheat_for_port_credits:
         minitext(140+12,38+15,tempbuf,0,10+16);
 
         if (ud.config.JoystickDigitalFunctions[thispage*2][1] < 0)
-            strcpy(tempbuf, "  -NONE-");
+            strcpy(tempbuf, "  -None-");
         else
             strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2][1]));
 
         for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
         minitext(140+12+72,38+15,tempbuf,0,10+16);
 
-        mgametext(76,38+15+15,"ANALOG",0,2+8+16);
+        mgametext(76,38+15+15,"Analog",0,2+8+16);
         if (CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2]))
         {
             p = CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2]);
@@ -4356,7 +4356,7 @@ cheat_for_port_credits:
 
         if (twothispage)
         {
-            mgametext(76,38+64,"SCALE",0,2+8+16);
+            mgametext(76,38+64,"Scale",0,2+8+16);
             l = (ud.config.JoystickAnalogueScale[thispage*2+1]+262144) >> 13;
             bar(140+56,38+8+64,&l,1,x==4,0,0);
             l = (l<<13)-262144;
@@ -4368,9 +4368,9 @@ cheat_for_port_credits:
             Bsprintf(tempbuf,"%s%.2f",l>=0?" ":"",(float)l/65536.0);
             mgametext(140,38+64,tempbuf,0,2+8+16);
 
-            mgametext(76,38+64+15,"DIGITAL",0,2+8+16);
+            mgametext(76,38+64+15,"Digital",0,2+8+16);
             if (ud.config.JoystickDigitalFunctions[thispage*2+1][0] < 0)
-                strcpy(tempbuf, "  -NONE-");
+                strcpy(tempbuf, "  -None-");
             else
                 strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2+1][0]));
 
@@ -4378,14 +4378,14 @@ cheat_for_port_credits:
             minitext(140+12,38+15+64,tempbuf,0,10+16);
 
             if (ud.config.JoystickDigitalFunctions[thispage*2+1][1] < 0)
-                strcpy(tempbuf, "  -NONE-");
+                strcpy(tempbuf, "  -None-");
             else
                 strcpy(tempbuf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[thispage*2+1][1]));
 
             for (i=0; tempbuf[i]; i++) if (tempbuf[i]=='_') tempbuf[i] = ' ';
             minitext(140+12+72,38+15+64,tempbuf,0,10+16);
 
-            mgametext(76,38+64+15+15,"ANALOG",0,2+8+16);
+            mgametext(76,38+64+15+15,"Analog",0,2+8+16);
             if (CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2+1]))
             {
                 p = CONFIG_AnalogNumToName(ud.config.JoystickAnalogueAxes[thispage*2+1]);
@@ -4398,7 +4398,7 @@ cheat_for_port_credits:
 
         if (joynumaxes > 2)
         {
-            menutext(320>>1,twothispage?158:108,SHX(-10),(joynumaxes<=2),"NEXT...");
+            menutext(320>>1,twothispage?158:108,SHX(-10),(joynumaxes<=2),"Next...");
             Bsprintf(tempbuf,"Page %d of %d",thispage+1,(joynumaxes+1)/2);
             mgametext(320-100,158,tempbuf,0,2+8+16);
         }
@@ -4413,7 +4413,7 @@ cheat_for_port_credits:
         // Pray this is enough pages for now :-|
         int32_t first,last;
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"JOY DEAD ZONES");
+        menutext(320>>1,24,0,0,"Joy Dead Zones");
 
         first = 4*(g_currentMenu-213);
         last  = min(4*(g_currentMenu-213)+4,joynumaxes);
@@ -4440,8 +4440,8 @@ cheat_for_port_credits:
             Bstrcpy(tempbuf,(char *)getjoyname(0,m));
             menutext(32,48+30*(m-first),0,0,tempbuf);
 
-            mgametext(128,48+30*(m-first)-8,"DEAD",0,2+8+16);
-            mgametext(128,48+30*(m-first)-8+15,"SATU",0,2+8+16);
+            mgametext(128,48+30*(m-first)-8,"Dead",0,2+8+16);
+            mgametext(128,48+30*(m-first)-8+15,"Satu",0,2+8+16);
 
             dx = odx = min(64,64l*ud.config.JoystickAnalogueDead[m]/10000l);
             dy = ody = min(64,64l*ud.config.JoystickAnalogueSaturate[m]/10000l);
@@ -4459,10 +4459,10 @@ cheat_for_port_credits:
             if (dx != odx || dy != ody)
                 setjoydeadzone(m,ud.config.JoystickAnalogueDead[m],ud.config.JoystickAnalogueSaturate[m]);
         }
-        //mgametext(160,158,"DEAD = DEAD ZONE, SAT. = SATURATION",0,2+8+16);
+        //mgametext(160,158,"Dead = Dead Zone, Sat. = Saturation",0,2+8+16);
         if (joynumaxes>4)
         {
-            menutext(32,48+30*(last-first),0,0,"NEXT...");
+            menutext(32,48+30*(last-first),0,0,"Next...");
             Bsprintf(tempbuf,"Page %d of %d", 1+(g_currentMenu-213), (joynumaxes+3)/4);
             mgametext(320-100,158,tempbuf,0,2+8+16);
         }
@@ -4474,7 +4474,7 @@ cheat_for_port_credits:
 
         c = (320>>1)-120;
         rotatesprite_fs(320<<15,19<<16,65536L,0,MENUBAR,16,0,10);
-        menutext(320>>1,24,0,0,"SOUND SETUP");
+        menutext(320>>1,24,0,0,"Sound Setup");
 
         if (!(changesmade & 8))
         {
@@ -4766,8 +4766,8 @@ cheat_for_port_credits:
         rotatesprite_fs(c<<16,200<<15,65536L,0,MENUSCREEN,16,0,10+64);
         rotatesprite_fs(c<<16,19<<16,65536L,0,MENUBAR,16,0,10);
 
-        if (g_currentMenu == 300) menutext(c,24,0,0,"LOAD GAME");
-        else menutext(c,24,0,0,"SAVE GAME");
+        if (g_currentMenu == 300) menutext(c,24,0,0,"Load Game");
+        else menutext(c,24,0,0,"Save Game");
 
         if (g_currentMenu >= 360 && g_currentMenu <= 369)
         {
@@ -4775,9 +4775,9 @@ cheat_for_port_credits:
 
             if (!crc) crc = crc32once((uint8_t *)&ud.savegame[g_currentMenu-360][0], 19);
 
-            Bsprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
+            Bsprintf(tempbuf,"Players: %-2d                      ",ud.multimode);
             mgametext(160,156,tempbuf,0,2+8+16);
-            Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
+            Bsprintf(tempbuf,"Episode: %-2d / Level: %-2d / Skill: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
             mgametext(160,168,tempbuf,0,2+8+16);
             if (ud.volume_number == 0 && ud.level_number == 7)
                 mgametext(160,180,currentboardfilename,0,2+8+16);
@@ -4804,7 +4804,7 @@ cheat_for_port_credits:
 
                 if (g_netServer || ud.multimode > 1)
                 {
-                    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "MULTIPLAYER SAVING NOT SUPPORTED YET");
+                    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");
                     P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
                     //G_SavePlayer(-1-(g_currentMenu-360));
                 }
@@ -4842,9 +4842,9 @@ cheat_for_port_credits:
             {
                 Menus_LoadSave_DisplayCommon1();
 
-                Bsprintf(tempbuf,"PLAYERS: %-2d                      ", savehead.numplayers);
+                Bsprintf(tempbuf,"Players: %-2d                      ", savehead.numplayers);
                 mgametext(160,156,tempbuf,0,2+8+16);
-                Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",
+                Bsprintf(tempbuf,"Episode: %-2d / Level: %-2d / Skill: %-2d",
                          1+savehead.volnum, 1+savehead.levnum, savehead.skill);
                 mgametext(160,168,tempbuf,0,2+8+16);
                 if (savehead.volnum == 0 && savehead.levnum == 7)
@@ -4852,7 +4852,7 @@ cheat_for_port_credits:
             }
             else
             {
-                menutext(69,70,0,0,"EMPTY");
+                menutext(69,70,0,0,"Empty");
             }
         }
         else
@@ -4862,11 +4862,11 @@ cheat_for_port_credits:
             {
                 Menus_LoadSave_DisplayCommon1();
             }
-            else menutext(69,70,0,0,"EMPTY");
+            else menutext(69,70,0,0,"Empty");
 
-            Bsprintf(tempbuf,"PLAYERS: %-2d                      ",ud.multimode);
+            Bsprintf(tempbuf,"Players: %-2d                      ",ud.multimode);
             mgametext(160,156,tempbuf,0,2+8+16);
-            Bsprintf(tempbuf,"EPISODE: %-2d / LEVEL: %-2d / SKILL: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
+            Bsprintf(tempbuf,"Episode: %-2d / Level: %-2d / Skill: %-2d",1+ud.volume_number,1+ud.level_number,ud.player_skill);
             mgametext(160,168,tempbuf,0,2+8+16);
             if (ud.volume_number == 0 && ud.level_number == 7)
                 mgametext(160,180,currentboardfilename,0,2+8+16);
@@ -5228,7 +5228,7 @@ VOLUME_ALL_40x:
                 Net_NewGame(ud.m_volume_number,ud.m_level_number);
 
                 if (voting == myconnectindex && !(g_netServer))
-                    G_AddUserQuote("VOTE SUCCEEDED");
+                    G_AddUserQuote("Vote Succeeded");
 
                 G_NewGame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
                 if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
@@ -5255,14 +5255,14 @@ VOLUME_ALL_40x:
                 else if (g_netServer)
                     enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
 
-                Bsprintf(ScriptQuotes[QUOTE_RESERVED2],"VOTE FAILED");
+                Bsprintf(ScriptQuotes[QUOTE_RESERVED2],"Vote Failed");
                 P_DoQuote(QUOTE_RESERVED2,g_player[myconnectindex].ps);
                 g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             }
         }
         else
         {
-            mgametext(160,90,"WAITING FOR VOTES",0,2);
+            mgametext(160,90,"Waiting for votes",0,2);
         }
         break;
     }
@@ -5417,9 +5417,9 @@ VOLUME_ALL_40x:
 
         c += 40;
 
-        //if(ud.m_coop==1) mgametext(c+70,57-7-9,"COOPERATIVE PLAY",0,2+8+16);
-        //else if(ud.m_coop==2) mgametext(c+70,57-7-9,"DUKEMATCH (NO SPAWN)",0,2+8+16);
-        //else mgametext(c+70,57-7-9,"DUKEMATCH (SPAWN)",0,2+8+16);
+        //if(ud.m_coop==1) mgametext(c+70,57-7-9,"Cooperative Play",0,2+8+16);
+        //else if(ud.m_coop==2) mgametext(c+70,57-7-9,"DukeMatch (No Spawn)",0,2+8+16);
+        //else mgametext(c+70,57-7-9,"DukeMatch (Spawn)",0,2+8+16);
         mgametext(c+70,57-7-9,GametypeNames[ud.m_coop],MENUHIGHLIGHT(0),2+8+16);
         if (VOLUMEONE)
         {
@@ -5432,56 +5432,56 @@ VOLUME_ALL_40x:
 
         mgametext(c+70,57+16+16-7-9,&MapInfo[MAXLEVELS*ud.m_volume_number+ud.m_level_number].name[0],MENUHIGHLIGHT(2),2+8+16);
 
-        mgametext(c+70,57+16+16+16-7-9,ud.m_monsters_off == 0 || ud.m_player_skill > 0?SkillNames[ud.m_player_skill]:"NONE",MENUHIGHLIGHT(3),2+8+16);
+        mgametext(c+70,57+16+16+16-7-9,ud.m_monsters_off == 0 || ud.m_player_skill > 0?SkillNames[ud.m_player_skill]:"None",MENUHIGHLIGHT(3),2+8+16);
 
         if (GametypeFlags[ud.m_coop] & GAMETYPE_MARKEROPTION)
-            mgametext(c+70,57+16+16+16+16-7-9,ud.m_marker?"ON":"OFF",MENUHIGHLIGHT(4),2+8+16);
+            mgametext(c+70,57+16+16+16+16-7-9,ud.m_marker?"On":"Off",MENUHIGHLIGHT(4),2+8+16);
 
         if (GametypeFlags[ud.m_coop] & (GAMETYPE_PLAYERSFRIENDLY|GAMETYPE_TDM))
-            mgametext(c+70,57+16+16+16+16+16-7-9,ud.m_ffire?"ON":"OFF",MENUHIGHLIGHT(5),2+8+16);
-        else mgametext(c+70,57+16+16+16+16+16-7-9,ud.m_noexits?"OFF":"ON",MENUHIGHLIGHT(5),2+8+16);
+            mgametext(c+70,57+16+16+16+16+16-7-9,ud.m_ffire?"On":"Off",MENUHIGHLIGHT(5),2+8+16);
+        else mgametext(c+70,57+16+16+16+16+16-7-9,ud.m_noexits?"Off":"On",MENUHIGHLIGHT(5),2+8+16);
 
         c -= 44;
 
-        menutext(c,57-9,MENUHIGHLIGHT(0),PHX(-2),"GAME TYPE");
+        menutext(c,57-9,MENUHIGHLIGHT(0),PHX(-2),"Game Type");
 
         if (VOLUMEONE)
         {
-            Bsprintf(tempbuf,"EPISODE %d",ud.m_volume_number+1);
+            Bsprintf(tempbuf,"Episode %d",ud.m_volume_number+1);
             menutext(c,57+16-9,MENUHIGHLIGHT(1),1,tempbuf);
         }
         else
         {
-            Bsprintf(tempbuf,"EPISODE %d",ud.m_volume_number+1);
+            Bsprintf(tempbuf,"Episode %d",ud.m_volume_number+1);
             menutext(c,57+16-9,MENUHIGHLIGHT(1),PHX(-3),tempbuf);
         }
 
-        Bsprintf(tempbuf,"LEVEL %d",ud.m_level_number+1);
+        Bsprintf(tempbuf,"Level %d",ud.m_level_number+1);
         menutext(c,57+16+16-9,MENUHIGHLIGHT(2),PHX(-4),tempbuf);
 
-        menutext(c,57+16+16+16-9,MENUHIGHLIGHT(3),PHX(-5),"MONSTERS");
+        menutext(c,57+16+16+16-9,MENUHIGHLIGHT(3),PHX(-5),"Monsters");
 
         if (GametypeFlags[ud.m_coop] & GAMETYPE_MARKEROPTION)
-            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),PHX(-6),"MARKERS");
+            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),PHX(-6),"Markers");
         else
-            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),1,"MARKERS");
+            menutext(c,57+16+16+16+16-9,MENUHIGHLIGHT(4),1,"Markers");
 
         if (GametypeFlags[ud.m_coop] & (GAMETYPE_PLAYERSFRIENDLY|GAMETYPE_TDM))
-            menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),0,"FR. FIRE");
-        else menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),0,"MAP EXITS");
+            menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),0,"Fr. Fire");
+        else menutext(c,57+16+16+16+16+16-9,MENUHIGHLIGHT(5),0,"Map Exits");
 
         if (VOLUMEALL)
         {
-            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),0,"USER MAP");
+            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),0,"User Map");
             if (boardfilename[0] != 0)
                 mgametext(c+70+44,57+16+16+16+16+16,boardfilename,MENUHIGHLIGHT(6),2+8+16);
         }
         else
         {
-            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),1,"USER MAP");
+            menutext(c,57+16+16+16+16+16+16-9,MENUHIGHLIGHT(6),1,"User Map");
         }
 
-        menutext(c,57+16+16+16+16+16+16+16-9,MENUHIGHLIGHT(7),voting!=-1,"START GAME");
+        menutext(c,57+16+16+16+16+16+16+16-9,MENUHIGHLIGHT(7),voting!=-1,"Start Game");
 
         break;
     }
