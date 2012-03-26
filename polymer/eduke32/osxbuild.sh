@@ -6,9 +6,10 @@
 buildppc=1
 build86=1
 build64=1
+buildmain=1
 buildtools=0
 builddebug=0
-onlyzip=0
+pack=1
 
 # Enforce OS:
 if [ `uname -s` != Darwin ]; then
@@ -20,22 +21,56 @@ fi
 darwinversion=`uname -r | cut -d . -f 1`
 
 if [ `expr $darwinversion \< 9` == 1 ]; then
-    build64=0
     echo OS X 10.5 is the minimum requirement for building.
     exit 1
 fi
+if [ `expr $darwinversion \< 10` == 1 ]; then
+    build64=0
+    # x86_64 is disabled by default on Leopard to avoid the additional hassles of getting libvpx installed into a PowerPC environment.
+fi
 if [ `expr $darwinversion \> 9` == 1 ]; then
     buildppc=0
-    # PPC is disabled by default on Snow Leopard for ease of installation, but it is possible to override.
-    # PPC is disabled by default on Lion and up because support has been removed from the SDKs.
+    # PPC is disabled by default on Snow Leopard for ease of installation.
 fi
-
+# All defaults can be overridden with the command-line parameters.
 
 # Parse arguments:
 for i in $*; do
     case $i in
+        # onlyzip: For Helixhorned's convenience.
         onlyzip)
-            onlyzip=1
+            buildmain=0
+            buildtools=0
+            pack=1
+        ;;
+
+        # For the convenience of universal distributors:
+        dist)
+            buildppc=1
+            build86=1
+            build64=1
+            buildmain=1
+            buildtools=0
+            builddebug=1
+            pack=1
+        ;;
+        disttools)
+            buildppc=1
+            build86=1
+            build64=1
+            buildmain=0
+            buildtools=1
+            builddebug=1
+            pack=0
+        ;;
+        full)
+            buildppc=1
+            build86=1
+            build64=1
+            buildmain=1
+            buildtools=1
+            builddebug=1
+            pack=1
         ;;
 
         --buildppc=*)
@@ -48,6 +83,9 @@ for i in $*; do
             build64=${i#*=}
         ;;
 
+        --main=*)
+            buildmain=${i#*=}
+        ;;
         --tools=*)
             buildtools=${i#*=}
         ;;
@@ -56,12 +94,33 @@ for i in $*; do
         builddebug=${i#*=}
         ;;
 
+        --pack=*)
+            pack=${i#*=}
+        ;;
+
         *)
-            echo usage: osxbuild [onlyzip] [--buildppc=\<0\|1\>] [--build86=\<0\|1\>] [--build64=\<0\|1\>] [--tools=\<0\|1\>] [--debug=\<0\|1\>]
+            echo "usage: ./osxbuild.sh [options]"
+            echo "options:"
+            echo "    [--buildppc=<0|1>] [--build86=<0|1>] [--build64=<0|1>]"
+            echo "    [--debug=<0|1>]"
+            echo "    [--main=<0|1>] [--tools=<0|1>]"
+            echo "    [--pack=<0|1>]"
+            echo "presets:"
+            echo "    [onlyzip] [dist] [disttools] [full]"
             exit 1
         ;;
     esac
 done
+
+# Mandatory disabled settings enforced:
+if [ `expr $darwinversion \< 9` == 1 ]; then
+    build64=0
+    # x86_64 support did not exist before Leopard.
+fi
+if [ `expr $darwinversion \> 10` == 1 ]; then
+    buildppc=0
+    # PPC is disabled on Lion and up because support has been removed from the SDKs.
+fi
 
 # Detect versioning systems and pull the revision number:
 rev=`svn info | grep Revision | awk '{ print $2 }'`
@@ -86,7 +145,7 @@ if [ $buildppc == 1 ]; then
 fi
 
 # Building the buildtools:
-if [ $buildtools -eq 1 ] && [ -d "build" ]; then
+if [ $buildtools == 1 ] && [ -d "build" ]; then
     cd build
 
     rm -f *{.x86,.x64,.ppc}
@@ -195,7 +254,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
 fi
 
 # The build process itself:
-if [ $onlyzip -eq 0 ]; then
+if [ $buildmain == 1 ]; then
     rm -f {eduke32,mapster32}{.debug,}{.x86,.x64,.ppc,}
     rm -rf {EDuke32,Mapster32}{.debug,}.app
 
@@ -346,7 +405,9 @@ if [ $success == 1 ]; then
     fi
 
     # Package
-    arfilename="eduke32-osx-$rev.zip"
-    rm -f "$arfilename"
-    zip -r -y "$arfilename" $arcontents -x "*.svn*" "*.git*"
+    if [ $pack == 1 ]; then
+        arfilename="eduke32-osx-$rev.zip"
+        rm -f "$arfilename"
+        zip -r -y "$arfilename" $arcontents -x "*.svn*" "*.git*"
+    fi
 fi
