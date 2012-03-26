@@ -57,7 +57,7 @@ static id nsapp;
     // enable all the controls on the Configuration page
     NSEnumerator *enumerator = [[[[tabView tabViewItemAtIndex:0] view] subviews] objectEnumerator];
     NSControl *control;
-    while (control = [enumerator nextObject])
+    while ((control = [enumerator nextObject]))
         [control setEnabled:true];
 
     [cancelButton setEnabled:true];
@@ -74,7 +74,7 @@ static id nsapp;
     // user can enable it if they want to while waiting for something else to happen
     NSEnumerator *enumerator = [[[[tabView tabViewItemAtIndex:0] view] subviews] objectEnumerator];
     NSControl *control;
-    while (control = [enumerator nextObject]) {
+    while ((control = [enumerator nextObject])) {
         if (control == alwaysShowButton) continue;
         [control setEnabled:false];
     }

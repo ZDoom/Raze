@@ -26,6 +26,8 @@ if [ `expr $darwinversion \< 9` == 1 ]; then
 fi
 if [ `expr $darwinversion \> 9` == 1 ]; then
     buildppc=0
+    # PPC is disabled by default on Snow Leopard for ease of installation, but it is possible to override.
+    # PPC is disabled by default on Lion and up because support has been removed from the SDKs.
 fi
 
 
@@ -158,7 +160,7 @@ if [ $buildtools -eq 1 ] && [ -d "build" ]; then
     fi
 
     echo buildtools: Creating fat binaries.
-    utils=`make printutils` `EXESUFFIX_OVERRIDE=.debug make printutils`
+    utils=`make printutils && EXESUFFIX_OVERRIDE=.debug make printutils`
     for i in $utils; do
         binaries=
         for j in ${i}.{x86,x64,ppc}; do

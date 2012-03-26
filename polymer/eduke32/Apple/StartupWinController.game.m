@@ -235,7 +235,7 @@ static struct soundQuality_t {
     // enable all the controls on the Configuration page
     NSEnumerator *enumerator = [[[[tabView tabViewItemAtIndex:0] view] subviews] objectEnumerator];
     NSControl *control;
-    while (control = [enumerator nextObject]) [control setEnabled:true];
+    while ((control = [enumerator nextObject])) [control setEnabled:true];
 
     gamelistsrc = [[GameListSource alloc] init];
     [[gameList documentView] setDataSource:gamelistsrc];
@@ -266,7 +266,7 @@ static struct soundQuality_t {
     // user can enable it if they want to while waiting for something else to happen
     NSEnumerator *enumerator = [[[[tabView tabViewItemAtIndex:0] view] subviews] objectEnumerator];
     NSControl *control;
-    while (control = [enumerator nextObject]) {
+    while ((control = [enumerator nextObject])) {
         if (control == alwaysShowButton) continue;
         [control setEnabled:false];
     }

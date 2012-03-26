@@ -1413,7 +1413,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                         intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres,
                         int32_t daglobxoffs, int32_t daglobyoffs)
 {
-    int32_t i, j, v, leng, xdim = 0, ydim = 0, index, prec, restartcnt, restartinterval;
+    int32_t i, j, v, leng = 0, xdim = 0, ydim = 0, index, prec, restartcnt, restartinterval;
     int32_t x, y, z, xx, yy, zz, *dc = NULL, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr = NULL;
     int32_t passcnt = 0, ghsampmax = 0, gvsampmax = 0, glhsampmax = 0, glvsampmax = 0, glhstep, glvstep;
     int32_t eobrun, Ss, Se, Ah, Al, Alut[2], dctx[12], dcty[12], ldctx[12], /* ldcty[12], */ lshx[4], lshy[4];

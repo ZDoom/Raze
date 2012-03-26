@@ -191,10 +191,22 @@ endif
 
 ifeq ($(PLATFORM),DARWIN)
     OURCFLAGS += -fno-pic -I$(abspath Apple) -I$(abspath Apple/include)
+
+    ifneq ($(findstring x86_64,$(ARCH)),x86_64)
+        ifeq (,$(ARCH))
+            ifneq ($(findstring x86_64,$(SYSARCH)),x86_64)
+                LIBS += -read_only_relocs suppress
+            endif
+        else
+            LIBS += -read_only_relocs suppress
+        endif
+    endif
+
     ifeq (1,$(SDL_FRAMEWORK))
         OURCFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
                 -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
-        LIBS += -read_only_relocs suppress -LApple/lib -lvorbisfile -lvorbis -logg -lm \
+
+        LIBS += -LApple/lib -lvorbisfile -lvorbis -logg -lm \
                 -Wl,-framework,SDL -Wl,-framework,SDL_mixer Apple/lib/libSDLmain.a \
                 -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
                 -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
@@ -206,16 +218,18 @@ ifeq ($(PLATFORM),DARWIN)
         GAMEOBJS+=$(OBJ)/SDLMain.$o
     else
         OURCFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
-        LIBS += -read_only_relocs suppress -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
+        LIBS += -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
                 -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
                 -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
                 -Wl,-framework,AudioToolbox -Wl,-framework,IOKit -Wl,-framework,AGL \
                 -Wl,-framework,QuickTime -lm
     endif
+
     ifneq (0,$(OSX_STARTUPWINDOW))
 #        EDITOROBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
         GAMEOBJS+=$(OBJ)/GrpFile.game.$o $(OBJ)/GameListSource.game.$o $(OBJ)/StartupWinController.game.$o
     endif
+
     OURASFLAGS += -f macho
 endif
 

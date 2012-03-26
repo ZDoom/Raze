@@ -141,14 +141,23 @@ ifeq ($(RENDERTYPE),SDL)
     ENGINEOBJS+= $(OBJ)/sdlayer.$o
 
     ifeq ($(PLATFORM),DARWIN)
+        ifneq ($(findstring x86_64,$(ARCH)),x86_64)
+            ifeq (,$(ARCH))
+                ifneq ($(findstring x86_64,$(SYSARCH)),x86_64)
+                    UTILLIBS += -read_only_relocs suppress
+                endif
+            else
+                UTILLIBS += -read_only_relocs suppress
+            endif
+        endif
+
         ifeq (1,$(SDL_FRAMEWORK))
             OURCFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
                     -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
-            UTILLIBS += -read_only_relocs suppress \
-                    -Wl,-framework,SDL -Wl,-framework,SDL_mixer ../Apple/lib/libSDLmain.a
+            UTILLIBS += -Wl,-framework,SDL -Wl,-framework,SDL_mixer ../Apple/lib/libSDLmain.a
         else
             OURCFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
-            UTILLIBS += -read_only_relocs suppress -lSDL_mixer
+            UTILLIBS += -lSDL_mixer
         endif
     endif
 

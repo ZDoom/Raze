@@ -16,6 +16,9 @@ SDL_FRAMEWORK	= 0
 # Overridden for OSes that don't have the cutdown stdc++ that is supc++
 STDCPPLIB=-lsupc++
 
+# Detect machine architecture
+SYSARCH?=$(strip $(shell uname -m))
+
 # GCC version, for conditional selection of flags.
 # This is easier than trying to squeeze it out of gcc --version:
 GCC_MAJOR ?= 4
