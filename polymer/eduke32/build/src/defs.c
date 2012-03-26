@@ -1182,8 +1182,8 @@ static int32_t defsparser(scriptfile *script)
                         { "intensity",     T_PARAM      },
                         { "scale",         T_PARAM      },
                         { "detailscale",   T_PARAM      },
-                        { "specpower",     T_SPECPOWER  }, { "parallaxscale", T_SPECPOWER },
-                        { "specfactor",    T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
+                        { "specpower",     T_SPECPOWER  }, { "specularpower",  T_SPECPOWER  }, { "parallaxscale", T_SPECPOWER },
+                        { "specfactor",    T_SPECFACTOR }, { "specularfactor", T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
                     };
 
                     if (scriptfile_getbraces(script,&skinend)) break;
@@ -1742,8 +1742,8 @@ static int32_t defsparser(scriptfile *script)
                         { "alphacut",        T_ALPHACUT },
                         { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
                         { "yscale",          T_YSCALE },
-                        { "specpower",       T_SPECPOWER }, { "parallaxscale", T_SPECPOWER },
-                        { "specfactor",      T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
+                        { "specpower",       T_SPECPOWER }, { "specularpower", T_SPECPOWER }, { "parallaxscale", T_SPECPOWER },
+                        { "specfactor",      T_SPECFACTOR }, { "specularfactor", T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
                         { "nocompress",      T_NOCOMPRESS },
                         { "nodownsize",      T_NODOWNSIZE },
                     };
@@ -1826,8 +1826,8 @@ static int32_t defsparser(scriptfile *script)
                         { "alphacut",        T_ALPHACUT },
                         { "detailscale",     T_XSCALE }, { "scale",  T_XSCALE }, { "xscale",  T_XSCALE }, { "intensity",  T_XSCALE },
                         { "yscale",          T_YSCALE },
-                        { "specpower",       T_SPECPOWER }, { "parallaxscale", T_SPECPOWER },
-                        { "specfactor",      T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
+                        { "specpower",       T_SPECPOWER }, { "specularpower", T_SPECPOWER }, { "parallaxscale", T_SPECPOWER },
+                        { "specfactor",      T_SPECFACTOR }, { "specularfactor", T_SPECFACTOR }, { "parallaxbias", T_SPECFACTOR },
                         { "nocompress",      T_NOCOMPRESS },
                         { "nodownsize",      T_NODOWNSIZE },
                     };
