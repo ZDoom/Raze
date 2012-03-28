@@ -31,6 +31,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "grpscan.h"
 #include "build.h"
 
+#include "game.h"
+#include "common.h"
+
 #define RDR_POLYMOST 3 // sould be defined elsewhere
 #define RDR_POLYMER 4 // sould be defined elsewhere
 
@@ -883,7 +886,7 @@ int32_t startwin_run(void)
     settings.custommoddir = g_modDir;
     settings.forcesetup = ud.config.ForceSetup;
     settings.game = g_gameType;
-    Bstrncpy(settings.selectedgrp, g_grpNamePtr, BMAX_PATH);
+    Bstrncpyz(settings.selectedgrp, g_grpNamePtr, BMAX_PATH);
     if (ud.config.NoAutoLoad) settings.autoload = FALSE;
     else settings.autoload = TRUE;
 #ifdef POLYMER
@@ -909,7 +912,10 @@ int32_t startwin_run(void)
         ud.config.UseMouse = settings.usemouse;
         ud.config.UseJoystick = settings.usejoy;
         ud.config.ForceSetup = settings.forcesetup;
-        g_grpNamePtr = settings.selectedgrp;
+
+        clearGrpNamePtr();
+        g_grpNamePtr = dup_filename(settings.selectedgrp);
+
         g_gameType = settings.game;
         if (settings.custommoddir != NULL)
             Bstrcpy(g_modDir, settings.custommoddir);

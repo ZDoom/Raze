@@ -241,7 +241,9 @@ extern int8_t g_noFloorPal[MAXPALOOKUPS];
 extern user_defs ud;
 
 //extern int32_t g_yax_smoothratio;
+
 void clearDefNamePtr(void);
+void clearGrpNamePtr(void);
 
 int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss);

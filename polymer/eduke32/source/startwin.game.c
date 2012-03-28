@@ -44,6 +44,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "startwin.game.h"
 
+#include "game.h"
+#include "common.h"
+
 #define TAB_CONFIG 0
 // #define TAB_GAME 1
 #define TAB_MESSAGES 1
@@ -735,7 +738,7 @@ int32_t startwin_run(void)
     settings.usejoy = ud.config.UseJoystick;
     settings.game = g_gameType;
 //    settings.crcval = 0;
-    Bstrncpy(settings.selectedgrp, g_grpNamePtr, BMAX_PATH);
+    Bstrncpyz(settings.selectedgrp, g_grpNamePtr, BMAX_PATH);
     settings.gamedir = g_modDir;
     PopulateForm(-1);
 
@@ -775,7 +778,10 @@ int32_t startwin_run(void)
         ud.config.ForceSetup = settings.forcesetup;
         ud.config.UseMouse = settings.usemouse;
         ud.config.UseJoystick = settings.usejoy;
-        g_grpNamePtr = settings.selectedgrp;
+
+        clearGrpNamePtr();
+        g_grpNamePtr = dup_filename(settings.selectedgrp);
+
         g_gameType = settings.game;
 
         if (g_noSetup == 0 && settings.gamedir != NULL)

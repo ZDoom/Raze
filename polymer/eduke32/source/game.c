@@ -119,8 +119,8 @@ char defsfilename[BMAX_PATH] = "duke3d.def";
 static char defaultconfilename[2][BMAX_PATH] = { "EDUKE.CON", "GAME.CON" };
 const char *defaultrtsfilename = "DUKE.RTS";
 
-// g_defNamePtr can ONLY point to one of: defaultduke3dgrp,
-// settings[].selectedgrp, malloc'd block (all length BMAX_PATH)
+// g_grpNamePtr can ONLY point to one of: defaultduke3dgrp, malloc'd block (all
+// length BMAX_PATH)
 char *g_grpNamePtr = defaultduke3dgrp;
 // g_defNamePtr can ONLY point to one of: defsfilename, malloc'd block (all
 // length BMAX_PATH)
@@ -134,12 +134,10 @@ const char *g_gameNamePtr = NULL;
 // g_rtsNamePtr can point to an argv[] element
 const char *g_rtsNamePtr = NULL;
 
-// FIXME: I am leaking!
-// FIXME: make me extern!
-static void clearGrpNamePtr(void)
+void clearGrpNamePtr(void)
 {
-//    if (g_grpNamePtr != defaultduke3dgrp)  && not one of settings[].selectedgrp
-//        Bfree(g_grpNamePtr);
+    if (g_grpNamePtr != defaultduke3dgrp)
+        Bfree(g_grpNamePtr);
     // g_grpNamePtr assumed to be assigned to right after
 }
 
