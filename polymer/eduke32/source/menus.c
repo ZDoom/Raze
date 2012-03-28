@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "premap.h"
 #include "demo.h"
 #include "crc32.h"
+#include "common.h"
 
 #include <sys/stat.h>
 
@@ -43,9 +44,19 @@ static int32_t last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehund
 
 static char menunamecnt;
 
-static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
-static int32_t numdirs=0, numfiles=0;
+static fnlist_t fnlist;
+static CACHE1D_FIND_REC *finddirshigh=NULL, *findfileshigh=NULL;
 static int32_t currentlist=0;
+
+static void set_findhighs(void)
+{
+    finddirshigh = fnlist.finddirs;
+    findfileshigh = fnlist.findfiles;
+    currentlist = 0;
+    if (findfileshigh)
+        currentlist = 1;
+}
+
 
 static int32_t function, whichkey;
 static int32_t changesmade, newvidmode, curvidmode, newfullscreen;
@@ -567,32 +578,6 @@ static void M_DisplaySaveGameList(void)
             minitext(c,48+(12*x),buf,13,10+16);
         }
     }
-}
-
-static void clearfilenames(void)
-{
-    klistfree(finddirs);
-    klistfree(findfiles);
-    finddirs = findfiles = NULL;
-    numfiles = numdirs = 0;
-}
-
-static int32_t getfilenames(const char *path, char kind[])
-{
-    CACHE1D_FIND_REC *r;
-
-    clearfilenames();
-    finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
-    findfiles = klistpath(path,kind,CACHE1D_FIND_FILE);
-    for (r = finddirs; r; r=r->next) numdirs++;
-    for (r = findfiles; r; r=r->next) numfiles++;
-
-    finddirshigh = finddirs;
-    findfileshigh = findfiles;
-    currentlist = 0;
-    if (findfileshigh) currentlist = 1;
-
-    return(0);
 }
 
 extern int32_t g_quitDeadline;
@@ -2183,7 +2168,10 @@ cheat_for_port_credits:
     case 101:
         if (boardfilename[0] == 0) strcpy(boardfilename, "./");
         Bcorrectfilename(boardfilename,1);
-        getfilenames(boardfilename,"*.map");
+
+        fnlist_getnames(&fnlist, boardfilename, "*.map", 0, 0);
+        set_findhighs();
+
         ChangeToMenu(102);
         KB_FlushKeyboardQueue();
     case 102:
@@ -2200,7 +2188,7 @@ cheat_for_port_credits:
 
         {
             // JBF 20040208: seek to first name matching pressed character
-            CACHE1D_FIND_REC *seeker = currentlist ? findfiles : finddirs;
+            CACHE1D_FIND_REC *seeker = currentlist ? fnlist.findfiles : fnlist.finddirs;
             if ((KB_KeyPressed(sc_Home)|KB_KeyPressed(sc_End)) > 0)
             {
                 while (seeker && (KB_KeyPressed(sc_End)?seeker->next:seeker->prev))
@@ -2361,7 +2349,8 @@ cheat_for_port_credits:
 
         if (x == -1)
         {
-            clearfilenames();
+            fnlist_clearnames(&fnlist);
+
             boardfilename[0] = 0;
             if ((g_netServer || ud.multimode > 1))
             {
@@ -2396,7 +2385,8 @@ cheat_for_port_credits:
                 }
                 else ChangeToMenu(110);
             }
-            clearfilenames();
+
+            fnlist_clearnames(&fnlist);
         }
         break;
 
@@ -5164,7 +5154,9 @@ VOLUME_ALL_40x:
         if (menunamecnt == 0)
         {
             //        getfilenames("SUBD");
-            getfilenames(".","*.MAP");
+            fnlist_getnames(&fnlist, ".", "*.MAP", 0, 0);
+            set_findhighs();
+
             if (menunamecnt == 0)
                 ChangeToMenu(600);
         }

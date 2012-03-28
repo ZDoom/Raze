@@ -11,6 +11,7 @@
 #include "osd.h"
 #include "cache1d.h"
 #include "editor.h"
+#include "common.h"
 
 #include "baselayer.h"
 #ifdef RENDERTYPEWIN
@@ -114,8 +115,8 @@ char *testplay_addparam = 0;
 static char boardfilename[BMAX_PATH], selectedboardfilename[BMAX_PATH];
 //extern char levelname[BMAX_PATH];  // in astub.c   XXX: clean up this mess!!!
 
-static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
-static int32_t numdirs=0, numfiles=0;
+static fnlist_t fnlist;
+static CACHE1D_FIND_REC *finddirshigh=NULL, *findfileshigh=NULL;
 static int32_t currentlist=0;
 
 //static int32_t repeatcountx, repeatcounty;
@@ -227,7 +228,6 @@ static int32_t insert_sprite_common(int32_t sucksect, int32_t dax, int32_t day);
 static void correct_ornamented_sprite(int32_t i, int32_t hitw);
 
 static int32_t getfilenames(const char *path, const char *kind);
-static void clearfilenames(void);
 
 void clearkeys(void) { Bmemset(keystatus,0,sizeof(keystatus)); }
 
@@ -8847,29 +8847,16 @@ const char *getstring_simple(const char *querystr, const char *defaultstr, int32
     return buf+qrylen;
 }
 
-static void clearfilenames(void)
-{
-    klistfree(finddirs);
-    klistfree(findfiles);
-    finddirs = findfiles = NULL;
-    numfiles = numdirs = 0;
-}
-
 static int32_t getfilenames(const char *path, const char *kind)
 {
-    CACHE1D_FIND_REC *r;
+    const int32_t addflags = (!pathsearchmode && grponlymode ? CACHE1D_OPT_NOSTACK : 0);
 
-    clearfilenames();
-    finddirs = klistpath(path,"*",CACHE1D_FIND_DIR|CACHE1D_FIND_DRIVE|(!pathsearchmode&&grponlymode?CACHE1D_OPT_NOSTACK:0));
-    findfiles = klistpath(path,kind,CACHE1D_FIND_FILE|(!pathsearchmode&&grponlymode?CACHE1D_OPT_NOSTACK:0));
-    for (r = finddirs; r; r=r->next) numdirs++;
-    for (r = findfiles; r; r=r->next) numfiles++;
+    fnlist_getnames(&fnlist, path, kind, addflags|CACHE1D_FIND_DRIVE, addflags);
 
-    finddirshigh = finddirs;
-    findfileshigh = findfiles;
-    currentlist = 0;
-    if (findfileshigh) currentlist = 1;
-//initprintf("path=%s || kind=%s || numfiles=%d, numdirs=%d\n", path, kind, numfiles, numdirs);
+    finddirshigh = fnlist.finddirs;
+    findfileshigh = fnlist.findfiles;
+    currentlist = (findfileshigh != NULL);
+
     return(0);
 }
 
@@ -8892,7 +8879,7 @@ static int32_t menuselect_auto(int32_t direction) // 20080104: jump to next (dir
         Bcorrectfilename(selectedboardfilename, 1);
 
     getfilenames(selectedboardfilename, "*.map");
-    if (numfiles==0)
+    if (fnlist.numfiles==0)
         return -2;
 
     boardbasename = Bstrrchr(boardfilename,'/'); // PK
@@ -8906,7 +8893,7 @@ static int32_t menuselect_auto(int32_t direction) // 20080104: jump to next (dir
             break;
 
     if (!findfileshigh)
-        findfileshigh=findfiles;
+        findfileshigh = fnlist.findfiles;
 
     if (direction)
     {
@@ -8960,7 +8947,7 @@ static int32_t menuselect(void)
             break;
 
     if (!findfileshigh)
-        findfileshigh=findfiles;
+        findfileshigh = fnlist.findfiles;
 
     _printmessage16("Select map file with arrow keys and enter.");
 
@@ -8981,7 +8968,8 @@ static int32_t menuselect(void)
 
         printext16(halfxdim16-(8*Bstrlen(buffer)/2), 4, editorcolors[12],editorcolors[0],buffer,0);
 
-        Bsnprintf(buffer,sizeof(buffer)-1,"(%d dirs, %d files) %s",numdirs,numfiles,selectedboardfilename);
+        Bsnprintf(buffer,sizeof(buffer)-1,"(%d dirs, %d files) %s",
+                  fnlist.numdirs, fnlist.numfiles, selectedboardfilename);
         buffer[sizeof(buffer)-1] = 0;
 
         printext16(8,ydim16-8-1,editorcolors[8],editorcolors[0],buffer,0);
@@ -9061,7 +9049,7 @@ static int32_t menuselect(void)
 
             {
                 // JBF 20040208: seek to first name matching pressed character
-                CACHE1D_FIND_REC *seeker = currentlist ? findfiles : finddirs;
+                CACHE1D_FIND_REC *seeker = currentlist ? fnlist.findfiles : fnlist.finddirs;
                 if (keystatus[0xc7]||keystatus[0xcf]) // home/end
                 {
                     while (keystatus[0xcf]?seeker->next:seeker->prev)
@@ -9151,7 +9139,7 @@ static int32_t menuselect(void)
         }
         else if (ch == 9)
         {
-            if ((currentlist == 0 && findfiles) || (currentlist == 1 && finddirs))
+            if ((currentlist == 0 && fnlist.findfiles) || (currentlist == 1 && fnlist.finddirs))
                 currentlist = 1-currentlist;
         }
         else if (keystatus[0xc8] /*(ch == 75) || (ch == 72)*/)

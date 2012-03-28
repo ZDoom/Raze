@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 #include "osdfuncs.h"
 #include "gamedef.h"
+#include "common.h"
 
 #include <ctype.h>
 #include <limits.h>
@@ -161,47 +162,28 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static CACHE1D_FIND_REC *findfiles = NULL;
-static int32_t numfiles = 0;
-
-static void clearfilenames(void)
-{
-    klistfree(findfiles);
-    findfiles = NULL;
-    numfiles = 0;
-}
-
-static int32_t getfilenames(char *path)
-{
-    CACHE1D_FIND_REC *r;
-
-    clearfilenames();
-    findfiles = klistpath(path,"*.MAP",CACHE1D_FIND_FILE);
-    for (r = findfiles; r; r=r->next) numfiles++;
-    return(0);
-}
-
 static int32_t osdcmd_map(const osdfuncparm_t *parm)
 {
     int32_t i;
-    CACHE1D_FIND_REC *r;
-    char filename[256];
+    char filename[BMAX_PATH];
 
     if (parm->numparms != 1)
     {
+        CACHE1D_FIND_REC *r;
+        fnlist_t fnlist = FNLIST_INITIALIZER;
         int32_t maxwidth = 0;
 
-        getfilenames("/");
+        fnlist_getnames(&fnlist, "/", "*.MAP", -1, 0);
 
-        for (r=findfiles; r!=NULL; r=r->next)
-            maxwidth = max((unsigned)maxwidth,Bstrlen(r->name));
+        for (r=fnlist.findfiles; r; r=r->next)
+            maxwidth = max((unsigned)maxwidth, Bstrlen(r->name));
 
         if (maxwidth > 0)
         {
             int32_t x = 0, count = 0;
             maxwidth += 3;
             OSD_Printf(OSDTEXT_RED "Map listing:\n");
-            for (r=findfiles; r!=NULL; r=r->next)
+            for (r=fnlist.findfiles; r; r=r->next)
             {
                 OSD_Printf("%-*s",maxwidth,r->name);
                 x += maxwidth;
@@ -213,8 +195,10 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
                 }
             }
             if (x) OSD_Printf("\n");
-            OSD_Printf(OSDTEXT_RED "Found %d maps\n",numfiles);
+            OSD_Printf(OSDTEXT_RED "Found %d maps\n", fnlist.numfiles);
         }
+
+        fnlist_clearnames(&fnlist);
 
         return OSDCMD_SHOWHELP;
     }
