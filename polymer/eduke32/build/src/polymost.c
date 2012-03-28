@@ -1294,7 +1294,7 @@ static int32_t LoadCacheOffsets(void)
         }
         else
         {
-            Bstrncpy(curcacheindex->name, fname, BMAX_PATH);
+            Bstrncpyz(curcacheindex->name, fname, BMAX_PATH);
             curcacheindex->offset = foffset;
             curcacheindex->len = fsize;
             curcacheindex->next = (texcacheindex *)Bcalloc(1, sizeof(texcacheindex));

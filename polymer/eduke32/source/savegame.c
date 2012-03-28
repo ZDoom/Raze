@@ -1114,8 +1114,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
     if (spot >= 0)
     {
         // savegame
-        Bstrncpy(h.savename, ud.savegame[spot], sizeof(h.savename));
-        h.savename[sizeof(h.savename)-1] = 0;
+        Bstrncpyz(h.savename, ud.savegame[spot], sizeof(h.savename));
     }
     else
     {
@@ -1124,7 +1123,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
         const time_t t=time(NULL);
         struct tm *st;
 
-        Bstrncpy(h.savename, "Eduke32 demo", sizeof(h.savename));
+        Bstrncpyz(h.savename, "Eduke32 demo", sizeof(h.savename));
         if (t>=0 && (st = localtime(&t)))
             Bsprintf(h.savename, "Edemo32 %04d%02d%02d", st->tm_year+1900, st->tm_mon+1, st->tm_mday);
     }

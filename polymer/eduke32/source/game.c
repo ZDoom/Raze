@@ -8665,7 +8665,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        Bstrncpy(g_netPassword, (char *)argv[i+1], sizeof(g_netPassword)-1);
+                        Bstrncpyz(g_netPassword, argv[i+1], sizeof(g_netPassword));
                         i++;
                     }
                     i++;
@@ -9454,8 +9454,7 @@ static void G_Startup(void)
         while (Bstrlen(OSD_StripColors(tempbuf,tempbuf)) > 10)
             tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
-        Bstrncpy(szPlayerName,tempbuf,sizeof(szPlayerName)-1);
-        szPlayerName[sizeof(szPlayerName)-1] = '\0';
+        Bstrncpyz(szPlayerName, tempbuf, sizeof(szPlayerName));
     }
 
     if (CommandMap)

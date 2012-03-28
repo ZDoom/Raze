@@ -726,7 +726,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         {
             skinfile = sk->fn;
             texidx = &sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
-            strncpy(fn,skinfile,BMAX_PATH);
+            Bstrncpyz(fn, skinfile, BMAX_PATH);
             //OSD_Printf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
             break;
         }
@@ -746,7 +746,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         {
             skinfile = skzero->fn;
             texidx = &skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
-            strncpy(fn,skinfile,BMAX_PATH);
+            Bstrncpyz(fn, skinfile, BMAX_PATH);
             //OSD_Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
         }
         else
@@ -754,7 +754,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             if ((unsigned)number >= (unsigned)m->numskins) number = 0;
             skinfile = m->skinfn + number*64;
             texidx = &m->texid[ number * (HICEFFECTMASK+1) + (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
-            strncpy(fn,m->basepath,BMAX_PATH);
+            Bstrncpyz(fn, m->basepath, BMAX_PATH);
             if ((Bstrlen(fn) + Bstrlen(skinfile)) < BMAX_PATH)
                 strcat(fn,skinfile);
             //OSD_Printf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
@@ -3383,8 +3383,7 @@ mdmodel_t *mdload(const char *filnam)
 
         // smuggle the file name into the model struct.
         // head.nam is unused as far as I can tell
-        Bstrncpy(vm3->head.nam, filnam, sizeof(vm3->head.nam));
-        vm3->head.nam[sizeof(vm3->head.nam)-1] = 0;
+        Bstrncpyz(vm3->head.nam, filnam, sizeof(vm3->head.nam));
 
         md3postload_common(vm3);
 

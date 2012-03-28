@@ -538,10 +538,7 @@ int32_t app_main(int32_t argc, const char **argv)
         }
 
         if (!boardfilename[0])
-        {
-            Bstrncpy(boardfilename, argv[i], BMAX_PATH);
-            boardfilename[BMAX_PATH-1] = 0;
-        }
+            Bstrncpyz(boardfilename, argv[i], BMAX_PATH);
     }
     if (boardfilename[0] == 0)
     {
@@ -8532,8 +8529,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
 
     // need to have 4+11+2==17 chars room at the end
     // ("^011", max. string length of an int32, "_ ")
-    Bstrncpy(ournamestart, namestart, sizeof(ournamestart));
-    ournamestart[sizeof(ournamestart)-1] = 0;
+    Bstrncpyz(ournamestart, namestart, sizeof(ournamestart));
 
     bflushchars();
     while (keystatus[0x1] == 0)
@@ -8604,8 +8600,7 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
 
     // need to have 11+2==13 chars room at the end
     // (max. string length of an int32, "_ ")
-    Bstrncpy(ournamestart, namestart, sizeof(ournamestart));
-    ournamestart[sizeof(ournamestart)-1] = 0;
+    Bstrncpyz(ournamestart, namestart, sizeof(ournamestart));
 
     bflushchars();
     while (keystatus[0x1] == 0)
@@ -8795,8 +8790,8 @@ const char *getstring_simple(const char *querystr, const char *defaultstr, int32
 
                     if (numcompl<3)
                     {
-                        Bstrncpy(completions[numcompl], cmpstr+len, sizeof(completions[0]));
-                        completions[numcompl][sizeof(completions[0])-1] = 0;
+                        Bstrncpyz(completions[numcompl], cmpstr+len, sizeof(completions[0]));
+
                         for (k=0; completions[numcompl][k]; k++)
                             completions[numcompl][k] = Btolower(completions[numcompl][k]);
                         numcompl++;
@@ -9411,8 +9406,7 @@ int32_t loadnames(const char *namesfile, int8_t root)
     int8_t quotes=0, anglebrackets=0;
     BFILE *fp;
 
-    Bstrncpy(buffer, namesfile, sizeof(buffer));
-    buffer[sizeof(buffer)-1] = 0;
+    Bstrncpyz(buffer, namesfile, sizeof(buffer));
 
     fp = fopenfrompath(buffer,"r");
     if (!fp)
@@ -9516,8 +9510,7 @@ int32_t loadnames(const char *namesfile, int8_t root)
                     if (Bstrlen(name) > 24)
                         initprintf("Warning: Name \"%s\" longer than 24 characters (line %d). Truncating.\n", name, line-1);
 
-                    Bstrncpy(names[num], name, 24);
-                    names[num][24] = 0;
+                    Bstrncpyz(names[num], name, 25);
 
                     syms++;
 

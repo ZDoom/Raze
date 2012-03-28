@@ -338,8 +338,7 @@ static void drawgradient(void)
 
 static void message_common1(const char *tmpstr)
 {
-    Bstrncpy(getmessage,tmpstr,sizeof(getmessage));
-    getmessage[sizeof(getmessage)-1] = 0;
+    Bstrncpyz(getmessage, tmpstr, sizeof(getmessage));
 
     getmessageleng = Bstrlen(getmessage);
     getmessagetimeoff = totalclock + 120*2 + getmessageleng*(120/30);
@@ -964,8 +963,7 @@ int32_t taglab_save(const char *mapname)
     if (g_taglab.numlabels==0)
         return 1;
 
-    Bstrncpy(buf, mapname, BMAX_PATH);
-    buf[BMAX_PATH-1] = 0;
+    Bstrncpyz(buf, mapname, BMAX_PATH);
 
     len = Bstrlen(buf);
     //
@@ -1009,8 +1007,7 @@ int32_t taglab_add(const char *label, int16_t tag)
     if (tag < 0)
         return -1;
 
-    Bstrncpy(buf, label, sizeof(buf));
-    buf[sizeof(buf)-1] = 0;
+    Bstrncpyz(buf, label, sizeof(buf));
     // upcase the tag for storage and comparison
     tstrtoupper(buf);
 
@@ -1063,8 +1060,7 @@ int32_t taglab_gettag(const char *label)
 {
     char buf[TAGLAB_MAX];
 
-    Bstrncpy(buf, label, TAGLAB_MAX);
-    buf[sizeof(buf)-1] = 0;
+    Bstrncpyz(buf, label, TAGLAB_MAX);
 
     // need to upcase since hash_findcase doesn't work as expected:
     // getting the code is still (necessarily) case-sensitive...
@@ -3586,8 +3582,7 @@ static int32_t m32gettile(int32_t idInitialTile)
             {
                 int32_t i, i0, slen=Bstrlen(searchstr)-1;
 
-                Bstrncpy(laststr, searchstr, 25);
-                laststr[24] = 0;
+                Bstrncpyz(laststr, searchstr, 25);
                 i0 = localartlookup[iTile];
 
                 Bmemcpy(buf[0], laststr, 25);
@@ -8428,11 +8423,10 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
 #ifdef USE_OPENGL
                     Bsnprintf(tempbuf,sizeof(tempbuf),"%s/%s",argv[i+1],TEXCACHEFILE);
-                    Bstrncpy(TEXCACHEFILE,tempbuf, sizeof(TEXCACHEFILE));
-                    TEXCACHEFILE[sizeof(TEXCACHEFILE)-1] = 0;
+                    Bstrncpyz(TEXCACHEFILE, tempbuf, sizeof(TEXCACHEFILE));
 #endif
-                    Bstrncpy(g_modDir, argv[i+1], sizeof(g_modDir));
-                    g_modDir[sizeof(g_modDir)-1] = 0;
+                    Bstrncpyz(g_modDir, argv[i+1], sizeof(g_modDir));
+
                     G_AddPath(argv[i+1]);
 
                     COPYARG(i);
@@ -9247,8 +9241,7 @@ static int32_t osdcmd_endisableevent(const osdfuncparm_t *parm)
         else if (!Bstrncmp(parm->parms[i], "EVENT_", 6))
         {
             j = hash_find(&h_labels, parm->parms[i]);
-            Bstrncpy(buf2, parm->parms[i], sizeof(buf2));
-            buf2[sizeof(buf2)-1] = '\0';
+            Bstrncpyz(buf2, parm->parms[i], sizeof(buf2));
         }
         else
         {
@@ -12654,8 +12647,7 @@ void registerMenuFunction(const char *funcname, int32_t stateidx)
 
     // register menu entry named FUNCNAME to call the M32script
     // state with index STATEIDX
-    Bstrncpy(fn, funcname, sizeof(fn));
-    fn[sizeof(fn)-1] = 0;
+    Bstrncpyz(fn, funcname, sizeof(fn));
 
     for (i=8; i<numMenuFunctions; i++)
     {

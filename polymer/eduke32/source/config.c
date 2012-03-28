@@ -426,7 +426,8 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
                 Bstrcat(tempbuf,buf);
             }
         }
-        Bstrncpy(KeyBindings[ii[k]].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
+
+        Bstrncpyz(KeyBindings[ii[k]].cmd, tempbuf, MAXBINDSTRINGLENGTH);
 
         i = Bstrlen(KeyBindings[ii[k]].cmd);
         if (i)
@@ -656,8 +657,7 @@ int32_t CONFIG_ReadSetup(void)
         while (Bstrlen(OSD_StripColors(dummybuf,tempbuf)) > 10)
             tempbuf[Bstrlen(tempbuf)-1] = '\0';
 
-        Bstrncpy(szPlayerName,tempbuf,sizeof(szPlayerName)-1);
-        szPlayerName[sizeof(szPlayerName)-1] = '\0';
+        Bstrncpyz(szPlayerName, tempbuf, sizeof(szPlayerName));
 
         if (g_rtsNamePtr == NULL)
             SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);

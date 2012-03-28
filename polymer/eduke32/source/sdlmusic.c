@@ -70,10 +70,8 @@ static Mix_Music *music_musicchunk = NULL;
 
 static void setErrorMessage(const char *msg)
 {
-    Bstrncpy(errorMessage, msg, sizeof(errorMessage));
-    // strncpy() doesn't add the null char if there isn't room...
-    errorMessage[sizeof(errorMessage) - 1] = '\0';
-} // setErrorMessage
+    Bstrncpyz(errorMessage, msg, sizeof(errorMessage));
+}
 
 // The music functions...
 

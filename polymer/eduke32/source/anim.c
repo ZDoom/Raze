@@ -251,8 +251,7 @@ void G_PlayAnim(const char *fn,char t)
         int32_t running = 1;
         int32_t animidx, framenum=0, soundidx=0, numtotalsounds=0;  // custom anim sounds
 
-        Bstrncpy(vpxfn, fn, BMAX_PATH);
-        vpxfn[BMAX_PATH-1] = 0;
+        Bstrncpyz(vpxfn, fn, BMAX_PATH);
 
         dot = Bstrrchr(vpxfn, '.');
         if (!dot || (dot-vpxfn)+4 >= BMAX_PATH)

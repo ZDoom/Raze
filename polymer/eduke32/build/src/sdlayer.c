@@ -155,10 +155,7 @@ int32_t wm_ynbox(char *name, char *fmt, ...)
 void wm_setapptitle(char *name)
 {
     if (name)
-    {
-        Bstrncpy(apptitle, name, sizeof(apptitle)-1);
-        apptitle[ sizeof(apptitle)-1 ] = 0;
-    }
+        Bstrncpyz(apptitle, name, sizeof(apptitle));
 
     SDL_WM_SetCaption(apptitle, NULL);
 
@@ -493,13 +490,13 @@ int32_t initinput(void)
     for (i=0; i<SDLK_LAST; i++)
     {
         if (!keytranslation[i]) continue;
-        Bstrncpy((char *)key_names[ keytranslation[i] ], SDL_GetKeyName(i), sizeof(key_names[i])-1);
+        Bstrncpyz(key_names[ keytranslation[i] ], SDL_GetKeyName(i), sizeof(key_names[i]));
     }
 #else
     for (i=0; i<SDL_NUM_SCANCODES; i++)
     {
         if (!keytranslation[i]) continue;
-        Bstrncpy((char *)key_names[ keytranslation[i] ], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(key_names[i])-1);
+        Bstrncpyz(key_names[ keytranslation[i] ], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(key_names[i]));
     }
 #endif
 

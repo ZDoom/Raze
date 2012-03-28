@@ -2388,8 +2388,7 @@ badindex:
                     int32_t sign = (tw==CON_GETNUMBERFROMUSER) ? Gv_GetVarX(*insptr++) : (max<=0);
                     char buf[64];  // buffers in getnumber* are 80 bytes long
 
-                    Bstrncpy(buf, quotetext, sizeof(buf));
-                    buf[sizeof(buf)-1]='\0';
+                    Bstrncpyz(buf, quotetext, sizeof(buf));
 
                     if (max==0)
                         max = INT32_MAX;
