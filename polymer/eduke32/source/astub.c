@@ -201,9 +201,6 @@ static const char *ONOFF_[] = {"OFF","ON"};
 # define OURNEWL "\r\n"
 #endif
 
-static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
-static int32_t numdirs=0, numfiles=0;
-static int32_t currentlist=0;
 static int32_t tsign, mouseaction=0, mouseax=0, mouseay=0;
 static int32_t repeatcountx, repeatcounty;
 static int32_t infobox=3; // bit0: current window, bit1: mouse pointer, the variable should be renamed
@@ -716,32 +713,6 @@ int32_t kopen4loadfrommod(const char *filename, char searchfirst)
         r = kopen4load(filename,searchfirst);
 
     return r;
-}
-
-static void clearfilenames(void)
-{
-    klistfree(finddirs);
-    klistfree(findfiles);
-    finddirs = findfiles = NULL;
-    numfiles = numdirs = 0;
-}
-
-static int32_t getfilenames(const char *path, const char *kind)
-{
-    CACHE1D_FIND_REC *r;
-
-    clearfilenames();
-    finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
-    findfiles = klistpath(path,kind,CACHE1D_FIND_FILE);
-    for (r = finddirs; r; r=r->next) numdirs++;
-    for (r = findfiles; r; r=r->next) numfiles++;
-
-    finddirshigh = finddirs;
-    findfileshigh = findfiles;
-    currentlist = 0;
-    if (findfileshigh) currentlist = 1;
-
-    return(0);
 }
 
 const char *ExtGetVer(void)
@@ -8744,7 +8715,6 @@ static int32_t osdcmd_quit(const osdfuncparm_t *parm)
     UNREFERENCED_PARAMETER(parm);
 
     ExtUnInit();
-//    clearfilenames();
     uninitengine();
 
     exit(0);
@@ -9499,26 +9469,6 @@ enum
     T_INCLUDEDEFAULT,
 };
 
-static void DoAutoload(const char *fn)
-{
-    static const char *extensions[3] = { "*.grp", "*.zip", "*.pk3" };
-    int32_t i;
-
-    for (i=0; i<3; i++)
-    {
-        Bsprintf(tempbuf, "autoload/%s", fn);
-        getfilenames(tempbuf, extensions[i]);
-
-        while (findfiles)
-        {
-            Bsprintf(tempbuf, "autoload/%s/%s", fn, findfiles->name);
-            initprintf("Using group file \"%s\".\n", tempbuf);
-            initgroupfile(tempbuf);
-            findfiles = findfiles->next;
-        }
-    }
-}
-
 int32_t parsegroupfiles(scriptfile *script);
 
 void parsegroupfiles_include(const char *fn, scriptfile *script, char *cmdtokptr)
@@ -9577,7 +9527,7 @@ int32_t parsegroupfiles(scriptfile *script)
                 {
                     initprintf("Using group file \"%s\".\n",fn);
                     if (!NoAutoLoad)
-                        DoAutoload(fn);
+                        G_DoAutoload(fn);
                 }
 
             }
@@ -10291,23 +10241,10 @@ int32_t ExtInit(void)
 
     if (!NoAutoLoad)
     {
-        static const char *extensions[3] = { "*.grp", "*.zip", "*.pk3" };
-        int32_t exti;
-
-        for (exti=0; exti<3; exti++)
-        {
-            getfilenames("autoload", extensions[exti]);
-            while (findfiles)
-            {
-                Bsprintf(tempbuf,"autoload/%s",findfiles->name);
-                initprintf("Using group file \"%s\".\n",tempbuf);
-                initgroupfile(tempbuf);
-                findfiles = findfiles->next;
-            }
-        }
+        G_LoadGroupsInDir("autoload");
 
         if (i != -1)
-            DoAutoload(g_grpNamePtr);
+            G_DoAutoload(g_grpNamePtr);
     }
 
     if (getenv("DUKE3DDEF"))
@@ -10336,7 +10273,7 @@ int32_t ExtInit(void)
             {
                 initprintf("Using group file \"%s\".\n",CommandGrps->str);
                 if (!NoAutoLoad)
-                    DoAutoload(CommandGrps->str);
+                    G_DoAutoload(CommandGrps->str);
             }
 
             Bfree(CommandGrps->str);

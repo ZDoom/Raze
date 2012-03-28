@@ -8034,57 +8034,6 @@ static void G_ShowDebugHelp(void)
 #endif
 }
 
-static CACHE1D_FIND_REC *finddirs=NULL, *findfiles=NULL, *finddirshigh=NULL, *findfileshigh=NULL;
-static int32_t numdirs=0, numfiles=0;
-static int32_t currentlist=0;
-
-static void clearfilenames(void)
-{
-    klistfree(finddirs);
-    klistfree(findfiles);
-    finddirs = findfiles = NULL;
-    numfiles = numdirs = 0;
-}
-
-static int32_t getfilenames(const char *path, char kind[])
-{
-    CACHE1D_FIND_REC *r;
-
-    clearfilenames();
-    finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
-    findfiles = klistpath(path,kind,CACHE1D_FIND_FILE);
-    for (r = finddirs; r; r=r->next) numdirs++;
-    for (r = findfiles; r; r=r->next) numfiles++;
-
-    finddirshigh = finddirs;
-    findfileshigh = findfiles;
-    currentlist = 0;
-    if (findfileshigh) currentlist = 1;
-
-    return(0);
-}
-
-static char *autoloadmasks[] = { "*.grp", "*.zip", "*.pk3" };
-#define NUMAUTOLOADMASKS (int32_t)(sizeof(autoloadmasks)/sizeof(autoloadmasks[0]))
-
-static void G_DoAutoload(const char *fn)
-{
-    int32_t i;
-
-    for (i=0; i<NUMAUTOLOADMASKS; i++)
-    {
-        Bsprintf(tempbuf,"autoload/%s",fn);
-        getfilenames(tempbuf,autoloadmasks[i]);
-        while (findfiles)
-        {
-            Bsprintf(tempbuf,"autoload/%s/%s",fn,findfiles->name);
-            initprintf("Using file \"%s\" as game data.\n",tempbuf);
-            initgroupfile(tempbuf);
-            findfiles = findfiles->next;
-        }
-    }
-}
-
 static char *S_OggifyFilename(char *destname, char *OGGname, const char *origname)
 {
     if (!origname)
@@ -10033,7 +9982,7 @@ int32_t app_main(int32_t argc,const char **argv)
     }
 
     // shitcan the old cache directory
-#if 0 && defined(USE_OPENGL)
+#if 0 && defined(USE_OPENGL)  // NOTE: CODE IS STALE, getfilenames() is no longer!
     {
         struct stat st;
         char dir[BMAX_PATH];
@@ -10119,41 +10068,14 @@ CLEAN_DIRECTORY:
 
     if (!g_noAutoLoad && !ud.config.NoAutoLoad)
     {
-        int32_t ii;
-
-        for (ii=0; ii<NUMAUTOLOADMASKS; ii++)
-        {
-            getfilenames("autoload",autoloadmasks[ii]);
-            while (findfiles)
-            {
-                Bsprintf(tempbuf,"autoload/%s",findfiles->name);
-                initprintf("Using file \"%s\" as game data.\n",tempbuf);
-                initgroupfile(tempbuf);
-                findfiles = findfiles->next;
-            }
-        }
+        G_LoadGroupsInDir("autoload");
 
         if (i != -1)
             G_DoAutoload(g_grpNamePtr);
     }
 
     if (g_modDir[0] != '/')
-    {
-        int32_t ii;
-
-        for (ii=0; ii<NUMAUTOLOADMASKS; ii++)
-        {
-            Bsprintf(tempbuf,"%s/",g_modDir);
-            getfilenames(tempbuf,autoloadmasks[ii]);
-            while (findfiles)
-            {
-                Bsprintf(tempbuf,"%s/%s",g_modDir,findfiles->name);
-                initprintf("Using file \"%s\" as game data.\n",tempbuf);
-                initgroupfile(tempbuf);
-                findfiles = findfiles->next;
-            }
-        }
-    }
+        G_LoadGroupsInDir(g_modDir);
 
     if (getenv("DUKE3DDEF"))
     {
