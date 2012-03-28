@@ -8,6 +8,7 @@
 #define EDUKE32_COMMON_H_
 
 #include "scriptfile.h"
+#include "cache1d.h"
 
 
 //// TYPES
@@ -23,6 +24,15 @@ typedef struct
     int32_t tokenid;
 }
 tokenlist;
+
+typedef struct
+{
+    CACHE1D_FIND_REC *finddirs, *findfiles;
+    int32_t numdirs, numfiles;
+}
+fnlist_t;
+
+#define FNLIST_INITIALIZER { NULL, NULL, 0, 0 }
 
 enum
 {
@@ -42,5 +52,12 @@ void G_AddPath(const char *buffer);
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
 int32_t check_file_exist(const char *fn);
+
+void fnlist_clearnames(fnlist_t *fnl);
+int32_t fnlist_getnames(fnlist_t *fnl, const char *dirname, const char *pattern,
+                        int32_t dirflags, int32_t fileflags);
+
+void G_LoadGroupsInDir(const char *dirname);
+void G_DoAutoload(const char *dirname);
 
 #endif

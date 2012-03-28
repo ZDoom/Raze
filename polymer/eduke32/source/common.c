@@ -97,3 +97,73 @@ int32_t check_file_exist(const char *fn)
 
     return 0;
 }
+
+
+//// FILE NAME / DIRECTORY LISTS ////
+void fnlist_clearnames(fnlist_t *fnl)
+{
+    klistfree(fnl->finddirs);
+    klistfree(fnl->findfiles);
+
+    fnl->finddirs = fnl->findfiles = NULL;
+    fnl->numfiles = fnl->numdirs = 0;
+}
+
+// dirflags, fileflags:
+//  -1 means "don't get dirs/files",
+//  otherwise ORed to flags for respective klistpath
+int32_t fnlist_getnames(fnlist_t *fnl, const char *dirname, const char *pattern,
+                        int32_t dirflags, int32_t fileflags)
+{
+    CACHE1D_FIND_REC *r;
+
+    fnlist_clearnames(fnl);
+
+    if (dirflags != -1)
+        fnl->finddirs = klistpath(dirname, "*", CACHE1D_FIND_DIR|dirflags);
+    if (fileflags != -1)
+        fnl->findfiles = klistpath(dirname, pattern, CACHE1D_FIND_FILE|fileflags);
+
+    for (r=fnl->finddirs; r; r=r->next)
+        fnl->numdirs++;
+    for (r=fnl->findfiles; r; r=r->next)
+        fnl->numfiles++;
+
+    return(0);
+}
+
+
+// loads all group (grp, zip, pk3) files in the given directory
+void G_LoadGroupsInDir(const char *dirname)
+{
+    static const char *extensions[3] = { "*.grp", "*.zip", "*.pk3" };
+
+    char buf[BMAX_PATH];
+    int32_t i;
+
+    fnlist_t fnlist = FNLIST_INITIALIZER;
+
+    for (i=0; i<3; i++)
+    {
+        CACHE1D_FIND_REC *rec;
+
+        fnlist_getnames(&fnlist, dirname, extensions[i], -1, 0);
+
+        for (rec=fnlist.findfiles; rec; rec=rec->next)
+        {
+            Bsnprintf(buf, sizeof(buf), "%s/%s", dirname, rec->name);
+            initprintf("Using group file \"%s\".\n", buf);
+            initgroupfile(buf);
+        }
+
+        fnlist_clearnames(&fnlist);
+    }
+}
+
+void G_DoAutoload(const char *dirname)
+{
+    char buf[BMAX_PATH];
+
+    Bsnprintf(buf, sizeof(buf), "autoload/%s", dirname);
+    G_LoadGroupsInDir(buf);
+}
