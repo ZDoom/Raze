@@ -60,4 +60,6 @@ int32_t fnlist_getnames(fnlist_t *fnl, const char *dirname, const char *pattern,
 void G_LoadGroupsInDir(const char *dirname);
 void G_DoAutoload(const char *dirname);
 
+char *dup_filename(const char *fn);
+
 #endif

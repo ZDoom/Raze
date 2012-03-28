@@ -167,3 +167,13 @@ void G_DoAutoload(const char *dirname)
     Bsnprintf(buf, sizeof(buf), "autoload/%s", dirname);
     G_LoadGroupsInDir(buf);
 }
+
+////
+
+// returns a buffer of size BMAX_PATH
+char *dup_filename(const char *fn)
+{
+    char *buf = Bmalloc(BMAX_PATH);
+
+    return Bstrncpyz(buf, fn, BMAX_PATH);
+}
