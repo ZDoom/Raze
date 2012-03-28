@@ -305,7 +305,8 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getdouble(script,&alpha)) break;
 #ifdef USE_OPENGL
-            if ((uint32_t)tile < MAXTILES) alphahackarray[tile] = alpha;
+            if ((uint32_t)tile < MAXTILES)
+                alphahackarray[tile] = alpha;
 #endif
         }
         break;
@@ -325,13 +326,10 @@ static int32_t defsparser(scriptfile *script)
                 tilenume1 = i;
             }
 #ifdef USE_OPENGL
-            if ((tilenume1 >= 0 && tilenume1 < MAXTILES) && (tilenume2 >= 0 && tilenume2 < MAXTILES))
+            if ((unsigned)tilenume1 < MAXTILES && (unsigned)tilenume2 < MAXTILES)
             {
                 for (i=tilenume1; i<=tilenume2; i++)
-                {
-                    if ((uint32_t)i < MAXTILES)
-                        alphahackarray[i] = alpha;
-                }
+                    alphahackarray[i] = alpha;
             }
 #endif
         }
@@ -419,6 +417,7 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&ysiz)) break;
             if (scriptfile_getsymbol(script,&xoffs)) break;
             if (scriptfile_getsymbol(script,&yoffs)) break;
+
             if (tile2 < tile1)
             {
                 initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
@@ -426,17 +425,15 @@ static int32_t defsparser(scriptfile *script)
                 tile2 = tile1;
                 tile1 = i;
             }
-            if ((tile1 >= 0 && tile1 < MAXTILES) && (tile2 >= 0 && tile2 < MAXTILES))
+
+            if ((unsigned)tile1 < MAXTILES && (unsigned)tile2 < MAXTILES)
             {
                 for (i=tile1; i<=tile2; i++)
                 {
-                    if ((uint32_t)i < MAXTILES)
-                    {
-                        h_xsize[i] = xsiz;
-                        h_ysize[i] = ysiz;
-                        h_xoffs[i] = xoffs;
-                        h_yoffs[i] = yoffs;
-                    }
+                    h_xsize[i] = xsiz;
+                    h_ysize[i] = ysiz;
+                    h_xoffs[i] = xoffs;
+                    h_yoffs[i] = yoffs;
                 }
             }
             break;
@@ -446,9 +443,7 @@ static int32_t defsparser(scriptfile *script)
             int32_t tile1, tile2, spd, type, i;
 
             if (scriptfile_getsymbol(script,&tile1)) break;
-            if (tile1 >= MAXTILES)break;
             if (scriptfile_getsymbol(script,&tile2)) break;
-            if (tile2 >= MAXTILES)break;
             if (scriptfile_getsymbol(script,&spd)) break;
             if (scriptfile_getsymbol(script,&type)) break;
             if (tile2 < tile1)
@@ -458,7 +453,10 @@ static int32_t defsparser(scriptfile *script)
                 tile2 = tile1;
                 tile1 = i;
             }
-            picanm[tile1]=(picanm[tile1]&0xffffff3f)+(spd<<24)+(type<<6)+tile2-tile1;
+
+            if ((unsigned)tile1 <= MAXTILES && (unsigned)tile2 <= MAXTILES)
+                picanm[tile1]=(picanm[tile1]&0xffffff3f)+(spd<<24)+(type<<6)+tile2-tile1;
+
             break;
         }
         case T_TILEFROMTEXTURE:
@@ -498,15 +496,15 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 }
 
-                if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
+                if ((unsigned)tile >= MAXTILES) break;	// message is printed later
                 if (!fn)
                 {
                     initprintf("Error: missing 'file name' for tilefromtexture definition near line %s:%d\n",
                                script->filename, scriptfile_getlinum(script,texturetokptr));
                     break;
                 }
-                if (alphacut > 255) alphacut = 255;
-                if (alphacut < 0) alphacut = 0;
+
+                alphacut = clamp(alphacut, 0, 255);
 
                 i = pathsearchmode;
                 pathsearchmode = 1;
@@ -528,7 +526,7 @@ static int32_t defsparser(scriptfile *script)
                 goodtogo = 1;
             }
 
-            if ((unsigned)tile >= (unsigned)MAXTILES)
+            if ((unsigned)tile >= MAXTILES)
             {
                 initprintf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,texturetokptr));
