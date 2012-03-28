@@ -784,7 +784,7 @@ int32_t startwin_run(void)
 
         for (i = 0; i<NUMGRPFILES; i++) if (settings.crcval == grpfiles[i].crcval) break;
         if (i != NUMGRPFILES)
-            g_gameNamePtr = (char *)grpfiles[i].name;
+            g_gameNamePtr = grpfiles[i].name;
     }
 
     if (wavedevs)

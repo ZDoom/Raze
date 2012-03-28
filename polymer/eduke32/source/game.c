@@ -88,8 +88,8 @@ int32_t g_noSetup = 0;
 static int32_t g_noAutoLoad = 0;
 static int32_t g_noSound = 0;
 static int32_t g_noMusic = 0;
-static char *CommandMap = NULL;
-static char *CommandName = NULL;
+static const char *CommandMap = NULL;
+static const char *CommandName = NULL;
 int32_t g_forceWeaponChoice = 0;
 
 char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
@@ -117,13 +117,45 @@ static int32_t g_noLogo = 0;
 char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
 char defsfilename[BMAX_PATH] = "duke3d.def";
 static char defaultconfilename[2][BMAX_PATH] = { "EDUKE.CON", "GAME.CON" };
-char defaultrtsfilename[128] = "DUKE.RTS";
+const char *defaultrtsfilename = "DUKE.RTS";
 
+// g_defNamePtr can ONLY point to one of: defaultduke3dgrp,
+// settings[].selectedgrp, malloc'd block (all length BMAX_PATH)
 char *g_grpNamePtr = defaultduke3dgrp;
+// g_defNamePtr can ONLY point to one of: defsfilename, malloc'd block (all
+// length BMAX_PATH)
 char *g_defNamePtr = defsfilename;
-char *g_scriptNamePtr = defaultconfilename[0];
-char *g_gameNamePtr = NULL;
-char *g_rtsNamePtr = NULL;
+// g_scriptNamePtr can ONLY point to defaultconfilename[0] OR to malloc'd block
+// (all length BMAX_PATH)
+static char *g_scriptNamePtr = defaultconfilename[0];
+// g_gameNamePtr can point to one of: grpfiles[].name (string literal), string
+// literal, malloc'd block (XXX: possible leak)
+const char *g_gameNamePtr = NULL;
+// g_rtsNamePtr can point to an argv[] element
+const char *g_rtsNamePtr = NULL;
+
+// FIXME: I am leaking!
+// FIXME: make me extern!
+static void clearGrpNamePtr(void)
+{
+//    if (g_grpNamePtr != defaultduke3dgrp)  && not one of settings[].selectedgrp
+//        Bfree(g_grpNamePtr);
+    // g_grpNamePtr assumed to be assigned to right after
+}
+
+void clearDefNamePtr(void)
+{
+    if (g_defNamePtr != defsfilename)
+        Bfree(g_defNamePtr);
+    // g_defNamePtr assumed to be assigned to right after
+}
+
+static void clearScriptNamePtr(void)
+{
+    if (g_scriptNamePtr != defaultconfilename[0])
+        Bfree(g_scriptNamePtr);
+    // g_scriptNamePtr assumed to be assigned to right after
+}
 
 char **g_scriptModules = NULL;
 int32_t g_scriptModulesNum = 0;
@@ -8466,7 +8498,7 @@ static int32_t loaddefinitions_game(const char *fn, int32_t preload)
 static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
     int16_t i = 1, j;
-    char *c, *k;
+    const char *c, *k;
 
     ud.fta_on = 1;
     ud.god = 0;
@@ -8510,7 +8542,10 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
         i = 1;
         do
         {
-            c = (char *)argv[i];
+            const char *const oc = argv[i];
+
+            c = oc;
+
             if ((*c == '-')
 #ifdef _WIN32
                     || (*c == '/')
@@ -8675,7 +8710,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        CommandName = (char *)argv[i+1];
+                        CommandName = argv[i+1];
                         i++;
                     }
                     i++;
@@ -8685,7 +8720,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        CommandMap = (char *)argv[i+1];
+                        CommandMap = argv[i+1];
                         i++;
                     }
                     i++;
@@ -8695,9 +8730,9 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        g_rtsNamePtr = (char *)argv[i+1];
-                        Bstrcpy(ud.rtsname, g_rtsNamePtr);
-                        initprintf("Using RTS file \"%s\".\n",ud.rtsname);
+                        g_rtsNamePtr = argv[i+1];
+                        Bstrncpyz(ud.rtsname, g_rtsNamePtr, sizeof(ud.rtsname));
+                        initprintf("Using RTS file \"%s\".\n", ud.rtsname);
                         i++;
                     }
                     i++;
@@ -8850,7 +8885,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     c++;
                     if (*c)
                     {
-                        g_defNamePtr = c;
+                        clearDefNamePtr();
+                        g_defNamePtr = dup_filename(c);
                         g_skipDefaultDefs = 1;
                         initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
                     }
@@ -8974,7 +9010,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     c++;
                     if (*c)
                     {
-                        g_scriptNamePtr = c;
+                        clearScriptNamePtr();
+                        g_scriptNamePtr = dup_filename(c);
                         g_skipDefaultCons = 1;
                         initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
                     }
@@ -9006,7 +9043,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (!Bstrcasecmp(k,".map"))
                     {
-                        CommandMap = (char *)argv[i++];
+                        CommandMap = argv[i++];
                         continue;
                     }
                     if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip") || !Bstrcasecmp(k,".pk3"))
@@ -9016,27 +9053,32 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     }
                     if (!Bstrcasecmp(k,".con"))
                     {
-                        g_scriptNamePtr = (char *)argv[i++];
+                        clearScriptNamePtr();
+                        g_scriptNamePtr = dup_filename(argv[i++]);
                         g_skipDefaultCons = 1;
                         initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
                         continue;
                     }
                     if (!Bstrcasecmp(k,".def"))
                     {
-                        g_defNamePtr = (char *)argv[i++];
+                        clearDefNamePtr();
+                        g_defNamePtr = dup_filename(argv[i++]);
                         g_skipDefaultDefs = 1;
                         initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
                         continue;
                     }
                     if (!Bstrcasecmp(k,".rts"))
                     {
-                        g_rtsNamePtr = (char *)argv[i++];
-                        Bstrcpy(ud.rtsname, g_rtsNamePtr);
-                        initprintf("Using RTS file \"%s\".\n",ud.rtsname);
+                        g_rtsNamePtr = argv[i++];
+                        Bstrncpyz(ud.rtsname, g_rtsNamePtr, sizeof(ud.rtsname));
+                        initprintf("Using RTS file \"%s\".\n", ud.rtsname);
                         continue;
                     }
                 }
             }
+
+            initprintf("Warning: ignored application parameter \"%s\".\n", oc);
+
             i++;
         }
         while (i < argc);
@@ -9835,10 +9877,14 @@ int32_t app_main(int32_t argc,const char **argv)
 
     i = CONFIG_ReadSetup();
 
-    if (getenv("DUKE3DGRP"))
     {
-        g_grpNamePtr = getenv("DUKE3DGRP");
-        initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
+        const char *cp = getenv("DUKE3DGRP");
+        if (cp)
+        {
+            clearGrpNamePtr();
+            g_grpNamePtr = dup_filename(cp);
+            initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
+        }
     }
 
 #ifdef _WIN32
@@ -9917,7 +9963,7 @@ int32_t app_main(int32_t argc,const char **argv)
             if (!Bstrcasecmp(fg->name, defaultduke3dgrp))
             {
                 g_gameType = grpfiles[i].game;
-                g_gameNamePtr = (char *)grpfiles[i].name;
+                g_gameNamePtr = grpfiles[i].name;
                 break;
             }
         }
@@ -9925,7 +9971,7 @@ int32_t app_main(int32_t argc,const char **argv)
         {
             Bstrcpy(defaultduke3dgrp, first->name);
             g_gameType = first->game;
-            g_gameNamePtr = (char *)grpfiles[0].name;
+            g_gameNamePtr = grpfiles[0].name;
         }
         else if (!fg) g_gameNamePtr = "Unknown GRP";
     }
@@ -10076,12 +10122,18 @@ CLEAN_DIRECTORY:
     if (g_modDir[0] != '/')
         G_LoadGroupsInDir(g_modDir);
 
-    if (getenv("DUKE3DDEF"))
+    // CODEDUP astub.c
     {
-        g_defNamePtr = getenv("DUKE3DDEF");
-        g_skipDefaultDefs = 1;
-        initprintf("Using \"%s\" as definitions file\n", g_defNamePtr);
+        const char *tmpptr = getenv("DUKE3DDEF");
+        if (tmpptr)
+        {
+            clearDefNamePtr();
+            g_defNamePtr = dup_filename(tmpptr);
+            g_skipDefaultDefs = 1;
+            initprintf("Using \"%s\" as definitions file\n", g_defNamePtr);
+        }
     }
+
     if (g_skipDefaultDefs == 0)
         if (g_defNamePtr != defsfilename)
             Bstrcpy(g_defNamePtr, defsfilename); // it MAY have changed, with NAM/WWII GI

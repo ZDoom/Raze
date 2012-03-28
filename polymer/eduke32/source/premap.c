@@ -48,7 +48,6 @@ int16_t SpriteCacheList[MAXTILES][3];
 static uint8_t precachehightile[2][MAXTILES>>3];
 static int32_t  g_precacheCount;
 
-extern char *g_gameNamePtr;
 extern int32_t g_levelTextTime;
 
 static void tloadtile(int32_t tilenume, int32_t type)

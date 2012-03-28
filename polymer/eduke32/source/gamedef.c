@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gamedef.h"
 #include "gameexec.h"
 #include "savegame.h"
+#include "common.h"
 
 #include "osd.h"
 
@@ -159,9 +160,6 @@ extern int32_t qsetmode;
 
 char *textptr;
 int32_t g_numCompilerErrors,g_numCompilerWarnings;
-
-extern char *g_gameNamePtr;
-extern char *g_defNamePtr;
 
 extern int32_t g_maxSoundPos;
 
@@ -5003,7 +5001,10 @@ repeatcase:
                     j++;
                 }
                 tempbuf[j] = '\0';
-                g_defNamePtr = Bstrdup(tempbuf);
+
+                clearDefNamePtr();
+                g_defNamePtr = dup_filename(tempbuf);
+
                 initprintf("Using DEF file: %s.\n",g_defNamePtr);
             }
             continue;

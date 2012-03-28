@@ -600,7 +600,6 @@ void CONFIG_SetupJoystick(void)
 =
 ===================
 */
-extern char *g_grpNamePtr;
 extern void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
 extern palette_t CrosshairColors;
 extern palette_t DefaultCrosshairColors;
