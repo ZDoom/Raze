@@ -1036,7 +1036,12 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
             (daposz < cursectceilz))
     {
         if (!editstatus && pr_verbosity>=1)
-            OSD_Printf("PR : EXT sec=%d  z=%d (%d, %d)\n", dacursectnum, daposz, cursectflorz, cursectceilz);
+        {
+            if ((unsigned)dacursectnum < (unsigned)numsectors)
+                OSD_Printf("PR : EXT sec=%d  z=%d (%d, %d)\n", dacursectnum, daposz, cursectflorz, cursectceilz);
+            else
+                OSD_Printf("PR : EXT sec=%d  z=%d", dacursectnum, daposz);
+        }
 
         curmodelviewmatrix = rootmodelviewmatrix;
         i = numsectors-1;
