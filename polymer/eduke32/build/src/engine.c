@@ -13435,16 +13435,12 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
 
         for (i=0; i<256; i++)
         {
-            ptr = (char *)(FP_OFF(palookup[0])+remapbuf[i]);
-            ptr2 = (char *)(FP_OFF(palookup[palnum])+i);
+            ptr = palookup[0] + remapbuf[i];
+            ptr2 = palookup[palnum] + i;
+
             for (j=0; j<numshades; j++)
                 { *ptr2 = *ptr; ptr += 256; ptr2 += 256; }
         }
-#if defined(USE_OPENGL)
-        palookupfog[palnum].r = 0;
-        palookupfog[palnum].g = 0;
-        palookupfog[palnum].b = 0;
-#endif
     }
     else
     {
@@ -13463,12 +13459,13 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
                                         ptr[2] + mulscale16(b-ptr[2],palscale));
             }
         }
-#if defined(USE_OPENGL)
-        palookupfog[palnum].r = r;
-        palookupfog[palnum].g = g;
-        palookupfog[palnum].b = b;
-#endif
     }
+
+#if defined(USE_OPENGL)
+    palookupfog[palnum].r = r;
+    palookupfog[palnum].g = g;
+    palookupfog[palnum].b = b;
+#endif
 }
 
 //

@@ -76,21 +76,21 @@ void hicinit(void)
                 if (hr->skybox)
                 {
                     for (j=5; j>=0; j--)
-                    {
                         if (hr->skybox->face[j])
-                        {
                             Bfree(hr->skybox->face[j]);
-                        }
-                    }
                     Bfree(hr->skybox);
                 }
-                if (hr->filename) Bfree(hr->filename);
+
+                if (hr->filename)
+                    Bfree(hr->filename);
+
                 Bfree(hr);
 
                 hr = next;
             }
         }
-    memset(hicreplc,0,sizeof(hicreplc));
+
+    Bmemset(hicreplc,0,sizeof(hicreplc));
 
     hicfirstinit = 1;
 }
