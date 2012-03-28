@@ -1040,7 +1040,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
             if ((unsigned)dacursectnum < (unsigned)numsectors)
                 OSD_Printf("PR : EXT sec=%d  z=%d (%d, %d)\n", dacursectnum, daposz, cursectflorz, cursectceilz);
             else
-                OSD_Printf("PR : EXT sec=%d  z=%d", dacursectnum, daposz);
+                OSD_Printf("PR : EXT sec=%d  z=%d\n", dacursectnum, daposz);
         }
 
         curmodelviewmatrix = rootmodelviewmatrix;

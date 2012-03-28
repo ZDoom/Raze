@@ -224,8 +224,8 @@ static char spritepals[MAXSPRITES];
 static uint8_t wallflag[MAXWALLS>>3];
 
 #ifdef YAX_ENABLE
-static char *yupdownwall[2] = {"upwall","downwall"};
-static char *YUPDOWNWALL[2] = {"UPWALL","DOWNWALL"};
+static const char *yupdownwall[2] = {"upwall","downwall"};
+static const char *YUPDOWNWALL[2] = {"UPWALL","DOWNWALL"};
 
 static uint8_t havebunch[YAX_MAXBUNCHES];
 static int32_t *tempzar[YAX_MAXBUNCHES];

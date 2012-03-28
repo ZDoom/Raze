@@ -952,7 +952,8 @@ static void G_DrawWeapAmounts(DukePlayer_t *p,int32_t x,int32_t y,int32_t u)
     }
 }
 
-static void G_DrawDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
+
+static void G_DrawDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs)
 {
     int32_t i, j = 0, k, p, c;
     char b[12];
@@ -961,7 +962,7 @@ static void G_DrawDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
 
     for (k=i-1; k>=0; k--)
     {
-        p = DIGITALNUM+*(b+k)-'0';
+        p = DIGITALNUM + b[k]-'0';
         j += tilesizx[p]+1;
     }
     c = x-(j>>1);
@@ -969,7 +970,7 @@ static void G_DrawDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
     j = 0;
     for (k=0; k<i; k++)
     {
-        p = DIGITALNUM+*(b+k)-'0';
+        p = DIGITALNUM + b[k]-'0';
         rotatesprite_fs(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,0,cs);
         j += tilesizx[p]+1;
     }
@@ -1002,7 +1003,7 @@ void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s
     }
 }
 
-static void G_DrawAltDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
+static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs)
 {
     int32_t i, j = 0, k, p, c;
     char b[12];
@@ -1016,17 +1017,16 @@ static void G_DrawAltDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
 
     for (k=i-1; k>=0; k--)
     {
-        p = althud_numbertile+*(b+k)-'0';
+        p = althud_numbertile + b[k]-'0';
         j += tilesizx[p]+1;
     }
     c = x-(j>>1);
 
     if (rev)
     {
-//        j = 0;
         for (k=0; k<i; k++)
         {
-            p = althud_numbertile+*(b+k)-'0';
+            p = althud_numbertile + b[k]-'0';
             if (shd && getrendermode() >= 3 && althud_shadows)
                 rotatesprite_fs(sbarxr(c+j-1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|POLYMOSTTRANS2);
             rotatesprite_fs(sbarxr(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs);
@@ -1034,10 +1034,11 @@ static void G_DrawAltDigiNum(int32_t x,int32_t y,int32_t n,char s,int32_t cs)
         }
         return;
     }
+
     j = 0;
     for (k=0; k<i; k++)
     {
-        p = althud_numbertile+*(b+k)-'0';
+        p = althud_numbertile + b[k]-'0';
         if (shd && getrendermode() >= 3 && althud_shadows)
             rotatesprite_fs(sbarx(c+j+1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|POLYMOSTTRANS2);
         rotatesprite_fs(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs);
@@ -9174,7 +9175,7 @@ static void G_DisplayLogo(void)
             fadepaltile(0,0,0, 63,0,-7,BETASCREEN);
             totalclock = 0;
 
-            while (totalclock < (860+120) && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE  && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
+            while (totalclock < (860+120) && !KB_KeyWaiting() && !(MOUSE_GetButtons()&LEFT_MOUSE)  && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
             {
                 rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0));
                 if (logoflags & LOGO_DUKENUKEM)
@@ -9364,7 +9365,7 @@ static void G_CompileScripts(void)
 
     if ((uint32_t)g_numLabels > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         G_GameExit("Error: too many labels defined!");
-    else
+
     {
         char *newlabel;
         int32_t *newlabelcode;
@@ -9373,9 +9374,7 @@ static void G_CompileScripts(void)
         newlabelcode = Bmalloc(g_numLabels*sizeof(int32_t));
 
         if (!newlabel || !newlabelcode)
-        {
             G_GameExit("Error: out of memory retaining labels\n");
-        }
 
         Bmemcpy(newlabel, label, g_numLabels*64);
         Bmemcpy(newlabelcode, labelcode, g_numLabels*sizeof(int32_t));
@@ -9383,9 +9382,10 @@ static void G_CompileScripts(void)
         label = newlabel;
         labelcode = newlabelcode;
     }
-    clearbufbyte(&sprite[0], sizeof(spritetype) * MAXSPRITES, 0);
-    clearbufbyte(&sector[0], sizeof(sectortype) * MAXSECTORS, 0);
-    clearbufbyte(&wall[0], sizeof(walltype) * MAXWALLS, 0);
+
+    Bmemset(sprite, 0, MAXSPRITES*sizeof(spritetype));
+    Bmemset(sector, 0, MAXSECTORS*sizeof(sectortype));
+    Bmemset(wall, 0, MAXWALLS*sizeof(walltype));
 
     VM_OnEvent(EVENT_INIT, -1, -1, -1);
     pathsearchmode = psm;
@@ -9584,7 +9584,7 @@ static void G_Startup(void)
     {
         char *cwd;
 
-        if (g_modDir[0] != '/' && (cwd = (char *)getcwd(NULL, 0)))
+        if (g_modDir[0] != '/' && (cwd = getcwd(NULL, 0)))
         {
             chdir(g_modDir);
 //            initprintf("g_rootDir \"%s\"\nmod \"%s\"\ncwd \"%s\"\n",g_rootDir,mod_dir,cwd);
@@ -9710,7 +9710,7 @@ void app_crashhandler(void)
 }
 #endif
 
-int32_t app_main(int32_t argc,const char **argv)
+int32_t app_main(int32_t argc, const char **argv)
 {
     int32_t i = 0, j;
     char cwd[BMAX_PATH];
@@ -9726,7 +9726,7 @@ int32_t app_main(int32_t argc,const char **argv)
     {
         for (; i<argc; i++)
         {
-            if (Bstrcasecmp("-noinstancechecking",*(&argv[i])) == 0)
+            if (Bstrcasecmp("-noinstancechecking", argv[i]) == 0)
                 break;
         }
     }

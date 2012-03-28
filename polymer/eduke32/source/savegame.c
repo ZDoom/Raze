@@ -479,7 +479,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
         if (sp->flags&(DS_LOADFN|DS_SAVEFN))
         {
             if (sp->flags&DS_LOADFN)
-                (*(void ( *)())sp->ptr)();
+                (*(void (*)())sp->ptr)();
             continue;
         }
 
