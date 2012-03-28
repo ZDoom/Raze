@@ -23,8 +23,8 @@
         list = [[NSMutableArray alloc] init];
         
         for (p = foundgrps; p; p=p->next) {
-            for (i=0; i<numgrpfiles; i++) if (p->crcval == grpfiles[i].crcval) break;
-            if (i == numgrpfiles) continue;
+            for (i=0; i<NUMGRPFILES; i++) if (p->crcval == grpfiles[i].crcval) break;
+            if (i == NUMGRPFILES) continue;
             [list addObject:[[GrpFile alloc] initWithGrpfile:p andName:[NSString stringWithCString:grpfiles[i].name]]];
         }
     }
