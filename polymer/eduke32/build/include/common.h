@@ -41,4 +41,6 @@ void G_AddPath(const char *buffer);
 
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
+int32_t check_file_exist(const char *fn);
+
 #endif

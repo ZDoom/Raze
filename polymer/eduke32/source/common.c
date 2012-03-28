@@ -4,6 +4,9 @@
 
 #include "compat.h"
 #include "scriptfile.h"
+#include "cache1d.h"
+#include "kplib.h"
+#include "baselayer.h"
 
 #include "common.h"
 
@@ -65,4 +68,32 @@ int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
             return tl[i].tokenid;
     }
     return T_ERROR;
+}
+
+//////////
+
+// checks from path and in ZIPs, returns 1 if NOT found
+int32_t check_file_exist(const char *fn)
+{
+    int32_t opsm = pathsearchmode;
+    char *tfn;
+
+    pathsearchmode = 1;
+    if (findfrompath(fn,&tfn) < 0)
+    {
+        char buf[BMAX_PATH];
+
+        Bstrcpy(buf,fn);
+        kzfindfilestart(buf);
+        if (!kzfindfile(buf))
+        {
+            initprintf("Error: file \"%s\" does not exist\n",fn);
+            pathsearchmode = opsm;
+            return 1;
+        }
+    }
+    else Bfree(tfn);
+    pathsearchmode = opsm;
+
+    return 0;
 }

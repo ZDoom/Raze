@@ -13,7 +13,7 @@
 #include "cache1d.h"
 #include "kplib.h"
 #include "quicklz.h"
-#include "common.h"  // tokenlist
+#include "common.h"
 
 enum scripttoken_t
 {
@@ -221,8 +221,8 @@ static int32_t defsparser(scriptfile *script)
         // OLD (DEPRECATED) DEFINITION SYNTAX
         case T_DEFINETEXTURE:
         {
-            int32_t tile,pal,fnoo,i;
-            char *fn, *tfn = NULL;
+            int32_t tile,pal,fnoo;
+            char *fn;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getsymbol(script,&pal))  break;
@@ -232,31 +232,16 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&fnoo)) break; //y-size
             if (scriptfile_getstring(script,&fn))  break;
 
-            i = pathsearchmode;
-            pathsearchmode = 1;
-            if (findfrompath(fn,&tfn) < 0)
-            {
-                char buf[BMAX_PATH];
-
-                Bstrcpy(buf,fn);
-                kzfindfilestart(buf);
-                if (!kzfindfile(buf))
-                {
-                    initprintf("Error: file \"%s\" does not exist\n",fn);
-                    pathsearchmode = i;
-                    break;
-                }
-            }
-            else Bfree(tfn);
-            pathsearchmode = i;
+            if (check_file_exist(fn))
+                break;
 
             hicsetsubsttex(tile,pal,fn,-1.0,1.0,1.0,1.0,1.0,0);
         }
         break;
         case T_DEFINESKYBOX:
         {
-            int32_t tile,pal,i,ii;
-            char *fn[6],happy=1,*tfn = NULL;
+            int32_t tile,pal,i;
+            char *fn[6],happy=1;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getsymbol(script,&pal)) break;
@@ -264,22 +249,9 @@ static int32_t defsparser(scriptfile *script)
             for (i=0; i<6; i++)
             {
                 if (scriptfile_getstring(script,&fn[i])) break; //grab the 6 faces
-                ii = pathsearchmode;
-                pathsearchmode = 1;
-                if (findfrompath(fn[i],&tfn) < 0)
-                {
-                    char buf[BMAX_PATH];
 
-                    Bstrcpy(buf,fn[i]);
-                    kzfindfilestart(buf);
-                    if (!kzfindfile(buf))
-                    {
-                        initprintf("Error: file \"%s\" does not exist\n",fn[i]);
-                        happy = 0;
-                    }
-                }
-                else Bfree(tfn);
-                pathsearchmode = ii;
+                if (check_file_exist(fn[i]))
+                    happy = 0;
             }
             if (i < 6 || !happy) break;
             hicsetskybox(tile,pal,fn);
@@ -461,8 +433,8 @@ static int32_t defsparser(scriptfile *script)
         }
         case T_TILEFROMTEXTURE:
         {
-            char *texturetokptr = script->ltextptr, *textureend, *fn = NULL, *tfn = NULL, *ftd = NULL;
-            int32_t tile=-1, token, i;
+            char *texturetokptr = script->ltextptr, *textureend, *fn = NULL, *ftd = NULL;
+            int32_t tile=-1, token;
             int32_t alphacut = 255;
             int32_t xoffset = 0, yoffset = 0, goodtogo=0;
 
@@ -506,23 +478,9 @@ static int32_t defsparser(scriptfile *script)
 
                 alphacut = clamp(alphacut, 0, 255);
 
-                i = pathsearchmode;
-                pathsearchmode = 1;
-                if (findfrompath(fn,&tfn) < 0)
-                {
-                    char buf[BMAX_PATH];
+                if (check_file_exist(fn))
+                    break;
 
-                    Bstrcpy(buf,fn);
-                    kzfindfilestart(buf);
-                    if (!kzfindfile(buf))
-                    {
-                        initprintf("Error: file \"%s\" does not exist\n",fn);
-                        pathsearchmode = i;
-                        break;
-                    }
-                }
-                else Bfree(tfn);
-                pathsearchmode = i;
                 goodtogo = 1;
             }
 
@@ -535,7 +493,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (goodtogo)
             {
-                int32_t xsiz, ysiz, j;
+                int32_t xsiz, ysiz, i, j;
                 int32_t *picptr = NULL;
                 palette_t *col;
 
@@ -807,8 +765,8 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_DEFINEMODELSKIN:
         {
-            int32_t palnum, i;
-            char *skinfn, *tfn = NULL;
+            int32_t palnum;
+            char *skinfn;
 
             if (scriptfile_getsymbol(script,&palnum)) break;
             if (scriptfile_getstring(script,&skinfn)) break; //skin filename
@@ -828,23 +786,8 @@ static int32_t defsparser(scriptfile *script)
             if (seenframe) { modelskin = ++lastmodelskin; }
             seenframe = 0;
 
-            i = pathsearchmode;
-            pathsearchmode = 1;
-            if (findfrompath(skinfn,&tfn) < 0)
-            {
-                char buf[BMAX_PATH];
-
-                Bstrcpy(buf,skinfn);
-                kzfindfilestart(buf);
-                if (!kzfindfile(buf))
-                {
-                    initprintf("Error: file \"%s\" does not exist\n",skinfn);
-                    pathsearchmode = i;
-                    break;
-                }
-            }
-            else Bfree(tfn);
-            pathsearchmode = i;
+            if (check_file_exist(skinfn))
+                break;
 
 #ifdef USE_OPENGL
             switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), 0, 0.0f, 1.0f, 1.0f))
@@ -1146,8 +1089,8 @@ static int32_t defsparser(scriptfile *script)
                 case T_SKIN: case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
                 {
                     char *skintokptr = script->ltextptr;
-                    char *skinend, *skinfn = 0, *tfn = NULL;
-                    int32_t palnum = 0, surfnum = 0, i;
+                    char *skinend, *skinfn = 0;
+                    int32_t palnum = 0, surfnum = 0;
                     double param = 1.0, specpower = 1.0, specfactor = 1.0;
 
                     static const tokenlist modelskintokens[] =
@@ -1210,23 +1153,8 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    i = pathsearchmode;
-                    pathsearchmode = 1;
-                    if (findfrompath(skinfn,&tfn) < 0)
-                    {
-                        char buf[BMAX_PATH];
-
-                        Bstrcpy(buf,skinfn);
-                        kzfindfilestart(buf);
-                        if (!kzfindfile(buf))
-                        {
-                            initprintf("Error: file \"%s\" does not exist\n",skinfn);
-                            pathsearchmode = i;
-                            break;
-                        }
-                    }
-                    else Bfree(tfn);
-                    pathsearchmode = i;
+                    if (check_file_exist(skinfn))
+                        break;
 
 #ifdef USE_OPENGL
                     switch (md_defineskin(lastmodelid, skinfn, palnum, max(0,modelskin), surfnum, param, specpower, specfactor))
@@ -1464,8 +1392,9 @@ static int32_t defsparser(scriptfile *script)
         case T_SKYBOX:
         {
             char *skyboxtokptr = script->ltextptr;
-            char *fn[6] = {0,0,0,0,0,0}, *modelend, happy=1, *tfn = NULL;
-            int32_t i, tile = -1, pal = 0,ii;
+            char *fn[6] = {0,0,0,0,0,0};
+            char *modelend;
+            int32_t i, tile = -1, pal = 0, happy = 1;
 
             static const tokenlist skyboxtokens[] =
             {
@@ -1509,22 +1438,8 @@ static int32_t defsparser(scriptfile *script)
             {
                 if (!fn[i]) initprintf("Error: missing '%s filename' for skybox definition near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
                 // FIXME?
-                ii = pathsearchmode;
-                pathsearchmode = 1;
-                if (findfrompath(fn[i],&tfn) < 0)
-                {
-                    char buf[BMAX_PATH];
-
-                    Bstrcpy(buf,fn[i]);
-                    kzfindfilestart(buf);
-                    if (!kzfindfile(buf))
-                    {
-                        initprintf("Error: file \"%s\" does not exist\n",fn[i]);
-                        happy = 0;
-                    }
-                }
-                else Bfree(tfn);
-                pathsearchmode = ii;
+                if (check_file_exist(fn[i]))
+                    happy = 0;
             }
             if (!happy) break;
 
@@ -1534,8 +1449,8 @@ static int32_t defsparser(scriptfile *script)
         case T_HIGHPALOOKUP:
         {
             char *highpaltokptr = script->ltextptr;
-            int32_t basepal=-1, pal=-1, oldpathsearchmode;
-            char *fn = NULL, *tfn = NULL;
+            int32_t basepal=-1, pal=-1;
+            char *fn = NULL;
             char *highpalend;
 #ifdef POLYMER
             int32_t fd;
@@ -1582,23 +1497,8 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            oldpathsearchmode = pathsearchmode;
-            pathsearchmode = 1;
-            if (findfrompath(fn,&tfn) < 0)
-            {
-                char buf[BMAX_PATH];
-
-                Bstrcpy(buf,fn);
-                kzfindfilestart(buf);
-                if (!kzfindfile(buf))
-                {
-                    initprintf("Error: file \"%s\" does not exist\n",fn);
-                    pathsearchmode = oldpathsearchmode;
-                    break;
-                }
-            }
-            else Bfree(tfn);
-            pathsearchmode = oldpathsearchmode;
+            if (check_file_exist(fn))
+                break;
 
 #ifdef POLYMER
             fd = kopen4load(fn, 0);
@@ -1708,8 +1608,8 @@ static int32_t defsparser(scriptfile *script)
                 case T_PAL:
                 {
                     char *paltokptr = script->ltextptr, *palend;
-                    int32_t pal=-1, i;
-                    char *fn = NULL, *tfn = NULL;
+                    int32_t pal=-1;
+                    char *fn = NULL;
                     double alphacut = -1.0, xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
                     char flags = 0;
 
@@ -1766,23 +1666,9 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    i = pathsearchmode;
-                    pathsearchmode = 1;
-                    if (findfrompath(fn,&tfn) < 0)
-                    {
-                        char buf[BMAX_PATH];
+                    if (check_file_exist(fn))
+                        break;
 
-                        Bstrcpy(buf,fn);
-                        kzfindfilestart(buf);
-                        if (!kzfindfile(buf))
-                        {
-                            initprintf("Error: file \"%s\" does not exist\n",fn);
-                            pathsearchmode = i;
-                            break;
-                        }
-                    }
-                    else Bfree(tfn);
-                    pathsearchmode = i;
                     xscale = 1.0f / xscale;
                     yscale = 1.0f / yscale;
 
@@ -1792,8 +1678,8 @@ static int32_t defsparser(scriptfile *script)
                 case T_DETAIL: case T_GLOW: case T_SPECULAR: case T_NORMAL:
                 {
                     char *detailtokptr = script->ltextptr, *detailend;
-                    int32_t pal = 0, i;
-                    char *fn = NULL, *tfn = NULL;
+                    int32_t pal = 0;
+                    char *fn = NULL;
                     double xscale = 1.0, yscale = 1.0, specpower = 1.0, specfactor = 1.0;
                     char flags = 0;
 
@@ -1841,23 +1727,8 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    i = pathsearchmode;
-                    pathsearchmode = 1;
-                    if (findfrompath(fn,&tfn) < 0)
-                    {
-                        char buf[BMAX_PATH];
-
-                        Bstrcpy(buf,fn);
-                        kzfindfilestart(buf);
-                        if (!kzfindfile(buf))
-                        {
-                            initprintf("Error: file \"%s\" does not exist\n",fn);
-                            pathsearchmode = i;
-                            break;
-                        }
-                    }
-                    else Bfree(tfn);
-                    pathsearchmode = i;
+                    if (check_file_exist(fn))
+                        break;
 
                     switch (token)
                     {

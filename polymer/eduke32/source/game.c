@@ -8272,7 +8272,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         case T_MUSIC:
         {
             char *tinttokptr = script->ltextptr;
-            char *ID=NULL,*fn="",*tfn = NULL;
+            char *ID=NULL, *fn="";
             char *musicend;
 
             if (scriptfile_getbraces(script,&musicend)) break;
@@ -8290,30 +8290,14 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             }
             if (!preload)
             {
-                int32_t i;
                 if (ID==NULL)
                 {
                     initprintf("Error: missing ID for music definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
                     break;
                 }
 
-                i = pathsearchmode;
-                pathsearchmode = 1;
-                if (findfrompath(fn,&tfn) < 0)
-                {
-                    char buf[BMAX_PATH];
-
-                    Bstrcpy(buf,fn);
-                    kzfindfilestart(buf);
-                    if (!kzfindfile(buf))
-                    {
-                        initprintf("Error: file \"%s\" does not exist\n",fn);
-                        pathsearchmode = i;
-                        break;
-                    }
-                }
-                else Bfree(tfn);
-                pathsearchmode = i;
+                if (check_file_exist(fn))
+                    break;
 
                 if (S_DefineMusic(ID,fn))
                     initprintf("Error: invalid music ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
@@ -8468,7 +8452,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         case T_SOUND:
         {
             char *tinttokptr = script->ltextptr;
-            char *fn="", *tfn = NULL;
+            char *fn="";
             int32_t num=-1;
             char *musicend;
 
@@ -8487,31 +8471,14 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             }
             if (!preload)
             {
-                int32_t i;
-
                 if (num==-1)
                 {
                     initprintf("Error: missing ID for sound definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
                     break;
                 }
 
-                i = pathsearchmode;
-                pathsearchmode = 1;
-                if (findfrompath(fn,&tfn) < 0)
-                {
-                    char buf[BMAX_PATH];
-
-                    Bstrcpy(buf,fn);
-                    kzfindfilestart(buf);
-                    if (!kzfindfile(buf))
-                    {
-                        initprintf("Error: file \"%s\" does not exist\n",fn);
-                        pathsearchmode = i;
-                        break;
-                    }
-                }
-                else Bfree(tfn);
-                pathsearchmode = i;
+                if (check_file_exist(fn))
+                    break;
 
                 if (S_DefineSound(num,fn))
                     initprintf("Error: invalid sound ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
