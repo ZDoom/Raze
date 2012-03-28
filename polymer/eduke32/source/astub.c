@@ -62,14 +62,17 @@ static int32_t floor_over_floor;
 static int32_t g_fillCurSector = 0;
 
 static char g_modDir[BMAX_PATH];
-char defsfilename[BMAX_PATH] = "duke3d.def";
 static char levelname[BMAX_PATH];
 
 // static char *startwin_labeltext = "Starting Mapster32...";
 static char setupfilename[BMAX_PATH] = "mapster32.cfg";
+
+char defsfilename[BMAX_PATH] = "duke3d.def";
 static char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
-static char *g_grpNamePtr = defaultduke3dgrp;
+// g_defNamePtr can ONLY point to one of: defsfilename, malloc'd block (all
+// length BMAX_PATH)
 char *g_defNamePtr = defsfilename;
+
 int32_t fixmaponsave_sprites = 1;
 static int32_t fixmaponsave_walls = 0;
 static int32_t lastsave = -180*60;
@@ -81,6 +84,13 @@ static int32_t pathsearchmode_oninit;
 
 // Sound in Mapster32
 static char defaultgamecon[2][BMAX_PATH] = { "eduke.con", "game.con" };
+
+static void clearDefNamePtr(void)
+{
+    if (g_defNamePtr != defsfilename)
+        Bfree(g_defNamePtr);
+    // g_defNamePtr assumed to be assigned to right after
+}
 
 char * defaultgameconfile(void)
 {
@@ -94,7 +104,7 @@ char * defaultgameconfile(void)
     return defaultgamecon[1];
 }
 
-static char *gamecon = "\0";
+static const char *gamecon = "\0";
 static int32_t g_skipDefaultCons = 0;
 static int32_t g_skipDefaultDefs = 0; // primarily for NAM/WWII GI appeasement
 
@@ -8356,7 +8366,7 @@ extern char forcegl;
 static void G_CheckCommandLine(int32_t argc, const char **argv)
 {
     int32_t i = 1, j, maxlen=0, *lengths;
-    char *c, *k;
+    const char *c, *k;
 
     mapster32_fullpath = argv[0];
 
@@ -8468,7 +8478,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             {
                 if (argc > i+1)
                 {
-                    Bstrcpy(defaultduke3dgrp,argv[i+1]);
+                    Bstrncpyz(defaultduke3dgrp, argv[i+1], sizeof(defaultduke3dgrp));
                     COPYARG(i);
                     COPYARG(i+1);
                     i++;
@@ -8478,10 +8488,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             }
             if (!Bstrcasecmp(c+1,"nam"))
             {
-                Bstrcpy(g_grpNamePtr, "nam.grp");
                 Bstrcpy(defaultduke3dgrp, "nam.grp");
                 Bstrcpy(defsfilename, "nam.def");
-               // Bstrcpy(g_defNamePtr, "nam.def");
                 Bstrcpy(defaultgamecon[0], "nam.con");
                 COPYARG(i);
                 i++;
@@ -8539,11 +8547,9 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
             }
             if (!Bstrcasecmp(c+1,"ww2gi"))
             {
-                Bstrcpy(g_grpNamePtr, "ww2gi.grp");
                 Bstrcpy(defaultduke3dgrp, "ww2gi.grp");
                 Bstrcpy(defaultgamecon[0], "ww2gi.con");
                 Bstrcpy(defsfilename, "ww2gi.def");
-               // Bstrcpy(g_defNamePtr, "ww2gi.def");
                 COPYARG(i);
                 i++;
                 continue;
@@ -8604,7 +8610,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 c++;
                 if (*c)
                 {
-                    g_defNamePtr = c;
+                    clearDefNamePtr();
+                    g_defNamePtr = dup_filename(c);
                     g_skipDefaultDefs = 1;
                     COPYARG(i);
                     initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
@@ -8649,7 +8656,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 else if (!Bstrcasecmp(k,".def"))
                 {
                     COPYARG(i);
-                    g_defNamePtr = (char *)argv[i++];
+                    clearDefNamePtr();
+                    g_defNamePtr = dup_filename(argv[i++]);
                     g_skipDefaultDefs = 1;
                     initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
                     continue;
@@ -8657,7 +8665,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 else if (!Bstrcasecmp(k,".con"))
                 {
                     COPYARG(i);
-                    gamecon = (char *)argv[i++];
+                    gamecon = argv[i++];
                     g_skipDefaultCons = 1;
                     initprintf("Using CON file \"%s\".\n",gamecon);
                     continue;
@@ -10223,28 +10231,36 @@ int32_t ExtInit(void)
         }
     }
 
-    // JBF 20031220: Because it's annoying renaming GRP files whenever I want to test different game data
-    if (getenv("DUKE3DGRP"))
     {
-        g_grpNamePtr = getenv("DUKE3DGRP");
-        initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
+        const char *grpNamePtr = defaultduke3dgrp;
+
+        // JBF 20031220: Because it's annoying renaming GRP files whenever I want to test different game data
+        if (getenv("DUKE3DGRP"))
+        {
+            grpNamePtr = getenv("DUKE3DGRP");
+            initprintf("Using \"%s\" as main GRP file\n", grpNamePtr);
+        }
+
+        i = initgroupfile(grpNamePtr);
+
+        if (!NoAutoLoad)
+        {
+            G_LoadGroupsInDir("autoload");
+
+            if (i != -1)
+                G_DoAutoload(grpNamePtr);
+        }
     }
 
-    i = initgroupfile(g_grpNamePtr);
-
-    if (!NoAutoLoad)
+    // (CODEDUP game.c)
     {
-        G_LoadGroupsInDir("autoload");
-
-        if (i != -1)
-            G_DoAutoload(g_grpNamePtr);
-    }
-
-    if (getenv("DUKE3DDEF"))
-    {
-        g_defNamePtr = getenv("DUKE3DDEF");
-        g_skipDefaultDefs = 1;
-        initprintf("Using \"%s\" as definitions file\n", g_defNamePtr);
+        const char *tmpptr = getenv("DUKE3DDEF");
+        if (tmpptr)
+        {
+            g_defNamePtr = dup_filename(tmpptr);
+            g_skipDefaultDefs = 1;
+            initprintf("Using \"%s\" as definitions file\n", g_defNamePtr);
+        }
     }
     if (g_skipDefaultDefs == 0)
         if (g_defNamePtr != defsfilename)
@@ -11008,7 +11024,7 @@ void ExtCheckKeys(void)
         g_numsounds = 0;
 
         if (g_skipDefaultCons == 0)
-            loadconsounds(defaultgameconfile()); // Bstrcpy(gamecon, defaultgameconfile());
+            loadconsounds(defaultgameconfile());
         else
             loadconsounds(gamecon);
 
