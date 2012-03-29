@@ -15789,12 +15789,12 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     if (!palette)
     {
         for (i=0; i<ydim; i++)
-            rowptrs[i] = &buf[ylookup[ydim-i-1]];
+            rowptrs[i] = &buf[3*xdim*(ydim-i-1)];
     }
     else
     {
         for (i=0; i<ydim; i++)
-            rowptrs[i] = &buf[xdim*i];
+            rowptrs[i] = &buf[ylookup[i]];
     }
     png_set_rows(png_ptr, info_ptr, rowptrs);
 
