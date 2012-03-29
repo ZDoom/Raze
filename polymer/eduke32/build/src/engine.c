@@ -7343,10 +7343,10 @@ static int32_t loadpalette(void)
     kread(fil,palette,768);
     kread(fil,&numshades,2); numshades = B_LITTLE16(numshades);
 
-    if ((palookup[0] = (char *)Bmalloc(numshades<<8)) == NULL)
-        allocache((intptr_t *)&palookup[0],numshades<<8,&permanentlock);
-    if ((transluc = (char *)Bmalloc(65536)) == NULL)
-        allocache((intptr_t *)&transluc,65536,&permanentlock);
+    palookup[0] = Bmalloc(numshades<<8);
+    transluc = Bmalloc(65536);
+    if (palookup[0] == NULL || transluc == NULL)
+        exit(1);
 
     globalpalwritten = palookup[0]; globalpal = 0;
     setpalookupaddress(globalpalwritten);
@@ -13434,8 +13434,9 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
     if (palookup[palnum] == NULL)
     {
         //Allocate palookup buffer
-        if ((palookup[palnum] = (char *)Bmalloc(numshades<<8)) == NULL)
-            allocache((intptr_t *)&palookup[palnum],numshades<<8,&permanentlock);
+        palookup[palnum] = Bmalloc(numshades<<8);
+        if (palookup[palnum] == NULL)
+            exit(1);
     }
 
     if (dastat == 0) return;
