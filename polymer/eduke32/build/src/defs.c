@@ -66,7 +66,9 @@ enum scripttoken_t
     T_SKYBOX,
     T_FRONT,T_RIGHT,T_BACK,T_LEFT,T_TOP,T_BOTTOM,
     T_HIGHPALOOKUP,
-    T_TINT,T_RED,T_GREEN,T_BLUE,
+    T_TINT,
+    T_MAKEPALOOKUP, T_REMAPPAL, T_REMAPSELF,
+    T_RED,T_GREEN,T_BLUE,
     T_TEXTURE,T_ALPHACUT,T_XSCALE,T_YSCALE,T_SPECPOWER,T_SPECFACTOR,T_NOCOMPRESS,T_NODOWNSIZE,
     T_UNDEFMODEL,T_UNDEFMODELRANGE,T_UNDEFMODELOF,T_UNDEFTEXTURE,T_UNDEFTEXTURERANGE,
     T_ALPHAHACK,T_ALPHAHACKRANGE,
@@ -152,6 +154,7 @@ static int32_t defsparser(scriptfile *script)
         { "skybox",          T_SKYBOX           },
         { "highpalookup",    T_HIGHPALOOKUP     },
         { "tint",            T_TINT             },
+        { "makepalookup",    T_MAKEPALOOKUP     },
         { "texture",         T_TEXTURE          },
         { "tile",            T_TEXTURE          },
         { "music",           T_MUSIC            },
@@ -346,6 +349,10 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&r)) break;
             if (scriptfile_getnumber(script,&g)) break;
             if (scriptfile_getnumber(script,&b)) break;
+
+            r = clamp(r, 0, 63);
+            g = clamp(g, 0, 63);
+            b = clamp(b, 0, 63);
 
             for (j = 0; j < 256; j++)
                 tempbuf[j] = j;
@@ -1577,11 +1584,103 @@ static int32_t defsparser(scriptfile *script)
 
             if (pal < 0)
             {
-                initprintf("Error: missing 'palette number' for tint definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+                initprintf("Error: missing 'palette number' for tint definition near line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,tinttokptr));
                 break;
             }
 
             hicsetpalettetint(pal,red,green,blue,flags);
+        }
+        break;
+        case T_MAKEPALOOKUP:
+        {
+            char *const starttokptr = script->ltextptr;
+            int32_t red=0, green=0, blue=0, pal=-1;
+            int32_t havepal=0, remappal=0;
+            char *endtextptr;
+
+            static const tokenlist palookuptokens[] =
+            {
+                { "pal",   T_PAL },
+                { "red",   T_RED   }, { "r", T_RED },
+                { "green", T_GREEN }, { "g", T_GREEN },
+                { "blue",  T_BLUE  }, { "b", T_BLUE },
+                { "remappal", T_REMAPPAL },
+                { "remapself", T_REMAPSELF },
+            };
+
+            if (scriptfile_getbraces(script,&endtextptr)) break;
+            while (script->textptr < endtextptr)
+            {
+                switch (getatoken(script, palookuptokens, sizeof(palookuptokens)/sizeof(tokenlist)))
+                {
+                case T_PAL:
+                    scriptfile_getsymbol(script, &pal);
+                    havepal |= 1;
+                    break;
+                case T_RED:
+                    scriptfile_getnumber(script,&red);
+                    red = clamp(red, 0, 63);
+                    break;
+                case T_GREEN:
+                    scriptfile_getnumber(script,&green);
+                    green = clamp(green, 0, 63);
+                    break;
+                case T_BLUE:
+                    scriptfile_getnumber(script,&blue);
+                    blue = clamp(blue, 0, 63);
+                    break;
+                case T_REMAPPAL:
+                    scriptfile_getsymbol(script,&remappal);
+                    if (havepal&(2+4))
+                        havepal |= 8;
+                    havepal |= 2;
+                    break;
+                case T_REMAPSELF:
+                    if (havepal&(2+4))
+                        havepal |= 8;
+                    havepal |= 4;
+                    break;
+                }
+            }
+
+            {
+                char msgend[BMAX_PATH+64];
+
+                Bsprintf(msgend, "for palookup definition near line %s:%d",
+                         script->filename, scriptfile_getlinum(script,starttokptr));
+
+                if ((havepal&1)==0)
+                {
+                    initprintf("Error: missing 'palette number' %s\n", msgend);
+                    break;
+                }
+                else if ((unsigned)pal >= MAXPALOOKUPS-RESERVEDPALS)
+                {
+                    initprintf("Error: 'palette number' out of range (max=%d) %s\n",
+                               MAXPALOOKUPS-RESERVEDPALS-1, msgend);
+                    break;
+                }
+                else if (havepal&8)
+                {
+                    // will also disallow multiple remappals or remapselfs
+                    initprintf("Error: must have exactly one of either 'remappal' or 'remapself' %s\n", msgend);
+                    break;
+                }
+                else if ((havepal&4) && (unsigned)remappal >= MAXPALOOKUPS-RESERVEDPALS)
+                {
+                    initprintf("Error: 'remap palette number' out of range (max=%d) %s\n",
+                               MAXPALOOKUPS-RESERVEDPALS-1, msgend);
+                    break;
+                }
+
+                if (havepal&4)
+                    remappal = pal;
+            }
+
+            // NOTE: all palookups are initialized, i.e. non-NULL!
+            // NOTE2: aliasing (pal==remappal) is OK
+            makepalookup(pal, palookup[remappal], red, green, blue, 1);
         }
         break;
         case T_TEXTURE:
