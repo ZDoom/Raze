@@ -13414,10 +13414,22 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
     const char *ptr;
     char *ptr2;
 
-    if (paletteloaded == 0) return;
+    static char idmap[256] = {1};
 
-    if ((unsigned)palnum >= MAXPALOOKUPS)
+    if (paletteloaded == 0)
         return;
+
+    if (palnum==0 || (unsigned)palnum >= MAXPALOOKUPS)
+        return;
+
+    if (remapbuf==NULL)
+    {
+        if (idmap[0]==1)  // init identity map
+            for (i=0; i<256; i++)
+                idmap[i] = i;
+
+        remapbuf = idmap;
+    }
 
     if (palookup[palnum] == NULL)
     {

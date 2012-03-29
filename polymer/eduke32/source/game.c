@@ -2579,10 +2579,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     }
     while (--ii);
 
-    for (i = 255; i >= 0; i--)
-        tempbuf[i] = i;
-
-    makepalookup(CROSSHAIR_PAL,tempbuf,CrosshairColors.r>>2, CrosshairColors.g>>2, CrosshairColors.b>>2,1);
+    makepalookup(CROSSHAIR_PAL, NULL, CrosshairColors.r>>2, CrosshairColors.g>>2, CrosshairColors.b>>2,1);
 
 #ifdef USE_OPENGL
     // XXX: this makes us also load all hightile textures tinted with the crosshair color!
@@ -9457,11 +9454,8 @@ static void G_LoadExtraPalettes(void)
 //    g_numRealPalettes = ((g_numRealPalettes * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
 #endif
 
-    for (j = 0; j < 256; j++)
-        tempbuf[j] = j;
-
     for (j=g_numRealPalettes+1; j<MAXPALOOKUPS; j++)
-        makepalookup(j,tempbuf,0,0,0,1);
+        makepalookup(j, NULL ,0,0,0, 1);
 
     for (j=g_numRealPalettes-1; j>=0; j--)
     {
@@ -9472,13 +9466,11 @@ static void G_LoadExtraPalettes(void)
         makepalookup(look_pos, tempbuf, 0,0,0, 1);
     }
 
-    for (j = 255; j>=0; j--)
-        tempbuf[j] = j;
     g_numRealPalettes++;
-    makepalookup(g_numRealPalettes, tempbuf, 15, 15, 15, 1);
-    makepalookup(g_numRealPalettes + 1, tempbuf, 15, 0, 0, 1);
-    makepalookup(g_numRealPalettes + 2, tempbuf, 0, 15, 0, 1);
-    makepalookup(g_numRealPalettes + 3, tempbuf, 0, 0, 15, 1);
+    makepalookup(g_numRealPalettes, NULL, 15, 15, 15, 1);
+    makepalookup(g_numRealPalettes + 1, NULL, 15, 0, 0, 1);
+    makepalookup(g_numRealPalettes + 2, NULL, 0, 15, 0, 1);
+    makepalookup(g_numRealPalettes + 3, NULL, 0, 0, 15, 1);
 
     kread(fp,&water_pal[0],768);
     kread(fp,&slime_pal[0],768);

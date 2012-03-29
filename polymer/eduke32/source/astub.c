@@ -2975,11 +2975,8 @@ static void ReadPaletteTable(void)
     int32_t i,j,fp;
     char lookup_num;
 
-    for (j = 0; j < 256; j++)
-        tempbuf[j] = j;
-
     for (i=1; i<MAXPALOOKUPS; i++)
-        makepalookup(i,tempbuf,0,0,0,1);
+        makepalookup(i,NULL,0,0,0,1);
 
     if ((fp=kopen4load("lookup.dat",0)) == -1)
     {
@@ -3001,10 +2998,10 @@ static void ReadPaletteTable(void)
         tempbuf[j] = j;
 
     num_tables++;
-    makepalookup(num_tables, tempbuf, 15, 15, 15, 1);
-    makepalookup(num_tables + 1, tempbuf, 15, 0, 0, 1);
-    makepalookup(num_tables + 2, tempbuf, 0, 15, 0, 1);
-    makepalookup(num_tables + 3, tempbuf, 0, 0, 15, 1);
+    makepalookup(num_tables, NULL, 15, 15, 15, 1);
+    makepalookup(num_tables + 1, NULL, 15, 0, 0, 1);
+    makepalookup(num_tables + 2, NULL, 0, 15, 0, 1);
+    makepalookup(num_tables + 3, NULL, 0, 0, 15, 1);
 
     kread(fp,WATERpalette,768);
     kread(fp,SLIMEpalette,768);

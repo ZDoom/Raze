@@ -342,8 +342,7 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_FOGPAL:
         {
-            int32_t p,r,g,b,j;
-            char tempbuf[256];
+            int32_t p,r,g,b;
 
             if (scriptfile_getnumber(script,&p)) break;
             if (scriptfile_getnumber(script,&r)) break;
@@ -354,9 +353,7 @@ static int32_t defsparser(scriptfile *script)
             g = clamp(g, 0, 63);
             b = clamp(b, 0, 63);
 
-            for (j = 0; j < 256; j++)
-                tempbuf[j] = j;
-            makepalookup(p, tempbuf, r, g, b, 1);
+            makepalookup(p, NULL, r, g, b, 1);
         }
         break;
         case T_LOADGRP:
@@ -1655,9 +1652,9 @@ static int32_t defsparser(scriptfile *script)
                     initprintf("Error: missing 'palette number' %s\n", msgend);
                     break;
                 }
-                else if ((unsigned)pal >= MAXPALOOKUPS-RESERVEDPALS)
+                else if (pal==0 || (unsigned)pal >= MAXPALOOKUPS-RESERVEDPALS)
                 {
-                    initprintf("Error: 'palette number' out of range (max=%d) %s\n",
+                    initprintf("Error: 'palette number' out of range (1 .. %d) %s\n",
                                MAXPALOOKUPS-RESERVEDPALS-1, msgend);
                     break;
                 }
