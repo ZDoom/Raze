@@ -8022,7 +8022,10 @@ void uninitengine(void)
     }
 
     for (i=0; i<MAXPALOOKUPS; i++)
-        if (palookup[i] != NULL) { Bfree(palookup[i]); palookup[i] = NULL; }
+        if (palookup[i] != NULL && (i==0 || palookup[i] != palookup[0]))
+        {
+            Bfree(palookup[i]);
+        }
 
 #ifdef DYNALLOC_ARRAYS
     if (blockptr != NULL)
@@ -13424,6 +13427,12 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
 
     if (remapbuf==NULL)
     {
+        if ((r|g|b) == 0)
+        {
+            palookup[palnum] = palookup[0];  // Alias to base shade table!
+            return;
+        }
+
         if (idmap[0]==1)  // init identity map
             for (i=0; i<256; i++)
                 idmap[i] = i;
@@ -13431,7 +13440,7 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
         remapbuf = idmap;
     }
 
-    if (palookup[palnum] == NULL)
+    if (palookup[palnum] == NULL || palookup[palnum] == palookup[0])
     {
         //Allocate palookup buffer
         palookup[palnum] = Bmalloc(numshades<<8);
