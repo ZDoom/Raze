@@ -3528,11 +3528,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             walock[TILE_SAVESHOT] = 199;
             if (waloff[TILE_SAVESHOT] == 0)
                 allocache(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
-#ifdef DEBUG_VALGRIND_NO_SMC
-            Bmemset((void *)waloff[TILE_SAVESHOT], 0, 200*320);
-            return;
-#endif
-            setviewtotile(TILE_SAVESHOT,200L,320L);
+
+            if (getrendermode()==0)
+                setviewtotile(TILE_SAVESHOT,200L,320L);
         }
         else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))
         {
@@ -3733,11 +3731,54 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         drawing_ror = 0;
         drawmasks();
 
-        if (g_screenCapture == 1)
+        if (g_screenCapture)
         {
-            setviewback();
             g_screenCapture = 0;
-            //            walock[TILE_SAVESHOT] = 1;
+
+            if (getrendermode()==0)
+            {
+                setviewback();
+//                walock[TILE_SAVESHOT] = 1;
+            }
+#ifdef USE_OPENGL
+            else
+            {
+                // Save OpenGL screenshot with Duke3D palette
+                // NOTE: maybe need to move this to the engine...
+                begindrawing();
+                {
+                    palette_t *const frame = Bcalloc(xdim*ydim, 4);
+                    char *const pic = (char *)waloff[TILE_SAVESHOT];
+
+                    int32_t x, y;
+                    const int32_t xf = divscale16(xdim, 320);  // (xdim<<16)/320
+                    const int32_t yf = divscale16(ydim, 200);  // (ydim<<16)/200
+
+                    if (!frame)
+                    {
+                        Bmemset(pic, 0, 320*200);
+                    }
+                    else
+                    {
+                        bglReadPixels(0,0,xdim,ydim,GL_RGBA,GL_UNSIGNED_BYTE,frame);
+
+                        for (y=0; y<200; y++)
+                        {
+                            const int32_t base = mulscale16(200-y-1, yf)*xdim;
+
+                            for (x=0; x<320; x++)
+                            {
+                                const palette_t *pix = &frame[base + mulscale16(x, xf)];
+                                pic[320*y + x] = getclosestcol(pix->r>>2, pix->g>>2, pix->b>>2);
+                            }
+                        }
+
+                        Bfree(frame);
+                    }
+                }
+                enddrawing();
+            }
+#endif
         }
         else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))
         {
