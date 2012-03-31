@@ -8161,9 +8161,8 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         {
             umost[i] = shortptr1[i]-windowy1;
             dmost[i] = shortptr2[i]-windowy1;
-            i--;
         }
-        while (i != 0);
+        while (i--);  // xdimen == 1 is OK!
         umost[0] = shortptr1[0]-windowy1;
         dmost[0] = shortptr2[0]-windowy1;
     }

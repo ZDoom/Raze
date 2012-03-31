@@ -2353,7 +2353,7 @@ nullquote:
                     y2 = scale(y2,ydim-1,199);
                 }
 
-                if ((x1 < 0 || y1 < 0 || x2 > xdim-1 || y2 > ydim-1 || x2-x1 < 2 || y2-y1 < 2))
+                if ((x1 < 0 || y1 < 0 || x2 >= xdim || y2 >= ydim))
                 {
                     OSD_Printf(CON_ERROR "incorrect coordinates\n",g_errorLineNum,keyw[g_tw]);
                     continue;
