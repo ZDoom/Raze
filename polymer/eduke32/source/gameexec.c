@@ -2364,6 +2364,8 @@ nullquote:
                     continue;
                 }
 
+                horiz = clamp(horiz, HORIZ_MIN, HORIZ_MAX);
+
 #ifdef USE_OPENGL
                 oprojhacks = glprojectionhacks;
                 glprojectionhacks = 0;
