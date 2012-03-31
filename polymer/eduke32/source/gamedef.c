@@ -87,6 +87,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_INCLUDEDEFAULT, 20110615 },
     { CON_SETACTORSOUNDPITCH, 20111102 },
     { CON_ECHO, 20120304 },
+    { CON_SHOWVIEWUNBIASED, 20120331 },
 };
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
@@ -565,6 +566,7 @@ const char *keyw[] =
     "includedefault",           // 360
     "setactorsoundpitch",       // 361
     "echo",                     // 362
+    "showviewunbiased",         // 363
     "<null>"
 };
 
@@ -4220,6 +4222,7 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case CON_SHOWVIEW:
+        case CON_SHOWVIEWUNBIASED:
             if (g_parsingEventPtr == NULL && g_processingState == 0)
             {
                 C_ReportError(ERROR_EVENTONLY);

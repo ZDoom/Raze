@@ -2310,6 +2310,7 @@ nullquote:
         }
 
         case CON_SHOWVIEW:
+        case CON_SHOWVIEWUNBIASED:
             insptr++;
             {
                 int32_t x=Gv_GetVarX(*insptr++);
@@ -2318,10 +2319,10 @@ nullquote:
                 int32_t a=Gv_GetVarX(*insptr++);
                 int32_t horiz=Gv_GetVarX(*insptr++);
                 int32_t sect=Gv_GetVarX(*insptr++);
-                int32_t x1=scale(Gv_GetVarX(*insptr++),xdim,320);
-                int32_t y1=scale(Gv_GetVarX(*insptr++),ydim,200);
-                int32_t x2=scale(Gv_GetVarX(*insptr++),xdim,320);
-                int32_t y2=scale(Gv_GetVarX(*insptr++),ydim,200);
+                int32_t x1=Gv_GetVarX(*insptr++);
+                int32_t y1=Gv_GetVarX(*insptr++);
+                int32_t x2=Gv_GetVarX(*insptr++);
+                int32_t y2=Gv_GetVarX(*insptr++);
                 int32_t smoothratio = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
 #ifdef USE_OPENGL
                 int32_t oprojhacks;
@@ -2331,6 +2332,26 @@ nullquote:
 
                 if (x1 > x2) swaplong(&x1,&x2);
                 if (y1 > y2) swaplong(&y1,&y2);
+
+                if (tw == CON_SHOWVIEW)
+                {
+                    // The showview command has a rounding bias towards zero,
+                    // e.g. floor((319*1680)/320) == 1674
+                    x1 = scale(x1,xdim,320);
+                    y1 = scale(y1,ydim,200);
+                    x2 = scale(x2,xdim,320);
+                    y2 = scale(y2,ydim,200);
+                }
+                else
+                {
+                    // This will map the maximum 320-based coordinate to the
+                    // maximum real screen coordinate:
+                    // floor((319*1679)/319) == 1679
+                    x1 = scale(x1,xdim-1,319);
+                    y1 = scale(y1,ydim-1,199);
+                    x2 = scale(x2,xdim-1,319);
+                    y2 = scale(y2,ydim-1,199);
+                }
 
                 if ((x1 < 0 || y1 < 0 || x2 > xdim-1 || y2 > ydim-1 || x2-x1 < 2 || y2-y1 < 2))
                 {

@@ -941,6 +941,7 @@ enum ScriptKeywords_t
     CON_INCLUDEDEFAULT,     // 360
     CON_SETACTORSOUNDPITCH, // 361
     CON_ECHO,               // 362
+    CON_SHOWVIEWUNBIASED,   // 363
     CON_END
 };
 #endif
