@@ -135,7 +135,6 @@ static int32_t artversion;
 int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 char picsiz[MAXTILES];
 static void *pic = NULL;
-static char permanentlock = 255;
 static char tilefilenum[MAXTILES];
 static int32_t tilefileoffs[MAXTILES];
 static int32_t lastageclock;
