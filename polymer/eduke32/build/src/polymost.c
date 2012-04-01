@@ -734,6 +734,8 @@ void polymost_glinit()
 
     bglBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
+    bglPixelStorei(GL_PACK_ALIGNMENT, 1);
+
     //bglHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     //bglEnable(GL_LINE_SMOOTH);
 

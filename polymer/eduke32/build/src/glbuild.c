@@ -80,6 +80,7 @@ void (APIENTRY *bglLightfv)(GLenum light, GLenum pname, const GLfloat *params);
 void (APIENTRY *bglReadPixels)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
 void (APIENTRY *bglRasterPos4i)(GLint x, GLint y, GLint z, GLint w);
 void (APIENTRY *bglDrawPixels)(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
+void (APIENTRY *bglPixelStorei)(GLenum pname, GLint param);
 
 // Texture mapping
 void (APIENTRY *bglTexEnvf)(GLenum target, GLenum pname, GLfloat param);
@@ -433,6 +434,7 @@ int32_t loadgldriver(const char *driver)
     bglReadPixels		= GETPROC("glReadPixels");
     bglRasterPos4i		= GETPROC("glRasterPos4i");
     bglDrawPixels		= GETPROC("glDrawPixels");
+    bglPixelStorei		= GETPROC("glPixelStorei");
 
     // Texture mapping
     bglTexEnvf		=       GETPROC("glTexEnvf");
@@ -719,6 +721,7 @@ int32_t unloadgldriver(void)
     bglReadPixels		= NULL;
     bglRasterPos4i		= NULL;
     bglDrawPixels		= NULL;
+    bglPixelStorei		= NULL;
 
     // Texture mapping
     bglTexEnvf		    = NULL;
