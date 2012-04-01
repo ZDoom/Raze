@@ -2882,20 +2882,6 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         if (!Bstrcmp(glinfo.vendor,"Microsoft Corporation")) err = 1;
         else if (!Bstrcmp(glinfo.vendor,"SiS")) err = 1;
         else if (!Bstrcmp(glinfo.vendor,"3Dfx Interactive Inc.")) err = 1;
-        else if (!Bstrcmp(glinfo.vendor,"Intel"))
-        {
-            if (!Bstrncmp(glinfo.renderer,"Intel 8", 7)) // 845G and 865G confirmed to work
-                err = 0;
-            else if (!Bstrncmp(glinfo.renderer,"Intel 9", 7)) // 915G, 945GM, 965/963 GMA confirmed to work
-                err = 0;
-            else if (!Bstrcmp(glinfo.renderer,"Intel Cantiga"))
-                err = 0;
-            else if (!Bstrcmp(glinfo.renderer,"Mobile Intel(R) 4 Series Express Chipset Family"))
-                err = 0;
-            else if (!Bstrcmp(glinfo.renderer,"Intel Brookdale-G"))
-                err = 0;
-            else err = 1;
-        }
         else
         {
             if (!Bstrcmp(glinfo.vendor,"ATI Technologies Inc."))
