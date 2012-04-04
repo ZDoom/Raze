@@ -141,17 +141,8 @@ void GAME_onshowosd(int32_t shown)
     // most of this is copied from my dummytile stuff in defs.c
     if (!tilesizx[BGTILE] || !tilesizy[BGTILE])
     {
-        int32_t j;
-
-        tilesizx[BGTILE] = BGTILE_SIZEX;
-        tilesizy[BGTILE] = BGTILE_SIZEY;
+        set_picsizanm(BGTILE, BGTILE_SIZEX, BGTILE_SIZEY, 0);
         faketilesiz[BGTILE] = -1;
-        picanm[BGTILE] = 0;
-
-        j = 15; while ((j > 1) && (pow2long[j] > BGTILE_SIZEX)) j--;
-        picsiz[BGTILE] = ((uint8_t)j);
-        j = 15; while ((j > 1) && (pow2long[j] > BGTILE_SIZEY)) j--;
-        picsiz[BGTILE] += ((uint8_t)(j<<4));
     }
 
     G_UpdateScreenArea();

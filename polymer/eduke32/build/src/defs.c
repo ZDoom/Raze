@@ -103,14 +103,14 @@ static const char *skyfaces[6] =
 
 static int32_t defsparser(scriptfile *script);
 
-static void defsparser_include(const char *fn, scriptfile *script, char *cmdtokptr)
+static void defsparser_include(const char *fn, const scriptfile *script, const char *cmdtokptr)
 {
     scriptfile *included;
 
     included = scriptfile_fromfile(fn);
     if (!included)
     {
-        if (!Bstrcasecmp(cmdtokptr,"null"))
+        if (!cmdtokptr)
             initprintf("Warning: Failed including %s as module\n", fn);
         else
             initprintf("Warning: Failed including %s on line %s:%d\n",
@@ -121,6 +121,64 @@ static void defsparser_include(const char *fn, scriptfile *script, char *cmdtokp
         defsparser(included);
         scriptfile_close(included);
     }
+}
+
+
+static int32_t check_tile_range(const char *defcmd, int32_t *tilebeg, int32_t *tileend,
+                                const scriptfile *script, const char *cmdtokptr)
+{
+    if (*tileend < *tilebeg)
+    {
+        initprintf("Warning: %s: backwards tile range on line %s:%d\n", defcmd,
+                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+        swaplong(tilebeg, tileend);
+    }
+
+    if ((unsigned)*tilebeg >= MAXTILES || (unsigned)*tileend >= MAXTILES)
+    {
+        initprintf("Error: %s: Invalid tile range on line %s:%d\n", defcmd,
+                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+        return 1;
+    }
+
+    return 0;
+}
+
+static int32_t check_tile(const char *defcmd, int32_t *tile, const scriptfile *script,
+                          const char *cmdtokptr)
+{
+    if ((unsigned)*tile >= MAXTILES)
+    {
+        initprintf("Error: %s: Invalid tile number on line %s:%d\n", defcmd,
+                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+        return 1;
+    }
+
+    return 0;
+}
+
+static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t alphacut)
+{
+    const int32_t xsiz = tilesizx[tile], ysiz = tilesizy[tile];
+    int32_t i, j;
+
+    char *ftd = Bmalloc(xsiz*ysiz);
+
+    faketiledata[tile] = Bmalloc(xsiz*ysiz + 400);
+
+    for (i=xsiz-1; i>=0; i--)
+    {
+        for (j=ysiz-1; j>=0; j--)
+        {
+            const palette_t *col = &picptr[j*xsiz+i];
+            if (col->f < alphacut) { ftd[i*ysiz+j] = 255; continue; }
+            ftd[i*ysiz+j] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
+        }
+        //                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
+    }
+
+    faketilesiz[tile] = qlz_compress(ftd, faketiledata[tile], xsiz*ysiz, state_compress);
+    Bfree(ftd);
 }
 
 static int32_t defsparser(scriptfile *script)
@@ -295,19 +353,13 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&tilenume1)) break;
             if (scriptfile_getsymbol(script,&tilenume2)) break;
             if (scriptfile_getdouble(script,&alpha)) break;
-            if (tilenume2 < tilenume1)
-            {
-                initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
-                i = tilenume2;
-                tilenume2 = tilenume1;
-                tilenume1 = i;
-            }
+
+            if (check_tile_range("alphahackrange", &tilenume1, &tilenume2, script, cmdtokptr))
+                break;
+
 #ifdef USE_OPENGL
-            if ((unsigned)tilenume1 < MAXTILES && (unsigned)tilenume2 < MAXTILES)
-            {
-                for (i=tilenume1; i<=tilenume2; i++)
-                    alphahackarray[i] = alpha;
-            }
+            for (i=tilenume1; i<=tilenume2; i++)
+                alphahackarray[i] = alpha;
 #endif
         }
         break;
@@ -377,7 +429,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (tile >= MAXTILES)break;
-            if (scriptfile_getsymbol(script,&h_xsize[tile])) break;
+            if (scriptfile_getsymbol(script,&h_xsize[tile])) break;  // XXX
             if (scriptfile_getsymbol(script,&h_ysize[tile])) break;
             if (scriptfile_getsymbol(script,&tmp)) break;
             h_xoffs[tile]=tmp;
@@ -396,50 +448,49 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&xoffs)) break;
             if (scriptfile_getsymbol(script,&yoffs)) break;
 
-            if (tile2 < tile1)
+            if (check_tile_range("setuptilerange", &tile1, &tile2, script, cmdtokptr))
+                break;
+
+            for (i=tile1; i<=tile2; i++)
             {
-                initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
-                i = tile2;
-                tile2 = tile1;
-                tile1 = i;
+                h_xsize[i] = xsiz;
+                h_ysize[i] = ysiz;
+                h_xoffs[i] = xoffs;
+                h_yoffs[i] = yoffs;
             }
 
-            if ((unsigned)tile1 < MAXTILES && (unsigned)tile2 < MAXTILES)
-            {
-                for (i=tile1; i<=tile2; i++)
-                {
-                    h_xsize[i] = xsiz;
-                    h_ysize[i] = ysiz;
-                    h_xoffs[i] = xoffs;
-                    h_yoffs[i] = yoffs;
-                }
-            }
             break;
         }
         case T_ANIMTILERANGE:
         {
-            int32_t tile1, tile2, spd, type, i;
+            int32_t tile1, tile2, spd, type;
 
             if (scriptfile_getsymbol(script,&tile1)) break;
             if (scriptfile_getsymbol(script,&tile2)) break;
             if (scriptfile_getsymbol(script,&spd)) break;
             if (scriptfile_getsymbol(script,&type)) break;
-            if (tile2 < tile1)
+
+            if (check_tile_range("animtilerange", &tile1, &tile2, script, cmdtokptr))
+                break;
+
+            if (tile2-tile1 >= 64)
             {
-                initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
-                i = tile2;
-                tile2 = tile1;
-                tile1 = i;
+                initprintf("Error: animtilerange: tile difference can be at most 64 on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
             }
 
-            if ((unsigned)tile1 <= MAXTILES && (unsigned)tile2 <= MAXTILES)
-                picanm[tile1]=(picanm[tile1]&0xffffff3f)+(spd<<24)+(type<<6)+tile2-tile1;
+            spd = clamp(spd, 0, 15);
+            type = clamp(type, 0, 3);
+
+            picanm[tile1] &= 0xf0ffff00;  // clear animation fields
+            picanm[tile1] |= (spd<<24)+(type<<6)+tile2-tile1;
 
             break;
         }
         case T_TILEFROMTEXTURE:
         {
-            char *texturetokptr = script->ltextptr, *textureend, *fn = NULL, *ftd = NULL;
+            char *texturetokptr = script->ltextptr, *textureend, *fn = NULL;
             int32_t tile=-1, token;
             int32_t alphacut = 255;
             int32_t xoffset = 0, yoffset = 0, goodtogo=0;
@@ -499,100 +550,62 @@ static int32_t defsparser(scriptfile *script)
 
             if (goodtogo)
             {
-                int32_t xsiz, ysiz, i, j;
-                int32_t *picptr = NULL;
-                palette_t *col;
+                int32_t xsiz, ysiz, j;
+                palette_t *picptr = NULL;
 
                 kpzload(fn, (intptr_t *)&picptr, &j, &xsiz, &ysiz);
+//                initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
 
-                //            initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
+                if (!picptr)
+                    break;
 
-                ftd = Bmalloc(xsiz*ysiz);
-                faketiledata[tile] = Bmalloc(xsiz*ysiz + 400);
+                if (xsiz <= 0 || ysiz <= 0)
+                    break;
 
-                for (i=xsiz-1; i>=0; i--)
-                {
-                    for (j=ysiz-1; j>=0; j--)
-                    {
-                        col = (palette_t *)&picptr[j*xsiz+i];
-                        if (col->f < alphacut) { ftd[i*ysiz+j] = 255; continue; }
-                        ftd[i*ysiz+j] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
-                    }
-                    //                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
-                }
+                xoffset = clamp(xoffset, -128, 127)&255;
+                yoffset = clamp(yoffset, -128, 127)&255;
 
-                if (xsiz > 0 && ysiz > 0)
-                {
-                    tilesizx[tile] = xsiz;
-                    tilesizy[tile] = ysiz;
+                set_picsizanm(tile, xsiz, ysiz, (picanm[tile]&0xff0000ff)+
+                              (xoffset<<8)+(yoffset<<16));
 
-                    faketilesiz[tile] = qlz_compress(ftd, faketiledata[tile], xsiz*ysiz, state_compress);
-
-                    xoffset = clamp(xoffset, -128, 127);
-                    picanm[tile] = (picanm[tile]&0xffff00ff)+((xoffset&255)<<8);
-                    yoffset = clamp(yoffset, -128, 127);
-                    picanm[tile] = (picanm[tile]&0xff00ffff)+((yoffset&255)<<16);
-
-                    j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
-                    picsiz[tile] = ((uint8_t)j);
-                    j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
-                    picsiz[tile] += ((uint8_t)(j<<4));
-                }
+                tile_from_truecolpic(tile, picptr, alphacut);
 
                 Bfree(picptr);
-                Bfree(ftd);
             }
         }
         break;
         case T_IMPORTTILE:
         {
-            int32_t tile, xsiz, ysiz, j, i;
-            int32_t *picptr = NULL;
+            int32_t tile, xsiz, ysiz;
+            palette_t *picptr = NULL;
             int32_t bpl;
-            char *fn, *ftd = NULL;
-            palette_t *col;
+            char *fn;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getstring(script,&fn))  break;
 
             kpzload(fn, (intptr_t *)&picptr, &bpl, &xsiz, &ysiz);
-
 //            initprintf("got bpl %d xsiz %d ysiz %d\n",bpl,xsiz,ysiz);
 
-            ftd = Bmalloc(xsiz*ysiz);
-            faketiledata[tile] = Bmalloc(xsiz*ysiz + 400);
+            if (!picptr)
+                break;  // TODO: message
 
-            for (i=xsiz-1; i>=0; i--)
-            {
-                for (j=ysiz-1; j>=0; j--)
-                {
-                    col = (palette_t *)&picptr[j*xsiz+i];
-                    if (col->f != 255) { ftd[i*ysiz+j] = 255; continue; }
-                    ftd[i*ysiz+j] = getclosestcol(col->b>>2,col->g>>2,col->r>>2);
-                }
-//                initprintf(" %d %d %d %d\n",col->r,col->g,col->b,col->f);
-            }
+            if (xsiz <= 0 || ysiz <= 0)  // XXX: kpzload isn't robust against that!
+                break;
 
-            if (xsiz > 0 && ysiz > 0)
-            {
-                tilesizx[tile] = xsiz;
-                tilesizy[tile] = ysiz;
-                faketilesiz[tile] = qlz_compress(ftd, faketiledata[tile], xsiz*ysiz, state_compress);
-                picanm[tile] = 0;
+            if (check_tile("importtile", &tile, script, cmdtokptr))
+                break;
 
-                j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
-                picsiz[tile] = ((uint8_t)j);
-                j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
-                picsiz[tile] += ((uint8_t)(j<<4));
-            }
+            set_picsizanm(tile, xsiz, ysiz, 0);
+
+            tile_from_truecolpic(tile, picptr, 255);
 
             Bfree(picptr);
-            Bfree(ftd);
             break;
         }
         case T_DUMMYTILE:
         {
-            int32_t tile, xsiz, ysiz, j;
+            int32_t tile, xsiz, ysiz;
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getsymbol(script,&xsiz)) break;
@@ -600,55 +613,33 @@ static int32_t defsparser(scriptfile *script)
 
             if (xsiz > 0 && ysiz > 0)
             {
-                tilesizx[tile] = xsiz;
-                tilesizy[tile] = ysiz;
+                set_picsizanm(tile, xsiz, ysiz, 0);
                 faketilesiz[tile] = -1;
-                picanm[tile] = 0;
-
-                j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
-                picsiz[tile] = ((uint8_t)j);
-                j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
-                picsiz[tile] += ((uint8_t)(j<<4));
             }
 
             break;
         }
         case T_DUMMYTILERANGE:
         {
-            int32_t tile1,tile2,xsiz,ysiz,i,j;
+            int32_t tile1,tile2,xsiz,ysiz,i;
 
             if (scriptfile_getnumber(script,&tile1)) break;
             if (scriptfile_getnumber(script,&tile2)) break;
             if (scriptfile_getnumber(script,&xsiz)) break;
             if (scriptfile_getnumber(script,&ysiz)) break;
-            if (tile2 < tile1)
-            {
-                initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
-                i = tile2;
-                tile2 = tile1;
-                tile1 = i;
-            }
-            if ((tile1 >= 0 && tile1 < MAXTILES) && (tile2 >= 0 && tile2 < MAXTILES))
-            {
-                for (i=tile1; i<=tile2; i++)
-                {
-                    if ((uint32_t)i < MAXTILES)
-                    {
-                        if (xsiz > 0 && ysiz > 0)
-                        {
-                            tilesizx[i] = xsiz;
-                            tilesizy[i] = ysiz;
-                            faketilesiz[i] = -1;
-                            picanm[i] = 0;
 
-                            j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
-                            picsiz[i] = ((uint8_t)j);
-                            j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
-                            picsiz[i] += ((uint8_t)(j<<4));
-                        }
-                    }
-                }
+            if (check_tile_range("dummytilerange", &tile1, &tile2, script, cmdtokptr))
+                break;
+
+            if (xsiz <= 0 || ysiz <= 0)
+                break;  // TODO: message
+
+            for (i=tile1; i<=tile2; i++)
+            {
+                set_picsizanm(i, xsiz, ysiz, 0);
+                faketilesiz[i] = -1;
             }
+
             break;
         }
 
@@ -688,13 +679,9 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getstring(script,&framename)) break;
             if (scriptfile_getnumber(script,&ftilenume)) break; //first tile number
             if (scriptfile_getnumber(script,&ltilenume)) break; //last tile number (inclusive)
-            if (ltilenume < ftilenume)
-            {
-                initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
-                tilex = ftilenume;
-                ftilenume = ltilenume;
-                ltilenume = tilex;
-            }
+
+            if (check_tile_range("definemodelframe", &ftilenume, &ltilenume, script, cmdtokptr))
+                break;
 
             if (lastmodelid < 0)
             {
@@ -851,20 +838,8 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&ftilenume)) break; //1st tile #
             if (scriptfile_getnumber(script,&ltilenume)) break; //last tile #
 
-            if (ltilenume < ftilenume)
-            {
-                initprintf("Warning: backwards tile range on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                tilex = ftilenume;
-                ftilenume = ltilenume;
-                ltilenume = tilex;
-            }
-            if (ltilenume < 0 || ftilenume >= MAXTILES)
-            {
-                initprintf("Invalid tile range on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+            if (check_tile_range("definevoxeltiles", &ftilenume, &ltilenume, script, cmdtokptr))
                 break;
-            }
 
             if (lastvoxid < 0)
             {
@@ -974,17 +949,10 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if (ftilenume < 0) initprintf("Error: missing 'first tile number' for frame definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,frametokptr)), happy = 0;
-                    if (ltilenume < 0) initprintf("Error: missing 'last tile number' for frame definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,frametokptr)), happy = 0;
-                    model_ok &= happy;
-                    if (!happy) break;
-
-                    if (ltilenume < ftilenume)
+                    if (check_tile_range("model: frame", &ftilenume, &ltilenume, script, frametokptr))
                     {
-                        initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,frametokptr));
-                        tilex = ftilenume;
-                        ftilenume = ltilenume;
-                        ltilenume = tilex;
+                        model_ok = 0;
+                        break;
                     }
 
                     if (lastmodelid < 0)
@@ -1243,17 +1211,10 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if (ftilenume < 0) initprintf("Error: missing 'first tile number' for hud definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,hudtokptr)), happy = 0;
-                    if (ltilenume < 0) initprintf("Error: missing 'last tile number' for hud definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,hudtokptr)), happy = 0;
-                    model_ok &= happy;
-                    if (!happy) break;
-
-                    if (ltilenume < ftilenume)
+                    if (check_tile_range("hud", &ftilenume, &ltilenume, script, hudtokptr))
                     {
-                        initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,hudtokptr));
-                        tilex = ftilenume;
-                        ftilenume = ltilenume;
-                        ltilenume = tilex;
+                        model_ok = 0;
+                        break;
                     }
 
                     if (lastmodelid < 0)
@@ -1363,22 +1324,27 @@ static int32_t defsparser(scriptfile *script)
                     //case T_ERROR: initprintf("Error on line %s:%d in voxel tokens\n", script->filename,linenum); break;
                 case T_TILE:
                     scriptfile_getsymbol(script,&tilex);
-                    if ((uint32_t)tilex < MAXTILES) tiletovox[tilex] = lastvoxid;
-                    else initprintf("Invalid tile number on line %s:%d\n",script->filename, scriptfile_getlinum(script,voxeltokptr));
+
+                    if (check_tile("voxel", &tilex, script, voxeltokptr))
+                        break;
+
+                    tiletovox[tilex] = lastvoxid;
                     break;
+
                 case T_TILE0:
-                    scriptfile_getsymbol(script,&tile0); break; //1st tile #
+                    scriptfile_getsymbol(script,&tile0);
+                    break; //1st tile #
+
                 case T_TILE1:
                     scriptfile_getsymbol(script,&tile1);
-                    if (tile0 > tile1)
-                    {
-                        initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,voxeltokptr));
-                        tilex = tile0; tile0 = tile1; tile1 = tilex;
-                    }
-                    if ((tile1 < 0) || (tile0 >= MAXTILES))
-                        { initprintf("Invalid tile range on line %s:%d\n",script->filename, scriptfile_getlinum(script,voxeltokptr)); break; }
-                    for (tilex=tile0; tilex<=tile1; tilex++) tiletovox[tilex] = lastvoxid;
+
+                    if (check_tile_range("hud", &tile0, &tile1, script, voxeltokptr))
+                        break;
+
+                    for (tilex=tile0; tilex<=tile1; tilex++)
+                        tiletovox[tilex] = lastvoxid;
                     break; //last tile number (inclusive)
+
                 case T_SCALE:
                 {
                     double scale=1.0;
@@ -1439,10 +1405,10 @@ static int32_t defsparser(scriptfile *script)
                 }
             }
 
-            if (tile < 0) initprintf("Error: missing 'tile number' for skybox definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy=0;
+            if (tile < 0) initprintf("Error: skybox: missing 'tile number' near line %s:%d\n", script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy=0;
             for (i=0; i<6; i++)
             {
-                if (!fn[i]) initprintf("Error: missing '%s filename' for skybox definition near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
+                if (!fn[i]) initprintf("Error: skybox: missing '%s filename' near line %s:%d\n", skyfaces[i], script->filename, scriptfile_getlinum(script,skyboxtokptr)), happy = 0;
                 // FIXME?
                 if (check_file_exist(fn[i]))
                     happy = 0;
@@ -1489,7 +1455,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if ((unsigned)pal >= ((unsigned)MAXPALOOKUPS - RESERVEDPALS))
+            if ((unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS)
             {
                 initprintf("Error: missing or invalid 'palette number' for highpalookup definition near "
                            "line %s:%d\n", script->filename, scriptfile_getlinum(script,highpaltokptr));
@@ -1583,7 +1549,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (pal < 0)
             {
-                initprintf("Error: missing 'palette number' for tint definition near line %s:%d\n",
+                initprintf("Error: tint: missing 'palette number' near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,tinttokptr));
                 break;
             }
@@ -1750,8 +1716,8 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
-                    if ((unsigned)pal >= ((unsigned)MAXPALOOKUPS - RESERVEDPALS))
+                    if ((unsigned)tile >= MAXTILES) break;	// message is printed later
+                    if ((unsigned)pal >= MAXPALOOKUPS - RESERVEDPALS)
                     {
                         initprintf("Error: missing or invalid 'palette number' for texture definition near "
                                    "line %s:%d\n", script->filename, scriptfile_getlinum(script,paltokptr));
@@ -1817,7 +1783,7 @@ static int32_t defsparser(scriptfile *script)
                         }
                     }
 
-                    if ((unsigned)tile > (unsigned)MAXTILES) break;	// message is printed later
+                    if ((unsigned)tile >= MAXTILES) break;	// message is printed later
                     if (!fn)
                     {
                         initprintf("Error: missing 'file name' for texture definition near line %s:%d\n",
@@ -1852,7 +1818,7 @@ static int32_t defsparser(scriptfile *script)
                     break;
                 }
             }
-            if ((unsigned)tile >= (unsigned)MAXTILES)
+            if ((unsigned)tile >= MAXTILES)
             {
                 initprintf("Error: missing or invalid 'tile number' for texture definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,texturetokptr));
@@ -1870,30 +1836,20 @@ static int32_t defsparser(scriptfile *script)
             if (tokn == T_UNDEFMODELRANGE)
             {
                 if (scriptfile_getsymbol(script,&r1)) break;
-                if (r1 < r0)
-                {
-                    int32_t t = r1;
-                    r1 = r0;
-                    r0 = t;
-                    initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
-                }
-                if (r0 < 0 || r1 >= MAXTILES)
-                {
-                    initprintf("Error: invalid tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+
+                if (check_tile_range("undefmodelrange", &r0, &r1, script, cmdtokptr))
                     break;
-                }
             }
             else
             {
                 r1 = r0;
-                if ((unsigned)r0 >= (unsigned)MAXTILES)
-                {
-                    initprintf("Error: invalid tile number on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+
+                if (check_tile("undefmodel", &r0, script, cmdtokptr))
                     break;
-                }
             }
 #ifdef USE_OPENGL
-            for (; r0 <= r1; r0++) md_undefinetile(r0);
+            for (; r0 <= r1; r0++)
+                md_undefinetile(r0);
 #endif
         }
         break;
@@ -1906,11 +1862,13 @@ static int32_t defsparser(scriptfile *script)
 #endif
 
             if (scriptfile_getsymbol(script,&r0)) break;
-            if ((unsigned)r0 >= (unsigned)MAXTILES)
-            {
-                initprintf("Error: invalid tile number on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+
+            if (check_tile("undefmodelof", &r0, script, cmdtokptr))
                 break;
-            }
+
+            // XXX: See comment of md_undefinemodel()
+            initprintf("Warning: undefmodelof: currently non-functional.\n");
+            break;
 
 #ifdef USE_OPENGL
             mid = md_tilehasmodel(r0,0);
@@ -1930,27 +1888,16 @@ static int32_t defsparser(scriptfile *script)
             if (tokn == T_UNDEFTEXTURERANGE)
             {
                 if (scriptfile_getsymbol(script,&r1)) break;
-                if (r1 < r0)
-                {
-                    int32_t t = r1;
-                    r1 = r0;
-                    r0 = t;
-                    initprintf("Warning: backwards tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
-                }
-                if (r0 < 0 || r1 >= MAXTILES)
-                {
-                    initprintf("Error: invalid tile range on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+
+                if (check_tile_range("undeftexturerange", &r0, &r1, script, cmdtokptr))
                     break;
-                }
             }
             else
             {
                 r1 = r0;
-                if ((unsigned)r0 >= (unsigned)MAXTILES)
-                {
-                    initprintf("Error: invalid tile number on line %s:%d\n", script->filename, scriptfile_getlinum(script,cmdtokptr));
+
+                if (check_tile("undeftexture", &r0, script, cmdtokptr))
                     break;
-                }
             }
 
             for (; r0 <= r1; r0++)
@@ -1977,7 +1924,7 @@ static int32_t defsparser(scriptfile *script)
 
         case T_NOFLOORPALRANGE:
         {
-            int32_t b,e,i;
+            int32_t b,e;
 
             if (scriptfile_getnumber(script,&b)) break;
             if (scriptfile_getnumber(script,&e)) break;
@@ -2041,7 +1988,7 @@ int32_t loaddefinitionsfile(const char *fn)
     defsparser(script);
 
     for (i=0; i < g_defModulesNum; ++i)
-        defsparser_include(g_defModules[i], NULL, "null");
+        defsparser_include(g_defModules[i], NULL, NULL);
 
     flushlogwindow = f;
     scriptfile_close(script);

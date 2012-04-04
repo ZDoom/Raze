@@ -10312,13 +10312,33 @@ void nextpage(void)
     numframes++;
 }
 
+void set_picsizanm(int32_t picnum, int16_t dasizx, int16_t dasizy, int32_t daanm)
+{
+    int32_t j;
+
+    tilesizx[picnum] = dasizx;
+    tilesizy[picnum] = dasizy;
+
+    picanm[picnum] = daanm;
+
+    j = 15;
+    while ((j > 1) && (pow2long[j] > dasizx))
+        j--;
+    picsiz[picnum] = j;
+
+    j = 15;
+    while ((j > 1) && (pow2long[j] > dasizy))
+        j--;
+    picsiz[picnum] += j<<4;
+}
+
 //
 // loadpics
 //
 int32_t loadpics(const char *filename, int32_t askedsize)
 {
     int32_t offscount, localtilestart, localtileend, dasiz;
-    int32_t i, j, fil, tilefilei, numtiles_dummy;
+    int32_t i, fil, tilefilei, numtiles_dummy;
 
     Bstrcpy(artfilename,filename);
 
@@ -10407,14 +10427,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
     initcache((intptr_t)pic, cachesize);
 
     for (i=0; i<MAXTILES; i++)
-    {
-        j = 15;
-        while ((j > 1) && (pow2long[j] > tilesizx[i])) j--;
-        picsiz[i] = ((uint8_t)j);
-        j = 15;
-        while ((j > 1) && (pow2long[j] > tilesizy[i])) j--;
-        picsiz[i] += ((uint8_t)(j<<4));
-    }
+        set_picsizanm(i, tilesizx[i], tilesizy[i], picanm[i]);
 
     artfil = -1;
     artfilnum = -1;
