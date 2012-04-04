@@ -1989,77 +1989,55 @@ void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
     }
 }
 
+// START and END limits are always inclusive!
+// STEP must evenly divide END-START, i.e. abs(end-start)%step == 0
 void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step)
 {
-    // for positive steps, the upper limit is exclusive!
-    if (step > 0)
-        end--;  // ... make it inclusive
-
     if (getrendermode() >= 3)
     {
         G_FadePalette(r, g, b, end);
         return;
     }
 
-    if (step > 0)
+    // (end-start)/step + 1 iterations
+    do
     {
-        for (; start <= end; start += step)
+        if (KB_KeyPressed(sc_Space))
         {
-            if (KB_KeyPressed(sc_Space))
-            {
-                KB_ClearKeyDown(sc_Space);
-                setpalettefade(r,g,b,end);  // have to set to end fade value if we break!
-                return;
-            }
-
-            G_FadePalette(r,g,b,start);
+            KB_ClearKeyDown(sc_Space);
+            setpalettefade(r,g,b,end);  // have to set to end fade value if we break!
+            return;
         }
+
+        G_FadePalette(r,g,b,start);
+
+        start += step;
     }
-    else for (; start >= end; start += step)
-        {
-            if (KB_KeyPressed(sc_Space))
-            {
-                KB_ClearKeyDown(sc_Space);
-                setpalettefade(r,g,b,end);
-                return;
-            }
-
-            G_FadePalette(r,g,b,start);
-        }
+    while (start != end+step);
 }
 
+// START and END limits are always inclusive!
+// STEP must evenly divide END-START, i.e. abs(end-start)%step == 0
 static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t tile)
 {
     if (getrendermode() >= 3)
         clearview(0);
 
-    // for positive steps, the upper limit is exclusive!
-    if (step > 0)
-        end--;  // ... make it inclusive
-
-    if (step > 0)
+    // (end-start)/step + 1 iterations
+    do
     {
-        for (; start <= end; start += step)
+        if (KB_KeyPressed(sc_Space))
         {
-            if (KB_KeyPressed(sc_Space))
-            {
-                KB_ClearKeyDown(sc_Space);
-                return;
-            }
-            rotatesprite_fs(0,0,65536L,0,tile,0,0,2+8+16+(ud.bgstretch?1024:0));
-            G_FadePalette(r,g,b,start);
+            KB_ClearKeyDown(sc_Space);
+            setpalettefade(r,g,b,end);  // have to set to end fade value if we break!
+            return;
         }
+        rotatesprite_fs(0,0,65536L,0,tile,0,0,2+8+16+(ud.bgstretch?1024:0));
+        G_FadePalette(r,g,b,start);
+
+        start += step;
     }
-    else for (; start >= end; start += step)
-        {
-            if (KB_KeyPressed(sc_Space))
-            {
-                KB_ClearKeyDown(sc_Space);
-                return;
-            }
-            rotatesprite_fs(0,0,65536L,0,tile,0,0,2+8+16+(ud.bgstretch?1024:0));
-            G_FadePalette(r,g,b,start);
-        }
+    while (start != end+step);
 }
 
 static void G_DisplayExtraScreens(void)
@@ -2075,14 +2053,14 @@ static void G_DisplayExtraScreens(void)
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0 /*1*/);    // JBF 20040308
-        fadepal(0,0,0, 0,64,7);
+        fadepal(0,0,0, 0,63,7);
         KB_FlushKeyboardQueue();
         rotatesprite_fs(0,0,65536L,0,3291,0,0,2+8+16+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7, 3291);
         while (!KB_KeyWaiting())
             G_HandleAsync();
 
-        fadepaltile(0,0,0, 0,64,7, 3291);
+        fadepaltile(0,0,0, 0,63,7, 3291);
         KB_FlushKeyboardQueue();
         rotatesprite_fs(0,0,65536L,0,3290,0,0,2+8+16+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7,3290);
@@ -2096,7 +2074,7 @@ static void G_DisplayExtraScreens(void)
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0 /*1*/);    // JBF 20040308
-        fadepal(0,0,0, 0,64,7);
+        fadepal(0,0,0, 0,63,7);
         KB_FlushKeyboardQueue();
         rotatesprite_fs(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7,TENSCREEN);
@@ -9212,7 +9190,7 @@ static void G_DisplayLogo(void)
             if (logoflags & LOGO_3DRSCREEN)
             {
                 P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8+2/*+1*/);    // JBF 20040308
-                fadepal(0,0,0, 0,64,7);
+                fadepal(0,0,0, 0,63,7);
                 flushperms();
                 rotatesprite_fs(0,0,65536L,0,DREALMS,0,0,2+8+16+(ud.bgstretch?1024:0));
                 nextpage();
@@ -9231,7 +9209,7 @@ static void G_DisplayLogo(void)
                     }
                     nextpage();
                 }
-                fadepaltile(0,0,0, 0,64,7,DREALMS);
+                fadepaltile(0,0,0, 0,63,7,DREALMS);
             }
             KB_ClearKeysDown(); // JBF
             MOUSE_ClearButton(LEFT_MOUSE);
@@ -10976,7 +10954,7 @@ void G_BonusScreen(int32_t bonusonly)
 
     bonuscnt = 0;
 
-    fadepal(0,0,0, 0,64,7);
+    fadepal(0,0,0, 0,63,7);
     setview(0,0,xdim-1,ydim-1);
     clearview(0L);
     nextpage();
@@ -11055,7 +11033,7 @@ void G_BonusScreen(int32_t bonusonly)
                 }
             }
 
-            fadepal(0,0,0, 0,64,1);
+            fadepal(0,0,0, 0,63,1);
 
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
@@ -11064,7 +11042,7 @@ void G_BonusScreen(int32_t bonusonly)
             rotatesprite_fs(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0));
             fadepal(0,0,0, 63,0,-1);
             handle_events_while_no_input();
-            fadepal(0,0,0, 0,64,1);
+            fadepal(0,0,0, 0,63,1);
             S_StopMusic();
             FX_StopAllSounds();
             S_ClearSoundLocks();
@@ -11085,7 +11063,7 @@ void G_BonusScreen(int32_t bonusonly)
 
             S_PlaySound(PIPEBOMB_EXPLODE);
 
-            fadepal(0,0,0, 0,64,1);
+            fadepal(0,0,0, 0,63,1);
             setview(0,0,xdim-1,ydim-1);
             KB_FlushKeyboardQueue();
             //g_player[myconnectindex].ps->palette = palette;
@@ -11093,7 +11071,7 @@ void G_BonusScreen(int32_t bonusonly)
             rotatesprite_fs(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0));
             fadepal(0,0,0, 63,0,-1);
             handle_events_while_no_input();
-            fadepal(0,0,0, 0,64,1);
+            fadepal(0,0,0, 0,63,1);
 
             break;
 
@@ -11137,7 +11115,7 @@ void G_BonusScreen(int32_t bonusonly)
             fadepal(0,0,0, 63,0,-3);
             KB_FlushKeyboardQueue();
             handle_events_while_no_input();
-            fadepal(0,0,0, 0,64,3);
+            fadepal(0,0,0, 0,63,3);
 
             clearview(0L);
             nextpage();
@@ -11333,7 +11311,7 @@ FRAGBONUS:
 
         if (bonusonly || (g_netServer || ud.multimode > 1)) return;
 
-        fadepal(0,0,0, 0,64,7);
+        fadepal(0,0,0, 0,63,7);
     }
 
     if (bonusonly || (g_netServer || ud.multimode > 1)) return;
