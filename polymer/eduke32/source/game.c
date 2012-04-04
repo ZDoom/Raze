@@ -1991,6 +1991,10 @@ void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
 
 void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step)
 {
+    // for positive steps, the upper limit is exclusive!
+    if (step > 0)
+        end--;  // ... make it inclusive
+
     if (getrendermode() >= 3)
     {
         G_FadePalette(r, g, b, end);
@@ -1999,13 +2003,15 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
 
     if (step > 0)
     {
-        for (; start < end; start += step)
+        for (; start <= end; start += step)
         {
             if (KB_KeyPressed(sc_Space))
             {
                 KB_ClearKeyDown(sc_Space);
+                setpalettefade(r,g,b,end);  // have to set to end fade value if we break!
                 return;
             }
+
             G_FadePalette(r,g,b,start);
         }
     }
@@ -2014,17 +2020,26 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
             if (KB_KeyPressed(sc_Space))
             {
                 KB_ClearKeyDown(sc_Space);
+                setpalettefade(r,g,b,end);
                 return;
             }
+
             G_FadePalette(r,g,b,start);
         }
 }
 
 static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t tile)
 {
+    if (getrendermode() >= 3)
+        clearview(0);
+
+    // for positive steps, the upper limit is exclusive!
+    if (step > 0)
+        end--;  // ... make it inclusive
+
     if (step > 0)
     {
-        for (; start < end; start += step)
+        for (; start <= end; start += step)
         {
             if (KB_KeyPressed(sc_Space))
             {
@@ -11379,8 +11394,8 @@ FRAGBONUS:
     {
         int32_t yy = 0, zz;
 
-        Net_GetPackets();
-        handleevents();
+        G_HandleAsync();
+
         MUSIC_Update();
 
         if (g_player[myconnectindex].ps->gm&MODE_EOL)
