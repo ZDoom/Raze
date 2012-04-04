@@ -1940,6 +1940,39 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
     pus = NUMPAGES;
 }
 
+
+////////// OFTEN-USED FEW-LINERS //////////
+static int32_t check_input_waiting(void)
+{
+    return KB_KeyWaiting() || (MOUSE_GetButtons()&LEFT_MOUSE) || BUTTON(gamefunc_Fire) || BUTTON(gamefunc_Open);
+}
+
+static void G_HandleAsync(void)
+{
+    handleevents();
+    Net_GetPackets();
+}
+
+static void handle_events_while_no_input(void)
+{
+    while (!check_input_waiting())
+        G_HandleAsync();
+}
+
+static int32_t play_sound_while_no_input(int32_t soundnum)
+{
+    S_PlaySound(soundnum);
+    while (S_CheckSoundPlaying(-1, soundnum))
+    {
+        G_HandleAsync();
+        if (check_input_waiting())
+            return 1;
+    }
+
+    return 0;
+}
+//////////
+
 void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
 {
     setpalettefade(r,g,b,e&63);
@@ -1952,10 +1985,7 @@ void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
         nextpage();
         tc = totalclock;
         while (totalclock < tc + 4)
-        {
-            handleevents();
-            Net_GetPackets();
-        }
+            G_HandleAsync();
     }
 }
 
@@ -2035,20 +2065,14 @@ static void G_DisplayExtraScreens(void)
         rotatesprite_fs(0,0,65536L,0,3291,0,0,2+8+16+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7, 3291);
         while (!KB_KeyWaiting())
-        {
-            handleevents();
-            Net_GetPackets();
-        }
+            G_HandleAsync();
 
         fadepaltile(0,0,0, 0,64,7, 3291);
         KB_FlushKeyboardQueue();
         rotatesprite_fs(0,0,65536L,0,3290,0,0,2+8+16+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7,3290);
         while (!KB_KeyWaiting())
-        {
-            handleevents();
-            Net_GetPackets();
-        }
+            G_HandleAsync();
     }
 
     if (flags & LOGO_TENSCREEN)
@@ -2062,10 +2086,7 @@ static void G_DisplayExtraScreens(void)
         rotatesprite_fs(0,0,65536L,0,TENSCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0));
         fadepaltile(0,0,0, 63,0,-7,TENSCREEN);
         while (!KB_KeyWaiting() && totalclock < 2400)
-        {
-            handleevents();
-            Net_GetPackets();
-        }
+            G_HandleAsync();
     }
 }
 
@@ -9182,11 +9203,12 @@ static void G_DisplayLogo(void)
                 nextpage();
                 fadepaltile(0,0,0, 63,0,-7,DREALMS);
                 totalclock = 0;
-                while (totalclock < (120*7) && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE  && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
+                while (totalclock < (120*7) && !check_input_waiting())
                 {
                     rotatesprite_fs(0,0,65536L,0,DREALMS,0,0,2+8+16+64+(ud.bgstretch?1024:0));
-                    handleevents();
-                    Net_GetPackets();
+
+                    G_HandleAsync();
+
                     if (g_restorePalette)
                     {
                         P_SetGamePalette(g_player[myconnectindex].ps,g_player[myconnectindex].ps->palette,0);
@@ -9274,8 +9296,9 @@ static void G_DisplayLogo(void)
                 }
 
                 VM_OnEvent(EVENT_LOGO, -1, screenpeek, -1);
-                handleevents();
-                Net_GetPackets();
+
+                G_HandleAsync();
+
                 if (g_restorePalette)
                 {
                     P_SetGamePalette(g_player[myconnectindex].ps,g_player[myconnectindex].ps->palette,0);
@@ -10864,41 +10887,30 @@ static void G_DoOrderScreen(void)
     rotatesprite_fs(0,0,65536L,0,ORDERING,0,0,2+8+16+64+(ud.bgstretch?1024:0));
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
-    {
-        handleevents();
-        Net_GetPackets();
-    }
+        G_HandleAsync();
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
     rotatesprite_fs(0,0,65536L,0,ORDERING+1,0,0,2+8+16+64+(ud.bgstretch?1024:0));
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
-    {
-        handleevents();
-        Net_GetPackets();
-    }
+        G_HandleAsync();
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
     rotatesprite_fs(0,0,65536L,0,ORDERING+2,0,0,2+8+16+64+(ud.bgstretch?1024:0));
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
-    {
-        handleevents();
-        Net_GetPackets();
-    }
+        G_HandleAsync();
 
     fadepal(0,0,0, 0,63,7);
     KB_FlushKeyboardQueue();
     rotatesprite_fs(0,0,65536L,0,ORDERING+3,0,0,2+8+16+64+(ud.bgstretch?1024:0));
     fadepal(0,0,0, 63,0,-7);
     while (!KB_KeyWaiting())
-    {
-        handleevents();
-        Net_GetPackets();
-    }
+        G_HandleAsync();
 }
+
 
 void G_BonusScreen(int32_t bonusonly)
 {
@@ -11020,8 +11032,9 @@ void G_BonusScreen(int32_t bonusonly)
                                 rotatesprite_fs(breathe[t+3]<<16,breathe[t+4]<<16,65536L,0,breathe[t+2],0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
                             }
                     }
-                    handleevents();
-                    Net_GetPackets();
+
+                    G_HandleAsync();
+
                     nextpage();
                     if (KB_KeyWaiting()) break;
                 }
@@ -11035,16 +11048,13 @@ void G_BonusScreen(int32_t bonusonly)
 
             rotatesprite_fs(0,0,65536L,0,3292,0,0,2+8+16+64+(ud.bgstretch?1024:0));
             fadepal(0,0,0, 63,0,-1);
-            while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
-            {
-                handleevents();
-                Net_GetPackets();
-            }
+            handle_events_while_no_input();
             fadepal(0,0,0, 0,64,1);
             S_StopMusic();
             FX_StopAllSounds();
             S_ClearSoundLocks();
             break;
+
         case 1:
             S_StopMusic();
             clearview(0L);
@@ -11067,17 +11077,12 @@ void G_BonusScreen(int32_t bonusonly)
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2/*+1*/);   // JBF 20040308
             rotatesprite_fs(0,0,65536L,0,3293,0,0,2+8+16+64+(ud.bgstretch?1024:0));
             fadepal(0,0,0, 63,0,-1);
-            while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
-            {
-                handleevents();
-                Net_GetPackets();
-            }
+            handle_events_while_no_input();
             fadepal(0,0,0, 0,64,1);
 
             break;
 
         case 3:
-
             setview(0,0,xdim-1,ydim-1);
 
             S_StopMusic();
@@ -11116,11 +11121,7 @@ void G_BonusScreen(int32_t bonusonly)
 
             fadepal(0,0,0, 63,0,-3);
             KB_FlushKeyboardQueue();
-            while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
-            {
-                handleevents();
-                Net_GetPackets();
-            }
+            handle_events_while_no_input();
             fadepal(0,0,0, 0,64,3);
 
             clearview(0L);
@@ -11130,11 +11131,7 @@ void G_BonusScreen(int32_t bonusonly)
             G_PlayAnim("DUKETEAM.ANM",4);
 
             KB_FlushKeyBoardQueue();
-            while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
-            {
-                handleevents();
-                Net_GetPackets();
-            }
+            handle_events_while_no_input();
 
             clearview(0L);
             nextpage();
@@ -11159,10 +11156,7 @@ void G_BonusScreen(int32_t bonusonly)
                 KB_FlushKeyBoardQueue();
                 ototalclock = totalclock+200;
                 while (totalclock < ototalclock)
-                {
-                    handleevents();
-                    Net_GetPackets();
-                }
+                    G_HandleAsync();
                 clearview(0L);
                 nextpage();
 
@@ -11172,66 +11166,29 @@ void G_BonusScreen(int32_t bonusonly)
 
             G_PlayAnim("RADLOGO.ANM",3);
 
-            if (ud.lockout == 0 && !KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
+            if (ud.lockout == 0 && !check_input_waiting())
             {
-                S_PlaySound(ENDSEQVOL3SND5);
-                while (S_CheckSoundPlaying(-1,ENDSEQVOL3SND5))
-                {
-                    handleevents();
-                    Net_GetPackets();
-                }
-                if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE || BUTTON(gamefunc_Fire) || BUTTON(gamefunc_Open)) goto ENDANM;
-                S_PlaySound(ENDSEQVOL3SND6);
-                while (S_CheckSoundPlaying(-1,ENDSEQVOL3SND6))
-                {
-                    handleevents();
-                    Net_GetPackets();
-                }
-                if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE || BUTTON(gamefunc_Fire) || BUTTON(gamefunc_Open)) goto ENDANM;
-                S_PlaySound(ENDSEQVOL3SND7);
-                while (S_CheckSoundPlaying(-1,ENDSEQVOL3SND7))
-                {
-                    handleevents();
-                    Net_GetPackets();
-                }
-                if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE || BUTTON(gamefunc_Fire) || BUTTON(gamefunc_Open)) goto ENDANM;
-                S_PlaySound(ENDSEQVOL3SND8);
-                while (S_CheckSoundPlaying(-1,ENDSEQVOL3SND8))
-                {
-                    handleevents();
-                    Net_GetPackets();
-                }
-                if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE || BUTTON(gamefunc_Fire) || BUTTON(gamefunc_Open)) goto ENDANM;
-                S_PlaySound(ENDSEQVOL3SND9);
-                while (S_CheckSoundPlaying(-1,ENDSEQVOL3SND9))
-                {
-                    handleevents();
-                    Net_GetPackets();
-                }
-
+                if (play_sound_while_no_input(ENDSEQVOL3SND5)) goto ENDANM;
+                if (play_sound_while_no_input(ENDSEQVOL3SND6)) goto ENDANM;
+                if (play_sound_while_no_input(ENDSEQVOL3SND7)) goto ENDANM;
+                if (play_sound_while_no_input(ENDSEQVOL3SND8)) goto ENDANM;
+                if (play_sound_while_no_input(ENDSEQVOL3SND9)) goto ENDANM;
             }
+
             MOUSE_ClearButton(LEFT_MOUSE);
             KB_FlushKeyBoardQueue();
             totalclock = 0;
 			if (PLUTOPAK)
             {
-                while (!KB_KeyWaiting() && totalclock < 120 && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
-                {
-                    handleevents();
-                    Net_GetPackets();
-                }
+                while (totalclock < 120 && !check_input_waiting())
+                    G_HandleAsync();
 			}
             else
             {
-                while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
-                {
-                    handleevents();
-                    Net_GetPackets();
-                }
+                handle_events_while_no_input();
 			}
 
 ENDANM:
-
 			if (!PLUTOPAK)
             {
 				FX_StopAllSounds();
@@ -11245,11 +11202,7 @@ ENDANM:
 
                 KB_FlushKeyBoardQueue();
                 MOUSE_ClearButton(LEFT_MOUSE);
-                while (!KB_KeyWaiting() && !MOUSE_GetButtons()&LEFT_MOUSE && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
-                {
-                    handleevents();
-                    Net_GetPackets();
-                }
+                handle_events_while_no_input();
 
                 clearview(0L);
                 nextpage();
@@ -11359,8 +11312,7 @@ FRAGBONUS:
             {
                 // continue after 10 seconds...
                 if (totalclock > tc + (120*10)) break;
-                handleevents();
-                Net_GetPackets();
+                G_HandleAsync();
             }
         }
 
