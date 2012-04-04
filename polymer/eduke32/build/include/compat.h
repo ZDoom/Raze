@@ -626,15 +626,5 @@ char *Bstrupr(char *);
 }
 #endif
 
-// timer defs for profiling function chunks the simple way
-#define EDUKE32_TMRDEF int32_t t[20], ti=0; const char *tmrstr=__func__; fprintf(stderr,"%s\n",tmrstr); t[ti++]=getticks();
-#define EDUKE32_TMRTIC t[ti++]=getticks()
-#define EDUKE32_TMRPRN do { int ii=0; fprintf(stderr,"%s: ",tmrstr); for (ii=1; ii<ti; ii++) fprintf(stderr,"%d ", t[ii]-t[ii-1]); fprintf(stderr,"\n"); } while (0)
-
-#if defined USE_OPENGL && defined DEBUGGINGAIDS && defined DEBUG_TEXTURE_NAMES
-# define bglGenTextures(numtexs, texnamear) texdbg_bglGenTextures(numtexs, texnamear, __FILE__)
-# define bglDeleteTextures(numtexs, texnamear) texdbg_bglDeleteTextures(numtexs, texnamear, __FILE__)
-#endif
-
 #endif // __compat_h__
 
