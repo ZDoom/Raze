@@ -84,6 +84,7 @@ enum scripttoken_t
     T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET,
     T_INCLUDEDEFAULT,
     T_ANIMSOUNDS,
+    T_NOFLOORPALRANGE,
     T_ECHO,
 };
 
@@ -160,6 +161,7 @@ static int32_t defsparser(scriptfile *script)
         { "music",           T_MUSIC            },
         { "sound",           T_SOUND            },
         { "animsounds",      T_ANIMSOUNDS       },  // dummy
+        { "nofloorpalrange", T_NOFLOORPALRANGE  },  // dummy
         // other stuff
         { "undefmodel",      T_UNDEFMODEL       },
         { "undefmodelrange", T_UNDEFMODELRANGE  },
@@ -1970,6 +1972,15 @@ static int32_t defsparser(scriptfile *script)
                 // XXX?
                 getatoken(script,dummytokens,sizeof(dummytokens)/sizeof(dummytokens));
             }
+        }
+        break;
+
+        case T_NOFLOORPALRANGE:
+        {
+            int32_t b,e,i;
+
+            if (scriptfile_getnumber(script,&b)) break;
+            if (scriptfile_getnumber(script,&e)) break;
         }
         break;
 
