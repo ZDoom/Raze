@@ -8597,6 +8597,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
         do
         {
             const char *const oc = argv[i];
+            int32_t shortopt = 0, ignored_short_opt = 0;
 
             c = oc;
 
@@ -8606,6 +8607,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 #endif
                )
             {
+                shortopt = 0;
+
                 if (!Bstrcasecmp(c+1,"?") || !Bstrcasecmp(c+1,"help") || !Bstrcasecmp(c+1,"-help"))
                 {
                     G_ShowParameterHelp();
@@ -8900,6 +8903,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 #endif
                )
             {
+                shortopt = 1;
+
                 c++;
                 switch (Btolower(*c))
                 {
@@ -8932,8 +8937,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 }
                 case 'g':
                     c++;
-                    if (!*c) break;
-                    G_AddGroup(c);
+                    if (*c)
+                        G_AddGroup(c);
                     break;
                 case 'h':
                     c++;
@@ -8947,8 +8952,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     break;
                 case 'j':
                     c++;
-                    if (!*c) break;
-                    G_AddPath(c);
+                    if (*c)
+                        G_AddPath(c);
                     break;
                 case 'l':
                     ud.warp_on = 1;
@@ -9088,10 +9093,15 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     if (!g_scriptDebug)
                         g_scriptDebug = 1;
                     break;
+                default:
+                    ignored_short_opt = 1;
+                    break;
                 }
             }
             else
             {
+                shortopt = 0;
+
                 k = Bstrrchr(c,'.');
                 if (k)
                 {
@@ -9131,7 +9141,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 }
             }
 
-            initprintf("Warning: ignored application parameter \"%s\".\n", oc);
+            if (!shortopt || ignored_short_opt)
+                initprintf("Warning: ignored application parameter \"%s\".\n", oc);
 
             i++;
         }
