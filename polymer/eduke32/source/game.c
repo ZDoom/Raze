@@ -3115,7 +3115,7 @@ void G_DrawBackground(void)
 
     y1 = 0;
     y2 = ydim;
-    if (g_player[myconnectindex].ps->gm &MODE_GAME || ud.recstat == 2)
+    if ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat == 2)
     {
         if (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)
         {
@@ -11117,8 +11117,9 @@ void G_BonusScreen(int32_t bonusonly)
             KB_FlushKeyBoardQueue();
 
             //g_player[myconnectindex].ps->palette = palette;
+            G_FadePalette(0,0,0,0);
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2/*+1*/);   // JBF 20040308
-            G_FadePalette(0,0,0,63);
+//            G_FadePalette(0,0,0,63);
             clearview(0L);
             menutext(160,60,0,0,"Thanks to all our");
             menutext(160,60+16,0,0,"fans for giving");
@@ -11128,6 +11129,7 @@ void G_BonusScreen(int32_t bonusonly)
             nextpage();
 
             fadepal(0,0,0, 63,0,-3);
+            nextpage();
             KB_FlushKeyboardQueue();
             handle_events_while_no_input();
             fadepal(0,0,0, 0,63,3);
@@ -11153,7 +11155,6 @@ void G_BonusScreen(int32_t bonusonly)
             break;
 
         case 2:
-
             S_StopMusic();
             clearview(0L);
             nextpage();
@@ -11229,7 +11230,6 @@ ENDANM:
         }
 
 FRAGBONUS:
-
     //g_player[myconnectindex].ps->palette = palette;
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2/*+1*/);   // JBF 20040308
     G_FadePalette(0,0,0,63);   // JBF 20031228
