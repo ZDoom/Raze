@@ -409,6 +409,9 @@ void G_PlayAnim(const char *fn,char t)
                 g_restorePalette = 0;
             }
 
+            if (getrendermode() >= 3)
+                clearview(0);
+
             rotatesprite_fs(0<<16,0<<16,65536L,512,TILE_ANIM,0,0,2+4+8+16+64+(ud.bgstretch?1024:0));
             nextpage();
         }

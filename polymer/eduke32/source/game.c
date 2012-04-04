@@ -3125,6 +3125,9 @@ void G_DrawBackground(void)
     }
     else
     {
+        if (getrendermode() >= 3)
+            clearview(0);
+
         // when not rendering a game, fullscreen wipe
 #define MENUTILE (!getrendermode()?MENUSCREEN:LOADSCREEN)
 //        Gv_SetVar(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
@@ -9189,6 +9192,9 @@ static void G_DisplayLogo(void)
             //G_FadePalette(0,0,0,63);
             if (logoflags & LOGO_3DRSCREEN)
             {
+                if (getrendermode() >= 3)
+                    clearview(0);
+
                 P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8+2/*+1*/);    // JBF 20040308
                 fadepal(0,0,0, 0,63,7);
                 flushperms();
@@ -9198,6 +9204,9 @@ static void G_DisplayLogo(void)
                 totalclock = 0;
                 while (totalclock < (120*7) && !check_input_waiting())
                 {
+                    if (getrendermode() >= 3)
+                        clearview(0);
+
                     rotatesprite_fs(0,0,65536L,0,DREALMS,0,0,2+8+16+64+(ud.bgstretch?1024:0));
 
                     G_HandleAsync();
@@ -9220,6 +9229,9 @@ static void G_DisplayLogo(void)
 
         if (logoflags & LOGO_TITLESCREEN)
         {
+            if (getrendermode() >= 3)
+                clearview(0);
+
             //g_player[myconnectindex].ps->palette = titlepal;
             P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2/*+1*/);   // JBF 20040308
             flushperms();
@@ -9230,6 +9242,9 @@ static void G_DisplayLogo(void)
 
             while (totalclock < (860+120) && !KB_KeyWaiting() && !(MOUSE_GetButtons()&LEFT_MOUSE)  && !BUTTON(gamefunc_Fire) && !BUTTON(gamefunc_Open))
             {
+                if (getrendermode() >= 3)
+                    clearview(0);
+
                 rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0));
                 if (logoflags & LOGO_DUKENUKEM)
                 {
@@ -11378,6 +11393,9 @@ FRAGBONUS:
 
         if (g_player[myconnectindex].ps->gm&MODE_EOL)
         {
+            if (getrendermode() >= 3)
+                clearview(0);
+
             rotatesprite_fs(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
 
             if (totalclock > (1000000000L) && totalclock < (1000000320L))
