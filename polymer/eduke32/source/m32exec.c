@@ -1733,6 +1733,16 @@ badindex:
             }
             continue;
 
+        case CON_GETSPRITELINKTYPE:
+            insptr++;
+            {
+                int32_t spritenum=Gv_GetVarX(*insptr++), resvar = *insptr++;
+
+                X_ERROR_INVALIDSPRI(spritenum);
+                Gv_SetVarX(resvar, taglab_linktags(1, spritenum));
+            }
+            continue;
+
         case CON_LASTWALL:
             insptr++;
             {

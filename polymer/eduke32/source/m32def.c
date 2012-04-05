@@ -303,13 +303,14 @@ const char *keyw[] =
     "ifaimingsector",
     "ifinteractive",
 
-// BUILD functions
+// Mostly BUILD functions
     "resetkey",
     "setkey",
     "insertsprite",
     "dupsprite",
     "tdupsprite",
     "deletesprite",
+    "getspritelinktype",  // not BUILD
     "lastwall",
     "updatecursectnum",
     "updatesector",
@@ -2845,6 +2846,7 @@ repeatcase:
         return 0;
 
     case CON_SQRT:
+    case CON_GETSPRITELINKTYPE:
     {
         // syntax sqrt <invar> <outvar>
         // gets the sqrt of invar into outvar

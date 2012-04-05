@@ -1268,6 +1268,22 @@ defstate chselshade
     }
 ends
 
+defstate listusedtags
+    for i allsprites
+    {
+        getspritelinktype i k
+
+        ifn k 0
+        {
+            ife k 1
+                qsprintf TQUOTE "sprite %d lotag %d" i sprite[i].lotag
+            else ife k 2
+                qsprintf TQUOTE "sprite %d hitag %d" i sprite[i].hitag
+            quote TQUOTE
+        }
+    }
+ends
+
 ////////// USER AREA //////////
 
 // key settings
