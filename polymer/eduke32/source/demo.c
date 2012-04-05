@@ -550,7 +550,9 @@ nextdemo:
         }
 
         if (foundemo == 0)   // XXX: not better "demo is playing"?
+        {
             G_DrawBackground();
+        }
         else
         {
             static uint32_t nextrender = 0, framewaiting = 0;

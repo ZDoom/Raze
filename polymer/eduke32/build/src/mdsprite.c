@@ -480,9 +480,8 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     sk->param = param;
     sk->specpower = specpower;
     sk->specfactor = specfactor;
-    sk->fn = (char *)Bmalloc(strlen(skinfn)+1);
+    sk->fn = Bstrdup(skinfn);
     if (!sk->fn) return(-4);
-    strcpy(sk->fn, skinfn);
 
     return 0;
 }

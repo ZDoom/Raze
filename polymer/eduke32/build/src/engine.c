@@ -3037,7 +3037,7 @@ static void prepwall(int32_t z, walltype *wal)
 //
 // animateoffs (internal)
 //
-inline int32_t animateoffs(int16_t tilenum, int16_t fakevar)
+int32_t animateoffs(int16_t tilenum, int16_t fakevar)
 {
     int32_t i, k, offs;
 
@@ -6859,8 +6859,6 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     if ((dastat&1) == 0)
 #endif
     {
-        char bad;
-        int32_t xx, xend;
         int32_t y1ve[4], y2ve[4], u4, d4;
 
         if (((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
@@ -6873,6 +6871,9 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
             for (x=x1; x<x2; x+=4)
             {
+                char bad;
+                int32_t xx, xend;
+
                 bad = 15; xend = min(x2-x,4);
                 for (xx=0; xx<xend; xx++)
                 {
@@ -13149,7 +13150,7 @@ restart_grand:
 
                     if ((pos->z < daz2) && (daz2 < *florz
 #ifdef YAX_ENABLE
-                                            // can have a floor-sprite laying directly on the floor!
+                                            // can have a floor-sprite lying directly on the floor!
                                             || (daz2 == *florz && yax_getbunch(clipsectorlist[i], YAX_FLOOR)>=0)
 #endif
                             ))
@@ -13539,7 +13540,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 
     if (!(flags&4))
     {
-        curbrightness = min(max((int32_t)dabrightness,0),15);
+        curbrightness = clamp(dabrightness, 0, 15);
 //        if (lastbright != (unsigned)curbrightness)
 //            vid_gamma = 1.0 + ((float)curbrightness / 10.0);
     }
