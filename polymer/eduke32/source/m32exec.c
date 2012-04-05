@@ -2809,47 +2809,52 @@ dodefault:
 
 // vvv CURSPR
         case CON_SETI:
+        {
+            int32_t newcurspritei;
+
             insptr++;
-            vm.g_i = Gv_GetVarX(*insptr++);
-            X_ERROR_INVALIDCI();
+            newcurspritei = Gv_GetVarX(*insptr++);
+            X_ERROR_INVALIDSPRI(newcurspritei);
+            vm.g_i = newcurspritei;
             vm.g_sp = &sprite[vm.g_i];
             continue;
+        }
 
         case CON_SIZEAT:
-            insptr++;
+            insptr += 3;
             X_ERROR_INVALIDSP();
-            vm.g_sp->xrepeat = (uint8_t) Gv_GetVarX(*insptr++);
-            vm.g_sp->yrepeat = (uint8_t) Gv_GetVarX(*insptr++);
+            vm.g_sp->xrepeat = (uint8_t) Gv_GetVarX(*(insptr-2));
+            vm.g_sp->yrepeat = (uint8_t) Gv_GetVarX(*(insptr-1));
             continue;
 
         case CON_CSTAT:
-            insptr++;
+            insptr += 2;
             X_ERROR_INVALIDSP();
-            vm.g_sp->cstat = (int16_t) *insptr++;
+            vm.g_sp->cstat = (int16_t) *(insptr-1);
             continue;
 
         case CON_CSTATOR:
-            insptr++;
+            insptr += 2;
             X_ERROR_INVALIDSP();
-            vm.g_sp->cstat |= (int16_t) Gv_GetVarX(*insptr++);
+            vm.g_sp->cstat |= (int16_t) Gv_GetVarX(*(insptr-1));
             continue;
 
         case CON_CLIPDIST:
-            insptr++;
+            insptr += 2;
             X_ERROR_INVALIDSP();
-            vm.g_sp->clipdist = (int16_t) Gv_GetVarX(*insptr++);
+            vm.g_sp->clipdist = (uint8_t) Gv_GetVarX(*(insptr-1));
             continue;
 
         case CON_SPRITEPAL:
-            insptr++;
+            insptr += 2;
             X_ERROR_INVALIDSP();
-            vm.g_sp->pal = Gv_GetVarX(*insptr++);
+            vm.g_sp->pal = Gv_GetVarX(*(insptr-1));
             continue;
 
         case CON_CACTOR:
-            insptr++;
+            insptr += 2;
             X_ERROR_INVALIDSP();
-            vm.g_sp->picnum = Gv_GetVarX(*insptr++);
+            vm.g_sp->picnum = Gv_GetVarX(*(insptr-1));
             continue;
 
         case CON_SPGETLOTAG:

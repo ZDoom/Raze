@@ -287,8 +287,8 @@ defstate fiddlewithlights
     ifaimingsprite set k 1 else set k 0
 
     ife k 1 ife sprite[searchwall].picnum SECTOREFFECTOR
-    ifge sprite[searchwall].lotag 49 ifle sprite[searchwall].lotag 50
-    set k 0
+        ifge sprite[searchwall].lotag 49 ifle sprite[searchwall].lotag 50
+            set k 0
 
     ife k 1
     {
