@@ -2665,6 +2665,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 g_scriptPtr--;
             }
 
+            // save the actor name w/o consuming it
             C_SkipComments();
             j = 0;
             while (isaltok(*(textptr+j)))
@@ -2682,7 +2683,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 {
                     C_ReportError(-1);
                     initprintf("%s:%d: warning: invalid useractor type. Must be 0, 1, 2"
-                               " (notenemy, enemy, enemystayput) or have 4 added ('doesn't move').\n",
+                               " (notenemy, enemy, enemystayput) or have 4 added (\"doesn't move\").\n",
                                g_szScriptFileName,g_lineNumber);
                     g_numCompilerWarnings++;
                     j = 0;
@@ -3836,7 +3837,7 @@ static int32_t C_ParseCommand(int32_t loop)
             *g_scriptPtr++=i;
 
             C_SkipComments();
-            C_GetNextVar();
+            C_GetNextVarType(tw==CON_GETARRAYSIZE ? GAMEVAR_READONLY : 0);
             continue;
 
         case CON_RANDVARVAR:
@@ -4614,13 +4615,15 @@ repeatcase:
             continue;
         case CON_SETACTORANGLE:
         case CON_SETPLAYERANGLE:
+            C_GetNextVar();
+            continue;
         case CON_GETANGLETOTARGET:
         case CON_GETACTORANGLE:
         case CON_GETPLAYERANGLE:
             // Syntax:   <command> <var>
 
             // get the ID of the DEF
-            C_GetNextVar();
+            C_GetNextVar(GAMEVAR_READONLY);
             continue;
 
         case CON_ADDLOG:
