@@ -22,7 +22,7 @@ int writeicon(FILE *fp, struct icon *ico)
     for (i=0;i<ico->width*ico->height;i++) {
         if ((i%6) == 0) Bfprintf(fp,"\t");
         else Bfprintf(fp," ");
-        Bfprintf(fp, "0x%08x,", B_LITTLE32(ico->pixels[i]));
+        Bfprintf(fp, "0x%08lx,", (long)B_LITTLE32(ico->pixels[i]));
         if ((i%6) == 5) Bfprintf(fp,"\n");
     }
     if ((i%16) > 0) Bfprintf(fp, "\n");
@@ -110,4 +110,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-
