@@ -203,7 +203,7 @@ void keytimerstuff(void);
 static int32_t clockdir(int16_t wallstart);
 static void flipwalls(int16_t numwalls, int16_t newnumwalls);
 static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day, int32_t *mapwallnum);
-static const char *deletepoint(int16_t point, int32_t runi);
+static void deletepoint(int16_t point, int32_t runi);
 static int32_t deletesector(int16_t sucksect);
 void fixrepeats(int16_t i);
 static int16_t loopinside(int32_t x, int32_t y, int16_t startwall);
@@ -4789,7 +4789,6 @@ end_autoredwall:
         if (((bstatus&1) < (oldmousebstatus&1)) && highlightsectorcnt < 0)  //after dragging
         {
             int32_t runi, numdelpoints=0;
-            const char *errmsg;
             int32_t havedrawnwalls = (newnumwalls!=-1), restorestat=1;
 
             // restorestat is set to 2 whenever the drawn walls should NOT be
@@ -4862,14 +4861,14 @@ end_autoredwall:
 
             dragwall[0] = dragwall[1] = -1;
 
-            for (runi=0; runi<3; runi++)
-                for (i=numwalls-1; i>=0; i--)  //delete points
+            // attemt to delete some points
+            for (runi=0; runi<3; runi++)  // check, tweak, carry out
+                for (i=numwalls-1; i>=0; i--)
                 {
                     if (runi==0)
                         wall[i].cstat &= ~(1<<14);
 
-                    if (wall[i].x == POINT2(i).x && wall[i].y == POINT2(i).y
-                            && sector[sectorofwall(i)].wallnum > 3)
+                    if (wall[i].x == POINT2(i).x && wall[i].y == POINT2(i).y)
                     {
                         if (havedrawnwalls)
                         {
@@ -4889,14 +4888,30 @@ end_autoredwall:
                             }
                         }
 
-                        errmsg = deletepoint(i, runi);
-                        if (errmsg)
+                        if (runi == 0)
                         {
-                            message("%s", errmsg);
-                            goto end_after_dragging;
+                            int32_t sectnum = sectorofwall(i);
+                            if (sector[sectnum].wallnum <= 3)
+                            {
+                                message("Deleting wall %d would leave sector %d with %d walls.",
+                                        i, sectnum, sector[sectnum].wallnum-1);
+                                goto end_after_dragging;
+                            }
+
+                            sectnum = wall[i].nextsector;
+                            if (sectnum >= 0 && sector[sectnum].wallnum <= 3)
+                            {
+                                message("Deleting wall %d would leave sector %d with %d walls.",
+                                        i, sectnum, sector[sectnum].wallnum-1);
+                                goto end_after_dragging;
+                            }
                         }
-                        else if (runi==2)
-                            numdelpoints++;
+                        else
+                        {
+                            deletepoint(i, runi);
+                            if (runi==2)
+                                numdelpoints++;
+                        }
                     }
                 }
 
@@ -8088,21 +8103,14 @@ static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day, int3
     return 1;
 }
 
-// runi: 0=check, 1=prepare, 2=do!
-// if runi==0, returns error message on fail, in all other cases NULL
-static const char *deletepoint(int16_t point, int32_t runi)
+// runi: 0=check (forbidden), 1=prepare, 2=do!
+static void deletepoint(int16_t point, int32_t runi)
 {
     int32_t i, j, sucksect;
 
-    if (runi==0)  // consistency check -- return !=0 on fail
-    {
-        i = wall[point].nextsector;
-        if (i >= 0 && sector[i].wallnum <= 3)
-            return "Invalid operation, delete or join sector instead.";
+    Bassert(runi != 0);
 
-        return NULL;
-    }
-    else if (runi==1)
+    if (runi==1)
     {
         i = wall[point].nextwall;
         if (i >= 0)
@@ -8111,7 +8119,7 @@ static const char *deletepoint(int16_t point, int32_t runi)
             wall[i].nextwall = wall[i].nextsector = -1;
         }
 
-        return NULL;
+        return;
     }
 
     sucksect = sectorofwall(point);
@@ -8139,7 +8147,7 @@ static const char *deletepoint(int16_t point, int32_t runi)
 
 //    checksectorpointer(j, sucksect);
 
-    return NULL;
+    return;
 }
 
 static int32_t deletesector(int16_t sucksect)
