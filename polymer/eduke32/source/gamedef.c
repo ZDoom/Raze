@@ -4623,7 +4623,7 @@ repeatcase:
             // Syntax:   <command> <var>
 
             // get the ID of the DEF
-            C_GetNextVar(GAMEVAR_READONLY);
+            C_GetNextVarType(GAMEVAR_READONLY);
             continue;
 
         case CON_ADDLOG:
