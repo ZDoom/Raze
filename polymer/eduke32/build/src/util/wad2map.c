@@ -300,7 +300,7 @@ void parsescript(void)
     int spritenumstat, slen;
     char ch;
 
-    clearbufbyte(&sectspri[0], sizeof(short) * MAXSECTS * 8, 0xffffffff);
+    Bmemset(sectspri, 0xffffffff, MAXSECTS*8*sizeof(short));
 
     if (scriptname[0] == 0)
     {
@@ -1050,9 +1050,9 @@ int main(int argc, char **argv)
         }
     }
 
-    clearbufbyte(&sector[0], sizeof(sectortype) * MAXSECTORS, 0);
-    clearbufbyte(&wall[0], sizeof(walltype) * MAXWALLS, 0);
-    clearbufbyte(&sprite[0], sizeof(spritetype) * MAXSPRITES, 0);
+    Bmemset(sector, 0, MAXSECTORS*sizeof(sectortype));
+    Bmemset(wall, 0, MAXWALLS*sizeof(walltype));
+    Bmemset(sprite, 0, MAXSPRITES*sizeof(spritetype));
     for(i=0;i<MAXSECTORS;i++) sector[i].extra = -1;
     for(i=0;i<MAXWALLS;i++) wall[i].extra = -1;
     for(i=0;i<MAXSPRITES;i++) sprite[i].extra = -1;

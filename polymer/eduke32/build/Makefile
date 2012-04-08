@@ -58,7 +58,7 @@ ifneq ($(LUNATIC),0)
     OURCFLAGS+= -DLUNATIC_ENABLE
 endif
 
-UTILLIBS=  # -lpthread
+UTILLIBS= -lm # -lpthread
 UTILADDOBJS=
 ifneq (0,$(NEDMALLOC))
     UTILADDOBJS+= $(OBJ)/nedmalloc.$o
@@ -191,7 +191,7 @@ OURCFLAGS+= $(BUILDCFLAGS)
 
 UTILOBJS=$(OBJ)/kextract.$o $(OBJ)/kgroup.$o $(OBJ)/transpal.$o $(OBJ)/wad2art.$o $(OBJ)/wad2map.$o $(OBJ)/kmd2tool.$o \
     $(OBJ)/md2tool.$o \
-    $(OBJ)/generateicon.$o $(OBJ)/cacheinfo.$o $(OBJ)/enumdisplay.$o $(OBJ)/arttool.$o $(OBJ)/givedepth.$o $(OBJ)/mkpalette.$o \
+    $(OBJ)/generateicon.$o $(OBJ)/cacheinfo.$o $(OBJ)/arttool.$o $(OBJ)/givedepth.$o $(OBJ)/mkpalette.$o \
     $(OBJ)/unpackssi.$o $(OBJ)/bsuite.$o \
     $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(OBJ)/pragmas.$o $(OBJ)/kplib.$o $(OBJ)/cache1d.$o
 UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXESUFFIX) wad2map$(EXESUFFIX) kmd2tool$(EXESUFFIX) \
@@ -199,15 +199,31 @@ UTILS=kextract$(EXESUFFIX) kgroup$(EXESUFFIX) transpal$(EXESUFFIX) wad2art$(EXES
     generateicon$(EXESUFFIX) cacheinfo$(EXESUFFIX) arttool$(EXESUFFIX) givedepth$(EXESUFFIX) mkpalette$(EXESUFFIX) \
     unpackssi$(EXESUFFIX) bsuite$(EXESUFFIX)
 
+DXUTILOBJS=$(OBJ)/enumdisplay.$o $(OBJ)/getdxdidf.$o
+DXUTILS=enumdisplay$(EXESUFFIX) getdxdidf$(EXESUFFIX)
+
+SDLUTILOBJS=$(OBJ)/makesdlkeytrans.$o
+SDLUTILS=makesdlkeytrans$(EXESUFFIX)
+
 # all: $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB)
-utils: start $(UTILS) finish
+utils: start $(UTILS) finish utilfinish
+dxutils: start $(DXUTILS) finish dxutilfinish
+sdlutils: start $(SDLUTILS) finish sdlutilfinish
 
 start:
 	$(BUILD_STARTED)
 
 finish:
 	$(BUILD_FINISHED)
+
+utilfinish:
 	@ls -l $(UTILS)
+
+dxutilfinish:
+	@ls -l $(DXUTILS)
+
+sdlutilfinish:
+	@ls -l $(SDLUTILS)
 
 enginelib: $(OBJ)/$(ENGINELIB)
 $(OBJ)/$(ENGINELIB): $(ENGINEOBJS)
@@ -349,12 +365,16 @@ clean:
 	echo -n "" > $(OBJ)/keep.me
 
 cleanutils:
-	-rm -f $(UTILS) $(UTILOBJS) $(UTILADDOBJS) \
-    enumdisplay$(EXESUFFIX) getdxdidf$(EXESUFFIX) makesdlkeytrans$(EXESUFFIX) \
-    $(OBJ)/compat.$o $(OBJ)/getdxdidf.$o $(OBJ)/makesdlkeytrans.$o
+	-rm -f $(UTILS) $(UTILOBJS) $(DXUTILS) $(DXUTILOBJS) $(SDLUTILS) $(SDLUTILOBJS) $(UTILADDOBJS)
 
 printutils:
 	echo "$(UTILS)"
+
+printdxutils:
+	echo "$(DXUTILS)"
+
+printsdlutils:
+	echo "$(SDLUTILS)"
 
 veryclean: clean cleanutils
 	-rm -f $(ENGINELIB) $(EDITORLIB)
