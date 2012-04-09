@@ -13266,8 +13266,13 @@ void setaspect_new()
 
         if (fullscreen)
         {
+            int32_t pixratio;
+
             x=r_screenxy/100; y=r_screenxy%100;
             if (y==0 || x==0) { x=4; y=3; }
+
+            pixratio = divscale16(xdim*y, ydim*x);
+            yx = divscale16(yx, pixratio);
         }
         else
         {
@@ -13275,7 +13280,7 @@ void setaspect_new()
             y = ydim;
         }
 
-        vr = (65536*x*3)/(y*4);
+        vr = divscale16(x*3, y*4);
 
         setaspect(vr, yx);
     }
