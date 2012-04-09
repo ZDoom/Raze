@@ -10176,6 +10176,14 @@ void test_map(int32_t mode)
     else
         updatesector(startposx, startposy, &startsectnum);
 
+#ifdef _WIN32
+    if (fullscreen)
+    {
+        printmessage16("Must be in windowed mode to test map!");
+        return;
+    }
+#endif
+
     if ((!mode && cursectnum >= 0) || (mode && startsectnum >= 0))
     {
         char *param = " -map " PLAYTEST_MAPNAME " -noinstancechecking";
