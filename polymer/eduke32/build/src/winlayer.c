@@ -28,6 +28,7 @@
 
 #include "compat.h"
 #include "winlayer.h"
+#include "baselayer.h"
 #include "pragmas.h"
 #include "build.h"
 #include "a.h"
@@ -299,6 +300,31 @@ static void SignalHandler(int32_t signum)
     }
 }
 
+static void divcommon(int32_t *ap, int32_t *bp)
+{
+    const int32_t p[] = {2,3,5,7,11,13,17,19};
+    const int32_t N = (int32_t)(sizeof(p)/sizeof(p[0]));
+    int32_t a=*ap, b=*bp;
+
+    while (1)
+    {
+        int32_t i;
+
+        for (i=0; i<N; i++)
+            if (a%p[i] == 0 && b%p[i]==0)
+            {
+                a /= p[i];
+                b /= p[i];
+                break;
+            }
+        if (i == N)
+            break;
+    }
+
+    *ap = a;
+    *bp = b;
+}
+
 //
 // WinMain() -- main Windows entry point
 //
@@ -496,6 +522,21 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 
     startwin_open();
     baselayer_init();
+
+    // determine physical screen size
+    {
+        const int32_t oscreenx = GetSystemMetrics(SM_CXSCREEN);
+        const int32_t oscreeny = GetSystemMetrics(SM_CYSCREEN);
+        int32_t screenx=oscreenx, screeny=oscreeny, good=0;
+
+        divcommon(&screenx, &screeny);
+
+        if (screenx >= 1 && screenx <= 99 && screeny >= 1 && screeny <= 99)
+            r_screenxy = screenx*100 + screeny, good=1;
+
+        initprintf("Automatic fullscreen size determination: %d %d -> %d %d%s.\n",
+                   oscreenx, oscreeny, screenx, screeny, good?"":" (failed)");
+    }
 
     r = app_main(_buildargc, _buildargv);
 

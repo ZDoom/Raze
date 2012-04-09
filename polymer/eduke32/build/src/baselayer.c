@@ -297,11 +297,18 @@ static int32_t osdcmd_cvar_set_baselayer(const osdfuncparm_t *parm)
 int32_t baselayer_init(void)
 {
     uint32_t i;
-
+#ifdef _WIN32
+// on Windows, don't save the "r_screenaspect" cvar because the physical screen size is
+// determined at startup
+# define SCREENASPECT_CVAR_TYPE (CVAR_UINT|CVAR_NOSAVE)
+#else
+# define SCREENASPECT_CVAR_TYPE (CVAR_UINT)
+#endif
     cvar_t cvars_engine[] =
     {
         { "r_usenewaspect","r_usenewaspect: enable/disable new screen aspect ratio determination code",(void *) &r_usenewaspect, CVAR_BOOL, 0, 1 },
-        { "r_screenaspect","r_screenaspect: if using the new aspect code and in fullscreen, screen aspect ratio in the form XXYY, e.g. 1609 for 16:9",(void *) &r_screenxy, CVAR_UINT, 100, 9999 },
+        { "r_screenaspect","r_screenaspect: if using the new aspect code and in fullscreen, screen aspect ratio in the form XXYY, e.g. 1609 for 16:9",
+          (void *) &r_screenxy, SCREENASPECT_CVAR_TYPE, 100, 9999 },
         { "r_novoxmips","r_novoxmips: turn off/on the use of mipmaps when rendering 8-bit voxels",(void *) &novoxmips, CVAR_BOOL, 0, 1 },
         { "r_voxels","r_voxels: enable/disable automatic sprite->voxel rendering",(void *) &usevoxels, CVAR_BOOL, 0, 1 },
 #ifdef YAX_ENABLE

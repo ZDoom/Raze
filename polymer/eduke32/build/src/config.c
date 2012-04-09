@@ -201,13 +201,14 @@ int32_t loadsetup(const char *fn)
 #endif
     if (readconfig(fp, "r_usenewaspect", val, VL) > 0)
         r_usenewaspect = !!atoi_safe(val);
+#ifndef RENDERTYPEWIN
     if (readconfig(fp, "r_screenxy", val, VL) > 0)
     {
         r_screenxy = clamp(atoi_safe(val), 0, 9999);
         if (r_screenxy/100==0 || r_screenxy%100==0)
             r_screenxy = 403;
     }
-
+#endif
     if (readconfig(fp, "gameexecutable", val, VL) > 0)
         Bstrcpy(game_executable, val);
 
@@ -399,8 +400,10 @@ int32_t writesetup(const char *fn)
 #endif
              "; Use new aspect determination code? (classic/Polymost)\n"
              "r_usenewaspect = %d\n"
+#ifndef RENDERTYPEWIN
              "; Screen aspect for fullscreen, in the form WWHH (e.g. 1609 for 16:9)\n"
              "r_screenxy = %d\n"
+#endif
              "\n"
 
 #ifdef RENDERTYPEWIN
@@ -569,8 +572,10 @@ int32_t writesetup(const char *fn)
              glusetexcache, glusememcache, gltexfiltermode, glanisotropy,r_downsize,glusetexcompr,
              shadescale,
 #endif
-             r_usenewaspect, r_screenxy,
-#ifdef RENDERTYPEWIN
+             r_usenewaspect,
+#ifndef RENDERTYPEWIN
+             r_screenxy,
+#else
              maxrefreshfreq, windowpos, windowx, windowy,
 #endif
              vid_gamma_3d>=0?vid_gamma_3d:vid_gamma,
