@@ -94,6 +94,7 @@ void (APIENTRY *bglCopyTexSubImage2D)(GLenum target, GLint level, GLint xoffset,
 void (APIENTRY *bglTexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);	// 1.1
 void (APIENTRY *bglTexParameterf)(GLenum target, GLenum pname, GLfloat param);
 void (APIENTRY *bglTexParameteri)(GLenum target, GLenum pname, GLint param);
+void (APIENTRY *bglGetTexParameteriv)(GLenum target, GLenum pname, GLint *params);
 void (APIENTRY *bglGetTexLevelParameteriv)(GLenum target, GLint level, GLenum pname, GLint *params);
 void (APIENTRY *bglCompressedTexImage2DARB)(GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid *);
 void (APIENTRY *bglGetCompressedTexImageARB)(GLenum, GLint, GLvoid *);
@@ -447,6 +448,7 @@ int32_t loadgldriver(const char *driver)
     bglTexSubImage2D	= GETPROC("glTexSubImage2D");
     bglTexParameterf	= GETPROC("glTexParameterf");
     bglTexParameteri	= GETPROC("glTexParameteri");
+    bglGetTexParameteriv = GETPROC("glGetTexParameteriv");
     bglGetTexLevelParameteriv = GETPROC("glGetTexLevelParameteriv");
     bglTexGenfv         = GETPROC("glTexGenfv");
 
@@ -735,6 +737,7 @@ int32_t unloadgldriver(void)
     bglTexSubImage2D	= NULL;
     bglTexParameterf	= NULL;
     bglTexParameteri	= NULL;
+    bglGetTexParameteriv   = NULL;
     bglGetTexLevelParameteriv   = NULL;
     bglCompressedTexImage2DARB  = NULL;
     bglGetCompressedTexImageARB = NULL;

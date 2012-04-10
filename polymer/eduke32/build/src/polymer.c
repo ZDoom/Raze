@@ -3804,9 +3804,18 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
     j = (1<<pskybits);
     while (i < j)
     {
+        GLint oldswrap;
+
         bglColor4f(glcolors[pskyoff[i]][0], glcolors[pskyoff[i]][1], glcolors[pskyoff[i]][2], 1.0f);
         bglBindTexture(GL_TEXTURE_2D, glpics[pskyoff[i]]);
+
+        bglGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, &oldswrap);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+
         polymer_drawartskyquad(i, (i + 1) & (j - 1), height);
+
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, oldswrap);
+
         i++;
     }
 }
