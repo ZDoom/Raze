@@ -6800,7 +6800,7 @@ static void Keys3d(void)
                 }
                 else
                 {
-                    int16_t w = AIMING_AT_WALL?searchbottomwall:searchwall;
+                    int16_t w = SELECT_WALL();
                     if (mouseaction && eitherCTRL)
                         updownunits *= 8;
                     while (updownunits--)

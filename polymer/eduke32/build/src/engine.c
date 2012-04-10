@@ -6285,7 +6285,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
     if ((searchit >= 1) && (searchx >= xb1[z]) && (searchx <= xb2[z]))
         if ((searchy >= uwall[searchx]) && (searchy <= dwall[searchx]))
         {
-            searchsector = sectnum; searchwall = thewall[z];
+            searchsector = sectnum; searchbottomwall = searchwall = thewall[z];
             searchstat = 4; searchit = 1;
         }
 
