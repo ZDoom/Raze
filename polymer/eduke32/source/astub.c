@@ -7316,7 +7316,6 @@ paste_ceiling_or_floor:
         if (eitherCTRL)
         {
             parallaxtype = (parallaxtype+1)%3;
-            sector[searchsector].ceilingstat ^= 1;
             message("Parallax type %d", parallaxtype);
         }
         else if (eitherALT)
@@ -10927,11 +10926,9 @@ static void Keys2d3d(void)
 
     if (eitherCTRL)  //CTRL
     {
-        if (PRESSED_KEYSC(P)) // Ctrl-P: Map playtesting
-        {
-            if (qsetmode != 200)
+        if (qsetmode != 200)
+            if (PRESSED_KEYSC(P)) // Ctrl-P: Map playtesting
                 test_map(eitherALT);
-        }
 
         if (keystatus[KEYSC_S]) // S
         {
