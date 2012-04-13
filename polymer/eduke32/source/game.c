@@ -6642,7 +6642,8 @@ PALONLY:
 
             t->picnum += k + *(script + t4) + l*t3;
 
-            if (l > 0) while (tilesizx[t->picnum] == 0 && t->picnum > 0)
+            if (l > 0)
+                while (tilesizx[t->picnum] == 0 && t->picnum > 0)
                     t->picnum -= l;       //Hack, for actors
 
             if (actor[i].dispicnum >= 0)
@@ -7021,13 +7022,13 @@ GAME_STATIC void G_DoCheats(void)
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {
                 g_player[myconnectindex].ps->cheat_phase = 0;
-                //                             P_DoQuote(QUOTE_46,g_player[myconnectindex].ps);
+//                P_DoQuote(QUOTE_46,g_player[myconnectindex].ps);
                 return;
             }
 
             cheatbuf[cheatbuflen++] = (int8_t)ch;
             cheatbuf[cheatbuflen] = 0;
-            //            KB_ClearKeysDown();
+//            KB_ClearKeysDown();
 
             if (cheatbuflen > MAXCHEATLEN)
             {
@@ -7489,7 +7490,8 @@ void G_HandleLocalKeys(void)
         }
     }
 
-    if (g_player[myconnectindex].ps->cheat_phase == 1 || (g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE))) return;
+    if (g_player[myconnectindex].ps->cheat_phase == 1 || (g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)))
+        return;
 
     if (BUTTON(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_COOPVIEW) || ud.recstat == 2))
     {

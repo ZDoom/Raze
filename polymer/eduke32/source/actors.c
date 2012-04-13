@@ -1425,7 +1425,8 @@ ACTOR_STATIC void G_MoveStandables(void)
         s = &sprite[i];
         sect = s->sectnum;
 
-        if (sect < 0) KILLIT(i);
+        if (sect < 0)
+            KILLIT(i);
 
         // 'fixed' sprites in rotating sectors already have bpos* updated
         if ((t[7]&(0xffff0000))!=0x18190000)
@@ -1670,17 +1671,14 @@ ACTOR_STATIC void G_MoveStandables(void)
 
                 j = s->xrepeat-(krand()&7);
                 if (j < 10)
-                {
                     KILLIT(i);
-                }
 
                 s->xrepeat = j;
 
                 j = s->yrepeat-(krand()&7);
                 if (j < 4)
-                {
                     KILLIT(i);
-                }
+
                 s->yrepeat = j;
             }
             if (s->picnum == BOX)
@@ -1732,6 +1730,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                             sprite[j].xrepeat = sprite[j].yrepeat = 0;
                         j = nextspritestat[j];
                     }
+
                     KILLIT(i);
                 }
                 goto BOLT;
@@ -2093,7 +2092,8 @@ DETONATE:
         case VIEWSCREEN__STATIC:
         case VIEWSCREEN2__STATIC:
 
-            if (s->xrepeat == 0) KILLIT(i);
+            if (s->xrepeat == 0)
+                KILLIT(i);
 
             p = A_FindPlayer(s, &x);
 
@@ -2455,7 +2455,8 @@ ACTOR_STATIC void G_MoveWeapons(void)
         nexti = nextspritestat[i];
         s = &sprite[i];
 
-        if (s->sectnum < 0) KILLIT(i);
+        if (s->sectnum < 0)
+            KILLIT(i);
 
         Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t));
         // here
@@ -2524,7 +2525,8 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 if (SpriteProjectile[i].workslike & PROJECTILE_COOLEXPLOSION1)
                 {
                     s->shade++;
-                    if (s->shade >= 40) KILLIT(i);
+                    if (s->shade >= 40)
+                        KILLIT(i);
                 }
 
                 if (SpriteProjectile[i].drop)
@@ -2582,9 +2584,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 actor[i].movflag = j;
 
                 if (s->sectnum < 0)
-                {
                     KILLIT(i);
-                }
 
                 if (SpriteProjectile[i].workslike & PROJECTILE_TIMED && SpriteProjectile[i].range > 0)
                 {
@@ -2836,7 +2836,8 @@ ACTOR_STATIC void G_MoveWeapons(void)
             case TONGUE__STATIC:
                 T1 = sintable[(T2)&2047]>>9;
                 T2 += 32;
-                if (T2 > 2047) KILLIT(i);
+                if (T2 > 2047)
+                    KILLIT(i);
 
                 if (sprite[s->owner].statnum == MAXSTATUS)
                     if (A_CheckEnemySprite(&sprite[s->owner]) == 0)
@@ -3123,13 +3124,17 @@ ACTOR_STATIC void G_MoveWeapons(void)
                             }
                         }
                     }
-                    if (s->picnum != COOLEXPLOSION1) KILLIT(i);
+
+                    if (s->picnum != COOLEXPLOSION1)
+                        KILLIT(i);
                 }
+
                 if (s->picnum == COOLEXPLOSION1)
                 {
 COOLEXPLOSION:
                     s->shade++;
-                    if (s->shade >= 40) KILLIT(i);
+                    if (s->shade >= 40)
+                        KILLIT(i);
                 }
                 else if (s->picnum == RPG && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(140))
                     A_Spawn(i,WATERBUBBLE);
@@ -3537,6 +3542,7 @@ ACTOR_STATIC void G_MoveActors(void)
         {
             switchpicnum = GREENSLIME;
         }
+
         switch (DYNAMICTILEMAP(switchpicnum))
         {
         case DUCK__STATIC:
@@ -3603,7 +3609,6 @@ ACTOR_STATIC void G_MoveActors(void)
 
         case HELECOPT__STATIC:
         case DUKECAR__STATIC:
-
             s->z += s->zvel;
             t[0]++;
 
@@ -3620,6 +3625,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 A_Spawn(i,EXPLOSION2);
             A_SetSprite(i,CLIPMASK0);
             break;
+
         case RAT__STATIC:
             A_Fall(i);
             if (A_SetSprite(i, CLIPMASK0))
@@ -3640,6 +3646,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 s->xvel+=2;
             s->ang += (krand()&3)-6;
             break;
+
         case QUEBALL__STATIC:
         case STRIPEBALL__STATIC:
             if (s->xvel)
@@ -3648,7 +3655,8 @@ ACTOR_STATIC void G_MoveActors(void)
                 while (j >= 0)
                 {
                     nextj = nextspritestat[j];
-                    if (sprite[j].picnum == POCKET && ldist(&sprite[j],s) < 52) KILLIT(i);
+                    if (sprite[j].picnum == POCKET && ldist(&sprite[j],s) < 52)
+                        KILLIT(i);
                     j = nextj;
                 }
 
@@ -3726,8 +3734,8 @@ ACTOR_STATIC void G_MoveActors(void)
             }
 
             break;
-        case FORCESPHERE__STATIC:
 
+        case FORCESPHERE__STATIC:
             if (s->yvel == 0)
             {
                 s->yvel = 1;
@@ -3771,7 +3779,6 @@ ACTOR_STATIC void G_MoveActors(void)
             goto BOLT;
 
         case RECON__STATIC:
-
             A_GetZLimits(i);
 
             if (sector[s->sectnum].ceilingstat&1)
@@ -3959,7 +3966,8 @@ ACTOR_STATIC void G_MoveActors(void)
                         s->hitag = j = actor[i].t_data[5];
                         s->owner = A_FindLocator(j,-1);
                         j = s->owner;
-                        if (j == -1) KILLIT(i);
+                        if (j == -1)
+                            KILLIT(i);
                     }
                     else s->hitag++;
                 }
@@ -3983,7 +3991,6 @@ ACTOR_STATIC void G_MoveActors(void)
 
         case OOZ__STATIC:
         case OOZ2__STATIC:
-
             A_GetZLimits(i);
 
             j = (actor[i].floorz-actor[i].ceilingz)>>9;
@@ -4267,7 +4274,8 @@ ACTOR_STATIC void G_MoveActors(void)
 
                             // JBF 20041129: a slimer eating another enemy really ought
                             // to decrease the maximum kill count by one.
-                            if (sprite[t[5]].extra > 0) g_player[myconnectindex].ps->max_actors_killed--;
+                            if (sprite[t[5]].extra > 0)
+                                g_player[myconnectindex].ps->max_actors_killed--;
                         }
                     }
                 }
@@ -4879,7 +4887,8 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
         s = &sprite[i];
         sect = s->sectnum;
 
-        if (sect < 0 || s->xrepeat == 0) KILLIT(i);
+        if (sect < 0 || s->xrepeat == 0)
+            KILLIT(i);
 
         Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t));
 
@@ -4951,9 +4960,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 {
                     t[1]--;
                     if (t[1] == 0)
-                    {
                         KILLIT(i);
-                    }
                 }
                 if (actor[s->owner].t_data[1] == 0)
                 {
@@ -5071,7 +5078,8 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 if ((krand()&3) == 0)
                     setsprite(i,(vec3_t *)s);
 
-                if (s->sectnum == -1) KILLIT(i);
+                if (s->sectnum == -1)
+                    KILLIT(i);
                 l = getflorzofslope(s->sectnum,s->x,s->y);
 
                 if (s->z > l)
@@ -5167,13 +5175,11 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     if (t[2] == 0)
                     {
                         if (s->sectnum == -1)
-                        {
                             KILLIT(i);
-                        }
+
                         if ((sector[s->sectnum].floorstat&2))
-                        {
                             KILLIT(i);
-                        }
+
                         t[2]++;
                     }
                     l = getflorzofslope(s->sectnum,s->x,s->y);
@@ -5186,7 +5192,8 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                         t[1]++;
                         if ((t[1]&3) == 0 && t[0] < 7)
                             t[0]++;
-                        if (t[1] > 20) KILLIT(i);
+                        if (t[1] > 20)
+                            KILLIT(i);
                     }
                     else
                     {
@@ -5301,7 +5308,8 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 
                 A_SetSprite(i,CLIPMASK0);
 
-                if (sect < 0 || (sector[sect].floorz + 256) < s->z) KILLIT(i);
+                if (sect < 0 || (sector[sect].floorz + 256) < s->z)
+                    KILLIT(i);
 
                 if (sector[sect].lotag == 2)
                 {
@@ -5342,7 +5350,8 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 A_Fall(i);
 
                 if (s->zvel > 4096) s->zvel = 4096;
-                if (sect < 0) KILLIT(i);
+                if (sect < 0)
+                    KILLIT(i);
 
                 if (s->z == actor[i].floorz-(ZOFFSET) && t[0] < 3)
                 {
@@ -5355,7 +5364,8 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                         setsprite(i,(vec3_t *)s);
                     t[0]++;//Number of bounces
                 }
-                else if (t[0] == 3) KILLIT(i);
+                else if (t[0] == 3)
+                    KILLIT(i);
 
                 if (s->xvel > 0)
                 {
@@ -6253,7 +6263,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 j = nextspritesect[j];
             }
 
-            if (t[4]) KILLIT(i);
+            if (t[4])
+                KILLIT(i);
 
             break;
 
@@ -6347,7 +6358,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             if (actor[i].t_data[4])
             {
                 actor[i].t_data[4]++;
-                if (actor[i].t_data[4] > 8) KILLIT(i);
+                if (actor[i].t_data[4] > 8)
+                    KILLIT(i);
                 j = 1;
             }
             else j = GetAnimationGoal(&sc->ceilingz);
@@ -6527,7 +6539,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 }
 
-                if (t[3] == 1) KILLIT(i);
+                if (t[3] == 1)
+                    KILLIT(i);
             }
             if (t[0] == 1)   //Lights flickering on
             {
@@ -6989,7 +7002,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         case 12:
                             //                                case 18:
                         case 19:
-
                             if (sh == sprite[l].hitag)
                                 if (actor[l].t_data[0] == 0)
                                 {
@@ -7007,7 +7019,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
         case 20: //Extend-o-bridge
-
             if (t[0] == 0) break;
             if (t[0] == 1) s->xvel = 8;
             else s->xvel = -8;
@@ -7104,8 +7115,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             else sc->extra--;
             break;
         }
-        case 22:
 
+        case 22:
             if (t[1])
             {
                 if (GetAnimationGoal(&sector[t[0]].ceilingz) >= 0)
@@ -7116,8 +7127,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
         case 24:
         case 34:
-
-            if (t[4]) break;
+            if (t[4])
+                break;
 
             x = (SP*sintable[(s->ang+512)&2047])>>18;
             l = (SP*sintable[s->ang&2047])>>18;
@@ -7237,7 +7248,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
         case 25: //PISTONS
-
             if (t[4] == 0) break;
 
             if (sc->floorz <= sc->ceilingz)
@@ -7261,7 +7271,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
         case 26:
-
             s->xvel = 32;
             l = (s->xvel*sintable[(s->ang+512)&2047])>>14;
             x = (s->xvel*sintable[s->ang&2047])>>14;
@@ -7311,9 +7320,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             break;
 
-
         case 27:
-
             if (ud.recstat == 0 || !ud.democams) break;
 
             actor[i].tempang = s->ang;
@@ -7362,6 +7369,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
             }
             break;
+
         case 28:
             if (t[5] > 0)
             {
@@ -7448,11 +7456,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
             }
             break;
+
         case 29:
             s->hitag += 64;
             l = mulscale12((int32_t)s->yvel,sintable[s->hitag&2047]);
             sc->floorz = s->z + l;
             break;
+
         case 31: // True Drop Floor
             if (t[0] == 1)
             {
@@ -7494,29 +7504,25 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     if (SA != 1536)
                     {
-                        if (klabs(sc->ceilingz - s->z) <
-                                (SP<<1))
+                        if (klabs(sc->ceilingz - s->z) < (SP<<1))
                         {
                             sc->ceilingz = s->z;
                             A_CallSound(s->sectnum,i);
                             t[2] = 0;
                             t[0] = 0;
                         }
-                        else sc->ceilingz +=
-                                ksgn(s->z-sc->ceilingz)*SP;
+                        else sc->ceilingz += ksgn(s->z-sc->ceilingz)*SP;
                     }
                     else
                     {
-                        if (klabs(sc->ceilingz - t[1]) <
-                                (SP<<1))
+                        if (klabs(sc->ceilingz - t[1]) < (SP<<1))
                         {
                             sc->ceilingz = t[1];
                             A_CallSound(s->sectnum,i);
                             t[2] = 0;
                             t[0] = 0;
                         }
-                        else sc->ceilingz +=
-                                ksgn(t[1]-sc->ceilingz)*SP;
+                        else sc->ceilingz += ksgn(t[1]-sc->ceilingz)*SP;
                     }
 
                     Yax_SetBunchZs(sc-sector, YAX_CEILING, sc->ceilingz);
@@ -7526,16 +7532,14 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if ((s->ang&2047) == 1536)
                 {
-                    if (klabs(sc->ceilingz-s->z) <
-                            (SP<<1))
+                    if (klabs(sc->ceilingz-s->z) < (SP<<1))
                     {
                         t[0] = 0;
                         t[2] = !t[2];
                         A_CallSound(s->sectnum,i);
                         sc->ceilingz = s->z;
                     }
-                    else sc->ceilingz +=
-                            ksgn(s->z-sc->ceilingz)*SP;
+                    else sc->ceilingz += ksgn(s->z-sc->ceilingz)*SP;
                 }
                 else
                 {
@@ -7556,8 +7560,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             if (g_earthquakeTime > 0 && (krand()&7) == 0)
                 RANDOMSCRAP;
             break;
-        case 36:
 
+        case 36:
             if (t[0])
             {
                 if (t[0] == 1)
@@ -7569,7 +7573,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
         case 128: //SE to control glass breakage
-
             wal = &wall[t[2]];
 
             if (wal->cstat|32)
@@ -7636,6 +7639,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 A_SetSprite(k,CLIPMASK0);
             }
             break;
+
 #ifdef POLYMER
         case 49:
         {
@@ -7914,6 +7918,7 @@ int32_t A_CheckEnemyTile(int32_t pn)
     case ROTATEGUN__STATIC:
         return 1;
     }
+
     return 0;
 }
 
@@ -8250,7 +8255,7 @@ void G_MoveWorld(void)
 
                 j = nextspritestat[i];
 
-                pl = A_FindPlayer(&sprite[i],&p);
+                pl = A_FindPlayer(&sprite[i], &p);
                 VM_OnEvent(EVENT_GAME,i, pl, p);
                 i = j;
             }
