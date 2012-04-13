@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # define ACTOR_STATIC static
 #endif
 
-#define KILLIT(KX) { A_DeleteSprite(KX); goto BOLT; }
+#define KILLIT(KX) do { A_DeleteSprite(KX); goto BOLT; } while (0)
 
 extern int32_t g_numEnvSoundsPlaying;
 extern int32_t g_noEnemies;
@@ -884,7 +884,7 @@ static inline int32_t ifhitsectors(int32_t sectnum)
     return -1;
 }
 
-#define IFHITSECT j=ifhitsectors(s->sectnum);if(j >= 0)
+#define IFHITSECT(Sectnum) if (ifhitsectors(Sectnum) >= 0)
 
 int32_t A_IncurDamage(int32_t sn)
 {
@@ -6959,12 +6959,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         }
                         j = nextspritestat[j];
                     }
+
                     KILLIT(i);
                 }
             }
             else //Not hit yet
             {
-                IFHITSECT
+                IFHITSECT(s->sectnum)
                 {
                     P_DoQuote(QUOTE_UNLOCKED,g_player[myconnectindex].ps);
 
@@ -6977,13 +6978,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         case 0:
                             if (sprite[l].hitag == sh)
                             {
+                                int32_t ow = sprite[l].owner;
                                 q = sprite[l].sectnum;
-                                sector[q].floorshade =
-                                sector[q].ceilingshade =
-                                sprite[sprite[l].owner].shade;
-                                sector[q].floorpal =
-                                sector[q].ceilingpal =
-                                sprite[sprite[l].owner].pal;
+                                sector[q].floorshade = sector[q].ceilingshade = sprite[ow].shade;
+                                sector[q].floorpal = sector[q].ceilingpal = sprite[ow].pal;
                             }
                             break;
 
@@ -8002,14 +8000,13 @@ void G_MoveWorld(void)
     G_MoveStandables();       //ST 6
 
     {
-        int32_t i, p, j, k = MAXSTATUS-1, pl;
+        int32_t p, j, k = MAXSTATUS-1, pl;
 #ifdef POLYMER
         int32_t numsavedfires = 0;
-        int32_t ii;
 #endif
         do
         {
-            i = headspritestat[k];
+            int32_t i = headspritestat[k];
 
             while (i >= 0)
             {
@@ -8028,6 +8025,7 @@ void G_MoveWorld(void)
                     }
                     else
                     {
+                        int32_t ii;
 
                         if (actor[i].lightptr != NULL && actor[i].lightcount)
                         {

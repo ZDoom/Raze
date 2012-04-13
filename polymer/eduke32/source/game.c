@@ -2965,6 +2965,8 @@ void G_DisplayRest(int32_t smoothratio)
     // JBF 20040124: display level stats in screen corner
     if ((ud.overhead_on != 2 && ud.levelstats) && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
     {
+        const DukePlayer_t *myps = g_player[myconnectindex].ps;
+
         if (ud.screen_size == 4)
         {
             i = scale(ud.althud?tilesizy[BIGALPHANUM]+10:tilesizy[INVENTORYBOX]+2,ud.statusbarscale,100);
@@ -2982,33 +2984,37 @@ void G_DisplayRest(int32_t smoothratio)
         }
         j = scale(2,ud.config.ScreenWidth,320);
 
+
         Bsprintf(tempbuf,"T:^15%d:%02d.%02d",
-                 (g_player[myconnectindex].ps->player_par/(REALGAMETICSPERSEC*60)),
-                 (g_player[myconnectindex].ps->player_par/REALGAMETICSPERSEC)%60,
-                 ((g_player[myconnectindex].ps->player_par%REALGAMETICSPERSEC)*33)/10
+                 (myps->player_par/(REALGAMETICSPERSEC*60)),
+                 (myps->player_par/REALGAMETICSPERSEC)%60,
+                 ((myps->player_par%REALGAMETICSPERSEC)*33)/10
                 );
-        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),
+                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (ud.player_skill > 3 || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_PLAYERSFRIENDLY)))
             Bsprintf(tempbuf,"K:^15%d",(ud.multimode>1 &&!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY))?
-                     g_player[myconnectindex].ps->frag-g_player[myconnectindex].ps->fraggedself:g_player[myconnectindex].ps->actors_killed);
+                     myps->frag-myps->fraggedself:myps->actors_killed);
         else
         {
-            if (g_player[myconnectindex].ps->actors_killed >= g_player[myconnectindex].ps->max_actors_killed)
-                Bsprintf(tempbuf,"K:%d/%d",g_player[myconnectindex].ps->actors_killed,
-                         g_player[myconnectindex].ps->max_actors_killed>g_player[myconnectindex].ps->actors_killed?
-                         g_player[myconnectindex].ps->max_actors_killed:g_player[myconnectindex].ps->actors_killed);
+            if (myps->actors_killed >= myps->max_actors_killed)
+                Bsprintf(tempbuf,"K:%d/%d",myps->actors_killed,
+                         myps->max_actors_killed>myps->actors_killed?
+                         myps->max_actors_killed:myps->actors_killed);
             else
-                Bsprintf(tempbuf,"K:^15%d/%d",g_player[myconnectindex].ps->actors_killed,
-                         g_player[myconnectindex].ps->max_actors_killed>g_player[myconnectindex].ps->actors_killed?
-                         g_player[myconnectindex].ps->max_actors_killed:g_player[myconnectindex].ps->actors_killed);
+                Bsprintf(tempbuf,"K:^15%d/%d",myps->actors_killed,
+                         myps->max_actors_killed>myps->actors_killed?
+                         myps->max_actors_killed:myps->actors_killed);
         }
-        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(14),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(14),
+                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
-        if (g_player[myconnectindex].ps->secret_rooms == g_player[myconnectindex].ps->max_secret_rooms)
-            Bsprintf(tempbuf,"S:%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
-        else Bsprintf(tempbuf,"S:^15%d/%d", g_player[myconnectindex].ps->secret_rooms,g_player[myconnectindex].ps->max_secret_rooms);
-        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(7),tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
+        if (myps->secret_rooms == myps->max_secret_rooms)
+            Bsprintf(tempbuf,"S:%d/%d", myps->secret_rooms, myps->max_secret_rooms);
+        else Bsprintf(tempbuf,"S:^15%d/%d", myps->secret_rooms, myps->max_secret_rooms);
+        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(7),
+                        tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
     }
 
     if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
@@ -3633,7 +3639,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         if (p->over_shoulder_on)
         {
             ud.camera.z -= 3072;
-            G_DoThirdPerson(p,(vec3_t *)&ud,&ud.camerasect,ud.cameraang,ud.camerahoriz);
+            G_DoThirdPerson(p,(vec3_t *)&ud.camera,&ud.camerasect,ud.cameraang,ud.camerahoriz);
         }
 
         cz = actor[p->i].ceilingz;
@@ -6971,12 +6977,18 @@ static void G_CheatGetInv(void)
     doinvcheat(GET_FIRSTAID, g_player[myconnectindex].ps->max_player_health, EVENT_CHEATGETFIRSTAID);
 }
 
+static void end_cheat(void)
+{
+    g_player[myconnectindex].ps->cheat_phase = 0;
+    KB_FlushKeyBoardQueue();
+}
+
 static int8_t cheatbuf[MAXCHEATLEN], cheatbuflen;
 
 GAME_STATIC void G_DoCheats(void)
 {
     int32_t ch, i, j, k=0, weapon;
-    static int32_t z=0;
+    static int32_t vol1inited=0;
     char consolecheat = 0;  // JBF 20030914
 
     if (osdcmd_cheatsinfo_stat.cheatnum != -1)
@@ -6990,11 +7002,11 @@ GAME_STATIC void G_DoCheats(void)
     if (g_player[myconnectindex].ps->gm & (MODE_TYPE|MODE_MENU))
         return;
 
-    if (VOLUMEONE && !z)
+    if (VOLUMEONE && !vol1inited)
     {
         Bstrcpy(CheatStrings[2],"scotty##");
         Bstrcpy(CheatStrings[6],"<RESERVED>");
-        z=1;
+        vol1inited = 1;
     }
 
     if (consolecheat && numplayers < 2 && ud.recstat == 0)
@@ -7055,49 +7067,43 @@ FOUNDCHEAT:
                         g_player[myconnectindex].ps->gotweapon |= (1<<weapon);
                     }
 
-                    KB_FlushKeyBoardQueue();
-                    g_player[myconnectindex].ps->cheat_phase = 0;
                     P_DoQuote(QUOTE_CHEAT_ALL_WEAPONS, g_player[myconnectindex].ps);
+
+                    end_cheat();
                     return;
 
                 case CHEAT_INVENTORY:
-                    KB_FlushKeyBoardQueue();
-                    g_player[myconnectindex].ps->cheat_phase = 0;
                     G_CheatGetInv();
                     P_DoQuote(QUOTE_CHEAT_ALL_INV, g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
+                    end_cheat();
                     return;
 
                 case CHEAT_KEYS:
                     g_player[myconnectindex].ps->got_access =  7;
                     KB_FlushKeyBoardQueue();
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    P_DoQuote(QUOTE_CHEAT_ALL_KEYS, g_player[myconnectindex].ps);
+                    end_cheat();
                     return;
 
                 case CHEAT_DEBUG:
                     g_Debug = 1-g_Debug;
-                    KB_FlushKeyBoardQueue();
-                    g_player[myconnectindex].ps->cheat_phase = 0;
 
                     G_DumpDebugInfo();
                     Bsprintf(tempbuf,"Gamevars dumped to log");
                     G_AddUserQuote(tempbuf);
                     Bsprintf(tempbuf,"Map dumped to debug.map");
                     G_AddUserQuote(tempbuf);
+                    end_cheat();
                     break;
 
                 case CHEAT_CLIP:
                     ud.noclip = 1-ud.noclip;
-                    KB_FlushKeyBoardQueue();
-                    g_player[myconnectindex].ps->cheat_phase = 0;
                     P_DoQuote(QUOTE_CHEAT_NOCLIP-!ud.noclip, g_player[myconnectindex].ps);
+                    end_cheat();
                     return;
 
                 case CHEAT_RESERVED2:
                     g_player[myconnectindex].ps->gm = MODE_EOL;
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
 
                 case CHEAT_ALLEN:
@@ -7109,24 +7115,27 @@ FOUNDCHEAT:
                 case CHEAT_CORNHOLIO:
                 case CHEAT_KROZ:
                 case CHEAT_COMEGETSOME:
+                {
+                    const int32_t pi = g_player[myconnectindex].ps->i;
+
                     ud.god = 1-ud.god;
 
                     if (ud.god)
                     {
                         pus = 1;
                         pub = 1;
-                        sprite[g_player[myconnectindex].ps->i].cstat = 257;
+                        sprite[pi].cstat = 257;
 
-                        actor[g_player[myconnectindex].ps->i].t_data[0] = 0;
-                        actor[g_player[myconnectindex].ps->i].t_data[1] = 0;
-                        actor[g_player[myconnectindex].ps->i].t_data[2] = 0;
-                        actor[g_player[myconnectindex].ps->i].t_data[3] = 0;
-                        actor[g_player[myconnectindex].ps->i].t_data[4] = 0;
-                        actor[g_player[myconnectindex].ps->i].t_data[5] = 0;
+                        actor[pi].t_data[0] = 0;
+                        actor[pi].t_data[1] = 0;
+                        actor[pi].t_data[2] = 0;
+                        actor[pi].t_data[3] = 0;
+                        actor[pi].t_data[4] = 0;
+                        actor[pi].t_data[5] = 0;
 
-                        sprite[g_player[myconnectindex].ps->i].hitag = 0;
-                        sprite[g_player[myconnectindex].ps->i].lotag = 0;
-                        sprite[g_player[myconnectindex].ps->i].pal = g_player[myconnectindex].ps->palookup;
+                        sprite[pi].hitag = 0;
+                        sprite[pi].lotag = 0;
+                        sprite[pi].pal = g_player[myconnectindex].ps->palookup;
 
                         if (k != CHEAT_COMEGETSOME)
                         {
@@ -7150,22 +7159,23 @@ FOUNDCHEAT:
                     }
                     else
                     {
-                        sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
-                        actor[g_player[myconnectindex].ps->i].extra = -1;
+                        sprite[pi].extra = g_player[myconnectindex].ps->max_player_health;
+                        actor[pi].extra = -1;
                         g_player[myconnectindex].ps->last_extra = g_player[myconnectindex].ps->max_player_health;
                         P_DoQuote(QUOTE_CHEAT_GODMODE_OFF,g_player[myconnectindex].ps);
                     }
 
-                    sprite[g_player[myconnectindex].ps->i].extra = g_player[myconnectindex].ps->max_player_health;
-                    actor[g_player[myconnectindex].ps->i].extra = 0;
-                    g_player[myconnectindex].ps->cheat_phase = 0;
+                    sprite[pi].extra = g_player[myconnectindex].ps->max_player_health;
+                    actor[pi].extra = 0;
+
                     if (k != CHEAT_COMEGETSOME)
                         g_player[myconnectindex].ps->dead_flag = 0;
-                    KB_FlushKeyBoardQueue();
+
+                    end_cheat();
                     return;
+                }
 
                 case CHEAT_STUFF:
-
                     j = 0;
 
                     if (VOLUMEONE)
@@ -7174,19 +7184,17 @@ FOUNDCHEAT:
                     for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS-j; weapon++)
                         g_player[myconnectindex].ps->gotweapon |= (1<<weapon);
 
-                    for (weapon = PISTOL_WEAPON;
-                            weapon < (MAX_WEAPONS-j);
-                            weapon++)
+                    for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS-j; weapon++)
                         P_AddAmmo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
-                    G_CheatGetInv();
-                    g_player[myconnectindex].ps->got_access =              7;
-                    P_DoQuote(QUOTE_CHEAT_EVERYTHING, g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
 
-                    //                        P_DoQuote(QUOTE_21,g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
+                    G_CheatGetInv();
+                    g_player[myconnectindex].ps->got_access = 7;
+                    P_DoQuote(QUOTE_CHEAT_EVERYTHING, g_player[myconnectindex].ps);
+
+//                    P_DoQuote(QUOTE_21,g_player[myconnectindex].ps);
                     g_player[myconnectindex].ps->inven_icon = 1;
+
+                    end_cheat();
                     return;
 
                 case CHEAT_SCOTTY:
@@ -7215,8 +7223,7 @@ FOUNDCHEAT:
                             if ((VOLUMEONE && volnume > 0) || volnume > g_numVolumes-1 ||
                                     levnume >= MAXLEVELS || MapInfo[volnume *MAXLEVELS+levnume].filename == NULL)
                             {
-                                g_player[myconnectindex].ps->cheat_phase = 0;
-                                KB_FlushKeyBoardQueue();
+                                end_cheat();
                                 return;
                             }
 
@@ -7239,14 +7246,12 @@ FOUNDCHEAT:
                         Net_NewGame(ud.m_volume_number,ud.m_level_number);
                     else g_player[myconnectindex].ps->gm |= MODE_RESTART;
 
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
 
                 case CHEAT_COORDS:
-                    g_player[myconnectindex].ps->cheat_phase = 0;
                     ud.coords = 1-ud.coords;
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
 
                 case CHEAT_VIEW:
@@ -7259,15 +7264,12 @@ FOUNDCHEAT:
                         g_cameraClock = totalclock;
                     }
 //                    P_DoQuote(QUOTE_CHEATS_DISABLED,g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
 
                 case CHEAT_TIME:
-
 //                    P_DoQuote(QUOTE_21,g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
 
                 case CHEAT_UNLOCK:
@@ -7287,8 +7289,7 @@ FOUNDCHEAT:
                     G_OperateForceFields(g_player[myconnectindex].ps->i,-1);
 
                     P_DoQuote(QUOTE_CHEAT_UNLOCK,g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
 
                 case CHEAT_CASHMAN:
@@ -7299,59 +7300,46 @@ FOUNDCHEAT:
 
                 case CHEAT_ITEMS:
                     G_CheatGetInv();
-                    g_player[myconnectindex].ps->got_access =              7;
+                    g_player[myconnectindex].ps->got_access = 7;
                     P_DoQuote(QUOTE_CHEAT_EVERYTHING,g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
 
                 case CHEAT_SHOWMAP: // SHOW ALL OF THE MAP TOGGLE;
-                    ud.showallmap = 1-ud.showallmap;
-                    if (ud.showallmap)
-                    {
-                        for (i=0; i<(MAXSECTORS>>3); i++)
-                            show2dsector[i] = 255;
-                        for (i=0; i<(MAXWALLS>>3); i++)
-                            show2dwall[i] = 255;
-                        P_DoQuote(QUOTE_SHOW_MAP_ON, g_player[myconnectindex].ps);
-                    }
-                    else
-                    {
-                        for (i=0; i<(MAXSECTORS>>3); i++)
-                            show2dsector[i] = 0;
-                        for (i=0; i<(MAXWALLS>>3); i++)
-                            show2dwall[i] = 0;
-                        P_DoQuote(QUOTE_SHOW_MAP_OFF, g_player[myconnectindex].ps);
-                    }
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
+                    ud.showallmap = !ud.showallmap;
+
+                    for (i=0; i<(MAXSECTORS>>3); i++)
+                        show2dsector[i] = ud.showallmap*255;
+                    for (i=0; i<(MAXWALLS>>3); i++)
+                        show2dwall[i] = ud.showallmap*255;
+
+                    P_DoQuote(ud.showallmap ? QUOTE_SHOW_MAP_ON : QUOTE_SHOW_MAP_ON,
+                              g_player[myconnectindex].ps);
+
+                    end_cheat();
                     return;
 
                 case CHEAT_TODD:
                     P_DoQuote(QUOTE_CHEAT_TODD,g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
 
                 case CHEAT_RATE:
                     ud.tickrate = !ud.tickrate;
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
 
                 case CHEAT_BETA:
                     P_DoQuote(QUOTE_CHEAT_BETA,g_player[myconnectindex].ps);
                     KB_ClearKeyDown(sc_H);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
 
                 case CHEAT_HYPER:
                     g_player[myconnectindex].ps->inv_amount[GET_STEROIDS] = 399;
                     g_player[myconnectindex].ps->inv_amount[GET_HEATS] = 1200;
-                    g_player[myconnectindex].ps->cheat_phase = 0;
                     P_DoQuote(QUOTE_CHEAT_STEROIDS,g_player[myconnectindex].ps);
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
 
                 case CHEAT_MONSTERS:
@@ -7361,14 +7349,13 @@ FOUNDCHEAT:
                     if (++g_noEnemies == 3)
                         g_noEnemies = 0;
 
-                    g_player[screenpeek].ps->cheat_phase = 0;
-
                     Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "Monsters: %s", s[g_noEnemies & 1]);
                     P_DoQuote(QUOTE_RESERVED4,g_player[myconnectindex].ps);
 
-                    KB_FlushKeyBoardQueue();
+                    end_cheat();
                     return;
                 }
+
                 case CHEAT_RESERVED:
                 case CHEAT_RESERVED3:
                     ud.eog = 1;
@@ -10897,37 +10884,21 @@ int32_t G_DoMoveThings(void)
 
 static void G_DoOrderScreen(void)
 {
+    int32_t i;
+
     setview(0,0,xdim-1,ydim-1);
 
-    fadepal(0,0,0, 0,63,7);
-    //g_player[myconnectindex].ps->palette = palette;
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0 /*1*/);    // JBF 20040308
-    KB_FlushKeyboardQueue();
-    rotatesprite_fs(0,0,65536L,0,ORDERING,0,0,2+8+16+64+(ud.bgstretch?1024:0));
-    fadepal(0,0,0, 63,0,-7);
-    while (!KB_KeyWaiting())
-        G_HandleAsync();
 
-    fadepal(0,0,0, 0,63,7);
-    KB_FlushKeyboardQueue();
-    rotatesprite_fs(0,0,65536L,0,ORDERING+1,0,0,2+8+16+64+(ud.bgstretch?1024:0));
-    fadepal(0,0,0, 63,0,-7);
-    while (!KB_KeyWaiting())
-        G_HandleAsync();
-
-    fadepal(0,0,0, 0,63,7);
-    KB_FlushKeyboardQueue();
-    rotatesprite_fs(0,0,65536L,0,ORDERING+2,0,0,2+8+16+64+(ud.bgstretch?1024:0));
-    fadepal(0,0,0, 63,0,-7);
-    while (!KB_KeyWaiting())
-        G_HandleAsync();
-
-    fadepal(0,0,0, 0,63,7);
-    KB_FlushKeyboardQueue();
-    rotatesprite_fs(0,0,65536L,0,ORDERING+3,0,0,2+8+16+64+(ud.bgstretch?1024:0));
-    fadepal(0,0,0, 63,0,-7);
-    while (!KB_KeyWaiting())
-        G_HandleAsync();
+    for (i=0; i<4; i++)
+    {
+        fadepal(0,0,0, 0,63,7);
+        KB_FlushKeyboardQueue();
+        rotatesprite_fs(0,0,65536L,0,ORDERING+i,0,0,2+8+16+64+(ud.bgstretch?1024:0));
+        fadepal(0,0,0, 63,0,-7);
+        while (!KB_KeyWaiting())
+            G_HandleAsync();
+    }
 }
 
 
