@@ -5425,30 +5425,120 @@ BOLT:
     }
 }
 
+
+// i: SE spritenum
+static void HandleSE31(int32_t i, int32_t zref, int32_t t2val, int32_t movesignexp)
+{
+    const spritetype *s = &sprite[i];
+    sectortype *sc = &sector[sprite[i].sectnum];
+    int32_t *const t = actor[i].t_data;
+
+    if (klabs(sc->floorz - zref) < SP)
+    {
+        sc->floorz = zref;
+        t[2] = t2val;
+        t[0] = 0;
+        t[3] = s->hitag;
+        A_CallSound(s->sectnum,i);
+    }
+    else
+    {
+        int32_t j;
+        int32_t l = ksgn(movesignexp)*SP;
+
+        sc->floorz += l;
+
+        for (j=headspritesect[s->sectnum]; j >= 0; j=nextspritesect[j])
+        {
+            if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
+                if (g_player[sprite[j].yvel].ps->on_ground == 1)
+                    g_player[sprite[j].yvel].ps->pos.z += l;
+            if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
+            {
+                actor[j].bposz = sprite[j].z += l;
+                actor[j].floorz = sc->floorz;
+            }
+        }
+    }
+}
+
+// s: SE sprite
+static void MaybeTrainKillPlayer(const spritetype *s, int32_t dosetopos)
+{
+    int32_t p;
+
+    for (TRAVERSE_CONNECT(p))
+        if (sprite[g_player[p].ps->i].extra > 0)
+        {
+            int16_t k = g_player[p].ps->cursectnum;
+
+            updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
+            if ((k == -1 && ud.noclip == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+            {
+                g_player[p].ps->pos.x = s->x;
+                g_player[p].ps->pos.y = s->y;
+
+                if (dosetopos)
+                {
+                    g_player[p].ps->opos.x = g_player[p].ps->pos.x;
+                    g_player[p].ps->opos.y = g_player[p].ps->pos.y;
+                }
+
+                g_player[p].ps->cursectnum = s->sectnum;
+
+                setsprite(g_player[p].ps->i,(vec3_t *)s);
+                P_QuickKill(g_player[p].ps);
+            }
+        }
+}
+
+// i: SE spritenum
+static void MaybeTrainKillEnemies(int32_t i, int32_t numguts)
+{
+    int32_t j = headspritesect[sprite[OW].sectnum];
+
+    while (j >= 0)
+    {
+        int32_t l = nextspritesect[j];
+
+        if (sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite(&sprite[j]) &&
+            sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+        {
+            int16_t k = sprite[j].sectnum;
+
+            updatesector(sprite[j].x,sprite[j].y,&k);
+            if (sprite[j].extra >= 0 && k == sprite[i].sectnum)
+            {
+                A_DoGutsDir(j,JIBS6,numguts);
+                A_PlaySound(SQUISHED,j);
+                A_DeleteSprite(j);
+            }
+        }
+
+        j = l;
+    }
+}
+
 ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 {
-    int32_t q=0,  m, x, st, j, l;
+    int32_t q=0,  m, x, j, l;
 
-    int32_t *t;
-
-    int32_t i = headspritestat[STAT_EFFECTOR], nexti, nextk, p, sh, nextj;
+    int32_t i = headspritestat[STAT_EFFECTOR], nextk, p, nextj;
     int16_t k;
-    spritetype *s;
-    sectortype *sc;
     walltype *wal;
 
     fricxv = fricyv = 0;
 
     while (i >= 0)
     {
-        nexti = nextspritestat[i];
-        s = &sprite[i];
+        const int32_t nexti = nextspritestat[i];
+        spritetype *const s = &sprite[i];
 
-        sc = &sector[s->sectnum];
-        st = s->lotag;
-        sh = s->hitag;
+        sectortype *const sc = &sector[s->sectnum];
+        const int32_t st = s->lotag;
+        const int32_t sh = s->hitag;
 
-        t = &actor[i].t_data[0];
+        int32_t *const t = &actor[i].t_data[0];
 
         switch (st)
         {
@@ -5755,21 +5845,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
                     if (ud.noclip == 0 && s->xvel >= 192)
-                        for (TRAVERSE_CONNECT(p))
-                            if (sprite[g_player[p].ps->i].extra > 0)
-                            {
-                                k = g_player[p].ps->cursectnum;
-                                updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                                if ((k == -1 && ud.noclip == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
-                                {
-                                    g_player[p].ps->pos.x = s->x;
-                                    g_player[p].ps->pos.y = s->y;
-                                    g_player[p].ps->cursectnum = s->sectnum;
-
-                                    setsprite(g_player[p].ps->i,(vec3_t *)s);
-                                    P_QuickKill(g_player[p].ps);
-                                }
-                            }
+                        MaybeTrainKillPlayer(s, 0);
                 }
 
                 m = (s->xvel*sintable[(s->ang+512)&2047])>>14;
@@ -5869,40 +5945,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
                     if (ud.noclip == 0 && s->xvel >= 192)
-                        for (TRAVERSE_CONNECT(p))
-                            if (sprite[g_player[p].ps->i].extra > 0)
-                            {
-                                k = g_player[p].ps->cursectnum;
-                                updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                                if ((k == -1 && ud.noclip == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
-                                {
-                                    g_player[p].ps->opos.x = g_player[p].ps->pos.x = s->x;
-                                    g_player[p].ps->opos.y = g_player[p].ps->pos.y = s->y;
-                                    g_player[p].ps->cursectnum = s->sectnum;
+                        MaybeTrainKillPlayer(s, 1);
 
-                                    setsprite(g_player[p].ps->i,(vec3_t *)s);
-                                    P_QuickKill(g_player[p].ps);
-                                }
-                            }
-
-                    j = headspritesect[sprite[OW].sectnum];
-                    while (j >= 0)
-                    {
-                        l = nextspritesect[j];
-                        if (sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite(&sprite[j]) &&
-                                sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
-                        {
-                            k = sprite[j].sectnum;
-                            updatesector(sprite[j].x,sprite[j].y,&k);
-                            if (sprite[j].extra >= 0 && k == s->sectnum)
-                            {
-                                A_DoGutsDir(j,JIBS6,72);
-                                A_PlaySound(SQUISHED,i);
-                                A_DeleteSprite(j);
-                            }
-                        }
-                        j = l;
-                    }
+                    MaybeTrainKillEnemies(i, 72);
                 }
             }
             else
@@ -5984,21 +6029,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                     if (ud.noclip == 0)
-                        for (TRAVERSE_CONNECT(p))
-                            if (sprite[g_player[p].ps->i].extra > 0)
-                            {
-                                k = g_player[p].ps->cursectnum;
-                                updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                                if ((k == -1 && ud.noclip == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
-                                {
-                                    g_player[p].ps->pos.x = s->x;
-                                    g_player[p].ps->pos.y = s->y;
-                                    g_player[p].ps->cursectnum = s->sectnum;
-
-                                    setsprite(g_player[p].ps->i,(vec3_t *)s);
-                                    P_QuickKill(g_player[p].ps);
-                                }
-                            }
+                        MaybeTrainKillPlayer(s, 0);
 
                 for (TRAVERSE_CONNECT(p))
                 {
@@ -6053,48 +6084,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 if ((sc->floorz-sc->ceilingz) < (108<<8))
                 {
                     if (ud.noclip == 0)
-                        for (TRAVERSE_CONNECT(p))
-                            if (sprite[g_player[p].ps->i].extra > 0)
-                            {
-                                k = g_player[p].ps->cursectnum;
-                                updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-                                if ((k == -1 && ud.noclip == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
-                                {
-                                    g_player[p].ps->pos.x = s->x;
-                                    g_player[p].ps->pos.y = s->y;
+                        MaybeTrainKillPlayer(s, 1);
 
-                                    g_player[p].ps->opos.x = g_player[p].ps->pos.x;
-                                    g_player[p].ps->opos.y = g_player[p].ps->pos.y;
-
-                                    g_player[p].ps->cursectnum = s->sectnum;
-
-                                    setsprite(g_player[p].ps->i,(vec3_t *)s);
-                                    P_QuickKill(g_player[p].ps);
-                                }
-                            }
-
-                    j = headspritesect[sprite[OW].sectnum];
-                    while (j >= 0)
-                    {
-                        l = nextspritesect[j];
-                        if (sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite(&sprite[j]) &&
-                                sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
-                        {
-                            //                    if(sprite[j].sectnum != s->sectnum)
-                            {
-                                k = sprite[j].sectnum;
-                                updatesector(sprite[j].x,sprite[j].y,&k);
-                                if (sprite[j].extra >= 0 && k == s->sectnum)
-                                {
-                                    A_DoGutsDir(j,JIBS6,24);
-                                    A_PlaySound(SQUISHED,j);
-                                    A_DeleteSprite(j);
-                                }
-                            }
-
-                        }
-                        j = l;
-                    }
+                    MaybeTrainKillEnemies(i, 24);
                 }
             }
 
@@ -7477,65 +7469,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 if (t[2] == 1) // Retract
                 {
                     if (SA != 1536)
-                    {
-                        if (klabs(sc->floorz - s->z) < SP)
-                        {
-                            sc->floorz = s->z;
-                            t[2] = 0;
-                            t[0] = 0;
-                            t[3] = s->hitag;
-                            A_CallSound(s->sectnum,i);
-                        }
-                        else
-                        {
-                            l = ksgn(s->z-sc->floorz)*SP;
-                            sc->floorz += l;
-
-                            j = headspritesect[s->sectnum];
-                            while (j >= 0)
-                            {
-                                if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-                                    if (g_player[sprite[j].yvel].ps->on_ground == 1)
-                                        g_player[sprite[j].yvel].ps->pos.z += l;
-                                if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
-                                {
-                                    actor[j].bposz = sprite[j].z += l;
-                                    actor[j].floorz = sc->floorz;
-                                }
-                                j = nextspritesect[j];
-                            }
-                        }
-                    }
+                        HandleSE31(i, s->z, 0, s->z-sc->floorz);
                     else
-                    {
-                        if (klabs(sc->floorz - t[1]) < SP)
-                        {
-                            sc->floorz = t[1];
-                            A_CallSound(s->sectnum,i);
-                            t[2] = 0;
-                            t[0] = 0;
-                            t[3] = s->hitag;
-                        }
-                        else
-                        {
-                            l = ksgn(t[1]-sc->floorz)*SP;
-                            sc->floorz += l;
-
-                            j = headspritesect[s->sectnum];
-                            while (j >= 0)
-                            {
-                                if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-                                    if (g_player[sprite[j].yvel].ps->on_ground == 1)
-                                        g_player[sprite[j].yvel].ps->pos.z += l;
-                                if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
-                                {
-                                    actor[j].bposz = sprite[j].z += l;
-                                    actor[j].floorz = sc->floorz;
-                                }
-                                j = nextspritesect[j];
-                            }
-                        }
-                    }
+                        HandleSE31(i, t[1], 0, t[1]-sc->floorz);
 
                     Yax_SetBunchZs(sc-sector, YAX_FLOOR, sc->floorz);
 
@@ -7543,63 +7479,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 if ((s->ang&2047) == 1536)
-                {
-                    if (klabs(s->z-sc->floorz) < SP)
-                    {
-                        A_CallSound(s->sectnum,i);
-                        t[0] = 0;
-                        t[2] = 1;
-                        t[3] = s->hitag;
-                    }
-                    else
-                    {
-                        l = ksgn(s->z-sc->floorz)*SP;
-                        sc->floorz += l;
-
-                        j = headspritesect[s->sectnum];
-                        while (j >= 0)
-                        {
-                            if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-                                if (g_player[sprite[j].yvel].ps->on_ground == 1)
-                                    g_player[sprite[j].yvel].ps->pos.z += l;
-                            if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
-                            {
-                                actor[j].bposz = sprite[j].z += l;
-                                actor[j].floorz = sc->floorz;
-                            }
-                            j = nextspritesect[j];
-                        }
-                    }
-                }
+                    HandleSE31(i, s->z, 1, s->z-sc->floorz);
                 else
-                {
-                    if (klabs(sc->floorz-t[1]) < SP)
-                    {
-                        t[0] = 0;
-                        A_CallSound(s->sectnum,i);
-                        t[2] = 1;
-                        t[3] = s->hitag;
-                    }
-                    else
-                    {
-                        l = ksgn(s->z-t[1])*SP;
-                        sc->floorz -= l;
-
-                        j = headspritesect[s->sectnum];
-                        while (j >= 0)
-                        {
-                            if (sprite[j].picnum == APLAYER && sprite[j].owner >= 0)
-                                if (g_player[sprite[j].yvel].ps->on_ground == 1)
-                                    g_player[sprite[j].yvel].ps->pos.z -= l;
-                            if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
-                            {
-                                actor[j].bposz = sprite[j].z -= l;
-                                actor[j].floorz = sc->floorz;
-                            }
-                            j = nextspritesect[j];
-                        }
-                    }
-                }
+                    HandleSE31(i, t[1], 1, t[1]-s->z);
 
                 Yax_SetBunchZs(sc-sector, YAX_FLOOR, sc->floorz);
             }
@@ -7915,7 +7797,9 @@ BOLT:
     //Sloped sin-wave floors!
     for (i=headspritestat[STAT_EFFECTOR]; i>=0; i=nextspritestat[i])
     {
-        s = &sprite[i];
+        const spritetype *s = &sprite[i];
+        sectortype *sc;
+
         if (s->lotag != 29) continue;
         sc = &sector[s->sectnum];
         if (sc->wallnum != 4) continue;
