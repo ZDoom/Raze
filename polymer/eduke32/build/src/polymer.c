@@ -1204,9 +1204,15 @@ void                polymer_editorpick(void)
             else
             {
                 if (searchstat==1)
-                    pl = &(prsectors[searchsector]->ceil.plane[0]);
+                    pl = prsectors[searchsector]->ceil.plane;
                 else
-                    pl = &(prsectors[searchsector]->floor.plane[0]);
+                    pl = prsectors[searchsector]->floor.plane;
+
+                if (pl == NULL)
+                {
+                    searchwall = sector[num].wallptr;
+                    return;
+                }
 
                 t = dot3f(pl,scrv);
                 svcoeff = -(dot3f(pl,scr)+pl[3])/t;
