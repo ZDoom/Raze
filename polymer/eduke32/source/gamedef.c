@@ -3877,6 +3877,7 @@ static int32_t C_ParseCommand(int32_t loop)
             case CON_LDIST:
             case CON_GETANGLE:
             case CON_GETINCANGLE:
+            case CON_MULSCALE:
                 C_GetNextVarType(GAMEVAR_READONLY);
                 break;
             default:
