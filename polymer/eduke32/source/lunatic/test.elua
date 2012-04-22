@@ -1,5 +1,7 @@
 -- test script for ELua/Lunatic Interpreter
 
+--return
+
 print('--- ELua Test script ---')
 
 local function checkfail(funcstr)
@@ -10,6 +12,27 @@ local function checkfail(funcstr)
         print('SUCCESS: '..funcstr.." failed: "..res)
     end
 end
+
+
+---- check serialization ----
+gamevar("ourvar")
+gamevar("ourvar2")
+
+-- test nans, infs, precision, subnorms
+ourvar2 = { "asd"; 0/0, 1/0, -1/0, 0.12345678901234567, 1e-314 }
+ourvar = { ourvar2; 1, 2, 3, "qwe" }
+ourvar[#ourvar+1] = ourvar;
+
+local gvstr = DBG_.serializeGamevars()
+ourvar = -1
+
+print("---------- attempting to load string: ----------")
+print(gvstr)
+print("---------- (end string to load) ----------")
+
+DBG_.loadGamevarsString(gvstr)
+print("ourvar[4]="..ourvar[4])
+
 
 local i
 

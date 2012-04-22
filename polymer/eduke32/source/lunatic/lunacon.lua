@@ -708,7 +708,7 @@ end
 -- Returns index into the sorted table tab such that
 --   tab[index] <= searchelt < tab[index+1].
 -- Preconditions:
---  tab[i] < tab[i+1] for i < i+1 and 1 < i < #tab
+--  tab[i] < tab[i+1] for 1 <= i < #tab
 --  tab[1] <= searchelt < tab[#tab]
 -- If tab has less than 2 elements, returns nil.
 local function bsearch(tab, searchelt)

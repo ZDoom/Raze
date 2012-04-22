@@ -1,5 +1,5 @@
+-- INTERNAL
 -- definitions of BUILD and game types for the Lunatic Interpreter
--- INTERNAL!
 
 local ffi = require("ffi")
 
@@ -567,20 +567,21 @@ function getbunch(sectnum, cf)
 end
 
 
+-- gamevarNames[name] is true if that gamevar was declared
+local gamevarNames = {}
+
 -- code for prohibiting initial assignments to create new variables,
 -- based on 14.2 of PiL
 function gamevar(name, initval)  -- aka 'declare'
-    local declaredNames = {}
-
     if (type(name) ~= "string") then
         error("First argument to 'gamevar' must be a string", 2);
     end
 
-    if (~string.match(name, "^[%a_][%w_]*$")) then
+    if (not string.match(name, "^[%a_][%w_]*$")) then
         error("First argument to 'gamevar' must be a valid identifier", 2);
     end
 
-    if (declaredNames[name]) then
+    if (gamevarNames[name]) then
         error(string.format("Duplicate declaration of identifier '%s'", name), 2)
     end
 
@@ -588,10 +589,89 @@ function gamevar(name, initval)  -- aka 'declare'
         error(string.format("Identifier name '%s' is already used in the global environment", name), 2)
     end
 
-    declaredNames[name] = true
+    gamevarNames[name] = true
     rawset(G_, name, initval or false)
 end
 
+
+---=== Serialization, from PiL with modifications ===---
+local function basicSerialize(o)
+    if (type(o) == "number") then
+        if (o ~= o) then return "0/0" end  -- nan
+        if (o == 1/0) then return "1/0" end  -- inf
+        if (o == -1/0) then return "-1/0" end  -- -inf
+
+        return tostring(o)
+    else  -- must be a string
+        if (type(o) ~= "string") then
+            error("cannot save a " .. type(o) .. " as key of a table", 3);
+        end
+
+        return string.format("%q", o)
+    end
+end
+
+-- will contain all gamevar tables as keys (and true as value)
+local tmpgvtabs = {}
+
+local function save(name, value, saved, strings)
+    saved = saved or {}       -- initial value
+
+    strings[#strings+1] = name .. "="
+
+    if (type(value) == "number" or type(value) == "string") then
+        strings[#strings+1] = basicSerialize(value) .. "\n"
+    elseif (type(value) == "table") then
+        if (saved[value]) then    -- value already saved?
+            strings[#strings+1] = saved[value] .. "\n"  -- use its previous name
+        else
+            saved[value] = name   -- save name for next time
+            strings[#strings+1] = "{}\n"  -- create a new table
+
+            for k,v in pairs(value) do      -- save its fields
+                local fieldname = string.format("%s[%s]", name, basicSerialize(k))
+                if (type(v)=="table" and not tmpgvtabs[v]) then
+                    error("cannot save \""..name..
+                          "\": gamevar tables may only contain tables that are also gamevars", 2)
+                end
+                save(fieldname, v, saved, strings)
+            end
+        end
+    else
+        error("cannot save \""..name.."\", a " .. type(value), 2)
+    end
+end
+
+local function serializeGamevars()
+    local saved = {}
+    local strings = {}
+
+    for gvname,_ in pairs(gamevarNames) do
+        if (type(G_[gvname])=="table") then
+            tmpgvtabs[G_[gvname]] = true
+        end
+    end
+
+    -- TODO: catch errors in save()
+    for gvname,_ in pairs(gamevarNames) do
+        save(gvname, G_[gvname], saved, strings)
+    end
+    strings[#strings+1] = "\n"
+
+    tmpgvtabs = {}
+
+    return table.concat(strings)
+end
+
+local function loadGamevarsString(string)
+    assert(loadstring(string))()
+end
+
+DBG_.serializeGamevars = serializeGamevars
+DBG_.loadGamevarsString = loadGamevarsString
+
+
+---=== Environment setup ===---
 
 -- add new variables/functions living in the global environment
 G_.DBG_ = DBG_  -- REMOVE this for release
