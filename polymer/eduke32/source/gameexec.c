@@ -3316,11 +3316,19 @@ nullquote:
 
         case CON_PALFROM:
             insptr++;
+            if ((unsigned)vm.g_p >= (unsigned)playerswhenstarted)
             {
-                int32_t j = 2;
-                g_player[vm.g_p].ps->pals.f = *insptr++;
-                for (; j>=0; j--)
-                    *((char *)(&g_player[vm.g_p].ps->pals.r)+2-j) = *insptr++;
+                OSD_Printf(CON_ERROR "invalid player ID %d\n",g_errorLineNum,keyw[g_tw],vm.g_p);
+                insptr += 4;
+            }
+            else
+            {
+                palette_t *const pals = &g_player[vm.g_p].ps->pals;
+
+                pals->f = *insptr++;
+                pals->r = *insptr++;
+                pals->g = *insptr++;
+                pals->b = *insptr++;
             }
             continue;
 
