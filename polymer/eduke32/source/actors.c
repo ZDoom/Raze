@@ -6068,7 +6068,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 j = headspritesect[s->sectnum];
                 while (j >= 0)
                 {
-                    if (sprite[j].picnum != SECTOREFFECTOR && sprite[j].picnum != LOCATORS)
+                    if ((sprite[j].picnum != SECTOREFFECTOR || sprite[j].lotag==49 || sprite[j].lotag==50)
+                            && sprite[j].picnum != LOCATORS)
                     {
                         if (numplayers < 2 && !g_netServer)
                         {
