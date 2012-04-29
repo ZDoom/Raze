@@ -4456,7 +4456,7 @@ nullquote:
 
         case CON_SETGAMEPALETTE:
             insptr++;
-            P_SetGamePalette(g_player[vm.g_p].ps, Gv_GetVarX(*(insptr++)),16);
+            P_SetGamePalette(g_player[vm.g_p].ps, Gv_GetVarX(*(insptr++)),0/*16*/);  // XXX: see engine.c:setbrightness
             continue;
 
         case CON_GETTEXTURECEILING:

@@ -13589,6 +13589,10 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 #ifdef USE_OPENGL
     if (rendmode >= 3)
     {
+        // XXX: paldidchange should really be "oldpalnum!=newpalnum".
+        // Currently changing the palette while having a tint effect invalidates
+        // everything, which is bad!
+
         // only reset the textures if the corresponding preserve flags are clear and
         // either (a) the new palette is different to the last, or (b) the brightness
         // changed and we couldn't set it using hardware gamma
