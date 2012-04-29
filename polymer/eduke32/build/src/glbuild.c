@@ -1043,10 +1043,10 @@ static void texdbg_realloc(uint32_t maxtexname)
 {
     uint32_t newsize = texnameallocsize ? texnameallocsize : 64;
 
-    if (texnameallocsize >= maxtexname)
+    if (maxtexname < texnameallocsize)
         return;
 
-    while (newsize < maxtexname)
+    while (maxtexname >= newsize)
         newsize <<= 1;
 //    initprintf("texdebug: new size %u\n", newsize);
 
