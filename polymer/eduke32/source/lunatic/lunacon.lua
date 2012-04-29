@@ -3,6 +3,17 @@
 
 local lpeg = require("lpeg")
 
+
+-- If/else nesting is problematic in CON: because a dangling 'else' is attached
+-- to the outermost 'if', I think there's no way of linearizing its (recursive)
+-- pattern, so the "too many pending calls/choices" is unavoidable in general.
+-- This limit is of course still arbitrary, but writing if/else cascades
+-- in CON isn't pretty either (though sometimes necessary because nested switches
+-- don't work?)
+-- See also:  http://lua-users.org/lists/lua-l/2010-03/msg00086.html
+lpeg.setmaxstack(1024);
+
+
 local Pat, Set, Range, Var = lpeg.P, lpeg.S, lpeg.R, lpeg.V
 
 
@@ -19,20 +30,24 @@ end
 ----==== patterns ====----
 
 ---- basic ones
-local newline = Pat("\n")  -- need to do stuff on newline later...
+-- Windows, *nix and Mac newlines all exist in the wild!
+local newline = "\r"*Pat("\n")^-1 + "\n"
+local EOF = Pat(-1)
 local anychar = Pat(1)
 -- comments
 local comment = "/*" * match_until(anychar, "*/") * "*/"
 local linecomment = "//" * match_until(anychar, newline)
 local whitespace = Var("whitespace")
 local sp0 = whitespace^0
-local sp1 = whitespace^1 -- + (-1)  -- matches EOF, too
+-- This "WS+" pattern matches EOF too, so that a forgotten newline at EOF is
+-- properly handled
+local sp1 = whitespace^1 + EOF
 local alpha = Range("AZ", "az")  -- locale?
 local alphanum = alpha + Range("09")
-local alnumtok = alphanum + Set("{}/\\*-_.")  -- see isaltok() in gamedef.c
+--local alnumtok = alphanum + Set("{}/\\*-_.")  -- see isaltok() in gamedef.c
 
 --- basic lexical elements ("tokens")
-local t_number = Range("09")^1 + (Pat("0x") + "0X")*Range("09", "af")^1
+local t_number = Range("09")^1 + (Pat("0x") + "0X")*Range("09", "af", "AF")^1
 -- Valid identifier names are disjunct from keywords!
 -- XXX: CON is more permissive with identifier name characters:
 local t_identifier = Var("t_identifier")
@@ -53,7 +68,8 @@ local t_wvar = t_arrayexp + t_identifier
 
 ---- helper patterns / pattern constructing functions
 local maybe_quoted_filename = ('"' * t_filename * '"' + t_filename)
-local newline_term_string = (whitespace-newline)^1 * t_newline_term_str  -- XXX: empty string?
+-- empty string is handled too; we must not eat the newline then!
+local newline_term_string = (#newline + EOF) + (whitespace-newline)^1 * t_newline_term_str
 
 
 -- (sp1 * t_define) repeated exactly n times
@@ -102,6 +118,7 @@ end
 -- The command names will be attached to the front of the patterns later!
 
 --== Top level CON commands ==--
+-- XXX: many of these are also allowed inside actors/states/events in CON.
 local Co = {
     --- 1. Preprocessor
     include = sp1 * maybe_quoted_filename,
@@ -163,14 +180,22 @@ local Co = {
 local varop = cmd(W,D)
 local varvarop = cmd(W,R)
 
--- t_define is t_rvar without t_arrayexp, actually, so that no nesting is allowed:
-local arraypat = sp0 * "[" * sp0 * t_define * sp0 * "]"
+-- Allow nesting... stuff like
+--   ifvarl actorvar[sprite[THISACTOR].owner].burning 0
+-- is kinda breaking the classic "no array nesting" rules
+-- (if there ever were any) and making our life harder else.
+local arraypat = sp0 * "[" * sp0 * t_rvar * sp0 * "]"
+
+-- Have to bite the bullet here and list actor/player members with second parameters,
+-- even though it's ugly to make it part of the syntax.  Also, stuff like
+--   actor[xxx].loogiex parm2 x
+-- will be wrongly accepted at the parsing stage because we don't discriminate between
+-- actor and player (but it will be rejected later).
+local parm2memberpat = (Pat("htg_t") + "loogiex" + "loogiey" + "ammo_amount" +
+                        "weaprecs" + "gotweapon" + "pals" + "max_ammo_amount") * sp0 * t_rvar
 -- The member name must match keywords, too (_all), because e.g. cstat is a member
--- of sprite[]
--- XXX: actor and sprite members can have parm2, e.g. this is legal:
---   ifvare player[THISACTOR].gotweapon 4 0
--- but not parsed currently.
-local memberpat = sp0 * "." * sp0 * t_identifier_all
+-- of sprite[].
+local memberpat = sp0 * "." * sp0 * (parm2memberpat + t_identifier_all)
 
 local getstructcmd =  -- get<structname>[<idx>].<member> (<parm2>)? <<var>>
     -- existence of a second parameter is determined later
@@ -204,7 +229,11 @@ local Ci = {
     getsector = getstructcmd,
     getthisprojectile = getstructcmd,
     gettspr = getstructcmd,
-    getuserdef = getstructcmd,
+    -- NOTE: {get,set}userdef is the only struct that can be accessed without
+    -- an "array part", e.g.  H266mod has "setuserdef .weaponswitch 0" (space
+    -- between keyword and "." is mandatory)
+    getuserdef = (arraypat + sp1) * memberpat * sp1 * (t_rvar * sp1 * t_wvar + t_wvar),
+--    getuserdef = getstructcmd,
     getwall = getstructcmd,
 
     getactorvar = getperxvarcmd,
@@ -217,7 +246,8 @@ local Ci = {
     setsector = setstructcmd,
     setthisprojectile = setstructcmd,
     settspr = setstructcmd,
-    setuserdef = setstructcmd,
+    setuserdef = (arraypat + sp1) * memberpat * sp1 * (t_rvar * sp1 * t_wvar + t_rvar),
+--    setuserdef = setstructcmd,
     setwall = setstructcmd,
 
     setactorvar = setperxvarcmd,
@@ -355,7 +385,6 @@ local Ci = {
     killit = cmd(),
     mikesnd = cmd(),
     nullop = cmd(),
-    operate = cmd(),
     pkick = cmd(),
     pstomp = cmd(),
     resetactioncount = cmd(),
@@ -392,12 +421,12 @@ local Ci = {
     qsubstr = cmd(R,R),
 
     -- array stuff
-    copy = sp1 * t_identifier * arraypat * sp1 * t_identifier * arraypat,
+    copy = sp1 * t_identifier * arraypat * sp1 * t_identifier * arraypat * sp1 * t_rvar,
     setarray = sp1 * t_identifier * arraypat * sp1 * t_rvar,
 
     activatebysector = cmd(R,R),
-    addlog = cmd(),
-    addlogvar = cmd(R),
+    addlogvar = cmd(R),  -- HERE, it's significant that addlogvar
+--    addlog = cmd(),      -- comes before addlog!
     addweaponvar = cmd(R,R),  -- exec SPECIAL HANDLING!
     cansee = cmd(R,R,R,R,R,R,R,R,W),
     canseespr = cmd(R,R,W),
@@ -416,7 +445,7 @@ local Ci = {
     gametext = cmd(R,R,R,R,R,R,R,R,R,R,R),  -- 11 R
     gametextz = cmd(R,R,R,R,R,R,R,R,R,R,R,R),  -- 12 R
     digitalnumber = cmd(R,R,R,R,R,R,R,R,R,R,R),  -- 11R
-    digitalnumberz = cmd(W,R,R,R,R,R,R,R,R,R,R,R),  -- 1W 11R
+    digitalnumberz = cmd(R,R,R,R,R,R,R,R,R,R,R,R),  -- 12R
     minitext = cmd(R,R,R,R,R),
 
     ldist = cmd(W,R,R),
@@ -426,14 +455,17 @@ local Ci = {
     savemapstate = cmd(),
     movesprite = cmd(R,R,R,R,R,W),
     neartag = cmd(R,R,R,R,R,W,W,W,W,R,R),
-    operateactivators = cmd(R),
-    operatesectors = cmd(R),
+    operateactivators = cmd(R,R),
+    operatesectors = cmd(R,R),
     palfrom = (sp1 * t_define)^-4,
 
+    -- must come after all other operate* commands
+--    operate = cmd(),
+
     myos = cmd(R,R,R,R,R),
+    myosx = cmd(R,R,R,R,R),
     myospal = cmd(R,R,R,R,R,R),
     myospalx = cmd(R,R,R,R,R,R),
-    myosx = cmd(R,R,R,R,R),
 
     headspritesect = cmd(R,R),
     headspritestat = cmd(R,R),
@@ -519,31 +551,6 @@ local Cif = {
     ifsound = cmd(D),
     ifpinventory = cmd(D,D),
 
-    ifp = (sp1 * t_define)^1,
-
-    ifclient = cmd(),
-    ifserver = cmd(),
-    ifonwater = cmd(),
-    ifinwater = cmd(),
-    ifactornotstayput = cmd(),
-    ifactorsound = cmd(),
-    ifcansee = cmd(),
-    ifhitweapon = cmd(),
-    ifsquished = cmd(),
-    ifdead = cmd(),
-    ifcanshoottarget = cmd(),
-    ifhitspace = cmd(),
-    ifoutside = cmd(),
-    ifmultiplayer = cmd(),
-    ifinspace = cmd(),
-    ifbulletnear = cmd(),
-    ifrespawn = cmd(),
-    ifinouterspace = cmd(),
-    ifnotmoving = cmd(),
-    ifawayfromwall = cmd(),
-    ifcanseetarget = cmd(),
-    ifnosounds = cmd(),
-
     ifvarl = cmd(R,D),
     ifvarg = cmd(R,D),
     ifvare = cmd(R,D),
@@ -553,7 +560,6 @@ local Cif = {
     ifvarxor = cmd(R,D),
     ifvareither = cmd(R,D),
 
-    ifactorsound = cmd(R,R),
     ifvarvarg = cmd(R,R),
     ifvarvarl = cmd(R,R),
     ifvarvare = cmd(R,R),
@@ -562,6 +568,31 @@ local Cif = {
     ifvarvaror = cmd(R,R),
     ifvarvarxor = cmd(R,R),
     ifvarvareither = cmd(R,R),
+
+    ifactorsound = cmd(R,R),
+
+    ifp = (sp1 * t_define)^1,
+    ifsquished = cmd(),
+    ifserver = cmd(),
+    ifrespawn = cmd(),
+    ifoutside = cmd(),
+    ifonwater = cmd(),
+    ifnotmoving = cmd(),
+    ifnosounds = cmd(),
+    ifmultiplayer = cmd(),
+    ifinwater = cmd(),
+    ifinspace = cmd(),
+    ifinouterspace = cmd(),
+    ifhitweapon = cmd(),
+    ifhitspace = cmd(),
+    ifdead = cmd(),
+    ifclient = cmd(),
+    ifcanshoottarget = cmd(),
+    ifcanseetarget = cmd(),
+--    ifcansee = cmd(),
+    ifbulletnear = cmd(),
+    ifawayfromwall = cmd(),
+    ifactornotstayput = cmd(),
 }
 
 
@@ -613,9 +644,14 @@ end
 
 local function getlinecol(pos)
     local line = bsearch(newlineidxs, pos)
-    local col = pos-newlineidxs[line]
+    local col = pos-newlineidxs[line-1]
     return line, col
 end
+
+-- Last keyword position, for error diagnosis.
+local g_lastkwpos = nil
+local g_lastkw = nil
+local g_badids = {}  -- maps bad id strings to 'true'
 
 -- A generic trace function, prints a position together with the match content
 -- A non-existing 'doit' means 'true'.
@@ -625,20 +661,42 @@ local function TraceFunc(pat, label, doit)
     if (doit==nil or doit) then
         local function tfunc(subj, pos, a)
             local line, col = getlinecol(pos)
-            printf("%d,%d:%s:%s", line, col, label, a)
+            printf("%d,%d:%s: %s", line, col, label, a)
             return true
         end
         pat = lpeg.Cmt(pat, tfunc)
+    elseif (label=="kw") then  -- HACK
+        local function tfunc(subj, pos, a)
+            g_lastkwpos = pos
+            g_lastkw = a
+            return true
+        end
+        -- XXX: is there a better way?
+        pat = lpeg.Cmt(pat, tfunc)
     end
+
     return pat
+end
+
+local function BadIdentFunc(pat)
+    local function tfunc(subj, pos, a)
+        if (not g_badids[a]) then
+            local line, col = getlinecol(pos)
+            printf("%d,%d: warning: bad identifier: %s", line, col, a)
+            g_badids[a] = true
+        end
+        return true
+    end
+    return lpeg.Cmt(Pat(pat), tfunc)
 end
 
 -- These are tracers for specific patterns which can be disabled
 -- if desired.
-local function Keyw(kwname) return TraceFunc(kwname, "kw", true) end
-local function NotKeyw(text) return TraceFunc(text, "!kw", true) end
-local function Ident(idname) return TraceFunc(idname, "id", true) end
-local function Stmt(cmdpat) return TraceFunc(cmdpat, "st", true) end
+local function Keyw(kwname) return TraceFunc(kwname, "kw", false) end
+local function NotKeyw(text) return TraceFunc(text, "!kw", false) end
+local function Ident(idname) return TraceFunc(idname, "id", false) end
+local function BadIdent(idname) return BadIdentFunc(idname) end
+local function Stmt(cmdpat) return TraceFunc(cmdpat, "st", false) end
 
 
 ----==== Translator continued ====----
@@ -662,8 +720,10 @@ local function all_alt_pattern(...)
     local args = {...}
     for argi=1,#args do
         local pattab = args[argi]
+        -- NOTE: pairs() iterates in undefined order!
+        -- We can't handle prefix-problematic commands this way here.
         for cmdname,cmdpat in pairs(pattab) do
-            pat = pat + cmdpat
+            pat = cmdpat + pat
         end
     end
     return pat
@@ -671,24 +731,32 @@ end
 
 -- actor ORGANTIC is greeting!
 local function warn_on_lonely_else(subj, pos)
-    print(pos..": warning: found `else' with no `if'")
+    local line, col = getlinecol(pos)
+    printf("%d,%d: warning: found `else' with no `if'", line, col)
     return true
 end
 
--- About prefixes: I think it's not a problem *here* if e.g. "getactor" comes
--- before "getactorvar", because the pattern for the former will fail
--- eventually in the ordered choice if fed with the latter.  However, it DOES
--- matter in the keyword list, see NotKeyw() trace function and comment in
--- con_lang.lua.
+-- NOTE: The indented text is not true, e.g. addlog vs. addlogvar:
+-- since 'addlog' has no args, it will get matched given an 'addlogvar' in the subject:
+--   About prefixes: I think it's not a problem *here* if e.g. "getactor" comes
+--   before "getactorvar", because the pattern for the former will fail
+--   eventually in the ordered choice if fed with the latter.  However, it DOES
+--   matter in the keyword list, see NotKeyw() trace function and comment in
+--   con_lang.lua.
+-- Do we have more of them?  Yes.
+--  operate/operate*
+--  ifcansee/ifcanseetarget
 local con_outer_command = all_alt_pattern(Co)
-local con_inner_command = all_alt_pattern(Ci)
-local con_if_begs = all_alt_pattern(Cif)
+-- Empty-arged commands that are prefixes of others must come last:
+local con_inner_command = all_alt_pattern(Ci) + "addlog" + "operate"
+local con_if_begs = all_alt_pattern(Cif) + "ifcansee"
 
 local lone_else = lpeg.Cmt("else" * sp1, warn_on_lonely_else)
 
 local stmt_list = Var("stmt_list")
 -- possibly empty statement list:
 local stmt_list_or_eps = (stmt_list * sp1)^-1
+local stmt_list_nosp_or_eps = (stmt_list * (sp1 * stmt_list)^0)^-1
 
 -- common to all three: <name/tilenum> [<strength> [<action> [<move> [<ai>... ]]]]
 local common_actor_end = sp1 * t_define * sp1 * (t_define * sp1)^0 * stmt_list_or_eps * "enda"
@@ -710,19 +778,32 @@ local Cb = {
 attachnames(Cb)
 
 
+local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09")^0
+
+-- CON isaltok also has chars in "{}.", but these could potentially
+-- interfere with *CON* syntax.  The "]" is so that the number in array[80]
+-- isn't considered a broken identifier.
+-- "-" is somewhat problematic, but we allow it only as 2nd and up character, so
+-- there's no ambiguity with unary minus.  (Commands must be separated by spaces
+-- in CON, so a trailing "-" is "OK", too.)
+-- This is broken in itself, so we ought to make a compatibility/modern CON switch.
+local t_broken_identifier = BadIdent(-((t_number + t_good_identifier) * (sp1 + Set("[]:"))) *
+                                     (alphanum + Set("_/\\*")) * (alphanum + Set("_/\\*-"))^0)
+
 --- The final grammar!
 local Grammar = Pat{
     -- The starting symbol.
     -- A translation unit is a (possibly empty) sequence of outer CON
     -- commands, separated by at least one whitespace which may be
     -- omitted at the EOF.
-    sp0 * ((con_outer_command + all_alt_pattern(Cb)) * (sp1 + (-1)))^0,
+    sp0 * ((con_outer_command + all_alt_pattern(Cb)) * sp1)^0,
 
     -- Deps.  These appear here because we're hitting a limit with LPeg else:
     -- http://lua-users.org/lists/lua-l/2008-11/msg00462.html
-    whitespace = Set(" \t\r") + newline + Set("(),;") + comment + linecomment,
+    -- NOTE: NW demo (NWSNOW.CON) contains a Ctrl-Z char (dec 26)
+    whitespace = Set(" \t\r\26") + newline + Set("(),;") + comment + linecomment,
 
-    t_identifier_all = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09")^0,
+    t_identifier_all = t_broken_identifier + t_good_identifier,
     -- NOTE: -con_keyword alone would be wrong, e.g. "state breakobject":
     -- NOTE 2: The + "[" is so that stuff like
     --   getactor[THISACTOR].x x
@@ -732,13 +813,19 @@ local Grammar = Pat{
     --   getactor [THISACTOR].y y
     -- This is in need of cleanup!
     t_identifier = -NotKeyw(con_keyword * (sp1 + "[")) * Ident(t_identifier_all),
-    t_define = Pat("-")^-1 * sp0 * (t_identifier + t_number),
+    t_define = (Pat("-") * sp0)^-1 * (t_identifier + t_number),
 
     t_arrayexp = t_identifier * arraypat * memberpat^-1,
 
-    switch_stmt = Keyw("switch") * (sp1 * (Var("case") + Var("default")))^0 * sp1 * "endswitch",
-    case = Keyw("case") * sp1 * t_define * sp0 * Pat(":")^-1 * sp1 * stmt_list_or_eps * "break",
-    default = Keyw("default") * sp0 * Pat(":")^-1 * sp1 * stmt_list_or_eps * "break",
+    -- SWITCH
+    switch_stmt = Keyw("switch") * sp1 * t_rvar *
+        (Var("case_block") + Var("default_block"))^0 * sp1 * "endswitch",
+
+    -- NOTE: some old DNWMD has "case: PIGCOP".  I don't think I'll allow that.
+    case_block = (sp1 * Keyw("case") * sp1 * t_define * (sp0*":")^-1)^1 * sp1 *
+        stmt_list_nosp_or_eps, -- * "break",
+
+    default_block = sp1 * Keyw("default") * (sp0*":"*sp0 + sp1) * stmt_list_nosp_or_eps,  -- * "break",
 
     -- The "lone" if statement is tested first, so that a potential dangling "else" is
     -- attached to the outermost possible "if", as done by CON
@@ -751,7 +838,7 @@ local Grammar = Pat{
     -- TODO: some sp1 --> sp0?
     single_stmt = Stmt(
         lone_else^-1 *
-            ( Keyw("{") * sp0 * "}"
+            ( Keyw("{") * sp1 * "}"  -- space separation of commands in CON is for a reason!
               + Keyw("{") * sp1 * stmt_list * sp1 * "}"
               + (con_inner_command + Var("switch_stmt") + Var("if_stmt") + Var("while_stmt"))
 --              + lpeg.Cmt(t_newline_term_str, function (subj, curpos) print("Error at "..curpos) end)
@@ -769,37 +856,44 @@ local function setup_newlineidxs(contents)
     for i in string.gmatch(contents, "()\n") do
         newlineidxs[#newlineidxs+1] = i
     end
-    newlineidxs[#newlineidxs+1] = #contents+1  -- dummy newline
+    -- dummy newlines at beginning and end
+    newlineidxs[#newlineidxs+1] = #contents+1
+    newlineidxs[0] = 0
 end
 
 ---=== stand-alone: ===---
 if (not EDUKE32_LUNATIC) then
     local io = require("io")
 
-    local filename = arg[1]
-    assert(filename)
+    for argi=1,#arg do
+        local filename = arg[argi]
+        printf("\n---- Parsing file \"%s\"", filename);
 
-    local contents = io.open(filename):read("*all")
-    setup_newlineidxs(contents)
+        local contents = io.open(filename):read("*all")
+        setup_newlineidxs(contents)
 
-    local idx = lpeg.match(Grammar, contents)
+        g_badids = {}
 
-    if (not idx) then
-        print("Match failed.")
-        return
+        local idx = lpeg.match(Grammar, contents)
+
+        if (not idx) then
+            print("Match failed.")
+        elseif (idx == #contents+1) then
+            print("Matched whole contents.")
+        else
+            local i, col = getlinecol(idx)
+            local bi, ei = newlineidxs[i]+1, newlineidxs[i+1]-1
+
+            printf("Match succeeded up to %d (line %d, col %d; len=%d)",
+                   idx, i, col, #contents)
+
+--            printf("Line goes from %d to %d", bi, ei)
+            print(string.sub(contents, bi, ei))
+
+            if (g_lastkwpos) then
+                i, col = getlinecol(g_lastkwpos)
+                printf("Last keyword was at line %d, col %d: %s", i, col, g_lastkw)
+            end
+        end
     end
-
-    if (idx == #contents+1) then
-        print("Matched whole contents.")
-        return
-    end
-
-    local i, col = getlinecol(idx)
-    local bi, ei = newlineidxs[i]+1, newlineidxs[i+1]-1
-
-    printf("Match succeeded up to %d (line %d, col %d; len=%d)",
-           idx, i, col, #contents)
-
---    printf("Line goes from %d to %d", bi, ei)
-    print(string.sub(contents, bi, ei))
 end
