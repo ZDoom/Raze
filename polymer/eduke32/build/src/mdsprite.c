@@ -155,50 +155,93 @@ void freeallmodels()
     */
 }
 
-void clearskins()
+
+// Skin texture names can be aliased! This is ugly, but at least correct.
+static void nullskintexids(GLuint texid)
 {
-    mdmodel_t *m;
     int32_t i, j;
 
     for (i=0; i<nextmodelid; i++)
     {
-        m = models[i];
-        if (m->mdnum == 1)
+        mdmodel_t *m = models[i];
+
+        if (m->mdnum == 2 || m->mdnum == 3)
         {
-            voxmodel_t *v = (voxmodel_t *)m;
-            for (j=0; j<MAXPALOOKUPS; j++)
-            {
-                if (v->texid[j]) bglDeleteTextures(1,(GLuint *)&v->texid[j]);
-                v->texid[j] = 0;
-            }
-        }
-        else if (m->mdnum == 2 || m->mdnum == 3)
-        {
-            md2model_t *m2 = (md2model_t *)m;
             mdskinmap_t *sk;
+            md2model_t *m2 = (md2model_t *)m;
+
             for (j=0; j<m2->numskins*(HICEFFECTMASK+1); j++)
-            {
-                if (m2->texid[j]) bglDeleteTextures(1,(GLuint *)&m2->texid[j]);
-                m2->texid[j] = 0;
-            }
+                if (m2->texid[j] == texid)
+                    m2->texid[j] = 0;
 
             for (sk=m2->skinmap; sk; sk=sk->next)
                 for (j=0; j<(HICEFFECTMASK+1); j++)
+                    if (sk->texid[j] == texid)
+                        sk->texid[j] = 0;
+        }
+    }
+}
+
+void clearskins()
+{
+    int32_t i, j;
+
+    for (i=0; i<nextmodelid; i++)
+    {
+        mdmodel_t *m = models[i];
+
+        if (m->mdnum == 1)
+        {
+            voxmodel_t *v = (voxmodel_t *)m;
+
+            for (j=0; j<MAXPALOOKUPS; j++)
+                if (v->texid[j])
                 {
-                    if (sk->texid[j]) bglDeleteTextures(1,(GLuint *)&sk->texid[j]);
-                    sk->texid[j] = 0;
+                    bglDeleteTextures(1, &v->texid[j]);
+                    v->texid[j] = 0;
                 }
+        }
+        else if (m->mdnum == 2 || m->mdnum == 3)
+        {
+            mdskinmap_t *sk;
+            md2model_t *m2 = (md2model_t *)m;
+
+            for (j=0; j<m2->numskins*(HICEFFECTMASK+1); j++)
+                if (m2->texid[j])
+                {
+                    GLuint otexid = m2->texid[j];
+
+                    bglDeleteTextures(1, &m2->texid[j]);
+                    m2->texid[j] = 0;
+
+                    nullskintexids(otexid);
+                }
+
+            for (sk=m2->skinmap; sk; sk=sk->next)
+                for (j=0; j<(HICEFFECTMASK+1); j++)
+                    if (sk->texid[j])
+                    {
+                        GLuint otexid = sk->texid[j];
+
+                        bglDeleteTextures(1, &sk->texid[j]);
+                        sk->texid[j] = 0;
+
+                        nullskintexids(otexid);
+                    }
         }
     }
 
     for (i=0; i<MAXVOXELS; i++)
     {
-        voxmodel_t *v = (voxmodel_t *)voxmodels[i]; if (!v) continue;
+        voxmodel_t *v = voxmodels[i];
+        if (!v) continue;
+
         for (j=0; j<MAXPALOOKUPS; j++)
-        {
-            if (v->texid[j]) bglDeleteTextures(1,(GLuint *)&v->texid[j]);
-            v->texid[j] = 0;
-        }
+            if (v->texid[j])
+            {
+                bglDeleteTextures(1, &v->texid[j]);
+                v->texid[j] = 0;
+            }
     }
 }
 
@@ -463,7 +506,8 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
 
     skl = NULL;
     for (sk = m->skinmap; sk; skl = sk, sk = sk->next)
-        if (sk->palette == (uint8_t)palnum && skinnum == sk->skinnum && surfnum == sk->surfnum) break;
+        if (sk->palette == (uint8_t)palnum && skinnum == sk->skinnum && surfnum == sk->surfnum)
+            break;
     if (!sk)
     {
         sk = (mdskinmap_t *)Bcalloc(1,sizeof(mdskinmap_t));
