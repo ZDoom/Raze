@@ -701,11 +701,15 @@ failure:
 }
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
 
+static inline int32_t hicfxmask(int32_t pal)
+{
+    return (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK);
+}
+
 //Note: even though it says md2model, it works for both md2model&md3model
 int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 {
     int32_t i,j, bpl, xsiz=0, ysiz=0, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
-    intptr_t fptr=0;
     char *skinfile, hasalpha, fn[BMAX_PATH];
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
@@ -715,87 +719,100 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
     int32_t startticks, willprint=0;
 
-    if (m->mdnum == 2) surf = 0;
+    if (m->mdnum == 2)
+        surf = 0;
 
-    if ((unsigned)pal >= (unsigned)MAXPALOOKUPS) return 0;
+    if ((unsigned)pal >= (unsigned)MAXPALOOKUPS)
+        return 0;
+
     i = -1;
     for (sk = m->skinmap; sk; sk = sk->next)
     {
-        if ((int32_t)sk->palette == pal && sk->skinnum == number && sk->surfnum == surf)
+        if (sk->palette == pal && sk->skinnum == number && sk->surfnum == surf)
         {
             skinfile = sk->fn;
-            texidx = &sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
+            texidx = &sk->texid[hicfxmask(pal)];
             Bstrncpyz(fn, skinfile, BMAX_PATH);
             //OSD_Printf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
             break;
         }
         //If no match, give highest priority to number, then pal.. (Parkar's request, 02/27/2005)
-        else if (((int32_t)sk->palette ==   0) && (sk->skinnum == number) && (sk->surfnum == surf) && (i < 5)) { i = 5; skzero = sk; }
-        else if (((int32_t)sk->palette == pal) && (sk->skinnum ==      0) && (sk->surfnum == surf) && (i < 4)) { i = 4; skzero = sk; }
-        else if (((int32_t)sk->palette ==   0) && (sk->skinnum ==      0) && (sk->surfnum == surf) && (i < 3)) { i = 3; skzero = sk; }
-        else if (((int32_t)sk->palette ==   0) && (sk->skinnum == number) && (i < 2)) { i = 2; skzero = sk; }
-        else if (((int32_t)sk->palette == pal) && (sk->skinnum ==      0) && (i < 1)) { i = 1; skzero = sk; }
-        else if (((int32_t)sk->palette ==   0) && (sk->skinnum ==      0) && (i < 0)) { i = 0; skzero = sk; }
+        else if ((sk->palette ==   0) && (sk->skinnum == number) && (sk->surfnum == surf) && (i < 5)) { i = 5; skzero = sk; }
+        else if ((sk->palette == pal) && (sk->skinnum ==      0) && (sk->surfnum == surf) && (i < 4)) { i = 4; skzero = sk; }
+        else if ((sk->palette ==   0) && (sk->skinnum ==      0) && (sk->surfnum == surf) && (i < 3)) { i = 3; skzero = sk; }
+        else if ((sk->palette ==   0) && (sk->skinnum == number) && (i < 2)) { i = 2; skzero = sk; }
+        else if ((sk->palette == pal) && (sk->skinnum ==      0) && (i < 1)) { i = 1; skzero = sk; }
+        else if ((sk->palette ==   0) && (sk->skinnum ==      0) && (i < 0)) { i = 0; skzero = sk; }
     }
+
     if (!sk)
     {
         if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
             return (0);
+
         if (skzero)
         {
             skinfile = skzero->fn;
-            texidx = &skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
+            texidx = &skzero->texid[hicfxmask(pal)];
             Bstrncpyz(fn, skinfile, BMAX_PATH);
             //OSD_Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
         }
         else
         {
-            if ((unsigned)number >= (unsigned)m->numskins) number = 0;
+            if ((unsigned)number >= (unsigned)m->numskins)
+                number = 0;
+
             skinfile = m->skinfn + number*64;
-            texidx = &m->texid[ number * (HICEFFECTMASK+1) + (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
+            texidx = &m->texid[number*(HICEFFECTMASK+1) + hicfxmask(pal)];
             Bstrncpyz(fn, m->basepath, BMAX_PATH);
             if ((Bstrlen(fn) + Bstrlen(skinfile)) < BMAX_PATH)
-                strcat(fn,skinfile);
+                Bstrcat(fn,skinfile);
             //OSD_Printf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
         }
     }
 
-    if (!skinfile[0]) return 0;
+    if (!skinfile[0])
+        return 0;
 
-    if (*texidx) return *texidx;
+    if (*texidx)
+        return *texidx;
 
     // possibly fetch an already loaded multitexture :_)
     if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
         for (i=0; i<nextmodelid; i++)
             for (skzero = ((md2model_t *)models[i])->skinmap; skzero; skzero = skzero->next)
-                if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)])
+                if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[hicfxmask(pal)])
                 {
-                    sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)] = skzero->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
-                    return sk->texid[(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK)];
+                    int32_t f = hicfxmask(pal);
+
+                    sk->texid[f] = skzero->texid[f];
+                    return sk->texid[f];
                 }
 
     *texidx = 0;
 
     if ((filh = kopen4load(fn, 0)) < 0)
     {
-        OSD_Printf("Skin %s not found.\n",fn);
+        OSD_Printf("Skin \"%s\" not found.\n",fn);
         skinfile[0] = 0;
         return 0;
     }
+
 
     picfillen = kfilelength(filh);
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
     startticks = getticks();
 
-    cachefil = polymost_trytexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK),
-                                    &cachead, 1);
+    cachefil = polymost_trytexcache(fn, picfillen, pal<<8, hicfxmask(pal), &cachead, 1);
+
     if (cachefil >= 0 && !mdloadskin_cached(cachefil, &cachead, &doalloc, texidx, &xsiz, &ysiz, pal))
     {
         osizx = cachead.xdim;
         osizy = cachead.ydim;
         hasalpha = (cachead.flags & 2) ? 1 : 0;
-        if (pal < (MAXPALOOKUPS - RESERVEDPALS))m->usesalpha = hasalpha;
+        if (pal < (MAXPALOOKUPS - RESERVEDPALS))
+            m->usesalpha = hasalpha;
 //        kclose(cachefil);
         //kclose(filh);	// FIXME: uncomment when cache1d.c is fixed
         // cachefil >= 0, so it won't be rewritten
@@ -803,12 +820,16 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     else
     {
         int32_t ret;
+        intptr_t fptr=0;
 
 //        if (cachefil >= 0) kclose(cachefil);
         cachefil = -1;	// the compressed version will be saved to disk
 
-        if ((filh = kopen4load(fn, 0)) < 0) return -1;
-        ret=daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,(globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK));
+        if ((filh = kopen4load(fn, 0)) < 0)
+            return -1;
+
+        ret = daskinloader(filh,&fptr,&bpl,&xsiz,&ysiz,&osizx,&osizy,&hasalpha,pal,hicfxmask(pal));
+
         if (ret)
         {
             kclose(filh);
@@ -823,14 +844,22 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
         willprint = 1;
 
-        if (pal < (MAXPALOOKUPS - RESERVEDPALS)) m->usesalpha = hasalpha;
-        if ((doalloc&3)==1) bglGenTextures(1,(GLuint *)texidx);
-        bglBindTexture(GL_TEXTURE_2D,*texidx);
+        if (pal < (MAXPALOOKUPS - RESERVEDPALS))
+            m->usesalpha = hasalpha;
+        if ((doalloc&3)==1)
+            bglGenTextures(1, texidx);
+
+        bglBindTexture(GL_TEXTURE_2D, *texidx);
 
         //gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA,xsiz,ysiz,GL_BGRA_EXT,GL_UNSIGNED_BYTE,(char *)fptr);
-        if (glinfo.texcompr && glusetexcompr) intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
-        else if (!hasalpha) intexfmt = GL_RGB;
-        if (glinfo.bgra) texfmt = GL_BGRA;
+        if (glinfo.texcompr && glusetexcompr)
+            intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
+        else if (!hasalpha)
+            intexfmt = GL_RGB;
+
+        if (glinfo.bgra)
+            texfmt = GL_BGRA;
+
         uploadtexture((doalloc&1), xsiz, ysiz, intexfmt, texfmt, (coltype *)fptr, xsiz, ysiz, 0|8192);
         Bfree((void *)fptr);
     }
@@ -894,13 +923,13 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             }
             cachead.flags = (i!=3) | (hasalpha ? 2 : 0);
 ///            OSD_Printf("Caching \"%s\"\n",fn);
-            writexcache(fn, picfillen, pal<<8, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), &cachead);
+            writexcache(fn, picfillen, pal<<8, hicfxmask(pal), &cachead);
 
             if (willprint)
             {
                 int32_t etime = getticks()-startticks;
                 if (etime>=MIN_CACHETIME_PRINT)
-                    OSD_Printf("Load skin: p%d-e%d \"%s\"... cached... %d ms\n", pal, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), fn, etime);
+                    OSD_Printf("Load skin: p%d-e%d \"%s\"... cached... %d ms\n", pal, hicfxmask(pal), fn, etime);
                 willprint = 0;
             }
             else
@@ -911,7 +940,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     {
         int32_t etime = getticks()-startticks;
         if (etime>=MIN_CACHETIME_PRINT)
-            OSD_Printf("Load skin: p%d-e%d \"%s\"... %d ms\n", pal, (globalnoeffect)?0:(hictinting[pal].f&HICEFFECTMASK), fn, etime);
+            OSD_Printf("Load skin: p%d-e%d \"%s\"... %d ms\n", pal, hicfxmask(pal), fn, etime);
     }
 
     return(*texidx);
@@ -1198,13 +1227,13 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     }
 #endif
 
-    strcpy(st,filnam);
+    Bstrcpy(st,filnam);
     for (i=strlen(st)-1; i>0; i--)
         if ((st[i] == '/') || (st[i] == '\\')) { i++; break; }
     if (i<0) i=0;
     st[i] = 0;
     m->basepath = (char *)Bmalloc(i+1); if (!m->basepath) { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
-    strcpy(m->basepath, st);
+    Bstrcpy(m->basepath, st);
 
     m->skinfn = (char *)Bmalloc(ournumskins*64); if (!m->skinfn) { Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
     if (m->numskins > 0)
@@ -1248,7 +1277,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     while (i < m->numframes)
     {
         f = (md2frame_t *)&m->frames[i*m->framebytes];
-        strcpy(m3->head.frames[i].nam, f->name);
+        Bstrcpy(m3->head.frames[i].nam, f->name);
         //OSD_Printf("Copied frame %s.\n", m3->head.frames[i].nam);
         m3->muladdframes[i*2] = f->mul;
         m3->muladdframes[i*2+1] = f->add;
@@ -1270,7 +1299,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 
     maxmodelverts = max(maxmodelverts, s->numverts);
 
-    strcpy(s->nam, "Dummy surface from MD2");
+    Bstrcpy(s->nam, "Dummy surface from MD2");
 
     s->shaders = NULL;
 
@@ -1338,8 +1367,8 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
         if (m->numskins > 0)
         {
             sk->fn = (char *)Bmalloc(strlen(m->basepath)+strlen(m->skinfn)+1);
-            strcpy(sk->fn, m->basepath);
-            strcat(sk->fn, m->skinfn);
+            Bstrcpy(sk->fn, m->basepath);
+            Bstrcat(sk->fn, m->skinfn);
         }
         m3->skinmap = sk;
     }
@@ -1545,7 +1574,7 @@ static md3model_t *md3load(int32_t fil)
         char *buf, st[BMAX_PATH+2], bst[BMAX_PATH+2];
         int32_t j, bsc;
 
-        strcpy(st,filnam);
+        Bstrcpy(st,filnam);
         for (i=0,j=0; st[i]; i++) if ((st[i] == '/') || (st[i] == '\\')) j = i+1;
         st[j] = '*'; st[j+1] = 0;
         kzfindfilestart(st); bsc = -1;
@@ -1559,7 +1588,7 @@ static md3model_t *md3load(int32_t fil)
                     (!stricmp(&st[j],"CEL")))
             {
                 for (i=0; st[i]; i++) if (st[i] != filnam[i]) break;
-                if (i > bsc) { bsc = i; strcpy(bst,st); }
+                if (i > bsc) { bsc = i; Bstrcpy(bst,st); }
             }
         }
         if (!mdloadskin(&m->texid,&m->usesalpha,bst)) ;//bad!
@@ -2208,7 +2237,9 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
         mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f; bglLoadMatrixf(mat);
         // PLAG: End
 
-        i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,globalpal,surfi); if (!i) continue;
+        i = mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,globalpal,surfi);
+        if (!i)
+            continue;
         //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
