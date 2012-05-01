@@ -24,10 +24,23 @@ extern "C" {
 #define MAXWALLSV7 8192
 #define MAXSPRITESV7 4096
 
-#define MAXSECTORS MAXSECTORSV8
-#define MAXWALLS MAXWALLSV8
+#ifndef GEKKO
+# define MAXSECTORS MAXSECTORSV8
+# define MAXWALLS MAXWALLSV8
+# define MAXSPRITES MAXSPRITESV8
+
+# define MAXXDIM 7680
+# define MAXYDIM 3200
+#else
+# define MAXSECTORS MAXSECTORSV7
+# define MAXWALLS MAXWALLSV7
+# define MAXSPRITES MAXSPRITESV7
+
+# define MAXXDIM 1600
+# define MAXYDIM 1200
+#endif
+
 #define MAXWALLSB ((MAXWALLS>>2)+(MAXWALLS>>3))
-#define MAXSPRITES MAXSPRITESV8
 
 // additional space beyond wall, in walltypes:
 #define M32_FIXME_WALLS 512
@@ -37,8 +50,6 @@ extern "C" {
 #define MAXVOXELS 4096
 #define MAXSTATUS 1024
 #define MAXPLAYERS 16
-#define MAXXDIM 7680
-#define MAXYDIM 3200
 #define MAXBASEPALS 8
 #define MAXPALOOKUPS 256
 #define MAXPSKYMULTIS 8
