@@ -466,8 +466,12 @@ void drawslab(int32_t dx, int32_t v, int32_t dy, int32_t vi, intptr_t vptr, intp
 
     while (dy > 0)
     {
-        for (x=0; x<dx; x++) *(char *)(p+x) = gpal[(int32_t)(*(char *)((v>>16)+vptr))];
-        p += bpl; v += vi; dy--;
+        char c = gpal[(int32_t)(*(char *)((v>>16)+vptr))];
+        for (x=0; x < dx; x++)
+            ((char*)p)[x] = c;
+        p += bpl;
+        v += vi;
+        dy--;
     }
 }
 
