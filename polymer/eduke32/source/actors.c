@@ -4150,7 +4150,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
                 if (t[3]>0)
                 {
-                    static char frames[] = {5,5,6,6,7,7,6,5};
+                    static const char frames[] = {5,5,6,6,7,7,6,5};
 
                     s->picnum = GREENSLIME+frames[t[3]];
 

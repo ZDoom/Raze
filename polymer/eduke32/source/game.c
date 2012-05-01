@@ -9504,10 +9504,6 @@ static void G_LoadExtraPalettes(void)
         G_GameExit("\nERROR: File 'lookup.dat' not found.");
 
     g_numRealPalettes = tmpbyte;
-#if defined(__APPLE__) && B_BIG_ENDIAN != 0
-    // this is almost as bad as just setting the value to 25 :P
-//    g_numRealPalettes = ((g_numRealPalettes * 0x80200802ULL) & 0x0884422110ULL) * 0x0101010101ULL >> 32;
-#endif
 
     for (j=g_numRealPalettes+1; j<MAXPALOOKUPS; j++)
         makepalookup(j, NULL ,0,0,0, 1);

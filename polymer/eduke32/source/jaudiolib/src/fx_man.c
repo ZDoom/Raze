@@ -981,10 +981,10 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
     int32_t handle = -1;
 #if 0
     {
-        int32_t fmtstr[2];
-        fmtstr[0] = *(int32_t *)ptr;
-        ((char *)fmtstr)[4] = 0;
-        printf("FX_PlayLoopedAuto %s\n",(char *)fmtstr);
+        char fmtstr[5];
+        Bmemcpy(fmtstr, ptr, 4);
+        fmtstr[4] = 0;
+        printf("FX_PlayLoopedAuto %s\n", fmtstr);
     }
 #endif
     switch (LITTLE32(*(int32_t *)ptr))
