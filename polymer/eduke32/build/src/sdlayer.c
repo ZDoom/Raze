@@ -619,6 +619,7 @@ void grabmouse(char a)
         mousegrab = a;
     }
     mousex = mousey = 0;
+    mouseabsx = mouseabsy = 0;
 }
 
 //
@@ -1825,16 +1826,32 @@ int32_t handleevents(void)
             break;
 
         case SDL_MOUSEMOTION:
-            // SDL 1.3 doesn't handle relative mouse movement correctly yet as the cursor still clips to the screen edges
+            // SDL <VER> doesn't handle relative mouse movement correctly yet as the cursor still clips to the screen edges
             // so, we call SDL_WarpMouse() to center the cursor and ignore the resulting motion event that occurs
-            if (appactive && mousegrab && (ev.motion.x != xdim>>1 || ev.motion.y != ydim>>1))
+            //  <VER> is 1.3 for PK, 1.2 for tueidj
+            if (appactive && mousegrab)
             {
-                mousex += ev.motion.xrel;
-                mousey += ev.motion.yrel;
-
-#ifndef DEBUGGINGAIDS
-                SDL_WarpMouse(xdim>>1, ydim>>1);
+#ifdef GEKKO
+                // check if it's a wiimote pointer pretending to be a mouse
+                if (ev.motion.state & SDL_BUTTON_X2MASK)
+                {
+                    // the absolute values are used to draw the crosshair
+                    mouseabsx = ev.motion.x;
+                    mouseabsy = ev.motion.y;
+                    // hack: reduce the scale of the "relative" motions
+                    // to make it act more like a real mouse
+                    ev.motion.xrel /= 16;
+                    ev.motion.yrel /= 12;
+                }
 #endif
+                if (ev.motion.x != xdim>>1 || ev.motion.y != ydim>>1)
+                {
+                    mousex += ev.motion.xrel;
+                    mousey += ev.motion.yrel;
+#ifndef DEBUGGINGAIDS
+                    SDL_WarpMouse(xdim>>1, ydim>>1);
+#endif
+                }
             }
             break;
 

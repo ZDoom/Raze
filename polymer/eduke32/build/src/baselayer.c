@@ -16,7 +16,7 @@ char keyasciififo[KEYFIFOSIZ], keyasciififoplc, keyasciififoend;
 char remap[256];
 int32_t remapinit=0;
 char key_names[256][24];
-volatile int32_t mousex=0,mousey=0,mouseb=0;
+volatile int32_t mousex=0,mousey=0,mouseb=0,mouseabsx=0,mouseabsy=0;
 volatile uint8_t moustat = 0, mousegrab = 0;
 int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
 char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
@@ -99,6 +99,21 @@ void readmousexy(int32_t *x, int32_t *y)
     *x = mousex;
     *y = mousey;
     mousex = mousey = 0;
+}
+
+void readmouseabsxy(int32_t *x, int32_t *y)
+{
+    if (!moustat || !mousegrab || !appactive)
+    {
+        // no mouse, centre it
+        *x = xdim >> 1;
+        *y = ydim >> 1;
+    }
+    else
+    {
+        *x = mouseabsx;
+        *y = mouseabsy;
+    }
 }
 
 void readmousebstatus(int32_t *b)

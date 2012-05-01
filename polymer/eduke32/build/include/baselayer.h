@@ -87,7 +87,7 @@ extern int32_t defaultres[][2];
 extern void SetKey(int32_t key, int32_t state);
 
 // mouse
-extern volatile int32_t mousex, mousey, mouseb;
+extern volatile int32_t mousex, mousey, mouseb, mouseabsx, mouseabsy;
 extern volatile uint8_t mousegrab, moustat;
 
 // joystick
@@ -131,6 +131,7 @@ int32_t initmouse(void);
 void uninitmouse(void);
 void grabmouse(char a);
 void readmousexy(int32_t *x, int32_t *y);
+void readmouseabsxy(int32_t *x, int32_t *y);
 void readmousebstatus(int32_t *b);
 void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur);
 void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur);
