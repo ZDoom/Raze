@@ -37,8 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "mouse.h"
 #include "baselayer.h"
 
-
-int32_t MOUSE_Init(void)
+int32_t Mouse_Init(void)
 {
     initmouse();
     return ((inputdevices & 2) == 2);
@@ -64,7 +63,26 @@ void MOUSE_HideCursor(void)
 int32_t MOUSE_GetButtons(void)
 {
     int32_t buttons;
+
     readmousebstatus(&buttons);
+
+#ifdef GEKKO
+    buttons |= (joyb&3)<<8;
+    switch (joyhat[0]) { // stupid hat values....
+        case 0:
+        case 4500:
+        case 27500:
+            buttons |= 4096;
+            break;
+        case 18000:
+        case 13500:
+        case 22500:
+            buttons |= 8192;
+        default:
+            break;
+    }
+#endif
+
     return buttons;
 }
 

@@ -41,11 +41,11 @@ extern "C" {
 #define RIGHT_MOUSE_PRESSED( button ) ( ( ( button ) & RIGHT_MOUSE ) != 0 )
 #define MIDDLE_MOUSE_PRESSED( button ) ( ( ( button ) & MIDDLE_MOUSE ) != 0 )
 
-int32_t MOUSE_Init( void );
+int32_t Mouse_Init( void );
 void    MOUSE_Shutdown( void );
 void    MOUSE_ShowCursor( void );
 void    MOUSE_HideCursor( void );
-int32_t   MOUSE_GetButtons( void );
+int32_t MOUSE_GetButtons( void );
 int32_t	MOUSE_ClearButton( int32_t b );
 void    MOUSE_GetDelta( int32_t*x, int32_t*y  );
 

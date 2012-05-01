@@ -546,6 +546,7 @@ void uninitinput(void)
     }
 }
 
+#ifndef GEKKO
 const char *getjoyname(int32_t what, int32_t num)
 {
     static char tmp[64];
@@ -571,6 +572,65 @@ const char *getjoyname(int32_t what, int32_t num)
         return NULL;
     }
 }
+#else
+static const char *joynames[3][15] =
+{
+	{
+		"Left Stick X",
+		"Left Stick Y",
+		"Right Stick X",
+		"Right Stick Y",
+		"wtf4",
+		"wtf5",
+		"wtf6",
+		"wtf7",
+		"wtf9",
+	},
+	{
+		"Button A",
+		"Button B",
+		"Button 1",
+		"Button 2",
+		"Button -",
+		"Button +",
+		"Button NULL",
+		"Button Z",
+		"Button C",
+		"Button X",
+		"Button Y",
+		"Trigger L",
+		"Trigger R",
+		"Trigger zL",
+		"Trigger zR",
+	},
+	{
+		"D-PAD Up",
+		"D-PAD Right",
+		"D-PAD Down",
+		"D-PAD Left",
+	}
+};
+const char *getjoyname(int32_t what, int32_t num)
+{
+    switch (what)
+    {
+    case 0:	// axis
+        if ((unsigned)num > (unsigned)joynumaxes) return NULL;
+        return joynames[0][num];
+
+    case 1: // button
+        if ((unsigned)num > (unsigned)joynumbuttons) return NULL;
+        return joynames[1][num];
+
+    case 2: // hat
+        if ((unsigned)num > (unsigned)joynumhats) return NULL;
+        return joynames[2][num];
+
+    default:
+        return NULL;
+    }
+}
+#endif
 
 
 //

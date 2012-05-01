@@ -82,7 +82,7 @@ void CONTROL_GetMouseDelta(void)
 int32_t CONTROL_StartMouse(void)
 {
     CONTROL_NumMouseButtons = MAXMOUSEBUTTONS;
-    return MOUSE_Init();
+    return Mouse_Init();
 }
 
 void CONTROL_GetJoyAbs(void)
@@ -98,7 +98,7 @@ void CONTROL_GetJoyDelta(void)
     int32_t i;
 
     for (i=0; i<joynumaxes; i++)
-        CONTROL_JoyAxes[i].analog = joyaxis[i] >> 5;
+        CONTROL_JoyAxes[i].analog = joyaxis[i]; // >> 5;
 }
 
 int32_t CONTROL_StartJoy(int32_t joy)
@@ -490,7 +490,11 @@ void CONTROL_GetDeviceButtons(void)
     if (CONTROL_MouseEnabled)
     {
         DoGetDeviceButtons(
+#ifdef GEKKO
+            MOUSE_GetButtons()&0x3F, t,
+#else
             MOUSE_GetButtons(), t,
+#endif
             CONTROL_NumMouseButtons,
             CONTROL_MouseButtonState,
             CONTROL_MouseButtonClickedTime,
@@ -829,7 +833,7 @@ int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t
     //	case controltype_keyboardandmouse:
     CONTROL_NumMouseAxes      = MAXMOUSEAXES;
     CONTROL_NumMouseButtons   = MAXMOUSEBUTTONS;
-    CONTROL_MousePresent      = MOUSE_Init();
+    CONTROL_MousePresent      = Mouse_Init();
     CONTROL_MouseEnabled      = CONTROL_MousePresent;
     //		break;
 
@@ -841,7 +845,7 @@ int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t
     //		break;
     //}
 
-#if 0
+#ifdef GEKKO
     if (CONTROL_MousePresent)
         initprintf("CONTROL_Startup: Mouse Present\n");
     if (CONTROL_JoyPresent)
