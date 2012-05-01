@@ -396,6 +396,14 @@ char *Bgethomedir(void)
     if (s) s = Bstrdup(s);
     CFRelease(str);
     return s;
+#elif defined(GEKKO)
+    // return current drive's name
+    char *drv, cwd[BMAX_PATH] = {0};
+    getcwd(cwd, BMAX_PATH);
+    drv = strchr(cwd, ':');
+    if (drv)
+        drv[1] = '\0';
+    return Bstrdup(cwd);
 #else
     char *e = getenv("HOME");
     if (!e) return NULL;
@@ -845,7 +853,7 @@ uint32_t Bgetsysmemsize(void)
     }
 
     return siz;
-#elif (defined(_SC_PAGE_SIZE) || defined(_SC_PAGESIZE)) && defined(_SC_PHYS_PAGES)
+#elif (defined(_SC_PAGE_SIZE) || defined(_SC_PAGESIZE)) && defined(_SC_PHYS_PAGES) && !defined(GEKKO)
     uint32_t siz = UINT_MAX;
     int64_t scpagesiz, scphyspages;
 
@@ -867,5 +875,16 @@ uint32_t Bgetsysmemsize(void)
 #endif
 }
 
+#ifdef GEKKO
+int access(const char *pathname, int mode)
+{
+    struct stat st;
+    if (stat(pathname, &st)==-1)
+        return -1;
 
+    // TODO: Check mode against st_mode
+
+    return 0;
+}
+#endif
 

@@ -76,7 +76,9 @@ extern int32_t G_GetVersionFromWebsite(char *buffer);
 #define UPDATEINTERVAL 604800 // 1w
 #else
 static int32_t usecwd = 0;
+#ifndef GEKKO
 #include <sys/ioctl.h>
+#endif
 #endif /* _WIN32 */
 
 int32_t g_quitDeadline = 0;
@@ -183,7 +185,11 @@ static char user_quote[MAXUSERQUOTES][178];
 // This was 32 for a while, but I think lowering it to 24 will help things like the Dingoo.
 // Ideally, we would look at our memory usage on our most cramped platform and figure out
 // how much of that is needed for the underlying OS and things like SDL instead of guessing
+#ifndef GEKKO
 static int32_t MAXCACHE1DSIZE = (24*1048576);
+#else
+static int32_t MAXCACHE1DSIZE = (8*1048576);
+#endif
 
 int32_t tempwallptr;
 
@@ -9792,6 +9798,12 @@ void app_crashhandler(void)
 }
 #endif
 
+#ifdef GEKKO
+void L2Enhance();
+void CON_EnableGecko(int channel,int safe);
+bool fatInit (uint32_t cacheSize, bool setAsDefaultDevice);
+#endif
+
 int32_t app_main(int32_t argc, const char **argv)
 {
     int32_t i = 0, j;
@@ -9801,6 +9813,13 @@ int32_t app_main(int32_t argc, const char **argv)
     ENetCallbacks callbacks = { Bmalloc, Bfree, NULL };
 #else
     ENetCallbacks callbacks = { NULL, NULL, NULL };
+#endif
+
+#ifdef GEKKO
+	L2Enhance();
+	CON_EnableGecko(1, 1);
+	printf("Console started\n");
+	fatInit(28, true);
 #endif
 
 #ifdef RENDERTYPEWIN
@@ -9925,6 +9944,8 @@ int32_t app_main(int32_t argc, const char **argv)
                       "EDuke32 Settings"
 #elif defined(__APPLE__)
                       "Library/Application Support/EDuke32"
+#elif defined(GEKKO)
+                      "apps/eduke32"
 #else
                       ".eduke32"
 #endif
@@ -10586,7 +10607,9 @@ MAIN_LOOP_RESTART:
             static uint32_t bufpos = 0;
             static char buf[128];
 
+#ifndef GEKKO
             ioctl(0, FIONBIO, &flag);
+#endif
 
             if ((nb = read(0, &ch, 1)) > 0 && bufpos < sizeof(buf))
             {

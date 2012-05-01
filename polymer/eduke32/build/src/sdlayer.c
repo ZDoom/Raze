@@ -242,7 +242,7 @@ void setvsync(int32_t sync)
 static void attach_debugger_here(void) {}
 
 /* XXX: libexecinfo could be used on systems without gnu libc. */
-#if defined __GNUC__ && !defined __OpenBSD__ && !(defined __APPLE__ && defined __BIG_ENDIAN__)
+#if defined __GNUC__ && !defined __OpenBSD__ && !(defined __APPLE__ && defined __BIG_ENDIAN__) && !defined(GEKKO)
 # define PRINTSTACKONSEGV 1
 # include <execinfo.h>
 #endif

@@ -377,7 +377,7 @@ int32_t baselayer_init(void)
 
 void makeasmwriteable(void)
 {
-#ifndef NOASM
+#if !defined(NOASM) && !defined(GEKKO)
     extern int32_t dep_begin, dep_end;
 # if defined _WIN32
     DWORD oldprot;
