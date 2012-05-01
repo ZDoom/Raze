@@ -2921,9 +2921,27 @@ void G_DisplayRest(int32_t smoothratio)
         aGameVars[g_iReturnVarID].val.lValue = 0;
         if (apScriptGameEvent[EVENT_DISPLAYCROSSHAIR])
             VM_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1);
+
         if (aGameVars[g_iReturnVarID].val.lValue == 0)
-            rotatesprite_win((160L-(g_player[myconnectindex].ps->look_ang>>1))<<16,100L<<16,scale(65536,ud.crosshairscale,100),
-                             0,CROSSHAIR,0, CROSSHAIR_PAL,2+1);
+        {
+            int32_t x, y;
+#ifdef GEKKO
+            readmouseabsxy(&x, &y);
+            if (x || y)
+            {
+                x >>= 1;
+                y = (y*5)/12;
+            }
+            else
+#endif
+            {
+                x = 160;
+                y = 100;
+            }
+
+            rotatesprite_win((x-(g_player[myconnectindex].ps->look_ang>>1))<<16,y<<16,scale(65536,ud.crosshairscale,100),
+                             0,CROSSHAIR,0,CROSSHAIR_PAL,2+1);
+        }
     }
 #if 0
     if (GametypeFlags[ud.coop] & GAMETYPE_TDM)

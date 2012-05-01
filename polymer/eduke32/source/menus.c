@@ -114,10 +114,10 @@ void savetemp(char *fn,int32_t daptr,int32_t dasiz)
 }
 #endif
 
-#define LMB (buttonstat&1)
-#define RMB (buttonstat&2)
-#define WHEELUP (buttonstat&16)
-#define WHEELDOWN (buttonstat&32)
+#define LMB (buttonstat&(1|256))
+#define RMB (buttonstat&(2|512))
+#define WHEELUP (buttonstat&(16|4096))
+#define WHEELDOWN (buttonstat&(32|8192))
 
 static ControlInfo minfo;
 
@@ -135,7 +135,7 @@ static int32_t probe_(int32_t type,int32_t x,int32_t y,int32_t i,int32_t n)
         centre = 320>>2;
     else centre = 0;
 
-    if (!buttonstat || buttonstat == 16 || buttonstat == 32)
+    if (!buttonstat || buttonstat == 16 || buttonstat == 32 || buttonstat == 4096 || buttonstat == 8192)
     {
         if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_kpad_8) || mi < -8192 || WHEELUP)
         {
@@ -248,9 +248,9 @@ static int32_t probe_(int32_t type,int32_t x,int32_t y,int32_t i,int32_t n)
     else
     {
         if (onbar == 0) return(-probey-2);
-        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELUP || mii < -256)))
+        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && (WHEELUP || mii < -256)))
             return(probey);
-        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELDOWN || mii > 256)))
+        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && (WHEELDOWN || mii > 256)))
             return(probey);
         return(-probey-2);
     }
@@ -406,7 +406,7 @@ static void sliderbar(int32_t type, int32_t x,int32_t y,int32_t *p,int32_t dainc
 
     if (damodify)
     {
-        if (*p >= min && *p <= max && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && (WHEELUP || mii < -256))))         // && onbar) )
+        if (*p >= min && *p <= max && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && (WHEELUP || mii < -256))))         // && onbar) )
         {
             KB_ClearKeyDown(sc_LeftArrow);
             KB_ClearKeyDown(sc_kpad_4);
@@ -421,7 +421,7 @@ static void sliderbar(int32_t type, int32_t x,int32_t y,int32_t *p,int32_t dainc
                 *p = max;
             S_PlaySound(KICK_HIT);
         }
-        if (*p <= max && *p >= min && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && (WHEELDOWN || mii > 256))))        //&& onbar) )
+        if (*p <= max && *p >= min && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && (WHEELDOWN || mii > 256))))        //&& onbar) )
         {
             KB_ClearKeyDown(sc_RightArrow);
             KB_ClearKeyDown(sc_kpad_6);
@@ -464,7 +464,7 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
     {
         if (rev == 0)
         {
-            if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256))        // && onbar) )
+            if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && minfo.dyaw < -256))        // && onbar) )
             {
                 KB_ClearKeyDown(sc_LeftArrow);
                 KB_ClearKeyDown(sc_kpad_4);
@@ -478,7 +478,7 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
                 }
                 S_PlaySound(PISTOL_BODYHIT);
             }
-            if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256))       //&& onbar) )
+            if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && minfo.dyaw > 256))       //&& onbar) )
             {
                 KB_ClearKeyDown(sc_RightArrow);
                 KB_ClearKeyDown(sc_kpad_6);
@@ -495,7 +495,7 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
         }
         else
         {
-            if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256))      //&& onbar ))
+            if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && minfo.dyaw > 256))      //&& onbar ))
             {
                 KB_ClearKeyDown(sc_RightArrow);
                 KB_ClearKeyDown(sc_kpad_6);
@@ -509,7 +509,7 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
                 }
                 S_PlaySound(PISTOL_BODYHIT);
             }
-            if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256))      // && onbar) )
+            if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && minfo.dyaw < -256))      // && onbar) )
             {
                 KB_ClearKeyDown(sc_LeftArrow);
                 KB_ClearKeyDown(sc_kpad_4);
@@ -2302,8 +2302,8 @@ cheat_for_port_credits:
             }
         }
 
-        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || ((buttonstat&1) && minfo.dyaw < -256) ||
-                KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || ((buttonstat&1) && minfo.dyaw > 256) ||
+        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && minfo.dyaw < -256) ||
+                KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && minfo.dyaw > 256) ||
                 KB_KeyPressed(sc_Tab))
         {
             KB_ClearKeyDown(sc_LeftArrow);
