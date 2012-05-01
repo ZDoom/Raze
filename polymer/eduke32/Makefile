@@ -191,6 +191,12 @@ ifeq ($(PLATFORM),LINUX)
     LIBS		+= -lvorbisfile -lvorbis -logg
 endif
 
+ifeq ($(PLATFORM),WII)
+    STRIP=powerpc-eabi-strip
+    OURCFLAGS += -g -mcpu=750 -meabi -mhard-float -msdata -O2 -I$(LIBOGC_INC) -I$(PORTLIBS)/include -DGEKKO
+    LIBS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib -lvorbisidec -lfreetype -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
+endif
+
 ifeq ($(PLATFORM),DARWIN)
     OURCFLAGS += -fno-pic -I$(abspath Apple) -I$(abspath Apple/include)
 
@@ -247,7 +253,9 @@ else
 # -lGLU to build with gluBuild2DMipmaps
     ifeq ($(RENDERTYPE),SDL)
         ifeq (0,$(SDL_FRAMEWORK))
-            OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
+            ifneq ($(PLATFORM),WII)
+                OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
+            endif
             LIBS+= -lSDL_mixer
         else
             OURCFLAGS   += -DSDL_FRAMEWORK
@@ -279,6 +287,9 @@ endif
 #endif
 ifneq (0,$(PROFILER))
     OURLDFLAGS+=-pg
+endif
+ifeq ($(PLATFORM),WII)
+    MISCLINKOPTS+= -g -mrvl -meabi -mhard-float -msdata -Wl,--gc-sections -Wl,-Map,$(notdir $@).map
 endif
 
 ifeq ($(PRETTY_OUTPUT),1)

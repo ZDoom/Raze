@@ -36,10 +36,14 @@ ifeq (4,$(GCC_MAJOR))
 endif
 
 ifndef ARCH
+    ifeq ($(PLATFORM), WII)
+        ARCH=
+    else
     ifeq ($(findstring i686, $(shell uname -m)), i686)
         ARCH=-march=pentium3 $(M_TUNE_GENERIC) -mmmx # -msse2 -mfpmath=sse,387 -malign-double $(M_STACKREALIGN)
     else
         ARCH=
+    endif
     endif
 endif
 
@@ -156,6 +160,14 @@ ifeq ($(PLATFORM),SKYOS)
     SDLCONFIG=
     SDLCONFIG_CFLAGS=-I/boot/programs/sdk/include/sdl
     LIBS+= -lSDL -lnet
+endif
+ifeq ($(PLATFORM),WII)
+    RENDERTYPE=SDL
+    EXESUFFIX=.elf
+    override WITHOUT_GTK=1
+    BUILDCFLAGS+= -g -mcpu=750 -meabi -mhard-float -msdata -O2 -DGEKKO -DHAVE_INTTYPES -D__POWERPC__ -I$(LIBOGC_INC) -I$(LIBOGC_INC)/SDL
+    SDLCONFIG=
+    LIBS+= -lSDL_mixer -lsmpeg -lSDL -laesnd
 endif
 ifeq ($(PLATFORM),QNX)
     RENDERTYPE=SDL

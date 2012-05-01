@@ -15,7 +15,10 @@ else
 endif
 
 # for BUILD_ECHOFLAGS:
-OURCFLAGS=$(BASECFLAGS) $(BUILDCFLAGS) -I$(INC) -I$(SRC) -DHAVE_VORBIS
+OURCFLAGS=$(BASECFLAGS) $(BUILDCFLAGS) -I$(INC) -I$(SRC)
+ifneq ($(PLATFORM),WII)
+    OURCFLAGS+= -DHAVE_VORBIS
+endif
 ifneq ($(RELEASE),0)
     # Debugging disabled
     debug+= $(F_NO_STACK_PROTECTOR)
