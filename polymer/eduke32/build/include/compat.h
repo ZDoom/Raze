@@ -146,6 +146,11 @@ static inline float nearbyintf(float x)
 # endif
 # define B_ENDIAN_C_INLINE 1
 
+#elif defined(GEKKO)
+# define B_LITTLE_ENDIAN 0
+# define B_BIG_ENDIAN 1
+# define B_ENDIAN_C_INLINE 1
+
 #elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
 # include <sys/endian.h>
 # if _BYTE_ORDER == _LITTLE_ENDIAN

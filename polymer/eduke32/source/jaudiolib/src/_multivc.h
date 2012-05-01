@@ -310,7 +310,7 @@ extern const int16_t *MV_RightVolume;
 extern int32_t    MV_SampleSize;
 extern int32_t    MV_RightChannelOffset;
 
-#ifdef __POWERPC__
+#if defined __POWERPC__ || defined GEKKO
 # define BIGENDIAN
 #endif
 

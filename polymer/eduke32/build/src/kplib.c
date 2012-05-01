@@ -38,7 +38,7 @@ credits.
 #include <stdio.h>
 #include <stdlib.h>
 
-#if defined(__POWERPC__)
+#if defined(__POWERPC__) || defined(GEKKO)
 #define BIGENDIAN 1
 #endif
 

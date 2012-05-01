@@ -282,7 +282,7 @@ void MV_16BitReverb( char *src, char *dest, VOLUME16 *volume, int32_t count )
     
     do {
         sample0 = *input;
-#ifdef BIGENDIAN
+#if 0 //def BIGENDIAN
         sample0l = sample0 >> 8;
         sample0h = (sample0 & 255) ^ 128;
 #else

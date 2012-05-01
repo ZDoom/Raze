@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------------------------------
 #include "compat.h"
-#if defined(__POWERPC__)
+#if defined(__POWERPC__) || defined(GEKKO)
 static uint32_t LSWAPIB(uint32_t a) { return(((a>>8)&0xff00)+((a&0xff00)<<8)+(a<<24)+(a>>24)); }
 static uint16_t SSWAPIB(uint16_t a) { return((a>>8)+(a<<8)); }
 #else

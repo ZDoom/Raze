@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "multivoc.h"
 #include "fx_man.h"
 
-#ifdef __POWERPC__
+#if defined __POWERPC__ || defined GEKKO
 #define LITTLE16(s) (((uint16_t)(s) >> 8) | ((uint16_t)(s) << 8))
 #define LITTLE32(s) ((uint32_t)(s) >> 24) | ((uint32_t)(s) << 24) | (((uint32_t)(s)&0xff00) << 8) | (((uint32_t)(s) & 0xff0000) >> 8)
 #else
@@ -930,7 +930,7 @@ int32_t FX_PlayAuto(char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol
 {
     int32_t handle = -1;
 
-    switch (*(int32_t *)ptr)
+    switch (LITTLE32(*(int32_t *)ptr))
     {
     case 'C'+('r'<<8)+('e'<<16)+('a'<<24):
         handle = MV_PlayVOC(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
@@ -939,10 +939,12 @@ int32_t FX_PlayAuto(char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol
         handle = MV_PlayWAV(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
         break;
     case 'O'+('g'<<8)+('g'<<16)+('S'<<24):
+#ifndef GEKKO
         handle = MV_PlayVorbis(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
+#endif
         break;
     default:
-        switch (*(int32_t *)(ptr + 8))
+        switch (LITTLE32(*(int32_t *)(ptr + 8)))
         {
         case 'W'+('A'<<8)+('V'<<16)+('E'<<24):
             handle = MV_PlayWAV(ptr, length, pitchoffset, vol, left, right, priority, callbackval);
@@ -985,21 +987,23 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
         printf("FX_PlayLoopedAuto %s\n",(char *)fmtstr);
     }
 #endif
-    switch (*(int32_t *)ptr)
+    switch (LITTLE32(*(int32_t *)ptr))
     {
-    case LITTLE32('C'+('r'<<8)+('e'<<16)+('a'<<24)):
+    case 'C'+('r'<<8)+('e'<<16)+('a'<<24):
         handle = MV_PlayLoopedVOC(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
         break;
-    case LITTLE32('R'+('I'<<8)+('F'<<16)+('F'<<24)):
+    case 'R'+('I'<<8)+('F'<<16)+('F'<<24):
         handle = MV_PlayLoopedWAV(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
         break;
-    case LITTLE32('O'+('g'<<8)+('g'<<16)+('S'<<24)):
+    case 'O'+('g'<<8)+('g'<<16)+('S'<<24):
+#ifndef GEKKO
         handle = MV_PlayLoopedVorbis(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+#endif
         break;
     default:
-        switch (*(int32_t *)(ptr + 8))
+        switch (LITTLE32(*(int32_t *)(ptr + 8)))
         {
-        case LITTLE32('W'+('A'<<8)+('V'<<16)+('E'<<24)):
+        case 'W'+('A'<<8)+('V'<<16)+('E'<<24):
             handle = MV_PlayLoopedWAV(ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
             break;
         }
@@ -1026,21 +1030,23 @@ int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t pitchoffset, int32_t a
 {
     int32_t handle = -1;
 
-    switch (*(int32_t *)ptr)
+    switch (LITTLE32(*(int32_t *)ptr))
     {
-    case LITTLE32('C'+('r'<<8)+('e'<<16)+('a'<<24)): // Crea
+    case 'C'+('r'<<8)+('e'<<16)+('a'<<24): // Crea
         handle = MV_PlayVOC3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
         break;
-    case LITTLE32('R'+('I'<<8)+('F'<<16)+('F'<<24)): // RIFF
+    case 'R'+('I'<<8)+('F'<<16)+('F'<<24): // RIFF
         handle = MV_PlayWAV3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
         break;
-    case LITTLE32('O'+('g'<<8)+('g'<<16)+('S'<<24)): // OggS
+    case 'O'+('g'<<8)+('g'<<16)+('S'<<24): // OggS
+#ifndef GEKKO
         handle = MV_PlayVorbis3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
+#endif
         break;
     default:
-        switch (*(int32_t *)(ptr + 8))
+        switch (LITTLE32(*(int32_t *)(ptr + 8)))
         {
-        case LITTLE32('W'+('A'<<8)+('V'<<16)+('E'<<24)): // WAVE
+        case 'W'+('A'<<8)+('V'<<16)+('E'<<24): // WAVE
             handle = MV_PlayWAV3D(ptr, length, pitchoffset, angle, distance, priority, callbackval);
             break;
         }
