@@ -8,7 +8,13 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <netinet/in.h>
+
+#if defined(GEKKO)
+# include <network.h>
+#else
+# include <netinet/in.h>
+#endif
+
 #include <unistd.h>
 
 typedef int ENetSocket;

@@ -4,12 +4,40 @@
 */
 #ifndef WIN32
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
+#if defined(GEKKO)
+# include <network.h>
+# define gethostbyname net_gethostbyname
+# define gethostbyaddr(...) (NULL)
+# define bind net_bind
+# define listen net_listen
+# define socket net_socket
+# define ioctl net_ioctl
+# define connect net_connect
+# define setsockopt net_setsockopt
+# define accept net_accept
+# define select net_select
+struct msghdr {
+    void         *msg_name;       /* optional address */
+    socklen_t     msg_namelen;    /* size of address */
+    struct iovec *msg_iov;        /* scatter/gather array */
+    size_t        msg_iovlen;     /* # elements in msg_iov */
+    void         *msg_control;    /* ancillary data, see below */
+    socklen_t     msg_controllen; /* ancillary data buffer len */
+    int           msg_flags;      /* flags on received message */
+};
+# define sendmsg(...) (-1)
+# define recvmsg(...) (-1)
+# define SOMAXCONN 5
+
+#else
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <sys/ioctl.h>
+# include <arpa/inet.h>
+# include <netdb.h>
+#endif
+
 #include <sys/time.h>
-#include <arpa/inet.h>
-#include <netdb.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
