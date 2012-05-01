@@ -295,7 +295,7 @@ void ANIM_LoadAnim(char * buffer)
 
     // theoretically we should be able to play files with more than 256 frames now
     // assuming the utilities to create them can make them that way
-    for (i = anim->lpheader->nLps-1; i != 0; i--)
+    for (i = 0; i < anim->lpheader->nLps; i++)
     {
         anim->LpArray[i].baseRecord = B_LITTLE16(anim->LpArray[i].baseRecord);
         anim->LpArray[i].nRecords   = B_LITTLE16(anim->LpArray[i].nRecords);

@@ -306,7 +306,7 @@ int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits)
                     ac = BIGCOMMA;
                     break;
                 case '!':
-                    ac = BIGX;
+                    ac = BIGX_;
                     break;
                 case '?':
                     ac = BIGQ;
@@ -359,7 +359,7 @@ int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits)
                 ac = BIGCOMMA;
                 break;
             case '!':
-                ac = BIGX;
+                ac = BIGX_;
                 break;
             case '\'':
                 ac = BIGAPPOS;

@@ -1347,7 +1347,7 @@ extern int32_t ENDALPHANUM;
 extern int32_t BIGALPHANUM;
 extern int32_t BIGPERIOD;
 extern int32_t BIGCOMMA;
-extern int32_t BIGX;
+extern int32_t BIGX_;
 extern int32_t BIGQ;
 extern int32_t BIGSEMI;
 extern int32_t BIGCOLIN;
