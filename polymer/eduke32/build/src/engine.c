@@ -11592,8 +11592,8 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
                             offx = scale(vx,topu,bot);
                             offy = scale(vy,topu,bot);
                             dist = offx*offx + offy*offy;
-                            i = (tilesizx[spr->picnum]*spr->xrepeat); i *= i;
-                            if (dist <= (i>>7))
+                            i = (tilesizx[spr->picnum]*spr->xrepeat);
+                            if (dist <= mulscale7(i,i))
                             {
                                 intx = xs + scale(vx,topt,bot);
                                 inty = ys + scale(vy,topt,bot);
