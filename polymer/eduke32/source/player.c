@@ -1940,9 +1940,11 @@ static void P_DisplaySpit(int32_t snum)
 {
     int32_t i, a, x, y, z;
 
-    if (g_player[snum].ps->loogcnt == 0) return;
+    if (g_player[snum].ps->loogcnt == 0)
+        return;
 
     y = (g_player[snum].ps->loogcnt<<2);
+
     for (i=0; i<g_player[snum].ps->numloogs; i++)
     {
         a = klabs(sintable[((g_player[snum].ps->loogcnt+i)<<5)&2047])>>5;
@@ -1981,11 +1983,9 @@ static int32_t P_DisplayFist(int32_t gs,int32_t snum)
 
     looking_arc = klabs(g_player[snum].ps->look_ang)/9;
 
-    fistzoom = 65536L - (sintable[(512+(fisti<<6))&2047]<<2);
-    if (fistzoom > 90612L)
-        fistzoom = 90612L;
-    if (fistzoom < 40920)
-        fistzoom = 40290;
+    fistzoom = 65536 - (sintable[(512+(fisti<<6))&2047]<<2);
+    fistzoom = clamp(fistzoom, 40920, 90612);
+
     fistz = 194 + (sintable[((6+fisti)<<7)&2047]>>9);
 
     fistpal = get_hud_pal(g_player[snum].ps);
@@ -2259,7 +2259,13 @@ static int32_t P_DisplayTip(int32_t gs,int32_t snum)
 
 static int32_t P_DisplayAccess(int32_t gs,int32_t snum)
 {
-    static int16_t access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
+    static const int16_t access_y[] = {
+        0,-8,-16,-32,-64,
+        -84,-108,-108,-108,-108,
+        -108,-108,-108,-108,-108,
+        -108,-96,-72,-64,-32,-16
+    };
+
     int32_t looking_arc, p = 0;
 
     if (g_player[snum].ps->access_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
@@ -2831,38 +2837,36 @@ void P_DisplayWeapon(int32_t snum)
 
                     pal = get_hud_pal(p);
 
+                    if ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum] && (*kb) > 0)
                     {
-                        if ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum] && (*kb) > 0)
+                        if (sprite[p->i].pal != 1)
                         {
-                            if (sprite[p->i].pal != 1)
-                            {
-                                weapon_xoffset += rand()&3;
-                                gun_pos += (rand()&3);
-                            }
-
-                            guniqhudid = cw<<1;
-                            G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
-                                             looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
-                                             o,2,1);
-
-                            guniqhudid = cw;
-                            G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
-                                             looking_arc+240-gun_pos,SHRINKER-1,gs,o,pal,0);
-                            guniqhudid = 0;
+                            weapon_xoffset += rand()&3;
+                            gun_pos += (rand()&3);
                         }
-                        else
-                        {
-                            guniqhudid = cw<<1;
-                            G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
-                                             looking_arc+240-gun_pos,SHRINKER+2,
-                                             16-(sintable[p->random_club_frame&2047]>>10),
-                                             o,2,1);
 
-                            guniqhudid = cw;
-                            G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
-                                             looking_arc+240-gun_pos,SHRINKER-2,gs,o,pal,0);
-                            guniqhudid = 0;
-                        }
+                        guniqhudid = cw<<1;
+                        G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
+                                         looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
+                                         o,2,1);
+
+                        guniqhudid = cw;
+                        G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
+                                         looking_arc+240-gun_pos,SHRINKER-1,gs,o,pal,0);
+                        guniqhudid = 0;
+                    }
+                    else
+                    {
+                        guniqhudid = cw<<1;
+                        G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
+                                         looking_arc+240-gun_pos,SHRINKER+2,
+                                         16-(sintable[p->random_club_frame&2047]>>10),
+                                         o,2,1);
+
+                        guniqhudid = cw;
+                        G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
+                                         looking_arc+240-gun_pos,SHRINKER-2,gs,o,pal,0);
+                        guniqhudid = 0;
                     }
                 }
                 break;

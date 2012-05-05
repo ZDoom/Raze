@@ -2391,7 +2391,8 @@ void A_DamageObject(int32_t i,int32_t sn)
                     changespritestat(i, STAT_ACTOR);
                     actor[i].timetosleep = SLEEPTIME;
                 }
-                if ((RX < 24 || PN == SHARK) && sprite[sn].picnum == SHRINKSPARK) return;
+                if ((sprite[i].xrepeat < 24 || PN == SHARK) && sprite[sn].picnum == SHRINKSPARK)
+                    return;
             }
 
             if (sprite[i].statnum != STAT_ZOMBIEACTOR)
@@ -2427,7 +2428,7 @@ void A_DamageObject(int32_t i,int32_t sn)
                     }
                 }
 
-                if (RX < 24 && sprite[sn].picnum == SHRINKSPARK)
+                if (sprite[i].xrepeat < 24 && sprite[sn].picnum == SHRINKSPARK)
                     return;
 
                 if (sprite[actor[i].owner].picnum != APLAYER)

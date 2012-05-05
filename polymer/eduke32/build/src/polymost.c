@@ -663,16 +663,19 @@ void polymost_glreset()
                     bglDeleteTextures(1,&pth->ofb->glpic);
                     Bfree(pth->ofb);
                 }
+
                 bglDeleteTextures(1,&pth->glpic);
                 Bfree(pth);
                 pth = next;
             }
+
             gltexcachead[i] = NULL;
         }
         clearskins();
     }
 
-    if (polymosttext) bglDeleteTextures(1,&polymosttext);
+    if (polymosttext)
+        bglDeleteTextures(1,&polymosttext);
     polymosttext=0;
 
     freevbos();
@@ -1690,11 +1693,11 @@ failure:
     return -1;
 }
 // --------------------------------------------------- JONOF'S COMPRESSED TEXTURE CACHE STUFF
-static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr, int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
+static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,
+                            int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
 {
     coltype *pic = NULL, *rpptr;
     int32_t j, x, y, xsiz=0, ysiz=0, tsizx, tsizy;
-    int32_t r, g, b;
 
     char *picfil = NULL, *fn, hasalpha = 255;
     int32_t picfillen, texfmt = GL_RGBA, intexfmt = GL_RGBA, filh;
@@ -1744,6 +1747,8 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
     }
     else
     {
+        int32_t r, g, b;
+
         cachefil = -1;	// the compressed version will be saved to disk
 
         if ((filh = kopen4load(fn, 0)) < 0) return -1;
@@ -1819,7 +1824,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
         for (y=0,j=0; y<tsizy; y++,j+=xsiz)
         {
             coltype tcol;
-            char *cptr = &britable[gammabrightness ? 0 : curbrightness][0];
+            char *cptr = britable[gammabrightness ? 0 : curbrightness];
             rpptr = &pic[j];
 
             for (x=0; x<tsizx; x++)
@@ -1856,6 +1861,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
                 rpptr[x].a = tcol.a;
             }
         }
+
         if ((!(dameth&4)) || (facen)) //Duplicate texture pixels (wrapping tricks for non power of 2 texture sizes)
         {
             if (xsiz > tsizx) //Copy left to right
@@ -1867,6 +1873,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
             if (ysiz > tsizy)  //Copy top to bottom
                 Bmemcpy(&pic[xsiz*tsizy],pic,(ysiz-tsizy)*xsiz<<2);
         }
+
         if (!glinfo.bgra)
         {
             for (j=xsiz*ysiz-1; j>=0; j--)
@@ -1875,6 +1882,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
             }
         }
         else texfmt = GL_BGRA;
+
         Bfree(picfil); picfil = 0;
 
         if (tsizx>>r_downsize <= tilesizx[dapic] || tsizy>>r_downsize <= tilesizy[dapic])
@@ -1884,7 +1892,8 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
             intexfmt = (hasalpha == 255) ? GL_COMPRESSED_RGB_ARB : GL_COMPRESSED_RGBA_ARB;
         else if (hasalpha == 255) intexfmt = GL_RGB;
 
-        if ((doalloc&3)==1) bglGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
+        if ((doalloc&3)==1)
+            bglGenTextures(1, &pth->glpic); //# of textures (make OpenGL allocate structure)
         bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
         fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
@@ -1903,8 +1912,8 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
         pth->scaley = ((float)tsizy) / ((float)tilesizy[dapic]);
     }
 
-    if (gltexfiltermode < 0) gltexfiltermode = 0;
-    else if (gltexfiltermode >= (int32_t)numglfiltermodes) gltexfiltermode = numglfiltermodes-1;
+    gltexfiltermode = clamp(gltexfiltermode, 0, numglfiltermodes-1);
+
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
 

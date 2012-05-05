@@ -623,21 +623,6 @@ static int32_t osdcmd_crosshaircolor(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-/*
-static int32_t osdcmd_setbrightness(const osdfuncparm_t *parm)
-{
-    if (parm->numparms != 1)
-    {
-//        OSD_Printf("\"setbri\" \"%d\"\n",ud.brightness>>2);
-        return OSDCMD_SHOWHELP;
-    }
-    ud.brightness = Batoi(parm->parms[0])<<2;
-    setbrightness(ud.brightness>>2,&g_player[screenpeek].ps->palette[0],0);
-    OSD_Printf("setbrightness %d\n",ud.brightness>>2);
-    return OSDCMD_OK;
-}
-*/
-
 static int32_t osdcmd_give(const osdfuncparm_t *parm)
 {
     int32_t i;
@@ -1304,13 +1289,7 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
 
         return r;
     }
-    else if (!Bstrcasecmp(parm->name, "vid_brightness"))
-    {
-        setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
-
-        return r;
-    }
-    else if (!Bstrcasecmp(parm->name, "vid_contrast"))
+    else if (!Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
     {
         setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
 

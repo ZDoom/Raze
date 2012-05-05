@@ -165,7 +165,7 @@ extern double vid_gamma, vid_contrast, vid_brightness;
 
 #define GAMMA_CALC ((int32_t)(min(max((double)((vid_gamma-1.0)*10.0),0),15)))
 
-int32_t switchrendermethod(int32_t,int32_t);    // 0 = software, 1 = opengl | bool = reinit
+//int32_t switchrendermethod(int32_t,int32_t);    // 0 = software, 1 = opengl | bool = reinit
 
 int32_t wm_msgbox(char *name, char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
 int32_t wm_ynbox(char *name, char *fmt, ...) ATTRIBUTE((format(printf,2,3)));

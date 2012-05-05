@@ -2766,7 +2766,10 @@ void G_DisplayRest(int32_t smoothratio)
             }
             G_UpdateScreenArea();
         }
-        if (tempTint.f > 0 || applyTint) G_FadePalette(tempTint.r,tempTint.g,tempTint.b,tempTint.f|128);
+
+        if (tempTint.f > 0 || applyTint)
+            G_FadePalette(tempTint.r,tempTint.g,tempTint.b,tempTint.f|128);
+
         return;
     }
 
@@ -3050,9 +3053,11 @@ void G_DisplayRest(int32_t smoothratio)
         gametext(160,70,"Press F1 to Accept, F2 to Decline",0,2+8+16);
     }
 
-    if (BUTTON(gamefunc_Show_DukeMatch_Scores)) G_ShowScores();
+    if (BUTTON(gamefunc_Show_DukeMatch_Scores))
+        G_ShowScores();
 
-    if (g_Debug) G_ShowCacheLocks();
+    if (g_Debug)
+        G_ShowCacheLocks();
 
     if (VOLUMEONE)
     {

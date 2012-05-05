@@ -2624,7 +2624,9 @@ static int32_t SetupDirectDraw(int32_t width, int32_t height)
     //    initprintf("  - Creating palette\n");
     for (i=0; i<256; i++)
         curpalettefaded[i].f = PC_NOCOLLAPSE;
-    result = IDirectDraw_CreatePalette(lpDD, DDPCAPS_8BIT | DDPCAPS_ALLOW256, (LPPALETTEENTRY)curpalettefaded, &lpDDPalette, NULL);
+
+    result = IDirectDraw_CreatePalette(lpDD, DDPCAPS_8BIT | DDPCAPS_ALLOW256,
+                                       (LPPALETTEENTRY)curpalettefaded, &lpDDPalette, NULL);
     if (result != DD_OK)
     {
         ShowDDrawErrorBox("Failure creating palette", result);
