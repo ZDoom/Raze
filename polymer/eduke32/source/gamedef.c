@@ -1276,7 +1276,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
     return 0;
 }
 
-static inline int32_t ispecial(const char c)
+static int32_t ispecial(const char c)
 {
     if (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
             c == ',' || c == ';' || (c == 0x0a /*&& ++g_lineNumber*/))
@@ -1355,7 +1355,7 @@ static int32_t C_SkipComments(void)
 #define GetDefID(szGameLabel) hash_find(&h_gamevars,szGameLabel)
 #define GetADefID(szGameLabel) hash_find(&h_arrays,szGameLabel)
 
-static inline int32_t isaltok(const char c)
+static int32_t isaltok(const char c)
 {
     return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '\\' ||
             c == '*' || c == '-' || c == '_' || c == '.');

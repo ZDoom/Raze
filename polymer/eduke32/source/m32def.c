@@ -658,12 +658,12 @@ static int32_t C_SetScriptSize(int32_t size)
     return 0;
 }
 
-static inline int32_t char_whitespace(char c)
+static int32_t char_whitespace(char c)
 {
     return c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='(' || c==')' || c==',' || c==';';
 }
 
-static inline int32_t char_alnumtok(char c)
+static int32_t char_alnumtok(char c)
 {
     return isalnum(c) || c == '#' || c == '{' || c == '}' || c == '/' || c == '\\' ||
            c == '*' || c == '-' || c == '_' || c == '.' || c == '"';

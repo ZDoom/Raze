@@ -257,7 +257,7 @@ int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32
 int32_t kopen4loadfrommod(const char *filename,char searchfirst);
 char * defaultconfile(void);
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb);
-extern inline int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits);
+int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits);
 int32_t startwin_run(void);
 
 #ifdef YAX_ENABLE

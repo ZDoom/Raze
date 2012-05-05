@@ -271,29 +271,29 @@ inline void G_SetStatusBarScale(int32_t sc)
     G_UpdateScreenArea();
 }
 
-static inline int32_t sbarx(int32_t x)
+static int32_t sbarx(int32_t x)
 {
     if (ud.screen_size == 4 /*|| ud.statusbarmode == 1*/) return scale(x<<16,ud.statusbarscale,100);
     return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
 }
 
-static inline int32_t sbarxr(int32_t x)
+static int32_t sbarxr(int32_t x)
 {
     if (ud.screen_size == 4 /*|| ud.statusbarmode == 1*/) return (320l<<16) - scale(x<<16,ud.statusbarscale,100);
     return (((320l<<16) - scale(320l<<16,ud.statusbarscale,100)) >> 1) + scale(x<<16,ud.statusbarscale,100);
 }
 
-static inline int32_t sbary(int32_t y)
+static int32_t sbary(int32_t y)
 {
     return ((200l<<16) - scale(200l<<16,ud.statusbarscale,100) + scale(y<<16,ud.statusbarscale,100));
 }
 
-static inline int32_t sbarsc(int32_t sc)
+static int32_t sbarsc(int32_t sc)
 {
     return scale(sc,ud.statusbarscale,100);
 }
 
-static inline int32_t textsc(int32_t sc)
+static int32_t textsc(int32_t sc)
 {
     // prevent ridiculousness to a degree
     if (xdim <= 320) return sc;
@@ -498,7 +498,7 @@ int32_t G_GameTextLen(int32_t x,const char *t)
     return (textsc(x));
 }
 
-inline int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits)
+int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits)
 {
     return(G_PrintGameText(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
 }
