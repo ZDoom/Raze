@@ -2732,6 +2732,8 @@ cheat_for_port_credits:
         rotatesprite(160<<16,27<<16,24576,0,3290,0,0,2+8+16,0,scale(ydim,35,200),xdim-1,scale(ydim,80,200)-1);
 
         {
+            extern int32_t gammabrightness;
+
             int32_t b = (int32_t)(vid_gamma*40960.f);
             sliderbar(0,c+177,98,&b,4096,x==0,MENUHIGHLIGHT(0),0,8192,163840);
 
@@ -2744,7 +2746,7 @@ cheat_for_port_credits:
             }
 
             b = (int32_t)(vid_contrast*40960.f);
-            sliderbar(0,c+177,98+16,&b,2048,x==1,MENUHIGHLIGHT(1),0,4096,110592);
+            sliderbar(0,c+177,98+16,&b,2048,x==1,gammabrightness?MENUHIGHLIGHT(1):DISABLEDMENUSHADE,0,4096,110592);
 
             if (b != (vid_contrast*40960.f))
             {
@@ -2753,7 +2755,7 @@ cheat_for_port_credits:
             }
 
             b = (int32_t)(vid_brightness*40960.f);
-            sliderbar(0,c+177,98+16+16,&b,2048,x==2,MENUHIGHLIGHT(2),0,-32768,32768);
+            sliderbar(0,c+177,98+16+16,&b,2048,x==2,gammabrightness?MENUHIGHLIGHT(2):DISABLEDMENUSHADE,0,-32768,32768);
 
             if (b != (vid_brightness*40960.f))
             {
