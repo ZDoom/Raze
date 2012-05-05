@@ -646,6 +646,29 @@ static void win_printversion(void)
 }
 
 
+// http://www.gamedev.net/topic/47021-how-to-determine-video-card-with-win32-api
+static void determine_ATI(void)
+{
+    DISPLAY_DEVICE DevInfo;
+    DWORD i;
+
+    ZeroMemory(&DevInfo, sizeof(DevInfo));
+    DevInfo.cb = sizeof(DISPLAY_DEVICE);
+
+    for (i=0; EnumDisplayDevices(NULL, i, &DevInfo, 0); i++)
+    {
+        if ((DevInfo.StateFlags & DISPLAY_DEVICE_PRIMARY_DEVICE)==0)
+            continue;
+
+#ifdef UNICODE
+#error Not implemented: UNICODE defined, DevInfo.DeviceString is a WCHAR
+#endif
+//        initprintf("%s *** %s\n", DevInfo.DeviceName, DevInfo.DeviceString);
+        if (!Bmemcmp(DevInfo.DeviceString, "ATI ", 4) || !Bmemcmp(DevInfo.DeviceString, "AMD ", 4))
+            winlayer_have_ATI = 1;
+    }
+}
+
 int32_t initsystem(void)
 {
     DEVMODE desktopmode;
@@ -686,6 +709,10 @@ int32_t initsystem(void)
 
     OSD_RegisterFunction("maxrefreshfreq", "maxrefreshfreq: maximum display frequency to set for OpenGL Polymost modes (0=no maximum)", set_maxrefreshfreq);
     OSD_RegisterFunction("r_windowpositioning", "r_windowpositioning: enable/disable window position memory", set_windowpos);
+
+    // See if we're on an ATI card...
+    determine_ATI();
+
     return 0;
 }
 
