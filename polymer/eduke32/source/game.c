@@ -2722,7 +2722,7 @@ void G_DisplayRest(int32_t smoothratio)
         if (g_restorePalette < 2 || omovethingscnt+1 == g_moveThingsCount)
         {
             // g_restorePalette < 0: reset tinting, too (e.g. when loading new game)
-            P_SetGamePalette(pp,pp->palette, 2 /*+ (g_restorePalette>0)*16*/);
+            P_SetGamePalette(pp,pp->palette, 2 + (g_restorePalette>0)*16);
             g_restorePalette = 0;
         }
         else
