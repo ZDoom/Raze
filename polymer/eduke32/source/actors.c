@@ -846,7 +846,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                             else s->shade = sector[s->sectnum].floorshade;
 
                             actor[i].timetosleep = 0;
-                            changespritestat(i,6);
+                            changespritestat(i, STAT_STANDABLE);
                             break;
                         case RECON__STATIC:
                             CS |= 257;

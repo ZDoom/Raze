@@ -178,7 +178,7 @@ static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, 
             break;
         j = A_InsertSprite(sect,srcvect.x,srcvect.y,srcvect.z,ProjectileData[atwith].trail,-32,
                            ProjectileData[atwith].txrepeat,ProjectileData[atwith].tyrepeat,ang,0,0,g_player[0].ps->i,0);
-        changespritestat(j,1);
+        changespritestat(j, STAT_ACTOR);
     }
 }
 

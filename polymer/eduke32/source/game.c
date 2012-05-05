@@ -4086,7 +4086,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                 if (SHT)
                 {
-                    changespritestat(i,12);
+                    changespritestat(i, STAT_FALLER);
                     CS |=  257;
                     SH = g_impactDamage;
                     goto SPAWN_END;
@@ -4117,7 +4117,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         T1 = sp->xrepeat;
         T2 = sp->yrepeat;
         sp->yvel = 0;
-        changespritestat(i,6);
+        changespritestat(i, STAT_STANDABLE);
     }
     else if (((sp->picnum >= CAMERA1)&&(sp->picnum <= CAMERA1+3))||(sp->picnum==CAMERAPOLE)||(sp->picnum==GENERICPOLE))
     {
@@ -4131,7 +4131,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
         {
             sp->xrepeat = sp->yrepeat = 0;
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
         }
         else
         {
@@ -4151,7 +4151,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 if (j == -1 && sp->lotag > ud.player_skill)
                 {
                     sp->xrepeat=sp->yrepeat=0;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                     break;
                 }
 
@@ -4164,7 +4164,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     if (ud.monsters_off == 1)
                     {
                         sp->xrepeat=sp->yrepeat=0;
-                        changespritestat(i,5);
+                        changespritestat(i, STAT_MISC);
                         break;
                     }
 
@@ -4198,7 +4198,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
         case FOF__STATIC:
             sp->xrepeat = sp->yrepeat = 0;
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             break;
         case WATERSPLASH2__STATIC:
             if (j >= 0)
@@ -4251,7 +4251,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case DUKETORSO__STATIC:
         case DUKEGUN__STATIC:
         case DUKELEG__STATIC:
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             break;
         case TONGUE__STATIC:
             if (j >= 0)
@@ -4259,7 +4259,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->z -= 38<<8;
             sp->zvel = 256-(krand()&511);
             sp->xvel = 64-(krand()&127);
-            changespritestat(i,4);
+            changespritestat(i, STAT_PROJECTILE);
             break;
         case NATURALLIGHTNING__STATIC:
             sp->cstat &= ~257;
@@ -4292,7 +4292,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->ang = sprite[j].ang;
 
             sp->xvel = 128;
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             A_SetSprite(i,CLIPMASK0);
             setsprite(i,(vec3_t *)sp);
             break;
@@ -4308,7 +4308,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             }
             else sp->xrepeat = sp->yrepeat = 0;
 
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
 
             break;
 
@@ -4327,7 +4327,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             }
 
             if (j >= 0) sp->ang = actor[j].t_data[5]+512;
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             break;
 
         case FORCESPHERE__STATIC:
@@ -4339,7 +4339,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             else
             {
                 sp->xrepeat = sp->yrepeat = 1;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
             }
             break;
 
@@ -4348,7 +4348,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->z -= (26<<8);
             if (j >= 0 && sprite[j].pal == 6)
                 sp->pal = 6;
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             break;
         case BLOODPOOL__STATIC:
         case PUKE__STATIC:
@@ -4369,7 +4369,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                         if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
                         {
                             sp->xrepeat = sp->yrepeat = 0;
-                            changespritestat(i,5);
+                            changespritestat(i, STAT_MISC);
                             break;
                         }
 
@@ -4377,7 +4377,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     else
                     {
                         sp->xrepeat = sp->yrepeat = 0;
-                        changespritestat(i,5);
+                        changespritestat(i, STAT_MISC);
                         break;
                     }
 
@@ -4385,7 +4385,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 else
                 {
                     sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i,5);
+                    changespritestat(i, STAT_MISC);
                     break;
                 }
 
@@ -4393,7 +4393,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             else
             {
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             }
 
@@ -4401,7 +4401,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         if (sector[SECT].lotag == 1)
         {
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             break;
         }
 
@@ -4424,7 +4424,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case FECES__STATIC:
             if (j >= 0)
                 sp->xrepeat = sp->yrepeat = 1;
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             break;
 
         case BLOODSPLAT1__STATIC:
@@ -4438,14 +4438,14 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (j >= 0 && sprite[j].pal == 6)
                 sp->pal = 6;
             A_AddToDeleteQueue(i);
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             break;
 
         case TRIPBOMB__STATIC:
             if (sp->lotag > ud.player_skill)
             {
                 sp->xrepeat=sp->yrepeat=0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             }
 
@@ -4536,12 +4536,12 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->clipdist = 32;
             sp->cstat |= 257;
         case OCEANSPRITE4__STATIC:
-            changespritestat(i,0);
+            changespritestat(i, STAT_DEFAULT);
             break;
         case FEMMAG1__STATIC:
         case FEMMAG2__STATIC:
             sp->cstat &= ~257;
-            changespritestat(i,0);
+            changespritestat(i, STAT_DEFAULT);
             break;
         case DUKETAG__STATIC:
         case SIGN1__STATIC:
@@ -4549,7 +4549,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if ((!g_netServer && ud.multimode < 2) && sp->pal)
             {
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
             }
             else sp->pal = 0;
             break;
@@ -4570,7 +4570,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case MASKWALL15__STATIC:
             j = sp->cstat&60;
             sp->cstat = j|1;
-            changespritestat(i,0);
+            changespritestat(i, STAT_DEFAULT);
             break;
         case FOOTPRINTS__STATIC:
         case FOOTPRINTS2__STATIC:
@@ -4593,7 +4593,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                             if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
                             {
                                 sp->xrepeat = sp->yrepeat = 0;
-                                changespritestat(i,5);
+                                changespritestat(i, STAT_MISC);
                                 break;
                             }
                         }
@@ -4624,7 +4624,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->xrepeat = sp->yrepeat = 32;
 
             A_AddToDeleteQueue(i);
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             break;
 
         case PODFEM1__STATIC:
@@ -4701,7 +4701,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->xrepeat = sp->yrepeat = 3;
             sp->cstat = 16+(krand()&12);
             A_AddToDeleteQueue(i);
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             break;
 
         case MONEY__STATIC:
@@ -4711,14 +4711,14 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->cstat = krand()&12;
             sp->xrepeat = sp->yrepeat = 8;
             sp->ang = krand()&2047;
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             break;
 
         case VIEWSCREEN__STATIC:
         case VIEWSCREEN2__STATIC:
             sp->owner = i;
             sp->lotag = sp->extra = 1;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
 
         case SHELL__STATIC: //From the player
@@ -4762,7 +4762,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 }
                 sp->xrepeat=sp->yrepeat=4;
 
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
             }
             break;
 
@@ -4772,11 +4772,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if ((!g_netServer && ud.multimode < 2) && sp->pal == 1)
             {
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             }
             sp->cstat = (int16_t)32768;
-            changespritestat(i,11);
+            changespritestat(i, STAT_FX);
             break;
 
         case EXPLOSION2__STATIC:
@@ -4824,7 +4824,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     sp->z = x-(12<<8);
             }
 
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
 
             break;
 
@@ -4837,7 +4837,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 if (sector[sp->sectnum].lotag != 2)
                     sp->cstat |= 32768;
             }
-            changespritestat(i,13);
+            changespritestat(i, STAT_DUMMYPLAYER);
             break;
 
         case APLAYER__STATIC:
@@ -4859,7 +4859,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             }
             else sp->xrepeat = sp->yrepeat = 32;
 
-            changespritestat(i,5);
+            changespritestat(i, STAT_MISC);
             break;
 
         case CRANE__STATIC:
@@ -4903,13 +4903,13 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             tempwallptr += 3;
             sp->owner = -1;
             sp->extra = 8;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
 
         case TRASH__STATIC:
             sp->ang = krand()&2047;
             sp->xrepeat = sp->yrepeat = 24;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
 
         case WATERDRIP__STATIC:
@@ -4934,12 +4934,12 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             }
         case WATERDRIPSPLASH__STATIC:
             sp->xrepeat = sp->yrepeat = 24;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
 
         case PLUG__STATIC:
             sp->lotag = 9999;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
         case TOUCHPLATE__STATIC:
             T3 = sector[sect].floorz;
@@ -4948,7 +4948,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (sp->pal && (g_netServer || ud.multimode > 1))
             {
                 sp->xrepeat=sp->yrepeat=0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             }
         case WATERBUBBLEMAKER__STATIC:
@@ -4960,13 +4960,13 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->hitag = 0;
             }
             sp->cstat |= 32768;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
         case MASTERSWITCH__STATIC:
             if (sp->picnum == MASTERSWITCH)
                 sp->cstat |= 32768;
             sp->yvel = 0;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
         case TARGET__STATIC:
         case DUCK__STATIC:
@@ -5062,7 +5062,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if ((sp->lotag > ud.player_skill) || ud.monsters_off == 1)
             {
                 sp->xrepeat=sp->yrepeat=0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             }
             else
@@ -5101,7 +5101,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         case LOCATORS__STATIC:
             sp->cstat |= 32768;
-            changespritestat(i,7);
+            changespritestat(i, STAT_LOCATOR);
             break;
 
         case ACTIVATORLOCKED__STATIC:
@@ -5109,13 +5109,13 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->cstat = (int16_t) 32768;
             if (sp->picnum == ACTIVATORLOCKED)
                 sector[sp->sectnum].lotag |= 16384;
-            changespritestat(i,8);
+            changespritestat(i, STAT_ACTIVATOR);
             break;
 
         case DOORSHOCK__STATIC:
             sp->cstat |= 1+256;
             sp->shade = -12;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
 
         case OOZ__STATIC:
@@ -5163,7 +5163,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
             {
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             }
             sp->pal = 0;
@@ -5177,7 +5177,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (sp->lotag > ud.player_skill)
             {
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 goto SPAWN_END;
             }
             g_player[myconnectindex].ps->max_actors_killed++;
@@ -5185,7 +5185,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (ud.monsters_off == 1)
             {
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             }
             sp->extra = 130;
@@ -5194,7 +5194,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
             {
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             }
             sp->pal = 0;
@@ -5252,7 +5252,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (((!g_netServer && ud.multimode < 2) && sp->pal != 0) || (sp->lotag > ud.player_skill))
             {
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             }
 
@@ -5266,7 +5266,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_ACCESSCARDSPRITES) && sp->picnum == ACCESSCARD)
             {
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             }
             else
@@ -5296,12 +5296,12 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case BOX__STATIC:
             CS = 257; // Make it hitable
             sprite[i].extra = 1;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
 
         case FLOORFLAME__STATIC:
             sp->shade = -127;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
 
         case BOUNCEMINE__STATIC:
@@ -5323,7 +5323,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 A_SetSprite(i,CLIPMASK0);
             }
         case CEILINGSTEAM__STATIC:
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
 
         case SECTOREFFECTOR__STATIC:
@@ -5386,7 +5386,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                 T5 = sector[sect].floorz == SZ;
                 sp->cstat = 0;
-                changespritestat(i,9);
+                changespritestat(i, STAT_TRANSPORT);
                 goto SPAWN_END;
             case 1:
                 sp->owner = -1;
@@ -5870,7 +5870,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->extra = g_impactDamage<<2;
             sp->owner = i;
 
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
 
         case CRACK1__STATIC:
@@ -5892,13 +5892,13 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
             {
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
                 break;
             }
 
             sp->pal = 0;
             sp->owner = i;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             sp->xvel = 8;
             A_SetSprite(i,CLIPMASK0);
             break;
@@ -5936,7 +5936,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (ud.monsters_off == 1 && sp->picnum == EGG)
             {
                 sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i,5);
+                changespritestat(i, STAT_MISC);
             }
             else
             {
@@ -5949,7 +5949,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         case TOILETWATER__STATIC:
             sp->shade = -16;
-            changespritestat(i,6);
+            changespritestat(i, STAT_STANDABLE);
             break;
         }
 
