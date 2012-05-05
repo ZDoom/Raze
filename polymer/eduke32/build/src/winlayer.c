@@ -41,7 +41,6 @@
 #define ANY_WINDOWED_SIZE
 
 static mutex_t m_initprintf;
-static int32_t winlayer_uselastgamma = -1;
 static int32_t winlayer_have_ATI = 0;
 
 int32_t   _buildargc = 0;
@@ -2230,13 +2229,6 @@ int32_t setpalette(int32_t start, int32_t num)
             return -1;
         }
 
-        if (winlayer_have_ATI)
-        {
-            winlayer_uselastgamma = (winlayer_uselastgamma!=-1);
-            setgamma();
-            winlayer_uselastgamma = 0;
-        }
-
         return 0;
     }
 
@@ -2341,15 +2333,15 @@ int32_t setgamma(void)
 
     // This formula is taken from Doomsday
 
-    if (winlayer_uselastgamma <= 0)
-        for (i = 0; i < 256; i++)
-        {
-            double val = i * contrast - (contrast - 1) * 127;
-            if (gamma != 1) val = pow(val, invgamma) / norm;
-            val += bright * 128;
+    for (i = 0; i < 256; i++)
+    {
+        double val = i * contrast - (contrast - 1) * 127;
+        if (gamma != 1) val = pow(val, invgamma) / norm;
+        val += bright * 128;
 
-            gammaTable[0][i] = gammaTable[1][i] = gammaTable[2][i] = (WORD)max(0.f,(double)min(0xffff,val*256));
-        }
+        gammaTable[0][i] = gammaTable[1][i] = gammaTable[2][i] = (WORD)max(0.f,(double)min(0xffff,val*256));
+    }
+
     return setgammaramp(gammaTable);
 }
 
