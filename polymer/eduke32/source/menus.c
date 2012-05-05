@@ -2740,7 +2740,7 @@ cheat_for_port_credits:
             if (b != (double)(vid_gamma*40960.f))
             {
                 vid_gamma = (double)b/40960.f;
-                ud.brightness = (int32_t)(min(max((double)((vid_gamma-1.0)*10.0),0),15));
+                ud.brightness = GAMMA_CALC;
                 ud.brightness <<= 2;
                 setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
             }
