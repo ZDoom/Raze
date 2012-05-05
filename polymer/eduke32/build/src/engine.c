@@ -2342,6 +2342,7 @@ int32_t totalclocklock;
 char apptitle[256] = "Build Engine";
 
 static uint8_t **basepaltableptr;
+static uint8_t basepalreset=1;
 uint8_t basepalcount;
 uint8_t curbasepal;
 
@@ -13530,18 +13531,21 @@ void setbasepaltable(uint8_t **thebasepaltable, uint8_t thebasepalcount)
 // 16: don't reset palfade*
 void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 {
-    int32_t i, j, paldidchange=0;
+    int32_t i, j, nohwgamma;
     const uint8_t *dapal;
+
+    int32_t paldidchange, palsumdidchange;
 //    uint32_t lastbright = curbrightness;
 
     Bassert((flags&(1+4))==0);
 
     if (dapalid >= basepalcount)
         dapalid = 0;
-
+    paldidchange = (curbasepal != dapalid || basepalreset);
     curbasepal = dapalid;
+    basepalreset = 0;
 
-    dapal = basepaltableptr[dapalid];
+    dapal = basepaltableptr[curbasepal];
 
     if (!(flags&4))
     {
@@ -13550,9 +13554,8 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 //            vid_gamma = 1.0 + ((float)curbrightness / 10.0);
     }
 
-    j = 0;
-    if (setgamma())
-        j = curbrightness;
+    nohwgamma = setgamma();
+    j = nohwgamma ? curbrightness : 0;
 
     for (i=0; i<256; i++)
     {
@@ -13576,9 +13579,9 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
         static uint32_t lastpalettesum=0;
         uint32_t newpalettesum = crc32once((uint8_t *)curpalettefaded, sizeof(curpalettefaded));
 
-        paldidchange = (newpalettesum != lastpalettesum);
+        palsumdidchange = (newpalettesum != lastpalettesum);
 
-        if (paldidchange || newpalettesum != g_lastpalettesum)
+        if (palsumdidchange || newpalettesum != g_lastpalettesum)
         {
             if ((flags&1) == 0) setpalette(0,256);
         }
@@ -13589,19 +13592,20 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 #ifdef USE_OPENGL
     if (rendmode >= 3)
     {
-        // XXX: paldidchange should really be "oldpalnum!=newpalnum".
-        // Currently changing the palette while having a tint effect invalidates
-        // everything, which is bad!
-
-        // only reset the textures if the corresponding preserve flags are clear and
+        // Only reset the textures if the corresponding preserve flags are clear and
         // either (a) the new palette is different to the last, or (b) the brightness
-        // changed and we couldn't set it using hardware gamma
-        if (!(flags&2) && paldidchange)
+        // changed and we couldn't set it using hardware gamma.
+
+        // XXX: no-HW-gamma OpenGL platforms will exhibit bad performance with
+        // simultaneous basepal and tint changes?
+        const int32_t doinvalidate = (paldidchange || (palsumdidchange && nohwgamma));
+
+        if (!(flags&2) && doinvalidate)
             gltexinvalidateall();
-        if (!(flags&8) && paldidchange)
+        if (!(flags&8) && doinvalidate)
             gltexinvalidate8();
 #ifdef POLYMER
-        if ((rendmode == 4) && paldidchange)
+        if ((rendmode == 4) && doinvalidate)
             polymer_texinvalidate();
 #endif
     }
@@ -15992,6 +15996,8 @@ int32_t setrendermode(int32_t renderer)
 # else
     else renderer = 3;
 # endif
+
+    basepalreset = 1;
 
     rendmode = renderer;
     if (rendmode >= 3)
