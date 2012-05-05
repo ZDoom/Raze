@@ -3300,10 +3300,8 @@ void P_CheckSectors(int32_t snum)
             case PLUG__STATIC:
                 A_PlaySound(SHORT_CIRCUIT,p->i);
                 sprite[p->i].extra -= 2+(krand()&3);
-                p->pals.r = 48;
-                p->pals.g = 48;
-                p->pals.b = 64;
-                p->pals.f = 32;
+
+                P_PalFrom(p, 32, 48,48,64);
                 break;
 
             case VIEWSCREEN__STATIC:

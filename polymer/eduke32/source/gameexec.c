@@ -3323,12 +3323,9 @@ nullquote:
             }
             else
             {
-                palette_t *const pals = &g_player[vm.g_p].ps->pals;
+                uint8_t f=*insptr++, r=*insptr++, g=*insptr++, b=*insptr++;
 
-                pals->f = *insptr++;
-                pals->r = *insptr++;
-                pals->g = *insptr++;
-                pals->b = *insptr++;
+                P_PalFrom(g_player[vm.g_p].ps, f, r,g,b);
             }
             continue;
 

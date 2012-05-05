@@ -4636,12 +4636,7 @@ DETONATEB:
                         }
 
                         if (sprite[s->owner].picnum != APLAYER)
-                        {
-                            g_player[p].ps->pals.r = 0;
-                            g_player[p].ps->pals.g = 32;
-                            g_player[p].ps->pals.b = 0;
-                            g_player[p].ps->pals.f = 32;
-                        }
+                            P_PalFrom(g_player[p].ps, 32, 0,32,0);
 
                         if (s->owner != i || ud.respawn_items == 0)
                         {
@@ -4718,10 +4713,8 @@ DETONATEB:
                     A_PlaySound(SHORT_CIRCUIT,i);
 
                     sprite[g_player[p].ps->i].extra --;
-                    g_player[p].ps->pals.f = 32;
-                    g_player[p].ps->pals.r = 32;
-                    g_player[p].ps->pals.g = 0;
-                    g_player[p].ps->pals.b = 0;
+
+                    P_PalFrom(g_player[p].ps, 32, 32,0,0);
                 }
                 t[0] += 128;
                 if (t[3] == 0)
@@ -5041,10 +5034,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 p = A_FindPlayer(s,&x);
                 if (x < 512)
                 {
-                    g_player[p].ps->pals.f = 32;
-                    g_player[p].ps->pals.r = 32;
-                    g_player[p].ps->pals.g = 0;
-                    g_player[p].ps->pals.b = 0;
+                    P_PalFrom(g_player[p].ps, 32, 32,0,0);
                     sprite[g_player[p].ps->i].extra -= 4;
                 }
 
@@ -5256,10 +5246,8 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                             if (!A_CheckSoundPlaying(g_player[p].ps->i,DUKE_LONGTERM_PAIN))
                                 A_PlaySound(DUKE_LONGTERM_PAIN,g_player[p].ps->i);
                             sprite[g_player[p].ps->i].extra --;
-                            g_player[p].ps->pals.f = 32;
-                            g_player[p].ps->pals.r = 16;
-                            g_player[p].ps->pals.g = 0;
-                            g_player[p].ps->pals.b = 0;
+
+                            P_PalFrom(g_player[p].ps, 32, 16,0,0);
                         }
                     }
 
@@ -7442,10 +7430,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                                         A_PlaySound(DUKE_LONGTERM_PAIN,g_player[p].ps->i);
                                     A_PlaySound(SHORT_CIRCUIT,g_player[p].ps->i);
                                     sprite[g_player[p].ps->i].extra -= 8+(krand()&7);
-                                    g_player[p].ps->pals.f = 32;
-                                    g_player[p].ps->pals.r = 16;
-                                    g_player[p].ps->pals.g = 0;
-                                    g_player[p].ps->pals.b = 0;
+
+                                    P_PalFrom(g_player[p].ps, 32, 16,0,0);
                                 }
                                 break;
                             }

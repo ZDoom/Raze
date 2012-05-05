@@ -40,6 +40,14 @@ extern int32_t g_levelTextTime, ticrandomseed;
 int32_t g_numObituaries = 0;
 int32_t g_numSelfObituaries = 0;
 
+void P_PalFrom(DukePlayer_t *p, uint8_t f, uint8_t r, uint8_t g, uint8_t b)
+{
+    p->pals.f = f;
+    p->pals.r = r;
+    p->pals.g = g;
+    p->pals.b = b;
+}
+
 void P_UpdateScreenPal(DukePlayer_t *p)
 {
     int32_t intowater = 0;
@@ -101,10 +109,7 @@ static void P_IncurDamage(DukePlayer_t *p)
 
 void P_QuickKill(DukePlayer_t *p)
 {
-    p->pals.r = 48;
-    p->pals.g = 48;
-    p->pals.b = 48;
-    p->pals.f = 48;
+    P_PalFrom(p, 48, 48,48,48);
 
     sprite[p->i].extra = 0;
     sprite[p->i].cstat |= 32768;
@@ -3604,10 +3609,7 @@ void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
                 sprite[p->i].extra -= 5;
 
                 p->hurt_delay = 16;
-                p->pals.f = 32;
-                p->pals.r = 32;
-                p->pals.g = 0;
-                p->pals.b = 0;
+                P_PalFrom(p, 32, 32,0,0);
                 A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
             }
         }
@@ -3632,10 +3634,7 @@ void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
             sprite[p->i].extra -= 5;
 
             p->hurt_delay = 16;
-            p->pals.f = 32;
-            p->pals.r = 32;
-            p->pals.g = 0;
-            p->pals.b = 0;
+            P_PalFrom(p, 32, 32,0,0);
 
             p->vel.x = -(sintable[(p->ang+512)&2047]<<8);
             p->vel.y = -(sintable[(p->ang)&2047]<<8);
@@ -3684,10 +3683,9 @@ int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
             {
                 if (!A_CheckSoundPlaying(p->i,DUKE_LONGTERM_PAIN))
                     A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
-                p->pals.r = 64;
-                p->pals.g = 64;
-                p->pals.b = 64;
-                p->pals.f = 32;
+
+                P_PalFrom(p, 32, 64,64,64);
+
                 s->extra -= 1+(krand()&3);
                 if (!A_CheckSoundPlaying(p->i,SHORT_CIRCUIT))
                     A_PlaySound(SHORT_CIRCUIT,p->i);
@@ -3703,10 +3701,8 @@ int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
             {
                 if (!A_CheckSoundPlaying(p->i,DUKE_LONGTERM_PAIN))
                     A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
-                p->pals.r = 0;
-                p->pals.g = 8;
-                p->pals.b = 0;
-                p->pals.f = 32;
+
+                P_PalFrom(p, 32, 0,8,0);
                 s->extra -= 1+(krand()&3);
             }
         }
@@ -3720,10 +3716,8 @@ int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
             {
                 if (!A_CheckSoundPlaying(p->i,DUKE_LONGTERM_PAIN))
                     A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
-                p->pals.r = 8;
-                p->pals.g = 0;
-                p->pals.b = 0;
-                p->pals.f = 32;
+
+                P_PalFrom(p, 32, 8,0,0);
                 s->extra -= 1+(krand()&3);
             }
         }
@@ -3767,10 +3761,8 @@ void P_FragPlayer(int32_t snum)
 
     if (s->pal != 1)
     {
-        p->pals.r = 63;
-        p->pals.g = 0;
-        p->pals.b = 0;
-        p->pals.f = 63;
+        P_PalFrom(p, 63, 63,0,0);
+
         p->pos.z -= (16<<8);
         s->z -= (16<<8);
 
@@ -4398,10 +4390,8 @@ int32_t P_DoFist(DukePlayer_t *p)
     {
         if (ud.recstat == 1) G_CloseDemoWrite();
         S_PlaySound(PIPEBOMB_EXPLODE);
-        p->pals.r = 64;
-        p->pals.g = 64;
-        p->pals.b = 64;
-        p->pals.f = 48;
+
+        P_PalFrom(p, 48, 64,64,64);
     }
 
     if (p->fist_incs > 42)
@@ -5043,10 +5033,8 @@ void P_ProcessInput(int32_t snum)
                             if (s->extra <= 0)
                             {
                                 A_PlaySound(SQUISHED,p->i);
-                                p->pals.r = 63;
-                                p->pals.g = 0;
-                                p->pals.b = 0;
-                                p->pals.f = 63;
+
+//                                P_PalFrom(p, 63, 63,0,0);
                             }
                             else
                             {
@@ -5054,10 +5042,7 @@ void P_ProcessInput(int32_t snum)
                                 A_PlaySound(DUKE_LAND_HURT,p->i);
                             }
 
-                            p->pals.r = 16;
-                            p->pals.g = 0;
-                            p->pals.b = 0;
-                            p->pals.f = 32;
+                            P_PalFrom(p, 32, 16,0,0);
                         }
                         else if (p->vel.z > 2048)
                             A_PlaySound(DUKE_LAND,p->i);
@@ -5212,10 +5197,8 @@ void P_ProcessInput(int32_t snum)
             {
                 if (!A_CheckSoundPlaying(p->i,DUKE_LONGTERM_PAIN))
                     A_PlaySound(DUKE_LONGTERM_PAIN,p->i);
-                p->pals.r = 0;
-                p->pals.g = 8;
-                p->pals.b = 0;
-                p->pals.f = 32;
+
+                P_PalFrom(p, 32, 0,8,0);
                 s->extra--;
             }
         }
