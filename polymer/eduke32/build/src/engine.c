@@ -9013,6 +9013,8 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
 
     initspritelists();
 
+// TODO: need checking for engine compiled with V7 limits, so we
+// load V8+ maps ONLY if they don't exceed them.
 #define MYMAXSECTORS (mapversion==7?MAXSECTORSV7:MAXSECTORSV8)
 #define MYMAXWALLS   (mapversion==7?MAXWALLSV7:MAXWALLSV8)
 #define MYMAXSPRITES (mapversion==7?MAXSPRITESV7:MAXSPRITESV8)

@@ -251,7 +251,11 @@ void CONFIG_SetDefaults(void)
     ud.weaponsway = 1;
     ud.weaponswitch = 3;	// new+empty
     ud.angleinterpolation = 0;
+#ifdef GEKKO
+    ud.config.UseJoystick = 1;
+#else
     ud.config.UseJoystick = 0;
+#endif
     ud.config.UseMouse = 1;
     ud.config.VoiceToggle = 5; // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
     ud.display_bonus_screen = 1;

@@ -24,8 +24,6 @@ extern int32_t dmval;
 #include <math.h>
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx)
 {
-    // XXX: potential loss of precision? double has only 52 bits in the
-    // significand, after all...
     return ldexp(eax, ecx) / ebx;
 }
 

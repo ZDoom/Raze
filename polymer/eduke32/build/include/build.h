@@ -31,20 +31,23 @@ extern "C" {
 
 # define MAXXDIM 7680
 # define MAXYDIM 3200
+
+// additional space beyond wall, in walltypes:
+# define M32_FIXME_WALLS 512
+# define M32_FIXME_SECTORS 2
 #else
 # define MAXSECTORS MAXSECTORSV7
 # define MAXWALLS MAXWALLSV7
 # define MAXSPRITES MAXSPRITESV7
 
-# define MAXXDIM 1600
-# define MAXYDIM 1200
+# define MAXXDIM 860
+# define MAXYDIM 490
+
+# define M32_FIXME_WALLS 0
+# define M32_FIXME_SECTORS 0
 #endif
 
 #define MAXWALLSB ((MAXWALLS>>2)+(MAXWALLS>>3))
-
-// additional space beyond wall, in walltypes:
-#define M32_FIXME_WALLS 512
-#define M32_FIXME_SECTORS 2
 
 #define MAXTILES 30720
 #define MAXVOXELS 4096
