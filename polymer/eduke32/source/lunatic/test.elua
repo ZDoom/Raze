@@ -1,6 +1,6 @@
 -- test script for ELua/Lunatic Interpreter
 
---return
+--do return end
 
 print('--- ELua Test script ---')
 

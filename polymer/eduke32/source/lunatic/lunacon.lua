@@ -47,7 +47,7 @@ local alphanum = alpha + Range("09")
 --local alnumtok = alphanum + Set("{}/\\*-_.")  -- see isaltok() in gamedef.c
 
 --- basic lexical elements ("tokens")
-local t_number = Range("09")^1 + (Pat("0x") + "0X")*Range("09", "af", "AF")^1
+local t_number = (Pat("0x") + "0X")*Range("09", "af", "AF")^1 + Range("09")^1
 -- Valid identifier names are disjunct from keywords!
 -- XXX: CON is more permissive with identifier name characters:
 local t_identifier = Var("t_identifier")
@@ -148,11 +148,11 @@ local Co = {
     definesound = sp1 * t_define * sp1 * maybe_quoted_filename * n_defines(5),  -- XXX: TS
 
     -- XXX: need to see how that behaves with e.g. stuff like gamevar.ogg:
-    music = match_until(sp1 * t_filename, con_keyword),
+    music = sp1 * t_define * match_until(sp1 * t_filename, con_keyword),
 
     --- 3. Game Settings
     -- gamestartup has 25/29 fixed defines, depending on 1.3D/1.5 version:
-    gamestartup = (sp1 * t_define)^25 * (sp1 * t_define)^-4,
+    gamestartup = (sp1 * t_define)^25,
     spritenopal = cmd(D),
     spritenoshade = cmd(D),
     spritenvg = cmd(D),
@@ -425,8 +425,8 @@ local Ci = {
     setarray = sp1 * t_identifier * arraypat * sp1 * t_rvar,
 
     activatebysector = cmd(R,R),
-    addlogvar = cmd(R),  -- HERE, it's significant that addlogvar
---    addlog = cmd(),      -- comes before addlog!
+    addlogvar = cmd(R),
+--    addlog = cmd(),  -- must come after addlogvar
     addweaponvar = cmd(R,R),  -- exec SPECIAL HANDLING!
     cansee = cmd(R,R,R,R,R,R,R,R,W),
     canseespr = cmd(R,R,W),
