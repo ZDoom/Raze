@@ -5349,6 +5349,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 break;
             case 46:
                 ror_protectedsectors[sp->sectnum] = 1;
+                /* XXX: fall-through intended? */
             case 49:
             case 50:
             {
@@ -5358,7 +5359,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     if (sprite[j].picnum == ACTIVATOR || sprite[j].picnum == ACTIVATORLOCKED)
                         actor[i].flags |= SPRITE_USEACTIVATOR;
             }
-            changespritestat(i, STAT_EFFECTOR);
+            changespritestat(i, sp->lotag==46 ? STAT_EFFECTOR : STAT_LIGHT);
             goto SPAWN_END;
             break;
             }

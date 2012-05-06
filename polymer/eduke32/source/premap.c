@@ -1069,7 +1069,6 @@ static void premap_setup_fixed_sprites(void)
                 // TRIPBOMB uses t_data[7] for its own purposes. Wouldn't be
                 // too useful with moving sectors anyway
                 if ((FIXSPR_STATNUMP(sprite[j].statnum) && sprite[j].picnum!=TRIPBOMB) ||
-                    (sprite[j].picnum==SECTOREFFECTOR && (sprite[j].lotag==49||sprite[j].lotag==50)) ||
                     ((sprite[j].statnum==1 || sprite[j].statnum==2) && (ActorType[sprite[j].picnum]&4)))
                 {
                     pivot = i;

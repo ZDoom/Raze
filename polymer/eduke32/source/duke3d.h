@@ -96,7 +96,8 @@ extern "C" {
 #define TILE_VIEWSCR        (MAXTILES-5)
 
 // sprites with these statnums should be considered for fixing (bitmap)
-#define FIXSPR_STATNUMP(k) ((k)==STAT_DEFAULT || (k)==STAT_STANDABLE || ((k)==STAT_FX) || ((k)==STAT_FALLER))
+#define FIXSPR_STATNUMP(k) ((k)==STAT_DEFAULT || (k)==STAT_STANDABLE || (k)==STAT_FX || \
+                            (k)==STAT_FALLER || (k)==STAT_LIGHT)
 
 // JBF 20040604: sync is a function on some platforms
 #define sync                dsync

@@ -664,7 +664,6 @@ void Sect_ClearInterpolation(int32_t sectnum)
 static int32_t move_fixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
 {
     if ((FIXSPR_STATNUMP(sprite[j].statnum) ||
-         (sprite[j].picnum==SECTOREFFECTOR && (sprite[j].lotag==49||sprite[j].lotag==50)) ||
          ((sprite[j].statnum==1 || sprite[j].statnum==2) && (ActorType[sprite[j].picnum]&4)))
             && actor[j].t_data[7]==(0x18190000|pivotspr))
     {
@@ -5668,7 +5667,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     // that hardcoded SE light behavior here should be considered temporary at best...
                     // really need some more general system for handling them!
-                    if ((sprite[p].statnum != STAT_EFFECTOR || (sprite[p].lotag==49||sprite[p].lotag==50))
+                    if ((sprite[p].statnum != STAT_EFFECTOR)
                             && sprite[p].statnum != STAT_PROJECTILE)
                         if (sprite[p].picnum != LASERLINE)
                         {
@@ -5700,7 +5699,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 for (p=headspritesect[s->sectnum]; p>=0; p=nextspritesect[p])
                 {
                     // keep this conditional in sync with above!
-                    if ((sprite[p].statnum != STAT_EFFECTOR || (sprite[p].lotag==49||sprite[p].lotag==50))
+                    if ((sprite[p].statnum != STAT_EFFECTOR)
                             && sprite[p].statnum != STAT_PROJECTILE)
                         if (sprite[p].picnum != LASERLINE)
                         {
@@ -7626,7 +7625,33 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 A_SetSprite(k,CLIPMASK0);
             }
             break;
+        }
+BOLT:
+        i = nexti;
+    }
 
+    //Sloped sin-wave floors!
+    for (i=headspritestat[STAT_EFFECTOR]; i>=0; i=nextspritestat[i])
+    {
+        const spritetype *s = &sprite[i];
+        sectortype *sc;
+
+        if (s->lotag != 29) continue;
+        sc = &sector[s->sectnum];
+        if (sc->wallnum != 4) continue;
+        wal = &wall[sc->wallptr+2];
+        alignflorslope(s->sectnum,wal->x,wal->y,sector[wal->nextsector].floorz);
+    }
+}
+
+static void G_DoPolymerLights(void)  // STATNUM 14
+{
+    int32_t i;
+
+    for (i=headspritestat[STAT_LIGHT]; i>=0; i=nextspritestat[i])
+    {
+        switch (sprite[i].lotag)
+        {
 #ifdef POLYMER
         case 49:
         {
@@ -7777,23 +7802,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
         }
 #endif // POLYMER
-
         }
-BOLT:
-        i = nexti;
-    }
-
-    //Sloped sin-wave floors!
-    for (i=headspritestat[STAT_EFFECTOR]; i>=0; i=nextspritestat[i])
-    {
-        const spritetype *s = &sprite[i];
-        sectortype *sc;
-
-        if (s->lotag != 29) continue;
-        sc = &sector[s->sectnum];
-        if (sc->wallnum != 4) continue;
-        wal = &wall[sc->wallptr+2];
-        alignflorslope(s->sectnum,wal->x,wal->y,sector[wal->nextsector].floorz);
     }
 }
 
@@ -7987,6 +7996,11 @@ void G_MoveWorld(void)
     G_MoveMisc();             //ST 5
 
     G_MoveActors();           //ST 1
+
+    // XXX: Has to be before effectors, in particular movers?
+    // TODO: lights in moving sectors ought to be interpolated
+    G_DoPolymerLights();
+
     G_MoveEffectors();        //ST 3
 
     G_MoveStandables();       //ST 6
