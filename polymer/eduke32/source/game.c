@@ -2709,7 +2709,7 @@ void G_DisplayRest(int32_t smoothratio)
     if ((pp->pals.f > 0 && pp->loogcnt == 0) /*|| (lastpalsf>0 && pp->pals.f==0)*/) // JBF 20040101: pals.f > 0 now >= 0
     {
         Bmemcpy(&tempFade, &pp->pals, sizeof(palette_t));
-        g_restorePalette = 1;     // JBF 20040101
+        g_restorePalette = -1;     // JBF 20040101; PK: reset tinting (-1)
         applyTint = 1;
     }
 //        lastpalsf = pp->pals.f;
