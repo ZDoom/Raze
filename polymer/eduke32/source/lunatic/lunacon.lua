@@ -342,7 +342,7 @@ local Ci = {
     setgamepalette = cmd(R),
 
     -- some commands taking defines
-    addammo = cmd(D,D),
+    addammo = cmd(D,D),  -- exec SPECIAL HANDLING!
     addweapon = cmd(D,D),  -- exec SPECIAL HANDLING!
     debris = cmd(D,D),
     addinventory = cmd(D,D),
@@ -382,14 +382,14 @@ local Ci = {
     flash = cmd(),
     getlastpal = cmd(),
     insertspriteq = cmd(),
-    killit = cmd(),
+    killit = cmd(),  -- exec SPECIAL HANDLING!
     mikesnd = cmd(),
     nullop = cmd(),
     pkick = cmd(),
     pstomp = cmd(),
     resetactioncount = cmd(),
     resetcount = cmd(),
-    resetplayer = cmd(),
+    resetplayer = cmd(),  -- exec SPECIAL HANDLING!
     respawnhitag = cmd(),
     tip = cmd(),
     tossweapon = cmd(),
@@ -611,14 +611,15 @@ end
 -- Preconditions:
 --  tab[i] < tab[i+1] for 1 <= i < #tab
 --  tab[1] <= searchelt < tab[#tab]
--- If tab has less than 2 elements, returns nil.
+-- If #tab is less than 2, returns 0. This plays nicely with newline index
+-- tables like { [0]=0, [1]=len+1 }, e.g. if the file doesn't contain any.
 local function bsearch(tab, searchelt)
 --    printf("bsearch(tab, %d)", searchelt)
     local l, r = 1, #tab
     local i
 
-    if (r <= 1) then
-        return
+    if (r < 2) then
+        return 0
     end
 
     while (l ~= r) do
@@ -644,8 +645,9 @@ end
 
 local function getlinecol(pos)
     local line = bsearch(newlineidxs, pos)
-    local col = pos-newlineidxs[line-1]
-    return line, col
+    assert(line and newlineidxs[line]<=pos and pos<newlineidxs[line+1])
+    local col = pos-newlineidxs[line]
+    return line+1, col-1
 end
 
 -- Last keyword position, for error diagnosis.
@@ -698,6 +700,8 @@ local function Ident(idname) return TraceFunc(idname, "id", false) end
 local function BadIdent(idname) return BadIdentFunc(idname) end
 local function Stmt(cmdpat) return TraceFunc(cmdpat, "st", false) end
 
+--local function Temp(kwname) return TraceFunc(kwname, "temp", true) end
+--Ci["myosx"] = Temp(Ci["myosx"])
 
 ----==== Translator continued ====----
 -- attach the command names at the front!
@@ -800,7 +804,7 @@ local Grammar = Pat{
 
     -- Deps.  These appear here because we're hitting a limit with LPeg else:
     -- http://lua-users.org/lists/lua-l/2008-11/msg00462.html
-    -- NOTE: NW demo (NWSNOW.CON) contains a Ctrl-Z char (dec 26)
+    -- NOTE: NW demo (NWSNOW.CON) contains a Ctrl-Z char (decimal 26)
     whitespace = Set(" \t\r\26") + newline + Set("(),;") + comment + linecomment,
 
     t_identifier_all = t_broken_identifier + t_good_identifier,
@@ -856,6 +860,13 @@ local function setup_newlineidxs(contents)
     for i in string.gmatch(contents, "()\n") do
         newlineidxs[#newlineidxs+1] = i
     end
+    if (#newlineidxs == 0) then
+        -- try CR only (old Mac)
+        for i in string.gmatch(contents, "()\r") do
+            newlineidxs[#newlineidxs+1] = i
+        end
+--        if (#newlineidxs > 0) then print('CR-only lineends detected.') end
+    end
     -- dummy newlines at beginning and end
     newlineidxs[#newlineidxs+1] = #contents+1
     newlineidxs[0] = 0
@@ -873,6 +884,8 @@ if (not EDUKE32_LUNATIC) then
         setup_newlineidxs(contents)
 
         g_badids = {}
+        g_lastkw = nil
+        g_lastkwpos = nil
 
         local idx = lpeg.match(Grammar, contents)
 
@@ -882,7 +895,7 @@ if (not EDUKE32_LUNATIC) then
             print("Matched whole contents.")
         else
             local i, col = getlinecol(idx)
-            local bi, ei = newlineidxs[i]+1, newlineidxs[i+1]-1
+            local bi, ei = newlineidxs[i-1]+1, newlineidxs[i]-1
 
             printf("Match succeeded up to %d (line %d, col %d; len=%d)",
                    idx, i, col, #contents)
