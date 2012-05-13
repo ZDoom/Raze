@@ -2693,6 +2693,13 @@ static int32_t C_ParseCommand(int32_t loop)
             C_GetNextValue(LABEL_DEFINE);
             g_scriptPtr--;
 
+            if ((unsigned)*g_scriptPtr >= MAXTILES)
+            {
+                C_ReportError(ERROR_EXCEEDSMAXTILES);
+                g_numCompilerErrors++;
+                continue;
+            }
+
             if (tw == CON_EVENTLOADACTOR)
             {
                 actorLoadEventScrptr[*g_scriptPtr] = g_parsingActorPtr;
@@ -3944,16 +3951,17 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetNextValue(LABEL_DEFINE);
                 j = *(g_scriptPtr-1);
 
-                if (j > MAXTILES-1)
-                {
-                    C_ReportError(ERROR_EXCEEDSMAXTILES);
-                    g_numCompilerErrors++;
-                }
-
                 C_GetNextValue(LABEL_DEFINE);
                 y = *(g_scriptPtr-1);
                 C_GetNextValue(LABEL_DEFINE);
                 z = *(g_scriptPtr-1);
+
+                if ((unsigned)j >= MAXTILES)
+                {
+                    C_ReportError(ERROR_EXCEEDSMAXTILES);
+                    g_numCompilerErrors++;
+                    continue;
+                }
 
                 switch (y)
                 {
@@ -4029,14 +4037,16 @@ static int32_t C_ParseCommand(int32_t loop)
                 g_scriptPtr--;
                 j = *g_scriptPtr;
 
-                if (j > MAXTILES-1)
+                C_GetNextValue(LABEL_DEFINE);
+                g_scriptPtr--;
+
+                if ((unsigned)j >= MAXTILES)
                 {
                     C_ReportError(ERROR_EXCEEDSMAXTILES);
                     g_numCompilerErrors++;
+                    continue;
                 }
 
-                C_GetNextValue(LABEL_DEFINE);
-                g_scriptPtr--;
                 SpriteFlags[j] = *g_scriptPtr;
 
                 continue;
@@ -4061,10 +4071,11 @@ static int32_t C_ParseCommand(int32_t loop)
             g_scriptPtr--;
             j = *g_scriptPtr;
 
-            if (j > MAXTILES-1)
+            if ((unsigned)j >= MAXTILES)
             {
                 C_ReportError(ERROR_EXCEEDSMAXTILES);
                 g_numCompilerErrors++;
+                continue;
             }
 
             switch (tw)
@@ -4086,7 +4097,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 C_GetNextValue(LABEL_DEFINE);
                 g_scriptPtr--;
                 i = *g_scriptPtr;
-                if (i > MAXTILES-1)
+                if ((unsigned)i >= MAXTILES)
                 {
                     C_ReportError(ERROR_EXCEEDSMAXTILES);
                     g_numCompilerErrors++;
