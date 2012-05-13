@@ -3,7 +3,7 @@
 
 local ffi = require("ffi")
 
----- sector, wall, sprite, ... ----
+---=== Duke3D engine and game definitions ===---
 ffi.cdef[[
 #pragma pack(push,1)
 typedef struct
@@ -349,10 +349,12 @@ actor_t actor[MAXSPRITES];
 user_defs ud;
 ]]
 
----- _G tweaks -- pull in only 'safe' stuff ----
 
+---=== Set up restricted global environment ===---
+
+-- _G tweaks -- pull in only 'safe' stuff
 local G_ = {}  -- our soon-to-be global environment
-local oG = _G
+local oG = _G  -- old genv, to access thrown-out functions later in this chunk
 
 G_.coroutine = coroutine
 G_.assert = assert
@@ -396,11 +398,33 @@ G_.type = type
 
 G_._G = G_
 
--- REMOVE this for release
-DBG_ = {}
-DBG_.loadstring = oG.loadstring
+--- non-default functions
+G_.setevent = setevent  -- included in lunatic.c
 
----- Set up restricted access to ffi.C from lunatic. ----
+
+-- http://lua-users.org/wiki/SandBoxes says "potentially unsafe"
+-- as it allows to see implementations of functions.
+local string_dump = string.dump
+string.dump = nil
+
+-- change the environment of this chunk to the table G_
+setfenv(1, G_)
+
+
+-- print keys and values of a table
+local function printkv(label, table)
+    print('========== Keys and values of '..label)
+    for k,v in pairs(table) do
+        print(k .. ': ' .. tostring(v))
+    end
+    print('----------')
+end
+
+printkv('_G AFTER SETFENV', _G)
+
+
+---=== Restricted access to C variables from Lunatic ===---
+
 local ffiC = ffi.C
 
 -- error(..., 2) is to blame the caller and get its line numbers
@@ -484,6 +508,7 @@ end
 sprite = creategtab(ffiC.sprite, ffiC.MAXSPRITES, 'sprite[] struct')
 spriteext = creategtab(ffiC.spriteext, ffiC.MAXSPRITES, 'spriteext[] struct')
 headspritesect = creategtab(ffiC.headspritesect, ffiC.MAXSECTORS, 'headspritesect[]')
+-- TODO: allow sprite freelist access via the status list for CON compatibility?
 headspritestat = creategtab(ffiC.headspritestat, ffiC.MAXSTATUS, 'headspritestat[]')
 nextspritesect = creategtab(ffiC.nextspritesect, ffiC.MAXSPRITES, 'nextspritesect[]')
 nextspritestat = creategtab(ffiC.nextspritestat, ffiC.MAXSPRITES, 'nextspritestat[]')
@@ -567,6 +592,8 @@ function getbunch(sectnum, cf)
 end
 
 
+---=== Game variables ===---
+
 -- gamevarNames[name] is true if that gamevar was declared
 local gamevarNames = {}
 
@@ -585,12 +612,12 @@ function gamevar(name, initval)  -- aka 'declare'
         error(string.format("Duplicate declaration of identifier '%s'", name), 2)
     end
 
-    if (rawget(G_, name) ~= nil) then
+    if (oG.rawget(G_, name) ~= nil) then
         error(string.format("Identifier name '%s' is already used in the global environment", name), 2)
     end
 
     gamevarNames[name] = true
-    rawset(G_, name, initval or false)
+    oG.rawset(G_, name, initval or false)
 end
 
 
@@ -664,45 +691,27 @@ local function serializeGamevars()
 end
 
 local function loadGamevarsString(string)
-    assert(loadstring(string))()
+    assert(oG.loadstring(string))()
 end
 
+
+-- REMOVE this for release
+DBG_ = {}
+DBG_.printkv = printkv
+DBG_.loadstring = oG.loadstring
 DBG_.serializeGamevars = serializeGamevars
 DBG_.loadGamevarsString = loadGamevarsString
 
 
----=== Environment setup ===---
+---=== Finishing environment setup ===---
 
--- add new variables/functions living in the global environment
-G_.DBG_ = DBG_  -- REMOVE this for release
-G_.gv = gv
-G_.sector = sector
-G_.wall = wall
-G_.sprite = sprite
-G_.spriteext = spriteext
-G_.headspritesect = headspritesect
-G_.headspritestat = headspritestat
-G_.nextspritesect = nextspritesect
-G_.nextspritestat = nextspritestat
-G_.prevspritesect = prevspritesect
-G_.prevspritestat = prevspritestat
-
-G_.actor = actor
-
--- functions
-G_.spritesofsect = spritesofsect
-G_.spritesofstat = spritesofstat
-G_.sectorsofbunch = sectorsofbunch
-G_.getbunch = getbunch
-
-G_.TEMP_getvollev = TEMP_getvollev  -- REMOVE
-G_.gamevar = gamevar
-
-G_.setevent = setevent  -- included in lunatic.c
+printkv('_G AFTER DECLS', _G)
 
 
 -- PiL 14.2 continued
-setmetatable(
+-- We need this at the end because we were previously doing just that!
+-- XXX: but user modules will want to do "function thisfunc() ... "
+oG.setmetatable(
     G_, {
         __newindex = function (_, n)
             error("attempt to write to undeclared variable "..n, 2)
@@ -712,5 +721,8 @@ setmetatable(
         end,
         })
 
--- change the environment of the running Lua thread to the table G_
-setfenv(0, G_)
+-- Change the environment of the running Lua thread so that everything
+-- what we've set up will be available when this chunk is left.
+-- In particular, we need the functions defined after setting this chunk's
+-- environment earlier.
+oG.setfenv(0, _G)

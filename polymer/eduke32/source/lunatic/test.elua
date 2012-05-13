@@ -2,7 +2,7 @@
 
 --do return end
 
-print('--- ELua Test script ---')
+print('---=== ELua Test script ===---')
 
 local function checkfail(funcstr)
     local status, res = pcall(DBG_.loadstring(funcstr))
@@ -26,7 +26,7 @@ ourvar[#ourvar+1] = ourvar;
 local gvstr = DBG_.serializeGamevars()
 ourvar = -1
 
-print("---------- attempting to load string: ----------")
+print("========== attempting to load string: ==========")
 print(gvstr)
 print("---------- (end string to load) ----------")
 
@@ -84,10 +84,7 @@ if (vol==1 and lev==8) then
 end
 
 --]]
-print('_G contains:')
-for k,v in pairs(_G) do
-    print(k, v)
-end
+DBG_.printkv('_G in test.elua', _G)
 
 checkfail('print(sprite[100000].ceilingpal)')  -- oob read access
 checkfail('setmetatable(sprite, {})')  -- set metatable forbidden
@@ -103,8 +100,8 @@ checkfail("require('os')")  -- 'require' has been thrown away to be replaced by
                             -- something more restricted later
 checkfail("new_global = 345")  -- we should declare globals
 checkfail('gv.CEILING = 3')  -- can't redefine constants in 'gv'
-
-print('--- end test script ---')
-
+checkfail('string.dump(setevent)')  -- string.dump is unavailable
 
 setevent(gv.EVENT_JUMP, function() print("jump!") end)
+
+print('---=== END TEST SCRIPT ===---')
