@@ -18,7 +18,7 @@ local Pat, Set, Range, Var = lpeg.P, lpeg.S, lpeg.R, lpeg.V
 
 
 ---- All keywords pattern -- needed for CON syntax
-local con_keyword = dofile("con_lang.lua")
+local con_keyword = require("con_lang")
 
 
 local function match_until(matchsp, untilsp)  -- (!untilsp matchsp)* in PEG
@@ -872,8 +872,42 @@ local function setup_newlineidxs(contents)
     newlineidxs[0] = 0
 end
 
----=== stand-alone: ===---
-if (not EDUKE32_LUNATIC) then
+
+---=== EXPORTED FUNCTIONS ===---
+
+local function parse(contents)
+    setup_newlineidxs(contents)
+
+    g_badids = {}
+    g_lastkw = nil
+    g_lastkwpos = nil
+
+    local idx = lpeg.match(Grammar, contents)
+
+    if (not idx) then
+        print("Match failed.")
+    elseif (idx == #contents+1) then
+        print("Matched whole contents.")
+    else
+        local i, col = getlinecol(idx)
+        local bi, ei = newlineidxs[i-1]+1, newlineidxs[i]-1
+
+        printf("Match succeeded up to %d (line %d, col %d; len=%d)",
+               idx, i, col, #contents)
+
+--        printf("Line goes from %d to %d", bi, ei)
+        print(string.sub(contents, bi, ei))
+
+        if (g_lastkwpos) then
+            i, col = getlinecol(g_lastkwpos)
+            printf("Last keyword was at line %d, col %d: %s", i, col, g_lastkw)
+        end
+    end
+end
+
+
+if (not _EDUKE32_LUNATIC) then
+    --- stand-alone
     local io = require("io")
 
     for argi=1,#arg do
@@ -881,32 +915,9 @@ if (not EDUKE32_LUNATIC) then
         printf("\n---- Parsing file \"%s\"", filename);
 
         local contents = io.open(filename):read("*all")
-        setup_newlineidxs(contents)
-
-        g_badids = {}
-        g_lastkw = nil
-        g_lastkwpos = nil
-
-        local idx = lpeg.match(Grammar, contents)
-
-        if (not idx) then
-            print("Match failed.")
-        elseif (idx == #contents+1) then
-            print("Matched whole contents.")
-        else
-            local i, col = getlinecol(idx)
-            local bi, ei = newlineidxs[i-1]+1, newlineidxs[i]-1
-
-            printf("Match succeeded up to %d (line %d, col %d; len=%d)",
-                   idx, i, col, #contents)
-
---            printf("Line goes from %d to %d", bi, ei)
-            print(string.sub(contents, bi, ei))
-
-            if (g_lastkwpos) then
-                i, col = getlinecol(g_lastkwpos)
-                printf("Last keyword was at line %d, col %d: %s", i, col, g_lastkw)
-            end
-        end
+        parse(contents)
     end
+else
+    --- embedded
+    return { parse=parse }
 end

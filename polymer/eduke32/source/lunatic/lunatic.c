@@ -21,8 +21,11 @@ static uint8_t g_elEvents[MAXEVENTS];
 // forward-decls...
 static int32_t SetEvent_luacf(lua_State *L);
 
+// in lpeg.o
+extern int luaopen_lpeg(lua_State *L);
 
-// 0: success, -1: failure
+
+// 0: success, <0: failure
 int32_t El_CreateState(El_State *estate, const char *name)
 {
     estate->name = Bstrdup(name);
@@ -39,6 +42,7 @@ int32_t El_CreateState(El_State *estate, const char *name)
     }
 
     luaL_openlibs(estate->L);  // XXX: only for internal use and testing, obviously
+    luaopen_lpeg(estate->L);
 
     // create misc. global functions in the Lua state
     lua_pushcfunction(estate->L, SetEvent_luacf);
@@ -120,7 +124,8 @@ int32_t El_RunOnce(El_State *estate, const char *fn)
 
     if (i == LUA_ERRRUN)
     {
-        OSD_Printf("state \"%s\" runtime error: %s\n", estate->name, lua_tostring(estate->L, 1));  // get err msg
+        assert(lua_type(estate->L, -1)==LUA_TSTRING);
+        OSD_Printf("state \"%s\" runtime error: %s\n", estate->name, lua_tostring(estate->L, -1));  // get err msg
         lua_pop(estate->L, 1);
         return 4;
     }

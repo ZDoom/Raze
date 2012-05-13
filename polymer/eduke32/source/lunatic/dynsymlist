@@ -24,4 +24,7 @@ nextsectbunch;
 
 actor;
 ud;
+
+luaJIT_BC_con_lang;
+luaJIT_BC_lunacon;
 };

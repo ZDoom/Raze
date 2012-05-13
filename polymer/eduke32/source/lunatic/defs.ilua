@@ -1,6 +1,8 @@
 -- INTERNAL
 -- definitions of BUILD and game types for the Lunatic Interpreter
 
+_EDUKE32_LUNATIC = true
+
 local ffi = require("ffi")
 
 ---=== Duke3D engine and game definitions ===---
@@ -398,14 +400,20 @@ G_.type = type
 
 G_._G = G_
 
---- non-default functions
-G_.setevent = setevent  -- included in lunatic.c
-
-
 -- http://lua-users.org/wiki/SandBoxes says "potentially unsafe"
 -- as it allows to see implementations of functions.
 local string_dump = string.dump
 string.dump = nil
+
+--- non-default data and functions
+G_._EDUKE32_LUNATIC = _EDUKE32_LUNATIC
+G_.setevent = setevent  -- included in lunatic.c
+
+
+---=== Lunatic interpreter setup ===---
+
+local lunacon = require("lunacon")
+
 
 -- change the environment of this chunk to the table G_
 setfenv(1, G_)
@@ -453,6 +461,9 @@ gv = {
 
     actor = det,
     ud = det,
+
+    luaJIT_BC_con_lang,
+    luaJIT_BC_lunacon,
 }
 local tmpmt = {
     __index = ffiC,

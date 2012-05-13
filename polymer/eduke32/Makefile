@@ -141,6 +141,8 @@ MISCGAMEDEPS=
 
 ## Lunatic devel
 
+LUAJIT=luajit
+
 # for LJ headers:
 LUAJIT_WIN_SRC:= g:/mod/LuaJIT-2.0.0-beta8/src
 
@@ -158,6 +160,10 @@ ifneq (0,$(LUNATIC))
         LIBS+= -L/usr/local/lib -lluajit-5.1
     endif
     GAMEOBJS+= $(OBJ)/lunatic.$o
+
+    GAMEOBJS+= $(OBJ)/../lpeg.$o  # TEMP
+    GAMEOBJS+= $(OBJ)/luaJIT_BC_con_lang.$o \
+               $(OBJ)/luaJIT_BC_lunacon.$o
 
     # now, take care of having the necessary symbols (sector, wall, etc.) in the
     # executable no matter what the debugging level
@@ -382,6 +388,11 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
 	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
+# Create object files directly with luajit
+$(OBJ)/luaJIT_BC_%.$o: $(SRC)/lunatic/%.lua
+	$(COMPILE_STATUS)
+	if $(LUAJIT) -bg $< $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/lunatic/%.c
 	$(COMPILE_STATUS)
