@@ -49,6 +49,12 @@
     <Filter Include="jmact\source">
       <UniqueIdentifier>{8a6aad55-a3bc-4e4f-a61d-4652c29d8b92}</UniqueIdentifier>
     </Filter>
+    <Filter Include="eduke32\source\editor">
+      <UniqueIdentifier>{e8ea0b0a-e748-4c94-8d84-5062dd5b68a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="eduke32\headers\editor">
+      <UniqueIdentifier>{3477e5cd-29a4-42b2-8c3f-ca4618242526}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="build\include\a.h">
@@ -180,9 +186,6 @@
     <ClInclude Include="source\macros.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\mapster32.h">
-      <Filter>eduke32\headers</Filter>
-    </ClInclude>
     <ClInclude Include="source\mdump.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
@@ -205,9 +208,6 @@
       <Filter>eduke32\headers</Filter>
     </ClInclude>
     <ClInclude Include="source\sounds.h">
-      <Filter>eduke32\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="source\sounds_mapster32.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
     <ClInclude Include="source\startwin.game.h">
@@ -357,6 +357,15 @@
     <ClInclude Include="source\quotes.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
+    <ClInclude Include="source\m32def.h">
+      <Filter>eduke32\headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="source\mapster32.h">
+      <Filter>eduke32\headers\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="source\sounds_mapster32.h">
+      <Filter>eduke32\headers\editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -455,9 +464,6 @@
     <ClCompile Include="source\anim.c">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\astub.c">
-      <Filter>eduke32\source</Filter>
-    </ClCompile>
     <ClCompile Include="source\config.c">
       <Filter>eduke32\source</Filter>
     </ClCompile>
@@ -480,18 +486,6 @@
       <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="source\grpscan.c">
-      <Filter>eduke32\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\m32def.c">
-      <Filter>eduke32\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\m32exec.c">
-      <Filter>eduke32\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\m32structures.c">
-      <Filter>eduke32\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\m32vars.c">
       <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="source\mdump.cpp">
@@ -537,9 +531,6 @@
       <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="source\sounds.c">
-      <Filter>eduke32\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\sounds_mapster32.c">
       <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="source\startgtk.game.c">
@@ -640,6 +631,24 @@
     </ClCompile>
     <ClCompile Include="source\demo.c">
       <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\astub.c">
+      <Filter>eduke32\source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="source\m32def.c">
+      <Filter>eduke32\source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="source\m32exec.c">
+      <Filter>eduke32\source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="source\m32structures.c">
+      <Filter>eduke32\source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="source\m32vars.c">
+      <Filter>eduke32\source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sounds_mapster32.c">
+      <Filter>eduke32\source\editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

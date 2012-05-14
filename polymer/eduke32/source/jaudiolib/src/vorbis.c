@@ -387,7 +387,7 @@ int32_t MV_PlayLoopedVorbis
    voice->prev        = NULL;
    voice->priority    = priority;
    voice->callbackval = callbackval;
-   voice->LoopStart   = (char *) (loopstart >= 0 ? TRUE : FALSE);
+   voice->LoopStart   = (char *) (intptr_t)(loopstart >= 0 ? TRUE : FALSE);
    voice->LoopEnd     = 0;
    voice->LoopSize    = 0;
    voice->Playing     = TRUE;

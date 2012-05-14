@@ -116,6 +116,7 @@
     <ClInclude Include="source\gameexec.h" />
     <ClInclude Include="source\gamevars.h" />
     <ClInclude Include="source\global.h" />
+    <ClInclude Include="source\m32def.h" />
     <ClInclude Include="source\menus.h" />
     <ClInclude Include="source\net.h" />
     <ClInclude Include="source\player.h" />

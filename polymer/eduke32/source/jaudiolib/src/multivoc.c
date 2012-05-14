@@ -485,7 +485,7 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
     const uint8_t *ptr;
     int32_t            blocktype;
     int32_t            lastblocktype;
-    uint32_t   blocklength;
+    size_t  blocklength;
     uint32_t   samplespeed = 0;  // XXX: compiler-happy on synthesis
     uint32_t   tc = 0;
     int32_t            packtype;
@@ -724,13 +724,13 @@ end_of_data:
 
         if (voice->LoopEnd != NULL)
         {
-            if (blocklength > (uint32_t)voice->LoopEnd)
-                blocklength = (uint32_t)voice->LoopEnd;
+            if (blocklength > (uintptr_t)voice->LoopEnd)
+                blocklength = (uintptr_t)voice->LoopEnd;
             else
                 voice->LoopEnd = (char *)blocklength;
 
-            voice->LoopStart = voice->sound + (uint32_t)voice->LoopStart;
-            voice->LoopEnd   = voice->sound + (uint32_t)voice->LoopEnd;
+            voice->LoopStart = voice->sound + (uintptr_t)voice->LoopStart;
+            voice->LoopEnd   = voice->sound + (uintptr_t)voice->LoopEnd;
             voice->LoopSize  = voice->LoopEnd - voice->LoopStart;
         }
 

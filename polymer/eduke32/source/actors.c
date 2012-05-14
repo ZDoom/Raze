@@ -824,7 +824,9 @@ ACTOR_STATIC void G_MoveZombieActors(void)
 
                     //             j = 1;
 
-                    if (j) switch (DYNAMICTILEMAP(s->picnum))
+                    if (j)
+                    {
+                        switch (DynamicTileMap[s->picnum])
                         {
                         case RUBBERCAN__STATIC:
                         case EXPLODINGBARREL__STATIC:
@@ -857,6 +859,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                             changespritestat(i, STAT_ACTOR);
                             break;
                         }
+                    }
                     else actor[i].timetosleep = 0;
                 }
             }
@@ -3537,10 +3540,10 @@ ACTOR_STATIC void G_MoveActors(void)
         Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t));
 
         switchpicnum=s->picnum;
-        if ((s->picnum > GREENSLIME)&&(s->picnum <= GREENSLIME+7))
-        {
+
+        if ((s->picnum > GREENSLIME) && (s->picnum <= GREENSLIME+7))
             switchpicnum = GREENSLIME;
-        }
+
 
         switch (DYNAMICTILEMAP(switchpicnum))
         {
@@ -7624,6 +7627,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 sprite[k].xvel = krand()&127;
                 A_SetSprite(k,CLIPMASK0);
             }
+            break;
+        case 49:
+        case 50:
+            changespritestat(i, STAT_LIGHT);
             break;
         }
 BOLT:

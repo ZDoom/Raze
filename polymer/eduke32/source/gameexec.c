@@ -105,6 +105,7 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
     {
         intptr_t *oinsptr=insptr;
         vmstate_t vm_backup;
+
         vmstate_t tempvm = { iActor, iPlayer, lDist,
                              iActor >= 0 ? &actor[iActor].t_data[0] : NULL,
                              iActor >= 0 ? &sprite[iActor] : NULL,
@@ -250,7 +251,9 @@ int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs)
 
 int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_t *day)
 {
-    if ((actor[iActor].t_data[0]&63)) return -1;
+    if ((actor[iActor].t_data[0]&63))
+        return -1;
+
     {
         int32_t d, da;//, d, cd, ca,tempx,tempy,cx,cy;
         int32_t j, angincs;
@@ -377,9 +380,9 @@ void A_Fall(int32_t iActor)
 #endif
     if (s->z < actor[iActor].floorz-(ZOFFSET)
 #ifdef YAX_ENABLE
-        || (fbunch >= 0)
+            || (fbunch >= 0)
 #endif
-        )
+       )
     {
         if (sector[s->sectnum].lotag == 2 && s->zvel > 3122)
             s->zvel = 3144;
@@ -390,11 +393,11 @@ void A_Fall(int32_t iActor)
         setspritez(iActor, (vec3_t *)s);
     if (fbunch < 0)
 #endif
-    if (s->z >= actor[iActor].floorz-(ZOFFSET))
-    {
-        s->z = actor[iActor].floorz - ZOFFSET;
-        s->zvel = 0;
-    }
+        if (s->z >= actor[iActor].floorz-(ZOFFSET))
+        {
+            s->z = actor[iActor].floorz - ZOFFSET;
+            s->zvel = 0;
+        }
 }
 
 int32_t G_GetAngleDelta(int32_t a,int32_t na)
@@ -1177,8 +1180,8 @@ skip_check:
                         setspritez(vm.g_i, (vec3_t *)vm.g_sp);
                     else
 #endif
-                    if (vm.g_sp->z > (actor[vm.g_i].floorz - ZOFFSET))
-                        vm.g_sp->z = (actor[vm.g_i].floorz - ZOFFSET);
+                        if (vm.g_sp->z > (actor[vm.g_i].floorz - ZOFFSET))
+                            vm.g_sp->z = (actor[vm.g_i].floorz - ZOFFSET);
                     continue;
                 }
                 vm.g_sp->z = actor[vm.g_i].floorz - ZOFFSET;
@@ -1261,7 +1264,8 @@ skip_check:
             if (((unsigned)*(++insptr) >= MAX_WEAPONS))
             {
                 OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
-                insptr += 2; break;
+                insptr += 2;
+                break;
             }
             if (g_player[vm.g_p].ps->ammo_amount[*insptr] >= g_player[vm.g_p].ps->max_ammo_amount[*insptr])
             {
@@ -3296,12 +3300,9 @@ nullquote:
             continue;
 
         case CON_IFRESPAWN:
-            if (A_CheckEnemySprite(vm.g_sp))
-                VM_CONDITIONAL(ud.respawn_monsters)
-            else if (A_CheckInventorySprite(vm.g_sp))
-                VM_CONDITIONAL(ud.respawn_inventory)
-            else
-                VM_CONDITIONAL(ud.respawn_items)
+            if (A_CheckEnemySprite(vm.g_sp)) VM_CONDITIONAL(ud.respawn_monsters)
+            else if (A_CheckInventorySprite(vm.g_sp)) VM_CONDITIONAL(ud.respawn_inventory)
+            else VM_CONDITIONAL(ud.respawn_items)
             continue;
 
         case CON_IFFLOORDISTL:
@@ -3566,11 +3567,12 @@ nullquote:
 
                 if (tw == CON_FINDNEARACTOR || tw == CON_FINDNEARACTOR3D)
                     k = 1;
-                do
+
+                if (tw==CON_FINDNEARSPRITE3D || tw==CON_FINDNEARACTOR3D)
                 {
-                    j=headspritestat[k];    // all sprites
-                    if (tw==CON_FINDNEARSPRITE3D || tw==CON_FINDNEARACTOR3D)
+                    do
                     {
+                        j=headspritestat[k];    // all sprites
                         while (j>=0)
                         {
                             if (sprite[j].picnum == lType && j != vm.g_i && dist(&sprite[vm.g_i], &sprite[j]) < lMaxDist)
@@ -3583,9 +3585,15 @@ nullquote:
                         }
                         if (j == MAXSPRITES || tw == CON_FINDNEARACTOR3D)
                             break;
-                        continue;
                     }
+                    while (k--);
+                    Gv_SetVarX(lVarID, lFound);
+                    continue;
+                }
 
+                do
+                {
+                    j=headspritestat[k];    // all sprites
                     while (j>=0)
                     {
                         if (sprite[j].picnum == lType && j != vm.g_i && ldist(&sprite[vm.g_i], &sprite[j]) < lMaxDist)
@@ -3622,11 +3630,12 @@ nullquote:
                 if (tw == CON_FINDNEARSPRITEVAR || tw == CON_FINDNEARSPRITE3DVAR)
                     k = MAXSTATUS-1;
 
-                do
+                if (tw==CON_FINDNEARACTOR3DVAR || tw==CON_FINDNEARSPRITE3DVAR)
                 {
-                    j=headspritestat[k];    // all sprites
-                    if (tw==CON_FINDNEARACTOR3DVAR || tw==CON_FINDNEARSPRITE3DVAR)
+                    do
                     {
+                        j=headspritestat[k];    // all sprites
+
                         while (j >= 0)
                         {
                             if (sprite[j].picnum == lType && j != vm.g_i && dist(&sprite[vm.g_i], &sprite[j]) < lMaxDist)
@@ -3639,8 +3648,15 @@ nullquote:
                         }
                         if (j == MAXSPRITES || tw==CON_FINDNEARACTOR3DVAR)
                             break;
-                        continue;
                     }
+                    while (k--);
+                    Gv_SetVarX(lVarID, lFound);
+                    continue;
+                }
+
+                do
+                {
+                    j=headspritestat[k];    // all sprites
 
                     while (j >= 0)
                     {
@@ -4173,7 +4189,7 @@ nullquote:
             insptr++;
             if (*(insptr+1) == 0)
             {
-                OSD_Printf(CON_ERROR "Divide by zero.\n",g_errorLineNum,keyw[g_tw]);
+                OSD_Printf(CON_ERROR "divide by zero!\n",g_errorLineNum,keyw[g_tw]);
                 insptr += 2;
                 continue;
             }
@@ -4185,7 +4201,7 @@ nullquote:
             insptr++;
             if (*(insptr+1) == 0)
             {
-                OSD_Printf(CON_ERROR "Mod by zero.\n",g_errorLineNum,keyw[g_tw]);
+                OSD_Printf(CON_ERROR "mod by zero!\n",g_errorLineNum,keyw[g_tw]);
                 insptr += 2;
                 continue;
             }
@@ -4246,7 +4262,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                if ((j<0 || j>=MAX_WEAPONS))
+                if ((unsigned)j>=MAX_WEAPONS)
                 {
                     OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],j);
                     insptr++;
@@ -4260,7 +4276,7 @@ nullquote:
             insptr++;
             {
                 int32_t j=Gv_GetVarX(*insptr++);
-                if ((j<0 || j>=MAX_WEAPONS))
+                if ((unsigned)j>=MAX_WEAPONS)
                 {
                     OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],j);
                     insptr++;
@@ -4287,7 +4303,7 @@ nullquote:
 
                 if (!l2)
                 {
-                    OSD_Printf(CON_ERROR "Divide by zero.\n",g_errorLineNum,keyw[g_tw]);
+                    OSD_Printf(CON_ERROR "divide by zero!\n",g_errorLineNum,keyw[g_tw]);
                     continue;
                 }
 
@@ -4303,7 +4319,7 @@ nullquote:
 
                 if (!l2)
                 {
-                    OSD_Printf(CON_ERROR "Mod by zero.\n",g_errorLineNum,keyw[g_tw]);
+                    OSD_Printf(CON_ERROR "mod by zero!\n",g_errorLineNum,keyw[g_tw]);
                     continue;
                 }
 
@@ -4495,7 +4511,7 @@ nullquote:
             insptr++;
             {
                 int32_t j = Gv_GetVarX(*insptr++);
-                int32_t l = Gv_GetVarX(*insptr++);
+		int32_t l = Gv_GetVarX(*insptr++);
                 insptr--;
                 VM_CONDITIONAL(j || l);
             }

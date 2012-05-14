@@ -661,6 +661,9 @@ const tokenlist EventNames[MAXEVENTS] =
     { "EVENT_DISPLAYLOADINGSCREEN", EVENT_DISPLAYLOADINGSCREEN },
     { "EVENT_ANIMATESPRITES", EVENT_ANIMATESPRITES },
     { "EVENT_NEWGAME", EVENT_NEWGAME },
+    { "EVENT_SOUND", EVENT_SOUND },
+    { "EVENT_CHECKTOUCHDAMAGE", EVENT_CHECKTOUCHDAMAGE },
+    { "EVENT_CHECKFLOORDAMAGE", EVENT_CHECKFLOORDAMAGE }
 };
 
 const memberlabel_t SectorLabels[]=
@@ -5823,8 +5826,8 @@ void C_Compile(const char *filenam)
     if (script != NULL)
         Bfree(script);
 
-    script = Bcalloc(1,g_scriptSize * sizeof(intptr_t));
-    bitptr = Bcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
+    script = (intptr_t *)Bcalloc(1,g_scriptSize * sizeof(intptr_t));
+    bitptr = (char *)Bcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
 //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     g_numLabels = g_numDefaultLabels = 0;

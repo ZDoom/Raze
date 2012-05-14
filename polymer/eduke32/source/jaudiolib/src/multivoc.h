@@ -57,7 +57,7 @@ enum MV_Errors
    MV_NullRecordFunction
    };
 
-void (*MV_Printf)(const char *fmt, ...);
+extern void (*MV_Printf)(const char *fmt, ...);
 const char *MV_ErrorString( int32_t ErrorNumber );
 int32_t   MV_VoicePlaying( int32_t handle );
 int32_t   MV_KillAllVoices( void );

@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "demo.h"
 #include "enet/enet.h"
 
+int32_t lastvisinc;
 int32_t g_currentweapon;
 int32_t g_gun_pos;
 int32_t g_looking_arc;
@@ -2134,8 +2135,6 @@ static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
     return 1;
 }
 
-int32_t lastvisinc;
-
 void P_FireWeapon(DukePlayer_t *p)
 {
     int32_t i, snum = sprite[p->i].yvel;
@@ -2271,6 +2270,7 @@ static int32_t P_DisplayAccess(int32_t gs,int32_t snum)
         -108,-96,-72,-64,-32,-16
     };
 
+
     int32_t looking_arc, p = 0;
 
     if (g_player[snum].ps->access_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
@@ -2396,42 +2396,44 @@ void P_DisplayWeapon(int32_t snum)
                        looking_arc+200+(klabs(sintable[(fistsign)&2047]>>8)),
                        FIST,gs,o|4);
         }
-        else switch (cw)
+        else
+        {
+            pal = get_hud_pal(p);
+
+            switch (cw)
             {
             case KNEE_WEAPON:
-
                 aGameVars[g_iReturnVarID].val.lValue = 0;
+
                 if (apScriptGameEvent[EVENT_DRAWWEAPON])
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     if ((*kb) > 0)
                     {
-                        pal = get_hud_pal(p);
                         if (pal == 0)
                             pal = p->palookup;
 
                         guniqhudid = cw;
                         if ((*kb) < 5 || (*kb) > 9)
                             G_DrawTileScaled(weapon_xoffset+220-(p->look_ang>>1),
-                                             looking_arc+250-gun_pos,KNEE,gs,o,pal);
+                            looking_arc+250-gun_pos,KNEE,gs,o,pal);
                         else
                             G_DrawTileScaled(weapon_xoffset+160-(p->look_ang>>1),
-                                             looking_arc+214-gun_pos,KNEE+1,gs,o,pal);
+                            looking_arc+214-gun_pos,KNEE+1,gs,o,pal);
                         guniqhudid = 0;
                     }
                 }
                 break;
 
             case TRIPBOMB_WEAPON:
-
                 aGameVars[g_iReturnVarID].val.lValue = 0;
+
                 if (apScriptGameEvent[EVENT_DRAWWEAPON])
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    pal = get_hud_pal(p);
-
                     weapon_xoffset += 8;
                     gun_pos -= 10;
 
@@ -2441,57 +2443,52 @@ void P_DisplayWeapon(int32_t snum)
                     {
                         guniqhudid = cw<<2;
                         G_DrawWeaponTile(weapon_xoffset+142-(p->look_ang>>1),
-                                         looking_arc+234-gun_pos,HANDHOLDINGLASER+3,gs,o,pal,0);
+                            looking_arc+234-gun_pos,HANDHOLDINGLASER+3,gs,o,pal,0);
                     }
 
                     guniqhudid = cw;
                     G_DrawWeaponTile(weapon_xoffset+130-(p->look_ang>>1),
-                                     looking_arc+249-gun_pos,
-                                     HANDHOLDINGLASER+((*kb)>>2),gs,o,pal,0);
+                        looking_arc+249-gun_pos,
+                        HANDHOLDINGLASER+((*kb)>>2),gs,o,pal,0);
 
                     guniqhudid = cw<<1;
                     G_DrawWeaponTile(weapon_xoffset+152-(p->look_ang>>1),
-                                     looking_arc+249-gun_pos,
-                                     HANDHOLDINGLASER+((*kb)>>2),gs,o|4,pal,0);
+                        looking_arc+249-gun_pos,
+                        HANDHOLDINGLASER+((*kb)>>2),gs,o|4,pal,0);
                     guniqhudid = 0;
                 }
                 break;
 
             case RPG_WEAPON:
-
                 aGameVars[g_iReturnVarID].val.lValue = 0;
+
                 if (apScriptGameEvent[EVENT_DRAWWEAPON])
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    pal = get_hud_pal(p);
-
                     weapon_xoffset -= sintable[(768+((*kb)<<7))&2047]>>11;
                     gun_pos += sintable[(768+((*kb)<<7))&2047]>>11;
 
-                    if (*kb > 0)
+                    if (*kb > 0 && *kb < 8)
                     {
-                        if (*kb < 8)
-                        {
-                            G_DrawWeaponTile(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
-                                             RPGGUN+((*kb)>>1),gs,o|512,pal,0);
-                        }
+                        G_DrawWeaponTile(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
+                            RPGGUN+((*kb)>>1),gs,o|512,pal,0);
                     }
 
                     G_DrawWeaponTile(weapon_xoffset+164,(looking_arc<<1)+176-gun_pos,
-                                     RPGGUN,gs,o|512,pal,0);
+                        RPGGUN,gs,o|512,pal,0);
                 }
                 break;
 
             case SHOTGUN_WEAPON:
-
                 aGameVars[g_iReturnVarID].val.lValue = 0;
+
                 if (apScriptGameEvent[EVENT_DRAWWEAPON])
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    pal = get_hud_pal(p);
-
                     weapon_xoffset -= 8;
 
                     switch (*kb)
@@ -2500,14 +2497,14 @@ void P_DisplayWeapon(int32_t snum)
                     case 2:
                         guniqhudid = cw<<1;
                         G_DrawWeaponTile(weapon_xoffset+168-(p->look_ang>>1),looking_arc+201-gun_pos,
-                                         SHOTGUN+2,-128,o,pal,0);
+                            SHOTGUN+2,-128,o,pal,0);
                     case 0:
                     case 6:
                     case 7:
                     case 8:
                         guniqhudid = cw;
                         G_DrawWeaponTile(weapon_xoffset+146-(p->look_ang>>1),looking_arc+202-gun_pos,
-                                         SHOTGUN,gs,o,pal,0);
+                            SHOTGUN,gs,o,pal,0);
                         guniqhudid = 0;
                         break;
                     case 3:
@@ -2524,11 +2521,11 @@ void P_DisplayWeapon(int32_t snum)
 
                             guniqhudid = cw<<1;
                             G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+194-gun_pos,
-                                             SHOTGUN+1+((*(kb)-1)>>1),-128,o,pal,0);
+                                SHOTGUN+1+((*(kb)-1)>>1),-128,o,pal,0);
                         }
                         guniqhudid = cw;
                         G_DrawWeaponTile(weapon_xoffset+158-(p->look_ang>>1),looking_arc+220-gun_pos,
-                                         SHOTGUN+3,gs,o,pal,0);
+                            SHOTGUN+3,gs,o,pal,0);
                         guniqhudid = 0;
                         break;
                     case 13:
@@ -2536,7 +2533,7 @@ void P_DisplayWeapon(int32_t snum)
                     case 15:
                         guniqhudid = cw;
                         G_DrawWeaponTile(32+weapon_xoffset+166-(p->look_ang>>1),looking_arc+210-gun_pos,
-                                         SHOTGUN+4,gs,o,pal,0);
+                            SHOTGUN+4,gs,o,pal,0);
                         guniqhudid = 0;
                         break;
                     case 16:
@@ -2545,7 +2542,7 @@ void P_DisplayWeapon(int32_t snum)
                     case 19:
                         guniqhudid = cw;
                         G_DrawWeaponTile(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
-                                         SHOTGUN+5,gs,o,pal,0);
+                            SHOTGUN+5,gs,o,pal,0);
                         guniqhudid = 0;
                         break;
                     case 20:
@@ -2554,7 +2551,7 @@ void P_DisplayWeapon(int32_t snum)
                     case 23:
                         guniqhudid = cw;
                         G_DrawWeaponTile(64+weapon_xoffset+176-(p->look_ang>>1),looking_arc+196-gun_pos,
-                                         SHOTGUN+6,gs,o,pal,0);
+                            SHOTGUN+6,gs,o,pal,0);
                         guniqhudid = 0;
                         break;
                     case 24:
@@ -2563,7 +2560,7 @@ void P_DisplayWeapon(int32_t snum)
                     case 27:
                         guniqhudid = cw;
                         G_DrawWeaponTile(64+weapon_xoffset+170-(p->look_ang>>1),looking_arc+196-gun_pos,
-                                         SHOTGUN+5,gs,o,pal,0);
+                            SHOTGUN+5,gs,o,pal,0);
                         guniqhudid = 0;
                         break;
                     case 28:
@@ -2571,7 +2568,7 @@ void P_DisplayWeapon(int32_t snum)
                     case 30:
                         guniqhudid = cw;
                         G_DrawWeaponTile(32+weapon_xoffset+156-(p->look_ang>>1),looking_arc+206-gun_pos,
-                                         SHOTGUN+4,gs,o,pal,0);
+                            SHOTGUN+4,gs,o,pal,0);
                         guniqhudid = 0;
                         break;
                     }
@@ -2580,62 +2577,67 @@ void P_DisplayWeapon(int32_t snum)
 
 
             case CHAINGUN_WEAPON:
-
                 aGameVars[g_iReturnVarID].val.lValue = 0;
+
                 if (apScriptGameEvent[EVENT_DRAWWEAPON])
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    pal = get_hud_pal(p);
-
                     if (*kb > 0)
+                    {
                         gun_pos -= sintable[(*kb)<<7]>>12;
 
-                    if (*kb > 0 && sprite[p->i].pal != 1) weapon_xoffset += 1-(rand()&3);
+                        if (sprite[p->i].pal != 1)
+                            weapon_xoffset += 1-(rand()&3);
+                    }
 
                     G_DrawWeaponTile(weapon_xoffset+168-(p->look_ang>>1),looking_arc+260-gun_pos,
-                                     CHAINGUN,gs,o,pal,0);
+                        CHAINGUN,gs,o,pal,0);
+
                     switch (*kb)
                     {
                     case 0:
                         G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
-                                         CHAINGUN+1,gs,o,pal,0);
+                            CHAINGUN+1,gs,o,pal,0);
                         break;
+
                     default:
                         if (*kb > *aplWeaponFireDelay[CHAINGUN_WEAPON] && *kb < *aplWeaponTotalTime[CHAINGUN_WEAPON])
                         {
                             i = 0;
                             if (sprite[p->i].pal != 1) i = rand()&7;
                             G_DrawWeaponTile(i+weapon_xoffset-4+140-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
-                                             CHAINGUN+5+((*kb-4)/5),gs,o,pal,0);
+                                CHAINGUN+5+((*kb-4)/5),gs,o,pal,0);
                             if (sprite[p->i].pal != 1) i = rand()&7;
                             G_DrawWeaponTile(i+weapon_xoffset-4+184-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
-                                             CHAINGUN+5+((*kb-4)/5),gs,o,pal,0);
+                                CHAINGUN+5+((*kb-4)/5),gs,o,pal,0);
                         }
+
                         if (*kb < *aplWeaponTotalTime[CHAINGUN_WEAPON]-4)
                         {
                             i = rand()&7;
                             G_DrawWeaponTile(i+weapon_xoffset-4+162-(p->look_ang>>1),i+looking_arc-((*kb)>>1)+208-gun_pos,
-                                             CHAINGUN+5+((*kb-2)/5),gs,o,pal,0);
+                                CHAINGUN+5+((*kb-2)/5),gs,o,pal,0);
                             G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
-                                             CHAINGUN+1+((*kb)>>1),gs,o,pal,0);
+                                CHAINGUN+1+((*kb)>>1),gs,o,pal,0);
                         }
                         else G_DrawWeaponTile(weapon_xoffset+178-(p->look_ang>>1),looking_arc+233-gun_pos,
-                                                  CHAINGUN+1,gs,o,pal,0);
+                            CHAINGUN+1,gs,o,pal,0);
+
                         break;
                     }
                 }
                 break;
 
             case PISTOL_WEAPON:
-
                 aGameVars[g_iReturnVarID].val.lValue = 0;
+
                 if (apScriptGameEvent[EVENT_DRAWWEAPON])
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    pal = get_hud_pal(p);
-
                     if ((*kb) < *aplWeaponTotalTime[PISTOL_WEAPON]+1)
                     {
                         static uint8_t kb_frames[] = { 0, 1, 2 };
@@ -2698,70 +2700,65 @@ void P_DisplayWeapon(int32_t snum)
 
                 break;
             case HANDBOMB_WEAPON:
-            {
-                aGameVars[g_iReturnVarID].val.lValue = 0;
-                if (apScriptGameEvent[EVENT_DRAWWEAPON])
-                    VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (aGameVars[g_iReturnVarID].val.lValue == 0)
-                {
-                    pal = get_hud_pal(p);
+                    aGameVars[g_iReturnVarID].val.lValue = 0;
 
-                    guniqhudid = cw;
-                    if ((*kb))
+                    if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                        VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+
+                    if (aGameVars[g_iReturnVarID].val.lValue == 0)
                     {
-                        if ((*kb) < (*aplWeaponTotalTime[p->curr_weapon]))
+                        guniqhudid = cw;
+                        if ((*kb))
                         {
+                            if ((*kb) < (*aplWeaponTotalTime[p->curr_weapon]))
+                            {
 
-                            static uint8_t throw_frames[] = {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2};
+                                static uint8_t throw_frames[] = {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2};
 
-                            if ((*kb) < 7)
-                                gun_pos -= 10*(*kb);        //D
-                            else if ((*kb) < 12)
-                                gun_pos += 20*((*kb)-10); //U
-                            else if ((*kb) < 20)
-                                gun_pos -= 9*((*kb)-14);  //D
+                                if ((*kb) < 7)
+                                    gun_pos -= 10*(*kb);        //D
+                                else if ((*kb) < 12)
+                                    gun_pos += 20*((*kb)-10); //U
+                                else if ((*kb) < 20)
+                                    gun_pos -= 9*((*kb)-14);  //D
 
-                            G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+250-gun_pos,HANDTHROW+throw_frames[(*kb)],gs,o,pal,0);
+                                G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+250-gun_pos,HANDTHROW+throw_frames[(*kb)],gs,o,pal,0);
+                            }
                         }
+                        else
+                            G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+260-gun_pos,HANDTHROW,gs,o,pal,0);
+                        guniqhudid = 0;
                     }
-                    else
-                        G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+260-gun_pos,HANDTHROW,gs,o,pal,0);
-                    guniqhudid = 0;
-                }
-            }
-            break;
+                break;
 
             case HANDREMOTE_WEAPON:
-            {
-                aGameVars[g_iReturnVarID].val.lValue = 0;
-                if (apScriptGameEvent[EVENT_DRAWWEAPON])
-                    VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
-                if (aGameVars[g_iReturnVarID].val.lValue == 0)
-                {
-                    static uint8_t remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
+                    aGameVars[g_iReturnVarID].val.lValue = 0;
 
-                    pal = get_hud_pal(p);
+                    if (apScriptGameEvent[EVENT_DRAWWEAPON])
+                        VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
 
-                    weapon_xoffset = -48;
-                    guniqhudid = cw;
-                    if ((*kb))
+                    if (aGameVars[g_iReturnVarID].val.lValue == 0)
+                    {
+                        static uint8_t remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
+
+                        weapon_xoffset = -48;
+                        guniqhudid = cw;
+                        //                    if ((*kb))
                         G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE+remote_frames[(*kb)],gs,o,pal,0);
-                    else
-                        G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE,gs,o,pal,0);
-                    guniqhudid = 0;
-                }
-            }
-            break;
+                        //                    else
+                        //                        G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE,gs,o,pal,0);
+                        guniqhudid = 0;
+                    }
+                break;
 
             case DEVISTATOR_WEAPON:
-
                 aGameVars[g_iReturnVarID].val.lValue = 0;
+
                 if (apScriptGameEvent[EVENT_DRAWWEAPON])
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    pal = get_hud_pal(p);
-
                     if ((*kb) < (*aplWeaponTotalTime[DEVISTATOR_WEAPON]+1) && (*kb) > 0)
                     {
                         static uint8_t cycloidy[] = {0,4,12,24,12,4,0};
@@ -2797,14 +2794,13 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case FREEZE_WEAPON:
-
                 aGameVars[g_iReturnVarID].val.lValue = 0;
+
                 if (apScriptGameEvent[EVENT_DRAWWEAPON])
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
-                    pal = get_hud_pal(p);
-
                     if ((*kb) < (aplWeaponTotalTime[p->curr_weapon][snum]+1) && (*kb) > 0)
                     {
                         static uint8_t cat_frames[] = { 0,0,1,1,2,2 };
@@ -2831,16 +2827,15 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case GROW_WEAPON:
-
                 aGameVars[g_iReturnVarID].val.lValue = 0;
+
                 if (apScriptGameEvent[EVENT_DRAWWEAPON])
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     weapon_xoffset += 28;
                     looking_arc += 18;
-
-                    pal = get_hud_pal(p);
 
                     if ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum] && (*kb) > 0)
                     {
@@ -2877,16 +2872,15 @@ void P_DisplayWeapon(int32_t snum)
                 break;
 
             case SHRINKER_WEAPON:
-
                 aGameVars[g_iReturnVarID].val.lValue = 0;
+
                 if (apScriptGameEvent[EVENT_DRAWWEAPON])
                     VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1);
+
                 if (aGameVars[g_iReturnVarID].val.lValue == 0)
                 {
                     weapon_xoffset += 28;
                     looking_arc += 18;
-
-                    pal = get_hud_pal(p);
 
                     if (((*kb) > 0) && ((*kb) < aplWeaponTotalTime[p->curr_weapon][snum]))
                     {
@@ -2897,11 +2891,11 @@ void P_DisplayWeapon(int32_t snum)
                         }
                         guniqhudid = cw<<1;
                         G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
-                                         looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
-                                         o,0,1);
+                            looking_arc+240-gun_pos,SHRINKER+3+((*kb)&3),-32,
+                            o,0,1);
                         guniqhudid = cw;
                         G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
-                                         looking_arc+240-gun_pos,SHRINKER+1,gs,o,pal,0);
+                            looking_arc+240-gun_pos,SHRINKER+1,gs,o,pal,0);
                         guniqhudid = 0;
 
                     }
@@ -2909,19 +2903,21 @@ void P_DisplayWeapon(int32_t snum)
                     {
                         guniqhudid = cw<<1;
                         G_DrawWeaponTile(weapon_xoffset+184-(p->look_ang>>1),
-                                         looking_arc+240-gun_pos,SHRINKER+2,
-                                         16-(sintable[p->random_club_frame&2047]>>10),
-                                         o,0,1);
+                            looking_arc+240-gun_pos,SHRINKER+2,
+                            16-(sintable[p->random_club_frame&2047]>>10),
+                            o,0,1);
                         guniqhudid = cw;
                         G_DrawWeaponTile(weapon_xoffset+188-(p->look_ang>>1),
-                                         looking_arc+240-gun_pos,SHRINKER,gs,o,pal,0);
+                            looking_arc+240-gun_pos,SHRINKER,gs,o,pal,0);
                         guniqhudid = 0;
                     }
                 }
                 break;
 
             }
+        }
     }
+
     P_DisplaySpit(snum);
 }
 
@@ -3244,26 +3240,27 @@ static int32_t P_DoCounters(DukePlayer_t *p)
 
     if (p->last_pissed_time > 0)
     {
-        p->last_pissed_time--;
-
-        if (p->last_pissed_time == (GAMETICSPERSEC*219))
+        switch (--p->last_pissed_time)
         {
-            A_PlaySound(FLUSH_TOILET,p->i);
-            if (snum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
-                A_PlaySound(DUKE_PISSRELIEF,p->i);
-        }
-
-        if (p->last_pissed_time == (GAMETICSPERSEC*218))
-        {
-            p->holster_weapon = 0;
-            p->weapon_pos = 10;
+        case GAMETICSPERSEC*219:
+            {
+                A_PlaySound(FLUSH_TOILET,p->i);
+                if (snum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
+                    A_PlaySound(DUKE_PISSRELIEF,p->i);
+            }
+            break;
+        case GAMETICSPERSEC*218:
+            {
+                p->holster_weapon = 0;
+                p->weapon_pos = 10;
+            }
+            break;
         }
     }
 
     if (p->crack_time > 0)
     {
-        p->crack_time--;
-        if (p->crack_time == 0)
+        if (--p->crack_time == 0)
         {
             p->knuckle_incs = 1;
             p->crack_time = 777;
@@ -3272,9 +3269,9 @@ static int32_t P_DoCounters(DukePlayer_t *p)
 
     if (p->inv_amount[GET_STEROIDS] > 0 && p->inv_amount[GET_STEROIDS] < 400)
     {
-        p->inv_amount[GET_STEROIDS]--;
-        if (p->inv_amount[GET_STEROIDS] == 0)
+        if (--p->inv_amount[GET_STEROIDS] == 0)
             P_SelectNextInvItem(p);
+
         if (!(p->inv_amount[GET_STEROIDS]&7))
             if (snum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
                 A_PlaySound(DUKE_HARTBEAT,p->i);
@@ -3282,8 +3279,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
 
     if (p->heat_on && p->inv_amount[GET_HEATS] > 0)
     {
-        p->inv_amount[GET_HEATS]--;
-        if (p->inv_amount[GET_HEATS] == 0)
+        if (--p->inv_amount[GET_HEATS] == 0)
         {
             p->heat_on = 0;
             P_SelectNextInvItem(p);
@@ -3294,8 +3290,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
 
     if (p->holoduke_on >= 0)
     {
-        p->inv_amount[GET_HOLODUKE]--;
-        if (p->inv_amount[GET_HOLODUKE] <= 0)
+        if (--p->inv_amount[GET_HOLODUKE] <= 0)
         {
             A_PlaySound(TELEPORTER,p->i);
             p->holoduke_on = -1;
@@ -3305,8 +3300,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
 
     if (p->jetpack_on && p->inv_amount[GET_JETPACK] > 0)
     {
-        p->inv_amount[GET_JETPACK]--;
-        if (p->inv_amount[GET_JETPACK] <= 0)
+        if (--p->inv_amount[GET_JETPACK] <= 0)
         {
             p->jetpack_on = 0;
             P_SelectNextInvItem(p);
@@ -3319,8 +3313,8 @@ static int32_t P_DoCounters(DukePlayer_t *p)
     if (p->quick_kick > 0 && sprite[p->i].pal != 1)
     {
         p->last_quick_kick = p->quick_kick+1;
-        p->quick_kick--;
-        if (p->quick_kick == 8)
+
+        if (--p->quick_kick == 8)
             A_Shoot(p->i,KNEE);
     }
     else if (p->last_quick_kick > 0) p->last_quick_kick--;
@@ -3330,6 +3324,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
         p->access_incs++;
         if (sprite[p->i].extra <= 0)
             p->access_incs = 12;
+
         if (p->access_incs == 12)
         {
             if (p->access_spritenum >= 0)
@@ -3407,8 +3402,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
 
     if (p->knuckle_incs)
     {
-        p->knuckle_incs++;
-        if (p->knuckle_incs==10)
+        if (++p->knuckle_incs == 10)
         {
             if (totalclock > 1024)
                 if (snum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
@@ -3441,15 +3435,15 @@ void P_DropWeapon(DukePlayer_t *p)
     int32_t snum = sprite[p->i].yvel,
             cw = aplWeaponWorksLike[p->curr_weapon][snum];
 
-    if (cw < 1 || cw >= MAX_WEAPONS) return;
-
+    if ((unsigned)cw >= MAX_WEAPONS) return;
+      
     if (krand()&1)
-        A_Spawn(p->i,WeaponPickupSprites[cw]);
+        A_Spawn(p->i, WeaponPickupSprites[cw]);
     else switch (cw)
         {
         case RPG_WEAPON:
         case HANDBOMB_WEAPON:
-            A_Spawn(p->i,EXPLOSION2);
+            A_Spawn(p->i, EXPLOSION2);
             break;
         }
 }
@@ -3469,6 +3463,7 @@ void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
     if ((p->gotweapon & (1<<weapon)) == 0)
     {
         p->gotweapon |= (1<<weapon);
+
         if (weapon == SHRINKER_WEAPON)
             p->gotweapon |= (1<<GROW_WEAPON);
     }
@@ -3484,20 +3479,19 @@ void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
 {
     int32_t snum = sprite[p->i].yvel;
 
-    P_AddWeaponNoSwitch(p,weapon);
+    P_AddWeaponNoSwitch(p, weapon);
 
     if (p->reloading) return;
 
     p->random_club_frame = 0;
 
-    if (p->holster_weapon == 0)
-    {
-        if (p->weapon_pos == 0)
-            p->weapon_pos = -1;
-        else p->weapon_pos = -9;
-        p->last_weapon = p->curr_weapon;
-    }
-    else
+    if (p->weapon_pos == 0)
+        p->weapon_pos = -1;
+    else p->weapon_pos = -9;
+
+    p->last_weapon = p->curr_weapon;
+
+    if (p->holster_weapon)
     {
         p->weapon_pos = 10;
         p->holster_weapon = 0;
@@ -3513,7 +3507,7 @@ void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
 
     Gv_SetVar(g_iWeaponVarID,p->curr_weapon, p->i, snum);
     Gv_SetVar(g_iWorksLikeVarID,
-              (p->curr_weapon>=0) ? aplWeaponWorksLike[p->curr_weapon][snum] : -1,
+              (unsigned)p->curr_weapon < MAX_WEAPONS ? aplWeaponWorksLike[p->curr_weapon][snum] : -1,
               p->i, snum);
 }
 
@@ -3523,10 +3517,10 @@ void P_SelectNextInvItem(DukePlayer_t *p)
         p->inven_icon = 1;
     else if (p->inv_amount[GET_STEROIDS] > 0)
         p->inven_icon = 2;
-    else if (p->inv_amount[GET_HOLODUKE] > 0)
-        p->inven_icon = 3;
     else if (p->inv_amount[GET_JETPACK] > 0)
         p->inven_icon = 4;
+    else if (p->inv_amount[GET_HOLODUKE] > 0)
+        p->inven_icon = 3;
     else if (p->inv_amount[GET_HEATS] > 0)
         p->inven_icon = 5;
     else if (p->inv_amount[GET_SCUBA] > 0)
@@ -3556,9 +3550,8 @@ void P_CheckWeapon(DukePlayer_t *p)
     }
 
     weap = p->curr_weapon;
-    if ((p->gotweapon & (1<<weap)) && p->ammo_amount[weap] > 0)
-        return;
-    if ((p->gotweapon & (1<<weap)) && !(p->weaponswitch & 2))
+
+    if ((p->gotweapon & (1<<weap)) && (p->ammo_amount[weap] > 0 || !(p->weaponswitch & 2)))
         return;
 
     snum = sprite[p->i].yvel;
@@ -3583,7 +3576,7 @@ void P_CheckWeapon(DukePlayer_t *p)
     p->random_club_frame = 0;
     p->curr_weapon  = weap;
     Gv_SetVar(g_iWeaponVarID,p->curr_weapon, p->i, snum);
-    Gv_SetVar(g_iWorksLikeVarID, p->curr_weapon >= 0 ? aplWeaponWorksLike[p->curr_weapon][snum] : -1, p->i, snum);
+    Gv_SetVar(g_iWorksLikeVarID, (unsigned)p->curr_weapon < MAX_WEAPONS ? aplWeaponWorksLike[p->curr_weapon][snum] : -1, p->i, snum);
 
     if (apScriptGameEvent[EVENT_CHANGEWEAPON])
         VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1);
@@ -3598,6 +3591,12 @@ void P_CheckWeapon(DukePlayer_t *p)
 
 void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
 {
+    aGameVars[g_iReturnVarID].val.lValue = j;
+    if (apScriptGameEvent[EVENT_CHECKTOUCHDAMAGE])
+        VM_OnEvent(EVENT_CHECKTOUCHDAMAGE, p->i, sprite[p->i].yvel, -1);
+
+    if (aGameVars[g_iReturnVarID].val.lValue == -1) return;
+
     if ((j&49152) == 49152)
     {
         j &= (MAXSPRITES-1);
@@ -3669,16 +3668,21 @@ void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
 
 int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
 {
-    int32_t ret = 0;
     spritetype *s = &sprite[p->i];
 
-    switch (DYNAMICTILEMAP(j))
+    aGameVars[g_iReturnVarID].val.lValue = j;
+    if (apScriptGameEvent[EVENT_CHECKFLOORDAMAGE])
+        VM_OnEvent(EVENT_CHECKFLOORDAMAGE, p->i, sprite[p->i].yvel, -1);
+
+    if ((unsigned)(j = aGameVars[g_iReturnVarID].val.lValue) >= MAXTILES) return 0;
+
+    switch (DynamicTileMap[j])
     {
     case HURTRAIL__STATIC:
         if (rnd(32))
         {
             if (p->inv_amount[GET_BOOTS] > 0)
-                ret++;
+                return 1;
             else
             {
                 if (!A_CheckSoundPlaying(p->i,DUKE_LONGTERM_PAIN))
@@ -3689,6 +3693,8 @@ int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
                 s->extra -= 1+(krand()&3);
                 if (!A_CheckSoundPlaying(p->i,SHORT_CIRCUIT))
                     A_PlaySound(SHORT_CIRCUIT,p->i);
+
+                return 0;
             }
         }
         break;
@@ -3696,7 +3702,7 @@ int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
         if (rnd(16))
         {
             if (p->inv_amount[GET_BOOTS] > 0)
-                ret++;
+                return 1;
             else
             {
                 if (!A_CheckSoundPlaying(p->i,DUKE_LONGTERM_PAIN))
@@ -3704,6 +3710,8 @@ int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
 
                 P_PalFrom(p, 32, 0,8,0);
                 s->extra -= 1+(krand()&3);
+
+                return 0;
             }
         }
         break;
@@ -3711,7 +3719,7 @@ int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
         if (rnd(32))
         {
             if (p->inv_amount[GET_BOOTS] > 0)
-                ret++;
+                return 1;
             else
             {
                 if (!A_CheckSoundPlaying(p->i,DUKE_LONGTERM_PAIN))
@@ -3719,12 +3727,14 @@ int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
 
                 P_PalFrom(p, 32, 8,0,0);
                 s->extra -= 1+(krand()&3);
+
+                return 0;
             }
         }
         break;
     }
 
-    return ret;
+    return 0;
 }
 
 
@@ -4762,7 +4772,7 @@ void P_ProcessInput(int32_t snum)
     if (p->on_ground)
         p->bobcounter += sprite[p->i].xvel>>1;
 
-    if (ud.noclip == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS))
+    if (ud.noclip == 0 && ((uint16_t)p->cursectnum >= MAXSECTORS || sector[p->cursectnum].floorpicnum == MIRROR))
     {
         p->pos.x = p->opos.x;
         p->pos.y = p->opos.y;

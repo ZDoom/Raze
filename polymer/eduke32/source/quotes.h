@@ -25,8 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define MAXQUOTES                   16384
 #define MAXQUOTELEN                 128
-#define OBITQUOTEINDEX              MAXQUOTES-128
-#define SUICIDEQUOTEINDEX           MAXQUOTES-32
+#define OBITQUOTEINDEX              (MAXQUOTES-128)
+#define SUICIDEQUOTEINDEX           (MAXQUOTES-32)
 
 #define QUOTE_SHOW_MAP_OFF          1
 #define QUOTE_ACTIVATED             2

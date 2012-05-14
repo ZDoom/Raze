@@ -2633,8 +2633,8 @@ void G_HandleSharedKeys(int32_t snum)
                 dainv = p->inven_icon;
 
                 i = 0;
-CHECKINV1:
 
+CHECKINV1:
                 if (i < 9)
                 {
                     i++;
