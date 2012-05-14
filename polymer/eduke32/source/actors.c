@@ -826,7 +826,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
 
                     if (j)
                     {
-                        switch (DynamicTileMap[s->picnum])
+                        switch (DYNAMICTILEMAP(s->picnum))
                         {
                         case RUBBERCAN__STATIC:
                         case EXPLODINGBARREL__STATIC:
