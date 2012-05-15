@@ -3676,7 +3676,7 @@ int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
 
     if ((unsigned)(j = aGameVars[g_iReturnVarID].val.lValue) >= MAXTILES) return 0;
 
-    switch (DynamicTileMap[j])
+    switch (DYNAMICTILEMAP(j))
     {
     case HURTRAIL__STATIC:
         if (rnd(32))
