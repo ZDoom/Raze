@@ -110,6 +110,9 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
                              iActor >= 0 ? &actor[iActor].t_data[0] : NULL,
                              iActor >= 0 ? &sprite[iActor] : NULL,
                              0 };
+                             
+        int32_t backupReturnVar = aGameVars[g_iReturnVarID].val.lValue;
+        int32_t backupEventExec = g_currentEventExec;
 
         g_currentEventExec = iEventID;
         insptr = apScriptGameEvent[iEventID];
@@ -131,7 +134,8 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
         Bmemcpy(&vm, &vm_backup, sizeof(vmstate_t));
         insptr = oinsptr;
 
-        g_currentEventExec = -1;
+        g_currentEventExec = backupEventExec;
+        aGameVars[g_iReturnVarID].val.lValue = backupReturnVar;
     }
 }
 

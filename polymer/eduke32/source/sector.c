@@ -2468,7 +2468,7 @@ void allignwarpelevators(void)
     }
 }
 
-void G_HandleSharedKeys(int32_t snum)
+void P_HandleSharedKeys(int32_t snum)
 {
     int32_t i, k = 0, dainv;
     uint32_t sb_snum = g_player[snum].sync->bits, j;
@@ -2618,104 +2618,102 @@ void G_HandleSharedKeys(int32_t snum)
             return;		// is there significance to returning?
         }
         if (p->refresh_inventory)
-        {
             sb_snum |= BIT(SK_INV_LEFT);   // emulate move left...
-        }
-        if (p->newowner == -1)
-            if (TEST_SYNC_KEY(sb_snum, SK_INV_LEFT) || TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT))
-            {
-                p->invdisptime = GAMETICSPERSEC*2;
 
-                if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT)) k = 1;
-                else k = 0;
+        if (p->newowner == -1 && (TEST_SYNC_KEY(sb_snum, SK_INV_LEFT) || TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT)))
+        {
+            p->invdisptime = GAMETICSPERSEC*2;
 
-                if (p->refresh_inventory) p->refresh_inventory = 0;
-                dainv = p->inven_icon;
+            if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT)) k = 1;
+            else k = 0;
 
-                i = 0;
+            if (p->refresh_inventory) p->refresh_inventory = 0;
+            dainv = p->inven_icon;
+
+            i = 0;
 
 CHECKINV1:
-                if (i < 9)
-                {
-                    i++;
+            if (i < 9)
+            {
+                i++;
 
-                    switch (dainv)
-                    {
-                    case 4:
-                        if (p->inv_amount[GET_JETPACK] > 0 && i > 1)
-                            break;
-                        if (k) dainv++;
-                        else dainv--;
-                        goto CHECKINV1;
-                    case 6:
-                        if (p->inv_amount[GET_SCUBA] > 0 && i > 1)
-                            break;
-                        if (k) dainv++;
-                        else dainv--;
-                        goto CHECKINV1;
-                    case 2:
-                        if (p->inv_amount[GET_STEROIDS] > 0 && i > 1)
-                            break;
-                        if (k) dainv++;
-                        else dainv--;
-                        goto CHECKINV1;
-                    case 3:
-                        if (p->inv_amount[GET_HOLODUKE] > 0 && i > 1)
-                            break;
-                        if (k) dainv++;
-                        else dainv--;
-                        goto CHECKINV1;
-                    case 0:
-                    case 1:
-                        if (p->inv_amount[GET_FIRSTAID] > 0 && i > 1)
-                            break;
-                        if (k) dainv = 2;
-                        else dainv = 7;
-                        goto CHECKINV1;
-                    case 5:
-                        if (p->inv_amount[GET_HEATS] > 0 && i > 1)
-                            break;
-                        if (k) dainv++;
-                        else dainv--;
-                        goto CHECKINV1;
-                    case 7:
-                        if (p->inv_amount[GET_BOOTS] > 0 && i > 1)
-                            break;
-                        if (k) dainv = 1;
-                        else dainv = 6;
-                        goto CHECKINV1;
-                    }
-                }
-                else dainv = 0;
-
-                if (TEST_SYNC_KEY(sb_snum, SK_INV_LEFT))   // Inventory_Left
+                switch (dainv)
                 {
-                    /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
-                    aGameVars[g_iReturnVarID].val.lValue = dainv;
-                    VM_OnEvent(EVENT_INVENTORYLEFT,g_player[snum].ps->i,snum, -1);
-                    dainv=aGameVars[g_iReturnVarID].val.lValue;
-                }
-                else if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT))   // Inventory_Right
-                {
-                    /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
-                    aGameVars[g_iReturnVarID].val.lValue = dainv;
-                    VM_OnEvent(EVENT_INVENTORYRIGHT,g_player[snum].ps->i,snum, -1);
-                    dainv=aGameVars[g_iReturnVarID].val.lValue;
-                }
-
-                if (dainv >= 1)
-                {
-                    p->inven_icon = dainv;
-
-                    if (dainv || p->inv_amount[GET_FIRSTAID])
-                    {
-                        static const int32_t i[8] = { QUOTE_MEDKIT, QUOTE_STEROIDS, QUOTE_HOLODUKE,
-                                                      QUOTE_JETPACK, QUOTE_NVG, QUOTE_SCUBA, QUOTE_BOOTS, 0 };
-                        if (dainv>=1 && dainv<=9)
-                            P_DoQuote(i[dainv-1], p);
-                    }
+                case 4:
+                    if (p->inv_amount[GET_JETPACK] > 0 && i > 1)
+                        break;
+                    if (k) dainv++;
+                    else dainv--;
+                    goto CHECKINV1;
+                case 6:
+                    if (p->inv_amount[GET_SCUBA] > 0 && i > 1)
+                        break;
+                    if (k) dainv++;
+                    else dainv--;
+                    goto CHECKINV1;
+                case 2:
+                    if (p->inv_amount[GET_STEROIDS] > 0 && i > 1)
+                        break;
+                    if (k) dainv++;
+                    else dainv--;
+                    goto CHECKINV1;
+                case 3:
+                    if (p->inv_amount[GET_HOLODUKE] > 0 && i > 1)
+                        break;
+                    if (k) dainv++;
+                    else dainv--;
+                    goto CHECKINV1;
+                case 0:
+                case 1:
+                    if (p->inv_amount[GET_FIRSTAID] > 0 && i > 1)
+                        break;
+                    if (k) dainv = 2;
+                    else dainv = 7;
+                    goto CHECKINV1;
+                case 5:
+                    if (p->inv_amount[GET_HEATS] > 0 && i > 1)
+                        break;
+                    if (k) dainv++;
+                    else dainv--;
+                    goto CHECKINV1;
+                case 7:
+                    if (p->inv_amount[GET_BOOTS] > 0 && i > 1)
+                        break;
+                    if (k) dainv = 1;
+                    else dainv = 6;
+                    goto CHECKINV1;
                 }
             }
+            else dainv = 0;
+
+            if (TEST_SYNC_KEY(sb_snum, SK_INV_LEFT))   // Inventory_Left
+            {
+                /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
+                aGameVars[g_iReturnVarID].val.lValue = dainv;
+                VM_OnEvent(EVENT_INVENTORYLEFT,g_player[snum].ps->i,snum, -1);
+                dainv=aGameVars[g_iReturnVarID].val.lValue;
+            }
+            else if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT))   // Inventory_Right
+            {
+                /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
+                aGameVars[g_iReturnVarID].val.lValue = dainv;
+                VM_OnEvent(EVENT_INVENTORYRIGHT,g_player[snum].ps->i,snum, -1);
+                dainv=aGameVars[g_iReturnVarID].val.lValue;
+            }
+
+            if (dainv >= 1)
+            {
+                p->inven_icon = dainv;
+
+                if (dainv || p->inv_amount[GET_FIRSTAID])
+                {
+                    static const int32_t i[8] = { QUOTE_MEDKIT, QUOTE_STEROIDS, QUOTE_HOLODUKE,
+                        QUOTE_JETPACK, QUOTE_NVG, QUOTE_SCUBA, QUOTE_BOOTS, 0 };
+                    if (dainv>=1 && dainv<=9)
+                        P_DoQuote(i[dainv-1], p);
+                }
+            }
+        }
 
         j = ((sb_snum&(15<<SK_WEAPON_BITS))>>SK_WEAPON_BITS) - 1;
 

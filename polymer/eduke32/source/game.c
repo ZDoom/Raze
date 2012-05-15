@@ -10895,7 +10895,7 @@ int32_t G_DoMoveThings(void)
         if (sprite[g_player[i].ps->i].pal != 1)
             sprite[g_player[i].ps->i].pal = g_player[i].pcolor;
 
-        G_HandleSharedKeys(i);
+        P_HandleSharedKeys(i);
 
         if (ud.pause_on == 0)
         {
