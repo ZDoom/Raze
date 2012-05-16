@@ -621,15 +621,13 @@ int32_t S_PlaySound(int32_t num)
 
 int32_t A_PlaySound(uint32_t num, int32_t i)
 {
-    aGameVars[g_iReturnVarID].val.lValue = num;
-
     if (apScriptGameEvent[EVENT_SOUND])
-        VM_OnEvent(EVENT_SOUND, i, myconnectindex, -1);
+        num = VM_OnEvent(EVENT_SOUND, i, myconnectindex, -1, num);
 
-    if ((unsigned)aGameVars[g_iReturnVarID].val.lValue > (unsigned)g_maxSoundPos) return -1;
+    if ((unsigned)num > (unsigned)g_maxSoundPos) return -1;
 
-    return i < 0 ? S_PlaySound(aGameVars[g_iReturnVarID].val.lValue) : 
-        S_PlaySound3D(aGameVars[g_iReturnVarID].val.lValue, i, (vec3_t *)&sprite[i]);
+    return i < 0 ? S_PlaySound(num) : 
+        S_PlaySound3D(num, i, (vec3_t *)&sprite[i]);
 }
 
 void S_StopEnvSound(int32_t num, int32_t i)

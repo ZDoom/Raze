@@ -93,14 +93,14 @@ void VM_ScriptInfo(void)
     initprintf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);
 }
 
-void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int32_t iPlayer, register int32_t lDist)
+int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
 {
 #ifdef LUNATIC_ENABLE
     if (El_IsInitialized(&g_ElState))
         El_CallEvent(&g_ElState, iEventID);
 #endif
     if (!apScriptGameEvent[iEventID])
-        return;
+        return iReturn;
 
     {
         intptr_t *oinsptr=insptr;
@@ -114,6 +114,7 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
         int32_t backupReturnVar = aGameVars[g_iReturnVarID].val.lValue;
         int32_t backupEventExec = g_currentEventExec;
 
+        aGameVars[g_iReturnVarID].val.lValue = iReturn;
         g_currentEventExec = iEventID;
         insptr = apScriptGameEvent[iEventID];
 
@@ -135,7 +136,10 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor, register int
         insptr = oinsptr;
 
         g_currentEventExec = backupEventExec;
+        iReturn = aGameVars[g_iReturnVarID].val.lValue;
         aGameVars[g_iReturnVarID].val.lValue = backupReturnVar;
+
+        return iReturn;
     }
 }
 

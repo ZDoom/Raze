@@ -514,9 +514,7 @@ void A_DeleteSprite(int32_t s)
     {
         int32_t p, pl=A_FindPlayer(&sprite[s],&p);
 
-        aGameVars[g_iReturnVarID].val.lValue = 0;
-        VM_OnEvent(EVENT_KILLIT, s, pl, p);
-        if (aGameVars[g_iReturnVarID].val.lValue)
+        if (VM_OnEvent(EVENT_KILLIT, s, pl, p, 0))
             return;
     }
 
@@ -8264,7 +8262,7 @@ void G_MoveWorld(void)
                 j = nextspritestat[i];
 
                 pl = A_FindPlayer(&sprite[i], &p);
-                VM_OnEvent(EVENT_GAME,i, pl, p);
+                VM_OnEvent(EVENT_GAME,i, pl, p, 0);
                 i = j;
             }
         }

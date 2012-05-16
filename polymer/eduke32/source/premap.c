@@ -344,10 +344,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
 
     if (ud.recstat != 2)
     {
-        /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
-        aGameVars[g_iReturnVarID].val.lValue = LOADSCREEN;
-        VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
-        j = aGameVars[g_iReturnVarID].val.lValue;
+        j = VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1, LOADSCREEN);
 
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0 /*1*/);    // JBF 20040308
@@ -396,7 +393,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
             rotatesprite(158<<16,144<<16,65536,0,929,0,0,2+8+16,0,0,ii,ydim-1);
         }
 
-        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
+        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1, 0);
         nextpage();
 
         if (!statustext)
@@ -416,9 +413,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
         }
         /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
 
-        aGameVars[g_iReturnVarID].val.lValue = LOADSCREEN;
-        VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1);
-        j = aGameVars[g_iReturnVarID].val.lValue;
+        j = VM_OnEvent(EVENT_GETLOADTILE, -1, myconnectindex, -1, LOADSCREEN);
 
         if ((uint32_t)j < 2*MAXTILES)
         {
@@ -433,7 +428,7 @@ static void G_DoLoadScreen(char *statustext, int32_t percent)
 
         menutext(160,105,0,0,"Loading...");
         if (statustext) gametext(160,180,statustext,0,2+8+16);
-        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
+        VM_OnEvent(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, -1, 0);
         nextpage();
     }
 }
@@ -733,7 +728,7 @@ void P_ResetPlayer(int32_t snum)
     g_player[snum].ps->movement_lock = 0;
 
     if (apScriptGameEvent[EVENT_RESETPLAYER])
-        VM_OnEvent(EVENT_RESETPLAYER, g_player[snum].ps->i, snum, -1);
+        VM_OnEvent(EVENT_RESETPLAYER, g_player[snum].ps->i, snum, -1, 0);
 }
 
 void P_ResetStatus(int32_t snum)
@@ -843,7 +838,7 @@ void P_ResetStatus(int32_t snum)
     p->frag_ps          = snum;
 
     P_UpdateScreenPal(p);
-    VM_OnEvent(EVENT_RESETPLAYER, p->i, snum, -1);
+    VM_OnEvent(EVENT_RESETPLAYER, p->i, snum, -1, 0);
 }
 
 void P_ResetWeapons(int32_t snum)
@@ -864,7 +859,7 @@ void P_ResetWeapons(int32_t snum)
     p->show_empty_weapon= 0;
     p->last_pissed_time = 0;
     p->holster_weapon = 0;
-    VM_OnEvent(EVENT_RESETWEAPONS, p->i, snum, -1);
+    VM_OnEvent(EVENT_RESETWEAPONS, p->i, snum, -1, 0);
 }
 
 void P_ResetInventory(int32_t snum)
@@ -881,7 +876,7 @@ void P_ResetInventory(int32_t snum)
 
     p->inv_amount[GET_SHIELD] =      g_startArmorAmount;
     p->inven_icon = 0;
-    VM_OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1);
+    VM_OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1, 0);
 }
 
 static void resetprestat(int32_t snum,int32_t g)
@@ -1166,7 +1161,7 @@ static inline void prelevel(char g)
         nexti = nextspritestat[i];
         A_ResetVars(i);
         A_LoadActor(i);
-        VM_OnEvent(EVENT_LOADACTOR, i, -1, -1);
+        VM_OnEvent(EVENT_LOADACTOR, i, -1, -1, 0);
         if (sprite[i].lotag == -1 && (sprite[i].cstat&16))
         {
             g_player[0].ps->exitx = SX;
@@ -1568,7 +1563,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
     display_mirror =        0;
 
-    VM_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek, -1);
+    VM_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 }
 
 static void resetpspritevars(char g)
@@ -2121,7 +2116,7 @@ int32_t G_EnterLevel(int32_t g)
     // variables are set by pointer...
 
     Bmemcpy(&currentboardfilename[0],&boardfilename[0],BMAX_PATH);
-    VM_OnEvent(EVENT_ENTERLEVEL, -1, -1, -1);
+    VM_OnEvent(EVENT_ENTERLEVEL, -1, -1, -1, 0);
     OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,
                MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
 

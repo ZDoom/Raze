@@ -2859,10 +2859,7 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (pp->invdisptime > 0) G_DrawInventory(pp);
 
-    aGameVars[g_iReturnVarID].val.lValue = 0;
-    if (apScriptGameEvent[EVENT_DISPLAYSBAR])
-        VM_OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek, -1);
-    if (aGameVars[g_iReturnVarID].val.lValue == 0)
+    if (VM_OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek, -1, 0) == 0)
         G_DrawStatusBar(screenpeek);
 
     G_PrintGameQuotes();
@@ -2923,15 +2920,11 @@ void G_DisplayRest(int32_t smoothratio)
     }
 
     if (apScriptGameEvent[EVENT_DISPLAYREST])
-        VM_OnEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek, -1);
+        VM_OnEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
     {
-        aGameVars[g_iReturnVarID].val.lValue = 0;
-        if (apScriptGameEvent[EVENT_DISPLAYCROSSHAIR])
-            VM_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1);
-
-        if (aGameVars[g_iReturnVarID].val.lValue == 0)
+        if (VM_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1, 0) == 0)
         {
             int32_t x, y;
 #ifdef GEKKO
@@ -3160,22 +3153,24 @@ void G_DrawBackground(void)
     }
     else
     {
+        int32_t bgtile;
+
         if (getrendermode() >= 3)
             clearview(0);
 
         // when not rendering a game, fullscreen wipe
 #define MENUTILE (!getrendermode()?MENUSCREEN:LOADSCREEN)
 //        Gv_SetVar(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
-        aGameVars[g_iReturnVarID].val.lValue = (tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE);
+        bgtile = (tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE);
         if (apScriptGameEvent[EVENT_GETMENUTILE])
-            VM_OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1);
+            bgtile = VM_OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1, bgtile);
         if (Gv_GetVarByLabel("MENU_TILE", tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?0:1, -1, -1))
         {
-            for (y=y1; y<y2; y+=tilesizy[aGameVars[g_iReturnVarID].val.lValue])
-                for (x=0; x<xdim; x+=tilesizx[aGameVars[g_iReturnVarID].val.lValue])
-                    rotatesprite_fs(x<<16,y<<16,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,8+16+64);
+            for (y=y1; y<y2; y+=tilesizy[bgtile])
+                for (x=0; x<xdim; x+=tilesizx[bgtile])
+                    rotatesprite_fs(x<<16,y<<16,65536L,0,bgtile,bpp==8?16:8,0,8+16+64);
         }
-        else rotatesprite_fs(320<<15,200<<15,65536L,0,aGameVars[g_iReturnVarID].val.lValue,bpp==8?16:8,0,2+8+64+(ud.bgstretch?1024:0));
+        else rotatesprite_fs(320<<15,200<<15,65536L,0,bgtile,bpp==8?16:8,0,2+8+64+(ud.bgstretch?1024:0));
         return;
     }
 
@@ -3722,7 +3717,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         }
 
         if (apScriptGameEvent[EVENT_DISPLAYROOMS])
-            VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1);
+            VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
         ud.camerahoriz = clamp(ud.camerahoriz, HORIZ_MIN, HORIZ_MAX);
 
@@ -3994,7 +3989,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
         int32_t pl=A_FindPlayer(s, &p);
 
         block_deletesprite++;
-        VM_OnEvent(EVENT_EGS, i, pl, p);
+        VM_OnEvent(EVENT_EGS, i, pl, p, 0);
         block_deletesprite--;
     }
 
@@ -5728,7 +5723,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                         if (apScriptGameEvent[EVENT_SPAWN])
                         {
                             int32_t pl=A_FindPlayer(&sprite[i],&p);
-                            VM_OnEvent(EVENT_SPAWN,i, pl, p);
+                            VM_OnEvent(EVENT_SPAWN,i, pl, p, 0);
                         }
                         return i;
                     }
@@ -5958,7 +5953,7 @@ SPAWN_END:
     if (apScriptGameEvent[EVENT_SPAWN])
     {
         int32_t pl=A_FindPlayer(&sprite[i],&p);
-        VM_OnEvent(EVENT_SPAWN,i, pl, p);
+        VM_OnEvent(EVENT_SPAWN,i, pl, p, 0);
     }
 
     // spawning is technically not allowed to fail in BUILD, so we just hide whatever
@@ -6903,7 +6898,7 @@ skip:
             if (tsprite[j].owner < MAXSPRITES && tsprite[j].owner >= 0 && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
             {
                 spriteext[tsprite[j].owner].tspr = (spritetype *)&tsprite[j];
-                VM_OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
+                VM_OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1, 0);
             }
         }
         while (j--);
@@ -6914,7 +6909,7 @@ skip:
         if (tsprite[j].owner >= 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
         {
             spriteext[tsprite[j].owner].tspr = (spritetype *)&tsprite[j];
-            VM_OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1);
+            VM_OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1, 0);
         }
     }
 }
@@ -6987,9 +6982,7 @@ enum cheatindex_t
 
 static void doinvcheat(int32_t invidx, int32_t defaultnum, int32_t event)
 {
-    Gv_SetVar(g_iReturnVarID, defaultnum, g_player[myconnectindex].ps->i, myconnectindex);
-    VM_OnEvent(event, g_player[myconnectindex].ps->i, myconnectindex, -1);
-    if (aGameVars[g_iReturnVarID].val.lValue >=0)
+    if (VM_OnEvent(event, g_player[myconnectindex].ps->i, myconnectindex, -1, defaultnum) >= 0)
     {
         g_player[myconnectindex].ps->inv_amount[invidx] =
             aGameVars[g_iReturnVarID].val.lValue;
@@ -9333,7 +9326,7 @@ static void G_DisplayLogo(void)
                     }
                 }
 
-                VM_OnEvent(EVENT_LOGO, -1, screenpeek, -1);
+                VM_OnEvent(EVENT_LOGO, -1, screenpeek, -1, 0);
 
                 G_HandleAsync();
 
@@ -9486,7 +9479,7 @@ static void G_CompileScripts(void)
     Bmemset(sector, 0, MAXSECTORS*sizeof(sectortype));
     Bmemset(wall, 0, MAXWALLS*sizeof(walltype));
 
-    VM_OnEvent(EVENT_INIT, -1, -1, -1);
+    VM_OnEvent(EVENT_INIT, -1, -1, -1, 0);
     pathsearchmode = psm;
 }
 
@@ -11646,7 +11639,7 @@ FRAGBONUS:
         else
             break;
 
-        VM_OnEvent(EVENT_DISPLAYBONUSSCREEN, g_player[screenpeek].ps->i, screenpeek, -1);
+        VM_OnEvent(EVENT_DISPLAYBONUSSCREEN, g_player[screenpeek].ps->i, screenpeek, -1, 0);
         nextpage();
     }
     while (1);

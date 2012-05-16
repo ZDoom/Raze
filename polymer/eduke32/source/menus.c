@@ -658,7 +658,7 @@ void M_DisplayMenus(void)
         return;
     }
     if (apScriptGameEvent[EVENT_DISPLAYMENU])
-        VM_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, -1);
+        VM_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
     g_player[myconnectindex].ps->fta = 0;
@@ -5480,7 +5480,7 @@ VOLUME_ALL_40x:
         break;
     }
     if (apScriptGameEvent[EVENT_DISPLAYMENUREST])
-        VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[myconnectindex].ps->i, myconnectindex, -1);
+        VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[myconnectindex].ps->i, myconnectindex, -1, 0);
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)
     {
