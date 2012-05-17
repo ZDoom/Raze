@@ -829,7 +829,8 @@ int32_t handleevents(void)
         if (startwin_idle((void *)&msg) > 0) continue;
 
         TranslateMessage(&msg);
-        DispatchMessage(&msg);
+//        DispatchMessage(&msg);
+        DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
     }
 
     if (!appactive || quitevent) rv = -1;
@@ -3683,9 +3684,9 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         if (wParam == SC_KEYMENU || wParam == SC_HOTKEY) return 0;
         break;
 
-    case WM_ACTIVATEAPP:
+    case WM_ACTIVATE:
     {
-        appactive = (wParam != 0);
+        appactive = (LOWORD(wParam) != 0);
 #ifdef USE_OPENGL
         if (hGLWindow)
         {
@@ -3730,27 +3731,8 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
         Bmemset(keystatus, 0, sizeof(keystatus));
         AcquireInputDevices(appactive);
-        break;
+        return 0;
     }
-
-    case WM_ACTIVATE:
-        appactive = (wParam != WA_INACTIVE);
-
-        if (appactive)
-        {
-            SetForegroundWindow(hWindow);
-            SetFocus(hWindow);
-        }
-
-        Bmemset(keystatus, 0, sizeof(keystatus));
-        AcquireInputDevices(appactive);
-        break;
-
-    case WM_SIZE:
-        if (wParam == SIZE_MAXHIDE || wParam == SIZE_MINIMIZED) appactive = 0;
-        else appactive = 1;
-        AcquireInputDevices(appactive);
-        break;
 
     case WM_PALETTECHANGED:
         // someone stole the palette so try and steal it back
