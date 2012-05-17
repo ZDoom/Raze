@@ -3523,7 +3523,7 @@ void P_CheckWeapon(DukePlayer_t *p)
 
 void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
 {
-    if (VM_OnEvent(EVENT_CHECKTOUCHDAMAGE, p->i, sprite[p->i].yvel, -1, j) == -1)
+    if ((j = VM_OnEvent(EVENT_CHECKTOUCHDAMAGE, p->i, sprite[p->i].yvel, -1, j)) == -1)
         return;
 
     if ((j&49152) == 49152)
