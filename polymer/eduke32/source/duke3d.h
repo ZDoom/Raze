@@ -87,7 +87,7 @@ extern "C" {
 #define TICSPERFRAME        4
 #define TICRATE             120
 
-#define PACKBUF_SIZE        2048
+#define PACKBUF_SIZE        16384
 
 #define TILE_SAVESHOT       (MAXTILES-1)
 #define TILE_LOADSHOT       (MAXTILES-3)

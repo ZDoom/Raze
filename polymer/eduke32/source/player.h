@@ -215,6 +215,7 @@ typedef struct {
 
     char vote, gotvote, pingcnt, playerquitflag;
     char user_name[32];
+    uint32_t revision;
 } playerdata_t;
 #pragma pack(pop)
 

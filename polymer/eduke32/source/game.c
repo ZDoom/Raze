@@ -10698,19 +10698,6 @@ MAIN_LOOP_RESTART:
             case 2: goto MAIN_LOOP_RESTART;
             }
         }
-        else if (g_netClient && g_multiMapState)
-        {
-            for (i=g_gameVarCount-1; i>=0; i--)
-            {
-                if (aGameVars[i].dwFlags & GAMEVAR_USER_MASK)
-                    g_multiMapState->vars[i] = NULL;
-            }
-
-            G_RestoreMapState(g_multiMapState);
-            g_player[myconnectindex].ps->gm = MODE_GAME;
-            Bfree(g_multiMapState);
-            g_multiMapState = NULL;
-        }
 
         if (g_networkMode == NET_DEDICATED_SERVER)
         {

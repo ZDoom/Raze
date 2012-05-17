@@ -160,7 +160,7 @@ int32_t CONTROL_FlagActive( int32_t which );
 void CONTROL_ClearAssignments( void );
 void CONTROL_GetInput( ControlInfo *info );
 void CONTROL_ClearButton( int32_t whichbutton );
-float CONTROL_MouseSensitivity;
+extern float CONTROL_MouseSensitivity;
 int32_t CONTROL_Startup
    (
    controltype which,

@@ -36,7 +36,7 @@ else
 endif
 
 OURCFLAGS=$(BASECFLAGS) \
-    -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(JAUDIOLIBDIR)/include -I$(ENETDIR)/include
+    -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(JAUDIOLIBDIR)/include -I$(ENETDIR)/include -I$(SRC)/xdelta3
 
 OURCXXFLAGS=$(BASECXXFLAGS)
 OURCONLYFLAGS=$(BASECONLYFLAGS)
@@ -122,6 +122,7 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/osdcmds.$o \
 	$(OBJ)/grpscan.$o \
 	$(OBJ)/sounds.$o \
+        $(OBJ)/xdelta3/xdelta3.$o \
 	$(JMACTOBJ)
 
 EDITOROBJS=$(OBJ)/astub.$o \
@@ -458,7 +459,7 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 # PHONIES	
 
 clean:
-	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) eduke32$(EXESUFFIX).memmap mapster32$(EXESUFFIX) mapster32$(EXESUFFIX).memmap core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
+	-rm -rf $(OBJ)/* eduke32$(EXESUFFIX) eduke32$(EXESUFFIX).memmap mapster32$(EXESUFFIX) mapster32$(EXESUFFIX).memmap core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf EDuke32.app Mapster32.app
 endif

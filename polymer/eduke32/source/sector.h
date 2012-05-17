@@ -44,7 +44,6 @@ typedef struct {
     int32_t lockclock;
     int32_t msx[2048], msy[2048];
     int32_t randomseed, g_globalRandom;
-    intptr_t *vars[MAXGAMEVARS];
 
     int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
     int16_t animatesect[MAXANIMATES];
@@ -78,6 +77,8 @@ typedef struct {
     spriteext_t spriteext[MAXSPRITES];
     spritetype sprite[MAXSPRITES];
     walltype wall[MAXWALLS];
+
+    intptr_t *vars[MAXGAMEVARS];
 #ifdef YAX_ENABLE
     int32_t numyaxbunches;
     int16_t yax_bunchnum[MAXSECTORS][2];

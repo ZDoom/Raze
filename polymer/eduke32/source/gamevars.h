@@ -68,7 +68,7 @@ typedef struct {
 
 typedef struct {
     char *szLabel;
-    int32_t *plValues;     // array of values
+    intptr_t *plValues;     // array of values
     intptr_t size;
     intptr_t bReset;
 } gamearray_t;

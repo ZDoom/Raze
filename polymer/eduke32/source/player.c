@@ -3165,6 +3165,8 @@ static int32_t P_DoCounters(DukePlayer_t *p)
 //        j = g_player[snum].sync->avel;
 //        p->weapon_ang = -(j/5);
 
+    if (snum < 0) return 1;
+
     if (p->invdisptime > 0)
         p->invdisptime--;
 
@@ -3521,16 +3523,16 @@ void P_CheckWeapon(DukePlayer_t *p)
     else p->weapon_pos   = -1;
 }
 
-void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
+void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
 {
-    if ((j = VM_OnEvent(EVENT_CHECKTOUCHDAMAGE, p->i, sprite[p->i].yvel, -1, j)) == -1)
+    if ((obj = VM_OnEvent(EVENT_CHECKTOUCHDAMAGE, p->i, sprite[p->i].yvel, -1, obj)) == -1)
         return;
 
-    if ((j&49152) == 49152)
+    if ((obj&49152) == 49152)
     {
-        j &= (MAXSPRITES-1);
+        obj &= (MAXSPRITES-1);
 
-        if (sprite[j].picnum == CACTUS)
+        if (sprite[obj].picnum == CACTUS)
         {
             if (p->hurt_delay < 8)
             {
@@ -3544,13 +3546,13 @@ void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
         return;
     }
 
-    if ((j&49152) != 32768) return;
-    j &= (MAXWALLS-1);
+    if ((obj&49152) != 32768) return;
+    obj &= (MAXWALLS-1);
 
     if (p->hurt_delay > 0) p->hurt_delay--;
-    else if (wall[j].cstat&85)
+    else if (wall[obj].cstat&85)
     {
-        int32_t switchpicnum = wall[j].overpicnum;
+        int32_t switchpicnum = wall[obj].overpicnum;
         if ((switchpicnum>W_FORCEFIELD)&&(switchpicnum<=W_FORCEFIELD+2))
             switchpicnum=W_FORCEFIELD;
 
@@ -3574,7 +3576,7 @@ void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
                 davect.x = p->pos.x+(sintable[(p->ang+512)&2047]>>9);
                 davect.y = p->pos.y+(sintable[p->ang&2047]>>9);
                 davect.z = p->pos.z;
-                A_DamageWall(p->i,j,&davect,-1);
+                A_DamageWall(p->i,obj,&davect,-1);
             }
 
             break;
@@ -3587,7 +3589,7 @@ void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
                 davect.x = p->pos.x+(sintable[(p->ang+512)&2047]>>9);
                 davect.y = p->pos.y+(sintable[p->ang&2047]>>9);
                 davect.z = p->pos.z;
-                A_DamageWall(p->i,j,&davect,-1);
+                A_DamageWall(p->i,obj,&davect,-1);
             }
             break;
 
@@ -3595,14 +3597,14 @@ void P_CheckTouchDamage(DukePlayer_t *p,int32_t j)
     }
 }
 
-int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t j)
+int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t tex)
 {
     spritetype *s = &sprite[p->i];
 
-    if ((unsigned)(j = VM_OnEvent(EVENT_CHECKFLOORDAMAGE, p->i, sprite[p->i].yvel, -1, j)) >= MAXTILES)
+    if ((unsigned)(tex = VM_OnEvent(EVENT_CHECKFLOORDAMAGE, p->i, sprite[p->i].yvel, -1, tex)) >= MAXTILES)
         return 0;
 
-    switch (DYNAMICTILEMAP(j))
+    switch (DYNAMICTILEMAP(tex))
     {
     case HURTRAIL__STATIC:
         if (rnd(32))

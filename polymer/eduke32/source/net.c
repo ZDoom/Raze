@@ -25,10 +25,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gamedef.h"
 #include "net.h"
 #include "premap.h"
+#include "savegame.h"
 
 #include "enet/enet.h"
 #include "quicklz.h"
 #include "crc32.h"
+#include "xdelta3.h"
 
 /*
 this should be lower than the MTU size by at least the size of the UDP and ENet headers
@@ -36,6 +38,7 @@ or else fragmentation will occur
 */
 #define SYNCPACKETSIZE 1344
 
+int32_t g_netMapRevision = 0;
 ENetHost *g_netServer = NULL;
 ENetHost *g_netClient = NULL;
 ENetPeer *g_netClientPeer = NULL;
@@ -57,10 +60,323 @@ int16_t g_netStatnums[10] = { STAT_PROJECTILE, STAT_PLAYER, STAT_STANDABLE, STAT
 int32_t lastupdate[MAXSPRITES];
 int32_t lastsectupdate[MAXSECTORS];
 int32_t lastwallupdate[MAXWALLS];
-mapstate_t *g_multiMapState = NULL;
-static int32_t spritecrc[MAXSPRITES];
-static int32_t sectcrc[MAXSECTORS];
-static int32_t wallcrc[MAXWALLS];
+#pragma pack(push,1)
+netmapstate_t *g_multiMapState[MAXPLAYERS];
+netmapstate_t *g_multiMapRevisions[NET_REVISIONS];
+netmapstate_t *streamoutput = NULL;
+#pragma pack(pop)
+
+void Net_SaveMapState(netmapstate_t *save)
+{
+    if (save != NULL)
+    {
+        int32_t i;
+        intptr_t j;
+
+        save->revision = g_netMapRevision&(NET_REVISIONS-1);
+        Bmemcpy(&save->numwalls,&numwalls,sizeof(numwalls));
+        Bmemcpy(&save->wall[0],&wall[0],sizeof(walltype)*MAXWALLS);
+        Bmemcpy(&save->numsectors,&numsectors,sizeof(numsectors));
+        Bmemcpy(&save->sector[0],&sector[0],sizeof(sectortype)*MAXSECTORS);
+        Bmemcpy(&save->sprite[0],&sprite[0],sizeof(spritetype)*MAXSPRITES);
+        Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
+        Bmemcpy(&save->headspritesect[0],&headspritesect[0],sizeof(headspritesect));
+        Bmemcpy(&save->prevspritesect[0],&prevspritesect[0],sizeof(prevspritesect));
+        Bmemcpy(&save->nextspritesect[0],&nextspritesect[0],sizeof(nextspritesect));
+        Bmemcpy(&save->headspritestat[0],&headspritestat[0],sizeof(headspritestat));
+        Bmemcpy(&save->prevspritestat[0],&prevspritestat[0],sizeof(prevspritestat));
+        Bmemcpy(&save->nextspritestat[0],&nextspritestat[0],sizeof(nextspritestat));
+
+
+        for (i=MAXSPRITES-1; i>=0; i--)
+        {
+            save->scriptptrs[i] = 0;
+
+            if (actorscrptr[PN] == 0) continue;
+
+            j = (intptr_t)&script[0];
+
+            if (T2 >= j && T2 < (intptr_t)(&script[g_scriptSize]))
+            {
+                save->scriptptrs[i] |= 1;
+                T2 -= j;
+#ifdef __x86_64__
+                T2 >>= 1;
+#endif
+            }
+            if (T5 >= j && T5 < (intptr_t)(&script[g_scriptSize]))
+            {
+                save->scriptptrs[i] |= 2;
+                T5 -= j;
+#ifdef __x86_64__
+                T5 >>= 1;
+#endif
+            }
+            if (T6 >= j && T6 < (intptr_t)(&script[g_scriptSize]))
+            {
+                save->scriptptrs[i] |= 4;
+                T6 -= j;
+#ifdef __x86_64__
+                T6 >>= 1;
+#endif
+
+            }
+        }
+
+
+        Bmemcpy(&save->actor[0],&actor[0],offsetof(netactor_t, t_data[0])*MAXSPRITES);
+
+        for (i=MAXSPRITES-1; i>=0; i--)
+            for (j=0;j<10;j++)
+                save->actor[i].t_data[j] = actor[i].t_data[j];
+
+
+        for (i=MAXSPRITES-1; i>=0; i--)
+        {
+            if (actorscrptr[PN] == 0) continue;
+
+            j = (intptr_t)&script[0];
+
+            if (save->scriptptrs[i]&1)
+            {
+#ifdef __x86_64__
+                T2 <<= 1;
+#endif
+                T2 += j;
+            }
+            if (save->scriptptrs[i]&2)
+            {
+#ifdef __x86_64__
+                T5 <<= 1;
+#endif
+                T5 += j;
+            }
+            if (save->scriptptrs[i]&4)
+            {
+#ifdef __x86_64__
+                T6 <<= 1;
+#endif
+                T6 += j;
+            }
+        }
+
+        Bmemcpy(&save->g_numCyclers,&g_numCyclers,sizeof(g_numCyclers));
+        Bmemcpy(&save->cyclers[0][0],&cyclers[0][0],sizeof(cyclers));
+        Bmemcpy(&save->g_playerSpawnPoints[0],&g_playerSpawnPoints[0],sizeof(g_playerSpawnPoints));
+        Bmemcpy(&save->g_numAnimWalls,&g_numAnimWalls,sizeof(g_numAnimWalls));
+        Bmemcpy(&save->SpriteDeletionQueue[0],&SpriteDeletionQueue[0],sizeof(SpriteDeletionQueue));
+        Bmemcpy(&save->g_spriteDeleteQueuePos,&g_spriteDeleteQueuePos,sizeof(g_spriteDeleteQueuePos));
+        Bmemcpy(&save->animwall[0],&animwall[0],sizeof(animwall));
+        Bmemcpy(&save->msx[0],&msx[0],sizeof(msx));
+        Bmemcpy(&save->msy[0],&msy[0],sizeof(msy));
+        Bmemcpy(&save->g_mirrorWall[0],&g_mirrorWall[0],sizeof(g_mirrorWall));
+        Bmemcpy(&save->g_mirrorSector[0],&g_mirrorSector[0],sizeof(g_mirrorSector));
+        Bmemcpy(&save->g_mirrorCount,&g_mirrorCount,sizeof(g_mirrorCount));
+/*        Bmemcpy(&save->animategoal[0],&animategoal[0],sizeof(animategoal));
+        Bmemcpy(&save->animatevel[0],&animatevel[0],sizeof(animatevel));
+        Bmemcpy(&save->g_animateCount,&g_animateCount,sizeof(g_animateCount));
+        Bmemcpy(&save->animatesect[0],&animatesect[0],sizeof(animatesect));
+
+
+        G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_FWD);
+        Bmemcpy(&save->animateptr[0],&animateptr[0],sizeof(animateptr));
+        G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_BACK);
+*/
+
+        Bmemcpy(&save->g_numPlayerSprites,&g_numPlayerSprites,sizeof(g_numPlayerSprites));
+        Bmemcpy(&save->g_earthquakeTime,&g_earthquakeTime,sizeof(g_earthquakeTime));
+//        Bmemcpy(&save->lockclock,&lockclock,sizeof(lockclock));
+        Bmemcpy(&save->randomseed,&randomseed,sizeof(randomseed));
+        Bmemcpy(&save->g_globalRandom,&g_globalRandom,sizeof(g_globalRandom));
+
+/*
+        for (i=g_gameVarCount-1; i>=0; i--)
+        {
+            if (aGameVars[i].dwFlags & GAMEVAR_NORESET) continue;
+            if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
+            {
+                if (!save->vars[i])
+                    save->vars[i] = Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+                Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXPLAYERS);
+            }
+            else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
+            {
+                if (!save->vars[i])
+                    save->vars[i] = Bcalloc(MAXSPRITES,sizeof(intptr_t));
+                Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXSPRITES);
+            }
+            else save->vars[i] = (intptr_t *)aGameVars[i].val.lValue;
+        }
+*/
+
+//        ototalclock = totalclock;
+
+        save->crc = crc32once((uint8_t *)save, offsetof(netmapstate_t, crc));
+    }
+}
+
+extern void Gv_RefreshPointers(void);
+
+void Net_RestoreMapState(netmapstate_t *save)
+{
+    if (save != NULL)
+    {
+        int32_t i, x;
+        intptr_t j;
+        char phealth[MAXPLAYERS];
+
+
+        assert(save->crc == crc32once((uint8_t *)save, offsetof(netmapstate_t, crc)));
+
+        for (i=0; i<playerswhenstarted; i++)
+            phealth[i] = sprite[g_player[i].ps->i].extra;
+
+        pub = NUMPAGES;
+        pus = NUMPAGES;
+        G_UpdateScreenArea();
+
+        Bmemcpy(&numwalls,&save->numwalls,sizeof(numwalls));
+        Bmemcpy(&wall[0],&save->wall[0],sizeof(walltype)*MAXWALLS);
+        Bmemcpy(&numsectors,&save->numsectors,sizeof(numsectors));
+        Bmemcpy(&sector[0],&save->sector[0],sizeof(sectortype)*MAXSECTORS);
+        Bmemcpy(&sprite[0],&save->sprite[0],sizeof(spritetype)*MAXSPRITES);
+        Bmemcpy(&spriteext[0],&save->spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
+
+        Bmemcpy(&headspritesect[0],&save->headspritesect[0],sizeof(headspritesect));
+        Bmemcpy(&prevspritesect[0],&save->prevspritesect[0],sizeof(prevspritesect));
+        Bmemcpy(&nextspritesect[0],&save->nextspritesect[0],sizeof(nextspritesect));
+        Bmemcpy(&headspritestat[0],&save->headspritestat[0],sizeof(headspritestat));
+        Bmemcpy(&prevspritestat[0],&save->prevspritestat[0],sizeof(prevspritestat));
+        Bmemcpy(&nextspritestat[0],&save->nextspritestat[0],sizeof(nextspritestat));
+
+        Bmemcpy(&actor[0],&save->actor[0],offsetof(netactor_t, t_data)*MAXSPRITES);
+
+
+        for (i=MAXSPRITES-1; i>=0; i--)
+            for (j=0;j<10;j++)
+                actor[i].t_data[j] = save->actor[i].t_data[j];
+
+        for (i=MAXSPRITES-1; i>=0; i--)
+        {
+            j = (intptr_t)(&script[0]);
+            if (save->scriptptrs[i]&1)
+            {
+#ifdef __x86_64__
+                T2 <<= 1;
+#endif
+                T2 += j;
+            }
+            if (save->scriptptrs[i]&2) 
+            {
+#ifdef __x86_64__
+                T5 <<= 1;
+#endif
+                T5 += j;
+            }
+            if (save->scriptptrs[i]&4) 
+            {
+#ifdef __x86_64__
+                T6 <<= 1;
+#endif
+                T6 += j;
+            }
+        }
+
+
+        Bmemcpy(&g_numCyclers,&save->g_numCyclers,sizeof(g_numCyclers));
+        Bmemcpy(&cyclers[0][0],&save->cyclers[0][0],sizeof(cyclers));
+        Bmemcpy(&g_playerSpawnPoints[0],&save->g_playerSpawnPoints[0],sizeof(g_playerSpawnPoints));
+        Bmemcpy(&g_numAnimWalls,&save->g_numAnimWalls,sizeof(g_numAnimWalls));
+        Bmemcpy(&SpriteDeletionQueue[0],&save->SpriteDeletionQueue[0],sizeof(SpriteDeletionQueue));
+        Bmemcpy(&g_spriteDeleteQueuePos,&save->g_spriteDeleteQueuePos,sizeof(g_spriteDeleteQueuePos));
+        Bmemcpy(&animwall[0],&save->animwall[0],sizeof(animwall));
+        Bmemcpy(&msx[0],&save->msx[0],sizeof(msx));
+        Bmemcpy(&msy[0],&save->msy[0],sizeof(msy));
+        Bmemcpy(&g_mirrorWall[0],&save->g_mirrorWall[0],sizeof(g_mirrorWall));
+        Bmemcpy(&g_mirrorSector[0],&save->g_mirrorSector[0],sizeof(g_mirrorSector));
+        Bmemcpy(&g_mirrorCount,&save->g_mirrorCount,sizeof(g_mirrorCount));
+        /*
+
+        Bmemcpy(&animategoal[0],&save->animategoal[0],sizeof(animategoal));
+        Bmemcpy(&animatevel[0],&save->animatevel[0],sizeof(animatevel));
+        Bmemcpy(&g_animateCount,&save->g_animateCount,sizeof(g_animateCount));
+        Bmemcpy(&animatesect[0],&save->animatesect[0],sizeof(animatesect));
+
+        Bmemcpy(&animateptr[0],&save->animateptr[0],sizeof(animateptr));
+        G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_BACK);
+*/
+
+        Bmemcpy(&g_numPlayerSprites,&save->g_numPlayerSprites,sizeof(g_numPlayerSprites));
+        Bmemcpy(&g_earthquakeTime,&save->g_earthquakeTime,sizeof(g_earthquakeTime));
+//        Bmemcpy(&lockclock,&save->lockclock,sizeof(lockclock));
+        Bmemcpy(&randomseed,&save->randomseed,sizeof(randomseed));
+        Bmemcpy(&g_globalRandom,&save->g_globalRandom,sizeof(g_globalRandom));
+
+/*
+        for (i=g_gameVarCount-1; i>=0; i--)
+        {
+            if (aGameVars[i].dwFlags & GAMEVAR_NORESET) continue;
+            if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
+            {
+                if (!save->vars[i]) continue;
+                Bmemcpy(&aGameVars[i].val.plValues[0],&save->vars[i][0],sizeof(intptr_t) * MAXPLAYERS);
+            }
+            else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
+            {
+                if (!save->vars[i]) continue;
+                Bmemcpy(&aGameVars[i].val.plValues[0],&save->vars[i][0],sizeof(intptr_t) * MAXSPRITES);
+            }
+            else aGameVars[i].val.lValue = (intptr_t)save->vars[i];
+        }
+*/
+
+        Gv_RefreshPointers();
+
+        for (i=0; i<playerswhenstarted; i++)
+            sprite[g_player[i].ps->i].extra = phealth[i];
+
+        if (g_player[myconnectindex].ps->over_shoulder_on != 0)
+        {
+            g_cameraDistance = 0;
+            g_cameraClock = 0;
+            g_player[myconnectindex].ps->over_shoulder_on = 1;
+        }
+
+        screenpeek = myconnectindex;
+
+/*
+        if (ud.lockout == 0)
+        {
+            for (x=g_numAnimWalls-1; x>=0; x--)
+                if (wall[animwall[x].wallnum].extra >= 0)
+                    wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
+        }
+        else
+        {
+            for (x=g_numAnimWalls-1; x>=0; x--)
+                switch (DynamicTileMap[wall[animwall[x].wallnum].picnum])
+            {
+                case FEMPIC1__STATIC:
+                    wall[animwall[x].wallnum].picnum = BLANKSCREEN;
+                    break;
+                case FEMPIC2__STATIC:
+                case FEMPIC3__STATIC:
+                    wall[animwall[x].wallnum].picnum = SCREENBREAK6;
+                    break;
+            }
+        }
+*/
+
+        G_ResetInterpolations();
+
+//        Net_ResetPrediction();
+
+//        G_ClearFIFO();
+//        G_ResetTimers();
+        initprintf("Net_RestoreMapState(): restored revision %d\n",save->revision);
+    }
+}
+
 
 void Net_Connect(const char *srvaddr)
 {
@@ -81,7 +397,7 @@ void Net_Connect(const char *srvaddr)
 
     addrstr = strtok((char *)srvaddr, ":");
     enet_address_set_host(&address, addrstr);
-    address.port = Batoi((addrstr = strtok(NULL, ":")) == NULL ? "23513" : addrstr);
+    address.port = atoi((addrstr = strtok(NULL, ":")) == NULL ? "23513" : addrstr);
 
     g_netClientPeer = enet_host_connect(g_netClient, &address, CHAN_MAX, 0);
 
@@ -176,6 +492,7 @@ void Net_Disconnect(void)
         }
         enet_host_destroy(g_netServer);
         g_netServer = NULL;
+        Bfree(streamoutput);
     }
 }
 
@@ -184,12 +501,11 @@ static void Net_SendVersion(ENetPeer *client)
     if (!g_netServer) return;
 
     buf[0] = PACKET_VERSION;
-    buf[1] = BYTEVERSION>>16;
-    buf[2] = BYTEVERSION&255;
-    buf[3] = (uint8_t)atoi(s_buildDate);
-    buf[4] = myconnectindex;
+    buf[1] = BYTEVERSION;
+    buf[2] = (uint8_t)atoi(s_buildDate);
+    buf[3] = myconnectindex;
 
-    enet_peer_send(client, CHAN_GAMESTATE, enet_packet_create(&buf[0], 5, ENET_PACKET_FLAG_RELIABLE));
+    enet_peer_send(client, CHAN_GAMESTATE, enet_packet_create(&buf[0], 4, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void Net_SendClientInfo(void)
@@ -292,16 +608,16 @@ static void Net_SendChallenge(void)
     enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(&buf[0], l, ENET_PACKET_FLAG_RELIABLE));
 }
 
-static void P_RemovePlayer(int32_t i)
+static void P_RemovePlayer(int32_t p)
 {
     // server obviously can't leave the game, and index 0 shows up for disconnect events from
     // players that haven't gotten far enough into the connection process to get a player ID
 
-    if (i == 0) return;
+    if (p == 0) return;
 
-    g_player[i].playerquitflag = 0;
+    g_player[p].playerquitflag = 0;
 
-    Bsprintf(buf,"%s^00 is history!",g_player[i].user_name);
+    Bsprintf(buf,"%s^00 is history!",g_player[p].user_name);
     G_AddUserQuote(buf);
 
     if (numplayers == 1)
@@ -309,21 +625,21 @@ static void P_RemovePlayer(int32_t i)
 
     if (g_player[myconnectindex].ps->gm & MODE_GAME)
     {
-        if (screenpeek == i)
+        if (screenpeek == p)
             screenpeek = myconnectindex;
 
         pub = NUMPAGES;
         pus = NUMPAGES;
         G_UpdateScreenArea();
 
-        P_QuickKill(g_player[i].ps);
+        P_QuickKill(g_player[p].ps);
 
-        if (voting == i)
+        if (voting == p)
         {
-            for (i=0; i<MAXPLAYERS; i++)
+            for (p=0; p<MAXPLAYERS; p++)
             {
-                g_player[i].vote = 0;
-                g_player[i].gotvote = 0;
+                g_player[p].vote = 0;
+                g_player[p].gotvote = 0;
             }
             voting = -1;
         }
@@ -353,11 +669,8 @@ void Net_SyncPlayer(ENetEvent *event)
     for (j=0; j<playerswhenstarted-1; j++) connectpoint2[j] = j+1;
     connectpoint2[playerswhenstarted-1] = -1;
 
-//    for (TRAVERSE_CONNECT(j))
-//    {
-        if (!g_player[i].ps) g_player[i].ps = (DukePlayer_t *) Bcalloc(1, sizeof(DukePlayer_t));
-        if (!g_player[i].sync) g_player[i].sync = (input_t *) Bcalloc(1, sizeof(input_t));
-//    }
+    if (!g_player[i].ps) g_player[i].ps = (DukePlayer_t *) Bcalloc(1, sizeof(DukePlayer_t));
+    if (!g_player[i].sync) g_player[i].sync = (input_t *) Bcalloc(1, sizeof(input_t));
 
     packbuf[0] = PACKET_NUM_PLAYERS;
     packbuf[1] = ++numplayers;
@@ -378,17 +691,17 @@ void Net_SyncPlayer(ENetEvent *event)
 
     if (g_player[0].ps->gm & MODE_GAME)
     {
-        if (g_multiMapState == NULL) g_multiMapState = (mapstate_t *)Bcalloc(1, sizeof(mapstate_t));
-        if (g_multiMapState)
+        if (g_multiMapState[i] == NULL) g_multiMapState[i] = (netmapstate_t *)Bcalloc(1, sizeof(netmapstate_t));
+        if (g_multiMapState[i])
         {
-            char *buf = (char *)Bmalloc(sizeof(mapstate_t)<<1);
+            char *buf = (char *)Bmalloc(sizeof(netmapstate_t)+512);
 
             sprite[g_player[i].ps->i].cstat = 32768;
             g_player[i].ps->runspeed = g_playerFriction;
             g_player[i].ps->last_extra = sprite[g_player[i].ps->i].extra = g_player[i].ps->max_player_health = g_maxPlayerHealth;
 
-            G_SaveMapState(g_multiMapState);
-            if ((j = qlz_compress((char *)g_multiMapState, buf, sizeof(mapstate_t), state_compress)))
+            Net_SaveMapState(g_multiMapState[i]);
+            if ((j = qlz_compress((char *)g_multiMapState[i], buf, sizeof(netmapstate_t), state_compress)))
             {
                 size_t csize = qlz_size_compressed(buf);
 
@@ -406,1249 +719,19 @@ void Net_SyncPlayer(ENetEvent *event)
                 enet_peer_send(event->peer, CHAN_SYNC,
                                enet_packet_create((char *)(buf)+csize-j, j, ENET_PACKET_FLAG_RELIABLE));
                 enet_host_service(g_netServer, NULL, 0);
+
+                initprintf("Compressed %ld bytes to %ld\n", sizeof(netmapstate_t), qlz_size_compressed(buf));
             }
             else
                 initprintf("Error compressing map state for transfer!\n");
 
             Bfree(buf);
+/*
             Bfree(g_multiMapState);
             g_multiMapState = NULL;
+*/
         }
     }
-}
-
-int32_t Net_UnpackSprite(int32_t i, uint8_t *pbuf)
-{
-    int16_t sect = sprite[i].sectnum, statnum = sprite[i].statnum;
-    int16_t opicnum, j = 0;
-#ifdef POLYMER
-    int16_t lightid = -1;
-    _prlight *mylight = NULL;
-#endif
-
-    uint32_t flags = *(uint32_t *)&pbuf[j];
-    j += sizeof(uint32_t);
-
-    opicnum = sprite[i].picnum;
-
-    if (flags & NET_SPRITE_X)
-    {
-        sprite[i].x = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_SPRITE_Y)
-    {
-        sprite[i].y = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_SPRITE_Z)
-    {
-        sprite[i].z = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_SPRITE_SHADE)
-    {
-        sprite[i].shade = *(int8_t *)&pbuf[j];
-        j += sizeof(int8_t);
-    }
-
-    if (flags & NET_SPRITE_PAL)
-    {
-        sprite[i].pal = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_SPRITE_CLIPDIST)
-    {
-        sprite[i].clipdist = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_SPRITE_XREPEAT)
-    {
-        sprite[i].xrepeat = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_SPRITE_YREPEAT)
-    {
-        sprite[i].yrepeat = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_SPRITE_XOFFSET)
-    {
-        sprite[i].xoffset = *(int8_t *)&pbuf[j];
-        j += sizeof(int8_t);
-    }
-
-    if (flags & NET_SPRITE_YOFFSET)
-    {
-        sprite[i].yoffset = *(int8_t *)&pbuf[j];
-        j += sizeof(int8_t);
-    }
-
-    if (flags & NET_SPRITE_SECTNUM)
-    {
-        sect = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SPRITE_STATNUM)
-    {
-        statnum = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SPRITE_ANG)
-    {
-        sprite[i].ang = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SPRITE_OWNER)
-    {
-        sprite[i].owner = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SPRITE_XVEL)
-    {
-        sprite[i].xvel = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SPRITE_YVEL)
-    {
-        sprite[i].yvel = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SPRITE_ZVEL)
-    {
-        sprite[i].zvel = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SPRITE_LOTAG)
-    {
-        sprite[i].lotag = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SPRITE_HITAG)
-    {
-        sprite[i].hitag = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SPRITE_EXTRA)
-    {
-        sprite[i].extra = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SPRITE_CSTAT)
-    {
-        sprite[i].cstat = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SPRITE_PICNUM)
-    {
-        sprite[i].picnum = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (sect == MAXSECTORS || statnum == MAXSTATUS)
-    {
-//        j += sizeof(netactor_t);
-        if (sprite[i].sectnum != MAXSECTORS && sprite[i].statnum != MAXSTATUS)
-            A_DeleteSprite(i);
-        return j;
-    }
-
-    // doesn't exist on the client yet
-    if (sprite[i].statnum == MAXSTATUS || sprite[i].sectnum == MAXSECTORS)
-    {
-        int16_t sprs[MAXSPRITES], z = 0;
-        while ((sprs[z++] = insertsprite(sect, statnum)) != i);
-        z--;
-        while (z--) A_DeleteSprite(sprs[z]);
-    }
-    else
-    {
-        if (sect != sprite[i].sectnum) changespritesect(i, sect);
-        if (statnum != sprite[i].statnum) changespritestat(i, statnum);
-    }
-#ifdef POLYMER
-    if (sprite[i].picnum == opicnum)
-    {
-        mylight = actor[i].lightptr;
-        lightid = actor[i].lightId;
-    }
-    else if (getrendermode() == 4 && actor[i].lightptr != NULL)
-    {
-        polymer_deletelight(actor[i].lightId);
-        actor[i].lightId = -1;
-        actor[i].lightptr = NULL;
-    }
-#endif
-
-    /*initprintf("updating sprite %d (%d)\n",i,sprite[i].picnum);*/
-
-    flags = *(uint32_t *)&pbuf[j];
-    j += sizeof(uint32_t);
-
-    if (flags & NET_ACTOR_T1)
-    {
-        actor[i].t_data[0] = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_ACTOR_T2)
-    {
-        actor[i].t_data[1] = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_ACTOR_T3)
-    {
-        actor[i].t_data[2] = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_ACTOR_T4)
-    {
-        actor[i].t_data[3] = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_ACTOR_T5)
-    {
-        actor[i].t_data[4] = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_ACTOR_T6)
-    {
-        actor[i].t_data[5] = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_ACTOR_T7)
-    {
-        actor[i].t_data[6] = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_ACTOR_T8)
-    {
-        actor[i].t_data[7] = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_ACTOR_T9)
-    {
-        actor[i].t_data[8] = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_ACTOR_T10)
-    {
-        actor[i].t_data[9] = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_ACTOR_PICNUM)
-    {
-        actor[i].picnum = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_ACTOR_ANG)
-    {
-        actor[i].ang = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_ACTOR_EXTRA)
-    {
-        actor[i].extra = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_ACTOR_OWNER)
-    {
-        actor[i].owner = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_ACTOR_MOVFLAG)
-    {
-        actor[i].movflag = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_ACTOR_TEMPANG)
-    {
-        actor[i].tempang = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_ACTOR_TIMETOSLEEP)
-    {
-        actor[i].timetosleep = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_ACTOR_FLAGS)
-    {
-        actor[i].flags = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-#ifdef POLYMER
-    actor[i].lightptr = mylight;
-    actor[i].lightId = lightid;
-#endif
-
-    actor[i].flags &= ~SPRITE_NULL;
-
-    do
-    {
-        int16_t var_id = *(int16_t *)&pbuf[j];
-
-        j += sizeof(int16_t);
-
-        if (var_id == MAXGAMEVARS) break;
-
-        if (aGameVars[var_id].val.plValues)
-            aGameVars[var_id].val.plValues[i] = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-    while (1);
-
-    return j;
-}
-
-int32_t Net_PackSprite(int32_t i, uint8_t *pbuf)
-{
-    int32_t j = 0;
-    uint32_t *flags;
-    static spritetype netsprite[MAXSPRITES];
-    static netactor_t netactor[MAXSPRITES];
-
-    if (lastupdate[i] && !Bmemcmp(&sprite[i], &netsprite[i], sizeof(spritetype)))
-        return 0;
-
-    *(int16_t *)&pbuf[j] = i;
-    j += sizeof(int16_t);
-
-    flags = (uint32_t *)&pbuf[j];
-    *flags = 0;
-    j += sizeof(uint32_t);
-
-    if (sprite[i].sectnum == MAXSECTORS || sprite[i].statnum == MAXSTATUS)
-    {
-        *flags = NET_SPRITE_SECTNUM;
-        *(int16_t *)&pbuf[j] = MAXSECTORS;
-        j += sizeof(int16_t);
-
-        Bmemcpy(&netsprite[i], &sprite[i], sizeof(spritetype));
-        return j;
-    }
-
-    if (!lastupdate[i] || sprite[i].x != netsprite[i].x)
-    {
-        *flags |= NET_SPRITE_X;
-        *(int32_t *)&pbuf[j] = sprite[i].x;
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].y != netsprite[i].y)
-    {
-        *flags |= NET_SPRITE_Y;
-        *(int32_t *)&pbuf[j] = sprite[i].y;
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].z != netsprite[i].z)
-    {
-        *flags |= NET_SPRITE_Z;
-        *(int32_t *)&pbuf[j] = sprite[i].z;
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].shade != netsprite[i].shade)
-    {
-        *flags |= NET_SPRITE_SHADE;
-        *(int8_t *)&pbuf[j] = sprite[i].shade;
-        j += sizeof(int8_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].pal != netsprite[i].pal)
-    {
-        *flags |= NET_SPRITE_PAL;
-        *(uint8_t *)&pbuf[j] = sprite[i].pal;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].clipdist != netsprite[i].clipdist)
-    {
-        *flags |= NET_SPRITE_CLIPDIST;
-        *(uint8_t *)&pbuf[j] = sprite[i].clipdist;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].xrepeat != netsprite[i].xrepeat)
-    {
-        *flags |= NET_SPRITE_XREPEAT;
-        *(uint8_t *)&pbuf[j] = sprite[i].xrepeat;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].yrepeat != netsprite[i].yrepeat)
-    {
-        *flags |= NET_SPRITE_YREPEAT;
-        *(uint8_t *)&pbuf[j] = sprite[i].yrepeat;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].xoffset != netsprite[i].xoffset)
-    {
-        *flags |= NET_SPRITE_XOFFSET;
-        *(int8_t *)&pbuf[j] = sprite[i].xoffset;
-        j += sizeof(int8_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].yoffset != netsprite[i].yoffset)
-    {
-        *flags |= NET_SPRITE_YOFFSET;
-        *(int8_t *)&pbuf[j] = sprite[i].yoffset;
-        j += sizeof(int8_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].sectnum != netsprite[i].sectnum || sprite[i].sectnum == MAXSECTORS)
-    {
-        *flags |= NET_SPRITE_SECTNUM;
-        *(int16_t *)&pbuf[j] = sprite[i].sectnum;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].statnum != netsprite[i].statnum || sprite[i].statnum == MAXSTATUS)
-    {
-        *flags |= NET_SPRITE_STATNUM;
-        *(int16_t *)&pbuf[j] = sprite[i].statnum;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].ang != netsprite[i].ang)
-    {
-        *flags |= NET_SPRITE_ANG;
-        *(int16_t *)&pbuf[j] = sprite[i].ang;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].owner != netsprite[i].owner)
-    {
-        *flags |= NET_SPRITE_OWNER;
-        *(int16_t *)&pbuf[j] = sprite[i].owner;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].xvel != netsprite[i].xvel)
-    {
-        *flags |= NET_SPRITE_XVEL;
-        *(int16_t *)&pbuf[j] = sprite[i].xvel;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].yvel != netsprite[i].yvel)
-    {
-        *flags |= NET_SPRITE_YVEL;
-        *(int16_t *)&pbuf[j] = sprite[i].yvel;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].zvel != netsprite[i].zvel)
-    {
-        *flags |= NET_SPRITE_ZVEL;
-        *(int16_t *)&pbuf[j] = sprite[i].zvel;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].lotag != netsprite[i].lotag)
-    {
-        *flags |= NET_SPRITE_LOTAG;
-        *(int16_t *)&pbuf[j] = sprite[i].lotag;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].hitag != netsprite[i].hitag)
-    {
-        *flags |= NET_SPRITE_HITAG;
-        *(int16_t *)&pbuf[j] = sprite[i].hitag;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].extra != netsprite[i].extra)
-    {
-        *flags |= NET_SPRITE_EXTRA;
-        *(int16_t *)&pbuf[j] = sprite[i].extra;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].cstat != netsprite[i].cstat)
-    {
-        *flags |= NET_SPRITE_CSTAT;
-        *(int16_t *)&pbuf[j] = sprite[i].cstat;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || sprite[i].picnum != netsprite[i].picnum)
-    {
-        *flags |= NET_SPRITE_PICNUM;
-        *(int16_t *)&pbuf[j] = sprite[i].picnum;
-        j += sizeof(int16_t);
-    }
-
-    if (lastupdate[i])
-        Bmemcpy(&netsprite[i], &sprite[i], sizeof(spritetype));
-
-    flags = (uint32_t *)&pbuf[j];
-    *flags = 0;
-    j += sizeof(uint32_t);
-
-    if (!lastupdate[i] || actor[i].t_data[0] != netactor[i].t_data[0])
-    {
-        *flags |= NET_ACTOR_T1;
-        *(int32_t *)&pbuf[j] = actor[i].t_data[0];
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || actor[i].t_data[1] != netactor[i].t_data[1])
-    {
-        *flags |= NET_ACTOR_T2;
-        *(int32_t *)&pbuf[j] = actor[i].t_data[1];
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || actor[i].t_data[2] != netactor[i].t_data[2])
-    {
-        *flags |= NET_ACTOR_T3;
-        *(int32_t *)&pbuf[j] = actor[i].t_data[2];
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || actor[i].t_data[3] != netactor[i].t_data[3])
-    {
-        *flags |= NET_ACTOR_T4;
-        *(int32_t *)&pbuf[j] = actor[i].t_data[3];
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || actor[i].t_data[4] != netactor[i].t_data[4])
-    {
-        *flags |= NET_ACTOR_T5;
-        *(int32_t *)&pbuf[j] = actor[i].t_data[4];
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || actor[i].t_data[5] != netactor[i].t_data[5])
-    {
-        *flags |= NET_ACTOR_T6;
-        *(int32_t *)&pbuf[j] = actor[i].t_data[5];
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || actor[i].t_data[6] != netactor[i].t_data[6])
-    {
-        *flags |= NET_ACTOR_T7;
-        *(int32_t *)&pbuf[j] = actor[i].t_data[6];
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || actor[i].t_data[7] != netactor[i].t_data[7])
-    {
-        *flags |= NET_ACTOR_T8;
-        *(int32_t *)&pbuf[j] = actor[i].t_data[7];
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || actor[i].t_data[8] != netactor[i].t_data[8])
-    {
-        *flags |= NET_ACTOR_T9;
-        *(int32_t *)&pbuf[j] = actor[i].t_data[8];
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || actor[i].t_data[9] != netactor[i].t_data[9])
-    {
-        *flags |= NET_ACTOR_T10;
-        *(int32_t *)&pbuf[j] = actor[i].t_data[9];
-        j += sizeof(int32_t);
-    }
-
-    if (!lastupdate[i] || actor[i].picnum != netactor[i].picnum)
-    {
-        *flags |= NET_ACTOR_PICNUM;
-        *(int16_t *)&pbuf[j] = actor[i].picnum;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || actor[i].ang != netactor[i].ang)
-    {
-        *flags |= NET_ACTOR_ANG;
-        *(int16_t *)&pbuf[j] = actor[i].ang;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || actor[i].extra != netactor[i].extra)
-    {
-        *flags |= NET_ACTOR_EXTRA;
-        *(int16_t *)&pbuf[j] = actor[i].extra;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || actor[i].owner!= netactor[i].owner)
-    {
-        *flags |= NET_ACTOR_OWNER;
-        *(int16_t *)&pbuf[j] = actor[i].owner;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || actor[i].movflag != netactor[i].movflag)
-    {
-        *flags |= NET_ACTOR_MOVFLAG;
-        *(int16_t *)&pbuf[j] = actor[i].movflag;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || actor[i].tempang != netactor[i].tempang)
-    {
-        *flags |= NET_ACTOR_TEMPANG;
-        *(int16_t *)&pbuf[j] = actor[i].tempang;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || actor[i].timetosleep != netactor[i].timetosleep)
-    {
-        *flags |= NET_ACTOR_TIMETOSLEEP;
-        *(int16_t *)&pbuf[j] = actor[i].timetosleep;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastupdate[i] || actor[i].flags != netactor[i].flags)
-    {
-        *flags |= NET_ACTOR_FLAGS;
-        *(int32_t *)&pbuf[j] = actor[i].flags;
-        j += sizeof(int32_t);
-    }
-
-    if (lastupdate[i])
-        Bmemcpy(&netactor[i], &actor[i], sizeof(netactor_t));
-
-    if (*flags == 0)
-        return 0;
-
-    {
-        int16_t ii=g_gameVarCount-1;
-
-        for (; ii>=0; ii--)
-        {
-            if ((aGameVars[ii].dwFlags & (GAMEVAR_PERACTOR|GAMEVAR_NOMULTI)) == GAMEVAR_PERACTOR && aGameVars[ii].val.plValues)
-            {
-                if (aGameVars[ii].val.plValues[i] != aGameVars[ii].lDefault)
-                {
-                    *(int16_t *)&pbuf[j] = ii;
-                    j += sizeof(int16_t);
-                    *(int32_t *)&pbuf[j] = aGameVars[ii].val.plValues[i];
-                    j += sizeof(int32_t);
-                }
-            }
-        }
-
-        *(int16_t *)&pbuf[j] = MAXGAMEVARS;
-        j += sizeof(int16_t);
-    }
-
-    return j;
-}
-
-int32_t Net_UnpackSect(int32_t i, uint8_t *pbuf)
-{
-    int32_t j = 0;
-    uint32_t flags = *(uint32_t *)&pbuf[j];
-
-    j += sizeof(uint32_t);
-
-    if (flags & NET_SECTOR_WALLPTR)
-    {
-        sector[i].wallptr = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SECTOR_WALLNUM)
-    {
-        sector[i].wallnum = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SECTOR_CEILINGZ)
-    {
-        sector[i].ceilingz = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_SECTOR_FLOORZ)
-    {
-        sector[i].floorz = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_SECTOR_CEILINGSTAT)
-    {
-        sector[i].ceilingstat = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SECTOR_FLOORSTAT)
-    {
-        sector[i].floorstat = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SECTOR_CEILINGPIC)
-    {
-        sector[i].ceilingpicnum = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SECTOR_CEILINGSLOPE)
-    {
-        sector[i].ceilingheinum = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SECTOR_CEILINGSHADE)
-    {
-        sector[i].ceilingshade = *(int8_t *)&pbuf[j];
-        j += sizeof(int8_t);
-    }
-
-    if (flags & NET_SECTOR_CEILINGPAL)
-    {
-        sector[i].ceilingpal = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_SECTOR_CEILINGXPAN)
-    {
-        sector[i].ceilingxpanning = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_SECTOR_CEILINGYPAN)
-    {
-        sector[i].ceilingypanning = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_SECTOR_FLOORPIC)
-    {
-        sector[i].floorpicnum = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SECTOR_FLOORSLOPE)
-    {
-        sector[i].floorheinum = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SECTOR_FLOORSHADE)
-    {
-        sector[i].floorshade = *(int8_t *)&pbuf[j];
-        j += sizeof(int8_t);
-    }
-
-    if (flags & NET_SECTOR_FLOORPAL)
-    {
-        sector[i].floorpal = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_SECTOR_FLOORXPAN)
-    {
-        sector[i].floorxpanning = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_SECTOR_FLOORYPAN)
-    {
-        sector[i].floorypanning = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_SECTOR_VISIBILITY)
-    {
-        sector[i].visibility = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_SECTOR_LOTAG)
-    {
-        sector[i].lotag = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SECTOR_HITAG)
-    {
-        sector[i].hitag = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_SECTOR_EXTRA)
-    {
-        sector[i].extra = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    return j;
-}
-
-int32_t Net_PackSect(int32_t i, uint8_t *pbuf)
-{
-    int32_t j = 0;
-    uint32_t *flags;
-    static sectortype netsect[MAXSECTORS];
-
-    if (lastsectupdate[i] && !Bmemcmp(&sector[i], &netsect[i], sizeof(sectortype)))
-        return 0;
-
-    *(int16_t *)&pbuf[j] = i;
-    j += sizeof(int16_t);
-
-    flags = (uint32_t *)&pbuf[j];
-    *flags = 0;
-    j += sizeof(uint32_t);
-
-    if (!lastsectupdate[i] || sector[i].wallptr != netsect[i].wallptr)
-    {
-        *flags |= NET_SECTOR_WALLPTR;
-        *(int16_t *)&pbuf[j] = sector[i].wallptr;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].wallnum != netsect[i].wallnum)
-    {
-        *flags |= NET_SECTOR_WALLNUM;
-        *(int16_t *)&pbuf[j] = sector[i].wallnum;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].ceilingz != netsect[i].ceilingz)
-    {
-        *flags |= NET_SECTOR_CEILINGZ;
-        *(int32_t *)&pbuf[j] = sector[i].ceilingz;
-        j += sizeof(int32_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].floorz != netsect[i].floorz)
-    {
-        *flags |= NET_SECTOR_FLOORZ;
-        *(int32_t *)&pbuf[j] = sector[i].floorz;
-        j += sizeof(int32_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].ceilingstat != netsect[i].ceilingstat)
-    {
-        *flags |= NET_SECTOR_CEILINGSTAT;
-        *(int16_t *)&pbuf[j] = sector[i].ceilingstat;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].floorstat != netsect[i].floorstat)
-    {
-        *flags |= NET_SECTOR_FLOORSTAT;
-        *(int16_t *)&pbuf[j] = sector[i].floorstat;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].ceilingpicnum != netsect[i].ceilingpicnum)
-    {
-        *flags |= NET_SECTOR_CEILINGPIC;
-        *(int16_t *)&pbuf[j] = sector[i].ceilingpicnum;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].ceilingheinum != netsect[i].ceilingheinum)
-    {
-        *flags |= NET_SECTOR_CEILINGSLOPE;
-        *(int16_t *)&pbuf[j] = sector[i].ceilingheinum;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].ceilingshade != netsect[i].ceilingshade)
-    {
-        *flags |= NET_SECTOR_CEILINGSHADE;
-        *(int8_t *)&pbuf[j] = sector[i].ceilingshade;
-        j += sizeof(int8_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].ceilingpal != netsect[i].ceilingpal)
-    {
-        *flags |= NET_SECTOR_CEILINGPAL;
-        *(uint8_t *)&pbuf[j] = sector[i].ceilingpal;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].ceilingxpanning != netsect[i].ceilingxpanning)
-    {
-        *flags |= NET_SECTOR_CEILINGXPAN;
-        *(uint8_t *)&pbuf[j] = sector[i].ceilingxpanning;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].ceilingypanning != netsect[i].ceilingypanning)
-    {
-        *flags |= NET_SECTOR_CEILINGYPAN;
-        *(uint8_t *)&pbuf[j] = sector[i].ceilingypanning;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].floorpicnum != netsect[i].floorpicnum)
-    {
-        *flags |= NET_SECTOR_FLOORPIC;
-        *(int16_t *)&pbuf[j] = sector[i].floorpicnum;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].floorheinum != netsect[i].floorheinum)
-    {
-        *flags |= NET_SECTOR_FLOORSLOPE;
-        *(int16_t *)&pbuf[j] = sector[i].floorheinum;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].floorshade != netsect[i].floorshade)
-    {
-        *flags |= NET_SECTOR_FLOORSHADE;
-        *(int8_t *)&pbuf[j] = sector[i].floorshade;
-        j += sizeof(int8_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].floorpal != netsect[i].floorpal)
-    {
-        *flags |= NET_SECTOR_FLOORPAL;
-        *(uint8_t *)&pbuf[j] = sector[i].floorpal;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].floorxpanning != netsect[i].floorxpanning)
-    {
-        *flags |= NET_SECTOR_FLOORXPAN;
-        *(uint8_t *)&pbuf[j] = sector[i].floorxpanning;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].floorypanning != netsect[i].floorypanning)
-    {
-        *flags |= NET_SECTOR_FLOORYPAN;
-        *(uint8_t *)&pbuf[j] = sector[i].floorypanning;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].visibility != netsect[i].visibility)
-    {
-        *flags |= NET_SECTOR_VISIBILITY;
-        *(uint8_t *)&pbuf[j] = sector[i].visibility;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].lotag != netsect[i].lotag)
-    {
-        *flags |= NET_SECTOR_LOTAG;
-        *(int16_t *)&pbuf[j] = sector[i].lotag;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].hitag != netsect[i].hitag)
-    {
-        *flags |= NET_SECTOR_HITAG;
-        *(int16_t *)&pbuf[j] = sector[i].hitag;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastsectupdate[i] || sector[i].extra != netsect[i].extra)
-    {
-        *flags |= NET_SECTOR_EXTRA;
-        *(int16_t *)&pbuf[j] = sector[i].extra;
-        j += sizeof(int16_t);
-    }
-
-    if (lastsectupdate[i])
-        Bmemcpy(&netsect[i], &sector[i], sizeof(sectortype));
-
-    return *flags ? j : 0;
-}
-
-
-int32_t Net_UnpackWall(int32_t i, uint8_t *pbuf)
-{
-    int32_t j = 0;
-    uint32_t flags = *(uint32_t *)&pbuf[j];
-
-    j += sizeof(uint32_t);
-
-    if (flags & NET_WALL_X)
-    {
-        wall[i].x = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_WALL_Y)
-    {
-        wall[i].y = *(int32_t *)&pbuf[j];
-        j += sizeof(int32_t);
-    }
-
-    if (flags & NET_WALL_POINT2)
-    {
-        wall[i].point2 = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_WALL_NEXTWALL)
-    {
-        wall[i].nextwall = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_WALL_NEXTSECTOR)
-    {
-        wall[i].nextsector = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_WALL_CSTAT)
-    {
-        wall[i].cstat = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_WALL_PICNUM)
-    {
-        wall[i].picnum = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_WALL_OVERPICNUM)
-    {
-        wall[i].overpicnum = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_WALL_SHADE)
-    {
-        wall[i].shade = *(int8_t *)&pbuf[j];
-        j += sizeof(int8_t);
-    }
-
-    if (flags & NET_WALL_PAL)
-    {
-        wall[i].pal = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_WALL_XREPEAT)
-    {
-        wall[i].xrepeat = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_WALL_YREPEAT)
-    {
-        wall[i].yrepeat = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_WALL_XPANNING)
-    {
-        wall[i].xpanning = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_WALL_YPANNING)
-    {
-        wall[i].ypanning = *(uint8_t *)&pbuf[j];
-        j += sizeof(uint8_t);
-    }
-
-    if (flags & NET_WALL_LOTAG)
-    {
-        wall[i].lotag = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_WALL_HITAG)
-    {
-        wall[i].hitag = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    if (flags & NET_WALL_EXTRA)
-    {
-        wall[i].extra = *(int16_t *)&pbuf[j];
-        j += sizeof(int16_t);
-    }
-
-    return j;
-}
-
-int32_t Net_PackWall(int32_t i, uint8_t *pbuf)
-{
-    int32_t j = 0;
-    uint32_t *flags;
-    static walltype netwall[MAXWALLS];
-
-    if (lastwallupdate[i] && !Bmemcmp(&wall[i], &netwall[i], sizeof(walltype)))
-        return 0;
-
-    *(int16_t *)&pbuf[j] = i;
-    j += sizeof(int16_t);
-
-    flags = (uint32_t *)&pbuf[j];
-    *flags = 0;
-    j += sizeof(uint32_t);
-
-    if (!lastwallupdate[i] || wall[i].x != netwall[i].x)
-    {
-        *flags |= NET_WALL_X;
-        *(int32_t *)&pbuf[j] = wall[i].x;
-        j += sizeof(int32_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].y != netwall[i].y)
-    {
-        *flags |= NET_WALL_Y;
-        *(int32_t *)&pbuf[j] = wall[i].y;
-        j += sizeof(int32_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].point2 != netwall[i].point2)
-    {
-        *flags |= NET_WALL_POINT2;
-        *(int16_t *)&pbuf[j] = wall[i].point2;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].nextwall != netwall[i].nextwall)
-    {
-        *flags |= NET_WALL_NEXTWALL;
-        *(int16_t *)&pbuf[j] = wall[i].nextwall;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].nextsector != netwall[i].nextsector)
-    {
-        *flags |= NET_WALL_NEXTSECTOR;
-        *(int16_t *)&pbuf[j] = wall[i].nextsector;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].cstat != netwall[i].cstat)
-    {
-        *flags |= NET_WALL_CSTAT;
-        *(int16_t *)&pbuf[j] = wall[i].cstat;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].picnum != netwall[i].picnum)
-    {
-        *flags |= NET_WALL_PICNUM;
-        *(int16_t *)&pbuf[j] = wall[i].picnum;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].overpicnum != netwall[i].overpicnum)
-    {
-        *flags |= NET_WALL_OVERPICNUM;
-        *(int16_t *)&pbuf[j] = wall[i].overpicnum;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].shade != netwall[i].shade)
-    {
-        *flags |= NET_WALL_SHADE;
-        *(int8_t *)&pbuf[j] = wall[i].shade;
-        j += sizeof(int8_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].pal != netwall[i].pal)
-    {
-        *flags |= NET_WALL_PAL;
-        *(uint8_t *)&pbuf[j] = wall[i].pal;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].xrepeat != netwall[i].xrepeat)
-    {
-        *flags |= NET_WALL_XREPEAT;
-        *(uint8_t *)&pbuf[j] = wall[i].xrepeat;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].yrepeat != netwall[i].yrepeat)
-    {
-        *flags |= NET_WALL_YREPEAT;
-        *(uint8_t *)&pbuf[j] = wall[i].yrepeat;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].xpanning != netwall[i].xpanning)
-    {
-        *flags |= NET_WALL_XPANNING;
-        *(uint8_t *)&pbuf[j] = wall[i].xpanning;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].ypanning != netwall[i].ypanning)
-    {
-        *flags |= NET_WALL_YPANNING;
-        *(uint8_t *)&pbuf[j] = wall[i].ypanning;
-        j += sizeof(uint8_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].lotag != netwall[i].lotag)
-    {
-        *flags |= NET_WALL_LOTAG;
-        *(int16_t *)&pbuf[j] = wall[i].lotag;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].hitag != netwall[i].hitag)
-    {
-        *flags |= NET_WALL_HITAG;
-        *(int16_t *)&pbuf[j] = wall[i].hitag;
-        j += sizeof(int16_t);
-    }
-
-    if (!lastwallupdate[i] || wall[i].extra != netwall[i].extra)
-    {
-        *flags |= NET_WALL_EXTRA;
-        *(int16_t *)&pbuf[j] = wall[i].extra;
-        j += sizeof(int16_t);
-    }
-
-    if (lastwallupdate[i])
-        Bmemcpy(&netwall[i], &wall[i], sizeof(walltype));
-
-    return *flags ? j : 0;
 }
 
 
@@ -1671,7 +754,7 @@ void Net_ParseServerPacket(ENetEvent *event)
         j = 0;
 
         packbufleng = qlz_size_decompressed((char *)&pbuf[1]);
-        pbuf = (uint8_t *)Bcalloc(1, packbufleng+1);
+        pbuf = (uint8_t *)Bcalloc(1, packbufleng+512);
         packbufleng = qlz_decompress((char *)&event->packet->data[1], (char *)(pbuf), state_decompress);
 
         ticrandomseed = *(int32_t *)&pbuf[j];
@@ -1786,13 +869,35 @@ void Net_ParseServerPacket(ENetEvent *event)
 
             i = g_player[l].ps->i;
 
-            j++;
-            Bmemcpy(&T5, &pbuf[j], sizeof(T5));
-            j += sizeof(T5);
+            {
+                int16_t jj = j++;
+                int32_t oa;
+                
+                if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)&script[g_scriptSize])
+                {
+                    oa = T5-(intptr_t)&script[0];
+#ifdef __x86_64__
+                    oa >>= 1;
+#endif
+                }
+                else oa = T5;
+
+                T5 = *(int32_t *)&pbuf[j];
+                j += sizeof(int32_t);
+
+                if (oa != T5) T3 = T4 = 0;
+                if (pbuf[jj] & 2)
+                {
+#ifdef __x86_64__
+                    T5 <<= 1;
+#endif
+                    T5 += (intptr_t)&script[0];
+                }
+            }
 
             do
             {
-                int16_t var_id = *(int16_t *)&pbuf[j];
+                uint16_t var_id = *(uint16_t *)&pbuf[j];
                 j += sizeof(int16_t);
 
                 if (var_id == MAXGAMEVARS) break;
@@ -1806,7 +911,7 @@ void Net_ParseServerPacket(ENetEvent *event)
 
             do
             {
-                int16_t var_id = *(int16_t *)&pbuf[j];
+                uint16_t var_id = *(uint16_t *)&pbuf[j];
                 j += sizeof(int16_t);
 
                 if (var_id == MAXGAMEVARS) break;
@@ -1817,27 +922,6 @@ void Net_ParseServerPacket(ENetEvent *event)
             while (1);
         }
 
-        {
-            // sprite/sector/wall updates tacked on to the end of the packet
-
-            l = *(int16_t *)&pbuf[j];
-            j += sizeof(int16_t);
-
-//            if (l) initprintf("unpacking %d sprites\n", l);
-
-            while (l--)
-            {
-                int32_t spriteid = *(int16_t *)&pbuf[j];
-                j += sizeof(int16_t);
-
-/*
-                initprintf("unpacking sprite %d at %d/%d\n", spriteid, j, packbufleng);
-                initprintf("flags: %d\n", *(uint32_t *)&pbuf[j]);
-*/
-                j += Net_UnpackSprite(spriteid, &pbuf[j]);
-            }
-        }
-
         Bfree(pbuf);
 
         break;
@@ -1846,50 +930,28 @@ void Net_ParseServerPacket(ENetEvent *event)
         if (!(g_player[myconnectindex].ps->gm & MODE_GAME) || g_netSync)
             return;
 
-        j = 0;
+        if (!streamoutput)
+            streamoutput = (netmapstate_t *)Bcalloc(1, sizeof(netmapstate_t));
 
-        packbufleng = qlz_size_decompressed((char *)&pbuf[1]);
-        pbuf = (uint8_t *)Bmalloc(packbufleng);
-        packbufleng = qlz_decompress((char *)&event->packet->data[1], (char *)(pbuf), state_decompress);
-
-        l = *(uint16_t *)&pbuf[j];
-        j += sizeof(uint16_t);
-
-//        if (l) initprintf("unpacking %d sprites\n", l);
-
-        while (l--)
         {
-            int32_t spriteid = *(int16_t *)&pbuf[j];
-            j += sizeof(int16_t);
-//            initprintf("unpacking msprite %d at %d/%d\n", spriteid, j, packbufleng);
-            j += Net_UnpackSprite(spriteid, &pbuf[j]);
+            usize_t osize = 0;
+
+            j = 0;
+
+            packbufleng = qlz_size_decompressed((char *)&pbuf[1]);
+            pbuf = (uint8_t *)Bmalloc(packbufleng<<1);
+            packbufleng = qlz_decompress((char *)&event->packet->data[1], (char *)(pbuf), state_decompress);
+
+            initprintf("packbufleng: %d\n", packbufleng);
+            initprintf("xdelta3 returned %d\n",
+                xd3_decode_memory((const uint8_t *)pbuf, packbufleng, (const uint8_t *)g_multiMapState[0], sizeof(netmapstate_t),
+                (uint8_t *)streamoutput, &osize, sizeof(netmapstate_t), XD3_COMPLEVEL_1|XD3_NOCOMPRESS));
+            if (sizeof(netmapstate_t) != osize)
+                initprintf("decompressed data size mismatch!\n");
+            Net_RestoreMapState(streamoutput);
+            
+            Bfree(pbuf);
         }
-
-        l = *(uint16_t *)&pbuf[j];
-        j += sizeof(uint16_t);
-
-        while (l--)
-        {
-            int16_t secid = *(int16_t *)&pbuf[j];
-            j += sizeof(int16_t);
-
-            j += Net_UnpackSect(secid, &pbuf[j]);
-        }
-
-        l = *(uint16_t *)&pbuf[j];
-        j += sizeof(uint16_t);
-        while (l--)
-        {
-            int16_t wallid = *(int16_t *)&pbuf[j];
-            j += sizeof(int16_t);
-
-            j += Net_UnpackWall(wallid, &pbuf[j]);
-
-            // we call dragpoint() to make sure the nextwall position gets updated too
-            dragpoint(wallid, wall[wallid].x, wall[wallid].y);
-        }
-
-        Bfree(pbuf);
 
         break;
 
@@ -1945,15 +1007,18 @@ void Net_ParseServerPacket(ENetEvent *event)
                 enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
 
             g_netSync = 0;
-        }
 
+            Net_RestoreMapState(g_multiMapState[0]);
+            g_player[myconnectindex].ps->gm = MODE_GAME;
+            ready2send = 1;
+        }
         break;
 
     case PACKET_VERSION:
-        if (pbuf[1] != BYTEVERSION>>16 || pbuf[2] != (BYTEVERSION&255) || pbuf[3] != (uint8_t)atoi(s_buildDate))
+        if (pbuf[1] != BYTEVERSION || pbuf[2] != (uint8_t)atoi(s_buildDate))
         {
             initprintf("Server protocol is version %d.%d, expecting %d.%d\n",
-                       ((pbuf[1]<<16)|pbuf[2]), pbuf[3], BYTEVERSION, (uint8_t)atoi(s_buildDate));
+                       pbuf[1], pbuf[2], BYTEVERSION, (uint8_t)atoi(s_buildDate));
             initprintf("Server version mismatch!  You cannot play Duke with different versions!\n");
             g_netDisconnect = 1;
             return;
@@ -2141,13 +1206,17 @@ void Net_ParseClientPacket(ENetEvent *event)
         j = 0;
 
         packbufleng = qlz_size_decompressed((char *)&pbuf[1]);
-        pbuf = (uint8_t *)Bcalloc(1, packbufleng+1);
+        pbuf = (uint8_t *)Bcalloc(1, packbufleng+512);
         packbufleng = qlz_decompress((char *)&event->packet->data[1], (char *)(pbuf), state_decompress);
 
         nsyn = (input_t *)&inputfifo[0][0];
 
-        Bmemcpy(&nsyn[other], &pbuf[j], sizeof(input_t));
+        g_player[other].revision = *(uint32_t *)&pbuf[j];
+        j += sizeof(uint32_t);
 
+        Bmemcpy(g_multiMapState[(intptr_t)event->peer->data], g_multiMapRevisions[g_player[other].revision&(NET_REVISIONS-1)], sizeof(netmapstate_t));
+
+        Bmemcpy(&nsyn[other], &pbuf[j], sizeof(input_t));
         j += offsetof(input_t, filler);
 
         // anyone the server thinks is dead can go fuck themselves
@@ -2216,10 +1285,10 @@ void Net_ParseClientPacket(ENetEvent *event)
 
             for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])); zz++)
                 for (TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti))
-                {
-                    if (lastupdate[i] >= g_player[other].netsynctime)
-                        lastupdate[i] = 0;
-                }
+            {
+                if (lastupdate[i] >= g_player[other].netsynctime)
+                    lastupdate[i] = 0;
+            }
         }
 
         for (i=numwalls-1; i>=0; i--)
@@ -2536,17 +1605,17 @@ void Net_GetPackets(void)
                         if (buf == NULL)
                         {
                             g_netSync = 1;
-                            buf = (uint8_t *)Bcalloc(1, sizeof(mapstate_t)<<1);
+                            buf = (uint8_t *)Bcalloc(1, sizeof(netmapstate_t)+512);
                         }
 
-                        g_multiMapState = (mapstate_t *)Brealloc(g_multiMapState, sizeof(mapstate_t));
+                        g_multiMapState[0] = (netmapstate_t *)Brealloc(g_multiMapState[0], sizeof(netmapstate_t));
 
-                        rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64);
+                        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
-                        rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8);
-                        rotatesprite_fs(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8);
+                        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+                        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
                         if (PLUTOPAK)   // JBF 20030804
-                            rotatesprite_fs(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8);
+                            rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
 
                         if (buf && event.packet->dataLength == SYNCPACKETSIZE)
                         {
@@ -2562,11 +1631,10 @@ void Net_GetPackets(void)
                         {
                             Bmemcpy((uint8_t *)(buf)+datasiz, event.packet->data, event.packet->dataLength);
                             datasiz = 0;
-                            //                        g_netSync = 0;
 
-                            if (qlz_size_decompressed((const char *)buf) == sizeof(mapstate_t))
+                            if (qlz_size_decompressed((const char *)buf) == sizeof(netmapstate_t))
                             {
-                                qlz_decompress((const char *)buf, g_multiMapState, state_decompress);
+                                qlz_decompress((const char *)buf, g_multiMapState[0], state_decompress);
                                 Bfree(buf);
                                 buf = NULL;
 
@@ -2578,7 +1646,8 @@ void Net_GetPackets(void)
                             }
                             else
                             {
-                                initprintf("Invalid map state from server!\n");
+                                initprintf("Invalid map state from server!  Decompressed to %ld bytes, expected %ld.\n",
+                                    qlz_size_decompressed((const char *)buf),sizeof(netmapstate_t));
                                 Bfree(buf);
                                 buf = NULL;
                                 g_netDisconnect = 1;
@@ -2634,38 +1703,40 @@ void Net_GetPackets(void)
 
 void Net_ClientMove(void)
 {
-    int32_t j;
+    int32_t siz = 1;
     input_t *nsyn = (input_t *)&inputfifo[0][myconnectindex];
 
     packbuf[0] = PACKET_SLAVE_TO_MASTER;
-    j = 1;
 
-    Bmemcpy(&packbuf[j], &nsyn[0], offsetof(input_t, filler));
-    j += offsetof(input_t, filler);
+    *(uint32_t *)&packbuf[siz] = g_player[myconnectindex].revision;
+    siz += sizeof(uint32_t);
 
-    Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->pos.x, sizeof(vec3_t) * 2);
-    j += sizeof(vec3_t) * 2;
+    Bmemcpy(&packbuf[siz], &nsyn[0], offsetof(input_t, filler));
+    siz += offsetof(input_t, filler);
 
-    Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->vel.x, sizeof(vec3_t));
-    j += sizeof(vec3_t);
+    Bmemcpy(&packbuf[siz], &g_player[myconnectindex].ps->pos.x, sizeof(vec3_t) * 2);
+    siz += sizeof(vec3_t) * 2;
 
-    *(int16_t *)&packbuf[j] = g_player[myconnectindex].ps->ang;
-    j += sizeof(int16_t);
+    Bmemcpy(&packbuf[siz], &g_player[myconnectindex].ps->vel.x, sizeof(vec3_t));
+    siz += sizeof(vec3_t);
 
-    Bmemcpy(&packbuf[j], &g_player[myconnectindex].ps->horiz, sizeof(int16_t) * 2);
-    j += sizeof(int16_t) * 2;
+    *(int16_t *)&packbuf[siz] = g_player[myconnectindex].ps->ang;
+    siz += sizeof(int16_t);
+
+    Bmemcpy(&packbuf[siz], &g_player[myconnectindex].ps->horiz, sizeof(int16_t) * 2);
+    siz += sizeof(int16_t) * 2;
 
     {
         char buf[1024];
 
-        j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
-        Bmemcpy((char *)(packbuf)+1, (char *)buf, j);
-        j++;
+        siz = qlz_compress((char *)(packbuf)+1, (char *)buf, siz, state_compress);
+        Bmemcpy((char *)(packbuf)+1, (char *)buf, siz);
+        siz++;
     }
 
-    packbuf[j++] = myconnectindex;
+    packbuf[siz++] = myconnectindex;
 
-    enet_peer_send(g_netClientPeer, CHAN_MOVE, enet_packet_create(packbuf, j, 0));
+    enet_peer_send(g_netClientPeer, CHAN_MOVE, enet_packet_create(packbuf, siz, 0));
 
 }
 
@@ -2673,8 +1744,8 @@ void Net_UpdateClients(void)
 {
     input_t *osyn = (input_t *)&inputfifo[1][0];
     input_t *nsyn = (input_t *)&inputfifo[0][0];
-    int16_t i, nexti, k = 0, l;
-    int32_t j;
+    int16_t i, l;
+    int32_t siz = 1;
 
     if (!g_netServer || numplayers < 2)
     {
@@ -2685,295 +1756,231 @@ void Net_UpdateClients(void)
     }
 
     packbuf[0] = PACKET_MASTER_TO_SLAVE;
-    j = 1;
 
-    *(int32_t *)&packbuf[j] = ticrandomseed = randomseed;
-    j += sizeof(int32_t);
-    packbuf[j++] = ud.pause_on;
+    *(int32_t *)&packbuf[siz] = ticrandomseed = randomseed;
+    siz += sizeof(int32_t);
+    packbuf[siz++] = ud.pause_on;
 
     for (TRAVERSE_CONNECT(i))
     {
         Bmemcpy(&osyn[i], &nsyn[i], offsetof(input_t, filler));
 
-        *(int16_t *)&packbuf[j] = g_player[i].ps->dead_flag;
-        j += sizeof(int16_t);
+        *(int16_t *)&packbuf[siz] = g_player[i].ps->dead_flag;
+        siz += sizeof(int16_t);
 
-        packbuf[j++] = g_player[i].playerquitflag;
+        packbuf[siz++] = g_player[i].playerquitflag;
 
         if (g_player[i].playerquitflag == 0) continue;
 
-        Bmemcpy(&packbuf[j], &nsyn[i], offsetof(input_t, filler));
-        j += offsetof(input_t, filler);
+        Bmemcpy(&packbuf[siz], &nsyn[i], offsetof(input_t, filler));
+        siz += offsetof(input_t, filler);
 
-        Bmemcpy(&packbuf[j], &g_player[i].ps->pos.x, sizeof(vec3_t) * 2);
-        j += sizeof(vec3_t) * 2;
+        Bmemcpy(&packbuf[siz], &g_player[i].ps->pos.x, sizeof(vec3_t) * 2);
+        siz += sizeof(vec3_t) * 2;
 
-        Bmemcpy(&packbuf[j], &g_player[i].ps->vel.x, sizeof(vec3_t));
-        j += sizeof(vec3_t);
+        Bmemcpy(&packbuf[siz], &g_player[i].ps->vel.x, sizeof(vec3_t));
+        siz += sizeof(vec3_t);
 
-        *(int16_t *)&packbuf[j] = g_player[i].ps->ang;
-        j += sizeof(int16_t);
+        *(int16_t *)&packbuf[siz] = g_player[i].ps->ang;
+        siz += sizeof(int16_t);
 
-        Bmemcpy(&packbuf[j], &g_player[i].ps->horiz, sizeof(int16_t) * 2);
-        j += sizeof(int16_t) * 2;
+        Bmemcpy(&packbuf[siz], &g_player[i].ps->horiz, sizeof(int16_t) * 2);
+        siz += sizeof(int16_t) * 2;
 
-        *(uint16_t *)&packbuf[j] = g_player[i].ps->gotweapon;
-        j += sizeof(uint16_t);
+        *(uint16_t *)&packbuf[siz] = g_player[i].ps->gotweapon;
+        siz += sizeof(uint16_t);
 
-        Bmemcpy(&packbuf[j], &g_player[i].ps->ammo_amount[0], sizeof(g_player[i].ps->ammo_amount));
-        j += sizeof(g_player[i].ps->ammo_amount);
+        Bmemcpy(&packbuf[siz], &g_player[i].ps->ammo_amount[0], sizeof(g_player[i].ps->ammo_amount));
+        siz += sizeof(g_player[i].ps->ammo_amount);
 
-        Bmemcpy(&packbuf[j], &g_player[i].ps->inv_amount[0], sizeof(g_player[i].ps->inv_amount));
-        j += sizeof(g_player[i].ps->inv_amount);
+        Bmemcpy(&packbuf[siz], &g_player[i].ps->inv_amount[0], sizeof(g_player[i].ps->inv_amount));
+        siz += sizeof(g_player[i].ps->inv_amount);
 
-        Bmemcpy(&packbuf[j], g_player[i].frags, sizeof(g_player[i].frags));
-        j += sizeof(g_player[i].frags);
+        Bmemcpy(&packbuf[siz], g_player[i].frags, sizeof(g_player[i].frags));
+        siz += sizeof(g_player[i].frags);
 
-        packbuf[j++] = (uint8_t) sprite[g_player[i].ps->i].extra;
+        packbuf[siz++] = (uint8_t) sprite[g_player[i].ps->i].extra;
 
-        *(int16_t *)&packbuf[j] = sprite[g_player[i].ps->i].cstat;
-        j += sizeof(int16_t);
+        *(int16_t *)&packbuf[siz] = sprite[g_player[i].ps->i].cstat;
+        siz += sizeof(int16_t);
 
-        packbuf[j++] = (uint8_t) g_player[i].ps->kickback_pic;
+        packbuf[siz++] = (uint8_t) g_player[i].ps->kickback_pic;
 
-        *(int16_t *)&packbuf[j] = actor[g_player[i].ps->i].owner;
-        j += sizeof(int16_t);
+        *(int16_t *)&packbuf[siz] = actor[g_player[i].ps->i].owner;
+        siz += sizeof(int16_t);
 
-        *(int16_t *)&packbuf[j] = actor[g_player[i].ps->i].picnum;
-        j += sizeof(int16_t);
+        *(int16_t *)&packbuf[siz] = actor[g_player[i].ps->i].picnum;
+        siz += sizeof(int16_t);
 
-        packbuf[j++] = (uint8_t) g_player[i].ps->curr_weapon;
-        packbuf[j++] = (int8_t) g_player[i].ps->last_weapon;
-        packbuf[j++] = (int8_t) g_player[i].ps->wantweaponfire;
-        packbuf[j++] = (int8_t) g_player[i].ps->weapon_pos;
-        packbuf[j++] = (uint8_t) g_player[i].ps->frag_ps;
+        packbuf[siz++] = (uint8_t) g_player[i].ps->curr_weapon;
+        packbuf[siz++] = (int8_t) g_player[i].ps->last_weapon;
+        packbuf[siz++] = (int8_t) g_player[i].ps->wantweaponfire;
+        packbuf[siz++] = (int8_t) g_player[i].ps->weapon_pos;
+        packbuf[siz++] = (uint8_t) g_player[i].ps->frag_ps;
 
-        packbuf[j++] = g_player[i].ps->frag;
-        packbuf[j++] = g_player[i].ps->fraggedself;
-        packbuf[j++] = g_player[i].ps->last_extra;
+        packbuf[siz++] = g_player[i].ps->frag;
+        packbuf[siz++] = g_player[i].ps->fraggedself;
+        packbuf[siz++] = g_player[i].ps->last_extra;
 
-        *(int16_t *)&packbuf[j] = g_player[i].ping;
-        j += sizeof(int16_t);
+        *(int16_t *)&packbuf[siz] = g_player[i].ping;
+        siz += sizeof(int16_t);
 
-        *(int16_t *)&packbuf[j] = g_player[i].ps->newowner;
-        j += sizeof(int16_t);
+        *(int16_t *)&packbuf[siz] = g_player[i].ps->newowner;
+        siz += sizeof(int16_t);
 
-        packbuf[j++] = sprite[g_player[i].ps->i].pal;
+        packbuf[siz++] = sprite[g_player[i].ps->i].pal;
 
         l = i;
         i = g_player[l].ps->i;
 
         {
-            int32_t jj;
+            int32_t jj, oa;
 
-            packbuf[(jj = j++)] = 0;
+            packbuf[(jj = siz++)] = 0;
 
-            Bmemcpy(&packbuf[j], &T5, sizeof(T5));
-            j += sizeof(T5);
+            if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
+            {
+                packbuf[jj] |= 2;
+                T5 -= (intptr_t)&script[0];
+#ifdef __x86_64__
+                T5 >>= 1;
+#endif
+            }
+
+            oa = T5;
+
+            *(int32_t *)&packbuf[siz] = T5;
+
+            siz += sizeof(int32_t);
+
+            if (oa != T5) T3 = T4 = 0;
+
+            if (packbuf[jj] & 2)
+            { 
+#ifdef __x86_64__
+                T5 <<= 1;
+#endif
+                T5 += (intptr_t)&script[0];
+            }
         }
 
         {
-            int16_t ii=g_gameVarCount-1, kk = 0;
+            int16_t ii=g_gameVarCount-1;
 
-            for (; ii>=0 && j <= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)); ii--)
+            for (; ii>=0 && siz <= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)); ii--)
             {
-                if ((aGameVars[ii].dwFlags & (GAMEVAR_PERACTOR|GAMEVAR_NOMULTI)) == GAMEVAR_PERACTOR && aGameVars[ii].val.plValues)
+                if ((aGameVars[ii].dwFlags & (GAMEVAR_PERACTOR|GAMEVAR_NOMULTI)) == GAMEVAR_PERACTOR && aGameVars[ii].val.plValues &&
+                    aGameVars[ii].val.plValues[i] != aGameVars[ii].lDefault)
                 {
-                    if (aGameVars[ii].val.plValues[i] != aGameVars[ii].lDefault)
-                    {
-                        *(int16_t *)&packbuf[j] = ii;
-                        j += sizeof(int16_t);
-                        *(int32_t *)&packbuf[j] = aGameVars[ii].val.plValues[i];
-                        j += sizeof(int32_t);
-                        kk++;
+                    *(int16_t *)&packbuf[siz] = ii;
+                    siz += sizeof(int16_t);
+                    *(int32_t *)&packbuf[siz] = aGameVars[ii].val.plValues[i];
+                    siz += sizeof(int32_t);
 
-                        if (j >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
-                            break;
-                    }
+                    if (siz >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
+                        break;
                 }
             }
-            *(int16_t *)&packbuf[j] = MAXGAMEVARS;
-            j += sizeof(int16_t);
+            *(int16_t *)&packbuf[siz] = MAXGAMEVARS;
+            siz += sizeof(int16_t);
         }
 
         i = l;
 
         {
-            int16_t ii=g_gameVarCount-1, kk = 0;
+            int16_t ii=g_gameVarCount-1;
 
-            for (; ii>=0 && j <= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)); ii--)
+            for (; ii>=0 && siz <= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)); ii--)
             {
-                if ((aGameVars[ii].dwFlags & (GAMEVAR_PERPLAYER|GAMEVAR_NOMULTI)) == GAMEVAR_PERPLAYER && aGameVars[ii].val.plValues)
+                if ((aGameVars[ii].dwFlags & (GAMEVAR_PERPLAYER|GAMEVAR_NOMULTI)) == GAMEVAR_PERPLAYER && aGameVars[ii].val.plValues &&
+                    aGameVars[ii].val.plValues[i] != aGameVars[ii].lDefault)
                 {
-                    if (aGameVars[ii].val.plValues[i] != aGameVars[ii].lDefault)
-                    {
-                        *(int16_t *)&packbuf[j] = ii;
-                        j += sizeof(int16_t);
-                        *(int32_t *)&packbuf[j] = aGameVars[ii].val.plValues[i];
-                        j += sizeof(int32_t);
-                        kk++;
+                    *(int16_t *)&packbuf[siz] = ii;
+                    siz += sizeof(int16_t);
+                    *(int32_t *)&packbuf[siz] = aGameVars[ii].val.plValues[i];
+                    siz += sizeof(int32_t);
 
-                        if (j >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
-                            break;
-                    }
-                }
-            }
-            *(int16_t *)&packbuf[j] = MAXGAMEVARS;
-            j += sizeof(int16_t);
-        }
-    }
-
-    k = 0;
-
-    {
-        int32_t zz, zj;
-
-        packbuf[(zj = j)] = 0;
-        j += sizeof(int16_t);
-
-        for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])) && j <= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)); zz++)
-            for (TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti))
-            {
-                // only send newly spawned sprites
-                if (!lastupdate[i] && sprite[i].statnum != MAXSTATUS)
-                {
-                    int32_t ii;
-
-                    j += (ii = Net_PackSprite(i, (uint8_t *)&packbuf[j]));
-                    if (ii) k++;
-
-                    lastupdate[i] = totalclock;
-
-                    if (j >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
+                    if (siz >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
                         break;
                 }
             }
-
-        *(int16_t *)&packbuf[zj] = k;
-        j += sizeof(int16_t);
+            *(int16_t *)&packbuf[siz] = MAXGAMEVARS;
+            siz += sizeof(int16_t);
+        }
     }
 
     {
-        char buf[PACKBUF_SIZE];
+        char buf[PACKBUF_SIZE+512];
 
-        if (j >= PACKBUF_SIZE)
+        if (siz >= PACKBUF_SIZE)
         {
-            initprintf("Global packet buffer overflow! Size of packet: %i\n", j);
+            initprintf("Global packet buffer overflow! Size of packet: %i\n", siz);
         }
 
-        j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
-        Bmemcpy((char *)(packbuf)+1, (char *)buf, j);
-        j++;
+        siz = qlz_compress((char *)(packbuf)+1, (char *)buf, siz, state_compress);
+        Bmemcpy((char *)(packbuf)+1, (char *)buf, siz);
+        siz++;
     }
 
-    packbuf[j++] = myconnectindex;
+    packbuf[siz++] = myconnectindex;
 
-    enet_host_broadcast(g_netServer, CHAN_MOVE, enet_packet_create(packbuf, j, 0));
+    enet_host_broadcast(g_netServer, CHAN_MOVE, enet_packet_create(packbuf, siz, 0));
 }
 
 void Net_StreamLevel(void)
 {
     int16_t i, nexti;
-    int32_t j = 0;
+    int32_t siz = 0;
     int32_t zz, zj, k = 0, l;
+    ENetPeer * currentPeer;
+    usize_t osize = sizeof(netmapstate_t);
 
     if (!g_netServer || numplayers < 2)
         return;
 
-    packbuf[j++] = PACKET_MAP_STREAM;
+    if (!streamoutput)
+        streamoutput = (netmapstate_t *)Bcalloc(1, sizeof(netmapstate_t));
 
-    *(uint16_t *)&packbuf[(zj = j)] = 0;
-    j += sizeof(uint16_t);
+    for (currentPeer = g_netServer->peers;
+        currentPeer < &g_netServer->peers[g_netServer->peerCount];
+        ++currentPeer)
+    {
+        if (currentPeer->state != ENET_PEER_STATE_CONNECTED)
+            continue;
 
-    for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])) && j <= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)); zz++)
-        for (TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti))
+        packbuf[siz++] = PACKET_MAP_STREAM;
+
+        if (g_multiMapRevisions[g_netMapRevision&(NET_REVISIONS-1)] == NULL)
+            g_multiMapRevisions[g_netMapRevision&(NET_REVISIONS-1)] = Bcalloc(1, sizeof(netmapstate_t));
+
+        Net_SaveMapState(g_multiMapRevisions[g_netMapRevision&(NET_REVISIONS-1)]);
+
+        xd3_encode_memory((const uint8_t *)g_multiMapRevisions[g_netMapRevision&(NET_REVISIONS-1)], sizeof(netmapstate_t),
+            (const uint8_t *)g_multiMapState[(intptr_t)currentPeer->data], sizeof(netmapstate_t),
+            (uint8_t *)streamoutput, &osize, sizeof(netmapstate_t), XD3_COMPLEVEL_1|XD3_NOCOMPRESS);
+
+        g_netMapRevision++;
+
         {
-            // only send STAT_MISC sprites at spawn time and let the client handle it from there
-            if (totalclock > (lastupdate[i] + TICRATE) && sprite[i].statnum != STAT_MISC)
+            char buf[PACKBUF_SIZE+512];
+
+            if (siz >= PACKBUF_SIZE)
             {
-                l = crc32once((uint8_t *)&sprite[i], sizeof(spritetype));
-
-                if (!lastupdate[i] || spritecrc[i] != l)
-                {
-                    int32_t ii;
-                    /*initprintf("updating sprite %d (%d)\n",i,sprite[i].picnum);*/
-                    spritecrc[i] = l;
-
-                    j += (ii = Net_PackSprite(i, (uint8_t *)&packbuf[j]));
-                    if (ii) k++;
-
-                    lastupdate[i] = totalclock;
-
-                    if (j >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
-                        break;
-                }
+                initprintf("Global packet buffer overflow! Size of packet: %i\n", siz);
+                return;
             }
+
+            siz = qlz_compress((char *)streamoutput, (char *)buf, osize, state_compress);
+            Bmemcpy((char *)(packbuf)+1, (char *)buf, siz);
+            siz++;
         }
 
-    *(uint16_t *)&packbuf[zj] = k;
-    k = 0;
+        packbuf[siz++] = myconnectindex;
 
-    *(uint16_t *)&packbuf[(zj = j)] = 0;
-    j += sizeof(uint16_t);
+        initprintf("final packet size: %d\n", siz);
 
-    for (i = numsectors-1; i >= 0 && j <= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)); i--)
-    {
-        if (totalclock > (lastsectupdate[i] + TICRATE))
-        {
-            l = crc32once((uint8_t *)&sector[i], sizeof(sectortype));
-
-            if (sectcrc[i] != l)
-            {
-                sectcrc[i] = l;
-                lastsectupdate[i] = totalclock;
-                j += Net_PackSect(i, (uint8_t *)&packbuf[j]);
-                k++;
-
-                if (j >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
-                    break;
-            }
-        }
+        enet_peer_send (currentPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, siz, ENET_PACKET_FLAG_RELIABLE));
     }
-    *(uint16_t *)&packbuf[zj] = k;
-    k = 0;
-
-    *(uint16_t *)&packbuf[(zj = j)] = 0;
-    j += sizeof(uint16_t);
-
-    for (i = numwalls-1; i >= 0 && j <= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)); i--)
-    {
-        if (totalclock > (lastwallupdate[i] + TICRATE))
-        {
-            l = crc32once((uint8_t *)&wall[i], sizeof(walltype));
-
-            if (wallcrc[i] != l)
-            {
-                wallcrc[i] = l;
-                lastwallupdate[i] = totalclock;
-                j += Net_PackWall(i, (uint8_t *)&packbuf[j]);
-                k++;
-
-                if (j >= (SYNCPACKETSIZE-(SYNCPACKETSIZE>>3)))
-                    break;
-            }
-        }
-    }
-    *(uint16_t *)&packbuf[zj] = k;
-
-    {
-        char buf[PACKBUF_SIZE];
-
-        if (j >= PACKBUF_SIZE)
-            initprintf("Global packet buffer overflow! Size of packet: %i\n", j);
-
-        j = qlz_compress((char *)(packbuf)+1, (char *)buf, j, state_compress);
-        Bmemcpy((char *)(packbuf)+1, (char *)buf, j);
-        j++;
-    }
-
-    packbuf[j++] = myconnectindex;
-
-    enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void faketimerhandler(void)
@@ -3141,18 +2148,18 @@ void Net_WaitForServer(void)
 
     if (numplayers < 2 || g_netServer) return;
 
-    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2/*+1*/);
+    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2);
 
     do
     {
         if (quitevent || keystatus[1]) G_GameExit("");
 
-        rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64);
+        rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
-        rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8);
-        rotatesprite_fs(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8);
+        rotatesprite(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8,0,0,xdim-1,ydim-1);
+        rotatesprite(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8,0,0,xdim-1,ydim-1);
         if (PLUTOPAK)   // JBF 20030804
-            rotatesprite_fs(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8);
+            rotatesprite(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8,0,0,xdim-1,ydim-1);
 
         gametext(160,170,"Waiting for server",14,2);
         nextpage();
@@ -3168,7 +2175,7 @@ void Net_WaitForServer(void)
 
         if (g_player[0].pingcnt > server_ready)
         {
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2/*+1*/);
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2);
             return;
         }
     }
