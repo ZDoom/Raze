@@ -2,27 +2,20 @@
 #define QLZ_HEADER
 
 // Fast data compression library
-// Copyright (C) 2006-2009 Lasse Mikkel Reinhold
+// Copyright (C) 2006-2011 Lasse Mikkel Reinhold
 // lar@quicklz.com
 //
-// QuickLZ can be used for free under the GPL-1 or GPL-2 license (where anything 
+// QuickLZ can be used for free under the GPL 1, 2 or 3 license (where anything 
 // released into public must be open source) or under a commercial license if such 
 // has been acquired (see http://www.quicklz.com/order.html). The commercial license 
 // does not cover derived or ported versions created by third parties under GPL.
 
 // You can edit following user settings. Data must be decompressed with the same 
 // setting of QLZ_COMPRESSION_LEVEL and QLZ_STREAMING_BUFFER as it was compressed
-// (see manual). If QLZ_STREAMING_BUFFER > 0, scratch buffers must be initially
-// zeroed out (see manual). First #ifndef makes it possible to define settings from 
+// (see manual). First #ifndef makes it possible to define settings from 
 // the outside like the compiler command line.
 
-// BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION 
-// BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION 
-// BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION 
-// BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION 
-// BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION BETA VERSION 
-
-// 1.5.0 BETA 2
+// 1.5.1 BETA 7
 
 #ifndef QLZ_COMPRESSION_LEVEL
 	//#define QLZ_COMPRESSION_LEVEL 1
@@ -38,7 +31,7 @@
 
 #define QLZ_VERSION_MAJOR 1
 #define QLZ_VERSION_MINOR 5
-#define QLZ_VERSION_REVISION 0
+#define QLZ_VERSION_REVISION 1
 
 // Using size_t, memset() and memcpy()
 #include <string.h>
@@ -122,7 +115,9 @@ typedef struct
 #if QLZ_STREAMING_BUFFER > 0
 		unsigned char stream_buffer[QLZ_STREAMING_BUFFER];
 #endif
+#if QLZ_COMPRESSION_LEVEL <= 2
 		qlz_hash_decompress hash[QLZ_HASH_VALUES];
+#endif
 		size_t stream_counter;
 	} qlz_state_decompress;
 #endif
