@@ -386,6 +386,9 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     int32_t cs;
     int32_t voice, sndang, ca, pitch;
 
+    if (apScriptGameEvent[EVENT_SOUND])
+        num = VM_OnEvent(EVENT_SOUND, i, screenpeek, -1, num);
+
     if ((unsigned)num > (unsigned)g_maxSoundPos ||
             ud.config.FXDevice < 0 ||
             ((g_sounds[num].m&8) && ud.lockout) ||
@@ -547,6 +550,9 @@ int32_t S_PlaySound(int32_t num)
     int32_t voice, j;
     int32_t doretry = 0;
 
+    if (apScriptGameEvent[EVENT_SOUND])
+        num = VM_OnEvent(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, -1, num);
+
     if (ud.config.FXDevice < 0) return -1;
     if (ud.config.SoundToggle==0) return -1;
     if (!(ud.config.VoiceToggle&1) && (g_sounds[num].m&4)) return -1;
@@ -621,9 +627,6 @@ int32_t S_PlaySound(int32_t num)
 
 int32_t A_PlaySound(uint32_t num, int32_t i)
 {
-    if (apScriptGameEvent[EVENT_SOUND])
-        num = VM_OnEvent(EVENT_SOUND, i, myconnectindex, -1, num);
-
     if ((unsigned)num > (unsigned)g_maxSoundPos) return -1;
 
     return i < 0 ? S_PlaySound(num) : 
