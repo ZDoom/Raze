@@ -2705,14 +2705,12 @@ CHECKINV1:
 
         j = ((sb_snum&(15<<SK_WEAPON_BITS))>>SK_WEAPON_BITS) - 1;
 
-        aGameVars[g_iReturnVarID].val.lValue = j;
-
         switch ((int32_t)j)
         {
         case -1:
             break;
         default:
-            VM_OnEvent(EVENT_WEAPKEY1+j,p->i,snum, -1, 0);
+            j = (uint32_t)VM_OnEvent(EVENT_WEAPKEY1+j,p->i,snum, -1, j);
             break;
         case 10:
             VM_OnEvent(EVENT_PREVIOUSWEAPON,p->i,snum, -1, 0);
@@ -2721,8 +2719,6 @@ CHECKINV1:
             VM_OnEvent(EVENT_NEXTWEAPON,p->i,snum, -1, 0);
             break;
         }
-
-        j = (uint32_t) aGameVars[g_iReturnVarID].val.lValue;
 
         if (p->reloading == 1)
             j = -1;
