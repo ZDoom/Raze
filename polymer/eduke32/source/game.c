@@ -7003,11 +7003,9 @@ enum cheatindex_t
 
 static void doinvcheat(int32_t invidx, int32_t defaultnum, int32_t event)
 {
-    if (VM_OnEvent(event, g_player[myconnectindex].ps->i, myconnectindex, -1, defaultnum) >= 0)
-    {
-        g_player[myconnectindex].ps->inv_amount[invidx] =
-            aGameVars[g_iReturnVarID].val.lValue;
-    }
+    defaultnum = VM_OnEvent(event, g_player[myconnectindex].ps->i, myconnectindex, -1, defaultnum);
+    if (defaultnum >= 0)
+        g_player[myconnectindex].ps->inv_amount[invidx] = defaultnum;
 }
 
 static void G_CheatGetInv(void)
