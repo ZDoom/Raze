@@ -38,7 +38,7 @@ or else fragmentation will occur
 */
 #define SYNCPACKETSIZE 1344
 
-int32_t g_netMapRevision = 0;
+uint32_t g_netMapRevision = 0;
 ENetHost *g_netServer = NULL;
 ENetHost *g_netClient = NULL;
 ENetPeer *g_netClientPeer = NULL;
@@ -66,6 +66,16 @@ netmapstate_t *g_multiMapRevisions[NET_REVISIONS];
 netmapstate_t *streamoutput = NULL;
 #pragma pack(pop)
 
+static void alloc_multimapstate(int32_t i)
+{
+    if (g_multiMapState[i] == NULL)
+    {
+        g_multiMapState[i] = Bcalloc(1, sizeof(netmapstate_t));
+        if (g_multiMapState[i] == NULL)
+            G_GameExit("OUT OF MEMORY in alloc_multimapst!");
+    }
+}
+
 void Net_SaveMapState(netmapstate_t *save)
 {
     if (save != NULL)
@@ -73,7 +83,7 @@ void Net_SaveMapState(netmapstate_t *save)
         int32_t i;
         intptr_t j;
 
-        save->revision = g_netMapRevision&(NET_REVISIONS-1);
+        save->revision = g_netMapRevision;
         Bmemcpy(&save->numwalls,&numwalls,sizeof(numwalls));
         Bmemcpy(&save->wall[0],&wall[0],sizeof(walltype)*MAXWALLS);
         Bmemcpy(&save->numsectors,&numsectors,sizeof(numsectors));
@@ -226,7 +236,7 @@ void Net_RestoreMapState(netmapstate_t *save)
         char phealth[MAXPLAYERS];
 
 
-        assert(save->crc == crc32once((uint8_t *)save, offsetof(netmapstate_t, crc)));
+        Bassert(save->crc == crc32once((uint8_t *)save, offsetof(netmapstate_t, crc)));
 
         for (i=0; i<playerswhenstarted; i++)
             phealth[i] = sprite[g_player[i].ps->i].extra;
@@ -373,7 +383,7 @@ void Net_RestoreMapState(netmapstate_t *save)
 
 //        G_ClearFIFO();
 //        G_ResetTimers();
-        initprintf("Net_RestoreMapState(): restored revision %d\n",save->revision);
+        initprintf("Net_RestoreMapState(): restored revision %u\n",save->revision);
     }
 }
 
@@ -691,7 +701,7 @@ void Net_SyncPlayer(ENetEvent *event)
 
     if (g_player[0].ps->gm & MODE_GAME)
     {
-        if (g_multiMapState[i] == NULL) g_multiMapState[i] = (netmapstate_t *)Bcalloc(1, sizeof(netmapstate_t));
+        alloc_multimapstate(i);
         if (g_multiMapState[i])
         {
             char *buf = (char *)Bmalloc(sizeof(netmapstate_t)+512);
@@ -935,6 +945,7 @@ void Net_ParseServerPacket(ENetEvent *event)
 
         {
             usize_t osize = 0;
+            int ret;
 
             j = 0;
 
@@ -943,9 +954,11 @@ void Net_ParseServerPacket(ENetEvent *event)
             packbufleng = qlz_decompress((char *)&event->packet->data[1], (char *)(pbuf), state_decompress);
 
             initprintf("packbufleng: %d\n", packbufleng);
-            initprintf("xdelta3 returned %d\n",
-                xd3_decode_memory((const uint8_t *)pbuf, packbufleng, (const uint8_t *)g_multiMapState[0], sizeof(netmapstate_t),
-                (uint8_t *)streamoutput, &osize, sizeof(netmapstate_t), XD3_COMPLEVEL_1|XD3_NOCOMPRESS));
+
+            ret = xd3_decode_memory((const uint8_t *)pbuf, packbufleng, (const uint8_t *)g_multiMapState[0], sizeof(netmapstate_t),
+                (uint8_t *)streamoutput, &osize, sizeof(netmapstate_t), XD3_COMPLEVEL_1|XD3_NOCOMPRESS);
+            initprintf("xdelta3 returned %d\n", ret);
+
             if (sizeof(netmapstate_t) != osize)
                 initprintf("decompressed data size mismatch!\n");
             Net_RestoreMapState(streamoutput);
@@ -1203,6 +1216,9 @@ void Net_ParseClientPacket(ENetEvent *event)
     switch (pbuf[0])
     {
     case PACKET_SLAVE_TO_MASTER:  //[1] (receive slave sync buffer)
+    {
+        const intptr_t playeridx = (intptr_t)event->peer->data;
+
         j = 0;
 
         packbufleng = qlz_size_decompressed((char *)&pbuf[1]);
@@ -1214,7 +1230,12 @@ void Net_ParseClientPacket(ENetEvent *event)
         g_player[other].revision = *(uint32_t *)&pbuf[j];
         j += sizeof(uint32_t);
 
-        Bmemcpy(g_multiMapState[(intptr_t)event->peer->data], g_multiMapRevisions[g_player[other].revision&(NET_REVISIONS-1)], sizeof(netmapstate_t));
+        alloc_multimapstate(playeridx);
+        // XXX: g_multiMapRevisions[...] is NULL when started like
+        // (peer 1)$ eduke32 -server
+        // (peer 2)$ eduke32 -connect localhost
+        // (peer 1 starts some map)
+        Bmemcpy(g_multiMapState[playeridx], g_multiMapRevisions[g_player[other].revision&(NET_REVISIONS-1)], sizeof(netmapstate_t));
 
         Bmemcpy(&nsyn[other], &pbuf[j], sizeof(input_t));
         j += offsetof(input_t, filler);
@@ -1252,6 +1273,7 @@ void Net_ParseClientPacket(ENetEvent *event)
 
         Bfree(pbuf);
         break;
+    }
 
     case PACKET_PLAYER_READY:
         j = g_player[other].ps->i;
@@ -1608,7 +1630,7 @@ void Net_GetPackets(void)
                             buf = (uint8_t *)Bcalloc(1, sizeof(netmapstate_t)+512);
                         }
 
-                        g_multiMapState[0] = (netmapstate_t *)Brealloc(g_multiMapState[0], sizeof(netmapstate_t));
+                        alloc_multimapstate(0);
 
                         rotatesprite(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64,0,0,xdim-1,ydim-1);
 
@@ -1729,6 +1751,7 @@ void Net_ClientMove(void)
     {
         char buf[1024];
 
+        Bassert((signed)sizeof(buf) >= siz+400);
         siz = qlz_compress((char *)(packbuf)+1, (char *)buf, siz, state_compress);
         Bmemcpy((char *)(packbuf)+1, (char *)buf, siz);
         siz++;
@@ -1977,7 +2000,7 @@ void Net_StreamLevel(void)
 
         packbuf[siz++] = myconnectindex;
 
-        initprintf("final packet size: %d\n", siz);
+        initprintf("revision %u: final packet size: %d\n", g_netMapRevision-1, siz);
 
         enet_peer_send (currentPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, siz, ENET_PACKET_FLAG_RELIABLE));
     }

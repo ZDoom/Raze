@@ -129,7 +129,7 @@ extern netmapstate_t  *g_multiMapState[MAXPLAYERS];
 extern netmapstate_t  *g_multiMapRevisions[NET_REVISIONS];
 #pragma pack(pop)
 
-extern int32_t        g_netMapRevision;
+extern uint32_t        g_netMapRevision;
 extern ENetHost       *g_netClient;
 extern ENetHost       *g_netServer;
 extern ENetPeer       *g_netClientPeer;
