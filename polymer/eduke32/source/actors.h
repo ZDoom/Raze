@@ -43,6 +43,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define STAT_DUMMYPLAYER    13
 #define STAT_LIGHT          14
 
+#ifdef LUNATIC
+// Ai, action, move getters from t_data[]  (== tptr)
+# define SACTION_STARTFRAME(tptr) ((tptr)[6]&65535)
+# define SACTION_NUMFRAMES(tptr) (((tptr)[6]>>16)&65535)
+# define SACTION_VIEWTYPE(tptr) ((tptr)[7]&0x7fffffff)
+# define SACTION_INCVAL(tptr) ((tptr)[7]>>31)  // arithmetic shr expected!
+# define SACTION_DELAY(tptr)  ((tptr)[8]&65535)
+#endif
+
 // Defines the motion characteristics of an actor
 enum amoveflags_t {
     face_player         = 1,

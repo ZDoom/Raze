@@ -699,7 +699,13 @@ static void A_MoveSector(int32_t i)
     }
 }
 
-#define LIGHTRAD_PICOFS (T5 ? *(script+T5) + (*(script+T5+2))*T4 : 0)
+#if 1 //ndef LUNATIC
+# define LIGHTRAD_PICOFS (T5 ? *(script+T5) + (*(script+T5+2))*T4 : 0)
+#else
+// SACTION
+// startframe + viewtype*???
+# define LIGHTRAD_PICOFS (SACTION_STARTFRAME(actor[i].t_data) + SACTION_VIEWTYPE(actor[i].t_data)*T4)
+#endif
 
 // this is the same crap as in game.c's tspr manipulation.  puke.
 #define LIGHTRAD (s->yrepeat * tilesizy[s->picnum+LIGHTRAD_PICOFS])

@@ -5004,17 +5004,27 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     /* Helixhorned: let's do away with intptr_t's... */
     if ((unsigned)vm.g_t[4] + 4 < (unsigned)g_scriptSize)
     {
+#if 1 //ndef LUNATIC
+        const int32_t action_frames = *(script + vm.g_t[4] + 1);
+        const int32_t action_incval = *(script + vm.g_t[4] + 3);
+        const int32_t action_delay = *(script + vm.g_t[4] + 4);
+#else
+        // SACTION
+        const int32_t action_frames = SACTION_NUMFRAMES(vm.g_t);
+        const int32_t action_incval = SACTION_INCVAL(vm.g_t);
+        const int32_t action_delay = SACTION_DELAY(vm.g_t);
+#endif
         vm.g_sp->lotag += TICSPERFRAME;
 
-        if (vm.g_sp->lotag > *(script + vm.g_t[4] + 4))
+        if (vm.g_sp->lotag > action_delay)
         {
             vm.g_t[2]++;
             vm.g_sp->lotag = 0;
 
-            vm.g_t[3] +=  *(script + vm.g_t[4] + 3);
+            vm.g_t[3] += action_incval;
         }
 
-        if (klabs(vm.g_t[3]) >= klabs(*(script + vm.g_t[4] + 1) * *(script + vm.g_t[4] + 3)))
+        if (klabs(vm.g_t[3]) >= klabs(action_frames * action_incval))
             vm.g_t[3] = 0;
     }
 

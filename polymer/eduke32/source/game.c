@@ -5995,7 +5995,7 @@ static int32_t maybe_take_on_pal_of_floor(spritetype *datspr, int32_t sect)
 void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 {
     int32_t i, j, k, p, sect;
-    intptr_t l, t1,t3,t4;
+    intptr_t l, t_data1,t_data3,t_data4;
     spritetype *s,*t;
     int32_t switchpic;
 
@@ -6130,6 +6130,9 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
     for (j=spritesortcnt-1; j>=0; j--) //Between drawrooms() and drawmasks()
     {
+#if 0  // def LUNATIC
+        const int32_t *tptr;
+#endif
         //is the perfect time to animate sprites
         t = &tsprite[j];
         i = t->owner;
@@ -6227,9 +6230,14 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         }
 
         sect = s->sectnum;
-        t1 = T2;
-        t3 = T4;
-        t4 = T5;
+        t_data1 = T2;
+        t_data3 = T4;
+#if 1  // ndef LUNATIC
+        t_data4 = T5;  // SACTION
+#else
+        tptr = &actor[i].t_data;
+#endif
+
         switchpic = s->picnum;
         //some special cases because dynamictostatic system can't handle addition to constants
         if ((s->picnum >= SCRAP6)&&(s->picnum<=SCRAP6+7))
@@ -6365,7 +6373,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
             }
             else t->cstat &= ~4;
 
-            if (klabs(t3) > 64) k += 7;
+            if (klabs(t_data3) > 64) k += 7;
             t->picnum = RECON+k;
 
             break;
@@ -6497,9 +6505,14 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
             if (g_player[p].ps->newowner > -1)
             {
-                t4 = *(actorscrptr[APLAYER]+1);
-                t3 = 0;
-                t1 = *(actorscrptr[APLAYER]+2);
+#if 1  // ndef LUNATIC
+                t_data4 = *(actorscrptr[APLAYER]+1);
+#else
+                // Lunatic TODO: SACTION of APLAYER
+                tptr = (void)0;  // forced compilation error
+#endif
+                t_data3 = 0;
+                t_data1 = *(actorscrptr[APLAYER]+2);
             }
 
             if (ud.camerasprite == -1 && g_player[p].ps->newowner == -1)
@@ -6606,10 +6619,14 @@ PALONLY:
             }
             */
 
-            if ((unsigned)t4 + 2 >= (unsigned)g_scriptSize)
+#if 1  //ndef LUNATIC
+            if ((unsigned)t_data4 + 2 >= (unsigned)g_scriptSize)
                 goto skip;
 
-            l = *(script + t4 + 2);
+            l = *(script + t_data4 + 2);
+#else
+            l = SACTION_VIEWTYPE(tptr);
+#endif
 
 #ifdef USE_OPENGL
             if (getrendermode() >= 3 && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
@@ -6665,7 +6682,11 @@ PALONLY:
                     break;
                 }
 
-            t->picnum += k + *(script + t4) + l*t3;
+#if 1  // ndef LUNATIC
+            t->picnum += k + *(script + t_data4) + l*t_data3;
+#else
+            t->picnum += k + SACTION_STARTFRAME(tptr) + l*t_data3;
+#endif
 
             if (l > 0)
                 while (tilesizx[t->picnum] == 0 && t->picnum > 0)
@@ -6824,7 +6845,7 @@ skip:
             break;
 
         case WATERSPLASH2__STATIC:
-            t->picnum = WATERSPLASH2+t1;
+            t->picnum = WATERSPLASH2+t_data1;
             break;
         case SHELL__STATIC:
             t->picnum = s->picnum+(T1&1);
