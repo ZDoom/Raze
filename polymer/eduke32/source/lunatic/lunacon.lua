@@ -95,7 +95,6 @@ local function cmd(...)
     local pat = Pat(true)
     local vartypes = {...}
 
-    local spat = ""
     for i=1,#vartypes do
         assert(vartypes[i] < 0)
 

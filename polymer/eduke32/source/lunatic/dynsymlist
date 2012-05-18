@@ -1,5 +1,6 @@
 {
 engine_main_arrays_are_static;
+engine_v8;
 
 sector;
 wall;
@@ -25,6 +26,5 @@ nextsectbunch;
 actor;
 ud;
 
-luaJIT_BC_con_lang;
-luaJIT_BC_lunacon;
+luaJIT_BC_*;
 };

@@ -54,6 +54,12 @@ const int32_t engine_main_arrays_are_static = 0;  // for Lunatic
 const int32_t engine_main_arrays_are_static = 1;
 #endif
 
+#if MAXSECTORS==MAXSECTORSV8
+const int32_t engine_v8 = 1;
+#else
+const int32_t engine_v8 = 0;
+#endif
+
 float debug1, debug2;
 
 static void drawpixel_safe(void *s, char a)
