@@ -191,7 +191,7 @@ endif
 # PLATFORM SPECIFIC SETTINGS
 
 ifeq ($(PLATFORM),LINUX)
-    ifneq ($(CC),clang)
+    ifeq (0,$(CLANG))
         OURCFLAGS	+= -fno-pic
     endif
     OURASFLAGS	+= -f elf

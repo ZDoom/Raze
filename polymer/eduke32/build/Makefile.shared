@@ -26,7 +26,7 @@ ifeq (4,$(GCC_MAJOR))
     F_NO_STACK_PROTECTOR := -fno-stack-protector
     # there are some link-time issues with stack protectors, so make it possible to override
     F_STACK_PROTECTOR_ALL ?= -fstack-protector-all
-    ifneq ($(CC),clang)
+    ifeq (0,$(CLANG))
         F_JUMP_TABLES := -fjump-tables
     endif
     M_TUNE_GENERIC := -mtune=generic

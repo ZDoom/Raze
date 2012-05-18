@@ -79,7 +79,7 @@ RANLIB=ranlib
 STRIP=strip
 
 ifneq (0,$(CLANG))
-    CC=clang
+    CC=clang -std=gnu89
     CXX=clang++
 #    AR=llvm-ar
 #    RANLIB=llvm-ranlib
@@ -103,7 +103,7 @@ endif
 
 ifneq ($(RELEASE)$(DEBUGANYWAY),10)
     # debug build or DEBUGANYWAY=1 --> -g flag
-    ifeq ($(CC),clang)
+    ifneq (0,$(CLANG))
         debug=-g
     else
         debug=-ggdb
@@ -113,7 +113,7 @@ endif
 ifneq (0,$(RELEASE))
     # Debugging disabled
     debug+= -O$(OPTLEVEL)
-    ifneq ($(CC),clang)
+    ifeq (0,$(CLANG))
         debug+= -funswitch-loops
     endif
     ifeq (0,$(DEBUGANYWAY))
@@ -133,7 +133,7 @@ else
         debug+= -DDEBUGGINGAIDS=2
     endif
 
-    ifeq ($(CC),clang)
+    ifneq (0,$(CLANG))
 #        CLANG_MAJOR := $(shell clang -dM -E -x c /dev/null | grep __clang_major__ | awk '{ print $$3 }')
         debug+= -fcatch-undefined-behavior
 #        ifeq ($(CLANG_MAJOR),3)
@@ -157,7 +157,7 @@ else
     endif
 endif
 
-ifneq ($(CC),clang)
+ifeq (0,$(CLANG))
     W_NO_UNUSED_RESULT := $(shell echo '' | $(CC) -E -Wno-unused-result - 2>/dev/null && echo -Wno-unused-result)
     W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
 else
@@ -168,7 +168,7 @@ BASECFLAGS=$(debug) -W -Wall -Werror-implicit-function-declaration \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
 	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH) \
 	-Wextra #-Wwrite-strings -Waddress -Wlogical-op
-ifeq ($(CC),clang)
+ifneq (0,$(CLANG))
     BASECFLAGS+= -Wno-unused-value -Wno-parentheses
 endif
 
