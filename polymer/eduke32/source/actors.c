@@ -7882,8 +7882,8 @@ int32_t A_CheckEnemyTile(int32_t pn)
 {
     //this case can't be handled by the dynamictostatic system because it adds
     //stuff to the value from names.h so handling separately
-    if (A_CheckSpriteTileFlags(pn, SPRITE_BADGUY) || 
-        ActorType[pn] || 
+    if (A_CheckSpriteTileFlags(pn, SPRITE_BADGUY) ||
+        (ActorType[pn]&3) ||
         (pn >= GREENSLIME && pn <= GREENSLIME+7))
         return 1;
 
