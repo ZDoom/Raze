@@ -15789,7 +15789,7 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
         png_set_PLTE(png_ptr, info_ptr, palette, 256);
     }
 
-    png_set_gAMA(png_ptr, info_ptr, vid_gamma);  // 1.0/vid_gamma ?
+//    png_set_gAMA(png_ptr, info_ptr, vid_gamma);  // 1.0/vid_gamma ?
 //    png_set_sRGB(png_ptr, info_ptr, PNG_sRGB_INTENT_SATURATION);  // hm...
 
     text = (png_textp)png_malloc(png_ptr, 2*png_sizeof(png_text));
