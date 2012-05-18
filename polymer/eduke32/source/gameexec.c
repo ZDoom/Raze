@@ -3468,8 +3468,9 @@ nullquote:
                         index=Gv_GetVarX(*insptr++);
                         if ((index < aGameArrays[lVarID].size)&&(index>=0))
                         {
-                            OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n",keyw[g_tw],g_errorLineNum,
-                                       aGameArrays[lVarID].szLabel,index,m*aGameArrays[lVarID].plValues[index]);
+                            OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n", keyw[g_tw], g_errorLineNum,
+                                       aGameArrays[lVarID].szLabel, index,
+                                       (int32_t)(m*aGameArrays[lVarID].plValues[index]));
                             continue;
                         }
                         else

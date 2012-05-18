@@ -417,7 +417,7 @@ int32_t Gv_NewArray(const char *pszLabel, int32_t asize)
         aGameArrays[i].szLabel=(char *)Bcalloc(MAXVARLABEL,sizeof(uint8_t));
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
-    aGameArrays[i].plValues=(int32_t *)Bcalloc(asize,sizeof(int32_t));
+    aGameArrays[i].plValues=(intptr_t *)Bcalloc(asize,sizeof(int32_t));
     aGameArrays[i].size=asize;
     aGameArrays[i].bReset=0;
     g_gameArrayCount++;
