@@ -122,7 +122,7 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/osdcmds.$o \
 	$(OBJ)/grpscan.$o \
 	$(OBJ)/sounds.$o \
-        $(OBJ)/xdelta3/xdelta3.$o \
+        $(OBJ)/xdelta3.$o \
 	$(JMACTOBJ)
 
 EDITOROBJS=$(OBJ)/astub.$o \
@@ -399,6 +399,10 @@ $(OBJ)/%.$o: $(SRC)/lunatic/%.c
 	$(COMPILE_STATUS)
 	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
+$(OBJ)/%.$o: $(SRC)/xdelta3/%.c
+	$(COMPILE_STATUS)
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
 $(SRC)/lunatic/dynsymlist_osx: $(SRC)/lunatic/dynsymlist
 	sed 's/[{};]//g;s/[A-Za-z_][A-Za-z_0-9]*/_&/g' $< > $@
 
@@ -459,7 +463,7 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 # PHONIES	
 
 clean:
-	-rm -rf $(OBJ)/* eduke32$(EXESUFFIX) eduke32$(EXESUFFIX).memmap mapster32$(EXESUFFIX) mapster32$(EXESUFFIX).memmap core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
+	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) eduke32$(EXESUFFIX).memmap mapster32$(EXESUFFIX) mapster32$(EXESUFFIX).memmap core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf EDuke32.app Mapster32.app
 endif
