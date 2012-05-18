@@ -55,6 +55,15 @@
     <Filter Include="eduke32\headers\editor">
       <UniqueIdentifier>{3477e5cd-29a4-42b2-8c3f-ca4618242526}</UniqueIdentifier>
     </Filter>
+    <Filter Include="xdelta3">
+      <UniqueIdentifier>{12a5b319-4b7f-48b1-8951-2c8a99f6b9de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="xdelta3\headers">
+      <UniqueIdentifier>{4f8ecf07-86d9-4285-9592-8e1644737b05}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="xdelta3\source">
+      <UniqueIdentifier>{638f3a5e-877a-4371-9cf9-4fa9bd727f81}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="build\include\a.h">
@@ -366,6 +375,21 @@
     <ClInclude Include="source\sounds_mapster32.h">
       <Filter>eduke32\headers\editor</Filter>
     </ClInclude>
+    <ClInclude Include="source\xdelta3\xdelta3.h">
+      <Filter>xdelta3\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\xdelta3\xdelta3-cfgs.h">
+      <Filter>xdelta3\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\xdelta3\xdelta3-decode.h">
+      <Filter>xdelta3\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\xdelta3\xdelta3-hash.h">
+      <Filter>xdelta3\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\xdelta3\xdelta3-list.h">
+      <Filter>xdelta3\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -649,6 +673,9 @@
     </ClCompile>
     <ClCompile Include="source\sounds_mapster32.c">
       <Filter>eduke32\source\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="source\xdelta3\xdelta3.c">
+      <Filter>xdelta3\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -124,6 +124,11 @@
     <ClInclude Include="source\quotes.h" />
     <ClInclude Include="source\savegame.h" />
     <ClInclude Include="source\sector.h" />
+    <ClInclude Include="source\xdelta3\xdelta3-cfgs.h" />
+    <ClInclude Include="source\xdelta3\xdelta3-decode.h" />
+    <ClInclude Include="source\xdelta3\xdelta3-hash.h" />
+    <ClInclude Include="source\xdelta3\xdelta3-list.h" />
+    <ClInclude Include="source\xdelta3\xdelta3.h" />
     <ClInclude Include="source\_functio.h" />
     <ClInclude Include="source\_rts.h" />
     <ClInclude Include="source\config.h" />
@@ -271,6 +276,7 @@
     <ClCompile Include="source\enet\src\protocol.c" />
     <ClCompile Include="source\enet\src\unix.c" />
     <ClCompile Include="source\enet\src\win32.c" />
+    <ClCompile Include="source\xdelta3\xdelta3.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build\Makefile.msvc" />
