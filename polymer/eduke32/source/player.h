@@ -290,6 +290,6 @@ void        P_ProcessWeapon(int32_t snum);
 void        P_QuickKill(DukePlayer_t *p);
 void        P_SelectNextInvItem(DukePlayer_t *p);
 void        P_UpdateScreenPal(DukePlayer_t *p);
-void P_PalFrom(DukePlayer_t *p, uint8_t f, uint8_t r, uint8_t g, uint8_t b);
+void        P_PalFrom(DukePlayer_t *p, uint8_t f, uint8_t r, uint8_t g, uint8_t b);
 #endif
 
