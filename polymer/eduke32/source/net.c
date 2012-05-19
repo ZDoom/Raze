@@ -1235,7 +1235,7 @@ void Net_ParseClientPacket(ENetEvent *event)
         // (peer 1)$ eduke32 -server
         // (peer 2)$ eduke32 -connect localhost
         // (peer 1 starts some map)
-        Bmemcpy(g_multiMapState[playeridx], g_multiMapRevisions[g_player[other].revision&(NET_REVISIONS-1)], sizeof(netmapstate_t));
+//         Bmemcpy(g_multiMapState[playeridx], g_multiMapRevisions[g_player[other].revision&(NET_REVISIONS-1)], sizeof(netmapstate_t));
 
         Bmemcpy(&nsyn[other], &pbuf[j], sizeof(input_t));
         j += offsetof(input_t, filler);
