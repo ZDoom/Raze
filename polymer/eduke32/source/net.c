@@ -744,14 +744,170 @@ void Net_SyncPlayer(ENetEvent *event)
     }
 }
 
+static int32_t NewGameCommon(uint8_t *pbuf)
+{
+    int32_t i;
+
+    if ((vote_map + vote_episode + voting) != -3)
+        G_AddUserQuote("Vote Succeeded");
+
+    ud.m_level_number = ud.level_number = pbuf[1];
+    ud.m_volume_number = ud.volume_number = pbuf[2];
+    ud.m_player_skill = ud.player_skill = pbuf[3];
+    ud.m_monsters_off = ud.monsters_off = pbuf[4];
+    ud.m_respawn_monsters = ud.respawn_monsters = pbuf[5];
+    ud.m_respawn_items = ud.respawn_items = pbuf[6];
+    ud.m_respawn_inventory = ud.respawn_inventory = pbuf[7];
+    ud.m_coop = pbuf[8];
+    ud.m_marker = ud.marker = pbuf[9];
+    ud.m_ffire = ud.ffire = pbuf[10];
+    ud.m_noexits = ud.noexits = pbuf[11];
+
+    for (TRAVERSE_CONNECT(i))
+    {
+        P_ResetWeapons(i);
+        P_ResetInventory(i);
+    }
+
+    G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
+    ud.coop = ud.m_coop;
+
+    if (G_EnterLevel(MODE_GAME))
+    {
+        G_BackToMenu();
+        return 1;
+    }
+
+    return 0;
+}
+
+static void ParsePacketCommon(uint8_t *pbuf, int32_t packbufleng, int32_t serverpacketp)
+{
+    int32_t i, j;
+    int32_t other = pbuf[packbufleng];
+
+    switch (pbuf[0])
+    {
+    case PACKET_MESSAGE:
+        Bstrncpy(recbuf, (char *)pbuf+2, packbufleng-2);
+        recbuf[packbufleng-2] = 0;
+
+        G_AddUserQuote(recbuf);
+        S_PlaySound(EXITMENUSOUND);
+
+        pus = pub = NUMPAGES;
+        break;
+
+    case PACKET_CLIENT_INFO:
+        for (i=1; pbuf[i]; i++)
+            g_player[other].user_name[i-1] = pbuf[i];
+        g_player[other].user_name[i-1] = 0;
+        i++;
+
+        g_player[other].ps->aim_mode = pbuf[i++];
+        g_player[other].ps->auto_aim = pbuf[i++];
+        g_player[other].ps->weaponswitch = pbuf[i++];
+        g_player[other].ps->palookup = g_player[other].pcolor = pbuf[i++];
+        g_player[other].pteam = pbuf[i++];
+
+        for (j=i; i-j<10; i++) g_player[other].wchoice[i-j] = pbuf[i];
+
+        if (serverpacketp)
+            g_player[other].playerquitflag = 1;
+
+        break;
+
+    case PACKET_RTS:
+        if (rts_numlumps == 0) break;
+
+        if (ud.config.SoundToggle == 0 || ud.lockout == 1 || ud.config.FXDevice < 0 || !(ud.config.VoiceToggle & 4))
+            break;
+
+        FX_PlayAuto3D((char *)RTS_GetSound(pbuf[1]-1),RTS_SoundLength(pbuf[1]-1),0,0,0,255,-pbuf[1]);
+        g_RTSPlaying = 7;
+        break;
+
+    case PACKET_USER_MAP:
+        Bstrcpy(boardfilename,(char *)pbuf+1);
+        boardfilename[packbufleng-1] = 0;
+        Bcorrectfilename(boardfilename,0);
+        if (boardfilename[0] != 0)
+        {
+            if ((i = kopen4loadfrommod(boardfilename,0)) < 0)
+            {
+                Bmemset(boardfilename,0,sizeof(boardfilename));
+                Net_SendUserMapName();
+            }
+            else kclose(i);
+        }
+
+        if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
+            ud.m_level_number = 0;
+        break;
+
+    case PACKET_MAP_VOTE:
+        if (voting == myconnectindex && g_player[(uint8_t)pbuf[1]].gotvote == 0)
+        {
+            g_player[(uint8_t)pbuf[1]].gotvote = 1;
+            g_player[(uint8_t)pbuf[1]].vote = pbuf[2];
+            Bsprintf(tempbuf,"Confirmed vote from %s",g_player[(uint8_t)pbuf[1]].user_name);
+            G_AddUserQuote(tempbuf);
+        }
+        break;
+
+    case PACKET_MAP_VOTE_INITIATE: // call map vote
+        voting = pbuf[1];
+        vote_episode = pbuf[2];
+        vote_map = pbuf[3];
+
+        Bsprintf(tempbuf,"%s^00 has called a vote to change map to %s (E%dL%d)",
+                 g_player[(uint8_t)pbuf[1]].user_name,
+                 MapInfo[(uint8_t)(pbuf[2]*MAXLEVELS + pbuf[3])].name,
+                 pbuf[2]+1,pbuf[3]+1);
+        G_AddUserQuote(tempbuf);
+
+        Bsprintf(tempbuf,"Press F1 to Accept, F2 to Decline");
+        G_AddUserQuote(tempbuf);
+
+        for (i=MAXPLAYERS-1; i>=0; i--)
+        {
+            g_player[i].vote = 0;
+            g_player[i].gotvote = 0;
+        }
+        g_player[voting].gotvote = g_player[voting].vote = 1;
+        break;
+
+    case PACKET_MAP_VOTE_CANCEL: // cancel map vote
+        if (voting == pbuf[1])
+        {
+            voting = -1;
+            i = 0;
+            for (j=MAXPLAYERS-1; j>=0; j--)
+                i += g_player[j].gotvote;
+
+            if (i != numplayers)
+                Bsprintf(tempbuf,"%s^00 has canceled the vote",g_player[(uint8_t)pbuf[1]].user_name);
+            else Bsprintf(tempbuf,"Vote Failed");
+            for (i=MAXPLAYERS-1; i>=0; i--)
+            {
+                g_player[i].vote = 0;
+                g_player[i].gotvote = 0;
+            }
+            G_AddUserQuote(tempbuf);
+        }
+        break;
+    }
+}
+
 
 void Net_ParseServerPacket(ENetEvent *event)
 {
     uint8_t *pbuf = event->packet->data;
     int32_t packbufleng = event->packet->dataLength;
     int32_t i, j, l;
-    int32_t other = pbuf[--packbufleng];
     input_t *nsyn;
+
+    --packbufleng;  //    int32_t other = pbuf[--packbufleng];
 
 #if 0
     initprintf("Received Packet: type: %d : len %d\n", pbuf[0], packbufleng);
@@ -968,48 +1124,9 @@ void Net_ParseServerPacket(ENetEvent *event)
 
         break;
 
-
-    case PACKET_MESSAGE:
-        Bstrncpy(recbuf, (char *)pbuf+2, packbufleng-2);
-        recbuf[packbufleng-2] = 0;
-
-        G_AddUserQuote(recbuf);
-        S_PlaySound(EXITMENUSOUND);
-
-        pus = pub = NUMPAGES;
-
-        break;
-
     case PACKET_NEW_GAME:
-        if ((vote_map + vote_episode + voting) != -3)
-            G_AddUserQuote("Vote Succeeded");
-
-        ud.m_level_number = ud.level_number = pbuf[1];
-        ud.m_volume_number = ud.volume_number = pbuf[2];
-        ud.m_player_skill = ud.player_skill = pbuf[3];
-        ud.m_monsters_off = ud.monsters_off = pbuf[4];
-        ud.m_respawn_monsters = ud.respawn_monsters = pbuf[5];
-        ud.m_respawn_items = ud.respawn_items = pbuf[6];
-        ud.m_respawn_inventory = ud.respawn_inventory = pbuf[7];
-        ud.m_coop = pbuf[8];
-        ud.m_marker = ud.marker = pbuf[9];
-        ud.m_ffire = ud.ffire = pbuf[10];
-        ud.m_noexits = ud.noexits = pbuf[11];
-
-        for (TRAVERSE_CONNECT(i))
-        {
-            P_ResetWeapons(i);
-            P_ResetInventory(i);
-        }
-
-        G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
-        ud.coop = ud.m_coop;
-
-        if (G_EnterLevel(MODE_GAME))
-        {
-            G_BackToMenu();
+        if (NewGameCommon(pbuf))
             break;
-        }
 
         if (g_netSync)
         {
@@ -1099,105 +1216,8 @@ void Net_ParseServerPacket(ENetEvent *event)
         P_FragPlayer(pbuf[1]);
         break;
 
-    case PACKET_CLIENT_INFO:
-        for (i=1; pbuf[i]; i++)
-            g_player[other].user_name[i-1] = pbuf[i];
-        g_player[other].user_name[i-1] = 0;
-        i++;
-
-        g_player[other].ps->aim_mode = pbuf[i++];
-        g_player[other].ps->auto_aim = pbuf[i++];
-        g_player[other].ps->weaponswitch = pbuf[i++];
-        g_player[other].ps->palookup = g_player[other].pcolor = pbuf[i++];
-        g_player[other].pteam = pbuf[i++];
-
-        j = i;
-        for (; i-j<10; i++) g_player[other].wchoice[i-j] = pbuf[i];
-
-        g_player[other].playerquitflag = 1;
-
-        break;
-
-
-    case PACKET_RTS:
-        if (rts_numlumps == 0) break;
-
-        if (ud.config.SoundToggle == 0 || ud.lockout == 1 || ud.config.FXDevice < 0 || !(ud.config.VoiceToggle & 4))
-            break;
-        FX_PlayAuto3D((char *)RTS_GetSound(pbuf[1]-1),RTS_SoundLength(pbuf[1]-1),0,0,0,255,-pbuf[1]);
-        g_RTSPlaying = 7;
-
-        break;
-
-    case PACKET_USER_MAP:
-        Bstrcpy(boardfilename,(char *)pbuf+1);
-        boardfilename[packbufleng-1] = 0;
-        Bcorrectfilename(boardfilename,0);
-        if (boardfilename[0] != 0)
-        {
-            if ((i = kopen4loadfrommod(boardfilename,0)) < 0)
-            {
-                Bmemset(boardfilename,0,sizeof(boardfilename));
-                Net_SendUserMapName();
-            }
-            else kclose(i);
-        }
-
-        if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
-            ud.m_level_number = 0;
-
-        break;
-
-    case PACKET_MAP_VOTE:
-        if (voting == myconnectindex && g_player[(uint8_t)pbuf[1]].gotvote == 0)
-        {
-            g_player[(uint8_t)pbuf[1]].gotvote = 1;
-            g_player[(uint8_t)pbuf[1]].vote = pbuf[2];
-            Bsprintf(tempbuf,"Confirmed vote from %s",g_player[(uint8_t)pbuf[1]].user_name);
-            G_AddUserQuote(tempbuf);
-        }
-        break;
-
-    case PACKET_MAP_VOTE_INITIATE: // call map vote
-        voting = pbuf[1];
-        vote_episode = pbuf[2];
-        vote_map = pbuf[3];
-
-        Bsprintf(tempbuf,"%s^00 has called a vote to change map to %s (E%dL%d)",
-                 g_player[(uint8_t)pbuf[1]].user_name,
-                 MapInfo[(uint8_t)(pbuf[2]*MAXLEVELS + pbuf[3])].name,
-                 pbuf[2]+1,pbuf[3]+1);
-        G_AddUserQuote(tempbuf);
-
-        Bsprintf(tempbuf,"Press F1 to Accept, F2 to Decline");
-        G_AddUserQuote(tempbuf);
-
-        for (i=MAXPLAYERS-1; i>=0; i--)
-        {
-            g_player[i].vote = 0;
-            g_player[i].gotvote = 0;
-        }
-        g_player[voting].gotvote = g_player[voting].vote = 1;
-        break;
-
-    case PACKET_MAP_VOTE_CANCEL: // cancel map vote
-        if (voting == pbuf[1])
-        {
-            voting = -1;
-            i = 0;
-            for (j=MAXPLAYERS-1; j>=0; j--)
-                i += g_player[j].gotvote;
-
-            if (i != numplayers)
-                Bsprintf(tempbuf,"%s^00 has canceled the vote",g_player[(uint8_t)pbuf[1]].user_name);
-            else Bsprintf(tempbuf,"Vote Failed");
-            for (i=MAXPLAYERS-1; i>=0; i--)
-            {
-                g_player[i].vote = 0;
-                g_player[i].gotvote = 0;
-            }
-            G_AddUserQuote(tempbuf);
-        }
+    default:
+        ParsePacketCommon(pbuf, packbufleng, 1);
         break;
     }
 }
@@ -1334,43 +1354,8 @@ void Net_ParseClientPacket(ENetEvent *event)
         g_player[other].pingcnt++;
         return;
 
-    case PACKET_MESSAGE:
-        Bstrncpy(recbuf, (char *)pbuf+2, packbufleng-2);
-        recbuf[packbufleng-2] = 0;
-
-        G_AddUserQuote(recbuf);
-        S_PlaySound(EXITMENUSOUND);
-
-        pus = pub = NUMPAGES;
-        break;
-
     case PACKET_NEW_GAME:
-        if ((vote_map + vote_episode + voting) != -3)
-            G_AddUserQuote("Vote Succeeded");
-
-        ud.m_level_number = ud.level_number = pbuf[1];
-        ud.m_volume_number = ud.volume_number = pbuf[2];
-        ud.m_player_skill = ud.player_skill = pbuf[3];
-        ud.m_monsters_off = ud.monsters_off = pbuf[4];
-        ud.m_respawn_monsters = ud.respawn_monsters = pbuf[5];
-        ud.m_respawn_items = ud.respawn_items = pbuf[6];
-        ud.m_respawn_inventory = ud.respawn_inventory = pbuf[7];
-        ud.m_coop = pbuf[8];
-        ud.m_marker = ud.marker = pbuf[9];
-        ud.m_ffire = ud.ffire = pbuf[10];
-        ud.m_noexits = ud.noexits = pbuf[11];
-
-        for (TRAVERSE_CONNECT(i))
-        {
-            P_ResetWeapons(i);
-            P_ResetInventory(i);
-        }
-
-        G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
-        ud.coop = ud.m_coop;
-
-        if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
-        break;
+        NewGameCommon(pbuf);
 
     case PACKET_AUTH:
     {
@@ -1385,101 +1370,6 @@ void Net_ParseClientPacket(ENetEvent *event)
         }
     }
     break;
-
-    case PACKET_CLIENT_INFO:
-        for (i=1; pbuf[i]; i++)
-            g_player[other].user_name[i-1] = pbuf[i];
-        g_player[other].user_name[i-1] = 0;
-        i++;
-
-        g_player[other].ps->aim_mode = pbuf[i++];
-        g_player[other].ps->auto_aim = pbuf[i++];
-        g_player[other].ps->weaponswitch = pbuf[i++];
-        g_player[other].ps->palookup = g_player[other].pcolor = pbuf[i++];
-        g_player[other].pteam = pbuf[i++];
-
-        for (j=i; i-j<10; i++) g_player[other].wchoice[i-j] = pbuf[i];
-        break;
-
-    case PACKET_RTS:
-        if (rts_numlumps == 0) break;
-
-        if (ud.config.SoundToggle == 0 || ud.lockout == 1 || ud.config.FXDevice < 0 || !(ud.config.VoiceToggle & 4))
-            break;
-
-        FX_PlayAuto3D((char *)RTS_GetSound(pbuf[1]-1),RTS_SoundLength(pbuf[1]-1),0,0,0,255,-pbuf[1]);
-        g_RTSPlaying = 7;
-        break;
-
-    case PACKET_USER_MAP:
-        Bstrcpy(boardfilename,(char *)pbuf+1);
-        boardfilename[packbufleng-1] = 0;
-        Bcorrectfilename(boardfilename,0);
-        if (boardfilename[0] != 0)
-        {
-            if ((i = kopen4loadfrommod(boardfilename,0)) < 0)
-            {
-                Bmemset(boardfilename,0,sizeof(boardfilename));
-                Net_SendUserMapName();
-            }
-            else kclose(i);
-        }
-
-        if (ud.m_level_number == 7 && ud.m_volume_number == 0 && boardfilename[0] == 0)
-            ud.m_level_number = 0;
-        break;
-
-    case PACKET_MAP_VOTE:
-        if (voting == myconnectindex && g_player[(uint8_t)pbuf[1]].gotvote == 0)
-        {
-            g_player[(uint8_t)pbuf[1]].gotvote = 1;
-            g_player[(uint8_t)pbuf[1]].vote = pbuf[2];
-            Bsprintf(tempbuf,"Confirmed vote from %s",g_player[(uint8_t)pbuf[1]].user_name);
-            G_AddUserQuote(tempbuf);
-        }
-        break;
-
-    case PACKET_MAP_VOTE_INITIATE:
-        voting = pbuf[1];
-        vote_episode = pbuf[2];
-        vote_map = pbuf[3];
-
-        Bsprintf(tempbuf,"%s^00 has called a vote to change map to %s (E%dL%d)",
-                 g_player[(uint8_t)pbuf[1]].user_name,
-                 MapInfo[(uint8_t)(pbuf[2]*MAXLEVELS + pbuf[3])].name,
-                 pbuf[2]+1,pbuf[3]+1);
-        G_AddUserQuote(tempbuf);
-
-        Bsprintf(tempbuf,"Press F1 to Accept, F2 to Decline");
-        G_AddUserQuote(tempbuf);
-
-        for (i=MAXPLAYERS-1; i>=0; i--)
-        {
-            g_player[i].vote = 0;
-            g_player[i].gotvote = 0;
-        }
-        g_player[voting].gotvote = g_player[voting].vote = 1;
-        break;
-
-    case PACKET_MAP_VOTE_CANCEL:
-        if (voting == pbuf[1])
-        {
-            voting = -1;
-            i = 0;
-            for (j=MAXPLAYERS-1; j>=0; j--)
-                i += g_player[j].gotvote;
-
-            if (i != numplayers)
-                Bsprintf(tempbuf,"%s^00 has canceled the vote",g_player[(uint8_t)pbuf[1]].user_name);
-            else Bsprintf(tempbuf,"Vote Failed");
-            for (i=MAXPLAYERS-1; i>=0; i--)
-            {
-                g_player[i].vote = 0;
-                g_player[i].gotvote = 0;
-            }
-            G_AddUserQuote(tempbuf);
-        }
-        break;
 
     case PACKET_REQUEST_GAMESTATE:
         if (g_netServer && g_player[0].ps->gm & MODE_GAME)
@@ -1502,6 +1392,10 @@ void Net_ParseClientPacket(ENetEvent *event)
 
             g_netPlayersWaiting--;
         }
+        break;
+
+    default:
+        ParsePacketCommon(pbuf, packbufleng, 0);
         break;
     }
 }
