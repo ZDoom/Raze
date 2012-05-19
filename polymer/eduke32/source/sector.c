@@ -2710,13 +2710,13 @@ CHECKINV1:
         case -1:
             break;
         default:
-            j = (uint32_t)VM_OnEvent(EVENT_WEAPKEY1+j,p->i,snum, -1, j);
+            j = VM_OnEvent(EVENT_WEAPKEY1+j,p->i,snum, -1, j);
             break;
         case 10:
-            VM_OnEvent(EVENT_PREVIOUSWEAPON,p->i,snum, -1, 0);
+            j = VM_OnEvent(EVENT_PREVIOUSWEAPON,p->i,snum, -1, j);
             break;
         case 11:
-            VM_OnEvent(EVENT_NEXTWEAPON,p->i,snum, -1, 0);
+            j = VM_OnEvent(EVENT_NEXTWEAPON,p->i,snum, -1, j);
             break;
         }
 
