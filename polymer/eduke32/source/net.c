@@ -72,7 +72,7 @@ static void alloc_multimapstate(int32_t i)
     {
         g_multiMapState[i] = Bcalloc(1, sizeof(netmapstate_t));
         if (g_multiMapState[i] == NULL)
-            G_GameExit("OUT OF MEMORY in alloc_multimapst!");
+            G_GameExit("OUT OF MEMORY in alloc_multimapstate");
     }
 }
 
@@ -719,15 +719,16 @@ void Net_SyncPlayer(ENetEvent *event)
                 do
                 {
                     enet_peer_send(event->peer, CHAN_SYNC,
-                                   enet_packet_create((char *)(buf)+csize-j, SYNCPACKETSIZE, ENET_PACKET_FLAG_RELIABLE));
+                        enet_packet_create(buf+csize-j, SYNCPACKETSIZE, ENET_PACKET_FLAG_RELIABLE));
                     j -= SYNCPACKETSIZE;
                     enet_host_service(g_netServer, NULL, 0);
                 }
                 while (j >= SYNCPACKETSIZE);
 
-                // ...except for this one.  A non-SYNCPACKETSIZE packet on CHAN_SYNC doubles as the signal that the transfer is done.
+                // ...except for this one.  A non-SYNCPACKETSIZE packet on
+                // CHAN_SYNC doubles as the signal that the transfer is done.
                 enet_peer_send(event->peer, CHAN_SYNC,
-                               enet_packet_create((char *)(buf)+csize-j, j, ENET_PACKET_FLAG_RELIABLE));
+                    enet_packet_create(buf+csize-j, j, ENET_PACKET_FLAG_RELIABLE));
                 enet_host_service(g_netServer, NULL, 0);
 
                 initprintf("Compressed %ld bytes to %ld\n", sizeof(netmapstate_t), qlz_size_compressed(buf));
@@ -1111,14 +1112,15 @@ void Net_ParseServerPacket(ENetEvent *event)
 
             initprintf("packbufleng: %d\n", packbufleng);
 
-            ret = xd3_decode_memory((const uint8_t *)pbuf, packbufleng, (const uint8_t *)g_multiMapState[0], sizeof(netmapstate_t),
+            ret = xd3_decode_memory((const uint8_t *)pbuf, packbufleng,
+                (const uint8_t *)g_multiMapState[0], sizeof(netmapstate_t),
                 (uint8_t *)streamoutput, &osize, sizeof(netmapstate_t), XD3_COMPLEVEL_1|XD3_NOCOMPRESS);
             initprintf("xdelta3 returned %d\n", ret);
 
             if (sizeof(netmapstate_t) != osize)
                 initprintf("decompressed data size mismatch!\n");
             Net_RestoreMapState(streamoutput);
-            
+
             Bfree(pbuf);
         }
 
@@ -1243,7 +1245,7 @@ void Net_ParseClientPacket(ENetEvent *event)
 
         packbufleng = qlz_size_decompressed((char *)&pbuf[1]);
         pbuf = (uint8_t *)Bcalloc(1, packbufleng+512);
-        packbufleng = qlz_decompress((char *)&event->packet->data[1], (char *)(pbuf), state_decompress);
+        packbufleng = qlz_decompress((const char *)&event->packet->data[1], (char *)(pbuf), state_decompress);
 
         nsyn = (input_t *)&inputfifo[0][0];
 
@@ -1317,7 +1319,7 @@ void Net_ParseClientPacket(ENetEvent *event)
 
         packbuf[j++] = 0;
 
-        enet_host_broadcast(g_netServer, CHAN_GAMESTATE , enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
+        enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
 
         // a player connecting is a good time to mark things as needing to be updated
         // we invalidate everything that has changed since we started sending the snapshot of the map to the new player
@@ -1438,11 +1440,11 @@ void Net_GetPackets(void)
 
                 enet_address_get_host_ip(&event.peer->address, ipaddr, sizeof(ipaddr));
 
-                initprintf("A new client connected from %s:%u.\n",
-                           ipaddr, event.peer -> address.port);
+                initprintf("A new client connected from %s:%u.\n", ipaddr, event.peer->address.port);
+
+                Net_SendVersion(event.peer);
+                break;
             }
-            Net_SendVersion(event.peer);
-            break;
 
             case ENET_EVENT_TYPE_RECEIVE:
                 /*
@@ -1593,6 +1595,7 @@ void Net_GetPackets(void)
                     numplayers = playerswhenstarted = ud.multimode = 1;
                     myconnectindex = screenpeek = 0;
                     G_BackToMenu();
+
                     switch (event.data)
                     {
                     case DISC_BAD_PASSWORD:
@@ -1608,6 +1611,7 @@ void Net_GetPackets(void)
                         initprintf("Disconnected.\n");
                         return;
                     }
+
                 default:
                     break;
                 }
@@ -1830,9 +1834,7 @@ void Net_UpdateClients(void)
         char buf[PACKBUF_SIZE+512];
 
         if (siz >= PACKBUF_SIZE)
-        {
             initprintf("Global packet buffer overflow! Size of packet: %i\n", siz);
-        }
 
         siz = qlz_compress((char *)(packbuf)+1, (char *)buf, siz, state_compress);
         Bmemcpy((char *)(packbuf)+1, (char *)buf, siz);
