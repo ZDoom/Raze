@@ -543,7 +543,11 @@ xd3_decode_finish_window (xd3_stream *stream)
 }
 
 static int
-xd3_decode_secondary_sections (xd3_stream *secondary_stream)
+xd3_decode_secondary_sections (xd3_stream *secondary_stream
+#if !defined(SECONDARY_ANY) || SECONDARY_ANY == 0
+                                                            ATTRIBUTE((unused))
+#endif
+                                                           )
 {
 #if SECONDARY_ANY
   int ret;

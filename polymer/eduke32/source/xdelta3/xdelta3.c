@@ -496,6 +496,28 @@ XD3_MAKELIST(xd3_rlist, xd3_rinst, link);
 #define IF_REGRESSION(x)
 #endif
 
+/* custom EDuke32 "not" variants created to help avoid compiler warnings */
+#if XD3_DEBUG
+#define IFN_DEBUG(x)
+#else
+#define IFN_DEBUG(x) x
+#endif
+#if XD3_DEBUG > 1
+#define IFN_DEBUG1(x)
+#else
+#define IFN_DEBUG1(x) x
+#endif
+#if XD3_DEBUG > 2
+#define IFN_DEBUG2(x)
+#else
+#define IFN_DEBUG2(x) x
+#endif
+#if REGRESSION_TEST
+#define IFN_REGRESSION(x)
+#else
+#define IFN_REGRESSION(x) x
+#endif
+
 /***********************************************************************/
 
 #if XD3_ENCODER
@@ -2063,13 +2085,13 @@ xd3_decode_address (xd3_stream *stream, usize_t here,
 ***********************************************************************/
 
 static void*
-__xd3_alloc_func (void* opaque, usize_t items, usize_t size)
+__xd3_alloc_func (void* opaque ATTRIBUTE((unused)), usize_t items, usize_t size)
 {
   return malloc ((size_t) items * (size_t) size);
 }
 
 static void
-__xd3_free_func (void* opaque, void* address)
+__xd3_free_func (void* opaque ATTRIBUTE((unused)), void* address)
 {
   free (address);
 }
@@ -2632,10 +2654,13 @@ xd3_set_source (xd3_stream *stream,
    * calculations are cheap. */
   if (!xd3_check_pow2 (src->blksize, &shiftby) == 0)
     {
+#if XD3_DEBUG
       int check;
-      src->blksize = xd3_pow2_roundup(src->blksize);
       check = xd3_check_pow2 (src->blksize, &shiftby);
       XD3_ASSERT (check == 0);
+#else
+      xd3_check_pow2 (src->blksize, &shiftby);
+#endif
       IF_DEBUG1 (DP(RINT "raising srcblksz to %u\n", src->blksize));
     }
 
@@ -3226,7 +3251,7 @@ xd3_iopt_get_slot (xd3_stream *stream, xd3_rinst** iptr)
  * erase it.  If the new instruction is covered by the previous one,
  * return 1 to skip it. */
 static void
-xd3_iopt_erase (xd3_stream *stream, usize_t pos, usize_t size)
+xd3_iopt_erase (xd3_stream *stream, usize_t pos, usize_t size ATTRIBUTE((unused)))
 {
   while (! xd3_rlist_empty (& stream->iopt_used))
     {
@@ -3303,8 +3328,8 @@ xd3_emit_single (xd3_stream *stream, xd3_rinst *single, usize_t code)
 }
 
 static int
-xd3_emit_double (xd3_stream *stream, xd3_rinst *first,
-                 xd3_rinst *second, usize_t code)
+xd3_emit_double (xd3_stream *stream, xd3_rinst *first IFN_DEBUG2(ATTRIBUTE((unused))),
+                 xd3_rinst *second IFN_DEBUG2(ATTRIBUTE((unused))), usize_t code)
 {
   int ret;
 
@@ -4006,7 +4031,7 @@ xd3_encode_input (xd3_stream *stream)
  ******************************************************************/
 
 static int
-xd3_process_stream (int            is_encode,
+xd3_process_stream (int            is_encode ATTRIBUTE((unused)),
 		    xd3_stream    *stream,
 		    int          (*func) (xd3_stream *),
 		    int            close_stream,
@@ -4080,7 +4105,7 @@ xd3_process_stream (int            is_encode,
 static int
 xd3_process_memory (int            is_encode,
 		    int          (*func) (xd3_stream *),
-		    int            close_stream,
+		    int            close_stream ATTRIBUTE((unused)),
 		    const uint8_t *input,
 		    usize_t        input_size,
 		    const uint8_t *source,
@@ -4807,7 +4832,7 @@ xd3_source_extend_match (xd3_stream *stream)
 static void
 xd3_scksum_insert (xd3_stream *stream,
 		   usize_t inx,
-		   usize_t scksum,
+		   usize_t scksum ATTRIBUTE((unused)),
 		   usize_t pos)
 {
   /* If we are maintaining previous duplicates. */
@@ -4856,7 +4881,7 @@ xd3_check_smatch (const uint8_t *ref0, const uint8_t *inp0,
 static usize_t
 xd3_smatch (xd3_stream *stream,
 	    usize_t base,
-	    usize_t scksum,
+	    usize_t scksum IFN_DEBUG2(ATTRIBUTE((unused))),
 	    usize_t *match_offset)
 {
   usize_t cmp_len;

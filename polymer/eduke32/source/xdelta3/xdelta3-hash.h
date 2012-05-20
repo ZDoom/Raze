@@ -106,7 +106,7 @@ xd3_large_cksum_update (uint32_t cksum,
 static inline uint32_t
 xd3_scksum (uint32_t *state,
             const uint8_t *base,
-            const usize_t look)
+            const usize_t look ATTRIBUTE((unused)))
 {
   (*state) = *(uint32_t*)base;
   return (*state) * hash_multiplier;
@@ -114,7 +114,7 @@ xd3_scksum (uint32_t *state,
 static inline uint32_t
 xd3_small_cksum_update (uint32_t *state,
 			const uint8_t *base,
-			usize_t look)
+			usize_t look ATTRIBUTE((unused)))
 {
   (*state) = *(uint32_t*)(base+1);
   return (*state) * hash_multiplier;
@@ -207,7 +207,7 @@ xd3_size_log2 (usize_t slots)
 }
 
 static void
-xd3_size_hashtable (xd3_stream    *stream,
+xd3_size_hashtable (xd3_stream    *stream ATTRIBUTE((unused)),
 		    usize_t        slots,
 		    xd3_hash_cfg  *cfg)
 {

@@ -98,35 +98,42 @@
  * the 32bit boundary [xdelta3-test.h]).
  */
 #ifndef _WIN32
-#include <stdint.h>
-typedef unsigned int usize_t;
+    #include <stdint.h>
 #else
-#define WIN32_LEAN_AND_MEAN
-#if XD3_USE_LARGEFILE64
-/* 64 bit file offsets: uses GetFileSizeEx and SetFilePointerEx.
- * requires Win2000 or newer version of WinNT */
-#define WINVER		0x0500
-#define _WIN32_WINNT	0x0500
-#else
-/* 32 bit (DWORD) file offsets: uses GetFileSize and
- * SetFilePointer. compatible with win9x-me and WinNT4 */
-#define WINVER		0x0400
-#define _WIN32_WINNT	0x0400
+    #define WIN32_LEAN_AND_MEAN
+    #if XD3_USE_LARGEFILE64
+        /* 64 bit file offsets: uses GetFileSizeEx and SetFilePointerEx.
+         * requires Win2000 or newer version of WinNT */
+        #ifndef WINVER
+            #define WINVER		0x0500
+        #endif
+        #ifndef _WIN32_WINNT
+            #define _WIN32_WINNT	0x0500
+        #endif
+    #else
+        /* 32 bit (DWORD) file offsets: uses GetFileSize and
+         * SetFilePointer. compatible with win9x-me and WinNT4 */
+        #ifndef WINVER
+            #define WINVER		0x0400
+        #endif
+        #ifndef _WIN32_WINNT
+            #define _WIN32_WINNT	0x0400
+        #endif
+    #endif
+    #include <windows.h>
+    #ifdef _MSC_VER
+        #define inline
+        typedef signed int     ssize_t;
+        typedef unsigned char  uint8_t;
+        typedef unsigned short uint16_t;
+        typedef unsigned long  uint32_t;
+        typedef ULONGLONG      uint64_t;
+    #else
+        /* mingw32, lcc and watcom provide a proper header */
+        #include <stdint.h>
+    #endif
 #endif
-#include <windows.h>
 typedef unsigned int   usize_t;
-#ifdef _MSC_VER
-#define inline
-typedef signed int     ssize_t;
-typedef unsigned char  uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned long  uint32_t;
-typedef ULONGLONG      uint64_t;
-#else
-/* mingw32, lcc and watcom provide a proper header */
-#include <stdint.h>
-#endif
-#endif
 
 /* TODO: note that SIZEOF_USIZE_T is never set to 8, although it should be for
  * a 64bit platform.  OTOH, may be that using 32bits is appropriate even on a
@@ -290,7 +297,7 @@ typedef int              (xd3_comp_table_func) (xd3_stream *stream,
     do { if (! (x)) { DP(RINT "%s:%d: XD3 assertion failed: %s\n", __FILE__, __LINE__, #x); \
     abort (); } } while (0)
 #else
-#define XD3_ASSERT(x) (void)0
+#define XD3_ASSERT(x)
 #endif  /* XD3_DEBUG */
 
 #ifdef __GNUC__

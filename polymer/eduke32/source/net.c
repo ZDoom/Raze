@@ -232,6 +232,7 @@ void Net_RestoreMapState(netmapstate_t *save)
     if (save != NULL)
     {
         int32_t i;
+        // int32_t x; // used in commented code below
         intptr_t j;
         char phealth[MAXPLAYERS];
 
@@ -732,7 +733,7 @@ void Net_SyncPlayer(ENetEvent *event)
                     enet_packet_create(buf+csize-j, j, ENET_PACKET_FLAG_RELIABLE));
                 enet_host_service(g_netServer, NULL, 0);
 
-                initprintf("Compressed %ld bytes to %ld\n", sizeof(netmapstate_t), qlz_size_compressed(buf));
+                initprintf("Compressed %u bytes to %u\n", sizeof(netmapstate_t), qlz_size_compressed(buf));
             }
             else
                 initprintf("Error compressing map state for transfer!\n");
@@ -1581,7 +1582,7 @@ void Net_GetPackets(void)
                             }
                             else
                             {
-                                initprintf("Invalid map state from server!  Decompressed to %ld bytes, expected %ld.\n",
+                                initprintf("Invalid map state from server!  Decompressed to %u bytes, expected %u.\n",
                                     qlz_size_decompressed((char *)buf), sizeof(netmapstate_t));
 
                                 g_netDisconnect = 1;
@@ -1860,9 +1861,7 @@ void Net_UpdateClients(void)
 void Net_StreamLevel(void)
 {
     int32_t pi;
-    int32_t i, nexti;
     int32_t siz = 0;
-    int32_t zz, zj, k = 0, l;
     usize_t osize = sizeof(netmapstate_t);
 
     if (!g_netServer || numplayers < 2)
