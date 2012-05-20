@@ -830,7 +830,7 @@ int32_t handleevents(void)
 
         TranslateMessage(&msg);
 //        DispatchMessage(&msg);
-        DefWindowProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
+        WndProcCallback(msg.hwnd, msg.message, msg.wParam, msg.lParam);
     }
 
     if (!appactive || quitevent) rv = -1;
