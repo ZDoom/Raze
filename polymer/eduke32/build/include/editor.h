@@ -248,9 +248,12 @@ void correct_sprite_yoffset(int32_t i);
 
 extern uint8_t hlsectorbitmap[MAXSECTORS>>3];
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #define DEFAULT_GAME_EXEC "eduke32.exe"
 #define DEFAULT_GAME_LOCAL_EXEC "eduke32.exe"
+#elif defined(__APPLE__)
+#define DEFAULT_GAME_EXEC "EDuke32.app/Contents/MacOS/eduke32"
+#define DEFAULT_GAME_LOCAL_EXEC "EDuke32.app/Contents/MacOS/eduke32"
 #else
 #define DEFAULT_GAME_EXEC "eduke32"
 #define DEFAULT_GAME_LOCAL_EXEC "./eduke32"
