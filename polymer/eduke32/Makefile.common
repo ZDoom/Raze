@@ -91,6 +91,11 @@ BASECXXFLAGS= -fno-exceptions -fno-rtti
 BASEASFLAGS=-s #-g
 BASELDFLAGS=
 
+ifeq ($(PLATFORM),WII)
+    override USE_LIBPNG = 0
+    override USE_LIBVPX = 0
+endif
+
 LIBS=-lm
 ifneq (0,$(USE_LIBPNG))
     LIBS+= -lpng -lz
@@ -104,6 +109,8 @@ endif
 ifneq ($(RELEASE)$(DEBUGANYWAY),10)
     # debug build or DEBUGANYWAY=1 --> -g flag
     ifneq (0,$(CLANG))
+        debug=-g
+    else ifeq ($(PLATFORM), WII)
         debug=-g
     else
         debug=-ggdb

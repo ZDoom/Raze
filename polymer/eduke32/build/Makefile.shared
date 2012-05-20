@@ -162,10 +162,24 @@ ifeq ($(PLATFORM),SKYOS)
     LIBS+= -lSDL -lnet
 endif
 ifeq ($(PLATFORM),WII)
+    ifeq ($(strip $(DEVKITPPC)),)
+    $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
+    endif
+
+    include $(DEVKITPPC)/wii_rules
+
+    RANLIB=powerpc-eabi-ranlib
+    STRIP=powerpc-eabi-strip
+
     RENDERTYPE=SDL
     EXESUFFIX=.elf
+    override USE_OPENGL=0
+    override NOASM=1
     override WITHOUT_GTK=1
-    BUILDCFLAGS+= -g -mcpu=750 -meabi -mhard-float -msdata -O2 -DGEKKO -DHAVE_INTTYPES -D__POWERPC__ -I$(LIBOGC_INC) -I$(LIBOGC_INC)/SDL
+    # -msdata=eabi
+    BUILDCFLAGS+= -g -mtune=750 -meabi -mhard-float \
+        -DGEKKO -DHAVE_INTTYPES -D__POWERPC__ \
+        -I$(LIBOGC_INC) -I$(LIBOGC_INC)/SDL -I$(PORTLIBS)/include
     SDLCONFIG=
     LIBS+= -lSDL_mixer -lsmpeg -lSDL -laesnd
 endif
@@ -262,7 +276,10 @@ endif
 
 
 ifneq ($(PLATFORM),WINDOWS)
-    LIBS+= -ldl -pthread
+    ifneq ($(PLATFORM),WII)
+        LIBS+= -ldl
+    endif
+    LIBS+= -pthread
 endif
 
 ifeq ($(PLATFORM),WINDOWS)

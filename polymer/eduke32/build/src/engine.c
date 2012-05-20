@@ -7766,7 +7766,11 @@ static inline int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
 // Exported Engine Functions
 //
 
-#if !defined _WIN32 && defined DEBUGGINGAIDS
+#if !defined _WIN32 && defined DEBUGGINGAIDS && !defined GEKKO
+#ifdef GEKKO
+#define __rtems__
+#define _POSIX_REALTIME_SIGNALS
+#endif
 #include <signal.h>
 static void sighandler(int32_t sig, const siginfo_t *info, void *ctx)
 {
@@ -7917,7 +7921,7 @@ int32_t initengine(void)
 {
     int32_t i, j;
 
-#if !defined _WIN32 && defined DEBUGGINGAIDS
+#if !defined _WIN32 && defined DEBUGGINGAIDS && !defined GEKKO
     struct sigaction sigact, oldact;
     memset(&sigact, 0, sizeof(sigact));
     sigact.sa_sigaction = (void *)sighandler;

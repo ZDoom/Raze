@@ -2685,12 +2685,12 @@ void G_DisplayRest(int32_t smoothratio)
     {
         if (pp->palette == WATERPAL)
         {
-            static palette_t wp = { 224, 192, 255, 0 };
+            static const palette_t wp = { 224, 192, 255, 0 };
             Bmemcpy(&hictinting[MAXPALOOKUPS-1], &wp, sizeof(palette_t));
         }
         else if (pp->palette == SLIMEPAL)
         {
-            static palette_t sp = { 208, 255, 192, 0 };
+            static const palette_t sp = { 208, 255, 192, 0 };
             Bmemcpy(&hictinting[MAXPALOOKUPS-1], &sp, sizeof(palette_t));
         }
         else
@@ -10616,12 +10616,13 @@ MAIN_LOOP_RESTART:
         // stdin -> OSD input for dedicated server
         if (g_networkMode == NET_DEDICATED_SERVER)
         {
-            int32_t nb, flag = 1;
+            int32_t nb;
             char ch;
             static uint32_t bufpos = 0;
             static char buf[128];
 
 #ifndef GEKKO
+            int32_t flag = 1;
             ioctl(0, FIONBIO, &flag);
 #endif
 

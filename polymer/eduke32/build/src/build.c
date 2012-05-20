@@ -248,7 +248,10 @@ static int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 
 static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 {
-    int32_t newx = xdim, newy = ydim, newbpp = bpp, newfullscreen = fullscreen, tmp;
+    int32_t newx = xdim, newy = ydim, newbpp = bpp, newfullscreen = fullscreen;
+#ifdef USE_OPENGL
+    int32_t tmp;
+#endif
 
     switch (parm->numparms)
     {

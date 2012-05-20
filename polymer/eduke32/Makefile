@@ -78,10 +78,9 @@ ifeq ($(PLATFORM),WINDOWS)
     endif
 else
     ifeq ($(PLATFORM),LINUX)
-        LIBS+= -ldl -pthread
-    else
-        LIBS+= -pthread
+        LIBS+= -ldl
     endif
+    LIBS+= -pthread
     ifneq (0,$(PROFILER))
         ifneq ($(PLATFORM),DARWIN)
             LIBS+= -lprofiler
@@ -199,8 +198,6 @@ ifeq ($(PLATFORM),LINUX)
 endif
 
 ifeq ($(PLATFORM),WII)
-    STRIP=powerpc-eabi-strip
-    OURCFLAGS += -g -mcpu=750 -meabi -mhard-float -msdata -O2 -I$(LIBOGC_INC) -I$(PORTLIBS)/include -DGEKKO
     LIBS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib -lvorbisidec -lfreetype -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
 endif
 
@@ -296,7 +293,8 @@ ifneq (0,$(PROFILER))
     OURLDFLAGS+=-pg
 endif
 ifeq ($(PLATFORM),WII)
-    MISCLINKOPTS+= -g -mrvl -meabi -mhard-float -msdata -Wl,--gc-sections -Wl,-Map,$(notdir $@).map
+    OURLDFLAGS+= -mrvl -meabi -mhard-float -Wl,--gc-sections -Wl,-Map,$(notdir $@).map
+    # -msdata=eabi
 endif
 
 ifeq ($(PRETTY_OUTPUT),1)
@@ -304,14 +302,23 @@ ifeq ($(PRETTY_OUTPUT),1)
 endif
 .PHONY: clean all engine $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB)
 
+EDUKE32_TARGET:=eduke32$(EXESUFFIX)
+ifneq ($(PLATFORM),WII)
+    MAPSTER32_TARGET:=mapster32$(EXESUFFIX)
+endif
+
 # TARGETS
 
-all: notice eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) $(EBACKTRACEDLL_TARGET)
+all: notice $(EDUKE32_TARGET) $(MAPSTER32_TARGET) $(EBACKTRACEDLL_TARGET)
 
 all:
 	$(BUILD_FINISHED)
-	@ls -l eduke32$(EXESUFFIX)
-	@ls -l mapster32$(EXESUFFIX)
+ifneq (,$(EDUKE32_TARGET))
+	@ls -l $(EDUKE32_TARGET)
+endif
+ifneq (,$(MAPSTER32_TARGET))
+	@ls -l $(MAPSTER32_TARGET)
+endif
 
 notice:
 	$(BUILD_STARTED)
@@ -321,13 +328,15 @@ eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLI
 	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
   ifeq (0,$(DEBUGANYWAY))
-	$(STRIP) eduke32$(EXESUFFIX)
+    ifneq ($(PLATFORM),WII)
+	  $(STRIP) $(EDUKE32_TARGET)
+    endif
   endif
 endif
 ifeq ($(PLATFORM),DARWIN)
 	cp -RPf "Apple/bundles/EDuke32.app" "./"
 	mkdir -p "EDuke32.app/Contents/MacOS"
-	cp -f "eduke32$(EXESUFFIX)" "EDuke32.app/Contents/MacOS/"
+	cp -f "$(EDUKE32_TARGET)" "EDuke32.app/Contents/MacOS/"
 endif
 
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
@@ -335,13 +344,15 @@ mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $
 	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
   ifeq (0,$(DEBUGANYWAY))
-	$(STRIP) mapster32$(EXESUFFIX)
+    ifneq ($(PLATFORM),WII)
+	  $(STRIP) $(MAPSTER32_TARGET)
+    endif
   endif
 endif
 ifeq ($(PLATFORM),DARWIN)
 	cp -RPf "Apple/bundles/Mapster32.app" "./"
 	mkdir -p "Mapster32.app/Contents/MacOS"
-	cp -f "mapster32$(EXESUFFIX)" "Mapster32.app/Contents/MacOS/"
+	cp -f "$(MAPSTER32_TARGET)" "Mapster32.app/Contents/MacOS/"
 endif
 
 include Makefile.deps
