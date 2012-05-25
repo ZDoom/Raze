@@ -8996,6 +8996,8 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 //
 // flags: 1, 2: former parameter "fromwhere"
 //           4: don't call polymer_loadboard
+// returns: -1: file not found
+//          -2: invalid version
 int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, int32_t *daposz,
                   int16_t *daang, int16_t *dacursectnum)
 {
@@ -9012,10 +9014,18 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
         { mapversion = 7; return(-1); }
 
     kread(fil,&mapversion,4); mapversion = B_LITTLE32(mapversion);
+
+    {
+        int32_t ok = (mapversion==7);
 #ifdef YAX_ENABLE
-    if (mapversion != 9)
+        ok |= (mapversion==9);
 #endif
-    if (mapversion != 7 && mapversion != 8) { kclose(fil); return(-2); }
+#if MAXSECTORS==MAXSECTORSV8
+        // v8 engine
+        ok |= (mapversion==8);
+#endif
+        if (!ok) { kclose(fil); return(-2); }
+    }
 
 #ifdef NEDMALLOC
     nedtrimthreadcache(0, 0);
@@ -9023,11 +9033,9 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
 
     initspritelists();
 
-// TODO: need checking for engine compiled with V7 limits, so we
-// load V8+ maps ONLY if they don't exceed them.
-#define MYMAXSECTORS (mapversion==7?MAXSECTORSV7:MAXSECTORSV8)
-#define MYMAXWALLS   (mapversion==7?MAXWALLSV7:MAXWALLSV8)
-#define MYMAXSPRITES (mapversion==7?MAXSPRITESV7:MAXSPRITESV8)
+#define MYMAXSECTORS (MAXSECTORS==MAXSECTORSV7||mapversion==7 ? MAXSECTORSV7 : MAXSECTORSV8)
+#define MYMAXWALLS   (MAXSECTORS==MAXSECTORSV7||mapversion==7 ? MAXWALLSV7 : MAXWALLSV8)
+#define MYMAXSPRITES (MAXSECTORS==MAXSECTORSV7||mapversion==7 ? MAXSPRITESV7 : MAXSPRITESV8)
 
     Bmemset(show2dsector, 0, sizeof(show2dsector));
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
