@@ -6,6 +6,10 @@
 // by Jonathon Fowler (jf@jonof.id.au)
 
 #include "compat.h"
+#ifdef _WIN32
+// for FILENAME_CASE_CHECK
+# include <shellapi.h>
+#endif
 #include "cache1d.h"
 #include "pragmas.h"
 #include "baselayer.h"
@@ -443,6 +447,16 @@ int32_t findfrompath(const char *fn, char **where)
     return -1;
 }
 
+#ifdef _WIN32
+# define FILENAME_CASE_CHECK
+#endif
+
+#ifdef FILENAME_CASE_CHECK
+// don't free pfn if !=0 AND we Bopen()'ed the file successfully
+static int32_t dont_free_pfn;
+static char *lastpfn;
+#endif
+
 int32_t openfrompath(const char *fn, int32_t flags, int32_t mode)
 {
     char *pfn;
@@ -450,7 +464,12 @@ int32_t openfrompath(const char *fn, int32_t flags, int32_t mode)
 
     if (findfrompath(fn, &pfn) < 0) return -1;
     h = Bopen(pfn, flags, mode);
-    Bfree(pfn);
+#ifdef FILENAME_CASE_CHECK
+    if (h>=0 && dont_free_pfn)
+        lastpfn = pfn;
+    else
+#endif
+        Bfree(pfn);
 
     return h;
 }
@@ -666,6 +685,24 @@ void uninitgroupfile(void)
     }
 }
 
+#ifdef FILENAME_CASE_CHECK
+// See
+// http://stackoverflow.com/questions/74451/getting-actual-file-name-with-proper-casing-on-windows
+// for relevant discussion.
+
+static SHFILEINFO shinf;
+
+// -1: failure, 0: match, 1: mismatch
+static int32_t check_filename_mismatch(const char *filename, int32_t ofs)
+{
+    // we assume that UNICODE is not #defined, winlayer.c errors out else
+    if (!SHGetFileInfo(filename, -1, &shinf, sizeof(shinf), SHGFI_DISPLAYNAME))
+        return -1;
+
+    return !!Bstrcmp(shinf.szDisplayName, filename+ofs);
+}
+#endif
+
 int32_t kopen4load(const char *filename, char searchfirst)
 {
     int32_t  j, k, fil, newhandle = MAXOPENFILES-1;
@@ -685,13 +722,54 @@ int32_t kopen4load(const char *filename, char searchfirst)
         }
     }
 
+#ifdef FILENAME_CASE_CHECK
+    dont_free_pfn = 1;
+#endif
+
     if (searchfirst == 0 && (fil = openfrompath(filename,BO_BINARY|BO_RDONLY,S_IREAD)) >= 0)
     {
+#ifdef FILENAME_CASE_CHECK
+        int32_t status;
+        char *cp, *lastslash;
+
+        // convert all slashes to backslashes because SHGetFileInfo()
+        // complains else!
+        lastslash = lastpfn;
+        for (cp=lastpfn; *cp; cp++)
+            if (*cp=='/')
+            {
+                *cp = '\\';
+                lastslash = cp;
+            }
+        if (lastslash != lastpfn)
+            lastslash++;
+
+        status = check_filename_mismatch(lastpfn, lastslash-lastpfn);
+
+        dont_free_pfn = 0;
+
+        if (status == -1)
+        {
+            initprintf("SHGetFileInfo failed with error code %lu\n", GetLastError());
+        }
+        else if (status == 1)
+        {
+            initprintf("warning: case mismatch: passed \"%s\", real \"%s\"\n",
+                       lastslash, shinf.szDisplayName);
+        }
+
+        Bfree(lastpfn);
+        lastpfn=NULL;
+#endif
         filegrp[newhandle] = 255;
         filehan[newhandle] = fil;
         filepos[newhandle] = 0;
         return(newhandle);
     }
+
+#ifdef FILENAME_CASE_CHECK
+    dont_free_pfn = 0;
+#endif
 
     for (; toupperlookup[*filename] == '/'; filename++);
 
