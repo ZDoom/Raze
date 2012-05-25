@@ -359,6 +359,7 @@ int32_t findfrompath(const char *fn, char **where)
             *where = Bstrdup(fn);
             return 0;
         }
+#ifndef _WIN32
         else
         {
             char *tfn = Bstrtolower(Bstrdup(fn));
@@ -379,6 +380,7 @@ int32_t findfrompath(const char *fn, char **where)
 
             Bfree(tfn);
         }
+#endif
     }
 
     for (pfn = (char *)fn; toupperlookup[*pfn] == '/'; pfn++);
@@ -417,6 +419,7 @@ int32_t findfrompath(const char *fn, char **where)
             return 0;
         }
 
+#ifndef _WIN32
         //Check with all lowercase
         strcpy(pfn, sp->path);
         Bstrtolower(tfn);
@@ -440,9 +443,10 @@ int32_t findfrompath(const char *fn, char **where)
             Bfree(tfn);
             return 0;
         }
-
+#endif
         Bfree(tfn);
     }
+
     Bfree(pfn); Bfree(ffn);
     return -1;
 }
