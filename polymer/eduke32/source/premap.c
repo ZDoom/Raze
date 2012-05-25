@@ -1563,7 +1563,7 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
     display_mirror =        0;
 
-    VM_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+    VM_OnEvent(EVENT_NEWGAME, g_player[myconnectindex].ps->i, myconnectindex, -1, 0);
 }
 
 static void resetpspritevars(char g)
