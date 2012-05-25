@@ -1237,7 +1237,7 @@ skip_check:
                 {
                     int32_t moveScriptOfs = vm.g_t[1];
 
-                    if (vm.g_sp->hitag & jumptoplayer ||
+                    if ((vm.g_sp->hitag & jumptoplayer) ||
                         (actorscrptr[vm.g_sp->picnum] &&
                          (unsigned)moveScriptOfs < (unsigned)g_scriptSize - 1 && *(script + moveScriptOfs + 1)
                             ))

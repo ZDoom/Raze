@@ -1886,7 +1886,7 @@ void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int3
 
 int32_t G_EnterLevel(int32_t g)
 {
-    int32_t i;
+    int32_t i, mii;
     char levname[BMAX_PATH];
 
 //    flushpackets();
@@ -1933,21 +1933,20 @@ int32_t G_EnterLevel(int32_t g)
         }
     }
 
-    if (MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name == NULL || MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename == NULL)
+    mii = (ud.volume_number*MAXLEVELS)+ud.level_number;
+
+    if (MapInfo[mii].name == NULL || MapInfo[mii].filename == NULL)
     {
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
-            if (MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename == NULL)
-                MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename = Bcalloc(BMAX_PATH,sizeof(uint8_t));
-            if (MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name == NULL)
-            {
-                MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name = Bcalloc(16,sizeof(uint8_t));
-                Bsprintf(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name,"User Map");
-            }
+            if (MapInfo[mii].filename == NULL)
+                MapInfo[mii].filename = Bcalloc(BMAX_PATH, sizeof(uint8_t));
+            if (MapInfo[mii].name == NULL)
+                MapInfo[mii].name = Bstrdup("User Map");
         }
         else
         {
-            OSD_Printf(OSDTEXT_RED "Map E%dL%d not defined!\n",ud.volume_number+1,ud.level_number+1);
+            OSD_Printf(OSDTEXT_RED "Map E%dL%d not defined!\n", ud.volume_number+1, ud.level_number+1);
             return 1;
         }
     }
@@ -1965,7 +1964,7 @@ int32_t G_EnterLevel(int32_t g)
         Bstrcpy(levname, boardfilename);
         Bsprintf(apptitle,"%s - %s - " APPNAME,levname,g_gameNamePtr);
     }
-    else Bsprintf(apptitle,"%s - %s - " APPNAME,MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name,g_gameNamePtr);
+    else Bsprintf(apptitle,"%s - %s - " APPNAME,MapInfo[mii].name,g_gameNamePtr);
 
     Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);
@@ -1987,24 +1986,24 @@ int32_t G_EnterLevel(int32_t g)
 
             G_SetupFilenameBasedMusic(levname, boardfilename, ud.m_level_number);
         }
-        else if (loadboard(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename,0,&g_player[0].ps->pos.x,
+        else if (loadboard(MapInfo[mii].filename,0,&g_player[0].ps->pos.x,
                            &g_player[0].ps->pos.y, &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n",
-                       MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+                       MapInfo[mii].filename);
 
             //G_GameExit(tempbuf);
             return 1;
         }
         else
         {
-            G_LoadMapHack(levname, MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+            G_LoadMapHack(levname, MapInfo[mii].filename);
         }
     }
     else
     {
-        i = Bstrlen(MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
-        Bmemcpy(levname, MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename, i);
+        i = Bstrlen(MapInfo[mii].filename);
+        Bmemcpy(levname, MapInfo[mii].filename, i);
         levname[i] = 255;  // leads to flags=1 for kopen4load
         levname[i+1] = 0;
 
@@ -2012,7 +2011,7 @@ int32_t G_EnterLevel(int32_t g)
                       &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n",
-                       MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].filename);
+                       MapInfo[mii].filename);
 
             //G_GameExit(tempbuf);
             return 1;
@@ -2042,9 +2041,9 @@ int32_t G_EnterLevel(int32_t g)
 
     if (ud.recstat != 2)
     {
-        g_musicIndex = (ud.volume_number*MAXLEVELS) + ud.level_number;
+        g_musicIndex = mii;
         if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
-            S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
+            S_PlayMusic(MapInfo[(uint8_t)g_musicIndex].musicfn, g_musicIndex);
     }
 
     if (g & (MODE_GAME|MODE_EOL))
@@ -2120,10 +2119,10 @@ int32_t G_EnterLevel(int32_t g)
     //AddLog(g_szBuf);
     // variables are set by pointer...
 
-    Bmemcpy(&currentboardfilename[0],&boardfilename[0],BMAX_PATH);
+    Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
     VM_OnEvent(EVENT_ENTERLEVEL, -1, -1, -1, 0);
-    OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n",ud.volume_number+1,ud.level_number+1,
-               MapInfo[(ud.volume_number*MAXLEVELS)+ud.level_number].name);
+    OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
+               MapInfo[mii].name);
 
     Net_WaitForServer();
     return 0;

@@ -5551,8 +5551,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
         {
             int32_t zchange = 0;
 
-            zchange = 0;
-
             j = s->owner;
 
             if (sprite[j].lotag == (int16_t) 65535)
@@ -5584,7 +5582,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         if (sc->floorz < s->z)
                             sc->floorz = s->z;
                     }
-
                     else if (sc->floorz < s->z)   //z's are touching
                     {
                         sc->floorz += 512;
@@ -5612,7 +5609,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         if (sc->floorz < T4)
                             sc->floorz = T4;
                     }
-
                     else if (sc->floorz < T4)   //z's are touching
                     {
                         sc->floorz += 512;
@@ -5621,9 +5617,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             sc->floorz = T4;
                     }
                 }
-
-                s->ang += (l*q);
-                t[2] += (l*q);
             }
             else
             {
@@ -5638,9 +5631,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 s->xvel = t[3];
                 s->x = sprite[j].x;
                 s->y = sprite[j].y;
-                s->ang += (l*q);
-                t[2] += (l*q);
             }
+
+            s->ang += (l*q);
+            t[2] += (l*q);
 
             if (l && (sc->floorstat&64))
             {

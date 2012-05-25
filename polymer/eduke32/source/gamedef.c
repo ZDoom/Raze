@@ -120,7 +120,7 @@ intptr_t *aplWeaponFlags[MAX_WEAPONS];      // Flags for weapon
 intptr_t *aplWeaponShoots[MAX_WEAPONS];     // what the weapon shoots
 intptr_t *aplWeaponSpawnTime[MAX_WEAPONS];      // the frame at which to spawn an item
 intptr_t *aplWeaponSpawn[MAX_WEAPONS];      // the item to spawn
-intptr_t *aplWeaponShotsPerBurst[MAX_WEAPONS];  // number of shots per 'burst' (one ammo per 'burst'
+intptr_t *aplWeaponShotsPerBurst[MAX_WEAPONS];  // number of shots per 'burst' (one ammo per 'burst')
 intptr_t *aplWeaponWorksLike[MAX_WEAPONS];      // What original the weapon works like
 intptr_t *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when weapon starts firing. zero for no sound
 intptr_t *aplWeaponFireSound[MAX_WEAPONS];      // Sound made when firing (each time for automatic)
@@ -314,7 +314,7 @@ const char *keyw[] =
     "defineskillname",          // 108
     "ifnosounds",               // 109
     "clipdist",                 // 110
-    "ifangdiffl",               // 111
+    "ifangdiffl",               // 111  Last Duke3D 1.5 CON command
     "gamevar",                  // 112
     "ifvarl",                   // 113
     "ifvarg",                   // 114
@@ -492,7 +492,7 @@ const char *keyw[] =
     "setinput",                 // 286
     "getinput",                 // 287
     "save",                     // 288
-    "cansee",                   // 289
+    "cansee",                   // 289  Beginning EDuke32 SVN
     "canseespr",                // 290
     "findnearactorz",           // 291
     "findnearactorzvar",        // 292
@@ -2411,8 +2411,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     g_numCompilerWarnings++;
                     initprintf("%s:%d: warning: duplicate move `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
                 }
-
-                if (i == -1)
+                else
                 {
                     hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
                     labeltype[g_numLabels] = LABEL_MOVE;
@@ -2548,8 +2547,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     g_numCompilerWarnings++;
                     initprintf("%s:%d: warning: duplicate ai `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
                 }
-
-                if (i == -1)
+                else
                 {
                     labeltype[g_numLabels] = LABEL_AI;
                     hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
@@ -2629,8 +2627,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     g_numCompilerWarnings++;
                     initprintf("%s:%d: warning: duplicate action `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
                 }
-
-                if (i == -1)
+                else
                 {
                     labeltype[g_numLabels] = LABEL_ACTION;
                     labelcode[g_numLabels] = g_scriptPtr-script;
