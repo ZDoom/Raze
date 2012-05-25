@@ -4098,9 +4098,9 @@ nullquote:
                         if (asize > 0)
                         {
                             /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
-                                aGameArrays[j].szLabel, aGameArrays[j].size, asize / sizeof(int32_t));*/
+                                aGameArrays[j].szLabel, aGameArrays[j].size, asize / GAR_ELTSZ);*/
                             aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, asize);
-                            aGameArrays[j].size = asize / sizeof(int32_t);
+                            aGameArrays[j].size = asize / GAR_ELTSZ;
                             kread(fil, aGameArrays[j].plValues, asize);
                         }
 
@@ -4143,7 +4143,7 @@ nullquote:
                 if (asize > 0)
                 {
                     /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);*/
-                    aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, sizeof(int32_t) * asize);
+                    aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, GAR_ELTSZ * asize);
                     aGameArrays[j].size = asize;
                 }
                 continue;

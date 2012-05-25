@@ -74,6 +74,8 @@ typedef struct {
 } gamearray_t;
 #pragma pack(pop)
 
+#define GAR_ELTSZ (sizeof(aGameArrays[0].plValues[0]))
+
 extern gamevar_t aGameVars[MAXGAMEVARS];
 extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int32_t g_gameVarCount;

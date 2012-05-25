@@ -158,8 +158,8 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil) != 1) goto corrupt;
         hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
 
-        aGameArrays[i].plValues=Bcalloc(aGameArrays[i].size,sizeof(int32_t));
-        if (kdfread(aGameArrays[i].plValues,sizeof(int32_t) * aGameArrays[i].size, 1, fil) < 1) goto corrupt;
+        aGameArrays[i].plValues=Bcalloc(aGameArrays[i].size, GAR_ELTSZ);
+        if (kdfread(aGameArrays[i].plValues, GAR_ELTSZ * aGameArrays[i].size, 1, fil) < 1) goto corrupt;
     }
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
@@ -273,7 +273,7 @@ void Gv_WriteSave(FILE *fil, int32_t newbehav)
     {
         dfwrite(&(aGameArrays[i]),sizeof(gamearray_t),1,fil);
         dfwrite(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil);
-        dfwrite(aGameArrays[i].plValues,sizeof(int32_t) * aGameArrays[i].size, 1, fil);
+        dfwrite(aGameArrays[i].plValues, GAR_ELTSZ * aGameArrays[i].size, 1, fil);
     }
 
     G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_FWD_NON0);
@@ -417,7 +417,7 @@ int32_t Gv_NewArray(const char *pszLabel, int32_t asize)
         aGameArrays[i].szLabel=(char *)Bcalloc(MAXVARLABEL,sizeof(uint8_t));
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
-    aGameArrays[i].plValues=(intptr_t *)Bcalloc(asize,sizeof(int32_t));
+    aGameArrays[i].plValues=(intptr_t *)Bcalloc(asize,GAR_ELTSZ);
     aGameArrays[i].size=asize;
     aGameArrays[i].bReset=0;
     g_gameArrayCount++;
