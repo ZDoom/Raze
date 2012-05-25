@@ -673,7 +673,7 @@ void Net_SyncPlayer(ENetEvent *event)
             break;
     if (i == -1)
         i = playerswhenstarted++;
-    event->peer->data = (void *)i;
+    event->peer->data = (void *)(intptr_t)i;
 
     g_player[i].netsynctime = totalclock;
     g_player[i].playerquitflag = 1;
