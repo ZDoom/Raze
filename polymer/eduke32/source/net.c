@@ -733,7 +733,7 @@ void Net_SyncPlayer(ENetEvent *event)
                     enet_packet_create(buf+csize-j, j, ENET_PACKET_FLAG_RELIABLE));
                 enet_host_service(g_netServer, NULL, 0);
 
-                initprintf("Compressed %u bytes to %u\n", sizeof(netmapstate_t), qlz_size_compressed(buf));
+                initprintf("Compressed %u bytes to %u\n", (uint32_t)sizeof(netmapstate_t), (uint32_t)qlz_size_compressed(buf));
             }
             else
                 initprintf("Error compressing map state for transfer!\n");
@@ -1583,7 +1583,7 @@ void Net_GetPackets(void)
                             else
                             {
                                 initprintf("Invalid map state from server!  Decompressed to %u bytes, expected %u.\n",
-                                    qlz_size_decompressed((char *)buf), sizeof(netmapstate_t));
+                                    (uint32_t)qlz_size_decompressed((char *)buf), (uint32_t)sizeof(netmapstate_t));
 
                                 g_netDisconnect = 1;
                                 g_netSync = 0;
