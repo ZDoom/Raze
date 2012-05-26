@@ -3585,18 +3585,22 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             int32_t oviewingrange = viewingrange;  // save it from setviewtotile()
             const int16_t tang = (ud.screen_tilting) ? p->rotscrnang : 0;
 
-            if (xres <= 320 && yres <= 240)
+            // To render a tilted screen in high quality, we need at least
+            // 640 pixels of *Y* dimension.
+#if MAXYDIM >= 640
+            if (xres > 320 || yres > 240)
+            {
+                tiltcs = 2;
+                tiltcx = 640;
+                tiltcy = 400;
+            }
+            else
+#endif
             {
                 // JBF 20030807: Increased tilted-screen quality
                 tiltcs = 1;
                 tiltcx = 320;
                 tiltcy = 200;
-            }
-            else
-            {
-                tiltcs = 2;
-                tiltcx = 640;
-                tiltcy = 400;
             }
 
             walock[TILE_TILT] = 255;
