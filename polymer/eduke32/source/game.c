@@ -3603,13 +3603,20 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 tiltcy = 200;
             }
 
-            walock[TILE_TILT] = 255;
-            if (waloff[TILE_TILT] == 0)
-                allocache(&waloff[TILE_TILT],tiltcx*tiltcx,&walock[TILE_TILT]);
-            if ((tang&1023) == 0)
-                setviewtotile(TILE_TILT,tiltcy>>(1-ud.detail),tiltcx>>(1-ud.detail));
-            else
-                setviewtotile(TILE_TILT,tiltcx>>(1-ud.detail),tiltcx>>(1-ud.detail));
+            {
+                // If the view is rotated (not 0 or 180 degrees modulo 360 degrees),
+                // we render onto a square tile and display a portion of that
+                // rotated on-screen later on.
+                const int32_t viewtilexsiz = ((tang&1023) ? tiltcx : tiltcy)>>!ud.detail;
+                const int32_t viewtileysiz = tiltcx>>!ud.detail;
+
+                walock[TILE_TILT] = 255;
+                if (waloff[TILE_TILT] == 0)
+                    allocache(&waloff[TILE_TILT], viewtilexsiz*viewtileysiz, &walock[TILE_TILT]);
+
+                setviewtotile(TILE_TILT, viewtilexsiz, viewtileysiz);
+            }
+
             if ((tang&1023) == 512)
             {
                 //Block off unscreen section of 90ø tilted screen
