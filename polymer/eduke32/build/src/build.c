@@ -927,10 +927,37 @@ static void mainloop_move(void)
     }
 }
 
+static void handle_sprite_in_clipboard(int32_t i)
+{
+    if (somethingintab == 3)
+    {
+        int32_t j, k;
+
+        sprite[i].picnum = temppicnum;
+        if (tilesizx[temppicnum] <= 0 || tilesizy[temppicnum] <= 0)
+        {
+            j = 0;
+            for (k=0; k<MAXTILES; k++)
+                if (tilesizx[k] > 0 && tilesizy[k] > 0)
+                {
+                    j = k;
+                    break;
+                }
+            sprite[i].picnum = j;
+        }
+        sprite[i].shade = tempshade;
+        sprite[i].pal = temppal;
+        sprite[i].xrepeat = max(tempxrepeat, 1);
+        sprite[i].yrepeat = max(tempyrepeat, 1);
+        sprite[i].cstat = tempcstat;
+    }
+}
+
+
 void editinput(void)
 {
     int32_t mousz, bstatus;
-    int32_t i, j, k, tempint=0;
+    int32_t i, tempint=0;
     int32_t goalz, xvect, yvect, hiz, loz, oposz;
     int32_t dax, day, hihit, lohit, omlook=mlook;
 
@@ -1239,27 +1266,7 @@ void editinput(void)
                 {
                     int32_t cz, fz;
 
-                    if (somethingintab == 3)
-                    {
-                        sprite[i].picnum = temppicnum;
-                        if (tilesizx[temppicnum] <= 0 || tilesizy[temppicnum] <= 0)
-                        {
-                            j = 0;
-                            for (k=0; k<MAXTILES; k++)
-                                if (tilesizx[k] > 0 && tilesizy[k] > 0)
-                                {
-                                    j = k;
-                                    break;
-                                }
-                            sprite[i].picnum = j;
-                        }
-
-                        sprite[i].shade = tempshade;
-                        sprite[i].pal = temppal;
-                        sprite[i].xrepeat = max(tempxrepeat, 1);
-                        sprite[i].yrepeat = max(tempyrepeat, 1);
-                        sprite[i].cstat = tempcstat;
-                    }
+                    handle_sprite_in_clipboard(i);
 
                     getzsofslope(hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y, &cz, &fz);
 
@@ -6123,26 +6130,7 @@ end_join_sectors:
                         sprite[i].xrepeat = sprite[i].yrepeat = 48;
                         prefixarg = 0;
                     }
-                    else if (somethingintab == 3)
-                    {
-                        sprite[i].picnum = temppicnum;
-                        if (tilesizx[temppicnum] <= 0 || tilesizy[temppicnum] <= 0)
-                        {
-                            j = 0;
-                            for (k=0; k<MAXTILES; k++)
-                                if (tilesizx[k] > 0 && tilesizy[k] > 0)
-                                {
-                                    j = k;
-                                    break;
-                                }
-                            sprite[i].picnum = j;
-                        }
-                        sprite[i].shade = tempshade;
-                        sprite[i].pal = temppal;
-                        sprite[i].xrepeat = max(tempxrepeat, 1);
-                        sprite[i].yrepeat = max(tempyrepeat, 1);
-                        sprite[i].cstat = tempcstat;
-                    }
+                    else handle_sprite_in_clipboard(i);
 
                     if (tilesizy[sprite[i].picnum] >= 32)
                         sprite[i].cstat |= 1;
