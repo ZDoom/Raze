@@ -3491,11 +3491,8 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 
 void G_DrawRooms(int32_t snum, int32_t smoothratio)
 {
-    int32_t j,fz,cz;
     int32_t i;
-    DukePlayer_t *p = g_player[snum].ps;
-    int16_t tang;
-    int32_t tiltcx,tiltcy,tiltcs=0;    // JBF 20030807
+    DukePlayer_t *const p = g_player[snum].ps;
 
     int32_t tmpyx=yxaspect, tmpvr=viewingrange;
 
@@ -3517,12 +3514,12 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         setaspect_new();
     }
 
-//    smoothratio = min(max(smoothratio,0),65536);
-    smoothratio = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
+    smoothratio = clamp((totalclock-ototalclock)*(65536/4), 0, 65536);
 
     visibility = (int32_t)(p->visibility * (numplayers > 1 ? 1.f : r_ambientlightrecip));
 
-    if (ud.pause_on || g_player[snum].ps->on_crane > -1) smoothratio = 65536;
+    if (ud.pause_on || g_player[snum].ps->on_crane > -1)
+        smoothratio = 65536;
 
     ud.camerasect = p->cursectnum;
 
@@ -3531,13 +3528,14 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     if (ud.camerasprite >= 0)
     {
-        spritetype *s = &sprite[ud.camerasprite];
+        spritetype *const s = &sprite[ud.camerasprite];
 
+        // XXX: what?
         if (s->yvel < 0) s->yvel = -100;
         else if (s->yvel > 199) s->yvel = 300;
 
-        ud.cameraang = actor[ud.camerasprite].tempang+
-                       mulscale16((int32_t)(((s->ang+1024-actor[ud.camerasprite].tempang)&2047)-1024),smoothratio);
+        ud.cameraang = actor[ud.camerasprite].tempang +
+            mulscale16(((s->ang+1024-actor[ud.camerasprite].tempang)&2047)-1024, smoothratio);
 
         G_SE40(smoothratio);
 
@@ -3554,15 +3552,20 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     }
     else
     {
-        i = divscale22(1,sprite[p->i].yrepeat+28);
+        int32_t j,fz,cz;
+        int32_t tiltcx, tiltcy, tiltcs=0;    // JBF 20030807
+
+        const int32_t vr = divscale22(1,sprite[p->i].yrepeat+28);
+        const int32_t software_screen_tilting =
+            (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || !ud.detail));
 
         if (!r_usenewaspect)
         {
-            setaspect(i, yxaspect);
+            setaspect(vr, yxaspect);
         }
         else
         {
-            tmpvr = i;
+            tmpvr = vr;
             tmpyx = (65536*ydim*8)/(xdim*5);
 
             setaspect(mulscale16(tmpvr,viewingrange), yxaspect);
@@ -3575,14 +3578,12 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 allocache(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
 
             if (getrendermode()==0)
-                setviewtotile(TILE_SAVESHOT,200L,320L);
+                setviewtotile(TILE_SAVESHOT, 200, 320);
         }
-        else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))
+        else if (software_screen_tilting)
         {
             int32_t oviewingrange = viewingrange;  // save it from setviewtotile()
-
-            if (ud.screen_tilting) tang = p->rotscrnang;
-            else tang = 0;
+            const int16_t tang = (ud.screen_tilting) ? p->rotscrnang : 0;
 
             if (xres <= 320 && yres <= 240)
             {
@@ -3608,8 +3609,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             if ((tang&1023) == 512)
             {
                 //Block off unscreen section of 90ø tilted screen
-                j = ((tiltcx-(60*tiltcs))>>(1-ud.detail));
-                for (i=((60*tiltcs)>>(1-ud.detail))-1; i>=0; i--)
+                j = ((tiltcx-(60*tiltcs))>>!ud.detail);
+                for (i=((60*tiltcs)>>!ud.detail)-1; i>=0; i--)
                 {
                     startumost[i] = 1;
                     startumost[i+j] = 1;
@@ -3619,8 +3620,10 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             }
 
             i = (tang&511);
-            if (i > 256) i = 512-i;
+            if (i > 256)
+                i = 512-i;
             i = sintable[i+512]*8 + sintable[i]*5;
+
 //            setaspect(i>>1, yxaspect);
             setaspect(mulscale16(oviewingrange,i>>1), yxaspect);
 
@@ -3630,37 +3633,39 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         else if (getrendermode() > 0 && ud.screen_tilting /*&& (p->rotscrnang || p->orotscrnang)*/)
         {
 #ifdef USE_OPENGL
-            setrollangle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024)&2047)-1024,smoothratio));
+            setrollangle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024)&2047)-1024, smoothratio));
 #endif
             p->orotscrnang = p->rotscrnang; // JBF: save it for next time
         }
 
         {
-            vec3_t cam = { p->opos.x+mulscale16((int32_t)(p->pos.x-p->opos.x),smoothratio),
-                           p->opos.y+mulscale16((int32_t)(p->pos.y-p->opos.y),smoothratio),
-                           p->opos.z+mulscale16((int32_t)(p->pos.z-p->opos.z),smoothratio)
+            vec3_t cam = { p->opos.x+mulscale16(p->pos.x-p->opos.x, smoothratio),
+                           p->opos.y+mulscale16(p->pos.y-p->opos.y, smoothratio),
+                           p->opos.z+mulscale16(p->pos.z-p->opos.z, smoothratio)
                          };
 
             Bmemcpy(&ud.camera, &cam, sizeof(vec3_t));
-            ud.cameraang = p->oang+mulscale16((int32_t)(((p->ang+1024-p->oang)&2047)-1024),smoothratio);
-            ud.camerahoriz = p->ohoriz+p->ohorizoff+mulscale16((int32_t)(p->horiz+p->horizoff-p->ohoriz-p->ohorizoff),smoothratio);
+            ud.cameraang = p->oang + mulscale16(((p->ang+1024-p->oang)&2047)-1024, smoothratio);
+            ud.camerahoriz = p->ohoriz+p->ohorizoff
+                + mulscale16((p->horiz+p->horizoff-p->ohoriz-p->ohorizoff), smoothratio);
         }
         ud.cameraang += p->look_ang;
 
         if (p->newowner >= 0)
         {
-            ud.cameraang = p->ang+p->look_ang;
-            ud.camerahoriz = p->horiz+p->horizoff;
+            ud.cameraang = p->ang + p->look_ang;
+            ud.camerahoriz = p->horiz + p->horizoff;
             Bmemcpy(&ud.camera, p, sizeof(vec3_t));
             ud.camerasect = sprite[p->newowner].sectnum;
-            smoothratio = 65536L;
+            smoothratio = 65536;
         }
         else if (ud.viewbob) // if (p->over_shoulder_on == 0)
         {
             if (p->over_shoulder_on)
-                ud.camera.z += (p->opyoff+mulscale16((int32_t)(p->pyoff-p->opyoff),smoothratio))>>3;
-            else ud.camera.z += p->opyoff+mulscale16((int32_t)(p->pyoff-p->opyoff),smoothratio);
+                ud.camera.z += (p->opyoff + mulscale16(p->pyoff-p->opyoff, smoothratio))>>3;
+            else ud.camera.z += p->opyoff + mulscale16(p->pyoff-p->opyoff, smoothratio);
         }
+
         if (p->over_shoulder_on)
         {
             ud.camera.z -= 3072;
@@ -3676,14 +3681,17 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             ud.cameraang += (2-((g_earthquakeTime)&2))<<2;
         }
 
-        if (sprite[p->i].pal == 1) ud.camera.z -= (18<<8);
+        if (sprite[p->i].pal == 1)
+            ud.camera.z -= (18<<8);
 
         if (p->newowner >= 0)
             ud.camerahoriz = 100+sprite[p->newowner].shade;
         else if (p->spritebridge == 0)
         {
-            if (ud.camera.z < (p->truecz + (4<<8))) ud.camera.z = cz + (4<<8);
-            else if (ud.camera.z > (p->truefz - (4<<8))) ud.camera.z = fz - (4<<8);
+            if (ud.camera.z < (p->truecz + (4<<8)))
+                ud.camera.z = cz + (4<<8);
+            else if (ud.camera.z > (p->truefz - (4<<8)))
+                ud.camera.z = fz - (4<<8);
         }
 
         while (ud.camerasect >= 0)  // if, really
@@ -3702,7 +3710,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             }
             else
 #endif
-                if (ud.camera.z < cz+(4<<8)) ud.camera.z = cz+(4<<8);
+                if (ud.camera.z < cz+(4<<8))
+                    ud.camera.z = cz+(4<<8);
 
 #ifdef YAX_ENABLE
             if (yax_getbunch(ud.camerasect, YAX_FLOOR) >= 0)
@@ -3712,7 +3721,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             }
             else
 #endif
-                if (ud.camera.z > fz-(4<<8)) ud.camera.z = fz-(4<<8);
+                if (ud.camera.z > fz-(4<<8))
+                    ud.camera.z = fz-(4<<8);
 
             break;
         }
@@ -3749,13 +3759,13 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             // viewing from bottom
             if (drawing_ror == 1)
             {
-                int32_t k = headspritesect[sp->sectnum];
+                int32_t k;
 
-                while (k != -1)
+                for (k=headspritesect[sp->sectnum]; k != -1; k=nextspritesect[k])
                 {
                     if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sp->z))
                     {
-                        Bmemcpy((spritetype *)&tsprite[spritesortcnt],(spritetype *)&sprite[k],sizeof(spritetype));
+                        Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(spritetype));
 
                         tsprite[spritesortcnt].x += (sprite[sp->yvel].x-sp->x);
                         tsprite[spritesortcnt].y += (sprite[sp->yvel].y-sp->y);
@@ -3766,7 +3776,6 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                         //OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
                         spritesortcnt++;
                     }
-                    k = nextspritesect[k];
                 }
             }
         }
@@ -3825,23 +3834,23 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             }
 #endif
         }
-        else if (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || ud.detail==0))
+        else if (software_screen_tilting)
         {
-            if (ud.screen_tilting) tang = p->rotscrnang;
-            else tang = 0;
+            const int16_t tang = (ud.screen_tilting) ? p->rotscrnang : 0;
 
-            if (getrendermode() == 0)
-            {
-                setviewback();
-                picanm[TILE_TILT] &= 0xff0000ff;
-                i = (tang&511);
-                if (i > 256) i = 512-i;
-                i = sintable[i+512]*8 + sintable[i]*5;
-                if ((1-ud.detail) == 0) i >>= 1;
-                i>>=(tiltcs-1); // JBF 20030807
-                rotatesprite_win(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64);
-                walock[TILE_TILT] = 199;
-            }
+            setviewback();
+            picanm[TILE_TILT] &= 0xff0000ff;
+
+            i = (tang&511);
+            if (i > 256)
+                i = 512-i;
+            i = sintable[i+512]*8 + sintable[i]*5;
+            if (ud.detail)
+                i >>= 1;
+            i >>= (tiltcs-1); // JBF 20030807
+
+            rotatesprite_win(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64);
+            walock[TILE_TILT] = 199;
         }
     }
 
@@ -3934,7 +3943,8 @@ static void G_DumpDebugInfo(void)
               &g_player[myconnectindex].ps->pos.z,&g_player[myconnectindex].ps->ang,&g_player[myconnectindex].ps->cursectnum);
 }
 
-int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss)
+int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,
+                       int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss)
 {
     int32_t p, i = insertsprite(whatsect,s_ss);
     spritetype *s = &sprite[i];
@@ -10621,12 +10631,10 @@ MAIN_LOOP_RESTART:
             char ch;
             static uint32_t bufpos = 0;
             static char buf[128];
-
 #ifndef GEKKO
             int32_t flag = 1;
             ioctl(0, FIONBIO, &flag);
 #endif
-
             if ((nb = read(0, &ch, 1)) > 0 && bufpos < sizeof(buf))
             {
                 if (ch != '\n')

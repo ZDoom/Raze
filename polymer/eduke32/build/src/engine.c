@@ -7233,8 +7233,8 @@ static void dosetaspect(void)
         for (i=0; i<xdimen; i++)
         {
             j = (x&65535); k = (x>>16); x += xinc;
-            if (j != 0) j = mulscale16((int32_t)radarang[k+1]-(int32_t)radarang[k],j);
-            radarang2[i] = (int16_t)(((int32_t)radarang[k]+j)>>6);
+            if (j != 0) j = mulscale16(radarang[k+1]-radarang[k], j);
+            radarang2[i] = (int16_t)((radarang[k]+j)>>6);
         }
         for (i=1; i<(int32_t)(sizeof(distrecip)/sizeof(distrecip[0])); i++)
             distrecip[i] = divscale20(xdimen,i);
@@ -10537,9 +10537,9 @@ void loadtile(int16_t tilenume)
 //
 // allocatepermanenttile
 //
-int32_t allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
+intptr_t allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 {
-    int32_t j, dasiz;
+    int32_t dasiz;
 
     if ((xsiz <= 0) || (ysiz <= 0) || ((unsigned)tilenume >= (unsigned)MAXTILES))
         return(0);
@@ -10549,14 +10549,7 @@ int32_t allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     walock[tilenume] = 255;
     allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
 
-    tilesizx[tilenume] = xsiz;
-    tilesizy[tilenume] = ysiz;
-    picanm[tilenume] = 0;
-
-    j = 15; while ((j > 1) && (pow2long[j] > xsiz)) j--;
-    picsiz[tilenume] = ((uint8_t)j);
-    j = 15; while ((j > 1) && (pow2long[j] > ysiz)) j--;
-    picsiz[tilenume] += ((uint8_t)(j<<4));
+    set_picsizanm(tilenume, xsiz, ysiz, 0);
 
     return(waloff[tilenume]);
 }

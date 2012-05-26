@@ -591,8 +591,7 @@ void G_UpdateScreenArea(void)
 
     if (qsetmode != 200) return;
 
-    if (ud.screen_size < 0) ud.screen_size = 0;
-    if (ud.screen_size > 64) ud.screen_size = 64;
+    ud.screen_size = clamp(ud.screen_size, 0, 64);
     if (ud.screen_size == 0) flushperms();
 
     ss = max(ud.screen_size-8,0);

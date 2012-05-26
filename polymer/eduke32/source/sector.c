@@ -372,7 +372,8 @@ void G_AnimateCamSprite(void)
 #ifdef DEBUG_VALGRIND_NO_SMC
     return;
 #endif
-    if (camsprite <= 0) return;
+    if (camsprite < 0)
+        return;
 
     if (T1 >= 4)
     {
@@ -385,7 +386,7 @@ void G_AnimateCamSprite(void)
             if (waloff[TILE_VIEWSCR] == 0)
                 allocatepermanenttile(TILE_VIEWSCR,tilesizx[PN],tilesizy[PN]);
             else walock[TILE_VIEWSCR] = 255;
-            G_SetupCamTile(OW,/*PN*/TILE_VIEWSCR);
+            G_SetupCamTile(OW, TILE_VIEWSCR);
 #ifdef POLYMER
             // HACK: force texture update on viewscreen sprite in Polymer!
             if (rendmode==4)
