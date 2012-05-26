@@ -109,7 +109,7 @@ static int32_t ggxinc[MAXXSIZ+1], ggyinc[MAXXSIZ+1];
 static int32_t lowrecip[1024], nytooclose, nytoofar;
 static uint32_t distrecip[65536+256];
 
-static intptr_t *lookups = NULL;
+static int32_t *lookups = NULL;
 static int32_t dommxoverlay = 1, beforedrawrooms = 1;
 int32_t indrawroomsandmasks = 0;
 
@@ -2221,7 +2221,7 @@ static int32_t nrx1[8], nry1[8], nrx2[8], nry2[8]; // JBF 20031206: Thanks Ken
 
 static int32_t rxi[8], ryi[8], rzi[8], rxi2[8], ryi2[8], rzi2[8];
 static int32_t xsi[8], ysi[8], horizycent;
-static intptr_t *horizlookup=0, *horizlookup2=0;
+static int32_t *horizlookup=0, *horizlookup2=0;
 
 int32_t globalposx, globalposy, globalposz, globalhoriz;
 int16_t globalang, globalcursectnum;
@@ -8028,7 +8028,7 @@ void uninitengine(void)
     if (pic != NULL) { Bfree(pic); pic = NULL; }
     if (lookups != NULL)
     {
-        Bfree((void *)lookups);
+        Bfree(lookups);
         lookups = NULL;
     }
 
@@ -10207,11 +10207,11 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
     xdim = daxdim; ydim = daydim;
 
-    j = ydim*4*sizeof(intptr_t);  //Leave room for horizlookup&horizlookup2
-
     if (lookups != NULL)
-        Bfree((void *)lookups);
-    lookups = Bmalloc(j<<1);
+        Bfree(lookups);
+
+    j = ydim*4;  //Leave room for horizlookup&horizlookup2
+    lookups = Bmalloc(2*j*sizeof(lookups[0]));
 
     if (lookups == NULL)
     {
@@ -10221,7 +10221,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     }
 
     horizlookup = lookups;
-    horizlookup2 = (intptr_t *)((intptr_t)lookups+j); // FIXME_SA
+    horizlookup2 = lookups + j;
     horizycent = ((ydim*4)>>1);
 
     //Force drawrooms to call dosetaspect & recalculate stuff
