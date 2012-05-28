@@ -9834,6 +9834,14 @@ void app_crashhandler(void)
 }
 #endif
 
+#ifdef _WIN32
+// See FILENAME_CASE_CHECK in cache1d.c
+static int32_t check_filename_casing(void)
+{
+    return !(g_player[myconnectindex].ps->gm&MODE_GAME);
+}
+#endif
+
 #ifdef GEKKO
 void L2Enhance();
 void CON_EnableGecko(int channel,int safe);
@@ -9885,6 +9893,11 @@ int32_t app_main(int32_t argc, const char **argv)
 #endif
 
 #ifdef _WIN32
+    {
+        extern int32_t (*check_filename_casing_fn)(void);
+        check_filename_casing_fn = check_filename_casing;
+    }
+
     tempbuf[GetModuleFileName(NULL,g_rootDir,BMAX_PATH)] = 0;
     Bcorrectfilename(g_rootDir,1);
     //chdir(g_rootDir);

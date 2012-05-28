@@ -8687,11 +8687,24 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 }
 #undef COPYARG
 
+#ifdef _WIN32
+// See FILENAME_CASE_CHECK in cache1d.c
+static int32_t check_filename_casing(void)
+{
+    return 1;
+}
+#endif
+
 int32_t ExtPreInit(int32_t argc,const char **argv)
 {
     wm_setapptitle("Mapster32");
 
 #ifdef _WIN32
+    {
+        extern int32_t (*check_filename_casing_fn)(void);
+        check_filename_casing_fn = check_filename_casing;
+    }
+
     tempbuf[GetModuleFileName(NULL,tempbuf,BMAX_PATH)] = 0;
     Bcorrectfilename(tempbuf,1);
     //chdir(tempbuf);

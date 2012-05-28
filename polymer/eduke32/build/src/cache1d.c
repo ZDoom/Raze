@@ -467,6 +467,7 @@ int32_t openfrompath(const char *fn, int32_t flags, int32_t mode)
     int32_t h;
 
     if (findfrompath(fn, &pfn) < 0) return -1;
+
     h = Bopen(pfn, flags, mode);
 #ifdef FILENAME_CASE_CHECK
     if (h>=0 && dont_free_pfn)
@@ -696,14 +697,41 @@ void uninitgroupfile(void)
 
 static SHFILEINFO shinf;
 
+int32_t (*check_filename_casing_fn)(void) = NULL;
+
 // -1: failure, 0: match, 1: mismatch
 static int32_t check_filename_mismatch(const char *filename, int32_t ofs)
 {
+    const char *fn = filename+ofs;
+
     // we assume that UNICODE is not #defined, winlayer.c errors out else
     if (!SHGetFileInfo(filename, -1, &shinf, sizeof(shinf), SHGFI_DISPLAYNAME))
         return -1;
 
-    return !!Bstrcmp(shinf.szDisplayName, filename+ofs);
+    if (!Bstrcmp(shinf.szDisplayName, fn))
+        return 0;
+
+    {
+        char *tfn = Bstrtolower(Bstrdup(fn));
+
+        if (!Bstrcmp(shinf.szDisplayName, tfn))
+        {
+            Bfree(tfn);
+            return 0;
+        }
+
+        Bstrupr(tfn);
+
+        if (!Bstrcmp(shinf.szDisplayName, tfn))
+        {
+            Bfree(tfn);
+            return 0;
+        }
+
+        Bfree(tfn);
+    }
+
+    return 1;
 }
 #endif
 
@@ -712,6 +740,10 @@ int32_t kopen4load(const char *filename, char searchfirst)
     int32_t  j, k, fil, newhandle = MAXOPENFILES-1;
     char bad, *gfileptr;
     intptr_t i;
+
+#ifdef FILENAME_CASE_CHECK
+    const int32_t do_case_check = check_filename_casing_fn && check_filename_casing_fn();
+#endif
 
     if (filename==NULL)
         return -1;
@@ -727,43 +759,46 @@ int32_t kopen4load(const char *filename, char searchfirst)
     }
 
 #ifdef FILENAME_CASE_CHECK
-    dont_free_pfn = 1;
+    dont_free_pfn = do_case_check;
 #endif
 
     if (searchfirst == 0 && (fil = openfrompath(filename,BO_BINARY|BO_RDONLY,S_IREAD)) >= 0)
     {
 #ifdef FILENAME_CASE_CHECK
-        int32_t status;
-        char *cp, *lastslash;
+        if (check_filename_casing_fn && check_filename_casing_fn())
+        {
+            int32_t status;
+            char *cp, *lastslash;
 
-        // convert all slashes to backslashes because SHGetFileInfo()
-        // complains else!
-        lastslash = lastpfn;
-        for (cp=lastpfn; *cp; cp++)
-            if (*cp=='/')
+            // convert all slashes to backslashes because SHGetFileInfo()
+            // complains else!
+            lastslash = lastpfn;
+            for (cp=lastpfn; *cp; cp++)
+                if (*cp=='/')
+                {
+                    *cp = '\\';
+                    lastslash = cp;
+                }
+            if (lastslash != lastpfn)
+                lastslash++;
+
+            status = check_filename_mismatch(lastpfn, lastslash-lastpfn);
+
+            dont_free_pfn = 0;
+
+            if (status == -1)
             {
-                *cp = '\\';
-                lastslash = cp;
+                initprintf("SHGetFileInfo failed with error code %lu\n", GetLastError());
             }
-        if (lastslash != lastpfn)
-            lastslash++;
+            else if (status == 1)
+            {
+                initprintf("warning: case mismatch: passed \"%s\", real \"%s\"\n",
+                           lastslash, shinf.szDisplayName);
+            }
 
-        status = check_filename_mismatch(lastpfn, lastslash-lastpfn);
-
-        dont_free_pfn = 0;
-
-        if (status == -1)
-        {
-            initprintf("SHGetFileInfo failed with error code %lu\n", GetLastError());
+            Bfree(lastpfn);
+            lastpfn=NULL;
         }
-        else if (status == 1)
-        {
-            initprintf("warning: case mismatch: passed \"%s\", real \"%s\"\n",
-                       lastslash, shinf.szDisplayName);
-        }
-
-        Bfree(lastpfn);
-        lastpfn=NULL;
 #endif
         filegrp[newhandle] = 255;
         filehan[newhandle] = fil;
