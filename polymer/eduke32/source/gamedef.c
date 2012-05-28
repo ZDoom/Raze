@@ -2009,6 +2009,17 @@ static void C_Include(const char *confile)
     Bfree(mptr);
 }
 
+#ifdef _WIN32
+static void check_filename_case(const char *fn)
+{
+    int32_t fp;
+    if ((fp = kopen4loadfrommod(fn, g_loadFromGroupOnly)) >= 0)
+        kclose(fp);
+}
+#else
+static void check_filename_case(const char *fn) { UNREFERENCED_PARAMETER(fn); }
+#endif
+
 static int32_t C_ParseCommand(int32_t loop)
 {
     int32_t i, j=0, k=0, tw, otw;
@@ -2468,6 +2479,8 @@ static int32_t C_ParseCommand(int32_t loop)
 
                         Bstrcpy(MapInfo[(k*MAXLEVELS)+i].musicfn,tempbuf);
 
+                        check_filename_case(tempbuf);
+
                         textptr += j;
                         if (i > MAXLEVELS-1) break;
                         i++;
@@ -2487,6 +2500,8 @@ static int32_t C_ParseCommand(int32_t loop)
                             j++;
                         }
                         EnvMusicFilename[i][j] = '\0';
+
+                        check_filename_case(EnvMusicFilename[i]);
 
                         textptr += j;
                         if (i > MAXVOLUMES-1) break;
@@ -5408,6 +5423,8 @@ repeatcase:
                 }
             }
             g_sounds[k].filename[i] = '\0';
+
+            check_filename_case(g_sounds[k].filename);
 
             C_GetNextValue(LABEL_DEFINE);
             g_sounds[k].ps = *(g_scriptPtr-1);
