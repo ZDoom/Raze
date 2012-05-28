@@ -223,11 +223,16 @@ void M32RunScript(const char *s) { UNREFERENCED_PARAMETER(s); };  // needed for 
 
 int32_t kopen4loadfrommod(const char *filename, char searchfirst)
 {
-    static char fn[BMAX_PATH];
-    int32_t r;
+    int32_t r=-1;
 
-    Bsprintf(fn,"%s/%s",g_modDir,filename);
-    r = kopen4load(fn,searchfirst);
+    if (g_modDir[0]!='/' || g_modDir[1]!=0)
+    {
+        static char fn[BMAX_PATH];
+
+        Bsprintf(fn,"%s/%s",g_modDir,filename);
+        r = kopen4load(fn,searchfirst);
+    }
+
     if (r < 0)
         r = kopen4load(filename,searchfirst);
 
