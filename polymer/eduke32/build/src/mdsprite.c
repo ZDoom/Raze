@@ -3011,7 +3011,7 @@ static int32_t loadvox(const char *filnam)
     int32_t i, j, k, x, y, z, pal[256], fil;
     char c[3], *tbuf;
 
-    fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
+    fil = kopen4load(filnam,0); if (fil < 0) return(-1);
     kread(fil,&xsiz,4); xsiz = B_LITTLE32(xsiz);
     kread(fil,&ysiz,4); ysiz = B_LITTLE32(ysiz);
     kread(fil,&zsiz,4); zsiz = B_LITTLE32(zsiz);
@@ -3028,7 +3028,7 @@ static int32_t loadvox(const char *filnam)
     vcolhashead = (int32_t *)Bmalloc((vcolhashsizm1+1)*sizeof(int32_t)); if (!vcolhashead) { kclose(fil); return(-1); }
     memset(vcolhashead,-1,(vcolhashsizm1+1)*sizeof(int32_t));
 
-    yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
+    yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3)+1;
     vbit = (int32_t *)Bmalloc(i); if (!vbit) { kclose(fil); return(-1); }
     memset(vbit,0,i);
 
@@ -3073,7 +3073,7 @@ static int32_t loadkvx(const char *filnam)
     uint16_t *xyoffs;
     char c[3], *tbuf, *cptr;
 
-    fil = kopen4load((char *)filnam,0); if (fil < 0) return(-1);
+    fil = kopen4load(filnam,0); if (fil < 0) return(-1);
     kread(fil,&mip1leng,4); mip1leng = B_LITTLE32(mip1leng);
     kread(fil,&xsiz,4);     xsiz = B_LITTLE32(xsiz);
     kread(fil,&ysiz,4);     ysiz = B_LITTLE32(ysiz);
@@ -3082,6 +3082,7 @@ static int32_t loadkvx(const char *filnam)
     kread(fil,&i,4); ypiv = ((float)B_LITTLE32(i))/256.0;
     kread(fil,&i,4); zpiv = ((float)B_LITTLE32(i))/256.0;
     klseek(fil,(xsiz+1)<<2,SEEK_CUR);
+
     ysizp1 = ysiz+1;
     i = xsiz*ysizp1*sizeof(int16_t);
     xyoffs = (uint16_t *)Bmalloc(i); if (!xyoffs) { kclose(fil); return(-1); }
@@ -3091,7 +3092,7 @@ static int32_t loadkvx(const char *filnam)
     for (i=0; i<256; i++)
         { kread(fil,c,3); pal[i] = B_LITTLE32((((int32_t)c[0])<<18)+(((int32_t)c[1])<<10)+(((int32_t)c[2])<<2)+(i<<24)); }
 
-    yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
+    yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3)+1;
     vbit = (int32_t *)Bmalloc(i); if (!vbit) { Bfree(xyoffs); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
@@ -3120,7 +3121,7 @@ static int32_t loadkvx(const char *filnam)
                 z0 = (int32_t)cptr[0]; k = (int32_t)cptr[1]; cptr += 3;
                 if (!(cptr[-1]&16)) setzrange1(vbit,j+z1,j+z0);
                 i -= k+3; z1 = z0+k;
-                setzrange1(vbit,j+z0,j+z1);
+                setzrange1(vbit,j+z0,j+z1);  // PK: oob in AMC TC dev if vbit alloc'd w/o +1
                 for (z=z0; z<z1; z++) putvox(x,y,z,pal[*cptr++]);
             }
         }
@@ -3151,7 +3152,7 @@ static int32_t loadkv6(const char *filnam)
     kread(fil,ylen,xsiz*ysiz*sizeof(int16_t)); for (i=xsiz*ysiz-1; i>=0; i--) ylen[i] = B_LITTLE16(ylen[i]);
     klseek(fil,32,SEEK_SET);
 
-    yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3);
+    yzsiz = ysiz*zsiz; i = ((xsiz*yzsiz+31)>>3)+1;
     vbit = (int32_t *)Bmalloc(i); if (!vbit) { Bfree(ylen); kclose(fil); return(-1); }
     memset(vbit,0,i);
 
