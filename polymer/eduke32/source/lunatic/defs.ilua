@@ -452,7 +452,7 @@ local function printkv(label, table)
     print('----------')
 end
 
-printkv('_G AFTER SETFENV', _G)
+--printkv('_G AFTER SETFENV', _G)
 
 
 ---=== Restricted access to C variables from Lunatic ===---
@@ -469,6 +469,7 @@ local tmpmt = {
 }
 oG.setmetatable(det, tmpmt)
 
+-- XXX: this is incorrect -- ffi.C also contains C library functions, etc.
 -- GLOBAL gv: provides access to C global *scalars*
 gv = {
     -- all non-scalars need to be explicitly listed
@@ -486,8 +487,8 @@ gv = {
     actor = det,
     ud = det,
 
-    luaJIT_BC_con_lang,
-    luaJIT_BC_lunacon,
+    luaJIT_BC_con_lang = det,
+    luaJIT_BC_lunacon = det,
 }
 local tmpmt = {
     __index = ffiC,
@@ -740,7 +741,7 @@ DBG_.loadGamevarsString = loadGamevarsString
 
 ---=== Finishing environment setup ===---
 
-printkv('_G AFTER DECLS', _G)
+--printkv('_G AFTER DECLS', _G)
 
 
 -- PiL 14.2 continued

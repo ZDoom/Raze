@@ -111,7 +111,7 @@ int32_t El_RunOnce(El_State *estate, const char *fn)
 
     if (i == LUA_ERRSYNTAX)
     {
-        OSD_Printf("state \"%s\" syntax error: %s\n", estate->name, lua_tostring(estate->L, 1));  // get err msg
+        OSD_Printf("state \"%s\" syntax error: %s\n", estate->name, lua_tostring(estate->L, -1));  // get err msg
         lua_pop(estate->L, 1);
         return 3;
     }

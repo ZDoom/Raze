@@ -84,7 +84,7 @@ if (vol==1 and lev==8) then
 end
 
 --]]
-DBG_.printkv('_G in test.elua', _G)
+--DBG_.printkv('_G in test.elua', _G)
 
 checkfail('print(sprite[100000].ceilingpal)')  -- oob read access
 checkfail('setmetatable(sprite, {})')  -- set metatable forbidden
@@ -102,6 +102,12 @@ checkfail("new_global = 345")  -- we should declare globals
 checkfail('gv.CEILING = 3')  -- can't redefine constants in 'gv'
 checkfail('string.dump(setevent)')  -- string.dump is unavailable
 
+-- This is problematic, even though pretty much every access will yield a
+-- "missing declaration" error.
+-- See http://luajit.org/ext_ffi_api.html#ffi_C about what stuff ffi.C contains.
+checkfail('gv.luaJIT_setmode(nil, 0, 0)')
+
 setevent(gv.EVENT_JUMP, function() print("jump!") end)
+
 
 print('---=== END TEST SCRIPT ===---')
