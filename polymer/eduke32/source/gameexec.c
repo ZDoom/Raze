@@ -2342,6 +2342,12 @@ nullquote:
 
                 if (g_screenCapture) continue;
 
+                if (offscreenrendering)
+                {
+                    clearview(0);
+                    continue;
+                }
+
                 if (x1 > x2) swaplong(&x1,&x2);
                 if (y1 > y2) swaplong(&y1,&y2);
 

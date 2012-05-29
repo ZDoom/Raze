@@ -3743,6 +3743,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             break;
         }
 
+        // NOTE: might be rendering off-screen here, so CON commands that draw stuff
+        //  like showview must cope with that situation or bail out!
         if (apScriptGameEvent[EVENT_DISPLAYROOMS])
             VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
