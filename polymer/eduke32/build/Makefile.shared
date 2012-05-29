@@ -13,9 +13,6 @@ endif
 
 SDL_FRAMEWORK	= 0
 
-# Overridden for OSes that don't have the cutdown stdc++ that is supc++
-STDCPPLIB=-lsupc++
-
 # Detect machine architecture
 SYSARCH?=$(strip $(shell uname -m))
 
@@ -84,6 +81,13 @@ ifndef PLATFORM
     ifeq ($(findstring syllable,$(uname)),syllable)
         PLATFORM=SYLLABLE
     endif
+endif
+
+ifeq ($(PLATFORM),LINUX)
+    STDCPPLIB=
+else
+    # Overridden for OSes that don't have the cutdown stdc++ that is supc++
+    STDCPPLIB= -lsupc++
 endif
 
 ifeq ($(PLATFORM),LINUX)
