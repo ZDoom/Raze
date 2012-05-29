@@ -14040,6 +14040,7 @@ int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
         walltype *wal;
 
         wal = &wall[sector[sectnum].wallptr];
+        // ceil(sqrt(2**31-1)) == 46341
         dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
         i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return(sector[sectnum].ceilingz);
         j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);

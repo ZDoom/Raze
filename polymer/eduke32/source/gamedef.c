@@ -5637,8 +5637,7 @@ repeatcase:
                 if (g_scriptVersion == 14)
                 {
                     g_spriteDeleteQueueSize = params[j++];
-                    if (g_spriteDeleteQueueSize > 1024) g_spriteDeleteQueueSize = 1024;
-                    else if (g_spriteDeleteQueueSize < 0) g_spriteDeleteQueueSize = 0;
+                    g_spriteDeleteQueueSize = clamp(g_spriteDeleteQueueSize, 0, 1024);
 
                     g_tripbombLaserMode = params[j++];
                 }

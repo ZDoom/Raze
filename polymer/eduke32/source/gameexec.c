@@ -93,6 +93,7 @@ void VM_ScriptInfo(void)
     initprintf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);
 }
 
+// May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
 int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
 {
 #ifdef LUNATIC_ENABLE
@@ -428,12 +429,12 @@ int32_t G_GetAngleDelta(int32_t a,int32_t na)
     return (na-a);
 }
 
-GAMEEXEC_STATIC GAMEEXEC_INLINE void VM_AlterAng(int32_t a)
+GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
 {
     int32_t ticselapsed = (vm.g_t[0])&31;
 
     const intptr_t *moveptr;
-    if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize)
+    if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize-1)
 
     {
         vm.g_t[1] = 0;
@@ -914,10 +915,9 @@ skip_check:
             vm.g_sp->hitag = *(script + vm.g_t[5] + 2);  // move flags
 
             vm.g_t[0] = vm.g_t[2] = vm.g_t[3] = 0; // count, actioncount... vm.g_t[3] = ??
-            if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
-                continue;
-            if (vm.g_sp->hitag&random_angle)
-                vm.g_sp->ang = krand()&2047;
+            if (!A_CheckEnemySprite(vm.g_sp) || vm.g_sp->extra > 0) // hack
+                if (vm.g_sp->hitag&random_angle)
+                    vm.g_sp->ang = krand()&2047;
             continue;
 
         case CON_ACTION:

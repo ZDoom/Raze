@@ -3587,7 +3587,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         }
         else if (software_screen_tilting)
         {
-            int32_t oviewingrange = viewingrange;  // save it from setviewtotile()
+            int32_t oviewingrange = viewingrange;  // save it from setaspect()
             const int16_t tang = (ud.screen_tilting) ? p->rotscrnang : 0;
 
             // To render a tilted screen in high quality, we need at least

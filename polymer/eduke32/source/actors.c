@@ -5877,6 +5877,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             g_player[p].ps->bobposy += x;
 
                             g_player[p].ps->ang += q;
+                            g_player[p].ps->ang &= 2047;
 
                             if (g_netServer || numplayers > 1)
                             {

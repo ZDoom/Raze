@@ -748,6 +748,8 @@ static void MultiPskyInit(void)
         Bmemset(pskymultioff[i], 0, sizeof(pskymultioff[i]));
     }
 
+    // KEEPINSYNC with Polymer MAX OFFSET = 4
+
     // MOONSKY1
     //        earth          mountian   mountain         sun
     pskymultioff[0][6]=1;

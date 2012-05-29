@@ -566,7 +566,8 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
     case USERDEFS_DETAIL:
         if (iSet)
         {
-            ud.detail = lValue;
+            // REMINDER: must implement "boolean" setters like this in Lunatic, too.
+            ud.detail = !!lValue;
             return;
         }
         Gv_SetVarX(lVar2, ud.detail);
