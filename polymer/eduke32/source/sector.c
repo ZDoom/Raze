@@ -35,13 +35,14 @@ static int32_t g_haltSoundHack = 0;
 int32_t A_CallSound(int32_t sn,int32_t whatsprite)
 {
     int32_t i;
+
     if (g_haltSoundHack)
     {
         g_haltSoundHack = 0;
         return -1;
     }
-    i = headspritesect[sn];
-    while (i >= 0)
+
+    for (SPRITES_OF_SECT(sn, i))
     {
         if (PN == MUSICANDSFX && SLT < 1000)
         {
@@ -73,7 +74,6 @@ int32_t A_CallSound(int32_t sn,int32_t whatsprite)
             }
             return SLT;
         }
-        i = nextspritesect[i];
     }
     return -1;
 }

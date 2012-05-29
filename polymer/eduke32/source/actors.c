@@ -5664,8 +5664,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     }
                 }
 
-                p = headspritesect[s->sectnum];
-                while (p >= 0)
+                for (SPRITES_OF_SECT(s->sectnum, p))
                 {
                     // that hardcoded SE light behavior here should be considered temporary at best...
                     // really need some more general system for handling them!
@@ -5674,10 +5673,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         if (sprite[p].picnum != LASERLINE)
                         {
                             if (sprite[p].picnum == APLAYER && sprite[p].owner >= 0)
-                            {
-                                p = nextspritesect[p];
                                 continue;
-                            }
 
                             sprite[p].ang += (l*q);
                             sprite[p].ang &= 2047;
@@ -5691,7 +5687,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             if (move_fixed_sprite(p, j, t[2]))
                                 rotatepoint(sprite[j].x,sprite[j].y,sprite[p].x,sprite[p].y,(q*l),&sprite[p].x,&sprite[p].y);
                         }
-                    p = nextspritesect[p];
                 }
 
             }
@@ -7391,13 +7386,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     A_PlaySound(LIGHTNING_SLAP,i);
                 else if (T3 == (T2>>2))
                 {
-                    j = headspritestat[STAT_DEFAULT];
-                    while (j >= 0)
-                    {
+                    for (SPRITES_OF(STAT_DEFAULT, j))
                         if (sprite[j].picnum == NATURALLIGHTNING && sprite[j].hitag == s->hitag)
                             sprite[j].cstat |= 32768;
-                        j = nextspritestat[j];
-                    }
                 }
                 else if (T3 > (T2>>3) && T3 < (T2>>2))
                 {

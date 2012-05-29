@@ -76,6 +76,11 @@ extern "C" {
 #define PR_LIGHT_PRIO_LOW       4
 #define PR_LIGHT_PRIO_LOW_GAME  5
 
+// Convenient sprite iterators, must not be used if any sprites are potentially deleted!
+#define SPRITES_OF(Statnum, Iter)  Iter=headspritestat[Statnum]; Iter>=0; Iter=nextspritestat[Iter]
+#define SPRITES_OF_SECT(Sectnum, Iter)  Iter=headspritesect[Sectnum]; Iter>=0; Iter=nextspritesect[Iter]
+
+
 ////////// True Room over Room (YAX == rot -17 of "PRO") //////////
 #define YAX_ENABLE
 //#define YAX_DEBUG
