@@ -91,18 +91,19 @@ int16_t highlight[MAXWALLS+MAXSPRITES];
 int16_t highlightsector[MAXSECTORS], highlightsectorcnt = -1;
 extern char textfont[128][8];
 
-// only valid when highlightsectorcnt>0 and no structural
-// modifications (deleting/inserting sectors or points, setting new firstwall)
-// have been made
-static int16_t onextwall[MAXWALLS];  // onextwall[i]>=0 implies wall[i].nextwall < 0
-static void mkonwvalid(void) { chsecptr_onextwall = onextwall; }
-static void mkonwinvalid(void) { chsecptr_onextwall = NULL; }
-static int32_t onwisvalid(void) { return chsecptr_onextwall != NULL; }
-
+int32_t tempsectornum = -1;  // for auto ceiling/floor alignment
 int32_t temppicnum, tempcstat, templotag, temphitag, tempextra;
 uint32_t temppal, tempvis, tempxrepeat, tempyrepeat, tempxpanning=0, tempypanning=0;
 int32_t tempshade, tempxvel, tempyvel, tempzvel;
 char somethingintab = 255;
+
+// Only valid when highlightsectorcnt>0 and no structural
+// modifications (deleting/inserting sectors or points, setting new firstwall)
+// have been made:
+static int16_t onextwall[MAXWALLS];  // onextwall[i]>=0 implies wall[i].nextwall < 0
+static void mkonwvalid(void) { chsecptr_onextwall = onextwall; }
+static void mkonwinvalid(void) { chsecptr_onextwall = NULL; tempsectornum=-1; }
+static int32_t onwisvalid(void) { return chsecptr_onextwall != NULL; }
 
 int32_t mlook = 0, mskip=0;
 int32_t revertCTRL=0,scrollamount=3;
@@ -2559,6 +2560,8 @@ static void sort_walls_geometrically(int16_t *wallist, int32_t nwalls)
 
 void SetFirstWall(int32_t sectnum, int32_t wallnum)
 {
+    const int32_t otempsectornum = tempsectornum;
+
 #ifdef YAX_ENABLE
     int32_t i, j, k, startwall, endwall;
     int16_t cf, bunchnum, tempsect, tempwall;
@@ -2600,7 +2603,10 @@ void SetFirstWall(int32_t sectnum, int32_t wallnum)
         message("This wall now sector %d's first wall (sector[].wallptr)", sectnum);
 
     setfirstwall(sectnum, wallnum);
+
     mkonwinvalid();
+    tempsectornum = otempsectornum;  // protect from mkonwinvalid()
+
     asksave = 1;
 }
 

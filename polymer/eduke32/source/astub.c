@@ -4851,6 +4851,14 @@ static void toggle_cf_flipping(int32_t sectnum, int32_t floorp)
     asksave = 1;
 }
 
+// vec2_t initializer from a 1st point of wall
+#define WALLVEC_INITIALIZER(w) { POINT2(w).x-wall[w].x, POINT2(w).y-wall[w].y }
+
+static int64_t lldotv2(const vec2_t *v1, const vec2_t *v2)
+{
+    return (int64_t)v1->x * v2->x + (int64_t)v1->y * v2->y;
+}
+
 ////////// KEY PRESS HANDLER IN 3D MODE //////////
 static void Keys3d(void)
 {
@@ -6905,6 +6913,8 @@ static void Keys3d(void)
                 tempypanning = AIMED_SEL_WALL(ypanning);
                 tempcstat = AIMED_SEL_WALL(cstat) & ~YAX_NEXTWALLBITS;
                 templenrepquot = getlenbyrep(wallength(searchwall), tempxrepeat);
+
+                tempsectornum = sectorofwall(searchwall);
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
             {
@@ -6917,6 +6927,8 @@ static void Keys3d(void)
                     tempxrepeat = 0;
 #endif
                 tempcstat = AIMED_CEILINGFLOOR(stat) & ~YAX_BIT;
+
+                tempsectornum = searchsector;
             }
             else if (AIMING_AT_SPRITE)
             {
@@ -6927,6 +6939,8 @@ static void Keys3d(void)
                 tempxvel = sprite[searchwall].xvel;
                 tempyvel = sprite[searchwall].yvel;
                 tempzvel = sprite[searchwall].zvel;
+
+                tempsectornum = -1;
             }
 
             somethingintab = searchstat;
@@ -6945,6 +6959,68 @@ static void Keys3d(void)
             correct_sprite_yoffset(searchwall);
 
         message("Pasted picnum only");
+    }
+    else if (keystatus[KEYSC_SEMI] && PRESSED_KEYSC(ENTER))  // ; ENTER
+    {
+        if (AIMING_AT_CEILING_OR_FLOOR && (unsigned)tempsectornum < (unsigned)numsectors
+#ifdef YAX_ENABLE
+                && YAXCHK(yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0)
+#endif
+                && tempsectornum != searchsector)
+        {
+            // auto-align ceiling/floor
+            const int32_t refwall = sector[tempsectornum].wallptr;
+            const int32_t ourwall = sector[searchsector].wallptr;
+
+            const vec2_t vecw1 = WALLVEC_INITIALIZER(refwall);
+            const vec2_t vecw2 = WALLVEC_INITIALIZER(ourwall);
+            const vec2_t vecw2r90 = { -vecw2.y, vecw2.x };  // v, rotated 90 deg CW
+
+            const int32_t bits = CEILINGFLOOR(tempsectornum, stat)&(64+32+16+8+4);
+
+            if ((CEILINGFLOOR(tempsectornum, stat)&64) == 0)
+            {
+                // world-aligned texture
+
+                CEILINGFLOOR(searchsector, stat) &= ~(64+32+16+8+4);
+                CEILINGFLOOR(searchsector, stat) |= bits;
+
+                // TODO: actually align stuff
+                message("(TODO) Aligned sector %d %s with sector %d's",
+                        searchsector, typestr[searchstat], tempsectornum);
+            }
+            else
+            {
+                // firstwall-aligned texture
+
+                const int64_t a = lldotv2(&vecw1, &vecw2);
+                const int64_t b = lldotv2(&vecw1, &vecw2r90);
+
+                if (a & b)
+                {
+                    message("Walls %d and %d are nether parallel nor perpendicular",
+                            refwall, ourwall);
+                }
+                else
+                {
+                    // 0<-6<-3<-5<-0, 1<-7<-2<-4<-1 (mirrored/not mirrored separately)
+                    static const int8_t prev3each[8] = { 5, 4, 7, 6, 2, 3, 0, 1 };
+
+                    const int32_t degang = 90*(b<0) + 180*(a<0) + 270*(b>0);
+                    int32_t i, tempbits = (bits&4) + ((bits>>4)&3);
+
+//message("Wall %d is rotated %d degrees CW wrt wall %d", ourwall, degang, refwall);
+                    CEILINGFLOOR(searchsector, stat) &= ~(64+32+16+8+4);
+                    for (i=0; i<degang/90; i++)
+                        tempbits = prev3each[tempbits];
+                    tempbits = (tempbits&4) + ((tempbits&3)<<4);
+                    CEILINGFLOOR(searchsector, stat) |= 64 + (bits&8) + tempbits;
+
+                    message("(TODO) Aligned sector %d %s (firstwall-relative) with sector %d's",
+                            searchsector, typestr[searchstat], tempsectornum);
+                }
+            }
+        }
     }
 
     if (PRESSED_KEYSC(ENTER))  // ENTER -- paste clipboard contents
