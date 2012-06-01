@@ -4815,6 +4815,23 @@ static int32_t addtobyte(int8_t *byte, int32_t num)
     return clamped;
 }
 
+static void toggle_sprite_alignment(int32_t spritenum)
+{
+    static const char *aligntype[4] = { "view", "wall", "floor", "???" };
+
+    int32_t i = sprite[spritenum].cstat;
+
+    if ((i&48) < 32)
+        i += 16;
+    else
+        i &= ~48;
+    sprite[spritenum].cstat = i;
+
+    message("Sprite %d now %s aligned", spritenum, aligntype[(i&48)/16]);
+    asksave = 1;
+}
+
+////////// KEY PRESS HANDLER IN 3D MODE //////////
 static void Keys3d(void)
 {
     int32_t i = 0, changedir,tsign; // ,count,nexti
@@ -5668,17 +5685,7 @@ static void Keys3d(void)
                 asksave = 1;
             }
             else if (AIMING_AT_SPRITE)
-            {
-                static const char *aligntype[4] = { "view", "wall", "floor", "???" };
-
-                i = sprite[searchwall].cstat;
-                if ((i&48) < 32) i += 16;
-                else i &= ~48;
-                sprite[searchwall].cstat = i;
-
-                message("Sprite %d now %s aligned", searchwall, aligntype[(i&48)/16]);
-                asksave = 1;
-            }
+                toggle_sprite_alignment(searchwall);
         }
     }
 
@@ -7466,7 +7473,7 @@ NEXTSPRITE:
     printmessage16("%s Sprite search: none found", dir<0 ? "<" : ">");
 }
 
-
+////////// KEY PRESS HANDLER IN 2D MODE //////////
 static void Keys2d(void)
 {
     int32_t i=0, j, k;
@@ -7920,17 +7927,12 @@ static void Keys2d(void)
     if (PRESSED_KEYSC(R))  // R (relative alignment, rotation)
     {
         if (pointhighlight >= 16384)
+            toggle_sprite_alignment(cursprite);
+        else if (tcursectornum >= 0 && graphicsmode)
         {
-            const char *aligntype[4] = { "view", "wall", "floor", "???" };
-
-            i = sprite[cursprite].cstat;
-            if ((i&48) < 32)
-                i += 16;
-            else
-                i &= ~48;
-            sprite[cursprite].cstat = i;
-
-            message("Sprite %d now %s aligned", cursprite, aligntype[(i&48)/16]);
+            sector[tcursectornum].floorstat ^= 64;
+            message("Sector %d floor texture relativity bit %s", searchsector,
+                    ONOFF(sector[tcursectornum].floorstat&64));
             asksave = 1;
         }
     }
