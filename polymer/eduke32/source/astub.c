@@ -5691,15 +5691,18 @@ static void Keys3d(void)
         }
         else
         {
+            static const int8_t next2[4] = { 1, 3, 0, 2 };  // 0->1->3->2->0
+            static const int8_t prev2[4] = { 2, 0, 3, 1 };  // 0<-1<-3<-2<-0
+
+            static const char *flip2label[4] = { "none", "X", "Y", "X and Y" };
+
             if (AIMING_AT_WALL_OR_MASK)
             {
-                static const int32_t next[4] = { 1, 3, 0, 2 };  // 0->1->3->2->0
-
                 i = wall[searchbottomwall].cstat;
                 i = ((i>>3)&1)+((i>>7)&2);    //3-x,8-y
 
-                i = next[i];
-                message("Wall %d flip %d",searchwall,i);
+                i = eitherSHIFT ? prev2[i] : next2[i];
+                message("Wall %d flip %s", searchwall, flip2label[i]);
 
                 i = ((i&1)<<3)+((i&2)<<7);
                 wall[searchbottomwall].cstat &= ~0x0108;
@@ -5708,13 +5711,18 @@ static void Keys3d(void)
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)  //8-way ceiling/floor flipping (bits 2,4,5)
             {
-                static const int32_t next[8] = { 6, 7, 4, 5, 0, 1, 3, 2 };  // 0->6->3->5->1->7->2->4->0
+                static const int8_t next3[8] = { 6, 7, 4, 5, 0, 1, 3, 2 };  // 0->6->3->5->1->7->2->4->0
+                static const int8_t prev3[8] = { 4, 5, 7, 6, 2, 3, 0, 1 };  // 0<-6<-3<-5<-1<-7<-2<-4<-0
+
+                static const int16_t orient[8] = { 360, -360, -180, 180, -270, 270, 90, -90 };
+
                 int16_t *stat = &SECTORFLD(searchsector,stat, AIMING_AT_FLOOR);
 
                 i = *stat;
                 i = (i&0x4)+((i>>4)&3);
-                i = next[i];
-                message("Sector %d %s flip %d", searchsector, typestr[searchstat], i);
+                i = eitherSHIFT ? prev3[i] : next3[i];
+                message("Sector %d %s flip %d deg%s", searchsector, typestr[searchstat],
+                        klabs(orient[i])%360, orient[i] < 0 ? " mirrored":"");
                 i = (i&0x4)+((i&3)<<4);
                 *stat &= ~0x34;
                 *stat |= i;
@@ -5731,11 +5739,10 @@ static void Keys3d(void)
                 }
                 else
                 {
-                    int32_t next[4] = { 1, 3, 0, 2 };  // 0->1->3->2->0
                     i = ((i>>2)&3);
 
-                    i = next[i];
-                    message("Sprite %d flip %d",searchwall,i);
+                    i = eitherSHIFT ? prev2[i] : next2[i];
+                    message("Sprite %d flip %s", searchwall, flip2label[i]);
 
                     sprite[searchwall].cstat &= ~0xc;
                     sprite[searchwall].cstat |= (i<<2);
