@@ -337,6 +337,8 @@ extern HGLRC (WINAPI * bwglCreateContextAttribsARB)(HDC hDC, HGLRC hShareContext
 void texdbg_bglGenTextures(GLsizei n, GLuint *textures, const char *srcfn);
 void texdbg_bglDeleteTextures(GLsizei n, const GLuint *textures, const char *srcfn);
 
+//#define DEBUG_TEXTURE_NAMES
+
 # if defined DEBUGGINGAIDS && defined DEBUG_TEXTURE_NAMES
 #  define bglGenTextures(numtexs, texnamear) texdbg_bglGenTextures(numtexs, texnamear, __FILE__)
 #  define bglDeleteTextures(numtexs, texnamear) texdbg_bglDeleteTextures(numtexs, texnamear, __FILE__)
