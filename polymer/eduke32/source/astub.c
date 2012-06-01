@@ -6960,13 +6960,24 @@ static void Keys3d(void)
 
         message("Pasted picnum only");
     }
-    else if (keystatus[KEYSC_SEMI] && PRESSED_KEYSC(ENTER))  // ; ENTER
+    else if (keystatus[KEYSC_SEMI] && PRESSED_KEYSC(ENTER) && AIMING_AT_CEILING_OR_FLOOR)  // ; ENTER
     {
-        if (AIMING_AT_CEILING_OR_FLOOR && (unsigned)tempsectornum < (unsigned)numsectors
+        if ((unsigned)tempsectornum >= (unsigned)numsectors)
+        {
+            message("Can't align sector %d's %s, have no reference sector",
+                    searchsector, typestr[searchstat]);
+        }
 #ifdef YAX_ENABLE
-                && YAXCHK(yax_getbunch(searchsector, AIMING_AT_FLOOR) < 0)
+        else if (yax_getbunch(searchsector, AIMING_AT_FLOOR) >= 0)
+        {
+            yax_invalidop();
+        }
 #endif
-                && tempsectornum != searchsector)
+        else if (tempsectornum == searchsector)
+        {
+            message("Didn't align sector %d with itself as reference", tempsectornum);
+        }
+        else
         {
             // auto-align ceiling/floor
             const int32_t refwall = sector[tempsectornum].wallptr;
@@ -6981,13 +6992,31 @@ static void Keys3d(void)
             if ((CEILINGFLOOR(tempsectornum, stat)&64) == 0)
             {
                 // world-aligned texture
+                const int32_t tile = CEILINGFLOOR(tempsectornum, picnum);
 
-                CEILINGFLOOR(searchsector, stat) &= ~(64+32+16+8+4);
-                CEILINGFLOOR(searchsector, stat) |= bits;
+                if (tilesizx[tile]<=0 || tilesizy[tile]<=0)
+                {
+                    message("Can't align sector %d's %s, reference sector %d's has void tile",
+                            searchsector, typestr[searchstat], tempsectornum);
+                }
+                else
+                {
+                    // non-smooshed: 1 texel corresponds to 16 BUILD units
+                    int32_t dx = (wall[ourwall].x-wall[refwall].x)<<4;
+                    int32_t dy = (wall[ourwall].y-wall[refwall].y)<<4;
 
-                // TODO: actually align stuff
-                message("(TODO) Aligned sector %d %s with sector %d's",
-                        searchsector, typestr[searchstat], tempsectornum);
+                    dx >>= ((picsiz[tile]&15) - !!(bits&8));
+                    dy >>= ((picsiz[tile]>>4) - !!(bits&8));
+
+                    CEILINGFLOOR(searchsector, xpanning) = CEILINGFLOOR(tempsectornum, xpanning) + dy;
+                    CEILINGFLOOR(searchsector, ypanning) = CEILINGFLOOR(tempsectornum, ypanning) + dx;
+
+                    CEILINGFLOOR(searchsector, stat) &= ~(64+32+16+8+4);
+                    CEILINGFLOOR(searchsector, stat) |= bits;
+
+                    message("Aligned sector %d's %s with sector %d's",
+                            searchsector, typestr[searchstat], tempsectornum);
+                }
             }
             else
             {
