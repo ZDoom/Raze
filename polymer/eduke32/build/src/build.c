@@ -103,6 +103,7 @@ char somethingintab = 255;
 static int16_t onextwall[MAXWALLS];  // onextwall[i]>=0 implies wall[i].nextwall < 0
 static void mkonwvalid(void) { chsecptr_onextwall = onextwall; }
 static void mkonwinvalid(void) { chsecptr_onextwall = NULL; tempsectornum=-1; }
+static void mkonwinvalid_keeptempsect(void) { chsecptr_onextwall = NULL; }
 static int32_t onwisvalid(void) { return chsecptr_onextwall != NULL; }
 
 int32_t mlook = 0, mskip=0;
@@ -1835,7 +1836,7 @@ void ovh_whiteoutgrab(int32_t restoreredwalls)
     if (highlightsectorcnt > 0)
         mkonwvalid();
     else
-        mkonwinvalid();
+        mkonwinvalid_keeptempsect();
 }
 
 static void duplicate_selected_sectors(void)
@@ -2560,8 +2561,6 @@ static void sort_walls_geometrically(int16_t *wallist, int32_t nwalls)
 
 void SetFirstWall(int32_t sectnum, int32_t wallnum)
 {
-    const int32_t otempsectornum = tempsectornum;
-
 #ifdef YAX_ENABLE
     int32_t i, j, k, startwall, endwall;
     int16_t cf, bunchnum, tempsect, tempwall;
@@ -2604,8 +2603,7 @@ void SetFirstWall(int32_t sectnum, int32_t wallnum)
 
     setfirstwall(sectnum, wallnum);
 
-    mkonwinvalid();
-    tempsectornum = otempsectornum;  // protect from mkonwinvalid()
+    mkonwinvalid_keeptempsect();
 
     asksave = 1;
 }
@@ -6897,7 +6895,7 @@ end_batch_insert_points:
 #ifdef YAX_ENABLE
                         yax_updategrays(pos.z);
 #endif
-                        mkonwinvalid();
+                        mkonwinvalid_keeptempsect();
                         asksave = 1;
                     }
                 }
@@ -7128,7 +7126,7 @@ point_not_inserted:
 #ifdef YAX_ENABLE
                         yax_updategrays(pos.z);
 #endif
-                        mkonwinvalid();
+                        mkonwinvalid_keeptempsect();
                     }
                 }
 
@@ -7487,7 +7485,7 @@ CANCEL:
             checksectorpointer(j, highlightsector[i]);
         }
     }
-    mkonwinvalid();
+    mkonwinvalid_keeptempsect();
 
     fixspritesectors();
 
@@ -8202,8 +8200,11 @@ int32_t fixspritesectors(void)
     for (i=numsectors-1; i>=0; i--)
         if (sector[i].wallnum <= 0 || sector[i].wallptr >= numwalls)
         {
+            // XXX: This is not the best course of action for
+            //  such great corruption.
             deletesector(i);
-            initprintf("Deleted sector %d which had corrupt .wallnum or .wallptr\n", i);
+            mkonwinvalid();
+            initprintf("NOTE: Deleted sector %d which had corrupt .wallnum or .wallptr\n", i);
         }
 
     if (m32_script_expertmode)
