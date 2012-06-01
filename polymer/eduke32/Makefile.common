@@ -179,6 +179,11 @@ ifneq (0,$(CLANG))
     BASECFLAGS+= -Wno-unused-value -Wno-parentheses
 endif
 
+# This should come from the environment:
+ifdef EDUKE32_MY_DEVELOPER_ID
+    BASECFLAGS+= -DMY_DEVELOPER_ID=$(EDUKE32_MY_DEVELOPER_ID)
+endif
+
 ifneq (0,$(USE_LIBPNG))
     BASECFLAGS+= -DUSE_LIBPNG
 endif
