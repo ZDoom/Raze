@@ -82,9 +82,9 @@ int32_t SafeOpenRead(const char *filename, int32_t filetype)
     switch (filetype)
     {
     case filetype_binary:
-        return SafeOpen(filename, O_RDONLY|O_BINARY, S_IREAD);
+        return SafeOpen(filename, O_RDONLY|O_BINARY, BS_IREAD);
     case filetype_text:
-        return SafeOpen(filename, O_RDONLY|O_TEXT, S_IREAD);
+        return SafeOpen(filename, O_RDONLY|O_TEXT, BS_IREAD);
     default:
         initprintf("SafeOpenRead: Illegal filetype specified");
         return -1;
