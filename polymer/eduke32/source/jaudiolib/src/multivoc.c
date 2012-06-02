@@ -334,7 +334,7 @@ static void MV_StopVoice(VoiceNode *voice)
 
     RestoreInterrupts();
 
-#ifndef GEKKO
+#ifdef HAVE_VORBIS
     if (voice->wavetype == Vorbis)
         MV_ReleaseVorbisVoice(voice);
 #endif
@@ -458,7 +458,7 @@ static void MV_ServiceVoc(void)
             //MV_StopVoice( voice );
             LL_Remove(voice, next, prev);
             LL_Add((VoiceNode*) &VoicePool, voice, next, prev);
-#ifndef GEKKO
+#ifdef HAVE_VORBIS
             if (voice->wavetype == Vorbis)
                 MV_ReleaseVorbisVoice(voice);
 #endif
