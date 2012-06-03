@@ -7112,6 +7112,7 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_RESERVED2:
+                    g_player[myconnectindex].ps->player_par = 0;
                     g_player[myconnectindex].ps->gm = MODE_EOL;
                     end_cheat();
                     return;
@@ -7369,6 +7370,7 @@ FOUNDCHEAT:
                 case CHEAT_RESERVED:
                 case CHEAT_RESERVED3:
                     ud.eog = 1;
+                    g_player[myconnectindex].ps->player_par = 0;
                     g_player[myconnectindex].ps->gm |= MODE_EOL;
                     KB_FlushKeyBoardQueue();
                     return;
@@ -11349,7 +11351,7 @@ FRAGBONUS:
 
     playerbest = CONFIG_GetMapBestTime(MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].filename);
 
-    if (g_player[myconnectindex].ps->player_par < playerbest || playerbest < 0)
+    if (g_player[myconnectindex].ps->player_par > 0 && (g_player[myconnectindex].ps->player_par < playerbest || playerbest < 0))
         CONFIG_SetMapBestTime(MapInfo[ud.volume_number*MAXLEVELS+ud.last_level-1].filename, g_player[myconnectindex].ps->player_par);
 
     {
@@ -11446,7 +11448,9 @@ FRAGBONUS:
             if (totalclock > (60*3))
             {
                 yy = zz = 59;
+
                 gametext(10,yy+9,"Your Time:",0,2+8+16);
+
                 yy+=10;
                 if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
                 {
@@ -11461,7 +11465,7 @@ FRAGBONUS:
                 }
                 if (playerbest > 0)
                 {
-                    gametext(10,yy+9,g_player[myconnectindex].ps->player_par<playerbest?"Prev Best Time:":"Your Best Time:",0,2+8+16);
+                    gametext(10,yy+9,(g_player[myconnectindex].ps->player_par > 0 && g_player[myconnectindex].ps->player_par < playerbest)?"Prev Best Time:":"Your Best Time:",0,2+8+16);
                     yy += 10;
                 }
 
@@ -11477,14 +11481,19 @@ FRAGBONUS:
                         S_PlaySound(PIPEBOMB_EXPLODE);
                     }
 
-                    Bsprintf(tempbuf,"%0*d:%02d.%02d",clockpad,
-                             (g_player[myconnectindex].ps->player_par/(REALGAMETICSPERSEC*60)),
-                             (g_player[myconnectindex].ps->player_par/REALGAMETICSPERSEC)%60,
-                             ((g_player[myconnectindex].ps->player_par%REALGAMETICSPERSEC)*33)/10
-                            );
-                    gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
-                    if (g_player[myconnectindex].ps->player_par < playerbest)
-                        gametext((320>>2)+89+(clockpad*24),yy+9,"New record!",0,2+8+16);
+                    if (g_player[myconnectindex].ps->player_par > 0)
+                    {
+                        Bsprintf(tempbuf,"%0*d:%02d.%02d",clockpad,
+                                 (g_player[myconnectindex].ps->player_par/(REALGAMETICSPERSEC*60)),
+                                 (g_player[myconnectindex].ps->player_par/REALGAMETICSPERSEC)%60,
+                                 ((g_player[myconnectindex].ps->player_par%REALGAMETICSPERSEC)*33)/10
+                                );
+                        gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
+                        if (g_player[myconnectindex].ps->player_par < playerbest)
+                            gametext((320>>2)+89+(clockpad*24),yy+9,"New record!",0,2+8+16);
+                    }
+                    else
+                        gametextpalbits((320>>2)+71,yy+9,"Cheated!",0,2,2+8+16);
                     yy+=10;
 
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7))
