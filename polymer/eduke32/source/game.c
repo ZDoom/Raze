@@ -3999,6 +3999,10 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
         s->extra = *actorscrptr[s_pn];
         T5 = *(actorscrptr[s_pn]+1);
         T2 = *(actorscrptr[s_pn]+2);
+#ifdef LUNATIC
+        set_action_members(actor[i].t_data);
+        set_move_members(actor[i].t_data);
+#endif
         s->hitag = *(actorscrptr[s_pn]+3);
     }
 
@@ -4126,6 +4130,10 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             SH = *(actorscrptr[s]);
             T5 = *(actorscrptr[s]+1);
             T2 = *(actorscrptr[s]+2);
+#ifdef LUNATIC
+            set_action_members(actor[i].t_data);
+            set_move_members(actor[i].t_data);
+#endif
             if (*(actorscrptr[s]+3) && SHT == 0)
                 SHT = *(actorscrptr[s]+3);
         }
@@ -6024,9 +6032,8 @@ static int32_t maybe_take_on_pal_of_floor(spritetype *datspr, int32_t sect)
 void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 {
     int32_t i, j, k, p, sect;
-    intptr_t l, t_data1,t_data3,t_data4;
+    intptr_t l;
     spritetype *s,*t;
-    int32_t switchpic;
 
     if (!spritesortcnt) return;
 
@@ -6159,8 +6166,13 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
     for (j=spritesortcnt-1; j>=0; j--) //Between drawrooms() and drawmasks()
     {
-#if 0  // def LUNATIC
-        const int32_t *tptr;
+        int32_t switchpic;
+#ifndef LUNATIC
+        int32_t t_data1,t_data3,t_data4;
+#else
+        int32_t t_data[14] = { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0 };
+
+        Bassert(sizeof(t_data) == sizeof(actor[0].t_data));
 #endif
         //is the perfect time to animate sprites
         t = &tsprite[j];
@@ -6259,12 +6271,17 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         }
 
         sect = s->sectnum;
+#ifndef LUNATIC
         t_data1 = T2;
         t_data3 = T4;
-#if 1  // ndef LUNATIC
         t_data4 = T5;  // SACTION
 #else
-        tptr = &actor[i].t_data;
+        t_data[1] = T2;
+        t_data[3] = T4;
+        t_data[4] = T5;
+
+        set_action_members(t_data);
+        set_move_members(t_data);
 #endif
 
         switchpic = s->picnum;
@@ -6402,7 +6419,11 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
             }
             else t->cstat &= ~4;
 
+#ifndef LUNATIC
             if (klabs(t_data3) > 64) k += 7;
+#else
+            if (klabs(t_data[3]) > 64) k += 7;
+#endif
             t->picnum = RECON+k;
 
             break;
@@ -6534,14 +6555,18 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
             if (g_player[p].ps->newowner > -1)
             {
-#if 1  // ndef LUNATIC
+#ifndef LUNATIC
                 t_data4 = *(actorscrptr[APLAYER]+1);
-#else
-                // Lunatic TODO: SACTION of APLAYER
-                tptr = (void)0;  // forced compilation error
-#endif
                 t_data3 = 0;
                 t_data1 = *(actorscrptr[APLAYER]+2);
+#else
+                t_data[4] = *(actorscrptr[APLAYER]+1);  // TODO: this must go!
+                set_action_members(t_data);
+
+                t_data[3] = 0;
+                t_data[1] = *(actorscrptr[APLAYER]+2);  // TODO: this must go!
+                set_move_members(t_data);
+#endif
             }
 
             if (ud.camerasprite == -1 && g_player[p].ps->newowner == -1)
@@ -6648,13 +6673,13 @@ PALONLY:
             }
             */
 
-#if 1  //ndef LUNATIC
+#ifndef LUNATIC
             if ((unsigned)t_data4 + 2 >= (unsigned)g_scriptSize)
                 goto skip;
 
-            l = *(script + t_data4 + 2);
+            l = script[t_data4 + 2];
 #else
-            l = SACTION_VIEWTYPE(tptr);
+            l = ACTION_VIEWTYPE(t_data);
 #endif
 
 #ifdef USE_OPENGL
@@ -6711,10 +6736,10 @@ PALONLY:
                     break;
                 }
 
-#if 1  // ndef LUNATIC
+#ifndef LUNATIC
             t->picnum += k + *(script + t_data4) + l*t_data3;
 #else
-            t->picnum += k + SACTION_STARTFRAME(tptr) + l*t_data3;
+            t->picnum += k + ACTION_STARTFRAME(t_data) + l*t_data[3];
 #endif
 
             if (l > 0)
@@ -6729,7 +6754,9 @@ PALONLY:
         /* completemirror() already reverses the drawn frame, so the above isn't necessary.
          * Even Polymost's and Polymer's mirror seems to function correctly this way. */
 
+#ifndef LUNATIC
 skip:
+#endif
         if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
                 (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
         {
@@ -6874,7 +6901,11 @@ skip:
             break;
 
         case WATERSPLASH2__STATIC:
+#ifndef LUNATIC
             t->picnum = WATERSPLASH2+t_data1;
+#else
+            t->picnum = WATERSPLASH2+t_data[1];
+#endif
             break;
         case SHELL__STATIC:
             t->picnum = s->picnum+(T1&1);
@@ -9865,6 +9896,9 @@ int32_t app_main(int32_t argc, const char **argv)
 #else
     ENetCallbacks callbacks = { NULL, NULL, NULL };
 #endif
+
+//    Bassert(sizeof(actor_t)==128);  // fails with x86_64
+    Bassert(offsetof(actor_t, bposx) == sizeof(netactor_t));
 
 #ifdef GEKKO
 	L2Enhance();

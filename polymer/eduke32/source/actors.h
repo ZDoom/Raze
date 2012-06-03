@@ -45,11 +45,42 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef LUNATIC
 // Ai, action, move getters from t_data[]  (== tptr)
-# define SACTION_STARTFRAME(tptr) ((tptr)[6]&65535)
-# define SACTION_NUMFRAMES(tptr) (((tptr)[6]>>16)&65535)
-# define SACTION_VIEWTYPE(tptr) ((tptr)[7]&0x7fffffff)
-# define SACTION_INCVAL(tptr) ((tptr)[7]>>31)  // arithmetic shr expected!
-# define SACTION_DELAY(tptr)  ((tptr)[8]&65535)
+# define ACTION_STARTFRAME(tptr) ((tptr)[10]&0x0000ffff)
+# define ACTION_NUMFRAMES(tptr) (((tptr)[10]>>16)&0x0000ffff)
+# define ACTION_VIEWTYPE(tptr) ((tptr)[11]&0x0000ffff)
+# define ACTION_INCVAL(tptr) ((tptr)[11]>>16)  // arithmetic shr expected!
+# define ACTION_DELAY(tptr)  ((tptr)[12]&0x0000ffff)
+
+# define ACTION_SET_STARTFRAME(tptr, val) do { (tptr)[10] &= ~0x0000ffff; (tptr)[10] |= (val)&0x0000ffff; } while (0)
+# define ACTION_SET_NUMFRAMES(tptr, val) do { (tptr)[10] &= ~0xffff0000; (tptr)[10] |= ((val)<<16); } while (0)
+# define ACTION_SET_VIEWTYPE(tptr, val) do { (tptr)[11] &= ~0x0000ffff; (tptr)[11] |= (val)&0x0000ffff; } while (0)
+# define ACTION_SET_INCVAL(tptr, val) do { (tptr)[11] &= ~0xffff0000; (tptr)[11] |= (val)<<16; } while (0)
+# define ACTION_SET_DELAY(tptr, val)  do { (tptr)[12] = (val)&0x0000ffff; } while (0)
+
+# define MOVE_H(tptr) ((int16_t)((tptr)[13]))
+# define MOVE_V(tptr) ((int16_t)((tptr)[13]>>16))
+
+# define MOVE_SET_H(tptr, val) do { (tptr)[13] &= ~0x0000ffff; (tptr)[13] |= (val)&0x0000ffff; } while (0)
+# define MOVE_SET_V(tptr, val) do { (tptr)[13] &= ~0xffff0000; (tptr)[13] |= (val)<<16; } while (0)
+
+extern intptr_t *script;
+
+// tptr[4] expected to be set
+static inline void set_action_members(int32_t *tptr)
+{
+    ACTION_SET_STARTFRAME(tptr, script[tptr[4]]);
+    ACTION_SET_NUMFRAMES(tptr, script[tptr[4]+1]);
+    ACTION_SET_VIEWTYPE(tptr, script[tptr[4]+2]);
+    ACTION_SET_INCVAL(tptr, script[tptr[4]+3]);
+    ACTION_SET_DELAY(tptr, script[tptr[4]+4]);
+}
+
+// tptr[1] expected to be set
+static inline void set_move_members(int32_t *tptr)
+{
+    MOVE_SET_H(tptr, script[tptr[1]]);
+    MOVE_SET_V(tptr, script[tptr[1]+1]);
+}
 #endif
 
 // Defines the motion characteristics of an actor
@@ -93,7 +124,12 @@ typedef struct {
 
 // (+ 40 8 6 16 16 4 8 6 4 20)
 typedef struct {
+#ifndef LUNATIC
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
+#else
+    int32_t t_data[14];  // 56b
+    // TODO: rearrange for better packing when enabling Lunatic
+#endif
 
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; //6b
@@ -117,16 +153,28 @@ typedef struct {
 #endif
 #if UINTPTR_MAX == 0xffffffff
     /* 32-bit */
+# ifndef LUNATIC
     const int8_t filler[20];
+# else
+    const int8_t filler[4];
+# endif
 #else
     /* 64-bit */
-    const int8_t filler[12];
+# ifndef LUNATIC
+    const int8_t filler[12];  // XXX: should be 16, schedule with next BYTEVERSION/savegame version bump!
+# else
+    /* no padding */
+#endif
 #endif
 } actor_t;
 
 // this struct needs to match the beginning of actor_t above
 typedef struct {
+#ifndef LUNATIC
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
+#else
+    int32_t t_data[14];  // 56b
+#endif
 
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; // 6b

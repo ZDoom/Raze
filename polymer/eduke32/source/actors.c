@@ -699,12 +699,12 @@ static void A_MoveSector(int32_t i)
     }
 }
 
-#if 1 //ndef LUNATIC
+#ifndef LUNATIC
 # define LIGHTRAD_PICOFS (T5 ? *(script+T5) + (*(script+T5+2))*T4 : 0)
 #else
 // SACTION
 // startframe + viewtype*???
-# define LIGHTRAD_PICOFS (SACTION_STARTFRAME(actor[i].t_data) + SACTION_VIEWTYPE(actor[i].t_data)*T4)
+# define LIGHTRAD_PICOFS (ACTION_STARTFRAME(actor[i].t_data) + ACTION_VIEWTYPE(actor[i].t_data)*T4)
 #endif
 
 // this is the same crap as in game.c's tspr manipulation.  puke.

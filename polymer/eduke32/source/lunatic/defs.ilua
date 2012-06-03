@@ -148,7 +148,7 @@ ffi.cdef[[
 // XXX: might still need to make some fields read-only
 typedef struct
 {
-    const int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
+    const int32_t t_data[14];  // 56b sometimes used to hold offsets to con code
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; //6b
 
@@ -159,7 +159,7 @@ typedef struct
     const int16_t lightId, lightcount, lightmaxrange, cgg; //8b
     int16_t actorstayput, dispicnum, shootzvel; // 6b
 
-    const int8_t _do_not_use[24];
+    const int8_t _do_not_use[8];
 } actor_t;
 #pragma pack(pop)
 
