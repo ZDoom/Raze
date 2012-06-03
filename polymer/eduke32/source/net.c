@@ -1750,7 +1750,6 @@ void Net_StreamLevel(void)
         streamoutput = (netmapstate_t *)Bcalloc(1, sizeof(netmapstate_t));
 
     for (pi=0; pi<(signed)g_netServer->peerCount; pi++)
-
     {
         ENetPeer *const currentPeer = &g_netServer->peers[pi];
         const intptr_t playeridx = (intptr_t)currentPeer->data;
@@ -1772,15 +1771,23 @@ void Net_StreamLevel(void)
         g_netMapRevision++;
 
         {
-            char buf[PACKBUF_SIZE+512];
+            char buf[PACKBUF_SIZE+400];
 
-            if (siz >= PACKBUF_SIZE)
+            if (osize >= PACKBUF_SIZE)
             {
-                initprintf("Global packet buffer overflow! Size of packet: %i\n", siz);
+                // XXX: this currently happens when e.g. switching levels
+                initprintf("Packet buffer overflow! Size of packet after diff before compress: %u\n", osize);
                 return;
             }
 
             siz = qlz_compress((char *)streamoutput, buf, osize, state_compress);
+
+            if (siz >= PACKBUF_SIZE-1)
+            {
+                initprintf("Global packet buffer overflow! Size of packet after diff and compress: %d\n", siz);
+                return;
+            }
+
             Bmemcpy(packbuf+1, buf, siz);
             siz++;
         }
