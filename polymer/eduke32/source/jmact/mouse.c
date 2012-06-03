@@ -66,23 +66,6 @@ int32_t MOUSE_GetButtons(void)
 
     readmousebstatus(&buttons);
 
-#ifdef GEKKO
-    buttons |= (joyb&3)<<8;
-    switch (joyhat[0]) { // stupid hat values....
-        case 0:
-        case 4500:
-        case 27500:
-            buttons |= 4096;
-            break;
-        case 18000:
-        case 13500:
-        case 22500:
-            buttons |= 8192;
-        default:
-            break;
-    }
-#endif
-
     return buttons;
 }
 
@@ -90,6 +73,10 @@ int32_t MOUSE_GetButtons(void)
 int32_t MOUSE_ClearButton(int32_t b)
 {
     return (mouseb &= ~b);
+}
+void MOUSE_ClearAllButtons(void)
+{
+    mouseb = 0;
 }
 
 

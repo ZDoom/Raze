@@ -8,6 +8,8 @@ duke3d_h=\
     $(EINC)/cache1d.h \
     $(SRC)/jmact/file_lib.h \
     $(SRC)/jmact/keyboard.h \
+    $(SRC)/jmact/mouse.h \
+    $(SRC)/jmact/joystick.h \
     $(SRC)/jmact/control.h \
     $(SRC)/jmact/mathutil.h \
     $(SRC)/macros.h \
@@ -29,23 +31,24 @@ duke3d_h=\
 
 gamedef_h=$(SRC)/gamedef.h $(SRC)/gameexec.h $(SRC)/gamevars.h
 
-$(OBJ)/game.$o: $(SRC)/game.c $(SRC)/jmact/scriplib.h $(duke3d_h) $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h $(INC)/demo.h $(EINC)/hightile.h
+$(OBJ)/game.$o: $(SRC)/game.c $(SRC)/jmact/scriplib.h $(duke3d_h) $(SRC)/input.h $(INC)/osdfuncs.h $(INC)/osdcmds.h $(INC)/grpscan.h $(INC)/demo.h $(EINC)/hightile.h
 $(OBJ)/actors.$o: $(SRC)/actors.c $(duke3d_h)
-$(OBJ)/anim.$o: $(SRC)/anim.c $(duke3d_h) $(SRC)/jmact/animlib.h $(SRC)/animvpx.h
-$(OBJ)/demo.$o: $(SRC)/demo.c $(duke3d_h)
+$(OBJ)/anim.$o: $(SRC)/anim.c $(duke3d_h) $(SRC)/input.h $(SRC)/jmact/animlib.h $(SRC)/animvpx.h
+$(OBJ)/demo.$o: $(SRC)/demo.c $(duke3d_h) $(SRC)/input.h
 $(OBJ)/gamedef.$o: $(SRC)/gamedef.c $(duke3d_h) $(gamedef_h) $(SRC)/savegame.h
 $(OBJ)/gameexec.$o: $(SRC)/gameexec.c $(SRC)/gamestructures.c $(duke3d_h) $(gamedef_h)
 $(OBJ)/gamestructures.$o: $(SRC)/gamestructures.c $(duke3d_h) $(gamedef_h)
 $(OBJ)/gamevars.$o: $(SRC)/gamevars.c $(SRC)/gamestructures.c $(duke3d_h) $(gamedef_h) $(SRC)/savegame.h
 $(OBJ)/global.$o: $(SRC)/*.c $(SRC)/global.c $(duke3d_h)
+$(OBJ)/input.$o: $(SRC)/input.c $(duke3d_h) $(SRC)/input.h
 $(OBJ)/mdump.$o: $(SRC)/mdump.cpp $(SRC)/mdump.h
-$(OBJ)/menus.$o: $(SRC)/menus.c $(duke3d_h) $(SRC)/jmact/mouse.h
+$(OBJ)/menus.$o: $(SRC)/menus.c $(duke3d_h) $(SRC)/input.h $(SRC)/jmact/mouse.h
 $(OBJ)/namesdyn.$o: $(SRC)/namesdyn.c $(duke3d_h)
 $(OBJ)/net.$o: $(SRC)/net.c $(duke3d_h)
 $(OBJ)/player.$o: $(SRC)/player.c $(duke3d_h)
 $(OBJ)/premap.$o: $(SRC)/premap.c $(duke3d_h) $(EINC)/osd.h
 $(OBJ)/savegame.$o: $(SRC)/savegame.c $(duke3d_h) $(SRC)/savegame.h
-$(OBJ)/sector.$o: $(SRC)/sector.c $(duke3d_h)
+$(OBJ)/sector.$o: $(SRC)/sector.c $(duke3d_h) $(SRC)/input.h
 $(OBJ)/sounds.$o: $(SRC)/sounds.c $(duke3d_h)
 $(OBJ)/rts.$o: $(SRC)/rts.c $(duke3d_h)
 $(OBJ)/config.$o: $(SRC)/config.c $(duke3d_h) $(SRC)/jmact/scriplib.h $(INC)/_functio.h
@@ -106,9 +109,10 @@ $(OBJ)/startgtk.game.$o: $(SRC)/startgtk.game.c $(duke3d_h) $(EINC)/dynamicgtk.h
 # jMACT objects
 $(OBJ)/animlib.$o: $(SRC)/jmact/animlib.c $(SRC)/jmact/animlib.h $(EINC)/compat.h
 $(OBJ)/file_lib.$o: $(SRC)/jmact/file_lib.c $(SRC)/jmact/file_lib.h 
-$(OBJ)/control.$o: $(SRC)/jmact/control.c $(SRC)/jmact/control.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/mouse.h $(EINC)/baselayer.h
+$(OBJ)/control.$o: $(SRC)/jmact/control.c $(SRC)/jmact/control.h $(SRC)/jmact/keyboard.h $(SRC)/jmact/mouse.h $(SRC)/jmact/joystick.h $(EINC)/baselayer.h
 $(OBJ)/keyboard.$o: $(SRC)/jmact/keyboard.c $(SRC)/jmact/keyboard.h $(EINC)/compat.h $(EINC)/baselayer.h
 $(OBJ)/mouse.$o: $(SRC)/jmact/mouse.c $(SRC)/jmact/mouse.h $(EINC)/baselayer.h
+$(OBJ)/joystick.$o: $(SRC)/jmact/joystick.c $(SRC)/jmact/joystick.h $(EINC)/baselayer.h
 $(OBJ)/mathutil.$o: $(SRC)/jmact/mathutil.c $(EINC)/compat.h $(EINC)/pragmas.h
 $(OBJ)/scriplib.$o: $(SRC)/jmact/scriplib.c $(SRC)/jmact/scriplib.h $(SRC)/jmact/_scrplib.h $(EINC)/compat.h
 

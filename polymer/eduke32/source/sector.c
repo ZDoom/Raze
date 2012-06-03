@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gameexec.h"
 #include "premap.h"
 #include "osd.h"
+#include "common_game.h"
+#include "input.h"
 
 // PRIMITIVE
 
@@ -3319,8 +3321,8 @@ CLEARCAMERAS:
             else if (p->newowner >= 0)
                 p->newowner = -1;
 
-            if (KB_KeyPressed(sc_Escape))
-                KB_ClearKeyDown(sc_Escape);
+            if (I_EscapeTrigger())
+                I_EscapeTriggerClear();
 
             return;
             }

@@ -122,6 +122,12 @@ void readmousebstatus(int32_t *b)
     *b = mouseb;
 }
 
+void readjoybstatus(int32_t *b)
+{
+    if (!appactive) { *b = 0; return; }
+    *b = joyb;
+}
+
 #ifdef USE_OPENGL
 struct glinfo_t glinfo =
 {

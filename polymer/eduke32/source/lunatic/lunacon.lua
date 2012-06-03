@@ -229,7 +229,7 @@ local Ci = {
     getthisprojectile = getstructcmd,
     gettspr = getstructcmd,
     -- NOTE: {get,set}userdef is the only struct that can be accessed without
-    -- an "array part", e.g.  H266mod has "setuserdef .weaponswitch 0" (space
+    -- an "array part", e.g.  H266MOD has "setuserdef .weaponswitch 0" (space
     -- between keyword and "." is mandatory)
     getuserdef = (arraypat + sp1) * memberpat * sp1 * (t_rvar * sp1 * t_wvar + t_wvar),
 --    getuserdef = getstructcmd,

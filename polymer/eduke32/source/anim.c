@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "animlib.h"
 #include "mouse.h"
 #include "compat.h"
+#include "input.h"
 
 #include "anim.h"
 
@@ -231,9 +232,9 @@ void G_PlayAnim(const char *fn,char t)
     // 11: vol4e3
 
     if (t != 7 && t != 9 && t != 10 && t != 11)
-        KB_FlushKeyboardQueue();
+        I_ClearAllInput();
 
-    if (KB_KeyWaiting())
+    if (I_CheckAllInput())
     {
         FX_StopAllSounds();
         goto ENDOFANIMLOOP;
@@ -327,12 +328,14 @@ void G_PlayAnim(const char *fn,char t)
             palfadedelta = 0;
             showframe(0);
 
+            I_ClearAllInput();
+
             do
             {
                 handleevents();
                 Net_GetPackets();
 
-                if (KB_KeyWaiting() || (MOUSE_GetButtons()&LEFT_MOUSE))
+                if (I_CheckAllInput())
                 {
                     running = 0;
                     break;
@@ -346,7 +349,7 @@ void G_PlayAnim(const char *fn,char t)
         animvpx_restore_glstate();
         animvpx_uninit_codec(&codec);
 
-        MOUSE_ClearButton(LEFT_MOUSE);
+        I_ClearAllInput();
         return;  // done with playing VP8!
     }
 #endif
@@ -395,12 +398,14 @@ void G_PlayAnim(const char *fn,char t)
         waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
         invalidatetile(TILE_ANIM, 0, 1<<4);  // JBF 20031228
 
+        I_ClearAllInput();
+
         while (totalclock < ototalclock)
         {
             handleevents();
             Net_GetPackets();
 
-            if (KB_KeyWaiting() || MOUSE_GetButtons()&LEFT_MOUSE)
+            if (I_CheckAllInput())
                 goto ENDOFANIMLOOP;
 
             if (g_restorePalette == 1)
@@ -441,7 +446,7 @@ ENDOFANIMLOOP:
     gltexfiltermode = ogltexfiltermode;
     gltexapplyprops();
 #endif
-    MOUSE_ClearButton(LEFT_MOUSE);
+    I_ClearAllInput();
     ANIM_FreeAnim();
     walock[TILE_ANIM] = 1;
 }

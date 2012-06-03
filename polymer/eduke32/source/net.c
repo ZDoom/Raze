@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "net.h"
 #include "premap.h"
 #include "savegame.h"
+#include "input.h"
 
 #include "enet/enet.h"
 #include "quicklz.h"

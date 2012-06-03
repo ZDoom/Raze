@@ -95,6 +95,7 @@ JMACTOBJ=$(OBJ)/file_lib.$o \
 	$(OBJ)/control.$o \
 	$(OBJ)/keyboard.$o \
 	$(OBJ)/mouse.$o \
+	$(OBJ)/joystick.$o \
 	$(OBJ)/mathutil.$o \
 	$(OBJ)/scriplib.$o \
 	$(OBJ)/animlib.$o
@@ -109,6 +110,7 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/gameexec.$o \
 	$(OBJ)/gamevars.$o \
 	$(OBJ)/global.$o \
+	$(OBJ)/input.$o \
 	$(OBJ)/menus.$o \
 	$(OBJ)/namesdyn.$o \
 	$(OBJ)/net.$o \

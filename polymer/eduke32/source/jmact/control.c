@@ -10,6 +10,7 @@
 
 #include "keyboard.h"
 #include "mouse.h"
+#include "joystick.h"
 #include "control.h"
 #include "_control.h"
 
@@ -490,11 +491,7 @@ void CONTROL_GetDeviceButtons(void)
     if (CONTROL_MouseEnabled)
     {
         DoGetDeviceButtons(
-#ifdef GEKKO
-            MOUSE_GetButtons()&0x3F, t,
-#else
             MOUSE_GetButtons(), t,
-#endif
             CONTROL_NumMouseButtons,
             CONTROL_MouseButtonState,
             CONTROL_MouseButtonClickedTime,
@@ -506,15 +503,12 @@ void CONTROL_GetDeviceButtons(void)
 
     if (CONTROL_JoystickEnabled)
     {
-        int32_t buttons = joyb;
-        if (joynumhats > 0 && joyhat[0] != -1)
+        int32_t buttons = JOYSTICK_GetButtons();
+        if (joynumhats > 0)
         {
-            static int32_t hatstate[] = { 1, 1|2, 2, 2|4, 4, 4|8, 8, 8|1 };
-            int32_t val;
-
-            // thanks SDL for this much more sensible method
-            val = ((joyhat[0] + 4500 / 2) % 36000) / 4500;
-            if (val < 8) buttons |= hatstate[val] << min(MAXJOYBUTTONS,joynumbuttons);
+            int32_t hat = JOYSTICK_GetHat(0);
+            if (hat != 0)
+                buttons |= hat << min(MAXJOYBUTTONS,joynumbuttons);
         }
 
         DoGetDeviceButtons(
@@ -775,12 +769,10 @@ void CONTROL_ProcessBinds(void)
     while (i--);
 }
 
-void CONTROL_GetInput(ControlInfo *info)
+void CONTROL_GetFunctionInput(void)
 {
     int32_t periphs[CONTROL_NUM_FLAGS];
     int32_t i = CONTROL_NUM_FLAGS-1;
-
-    CONTROL_PollDevices(info);
 
     memset(periphs, 0, sizeof(periphs));
     CONTROL_ButtonFunctionState(periphs);
@@ -799,6 +791,13 @@ void CONTROL_GetInput(ControlInfo *info)
     while (i--);
 
     memset(extinput, 0, sizeof(extinput));
+}
+
+void CONTROL_GetInput(ControlInfo *info)
+{
+    CONTROL_PollDevices(info);
+
+    CONTROL_GetFunctionInput();
 }
 
 int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ticspersecond)

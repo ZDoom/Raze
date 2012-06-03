@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "net.h"
 #include "player.h"
 #include "mouse.h"
+#include "joystick.h"
 #include "osd.h"
 #include "osdcmds.h"
 #include "gamedef.h"
@@ -34,14 +35,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "crc32.h"
 #include "common.h"
 #include "common_game.h"
+#include "input.h"
 
 #include <sys/stat.h>
 
 extern char inputloc;
 int16_t g_skillSoundID=-1;
-int32_t probey=0;
+int32_t probey=0; // the row number on which the menu cursor is positioned
 static int32_t lastsavehead=0,last_menu_pos=0,last_menu,sh,onbar,buttonstat;
 static int32_t last_zero,last_fifty,last_onehundred,last_twoohtwo,last_threehundred = 0;
+
+// ugly hack to get around inadequacies of calling CONTROL_GetInput() in M_Probe() and still have gamefuncs function throughout menus
+// A previous solution was to add CONTROL_GetInput(&minfo); in M_DisplayMenus but that hurt mouse aiming
+#define AdvanceTrigger  0x01
+#define ReturnTrigger   0x02
+#define EscapeTrigger   0x04
+#define ProbeTriggers(x) (menutriggers&x)
+#define ProbeTriggersClear(x) (menutriggers&=~x)
+static int32_t menutriggers=0;
 
 static char menunamecnt;
 
@@ -115,10 +126,10 @@ void savetemp(char *fn,int32_t daptr,int32_t dasiz)
 }
 #endif
 
-#define LMB (buttonstat&(1|256))
-#define RMB (buttonstat&(2|512))
-#define WHEELUP (buttonstat&(16|4096))
-#define WHEELDOWN (buttonstat&(32|8192))
+#define LMB (buttonstat&LEFT_MOUSE)
+#define RMB (buttonstat&RIGHT_MOUSE)
+#define WHEELUP (buttonstat&WHEELUP_MOUSE)
+#define WHEELDOWN (buttonstat&WHEELDOWN_MOUSE)
 
 static ControlInfo minfo;
 
@@ -132,18 +143,22 @@ static int32_t probe_(int32_t type,int32_t x,int32_t y,int32_t i,int32_t n)
     mi += (minfo.dpitch+minfo.dz);
     mii += minfo.dyaw;
 
+    menutriggers = 0;
+
     if (x == (320>>1))
         centre = 320>>2;
     else centre = 0;
 
-    if (!buttonstat || buttonstat == 16 || buttonstat == 32 || buttonstat == 4096 || buttonstat == 8192)
+    if (!buttonstat || buttonstat == WHEELUP_MOUSE || buttonstat == WHEELDOWN_MOUSE)
     {
-        if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_kpad_8) || mi < -8192 || WHEELUP)
+        if (KB_KeyPressed(sc_UpArrow) || KB_KeyPressed(sc_kpad_8) || mi < -8192 || WHEELUP || BUTTON(gamefunc_Move_Forward) || (JOYSTICK_GetHat(0)&HAT_UP))
         {
             mi = mii = 0;
             KB_ClearKeyDown(sc_UpArrow);
             KB_ClearKeyDown(sc_kpad_8);
             MOUSE_ClearButton(WHEELUP_MOUSE);
+            CONTROL_ClearButton(gamefunc_Move_Forward);
+            JOYSTICK_ClearHat(0);
 
             S_PlaySound(KICK_HIT);
 
@@ -173,13 +188,15 @@ static int32_t probe_(int32_t type,int32_t x,int32_t y,int32_t i,int32_t n)
             probey = 0;
         }
 
-        if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_kpad_2) || mi > 8192 || WHEELDOWN)
+        if (KB_KeyPressed(sc_DownArrow) || KB_KeyPressed(sc_kpad_2) || mi > 8192 || WHEELDOWN || BUTTON(gamefunc_Move_Backward) || (JOYSTICK_GetHat(0)&HAT_DOWN))
         {
             mi = mii = 0;
             KB_ClearKeyDown(sc_DownArrow);
             KB_ClearKeyDown(sc_kpad_2);
             KB_ClearKeyDown(sc_PgDn);
             MOUSE_ClearButton(WHEELDOWN_MOUSE);
+            CONTROL_ClearButton(gamefunc_Move_Backward);
+            JOYSTICK_ClearHat(0);
 
             S_PlaySound(KICK_HIT);
 
@@ -228,31 +245,38 @@ static int32_t probe_(int32_t type,int32_t x,int32_t y,int32_t i,int32_t n)
             rotatesprite_fs((x<<16)-((tilesizx[BIGFNTCURSOR]-4)<<(16-type)),(y+(probey*i)-(4>>type))<<16,65536L>>type,0,SPINNINGNUKEICON+(((totalclock>>3))%7),sh,0,10);
     }
 
-    if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Enter) || (LMB && !onbar))
+    if (I_AdvanceTrigger() && !onbar)
     {
         if (g_currentMenu != 110)
             S_PlaySound(PISTOL_BODYHIT);
-        KB_ClearKeyDown(sc_Enter);
-        KB_ClearKeyDown(sc_Space);
-        KB_ClearKeyDown(sc_kpad_Enter);
-        MOUSE_ClearButton(LEFT_MOUSE);
+
+        menutriggers |= AdvanceTrigger;
+
+        I_AdvanceTriggerClear();
+
         return(probey);
     }
-    else if (KB_KeyPressed(sc_Escape) || (RMB))
+    else if (I_ReturnTrigger())
     {
-        onbar = 0;
-        KB_ClearKeyDown(sc_Escape);
         S_PlaySound(EXITMENUSOUND);
-        MOUSE_ClearButton(RIGHT_MOUSE);
+
+        menutriggers |= ReturnTrigger;
+
+        I_ReturnTriggerClear();
+
+        onbar = 0;
         return(-1);
     }
     else
     {
-        if (onbar == 0) return(-probey-2);
-        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && (WHEELUP || mii < -256)))
+        if (onbar == 0)
+            return(-probey-2);
+
+        if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && (WHEELUP || mii < -256)) || BUTTON(gamefunc_Turn_Left) || BUTTON(gamefunc_Strafe_Left) || (JOYSTICK_GetHat(0)&HAT_LEFT))
             return(probey);
-        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && (WHEELDOWN || mii > 256)))
+        else if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && (WHEELDOWN || mii > 256)) || BUTTON(gamefunc_Turn_Right) || BUTTON(gamefunc_Strafe_Right) || (JOYSTICK_GetHat(0)&HAT_RIGHT))
             return(probey);
+
         return(-probey-2);
     }
 }
@@ -264,6 +288,30 @@ static inline int32_t M_Probe(int32_t x,int32_t y,int32_t i,int32_t n)
 static inline int32_t probesm(int32_t x,int32_t y,int32_t i,int32_t n)
 {
     return probe_(1,x,y,i,n);
+}
+
+// see menutriggers for why this is a sorry hack
+// calling CONTROL_GetFunctionInput(); from input.c also would not work
+// and probe_() must remain static
+static int32_t Menu_EnterText(int32_t x,int32_t y,char *t,int32_t dalen,int32_t c)
+{
+    int32_t probeysave = probey;
+    int32_t probeoutputx = M_Probe(0,0,0,1);
+    probey = probeysave;
+
+    if (ProbeTriggers(AdvanceTrigger) || I_AdvanceTrigger())
+    {
+        I_AdvanceTriggerClear();
+        return (1);
+    }
+
+    if (probeoutputx == -1)
+    {
+        I_ReturnTriggerClear();
+        return (-1);
+    }
+
+    return G_EnterText(x, y, t, dalen, c);
 }
 
 int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits)
@@ -407,11 +455,14 @@ static void sliderbar(int32_t type, int32_t x,int32_t y,int32_t *p,int32_t dainc
 
     if (damodify)
     {
-        if (*p >= min && *p <= max && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && (WHEELUP || mii < -256))))         // && onbar) )
+        if (*p >= min && *p <= max && (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && (WHEELUP || mii < -256)) || BUTTON(gamefunc_Turn_Left) || BUTTON(gamefunc_Strafe_Left) || (JOYSTICK_GetHat(0)&HAT_LEFT)))         // && onbar) )
         {
             KB_ClearKeyDown(sc_LeftArrow);
             KB_ClearKeyDown(sc_kpad_4);
             MOUSE_ClearButton(WHEELUP_MOUSE);
+            CONTROL_ClearButton(gamefunc_Turn_Left);
+            CONTROL_ClearButton(gamefunc_Strafe_Left);
+            JOYSTICK_ClearHat(0);
             mii = 0;
             if (!rev)
                 *p -= dainc;
@@ -422,11 +473,14 @@ static void sliderbar(int32_t type, int32_t x,int32_t y,int32_t *p,int32_t dainc
                 *p = max;
             S_PlaySound(KICK_HIT);
         }
-        if (*p <= max && *p >= min && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && (WHEELDOWN || mii > 256))))        //&& onbar) )
+        if (*p <= max && *p >= min && (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && (WHEELDOWN || mii > 256)) || BUTTON(gamefunc_Turn_Right) || BUTTON(gamefunc_Strafe_Right) || (JOYSTICK_GetHat(0)&HAT_RIGHT)))        //&& onbar) )
         {
             KB_ClearKeyDown(sc_RightArrow);
             KB_ClearKeyDown(sc_kpad_6);
             MOUSE_ClearButton(WHEELDOWN_MOUSE);
+            CONTROL_ClearButton(gamefunc_Turn_Right);
+            CONTROL_ClearButton(gamefunc_Strafe_Right);
+            JOYSTICK_ClearHat(0);
             mii = 0;
             if (!rev)
                 *p += dainc;
@@ -465,10 +519,13 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
     {
         if (rev == 0)
         {
-            if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && minfo.dyaw < -256))        // && onbar) )
+            if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && minfo.dyaw < -256) || BUTTON(gamefunc_Turn_Left) || BUTTON(gamefunc_Strafe_Left) || (JOYSTICK_GetHat(0)&HAT_LEFT))        // && onbar) )
             {
                 KB_ClearKeyDown(sc_LeftArrow);
                 KB_ClearKeyDown(sc_kpad_4);
+                CONTROL_ClearButton(gamefunc_Turn_Left);
+                CONTROL_ClearButton(gamefunc_Strafe_Left);
+                JOYSTICK_ClearHat(0);
 
                 *p -= dainc;
                 if (*p < min)
@@ -479,10 +536,13 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
                 }
                 S_PlaySound(PISTOL_BODYHIT);
             }
-            if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && minfo.dyaw > 256))       //&& onbar) )
+            if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && minfo.dyaw > 256) || BUTTON(gamefunc_Turn_Right) || BUTTON(gamefunc_Strafe_Right) || (JOYSTICK_GetHat(0)&HAT_RIGHT))       //&& onbar) )
             {
                 KB_ClearKeyDown(sc_RightArrow);
                 KB_ClearKeyDown(sc_kpad_6);
+                CONTROL_ClearButton(gamefunc_Turn_Right);
+                CONTROL_ClearButton(gamefunc_Strafe_Right);
+                JOYSTICK_ClearHat(0);
 
                 *p += dainc;
                 if (*p > max)
@@ -496,10 +556,13 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
         }
         else
         {
-            if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && minfo.dyaw > 256))      //&& onbar ))
+            if (KB_KeyPressed(sc_RightArrow) || KB_KeyPressed(sc_kpad_6) || (LMB && minfo.dyaw > 256) || BUTTON(gamefunc_Turn_Right) || BUTTON(gamefunc_Strafe_Right) || (JOYSTICK_GetHat(0)&HAT_RIGHT))      //&& onbar ))
             {
                 KB_ClearKeyDown(sc_RightArrow);
                 KB_ClearKeyDown(sc_kpad_6);
+                CONTROL_ClearButton(gamefunc_Turn_Right);
+                CONTROL_ClearButton(gamefunc_Strafe_Right);
+                JOYSTICK_ClearHat(0);
 
                 *p -= dainc;
                 if (*p < min)
@@ -510,10 +573,13 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
                 }
                 S_PlaySound(PISTOL_BODYHIT);
             }
-            if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && minfo.dyaw < -256))      // && onbar) )
+            if (KB_KeyPressed(sc_LeftArrow) || KB_KeyPressed(sc_kpad_4) || (LMB && minfo.dyaw < -256) || BUTTON(gamefunc_Turn_Left) || BUTTON(gamefunc_Strafe_Left) || (JOYSTICK_GetHat(0)&HAT_LEFT))      // && onbar) )
             {
                 KB_ClearKeyDown(sc_LeftArrow);
                 KB_ClearKeyDown(sc_kpad_4);
+                CONTROL_ClearButton(gamefunc_Turn_Left);
+                CONTROL_ClearButton(gamefunc_Strafe_Left);
+                JOYSTICK_ClearHat(0);
 
                 *p += dainc;
                 if (*p > max)
@@ -838,9 +904,7 @@ void M_DisplayMenus(void)
                             inputloc = strlen(buf);
                             g_currentMenu = 20003;
 
-                            KB_ClearKeyDown(sc_Enter);
-                            KB_ClearKeyDown(sc_kpad_Enter);
-                            KB_FlushKeyboardQueue();
+                            I_AdvanceTriggerClear();
                         }
                         break;
 
@@ -931,9 +995,9 @@ void M_DisplayMenus(void)
             }
             else
             {
-                // because OSD_StripColors needs a valid target and tempbuf is used in G_EnterText()
+                // because OSD_StripColors needs a valid target and tempbuf is used in _EnterText()
                 char dummybuf[64];
-                x = G_EnterText(d-50,37,buf,30,0);
+                x = Menu_EnterText(d-50,37,buf,30,0);
 
                 while (Bstrlen(OSD_StripColors(dummybuf,buf)) > 10)
                 {
@@ -952,9 +1016,7 @@ void M_DisplayMenus(void)
                         }
                         // send name update
                     }
-                    KB_ClearKeyDown(sc_Enter);
-                    KB_ClearKeyDown(sc_kpad_Enter);
-                    KB_FlushKeyboardQueue();
+                    I_AdvanceTriggerClear();
 
                     g_currentMenu = 20002;
                 }
@@ -1044,23 +1106,19 @@ void M_DisplayMenus(void)
                 inputloc = strlen(buf);
                 last_menu_pos = probey;
                 g_currentMenu = 20005;
-                KB_ClearKeyDown(sc_Enter);
-                KB_ClearKeyDown(sc_kpad_Enter);
-                KB_FlushKeyboardQueue();
+                I_AdvanceTriggerClear();
             }
         }
         else
         {
-            x = G_EnterText(26,40+(8*probey),buf,34,0);
+            x = Menu_EnterText(26,40+(8*probey),buf,34,0);
             if (x)
             {
                 if (x == 1)
                 {
                     Bstrcpy(ud.ridecule[last_menu_pos],buf);
                 }
-                KB_ClearKeyDown(sc_Enter);
-                KB_ClearKeyDown(sc_kpad_Enter);
-                KB_FlushKeyboardQueue();
+                I_AdvanceTriggerClear();
                 g_currentMenu = 20004;
             }
         }
@@ -1289,13 +1347,11 @@ void M_DisplayMenus(void)
             }
             else if (x == 2)
                 {}
-            KB_ClearKeyDown(sc_Enter);
-            KB_ClearKeyDown(sc_kpad_Enter);
-            KB_FlushKeyboardQueue();
+            I_AdvanceTriggerClear();
         }
         else if (g_currentMenu == 20021)
         {
-            x = G_EnterText(40+100,50-9,buf,31,0);
+            x = Menu_EnterText(40+100,50-9,buf,31,0);
             if (x)
             {
                 if (x == 1)
@@ -1303,16 +1359,14 @@ void M_DisplayMenus(void)
                     //strcpy(szPlayerName,buf);
                 }
 
-                KB_ClearKeyDown(sc_Enter);
-                KB_ClearKeyDown(sc_kpad_Enter);
-                KB_FlushKeyboardQueue();
+                I_AdvanceTriggerClear();
 
                 g_currentMenu = 20020;
             }
         }
         else if (g_currentMenu == 20022)
         {
-            x = G_EnterText(40+100,50+20-9,buf,5,997);
+            x = Menu_EnterText(40+100,50+20-9,buf,5,997);
             if (x)
             {
                 if (x == 1)
@@ -1320,9 +1374,7 @@ void M_DisplayMenus(void)
                     //strcpy(szPlayerName,buf);
                 }
 
-                KB_ClearKeyDown(sc_Enter);
-                KB_ClearKeyDown(sc_kpad_Enter);
-                KB_FlushKeyboardQueue();
+                I_AdvanceTriggerClear();
 
                 g_currentMenu = 20020;
             }
@@ -1356,7 +1408,9 @@ void M_DisplayMenus(void)
 
         mgametext(160,99+9,"(Y/N)",0,2+8+16);
 
-        if (KB_KeyPressed(sc_Escape) || KB_KeyPressed(sc_N) || RMB)
+        x = M_Probe(186,124+9,0,0);
+
+        if (x == -1 || KB_KeyPressed(sc_N))
         {
             if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
             {
@@ -1365,7 +1419,6 @@ void M_DisplayMenus(void)
             }
 
             KB_ClearKeyDown(sc_N);
-            KB_ClearKeyDown(sc_Escape);
 
             g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
@@ -1375,8 +1428,12 @@ void M_DisplayMenus(void)
             }
         }
 
-        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
+        if (ProbeTriggers(AdvanceTrigger) || I_AdvanceTrigger() || KB_KeyPressed(sc_Y))
         {
+            I_AdvanceTriggerClear();
+            ProbeTriggersClear(AdvanceTrigger);
+            KB_ClearKeyDown(sc_Y);
+
             KB_FlushKeyboardQueue();
             KB_ClearKeysDown();
             FX_StopAllSounds();
@@ -1396,8 +1453,6 @@ void M_DisplayMenus(void)
                     g_player[myconnectindex].ps->gm = MODE_GAME;
             }
         }
-
-        M_Probe(186,124+9,0,0);
 
         break;
 
@@ -1424,7 +1479,7 @@ void M_DisplayMenus(void)
         if (g_currentMenu == 10001)
         {
             mgametext(160,50+16+16+16+16-12,"Enter Password",0,2+8+16);
-            x = G_EnterText((320>>1),50+16+16+16+16,buf,19, 998);
+            x = Menu_EnterText((320>>1),50+16+16+16+16,buf,19, 998);
 
             if (x)
             {
@@ -1444,9 +1499,7 @@ void M_DisplayMenus(void)
 #endif
                 }
                 g_currentMenu = 10000;
-                KB_ClearKeyDown(sc_Enter);
-                KB_ClearKeyDown(sc_kpad_Enter);
-                KB_FlushKeyboardQueue();
+                I_AdvanceTriggerClear();
             }
         }
         else
@@ -1536,8 +1589,14 @@ void M_DisplayMenus(void)
         mgametext(160,99,tempbuf,0,2+8+16);
         mgametext(160,99+9,"(Y/N)",0,2+8+16);
 
-        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
+        x = M_Probe(186,124+9,0,0);
+
+        if (ProbeTriggers(AdvanceTrigger) || I_AdvanceTrigger() || KB_KeyPressed(sc_Y))
         {
+            I_AdvanceTriggerClear();
+            ProbeTriggersClear(AdvanceTrigger);
+            KB_ClearKeyDown(sc_Y);
+
             g_lastSaveSlot = g_currentMenu-1000;
 
             KB_FlushKeyboardQueue();
@@ -1555,13 +1614,9 @@ void M_DisplayMenus(void)
             break;
         }
 
-        M_Probe(186,124+9,0,0);
-
-        if (KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
+        if (x == -1 || KB_KeyPressed(sc_N))
         {
             KB_ClearKeyDown(sc_N);
-            KB_ClearKeyDown(sc_Escape);
-            S_PlaySound(EXITMENUSOUND);
             if (g_player[myconnectindex].ps->gm&MODE_GAME)
             {
                 g_player[myconnectindex].ps->gm &= ~MODE_MENU;
@@ -1582,25 +1637,27 @@ void M_DisplayMenus(void)
 
     case 1500:
 
-        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
+        x = M_Probe(186,124,0,0);
+
+        if (ProbeTriggers(AdvanceTrigger) || I_AdvanceTrigger() || KB_KeyPressed(sc_Y))
         {
+            I_AdvanceTriggerClear();
+            ProbeTriggersClear(AdvanceTrigger);
+            KB_ClearKeyDown(sc_Y);
             KB_FlushKeyboardQueue();
             ChangeToMenu(100);
         }
-        if (KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
+        if (x == -1 || KB_KeyPressed(sc_N))
         {
             KB_ClearKeyDown(sc_N);
-            KB_ClearKeyDown(sc_Escape);
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 1;
                 totalclock = ototalclock;
             }
             g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-            S_PlaySound(EXITMENUSOUND);
             break;
         }
-        M_Probe(186,124,0,0);
         mgametext(160,90,"ABORT this game?",0,2+8+16);
         mgametext(160,90+9,"(Y/N)",0,2+8+16);
 
@@ -1636,8 +1693,14 @@ void M_DisplayMenus(void)
         mgametext(160,90,"OVERWRITE previous SAVED game?",0,2+8+16);
         mgametext(160,90+9,"(Y/N)",0,2+8+16);
 
-        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
+        x = M_Probe(186,124,0,0);
+
+        if (ProbeTriggers(AdvanceTrigger) || I_AdvanceTrigger() || KB_KeyPressed(sc_Y))
         {
+            I_AdvanceTriggerClear();
+            ProbeTriggersClear(AdvanceTrigger);
+            KB_ClearKeyDown(sc_Y);
+
             inputloc = strlen(&ud.savegame[g_currentMenu-2000][0]);
 
             ChangeToMenu(g_currentMenu-2000+360);
@@ -1645,15 +1708,11 @@ void M_DisplayMenus(void)
             KB_FlushKeyboardQueue();
             break;
         }
-        if (KB_KeyPressed(sc_N) || KB_KeyPressed(sc_Escape) || RMB)
+        if (x == -1 || KB_KeyPressed(sc_N))
         {
             KB_ClearKeyDown(sc_N);
-            KB_ClearKeyDown(sc_Escape);
             ChangeToMenu(351);
-            S_PlaySound(EXITMENUSOUND);
         }
-
-        M_Probe(186,124,0,0);
 
         break;
 
@@ -1680,44 +1739,18 @@ void M_DisplayMenus(void)
             l = 3;
         }
 
-        if (KB_KeyPressed(sc_LeftArrow) ||
-                KB_KeyPressed(sc_kpad_4) ||
-                KB_KeyPressed(sc_UpArrow) ||
-                KB_KeyPressed(sc_PgUp) ||
-                KB_KeyPressed(sc_kpad_8) ||
-                WHEELUP)
+        if (I_PanelUp())
         {
-            KB_ClearKeyDown(sc_LeftArrow);
-            KB_ClearKeyDown(sc_kpad_4);
-            KB_ClearKeyDown(sc_UpArrow);
-            KB_ClearKeyDown(sc_PgUp);
-            KB_ClearKeyDown(sc_kpad_8);
+            I_PanelUpClear();
 
             S_PlaySound(KICK_HIT);
             g_currentMenu--;
             if (g_currentMenu < 990) g_currentMenu = 990+l;
         }
-        else if (
-            KB_KeyPressed(sc_PgDn) ||
-            KB_KeyPressed(sc_Enter) ||
-            KB_KeyPressed(sc_Space) ||
-            KB_KeyPressed(sc_kpad_Enter) ||
-            KB_KeyPressed(sc_RightArrow) ||
-            KB_KeyPressed(sc_DownArrow) ||
-            KB_KeyPressed(sc_kpad_2) ||
-            KB_KeyPressed(sc_kpad_9) ||
-            KB_KeyPressed(sc_kpad_6) ||
-            LMB || WHEELDOWN)
+        else if (I_PanelDown())
         {
-            KB_ClearKeyDown(sc_PgDn);
-            KB_ClearKeyDown(sc_Enter);
-            KB_ClearKeyDown(sc_RightArrow);
-            KB_ClearKeyDown(sc_kpad_Enter);
-            KB_ClearKeyDown(sc_kpad_6);
-            KB_ClearKeyDown(sc_kpad_9);
-            KB_ClearKeyDown(sc_kpad_2);
-            KB_ClearKeyDown(sc_DownArrow);
-            KB_ClearKeyDown(sc_Space);
+            I_PanelDownClear();
+
             S_PlaySound(KICK_HIT);
             g_currentMenu++;
             if (g_currentMenu > 990+l) g_currentMenu = 990;
@@ -4775,7 +4808,7 @@ cheat_for_port_credits:
             if (ud.volume_number == 0 && ud.level_number == 7)
                 mgametext(160,180,currentboardfilename,0,2+8+16);
 
-            x = G_EnterText((320>>1),184,&ud.savegame[g_currentMenu-360][0],20, 999);
+            x = Menu_EnterText((320>>1),184,&ud.savegame[g_currentMenu-360][0],20, 999);
 
             if (x == -1)
             {
@@ -4813,8 +4846,6 @@ cheat_for_port_credits:
                     ready2send = 1;
                     totalclock = ototalclock;
                 }
-                KB_ClearKeyDown(sc_Escape);
-                S_PlaySound(EXITMENUSOUND);
                 crc = 0;
             }
 
@@ -4930,48 +4961,26 @@ DISPLAYNAMES:
 
         c = 320>>1;
 
-        if (KB_KeyPressed(sc_LeftArrow) ||
-                KB_KeyPressed(sc_kpad_4) ||
-                KB_KeyPressed(sc_UpArrow) ||
-                KB_KeyPressed(sc_PgUp) ||
-                KB_KeyPressed(sc_kpad_8))
+        if (I_PanelUp())
         {
-            KB_ClearKeyDown(sc_LeftArrow);
-            KB_ClearKeyDown(sc_kpad_4);
-            KB_ClearKeyDown(sc_UpArrow);
-            KB_ClearKeyDown(sc_PgUp);
-            KB_ClearKeyDown(sc_kpad_8);
+            I_PanelUpClear();
 
             S_PlaySound(KICK_HIT);
             g_currentMenu--;
             if (g_currentMenu < 400) g_currentMenu = 403;
         }
-        else if (
-            KB_KeyPressed(sc_PgDn) ||
-            KB_KeyPressed(sc_Enter) ||
-            KB_KeyPressed(sc_kpad_Enter) ||
-            KB_KeyPressed(sc_RightArrow) ||
-            KB_KeyPressed(sc_DownArrow) ||
-            KB_KeyPressed(sc_kpad_2) ||
-            KB_KeyPressed(sc_kpad_9) ||
-            KB_KeyPressed(sc_Space) ||
-            KB_KeyPressed(sc_kpad_6))
+        else if (I_PanelDown())
         {
-            KB_ClearKeyDown(sc_PgDn);
-            KB_ClearKeyDown(sc_Enter);
-            KB_ClearKeyDown(sc_RightArrow);
-            KB_ClearKeyDown(sc_kpad_Enter);
-            KB_ClearKeyDown(sc_kpad_6);
-            KB_ClearKeyDown(sc_kpad_9);
-            KB_ClearKeyDown(sc_kpad_2);
-            KB_ClearKeyDown(sc_DownArrow);
-            KB_ClearKeyDown(sc_Space);
+            I_PanelDownClear();
+
             S_PlaySound(KICK_HIT);
             g_currentMenu++;
             if (g_currentMenu > 403) g_currentMenu = 400;
         }
 
-        if (KB_KeyPressed(sc_Escape))
+        x = M_Probe(0,0,0,1);
+
+        if (x == -1)
         {
             if (g_player[myconnectindex].ps->gm&MODE_GAME)
                 ChangeToMenu(50);
@@ -4987,43 +4996,18 @@ VOLUME_ALL_40x:
 
         c = 320>>1;
 
-        if (KB_KeyPressed(sc_LeftArrow) ||
-                KB_KeyPressed(sc_kpad_4) ||
-                KB_KeyPressed(sc_UpArrow) ||
-                KB_KeyPressed(sc_PgUp) ||
-                KB_KeyPressed(sc_kpad_8) ||
-                WHEELDOWN)
+        if (I_PanelUp())
         {
-            KB_ClearKeyDown(sc_LeftArrow);
-            KB_ClearKeyDown(sc_kpad_4);
-            KB_ClearKeyDown(sc_UpArrow);
-            KB_ClearKeyDown(sc_PgUp);
-            KB_ClearKeyDown(sc_kpad_8);
+            I_PanelUpClear();
+
             S_PlaySound(KICK_HIT);
             g_currentMenu--;
             if (g_currentMenu < 400) g_currentMenu = 401;
         }
-        else if (
-            KB_KeyPressed(sc_PgDn) ||
-            KB_KeyPressed(sc_Enter) ||
-            KB_KeyPressed(sc_kpad_Enter) ||
-            KB_KeyPressed(sc_RightArrow) ||
-            KB_KeyPressed(sc_DownArrow) ||
-            KB_KeyPressed(sc_kpad_2) ||
-            KB_KeyPressed(sc_kpad_9) ||
-            KB_KeyPressed(sc_Space) ||
-            KB_KeyPressed(sc_kpad_6) ||
-            LMB || WHEELUP)
+        else if (I_PanelDown())
         {
-            KB_ClearKeyDown(sc_PgDn);
-            KB_ClearKeyDown(sc_Enter);
-            KB_ClearKeyDown(sc_RightArrow);
-            KB_ClearKeyDown(sc_kpad_Enter);
-            KB_ClearKeyDown(sc_kpad_6);
-            KB_ClearKeyDown(sc_kpad_9);
-            KB_ClearKeyDown(sc_kpad_2);
-            KB_ClearKeyDown(sc_DownArrow);
-            KB_ClearKeyDown(sc_Space);
+            I_PanelDownClear();
+
             S_PlaySound(KICK_HIT);
             g_currentMenu++;
             if (g_currentMenu > 401) g_currentMenu = 400;
@@ -5075,15 +5059,18 @@ VOLUME_ALL_40x:
         mgametext(c,90,"Are you sure you want to quit?",0,2+8+16);
         mgametext(c,99,"(Y/N)",0,2+8+16);
 
-        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
+        x = M_Probe(186,124,0,1);
+
+        if (ProbeTriggers(AdvanceTrigger) || I_AdvanceTrigger() || KB_KeyPressed(sc_Y))
         {
+            I_AdvanceTriggerClear();
+            ProbeTriggersClear(AdvanceTrigger);
+            KB_ClearKeyDown(sc_Y);
             KB_FlushKeyboardQueue();
 
             G_GameQuit();
         }
-
-        x = M_Probe(186,124,0,1);
-        if (x == -1 || KB_KeyPressed(sc_N) || RMB)
+        if (x == -1 || KB_KeyPressed(sc_N))
         {
             KB_ClearKeyDown(sc_N);
             g_quitDeadline = 0;
@@ -5113,8 +5100,14 @@ VOLUME_ALL_40x:
         mgametext(c,90,"Quit to Title?",0,2+8+16);
         mgametext(c,99,"(Y/N)",0,2+8+16);
 
-        if (KB_KeyPressed(sc_Space) || KB_KeyPressed(sc_Enter) || KB_KeyPressed(sc_kpad_Enter) || KB_KeyPressed(sc_Y) || LMB)
+        x = M_Probe(186,124,0,0);
+
+        if (ProbeTriggers(AdvanceTrigger) || I_AdvanceTrigger() || KB_KeyPressed(sc_Y))
         {
+            I_AdvanceTriggerClear();
+            ProbeTriggersClear(AdvanceTrigger);
+            KB_ClearKeyDown(sc_Y);
+
             KB_FlushKeyboardQueue();
             g_player[myconnectindex].ps->gm = MODE_DEMO;
             if (ud.recstat == 1)
@@ -5122,9 +5115,7 @@ VOLUME_ALL_40x:
             ChangeToMenu(0);
         }
 
-        x = M_Probe(186,124,0,0);
-
-        if (x == -1 || KB_KeyPressed(sc_N) || RMB)
+        if (x == -1 || KB_KeyPressed(sc_N))
         {
             g_player[myconnectindex].ps->gm &= ~MODE_MENU;
             if ((!g_netServer && ud.multimode < 2)  && ud.recstat != 2)
@@ -5145,9 +5136,9 @@ VOLUME_ALL_40x:
         mgametext(160,50,tempbuf,0,2+8+16);
         mgametext(160,59,"to select level",0,2+8+16);
 
-        if (KB_KeyPressed(sc_Escape))
+        if (I_EscapeTrigger())
         {
-            KB_ClearKeyDown(sc_Escape);
+            I_EscapeTriggerClear();
             S_PlaySound(EXITMENUSOUND);
             ChangeToMenu(0);
         }
@@ -5482,6 +5473,9 @@ VOLUME_ALL_40x:
     }
     if (apScriptGameEvent[EVENT_DISPLAYMENUREST])
         VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[myconnectindex].ps->i, myconnectindex, -1, 0);
+
+    if (I_EscapeTrigger())
+        I_EscapeTriggerClear();
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)
     {

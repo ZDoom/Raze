@@ -211,7 +211,7 @@ const char oldkeydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
    "Quick_Kick", "`", "",
    "Next_Weapon", "'", "",
    "Previous_Weapon", ";", "",
-   "Show_Console", "`", "",
+   "Show_Console", "C", "",
    "Show_DukeMatch_Scores", "", "",
    "Dpad_Select", "", "",
    "Dpad_Aiming", "", "",
@@ -247,6 +247,145 @@ static char * mouseclickeddefaults[] =
    };
 
 
+static char * mouseanalogdefaults[] =
+   {
+   "analog_turning",
+   "analog_moving",
+   };
+
+
+static char * mousedigitaldefaults[] =
+   {
+   "",
+   "",
+   "",
+   "",
+   };
+
+#if defined(GEKKO)
+static char * joystickdefaults[] =
+   {
+   "Open", // A
+   "Fire", // B
+   "Run", // 1
+   "Map", // 2
+   "Previous_Weapon", // -
+   "Next_Weapon", // +
+   "", // Home
+   "Jump", // Z
+   "Crouch", // C
+   "Map", // X
+   "Run", // Y
+   "Jump", // L
+   "Fire", // R
+   "Crouch", // ZL
+   "Inventory", // ZR
+   "Quick_Kick", // D-Pad Up
+   "Inventory_Right", // D-Pad Right
+   "Inventory", // D-Pad Down
+   "Inventory_Left", // D-Pad Left
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   };
+
+
+static char * joystickclickeddefaults[] =
+   {
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   };
+
+
+static char * joystickanalogdefaults[] =
+   {
+   "analog_strafing",
+   "analog_moving",
+   "analog_turning",
+   "analog_lookingupanddown",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   };
+
+
+static char * joystickdigitaldefaults[] =
+   {
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   };
+#else
 static char * joystickdefaults[] =
    {
    "Fire",
@@ -329,22 +468,6 @@ static char * joystickclickeddefaults[] =
    };
 
 
-static char * mouseanalogdefaults[] =
-   {
-   "analog_turning",
-   "analog_moving",
-   };
-
-
-static char * mousedigitaldefaults[] =
-   {
-   "",
-   "",
-   "",
-   "",
-   };
-
-
 static char * joystickanalogdefaults[] =
    {
    "analog_turning",
@@ -377,6 +500,8 @@ static char * joystickdigitaldefaults[] =
    "",
    "",
    };
+#endif
+
 #endif
 #ifdef __cplusplus
 };

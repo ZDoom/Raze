@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#include "premap.h"  // G_UpdateScreenArea()
 #include "menus.h"
 #include "savegame.h"
+#include "input.h"
 
 char firstdemofile[BMAX_PATH];
 
@@ -381,7 +382,7 @@ RECHECK:
 #endif
     }
 
-    if (foundemo == 0 || in_menu || KB_KeyWaiting() || numplayers > 1)
+    if (foundemo == 0 || in_menu || I_CheckAllInput() || numplayers > 1)
     {
         FX_StopAllSounds();
         S_ClearSoundLocks();
@@ -391,7 +392,7 @@ RECHECK:
     ready2send = 0;
     bigi = 0;
 
-    KB_FlushKeyboardQueue();
+    I_ClearAllInput();
 
     //    OSD_Printf("ticcnt=%d, total=%d\n", g_demo_cnt, g_demo_totalCnt);
     while (g_demo_cnt < g_demo_totalCnt || foundemo==0)
@@ -637,9 +638,9 @@ nextdemo:
         if ((g_player[myconnectindex].ps->gm&MODE_MENU) && (g_player[myconnectindex].ps->gm&MODE_EOL))
             goto RECHECK;
 
-        if (KB_KeyPressed(sc_Escape) && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && (g_player[myconnectindex].ps->gm&MODE_TYPE) == 0)
+        if (I_EscapeTrigger() && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && (g_player[myconnectindex].ps->gm&MODE_TYPE) == 0)
         {
-            KB_ClearKeyDown(sc_Escape);
+            I_EscapeTriggerClear();
             FX_StopAllSounds();
             S_ClearSoundLocks();
             g_player[myconnectindex].ps->gm |= MODE_MENU;

@@ -21,6 +21,8 @@ set buildparameters=PLATFORM=WII %*
 make veryclean %buildparameters%
 make OPTLEVEL=2 LTO=0 %buildparameters%
 
+if not exist "eduke32.elf" goto end
+
 :: Package data:
 xcopy /e /q /y Wii\apps apps\
 for %%G in (eduke32) do for %%H in (.elf) do if exist "%%~G%%~H" move /y "%%~G%%~H" "apps\%%~G\boot%%~H"
@@ -28,6 +30,8 @@ for %%G in (eduke32) do for %%H in (.elf.map) do if exist "%%~G%%~H" del /f /q "
 "echo.exe" -e "    <version>%rev%</version>\n    <release_date>%currentdate%</release_date>" | "cat.exe" Wii\meta_1.xml - Wii\meta_2.xml >"apps\eduke32\meta.xml"
 if exist "*.txt" copy /y "*.txt" "apps\eduke32\"
 "ls.exe" -l -R apps
+
+:end
 
 :: Clean up revision number:
 if "%vc%"=="svn" svn revert source\rev.h

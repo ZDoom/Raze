@@ -133,6 +133,7 @@ void grabmouse(char a);
 void readmousexy(int32_t *x, int32_t *y);
 void readmouseabsxy(int32_t *x, int32_t *y);
 void readmousebstatus(int32_t *b);
+void readjoybstatus(int32_t *b);
 void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur);
 void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur);
 

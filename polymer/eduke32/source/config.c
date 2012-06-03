@@ -299,7 +299,7 @@ void CONFIG_SetDefaults(void)
     memset(ud.config.MouseDigitalFunctions, -1, sizeof(ud.config.MouseDigitalFunctions));
     for (i=0; i<MAXMOUSEAXES; i++)
     {
-        ud.config.MouseAnalogueScale[i] = 65536;
+        ud.config.MouseAnalogueScale[i] = DEFAULTMOUSEANALOGUESCALE;
         CONTROL_SetAnalogAxisScale(i, ud.config.MouseAnalogueScale[i], controldevice_mouse);
 
         ud.config.MouseDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(mousedigitaldefaults[i*2]);
@@ -324,9 +324,9 @@ void CONFIG_SetDefaults(void)
     memset(ud.config.JoystickDigitalFunctions, -1, sizeof(ud.config.JoystickDigitalFunctions));
     for (i=0; i<MAXJOYAXES; i++)
     {
-        ud.config.JoystickAnalogueScale[i] = 65536;
-        ud.config.JoystickAnalogueDead[i] = 1000;
-        ud.config.JoystickAnalogueSaturate[i] = 9500;
+        ud.config.JoystickAnalogueScale[i] = DEFAULTJOYSTICKANALOGUESCALE;
+        ud.config.JoystickAnalogueDead[i] = DEFAULTJOYSTICKANALOGUEDEAD;
+        ud.config.JoystickAnalogueSaturate[i] = DEFAULTJOYSTICKANALOGUESATURATE;
         CONTROL_SetAnalogAxisScale(i, ud.config.JoystickAnalogueScale[i], controldevice_joystick);
 
         ud.config.JoystickDigitalFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdigitaldefaults[i*2]);
@@ -939,7 +939,7 @@ void CONFIG_WriteSetup(uint32_t flags)
             SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.MouseDigitalFunctions[dummy][1]));
         }
 
-        if (ud.config.MouseAnalogueScale[dummy] != 65536)
+        if (ud.config.MouseAnalogueScale[dummy] != DEFAULTMOUSEANALOGUESCALE)
         {
             Bsprintf(buf,"MouseAnalogScale%d",dummy);
             SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.MouseAnalogueScale[dummy], FALSE, FALSE);
@@ -983,19 +983,19 @@ void CONFIG_WriteSetup(uint32_t flags)
             SCRIPT_PutString(ud.config.scripthandle, "Controls", buf, CONFIG_FunctionNumToName(ud.config.JoystickDigitalFunctions[dummy][1]));
         }
 
-        if (ud.config.JoystickAnalogueScale[dummy] != 65536)
+        if (ud.config.JoystickAnalogueScale[dummy] != DEFAULTJOYSTICKANALOGUESCALE)
         {
             Bsprintf(buf,"JoystickAnalogScale%d",dummy);
             SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueScale[dummy], FALSE, FALSE);
         }
 
-        if (ud.config.JoystickAnalogueDead[dummy] != 1000)
+        if (ud.config.JoystickAnalogueDead[dummy] != DEFAULTJOYSTICKANALOGUEDEAD)
         {
             Bsprintf(buf,"JoystickAnalogDead%d",dummy);
             SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueDead[dummy], FALSE, FALSE);
         }
 
-        if (ud.config.JoystickAnalogueSaturate[dummy] != 9500)
+        if (ud.config.JoystickAnalogueSaturate[dummy] != DEFAULTJOYSTICKANALOGUESATURATE)
         {
             Bsprintf(buf,"JoystickAnalogSaturate%d",dummy);
             SCRIPT_PutNumber(ud.config.scripthandle, "Controls", buf, ud.config.JoystickAnalogueSaturate[dummy], FALSE, FALSE);
