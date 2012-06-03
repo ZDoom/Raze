@@ -297,7 +297,7 @@ typedef int              (xd3_comp_table_func) (xd3_stream *stream,
     do { if (! (x)) { DP(RINT "%s:%d: XD3 assertion failed: %s\n", __FILE__, __LINE__, #x); \
     abort (); } } while (0)
 #else
-#define XD3_ASSERT(x)
+#define XD3_ASSERT(x) (void)0
 #endif  /* XD3_DEBUG */
 
 #ifdef __GNUC__
