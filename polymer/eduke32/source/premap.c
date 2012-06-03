@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <windows.h>
 #endif
 
-#ifdef LUNATIC_ENABLE
+#ifdef LUNATIC
 # include "lunatic.h"
 extern El_State g_ElState;
 #endif
@@ -1450,7 +1450,7 @@ static inline void prelevel(char g)
         }
     }
 
-#ifdef LUNATIC_ENABLE
+#ifdef LUNATIC
     if (El_IsInitialized(&g_ElState))
     {
         i = El_RunOnce(&g_ElState, "test.elua");

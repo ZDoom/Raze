@@ -53,7 +53,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "demo.h"
 #include "common.h"
 
-#ifdef LUNATIC_ENABLE
+#ifdef LUNATIC
 # include "lunatic.h"
 #endif
 
@@ -167,7 +167,7 @@ char **g_clipMapFiles = NULL;
 int32_t g_clipMapFilesNum = 0;
 #endif
 
-#ifdef LUNATIC_ENABLE
+#ifdef LUNATIC
 El_State g_ElState;
 #endif
 
@@ -10482,7 +10482,7 @@ CLEAN_DIRECTORY:
 
     OSD_Exec("autoexec.cfg");
 
-#ifdef LUNATIC_ENABLE
+#ifdef LUNATIC
     i = El_CreateState(&g_ElState, "test");
     if (i)
     {

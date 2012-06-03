@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 #include "menus.h"
 
-#ifdef LUNATIC_ENABLE
+#ifdef LUNATIC
 # include "lunatic.h"
 extern El_State g_ElState;  // this needs to go into a header sometime
 #endif
@@ -96,7 +96,7 @@ void VM_ScriptInfo(void)
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
 int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
 {
-#ifdef LUNATIC_ENABLE
+#ifdef LUNATIC
     if (El_IsInitialized(&g_ElState))
         El_CallEvent(&g_ElState, iEventID);
 #endif

@@ -152,7 +152,7 @@ ifneq (0,$(LUNATIC))
     else
         OURCFLAGS+= -I/usr/local/include/luajit-2.0
     endif
-    OURCFLAGS+= -I$(SRC)/lunatic -DLUNATIC_ENABLE
+    OURCFLAGS+= -I$(SRC)/lunatic -DLUNATIC
 
     ifeq ($(PLATFORM),WINDOWS)
         LIBS+= -LWindows/lib -lluajit
