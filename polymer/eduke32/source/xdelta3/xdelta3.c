@@ -2654,13 +2654,10 @@ xd3_set_source (xd3_stream *stream,
    * calculations are cheap. */
   if (!xd3_check_pow2 (src->blksize, &shiftby) == 0)
     {
-#if XD3_DEBUG
       int check;
+      src->blksize = xd3_pow2_roundup(src->blksize);
       check = xd3_check_pow2 (src->blksize, &shiftby);
       XD3_ASSERT (check == 0);
-#else
-      xd3_check_pow2 (src->blksize, &shiftby);
-#endif
       IF_DEBUG1 (DP(RINT "raising srcblksz to %u\n", src->blksize));
     }
 
