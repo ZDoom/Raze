@@ -3088,6 +3088,7 @@ dodefault:
                        "helixhorned@gmail.com.\n\n"
                        "Thank you!\n");
             vm.flags |= VMFLAG_ERROR;
+            Bfflush(NULL);
             return 1;
         }
     }

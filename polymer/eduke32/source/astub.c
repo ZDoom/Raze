@@ -8852,6 +8852,8 @@ static int32_t osdcmd_quit(const osdfuncparm_t *parm)
     ExtUnInit();
     uninitengine();
 
+    Bfflush(NULL);
+
     exit(0);
 }
 

@@ -486,6 +486,7 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # define Bstat stat
 # define Bfopen fopen
 # define Bfclose fclose
+# define Bfflush fflush
 # define Bfeof feof
 # define Bfgetc fgetc
 # define Brewind rewind

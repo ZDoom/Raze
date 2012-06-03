@@ -2136,6 +2136,8 @@ void G_GameExit(const char *msg)
 
     uninitgroupfile();
 
+    Bfflush(NULL);
+
     exit(0);
 }
 
@@ -9494,6 +9496,7 @@ void G_Shutdown(void)
     KB_Shutdown();
     uninitengine();
     G_Cleanup();
+    Bfflush(NULL);
 }
 
 /*
@@ -9771,6 +9774,8 @@ static void G_Startup(void)
     tilesizx[MIRROR] = tilesizy[MIRROR] = 0;
 
     screenpeek = myconnectindex;
+
+    Bfflush(NULL);
 }
 
 void G_UpdatePlayerFromMenu(void)
