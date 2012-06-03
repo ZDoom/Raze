@@ -100,39 +100,7 @@ void Net_SaveMapState(netmapstate_t *save)
 
 
         for (i=MAXSPRITES-1; i>=0; i--)
-        {
             save->scriptptrs[i] = 0;
-
-            if (actorscrptr[PN] == 0) continue;
-
-            j = (intptr_t)&script[0];
-
-            if (T2 >= j && T2 < (intptr_t)(&script[g_scriptSize]))
-            {
-                save->scriptptrs[i] |= 1;
-                T2 -= j;
-#ifdef __x86_64__
-                T2 >>= 1;
-#endif
-            }
-            if (T5 >= j && T5 < (intptr_t)(&script[g_scriptSize]))
-            {
-                save->scriptptrs[i] |= 2;
-                T5 -= j;
-#ifdef __x86_64__
-                T5 >>= 1;
-#endif
-            }
-            if (T6 >= j && T6 < (intptr_t)(&script[g_scriptSize]))
-            {
-                save->scriptptrs[i] |= 4;
-                T6 -= j;
-#ifdef __x86_64__
-                T6 >>= 1;
-#endif
-
-            }
-        }
 
 
         Bmemcpy(&save->actor[0],&actor[0],offsetof(netactor_t, t_data[0])*MAXSPRITES);
@@ -142,34 +110,6 @@ void Net_SaveMapState(netmapstate_t *save)
                 save->actor[i].t_data[j] = actor[i].t_data[j];
 
 
-        for (i=MAXSPRITES-1; i>=0; i--)
-        {
-            if (actorscrptr[PN] == 0) continue;
-
-            j = (intptr_t)&script[0];
-
-            if (save->scriptptrs[i]&1)
-            {
-#ifdef __x86_64__
-                T2 <<= 1;
-#endif
-                T2 += j;
-            }
-            if (save->scriptptrs[i]&2)
-            {
-#ifdef __x86_64__
-                T5 <<= 1;
-#endif
-                T5 += j;
-            }
-            if (save->scriptptrs[i]&4)
-            {
-#ifdef __x86_64__
-                T6 <<= 1;
-#endif
-                T6 += j;
-            }
-        }
 
         Bmemcpy(&save->g_numCyclers,&g_numCyclers,sizeof(g_numCyclers));
         Bmemcpy(&save->cyclers[0][0],&cyclers[0][0],sizeof(cyclers));
@@ -268,31 +208,6 @@ void Net_RestoreMapState(netmapstate_t *save)
             for (j=0;j<10;j++)
                 actor[i].t_data[j] = save->actor[i].t_data[j];
 
-        for (i=MAXSPRITES-1; i>=0; i--)
-        {
-            j = (intptr_t)(&script[0]);
-            if (save->scriptptrs[i]&1)
-            {
-#ifdef __x86_64__
-                T2 <<= 1;
-#endif
-                T2 += j;
-            }
-            if (save->scriptptrs[i]&2) 
-            {
-#ifdef __x86_64__
-                T5 <<= 1;
-#endif
-                T5 += j;
-            }
-            if (save->scriptptrs[i]&4) 
-            {
-#ifdef __x86_64__
-                T6 <<= 1;
-#endif
-                T6 += j;
-            }
-        }
 
 
         Bmemcpy(&g_numCyclers,&save->g_numCyclers,sizeof(g_numCyclers));
@@ -1040,29 +955,15 @@ void Net_ParseServerPacket(ENetEvent *event)
             i = g_player[l].ps->i;
 
             {
-                int16_t jj = j++;
                 int32_t oa;
-                
-                if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)&script[g_scriptSize])
-                {
-                    oa = T5-(intptr_t)&script[0];
-#ifdef __x86_64__
-                    oa >>= 1;
-#endif
-                }
-                else oa = T5;
+
+                j++;
+                oa = T5;
 
                 T5 = *(int32_t *)&pbuf[j];
                 j += sizeof(int32_t);
 
                 if (oa != T5) T3 = T4 = 0;
-                if (pbuf[jj] & 2)
-                {
-#ifdef __x86_64__
-                    T5 <<= 1;
-#endif
-                    T5 += (intptr_t)&script[0];
-                }
             }
 
             do
@@ -1768,34 +1669,11 @@ void Net_UpdateClients(void)
         i = g_player[l].ps->i;
 
         {
-            int32_t jj, oa;
-
-            packbuf[(jj = siz++)] = 0;
-
-            if (T5 >= (intptr_t)&script[0] && T5 < (intptr_t)(&script[g_scriptSize]))
-            {
-                packbuf[jj] |= 2;
-                T5 -= (intptr_t)&script[0];
-#ifdef __x86_64__
-                T5 >>= 1;
-#endif
-            }
-
-            oa = T5;
+            packbuf[siz++] = 0;
 
             *(int32_t *)&packbuf[siz] = T5;
 
             siz += sizeof(int32_t);
-
-            if (oa != T5) T3 = T4 = 0;
-
-            if (packbuf[jj] & 2)
-            { 
-#ifdef __x86_64__
-                T5 <<= 1;
-#endif
-                T5 += (intptr_t)&script[0];
-            }
         }
 
         {
