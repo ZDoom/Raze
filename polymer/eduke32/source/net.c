@@ -1564,8 +1564,8 @@ void Net_ClientMove(void)
         char buf[1024];
 
         Bassert((signed)sizeof(buf) >= siz+400);
-        siz = qlz_compress((char *)(packbuf)+1, (char *)buf, siz, state_compress);
-        Bmemcpy((char *)(packbuf)+1, (char *)buf, siz);
+        siz = qlz_compress(packbuf+1, buf, siz, state_compress);
+        Bmemcpy(packbuf+1, buf, siz);
         siz++;
     }
 
@@ -1727,8 +1727,8 @@ void Net_UpdateClients(void)
         if (siz >= PACKBUF_SIZE)
             initprintf("Global packet buffer overflow! Size of packet: %i\n", siz);
 
-        siz = qlz_compress((char *)(packbuf)+1, (char *)buf, siz, state_compress);
-        Bmemcpy((char *)(packbuf)+1, (char *)buf, siz);
+        siz = qlz_compress(packbuf+1, buf, siz, state_compress);
+        Bmemcpy(packbuf+1, buf, siz);
         siz++;
     }
 
@@ -1780,8 +1780,8 @@ void Net_StreamLevel(void)
                 return;
             }
 
-            siz = qlz_compress((char *)streamoutput, (char *)buf, osize, state_compress);
-            Bmemcpy((char *)(packbuf)+1, (char *)buf, siz);
+            siz = qlz_compress((char *)streamoutput, buf, osize, state_compress);
+            Bmemcpy(packbuf+1, buf, siz);
             siz++;
         }
 
