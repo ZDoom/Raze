@@ -1722,12 +1722,26 @@ void Net_UpdateClients(void)
     }
 
     {
-        char buf[PACKBUF_SIZE+512];
+        char buf[PACKBUF_SIZE+400];
 
+#if 1
+        // We're screwed anyway if this fails:
+        Bassert(siz <= PACKBUF_SIZE);
+#else
         if (siz >= PACKBUF_SIZE)
+        {
             initprintf("Global packet buffer overflow! Size of packet: %i\n", siz);
-
+            return;
+        }
+#endif
         siz = qlz_compress(packbuf+1, buf, siz, state_compress);
+
+        if (siz >= PACKBUF_SIZE-1)
+        {
+            initprintf("Packet buffer overflow! Size of compressed MOVE payload: %d\n", siz);
+            return;
+        }
+
         Bmemcpy(packbuf+1, buf, siz);
         siz++;
     }
@@ -1776,7 +1790,8 @@ void Net_StreamLevel(void)
             if (osize >= PACKBUF_SIZE)
             {
                 // XXX: this currently happens when e.g. switching levels
-                initprintf("Packet buffer overflow! Size of packet after diff before compress: %u\n", osize);
+                initprintf("Packet buffer overflow! GAMESTATE payload size "
+                           "after diff before compress: %u\n", osize);
                 return;
             }
 
@@ -1784,7 +1799,8 @@ void Net_StreamLevel(void)
 
             if (siz >= PACKBUF_SIZE-1)
             {
-                initprintf("Global packet buffer overflow! Size of packet after diff and compress: %d\n", siz);
+                initprintf("Global packet buffer overflow! GAMESTATE payload size "
+                           "after diff and compress: %d\n", siz);
                 return;
             }
 
