@@ -2097,9 +2097,9 @@ static void G_DisplayExtraScreens(void)
 extern int32_t qsetmode;
 extern int32_t g_doQuickSave;
 
-void G_GameExit(const char *t)
+void G_GameExit(const char *msg)
 {
-    if (*t != 0) g_player[myconnectindex].ps->palette = BASEPAL;
+    if (*msg != 0) g_player[myconnectindex].ps->palette = BASEPAL;
 
     if (ud.recstat == 1) G_CloseDemoWrite();
     else if (ud.recstat == 2)
@@ -2109,28 +2109,28 @@ void G_GameExit(const char *t)
 
     if (!g_quickExit)
     {
-        if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *t == ' ')
+        if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
             setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
         }
 
-        if (*t != 0 && *(t+1) != 'V' && *(t+1) != 'Y')
+        if (*msg != 0 && *(msg+1) != 'V' && *(msg+1) != 'Y')
             G_DisplayExtraScreens();
     }
 
-    if (*t != 0) initprintf("%s\n",t);
+    if (*msg != 0) initprintf("%s\n",msg);
 
     if (qsetmode == 200)
         G_Shutdown();
 
-    if (*t != 0)
+    if (*msg != 0)
     {
-        if (!(t[0] == ' ' && t[1] == 0))
+        if (!(msg[0] == ' ' && msg[1] == 0))
         {
             char titlebuf[256];
             Bsprintf(titlebuf,HEAD2 " %s",s_buildRev);
-            wm_msgbox(titlebuf, "%s", (char *)t);
+            wm_msgbox(titlebuf, "%s", (char *)msg);
         }
     }
 
