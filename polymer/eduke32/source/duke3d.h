@@ -70,7 +70,7 @@ extern "C" {
 #define MOVEFIFOSIZ         2
 
 #define MAXVOLUMES          7
-#define MAXLEVELS           32
+#define MAXLEVELS           64
 #define MAXGAMETYPES        16
 
 // used as a constant to satisfy all of the calculations written with ticrate = 26 in mind
