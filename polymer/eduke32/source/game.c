@@ -9787,7 +9787,7 @@ int32_t app_main(int32_t argc, const char **argv)
     ENetCallbacks callbacks = { NULL, NULL, NULL };
 #endif
 
-//    Bassert(sizeof(actor_t)==128);  // fails with x86_64
+    Bassert(sizeof(actor_t)==128);
     Bassert(offsetof(actor_t, bposx) == sizeof(netactor_t));
 
 #ifdef GEKKO

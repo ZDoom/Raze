@@ -161,7 +161,7 @@ typedef struct {
 #else
     /* 64-bit */
 # ifndef LUNATIC
-    const int8_t filler[12];  // XXX: should be 16, schedule with next BYTEVERSION/savegame version bump!
+    const int8_t filler[16];
 # else
     /* no padding */
 #endif
