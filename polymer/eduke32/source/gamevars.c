@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
+#include "common_game.h"
 #include "gamevars.h"
 #include "gamedef.h"
 #include "osd.h"

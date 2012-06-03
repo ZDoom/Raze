@@ -6,6 +6,8 @@
 #include "duke3d.h"
 #include "game.h"
 #undef GetTime
+#include "common.h"
+#include "common_game.h"
 #include "build.h"
 #include "compat.h"
 #include "baselayer.h"
@@ -416,7 +418,7 @@ int startwin_run(void)
     settings.channels = ud.config.NumChannels;
     settings.forcesetup = ud.config.ForceSetup;
 //    settings.game = gametype;
-    strncpy(settings.selectedgrp, defaultduke3dgrp, BMAX_PATH);
+    strncpy(settings.selectedgrp, G_GrpFile(), BMAX_PATH);
 
     [startwin setupRunMode];
 
@@ -437,7 +439,8 @@ int startwin_run(void)
         ud.config.NumBits = settings.bitspersample;
         ud.config.NumChannels = settings.channels;
         ud.config.ForceSetup = settings.forcesetup;
-        strncpy(defaultduke3dgrp, settings.selectedgrp, BMAX_PATH);
+        clearGrpNamePtr();
+        g_grpNamePtr = dup_filename(settings.selectedgrp);
 //        gametype = settings.game;
     }
 

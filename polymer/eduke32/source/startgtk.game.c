@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "game.h"
 #include "common.h"
+#include "common_game.h"
 
 #define RDR_POLYMOST 3 // sould be defined elsewhere
 #define RDR_POLYMER 4 // sould be defined elsewhere
@@ -886,7 +887,7 @@ int32_t startwin_run(void)
     settings.custommoddir = g_modDir;
     settings.forcesetup = ud.config.ForceSetup;
     settings.game = g_gameType;
-    Bstrncpyz(settings.selectedgrp, g_grpNamePtr, BMAX_PATH);
+    Bstrncpyz(settings.selectedgrp, G_GrpFile(), BMAX_PATH);
     if (ud.config.NoAutoLoad) settings.autoload = FALSE;
     else settings.autoload = TRUE;
 #ifdef POLYMER

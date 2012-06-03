@@ -46,6 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "game.h"
 #include "common.h"
+#include "common_game.h"
 
 #define TAB_CONFIG 0
 // #define TAB_GAME 1
@@ -738,7 +739,7 @@ int32_t startwin_run(void)
     settings.usejoy = ud.config.UseJoystick;
     settings.game = g_gameType;
 //    settings.crcval = 0;
-    Bstrncpyz(settings.selectedgrp, g_grpNamePtr, BMAX_PATH);
+    Bstrncpyz(settings.selectedgrp, G_GrpFile(), BMAX_PATH);
     settings.gamedir = g_modDir;
     PopulateForm(-1);
 

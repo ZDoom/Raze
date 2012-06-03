@@ -798,7 +798,8 @@ int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, float yoffset, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);
 
-extern char defsfilename[BMAX_PATH];
+extern char *G_DefaultDefFile(void);
+extern char *G_DefFile(void);
 extern char *g_defNamePtr;
 
 extern char **g_defModules;

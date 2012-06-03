@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gameexec.h"
 #include "savegame.h"
 #include "common.h"
+#include "common_game.h"
 
 #include "osd.h"
 
@@ -2529,7 +2530,7 @@ static int32_t C_ParseCommand(int32_t loop)
 
         case CON_INCLUDEDEFAULT:
             C_SkipComments();
-            C_Include(defaultconfile());
+            C_Include(G_DefaultConFile());
             continue;
 
         case CON_AI:
@@ -5776,7 +5777,7 @@ void C_Compile(const char *filenam)
                      "version of Duke Nukem 3D: Atomic Edition immediately for only $5.99 through our partnership with GOG.com.\n\n"
                      "Not a typo; it's less than 6 bucks.  Get Duke now?\n\n"
                      "(Clicking yes will bring you to our web store)",
-                     g_grpNamePtr,g_grpNamePtr);
+                     G_GrpFile(),G_GrpFile());
 
             if (wm_ynbox("Important - Duke Nukem 3D not found - EDuke32","%s",tempbuf))
             {
@@ -5799,7 +5800,7 @@ void C_Compile(const char *filenam)
             Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n"
                      "You can find \"%s\" in the 'DN3DINST' or 'ATOMINST' directory on your Duke Nukem 3D installation CD-ROM.\n\n"
                      "EDuke32 will now close.",
-                     g_grpNamePtr,g_grpNamePtr);
+                     G_GrpFile(),G_GrpFile());
             G_GameExit(tempbuf);
 #endif
         }

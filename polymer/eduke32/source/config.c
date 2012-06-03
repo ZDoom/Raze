@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "baselayer.h"
 #include "duke3d.h"
 #include "game.h"
+#include "common_game.h"
 #include "scriplib.h"
 #include "osd.h"
 #include "osdcmds.h"
@@ -267,7 +268,7 @@ void CONFIG_SetDefaults(void)
     ud.config.CheckForUpdates = 1;
 
     if (g_rtsNamePtr == NULL)
-        Bstrcpy(ud.rtsname, defaultrtsfilename);
+        Bstrcpy(ud.rtsname, G_DefaultRtsFile());
     Bstrcpy(szPlayerName, "Duke");
 
     Bstrcpy(ud.ridecule[0], "An inspiration for birth control.");
@@ -686,7 +687,7 @@ int32_t CONFIG_ReadSetup(void)
         }
 // #endif
 
-        if (!Bstrcmp(defaultduke3dgrp,"duke3d.grp"))
+        if (g_grpNamePtr != NULL && !Bstrcmp(g_grpNamePtr,defaultgamegrp[0]))
             SCRIPT_GetString(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr[0]);
 
         if (!NAM)

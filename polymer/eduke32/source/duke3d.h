@@ -52,16 +52,9 @@ extern "C" {
 #define VERSION             "2.0.0devel"
 #define HEAD2               APPNAME" "VERSION
 
-#define GAME_DUKE           0
-#define GAME_NAM            1
-#define GAME_WW2            2
-
 #define VOLUMEALL           (g_Shareware == 0)
 #define PLUTOPAK            (g_scriptVersion == 14)
 #define VOLUMEONE           (g_Shareware == 1)
-
-#define NAM                 (g_gameType & GAME_NAM)
-#define WW2GI               (g_gameType & GAME_WW2)
 
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 #define BYTEVERSION_JF      243
@@ -106,6 +99,7 @@ extern "C" {
 // so that debugging with valgrind --smc-check=none is possible:
 //#define DEBUG_VALGRIND_NO_SMC
 
+#include "common_game.h"
 #include "namesdyn.h"
 #include "function.h"
 #include "macros.h"

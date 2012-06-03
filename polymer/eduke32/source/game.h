@@ -178,17 +178,19 @@ extern cactype cac[];
 
 // this is checked against http://eduke32.com/VERSION
 extern const char *s_buildDate;
-extern char *g_grpNamePtr;
-extern char *g_defNamePtr;
 extern const char *g_gameNamePtr;
 extern const char *g_rtsNamePtr;
+
 extern char **g_scriptModules;
 extern int32_t g_scriptModulesNum;
+
 extern char CheatStrings[][MAXCHEATLEN];
 extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
 extern char boardfilename[BMAX_PATH];
-extern char defaultduke3dgrp[BMAX_PATH];
-extern const char *defaultrtsfilename;
+
+extern const char *defaultrtsfilename[GAMECOUNT];
+extern const char *G_DefaultRtsFile(void);
+
 extern char g_modDir[BMAX_PATH];
 extern char g_modDir[BMAX_PATH];
 extern char inputloc;
@@ -209,7 +211,6 @@ extern int32_t g_cameraDistance;
 extern int32_t g_crosshairSum;
 extern int32_t g_doQuickSave;
 extern int32_t g_forceWeaponChoice;
-extern int32_t g_gameType;
 extern int32_t g_levelTextTime;
 extern int32_t g_noSetup;
 extern int32_t g_quitDeadline;
@@ -242,9 +243,6 @@ extern user_defs ud;
 
 //extern int32_t g_yax_smoothratio;
 
-void clearDefNamePtr(void);
-void clearGrpNamePtr(void);
-
 int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss);
 int32_t A_Spawn(int32_t j,int32_t pn);
@@ -255,7 +253,6 @@ int32_t G_PrintGameText(int32_t f,int32_t tile,int32_t x,int32_t y,const char *t
 int32_t GetTime(void);
 int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32_t c);
 int32_t kopen4loadfrommod(const char *filename,char searchfirst);
-char * defaultconfile(void);
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb);
 int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits);
 int32_t startwin_run(void);

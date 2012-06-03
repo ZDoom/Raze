@@ -28,18 +28,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "crc32.h"
 
 #include "duke3d.h"
+#include "common_game.h"
 #include "grpscan.h"
 
 struct grpfile grpfiles[NUMGRPFILES] =
 {
-    { "Duke Nukem 3D",						    0xBBC9CE44, 26524524, GAME_DUKE, NULL },
-    { "Duke Nukem 3D: Atomic Edition",		    0xF514A6AC, 44348015, GAME_DUKE, NULL },
-    { "Duke Nukem 3D: Atomic Edition",		    0xFD3DCFF1, 44356548, GAME_DUKE, NULL },
-    { "Duke Nukem 3D Shareware",		        0x983AD923, 11035779, GAME_DUKE, NULL },
-    { "Duke Nukem 3D Mac Shareware",	        0xC5F71561, 10444391, GAME_DUKE, NULL },
-    { "NAM",                        			0x75C1F07B, 43448927, GAME_NAM,  NULL },
-    { "Napalm",                        			0x3DE1589A, 44365728, GAME_NAM,  NULL },
-    { "WW2GI",                         			0x907B82BF, 77939508, GAME_WW2|GAME_NAM,  NULL },
+    { "Duke Nukem 3D",                          0xBBC9CE44, 26524524, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D: Atomic Edition",          0xF514A6AC, 44348015, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D: Atomic Edition",          0xFD3DCFF1, 44356548, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D Shareware",                0x983AD923, 11035779, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D Mac Shareware",            0xC5F71561, 10444391, GAMEFLAG_DUKE, NULL },
+    { "NAM",                                    0x75C1F07B, 43448927, GAMEFLAG_NAM,  NULL },
+    { "Napalm",                                 0x3DE1589A, 44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,  NULL },
+    { "WWII GI",                                0x907B82BF, 77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,  NULL },
 };
 struct grpfile *foundgrps = NULL;
 
@@ -68,10 +69,10 @@ static int32_t LoadGroupsCache(void)
 
     while (!scriptfile_eof(script))
     {
-        if (scriptfile_getstring(script, &fname)) break;	// filename
-        if (scriptfile_getnumber(script, &fsize)) break;	// filesize
-        if (scriptfile_getnumber(script, &fmtime)) break;	// modification time
-        if (scriptfile_getnumber(script, &fcrcval)) break;	// crc checksum
+        if (scriptfile_getstring(script, &fname)) break;    // filename
+        if (scriptfile_getnumber(script, &fsize)) break;    // filesize
+        if (scriptfile_getnumber(script, &fmtime)) break;   // modification time
+        if (scriptfile_getnumber(script, &fcrcval)) break;  // crc checksum
 
         fg = Bcalloc(1, sizeof(struct grpcache));
         fg->next = grpcache;
@@ -130,12 +131,12 @@ int32_t ScanGroups(void)
 
         if (fg)
         {
-            if (findfrompath(sidx->name, &fn)) continue;	// failed to resolve the filename
+            if (findfrompath(sidx->name, &fn)) continue; // failed to resolve the filename
             if (Bstat(fn, &st))
             {
                 Bfree(fn);
                 continue;
-            }	// failed to stat the file
+            } // failed to stat the file
             Bfree(fn);
             if (fg->size == st.st_size && fg->mtime == st.st_mtime)
             {

@@ -52,6 +52,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "anim.h"
 #include "demo.h"
 #include "common.h"
+#include "common_game.h"
 
 #ifdef LUNATIC
 # include "lunatic.h"
@@ -106,9 +107,6 @@ uint8_t *basepaltable[BASEPALCOUNT] = { palette, water_pal, slime_pal, dre_alms,
 
 int8_t g_noFloorPal[MAXPALOOKUPS];  // 1 if sprite pal should not be taken over from floor pal
 
-static int32_t g_skipDefaultCons = 0;
-static int32_t g_skipDefaultDefs = 0; // primarily for NAM/WWII GI appeasement
-
 int32_t voting = -1;
 int32_t vote_map = -1, vote_episode = -1;
 
@@ -116,46 +114,13 @@ static int32_t g_Debug = 0;
 static int32_t g_noLogoAnim = 0;
 static int32_t g_noLogo = 0;
 
-char defaultduke3dgrp[BMAX_PATH] = "duke3d.grp";
-char defsfilename[BMAX_PATH] = "duke3d.def";
-static char defaultconfilename[2][BMAX_PATH] = { "EDUKE.CON", "GAME.CON" };
-const char *defaultrtsfilename = "DUKE.RTS";
+const char *defaultrtsfilename[GAMECOUNT] = { "DUKE.RTS", "NAM.RTS", "NAPALM.RTS", "WW2GI.RTS" };
 
-// g_grpNamePtr can ONLY point to one of: defaultduke3dgrp, malloc'd block (all
-// length BMAX_PATH)
-char *g_grpNamePtr = defaultduke3dgrp;
-// g_defNamePtr can ONLY point to one of: defsfilename, malloc'd block (all
-// length BMAX_PATH)
-char *g_defNamePtr = defsfilename;
-// g_scriptNamePtr can ONLY point to defaultconfilename[0] OR to malloc'd block
-// (all length BMAX_PATH)
-static char *g_scriptNamePtr = defaultconfilename[0];
 // g_gameNamePtr can point to one of: grpfiles[].name (string literal), string
 // literal, malloc'd block (XXX: possible leak)
 const char *g_gameNamePtr = NULL;
 // g_rtsNamePtr can point to an argv[] element
 const char *g_rtsNamePtr = NULL;
-
-void clearGrpNamePtr(void)
-{
-    if (g_grpNamePtr != defaultduke3dgrp)
-        Bfree(g_grpNamePtr);
-    // g_grpNamePtr assumed to be assigned to right after
-}
-
-void clearDefNamePtr(void)
-{
-    if (g_defNamePtr != defsfilename)
-        Bfree(g_defNamePtr);
-    // g_defNamePtr assumed to be assigned to right after
-}
-
-static void clearScriptNamePtr(void)
-{
-    if (g_scriptNamePtr != defaultconfilename[0])
-        Bfree(g_scriptNamePtr);
-    // g_scriptNamePtr assumed to be assigned to right after
-}
 
 char **g_scriptModules = NULL;
 int32_t g_scriptModulesNum = 0;
@@ -174,7 +139,6 @@ El_State g_ElState;
 extern int32_t lastvisinc;
 
 int32_t g_Shareware = 0;
-int32_t g_gameType = 0;
 
 #define MAXUSERQUOTES 6
 int32_t quotebot, quotebotgoal;
@@ -239,16 +203,28 @@ int32_t kopen4loadfrommod(const char *filename, char searchfirst)
     return r;
 }
 
-char *defaultconfile(void)
+const char *G_DefaultRtsFile(void)
 {
-    int32_t i;
+    if (DUKE)
+        return defaultrtsfilename[GAME_DUKE];
+    else if (WW2GI)
+        return defaultrtsfilename[GAME_WW2GI];
+    else if (NAPALM)
+    {
+        if ((kopen4load(defaultrtsfilename[GAME_NAPALM],0) < 0) && (kopen4load(defaultrtsfilename[GAME_NAM],0) >= 0))
+            return defaultrtsfilename[GAME_NAM]; // NAM/Napalm Sharing
+        else
+            return defaultrtsfilename[GAME_NAPALM];
+    }
+    else if (NAM)
+    {
+        if ((kopen4load(defaultrtsfilename[GAME_NAM],0) < 0) && (kopen4load(defaultrtsfilename[GAME_NAPALM],0) >= 0))
+            return defaultrtsfilename[GAME_NAPALM]; // NAM/Napalm Sharing
+        else
+            return defaultrtsfilename[GAME_NAM];
+    }
 
-    i = kopen4load(defaultconfilename[0],0);
-
-    if (i >= 0)
-        return defaultconfilename[0];
-
-    return defaultconfilename[1];
+    return defaultrtsfilename[0];
 }
 
 enum gametokens
@@ -8158,7 +8134,8 @@ static void G_ShowParameterHelp(void)
               "-mh [file.def]\tInclude an additional definitions module\n"
               "-mx [file.con]\tInclude an additional CON script module\n"
               "-m\t\tDisable monsters\n"
-              "-nam\t\tRun in NAM/NAPALM compatibility mode\n"
+              "-nam\t\tRun in NAM compatibility mode\n"
+              "-napalm\t\tRun in Napalm compatibility mode\n"
               "-rts [file.rts]\tLoad a custom Remote Ridicule sound bank\n"
               "-r\t\tRecord demo\n"
               "-s#\t\tSet skill level (1-4)\n"
@@ -8172,7 +8149,7 @@ static void G_ShowParameterHelp(void)
 #endif
               "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
               "-v#\t\tWarp to volume #, see -l\n"
-              "-ww2gi\t\tRun in WW2GI compatibility mode\n"
+              "-ww2gi\t\tRun in WWII GI compatibility mode\n"
               "-x[game.con]\tLoad custom CON script\n"
               "-#\t\tLoad and run a game from slot # (0-9)\n"
 //              "\n-?/--help\tDisplay this help message and exit\n"
@@ -8390,7 +8367,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         }
         case T_INCLUDEDEFAULT:
         {
-            parsedefinitions_game_include(defsfilename, script, cmdtokptr, preload);
+            parsedefinitions_game_include(G_DefaultDefFile(), script, cmdtokptr, preload);
             break;
         }
         case T_NOAUTOLOAD:
@@ -8747,7 +8724,8 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        Bstrcpy(defaultduke3dgrp,argv[i+1]);
+                        clearGrpNamePtr();
+                        g_grpNamePtr = dup_filename(argv[i+1]);
                         i++;
                     }
                     i++;
@@ -8755,21 +8733,19 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 }
                 if (!Bstrcasecmp(c+1,"nam"))
                 {
-                    Bstrcpy(defaultduke3dgrp, "nam.grp");
-                    Bstrcpy(defsfilename, "nam.def");
-                    //    Bstrcpy(g_defNamePtr, "nam.def");
-                    Bstrcpy(defaultconfilename[0], "nam.con");
-                    g_gameType = GAME_NAM;
+                    g_gameType = GAMEFLAG_NAM;
+                    i++;
+                    continue;
+                }
+                if (!Bstrcasecmp(c+1,"napalm"))
+                {
+                    g_gameType = GAMEFLAG_NAM|GAMEFLAG_NAPALM;
                     i++;
                     continue;
                 }
                 if (!Bstrcasecmp(c+1,"ww2gi"))
                 {
-                    Bstrcpy(defaultduke3dgrp, "ww2gi.grp");
-                    Bstrcpy(defsfilename, "ww2gi.def");
-                    //    Bstrcpy(g_defNamePtr, "ww2gi.def");
-                    Bstrcpy(defaultconfilename[0], "ww2gi.con");
-                    g_gameType = GAME_WW2;
+                    g_gameType = GAMEFLAG_WW2GI;
                     i++;
                     continue;
                 }
@@ -9039,7 +9015,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     {
                         clearDefNamePtr();
                         g_defNamePtr = dup_filename(c);
-                        g_skipDefaultDefs = 1;
                         initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
                     }
                     break;
@@ -9164,7 +9139,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     {
                         clearScriptNamePtr();
                         g_scriptNamePtr = dup_filename(c);
-                        g_skipDefaultCons = 1;
                         initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
                     }
                     break;
@@ -9212,7 +9186,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     {
                         clearScriptNamePtr();
                         g_scriptNamePtr = dup_filename(argv[i++]);
-                        g_skipDefaultCons = 1;
                         initprintf("Using CON file \"%s\".\n",g_scriptNamePtr);
                         continue;
                     }
@@ -9220,7 +9193,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     {
                         clearDefNamePtr();
                         g_defNamePtr = dup_filename(argv[i++]);
-                        g_skipDefaultDefs = 1;
                         initprintf("Using DEF file \"%s\".\n",g_defNamePtr);
                         continue;
                     }
@@ -9515,27 +9487,16 @@ static void G_CompileScripts(void)
     labelcode = (int32_t *)&sector[0]; // V8: 4096*40/4 = 40960    V7: 1024*40/4 = 10240
     labeltype = (int32_t *)&wall[0];   // V8: 16384*32/4 = 131072  V7: 8192*32/4 = 65536
 
-    Bcorrectfilename(g_scriptNamePtr,0);
+    if (g_scriptNamePtr != NULL)
+        Bcorrectfilename(g_scriptNamePtr,0);
+
     // if we compile for a V7 engine wall[] should be used for label names since it's bigger
     pathsearchmode = 1;
-    if (g_skipDefaultCons == 0)
-    {
-        const char *cp = defaultconfile();
-        if (cp != g_scriptNamePtr)
-            Bsprintf(g_scriptNamePtr, "%s", cp);
-    }
-    C_Compile(g_scriptNamePtr);
+
+    C_Compile(G_ConFile());
 
     if (g_loadFromGroupOnly) // g_loadFromGroupOnly is true only when compiling fails and internal defaults are utilized
-    {
-        if (g_skipDefaultCons == 0)
-        {
-            const char *cp = defaultconfile();
-            if (cp != g_scriptNamePtr)
-                Bsprintf(g_scriptNamePtr, "%s", cp);
-        }
-        C_Compile(g_scriptNamePtr);
-    }
+        C_Compile(G_ConFile());
 
     if ((uint32_t)g_numLabels > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         G_GameExit("Error: too many labels defined!");
@@ -10073,6 +10034,8 @@ int32_t app_main(int32_t argc, const char **argv)
 
     i = CONFIG_ReadSetup();
 
+    // CODEDUP astub.c
+    if (g_grpNamePtr == NULL)
     {
         const char *cp = getenv("DUKE3DGRP");
         if (cp)
@@ -10145,7 +10108,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
     ScanGroups();
     {
-        // try and identify the 'defaultduke3dgrp' in the set of GRPs.
+        // try and identify the 'defaultgamegrp' in the set of GRPs.
         // if it is found, set up the environment accordingly for the game it represents.
         // if it is not found, choose the first GRP from the list
         struct grpfile *fg, *first = NULL;
@@ -10156,7 +10119,7 @@ int32_t app_main(int32_t argc, const char **argv)
             if (i == NUMGRPFILES) continue; // unrecognised grp file
             fg->game = grpfiles[i].game;
             if (!first) first = fg;
-            if (!Bstrcasecmp(fg->name, defaultduke3dgrp))
+            if (!Bstrcasecmp(fg->name, G_DefaultGrpFile()))
             {
                 g_gameType = grpfiles[i].game;
                 g_gameNamePtr = grpfiles[i].name;
@@ -10165,7 +10128,11 @@ int32_t app_main(int32_t argc, const char **argv)
         }
         if (!fg && first)
         {
-            Bstrcpy(defaultduke3dgrp, first->name);
+            if (g_grpNamePtr == NULL)
+            {
+                clearGrpNamePtr();
+                g_grpNamePtr = dup_filename(first->name);
+            }
             g_gameType = first->game;
             g_gameNamePtr = grpfiles[0].name;
         }
@@ -10187,15 +10154,8 @@ int32_t app_main(int32_t argc, const char **argv)
 
     if (WW2GI || NAM)
     {
-        // overwrite the default GRP and CON so that if the user chooses
-        // something different, they get what they asked for
-        Bstrcpy(defaultduke3dgrp,      WW2GI ? "ww2gi.grp" : "nam.grp");
-        Bstrcpy(defsfilename,          WW2GI ? "ww2gi.def" : "nam.def");
-        // Bstrcpy(g_defNamePtr,          WW2GI ? "ww2gi.def" : "nam.def");
-        Bstrcpy(defaultconfilename[0], WW2GI ? "ww2gi.con" : "nam.con");
-
-        Bstrcpy(GametypeNames[0],"GRUNTMATCH (SPAWN)");
-        Bstrcpy(GametypeNames[2],"GRUNTMATCH (NO SPAWN)");
+        Bstrcpy(GametypeNames[0],"GruntMatch (Spawn)");
+        Bstrcpy(GametypeNames[2],"GruntMatch (No Spawn)");
     }
 
     if (g_modDir[0] != '/')
@@ -10302,40 +10262,40 @@ CLEAN_DIRECTORY:
     }
 #endif
 
-    if ((i = initgroupfile(g_grpNamePtr)) == -1)
-        initprintf("Warning: could not find main data file \"%s\"!\n",g_grpNamePtr);
-    else
-        initprintf("Using \"%s\" as main game data file.\n", g_grpNamePtr);
-
-    if (!g_noAutoLoad && !ud.config.NoAutoLoad)
     {
-        G_LoadGroupsInDir("autoload");
+        const char *grpfile = G_GrpFile();
 
-        if (i != -1)
-            G_DoAutoload(g_grpNamePtr);
+        if ((i = initgroupfile(grpfile)) == -1)
+            initprintf("Warning: could not find main data file \"%s\"!\n",grpfile);
+        else
+            initprintf("Using \"%s\" as main game data file.\n", grpfile);
+
+        if (!g_noAutoLoad && !ud.config.NoAutoLoad)
+        {
+            G_LoadGroupsInDir("autoload");
+
+            if (i != -1)
+                G_DoAutoload(grpfile);
+        }
     }
 
     if (g_modDir[0] != '/')
         G_LoadGroupsInDir(g_modDir);
 
     // CODEDUP astub.c
+    if (g_defNamePtr == NULL)
     {
         const char *tmpptr = getenv("DUKE3DDEF");
         if (tmpptr)
         {
             clearDefNamePtr();
             g_defNamePtr = dup_filename(tmpptr);
-            g_skipDefaultDefs = 1;
             initprintf("Using \"%s\" as definitions file\n", g_defNamePtr);
         }
     }
 
-    if (g_skipDefaultDefs == 0)
-        if (g_defNamePtr != defsfilename)
-            Bstrcpy(g_defNamePtr, defsfilename); // it MAY have changed, with NAM/WWII GI
-
     flushlogwindow = 0;
-    loaddefinitions_game(g_defNamePtr, TRUE);
+    loaddefinitions_game(G_DefFile(), TRUE);
 //    flushlogwindow = 1;
 
     {
@@ -10417,10 +10377,13 @@ CLEAN_DIRECTORY:
 
     if (quitevent) return 4;
 
-    if (!loaddefinitionsfile(g_defNamePtr))
     {
-        initprintf("Definitions file \"%s\" loaded.\n",g_defNamePtr);
-        loaddefinitions_game(g_defNamePtr, FALSE);
+        char *defsfile = G_DefFile();
+        if (!loaddefinitionsfile(defsfile))
+        {
+            initprintf("Definitions file \"%s\" loaded.\n",defsfile);
+            loaddefinitions_game(defsfile, FALSE);
+        }
     }
 
     for (i=0; i < g_defModulesNum; ++i)
@@ -10449,18 +10412,15 @@ CLEAN_DIRECTORY:
     playerswhenstarted = ud.multimode;
     ud.last_level = 0;
 
+    // the point of this block is to avoid overwriting the default in the cfg while asserting our selection
     if (g_rtsNamePtr == NULL &&
-            (!Bstrcasecmp(ud.rtsname,defaultrtsfilename) ||
-            !Bstrcasecmp(ud.rtsname,"WW2GI.RTS") ||
-            !Bstrcasecmp(ud.rtsname,"NAM.RTS")))
+            (!Bstrcasecmp(ud.rtsname,defaultrtsfilename[GAME_DUKE]) ||
+            !Bstrcasecmp(ud.rtsname,defaultrtsfilename[GAME_WW2GI]) ||
+            !Bstrcasecmp(ud.rtsname,defaultrtsfilename[GAME_NAM]) ||
+            !Bstrcasecmp(ud.rtsname,defaultrtsfilename[GAME_NAPALM])))
     {
         // ud.last_level is used as a flag here to reset the string to default after load
-        if (WW2GI)
-            ud.last_level = (Bstrcpy(ud.rtsname, "WW2GI.RTS") == ud.rtsname);
-        else if (NAM)
-            ud.last_level = (Bstrcpy(ud.rtsname, "NAM.RTS") == ud.rtsname);
-        else
-            ud.last_level = (Bstrcpy(ud.rtsname, defaultrtsfilename) == ud.rtsname);
+        ud.last_level = (Bstrcpy(ud.rtsname, G_DefaultRtsFile()) == ud.rtsname);
     }
 
     RTS_Init(ud.rtsname);
@@ -10469,7 +10429,7 @@ CLEAN_DIRECTORY:
         initprintf("Using RTS file \"%s\".\n",ud.rtsname);
 
     if (ud.last_level)
-        Bstrcpy(ud.rtsname, defaultrtsfilename);
+        Bstrcpy(ud.rtsname, defaultrtsfilename[0]);
 
     ud.last_level = -1;
 

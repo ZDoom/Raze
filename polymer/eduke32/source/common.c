@@ -3,13 +3,143 @@
 //
 
 #include "compat.h"
+#include "build.h"
 #include "scriptfile.h"
 #include "cache1d.h"
 #include "kplib.h"
 #include "baselayer.h"
 
 #include "common.h"
+#include "common_game.h"
 
+int32_t g_gameType = 0;
+
+// grp/con/def handling
+
+char *defaultgamegrp[GAMECOUNT] = { "DUKE3D.GRP", "NAM.GRP", "NAPALM.GRP", "WW2GI.GRP" };
+char *defaultdeffilename[GAMECOUNT] = { "duke3d.def", "nam.def", "napalm.def", "ww2gi.def" };
+char *defaultconfilename = "GAME.CON";
+char *defaultgameconfilename[GAMECOUNT] = { "EDUKE.CON", "NAM.CON", "NAPALM.CON", "WW2GI.CON" };
+
+// g_grpNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
+char *g_grpNamePtr = NULL;
+// g_defNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
+char *g_defNamePtr = NULL;
+// g_scriptNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
+char *g_scriptNamePtr = NULL;
+
+
+void clearGrpNamePtr(void)
+{
+    if (g_grpNamePtr != NULL)
+        Bfree(g_grpNamePtr);
+    // g_grpNamePtr assumed to be assigned to right after
+}
+
+void clearDefNamePtr(void)
+{
+    if (g_defNamePtr != NULL)
+        Bfree(g_defNamePtr);
+    // g_defNamePtr assumed to be assigned to right after
+}
+
+void clearScriptNamePtr(void)
+{
+    if (g_scriptNamePtr != NULL)
+        Bfree(g_scriptNamePtr);
+    // g_scriptNamePtr assumed to be assigned to right after
+}
+
+char *G_DefaultGrpFile(void)
+{
+    if (DUKE)
+        return defaultgamegrp[GAME_DUKE];
+    // order is important for the following three because GAMEFLAG_NAM overlaps all
+    else if (NAPALM)
+        return defaultgamegrp[GAME_NAPALM];
+    else if (WW2GI)
+        return defaultgamegrp[GAME_WW2GI];
+    else if (NAM)
+        return defaultgamegrp[GAME_NAM];
+
+    return defaultgamegrp[0];
+}
+char *G_DefaultDefFile(void)
+{
+    if (DUKE)
+        return defaultdeffilename[GAME_DUKE];
+    else if (WW2GI)
+        return defaultdeffilename[GAME_WW2GI];
+    else if (NAPALM)
+    {
+        if ((kopen4load(defaultdeffilename[GAME_NAPALM],0) < 0) && (kopen4load(defaultdeffilename[GAME_NAM],0) >= 0))
+            return defaultdeffilename[GAME_NAM]; // NAM/Napalm Sharing
+        else
+            return defaultdeffilename[GAME_NAPALM];
+    }
+    else if (NAM)
+    {
+        if ((kopen4load(defaultdeffilename[GAME_NAM],0) < 0) && (kopen4load(defaultdeffilename[GAME_NAPALM],0) >= 0))
+            return defaultdeffilename[GAME_NAPALM]; // NAM/Napalm Sharing
+        else
+            return defaultdeffilename[GAME_NAM];
+    }
+
+    return defaultdeffilename[0];
+}
+char *G_DefaultConFile(void)
+{
+    if (DUKE && (kopen4load(defaultgameconfilename[GAME_DUKE],0) >= 0))
+        return defaultgameconfilename[GAME_DUKE];
+    else if (WW2GI && (kopen4load(defaultgameconfilename[GAME_WW2GI],0) >= 0))
+        return defaultgameconfilename[GAME_WW2GI];
+    else if (NAPALM)
+    {
+        if (kopen4load(defaultgameconfilename[GAME_NAPALM],0) < 0)
+        {
+            if (kopen4load(defaultgameconfilename[GAME_NAM],0) >= 0)
+                return defaultgameconfilename[GAME_NAM]; // NAM/Napalm Sharing
+        }
+        else
+            return defaultgameconfilename[GAME_NAPALM];
+    }
+    else if (NAM)
+    {
+        if (kopen4load(defaultgameconfilename[GAME_NAM],0) < 0)
+        {
+            if (kopen4load(defaultgameconfilename[GAME_NAPALM],0) >= 0)
+                return defaultgameconfilename[GAME_NAPALM]; // NAM/Napalm Sharing
+        }
+        else
+            return defaultgameconfilename[GAME_NAM];
+    }
+
+    return defaultconfilename;
+}
+
+char *G_GrpFile(void)
+{
+    if (g_grpNamePtr == NULL)
+        return G_DefaultGrpFile();
+    else
+        return g_grpNamePtr;
+}
+char *G_DefFile(void)
+{
+    if (g_defNamePtr == NULL)
+        return G_DefaultDefFile();
+    else
+        return g_defNamePtr;
+}
+char *G_ConFile(void)
+{
+    if (g_scriptNamePtr == NULL)
+        return G_DefaultConFile();
+    else
+        return g_scriptNamePtr;
+}
+
+//////////
 
 struct strllist *CommandPaths, *CommandGrps;
 
