@@ -36,7 +36,7 @@ int32_t El_CreateState(El_State *estate, const char *name)
 
     if (!estate->L)
     {
-        Bfree((char *)estate->name);
+        Bfree(estate->name);
         estate->name = NULL;
         return -2;
     }
@@ -56,7 +56,7 @@ void El_DestroyState(El_State *estate)
     if (!estate->L)
         return;
 
-    Bfree((char *)estate->name);
+    Bfree(estate->name);
     estate->name = NULL;
 
     lua_close(estate->L);
@@ -124,7 +124,7 @@ int32_t El_RunOnce(El_State *estate, const char *fn)
 
     if (i == LUA_ERRRUN)
     {
-        assert(lua_type(estate->L, -1)==LUA_TSTRING);
+        Bassert(lua_type(estate->L, -1)==LUA_TSTRING);
         OSD_Printf("state \"%s\" runtime error: %s\n", estate->name, lua_tostring(estate->L, -1));  // get err msg
         lua_pop(estate->L, 1);
         return 4;

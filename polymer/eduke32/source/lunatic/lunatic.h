@@ -7,7 +7,7 @@
 
 typedef struct
 {
-    const char *name;
+    char *name;
     lua_State *L;
 } El_State;
 
