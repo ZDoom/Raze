@@ -8532,7 +8532,7 @@ static int32_t loaddefinitions_game(const char *fn, int32_t preload)
     scriptfile *script;
     int32_t i;
 
-    script = scriptfile_fromfile((char *)fn);
+    script = scriptfile_fromfile(fn);
     if (!script) return -1;
 
     parsedefinitions_game(script, preload);
@@ -8743,7 +8743,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        Net_Connect((char *)argv[i+1]);
+                        Net_Connect(argv[i+1]);
                         g_noSetup = g_noLogo = TRUE;
                         i++;
                     }
@@ -8840,7 +8840,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        uint32_t j = Batol((char *)argv[i+1]);
+                        uint32_t j = Batol(argv[i+1]);
                         if (j>=10000000 && j<=99999999)
                         {
                             g_scriptDateVersion = j;
@@ -8871,7 +8871,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        uint32_t j = Batol((char *)argv[i+1]);
+                        uint32_t j = Batol(argv[i+1]);
                         MAXCACHE1DSIZE = j<<10;
                         initprintf("Cache size: %dkB\n",j);
                         i++;

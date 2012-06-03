@@ -312,6 +312,9 @@ void Net_Connect(const char *srvaddr)
     char *addrstr = NULL;
     int32_t i;
 
+    char *oursrvaddr = Bstrdup(srvaddr);
+    if (!oursrvaddr) G_GameExit("OUT OF MEMORY");
+
     Net_Disconnect();
 
     g_netClient = enet_host_create(NULL, 1, CHAN_MAX, 0, 0);
@@ -322,9 +325,10 @@ void Net_Connect(const char *srvaddr)
         return;
     }
 
-    addrstr = strtok((char *)srvaddr, ":");
+    addrstr = strtok(oursrvaddr, ":");
     enet_address_set_host(&address, addrstr);
-    address.port = atoi((addrstr = strtok(NULL, ":")) == NULL ? "23513" : addrstr);
+    addrstr = strtok(NULL, ":");
+    address.port = addrstr==NULL ? g_netPort : Batoi(addrstr);
 
     g_netClientPeer = enet_host_connect(g_netClient, &address, CHAN_MAX, 0);
 
@@ -340,7 +344,8 @@ void Net_Connect(const char *srvaddr)
         if (enet_host_service(g_netClient, & event, 5000) > 0 &&
                 event.type == ENET_EVENT_TYPE_CONNECT)
         {
-            initprintf("Connection to %s:%d succeeded.\n", (char *)srvaddr, address.port);
+            initprintf("Connection to %s:%d succeeded.\n", oursrvaddr, address.port);
+            Bfree(oursrvaddr);
             return;
         }
         else
@@ -349,11 +354,12 @@ void Net_Connect(const char *srvaddr)
             /* received. Reset the peer in the event the 5 seconds   */
             /* had run out without any significant event.            */
             enet_peer_reset(g_netClientPeer);
-            initprintf("Connection to %s:%d failed.\n",(char *)srvaddr,address.port);
+            initprintf("Connection to %s:%d failed.\n", oursrvaddr, address.port);
         }
         initprintf(i ? "Retrying...\n" : "Giving up connection attempt.\n");
     }
 
+    Bfree(oursrvaddr);
     Net_Disconnect();
 }
 
