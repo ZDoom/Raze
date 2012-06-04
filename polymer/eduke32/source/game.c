@@ -7667,18 +7667,18 @@ void G_HandleLocalKeys(void)
                 {
                     i = (VOLUMEALL?MAXVOLUMES*MAXLEVELS:6);
                     g_musicIndex = (g_musicIndex+1)%i;
-                    while (MapInfo[(uint8_t)g_musicIndex].musicfn == NULL)
+                    while (MapInfo[g_musicIndex].musicfn == NULL)
                     {
                         g_musicIndex++;
                         if (g_musicIndex >= i)
                             g_musicIndex = 0;
                     }
-                    if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
+                    if (MapInfo[g_musicIndex].musicfn != NULL)
                     {
-                        if (S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex))
-                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s",&MapInfo[(uint8_t)g_musicIndex].alt_musicfn[0]);
+                        if (S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0],g_musicIndex))
+                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s",&MapInfo[g_musicIndex].alt_musicfn[0]);
                         else
-                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s",&MapInfo[(uint8_t)g_musicIndex].musicfn[0]);
+                            Bsprintf(ScriptQuotes[QUOTE_MUSIC],"Playing %s",&MapInfo[g_musicIndex].musicfn[0]);
                         P_DoQuote(QUOTE_MUSIC,g_player[myconnectindex].ps);
                     }
                     return;
@@ -7906,11 +7906,11 @@ FAKE_F3:
         if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicDevice >= 0)
         {
             KB_ClearKeyDown(sc_F5);
-            if (MapInfo[(uint8_t)g_musicIndex].alt_musicfn != NULL)
-                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],&MapInfo[(uint8_t)g_musicIndex].alt_musicfn[0]);
-            else if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
+            if (MapInfo[g_musicIndex].alt_musicfn != NULL)
+                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],&MapInfo[g_musicIndex].alt_musicfn[0]);
+            else if (MapInfo[g_musicIndex].musicfn != NULL)
             {
-                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],&MapInfo[(uint8_t)g_musicIndex].musicfn[0]);
+                Bstrcpy(ScriptQuotes[QUOTE_MUSIC],&MapInfo[g_musicIndex].musicfn[0]);
                 Bstrcat(ScriptQuotes[QUOTE_MUSIC],".  Use SHIFT-F5 to change.");
             }
             else ScriptQuotes[QUOTE_MUSIC][0] = '\0';

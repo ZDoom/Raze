@@ -118,7 +118,7 @@ int32_t g_scriptSize = 1048576;
 
 char typebuflen,typebuf[141];
 
-char g_musicIndex;
+int32_t g_musicIndex;
 char EnvMusicFilename[MAXVOLUMES+1][BMAX_PATH];
 char g_RTSPlaying;
 

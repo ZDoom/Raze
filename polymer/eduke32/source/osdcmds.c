@@ -330,8 +330,8 @@ static int32_t osdcmd_restartsound(const osdfuncparm_t *parm)
     {
         if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
         {
-            if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
-                S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
+            if (MapInfo[g_musicIndex].musicfn != NULL)
+                S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0],g_musicIndex);
         }
         else S_PlayMusic(&EnvMusicFilename[0][0],MAXVOLUMES*MAXLEVELS);
     }

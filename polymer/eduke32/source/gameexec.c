@@ -4494,12 +4494,12 @@ nullquote:
             insptr++;
             if (tw == CON_STARTTRACK) g_musicIndex=(ud.volume_number*MAXLEVELS)+(*(insptr++));
             else g_musicIndex=(ud.volume_number*MAXLEVELS)+(Gv_GetVarX(*(insptr++)));
-            if (MapInfo[(uint8_t)g_musicIndex].musicfn == NULL)
+            if (MapInfo[g_musicIndex].musicfn == NULL)
             {
                 OSD_Printf(CON_ERROR "null music for map %d\n",g_errorLineNum,keyw[g_tw],g_musicIndex);
                 continue;
             }
-            S_PlayMusic(&MapInfo[(uint8_t)g_musicIndex].musicfn[0],g_musicIndex);
+            S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0],g_musicIndex);
             continue;
 
         case CON_ACTIVATECHEAT:

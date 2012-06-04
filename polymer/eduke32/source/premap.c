@@ -2041,8 +2041,8 @@ int32_t G_EnterLevel(int32_t g)
     if (ud.recstat != 2)
     {
         g_musicIndex = mii;
-        if (MapInfo[(uint8_t)g_musicIndex].musicfn != NULL)
-            S_PlayMusic(MapInfo[(uint8_t)g_musicIndex].musicfn, g_musicIndex);
+        if (MapInfo[g_musicIndex].musicfn != NULL)
+            S_PlayMusic(MapInfo[g_musicIndex].musicfn, g_musicIndex);
     }
 
     if (g & (MODE_GAME|MODE_EOL))

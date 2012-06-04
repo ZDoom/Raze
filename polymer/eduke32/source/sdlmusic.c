@@ -177,7 +177,7 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 
         sz = (numargs+2)*sizeof(char *) + (c-command+1);
         sz = ((sz+pagesize-1)/pagesize)*pagesize;
-#if defined(NEDMALLOC) || defined(__APPLE__)
+#if defined(NEDMALLOC) || defined(__APPLE__) || defined(__ANDROID__)
         external_midi_argv = Bcalloc(1,sz+pagesize);
         if (!external_midi_argv)
             goto fallback;
