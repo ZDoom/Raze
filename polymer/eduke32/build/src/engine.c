@@ -4728,6 +4728,21 @@ static void drawalls(int32_t bunch)
 
                     if ((cz[2] >= cz[0]) && (cz[3] >= cz[1]))
                     {
+#ifdef YAX_ENABLE
+                        int32_t doclip = (yax_globallev <= YAX_MAXDRAWS);
+
+                        if (!doclip)
+                        {
+                            for (x=x1; x<=x2; x++)
+                                if (dwall[x] < dmost[x] || uplc[x] < dmost[x])
+                                {
+                                    doclip = 1;
+                                    break;
+                                }
+                        }
+
+                        if (doclip)
+#endif
                         for (x=x1; x<=x2; x++)
                             if (dwall[x] > umost[x])
                                 if (umost[x] <= dmost[x])
@@ -4738,6 +4753,7 @@ static void drawalls(int32_t bunch)
                     }
                     else
                     {
+// TROR: TODO: same doclip tweak as above?
                         for (x=x1; x<=x2; x++)
                             if (umost[x] <= dmost[x])
                             {
@@ -4810,6 +4826,21 @@ static void drawalls(int32_t bunch)
 
                     if ((fz[2] <= fz[0]) && (fz[3] <= fz[1]))
                     {
+#ifdef YAX_ENABLE
+                        int32_t doclip = (yax_globallev >= YAX_MAXDRAWS);
+
+                        if (!doclip)
+                        {
+                            for (x=x1; x<=x2; x++)
+                                if (uwall[x] > umost[x] || dplc[x] > umost[x])
+                                {
+                                    doclip = 1;
+                                    break;
+                                }
+                        }
+
+                        if (doclip)
+#endif
                         for (x=x1; x<=x2; x++)
                             if (uwall[x] < dmost[x])
                                 if (umost[x] <= dmost[x])
@@ -4820,6 +4851,7 @@ static void drawalls(int32_t bunch)
                     }
                     else
                     {
+// TROR: TODO: same doclip tweak as above?
                         for (x=x1; x<=x2; x++)
                             if (umost[x] <= dmost[x])
                             {
