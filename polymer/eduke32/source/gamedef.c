@@ -1484,10 +1484,11 @@ static int32_t parse_decimal_number(void)  // (textptr)
         // Number interpreted as uint32, but packed as int32 (on 32-bit archs)
         // (CON code in the wild exists that does this).  Note that such conversion
         // is implementation-defined (C99 6.3.1.3) but GCC does the 'expected' thing.
-
+#if 0
         initprintf("%s:%d: warning: number greater than INT32_MAX converted to a negative one.\n",
                    g_szScriptFileName,g_lineNumber);
         g_numCompilerWarnings++;
+#endif
     }
     else
     {
