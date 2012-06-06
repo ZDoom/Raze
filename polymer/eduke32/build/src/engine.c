@@ -4517,6 +4517,52 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
         globalyscale = -globalyscale, globalzd = -globalzd;
 }
 
+
+/* _______________
+ * X umost #######
+ * ###### ________
+ * ______/
+ * X dwall
+ *
+ * ________
+ * X uwall \______
+ * ///////////////
+ * _______________
+ * X dmost
+ */
+
+#ifdef YAX_ENABLE
+// returns: should dmost be raised when drawing a "ceiling wall"?
+static int32_t should_clip_cwall(int32_t x1, int32_t x2)
+{
+    int32_t x;
+
+    if (yax_globallev <= YAX_MAXDRAWS)
+        return 1;
+
+    for (x=x1; x<=x2; x++)
+        if (dwall[x] < dmost[x] || uplc[x] < dmost[x])
+            return 1;
+
+    return 0;
+}
+
+// returns: should umost be lowered when drawing a "floor wall"?
+static int32_t should_clip_fwall(int32_t x1, int32_t x2)
+{
+    int32_t x;
+
+    if (yax_globallev >= YAX_MAXDRAWS)
+        return 1;
+
+    for (x=x1; x<=x2; x++)
+        if (uwall[x] > umost[x] || dplc[x] > umost[x])
+            return 1;
+
+    return 0;
+}
+#endif
+
 //
 // drawalls (internal)
 //
@@ -4745,19 +4791,7 @@ static void drawalls(int32_t bunch)
                     if ((cz[2] >= cz[0]) && (cz[3] >= cz[1]))
                     {
 #ifdef YAX_ENABLE
-                        int32_t doclip = (yax_globallev <= YAX_MAXDRAWS);
-
-                        if (!doclip)
-                        {
-                            for (x=x1; x<=x2; x++)
-                                if (dwall[x] < dmost[x] || uplc[x] < dmost[x])
-                                {
-                                    doclip = 1;
-                                    break;
-                                }
-                        }
-
-                        if (doclip)
+                        if (should_clip_cwall(x1, x2))
 #endif
                         for (x=x1; x<=x2; x++)
                             if (dwall[x] > umost[x])
@@ -4769,7 +4803,9 @@ static void drawalls(int32_t bunch)
                     }
                     else
                     {
-// TROR: TODO: same doclip tweak as above?
+#ifdef YAX_ENABLE
+                        if (should_clip_cwall(x1, x2))
+#endif
                         for (x=x1; x<=x2; x++)
                             if (umost[x] <= dmost[x])
                             {
@@ -4844,19 +4880,7 @@ static void drawalls(int32_t bunch)
                     if ((fz[2] <= fz[0]) && (fz[3] <= fz[1]))
                     {
 #ifdef YAX_ENABLE
-                        int32_t doclip = (yax_globallev >= YAX_MAXDRAWS);
-
-                        if (!doclip)
-                        {
-                            for (x=x1; x<=x2; x++)
-                                if (uwall[x] > umost[x] || dplc[x] > umost[x])
-                                {
-                                    doclip = 1;
-                                    break;
-                                }
-                        }
-
-                        if (doclip)
+                        if (should_clip_fwall(x1, x2))
 #endif
                         for (x=x1; x<=x2; x++)
                             if (uwall[x] < dmost[x])
@@ -4868,7 +4892,9 @@ static void drawalls(int32_t bunch)
                     }
                     else
                     {
-// TROR: TODO: same doclip tweak as above?
+#ifdef YAX_ENABLE
+                        if (should_clip_fwall(x1, x2))
+#endif
                         for (x=x1; x<=x2; x++)
                             if (umost[x] <= dmost[x])
                             {
