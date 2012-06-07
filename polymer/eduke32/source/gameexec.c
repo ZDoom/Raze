@@ -431,7 +431,7 @@ int32_t G_GetAngleDelta(int32_t a,int32_t na)
 
 GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
 {
-    int32_t ticselapsed = (vm.g_t[0])&31;
+    const int32_t ticselapsed = (vm.g_t[0])&31;
 
 #ifndef LUNATIC
     const intptr_t *moveptr;
@@ -507,14 +507,35 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
     }
 }
 
+static void do_face_player_addang(int32_t shr, int32_t goalang)
+{
+    int32_t angdif = G_GetAngleDelta(vm.g_sp->ang,goalang)>>shr;
+
+    if ((angdif > -8 && angdif < 0) || (angdif < 8 && angdif > 0))
+        angdif *= 2;
+
+    vm.g_sp->ang += angdif;
+}
+
+static void do_face_player(int32_t shr)
+{
+    int32_t goalang;
+    const DukePlayer_t *const ps = g_player[vm.g_p].ps;
+
+    if (g_player[vm.g_p].ps->newowner >= 0)
+        goalang = getangle(ps->opos.x-vm.g_sp->x, ps->opos.y-vm.g_sp->y);
+    else
+        goalang = getangle(ps->pos.x-vm.g_sp->x, ps->pos.y-vm.g_sp->y);
+
+    do_face_player_addang(shr, goalang);
+}
+
 GAMEEXEC_STATIC void VM_Move(void)
 {
-    int32_t l;
 #ifndef LUNATIC
     const intptr_t *moveptr;
 #endif
     int32_t a = vm.g_sp->hitag, goalang, angdif;
-    int32_t daxvel;
     int32_t deadflag = (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0);
 
     if (a == -1) a = 0;
@@ -527,7 +548,7 @@ GAMEEXEC_STATIC void VM_Move(void)
         {
             actor[vm.g_i].bposx = vm.g_sp->x;
             actor[vm.g_i].bposy = vm.g_sp->y;
-            setsprite(vm.g_i,(vec3_t *)vm.g_sp);
+            setsprite(vm.g_i, (vec3_t *)vm.g_sp);
         }
         return;
     }
@@ -535,31 +556,15 @@ GAMEEXEC_STATIC void VM_Move(void)
     if (deadflag) goto dead;
 
     if (a&face_player)
-    {
-        if (g_player[vm.g_p].ps->newowner >= 0)
-            goalang = getangle(g_player[vm.g_p].ps->opos.x-vm.g_sp->x,g_player[vm.g_p].ps->opos.y-vm.g_sp->y);
-        else goalang = getangle(g_player[vm.g_p].ps->pos.x-vm.g_sp->x,g_player[vm.g_p].ps->pos.y-vm.g_sp->y);
-        angdif = G_GetAngleDelta(vm.g_sp->ang,goalang)>>2;
-        if ((angdif > -8 && angdif < 0) || (angdif < 8 && angdif > 0))
-            angdif *= 2;
-        vm.g_sp->ang += angdif;
-    }
+        do_face_player(2);
 
     if (a&spin)
         vm.g_sp->ang += sintable[((vm.g_t[0]<<3)&2047)]>>6;
 
     if (a&face_player_slow)
-    {
-        if (g_player[vm.g_p].ps->newowner >= 0)
-            goalang = getangle(g_player[vm.g_p].ps->opos.x-vm.g_sp->x,g_player[vm.g_p].ps->opos.y-vm.g_sp->y);
-        else goalang = getangle(g_player[vm.g_p].ps->pos.x-vm.g_sp->x,g_player[vm.g_p].ps->pos.y-vm.g_sp->y);
-        angdif = G_GetAngleDelta(vm.g_sp->ang,goalang)>>4;
-        if ((angdif > -8 && angdif < 0) || (angdif < 8 && angdif > 0))
-            angdif *= 2;
-        vm.g_sp->ang += angdif;
-    }
+        do_face_player(4);
 
-    if (((a&jumptoplayer) == jumptoplayer))
+    if ((a&jumptoplayer) == jumptoplayer)
     {
         if (vm.g_t[0] < 16)
             vm.g_sp->zvel -= (sintable[(512+(vm.g_t[0]<<4))&2047]>>5);
@@ -571,10 +576,8 @@ GAMEEXEC_STATIC void VM_Move(void)
         int32_t newy = g_player[vm.g_p].ps->pos.y+(g_player[vm.g_p].ps->vel.y/768);
 
         goalang = getangle(newx-vm.g_sp->x,newy-vm.g_sp->y);
-        angdif = G_GetAngleDelta(vm.g_sp->ang,goalang)>>2;
-        if ((angdif > -8 && angdif < 0) || (angdif < 8 && angdif > 0))
-            angdif *= 2;
-        vm.g_sp->ang += angdif;
+
+        do_face_player_addang(2, goalang);
     }
 
 dead:
@@ -607,21 +610,25 @@ dead:
 
     if (vm.g_sp->xvel || vm.g_sp->zvel)
     {
+        int32_t daxvel;
+
         if (a && vm.g_sp->picnum != ROTATEGUN)
         {
             if ((vm.g_sp->picnum == DRONE || vm.g_sp->picnum == COMMANDER) && vm.g_sp->extra > 0)
             {
                 if (vm.g_sp->picnum == COMMANDER)
                 {
+                    int32_t l;
+
                     actor[vm.g_i].floorz = l = getflorzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
-                    if (vm.g_sp->z > (l-(8<<8)))
+                    if (vm.g_sp->z > l-(8<<8))
                     {
-                        if (vm.g_sp->z > (l-(8<<8))) vm.g_sp->z = l-(8<<8);
+                        vm.g_sp->z = l-(8<<8);
                         vm.g_sp->zvel = 0;
                     }
 
                     actor[vm.g_i].ceilingz = l = getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
-                    if ((vm.g_sp->z-l) < (80<<8))
+                    if (vm.g_sp->z-l < (80<<8))
                     {
                         vm.g_sp->z = l+(80<<8);
                         vm.g_sp->zvel = 0;
@@ -629,10 +636,12 @@ dead:
                 }
                 else
                 {
+                    int32_t l;
+
                     if (vm.g_sp->zvel > 0)
                     {
                         actor[vm.g_i].floorz = l = getflorzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
-                        if (vm.g_sp->z > (l-(30<<8)))
+                        if (vm.g_sp->z > l-(30<<8))
                             vm.g_sp->z = l-(30<<8);
                     }
                     else
@@ -652,7 +661,8 @@ dead:
                     vm.g_sp->z = actor[vm.g_i].floorz;
                 if (vm.g_sp->zvel < 0)
                 {
-                    l = getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+                    const int32_t l = getceilzofslope(vm.g_sp->sectnum,vm.g_sp->x,vm.g_sp->y);
+
                     if ((vm.g_sp->z-l) < (66<<8))
                     {
                         vm.g_sp->z = l+(66<<8);
@@ -672,19 +682,20 @@ dead:
         {
             if (vm.g_x < 960 && vm.g_sp->xrepeat > 16)
             {
+                DukePlayer_t *const ps = g_player[vm.g_p].ps;
 
                 daxvel = -(1024-vm.g_x);
-                angdif = getangle(g_player[vm.g_p].ps->pos.x-vm.g_sp->x,g_player[vm.g_p].ps->pos.y-vm.g_sp->y);
+                angdif = getangle(ps->pos.x-vm.g_sp->x, ps->pos.y-vm.g_sp->y);
 
                 if (vm.g_x < 512)
                 {
-                    g_player[vm.g_p].ps->vel.x = 0;
-                    g_player[vm.g_p].ps->vel.y = 0;
+                    ps->vel.x = 0;
+                    ps->vel.y = 0;
                 }
                 else
                 {
-                    g_player[vm.g_p].ps->vel.x = mulscale16(g_player[vm.g_p].ps->vel.x,g_player[vm.g_p].ps->runspeed-0x2000);
-                    g_player[vm.g_p].ps->vel.y = mulscale16(g_player[vm.g_p].ps->vel.y,g_player[vm.g_p].ps->runspeed-0x2000);
+                    ps->vel.x = mulscale16(ps->vel.x, ps->runspeed-0x2000);
+                    ps->vel.y = mulscale16(ps->vel.y, ps->runspeed-0x2000);
                 }
             }
             else if (vm.g_sp->picnum != DRONE && vm.g_sp->picnum != SHARK && vm.g_sp->picnum != COMMANDER)
@@ -712,7 +723,8 @@ dead:
         }
     }
 
-    if (!a) return;
+    if (!a)
+        return;
 
     if (sector[vm.g_sp->sectnum].ceilingstat&1)
         vm.g_sp->shade += (sector[vm.g_sp->sectnum].ceilingshade-vm.g_sp->shade)>>1;
@@ -5042,7 +5054,9 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
      * (whether it is int32_t vs intptr_t), Although it is specifically cast to intptr_t*
      * which might be corrected if the code is converted to use offsets */
     /* Helixhorned: let's do away with intptr_t's... */
+#ifndef LUNATIC
     if ((unsigned)vm.g_t[4] + 4 < (unsigned)g_scriptSize)
+#endif
     {
 #ifndef LUNATIC
         const int32_t action_frames = *(script + vm.g_t[4] + 1);
