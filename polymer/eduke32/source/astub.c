@@ -10352,16 +10352,18 @@ int32_t ExtInit(void)
             }
         }
 
-        const char *grpfile = G_GrpFile();
-
-        i = initgroupfile(grpfile);
-
-        if (!NoAutoLoad)
         {
-            G_LoadGroupsInDir("autoload");
+            const char *grpfile = G_GrpFile();
 
-            if (i != -1)
-                G_DoAutoload(grpfile);
+            i = initgroupfile(grpfile);
+
+            if (!NoAutoLoad)
+            {
+                G_LoadGroupsInDir("autoload");
+
+                if (i != -1)
+                    G_DoAutoload(grpfile);
+            }
         }
     }
 
