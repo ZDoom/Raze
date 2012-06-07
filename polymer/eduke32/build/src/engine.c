@@ -5395,6 +5395,7 @@ static void drawsprite(int32_t snum)
 
     if ((cstat&48) == 0)
     {
+draw_as_face_sprite:
         if (yp <= (4<<8)) return;
 
         siz = divscale19(xdimenscale,yp);
@@ -6201,6 +6202,12 @@ static void drawsprite(int32_t snum)
             }
 */
         longptr = (int32_t *)voxoff[vtilenum][0];
+        if (longptr == NULL)
+        {
+            globalshade = 32;
+            tspr->xrepeat = tspr->yrepeat = 255;
+            goto draw_as_face_sprite;
+        }
 
         if (voxscale[vtilenum] == 65536)
         {
