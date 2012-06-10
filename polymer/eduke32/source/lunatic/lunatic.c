@@ -10,12 +10,12 @@
 #include "osd.h"
 
 #include "gameexec.h"
-#include "gamedef.h"  // EventNames[]
+#include "gamedef.h"  // EventNames[], MAXEVENTS
 #include "lunatic.h"
 
 // this serves two purposes:
 // the values as booleans and the addresses as keys to the Lua registry
-static uint8_t g_elEvents[MAXEVENTS];
+uint8_t g_elEvents[MAXEVENTS];
 
 
 // forward-decls...
@@ -150,30 +150,33 @@ static int32_t SetEvent_luacf(lua_State *L)
     return 0;
 }
 
-int32_t El_CallEvent(El_State *estate, int32_t eventidx)
+int32_t El_CallEvent(El_State *estate, int32_t eventidx, int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
     // XXX: estate must be the one where the events were registered...
     //      make a global?
 
     int32_t i;
 
-    if (!g_elEvents[eventidx])
-        return 0;
+    lua_State *const L = estate->L;
 
-    lua_pushlightuserdata(estate->L, &g_elEvents[eventidx]);  // push address
-    lua_gettable(estate->L, LUA_REGISTRYINDEX);  // get lua function
+    lua_pushlightuserdata(L, &g_elEvents[eventidx]);  // push address
+    lua_gettable(L, LUA_REGISTRYINDEX);  // get lua function
+
+    lua_pushinteger(L, iActor);
+    lua_pushinteger(L, iPlayer);
+    lua_pushinteger(L, lDist);
 
     // -- call it! --
 
-    i = lua_pcall(estate->L, 0, 0, 0);
+    i = lua_pcall(L, 3, 0, 0);
     if (i == LUA_ERRMEM)  // XXX: should be more sophisticated.  Clean up stack? Do GC?
         return -1;
 
     if (i == LUA_ERRRUN)
     {
         OSD_Printf("event \"%s\" (state \"%s\") runtime error: %s\n", EventNames[eventidx].text,
-                   estate->name, lua_tostring(estate->L, 1));  // get err msg
-        lua_pop(estate->L, 1);
+                   estate->name, lua_tostring(L, 1));  // get err msg
+        lua_pop(L, 1);
         return 4;
     }
 

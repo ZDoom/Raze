@@ -4,6 +4,10 @@
 
 print('---=== ELua Test script ===---')
 
+local function printf(fmt, ...)
+    print(string.format(fmt, ...))
+end
+
 local function checkfail(funcstr)
     local status, res = pcall(DBG_.loadstring(funcstr))
     if (status) then
@@ -107,7 +111,9 @@ checkfail('string.dump(setevent)')  -- string.dump is unavailable
 -- See http://luajit.org/ext_ffi_api.html#ffi_C about what stuff ffi.C contains.
 checkfail('gv.luaJIT_setmode(nil, 0, 0)')
 
-setevent(gv.EVENT_JUMP, function() print("jump!") end)
+setevent(gv.EVENT_JUMP, function(actori, playeri, dist)
+             printf("jump i=%d p=%d d=%d", actori, playeri, dist)
+                        end)
 
 
 print('---=== END TEST SCRIPT ===---')

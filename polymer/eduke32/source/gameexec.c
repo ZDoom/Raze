@@ -97,8 +97,8 @@ void VM_ScriptInfo(void)
 int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
 {
 #ifdef LUNATIC
-    if (El_IsInitialized(&g_ElState))
-        El_CallEvent(&g_ElState, iEventID);
+    if (El_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
+        El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist);
 #endif
     if (!apScriptGameEvent[iEventID])
         return iReturn;
