@@ -5082,6 +5082,10 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
             vm.g_t[3] = 0;
     }
 
+#ifdef LUNATIC
+    if (El_IsInitialized(&g_ElState) && El_HaveActor(vm.g_sp->picnum))
+        El_CallActor(&g_ElState, vm.g_sp->picnum, iActor, iPlayer, lDist);
+#endif
     VM_Execute(1);
     insptr = NULL;
 

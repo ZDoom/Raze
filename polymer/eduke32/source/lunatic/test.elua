@@ -104,16 +104,27 @@ checkfail("require('os')")  -- 'require' has been thrown away to be replaced by
                             -- something more restricted later
 checkfail("new_global = 345")  -- we should declare globals
 checkfail('gv.CEILING = 3')  -- can't redefine constants in 'gv'
-checkfail('string.dump(setevent)')  -- string.dump is unavailable
+checkfail('string.dump(gameevent)')  -- string.dump is unavailable
 
 -- This is problematic, even though pretty much every access will yield a
 -- "missing declaration" error.
 -- See http://luajit.org/ext_ffi_api.html#ffi_C about what stuff ffi.C contains.
 checkfail('gv.luaJIT_setmode(nil, 0, 0)')
 
-setevent(gv.EVENT_JUMP, function(actori, playeri, dist)
-             printf("jump i=%d p=%d d=%d", actori, playeri, dist)
-                        end)
+gameevent(gv.EVENT_JUMP,
+          function(actori, playeri, dist)
+              printf("jump i=%d p=%d d=%d", actori, playeri, dist)
+          end
+         )
+
+gameactor(1680,  -- LIZTROOP
+          function(i, playeri, dist)
+              sprite[i].pal = math.random(32)
+--              sprite[i].ang = bit.band(sprite[i].ang-20, 2047)
+          end
+         )
+
+checkfail('gameactor(1680, 0)')  -- lua function expected, number passed
 
 
 print('---=== END TEST SCRIPT ===---')

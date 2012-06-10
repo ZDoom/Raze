@@ -17,9 +17,13 @@
 // the values as booleans and the addresses as keys to the Lua registry
 uint8_t g_elEvents[MAXEVENTS];
 
+// same thing for actors:
+uint8_t g_elActors[MAXTILES];
+
 
 // forward-decls...
 static int32_t SetEvent_luacf(lua_State *L);
+static int32_t SetActor_luacf(lua_State *L);
 
 // in lpeg.o
 extern int luaopen_lpeg(lua_State *L);
@@ -41,12 +45,14 @@ int32_t El_CreateState(El_State *estate, const char *name)
         return -2;
     }
 
-    luaL_openlibs(estate->L);  // XXX: only for internal use and testing, obviously
+    luaL_openlibs(estate->L);  // NOTE: we set up the sandbox in defs.ilua
     luaopen_lpeg(estate->L);
 
     // create misc. global functions in the Lua state
     lua_pushcfunction(estate->L, SetEvent_luacf);
-    lua_setglobal(estate->L, "setevent");
+    lua_setglobal(estate->L, "gameevent");
+    lua_pushcfunction(estate->L, SetActor_luacf);
+    lua_setglobal(estate->L, "gameactor");
 
     return 0;
 }
@@ -73,6 +79,8 @@ int32_t El_RunOnce(El_State *estate, const char *fn)
 {
     int32_t fid, flen, i;
     char *buf;
+
+    lua_State *const L = estate->L;
 
     fid = kopen4load(fn, 0);
 
@@ -103,7 +111,7 @@ int32_t El_RunOnce(El_State *estate, const char *fn)
 
     // -- lua --
 
-    i = luaL_loadstring(estate->L, buf);
+    i = luaL_loadstring(L, buf);
     Bfree(buf);
 
     if (i == LUA_ERRMEM)
@@ -111,55 +119,76 @@ int32_t El_RunOnce(El_State *estate, const char *fn)
 
     if (i == LUA_ERRSYNTAX)
     {
-        OSD_Printf("state \"%s\" syntax error: %s\n", estate->name, lua_tostring(estate->L, -1));  // get err msg
-        lua_pop(estate->L, 1);
+        OSD_Printf("state \"%s\" syntax error: %s\n", estate->name,
+                   lua_tostring(L, -1));  // get err msg
+        lua_pop(L, 1);
         return 3;
     }
 
     // -- call the lua chunk! --
 
-    i = lua_pcall(estate->L, 0, 0, 0);
+    i = lua_pcall(L, 0, 0, 0);
     if (i == LUA_ERRMEM)  // XXX: should be more sophisticated.  Clean up stack? Do GC?
         return -1;
 
     if (i == LUA_ERRRUN)
     {
-        Bassert(lua_type(estate->L, -1)==LUA_TSTRING);
-        OSD_Printf("state \"%s\" runtime error: %s\n", estate->name, lua_tostring(estate->L, -1));  // get err msg
-        lua_pop(estate->L, 1);
+        Bassert(lua_type(L, -1)==LUA_TSTRING);
+        OSD_Printf("state \"%s\" runtime error: %s\n", estate->name,
+                   lua_tostring(L, -1));  // get err msg
+        lua_pop(L, 1);
         return 4;
     }
 
     return 0;
 }
 
-// setupevent(EVENT_..., lua_function)
+
+static void check_and_register_function(lua_State *L, void *keyaddr)
+{
+    luaL_checktype(L, 2, LUA_TFUNCTION);
+
+    lua_pushlightuserdata(L, keyaddr);  // 3, push address
+    lua_pushvalue(L, 2);  // 4, push copy of lua function
+
+    lua_settable(L, LUA_REGISTRYINDEX);  // "registry[keyaddr] = <lua function>"
+}
+
+
+////////// Lua_CFunctions //////////
+
+// gameevent(EVENT_..., lua_function)
 static int32_t SetEvent_luacf(lua_State *L)
 {
     int32_t eventidx = luaL_checkint(L, 1);
 
     luaL_argcheck(L, (unsigned)eventidx < MAXEVENTS, 1, "must be an event number (0 .. MAXEVENTS-1)");
-    luaL_checktype(L, 2, LUA_TFUNCTION);
-
-    lua_pushlightuserdata(L, &g_elEvents[eventidx]);  // 3, push address
-    lua_pushvalue(L, 2);  // 4, push copy of lua function
-
-    lua_settable(L, LUA_REGISTRYINDEX);  // "registry[&g_elEvents[eventidx]] = <lua function>"
+    check_and_register_function(L, &g_elEvents[eventidx]);
     g_elEvents[eventidx] = 1;
 
     return 0;
 }
 
-int32_t El_CallEvent(El_State *estate, int32_t eventidx, int32_t iActor, int32_t iPlayer, int32_t lDist)
+// gameactor(<actortile>, lua_function)
+static int32_t SetActor_luacf(lua_State *L)
 {
-    // XXX: estate must be the one where the events were registered...
-    //      make a global?
+    int32_t actortile = luaL_checkint(L, 1);
 
+    luaL_argcheck(L, (unsigned)actortile < MAXTILES, 1, "must be an tile number (0 .. MAXTILES-1)");
+    check_and_register_function(L, &g_elActors[actortile]);
+    g_elActors[actortile] = 1;
+
+    return 0;
+}
+
+//////////////////////////////
+
+static int32_t call_registered_function3(lua_State *L, void *keyaddr,
+                                         int32_t iActor, int32_t iPlayer, int32_t lDist)
+{
     int32_t i;
 
-    lua_State *const L = estate->L;
-
-    lua_pushlightuserdata(L, &g_elEvents[eventidx]);  // push address
+    lua_pushlightuserdata(L, keyaddr);  // push address
     lua_gettable(L, LUA_REGISTRYINDEX);  // get lua function
 
     lua_pushinteger(L, iActor);
@@ -169,13 +198,44 @@ int32_t El_CallEvent(El_State *estate, int32_t eventidx, int32_t iActor, int32_t
     // -- call it! --
 
     i = lua_pcall(L, 3, 0, 0);
-    if (i == LUA_ERRMEM)  // XXX: should be more sophisticated.  Clean up stack? Do GC?
-        return -1;
+    if (i == LUA_ERRMEM)
+    {
+        // XXX: should be more sophisticated.  Clean up stack? Do GC?
+    }
+
+    return i;
+}
+
+int32_t El_CallEvent(El_State *estate, int32_t eventidx, int32_t iActor, int32_t iPlayer, int32_t lDist)
+{
+    // XXX: estate must be the one where the events were registered...
+    //      make a global?
+
+    lua_State *const L = estate->L;
+
+    int32_t i = call_registered_function3(L, &g_elEvents[eventidx], iActor, iPlayer, lDist);
 
     if (i == LUA_ERRRUN)
     {
         OSD_Printf("event \"%s\" (state \"%s\") runtime error: %s\n", EventNames[eventidx].text,
-                   estate->name, lua_tostring(L, 1));  // get err msg
+                   estate->name, lua_tostring(L, -1));  // get err msg
+        lua_pop(L, 1);
+        return 4;
+    }
+
+    return 0;
+}
+
+int32_t El_CallActor(El_State *estate, int32_t actortile, int32_t iActor, int32_t iPlayer, int32_t lDist)
+{
+    lua_State *const L = estate->L;
+
+    int32_t i = call_registered_function3(L, &g_elActors[actortile], iActor, iPlayer, lDist);
+
+    if (i == LUA_ERRRUN)
+    {
+        OSD_Printf("actor %d (sprite %d, state \"%s\") runtime error: %s\n", actortile, iActor,
+                   estate->name, lua_tostring(L, -1));  // get err msg
         lua_pop(L, 1);
         return 4;
     }

@@ -431,7 +431,8 @@ string.dump = nil
 
 --- non-default data and functions
 G_._EDUKE32_LUNATIC = _EDUKE32_LUNATIC
-G_.setevent = setevent  -- included in lunatic.c
+G_.gameevent = gameevent  -- included in lunatic.c
+G_.gameactor = gameactor  -- included in lunatic.c
 
 
 ---=== Lunatic interpreter setup ===---
