@@ -3,6 +3,7 @@
 
 local lpeg = require("lpeg")
 
+local EDUKE32_LUNATIC = _EDUKE32_LUNATIC
 
 -- If/else nesting is problematic in CON: because a dangling 'else' is attached
 -- to the outermost 'if', I think there's no way of linearizing its (recursive)
@@ -33,21 +34,151 @@ end
 
 ---=== semantic action functions ===---
 
+local inf = 1/0
+
+-- Last keyword position, for error diagnosis.
+local g_lastkwpos = nil
+local g_lastkw = nil
+local g_badids = {}  -- maps bad id strings to 'true'
+
+local g_recurslevel = -1  -- 0: base CON file, >0 included
+local g_directory = ""  -- with trailing slash if not empty
+local g_numerrors = 0
+
 local function getlinecol(pos) end -- fwd-decl
+
+local function linecolstr(pos)
+    local line, col = getlinecol(pos)
+    return string.format("%d:%d", line, col)
+end
+
+local function errprintf(fmt, ...)
+    if (g_lastkwpos) then
+        printf("%s: error: "..fmt, linecolstr(g_lastkwpos), ...)
+    else
+        printf("???: error: "..fmt, ...)
+    end
+    g_numerrors = g_numerrors+1
+end
 
 local function parse_number(numstr, pos)
     local num = tonumber(numstr)
 
     -- TODO: print line number
     if (num < -0x80000000 or num > 0xffffffff) then
-        printf("warning: number %s out of the range of a 32-bit integer", numstr)
+        printf("%s: warning: number %s out of the range of a 32-bit integer",
+               linecolstr(g_lastkwpos), numstr)
         num = 0/0
     elseif (num >= 0x80000000) then
-        printf("warning: number %s converted to a negative one", numstr)
+        printf("%s: warning: number %s converted to a negative one",
+               linecolstr(g_lastkwpos), numstr)
         num = num-0x100000000
     end
 
     return num
+end
+
+
+local LABEL_DEFINE = 1
+--local LABEL_STATE  = 2
+--local LABEL_ACTOR  = 4
+local LABEL_ACTION = 8
+local LABEL_AI     = 16
+local LABEL_MOVE   = 32
+
+local g_labeldef = {}
+local g_labeltype = {}
+
+local function lookup_defined_label(identifier)
+    local num = g_labeldef[identifier]
+
+    if (num == nil) then
+        if (EDUKE32_LUNATIC == nil) then
+            -- HACK: try a couple of hardcoded def prefixes
+            if (identifier:sub(1, 6)=="EVENT_"
+                or identifier:sub(1,4)=="STR_"
+                or identifier:sub(1,5)=="PROJ_")
+            then return 0  -- TEMP
+            end
+        end
+
+        errprintf("label \"%s\" is not defined", identifier)
+        return -1/0
+    end
+
+    return num
+end
+
+local function do_define_label(identifier, idornum)
+    -- TODO: label types
+    local num
+
+    if (type(idornum)=="number") then
+        num = idornum
+    else
+        assert(idornum ~= nil)
+        num = lookup_defined_label(idornum)
+        if (num == -1/0) then
+            return
+        end
+    end
+
+    local oldnum = g_labeldef[identifier]
+    if (oldnum) then
+        if (oldnum ~= num) then
+            errprintf("label \"%s\" defined with different value (old: %d, new: %d)",
+                      identifier, oldnum, num)
+        end
+        return
+    end
+
+    g_labeldef[identifier] = num
+end
+
+local function parse(contents) end -- fwd-decl
+
+local function do_include_file(dirname, filename) end
+local function cmd_include(filename) end
+
+if (_EDUKE32_LUNATIC) then
+    -- NOT IMPLEMENTED
+else
+    function do_include_file(dirname, filename)
+        local io = require("io")
+
+        local fd, msg = io.open(dirname..filename)
+        if (fd == nil) then
+            -- strip up to and including first slash:
+            filename = string.gsub(filename, "^.-/", "")
+            fd, msg = io.open(dirname..filename)
+
+            if (fd == nil) then
+                printf("Fatal error: couldn't open %s", msg)
+                g_numerrors = inf
+                return
+            end
+        end
+
+        printf("%s[%d] Parsing file \"%s\"", (g_recurslevel==-1 and "\n---- ") or "",
+               g_recurslevel+1, dirname..filename);
+
+        local contents = fd:read("*all")
+        fd:close()
+
+        if (contents == nil) then
+            -- maybe that file name turned out to be a directory or other
+            -- special file accidentally
+            printf("Fatal error: couldn't read from \"%s\"", dirname..filename)
+            g_numerrors = inf
+            return
+        end
+
+        parse(contents)
+    end
+
+    function cmd_include(filename)
+        do_include_file(g_directory, filename)
+    end
 end
 
 
@@ -81,14 +212,17 @@ local t_identifier = Var("t_identifier")
 -- This one matches keywords, too:
 local t_identifier_all = Var("t_identifier_all")
 local t_define = Var("t_define")
-local t_filename = (anychar-Set(" \t\r\n"))^1 --alnumtok^1  -- XXX
+-- NOTE: no chance to whitespace in filenames:
+local t_filename = lpeg.C((anychar-Set(" \t\r\n"))^1)
 local t_newline_term_str = match_until(anychar, newline)
 
 -- new-style inline arrays and structures:
 local t_arrayexp = Var("t_arrayexp")
 
 -- defines and constants can take the place of vars that are only read:
-local t_rvar = t_arrayexp + t_define
+-- NOTE: when one of t_identifier+t_define matches, we don't actually know
+--  whether it's the right one yet, since their syntax overlaps.
+local t_rvar = t_arrayexp + t_identifier + t_define
 -- not so with written-to vars:
 local t_wvar = t_arrayexp + t_identifier
 
@@ -96,7 +230,8 @@ local t_wvar = t_arrayexp + t_identifier
 ---- helper patterns / pattern constructing functions
 local maybe_quoted_filename = ('"' * t_filename * '"' + t_filename)
 -- empty string is handled too; we must not eat the newline then!
-local newline_term_string = (#newline + EOF) + (whitespace-newline)^1 * t_newline_term_str
+local newline_term_string = (#newline + EOF)*lpeg.Cc("")
+    + (whitespace-newline)^1 * lpeg.C(t_newline_term_str)
 
 
 -- (sp1 * t_define) repeated exactly n times
@@ -147,10 +282,9 @@ end
 -- XXX: many of these are also allowed inside actors/states/events in CON.
 local Co = {
     --- 1. Preprocessor
-    include = sp1 * maybe_quoted_filename,
+    include = sp1 * maybe_quoted_filename / cmd_include,
     includedefault = cmd(),
-    define = cmd(I,D),
-    --define = sp1 * t_identifier * sp1 * t_define,
+    define = cmd(I,D) / do_define_label,
 
     --- 2. Defines and Meta-Settings
     dynamicremap = cmd(),
@@ -173,8 +307,8 @@ local Co = {
     defineprojectile = cmd(D,D,D),
     definesound = sp1 * t_define * sp1 * maybe_quoted_filename * n_defines(5),  -- XXX: TS
 
-    -- XXX: need to see how that behaves with e.g. stuff like gamevar.ogg:
-    music = sp1 * t_define * match_until(sp1 * t_filename, con_keyword),
+    -- NOTE: gamevar.ogg is OK, too
+    music = sp1 * t_define * match_until(sp1 * t_filename, sp1 * con_keyword * sp1),
 
     --- 3. Game Settings
     -- gamestartup has 25/29 fixed defines, depending on 1.3D/1.5 version:
@@ -191,9 +325,9 @@ local Co = {
     gamearray = cmd(I,D),
 
     --- 5. Top level commands that are also run-time commands
-    action = sp1 * t_identifier * (sp1 * t_define)^-5,
-    ai = sp1 * t_identifier * (sp1 * t_define)^0,
-    move = sp1 * t_identifier * (sp1 * t_define)^-2,
+    action = sp1 * t_identifier * (sp1 * t_define)^-5 / function(id) do_define_label(id, 0) end,  -- TEMP
+    ai = sp1 * t_identifier * (sp1 * t_define)^0 / function(id) do_define_label(id, 0) end,  -- TEMP
+    move = sp1 * t_identifier * (sp1 * t_define)^-2 / function(id) do_define_label(id, 0) end,  -- TEMP
 
     --- 6. Deprecated TLCs
     betaname = newline_term_string,
@@ -625,8 +759,8 @@ local Cif = {
 ----==== Tracing and reporting ====----
 local string = require("string")
 
--- newlineidxs will contain the 1-based file offsets to "\n" characters
-local newlineidxs = {}
+-- g_newlineidxs will contain the 1-based file offsets to "\n" characters
+local g_newlineidxs = {}
 
 -- Returns index into the sorted table tab such that
 --   tab[index] <= searchelt < tab[index+1].
@@ -666,16 +800,11 @@ local function bsearch(tab, searchelt)
 end
 
 function getlinecol(pos)  -- local
-    local line = bsearch(newlineidxs, pos)
-    assert(line and newlineidxs[line]<=pos and pos<newlineidxs[line+1])
-    local col = pos-newlineidxs[line]
+    local line = bsearch(g_newlineidxs, pos)
+    assert(line and g_newlineidxs[line]<=pos and pos<g_newlineidxs[line+1])
+    local col = pos-g_newlineidxs[line]
     return line+1, col-1
 end
-
--- Last keyword position, for error diagnosis.
-local g_lastkwpos = nil
-local g_lastkw = nil
-local g_badids = {}  -- maps bad id strings to 'true'
 
 -- A generic trace function, prints a position together with the match content
 -- A non-existing 'doit' means 'true'.
@@ -684,8 +813,7 @@ local function TraceFunc(pat, label, doit)
 
     if (doit==nil or doit) then
         local function tfunc(subj, pos, a)
-            local line, col = getlinecol(pos)
-            printf("%d,%d:%s: %s", line, col, label, a)
+            printf("%s:%s: %s", linecolstr(pos), label, a)
             return true
         end
         pat = lpeg.Cmt(pat, tfunc)
@@ -705,11 +833,10 @@ end
 local function BadIdent(pat)
     local function tfunc(subj, pos, a)
         if (not g_badids[a]) then
-            local line, col = getlinecol(pos)
-            printf("%d,%d: warning: bad identifier: %s", line, col, a)
+            printf("%s: warning: bad identifier: %s", linecolstr(pos), a)
             g_badids[a] = true
         end
-        return true, a
+        return true
     end
     return lpeg.Cmt(Pat(pat), tfunc)
 end
@@ -725,13 +852,22 @@ local function Stmt(cmdpat) return TraceFunc(cmdpat, "st", false) end
 --Ci["myosx"] = Temp(Ci["myosx"])
 
 ----==== Translator continued ====----
+local function after_cmd_Cmt()
+    if (g_numerrors == inf) then
+--        print("Aborting parsing...")
+        return nil  -- make the match fail, bail out of parsing
+    end
+
+    return true  -- don't return any captures
+end
+
 -- attach the command names at the front!
 local function attachnames(kwtab)
     for cmdname,cmdpat in pairs(kwtab) do
         -- The always-nil-returning function at the end is so that every
         -- command acts as a barrier to captures to prevent stack overflow (and
         -- to make lpeg.match return a subject position at the end)
-        kwtab[cmdname] = (Keyw(cmdname) * cmdpat) / function() end
+        kwtab[cmdname] = lpeg.Cmt(Keyw(cmdname) * cmdpat, after_cmd_Cmt)
     end
 end
 
@@ -759,8 +895,7 @@ end
 
 -- actor ORGANTIC is greeting!
 local function warn_on_lonely_else(subj, pos)
-    local line, col = getlinecol(pos)
-    printf("%d,%d: warning: found `else' with no `if'", line, col)
+    printf("%s: warning: found `else' with no `if'", linecolstr(pos))
     return true
 end
 
@@ -807,7 +942,6 @@ attachnames(Cb)
 
 
 local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09")^0
-t_good_identifier = lpeg.C(t_good_identifier)
 
 -- CON isaltok also has chars in "{}.", but these could potentially
 -- interfere with *CON* syntax.  The "]" is so that the number in array[80]
@@ -843,8 +977,8 @@ local Grammar = Pat{
     --   getactor[THISACTOR].x x
     --   getactor [THISACTOR].y y
     -- This is in need of cleanup!
-    t_identifier = -NotKeyw(con_keyword * (sp1 + "[")) * Ident(t_identifier_all),
-    t_define = (t_maybe_minus * t_identifier + t_number),
+    t_identifier = -NotKeyw(con_keyword * (sp1 + "[")) * lpeg.C(t_identifier_all),
+    t_define = (t_maybe_minus * t_identifier/lookup_defined_label) + t_number,  -- TODO: minus
 
     t_arrayexp = t_identifier * arraypat * memberpat^-1,
 
@@ -883,7 +1017,7 @@ local Grammar = Pat{
 local math = require("math")
 
 local function setup_newlineidxs(contents)
-    newlineidxs = {}
+    local newlineidxs = {}
     for i in string.gmatch(contents, "()\n") do
         newlineidxs[#newlineidxs+1] = i
     end
@@ -897,52 +1031,89 @@ local function setup_newlineidxs(contents)
     -- dummy newlines at beginning and end
     newlineidxs[#newlineidxs+1] = #contents+1
     newlineidxs[0] = 0
+
+    return newlineidxs
 end
 
 
 ---=== EXPORTED FUNCTIONS ===---
 
-local function parse(contents)
-    setup_newlineidxs(contents)
+function parse(contents)  -- local
+    -- save outer state
+    local lastkw, lastkwpos, numerrors = g_lastkw, g_lastkwpos, g_numerrors
+    local newlineidxs = g_newlineidxs
 
-    g_badids = {}
-    g_lastkw = nil
-    g_lastkwpos = nil
+    -- set up new state
+    -- TODO: pack into one "parser state" table?
+    g_lastkw, g_lastkwpos, g_numerrors = nil, nil, 0
+    g_newlineidxs = setup_newlineidxs(contents)
+
+    g_recurslevel = g_recurslevel+1
 
     local idx = lpeg.match(Grammar, contents)
 
     if (not idx) then
-        print("Match failed.")
+        printf("[%d] Match failed.", g_recurslevel)
     elseif (idx == #contents+1) then
-        print("Matched whole contents.")
+        if (g_numerrors ~= 0) then
+            printf("[%d] Matched whole contents (%d errors).",
+                   g_recurslevel, g_numerrors)
+        elseif (g_recurslevel==0) then
+            print("[0] Matched whole contents.")
+        end
     else
         local i, col = getlinecol(idx)
-        local bi, ei = newlineidxs[i-1]+1, newlineidxs[i]-1
+        local bi, ei = g_newlineidxs[i-1]+1, g_newlineidxs[i]-1
 
-        printf("Match succeeded up to %d (line %d, col %d; len=%d)",
-               idx, i, col, #contents)
+        printf("[%d] Match succeeded up to %d (line %d, col %d; len=%d)",
+               g_recurslevel, idx, i, col, #contents)
 
 --        printf("Line goes from %d to %d", bi, ei)
-        print(string.sub(contents, bi, ei))
+        local suffix = ""
+        if (ei-bi > 76) then
+            ei = bi+76
+            suffix = " (...)"
+        end
+        print(string.sub(contents, bi, ei)..suffix)
 
         if (g_lastkwpos) then
             i, col = getlinecol(g_lastkwpos)
             printf("Last keyword was at line %d, col %d: %s", i, col, g_lastkw)
         end
     end
+
+    g_recurslevel = g_recurslevel-1
+
+    -- restore outer state
+    g_lastkw, g_lastkwpos = lastkw, lastkwpos
+    g_numerrors = (g_numerrors==inf and inf) or numerrors
+    g_newlineidxs = newlineidxs
 end
 
 
 if (not _EDUKE32_LUNATIC) then
     --- stand-alone
-    local io = require("io")
 
     for argi=1,#arg do
         local filename = arg[argi]
-        printf("\n---- Parsing file \"%s\"", filename);
 
-        local contents = io.open(filename):read("*all")
-        parse(contents)
+        g_recurslevel = -1
+        g_badids = {}
+        g_labeldef = {}
+        g_labeltype = {}
+
+        g_numerrors = 0
+
+        g_directory = string.match(filename, "(.*/)") or ""
+        filename = filename:sub(#g_directory+1, -1)
+
+        local ok, msg = pcall(do_include_file, g_directory, filename)
+        if (not ok) then
+            if (g_lastkwpos ~= nil) then
+                printf("LAST KEYWORD POSITION: %s, %s", linecolstr(g_lastkwpos), g_lastkw)
+            end
+            print(msg)
+        end
     end
 else
     --- embedded
