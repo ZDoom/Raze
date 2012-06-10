@@ -5264,7 +5264,7 @@ repeatcase:
 
             k = *(g_scriptPtr-1);
 
-            if (k >= MAXQUOTES)
+            if ((unsigned)k >= MAXQUOTES)
             {
                 initprintf("%s:%d: error: quote number exceeds limit of %d.\n",g_szScriptFileName,g_lineNumber,MAXQUOTES);
                 g_numCompilerErrors++;

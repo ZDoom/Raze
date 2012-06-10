@@ -582,7 +582,7 @@ GAMEEXEC_STATIC void VM_Move(void)
 
 dead:
 #ifndef LUNATIC
-    if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize)
+    if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize-1)
     {
         vm.g_t[1] = 0;
         OSD_Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, vm.g_sp->picnum);
@@ -5001,9 +5001,8 @@ void A_LoadActor(int32_t iActor)
     vm.g_sp = &sprite[vm.g_i];    // Pointer to sprite structure
     vm.g_t = &actor[vm.g_i].t_data[0];   // Sprite's 'extra' data
 
-    if (actorLoadEventScrptr[vm.g_sp->picnum] == 0) return;
-
-    insptr = actorLoadEventScrptr[vm.g_sp->picnum];
+    if (actorLoadEventScrptr[vm.g_sp->picnum] == NULL)
+        return;
 
     vm.g_flags &= ~(VM_RETURN|VM_KILL|VM_NOEXECUTE);
 
@@ -5015,6 +5014,7 @@ void A_LoadActor(int32_t iActor)
         return;
     }
 
+    insptr = actorLoadEventScrptr[vm.g_sp->picnum];
     VM_Execute(1);
     insptr = NULL;
 
@@ -5039,8 +5039,6 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
         randomseed = ticrandomseed;
 
     Bmemcpy(&vm, &tempvm, sizeof(vmstate_t));
-
-    insptr = 4 + (actorscrptr[vm.g_sp->picnum]);
 
     if ((unsigned)vm.g_sp->sectnum >= MAXSECTORS)
     {
@@ -5086,6 +5084,8 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     if (El_IsInitialized(&g_ElState) && El_HaveActor(vm.g_sp->picnum))
         El_CallActor(&g_ElState, vm.g_sp->picnum, iActor, iPlayer, lDist);
 #endif
+
+    insptr = 4 + (actorscrptr[vm.g_sp->picnum]);
     VM_Execute(1);
     insptr = NULL;
 
