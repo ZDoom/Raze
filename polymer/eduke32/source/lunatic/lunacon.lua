@@ -26,6 +26,30 @@ local function match_until(matchsp, untilsp)  -- (!untilsp matchsp)* in PEG
     return (matchsp - Pat(untilsp))^0
 end
 
+local function printf(fmt, ...)
+    print(string.format(fmt, ...))
+end
+
+
+---=== semantic action functions ===---
+
+local function getlinecol(pos) end -- fwd-decl
+
+local function parse_number(numstr, pos)
+    local num = tonumber(numstr)
+
+    -- TODO: print line number
+    if (num < -0x80000000 or num > 0xffffffff) then
+        printf("warning: number %s out of the range of a 32-bit integer", numstr)
+        num = 0/0
+    elseif (num >= 0x80000000) then
+        printf("warning: number %s converted to a negative one", numstr)
+        num = num-0x100000000
+    end
+
+    return num
+end
+
 
 ----==== patterns ====----
 
@@ -47,7 +71,10 @@ local alphanum = alpha + Range("09")
 --local alnumtok = alphanum + Set("{}/\\*-_.")  -- see isaltok() in gamedef.c
 
 --- basic lexical elements ("tokens")
-local t_number = (Pat("0x") + "0X")*Range("09", "af", "AF")^1 + Range("09")^1
+local t_maybe_minus = (Pat("-") * sp0)^-1;
+local t_number = lpeg.C(
+    t_maybe_minus * ((Pat("0x") + "0X")*Range("09", "af", "AF")^1 + Range("09")^1)
+                       ) / parse_number
 -- Valid identifier names are disjunct from keywords!
 -- XXX: CON is more permissive with identifier name characters:
 local t_identifier = Var("t_identifier")
@@ -601,20 +628,16 @@ local string = require("string")
 -- newlineidxs will contain the 1-based file offsets to "\n" characters
 local newlineidxs = {}
 
-local function printf(fmt, ...)
-    print(string.format(fmt, ...))
-end
-
 -- Returns index into the sorted table tab such that
 --   tab[index] <= searchelt < tab[index+1].
 -- Preconditions:
---  tab[i] < tab[i+1] for 1 <= i < #tab
---  tab[1] <= searchelt < tab[#tab]
+--  tab[i] < tab[i+1] for 0 <= i < #tab
+--  tab[0] <= searchelt < tab[#tab]
 -- If #tab is less than 2, returns 0. This plays nicely with newline index
 -- tables like { [0]=0, [1]=len+1 }, e.g. if the file doesn't contain any.
 local function bsearch(tab, searchelt)
 --    printf("bsearch(tab, %d)", searchelt)
-    local l, r = 1, #tab
+    local l, r = 0, #tab
     local i
 
     if (r < 2) then
@@ -642,7 +665,7 @@ local function bsearch(tab, searchelt)
     return l
 end
 
-local function getlinecol(pos)
+function getlinecol(pos)  -- local
     local line = bsearch(newlineidxs, pos)
     assert(line and newlineidxs[line]<=pos and pos<newlineidxs[line+1])
     local col = pos-newlineidxs[line]
@@ -679,14 +702,14 @@ local function TraceFunc(pat, label, doit)
     return pat
 end
 
-local function BadIdentFunc(pat)
+local function BadIdent(pat)
     local function tfunc(subj, pos, a)
         if (not g_badids[a]) then
             local line, col = getlinecol(pos)
             printf("%d,%d: warning: bad identifier: %s", line, col, a)
             g_badids[a] = true
         end
-        return true
+        return true, a
     end
     return lpeg.Cmt(Pat(pat), tfunc)
 end
@@ -696,7 +719,6 @@ end
 local function Keyw(kwname) return TraceFunc(kwname, "kw", false) end
 local function NotKeyw(text) return TraceFunc(text, "!kw", false) end
 local function Ident(idname) return TraceFunc(idname, "id", false) end
-local function BadIdent(idname) return BadIdentFunc(idname) end
 local function Stmt(cmdpat) return TraceFunc(cmdpat, "st", false) end
 
 --local function Temp(kwname) return TraceFunc(kwname, "temp", true) end
@@ -706,7 +728,10 @@ local function Stmt(cmdpat) return TraceFunc(cmdpat, "st", false) end
 -- attach the command names at the front!
 local function attachnames(kwtab)
     for cmdname,cmdpat in pairs(kwtab) do
-        kwtab[cmdname] = Keyw(cmdname) * cmdpat
+        -- The always-nil-returning function at the end is so that every
+        -- command acts as a barrier to captures to prevent stack overflow (and
+        -- to make lpeg.match return a subject position at the end)
+        kwtab[cmdname] = (Keyw(cmdname) * cmdpat) / function() end
     end
 end
 
@@ -782,6 +807,7 @@ attachnames(Cb)
 
 
 local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09")^0
+t_good_identifier = lpeg.C(t_good_identifier)
 
 -- CON isaltok also has chars in "{}.", but these could potentially
 -- interfere with *CON* syntax.  The "]" is so that the number in array[80]
@@ -801,7 +827,9 @@ local Grammar = Pat{
     -- omitted at the EOF.
     sp0 * ((con_outer_command + all_alt_pattern(Cb)) * sp1)^0,
 
-    -- Deps.  These appear here because we're hitting a limit with LPeg else:
+    -- Some often-used terminals follow.  These appear here because we're
+    -- hitting a limit with LPeg else.
+
     -- http://lua-users.org/lists/lua-l/2008-11/msg00462.html
     -- NOTE: NW demo (NWSNOW.CON) contains a Ctrl-Z char (decimal 26)
     whitespace = Set(" \t\r\26") + newline + Set("(),;") + comment + linecomment,
@@ -816,7 +844,7 @@ local Grammar = Pat{
     --   getactor [THISACTOR].y y
     -- This is in need of cleanup!
     t_identifier = -NotKeyw(con_keyword * (sp1 + "[")) * Ident(t_identifier_all),
-    t_define = (Pat("-") * sp0)^-1 * (t_identifier + t_number),
+    t_define = (t_maybe_minus * t_identifier + t_number),
 
     t_arrayexp = t_identifier * arraypat * memberpat^-1,
 
