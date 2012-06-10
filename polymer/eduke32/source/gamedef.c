@@ -1502,6 +1502,21 @@ static int32_t parse_decimal_number(void)  // (textptr)
     return (int32_t)num;
 }
 
+static int32_t parse_hex_constant(const char *hexnum)
+{
+    int64_t x;
+    sscanf(hexnum, "%" PRIx64 "", &x);
+
+    if (x > UINT32_MAX)
+    {
+        initprintf("%s:%d: warning: number 0x%" PRIx64 " truncated to 32 bits.\n",
+                   g_szScriptFileName,g_lineNumber, x);
+        g_numCompilerWarnings++;
+    }
+
+    return x;
+}
+
 static void C_GetNextVarType(int32_t type)
 {
     int32_t i=0,f=0;
@@ -1515,7 +1530,7 @@ static void C_GetNextVarType(int32_t type)
         *g_scriptPtr++ = MAXGAMEVARS;
 
         if (tolower(textptr[1])=='x')  // hex constants
-            sscanf(textptr+2,"%" PRIxPTR "",g_scriptPtr);
+            *g_scriptPtr = parse_hex_constant(textptr+2);
         else
             *g_scriptPtr = parse_decimal_number();
 
@@ -1840,7 +1855,7 @@ static int32_t C_GetNextValue(int32_t type)
     bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
 
     if (tolower(textptr[1])=='x')
-        sscanf(textptr+2,"%" PRIxPTR "",g_scriptPtr);
+        *g_scriptPtr = parse_hex_constant(textptr+2);
     else
         *g_scriptPtr = parse_decimal_number();
 
@@ -2333,20 +2348,25 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_ReportError(WARNING_NAMEMATCHESVAR);
                 }
 
-                i = hash_find(&h_labels,label+(g_numLabels<<6));
-                if (i>=0)
-                {
-                    /*            if (i >= g_numDefaultLabels)
-                    {
-                    g_numCompilerWarnings++;
-                    C_ReportError(WARNING_DUPLICATEDEFINITION);
-                    } */
-                }
-
                 //printf("Translating. '%.20s'\n",textptr);
                 C_GetNextValue(LABEL_DEFINE);
                 //printf("Translated. '%.20s'\n",textptr);
-                if (i == -1)
+
+
+                i = hash_find(&h_labels,label+(g_numLabels<<6));
+                if (i>=0)
+                {
+                    // if (i >= g_numDefaultLabels)
+
+                    if (labelcode[i] != *(g_scriptPtr-1))
+                    {
+                        g_numCompilerWarnings++;
+                        initprintf("%s:%d: warning: ignored redefinition of `%s' to %d (old: %d).\n",g_szScriptFileName,
+                                   g_lineNumber,label+(g_numLabels<<6), (int32_t)(*(g_scriptPtr-1)), labelcode[i]);
+                        //C_ReportError(WARNING_DUPLICATEDEFINITION);
+                    }
+                }
+                else
                 {
                     //              printf("Defining Definition \"%s\" to be '%d'\n",label+(g_numLabels<<6),*(g_scriptPtr-1));
                     hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
