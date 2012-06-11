@@ -51,7 +51,8 @@ void G_AddPath(const char *buffer);
 
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
-int32_t check_file_exist(const char *fn);
+int32_t testkopen(const char *filename, char searchfirst);  // full-blown kopen4load
+int32_t check_file_exist(const char *fn);  // findfrompath with pathsearchmode=1 / search in zips
 
 void fnlist_clearnames(fnlist_t *fnl);
 int32_t fnlist_getnames(fnlist_t *fnl, const char *dirname, const char *pattern,

@@ -28,7 +28,6 @@ char *g_defNamePtr = NULL;
 // g_scriptNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
 char *g_scriptNamePtr = NULL;
 
-
 void clearGrpNamePtr(void)
 {
     if (g_grpNamePtr != NULL)
@@ -72,14 +71,14 @@ char *G_DefaultDefFile(void)
         return defaultdeffilename[GAME_WW2GI];
     else if (NAPALM)
     {
-        if ((kopen4load(defaultdeffilename[GAME_NAPALM],0) < 0) && (kopen4load(defaultdeffilename[GAME_NAM],0) >= 0))
+        if (!testkopen(defaultdeffilename[GAME_NAPALM],0) && testkopen(defaultdeffilename[GAME_NAM],0))
             return defaultdeffilename[GAME_NAM]; // NAM/Napalm Sharing
         else
             return defaultdeffilename[GAME_NAPALM];
     }
     else if (NAM)
     {
-        if ((kopen4load(defaultdeffilename[GAME_NAM],0) < 0) && (kopen4load(defaultdeffilename[GAME_NAPALM],0) >= 0))
+        if (!testkopen(defaultdeffilename[GAME_NAM],0) && testkopen(defaultdeffilename[GAME_NAPALM],0))
             return defaultdeffilename[GAME_NAPALM]; // NAM/Napalm Sharing
         else
             return defaultdeffilename[GAME_NAM];
@@ -89,15 +88,15 @@ char *G_DefaultDefFile(void)
 }
 char *G_DefaultConFile(void)
 {
-    if (DUKE && (kopen4load(defaultgameconfilename[GAME_DUKE],0) >= 0))
+    if (DUKE && testkopen(defaultgameconfilename[GAME_DUKE],0))
         return defaultgameconfilename[GAME_DUKE];
-    else if (WW2GI && (kopen4load(defaultgameconfilename[GAME_WW2GI],0) >= 0))
+    else if (WW2GI && testkopen(defaultgameconfilename[GAME_WW2GI],0))
         return defaultgameconfilename[GAME_WW2GI];
     else if (NAPALM)
     {
-        if (kopen4load(defaultgameconfilename[GAME_NAPALM],0) < 0)
+        if (!testkopen(defaultgameconfilename[GAME_NAPALM],0))
         {
-            if (kopen4load(defaultgameconfilename[GAME_NAM],0) >= 0)
+            if (testkopen(defaultgameconfilename[GAME_NAM],0))
                 return defaultgameconfilename[GAME_NAM]; // NAM/Napalm Sharing
         }
         else
@@ -105,9 +104,9 @@ char *G_DefaultConFile(void)
     }
     else if (NAM)
     {
-        if (kopen4load(defaultgameconfilename[GAME_NAM],0) < 0)
+        if (!testkopen(defaultgameconfilename[GAME_NAM],0))
         {
-            if (kopen4load(defaultgameconfilename[GAME_NAPALM],0) >= 0)
+            if (testkopen(defaultgameconfilename[GAME_NAPALM],0))
                 return defaultgameconfilename[GAME_NAPALM]; // NAM/Napalm Sharing
         }
         else
@@ -201,6 +200,15 @@ int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 }
 
 //////////
+
+// returns: 1 if file could be opened, 0 else
+int32_t testkopen(const char *filename, char searchfirst)
+{
+    int32_t fd = kopen4load(filename, searchfirst);
+    if (fd >= 0)
+        kclose(fd);
+    return (fd >= 0);
+}
 
 // checks from path and in ZIPs, returns 1 if NOT found
 int32_t check_file_exist(const char *fn)

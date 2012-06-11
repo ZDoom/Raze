@@ -213,14 +213,14 @@ const char *G_DefaultRtsFile(void)
         return defaultrtsfilename[GAME_WW2GI];
     else if (NAPALM)
     {
-        if ((kopen4load(defaultrtsfilename[GAME_NAPALM],0) < 0) && (kopen4load(defaultrtsfilename[GAME_NAM],0) >= 0))
+        if (!testkopen(defaultrtsfilename[GAME_NAPALM],0) && testkopen(defaultrtsfilename[GAME_NAM],0))
             return defaultrtsfilename[GAME_NAM]; // NAM/Napalm Sharing
         else
             return defaultrtsfilename[GAME_NAPALM];
     }
     else if (NAM)
     {
-        if ((kopen4load(defaultrtsfilename[GAME_NAM],0) < 0) && (kopen4load(defaultrtsfilename[GAME_NAPALM],0) >= 0))
+        if (!testkopen(defaultrtsfilename[GAME_NAM],0) && testkopen(defaultrtsfilename[GAME_NAPALM],0))
             return defaultrtsfilename[GAME_NAPALM]; // NAM/Napalm Sharing
         else
             return defaultrtsfilename[GAME_NAM];
