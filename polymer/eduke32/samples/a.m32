@@ -492,7 +492,7 @@ endevent
 gamevar ohlsecs 0 0
 gamearray collectedsectors MAXSECTORS  // shared with 'old-highlighted sectors'
 
-defstate try_nextsector
+defstate try_nextsector_teleporting
     var nexts
     set nexts RETURN
 
@@ -505,6 +505,13 @@ defstate try_nextsector
             break
         }
     }
+ends
+
+defstate try_nextsector_ceilingsky
+    ifand sector[RETURN].ceilingstat 1
+        set RETURN 1
+    else
+        set RETURN 0
 ends
 
 // save or restore highlighted sectors
@@ -540,7 +547,26 @@ defstate collect_teleporting_sectors // (sec)
 
     set ohlsecs 0  // reset old hl'd sectors
 
-    collectsectors collectedsectors sec numsects try_nextsector
+    collectsectors collectedsectors sec numsects try_nextsector_teleporting
+    for i range numsects
+        sethighlightsector collectedsectors[i] 1
+ends
+
+// XXX: CODEDUP
+defstate collect_ceilsky_sectors // (sec)
+    "Collect sky ceilings"
+    var numsects
+
+    set numsects numsectors, sub numsects 1
+    ifinteractive
+    {
+        getnumberfromuser sec "starting sectnum: " numsects 8
+        ifl sec 0, return
+    }
+
+    set ohlsecs 0  // reset old hl'd sectors
+
+    collectsectors collectedsectors sec numsects try_nextsector_ceilingsky
     for i range numsects
         sethighlightsector collectedsectors[i] 1
 ends
