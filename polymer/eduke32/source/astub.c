@@ -4251,21 +4251,24 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
 {
     char buf[64];
     int32_t small = (xdimgame<=640);
-    int32_t scale=65536;
-    int32_t x1;
     int32_t oviewingrange=viewingrange, oyxaspect=yxaspect;
 
-    x1 = x+80;
-    if (small)
-        x1 /= 2;
+    if (tilesizx[picnum]>0 && tilesizy[picnum]>0)
+    {
+        int32_t scale=65536;
+        int32_t x1 = x+80;
 
-    x1 *= 320.0/xdimgame;
-    scale /= (max(tilesizx[picnum],tilesizy[picnum])/24.0);
+        if (small)
+            x1 /= 2;
 
-    setaspect(65536L, (int32_t)divscale16(ydim*320L,xdim*200L));
-    // +1024: prevents rotatesprite from setting aspect itself
-    rotatesprite_fs((x1+13)<<16,(y+11)<<16,scale,0, picnum,shade,pal, 2+1024);
-    setaspect(oviewingrange, oyxaspect);
+        x1 *= 320.0/xdimgame;
+        scale /= (max(tilesizx[picnum],tilesizy[picnum])/24.0);
+
+        setaspect(65536L, (int32_t)divscale16(ydim*320L,xdim*200L));
+        // +1024: prevents rotatesprite from setting aspect itself
+        rotatesprite_fs((x1+13)<<16,(y+11)<<16,scale,0, picnum,shade,pal, 2+1024);
+        setaspect(oviewingrange, oyxaspect);
+    }
 
     x *= xdimgame/320.0;
     y *= ydimgame/200.0;
@@ -7591,7 +7594,7 @@ static void Keys2d(void)
         if (eitherCTRL)
         {
             g_fillCurSector = !g_fillCurSector;
-            message("Fill currently pointed-at sector: %s", ONOFF(g_fillCurSector));
+            silentmessage("Fill currently pointed-at sector: %s", ONOFF(g_fillCurSector));
             keystatus[KEYSC_TAB] = 0;
         }
         else if (eitherSHIFT)
