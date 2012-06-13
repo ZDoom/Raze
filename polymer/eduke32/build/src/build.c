@@ -3811,7 +3811,7 @@ void overheadeditor(void)
 
                     if (SECTORFLD(highlightsector[i],z, cf) != thez)
                     {
-                        message("Sector %d's %s height doesn't match sector %d's\n",
+                        message("Sector %d's %s height doesn't match sector %d's",
                                 highlightsector[i], cfs[cf], highlightsector[0]);
                         goto end_yax;
                     }
@@ -5743,20 +5743,32 @@ end_point_dragging:
                         //                     v----------------v
                         if (s1to0wall == -1 && i != joinsector[0])
                         {
+                            int32_t good = 1;
 #ifdef YAX_ENABLE
                             if (jbn[0][0]>=0 || jbn[0][1]>=0 || jbn[1][0]>=0 || jbn[1][1]>=0)
                             {
                                 message("Joining non-adjacent extended sectors not allowed!");
+                                good = 0;
+                            }
+#endif
+                            if (!m32_script_expertmode)
+                            {
+                                message("Joining non-adjacent disabled in non-expert mode");
+                                good = 0;
+                            }
+
+                            if (!good)
+                            {
                                 joinsector[0] = joinsector[1] = -1;
                                 goto end_join_sectors;
                             }
-#endif
+
                             {
                                 fillsector(i, editorcolors[9]);
                                 fillsector(joinsector[0], editorcolors[9]);
                                 fade_editor_screen(editorcolors[9]);
 
-                                if (!ask_if_sure("Join non-adjacent sectors? (Y/N)", 0))
+                                if (!ask_if_sure("Really join non-adjacent sectors? (Y/N)", 0))
                                     joinsector[1] = joinsector[0];
                             }
                         }
