@@ -303,6 +303,11 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(COMPILE_STATUS)
 	if $(AS) $(OURASFLAGS) $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
+# uncomment to debug a-c.o
+$(OBJ)/a-c.$o: $(SRC)/a-c.c
+	$(COMPILE_STATUS)
+	if $(CC) $(OURCONLYFLAGS) $(subst -O0,-O2,$(subst -fcatch-undefined-behavior,,$(OURCFLAGS))) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
 	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
