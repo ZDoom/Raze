@@ -7749,11 +7749,13 @@ int32_t lineintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2
 //
 // rintersect (internal)
 //
-static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
-                                 int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
+static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx_, int32_t vy_, int32_t vz, int32_t x3,
+                          int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 towards p2 is a ray
-    int32_t x34, y34, x31, y31, bot, topt, topu, t;
+    int64_t x34, y34, x31, y31, bot, topt, topu, t;
+
+    const int64_t vx=vx_, vy=vy_;
 
     x34 = x3-x4; y34 = y3-y4;
     bot = vx*y34 - vy*x34;
@@ -7770,10 +7772,12 @@ static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_
         topt = x31*y34 - y31*x34; if (topt > 0) return(0);
         topu = vx*y31 - vy*x31; if ((topu > 0) || (topu <= bot)) return(0);
     }
-    t = divscale16(topt,bot);
-    *intx = x1 + mulscale16(vx,t);
-    *inty = y1 + mulscale16(vy,t);
-    *intz = z1 + mulscale16(vz,t);
+
+    t = (topt<<16)/bot;
+    *intx = x1 + ((vx*t)>>16);
+    *inty = y1 + ((vy*t)>>16);
+    *intz = z1 + ((vz*t)>>16);
+
     return(1);
 }
 
@@ -11012,6 +11016,7 @@ restart_grand:
             y31 = wal->y-y1; y34 = wal->y-wal2->y;
 
             bot = y21*x34-x21*y34; if (bot <= 0) continue;
+            // XXX: OVERFLOW
             t = y21*x31-x21*y31; if ((unsigned)t >= (unsigned)bot) continue;
             t = y31*x34-x31*y34;
             if ((unsigned)t >= (unsigned)bot)
@@ -11326,7 +11331,7 @@ restart_grand:
             wal2 = &wall[wal->point2];
             x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
 
-            if ((x1-sv->x)*(y2-sv->y) < (x2-sv->x)*(y1-sv->y)) continue;
+            if ((int64_t)(x1-sv->x)*(y2-sv->y) < (int64_t)(x2-sv->x)*(y1-sv->y)) continue;
             if (rintersect(sv->x,sv->y,sv->z, vx,vy,vz, x1,y1, x2,y2, &intx,&inty,&intz) == 0) continue;
 
             if (klabs(intx-sv->x)+klabs(inty-sv->y) >= klabs((hitinfo->pos.x)-sv->x)+klabs((hitinfo->pos.y)-sv->y))
@@ -11442,7 +11447,7 @@ restart_grand:
                 y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
 
                 if ((cstat&64) != 0)   //back side of 1-way sprite
-                    if ((x1-sv->x)*(y2-sv->y) < (x2-sv->x)*(y1-sv->y)) continue;
+                    if ((int64_t)(x1-sv->x)*(y2-sv->y) < (int64_t)(x2-sv->x)*(y1-sv->y)) continue;
 
                 if (rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz) == 0) continue;
 
@@ -11632,7 +11637,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
             if ((tagsearch&2) && wal->hitag) good |= 2;
 
             if ((good == 0) && (nextsector < 0)) continue;
-            if ((x1-xs)*(y2-ys) < (x2-xs)*(y1-ys)) continue;
+            if ((int64_t)(x1-xs)*(y2-ys) < (int64_t)(x2-xs)*(y1-ys)) continue;
 
             if (lintersect(xs,ys,zs,xe,ye,ze,x1,y1,x2,y2,&intx,&inty,&intz) == 1)
             {
