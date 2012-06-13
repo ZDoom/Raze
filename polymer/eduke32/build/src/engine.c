@@ -14122,7 +14122,7 @@ int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
         walltype *wal;
 
         wal = &wall[sector[sectnum].wallptr];
-        // ceil(sqrt(2**31-1)) == 46341
+        // floor(sqrt(2**31-1)) == 46340
         dx = wall[wal->point2].x-wal->x; dy = wall[wal->point2].y-wal->y;
         i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return(sector[sectnum].ceilingz);
         j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
@@ -14166,7 +14166,7 @@ void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int
     {
         wal = &wall[sec->wallptr]; wal2 = &wall[wal->point2];
         dx = wal2->x-wal->x; dy = wal2->y-wal->y;
-        i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return;
+        i = (nsqrtasm(dx*dx+dy*dy)<<5); if (i == 0) return;  // XXX: OVERFLOW
         j = dmulscale3(dx,day-wal->y,-dy,dax-wal->x);
         if (sec->ceilingstat&2) *ceilz = (*ceilz)+(scale(sec->ceilingheinum,j>>1,i)<<1);
         if (sec->floorstat&2) *florz = (*florz)+(scale(sec->floorheinum,j>>1,i)<<1);
@@ -15050,7 +15050,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     dy = wal->y-wall[wal->point2].y;
     dist = dx*dx+dy*dy;
 
-    if (dist > 0xffffffffll)
+    if (dist > INT32_MAX)
     {
         col=9;
         if (i == linehighlight || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
