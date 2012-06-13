@@ -3205,7 +3205,9 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
     }
     gdx = 0;
     gdy = gxyaspect;
-    if (!(globalorientation&2)) gdy /= (double)(global_cf_z-globalposz);
+    if (!(globalorientation&2))
+        if (global_cf_z-globalposz)  // PK 2012: don't allow div by zero
+            gdy /= (double)(global_cf_z-globalposz);
     gdo = -ghoriz*gdy;
     if (globalorientation&8) { ft[0] /= 8; ft[1] /= -8; ft[2] /= 2097152; ft[3] /= 2097152; }
     else { ft[0] /= 16; ft[1] /= -16; ft[2] /= 4194304; ft[3] /= 4194304; }
