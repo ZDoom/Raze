@@ -5027,6 +5027,9 @@ void polymost_drawsprite(int32_t snum)
         tsizy = h_ysize[globalpicnum];
     }
 
+    if (tsizx<=0 || tsizy<=0)
+        return;
+
     switch ((globalorientation>>4)&3)
     {
     case 0: //Face sprite
