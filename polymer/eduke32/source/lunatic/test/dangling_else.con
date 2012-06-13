@@ -1,0 +1,10 @@
+// a dangling 'else' in CON attaches to the outermost matching 'if'
+onevent EVENT_INIT
+    redefinequote 114 DANGLING ELSE CHECK FAILED 1
+    ifvare 0 1
+        ifvare 0 0 redefinequote 114 DANGLING ELSE CHECK FAILED 2
+    else
+        redefinequote 114 DANGLING ELSE CHECK PASSED
+
+    echo 114
+endevent

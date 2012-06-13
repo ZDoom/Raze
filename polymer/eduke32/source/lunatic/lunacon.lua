@@ -42,8 +42,12 @@ local g_lastkw = nil
 local g_badids = {}  -- maps bad id strings to 'true'
 
 local g_recurslevel = -1  -- 0: base CON file, >0 included
+local g_filename = "???"
 local g_directory = ""  -- with trailing slash if not empty
 local g_numerrors = 0
+
+local g_ifnestlevel = 0  -- needed to cope with CONs dangling-else resolution
+
 
 local function getlinecol(pos) end -- fwd-decl
 
@@ -54,24 +58,30 @@ end
 
 local function errprintf(fmt, ...)
     if (g_lastkwpos) then
-        printf("%s: error: "..fmt, linecolstr(g_lastkwpos), ...)
+        printf("%s %s: error: "..fmt, g_filename, linecolstr(g_lastkwpos), ...)
     else
-        printf("???: error: "..fmt, ...)
+        printf("%s ???: error: "..fmt, g_filename, ...)
     end
     g_numerrors = g_numerrors+1
 end
 
-local function parse_number(numstr, pos)
+local function warnprintf(fmt, ...)
+    if (g_lastkwpos) then
+        printf("%s %s: warning: "..fmt, g_filename, linecolstr(g_lastkwpos), ...)
+    else
+        printf("%s ???: warning: "..fmt, g_filename, ...)
+    end
+end
+
+local function parse_number(numstr)
     local num = tonumber(numstr)
 
     -- TODO: print line number
     if (num < -0x80000000 or num > 0xffffffff) then
-        printf("%s: warning: number %s out of the range of a 32-bit integer",
-               linecolstr(g_lastkwpos), numstr)
+        errprintf("number %s out of the range of a 32-bit integer", numstr)
         num = 0/0
-    elseif (num >= 0x80000000) then
-        printf("%s: warning: number %s converted to a negative one",
-               linecolstr(g_lastkwpos), numstr)
+    elseif (num >= 0x80000000 and numstr:sub(1,2):lower()~="0x") then
+        warnprintf("number %s converted to a negative one", numstr)
         num = num-0x100000000
     end
 
@@ -126,8 +136,8 @@ local function do_define_label(identifier, idornum)
     local oldnum = g_labeldef[identifier]
     if (oldnum) then
         if (oldnum ~= num) then
-            errprintf("label \"%s\" defined with different value (old: %d, new: %d)",
-                      identifier, oldnum, num)
+            warnprintf("label \"%s\" not redefined with new value %d (old: %d)",
+                       identifier, num, oldnum)
         end
         return
     end
@@ -173,7 +183,10 @@ else
             return
         end
 
+        local oldfilename = g_filename
+        g_filename = filename
         parse(contents)
+        g_filename = oldfilename
     end
 
     function cmd_include(filename)
@@ -833,7 +846,7 @@ end
 local function BadIdent(pat)
     local function tfunc(subj, pos, a)
         if (not g_badids[a]) then
-            printf("%s: warning: bad identifier: %s", linecolstr(pos), a)
+            warnprintf("bad identifier: %s", a)
             g_badids[a] = true
         end
         return true
@@ -895,7 +908,7 @@ end
 
 -- actor ORGANTIC is greeting!
 local function warn_on_lonely_else(subj, pos)
-    printf("%s: warning: found `else' with no `if'", linecolstr(pos))
+    warnprintf("found `else' with no `if'")
     return true
 end
 
@@ -953,6 +966,18 @@ local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09"
 local t_broken_identifier = BadIdent(-((t_number + t_good_identifier) * (sp1 + Set("[]:"))) *
                                      (alphanum + Set("_/\\*")) * (alphanum + Set("_/\\*-"))^0)
 
+local function begin_if_fn()
+    g_ifnestlevel = g_ifnestlevel+1
+end
+
+local function end_if_fn()
+    g_ifnestlevel = g_ifnestlevel-1
+end
+
+local function check_else_Cmt()
+    return (g_ifnestlevel==0)  -- match an 'else' only at the outermost level
+end
+
 --- The final grammar!
 local Grammar = Pat{
     -- The starting symbol.
@@ -992,11 +1017,10 @@ local Grammar = Pat{
 
     default_block = sp1 * Keyw("default") * (sp0*":"*sp0 + sp1) * stmt_list_nosp_or_eps,  -- * "break",
 
-    -- The "lone" if statement is tested first, so that a potential dangling "else" is
-    -- attached to the outermost possible "if", as done by CON
-    if_stmt = con_if_begs * sp1 * Var("single_stmt") * -(sp1 * Pat("else"))
-        + con_if_begs * sp1 * Var("single_stmt") * sp1 * "else" * sp1 * Var("single_stmt"),
+    if_stmt = con_if_begs/begin_if_fn * sp1 * Var("single_stmt") * Pat("")/end_if_fn
+        * (sp1 * lpeg.Cmt(Pat("else"), check_else_Cmt) * sp1 * Var("single_stmt"))^-1,
 
+    -- TODO?: SST TC has "state ... else ends"
     while_stmt = Keyw("whilevarvarn") * sp1 * t_rvar * sp1 * t_rvar * sp1 * Var("single_stmt")
         + Keyw("whilevarn") * sp1 * t_rvar * sp1 * t_define * sp1 * Var("single_stmt"),
 
@@ -1042,6 +1066,8 @@ function parse(contents)  -- local
     -- save outer state
     local lastkw, lastkwpos, numerrors = g_lastkw, g_lastkwpos, g_numerrors
     local newlineidxs = g_newlineidxs
+
+    g_ifnestlevel = 0
 
     -- set up new state
     -- TODO: pack into one "parser state" table?
