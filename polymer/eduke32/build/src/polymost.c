@@ -4847,7 +4847,7 @@ int32_t lastcullcheck = 0;
 char cullmodel[MAXSPRITES];
 int32_t cullcheckcnt = 0;
 
-int32_t __fastcall polymost_checkcoordinates(int32_t x, int32_t y, spritetype *tspr)
+static int32_t __fastcall polymost_checkcoordinates(int32_t x, int32_t y, spritetype *tspr)
 {
     int16_t datempsectnum = tspr->sectnum;
     int32_t oldx = x, i, j = (tilesizy[tspr->picnum]*tspr->yrepeat);
