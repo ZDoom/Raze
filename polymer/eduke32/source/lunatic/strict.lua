@@ -32,12 +32,13 @@ mt.__newindex = function (t, n, v)
   rawset(t, n, v)
 end
 
--- PK: change from original:
---[[
+-- PK: change from original (undeclared-refs in main allowed):
 mt.__index = function (t, n)
-  if not mt.__declared[n] and what() ~= "C" then
-    error("variable '"..n.."' is not declared", 2)
+  if not mt.__declared[n] then
+      local w = what()
+      if w ~= "main" and w ~= "C" then
+          error("variable '"..n.."' is not declared", 2)
+      end
   end
   return rawget(t, n)
 end
---]]

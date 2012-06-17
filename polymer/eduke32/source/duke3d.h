@@ -69,6 +69,7 @@ extern "C" {
 #define RECSYNCBUFSIZ       2520   //2520 is the (LCM of 1-8)*3
 #define MOVEFIFOSIZ         2
 
+// KEEPINSYNC lunatic/con_lang.lua
 #define MAXVOLUMES          7
 #define MAXLEVELS           64
 #define MAXGAMETYPES        16

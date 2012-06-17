@@ -22,9 +22,9 @@ end
 gamevar("ourvar")
 gamevar("ourvar2")
 
--- test nans, infs, precision, subnorms
-ourvar2 = { "asd"; 0/0, 1/0, -1/0, 0.12345678901234567, 1e-314 }
-ourvar = { ourvar2; 1, 2, 3, "qwe" }
+-- test nans, infs, precision, subnorms, booleans
+ourvar2 = { "asd"; 0/0, 1/0, -1/0, 0.12345678901234567, 1e-314, true }
+ourvar = { ourvar2; 1, 2, 3, "qwe"; [true]=0, [false]=1 }
 ourvar[#ourvar+1] = ourvar;
 
 local gvstr = DBG_.serializeGamevars()

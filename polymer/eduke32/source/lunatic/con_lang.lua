@@ -10,6 +10,9 @@ return
 
 {
 
+MAXVOLUMES = 7,
+MAXLEVELS = 64,
+
 -- KEEPINSYNC gamedef.h
 labels =
 {

@@ -118,7 +118,7 @@ local function lookup_defined_label(identifier)
 
     if (num == nil) then
         errprintf("label \"%s\" is not defined", identifier)
-        return -inf
+        return -inf  -- return a number for type cleanness
     end
 
     return num
@@ -133,7 +133,7 @@ local function do_define_label(identifier, idornum)
     else
         assert(idornum ~= nil)
         num = lookup_defined_label(idornum)
-        if (num == -1/0) then
+        if (num == -inf) then
             return
         end
     end
@@ -200,6 +200,38 @@ else
     end
 end
 
+--- Per-module game data
+local g_data = {}
+local EPMUL = con.MAXLEVELS
+
+local function reset_gamedata()
+    g_data = {}
+
+    -- [EPMUL*ep + lev] = { ptime=<num>, dtime=<num>, fn=<str>, name=<str> }
+    g_data.levels = {}
+end
+
+local function cmd_definelevelname(vol, lev, fn, ptstr, dtstr, levname)
+    if (vol < 0 or vol >= con.MAXVOLUMES) then
+        errprintf("volume number exceeds maximum volume count.")
+    end
+
+    if (lev < 0 or lev >= con.MAXLEVELS) then
+        errprintf("level number exceeds maximum number of levels per episode.")
+    end
+
+    -- TODO: Bcorrectfilename(fn)
+
+    local function secs(tstr)
+        local m, s = string.match(tstr, ".+:.+")
+        m, s = tonumber(m), tonumber(s)
+        return (m and s) and m*60+s or 0
+    end
+
+    g_data.levels[EPMUL*vol+lev] = {
+        ptime=secs(ptstr), dtime=secs(dtstr), fn=fn, name=levname
+    }
+end
 
 ----==== patterns ====----
 
@@ -231,8 +263,8 @@ local t_identifier = Var("t_identifier")
 -- This one matches keywords, too:
 local t_identifier_all = Var("t_identifier_all")
 local t_define = Var("t_define")
--- NOTE: no chance to whitespace in filenames:
-local t_filename = lpeg.C((anychar-Set(" \t\r\n"))^1)
+-- NOTE: no chance to whitespace and double quotes in filenames:
+local t_filename = lpeg.C((anychar-Set(" \t\r\n\""))^1)
 local t_newline_term_str = match_until(anychar, newline)
 
 -- new-style inline arrays and structures:
@@ -295,6 +327,8 @@ local function cmd(...)
 end
 
 
+local t_time = lpeg.C(alphanum*alphanum^-1*":"*alphanum*alphanum^-1)  -- for definelevelname
+
 -- The command names will be attached to the front of the patterns later!
 
 --== Top level CON commands ==--
@@ -318,7 +352,8 @@ local Co = {
     definecheat = newline_term_string,  -- XXX: actually tricker syntax (TS)
     definegamefuncname = newline_term_string,  -- XXX: TS?
     definegametype = n_defines(2) * newline_term_string,
-    definelevelname = n_defines(2) * newline_term_string,  -- XXX: TS
+    definelevelname = n_defines(2) * sp1 * t_filename * sp1 * t_time * sp1 * t_time *
+        newline_term_string / cmd_definelevelname,
     defineskillname = sp1 * t_define * newline_term_string,
     definevolumename = sp1 * t_define * newline_term_string,
 
@@ -326,7 +361,7 @@ local Co = {
     defineprojectile = cmd(D,D,D),
     definesound = sp1 * t_define * sp1 * maybe_quoted_filename * n_defines(5),  -- XXX: TS
 
-    -- NOTE: gamevar.ogg is OK, too
+    -- NOTE: gamevar.ogg and the like is OK, too
     music = sp1 * t_define * match_until(sp1 * t_filename, sp1 * con.keyword * sp1),
 
     --- 3. Game Settings
@@ -392,6 +427,10 @@ local getperxvarcmd =  -- get<actor/player>var[<idx>].<member> <<var>>
 local setperxvarcmd = -- set<actor/player>var[<idx>].<member> <var>
     arraypat * memberpat * sp1 * t_rvar
 
+
+-- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
+-- that have no arguments and that are prefixes of other commands MUST be
+-- suffixed with a "* #sp1" pattern.
 
 local Ci = {
     -- these can appear anywhere in the script
@@ -605,7 +644,7 @@ local Ci = {
 
     activatebysector = cmd(R,R),
     addlogvar = cmd(R),
---    addlog = cmd(),  -- must come after addlogvar
+    addlog = cmd() * #sp1,
     addweaponvar = cmd(R,R),  -- exec SPECIAL HANDLING!
     cansee = cmd(R,R,R,R,R,R,R,R,W),
     canseespr = cmd(R,R,W),
@@ -638,8 +677,7 @@ local Ci = {
     operatesectors = cmd(R,R),
     palfrom = (sp1 * t_define)^-4,
 
-    -- must come after all other operate* commands
---    operate = cmd(),
+    operate = cmd() * #sp1,
 
     myos = cmd(R,R,R,R,R),
     myosx = cmd(R,R,R,R,R),
@@ -768,7 +806,7 @@ local Cif = {
     ifclient = cmd(),
     ifcanshoottarget = cmd(),
     ifcanseetarget = cmd(),
---    ifcansee = cmd(),
+    ifcansee = cmd() * #sp1,
     ifbulletnear = cmd(),
     ifawayfromwall = cmd(),
     ifactornotstayput = cmd(),
@@ -883,7 +921,7 @@ end
 -- attach the command names at the front!
 local function attachnames(kwtab)
     for cmdname,cmdpat in pairs(kwtab) do
-        -- The always-nil-returning function at the end is so that every
+        -- The match-time function capture at the end is so that every
         -- command acts as a barrier to captures to prevent stack overflow (and
         -- to make lpeg.match return a subject position at the end)
         kwtab[cmdname] = lpeg.Cmt(Keyw(cmdname) * cmdpat, after_cmd_Cmt)
@@ -895,20 +933,36 @@ attachnames(Ci)
 attachnames(Cif)
 
 
--- Takes one or more tables and +'s all its patterns together in the order of
--- appearance.
--- The tables must map command names to their patterns.
+-- Takes one or more tables and +'s all its patterns together in reverse
+-- lexicographical order.
+-- Each such PATTAB must be a table that maps command names to their patterns.
 local function all_alt_pattern(...)
-    local pat = Pat(false)
+    local cmds = {}
+
     local args = {...}
+    assert(#args <= 2)
+
     for argi=1,#args do
         local pattab = args[argi]
-        -- NOTE: pairs() iterates in undefined order!
-        -- We can't handle prefix-problematic commands this way here.
-        for cmdname,cmdpat in pairs(pattab) do
-            pat = cmdpat + pat
+
+        -- pairs() iterates in undefined order, so we first fill in the names...
+        for cmdname,_ in pairs(pattab) do
+            cmds[#cmds+1] = cmdname
         end
+
     end
+
+    -- ...and then sort them in ascending lexicographical order
+    table.sort(cmds)
+
+    local pat = Pat(false)
+
+    for i=1,#cmds do
+        local ourpat = args[1][cmds[i]] or args[2][cmds[i]]
+        -- shorter commands go at the end!
+        pat = pat + ourpat
+    end
+
     return pat
 end
 
@@ -917,20 +971,9 @@ local function warn_on_lonely_else()
     warnprintf("found `else' with no `if'")
 end
 
--- NOTE: The indented text is not true, e.g. addlog vs. addlogvar:
--- since 'addlog' has no args, it will get matched given an 'addlogvar' in the subject:
---   About prefixes: I think it's not a problem *here* if e.g. "getactor" comes
---   before "getactorvar", because the pattern for the former will fail
---   eventually in the ordered choice if fed with the latter.  However, it DOES
---   matter in the keyword list, see NotKeyw() trace function and comment in
---   con_lang.lua.
--- Do we have more of them?  Yes.
---  operate/operate*
---  ifcansee/ifcanseetarget
-local con_outer_command = all_alt_pattern(Co)
--- Empty-arged commands that are prefixes of others must come last:
-local con_inner_command = all_alt_pattern(Ci) + "addlog" + "operate"
-local con_if_begs = all_alt_pattern(Cif) + "ifcansee"
+
+local con_inner_command = all_alt_pattern(Ci)
+local con_if_begs = all_alt_pattern(Cif)
 
 local lone_else = ("else" * sp1)/warn_on_lonely_else
 
@@ -989,7 +1032,7 @@ local Grammar = Pat{
     -- A translation unit is a (possibly empty) sequence of outer CON
     -- commands, separated by at least one whitespace which may be
     -- omitted at the EOF.
-    sp0 * ((con_outer_command + all_alt_pattern(Cb)) * sp1)^0,
+    sp0 * (all_alt_pattern(Co, Cb) * sp1)^0,
 
     -- Some often-used terminals follow.  These appear here because we're
     -- hitting a limit with LPeg else.
@@ -1085,6 +1128,7 @@ function parse(contents)  -- local
 
     if (not idx) then
         printf("[%d] Match failed.", g_recurslevel)
+        g_numerrors = inf
     elseif (idx == #contents+1) then
         if (g_numerrors ~= 0) then
             printf("[%d] Matched whole contents (%d errors).",
@@ -1098,6 +1142,7 @@ function parse(contents)  -- local
 
         printf("[%d] Match succeeded up to %d (line %d, col %d; len=%d)",
                g_recurslevel, idx, i, col, #contents)
+        g_numerrors = inf
 
 --        printf("Line goes from %d to %d", bi, ei)
         local suffix = ""
@@ -1131,6 +1176,7 @@ if (not _EDUKE32_LUNATIC) then
         g_recurslevel = -1
         g_badids = {}
         reset_labels()
+        reset_gamedata()
 
         g_numerrors = 0
 

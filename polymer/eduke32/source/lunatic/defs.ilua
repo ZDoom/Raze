@@ -582,11 +582,9 @@ local function basicSerialize(o)
         if (o == -1/0) then return "-1/0" end  -- -inf
 
         return tostring(o)
-    else  -- must be a string
-        if (type(o) ~= "string") then
-            error("cannot save a " .. type(o) .. " as key of a table", 3);
-        end
-
+    elseif (type(o) == "boolean") then
+        return tostring(o)
+    elseif (type(o) == "string") then
         return string.format("%q", o)
     end
 end
@@ -599,8 +597,10 @@ local function save(name, value, saved, strings)
 
     strings[#strings+1] = name .. "="
 
-    if (type(value) == "number" or type(value) == "string") then
-        strings[#strings+1] = basicSerialize(value) .. "\n"
+    local str = basicSerialize(value)
+
+    if (str ~= nil) then
+        strings[#strings+1] = str .. "\n"
     elseif (type(value) == "table") then
         if (saved[value]) then    -- value already saved?
             strings[#strings+1] = saved[value] .. "\n"  -- use its previous name
@@ -609,7 +609,11 @@ local function save(name, value, saved, strings)
             strings[#strings+1] = "{}\n"  -- create a new table
 
             for k,v in pairs(value) do      -- save its fields
-                local fieldname = string.format("%s[%s]", name, basicSerialize(k))
+                local keystr = basicSerialize(k)
+                if (keystr == nil) then
+                    error("cannot save a " .. type(k) .. " as key of a table", 2);
+                end
+                local fieldname = string.format("%s[%s]", name, keystr)
                 if (type(v)=="table" and not tmpgvtabs[v]) then
                     error("cannot save \""..name..
                           "\": gamevar tables may only contain tables that are also gamevars", 2)
