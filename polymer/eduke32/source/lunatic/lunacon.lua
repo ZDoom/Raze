@@ -91,29 +91,33 @@ local function parse_number(numstr)
 end
 
 
-local LABEL_DEFINE = 1
---local LABEL_STATE  = 2
---local LABEL_ACTOR  = 4
-local LABEL_ACTION = 8
-local LABEL_AI     = 16
-local LABEL_MOVE   = 32
+local LABEL = { MOVE=2, AI=3, ACTION=5, [2]="move", [3]="ai", [5]="action" }
 
+local MOVE_NO_ = {0,0}
+local ACTION_NO_ = {0,0,0,0,0}
+local LABEL_NO = { [2]=MOVE_NO_, [3]={ACTION_NO_,MOVE_NO_,0}, [5]=ACTION_NO_ }
+
+-- will contain:
+--  * scalar numbers: `define'd values
+--  * tables of length 2, 3, 5: move, ai, action definitions (respectively)
+--    - move: { hvel <num>, vvel <num> }
+--    - ai: { action <label str>, move <label str, or scalar 0 or 1>, flags <num> }
+--    - action: { startframe, numframes, viewtype, incval, delay }  (all <num>)
 local g_labeldef = {}
-local g_labeltype = {}
 
 local function reset_labels()
-    g_labeldef = { NO=0 }
-    g_labeltype = { NO=LABEL_DEFINE+LABEL_ACTION+LABEL_AI+LABEL_MOVE }
+    g_labeldef = { NO=0 }  -- NO is also a valid `move', `ai' or `action'
 
     for i=1,#con.labels do
         for label, val in pairs(con.labels[i]) do
             g_labeldef[label] = val
-            g_labeltype[label] = LABEL_DEFINE
         end
     end
 end
 
-local function lookup_defined_label(identifier)
+-- XXX: error reports give wrong numbers if e.g. happened in "actor" def
+--  (since it runs when fully parsed, i.e. at "enda")
+local function lookup_defined_label(maybe_minus_str, identifier)
     local num = g_labeldef[identifier]
 
     if (num == nil) then
@@ -121,35 +125,110 @@ local function lookup_defined_label(identifier)
         return -inf  -- return a number for type cleanness
     end
 
-    return num
-end
-
-local function do_define_label(identifier, idornum)
-    -- TODO: label types
-    local num
-
-    if (type(idornum)=="number") then
-        num = idornum
-    else
-        assert(idornum ~= nil)
-        num = lookup_defined_label(idornum)
-        if (num == -inf) then
-            return
-        end
+    if (type(num) ~= "number") then
+        errprintf("label \"%s\" is not a `define'd value", identifier)
+        return -inf
     end
 
-    local oldnum = g_labeldef[identifier]
-    if (oldnum) then
+    return (maybe_minus_str=="" and 1 or -1) * num
+end
+
+local function do_define_label(identifier, num)
+    local oldval = g_labeldef[identifier]
+
+    if (oldval) then
+        if (type(oldval) == "table") then
+            errprintf("refusing to overwrite `%s' label \"%s\" with a `define'd value",
+                      LABEL[#oldval], identifier)
+            return
+        end
+
         -- con.labels[...]: don't warn for wrong PROJ_ redefinitions
-        if (oldnum ~= num and con.labels[2][identifier]==nil) then
+        if (oldval ~= num and con.labels[2][identifier]==nil) then
             warnprintf("label \"%s\" not redefined with new value %d (old: %d)",
-                       identifier, num, oldnum)
+                       identifier, num, oldval)
         end
         return
     end
 
     g_labeldef[identifier] = num
 end
+
+local function check_move_literal(num)
+    if (num~=0 and num~=1) then
+        errprintf("literal `move' number must be either 0 or 1")
+        return MOVE_NO_
+    end
+
+    -- Both move 0 and 1 have hvel and vvel 0, but they must not compare equal
+    -- for 'ifmove'.  0.1 will be truncated to 0 when passing to the game.
+    -- XXX: this is still wrong, we need an ID
+    return {0.1*num, 0.1*num}
+end
+
+local function check_action_or_ai_literal(labeltype, num)
+    if (num~=0) then
+        errprintf("literal `%s' number must be 0", LABEL[labeltype])
+        return LABEL_NO[labeltype]
+    end
+
+    return LABEL_NO[labeltype]
+end
+
+local function lookup_composite(labeltype, identifier)
+    if (identifier=="NO") then
+        -- NO is a special case and is valid for move, ai, action
+        return LABEL_NO[labeltype]
+    end
+
+    local val = g_labeldef[identifier]
+
+    if (val == nil) then
+        errprintf("label \"%s\" is not defined", identifier)
+        return LABEL_NO[labeltype]  -- return a value of the expected type for cleanness
+    end
+
+    if (type(val)~="table" or #val~=labeltype) then
+        errprintf("label \"%s\" is not a%s `%s' value", identifier,
+                  labeltype==LABEL.MOVE and "" or "n", LABEL[labeltype])
+        return LABEL_NO[labeltype]
+    end
+
+    return val
+end
+
+local function do_define_composite(labeltype, identifier, ...)
+    local oldval = g_labeldef[identifier]
+
+    if (oldval) then
+        if (type(oldval) ~= "table" or #val~=labeltype) then
+            errprintf("refusing to overwrite `%s' label \"%s\" with a `%s' value",
+                      type(oldval)=="number" and "define" or LABEL[#oldval],
+                      identifier, LABEL[labeltype])
+            return
+        end
+
+        warnprintf("duplicate `%s' definition of \"%s\" ignored",
+                   LABEL[labeltype], identifier)
+        return
+    end
+
+    local val = {...}
+    for i=#val+1,labeltype do
+        val[i] = LABEL_NO[labeltype][i]
+    end
+
+    if (labeltype == LABEL.AI) then
+        -- OR together the flags
+        for i=#val,LABEL.AI+1, -1 do
+            val[LABEL.AI] = bit.bor(val[LABEL.AI], val[i])
+            val[i] = nil
+        end
+    end
+
+    g_labeldef[identifier] = val
+end
+
 
 local function parse(contents) end -- fwd-decl
 
@@ -169,14 +248,11 @@ else
             fd, msg = io.open(dirname..filename)
 
             if (fd == nil) then
-                printf("Fatal error: couldn't open %s", msg)
+                printf("[%d] Fatal error: couldn't open %s", g_recurslevel, msg)
                 g_numerrors = inf
                 return
             end
         end
-
-        printf("%s[%d] Parsing file \"%s\"", (g_recurslevel==-1 and "\n---- ") or "",
-               g_recurslevel+1, dirname..filename);
 
         local contents = fd:read("*all")
         fd:close()
@@ -184,10 +260,14 @@ else
         if (contents == nil) then
             -- maybe that file name turned out to be a directory or other
             -- special file accidentally
-            printf("Fatal error: couldn't read from \"%s\"", dirname..filename)
+            printf("[%d] Fatal error: couldn't read from \"%s\"",
+                   g_recurslevel, dirname..filename)
             g_numerrors = inf
             return
         end
+
+        printf("%s[%d] Parsing file \"%s\"", (g_recurslevel==-1 and "\n---- ") or "",
+               g_recurslevel+1, dirname..filename);
 
         local oldfilename = g_filename
         g_filename = filename
@@ -347,6 +427,9 @@ local t_identifier = Var("t_identifier")
 -- This one matches keywords, too:
 local t_identifier_all = Var("t_identifier_all")
 local t_define = Var("t_define")
+local t_move = Var("t_move")
+local t_ai = Var("t_ai")
+local t_action = Var("t_action")
 -- NOTE: no chance to whitespace and double quotes in filenames:
 local t_filename = lpeg.C((anychar-Set(" \t\r\n\""))^1)
 local t_newline_term_str = match_until(anychar, newline)
@@ -379,7 +462,9 @@ local function n_defines(n)  -- works well only for small n
 end
 
 
-local D, R, W, I = -1, -2, -3, -4;
+local D, R, W, I, AC, MV, AI = -1, -2, -3, -4, -5, -6, -7
+local TOKEN_PATTERN = { [D]=t_define, [R]=t_rvar, [W]=t_wvar, [I]=t_identifier,
+                        [AC]=t_action, [MV]=t_move, [AI]=t_ai }
 
 -- Generic command pattern, types given by varargs.
 -- The command name to be matched is attached later.
@@ -393,18 +478,7 @@ local function cmd(...)
     local vartypes = {...}
 
     for i=1,#vartypes do
-        assert(vartypes[i] < 0)
-
-        if (vartypes[i] == D) then
-            pat = pat * sp1 * t_define
-        elseif (vartypes[i] == R) then
-            pat = pat * sp1 * t_rvar
-        elseif (vartypes[i] == W) then
-            pat = pat * sp1 * t_wvar
-        else  -- I
-            assert(vartypes[i] == I)
-            pat = pat * sp1 * t_identifier
-        end
+        pat = pat * sp1 * assert(TOKEN_PATTERN[vartypes[i]])
     end
 
     return pat
@@ -463,9 +537,18 @@ local Co = {
     gamearray = cmd(I,D),
 
     --- 5. Top level commands that are also run-time commands
-    action = sp1 * t_identifier * (sp1 * t_define)^-5 / function(id) do_define_label(id, 0) end,  -- TEMP
-    ai = sp1 * t_identifier * (sp1 * t_define)^0 / function(id) do_define_label(id, 0) end,  -- TEMP
-    move = sp1 * t_identifier * (sp1 * t_define)^-2 / function(id) do_define_label(id, 0) end,  -- TEMP
+    -- startframe, numframes, viewtype, incval, delay:
+    action = sp1 * t_identifier * (sp1 * t_define)^-5 /
+        function(...) do_define_composite(LABEL.ACTION, ...) end,
+
+    -- action, move, flags...:
+    ai = sp1 * t_identifier * (sp1 * t_action *
+                               (sp1 * t_move * (sp1 * t_define)^0)^-1
+                              )^-1 /
+        function(...) do_define_composite(LABEL.AI, ...) end,
+
+    move = sp1 * t_identifier * (sp1 * t_define)^-2 /  -- hvel, vvel
+        function(...) do_define_composite(LABEL.MOVE, ...) end,
 
     --- 6. Deprecated TLCs
     betaname = newline_term_string,
@@ -593,9 +676,9 @@ local Ci = {
     --- 3. Actors
     -- These three need more attention (different kind of labels; move
     -- additionally may accept 0 or 1):
-    action = cmd(D),
-    ai = cmd(D),
-    move = sp1 * t_define * (sp1 * t_define)^0,
+    action = cmd(AC),
+    ai = cmd(AI),
+    move = sp1 * t_move * (sp1 * t_define)^0,
 
     cactor = cmd(D),
     count = cmd(D),
@@ -829,9 +912,9 @@ local Ci = {
 
 local Cif = {
     -- XXX: ai, action, move/def labels
-    ifai = cmd(D),
-    ifaction = cmd(D),
-    ifmove = cmd(D),
+    ifai = cmd(AI),
+    ifaction = cmd(AC),
+    ifmove = cmd(MV),
 
     ifrnd = cmd(D),
     ifpdistl = cmd(D),
@@ -1066,15 +1149,23 @@ local stmt_list = Var("stmt_list")
 local stmt_list_or_eps = (stmt_list * sp1)^-1
 local stmt_list_nosp_or_eps = (stmt_list * (sp1 * stmt_list)^0)^-1
 
--- common to all three: <name/tilenum> [<strength> [<action> [<move> [<ai>... ]]]]
-local common_actor_end = sp1 * t_define * sp1 * (t_define * sp1)^0 * stmt_list_or_eps * "enda"
+-- common to actor and useractor: <name/tilenum> [<strength> [<action> [<move> [<flags>... ]]]]
+local common_actor_end = sp1 * t_define *
+    (sp1 * t_define *
+     (sp1 * t_action *
+      (sp1 * t_move *
+       (sp1 * t_define)^0
+      )^-1
+     )^-1
+    )^-1
+        * sp1 * stmt_list_or_eps * "enda"
 
 --== block delimiters (no recursion) ==--
 local Cb = {
     -- actor (...)
     actor = common_actor_end,
-    -- eventloadactor (...)
-    eventloadactor = common_actor_end,
+    -- eventloadactor <name/tilenum>
+    eventloadactor = sp1 * t_define * sp1 * stmt_list_or_eps * "enda",
     -- useractor <actortype> (...)
     useractor = sp1 * t_define * common_actor_end,
 
@@ -1135,7 +1226,14 @@ local Grammar = Pat{
     --   getactor [THISACTOR].y y
     -- This is in need of cleanup!
     t_identifier = -NotKeyw(con.keyword * (sp1 + "[")) * lpeg.C(t_identifier_all),
-    t_define = (t_maybe_minus * t_identifier/lookup_defined_label) + t_number,  -- TODO: minus
+    t_define = (lpeg.C(t_maybe_minus) * t_identifier / lookup_defined_label) + t_number,
+
+    t_move = (t_identifier/function(id) lookup_composite(LABEL.MOVE, id) end) +
+        t_number/check_move_literal,
+    t_ai = (t_identifier/function(id) lookup_composite(LABEL.AI, id) end) +
+        t_number/function(num) check_action_or_ai_literal(LABEL.AI, num) end,
+    t_action = (t_identifier/function(id) lookup_composite(LABEL.ACTION, id) end) +
+        t_number/function(num) check_action_or_ai_literal(LABEL.ACTION, num) end,
 
     t_arrayexp = t_identifier * arraypat * memberpat^-1,
 
