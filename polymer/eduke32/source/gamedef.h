@@ -133,6 +133,7 @@ extern int32_t g_errorLineNum;
 extern int32_t g_tw;
 extern const char *keyw[];
 
+// KEEPINSYNC lunatic/con_lang.lua
 enum SystemString_t {
     STR_MAPNAME,
     STR_MAPFILENAME,
@@ -542,37 +543,38 @@ enum InputLabel_t
     INPUT_END
 };
 
+// KEEPINSYNC lunatic/con_lang.lua
 enum ProjectileLabel_t
 {
-    PROJ_WORKSLIKE,
+    PROJ_WORKSLIKE,  // 0
     PROJ_SPAWNS,
     PROJ_SXREPEAT,
     PROJ_SYREPEAT,
     PROJ_SOUND,
-    PROJ_ISOUND,
+    PROJ_ISOUND,  // 5
     PROJ_VEL,
     PROJ_EXTRA,
     PROJ_DECAL,
     PROJ_TRAIL,
-    PROJ_TXREPEAT,
+    PROJ_TXREPEAT,  // 10
     PROJ_TYREPEAT,
     PROJ_TOFFSET,
     PROJ_TNUM,
     PROJ_DROP,
-    PROJ_CSTAT,
+    PROJ_CSTAT,  // 15
     PROJ_CLIPDIST,
     PROJ_SHADE,
     PROJ_XREPEAT,
     PROJ_YREPEAT,
-    PROJ_PAL,
+    PROJ_PAL,  // 20
     PROJ_EXTRA_RAND,
     PROJ_HITRADIUS,
     PROJ_VEL_MULT,
     PROJ_OFFSET,
-    PROJ_BOUNCES,
+    PROJ_BOUNCES,  // 25
     PROJ_BSOUND,
     PROJ_RANGE,
-    PROJ_FLASH_COLOR, // 29
+    PROJ_FLASH_COLOR,
     PROJ_END
 };
 

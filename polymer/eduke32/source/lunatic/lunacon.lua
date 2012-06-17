@@ -3,12 +3,13 @@
 
 local lpeg = require("lpeg")
 
-local EDUKE32_LUNATIC = _EDUKE32_LUNATIC
+if (not _EDUKE32_LUNATIC) then
+    require("strict")
+end
 
--- If/else nesting is problematic in CON: because a dangling 'else' is attached
--- to the outermost 'if', I think there's no way of linearizing its (recursive)
--- pattern, so the "too many pending calls/choices" is unavoidable in general.
--- This limit is of course still arbitrary, but writing if/else cascades
+
+-- I think that the "too many pending calls/choices" is unavoidable in general.
+-- This limit is of course still arbitrary, but writing long if/else cascades
 -- in CON isn't pretty either (though sometimes necessary because nested switches
 -- don't work?)
 -- See also:  http://lua-users.org/lists/lua-l/2010-03/msg00086.html
@@ -19,7 +20,7 @@ local Pat, Set, Range, Var = lpeg.P, lpeg.S, lpeg.R, lpeg.V
 
 
 ---- All keywords pattern -- needed for CON syntax
-local con_keyword = require("con_lang")
+local con = require("con_lang")
 
 
 local function match_until(matchsp, untilsp)  -- (!untilsp matchsp)* in PEG
@@ -35,6 +36,7 @@ end
 ---=== semantic action functions ===---
 
 local inf = 1/0
+local NaN = 0/0
 
 -- Last keyword position, for error diagnosis.
 local g_lastkwpos = nil
@@ -79,7 +81,7 @@ local function parse_number(numstr)
     -- TODO: print line number
     if (num < -0x80000000 or num > 0xffffffff) then
         errprintf("number %s out of the range of a 32-bit integer", numstr)
-        num = 0/0
+        num = NaN
     elseif (num >= 0x80000000 and numstr:sub(1,2):lower()~="0x") then
         warnprintf("number %s converted to a negative one", numstr)
         num = num-0x100000000
@@ -99,21 +101,24 @@ local LABEL_MOVE   = 32
 local g_labeldef = {}
 local g_labeltype = {}
 
+local function reset_labels()
+    g_labeldef = { NO=0 }
+    g_labeltype = { NO=LABEL_DEFINE+LABEL_ACTION+LABEL_AI+LABEL_MOVE }
+
+    for i=1,#con.labels do
+        for label, val in pairs(con.labels[i]) do
+            g_labeldef[label] = val
+            g_labeltype[label] = LABEL_DEFINE
+        end
+    end
+end
+
 local function lookup_defined_label(identifier)
     local num = g_labeldef[identifier]
 
     if (num == nil) then
-        if (EDUKE32_LUNATIC == nil) then
-            -- HACK: try a couple of hardcoded def prefixes
-            if (identifier:sub(1, 6)=="EVENT_"
-                or identifier:sub(1,4)=="STR_"
-                or identifier:sub(1,5)=="PROJ_")
-            then return 0  -- TEMP
-            end
-        end
-
         errprintf("label \"%s\" is not defined", identifier)
-        return -1/0
+        return -inf
     end
 
     return num
@@ -135,7 +140,8 @@ local function do_define_label(identifier, idornum)
 
     local oldnum = g_labeldef[identifier]
     if (oldnum) then
-        if (oldnum ~= num) then
+        -- con.labels[...]: don't warn for wrong PROJ_ redefinitions
+        if (oldnum ~= num and con.labels[2][identifier]==nil) then
             warnprintf("label \"%s\" not redefined with new value %d (old: %d)",
                        identifier, num, oldnum)
         end
@@ -321,7 +327,7 @@ local Co = {
     definesound = sp1 * t_define * sp1 * maybe_quoted_filename * n_defines(5),  -- XXX: TS
 
     -- NOTE: gamevar.ogg is OK, too
-    music = sp1 * t_define * match_until(sp1 * t_filename, sp1 * con_keyword * sp1),
+    music = sp1 * t_define * match_until(sp1 * t_filename, sp1 * con.keyword * sp1),
 
     --- 3. Game Settings
     -- gamestartup has 25/29 fixed defines, depending on 1.3D/1.5 version:
@@ -365,7 +371,7 @@ local arraypat = sp0 * "[" * sp0 * t_rvar * sp0 * "]"
 -- will be wrongly accepted at the parsing stage because we don't discriminate between
 -- actor and player (but it will be rejected later).
 local parm2memberpat = (Pat("htg_t") + "loogiex" + "loogiey" + "ammo_amount" +
-                        "weaprecs" + "gotweapon" + "pals" + "max_ammo_amount") * sp0 * t_rvar
+                        "weaprecs" + "gotweapon" + "pals" + "max_ammo_amount") * sp1 * t_rvar
 -- The member name must match keywords, too (_all), because e.g. cstat is a member
 -- of sprite[].
 local memberpat = sp0 * "." * sp0 * (parm2memberpat + t_identifier_all)
@@ -907,9 +913,8 @@ local function all_alt_pattern(...)
 end
 
 -- actor ORGANTIC is greeting!
-local function warn_on_lonely_else(subj, pos)
+local function warn_on_lonely_else()
     warnprintf("found `else' with no `if'")
-    return true
 end
 
 -- NOTE: The indented text is not true, e.g. addlog vs. addlogvar:
@@ -927,7 +932,7 @@ local con_outer_command = all_alt_pattern(Co)
 local con_inner_command = all_alt_pattern(Ci) + "addlog" + "operate"
 local con_if_begs = all_alt_pattern(Cif) + "ifcansee"
 
-local lone_else = lpeg.Cmt("else" * sp1, warn_on_lonely_else)
+local lone_else = ("else" * sp1)/warn_on_lonely_else
 
 local stmt_list = Var("stmt_list")
 -- possibly empty statement list:
@@ -994,7 +999,7 @@ local Grammar = Pat{
     whitespace = Set(" \t\r\26") + newline + Set("(),;") + comment + linecomment,
 
     t_identifier_all = t_broken_identifier + t_good_identifier,
-    -- NOTE: -con_keyword alone would be wrong, e.g. "state breakobject":
+    -- NOTE: -con.keyword alone would be wrong, e.g. "state breakobject":
     -- NOTE 2: The + "[" is so that stuff like
     --   getactor[THISACTOR].x x
     --   getactor[THISACTOR].y y
@@ -1002,7 +1007,7 @@ local Grammar = Pat{
     --   getactor[THISACTOR].x x
     --   getactor [THISACTOR].y y
     -- This is in need of cleanup!
-    t_identifier = -NotKeyw(con_keyword * (sp1 + "[")) * lpeg.C(t_identifier_all),
+    t_identifier = -NotKeyw(con.keyword * (sp1 + "[")) * lpeg.C(t_identifier_all),
     t_define = (t_maybe_minus * t_identifier/lookup_defined_label) + t_number,  -- TODO: minus
 
     t_arrayexp = t_identifier * arraypat * memberpat^-1,
@@ -1125,12 +1130,11 @@ if (not _EDUKE32_LUNATIC) then
 
         g_recurslevel = -1
         g_badids = {}
-        g_labeldef = {}
-        g_labeltype = {}
+        reset_labels()
 
         g_numerrors = 0
 
-        g_directory = string.match(filename, "(.*/)") or ""
+        g_directory = filename:match("(.*/)") or ""
         filename = filename:sub(#g_directory+1, -1)
 
         local ok, msg = pcall(do_include_file, g_directory, filename)

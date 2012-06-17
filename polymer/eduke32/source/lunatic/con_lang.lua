@@ -1,6 +1,156 @@
 -- Use this file like
 --  require("lpeg")
---  con_keyword = dofile("con_lang.lua")
+--  con = require("con_lang")
+--
+-- Contains:
+--   * con.labels
+--   * con.keyword
+
+return
+
+{
+
+-- KEEPINSYNC gamedef.h
+labels =
+{
+    {
+        STR_MAPNAME = 0,
+        STR_MAPFILENAME = 1,
+        STR_PLAYERNAME = 2,
+        STR_VERSION = 3,
+        STR_GAMETYPE = 4,
+        STR_VOLUMENAME = 5,
+    },
+
+    {
+        PROJ_WORKSLIKE = 0,
+        PROJ_SPAWNS = 1,
+        PROJ_SXREPEAT = 2,
+        PROJ_SYREPEAT = 3,
+        PROJ_SOUND = 4,
+        PROJ_ISOUND = 5,
+        PROJ_VEL = 6,
+        PROJ_EXTRA = 7,
+        PROJ_DECAL = 8,
+        PROJ_TRAIL = 9,
+        PROJ_TXREPEAT = 10,
+        PROJ_TYREPEAT = 11,
+        PROJ_TOFFSET = 12,
+        PROJ_TNUM = 13,
+        PROJ_DROP = 14,
+        PROJ_CSTAT = 15,
+        PROJ_CLIPDIST = 16,
+        PROJ_SHADE = 17,
+        PROJ_XREPEAT = 18,
+        PROJ_YREPEAT = 19,
+        PROJ_PAL = 20,
+        PROJ_EXTRA_RAND = 21,
+        PROJ_HITRADIUS = 22,
+        PROJ_VEL_MULT = 23,
+        PROJ_OFFSET = 24,
+        PROJ_BOUNCES = 25,
+        PROJ_BSOUND = 26,
+        PROJ_RANGE = 27,
+        PROJ_FLASH_COLOR = 28,
+    },
+
+    {
+        EVENT_INIT = 0,
+        EVENT_ENTERLEVEL = 1,
+        EVENT_RESETWEAPONS = 2,
+        EVENT_RESETINVENTORY = 3,
+        EVENT_HOLSTER = 4,
+        EVENT_LOOKLEFT = 5,
+        EVENT_LOOKRIGHT = 6,
+        EVENT_SOARUP = 7,
+        EVENT_SOARDOWN = 8,
+        EVENT_CROUCH = 9,
+        EVENT_JUMP = 10,
+        EVENT_RETURNTOCENTER = 11,
+        EVENT_LOOKUP = 12,
+        EVENT_LOOKDOWN = 13,
+        EVENT_AIMUP = 14,
+        EVENT_FIRE = 15,
+        EVENT_CHANGEWEAPON = 16,
+        EVENT_GETSHOTRANGE = 17,
+        EVENT_GETAUTOAIMANGLE = 18,
+        EVENT_GETLOADTILE = 19,
+        EVENT_CHEATGETSTEROIDS = 20,
+        EVENT_CHEATGETHEAT = 21,
+        EVENT_CHEATGETBOOT = 22,
+        EVENT_CHEATGETSHIELD = 23,
+        EVENT_CHEATGETSCUBA = 24,
+        EVENT_CHEATGETHOLODUKE = 25,
+        EVENT_CHEATGETJETPACK = 26,
+        EVENT_CHEATGETFIRSTAID = 27,
+        EVENT_QUICKKICK = 28,
+        EVENT_INVENTORY = 29,
+        EVENT_USENIGHTVISION = 30,
+        EVENT_USESTEROIDS = 31,
+        EVENT_INVENTORYLEFT = 32,
+        EVENT_INVENTORYRIGHT = 33,
+        EVENT_HOLODUKEON = 34,
+        EVENT_HOLODUKEOFF = 35,
+        EVENT_USEMEDKIT = 36,
+        EVENT_USEJETPACK = 37,
+        EVENT_TURNAROUND = 38,
+        EVENT_DISPLAYWEAPON = 39,
+        EVENT_FIREWEAPON = 40,
+        EVENT_SELECTWEAPON = 41,
+        EVENT_MOVEFORWARD = 42,
+        EVENT_MOVEBACKWARD = 43,
+        EVENT_TURNLEFT = 44,
+        EVENT_TURNRIGHT = 45,
+        EVENT_STRAFELEFT = 46,
+        EVENT_STRAFERIGHT = 47,
+        EVENT_WEAPKEY1 = 48,
+        EVENT_WEAPKEY2 = 49,
+        EVENT_WEAPKEY3 = 50,
+        EVENT_WEAPKEY4 = 51,
+        EVENT_WEAPKEY5 = 52,
+        EVENT_WEAPKEY6 = 53,
+        EVENT_WEAPKEY7 = 54,
+        EVENT_WEAPKEY8 = 55,
+        EVENT_WEAPKEY9 = 56,
+        EVENT_WEAPKEY10 = 57,
+        EVENT_DRAWWEAPON = 58,
+        EVENT_DISPLAYCROSSHAIR = 59,
+        EVENT_DISPLAYREST = 60,
+        EVENT_DISPLAYSBAR = 61,
+        EVENT_RESETPLAYER = 62,
+        EVENT_INCURDAMAGE = 63,
+        EVENT_AIMDOWN = 64,
+        EVENT_GAME = 65,
+        EVENT_PREVIOUSWEAPON = 66,
+        EVENT_NEXTWEAPON = 67,
+        EVENT_SWIMUP = 68,
+        EVENT_SWIMDOWN = 69,
+        EVENT_GETMENUTILE = 70,
+        EVENT_SPAWN = 71,
+        EVENT_LOGO = 72,
+        EVENT_EGS = 73,
+        EVENT_DOFIRE = 74,
+        EVENT_PRESSEDFIRE = 75,
+        EVENT_USE = 76,
+        EVENT_PROCESSINPUT = 77,
+        EVENT_FAKEDOMOVETHINGS = 78,
+        EVENT_DISPLAYROOMS = 79,
+        EVENT_KILLIT = 80,
+        EVENT_LOADACTOR = 81,
+        EVENT_DISPLAYBONUSSCREEN = 82,
+        EVENT_DISPLAYMENU = 83,
+        EVENT_DISPLAYMENUREST = 84,
+        EVENT_DISPLAYLOADINGSCREEN = 85,
+        EVENT_ANIMATESPRITES = 86,
+        EVENT_NEWGAME = 87,
+        EVENT_SOUND = 88,
+        EVENT_CHECKTOUCHDAMAGE = 89,
+        EVENT_CHECKFLOORDAMAGE = 90,
+        EVENT_LOADGAME = 91,
+        EVENT_SAVEGAME = 92,
+    },
+},
+
 
 -- NOTE: These MUST be in reverse lexicographical order!
 -- Per CON syntax, valid identifiers names are disjunct from keywords,
@@ -9,7 +159,7 @@
 -- (from the final grammar in lunacon.lua) must match the longest
 -- possible keyword name, else the negation might wrongly not fail.
 
-return
+keyword =
 
 lpeg.P(false) +
 "}" +
@@ -375,3 +525,5 @@ lpeg.P(false) +
 "activatebysector" +
 "action" +
 lpeg.P(false)
+
+}

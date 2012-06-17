@@ -34,6 +34,7 @@ print("========== attempting to load string: ==========")
 print(gvstr)
 print("---------- (end string to load) ----------")
 
+-- XXX: need to think about fully restoring state
 DBG_.loadGamevarsString(gvstr)
 print("ourvar[4]="..ourvar[4])
 
@@ -125,6 +126,6 @@ gameactor(1680,  -- LIZTROOP
          )
 
 checkfail('gameactor(1680, 0)')  -- lua function expected, number passed
-
+printf("EVENT_INIT = %d", gv.EVENT_INIT)  -- tests default defines
 
 print('---=== END TEST SCRIPT ===---')
