@@ -1763,6 +1763,12 @@ static inline void C_GetManyVarsType(int32_t type, int32_t num)
 
 #define C_GetManyVars(num) C_GetManyVarsType(0,num)
 
+// returns:
+//  -1 on EOF or wrong type or error
+//   0 if literal value
+//   LABEL_* (>0) if that type and matched
+//
+// *g_scriptPtr will contain the value OR 0 if wrong type or error
 static int32_t C_GetNextValue(int32_t type)
 {
     int32_t i, l;
@@ -5400,7 +5406,7 @@ repeatcase:
             g_scriptPtr--;
             C_GetNextValue(LABEL_DEFINE);
             k = *(g_scriptPtr-1);
-            if (k >= MAXSOUNDS)
+            if ((unsigned)k >= MAXSOUNDS)
             {
                 initprintf("%s:%d: error: exceeded sound limit of %d.\n",g_szScriptFileName,g_lineNumber,MAXSOUNDS);
                 g_numCompilerErrors++;
@@ -5423,9 +5429,9 @@ repeatcase:
                 while (*textptr && *textptr != '\"')
                 {
                     g_sounds[k].filename[i++] = *textptr++;
-                    if (i >= BMAX_PATH)
+                    if (i >= BMAX_PATH-1)
                     {
-                        initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH);
+                        initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH-1);
                         g_numCompilerErrors++;
                         C_SkipComments();
                         break;
@@ -5436,9 +5442,9 @@ repeatcase:
             else while (*textptr != ' ' && *textptr != '\t' && *textptr != '\r' && *textptr != '\n')
             {
                 g_sounds[k].filename[i++] = *textptr++;
-                if (i >= BMAX_PATH)
+                if (i >= BMAX_PATH-1)
                 {
-                    initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH);
+                    initprintf("%s:%d: error: sound filename exceeds limit of %d characters.\n",g_szScriptFileName,g_lineNumber,BMAX_PATH-1);
                     g_numCompilerErrors++;
                     C_SkipComments();
                     break;
