@@ -11673,6 +11673,9 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                 if (nw>=w0 && nw<=endwall)
                     CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL is its own sector's wall", j);
 
+                if (wall[j].x==POINT2(j).x && wall[j].y==POINT2(j).y)
+                    CORRUPTCHK_PRINT(3, CORRUPT_WALL|j, "WALL[%d] has length 0", j);
+
 #ifdef YAX_ENABLE
                 {
                     int32_t cf, ynw, ynwp2;
