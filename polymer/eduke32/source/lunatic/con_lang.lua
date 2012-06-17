@@ -13,6 +13,11 @@ return
 MAXVOLUMES = 7,
 MAXLEVELS = 64,
 
+MAXSKILLS = 7,
+
+MAXSOUNDS = 4096,
+
+
 -- KEEPINSYNC gamedef.h
 labels =
 {

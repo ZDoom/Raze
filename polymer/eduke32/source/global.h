@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // duke3d global soup :(
 
 #define MAXINTERPOLATIONS MAXSPRITES
+// KEEPINSYNC lunatic/con_lang.lua
 #define MAXSKILLS 7
 
 G_EXTERN int32_t myconnectindex, numplayers;

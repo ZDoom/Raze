@@ -208,16 +208,30 @@ local function reset_gamedata()
     g_data = {}
 
     -- [EPMUL*ep + lev] = { ptime=<num>, dtime=<num>, fn=<str>, name=<str> }
-    g_data.levels = {}
+    g_data.level = {}
+    -- [ep] = <str>
+    g_data.volname = {}
+    -- [skillnum] = <str>
+    g_data.skillname = {}
+    -- [quotenum] = <str>
+    g_data.quote = {}
+    -- table of length 26 or 30 containg numbers
+    g_data.startup = {}
+    -- [soundnum] = { fn=<str>, params=<table of length 5> }
+    g_data.sound = {}
+    -- [volnum] = <table of length numlevels (<= MAXLEVELS) of <str>>
+    g_data.music = {}
 end
 
 local function cmd_definelevelname(vol, lev, fn, ptstr, dtstr, levname)
     if (vol < 0 or vol >= con.MAXVOLUMES) then
         errprintf("volume number exceeds maximum volume count.")
+        return
     end
 
     if (lev < 0 or lev >= con.MAXLEVELS) then
         errprintf("level number exceeds maximum number of levels per episode.")
+        return
     end
 
     -- TODO: Bcorrectfilename(fn)
@@ -228,10 +242,80 @@ local function cmd_definelevelname(vol, lev, fn, ptstr, dtstr, levname)
         return (m and s) and m*60+s or 0
     end
 
-    g_data.levels[EPMUL*vol+lev] = {
-        ptime=secs(ptstr), dtime=secs(dtstr), fn=fn, name=levname
+    g_data.level[EPMUL*vol+lev] = {
+        ptime=secs(ptstr), dtime=secs(dtstr), fn=fn, name="/"..levname
     }
 end
+
+local function cmd_defineskillname(skillnum, name)
+    if (skillnum < 0 or skillnum >= con.MAXSKILLS) then
+        errprintf("volume number is negative or exceeds maximum skill count.")
+        return
+    end
+
+    g_data.skillname[skillnum] = name:upper()
+end
+
+local function cmd_definevolumename(vol, name)
+    if (vol < 0 or vol >= con.MAXVOLUMES) then
+        errprintf("volume number is negative or exceeds maximum volume count.")
+        return
+    end
+
+    g_data.volname[vol] = name:upper()
+end
+
+local function cmd_definequote(qnum, quotestr)
+    -- have the INT_MAX limit simply for some sanity
+    if (qnum < 0 or qnum > 0x7fffffff) then
+        errprintf("quote number is negative or exceeds limit of INT32_MAX.")
+        return
+    end
+
+    -- strip whitespace from front and back
+    g_data.quote[qnum] = quotestr:match("^%s*(.*)%s*$")
+end
+
+local function cmd_gamestartup(...)
+    local nums = {...}
+
+    if (#nums ~= 26 and #nums ~= 30) then
+        errprintf("must pass either 26 (1.3D) or 30 (1.5) values")
+        return
+    end
+
+    g_data.startup = nums  -- TODO: sanity-check them
+end
+
+local function cmd_definesound(sndnum, fn, ...)
+    if (sndnum < 0 or sndnum >= con.MAXSOUNDS) then
+        errprintf("sound number is or exceeds sound limit of %d", con.MAXSOUNDS)
+        return
+    end
+
+    local params = {...}  -- TODO: sanity-check them
+
+    g_data.sound[sndnum] = { fn=fn, params=params }
+end
+
+local function cmd_music(volnum, ...)
+    if (volnum < 0 or volnum >= con.MAXVOLUMES+1) then
+        errprintf("volume number is negative or exceeds maximum volume count+1")
+        return
+    end
+
+    local filenames = {...}
+
+    if (#filenames > con.MAXLEVELS) then
+        warnprintf("ignoring extraneous %d music file names", #filenames-con.MAXLEVELS)
+        for i=con.MAXLEVELS+1,#filenames do
+            filenames[i] = nil
+        end
+    end
+
+    g_data.music[volnum] = filenames
+end
+
 
 ----==== patterns ====----
 
@@ -354,19 +438,19 @@ local Co = {
     definegametype = n_defines(2) * newline_term_string,
     definelevelname = n_defines(2) * sp1 * t_filename * sp1 * t_time * sp1 * t_time *
         newline_term_string / cmd_definelevelname,
-    defineskillname = sp1 * t_define * newline_term_string,
-    definevolumename = sp1 * t_define * newline_term_string,
+    defineskillname = sp1 * t_define * newline_term_string / cmd_defineskillname,
+    definevolumename = sp1 * t_define * newline_term_string / cmd_definevolumename,
 
-    definequote = sp1 * t_define * newline_term_string,
+    definequote = sp1 * t_define * newline_term_string / cmd_definequote,
     defineprojectile = cmd(D,D,D),
-    definesound = sp1 * t_define * sp1 * maybe_quoted_filename * n_defines(5),  -- XXX: TS
+    definesound = sp1 * t_define * sp1 * maybe_quoted_filename * n_defines(5) / cmd_definesound,
 
     -- NOTE: gamevar.ogg and the like is OK, too
-    music = sp1 * t_define * match_until(sp1 * t_filename, sp1 * con.keyword * sp1),
+    music = sp1 * t_define * match_until(sp1 * t_filename, sp1 * con.keyword * sp1) / cmd_music,
 
     --- 3. Game Settings
     -- gamestartup has 25/29 fixed defines, depending on 1.3D/1.5 version:
-    gamestartup = (sp1 * t_define)^25,
+    gamestartup = (sp1 * t_define)^25 / cmd_gamestartup,
     spritenopal = cmd(D),
     spritenoshade = cmd(D),
     spritenvg = cmd(D),
