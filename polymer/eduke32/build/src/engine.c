@@ -13540,7 +13540,8 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
     if (paletteloaded == 0)
         return;
 
-    if (palnum==0 || (unsigned)palnum >= MAXPALOOKUPS)
+    // NOTE: palnum==0 is allowed
+    if ((unsigned)palnum >= MAXPALOOKUPS)
         return;
 
     if (remapbuf==NULL)
@@ -13558,7 +13559,7 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
         remapbuf = idmap;
     }
 
-    if (palookup[palnum] == NULL || palookup[palnum] == palookup[0])
+    if (palookup[palnum] == NULL || (palnum!=0 && palookup[palnum] == palookup[0]))
     {
         //Allocate palookup buffer
         palookup[palnum] = Bmalloc(numshades<<8);
