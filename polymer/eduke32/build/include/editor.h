@@ -247,6 +247,10 @@ int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32
                       int32_t x, int32_t y, int16_t sectnum);
 void correct_sprite_yoffset(int32_t i);
 
+void inflineintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                      int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+                      int32_t *intx, int32_t *inty, int32_t *sign12, int32_t *sign34);
+
 extern uint8_t hlsectorbitmap[MAXSECTORS>>3];
 
 #if defined(_WIN32)

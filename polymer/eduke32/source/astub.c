@@ -6960,11 +6960,11 @@ static void Keys3d(void)
             const vec2_t vecw2r90 = { -vecw2.y, vecw2.x };  // v, rotated 90 deg CW
 
             const int32_t bits = CEILINGFLOOR(tempsectornum, stat)&(64+32+16+8+4);
+            const int32_t tile = CEILINGFLOOR(tempsectornum, picnum);
 
             if ((CEILINGFLOOR(tempsectornum, stat)&64) == 0)
             {
                 // world-aligned texture
-                const int32_t tile = CEILINGFLOOR(tempsectornum, picnum);
 
                 if (tilesizx[tile]<=0 || tilesizy[tile]<=0)
                 {
@@ -6997,7 +6997,7 @@ static void Keys3d(void)
                 const int64_t a = lldotv2(&vecw1, &vecw2);
                 const int64_t b = lldotv2(&vecw1, &vecw2r90);
 
-                if (a & b)
+                if (a!=0 && b!=0)
                 {
                     message("Walls %d and %d are nether parallel nor perpendicular",
                             refwall, ourwall);
@@ -7017,8 +7017,45 @@ static void Keys3d(void)
                     tempbits = (tempbits&4) + ((tempbits&3)<<4);
                     CEILINGFLOOR(searchsector, stat) |= 64 + (bits&8) + tempbits;
 
-                    message("(TODO) Aligned sector %d %s (firstwall-relative) with sector %d's",
-                            searchsector, typestr[searchstat], tempsectornum);
+                    {
+                        const walltype *rw = &wall[refwall], *rw2 = &POINT2(refwall);
+                        const walltype *ow = &wall[ourwall], *ow2 = &POINT2(ourwall);
+                        int32_t intx, inty, sign12, sign34;
+
+                        if (b != 0)  // perpendicular
+                            inflineintersect(rw->x,rw->y, rw2->x,rw2->y, ow->x,ow->y, ow2->x,ow2->y,
+                                             &intx,&inty, &sign12,&sign34);
+                        else  // parallel
+                            inflineintersect(rw->x,rw->y, rw2->x,rw2->y,
+                                             ow->x,ow->y, ow->x+vecw2r90.x,ow->y+vecw2r90.y,
+                                             &intx,&inty, &sign12,&sign34);
+                        if (sign12 == 0)
+                        {
+                            message("INTERNAL ERROR: Couldn't get intersection"
+                                    " of reference and alignee walls");
+                        }
+                        else
+                        {
+                            double dx = (double)(rw->x-intx)*(rw->x-intx) + (double)(rw->y-inty)*(rw->y-inty);
+                            double dy = (double)(ow->x-intx)*(ow->x-intx) + (double)(ow->y-inty)*(ow->y-inty);
+
+                            dx = -sign12 * sqrt(dx) * 16;
+                            dy = sign34 * sqrt(dy) * 16;
+                            if (a < 0 || b > 0)
+                                dx = -dx;
+                            dx /= 1<<((picsiz[tile]&15) - !!(bits&8));
+                            dy /= 1<<((picsiz[tile]>>4) - !!(bits&8));
+//initprintf("int=(%d,%d), dx=%.03f dy=%.03f\n", intx,inty, dx, dy);
+                            CEILINGFLOOR(searchsector, xpanning) =
+                                CEILINGFLOOR(tempsectornum, xpanning) + (int32_t)dx;
+                            CEILINGFLOOR(searchsector, ypanning) =
+                                CEILINGFLOOR(tempsectornum, ypanning) + (int32_t)dy;
+
+                            message("%sAligned sector %d %s (firstwall-relative) with sector %d's",
+                                    (CEILINGFLOOR(tempsectornum, stat)&(32+16+4)) ? "(TODO) ":"",
+                                    searchsector, typestr[searchstat], tempsectornum);
+                        }
+                    }
                 }
             }
         }

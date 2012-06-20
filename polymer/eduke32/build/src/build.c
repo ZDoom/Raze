@@ -2781,6 +2781,42 @@ static int32_t M32_InsertPoint(int32_t thewall, int32_t dax, int32_t day, int32_
 }
 
 
+// based on lineintersect in engine.c, but lines are considered as infinitely
+// extending
+void inflineintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                      int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+                      int32_t *intx, int32_t *inty, int32_t *sign12, int32_t *sign34)
+{
+    //p1 to p2 is a line segment
+    int64_t x21, y21, x34, y34, x31, y31, bot, topt, topu, t;
+
+    x21 = x2-x1; x34 = x3-x4;
+    y21 = y2-y1; y34 = y3-y4;
+    bot = x21*y34 - y21*x34;
+    if (bot >= 0)
+    {
+        if (bot == 0) { *sign12 = *sign34 = 0; return; };
+        x31 = x3-x1; y31 = y3-y1;
+        topt = x31*y34 - y31*x34;
+        topu = x21*y31 - y21*x31;
+    }
+    else
+    {
+        x31 = x3-x1; y31 = y3-y1;
+        topt = x31*y34 - y31*x34;
+        topu = x21*y31 - y21*x31;
+    }
+
+    t = (topt*(1<<24))/bot;
+    *intx = x1 + ((x21*t)>>24);
+    *inty = y1 + ((y21*t)>>24);
+
+    *sign12 = topt < 0 ? -1 : 1;
+    *sign34 = topu < 0 ? -1 : 1;
+
+    return;
+}
+
 static int32_t lineintersect2v(const vec2_t *p1, const vec2_t *p2,  // line segment 1
                                const vec2_t *q1, const vec2_t *q2,  // line segment 2
                                vec2_t *pint)
