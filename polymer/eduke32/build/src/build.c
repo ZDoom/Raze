@@ -3456,7 +3456,7 @@ void overheadeditor(void)
                 // for the new arrangement!
                 for (i=0; i<highlightsectorcnt; i++)
                 {
-                    for (WALLS_OF_SECTOR(i, j))
+                    for (WALLS_OF_SECTOR(highlightsector[i], j))
                     {
                         if (wall[j].nextwall >= 0)
                             wall[j].nextwall = otonwall[wall[j].nextwall];
