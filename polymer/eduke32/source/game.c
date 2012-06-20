@@ -1822,9 +1822,8 @@ void G_PrintGameQuotes(void)
         else k += g_player[screenpeek].ps->fta;
     }
 
-    j = k;
+    j = scale(k,ydim,200);
 
-    j = scale(j,ydim,200);
     for (i=MAXUSERQUOTES-1; i>=0; i--)
     {
         int32_t sh;
@@ -1862,7 +1861,11 @@ void G_PrintGameQuotes(void)
         return;
     }
 
+#ifdef GEKKO
+    k = 16;
+#else
     k = 0;
+#endif
 
     if (g_player[screenpeek].ps->ftq >= QUOTE_RESERVED && g_player[screenpeek].ps->ftq <= QUOTE_RESERVED3)
     {
