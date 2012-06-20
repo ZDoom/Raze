@@ -1071,7 +1071,7 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
     scansector_collectsprites = 0;
 
     // draw base level
-    drawrooms(globalposx,globalposy,globalposz,globalang,horiz,osectnum);
+    drawrooms(globalposx,globalposy,globalposz,globalang,horiz,osectnum+MAXSECTORS);
 //    if (scansector_collectsprites)
 //        spritesortcnt = 0;
     yax_copytsprites();
