@@ -762,7 +762,7 @@ int32_t kopen4load(const char *filename, char searchfirst)
     dont_free_pfn = do_case_check;
 #endif
 
-    if (searchfirst == 0 && (fil = openfrompath(filename,BO_BINARY|BO_RDONLY,S_IREAD)) >= 0)
+    if (searchfirst == 0 && (fil = openfrompath(filename,BO_BINARY|BO_RDONLY,BS_IREAD)) >= 0)
     {
 #ifdef FILENAME_CASE_CHECK
         if (check_filename_casing_fn && check_filename_casing_fn())
