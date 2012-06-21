@@ -7367,7 +7367,7 @@ static int32_t loadtables(void)
         }
         else
         {
-            engineerrstr = "Failed to load TABLES.DAT!";
+            engineerrstr = "Failed to load 'tables.dat'!";
             initprintf("ERROR: %s\n", engineerrstr);
             return 1;
         }
@@ -7427,7 +7427,12 @@ static int32_t loadpalette(void)
     int32_t fil;
 
     if (paletteloaded != 0) return 0;
-    if ((fil = kopen4load("palette.dat",0)) == -1) return -1;
+    if ((fil = kopen4load("palette.dat",0)) == -1)
+    {
+        engineerrstr = "Failed to load 'palette.dat'!";
+        initprintf("ERROR: %s\n", engineerrstr);
+        return -1;
+    }
 
     kread(fil,palette,768);
     kread(fil,&numshades,2); numshades = B_LITTLE16(numshades);
