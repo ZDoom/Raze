@@ -3246,7 +3246,7 @@ cheat_for_port_credits:
 #else
         x = 7;
 #endif
-        onbar = (!getrendermode() && probey == 6); // (probey == 4);
+//        onbar = (!getrendermode() && probey == 6); // (probey == 4);
         if (probey == 0 || probey == 1 || probey == 2)
             x = M_Probe(c,50,16,x);
         else if (probey == 3)
@@ -3450,7 +3450,6 @@ cheat_for_port_credits:
 #else
                         0
 #endif
-
                                                          ) : 0;
 
                 if (setgamemode(nfs, nxdim, nydim, nbpp) < 0)
