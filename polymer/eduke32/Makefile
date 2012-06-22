@@ -262,7 +262,7 @@ else
             ifneq ($(PLATFORM),WII)
                 OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
             endif
-            LIBS+= -lSDL_mixer
+            LIBS+= -l$(SDLNAME)_mixer
         else
             OURCFLAGS   += -DSDL_FRAMEWORK
         endif

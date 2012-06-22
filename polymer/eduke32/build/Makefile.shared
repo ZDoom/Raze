@@ -4,11 +4,25 @@ ENGINELIB=libengine.a
 EDITORLIB=libbuild.a
 
 SDLCONFIG = /usr/local/bin/sdl-config
+SDLNAME = SDL
 
 ifeq ($(wildcard $(SDLCONFIG)),$(SDLCONFIG))
+#    $(info Detected locally installed SDL 1.X)
     SDLROOT		= /usr/local
 else
-    SDLCONFIG	= /usr/bin/sdl-config
+    # Swap the commenting in the following two lines to
+    # enable SDL 2.X detection
+    SDLCONFIG = /usr/local/file_that_does_not_exist
+#    SDLCONFIG = /usr/local/bin/sdl2-config
+
+    ifeq ($(wildcard $(SDLCONFIG)),$(SDLCONFIG))
+#        $(info Detected locally installed SDL 2.X)
+        SDLROOT = /usr/local
+        SDLNAME = SDL2
+    else
+#        $(info Detected system-wide installed SDL 1.X)
+        SDLCONFIG	= /usr/bin/sdl-config
+    endif
 endif
 
 SDL_FRAMEWORK	= 0
@@ -213,7 +227,8 @@ ifeq ($(RENDERTYPE),SDL)
         SDLCONFIG_CFLAGS+= -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers
     else
     ifneq ($(SDLCONFIG),)
-        LIBS+= $(shell $(SDLCONFIG) --libs)
+        SDLCONFIG_LIBS+= $(shell $(SDLCONFIG) --libs)
+        LIBS+= $(SDLCONFIG_LIBS)
         SDLCONFIG_CFLAGS+=$(shell $(SDLCONFIG) --cflags)
     endif
     endif

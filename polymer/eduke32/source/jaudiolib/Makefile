@@ -50,7 +50,7 @@ ifeq ($(PLATFORM),WINDOWS)
     OBJNAME=libjfaudiolib_win32.a
     OBJ=obj_win
 else
-    OURCFLAGS+= -DHAVE_SDL
+    OURCFLAGS+= -DHAVE_SDL $(SDLCONFIG_CFLAGS)
     ifneq ($(PLATFORM),DARWIN)
         OURCFLAGS+=`pkg-config --cflags vorbis`
     endif

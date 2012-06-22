@@ -44,6 +44,12 @@ int32_t startwin_settitle(const char *s) { UNREFERENCED_PARAMETER(s); return 0; 
 # endif
 #endif
 
+#if SDL_MAJOR_VERSION==2
+# define SDL_GRAB_OFF SDL_FALSE
+# define SDL_GRAB_ON SDL_TRUE
+# define SDL_WM_GrabInput(yn) SDL_SetWindowGrab(sdl_window, yn)
+#endif
+
 /// These can be useful for debugging sometimes...
 //#define SDL_WM_GrabInput(x) SDL_WM_GrabInput(SDL_GRAB_OFF)
 //#define SDL_ShowCursor(x) SDL_ShowCursor(SDL_ENABLE)
@@ -65,6 +71,12 @@ char quitevent=0, appactive=1, novideo=0;
 
 // video
 static SDL_Surface *sdl_surface;
+#if SDL_MAJOR_VERSION==2
+static SDL_Surface *sdl_surface2;
+static SDL_Palette *sdl_palptr;
+static SDL_Window *sdl_window;
+static SDL_Renderer *sdl_renderer;
+#endif
 int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline;
 intptr_t frameplace=0;
 int32_t lockcount=0;
@@ -157,7 +169,11 @@ void wm_setapptitle(char *name)
     if (name)
         Bstrncpyz(apptitle, name, sizeof(apptitle));
 
+#if SDL_MAJOR_VERSION == 1
     SDL_WM_SetCaption(apptitle, NULL);
+#else
+    SDL_SetWindowTitle(sdl_window, apptitle);
+#endif
 
     startwin_settitle(apptitle);
 }
@@ -281,9 +297,15 @@ int32_t initsystem(void)
     const SDL_VideoInfo *vid;
     #endif
     */
-    const SDL_version *linked = SDL_Linked_Version();
     SDL_version compiled;
-    char drvname[32];
+
+#if SDL_MAJOR_VERSION < 2
+    const SDL_version *linked = SDL_Linked_Version();
+#else
+    SDL_version linked_;
+    const SDL_version *linked = &linked_;
+    SDL_GetVersion(&linked_);
+#endif
 
     SDL_VERSION(&compiled);
 
@@ -347,13 +369,28 @@ int32_t initsystem(void)
     {
         appicon = loadappicon();
         if (appicon)
+        {
+#if SDL_MAJOR_VERSION==1
             SDL_WM_SetIcon(appicon, 0);
+#else
+            SDL_SetWindowIcon(sdl_window, appicon);
+#endif
+        }
     }
 #endif
 
     if (!novideo)
+    {
+#if SDL_MAJOR_VERSION==1
+        char drvname[32];
         if (SDL_VideoDriverName(drvname, 32))
             initprintf("Using \"%s\" video driver\n", drvname);
+#else
+        const char *drvname = SDL_GetVideoDriver(0);
+        if (drvname)
+            initprintf("Using \"%s\" video driver\n", drvname);
+#endif
+    }
 
     /*
     // dump a quick summary of the graphics hardware
@@ -478,12 +515,13 @@ int32_t initinput(void)
             remap[i]=i;
     remapinit=1;
 
+#if SDL_MAJOR_VERSION==1
     if (SDL_EnableKeyRepeat(250, 30)) // doesn't do anything in 1.3
         initprintf("Error enabling keyboard repeat.\n");
+    SDL_EnableUNICODE(1);	// let's hope this doesn't hit us too hard
+#endif
     inputdevices = 1|2;	// keyboard (1) and mouse (2)
     mousegrab = 0;
-
-    SDL_EnableUNICODE(1);	// let's hope this doesn't hit us too hard
 
     memset(key_names,0,sizeof(key_names));
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3)
@@ -882,13 +920,14 @@ void getvalidmodes(void)
 #endif
         0
     };
+#if SDL_MAJOR_VERSION==1
     SDL_Rect **modes;
     SDL_PixelFormat pf;
 
     pf.palette = NULL;
     pf.BitsPerPixel = 8;
     pf.BytesPerPixel = 1;
-
+#endif
     int32_t i, j, maxx=0, maxy=0;
 
     if (modeschecked || novideo) return;
@@ -915,12 +954,13 @@ void getvalidmodes(void)
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
+#if SDL_MAJOR_VERSION==1
     // do fullscreen modes first
     for (j=0; cdepths[j]; j++)
     {
-#ifdef USE_OPENGL
+# ifdef USE_OPENGL
         if (nogl && cdepths[j] > 8) continue;
-#endif
+# endif
         pf.BitsPerPixel = cdepths[j];
         pf.BytesPerPixel = cdepths[j] >> 3;
 
@@ -957,7 +997,7 @@ void getvalidmodes(void)
             }
         }
     }
-
+#endif  // SDL_MAJOR_VERSION==1
     if (maxx == 0 && maxy == 0)
     {
         initprintf("No fullscreen modes available!\n");
@@ -1044,6 +1084,47 @@ int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t fo
     return nearest;		// JBF 20031206: Returns the mode number
 }
 
+static int32_t needpalupdate;
+static SDL_Color sdlayer_pal[256];
+
+#if SDL_MAJOR_VERSION==2
+static void destroy_window_and_renderer()
+{
+//        if (sdl_surface)  // will be freed with SDL_DestroyWindow
+//            SDL_FreeSurface(sdl_surface);
+        sdl_surface = NULL;
+        sdl_surface2 = NULL;
+        if (sdl_renderer)
+            SDL_DestroyRenderer(sdl_renderer);
+        sdl_renderer = NULL;
+        if (sdl_window)
+            SDL_DestroyWindow(sdl_window);
+        sdl_window = NULL;
+}
+
+static int32_t create_window_and_renderer(int32_t x, int32_t y, int32_t fs, uint32_t flags)
+{
+    sdl_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED,
+                                  x,y, ((fs&1)?SDL_WINDOW_FULLSCREEN:0));
+    if (!sdl_window)
+    {
+        initprintf("Unable to set video mode: SDL_CreateWindow failed: %s\n",
+                   SDL_GetError());
+        return -1;
+    }
+
+    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
+    if (!sdl_renderer)
+    {
+        initprintf("Unable to set video mode: SDL_CreateRenderer failed: %s\n",
+                   SDL_GetError());
+        SDL_DestroyWindow(sdl_window); sdl_window=NULL;
+        return -1;
+    }
+
+    return 0;
+}
+#endif
 
 //
 // setvideomode() -- set SDL video mode
@@ -1083,12 +1164,14 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     // clear last gamma/contrast/brightness so that it will be set anew
     lastvidgcb[0] = lastvidgcb[1] = lastvidgcb[2] = 0.0f;
 
+#if SDL_MAJOR_VERSION==1
     // restore gamma before we change video modes if it was changed
     if (sdl_surface && gammabrightness)
     {
         SDL_SetGammaRamp(sysgamma[0], sysgamma[1], sysgamma[2]);
         gammabrightness = 0;	// redetect on next mode switch
     }
+#endif
 
 #ifdef USE_OPENGL
     if (c > 8)
@@ -1157,6 +1240,8 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 ovsync = vsync;
             }
 # endif
+
+# if SDL_MAJOR_VERSION==1
             sdl_surface = SDL_SetVideoMode(x, y, c, SDL_OPENGL | ((fs&1)?SDL_FULLSCREEN:0));
             if (!sdl_surface)
             {
@@ -1169,6 +1254,12 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 initprintf("Unable to set video mode!\n");
                 return -1;
             }
+# else
+            destroy_window_and_renderer();
+
+            if (create_window_and_renderer(x,y,fs, SDL_RENDERER_ACCELERATED) == -1)
+                return -1;
+#endif
         }
         while (multisamplecheck--);
     }
@@ -1177,12 +1268,52 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     {
         initprintf("Setting video mode %dx%d (%d-bpp %s)\n",
                    x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
+#if SDL_MAJOR_VERSION==1
         sdl_surface = SDL_SetVideoMode(x, y, c, SURFACE_FLAGS | ((fs&1)?SDL_FULLSCREEN:0));
         if (!sdl_surface)
         {
             initprintf("Unable to set video mode!\n");
             return -1;
         }
+#else
+        // deinit
+        destroy_window_and_renderer();
+
+        // init
+        if (create_window_and_renderer(x,y,fs, SDL_RENDERER_SOFTWARE |
+                                       SDL_RENDERER_TARGETTEXTURE) == -1)
+            return -1;
+
+        sdl_surface2 = SDL_GetWindowSurface(sdl_window);
+
+        if (!sdl_surface2)
+        {
+            initprintf("Unable to set video mode: SDL_GetWindowSurface failed: %s\n",
+                       SDL_GetError());
+            SDL_DestroyRenderer(sdl_renderer); sdl_renderer=NULL;
+            SDL_DestroyWindow(sdl_window); sdl_window=NULL;
+            return -1;
+        }
+# if 1
+        sdl_surface = sdl_surface2;
+# else
+        sdl_surface = SDL_ConvertSurfaceFormat(sdl_surface2, SDL_PIXELFORMAT_INDEX8, 0);
+
+        if (!sdl_surface)
+        {
+            initprintf("Unable to set video mode: SDL_ConvertSurfaceFormat failed: %s\n",
+                       SDL_GetError());
+            SDL_DestroyRenderer(sdl_renderer); sdl_renderer=NULL;
+            SDL_DestroyWindow(sdl_window); sdl_window=NULL;
+            return -1;
+        }
+# endif
+        if (!sdl_palptr)
+            sdl_palptr = SDL_AllocPalette(256);
+
+        if (SDL_SetSurfacePalette(sdl_surface, sdl_palptr) < 0)
+            initprintf("SDL_SetSurfacePalette failed: %s\n", SDL_GetError());
+#endif
     }
 
 #if 0
@@ -1212,7 +1343,11 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     {
         //static char t[384];
         //sprintf(t, "%s (%dx%d %s)", apptitle, x, y, ((fs) ? "fullscreen" : "windowed"));
+#if SDL_MAJOR_VERSION == 1
         SDL_WM_SetCaption(apptitle, 0);
+#else
+        SDL_SetWindowTitle(sdl_window, apptitle);
+#endif
     }
 
 #ifdef USE_OPENGL
@@ -1393,9 +1528,13 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     if (!gammabrightness)
     {
 //        float f = 1.0 + ((float)curbrightness / 10.0);
+#if SDL_MAJOR_VERSION==1
         if (SDL_GetGammaRamp(sysgamma[0], sysgamma[1], sysgamma[2]) >= 0)
             gammabrightness = 1;
-
+#else
+        if (SDL_GetWindowGammaRamp(sdl_window, sysgamma[0], sysgamma[1], sysgamma[2]) == 0)
+            gammabrightness = 1;
+#endif
         // see if gamma really is working by trying to set the brightness
         if (gammabrightness && setgamma() < 0)
             gammabrightness = 0;	// nope
@@ -1482,9 +1621,6 @@ void enddrawing(void)
     if (SDL_MUSTLOCK(sdl_surface)) SDL_UnlockSurface(sdl_surface);
 }
 
-static int32_t needpalupdate;
-static SDL_Color sdlayer_pal[256];
-
 //
 // showframe() -- update the display
 //
@@ -1525,7 +1661,11 @@ void showframe(int32_t w)
             bglPopMatrix();
         }
 
+# if SDL_MAJOR_VERSION==1
         SDL_GL_SwapBuffers();
+# else
+        SDL_RenderPresent(sdl_renderer);
+# endif
         return;
     }
 #endif
@@ -1541,13 +1681,23 @@ void showframe(int32_t w)
     // deferred palette updating
     if (needpalupdate)
     {
+#if SDL_MAJOR_VERSION==1
         SDL_SetColors(sdl_surface, sdlayer_pal, 0, 256);
         // same as:
         //SDL_SetPalette(sdl_surface, SDL_LOGPAL|SDL_PHYSPAL, pal, 0, 256);
+#else
+        if (SDL_SetPaletteColors(sdl_palptr, sdlayer_pal, 0, 256) < 0)
+            initprintf("SDL_SetPaletteColors failed: %s\n", SDL_GetError());
+#endif
         needpalupdate = 0;
     }
 
+#if SDL_MAJOR_VERSION==1
     SDL_Flip(sdl_surface);
+#else
+//    SDL_UpdateWindowSurface(sdl_window);
+    SDL_RenderPresent(sdl_renderer);
+#endif
 }
 
 
@@ -1622,10 +1772,25 @@ int32_t setgamma(void)
 
         gammaTable[i] = gammaTable[i + 256] = gammaTable[i + 512] = (uint16_t)max(0.f,(double)min(0xffff,val*256));
     }
-
+#if SDL_MAJOR_VERSION==1
     i = SDL_SetGammaRamp(&gammaTable[0],&gammaTable[256],&gammaTable[512]);
+#else
+    i = INT32_MIN;
+    if (sdl_window)
+        i = SDL_SetWindowGammaRamp(
+            sdl_window,&gammaTable[0],&gammaTable[256],&gammaTable[512]);
+#endif
 
+#if SDL_MAJOR_VERSION==1
     if (i != -1)
+#else
+    if (i < 0)
+    {
+        if (i != INT32_MIN)
+            initprintf("Unable to set gamma: SDL_SetWindowGammaRamp failed: %s\n", SDL_GetError());
+    }
+    else
+#endif
     {
         lastvidgcb[0] = gamma;
         lastvidgcb[1] = contrast;
@@ -1783,9 +1948,9 @@ int32_t handleevents(void)
                         }
                         break;
                         */
-// #warning "Using SDL 1.3"
-#else  // SDL 1.3 ^^^ | vvv SDL 1.2
-// #warning "Using SDL 1.2"
+// #warning Using SDL 1.3 or 2.X
+#else  // SDL 1.3+ ^^^ | vvv SDL 1.2
+// #warning Using SDL 1.2
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             code = keytranslation[ev.key.keysym.sym];
@@ -1872,9 +2037,11 @@ int32_t handleevents(void)
                 j = 2; break;
             case 8 /*SDL_BUTTON_X1*/:  // 8 --> 3
                 j = 3; break;
+#if SDL_MAJOR_VERSION==1
             case SDL_BUTTON_WHEELUP:  // 4
             case SDL_BUTTON_WHEELDOWN:  // 5
                 j = ev.button.button; break;
+#endif
             case 9 /*SDL_BUTTON_X2*/:  // 9 --> 6
                 j = 6; break;
             }
@@ -1882,6 +2049,7 @@ int32_t handleevents(void)
 
             if (ev.button.state == SDL_PRESSED)
             {
+#if SDL_MAJOR_VERSION==1
                 if (ev.button.button == SDL_BUTTON_WHEELUP)
                 {
                     mwheelup = totalclock;
@@ -1890,11 +2058,14 @@ int32_t handleevents(void)
                 {
                     mwheeldown = totalclock;
                 }
+#endif
                 mouseb |= (1<<j);
             }
             else
             {
+#if SDL_MAJOR_VERSION==1
                 if (j != SDL_BUTTON_WHEELUP && j != SDL_BUTTON_WHEELDOWN)
+#endif
                     mouseb &= ~(1<<j);
             }
 
@@ -1926,7 +2097,11 @@ int32_t handleevents(void)
                     mousex += ev.motion.xrel;
                     mousey += ev.motion.yrel;
 #if !defined DEBUGGINGAIDS || MY_DEVELOPER_ID==805120924
+# if SDL_MAJOR_VERSION==1
                     SDL_WarpMouse(xdim>>1, ydim>>1);
+# else
+                    SDL_WarpMouseInWindow(sdl_window, xdim>>1, ydim>>1);
+# endif
 #endif
                 }
             }

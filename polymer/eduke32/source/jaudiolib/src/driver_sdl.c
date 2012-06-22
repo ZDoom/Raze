@@ -23,13 +23,15 @@
  */
 
 
-#include <SDL/SDL.h>
 #if defined(SDL_FRAMEWORK)
+# include <SDL/SDL.h>
 # include <SDL_mixer/SDL_mixer.h>
+# include <SDL/SDL_thread.h>
 #else
-# include <SDL/SDL_mixer.h>
+# include "SDL.h"
+# include "SDL_mixer.h"
+# include "SDL_thread.h"
 #endif
-#include <SDL/SDL_thread.h>
 #include "driver_sdl.h"
 
 #ifndef UNREFERENCED_PARAMETER
