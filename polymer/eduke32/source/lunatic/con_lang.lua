@@ -63,7 +63,7 @@ labels =
     },
 
     {
-        EVENT_INIT = 0,
+        EVENT_INIT = 0,  -- TODO: currently can't run since we init Lunatic state only afterwards
         EVENT_ENTERLEVEL = 1,
         EVENT_RESETWEAPONS = 2,
         EVENT_RESETINVENTORY = 3,

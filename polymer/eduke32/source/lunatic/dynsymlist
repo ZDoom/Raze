@@ -23,8 +23,12 @@ nextspritestat;
 headsectbunch;
 nextsectbunch;
 
+hitscan;
+
 actor;
 ud;
 
 luaJIT_BC_*;
+
+gethitickms;
 };

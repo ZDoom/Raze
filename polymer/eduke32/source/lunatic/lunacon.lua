@@ -103,6 +103,7 @@ local LABEL_NO = { [2]=MOVE_NO_, [3]={ACTION_NO_,MOVE_NO_,0}, [5]=ACTION_NO_ }
 --    - move: { hvel <num>, vvel <num> }
 --    - ai: { action <label str>, move <label str, or scalar 0 or 1>, flags <num> }
 --    - action: { startframe, numframes, viewtype, incval, delay }  (all <num>)
+-- TODO: IDs for comparison with if*
 local g_labeldef = {}
 
 local function reset_labels()
@@ -1138,6 +1139,11 @@ local function warn_on_lonely_else()
     warnprintf("found `else' with no `if'")
 end
 
+function EvalEarly(pat)
+    -- force warnings and the like early
+    return lpeg.Cmt(pat, function() return true end)
+end
+
 
 local con_inner_command = all_alt_pattern(Ci)
 local con_if_begs = all_alt_pattern(Cif)
@@ -1150,24 +1156,24 @@ local stmt_list_or_eps = (stmt_list * sp1)^-1
 local stmt_list_nosp_or_eps = (stmt_list * (sp1 * stmt_list)^0)^-1
 
 -- common to actor and useractor: <name/tilenum> [<strength> [<action> [<move> [<flags>... ]]]]
-local common_actor_end = sp1 * t_define *
+local common_actor_end = sp1 * t_define * EvalEarly(
     (sp1 * t_define *
      (sp1 * t_action *
       (sp1 * t_move *
        (sp1 * t_define)^0
       )^-1
      )^-1
-    )^-1
+    )^-1)
         * sp1 * stmt_list_or_eps * "enda"
 
 --== block delimiters (no recursion) ==--
 local Cb = {
     -- actor (...)
     actor = common_actor_end,
-    -- eventloadactor <name/tilenum>
-    eventloadactor = sp1 * t_define * sp1 * stmt_list_or_eps * "enda",
     -- useractor <actortype> (...)
     useractor = sp1 * t_define * common_actor_end,
+    -- eventloadactor <name/tilenum>
+    eventloadactor = sp1 * t_define * sp1 * stmt_list_or_eps * "enda",
 
     onevent = sp1 * t_define * sp1 * stmt_list_or_eps * "endevent",
 

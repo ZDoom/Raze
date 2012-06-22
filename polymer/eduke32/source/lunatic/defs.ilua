@@ -63,8 +63,16 @@ typedef struct {
 typedef struct {
     int32_t x, y, z;
 } vec3_t;
+
+typedef struct {
+    vec3_t pos;
+    int16_t hitsprite, hitwall, hitsect;
+} hitdata_t;
 #pragma pack(pop)
 ]]
+
+local vec3_t = ffi.typeof("vec3_t")
+local hitdata_ct = ffi.typeof("hitdata_t")
 
 assert(ffi.sizeof('sectortype')==40)
 assert(ffi.sizeof('walltype')==32)
@@ -124,6 +132,9 @@ enum {
     MAXBUNCHES = 256,
     CEILING = 0,
     FLOOR = 1,
+
+    CLIPMASK0 = (1<<16)+1,  // blocking
+    CLIPMASK1 = (256<<16)+64,  // hittable
 };
 ]]
 
@@ -139,6 +150,9 @@ const int16_t headsectbunch[2][MAXBUNCHES], nextsectbunch[2][MAXSECTORS];
 
 
 int16_t yax_getbunch(int16_t i, int16_t cf);
+
+int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
+                hitdata_t *hitinfo, uint32_t cliptype);
 ]]
 
 
@@ -277,6 +291,11 @@ actor_t actor[MAXSPRITES];
 user_defs ud;
 ]]
 
+-- functions
+ffi.cdef[[
+double gethitickms(void);
+]]
+
 --- default defines
 local con = require("con_lang")
 
@@ -404,8 +423,9 @@ gv = {
     actor = det,
     ud = det,
 
-    luaJIT_BC_con_lang = det,
-    luaJIT_BC_lunacon = det,
+    -- functions, too!
+    yax_getbunch = det,
+    hitscan = det,
 }
 local tmpmt = {
     __index = ffiC,
@@ -535,15 +555,29 @@ end
 
 function getbunch(sectnum, cf)
     if (sectnum < 0 or sectnum >= ffiC.numsectors) then
-        error('out-of-bounds sector[] read access', 2)
+        error('passed out-of-bounds sector number'..sectnum, 2)
     end
     if (cf ~= 0 and cf ~= 1) then
         error("passed invalid 'cf' to getbunch, must be 0 or 1", 2)
     end
 
-    return yax_getbunch(sectnum, cf)
+    return ffiC.yax_getbunch(sectnum, cf)
 end
 
+
+---=== Engine functions, wrapped for Lua convenience ===---
+-- returns a hitdata_ct
+function hitscan(x,y,z, sectnum, vx,vy,vz, cliptype)
+    if (sectnum < 0 or sectnum >= ffiC.numsectors) then
+        error('passed out-of-bounds sector number'..sectnum, 2)
+    end
+
+    local vec = vec3_t(x,y,z)
+    local hitdata = hitdata_ct()
+
+    ffiC.hitscan(vec, sectnum, vx,vy,vz, hitdata, cliptype)
+    return hitdata
+end
 
 ---=== Game variables ===---
 

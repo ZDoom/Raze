@@ -111,6 +111,10 @@ checkfail('string.dump(gameevent)')  -- string.dump is unavailable
 -- "missing declaration" error.
 -- See http://luajit.org/ext_ffi_api.html#ffi_C about what stuff ffi.C contains.
 checkfail('gv.luaJIT_setmode(nil, 0, 0)')
+checkfail('gv.luaJIT_BC_con_lang')
+checkfail('gv.yax_getbunch(0,0)')
+
+printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 
 gameevent(gv.EVENT_JUMP,
           function(actori, playeri, dist)
@@ -118,10 +122,38 @@ gameevent(gv.EVENT_JUMP,
           end
          )
 
+gameevent(gv.EVENT_ENTERLEVEL,
+          function()
+              local i
+              local N = 1e6
+              local t = gv.gethitickms()
+
+              for i=3,N do
+                  gv.gethitickms()
+              end
+
+              t = gv.gethitickms()-t
+
+              -- NOTE: for me (helixhorned), about 40 ns per call
+              printf("%d gethitickms() calls took %.03f ms (%.03f us/call)",
+                     N, t, (t*1000)/N)
+          end
+         )
+
 gameactor(1680,  -- LIZTROOP
           function(i, playeri, dist)
               sprite[i].pal = math.random(32)
 --              sprite[i].ang = bit.band(sprite[i].ang-20, 2047)
+
+              local spr = sprite[i]
+--              print(type(spr)) --> cdata
+              assert(pcall("print(spr+1)") == false)  -- no ptr arith!
+
+              local x,y,z = spr.x, spr.y, spr.z
+              local t = gv.gethitickms()
+              local hit = hitscan(x,y,z, spr.sectnum, 10, 10, 0, gv.CLIPMASK0)
+              printf("hitscan took %.03f us, sec=%d, wal=%d, spr=%d", 1000*(gv.gethitickms()-t),
+                    hit.hitsect, hit.hitwall, hit.hitsprite)
           end
          )
 
