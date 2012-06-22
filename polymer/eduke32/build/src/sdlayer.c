@@ -778,7 +778,9 @@ void releaseallbuttons(void)
 static Uint32 timerfreq=0;
 static Uint32 timerlastsample=0;
 int32_t timerticspersec=0;
+static double hiticksperms = 1e308;
 static void(*usertimercallback)(void) = NULL;
+
 
 //
 // inittimer() -- initialize timer
@@ -795,6 +797,8 @@ int32_t inittimer(int32_t tickspersecond)
 
     usertimercallback = NULL;
 
+    hiticksperms = (double)gethitickspersec() / 1000;
+
     return 0;
 }
 
@@ -806,6 +810,8 @@ void uninittimer(void)
     if (!timerfreq) return;
 
     timerfreq=0;
+
+    hiticksperms = 1e308;
 }
 
 //
@@ -838,27 +844,48 @@ uint32_t getticks(void)
 }
 
 // high-resolution timers for profiling
+uint64_t gethiticks(void)
+{
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
-uint64_t gethiticks(void)
-{
+# if defined __linux && _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
+    // This is SDL HG's SDL_GetPerformanceCounter() when clock_gettime() is
+    // available.
+    uint64_t ticks;
+    struct timespec now;
+
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    ticks = now.tv_sec;
+    ticks *= 1000000000;
+    ticks += now.tv_nsec;
+    return (ticks);
+# else
     return SDL_GetTicks();
-}
-
-uint64_t gethitickspersec(void)
-{
-    return 1000;
-}
-#else  // SDL 1.3
-uint64_t gethiticks(void)
-{
+# endif
+#else
     return SDL_GetPerformanceCounter();
+#endif
 }
 
 uint64_t gethitickspersec(void)
 {
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
+# if defined __linux && _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
+    return 1000000000;
+# endif
+    return 1000;
+#else  // SDL 1.3
     return SDL_GetPerformanceFrequency();
-}
 #endif
+}
+
+// TODO: winlayer too
+// Returns the time since an unspecified starting time in milliseconds.
+// (May be not monotonic for certain configurations.)
+ATTRIBUTE((flatten))
+double gethitickms(void)
+{
+    return (double)gethiticks() / hiticksperms;
+}
 
 //
 // gettimerfreq() -- returns the number of ticks per second the timer is configured to generate
