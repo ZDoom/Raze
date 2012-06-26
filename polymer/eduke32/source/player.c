@@ -4686,6 +4686,8 @@ void P_ProcessInput(int32_t snum)
     }
     else p->weapon_sway = p->bobcounter;
 
+    // NOTE: This overflows if the difference is too great, e.g. used to do
+    // that when teleported by silent SE7s.
     s->xvel = ksqrt((p->pos.x-p->bobposx)*(p->pos.x-p->bobposx)+(p->pos.y-p->bobposy)*(p->pos.y-p->bobposy));
 
     if (p->on_ground)
