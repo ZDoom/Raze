@@ -5053,7 +5053,9 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
      * which might be corrected if the code is converted to use offsets */
     /* Helixhorned: let's do away with intptr_t's... */
 #ifndef LUNATIC
-    if ((unsigned)vm.g_t[4] + 4 < (unsigned)g_scriptSize)
+    // NOTE: for Lunatic, need split into numeric literal / action label
+    // (maybe >=0/<0, respectively?)
+    if (vm.g_t[4]!=0 && (unsigned)vm.g_t[4] + 4 < (unsigned)g_scriptSize)
 #endif
     {
 #ifndef LUNATIC
