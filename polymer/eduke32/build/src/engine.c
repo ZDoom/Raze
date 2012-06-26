@@ -5311,6 +5311,44 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
     enddrawing();   //}}}
 }
 
+static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
+                                     int32_t yspan, int32_t yoff, int32_t tilenum,
+                                     int32_t cstat, int32_t *z1ptr, int32_t *z2ptr)
+{
+    int32_t z1, z2 = tspr->z - ((yoff*tspr->yrepeat)<<2);
+
+    if (cstat&128)
+    {
+        z2 += ((yspan*tspr->yrepeat)<<1);
+        if (yspan&1) z2 += (tspr->yrepeat<<1);        //Odd yspans
+    }
+    z1 = z2 - ((yspan*tspr->yrepeat)<<2);
+
+    globalorientation = 0;
+    globalpicnum = tilenum;
+    if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
+    globalxpanning = 0;
+    globalypanning = 0;
+
+    globvis = globalvisibility;
+    if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
+
+    globalshiftval = (picsiz[globalpicnum]>>4);
+    if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
+    globalshiftval = 32-globalshiftval;
+
+    globalyscale = divscale(512,tspr->yrepeat,globalshiftval-19);
+    globalzd = ((int64_t)(globalposz-z1)*globalyscale)<<8;
+    if ((cstat&8) > 0)
+    {
+        globalyscale = -globalyscale;
+        globalzd = ((int64_t)(globalposz-z2)*globalyscale)<<8;
+    }
+
+    *z1ptr = z1;
+    *z2ptr = z2;
+}
+
 //
 // drawsprite (internal)
 //
@@ -5524,31 +5562,7 @@ draw_as_face_sprite:
                 searchstat = 3; searchit = 1;
             }
 
-        z2 = tspr->z - ((yoff*tspr->yrepeat)<<2);
-        if (cstat&128)
-        {
-            z2 += ((yspan*tspr->yrepeat)<<1);
-            if (yspan&1) z2 += (tspr->yrepeat<<1);        //Odd yspans
-        }
-        z1 = z2 - ((yspan*tspr->yrepeat)<<2);
-
-        globalorientation = 0;
-        globalpicnum = tilenum;
-        if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-        globalxpanning = 0L;
-        globalypanning = 0L;
-        globvis = globalvisibility;
-        if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
-        globalshiftval = (picsiz[globalpicnum]>>4);
-        if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
-        globalshiftval = 32-globalshiftval;
-        globalyscale = divscale(512,tspr->yrepeat,globalshiftval-19);
-        globalzd = (((globalposz-z1)*globalyscale)<<8);
-        if ((cstat&8) > 0)
-        {
-            globalyscale = -globalyscale;
-            globalzd = (((globalposz-z2)*globalyscale)<<8);
-        }
+        setup_globals_sprite1(tspr, sec, yspan, yoff, tilenum, cstat, &z1, &z2);
 
         qinterpolatedown16((intptr_t)&lwall[lx],rx-lx+1,linum,linuminc);
         clearbuf(&swall[lx],rx-lx+1,mulscale19(yp,xdimscale));
@@ -5667,31 +5681,7 @@ draw_as_face_sprite:
         hinc = divscale19(xdimenscale,yb2[MAXWALLSB-1]);
         hinc = (hinc-hplc)/(xb2[MAXWALLSB-1]-xb1[MAXWALLSB-1]+1);
 
-        z2 = tspr->z - ((yoff*tspr->yrepeat)<<2);
-        if (cstat&128)
-        {
-            z2 += ((yspan*tspr->yrepeat)<<1);
-            if (yspan&1) z2 += (tspr->yrepeat<<1);        //Odd yspans
-        }
-        z1 = z2 - ((yspan*tspr->yrepeat)<<2);
-
-        globalorientation = 0;
-        globalpicnum = tilenum;
-        if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-        globalxpanning = 0L;
-        globalypanning = 0L;
-        globvis = globalvisibility;
-        if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
-        globalshiftval = (picsiz[globalpicnum]>>4);
-        if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
-        globalshiftval = 32-globalshiftval;
-        globalyscale = divscale(512,tspr->yrepeat,globalshiftval-19);
-        globalzd = (((globalposz-z1)*globalyscale)<<8);
-        if ((cstat&8) > 0)
-        {
-            globalyscale = -globalyscale;
-            globalzd = (((globalposz-z2)*globalyscale)<<8);
-        }
+        setup_globals_sprite1(tspr, sec, yspan, yoff, tilenum, cstat, &z1, &z2);
 
         if (((sec->ceilingstat&1) == 0) && (z1 < sec->ceilingz))
             z1 = sec->ceilingz;
