@@ -666,68 +666,69 @@ void P_RandomSpawnPoint(int32_t snum)
 void P_ResetPlayer(int32_t snum)
 {
     vec3_t tmpvect;
-    spritetype *sp = &sprite[g_player[snum].ps->i];
+    DukePlayer_t *const pl = g_player[snum].ps;
+    spritetype *const sp = &sprite[pl->i];
 
-    tmpvect.x = g_player[snum].ps->pos.x;
-    tmpvect.y = g_player[snum].ps->pos.y;
-    tmpvect.z = g_player[snum].ps->pos.z+PHEIGHT;
+    tmpvect.x = pl->pos.x;
+    tmpvect.y = pl->pos.y;
+    tmpvect.z = pl->pos.z+PHEIGHT;
     P_RandomSpawnPoint(snum);
-    sp->x = actor[g_player[snum].ps->i].bposx = g_player[snum].ps->bobposx = g_player[snum].ps->opos.x = g_player[snum].ps->pos.x;
-    sp->y = actor[g_player[snum].ps->i].bposy = g_player[snum].ps->bobposy = g_player[snum].ps->opos.y =g_player[snum].ps->pos.y;
-    sp->z = actor[g_player[snum].ps->i].bposy = g_player[snum].ps->opos.z =g_player[snum].ps->pos.z;
-    updatesector(g_player[snum].ps->pos.x,g_player[snum].ps->pos.y,&g_player[snum].ps->cursectnum);
-    setsprite(g_player[snum].ps->i,&tmpvect);
+    sp->x = actor[pl->i].bposx = pl->bobposx = pl->opos.x = pl->pos.x;
+    sp->y = actor[pl->i].bposy = pl->bobposy = pl->opos.y = pl->pos.y;
+    sp->z = actor[pl->i].bposy = pl->opos.z =pl->pos.z;
+    updatesector(pl->pos.x,pl->pos.y,&pl->cursectnum);
+    setsprite(pl->i,&tmpvect);
     sp->cstat = 257;
 
     sp->shade = -12;
     sp->clipdist = 64;
     sp->xrepeat = 42;
     sp->yrepeat = 36;
-    sp->owner = g_player[snum].ps->i;
+    sp->owner = pl->i;
     sp->xoffset = 0;
-    sp->pal = g_player[snum].ps->palookup;
+    sp->pal = pl->palookup;
 
-    g_player[snum].ps->last_extra = sp->extra = g_player[snum].ps->max_player_health;
-    g_player[snum].ps->wantweaponfire = -1;
-    g_player[snum].ps->horiz = 100;
-    g_player[snum].ps->on_crane = -1;
-    g_player[snum].ps->frag_ps = snum;
-    g_player[snum].ps->horizoff = 0;
-    g_player[snum].ps->opyoff = 0;
-    g_player[snum].ps->wackedbyactor = -1;
-    g_player[snum].ps->inv_amount[GET_SHIELD] = g_startArmorAmount;
-    g_player[snum].ps->dead_flag = 0;
-    g_player[snum].ps->pals.f = 0;
-    g_player[snum].ps->footprintcount = 0;
-    g_player[snum].ps->weapreccnt = 0;
-    g_player[snum].ps->fta = 0;
-    g_player[snum].ps->ftq = 0;
-    g_player[snum].ps->vel.x = g_player[snum].ps->vel.y = 0;
-    g_player[snum].ps->rotscrnang = 0;
-    g_player[snum].ps->runspeed = g_playerFriction;
-    g_player[snum].ps->falling_counter = 0;
+    pl->last_extra = sp->extra = pl->max_player_health;
+    pl->wantweaponfire = -1;
+    pl->horiz = 100;
+    pl->on_crane = -1;
+    pl->frag_ps = snum;
+    pl->horizoff = 0;
+    pl->opyoff = 0;
+    pl->wackedbyactor = -1;
+    pl->inv_amount[GET_SHIELD] = g_startArmorAmount;
+    pl->dead_flag = 0;
+    pl->pals.f = 0;
+    pl->footprintcount = 0;
+    pl->weapreccnt = 0;
+    pl->fta = 0;
+    pl->ftq = 0;
+    pl->vel.x = pl->vel.y = 0;
+    pl->rotscrnang = 0;
+    pl->runspeed = g_playerFriction;
+    pl->falling_counter = 0;
 
-    actor[g_player[snum].ps->i].extra = -1;
-    actor[g_player[snum].ps->i].owner = g_player[snum].ps->i;
+    actor[pl->i].extra = -1;
+    actor[pl->i].owner = pl->i;
 
-    actor[g_player[snum].ps->i].cgg = 0;
-    actor[g_player[snum].ps->i].movflag = 0;
-    actor[g_player[snum].ps->i].tempang = 0;
-    actor[g_player[snum].ps->i].actorstayput = -1;
-    actor[g_player[snum].ps->i].dispicnum = 0;
-    actor[g_player[snum].ps->i].owner = g_player[snum].ps->i;
+    actor[pl->i].cgg = 0;
+    actor[pl->i].movflag = 0;
+    actor[pl->i].tempang = 0;
+    actor[pl->i].actorstayput = -1;
+    actor[pl->i].dispicnum = 0;
+    actor[pl->i].owner = pl->i;
 
-    actor[g_player[snum].ps->i].t_data[4] = 0;
+    actor[pl->i].t_data[4] = 0;
 
     P_ResetInventory(snum);
     P_ResetWeapons(snum);
 
-    g_player[snum].ps->reloading = 0;
+    pl->reloading = 0;
 
-    g_player[snum].ps->movement_lock = 0;
+    pl->movement_lock = 0;
 
     if (apScriptGameEvent[EVENT_RESETPLAYER])
-        VM_OnEvent(EVENT_RESETPLAYER, g_player[snum].ps->i, snum, -1, 0);
+        VM_OnEvent(EVENT_RESETPLAYER, pl->i, snum, -1, 0);
 }
 
 void P_ResetStatus(int32_t snum)
