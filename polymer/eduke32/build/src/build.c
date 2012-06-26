@@ -132,7 +132,11 @@ int16_t prefixtiles[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 uint8_t hlsectorbitmap[MAXSECTORS>>3];  // show2dsector is already taken...
 static int32_t minhlsectorfloorz, numhlsecwalls;
 
-static uint8_t visited[MAXWALLS>>3];  // used for AlignWalls and trace_loop
+// used for:
+//  - hl_all_bunch_sectors_p
+//  - AlignWalls
+//  - trace_loop
+static uint8_t visited[MAXWALLS>>3];
 
 typedef struct
 {
@@ -10046,10 +10050,10 @@ static void initcrc(void)
 
 static int32_t GetWallBaseZ(int32_t wallnum)
 {
-    int32_t z=0, sectnum, nextsec;
+    int32_t z=0;
 
-    sectnum = sectorofwall(wallnum);
-    nextsec = wall[wallnum].nextsector;
+    const int32_t sectnum = sectorofwall(wallnum);
+    const int32_t nextsec = wall[wallnum].nextsector;
 
     if (nextsec == -1)  //1-sided wall
     {
@@ -10070,7 +10074,8 @@ static int32_t GetWallBaseZ(int32_t wallnum)
                 z = sector[nextsec].floorz;   //bottom step
         }
     }
-    return(z);
+
+    return z;
 }
 
 static void AlignWalls(int32_t w0, int32_t z0, int32_t w1, int32_t z1, int32_t doxpanning)
@@ -10106,7 +10111,7 @@ void AlignWallPoint2(int32_t w0)
 //  8: align TROR nextwalls
 int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 {
-    int32_t z0, z1, tilenum, w1, visible, nextsec, sectnum;
+    int32_t z0, z1, tilenum, w1;
     static int32_t numaligned, wall0, cstat0;
     static uint32_t lenrepquot;
 
@@ -10156,24 +10161,26 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
             }
         }
 #endif
+
         //break if reached back of left wall
         if (wall[w1].nextwall == w0)
             break;
 
         if (wall[w1].picnum == tilenum)
         {
-            z1 = GetWallBaseZ(w1);
-            visible = 0;
+            int32_t visible = 0;
+            const int32_t nextsec = wall[w1].nextsector;
 
-            nextsec = wall[w1].nextsector;
+            z1 = GetWallBaseZ(w1);
+
             if (nextsec < 0)
                 visible = 1;
             else
             {
                 int32_t cz,fz, czn,fzn;
+                const int32_t sectnum = NEXTWALL(w1).nextsector;
 
                 //ignore two sided walls that have no visible face
-                sectnum = NEXTWALL(w1).nextsector;
                 getzsofslope(sectnum, wall[w1].x,wall[w1].y, &cz, &fz);
                 getzsofslope(nextsec, wall[w1].x,wall[w1].y, &czn, &fzn);
 
