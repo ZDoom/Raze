@@ -2512,7 +2512,7 @@ static void scansector(int16_t sectnum)
                     (spr->xrepeat > 0) && (spr->yrepeat > 0))
             {
                 xs = spr->x-globalposx; ys = spr->y-globalposy;
-                if ((spr->cstat&48) || (xs*cosglobalang+ys*singlobalang > 0))
+                if ((spr->cstat&48) || ((int64_t)xs*cosglobalang+(int64_t)ys*singlobalang > 0))
                     if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-xs, sintable[spr->ang&2047],-ys) > 0)
                         if (engine_addtsprite(z, sectnum))
                             break;
@@ -2541,8 +2541,10 @@ static void scansector(int16_t sectnum)
 #endif
                 if ((gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
                 {
-                    tempint = x1*y2-x2*y1;
-                    if (((unsigned)tempint+262144) < 524288)  // BXY_MAX?
+                    // OV: E2L10
+                    int64_t temp = (int64_t)x1*y2-(int64_t)x2*y1;
+                    tempint = temp;
+                    if (((uint64_t)tempint+262144) < 524288)  // BXY_MAX?
                         if (mulscale5(tempint,tempint) <= (x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
                             sectorborder[sectorbordercnt++] = nextsectnum;
                 }
@@ -2687,8 +2689,8 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
         if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
 
-        vince[0] = swal[x]*globalyscale;
-        vplce[0] = globalzd + vince[0]*(y1ve[0]-globalhoriz+1);
+        vince[0] = (int64_t)swal[x]*globalyscale;
+        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
         mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
     }
@@ -2706,8 +2708,8 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
             if (ynice == 0) i *= tsizy; else i <<= tsizy;
             bufplce[z] = waloff[globalpicnum]+i;
 
-            vince[z] = swal[dax]*globalyscale;
-            vplce[z] = globalzd + vince[z]*(y1ve[z]-globalhoriz+1);
+            vince[z] = (int64_t)swal[dax]*globalyscale;
+            vplce[z] = globalzd + (uint32_t)vince[z]*(y1ve[z]-globalhoriz+1);
         }
         if (bad == 15) continue;
 
@@ -2762,13 +2764,13 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
         if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
 
-        vince[0] = swal[x]*globalyscale;
-        vplce[0] = globalzd + vince[0]*(y1ve[0]-globalhoriz+1);
+        vince[0] = (int64_t)swal[x]*globalyscale;
+        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
         mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
     }
 
-#else   // ENGINE_USING_A_C
+#else
 
     p = startx+frameoffset;
     for (x=startx; x<=x2; x++,p++)
@@ -2783,8 +2785,8 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
         if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
 
-        vince[0] = swal[x]*globalyscale;
-        vplce[0] = globalzd + vince[0]*(y1ve[0]-globalhoriz+1);
+        vince[0] = (int64_t)swal[x]*globalyscale;
+        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
         mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
     }
@@ -2929,11 +2931,11 @@ static inline void hline(int32_t xr, int32_t yp)
 
     xl = lastx[yp]; if (xl > xr) return;
     r = horizlookup2[yp-globalhoriz+horizycent];
-    asm1 = globalx1*r;
-    asm2 = globaly2*r;
+    asm1 = (int64_t)globalx1*r;
+    asm2 = (int64_t)globaly2*r;
     s = getpalookup(mulscale16(r,globvis),globalshade)<<8;
 
-    hlineasm4(xr-xl,0,s,globalx2*r+globalypanning,globaly1*r+globalxpanning,
+    hlineasm4(xr-xl,0,s,(uint32_t)globalx2*r+globalypanning,(uint32_t)globaly1*r+globalxpanning,
               ylookup[yp]+xr+frameoffset);
 }
 
@@ -2947,18 +2949,18 @@ static inline void slowhline(int32_t xr, int32_t yp)
 
     xl = lastx[yp]; if (xl > xr) return;
     r = horizlookup2[yp-globalhoriz+horizycent];
-    asm1 = globalx1*r;
-    asm2 = globaly2*r;
+    asm1 = (int64_t)globalx1*r;
+    asm2 = (int64_t)globaly2*r;
 
     asm3 = (intptr_t)globalpalwritten + (getpalookup(mulscale16(r,globvis),globalshade)<<8);
     if (!(globalorientation&256))
     {
-        mhline(globalbufplc,globaly1*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
-               globalx2*r+globalypanning-asm2*(xr-xl),ylookup[yp]+xl+frameoffset);
+        mhline(globalbufplc,(uint32_t)globaly1*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
+               (uint32_t)globalx2*r+globalypanning-asm2*(xr-xl),ylookup[yp]+xl+frameoffset);
         return;
     }
-    thline(globalbufplc,globaly1*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
-           globalx2*r+globalypanning-asm2*(xr-xl),ylookup[yp]+xl+frameoffset);
+    thline(globalbufplc,(uint32_t)globaly1*r+globalxpanning-asm1*(xr-xl),(xr-xl)<<16,0L,
+           (uint32_t)globalx2*r+globalypanning-asm2*(xr-xl),ylookup[yp]+xl+frameoffset);
 }
 
 
@@ -3382,8 +3384,8 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
     {
         globalx1 = singlobalang; globalx2 = singlobalang;
         globaly1 = cosglobalang; globaly2 = cosglobalang;
-        globalxpanning = (globalposx<<20);
-        globalypanning = -(globalposy<<20);
+        globalxpanning = ((int64_t)globalposx<<20);
+        globalypanning = -((int64_t)globalposy<<20);
     }
     else
     {
@@ -3400,8 +3402,8 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
         i = dmulscale14(oy,cosglobalang,-ox,singlobalang);
         j = dmulscale14(ox,cosglobalang,oy,singlobalang);
         ox = i; oy = j;
-        globalxpanning = globalx1*ox - globaly1*oy;
-        globalypanning = globaly2*ox + globalx2*oy;
+        globalxpanning = (int64_t)globalx1*ox - (int64_t)globaly1*oy;
+        globalypanning = (int64_t)globaly2*ox + (int64_t)globalx2*oy;
     }
     globalx2 = mulscale16(globalx2,viewingrangerecip);
     globaly1 = mulscale16(globaly1,viewingrangerecip);
@@ -3415,13 +3417,13 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
         i = globalx2; globalx2 = -globaly1; globaly1 = -i;
         i = globalx1; globalx1 = globaly2; globaly2 = i;
     }
-    if ((globalorientation&0x10) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalxpanning = -globalxpanning;
-    if ((globalorientation&0x20) > 0) globalx2 = -globalx2, globaly2 = -globaly2, globalypanning = -globalypanning;
+    if ((globalorientation&0x10) > 0) globalx1 = -globalx1, globaly1 = -globaly1, globalxpanning = -(int64_t)globalxpanning;
+    if ((globalorientation&0x20) > 0) globalx2 = -globalx2, globaly2 = -globaly2, globalypanning = -(int64_t)globalypanning;
     globalx1 <<= globalxshift; globaly1 <<= globalxshift;
     globalx2 <<= globalyshift;  globaly2 <<= globalyshift;
     globalxpanning <<= globalxshift; globalypanning <<= globalyshift;
-    globalxpanning += (xpanning<<24);
-    globalypanning += (ypanning<<24);
+    globalxpanning = (uint32_t)globalxpanning + (xpanning<<24);
+    globalypanning = (uint32_t)globalypanning + (ypanning<<24);
     globaly1 = (-globalx1-globaly1)*halfxdimen;
     globalx2 = (globalx2-globaly2)*halfxdimen;
 
@@ -3684,8 +3686,8 @@ static void wallscan(int32_t x1, int32_t x2,
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
         if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
 
-        vince[0] = swal[x]*globalyscale;
-        vplce[0] = globalzd + vince[0]*(y1ve[0]-globalhoriz+1);
+        vince[0] = (int64_t)swal[x]*globalyscale;
+        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
         vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
     }
@@ -3703,8 +3705,8 @@ static void wallscan(int32_t x1, int32_t x2,
             if (ynice == 0) i *= tsizy; else i <<= tsizy;
             bufplce[z] = waloff[globalpicnum]+i;
 
-            vince[z] = swal[x+z]*globalyscale;
-            vplce[z] = globalzd + vince[z]*(y1ve[z]-globalhoriz+1);
+            vince[z] = (int64_t)swal[x+z]*globalyscale;
+            vplce[z] = globalzd + (uint32_t)vince[z]*(y1ve[z]-globalhoriz+1);
         }
         if (bad == 15) continue;
 
@@ -3759,13 +3761,13 @@ static void wallscan(int32_t x1, int32_t x2,
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
         if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
 
-        vince[0] = swal[x]*globalyscale;
-        vplce[0] = globalzd + vince[0]*(y1ve[0]-globalhoriz+1);
+        vince[0] = (int64_t)swal[x]*globalyscale;
+        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
         vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
     }
 
-#else   // ENGINE_USING_A_C
+#else
 
     for (x=x1; x<=x2; x++)
     {
@@ -3779,8 +3781,8 @@ static void wallscan(int32_t x1, int32_t x2,
         if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
         if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
 
-        vince[0] = swal[x]*globalyscale;
-        vplce[0] = globalzd + vince[0]*(y1ve[0]-globalhoriz+1);
+        vince[0] = (int64_t)swal[x]*globalyscale;
+        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
         vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
     }
@@ -3810,8 +3812,8 @@ static void transmaskvline(int32_t x)
 
     palookupoffs = FP_OFF(palookup[globalpal]) + (getpalookup((int32_t)mulscale16(swall[x],globvis),globalshade)<<8);
 
-    vinc = swall[x]*globalyscale;
-    vplc = globalzd + vinc*(y1v-globalhoriz+1);
+    vinc = (int64_t)swall[x]*globalyscale;
+    vplc = globalzd + (uint32_t)vinc*(y1v-globalhoriz+1);
 
     i = lwall[x]+globalxpanning;
     if (i >= tilesizx[globalpicnum]) i %= tilesizx[globalpicnum];
@@ -3851,10 +3853,10 @@ static void transmaskvline2(int32_t x)
 
     setuptvlineasm2(globalshiftval,palookupoffse[0],palookupoffse[1]);
 
-    vince[0] = swall[x]*globalyscale;
-    vince[1] = swall[x2]*globalyscale;
-    vplce[0] = globalzd + vince[0]*(y1ve[0]-globalhoriz+1);
-    vplce[1] = globalzd + vince[1]*(y1ve[1]-globalhoriz+1);
+    vince[0] = (int64_t)swall[x]*globalyscale;
+    vince[1] = (int64_t)swall[x2]*globalyscale;
+    vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
+    vplce[1] = globalzd + (uint32_t)vince[1]*(y1ve[1]-globalhoriz+1);
 
     i = lwall[x] + globalxpanning;
     if (i >= tilesizx[globalpicnum]) i %= tilesizx[globalpicnum];
@@ -4016,8 +4018,8 @@ static inline void ceilspritehline(int32_t x2, int32_t y)
     x1 = lastx[y]; if (x2 < x1) return;
 
     v = mulscale20(globalzd,horizlookup[y-globalhoriz+horizycent]);
-    bx = mulscale14(globalx2*x1+globalx1,v) + globalxpanning;
-    by = mulscale14(globaly2*x1+globaly1,v) + globalypanning;
+    bx = (uint32_t)mulscale14(globalx2*x1+globalx1,v) + globalxpanning;
+    by = (uint32_t)mulscale14(globaly2*x1+globaly1,v) + globalypanning;
     asm1 = mulscale14(globalx2,v);
     asm2 = mulscale14(globaly2,v);
 
@@ -4102,7 +4104,7 @@ static void tslopevlin(uint8_t *p, int32_t i, const intptr_t *slopalptr, int32_t
     const int32_t bzinc = (asm1>>3), pinc = ggpinc;
 
     const int32_t transmode = (globalorientation&128);
-    const int32_t xtou = globalx3, ytov = globaly3;
+    const uint32_t xtou = globalx3, ytov = globaly3;
     const int32_t logx = gglogx, logy = gglogy;
 
     int32_t bz = asm3;
@@ -4232,13 +4234,13 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 
     if (dastat == 0)
     {
-        globalx1 += (((int32_t)sec->ceilingxpanning)<<24);
-        globaly1 += (((int32_t)sec->ceilingypanning)<<24);
+        globalx1 += (uint32_t)sec->ceilingxpanning<<24;
+        globaly1 += (uint32_t)sec->ceilingypanning<<24;
     }
     else
     {
-        globalx1 += (((int32_t)sec->floorxpanning)<<24);
-        globaly1 += (((int32_t)sec->floorypanning)<<24);
+        globalx1 += (uint32_t)sec->floorxpanning<<24;
+        globaly1 += (uint32_t)sec->floorypanning<<24;
     }
 
     asm1 = -(globalzd>>(16-BITSOFPRECISION));
@@ -4350,7 +4352,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     globalshiftval = (picsiz[globalpicnum]>>4);
     if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
     globalshiftval = 32-globalshiftval;
-    globalzd = (((tilesizy[globalpicnum]>>1)+parallaxyoffs)<<globalshiftval)+(globalypanning<<24);
+    globalzd = (((tilesizy[globalpicnum]>>1)+parallaxyoffs)<<globalshiftval)+((uint32_t)globalypanning<<24);
     globalyscale = (8<<(globalshiftval-19));
     //if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
 
@@ -4508,13 +4510,13 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
     globalyscale = (wal->yrepeat<<(globalshiftval-19));
 
     if ((globalorientation&4) == 0)
-        globalzd = (((globalposz-topzref)*globalyscale)<<8);
+        globalzd = (((int64_t)(globalposz-topzref)*globalyscale)<<8);
     else  // bottom-aligned
-        globalzd = (((globalposz-botzref)*globalyscale)<<8);
-    globalzd += (globalypanning<<24);
+        globalzd = (((int64_t)(globalposz-botzref)*globalyscale)<<8);
+    globalzd = (uint32_t)globalzd + (globalypanning<<24);
 
     if (globalorientation&256)  // y-flipped
-        globalyscale = -globalyscale, globalzd = -globalzd;
+        globalyscale = -globalyscale, globalzd = -(int64_t)globalzd;
 }
 
 
@@ -6447,8 +6449,8 @@ static void fillpolygon(int32_t npoints)
     globaly2 = mulscale16(globaly2,xyaspect);
 
     oy = miny+1-(ydim>>1);
-    globalposx += oy*globalx1;
-    globalposy += oy*globaly2;
+    globalposx += oy*(int64_t)globalx1;
+    globalposy += oy*(int64_t)globaly2;
 
     setuphlineasm4(asm1,asm2);
 
@@ -6494,8 +6496,8 @@ static void fillpolygon(int32_t npoints)
                 }
             }
         }
-        globalposx += globalx1;
-        globalposy += globaly2;
+        globalposx += (int64_t)globalx1;
+        globalposy += (int64_t)globaly2;
         ptr += MAXNODESPERLINE;
     }
     faketimerhandler();
@@ -6966,7 +6968,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                     }
                     if (y2 <= y1) continue;
 
-                    by += yv*(y1-oy); oy = y1;
+                    by += (uint32_t)yv*(y1-oy); oy = y1;
 
                     bufplce[xx] = (bx>>16)*ysiz+bufplc;
                     vplce[xx] = by;
@@ -8918,8 +8920,8 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             asm2 = (globalx2<<globalyshift);
             globalx1 <<= globalxshift;
             globaly2 <<= globalyshift;
-            globalposx = (globalposx<<(20+globalxshift))+(((int32_t)sec->floorxpanning)<<24);
-            globalposy = (globalposy<<(20+globalyshift))-(((int32_t)sec->floorypanning)<<24);
+            globalposx = ((int64_t)globalposx<<(20+globalxshift))+(((uint32_t)sec->floorxpanning)<<24);
+            globalposy = ((int64_t)globalposy<<(20+globalyshift))-(((uint32_t)sec->floorypanning)<<24);
 
             fillpolygon(npoints);
         }
@@ -11465,7 +11467,7 @@ restart_grand:
                 if ((cstat&64) != 0)
                     if ((sv->z > intz) == ((cstat&8)==0)) continue;
 
-#if 1           // Abyss crash prevention code ((intz-sv->z)*zx overflowing a 8-bit word)
+#if 0           // Abyss crash prevention code ((intz-sv->z)*zx overflowing a 8-bit word)
                 zz=(int32_t)((intz-sv->z)*vx);
                 intx = sv->x+scale(zz,1,vz);
                 zz=(int32_t)((intz-sv->z)*vy);

@@ -77,8 +77,8 @@ void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t 
     for (; cnt>0; cnt--)
     {
         i = krecip(bz>>6); bz += bzinc;
-        u = bx+globalx3*i;
-        v = by+globaly3*i;
+        u = bx+(int64_t)globalx3*i;
+        v = by+(int64_t)globaly3*i;
         (*(char *)p) = *(char *)(((intptr_t)slopalptr[0])+gbuf[((u>>(32-glogx))<<glogy)+(v>>(32-glogy))]);
         slopalptr--;
         p += gpinc;
