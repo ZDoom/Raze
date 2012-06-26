@@ -68,17 +68,38 @@ typedef struct {
     vec3_t pos;
     int16_t hitsprite, hitwall, hitsect;
 } hitdata_t;
+
+typedef struct {
+    char r,g,b,f;
+} palette_t;
 #pragma pack(pop)
 ]]
 
-local vec3_t = ffi.typeof("vec3_t")
+local vec3_ct = ffi.typeof("vec3_t")
 local hitdata_ct = ffi.typeof("hitdata_t")
 
-assert(ffi.sizeof('sectortype')==40)
-assert(ffi.sizeof('walltype')==32)
-assert(ffi.sizeof('spritetype')==44)
-
 ---- engine data and functions ----
+
+-- GLOBAL gv: provides access to C global *scalars* and safe functions
+-- XXX: still exposes C library functions etc. contained in ffi.C.
+--  Is this a problem?
+local gv_ = {
+    -- all non-scalars need to be explicitly listed here and access to them is
+    -- redirected to the dummy empty table...
+}
+
+local dummy_empty_table = {}
+
+-- this is for declarations of arrays or pointers
+-- NOTE: don't declare multiple pointers on one line (like int32_t *a, *b;)!
+local function decl(str)
+    for varname in string.gmatch(str, "([%a_][%w_]*)[[(;]") do
+--        print("protect "..varname)
+        gv_[varname] = dummy_empty_table
+    end
+
+    ffi.cdef(str)
+end
 
 ffi.cdef[[int32_t engine_main_arrays_are_static, engine_v8;]]
 
@@ -87,20 +108,20 @@ ffi.cdef[[int32_t engine_main_arrays_are_static, engine_v8;]]
 -- when checking a C variable x for 'thuthiness'
 if (ffi.C.engine_main_arrays_are_static ~= 0) then
 --    print('main arrays are static');
-    ffi.cdef[[
-sectortype sector[];
-walltype wall[];
-spritetype sprite[];
-spriteext_t spriteext[];
-]]
+    decl[[
+    sectortype sector[];
+    walltype wall[];
+    spritetype sprite[];
+    spriteext_t spriteext[];
+    ]]
 else
 --    print('main arrays are pointers');
-    ffi.cdef[[
-sectortype *sector;
-walltype *wall;
-spritetype *sprite;
-spriteext_t *spriteext;
-]]
+    decl[[
+    sectortype *sector;
+    walltype *wall;
+    spritetype *sprite;
+    spriteext_t *spriteext;
+    ]]
 end
 
 if (ffi.C.engine_v8 == 0) then
@@ -141,13 +162,14 @@ enum {
 ffi.cdef[[
 const int16_t numsectors, numwalls;
 const int32_t numyaxbunches;
+]]
 
+decl[[
 const int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 const int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 const int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 
 const int16_t headsectbunch[2][MAXBUNCHES], nextsectbunch[2][MAXSECTORS];
-
 
 int16_t yax_getbunch(int16_t i, int16_t cf);
 
@@ -155,14 +177,71 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 hitdata_t *hitinfo, uint32_t cliptype);
 ]]
 
+-- array -> element flattening inside structs,
+-- e.g. int32_t a[4] --> int32_t _a0, _a1, _a2, _a3;
+local function repeat_n_elts(type, namebase, num)
+    local strbuf = { "const "..type.." " }
+
+    for i=1,num do
+        local str = namebase..tostring(i-1)
+        if (i < num) then
+            str = str..","
+        end
+        strbuf[#strbuf+1] = str
+    end
+    strbuf[#strbuf+1] = ";"
+
+    return table.concat(strbuf)
+end
 
 ---- game structs ----
 ffi.cdef[[
+enum dukeinv_t {
+    GET_STEROIDS,
+    GET_SHIELD,
+    GET_SCUBA,
+    GET_HOLODUKE,
+    GET_JETPACK,
+    GET_DUMMY1,
+    GET_ACCESS,
+    GET_HEATS,
+    GET_DUMMY2,
+    GET_FIRSTAID,
+    GET_BOOTS,
+    GET_MAX
+};
+
+enum dukeweapon_t {
+    KNEE_WEAPON,
+    PISTOL_WEAPON,
+    SHOTGUN_WEAPON,
+    CHAINGUN_WEAPON,
+    RPG_WEAPON,
+    HANDBOMB_WEAPON,
+    SHRINKER_WEAPON,
+    DEVISTATOR_WEAPON,
+    TRIPBOMB_WEAPON,
+    FREEZE_WEAPON,
+    HANDREMOTE_WEAPON,
+    GROW_WEAPON,
+    MAX_WEAPONS
+};
+
+enum {
+    MAXPLAYERS = 16,
+};
+]]
+
+ffi.cdef([[
 #pragma pack(push,1)
-// XXX: might still need to make some fields read-only
+// TODO: still need to make some fields read-only
+// NOTE: must not expose arrays in structs!!!
 typedef struct
 {
-    const int32_t t_data[14];  // 56b sometimes used to hold offsets to con code
+]]
+..repeat_n_elts("int32_t", "_t", 14)..
+[[
+//    const int32_t t_data[14];  // 56b sometimes used to hold offsets to con code
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; //6b
 
@@ -172,9 +251,106 @@ typedef struct
 
     const int16_t lightId, lightcount, lightmaxrange, cgg; //8b
     int16_t actorstayput, dispicnum, shootzvel; // 6b
-
-    const int8_t _do_not_use[8];
+]]
+..repeat_n_elts("int8_t", "_d", 8)..
+[[
+//    const int8_t _do_not_use[8];
 } actor_t;
+
+typedef struct {
+    vec3_t pos, opos, vel, npos;
+    int32_t bobposx, bobposy;
+    int32_t truefz, truecz, player_par;
+    int32_t randomflamex, exitx, exity;
+    int32_t runspeed, max_player_health, max_shield_amount;
+
+    uint32_t interface_toggle_flag;
+
+    uint8_t palette;
+
+    uint16_t max_actors_killed, actors_killed;
+    uint16_t gotweapon, zoom;
+]]
+..repeat_n_elts("int16_t", "_lx", 64)..repeat_n_elts("int16_t", "_ly", 64)..
+[[
+//    int16_t loogiex[64], loogiey[64];
+    int16_t sbs, sound_pitch;
+
+    int16_t ang, oang, angvel, cursectnum, look_ang, last_extra, subweapon;
+]]
+..repeat_n_elts("int16_t", "_ma", ffi.C.MAX_WEAPONS)
+..repeat_n_elts("int16_t", "_aa", ffi.C.MAX_WEAPONS)
+..repeat_n_elts("int16_t", "_ia", ffi.C.GET_MAX)..
+[[
+//    int16_t max_ammo_amount[MAX_WEAPONS], ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
+    int16_t wackedbyactor, pyoff, opyoff;
+
+    int16_t horiz, horizoff, ohoriz, ohorizoff;
+    int16_t newowner, jumping_counter, airleft;
+    int16_t fta, ftq, access_wallnum, access_spritenum;
+    int16_t got_access, weapon_ang, visibility;
+    int16_t somethingonplayer, on_crane, i, one_parallax_sectnum;
+    int16_t random_club_frame, one_eighty_count;
+    int16_t dummyplayersprite, extra_extra8;
+    int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
+]]
+..repeat_n_elts("int16_t", "_w", ffi.C.MAX_WEAPONS)..
+[[
+//    int16_t weaprecs[MAX_WEAPONS];
+    int16_t weapon_sway, crack_time, bobcounter;
+
+    int16_t orotscrnang, rotscrnang, dead_flag;   // JBF 20031220: added orotscrnang
+    int16_t holoduke_on, pycount;
+
+    uint8_t max_secret_rooms, secret_rooms;
+    uint8_t frag, fraggedself, quick_kick, last_quick_kick;
+    uint8_t return_to_center, reloading, weapreccnt;
+    uint8_t aim_mode, auto_aim, weaponswitch, movement_lock, team;
+    uint8_t tipincs, hbomb_hold_delay, frag_ps, kickback_pic;
+
+    uint8_t gm, on_warping_sector, footprintcount, hurt_delay;
+    uint8_t hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
+    uint8_t inven_icon, buttonpalette, over_shoulder_on, show_empty_weapon;
+
+    uint8_t jetpack_on, spritebridge, lastrandomspot;
+    uint8_t scuba_on, footprintpal, heat_on, invdisptime;
+
+    uint8_t holster_weapon, falling_counter, footprintshade;
+    uint8_t refresh_inventory, last_full_weapon;
+
+    uint8_t toggle_key_flag, knuckle_incs, knee_incs, access_incs;
+    uint8_t walking_snd_toggle, palookup, hard_landing, fist_incs;
+
+    int8_t numloogs, loogcnt, scream_voice, transporter_hold;
+    int8_t last_weapon, cheat_phase, weapon_pos, wantweaponfire, curr_weapon;
+
+    palette_t pals;
+]]
+..repeat_n_elts("char", "_n", 32)..
+[[
+//    char name[32];
+} DukePlayer_t;
+
+typedef struct {
+    uint32_t bits; // 4b
+    int16_t fvel, svel; // 4b
+    int8_t avel, horz; // 2b
+    int8_t extbits, filler; // 2b
+} input_t;
+
+typedef struct {
+    DukePlayer_t *ps;
+    input_t *sync;
+
+    int32_t netsynctime;
+    int16_t ping, filler;
+    int32_t pcolor, pteam;
+    uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
+
+    char vote, gotvote, pingcnt, playerquitflag;
+    char user_name[32];
+    uint32_t revision;
+} playerdata_t;
 #pragma pack(pop)
 
 enum
@@ -284,17 +460,26 @@ typedef struct {
     char display_bonus_screen;
     char show_level_text;
 } user_defs;
-]]
+]])
 
-ffi.cdef[[
+decl[[
+const char *g_sizes_of_what[];
+int32_t g_sizes_of[];
 actor_t actor[MAXSPRITES];
 user_defs ud;
+playerdata_t g_player[MAXPLAYERS];
 ]]
 
 -- functions
-ffi.cdef[[
-double gethitickms(void);
-]]
+ffi.cdef "double gethitickms(void);"
+
+local ffiC = ffi.C
+
+-- sanity-check struct type sizes
+for i=0,6 do
+    assert(ffi.sizeof(ffi.typeof(ffi.string(ffiC.g_sizes_of_what[i])))
+           == ffiC.g_sizes_of[i])
+end
 
 --- default defines
 local con = require("con_lang")
@@ -393,40 +578,16 @@ end
 
 ---=== Restricted access to C variables from Lunatic ===---
 
-local ffiC = ffi.C
-
 -- error(..., 2) is to blame the caller and get its line numbers
 
-local det = {}  -- dummy empty table
 local tmpmt = {
     __index = function() error('dummy variable: read access forbidden', 2) end,
     __newindex = function() error('dummy variable: write access forbidden', 2) end,
-    __metatable = true  -- forbid setting the metatable
+    __metatable = true,  -- forbid setting the metatable
 }
-oG.setmetatable(det, tmpmt)
+oG.setmetatable(dummy_empty_table, tmpmt)
 
--- XXX: this is incorrect -- ffi.C also contains C library functions, etc.
--- GLOBAL gv: provides access to C global *scalars*
-gv = {
-    -- all non-scalars need to be explicitly listed
-    -- and access to them is redirected to the dummy
-    -- empty table... this is somewhat ugly
-    sector = det,
-    wall = det,
-    sprite = det,
-    spriteext = det,
-
-    headspritesect = det, headspritestat = det,
-    prevspritesect = det, prevspritestat = det,
-    nextspritesect = det, nextspritestat = det,
-
-    actor = det,
-    ud = det,
-
-    -- functions, too!
-    yax_getbunch = det,
-    hitscan = det,
-}
+gv = gv_
 local tmpmt = {
     __index = ffiC,
     __newindex = function() error("cannot create new or write into existing fields of 'gv'", 2) end,
@@ -572,7 +733,7 @@ function hitscan(x,y,z, sectnum, vx,vy,vz, cliptype)
         error('passed out-of-bounds sector number'..sectnum, 2)
     end
 
-    local vec = vec3_t(x,y,z)
+    local vec = vec3_ct(x,y,z)
     local hitdata = hitdata_ct()
 
     ffiC.hitscan(vec, sectnum, vx,vy,vz, hitdata, cliptype)

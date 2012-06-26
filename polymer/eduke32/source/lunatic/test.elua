@@ -91,6 +91,7 @@ end
 --]]
 --DBG_.printkv('_G in test.elua', _G)
 
+checkfail('local i = sprite["qwe"]')  -- indexing struct array with non-numeric type
 checkfail('print(sprite[100000].ceilingpal)')  -- oob read access
 checkfail('setmetatable(sprite, {})')  -- set metatable forbidden
 checkfail('sector[-1].ceilingpal = 4')  -- oob write access
@@ -113,6 +114,8 @@ checkfail('string.dump(gameevent)')  -- string.dump is unavailable
 checkfail('gv.luaJIT_setmode(nil, 0, 0)')
 checkfail('gv.luaJIT_BC_con_lang')
 checkfail('gv.yax_getbunch(0,0)')
+-- we don't have arrays in Lua-accessible structs now
+checkfail('local i = actor[0].t_data[15]')
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 

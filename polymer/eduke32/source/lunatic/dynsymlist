@@ -2,6 +2,9 @@
 engine_main_arrays_are_static;
 engine_v8;
 
+g_sizes_of_what;
+g_sizes_of;
+
 sector;
 wall;
 sprite;
@@ -27,6 +30,7 @@ hitscan;
 
 actor;
 ud;
+g_player;
 
 luaJIT_BC_*;
 

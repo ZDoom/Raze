@@ -9779,6 +9779,15 @@ void CON_EnableGecko(int channel,int safe);
 bool fatInit (uint32_t cacheSize, bool setAsDefaultDevice);
 #endif
 
+#ifdef LUNATIC
+const char *g_sizes_of_what[] = {
+    "sectortype", "walltype", "spritetype",
+    "actor_t", "DukePlayer_t", "playerdata_t", "user_defs" };
+int32_t g_sizes_of[] = {
+    sizeof(sectortype), sizeof(walltype), sizeof(spritetype),
+    sizeof(actor_t), sizeof(DukePlayer_t), sizeof(playerdata_t), sizeof(user_defs) };
+#endif
+
 int32_t app_main(int32_t argc, const char **argv)
 {
     int32_t i = 0, j;
