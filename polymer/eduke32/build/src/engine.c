@@ -7359,7 +7359,7 @@ static int32_t loadtables(void)
         }
         else
         {
-            engineerrstr = "Failed to load 'tables.dat'!";
+            engineerrstr = "Failed to load \"tables.dat\"!";
             initprintf("ERROR: %s\n", engineerrstr);
             return 1;
         }
@@ -7421,7 +7421,7 @@ static int32_t loadpalette(void)
     if (paletteloaded != 0) return 0;
     if ((fil = kopen4load("palette.dat",0)) == -1)
     {
-        engineerrstr = "Failed to load 'palette.dat'!";
+        engineerrstr = "Failed to load \"palette.dat\"!";
         initprintf("ERROR: %s\n", engineerrstr);
         return -1;
     }

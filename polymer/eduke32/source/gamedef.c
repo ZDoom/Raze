@@ -5799,7 +5799,7 @@ void C_Compile(const char *filenam)
         {
 #ifdef WIN32
             Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n\n"
-                     "You can find \"%s\" in the 'DN3DINST' or 'ATOMINST' directory on your Duke Nukem 3D installation CD.\n\n"
+                     "You can find \"%s\" in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD-ROM.\n\n"
                      "If you don't already own a copy of Duke or haven't seen your disc in years, don't worry -- you can download the full, registered "
                      "version of Duke Nukem 3D: Atomic Edition immediately for only $5.99 through our partnership with GOG.com.\n\n"
                      "Not a typo; it's less than 6 bucks.  Get Duke now?\n\n"
@@ -5825,7 +5825,7 @@ void C_Compile(const char *filenam)
             G_GameExit("");
 #else
             Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n"
-                     "You can find \"%s\" in the 'DN3DINST' or 'ATOMINST' directory on your Duke Nukem 3D installation CD-ROM.\n\n"
+                     "You can find \"%s\" in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD-ROM.\n\n"
                      "EDuke32 will now close.",
                      G_GrpFile(),G_GrpFile());
             G_GameExit(tempbuf);

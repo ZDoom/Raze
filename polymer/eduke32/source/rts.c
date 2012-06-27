@@ -79,18 +79,18 @@ int32_t RTS_AddFile(const char *filename)
     handle = kopen4loadfrommod((char *)filename, 0);
     if (handle < 0)
     {
-        initprintf("RTS file %s was not found\n",filename);
+        initprintf("RTS file \"%s\" was not found\n",filename);
         return -1;
     }
 
     startlump = rts_numlumps;
 
     // WAD file
-//    initprintf("    Adding %s.\n",filename);
+//    initprintf("    Adding \"%s\".\n",filename);
     kread(handle, &header, sizeof(header));
     if (strncmp(header.identification,"IWAD",4))
     {
-        initprintf("RTS file %s doesn't have IWAD id\n",filename);
+        initprintf("RTS file \"%s\" doesn't have IWAD id\n",filename);
         kclose(handle);
         return -1;
     }

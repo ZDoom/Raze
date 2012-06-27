@@ -12,7 +12,7 @@
 #include "common.h"
 #include "common_game.h"
 
-int32_t g_gameType = 0;
+int32_t g_gameType = GAMEFLAG_DUKE;
 
 // grp/con/def handling
 
