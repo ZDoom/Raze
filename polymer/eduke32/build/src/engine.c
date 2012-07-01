@@ -2113,7 +2113,7 @@ static inline int32_t getkensmessagecrc(void *b)
 
 #else   // __GNUC__ && __i386__
 
-static inline uint32_t nsqrtasm(uint32_t a)
+static inline int32_t nsqrtasm(uint32_t a)
 {
     // JBF 20030901: This was a damn lot simpler to reverse engineer than
     // msqrtasm was. Really, it was just like simplifying an algebra equation.
