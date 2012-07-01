@@ -159,7 +159,7 @@ gameevent(gv.EVENT_ENTERLEVEL,
                      N, t, (t*1000)/N, sum)
 
               printf("sqrt(0xffffffff) = %f(ksqrt) %f(math.sqrt)",
-                     gv.ksqrt(-1), math.sqrt(0xffffffff))
+                     gv.ksqrt(0xffffffff), math.sqrt(0xffffffff))
           end
          )
 

@@ -4686,9 +4686,9 @@ void P_ProcessInput(int32_t snum)
     }
     else p->weapon_sway = p->bobcounter;
 
-    // NOTE: This overflows if the difference is too great, e.g. used to do
+    // NOTE: This silently wraps if the difference is too great, e.g. used to do
     // that when teleported by silent SE7s.
-    s->xvel = ksqrt((p->pos.x-p->bobposx)*(p->pos.x-p->bobposx)+(p->pos.y-p->bobposy)*(p->pos.y-p->bobposy));
+    s->xvel = ksqrt(uhypsq(p->pos.x-p->bobposx, p->pos.y-p->bobposy));
 
     if (p->on_ground)
         p->bobcounter += sprite[p->i].xvel>>1;
@@ -5630,7 +5630,9 @@ void computergetinput(int32_t snum, input_t *syn)
         for (TRAVERSE_CONNECT(i))
             if (i != snum && !(GTFLAGS(GAMETYPE_TDM) && g_player[snum].ps->team == g_player[i].ps->team))
             {
-                dist = ksqrt((sprite[g_player[i].ps->i].x-x1)*(sprite[g_player[i].ps->i].x-x1)+(sprite[g_player[i].ps->i].y-y1)*(sprite[g_player[i].ps->i].y-y1));
+                const spritetype *const pspr = &sprite[g_player[i].ps->i];
+
+                dist = ksqrt(uhypsq(pspr->x-x1, pspr->y-y1));
 
                 x2 = sprite[g_player[i].ps->i].x;
                 y2 = sprite[g_player[i].ps->i].y;
@@ -5742,7 +5744,7 @@ void computergetinput(int32_t snum, input_t *syn)
 
         fightdist = fdmatrix[p->curr_weapon][g_player[goalplayer[snum]].ps->curr_weapon];
         if (fightdist < 128) fightdist = 128;
-        dist = ksqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+        dist = ksqrt(uhypsq(x2-x1, y2-y1));
         if (dist == 0) dist = 1;
         daang = getangle(x2+(g_player[goalplayer[snum]].ps->vel.x>>14)-x1,y2+(g_player[goalplayer[snum]].ps->vel.y>>14)-y1);
         zang = 100-((z2-z1)*8)/dist;
@@ -5860,7 +5862,7 @@ void computergetinput(int32_t snum, input_t *syn)
                                     break;
                                 }
 
-                            dist = ksqrt(dx*dx+dy*dy);
+                            dist = ksqrt(uhypsq(dx,dy));
                             if (dist > l)
                             {
                                 l = dist;
@@ -5906,7 +5908,7 @@ void computergetinput(int32_t snum, input_t *syn)
                             {
                                 dx = wall[wall[i].point2].x-wall[i].x;
                                 dy = wall[wall[i].point2].y-wall[i].y;
-                                dist = ksqrt(dx*dx+dy*dy);
+                                dist = ksqrt(uhypsq(dx,dy));
                                 if ((wall[i].nextsector == goalsect[snum]) && (dist > l))
                                 {
                                     l = dist;
@@ -5962,7 +5964,7 @@ void computergetinput(int32_t snum, input_t *syn)
         }
         x2 = goalx[snum];
         y2 = goaly[snum];
-        dist = ksqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+        dist = ksqrt(uhypsq(x2-x1, y2-y1));
         if (!dist) return;
         daang = getangle(x2-x1,y2-y1);
         syn->fvel += (x2-x1)*2047/dist;
@@ -6044,7 +6046,7 @@ void computergetinput(int32_t snum, input_t *syn)
     {
         x2 = goalx[snum];
         y2 = goaly[snum];
-        dist = ksqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
+        dist = ksqrt(uhypsq(x2-x1, y2-y1));
         if (!dist) return;
         daang = getangle(x2-x1,y2-y1);
         if ((goalwall[snum] >= 0) && (dist < 4096))

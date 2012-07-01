@@ -8345,7 +8345,7 @@ int32_t wallength(int16_t i)
     if (hypsq > (int64_t)INT32_MAX)
         return (int32_t)sqrt((double)hypsq);
     else
-        return ksqrt((int32_t)hypsq);
+        return ksqrt((uint32_t)hypsq);
 #else
     return ksqrt(dax*dax + day*day);
 #endif

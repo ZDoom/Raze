@@ -2637,7 +2637,7 @@ nullquote:
                 if (hypsq > (int64_t)INT_MAX)
                     Gv_SetVarX(retvar, (int32_t)sqrt((double)hypsq));
                 else
-                    Gv_SetVarX(retvar, ksqrt((int32_t)hypsq));
+                    Gv_SetVarX(retvar, ksqrt((uint32_t)hypsq));
 
                 continue;
             }
@@ -3607,7 +3607,7 @@ nullquote:
                 // syntax sqrt <invar> <outvar>
                 int32_t lInVarID=*insptr++, lOutVarID=*insptr++;
 
-                Gv_SetVarX(lOutVarID, ksqrt(Gv_GetVarX(lInVarID)));
+                Gv_SetVarX(lOutVarID, ksqrt((uint32_t)Gv_GetVarX(lInVarID)));
                 continue;
             }
 

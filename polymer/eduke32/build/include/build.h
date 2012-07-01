@@ -656,7 +656,7 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
 void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUTE((nonnull(1,2,3)));
 int32_t    krand(void);
-int32_t   ksqrt(int32_t num);
+int32_t   ksqrt(uint32_t num);
 // int32_t   getangle(int32_t xvect, int32_t yvect);
 
 //
@@ -664,6 +664,11 @@ int32_t   ksqrt(int32_t num);
 //
 
 EXTERN int16_t radarang[1280];
+
+static inline uint32_t uhypsq(int32_t dx, int32_t dy)
+{
+    return (uint32_t)dx*dx + (uint32_t)dy*dy;
+}
 
 static inline int32_t getangle(int32_t xvect, int32_t yvect)
 {

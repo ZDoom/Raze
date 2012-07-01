@@ -6577,7 +6577,7 @@ static void Keys3d(void)
             case 7:ma+=512; break;
             }
 
-        a = ksqrt(mouseax*mouseax + mouseay*mouseay);
+        a = ksqrt(uhypsq(mouseax,mouseay));
         if (a)
         {
             int32_t mult = (stat&8) ? 8192 : 8192*2;
