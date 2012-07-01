@@ -17,7 +17,7 @@ lpeg.setmaxstack(1024);
 
 
 local Pat, Set, Range, Var = lpeg.P, lpeg.S, lpeg.R, lpeg.V
-
+local POS = lpeg.Cp
 
 ---- All keywords pattern -- needed for CON syntax
 local con = require("con_lang")
@@ -48,42 +48,87 @@ local g_filename = "???"
 local g_directory = ""  -- with trailing slash if not empty
 local g_numerrors = 0
 
-local g_ifnestlevel = 0  -- needed to cope with CONs dangling-else resolution
+-- How many 'if' statements are following immediately each other,
+-- needed to cope with CONs dangling-else resolution
+local g_ifseqlevel = 0
+
+
+---=== Code generation ===---
+local g_file_code = {}  -- a [filename]=gencode_table mapping
+local g_curcode = nil  -- a table of string pieces or other "gencode" tables
+
+local g_actor_code = {}  -- [actornum]=gencode_table
+local g_event_code = {}  -- [eventnum]=gencode_table
+local g_loadactor_code = {}  -- [actornum]=gencode_table
 
 
 local function getlinecol(pos) end -- fwd-decl
+
+local function reset_codegen()
+    g_file_code, g_curcode = {}, nil
+    g_actor_code, g_event_code, g_loadactor_code = {}, {}, {}
+end
+
+local function addcode(x)
+    g_curcode[#g_curcode+1] = x
+end
+
+local function addcodef(fmt, ...)
+    addcode(string.format(fmt, ...))
+end
+
+local function on_actor_end(usertype, tsamm, codetab)
+    -- TODO: strength, action, move, moveflags
+    local tilenum = tsamm[1]
+
+    -- usertype is non-nil only for 'useractor'
+    addcodef("gameactor(%d,\nfunction(actori, playeri, dist)", tilenum)
+    g_actor_code[tilenum] = codetab
+
+    addcode(codetab)
+    addcode("end)")
+end
+
+----------
 
 local function linecolstr(pos)
     local line, col = getlinecol(pos)
     return string.format("%d:%d", line, col)
 end
 
+local function perrprintf(pos, fmt, ...)
+    printf("%s %s: error: "..fmt, g_filename, linecolstr(pos), ...)
+end
+
 local function errprintf(fmt, ...)
     if (g_lastkwpos) then
-        printf("%s %s: error: "..fmt, g_filename, linecolstr(g_lastkwpos), ...)
+        perrprintf(g_lastkwpos, fmt, ...)
     else
         printf("%s ???: error: "..fmt, g_filename, ...)
     end
     g_numerrors = g_numerrors+1
 end
 
+local function pwarnprintf(pos, fmt, ...)
+    printf("%s %s: warning: "..fmt, g_filename, linecolstr(pos), ...)
+end
+
 local function warnprintf(fmt, ...)
     if (g_lastkwpos) then
-        printf("%s %s: warning: "..fmt, g_filename, linecolstr(g_lastkwpos), ...)
+        pwarnprintf(g_lastkwpos, fmt, ...)
     else
         printf("%s ???: warning: "..fmt, g_filename, ...)
     end
 end
 
-local function parse_number(numstr)
+local function parse_number(pos, numstr)
     local num = tonumber(numstr)
 
-    -- TODO: print line number
     if (num < -0x80000000 or num > 0xffffffff) then
-        errprintf("number %s out of the range of a 32-bit integer", numstr)
+        perrprintf(pos, "number %s out of the range of a 32-bit integer", numstr)
         num = NaN
     elseif (num >= 0x80000000 and numstr:sub(1,2):lower()~="0x") then
-        warnprintf("number %s converted to a negative one", numstr)
+        pwarnprintf(pos, "number %s converted to a negative one", numstr)
         num = num-0x100000000
     end
 
@@ -93,9 +138,9 @@ end
 
 local LABEL = { MOVE=2, AI=3, ACTION=5, [2]="move", [3]="ai", [5]="action" }
 
-local MOVE_NO_ = {0,0}
-local ACTION_NO_ = {0,0,0,0,0}
-local LABEL_NO = { [2]=MOVE_NO_, [3]={ACTION_NO_,MOVE_NO_,0}, [5]=ACTION_NO_ }
+local MOVE_NO = {0,0}
+local ACTION_NO = {0,0,0,0,0}
+local LABEL_NO = { [2]=MOVE_NO, [3]={ACTION_NO, MOVE_NO, 0}, [5]=ACTION_NO }
 
 -- will contain:
 --  * scalar numbers: `define'd values
@@ -105,8 +150,10 @@ local LABEL_NO = { [2]=MOVE_NO_, [3]={ACTION_NO_,MOVE_NO_,0}, [5]=ACTION_NO_ }
 --    - action: { startframe, numframes, viewtype, incval, delay }  (all <num>)
 -- TODO: IDs for comparison with if*
 local g_labeldef = {}
+local TEMP_numlookups = {}
 
 local function reset_labels()
+    TEMP_numlookups = {}
     g_labeldef = { NO=0 }  -- NO is also a valid `move', `ai' or `action'
 
     for i=1,#con.labels do
@@ -118,16 +165,16 @@ end
 
 -- XXX: error reports give wrong numbers if e.g. happened in "actor" def
 --  (since it runs when fully parsed, i.e. at "enda")
-local function lookup_defined_label(maybe_minus_str, identifier)
+local function lookup_defined_label(pos, maybe_minus_str, identifier)
     local num = g_labeldef[identifier]
 
     if (num == nil) then
-        errprintf("label \"%s\" is not defined", identifier)
+        perrprintf(pos, "label \"%s\" is not defined", identifier)
         return -inf  -- return a number for type cleanness
     end
 
     if (type(num) ~= "number") then
-        errprintf("label \"%s\" is not a `define'd value", identifier)
+        perrprintf(pos, "label \"%s\" is not a `define'd value", identifier)
         return -inf
     end
 
@@ -155,10 +202,10 @@ local function do_define_label(identifier, num)
     g_labeldef[identifier] = num
 end
 
-local function check_move_literal(num)
+local function check_move_literal(pos, num)
     if (num~=0 and num~=1) then
-        errprintf("literal `move' number must be either 0 or 1")
-        return MOVE_NO_
+        perrprintf(pos, "literal `move' number must be either 0 or 1")
+        return MOVE_NO
     end
 
     -- Both move 0 and 1 have hvel and vvel 0, but they must not compare equal
@@ -167,16 +214,16 @@ local function check_move_literal(num)
     return {0.1*num, 0.1*num}
 end
 
-local function check_action_or_ai_literal(labeltype, num)
+local function check_action_or_ai_literal(labeltype, pos, num)
     if (num~=0) then
-        errprintf("literal `%s' number must be 0", LABEL[labeltype])
+        perrprintf(pos, "literal `%s' number must be 0", LABEL[labeltype])
         return LABEL_NO[labeltype]
     end
 
     return LABEL_NO[labeltype]
 end
 
-local function lookup_composite(labeltype, identifier)
+local function lookup_composite(labeltype, pos, identifier)
     if (identifier=="NO") then
         -- NO is a special case and is valid for move, ai, action
         return LABEL_NO[labeltype]
@@ -185,14 +232,20 @@ local function lookup_composite(labeltype, identifier)
     local val = g_labeldef[identifier]
 
     if (val == nil) then
-        errprintf("label \"%s\" is not defined", identifier)
+        perrprintf(pos, "label \"%s\" is not defined", identifier)
         return LABEL_NO[labeltype]  -- return a value of the expected type for cleanness
     end
 
     if (type(val)~="table" or #val~=labeltype) then
-        errprintf("label \"%s\" is not a%s `%s' value", identifier,
+        perrprintf(pos, "label \"%s\" is not a%s `%s' value", identifier,
                   labeltype==LABEL.MOVE and "" or "n", LABEL[labeltype])
         return LABEL_NO[labeltype]
+    end
+
+    if (TEMP_numlookups[identifier]) then
+        TEMP_numlookups[identifier] = TEMP_numlookups[identifier]+1
+    else
+        TEMP_numlookups[identifier] = 1
     end
 
     return val
@@ -253,6 +306,12 @@ else
                 g_numerrors = inf
                 return
             end
+        end
+
+        if (g_file_code[filename] ~= nil) then
+            printf("[%d] Fatal error: infinite loop including \"%s\"", filename)
+            g_numerrors = inf
+            return
         end
 
         local contents = fd:read("*all")
@@ -419,7 +478,7 @@ local alphanum = alpha + Range("09")
 
 --- basic lexical elements ("tokens")
 local t_maybe_minus = (Pat("-") * sp0)^-1;
-local t_number = lpeg.C(
+local t_number = POS() * lpeg.C(
     t_maybe_minus * ((Pat("0x") + "0X")*Range("09", "af", "AF")^1 + Range("09")^1)
                        ) / parse_number
 -- Valid identifier names are disjunct from keywords!
@@ -602,10 +661,12 @@ local setperxvarcmd = -- set<actor/player>var[<idx>].<member> <var>
 
 local Ci = {
     -- these can appear anywhere in the script
-    ["break"] = cmd(),
+    ["break"] = cmd() /
+        "do return end",  -- TODO: more exact semantics
     ["return"] = cmd(),
 
-    state = cmd(I),
+    state = cmd(I) /
+        "%1()",  -- TODO: mangle names
 
     --- 1. get*, set*
     getactor = getstructcmd,
@@ -675,19 +736,22 @@ local Ci = {
     getincangle = cmd(W,R,R),
 
     --- 3. Actors
-    -- These three need more attention (different kind of labels; move
-    -- additionally may accept 0 or 1):
-    action = cmd(AC),
+    -- These three need more attention (different kind of labels;
+    -- 'move' additionally may accept 0 or 1):
+    action = cmd(AC) /
+        function(q) return "ACTION("..(q[1] or "nil")..")" end, --TEMP
     ai = cmd(AI),
     move = sp1 * t_move * (sp1 * t_define)^0,
 
-    cactor = cmd(D),
+    cactor = cmd(D) /
+        "sprite[actori].tilenum=%1",
     count = cmd(D),
     cstator = cmd(D),
     cstat = cmd(D),
     clipdist = cmd(D),
     sizeto = cmd(D,D),
-    sizeat = cmd(D,D),
+    sizeat = cmd(D,D) /
+        "sprite[actori].xrepeat, sprite[actori].yrepeat = %1, %2",
     strength = cmd(D),
     addstrength = cmd(D),
     spritepal = cmd(D),
@@ -768,7 +832,8 @@ local Ci = {
     flash = cmd(),
     getlastpal = cmd(),
     insertspriteq = cmd(),
-    killit = cmd(),  -- exec SPECIAL HANDLING!
+    killit = cmd() /
+        "do return 2 end",  -- exec SPECIAL HANDLING!
     mikesnd = cmd(),
     nullop = cmd(),
     pkick = cmd(),
@@ -912,7 +977,6 @@ local Ci = {
 }
 
 local Cif = {
-    -- XXX: ai, action, move/def labels
     ifai = cmd(AI),
     ifaction = cmd(AC),
     ifmove = cmd(MV),
@@ -1031,12 +1095,14 @@ function getlinecol(pos)  -- local
     return line+1, col-1
 end
 
--- A generic trace function, prints a position together with the match content
--- A non-existing 'doit' means 'true'.
+-- A generic trace function, prints a position together with the match content.
+-- The 'doit' parameter can be used to temporarily enable/disable a particular
+-- tracing function.
 local function TraceFunc(pat, label, doit)
+    assert(doit ~= nil)
     pat = Pat(pat)
 
-    if (doit==nil or doit) then
+    if (doit) then
         local function tfunc(subj, pos, a)
             printf("%s:%s: %s", linecolstr(pos), label, a)
             return true
@@ -1077,7 +1143,21 @@ local function Stmt(cmdpat) return TraceFunc(cmdpat, "st", false) end
 --Ci["myosx"] = Temp(Ci["myosx"])
 
 ----==== Translator continued ====----
-local function after_cmd_Cmt()
+local function after_inner_cmd_Cmt(subj, pos, ...)
+    local capts = {...}
+
+    if (g_numerrors == inf) then
+        return nil
+    end
+
+    if (type(capts[1])=="string" and capts[2]==nil) then
+        return true, capts[1].."--"
+    end
+
+    return true
+end
+
+local function after_cmd_Cmt(subj, pos, ...)
     if (g_numerrors == inf) then
 --        print("Aborting parsing...")
         return nil  -- make the match fail, bail out of parsing
@@ -1087,17 +1167,18 @@ local function after_cmd_Cmt()
 end
 
 -- attach the command names at the front!
-local function attachnames(kwtab)
+local function attachnames(kwtab, customfunc)
     for cmdname,cmdpat in pairs(kwtab) do
         -- The match-time function capture at the end is so that every
         -- command acts as a barrier to captures to prevent stack overflow (and
         -- to make lpeg.match return a subject position at the end)
-        kwtab[cmdname] = lpeg.Cmt(Keyw(cmdname) * cmdpat, after_cmd_Cmt)
+        kwtab[cmdname] = lpeg.Cmt(Keyw(cmdname) * cmdpat,
+                                  customfunc or after_cmd_Cmt)
     end
 end
 
 attachnames(Co)
-attachnames(Ci)
+attachnames(Ci, after_inner_cmd_Cmt)
 attachnames(Cif)
 
 
@@ -1135,28 +1216,22 @@ local function all_alt_pattern(...)
 end
 
 -- actor ORGANTIC is greeting!
-local function warn_on_lonely_else()
-    warnprintf("found `else' with no `if'")
+local function warn_on_lonely_else(pos)
+    pwarnprintf(pos, "found `else' with no `if'")
 end
-
-function EvalEarly(pat)
-    -- force warnings and the like early
-    return lpeg.Cmt(pat, function() return true end)
-end
-
 
 local con_inner_command = all_alt_pattern(Ci)
 local con_if_begs = all_alt_pattern(Cif)
 
-local lone_else = ("else" * sp1)/warn_on_lonely_else
+local lone_else = (POS() * "else" * sp1)/warn_on_lonely_else
 
 local stmt_list = Var("stmt_list")
 -- possibly empty statement list:
-local stmt_list_or_eps = (stmt_list * sp1)^-1
+local stmt_list_or_eps = lpeg.Ct((stmt_list * sp1)^-1)
 local stmt_list_nosp_or_eps = (stmt_list * (sp1 * stmt_list)^0)^-1
 
 -- common to actor and useractor: <name/tilenum> [<strength> [<action> [<move> [<flags>... ]]]]
-local common_actor_end = sp1 * t_define * EvalEarly(
+local common_actor_end = sp1 * lpeg.Ct(t_define *
     (sp1 * t_define *
      (sp1 * t_action *
       (sp1 * t_move *
@@ -1164,16 +1239,17 @@ local common_actor_end = sp1 * t_define * EvalEarly(
       )^-1
      )^-1
     )^-1)
-        * sp1 * stmt_list_or_eps * "enda"
+* sp1 * stmt_list_or_eps * "enda"
 
 --== block delimiters (no recursion) ==--
 local Cb = {
     -- actor (...)
-    actor = common_actor_end,
+    actor = lpeg.Cc(nil) * common_actor_end / on_actor_end,
     -- useractor <actortype> (...)
-    useractor = sp1 * t_define * common_actor_end,
+    useractor = sp1 * t_define * common_actor_end / on_actor_end,
     -- eventloadactor <name/tilenum>
-    eventloadactor = sp1 * t_define * sp1 * stmt_list_or_eps * "enda",
+    eventloadactor = lpeg.Cc(nil) * sp1 * lpeg.Ct(t_define)
+        * sp1 * stmt_list_or_eps * "enda" / on_actor_end,
 
     onevent = sp1 * t_define * sp1 * stmt_list_or_eps * "endevent",
 
@@ -1196,15 +1272,23 @@ local t_broken_identifier = BadIdent(-((t_number + t_good_identifier) * (sp1 + S
                                      (alphanum + Set("_/\\*")) * (alphanum + Set("_/\\*-"))^0)
 
 local function begin_if_fn()
-    g_ifnestlevel = g_ifnestlevel+1
+    g_ifseqlevel = g_ifseqlevel+1
+
+    return "if (TODO) then"
 end
 
 local function end_if_fn()
-    g_ifnestlevel = g_ifnestlevel-1
+    g_ifseqlevel = g_ifseqlevel-1
 end
 
 local function check_else_Cmt()
-    return (g_ifnestlevel==0)  -- match an 'else' only at the outermost level
+    -- match an 'else' only at the outermost level
+    local good = (g_ifseqlevel==0)
+    if (good) then
+        return good, "else"
+    end
+
+    -- return nothing, making the Cmt fail
 end
 
 --- The final grammar!
@@ -1232,14 +1316,19 @@ local Grammar = Pat{
     --   getactor [THISACTOR].y y
     -- This is in need of cleanup!
     t_identifier = -NotKeyw(con.keyword * (sp1 + "[")) * lpeg.C(t_identifier_all),
-    t_define = (lpeg.C(t_maybe_minus) * t_identifier / lookup_defined_label) + t_number,
+    t_define = (POS() * lpeg.C(t_maybe_minus) * t_identifier / lookup_defined_label) + t_number,
 
-    t_move = (t_identifier/function(id) lookup_composite(LABEL.MOVE, id) end) +
-        t_number/check_move_literal,
-    t_ai = (t_identifier/function(id) lookup_composite(LABEL.AI, id) end) +
-        t_number/function(num) check_action_or_ai_literal(LABEL.AI, num) end,
-    t_action = (t_identifier/function(id) lookup_composite(LABEL.ACTION, id) end) +
-        t_number/function(num) check_action_or_ai_literal(LABEL.ACTION, num) end,
+    t_move =
+        POS()*t_identifier / function(...) return lookup_composite(LABEL.MOVE, ...) end +
+        POS()*t_number / check_move_literal,
+
+    t_ai =
+        POS()*t_identifier / function(...) return lookup_composite(LABEL.AI, ...) end +
+        POS()*t_number / function(...) return check_action_or_ai_literal(LABEL.AI, ...) end,
+
+    t_action =
+        POS()*t_identifier / function(...) return lookup_composite(LABEL.ACTION, ...) end +
+        POS()*t_number / function(...) return check_action_or_ai_literal(LABEL.ACTION, ...) end,
 
     t_arrayexp = t_identifier * arraypat * memberpat^-1,
 
@@ -1253,8 +1342,10 @@ local Grammar = Pat{
 
     default_block = sp1 * Keyw("default") * (sp0*":"*sp0 + sp1) * stmt_list_nosp_or_eps,  -- * "break",
 
-    if_stmt = con_if_begs/begin_if_fn * sp1 * Var("single_stmt") * Pat("")/end_if_fn
-        * (sp1 * lpeg.Cmt(Pat("else"), check_else_Cmt) * sp1 * Var("single_stmt"))^-1,
+    if_stmt = con_if_begs/begin_if_fn * sp1
+        * Var("single_stmt") * (Pat("")/end_if_fn)
+        * (sp1 * lpeg.Cmt(Pat("else"), check_else_Cmt) * sp1 * Var("single_stmt"))^-1
+        * lpeg.Cc("end"),
 
     -- TODO?: SST TC has "state ... else ends"
     while_stmt = Keyw("whilevarvarn") * sp1 * t_rvar * sp1 * t_rvar * sp1 * Var("single_stmt")
@@ -1295,6 +1386,30 @@ local function setup_newlineidxs(contents)
     return newlineidxs
 end
 
+---
+local function do_flatten_codetab(code, intotab)
+    for i=1,math.huge do
+        local elt = code[i]
+
+        if (type(elt)=="string") then
+            intotab[#intotab+1] = code[i]
+        elseif (type(elt)=="table") then
+            do_flatten_codetab(elt, intotab)
+        else
+            assert(elt==nil)
+            return
+        end
+    end
+end
+
+-- Return a "string buffer" table that can be table.concat'ed
+-- to get the code string.
+local function flatten_codetab(codetab)
+    local tmpcode = {}
+    do_flatten_codetab(codetab, tmpcode)
+    return tmpcode
+end
+
 
 ---=== EXPORTED FUNCTIONS ===---
 
@@ -1302,8 +1417,11 @@ function parse(contents)  -- local
     -- save outer state
     local lastkw, lastkwpos, numerrors = g_lastkw, g_lastkwpos, g_numerrors
     local newlineidxs = g_newlineidxs
+    local curcode = g_curcode
 
-    g_ifnestlevel = 0
+    g_ifseqlevel = 0
+    g_curcode = {}
+    g_file_code[g_filename] = g_curcode
 
     -- set up new state
     -- TODO: pack into one "parser state" table?
@@ -1346,6 +1464,7 @@ function parse(contents)  -- local
         end
     end
 
+    g_curcode = curcode
     g_recurslevel = g_recurslevel-1
 
     -- restore outer state
@@ -1357,27 +1476,53 @@ end
 
 if (not _EDUKE32_LUNATIC) then
     --- stand-alone
+    local debug = require("debug")
 
     for argi=1,#arg do
         local filename = arg[argi]
 
         g_recurslevel = -1
         g_badids = {}
+
         reset_labels()
         reset_gamedata()
+        reset_codegen()
 
         g_numerrors = 0
 
         g_directory = filename:match("(.*/)") or ""
         filename = filename:sub(#g_directory+1, -1)
 
+        -- NOTE: xpcall isn't useful here since the traceback won't give us
+        -- anything inner to the lpeg.match call
         local ok, msg = pcall(do_include_file, g_directory, filename)
+
         if (not ok) then
             if (g_lastkwpos ~= nil) then
                 printf("LAST KEYWORD POSITION: %s, %s", linecolstr(g_lastkwpos), g_lastkw)
             end
             print(msg)
         end
+
+        -- TEMP
+        local n, numl = 0, 0
+        local ll = {[1]=0, [2]=0, [3]=0}
+        for id,numlookups in pairs(TEMP_numlookups) do
+            numl = numl+numlookups
+            n = n+1
+            if (numlookups<=3) then
+                ll[numlookups] = ll[numlookups]+1
+            end
+        end
+        printf("avg. lookups: %f (%d %d %d)", numl/n, ll[1],ll[2],ll[3])
+
+--[[
+        for filename,codetab in pairs(g_file_code) do
+            io.stderr:write(string.format("-- GENERATED CODE (%s):\n", filename))
+            io.stderr:write(table.concat(flatten_codetab(codetab), "\n"))
+            io.stderr:write("\n")
+        end
+--]]
     end
 else
     --- embedded
