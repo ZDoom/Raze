@@ -174,10 +174,10 @@ typedef struct      s_prrograminfo {
 
 typedef struct      s_prprogrambit {
     int32_t         bit;
-    char*           vert_def;
-    char*           vert_prog;
-    char*           frag_def;
-    char*           frag_prog;
+    const char*           vert_def;
+    const char*           vert_prog;
+    const char*           frag_def;
+    const char*           frag_prog;
 }                   _prprogrambit;
 
 #include "prlights.h"

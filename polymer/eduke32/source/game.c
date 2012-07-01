@@ -7358,7 +7358,7 @@ FOUNDCHEAT:
 
                 case CHEAT_MONSTERS:
                 {
-                    char *s[] = { "On", "Off" };
+                    const char *s[] = { "On", "Off" };
 
                     if (++g_noEnemies == 3)
                         g_noEnemies = 0;
@@ -8046,7 +8046,7 @@ FAKE_F3:
 
 static void G_ShowParameterHelp(void)
 {
-    char *s = "Usage: eduke32 [files] [options]\n"
+    const char *s = "Usage: eduke32 [files] [options]\n"
               "Example: eduke32 -q4 -a -m -tx -map nukeland.map\n\n"
               "Files can be *.grp/zip/con/def/rts\n"
               "\n"
@@ -8096,7 +8096,7 @@ static void G_ShowParameterHelp(void)
 
 static void G_ShowDebugHelp(void)
 {
-    char *s = "Usage: eduke32 [files] [options]\n"
+    const char *s = "Usage: eduke32 [files] [options]\n"
               "\n"
               "-a\t\tUse fake player AI (fake multiplayer only)\n"
               "-cachesize #\tSets cache size, in Kb\n"
@@ -8200,7 +8200,7 @@ static int32_t S_DefineMusic(char *ID,char *name)
 
 static int32_t parsedefinitions_game(scriptfile *script, int32_t preload);
 
-static void parsedefinitions_game_include(const char *fn, scriptfile *script, char *cmdtokptr, const int32_t preload)
+static void parsedefinitions_game_include(const char *fn, scriptfile *script, const char *cmdtokptr, const int32_t preload)
 {
     scriptfile *included = scriptfile_fromfile(fn);
 
@@ -10314,7 +10314,7 @@ CLEAN_DIRECTORY:
     if (quitevent) return 4;
 
     {
-        char *defsfile = G_DefFile();
+        const char *defsfile = G_DefFile();
         if (!loaddefinitionsfile(defsfile))
         {
             initprintf("Definitions file \"%s\" loaded.\n",defsfile);

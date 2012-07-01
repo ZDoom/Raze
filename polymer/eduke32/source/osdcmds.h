@@ -38,12 +38,12 @@ extern float r_ambientlight,r_ambientlightrecip;
 #pragma pack(push,1)
 // key bindings stuff
 typedef struct {
-    char *name;
+    const char *name;
     int32_t id;
 } keydef_t;
 
 extern keydef_t ConsoleKeys[];
-extern char *ConsoleButtons[];
+extern const char *ConsoleButtons[];
 #pragma pack(pop)
 
 #endif	// __osdcmds_h__

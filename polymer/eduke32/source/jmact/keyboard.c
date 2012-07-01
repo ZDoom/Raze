@@ -45,7 +45,7 @@ static int32_t numpad = 0;
 // translation table for taking key names to scancodes and back again
 static struct
 {
-    char *key;
+    const char *key;
     kb_scancode sc;
 } sctokeylut[] =
 {
@@ -233,7 +233,7 @@ void KB_ClearKeysDown(void)
     //bflushchars();
 }
 
-char *KB_ScanCodeToString(kb_scancode scancode)
+const char *KB_ScanCodeToString(kb_scancode scancode)
 {
     uint32_t s;
 

@@ -218,7 +218,7 @@ void SCRIPT_PutString
    int32_t scripthandle,
    char * sectionname,
    char * entryname,
-   char * string
+   const char * string
    );
 
 /*

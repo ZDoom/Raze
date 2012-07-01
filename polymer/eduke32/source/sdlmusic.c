@@ -75,7 +75,7 @@ static void setErrorMessage(const char *msg)
 
 // The music functions...
 
-char *MUSIC_ErrorString(int32_t ErrorNumber)
+const char *MUSIC_ErrorString(int32_t ErrorNumber)
 {
     switch (ErrorNumber)
     {

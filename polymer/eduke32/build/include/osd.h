@@ -108,7 +108,7 @@ int32_t OSD_GetRowsCur(void);
 void OSD_Init(void);
 
 // sets the file to echo output to
-void OSD_SetLogFile(char *fn);
+void OSD_SetLogFile(const char *fn);
 
 // sets the functions the OSD will call to interrogate the environment
 void OSD_SetFunctions(

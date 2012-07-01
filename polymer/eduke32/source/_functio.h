@@ -217,7 +217,7 @@ const char oldkeydefaults[NUMGAMEFUNCTIONS*3][MAXGAMEFUNCLEN] =
    "Dpad_Aiming", "", "",
    };
 
-static char * mousedefaults[] =
+static const char * mousedefaults[] =
    {
    "Fire",
    "MedKit",
@@ -232,7 +232,7 @@ static char * mousedefaults[] =
    };
 
 
-static char * mouseclickeddefaults[] =
+static const char * mouseclickeddefaults[] =
    {
    "",
    "",
@@ -247,14 +247,14 @@ static char * mouseclickeddefaults[] =
    };
 
 
-static char * mouseanalogdefaults[] =
+static const char * mouseanalogdefaults[] =
    {
    "analog_turning",
    "analog_moving",
    };
 
 
-static char * mousedigitaldefaults[] =
+static const char * mousedigitaldefaults[] =
    {
    "",
    "",
@@ -263,7 +263,7 @@ static char * mousedigitaldefaults[] =
    };
 
 #if defined(GEKKO)
-static char * joystickdefaults[] =
+static const char * joystickdefaults[] =
    {
    "Open", // A
    "Fire", // B
@@ -304,7 +304,7 @@ static char * joystickdefaults[] =
    };
 
 
-static char * joystickclickeddefaults[] =
+static const char * joystickclickeddefaults[] =
    {
    "",
    "",
@@ -345,7 +345,7 @@ static char * joystickclickeddefaults[] =
    };
 
 
-static char * joystickanalogdefaults[] =
+static const char * joystickanalogdefaults[] =
    {
    "analog_strafing",
    "analog_moving",
@@ -366,7 +366,7 @@ static char * joystickanalogdefaults[] =
    };
 
 
-static char * joystickdigitaldefaults[] =
+static const char * joystickdigitaldefaults[] =
    {
    "",
    "",
@@ -386,7 +386,7 @@ static char * joystickdigitaldefaults[] =
    "",
    };
 #else
-static char * joystickdefaults[] =
+static const char * joystickdefaults[] =
    {
    "Fire",
    "Strafe",
@@ -427,7 +427,7 @@ static char * joystickdefaults[] =
    };
 
 
-static char * joystickclickeddefaults[] =
+static const char * joystickclickeddefaults[] =
    {
    "",
    "Inventory",
@@ -468,7 +468,7 @@ static char * joystickclickeddefaults[] =
    };
 
 
-static char * joystickanalogdefaults[] =
+static const char * joystickanalogdefaults[] =
    {
    "analog_turning",
    "analog_moving",
@@ -481,7 +481,7 @@ static char * joystickanalogdefaults[] =
    };
 
 
-static char * joystickdigitaldefaults[] =
+static const char * joystickdigitaldefaults[] =
    {
    "",
    "",

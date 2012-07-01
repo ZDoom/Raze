@@ -80,7 +80,10 @@ static int32_t soundbits, soundvoices, soundrate;
 #define NUMDOUBLEMBTNS 3  // # of mouse buttons that can be double-clicked (mouse1 - mouse3)
 #define NUMSINGLEMBTNS 4  // # of mouse buttons that can only be single-clicked (the rest)
 #define NUMMOUSEFUNCTIONS (NUMDOUBLEMBTNS*2+NUMSINGLEMBTNS)
-static char *mousebuttonnames[] = { "Mouse1", "Mouse2", "Mouse3", "Mouse4", "Wheel Up", "Wheel Down", "Mouse5", "Mouse6", "Mouse7", "Mouse8"};
+static const char *mousebuttonnames[] =
+{ "Mouse1", "Mouse2", "Mouse3", "Mouse4", "Wheel Up",
+  "Wheel Down", "Mouse5", "Mouse6", "Mouse7", "Mouse8"
+};
 
 extern int32_t voting;
 
@@ -688,7 +691,7 @@ void M_DisplayMenus(void)
     CACHE1D_FIND_REC *dir;
     int32_t c,x,i;
     int32_t l,m;
-    char *p = NULL;
+    const char *p = NULL;
 
     Net_GetPackets();
 
@@ -839,7 +842,7 @@ void M_DisplayMenus(void)
         c = (320>>1)-120;
         {
             int32_t io, ii, yy = 37, d=c+140, enabled;
-            char *opts[] =
+            const char *opts[] =
             {
                 "Name",
                 "-",
@@ -1043,23 +1046,24 @@ void M_DisplayMenus(void)
 
                     case 1:
                     {
-                        char *s[] = { "Auto","","","","","","","","","Blue","Red","Green","Gray","Dark gray","Dark green","Brown",
-                                      "Dark blue","","","","","Bright red","","Yellow","",""
-                                    };
+                        const char *s[] =
+                            { "Auto","","","","","","","","","Blue","Red","Green","Gray","Dark gray","Dark green","Brown",
+                              "Dark blue","","","","","Bright red","","Yellow","",""
+                            };
                         mgametext(d-50,yy,s[ud.color],MENUHIGHLIGHT(io),2+8+16);
                     }
                     break;
 
                     case 2:
                     {
-                        char *s[] = { "Blue", "Red", "Green", "Gray" };
+                        const char *s[] = { "Blue", "Red", "Green", "Gray" };
                         mgametext(d-50,yy,s[ud.team],MENUHIGHLIGHT(io),2+8+16);
                     }
                     break;
 
                     case 3:
                     {
-                        char *s[] = { "Off", "All weapons", "Bullets only" };
+                        const char *s[] = { "Off", "All weapons", "Bullets only" };
                         mgametext(d-50,yy,s[ud.config.AutoAim],MENUHIGHLIGHT(io),2+8+16);
                     }
                     break;
@@ -2686,7 +2690,7 @@ cheat_for_port_credits:
                     break;
                 case 7:
                 {
-                    char *s[] = { "Off", "On", "Compress" };
+                    const char *s[] = { "Off", "On", "Compress" };
                     enabled = (glusetexcompr && usehightile);
                     if (enabled && x==io)
                     {
@@ -2818,7 +2822,7 @@ cheat_for_port_credits:
 
         {
             int32_t io, ii, yy, d=c+160+40, enabled;
-            char *opts[] =
+            const char *opts[] =
             {
                 "Show setup window at start",
                 "Show crosshair",
@@ -2991,7 +2995,7 @@ cheat_for_port_credits:
 
         {
             int32_t io, ii, yy, d=c+160+40, enabled;
-            char *opts[] =
+            const char *opts[] =
             {
                 "Parental lock",
                 "-",
@@ -3071,7 +3075,7 @@ cheat_for_port_credits:
                     }
                     modval(0,2,(int32_t *)&ud.drawweapon,1,probey==io);
                     {
-                        char *s[] = { "Off", "On", "Icon only" };
+                        const char *s[] = { "Off", "On", "Icon only" };
                         mgametextpal(d,yy, s[ud.drawweapon], MENUHIGHLIGHT(io), 0);
                         break;
                     }
@@ -3092,7 +3096,7 @@ cheat_for_port_credits:
                     }
                     modval(0,2,(int32_t *)&ud.autovote,1,probey==io);
                     {
-                        char *s[] = { "Off", "Vote No", "Vote Yes" };
+                        const char *s[] = { "Off", "Vote No", "Vote Yes" };
                         mgametextpal(d,yy, s[ud.autovote], MENUHIGHLIGHT(io), 0);
                         break;
                     }
@@ -3965,7 +3969,7 @@ cheat_for_port_credits:
         }
         else if (function == 2)
         {
-            static char *directions[] =
+            static const char *directions[] =
             {
                 "Up", "Right", "Down", "Left"
             };
@@ -4217,7 +4221,7 @@ cheat_for_port_credits:
             }
             else
             {
-                static char *directions[] =
+                static const char *directions[] =
                 {
                     "Up", "Right", "Down", "Left"
                 };
@@ -4510,7 +4514,7 @@ cheat_for_port_credits:
 
         {
             int32_t io, ii, yy, d=c+160+40, enabled, j;
-            char *opts[] =
+            const char *opts[] =
             {
                 "Sound",
                 "Sound volume",

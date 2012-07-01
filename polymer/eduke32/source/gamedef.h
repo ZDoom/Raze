@@ -81,7 +81,7 @@ extern intptr_t *g_scriptPtr;
 
 typedef struct
 {
-    char *name;
+    const char *name;
     int32_t lId;
     int32_t flags;
     int32_t maxParm2;

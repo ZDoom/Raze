@@ -53,7 +53,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 hashtable_t h_gamefuncs    = { NUMGAMEFUNCTIONS<<1, NULL };
 
-int32_t CONFIG_FunctionNameToNum(char *func)
+int32_t CONFIG_FunctionNameToNum(const char *func)
 {
     int32_t i;
 
@@ -95,7 +95,7 @@ char *CONFIG_FunctionNumToName(int32_t func)
 */
 
 
-int32_t CONFIG_AnalogNameToNum(char *func)
+int32_t CONFIG_AnalogNameToNum(const char *func)
 {
 
     if (!Bstrcasecmp(func,"analog_turning"))
@@ -119,7 +119,7 @@ int32_t CONFIG_AnalogNameToNum(char *func)
 }
 
 
-char *CONFIG_AnalogNumToName(int32_t func)
+const char *CONFIG_AnalogNumToName(int32_t func)
 {
     switch (func)
     {

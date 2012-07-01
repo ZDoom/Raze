@@ -27,19 +27,19 @@ enum Games_t {
     GAMECOUNT
 };
 
-extern char *defaultgamegrp[GAMECOUNT];
-extern char *defaultdeffilename[GAMECOUNT];
-extern char *defaultconfilename;
-extern char *defaultgameconfilename[GAMECOUNT];
+extern const char *defaultgamegrp[GAMECOUNT];
+extern const char *defaultdeffilename[GAMECOUNT];
+extern const char *defaultconfilename;
+extern const char *defaultgameconfilename[GAMECOUNT];
 
 extern char *g_grpNamePtr;
 extern char *g_scriptNamePtr;
 
-extern char *G_DefaultGrpFile(void);
-extern char *G_GrpFile(void);
+extern const char *G_DefaultGrpFile(void);
+extern const char *G_GrpFile(void);
 
-extern char *G_DefaultConFile(void);
-extern char *G_ConFile(void);
+extern const char *G_DefaultConFile(void);
+extern const char *G_ConFile(void);
 
 extern void clearGrpNamePtr(void);
 extern void clearDefNamePtr(void);

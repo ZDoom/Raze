@@ -774,7 +774,7 @@ void OSD_Init(void)
 //
 // OSD_SetLogFile() -- Sets the text file where printed text should be echoed
 //
-void OSD_SetLogFile(char *fn)
+void OSD_SetLogFile(const char *fn)
 {
     if (osdlog)
     {

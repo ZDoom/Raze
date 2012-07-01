@@ -16,10 +16,10 @@ int32_t g_gameType = GAMEFLAG_DUKE;
 
 // grp/con/def handling
 
-char *defaultgamegrp[GAMECOUNT] = { "DUKE3D.GRP", "NAM.GRP", "NAPALM.GRP", "WW2GI.GRP" };
-char *defaultdeffilename[GAMECOUNT] = { "duke3d.def", "nam.def", "napalm.def", "ww2gi.def" };
-char *defaultconfilename = "GAME.CON";
-char *defaultgameconfilename[GAMECOUNT] = { "EDUKE.CON", "NAM.CON", "NAPALM.CON", "WW2GI.CON" };
+const char *defaultgamegrp[GAMECOUNT] = { "DUKE3D.GRP", "NAM.GRP", "NAPALM.GRP", "WW2GI.GRP" };
+const char *defaultdeffilename[GAMECOUNT] = { "duke3d.def", "nam.def", "napalm.def", "ww2gi.def" };
+const char *defaultconfilename = "GAME.CON";
+const char *defaultgameconfilename[GAMECOUNT] = { "EDUKE.CON", "NAM.CON", "NAPALM.CON", "WW2GI.CON" };
 
 // g_grpNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
 char *g_grpNamePtr = NULL;
@@ -49,7 +49,7 @@ void clearScriptNamePtr(void)
     // g_scriptNamePtr assumed to be assigned to right after
 }
 
-char *G_DefaultGrpFile(void)
+const char *G_DefaultGrpFile(void)
 {
     if (DUKE)
         return defaultgamegrp[GAME_DUKE];
@@ -63,7 +63,7 @@ char *G_DefaultGrpFile(void)
 
     return defaultgamegrp[0];
 }
-char *G_DefaultDefFile(void)
+const char *G_DefaultDefFile(void)
 {
     if (DUKE)
         return defaultdeffilename[GAME_DUKE];
@@ -86,7 +86,7 @@ char *G_DefaultDefFile(void)
 
     return defaultdeffilename[0];
 }
-char *G_DefaultConFile(void)
+const char *G_DefaultConFile(void)
 {
     if (DUKE && testkopen(defaultgameconfilename[GAME_DUKE],0))
         return defaultgameconfilename[GAME_DUKE];
@@ -116,21 +116,21 @@ char *G_DefaultConFile(void)
     return defaultconfilename;
 }
 
-char *G_GrpFile(void)
+const char *G_GrpFile(void)
 {
     if (g_grpNamePtr == NULL)
         return G_DefaultGrpFile();
     else
         return g_grpNamePtr;
 }
-char *G_DefFile(void)
+const char *G_DefFile(void)
 {
     if (g_defNamePtr == NULL)
         return G_DefaultDefFile();
     else
         return g_defNamePtr;
 }
-char *G_ConFile(void)
+const char *G_ConFile(void)
 {
     if (g_scriptNamePtr == NULL)
         return G_DefaultConFile();

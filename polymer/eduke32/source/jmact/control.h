@@ -202,7 +202,7 @@ void CONTROL_PrintAxes( void );
 #define MAXBOUNDKEYS 256
 
 typedef struct binding {
-    char *key;
+    const char *key;
     char cmd[MAXBINDSTRINGLENGTH];
     char repeat;
     char laststate;

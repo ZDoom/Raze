@@ -854,7 +854,11 @@ keydef_t ConsoleKeys[]=
     {0,0}
 };
 
-char *ConsoleButtons[] = { "mouse1", "mouse2", "mouse3", "mouse4", "mwheelup", "mwheeldn", "mouse5", "mouse6", "mouse7", "mouse8" };
+const char *ConsoleButtons[] =
+{
+    "mouse1", "mouse2", "mouse3", "mouse4", "mwheelup",
+    "mwheeldn", "mouse5", "mouse6", "mouse7", "mouse8"
+};
 
 static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 {

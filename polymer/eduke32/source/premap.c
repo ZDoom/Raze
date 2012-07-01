@@ -338,7 +338,7 @@ static void G_PrecacheSounds(void)
         }
 }
 
-static void G_DoLoadScreen(char *statustext, int32_t percent)
+static void G_DoLoadScreen(const char *statustext, int32_t percent)
 {
     int32_t i=0,j;
 

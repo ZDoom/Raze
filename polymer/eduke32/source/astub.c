@@ -9617,9 +9617,9 @@ enum
     T_INCLUDEDEFAULT,
 };
 
-int32_t parsegroupfiles(scriptfile *script);
+static int32_t parsegroupfiles(scriptfile *script);
 
-void parsegroupfiles_include(const char *fn, scriptfile *script, char *cmdtokptr)
+static void parsegroupfiles_include(const char *fn, scriptfile *script, const char *cmdtokptr)
 {
     scriptfile *included;
 
@@ -9639,7 +9639,7 @@ void parsegroupfiles_include(const char *fn, scriptfile *script, char *cmdtokptr
     }
 }
 
-int32_t parsegroupfiles(scriptfile *script)
+static int32_t parsegroupfiles(scriptfile *script)
 {
     int32_t tokn;
     char *cmdtokptr;
@@ -10074,7 +10074,7 @@ static int32_t loadtilegroups(const char *fn)
 /// vvv Parse CON files partially to get sound definitions
 static int32_t parseconsounds(scriptfile *script);
 
-static void parseconsounds_include(const char *fn, scriptfile *script, char *cmdtokptr)
+static void parseconsounds_include(const char *fn, scriptfile *script, const char *cmdtokptr)
 {
     scriptfile *included;
 

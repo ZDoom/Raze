@@ -38,7 +38,7 @@ int16_t DynamicTileMap[MAXTILES];
 
 struct dynitem
 {
-    char *str;
+    const char *str;
     int32_t *dynvalptr;
     const int16_t staticval;
 };

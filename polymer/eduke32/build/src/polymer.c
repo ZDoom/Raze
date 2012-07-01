@@ -4949,7 +4949,7 @@ static void         polymer_compileprogram(int32_t programbits)
 {
     int32_t         i, enabledbits;
     GLhandleARB     vert, frag, program;
-    GLcharARB*      source[PR_BIT_COUNT * 2];
+    const GLcharARB*      source[PR_BIT_COUNT * 2];
     GLcharARB       infobuffer[PR_INFO_LOG_BUFFER_SIZE];
     GLint           linkstatus;
 
@@ -4971,7 +4971,7 @@ static void         polymer_compileprogram(int32_t programbits)
         i++;
     }
 
-    bglShaderSourceARB(vert, enabledbits, (const GLcharARB**)source, NULL);
+    bglShaderSourceARB(vert, enabledbits, source, NULL);
 
     bglCompileShaderARB(vert);
 

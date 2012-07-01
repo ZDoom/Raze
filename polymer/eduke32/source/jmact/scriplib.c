@@ -814,10 +814,11 @@ void SCRIPT_PutString
     int32_t scripthandle,
     char * sectionname,
     char * entryname,
-    char * string
+    const char * string
 )
 {
-    char *raw,*q,*p;
+    const char *q;
+    char *raw,*p;
     int32_t len = 3;
     if (!string) string = "";
 
