@@ -2449,18 +2449,50 @@ ACTOR_STATIC void A_HandleBeingSpitOn(DukePlayer_t *ps)
     }
 }
 
+static void proj_spawn_and_sound(int32_t i, const vec3_t *davect, int32_t do_radius_damage)
+{
+    if (SpriteProjectile[i].spawns >= 0)
+    {
+        int32_t k = A_Spawn(i,SpriteProjectile[i].spawns);
+
+        if (davect)
+            Bmemcpy(&sprite[k],davect,sizeof(vec3_t));
+
+        if (SpriteProjectile[i].sxrepeat > 4)
+            sprite[k].xrepeat=SpriteProjectile[i].sxrepeat;
+        if (SpriteProjectile[i].syrepeat > 4)
+            sprite[k].yrepeat=SpriteProjectile[i].syrepeat;
+    }
+
+    if (SpriteProjectile[i].isound >= 0)
+        A_PlaySound(SpriteProjectile[i].isound,i);
+
+    if (do_radius_damage)
+    {
+        spritetype *const s = &sprite[i];
+        int32_t x;
+
+        s->extra=SpriteProjectile[i].extra;
+
+        if (SpriteProjectile[i].extra_rand > 0)
+            s->extra += (krand()&SpriteProjectile[i].extra_rand);
+
+        x = s->extra;
+        A_RadiusDamage(i,SpriteProjectile[i].hitradius, x>>2,x>>1,x-(x>>2),x);
+    }
+}
+
 ACTOR_STATIC void G_MoveWeapons(void)
 {
-    int32_t i = headspritestat[STAT_PROJECTILE], j=0, k, f, nexti, p, q;
+    int32_t i = headspritestat[STAT_PROJECTILE], j=0, k, f, p, q;
     vec3_t davect;
     int32_t x, ll;
     uint32_t qq;
-    spritetype *s;
 
     while (i >= 0)
     {
-        nexti = nextspritestat[i];
-        s = &sprite[i];
+        const int32_t nexti = nextspritestat[i];
+        spritetype *const s = &sprite[i];
 
         if (s->sectnum < 0)
             KILLIT(i);
@@ -2495,33 +2527,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     Did this cause the bug with prematurely exploding projectiles? */
                     if (s->yvel < 1)
                     {
-
-                        if (SpriteProjectile[i].spawns >= 0)
-                        {
-                            k = A_Spawn(i,SpriteProjectile[i].spawns);
-
-//                            Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
-                            /*
-                            sprite[k].x = dax;
-                            sprite[k].y = day;
-                            sprite[k].z = daz;
-                            */
-
-                            if (SpriteProjectile[i].sxrepeat > 4)
-                                sprite[k].xrepeat=SpriteProjectile[i].sxrepeat;
-                            if (SpriteProjectile[i].syrepeat > 4)
-                                sprite[k].yrepeat=SpriteProjectile[i].syrepeat;
-                        }
-                        if (SpriteProjectile[i].isound >= 0)
-                            A_PlaySound(SpriteProjectile[i].isound,i);
-
-                        s->extra=SpriteProjectile[i].extra;
-
-                        if (SpriteProjectile[i].extra_rand > 0)
-                            s->extra += (krand()&SpriteProjectile[i].extra_rand);
-
-                        x = s->extra;
-                        A_RadiusDamage(i,SpriteProjectile[i].hitradius, x>>2,x>>1,x-(x>>2),x);
+                        proj_spawn_and_sound(i, NULL, 1);
 
                         KILLIT(i);
                     }
@@ -2604,27 +2610,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     {
                         if (SpriteProjectile[i].workslike & PROJECTILE_EXPLODEONTIMER)
                         {
-                            if (SpriteProjectile[i].spawns >= 0)
-                            {
-                                k = A_Spawn(i,SpriteProjectile[i].spawns);
-
-                                Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
-
-                                if (SpriteProjectile[i].sxrepeat > 4)
-                                    sprite[k].xrepeat=SpriteProjectile[i].sxrepeat;
-                                if (SpriteProjectile[i].syrepeat > 4)
-                                    sprite[k].yrepeat=SpriteProjectile[i].syrepeat;
-                            }
-                            if (SpriteProjectile[i].isound >= 0)
-                                A_PlaySound(SpriteProjectile[i].isound,i);
-
-                            s->extra=SpriteProjectile[i].extra;
-
-                            if (SpriteProjectile[i].extra_rand > 0)
-                                s->extra += (krand()&SpriteProjectile[i].extra_rand);
-
-                            x = s->extra;
-                            A_RadiusDamage(i,SpriteProjectile[i].hitradius, x>>2,x>>1,x-(x>>2),x);
+                            proj_spawn_and_sound(i, &davect, 1);
                         }
                         KILLIT(i);
                     }
@@ -2699,19 +2685,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                             actor[j].picnum = s->picnum;
                             actor[j].extra += SpriteProjectile[i].extra;
 
-                            if (SpriteProjectile[i].spawns >= 0)
-                            {
-                                k = A_Spawn(i,SpriteProjectile[i].spawns);
-                                Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
-
-                                if (SpriteProjectile[i].sxrepeat > 4)
-                                    sprite[k].xrepeat=SpriteProjectile[i].sxrepeat;
-                                if (SpriteProjectile[i].syrepeat > 4)
-                                    sprite[k].yrepeat=SpriteProjectile[i].syrepeat;
-                            }
-
-                            if (SpriteProjectile[i].isound >= 0)
-                                A_PlaySound(SpriteProjectile[i].isound,i);
+                            proj_spawn_and_sound(i, &davect, 0);
 
                             if (!(SpriteProjectile[i].workslike & PROJECTILE_FORCEIMPACT))
                                 KILLIT(i);
@@ -2806,26 +2780,8 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
                     if (SpriteProjectile[i].workslike & PROJECTILE_RPG)
                     {
-                        if (SpriteProjectile[i].spawns > 0)
-                        {
-                            k = A_Spawn(i,SpriteProjectile[i].spawns);
-                            Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
+                        proj_spawn_and_sound(i, &davect, 1);
 
-                            if (SpriteProjectile[i].sxrepeat > 4)
-                                sprite[k].xrepeat=SpriteProjectile[i].sxrepeat;
-                            if (SpriteProjectile[i].syrepeat > 4)
-                                sprite[k].yrepeat=SpriteProjectile[i].syrepeat;
-                        }
-
-                        if (SpriteProjectile[i].isound >= 0)
-                            A_PlaySound(SpriteProjectile[i].isound,i);
-
-                        s->extra=SpriteProjectile[i].extra;
-                        if (SpriteProjectile[i].extra_rand > 0)
-                            s->extra += (krand()&SpriteProjectile[i].extra_rand);
-
-                        A_RadiusDamage(i,SpriteProjectile[i].hitradius,
-                                       s->extra>>2,s->extra>>1,s->extra-(s->extra>>2),s->extra);
                         KILLIT(i);
                     }
                 }
