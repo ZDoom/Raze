@@ -292,7 +292,7 @@ extern int32_t showtags;
 #define CLEARLINES2D(Startline, Numlines, Color) clearbuf((char *)(frameplace + ((Startline)*bytesperline)), (bytesperline*(Numlines))>>2, (Color))
 
 #define SCRIPTHISTSIZ 32  // should be the same as OSD_HISTORYDEPTH for maximum win, should be a power of two
-extern const char *scripthist[SCRIPTHISTSIZ];
+extern char *scripthist[SCRIPTHISTSIZ];
 extern int32_t scripthistend;
 
 //////////////////// Aiming ////////////////////

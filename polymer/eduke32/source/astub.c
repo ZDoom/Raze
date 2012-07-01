@@ -100,7 +100,7 @@ static int32_t lastupdate, mousecol, mouseadd = 1, bstatus;
 static int32_t usecwd = 0;
 #endif
 
-const char *scripthist[SCRIPTHISTSIZ];
+char *scripthist[SCRIPTHISTSIZ];
 int32_t scripthistend = 0;
 
 int32_t g_lazy_tileselector = 0;
@@ -9331,7 +9331,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
             if (dosave)
             {
                 if (scripthist[scripthistend])
-                    Bfree((void *)scripthist[scripthistend]);
+                    Bfree(scripthist[scripthistend]);
                 scripthist[scripthistend] = Bstrdup(parm->raw);
                 scripthistend++;
                 scripthistend %= SCRIPTHISTSIZ;
