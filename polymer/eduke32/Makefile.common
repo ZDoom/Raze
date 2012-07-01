@@ -171,10 +171,18 @@ else
     W_NO_UNUSED_RESULT :=
 endif
 
-BASECFLAGS=$(debug) -W -Wall -Werror-implicit-function-declaration \
+CWARNS := -W -Wall -Wdeclaration-after-statement -Werror-implicit-function-declaration \
+    -Wpointer-arith \
+    -Wextra \
+    #-Wstrict-prototypes \
+    #-Waggregate-return \
+    #-Wwrite-strings \
+    #-Wcast-qual -Wcast-align \
+    #-Waddress -Wlogical-op
+
+BASECFLAGS=$(debug) $(CWARNS) \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
-	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH) \
-	-Wextra #-Wwrite-strings -Waddress -Wlogical-op
+	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH)
 ifneq (0,$(CLANG))
     BASECFLAGS+= -Wno-unused-value -Wno-parentheses
 endif
