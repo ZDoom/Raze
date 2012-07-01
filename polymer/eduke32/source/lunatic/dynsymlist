@@ -26,6 +26,7 @@ nextspritestat;
 headsectbunch;
 nextsectbunch;
 
+ksqrt;
 hitscan;
 
 actor;

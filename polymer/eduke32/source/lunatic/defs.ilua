@@ -471,6 +471,10 @@ playerdata_t g_player[MAXPLAYERS];
 ]]
 
 -- functions
+ffi.cdef[[
+int32_t ksqrt(int32_t num);
+]]
+
 ffi.cdef "double gethitickms(void);"
 
 local ffiC = ffi.C

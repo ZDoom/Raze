@@ -127,6 +127,7 @@ gameevent(gv.EVENT_JUMP,
 
 gameevent(gv.EVENT_ENTERLEVEL,
           function()
+              -- NOTE: times are for helixhorned (Core2Duo 3GHz)
               local i
               local N = 1e6
               local t = gv.gethitickms()
@@ -137,9 +138,28 @@ gameevent(gv.EVENT_ENTERLEVEL,
 
               t = gv.gethitickms()-t
 
-              -- NOTE: for me (helixhorned), about 40 ns per call
+              -- x86: 40ns/call, x86_64: 290 ns/call
               printf("%d gethitickms() calls took %.03f ms (%.03f us/call)",
                      N, t, (t*1000)/N)
+
+              local sum=0
+              t = gv.gethitickms()
+              for i=1,N do sum = sum+gv.ksqrt(i) end
+              t = gv.gethitickms()-t
+              -- x86_64: 14ns/call
+              printf("%d ksqrt() calls took %.03f ms (%.03f us/call) [sum=%f]",
+                     N, t, (t*1000)/N, sum)
+
+              sum=0
+              t = gv.gethitickms()
+              for i=1,N do sum = sum+math.sqrt(i) end
+              t = gv.gethitickms()-t
+              -- x86_64: 7ns/call
+              printf("%d math.sqrt() calls took %.03f ms (%.03f us/call) [sum=%f]",
+                     N, t, (t*1000)/N, sum)
+
+              printf("sqrt(0xffffffff) = %f(ksqrt) %f(math.sqrt)",
+                     gv.ksqrt(-1), math.sqrt(0xffffffff))
           end
          )
 
