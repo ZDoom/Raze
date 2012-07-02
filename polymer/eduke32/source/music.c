@@ -69,7 +69,7 @@ int32_t MUSIC_InitMidi(int32_t card, midifuncs *Funcs, int32_t Address);
    number.  A -1 returns a pointer the current error.
 ---------------------------------------------------------------------*/
 
-char *MUSIC_ErrorString
+const char *MUSIC_ErrorString
 (
     int32_t ErrorNumber
 )
