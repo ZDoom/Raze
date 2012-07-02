@@ -363,8 +363,8 @@ pthtyp *gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
     pth = (pthtyp *)Bcalloc(1,sizeof(pthtyp));
     if (!pth) return NULL;
 
-    // possibly fetch an already loaded multitexture :_)
-    if (dapalnum >= (MAXPALOOKUPS - RESERVEDPALS))
+    // possibly fetch an already loaded texture
+    if (si->filename) // false if skybox; we can probably ignore that for now
         for (i = (GLTEXCACHEADSIZ - 1); i >= 0; i--)
             for (pth2=gltexcachead[i]; pth2; pth2=pth2->next)
             {
