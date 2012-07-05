@@ -277,9 +277,9 @@ static const char * joystickdefaults[] =
    "Map", // X
    "Run", // Y
    "Jump", // L
-   "Fire", // R
+   "Quick_Kick", // R
    "Crouch", // ZL
-   "Inventory", // ZR
+   "Fire", // ZR
    "Quick_Kick", // D-Pad Up
    "Inventory_Right", // D-Pad Right
    "Inventory", // D-Pad Down
@@ -318,7 +318,7 @@ static const char * joystickclickeddefaults[] =
    "",
    "",
    "",
-   "",
+   "Inventory",
    "",
    "",
    "",
