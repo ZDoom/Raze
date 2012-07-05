@@ -78,7 +78,7 @@ ifeq ($(PLATFORM),WINDOWS)
     endif
 else
     ifeq ($(PLATFORM),LINUX)
-        LIBS+= -ldl
+        LIBS+= -ldl -lrt
     endif
     LIBS+= -pthread
     ifneq (0,$(PROFILER))
