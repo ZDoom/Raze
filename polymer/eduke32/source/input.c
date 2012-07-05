@@ -66,7 +66,6 @@ int32_t I_ClearInputWaiting(void)
 int32_t I_JoystickAdvanceTrigger(void)
 {
     return (
-            BUTTON(gamefunc_Jump) ||
 #if defined(GEKKO)
             (JOYSTICK_GetButtons()&WII_A)
 #else
@@ -77,7 +76,6 @@ int32_t I_JoystickAdvanceTrigger(void)
 }
 int32_t I_JoystickAdvanceTriggerClear(void)
 {
-    CONTROL_ClearButton(gamefunc_Jump);
 #if defined(GEKKO)
     return JOYSTICK_ClearButton(WII_A);
 #else
@@ -131,7 +129,6 @@ int32_t I_JoystickEscapeTriggerClear(void)
 int32_t I_AdvanceTrigger(void)
 {
     return (
-            KB_KeyPressed(sc_Space) ||
             KB_KeyPressed(sc_kpad_Enter) ||
             KB_KeyPressed(sc_Enter) ||
             (MOUSE_GetButtons()&LEFT_MOUSE) ||
@@ -141,7 +138,6 @@ int32_t I_AdvanceTrigger(void)
 int32_t I_AdvanceTriggerClear(void)
 {
     KB_FlushKeyBoardQueue();
-    KB_ClearKeyDown(sc_Space);
     KB_ClearKeyDown(sc_kpad_Enter);
     KB_ClearKeyDown(sc_Enter);
     I_JoystickAdvanceTriggerClear();
