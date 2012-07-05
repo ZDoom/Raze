@@ -2839,10 +2839,14 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
     {
-        a = VM_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1, CROSSHAIR);
-        if (a >= 0)
+        a = VM_OnEvent(EVENT_DISPLAYCROSSHAIR, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        if (a == 0 || a > 1)
         {
             int32_t x, y;
+
+            if (a == 0)
+                a = CROSSHAIR;
+
 #ifdef GEKKO
             readmouseabsxy(&x, &y);
             if (x || y)
