@@ -27,6 +27,7 @@ SECTION .text
 %define espbak _espbak
 %define pow2char _pow2char
 %define pow2long _pow2long
+%define globaltilesizy _globaltilesizy
 
 %define sethlinesizes		_sethlinesizes
 %define prosethlinesizes	_prosethlinesizes
@@ -41,11 +42,14 @@ SECTION .text
 %define setuptvlineasm		_setuptvlineasm
 %define prevlineasm1		_prevlineasm1
 %define vlineasm1		_vlineasm1
+%define vlineasm1nonpow2		_vlineasm1nonpow2
 %define mvlineasm1		_mvlineasm1
+%define mvlineasm1nonpow2		_mvlineasm1nonpow2
 %define fixtransluscence	_fixtransluscence
 %define settransnormal		_settransnormal
 %define settransreverse		_settransreverse
 %define tvlineasm1		_tvlineasm1
+%define tvlineasm1nonpow2		_tvlineasm1nonpow2
 %define vlineasm4		_vlineasm4
 %define provlineasm4		_provlineasm4
 %define setupvlineasm		_setupvlineasm
@@ -176,6 +180,8 @@ SECTION .text
 	EXTERN pow2char
 	EXTERN pow2long
 
+	EXTERN globaltilesizy
+
 	GLOBAL sethlinesizes
 	GLOBAL prosethlinesizes
 	GLOBAL setvlinebpl
@@ -189,11 +195,14 @@ SECTION .text
 	GLOBAL setuptvlineasm
 	GLOBAL prevlineasm1
 	GLOBAL vlineasm1
+	GLOBAL vlineasm1nonpow2
 	GLOBAL mvlineasm1			;Masked vline
+	GLOBAL mvlineasm1nonpow2			;Masked vline, non-power-of-2
 	GLOBAL fixtransluscence
 	GLOBAL settransnormal
 	GLOBAL settransreverse
 	GLOBAL tvlineasm1			;Masked & transluscent vline
+	GLOBAL tvlineasm1nonpow2			;Masked & transluscent vline, non-power-of-2
 	GLOBAL vlineasm4
 	GLOBAL provlineasm4
 	GLOBAL setupvlineasm
@@ -303,6 +312,12 @@ CDECLENDSET 3
 	ALIGN 16
 setvlinebpl:
 CDECLBEGINSET 1
+	mov dword [np2_fixchain1a+2], eax
+	mov dword [np2_fixchain1b+2], eax
+
+	mov dword [mnp2_fixchain1b+2], eax
+	mov dword [tnp2_fixchain1b+2], eax
+
 	mov dword [fixchain1a+2], eax
 	mov dword [fixchain1b+2], eax
 	mov dword [fixchain1m+2], eax
@@ -699,6 +714,35 @@ CDECLENDSET 6
 
 
 	ALIGN 16
+vlineasm1nonpow2:
+CDECLBEGINSET 6
+	mov dword [np2_do_palookup+2], ebx
+	push ebp
+	mov ebp, edx  ; ebp: vertical place
+	mov ebx, eax  ; ebx: vertical increment
+	mov eax, dword [globaltilesizy]
+	mov [np2_beginvline+1], eax
+	inc ecx
+np2_fixchain1a: sub edi, 320
+np2_beginvline: ; +1: y tile size
+	mov eax, 0x00000123
+	mul ebp
+np2_fixchain1b: add edi, 320
+	and eax, 0x000000ff
+	mov al, byte [esi+edx]
+	add ebp, ebx
+	dec ecx
+np2_do_palookup: ; +2: addr
+	mov al, byte [0xbeeff00d+eax]
+	mov byte [edi], al
+	jnz short np2_beginvline
+	mov eax, ebp
+	pop ebp
+CDECLENDSET 6
+	ret
+
+
+	ALIGN 16
 mvlineasm1:
 CDECLBEGINSET 6
 	push ebp
@@ -722,7 +766,37 @@ fixchain1m: add edi, 320
 CDECLENDSET 6
 	ret
 
-	
+
+	ALIGN 16
+mvlineasm1nonpow2:
+CDECLBEGINSET 6
+	mov dword [mnp2_do_palookup+2], ebx
+	push ebp
+	mov ebp, edx  ; ebp: vertical place
+	mov ebx, eax  ; ebx: vertical increment
+	mov eax, dword [globaltilesizy]
+	mov [mnp2_beginvline+1], eax
+mnp2_beginvline: ; +1: y tile size
+	mov eax, 0x00000123
+	mul ebp
+	and eax, 0x000000ff
+	mov al, byte [esi+edx]
+	cmp al, 255
+	je short mskipmask1
+mnp2_do_palookup: ; +2: addr
+	mov al, byte [0xbeeff00d+eax]
+	mov byte [edi], al
+mskipmask1:
+	add ebp, ebx
+mnp2_fixchain1b: add edi, 320
+	sub ecx, 1
+	jnc short mnp2_beginvline
+	mov eax, ebp
+	pop ebp
+CDECLENDSET 6
+	ret
+
+
 	ALIGN 16
 fixtransluscence:
 CDECLBEGINSET 1
@@ -735,6 +809,8 @@ CDECLBEGINSET 1
 	mov dword [tran2trab+2], eax
 	mov dword [tran2trac+2], eax
 	mov dword [tran2trad+2], eax
+
+	mov dword [tnmach4+2], eax
 CDECLENDSET 1
 	ret
 
@@ -759,6 +835,10 @@ settransnormal:
 	mov byte [transrev15+1], 9ah
 	mov byte [transrev16+1], 0a7h
 	mov byte [transrev17+1], 82h
+
+	mov byte [ntransrev0+1], 80h
+	mov byte [ntransrev1+1], 27h
+
 	ret
 
 
@@ -782,6 +862,10 @@ settransreverse:
 	mov byte [transrev15+1], 0bah
 	mov byte [transrev16+1], 87h
 	mov byte [transrev17+1], 0a2h
+
+	mov byte [ntransrev0+1], 0a0h
+	mov byte [ntransrev1+1], 7h
+
 	ret
 
 
@@ -817,6 +901,42 @@ fixchain1t: add edi, 320
 	mov eax, edx
 CDECLENDSET 6
 	ret
+
+
+	ALIGN 16
+tvlineasm1nonpow2:
+CDECLBEGINSET 6
+	mov dword [tnp2_do_palookup+2], ebx
+	push ebp
+	mov ebp, edx  ; ebp: vertical place
+	mov ebx, eax  ; ebx: vertical increment
+	inc ecx
+	mov eax, dword [globaltilesizy]
+	mov [tnp2_beginvline+1], eax
+tnp2_beginvline: ; +1: y tile size
+	mov eax, 0x00000123
+	mul ebp
+	and eax, 0x000000ff
+	mov al, byte [esi+edx]
+	cmp al, 255
+	je short tskipmask1
+ntransrev0:
+tnp2_do_palookup: ; +2: addr
+	mov al, byte [0xbeeff00d+eax]
+ntransrev1:
+	mov ah, byte [edi]
+tnmach4: mov al, byte [eax+88888888h]	;_luc[eax]
+	mov byte [edi], al
+tskipmask1:
+	add ebp, ebx
+tnp2_fixchain1b: add edi, 320
+	dec ecx
+	jnz short tnp2_beginvline
+	mov eax, ebp
+	pop ebp
+CDECLENDSET 6
+	ret
+
 
 	;eax: -------temp1-------
 	;ebx: -------temp2-------
