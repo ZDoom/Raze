@@ -70,7 +70,7 @@ gamevar drawcol 9 0
 define TQUOTE 0
 definequote TQUOTE  >>> write on me! <<<
 
-//light       
+//light
 define LIGHTQUOTE 1
 //                                  x  y  z       r  g  b                mins maxs
 definequote LIGHTQUOTE light  %d   %d %d %d  %d  %d %d %d   %d %d %d %d   %d %d   %d %d
@@ -1309,6 +1309,22 @@ defstate listusedtags
         }
     }
 ends
+
+// This must be *compiled* with script_expertmode
+/*
+defstate setstartpos
+    "Set start pos. from spr."
+    var spr
+    getnumberfromuser spr "sprite number: " MAXSPRITES 8
+
+    seti spr
+    set startposx .x
+    set startposy .y
+    set startposz .z
+    set startsector .sectnum
+    set startang .ang
+ends
+*/
 
 ////////// USER AREA //////////
 

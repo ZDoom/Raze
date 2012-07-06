@@ -557,9 +557,18 @@ int32_t writesetup(const char *fn)
 #endif
 //             "; Console key scancode, in hex\n"
              "keyconsole = %X\n"
-             "; example: make KP0 function as KP5 (counters inability\n"
-             "; inability to pan using Shift-KP5-KP8/2 in 3D mode)\n"
-             "; remap = 52-4C\n"
+             "\n"
+             "; This option allows you to remap keys in case some of them are not available\n"
+             "; (like on a notebook). It has to be a comma-separated list of SOURCE-TARGET\n"
+             "; scancode values, looked up in the keyboard map above. This also means that\n"
+             "; the key positions count, not their labels for non-US keyboards.\n"
+             ";\n"
+             "; Example:\n"
+             ";  1. Map the backslash key (0x2B) to KPENTER (9C), since portable devices\n"
+             ";     often don't have the latter\n"
+             ";  2. make KP0 (0x52) function as KP5 (0x4C), countering the inability to pan\n"
+             ";     using Shift-KP5-KP8/2 in 3D mode\n"
+             "; remap = 2B-9C,52-4C\n"
              "remap = ",
 
              forcesetup, fullscreen, xdim2d, ydim2d, xdimgame, ydimgame, bppgame, vsync,
