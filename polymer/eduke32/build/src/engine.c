@@ -2672,12 +2672,16 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
 
     setupmvlineasm(globalshiftval);
 
-#if 1 //ndef ENGINE_USING_A_C
 
     x = startx;
     while ((startumost[x+windowx1] > startdmost[x+windowx1]) && (x <= x2)) x++;
 
     p = x+frameoffset;
+
+#ifndef ENGINE_USING_A_C
+    if (globalshiftval==0)
+        goto do_mvlineasm1;
+#endif
 
     for (; (x<=x2)&&(p&3); x++,p++)
     {
@@ -2754,6 +2758,9 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         if (y2ve[2] > d4) mvlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],pp+2);
         if (y2ve[3] > d4) mvlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],pp+3);
     }
+#ifndef ENGINE_USING_A_C
+do_mvlineasm1:
+#endif
     for (; x<=x2; x++,p++)
     {
         y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
@@ -2769,31 +2776,13 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         vince[0] = (int64_t)swal[x]*globalyscale;
         vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
-        mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
-    }
-
-#else
-
-    p = startx+frameoffset;
-    for (x=startx; x<=x2; x++,p++)
-    {
-        y1ve[0] = max(uwal[x],startumost[x+windowx1]-windowy1);
-        y2ve[0] = min(dwal[x],startdmost[x+windowx1]-windowy1);
-        if (y2ve[0] <= y1ve[0]) continue;
-
-        palookupoffse[0] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x],globvis),globalshade)<<8);
-
-        bufplce[0] = lwal[x] + globalxpanning;
-        if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
-        if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
-
-        vince[0] = (int64_t)swal[x]*globalyscale;
-        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
-
-        mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
-    }
-
+#ifndef ENGINE_USING_A_C
+        if (globalshiftval==0)
+            mvlineasm1nonpow2(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
+        else
 #endif
+        mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
+    }
 
     faketimerhandler();
 }
@@ -3672,10 +3661,14 @@ static void wallscan(int32_t x1, int32_t x2,
 
     setupvlineasm(globalshiftval);
 
-#if 1 //ndef ENGINE_USING_A_C
 
     x = x1;
     while ((umost[x] > dmost[x]) && (x <= x2)) x++;
+
+#ifndef ENGINE_USING_A_C
+    if (globalshiftval==0)
+        goto do_vlineasm1;
+#endif
 
     for (; (x<=x2)&&((x+frameoffset)&3); x++)
     {
@@ -3752,6 +3745,9 @@ static void wallscan(int32_t x1, int32_t x2,
         if (y2ve[2] > d4) prevlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],p+2);
         if (y2ve[3] > d4) prevlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],p+3);
     }
+#ifndef ENGINE_USING_A_C
+do_vlineasm1:
+#endif
     for (; x<=x2; x++)
     {
         y1ve[0] = max(uwal[x],umost[x]);
@@ -3767,34 +3763,16 @@ static void wallscan(int32_t x1, int32_t x2,
         vince[0] = (int64_t)swal[x]*globalyscale;
         vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
-        vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
-    }
-
-#else
-
-    for (x=x1; x<=x2; x++)
-    {
-        y1ve[0] = max(uwal[x],umost[x]);
-        y2ve[0] = min(dwal[x],dmost[x]);
-        if (y2ve[0] <= y1ve[0]) continue;
-
-        palookupoffse[0] = fpalookup+(getpalookup((int32_t)mulscale16(swal[x],globvis),globalshade)<<8);
-
-        bufplce[0] = lwal[x] + globalxpanning;
-        if (bufplce[0] >= tsizx) { if (xnice == 0) bufplce[0] %= tsizx; else bufplce[0] &= tsizx; }
-        if (ynice == 0) bufplce[0] *= tsizy; else bufplce[0] <<= tsizy;
-
-        vince[0] = (int64_t)swal[x]*globalyscale;
-        vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
-
-        vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
-    }
-
+#ifndef ENGINE_USING_A_C
+        if (globalshiftval==0)
+            vlineasm1nonpow2(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
+        else
 #endif
+        vlineasm1(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
+    }
 
     faketimerhandler();
 }
-
 
 //
 // transmaskvline (internal)
@@ -3824,6 +3802,11 @@ static void transmaskvline(int32_t x)
 
     p = ylookup[y1v]+x+frameoffset;
 
+#ifndef ENGINE_USING_A_C
+    if (globalshiftval==0)
+        tvlineasm1nonpow2(vinc,palookupoffs,y2v-y1v,vplc,bufplc,p);
+    else
+#endif
     tvlineasm1(vinc,palookupoffs,y2v-y1v,vplc,bufplc,p);
 }
 
@@ -3919,11 +3902,22 @@ static void transmaskwallscan(int32_t x1, int32_t x2)
 
     x = x1;
     while ((startumost[x+windowx1] > startdmost[x+windowx1]) && (x <= x2)) x++;
-#if 1 //ndef ENGINE_USING_A_C
-    if ((x <= x2) && (x&1)) transmaskvline(x), x++;
-    while (x < x2) transmaskvline2(x), x += 2;
+
+#ifndef ENGINE_USING_A_C
+    if (globalshiftval==0)
+    {
+        while (x <= x2) transmaskvline(x), x++;
+    }
+    else
 #endif
-    while (x <= x2) transmaskvline(x), x++;
+    {
+#if 1 //ndef ENGINE_USING_A_C
+        if ((x <= x2) && (x&1)) transmaskvline(x), x++;
+        while (x < x2) transmaskvline2(x), x += 2;
+#endif
+        while (x <= x2) transmaskvline(x), x++;
+    }
+
     faketimerhandler();
 }
 
@@ -4517,7 +4511,7 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
         globvis = mulscale4(globvis, (int32_t)((uint8_t)(secvisibility+16)));
 
     globalshiftval = logtilesizy;
-#if !defined ENGINE_USING_A_C
+#if 0
     // before proper non-power-of-two tilesizy drawing
     if (pow2long[logtilesizy] != tilesizy[globalpicnum])
         globalshiftval++;
@@ -5381,7 +5375,7 @@ static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
     tsizy = tilesizy[globalpicnum];
 
     globalshiftval = logtilesizy;
-#if !defined ENGINE_USING_A_C
+#if 0
     // before proper non-power-of-two tilesizy drawing
     if (pow2long[logtilesizy] != tilesizy[globalpicnum])
         globalshiftval++;
