@@ -838,7 +838,7 @@ void yax_preparedrawrooms(void)
     }
 }
 
-void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectnum)
+void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectnum, int32_t didmirror)
 {
     static uint8_t havebunch[YAX_MAXBUNCHES>>3];
 
@@ -1071,7 +1071,8 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
     scansector_collectsprites = 0;
 
     // draw base level
-    drawrooms(globalposx,globalposy,globalposz,globalang,horiz,osectnum+MAXSECTORS);
+    drawrooms(globalposx,globalposy,globalposz,globalang,horiz,
+              osectnum + MAXSECTORS*didmirror);
 //    if (scansector_collectsprites)
 //        spritesortcnt = 0;
     yax_copytsprites();
@@ -8244,11 +8245,13 @@ void initspritelists(void)
 //
 // drawrooms
 //
-void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
+int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
                int16_t daang, int32_t dahoriz, int16_t dacursectnum)
 {
     int32_t i, j, /*cz, fz,*/ closest;
     int16_t *shortptr1, *shortptr2;
+
+    int32_t didmirror = 0;
 
     beforedrawrooms = 0;
     indrawroomsandmasks = 1;
@@ -8340,14 +8343,14 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         polymer_drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
         bglDisable(GL_CULL_FACE);
         gloy1 = 0;
-        return;
+        return 0;
     }
 # endif
 
     //============================================================================= //POLYMOST BEGINS
     polymost_drawrooms();
     if (rendmode)
-        return;
+        return 0;
     //============================================================================= //POLYMOST ENDS
 #endif
 
@@ -8400,7 +8403,7 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         if (globalcursectnum<0)
         {
             enddrawing();  //!!!
-            return;
+            return 0;
         }
     }
 /*
@@ -8421,10 +8424,11 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
         if (numbunches==0)
         {
             enddrawing();  //!!!
-            return;
+            return 0;
         }
 
         inpreparemirror = 0;
+        didmirror = 1;
 
         mirrorsx1 = xdimen-1; mirrorsx2 = 0;
         for (i=numscans-1; i>=0; i--)
@@ -8484,6 +8488,8 @@ void drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     }
 
     enddrawing();   //}}}
+
+    return didmirror;
 }
 
 // UTILITY TYPES AND FUNCTIONS FOR DRAWMASKS OCCLUSION TREE

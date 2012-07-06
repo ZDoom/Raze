@@ -132,12 +132,12 @@ static inline int32_t yax_waltosecmask(int32_t walclipmask)
     return ((walclipmask&1)<<9) | ((walclipmask&64)<<5);
 }
 void yax_preparedrawrooms(void);
-void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectnum);
+void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectnum, int32_t didmirror);
 # define YAX_SKIPSECTOR(i) if (graysectbitmap[(i)>>3]&(1<<((i)&7))) continue
 # define YAX_SKIPWALL(i) if (graywallbitmap[(i)>>3]&(1<<((i)&7))) continue
 #else
 # define yax_preparedrawrooms()
-# define yax_drawrooms(ExtAnalyzeSprites, horiz, sectnum)
+# define yax_drawrooms(ExtAnalyzeSprites, horiz, sectnum, didmirror)
 # define YAX_SKIPSECTOR(i) (i)=(i)
 # define YAX_SKIPWALL(i) (i)=(i)
 #endif
@@ -606,7 +606,7 @@ void   setviewback(void);
 void   preparemirror(int32_t dax, int32_t day, int32_t daz, int16_t daang, int32_t dahoriz, int16_t dawall, int16_t dasector, int32_t *tposx, int32_t *tposy, int16_t *tang);
 void   completemirror(void);
 
-void   drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum);
+int32_t   drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum);
 void   drawmasks(void);
 void   clearview(int32_t dacol);
 void   clearallviews(int32_t dacol);

@@ -465,7 +465,7 @@ void M32_DrawRoomsAndMasks(void)
 {
     yax_preparedrawrooms();
     drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-    yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum);
+    yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum, 0);
 
     ExtAnalyzeSprites();
     drawmasks();
