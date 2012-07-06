@@ -2721,6 +2721,20 @@ static int32_t      polymer_initwall(int16_t wallnum)
     return (1);
 }
 
+static float calc_ypancoef(char curypanning, int16_t curpicnum)
+{
+    float ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
+
+    if (ypancoef < tilesizy[curpicnum])
+        ypancoef *= 2;
+    if (curypanning > 256 - (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef))
+        curypanning -= (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef);
+
+    ypancoef *= (float)curypanning / (256.0f * (float)tilesizy[curpicnum]);
+
+    return ypancoef;
+}
+
 static void         polymer_updatewall(int16_t wallnum)
 {
     int16_t         nwallnum, nnwallnum, curpicnum, wallpicnum, walloverpicnum, nwallpicnum;
@@ -2861,15 +2875,7 @@ static void         polymer_updatewall(int16_t wallnum)
         }
 
         if (wal->ypanning)
-        {
-            ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
-            if (ypancoef < tilesizy[curpicnum])
-                ypancoef *= 2;
-            curypanning = wal->ypanning;
-            if (curypanning > 256 - (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef))
-                curypanning -= (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef);
-            ypancoef *= (float)(curypanning) / (256.0f * (float)(tilesizy[curpicnum]));
-        }
+            ypancoef = calc_ypancoef(wal->ypanning, curpicnum);
         else
             ypancoef = 0;
 
@@ -2934,14 +2940,7 @@ static void         polymer_updatewall(int16_t wallnum)
                 yref = nsec->floorz;
 
             if (curypanning)
-            {
-                ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
-                if (ypancoef < tilesizy[curpicnum])
-                    ypancoef *= 2;
-                if (curypanning > 256 - (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef))
-                    curypanning -= (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef);
-                ypancoef *= (float)(curypanning) / (256.0f * (float)(tilesizy[curpicnum]));
-            }
+                ypancoef = calc_ypancoef(curypanning, curpicnum);
             else
                 ypancoef = 0;
 
@@ -3021,15 +3020,7 @@ static void         polymer_updatewall(int16_t wallnum)
                 yref = nsec->ceilingz;
 
             if (wal->ypanning)
-            {
-                ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
-                if (ypancoef < tilesizy[curpicnum])
-                    ypancoef *= 2;
-                curypanning = wal->ypanning;
-                if (curypanning > 256 - (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef))
-                    curypanning -= (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef);
-                ypancoef *= (float)(curypanning) / (256.0f * (float)(tilesizy[curpicnum]));
-            }
+                ypancoef = calc_ypancoef(wal->ypanning, curpicnum);
             else
                 ypancoef = 0;
 
@@ -3074,15 +3065,7 @@ static void         polymer_updatewall(int16_t wallnum)
                 curpicnum = walloverpicnum;
 
                 if (wal->ypanning)
-                {
-                    ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
-                    if (ypancoef < tilesizy[curpicnum])
-                        ypancoef *= 2;
-                    curypanning = wal->ypanning;
-                    if (curypanning > 256 - (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef))
-                        curypanning -= (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef);
-                    ypancoef *= (float)(curypanning) / (256.0f * (float)(tilesizy[curpicnum]));
-                }
+                    ypancoef = calc_ypancoef(wal->ypanning, curpicnum);
                 else
                     ypancoef = 0;
 
