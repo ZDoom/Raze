@@ -2649,9 +2649,12 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
     int32_t i, u4, d4, dax, z;
 #endif
 
+    setgotpic(globalpicnum);
+    if (globalshiftval < 0)
+        return;
+
     tsizx = tilesizx[globalpicnum];
     tsizy = tilesizy[globalpicnum];
-    setgotpic(globalpicnum);
     if ((tsizx <= 0) || (tsizy <= 0)) return;
     if ((uwal[x1] > ydimen) && (uwal[x2] > ydimen)) return;
     if ((dwal[x1] < 0) && (dwal[x2] < 0)) return;
@@ -3641,11 +3644,14 @@ static void wallscan(int32_t x1, int32_t x2,
     if (g_nodraw)
         return;
 #endif
+    setgotpic(globalpicnum);
+    if (globalshiftval < 0)
+        return;
+
     if (x2 >= xdim) x2 = xdim-1;
 
     tsizx = tilesizx[globalpicnum];
     tsizy = tilesizy[globalpicnum];
-    setgotpic(globalpicnum);
     if ((tsizx <= 0) || (tsizy <= 0)) return;
     if ((uwal[x1] > ydimen) && (uwal[x2] > ydimen)) return;
     if ((dwal[x1] < 0) && (dwal[x2] < 0)) return;
@@ -3894,7 +3900,11 @@ static void transmaskwallscan(int32_t x1, int32_t x2)
     int32_t x;
 
     setgotpic(globalpicnum);
-    if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) return;
+
+    Bassert(globalshiftval>=0 || ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)));
+    // globalshiftval<0 implies following condition
+    if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0))
+        return;
 
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
@@ -4812,11 +4822,8 @@ static void drawalls(int32_t bunch)
                     setup_globals_wall1(wal, wal->picnum);
                     setup_globals_wall2(wal, sec->visibility, nextsec->ceilingz, sec->ceilingz);
 
-                    if (globalshiftval >= 0)
-                    {
-                        if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
-                        wallscan(x1,x2,uplc,dwall,swall,lwall);
-                    }
+                    if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
+                    wallscan(x1,x2,uplc,dwall,swall,lwall);
 
                     if ((cz[2] >= cz[0]) && (cz[3] >= cz[1]))
                     {
@@ -4904,11 +4911,8 @@ static void drawalls(int32_t bunch)
 
                     setup_globals_wall2(wal, sec->visibility, nextsec->floorz, sec->ceilingz);
 
-                    if (globalshiftval >= 0)
-                    {
-                        if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
-                        wallscan(x1,x2,uwall,dplc,swall,lwall);
-                    }
+                    if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
+                    wallscan(x1,x2,uwall,dplc,swall,lwall);
 
                     if ((fz[2] <= fz[0]) && (fz[3] <= fz[1]))
                     {
@@ -4988,11 +4992,8 @@ static void drawalls(int32_t bunch)
                                 (nextsectnum >= 0) ? nextsec->ceilingz : sec->ceilingz,
                                 (nextsectnum >= 0) ? sec->ceilingz : sec->floorz);
 
-            if (globalshiftval >= 0)
-            {
-                if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
-                wallscan(x1,x2,uplc,dplc,swall,lwall);
-            }
+            if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
+            wallscan(x1,x2,uplc,dplc,swall,lwall);
 
 #ifdef YAX_ENABLE
             // TODO: slopes?
@@ -6428,8 +6429,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
 
     if ((globalorientation&128) == 0)
     {
-        if (globalshiftval >= 0)
-            maskwallscan(xb1[z],xb2[z],uwall,dwall,swall,lwall);
+        maskwallscan(xb1[z],xb2[z],uwall,dwall,swall,lwall);
     }
     else
     {
@@ -6438,8 +6438,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
             if (globalorientation&512) settransreverse(); else settransnormal();
         }
 
-        if (globalshiftval >= 0)
-            transmaskwallscan(xb1[z],xb2[z]);
+        transmaskwallscan(xb1[z],xb2[z]);
     }
 }
 
