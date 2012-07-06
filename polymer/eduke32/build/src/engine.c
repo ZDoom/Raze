@@ -2250,6 +2250,8 @@ static int32_t globalzd, globalyscale;
 static int32_t globalxspan, globalyspan, globalispow2=1;  // true if texture has power-of-two x and y size
 static intptr_t globalbufplc;
 
+int32_t globaltilesizy;
+
 int32_t globalx1, globaly2, globalx3, globaly3;
 static int32_t globaly1, globalx2, globalzx;
 static int32_t globalx, globaly, globalz;
@@ -4501,15 +4503,42 @@ static void setup_globals_wall1(const walltype *wal, int32_t dapicnum)
 
 static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int32_t topzref, int32_t botzref)
 {
+    const int32_t logtilesizy = (picsiz[globalpicnum]>>4);
+    const int32_t tsizy = tilesizy[globalpicnum];
+
+    if (tsizy==0)
+    {
+        globalshiftval = -1;
+        return;
+    }
+
     globvis = globalvisibility;
     if (secvisibility != 0)
         globvis = mulscale4(globvis, (int32_t)((uint8_t)(secvisibility+16)));
 
-    globalshiftval = (picsiz[globalpicnum]>>4);
-    if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
-    globalshiftval = 32-globalshiftval;
+    globalshiftval = logtilesizy;
+#if !defined ENGINE_USING_A_C
+    // before proper non-power-of-two tilesizy drawing
+    if (pow2long[logtilesizy] != tilesizy[globalpicnum])
+        globalshiftval++;
 
-    globalyscale = (wal->yrepeat<<(globalshiftval-19));
+    if (1)
+#else
+    // non power-of-two y size textures!
+    if (pow2long[logtilesizy] == tsizy)
+#endif
+    {
+        // globalshiftval==13 --> globalshiftval==19
+        //  ==> upper texture y size limit *here* = 8192
+        globalshiftval = 32-globalshiftval;
+        globalyscale = wal->yrepeat<<(globalshiftval-19);
+    }
+    else
+    {
+        globaltilesizy = tsizy;
+        globalyscale = divscale13(wal->yrepeat, tsizy);
+        globalshiftval = 0;
+    }
 
     if ((globalorientation&4) == 0)
         globalzd = (((int64_t)(globalposz-topzref)*globalyscale)<<8);
@@ -4789,8 +4818,11 @@ static void drawalls(int32_t bunch)
                     setup_globals_wall1(wal, wal->picnum);
                     setup_globals_wall2(wal, sec->visibility, nextsec->ceilingz, sec->ceilingz);
 
-                    if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
-                    wallscan(x1,x2,uplc,dwall,swall,lwall);
+                    if (globalshiftval >= 0)
+                    {
+                        if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
+                        wallscan(x1,x2,uplc,dwall,swall,lwall);
+                    }
 
                     if ((cz[2] >= cz[0]) && (cz[3] >= cz[1]))
                     {
@@ -4878,8 +4910,11 @@ static void drawalls(int32_t bunch)
 
                     setup_globals_wall2(wal, sec->visibility, nextsec->floorz, sec->ceilingz);
 
-                    if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
-                    wallscan(x1,x2,uwall,dplc,swall,lwall);
+                    if (globalshiftval >= 0)
+                    {
+                        if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
+                        wallscan(x1,x2,uwall,dplc,swall,lwall);
+                    }
 
                     if ((fz[2] <= fz[0]) && (fz[3] <= fz[1]))
                     {
@@ -4959,8 +4994,11 @@ static void drawalls(int32_t bunch)
                                 (nextsectnum >= 0) ? nextsec->ceilingz : sec->ceilingz,
                                 (nextsectnum >= 0) ? sec->ceilingz : sec->floorz);
 
-            if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
-            wallscan(x1,x2,uplc,dplc,swall,lwall);
+            if (globalshiftval >= 0)
+            {
+                if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
+                wallscan(x1,x2,uplc,dplc,swall,lwall);
+            }
 
 #ifdef YAX_ENABLE
             // TODO: slopes?
@@ -5315,10 +5353,12 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
     enddrawing();   //}}}
 }
 
+
 static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
                                      int32_t yspan, int32_t yoff, int32_t tilenum,
                                      int32_t cstat, int32_t *z1ptr, int32_t *z2ptr)
 {
+    int32_t logtilesizy, tsizy;
     int32_t z1, z2 = tspr->z - ((yoff*tspr->yrepeat)<<2);
 
     if (cstat&128)
@@ -5337,11 +5377,31 @@ static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
     globvis = globalvisibility;
     if (sec->visibility != 0) globvis = mulscale4(globvis,(int32_t)((uint8_t)(sec->visibility+16)));
 
-    globalshiftval = (picsiz[globalpicnum]>>4);
-    if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
-    globalshiftval = 32-globalshiftval;
+    logtilesizy = (picsiz[globalpicnum]>>4);
+    tsizy = tilesizy[globalpicnum];
 
-    globalyscale = divscale(512,tspr->yrepeat,globalshiftval-19);
+    globalshiftval = logtilesizy;
+#if !defined ENGINE_USING_A_C
+    // before proper non-power-of-two tilesizy drawing
+    if (pow2long[logtilesizy] != tilesizy[globalpicnum])
+        globalshiftval++;
+
+    if (1)
+#else
+    // non power-of-two y size textures!
+    if (pow2long[logtilesizy] == tsizy)
+#endif
+    {
+        globalshiftval = 32-globalshiftval;
+        globalyscale = divscale(512,tspr->yrepeat,globalshiftval-19);
+    }
+    else
+    {
+        globaltilesizy = tsizy;
+        globalyscale = (1<<22)/(tsizy*tspr->yrepeat);
+        globalshiftval = 0;
+    }
+
     globalzd = ((int64_t)(globalposz-z1)*globalyscale)<<8;
     if ((cstat&8) > 0)
     {
@@ -6373,14 +6433,19 @@ static void drawmaskwall(int16_t damaskwallcnt)
         }
 
     if ((globalorientation&128) == 0)
-        maskwallscan(xb1[z],xb2[z],uwall,dwall,swall,lwall);
+    {
+        if (globalshiftval >= 0)
+            maskwallscan(xb1[z],xb2[z],uwall,dwall,swall,lwall);
+    }
     else
     {
         if (globalorientation&128)
         {
             if (globalorientation&512) settransreverse(); else settransnormal();
         }
-        transmaskwallscan(xb1[z],xb2[z]);
+
+        if (globalshiftval >= 0)
+            transmaskwallscan(xb1[z],xb2[z]);
     }
 }
 

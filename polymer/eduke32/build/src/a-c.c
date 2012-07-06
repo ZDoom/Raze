@@ -88,6 +88,22 @@ void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t 
 
 ///// Wall,face sprite/wall sprite vertical line functions /////
 
+
+extern int32_t globaltilesizy;
+
+static inline uint32_t ourmulscale32(uint32_t a, uint32_t b)
+{
+    return ((uint64_t)a*b)>>32;
+}
+
+static inline int32_t getpix(int32_t logy, const char *buf, uint32_t vplc)
+{
+    if (logy != 0)
+        return buf[vplc>>logy];
+    else
+        return buf[ourmulscale32(vplc,globaltilesizy)];
+}
+
 void setupvlineasm(int32_t neglogy) { glogy = neglogy; }
 // cnt+1 loop iterations!
 int32_t vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
@@ -101,7 +117,11 @@ int32_t vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, in
 
     do
     {
-        *pp = pal[buf[vplc>>logy]];
+        if (logy != 0)
+            *pp = pal[buf[vplc>>logy]];
+        else
+            *pp = pal[buf[ourmulscale32(vplc,globaltilesizy)]];
+
         pp += ourbpl;
         vplc += vinc;
     }
@@ -145,7 +165,8 @@ void vlineasm4(int32_t cnt, char *p)
     {
         for (i=0; i<4; i++)
         {
-            ch = buf[i][vplc[i]>>logy]; p[i] = pal[i][ch];
+            ch = getpix(logy, buf[i], vplc[i]);
+            p[i] = pal[i][ch];
             vplc[i] += vinc[i];
         }
         p += ourbpl;
@@ -170,7 +191,8 @@ int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
 
     do
     {
-        ch = buf[vplc>>logy]; if (ch != 255) *pp = pal[ch];
+        ch = getpix(logy, buf, vplc);
+        if (ch != 255) *pp = pal[ch];
         pp += ourbpl;
         vplc += vinc;
     }
@@ -196,7 +218,8 @@ void mvlineasm4(int32_t cnt, char *p)
     {
         for (i=0; i<4; i++)
         {
-            ch = buf[i][vplc[i]>>logy]; if (ch != 255) p[i] = pal[i][ch];
+            ch = getpix(logy, buf[i], vplc[i]);
+            if (ch != 255) p[i] = pal[i][ch];
             vplc[i] += vinc[i];
         }
         p += ourbpl;
@@ -225,7 +248,7 @@ int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
     {
         do
         {
-            ch = buf[vplc>>logy];
+            ch = getpix(logy, buf, vplc);
             if (ch != 255) *pp = trans[(*pp)|(pal[ch]<<8)];
             pp += ourbpl;
             vplc += vinc;
@@ -236,7 +259,7 @@ int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
     {
         do
         {
-            ch = buf[vplc>>logy];
+            ch = getpix(logy, buf, vplc);
             if (ch != 255) *pp = trans[((*pp)<<8)|pal[ch]];
             pp += ourbpl;
             vplc += vinc;
@@ -274,11 +297,11 @@ void tvlineasm2(uint32_t vplc2, int32_t vinc1, intptr_t bufplc1, intptr_t bufplc
     {
         do
         {
-            ch = buf1[vplc1>>logy];
+            ch = getpix(logy, buf1, vplc1);
             if (ch != 255) pp[0] = gtrans[pp[0]|(gpal[ch]<<8)];
             vplc1 += vinc1;
 
-            ch = buf2[vplc2>>logy];
+            ch = getpix(logy, buf2, vplc2);
             if (ch != 255) pp[1] = gtrans[pp[1]|(gpal2[ch]<<8)];
             vplc2 += vinc2;
 
@@ -290,11 +313,11 @@ void tvlineasm2(uint32_t vplc2, int32_t vinc1, intptr_t bufplc1, intptr_t bufplc
     {
         do
         {
-            ch = buf1[vplc1>>logy];
+            ch = getpix(logy, buf1, vplc1);
             if (ch != 255) pp[0] = gtrans[(pp[0]<<8)|gpal[ch]];
             vplc1 += vinc1;
 
-            ch = buf2[vplc2>>logy];
+            ch = getpix(logy, buf2, vplc2);
             if (ch != 255) pp[1] = gtrans[(pp[1]<<8)|gpal2[ch]];
             vplc2 += vinc2;
 
