@@ -2465,8 +2465,14 @@ badindex:
                     {
                         if (qsetmode == 200)
                         {
-                            if (col<0 || col>=256) col=0;
-                            if (backcol<0 || backcol>=256) backcol=-1;
+                            if (col>=256)
+                                col=0;
+                            else if (col < 0 && col >= -255)
+                                col = editorcolors[-col];
+
+                            if (backcol<0 || backcol>=256)
+                                backcol=-1;
+
                             printext256(x, y, col, backcol, quotetext, fontsize);
                         }
                     }
