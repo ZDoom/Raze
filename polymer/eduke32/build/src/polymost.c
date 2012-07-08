@@ -3310,16 +3310,55 @@ static void polymost_internal_nonparallaxed(double nx0, double ny0, double nx1, 
     domostpolymethod = 0;
 }
 
+static void calc_ypanning(int32_t refposz, double ryp0, double ryp1,
+                          double x0, double x1, uint8_t ypan, uint8_t yrepeat,
+                          int32_t dopancor)
+{
+    int32_t i;
+    double t0, t1, t, fy;
+    int32_t yoffs;  // for panning "correction"
+
+    t0 = ((float)(refposz-globalposz))*ryp0 + ghoriz;
+    t1 = ((float)(refposz-globalposz))*ryp1 + ghoriz;
+    t = ((gdx*x0 + gdo) * (float)yrepeat) / ((x1-x0) * ryp0 * 2048.f);
+    i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
+
+    if (dopancor)
+    {
+        ftol((i-tilesizy[globalpicnum])*(255.f/i), &yoffs);
+
+        if (ypan>256-yoffs)
+        {
+            ypan-=yoffs;
+        }
+    }
+    else
+    {
+        // (1)
+        // not hacked yet
+
+        // (2)
+        // Still need a hack, depending on the wall(height,ypanning,yrepeat,tilesizy)
+        // it should do "ypan-=yoffs" or "ypan+=yoffs" or [nothing].
+        // Example: the film projector in the E1L1.map needs "ypan-=yoffs"
+    }
+
+    fy = (float)ypan * ((float)i) / 256.0;
+    gvx = (t0-t1)*t;
+    gvy = (x1-x0)*t;
+    gvo = -gvx*x0 - gvy*t0 + fy*gdo; gvx += fy*gdx; gvy += fy*gdy;
+}
+
+
 static void polymost_drawalls(int32_t bunch)
 {
     sectortype *sec, *nextsec;
     walltype *wal, *wal2, *nwal;
     double ox, oy, oz, dd[3], vv[3];
-    double fx, fy, x0, x1, cy0, cy1, fy0, fy1, xp0, yp0, xp1, yp1, ryp0, ryp1, nx0, ny0, nx1, ny1;
+    double fx, x0, x1, cy0, cy1, fy0, fy1, xp0, yp0, xp1, yp1, ryp0, ryp1, nx0, ny0, nx1, ny1;
     double t, r, t0, t1, ocy0, ocy1, ofy0, ofy1, oxp0, oyp0, ft[4];
     double oguo, ogux, oguy;
     int32_t i, x, y, z, cz, fz, wallnum, sectnum, nextsectnum;
-    int32_t ypan,yoffs; // for panning correction
 
     int16_t dapskybits;
     static const int16_t zeropskyoff[MAXPSKYTILES];
@@ -4042,29 +4081,8 @@ static void polymost_drawalls(int32_t bunch)
                 if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,wallnum+16384);
 
                 if (!(wal->cstat&4)) i = sector[nextsectnum].ceilingz; else i = sec->ceilingz;
-                t0 = ((float)(i-globalposz))*ryp0 + ghoriz;
-                t1 = ((float)(i-globalposz))*ryp1 + ghoriz;
-                t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.f);
-                i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 
-                ypan = wal->ypanning;
-                ftol((i-tilesizy[globalpicnum])*(255.f/i),&yoffs);
-                if (wal->cstat&4)
-                {
-                    if (ypan>256-yoffs)
-                    {
-                        ypan-=yoffs;
-                    }
-                }
-                else
-                {
-                    // not hacked yet
-                }
-
-                fy = (float)ypan * ((float)i) / 256.0;
-                gvx = (t0-t1)*t;
-                gvy = (x1-x0)*t;
-                gvo = -gvx*x0 - gvy*t0 + fy*gdo; gvx += fy*gdx; gvy += fy*gdy;
+                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, wal->cstat&4);
 
                 if (wal->cstat&8) //xflip
                 {
@@ -4099,31 +4117,8 @@ static void polymost_drawalls(int32_t bunch)
                 if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,wallnum+16384);
 
                 if (!(nwal->cstat&4)) i = sector[nextsectnum].floorz; else i = sec->ceilingz;
-                t0 = ((float)(i-globalposz))*ryp0 + ghoriz;
-                t1 = ((float)(i-globalposz))*ryp1 + ghoriz;
-                t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.f);
-                i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 
-                ypan = nwal->ypanning;
-                ftol((i-tilesizy[globalpicnum])*(255.f/i),&yoffs);
-                if (!(nwal->cstat&4))
-                {
-                    if (ypan>256-yoffs)
-                    {
-                        ypan-=yoffs;
-                    }
-                }
-                else
-                {
-                    // Still need a hack, depending on the wall(height,ypanning,yrepeat,tilesizy)
-                    // it should do "ypan-=yoffs" or "ypan+=yoffs" or [nothing].
-                    // Example: the film projector in the E1L1.map needs "ypan-=yoffs"
-                }
-
-                fy = (float)ypan * ((float)i) / 256.0;
-                gvx = (t0-t1)*t;
-                gvy = (x1-x0)*t;
-                gvo = -gvx*x0 - gvy*t0 + fy*gdo; gvx += fy*gdx; gvy += fy*gdy;
+                calc_ypanning(i, ryp0, ryp1, x0, x1, nwal->ypanning, wal->yrepeat, !(nwal->cstat&4));
 
                 if (wal->cstat&8) //xflip
                 {
@@ -4154,29 +4149,8 @@ static void polymost_drawalls(int32_t bunch)
 
             if (nextsectnum >= 0) { if (!(wal->cstat&4)) i = nextsec->ceilingz; else i = sec->ceilingz; }
             else { if (!(wal->cstat&4)) i = sec->ceilingz;     else i = sec->floorz; }
-            t0 = ((float)(i-globalposz))*ryp0 + ghoriz;
-            t1 = ((float)(i-globalposz))*ryp1 + ghoriz;
-            t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.f);
-            i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
 
-            ypan = wal->ypanning;
-            ftol((i-tilesizy[globalpicnum])*(255.f/i),&yoffs);
-            if (!(wal->cstat&4))
-            {
-                if (ypan>256-yoffs)
-                {
-                    ypan-=yoffs;
-                }
-            }
-            else
-            {
-                // not hacked yet
-            }
-
-            fy = (float)ypan * ((float)i) / 256.0;
-            gvx = (t0-t1)*t;
-            gvy = (x1-x0)*t;
-            gvo = -gvx*x0 - gvy*t0 + fy*gdo; gvx += fy*gdx; gvy += fy*gdy;
+            calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, !(wal->cstat&4));
 
             if (wal->cstat&8) //xflip
             {
@@ -4671,7 +4645,7 @@ void polymost_drawrooms()
 void polymost_drawmaskwall(int32_t damaskwallcnt)
 {
     double dpx[8], dpy[8], dpx2[8], dpy2[8];
-    float fy, x0, x1, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1;
+    float x0, x1, sx0, sy0, sx1, sy1, xp0, yp0, xp1, yp1, oxp0, oyp0, ryp0, ryp1;
     float r, t, t0, t1, csy[4], fsy[4];
     int32_t i, j, n, n2, z, sectnum, z1, z2, cz[4], fz[4], method;
     int32_t m0, m1;
@@ -4742,15 +4716,8 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     guy = 0;
 
     if (!(wal->cstat&4)) i = z1; else i = z2;
-    i -= globalposz;
-    t0 = ((float)i)*ryp0 + ghoriz;
-    t1 = ((float)i)*ryp1 + ghoriz;
-    t = ((gdx*x0 + gdo) * (float)wal->yrepeat) / ((x1-x0) * ryp0 * 2048.f);
-    i = (1<<(picsiz[globalpicnum]>>4)); if (i < tilesizy[globalpicnum]) i <<= 1;
-    fy = (float)wal->ypanning * ((float)i) / 256.0;
-    gvx = (t0-t1)*t;
-    gvy = (x1-x0)*t;
-    gvo = -gvx*x0 - gvy*t0 + fy*gdo; gvx += fy*gdx; gvy += fy*gdy;
+
+    calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, 0);
 
     if (wal->cstat&8) //xflip
     {
