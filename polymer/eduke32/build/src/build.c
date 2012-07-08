@@ -151,6 +151,8 @@ typedef struct
     spritetype *sprite;
 } mapinfofull_t;
 
+int32_t g_doScreenShot;
+
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo);
 static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal);
 static void SaveBoardAndPrintMessage(const char *fn);
@@ -481,6 +483,14 @@ void M32_DrawRoomsAndMasks(void)
         M32_ResetFakeRORTiles();
     }
 #endif
+
+    VM_OnEvent(EVENT_DRAW3DSCREEN, -1);
+
+    if (g_doScreenShot)
+    {
+        screencapture("mcapxxxx.tga", 0, "Mapster32, from script");
+        g_doScreenShot = 0;
+    }
 }
 
 #undef STARTUP_SETUP_WINDOW

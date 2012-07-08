@@ -535,6 +535,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("LOTAG", 0, GAMEVAR_SYSTEM);
     Gv_NewVar("HITAG", 0, GAMEVAR_SYSTEM);
     Gv_NewVar("TEXTURE", 0, GAMEVAR_SYSTEM);
+    Gv_NewVar("DOSCRSHOT", (intptr_t)&g_doScreenShot, GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
 
     Gv_NewVar("xdim",(intptr_t)&xdim, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);
     Gv_NewVar("ydim",(intptr_t)&ydim, GAMEVAR_INTPTR | GAMEVAR_SYSTEM | GAMEVAR_READONLY);

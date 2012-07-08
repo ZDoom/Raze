@@ -86,6 +86,7 @@ enum GameEvent_t {
     EVENT_INSERTSPRITE2D,
     EVENT_INSERTSPRITE3D,
     EVENT_DRAW2DSCREEN,
+    EVENT_DRAW3DSCREEN,
     EVENT_KEYS2D,
     EVENT_KEYS3D,
     EVENT_PREKEYS2D,
@@ -169,6 +170,7 @@ extern uint32_t m32_drawlinepat;
 
 
 extern int32_t g_iReturnVar;
+extern int32_t g_doScreenShot;
 extern int32_t m32_sortvar1, m32_sortvar2;
 
 //extern int32_t g_numRealPalettes;
@@ -224,6 +226,7 @@ extern int32_t mousyplc;
 #define M32_LOTAG_VAR_ID 7
 #define M32_HITAG_VAR_ID 8
 #define M32_TEXTURE_VAR_ID 9
+#define M32_DOSCRSHOT_VAR_ID 10
 
 #define M32_LOCAL_ARRAY_ID 0
 
