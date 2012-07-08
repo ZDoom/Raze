@@ -4522,7 +4522,7 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
         globvis = mulscale4(globvis, (int32_t)((uint8_t)(secvisibility+16)));
 
     globalshiftval = logtilesizy;
-#if 0
+#if 1
     // before proper non-power-of-two tilesizy drawing
     if (pow2long[logtilesizy] != tilesizy[globalpicnum])
         globalshiftval++;
