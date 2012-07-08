@@ -1330,8 +1330,28 @@ ends
 
 // key settings
 defstate userkeys_3d
+/*
+    ifge searchwall 0 ifl searchwall MAXWALLS
+    ifholdkey KEY_KP5
+    {
+        add wall[searchwall].ypanning 1
+        set DOSCRSHOT 1
+    }
+*/
     ifholdkey KEY_SEMI ifhitkey KEY_C state chselshade
 ends
+
+gamevar scrshot 0 1
+
+/*
+onevent EVENT_DRAW3DSCREEN
+    ifge searchwall 0, ifl searchwall MAXWALLS
+    {
+        qsprintf TQUOTE "y panning = %d" wall[searchwall].ypanning
+        printext256 TQUOTE 30 30 -15 0 0
+    }
+endevent
+*/
 
 // convenience rebindings for notebooks:
 //  Alt-F11 --> SCROLL LOCK (set first position)
