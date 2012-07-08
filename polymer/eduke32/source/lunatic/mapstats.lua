@@ -19,8 +19,7 @@ function success(map, fn)
     printf("  version: %d", map.version)
     printf("  numsectors: %d\n  numwalls: %d\n  numsprites: %d",
            map.numsectors, map.numwalls, map.numsprites)
-end
-
-function failure(fn, errmsg)
-    printf("--- %s: %s", fn, errmsg)
+    printf("  walls/sector: %.02f\n  sprites/sector: %.02f",
+          map.numwalls/map.numsectors, map.numsprites/map.numsectors)
+    printf("")
 end

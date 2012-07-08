@@ -1,14 +1,14 @@
 
 -- Loaders for various BUILD structures for LuaJIT
 
--- TODO: bound-checking, load ART
-
 
 local ffi = require "ffi"
 local io = require "io"
 
+local error = error
 local assert = assert
 local print = print
+local setmetatable = setmetatable
 
 module(...)
 
@@ -62,6 +62,8 @@ local MAX =
     SECTORS = { [7]=1024, [8]=4096, [9]=4096 },
     WALLS = { [7]=8192, [8]=16384, [9]=16384 },
     SPRITES = { [7]=4096, [8]=16384, [9]=16384 },
+
+    TILES = 30720,
 }
 
 local function doread(fh, basectype, numelts)
@@ -83,6 +85,23 @@ local function doread(fh, basectype, numelts)
     ffi.copy(cd, datstr, size)
 
     return cd
+end
+
+local function set_secwalspr_mt(structar, maxidx)
+    local mt = {
+        __index = function(tab, idx)
+            if (idx < 0 or idx >= maxidx) then
+                error("Invalid structure array read access", 2)
+            end
+            return structar[idx]
+        end,
+
+        __newindex = function(tab, idx, newval)
+            error('cannot write directly to structure array', 2)
+        end,
+    }
+
+    return setmetatable({}, mt)
 end
 
 --== LOADBOARD ==--
@@ -133,6 +152,9 @@ function loadboard(filename)
 
     -- sectors
     map.numsectors = cd[2]
+    if (map.numsectors == nil) then
+        return nil, "Couldn't read number of sectors"
+    end
     if (map.numsectors <= 0 or map.numsectors > MAX.SECTORS[map.version]) then
         fh:close()
         return nil, "Invalid number of sectors"
@@ -145,6 +167,9 @@ function loadboard(filename)
 
     -- walls
     cd = doread(fh, "int16_t", 1)
+    if (cd == nil) then
+        return nil, "Couldn't read number of walls"
+    end
     map.numwalls = cd[0]
     if (map.numwalls <= 0 or map.numwalls > MAX.WALLS[map.version]) then
         fh:close()
@@ -158,6 +183,9 @@ function loadboard(filename)
 
     -- sprites
     cd = doread(fh, "int16_t", 1)
+    if (cd == nil) then
+        return nil, "Couldn't read number of sprites"
+    end
     map.numsprites = cd[0]
     if (map.numsprites < 0 or map.numsprites > MAX.SPRITES[map.version]) then
         fh:close()
@@ -169,7 +197,100 @@ function loadboard(filename)
         return nil, "Couldn't read sprites"
     end
 
+    map.sector = set_secwalspr_mt(map.sector, map.numsectors)
+    map.wall = set_secwalspr_mt(map.wall, map.numwalls)
+    map.sprite = set_secwalspr_mt(map.sprite, map.numsprites)
+
     -- done
     fh:close()
     return map
+end
+
+
+local function set_sizarray_mt(sizar)
+    local mt = {
+        __index = function(tab, idx)
+            if (idx < 0 or idx >= MAX.TILES) then
+                error("Invalid tile size array read access", 2)
+            end
+            return sizar[idx]
+        end,
+
+        __newindex = function(tab, idx, newval)
+            if (idx < 0 or idx >= MAX.TILES) then
+                error("Invalid tile size array write access", 2)
+            end
+            sizar[idx] = newval
+        end,
+    }
+
+    return setmetatable({}, mt)
+end
+
+
+--== LOADARTS (currently tilesizx and tilesizy only) ==--
+-- filenames: a table with ART file names
+-- returns:
+--  on failure, nil, errmsg
+--  on success, a table
+--    {
+--      sizx = <cdata (array of length MAXTILES)>
+--      sizy = <cdata (array of length MAXTILES)>
+--    }
+function loadarts(filenames)
+    local tile = {
+        sizx = ffi.new("int16_t [?]", MAX.TILES),
+        sizy = ffi.new("int16_t [?]", MAX.TILES),
+    }
+
+    for fni=1,#filenames do
+        local fn = filenames[fni]
+        local fh, errmsg = io.open(fn)
+
+        if (fh==nil) then
+            return nil, errmsg
+        end
+
+        local cd = doread(fh, "int32_t", 4)
+        -- artversion, numtiles, localtilestart, localtileend
+        if (cd==nil) then
+            fh:close()
+            return nil, fn..": Couldn't read header"
+        end
+
+        local localtilestart = cd[2]
+        local numtileshere = cd[3]-localtilestart
+
+        if (numtileshere < 0 or localtilestart+numtileshere >= MAX.TILES) then
+            fh:close()
+            return nil, fn..": Invalid tile start/end"
+        end
+
+        if (numtileshere==0) then
+            fh:close()
+        else
+            -- X sizes
+            cd = doread(fh, "int16_t", numtileshere)
+            if (cd == nil) then
+                fh:close()
+                return nil, fn..": Couldn't read tilesizx array"
+            end
+
+            ffi.copy(tile.sizx+localtilestart, cd, numtileshere*2)
+
+            -- Y sizes
+            cd = doread(fh, "int16_t", numtileshere)
+            if (cd == nil) then
+                fh:close()
+                return nil, fn..": Couldn't read tilesizy array"
+            end
+
+            ffi.copy(tile.sizy+localtilestart, cd, numtileshere*2)
+        end
+    end
+
+    tile.sizx = set_sizarray_mt(tile.sizx)
+    tile.sizy = set_sizarray_mt(tile.sizy)
+
+    return tile
 end
