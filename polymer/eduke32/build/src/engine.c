@@ -15725,7 +15725,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
 
 #ifdef USE_OPENGL
     if (!polymost_printext256(xpos,ypos,col,backcol,name,fontsize)) return;
-
+# if 0
     if (rendmode >= 3 && qsetmode == 200)
     {
         int32_t xx, yy;
@@ -15790,6 +15790,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
 
         return;
     }
+# endif
 #endif
 
     begindrawing(); //{{{
