@@ -75,7 +75,7 @@ const char *MUSIC_ErrorString
 )
 
 {
-    char *ErrorString;
+    const char *ErrorString;
 
     switch (ErrorNumber)
     {
