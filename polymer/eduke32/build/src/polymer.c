@@ -2729,8 +2729,13 @@ static float calc_ypancoef(char curypanning, int16_t curpicnum, int32_t dopancor
         ypancoef *= 2;
 
     if (dopancor)
-        if (curypanning > 256 - (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef))
-            curypanning -= (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef);
+    {
+        int32_t yoffs;
+
+        ftol((ypancoef - tilesizy[curpicnum]) * (255.0f / ypancoef), &yoffs);
+        if (curypanning > 256 - yoffs)
+            curypanning -= yoffs;
+    }
 
     ypancoef *= (float)curypanning / (256.0f * (float)tilesizy[curpicnum]);
 
@@ -2910,6 +2915,8 @@ static void         polymer_updatewall(int16_t wallnum)
 
         if ((underwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
+            int32_t refwall;
+
             if (s->floor.buffer[((wallnum - sec->wallptr) * 5) + 1] < ns->floor.buffer[((nnwallnum - nsec->wallptr) * 5) + 1])
                 Bmemcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
             else
@@ -2925,6 +2932,8 @@ static void         polymer_updatewall(int16_t wallnum)
                 curshade = wall[nwallnum].shade;
                 curxpanning = wall[nwallnum].xpanning;
                 curypanning = wall[nwallnum].ypanning;
+
+                refwall = nwallnum;
             }
             else
             {
@@ -2933,6 +2942,8 @@ static void         polymer_updatewall(int16_t wallnum)
                 curshade = wal->shade;
                 curxpanning = wal->xpanning;
                 curypanning = wal->ypanning;
+
+                refwall = wallnum;
             }
 
             polymer_getbuildmaterial(&w->wall.material, curpicnum, curpal, curshade, 0);
@@ -2944,7 +2955,7 @@ static void         polymer_updatewall(int16_t wallnum)
 
             if (curypanning)
                 // under
-                ypancoef = calc_ypancoef(curypanning, curpicnum, !(wall[nwallnum].cstat & 4));
+                ypancoef = calc_ypancoef(curypanning, curpicnum, !(wall[refwall].cstat & 4));
             else
                 ypancoef = 0;
 
