@@ -4082,6 +4082,7 @@ static void polymost_drawalls(int32_t bunch)
 
                 if (!(wal->cstat&4)) i = sector[nextsectnum].ceilingz; else i = sec->ceilingz;
 
+                // over
                 calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, wal->cstat&4);
 
                 if (wal->cstat&8) //xflip
@@ -4118,6 +4119,7 @@ static void polymost_drawalls(int32_t bunch)
 
                 if (!(nwal->cstat&4)) i = sector[nextsectnum].floorz; else i = sec->ceilingz;
 
+                // under
                 calc_ypanning(i, ryp0, ryp1, x0, x1, nwal->ypanning, wal->yrepeat, !(nwal->cstat&4));
 
                 if (wal->cstat&8) //xflip
@@ -4150,6 +4152,7 @@ static void polymost_drawalls(int32_t bunch)
             if (nextsectnum >= 0) { if (!(wal->cstat&4)) i = nextsec->ceilingz; else i = sec->ceilingz; }
             else { if (!(wal->cstat&4)) i = sec->ceilingz;     else i = sec->floorz; }
 
+            // white
             calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, !(wal->cstat&4));
 
             if (wal->cstat&8) //xflip
@@ -4717,6 +4720,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
 
     if (!(wal->cstat&4)) i = z1; else i = z2;
 
+    // mask
     calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypanning, wal->yrepeat, 0);
 
     if (wal->cstat&8) //xflip

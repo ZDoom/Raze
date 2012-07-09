@@ -2721,14 +2721,16 @@ static int32_t      polymer_initwall(int16_t wallnum)
     return (1);
 }
 
-static float calc_ypancoef(char curypanning, int16_t curpicnum)
+static float calc_ypancoef(char curypanning, int16_t curpicnum, int32_t dopancor)
 {
     float ypancoef = (float)(pow2long[picsiz[curpicnum] >> 4]);
 
     if (ypancoef < tilesizy[curpicnum])
         ypancoef *= 2;
-    if (curypanning > 256 - (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef))
-        curypanning -= (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef);
+
+    if (dopancor)
+        if (curypanning > 256 - (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef))
+            curypanning -= (ypancoef - tilesizy[curpicnum]) * (256.0f / ypancoef);
 
     ypancoef *= (float)curypanning / (256.0f * (float)tilesizy[curpicnum]);
 
@@ -2875,7 +2877,8 @@ static void         polymer_updatewall(int16_t wallnum)
         }
 
         if (wal->ypanning)
-            ypancoef = calc_ypancoef(wal->ypanning, curpicnum);
+            // white
+            ypancoef = calc_ypancoef(wal->ypanning, curpicnum, !(wal->cstat & 4));
         else
             ypancoef = 0;
 
@@ -2940,7 +2943,8 @@ static void         polymer_updatewall(int16_t wallnum)
                 yref = nsec->floorz;
 
             if (curypanning)
-                ypancoef = calc_ypancoef(curypanning, curpicnum);
+                // under
+                ypancoef = calc_ypancoef(curypanning, curpicnum, !(wall[nwallnum].cstat & 4));
             else
                 ypancoef = 0;
 
@@ -3020,7 +3024,8 @@ static void         polymer_updatewall(int16_t wallnum)
                 yref = nsec->ceilingz;
 
             if (wal->ypanning)
-                ypancoef = calc_ypancoef(wal->ypanning, curpicnum);
+                // over
+                ypancoef = calc_ypancoef(wal->ypanning, curpicnum, wal->cstat & 4);
             else
                 ypancoef = 0;
 
@@ -3065,7 +3070,8 @@ static void         polymer_updatewall(int16_t wallnum)
                 curpicnum = walloverpicnum;
 
                 if (wal->ypanning)
-                    ypancoef = calc_ypancoef(wal->ypanning, curpicnum);
+                    // mask
+                    ypancoef = calc_ypancoef(wal->ypanning, curpicnum, 0);
                 else
                     ypancoef = 0;
 
