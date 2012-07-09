@@ -2926,32 +2926,22 @@ static void         polymer_updatewall(int16_t wallnum)
             Bmemcpy(&w->wall.buffer[15], &ns->floor.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
 
             if (wal->cstat & 2)
-            {
-                curpicnum = nwallpicnum;
-                curpal = wall[nwallnum].pal;
-                curshade = wall[nwallnum].shade;
-                curxpanning = wall[nwallnum].xpanning;
-                curypanning = wall[nwallnum].ypanning;
-
                 refwall = nwallnum;
-            }
             else
-            {
-                curpicnum = wallpicnum;
-                curpal = wal->pal;
-                curshade = wal->shade;
-                curxpanning = wal->xpanning;
-                curypanning = wal->ypanning;
-
                 refwall = wallnum;
-            }
+
+            curpicnum = wall[refwall].picnum;
+            curpal = wall[refwall].pal;
+            curshade = wall[refwall].shade;
+            curxpanning = wall[refwall].xpanning;
+            curypanning = wall[refwall].ypanning;
 
             polymer_getbuildmaterial(&w->wall.material, curpicnum, curpal, curshade, 0);
 
-            if ((!(wal->cstat & 2) && (wal->cstat & 4)) || ((wal->cstat & 2) && (wall[nwallnum].cstat & 4)))
-                yref = sec->ceilingz;
-            else
+            if (!(wall[refwall].cstat&4))
                 yref = nsec->floorz;
+            else
+                yref = sec->ceilingz;
 
             if (curypanning)
                 // under
