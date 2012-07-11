@@ -821,8 +821,8 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     if (*texidx)
         return *texidx;
 
-    // possibly fetch an already loaded texture
-    if (sk)
+    // possibly fetch an already loaded multitexture :_)
+    if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
         for (i=0; i<nextmodelid; i++)
             for (skzero = ((md2model_t *)models[i])->skinmap; skzero; skzero = skzero->next)
                 if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[hicfxmask(pal)])
