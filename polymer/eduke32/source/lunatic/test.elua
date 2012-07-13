@@ -89,10 +89,12 @@ if (vol==1 and lev==8) then
 end
 
 --]]
+--tostring = nil  -- REMEMBER
 --DBG_.printkv('_G in test.elua', _G)
 
 checkfail('local i = sprite["qwe"]')  -- indexing struct array with non-numeric type
 checkfail('print(sprite[100000].ceilingpal)')  -- oob read access
+checkfail('print(gv.sprite[0])')  -- NOTE: gv.sprite doesn't fail, but we can't use it
 checkfail('setmetatable(sprite, {})')  -- set metatable forbidden
 checkfail('sector[-1].ceilingpal = 4')  -- oob write access
 checkfail('sector[0].wallnum = 0')  -- wallnum member is read-only
@@ -114,8 +116,10 @@ checkfail('string.dump(gameevent)')  -- string.dump is unavailable
 checkfail('gv.luaJIT_setmode(nil, 0, 0)')
 checkfail('gv.luaJIT_BC_con_lang')
 checkfail('gv.yax_getbunch(0,0)')
+checkfail('gv.gethitickms = nil')
 -- we don't have arrays in Lua-accessible structs now
 checkfail('local i = actor[0].t_data[15]')
+checkfail('local spr = sprite[0]; local x=spr+1')  -- no pointer arithmetic!
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 
@@ -138,7 +142,7 @@ gameevent(gv.EVENT_ENTERLEVEL,
 
               t = gv.gethitickms()-t
 
-              -- x86: 40ns/call, x86_64: 290 ns/call
+              -- x86_64: 40ns/call, x86: 290 ns/call
               printf("%d gethitickms() calls took %.03f ms (%.03f us/call)",
                      N, t, (t*1000)/N)
 
@@ -169,8 +173,6 @@ gameactor(1680,  -- LIZTROOP
 --              sprite[i].ang = bit.band(sprite[i].ang-20, 2047)
 
               local spr = sprite[i]
---              print(type(spr)) --> cdata
-              assert(pcall("print(spr+1)") == false)  -- no ptr arith!
 
               local x,y,z = spr.x, spr.y, spr.z
               local t = gv.gethitickms()

@@ -504,7 +504,11 @@ end
 
 -- _G tweaks -- pull in only 'safe' stuff
 local G_ = {}  -- our soon-to-be global environment
-local oG = _G  -- old genv, to access thrown-out functions later in this chunk
+
+-- Old global environment, to access thrown-out functions later in this chunk.
+-- Also, inside this file, we must refer to functions like 'pairs' by using
+-- this table, since user code could later do pairs=nil.
+local oG = _G
 
 G_.coroutine = coroutine
 G_.assert = assert
@@ -565,16 +569,25 @@ local lunacon = require("lunacon")
 
 
 -- change the environment of this chunk to the table G_
+-- NOTE: all references to global variables from this point on
+-- (also in functions created after this point) refer to G_ !
 setfenv(1, G_)
 
+-- We MUST remember to call base lib functions through oG here.
+-- 'tostring' is a special case: it is used in 'print', i.e. the global 'tostring',
+-- which is looked up in the current environment!  Thus, we must REMOVE it and
+-- 'print' for release, or write our own, atomic 'print'.
+local error = oG.error
+local type = oG.type
+local pairs = oG.pairs
 
 -- print keys and values of a table
 local function printkv(label, table)
-    print('========== Keys and values of '..label)
-    for k,v in pairs(table) do
-        print(k .. ': ' .. tostring(v))
+    oG.print('========== Keys and values of '..label)
+    for k,v in oG.pairs(table) do
+        oG.print(k .. ': ' .. tostring(v))
     end
-    print('----------')
+    oG.print('----------')
 end
 
 --printkv('_G AFTER SETFENV', _G)
@@ -854,7 +867,7 @@ local function loadGamevarsString(string)
     gamevarNames = {};  -- clear gamevars
 --]=]
 
-    assert(oG.loadstring(string))()
+    oG.assert(oG.loadstring(string))()
 end
 
 
@@ -876,11 +889,11 @@ DBG_.loadGamevarsString = loadGamevarsString
 -- XXX: but user modules will want to do "function thisfunc() ... "
 oG.setmetatable(
     G_, {
-        __newindex = function (_, n)
-            error("attempt to write to undeclared variable "..n, 2)
+        __newindex = function (_1, n, _2)
+            error("attempt to write to undeclared variable '"..n.."'", 2)
         end,
         __index = function (_, n)
-            error("attempt to read undeclared variable "..n, 2)
+            error("attempt to read undeclared variable '"..n.."'", 2)
         end,
         })
 

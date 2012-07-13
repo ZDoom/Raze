@@ -20,6 +20,9 @@ uint8_t g_elEvents[MAXEVENTS];
 // same thing for actors:
 uint8_t g_elActors[MAXTILES];
 
+// Lua-registry key for debug.traceback
+static uint8_t debug_traceback_key;
+
 
 // forward-decls...
 static int32_t SetEvent_luacf(lua_State *L);
@@ -29,14 +32,27 @@ static int32_t SetActor_luacf(lua_State *L);
 extern int luaopen_lpeg(lua_State *L);
 
 
+static void check_and_register_function(lua_State *L, void *keyaddr)
+{
+    luaL_checktype(L, -1, LUA_TFUNCTION);
+
+    lua_pushlightuserdata(L, keyaddr);  // 3, push address
+    lua_pushvalue(L, -2);  // 4, push copy of lua function
+
+    lua_settable(L, LUA_REGISTRYINDEX);  // "registry[keyaddr] = <lua function>", pop 2
+}
+
+
 // 0: success, <0: failure
 int32_t El_CreateState(El_State *estate, const char *name)
 {
+    lua_State *L;
+
     estate->name = Bstrdup(name);
     if (!estate->name)
         return -1;
 
-    estate->L = luaL_newstate();
+    L = estate->L = luaL_newstate();
 
     if (!estate->L)
     {
@@ -45,14 +61,24 @@ int32_t El_CreateState(El_State *estate, const char *name)
         return -2;
     }
 
-    luaL_openlibs(estate->L);  // NOTE: we set up the sandbox in defs.ilua
-    luaopen_lpeg(estate->L);
+    luaL_openlibs(L);  // NOTE: we set up the sandbox in defs.ilua
+    luaopen_lpeg(L);
+    lua_pop(L, lua_gettop(L));  // pop off whatever lpeg leaves on the stack
+
+    // get debug.traceback
+    lua_getglobal(L, "debug");
+    lua_getfield(L, -1, "traceback");
+    Bassert(lua_isfunction(L, -1));
+    check_and_register_function(L, &debug_traceback_key);
+    lua_pop(L, 2);
 
     // create misc. global functions in the Lua state
-    lua_pushcfunction(estate->L, SetEvent_luacf);
-    lua_setglobal(estate->L, "gameevent");
-    lua_pushcfunction(estate->L, SetActor_luacf);
-    lua_setglobal(estate->L, "gameactor");
+    lua_pushcfunction(L, SetEvent_luacf);
+    lua_setglobal(L, "gameevent");
+    lua_pushcfunction(L, SetActor_luacf);
+    lua_setglobal(L, "gameactor");
+
+    Bassert(lua_gettop(L)==0);
 
     return 0;
 }
@@ -110,48 +136,55 @@ int32_t El_RunOnce(El_State *estate, const char *fn)
     buf[flen] = 0;
 
     // -- lua --
+    Bassert(lua_gettop(L)==0);
+
+    // get debug.traceback
+    lua_pushlightuserdata(L, &debug_traceback_key);
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    Bassert(lua_isfunction(L, -1));
 
     i = luaL_loadstring(L, buf);
+    Bassert(lua_gettop(L)==2);
     Bfree(buf);
 
     if (i == LUA_ERRMEM)
+    {
+        lua_pop(L, 2);
         return -1;
+    }
 
     if (i == LUA_ERRSYNTAX)
     {
         OSD_Printf("state \"%s\" syntax error: %s\n", estate->name,
                    lua_tostring(L, -1));  // get err msg
-        lua_pop(L, 1);
+        lua_pop(L, 2);  // pop errmsg and debug.traceback
         return 3;
     }
 
     // -- call the lua chunk! --
 
-    i = lua_pcall(L, 0, 0, 0);
+    i = lua_pcall(L, 0, 0, -2);
+    Bassert(lua_gettop(L) == 1+!!i);
+    Bassert(i != LUA_ERRERR);  // we expect debug.traceback not to fail
+
     if (i == LUA_ERRMEM)  // XXX: should be more sophisticated.  Clean up stack? Do GC?
+    {
+        lua_pop(L, 2);
         return -1;
+    }
 
     if (i == LUA_ERRRUN)
     {
         Bassert(lua_type(L, -1)==LUA_TSTRING);
         OSD_Printf("state \"%s\" runtime error: %s\n", estate->name,
                    lua_tostring(L, -1));  // get err msg
-        lua_pop(L, 1);
+        lua_pop(L, 2);  // pop errmsg and debug.traceback
         return 4;
     }
 
+    lua_pop(L, 1);
+
     return 0;
-}
-
-
-static void check_and_register_function(lua_State *L, void *keyaddr)
-{
-    luaL_checktype(L, 2, LUA_TFUNCTION);
-
-    lua_pushlightuserdata(L, keyaddr);  // 3, push address
-    lua_pushvalue(L, 2);  // 4, push copy of lua function
-
-    lua_settable(L, LUA_REGISTRYINDEX);  // "registry[keyaddr] = <lua function>"
 }
 
 
@@ -160,7 +193,12 @@ static void check_and_register_function(lua_State *L, void *keyaddr)
 // gameevent(EVENT_..., lua_function)
 static int32_t SetEvent_luacf(lua_State *L)
 {
-    int32_t eventidx = luaL_checkint(L, 1);
+    int32_t eventidx;
+
+    if (lua_gettop(L) != 2)
+        luaL_error(L, "gameevent: must pass exactly two arguments");
+
+    eventidx = luaL_checkint(L, 1);
 
     luaL_argcheck(L, (unsigned)eventidx < MAXEVENTS, 1, "must be an event number (0 .. MAXEVENTS-1)");
     check_and_register_function(L, &g_elEvents[eventidx]);
@@ -172,7 +210,12 @@ static int32_t SetEvent_luacf(lua_State *L)
 // gameactor(<actortile>, lua_function)
 static int32_t SetActor_luacf(lua_State *L)
 {
-    int32_t actortile = luaL_checkint(L, 1);
+    int32_t actortile;
+
+    if (lua_gettop(L) != 2)
+        luaL_error(L, "gameactor: must pass exactly two arguments");
+
+    actortile = luaL_checkint(L, 1);
 
     luaL_argcheck(L, (unsigned)actortile < MAXTILES, 1, "must be an tile number (0 .. MAXTILES-1)");
     check_and_register_function(L, &g_elActors[actortile]);
@@ -188,8 +231,9 @@ static int32_t call_registered_function3(lua_State *L, void *keyaddr,
 {
     int32_t i;
 
-    lua_pushlightuserdata(L, keyaddr);  // push address
-    lua_gettable(L, LUA_REGISTRYINDEX);  // get lua function
+    // get the Lua function from the registry
+    lua_pushlightuserdata(L, keyaddr);
+    lua_gettable(L, LUA_REGISTRYINDEX);
 
     lua_pushinteger(L, iActor);
     lua_pushinteger(L, iPlayer);
@@ -200,6 +244,7 @@ static int32_t call_registered_function3(lua_State *L, void *keyaddr,
     i = lua_pcall(L, 3, 0, 0);
     if (i == LUA_ERRMEM)
     {
+        lua_pop(L, 1);
         // XXX: should be more sophisticated.  Clean up stack? Do GC?
     }
 
