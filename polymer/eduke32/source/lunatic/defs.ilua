@@ -502,6 +502,42 @@ end
 
 ---=== Set up restricted global environment ===---
 
+-- These are for this file...
+local string = string
+local table = table
+
+local allowed_modules = {
+    coroutine=coroutine, bit=bit, table=table, math=math, string=string,
+}
+
+for modname, themodule in pairs(allowed_modules) do
+    local mt = {
+        __index = themodule,
+        __newindex = function(tab,idx,val)
+            error("modifying base module table forbidden")
+        end,
+        __metatable = true,
+    }
+
+    allowed_modules[modname] = setmetatable({}, mt)
+end
+
+-- The "require" function accessible to Lunatic code.
+-- Base modules in allowed_modules are wrapped so that they cannot be
+-- modified, (TODO:) user modules are searched in the EDuke32 search
+-- path.  Also, our require never messes with the global environment,
+-- it only returns the module.
+local function our_require(modname)
+    local themodule = allowed_modules[modname]
+
+    if (themodule==nil) then
+        error("NOT IMPLEMENTED")
+        -- need to search user modules here
+    end
+
+    return themodule
+end
+
 -- _G tweaks -- pull in only 'safe' stuff
 local G_ = {}  -- our soon-to-be global environment
 
@@ -510,7 +546,8 @@ local G_ = {}  -- our soon-to-be global environment
 -- this table, since user code could later do pairs=nil.
 local oG = _G
 
-G_.coroutine = coroutine
+G_.require = our_require
+---G_.coroutine = coroutine
 G_.assert = assert
 G_.tostring = tostring
 G_.tonumber = tonumber
@@ -525,7 +562,7 @@ G_.pcall = pcall
 --require
 --rawset
 --jit
-G_.bit = bit
+---G_.bit = bit
 --package
 G_.error = error
 --debug
@@ -534,17 +571,17 @@ G_.error = error
 --load
 G_.unpack = unpack
 G_.pairs = pairs
-G_.table = table
+---G_.table = table
 G_._VERSION = _VERSION
 --newproxy --NOT STD?
 --collectgarbage
 --dofile
 G_.next = next
-G_.math = math
+---G_.math = math
 --loadstring
 --_G
 G_.select = select
-G_.string = string
+---G_.string = string
 G_.type = type
 --getmetatable
 --getfenv

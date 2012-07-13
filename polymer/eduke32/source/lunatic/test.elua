@@ -2,6 +2,11 @@
 
 --do return end
 
+-- error=nil -- must not affect "require"
+local string = require("string")
+local bit = require("bit")
+local math = require("math")
+
 print('---=== ELua Test script ===---')
 
 local function printf(fmt, ...)
@@ -50,8 +55,6 @@ for i = 0, gv.numsectors/2 do
     sector[i].ceilingpal = 2;
 end
 
-checkfail('gv.sprite[0].yrepeat = 100')  -- direct gv array access forbidden
-
 local vol, lev
 vol, lev = TEMP_getvollev()
 print('volume='..vol..', level='..lev)
@@ -92,6 +95,7 @@ end
 --tostring = nil  -- REMEMBER
 --DBG_.printkv('_G in test.elua', _G)
 
+checkfail('gv.sprite[0].yrepeat = 100')  -- direct gv array access forbidden
 checkfail('local i = sprite["qwe"]')  -- indexing struct array with non-numeric type
 checkfail('print(sprite[100000].ceilingpal)')  -- oob read access
 checkfail('print(gv.sprite[0])')  -- NOTE: gv.sprite doesn't fail, but we can't use it
@@ -108,8 +112,9 @@ checkfail("require('os')")  -- 'require' has been thrown away to be replaced by
                             -- something more restricted later
 checkfail("new_global = 345")  -- we should declare globals
 checkfail('gv.CEILING = 3')  -- can't redefine constants in 'gv'
-checkfail('string.dump(gameevent)')  -- string.dump is unavailable
-
+checkfail('local s=require[[string]]; local tmp=s.dump(gameevent)')  -- string.dump is unavailable
+checkfail('local s=require[[string]]; s.format=nil')  -- disallow changing base module tables
+print('')
 -- This is problematic, even though pretty much every access will yield a
 -- "missing declaration" error.
 -- See http://luajit.org/ext_ffi_api.html#ffi_C about what stuff ffi.C contains.
