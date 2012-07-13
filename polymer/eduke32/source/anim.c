@@ -328,7 +328,7 @@ void G_PlayAnim(const char *fn,char t)
             palfadedelta = 0;
             showframe(0);
 
-            I_ClearAllInput();
+//            I_ClearAllInput();
 
             do
             {
