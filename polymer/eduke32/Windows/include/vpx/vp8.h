@@ -46,7 +46,7 @@ enum vp8_com_control_id
     VP8_SET_DBG_COLOR_B_MODES   = 6,    /**< set which blocks modes to color */
     VP8_SET_DBG_DISPLAY_MV      = 7,    /**< set which motion vector modes to draw */
     VP8_COMMON_CTRL_ID_MAX,
-    VP8_DECODER_CTRL_ID_START   = 256,
+    VP8_DECODER_CTRL_ID_START   = 256
 };
 
 /*!\brief post process flags
@@ -63,6 +63,7 @@ enum vp8_postproc_level
     VP8_DEBUG_TXT_MBLK_MODES    = 1<<4, /**< print macro block modes over each macro block */
     VP8_DEBUG_TXT_DC_DIFF       = 1<<5, /**< print dc diff for each macro block */
     VP8_DEBUG_TXT_RATE_INFO     = 1<<6, /**< print video rate info (encoder only) */
+    VP8_MFQE                    = 1<<10
 };
 
 /*!\brief post process flags
@@ -117,14 +118,6 @@ VPX_CTRL_USE_TYPE(VP8_SET_DBG_DISPLAY_MV,      int)
 
 
 /*! @} - end defgroup vp8 */
-
-#if !defined(VPX_CODEC_DISABLE_COMPAT) || !VPX_CODEC_DISABLE_COMPAT
-/* The following definitions are provided for backward compatibility with
- * the VP8 1.0.x SDK. USE IN PRODUCTION CODE IS NOT RECOMMENDED.
- */
-
-DECLSPEC_DEPRECATED extern vpx_codec_iface_t vpx_codec_vp8_algo DEPRECATED;
-#endif
 
 #include "vpx_codec_impl_bottom.h"
 #endif
