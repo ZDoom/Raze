@@ -296,13 +296,29 @@ read_ivf_frame:
         int32_t x, y;
         const int32_t width=img->d_w, height = img->d_h;
 
-        for (y=0; y<height; y++)
-            for (x=0; x<width; x++)
+        for (y=0; y<height; y+=2)
+        {
+            for (x=0; x<width; x+=2)
             {
+                uint8_t u = uplane[ustride*(y>>1) + (x>>1)];
+                uint8_t v = vplane[vstride*(y>>1) + (x>>1)];
+
                 dstpic[(width*y + x)<<2] = yplane[ystride*y + x];
-                dstpic[((width*y + x)<<2) + 1] = uplane[ustride*(y>>1) + (x>>1)];
-                dstpic[((width*y + x)<<2) + 2] = vplane[vstride*(y>>1) + (x>>1)];
+                dstpic[(width*y + x+1)<<2] = yplane[ystride*y + x+1];
+                dstpic[(width*(y+1) + x)<<2] = yplane[ystride*(y+1) + x];
+                dstpic[(width*(y+1) + x+1)<<2] = yplane[ystride*(y+1) + x+1];
+
+                dstpic[((width*y + x)<<2) + 1] = u;
+                dstpic[((width*y + x+1)<<2) + 1] = u;
+                dstpic[((width*(y+1) + x)<<2) + 1] = u;
+                dstpic[((width*(y+1) + x+1)<<2) + 1] = u;
+
+                dstpic[((width*y + x)<<2) + 2] = v;
+                dstpic[((width*y + x+1)<<2) + 2] = v;
+                dstpic[((width*(y+1) + x)<<2) + 2] = v;
+                dstpic[((width*(y+1) + x+1)<<2) + 2] = v;
             }
+        }
 
 //        initprintf("%d ms\n", getticks()-t);
     }
