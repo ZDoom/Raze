@@ -13,12 +13,17 @@ local function printf(fmt, ...)
     print(string.format(fmt, ...))
 end
 
-local function checkfail(funcstr)
-    local status, res = pcall(DBG_.loadstring(funcstr))
+local function checkfail(funcstr, expectedmsg)
+    local status, errmsg = pcall(DBG_.loadstring(funcstr))
     if (status) then
         print('ERROR: '..funcstr.." DIDN'T fail")
     else
-        print('SUCCESS: '..funcstr.." failed: "..res)
+        if (expectedmsg==nil or string.find(errmsg, expectedmsg, 1, true)) then
+            print('SUCCESS: '..funcstr.." failed: "..errmsg)
+        else
+            print('ERROR*: '..funcstr.." failed: "..errmsg..
+                  ", but expected error message was: "..expectedmsg)
+        end
     end
 end
 
@@ -95,36 +100,79 @@ end
 --tostring = nil  -- REMEMBER
 --DBG_.printkv('_G in test.elua', _G)
 
-checkfail('gv.sprite[0].yrepeat = 100')  -- direct gv array access forbidden
-checkfail('local i = sprite["qwe"]')  -- indexing struct array with non-numeric type
-checkfail('print(sprite[100000].ceilingpal)')  -- oob read access
-checkfail('print(gv.sprite[0])')  -- NOTE: gv.sprite doesn't fail, but we can't use it
-checkfail('setmetatable(sprite, {})')  -- set metatable forbidden
-checkfail('sector[-1].ceilingpal = 4')  -- oob write access
-checkfail('sector[0].wallnum = 0')  -- wallnum member is read-only
-checkfail('gv.numsectors = 4')  -- gv.numsectors is read-only
-checkfail('gv.QWE = 4')  -- cannot create new fields in 'gv'
-checkfail('sector[4] = sector[6]')  -- direct sector write access forbidden
-checkfail('nextspritesect[4] = -666')  -- that would be horrible...
-checkfail('print(nextspritesect[4].whatfield)')  -- we're indexing a plain array!
-checkfail('wall[4].QWE = 123')  -- creating new keys forbidden... handled by LuaJit
-checkfail("require('os')")  -- 'require' has been thrown away to be replaced by
-                            -- something more restricted later
-checkfail("new_global = 345")  -- we should declare globals
-checkfail('gv.CEILING = 3')  -- can't redefine constants in 'gv'
-checkfail('local s=require[[string]]; local tmp=s.dump(gameevent)')  -- string.dump is unavailable
-checkfail('local s=require[[string]]; s.format=nil')  -- disallow changing base module tables
+-- direct gv array access forbidden
+checkfail('gv.sprite[0].yrepeat = 100', "dummy variable: read access forbidden")
+
+-- indexing struct array with non-numeric type
+checkfail('local i = sprite["qwe"]')  -- this will produce an error inside the sprite metatable
+
+checkfail('print(sprite[100000].ceilingpal)', "out-of-bounds sprite[] struct read access")
+
+-- NOTE: gv.sprite doesn't fail, but we can't use it
+checkfail('print(gv.sprite[0])', "dummy variable: read access forbidden")
+
+-- set metatable forbidden
+checkfail('setmetatable(sprite, {})', "attempt to read undeclared variable 'setmetatable'")
+
+-- oob write access
+checkfail('sector[-1].ceilingpal = 4', "out-of-bounds sector[] read access")  -- note the strange err msg
+
+-- wallnum member is read-only
+checkfail('sector[0].wallnum = 0', "attempt to write to constant location")  -- this comes from LJ/FFI
+
+-- gv.numsectors is read-only
+checkfail('gv.numsectors = 4', "cannot create new or write into existing fields of 'gv'")
+
+-- cannot create new fields in 'gv'
+checkfail('gv.QWE = 4', "cannot create new or write into existing fields of 'gv'")
+
+-- direct sector write access forbidden
+checkfail('sector[4] = sector[6]', "cannot write directly to sector[] struct")
+
+-- that would be horrible...
+checkfail('nextspritesect[4] = -666', "cannot write directly to nextspritesect[]")
+
+-- we're indexing a plain array!
+checkfail('print(nextspritesect[4].whatfield)', "attempt to index a number value")
+
+-- creating new keys forbidden... handled by LuaJit
+checkfail('wall[4].QWE = 123', "has no member named 'QWE'")
+
+-- our 'require' disallows importing such dangerous stuff
+checkfail("require('os')")
+
+-- we must declare globals with 'gamevar'
+checkfail("new_global = 345", "attempt to write to undeclared variable 'new_global'")
+
+-- can't redefine constants in 'gv'
+checkfail('gv.CEILING = 3', "cannot create new or write into existing fields of 'gv'")
+
+-- string.dump is unavailable
+checkfail('local s=require[[string]]; local tmp=s.dump(gameevent)',
+          "attempt to call field 'dump' (a nil value)")
+
+-- disallow changing base module tables
+checkfail('local s=require[[string]]; s.format=nil', "modifying base module table forbidden")
+
 print('')
 -- This is problematic, even though pretty much every access will yield a
 -- "missing declaration" error.
 -- See http://luajit.org/ext_ffi_api.html#ffi_C about what stuff ffi.C contains.
-checkfail('gv.luaJIT_setmode(nil, 0, 0)')
-checkfail('gv.luaJIT_BC_con_lang')
-checkfail('gv.yax_getbunch(0,0)')
-checkfail('gv.gethitickms = nil')
+checkfail('gv.luaJIT_setmode(nil, 0, 0)', "missing declaration for symbol 'luaJIT_setmode'")
+
+checkfail('gv.luaJIT_BC_con_lang', "attempt to call a nil value")
+checkfail('gv.yax_getbunch(0,0)', "attempt to call field 'yax_getbunch' (a table value)")
+checkfail('gv.gethitickms = nil', "cannot create new or write into existing fields of 'gv'")
+
 -- we don't have arrays in Lua-accessible structs now
-checkfail('local i = actor[0].t_data[15]')
-checkfail('local spr = sprite[0]; local x=spr+1')  -- no pointer arithmetic!
+checkfail('local i = actor[0].t_data[15]', "has no member named 't_data'")
+
+-- no pointer arithmetic!
+checkfail('local spr = sprite[0]; local x=spr+1',
+         "attempt to perform arithmetic on")
+
+checkfail('gameactor(1680, 0)', "bad argument #3 to 'gameactor' (function expected, got number)")
+
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 
@@ -187,7 +235,6 @@ gameactor(1680,  -- LIZTROOP
           end
          )
 
-checkfail('gameactor(1680, 0)')  -- lua function expected, number passed
 printf("EVENT_INIT = %d", gv.EVENT_INIT)  -- tests default defines
 
 print('---=== END TEST SCRIPT ===---')
