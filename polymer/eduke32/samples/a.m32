@@ -541,6 +541,7 @@ defstate collect_teleporting_sectors // (sec)
     set numsects numsectors, sub numsects 1
     ifinteractive
     {
+        set sec searchsector
         getnumberfromuser sec "starting sectnum: " numsects 8
         ifl sec 0, return
     }
@@ -560,6 +561,7 @@ defstate collect_ceilsky_sectors // (sec)
     set numsects numsectors, sub numsects 1
     ifinteractive
     {
+        set sec searchsector
         getnumberfromuser sec "starting sectnum: " numsects 8
         ifl sec 0, return
     }
