@@ -66,6 +66,11 @@ typedef struct
 
     vpx_codec_ctx_t codec;
     vpx_codec_iter_t iter;
+
+    // statistics
+    int32_t numframes;
+    int32_t sumtimes[3];
+    int32_t maxtimes[3];
 } animvpx_codec_ctx;
 
 
@@ -77,7 +82,9 @@ int32_t animvpx_nextpic(animvpx_codec_ctx *codec, uint8_t **pic);
 
 void animvpx_setup_glstate(void);
 void animvpx_restore_glstate(void);
-int32_t animvpx_render_frame(const animvpx_codec_ctx *codec);
+int32_t animvpx_render_frame(animvpx_codec_ctx *codec);
+
+void animvpx_print_stats(const animvpx_codec_ctx *codec);
 
 
 #endif  // !defined ANIM_VPX_H

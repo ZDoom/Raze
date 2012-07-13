@@ -344,6 +344,8 @@ void G_PlayAnim(const char *fn,char t)
             while (getticks() < nextframetime);
         }
 
+        animvpx_print_stats(&codec);
+
         //
         kclose(handle);
         animvpx_restore_glstate();

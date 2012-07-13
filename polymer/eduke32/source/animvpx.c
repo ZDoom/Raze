@@ -131,6 +131,10 @@ int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, int32_t inhandle, a
 
     codec->errmsg_detail = codec->errmsg = NULL;
 
+    codec->numframes = 0;
+    Bmemset(codec->sumtimes, 0, sizeof(codec->sumtimes));
+    Bmemset(codec->maxtimes, 0, sizeof(codec->maxtimes));
+
     return 0;
 }
 
@@ -220,8 +224,12 @@ int32_t animvpx_nextpic(animvpx_codec_ctx *codec, uint8_t **picptr)
     int32_t ret, corrupted;
     vpx_image_t *img;
 
+    int32_t t[3];
+
     if (codec->initstate <= 0)  // not inited or error
         return 1;
+
+    t[0] = getticks();
 
     if (codec->decstate == 0)  // first time / begin
     {
@@ -280,9 +288,10 @@ read_ivf_frame:
         return 5;
     }
 
+    t[1] = getticks();
+
     /*** 3 planes --> packed conversion ***/
     {
-//        int32_t t=getticks();
         uint8_t *const dstpic = codec->pic;
 
         const uint8_t *const yplane = img->planes[VPX_PLANE_Y];
@@ -319,9 +328,15 @@ read_ivf_frame:
                 dstpic[((width*(y+1) + x+1)<<2) + 2] = v;
             }
         }
-
-//        initprintf("%d ms\n", getticks()-t);
     }
+
+    t[2] = getticks();
+
+    codec->sumtimes[0] += t[1]-t[0];
+    codec->sumtimes[1] += t[2]-t[1];
+
+    codec->maxtimes[0] = max(codec->maxtimes[0], t[1]-t[0]);
+    codec->maxtimes[1] = max(codec->maxtimes[0], t[2]-t[1]);
 
     *picptr = codec->pic;
     return 0;
@@ -450,8 +465,10 @@ void animvpx_restore_glstate(void)
     texuploaded = 0;
 }
 
-int32_t animvpx_render_frame(const animvpx_codec_ctx *codec)
+int32_t animvpx_render_frame(animvpx_codec_ctx *codec)
 {
+    int32_t t = getticks();
+
     if (codec->initstate <= 0)  // not inited or error
         return 1;
 
@@ -503,5 +520,26 @@ int32_t animvpx_render_frame(const animvpx_codec_ctx *codec)
         bglEnd();
     }
 
+    t = getticks()-t;
+    codec->sumtimes[2] += t;
+    codec->maxtimes[2] = max(codec->maxtimes[2], t);
+    codec->numframes++;
+
     return 0;
+}
+
+void animvpx_print_stats(const animvpx_codec_ctx *codec)
+{
+    if (codec->numframes != 0)
+    {
+        const int32_t *s = codec->sumtimes;
+        const int32_t *m = codec->maxtimes;
+        int32_t n = codec->numframes;
+
+        initprintf("VP8 timing stats (mean, max) [ms] for %d frames:\n"
+                   " read and decode frame: %.02f, %d\n"
+                   " 3 planes -> packed conversion: %.02f, %d\n"
+                   " upload and display: %.02f, %d\n",
+                   n, (double)s[0]/n, m[0], (double)s[1]/n, m[1], (double)s[2]/n, m[2]);
+    }
 }
