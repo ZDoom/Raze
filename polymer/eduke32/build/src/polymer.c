@@ -2930,7 +2930,7 @@ static void         polymer_updatewall(int16_t wallnum)
             else
                 refwall = wallnum;
 
-            curpicnum = wall[refwall].picnum;
+            curpicnum = (wal->cstat & 2) ? nwallpicnum : wallpicnum;
             curpal = wall[refwall].pal;
             curshade = wall[refwall].shade;
             curxpanning = wall[refwall].xpanning;
