@@ -15964,8 +15964,8 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     begindrawing(); //{{{
     if (palette)
     {
-        buf = (png_bytep)png_malloc(png_ptr, xdim*ydim);
-        Bmemcpy(buf, (char *)frameplace, xdim*ydim);
+        buf = (png_bytep)png_malloc(png_ptr, bytesperline*ydim);
+        Bmemcpy(buf, (char *)frameplace, bytesperline*ydim);
     }
 # ifdef USE_OPENGL
     else
@@ -15977,6 +15977,7 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     enddrawing(); //}}}
 
     rowptrs = (png_bytepp)png_malloc(png_ptr, ydim*sizeof(png_bytep));
+
     if (!palette)
     {
         for (i=0; i<ydim; i++)
