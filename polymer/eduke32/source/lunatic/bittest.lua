@@ -1,11 +1,16 @@
 #!/usr/bin/env luajit
 
+-- Usage: luajit bittest.lua <number or "x"> [-ffi] [-bchk]
+
 local string = require "string"
 
 local getticks
 
 local bit = require("bit")
+local bitar = require "bitar"
+
 local print = print
+local tonumber = tonumber
 
 if (string.dump) then
     -- stand-alone
@@ -20,18 +25,29 @@ else
     module(...)
 end
 
--- from http://bitop.luajit.org/api.html
+-- based on example from http://bitop.luajit.org/api.html
 
-local band, bxor = bit.band, bit.bxor
-local rshift, rol = bit.rshift, bit.rol
+local isset, set0 = bitar.isset, bitar.set0
 
-local m = string.dump and arg[1] or 1e7
+local m = string.dump and tonumber(arg[1]) or 1e7
+
+local ffiar_p, boundchk_p = false, false
+
+if (string.dump) then
+    if (arg[2]=="-ffi" or arg[3]=="-ffi") then
+        ffiar_p = true
+    end
+
+    if (arg[2]=="-bchk" or arg[3]=="-bchk") then
+        boundchk_p = true
+    end
+end
 
 function sieve()
     local count = 0
     local p = {}
 
-    if (string.dump) then
+    if (ffiar_p) then
         -- stand-alone using unchecked int32_t array instead of table:
         -- on x86_64 approx. 100 vs. 160 ms for m = 1e7
         -- (enabling bound checking makes it be around 170 ms)
@@ -39,61 +55,42 @@ function sieve()
         local pp = ffi.new("int32_t [?]", (m+31)/32 + 1)
 
         p = pp
---[[
-        local mt = {
-            __index = function(tab,idx)
-                if (idx >= 0 and idx <= (m+31)/32) then
-                    return pp[idx]
-                end
-            end,
 
-            __newindex = function(tab,idx,val)
-                if (idx >= 0 and idx <= (m+31)/32) then
-                    pp[idx] = val
-                end
-            end,
-        }
+        if (boundchk_p) then
+            local mt = {
+                __index = function(tab,idx)
+                    if (idx >= 0 and idx <= (m+31)/32) then
+                        return pp[idx]
+                    end
+                end,
 
-        p = setmetatable({}, mt)
---]]
+                __newindex = function(tab,idx,val)
+                    if (idx >= 0 and idx <= (m+31)/32) then
+                        pp[idx] = val
+                    end
+                end,
+            }
+
+            p = setmetatable({}, mt)
+        end
+
+        for i=0,(m+31)/32 do p[i] = -1; end
+    else
+        p = bitar.new(m, 1)
     end
-
-    for i=0,(m+31)/32 do p[i] = -1 end
 
     local t = getticks()
 
-    -- See http://luajit.org/ext_ffi_tutorial.html,
-    -- "To Cache or Not to Cache"
-    -- bit. - qualified version: with m=1e7 ond x86_64:
-    -- 165 ms embedded, 100 ms stand-alone
----[[
     for i=2,m do
-        if bit.band(bit.rshift(p[bit.rshift(i, 5)], i), 1) ~= 0 then
+        if (isset(p, i)) then
             count = count + 1
-            for j=i+i,m,i do
-                local jx = bit.rshift(j, 5)
-                p[jx] = bit.band(p[jx], bit.rol(-2, j))
-            end
+            for j=i+i,m,i do set0(p, j); end
         end
     end
---]]
 
-    -- local var version: with m=1e7 on x86_64:
-    -- 205 ms embedded, 90 ms stand-alone
---[[
-    for i=2,m do
-        if band(rshift(p[rshift(i, 5)], i), 1) ~= 0 then
-            count = count + 1
-            for j=i+i,m,i do
-                local jx = rshift(j, 5)
-                p[jx] = band(p[jx], rol(-2, j))
-            end
-        end
-    end
---]]
-
-    print(string.format("Found %d primes up to %d (%.02f ms)", count, m,
-                        getticks()-t))
+    print(string.format("[%s] Found %d primes up to %d (%.02f ms)",
+                        ffiar_p and "ffi-ar"..(boundchk_p and ", bchk" or "") or "tab-ar",
+                        count, m, getticks()-t))
 end
 
 if (string.dump) then
