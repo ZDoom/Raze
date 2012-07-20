@@ -626,11 +626,17 @@ local G_ = {}  -- our soon-to-be global environment
 -- this table, since user code could later do pairs=nil.
 local oG = _G
 
+local module_mt = {
+    __index = function (_, n)
+        error("attempt to read undeclared variable '"..n.."'", 2)
+    end,
+}
+
 -- replacement for "module"
 local function our_module(modname)
     check_valid_modname(modname)
 
-    local M = {}
+    local M = oG.setmetatable({}, module_mt)
     package_loaded[modname] = M
     -- change the environment of the function which called us:
     oG.setfenv(2, M)
@@ -911,11 +917,15 @@ local gamevarNames = {}
 -- based on 14.2 of PiL
 function gamevar(name, initval)  -- aka 'declare'
     if (type(name) ~= "string") then
-        error("First argument to 'gamevar' must be a string", 2);
+        error("First argument to 'gamevar' must be a string", 2)
     end
 
     if (not string.match(name, "^[%a_][%w_]*$")) then
-        error("First argument to 'gamevar' must be a valid identifier", 2);
+        error("First argument to 'gamevar' must be a valid identifier", 2)
+    end
+
+    if (string.match(name, "^_")) then
+        error("Identifier names starting with an underscore are reserved", 2)
     end
 
     if (gamevarNames[name]) then
