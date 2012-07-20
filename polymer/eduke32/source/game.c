@@ -7336,7 +7336,7 @@ FOUNDCHEAT:
                     for (i=0; i<(MAXWALLS>>3); i++)
                         show2dwall[i] = ud.showallmap*255;
 
-                    P_DoQuote(ud.showallmap ? QUOTE_SHOW_MAP_ON : QUOTE_SHOW_MAP_ON,
+                    P_DoQuote(ud.showallmap ? QUOTE_SHOW_MAP_ON : QUOTE_SHOW_MAP_OFF,
                               g_player[myconnectindex].ps);
 
                     end_cheat();
