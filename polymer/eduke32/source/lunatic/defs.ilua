@@ -542,8 +542,6 @@ end
 local function errorf(level, fmt, ...)
     local errmsg = string.format(fmt, ...)
     error(errmsg, level+1)
-
-    -- XXX: error(nil) propagates to C!
 end
 
 local ERRLEV = 5
@@ -638,6 +636,23 @@ local function our_module(modname)
     oG.setfenv(2, M)
 end
 
+-- overridden 'error' that always passes a string to the base 'error'
+local function our_error(errmsg, level)
+    if (type(errmsg) ~= "string") then
+        oG.error("error using 'error': error message must be a string", 2)
+    end
+
+    if (level) then
+        if (type(level) ~= "number") then
+            oG.error("error using 'error': error level must be a number", 2)
+        end
+
+        oG.error(errmsg, level==0 and 0 or level+1)
+    end
+
+    oG.error(errmsg, 2)
+end
+
 G_.require = our_require
 G_.module = our_module
 ---G_.coroutine = coroutine
@@ -657,7 +672,7 @@ G_.pcall = pcall
 --jit
 ---G_.bit = bit
 --package
-G_.error = error
+G_.error = our_error
 --debug
 --loadfile
 --rawequal

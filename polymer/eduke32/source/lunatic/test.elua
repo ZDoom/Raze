@@ -241,3 +241,7 @@ local bittest = require "bittest"
 bittest.sieve()
 
 print('---=== END TEST SCRIPT ===---')
+
+-- This will complain about wrong usage of 'error'. In particular,
+-- the nil must not propagate to C!
+error(nil)
