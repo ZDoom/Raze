@@ -303,14 +303,18 @@ endif
 
 ifeq ($(PLATFORM),WINDOWS)
     ifneq ($(USE_LIBPNG),0)
-        LIBS+= -LWindows/lib -lpng -lz
-        BUILDCFLAGS+= -IWindows/include
+        # XXX: these assume that the compiler runs from build/. Ugh.
+        LIBS+= -L../Windows/lib -lpng_mini -lz_mini
+        BUILDCFLAGS+= -I../Windows/include
     endif
-endif
-ifeq ($(PLATFORM),DARWIN)
-    ifneq ($(USE_LIBPNG),0)
-        BUILDCFLAGS+= -I/opt/local/include -I/usr/local/include
-        LIBS+= -L/opt/local/lib -L/usr/local/lib -lpng -lz
+else
+    ifeq ($(PLATFORM),DARWIN)
+        ifneq ($(USE_LIBPNG),0)
+            BUILDCFLAGS+= -I/opt/local/include -I/usr/local/include
+            LIBS+= -L/opt/local/lib -L/usr/local/lib -lpng -lz
+        endif
+    else
+        LIBS+= -lpng -lz
     endif
 endif
 

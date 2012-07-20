@@ -32,7 +32,7 @@ LINKED_GTK = 0
 BUILD32_ON_64 ?= 0
 # DO NOT SET THIS TO 1 AND COMMIT IT.
 NEDMALLOC = 0
-USE_LIBPNG ?= 0
+USE_LIBPNG ?= 1
 USE_LIBVPX ?= 1
 
 ifeq (0,$(USE_OPENGL))
@@ -97,9 +97,6 @@ ifeq ($(PLATFORM),WII)
 endif
 
 LIBS=-lm
-ifneq (0,$(USE_LIBPNG))
-    LIBS+= -lpng -lz
-endif
 ifneq (0,$(USE_LIBVPX))
     # On Windows, we link statically to libvpx
     LIBS+= -lvpx
