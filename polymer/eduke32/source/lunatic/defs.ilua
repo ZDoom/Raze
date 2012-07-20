@@ -528,6 +528,7 @@ for modname, themodule in pairs(allowed_modules) do
         __metatable = true,
     }
 
+    -- Comment out to make base modules not protected:
     allowed_modules[modname] = setmetatable({}, mt)
 end
 
@@ -611,10 +612,27 @@ local function our_require(modname)
         if (type(modtab) ~= "table") then
             errorf(ERRLEV-1, "Didn't load module \"%s\": expected table as return value", modname)
         end
+
         package_loaded[modname] = modtab
+    else
+        modtab = package_loaded[modname]
+
+        if (type(modtab) ~= "table") then
+            errorf(ERRLEV-1, "Didn't load module \"%s\": expected module() to be called", modname)
+        end
     end
 
-    return package_loaded[modname]
+    -- Protect module table...
+    local mt = {
+        __index = modtab,
+        __newindex = function(tab,idx,val)
+            error("modifying module table forbidden", 2)
+        end,
+    }
+    -- ..here:
+    setmetatable(modtab, mt)
+
+    return modtab
 end
 
 

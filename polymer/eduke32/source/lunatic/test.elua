@@ -96,6 +96,8 @@ if (vol==1 and lev==8) then
     end
 end
 
+local unsafe = pcall(function() string.UNSAFE=true; end)
+
 --]]
 --tostring = nil  -- REMEMBER
 --DBG_.printkv('_G in test.elua', _G)
@@ -151,8 +153,12 @@ checkfail('gv.CEILING = 3', "cannot create new or write into existing fields of 
 checkfail('local s=require[[string]]; local tmp=s.dump(gameevent)',
           "attempt to call field 'dump' (a nil value)")
 
--- disallow changing base module tables
-checkfail('local s=require[[string]]; s.format=nil', "modifying base module table forbidden")
+if (not unsafe) then
+    -- changing base module tables is disallowed
+    checkfail('local s=require[[string]]; s.format=nil', "modifying base module table forbidden")
+else
+    print('WARNING: RUNNING WITH UNPROTECTED BASE MODULES')
+end
 
 print('')
 -- This is problematic, even though pretty much every access will yield a
@@ -172,6 +178,8 @@ checkfail('local spr = sprite[0]; local x=spr+1',
          "attempt to perform arithmetic on")
 
 checkfail('gameactor(1680, 0)', "bad argument #3 to 'gameactor' (function expected, got number)")
+
+checkfail("do local bt=require'bittest'; bt.QWE=1; end", "modifying module table forbidden")
 
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
