@@ -26,6 +26,11 @@ nextspritestat;
 headsectbunch;
 nextsectbunch;
 
+kopen4loadfrommod;
+kfilelength;
+kclose;
+kread;
+
 ksqrt;
 hitscan;
 

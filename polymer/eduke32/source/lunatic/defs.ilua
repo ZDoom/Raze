@@ -471,6 +471,13 @@ playerdata_t g_player[MAXPLAYERS];
 ]]
 
 -- functions
+decl[[
+int32_t kopen4loadfrommod(const char *filename, char searchfirst);
+int32_t kfilelength(int32_t handle);
+void kclose(int32_t handle);
+int32_t kread(int32_t handle, void *buffer, int32_t leng);
+]]
+
 ffi.cdef[[
 int32_t ksqrt(uint32_t num);
 ]]
@@ -510,6 +517,8 @@ local allowed_modules = {
     coroutine=coroutine, bit=bit, table=table, math=math, string=string,
 }
 
+local package_loaded = {}
+
 for modname, themodule in pairs(allowed_modules) do
     local mt = {
         __index = themodule,
@@ -522,21 +531,94 @@ for modname, themodule in pairs(allowed_modules) do
     allowed_modules[modname] = setmetatable({}, mt)
 end
 
+local function check_valid_modname(modname)
+    if (type(modname) ~= "string") then
+        error("module name must be a string", 5)
+    end
+
+    -- TODO: restrict valid names?
+end
+
+local function errorf(level, fmt, ...)
+    local errmsg = string.format(fmt, ...)
+    error(errmsg, level+1)
+
+    -- XXX: error(nil) propagates to C!
+end
+
+local ERRLEV = 5
+
 -- The "require" function accessible to Lunatic code.
 -- Base modules in allowed_modules are wrapped so that they cannot be
--- modified, (TODO:) user modules are searched in the EDuke32 search
+-- modified, user modules are searched in the EDuke32 search
 -- path.  Also, our require never messes with the global environment,
 -- it only returns the module.
 local function our_require(modname)
-    local themodule = allowed_modules[modname]
+    check_valid_modname(modname)
 
-    if (themodule==nil) then
-        error("NOT IMPLEMENTED")
-        -- need to search user modules here
+    -- see whether it's a base module name first
+    if (allowed_modules[modname] ~= nil) then
+        return allowed_modules[modname]
     end
 
-    return themodule
+    --- search user modules
+
+    if (package_loaded[modname] ~= nil) then
+        -- already loaded
+        return package_loaded[modname]
+    end
+
+    local function readintostr(fn)
+        -- XXX: this is pretty much the same as the code in El_RunOnce()
+
+        local fd = ffiC.kopen4loadfrommod(fn, 0)  -- TODO: g_loadFromGroupOnly
+        if (fd < 0) then
+            errorf(ERRLEV, "Couldn't open file \"%s\"", fn)
+        end
+
+        local sz = ffiC.kfilelength(fd)
+        if (sz == 0) then
+            ffiC.kclose(fd)
+            errorf(ERRLEV, "Didn't load module \"%s\": zero-length file", fn)
+        end
+
+        if (sz < 0) then
+            ffi.kclose(fd)
+            error("INTERNAL ERROR: kfilelength() returned negative length", 5)
+        end
+
+        local str = ffi.new("char [?]", sz)  -- XXX: what does it do on out of mem?
+        local readlen = ffiC.kread(fd, str, sz)
+
+        ffiC.kclose(fd); fd=-1
+
+        if (readlen ~= sz) then
+            errorf(ERRLEV, "INTERNAL ERROR: couldn't read \"%s\" wholly", fn)
+        end
+
+        return ffi.string(str, sz)
+    end
+
+    -- TODO: better pattern-matching (permit "", .lua, .elua ?)
+    local str = readintostr(modname .. ".lua")
+
+    local modfunc, errmsg = loadstring(str)
+    if (modfunc == nil) then
+        errorf(ERRLEV-1, "Couldn't load \"%s\": %s", fn, errmsg)
+    end
+
+    local modtab = modfunc(modname)
+
+    if (modtab ~= nil) then
+        if (type(modtab) ~= "table") then
+            errorf(ERRLEV-1, "Didn't load module \"%s\": expected table as return value", modname)
+        end
+        package_loaded[modname] = modtab
+    end
+
+    return package_loaded[modname]
 end
+
 
 -- _G tweaks -- pull in only 'safe' stuff
 local G_ = {}  -- our soon-to-be global environment
@@ -546,7 +628,18 @@ local G_ = {}  -- our soon-to-be global environment
 -- this table, since user code could later do pairs=nil.
 local oG = _G
 
+-- replacement for "module"
+local function our_module(modname)
+    check_valid_modname(modname)
+
+    local M = {}
+    package_loaded[modname] = M
+    -- change the environment of the function which called us:
+    oG.setfenv(2, M)
+end
+
 G_.require = our_require
+G_.module = our_module
 ---G_.coroutine = coroutine
 G_.assert = assert
 G_.tostring = tostring

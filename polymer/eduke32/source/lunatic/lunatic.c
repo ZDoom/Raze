@@ -108,7 +108,7 @@ int32_t El_RunOnce(El_State *estate, const char *fn)
 
     lua_State *const L = estate->L;
 
-    fid = kopen4load(fn, 0);
+    fid = kopen4load(fn, 0);  // TODO: g_loadFromGroupOnly, kopen4loadfrommod ?
 
     if (fid < 0)
         return 1;
