@@ -195,7 +195,7 @@ int32_t kopen4loadfrommod(const char *filename, char searchfirst)
     {
         static char fn[BMAX_PATH];
 
-        Bsprintf(fn,"%s/%s",g_modDir,filename);
+        Bsnprintf(fn, sizeof(fn), "%s/%s",g_modDir,filename);
         r = kopen4load(fn,searchfirst);
     }
 
