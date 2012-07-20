@@ -2086,6 +2086,9 @@ extern int32_t g_doQuickSave;
 
 void G_GameExit(const char *msg)
 {
+#ifdef LUNATIC
+    El_PrintTimes();
+#endif
     if (*msg != 0) g_player[myconnectindex].ps->palette = BASEPAL;
 
     if (ud.recstat == 1) G_CloseDemoWrite();

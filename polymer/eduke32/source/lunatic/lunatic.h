@@ -17,7 +17,12 @@ typedef struct
 extern uint8_t g_elEvents[MAXEVENTS];  // shouldn't be used directly
 extern uint8_t g_elActors[MAXTILES];  // shouldn't be used directly
 
+extern uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
+extern double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES];
+
 // -- functions --
+void El_PrintTimes(void);
+
 int32_t El_CreateState(El_State *estate, const char *name);
 void El_DestroyState(El_State *estate);
 int32_t El_RunOnce(El_State *estate, const char *fn);

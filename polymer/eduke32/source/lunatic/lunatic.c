@@ -23,6 +23,10 @@ uint8_t g_elActors[MAXTILES];
 // Lua-registry key for debug.traceback
 static uint8_t debug_traceback_key;
 
+// for timing events and actors
+uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
+double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES];
+
 
 // forward-decls...
 static int32_t SetEvent_luacf(lua_State *L);
@@ -31,6 +35,27 @@ static int32_t SetActor_luacf(lua_State *L);
 // in lpeg.o
 extern int luaopen_lpeg(lua_State *L);
 
+void El_PrintTimes(void)
+{
+    int32_t i;
+
+    OSD_Printf("{\n {\n");
+    OSD_Printf("  -- event times, [event]={ total calls, total time in ms, time per call in us }\n");
+    for (i=0; i<MAXEVENTS; i++)
+        if (g_eventCalls[i])
+            OSD_Printf("  [%2d]={ %8d, %9.3f, %9.3f },\n",
+                       i, g_eventCalls[i], g_eventTotalMs[i],
+                       1000*g_eventTotalMs[i]/g_eventCalls[i]);
+
+    OSD_Printf(" },\n\n {\n");
+    OSD_Printf("  -- actor times, [tile]={ total calls, total time in ms, time per call in us }\n");
+    for (i=0; i<MAXTILES; i++)
+        if (g_actorCalls[i])
+            OSD_Printf("  [%5d]={ %8d, %9.3f, %9.3f },\n",
+                       i, g_actorCalls[i], g_actorTotalMs[i],
+                       1000*g_actorTotalMs[i]/g_actorCalls[i]);
+    OSD_Printf(" },\n}\n");
+}
 
 static void check_and_register_function(lua_State *L, void *keyaddr)
 {

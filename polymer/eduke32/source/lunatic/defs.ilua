@@ -90,7 +90,8 @@ local gv_ = {
 
 local dummy_empty_table = {}
 
--- this is for declarations of arrays or pointers
+-- This is for declarations of arrays or pointers which should not be
+-- accessible through the gv global.
 -- NOTE: don't declare multiple pointers on one line (like int32_t *a, *b;)!
 local function decl(str)
     for varname in string.gmatch(str, "([%a_][%w_]*)[[(;]") do
@@ -806,7 +807,7 @@ local tmpmt = {
 }
 oG.setmetatable(wall, tmpmt)
 
--- create a safe indirection for a ffi.C array
+-- create a safe indirection for an ffi.C array
 local function creategtab(ctab, maxidx, name)
     local tab = {}
     local tmpmt = {

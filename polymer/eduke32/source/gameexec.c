@@ -97,6 +97,8 @@ void VM_ScriptInfo(void)
 int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
 {
 #ifdef LUNATIC
+    const double t = gethitickms();
+
     if (El_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
         El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist);
 #endif
@@ -140,6 +142,10 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
         iReturn = aGameVars[g_iReturnVarID].val.lValue;
         aGameVars[g_iReturnVarID].val.lValue = backupReturnVar;
 
+#ifdef LUNATIC
+        g_eventTotalMs[iEventID] += gethitickms()-t;
+        g_eventCalls[iEventID]++;
+#endif
         return iReturn;
     }
 }
@@ -5025,6 +5031,9 @@ void A_LoadActor(int32_t iActor)
 // NORECURSE
 void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 {
+#ifdef LUNATIC
+    double t;
+#endif
     vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
                          &sprite[iActor], 0
                        };
@@ -5083,6 +5092,8 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     }
 
 #ifdef LUNATIC
+    t = gethitickms();
+
     if (El_IsInitialized(&g_ElState) && El_HaveActor(vm.g_sp->picnum))
         El_CallActor(&g_ElState, vm.g_sp->picnum, iActor, iPlayer, lDist);
 #endif
@@ -5090,6 +5101,11 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     insptr = 4 + (actorscrptr[vm.g_sp->picnum]);
     VM_Execute(1);
     insptr = NULL;
+
+#ifdef LUNATIC
+    g_actorTotalMs[vm.g_sp->picnum] += gethitickms()-t;
+    g_actorCalls[vm.g_sp->picnum]++;
+#endif
 
     if (vm.g_flags & VM_KILL)
     {
