@@ -164,8 +164,12 @@ void GAME_clearbackground(int32_t c, int32_t r)
     daydim = r<<3;
 
     xsiz = tilesizx[BGTILE];
-    tx2 = xdim/xsiz;
     ysiz = tilesizy[BGTILE];
+
+    if (xsiz <= 0 || ysiz <= 0)
+        return;
+
+    tx2 = xdim/xsiz;
 //    ty2 = ydim/ysiz;
     ty2 = daydim/ysiz;
 
@@ -176,6 +180,9 @@ void GAME_clearbackground(int32_t c, int32_t r)
             rotatesprite(x*xsiz<<16,y*ysiz<<16,65536L,0,BGTILE,SHADE,PALETTE,bits,0,0,xdim,daydim);
 
     xsiz = tilesizy[BORDTILE];
+    if (xsiz <= 0)
+        return;
+
     tx2 = xdim/xsiz;
     ysiz = tilesizx[BORDTILE];
 
