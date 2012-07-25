@@ -878,7 +878,6 @@ uint64_t gethitickspersec(void)
 #endif
 }
 
-// TODO: winlayer too
 // Returns the time since an unspecified starting time in milliseconds.
 // (May be not monotonic for certain configurations.)
 ATTRIBUTE((flatten))

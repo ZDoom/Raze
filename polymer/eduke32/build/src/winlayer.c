@@ -1558,6 +1558,7 @@ static const char *GetDInputError(HRESULT code)
 static int64_t timerfreq=0;
 static int32_t timerlastsample=0;
 int32_t timerticspersec=0;
+static double hiticksperms = 1e308;
 static void (*usertimercallback)(void) = NULL;
 
 //  This timer stuff is all Ken's idea.
@@ -1602,6 +1603,8 @@ int32_t inittimer(int32_t tickspersecond)
 
     usertimercallback = NULL;
 
+    hiticksperms = (double)gethitickspersec() / 1000;
+
     return 0;
 }
 
@@ -1614,6 +1617,8 @@ void uninittimer(void)
 
     timerfreq=0;
     timerticspersec = 0;
+
+    hiticksperms = 1e308;
 }
 
 //
@@ -1661,6 +1666,13 @@ uint64_t gethiticks(void)
 uint64_t gethitickspersec(void)
 {
     return timerfreq;
+}
+
+// Returns the time since an unspecified starting time in milliseconds.
+ATTRIBUTE((flatten))
+double gethitickms(void)
+{
+    return (double)gethiticks() / hiticksperms;
 }
 
 //
