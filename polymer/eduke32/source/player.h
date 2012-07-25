@@ -136,6 +136,11 @@ typedef struct {
     char inven_icon, jetpack_on, heat_on;
 } DukeStatus_t;
 
+// XXX: r1625 changed a lot types here, among others
+//  * int32_t --> int16_t
+//  * int16_t --> int8_t
+//  * char --> int8_t
+// Need to carefully think about implications!
 typedef struct {
     vec3_t pos, opos, vel, npos;
     int32_t bobposx, bobposy;
@@ -169,6 +174,7 @@ typedef struct {
 
     int16_t orotscrnang, rotscrnang, dead_flag;   // JBF 20031220: added orotscrnang
     int16_t holoduke_on, pycount;
+    int16_t transporter_hold;
 
     uint8_t max_secret_rooms, secret_rooms;
     uint8_t frag, fraggedself, quick_kick, last_quick_kick;
@@ -189,12 +195,14 @@ typedef struct {
     uint8_t toggle_key_flag, knuckle_incs, knee_incs, access_incs;
     uint8_t walking_snd_toggle, palookup, hard_landing, fist_incs;
 
-    int8_t numloogs, loogcnt, scream_voice, transporter_hold;
+    int8_t numloogs, loogcnt, scream_voice;
     int8_t last_weapon, cheat_phase, weapon_pos, wantweaponfire, curr_weapon;
 
     palette_t pals;
 
     char name[32];
+
+    int8_t padding_;
 } DukePlayer_t;
 
 typedef struct {

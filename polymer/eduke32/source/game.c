@@ -9810,6 +9810,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
     Bassert(sizeof(actor_t)==128);
     Bassert(offsetof(actor_t, bposx) == sizeof(netactor_t));
+    Bassert(sizeof(DukePlayer_t)%4 == 0);
 
 #ifdef GEKKO
 	L2Enhance();

@@ -57,7 +57,7 @@ extern "C" {
 #define VOLUMEONE           (g_Shareware == 1)
 
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
-#define BYTEVERSION_JF      246
+#define BYTEVERSION_JF      249
 
 #define BYTEVERSION_13      27
 #define BYTEVERSION_14      116
