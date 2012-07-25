@@ -38,7 +38,8 @@ actor;
 ud;
 g_player;
 
-luaJIT_BC_*;
+luaJIT_BC_lunacon;
+luaJIT_BC_con_lang;
 
 gethitickms;
 };

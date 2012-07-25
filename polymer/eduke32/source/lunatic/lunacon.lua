@@ -129,7 +129,7 @@ local function parse_number(pos, numstr)
         num = NaN
     elseif (num >= 0x80000000 and numstr:sub(1,2):lower()~="0x") then
         pwarnprintf(pos, "number %s converted to a negative one", numstr)
-        num = num-0x100000000
+        num = num-(0xffffffff+1)
     end
 
     return num
