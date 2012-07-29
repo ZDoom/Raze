@@ -3938,7 +3938,7 @@ static void transmaskwallscan(int32_t x1, int32_t x2)
 // from pragmas.h
 # define ourdivscale32(d,b) \
 	({ int32_t __d=(d), __b=(b), __r; \
-	   __asm__ __volatile__ ("xorl %%eax, %%eax; idivl %%ebx" \
+	   __asm__ __volatile__ ("xorl %%eax, %%eax; divl %%ebx" \
 		: "=a" (__r), "=d" (__d) : "d" (__d), "b" (__b) : "cc"); \
 	 __r; })
 #else
