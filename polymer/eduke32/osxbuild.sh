@@ -138,6 +138,34 @@ else
     vc=none
 fi
 
+function dobuildtools ()
+{
+    make veryclean
+    local cmdline="$2"
+    eval $cmdline
+    if [ $? ]; then
+        echo buildtools: "$1" build succeeded.
+    else
+        echo buildtools: "$1" build failed.
+        exit 1
+    fi
+}
+
+function dobuildem()  # build EDuke32 and Mapster32
+{
+    make veryclean
+    local cmdline="$2"
+    eval $cmdline
+    if [ $? ]; then
+        echo $1 build succeeded.
+        cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.$1
+        cp "EDuke32.app/Contents/MacOS/eduke32" eduke32.$1
+    else
+        echo $1 build failed.
+        exit 1
+    fi
+}
+
 # A little factoring:
 commonargs="OSX_STARTUPWINDOW=1 WITHOUT_GTK=1"
 if [ $buildppc == 1 ]; then
@@ -154,68 +182,32 @@ if [ $buildtools == 1 ] && [ -d "build" ]; then
 
     if [ $build64 == 1 ]; then
         if [ $builddebug == 1 ]; then
-            make veryclean
-            cmdline="ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.debug.x64 $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -k utils"
-            eval $cmdline
-            if [ $? ]; then
-                echo buildtools: x86_64 debug build succeeded.
-            else
-                echo buildtools: x86_64 debug build failed.
-            fi
+            dobuildtools "x86_64 debug" \
+                "ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.debug.x64 $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make -k utils"
         fi
 
-        make veryclean
-        cmdline="ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.x64 $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -k utils"
-        eval $cmdline
-        if [ $? ]; then
-            echo buildtools: x86_64 release build succeeded.
-        else
-            echo buildtools: x86_64 release build failed.
-        fi
+        dobuildtools "x86_64 release" \
+            "ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.x64 $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make -k utils"
     fi
 
     if [ $build86 == 1 ]; then
         if [ $builddebug == 1 ]; then
-            make veryclean
-            cmdline="EXESUFFIX_OVERRIDE=.debug.x86 $commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make -k utils"
-            eval $cmdline
-            if [ $? ]; then
-                echo buildtools: x86 debug build succeeded.
-            else
-                echo buildtools: x86 debug build failed.
-            fi
+            dobuildtools "x86 debug" \
+                "EXESUFFIX_OVERRIDE=.debug.x86 $commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make -k utils"
         fi
 
-        make veryclean
-        cmdline="EXESUFFIX_OVERRIDE=.x86 $commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -k utils"
-        eval $cmdline
-        if [ $? ]; then
-            echo buildtools: x86 release build succeeded.
-        else
-            echo buildtools: x86 release build failed.
-        fi
+        dobuildtools "x86 release" \
+            "EXESUFFIX_OVERRIDE=.x86 $commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make -k utils"
     fi
 
     if [ $buildppc == 1 ]; then
         if [ $builddebug == 1 ]; then
-            make veryclean
-            cmdline="ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.debug.ppc $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make -k utils"
-            eval $cmdline
-            if [ $? ]; then
-                echo buildtools: PowerPC debug build succeeded.
-            else
-                echo buildtools: PowerPC debug build failed.
-            fi
+            dobuildtools "PowerPC debug" \
+                "ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.debug.ppc $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make -k utils"
         fi
 
-        make veryclean
-        cmdline="ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.ppc $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -k utils"
-        eval $cmdline
-        if [ $? ]; then
-            echo buildtools: PowerPC release build succeeded.
-        else
-            echo buildtools: PowerPC release build failed.
-        fi
+        dobuildtools "PowerPC release" \
+            "ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.ppc $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make -k utils"
     fi
 
     echo buildtools: Creating fat binaries.
@@ -260,80 +252,26 @@ if [ $buildmain == 1 ]; then
 
     if [ $build64 == 1 ]; then
         if [ $builddebug == 1 ]; then
-            make veryclean
-            cmdline="ARCH='-arch x86_64' $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make"
-            eval $cmdline
-            if [ $? ]; then
-                echo x86_64 debug build succeeded.
-                cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.debug.x64
-                cp "EDuke32.app/Contents/MacOS/eduke32" eduke32.debug.x64
-            else
-                echo x86_64 debug build failed.
-            fi
+            dobuildem debug.x64 "ARCH='-arch x86_64' $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 make"
         fi
 
-        make veryclean
-        cmdline="ARCH='-arch x86_64' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make"
-        eval $cmdline
-        if [ $? ]; then
-            echo x86_64 release build succeeded.
-            cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.x64
-            cp "EDuke32.app/Contents/MacOS/eduke32" eduke32.x64
-        else
-            echo x86_64 release build failed.
-        fi
+        dobuildem x64 "ARCH='-arch x86_64' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 make"
     fi
 
     if [ $build86 == 1 ]; then
         if [ $builddebug == 1 ]; then
-            make veryclean
-            cmdline="$commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make"
-            eval $cmdline
-            if [ $? ]; then
-                echo x86 debug build succeeded.
-                cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.debug.x86
-                cp "EDuke32.app/Contents/MacOS/eduke32" eduke32.debug.x86
-            else
-                echo x86 debug build failed.
-            fi
+            dobuildem debug.x86 "$commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 make"
         fi
 
-        make veryclean
-        cmdline="$commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make"
-        eval $cmdline
-        if [ $? ]; then
-            echo x86 release build succeeded.
-            cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.x86
-            cp "EDuke32.app/Contents/MacOS/eduke32" eduke32.x86
-        else
-            echo x86 release build failed.
-        fi
+        dobuildem x86 "$commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 make"
     fi
 
     if [ $buildppc == 1 ]; then
         if [ $builddebug == 1 ]; then
-            make veryclean
-            cmdline="ARCH='-arch ppc' $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make"
-            eval $cmdline
-            if [ $? ]; then
-                echo PowerPC debug build succeeded.
-                cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.debug.ppc
-                cp "EDuke32.app/Contents/MacOS/eduke32" eduke32.debug.ppc
-            else
-                echo PowerPC debug build failed.
-            fi
+            dobuildem debug.ppc "ARCH='-arch ppc' $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 make"
         fi
 
-        make veryclean
-        cmdline="ARCH='-arch ppc' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make"
-        eval $cmdline
-        if [ $? ]; then
-            echo PowerPC release build succeeded.
-            cp "Mapster32.app/Contents/MacOS/mapster32" mapster32.ppc
-            cp "EDuke32.app/Contents/MacOS/eduke32" eduke32.ppc
-        else
-            echo PowerPC release build failed.
-        fi
+        dobuildem ppc "ARCH='-arch ppc' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 make"
     fi
 fi
 
