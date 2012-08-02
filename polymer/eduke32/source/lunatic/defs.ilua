@@ -482,6 +482,19 @@ void kclose(int32_t handle);
 int32_t kread(int32_t handle, void *buffer, int32_t leng);
 ]]
 
+-- JKISS PRNG state struct and functions, see randgen module
+ffi.cdef[[
+typedef struct {
+    uint32_t x, y, z, c;
+} rng_jkiss_t;
+]]
+decl[[
+uint32_t rand_jkiss_u32(rng_jkiss_t *s);
+double rand_jkiss_dbl(rng_jkiss_t *s);
+
+void md4once(const unsigned char *block, unsigned int len, unsigned char digest[16]);
+]]
+
 ffi.cdef[[
 int32_t ksqrt(uint32_t num);
 ]]
@@ -523,6 +536,8 @@ local string_dump = string.dump
 string.dump = nil
 
 
+gv_tmp = gv_  -- required by randgen
+
 local allowed_modules = {
     coroutine=coroutine, bit=bit, table=table, math=math, string=string,
 
@@ -530,6 +545,7 @@ local allowed_modules = {
         clock = function() return gv_.gethitickms()/1000 end,
     },
 
+    randgen = require("randgen"),
     geom = require("geom"),
 }
 
@@ -620,7 +636,7 @@ local function our_require(modname)
 
     local modfunc, errmsg = loadstring(str)
     if (modfunc == nil) then
-        errorf(ERRLEV-1, "Couldn't load \"%s\": %s", fn, errmsg)
+        errorf(ERRLEV-1, "Couldn't load \"%s\": %s", modname, errmsg)
     end
 
     local modtab = modfunc(modname)

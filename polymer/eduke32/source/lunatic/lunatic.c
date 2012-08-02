@@ -35,6 +35,35 @@ static int32_t SetActor_luacf(lua_State *L);
 // in lpeg.o
 extern int luaopen_lpeg(lua_State *L);
 
+
+typedef struct {
+    uint32_t x, y, z, c;
+} rng_jkiss_t;
+
+// See: Good Practice in (Pseudo) Random Number Generation for
+//      Bioinformatics Applications, by David Jones
+ATTRIBUTE((optimize("O2")))
+uint32_t rand_jkiss_u32(rng_jkiss_t *s)
+{
+    uint64_t t;
+    s->x = 314527869 * s->x + 1234567;
+    s->y ^= s->y << 5; s->y ^= s->y >> 7; s->y ^= s->y << 22;
+    t = 4294584393ULL * s->z + s->c; s->c = t >> 32; s->z = t;
+    return s->x + s->y + s->z;
+}
+
+ATTRIBUTE((optimize("O2")))
+double rand_jkiss_dbl(rng_jkiss_t *s)
+{
+    double x;
+    unsigned int a, b;
+    a = rand_jkiss_u32(s) >> 6; /* Upper 26 bits */
+    b = rand_jkiss_u32(s) >> 5; /* Upper 27 bits */
+    x = (a * 134217728.0 + b) / 9007199254740992.0;
+    return x;
+}
+
+
 void El_PrintTimes(void)
 {
     int32_t i;
