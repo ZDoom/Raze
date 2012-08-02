@@ -42,6 +42,7 @@ luaJIT_BC_lunacon;
 luaJIT_BC_con_lang;
 luaJIT_BC_geom;
 luaJIT_BC_randgen;
+luaJIT_BC_stat;
 
 rand_jkiss_u32;
 rand_jkiss_dbl;

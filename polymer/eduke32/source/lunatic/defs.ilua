@@ -547,6 +547,7 @@ local allowed_modules = {
 
     randgen = require("randgen"),
     geom = require("geom"),
+    stat = require("stat"),
 }
 
 local package_loaded = {}

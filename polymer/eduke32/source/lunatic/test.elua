@@ -229,6 +229,9 @@ gameevent(gv.EVENT_ENTERLEVEL,
           end
          )
 
+local stat = require("stat")
+local hs = stat.new()
+
 gameactor(1680,  -- LIZTROOP
           function(i, playeri, dist)
               sprite[i].pal = math.random(32)
@@ -239,8 +242,13 @@ gameactor(1680,  -- LIZTROOP
               local x,y,z = spr.x, spr.y, spr.z
               local t = gv.gethitickms()
               local hit = hitscan(x,y,z, spr.sectnum, 10, 10, 0, gv.CLIPMASK0)
-              printf("hitscan took %.03f us, sec=%d, wal=%d, spr=%d", 1000*(gv.gethitickms()-t),
-                    hit.hitsect, hit.hitwall, hit.hitsprite)
+
+              hs:add(1000*(gv.gethitickms()-t))
+
+              if (hs.n == 300) then
+                  printf("hitscan: %s", tostring(hs:getstats()))
+                  hs = stat.new()
+              end
           end
          )
 
