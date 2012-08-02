@@ -203,8 +203,8 @@ gameevent(gv.EVENT_ENTERLEVEL,
 
               t = gv.gethitickms()-t
 
-              -- x86_64: 40ns/call, x86: 290 ns/call
-              -- Windows 32-bit: about 1 us/call
+              -- x86_64: 35ns/call, x86: 290 ns/call?
+              -- Windows 32-bit: about 1 us/call?
               printf("%d gethitickms() calls took %.03f ms (%.03f us/call)",
                      N, t, (t*1000)/N)
 

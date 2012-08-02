@@ -778,7 +778,7 @@ void releaseallbuttons(void)
 static Uint32 timerfreq=0;
 static Uint32 timerlastsample=0;
 int32_t timerticspersec=0;
-static double hiticksperms = 1e308;
+static double msperhitick = 0;
 static void(*usertimercallback)(void) = NULL;
 
 
@@ -797,7 +797,7 @@ int32_t inittimer(int32_t tickspersecond)
 
     usertimercallback = NULL;
 
-    hiticksperms = (double)gethitickspersec() / 1000;
+    msperhitick = 1000.0 / (double)gethitickspersec();
 
     return 0;
 }
@@ -811,7 +811,7 @@ void uninittimer(void)
 
     timerfreq=0;
 
-    hiticksperms = 1e308;
+    msperhitick = 0;
 }
 
 //
@@ -883,7 +883,7 @@ uint64_t gethitickspersec(void)
 ATTRIBUTE((flatten))
 double gethitickms(void)
 {
-    return (double)gethiticks() / hiticksperms;
+    return (double)gethiticks() * msperhitick;
 }
 
 //
