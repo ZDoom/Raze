@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __actors_h__
 #define __actors_h__
 
+#include "player.h"
+
 #define MAXSLEEPDIST        16384
 #define SLEEPTIME           1536
 #define ZOFFSET             (1<<8)

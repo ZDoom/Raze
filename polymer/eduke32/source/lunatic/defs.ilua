@@ -302,6 +302,7 @@ typedef struct {
 
     int16_t orotscrnang, rotscrnang, dead_flag;   // JBF 20031220: added orotscrnang
     int16_t holoduke_on, pycount;
+    int16_t transporter_hold;
 
     uint8_t max_secret_rooms, secret_rooms;
     uint8_t frag, fraggedself, quick_kick, last_quick_kick;
@@ -322,7 +323,7 @@ typedef struct {
     uint8_t toggle_key_flag, knuckle_incs, knee_incs, access_incs;
     uint8_t walking_snd_toggle, palookup, hard_landing, fist_incs;
 
-    int8_t numloogs, loogcnt, scream_voice, transporter_hold;
+    int8_t numloogs, loogcnt, scream_voice;
     int8_t last_weapon, cheat_phase, weapon_pos, wantweaponfire, curr_weapon;
 
     palette_t pals;
@@ -330,6 +331,8 @@ typedef struct {
 ..repeat_n_elts("char", "_n", 32)..
 [[
 //    char name[32];
+
+    int8_t padding_;
 } DukePlayer_t;
 
 typedef struct {
@@ -514,6 +517,12 @@ end
 local string = string
 local table = table
 
+-- http://lua-users.org/wiki/SandBoxes says "potentially unsafe"
+-- as it allows to see implementations of functions.
+local string_dump = string.dump
+string.dump = nil
+
+
 local allowed_modules = {
     coroutine=coroutine, bit=bit, table=table, math=math, string=string,
 }
@@ -548,6 +557,38 @@ end
 
 local ERRLEV = 5
 
+
+local function readintostr(fn)
+    -- XXX: this is pretty much the same as the code in El_RunOnce()
+
+    local fd = ffiC.kopen4loadfrommod(fn, 0)  -- TODO: g_loadFromGroupOnly
+    if (fd < 0) then
+        errorf(ERRLEV, "Couldn't open file \"%s\"", fn)
+    end
+
+    local sz = ffiC.kfilelength(fd)
+    if (sz == 0) then
+        ffiC.kclose(fd)
+        errorf(ERRLEV, "Didn't load module \"%s\": zero-length file", fn)
+    end
+
+    if (sz < 0) then
+        ffi.kclose(fd)
+        error("INTERNAL ERROR: kfilelength() returned negative length", 5)
+    end
+
+    local str = ffi.new("char [?]", sz)  -- XXX: what does it do on out of mem?
+    local readlen = ffiC.kread(fd, str, sz)
+
+    ffiC.kclose(fd); fd=-1
+
+    if (readlen ~= sz) then
+        errorf(ERRLEV, "INTERNAL ERROR: couldn't read \"%s\" wholly", fn)
+    end
+
+    return ffi.string(str, sz)
+end
+
 -- The "require" function accessible to Lunatic code.
 -- Base modules in allowed_modules are wrapped so that they cannot be
 -- modified, user modules are searched in the EDuke32 search
@@ -568,38 +609,7 @@ local function our_require(modname)
         return package_loaded[modname]
     end
 
-    local function readintostr(fn)
-        -- XXX: this is pretty much the same as the code in El_RunOnce()
-
-        local fd = ffiC.kopen4loadfrommod(fn, 0)  -- TODO: g_loadFromGroupOnly
-        if (fd < 0) then
-            errorf(ERRLEV, "Couldn't open file \"%s\"", fn)
-        end
-
-        local sz = ffiC.kfilelength(fd)
-        if (sz == 0) then
-            ffiC.kclose(fd)
-            errorf(ERRLEV, "Didn't load module \"%s\": zero-length file", fn)
-        end
-
-        if (sz < 0) then
-            ffi.kclose(fd)
-            error("INTERNAL ERROR: kfilelength() returned negative length", 5)
-        end
-
-        local str = ffi.new("char [?]", sz)  -- XXX: what does it do on out of mem?
-        local readlen = ffiC.kread(fd, str, sz)
-
-        ffiC.kclose(fd); fd=-1
-
-        if (readlen ~= sz) then
-            errorf(ERRLEV, "INTERNAL ERROR: couldn't read \"%s\" wholly", fn)
-        end
-
-        return ffi.string(str, sz)
-    end
-
-    -- TODO: better pattern-matching (permit "", .lua, .elua ?)
+    -- TODO: better pattern-matching (permit "", ".lua", ".elua" ?)
     local str = readintostr(modname .. ".lua")
 
     local modfunc, errmsg = loadstring(str)
@@ -721,11 +731,6 @@ G_.type = type
 --setmetatable
 
 G_._G = G_
-
--- http://lua-users.org/wiki/SandBoxes says "potentially unsafe"
--- as it allows to see implementations of functions.
-local string_dump = string.dump
-string.dump = nil
 
 --- non-default data and functions
 G_._EDUKE32_LUNATIC = _EDUKE32_LUNATIC
