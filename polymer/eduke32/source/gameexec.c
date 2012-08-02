@@ -1419,23 +1419,7 @@ skip_check:
                 int32_t j;
 
                 if (g_player[vm.g_p].ps->newowner >= 0)
-                {
-                    g_player[vm.g_p].ps->newowner = -1;
-                    g_player[vm.g_p].ps->pos.x = g_player[vm.g_p].ps->opos.x;
-                    g_player[vm.g_p].ps->pos.y = g_player[vm.g_p].ps->opos.y;
-                    g_player[vm.g_p].ps->pos.z = g_player[vm.g_p].ps->opos.z;
-                    g_player[vm.g_p].ps->ang = g_player[vm.g_p].ps->oang;
-                    updatesector(g_player[vm.g_p].ps->pos.x,g_player[vm.g_p].ps->pos.y,&g_player[vm.g_p].ps->cursectnum);
-                    P_UpdateScreenPal(g_player[vm.g_p].ps);
-
-                    j = headspritestat[STAT_ACTOR];
-                    while (j >= 0)
-                    {
-                        if (sprite[j].picnum==CAMERA1)
-                            sprite[j].yvel = 0;
-                        j = nextspritestat[j];
-                    }
-                }
+                    G_ClearCameraView(g_player[vm.g_p].ps);
 
                 j = sprite[g_player[vm.g_p].ps->i].extra;
 

@@ -258,6 +258,7 @@ void                A_SpawnMultiple(int32_t sp,int32_t pic,int32_t n);
 void                G_AddGameLight(int32_t radius,int32_t srcsprite,int32_t zoffset,int32_t range,int32_t color,int32_t priority);
 int32_t             G_CheckForSpaceCeiling(int32_t sectnum);
 int32_t             G_CheckForSpaceFloor(int32_t sectnum);
+void                G_ClearCameraView(DukePlayer_t *ps);
 void                G_DoInterpolations(int32_t smoothratio);
 void                G_MoveWorld(void);
 extern inline void  G_RestoreInterpolations(void);

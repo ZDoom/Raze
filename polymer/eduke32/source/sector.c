@@ -1972,7 +1972,7 @@ int32_t Sect_DamageCeiling(int32_t sn)
 void A_DamageObject(int32_t i,int32_t sn)
 {
     int16_t j;
-    int32_t k, p, rpg=0;
+    int32_t k, rpg=0;
     spritetype *s;
 //    int32_t switchpicnum = PN;
 
@@ -2411,25 +2411,10 @@ void A_DamageObject(int32_t i,int32_t sn)
 
             if (sprite[i].statnum == STAT_PLAYER)
             {
-                p = sprite[i].yvel;
-                if (g_player[p].ps->newowner >= 0)
-                {
-                    g_player[p].ps->newowner = -1;
-                    g_player[p].ps->pos.x = g_player[p].ps->opos.x;
-                    g_player[p].ps->pos.y = g_player[p].ps->opos.y;
-                    g_player[p].ps->pos.z = g_player[p].ps->opos.z;
-                    g_player[p].ps->ang = g_player[p].ps->oang;
+                DukePlayer_t *ps = g_player[sprite[i].yvel].ps;
 
-                    updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&g_player[p].ps->cursectnum);
-                    P_UpdateScreenPal(g_player[p].ps);
-
-                    j = headspritestat[STAT_ACTOR];
-                    while (j >= 0)
-                    {
-                        if (sprite[j].picnum==CAMERA1) sprite[j].yvel = 0;
-                        j = nextspritestat[j];
-                    }
-                }
+                if (ps->newowner >= 0)
+                    G_ClearCameraView(ps);
 
                 if (sprite[i].xrepeat < 24 && sprite[sn].picnum == SHRINKSPARK)
                     return;
@@ -3302,22 +3287,7 @@ void P_CheckSectors(int32_t snum)
 CLEARCAMERAS:
 
             if (i < 0)
-            {
-                Bmemcpy(p, &p->opos.x, sizeof(vec3_t));
-                p->ang = p->oang;
-                p->newowner = -1;
-
-                updatesector(p->pos.x,p->pos.y,&p->cursectnum);
-                P_UpdateScreenPal(p);
-
-
-                i = headspritestat[STAT_ACTOR];
-                while (i >= 0)
-                {
-                    if (PN==CAMERA1) SP = 0;
-                    i = nextspritestat[i];
-                }
-            }
+                G_ClearCameraView(p);
             else if (p->newowner >= 0)
                 p->newowner = -1;
 

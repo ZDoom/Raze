@@ -109,13 +109,32 @@ inline int32_t G_CheckForSpaceFloor(int32_t sectnum)
     return ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 && ((sector[sectnum].floorpicnum==MOONSKY1)||(sector[sectnum].floorpicnum==BIGORBIT1))?1:0);
 }
 
+void G_ClearCameraView(DukePlayer_t *ps)
+{
+    int32_t k;
+
+    ps->newowner = -1;
+
+    ps->pos.x = ps->opos.x;
+    ps->pos.y = ps->opos.y;
+    ps->pos.z = ps->opos.z;
+    ps->ang = ps->oang;
+
+    updatesector(ps->pos.x, ps->pos.y, &ps->cursectnum);
+    P_UpdateScreenPal(ps);
+
+    for (k=headspritestat[STAT_ACTOR]; k>=0; k=nextspritestat[k])
+        if (sprite[k].picnum==CAMERA1)
+            sprite[k].yvel = 0;
+}
+
 void A_RadiusDamage(int32_t i, int32_t  r, int32_t  hp1, int32_t  hp2, int32_t  hp3, int32_t  hp4)
 {
     spritetype *s=&sprite[i],*sj;
     walltype *wal;
     int32_t d, q, x1, y1;
     int32_t sectcnt, sectend, dasect, startwall, endwall, nextsect;
-    int32_t j,k,p,x,nextj;
+    int32_t j,k,x,nextj;
     int16_t sect=-1;
     char statlist[] = {STAT_DEFAULT,STAT_ACTOR,STAT_STANDABLE,
                        STAT_PLAYER,STAT_FALLER,STAT_ZOMBIEACTOR,STAT_MISC
@@ -272,26 +291,12 @@ SKIPWALLCHECK:
                     {
                         if (sj->picnum == APLAYER)
                         {
-                            p = sj->yvel;
-                            if (g_player[p].ps->newowner >= 0)
-                            {
-                                g_player[p].ps->newowner = -1;
-                                g_player[p].ps->pos.x = g_player[p].ps->opos.x;
-                                g_player[p].ps->pos.y = g_player[p].ps->opos.y;
-                                g_player[p].ps->pos.z = g_player[p].ps->opos.z;
-                                g_player[p].ps->ang = g_player[p].ps->oang;
-                                updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&g_player[p].ps->cursectnum);
-                                P_UpdateScreenPal(g_player[p].ps);
+                            DukePlayer_t *ps = g_player[sj->yvel].ps;
 
-                                k = headspritestat[STAT_ACTOR];
-                                while (k >= 0)
-                                {
-                                    if (sprite[k].picnum==CAMERA1)
-                                        sprite[k].yvel = 0;
-                                    k = nextspritestat[k];
-                                }
-                            }
+                            if (ps->newowner >= 0)
+                                G_ClearCameraView(ps);
                         }
+
                         actor[j].owner = s->owner;
                     }
                 }
@@ -4093,23 +4098,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     t[2] += 128;
 
                 if (g_player[p].ps->newowner >= 0)
-                {
-                    g_player[p].ps->newowner = -1;
-                    g_player[p].ps->pos.x = g_player[p].ps->opos.x;
-                    g_player[p].ps->pos.y = g_player[p].ps->opos.y;
-                    g_player[p].ps->pos.z = g_player[p].ps->opos.z;
-                    g_player[p].ps->ang = g_player[p].ps->oang;
-
-                    updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&g_player[p].ps->cursectnum);
-                    P_UpdateScreenPal(g_player[p].ps);
-
-                    j = headspritestat[STAT_ACTOR];
-                    while (j >= 0)
-                    {
-                        if (sprite[j].picnum==CAMERA1) sprite[j].yvel = 0;
-                        j = nextspritestat[j];
-                    }
-                }
+                    G_ClearCameraView(g_player[p].ps);
 
                 if (t[3]>0)
                 {
