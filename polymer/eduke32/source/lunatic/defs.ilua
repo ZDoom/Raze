@@ -525,6 +525,12 @@ string.dump = nil
 
 local allowed_modules = {
     coroutine=coroutine, bit=bit, table=table, math=math, string=string,
+
+    os = {
+        clock = function() return gv_.gethitickms()/1000 end,
+    },
+
+    geom = require("geom"),
 }
 
 local package_loaded = {}

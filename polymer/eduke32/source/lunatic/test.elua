@@ -249,6 +249,8 @@ printf("EVENT_INIT = %d", gv.EVENT_INIT)  -- tests default defines
 local bittest = require "bittest"
 bittest.sieve()
 
+require("test/test_geom")
+
 print('---=== END TEST SCRIPT ===---')
 
 -- This will complain about wrong usage of 'error'. In particular,
