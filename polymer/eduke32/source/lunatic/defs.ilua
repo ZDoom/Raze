@@ -720,7 +720,7 @@ G_.tonumber = tonumber
 --rawget
 G_.xpcall = xpcall
 G_.ipairs = ipairs
-G_.print = print
+G_.print = print  -- TODO: --> initprintf or OSD_Printf; why not needed on linux?
 G_.pcall = pcall
 --gcinfo --DEPRECATED
 --module

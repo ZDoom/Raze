@@ -149,6 +149,8 @@ LUAJIT=luajit
 LUAJIT_WIN_SRC:= g:/mod/LuaJIT-2.0.0-beta8/src
 
 ifneq (0,$(LUNATIC))
+    # TODO: pass these flags only when building EDuke32, not Mapster32
+
     ifeq ($(PLATFORM),WINDOWS)
         OURCFLAGS+= -I$(LUAJIT_WIN_SRC)
     else

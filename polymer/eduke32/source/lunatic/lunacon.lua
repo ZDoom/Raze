@@ -124,7 +124,7 @@ end
 local function parse_number(pos, numstr)
     local num = tonumber(numstr)
 
-    if (num < -0x80000000 or num > 0xffffffff) then
+    if (num==nil or num < -0x80000000 or num > 0xffffffff) then
         perrprintf(pos, "number %s out of the range of a 32-bit integer", numstr)
         num = NaN
     elseif (num >= 0x80000000 and numstr:sub(1,2):lower()~="0x") then
