@@ -4,13 +4,13 @@
 
 local string = require "string"
 
-local getticks
-
 local bit = require("bit")
 local bitar = require "bitar"
 
 local print = print
 local tonumber = tonumber
+
+local getticks
 
 if (string.dump) then
     -- stand-alone
@@ -26,8 +26,6 @@ else
 end
 
 -- based on example from http://bitop.luajit.org/api.html
-
-local isset, set0 = bitar.isset, bitar.set0
 
 local m = string.dump and tonumber(arg[1]) or 1e7
 
@@ -82,17 +80,35 @@ function sieve()
     local t = getticks()
 
     for i=2,m do
-        if (isset(p, i)) then
+        if (p:isset(i)) then
             count = count + 1
-            for j=i+i,m,i do set0(p, j); end
+            for j=i+i,m,i do p:set0(j); end
         end
     end
 
     print(string.format("[%s] Found %d primes up to %d (%.02f ms)",
                         ffiar_p and "ffi-ar"..(boundchk_p and ", bchk" or "") or "tab-ar",
                         count, m, getticks()-t))
+
+    return p
 end
 
 if (string.dump) then
-    sieve()
+    local p = sieve()
+    local t = getticks()
+
+    -- test serialization
+    local p2 = bitar.new(string.match(tostring(p), "'(.*)'"))
+    print(getticks()-t)
+
+    for i=0,#p do
+        assert(p[i]==p2[i])
+    end
+
+    for i = 3,#p do
+        p[i] = nil
+    end
+
+    print(p)
+    print(p-p)  -- test set difference
 end
