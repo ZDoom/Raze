@@ -27,6 +27,8 @@
 
 #if defined __APPLE__
 # include "osxbits.h"
+# include <mach/mach.h>
+# include <mach/mach_time.h>
 #elif defined HAVE_GTK2
 # include "gtkbits.h"
 #endif
@@ -847,7 +849,7 @@ uint32_t getticks(void)
 uint64_t gethiticks(void)
 {
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
-# if defined __linux && _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
+# if _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
     // This is SDL HG's SDL_GetPerformanceCounter() when clock_gettime() is
     // available.
     uint64_t ticks;
@@ -858,7 +860,12 @@ uint64_t gethiticks(void)
     ticks *= 1000000000;
     ticks += now.tv_nsec;
     return (ticks);
+# elif defined __APPLE__
+    return mach_absolute_time();
 # else
+// Blar. This pragma is unsupported on earlier GCC versions.
+// At least we'll get a warning and a reference to this line...
+#  pragma message "Using low-resolution (1ms) timer for gethiticks. Profiling will work badly."
     return SDL_GetTicks();
 # endif
 #else
@@ -869,10 +876,16 @@ uint64_t gethiticks(void)
 uint64_t gethitickspersec(void)
 {
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
-# if defined __linux && _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
+# if _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
     return 1000000000;
-# endif
+# elif defined __APPLE__
+    static mach_timebase_info_data_t ti;
+    if (ti.denom == 0)
+        (void)mach_timebase_info(&ti);  // ti.numer/ti.denom: nsec/(m_a_t() tick)
+    return (1000000000LL*ti.denom)/ti.numer;
+# else
     return 1000;
+# endif
 #else  // SDL 1.3
     return SDL_GetPerformanceFrequency();
 #endif
