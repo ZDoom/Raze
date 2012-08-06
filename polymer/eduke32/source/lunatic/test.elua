@@ -232,6 +232,10 @@ gameevent(gv.EVENT_ENTERLEVEL,
 local stat = require("stat")
 local hs = stat.new()
 
+local con = require("con")
+local AC = con.AC
+con.action("TROOPFLINTCH", 50, 1, 1, 1, 6)
+
 gameactor(1680,  -- LIZTROOP
           function(i, playeri, dist)
               sprite[i].pal = math.random(32)
@@ -248,6 +252,11 @@ gameactor(1680,  -- LIZTROOP
               if (hs.n == 300) then
                   printf("hitscan: %s", tostring(hs:getstats()))
                   hs = stat.new()
+              end
+
+              if (dist < 4096) then
+                  -- Duke Vader / Anakin Nukewalker?
+                  actor[i]:set_action(AC.TROOPFLINTCH)
               end
           end
          )

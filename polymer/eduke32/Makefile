@@ -171,7 +171,8 @@ ifneq (0,$(LUNATIC))
                $(OBJ)/luaJIT_BC_geom.$o \
                $(OBJ)/luaJIT_BC_randgen.$o \
                $(OBJ)/luaJIT_BC_stat.$o \
-               $(OBJ)/luaJIT_BC_bitar.$o
+               $(OBJ)/luaJIT_BC_bitar.$o \
+               $(OBJ)/luaJIT_BC_con.$o
 
     # now, take care of having the necessary symbols (sector, wall, etc.) in the
     # executable no matter what the debugging level

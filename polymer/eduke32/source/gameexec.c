@@ -451,11 +451,13 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
 
     moveptr = script + vm.g_t[1];  // RESEARCH: what's with move 0 and >>> 1 <<<?
 
-    vm.g_sp->xvel += (*moveptr-vm.g_sp->xvel)/5;
-    if (vm.g_sp->zvel < 648) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)/5;
+    vm.g_sp->xvel += (*moveptr - vm.g_sp->xvel)/5;
+    if (vm.g_sp->zvel < 648)
+        vm.g_sp->zvel += ((*(moveptr+1)<<4) - vm.g_sp->zvel)/5;
 #else
-    vm.g_sp->xvel += (MOVE_H(vm.g_t)-vm.g_sp->xvel)/5;
-    if (vm.g_sp->zvel < 648) vm.g_sp->zvel += ((MOVE_V(vm.g_t)<<4)-vm.g_sp->zvel)/5;
+    vm.g_sp->xvel += (actor[vm.g_i].mv.hvel - vm.g_sp->xvel)/5;
+    if (vm.g_sp->zvel < 648)
+        vm.g_sp->zvel += ((actor[vm.g_i].mv.vvel<<4) - vm.g_sp->zvel)/5;
 #endif
 
     if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
@@ -600,8 +602,8 @@ dead:
     if (a&geth) vm.g_sp->xvel += ((*moveptr)-vm.g_sp->xvel)>>1;
     if (a&getv) vm.g_sp->zvel += ((*(moveptr+1)<<4)-vm.g_sp->zvel)>>1;
 #else
-    if (a&geth) vm.g_sp->xvel += (MOVE_H(vm.g_t)-vm.g_sp->xvel)>>1;
-    if (a&getv) vm.g_sp->zvel += ((MOVE_V(vm.g_t)<<4)-vm.g_sp->zvel)>>1;
+    if (a&geth) vm.g_sp->xvel += (actor[vm.g_i].mv.hvel - vm.g_sp->xvel)>>1;
+    if (a&getv) vm.g_sp->zvel += (actor[vm.g_i].mv.vvel - vm.g_sp->zvel)>>1;
 #endif
 
     if (a&dodgebullet && !deadflag)
@@ -942,13 +944,13 @@ skip_check:
 
             vm.g_t[4] = *(script + vm.g_t[5]);  // Action
 #ifdef LUNATIC
-            set_action_members(vm.g_t);
+            set_action_members(vm.g_i);
 #endif
             if (vm.g_t[5])
             {
                 vm.g_t[1] = *(script + vm.g_t[5] + 1);  // move
 #ifdef LUNATIC
-                set_move_members(vm.g_t);
+                set_move_members(vm.g_i);
 #endif
             }
             vm.g_sp->hitag = *(script + vm.g_t[5] + 2);  // move flags
@@ -964,7 +966,7 @@ skip_check:
             vm.g_t[2] = vm.g_t[3] = 0;
             vm.g_t[4] = *insptr++;
 #ifdef LUNATIC
-            set_action_members(vm.g_t);
+            set_action_members(vm.g_i);
 #endif
             continue;
 
@@ -1286,7 +1288,7 @@ skip_check:
 #ifndef LUNATIC
                          (unsigned)moveScriptOfs < (unsigned)g_scriptSize-1 && script[moveScriptOfs + 1]
 #else
-                         MOVE_V(vm.g_t) != 0
+                         actor[vm.g_i].mv.vvel != 0
 #endif
                             ))
                     {
@@ -1486,7 +1488,7 @@ skip_check:
             vm.g_t[0]=0;
             vm.g_t[1] = *insptr++;
 #ifdef LUNATIC
-            set_move_members(vm.g_t);
+            set_move_members(vm.g_i);
 #endif
             vm.g_sp->hitag = *insptr++;
             if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
@@ -5057,9 +5059,9 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
         const int32_t action_delay = *(script + vm.g_t[4] + 4);
 #else
         // SACTION
-        const int32_t action_frames = ACTION_NUMFRAMES(vm.g_t);
-        const int32_t action_incval = ACTION_INCVAL(vm.g_t);
-        const int32_t action_delay = ACTION_DELAY(vm.g_t);
+        const int32_t action_frames = actor[vm.g_i].ac.numframes;
+        const int32_t action_incval = actor[vm.g_i].ac.incval;
+        const int32_t action_delay = actor[vm.g_i].ac.delay;
 #endif
         vm.g_sp->lotag += TICSPERFRAME;
 

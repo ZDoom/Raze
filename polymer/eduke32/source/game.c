@@ -3919,8 +3919,8 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
         T5 = *(actorscrptr[s_pn]+1);
         T2 = *(actorscrptr[s_pn]+2);
 #ifdef LUNATIC
-        set_action_members(actor[i].t_data);
-        set_move_members(actor[i].t_data);
+        set_action_members(i);
+        set_move_members(i);
 #endif
         s->hitag = *(actorscrptr[s_pn]+3);
     }
@@ -4050,8 +4050,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             T5 = *(actorscrptr[s]+1);
             T2 = *(actorscrptr[s]+2);
 #ifdef LUNATIC
-            set_action_members(actor[i].t_data);
-            set_move_members(actor[i].t_data);
+            set_action_members(i);
+            set_move_members(i);
 #endif
             if (*(actorscrptr[s]+3) && SHT == 0)
                 SHT = *(actorscrptr[s]+3);
@@ -6086,12 +6086,11 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
     for (j=spritesortcnt-1; j>=0; j--) //Between drawrooms() and drawmasks()
     {
         int32_t switchpic;
+        int32_t t_data3;
 #ifndef LUNATIC
-        int32_t t_data1,t_data3,t_data4;
+        int32_t t_data4;
 #else
-        int32_t t_data[14] = { 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0 };
-
-        Bassert(sizeof(t_data) == sizeof(actor[0].t_data));
+        int32_t startframe, viewtype;
 #endif
         //is the perfect time to animate sprites
         t = &tsprite[j];
@@ -6190,19 +6189,15 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
         }
 
         sect = s->sectnum;
-#ifndef LUNATIC
-        t_data1 = T2;
+
+        Bassert(i >= 0);
         t_data3 = T4;
+#ifndef LUNATIC
         t_data4 = T5;  // SACTION
 #else
-        t_data[1] = T2;
-        t_data[3] = T4;
-        t_data[4] = T5;
-
-        set_action_members(t_data);
-        set_move_members(t_data);
+        startframe = actor[i].ac.startframe;
+        viewtype = actor[i].ac.viewtype;
 #endif
-
         switchpic = s->picnum;
         //some special cases because dynamictostatic system can't handle addition to constants
         if ((s->picnum >= SCRAP6)&&(s->picnum<=SCRAP6+7))
@@ -6338,11 +6333,9 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
             }
             else t->cstat &= ~4;
 
-#ifndef LUNATIC
-            if (klabs(t_data3) > 64) k += 7;
-#else
-            if (klabs(t_data[3]) > 64) k += 7;
-#endif
+            if (klabs(t_data3) > 64)
+                k += 7;  // tilted recon car
+
             t->picnum = RECON+k;
 
             break;
@@ -6474,18 +6467,15 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
             if (g_player[p].ps->newowner > -1)
             {
+                // Display APLAYER sprites with action PSTAND when viewed through
+                // a camera.  Not implemented for Lunatic.
 #ifndef LUNATIC
-                t_data4 = *(actorscrptr[APLAYER]+1);
-                t_data3 = 0;
-                t_data1 = *(actorscrptr[APLAYER]+2);
-#else
-                t_data[4] = *(actorscrptr[APLAYER]+1);  // TODO: this must go!
-                set_action_members(t_data);
+                const intptr_t *aplayer_scr = actorscrptr[APLAYER];
+                // [0]=strength, [1]=actionofs, [2]=moveofs
 
-                t_data[3] = 0;
-                t_data[1] = *(actorscrptr[APLAYER]+2);  // TODO: this must go!
-                set_move_members(t_data);
+                t_data4 = aplayer_scr[1];
 #endif
+                t_data3 = 0;
             }
 
             if (ud.camerasprite == -1 && g_player[p].ps->newowner == -1)
@@ -6598,7 +6588,7 @@ PALONLY:
 
             l = script[t_data4 + 2];
 #else
-            l = ACTION_VIEWTYPE(t_data);
+            l = viewtype;
 #endif
 
 #ifdef USE_OPENGL
@@ -6656,9 +6646,9 @@ PALONLY:
                 }
 
 #ifndef LUNATIC
-            t->picnum += k + *(script + t_data4) + l*t_data3;
+            t->picnum += k + script[t_data4] + l*t_data3;
 #else
-            t->picnum += k + ACTION_STARTFRAME(t_data) + l*t_data[3];
+            t->picnum += k + startframe + l*t_data3;
 #endif
 
             if (l > 0)
@@ -6820,11 +6810,7 @@ skip:
             break;
 
         case WATERSPLASH2__STATIC:
-#ifndef LUNATIC
-            t->picnum = WATERSPLASH2+t_data1;
-#else
-            t->picnum = WATERSPLASH2+t_data[1];
-#endif
+            t->picnum = WATERSPLASH2+T2;
             break;
         case SHELL__STATIC:
             t->picnum = s->picnum+(T1&1);

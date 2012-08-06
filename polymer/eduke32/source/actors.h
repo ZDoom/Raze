@@ -45,45 +45,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define STAT_DUMMYPLAYER    13
 #define STAT_LIGHT          14
 
-#ifdef LUNATIC
-// Ai, action, move getters from t_data[]  (== tptr)
-# define ACTION_STARTFRAME(tptr) ((tptr)[10]&0x0000ffff)
-# define ACTION_NUMFRAMES(tptr) (((tptr)[10]>>16)&0x0000ffff)
-# define ACTION_VIEWTYPE(tptr) ((tptr)[11]&0x0000ffff)
-# define ACTION_INCVAL(tptr) ((tptr)[11]>>16)  // arithmetic shr expected!
-# define ACTION_DELAY(tptr)  ((tptr)[12]&0x0000ffff)
-
-# define ACTION_SET_STARTFRAME(tptr, val) do { (tptr)[10] &= ~0x0000ffff; (tptr)[10] |= (val)&0x0000ffff; } while (0)
-# define ACTION_SET_NUMFRAMES(tptr, val) do { (tptr)[10] &= ~0xffff0000; (tptr)[10] |= ((val)<<16); } while (0)
-# define ACTION_SET_VIEWTYPE(tptr, val) do { (tptr)[11] &= ~0x0000ffff; (tptr)[11] |= (val)&0x0000ffff; } while (0)
-# define ACTION_SET_INCVAL(tptr, val) do { (tptr)[11] &= ~0xffff0000; (tptr)[11] |= (val)<<16; } while (0)
-# define ACTION_SET_DELAY(tptr, val)  do { (tptr)[12] = (val)&0x0000ffff; } while (0)
-
-# define MOVE_H(tptr) ((int16_t)((tptr)[13]))
-# define MOVE_V(tptr) ((int16_t)((tptr)[13]>>16))
-
-# define MOVE_SET_H(tptr, val) do { (tptr)[13] &= ~0x0000ffff; (tptr)[13] |= (val)&0x0000ffff; } while (0)
-# define MOVE_SET_V(tptr, val) do { (tptr)[13] &= ~0xffff0000; (tptr)[13] |= (val)<<16; } while (0)
-
-extern intptr_t *script;
-
-// tptr[4] expected to be set
-static inline void set_action_members(int32_t *tptr)
-{
-    ACTION_SET_STARTFRAME(tptr, script[tptr[4]]);
-    ACTION_SET_NUMFRAMES(tptr, script[tptr[4]+1]);
-    ACTION_SET_VIEWTYPE(tptr, script[tptr[4]+2]);
-    ACTION_SET_INCVAL(tptr, script[tptr[4]+3]);
-    ACTION_SET_DELAY(tptr, script[tptr[4]+4]);
-}
-
-// tptr[1] expected to be set
-static inline void set_move_members(int32_t *tptr)
-{
-    MOVE_SET_H(tptr, script[tptr[1]]);
-    MOVE_SET_V(tptr, script[tptr[1]+1]);
-}
-#endif
 
 // Defines the motion characteristics of an actor
 enum amoveflags_t {
@@ -109,6 +70,18 @@ enum uactortypes_t {
 };
 
 #pragma pack(push,1)
+
+#ifdef LUNATIC
+struct action {
+    int16_t startframe, numframes;
+    int16_t viewtype, incval, delay;
+};
+
+struct move {
+    int16_t hvel, vvel;
+};
+#endif
+
 typedef struct {
     int32_t workslike, cstat; // 8b
     int32_t hitradius, range, flashcolor; // 12b
@@ -126,11 +99,13 @@ typedef struct {
 
 // (+ 40 8 6 16 16 4 8 6 4 20)
 typedef struct {
-#ifndef LUNATIC
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
-#else
-    int32_t t_data[14];  // 56b
+
+#ifdef LUNATIC
     // TODO: rearrange for better packing when enabling Lunatic
+    struct move mv;
+    struct action ac;
+    const int16_t padding_;
 #endif
 
     int16_t picnum,ang,extra,owner; //8b
@@ -172,10 +147,12 @@ typedef struct {
 
 // this struct needs to match the beginning of actor_t above
 typedef struct {
-#ifndef LUNATIC
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
-#else
-    int32_t t_data[14];  // 56b
+
+#ifdef LUNATIC
+    struct move mv;
+    struct action ac;
+    const int16_t padding_;
 #endif
 
     int16_t picnum,ang,extra,owner; //8b
@@ -240,6 +217,35 @@ extern intptr_t         *g_parsingActorPtr;
 extern projectile_t     DefaultProjectileData[MAXTILES];
 extern projectile_t     ProjectileData[MAXTILES];
 extern projectile_t     SpriteProjectile[MAXSPRITES];
+
+
+#ifdef LUNATIC
+// Legacy action/move setters from the CON script + t_data pointer:
+extern intptr_t *script;
+
+// tptr[4] expected to be set
+static inline void set_action_members(int32_t i)
+{
+    actor_t *const aptr = &actor[i];
+    int32_t acofs = aptr->t_data[4];
+
+    aptr->ac.startframe = script[acofs];
+    aptr->ac.numframes = script[acofs+1];
+    aptr->ac.viewtype = script[acofs+2];
+    aptr->ac.incval = script[acofs+3];
+    aptr->ac.delay = script[acofs+4];
+}
+
+// tptr[1] expected to be set
+static inline void set_move_members(int32_t i)
+{
+    actor_t *const aptr = &actor[i];
+    int32_t mvofs = aptr->t_data[1];
+
+    aptr->mv.hvel = script[mvofs];
+    aptr->mv.vvel = script[mvofs+1];
+}
+#endif
 
 void                A_AddToDeleteQueue(int32_t i);
 int32_t             A_CheckEnemySprite(const spritetype *s);

@@ -708,8 +708,8 @@ static void A_MoveSector(int32_t i)
 # define LIGHTRAD_PICOFS (T5 ? *(script+T5) + (*(script+T5+2))*T4 : 0)
 #else
 // SACTION
-// startframe + viewtype*???
-# define LIGHTRAD_PICOFS (ACTION_STARTFRAME(actor[i].t_data) + ACTION_VIEWTYPE(actor[i].t_data)*T4)
+// startframe + viewtype*[cyclic counter]
+# define LIGHTRAD_PICOFS (actor[i].ac.startframe + actor[i].ac.viewtype*T4)
 #endif
 
 // this is the same crap as in game.c's tspr manipulation.  puke.
