@@ -452,7 +452,85 @@ defstate rotselspr
     }
 ends
 
+
+gamevar do_batch_extension 0 0
+gamevar batch_ohl_i -1 0
+gamevar batch_tmp 0 0
+
+////// sector collecting stuff
+gamearray collectedsectors MAXSECTORS  // shared with 'old-highlighted sectors'
+gamevar ohlsecs 0 0
+
+// save or restore highlighted sectors
+defstate save_restore_hlsectors
+    "Save/restore hl. sectors"
+
+    ifge highlightsectorcnt 0
+    {
+        // save
+        for i range highlightsectorcnt
+            set collectedsectors[i] highlightsector[i]
+        set ohlsecs highlightsectorcnt
+        quote "Highlighted sectors saved"
+    }
+    else ifl highlightcnt 0
+    {
+        for i range ohlsecs
+            sethighlightsector collectedsectors[i] 1
+        quote "Highlighted sectors restored"
+    }
+ends
+
+defstate extendhlsectors
+    "Extend all hl. sectors"
+
+    ifvarle highlightsectorcnt 0 return
+
+    state save_restore_hlsectors  // will save them
+    for i range highlightsectorcnt
+        sethighlightsector highlightsector[i] 0
+
+    set do_batch_extension 1
+    set batch_ohl_i 0
+ends
+
+
 onevent EVENT_PREKEYS2D
+    ifvare do_batch_extension 1
+        set do_batch_extension 2
+    else ifvare do_batch_extension 2
+    {
+        ifge batch_ohl_i ohlsecs
+        {
+            // done!
+            set do_batch_extension 0
+            set batch_ohl_i -1
+
+            set keystatus[0x1d] 0
+            set keystatus[0x12] 0
+        }
+        else
+        {
+            ifvare batch_tmp 0
+            {
+                // highlight that sector
+                sethighlightsector collectedsectors[batch_ohl_i] 1
+                set batch_tmp 1
+            }
+            else  // ... skip a mainloop iteration so that a frame can be displayed
+            {
+                set batch_tmp 0
+                add batch_ohl_i 1
+
+                // fake a Ctrl-E
+                set keystatus[0x1d] 1
+                set keystatus[0x12] 1
+            }
+        }
+
+        break
+    }
+
 //    state testkeyavail
 
     set j 0
@@ -488,9 +566,6 @@ onevent EVENT_ENTER3DMODE
         state setas
 endevent
 
-////// sector collecting stuff
-gamevar ohlsecs 0 0
-gamearray collectedsectors MAXSECTORS  // shared with 'old-highlighted sectors'
 
 defstate try_nextsector_teleporting
     var nexts
@@ -512,26 +587,6 @@ defstate try_nextsector_ceilingsky
         set RETURN 1
     else
         set RETURN 0
-ends
-
-// save or restore highlighted sectors
-defstate save_restore_hlsectors
-    "Save/restore hl. sectors"
-
-    ifge highlightsectorcnt 0
-    {
-        // save
-        for i range highlightsectorcnt
-            set collectedsectors[i] highlightsector[i]
-        set ohlsecs highlightsectorcnt
-        quote "Highlighted sectors saved"
-    }
-    else ifl highlightcnt 0
-    {
-        for i range ohlsecs
-            sethighlightsector collectedsectors[i] 1
-        quote "Highlighted sectors restored"
-    }
 ends
 
 defstate collect_teleporting_sectors // (sec)

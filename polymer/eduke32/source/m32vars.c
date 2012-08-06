@@ -681,7 +681,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewArray("show2dwall", (void *)show2dwall, (MAXWALLS+7)>>3, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
     Gv_NewArray("show2dsprite", (void *)show2dsprite, (MAXSPRITES+7)>>3, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
 
-    Gv_NewArray("keystatus", (void *)keystatus, 256, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
+    Gv_NewArray("keystatus", (void *)keystatus, 256, GAMEARRAY_WARN|GAMEARRAY_OFCHAR);
     Gv_NewArray("alphakeys", (void *)alphakeys, sizeof(alphakeys), GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
     Gv_NewArray("numberkeys", (void *)numberkeys, sizeof(numberkeys), GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
 
