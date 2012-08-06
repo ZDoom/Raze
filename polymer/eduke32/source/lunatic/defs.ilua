@@ -4,6 +4,7 @@
 _EDUKE32_LUNATIC = true
 
 local ffi = require("ffi")
+local ffiC = ffi.C
 
 ---=== Duke3D engine and game definitions ===---
 ffi.cdef[[
@@ -107,8 +108,7 @@ ffi.cdef[[int32_t engine_main_arrays_are_static, engine_v8;]]
 -- NOTE TO SELF: This is not C, never EVER write
 --    if (x)
 -- when checking a C variable x for 'thuthiness'
-if (ffi.C.engine_main_arrays_are_static ~= 0) then
---    print('main arrays are static');
+if (ffiC.engine_main_arrays_are_static ~= 0) then
     decl[[
     sectortype sector[];
     walltype wall[];
@@ -116,7 +116,6 @@ if (ffi.C.engine_main_arrays_are_static ~= 0) then
     spriteext_t spriteext[];
     ]]
 else
---    print('main arrays are pointers');
     decl[[
     sectortype *sector;
     walltype *wall;
@@ -125,7 +124,7 @@ else
     ]]
 end
 
-if (ffi.C.engine_v8 == 0) then
+if (ffiC.engine_v8 == 0) then
     -- V7
     ffi.cdef[[
 enum
@@ -279,9 +278,9 @@ typedef struct {
 
     int16_t ang, oang, angvel, cursectnum, look_ang, last_extra, subweapon;
 ]]
-..repeat_n_elts("int16_t", "_ma", ffi.C.MAX_WEAPONS)
-..repeat_n_elts("int16_t", "_aa", ffi.C.MAX_WEAPONS)
-..repeat_n_elts("int16_t", "_ia", ffi.C.GET_MAX)..
+..repeat_n_elts("int16_t", "_ma", ffiC.MAX_WEAPONS)
+..repeat_n_elts("int16_t", "_aa", ffiC.MAX_WEAPONS)
+..repeat_n_elts("int16_t", "_ia", ffiC.GET_MAX)..
 [[
 //    int16_t max_ammo_amount[MAX_WEAPONS], ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
     int16_t wackedbyactor, pyoff, opyoff;
@@ -295,7 +294,7 @@ typedef struct {
     int16_t dummyplayersprite, extra_extra8;
     int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
 ]]
-..repeat_n_elts("int16_t", "_w", ffi.C.MAX_WEAPONS)..
+..repeat_n_elts("int16_t", "_w", ffiC.MAX_WEAPONS)..
 [[
 //    int16_t weaprecs[MAX_WEAPONS];
     int16_t weapon_sway, crack_time, bobcounter;
@@ -501,7 +500,28 @@ int32_t ksqrt(uint32_t num);
 
 ffi.cdef "double gethitickms(void);"
 
-local ffiC = ffi.C
+
+
+local assert = assert
+local error = error
+local ipairs = ipairs
+local loadstring = loadstring
+local pairs = pairs
+local print = print
+local rawget = rawget
+local rawset = rawset
+local setmetatable = setmetatable
+local setfenv = setfenv
+local type = type
+
+local string = string
+local table = table
+
+-- http://lua-users.org/wiki/SandBoxes says "potentially unsafe"
+-- as it allows to see implementations of functions.
+--local string_dump = string.dump
+string.dump = nil
+
 
 -- sanity-check struct type sizes
 for i=0,6 do
@@ -510,12 +530,12 @@ for i=0,6 do
 end
 
 --- default defines
-local con = require("con_lang")
+local con_lang = require("con_lang")
 
-for i=1,#con.labels do
+for i=1,#con_lang.labels do
     local strbuf = {"enum {"}
 
-    for label, val in pairs(con.labels[i]) do
+    for label, val in pairs(con_lang.labels[i]) do
         strbuf[#strbuf+1] = string.format("%s = %d,", label, val)
     end
     strbuf[#strbuf+1] = "};"
@@ -526,23 +546,13 @@ end
 
 ---=== Set up restricted global environment ===---
 
--- These are for this file...
-local string = string
-local table = table
-
--- http://lua-users.org/wiki/SandBoxes says "potentially unsafe"
--- as it allows to see implementations of functions.
-local string_dump = string.dump
-string.dump = nil
-
-
 gv_tmp = gv_  -- required by randgen
 
 local allowed_modules = {
     coroutine=coroutine, bit=bit, table=table, math=math, string=string,
 
     os = {
-        clock = function() return gv_.gethitickms()/1000 end,
+        clock = function() return gv_.gethitickms()*0.001 end,
     },
 
     randgen = require("randgen"),
@@ -551,13 +561,11 @@ local allowed_modules = {
     bitar = require("bitar"),
 }
 
-local package_loaded = {}
-
 for modname, themodule in pairs(allowed_modules) do
     local mt = {
         __index = themodule,
         __newindex = function(tab,idx,val)
-            error("modifying base module table forbidden")
+            error("modifying base module table forbidden", 2)
         end,
         __metatable = true,
     }
@@ -566,9 +574,9 @@ for modname, themodule in pairs(allowed_modules) do
     allowed_modules[modname] = setmetatable({}, mt)
 end
 
-local function check_valid_modname(modname)
+local function check_valid_modname(modname, errlev)
     if (type(modname) ~= "string") then
-        error("module name must be a string", 5)
+        error("module name must be a string", errlev+1)
     end
 
     -- TODO: restrict valid names?
@@ -579,8 +587,10 @@ local function errorf(level, fmt, ...)
     error(errmsg, level+1)
 end
 
-local ERRLEV = 5
 
+local package_loaded = {}
+local modname_stack = {}
+local ERRLEV = 5
 
 local function readintostr(fn)
     -- XXX: this is pretty much the same as the code in El_RunOnce()
@@ -619,7 +629,7 @@ end
 -- path.  Also, our require never messes with the global environment,
 -- it only returns the module.
 local function our_require(modname)
-    check_valid_modname(modname)
+    check_valid_modname(modname, 2)
 
     -- see whether it's a base module name first
     if (allowed_modules[modname] ~= nil) then
@@ -641,31 +651,27 @@ local function our_require(modname)
         errorf(ERRLEV-1, "Couldn't load \"%s\": %s", modname, errmsg)
     end
 
-    local modtab = modfunc(modname)
+    package_loaded[modname] = true
+    table.insert(modname_stack, modname)
 
-    if (modtab ~= nil) then
-        if (type(modtab) ~= "table") then
-            errorf(ERRLEV-1, "Didn't load module \"%s\": expected table as return value", modname)
-        end
+    -- Run the module code!
+    modfunc(modname)  -- TODO: call protected and report errors here later
 
-        package_loaded[modname] = modtab
-    else
-        modtab = package_loaded[modname]
+    table.remove(modname_stack)
 
-        if (type(modtab) ~= "table") then
-            errorf(ERRLEV-1, "Didn't load module \"%s\": expected module() to be called", modname)
-        end
+    local modtab = package_loaded[modname]
+
+    if (type(modtab) == "table") then
+        -- Protect module table if there is one...
+        local mt = {
+            __index = modtab,
+            __newindex = function(tab,idx,val)
+                error("modifying module table forbidden", 2)
+            end,
+        }
+
+        setmetatable(modtab, mt)
     end
-
-    -- Protect module table...
-    local mt = {
-        __index = modtab,
-        __newindex = function(tab,idx,val)
-            error("modifying module table forbidden", 2)
-        end,
-    }
-    -- ..here:
-    setmetatable(modtab, mt)
 
     return modtab
 end
@@ -674,85 +680,68 @@ end
 -- _G tweaks -- pull in only 'safe' stuff
 local G_ = {}  -- our soon-to-be global environment
 
--- Old global environment, to access thrown-out functions later in this chunk.
--- Also, inside this file, we must refer to functions like 'pairs' by using
--- this table, since user code could later do pairs=nil.
-local oG = _G
-
 local module_mt = {
     __index = function (_, n)
         error("attempt to read undeclared variable '"..n.."'", 2)
     end,
 }
 
--- replacement for "module"
-local function our_module(modname)
-    check_valid_modname(modname)
+-- Our 'module' replacement doesn't get the module name from the function args
+-- since a malicious user could remove other loaded modules this way.
+-- TODO: make transactional?
+local function our_module()
+    local modname = modname_stack[#modname_stack]
+    if (type(modname) ~= "string") then
+        error("'module' must be called at the top level of a require'd file", 2)
+    end
 
-    local M = oG.setmetatable({}, module_mt)
+    local M = setmetatable({}, module_mt)
     package_loaded[modname] = M
     -- change the environment of the function which called us:
-    oG.setfenv(2, M)
+    setfenv(2, M)
 end
 
 -- overridden 'error' that always passes a string to the base 'error'
 local function our_error(errmsg, level)
     if (type(errmsg) ~= "string") then
-        oG.error("error using 'error': error message must be a string", 2)
+        error("error using 'error': error message must be a string", 2)
     end
 
     if (level) then
         if (type(level) ~= "number") then
-            oG.error("error using 'error': error level must be a number", 2)
+            error("error using 'error': error level must be a number", 2)
         end
 
-        oG.error(errmsg, level==0 and 0 or level+1)
+        error(errmsg, level==0 and 0 or level+1)
     end
 
-    oG.error(errmsg, 2)
+    error(errmsg, 2)
 end
 
-G_.require = our_require
-G_.module = our_module
----G_.coroutine = coroutine
 G_.assert = assert
+G_.error = our_error
+G_.ipairs = ipairs
+G_.pairs = pairs
+G_.pcall = pcall
+G_.print = print  -- TODO: --> initprintf or OSD_Printf; why not needed on linux?
+G_.module = our_module
+G_.next = next
+G_.require = our_require
+G_.select = select
 G_.tostring = tostring
 G_.tonumber = tonumber
---rawget
-G_.xpcall = xpcall
-G_.ipairs = ipairs
-G_.print = print  -- TODO: --> initprintf or OSD_Printf; why not needed on linux?
-G_.pcall = pcall
---gcinfo --DEPRECATED
---module
---setfenv
---require
---rawset
---jit
----G_.bit = bit
---package
-G_.error = our_error
---debug
---loadfile
---rawequal
---load
-G_.unpack = unpack
-G_.pairs = pairs
----G_.table = table
-G_._VERSION = _VERSION
---newproxy --NOT STD?
---collectgarbage
---dofile
-G_.next = next
----G_.math = math
---loadstring
---_G
-G_.select = select
----G_.string = string
 G_.type = type
---getmetatable
---getfenv
---setmetatable
+G_.unpack = unpack
+G_.xpcall = xpcall
+G_._VERSION = _VERSION
+
+-- Available through our 'require':
+-- bit, coroutine, math, string, table
+
+-- Not available:
+-- collectgarbage, debug, dofile, gcinfo (DEPRECATED), getfenv, getmetatable,
+-- jit, load, loadfile, loadstring, newproxy (NOT STD?), package, rawequal,
+-- rawget, rawset, setfenv, setmetatable
 
 G_._G = G_
 
@@ -772,21 +761,15 @@ local lunacon = require("lunacon")
 -- (also in functions created after this point) refer to G_ !
 setfenv(1, G_)
 
--- We MUST remember to call base lib functions through oG here.
--- 'tostring' is a special case: it is used in 'print', i.e. the global 'tostring',
--- which is looked up in the current environment!  Thus, we must REMOVE it and
--- 'print' for release, or write our own, atomic 'print'.
-local error = oG.error
-local type = oG.type
-local pairs = oG.pairs
-
--- print keys and values of a table
+-- Print keys and values of a table.
+-- REMEMBER special position of 'tostring' (it's looked up and used as a global
+-- from 'print')
 local function printkv(label, table)
-    oG.print('========== Keys and values of '..label)
-    for k,v in oG.pairs(table) do
-        oG.print(k .. ': ' .. tostring(v))
+    print('========== Keys and values of '..label)
+    for k,v in pairs(table) do
+        print(k .. ': ' .. tostring(v))
     end
-    oG.print('----------')
+    print('----------')
 end
 
 --printkv('_G AFTER SETFENV', _G)
@@ -796,23 +779,26 @@ end
 
 -- error(..., 2) is to blame the caller and get its line numbers
 
+-- set metatable and forbid setting it further
+local function setmtonce(tab, mt)
+    mt.__metatable = true
+    return setmetatable(tab, mt)
+end
+
 local tmpmt = {
     __index = function() error('dummy variable: read access forbidden', 2) end,
     __newindex = function() error('dummy variable: write access forbidden', 2) end,
-    __metatable = true,  -- forbid setting the metatable
 }
-oG.setmetatable(dummy_empty_table, tmpmt)
+setmtonce(dummy_empty_table, tmpmt)
 
 gv = gv_
 local tmpmt = {
     __index = ffiC,
     __newindex = function() error("cannot create new or write into existing fields of 'gv'", 2) end,
-    __metatable = true,
 }
-oG.setmetatable(gv, tmpmt)
+setmtonce(gv, tmpmt)
 
 ---- indirect C array access ----
-sector = {}
 local tmpmt = {
     __index = function(tab, key)
                   if (key >= 0 and key < ffiC.numsectors) then return ffiC.sector[key] end
@@ -820,11 +806,9 @@ local tmpmt = {
               end,
 
     __newindex = function(tab, key, val) error('cannot write directly to sector[] struct', 2) end,
-    __metatable = true,
 }
-oG.setmetatable(sector, tmpmt)
+sector = setmtonce({}, tmpmt)
 
-wall = {}
 local tmpmt = {
     __index = function(tab, key)
                   if (key >= 0 and key < ffiC.numwalls) then return ffiC.wall[key] end
@@ -832,9 +816,8 @@ local tmpmt = {
               end,
 
     __newindex = function(tab, key, val) error('cannot write directly to wall[] struct', 2) end,
-    __metatable = true,
 }
-oG.setmetatable(wall, tmpmt)
+wall = setmtonce({}, tmpmt)
 
 -- create a safe indirection for an ffi.C array
 local function creategtab(ctab, maxidx, name)
@@ -849,10 +832,9 @@ local function creategtab(ctab, maxidx, name)
         __newindex = function(tab, key, val)
                          error('cannot write directly to '..name, 2)
                      end,
-        __metatable = true,
     }
-    oG.setmetatable(tab, tmpmt)
-    return tab
+
+    return setmtonce(tab, tmpmt)
 end
 
 sprite = creategtab(ffiC.sprite, ffiC.MAXSPRITES, 'sprite[] struct')
@@ -980,12 +962,12 @@ function gamevar(name, initval)  -- aka 'declare'
         error(string.format("Duplicate declaration of identifier '%s'", name), 2)
     end
 
-    if (oG.rawget(G_, name) ~= nil) then
+    if (rawget(G_, name) ~= nil) then
         error(string.format("Identifier name '%s' is already used in the global environment", name), 2)
     end
 
     gamevarNames[name] = true
-    oG.rawset(G_, name, initval or false)
+    rawset(G_, name, initval or false)
 end
 
 
@@ -1070,14 +1052,14 @@ local function loadGamevarsString(string)
     gamevarNames = {};  -- clear gamevars
 --]=]
 
-    oG.assert(oG.loadstring(string))()
+    assert(loadstring(string))()
 end
 
 
 -- REMOVE this for release
 DBG_ = {}
 DBG_.printkv = printkv
-DBG_.loadstring = oG.loadstring
+DBG_.loadstring = loadstring
 DBG_.serializeGamevars = serializeGamevars
 DBG_.loadGamevarsString = loadGamevarsString
 
@@ -1089,8 +1071,7 @@ DBG_.loadGamevarsString = loadGamevarsString
 
 -- PiL 14.2 continued
 -- We need this at the end because we were previously doing just that!
--- XXX: but user modules will want to do "function thisfunc() ... "
-oG.setmetatable(
+setmetatable(
     G_, {
         __newindex = function (_1, n, _2)
             error("attempt to write to undeclared variable '"..n.."'", 2)
@@ -1104,4 +1085,4 @@ oG.setmetatable(
 -- what we've set up will be available when this chunk is left.
 -- In particular, we need the functions defined after setting this chunk's
 -- environment earlier.
-oG.setfenv(0, _G)
+setfenv(0, _G)

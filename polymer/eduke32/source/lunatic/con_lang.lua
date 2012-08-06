@@ -6,16 +6,18 @@
 --   * con.labels
 --   * con.keyword
 
-return
+local lpeg = lpeg
 
-{
 
-MAXVOLUMES = 7,
-MAXLEVELS = 64,
+module(...)
 
-MAXSKILLS = 7,
 
-MAXSOUNDS = 4096,
+MAXVOLUMES = 7
+MAXLEVELS = 64
+
+MAXSKILLS = 7
+
+MAXSOUNDS = 4096
 
 
 -- KEEPINSYNC gamedef.h
@@ -157,7 +159,7 @@ labels =
         EVENT_LOADGAME = 91,
         EVENT_SAVEGAME = 92,
     },
-},
+}
 
 
 -- NOTE: These MUST be in reverse lexicographical order!
@@ -533,5 +535,3 @@ lpeg.P(false) +
 "activatebysector" +
 "action" +
 lpeg.P(false)
-
-}
