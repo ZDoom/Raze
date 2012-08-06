@@ -3756,29 +3756,27 @@ ACTOR_STATIC void G_MoveActors(void)
             if (s->z < sector[sect].ceilingz+(32<<8))
                 s->z = sector[sect].ceilingz+(32<<8);
 
-#ifdef POLYMER
-            /*
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z + 10248;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
+#if 0 //def POLYMER
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].x = s->x;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].y = s->y;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].z = s->z + 10248;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].range = 8192;
 
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = s->ang;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].angle = s->ang;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].horiz = 100;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].radius = 256;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].faderadius = 200;
 
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = 255;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = 255;
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = 255;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[0] = 255;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[1] = 255;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].color[2] = 255;
 
-                        gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
+            gamelights[gamelightcount&(PR_MAXLIGHTS-1)].priority = PR_LIGHT_PRIO_MAX_GAME;
 
-                        if (gamelightcount < PR_MAXLIGHTS)
-                            gamelightcount++;
-            */
-#endif // POLYMER
+            if (gamelightcount < PR_MAXLIGHTS)
+                gamelightcount++;
+#endif
 
             if (!g_netServer && ud.multimode < 2)
             {
@@ -3940,6 +3938,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     else s->hitag++;
                 }
 
+                // RECON_T4
                 t[3] = G_GetAngleDelta(s->ang,a);
                 s->ang += t[3]>>3;
 
@@ -4899,7 +4898,6 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 goto BOLT;
 
             case FORCESPHERE__STATIC:
-
                 l = s->xrepeat;
                 if (t[1] > 0)
                 {
@@ -4936,30 +4934,33 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 for (j=t[0]; j > 0; j--)
                     A_SetSprite(i,CLIPMASK0);
                 goto BOLT;
-            case WATERSPLASH2__STATIC:
 
+            case WATERSPLASH2__STATIC:
                 t[0]++;
                 if (t[0] == 1)
                 {
                     if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
                         KILLIT(i);
-                    /*                    else
-                                        {
-                                            l = getflorzofslope(sect,s->x,s->y)-s->z;
-                                            if( l > (16<<8) ) KILLIT(i);
-                                        }
-                                        else */
+                    /*
+                    else
+                    {
+                        l = getflorzofslope(sect,s->x,s->y)-s->z;
+                        if( l > (16<<8) ) KILLIT(i);
+                    }
+                    else
+                    */
                     if (!S_CheckSoundPlaying(i,ITEM_SPLASH))
                         A_PlaySound(ITEM_SPLASH,i);
                 }
                 if (t[0] == 3)
                 {
                     t[0] = 0;
-                    t[1]++;
+                    t[1]++;  // WATERSPLASH_T2
                 }
                 if (t[1] == 5)
                     A_DeleteSprite(i);
                 goto BOLT;
+
             case FRAMEEFFECT1_13__STATIC:
                 if (PLUTOPAK) goto BOLT;	// JBF: ideally this should never happen...
             case FRAMEEFFECT1__STATIC:
