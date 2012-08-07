@@ -4063,14 +4063,16 @@ int32_t A_Spawn(int32_t j, int32_t pn)
     sect = sp->sectnum;
 
     //some special cases that can't be handled through the dynamictostatic system.
-    if (((sp->picnum >= BOLT1)&&(sp->picnum <= BOLT1+3))||((sp->picnum >= SIDEBOLT1)&&(sp->picnum <= SIDEBOLT1+3)))
+    if ((sp->picnum >= BOLT1 && sp->picnum <= BOLT1+3) ||
+            (sp->picnum >= SIDEBOLT1 && sp->picnum <= SIDEBOLT1+3))
     {
         T1 = sp->xrepeat;
         T2 = sp->yrepeat;
         sp->yvel = 0;
         changespritestat(i, STAT_STANDABLE);
     }
-    else if (((sp->picnum >= CAMERA1)&&(sp->picnum <= CAMERA1+3))||(sp->picnum==CAMERAPOLE)||(sp->picnum==GENERICPOLE))
+    else if ((sp->picnum >= CAMERA1 && sp->picnum <= CAMERA1+4) ||
+                 sp->picnum==CAMERAPOLE || sp->picnum==GENERICPOLE)
     {
         if (sp->picnum != GENERICPOLE)
         {
