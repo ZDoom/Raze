@@ -7338,12 +7338,12 @@ FOUNDCHEAT:
 
                 case CHEAT_MONSTERS:
                 {
-                    const char *s[] = { "On", "Off" };
+                    const char *s[] = { "On", "Off", "On (2)" };
 
                     if (++g_noEnemies == 3)
                         g_noEnemies = 0;
 
-                    Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "Monsters: %s", s[g_noEnemies & 1]);
+                    Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "Monsters: %s", s[g_noEnemies]);
                     P_DoQuote(QUOTE_RESERVED4,g_player[myconnectindex].ps);
 
                     end_cheat();

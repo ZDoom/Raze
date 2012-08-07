@@ -3983,7 +3983,7 @@ ACTOR_STATIC void G_MoveActors(void)
             //        case GREENSLIME+7:
 
             // #ifndef VOLUMEONE
-            if (g_netServer && (!g_netServer && ud.multimode < 2))
+            if (!g_netServer && ud.multimode < 2)
             {
                 if (g_noEnemies == 1)
                 {
