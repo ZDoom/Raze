@@ -946,6 +946,7 @@ skip_check:
 #ifdef LUNATIC
             set_action_members(vm.g_i);
 #endif
+            // NOTE: "if (g_t[5])" added in r1155. It used to be a pointer though.
             if (vm.g_t[5])
             {
                 vm.g_t[1] = *(script + vm.g_t[5] + 1);  // move

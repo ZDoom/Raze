@@ -67,7 +67,7 @@ typedef struct {
 
 typedef struct {
     vec3_t pos;
-    int16_t hitsprite, hitwall, hitsect;
+    int16_t sprite, wall, sect;
 } hitdata_t;
 
 typedef struct {
@@ -247,6 +247,13 @@ struct move {
 typedef struct { int32_t id; struct move mv; } con_move_t;
 typedef struct { int32_t id; struct action ac; } con_action_t;
 
+typedef struct {
+    int32_t id;
+    con_action_t act;
+    con_move_t mov;
+    int32_t movflags;
+} con_ai_t;
+
 // TODO: still need to make some fields read-only
 // NOTE: must not expose arrays in structs!!!
 typedef struct
@@ -255,9 +262,9 @@ typedef struct
 ..repeat_n_elts("int32_t", "_t", 10)..
 [[
 //    const int32_t t_data[10];  // 56b sometimes used to hold offsets to con code
-    struct move mv;
-    struct action ac;
-    const int16_t padding_;
+    const struct move mv;
+    const struct action ac;
+    const int16_t _padding;
 
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; //6b
@@ -562,7 +569,7 @@ string.dump = nil
 
 -- sanity-check struct type sizes
 for i=0,6 do
-    assert(ffi.sizeof(ffi.typeof(ffi.string(ffiC.g_sizes_of_what[i])))
+    assert(ffi.sizeof(ffi.string(ffiC.g_sizes_of_what[i]))
            == ffiC.g_sizes_of[i])
 end
 
@@ -575,29 +582,116 @@ local con = require("con")
 -- All-zero action and move
 local nullac, nullmv = ffi.new("const struct action"), ffi.new("const struct move")
 
+local function check_literal_am(am)
+    if (type(am) ~= "number") then
+        error("bad argument: expected number", 3)
+    end
+
+    if (not (am >= 0 and am <= 32767)) then
+        error("bad argument: expected number in [0 .. 32767]", 3)
+    end
+end
+
 local actor_mt = {
     __index = {
+        -- action
         set_action = function(a, act)
             a = ffi.cast("actor_u_t *", a)
             if (ffi.istype("con_action_t", act)) then
                 a.t_data[4] = act.id
                 a.ac = act.ac
             else
-                assert(type(act)=="number" and act >= 0 and act <= 32767)
+                check_literal_am(act)
                 a.t_data[4] = act
                 a.ac = nullac
             end
+
+            a.t_data[2] = 0
+            a.t_data[3] = 0
         end,
 
-        set_move = function(a, mv)
+        has_action = function(a, act)
+            a = ffi.cast("actor_u_t *", a)
+            if (ffi.istype("con_action_t", act)) then
+                return (a.t_data[4]==act.id)
+            else
+                check_literal_am(act)
+                return (a.t_data[4]==act)
+            end
+        end,
+
+        -- count
+        set_count = function(a)
+            ffi.cast("actor_u_t *", a).t_data[0] = 0
+        end,
+
+        get_count = function(a)
+            return ffi.cast("actor_u_t *", a).t_data[0]
+        end,
+
+        -- action count
+        reset_acount = function(a)
+            ffi.cast("actor_u_t *", a).t_data[2] = 0
+        end,
+
+        get_acount = function(a)
+            return ffi.cast("actor_u_t *", a).t_data[2]
+        end,
+
+        -- move
+        set_move = function(a, mov, movflags)
             a = ffi.cast("actor_u_t *", a)
             if (ffi.istype("con_move_t", mov)) then
-                a.t_data[4] = mov.id
+                a.t_data[1] = mov.id
                 a.mv = mov.mv
             else
-                assert(type(mov)=="number" and mov >= 0 and mov <= 32767)
-                a.t_data[4] = mov
+                check_literal_am(mov)
+                a.t_data[1] = mov
                 a.mv = nullmv
+            end
+
+            a.t_data[0] = 0
+            local i = a-ffi.cast("actor_u_t *", ffiC.actor[0])
+            ffiC.sprite[i].hitag = movflags or 0
+
+            -- TODO: random angle moveflag
+        end,
+
+        has_move = function(a, mov)
+            a = ffi.cast("actor_u_t *", a)
+            if (ffi.istype("con_move_t", mov)) then
+                return (a.t_data[1]==mov.id)
+            else
+                check_literal_am(mov)
+                return (a.t_data[1]==mov)
+            end
+        end,
+
+        -- ai
+        set_ai = function(a, ai)
+            local oa = a
+            a = ffi.cast("actor_u_t *", a)
+
+            -- TODO: literal number AIs?
+            assert(ffi.istype("con_ai_t", ai))
+
+            -- NOTE: compare with gameexec.c
+            a.t_data[5] = ai.id
+
+            oa:set_action(ai.act)
+            oa:set_move(ai.mov, ai.movflags)
+
+            a.t_data[0] = 0
+        end,
+
+        has_ai = function(a, ai)
+            a = ffi.cast("actor_u_t *", a)
+
+            if (ffi.istype("con_ai_t", ai)) then
+                return (a.t_data[5]==ai.id)
+            else
+                check_literal_am(ai)
+                return (a.t_data[5]==ai)
             end
         end,
     },

@@ -233,8 +233,10 @@ local stat = require("stat")
 local hs = stat.new()
 
 local con = require("con")
-local AC = con.AC
+local AC, MV = con.AC, con.MV
 con.action("TROOPFLINTCH", 50, 1, 1, 1, 6)
+con.move("SHRUNKVELS", 32)
+con.ai("AITEMP", "TROOPFLINTCH", MV.SHRUNKVELS, 0)  -- TODO: test
 
 gameactor(1680,  -- LIZTROOP
           function(i, playeri, dist)
@@ -257,6 +259,7 @@ gameactor(1680,  -- LIZTROOP
               if (dist < 4096) then
                   -- Duke Vader / Anakin Nukewalker?
                   actor[i]:set_action(AC.TROOPFLINTCH)
+                  actor[i]:set_move(MV.SHRUNKVELS)
               end
           end
          )

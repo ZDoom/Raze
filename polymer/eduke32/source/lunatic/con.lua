@@ -12,26 +12,34 @@ local type = type
 module(...)
 
 
-local lastid = { action=0, move=0 }
+local lastid = { action=0, move=0, ai=0 }
+local def = { action={}, move={}, ai={} }
 
 local function forbidden() error("newindex forbidden", 2) end
-local ac, mv = {}, {}
 
-AC = setmetatable({}, { __index=ac, __newindex=forbidden })
-MV = setmetatable({}, { __index=mv, __newindex=forbidden })
+AC = setmetatable({}, { __index=def.action, __newindex=forbidden })
+MV = setmetatable({}, { __index=def.move, __newindex=forbidden })
+AI = setmetatable({}, { __index=def.ai, __newindex=forbidden })
+
+local function check_name(name, what, errlev)
+    if (type(name)~="string" or #name > 63) then
+        error("bad argument #1 to "..what..": must be a string of length <= 63", errlev+1)
+    end
+end
 
 local function action_or_move(what, numargs, tab, name, ...)
     assert(lastid[what] > -(2^31))
-    if (type(name)~="string" or #name > 63) then
-        error("bad argument #1 to "..what..": must be a string of length <= 63", 3)
-    end
+    check_name(name, what, 3)
 
     local args = {...}
     assert(#args <= numargs)
 
     for i=1,#args do
         local n = args[i]
-        assert(type(n)=="number" and (n >= -32768 and n <= 32767))
+        if (type(n)~="number" or not (n >= -32768 and n <= 32767)) then
+            error("bad argument #".. i+1 .." to "..what..
+                  ": must be numbers in [-32768..32767]", 3)
+        end
     end
     -- missing fields are initialized to 0 by ffi.new
 
@@ -46,9 +54,47 @@ local function action_or_move(what, numargs, tab, name, ...)
 end
 
 function action(name, ...)
-    action_or_move("action", 5, ac, name, ...)
+    action_or_move("action", 5, def.action, name, ...)
 end
 
 function move(name, ...)
-    action_or_move("move", 2, mv, name, ...)
+    action_or_move("move", 2, def.move, name, ...)
+end
+
+
+local function get_action_or_move(what, val, argi)
+    if (val == nil) then
+        return {}  -- will init the struct to all zeros
+    elseif (type(val)=="string") then
+        local am = def[what][val]
+        if (am==nil) then
+            error("no "..what.." '"..val.."' defined", 3)
+        end
+        return am
+    elseif (ffi.istype("con_"..what.."_t", val)) then
+        return val
+    end
+
+    -- TODO: literal number actions/moves?
+    error("bad argument #"..argi.." to ai: must be string or "..what)
+end
+
+function ai(name, action, move, flags)
+    assert(lastid.ai > -(2^31))
+    check_name(name, "ai", 2)
+
+    lastid.ai = lastid.ai-1
+
+    local act = get_action_or_move("action", action, 2)
+    local mov = get_action_or_move("move", move, 3)
+
+    if (flags~=nil) then
+        if (type(flags)~="number" or not (flags>=0 and flags<=32767)) then
+            error("bad argument #4 to ai: must be a number in [0..32767]", 2)
+        end
+    else
+        flags = 0
+    end
+
+    def.ai[name] = ffi.new("const con_ai_t", lastid.ai, act, mov, flags)
 end
