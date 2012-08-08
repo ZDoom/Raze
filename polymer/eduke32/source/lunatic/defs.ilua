@@ -577,7 +577,7 @@ end
 --== Custom operations for BUILD data structures ==--
 -- declares struct action and struct move, and their ID-wrapped types
 -- con_action_t and con_move_t
-local con = require("con")
+local con = require("control")
 
 -- All-zero action and move
 local nullac, nullmv = ffi.new("const struct action"), ffi.new("const struct move")
