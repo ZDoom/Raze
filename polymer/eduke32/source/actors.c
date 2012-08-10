@@ -898,16 +898,21 @@ static inline int32_t ifhitsectors(int32_t sectnum)
 
 #define IFHITSECT(Sectnum) if (ifhitsectors(Sectnum) >= 0)
 
+static void nudge_player(int32_t p, int32_t sn, int32_t shl)
+{
+    g_player[p].ps->vel.x += actor[sn].extra*(sintable[(actor[sn].ang+512)&2047])<<shl;
+    g_player[p].ps->vel.y += actor[sn].extra*(sintable[actor[sn].ang&2047])<<shl;
+}
+
 int32_t A_IncurDamage(int32_t sn)
 {
     int32_t j,p;
-    spritetype *npc;
 
     if (actor[sn].extra >= 0)
     {
         if (sprite[sn].extra >= 0)
         {
-            npc = &sprite[sn];
+            spritetype *const npc = &sprite[sn];
 
             if (npc->picnum == APLAYER)
             {
@@ -948,17 +953,11 @@ int32_t A_IncurDamage(int32_t sn)
 
                 if (A_CheckSpriteTileFlags(actor[sn].picnum,SPRITE_PROJECTILE) && (SpriteProjectile[sn].workslike & PROJECTILE_RPG))
                 {
-                    g_player[p].ps->vel.x +=
-                        actor[sn].extra*(sintable[(actor[sn].ang+512)&2047])<<2;
-                    g_player[p].ps->vel.y +=
-                        actor[sn].extra*(sintable[actor[sn].ang&2047])<<2;
+                    nudge_player(p, sn, 2);
                 }
                 else if (A_CheckSpriteTileFlags(actor[sn].picnum,SPRITE_PROJECTILE))
                 {
-                    g_player[p].ps->vel.x +=
-                        actor[sn].extra*(sintable[(actor[sn].ang+512)&2047])<<1;
-                    g_player[p].ps->vel.y +=
-                        actor[sn].extra*(sintable[actor[sn].ang&2047])<<1;
+                    nudge_player(p, sn, 1);
                 }
 
                 switch (DYNAMICTILEMAP(actor[sn].picnum))
@@ -970,16 +969,10 @@ int32_t A_IncurDamage(int32_t sn)
                 case SEENINE__STATIC:
                 case OOZFILTER__STATIC:
                 case EXPLODINGBARREL__STATIC:
-                    g_player[p].ps->vel.x +=
-                        actor[sn].extra*(sintable[(actor[sn].ang+512)&2047])<<2;
-                    g_player[p].ps->vel.y +=
-                        actor[sn].extra*(sintable[actor[sn].ang&2047])<<2;
+                    nudge_player(p, sn, 2);
                     break;
                 default:
-                    g_player[p].ps->vel.x +=
-                        actor[sn].extra*(sintable[(actor[sn].ang+512)&2047])<<1;
-                    g_player[p].ps->vel.y +=
-                        actor[sn].extra*(sintable[actor[sn].ang&2047])<<1;
+                    nudge_player(p, sn, 1);
                     break;
                 }
             }
