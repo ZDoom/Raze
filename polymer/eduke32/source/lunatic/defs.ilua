@@ -592,12 +592,17 @@ local function check_literal_am(am)
     end
 end
 
+local actor_ptr_ct = ffi.typeof("actor_u_t *")  -- an unrestricted actor_t pointer
+local con_action_ct = ffi.typeof("con_action_t")
+local con_move_ct = ffi.typeof("con_move_t")
+local con_ai_ct = ffi.typeof("con_ai_t")
+
 local actor_mt = {
     __index = {
         -- action
         set_action = function(a, act)
-            a = ffi.cast("actor_u_t *", a)
-            if (ffi.istype("con_action_t", act)) then
+            a = ffi.cast(actor_ptr_ct, a)
+            if (ffi.istype(con_action_ct, act)) then
                 a.t_data[4] = act.id
                 a.ac = act.ac
             else
@@ -611,8 +616,8 @@ local actor_mt = {
         end,
 
         has_action = function(a, act)
-            a = ffi.cast("actor_u_t *", a)
-            if (ffi.istype("con_action_t", act)) then
+            a = ffi.cast(actor_ptr_ct, a)
+            if (ffi.istype(con_action_ct, act)) then
                 return (a.t_data[4]==act.id)
             else
                 check_literal_am(act)
@@ -622,26 +627,26 @@ local actor_mt = {
 
         -- count
         set_count = function(a)
-            ffi.cast("actor_u_t *", a).t_data[0] = 0
+            ffi.cast(actor_ptr_ct, a).t_data[0] = 0
         end,
 
         get_count = function(a)
-            return ffi.cast("actor_u_t *", a).t_data[0]
+            return ffi.cast(actor_ptr_ct, a).t_data[0]
         end,
 
         -- action count
         reset_acount = function(a)
-            ffi.cast("actor_u_t *", a).t_data[2] = 0
+            ffi.cast(actor_ptr_ct, a).t_data[2] = 0
         end,
 
         get_acount = function(a)
-            return ffi.cast("actor_u_t *", a).t_data[2]
+            return ffi.cast(actor_ptr_ct, a).t_data[2]
         end,
 
         -- move
         set_move = function(a, mov, movflags)
-            a = ffi.cast("actor_u_t *", a)
-            if (ffi.istype("con_move_t", mov)) then
+            a = ffi.cast(actor_ptr_ct, a)
+            if (ffi.istype(con_move_ct, mov)) then
                 a.t_data[1] = mov.id
                 a.mv = mov.mv
             else
@@ -651,15 +656,15 @@ local actor_mt = {
             end
 
             a.t_data[0] = 0
-            local i = a-ffi.cast("actor_u_t *", ffiC.actor[0])
+            local i = a-ffi.cast(actor_ptr_ct, ffiC.actor[0])
             ffiC.sprite[i].hitag = movflags or 0
 
             -- TODO: random angle moveflag
         end,
 
         has_move = function(a, mov)
-            a = ffi.cast("actor_u_t *", a)
-            if (ffi.istype("con_move_t", mov)) then
+            a = ffi.cast(actor_ptr_ct, a)
+            if (ffi.istype(con_move_ct, mov)) then
                 return (a.t_data[1]==mov.id)
             else
                 check_literal_am(mov)
@@ -670,10 +675,10 @@ local actor_mt = {
         -- ai
         set_ai = function(a, ai)
             local oa = a
-            a = ffi.cast("actor_u_t *", a)
+            a = ffi.cast(actor_ptr_ct, a)
 
             -- TODO: literal number AIs?
-            assert(ffi.istype("con_ai_t", ai))
+            assert(ffi.istype(con_ai_ct, ai))
 
             -- NOTE: compare with gameexec.c
             a.t_data[5] = ai.id
@@ -685,9 +690,9 @@ local actor_mt = {
         end,
 
         has_ai = function(a, ai)
-            a = ffi.cast("actor_u_t *", a)
+            a = ffi.cast(actor_ptr_ct, a)
 
-            if (ffi.istype("con_ai_t", ai)) then
+            if (ffi.istype(con_ai_ct, ai)) then
                 return (a.t_data[5]==ai.id)
             else
                 check_literal_am(ai)
