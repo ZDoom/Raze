@@ -2996,7 +2996,7 @@ static void G_DoThirdPerson(DukePlayer_t *pp, vec3_t *vect,int16_t *vsectnum, in
     int32_t i, hx, hy;
     int32_t daang;
     int32_t bakcstat = sp->cstat;
-    hitdata_t hitinfo;
+    hitdata_t hit;
     vec3_t n = { (sintable[(ang+1536)&2047]>>4),
                  (sintable[(ang+1024)&2047]>>4),
                  (horiz-100)*128
@@ -3005,7 +3005,7 @@ static void G_DoThirdPerson(DukePlayer_t *pp, vec3_t *vect,int16_t *vsectnum, in
     sp->cstat &= (int16_t)~0x101;
 
     updatesectorz(vect->x,vect->y,vect->z,vsectnum);
-    hitscan((const vec3_t *)vect,*vsectnum,n.x,n.y,n.z,&hitinfo,CLIPMASK1);
+    hitscan((const vec3_t *)vect,*vsectnum,n.x,n.y,n.z,&hit,CLIPMASK1);
 
     if (*vsectnum < 0)
     {
@@ -3013,21 +3013,21 @@ static void G_DoThirdPerson(DukePlayer_t *pp, vec3_t *vect,int16_t *vsectnum, in
         return;
     }
 
-    hx = hitinfo.pos.x-(vect->x);
-    hy = hitinfo.pos.y-(vect->y);
+    hx = hit.pos.x-(vect->x);
+    hy = hit.pos.y-(vect->y);
     if (klabs(n.x)+klabs(n.y) > klabs(hx)+klabs(hy))
     {
-        *vsectnum = hitinfo.hitsect;
-        if (hitinfo.hitwall >= 0)
+        *vsectnum = hit.sect;
+        if (hit.wall >= 0)
         {
-            daang = getangle(wall[wall[hitinfo.hitwall].point2].x-wall[hitinfo.hitwall].x,
-                             wall[wall[hitinfo.hitwall].point2].y-wall[hitinfo.hitwall].y);
+            daang = getangle(wall[wall[hit.wall].point2].x-wall[hit.wall].x,
+                             wall[wall[hit.wall].point2].y-wall[hit.wall].y);
 
             i = n.x*sintable[daang]+n.y*sintable[(daang+1536)&2047];
             if (klabs(n.x) > klabs(n.y)) hx -= mulscale28(n.x,i);
             else hy -= mulscale28(n.y,i);
         }
-        else if (hitinfo.hitsprite < 0)
+        else if (hit.sprite < 0)
         {
             if (klabs(n.x) > klabs(n.y)) hx -= (n.x>>5);
             else hy -= (n.y>>5);
@@ -10677,7 +10677,7 @@ int32_t G_DoMoveThings(void)
 
     if (ud.idplayers && (g_netServer || ud.multimode > 1))
     {
-        hitdata_t hitinfo;
+        hitdata_t hit;
         DukePlayer_t *const p = g_player[screenpeek].ps;
 
         for (i=0; i<ud.multimode; i++)
@@ -10687,21 +10687,21 @@ int32_t G_DoMoveThings(void)
         hitscan((vec3_t *)p,p->cursectnum,
                 sintable[(p->ang+512)&2047],
                 sintable[p->ang&2047],
-                (100-p->horiz-p->horizoff)<<11,&hitinfo,0xffff0030);
+                (100-p->horiz-p->horizoff)<<11,&hit,0xffff0030);
 
         for (i=0; i<ud.multimode; i++)
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
-        if ((hitinfo.hitsprite >= 0) && !(g_player[myconnectindex].ps->gm & MODE_MENU) &&
-                sprite[hitinfo.hitsprite].picnum == APLAYER && sprite[hitinfo.hitsprite].yvel != screenpeek &&
-                g_player[sprite[hitinfo.hitsprite].yvel].ps->dead_flag == 0)
+        if ((hit.sprite >= 0) && !(g_player[myconnectindex].ps->gm & MODE_MENU) &&
+                sprite[hit.sprite].picnum == APLAYER && sprite[hit.sprite].yvel != screenpeek &&
+                g_player[sprite[hit.sprite].yvel].ps->dead_flag == 0)
         {
             if (p->fta == 0 || p->ftq == QUOTE_RESERVED3)
             {
-                if (ldist(&sprite[p->i],&sprite[hitinfo.hitsprite]) < 9216)
+                if (ldist(&sprite[p->i],&sprite[hit.sprite]) < 9216)
                 {
-                    Bsprintf(ScriptQuotes[QUOTE_RESERVED3],"%s",&g_player[sprite[hitinfo.hitsprite].yvel].user_name[0]);
+                    Bsprintf(ScriptQuotes[QUOTE_RESERVED3],"%s",&g_player[sprite[hit.sprite].yvel].user_name[0]);
                     p->fta = 12, p->ftq = QUOTE_RESERVED3;
                 }
             }

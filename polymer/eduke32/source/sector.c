@@ -2975,7 +2975,7 @@ CHECKINV1:
 
 int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
 {
-    hitdata_t hitinfo;
+    hitdata_t hit;
     int32_t zoff = 0;
 
     if (A_CheckEnemySprite(&sprite[i]))
@@ -2986,31 +2986,31 @@ int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
     hitscan((const vec3_t *)&sprite[i],SECT,
             sintable[(SA+512)&2047],
             sintable[SA&2047],
-            0,&hitinfo,CLIPMASK1);
+            0,&hit,CLIPMASK1);
     SZ += zoff;
 
-    *hitsp = hitinfo.hitsprite;
+    *hitsp = hit.sprite;
 
-    if (hitinfo.hitwall >= 0 && (wall[hitinfo.hitwall].cstat&16) && A_CheckEnemySprite(&sprite[i]))
+    if (hit.wall >= 0 && (wall[hit.wall].cstat&16) && A_CheckEnemySprite(&sprite[i]))
         return((1<<30));
 
-    return (FindDistance2D(hitinfo.pos.x-SX,hitinfo.pos.y-SY));
+    return (FindDistance2D(hit.pos.x-SX,hit.pos.y-SY));
 }
 
 static int32_t P_FindWall(DukePlayer_t *p,int16_t *hitw)
 {
-    hitdata_t hitinfo;
+    hitdata_t hit;
 
     hitscan((const vec3_t *)p,p->cursectnum,
             sintable[(p->ang+512)&2047],
             sintable[p->ang&2047],
-            0,&hitinfo,CLIPMASK0);
+            0,&hit,CLIPMASK0);
 
-    *hitw = hitinfo.hitwall;
-    if (hitinfo.hitwall < 0)
+    *hitw = hit.wall;
+    if (hit.wall < 0)
         return INT32_MAX;
 
-    return (FindDistance2D(hitinfo.pos.x-p->pos.x,hitinfo.pos.y-p->pos.y));
+    return (FindDistance2D(hit.pos.x-p->pos.x,hit.pos.y-p->pos.y));
 }
 
 // returns 1 if sprite i should not be considered by neartag

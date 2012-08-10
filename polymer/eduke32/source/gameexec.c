@@ -242,7 +242,7 @@ int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs)
         int32_t d;
         int32_t greatestd = -(1<<30);
         int32_t angincs = 2048/angs,j;
-        hitdata_t hitinfo;
+        hitdata_t hit;
 
         for (j=s->ang; j<(2048+s->ang); j+=angincs)
         {
@@ -250,9 +250,9 @@ int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs)
             hitscan((const vec3_t *)s, s->sectnum,
                     sintable[(j+512)&2047],
                     sintable[j&2047],0,
-                    &hitinfo,CLIPMASK1);
+                    &hit,CLIPMASK1);
             s->z += (8<<8);
-            d = klabs(hitinfo.pos.x-s->x) + klabs(hitinfo.pos.y-s->y);
+            d = klabs(hit.pos.x-s->x) + klabs(hit.pos.y-s->y);
 
             if (d > greatestd)
             {
@@ -273,7 +273,7 @@ int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_
         int32_t d, da;//, d, cd, ca,tempx,tempy,cx,cy;
         int32_t j, angincs;
         spritetype *s = &sprite[iActor];
-        hitdata_t hitinfo;
+        hitdata_t hit;
 
         if ((!g_netServer && ud.multimode < 2) && ud.player_skill < 3)
             angincs = 2048/2;
@@ -285,20 +285,20 @@ int32_t A_FurthestVisiblePoint(int32_t iActor,spritetype *ts,int32_t *dax,int32_
             hitscan((const vec3_t *)ts, ts->sectnum,
                     sintable[(j+512)&2047],
                     sintable[j&2047],16384-(krand()&32767),
-                    &hitinfo,CLIPMASK1);
+                    &hit,CLIPMASK1);
 
             ts->z += (16<<8);
 
-            d = klabs(hitinfo.pos.x-ts->x)+klabs(hitinfo.pos.y-ts->y);
-            da = klabs(hitinfo.pos.x-s->x)+klabs(hitinfo.pos.y-s->y);
+            d = klabs(hit.pos.x-ts->x)+klabs(hit.pos.y-ts->y);
+            da = klabs(hit.pos.x-s->x)+klabs(hit.pos.y-s->y);
 
-            if (d < da && hitinfo.hitsect > -1)
-                if (cansee(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,
-                           hitinfo.hitsect,s->x,s->y,s->z-(16<<8),s->sectnum))
+            if (d < da && hit.sect > -1)
+                if (cansee(hit.pos.x,hit.pos.y,hit.pos.z,
+                           hit.sect,s->x,s->y,s->z-(16<<8),s->sectnum))
                 {
-                    *dax = hitinfo.pos.x;
-                    *day = hitinfo.pos.y;
-                    return hitinfo.hitsect;
+                    *dax = hit.pos.x;
+                    *day = hit.pos.y;
+                    return hit.sect;
                 }
         }
         return -1;
@@ -2717,7 +2717,7 @@ nullquote:
             insptr++;
             {
                 vec3_t vect;
-                hitdata_t hitinfo;
+                hitdata_t hit;
 
                 vect.x = Gv_GetVarX(*insptr++);
                 vect.y = Gv_GetVarX(*insptr++);
@@ -2734,13 +2734,13 @@ nullquote:
                         OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
                         continue;
                     }
-                    hitscan((const vec3_t *)&vect, sectnum, vx, vy, vz, &hitinfo, cliptype);
-                    Gv_SetVarX(hitsectvar, hitinfo.hitsect);
-                    Gv_SetVarX(hitwallvar, hitinfo.hitwall);
-                    Gv_SetVarX(hitspritevar, hitinfo.hitsprite);
-                    Gv_SetVarX(hitxvar, hitinfo.pos.x);
-                    Gv_SetVarX(hityvar, hitinfo.pos.y);
-                    Gv_SetVarX(hitzvar, hitinfo.pos.z);
+                    hitscan((const vec3_t *)&vect, sectnum, vx, vy, vz, &hit, cliptype);
+                    Gv_SetVarX(hitsectvar, hit.sect);
+                    Gv_SetVarX(hitwallvar, hit.wall);
+                    Gv_SetVarX(hitspritevar, hit.sprite);
+                    Gv_SetVarX(hitxvar, hit.pos.x);
+                    Gv_SetVarX(hityvar, hit.pos.y);
+                    Gv_SetVarX(hitzvar, hit.pos.z);
                 }
                 continue;
             }

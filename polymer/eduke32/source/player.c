@@ -188,16 +188,16 @@ static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, 
 int32_t A_GetHitscanRange(int32_t i)
 {
     int32_t zoff = (PN == APLAYER) ? PHEIGHT : 0;
-    hitdata_t hitinfo;
+    hitdata_t hit;
 
     SZ -= zoff;
     hitscan((const vec3_t *)&sprite[i],SECT,
             sintable[(SA+512)&2047],
             sintable[SA&2047],
-            0,&hitinfo,CLIPMASK1);
+            0,&hit,CLIPMASK1);
     SZ += zoff;
 
-    return (FindDistance2D(hitinfo.pos.x-SX,hitinfo.pos.y-SY));
+    return (FindDistance2D(hit.pos.x-SX,hit.pos.y-SY));
 }
 
 static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
@@ -315,7 +315,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
 {
     int16_t l, sa, j, k=-1;
     int32_t vel, zvel = 0, x, oldzvel, dal;
-    hitdata_t hitinfo;
+    hitdata_t hit;
     vec3_t srcvect;
     char sizx,sizy;
     spritetype *s = &sprite[i];
@@ -423,29 +423,29 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],zvel<<6,
-                    &hitinfo,CLIPMASK1);
+                    &hit,CLIPMASK1);
 
             if (ProjectileData[atwith].workslike & PROJECTILE_BLOOD)
             {
                 if (ProjectileData[atwith].range == 0)
                     ProjectileData[atwith].range = 1024;
 
-                if (FindDistance2D(srcvect.x-hitinfo.pos.x,srcvect.y-hitinfo.pos.y) < ProjectileData[atwith].range)
-                    if (FindDistance2D(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y) >
+                if (FindDistance2D(srcvect.x-hit.pos.x,srcvect.y-hit.pos.y) < ProjectileData[atwith].range)
+                    if (FindDistance2D(wall[hit.wall].x-wall[wall[hit.wall].point2].x,wall[hit.wall].y-wall[wall[hit.wall].point2].y) >
                             (mulscale(ProjectileData[atwith].xrepeat+8,tilesizx[ProjectileData[atwith].decal],3)))
-                        if (hitinfo.hitwall >= 0 && wall[hitinfo.hitwall].overpicnum != BIGFORCE)
-                            if ((wall[hitinfo.hitwall].nextsector >= 0 && hitinfo.hitsect >= 0 &&
-                                    sector[wall[hitinfo.hitwall].nextsector].lotag == 0 &&
-                                    sector[hitinfo.hitsect].lotag == 0 &&
-                                    sector[wall[hitinfo.hitwall].nextsector].lotag == 0 &&
-                                    (sector[hitinfo.hitsect].floorz-sector[wall[hitinfo.hitwall].nextsector].floorz) >
+                        if (hit.wall >= 0 && wall[hit.wall].overpicnum != BIGFORCE)
+                            if ((wall[hit.wall].nextsector >= 0 && hit.sect >= 0 &&
+                                    sector[wall[hit.wall].nextsector].lotag == 0 &&
+                                    sector[hit.sect].lotag == 0 &&
+                                    sector[wall[hit.wall].nextsector].lotag == 0 &&
+                                    (sector[hit.sect].floorz-sector[wall[hit.wall].nextsector].floorz) >
                                     (mulscale(ProjectileData[atwith].yrepeat,tilesizy[ProjectileData[atwith].decal],3)<<8)) ||
-                                    (wall[hitinfo.hitwall].nextsector == -1 && sector[hitinfo.hitsect].lotag == 0))
-                                if ((wall[hitinfo.hitwall].cstat&16) == 0)
+                                    (wall[hit.wall].nextsector == -1 && sector[hit.sect].lotag == 0))
+                                if ((wall[hit.wall].cstat&16) == 0)
                                 {
-                                    if (wall[hitinfo.hitwall].nextsector >= 0)
+                                    if (wall[hit.wall].nextsector >= 0)
                                     {
-                                        k = headspritesect[wall[hitinfo.hitwall].nextsector];
+                                        k = headspritesect[wall[hit.wall].nextsector];
                                         while (k >= 0)
                                         {
                                             if (sprite[k].statnum == 3 && sprite[k].lotag == 13)
@@ -454,11 +454,11 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                         }
                                     }
 
-                                    if (wall[hitinfo.hitwall].nextwall >= 0 &&
-                                            wall[wall[hitinfo.hitwall].nextwall].hitag != 0)
+                                    if (wall[hit.wall].nextwall >= 0 &&
+                                            wall[wall[hit.wall].nextwall].hitag != 0)
                                         return -1;
 
-                                    if (wall[hitinfo.hitwall].hitag == 0)
+                                    if (wall[hit.wall].hitag == 0)
                                     {
                                         if (ProjectileData[atwith].decal >= 0)
                                         {
@@ -468,13 +468,13 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                                 actor[k].flags |= SPRITE_DECAL;
 
                                             sprite[k].xvel = -1;
-                                            sprite[k].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,
-                                                                     wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
-                                            Bmemcpy(&sprite[k],&hitinfo.pos,sizeof(vec3_t));
+                                            sprite[k].ang = getangle(wall[hit.wall].x-wall[wall[hit.wall].point2].x,
+                                                                     wall[hit.wall].y-wall[wall[hit.wall].point2].y)+512;
+                                            Bmemcpy(&sprite[k],&hit.pos,sizeof(vec3_t));
                                             /*
-                                                                                        sprite[k].x = hitinfo.pos.x;
-                                                                                        sprite[k].y = hitinfo.pos.y;
-                                                                                        sprite[k].z = hitinfo.pos.z;
+                                                                                        sprite[k].x = hit.pos.x;
+                                                                                        sprite[k].y = hit.pos.y;
+                                                                                        sprite[k].z = hit.pos.z;
                                             */
                                             if (ProjectileData[atwith].workslike & PROJECTILE_RANDDECALSIZE)
                                             {
@@ -520,18 +520,18 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 return -1;
             }
 
-            if (hitinfo.hitsect < 0) return -1;
+            if (hit.sect < 0) return -1;
 
             if ((ProjectileData[atwith].range == 0) && (ProjectileData[atwith].workslike & PROJECTILE_KNEE))
                 ProjectileData[atwith].range = 1024;
 
-            if ((ProjectileData[atwith].range > 0) && ((klabs(srcvect.x-hitinfo.pos.x)+klabs(srcvect.y-hitinfo.pos.y)) > ProjectileData[atwith].range))
+            if ((ProjectileData[atwith].range > 0) && ((klabs(srcvect.x-hit.pos.x)+klabs(srcvect.y-hit.pos.y)) > ProjectileData[atwith].range))
                 return -1;
             else
             {
-                if (hitinfo.hitwall >= 0 || hitinfo.hitsprite >= 0)
+                if (hit.wall >= 0 || hit.sprite >= 0)
                 {
-                    j = A_InsertSprite(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,atwith,-15,0,0,sa,32,0,i,4);
+                    j = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,atwith,-15,0,0,sa,32,0,i,4);
                     SpriteProjectile[j].workslike = ProjectileData[sprite[j].picnum].workslike;
                     sprite[j].extra = ProjectileData[atwith].extra;
                     if (ProjectileData[atwith].extra_rand > 0)
@@ -542,9 +542,9 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                         {
                             k = A_Spawn(j,ProjectileData[atwith].spawns);
                             sprite[k].z -= (8<<8);
-                            actor[k].t_data[6] = hitinfo.hitwall;
-                            actor[k].t_data[7] = hitinfo.hitsect;
-                            actor[k].t_data[8] = hitinfo.hitsprite;
+                            actor[k].t_data[6] = hit.wall;
+                            actor[k].t_data[7] = hit.sect;
+                            actor[k].t_data[8] = hit.sprite;
                         }
                         if (ProjectileData[atwith].sound >= 0) A_PlaySound(ProjectileData[atwith].sound,j);
                     }
@@ -552,31 +552,31 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                     if (p >= 0 && ps->inv_amount[GET_STEROIDS] > 0 && ps->inv_amount[GET_STEROIDS] < 400)
                         sprite[j].extra += (ps->max_player_health>>2);
 
-                    if (hitinfo.hitsprite >= 0 && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH2)
+                    if (hit.sprite >= 0 && sprite[hit.sprite].picnum != ACCESSSWITCH && sprite[hit.sprite].picnum != ACCESSSWITCH2)
                     {
-                        A_DamageObject(hitinfo.hitsprite,j);
-                        if (p >= 0) P_ActivateSwitch(p,hitinfo.hitsprite,1);
+                        A_DamageObject(hit.sprite,j);
+                        if (p >= 0) P_ActivateSwitch(p,hit.sprite,1);
                     }
 
-                    else if (hitinfo.hitwall >= 0)
+                    else if (hit.wall >= 0)
                     {
-                        if (wall[hitinfo.hitwall].cstat&2)
-                            if (wall[hitinfo.hitwall].nextsector >= 0)
-                                if (hitinfo.pos.z >= (sector[wall[hitinfo.hitwall].nextsector].floorz))
-                                    hitinfo.hitwall = wall[hitinfo.hitwall].nextwall;
+                        if (wall[hit.wall].cstat&2)
+                            if (wall[hit.wall].nextsector >= 0)
+                                if (hit.pos.z >= (sector[wall[hit.wall].nextsector].floorz))
+                                    hit.wall = wall[hit.wall].nextwall;
 
-                        if (hitinfo.hitwall >= 0 && wall[hitinfo.hitwall].picnum != ACCESSSWITCH && wall[hitinfo.hitwall].picnum != ACCESSSWITCH2)
+                        if (hit.wall >= 0 && wall[hit.wall].picnum != ACCESSSWITCH && wall[hit.wall].picnum != ACCESSSWITCH2)
                         {
-                            A_DamageWall(j,hitinfo.hitwall,&hitinfo.pos,atwith);
-                            if (p >= 0) P_ActivateSwitch(p,hitinfo.hitwall,0);
+                            A_DamageWall(j,hit.wall,&hit.pos,atwith);
+                            if (p >= 0) P_ActivateSwitch(p,hit.wall,0);
                         }
                     }
                 }
-                else if (p >= 0 && zvel > 0 && sector[hitinfo.hitsect].lotag == 1)
+                else if (p >= 0 && zvel > 0 && sector[hit.sect].lotag == 1)
                 {
                     j = A_Spawn(g_player[p].ps->i,WATERSPLASH2);
-                    sprite[j].x = hitinfo.pos.x;
-                    sprite[j].y = hitinfo.pos.y;
+                    sprite[j].x = hit.pos.x;
+                    sprite[j].y = hit.pos.y;
                     sprite[j].ang = g_player[p].ps->ang; // Total tweek
                     sprite[j].xvel = 32;
                     A_SetSprite(i,CLIPMASK0);
@@ -612,9 +612,9 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                         dal -= (8<<8);
                         //                        return -1;
                     }
-                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hitinfo.pos.x == 0) hitinfo.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hitinfo.pos.x;
+                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
+                    if (hit.pos.x == 0) hit.pos.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hit.pos.x;
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
 
@@ -634,11 +634,11 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                         zvel = (100-ps->horiz-ps->horizoff)<<5;
                         if (actor[i].shootzvel) zvel = actor[i].shootzvel;
                         hitscan((const vec3_t *)&srcvect,sect,sintable[(sa+512)&2047],sintable[sa&2047],
-                                zvel<<6,&hitinfo,CLIPMASK1);
-                        if (hitinfo.hitsprite != -1)
+                                zvel<<6,&hit,CLIPMASK1);
+                        if (hit.sprite != -1)
                         {
-                            if (sprite[hitinfo.hitsprite].statnum == STAT_ACTOR || sprite[hitinfo.hitsprite].statnum == STAT_ZOMBIEACTOR || sprite[hitinfo.hitsprite].statnum == STAT_PLAYER || sprite[hitinfo.hitsprite].statnum == STAT_DUMMYPLAYER)
-                                j = hitinfo.hitsprite;
+                            if (sprite[hit.sprite].statnum == STAT_ACTOR || sprite[hit.sprite].statnum == STAT_ZOMBIEACTOR || sprite[hit.sprite].statnum == STAT_PLAYER || sprite[hit.sprite].statnum == STAT_DUMMYPLAYER)
+                                j = hit.sprite;
                         }
                     }
 
@@ -671,10 +671,10 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             {
                 j = A_FindPlayer(s,&x);
                 srcvect.z -= (4<<8);
-                hitinfo.pos.x = ldist(&sprite[g_player[j].ps->i], s);
-                if (hitinfo.pos.x == 0)
-                    hitinfo.pos.x++;
-                zvel = ((g_player[j].ps->pos.z-srcvect.z) <<8) / hitinfo.pos.x;
+                hit.pos.x = ldist(&sprite[g_player[j].ps->i], s);
+                if (hit.pos.x == 0)
+                    hit.pos.x++;
+                zvel = ((g_player[j].ps->pos.z-srcvect.z) <<8) / hit.pos.x;
                 if (s->picnum != BOSS1)
                 {
                     if (!(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE))
@@ -702,68 +702,68 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
-                    zvel<<6,&hitinfo,CLIPMASK1);
+                    zvel<<6,&hit,CLIPMASK1);
 
 
             if (ProjectileData[atwith].cstat >= 0) s->cstat |= ProjectileData[atwith].cstat;
             else s->cstat |= 257;
 
-            if (hitinfo.hitsect < 0) return -1;
+            if (hit.sect < 0) return -1;
 
             if ((ProjectileData[atwith].range > 0) &&
-                    ((klabs(srcvect.x-hitinfo.pos.x)+klabs(srcvect.y-hitinfo.pos.y)) > ProjectileData[atwith].range))
+                    ((klabs(srcvect.x-hit.pos.x)+klabs(srcvect.y-hit.pos.y)) > ProjectileData[atwith].range))
                 return -1;
 
             if (ProjectileData[atwith].trail >= 0)
-                A_HitscanProjTrail(&srcvect,&hitinfo.pos,sa,atwith);
+                A_HitscanProjTrail(&srcvect,&hit.pos,sa,atwith);
 
             if (ProjectileData[atwith].workslike & PROJECTILE_WATERBUBBLES)
             {
-                if ((krand()&15) == 0 && sector[hitinfo.hitsect].lotag == 2)
-                    A_DoWaterTracers(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,srcvect.x,srcvect.y,srcvect.z,8-(ud.multimode>>1));
+                if ((krand()&15) == 0 && sector[hit.sect].lotag == 2)
+                    A_DoWaterTracers(hit.pos.x,hit.pos.y,hit.pos.z,srcvect.x,srcvect.y,srcvect.z,8-(ud.multimode>>1));
             }
 
             if (p >= 0)
             {
-                k = A_InsertSprite(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
+                k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
                 sprite[k].extra = ProjectileData[atwith].extra;
                 if (ProjectileData[atwith].extra_rand > 0)
                     sprite[k].extra += (krand()%ProjectileData[atwith].extra_rand);
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                actor[k].t_data[6] = hitinfo.hitwall;
-                actor[k].t_data[7] = hitinfo.hitsect;
-                actor[k].t_data[8] = hitinfo.hitsprite;
+                actor[k].t_data[6] = hit.wall;
+                actor[k].t_data[7] = hit.sect;
+                actor[k].t_data[8] = hit.sprite;
 
-                if (hitinfo.hitwall == -1 && hitinfo.hitsprite == -1)
+                if (hit.wall == -1 && hit.sprite == -1)
                 {
                     if (zvel < 0)
                     {
-                        if (sector[hitinfo.hitsect].ceilingstat&1)
+                        if (sector[hit.sect].ceilingstat&1)
                         {
                             sprite[k].xrepeat = 0;
                             sprite[k].yrepeat = 0;
                             return -1;
                         }
                         else
-                            Sect_DamageCeiling(hitinfo.hitsect);
+                            Sect_DamageCeiling(hit.sect);
                     }
                     if (ProjectileData[atwith].spawns >= 0)
                     {
                         int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                         if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                         if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                        actor[wh].t_data[6] = hitinfo.hitwall;
-                        actor[wh].t_data[7] = hitinfo.hitsect;
-                        actor[wh].t_data[8] = hitinfo.hitsprite;
+                        actor[wh].t_data[6] = hit.wall;
+                        actor[wh].t_data[7] = hit.sect;
+                        actor[wh].t_data[8] = hit.sprite;
                     }
                 }
 
-                if (hitinfo.hitsprite >= 0)
+                if (hit.sprite >= 0)
                 {
-                    A_DamageObject(hitinfo.hitsprite,k);
-                    if (sprite[hitinfo.hitsprite].picnum == APLAYER &&
+                    A_DamageObject(hit.sprite,k);
+                    if (sprite[hit.sprite].picnum == APLAYER &&
                             (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
-                                               g_player[sprite[hitinfo.hitsprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
+                                               g_player[sprite[hit.sprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
                     {
                         l = A_Spawn(k,JIBS6);
                         sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -779,64 +779,64 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                             int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                             if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                             if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                            actor[wh].t_data[6] = hitinfo.hitwall;
-                            actor[wh].t_data[7] = hitinfo.hitsect;
-                            actor[wh].t_data[8] = hitinfo.hitsprite;
+                            actor[wh].t_data[6] = hit.wall;
+                            actor[wh].t_data[7] = hit.sect;
+                            actor[wh].t_data[8] = hit.sprite;
                         }
                     }
                     if (p >= 0 && (
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH ||
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH+1 ||
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH2 ||
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH2+1 ||
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH3 ||
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH3+1 ||
-                                sprite[hitinfo.hitsprite].picnum == HANDSWITCH ||
-                                sprite[hitinfo.hitsprite].picnum == HANDSWITCH+1))
+                                sprite[hit.sprite].picnum == DIPSWITCH ||
+                                sprite[hit.sprite].picnum == DIPSWITCH+1 ||
+                                sprite[hit.sprite].picnum == DIPSWITCH2 ||
+                                sprite[hit.sprite].picnum == DIPSWITCH2+1 ||
+                                sprite[hit.sprite].picnum == DIPSWITCH3 ||
+                                sprite[hit.sprite].picnum == DIPSWITCH3+1 ||
+                                sprite[hit.sprite].picnum == HANDSWITCH ||
+                                sprite[hit.sprite].picnum == HANDSWITCH+1))
                     {
-                        P_ActivateSwitch(p,hitinfo.hitsprite,1);
+                        P_ActivateSwitch(p,hit.sprite,1);
                         return -1;
                     }
                 }
-                else if (hitinfo.hitwall >= 0)
+                else if (hit.wall >= 0)
                 {
                     if (ProjectileData[atwith].spawns >= 0)
                     {
                         int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                         if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                         if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                        actor[wh].t_data[6] = hitinfo.hitwall;
-                        actor[wh].t_data[7] = hitinfo.hitsect;
-                        actor[wh].t_data[8] = hitinfo.hitsprite;
+                        actor[wh].t_data[6] = hit.wall;
+                        actor[wh].t_data[7] = hit.sect;
+                        actor[wh].t_data[8] = hit.sprite;
                     }
-                    if (CheckDoorTile(wall[hitinfo.hitwall].picnum) == 1)
+                    if (CheckDoorTile(wall[hit.wall].picnum) == 1)
                         goto DOSKIPBULLETHOLE;
                     if (p >= 0 && (
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH ||
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH+1 ||
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH2 ||
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH2+1 ||
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH3 ||
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH3+1 ||
-                                wall[hitinfo.hitwall].picnum == HANDSWITCH ||
-                                wall[hitinfo.hitwall].picnum == HANDSWITCH+1))
+                                wall[hit.wall].picnum == DIPSWITCH ||
+                                wall[hit.wall].picnum == DIPSWITCH+1 ||
+                                wall[hit.wall].picnum == DIPSWITCH2 ||
+                                wall[hit.wall].picnum == DIPSWITCH2+1 ||
+                                wall[hit.wall].picnum == DIPSWITCH3 ||
+                                wall[hit.wall].picnum == DIPSWITCH3+1 ||
+                                wall[hit.wall].picnum == HANDSWITCH ||
+                                wall[hit.wall].picnum == HANDSWITCH+1))
                     {
-                        P_ActivateSwitch(p,hitinfo.hitwall,0);
+                        P_ActivateSwitch(p,hit.wall,0);
                         return -1;
                     }
 
-                    if (wall[hitinfo.hitwall].hitag != 0 || (wall[hitinfo.hitwall].nextwall >= 0 && wall[wall[hitinfo.hitwall].nextwall].hitag != 0))
+                    if (wall[hit.wall].hitag != 0 || (wall[hit.wall].nextwall >= 0 && wall[wall[hit.wall].nextwall].hitag != 0))
                         goto DOSKIPBULLETHOLE;
 
-                    if (hitinfo.hitsect >= 0 && sector[hitinfo.hitsect].lotag == 0)
-                        if (wall[hitinfo.hitwall].overpicnum != BIGFORCE)
-                            if ((wall[hitinfo.hitwall].nextsector >= 0 && sector[wall[hitinfo.hitwall].nextsector].lotag == 0) ||
-                                    (wall[hitinfo.hitwall].nextsector == -1 && sector[hitinfo.hitsect].lotag == 0))
-                                if ((wall[hitinfo.hitwall].cstat&16) == 0)
+                    if (hit.sect >= 0 && sector[hit.sect].lotag == 0)
+                        if (wall[hit.wall].overpicnum != BIGFORCE)
+                            if ((wall[hit.wall].nextsector >= 0 && sector[wall[hit.wall].nextsector].lotag == 0) ||
+                                    (wall[hit.wall].nextsector == -1 && sector[hit.sect].lotag == 0))
+                                if ((wall[hit.wall].cstat&16) == 0)
                                 {
-                                    if (wall[hitinfo.hitwall].nextsector >= 0)
+                                    if (wall[hit.wall].nextsector >= 0)
                                     {
-                                        l = headspritesect[wall[hitinfo.hitwall].nextsector];
+                                        l = headspritesect[wall[hit.wall].nextsector];
                                         while (l >= 0)
                                         {
                                             if (sprite[l].statnum == 3 && sprite[l].lotag == 13)
@@ -861,8 +861,8 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                                             actor[l].flags |= SPRITE_DECAL;
 
                                         sprite[l].xvel = -1;
-                                        sprite[l].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,
-                                                                 wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
+                                        sprite[l].ang = getangle(wall[hit.wall].x-wall[wall[hit.wall].point2].x,
+                                                                 wall[hit.wall].y-wall[wall[hit.wall].point2].y)+512;
                                         if (ProjectileData[atwith].workslike & PROJECTILE_RANDDECALSIZE)
                                         {
                                             int32_t wh = (krand()&ProjectileData[atwith].xrepeat);
@@ -887,48 +887,48 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
 
 DOSKIPBULLETHOLE:
 
-                    if (wall[hitinfo.hitwall].cstat&2)
-                        if (wall[hitinfo.hitwall].nextsector >= 0)
-                            if (hitinfo.pos.z >= (sector[wall[hitinfo.hitwall].nextsector].floorz))
-                                hitinfo.hitwall = wall[hitinfo.hitwall].nextwall;
+                    if (wall[hit.wall].cstat&2)
+                        if (wall[hit.wall].nextsector >= 0)
+                            if (hit.pos.z >= (sector[wall[hit.wall].nextsector].floorz))
+                                hit.wall = wall[hit.wall].nextwall;
 
-                    A_DamageWall(k,hitinfo.hitwall,&hitinfo.pos,atwith);
+                    A_DamageWall(k,hit.wall,&hit.pos,atwith);
                 }
             }
             else
             {
-                k = A_InsertSprite(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
+                k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
                 sprite[k].extra = ProjectileData[atwith].extra;
                 if (ProjectileData[atwith].extra_rand > 0)
                     sprite[k].extra += (krand()%ProjectileData[atwith].extra_rand);
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                actor[k].t_data[6] = hitinfo.hitwall;
-                actor[k].t_data[7] = hitinfo.hitsect;
-                actor[k].t_data[8] = hitinfo.hitsprite;
+                actor[k].t_data[6] = hit.wall;
+                actor[k].t_data[7] = hit.sect;
+                actor[k].t_data[8] = hit.sprite;
 
-                if (hitinfo.hitsprite >= 0)
+                if (hit.sprite >= 0)
                 {
-                    A_DamageObject(hitinfo.hitsprite,k);
-                    if (sprite[hitinfo.hitsprite].picnum != APLAYER)
+                    A_DamageObject(hit.sprite,k);
+                    if (sprite[hit.sprite].picnum != APLAYER)
                     {
                         if (ProjectileData[atwith].spawns >= 0)
                         {
                             int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                             if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                             if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                            actor[wh].t_data[6] = hitinfo.hitwall;
-                            actor[wh].t_data[7] = hitinfo.hitsect;
-                            actor[wh].t_data[8] = hitinfo.hitsprite;
+                            actor[wh].t_data[6] = hit.wall;
+                            actor[wh].t_data[7] = hit.sect;
+                            actor[wh].t_data[8] = hit.sprite;
                         }
                     }
                     else sprite[k].xrepeat = sprite[k].yrepeat = 0;
                 }
-                else if (hitinfo.hitwall >= 0)
-                    A_DamageWall(k,hitinfo.hitwall,&hitinfo.pos,atwith);
+                else if (hit.wall >= 0)
+                    A_DamageWall(k,hit.wall,&hit.pos,atwith);
             }
 
             if ((krand()&255) < 4 && ProjectileData[atwith].isound >= 0)
-                S_PlaySound3D(ProjectileData[atwith].isound,k,&hitinfo.pos);
+                S_PlaySound3D(ProjectileData[atwith].isound,k,&hit.pos);
 
             return -1;
         }
@@ -959,12 +959,12 @@ DOSKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
-                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
+                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
 
-                    if (hitinfo.pos.x == 0)
-                        hitinfo.pos.x++;
+                    if (hit.pos.x == 0)
+                        hit.pos.x++;
 
-                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hitinfo.pos.x;
+                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hit.pos.x;
 
                     if (sprite[j].picnum != RECON)
                         sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
@@ -1083,23 +1083,23 @@ DOSKIPBULLETHOLE:
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],zvel<<6,
-                    &hitinfo,CLIPMASK1);
+                    &hit,CLIPMASK1);
 
             if (atwith >= BLOODSPLAT1 && atwith <= BLOODSPLAT4)
             {
-                if (FindDistance2D(srcvect.x-hitinfo.pos.x,srcvect.y-hitinfo.pos.y) < 1024)
-                    if (hitinfo.hitwall >= 0 && wall[hitinfo.hitwall].overpicnum != BIGFORCE)
-                        if ((wall[hitinfo.hitwall].nextsector >= 0 && hitinfo.hitsect >= 0 &&
-                                sector[wall[hitinfo.hitwall].nextsector].lotag == 0 &&
-                                sector[hitinfo.hitsect].lotag == 0 &&
-                                sector[wall[hitinfo.hitwall].nextsector].lotag == 0 &&
-                                (sector[hitinfo.hitsect].floorz-sector[wall[hitinfo.hitwall].nextsector].floorz) > (16<<8)) ||
-                                (wall[hitinfo.hitwall].nextsector == -1 && sector[hitinfo.hitsect].lotag == 0))
-                            if ((wall[hitinfo.hitwall].cstat&16) == 0)
+                if (FindDistance2D(srcvect.x-hit.pos.x,srcvect.y-hit.pos.y) < 1024)
+                    if (hit.wall >= 0 && wall[hit.wall].overpicnum != BIGFORCE)
+                        if ((wall[hit.wall].nextsector >= 0 && hit.sect >= 0 &&
+                                sector[wall[hit.wall].nextsector].lotag == 0 &&
+                                sector[hit.sect].lotag == 0 &&
+                                sector[wall[hit.wall].nextsector].lotag == 0 &&
+                                (sector[hit.sect].floorz-sector[wall[hit.wall].nextsector].floorz) > (16<<8)) ||
+                                (wall[hit.wall].nextsector == -1 && sector[hit.sect].lotag == 0))
+                            if ((wall[hit.wall].cstat&16) == 0)
                             {
-                                if (wall[hitinfo.hitwall].nextsector >= 0)
+                                if (wall[hit.wall].nextsector >= 0)
                                 {
-                                    k = headspritesect[wall[hitinfo.hitwall].nextsector];
+                                    k = headspritesect[wall[hit.wall].nextsector];
                                     while (k >= 0)
                                     {
                                         if (sprite[k].statnum == 3 && sprite[k].lotag == 13)
@@ -1108,19 +1108,19 @@ DOSKIPBULLETHOLE:
                                     }
                                 }
 
-                                if (wall[hitinfo.hitwall].nextwall >= 0 &&
-                                        wall[wall[hitinfo.hitwall].nextwall].hitag != 0)
+                                if (wall[hit.wall].nextwall >= 0 &&
+                                        wall[wall[hit.wall].nextwall].hitag != 0)
                                     return -1;
 
-                                if (wall[hitinfo.hitwall].hitag == 0)
+                                if (wall[hit.wall].hitag == 0)
                                 {
                                     k = A_Spawn(i,atwith);
                                     sprite[k].xvel = -12;
-                                    sprite[k].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,
-                                                             wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
-                                    sprite[k].x = hitinfo.pos.x;
-                                    sprite[k].y = hitinfo.pos.y;
-                                    sprite[k].z = hitinfo.pos.z;
+                                    sprite[k].ang = getangle(wall[hit.wall].x-wall[wall[hit.wall].point2].x,
+                                                             wall[hit.wall].y-wall[wall[hit.wall].point2].y)+512;
+                                    sprite[k].x = hit.pos.x;
+                                    sprite[k].y = hit.pos.y;
+                                    sprite[k].z = hit.pos.z;
                                     sprite[k].cstat |= (krand()&4);
                                     A_SetSprite(k,CLIPMASK0);
                                     setsprite(k,(vec3_t *)&sprite[k]);
@@ -1131,52 +1131,52 @@ DOSKIPBULLETHOLE:
                 return -1;
             }
 
-            if (hitinfo.hitsect < 0) break;
+            if (hit.sect < 0) break;
 
-            if ((klabs(srcvect.x-hitinfo.pos.x)+klabs(srcvect.y-hitinfo.pos.y)) < 1024)
+            if ((klabs(srcvect.x-hit.pos.x)+klabs(srcvect.y-hit.pos.y)) < 1024)
             {
-                if (hitinfo.hitwall >= 0 || hitinfo.hitsprite >= 0)
+                if (hit.wall >= 0 || hit.sprite >= 0)
                 {
-                    j = A_InsertSprite(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,KNEE,-15,0,0,sa,32,0,i,4);
+                    j = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,KNEE,-15,0,0,sa,32,0,i,4);
                     sprite[j].extra += (krand()&7);
                     if (p >= 0)
                     {
                         k = A_Spawn(j,SMALLSMOKE);
                         sprite[k].z -= (8<<8);
                         A_PlaySound(KICK_HIT,j);
-                        actor[k].t_data[6] = hitinfo.hitwall;
-                        actor[k].t_data[7] = hitinfo.hitsect;
-                        actor[k].t_data[8] = hitinfo.hitsprite;
+                        actor[k].t_data[6] = hit.wall;
+                        actor[k].t_data[7] = hit.sect;
+                        actor[k].t_data[8] = hit.sprite;
                     }
 
                     if (p >= 0 && ps->inv_amount[GET_STEROIDS] > 0 && ps->inv_amount[GET_STEROIDS] < 400)
                         sprite[j].extra += (ps->max_player_health>>2);
 
-                    if (hitinfo.hitsprite >= 0 && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH2)
+                    if (hit.sprite >= 0 && sprite[hit.sprite].picnum != ACCESSSWITCH && sprite[hit.sprite].picnum != ACCESSSWITCH2)
                     {
-                        A_DamageObject(hitinfo.hitsprite,j);
-                        if (p >= 0) P_ActivateSwitch(p,hitinfo.hitsprite,1);
+                        A_DamageObject(hit.sprite,j);
+                        if (p >= 0) P_ActivateSwitch(p,hit.sprite,1);
                     }
 
-                    else if (hitinfo.hitwall >= 0)
+                    else if (hit.wall >= 0)
                     {
-                        if (wall[hitinfo.hitwall].cstat&2)
-                            if (wall[hitinfo.hitwall].nextsector >= 0)
-                                if (hitinfo.pos.z >= (sector[wall[hitinfo.hitwall].nextsector].floorz))
-                                    hitinfo.hitwall = wall[hitinfo.hitwall].nextwall;
+                        if (wall[hit.wall].cstat&2)
+                            if (wall[hit.wall].nextsector >= 0)
+                                if (hit.pos.z >= (sector[wall[hit.wall].nextsector].floorz))
+                                    hit.wall = wall[hit.wall].nextwall;
 
-                        if (hitinfo.hitwall >= 0 && wall[hitinfo.hitwall].picnum != ACCESSSWITCH && wall[hitinfo.hitwall].picnum != ACCESSSWITCH2)
+                        if (hit.wall >= 0 && wall[hit.wall].picnum != ACCESSSWITCH && wall[hit.wall].picnum != ACCESSSWITCH2)
                         {
-                            A_DamageWall(j,hitinfo.hitwall,&hitinfo.pos,atwith);
-                            if (p >= 0) P_ActivateSwitch(p,hitinfo.hitwall,0);
+                            A_DamageWall(j,hit.wall,&hit.pos,atwith);
+                            if (p >= 0) P_ActivateSwitch(p,hit.wall,0);
                         }
                     }
                 }
-                else if (p >= 0 && zvel > 0 && sector[hitinfo.hitsect].lotag == 1)
+                else if (p >= 0 && zvel > 0 && sector[hit.sect].lotag == 1)
                 {
                     j = A_Spawn(g_player[p].ps->i,WATERSPLASH2);
-                    sprite[j].x = hitinfo.pos.x;
-                    sprite[j].y = hitinfo.pos.y;
+                    sprite[j].x = hit.pos.x;
+                    sprite[j].y = hit.pos.y;
                     sprite[j].ang = g_player[p].ps->ang; // Total tweek
                     sprite[j].xvel = 32;
                     A_SetSprite(i,CLIPMASK0);
@@ -1214,9 +1214,9 @@ DOSKIPBULLETHOLE:
                         dal -= (8<<8);
 
                     }
-                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hitinfo.pos.x == 0) hitinfo.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hitinfo.pos.x;
+                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
+                    if (hit.pos.x == 0) hit.pos.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hit.pos.x;
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
 
@@ -1236,12 +1236,12 @@ DOSKIPBULLETHOLE:
                         zvel = (100-ps->horiz-ps->horizoff)<<5;
                         if (actor[i].shootzvel) zvel = actor[i].shootzvel;
                         hitscan((const vec3_t *)&srcvect,sect,sintable[(sa+512)&2047],sintable[sa&2047],
-                                zvel<<6,&hitinfo,CLIPMASK1);
-                        if (hitinfo.hitsprite != -1)
+                                zvel<<6,&hit,CLIPMASK1);
+                        if (hit.sprite != -1)
                         {
-                            if (sprite[hitinfo.hitsprite].statnum == STAT_ACTOR || sprite[hitinfo.hitsprite].statnum == STAT_ZOMBIEACTOR ||
-                                    sprite[hitinfo.hitsprite].statnum == STAT_PLAYER || sprite[hitinfo.hitsprite].statnum == STAT_DUMMYPLAYER)
-                                j = hitinfo.hitsprite;
+                            if (sprite[hit.sprite].statnum == STAT_ACTOR || sprite[hit.sprite].statnum == STAT_ZOMBIEACTOR ||
+                                    sprite[hit.sprite].statnum == STAT_PLAYER || sprite[hit.sprite].statnum == STAT_DUMMYPLAYER)
+                                j = hit.sprite;
                         }
                     }
 
@@ -1269,10 +1269,10 @@ DOSKIPBULLETHOLE:
             {
                 j = A_FindPlayer(s,&x);
                 srcvect.z -= (4<<8);
-                hitinfo.pos.x = ldist(&sprite[g_player[j].ps->i], s);
-                if (hitinfo.pos.x == 0)
-                    hitinfo.pos.x++;
-                zvel = ((g_player[j].ps->pos.z-srcvect.z) <<8) / hitinfo.pos.x;
+                hit.pos.x = ldist(&sprite[g_player[j].ps->i], s);
+                if (hit.pos.x == 0)
+                    hit.pos.x++;
+                zvel = ((g_player[j].ps->pos.z-srcvect.z) <<8) / hit.pos.x;
                 if (s->picnum != BOSS1)
                 {
                     zvel += 128-(krand()&255);
@@ -1290,50 +1290,50 @@ DOSKIPBULLETHOLE:
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
-                    zvel<<6,&hitinfo,CLIPMASK1);
+                    zvel<<6,&hit,CLIPMASK1);
             s->cstat |= 257;
 
-            if (hitinfo.hitsect < 0) return -1;
+            if (hit.sect < 0) return -1;
 
-            if ((krand()&15) == 0 && sector[hitinfo.hitsect].lotag == 2)
-                A_DoWaterTracers(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,
+            if ((krand()&15) == 0 && sector[hit.sect].lotag == 2)
+                A_DoWaterTracers(hit.pos.x,hit.pos.y,hit.pos.z,
                                  srcvect.x,srcvect.y,srcvect.z,8-(ud.multimode>>1));
 
             if (p >= 0)
             {
-                k = A_InsertSprite(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
+                k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,SHOTSPARK1,-15,10,10,sa,0,0,i,4);
                 sprite[k].extra = *actorscrptr[atwith];
                 sprite[k].extra += (krand()%6);
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                actor[k].t_data[6] = hitinfo.hitwall;
-                actor[k].t_data[7] = hitinfo.hitsect;
-                actor[k].t_data[8] = hitinfo.hitsprite;
+                actor[k].t_data[6] = hit.wall;
+                actor[k].t_data[7] = hit.sect;
+                actor[k].t_data[8] = hit.sprite;
 
 
-                if (hitinfo.hitwall == -1 && hitinfo.hitsprite == -1)
+                if (hit.wall == -1 && hit.sprite == -1)
                 {
                     if (zvel < 0)
                     {
-                        if (sector[hitinfo.hitsect].ceilingstat&1)
+                        if (sector[hit.sect].ceilingstat&1)
                         {
                             sprite[k].xrepeat = 0;
                             sprite[k].yrepeat = 0;
                             return -1;
                         }
                         else
-                            Sect_DamageCeiling(hitinfo.hitsect);
+                            Sect_DamageCeiling(hit.sect);
                     }
                     l = A_Spawn(k,SMALLSMOKE);
-                    actor[l].t_data[6] = hitinfo.hitwall;
-                    actor[l].t_data[7] = hitinfo.hitsect;
-                    actor[l].t_data[8] = hitinfo.hitsprite;
+                    actor[l].t_data[6] = hit.wall;
+                    actor[l].t_data[7] = hit.sect;
+                    actor[l].t_data[8] = hit.sprite;
                 }
 
-                if (hitinfo.hitsprite >= 0)
+                if (hit.sprite >= 0)
                 {
-                    A_DamageObject(hitinfo.hitsprite,k);
-                    if (sprite[hitinfo.hitsprite].picnum == APLAYER && (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) &&
-                            GTFLAGS(GAMETYPE_TDM) && g_player[sprite[hitinfo.hitsprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
+                    A_DamageObject(hit.sprite,k);
+                    if (sprite[hit.sprite].picnum == APLAYER && (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) &&
+                            GTFLAGS(GAMETYPE_TDM) && g_player[sprite[hit.sprite].yvel].ps->team != g_player[sprite[i].yvel].ps->team)))
                     {
                         l = A_Spawn(k,JIBS6);
                         sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -1345,60 +1345,60 @@ DOSKIPBULLETHOLE:
                     else
                     {
                         l = A_Spawn(k,SMALLSMOKE);
-                        actor[l].t_data[6] = hitinfo.hitwall;
-                        actor[l].t_data[7] = hitinfo.hitsect;
-                        actor[l].t_data[8] = hitinfo.hitsprite;
+                        actor[l].t_data[6] = hit.wall;
+                        actor[l].t_data[7] = hit.sect;
+                        actor[l].t_data[8] = hit.sprite;
                     }
 
                     if (p >= 0 && (
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH ||
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH+1 ||
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH2 ||
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH2+1 ||
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH3 ||
-                                sprite[hitinfo.hitsprite].picnum == DIPSWITCH3+1 ||
-                                sprite[hitinfo.hitsprite].picnum == HANDSWITCH ||
-                                sprite[hitinfo.hitsprite].picnum == HANDSWITCH+1))
+                                sprite[hit.sprite].picnum == DIPSWITCH ||
+                                sprite[hit.sprite].picnum == DIPSWITCH+1 ||
+                                sprite[hit.sprite].picnum == DIPSWITCH2 ||
+                                sprite[hit.sprite].picnum == DIPSWITCH2+1 ||
+                                sprite[hit.sprite].picnum == DIPSWITCH3 ||
+                                sprite[hit.sprite].picnum == DIPSWITCH3+1 ||
+                                sprite[hit.sprite].picnum == HANDSWITCH ||
+                                sprite[hit.sprite].picnum == HANDSWITCH+1))
                     {
-                        P_ActivateSwitch(p,hitinfo.hitsprite,1);
+                        P_ActivateSwitch(p,hit.sprite,1);
                         return -1;
                     }
                 }
-                else if (hitinfo.hitwall >= 0)
+                else if (hit.wall >= 0)
                 {
                     l = A_Spawn(k,SMALLSMOKE);
-                    actor[l].t_data[6] = hitinfo.hitwall;
-                    actor[l].t_data[7] = hitinfo.hitsect;
-                    actor[l].t_data[8] = hitinfo.hitsprite;
+                    actor[l].t_data[6] = hit.wall;
+                    actor[l].t_data[7] = hit.sect;
+                    actor[l].t_data[8] = hit.sprite;
 
-                    if (CheckDoorTile(wall[hitinfo.hitwall].picnum) == 1)
+                    if (CheckDoorTile(wall[hit.wall].picnum) == 1)
                         goto SKIPBULLETHOLE;
                     if (p >= 0 && (
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH ||
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH+1 ||
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH2 ||
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH2+1 ||
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH3 ||
-                                wall[hitinfo.hitwall].picnum == DIPSWITCH3+1 ||
-                                wall[hitinfo.hitwall].picnum == HANDSWITCH ||
-                                wall[hitinfo.hitwall].picnum == HANDSWITCH+1))
+                                wall[hit.wall].picnum == DIPSWITCH ||
+                                wall[hit.wall].picnum == DIPSWITCH+1 ||
+                                wall[hit.wall].picnum == DIPSWITCH2 ||
+                                wall[hit.wall].picnum == DIPSWITCH2+1 ||
+                                wall[hit.wall].picnum == DIPSWITCH3 ||
+                                wall[hit.wall].picnum == DIPSWITCH3+1 ||
+                                wall[hit.wall].picnum == HANDSWITCH ||
+                                wall[hit.wall].picnum == HANDSWITCH+1))
                     {
-                        P_ActivateSwitch(p,hitinfo.hitwall,0);
+                        P_ActivateSwitch(p,hit.wall,0);
                         return -1;
                     }
 
-                    if (wall[hitinfo.hitwall].hitag != 0 || (wall[hitinfo.hitwall].nextwall >= 0 && wall[wall[hitinfo.hitwall].nextwall].hitag != 0))
+                    if (wall[hit.wall].hitag != 0 || (wall[hit.wall].nextwall >= 0 && wall[wall[hit.wall].nextwall].hitag != 0))
                         goto SKIPBULLETHOLE;
 
-                    if (hitinfo.hitsect >= 0 && sector[hitinfo.hitsect].lotag == 0)
-                        if (wall[hitinfo.hitwall].overpicnum != BIGFORCE)
-                            if ((wall[hitinfo.hitwall].nextsector >= 0 && sector[wall[hitinfo.hitwall].nextsector].lotag == 0) ||
-                                    (wall[hitinfo.hitwall].nextsector == -1 && sector[hitinfo.hitsect].lotag == 0))
-                                if ((wall[hitinfo.hitwall].cstat&16) == 0)
+                    if (hit.sect >= 0 && sector[hit.sect].lotag == 0)
+                        if (wall[hit.wall].overpicnum != BIGFORCE)
+                            if ((wall[hit.wall].nextsector >= 0 && sector[wall[hit.wall].nextsector].lotag == 0) ||
+                                    (wall[hit.wall].nextsector == -1 && sector[hit.sect].lotag == 0))
+                                if ((wall[hit.wall].cstat&16) == 0)
                                 {
-                                    if (wall[hitinfo.hitwall].nextsector >= 0)
+                                    if (wall[hit.wall].nextsector >= 0)
                                     {
-                                        l = headspritesect[wall[hitinfo.hitwall].nextsector];
+                                        l = headspritesect[wall[hit.wall].nextsector];
                                         while (l >= 0)
                                         {
                                             if (sprite[l].statnum == 3 && sprite[l].lotag == 13)
@@ -1421,12 +1421,12 @@ DOSKIPBULLETHOLE:
                                         actor[l].flags |= SPRITE_DECAL;
 
                                     sprite[l].xvel = -1;
-                                    sprite[l].x = hitinfo.pos.x;
-                                    sprite[l].y = hitinfo.pos.y;
-                                    sprite[l].z = hitinfo.pos.z;
+                                    sprite[l].x = hit.pos.x;
+                                    sprite[l].y = hit.pos.y;
+                                    sprite[l].z = hit.pos.z;
 
-                                    sprite[l].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,
-                                                             wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)+512;
+                                    sprite[l].ang = getangle(wall[hit.wall].x-wall[wall[hit.wall].point2].x,
+                                                             wall[hit.wall].y-wall[wall[hit.wall].point2].y)+512;
 
                                     sprite[l].x -= mulscale13(1,sintable[(sprite[l].ang+2560)&2047]);
                                     sprite[l].y -= mulscale13(1,sintable[(sprite[l].ang+2048)&2047]);
@@ -1435,41 +1435,41 @@ DOSKIPBULLETHOLE:
 
 SKIPBULLETHOLE:
 
-                    if (wall[hitinfo.hitwall].cstat&2)
-                        if (wall[hitinfo.hitwall].nextsector >= 0)
-                            if (hitinfo.pos.z >= (sector[wall[hitinfo.hitwall].nextsector].floorz))
-                                hitinfo.hitwall = wall[hitinfo.hitwall].nextwall;
+                    if (wall[hit.wall].cstat&2)
+                        if (wall[hit.wall].nextsector >= 0)
+                            if (hit.pos.z >= (sector[wall[hit.wall].nextsector].floorz))
+                                hit.wall = wall[hit.wall].nextwall;
 
-                    A_DamageWall(k,hitinfo.hitwall,&hitinfo.pos,SHOTSPARK1);
+                    A_DamageWall(k,hit.wall,&hit.pos,SHOTSPARK1);
                 }
             }
             else
             {
-                k = A_InsertSprite(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
+                k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
                 sprite[k].extra = *actorscrptr[atwith];
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                actor[k].t_data[6] = hitinfo.hitwall;
-                actor[k].t_data[7] = hitinfo.hitsect;
-                actor[k].t_data[8] = hitinfo.hitsprite;
+                actor[k].t_data[6] = hit.wall;
+                actor[k].t_data[7] = hit.sect;
+                actor[k].t_data[8] = hit.sprite;
 
-                if (hitinfo.hitsprite >= 0)
+                if (hit.sprite >= 0)
                 {
-                    A_DamageObject(hitinfo.hitsprite,k);
-                    if (sprite[hitinfo.hitsprite].picnum != APLAYER)
+                    A_DamageObject(hit.sprite,k);
+                    if (sprite[hit.sprite].picnum != APLAYER)
                     {
                         l = A_Spawn(k,SMALLSMOKE);
-                        actor[l].t_data[6] = hitinfo.hitwall;
-                        actor[l].t_data[7] = hitinfo.hitsect;
-                        actor[l].t_data[8] = hitinfo.hitsprite;
+                        actor[l].t_data[6] = hit.wall;
+                        actor[l].t_data[7] = hit.sect;
+                        actor[l].t_data[8] = hit.sprite;
                     }
                     else sprite[k].xrepeat = sprite[k].yrepeat = 0;
                 }
-                else if (hitinfo.hitwall >= 0)
-                    A_DamageWall(k,hitinfo.hitwall,&hitinfo.pos,SHOTSPARK1);
+                else if (hit.wall >= 0)
+                    A_DamageWall(k,hit.wall,&hit.pos,SHOTSPARK1);
             }
 
             if ((krand()&255) < 4)
-                S_PlaySound3D(PISTOL_RICOCHET,k, &hitinfo.pos);
+                S_PlaySound3D(PISTOL_RICOCHET,k, &hit.pos);
 
             return -1;
 
@@ -1510,9 +1510,9 @@ SKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)-(12<<8);
-                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hitinfo.pos.x == 0) hitinfo.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hitinfo.pos.x;
+                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
+                    if (hit.pos.x == 0) hit.pos.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hit.pos.x;
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
                 else
@@ -1523,9 +1523,9 @@ SKIPBULLETHOLE:
                 j = A_FindPlayer(s,&x);
                 //                sa = getangle(g_player[j].ps->opos.x-sx,g_player[j].ps->opos.y-sy);
                 sa += 16-(krand()&31);
-                hitinfo.pos.x = ldist(&sprite[g_player[j].ps->i],s);
-                if (hitinfo.pos.x == 0) hitinfo.pos.x++;
-                zvel = ((g_player[j].ps->opos.z - srcvect.z + (3<<8))*vel) / hitinfo.pos.x;
+                hit.pos.x = ldist(&sprite[g_player[j].ps->i],s);
+                if (hit.pos.x == 0) hit.pos.x++;
+                zvel = ((g_player[j].ps->opos.z - srcvect.z + (3<<8))*vel) / hit.pos.x;
             }
             if (actor[i].shootzvel) zvel = actor[i].shootzvel;
             oldzvel = zvel;
@@ -1600,9 +1600,9 @@ SKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
-                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hitinfo.pos.x == 0) hitinfo.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hitinfo.pos.x;
+                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
+                    if (hit.pos.x == 0) hit.pos.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hit.pos.x;
                     if (sprite[j].picnum != RECON)
                         sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
@@ -1728,28 +1728,28 @@ SKIPBULLETHOLE:
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
-                    zvel<<6,&hitinfo,CLIPMASK1);
+                    zvel<<6,&hit,CLIPMASK1);
 
             srcvect.z += g_player[p].ps->pyoff;
             j = 0;
-            if (hitinfo.hitsprite >= 0) break;
+            if (hit.sprite >= 0) break;
 
-            if (hitinfo.hitwall >= 0 && hitinfo.hitsect >= 0)
-                if (((hitinfo.pos.x-srcvect.x)*(hitinfo.pos.x-srcvect.x)+(hitinfo.pos.y-srcvect.y)*(hitinfo.pos.y-srcvect.y)) < (290*290))
+            if (hit.wall >= 0 && hit.sect >= 0)
+                if (((hit.pos.x-srcvect.x)*(hit.pos.x-srcvect.x)+(hit.pos.y-srcvect.y)*(hit.pos.y-srcvect.y)) < (290*290))
                 {
-                    if (wall[hitinfo.hitwall].nextsector >= 0)
+                    if (wall[hit.wall].nextsector >= 0)
                     {
-                        if (sector[wall[hitinfo.hitwall].nextsector].lotag <= 2 && sector[hitinfo.hitsect].lotag <= 2)
+                        if (sector[wall[hit.wall].nextsector].lotag <= 2 && sector[hit.sect].lotag <= 2)
                             j = 1;
                     }
-                    else if (sector[hitinfo.hitsect].lotag <= 2)
+                    else if (sector[hit.sect].lotag <= 2)
                         j = 1;
                 }
 
             if (j == 1)
             {
                 int32_t lTripBombControl=Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, g_player[p].ps->i, p);
-                k = A_InsertSprite(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,TRIPBOMB,-16,4,5,sa,0,0,i,6);
+                k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,TRIPBOMB,-16,4,5,sa,0,0,i,6);
                 if (lTripBombControl & TRIPBOMB_TIMER)
                 {
                     int32_t lLifetime=Gv_GetVarByLabel("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, g_player[p].ps->i, p);
@@ -1767,7 +1767,7 @@ SKIPBULLETHOLE:
                 sprite[k].xvel = -20;
                 A_SetSprite(k,CLIPMASK0);
                 sprite[k].cstat = 16;
-                actor[k].t_data[5] = sprite[k].ang = getangle(wall[hitinfo.hitwall].x-wall[wall[hitinfo.hitwall].point2].x,wall[hitinfo.hitwall].y-wall[wall[hitinfo.hitwall].point2].y)-512;
+                actor[k].t_data[5] = sprite[k].ang = getangle(wall[hit.wall].x-wall[wall[hit.wall].point2].x,wall[hit.wall].y-wall[wall[hit.wall].point2].y)-512;
 
 
             }
@@ -1815,10 +1815,10 @@ SKIPBULLETHOLE:
                         dal -= (8<<8);
 
                     }
-                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hitinfo.pos.x == 0)
-                        hitinfo.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hitinfo.pos.x;
+                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
+                    if (hit.pos.x == 0)
+                        hit.pos.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hit.pos.x;
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
                 else
@@ -1834,10 +1834,10 @@ SKIPBULLETHOLE:
             {
                 j = A_FindPlayer(s,&x);
                 srcvect.z -= (4<<8);
-                hitinfo.pos.x = ldist(&sprite[g_player[j].ps->i], s);
-                if (hitinfo.pos.x == 0)
-                    hitinfo.pos.x++;
-                zvel = ((g_player[j].ps->pos.z-srcvect.z) <<8) / hitinfo.pos.x;
+                hit.pos.x = ldist(&sprite[g_player[j].ps->i], s);
+                if (hit.pos.x == 0)
+                    hit.pos.x++;
+                zvel = ((g_player[j].ps->pos.z-srcvect.z) <<8) / hit.pos.x;
                 zvel += 128-(krand()&255);
                 sa += 32-(krand()&63);
             }
@@ -1852,34 +1852,34 @@ SKIPBULLETHOLE:
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
-                    zvel<<6,&hitinfo,CLIPMASK1);
+                    zvel<<6,&hit,CLIPMASK1);
 
             s->cstat |= 257;
 
-            j = A_InsertSprite(sect,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,GROWSPARK,-16,28,28,sa,0,0,i,1);
+            j = A_InsertSprite(sect,hit.pos.x,hit.pos.y,hit.pos.z,GROWSPARK,-16,28,28,sa,0,0,i,1);
 
             sprite[j].pal = 2;
             sprite[j].cstat |= 130;
             sprite[j].xrepeat = sprite[j].yrepeat = 1;
 
-            if (hitinfo.hitwall == -1 && hitinfo.hitsprite == -1 && hitinfo.hitsect >= 0)
+            if (hit.wall == -1 && hit.sprite == -1 && hit.sect >= 0)
             {
-                if (zvel < 0 && (sector[hitinfo.hitsect].ceilingstat&1) == 0)
-                    Sect_DamageCeiling(hitinfo.hitsect);
+                if (zvel < 0 && (sector[hit.sect].ceilingstat&1) == 0)
+                    Sect_DamageCeiling(hit.sect);
             }
-            else if (hitinfo.hitsprite >= 0) A_DamageObject(hitinfo.hitsprite,j);
-            else if (hitinfo.hitwall >= 0 && wall[hitinfo.hitwall].picnum != ACCESSSWITCH && wall[hitinfo.hitwall].picnum != ACCESSSWITCH2)
+            else if (hit.sprite >= 0) A_DamageObject(hit.sprite,j);
+            else if (hit.wall >= 0 && wall[hit.wall].picnum != ACCESSSWITCH && wall[hit.wall].picnum != ACCESSSWITCH2)
             {
-                /*    if(wall[hitinfo.hitwall].overpicnum == MIRROR && k == 0)
+                /*    if(wall[hit.wall].overpicnum == MIRROR && k == 0)
                 {
                 l = getangle(
-                wall[wall[hitinfo.hitwall].point2].x-wall[hitinfo.hitwall].x,
-                wall[wall[hitinfo.hitwall].point2].y-wall[hitinfo.hitwall].y);
+                wall[wall[hit.wall].point2].x-wall[hit.wall].x,
+                wall[wall[hit.wall].point2].y-wall[hit.wall].y);
 
-                sx = hitinfo.pos.x;
-                sy = hitinfo.pos.y;
-                srcvect.z = hitinfo.pos.z;
-                sect = hitinfo.hitsect;
+                sx = hit.pos.x;
+                sy = hit.pos.y;
+                srcvect.z = hit.pos.z;
+                sect = hit.sect;
                 sa = ((l<<1) - sa)&2047;
                 sx += sintable[(sa+512)&2047]>>12;
                 sy += sintable[sa&2047]>>12;
@@ -1888,7 +1888,7 @@ SKIPBULLETHOLE:
                 goto RESHOOTGROW;
                 }
                 else */
-                A_DamageWall(j,hitinfo.hitwall,&hitinfo.pos,atwith);
+                A_DamageWall(j,hit.wall,&hit.pos,atwith);
             }
 
             break;
@@ -1910,10 +1910,10 @@ SKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1);
-                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hitinfo.pos.x == 0)
-                        hitinfo.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal-(4<<8))*768) / hitinfo.pos.x;
+                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
+                    if (hit.pos.x == 0)
+                        hit.pos.x++;
+                    zvel = ((sprite[j].z-srcvect.z-dal-(4<<8))*768) / hit.pos.x;
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
                 else zvel = (100-ps->horiz-ps->horizoff)*98;
@@ -3973,39 +3973,39 @@ void P_ProcessWeapon(int32_t snum)
                 case TRIPBOMB_WEAPON:
                     if (p->ammo_amount[p->curr_weapon] > 0)
                     {
-                        hitdata_t hitinfo;
+                        hitdata_t hit;
                         hitscan((const vec3_t *)p,
                                 p->cursectnum, sintable[(p->ang+512)&2047],
                                 sintable[p->ang&2047], (100-p->horiz-p->horizoff)*32,
-                                &hitinfo,CLIPMASK1);
+                                &hit,CLIPMASK1);
 
-                        if (hitinfo.hitsect < 0 || hitinfo.hitsprite >= 0)
+                        if (hit.sect < 0 || hit.sprite >= 0)
                             break;
 
-                        if (hitinfo.hitwall >= 0 && sector[hitinfo.hitsect].lotag > 2)
+                        if (hit.wall >= 0 && sector[hit.sect].lotag > 2)
                             break;
 
-                        if (hitinfo.hitwall >= 0 && wall[hitinfo.hitwall].overpicnum >= 0)
-                            if (wall[hitinfo.hitwall].overpicnum == BIGFORCE)
+                        if (hit.wall >= 0 && wall[hit.wall].overpicnum >= 0)
+                            if (wall[hit.wall].overpicnum == BIGFORCE)
                                 break;
 
-                        j = headspritesect[hitinfo.hitsect];
+                        j = headspritesect[hit.sect];
                         while (j >= 0)
                         {
                             if (sprite[j].picnum == TRIPBOMB &&
-                                    klabs(sprite[j].z-hitinfo.pos.z) < (12<<8) &&
-                                    ((sprite[j].x-hitinfo.pos.x)*(sprite[j].x-hitinfo.pos.x)+
-                                     (sprite[j].y-hitinfo.pos.y)*(sprite[j].y-hitinfo.pos.y)) < (290*290))
+                                    klabs(sprite[j].z-hit.pos.z) < (12<<8) &&
+                                    ((sprite[j].x-hit.pos.x)*(sprite[j].x-hit.pos.x)+
+                                     (sprite[j].y-hit.pos.y)*(sprite[j].y-hit.pos.y)) < (290*290))
                                 break;
                             j = nextspritesect[j];
                         }
 
-                        if (j == -1 && hitinfo.hitwall >= 0 && (wall[hitinfo.hitwall].cstat&16) == 0)
-                            if ((wall[hitinfo.hitwall].nextsector >= 0 &&
-                                    sector[wall[hitinfo.hitwall].nextsector].lotag <= 2) ||
-                                    (wall[hitinfo.hitwall].nextsector == -1 && sector[hitinfo.hitsect].lotag <= 2))
-                                if (((hitinfo.pos.x-p->pos.x)*(hitinfo.pos.x-p->pos.x) +
-                                        (hitinfo.pos.y-p->pos.y)*(hitinfo.pos.y-p->pos.y)) < (290*290))
+                        if (j == -1 && hit.wall >= 0 && (wall[hit.wall].cstat&16) == 0)
+                            if ((wall[hit.wall].nextsector >= 0 &&
+                                    sector[wall[hit.wall].nextsector].lotag <= 2) ||
+                                    (wall[hit.wall].nextsector == -1 && sector[hit.sect].lotag <= 2))
+                                if (((hit.pos.x-p->pos.x)*(hit.pos.x-p->pos.x) +
+                                        (hit.pos.y-p->pos.y)*(hit.pos.y-p->pos.y)) < (290*290))
                                 {
                                     p->pos.z = p->opos.z;
                                     p->vel.z = 0;
@@ -5590,7 +5590,7 @@ void computergetinput(int32_t snum, input_t *syn)
     int32_t i, j, k, l, x1, y1, z1, x2, y2, z2, x3, y3, z3, dx, dy;
     int32_t dist, daang, zang, fightdist, damyang, damysect;
     int32_t startsect, endsect, splc, send, startwall, endwall;
-    hitdata_t hitinfo;
+    hitdata_t hit;
     DukePlayer_t *p = g_player[snum].ps;
     walltype *wal;
 
@@ -5706,10 +5706,10 @@ void computergetinput(int32_t snum, input_t *syn)
                             mulscale14(sprite[j].xvel,sintable[(sprite[j].ang+512)&2047]),
                             mulscale14(sprite[j].xvel,sintable[sprite[j].ang&2047]),
                             (int32_t)sprite[j].zvel,
-                            &hitinfo,CLIPMASK1);
-                    x3 = hitinfo.pos.x;
-                    y3 = hitinfo.pos.y;
-                    z3 = hitinfo.pos.z;
+                            &hit,CLIPMASK1);
+                    x3 = hit.pos.x;
+                    y3 = hit.pos.y;
+                    z3 = hit.pos.z;
                 }
             }
         }
@@ -5735,10 +5735,10 @@ void computergetinput(int32_t snum, input_t *syn)
             vect.y = y1;
             vect.z = z1-PHEIGHT;
             hitscan((const vec3_t *)&vect,damysect,sintable[(damyang+512)&2047],sintable[damyang&2047],
-                    (100-p->horiz-p->horizoff)*32,&hitinfo,CLIPMASK1);
-            x3 = hitinfo.pos.x;
-            y3 = hitinfo.pos.y;
-            z3 = hitinfo.pos.z;
+                    (100-p->horiz-p->horizoff)*32,&hit,CLIPMASK1);
+            x3 = hit.pos.x;
+            y3 = hit.pos.y;
+            z3 = hit.pos.z;
             if ((x3-x1)*(x3-x1)+(y3-y1)*(y3-y1) < 2560*2560) syn->bits &= ~BIT(SK_FIRE);
         }
 

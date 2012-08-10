@@ -4426,7 +4426,7 @@ void polymost_drawrooms()
     {
         int32_t vx, vy, vz;
         int32_t cz, fz;
-        hitdata_t hitinfo;
+        hitdata_t hit;
         vec3_t vect;
         double ratio = 1.05;
 
@@ -4472,43 +4472,43 @@ void polymost_drawrooms()
 
         hitallsprites = 1;
         hitscan((const vec3_t *)&vect,globalcursectnum, //Start position
-                vx>>10,vy>>10,vz>>6,&hitinfo,0xffff0030);
+                vx>>10,vy>>10,vz>>6,&hit,0xffff0030);
 
-        if (hitinfo.hitsect != -1) // if hitsect is -1, hitscan overflowed somewhere
+        if (hit.sect != -1) // if hitsect is -1, hitscan overflowed somewhere
         {
-            getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
+            getzsofslope(hit.sect,hit.pos.x,hit.pos.y,&cz,&fz);
             hitallsprites = 0;
 
-            searchsector = hitinfo.hitsect;
-            if (hitinfo.pos.z<cz) searchstat = 1;
-            else if (hitinfo.pos.z>fz) searchstat = 2;
-            else if (hitinfo.hitwall >= 0)
+            searchsector = hit.sect;
+            if (hit.pos.z<cz) searchstat = 1;
+            else if (hit.pos.z>fz) searchstat = 2;
+            else if (hit.wall >= 0)
             {
-                searchbottomwall = searchwall = hitinfo.hitwall; searchstat = 0;
-                if (wall[hitinfo.hitwall].nextwall >= 0)
+                searchbottomwall = searchwall = hit.wall; searchstat = 0;
+                if (wall[hit.wall].nextwall >= 0)
                 {
                     int32_t cz, fz;
-                    getzsofslope(wall[hitinfo.hitwall].nextsector,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
-                    if (hitinfo.pos.z > fz)
+                    getzsofslope(wall[hit.wall].nextsector,hit.pos.x,hit.pos.y,&cz,&fz);
+                    if (hit.pos.z > fz)
                     {
                         searchisbottom = 1;
-                        if (wall[hitinfo.hitwall].cstat&2) //'2' bottoms of walls
-                            searchbottomwall = wall[hitinfo.hitwall].nextwall;
+                        if (wall[hit.wall].cstat&2) //'2' bottoms of walls
+                            searchbottomwall = wall[hit.wall].nextwall;
                     }
                     else
                     {
                         searchisbottom = 0;
-                        if ((hitinfo.pos.z > cz) && (wall[hitinfo.hitwall].cstat&(16+32))) //masking or 1-way
+                        if ((hit.pos.z > cz) && (wall[hit.wall].cstat&(16+32))) //masking or 1-way
                             searchstat = 4;
                     }
                 }
             }
-            else if (hitinfo.hitsprite >= 0) { searchwall = hitinfo.hitsprite; searchstat = 3; }
+            else if (hit.sprite >= 0) { searchwall = hit.sprite; searchstat = 3; }
             else
             {
                 int32_t cz, fz;
-                getzsofslope(hitinfo.hitsect,hitinfo.pos.x,hitinfo.pos.y,&cz,&fz);
-                if ((hitinfo.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
+                getzsofslope(hit.sect,hit.pos.x,hit.pos.y,&cz,&fz);
+                if ((hit.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
                 //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
             }
 
@@ -4516,10 +4516,10 @@ void polymost_drawrooms()
             {
                 spritetype *tsp = &tsprite[spritesortcnt];
                 double dadist, x,y,z;
-                Bmemcpy(tsp, &hitinfo.pos, sizeof(vec3_t));
+                Bmemcpy(tsp, &hit.pos, sizeof(vec3_t));
                 x = tsp->x-globalposx; y=tsp->y-globalposy; z=(tsp->z-globalposz)/16.0;
                 dadist = sqrt(x*x + y*y + z*z);
-                tsp->sectnum = hitinfo.hitsect;
+                tsp->sectnum = hit.sect;
                 tsp->picnum = 2523;  // CROSSHAIR
                 tsp->cstat = 128;
                 tsp->owner = MAXSPRITES-1;
@@ -4541,8 +4541,8 @@ void polymost_drawrooms()
                     int32_t w1[2] = {wal[k].x, wal[k].y};
                     int32_t w2[2] = {wall[wal[k].point2].x, wall[wal[k].point2].y};
                     int32_t w21[2] = {w1[0]-w2[0], w1[1]-w2[1]};
-                    int32_t pw1[2] = {w1[0]-hitinfo.pos.x, w1[1]-hitinfo.pos.y};
-                    int32_t pw2[2] = {w2[0]-hitinfo.pos.x, w2[1]-hitinfo.pos.y};
+                    int32_t pw1[2] = {w1[0]-hit.pos.x, w1[1]-hit.pos.y};
+                    int32_t pw2[2] = {w2[0]-hit.pos.x, w2[1]-hit.pos.y};
                     float w1d = (float)(scrv_r[0]*pw1[0] + scrv_r[1]*pw1[1]);
                     float w2d = (float)(scrv_r[0]*pw2[0] + scrv_r[1]*pw2[1]);
                     int32_t ptonline[2], scrp[2];

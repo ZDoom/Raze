@@ -1853,7 +1853,7 @@ badindex:
             insptr++;
             {
                 vec3_t vect;
-                hitdata_t hitinfo;
+                hitdata_t hit;
 
                 vect.x = Gv_GetVarX(*insptr++);
                 vect.y = Gv_GetVarX(*insptr++);
@@ -1866,13 +1866,13 @@ badindex:
                     int32_t hitxvar=*insptr++, hityvar=*insptr++, hitzvar=*insptr++, cliptype=Gv_GetVarX(*insptr++);
 
                     X_ERROR_INVALIDSECT(sectnum);
-                    hitscan((const vec3_t *)&vect, sectnum, vx, vy, vz, &hitinfo, cliptype);
-                    Gv_SetVarX(hitsectvar, hitinfo.hitsect);
-                    Gv_SetVarX(hitwallvar, hitinfo.hitwall);
-                    Gv_SetVarX(hitspritevar, hitinfo.hitsprite);
-                    Gv_SetVarX(hitxvar, hitinfo.pos.x);
-                    Gv_SetVarX(hityvar, hitinfo.pos.y);
-                    Gv_SetVarX(hitzvar, hitinfo.pos.z);
+                    hitscan((const vec3_t *)&vect, sectnum, vx, vy, vz, &hit, cliptype);
+                    Gv_SetVarX(hitsectvar, hit.sect);
+                    Gv_SetVarX(hitwallvar, hit.wall);
+                    Gv_SetVarX(hitspritevar, hit.sprite);
+                    Gv_SetVarX(hitxvar, hit.pos.x);
+                    Gv_SetVarX(hityvar, hit.pos.y);
+                    Gv_SetVarX(hitzvar, hit.pos.z);
                 }
                 continue;
             }

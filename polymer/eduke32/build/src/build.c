@@ -1252,7 +1252,7 @@ void editinput(void)
 
         if (keystatus[0x1f])  //S (insert sprite) (3D)
         {
-            hitdata_t hitinfo;
+            hitdata_t hit;
 
             dax = 16384;
             day = divscale14(searchx-(xdim>>1), xdim>>1);
@@ -1260,21 +1260,21 @@ void editinput(void)
 
             hitscan((const vec3_t *)&pos,cursectnum,              //Start position
                     dax,day,(scale(searchy,200,ydim)-horiz)*2000, //vector of 3D ang
-                    &hitinfo,CLIPMASK1);
+                    &hit,CLIPMASK1);
 
-            if (hitinfo.hitsect >= 0)
+            if (hit.sect >= 0)
             {
-                dax = hitinfo.pos.x;
-                day = hitinfo.pos.y;
+                dax = hit.pos.x;
+                day = hit.pos.y;
                 if (gridlock && grid > 0)
                 {
                     if (AIMING_AT_WALL || AIMING_AT_MASKWALL)
-                        hitinfo.pos.z &= 0xfffffc00;
+                        hit.pos.z &= 0xfffffc00;
                     else
                         locktogrid(&dax, &day);
                 }
 
-                i = insert_sprite_common(hitinfo.hitsect, dax, day);
+                i = insert_sprite_common(hit.sect, dax, day);
 
                 if (i < 0)
                     message("Couldn't insert sprite.");
@@ -1284,17 +1284,17 @@ void editinput(void)
 
                     handle_sprite_in_clipboard(i);
 
-                    getzsofslope(hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y, &cz, &fz);
+                    getzsofslope(hit.sect, hit.pos.x, hit.pos.y, &cz, &fz);
 
                     spriteoncfz(i, &cz, &fz);
-                    sprite[i].z = clamp(hitinfo.pos.z, cz, fz);
+                    sprite[i].z = clamp(hit.pos.z, cz, fz);
 
                     if (AIMING_AT_WALL || AIMING_AT_MASKWALL)
                     {
                         sprite[i].cstat &= ~48;
                         sprite[i].cstat |= (16+64);
 
-                        correct_ornamented_sprite(i, hitinfo.hitwall);
+                        correct_ornamented_sprite(i, hit.wall);
                     }
                     else
                         sprite[i].cstat |= (tilesizy[sprite[i].picnum]>=32);
@@ -1999,20 +1999,20 @@ static void correct_ornamented_sprite(int32_t i, int32_t hitw)
 
 void DoSpriteOrnament(int32_t i)
 {
-    hitdata_t hitinfo;
+    hitdata_t hit;
 
     hitscan((const vec3_t *)&sprite[i],sprite[i].sectnum,
             sintable[(sprite[i].ang+1536)&2047],
             sintable[(sprite[i].ang+1024)&2047],
             0,
-            &hitinfo,CLIPMASK1);
+            &hit,CLIPMASK1);
 
-    sprite[i].x = hitinfo.pos.x;
-    sprite[i].y = hitinfo.pos.y;
-    sprite[i].z = hitinfo.pos.z;
-    changespritesect(i, hitinfo.hitsect);
+    sprite[i].x = hit.pos.x;
+    sprite[i].y = hit.pos.y;
+    sprite[i].z = hit.pos.z;
+    changespritesect(i, hit.sect);
 
-    correct_ornamented_sprite(i, hitinfo.hitwall);
+    correct_ornamented_sprite(i, hit.wall);
 }
 
 void update_highlight(void)

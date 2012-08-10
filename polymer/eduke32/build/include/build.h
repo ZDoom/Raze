@@ -559,7 +559,7 @@ typedef struct {
 
 typedef struct {
     vec3_t pos;
-    int16_t hitsprite, hitwall, hitsect;
+    int16_t sprite, wall, sect;
 } hitdata_t;
 
 #pragma pack(pop)
