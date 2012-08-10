@@ -313,7 +313,7 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
 
 int32_t A_Shoot(int32_t i,int32_t atwith)
 {
-    int16_t l, sa, p, j, k=-1;
+    int16_t l, sa, j, k=-1;
     int32_t vel, zvel = 0, x, oldzvel, dal;
     hitdata_t hitinfo;
     vec3_t srcvect;
@@ -321,19 +321,19 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
     spritetype *s = &sprite[i];
     int16_t sect = s->sectnum;
 
+    const int32_t p = (s->picnum == APLAYER) ? s->yvel : -1;
+    DukePlayer_t *const ps = p >= 0 ? g_player[p].ps : NULL;
+
     if (s->picnum == APLAYER)
     {
-        p = s->yvel;
+        Bmemcpy(&srcvect,ps,sizeof(vec3_t));
+        srcvect.z += ps->pyoff+(4<<8);
+        sa = ps->ang;
 
-        Bmemcpy(&srcvect,g_player[p].ps,sizeof(vec3_t));
-        srcvect.z += g_player[p].ps->pyoff+(4<<8);
-        sa = g_player[p].ps->ang;
-
-        g_player[p].ps->crack_time = 777;
+        ps->crack_time = 777;
     }
     else
     {
-        p = -1;
         sa = s->ang;
         Bmemcpy(&srcvect,s,sizeof(vec3_t));
         srcvect.z -= (((s->yrepeat*tilesizy[s->picnum])<<1)-(4<<8));
@@ -407,7 +407,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
             {
                 if (p >= 0)
                 {
-                    zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
+                    zvel = (100-ps->horiz-ps->horizoff)<<5;
                     srcvect.z += (6<<8);
                     sa += 15;
                 }
@@ -549,8 +549,8 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                         if (ProjectileData[atwith].sound >= 0) A_PlaySound(ProjectileData[atwith].sound,j);
                     }
 
-                    if (p >= 0 && g_player[p].ps->inv_amount[GET_STEROIDS] > 0 && g_player[p].ps->inv_amount[GET_STEROIDS] < 400)
-                        sprite[j].extra += (g_player[p].ps->max_player_health>>2);
+                    if (p >= 0 && ps->inv_amount[GET_STEROIDS] > 0 && ps->inv_amount[GET_STEROIDS] < 400)
+                        sprite[j].extra += (ps->max_player_health>>2);
 
                     if (hitinfo.hitsprite >= 0 && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH2)
                     {
@@ -612,7 +612,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                         dal -= (8<<8);
                         //                        return -1;
                     }
-                    hitinfo.pos.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
                     if (hitinfo.pos.x == 0) hitinfo.pos.x++;
                     zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hitinfo.pos.x;
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
@@ -629,9 +629,9 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
 
                 if (ProjectileData[atwith].workslike & PROJECTILE_ACCURATE_AUTOAIM)
                 {
-                    if (!g_player[p].ps->auto_aim)
+                    if (!ps->auto_aim)
                     {
-                        zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
+                        zvel = (100-ps->horiz-ps->horizoff)<<5;
                         if (actor[i].shootzvel) zvel = actor[i].shootzvel;
                         hitscan((const vec3_t *)&srcvect,sect,sintable[(sa+512)&2047],sintable[sa&2047],
                                 zvel<<6,&hitinfo,CLIPMASK1);
@@ -644,7 +644,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
 
                     if (j == -1)
                     {
-                        zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
+                        zvel = (100-ps->horiz-ps->horizoff)<<5;
                         if (!(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE))
                         {
                             sa += (angRange/2)-(krand()&(angRange-1));
@@ -657,7 +657,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                     if (j == -1)
                     {
                         // no target
-                        zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
+                        zvel = (100-ps->horiz-ps->horizoff)<<5;
                     }
                     if (!(ProjectileData[atwith].workslike & PROJECTILE_ACCURATE))
                     {
@@ -959,7 +959,7 @@ DOSKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
-                    hitinfo.pos.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
 
                     if (hitinfo.pos.x == 0)
                         hitinfo.pos.x++;
@@ -969,8 +969,8 @@ DOSKIPBULLETHOLE:
                     if (sprite[j].picnum != RECON)
                         sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
-                //                else zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*81;
-                else zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*(ProjectileData[atwith].vel/8);
+                //                else zvel = (100-ps->horiz-ps->horizoff)*81;
+                else zvel = (100-ps->horiz-ps->horizoff)*(ProjectileData[atwith].vel/8);
 
                 if (ProjectileData[atwith].sound >= 0)
                     A_PlaySound(ProjectileData[atwith].sound,i);
@@ -1067,7 +1067,7 @@ DOSKIPBULLETHOLE:
             {
                 if (p >= 0)
                 {
-                    zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
+                    zvel = (100-ps->horiz-ps->horizoff)<<5;
                     srcvect.z += (6<<8);
                     sa += 15;
                 }
@@ -1149,8 +1149,8 @@ DOSKIPBULLETHOLE:
                         actor[k].t_data[8] = hitinfo.hitsprite;
                     }
 
-                    if (p >= 0 && g_player[p].ps->inv_amount[GET_STEROIDS] > 0 && g_player[p].ps->inv_amount[GET_STEROIDS] < 400)
-                        sprite[j].extra += (g_player[p].ps->max_player_health>>2);
+                    if (p >= 0 && ps->inv_amount[GET_STEROIDS] > 0 && ps->inv_amount[GET_STEROIDS] < 400)
+                        sprite[j].extra += (ps->max_player_health>>2);
 
                     if (hitinfo.hitsprite >= 0 && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH && sprite[hitinfo.hitsprite].picnum != ACCESSSWITCH2)
                     {
@@ -1214,7 +1214,7 @@ DOSKIPBULLETHOLE:
                         dal -= (8<<8);
 
                     }
-                    hitinfo.pos.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
                     if (hitinfo.pos.x == 0) hitinfo.pos.x++;
                     zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hitinfo.pos.x;
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
@@ -1231,9 +1231,9 @@ DOSKIPBULLETHOLE:
 
                 if (atwith == SHOTSPARK1__STATIC && !WW2GI && !NAM)
                 {
-                    if (!g_player[p].ps->auto_aim)
+                    if (!ps->auto_aim)
                     {
-                        zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
+                        zvel = (100-ps->horiz-ps->horizoff)<<5;
                         if (actor[i].shootzvel) zvel = actor[i].shootzvel;
                         hitscan((const vec3_t *)&srcvect,sect,sintable[(sa+512)&2047],sintable[sa&2047],
                                 zvel<<6,&hitinfo,CLIPMASK1);
@@ -1248,7 +1248,7 @@ DOSKIPBULLETHOLE:
                     if (j == -1)
                     {
                         sa += (angRange/2)-(krand()&(angRange-1));
-                        zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
+                        zvel = (100-ps->horiz-ps->horizoff)<<5;
                         zvel += (zRange/2)-(krand()&(zRange-1));
                     }
                 }
@@ -1258,7 +1258,7 @@ DOSKIPBULLETHOLE:
                     if (j == -1)
                     {
                         // no target
-                        zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
+                        zvel = (100-ps->horiz-ps->horizoff)<<5;
                     }
                     zvel += (zRange/2)-(krand()&(zRange-1));
                 }
@@ -1510,13 +1510,13 @@ SKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)-(12<<8);
-                    hitinfo.pos.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
                     if (hitinfo.pos.x == 0) hitinfo.pos.x++;
                     zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hitinfo.pos.x;
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
                 else
-                    zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*98;
+                    zvel = (100-ps->horiz-ps->horizoff)*98;
             }
             else
             {
@@ -1600,13 +1600,13 @@ SKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
-                    hitinfo.pos.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
                     if (hitinfo.pos.x == 0) hitinfo.pos.x++;
                     zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hitinfo.pos.x;
                     if (sprite[j].picnum != RECON)
                         sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
-                else zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*81;
+                else zvel = (100-ps->horiz-ps->horizoff)*81;
                 if (atwith == RPG)
                     A_PlaySound(RPG_SHOOT,i);
             }
@@ -1720,7 +1720,7 @@ SKIPBULLETHOLE:
         case HANDHOLDINGLASER__STATIC:
 
             if (p >= 0)
-                zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*32;
+                zvel = (100-ps->horiz-ps->horizoff)*32;
             else zvel = 0;
             if (actor[i].shootzvel) zvel = actor[i].shootzvel;
 
@@ -1815,7 +1815,7 @@ SKIPBULLETHOLE:
                         dal -= (8<<8);
 
                     }
-                    hitinfo.pos.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
                     if (hitinfo.pos.x == 0)
                         hitinfo.pos.x++;
                     zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hitinfo.pos.x;
@@ -1824,7 +1824,7 @@ SKIPBULLETHOLE:
                 else
                 {
                     sa += 16-(krand()&31);
-                    zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)<<5;
+                    zvel = (100-ps->horiz-ps->horizoff)<<5;
                     zvel += 128-(krand()&255);
                 }
 
@@ -1910,13 +1910,13 @@ SKIPBULLETHOLE:
                 if (j >= 0)
                 {
                     dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1);
-                    hitinfo.pos.x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                    hitinfo.pos.x = ldist(&sprite[ps->i], &sprite[j]);
                     if (hitinfo.pos.x == 0)
                         hitinfo.pos.x++;
                     zvel = ((sprite[j].z-srcvect.z-dal-(4<<8))*768) / hitinfo.pos.x;
                     sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
                 }
-                else zvel = (100-g_player[p].ps->horiz-g_player[p].ps->horizoff)*98;
+                else zvel = (100-ps->horiz-ps->horizoff)*98;
             }
             else if (s->statnum != 3)
             {
@@ -1946,20 +1946,21 @@ SKIPBULLETHOLE:
 static void P_DisplaySpit(int32_t snum)
 {
     int32_t i, a, x, y, z;
+    DukePlayer_t *const ps = g_player[snum].ps;
 
-    if (g_player[snum].ps->loogcnt == 0)
+    if (ps->loogcnt == 0)
         return;
 
-    y = (g_player[snum].ps->loogcnt<<2);
+    y = (ps->loogcnt<<2);
 
-    for (i=0; i<g_player[snum].ps->numloogs; i++)
+    for (i=0; i<ps->numloogs; i++)
     {
-        a = klabs(sintable[((g_player[snum].ps->loogcnt+i)<<5)&2047])>>5;
-        z = 4096+((g_player[snum].ps->loogcnt+i)<<9);
-        x = (-g_player[snum].sync->avel)+(sintable[((g_player[snum].ps->loogcnt+i)<<6)&2047]>>10);
+        a = klabs(sintable[((ps->loogcnt+i)<<5)&2047])>>5;
+        z = 4096+((ps->loogcnt+i)<<9);
+        x = (-g_player[snum].sync->avel)+(sintable[((ps->loogcnt+i)<<6)&2047]>>10);
 
         rotatesprite_fs(
-            (g_player[snum].ps->loogiex[i]+x)<<16,(200+g_player[snum].ps->loogiey[i]-y)<<16,z-(i<<8),256-a,
+            (ps->loogiex[i]+x)<<16,(200+ps->loogiey[i]-y)<<16,z-(i<<8),256-a,
             LOOGIE,0,0,2);
     }
 }
@@ -2307,7 +2308,7 @@ void P_DisplayWeapon(int32_t snum)
     int32_t gun_pos, looking_arc, cw;
     int32_t weapon_xoffset, i, j;
     int32_t o = 0,pal = 0;
-    DukePlayer_t *p = g_player[snum].ps;
+    DukePlayer_t *const p = g_player[snum].ps;
     uint8_t *kb = &p->kickback_pic;
     int32_t gs;
 

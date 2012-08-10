@@ -1035,29 +1035,30 @@ void A_MoveCyclers(void)
 
 void A_MoveDummyPlayers(void)
 {
-    int32_t i = headspritestat[STAT_DUMMYPLAYER], p, nexti;
+    int32_t i = headspritestat[STAT_DUMMYPLAYER], nexti;
 
     while (i >= 0)
     {
         int32_t psectnum;
+        const int32_t p = sprite[OW].yvel;
+        DukePlayer_t *const ps = g_player[p].ps;
 
         nexti = nextspritestat[i];
 
-        p = sprite[OW].yvel;
-        psectnum = g_player[p].ps->cursectnum;
+        psectnum = ps->cursectnum;
 
-        if (g_player[p].ps->on_crane >= 0 || (psectnum >= 0 && sector[psectnum].lotag != 1) || sprite[g_player[p].ps->i].extra <= 0)
+        if (ps->on_crane >= 0 || (psectnum >= 0 && sector[psectnum].lotag != 1) || sprite[ps->i].extra <= 0)
         {
-            g_player[p].ps->dummyplayersprite = -1;
+            ps->dummyplayersprite = -1;
             KILLIT(i);
         }
         else
         {
-            if (g_player[p].ps->on_ground && g_player[p].ps->on_warping_sector == 1 && psectnum >= 0 && sector[psectnum].lotag == 1)
+            if (ps->on_ground && ps->on_warping_sector == 1 && psectnum >= 0 && sector[psectnum].lotag == 1)
             {
                 CS = 257;
                 SZ = sector[SECT].ceilingz+(27<<8);
-                SA = g_player[p].ps->ang;
+                SA = ps->ang;
                 if (T1 == 8)
                     T1 = 0;
                 else T1++;
@@ -1069,8 +1070,8 @@ void A_MoveDummyPlayers(void)
             }
         }
 
-        SX += (g_player[p].ps->pos.x-g_player[p].ps->opos.x);
-        SY += (g_player[p].ps->pos.y-g_player[p].ps->opos.y);
+        SX += (ps->pos.x-ps->opos.x);
+        SY += (ps->pos.y-ps->opos.y);
         setsprite(i,(vec3_t *)&sprite[i]);
 
 BOLT:
@@ -1083,17 +1084,16 @@ int32_t otherp;
 
 ACTOR_STATIC void G_MovePlayers(void)
 {
-    int32_t i = headspritestat[STAT_PLAYER], nexti;
+    int32_t i = headspritestat[STAT_PLAYER];
     int32_t otherx;
-    spritetype *s;
-    DukePlayer_t *p;
 
     while (i >= 0)
     {
-        nexti = nextspritestat[i];
+        const int32_t nexti = nextspritestat[i];
 
-        s = &sprite[i];
-        p = g_player[s->yvel].ps;
+        spritetype *s = &sprite[i];
+        DukePlayer_t *const p = g_player[s->yvel].ps;
+
         if (s->owner >= 0)
         {
             if (p->newowner >= 0)  //Looking thru the camera
@@ -1216,7 +1216,7 @@ BOLT:
 
 ACTOR_STATIC void G_MoveFX(void)
 {
-    int32_t i = headspritestat[STAT_FX], j, nexti, p;
+    int32_t i = headspritestat[STAT_FX], j, nexti;
     int32_t x, ht;
     spritetype *s;
 
@@ -1298,6 +1298,8 @@ ACTOR_STATIC void G_MoveFX(void)
                 {
                     if (T5 > 0) T5--;
                     else
+                    {
+                        int32_t p;
                         for (TRAVERSE_CONNECT(p))
                             if (p == myconnectindex && g_player[p].ps->cursectnum == s->sectnum)
                             {
@@ -1305,6 +1307,7 @@ ACTOR_STATIC void G_MoveFX(void)
                                 S_PlaySound(j);
                                 T5 =  GAMETICSPERSEC*40 + (g_globalRandom%(GAMETICSPERSEC*40));
                             }
+                    }
                 }
             }
             break;
@@ -1414,7 +1417,7 @@ BOLT:
 
 ACTOR_STATIC void G_MoveStandables(void)
 {
-    int32_t i = headspritestat[STAT_STANDABLE], j, k, nexti, nextj, p=0, sect, switchpicnum;
+    int32_t i = headspritestat[STAT_STANDABLE], j, k, nexti, nextj, sect, switchpicnum;
     int32_t l=0, x;
 
     int32_t *t;
@@ -1505,7 +1508,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                         {
                             if (s->owner==-2)
                             {
-                                p = A_FindPlayer(s,&x);
+                                int32_t p = A_FindPlayer(s,&x);
                                 A_PlaySound(DUKE_GRUNT,g_player[p].ps->i);
                                 if (g_player[p].ps->on_crane == i)
                                     g_player[p].ps->on_crane = -1;
@@ -1521,7 +1524,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 s->picnum++;
                 if (s->picnum == (CRANE+2))
                 {
-                    p = G_CheckPlayerInSector(t[1]);
+                    int32_t p = G_CheckPlayerInSector(t[1]);
                     if (p >= 0 && g_player[p].ps->on_ground)
                     {
                         s->owner = -2;
@@ -1593,7 +1596,7 @@ ACTOR_STATIC void G_MoveStandables(void)
 
             if (s->owner != -1)
             {
-                p = A_FindPlayer(s,&x);
+                int32_t p = A_FindPlayer(s,&x);
 
                 if ((j = A_IncurDamage(i)) >= 0)
                 {
@@ -1644,7 +1647,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 }
                 else
                 {
-                    p = A_FindPlayer(s,&x);
+                    A_FindPlayer(s,&x);
 
                     if (x > 512)
                     {
@@ -1757,7 +1760,7 @@ ACTOR_STATIC void G_MoveStandables(void)
             switch (T1)
             {
             default:
-                p = A_FindPlayer(s,&x);
+                A_FindPlayer(s,&x);
                 if (x > 768 || T1 > 16) T1++;
                 break;
 
@@ -2102,7 +2105,7 @@ DETONATE:
             if (s->xrepeat == 0)
                 KILLIT(i);
 
-            p = A_FindPlayer(s, &x);
+            A_FindPlayer(s, &x);
 
             if (x < 2048)
             {
@@ -2137,7 +2140,7 @@ DETONATE:
             //        case SIDEBOLT1+1:
             //        case SIDEBOLT1+2:
             //        case SIDEBOLT1+3:
-            p = A_FindPlayer(s, &x);
+            A_FindPlayer(s, &x);
             if (x > 20480) goto BOLT;
 
 CLEAR_THE_BOLT2:
@@ -2174,7 +2177,7 @@ CLEAR_THE_BOLT2:
             //        case BOLT1+1:
             //        case BOLT1+2:
             //        case BOLT1+3:
-            p = A_FindPlayer(s, &x);
+            A_FindPlayer(s, &x);
             if (x > 20480) goto BOLT;
 
             if (t[3] == 0)
@@ -2281,6 +2284,7 @@ CLEAR_THE_BOLT:
                     }
                     else
                     {
+                        int32_t p;
                         sector[sect].floorz += sector[sect].extra;
                         p = G_CheckPlayerInSector(sect);
                         if (p >= 0) g_player[p].ps->pos.z += sector[sect].extra;
@@ -2295,6 +2299,7 @@ CLEAR_THE_BOLT:
                     }
                     else
                     {
+                        int32_t p;
                         sector[sect].floorz -= sector[sect].extra;
                         p = G_CheckPlayerInSector(sect);
                         if (p >= 0)
@@ -2306,24 +2311,28 @@ CLEAR_THE_BOLT:
 
             if (t[5] == 1) goto BOLT;
 
-            if ((p = G_CheckPlayerInSector(sect)) >= 0 &&
-                (g_player[p].ps->on_ground || s->ang == 512))
             {
-                if (t[0] == 0 && !G_CheckActivatorMotion(s->lotag))
+                int32_t p = G_CheckPlayerInSector(sect);
+
+                if (p >= 0 &&
+                    (g_player[p].ps->on_ground || s->ang == 512))
                 {
-                    t[0] = 1;
-                    t[1] = 1;
-                    t[3] = !t[3];
-                    G_OperateMasterSwitches(s->lotag);
-                    G_OperateActivators(s->lotag,p);
-                    if (s->hitag > 0)
+                    if (t[0] == 0 && !G_CheckActivatorMotion(s->lotag))
                     {
-                        s->hitag--;
-                        if (s->hitag == 0) t[5] = 1;
+                        t[0] = 1;
+                        t[1] = 1;
+                        t[3] = !t[3];
+                        G_OperateMasterSwitches(s->lotag);
+                        G_OperateActivators(s->lotag,p);
+                        if (s->hitag > 0)
+                        {
+                            s->hitag--;
+                            if (s->hitag == 0) t[5] = 1;
+                        }
                     }
                 }
+                else t[0] = 0;
             }
-            else t[0] = 0;
 
             if (t[1] == 1)
             {
@@ -2373,14 +2382,18 @@ CLEAR_THE_BOLT:
         case CEILINGSTEAM__STATIC:
             if (!actorscrptr[sprite[i].picnum])
                 goto BOLT;
-            p = A_FindPlayer(s, &x);
-            A_Execute(i,p,x);
+            {
+                int32_t p = A_FindPlayer(s, &x);
+                A_Execute(i,p,x);
+            }
             goto BOLT;
         case WATERBUBBLEMAKER__STATIC:
             if (!actorscrptr[sprite[i].picnum])
                 goto BOLT;
-            p = A_FindPlayer(s, &x);
-            A_Execute(i,p,x);
+            {
+                int32_t p = A_FindPlayer(s, &x);
+                A_Execute(i,p,x);
+            }
             goto BOLT;
         }
 
@@ -2484,7 +2497,7 @@ static void proj_spawn_and_sound(int32_t i, const vec3_t *davect, int32_t do_rad
 
 ACTOR_STATIC void G_MoveWeapons(void)
 {
-    int32_t i = headspritestat[STAT_PROJECTILE], j=0, k, f, p, q;
+    int32_t i = headspritestat[STAT_PROJECTILE], j=0, k, f, q;
     vec3_t davect;
     int32_t x, ll;
     uint32_t qq;
@@ -2532,8 +2545,6 @@ ACTOR_STATIC void G_MoveWeapons(void)
                         KILLIT(i);
                     }
                 }
-
-                p = -1;
 
                 if (SpriteProjectile[i].workslike & PROJECTILE_COOLEXPLOSION1)
                 {
@@ -2671,7 +2682,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
                         if (sprite[j].picnum == APLAYER)
                         {
-                            p = sprite[j].yvel;
+                            int32_t p = sprite[j].yvel;
                             A_PlaySound(PISTOL_BODYHIT,j);
 
                             if (SpriteProjectile[i].workslike & PROJECTILE_SPIT)
@@ -2773,8 +2784,10 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     {
                         if (!actorscrptr[sprite[i].picnum])
                             goto BOLT;
-                        p = A_FindPlayer(s,&x);
-                        A_Execute(i,p,x);
+                        {
+                            int32_t p = A_FindPlayer(s,&x);
+                            A_Execute(i,p,x);
+                        }
                         goto BOLT;
                     }
 
@@ -2850,8 +2863,6 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 if (s->picnum == COOLEXPLOSION1)
                     if (!S_CheckSoundPlaying(i,WIERDSHOT_FLY))
                         A_PlaySound(WIERDSHOT_FLY,i);
-
-                p = -1;
 
                 k = s->xvel;
                 ll = s->zvel;
@@ -2961,7 +2972,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
                         if (sprite[j].picnum == APLAYER)
                         {
-                            p = sprite[j].yvel;
+                            int32_t p = sprite[j].yvel;
                             A_PlaySound(PISTOL_BODYHIT,j);
 
                             if (s->picnum == SPIT)
@@ -3107,8 +3118,10 @@ COOLEXPLOSION:
             case SHOTSPARK1__STATIC:
                 if (!actorscrptr[sprite[i].picnum])
                     goto BOLT;
-                p = A_FindPlayer(s,&x);
-                A_Execute(i,p,x);
+                {
+                    int32_t p = A_FindPlayer(s,&x);
+                    A_Execute(i,p,x);
+                }
                 goto BOLT;
             }
         }
@@ -3481,7 +3494,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
     int32_t *t;
 
-    int32_t a, j, nexti, nextj, sect, p, switchpicnum, k;
+    int32_t a, j, nexti, nextj, sect, switchpicnum, k;
     spritetype *s;
     int32_t i = headspritestat[STAT_ACTOR];
 
@@ -3654,22 +3667,23 @@ ACTOR_STATIC void G_MoveActors(void)
             }
             else
             {
-                p = A_FindPlayer(s,&x);
+                const int32_t p = A_FindPlayer(s,&x);
+                DukePlayer_t *const ps = g_player[p].ps;
 
                 if (x < 1596)
                 {
                     //                        if(s->pal == 12)
                     {
-                        j = G_GetAngleDelta(g_player[p].ps->ang,getangle(s->x-g_player[p].ps->pos.x,s->y-g_player[p].ps->pos.y));
+                        j = G_GetAngleDelta(ps->ang,getangle(s->x-ps->pos.x,s->y-ps->pos.y));
                         if (j > -64 && j < 64 && TEST_SYNC_KEY(g_player[p].sync->bits, SK_OPEN))
-                            if (g_player[p].ps->toggle_key_flag == 1)
+                            if (ps->toggle_key_flag == 1)
                             {
                                 a = headspritestat[STAT_ACTOR];
                                 while (a >= 0)
                                 {
                                     if (sprite[a].picnum == QUEBALL || sprite[a].picnum == STRIPEBALL)
                                     {
-                                        j = G_GetAngleDelta(g_player[p].ps->ang,getangle(sprite[a].x-g_player[p].ps->pos.x,sprite[a].y-g_player[p].ps->pos.y));
+                                        j = G_GetAngleDelta(ps->ang,getangle(sprite[a].x-ps->pos.x,sprite[a].y-ps->pos.y));
                                         if (j > -64 && j < 64)
                                         {
                                             A_FindPlayer(&sprite[a],&l);
@@ -3683,15 +3697,16 @@ ACTOR_STATIC void G_MoveActors(void)
                                     if (s->pal == 12)
                                         s->xvel = 164;
                                     else s->xvel = 140;
-                                    s->ang = g_player[p].ps->ang;
-                                    g_player[p].ps->toggle_key_flag = 2;
+                                    s->ang = ps->ang;
+                                    ps->toggle_key_flag = 2;
                                 }
                             }
                     }
                 }
-                if (x < 512 && s->sectnum == g_player[p].ps->cursectnum)
+
+                if (x < 512 && s->sectnum == ps->cursectnum)
                 {
-                    s->ang = getangle(s->x-g_player[p].ps->pos.x,s->y-g_player[p].ps->pos.y);
+                    s->ang = getangle(s->x-ps->pos.x,s->y-ps->pos.y);
                     s->xvel = 48;
                 }
             }
@@ -3742,6 +3757,10 @@ ACTOR_STATIC void G_MoveActors(void)
             goto BOLT;
 
         case RECON__STATIC:
+        {
+            int32_t p;
+            DukePlayer_t *ps;
+
             A_GetZLimits(i);
 
             if (sector[s->sectnum].ceilingstat&1)
@@ -3821,6 +3840,8 @@ ACTOR_STATIC void G_MoveActors(void)
             }
 
             p = A_FindPlayer(s,&x);
+            ps = g_player[p].ps;
+
             j = s->owner;
 
             // 3 = findplayerz, 4 = shoot
@@ -3836,13 +3857,13 @@ ACTOR_STATIC void G_MoveActors(void)
                     A_Shoot(i,FIRELASER);
                     s->ang = a;
                 }
-                if (t[2] > (GAMETICSPERSEC*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, g_player[p].ps->pos.x,g_player[p].ps->pos.y,g_player[p].ps->pos.z,g_player[p].ps->cursectnum))
+                if (t[2] > (GAMETICSPERSEC*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, ps->pos.x,ps->pos.y,ps->pos.z,ps->cursectnum))
                 {
                     t[0] = 0;
                     t[2] = 0;
                 }
                 else actor[i].tempang +=
-                        G_GetAngleDelta(actor[i].tempang,getangle(g_player[p].ps->pos.x-s->x,g_player[p].ps->pos.y-s->y))/3;
+                        G_GetAngleDelta(actor[i].tempang,getangle(ps->pos.x-s->x,ps->pos.y-s->y))/3;
             }
             else if (t[0] == 2 || t[0] == 3)
             {
@@ -3852,14 +3873,14 @@ ACTOR_STATIC void G_MoveActors(void)
 
                 if (t[0] == 2)
                 {
-                    l = g_player[p].ps->pos.z-s->z;
+                    l = ps->pos.z-s->z;
                     if (klabs(l) < (48<<8)) t[0] = 3;
-                    else s->z += ksgn(g_player[p].ps->pos.z-s->z)<<10;
+                    else s->z += ksgn(ps->pos.z-s->z)<<10;
                 }
                 else
                 {
                     t[2]++;
-                    if (t[2] > (GAMETICSPERSEC*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, g_player[p].ps->pos.x,g_player[p].ps->pos.y,g_player[p].ps->pos.z,g_player[p].ps->cursectnum))
+                    if (t[2] > (GAMETICSPERSEC*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, ps->pos.x,ps->pos.y,ps->pos.z,ps->cursectnum))
                     {
                         t[0] = 1;
                         t[2] = 0;
@@ -3870,7 +3891,7 @@ ACTOR_STATIC void G_MoveActors(void)
                         A_Shoot(i,FIRELASER);
                     }
                 }
-                s->ang += G_GetAngleDelta(s->ang,getangle(g_player[p].ps->pos.x-s->x,g_player[p].ps->pos.y-s->y))>>2;
+                s->ang += G_GetAngleDelta(s->ang,getangle(ps->pos.x-s->x,ps->pos.y-s->y))>>2;
             }
 
             if (t[0] != 2 && t[0] != 3)
@@ -3950,6 +3971,7 @@ ACTOR_STATIC void G_MoveActors(void)
             A_SetSprite(i,CLIPMASK0);
 
             goto BOLT;
+        }
 
         case OOZ__STATIC:
         case OOZ2__STATIC:
@@ -3969,6 +3991,10 @@ ACTOR_STATIC void G_MoveActors(void)
             goto BOLT;
 
         case GREENSLIME__STATIC:
+        {
+            int32_t p;
+            DukePlayer_t *ps;
+
             //        case GREENSLIME+1:
             //        case GREENSLIME+2:
             //        case GREENSLIME+3:
@@ -3995,6 +4021,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 KILLIT(i);
 
             p = A_FindPlayer(s,&x);
+            ps = g_player[p].ps;
 
             if (x > 20480)
             {
@@ -4032,11 +4059,11 @@ ACTOR_STATIC void G_MoveActors(void)
                     A_PlaySound(GLASS_BREAKING,i);
                     KILLIT(i);
                 }
-                else if (x < 1024 && g_player[p].ps->quick_kick == 0)
+                else if (x < 1024 && ps->quick_kick == 0)
                 {
-                    j = G_GetAngleDelta(g_player[p].ps->ang,getangle(SX-g_player[p].ps->pos.x,SY-g_player[p].ps->pos.y));
+                    j = G_GetAngleDelta(ps->ang,getangle(SX-ps->pos.x,SY-ps->pos.y));
                     if (j > -128 && j < 128)
-                        g_player[p].ps->quick_kick = 14;
+                        ps->quick_kick = 14;
                 }
 
                 goto BOLT;
@@ -4048,7 +4075,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
             if (t[0] == -4) //On the player
             {
-                if (sprite[g_player[p].ps->i].extra < 1)
+                if (sprite[ps->i].extra < 1)
                 {
                     t[0] = 0;
                     goto BOLT;
@@ -4056,10 +4083,10 @@ ACTOR_STATIC void G_MoveActors(void)
 
                 setsprite(i,(vec3_t *)s);
 
-                s->ang = g_player[p].ps->ang;
+                s->ang = ps->ang;
 
-                if ((TEST_SYNC_KEY(g_player[p].sync->bits, SK_FIRE) || (g_player[p].ps->quick_kick > 0)) && sprite[g_player[p].ps->i].extra > 0)
-                    if (g_player[p].ps->quick_kick > 0 || (g_player[p].ps->curr_weapon != HANDREMOTE_WEAPON && g_player[p].ps->curr_weapon != HANDBOMB_WEAPON && g_player[p].ps->curr_weapon != TRIPBOMB_WEAPON && g_player[p].ps->ammo_amount[g_player[p].ps->curr_weapon] >= 0))
+                if ((TEST_SYNC_KEY(g_player[p].sync->bits, SK_FIRE) || (ps->quick_kick > 0)) && sprite[ps->i].extra > 0)
+                    if (ps->quick_kick > 0 || (ps->curr_weapon != HANDREMOTE_WEAPON && ps->curr_weapon != HANDBOMB_WEAPON && ps->curr_weapon != TRIPBOMB_WEAPON && ps->ammo_amount[ps->curr_weapon] >= 0))
                     {
                         for (x=0; x<8; x++)
                         {
@@ -4074,16 +4101,16 @@ ACTOR_STATIC void G_MoveActors(void)
                             j = A_Spawn(i,BLOODPOOL);
                             sprite[j].pal = 0;
                         }
-                        g_player[p].ps->actors_killed ++;
+                        ps->actors_killed ++;
                         t[0] = -3;
-                        if (g_player[p].ps->somethingonplayer == i)
-                            g_player[p].ps->somethingonplayer = -1;
+                        if (ps->somethingonplayer == i)
+                            ps->somethingonplayer = -1;
                         KILLIT(i);
                     }
 
-                s->z = g_player[p].ps->pos.z+g_player[p].ps->pyoff-t[2]+(8<<8);
+                s->z = ps->pos.z+ps->pyoff-t[2]+(8<<8);
 
-                s->z += (100-g_player[p].ps->horiz)<<4;
+                s->z += (100-ps->horiz)<<4;
 
                 if (t[2] > 512)
                     t[2] -= 128;
@@ -4091,8 +4118,8 @@ ACTOR_STATIC void G_MoveActors(void)
                 if (t[2] < 348)
                     t[2] += 128;
 
-                if (g_player[p].ps->newowner >= 0)
-                    G_ClearCameraView(g_player[p].ps);
+                if (ps->newowner >= 0)
+                    G_ClearCameraView(ps);
 
                 if (t[3]>0)
                 {
@@ -4102,7 +4129,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
                     if (t[3] == 5)
                     {
-                        sprite[g_player[p].ps->i].extra += -(5+(krand()&3));
+                        sprite[ps->i].extra += -(5+(krand()&3));
                         A_PlaySound(SLIM_ATTACK,i);
                     }
 
@@ -4120,17 +4147,17 @@ ACTOR_STATIC void G_MoveActors(void)
                 s->xrepeat = 20+(sintable[t[1]&2047]>>13);
                 s->yrepeat = 15+(sintable[t[1]&2047]>>13);
 
-                s->x = g_player[p].ps->pos.x + (sintable[(g_player[p].ps->ang+512)&2047]>>7);
-                s->y = g_player[p].ps->pos.y + (sintable[g_player[p].ps->ang&2047]>>7);
+                s->x = ps->pos.x + (sintable[(ps->ang+512)&2047]>>7);
+                s->y = ps->pos.y + (sintable[ps->ang&2047]>>7);
 
                 goto BOLT;
             }
 
             else if (s->xvel < 64 && x < 768)
             {
-                if (g_player[p].ps->somethingonplayer == -1)
+                if (ps->somethingonplayer == -1)
                 {
-                    g_player[p].ps->somethingonplayer = i;
+                    ps->somethingonplayer = i;
                     if (t[0] == 3 || t[0] == 2) //Falling downward
                         t[2] = (12<<8);
                     else t[2] = -(13<<8); //Climbing up duke
@@ -4142,9 +4169,9 @@ ACTOR_STATIC void G_MoveActors(void)
             {
                 A_PlaySound(SLIM_DYING,i);
 
-                g_player[p].ps->actors_killed ++;
-                if (g_player[p].ps->somethingonplayer == i)
-                    g_player[p].ps->somethingonplayer = -1;
+                ps->actors_killed ++;
+                if (ps->somethingonplayer == i)
+                    ps->somethingonplayer = -1;
 
                 if (j == FREEZEBLAST)
                 {
@@ -4294,7 +4321,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     s->xvel = 64 - (sintable[(t[1]+512)&2047]>>9);
 
                     s->ang += G_GetAngleDelta(s->ang,
-                                              getangle(g_player[p].ps->pos.x-s->x,g_player[p].ps->pos.y-s->y))>>3;
+                                              getangle(ps->pos.x-s->x,ps->pos.y-s->y))>>3;
                     // TJR
                 }
 
@@ -4352,6 +4379,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 }
             }
             goto BOLT;
+        }
 
         case BOUNCEMINE__STATIC:
         case MORTER__STATIC:
@@ -4359,6 +4387,9 @@ ACTOR_STATIC void G_MoveActors(void)
             actor[j].t_data[0] = 3;
 
         case HEAVYHBOMB__STATIC:
+        {
+            int32_t p;
+            DukePlayer_t *ps;
 
             if ((s->cstat&32768))
             {
@@ -4373,6 +4404,7 @@ ACTOR_STATIC void G_MoveActors(void)
             }
 
             p = A_FindPlayer(s,&x);
+            ps = g_player[p].ps;
 
             if (x < 1220) s->cstat &= ~257;
             else s->cstat |= 257;
@@ -4557,32 +4589,32 @@ DETONATEB:
                 }
             }
             else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
-                if (cansee(s->x,s->y,s->z-(8<<8),s->sectnum,g_player[p].ps->pos.x,g_player[p].ps->pos.y,g_player[p].ps->pos.z,g_player[p].ps->cursectnum))
-                    if (g_player[p].ps->ammo_amount[HANDBOMB_WEAPON] < g_player[p].ps->max_ammo_amount[HANDBOMB_WEAPON])
+                if (cansee(s->x,s->y,s->z-(8<<8),s->sectnum,ps->pos.x,ps->pos.y,ps->pos.z,ps->cursectnum))
+                    if (ps->ammo_amount[HANDBOMB_WEAPON] < ps->max_ammo_amount[HANDBOMB_WEAPON])
                     {
                         if ((GametypeFlags[ud.coop] & GAMETYPE_WEAPSTAY) && s->owner == i)
                         {
-                            for (j=0; j<g_player[p].ps->weapreccnt; j++)
-                                if (g_player[p].ps->weaprecs[j] == s->picnum)
+                            for (j=0; j<ps->weapreccnt; j++)
+                                if (ps->weaprecs[j] == s->picnum)
                                     goto BOLT;
 
-                            if (g_player[p].ps->weapreccnt < MAX_WEAPONS)
-                                g_player[p].ps->weaprecs[g_player[p].ps->weapreccnt++] = s->picnum;
+                            if (ps->weapreccnt < MAX_WEAPONS)
+                                ps->weaprecs[ps->weapreccnt++] = s->picnum;
                         }
 
-                        P_AddAmmo(HANDBOMB_WEAPON,g_player[p].ps,1);
-                        A_PlaySound(DUKE_GET,g_player[p].ps->i);
+                        P_AddAmmo(HANDBOMB_WEAPON,ps,1);
+                        A_PlaySound(DUKE_GET,ps->i);
 
-                        if ((g_player[p].ps->gotweapon & (1<<HANDBOMB_WEAPON)) == 0 || s->owner == g_player[p].ps->i)
+                        if ((ps->gotweapon & (1<<HANDBOMB_WEAPON)) == 0 || s->owner == ps->i)
                         {
-                            /* P_AddWeapon(g_player[p].ps,HANDBOMB_WEAPON); */
-                            if (!(g_player[p].ps->weaponswitch & 1) && *aplWeaponWorksLike[g_player[p].ps->curr_weapon] != HANDREMOTE_WEAPON)
-                                P_AddWeaponNoSwitch(g_player[p].ps,HANDBOMB_WEAPON);
-                            else P_AddWeapon(g_player[p].ps,HANDBOMB_WEAPON);
+                            /* P_AddWeapon(ps,HANDBOMB_WEAPON); */
+                            if (!(ps->weaponswitch & 1) && *aplWeaponWorksLike[ps->curr_weapon] != HANDREMOTE_WEAPON)
+                                P_AddWeaponNoSwitch(ps,HANDBOMB_WEAPON);
+                            else P_AddWeapon(ps,HANDBOMB_WEAPON);
                         }
 
                         if (sprite[s->owner].picnum != APLAYER)
-                            P_PalFrom(g_player[p].ps, 32, 0,32,0);
+                            P_PalFrom(ps, 32, 0,32,0);
 
                         if (s->owner != i || ud.respawn_items == 0)
                         {
@@ -4600,6 +4632,7 @@ DETONATEB:
 
             if (t[0] < 8) t[0]++;
             goto BOLT;
+        }
 
         case REACTORBURNT__STATIC:
         case REACTOR2BURNT__STATIC:
@@ -4607,6 +4640,9 @@ DETONATEB:
 
         case REACTOR__STATIC:
         case REACTOR2__STATIC:
+        {
+            int32_t p;
+            DukePlayer_t *ps;
 
             if (t[4] == 1)
             {
@@ -4645,6 +4681,7 @@ DETONATEB:
             }
 
             p = A_FindPlayer(s,&x);
+            ps = g_player[p].ps;
 
             t[2]++;
             if (t[2] == 4) t[2]=0;
@@ -4653,14 +4690,14 @@ DETONATEB:
             {
                 if ((krand()&255) < 16)
                 {
-                    if (!A_CheckSoundPlaying(g_player[p].ps->i, DUKE_LONGTERM_PAIN))
-                        A_PlaySound(DUKE_LONGTERM_PAIN,g_player[p].ps->i);
+                    if (!A_CheckSoundPlaying(ps->i, DUKE_LONGTERM_PAIN))
+                        A_PlaySound(DUKE_LONGTERM_PAIN,ps->i);
 
                     A_PlaySound(SHORT_CIRCUIT,i);
 
-                    sprite[g_player[p].ps->i].extra --;
+                    sprite[ps->i].extra --;
 
-                    P_PalFrom(g_player[p].ps, 32, 32,0,0);
+                    P_PalFrom(ps, 32, 32,0,0);
                 }
                 t[0] += 128;
                 if (t[3] == 0)
@@ -4747,6 +4784,7 @@ DETONATEB:
                 }
             }
             goto BOLT;
+        }
 
         case CAMERA1__STATIC:
 
@@ -4799,8 +4837,10 @@ DETONATEB:
 
         if (!actorscrptr[sprite[i].picnum])
             goto BOLT;
-        p = A_FindPlayer(s,&x);
-        A_Execute(i,p,x);
+        {
+            int32_t p = A_FindPlayer(s,&x);
+            A_Execute(i,p,x);
+        }
 BOLT:
         i = nexti;
     }
@@ -4809,7 +4849,7 @@ BOLT:
 
 ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 {
-    int16_t i, j, nexti, sect, p;
+    int16_t i, j, nexti, sect;
     int32_t l, x;
 
     int32_t *t;
@@ -4977,14 +5017,16 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 }
                 goto BOLT;
             case INNERJAW__STATIC:
+            {
                 //        case INNERJAW+1:
 
-                p = A_FindPlayer(s,&x);
+                int32_t p = A_FindPlayer(s,&x);
                 if (x < 512)
                 {
                     P_PalFrom(g_player[p].ps, 32, 32,0,0);
                     sprite[g_player[p].ps->i].extra -= 4;
                 }
+            }
 
             case FIRELASER__STATIC:
                 if (s->extra != 5)
@@ -5145,6 +5187,9 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 
             case BLOODPOOL__STATIC:
             case PUKE__STATIC:
+            {
+                int32_t p;
+                DukePlayer_t *ps;
 
                 if (t[0] == 0)
                 {
@@ -5159,6 +5204,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 A_Fall(i);
 
                 p = A_FindPlayer(s,&x);
+                ps = g_player[p].ps;
 
                 s->z = actor[i].floorz-(ZOFFSET);
 
@@ -5187,15 +5233,15 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 {
                     if (s->pal == 0 && (krand()&255) < 16 && s->picnum != PUKE)
                     {
-                        if (g_player[p].ps->inv_amount[GET_BOOTS] > 0)
-                            g_player[p].ps->inv_amount[GET_BOOTS]--;
+                        if (ps->inv_amount[GET_BOOTS] > 0)
+                            ps->inv_amount[GET_BOOTS]--;
                         else
                         {
-                            if (!A_CheckSoundPlaying(g_player[p].ps->i,DUKE_LONGTERM_PAIN))
-                                A_PlaySound(DUKE_LONGTERM_PAIN,g_player[p].ps->i);
-                            sprite[g_player[p].ps->i].extra --;
+                            if (!A_CheckSoundPlaying(ps->i,DUKE_LONGTERM_PAIN))
+                                A_PlaySound(DUKE_LONGTERM_PAIN,ps->i);
+                            sprite[ps->i].extra --;
 
-                            P_PalFrom(g_player[p].ps, 32, 16,0,0);
+                            P_PalFrom(ps, 32, 16,0,0);
                         }
                     }
 
@@ -5203,11 +5249,11 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     t[1] = 1;
 
                     if (actor[i].picnum == TIRE)
-                        g_player[p].ps->footprintcount = 10;
-                    else g_player[p].ps->footprintcount = 3;
+                        ps->footprintcount = 10;
+                    else ps->footprintcount = 3;
 
-                    g_player[p].ps->footprintpal = s->pal;
-                    g_player[p].ps->footprintshade = s->shade;
+                    ps->footprintpal = s->pal;
+                    ps->footprintshade = s->shade;
 
                     if (t[2] == 32)
                     {
@@ -5217,6 +5263,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 }
                 else t[1] = 0;
                 goto BOLT;
+            }
 
             case BURNING__STATIC:
             case BURNING2__STATIC:
@@ -5234,8 +5281,10 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
             {
                 if (!actorscrptr[sprite[i].picnum])
                     goto BOLT;
-                p = A_FindPlayer(s,&x);
-                A_Execute(i,p,x);
+                {
+                    int32_t p = A_FindPlayer(s,&x);
+                    A_Execute(i,p,x);
+                }
                 goto BOLT;
             }
 
@@ -5414,28 +5463,32 @@ static void MaybeTrainKillPlayer(const spritetype *s, int32_t dosetopos)
     int32_t p;
 
     for (TRAVERSE_CONNECT(p))
-        if (sprite[g_player[p].ps->i].extra > 0)
-        {
-            int16_t k = g_player[p].ps->cursectnum;
+    {
+        DukePlayer_t *const ps = g_player[p].ps;
 
-            updatesector(g_player[p].ps->pos.x,g_player[p].ps->pos.y,&k);
-            if ((k == -1 && ud.noclip == 0) || (k == s->sectnum && g_player[p].ps->cursectnum != s->sectnum))
+        if (sprite[ps->i].extra > 0)
+        {
+            int16_t k = ps->cursectnum;
+
+            updatesector(ps->pos.x,ps->pos.y,&k);
+            if ((k == -1 && ud.noclip == 0) || (k == s->sectnum && ps->cursectnum != s->sectnum))
             {
-                g_player[p].ps->pos.x = s->x;
-                g_player[p].ps->pos.y = s->y;
+                ps->pos.x = s->x;
+                ps->pos.y = s->y;
 
                 if (dosetopos)
                 {
-                    g_player[p].ps->opos.x = g_player[p].ps->pos.x;
-                    g_player[p].ps->opos.y = g_player[p].ps->pos.y;
+                    ps->opos.x = ps->pos.x;
+                    ps->opos.y = ps->pos.y;
                 }
 
-                g_player[p].ps->cursectnum = s->sectnum;
+                ps->cursectnum = s->sectnum;
 
-                setsprite(g_player[p].ps->i,(vec3_t *)s);
-                P_QuickKill(g_player[p].ps);
+                setsprite(ps->i,(vec3_t *)s);
+                P_QuickKill(ps);
             }
         }
+    }
 }
 
 // i: SE spritenum
@@ -5469,7 +5522,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 {
     int32_t q=0,  m, x, j, l;
 
-    int32_t i = headspritestat[STAT_EFFECTOR], nextk, p, nextj;
+    int32_t i = headspritestat[STAT_EFFECTOR], nextk, nextj;
     int16_t k;
     walltype *wal;
 
@@ -5579,28 +5632,32 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (l && (sc->floorstat&64))
             {
+                int32_t p;
+
                 for (TRAVERSE_CONNECT(p))
                 {
-                    if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground == 1)
+                    DukePlayer_t *const ps = g_player[p].ps;
+
+                    if (ps->cursectnum == s->sectnum && ps->on_ground == 1)
                     {
 
-                        g_player[p].ps->ang += (l*q);
-                        g_player[p].ps->ang &= 2047;
+                        ps->ang += (l*q);
+                        ps->ang &= 2047;
 
-                        g_player[p].ps->pos.z += zchange;
+                        ps->pos.z += zchange;
 
-                        rotatepoint(sprite[j].x,sprite[j].y,g_player[p].ps->pos.x,g_player[p].ps->pos.y,(q*l),&m,&x);
+                        rotatepoint(sprite[j].x,sprite[j].y,ps->pos.x,ps->pos.y,(q*l),&m,&x);
 
-                        g_player[p].ps->bobposx += m-g_player[p].ps->pos.x;
-                        g_player[p].ps->bobposy += x-g_player[p].ps->pos.y;
+                        ps->bobposx += m-ps->pos.x;
+                        ps->bobposy += x-ps->pos.y;
 
-                        g_player[p].ps->pos.x = m;
-                        g_player[p].ps->pos.y = x;
+                        ps->pos.x = m;
+                        ps->pos.y = x;
 
-                        if (sprite[g_player[p].ps->i].extra <= 0)
+                        if (sprite[ps->i].extra <= 0)
                         {
-                            sprite[g_player[p].ps->i].x = m;
-                            sprite[g_player[p].ps->i].y = x;
+                            sprite[ps->i].x = m;
+                            sprite[ps->i].y = x;
                         }
                     }
                 }
@@ -5633,6 +5690,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             else if (l==0 && (sc->floorstat&64))
             {
+                int32_t p;
+
                 // fix for jittering of sprites in halted rotating sectors
                 for (p=headspritesect[s->sectnum]; p>=0; p=nextspritesect[p])
                 {
@@ -5745,6 +5804,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (s->xvel)
             {
+                int32_t p;
 #ifdef YAX_ENABLE
                 int32_t firstrun = 1;
 #endif
@@ -5788,14 +5848,16 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 for (TRAVERSE_CONNECT(p))
                 {
-                    if (g_player[p].ps->cursectnum < 0)
+                    DukePlayer_t *const ps = g_player[p].ps;
+
+                    if (ps->cursectnum < 0)
                     {
                         // might happen when squished into void space
 //                        initprintf("cursectnum < 0!\n");
                         break;
                     }
 
-                    if (sector[g_player[p].ps->cursectnum].lotag != 2)
+                    if (sector[ps->cursectnum].lotag != 2)
                     {
                         if (g_playerSpawnPoints[p].os == s->sectnum)
                         {
@@ -5803,32 +5865,32 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             g_playerSpawnPoints[p].oy += x;
                         }
 
-                        if (s->sectnum == sprite[g_player[p].ps->i].sectnum
+                        if (s->sectnum == sprite[ps->i].sectnum
 #ifdef YAX_ENABLE
-                                || (t[9]>=0 && t[9] == sprite[g_player[p].ps->i].sectnum)
+                                || (t[9]>=0 && t[9] == sprite[ps->i].sectnum)
 #endif
                             )
                         {
-                            rotatepoint(s->x,s->y,g_player[p].ps->pos.x,g_player[p].ps->pos.y,q,&g_player[p].ps->pos.x,&g_player[p].ps->pos.y);
+                            rotatepoint(s->x,s->y,ps->pos.x,ps->pos.y,q,&ps->pos.x,&ps->pos.y);
 
-                            g_player[p].ps->pos.x += m;
-                            g_player[p].ps->pos.y += x;
+                            ps->pos.x += m;
+                            ps->pos.y += x;
 
-                            g_player[p].ps->bobposx += m;
-                            g_player[p].ps->bobposy += x;
+                            ps->bobposx += m;
+                            ps->bobposy += x;
 
-                            g_player[p].ps->ang += q;
-                            g_player[p].ps->ang &= 2047;
+                            ps->ang += q;
+                            ps->ang &= 2047;
 
                             if (g_netServer || numplayers > 1)
                             {
-                                g_player[p].ps->opos.x = g_player[p].ps->pos.x;
-                                g_player[p].ps->opos.y = g_player[p].ps->pos.y;
+                                ps->opos.x = ps->pos.x;
+                                ps->opos.y = ps->pos.y;
                             }
-                            if (sprite[g_player[p].ps->i].extra <= 0)
+                            if (sprite[ps->i].extra <= 0)
                             {
-                                sprite[g_player[p].ps->i].x = g_player[p].ps->pos.x;
-                                sprite[g_player[p].ps->i].y = g_player[p].ps->pos.y;
+                                sprite[ps->i].x = ps->pos.x;
+                                sprite[ps->i].y = ps->pos.y;
                             }
                         }
                     }
@@ -5960,6 +6022,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (s->xvel)
             {
+                int32_t p;
+
                 l = (s->xvel*sintable[(s->ang+512)&2047])>>14;
                 x = (s->xvel*sintable[s->ang&2047])>>14;
 
@@ -5969,19 +6033,21 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 for (TRAVERSE_CONNECT(p))
                 {
-                    if (sprite[g_player[p].ps->i].sectnum == s->sectnum)
+                    DukePlayer_t *const ps = g_player[p].ps;
+
+                    if (sprite[ps->i].sectnum == s->sectnum)
                     {
-                        g_player[p].ps->pos.x += l;
-                        g_player[p].ps->pos.y += x;
+                        ps->pos.x += l;
+                        ps->pos.y += x;
 
                         if (g_netServer || numplayers > 1)
                         {
-                            g_player[p].ps->opos.x = g_player[p].ps->pos.x;
-                            g_player[p].ps->opos.y = g_player[p].ps->pos.y;
+                            ps->opos.x = ps->pos.x;
+                            ps->opos.y = ps->pos.y;
                         }
 
-                        g_player[p].ps->bobposx += l;
-                        g_player[p].ps->bobposy += x;
+                        ps->bobposx += l;
+                        ps->bobposy += x;
                     }
 
                     if (g_playerSpawnPoints[p].os == s->sectnum)
@@ -6040,6 +6106,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (t[0] > 0)
             {
+                int32_t p;
+
                 t[0]++;
 
                 s->xvel = 3;
@@ -6068,14 +6136,18 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
 
                 for (TRAVERSE_CONNECT(p))
-                    if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
-                    {
-                        g_player[p].ps->pos.x += m;
-                        g_player[p].ps->pos.y += x;
+                {
+                    DukePlayer_t *const ps = g_player[p].ps;
 
-                        g_player[p].ps->bobposx += m;
-                        g_player[p].ps->bobposy += x;
+                    if (ps->cursectnum == s->sectnum && ps->on_ground)
+                    {
+                        ps->pos.x += m;
+                        ps->pos.y += x;
+
+                        ps->bobposx += m;
+                        ps->bobposy += x;
                     }
+                }
 
                 j = headspritesect[s->sectnum];
                 while (j >= 0)
@@ -6098,9 +6170,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             //Flashing sector lights after reactor EXPLOSION2
 
         case 3:
-
+        {
             if (t[4] == 0) break;
-            p = A_FindPlayer(s,&x);
+            A_FindPlayer(s,&x);
+            // XXX: x is dead here; A_FindPlayer() call necessary?
 
             //    if(t[5] > 0) { t[5]--; break; }
 
@@ -6137,6 +6210,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
 
             break;
+        }
 
         case 4:
 
@@ -6197,11 +6271,14 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             //BOSS
         case 5:
-            p = A_FindPlayer(s,&x);
+        {
+            const int32_t p = A_FindPlayer(s,&x);
+            DukePlayer_t *const ps = g_player[p].ps;
+
             if (x < 8192)
             {
                 j = s->ang;
-                s->ang = getangle(s->x-g_player[p].ps->pos.x,s->y-g_player[p].ps->pos.y);
+                s->ang = getangle(s->x-ps->pos.x,s->y-ps->pos.y);
                 A_Shoot(i,FIRELASER);
                 s->ang = j;
             }
@@ -6216,7 +6293,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                     if (s->owner==-1) break;
 
-                    m = ldist(&sprite[g_player[p].ps->i],&sprite[s->owner]);
+                    m = ldist(&sprite[ps->i],&sprite[s->owner]);
 
                     if (l > m)
                     {
@@ -6235,7 +6312,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             {
                 int16_t ta;
                 ta = s->ang;
-                s->ang = getangle(g_player[p].ps->pos.x-s->x,g_player[p].ps->pos.y-s->y);
+                s->ang = getangle(ps->pos.x-s->x,ps->pos.y-s->y);
                 s->ang = ta;
                 s->owner = -1;
                 goto BOLT;
@@ -6254,7 +6331,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             else
             {
-                t[2] += G_GetAngleDelta(t[2]+512,getangle(g_player[p].ps->pos.x-s->x,g_player[p].ps->pos.y-s->y))>>2;
+                t[2] += G_GetAngleDelta(t[2]+512,getangle(ps->pos.x-s->x,ps->pos.y-s->y))>>2;
                 sc->ceilingshade = 0;
             }
 
@@ -6273,7 +6350,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             A_MoveSector(i);
             setsprite(i,(vec3_t *)s);
             break;
-
+        }
 
         case 8:
         case 9:
@@ -6347,10 +6424,12 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
             }
             break;
-        case 10:
 
+        case 10:
             if ((sc->lotag&0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag&0xff) != 23) || sc->lotag == (int16_t) 32791)
             {
+                int32_t p;
+
                 j = 1;
 
                 if ((sc->lotag&0xff) != 27)
@@ -6662,7 +6741,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
         case 17:
-
+        {
             q = t[0]*(SP<<2);
 
             sc->ceilingz += q;
@@ -6673,14 +6752,16 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             {
                 if (sprite[j].statnum == STAT_PLAYER && sprite[j].owner >= 0)
                 {
-                    p = sprite[j].yvel;
+                    const int32_t p = sprite[j].yvel;
+                    DukePlayer_t *const ps = g_player[p].ps;
+
                     if (numplayers < 2 && !g_netServer)
-                        g_player[p].ps->opos.z = g_player[p].ps->pos.z;
-                    g_player[p].ps->pos.z += q;
-                    g_player[p].ps->truefz += q;
-                    g_player[p].ps->truecz += q;
+                        ps->opos.z = ps->pos.z;
+                    ps->pos.z += q;
+                    ps->truefz += q;
+                    ps->truecz += q;
                     if (g_netServer || numplayers > 1)
-                        g_player[p].ps->opos.z = g_player[p].ps->pos.z;
+                        ps->opos.z = ps->pos.z;
                 }
                 if (sprite[j].statnum != STAT_EFFECTOR)
                 {
@@ -6732,25 +6813,26 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                     if (sprite[k].statnum == STAT_PLAYER && sprite[k].owner >= 0)
                     {
-                        p = sprite[k].yvel;
+                        const int32_t p = sprite[k].yvel;
+                        DukePlayer_t *const ps = g_player[p].ps;
 
-                        g_player[p].ps->pos.x += sprite[j].x-s->x;
-                        g_player[p].ps->pos.y += sprite[j].y-s->y;
-                        g_player[p].ps->pos.z = sector[sprite[j].sectnum].floorz-(sc->floorz-g_player[p].ps->pos.z);
+                        ps->pos.x += sprite[j].x-s->x;
+                        ps->pos.y += sprite[j].y-s->y;
+                        ps->pos.z = sector[sprite[j].sectnum].floorz-(sc->floorz-ps->pos.z);
 
                         actor[k].floorz = sector[sprite[j].sectnum].floorz;
                         actor[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
 
-                        g_player[p].ps->bobposx = g_player[p].ps->opos.x = g_player[p].ps->pos.x;
-                        g_player[p].ps->bobposy = g_player[p].ps->opos.y = g_player[p].ps->pos.y;
-                        g_player[p].ps->opos.z = g_player[p].ps->pos.z;
+                        ps->bobposx = ps->opos.x = ps->pos.x;
+                        ps->bobposy = ps->opos.y = ps->pos.y;
+                        ps->opos.z = ps->pos.z;
 
-                        g_player[p].ps->truefz = actor[k].floorz;
-                        g_player[p].ps->truecz = actor[k].ceilingz;
-                        g_player[p].ps->bobcounter = 0;
+                        ps->truefz = actor[k].floorz;
+                        ps->truecz = actor[k].ceilingz;
+                        ps->bobcounter = 0;
 
                         changespritesect(k,sprite[j].sectnum);
-                        g_player[p].ps->cursectnum = sprite[j].sectnum;
+                        ps->cursectnum = sprite[j].sectnum;
                     }
                     else if (sprite[k].statnum != STAT_EFFECTOR)
                     {
@@ -6774,6 +6856,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
             }
             break;
+        }
 
         case 18:
             if (t[0])
@@ -6952,6 +7035,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (s->xvel)   //Moving
             {
+                int32_t p;
+
                 x = (s->xvel*sintable[(s->ang+512)&2047])>>14;
                 l = (s->xvel*sintable[s->ang&2047])>>14;
 
@@ -6990,18 +7075,22 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 dragpoint((int16_t)t[2],wall[t[2]].x+x,wall[t[2]].y+l);
 
                 for (TRAVERSE_CONNECT(p))
-                    if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
+                {
+                    DukePlayer_t *const ps = g_player[p].ps;
+
+                    if (ps->cursectnum == s->sectnum && ps->on_ground)
                     {
-                        g_player[p].ps->pos.x += x;
-                        g_player[p].ps->pos.y += l;
+                        ps->pos.x += x;
+                        ps->pos.y += l;
 
-                        g_player[p].ps->opos.x = g_player[p].ps->pos.x;
-                        g_player[p].ps->opos.y = g_player[p].ps->pos.y;
+                        ps->opos.x = ps->pos.x;
+                        ps->opos.y = ps->pos.y;
 
-                        g_player[p].ps->pos.z += PHEIGHT;
-                        setsprite(g_player[p].ps->i,(vec3_t *)g_player[p].ps);
-                        g_player[p].ps->pos.z -= PHEIGHT;
+                        ps->pos.z += PHEIGHT;
+                        setsprite(ps->i,(vec3_t *)ps);
+                        ps->pos.z -= PHEIGHT;
                     }
+                }
 
                 sc->floorxpanning-=x>>3;
                 sc->floorypanning-=l>>3;
@@ -7054,6 +7143,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
         case 24:
         case 34:
+        {
+            int32_t p;
+
             if (t[4])
                 break;
 
@@ -7140,6 +7232,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             sc->floorxpanning += SP>>7;
 
             break;
+        }
 
         case 35:
             if (sc->ceilingz > s->z)
@@ -7198,6 +7291,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
         case 26:
+        {
+            int32_t p;
+
             s->xvel = 32;
             l = (s->xvel*sintable[(s->ang+512)&2047])>>14;
             x = (s->xvel*sintable[s->ang&2047])>>14;
@@ -7246,30 +7342,37 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             setsprite(i,(vec3_t *)s);
 
             break;
+        }
 
         case 27:
+        {
+            int32_t p;
+            DukePlayer_t *ps;
+
             if (ud.recstat == 0 || !ud.democams) break;
 
             actor[i].tempang = s->ang;
 
             p = A_FindPlayer(s,&x);
-            if (sprite[g_player[p].ps->i].extra > 0 && myconnectindex == screenpeek)
+            ps = g_player[p].ps;
+
+            if (sprite[ps->i].extra > 0 && myconnectindex == screenpeek)
             {
                 if (t[0] < 0)
                 {
                     ud.camerasprite = i;
                     t[0]++;
                 }
-                else if (ud.recstat == 2 && g_player[p].ps->newowner == -1)
+                else if (ud.recstat == 2 && ps->newowner == -1)
                 {
-                    if (cansee(s->x,s->y,s->z,SECT,g_player[p].ps->pos.x,g_player[p].ps->pos.y,g_player[p].ps->pos.z,g_player[p].ps->cursectnum))
+                    if (cansee(s->x,s->y,s->z,SECT,ps->pos.x,ps->pos.y,ps->pos.z,ps->cursectnum))
                     {
                         if (x < (int32_t)((unsigned)sh))
                         {
                             ud.camerasprite = i;
                             t[0] = 999;
-                            s->ang += G_GetAngleDelta(s->ang,getangle(g_player[p].ps->pos.x-s->x,g_player[p].ps->pos.y-s->y))>>3;
-                            SP = 100+((s->z-g_player[p].ps->pos.z)/257);
+                            s->ang += G_GetAngleDelta(s->ang,getangle(ps->pos.x-s->x,ps->pos.y-s->y))>>3;
+                            SP = 100+((s->z-ps->pos.z)/257);
 
                         }
                         else if (t[0] == 999)
@@ -7283,7 +7386,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     }
                     else
                     {
-                        s->ang = getangle(g_player[p].ps->pos.x-s->x,g_player[p].ps->pos.y-s->y);
+                        s->ang = getangle(ps->pos.x-s->x,ps->pos.y-s->y);
 
                         if (t[0] == 999)
                         {
@@ -7296,8 +7399,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
             }
             break;
+        }
 
         case 28:
+        {
             if (t[5] > 0)
             {
                 t[5]--;
@@ -7306,7 +7411,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (T1 == 0)
             {
-                p = A_FindPlayer(s,&x);
+                A_FindPlayer(s,&x);
                 if (x > 15500)
                     break;
                 T1 = 1;
@@ -7353,19 +7458,24 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         {
                             if (rnd(32) && (T3&1))
                             {
+                                int32_t p;
+                                DukePlayer_t *ps;
+
                                 sprite[j].cstat &= 32767;
                                 A_Spawn(j,SMALLSMOKE);
 
                                 p = A_FindPlayer(s,&x);
-                                x = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+                                ps = g_player[p].ps;
+
+                                x = ldist(&sprite[ps->i], &sprite[j]);
                                 if (x < 768)
                                 {
-                                    if (!A_CheckSoundPlaying(g_player[p].ps->i,DUKE_LONGTERM_PAIN))
-                                        A_PlaySound(DUKE_LONGTERM_PAIN,g_player[p].ps->i);
-                                    A_PlaySound(SHORT_CIRCUIT,g_player[p].ps->i);
-                                    sprite[g_player[p].ps->i].extra -= 8+(krand()&7);
+                                    if (!A_CheckSoundPlaying(ps->i,DUKE_LONGTERM_PAIN))
+                                        A_PlaySound(DUKE_LONGTERM_PAIN,ps->i);
+                                    A_PlaySound(SHORT_CIRCUIT,ps->i);
+                                    sprite[ps->i].extra -= 8+(krand()&7);
 
-                                    P_PalFrom(g_player[p].ps, 32, 16,0,0);
+                                    P_PalFrom(ps, 32, 16,0,0);
                                 }
                                 break;
                             }
@@ -7377,6 +7487,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
             }
             break;
+        }
 
         case 29:
             s->hitag += 64;
@@ -7945,7 +8056,7 @@ void G_MoveWorld(void)
     G_MoveStandables();       //ST 6
 
     {
-        int32_t p, j, k = MAXSTATUS-1, pl;
+        int32_t j, k = MAXSTATUS-1, pl;
 #ifdef POLYMER
         int32_t numsavedfires = 0;
 #endif
@@ -8195,8 +8306,11 @@ void G_MoveWorld(void)
 
                 j = nextspritestat[i];
 
-                pl = A_FindPlayer(&sprite[i], &p);
-                VM_OnEvent(EVENT_GAME,i, pl, p, 0);
+                {
+                    int32_t p;
+                    pl = A_FindPlayer(&sprite[i], &p);
+                    VM_OnEvent(EVENT_GAME,i, pl, p, 0);
+                }
                 i = j;
             }
         }
