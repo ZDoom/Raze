@@ -1615,12 +1615,14 @@ ACTOR_STATIC void G_MoveStandables(void)
                 }
                 else if (s->owner == -2)
                 {
-                    g_player[p].ps->opos.x = g_player[p].ps->pos.x = s->x-(sintable[(g_player[p].ps->ang+512)&2047]>>6);
-                    g_player[p].ps->opos.y = g_player[p].ps->pos.y = s->y-(sintable[g_player[p].ps->ang&2047]>>6);
-                    g_player[p].ps->opos.z = g_player[p].ps->pos.z = s->z+(2<<8);
+                    DukePlayer_t *const ps = g_player[p].ps;
 
-                    setsprite(g_player[p].ps->i,(vec3_t *)g_player[p].ps);
-                    g_player[p].ps->cursectnum = sprite[g_player[p].ps->i].sectnum;
+                    ps->opos.x = ps->pos.x = s->x-(sintable[(ps->ang+512)&2047]>>6);
+                    ps->opos.y = ps->pos.y = s->y-(sintable[ps->ang&2047]>>6);
+                    ps->opos.z = ps->pos.z = s->z+(2<<8);
+
+                    setsprite(ps->i, (vec3_t *)ps);
+                    ps->cursectnum = sprite[ps->i].sectnum;
                 }
             }
 
@@ -3118,7 +3120,7 @@ BOLT:
 ACTOR_STATIC void G_MoveTransports(void)
 {
     int32_t warpspriteto;
-    int32_t i = headspritestat[STAT_TRANSPORT], j, k, l, p, sect, sectlotag, nexti, nextj;
+    int32_t i = headspritestat[STAT_TRANSPORT], j, k, l, sect, sectlotag, nexti, nextj;
     int32_t ll,onfloorz,q;
 
     while (i >= 0)
@@ -3146,16 +3148,16 @@ ACTOR_STATIC void G_MoveTransports(void)
             switch (sprite[j].statnum)
             {
             case STAT_PLAYER:
-
                 if (sprite[j].owner != -1)
                 {
-                    p = sprite[j].yvel;
+                    const int32_t p = sprite[j].yvel;
+                    DukePlayer_t *const ps = g_player[p].ps;
 
-                    g_player[p].ps->on_warping_sector = 1;
+                    ps->on_warping_sector = 1;
 
-                    if (g_player[p].ps->transporter_hold == 0 && g_player[p].ps->jumping_counter == 0)
+                    if (ps->transporter_hold == 0 && ps->jumping_counter == 0)
                     {
-                        if (g_player[p].ps->on_ground && sectlotag == 0 && onfloorz && g_player[p].ps->jetpack_on == 0)
+                        if (ps->on_ground && sectlotag == 0 && onfloorz && ps->jetpack_on == 0)
                         {
                             if (sprite[i].pal == 0)
                             {
@@ -3170,21 +3172,21 @@ ACTOR_STATIC void G_MoveTransports(void)
                                     sprite[g_player[k].ps->i].extra = 0;
                                 }
 
-                            g_player[p].ps->ang = sprite[OW].ang;
+                            ps->ang = sprite[OW].ang;
 
                             if (sprite[OW].owner != OW)
                             {
                                 T1 = 13;
                                 actor[OW].t_data[0] = 13;
-                                g_player[p].ps->transporter_hold = 13;
+                                ps->transporter_hold = 13;
                             }
 
-                            g_player[p].ps->bobposx = g_player[p].ps->opos.x = g_player[p].ps->pos.x = sprite[OW].x;
-                            g_player[p].ps->bobposy = g_player[p].ps->opos.y = g_player[p].ps->pos.y = sprite[OW].y;
-                            g_player[p].ps->opos.z = g_player[p].ps->pos.z = sprite[OW].z-PHEIGHT;
+                            ps->bobposx = ps->opos.x = ps->pos.x = sprite[OW].x;
+                            ps->bobposy = ps->opos.y = ps->pos.y = sprite[OW].y;
+                            ps->opos.z = ps->pos.z = sprite[OW].z-PHEIGHT;
 
                             changespritesect(j,sprite[OW].sectnum);
-                            g_player[p].ps->cursectnum = sprite[j].sectnum;
+                            ps->cursectnum = sprite[j].sectnum;
 
                             if (sprite[i].pal == 0)
                             {
@@ -3195,36 +3197,36 @@ ACTOR_STATIC void G_MoveTransports(void)
                             break;
                         }
                     }
-                    else if (!(sectlotag == 1 && g_player[p].ps->on_ground == 1)) break;
+                    else if (!(sectlotag == 1 && ps->on_ground == 1)) break;
 
-                    if (onfloorz == 0 && klabs(SZ-g_player[p].ps->pos.z) < 6144)
-                        if ((g_player[p].ps->jetpack_on == 0) || (g_player[p].ps->jetpack_on && TEST_SYNC_KEY(g_player[p].sync->bits, SK_JUMP)) ||
-                                (g_player[p].ps->jetpack_on && TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH)))
+                    if (onfloorz == 0 && klabs(SZ-ps->pos.z) < 6144)
+                        if ((ps->jetpack_on == 0) || (ps->jetpack_on && TEST_SYNC_KEY(g_player[p].sync->bits, SK_JUMP)) ||
+                                (ps->jetpack_on && TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH)))
                         {
-                            g_player[p].ps->bobposx = g_player[p].ps->opos.x = g_player[p].ps->pos.x += sprite[OW].x-SX;
-                            g_player[p].ps->bobposy = g_player[p].ps->opos.y = g_player[p].ps->pos.y += sprite[OW].y-SY;
+                            ps->bobposx = ps->opos.x = ps->pos.x += sprite[OW].x-SX;
+                            ps->bobposy = ps->opos.y = ps->pos.y += sprite[OW].y-SY;
 
-                            if (g_player[p].ps->jetpack_on && (TEST_SYNC_KEY(g_player[p].sync->bits, SK_JUMP) || g_player[p].ps->jetpack_on < 11))
-                                g_player[p].ps->pos.z = sprite[OW].z-6144;
-                            else g_player[p].ps->pos.z = sprite[OW].z+6144;
-                            g_player[p].ps->opos.z = g_player[p].ps->pos.z;
+                            if (ps->jetpack_on && (TEST_SYNC_KEY(g_player[p].sync->bits, SK_JUMP) || ps->jetpack_on < 11))
+                                ps->pos.z = sprite[OW].z-6144;
+                            else ps->pos.z = sprite[OW].z+6144;
+                            ps->opos.z = ps->pos.z;
 
-                            actor[g_player[p].ps->i].bposx = g_player[p].ps->pos.x;
-                            actor[g_player[p].ps->i].bposy = g_player[p].ps->pos.y;
-                            actor[g_player[p].ps->i].bposz = g_player[p].ps->pos.z;
+                            actor[ps->i].bposx = ps->pos.x;
+                            actor[ps->i].bposy = ps->pos.y;
+                            actor[ps->i].bposz = ps->pos.z;
 
                             changespritesect(j,sprite[OW].sectnum);
-                            g_player[p].ps->cursectnum = sprite[OW].sectnum;
+                            ps->cursectnum = sprite[OW].sectnum;
 
                             break;
                         }
 
                     k = 0;
 
-                    if (onfloorz && sectlotag == 1 && g_player[p].ps->on_ground &&
-                            g_player[p].ps->pos.z >= sector[sect].floorz &&
-                            (TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH) || g_player[p].ps->vel.z > 2048))
-                        //                        if( onfloorz && sectlotag == 1 && g_player[p].ps->pos.z > (sector[sect].floorz-(6<<8)) )
+                    if (onfloorz && sectlotag == 1 && ps->on_ground &&
+                            ps->pos.z >= sector[sect].floorz &&
+                            (TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH) || ps->vel.z > 2048))
+                        //                        if( onfloorz && sectlotag == 1 && ps->pos.z > (sector[sect].floorz-(6<<8)) )
                     {
                         k = 1;
                         if (screenpeek == p)
@@ -3232,23 +3234,23 @@ ACTOR_STATIC void G_MoveTransports(void)
                             FX_StopAllSounds();
                             S_ClearSoundLocks();
                         }
-                        if (sprite[g_player[p].ps->i].extra > 0)
+                        if (sprite[ps->i].extra > 0)
                             A_PlaySound(DUKE_UNDERWATER,j);
-                        g_player[p].ps->opos.z = g_player[p].ps->pos.z =
+                        ps->opos.z = ps->pos.z =
                                                      sector[sprite[OW].sectnum].ceilingz;
 
                         /*
-                                                g_player[p].ps->vel.x = 4096-(krand()&8192);
-                                                g_player[p].ps->vel.y = 4096-(krand()&8192);
+                                                ps->vel.x = 4096-(krand()&8192);
+                                                ps->vel.y = 4096-(krand()&8192);
                         */
                         if (TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH))
-                            g_player[p].ps->vel.z += 512;
+                            ps->vel.z += 512;
                     }
 
                     // r1449-:
-                    if (onfloorz && sectlotag == 2 && g_player[p].ps->pos.z < (sector[sect].ceilingz+1080) && g_player[p].ps->vel.z == 0)
+                    if (onfloorz && sectlotag == 2 && ps->pos.z < (sector[sect].ceilingz+1080) && ps->vel.z == 0)
                     // r1450+, breaks submergible slime in bobsp2:
-//                    if (onfloorz && sectlotag == 2 && g_player[p].ps->pos.z <= sector[sect].ceilingz /*&& g_player[p].ps->vel.z == 0*/)
+//                    if (onfloorz && sectlotag == 2 && ps->pos.z <= sector[sect].ceilingz /*&& ps->vel.z == 0*/)
                     {
                         k = 1;
                         //                            if( sprite[j].extra <= 0) break;
@@ -3259,33 +3261,33 @@ ACTOR_STATIC void G_MoveTransports(void)
                         }
                         A_PlaySound(DUKE_GASP,j);
 
-                        g_player[p].ps->opos.z = g_player[p].ps->pos.z =
+                        ps->opos.z = ps->pos.z =
                                                      sector[sprite[OW].sectnum].floorz;
 
-                        g_player[p].ps->jumping_toggle = 1;
-                        g_player[p].ps->jumping_counter = 0;
-                        g_player[p].ps->vel.z = 0;
-                        //                        g_player[p].ps->vel.z += 1024;
+                        ps->jumping_toggle = 1;
+                        ps->jumping_counter = 0;
+                        ps->vel.z = 0;
+                        //                        ps->vel.z += 1024;
                     }
 
                     if (k == 1)
                     {
                         vec3_t vect;
-                        g_player[p].ps->bobposx = g_player[p].ps->opos.x = g_player[p].ps->pos.x += sprite[OW].x-SX;
-                        g_player[p].ps->bobposy = g_player[p].ps->opos.y = g_player[p].ps->pos.y += sprite[OW].y-SY;
+                        ps->bobposx = ps->opos.x = ps->pos.x += sprite[OW].x-SX;
+                        ps->bobposy = ps->opos.y = ps->pos.y += sprite[OW].y-SY;
 
                         if (sprite[OW].owner != OW)
-                            g_player[p].ps->transporter_hold = -2;
-                        g_player[p].ps->cursectnum = sprite[OW].sectnum;
+                            ps->transporter_hold = -2;
+                        ps->cursectnum = sprite[OW].sectnum;
 
                         changespritesect(j,sprite[OW].sectnum);
 
-                        vect.x = g_player[p].ps->pos.x;
-                        vect.y = g_player[p].ps->pos.y;
-                        vect.z = g_player[p].ps->pos.z+PHEIGHT;
-                        setsprite(g_player[p].ps->i,&vect);
+                        vect.x = ps->pos.x;
+                        vect.y = ps->pos.y;
+                        vect.z = ps->pos.z+PHEIGHT;
+                        setsprite(ps->i,&vect);
 
-                        P_UpdateScreenPal(g_player[p].ps);
+                        P_UpdateScreenPal(ps);
 
                         if ((krand()&255) < 32)
                             A_Spawn(j,WATERSPLASH2);
@@ -3293,7 +3295,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                         if (sectlotag == 1)
                             for (l = 0; l < 9; l++)
                             {
-                                q = A_Spawn(g_player[p].ps->i,WATERBUBBLE);
+                                q = A_Spawn(ps->i,WATERBUBBLE);
                                 sprite[q].z += krand()&16383;
                             }
                     }

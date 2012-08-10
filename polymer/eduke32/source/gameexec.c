@@ -580,8 +580,9 @@ GAMEEXEC_STATIC void VM_Move(void)
 
     if (a&face_player_smart)
     {
-        int32_t newx = g_player[vm.g_p].ps->pos.x+(g_player[vm.g_p].ps->vel.x/768);
-        int32_t newy = g_player[vm.g_p].ps->pos.y+(g_player[vm.g_p].ps->vel.y/768);
+        DukePlayer_t *const ps = g_player[vm.g_p].ps;
+        int32_t newx = ps->pos.x + (ps->vel.x/768);
+        int32_t newy = ps->pos.y + (ps->vel.y/768);
 
         goalang = getangle(newx-vm.g_sp->x,newy-vm.g_sp->y);
 
@@ -688,10 +689,10 @@ dead:
 
         if (a && vm.g_sp->picnum != ROTATEGUN)
         {
+            DukePlayer_t *const ps = g_player[vm.g_p].ps;
+
             if (vm.g_x < 960 && vm.g_sp->xrepeat > 16)
             {
-                DukePlayer_t *const ps = g_player[vm.g_p].ps;
-
                 daxvel = -(1024-vm.g_x);
                 angdif = getangle(ps->pos.x-vm.g_sp->x, ps->pos.y-vm.g_sp->y);
 
@@ -710,12 +711,12 @@ dead:
             {
                 if (actor[vm.g_i].bposz != vm.g_sp->z || ((!g_netServer && ud.multimode < 2) && ud.player_skill < 2))
                 {
-                    if ((vm.g_t[0]&1) || g_player[vm.g_p].ps->actorsqu == vm.g_i) return;
+                    if ((vm.g_t[0]&1) || ps->actorsqu == vm.g_i) return;
                     else daxvel <<= 1;
                 }
                 else
                 {
-                    if ((vm.g_t[0]&3) || g_player[vm.g_p].ps->actorsqu == vm.g_i) return;
+                    if ((vm.g_t[0]&3) || ps->actorsqu == vm.g_i) return;
                     else daxvel <<= 2;
                 }
             }
@@ -898,9 +899,10 @@ skip_check:
 
         case CON_IFCANSEETARGET:
         {
-            int32_t j = cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-((krand()&41)<<8),
-                               vm.g_sp->sectnum,g_player[vm.g_p].ps->pos.x,g_player[vm.g_p].ps->pos.y,
-                               g_player[vm.g_p].ps->pos.z/*-((krand()&41)<<8)*/,sprite[g_player[vm.g_p].ps->i].sectnum);
+            DukePlayer_t *const ps = g_player[vm.g_p].ps;
+            int32_t j = cansee(vm.g_sp->x, vm.g_sp->y, vm.g_sp->z-((krand()&41)<<8),
+                               vm.g_sp->sectnum, ps->pos.x, ps->pos.y,
+                               ps->pos.z/*-((krand()&41)<<8)*/, sprite[ps->i].sectnum);
             VM_CONDITIONAL(j);
             if (j) actor[vm.g_i].timetosleep = SLEEPTIME;
         }
@@ -912,15 +914,16 @@ skip_check:
 
         case CON_IFCANSEE:
         {
-            spritetype *s = &sprite[g_player[vm.g_p].ps->i];
+            DukePlayer_t *const ps = g_player[vm.g_p].ps;
+            spritetype *s = &sprite[ps->i];
             int32_t j;
 
             // select sprite for monster to target
             // if holoduke is on, let them target holoduke first.
             //
-            if (g_player[vm.g_p].ps->holoduke_on >= 0)
+            if (ps->holoduke_on >= 0)
             {
-                s = &sprite[g_player[vm.g_p].ps->holoduke_on];
+                s = &sprite[ps->holoduke_on];
                 j = cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-(krand()&((32<<8)-1)),vm.g_sp->sectnum,
                            s->x,s->y,s->z,s->sectnum);
 
@@ -928,7 +931,7 @@ skip_check:
                 {
                     // they can't see player's holoduke
                     // check for player...
-                    s = &sprite[g_player[vm.g_p].ps->i];
+                    s = &sprite[ps->i];
                 }
             }
 
@@ -1041,19 +1044,21 @@ skip_check:
 
             if ((GametypeFlags[ud.coop]&GAMETYPE_WEAPSTAY) && (g_netServer || ud.multimode > 1))
             {
+                DukePlayer_t *const ps = g_player[vm.g_p].ps;
+
                 if (*insptr == 0)
                 {
                     int32_t j = 0;
-                    for (; j < g_player[vm.g_p].ps->weapreccnt; j++)
-                        if (g_player[vm.g_p].ps->weaprecs[j] == vm.g_sp->picnum)
+                    for (; j < ps->weapreccnt; j++)
+                        if (ps->weaprecs[j] == vm.g_sp->picnum)
                             break;
 
-                    VM_CONDITIONAL(j < g_player[vm.g_p].ps->weapreccnt && vm.g_sp->owner == vm.g_i);
+                    VM_CONDITIONAL(j < ps->weapreccnt && vm.g_sp->owner == vm.g_i);
                     continue;
                 }
-                else if (g_player[vm.g_p].ps->weapreccnt < MAX_WEAPONS)
+                else if (ps->weapreccnt < MAX_WEAPONS)
                 {
-                    g_player[vm.g_p].ps->weaprecs[g_player[vm.g_p].ps->weapreccnt++] = vm.g_sp->picnum;
+                    ps->weaprecs[ps->weapreccnt++] = vm.g_sp->picnum;
                     VM_CONDITIONAL(vm.g_sp->owner == vm.g_i);
                     continue;
                 }
@@ -1444,15 +1449,16 @@ skip_check:
 
             {
                 int32_t j;
+                DukePlayer_t *const ps = g_player[vm.g_p].ps;
 
-                if (g_player[vm.g_p].ps->newowner >= 0)
-                    G_ClearCameraView(g_player[vm.g_p].ps);
+                if (ps->newowner >= 0)
+                    G_ClearCameraView(ps);
 
-                j = sprite[g_player[vm.g_p].ps->i].extra;
+                j = sprite[ps->i].extra;
 
                 if (vm.g_sp->picnum != ATOMICHEALTH)
                 {
-                    if (j > g_player[vm.g_p].ps->max_player_health && *insptr > 0)
+                    if (j > ps->max_player_health && *insptr > 0)
                     {
                         insptr++;
                         continue;
@@ -1461,16 +1467,16 @@ skip_check:
                     {
                         if (j > 0)
                             j += *insptr;
-                        if (j > g_player[vm.g_p].ps->max_player_health && *insptr > 0)
-                            j = g_player[vm.g_p].ps->max_player_health;
+                        if (j > ps->max_player_health && *insptr > 0)
+                            j = ps->max_player_health;
                     }
                 }
                 else
                 {
                     if (j > 0)
                         j += *insptr;
-                    if (j > (g_player[vm.g_p].ps->max_player_health<<1))
-                        j = (g_player[vm.g_p].ps->max_player_health<<1);
+                    if (j > (ps->max_player_health<<1))
+                        j = (ps->max_player_health<<1);
                 }
 
                 if (j < 0) j = 0;
@@ -1479,14 +1485,14 @@ skip_check:
                 {
                     if (*insptr > 0)
                     {
-                        if ((j - *insptr) < (g_player[vm.g_p].ps->max_player_health>>2) &&
-                                j >= (g_player[vm.g_p].ps->max_player_health>>2))
-                            A_PlaySound(DUKE_GOTHEALTHATLOW,g_player[vm.g_p].ps->i);
+                        if ((j - *insptr) < (ps->max_player_health>>2) &&
+                                j >= (ps->max_player_health>>2))
+                            A_PlaySound(DUKE_GOTHEALTHATLOW,ps->i);
 
-                        g_player[vm.g_p].ps->last_extra = j;
+                        ps->last_extra = j;
                     }
 
-                    sprite[g_player[vm.g_p].ps->i].extra = j;
+                    sprite[ps->i].extra = j;
                 }
             }
 
@@ -3098,63 +3104,66 @@ nullquote:
             continue;
 
         case CON_ADDINVENTORY:
+        {
+            DukePlayer_t *const ps = g_player[vm.g_p].ps;
+
             insptr += 2;
             switch (*(insptr-1))
             {
             case GET_STEROIDS:
-                g_player[vm.g_p].ps->inv_amount[GET_STEROIDS] = *insptr;
-                g_player[vm.g_p].ps->inven_icon = 2;
+                ps->inv_amount[GET_STEROIDS] = *insptr;
+                ps->inven_icon = 2;
                 break;
 
             case GET_SHIELD:
-                g_player[vm.g_p].ps->inv_amount[GET_SHIELD] += *insptr;// 100;
-                if (g_player[vm.g_p].ps->inv_amount[GET_SHIELD] > g_player[vm.g_p].ps->max_shield_amount)
-                    g_player[vm.g_p].ps->inv_amount[GET_SHIELD] = g_player[vm.g_p].ps->max_shield_amount;
+                ps->inv_amount[GET_SHIELD] += *insptr;// 100;
+                if (ps->inv_amount[GET_SHIELD] > ps->max_shield_amount)
+                    ps->inv_amount[GET_SHIELD] = ps->max_shield_amount;
                 break;
 
             case GET_SCUBA:
-                g_player[vm.g_p].ps->inv_amount[GET_SCUBA] = *insptr;// 1600;
-                g_player[vm.g_p].ps->inven_icon = 6;
+                ps->inv_amount[GET_SCUBA] = *insptr;// 1600;
+                ps->inven_icon = 6;
                 break;
 
             case GET_HOLODUKE:
-                g_player[vm.g_p].ps->inv_amount[GET_HOLODUKE] = *insptr;// 1600;
-                g_player[vm.g_p].ps->inven_icon = 3;
+                ps->inv_amount[GET_HOLODUKE] = *insptr;// 1600;
+                ps->inven_icon = 3;
                 break;
 
             case GET_JETPACK:
-                g_player[vm.g_p].ps->inv_amount[GET_JETPACK] = *insptr;// 1600;
-                g_player[vm.g_p].ps->inven_icon = 4;
+                ps->inv_amount[GET_JETPACK] = *insptr;// 1600;
+                ps->inven_icon = 4;
                 break;
 
             case GET_ACCESS:
                 switch (vm.g_sp->pal)
                 {
                 case  0:
-                    g_player[vm.g_p].ps->got_access |= 1;
+                    ps->got_access |= 1;
                     break;
                 case 21:
-                    g_player[vm.g_p].ps->got_access |= 2;
+                    ps->got_access |= 2;
                     break;
                 case 23:
-                    g_player[vm.g_p].ps->got_access |= 4;
+                    ps->got_access |= 4;
                     break;
                 }
                 break;
 
             case GET_HEATS:
-                g_player[vm.g_p].ps->inv_amount[GET_HEATS] = *insptr;
-                g_player[vm.g_p].ps->inven_icon = 5;
+                ps->inv_amount[GET_HEATS] = *insptr;
+                ps->inven_icon = 5;
                 break;
 
             case GET_FIRSTAID:
-                g_player[vm.g_p].ps->inven_icon = 1;
-                g_player[vm.g_p].ps->inv_amount[GET_FIRSTAID] = *insptr;
+                ps->inven_icon = 1;
+                ps->inv_amount[GET_FIRSTAID] = *insptr;
                 break;
 
             case GET_BOOTS:
-                g_player[vm.g_p].ps->inven_icon = 7;
-                g_player[vm.g_p].ps->inv_amount[GET_BOOTS] = *insptr;
+                ps->inven_icon = 7;
+                ps->inv_amount[GET_BOOTS] = *insptr;
                 break;
             default:
                 OSD_Printf(CON_ERROR "Invalid inventory ID %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*(insptr-1));
@@ -3162,6 +3171,7 @@ nullquote:
             }
             insptr++;
             continue;
+        }
 
         case CON_HITRADIUSVAR:
             insptr++;
@@ -3181,14 +3191,15 @@ nullquote:
         {
             int32_t l = *(++insptr);
             int32_t j = 0;
-            int32_t s = sprite[g_player[vm.g_p].ps->i].xvel;
+            DukePlayer_t *const ps = g_player[vm.g_p].ps;
+            int32_t s = sprite[ps->i].xvel;
 
-            if ((l&8) && g_player[vm.g_p].ps->on_ground && TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_CROUCH))
+            if ((l&8) && ps->on_ground && TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_CROUCH))
                 j = 1;
-            else if ((l&16) && g_player[vm.g_p].ps->jumping_counter == 0 && !g_player[vm.g_p].ps->on_ground &&
-                     g_player[vm.g_p].ps->vel.z > 2048)
+            else if ((l&16) && ps->jumping_counter == 0 && !ps->on_ground &&
+                     ps->vel.z > 2048)
                 j = 1;
-            else if ((l&32) && g_player[vm.g_p].ps->jumping_counter > 348)
+            else if ((l&32) && ps->jumping_counter > 348)
                 j = 1;
             else if ((l&1) && s >= 0 && s < 8)
                 j = 1;
@@ -3196,32 +3207,32 @@ nullquote:
                 j = 1;
             else if ((l&4) && s >= 8 && TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_RUN))
                 j = 1;
-            else if ((l&64) && g_player[vm.g_p].ps->pos.z < (vm.g_sp->z-(48<<8)))
+            else if ((l&64) && ps->pos.z < (vm.g_sp->z-(48<<8)))
                 j = 1;
             else if ((l&128) && s <= -8 && !TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_RUN))
                 j = 1;
             else if ((l&256) && s <= -8 && TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_RUN))
                 j = 1;
-            else if ((l&512) && (g_player[vm.g_p].ps->quick_kick > 0 || (g_player[vm.g_p].ps->curr_weapon == KNEE_WEAPON && g_player[vm.g_p].ps->kickback_pic > 0)))
+            else if ((l&512) && (ps->quick_kick > 0 || (ps->curr_weapon == KNEE_WEAPON && ps->kickback_pic > 0)))
                 j = 1;
-            else if ((l&1024) && sprite[g_player[vm.g_p].ps->i].xrepeat < 32)
+            else if ((l&1024) && sprite[ps->i].xrepeat < 32)
                 j = 1;
-            else if ((l&2048) && g_player[vm.g_p].ps->jetpack_on)
+            else if ((l&2048) && ps->jetpack_on)
                 j = 1;
-            else if ((l&4096) && g_player[vm.g_p].ps->inv_amount[GET_STEROIDS] > 0 && g_player[vm.g_p].ps->inv_amount[GET_STEROIDS] < 400)
+            else if ((l&4096) && ps->inv_amount[GET_STEROIDS] > 0 && ps->inv_amount[GET_STEROIDS] < 400)
                 j = 1;
-            else if ((l&8192) && g_player[vm.g_p].ps->on_ground)
+            else if ((l&8192) && ps->on_ground)
                 j = 1;
-            else if ((l&16384) && sprite[g_player[vm.g_p].ps->i].xrepeat > 32 && sprite[g_player[vm.g_p].ps->i].extra > 0 && g_player[vm.g_p].ps->timebeforeexit == 0)
+            else if ((l&16384) && sprite[ps->i].xrepeat > 32 && sprite[ps->i].extra > 0 && ps->timebeforeexit == 0)
                 j = 1;
-            else if ((l&32768) && sprite[g_player[vm.g_p].ps->i].extra <= 0)
+            else if ((l&32768) && sprite[ps->i].extra <= 0)
                 j = 1;
             else if ((l&65536L))
             {
                 if (vm.g_sp->picnum == APLAYER && (g_netServer || ud.multimode > 1))
-                    j = G_GetAngleDelta(g_player[otherp].ps->ang,getangle(g_player[vm.g_p].ps->pos.x-g_player[otherp].ps->pos.x,g_player[vm.g_p].ps->pos.y-g_player[otherp].ps->pos.y));
+                    j = G_GetAngleDelta(g_player[otherp].ps->ang,getangle(ps->pos.x-g_player[otherp].ps->pos.x,ps->pos.y-g_player[otherp].ps->pos.y));
                 else
-                    j = G_GetAngleDelta(g_player[vm.g_p].ps->ang,getangle(vm.g_sp->x-g_player[vm.g_p].ps->pos.x,vm.g_sp->y-g_player[vm.g_p].ps->pos.y));
+                    j = G_GetAngleDelta(ps->ang,getangle(vm.g_sp->x-ps->pos.x,vm.g_sp->y-ps->pos.y));
 
                 if (j > -128 && j < 128)
                     j = 1;
@@ -4724,47 +4735,49 @@ nullquote:
             insptr++;
             {
                 int32_t j = 0;
+                DukePlayer_t *const ps = g_player[vm.g_p].ps;
+
                 switch (*insptr++)
                 {
                 case GET_STEROIDS:
-                    if (g_player[vm.g_p].ps->inv_amount[GET_STEROIDS] != *insptr)
+                    if (ps->inv_amount[GET_STEROIDS] != *insptr)
                         j = 1;
                     break;
                 case GET_SHIELD:
-                    if (g_player[vm.g_p].ps->inv_amount[GET_SHIELD] != g_player[vm.g_p].ps->max_shield_amount)
+                    if (ps->inv_amount[GET_SHIELD] != ps->max_shield_amount)
                         j = 1;
                     break;
                 case GET_SCUBA:
-                    if (g_player[vm.g_p].ps->inv_amount[GET_SCUBA] != *insptr) j = 1;
+                    if (ps->inv_amount[GET_SCUBA] != *insptr) j = 1;
                     break;
                 case GET_HOLODUKE:
-                    if (g_player[vm.g_p].ps->inv_amount[GET_HOLODUKE] != *insptr) j = 1;
+                    if (ps->inv_amount[GET_HOLODUKE] != *insptr) j = 1;
                     break;
                 case GET_JETPACK:
-                    if (g_player[vm.g_p].ps->inv_amount[GET_JETPACK] != *insptr) j = 1;
+                    if (ps->inv_amount[GET_JETPACK] != *insptr) j = 1;
                     break;
                 case GET_ACCESS:
                     switch (vm.g_sp->pal)
                     {
                     case  0:
-                        if (g_player[vm.g_p].ps->got_access&1) j = 1;
+                        if (ps->got_access&1) j = 1;
                         break;
                     case 21:
-                        if (g_player[vm.g_p].ps->got_access&2) j = 1;
+                        if (ps->got_access&2) j = 1;
                         break;
                     case 23:
-                        if (g_player[vm.g_p].ps->got_access&4) j = 1;
+                        if (ps->got_access&4) j = 1;
                         break;
                     }
                     break;
                 case GET_HEATS:
-                    if (g_player[vm.g_p].ps->inv_amount[GET_HEATS] != *insptr) j = 1;
+                    if (ps->inv_amount[GET_HEATS] != *insptr) j = 1;
                     break;
                 case GET_FIRSTAID:
-                    if (g_player[vm.g_p].ps->inv_amount[GET_FIRSTAID] != *insptr) j = 1;
+                    if (ps->inv_amount[GET_FIRSTAID] != *insptr) j = 1;
                     break;
                 case GET_BOOTS:
-                    if (g_player[vm.g_p].ps->inv_amount[GET_BOOTS] != *insptr) j = 1;
+                    if (ps->inv_amount[GET_BOOTS] != *insptr) j = 1;
                     break;
                 default:
                     OSD_Printf(CON_ERROR "invalid inventory ID: %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*(insptr-1));
@@ -4776,25 +4789,32 @@ nullquote:
 
         case CON_PSTOMP:
             insptr++;
-            if (g_player[vm.g_p].ps->knee_incs == 0 && sprite[g_player[vm.g_p].ps->i].xrepeat >= 40)
-                if (cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-(4<<8),vm.g_sp->sectnum,g_player[vm.g_p].ps->pos.x,
-                           g_player[vm.g_p].ps->pos.y,g_player[vm.g_p].ps->pos.z+(16<<8),sprite[g_player[vm.g_p].ps->i].sectnum))
-                {
-                    int32_t j = playerswhenstarted-1;
-                    for (; j>=0; j--)
+            {
+                DukePlayer_t *const ps = g_player[vm.g_p].ps;
+
+                if (ps->knee_incs == 0 && sprite[ps->i].xrepeat >= 40)
+                    if (cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z-(4<<8),vm.g_sp->sectnum,ps->pos.x,
+                               ps->pos.y,ps->pos.z+(16<<8),sprite[ps->i].sectnum))
                     {
-                        if (g_player[j].ps->actorsqu == vm.g_i)
-                            break;
+                        int32_t j = playerswhenstarted-1;
+
+                        for (; j>=0; j--)
+                        {
+                            if (g_player[j].ps->actorsqu == vm.g_i)
+                                break;
+                        }
+
+                        if (j == -1)
+                        {
+                            ps->knee_incs = 1;
+                            if (ps->weapon_pos == 0)
+                                ps->weapon_pos = -1;
+                            ps->actorsqu = vm.g_i;
+                        }
                     }
-                    if (j == -1)
-                    {
-                        g_player[vm.g_p].ps->knee_incs = 1;
-                        if (g_player[vm.g_p].ps->weapon_pos == 0)
-                            g_player[vm.g_p].ps->weapon_pos = -1;
-                        g_player[vm.g_p].ps->actorsqu = vm.g_i;
-                    }
-                }
-            continue;
+
+                continue;
+            }
 
         case CON_IFAWAYFROMWALL:
         {

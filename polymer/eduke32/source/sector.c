@@ -233,7 +233,8 @@ int32_t __fastcall A_FindPlayer(spritetype *s, int32_t *d)
 {
     if ((!g_netServer && ud.multimode < 2))
     {
-        *d = klabs(g_player[myconnectindex].ps->opos.x-s->x) + klabs(g_player[myconnectindex].ps->opos.y-s->y) + ((klabs(g_player[myconnectindex].ps->opos.z-s->z+(28<<8)))>>4);
+        DukePlayer_t *const myps = g_player[myconnectindex].ps;
+        *d = klabs(myps->opos.x-s->x) + klabs(myps->opos.y-s->y) + ((klabs(myps->opos.z-s->z+(28<<8)))>>4);
         return myconnectindex;
     }
 
@@ -243,8 +244,10 @@ int32_t __fastcall A_FindPlayer(spritetype *s, int32_t *d)
 
         for (TRAVERSE_CONNECT(j))
         {
-            x = klabs(g_player[j].ps->opos.x-s->x) + klabs(g_player[j].ps->opos.y-s->y) + ((klabs(g_player[j].ps->opos.z-s->z+(28<<8)))>>4);
-            if (x < closest && sprite[g_player[j].ps->i].extra > 0)
+            DukePlayer_t *const ps = g_player[j].ps;
+
+            x = klabs(ps->opos.x-s->x) + klabs(ps->opos.y-s->y) + ((klabs(ps->opos.z-s->z+(28<<8)))>>4);
+            if (x < closest && sprite[ps->i].extra > 0)
             {
                 closest_player = j;
                 closest = x;

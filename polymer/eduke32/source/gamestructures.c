@@ -1202,6 +1202,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
 static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLabelID, register int32_t lVar2, int32_t lParm2)
 {
     register int32_t iPlayer=vm.g_p;
+    DukePlayer_t *ps;
 
     if (lVar1 != g_iThisActorID)
         iPlayer=Gv_GetVarX(lVar1);
@@ -1212,307 +1213,309 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
     if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && ((unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2))
         goto badpos;
 
+    ps = g_player[iPlayer].ps;
+
     switch (lLabelID)
     {
     case PLAYER_ZOOM:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->zoom); return;
+        Gv_SetVarX(lVar2, ps->zoom); return;
     case PLAYER_EXITX:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->exitx); return;
+        Gv_SetVarX(lVar2, ps->exitx); return;
     case PLAYER_EXITY:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->exity); return;
+        Gv_SetVarX(lVar2, ps->exity); return;
     case PLAYER_LOOGIEX:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->loogiex[lParm2]); return;
+        Gv_SetVarX(lVar2, ps->loogiex[lParm2]); return;
     case PLAYER_LOOGIEY:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->loogiey[lParm2]); return;
+        Gv_SetVarX(lVar2, ps->loogiey[lParm2]); return;
     case PLAYER_NUMLOOGS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->numloogs); return;
+        Gv_SetVarX(lVar2, ps->numloogs); return;
     case PLAYER_LOOGCNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->loogcnt); return;
+        Gv_SetVarX(lVar2, ps->loogcnt); return;
     case PLAYER_POSX:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pos.x); return;
+        Gv_SetVarX(lVar2, ps->pos.x); return;
     case PLAYER_POSY:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pos.y); return;
+        Gv_SetVarX(lVar2, ps->pos.y); return;
     case PLAYER_POSZ:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pos.z); return;
+        Gv_SetVarX(lVar2, ps->pos.z); return;
     case PLAYER_HORIZ:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->horiz); return;
+        Gv_SetVarX(lVar2, ps->horiz); return;
     case PLAYER_OHORIZ:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->ohoriz); return;
+        Gv_SetVarX(lVar2, ps->ohoriz); return;
     case PLAYER_OHORIZOFF:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->ohorizoff); return;
+        Gv_SetVarX(lVar2, ps->ohorizoff); return;
     case PLAYER_INVDISPTIME:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->invdisptime); return;
+        Gv_SetVarX(lVar2, ps->invdisptime); return;
     case PLAYER_BOBPOSX:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->bobposx); return;
+        Gv_SetVarX(lVar2, ps->bobposx); return;
     case PLAYER_BOBPOSY:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->bobposy); return;
+        Gv_SetVarX(lVar2, ps->bobposy); return;
     case PLAYER_OPOSX:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->opos.x); return;
+        Gv_SetVarX(lVar2, ps->opos.x); return;
     case PLAYER_OPOSY:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->opos.y); return;
+        Gv_SetVarX(lVar2, ps->opos.y); return;
     case PLAYER_OPOSZ:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->opos.z); return;
+        Gv_SetVarX(lVar2, ps->opos.z); return;
     case PLAYER_PYOFF:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pyoff); return;
+        Gv_SetVarX(lVar2, ps->pyoff); return;
     case PLAYER_OPYOFF:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->opyoff); return;
+        Gv_SetVarX(lVar2, ps->opyoff); return;
     case PLAYER_POSXV:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->vel.x); return;
+        Gv_SetVarX(lVar2, ps->vel.x); return;
     case PLAYER_POSYV:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->vel.y); return;
+        Gv_SetVarX(lVar2, ps->vel.y); return;
     case PLAYER_POSZV:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->vel.z); return;
+        Gv_SetVarX(lVar2, ps->vel.z); return;
     case PLAYER_LAST_PISSED_TIME:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->last_pissed_time); return;
+        Gv_SetVarX(lVar2, ps->last_pissed_time); return;
     case PLAYER_TRUEFZ:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->truefz); return;
+        Gv_SetVarX(lVar2, ps->truefz); return;
     case PLAYER_TRUECZ:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->truecz); return;
+        Gv_SetVarX(lVar2, ps->truecz); return;
     case PLAYER_PLAYER_PAR:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->player_par); return;
+        Gv_SetVarX(lVar2, ps->player_par); return;
     case PLAYER_VISIBILITY:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->visibility); return;
+        Gv_SetVarX(lVar2, ps->visibility); return;
     case PLAYER_BOBCOUNTER:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->bobcounter); return;
+        Gv_SetVarX(lVar2, ps->bobcounter); return;
     case PLAYER_WEAPON_SWAY:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weapon_sway); return;
+        Gv_SetVarX(lVar2, ps->weapon_sway); return;
     case PLAYER_PALS_TIME:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pals.f); return;
+        Gv_SetVarX(lVar2, ps->pals.f); return;
     case PLAYER_RANDOMFLAMEX:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->randomflamex); return;
+        Gv_SetVarX(lVar2, ps->randomflamex); return;
     case PLAYER_CRACK_TIME:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->crack_time); return;
+        Gv_SetVarX(lVar2, ps->crack_time); return;
     case PLAYER_AIM_MODE:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->aim_mode); return;
+        Gv_SetVarX(lVar2, ps->aim_mode); return;
     case PLAYER_ANG:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->ang); return;
+        Gv_SetVarX(lVar2, ps->ang); return;
     case PLAYER_OANG:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->oang); return;
+        Gv_SetVarX(lVar2, ps->oang); return;
     case PLAYER_ANGVEL:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->angvel); return;
+        Gv_SetVarX(lVar2, ps->angvel); return;
     case PLAYER_CURSECTNUM:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->cursectnum); return;
+        Gv_SetVarX(lVar2, ps->cursectnum); return;
     case PLAYER_LOOK_ANG:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->look_ang); return;
+        Gv_SetVarX(lVar2, ps->look_ang); return;
     case PLAYER_LAST_EXTRA:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->last_extra); return;
+        Gv_SetVarX(lVar2, ps->last_extra); return;
     case PLAYER_SUBWEAPON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->subweapon); return;
+        Gv_SetVarX(lVar2, ps->subweapon); return;
     case PLAYER_AMMO_AMOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->ammo_amount[lParm2]); return;
+        Gv_SetVarX(lVar2, ps->ammo_amount[lParm2]); return;
     case PLAYER_WACKEDBYACTOR:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->wackedbyactor); return;
+        Gv_SetVarX(lVar2, ps->wackedbyactor); return;
     case PLAYER_FRAG:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->frag); return;
+        Gv_SetVarX(lVar2, ps->frag); return;
     case PLAYER_FRAGGEDSELF:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->fraggedself); return;
+        Gv_SetVarX(lVar2, ps->fraggedself); return;
     case PLAYER_CURR_WEAPON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->curr_weapon); return;
+        Gv_SetVarX(lVar2, ps->curr_weapon); return;
     case PLAYER_LAST_WEAPON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->last_weapon); return;
+        Gv_SetVarX(lVar2, ps->last_weapon); return;
     case PLAYER_TIPINCS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->tipincs); return;
+        Gv_SetVarX(lVar2, ps->tipincs); return;
     case PLAYER_HORIZOFF:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->horizoff); return;
+        Gv_SetVarX(lVar2, ps->horizoff); return;
     case PLAYER_WANTWEAPONFIRE:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->wantweaponfire); return;
+        Gv_SetVarX(lVar2, ps->wantweaponfire); return;
     case PLAYER_HOLODUKE_AMOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_HOLODUKE]); return;
+        Gv_SetVarX(lVar2, ps->inv_amount[GET_HOLODUKE]); return;
     case PLAYER_NEWOWNER:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->newowner); return;
+        Gv_SetVarX(lVar2, ps->newowner); return;
     case PLAYER_HURT_DELAY:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->hurt_delay); return;
+        Gv_SetVarX(lVar2, ps->hurt_delay); return;
     case PLAYER_HBOMB_HOLD_DELAY:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->hbomb_hold_delay); return;
+        Gv_SetVarX(lVar2, ps->hbomb_hold_delay); return;
     case PLAYER_JUMPING_COUNTER:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->jumping_counter); return;
+        Gv_SetVarX(lVar2, ps->jumping_counter); return;
     case PLAYER_AIRLEFT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->airleft); return;
+        Gv_SetVarX(lVar2, ps->airleft); return;
     case PLAYER_KNEE_INCS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->knee_incs); return;
+        Gv_SetVarX(lVar2, ps->knee_incs); return;
     case PLAYER_ACCESS_INCS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->access_incs); return;
+        Gv_SetVarX(lVar2, ps->access_incs); return;
     case PLAYER_FTA:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->fta); return;
+        Gv_SetVarX(lVar2, ps->fta); return;
     case PLAYER_FTQ:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->ftq); return;
+        Gv_SetVarX(lVar2, ps->ftq); return;
     case PLAYER_ACCESS_WALLNUM:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->access_wallnum); return;
+        Gv_SetVarX(lVar2, ps->access_wallnum); return;
     case PLAYER_ACCESS_SPRITENUM:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->access_spritenum); return;
+        Gv_SetVarX(lVar2, ps->access_spritenum); return;
     case PLAYER_KICKBACK_PIC:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->kickback_pic); return;
+        Gv_SetVarX(lVar2, ps->kickback_pic); return;
     case PLAYER_GOT_ACCESS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->got_access); return;
+        Gv_SetVarX(lVar2, ps->got_access); return;
     case PLAYER_WEAPON_ANG:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weapon_ang); return;
+        Gv_SetVarX(lVar2, ps->weapon_ang); return;
     case PLAYER_FIRSTAID_AMOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_FIRSTAID]); return;
+        Gv_SetVarX(lVar2, ps->inv_amount[GET_FIRSTAID]); return;
     case PLAYER_SOMETHINGONPLAYER:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->somethingonplayer); return;
+        Gv_SetVarX(lVar2, ps->somethingonplayer); return;
     case PLAYER_ON_CRANE:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->on_crane); return;
+        Gv_SetVarX(lVar2, ps->on_crane); return;
     case PLAYER_I:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->i); return;
+        Gv_SetVarX(lVar2, ps->i); return;
     case PLAYER_ONE_PARALLAX_SECTNUM:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->one_parallax_sectnum); return;
+        Gv_SetVarX(lVar2, ps->one_parallax_sectnum); return;
     case PLAYER_OVER_SHOULDER_ON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->over_shoulder_on); return;
+        Gv_SetVarX(lVar2, ps->over_shoulder_on); return;
     case PLAYER_RANDOM_CLUB_FRAME:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->random_club_frame); return;
+        Gv_SetVarX(lVar2, ps->random_club_frame); return;
     case PLAYER_FIST_INCS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->fist_incs); return;
+        Gv_SetVarX(lVar2, ps->fist_incs); return;
     case PLAYER_ONE_EIGHTY_COUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->one_eighty_count); return;
+        Gv_SetVarX(lVar2, ps->one_eighty_count); return;
     case PLAYER_CHEAT_PHASE:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->cheat_phase); return;
+        Gv_SetVarX(lVar2, ps->cheat_phase); return;
     case PLAYER_DUMMYPLAYERSPRITE:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->dummyplayersprite); return;
+        Gv_SetVarX(lVar2, ps->dummyplayersprite); return;
     case PLAYER_EXTRA_EXTRA8:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->extra_extra8); return;
+        Gv_SetVarX(lVar2, ps->extra_extra8); return;
     case PLAYER_QUICK_KICK:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->quick_kick); return;
+        Gv_SetVarX(lVar2, ps->quick_kick); return;
     case PLAYER_HEAT_AMOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_HEATS]); return;
+        Gv_SetVarX(lVar2, ps->inv_amount[GET_HEATS]); return;
     case PLAYER_ACTORSQU:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->actorsqu); return;
+        Gv_SetVarX(lVar2, ps->actorsqu); return;
     case PLAYER_TIMEBEFOREEXIT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->timebeforeexit); return;
+        Gv_SetVarX(lVar2, ps->timebeforeexit); return;
     case PLAYER_CUSTOMEXITSOUND:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->customexitsound); return;
+        Gv_SetVarX(lVar2, ps->customexitsound); return;
     case PLAYER_WEAPRECS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weaprecs[lParm2]); return;
+        Gv_SetVarX(lVar2, ps->weaprecs[lParm2]); return;
     case PLAYER_WEAPRECCNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weapreccnt); return;
+        Gv_SetVarX(lVar2, ps->weapreccnt); return;
     case PLAYER_INTERFACE_TOGGLE_FLAG:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->interface_toggle_flag); return;
+        Gv_SetVarX(lVar2, ps->interface_toggle_flag); return;
     case PLAYER_ROTSCRNANG:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->rotscrnang); return;
+        Gv_SetVarX(lVar2, ps->rotscrnang); return;
     case PLAYER_DEAD_FLAG:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->dead_flag); return;
+        Gv_SetVarX(lVar2, ps->dead_flag); return;
     case PLAYER_SHOW_EMPTY_WEAPON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->show_empty_weapon); return;
+        Gv_SetVarX(lVar2, ps->show_empty_weapon); return;
     case PLAYER_SCUBA_AMOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_SCUBA]); return;
+        Gv_SetVarX(lVar2, ps->inv_amount[GET_SCUBA]); return;
     case PLAYER_JETPACK_AMOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_JETPACK]); return;
+        Gv_SetVarX(lVar2, ps->inv_amount[GET_JETPACK]); return;
     case PLAYER_STEROIDS_AMOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_STEROIDS]); return;
+        Gv_SetVarX(lVar2, ps->inv_amount[GET_STEROIDS]); return;
     case PLAYER_SHIELD_AMOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_SHIELD]); return;
+        Gv_SetVarX(lVar2, ps->inv_amount[GET_SHIELD]); return;
     case PLAYER_HOLODUKE_ON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->holoduke_on); return;
+        Gv_SetVarX(lVar2, ps->holoduke_on); return;
     case PLAYER_PYCOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->pycount); return;
+        Gv_SetVarX(lVar2, ps->pycount); return;
     case PLAYER_WEAPON_POS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weapon_pos); return;
+        Gv_SetVarX(lVar2, ps->weapon_pos); return;
     case PLAYER_FRAG_PS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->frag_ps); return;
+        Gv_SetVarX(lVar2, ps->frag_ps); return;
     case PLAYER_TRANSPORTER_HOLD:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->transporter_hold); return;
+        Gv_SetVarX(lVar2, ps->transporter_hold); return;
     case PLAYER_LAST_FULL_WEAPON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->last_full_weapon); return;
+        Gv_SetVarX(lVar2, ps->last_full_weapon); return;
     case PLAYER_FOOTPRINTSHADE:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->footprintshade); return;
+        Gv_SetVarX(lVar2, ps->footprintshade); return;
     case PLAYER_BOOT_AMOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inv_amount[GET_BOOTS]); return;
+        Gv_SetVarX(lVar2, ps->inv_amount[GET_BOOTS]); return;
     case PLAYER_SCREAM_VOICE:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->scream_voice); return;
+        Gv_SetVarX(lVar2, ps->scream_voice); return;
     case PLAYER_GM:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->gm); return;
+        Gv_SetVarX(lVar2, ps->gm); return;
     case PLAYER_ON_WARPING_SECTOR:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->on_warping_sector); return;
+        Gv_SetVarX(lVar2, ps->on_warping_sector); return;
     case PLAYER_FOOTPRINTCOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->footprintcount); return;
+        Gv_SetVarX(lVar2, ps->footprintcount); return;
     case PLAYER_HBOMB_ON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->hbomb_on); return;
+        Gv_SetVarX(lVar2, ps->hbomb_on); return;
     case PLAYER_JUMPING_TOGGLE:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->jumping_toggle); return;
+        Gv_SetVarX(lVar2, ps->jumping_toggle); return;
     case PLAYER_RAPID_FIRE_HOLD:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->rapid_fire_hold); return;
+        Gv_SetVarX(lVar2, ps->rapid_fire_hold); return;
     case PLAYER_ON_GROUND:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->on_ground); return;
+        Gv_SetVarX(lVar2, ps->on_ground); return;
     case PLAYER_INVEN_ICON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->inven_icon); return;
+        Gv_SetVarX(lVar2, ps->inven_icon); return;
     case PLAYER_BUTTONPALETTE:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->buttonpalette); return;
+        Gv_SetVarX(lVar2, ps->buttonpalette); return;
     case PLAYER_JETPACK_ON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->jetpack_on); return;
+        Gv_SetVarX(lVar2, ps->jetpack_on); return;
     case PLAYER_SPRITEBRIDGE:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->spritebridge); return;
+        Gv_SetVarX(lVar2, ps->spritebridge); return;
     case PLAYER_LASTRANDOMSPOT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->lastrandomspot); return;
+        Gv_SetVarX(lVar2, ps->lastrandomspot); return;
     case PLAYER_SCUBA_ON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->scuba_on); return;
+        Gv_SetVarX(lVar2, ps->scuba_on); return;
     case PLAYER_FOOTPRINTPAL:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->footprintpal); return;
+        Gv_SetVarX(lVar2, ps->footprintpal); return;
     case PLAYER_HEAT_ON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->heat_on); return;
+        Gv_SetVarX(lVar2, ps->heat_on); return;
     case PLAYER_HOLSTER_WEAPON:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->holster_weapon); return;
+        Gv_SetVarX(lVar2, ps->holster_weapon); return;
     case PLAYER_FALLING_COUNTER:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->falling_counter); return;
+        Gv_SetVarX(lVar2, ps->falling_counter); return;
     case PLAYER_GOTWEAPON:
-        Gv_SetVarX(lVar2, (g_player[iPlayer].ps->gotweapon & (1<<lParm2)) != 0); return;
+        Gv_SetVarX(lVar2, (ps->gotweapon & (1<<lParm2)) != 0); return;
     case PLAYER_REFRESH_INVENTORY:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->refresh_inventory); return;
+        Gv_SetVarX(lVar2, ps->refresh_inventory); return;
     case PLAYER_PALETTE:  // no set
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->palette); return;
+        Gv_SetVarX(lVar2, ps->palette); return;
     case PLAYER_TOGGLE_KEY_FLAG:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->toggle_key_flag); return;
+        Gv_SetVarX(lVar2, ps->toggle_key_flag); return;
     case PLAYER_KNUCKLE_INCS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->knuckle_incs); return;
+        Gv_SetVarX(lVar2, ps->knuckle_incs); return;
     case PLAYER_WALKING_SND_TOGGLE:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->walking_snd_toggle); return;
+        Gv_SetVarX(lVar2, ps->walking_snd_toggle); return;
     case PLAYER_PALOOKUP:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->palookup); return;
+        Gv_SetVarX(lVar2, ps->palookup); return;
     case PLAYER_HARD_LANDING:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->hard_landing); return;
+        Gv_SetVarX(lVar2, ps->hard_landing); return;
     case PLAYER_MAX_SECRET_ROOMS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->max_secret_rooms); return;
+        Gv_SetVarX(lVar2, ps->max_secret_rooms); return;
     case PLAYER_SECRET_ROOMS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->secret_rooms); return;
+        Gv_SetVarX(lVar2, ps->secret_rooms); return;
     case PLAYER_PALS:
         switch (lParm2)
         {
         case 0:
-            Gv_SetVarX(lVar2, g_player[iPlayer].ps->pals.r); return;
+            Gv_SetVarX(lVar2, ps->pals.r); return;
         case 1:
-            Gv_SetVarX(lVar2, g_player[iPlayer].ps->pals.g); return;
+            Gv_SetVarX(lVar2, ps->pals.g); return;
         case 2:
-            Gv_SetVarX(lVar2, g_player[iPlayer].ps->pals.b); return;
+            Gv_SetVarX(lVar2, ps->pals.b); return;
         }
         return;
     case PLAYER_MAX_ACTORS_KILLED:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->max_actors_killed); return;
+        Gv_SetVarX(lVar2, ps->max_actors_killed); return;
     case PLAYER_ACTORS_KILLED:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->actors_killed); return;
+        Gv_SetVarX(lVar2, ps->actors_killed); return;
     case PLAYER_RETURN_TO_CENTER:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->return_to_center); return;
+        Gv_SetVarX(lVar2, ps->return_to_center); return;
     case PLAYER_RUNSPEED:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->runspeed); return;
+        Gv_SetVarX(lVar2, ps->runspeed); return;
     case PLAYER_SBS:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->sbs); return;
+        Gv_SetVarX(lVar2, ps->sbs); return;
     case PLAYER_RELOADING:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->reloading); return;
+        Gv_SetVarX(lVar2, ps->reloading); return;
     case PLAYER_AUTO_AIM:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->auto_aim); return;
+        Gv_SetVarX(lVar2, ps->auto_aim); return;
     case PLAYER_MOVEMENT_LOCK:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->movement_lock); return;
+        Gv_SetVarX(lVar2, ps->movement_lock); return;
     case PLAYER_SOUND_PITCH:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->sound_pitch); return;
+        Gv_SetVarX(lVar2, ps->sound_pitch); return;
     case PLAYER_WEAPONSWITCH:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->weaponswitch); return;
+        Gv_SetVarX(lVar2, ps->weaponswitch); return;
     case PLAYER_TEAM:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->team); return;
+        Gv_SetVarX(lVar2, ps->team); return;
     case PLAYER_MAX_PLAYER_HEALTH:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->max_player_health); return;
+        Gv_SetVarX(lVar2, ps->max_player_health); return;
     case PLAYER_MAX_SHIELD_AMOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->max_shield_amount); return;
+        Gv_SetVarX(lVar2, ps->max_shield_amount); return;
     case PLAYER_MAX_AMMO_AMOUNT:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->max_ammo_amount[lParm2]); return;
+        Gv_SetVarX(lVar2, ps->max_ammo_amount[lParm2]); return;
     case PLAYER_LAST_QUICK_KICK:
-        Gv_SetVarX(lVar2, g_player[iPlayer].ps->last_quick_kick);
+        Gv_SetVarX(lVar2, ps->last_quick_kick);
         return;
 
     default:
@@ -1535,9 +1538,12 @@ badpos:
 static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVar2, int32_t lParm2)
 {
     register int32_t iPlayer=vm.g_p;
+    DukePlayer_t *ps;
 
     if (lVar1 != g_iThisActorID)
         iPlayer=Gv_GetVarX(lVar1);
+
+    ps = g_player[iPlayer].ps;
 
     if ((unsigned)iPlayer >= (unsigned)playerswhenstarted)
         goto badplayer;
@@ -1550,313 +1556,313 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
     switch (lLabelID)
     {
     case PLAYER_ZOOM:
-        g_player[iPlayer].ps->zoom=lVar1; return;
+        ps->zoom=lVar1; return;
     case PLAYER_EXITX:
-        g_player[iPlayer].ps->exitx=lVar1; return;
+        ps->exitx=lVar1; return;
     case PLAYER_EXITY:
-        g_player[iPlayer].ps->exity=lVar1; return;
+        ps->exity=lVar1; return;
     case PLAYER_LOOGIEX:
-        g_player[iPlayer].ps->loogiex[lParm2]=lVar1; return;
+        ps->loogiex[lParm2]=lVar1; return;
     case PLAYER_LOOGIEY:
-        g_player[iPlayer].ps->loogiey[lParm2]=lVar1; return;
+        ps->loogiey[lParm2]=lVar1; return;
     case PLAYER_NUMLOOGS:
-        g_player[iPlayer].ps->numloogs=lVar1; return;
+        ps->numloogs=lVar1; return;
     case PLAYER_LOOGCNT:
-        g_player[iPlayer].ps->loogcnt=lVar1; return;
+        ps->loogcnt=lVar1; return;
     case PLAYER_POSX:
-        g_player[iPlayer].ps->pos.x=lVar1; return;
+        ps->pos.x=lVar1; return;
     case PLAYER_POSY:
-        g_player[iPlayer].ps->pos.y=lVar1; return;
+        ps->pos.y=lVar1; return;
     case PLAYER_POSZ:
-        g_player[iPlayer].ps->pos.z=lVar1; return;
+        ps->pos.z=lVar1; return;
     case PLAYER_HORIZ:
-        g_player[iPlayer].ps->horiz=lVar1; return;
+        ps->horiz=lVar1; return;
     case PLAYER_OHORIZ:
-        g_player[iPlayer].ps->ohoriz=lVar1; return;
+        ps->ohoriz=lVar1; return;
     case PLAYER_OHORIZOFF:
-        g_player[iPlayer].ps->ohorizoff=lVar1; return;
+        ps->ohorizoff=lVar1; return;
     case PLAYER_INVDISPTIME:
-        g_player[iPlayer].ps->invdisptime=lVar1; return;
+        ps->invdisptime=lVar1; return;
     case PLAYER_BOBPOSX:
-        g_player[iPlayer].ps->bobposx=lVar1; return;
+        ps->bobposx=lVar1; return;
     case PLAYER_BOBPOSY:
-        g_player[iPlayer].ps->bobposy=lVar1; return;
+        ps->bobposy=lVar1; return;
     case PLAYER_OPOSX:
-        g_player[iPlayer].ps->opos.x=lVar1; return;
+        ps->opos.x=lVar1; return;
     case PLAYER_OPOSY:
-        g_player[iPlayer].ps->opos.y=lVar1; return;
+        ps->opos.y=lVar1; return;
     case PLAYER_OPOSZ:
-        g_player[iPlayer].ps->opos.z=lVar1; return;
+        ps->opos.z=lVar1; return;
     case PLAYER_PYOFF:
-        g_player[iPlayer].ps->pyoff=lVar1; return;
+        ps->pyoff=lVar1; return;
     case PLAYER_OPYOFF:
-        g_player[iPlayer].ps->opyoff=lVar1; return;
+        ps->opyoff=lVar1; return;
     case PLAYER_POSXV:
-        g_player[iPlayer].ps->vel.x=lVar1; return;
+        ps->vel.x=lVar1; return;
     case PLAYER_POSYV:
-        g_player[iPlayer].ps->vel.y=lVar1; return;
+        ps->vel.y=lVar1; return;
     case PLAYER_POSZV:
-        g_player[iPlayer].ps->vel.z=lVar1; return;
+        ps->vel.z=lVar1; return;
     case PLAYER_LAST_PISSED_TIME:
-        g_player[iPlayer].ps->last_pissed_time=lVar1; return;
+        ps->last_pissed_time=lVar1; return;
     case PLAYER_TRUEFZ:
-        g_player[iPlayer].ps->truefz=lVar1; return;
+        ps->truefz=lVar1; return;
     case PLAYER_TRUECZ:
-        g_player[iPlayer].ps->truecz=lVar1; return;
+        ps->truecz=lVar1; return;
     case PLAYER_PLAYER_PAR:
-        g_player[iPlayer].ps->player_par=lVar1; return;
+        ps->player_par=lVar1; return;
     case PLAYER_VISIBILITY:
-        g_player[iPlayer].ps->visibility=lVar1; return;
+        ps->visibility=lVar1; return;
     case PLAYER_BOBCOUNTER:
-        g_player[iPlayer].ps->bobcounter=lVar1; return;
+        ps->bobcounter=lVar1; return;
     case PLAYER_WEAPON_SWAY:
-        g_player[iPlayer].ps->weapon_sway=lVar1; return;
+        ps->weapon_sway=lVar1; return;
     case PLAYER_PALS_TIME:
-        g_player[iPlayer].ps->pals.f=lVar1; return;
+        ps->pals.f=lVar1; return;
     case PLAYER_RANDOMFLAMEX:
-        g_player[iPlayer].ps->randomflamex=lVar1; return;
+        ps->randomflamex=lVar1; return;
     case PLAYER_CRACK_TIME:
-        g_player[iPlayer].ps->crack_time=lVar1; return;
+        ps->crack_time=lVar1; return;
     case PLAYER_AIM_MODE:
-        g_player[iPlayer].ps->aim_mode=lVar1; return;
+        ps->aim_mode=lVar1; return;
     case PLAYER_ANG:
-        g_player[iPlayer].ps->ang=lVar1; return;
+        ps->ang=lVar1; return;
     case PLAYER_OANG:
-        g_player[iPlayer].ps->oang=lVar1; return;
+        ps->oang=lVar1; return;
     case PLAYER_ANGVEL:
-        g_player[iPlayer].ps->angvel=lVar1; return;
+        ps->angvel=lVar1; return;
     case PLAYER_CURSECTNUM:
-        g_player[iPlayer].ps->cursectnum=lVar1; return;
+        ps->cursectnum=lVar1; return;
     case PLAYER_LOOK_ANG:
-        g_player[iPlayer].ps->look_ang=lVar1; return;
+        ps->look_ang=lVar1; return;
     case PLAYER_LAST_EXTRA:
-        g_player[iPlayer].ps->last_extra=lVar1; return;
+        ps->last_extra=lVar1; return;
     case PLAYER_SUBWEAPON:
-        g_player[iPlayer].ps->subweapon=lVar1; return;
+        ps->subweapon=lVar1; return;
     case PLAYER_AMMO_AMOUNT:
-        g_player[iPlayer].ps->ammo_amount[lParm2]=lVar1; return;
+        ps->ammo_amount[lParm2]=lVar1; return;
     case PLAYER_WACKEDBYACTOR:
-        g_player[iPlayer].ps->wackedbyactor=lVar1; return;
+        ps->wackedbyactor=lVar1; return;
     case PLAYER_FRAG:
-        g_player[iPlayer].ps->frag=lVar1; return;
+        ps->frag=lVar1; return;
     case PLAYER_FRAGGEDSELF:
-        g_player[iPlayer].ps->fraggedself=lVar1; return;
+        ps->fraggedself=lVar1; return;
     case PLAYER_CURR_WEAPON:
-        g_player[iPlayer].ps->curr_weapon=lVar1; return;
+        ps->curr_weapon=lVar1; return;
     case PLAYER_LAST_WEAPON:
-        g_player[iPlayer].ps->last_weapon=lVar1; return;
+        ps->last_weapon=lVar1; return;
     case PLAYER_TIPINCS:
-        g_player[iPlayer].ps->tipincs=lVar1; return;
+        ps->tipincs=lVar1; return;
     case PLAYER_HORIZOFF:
-        g_player[iPlayer].ps->horizoff=lVar1; return;
+        ps->horizoff=lVar1; return;
     case PLAYER_WANTWEAPONFIRE:
-        g_player[iPlayer].ps->wantweaponfire=lVar1; return;
+        ps->wantweaponfire=lVar1; return;
     case PLAYER_HOLODUKE_AMOUNT:
-        g_player[iPlayer].ps->inv_amount[GET_HOLODUKE]=lVar1; return;
+        ps->inv_amount[GET_HOLODUKE]=lVar1; return;
     case PLAYER_NEWOWNER:
-        g_player[iPlayer].ps->newowner=lVar1; return;
+        ps->newowner=lVar1; return;
     case PLAYER_HURT_DELAY:
-        g_player[iPlayer].ps->hurt_delay=lVar1; return;
+        ps->hurt_delay=lVar1; return;
     case PLAYER_HBOMB_HOLD_DELAY:
-        g_player[iPlayer].ps->hbomb_hold_delay=lVar1; return;
+        ps->hbomb_hold_delay=lVar1; return;
     case PLAYER_JUMPING_COUNTER:
-        g_player[iPlayer].ps->jumping_counter=lVar1; return;
+        ps->jumping_counter=lVar1; return;
     case PLAYER_AIRLEFT:
-        g_player[iPlayer].ps->airleft=lVar1; return;
+        ps->airleft=lVar1; return;
     case PLAYER_KNEE_INCS:
-        g_player[iPlayer].ps->knee_incs=lVar1; return;
+        ps->knee_incs=lVar1; return;
     case PLAYER_ACCESS_INCS:
-        g_player[iPlayer].ps->access_incs=lVar1; return;
+        ps->access_incs=lVar1; return;
     case PLAYER_FTA:
-        g_player[iPlayer].ps->fta=lVar1; return;
+        ps->fta=lVar1; return;
     case PLAYER_FTQ:
-        g_player[iPlayer].ps->ftq=lVar1; return;
+        ps->ftq=lVar1; return;
     case PLAYER_ACCESS_WALLNUM:
-        g_player[iPlayer].ps->access_wallnum=lVar1; return;
+        ps->access_wallnum=lVar1; return;
     case PLAYER_ACCESS_SPRITENUM:
-        g_player[iPlayer].ps->access_spritenum=lVar1; return;
+        ps->access_spritenum=lVar1; return;
     case PLAYER_KICKBACK_PIC:
-        g_player[iPlayer].ps->kickback_pic=lVar1; return;
+        ps->kickback_pic=lVar1; return;
     case PLAYER_GOT_ACCESS:
-        g_player[iPlayer].ps->got_access=lVar1; return;
+        ps->got_access=lVar1; return;
     case PLAYER_WEAPON_ANG:
-        g_player[iPlayer].ps->weapon_ang=lVar1; return;
+        ps->weapon_ang=lVar1; return;
     case PLAYER_FIRSTAID_AMOUNT:
-        g_player[iPlayer].ps->inv_amount[GET_FIRSTAID]=lVar1; return;
+        ps->inv_amount[GET_FIRSTAID]=lVar1; return;
     case PLAYER_SOMETHINGONPLAYER:
-        g_player[iPlayer].ps->somethingonplayer=lVar1; return;
+        ps->somethingonplayer=lVar1; return;
     case PLAYER_ON_CRANE:
-        g_player[iPlayer].ps->on_crane=lVar1; return;
+        ps->on_crane=lVar1; return;
     case PLAYER_I:
-        g_player[iPlayer].ps->i=lVar1; return;
+        ps->i=lVar1; return;
     case PLAYER_ONE_PARALLAX_SECTNUM:
-        g_player[iPlayer].ps->one_parallax_sectnum=lVar1; return;
+        ps->one_parallax_sectnum=lVar1; return;
     case PLAYER_OVER_SHOULDER_ON:
-        g_player[iPlayer].ps->over_shoulder_on=lVar1; return;
+        ps->over_shoulder_on=lVar1; return;
     case PLAYER_RANDOM_CLUB_FRAME:
-        g_player[iPlayer].ps->random_club_frame=lVar1; return;
+        ps->random_club_frame=lVar1; return;
     case PLAYER_FIST_INCS:
-        g_player[iPlayer].ps->fist_incs=lVar1; return;
+        ps->fist_incs=lVar1; return;
     case PLAYER_ONE_EIGHTY_COUNT:
-        g_player[iPlayer].ps->one_eighty_count=lVar1; return;
+        ps->one_eighty_count=lVar1; return;
     case PLAYER_CHEAT_PHASE:
-        g_player[iPlayer].ps->cheat_phase=lVar1; return;
+        ps->cheat_phase=lVar1; return;
     case PLAYER_DUMMYPLAYERSPRITE:
-        g_player[iPlayer].ps->dummyplayersprite=lVar1; return;
+        ps->dummyplayersprite=lVar1; return;
     case PLAYER_EXTRA_EXTRA8:
-        g_player[iPlayer].ps->extra_extra8=lVar1; return;
+        ps->extra_extra8=lVar1; return;
     case PLAYER_QUICK_KICK:
-        g_player[iPlayer].ps->quick_kick=lVar1; return;
+        ps->quick_kick=lVar1; return;
     case PLAYER_HEAT_AMOUNT:
-        g_player[iPlayer].ps->inv_amount[GET_HEATS]=lVar1; return;
+        ps->inv_amount[GET_HEATS]=lVar1; return;
     case PLAYER_ACTORSQU:
-        g_player[iPlayer].ps->actorsqu=lVar1; return;
+        ps->actorsqu=lVar1; return;
     case PLAYER_TIMEBEFOREEXIT:
-        g_player[iPlayer].ps->timebeforeexit=lVar1; return;
+        ps->timebeforeexit=lVar1; return;
     case PLAYER_CUSTOMEXITSOUND:
-        g_player[iPlayer].ps->customexitsound=lVar1; return;
+        ps->customexitsound=lVar1; return;
     case PLAYER_WEAPRECS:
-        g_player[iPlayer].ps->weaprecs[lParm2]=lVar1; return;
+        ps->weaprecs[lParm2]=lVar1; return;
     case PLAYER_WEAPRECCNT:
-        g_player[iPlayer].ps->weapreccnt=lVar1; return;
+        ps->weapreccnt=lVar1; return;
     case PLAYER_INTERFACE_TOGGLE_FLAG:
-        g_player[iPlayer].ps->interface_toggle_flag=lVar1; return;
+        ps->interface_toggle_flag=lVar1; return;
     case PLAYER_ROTSCRNANG:
-        g_player[iPlayer].ps->rotscrnang=lVar1; return;
+        ps->rotscrnang=lVar1; return;
     case PLAYER_DEAD_FLAG:
-        g_player[iPlayer].ps->dead_flag=lVar1; return;
+        ps->dead_flag=lVar1; return;
     case PLAYER_SHOW_EMPTY_WEAPON:
-        g_player[iPlayer].ps->show_empty_weapon=lVar1; return;
+        ps->show_empty_weapon=lVar1; return;
     case PLAYER_SCUBA_AMOUNT:
-        g_player[iPlayer].ps->inv_amount[GET_SCUBA]=lVar1; return;
+        ps->inv_amount[GET_SCUBA]=lVar1; return;
     case PLAYER_JETPACK_AMOUNT:
-        g_player[iPlayer].ps->inv_amount[GET_JETPACK]=lVar1; return;
+        ps->inv_amount[GET_JETPACK]=lVar1; return;
     case PLAYER_STEROIDS_AMOUNT:
-        g_player[iPlayer].ps->inv_amount[GET_STEROIDS]=lVar1; return;
+        ps->inv_amount[GET_STEROIDS]=lVar1; return;
     case PLAYER_SHIELD_AMOUNT:
-        g_player[iPlayer].ps->inv_amount[GET_SHIELD]=lVar1; return;
+        ps->inv_amount[GET_SHIELD]=lVar1; return;
     case PLAYER_HOLODUKE_ON:
-        g_player[iPlayer].ps->holoduke_on=lVar1; return;
+        ps->holoduke_on=lVar1; return;
     case PLAYER_PYCOUNT:
-        g_player[iPlayer].ps->pycount=lVar1; return;
+        ps->pycount=lVar1; return;
     case PLAYER_WEAPON_POS:
-        g_player[iPlayer].ps->weapon_pos=lVar1; return;
+        ps->weapon_pos=lVar1; return;
     case PLAYER_FRAG_PS:
-        g_player[iPlayer].ps->frag_ps=lVar1; return;
+        ps->frag_ps=lVar1; return;
     case PLAYER_TRANSPORTER_HOLD:
-        g_player[iPlayer].ps->transporter_hold=lVar1; return;
+        ps->transporter_hold=lVar1; return;
     case PLAYER_LAST_FULL_WEAPON:
-        g_player[iPlayer].ps->last_full_weapon=lVar1; return;
+        ps->last_full_weapon=lVar1; return;
     case PLAYER_FOOTPRINTSHADE:
-        g_player[iPlayer].ps->footprintshade=lVar1; return;
+        ps->footprintshade=lVar1; return;
     case PLAYER_BOOT_AMOUNT:
-        g_player[iPlayer].ps->inv_amount[GET_BOOTS]=lVar1; return;
+        ps->inv_amount[GET_BOOTS]=lVar1; return;
     case PLAYER_SCREAM_VOICE:
-        g_player[iPlayer].ps->scream_voice=lVar1; return;
+        ps->scream_voice=lVar1; return;
     case PLAYER_GM:
-        g_player[iPlayer].ps->gm=lVar1; return;
+        ps->gm=lVar1; return;
     case PLAYER_ON_WARPING_SECTOR:
-        g_player[iPlayer].ps->on_warping_sector=lVar1; return;
+        ps->on_warping_sector=lVar1; return;
     case PLAYER_FOOTPRINTCOUNT:
-        g_player[iPlayer].ps->footprintcount=lVar1; return;
+        ps->footprintcount=lVar1; return;
     case PLAYER_HBOMB_ON:
-        g_player[iPlayer].ps->hbomb_on=lVar1; return;
+        ps->hbomb_on=lVar1; return;
     case PLAYER_JUMPING_TOGGLE:
-        g_player[iPlayer].ps->jumping_toggle=lVar1; return;
+        ps->jumping_toggle=lVar1; return;
     case PLAYER_RAPID_FIRE_HOLD:
-        g_player[iPlayer].ps->rapid_fire_hold=lVar1; return;
+        ps->rapid_fire_hold=lVar1; return;
     case PLAYER_ON_GROUND:
-        g_player[iPlayer].ps->on_ground=lVar1; return;
+        ps->on_ground=lVar1; return;
     case PLAYER_INVEN_ICON:
-        g_player[iPlayer].ps->inven_icon=lVar1; return;
+        ps->inven_icon=lVar1; return;
     case PLAYER_BUTTONPALETTE:
-        g_player[iPlayer].ps->buttonpalette=lVar1; return;
+        ps->buttonpalette=lVar1; return;
     case PLAYER_JETPACK_ON:
-        g_player[iPlayer].ps->jetpack_on=lVar1; return;
+        ps->jetpack_on=lVar1; return;
     case PLAYER_SPRITEBRIDGE:
-        g_player[iPlayer].ps->spritebridge=lVar1; return;
+        ps->spritebridge=lVar1; return;
     case PLAYER_LASTRANDOMSPOT:
-        g_player[iPlayer].ps->lastrandomspot=lVar1; return;
+        ps->lastrandomspot=lVar1; return;
     case PLAYER_SCUBA_ON:
-        g_player[iPlayer].ps->scuba_on=lVar1; return;
+        ps->scuba_on=lVar1; return;
     case PLAYER_FOOTPRINTPAL:
-        g_player[iPlayer].ps->footprintpal=lVar1; return;
+        ps->footprintpal=lVar1; return;
     case PLAYER_HEAT_ON:
-        if (g_player[iPlayer].ps->heat_on != lVar1)
+        if (ps->heat_on != lVar1)
         {
-            g_player[iPlayer].ps->heat_on=lVar1;
-            P_UpdateScreenPal(g_player[iPlayer].ps);
+            ps->heat_on=lVar1;
+            P_UpdateScreenPal(ps);
         } return;
     case PLAYER_HOLSTER_WEAPON:
-        g_player[iPlayer].ps->holster_weapon=lVar1; return;
+        ps->holster_weapon=lVar1; return;
     case PLAYER_FALLING_COUNTER:
-        g_player[iPlayer].ps->falling_counter=lVar1; return;
+        ps->falling_counter=lVar1; return;
     case PLAYER_GOTWEAPON:
         if (lVar1)
         {
-            g_player[iPlayer].ps->gotweapon |= (1<<lParm2);
+            ps->gotweapon |= (1<<lParm2);
             return;
         }
 
-        g_player[iPlayer].ps->gotweapon &= ~(1<<lParm2);
+        ps->gotweapon &= ~(1<<lParm2);
         return;
     case PLAYER_REFRESH_INVENTORY:
-        g_player[iPlayer].ps->refresh_inventory=lVar1; return;
+        ps->refresh_inventory=lVar1; return;
     case PLAYER_TOGGLE_KEY_FLAG:
-        g_player[iPlayer].ps->toggle_key_flag=lVar1; return;
+        ps->toggle_key_flag=lVar1; return;
     case PLAYER_KNUCKLE_INCS:
-        g_player[iPlayer].ps->knuckle_incs=lVar1; return;
+        ps->knuckle_incs=lVar1; return;
     case PLAYER_WALKING_SND_TOGGLE:
-        g_player[iPlayer].ps->walking_snd_toggle=lVar1; return;
+        ps->walking_snd_toggle=lVar1; return;
     case PLAYER_PALOOKUP:
-        g_player[iPlayer].ps->palookup=lVar1; return;
+        ps->palookup=lVar1; return;
     case PLAYER_HARD_LANDING:
-        g_player[iPlayer].ps->hard_landing=lVar1; return;
+        ps->hard_landing=lVar1; return;
     case PLAYER_MAX_SECRET_ROOMS:
-        g_player[iPlayer].ps->max_secret_rooms=lVar1; return;
+        ps->max_secret_rooms=lVar1; return;
     case PLAYER_SECRET_ROOMS:
-        g_player[iPlayer].ps->secret_rooms=lVar1; return;
+        ps->secret_rooms=lVar1; return;
     case PLAYER_PALS:
         switch (lParm2)
         {
         case 0:
-            g_player[iPlayer].ps->pals.r = lVar1; return;
+            ps->pals.r = lVar1; return;
         case 1:
-            g_player[iPlayer].ps->pals.g = lVar1; return;
+            ps->pals.g = lVar1; return;
         case 2:
-            g_player[iPlayer].ps->pals.b = lVar1; return;
+            ps->pals.b = lVar1; return;
         }
         return;
     case PLAYER_MAX_ACTORS_KILLED:
-        g_player[iPlayer].ps->max_actors_killed=lVar1; return;
+        ps->max_actors_killed=lVar1; return;
     case PLAYER_ACTORS_KILLED:
-        g_player[iPlayer].ps->actors_killed=lVar1; return;
+        ps->actors_killed=lVar1; return;
     case PLAYER_RETURN_TO_CENTER:
-        g_player[iPlayer].ps->return_to_center=lVar1; return;
+        ps->return_to_center=lVar1; return;
     case PLAYER_RUNSPEED:
-        g_player[iPlayer].ps->runspeed=lVar1; return;
+        ps->runspeed=lVar1; return;
     case PLAYER_SBS:
-        g_player[iPlayer].ps->sbs=lVar1; return;
+        ps->sbs=lVar1; return;
     case PLAYER_RELOADING:
-        g_player[iPlayer].ps->reloading=lVar1; return;
+        ps->reloading=lVar1; return;
     case PLAYER_AUTO_AIM:
-        g_player[iPlayer].ps->auto_aim=lVar1; return;
+        ps->auto_aim=lVar1; return;
     case PLAYER_MOVEMENT_LOCK:
-        g_player[iPlayer].ps->movement_lock=lVar1; return;
+        ps->movement_lock=lVar1; return;
     case PLAYER_SOUND_PITCH:
-        g_player[iPlayer].ps->sound_pitch=lVar1; return;
+        ps->sound_pitch=lVar1; return;
     case PLAYER_WEAPONSWITCH:
-        g_player[iPlayer].ps->weaponswitch=lVar1; return;
+        ps->weaponswitch=lVar1; return;
     case PLAYER_TEAM:
-        g_player[iPlayer].ps->team=lVar1; return;
+        ps->team=lVar1; return;
     case PLAYER_MAX_PLAYER_HEALTH:
-        g_player[iPlayer].ps->max_player_health = lVar1; return;
+        ps->max_player_health = lVar1; return;
     case PLAYER_MAX_SHIELD_AMOUNT:
-        g_player[iPlayer].ps->max_shield_amount = lVar1; return;
+        ps->max_shield_amount = lVar1; return;
     case PLAYER_MAX_AMMO_AMOUNT:
-        g_player[iPlayer].ps->max_ammo_amount[lParm2]=lVar1; return;
+        ps->max_ammo_amount[lParm2]=lVar1; return;
     case PLAYER_LAST_QUICK_KICK:
-        g_player[iPlayer].ps->last_quick_kick=lVar1;
+        ps->last_quick_kick=lVar1;
         return;
 
     default:
@@ -3487,308 +3493,310 @@ static int32_t __fastcall VM_AccessSectorX(int32_t iSector, int32_t lLabelID)
 
 static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, int32_t lParm2)
 {
+    DukePlayer_t *const ps = g_player[iPlayer].ps;
+
     if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2)
         goto badpos;
 
     switch (lLabelID)
     {
     case PLAYER_ZOOM:
-        return g_player[iPlayer].ps->zoom;
+        return ps->zoom;
     case PLAYER_EXITX:
-        return g_player[iPlayer].ps->exitx;
+        return ps->exitx;
     case PLAYER_EXITY:
-        return g_player[iPlayer].ps->exity;
+        return ps->exity;
     case PLAYER_LOOGIEX:
-        return g_player[iPlayer].ps->loogiex[lParm2];
+        return ps->loogiex[lParm2];
     case PLAYER_LOOGIEY:
-        return g_player[iPlayer].ps->loogiey[lParm2];
+        return ps->loogiey[lParm2];
     case PLAYER_NUMLOOGS:
-        return g_player[iPlayer].ps->numloogs;
+        return ps->numloogs;
     case PLAYER_LOOGCNT:
-        return g_player[iPlayer].ps->loogcnt;
+        return ps->loogcnt;
     case PLAYER_POSX:
-        return g_player[iPlayer].ps->pos.x;
+        return ps->pos.x;
     case PLAYER_POSY:
-        return g_player[iPlayer].ps->pos.y;
+        return ps->pos.y;
     case PLAYER_POSZ:
-        return g_player[iPlayer].ps->pos.z;
+        return ps->pos.z;
     case PLAYER_HORIZ:
-        return g_player[iPlayer].ps->horiz;
+        return ps->horiz;
     case PLAYER_OHORIZ:
-        return g_player[iPlayer].ps->ohoriz;
+        return ps->ohoriz;
     case PLAYER_OHORIZOFF:
-        return g_player[iPlayer].ps->ohorizoff;
+        return ps->ohorizoff;
     case PLAYER_INVDISPTIME:
-        return g_player[iPlayer].ps->invdisptime;
+        return ps->invdisptime;
     case PLAYER_BOBPOSX:
-        return g_player[iPlayer].ps->bobposx;
+        return ps->bobposx;
     case PLAYER_BOBPOSY:
-        return g_player[iPlayer].ps->bobposy;
+        return ps->bobposy;
     case PLAYER_OPOSX:
-        return g_player[iPlayer].ps->opos.x;
+        return ps->opos.x;
     case PLAYER_OPOSY:
-        return g_player[iPlayer].ps->opos.y;
+        return ps->opos.y;
     case PLAYER_OPOSZ:
-        return g_player[iPlayer].ps->opos.z;
+        return ps->opos.z;
     case PLAYER_PYOFF:
-        return g_player[iPlayer].ps->pyoff;
+        return ps->pyoff;
     case PLAYER_OPYOFF:
-        return g_player[iPlayer].ps->opyoff;
+        return ps->opyoff;
     case PLAYER_POSXV:
-        return g_player[iPlayer].ps->vel.x;
+        return ps->vel.x;
     case PLAYER_POSYV:
-        return g_player[iPlayer].ps->vel.y;
+        return ps->vel.y;
     case PLAYER_POSZV:
-        return g_player[iPlayer].ps->vel.z;
+        return ps->vel.z;
     case PLAYER_LAST_PISSED_TIME:
-        return g_player[iPlayer].ps->last_pissed_time;
+        return ps->last_pissed_time;
     case PLAYER_TRUEFZ:
-        return g_player[iPlayer].ps->truefz;
+        return ps->truefz;
     case PLAYER_TRUECZ:
-        return g_player[iPlayer].ps->truecz;
+        return ps->truecz;
     case PLAYER_PLAYER_PAR:
-        return g_player[iPlayer].ps->player_par;
+        return ps->player_par;
     case PLAYER_VISIBILITY:
-        return g_player[iPlayer].ps->visibility;
+        return ps->visibility;
     case PLAYER_BOBCOUNTER:
-        return g_player[iPlayer].ps->bobcounter;
+        return ps->bobcounter;
     case PLAYER_WEAPON_SWAY:
-        return g_player[iPlayer].ps->weapon_sway;
+        return ps->weapon_sway;
     case PLAYER_PALS_TIME:
-        return g_player[iPlayer].ps->pals.f;
+        return ps->pals.f;
     case PLAYER_RANDOMFLAMEX:
-        return g_player[iPlayer].ps->randomflamex;
+        return ps->randomflamex;
     case PLAYER_CRACK_TIME:
-        return g_player[iPlayer].ps->crack_time;
+        return ps->crack_time;
     case PLAYER_AIM_MODE:
-        return g_player[iPlayer].ps->aim_mode;
+        return ps->aim_mode;
     case PLAYER_ANG:
-        return g_player[iPlayer].ps->ang;
+        return ps->ang;
     case PLAYER_OANG:
-        return g_player[iPlayer].ps->oang;
+        return ps->oang;
     case PLAYER_ANGVEL:
-        return g_player[iPlayer].ps->angvel;
+        return ps->angvel;
     case PLAYER_CURSECTNUM:
-        return g_player[iPlayer].ps->cursectnum;
+        return ps->cursectnum;
     case PLAYER_LOOK_ANG:
-        return g_player[iPlayer].ps->look_ang;
+        return ps->look_ang;
     case PLAYER_LAST_EXTRA:
-        return g_player[iPlayer].ps->last_extra;
+        return ps->last_extra;
     case PLAYER_SUBWEAPON:
-        return g_player[iPlayer].ps->subweapon;
+        return ps->subweapon;
     case PLAYER_AMMO_AMOUNT:
-        return g_player[iPlayer].ps->ammo_amount[lParm2];
+        return ps->ammo_amount[lParm2];
     case PLAYER_WACKEDBYACTOR:
-        return g_player[iPlayer].ps->wackedbyactor;
+        return ps->wackedbyactor;
     case PLAYER_FRAG:
-        return g_player[iPlayer].ps->frag;
+        return ps->frag;
     case PLAYER_FRAGGEDSELF:
-        return g_player[iPlayer].ps->fraggedself;
+        return ps->fraggedself;
     case PLAYER_CURR_WEAPON:
-        return g_player[iPlayer].ps->curr_weapon;
+        return ps->curr_weapon;
     case PLAYER_LAST_WEAPON:
-        return g_player[iPlayer].ps->last_weapon;
+        return ps->last_weapon;
     case PLAYER_TIPINCS:
-        return g_player[iPlayer].ps->tipincs;
+        return ps->tipincs;
     case PLAYER_HORIZOFF:
-        return g_player[iPlayer].ps->horizoff;
+        return ps->horizoff;
     case PLAYER_WANTWEAPONFIRE:
-        return g_player[iPlayer].ps->wantweaponfire;
+        return ps->wantweaponfire;
     case PLAYER_HOLODUKE_AMOUNT:
-        return g_player[iPlayer].ps->inv_amount[GET_HOLODUKE];
+        return ps->inv_amount[GET_HOLODUKE];
     case PLAYER_NEWOWNER:
-        return g_player[iPlayer].ps->newowner;
+        return ps->newowner;
     case PLAYER_HURT_DELAY:
-        return g_player[iPlayer].ps->hurt_delay;
+        return ps->hurt_delay;
     case PLAYER_HBOMB_HOLD_DELAY:
-        return g_player[iPlayer].ps->hbomb_hold_delay;
+        return ps->hbomb_hold_delay;
     case PLAYER_JUMPING_COUNTER:
-        return g_player[iPlayer].ps->jumping_counter;
+        return ps->jumping_counter;
     case PLAYER_AIRLEFT:
-        return g_player[iPlayer].ps->airleft;
+        return ps->airleft;
     case PLAYER_KNEE_INCS:
-        return g_player[iPlayer].ps->knee_incs;
+        return ps->knee_incs;
     case PLAYER_ACCESS_INCS:
-        return g_player[iPlayer].ps->access_incs;
+        return ps->access_incs;
     case PLAYER_FTA:
-        return g_player[iPlayer].ps->fta;
+        return ps->fta;
     case PLAYER_FTQ:
-        return g_player[iPlayer].ps->ftq;
+        return ps->ftq;
     case PLAYER_ACCESS_WALLNUM:
-        return g_player[iPlayer].ps->access_wallnum;
+        return ps->access_wallnum;
     case PLAYER_ACCESS_SPRITENUM:
-        return g_player[iPlayer].ps->access_spritenum;
+        return ps->access_spritenum;
     case PLAYER_KICKBACK_PIC:
-        return g_player[iPlayer].ps->kickback_pic;
+        return ps->kickback_pic;
     case PLAYER_GOT_ACCESS:
-        return g_player[iPlayer].ps->got_access;
+        return ps->got_access;
     case PLAYER_WEAPON_ANG:
-        return g_player[iPlayer].ps->weapon_ang;
+        return ps->weapon_ang;
     case PLAYER_FIRSTAID_AMOUNT:
-        return g_player[iPlayer].ps->inv_amount[GET_FIRSTAID];
+        return ps->inv_amount[GET_FIRSTAID];
     case PLAYER_SOMETHINGONPLAYER:
-        return g_player[iPlayer].ps->somethingonplayer;
+        return ps->somethingonplayer;
     case PLAYER_ON_CRANE:
-        return g_player[iPlayer].ps->on_crane;
+        return ps->on_crane;
     case PLAYER_I:
-        return g_player[iPlayer].ps->i;
+        return ps->i;
     case PLAYER_ONE_PARALLAX_SECTNUM:
-        return g_player[iPlayer].ps->one_parallax_sectnum;
+        return ps->one_parallax_sectnum;
     case PLAYER_OVER_SHOULDER_ON:
-        return g_player[iPlayer].ps->over_shoulder_on;
+        return ps->over_shoulder_on;
     case PLAYER_RANDOM_CLUB_FRAME:
-        return g_player[iPlayer].ps->random_club_frame;
+        return ps->random_club_frame;
     case PLAYER_FIST_INCS:
-        return g_player[iPlayer].ps->fist_incs;
+        return ps->fist_incs;
     case PLAYER_ONE_EIGHTY_COUNT:
-        return g_player[iPlayer].ps->one_eighty_count;
+        return ps->one_eighty_count;
     case PLAYER_CHEAT_PHASE:
-        return g_player[iPlayer].ps->cheat_phase;
+        return ps->cheat_phase;
     case PLAYER_DUMMYPLAYERSPRITE:
-        return g_player[iPlayer].ps->dummyplayersprite;
+        return ps->dummyplayersprite;
     case PLAYER_EXTRA_EXTRA8:
-        return g_player[iPlayer].ps->extra_extra8;
+        return ps->extra_extra8;
     case PLAYER_QUICK_KICK:
-        return g_player[iPlayer].ps->quick_kick;
+        return ps->quick_kick;
     case PLAYER_HEAT_AMOUNT:
-        return g_player[iPlayer].ps->inv_amount[GET_HEATS];
+        return ps->inv_amount[GET_HEATS];
     case PLAYER_ACTORSQU:
-        return g_player[iPlayer].ps->actorsqu;
+        return ps->actorsqu;
     case PLAYER_TIMEBEFOREEXIT:
-        return g_player[iPlayer].ps->timebeforeexit;
+        return ps->timebeforeexit;
     case PLAYER_CUSTOMEXITSOUND:
-        return g_player[iPlayer].ps->customexitsound;
+        return ps->customexitsound;
     case PLAYER_WEAPRECS:
-        return g_player[iPlayer].ps->weaprecs[lParm2];
+        return ps->weaprecs[lParm2];
     case PLAYER_WEAPRECCNT:
-        return g_player[iPlayer].ps->weapreccnt;
+        return ps->weapreccnt;
     case PLAYER_INTERFACE_TOGGLE_FLAG:
-        return g_player[iPlayer].ps->interface_toggle_flag;
+        return ps->interface_toggle_flag;
     case PLAYER_ROTSCRNANG:
-        return g_player[iPlayer].ps->rotscrnang;
+        return ps->rotscrnang;
     case PLAYER_DEAD_FLAG:
-        return g_player[iPlayer].ps->dead_flag;
+        return ps->dead_flag;
     case PLAYER_SHOW_EMPTY_WEAPON:
-        return g_player[iPlayer].ps->show_empty_weapon;
+        return ps->show_empty_weapon;
     case PLAYER_SCUBA_AMOUNT:
-        return g_player[iPlayer].ps->inv_amount[GET_SCUBA];
+        return ps->inv_amount[GET_SCUBA];
     case PLAYER_JETPACK_AMOUNT:
-        return g_player[iPlayer].ps->inv_amount[GET_JETPACK];
+        return ps->inv_amount[GET_JETPACK];
     case PLAYER_STEROIDS_AMOUNT:
-        return g_player[iPlayer].ps->inv_amount[GET_STEROIDS];
+        return ps->inv_amount[GET_STEROIDS];
     case PLAYER_SHIELD_AMOUNT:
-        return g_player[iPlayer].ps->inv_amount[GET_SHIELD];
+        return ps->inv_amount[GET_SHIELD];
     case PLAYER_HOLODUKE_ON:
-        return g_player[iPlayer].ps->holoduke_on;
+        return ps->holoduke_on;
     case PLAYER_PYCOUNT:
-        return g_player[iPlayer].ps->pycount;
+        return ps->pycount;
     case PLAYER_WEAPON_POS:
-        return g_player[iPlayer].ps->weapon_pos;
+        return ps->weapon_pos;
     case PLAYER_FRAG_PS:
-        return g_player[iPlayer].ps->frag_ps;
+        return ps->frag_ps;
     case PLAYER_TRANSPORTER_HOLD:
-        return g_player[iPlayer].ps->transporter_hold;
+        return ps->transporter_hold;
     case PLAYER_LAST_FULL_WEAPON:
-        return g_player[iPlayer].ps->last_full_weapon;
+        return ps->last_full_weapon;
     case PLAYER_FOOTPRINTSHADE:
-        return g_player[iPlayer].ps->footprintshade;
+        return ps->footprintshade;
     case PLAYER_BOOT_AMOUNT:
-        return g_player[iPlayer].ps->inv_amount[GET_BOOTS];
+        return ps->inv_amount[GET_BOOTS];
     case PLAYER_SCREAM_VOICE:
-        return g_player[iPlayer].ps->scream_voice;
+        return ps->scream_voice;
     case PLAYER_GM:
-        return g_player[iPlayer].ps->gm;
+        return ps->gm;
     case PLAYER_ON_WARPING_SECTOR:
-        return g_player[iPlayer].ps->on_warping_sector;
+        return ps->on_warping_sector;
     case PLAYER_FOOTPRINTCOUNT:
-        return g_player[iPlayer].ps->footprintcount;
+        return ps->footprintcount;
     case PLAYER_HBOMB_ON:
-        return g_player[iPlayer].ps->hbomb_on;
+        return ps->hbomb_on;
     case PLAYER_JUMPING_TOGGLE:
-        return g_player[iPlayer].ps->jumping_toggle;
+        return ps->jumping_toggle;
     case PLAYER_RAPID_FIRE_HOLD:
-        return g_player[iPlayer].ps->rapid_fire_hold;
+        return ps->rapid_fire_hold;
     case PLAYER_ON_GROUND:
-        return g_player[iPlayer].ps->on_ground;
+        return ps->on_ground;
     case PLAYER_INVEN_ICON:
-        return g_player[iPlayer].ps->inven_icon;
+        return ps->inven_icon;
     case PLAYER_BUTTONPALETTE:
-        return g_player[iPlayer].ps->buttonpalette;
+        return ps->buttonpalette;
     case PLAYER_JETPACK_ON:
-        return g_player[iPlayer].ps->jetpack_on;
+        return ps->jetpack_on;
     case PLAYER_SPRITEBRIDGE:
-        return g_player[iPlayer].ps->spritebridge;
+        return ps->spritebridge;
     case PLAYER_LASTRANDOMSPOT:
-        return g_player[iPlayer].ps->lastrandomspot;
+        return ps->lastrandomspot;
     case PLAYER_SCUBA_ON:
-        return g_player[iPlayer].ps->scuba_on;
+        return ps->scuba_on;
     case PLAYER_FOOTPRINTPAL:
-        return g_player[iPlayer].ps->footprintpal;
+        return ps->footprintpal;
     case PLAYER_HEAT_ON:
-        return g_player[iPlayer].ps->heat_on;
+        return ps->heat_on;
     case PLAYER_HOLSTER_WEAPON:
-        return g_player[iPlayer].ps->holster_weapon;
+        return ps->holster_weapon;
     case PLAYER_FALLING_COUNTER:
-        return g_player[iPlayer].ps->falling_counter;
+        return ps->falling_counter;
     case PLAYER_GOTWEAPON:
-        return (g_player[iPlayer].ps->gotweapon & (1<<lParm2)) != 0;
+        return (ps->gotweapon & (1<<lParm2)) != 0;
     case PLAYER_REFRESH_INVENTORY:
-        return g_player[iPlayer].ps->refresh_inventory;
+        return ps->refresh_inventory;
     case PLAYER_TOGGLE_KEY_FLAG:
-        return g_player[iPlayer].ps->toggle_key_flag;
+        return ps->toggle_key_flag;
     case PLAYER_KNUCKLE_INCS:
-        return g_player[iPlayer].ps->knuckle_incs;
+        return ps->knuckle_incs;
     case PLAYER_WALKING_SND_TOGGLE:
-        return g_player[iPlayer].ps->walking_snd_toggle;
+        return ps->walking_snd_toggle;
     case PLAYER_PALOOKUP:
-        return g_player[iPlayer].ps->palookup;
+        return ps->palookup;
     case PLAYER_HARD_LANDING:
-        return g_player[iPlayer].ps->hard_landing;
+        return ps->hard_landing;
     case PLAYER_MAX_SECRET_ROOMS:
-        return g_player[iPlayer].ps->max_secret_rooms;
+        return ps->max_secret_rooms;
     case PLAYER_SECRET_ROOMS:
-        return g_player[iPlayer].ps->secret_rooms;
+        return ps->secret_rooms;
     case PLAYER_PALS:
         switch (lParm2)
         {
         case 0:
-            return g_player[iPlayer].ps->pals.r;
+            return ps->pals.r;
         case 1:
-            return g_player[iPlayer].ps->pals.g;
+            return ps->pals.g;
         case 2:
-            return g_player[iPlayer].ps->pals.b;
+            return ps->pals.b;
         }
         return -1;
     case PLAYER_MAX_ACTORS_KILLED:
-        return g_player[iPlayer].ps->max_actors_killed;
+        return ps->max_actors_killed;
     case PLAYER_ACTORS_KILLED:
-        return g_player[iPlayer].ps->actors_killed;
+        return ps->actors_killed;
     case PLAYER_RETURN_TO_CENTER:
-        return g_player[iPlayer].ps->return_to_center;
+        return ps->return_to_center;
     case PLAYER_RUNSPEED:
-        return g_player[iPlayer].ps->runspeed;
+        return ps->runspeed;
     case PLAYER_SBS:
-        return g_player[iPlayer].ps->sbs;
+        return ps->sbs;
     case PLAYER_RELOADING:
-        return g_player[iPlayer].ps->reloading;
+        return ps->reloading;
     case PLAYER_AUTO_AIM:
-        return g_player[iPlayer].ps->auto_aim;
+        return ps->auto_aim;
     case PLAYER_MOVEMENT_LOCK:
-        return g_player[iPlayer].ps->movement_lock;
+        return ps->movement_lock;
     case PLAYER_SOUND_PITCH:
-        return g_player[iPlayer].ps->sound_pitch;
+        return ps->sound_pitch;
     case PLAYER_WEAPONSWITCH:
-        return g_player[iPlayer].ps->weaponswitch;
+        return ps->weaponswitch;
     case PLAYER_TEAM:
-        return g_player[iPlayer].ps->team;
+        return ps->team;
     case PLAYER_MAX_PLAYER_HEALTH:
-        return g_player[iPlayer].ps->max_player_health;
+        return ps->max_player_health;
     case PLAYER_MAX_SHIELD_AMOUNT:
-        return g_player[iPlayer].ps->max_shield_amount;
+        return ps->max_shield_amount;
     case PLAYER_MAX_AMMO_AMOUNT:
-        return g_player[iPlayer].ps->max_ammo_amount[lParm2];
+        return ps->max_ammo_amount[lParm2];
     case PLAYER_LAST_QUICK_KICK:
-        return g_player[iPlayer].ps->last_quick_kick;
+        return ps->last_quick_kick;
     default:
         return -1;
     }
