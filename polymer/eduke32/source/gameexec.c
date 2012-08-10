@@ -739,6 +739,45 @@ dead:
     else vm.g_sp->shade += (sector[vm.g_sp->sectnum].floorshade-vm.g_sp->shade)>>1;
 }
 
+void addweapon_maybeswitch(DukePlayer_t *ps, int32_t weap)
+{
+    if (!(ps->weaponswitch & 1))
+        P_AddWeaponNoSwitch(ps, weap);
+    else
+        P_AddWeapon(ps, weap);
+}
+
+void addweapon_addammo_common(DukePlayer_t *ps, int32_t weap, int32_t amount)
+{
+    P_AddAmmo(weap, ps, amount);
+
+    if (ps->curr_weapon == KNEE_WEAPON && (ps->gotweapon & (1 << weap)))
+        addweapon_maybeswitch(ps, weap);
+}
+
+static int32_t VM_AddWeapon(int32_t weap, int32_t amount, DukePlayer_t *ps)
+{
+    if ((unsigned)weap >= MAX_WEAPONS)
+    {
+        OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw], weap);
+        return 1;
+    }
+
+    if ((ps->gotweapon & (1 << weap)) == 0)
+    {
+        addweapon_maybeswitch(ps, weap);
+    }
+    else if (ps->ammo_amount[weap] >= ps->max_ammo_amount[weap])
+    {
+        vm.g_flags |= VM_NOEXECUTE;
+        return 2;
+    }
+
+    addweapon_addammo_common(ps, weap, amount);
+
+    return 0;
+}
+
 GAMEEXEC_STATIC void VM_Execute(int32_t loop)
 {
     register int32_t tw = *insptr;
@@ -1319,27 +1358,29 @@ skip_check:
         case CON_RIGHTBRACE:
             insptr++;
             return;
+
         case CON_ADDAMMO:
-            if (((unsigned)*(++insptr) >= MAX_WEAPONS))
+            insptr++;
             {
-                OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
-                insptr += 2;
-                break;
+                int32_t weap=*insptr++, amount=*insptr++;
+                DukePlayer_t *ps = g_player[vm.g_p].ps;
+
+                if ((unsigned)weap >= MAX_WEAPONS)
+                {
+                    OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw], weap);
+                    break;
+                }
+
+                if (ps->ammo_amount[weap] >= ps->max_ammo_amount[weap])
+                {
+                    vm.g_flags |= VM_NOEXECUTE;
+                    break;
+                }
+
+                addweapon_addammo_common(ps, weap, amount);
+
+                continue;
             }
-            if (g_player[vm.g_p].ps->ammo_amount[*insptr] >= g_player[vm.g_p].ps->max_ammo_amount[*insptr])
-            {
-                vm.g_flags |= VM_NOEXECUTE;
-                break;
-            }
-            P_AddAmmo(*insptr, g_player[vm.g_p].ps, *(insptr+1));
-            if (g_player[vm.g_p].ps->curr_weapon == KNEE_WEAPON && g_player[vm.g_p].ps->gotweapon & (1 << *insptr))
-            {
-                if (!(g_player[vm.g_p].ps->weaponswitch & 1))
-                    P_AddWeaponNoSwitch(g_player[vm.g_p].ps, *insptr);
-                else P_AddWeapon(g_player[vm.g_p].ps, *insptr);
-            }
-            insptr += 2;
-            continue;
 
         case CON_MONEY:
             insptr++;
@@ -1378,30 +1419,13 @@ skip_check:
             continue;
 
         case CON_ADDWEAPON:
-            if (((unsigned)*(++insptr) >= MAX_WEAPONS))
+            insptr++;
             {
-                OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
-                insptr += 2;
+                int32_t weap=*insptr++, amount=*insptr++;
+                VM_AddWeapon(weap, amount, g_player[vm.g_p].ps);
+
                 continue;
             }
-            if ((g_player[vm.g_p].ps->gotweapon & (1 << *insptr)) == 0)
-            {
-                if (!(g_player[vm.g_p].ps->weaponswitch & 1)) P_AddWeaponNoSwitch(g_player[vm.g_p].ps, *insptr);
-                else P_AddWeapon(g_player[vm.g_p].ps, *insptr);
-            }
-            else if (g_player[vm.g_p].ps->ammo_amount[*insptr] >= g_player[vm.g_p].ps->max_ammo_amount[*insptr])
-            {
-                vm.g_flags |= VM_NOEXECUTE;
-                continue;
-            }
-            P_AddAmmo(*insptr, g_player[vm.g_p].ps, *(insptr+1));
-            if (g_player[vm.g_p].ps->curr_weapon == KNEE_WEAPON && g_player[vm.g_p].ps->gotweapon & (1 << *insptr))
-            {
-                if (!(g_player[vm.g_p].ps->weaponswitch & 1)) P_AddWeaponNoSwitch(g_player[vm.g_p].ps, *insptr);
-                else P_AddWeapon(g_player[vm.g_p].ps, *insptr);
-            }
-            insptr += 2;
-            continue;
 
         case CON_DEBUG:
             insptr++;
@@ -1500,24 +1524,11 @@ skip_check:
 
         case CON_ADDWEAPONVAR:
             insptr++;
-            if ((g_player[vm.g_p].ps->gotweapon & (1 << Gv_GetVarX(*(insptr)))) == 0)
             {
-                if (!(g_player[vm.g_p].ps->weaponswitch & 1)) P_AddWeaponNoSwitch(g_player[vm.g_p].ps, Gv_GetVarX(*(insptr)));
-                else P_AddWeapon(g_player[vm.g_p].ps, Gv_GetVarX(*(insptr)));
-            }
-            else if (g_player[vm.g_p].ps->ammo_amount[Gv_GetVarX(*(insptr))] >= g_player[vm.g_p].ps->max_ammo_amount[Gv_GetVarX(*(insptr))])
-            {
-                vm.g_flags |= VM_NOEXECUTE;
+                int32_t weap=Gv_GetVarX(*insptr++), amount=Gv_GetVarX(*insptr++);
+                VM_AddWeapon(weap, amount, g_player[vm.g_p].ps);
                 continue;
             }
-            P_AddAmmo(Gv_GetVarX(*(insptr)), g_player[vm.g_p].ps, Gv_GetVarX(*(insptr+1)));
-            if (g_player[vm.g_p].ps->curr_weapon == KNEE_WEAPON && (g_player[vm.g_p].ps->gotweapon & (1 << Gv_GetVarX(*(insptr)))))
-            {
-                if (!(g_player[vm.g_p].ps->weaponswitch & 1)) P_AddWeaponNoSwitch(g_player[vm.g_p].ps, Gv_GetVarX(*(insptr)));
-                else P_AddWeapon(g_player[vm.g_p].ps, Gv_GetVarX(*(insptr)));
-            }
-            insptr += 2;
-            continue;
 
         case CON_ACTIVATEBYSECTOR:
         case CON_OPERATESECTORS:
@@ -4564,7 +4575,7 @@ nullquote:
             insptr++;
             {
                 int32_t j = Gv_GetVarX(*insptr++);
-		int32_t l = Gv_GetVarX(*insptr++);
+                int32_t l = Gv_GetVarX(*insptr++);
                 insptr--;
                 VM_CONDITIONAL(j || l);
             }
