@@ -3414,7 +3414,16 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
             visibility = j;
         }
 
-        gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
+        if (!g_fakeMultiMode)
+        {
+            // HACK for splitscreen mod: this is so that mirrors will be drawn
+            // from showview commands. Ugly, because we'll attempt do draw mirrors
+            // each frame then. But it's better than not drawing them, I guess.
+            // XXX: fix the sequence of setting/clearing this bit. Right now,
+            // we always draw one frame without drawing the mirror, after which
+            // the bit gets set and drawn subsequently.
+            gotpic[MIRROR>>3] &= ~(1<<(MIRROR&7));
+        }
     }
 }
 
