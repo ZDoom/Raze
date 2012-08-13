@@ -1216,21 +1216,19 @@ BOLT:
 
 ACTOR_STATIC void G_MoveFX(void)
 {
-    int32_t i = headspritestat[STAT_FX], j, nexti;
-    spritetype *s;
+    int32_t i = headspritestat[STAT_FX];
 
     while (i >= 0)
     {
-        s = &sprite[i];
-
-        nexti = nextspritestat[i];
+        spritetype *const s = &sprite[i];
+        const int32_t nexti = nextspritestat[i];
 
         switch (DYNAMICTILEMAP(s->picnum))
         {
         case RESPAWN__STATIC:
             if (sprite[i].extra == 66)
             {
-                j = A_Spawn(i,SHT);
+                /*int32_t j =*/ A_Spawn(i,SHT);
                 //                    sprite[j].pal = sprite[i].pal;
                 KILLIT(i);
             }
@@ -1241,6 +1239,7 @@ ACTOR_STATIC void G_MoveFX(void)
         case MUSICANDSFX__STATIC:
         {
             const int32_t ht = s->hitag;
+            DukePlayer_t *const peekps = g_player[screenpeek].ps;
 
             if (T2 != ud.config.SoundToggle)
             {
@@ -1250,7 +1249,7 @@ ACTOR_STATIC void G_MoveFX(void)
 
             if (s->lotag >= 1000 && s->lotag < 2000)
             {
-                int32_t x = ldist(&sprite[g_player[screenpeek].ps->i],s);
+                int32_t x = ldist(&sprite[peekps->i],s);
 
                 if (g_fakeMultiMode && ud.multimode==2)
                 {
@@ -1271,11 +1270,12 @@ ACTOR_STATIC void G_MoveFX(void)
                     T1 = 0;
                 }
             }
-            else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 && ud.config.AmbienceToggle && sector[SECT].floorz != sector[SECT].ceilingz)
+            else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 &&
+                         ud.config.AmbienceToggle && sector[SECT].floorz != sector[SECT].ceilingz)
             {
-                if ((g_sounds[s->lotag].m&2))
+                if (g_sounds[s->lotag].m&2)
                 {
-                    int32_t x = dist(&sprite[g_player[screenpeek].ps->i],s);
+                    int32_t x = dist(&sprite[peekps->i],s);
 
                     if (g_fakeMultiMode && ud.multimode==2)
                     {
@@ -1288,38 +1288,46 @@ ACTOR_STATIC void G_MoveFX(void)
                     {
                         if (g_numEnvSoundsPlaying == ud.config.NumVoices)
                         {
-                            j = headspritestat[STAT_FX];
-                            while (j >= 0)
-                            {
-                                if (PN == MUSICANDSFX && j != i && sprite[j].lotag < 999 && actor[j].t_data[0] == 1 && dist(&sprite[j],&sprite[g_player[screenpeek].ps->i]) > x)
+                            int32_t j;
+
+                            for (SPRITES_OF(STAT_FX, j))
+                                if (PN == MUSICANDSFX && j != i && sprite[j].lotag < 999 &&
+                                        actor[j].t_data[0] == 1 &&
+                                        dist(&sprite[j], &sprite[peekps->i]) > x)
                                 {
                                     S_StopEnvSound(sprite[j].lotag,j);
                                     break;
                                 }
-                                j = nextspritestat[j];
-                            }
-                            if (j == -1) goto BOLT;
+
+                            if (j == -1)
+                                goto BOLT;
                         }
+
                         A_PlaySound(s->lotag,i);
                         T1 = 1;
                     }
-                    if (x >= ht && T1 == 1)
+                    else if (x >= ht && T1 == 1)
                     {
                         // T1 = 0;
                         S_StopEnvSound(s->lotag,i);
                     }
                 }
+
                 if ((g_sounds[s->lotag].m&16))
                 {
-                    if (T5 > 0) T5--;
+                    // Randomly playing global sounds (flyby of planes, screams, ...)
+
+                    if (T5 > 0)
+                    {
+                        T5--;
+                    }
                     else
                     {
                         int32_t p;
                         for (TRAVERSE_CONNECT(p))
                             if (p == myconnectindex && g_player[p].ps->cursectnum == s->sectnum)
                             {
-                                j = s->lotag+((unsigned)g_globalRandom%(s->hitag+1));
-                                S_PlaySound(j);
+                                S_PlaySound(s->lotag + ((unsigned)g_globalRandom%(s->hitag+1)));
                                 T5 =  GAMETICSPERSEC*40 + (g_globalRandom%(GAMETICSPERSEC*40));
                             }
                     }
