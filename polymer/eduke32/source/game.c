@@ -6061,6 +6061,16 @@ static int32_t adult_tile_p(int32_t pic)
     return 0;
 }
 
+static void G_DoEventAnimSprites(int32_t j)
+{
+    if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
+    if ((unsigned)tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
+    {
+        spriteext[tsprite[j].owner].tspr = &tsprite[j];
+        VM_OnEvent(EVENT_ANIMATESPRITES, tsprite[j].owner, myconnectindex, -1, 0);
+    }
+}
+
 #if 0 // def _MSC_VER
 // Visual C thought this was a bit too hard to optimise so we'd better
 // tell it not to try... such a pussy it is.
@@ -6887,25 +6897,14 @@ skip:
     if (apScriptGameEvent[EVENT_ANIMATESPRITES])
     {
         j = spritesortcnt-1;
+
         do
-        {
-            if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-            if (tsprite[j].owner < MAXSPRITES && tsprite[j].owner >= 0 && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
-            {
-                spriteext[tsprite[j].owner].tspr = (spritetype *)&tsprite[j];
-                VM_OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1, 0);
-            }
-        }
+            G_DoEventAnimSprites(j);
         while (j--);
 
         if (j < 0) return;
 
-        if (display_mirror) tsprite[j].statnum = TSPR_MIRROR;
-        if (tsprite[j].owner >= 0 && tsprite[j].owner < MAXSPRITES && spriteext[tsprite[j].owner].flags & SPREXT_TSPRACCESS)
-        {
-            spriteext[tsprite[j].owner].tspr = (spritetype *)&tsprite[j];
-            VM_OnEvent(EVENT_ANIMATESPRITES,tsprite[j].owner, myconnectindex, -1, 0);
-        }
+        G_DoEventAnimSprites(j);
     }
 }
 #if 0 // def _MSC_VER
