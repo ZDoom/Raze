@@ -13441,13 +13441,13 @@ void setaspect_new()
             x=r_screenxy/100; y=r_screenxy%100;
             if (y==0 || x==0) { x=4; y=3; }
 
-            pixratio = divscale16(xdim*y, ydim*x);
+            pixratio = divscale16(xdimen*y, ydimen*x);
             yx = divscale16(yx, pixratio);
         }
         else
         {
-            x = xdim;
-            y = ydim;
+            x = xdimen;
+            y = ydimen;
         }
 
         vr = divscale16(x*3, y*4);
