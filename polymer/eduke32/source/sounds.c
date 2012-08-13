@@ -400,6 +400,13 @@ static inline int32_t find_free_slot(int32_t num)
     return j;
 }
 
+static inline int32_t get_sound_ang(int32_t camang, const vec3_t *cam, const vec3_t *pos)
+{
+    int32_t sndang = 2048 + camang - getangle(cam->x-pos->x, cam->y-pos->y);
+    sndang &= 2047;
+    return sndang;
+}
+
 static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t camang,
                                 const vec3_t *cam, const vec3_t *pos,
                                 int32_t *sndistptr, int32_t *sndangptr)
@@ -410,17 +417,44 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
     if (PN == APLAYER && sprite[i].yvel == screenpeek)
     {
         sndang = sndist = 0;
+        goto sound_further_processing;
     }
-    else
+
+    sndang = get_sound_ang(camang, cam, pos);
+
+    sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z)>>4);
+
+    if (g_fakeMultiMode && ud.multimode==2)
     {
-        sndang = 2048 + camang - getangle(cam->x-pos->x, cam->y-pos->y);
-        sndang &= 2047;
+        // HACK for splitscreen mod: take the min of sound distances
+        // to 1st and 2nd player.
 
-        sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z)>>4);
-        if ((g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
-            sndist = divscale14(sndist, SHT+1);
+        if (PN == APLAYER && sprite[i].yvel==1)
+        {
+            sndist = sndang = 0;
+            goto sound_further_processing;
+        }
+
+        {
+            const vec3_t *cam2 = &g_player[1].ps->pos;
+            int32_t sndist2 = FindDistance3D(cam2->x-pos->x, cam2->y-pos->y, (cam2->z-pos->z)>>4);
+
+            if (sndist2 < sndist)
+            {
+                cam = cam2;
+                camsect = g_player[1].ps->cursectnum;
+                camang = g_player[1].ps->ang;
+
+                sndist = sndist2;
+                sndang = get_sound_ang(camang, cam, pos);
+            }
+        }
     }
 
+    if ((g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
+        sndist = divscale14(sndist, SHT+1);
+
+sound_further_processing:
     sndist += g_sounds[num].vo;
     if (sndist < 0)
         sndist = 0;

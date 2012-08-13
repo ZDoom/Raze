@@ -1217,7 +1217,6 @@ BOLT:
 ACTOR_STATIC void G_MoveFX(void)
 {
     int32_t i = headspritestat[STAT_FX], j, nexti;
-    int32_t x, ht;
     spritetype *s;
 
     while (i >= 0)
@@ -1240,8 +1239,8 @@ ACTOR_STATIC void G_MoveFX(void)
             break;
 
         case MUSICANDSFX__STATIC:
-
-            ht = s->hitag;
+        {
+            const int32_t ht = s->hitag;
 
             if (T2 != ud.config.SoundToggle)
             {
@@ -1251,7 +1250,15 @@ ACTOR_STATIC void G_MoveFX(void)
 
             if (s->lotag >= 1000 && s->lotag < 2000)
             {
-                x = ldist(&sprite[g_player[screenpeek].ps->i],s);
+                int32_t x = ldist(&sprite[g_player[screenpeek].ps->i],s);
+
+                if (g_fakeMultiMode && ud.multimode==2)
+                {
+                    // HACK for splitscreen mod
+                    int32_t otherdist = ldist(&sprite[g_player[1].ps->i],s);
+                    x = min(x, otherdist);
+                }
+
                 if (x < ht && T1 == 0)
                 {
                     FX_SetReverb(s->lotag - 1000);
@@ -1268,7 +1275,15 @@ ACTOR_STATIC void G_MoveFX(void)
             {
                 if ((g_sounds[s->lotag].m&2))
                 {
-                    x = dist(&sprite[g_player[screenpeek].ps->i],s);
+                    int32_t x = dist(&sprite[g_player[screenpeek].ps->i],s);
+
+                    if (g_fakeMultiMode && ud.multimode==2)
+                    {
+                        // HACK for splitscreen mod
+                        int32_t otherdist = dist(&sprite[g_player[1].ps->i],s);
+                        x = min(x, otherdist);
+                    }
+
                     if (x < ht && T1 == 0 && FX_VoiceAvailable(g_sounds[s->lotag].pr-1))
                     {
                         if (g_numEnvSoundsPlaying == ud.config.NumVoices)
@@ -1311,6 +1326,7 @@ ACTOR_STATIC void G_MoveFX(void)
                 }
             }
             break;
+        }
         }
 BOLT:
         i = nexti;
