@@ -68,7 +68,7 @@ typedef struct
 extern volatile char g_soundlocks[MAXSOUNDS];
 extern sound_t g_sounds[MAXSOUNDS];
 extern int16_t g_skillSoundID;
-extern int32_t backflag,g_numEnvSoundsPlaying,g_maxSoundPos;
+extern int32_t g_numEnvSoundsPlaying,g_maxSoundPos;
 
 int32_t A_CheckSoundPlaying(int32_t i,int32_t num);
 int32_t A_PlaySound(uint32_t num,int32_t i);

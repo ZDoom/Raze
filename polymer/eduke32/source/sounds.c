@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "winlayer.h"
 #endif
 
-int32_t backflag,g_numEnvSoundsPlaying,g_maxSoundPos = 0;
+int32_t g_numEnvSoundsPlaying,g_maxSoundPos = 0;
 
 static int32_t MusicIsWaveform = 0;
 static char *MusicPtr = 0;
@@ -379,12 +379,36 @@ int32_t S_LoadSound(uint32_t num)
     return l;
 }
 
+
+static int32_t get_sound_pitch(int32_t num)
+{
+    int32_t j = klabs(g_sounds[num].pe-g_sounds[num].ps);
+
+    if (j)
+        return min(g_sounds[num].ps, g_sounds[num].pe) + rand()%j;
+    else
+        return g_sounds[num].ps;
+}
+
+static inline int32_t find_free_slot(int32_t num)
+{
+    int32_t j = 0;
+
+    while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
+        j++;
+
+    return j;
+}
+
 int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 {
-    vec3_t *c;
+    const vec3_t *c;
     int32_t sndist, j = 0;
     int32_t cs;
     int32_t voice, sndang, ca, pitch;
+
+    const DukePlayer_t *const myps = g_player[myconnectindex].ps;
+    const DukePlayer_t *peekps;
 
     if (apScriptGameEvent[EVENT_SOUND])
         num = VM_OnEvent(EVENT_SOUND, i, screenpeek, -1, num);
@@ -396,8 +420,8 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             g_sounds[num].num >= MAXSOUNDINSTANCES ||
             (unsigned)i >= MAXSPRITES ||
             FX_VoiceAvailable(g_sounds[num].pr) == 0 ||
-            (g_player[myconnectindex].ps->timebeforeexit > 0 && g_player[myconnectindex].ps->timebeforeexit <= GAMETICSPERSEC*3) ||
-            g_player[myconnectindex].ps->gm&MODE_MENU) return -1;
+            (myps->timebeforeexit > 0 && myps->timebeforeexit <= GAMETICSPERSEC*3) ||
+            (myps->gm&MODE_MENU)) return -1;
 
     if (g_sounds[num].m&128)  // Duke-Tag sound
     {
@@ -435,46 +459,44 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
                 return -1;
     }
 
-    c = (vec3_t *)&ud.camera;
+    c = &ud.camera;
     cs = ud.camerasect;
     ca = ud.cameraang;
 
     sndist = FindDistance3D((c->x-pos->x),(c->y-pos->y),(c->z-pos->z)>>4);
 
-    if (i >= 0 && (g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
+    if ((g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
         sndist = divscale14(sndist,(SHT+1));
 
     sndist += g_sounds[num].vo;
-
     if (sndist < 0) sndist = 0;
 
     if (cs > -1 && sndist && PN != MUSICANDSFX && !cansee(c->x,c->y,c->z-(24<<8),cs,SX,SY,SZ-(24<<8),SECT))
         sndist += sndist>>5;
 
-    pitch = (j = klabs(g_sounds[num].pe-g_sounds[num].ps)) ?
-        (g_sounds[num].ps < g_sounds[num].pe ? g_sounds[num].ps : g_sounds[num].pe) + rand()%j :
-            g_sounds[num].ps;
+    pitch = get_sound_pitch(num);
+    peekps = g_player[screenpeek].ps;
 
     switch (num)
     {
     case PIPEBOMB_EXPLODE:
     case LASERTRIP_EXPLODE:
     case RPG_EXPLODE:
-        if (sndist > (6144))
+        if (sndist > 6144)
             sndist = 6144;
-        if (g_player[screenpeek].ps->cursectnum > -1 && sector[g_player[screenpeek].ps->cursectnum].lotag == 2)
+        if (peekps->cursectnum > -1 && sector[peekps->cursectnum].lotag == 2)
             pitch -= 1024;
         break;
     default:
         if (sndist > 32767 && PN != MUSICANDSFX && (g_sounds[num].m & 3) == 0)
             return -1;
-        if (g_player[screenpeek].ps->cursectnum > -1 && sector[g_player[screenpeek].ps->cursectnum].lotag == 2 && (g_sounds[num].m&4) == 0)
+        if (peekps->cursectnum > -1 && sector[peekps->cursectnum].lotag == 2 && (g_sounds[num].m&4) == 0)
             pitch = -768;
         break;
     }
 
-    if (g_player[screenpeek].ps->sound_pitch)
-        pitch += g_player[screenpeek].ps->sound_pitch;
+    if (peekps->sound_pitch)
+        pitch += peekps->sound_pitch;
 
     if (g_sounds[num].num > 0 && PN != MUSICANDSFX)
         S_StopEnvSound(num, i);
@@ -499,15 +521,10 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
         else g_soundlocks[num]++;
     }
 
-    if (g_sounds[num].m&16) sndist = 0;
-
-    if (sndist < ((255-LOUDESTVOLUME)<<6))
+    if ((g_sounds[num].m&16) || sndist < ((255-LOUDESTVOLUME)<<6))
         sndist = ((255-LOUDESTVOLUME)<<6);
 
-    j = 0;
-
-    while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
-        j++;
+    j = find_free_slot(num);
 
     if (j >= MAXSOUNDINSTANCES)
     {
@@ -546,7 +563,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
 int32_t S_PlaySound(int32_t num)
 {
-    int32_t pitch, cx;
+    int32_t pitch;
     int32_t voice, j;
     int32_t doretry = 0;
 
@@ -566,9 +583,7 @@ int32_t S_PlaySound(int32_t num)
     if ((g_sounds[num].m&8) && ud.lockout) return -1;
     if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return -1;
 
-    pitch = (cx = klabs(g_sounds[num].pe-g_sounds[num].ps)) ?
-            (g_sounds[num].ps < g_sounds[num].pe ? g_sounds[num].ps :
-         g_sounds[num].pe) + rand()%cx : g_sounds[num].ps;
+    pitch = get_sound_pitch(num);
 
     if (g_sounds[num].ptr == 0)
     {
@@ -582,10 +597,7 @@ int32_t S_PlaySound(int32_t num)
         else g_soundlocks[num]++;
     }
 
-    j = 0;
-
-    while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
-        j++;
+    j = find_free_slot(num);
 
     if (j >= MAXSOUNDINSTANCES) // no slots available, so let's see if one opens up after multivoc kills a voice
         doretry = 1;
@@ -605,10 +617,7 @@ int32_t S_PlaySound(int32_t num)
     {
         S_Cleanup();
 
-        j = 0;
-
-        while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
-            j++;
+        j = find_free_slot(num);
 
         if (j >= MAXSOUNDINSTANCES) // still no slots available
         {
@@ -700,7 +709,8 @@ void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset)
 void S_Update(void)
 {
     vec3_t *s, *c;
-    int32_t sndist,sndang,ca,j,k,i,cs;
+    int32_t sndist,sndang,ca,cs;
+    int32_t num;  // the sound index...
 
     S_Cleanup();
 
@@ -711,7 +721,7 @@ void S_Update(void)
 
     if (ud.camerasprite == -1)
     {
-        c = (vec3_t *)&ud.camera;
+        c = &ud.camera;
         cs = ud.camerasect;
         ca = ud.cameraang;
     }
@@ -722,22 +732,24 @@ void S_Update(void)
         ca = sprite[ud.camerasprite].ang;
     }
 
-    j = g_maxSoundPos;
+    num = g_maxSoundPos;
 
     do
     {
+        int32_t k;
+
         for (k=MAXSOUNDINSTANCES-1; k>=0; k--)
         {
-            i = g_sounds[j].SoundOwner[k].ow;
+            int32_t i = g_sounds[num].SoundOwner[k].ow;
 
-            if ((unsigned)i >= MAXSPRITES || g_sounds[j].num == 0 || g_sounds[j].SoundOwner[k].voice <= FX_Ok)
+            if ((unsigned)i >= MAXSPRITES || g_sounds[num].num == 0 || g_sounds[num].SoundOwner[k].voice <= FX_Ok)
                 continue;
 
-            if (!FX_SoundActive(g_sounds[j].SoundOwner[k].voice))
+            if (!FX_SoundActive(g_sounds[num].SoundOwner[k].voice))
             {
                 /*
-                                OSD_Printf("S_Update(): stale voice %d from sound %d position %d sprite %d\n",
-                                    g_sounds[j].SoundOwner[k].voice, j, k, g_sounds[j].SoundOwner[k].ow);
+                  OSD_Printf("S_Update(): stale voice %d from sound %d position %d sprite %d\n",
+                  g_sounds[num].SoundOwner[k].voice, num, k, g_sounds[num].SoundOwner[k].ow);
                 */
                 continue;
             }
@@ -751,20 +763,20 @@ void S_Update(void)
                 sndang = 2048 + ca - getangle(c->x-s->x, c->y-s->y);
                 sndang &= 2047;
                 sndist = FindDistance3D(c->x-s->x, c->y-s->y, (c->z-s->z)>>4);
-                if (i >= 0 && (g_sounds[j].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
+                if ((g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
                     sndist = divscale14(sndist,(SHT+1));
             }
 
-            sndist += g_sounds[j].vo;
+            sndist += g_sounds[num].vo;
             if (sndist < 0) sndist = 0;
 
-            if (cs > -1 && sndist && PN != MUSICANDSFX && !cansee(c->x,c->y,c->z-(24<<8),cs,s->x,s->y,s->z-(24<<8),SECT))
+            if (cs > -1 && sndist && PN != MUSICANDSFX && !cansee(c->x,c->y,c->z-(24<<8),cs,SX,SY,SZ-(24<<8),SECT))
                 sndist += sndist>>5;
 
             if (PN == MUSICANDSFX && SLT < 999)
                 g_numEnvSoundsPlaying++;
 
-            switch (j)
+            switch (num)
             {
             case PIPEBOMB_EXPLODE:
             case LASERTRIP_EXPLODE:
@@ -774,13 +786,13 @@ void S_Update(void)
                 break;
             }
 
-            if (g_sounds[j].m&16 || sndist < ((255-LOUDESTVOLUME)<<6))
+            if ((g_sounds[num].m&16) || sndist < ((255-LOUDESTVOLUME)<<6))
                 sndist = ((255-LOUDESTVOLUME)<<6);
 
-            FX_Pan3D(g_sounds[j].SoundOwner[k].voice, sndang>>4, sndist>>6);
+            FX_Pan3D(g_sounds[num].SoundOwner[k].voice, sndang>>4, sndist>>6);
         }
     }
-    while (j--);
+    while (num--);
 }
 
 void S_Callback(uint32_t num)
