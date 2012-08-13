@@ -132,12 +132,13 @@ static inline int32_t yax_waltosecmask(int32_t walclipmask)
     return ((walclipmask&1)<<9) | ((walclipmask&64)<<5);
 }
 void yax_preparedrawrooms(void);
-void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectnum, int32_t didmirror);
+void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
+                   int16_t sectnum, int32_t didmirror, int32_t smoothr);
 # define YAX_SKIPSECTOR(i) if (graysectbitmap[(i)>>3]&(1<<((i)&7))) continue
 # define YAX_SKIPWALL(i) if (graywallbitmap[(i)>>3]&(1<<((i)&7))) continue
 #else
 # define yax_preparedrawrooms()
-# define yax_drawrooms(ExtAnalyzeSprites, horiz, sectnum, didmirror)
+# define yax_drawrooms(SpriteAnimFunc, sectnum, didmirror, smoothr)
 # define YAX_SKIPSECTOR(i) (i)=(i)
 # define YAX_SKIPWALL(i) (i)=(i)
 #endif

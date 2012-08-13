@@ -572,8 +572,7 @@ void G_SetupCamTile(int32_t i,int32_t wn)
 
     yax_preparedrawrooms();
     drawrooms(SX,SY,SZ,SA,100+sprite[i].shade,SECT);
-    // g_yax_smoothratio?
-    yax_drawrooms(G_AnalyzeSprites, 100+sprite[i].shade, SECT, 0);
+    yax_drawrooms(G_DoSpriteAnimations, SECT, 0, 65536);
 
     display_mirror = 1;
     G_DoSpriteAnimations(SX,SY,SA,65536L);

@@ -204,6 +204,7 @@ static void scansector(int16_t sectnum);
 static void draw_rainbow_background(void);
 
 int16_t editstatus = 0;
+static int32_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
 
 
 ////////// YAX //////////
@@ -838,9 +839,12 @@ void yax_preparedrawrooms(void)
     }
 }
 
-void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectnum, int32_t didmirror)
+void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
+                   int16_t sectnum, int32_t didmirror, int32_t smoothr)
 {
     static uint8_t havebunch[YAX_MAXBUNCHES>>3];
+
+    const int32_t horiz = global100horiz;
 
     int32_t i, j, k, lev, cf, nmp;
     int32_t bnchcnt, bnchnum[2] = {0,0}, maxlev[2];
@@ -1052,7 +1056,7 @@ void yax_drawrooms(void (*ExtAnalyzeSprites)(void), int32_t horiz, int16_t sectn
                          yax_globallev-YAX_MAXDRAWS, j, k, spritesortcnt,
                          (double)(1000*(gethiticks()-t))/hitickspersec);
 
-                ExtAnalyzeSprites();
+                SpriteAnimFunc(globalposx, globalposy, globalang, smoothr);
                 drawmasks();
             }
 
@@ -8258,6 +8262,8 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     globalposx = daposx; globalposy = daposy; globalposz = daposz;
     globalang = (daang&2047);
+
+    global100horiz = dahoriz;
 
     // xdimenscale is scale(xdimen,yxaspect,320);
     // normalization by viewingrange so that center-of-aim doesn't depend on it

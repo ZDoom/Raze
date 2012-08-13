@@ -3324,14 +3324,6 @@ static void G_SE40(int32_t smoothratio)
     }
 }
 
-int32_t g_yax_smoothratio;
-#ifdef YAX_ENABLE
-void G_AnalyzeSprites(void)
-{
-    G_DoSpriteAnimations(ud.camera.x,ud.camera.y,ud.cameraang,g_yax_smoothratio);
-}
-#endif
-
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio)
 {
     if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7)))
@@ -3393,8 +3385,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 
                 yax_preparedrawrooms();
                 didmirror = drawrooms(tposx,tposy,z,tang,horiz,g_mirrorSector[i]+MAXSECTORS);
-                g_yax_smoothratio = smoothratio;
-                yax_drawrooms(G_AnalyzeSprites, horiz, g_mirrorSector[i], didmirror);
+                yax_drawrooms(G_DoSpriteAnimations, g_mirrorSector[i], didmirror, smoothratio);
             }
 #ifdef USE_OPENGL
             else
@@ -3470,8 +3461,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 #endif
         yax_preparedrawrooms();
         drawrooms(s->x,s->y,s->z-(4<<8),ud.cameraang,s->yvel,s->sectnum);
-        g_yax_smoothratio = smoothratio;
-        yax_drawrooms(G_AnalyzeSprites, s->yvel, s->sectnum, 0);
+        yax_drawrooms(G_DoSpriteAnimations, s->sectnum, 0, smoothratio);
         G_DoSpriteAnimations(s->x,s->y,ud.cameraang,smoothratio);
         drawmasks();
     }
@@ -3684,9 +3674,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         yax_preparedrawrooms();
         drawrooms(ud.camera.x,ud.camera.y,ud.camera.z,ud.cameraang,ud.camerahoriz,ud.camerasect);
-        g_yax_smoothratio = smoothratio;
-        yax_drawrooms(G_AnalyzeSprites, ud.camerahoriz, ud.camerasect, 0);
-
+        yax_drawrooms(G_DoSpriteAnimations, ud.camerasect, 0, smoothratio);
 
         // dupe the sprites touching the portal to the other sector
 

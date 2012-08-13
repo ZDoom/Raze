@@ -467,9 +467,9 @@ void M32_DrawRoomsAndMasks(void)
 {
     yax_preparedrawrooms();
     drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-    yax_drawrooms(ExtAnalyzeSprites, horiz, cursectnum, 0);
+    yax_drawrooms(ExtAnalyzeSprites, cursectnum, 0, 0);
 
-    ExtAnalyzeSprites();
+    ExtAnalyzeSprites(0,0,0,0);
     drawmasks();
     M32_ResetFakeRORTiles();
 
@@ -478,7 +478,7 @@ void M32_DrawRoomsAndMasks(void)
     {
         polymer_editorpick();
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
-        ExtAnalyzeSprites();
+        ExtAnalyzeSprites(0,0,0,0);
         drawmasks();
         M32_ResetFakeRORTiles();
     }

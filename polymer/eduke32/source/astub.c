@@ -2808,7 +2808,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
     }
 
     drawrooms(x+offx,y+offy,z+offz,a,h,sprite[floor2].sectnum);
-    ExtAnalyzeSprites();
+    ExtAnalyzeSprites(0,0,0,0);
     drawmasks();
     M32_ResetFakeRORTiles();
 
@@ -2834,7 +2834,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
 
         // Now re-draw
         drawrooms(x+offx,y+offy,z+offz,a,h,sprite[floor2].sectnum);
-        ExtAnalyzeSprites();
+        ExtAnalyzeSprites(0,0,0,0);
         drawmasks();
         M32_ResetFakeRORTiles();
     }
@@ -10874,11 +10874,16 @@ void ExtPreCheckKeys(void) // just before drawrooms
     enddrawing();  //}}}
 }
 
-void ExtAnalyzeSprites(void)
+void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr)
 {
     int32_t i, k;
     spritetype *tspr;
     int32_t frames=0, sh;
+
+    UNREFERENCED_PARAMETER(ourx);
+    UNREFERENCED_PARAMETER(oury);
+    UNREFERENCED_PARAMETER(oura);
+    UNREFERENCED_PARAMETER(smoothr);
 
     for (i=0,tspr=&tsprite[0]; i<spritesortcnt; i++,tspr++)
     {

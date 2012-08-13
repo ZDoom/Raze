@@ -158,7 +158,7 @@ extern int32_t ExtInit(void);
 extern int32_t ExtPreInit(int32_t argc,const char **argv);
 extern void ExtUnInit(void);
 extern void ExtPreCheckKeys(void);
-extern void ExtAnalyzeSprites(void);
+extern void ExtAnalyzeSprites(int32_t, int32_t, int32_t, int32_t);
 extern void ExtCheckKeys(void);
 extern void ExtPreLoadMap(void);
 extern void ExtSetupMapFilename(const char *mapname);
