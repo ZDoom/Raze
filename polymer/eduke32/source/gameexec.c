@@ -2445,7 +2445,12 @@ nullquote:
                 oprojhacks = glprojectionhacks;
                 glprojectionhacks = 0;
 #endif
-                setview(x1,y1,x2,y2);
+                {
+                    int32_t o = newaspect_enable;
+                    newaspect_enable = r_usenewaspect;
+                    setview(x1,y1,x2,y2);
+                    newaspect_enable = o;
+                }
 
 #if 0
                 if (!ud.pause_on && ((ud.show_help == 0 && (!net_server && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU))
