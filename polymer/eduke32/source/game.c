@@ -3420,7 +3420,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 
 void G_DrawRooms(int32_t snum, int32_t smoothratio)
 {
-    int32_t i;
+    int32_t i, dont_draw;
     DukePlayer_t *const p = g_player[snum].ps;
 
     int32_t tmpyx=yxaspect, tmpvr=viewingrange;
@@ -3666,63 +3666,71 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             break;
         }
 
+        dont_draw = 0;
         // NOTE: might be rendering off-screen here, so CON commands that draw stuff
         //  like showview must cope with that situation or bail out!
         if (apScriptGameEvent[EVENT_DISPLAYROOMS])
-            VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+            dont_draw = VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
         ud.camerahoriz = clamp(ud.camerahoriz, HORIZ_MIN, HORIZ_MAX);
 
-        G_HandleMirror(ud.camera.x, ud.camera.y, ud.camera.z, ud.cameraang, ud.camerahoriz, smoothratio);
+        if (dont_draw != 1)  // event return values other than 0 and 1 are reserved
+        {
+            if (dont_draw != 0)
+                OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
+                           "other values are reserved.\n");
 
-        G_SE40(smoothratio);
+            G_HandleMirror(ud.camera.x, ud.camera.y, ud.camera.z, ud.cameraang, ud.camerahoriz, smoothratio);
+
+            G_SE40(smoothratio);
 
 #ifdef POLYMER
-        if (getrendermode() == 4)
-            polymer_setanimatesprites(G_DoSpriteAnimations, ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
+            if (getrendermode() == 4)
+                polymer_setanimatesprites(G_DoSpriteAnimations, ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
 #endif
-        // for G_PrintCoords
-        dr_viewingrange = viewingrange;
-        dr_yxaspect = yxaspect;
+            // for G_PrintCoords
+            dr_viewingrange = viewingrange;
+            dr_yxaspect = yxaspect;
 
-        yax_preparedrawrooms();
-        drawrooms(ud.camera.x,ud.camera.y,ud.camera.z,ud.cameraang,ud.camerahoriz,ud.camerasect);
-        yax_drawrooms(G_DoSpriteAnimations, ud.camerasect, 0, smoothratio);
+            yax_preparedrawrooms();
+            drawrooms(ud.camera.x,ud.camera.y,ud.camera.z,ud.cameraang,ud.camerahoriz,ud.camerasect);
+            yax_drawrooms(G_DoSpriteAnimations, ud.camerasect, 0, smoothratio);
 
-        // dupe the sprites touching the portal to the other sector
+            // dupe the sprites touching the portal to the other sector
 
-        if (ror_sprite != -1)
-        {
-            spritetype *sp = &sprite[ror_sprite];
-
-            // viewing from bottom
-            if (drawing_ror == 1)
+            if (ror_sprite != -1)
             {
-                int32_t k;
+                spritetype *sp = &sprite[ror_sprite];
 
-                for (k=headspritesect[sp->sectnum]; k != -1; k=nextspritesect[k])
+                // viewing from bottom
+                if (drawing_ror == 1)
                 {
-                    if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sp->z))
+                    int32_t k;
+
+                    for (k=headspritesect[sp->sectnum]; k != -1; k=nextspritesect[k])
                     {
-                        Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(spritetype));
+                        if (sprite[k].picnum != SECTOREFFECTOR && (sprite[k].z >= sp->z))
+                        {
+                            Bmemcpy(&tsprite[spritesortcnt], &sprite[k], sizeof(spritetype));
 
-                        tsprite[spritesortcnt].x += (sprite[sp->yvel].x-sp->x);
-                        tsprite[spritesortcnt].y += (sprite[sp->yvel].y-sp->y);
-                        tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sp->z + actor[sp->yvel].ceilingz;
-                        tsprite[spritesortcnt].sectnum = sprite[sp->yvel].sectnum;
-                        tsprite[spritesortcnt].owner = k;
+                            tsprite[spritesortcnt].x += (sprite[sp->yvel].x-sp->x);
+                            tsprite[spritesortcnt].y += (sprite[sp->yvel].y-sp->y);
+                            tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sp->z + actor[sp->yvel].ceilingz;
+                            tsprite[spritesortcnt].sectnum = sprite[sp->yvel].sectnum;
+                            tsprite[spritesortcnt].owner = k;
 
-                        //OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
-                        spritesortcnt++;
+                            //OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
+                            spritesortcnt++;
+                        }
                     }
                 }
             }
+
+            G_DoSpriteAnimations(ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
+
+            drawing_ror = 0;
+            drawmasks();
         }
-
-        G_DoSpriteAnimations(ud.camera.x,ud.camera.y,ud.cameraang,smoothratio);
-
-        drawing_ror = 0;
-        drawmasks();
 
         if (g_screenCapture)
         {
