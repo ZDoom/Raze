@@ -3402,7 +3402,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
             }
 #ifdef USE_OPENGL
             else
-                drawrooms(tposx,tposy,ud.camera.z,tang,ud.camerahoriz,g_mirrorSector[i]+MAXSECTORS);
+                drawrooms(tposx,tposy,z,tang,horiz,g_mirrorSector[i]+MAXSECTORS);
             // XXX: Sprites don't get drawn with TROR/Polymost
 #endif
             display_mirror = 1;
