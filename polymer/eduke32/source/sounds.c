@@ -400,12 +400,61 @@ static inline int32_t find_free_slot(int32_t num)
     return j;
 }
 
+static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t camang,
+                                const vec3_t *cam, const vec3_t *pos,
+                                int32_t *sndistptr, int32_t *sndangptr)
+{
+    int32_t sndang, sndist;
+    int32_t explosion = 0;
+
+    if (PN == APLAYER && sprite[i].yvel == screenpeek)
+    {
+        sndang = sndist = 0;
+    }
+    else
+    {
+        sndang = 2048 + camang - getangle(cam->x-pos->x, cam->y-pos->y);
+        sndang &= 2047;
+
+        sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z)>>4);
+        if ((g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
+            sndist = divscale14(sndist, SHT+1);
+    }
+
+    sndist += g_sounds[num].vo;
+    if (sndist < 0)
+        sndist = 0;
+
+    if (camsect > -1 && sndist && PN != MUSICANDSFX &&
+            !cansee(cam->x,cam->y,cam->z-(24<<8),camsect, SX,SY,SZ-(24<<8),SECT))
+        sndist += sndist>>5;
+
+    switch (num)
+    {
+    case PIPEBOMB_EXPLODE:
+    case LASERTRIP_EXPLODE:
+    case RPG_EXPLODE:
+        explosion = 1;
+        if (sndist > 6144)
+            sndist = 6144;
+        break;
+    }
+
+    if ((g_sounds[num].m&16) || sndist < ((255-LOUDESTVOLUME)<<6))
+        sndist = ((255-LOUDESTVOLUME)<<6);
+
+    *sndistptr = sndist;
+    *sndangptr = sndang;
+
+    return explosion;
+}
+
 int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 {
-    const vec3_t *c;
-    int32_t sndist, j = 0;
-    int32_t cs;
-    int32_t voice, sndang, ca, pitch;
+    int32_t j = 0;
+    int32_t cs, ca;
+    int32_t sndist, sndang, explosionp;
+    int32_t voice, pitch;
 
     const DukePlayer_t *const myps = g_player[myconnectindex].ps;
     const DukePlayer_t *peekps;
@@ -459,55 +508,33 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
                 return -1;
     }
 
-    c = &ud.camera;
     cs = ud.camerasect;
     ca = ud.cameraang;
 
-    sndist = FindDistance3D((c->x-pos->x),(c->y-pos->y),(c->z-pos->z)>>4);
-
-    if ((g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
-        sndist = divscale14(sndist,(SHT+1));
-
-    sndist += g_sounds[num].vo;
-    if (sndist < 0) sndist = 0;
-
-    if (cs > -1 && sndist && PN != MUSICANDSFX && !cansee(c->x,c->y,c->z-(24<<8),cs,SX,SY,SZ-(24<<8),SECT))
-        sndist += sndist>>5;
+    explosionp = S_CalcDistAndAng(i, num, cs, ca, &ud.camera, pos, &sndist, &sndang);
 
     pitch = get_sound_pitch(num);
     peekps = g_player[screenpeek].ps;
 
-    switch (num)
-    {
-    case PIPEBOMB_EXPLODE:
-    case LASERTRIP_EXPLODE:
-    case RPG_EXPLODE:
-        if (sndist > 6144)
-            sndist = 6144;
-        if (peekps->cursectnum > -1 && sector[peekps->cursectnum].lotag == 2)
-            pitch -= 1024;
-        break;
-    default:
-        if (sndist > 32767 && PN != MUSICANDSFX && (g_sounds[num].m & 3) == 0)
-            return -1;
-        if (peekps->cursectnum > -1 && sector[peekps->cursectnum].lotag == 2 && (g_sounds[num].m&4) == 0)
-            pitch = -768;
-        break;
-    }
-
     if (peekps->sound_pitch)
         pitch += peekps->sound_pitch;
 
-    if (g_sounds[num].num > 0 && PN != MUSICANDSFX)
-        S_StopEnvSound(num, i);
-
-    if (PN == APLAYER && sprite[i].yvel == screenpeek)
-        sndang = sndist = 0;
+    if (explosionp)
+    {
+        if (peekps->cursectnum > -1 && sector[peekps->cursectnum].lotag == 2)
+            pitch -= 1024;
+    }
     else
     {
-        sndang = 2048 + ca - getangle(c->x-pos->x,c->y-pos->y);
-        sndang &= 2047;
+        if (sndist > 32767 && PN != MUSICANDSFX && (g_sounds[num].m & 3) == 0)
+            return -1;
+
+        if (peekps->cursectnum > -1 && sector[peekps->cursectnum].lotag == 2 && (g_sounds[num].m&4) == 0)
+            pitch = -768;
     }
+
+    if (g_sounds[num].num > 0 && PN != MUSICANDSFX)
+        S_StopEnvSound(num, i);
 
     if (g_sounds[num].ptr == 0)
     {
@@ -520,9 +547,6 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             g_soundlocks[num] = 200;
         else g_soundlocks[num]++;
     }
-
-    if ((g_sounds[num].m&16) || sndist < ((255-LOUDESTVOLUME)<<6))
-        sndist = ((255-LOUDESTVOLUME)<<6);
 
     j = find_free_slot(num);
 
@@ -708,8 +732,8 @@ void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset)
 
 void S_Update(void)
 {
-    vec3_t *s, *c;
-    int32_t sndist,sndang,ca,cs;
+    const vec3_t *c;
+    int32_t ca,cs;
     int32_t num;  // the sound index...
 
     S_Cleanup();
@@ -741,6 +765,7 @@ void S_Update(void)
         for (k=MAXSOUNDINSTANCES-1; k>=0; k--)
         {
             int32_t i = g_sounds[num].SoundOwner[k].ow;
+            int32_t sndist, sndang;
 
             if ((unsigned)i >= MAXSPRITES || g_sounds[num].num == 0 || g_sounds[num].SoundOwner[k].voice <= FX_Ok)
                 continue;
@@ -754,40 +779,10 @@ void S_Update(void)
                 continue;
             }
 
-            s = (vec3_t *)&sprite[i];
-
-            if (PN == APLAYER && sprite[i].yvel == screenpeek)
-                sndang = sndist = 0;
-            else
-            {
-                sndang = 2048 + ca - getangle(c->x-s->x, c->y-s->y);
-                sndang &= 2047;
-                sndist = FindDistance3D(c->x-s->x, c->y-s->y, (c->z-s->z)>>4);
-                if ((g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
-                    sndist = divscale14(sndist,(SHT+1));
-            }
-
-            sndist += g_sounds[num].vo;
-            if (sndist < 0) sndist = 0;
-
-            if (cs > -1 && sndist && PN != MUSICANDSFX && !cansee(c->x,c->y,c->z-(24<<8),cs,SX,SY,SZ-(24<<8),SECT))
-                sndist += sndist>>5;
+            S_CalcDistAndAng(i, num, cs, ca, c, (const vec3_t *)&sprite[i], &sndist, &sndang);
 
             if (PN == MUSICANDSFX && SLT < 999)
                 g_numEnvSoundsPlaying++;
-
-            switch (num)
-            {
-            case PIPEBOMB_EXPLODE:
-            case LASERTRIP_EXPLODE:
-            case RPG_EXPLODE:
-                if (sndist > 6144)
-                    sndist = 6144;
-                break;
-            }
-
-            if ((g_sounds[num].m&16) || sndist < ((255-LOUDESTVOLUME)<<6))
-                sndist = ((255-LOUDESTVOLUME)<<6);
 
             FX_Pan3D(g_sounds[num].SoundOwner[k].voice, sndang>>4, sndist>>6);
         }
