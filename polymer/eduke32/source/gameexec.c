@@ -2457,7 +2457,10 @@ nullquote:
                 if (getrendermode() == 4)
                     polymer_setanimatesprites(G_DoSpriteAnimations, x,y,a,smoothratio);
 #endif
+                yax_preparedrawrooms();
                 drawrooms(x,y,z,a,horiz,sect);
+                yax_drawrooms(G_DoSpriteAnimations, sect, 0, smoothratio);
+
                 display_mirror = 2;
                 G_DoSpriteAnimations(x,y,a,smoothratio);
                 display_mirror = 0;
