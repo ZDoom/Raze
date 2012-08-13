@@ -6037,7 +6037,7 @@ static int32_t adult_tile_p(int32_t pic)
 //#pragma auto_inline(off)
 #pragma optimize("g",off)
 #endif
-void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
+void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothratio)
 {
     int32_t i, j, k, p, sect;
     intptr_t l;
@@ -6111,7 +6111,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     break;
                 }
 #endif
-                k = getofs_viewtype5(t, t, a);
+                k = getofs_viewtype5(t, t, oura);
                 t->picnum = s->picnum+k;
                 break;
             case BLOODSPLAT1__STATIC:
@@ -6283,7 +6283,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                     t->xrepeat = 0;
                 else
                 {
-                    t->ang = getangle(x-t->x,y-t->y);
+                    t->ang = getangle(ourx-t->x, oury-t->y);
                     t->x = sprite[s->owner].x + (sintable[(t->ang+512)&2047]>>10);
                     t->y = sprite[s->owner].y + (sintable[t->ang&2047]>>10);
                 }
@@ -6329,7 +6329,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                 break;
             }
 #endif
-            k = getofs_viewtype7(s, t, getangle(s->x-x,s->y-y));
+            k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury));
             t->picnum = RPG+k;
             break;
 
@@ -6341,7 +6341,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                 break;
             }
 #endif
-            k = getofs_viewtype7(s, t, getangle(s->x-x,s->y-y));
+            k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury));
 
             // RECON_T4
             if (klabs(t_data3) > 64)
@@ -6358,7 +6358,9 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
 
             if (g_player[p].ps->over_shoulder_on > 0 && g_player[p].ps->newowner < 0)
             {
-                t->ang = g_player[p].ps->ang+mulscale16((int32_t)(((g_player[p].ps->ang+1024- g_player[p].ps->oang)&2047)-1024),smoothratio);
+                t->ang = g_player[p].ps->ang +
+                    mulscale16((((g_player[p].ps->ang+1024 - g_player[p].ps->oang)&2047)-1024),
+                               smoothratio);
 #ifdef USE_OPENGL
                 if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0)
                 {
@@ -6456,7 +6458,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                 }
                 else
 #endif
-                    k = getofs_viewtype5(s, t, a);
+                    k = getofs_viewtype5(s, t, oura);
 
                 if (sector[s->sectnum].lotag == 2) k += 1795-1405;
                 else if ((actor[i].floorz-s->z) > (64<<8)) k += 60;
@@ -6509,7 +6511,7 @@ void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio)
                         }
                         else
 #endif
-                            k = getofs_viewtype5(s, t, a);
+                            k = getofs_viewtype5(s, t, oura);
 
                         if (sector[t->sectnum].lotag == 2) k += 1795-1405;
                         else if ((actor[i].floorz-s->z) > (64<<8)) k += 60;
@@ -6604,12 +6606,12 @@ PALONLY:
                 switch (l)
                 {
                 case 2:
-                    k = (((s->ang+3072+128-a)&2047)>>8)&1;
+                    k = (((s->ang+3072+128-oura)&2047)>>8)&1;
                     break;
 
                 case 3:
                 case 4:
-                    k = (((s->ang+3072+128-a)&2047)>>7)&7;
+                    k = (((s->ang+3072+128-oura)&2047)>>7)&7;
                     if (k > 3)
                     {
                         t->cstat |= 4;
@@ -6619,13 +6621,13 @@ PALONLY:
                     break;
 
                 case 5:
-                    k = getofs_viewtype5(s, t, getangle(s->x-x,s->y-y));
+                    k = getofs_viewtype5(s, t, getangle(s->x-ourx, s->y-oury));
                     break;
                 case 7:
-                    k = getofs_viewtype7(s, t, getangle(s->x-x,s->y-y));
+                    k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury));
                     break;
                 case 8:
-                    k = (((s->ang+3072+128-a)&2047)>>8)&7;
+                    k = (((s->ang+3072+128-oura)&2047)>>8)&7;
                     t->cstat &= ~4;
                     break;
                 default:
@@ -6784,7 +6786,7 @@ skip:
             }
             else
 #endif
-                k = getofs_viewtype5(t, t, a);
+                k = getofs_viewtype5(t, t, oura);
 
             t->picnum = s->picnum+k+((T1<4)*5);
             t->shade = sprite[s->owner].shade;
@@ -6839,7 +6841,7 @@ skip:
                 break;
             }
 #endif
-            k = getofs_viewtype5(t, t, a);
+            k = getofs_viewtype5(t, t, oura);
             t->picnum = s->picnum+k;
             break;
         }

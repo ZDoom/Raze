@@ -270,7 +270,7 @@ void G_BackToMenu(void);
 void G_BonusScreen(int32_t bonusonly);
 //void G_CheatGetInv(void);
 void G_DisplayRest(int32_t smoothratio);
-void G_DoSpriteAnimations(int32_t x,int32_t y,int32_t a,int32_t smoothratio);
+void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothratio);
 void G_DrawBackground(void);
 void G_DrawFrags(void);
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio);
