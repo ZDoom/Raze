@@ -96,6 +96,7 @@ static int32_t g_noMusic = 0;
 static const char *CommandMap = NULL;
 static const char *CommandName = NULL;
 int32_t g_forceWeaponChoice = 0;
+int32_t g_fakeMultiMode = 0;
 
 char boardfilename[BMAX_PATH] = {0}, currentboardfilename[BMAX_PATH] = {0};
 
@@ -4796,7 +4797,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case APLAYER__STATIC:
             sp->xrepeat = sp->yrepeat = 0;
             sp->cstat = 32768;
-            if ((!g_netServer && ud.multimode < 2) || ((GametypeFlags[ud.coop] & GAMETYPE_COOPSPAWN)/GAMETYPE_COOPSPAWN) != sp->lotag)
+            if ((!g_netServer && ud.multimode < 2) ||
+                    ((GametypeFlags[ud.coop] & GAMETYPE_COOPSPAWN)/GAMETYPE_COOPSPAWN) != sp->lotag)
                 changespritestat(i,STAT_MISC);
             else
                 changespritestat(i,STAT_PLAYER);
@@ -8968,9 +8970,18 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     }
                     break;
                 case 'q':
-                    initprintf("Fake multiplayer mode.\n");
-                    if (*(++c) == 0) ud.multimode = 1;
-                    else ud.multimode = Batoi(c)%17;
+                    if (*(++c) == 0)
+                    {
+                        ud.multimode = 1;
+                        initprintf("Fake multiplayer mode: expected number after -q, falling back to 1 player.\n");
+                    }
+                    else
+                    {
+                        ud.multimode = Batoi(c)%17;
+                        initprintf("Fake multiplayer mode: %d players.\n", ud.multimode);
+
+                        g_fakeMultiMode = 1;
+                    }
                     ud.m_coop = ud.coop = 0;
                     ud.m_marker = ud.marker = 1;
                     ud.m_respawn_monsters = ud.respawn_monsters = 1;
@@ -10188,7 +10199,22 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 
     numplayers = 1;
-    connectpoint2[0] = -1;
+
+    if (!g_fakeMultiMode)
+    {
+        connectpoint2[0] = -1;
+    }
+    else
+    {
+        playerswhenstarted = ud.multimode;
+
+        for (i=0; i<ud.multimode-1; i++)
+            connectpoint2[i] = i+1;
+        connectpoint2[ud.multimode-1] = -1;
+
+        for (i=1; i<ud.multimode; i++)
+            g_player[i].playerquitflag = 1;
+    }
 
     Net_GetPackets();
 

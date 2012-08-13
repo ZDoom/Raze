@@ -3058,6 +3058,9 @@ nullquote:
                     g_cameraClock = totalclock;
                 }
 
+                if (g_fakeMultiMode)
+                    P_ResetPlayer(vm.g_p);
+
                 if (g_netServer)
                 {
                     int32_t jj = 0;

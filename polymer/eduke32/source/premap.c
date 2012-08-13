@@ -1649,7 +1649,10 @@ static void resetpspritevars(char g)
             s->shade = 0;
             s->xrepeat = 42;
             s->yrepeat = 36;
-            s->cstat = j < numplayers ? 1+256 : 32768;
+            if (!g_fakeMultiMode)
+                s->cstat = j < numplayers ? 1+256 : 32768;
+            else
+                s->cstat = 1+256;
             s->xoffset = 0;
             s->clipdist = 64;
 
