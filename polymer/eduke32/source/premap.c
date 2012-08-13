@@ -1727,13 +1727,7 @@ static inline void clearfrags(void)
         playerdata_t *p = &g_player[i];
 
         p->ps->frag = p->ps->fraggedself = 0;
-
-        if (i == 0)
-            continue;
-
-        Bmemset(p->frags, 0, sizeof(g_player[i].frags));
-        Bmemset(p->wchoice, 0, sizeof(g_player[i].wchoice));
-        p->vote = p->gotvote = p->pingcnt = p->playerquitflag = 0;
+        Bmemset(p->frags, 0, sizeof(p->frags));
     }
 }
 
