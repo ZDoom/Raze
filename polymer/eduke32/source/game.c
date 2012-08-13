@@ -2594,8 +2594,8 @@ void G_DisplayRest(int32_t smoothratio)
     palette_t tempFade = { 0, 0, 0, 0 };
     palette_t tempTint = { 0, 0, 0, 0 };
 
-    DukePlayer_t *pp = g_player[screenpeek].ps;
-    walltype *wal;
+    DukePlayer_t *const pp = g_player[screenpeek].ps;
+    DukePlayer_t *const pp2 = g_fakeMultiMode && ud.multimode==2 ? g_player[1].ps : NULL;
     int32_t cposx, cposy, cang;
 
 #ifdef USE_OPENGL
@@ -2631,6 +2631,12 @@ void G_DisplayRest(int32_t smoothratio)
         g_restorePalette = -1;     // JBF 20040101; PK: reset tinting (-1)
         applyTint = 1;
     }
+    else if (pp2 && pp2->pals.f > 0 && pp2->loogcnt == 0)
+    {
+        Bmemcpy(&tempFade, &pp2->pals, sizeof(palette_t));
+        g_restorePalette = -1;
+        applyTint = 1;
+    }
 //        lastpalsf = pp->pals.f;
 //    }
     // reset a normal palette
@@ -2654,6 +2660,12 @@ void G_DisplayRest(int32_t smoothratio)
     else if (pp->pals.f==0 && pp->loogcnt > 0)
     {
         palette_t lp = { 0, 64, 0, pp->loogcnt>>1 };
+        Bmemcpy(&tempFade, &lp, sizeof(palette_t));
+        applyTint = 1;
+    }
+    else if (pp2 && pp2->pals.f==0 && pp2->loogcnt > 0)
+    {
+        palette_t lp = { 0, 64, 0, pp2->loogcnt>>1 };
         Bmemcpy(&tempFade, &lp, sizeof(palette_t));
         applyTint = 1;
     }
@@ -2694,8 +2706,9 @@ void G_DisplayRest(int32_t smoothratio)
     i = pp->cursectnum;
     if (i > -1)
     {
+        const walltype *wal = &wall[sector[i].wallptr];
+
         show2dsector[i>>3] |= (1<<(i&7));
-        wal = &wall[sector[i].wallptr];
         for (j=sector[i].wallnum; j>0; j--,wal++)
         {
             i = wal->nextsector;
