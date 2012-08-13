@@ -6896,15 +6896,8 @@ skip:
 
     if (apScriptGameEvent[EVENT_ANIMATESPRITES])
     {
-        j = spritesortcnt-1;
-
-        do
+        for (j = spritesortcnt-1; j>=0; j--)
             G_DoEventAnimSprites(j);
-        while (j--);
-
-        if (j < 0) return;
-
-        G_DoEventAnimSprites(j);
     }
 }
 #if 0 // def _MSC_VER
