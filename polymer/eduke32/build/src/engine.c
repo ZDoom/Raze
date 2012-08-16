@@ -13516,6 +13516,8 @@ restart_grand:
 #endif
 }
 
+int32_t setaspect_new_use_dimen = 0;
+
 void setaspect_new()
 {
     if (r_usenewaspect && newaspect_enable && getrendermode()!=4)
@@ -13525,6 +13527,9 @@ void setaspect_new()
         int32_t vr, yx=(65536*4*100)/(3*107);
         int32_t y, x;
 
+        const int32_t xd = setaspect_new_use_dimen ? xdimen : xdim;
+        const int32_t yd = setaspect_new_use_dimen ? ydimen : ydim;
+
         if (fullscreen)
         {
             int32_t pixratio;
@@ -13532,13 +13537,13 @@ void setaspect_new()
             x=r_screenxy/100; y=r_screenxy%100;
             if (y==0 || x==0) { x=4; y=3; }
 
-            pixratio = divscale16(xdimen*y, ydimen*x);
+            pixratio = divscale16(xd*y, yd*x);
             yx = divscale16(yx, pixratio);
         }
         else
         {
-            x = xdimen;
-            y = ydimen;
+            x = xd;
+            y = yd;
         }
 
         vr = divscale16(x*3, y*4);

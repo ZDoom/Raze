@@ -2448,7 +2448,11 @@ nullquote:
                 {
                     int32_t o = newaspect_enable;
                     newaspect_enable = r_usenewaspect;
+                    setaspect_new_use_dimen = 1;
+
                     setview(x1,y1,x2,y2);
+
+                    setaspect_new_use_dimen = 0;
                     newaspect_enable = o;
                 }
 
