@@ -60,51 +60,47 @@ gamevar pcolor 0 0 // Used to display quotes with player color
 gamevar p1heat 0 0 // Common night vision googles
 gamevar p2heat 0 0
 
-gamevar pcard 0 0 // Access cards
-
 
 // Crosshair need to be redone for two players
 onevent EVENT_DISPLAYCROSSHAIR
   setvar RETURN -1
 endevent
 
-// For some reasons, next and previous weapon actions will never pick expander or foot
+
+define KNEE_WEAPON 0
+define PISTOL_WEAPON 1
+define SHOTGUN_WEAPON 2
+define CHAINGUN_WEAPON 3
+define RPG_WEAPON 4
+define HANDBOMB_WEAPON 5
+define SHRINKER_WEAPON 6
+define DEVISTATOR_WEAPON 7
+define TRIPBOMB_WEAPON 8
+define FREEZE_WEAPON 9
+define HANDREMOTE_WEAPON 10
+define GROW_WEAPON 11
+
+// Next and previous weapon actions will never pick the expander.
 onevent EVENT_NEXTWEAPON
   getplayer[THISACTOR].curr_weapon pweapon
-  ifvare pweapon 11
-  {
-    setplayer[THISACTOR].curr_weapon 7
-    setvar RETURN -1
-  }
-  else ifvare pweapon 9
-  {
-    setplayer[THISACTOR].curr_weapon 0
-    setvar RETURN -1
-  }
-  else ifvare pweapon 6
-  {
-    setplayer[THISACTOR].curr_weapon 11
-    setvar RETURN -1
-  }
+  ifvare pweapon GROW_WEAPON
+    setvar RETURN DEVISTATOR_WEAPON
+  else ifvare pweapon SHRINKER_WEAPON
+    setvar RETURN SHRINKER_WEAPON  // select expander
 endevent
 
 onevent EVENT_PREVIOUSWEAPON
   getplayer[THISACTOR].curr_weapon pweapon
-  ifvare pweapon 11
+  ifvare pweapon DEVISTATOR_WEAPON
   {
-    setplayer[THISACTOR].curr_weapon 6
-    setvar RETURN -1
+      // Select expander. We can't return GROW_WEAPON, because it means
+      // 'next weapon' here.
+      // Ugly, because the shrinker is displayed for a split second.
+      setplayer[THISACTOR].curr_weapon SHRINKER_WEAPON
+      setvar RETURN SHRINKER_WEAPON
   }
-  else ifvare pweapon 1
-  {
-    setplayer[THISACTOR].curr_weapon 0
-    setvar RETURN -1
-  }
-  else ifvare pweapon 7
-  {
-    setplayer[THISACTOR].curr_weapon 11
-    setvar RETURN -1
-  }
+  else ifvare pweapon GROW_WEAPON
+    setvar RETURN SHRINKER_WEAPON
 endevent
 
 // Disable all the following keys, need room for player 2
@@ -267,7 +263,7 @@ endevent
 
 
 // orientation bits for the crosshairs
-define ORIENT 1024  // 26
+define ORIENT 1032  // 26
 
 // gametext args
 define P1X 4
@@ -325,15 +321,6 @@ onevent EVENT_DISPLAYROOMS
       setgamepalette 0
   else
     setgamepalette 2
-
-
-// This part was for showing keycards, but I don't know how to check if player has a keycard
-/*
-  getplayer[THISACTOR].got_access pcard
-  ifvare pcard 1 rotatesprite 150 178 65536 0 ACCESS_ICON 0 0 10 0 0 xdim ydim
-  ifvare pcard 2 rotatesprite 150 185 65536 0 ACCESS_ICON 0 0 10 0 0 xdim ydim
-  ifvare pcard 3 rotatesprite 150 192 65536 0 ACCESS_ICON 0 0 10 0 0 xdim ydim
-*/
 
   getactor[THISACTOR].pal pcolor
   getplayer[THISACTOR].ftq pftq
