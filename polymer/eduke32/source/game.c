@@ -3354,7 +3354,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     if (pub > 0 || getrendermode() >= 3) // JBF 20040101: redraw background always
     {
-        if (getrendermode() >= 3 || ud.screen_size > 8 || (ud.screen_size == 8 && ud.statusbarscale<100))
+        if (ud.screen_size >= 8)
             G_DrawBackground();
         pub = 0;
     }
