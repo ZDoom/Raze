@@ -5638,10 +5638,11 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
             x = xdimenscale;   //= scale(xdimen,yxaspect,320);
 
-            if (!(dastat & 1024) && ((double)ydim/(double)xdim) <= .75f)
+            if (!(dastat & 1024) && 4*ydim <= 3*xdim)
             {
-                xdim = (int32_t)((double)ydim * 1.33333333333333334f);
-                setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+                xdim = (4*ydim)/3;
+                // aspect is divscale16(ydim*320, xdim*200)
+                setaspect(65536, (12<<16)/10);
             }
 
             sthelse = scale(sx-(320<<15), scale(xdimen, xdim, oxdim), 320);
@@ -5670,10 +5671,10 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             const int32_t oxdim = xdim;
             int32_t xdim = oxdim;  // SHADOWS global
 
-            if (!(dastat & 1024) && ((double)ydim/(double)xdim) <= .75f)
+            if (!(dastat & 1024) && 4*ydim <= 3*xdim)
             {
-                xdim = (int32_t)((double)ydim * 1.33333333333333334f);
-                setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+                xdim = (4*ydim)/3;
+                setaspect(65536, (12<<16)/10);
             }
 
             x = scale(xdim,yxaspect,320);
@@ -5688,10 +5689,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
         z = mulscale16(z,x);
     }
-    else if (!(dastat & 1024) && ((double)ydim/(double)xdim) <= .75f)
+    else if (!(dastat & 1024) && 4*ydim <= 3*xdim)
     {
-        const int32_t ydim = (int32_t)((double)xdim * 0.75f);  // SHADOWS global
-        setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
+        setaspect(65536, (12<<16)/10);
     }
 
     d = (double)z/(65536.0*16384.0);
