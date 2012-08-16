@@ -1173,8 +1173,11 @@ static int32_t G_GetInvOn(const DukePlayer_t *p)
 static void G_DrawStatusBar(int32_t snum)
 {
     const DukePlayer_t *const p = g_player[snum].ps;
-    int32_t i, j, o, ss = ud.screen_size, u;
+    int32_t i, j, o, u;
     int32_t permbit = 0;
+
+    const int32_t ss = g_fakeMultiMode ? 4 : ud.screen_size;
+    const int32_t althud = g_fakeMultiMode ? 0 : ud.althud;
 
     const int32_t SBY = (200-tilesizy[BOTTOMSTATUSBAR]);
 
@@ -1195,7 +1198,7 @@ static void G_DrawStatusBar(int32_t snum)
 
     if (getrendermode() >= 3) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
 
-    if ((g_netServer || (g_netServer || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+    if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
     {
         if (pus)
             G_DrawFrags();
@@ -1216,8 +1219,10 @@ static void G_DrawStatusBar(int32_t snum)
 
     if (ss == 4)   //DRAW MINI STATUS BAR:
     {
-        if (ud.althud) // althud
+        if (althud)
         {
+            // ALTERNATIVE STATUS BAR
+
             static int32_t ammo_sprites[MAX_WEAPONS];
 
             if (ammo_sprites[0] == 0)
@@ -1328,48 +1333,52 @@ static void G_DrawStatusBar(int32_t snum)
                     minitext(284-35-o,180-3,"Auto",2, orient+ROTATESPRITE_MAX);
                 }
             }
-            return;
         }
-
-        rotatesprite_fs(sbarx(5),sbary(200-28),sb16,0,HEALTHBOX,0,21,10+16+256);
-        if (p->inven_icon)
-            rotatesprite_fs(sbarx(69),sbary(200-30),sb16,0,INVENTORYBOX,0,21,10+16+256);
-
-        if (sprite[p->i].pal == 1 && p->last_extra < 2) // frozen
-            G_DrawDigiNum(20,200-17,1,-16,10+16+256);
-        else G_DrawDigiNum(20,200-17,p->last_extra,-16,10+16+256);
-
-        rotatesprite_fs(sbarx(37),sbary(200-28),sb16,0,AMMOBOX,0,21,10+16+256);
-
-        if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
-        else i = p->curr_weapon;
-        G_DrawDigiNum(53,200-17,p->ammo_amount[i],-16,10+16+256);
-
-        o = 158;
-        permbit = 0;
-        if (p->inven_icon)
+        else
         {
-            const int32_t orient = 10+16+permbit+256;
+            // ORIGINAL MINI STATUS BAR
 
-            i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
-            if (i >= 0)
-                rotatesprite_fs(sbarx(231-o),sbary(200-21),sb16,0,i,0,0, orient);
+            rotatesprite_fs(sbarx(5),sbary(200-28),sb16,0,HEALTHBOX,0,21,10+16+256);
+            if (p->inven_icon)
+                rotatesprite_fs(sbarx(69),sbary(200-30),sb16,0,INVENTORYBOX,0,21,10+16+256);
 
-            minitext(292-30-o,190,"%",6, orient+ROTATESPRITE_MAX);
+            if (sprite[p->i].pal == 1 && p->last_extra < 2) // frozen
+                G_DrawDigiNum(20,200-17,1,-16,10+16+256);
+            else G_DrawDigiNum(20,200-17,p->last_extra,-16,10+16+256);
 
-            i = G_GetInvAmount(p);
-            j = G_GetInvOn(p);
+            rotatesprite_fs(sbarx(37),sbary(200-28),sb16,0,AMMOBOX,0,21,10+16+256);
 
-            G_DrawInvNum(284-30-o,200-6,(uint8_t)i,0,10+permbit+256);
+            if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
+            else i = p->curr_weapon;
+            G_DrawDigiNum(53,200-17,p->ammo_amount[i],-16,10+16+256);
 
-            if (j > 0)
-                minitext(288-30-o,180,"On",0, orient+ROTATESPRITE_MAX);
-            else if ((uint32_t)j != 0x80000000)
-                minitext(284-30-o,180,"Off",2, orient+ROTATESPRITE_MAX);
+            o = 158;
+            permbit = 0;
+            if (p->inven_icon)
+            {
+                const int32_t orient = 10+16+permbit+256;
 
-            if (p->inven_icon >= 6)
-                minitext(284-35-o,180,"Auto",2, orient+ROTATESPRITE_MAX);
+                i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
+                if (i >= 0)
+                    rotatesprite_fs(sbarx(231-o),sbary(200-21),sb16,0,i,0,0, orient);
+
+                minitext(292-30-o,190,"%",6, orient+ROTATESPRITE_MAX);
+
+                i = G_GetInvAmount(p);
+                j = G_GetInvOn(p);
+
+                G_DrawInvNum(284-30-o,200-6,(uint8_t)i,0,10+permbit+256);
+
+                if (j > 0)
+                    minitext(288-30-o,180,"On",0, orient+ROTATESPRITE_MAX);
+                else if ((uint32_t)j != 0x80000000)
+                    minitext(284-30-o,180,"Off",2, orient+ROTATESPRITE_MAX);
+
+                if (p->inven_icon >= 6)
+                    minitext(284-35-o,180,"Auto",2, orient+ROTATESPRITE_MAX);
+            }
         }
+
         return;
     }
 
@@ -10662,7 +10671,8 @@ int32_t G_DoMoveThings(void)
         }
     }
 
-//    everyothertime++;   moved lower so it is restored correctly by diffs
+    // Moved lower so it is restored correctly by diffs:
+//    everyothertime++;
 
     if (g_netServer || g_netClient)
         randomseed = ticrandomseed;

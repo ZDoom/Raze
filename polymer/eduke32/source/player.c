@@ -4409,8 +4409,8 @@ static void getzsofslope_player(int16_t sectnum, int32_t dax, int32_t day, int32
 
 void P_ProcessInput(int32_t snum)
 {
-    DukePlayer_t *p = g_player[snum].ps;
-    spritetype *s = &sprite[p->i];
+    DukePlayer_t *const p = g_player[snum].ps;
+    spritetype *const s = &sprite[p->i];
 
     uint32_t sb_snum = g_player[snum].sync->bits;
 
