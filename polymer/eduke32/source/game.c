@@ -1338,44 +1338,51 @@ static void G_DrawStatusBar(int32_t snum)
         {
             // ORIGINAL MINI STATUS BAR
 
-            rotatesprite_fs(sbarx(5),sbary(200-28),sb16,0,HEALTHBOX,0,21,10+16+256);
+            const int32_t ofs = (g_fakeMultiMode && snum==1) ? 160 : 0, ofssh=ofs<<16;
+            int32_t orient = 10+16+256 + (g_fakeMultiMode?1024:0);
+
+            rotatesprite_fs(ofssh+sbarx(5),sbary(200-28),sb16,0,HEALTHBOX,0,21,orient);
             if (p->inven_icon)
-                rotatesprite_fs(sbarx(69),sbary(200-30),sb16,0,INVENTORYBOX,0,21,10+16+256);
+                rotatesprite_fs(ofssh+sbarx(69),sbary(200-30),sb16,0,INVENTORYBOX,0,21,orient);
 
+            // health
             if (sprite[p->i].pal == 1 && p->last_extra < 2) // frozen
-                G_DrawDigiNum(20,200-17,1,-16,10+16+256);
-            else G_DrawDigiNum(20,200-17,p->last_extra,-16,10+16+256);
+                G_DrawDigiNum(ofs+20,200-17,1,-16,orient);
+            else G_DrawDigiNum(ofs+20,200-17,p->last_extra,-16,orient);
 
-            rotatesprite_fs(sbarx(37),sbary(200-28),sb16,0,AMMOBOX,0,21,10+16+256);
+            rotatesprite_fs(ofssh+sbarx(37),sbary(200-28),sb16,0,AMMOBOX,0,21,orient);
 
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
             else i = p->curr_weapon;
-            G_DrawDigiNum(53,200-17,p->ammo_amount[i],-16,10+16+256);
+            G_DrawDigiNum(ofs+53,200-17,p->ammo_amount[i],-16,orient);
 
             o = 158;
             permbit = 0;
             if (p->inven_icon)
             {
-                const int32_t orient = 10+16+permbit+256;
+//                orient += permbit;
 
                 i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
                 if (i >= 0)
-                    rotatesprite_fs(sbarx(231-o),sbary(200-21),sb16,0,i,0,0, orient);
+                    rotatesprite_fs(ofssh+sbarx(231-o),sbary(200-21),sb16,0,i,0,0, orient);
 
-                minitext(292-30-o,190,"%",6, orient+ROTATESPRITE_MAX);
+                if (!g_fakeMultiMode)
+                    orient |= ROTATESPRITE_MAX;
+
+                minitext(ofs+292-30-o,190,"%",6, orient);
 
                 i = G_GetInvAmount(p);
                 j = G_GetInvOn(p);
 
-                G_DrawInvNum(284-30-o,200-6,(uint8_t)i,0,10+permbit+256);
+                G_DrawInvNum(ofs+284-30-o,200-6,(uint8_t)i,0, orient&~16);
 
                 if (j > 0)
-                    minitext(288-30-o,180,"On",0, orient+ROTATESPRITE_MAX);
+                    minitext(ofs+288-30-o,180,"On",0, orient);
                 else if ((uint32_t)j != 0x80000000)
-                    minitext(284-30-o,180,"Off",2, orient+ROTATESPRITE_MAX);
+                    minitext(ofs+284-30-o,180,"Off",2, orient);
 
                 if (p->inven_icon >= 6)
-                    minitext(284-35-o,180,"Auto",2, orient+ROTATESPRITE_MAX);
+                    minitext(ofs+284-35-o,180,"Auto",2, orient);
             }
         }
 
@@ -2695,6 +2702,10 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (VM_OnEvent(EVENT_DISPLAYSBAR, g_player[screenpeek].ps->i, screenpeek, -1, 0) == 0)
         G_DrawStatusBar(screenpeek);
+
+    // HACK
+    if (g_fakeMultiMode && ud.multimode==2)
+        G_DrawStatusBar(1);
 
     G_PrintGameQuotes();
 
