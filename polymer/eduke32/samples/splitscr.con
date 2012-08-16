@@ -52,13 +52,7 @@ gamevar pangsin 0 0 // Sinus of player angle
 gamevar pinput 0 0 // Set to input, used in the PROCESSINPUT event
 
 gamevar pcrosshair 0 0 // Do you like crosshairs? Game options will tell.
-gamevar phealth 0 0 // Player health
 gamevar pweapon 0 0 // Player weapon
-gamevar pammo 0 0 // Player ammo
-gamevar pinv 0 0 // Player inventory
-gamevar pinvv 0 0 // Item amount
-gamevar pinva 0 0 // Item activated?
-gamevar pinvvx 0 0 // Sometimes, item icons must be realigned
 gamevar pfta 0 0 // Both used for quotes
 gamevar pftq 0 0
 gamevar pcolor 0 0 // Used to display quotes with player color
@@ -320,54 +314,7 @@ onevent EVENT_DISPLAYROOMS
   }
 
 
-// Draw weapon icons
-  getplayer[THISACTOR].curr_weapon pweapon
-  ifvare pweapon 1
-    rotatesprite 80 165 32768 0 FIRSTGUNSPRITE 0 0 10 0 0 xdim ydim // Pistol
-  ifvare pweapon 2
-    rotatesprite 80 165 32768 0 SHOTGUNSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 3
-    rotatesprite 80 165 32768 0 CHAINGUNSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 4
-    rotatesprite 80 165 32768 0 RPGSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 5
-    rotatesprite 80 165 16384 0 HEAVYHBOMB 0 0 10 0 0 xdim ydim
-  ifvare pweapon 6
-    rotatesprite 80 165 32768 0 SHRINKERSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 7
-    rotatesprite 80 165 32768 0 DEVISTATORSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 8
-    rotatesprite 80 165 32768 0 TRIPBOMBSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 9
-    rotatesprite 80 165 32768 0 FREEZESPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 10
-    rotatesprite 80 165 16384 0 HEAVYHBOMB 0 0 10 0 0 xdim ydim // Pipebomb detonator
-  ifvare pweapon 11
-    rotatesprite 80 165 32768 0 GROWSPRITEICON 0 0 10 0 0 xdim ydim
-
-  getplayer[pid].curr_weapon pweapon
-  ifvare pweapon 1
-    rotatesprite 240 165 32768 0 FIRSTGUNSPRITE 0 0 10 0 0 xdim ydim // Pistol
-  ifvare pweapon 2
-    rotatesprite 240 165 32768 0 SHOTGUNSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 3
-    rotatesprite 240 165 32768 0 CHAINGUNSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 4
-    rotatesprite 240 165 32768 0 RPGSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 5
-    rotatesprite 240 165 16384 0 HEAVYHBOMB 0 0 10 0 0 xdim ydim
-  ifvare pweapon 6
-    rotatesprite 240 165 32768 0 SHRINKERSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 7
-    rotatesprite 240 165 32768 0 DEVISTATORSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 8
-    rotatesprite 240 165 32768 0 TRIPBOMBSPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 9
-    rotatesprite 240 165 32768 0 FREEZESPRITE 0 0 10 0 0 xdim ydim
-  ifvare pweapon 10
-    rotatesprite 240 165 16384 0 HEAVYHBOMB 0 0 10 0 0 xdim ydim // Pipebomb detonator
-  ifvare pweapon 11
-    rotatesprite 240 165 32768 0 GROWSPRITEICON 0 0 10 0 0 xdim ydim
+  // NOTE: weapons are drawn for both players now (EDuke32 hack)
 
 
   // Common night vision googles
