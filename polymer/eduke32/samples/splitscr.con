@@ -3,6 +3,9 @@
 Duke Nukem 3D SplitScreen mod
 Beta 1
 By Bloodclaw
+
+Modified from original for use with EDuke32 SVN.
+Usage: eduke32 splitscr.con -q2
 --------------------------------------------------------------------------------
 */
 
@@ -33,35 +36,37 @@ definegamefuncname 27 P2_Previous_Weapon
 definegamefuncname 28 P2_Next_Weapon
 
 
-gamevar pid 1 1 // This hold player 2 id
-gamevar pnum 0 1 // This is set to player 2 sprite number
-gamevar px 0 1 // Player (both 1 and 2) X coordinate
-gamevar py 0 1 // Player Y coordinate
-gamevar pz 0 1 // Player Z coordinate
-gamevar psect 0 1 // Player sector number
-gamevar pang 0 1 // Player angle
-gamevar phoriz 0 1 // Player vertical angle
-gamevar phorizoff 0 1 // Something similar
-gamevar pangcos 0 1 // Cosinus of player angle (used for player 2 movements)
-gamevar pangsin 0 1 // Sinus of player angle
-gamevar pinput 0 1 // Set to input, used in the PROCESSINPUT event
+gamevar pid 1 0 // This hold player 2 id
+gamevar pnum 0 0 // This is set to player 2 sprite number
 
-gamevar pcrosshair 0 1 // Do you like crosshairs? Game options will tell.
-gamevar phealth 0 1 // Player health
-gamevar pweapon 0 1 // Player weapon
-gamevar pammo 0 1 // Player ammo
-gamevar pinv 0 1 // Player inventory
-gamevar pinvv 0 1 // Item amount
-gamevar pinva 0 1 // Item activated?
-gamevar pinvvx 0 1 // Sometimes, item icons must be realigned
-gamevar pfta 0 1 // Both used for quotes
-gamevar pftq 0 1
-gamevar pcolor 0 1 // Used to display quotes with player color
+// Temp variables
+gamevar px 0 0 // Player (both 1 and 2) X coordinate
+gamevar py 0 0 // Player Y coordinate
+gamevar pz 0 0 // Player Z coordinate
+gamevar psect 0 0 // Player sector number
+gamevar pang 0 0 // Player angle
+gamevar phoriz 0 0 // Player vertical angle
+gamevar phorizoff 0 0 // Something similar
+gamevar pangcos 0 0 // Cosinus of player angle (used for player 2 movements)
+gamevar pangsin 0 0 // Sinus of player angle
+gamevar pinput 0 0 // Set to input, used in the PROCESSINPUT event
 
-gamevar p1heat 0 1 // Common night vision googles
-gamevar p2heat 0 1
+gamevar pcrosshair 0 0 // Do you like crosshairs? Game options will tell.
+gamevar phealth 0 0 // Player health
+gamevar pweapon 0 0 // Player weapon
+gamevar pammo 0 0 // Player ammo
+gamevar pinv 0 0 // Player inventory
+gamevar pinvv 0 0 // Item amount
+gamevar pinva 0 0 // Item activated?
+gamevar pinvvx 0 0 // Sometimes, item icons must be realigned
+gamevar pfta 0 0 // Both used for quotes
+gamevar pftq 0 0
+gamevar pcolor 0 0 // Used to display quotes with player color
 
-gamevar pcard 0 1 // Access cards
+gamevar p1heat 0 0 // Common night vision googles
+gamevar p2heat 0 0
+
+gamevar pcard 0 0 // Access cards
 
 
 // Following states are used in the hud
@@ -302,31 +307,23 @@ onevent EVENT_PROCESSINPUT // I had to use this event in case player 1 die
 endevent
 
 
+onevent EVENT_DISPLAYSBAR
+    setvar RETURN 1  // don't display status bar
+endevent
+
+onevent EVENT_DISPLAYROOMS
+    setvar RETURN 1  // don't display them...
+endevent
+
+// orientation bits for the crosshairs
+define ORIENT 1024  // 26
+
+// gametext args
+define P1X 4
+define P2X 164
+
 onevent EVENT_DISPLAYREST
-
 setplayer[THISACTOR].rotscrnang 0 // (almost) Prevent the screen rotation when player 1 die
-
-// This part just add a background
-rotatesprite 0 0 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 64 0 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 128 0 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 192 0 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 256 0 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 0 64 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 64 64 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 128 64 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 192 64 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 256 64 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 0 128 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 64 128 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 128 128 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 192 128 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 256 128 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 0 192 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 64 192 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 128 192 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 192 192 32768 0 1141 0 4 26 0 0 xdim ydim
-rotatesprite 256 192 32768 0 1141 0 4 26 0 0 xdim ydim
 
 // Took this code from the wiki
 // It show player 1 view
@@ -338,7 +335,8 @@ rotatesprite 256 192 32768 0 1141 0 4 26 0 0 xdim ydim
   getplayer[THISACTOR].horizoff phorizoff
   addvarvar phoriz phorizoff
   updatesectorz px py pz psect
-  showview px py pz pang phoriz psect 1 1 160 199
+  ifvarg psect -1
+    showviewunbiased px py pz pang phoriz psect 0 0 160 199
 // -------------------------------------
 // Player 2 view
   getplayer[pid].posx px
@@ -349,15 +347,16 @@ rotatesprite 256 192 32768 0 1141 0 4 26 0 0 xdim ydim
   getplayer[pid].horizoff phorizoff
   addvarvar phoriz phorizoff
   updatesectorz px py pz psect
-  showview px py pz pang phoriz psect 160 1 319 199
+  ifvarg psect -1
+    showviewunbiased px py pz pang phoriz psect 160 0 319 199
 // -------------------------------------
 
 // Draw crosshairs if they are enabled
   getuserdef[THISACTOR].crosshair pcrosshair
   ifvare pcrosshair 1
   {
-    rotatesprite 80 100 32768 0 CROSSHAIR 0 0 26 0 0 xdim ydim
-    rotatesprite 240 100 32768 0 CROSSHAIR 0 0 26 0 0 xdim ydim
+    rotatesprite 80 100 32768 0 CROSSHAIR 0 0 ORIENT 0 0 xdim ydim
+    rotatesprite 240 100 32768 0 CROSSHAIR 0 0 ORIENT 0 0 xdim ydim
   }
 
 
@@ -570,17 +569,15 @@ rotatesprite 256 192 32768 0 1141 0 4 26 0 0 xdim ydim
   ifvare pcard 3 rotatesprite 150 192 65536 0 ACCESS_ICON 0 0 10 0 0 xdim ydim
 */
 
-
   getactor[THISACTOR].pal pcolor
   getplayer[THISACTOR].ftq pftq
   getplayer[THISACTOR].fta pfta
   ifvarn pfta 0
-    gametext STARTALPHANUM 4 2 pftq 0 pcolor 26 0 0 xdim ydim
+    gametext STARTALPHANUM P1X 2 pftq 0 pcolor 26 0 0 xdim ydim
+
   getactor[pnum].pal pcolor
   getplayer[pid].ftq pftq
   getplayer[pid].fta pfta
   ifvarn pfta 0
-    gametext STARTALPHANUM 4 10 pftq 0 pcolor 26 0 0 xdim ydim
-
-
+    gametext STARTALPHANUM P2X 2 pftq 0 pcolor 26 0 0 xdim ydim
 endevent
