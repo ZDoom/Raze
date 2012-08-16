@@ -5623,76 +5623,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     }
     if (dastat&4) yoff = ysiz-yoff;
 
-    if (dastat&2)  //Auto window size scaling
-    {
-        int32_t x;
-
-        // nasty hacks go here
-        if (!(dastat&8))
-        {
-            const int32_t cxs = cx1+cx2+2;
-            int32_t sthelse;
-
-            const int32_t oxdim = xdim;
-            int32_t xdim = oxdim;  // SHADOWS global
-
-            x = xdimenscale;   //= scale(xdimen,yxaspect,320);
-
-            if (!(dastat & 1024) && 4*ydim <= 3*xdim)
-            {
-                xdim = (4*ydim)/3;
-                // aspect is divscale16(ydim*320, xdim*200)
-                setaspect(65536, (12<<16)/10);
-            }
-
-            sthelse = scale(sx-(320<<15), scale(xdimen, xdim, oxdim), 320);
-
-            {
-                int32_t xbord = 0;
-
-                if (dastat & (256|512))
-                {
-                    xbord = scale(oxdim-xdim, cxs, oxdim);
-
-                    if ((dastat & 512)==0)
-                        xbord = -xbord;
-                }
-
-                sx = ((cxs+xbord)<<15) + sthelse;
-            }
-
-            sy = ((cy1+cy2+2)<<15)+mulscale16(sy-(200<<15),x);
-        }
-        else
-        {
-            //If not clipping to startmosts, & auto-scaling on, as a
-            //hard-coded bonus, scale to full screen instead
-
-            const int32_t oxdim = xdim;
-            int32_t xdim = oxdim;  // SHADOWS global
-
-            if (!(dastat & 1024) && 4*ydim <= 3*xdim)
-            {
-                xdim = (4*ydim)/3;
-                setaspect(65536, (12<<16)/10);
-            }
-
-            x = scale(xdim,yxaspect,320);
-            sx = (xdim<<15)+32768+scale(sx-(320<<15),xdim,320);
-            sy = (ydim<<15)+32768+mulscale16(sy-(200<<15),x);
-
-            if (dastat & 512)
-                sx += (oxdim-xdim)<<16;
-            else if ((dastat & 256) == 0)
-                sx += (oxdim-xdim)<<15;
-        }
-
-        z = mulscale16(z,x);
-    }
-    else if (!(dastat & 1024) && 4*ydim <= 3*xdim)
-    {
-        setaspect(65536, (12<<16)/10);
-    }
+    z = dorotspr_handle_bit2(&sx, &sy, z, dastat, cx1, cy1, cx2, cy2);
 
     d = (double)z/(65536.0*16384.0);
     cosang2 = cosang = (double)sintable[(a+512)&2047]*d;

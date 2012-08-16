@@ -77,6 +77,9 @@ extern palette_t palookupfog[MAXPALOOKUPS];
 int32_t wallfront(int32_t l1, int32_t l2);
 int32_t animateoffs(int16_t tilenum, int16_t fakevar);
 
+int32_t dorotspr_handle_bit2(int32_t *sx, int32_t *sy, int32_t z, int32_t dastat,
+                             int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
+
 ////// yax'y stuff //////
 #ifdef USE_OPENGL
 extern void polymost_scansector(int32_t sectnum);

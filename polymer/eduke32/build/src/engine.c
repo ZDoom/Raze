@@ -6844,6 +6844,92 @@ static int32_t clippoly4(int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 }
 
 
+// INTERNAL helper function for classic/polymost dorotatesprite
+int32_t dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t z, int32_t dastat,
+                             int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
+{
+    int32_t x, sx, sy;
+
+    if ((dastat&2) == 0)
+        if (!(dastat & 1024) && 4*ydim <= 3*xdim)
+        {
+            setaspect(65536, (12<<16)/10);
+            // *sxptr and *syptr are left unchanged
+            return z;
+        }
+
+    // dastat&2: Auto window size scaling
+
+    sx = *sxptr;
+    sy = *syptr;
+
+    // nasty hacks go here
+    if (!(dastat&8))
+    {
+        const int32_t cxs = cx1+cx2+2;
+        int32_t sthelse;
+
+        const int32_t oxdim = xdim;
+        int32_t xdim = oxdim;  // SHADOWS global
+
+        x = xdimenscale;   //= scale(xdimen,yxaspect,320);
+
+        if (!(dastat & 1024) && 4*ydim <= 3*xdim)
+        {
+            xdim = (4*ydim)/3;
+            // aspect is divscale16(ydim*320, xdim*200)
+            setaspect(65536, (12<<16)/10);
+        }
+
+        sthelse = scale(sx-(320<<15), scale(xdimen, xdim, oxdim), 320);
+
+        {
+            int32_t xbord = 0;
+
+            if (dastat & (256|512))
+            {
+                xbord = scale(oxdim-xdim, cxs, oxdim);
+
+                if ((dastat & 512)==0)
+                    xbord = -xbord;
+            }
+
+            sx = ((cxs+xbord)<<15) + sthelse;
+        }
+
+        sy = ((cy1+cy2+2)<<15)+mulscale16(sy-(200<<15),x);
+    }
+    else
+    {
+        //If not clipping to startmosts, & auto-scaling on, as a
+        //hard-coded bonus, scale to full screen instead
+
+        const int32_t oxdim = xdim;
+        int32_t xdim = oxdim;  // SHADOWS global
+
+        if (!(dastat & 1024) && 4*ydim <= 3*xdim)
+        {
+            xdim = (4*ydim)/3;
+            setaspect(65536, (12<<16)/10);
+        }
+
+        x = scale(xdim,yxaspect,320);
+        sx = (xdim<<15)+32768+scale(sx-(320<<15),xdim,320);
+        sy = (ydim<<15)+32768+mulscale16(sy-(200<<15),x);
+
+        if (dastat & 512)
+            sx += (oxdim-xdim)<<16;
+        else if ((dastat & 256) == 0)
+            sx += (oxdim-xdim)<<15;
+    }
+
+    *sxptr = sx;
+    *syptr = sy;
+
+    return mulscale16(z,x);
+}
+
+
 //
 // dorotatesprite (internal)
 //
@@ -6900,25 +6986,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     cosang = sintable[(a+512)&2047];
     sinang = sintable[a&2047];
 
-    if (dastat&2)  //Auto window size scaling
-    {
-        if ((dastat&8) == 0)
-        {
-            x = xdimenscale;   //= scale(xdimen,yxaspect,320);
-            sx = ((cx1+cx2+2)<<15) + scale(sx-(320<<15),xdimen,320);
-            sy = ((cy1+cy2+2)<<15) + mulscale16(sy-(200<<15),x);
-        }
-        else
-        {
-            //If not clipping to startmosts, & auto-scaling on, as a
-            //hard-coded bonus, scale to full screen instead
-            x = scale(xdim,yxaspect,320);
-            sx = (xdim<<15)+32768 + scale(sx-(320<<15),xdim,320);
-            sy = (ydim<<15)+32768 + mulscale16(sy-(200<<15),x);
-        }
-
-        z = mulscale16(z,x);
-    }
+    z = dorotspr_handle_bit2(&sx, &sy, z, dastat, cx1, cy1, cx2, cy2);
 
     xv = mulscale14(cosang,z);
     yv = mulscale14(sinang,z);
@@ -7344,6 +7412,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
             buffermode = obuffermode;
             setactivepage(activepage);
         }*/
+
+    setaspect_new();
 }
 
 
