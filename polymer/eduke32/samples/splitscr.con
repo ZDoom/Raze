@@ -1,0 +1,586 @@
+/*
+--------------------------------------------------------------------------------
+Duke Nukem 3D SplitScreen mod
+Beta 1
+By Bloodclaw
+--------------------------------------------------------------------------------
+*/
+
+include GAME.CON
+
+// Those are inventory parts
+definequote 160 ON
+definequote 161 OFF
+definequote 162 %
+definequote 163 AUTO
+
+// Key name definitions
+definegamefuncname 11 P2_Move_Forward
+definegamefuncname 12 P2_Move_Backward
+definegamefuncname 13 P2_Turn_Left
+definegamefuncname 14 P2_Turn_Right
+definegamefuncname 17 P2_Aim_Up
+definegamefuncname 18 P2_Aim_Down
+definegamefuncname 19 P2_Fire
+definegamefuncname 20 P2_Open
+definegamefuncname 21 P2_Jump
+definegamefuncname 22 P2_Crouch
+definegamefuncname 23 P2_Inventory
+definegamefuncname 24 P2_Inventory_Left
+definegamefuncname 25 P2_Inventory_Right
+definegamefuncname 26 P2_Quick_Kick
+definegamefuncname 27 P2_Previous_Weapon
+definegamefuncname 28 P2_Next_Weapon
+
+
+gamevar pid 1 1 // This hold player 2 id
+gamevar pnum 0 1 // This is set to player 2 sprite number
+gamevar px 0 1 // Player (both 1 and 2) X coordinate
+gamevar py 0 1 // Player Y coordinate
+gamevar pz 0 1 // Player Z coordinate
+gamevar psect 0 1 // Player sector number
+gamevar pang 0 1 // Player angle
+gamevar phoriz 0 1 // Player vertical angle
+gamevar phorizoff 0 1 // Something similar
+gamevar pangcos 0 1 // Cosinus of player angle (used for player 2 movements)
+gamevar pangsin 0 1 // Sinus of player angle
+gamevar pinput 0 1 // Set to input, used in the PROCESSINPUT event
+
+gamevar pcrosshair 0 1 // Do you like crosshairs? Game options will tell.
+gamevar phealth 0 1 // Player health
+gamevar pweapon 0 1 // Player weapon
+gamevar pammo 0 1 // Player ammo
+gamevar pinv 0 1 // Player inventory
+gamevar pinvv 0 1 // Item amount
+gamevar pinva 0 1 // Item activated?
+gamevar pinvvx 0 1 // Sometimes, item icons must be realigned
+gamevar pfta 0 1 // Both used for quotes
+gamevar pftq 0 1
+gamevar pcolor 0 1 // Used to display quotes with player color
+
+gamevar p1heat 0 1 // Common night vision googles
+gamevar p2heat 0 1
+
+gamevar pcard 0 1 // Access cards
+
+
+// Following states are used in the hud
+state dispinvamount
+  ifvare pinvv 100
+    setvar pinvvx 98
+  else ifvarg pinvv 9
+    setvar pinvvx 100
+  else ifvarl pinvv 10
+    setvar pinvvx 102
+  minitext 104 190 162 0 6
+  digitalnumber THREEBYFIVE pinvvx 190 pinvv 0 0 26 0 0 xdim ydim
+ends
+
+state dispinvonoff
+  ifvarg pinva 0
+    minitext 100 180 160 0 0 // ON
+  else
+    minitext 96 180 161 0 21 // OFF
+ends
+
+state dispinvamount2
+  ifvare pinvv 100
+    setvar pinvvx 258
+  else ifvarg pinvv 9
+    setvar pinvvx 260
+  else ifvarl pinvv 10
+    setvar pinvvx 262
+  minitext 264 190 162 0 6
+  digitalnumber THREEBYFIVE pinvvx 190 pinvv 0 0 26 0 0 xdim ydim
+ends
+
+state dispinvonoff2
+  ifvarg pinva 0
+    minitext 260 180 160 0 0 // ON
+  else
+    minitext 256 180 161 0 21 // OFF
+ends
+
+
+// Crosshair need to be redone for two players
+onevent EVENT_DISPLAYCROSSHAIR
+  setvar RETURN -1
+endevent
+
+// For some reasons, next and previous weapon actions will never pick expander or foot
+onevent EVENT_NEXTWEAPON
+  getplayer[THISACTOR].curr_weapon pweapon
+  ifvare pweapon 11
+  {
+    setplayer[THISACTOR].curr_weapon 7
+    setvar RETURN -1
+  }
+  else ifvare pweapon 9
+  {
+    setplayer[THISACTOR].curr_weapon 0
+    setvar RETURN -1
+  }
+  else ifvare pweapon 6
+  {
+    setplayer[THISACTOR].curr_weapon 11
+    setvar RETURN -1
+  }
+endevent
+
+onevent EVENT_PREVIOUSWEAPON
+  getplayer[THISACTOR].curr_weapon pweapon
+  ifvare pweapon 11
+  {
+    setplayer[THISACTOR].curr_weapon 6
+    setvar RETURN -1
+  }
+  else ifvare pweapon 1
+  {
+    setplayer[THISACTOR].curr_weapon 0
+    setvar RETURN -1
+  }
+  else ifvare pweapon 7
+  {
+    setplayer[THISACTOR].curr_weapon 11
+    setvar RETURN -1
+  }
+endevent
+
+// Disable all the following keys, need room for player 2
+onevent EVENT_LOOKUP // Move Forward
+  setvar RETURN -1
+endevent
+
+onevent EVENT_LOOKDOWN // Move Backward
+  setvar RETURN -1
+endevent
+
+onevent EVENT_LOOKLEFT // Turn Left
+  setvar RETURN -1
+endevent
+
+onevent EVENT_LOOKRIGHT // Turn Right
+  setvar RETURN -1
+endevent
+
+onevent EVENT_AIMUP // Aim Up
+  setvar RETURN -1
+endevent
+
+onevent EVENT_AIMDOWN // Aim Down
+  setvar RETURN -1
+endevent
+
+onevent EVENT_WEAPKEY1 // Fire
+  setvar RETURN -1
+endevent
+
+onevent EVENT_WEAPKEY2 // Open
+  setvar RETURN -1
+endevent
+
+onevent EVENT_WEAPKEY3 // Jump
+  setvar RETURN -1
+endevent
+
+onevent EVENT_WEAPKEY4 // Crouch
+  setvar RETURN -1
+endevent
+
+onevent EVENT_WEAPKEY5 // Inventory
+  setvar RETURN -1
+endevent
+
+onevent EVENT_WEAPKEY6 // Inventory Left
+  setvar RETURN -1
+endevent
+
+onevent EVENT_WEAPKEY7 // Inventory Right
+  setvar RETURN -1
+endevent
+
+onevent EVENT_WEAPKEY8 // Quick Kick
+  setvar RETURN -1
+endevent
+
+onevent EVENT_WEAPKEY9 // Previous Weapon
+  setvar RETURN -1
+endevent
+
+onevent EVENT_WEAPKEY10 // Next Weapon
+  setvar RETURN -1
+endevent
+
+
+// Controls for player 2
+onevent EVENT_PROCESSINPUT // I had to use this event in case player 1 die
+  getinput[THISACTOR].bits pinput
+
+  ifvarand pinput 8
+  {
+    setinput[pid].bits 8
+    ifvarl phoriz 199 addvar phoriz 14
+    setplayer[pid].horiz phoriz // For some reasons, only setting the bits won't work
+  }
+  ifvarand pinput 16
+  {
+    setinput[pid].bits 16
+    ifvarg phoriz 1  subvar phoriz 14
+    setplayer[pid].horiz phoriz
+  }
+  ifvarand pinput 64
+  {
+    setinput[pid].avel -20
+  }
+  ifvarand pinput 128
+  {
+    setinput[pid].avel 20
+  }
+  ifvarand pinput 8192 // This block and the following one are for moving forward and backward, with X and Y speeds set with help of sinus and cosinus
+  {
+    setvar RETURN -1
+    getplayer[pid].i pnum
+    getactor[pnum].ang pang
+    cos pangcos pang
+    mulvar pangcos 10
+    divvar pangcos 64
+    sin pangsin pang
+    mulvar pangsin 10
+    divvar pangsin 64
+    setinput[pid].fvel pangcos
+    setinput[pid].svel pangsin
+  }
+  ifvarand pinput 16384
+  {
+    setvar RETURN -1
+    getplayer[pid].i pnum
+    getactor[pnum].ang pang
+    cos pangcos pang
+    mulvar pangcos -10
+    divvar pangcos 64
+    sin pangsin pang
+    mulvar pangsin -10
+    divvar pangsin 64
+    setinput[pid].fvel pangcos
+    setinput[pid].svel pangsin
+  }
+  // Following code come from Eduke32 wiki
+  shiftvarr pinput 8
+  andvar pinput 0xF
+  switch pinput
+  case 1:
+    setinput[pid].bits 4
+    break
+  case 2:
+    setinput[pid].bits 536870912
+    break
+  case 3:
+    setinput[pid].bits 1
+    break
+  case 4:
+    setinput[pid].bits 2
+    break
+  case 5:
+    setinput[pid].bits 1073741824
+    break
+  case 6:
+    setinput[pid].bits 1048576
+    break
+  case 7:
+    setinput[pid].bits 134217728
+    break
+  case 8:
+    setinput[pid].bits 4194304
+    break
+  case 9:
+    setinput[pid].bits 2816
+    break
+  case 10:
+    setinput[pid].bits 3072
+    break
+  endswitch
+endevent
+
+
+onevent EVENT_DISPLAYREST
+
+setplayer[THISACTOR].rotscrnang 0 // (almost) Prevent the screen rotation when player 1 die
+
+// This part just add a background
+rotatesprite 0 0 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 64 0 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 128 0 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 192 0 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 256 0 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 0 64 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 64 64 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 128 64 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 192 64 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 256 64 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 0 128 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 64 128 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 128 128 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 192 128 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 256 128 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 0 192 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 64 192 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 128 192 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 192 192 32768 0 1141 0 4 26 0 0 xdim ydim
+rotatesprite 256 192 32768 0 1141 0 4 26 0 0 xdim ydim
+
+// Took this code from the wiki
+// It show player 1 view
+  getplayer[THISACTOR].posx px
+  getplayer[THISACTOR].posy py
+  getplayer[THISACTOR].posz pz
+  getplayer[THISACTOR].ang pang
+  getplayer[THISACTOR].horiz phoriz
+  getplayer[THISACTOR].horizoff phorizoff
+  addvarvar phoriz phorizoff
+  updatesectorz px py pz psect
+  showview px py pz pang phoriz psect 1 1 160 199
+// -------------------------------------
+// Player 2 view
+  getplayer[pid].posx px
+  getplayer[pid].posy py
+  getplayer[pid].posz pz
+  getplayer[pid].ang pang
+  getplayer[pid].horiz phoriz
+  getplayer[pid].horizoff phorizoff
+  addvarvar phoriz phorizoff
+  updatesectorz px py pz psect
+  showview px py pz pang phoriz psect 160 1 319 199
+// -------------------------------------
+
+// Draw crosshairs if they are enabled
+  getuserdef[THISACTOR].crosshair pcrosshair
+  ifvare pcrosshair 1
+  {
+    rotatesprite 80 100 32768 0 CROSSHAIR 0 0 26 0 0 xdim ydim
+    rotatesprite 240 100 32768 0 CROSSHAIR 0 0 26 0 0 xdim ydim
+  }
+
+
+// Draw weapon icons
+  getplayer[THISACTOR].curr_weapon pweapon
+  ifvare pweapon 1
+    rotatesprite 80 165 32768 0 FIRSTGUNSPRITE 0 0 10 0 0 xdim ydim // Pistol
+  ifvare pweapon 2
+    rotatesprite 80 165 32768 0 SHOTGUNSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 3
+    rotatesprite 80 165 32768 0 CHAINGUNSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 4
+    rotatesprite 80 165 32768 0 RPGSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 5
+    rotatesprite 80 165 16384 0 HEAVYHBOMB 0 0 10 0 0 xdim ydim
+  ifvare pweapon 6
+    rotatesprite 80 165 32768 0 SHRINKERSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 7
+    rotatesprite 80 165 32768 0 DEVISTATORSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 8
+    rotatesprite 80 165 32768 0 TRIPBOMBSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 9
+    rotatesprite 80 165 32768 0 FREEZESPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 10
+    rotatesprite 80 165 16384 0 HEAVYHBOMB 0 0 10 0 0 xdim ydim // Pipebomb detonator
+  ifvare pweapon 11
+    rotatesprite 80 165 32768 0 GROWSPRITEICON 0 0 10 0 0 xdim ydim
+
+  getplayer[pid].curr_weapon pweapon
+  ifvare pweapon 1
+    rotatesprite 240 165 32768 0 FIRSTGUNSPRITE 0 0 10 0 0 xdim ydim // Pistol
+  ifvare pweapon 2
+    rotatesprite 240 165 32768 0 SHOTGUNSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 3
+    rotatesprite 240 165 32768 0 CHAINGUNSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 4
+    rotatesprite 240 165 32768 0 RPGSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 5
+    rotatesprite 240 165 16384 0 HEAVYHBOMB 0 0 10 0 0 xdim ydim
+  ifvare pweapon 6
+    rotatesprite 240 165 32768 0 SHRINKERSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 7
+    rotatesprite 240 165 32768 0 DEVISTATORSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 8
+    rotatesprite 240 165 32768 0 TRIPBOMBSPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 9
+    rotatesprite 240 165 32768 0 FREEZESPRITE 0 0 10 0 0 xdim ydim
+  ifvare pweapon 10
+    rotatesprite 240 165 16384 0 HEAVYHBOMB 0 0 10 0 0 xdim ydim // Pipebomb detonator
+  ifvare pweapon 11
+    rotatesprite 240 165 32768 0 GROWSPRITEICON 0 0 10 0 0 xdim ydim
+
+
+// Draw hud boxes
+  getactor[THISACTOR].extra phealth
+  getplayer[THISACTOR].curr_weapon pweapon
+  ifvare pweapon 10 setvar pweapon 5 // for pipebombs
+  getplayer[THISACTOR].ammo_amount pweapon pammo
+  rotatesprite 20 185 65536 0 HEALTHBOX 0 0 10 0 0 xdim ydim
+  digitalnumber DIGITALNUM 20 183 phealth 0 0 26 0 0 xdim ydim
+  rotatesprite 52 185 65536 0 AMMOBOX 0 0 10 0 0 xdim ydim
+  digitalnumber DIGITALNUM 53 183 pammo 0 0 26 0 0 xdim ydim
+  rotatesprite 90 184 65536 0 33 0 0 10 0 0 xdim ydim // Inventory box
+
+  getplayer[pid].i pnum
+  getactor[pnum].extra phealth
+  getplayer[pid].curr_weapon pweapon
+  ifvare pweapon 10 setvar pweapon 5
+  getplayer[pid].ammo_amount pweapon pammo
+  rotatesprite 180 185 65536 0 HEALTHBOX 0 0 10 0 0 xdim ydim
+  digitalnumber DIGITALNUM 180 183 phealth 0 0 26 0 0 xdim ydim
+  rotatesprite 212 185 65536 0 AMMOBOX 0 0 10 0 0 xdim ydim
+  digitalnumber DIGITALNUM 213 183 pammo 0 0 26 0 0 xdim ydim
+  rotatesprite 250 184 65536 0 33 0 0 10 0 0 xdim ydim
+
+
+// Draw inventory icons
+  getplayer[THISACTOR].inven_icon pinv
+  ifvare pinv 1
+  {
+    rotatesprite 81 185 65536 0 FIRSTAID_ICON 0 0 10 0 0 xdim ydim // Medkit
+    getplayer[THISACTOR].firstaid_amount pinvv
+    state dispinvamount
+  }
+  ifvare pinv 2
+  {
+    rotatesprite 79 186 65536 0 STEROIDS_ICON 0 0 10 0 0 xdim ydim // Steroids
+    getplayer[THISACTOR].steroids_amount pinvv
+    divvar pinvv 4 // Each item amount need to be divided, to have 100% instead of 6400%
+    state dispinvamount
+  }
+  ifvare pinv 3
+  {
+    rotatesprite 78 188 65536 0 HOLODUKE_ICON 0 0 10 0 0 xdim ydim // HoloDuke
+    getplayer[THISACTOR].holoduke_amount pinvv
+    getplayer[THISACTOR].holoduke_on pinva
+    divvar pinvv 24
+    state dispinvamount
+    state dispinvonoff
+  }
+  ifvare pinv 4
+  {
+    rotatesprite 80 186 65536 0 JETPACK_ICON 0 0 10 0 0 xdim ydim // Jetpack
+    getplayer[THISACTOR].jetpack_amount pinvv
+    getplayer[THISACTOR].jetpack_on pinva
+    divvar pinvv 16
+    state dispinvamount
+    state dispinvonoff
+  }
+  ifvare pinv 5
+  {
+    rotatesprite 81 185 65536 0 HEAT_ICON 0 0 10 0 0 xdim ydim // Night Vision Googles
+    getplayer[THISACTOR].heat_amount pinvv
+    getplayer[THISACTOR].heat_on pinva
+    divvar pinvv 12
+    state dispinvamount
+    state dispinvonoff
+  }
+  ifvare pinv 6
+  {
+    rotatesprite 81 187 65536 0 AIRTANK_ICON 0 0 10 0 0 xdim ydim // Scuba Gear
+    getplayer[THISACTOR].scuba_amount pinvv
+    divvar pinvv 64
+    state dispinvamount
+    minitext 91 180 163 0 21 // AUTO
+  }
+  ifvare pinv 7
+  {
+    rotatesprite 81 186 65536 0 BOOT_ICON 0 0 10 0 0 xdim ydim // Boots
+    getplayer[THISACTOR].boot_amount pinvv
+    divvar pinvv 2
+    state dispinvamount
+    minitext 91 180 163 0 21 // AUTO
+  }
+
+  getplayer[pid].inven_icon pinv
+  ifvare pinv 1
+  {
+    rotatesprite 241 185 65536 0 FIRSTAID_ICON 0 0 10 0 0 xdim ydim // Medkit
+    getplayer[pid].firstaid_amount pinvv
+    state dispinvamount2
+  }
+  ifvare pinv 2
+  {
+    rotatesprite 239 186 65536 0 STEROIDS_ICON 0 0 10 0 0 xdim ydim // Steroids
+    getplayer[pid].steroids_amount pinvv
+    divvar pinvv 4
+    state dispinvamount2
+  }
+  ifvare pinv 3
+  {
+    rotatesprite 238 188 65536 0 HOLODUKE_ICON 0 0 10 0 0 xdim ydim // HoloDuke
+    getplayer[pid].holoduke_amount pinvv
+    getplayer[pid].holoduke_on pinva
+    divvar pinvv 24
+    state dispinvamount2
+    state dispinvonoff2
+  }
+  ifvare pinv 4
+  {
+    rotatesprite 240 186 65536 0 JETPACK_ICON 0 0 10 0 0 xdim ydim // Jetpack
+    getplayer[pid].jetpack_amount pinvv
+    getplayer[pid].jetpack_on pinva
+    divvar pinvv 16
+    state dispinvamount2
+    state dispinvonoff2
+  }
+  ifvare pinv 5
+  {
+    rotatesprite 241 185 65536 0 HEAT_ICON 0 0 10 0 0 xdim ydim // Night Vision Googles
+    getplayer[pid].heat_amount pinvv
+    getplayer[pid].heat_on pinva
+    divvar pinvv 12
+    state dispinvamount2
+    state dispinvonoff2
+  }
+  ifvare pinv 6
+  {
+    rotatesprite 241 187 65536 0 AIRTANK_ICON 0 0 10 0 0 xdim ydim // Scuba Gear
+    getplayer[pid].scuba_amount pinvv
+    divvar pinvv 64
+    state dispinvamount2
+    minitext 251 180 163 0 21 // AUTO
+  }
+  ifvare pinv 7
+  {
+    rotatesprite 241 186 65536 0 BOOT_ICON 0 0 10 0 0 xdim ydim // Boots
+    getplayer[pid].boot_amount pinvv
+    divvar pinvv 2
+    state dispinvamount2
+    minitext 251 180 163 0 21 // AUTO
+  }
+
+
+  // Common night vision googles
+  getplayer[THISACTOR].heat_on p1heat
+  getplayer[pid].heat_on p2heat
+  ifvarn p1heat 1
+    ifvarn p2heat 1
+      setgamepalette 0
+  else
+    setgamepalette 2
+
+
+// This part was for showing keycards, but I don't know how to check if player has a keycard
+/*
+  getplayer[THISACTOR].got_access pcard
+  ifvare pcard 1 rotatesprite 150 178 65536 0 ACCESS_ICON 0 0 10 0 0 xdim ydim
+  ifvare pcard 2 rotatesprite 150 185 65536 0 ACCESS_ICON 0 0 10 0 0 xdim ydim
+  ifvare pcard 3 rotatesprite 150 192 65536 0 ACCESS_ICON 0 0 10 0 0 xdim ydim
+*/
+
+
+  getactor[THISACTOR].pal pcolor
+  getplayer[THISACTOR].ftq pftq
+  getplayer[THISACTOR].fta pfta
+  ifvarn pfta 0
+    gametext STARTALPHANUM 4 2 pftq 0 pcolor 26 0 0 xdim ydim
+  getactor[pnum].pal pcolor
+  getplayer[pid].ftq pftq
+  getplayer[pid].fta pfta
+  ifvarn pfta 0
+    gametext STARTALPHANUM 4 10 pftq 0 pcolor 26 0 0 xdim ydim
+
+
+endevent
