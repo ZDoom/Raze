@@ -6848,11 +6848,13 @@ static int32_t clippoly4(int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 // dorotatesprite (internal)
 //
 //JBF 20031206: Thanks to Ken's hunting, s/(rx1|ry1|rx2|ry2)/n\1/ in this function
-static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade,
-                           char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
+static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                           int8_t dashade, char dapalnum, int32_t dastat,
+                           int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2,
+                           int32_t uniqid)
 {
     int32_t cosang, sinang, v, nextv, dax1, dax2, oy, bx, by;
-    int32_t i, x, y, x1, y1, x2, y2, gx1, gy1 ;
+    int32_t i, x, y, x1, y1, x2, y2, gx1, gy1;
     intptr_t p, bufplc, palookupoffs;
     int32_t xsiz, ysiz, xoff, yoff, npoints, yplc, yinc, lx, rx;
     int32_t xv, yv, xv2, yv2;
@@ -6860,49 +6862,67 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     UNREFERENCED_PARAMETER(uniqid);
     //============================================================================= //POLYMOST BEGINS
 #ifdef USE_OPENGL
-    if (rendmode >= 3 && qsetmode == 200) { polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,uniqid); return; }
+    if (rendmode >= 3 && qsetmode == 200)
+    {
+        polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,cx1,cy1,cx2,cy2,uniqid);
+        return;
+    }
 #endif
     //============================================================================= //POLYMOST ENDS
 
+    // bound clipping rectangle to screen
     if (cx1 < 0) cx1 = 0;
     if (cy1 < 0) cy1 = 0;
     if (cx2 > xres-1) cx2 = xres-1;
     if (cy2 > yres-1) cy2 = yres-1;
 
-    xsiz = tilesizx[picnum]; ysiz = tilesizy[picnum];
-    if (dastat&16) { xoff = 0; yoff = 0; }
+    xsiz = tilesizx[picnum];
+    ysiz = tilesizy[picnum];
+
+    if (dastat&16)
+    {
+        // Bit 1<<4 set: origin is top left corner?
+        xoff = 0;
+        yoff = 0;
+    }
     else
     {
+        // Bit 1<<4 clear: origin is center of tile, and per-tile offset is applied.
+        // TODO: split the two?
         xoff = (int32_t)((int8_t)((picanm[picnum]>>8)&255))+(xsiz>>1);
         yoff = (int32_t)((int8_t)((picanm[picnum]>>16)&255))+(ysiz>>1);
     }
 
-    if (dastat&4) yoff = ysiz-yoff;
+    // Bit 1<<2: invert y
+    if (dastat&4)
+        yoff = ysiz-yoff;
 
-    cosang = sintable[(a+512)&2047]; sinang = sintable[a&2047];
+    cosang = sintable[(a+512)&2047];
+    sinang = sintable[a&2047];
 
-    if ((dastat&2) != 0)  //Auto window size scaling
+    if (dastat&2)  //Auto window size scaling
     {
         if ((dastat&8) == 0)
         {
             x = xdimenscale;   //= scale(xdimen,yxaspect,320);
-            sx = ((cx1+cx2+2)<<15)+scale(sx-(320<<15),xdimen,320);
-            sy = ((cy1+cy2+2)<<15)+mulscale16(sy-(200<<15),x);
+            sx = ((cx1+cx2+2)<<15) + scale(sx-(320<<15),xdimen,320);
+            sy = ((cy1+cy2+2)<<15) + mulscale16(sy-(200<<15),x);
         }
         else
         {
             //If not clipping to startmosts, & auto-scaling on, as a
             //hard-coded bonus, scale to full screen instead
             x = scale(xdim,yxaspect,320);
-            sx = (xdim<<15)+32768+scale(sx-(320<<15),xdim,320);
-            sy = (ydim<<15)+32768+mulscale16(sy-(200<<15),x);
+            sx = (xdim<<15)+32768 + scale(sx-(320<<15),xdim,320);
+            sy = (ydim<<15)+32768 + mulscale16(sy-(200<<15),x);
         }
+
         z = mulscale16(z,x);
     }
 
     xv = mulscale14(cosang,z);
     yv = mulscale14(sinang,z);
-    if (((dastat&2) != 0) || ((dastat&8) == 0)) //Don't aspect unscaled perms
+    if ((dastat&2) || (dastat&8) == 0) //Don't aspect unscaled perms
     {
         xv2 = mulscale16(xv,xyaspect);
         yv2 = mulscale16(yv,xyaspect);
@@ -6929,7 +6949,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     gx1 = nrx1[0]; gy1 = nry1[0];   //back up these before clipping
 
-    if ((npoints = clippoly4(cx1<<16,cy1<<16,(cx2+1)<<16,(cy2+1)<<16)) < 3) return;
+    npoints = clippoly4(cx1<<16,cy1<<16,(cx2+1)<<16,(cy2+1)<<16);
+    if (npoints < 3) return;
 
     lx = nrx1[0]; rx = nrx1[0];
 
@@ -6967,7 +6988,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     i = divscale32(1L,z);
     xv = mulscale14(sinang,i);
     yv = mulscale14(cosang,i);
-    if (((dastat&2) != 0) || ((dastat&8) == 0)) //Don't aspect unscaled perms
+    if ((dastat&2) || (dastat&8)==0) //Don't aspect unscaled perms
     {
         yv2 = mulscale16(-xv,yxaspect);
         xv2 = mulscale16(yv,yxaspect);
@@ -6978,25 +6999,21 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         xv2 = yv;
     }
 
-    x1 = (lx>>16); x2 = (rx>>16);
+    x1 = (lx>>16);
+    x2 = (rx>>16);
 
     oy = 0;
-    x = (x1<<16)-1-gx1; y = (oy<<16)+65535-gy1;
+    x = (x1<<16)-1-gx1;
+    y = (oy<<16)+65535-gy1;
     bx = dmulscale16(x,xv2,y,xv);
     by = dmulscale16(x,yv2,y,yv);
-    if (dastat&4) { yv = -yv; yv2 = -yv2; by = (ysiz<<16)-1-by; }
 
-    /*  if (origbuffermode == 0)
-        {
-            if (dastat&128)
-            {
-                obuffermode = buffermode;
-                buffermode = 0;
-                setactivepage(activepage);
-            }
-        }
-        else if (dastat&8)
-             permanentupdate = 1; */
+    if (dastat&4)
+    {
+        yv = -yv;
+        yv2 = -yv2;
+        by = (ysiz<<16)-1-by;
+    }
 
 #if defined ENGINE_USING_A_C
     if ((dastat&1)==0 && ((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
@@ -7009,7 +7026,11 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
         if (((a&1023) == 0) && (ysiz <= 256))  //vlineasm4 has 256 high limit!
         {
-            if (dastat&64) setupvlineasm(24L); else setupmvlineasm(24L);
+            if (dastat&64)
+                setupvlineasm(24L);
+            else
+                setupmvlineasm(24L);
+
             by <<= 8; yv <<= 8; yv2 <<= 8;
 
             palookupoffse[0] = palookupoffse[1] = palookupoffse[2] = palookupoffse[3] = palookupoffs;
@@ -13516,7 +13537,9 @@ void flushperms(void)
 //
 // rotatesprite
 //
-void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
+void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                  int8_t dashade, char dapalnum, int32_t dastat,
+                  int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     int32_t i;
     permfifotype *per, *per2;

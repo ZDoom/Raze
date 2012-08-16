@@ -5334,7 +5334,7 @@ void polymost_drawsprite(int32_t snum)
     tilesizy[globalpicnum]=oldsizy;
 }
 
-//sx,sy       center of sprite; screen coods*65536
+//sx,sy       center of sprite; screen coords*65536
 //z           zoom*65536. > is zoomed in
 //a           angle (0 is default)
 //dastat&1    1:translucence
@@ -5347,10 +5347,12 @@ void polymost_drawsprite(int32_t snum)
 //dastat&128  1:draw all pages (permanent)
 //cx1,...     clip window (actual screen coords)
 void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                             int8_t dashade, char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
+                             int8_t dashade, char dapalnum, int32_t dastat,
+                             int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
 {
     static int32_t onumframes = 0;
-    int32_t n, nn, x, zz, xoff, yoff, xsiz, ysiz, method;
+
+    int32_t n, nn, xoff, yoff, xsiz, ysiz, method;
     int32_t ogpicnum, ogshade, ogpal, ofoffset, oxdimen, oydimen, oldviewingrange;
     double ogxyaspect;
     double ogchang, ogshang, ogctang, ogstang, oghalfx, oghoriz, fx, fy, x1, y1, z1, x2, y2;
@@ -5362,11 +5364,13 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     int32_t olddetailmapping = r_detailmapping, oldglowmapping = r_glowmapping;
 #endif
 
-
 #ifdef USE_OPENGL
     if (rendmode >= 3 && usemodels && hudmem[(dastat&4)>>2][picnum].angadd)
     {
-        if ((tile2model[Ptile2tile(picnum,dapalnum)].modelid >= 0) && (tile2model[Ptile2tile(picnum,dapalnum)].framenum >= 0))
+        const int32_t tilenum = Ptile2tile(picnum,dapalnum);
+
+        if (tile2model[tilenum].modelid >= 0 &&
+            tile2model[tilenum].framenum >= 0)
         {
             spritetype tspr;
             memset(&tspr,0,sizeof(spritetype));
@@ -5547,7 +5551,6 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 #else
             mddraw(&tspr);
 #endif
-
             viewingrange = oldviewingrange;
             gxyaspect = ogxyaspect;
             globalshade  = ogshade;
@@ -5556,6 +5559,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             gshang = ogshang;
             gctang = ogctang;
             gstang = ogstang;
+
             return;
         }
     }
@@ -5738,7 +5742,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     nn = z = 0;
     do
     {
-        zz = z+1; if (zz == n) zz = 0;
+        int32_t zz = z+1; if (zz == n) zz = 0;
         x1 = px[z]; x2 = px[zz]-x1; if ((cx1 <= x1) && (x1 <= cx2)) { px2[nn] = x1; py2[nn] = py[z]; nn++; }
         if (x2 <= 0) fx = cx2; else fx = cx1;  d = fx-x1;
         if ((d < x2) != (d < 0)) { px2[nn] = fx; py2[nn] = (py[zz]-py[z])*d/x2 + py[z]; nn++; }
@@ -5747,12 +5751,13 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         z = zz;
     }
     while (z);
+
     if (nn >= 3)
     {
         n = z = 0;
         do
         {
-            zz = z+1; if (zz == nn) zz = 0;
+            int32_t zz = z+1; if (zz == nn) zz = 0;
             y1 = py2[z]; y2 = py2[zz]-y1; if ((cy1 <= y1) && (y1 <= cy2)) { py[n] = y1; px[n] = px2[z]; n++; }
             if (y2 <= 0) fy = cy2; else fy = cy1;  d = fy-y1;
             if ((d < y2) != (d < 0)) { py[n] = fy; px[n] = (px2[zz]-px2[z])*d/y2 + px2[z]; n++; }
