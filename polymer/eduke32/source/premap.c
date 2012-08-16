@@ -1567,9 +1567,8 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
 
 static void resetpspritevars(char g)
 {
-    int16_t i, j, nexti; //circ;
-//    int32_t firstx,firsty;
-    spritetype *s;
+    int16_t i, j; //circ;
+
     uint8_t aimmode[MAXPLAYERS],autoaim[MAXPLAYERS],weaponswitch[MAXPLAYERS];
     DukeStatus_t tsbar[MAXPLAYERS];
 
@@ -1628,17 +1627,17 @@ static void resetpspritevars(char g)
     i = headspritestat[STAT_PLAYER];
     while (i >= 0)
     {
-        nexti = nextspritestat[i];
-        s = &sprite[i];
+        const int32_t nexti = nextspritestat[i];
+        spritetype *const s = &sprite[i];
 
         if (g_numPlayerSprites == MAXPLAYERS)
             G_GameExit("\nToo many player sprites (max 16.)");
 
-        g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].ox = s->x;
-        g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].oy = s->y;
-        g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].oz = s->z;
-        g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].oa = s->ang;
-        g_playerSpawnPoints[(uint8_t)g_numPlayerSprites].os = s->sectnum;
+        g_playerSpawnPoints[g_numPlayerSprites].ox = s->x;
+        g_playerSpawnPoints[g_numPlayerSprites].oy = s->y;
+        g_playerSpawnPoints[g_numPlayerSprites].oz = s->z;
+        g_playerSpawnPoints[g_numPlayerSprites].oa = s->ang;
+        g_playerSpawnPoints[g_numPlayerSprites].os = s->sectnum;
 
         g_numPlayerSprites++;
 
@@ -1651,7 +1650,7 @@ static void resetpspritevars(char g)
             if (!g_fakeMultiMode)
                 s->cstat = j < numplayers ? 1+256 : 32768;
             else
-                s->cstat = 1+256;
+                s->cstat = j < ud.multimode ? 1+256 : 32768;
             s->xoffset = 0;
             s->clipdist = 64;
 
@@ -1716,6 +1715,7 @@ static void resetpspritevars(char g)
             j++;
         }
         else A_DeleteSprite(i);
+
         i = nexti;
     }
 }

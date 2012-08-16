@@ -56,7 +56,7 @@ G_EXTERN char SkillNames[MAXSKILLS][33];
 G_EXTERN char g_RTSPlaying;
 G_EXTERN int32_t g_musicIndex;
 G_EXTERN char g_numGametypes;
-G_EXTERN char g_numPlayerSprites,g_loadFromGroupOnly;
+G_EXTERN char g_loadFromGroupOnly;
 G_EXTERN char g_numVolumes;
 G_EXTERN char g_numSkills;
 G_EXTERN char myjumpingtoggle,myonground,myhardlanding,myreturntocenter;

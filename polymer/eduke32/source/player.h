@@ -227,7 +227,7 @@ typedef struct {
 } playerdata_t;
 #pragma pack(pop)
 
-extern char             g_numPlayerSprites;
+extern int8_t             g_numPlayerSprites;
 extern int32_t          fricxv,fricyv;
 
 extern intptr_t         *aplWeaponClip[MAX_WEAPONS];            // number of items in clip

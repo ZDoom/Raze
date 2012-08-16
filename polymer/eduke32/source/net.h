@@ -112,7 +112,7 @@ typedef struct {
     int16_t prevspritestat[MAXSPRITES];
 
     uint8_t g_earthquakeTime;
-    uint8_t g_numPlayerSprites;
+    int8_t g_numPlayerSprites;
     uint8_t scriptptrs[MAXSPRITES];
 
     netactor_t actor[MAXSPRITES];

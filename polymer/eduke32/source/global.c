@@ -81,7 +81,8 @@ char g_numVolumes = 3;
 
 int32_t g_timerTicsPerSecond=TICRATE;
 
-char g_numPlayerSprites,g_loadFromGroupOnly=0,g_earthquakeTime;
+int8_t g_numPlayerSprites;
+char g_loadFromGroupOnly=0, g_earthquakeTime;
 
 int32_t playerswhenstarted;
 

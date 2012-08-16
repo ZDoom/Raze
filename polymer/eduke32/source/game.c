@@ -8883,11 +8883,22 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     }
                     else
                     {
-                        ud.multimode = Batoi(c)%17;
-                        initprintf("Fake multiplayer mode: %d players.\n", ud.multimode);
+                        int32_t numpl = Batoi(c);
 
-                        g_fakeMultiMode = 1;
+                        if (numpl < 2 || numpl > MAXPLAYERS)
+                        {
+                            initprintf("Fake multiplayer mode: expected 2-%d players, falling back to 1.\n",
+                                       MAXPLAYERS);
+                        }
+                        else
+                        {
+                            ud.multimode = numpl;
+                            initprintf("Fake multiplayer mode: %d players.\n", ud.multimode);
+
+                            g_fakeMultiMode = 1;
+                        }
                     }
+
                     ud.m_coop = ud.coop = 0;
                     ud.m_marker = ud.marker = 1;
                     ud.m_respawn_monsters = ud.respawn_monsters = 1;
