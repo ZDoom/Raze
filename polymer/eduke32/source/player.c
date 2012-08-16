@@ -36,6 +36,7 @@ int32_t g_gs;
 int32_t g_kb;
 int32_t g_looking_angSR1;
 int32_t g_weapon_xoffset;
+static int32_t g_snum;
 
 extern int32_t g_levelTextTime, ticrandomseed;
 
@@ -2013,6 +2014,9 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     int32_t a = 0;
     int32_t xoff = 192;
 
+    int32_t xadd = 0;
+    int32_t wx1=windowx1, wx2=windowx2;
+
     switch (g_currentweapon)
     {
     case DEVISTATOR_WEAPON:
@@ -2031,13 +2035,33 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     if (orientation&4)
         a = 1024;
 
+    if (g_fakeMultiMode && ud.multimode==2)
+    {
+        // splitscreen HACK
+        xadd = (-80 + g_snum*160)*65536;
+
+        if ((orientation&1024)==0)
+        {
+            x*=65536;
+            y*=65536;
+            orientation |= 1024;
+        }
+
+        if (g_snum==0)
+            wx2 = (wx2+wx1)/2+1;
+        else
+            wx1 = (wx2+wx1)/2+1;
+        orientation |= 8;
+    }
+
 #ifdef USE_OPENGL
     if (getrendermode() >= 3 && usemodels && md_tilehasmodel(tilenum,p) > 0)
         y += (224-weapsc(224));
 #endif
-    rotatesprite_win(weapsc((orientation&1024)?x:(x<<16))+((xoff-weapsc(xoff))<<16),
-                     weapsc((orientation&1024)?y:(y<<16))+((200-weapsc(200))<<16),
-                     weapsc(65536L),a,tilenum,shade,p,(2|orientation));
+    rotatesprite(xadd+weapsc((orientation&1024)?x:(x<<16))+((xoff-weapsc(xoff))<<16),
+                 weapsc((orientation&1024)?y:(y<<16))+((200-weapsc(200))<<16),
+                 weapsc(65536L),a,tilenum,shade,p,(2|orientation),
+                 wx1,windowy1,wx2,windowy2);
 }
 
 static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p, uint8_t slot)
@@ -2311,6 +2335,8 @@ void P_DisplayWeapon(int32_t snum)
     DukePlayer_t *const p = g_player[snum].ps;
     uint8_t *kb = &p->kickback_pic;
     int32_t gs;
+
+    g_snum = snum;
 
     looking_arc = klabs(p->look_ang)/9;
 
