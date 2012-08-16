@@ -1926,8 +1926,7 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
 // STEP must evenly divide END-START, i.e. abs(end-start)%step == 0
 static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t tile)
 {
-    if (getrendermode() >= 3)
-        clearview(0);
+    clearview(0);
 
     // (end-start)/step + 1 iterations
     do
@@ -3010,8 +3009,7 @@ void G_DrawBackground(void)
     {
         int32_t bgtile;
 
-        if (getrendermode() >= 3)
-            clearview(0);
+        clearview(0);
 
         // when not rendering a game, fullscreen wipe
 #define MENUTILE (!getrendermode()?MENUSCREEN:LOADSCREEN)
@@ -9131,8 +9129,7 @@ static void G_DisplayLogo(void)
             //G_FadePalette(0,0,0,63);
             if (logoflags & LOGO_3DRSCREEN)
             {
-                if (getrendermode() >= 3)
-                    clearview(0);
+                clearview(0);
 
                 P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8+2/*+1*/);    // JBF 20040308
                 fadepal(0,0,0, 0,63,7);
@@ -9143,8 +9140,7 @@ static void G_DisplayLogo(void)
                 totalclock = 0;
                 while (totalclock < (120*7) && !I_CheckInputWaiting())
                 {
-                    if (getrendermode() >= 3)
-                        clearview(0);
+                    clearview(0);
 
                     rotatesprite_fs(0,0,65536L,0,DREALMS,0,0,2+8+16+64+(ud.bgstretch?1024:0));
 
@@ -9167,8 +9163,7 @@ static void G_DisplayLogo(void)
 
         if (logoflags & LOGO_TITLESCREEN)
         {
-            if (getrendermode() >= 3)
-                clearview(0);
+            clearview(0);
 
             //g_player[myconnectindex].ps->palette = titlepal;
             P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2/*+1*/);   // JBF 20040308
@@ -9180,8 +9175,7 @@ static void G_DisplayLogo(void)
 
             while (totalclock < (860+120) && !I_CheckInputWaiting())
             {
-                if (getrendermode() >= 3)
-                    clearview(0);
+                clearview(0);
 
                 rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64+(ud.bgstretch?1024:0));
                 if (logoflags & LOGO_DUKENUKEM)
@@ -11269,8 +11263,7 @@ FRAGBONUS:
 
         if (g_player[myconnectindex].ps->gm&MODE_EOL)
         {
-            if (getrendermode() >= 3)
-                clearview(0);
+            clearview(0);
 
             rotatesprite_fs(0,0,65536L,0,BONUSSCREEN+gfx_offset,0,0,2+8+16+64+128+(ud.bgstretch?1024:0));
 
