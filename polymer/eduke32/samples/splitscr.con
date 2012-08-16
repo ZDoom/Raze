@@ -288,7 +288,7 @@ onevent EVENT_DISPLAYROOMS
   getplayer[THISACTOR].horiz phoriz
   getplayer[THISACTOR].horizoff phorizoff
   addvarvar phoriz phorizoff
-  updatesectorz px py pz psect
+  updatesector px py psect
   ifvarg psect -1
     showviewunbiased px py pz pang phoriz psect 0 0 160 199
 // -------------------------------------
@@ -300,7 +300,7 @@ onevent EVENT_DISPLAYROOMS
   getplayer[pid].horiz phoriz
   getplayer[pid].horizoff phorizoff
   addvarvar phoriz phorizoff
-  updatesectorz px py pz psect
+  updatesector px py psect
   ifvarg psect -1
     showviewunbiased px py pz pang phoriz psect 160 0 319 199
 // -------------------------------------
