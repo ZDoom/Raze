@@ -5357,7 +5357,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     double ogrhalfxdown10, ogrhalfxdown10x;
     double d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
     float m[4][4];
-    int32_t oxdim = xdim, oydim = ydim;
+
 #if defined(USE_OPENGL) && defined(POLYMER)
     int32_t olddetailmapping = r_detailmapping, oldglowmapping = r_glowmapping;
 #endif
@@ -5621,9 +5621,17 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
     if (dastat&2)  //Auto window size scaling
     {
+        int32_t x;
+
         // nasty hacks go here
         if (!(dastat&8))
         {
+            const int32_t cxs = cx1+cx2+2;
+            int32_t sthelse;
+
+            const int32_t oxdim = xdim;
+            int32_t xdim = oxdim;  // SHADOWS global
+
             x = xdimenscale;   //= scale(xdimen,yxaspect,320);
 
             if (!(dastat & 1024) && ((double)ydim/(double)xdim) <= .75f)
@@ -5632,12 +5640,21 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
             }
 
-            if (dastat & 512)
-                sx = ((cx1+cx2+2+scale((oxdim-xdim), cx1+cx2+2, oxdim))<<15)+scale(sx-(320<<15),scale(xdimen, xdim, oxdim),320);
-            else if (dastat & 256)
-                sx = ((cx1+cx2+2-scale((oxdim-xdim), cx1+cx2+2, oxdim))<<15)+scale(sx-(320<<15),scale(xdimen, xdim, oxdim),320);
-            else
-                sx = ((cx1+cx2+2)<<15)+scale(sx-(320<<15),scale(xdimen, xdim, oxdim),320);
+            sthelse = scale(sx-(320<<15), scale(xdimen, xdim, oxdim), 320);
+
+            {
+                int32_t xbord = 0;
+
+                if (dastat & (256|512))
+                {
+                    xbord = scale(oxdim-xdim, cxs, oxdim);
+
+                    if ((dastat & 512)==0)
+                        xbord = -xbord;
+                }
+
+                sx = ((cxs+xbord)<<15) + sthelse;
+            }
 
             sy = ((cy1+cy2+2)<<15)+mulscale16(sy-(200<<15),x);
         }
@@ -5645,6 +5662,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         {
             //If not clipping to startmosts, & auto-scaling on, as a
             //hard-coded bonus, scale to full screen instead
+
+            const int32_t oxdim = xdim;
+            int32_t xdim = oxdim;  // SHADOWS global
 
             if (!(dastat & 1024) && ((double)ydim/(double)xdim) <= .75f)
             {
@@ -5661,11 +5681,12 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             else if ((dastat & 256) == 0)
                 sx += (oxdim-xdim)<<15;
         }
+
         z = mulscale16(z,x);
     }
     else if (!(dastat & 1024) && ((double)ydim/(double)xdim) <= .75f)
     {
-        ydim = (int32_t)((double)xdim * 0.75f);
+        const int32_t ydim = (int32_t)((double)xdim * 0.75f);  // SHADOWS global
         setaspect(65536L,(int32_t)divscale16(ydim*320L,xdim*200L));
     }
 
@@ -5778,8 +5799,6 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     gshang = ogshang;
     gctang = ogctang;
     gstang = ogstang;
-    xdim = oxdim;
-    ydim = oydim;
 
     setaspect_new();
 }
