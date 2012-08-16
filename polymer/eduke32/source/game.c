@@ -3408,7 +3408,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         const int32_t vr = divscale22(1,sprite[p->i].yrepeat+28);
         const int32_t software_screen_tilting =
-            (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang) || !ud.detail));
+            (getrendermode() == 0 && ((ud.screen_tilting && p->rotscrnang && !g_fakeMultiMode) || !ud.detail));
 
         if (!r_usenewaspect)
         {
@@ -3492,7 +3492,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             tmpvr = i>>1;
             tmpyx = (65536*ydim*8)/(xdim*5);
         }
-        else if (getrendermode() > 0 && ud.screen_tilting /*&& (p->rotscrnang || p->orotscrnang)*/)
+        else if (getrendermode() > 0 && (ud.screen_tilting && !g_fakeMultiMode) /*&& (p->rotscrnang || p->orotscrnang)*/)
         {
 #ifdef USE_OPENGL
             setrollangle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024)&2047)-1024, smoothratio));
