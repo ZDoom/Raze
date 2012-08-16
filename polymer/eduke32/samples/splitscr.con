@@ -69,44 +69,6 @@ gamevar p2heat 0 0
 gamevar pcard 0 0 // Access cards
 
 
-// Following states are used in the hud
-state dispinvamount
-  ifvare pinvv 100
-    setvar pinvvx 98
-  else ifvarg pinvv 9
-    setvar pinvvx 100
-  else ifvarl pinvv 10
-    setvar pinvvx 102
-  minitext 104 190 162 0 6
-  digitalnumber THREEBYFIVE pinvvx 190 pinvv 0 0 26 0 0 xdim ydim
-ends
-
-state dispinvonoff
-  ifvarg pinva 0
-    minitext 100 180 160 0 0 // ON
-  else
-    minitext 96 180 161 0 21 // OFF
-ends
-
-state dispinvamount2
-  ifvare pinvv 100
-    setvar pinvvx 258
-  else ifvarg pinvv 9
-    setvar pinvvx 260
-  else ifvarl pinvv 10
-    setvar pinvvx 262
-  minitext 264 190 162 0 6
-  digitalnumber THREEBYFIVE pinvvx 190 pinvv 0 0 26 0 0 xdim ydim
-ends
-
-state dispinvonoff2
-  ifvarg pinva 0
-    minitext 260 180 160 0 0 // ON
-  else
-    minitext 256 180 161 0 21 // OFF
-ends
-
-
 // Crosshair need to be redone for two players
 onevent EVENT_DISPLAYCROSSHAIR
   setvar RETURN -1
@@ -307,13 +269,8 @@ onevent EVENT_PROCESSINPUT // I had to use this event in case player 1 die
 endevent
 
 
-onevent EVENT_DISPLAYSBAR
-    setvar RETURN 1  // don't display status bar
-endevent
+// NOTE: status bar is displayed for both players (EDuke32 splitscreen hack)
 
-onevent EVENT_DISPLAYROOMS
-    setvar RETURN 1  // don't display them...
-endevent
 
 // orientation bits for the crosshairs
 define ORIENT 1024  // 26
@@ -322,8 +279,11 @@ define ORIENT 1024  // 26
 define P1X 4
 define P2X 164
 
-onevent EVENT_DISPLAYREST
-setplayer[THISACTOR].rotscrnang 0 // (almost) Prevent the screen rotation when player 1 die
+onevent EVENT_DISPLAYROOMS
+    setvar RETURN 1  // don't draw them
+
+    // an EDuke32 hack now:
+//    setplayer[THISACTOR].rotscrnang 0 // (almost) Prevent the screen rotation when player 1 die
 
 // Took this code from the wiki
 // It show player 1 view
@@ -408,147 +368,6 @@ setplayer[THISACTOR].rotscrnang 0 // (almost) Prevent the screen rotation when p
     rotatesprite 240 165 16384 0 HEAVYHBOMB 0 0 10 0 0 xdim ydim // Pipebomb detonator
   ifvare pweapon 11
     rotatesprite 240 165 32768 0 GROWSPRITEICON 0 0 10 0 0 xdim ydim
-
-
-// Draw hud boxes
-  getactor[THISACTOR].extra phealth
-  getplayer[THISACTOR].curr_weapon pweapon
-  ifvare pweapon 10 setvar pweapon 5 // for pipebombs
-  getplayer[THISACTOR].ammo_amount pweapon pammo
-  rotatesprite 20 185 65536 0 HEALTHBOX 0 0 10 0 0 xdim ydim
-  digitalnumber DIGITALNUM 20 183 phealth 0 0 26 0 0 xdim ydim
-  rotatesprite 52 185 65536 0 AMMOBOX 0 0 10 0 0 xdim ydim
-  digitalnumber DIGITALNUM 53 183 pammo 0 0 26 0 0 xdim ydim
-  rotatesprite 90 184 65536 0 33 0 0 10 0 0 xdim ydim // Inventory box
-
-  getplayer[pid].i pnum
-  getactor[pnum].extra phealth
-  getplayer[pid].curr_weapon pweapon
-  ifvare pweapon 10 setvar pweapon 5
-  getplayer[pid].ammo_amount pweapon pammo
-  rotatesprite 180 185 65536 0 HEALTHBOX 0 0 10 0 0 xdim ydim
-  digitalnumber DIGITALNUM 180 183 phealth 0 0 26 0 0 xdim ydim
-  rotatesprite 212 185 65536 0 AMMOBOX 0 0 10 0 0 xdim ydim
-  digitalnumber DIGITALNUM 213 183 pammo 0 0 26 0 0 xdim ydim
-  rotatesprite 250 184 65536 0 33 0 0 10 0 0 xdim ydim
-
-
-// Draw inventory icons
-  getplayer[THISACTOR].inven_icon pinv
-  ifvare pinv 1
-  {
-    rotatesprite 81 185 65536 0 FIRSTAID_ICON 0 0 10 0 0 xdim ydim // Medkit
-    getplayer[THISACTOR].firstaid_amount pinvv
-    state dispinvamount
-  }
-  ifvare pinv 2
-  {
-    rotatesprite 79 186 65536 0 STEROIDS_ICON 0 0 10 0 0 xdim ydim // Steroids
-    getplayer[THISACTOR].steroids_amount pinvv
-    divvar pinvv 4 // Each item amount need to be divided, to have 100% instead of 6400%
-    state dispinvamount
-  }
-  ifvare pinv 3
-  {
-    rotatesprite 78 188 65536 0 HOLODUKE_ICON 0 0 10 0 0 xdim ydim // HoloDuke
-    getplayer[THISACTOR].holoduke_amount pinvv
-    getplayer[THISACTOR].holoduke_on pinva
-    divvar pinvv 24
-    state dispinvamount
-    state dispinvonoff
-  }
-  ifvare pinv 4
-  {
-    rotatesprite 80 186 65536 0 JETPACK_ICON 0 0 10 0 0 xdim ydim // Jetpack
-    getplayer[THISACTOR].jetpack_amount pinvv
-    getplayer[THISACTOR].jetpack_on pinva
-    divvar pinvv 16
-    state dispinvamount
-    state dispinvonoff
-  }
-  ifvare pinv 5
-  {
-    rotatesprite 81 185 65536 0 HEAT_ICON 0 0 10 0 0 xdim ydim // Night Vision Googles
-    getplayer[THISACTOR].heat_amount pinvv
-    getplayer[THISACTOR].heat_on pinva
-    divvar pinvv 12
-    state dispinvamount
-    state dispinvonoff
-  }
-  ifvare pinv 6
-  {
-    rotatesprite 81 187 65536 0 AIRTANK_ICON 0 0 10 0 0 xdim ydim // Scuba Gear
-    getplayer[THISACTOR].scuba_amount pinvv
-    divvar pinvv 64
-    state dispinvamount
-    minitext 91 180 163 0 21 // AUTO
-  }
-  ifvare pinv 7
-  {
-    rotatesprite 81 186 65536 0 BOOT_ICON 0 0 10 0 0 xdim ydim // Boots
-    getplayer[THISACTOR].boot_amount pinvv
-    divvar pinvv 2
-    state dispinvamount
-    minitext 91 180 163 0 21 // AUTO
-  }
-
-  getplayer[pid].inven_icon pinv
-  ifvare pinv 1
-  {
-    rotatesprite 241 185 65536 0 FIRSTAID_ICON 0 0 10 0 0 xdim ydim // Medkit
-    getplayer[pid].firstaid_amount pinvv
-    state dispinvamount2
-  }
-  ifvare pinv 2
-  {
-    rotatesprite 239 186 65536 0 STEROIDS_ICON 0 0 10 0 0 xdim ydim // Steroids
-    getplayer[pid].steroids_amount pinvv
-    divvar pinvv 4
-    state dispinvamount2
-  }
-  ifvare pinv 3
-  {
-    rotatesprite 238 188 65536 0 HOLODUKE_ICON 0 0 10 0 0 xdim ydim // HoloDuke
-    getplayer[pid].holoduke_amount pinvv
-    getplayer[pid].holoduke_on pinva
-    divvar pinvv 24
-    state dispinvamount2
-    state dispinvonoff2
-  }
-  ifvare pinv 4
-  {
-    rotatesprite 240 186 65536 0 JETPACK_ICON 0 0 10 0 0 xdim ydim // Jetpack
-    getplayer[pid].jetpack_amount pinvv
-    getplayer[pid].jetpack_on pinva
-    divvar pinvv 16
-    state dispinvamount2
-    state dispinvonoff2
-  }
-  ifvare pinv 5
-  {
-    rotatesprite 241 185 65536 0 HEAT_ICON 0 0 10 0 0 xdim ydim // Night Vision Googles
-    getplayer[pid].heat_amount pinvv
-    getplayer[pid].heat_on pinva
-    divvar pinvv 12
-    state dispinvamount2
-    state dispinvonoff2
-  }
-  ifvare pinv 6
-  {
-    rotatesprite 241 187 65536 0 AIRTANK_ICON 0 0 10 0 0 xdim ydim // Scuba Gear
-    getplayer[pid].scuba_amount pinvv
-    divvar pinvv 64
-    state dispinvamount2
-    minitext 251 180 163 0 21 // AUTO
-  }
-  ifvare pinv 7
-  {
-    rotatesprite 241 186 65536 0 BOOT_ICON 0 0 10 0 0 xdim ydim // Boots
-    getplayer[pid].boot_amount pinvv
-    divvar pinvv 2
-    state dispinvamount2
-    minitext 251 180 163 0 21 // AUTO
-  }
 
 
   // Common night vision googles
