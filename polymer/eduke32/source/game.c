@@ -444,10 +444,12 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
         if ((*t >= '0' && *t <= '9'))
             x -= i - ((8 * z)>>16);
 
-        if ((o&ROTATESPRITE_MAX) == 0) //  wrapping long strings doesn't work for precise coordinates due to overflow
+        // wrapping long strings doesn't work for precise coordinates due to overflow
+        // XXX: above comment obsolete?
+        if ((o&ROTATESPRITE_MAX) == 0)
         {
             if (((f&4) ? textsc(x) : x) > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
-                x = origx, y += (8 * z)>>16;
+                x = origx, y += z>>13;
         }
     }
     while (*(++t));
@@ -695,48 +697,42 @@ int32_t A_CheckInventorySprite(spritetype *s)
     }
 }
 
-void G_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
+static void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
+                              int32_t shade, int32_t orientation, int32_t p)
 {
-    int32_t p = sector[g_player[screenpeek].ps->cursectnum].floorpal, a = 0;
+    int32_t a = 0;
 
     if (orientation&4)
         a = 1024;
 
     rotatesprite_win((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
-                     65536L,a,tilenum,shade,p,2|orientation);
+                     zoom,a,tilenum,shade,p,2|orientation);
+}
+
+void G_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
+{
+    DukePlayer_t *ps = g_player[screenpeek].ps;
+    int32_t p = ps->cursectnum >= 0 ? sector[ps->cursectnum].floorpal : 0;
+
+    G_DrawTileGeneric(x,y,65536, tilenum,shade,orientation, p);
 }
 
 void G_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
 {
-    int32_t a = 0;
-
-    if (orientation&4)
-        a = 1024;
-
-    rotatesprite_win((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
-                     65536L,a,tilenum,shade,p,2|orientation);
+    G_DrawTileGeneric(x,y,65536, tilenum,shade,orientation, p);
 }
 
 void G_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
 {
-    int32_t p = sector[g_player[screenpeek].ps->cursectnum].floorpal, a = 0;
+    DukePlayer_t *ps = g_player[screenpeek].ps;
+    int32_t p = ps->cursectnum >= 0 ? sector[ps->cursectnum].floorpal : 0;
 
-    if (orientation&4)
-        a = 1024;
-
-    rotatesprite_win((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
-                     32768L,a,tilenum,shade,p,2|orientation);
+    G_DrawTileGeneric(x,y,32768, tilenum,shade,orientation, p);
 }
 
 void G_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
 {
-    int32_t a = 0;
-
-    if (orientation&4)
-        a = 1024;
-
-    rotatesprite_win((orientation&ROTATESPRITE_MAX)?x:(x<<16),(orientation&ROTATESPRITE_MAX)?y:(y<<16),
-                     32768L,a,tilenum,shade,p,2|orientation);
+    G_DrawTileGeneric(x,y,32768, tilenum,shade,orientation, p);
 }
 
 #define POLYMOSTTRANS (1)
@@ -745,46 +741,56 @@ void G_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, in
 // draws inventory numbers in the HUD for both the full and mini status bars
 static void G_DrawInvNum(int32_t x,int32_t y,char num1,char ha,int32_t sbits)
 {
-    char dabuf[80] = {0};
+    char dabuf[16];
     int32_t i, shd = (x < 0);
+
+    const int32_t sbscale = sbarsc(65536);
+    const int32_t sby = sbary(y), sbyp1 = sbary(y+1);
 
     if (shd) x = -x;
 
-    Bsprintf(dabuf,"%d",num1);
+    Bsprintf(dabuf, "%d", num1);
+
     if (num1 > 99)
     {
         if (shd && ud.screen_size == 4 && getrendermode() >= 3 && althud_shadows)
         {
             for (i=0; i<=2; i++)
-                rotatesprite_fs(sbarx(x+(-4+4*i)+1),sbary(y+1),sbarsc(65536),0,THREEBYFIVE+dabuf[i]-'0',ha, 4, POLYMOSTTRANS|sbits);
+                rotatesprite_fs(sbarx(x+(-4+4*i)+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[i]-'0',
+                                ha, 4, POLYMOSTTRANS|sbits);
         }
 
         for (i=0; i<=2; i++)
-            rotatesprite_fs(sbarx(x+(-4+4*i)),sbary(y),sbarsc(65536),0,THREEBYFIVE+dabuf[i]-'0',ha, 0, sbits);
+            rotatesprite_fs(sbarx(x+(-4+4*i)),sby,sbscale,0,THREEBYFIVE+dabuf[i]-'0',ha, 0, sbits);
         return;
     }
+
     if (num1 > 9)
     {
         if (shd && ud.screen_size == 4 && getrendermode() >= 3 && althud_shadows)
         {
-            rotatesprite_fs(sbarx(x+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits);
-            rotatesprite_fs(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits);
+            rotatesprite_fs(sbarx(x+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,4,POLYMOSTTRANS|sbits);
+            rotatesprite_fs(sbarx(x+4+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[1]-'0',ha,4,POLYMOSTTRANS|sbits);
         }
 
-        rotatesprite_fs(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits);
-        rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits);
+        rotatesprite_fs(sbarx(x),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits);
+        rotatesprite_fs(sbarx(x+4),sby,sbscale,0,THREEBYFIVE+dabuf[1]-'0',ha,0,sbits);
         return;
     }
-    rotatesprite_fs(sbarx(x+4+1),sbary(y+1),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,4,sbits);
-    rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits);
+
+    rotatesprite_fs(sbarx(x+4+1),sbyp1,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,4,sbits);
+    rotatesprite_fs(sbarx(x+4),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,sbits);
 }
 
 static void G_DrawWeapNum(int16_t ind,int32_t x,int32_t y,int32_t num1, int32_t num2,int32_t ha)
 {
-    char dabuf[80] = {0};
+    char dabuf[16];
 
-    rotatesprite_fs(sbarx(x-7),sbary(y),sbarsc(65536L),0,THREEBYFIVE+ind+1,ha-10,7,10);
-    rotatesprite_fs(sbarx(x-3),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10);
+    const int32_t sbscale = sbarsc(65536);
+    const int32_t sby = sbary(y);
+
+    rotatesprite_fs(sbarx(x-7),sby,sbscale,0,THREEBYFIVE+ind+1,ha-10,7,10);
+    rotatesprite_fs(sbarx(x-3),sby,sbscale,0,THREEBYFIVE+10,ha,0,10);
 
     if (VOLUMEONE && (ind > HANDBOMB_WEAPON || ind < 0))
     {
@@ -792,7 +798,7 @@ static void G_DrawWeapNum(int16_t ind,int32_t x,int32_t y,int32_t num1, int32_t 
         return;
     }
 
-    rotatesprite_fs(sbarx(x+9),sbary(y),sbarsc(65536L),0,THREEBYFIVE+11,ha,0,10);
+    rotatesprite_fs(sbarx(x+9),sby,sbscale,0,THREEBYFIVE+11,ha,0,10);
 
     if (num1 > 99) num1 = 99;
     if (num2 > 99) num2 = 99;
@@ -800,61 +806,64 @@ static void G_DrawWeapNum(int16_t ind,int32_t x,int32_t y,int32_t num1, int32_t 
     Bsprintf(dabuf,"%d",num1);
     if (num1 > 9)
     {
-        rotatesprite_fs(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
-        rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+4),sby,sbscale,0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
     }
-    else rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+    else rotatesprite_fs(sbarx(x+4),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
 
     Bsprintf(dabuf,"%d",num2);
     if (num2 > 9)
     {
-        rotatesprite_fs(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
-        rotatesprite_fs(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+13),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+17),sby,sbscale,0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
         return;
     }
-    rotatesprite_fs(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+    rotatesprite_fs(sbarx(x+13),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
 }
 
 static void G_DrawWeapNum2(char ind,int32_t x,int32_t y,int32_t num1, int32_t num2,char ha)
 {
-    char dabuf[80] = {0};
+    char dabuf[16];
 
-    rotatesprite_fs(sbarx(x-7),sbary(y),sbarsc(65536L),0,THREEBYFIVE+ind+1,ha-10,7,10);
-    rotatesprite_fs(sbarx(x-4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+10,ha,0,10);
-    rotatesprite_fs(sbarx(x+13),sbary(y),sbarsc(65536L),0,THREEBYFIVE+11,ha,0,10);
+    const int32_t sbscale = sbarsc(65536);
+    const int32_t sby = sbary(y);
+
+    rotatesprite_fs(sbarx(x-7),sby,sbscale,0,THREEBYFIVE+ind+1,ha-10,7,10);
+    rotatesprite_fs(sbarx(x-4),sby,sbscale,0,THREEBYFIVE+10,ha,0,10);
+    rotatesprite_fs(sbarx(x+13),sby,sbscale,0,THREEBYFIVE+11,ha,0,10);
 
     Bsprintf(dabuf,"%d",num1);
     if (num1 > 99)
     {
-        rotatesprite_fs(sbarx(x),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
-        rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
-        rotatesprite_fs(sbarx(x+8),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+4),sby,sbscale,0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+8),sby,sbscale,0,THREEBYFIVE+dabuf[2]-'0',ha,0,10);
     }
     else if (num1 > 9)
     {
-        rotatesprite_fs(sbarx(x+4),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
-        rotatesprite_fs(sbarx(x+8),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+4),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+8),sby,sbscale,0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
     }
-    else rotatesprite_fs(sbarx(x+8),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+    else rotatesprite_fs(sbarx(x+8),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
 
     Bsprintf(dabuf,"%d",num2);
     if (num2 > 99)
     {
-        rotatesprite_fs(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
-        rotatesprite_fs(sbarx(x+21),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
-        rotatesprite_fs(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[2]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+17),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+21),sby,sbscale,0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+25),sby,sbscale,0,THREEBYFIVE+dabuf[2]-'0',ha,0,10);
     }
     else if (num2 > 9)
     {
-        rotatesprite_fs(sbarx(x+17),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
-        rotatesprite_fs(sbarx(x+21),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+17),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+21),sby,sbscale,0,THREEBYFIVE+dabuf[1]-'0',ha,0,10);
         return;
     }
     else
-        rotatesprite_fs(sbarx(x+25),sbary(y),sbarsc(65536L),0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
+        rotatesprite_fs(sbarx(x+25),sby,sbscale,0,THREEBYFIVE+dabuf[0]-'0',ha,0,10);
 }
 
-static void G_DrawWeapAmounts(DukePlayer_t *p,int32_t x,int32_t y,int32_t u)
+static void G_DrawWeapAmounts(const DukePlayer_t *p,int32_t x,int32_t y,int32_t u)
 {
     int32_t cw = p->curr_weapon;
 
@@ -1000,6 +1009,8 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
     int32_t rev = (x < 0);
     int32_t shd = (y < 0);
 
+    const int32_t sbscale = sbarsc(65536);
+
     if (rev) x = -x;
     if (shd) y = -y;
 
@@ -1018,8 +1029,8 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
         {
             p = althud_numbertile + b[k]-'0';
             if (shd && getrendermode() >= 3 && althud_shadows)
-                rotatesprite_fs(sbarxr(c+j-1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|POLYMOSTTRANS2);
-            rotatesprite_fs(sbarxr(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs);
+                rotatesprite_fs(sbarxr(c+j-1),sbary(y+1),sbscale,0,p,s,4,cs|POLYMOSTTRANS2);
+            rotatesprite_fs(sbarxr(c+j),sbary(y),sbscale,0,p,s,althud_numberpal,cs);
             j -= tilesizx[p]+1;
         }
         return;
@@ -1030,13 +1041,13 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
     {
         p = althud_numbertile + b[k]-'0';
         if (shd && getrendermode() >= 3 && althud_shadows)
-            rotatesprite_fs(sbarx(c+j+1),sbary(y+1),sbarsc(65536L),0,p,s,4,cs|POLYMOSTTRANS2);
-        rotatesprite_fs(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,althud_numberpal,cs);
+            rotatesprite_fs(sbarx(c+j+1),sbary(y+1),sbscale,0,p,s,4,cs|POLYMOSTTRANS2);
+        rotatesprite_fs(sbarx(c+j),sbary(y),sbscale,0,p,s,althud_numberpal,cs);
         j += tilesizx[p]+1;
     }
 }
 
-static void G_DrawInventory(DukePlayer_t *p)
+static void G_DrawInventory(const DukePlayer_t *p)
 {
     int32_t n, j = 0, xoff = 0, y;
 
@@ -1103,32 +1114,84 @@ static void G_DrawInventory(DukePlayer_t *p)
 void G_DrawFrags(void)
 {
     int32_t i, j = 0;
+    const int32_t orient = 2+8+16+64;
 
     for (TRAVERSE_CONNECT(i))
-        if (i > j) j = i;
+        if (i > j)
+            j = i;
 
-    rotatesprite_fs(0,0,65600L,0,FRAGBAR,0,0,2+8+16+64);
-    if (j >= 4) rotatesprite_fs(319,(8)<<16,65600L,0,FRAGBAR,0,0,10+16+64);
-    if (j >= 8) rotatesprite_fs(319,(16)<<16,65600L,0,FRAGBAR,0,0,10+16+64);
-    if (j >= 12) rotatesprite_fs(319,(24)<<16,65600L,0,FRAGBAR,0,0,10+16+64);
+    for (i=0; i<=(j>>2); i++)
+        rotatesprite_fs(0,(8*i)<<16,65600, 0, FRAGBAR, 0,0,orient);
 
     for (TRAVERSE_CONNECT(i))
     {
-        minitext(21+(73*(i&3)),2+((i&28)<<1),&g_player[i].user_name[0],/*sprite[g_player[i].ps->i].pal*/g_player[i].ps->palookup,2+8+16);
-        Bsprintf(tempbuf,"%d",g_player[i].ps->frag-g_player[i].ps->fraggedself);
-        minitext(17+50+(73*(i&3)),2+((i&28)<<1),tempbuf,/*sprite[g_player[i].ps->i].pal*/g_player[i].ps->palookup,2+8+16);
+        const DukePlayer_t *ps = g_player[i].ps;
+        minitext(21+(73*(i&3)), 2+((i&28)<<1), g_player[i].user_name, ps->palookup, 2+8+16);
+        Bsprintf(tempbuf, "%d", ps->frag-ps->fraggedself);
+        minitext(17+50+(73*(i&3)), 2+((i&28)<<1), tempbuf, ps->palookup, 2+8+16);
     }
 }
 
-#define SBY (200-tilesizy[BOTTOMSTATUSBAR])
+static int32_t G_GetInvAmount(const DukePlayer_t *p)
+{
+    switch (p->inven_icon)
+    {
+    case 1:
+        return p->inv_amount[GET_FIRSTAID];
+    case 2:
+        return ((p->inv_amount[GET_STEROIDS]+3)>>2);
+    case 3:
+        return ((p->inv_amount[GET_HOLODUKE]+15)/24);
+    case 4:
+        return ((p->inv_amount[GET_JETPACK]+15)>>4);
+    case 5:
+        return p->inv_amount[GET_HEATS]/12;
+    case 6:
+        return ((p->inv_amount[GET_SCUBA]+63)>>6);
+    case 7:
+        return (p->inv_amount[GET_BOOTS]>>1);
+    }
+
+    return -1;
+}
+
+static int32_t G_GetInvOn(const DukePlayer_t *p)
+{
+    switch (p->inven_icon)
+    {
+    case 3:
+        return p->holoduke_on;
+    case 4:
+        return p->jetpack_on;
+    case 5:
+        return p->heat_on;
+    }
+
+    return 0x80000000;
+}
 
 static void G_DrawStatusBar(int32_t snum)
 {
-    DukePlayer_t *p = g_player[snum].ps;
+    const DukePlayer_t *const p = g_player[snum].ps;
     int32_t i, j, o, ss = ud.screen_size, u;
     int32_t permbit = 0;
 
-    if (ss < 4) return;
+    const int32_t SBY = (200-tilesizy[BOTTOMSTATUSBAR]);
+
+    const int32_t sb15 = sbarsc(32768), sb15h = sbarsc(49152);
+    const int32_t sb16 = sbarsc(65536);
+
+    static int32_t item_icons[8];
+
+    if (ss < 4)
+        return;
+
+    if (item_icons[0] == 0)
+    {
+        int32_t iicons[8] = { -1, FIRSTAID_ICON, STEROIDS_ICON, HOLODUKE_ICON,
+                              JETPACK_ICON, HEAT_ICON, AIRTANK_ICON, BOOT_ICON };
+        Bmemcpy(item_icons, iicons, sizeof(item_icons));
+    }
 
     if (getrendermode() >= 3) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
 
@@ -1157,25 +1220,25 @@ static void G_DrawStatusBar(int32_t snum)
         {
             static int32_t ammo_sprites[MAX_WEAPONS];
 
-            if (!ammo_sprites[0])
+            if (ammo_sprites[0] == 0)
             {
                 /* this looks stupid but it lets us initialize static memory to dynamic values
                    these values can be changed from the CONs with dynamic tile remapping
                    but we don't want to have to recreate the values in memory every time
                    the HUD is drawn */
 
-                int32_t asprites[MAX_WEAPONS] = { BOOTS, AMMO, SHOTGUNAMMO,
-                                                  BATTERYAMMO, RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO,
+                int32_t asprites[MAX_WEAPONS] = { BOOTS, AMMO, SHOTGUNAMMO, BATTERYAMMO,
+                                                  RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO,
                                                   TRIPBOMBSPRITE, FREEZEAMMO+1, HBOMBAMMO, GROWAMMO
                                                 };
-                Bmemcpy(ammo_sprites,asprites,sizeof(ammo_sprites));
+                Bmemcpy(ammo_sprites, asprites, sizeof(ammo_sprites));
             }
 
-//            rotatesprite_fs(sbarx(5+1),sbary(200-25+1),sbarsc(49152L),0,SIXPAK,0,4,10+16+1+32);
-//            rotatesprite_fs(sbarx(5),sbary(200-25),sbarsc(49152L),0,SIXPAK,0,0,10+16);
+//            rotatesprite_fs(sbarx(5+1),sbary(200-25+1),sb15h,0,SIXPAK,0,4,10+16+1+32);
+//            rotatesprite_fs(sbarx(5),sbary(200-25),sb15h,0,SIXPAK,0,0,10+16);
             if (getrendermode() >= 3 && althud_shadows)
-                rotatesprite_fs(sbarx(2+1),sbary(200-21+1),sbarsc(49152L),0,COLA,0,4,10+16+256+POLYMOSTTRANS2);
-            rotatesprite_fs(sbarx(2),sbary(200-21),sbarsc(49152L),0,COLA,0,0,10+16+256);
+                rotatesprite_fs(sbarx(2+1),sbary(200-21+1),sb15h,0,COLA,0,4,10+16+256+POLYMOSTTRANS2);
+            rotatesprite_fs(sbarx(2),sbary(200-21),sb15h,0,COLA,0,0,10+16+256);
 
             if (sprite[p->i].pal == 1 && p->last_extra < 2)
                 G_DrawAltDigiNum(40,-(200-22),1,-16,10+16+256);
@@ -1188,8 +1251,8 @@ static void G_DrawStatusBar(int32_t snum)
             }
 
             if (getrendermode() >= 3 && althud_shadows)
-                rotatesprite_fs(sbarx(62+1),sbary(200-25+1),sbarsc(49152L),0,SHIELD,0,4,10+16+POLYMOSTTRANS2+256);
-            rotatesprite_fs(sbarx(62),sbary(200-25),sbarsc(49152L),0,SHIELD,0,0,10+16+256);
+                rotatesprite_fs(sbarx(62+1),sbary(200-25+1),sb15h,0,SHIELD,0,4,10+16+POLYMOSTTRANS2+256);
+            rotatesprite_fs(sbarx(62),sbary(200-25),sb15h,0,SHIELD,0,0,10+16+256);
 
             {
                 int32_t lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
@@ -1199,14 +1262,14 @@ static void G_DrawStatusBar(int32_t snum)
 
             if (getrendermode() >= 3 && althud_shadows)
             {
-                if (p->got_access&1) rotatesprite_fs(sbarxr(39-1),sbary(200-43+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
-                if (p->got_access&4) rotatesprite_fs(sbarxr(34-1),sbary(200-41+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
-                if (p->got_access&2) rotatesprite_fs(sbarxr(29-1),sbary(200-39+1),sbarsc(32768),0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
+                if (p->got_access&1) rotatesprite_fs(sbarxr(39-1),sbary(200-43+1),sb15,0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
+                if (p->got_access&4) rotatesprite_fs(sbarxr(34-1),sbary(200-41+1),sb15,0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
+                if (p->got_access&2) rotatesprite_fs(sbarxr(29-1),sbary(200-39+1),sb15,0,ACCESSCARD,0,4,10+16+POLYMOSTTRANS2+512);
             }
 
-            if (p->got_access&1) rotatesprite_fs(sbarxr(39),sbary(200-43),sbarsc(32768),0,ACCESSCARD,0,0,10+16+512);
-            if (p->got_access&4) rotatesprite_fs(sbarxr(34),sbary(200-41),sbarsc(32768),0,ACCESSCARD,0,23,10+16+512);
-            if (p->got_access&2) rotatesprite_fs(sbarxr(29),sbary(200-39),sbarsc(32768),0,ACCESSCARD,0,21,10+16+512);
+            if (p->got_access&1) rotatesprite_fs(sbarxr(39),sbary(200-43),sb15,0,ACCESSCARD,0,0,10+16+512);
+            if (p->got_access&4) rotatesprite_fs(sbarxr(34),sbary(200-41),sb15,0,ACCESSCARD,0,23,10+16+512);
+            if (p->got_access&2) rotatesprite_fs(sbarxr(29),sbary(200-39),sb15,0,ACCESSCARD,0,21,10+16+512);
 
             i = (p->curr_weapon == PISTOL_WEAPON) ? 16384 : 32768;
 
@@ -1226,104 +1289,57 @@ static void G_DrawStatusBar(int32_t snum)
 
             if (p->inven_icon)
             {
-                switch (p->inven_icon)
-                {
-                case 1:
-                    i = FIRSTAID_ICON;
-                    break;
-                case 2:
-                    i = STEROIDS_ICON;
-                    break;
-                case 3:
-                    i = HOLODUKE_ICON;
-                    break;
-                case 4:
-                    i = JETPACK_ICON;
-                    break;
-                case 5:
-                    i = HEAT_ICON;
-                    break;
-                case 6:
-                    i = AIRTANK_ICON;
-                    break;
-                case 7:
-                    i = BOOT_ICON;
-                    break;
-                default:
-                    i = -1;
-                }
+                const int32_t orient = 10+16+permbit+256;
+
+                i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
                 if (i >= 0)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        rotatesprite_fs(sbarx(231-o+1),sbary(200-21-2+1),sbarsc(65536L),0,i,0,4,10+16+permbit+POLYMOSTTRANS2+256);
-                    rotatesprite_fs(sbarx(231-o),sbary(200-21-2),sbarsc(65536L),0,i,0,0,10+16+permbit+256);
+                        rotatesprite_fs(sbarx(231-o+1),sbary(200-21-2+1),sb16,0,i,0,4, orient+POLYMOSTTRANS2);
+                    rotatesprite_fs(sbarx(231-o),sbary(200-21-2),sb16,0,i,0,0,orient);
                 }
 
                 if (getrendermode() >= 3 && althud_shadows)
-                    minitext(292-30-o+1,190-3+1,"%",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
-                minitext(292-30-o,190-3,"%",6,10+16+permbit+256 + ROTATESPRITE_MAX);
+                    minitext(292-30-o+1,190-3+1,"%",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                minitext(292-30-o,190-3,"%",6, orient+ROTATESPRITE_MAX);
 
-                j = 0x80000000;
-                switch (p->inven_icon)
-                {
-                case 1:
-                    i = p->inv_amount[GET_FIRSTAID];
-                    break;
-                case 2:
-                    i = ((p->inv_amount[GET_STEROIDS]+3)>>2);
-                    break;
-                case 3:
-                    i = ((p->inv_amount[GET_HOLODUKE]+15)/24);
-                    j = p->holoduke_on;
-                    break;
-                case 4:
-                    i = ((p->inv_amount[GET_JETPACK]+15)>>4);
-                    j = p->jetpack_on;
-                    break;
-                case 5:
-                    i = p->inv_amount[GET_HEATS]/12;
-                    j = p->heat_on;
-                    break;
-                case 6:
-                    i = ((p->inv_amount[GET_SCUBA]+63)>>6);
-                    break;
-                case 7:
-                    i = (p->inv_amount[GET_BOOTS]>>1);
-                    break;
-                }
+                i = G_GetInvAmount(p);
+                j = G_GetInvOn(p);
+
                 G_DrawInvNum(-(284-30-o),200-6-3,(uint8_t)i,0,10+permbit+256);
+
                 if (j > 0)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        minitext(288-30-o+1,180-3+1,"On",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
-                    minitext(288-30-o,180-3,"On",0,10+16+permbit+256 + ROTATESPRITE_MAX);
+                        minitext(288-30-o+1,180-3+1,"On",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                    minitext(288-30-o,180-3,"On",0, orient+ROTATESPRITE_MAX);
                 }
                 else if ((uint32_t)j != 0x80000000)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        minitext(284-30-o+1,180-3+1,"Off",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
-                    minitext(284-30-o,180-3,"Off",2,10+16+permbit+256 + ROTATESPRITE_MAX);
+                        minitext(284-30-o+1,180-3+1,"Off",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                    minitext(284-30-o,180-3,"Off",2, orient+ROTATESPRITE_MAX);
                 }
 
                 if (p->inven_icon >= 6)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
-                        minitext(284-35-o+1,180-3+1,"Auto",4,POLYMOSTTRANS+10+16+permbit+256 + ROTATESPRITE_MAX);
-                    minitext(284-35-o,180-3,"Auto",2,10+16+permbit+256 + ROTATESPRITE_MAX);
+                        minitext(284-35-o+1,180-3+1,"Auto",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
+                    minitext(284-35-o,180-3,"Auto",2, orient+ROTATESPRITE_MAX);
                 }
             }
             return;
         }
 
-        rotatesprite_fs(sbarx(5),sbary(200-28),sbarsc(65536L),0,HEALTHBOX,0,21,10+16+256);
+        rotatesprite_fs(sbarx(5),sbary(200-28),sb16,0,HEALTHBOX,0,21,10+16+256);
         if (p->inven_icon)
-            rotatesprite_fs(sbarx(69),sbary(200-30),sbarsc(65536L),0,INVENTORYBOX,0,21,10+16+256);
+            rotatesprite_fs(sbarx(69),sbary(200-30),sb16,0,INVENTORYBOX,0,21,10+16+256);
 
         if (sprite[p->i].pal == 1 && p->last_extra < 2) // frozen
             G_DrawDigiNum(20,200-17,1,-16,10+16+256);
         else G_DrawDigiNum(20,200-17,p->last_extra,-16,10+16+256);
 
-        rotatesprite_fs(sbarx(37),sbary(200-28),sbarsc(65536L),0,AMMOBOX,0,21,10+16+256);
+        rotatesprite_fs(sbarx(37),sbary(200-28),sb16,0,AMMOBOX,0,21,10+16+256);
 
         if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
         else i = p->curr_weapon;
@@ -1333,68 +1349,26 @@ static void G_DrawStatusBar(int32_t snum)
         permbit = 0;
         if (p->inven_icon)
         {
-            switch (p->inven_icon)
-            {
-            case 1:
-                i = FIRSTAID_ICON;
-                break;
-            case 2:
-                i = STEROIDS_ICON;
-                break;
-            case 3:
-                i = HOLODUKE_ICON;
-                break;
-            case 4:
-                i = JETPACK_ICON;
-                break;
-            case 5:
-                i = HEAT_ICON;
-                break;
-            case 6:
-                i = AIRTANK_ICON;
-                break;
-            case 7:
-                i = BOOT_ICON;
-                break;
-            default:
-                i = -1;
-            }
-            if (i >= 0) rotatesprite_fs(sbarx(231-o),sbary(200-21),sbarsc(65536L),0,i,0,0,10+16+permbit+256);
+            const int32_t orient = 10+16+permbit+256;
 
-            minitext(292-30-o,190,"%",6,10+16+permbit+256 + ROTATESPRITE_MAX);
+            i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
+            if (i >= 0)
+                rotatesprite_fs(sbarx(231-o),sbary(200-21),sb16,0,i,0,0, orient);
 
-            j = 0x80000000;
-            switch (p->inven_icon)
-            {
-            case 1:
-                i = p->inv_amount[GET_FIRSTAID];
-                break;
-            case 2:
-                i = ((p->inv_amount[GET_STEROIDS]+3)>>2);
-                break;
-            case 3:
-                i = ((p->inv_amount[GET_HOLODUKE]+15)/24);
-                j = p->holoduke_on;
-                break;
-            case 4:
-                i = ((p->inv_amount[GET_JETPACK]+15)>>4);
-                j = p->jetpack_on;
-                break;
-            case 5:
-                i = p->inv_amount[GET_HEATS]/12;
-                j = p->heat_on;
-                break;
-            case 6:
-                i = ((p->inv_amount[GET_SCUBA]+63)>>6);
-                break;
-            case 7:
-                i = (p->inv_amount[GET_BOOTS]>>1);
-                break;
-            }
+            minitext(292-30-o,190,"%",6, orient+ROTATESPRITE_MAX);
+
+            i = G_GetInvAmount(p);
+            j = G_GetInvOn(p);
+
             G_DrawInvNum(284-30-o,200-6,(uint8_t)i,0,10+permbit+256);
-            if (j > 0) minitext(288-30-o,180,"On",0,10+16+permbit+256 + ROTATESPRITE_MAX);
-            else if ((uint32_t)j != 0x80000000) minitext(284-30-o,180,"Off",2,10+16+permbit+256 + ROTATESPRITE_MAX);
-            if (p->inven_icon >= 6) minitext(284-35-o,180,"Auto",2,10+16+permbit+256 + ROTATESPRITE_MAX);
+
+            if (j > 0)
+                minitext(288-30-o,180,"On",0, orient+ROTATESPRITE_MAX);
+            else if ((uint32_t)j != 0x80000000)
+                minitext(284-30-o,180,"Off",2, orient+ROTATESPRITE_MAX);
+
+            if (p->inven_icon >= 6)
+                minitext(284-35-o,180,"Auto",2, orient+ROTATESPRITE_MAX);
         }
         return;
     }
@@ -1427,23 +1401,14 @@ static void G_DrawStatusBar(int32_t snum)
 
     {
         int32_t lAmount=Gv_GetVarByLabel("PLR_MORALE",-1, p->i, snum);
+
         if (lAmount == -1)
-        {
-            if (sbar.inv_amount[GET_SHIELD] != p->inv_amount[GET_SHIELD])
-            {
-                sbar.inv_amount[GET_SHIELD] = p->inv_amount[GET_SHIELD];
-                u |= 2;
-            }
+            lAmount = p->inv_amount[GET_SHIELD];
 
-        }
-        else
+        if (sbar.inv_amount[GET_SHIELD] != lAmount)
         {
-            if (sbar.inv_amount[GET_SHIELD] != lAmount)
-            {
-                sbar.inv_amount[GET_SHIELD] = lAmount;
-                u |= 2;
-            }
-
+            sbar.inv_amount[GET_SHIELD] = lAmount;
+            u |= 2;
         }
     }
 
@@ -1474,6 +1439,7 @@ static void G_DrawStatusBar(int32_t snum)
             else u |= 65536L+1024;
         }
     }
+
     if (sbar.inven_icon != p->inven_icon)
     {
         sbar.inven_icon = p->inven_icon;
@@ -1494,42 +1460,27 @@ static void G_DrawStatusBar(int32_t snum)
         sbar.heat_on = p->heat_on;
         u |= (4096+8192);
     }
-    if (sbar.inv_amount[GET_FIRSTAID] != p->inv_amount[GET_FIRSTAID])
+
     {
-        sbar.inv_amount[GET_FIRSTAID] = p->inv_amount[GET_FIRSTAID];
-        u |= 8192;
+        static const int32_t check_items[] = {
+            GET_FIRSTAID, GET_STEROIDS, GET_HOLODUKE, GET_JETPACK,
+            GET_HEATS, GET_SCUBA, GET_BOOTS
+        };
+
+        for (i=0; i<(int32_t)sizeof(check_items)/(int32_t)sizeof(check_items[0]); i++)
+        {
+            int32_t item = check_items[i];
+
+            if (sbar.inv_amount[item] != p->inv_amount[item])
+            {
+                sbar.inv_amount[item] = p->inv_amount[item];
+                u |= 8192;
+            }
+        }
     }
-    if (sbar.inv_amount[GET_STEROIDS] != p->inv_amount[GET_STEROIDS])
-    {
-        sbar.inv_amount[GET_STEROIDS] = p->inv_amount[GET_STEROIDS];
-        u |= 8192;
-    }
-    if (sbar.inv_amount[GET_HOLODUKE] != p->inv_amount[GET_HOLODUKE])
-    {
-        sbar.inv_amount[GET_HOLODUKE] = p->inv_amount[GET_HOLODUKE];
-        u |= 8192;
-    }
-    if (sbar.inv_amount[GET_JETPACK] != p->inv_amount[GET_JETPACK])
-    {
-        sbar.inv_amount[GET_JETPACK] = p->inv_amount[GET_JETPACK];
-        u |= 8192;
-    }
-    if (sbar.inv_amount[GET_HEATS] != p->inv_amount[GET_HEATS])
-    {
-        sbar.inv_amount[GET_HEATS] = p->inv_amount[GET_HEATS];
-        u |= 8192;
-    }
-    if (sbar.inv_amount[GET_SCUBA] != p->inv_amount[GET_SCUBA])
-    {
-        sbar.inv_amount[GET_SCUBA] = p->inv_amount[GET_SCUBA];
-        u |= 8192;
-    }
-    if (sbar.inv_amount[GET_BOOTS] != p->inv_amount[GET_BOOTS])
-    {
-        sbar.inv_amount[GET_BOOTS] = p->inv_amount[GET_BOOTS];
-        u |= 8192;
-    }
-    if (u == 0) return;
+
+    if (u == 0)
+        return;
 
     //0 - update health
     //1 - update armor
@@ -1553,7 +1504,7 @@ static void G_DrawStatusBar(int32_t snum)
     {
         G_PatchStatusBar(0,0,320,200);
         if ((g_netServer || (g_netServer || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
-            rotatesprite_fs(sbarx(277+1),sbary(SBY+7-1),sbarsc(65536L),0,KILLSICON,0,0,10+16);
+            rotatesprite_fs(sbarx(277+1),sbary(SBY+7-1),sb16,0,KILLSICON,0,0,10+16);
     }
     if ((g_netServer || (g_netServer || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
     {
@@ -1568,12 +1519,14 @@ static void G_DrawStatusBar(int32_t snum)
         if (u&16384)
         {
             if (u != -1) G_PatchStatusBar(275,SBY+18,299,SBY+18+12);
-            if (p->got_access&4) rotatesprite_fs(sbarx(275),sbary(SBY+16),sbarsc(65536L),0,ACCESS_ICON,0,23,10+16);
-            if (p->got_access&2) rotatesprite_fs(sbarx(288),sbary(SBY+16),sbarsc(65536L),0,ACCESS_ICON,0,21,10+16);
-            if (p->got_access&1) rotatesprite_fs(sbarx(281),sbary(SBY+23),sbarsc(65536L),0,ACCESS_ICON,0,0,10+16);
+            if (p->got_access&4) rotatesprite_fs(sbarx(275),sbary(SBY+16),sb16,0,ACCESS_ICON,0,23,10+16);
+            if (p->got_access&2) rotatesprite_fs(sbarx(288),sbary(SBY+16),sb16,0,ACCESS_ICON,0,21,10+16);
+            if (p->got_access&1) rotatesprite_fs(sbarx(281),sbary(SBY+23),sb16,0,ACCESS_ICON,0,0,10+16);
         }
     }
-    if (u&(4+8+16+32+64+128+256+512+65536L)) G_DrawWeapAmounts(p,96,SBY+16,u);
+
+    if (u&(4+8+16+32+64+128+256+512+65536L))
+        G_DrawWeapAmounts(p,96,SBY+16,u);
 
     if (u&1)
     {
@@ -1608,15 +1561,11 @@ static void G_DrawStatusBar(int32_t snum)
         if (u != -1)
         {
             if (u&(2048+4096))
-            {
                 G_PatchStatusBar(231,SBY+13,265,SBY+13+18);
-            }
             else
-            {
                 G_PatchStatusBar(250,SBY+24,261,SBY+24+6);
-            }
-
         }
+
         if (p->inven_icon)
         {
             o = 0;
@@ -1624,79 +1573,24 @@ static void G_DrawStatusBar(int32_t snum)
 
             if (u&(2048+4096))
             {
-                switch (p->inven_icon)
-                {
-                case 1:
-                    i = FIRSTAID_ICON;
-                    break;
-                case 2:
-                    i = STEROIDS_ICON;
-                    break;
-                case 3:
-                    i = HOLODUKE_ICON;
-                    break;
-                case 4:
-                    i = JETPACK_ICON;
-                    break;
-                case 5:
-                    i = HEAT_ICON;
-                    break;
-                case 6:
-                    i = AIRTANK_ICON;
-                    break;
-                case 7:
-                    i = BOOT_ICON;
-                    break;
-                }
-                rotatesprite_fs(sbarx(231-o),sbary(SBY+13),sbarsc(65536L),0,i,0,0,10+16+permbit);
+                i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
+                // XXX: i < 0?
+                rotatesprite_fs(sbarx(231-o),sbary(SBY+13),sb16,0,i,0,0,10+16+permbit);
                 minitext(292-30-o,SBY+24,"%",6,10+16+permbit + ROTATESPRITE_MAX);
                 if (p->inven_icon >= 6) minitext(284-35-o,SBY+14,"Auto",2,10+16+permbit + ROTATESPRITE_MAX);
             }
+
             if (u&(2048+4096))
             {
-                switch (p->inven_icon)
-                {
-                case 3:
-                    j = p->holoduke_on;
-                    break;
-                case 4:
-                    j = p->jetpack_on;
-                    break;
-                case 5:
-                    j = p->heat_on;
-                    break;
-                default:
-                    j = 0x80000000;
-                }
+                j = G_GetInvOn(p);
+
                 if (j > 0) minitext(288-30-o,SBY+14,"On",0,10+16+permbit  + ROTATESPRITE_MAX);
                 else if ((uint32_t)j != 0x80000000) minitext(284-30-o,SBY+14,"Off",2,10+16+permbit + ROTATESPRITE_MAX);
             }
+
             if (u&8192)
             {
-                switch (p->inven_icon)
-                {
-                case 1:
-                    i = p->inv_amount[GET_FIRSTAID];
-                    break;
-                case 2:
-                    i = ((p->inv_amount[GET_STEROIDS]+3)>>2);
-                    break;
-                case 3:
-                    i = ((p->inv_amount[GET_HOLODUKE]+15)/24);
-                    break;
-                case 4:
-                    i = ((p->inv_amount[GET_JETPACK]+15)>>4);
-                    break;
-                case 5:
-                    i = p->inv_amount[GET_HEATS]/12;
-                    break;
-                case 6:
-                    i = ((p->inv_amount[GET_SCUBA]+63)>>6);
-                    break;
-                case 7:
-                    i = (p->inv_amount[GET_BOOTS]>>1);
-                    break;
-                }
+                i = G_GetInvAmount(p);
                 G_DrawInvNum(284-30-o,SBY+28,(uint8_t)i,0,10+permbit);
             }
         }

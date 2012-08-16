@@ -105,7 +105,8 @@ void yax_updategrays(int32_t posze);
 # define YAX_NEXTWALL(Wall, Cf) YAX_PTRNEXTWALL(wall, Wall, Cf)
 
 # define YAX_ITER_WALLS(Wal, Itervar, Cfvar) Cfvar=0, Itervar=(Wal); Itervar!=-1; \
-    Itervar=yax_getnextwall(Itervar, Cfvar), (void)(Itervar==-1 && Cfvar==0 && (Cfvar=1) && (Itervar=yax_getnextwall((Wal), Cfvar)))
+    Itervar=yax_getnextwall(Itervar, Cfvar), \
+        (void)(Itervar==-1 && Cfvar==0 && (Cfvar=1) && (Itervar=yax_getnextwall((Wal), Cfvar)))
 
 # define SECTORS_OF_BUNCH(Bunchnum, Cf, Itervar) Itervar = headsectbunch[Cf][Bunchnum]; \
     Itervar != -1; Itervar = nextsectbunch[Cf][Itervar]
@@ -569,14 +570,15 @@ int32_t    preinitengine(void);	// a partial setup of the engine used for launch
 int32_t    initengine(void);
 void   uninitengine(void);
 void   initspritelists(void);
-int32_t   loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
+int32_t   loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, int32_t *daposz,
+                    int16_t *daang, int16_t *dacursectnum);
 int32_t   loadmaphack(const char *filename);
 void delete_maphack_lights();
 #ifdef HAVE_CLIPSHAPE_FEATURE
 int32_t clipmapinfo_load(void);
 #endif
-int32_t   saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
-
+int32_t   saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz,
+                    int16_t *daang, int16_t *dacursectnum);
 void set_picsizanm(int32_t picnum, int16_t dasizx, int16_t dasizy, int32_t daanm);
 int32_t   loadpics(const char *filename, int32_t askedsize);
 void   loadtile(int16_t tilenume);
@@ -604,27 +606,35 @@ void   plotpixel(int32_t x, int32_t y, char col);
 char   getpixel(int32_t x, int32_t y);
 void   setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   setviewback(void);
-void   preparemirror(int32_t dax, int32_t day, int32_t daz, int16_t daang, int32_t dahoriz, int16_t dawall, int16_t dasector, int32_t *tposx, int32_t *tposy, int16_t *tang);
+void   preparemirror(int32_t dax, int32_t day, int32_t daz, int16_t daang, int32_t dahoriz,
+                     int16_t dawall, int16_t dasector, int32_t *tposx, int32_t *tposy, int16_t *tang);
 void   completemirror(void);
 
-int32_t   drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum);
+int32_t   drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
+                    int16_t daang, int32_t dahoriz, int16_t dacursectnum);
 void   drawmasks(void);
 void   clearview(int32_t dacol);
 void   clearallviews(int32_t dacol);
 void   drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
-void   rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
+void   rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                    int8_t dashade, char dapalnum, int32_t dastat,
+                    int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 void   drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
-int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
-void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
+int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
+                      const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
+void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
+                   const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
 
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
 // don't clip at all, i.e. the whole screen real estate is available
-static inline void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat)
+static inline void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                                   int8_t dashade, char dapalnum, int32_t dastat)
 {
     rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0,0,xdim-1,ydim-1);
 }
 
-static inline void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat)
+static inline void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                                    int8_t dashade, char dapalnum, int32_t dastat)
 {
     rotatesprite(sx, sy, z, a, picnum, dashade, dapalnum, dastat, windowx1,windowy1,windowx2,windowy2);
 }
@@ -633,20 +643,27 @@ void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int3
 void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int16_t elt);
 
 extern int32_t clipmoveboxtracenum;
-int32_t   clipmove(vec3_t *vect, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
+int32_t   clipmove(vec3_t *vect, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
+                   int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
 int32_t   clipinsidebox(int32_t x, int32_t y, int16_t wallnum, int32_t walldist);
-int32_t   clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t walldist);
-int32_t   pushmove(vec3_t *vect, int16_t *sectnum, int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
-void   getzrange(const vec3_t *vect, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
-int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz, hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
+int32_t   clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1,
+                            int32_t x2, int32_t y2, int32_t walldist);
+int32_t   pushmove(vec3_t *vect, int16_t *sectnum, int32_t walldist,
+                   int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
+void   getzrange(const vec3_t *vect, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
+                 int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
+int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
+                  hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
 void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
                int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite,
                int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch,
                int32_t (*blacklist_sprite_func)(int32_t)) ATTRIBUTE((nonnull(6,7,8)));
-int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
+int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
+                 int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 void   updatesector(int32_t x, int32_t y, int16_t *sectnum) ATTRIBUTE((nonnull(3)));
 void updatesector_onlynextwalls(int32_t x, int32_t y, int16_t *sectnum) ATTRIBUTE((nonnull(3)));
-void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *excludesectbitmap) ATTRIBUTE((nonnull(3)));
+void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum,
+                         const uint8_t *excludesectbitmap) ATTRIBUTE((nonnull(3)));
 void   updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum) ATTRIBUTE((nonnull(4)));
 int32_t   inside(int32_t x, int32_t y, int16_t sectnum);
 void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day);
@@ -683,12 +700,14 @@ static inline int32_t getangle(int32_t xvect, int32_t yvect)
     return ((radarang[640-scale(160,xvect,yvect)]>>6)+512+((yvect<0)<<10))&2047;
 }
 
-void   rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y, int16_t daang, int32_t *x2, int32_t *y2) ATTRIBUTE((nonnull(6,7)));
+void   rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y,
+                   int16_t daang, int32_t *x2, int32_t *y2) ATTRIBUTE((nonnull(6,7)));
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, int16_t direction);
 int32_t   getceilzofslope(int16_t sectnum, int32_t dax, int32_t day);
 int32_t   getflorzofslope(int16_t sectnum, int32_t dax, int32_t day);
-void   getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(4,5)));
+void   getzsofslope(int16_t sectnum, int32_t dax, int32_t day,
+                    int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(4,5)));
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 int32_t   sectorofwall(int16_t theline);
@@ -732,8 +751,10 @@ int32_t             wallvisible(int32_t x, int32_t y, int16_t wallnum);
 //void   qsetmode640480(void);
 void   qsetmodeany(int32_t,int32_t);
 void   clear2dscreen(void);
-void   draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride);
-void   draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride) ATTRIBUTE((nonnull(1)));
+void   draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
+                  int16_t ange, int32_t zoome, int16_t gride);
+void   draw2dscreen(const vec3_t *pos, int16_t cursectnum,
+                    int16_t ange, int32_t zoome, int16_t gride) ATTRIBUTE((nonnull(1)));
 int32_t   drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
 void   drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col);
 
@@ -795,7 +816,8 @@ void hicinit(void);
 // effect bitset: 1 = greyscale, 2 = invert
 void hicsetpalettetint(int32_t palnum, char r, char g, char b, char effect);
 // flags bitset: 1 = don't compress
-int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float alphacut, float xscale, float yscale, float specpower, float specfactor, char flags);
+int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float alphacut,
+                       float xscale, float yscale, float specpower, float specfactor, char flags);
 int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6]);
 int32_t hicclearsubst(int32_t picnum, int32_t palnum);
 
@@ -840,17 +862,24 @@ static inline int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
 }
 #endif  // defined USE_OPENGL
 
-int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume, int32_t skinnum, float smoothduration, int32_t pal);
-int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *frameend, int32_t fps, int32_t flags);
-int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum, int32_t surfnum, float param, float specpower, float specfactor);
-int32_t md_definehud (int32_t modelid, int32_t tilex, double xadd, double yadd, double zadd, double angadd, int32_t flags, int32_t fov);
+int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
+                       int32_t skinnum, float smoothduration, int32_t pal);
+int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *frameend,
+                           int32_t fps, int32_t flags);
+int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum,
+                      int32_t surfnum, float param, float specpower, float specfactor);
+int32_t md_definehud (int32_t modelid, int32_t tilex, double xadd, double yadd, double zadd,
+                      double angadd, int32_t flags, int32_t fov);
 int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);
 
 int32_t loaddefinitionsfile(const char *fn);
 
-extern int32_t mapversion;	// if loadboard() fails with -2 return, try loadoldboard(). if it fails with -2, board is dodgy
-int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz, int16_t *daang, int16_t *dacursectnum);
+// if loadboard() fails with -2 return, try loadoldboard(). if it fails with
+// -2, board is dodgy
+extern int32_t mapversion;
+int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz,
+                     int16_t *daang, int16_t *dacursectnum);
 
 // Hash functions
 
