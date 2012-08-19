@@ -5353,9 +5353,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     static int32_t onumframes = 0;
 
     int32_t n, nn, xoff, yoff, xsiz, ysiz, method;
-    int32_t ogpicnum, ogshade, ogpal, ofoffset, oldviewingrange;
-    double ogxyaspect;
-    double ogchang, ogshang, ogctang, ogstang, oghalfx, oghoriz, fx, fy, x1, y1, z1, x2, y2;
+    int32_t ogpicnum, ogshade, ogpal, ofoffset;
+    double ogchang, ogshang, ogctang, ogstang, oghalfx, oghoriz;
     double ogrhalfxdown10, ogrhalfxdown10x;
     double d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
     float m[4][4];
@@ -5372,6 +5371,10 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         if (tile2model[tilenum].modelid >= 0 &&
             tile2model[tilenum].framenum >= 0)
         {
+            int32_t oldviewingrange;
+            double ogxyaspect;
+            double x1, y1, z1;
+
             spritetype tspr;
             memset(&tspr,0,sizeof(spritetype));
 
@@ -5400,8 +5403,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
             if (!(hudmem[(dastat&4)>>2][picnum].flags&2)) //"NOBOB" is specified in DEF
             {
-                fx = ((double)sx)*(1.0/65536.0);
-                fy = ((double)sy)*(1.0/65536.0);
+                double fx = ((double)sx)*(1.0/65536.0);
+                double fy = ((double)sy)*(1.0/65536.0);
 
                 if (dastat&16)
                 {
@@ -5612,14 +5615,22 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     }
     method |= 4; //Use OpenGL clamping - dorotatesprite never repeats
 
-    xsiz = tilesizx[globalpicnum]; ysiz = tilesizy[globalpicnum];
-    if (dastat&16) { xoff = 0; yoff = 0; }
+    xsiz = tilesizx[globalpicnum];
+    ysiz = tilesizy[globalpicnum];
+
+    if (dastat&16)
+    {
+        xoff = 0;
+        yoff = 0;
+    }
     else
     {
         xoff = (int32_t)((int8_t)((picanm[globalpicnum]>>8)&255))+(xsiz>>1);
         yoff = (int32_t)((int8_t)((picanm[globalpicnum]>>16)&255))+(ysiz>>1);
     }
-    if (dastat&4) yoff = ysiz-yoff;
+
+    if (dastat&4)
+        yoff = ysiz-yoff;
 
     z = dorotspr_handle_bit2(&sx, &sy, z, dastat, cx1, cy1, cx2, cy2);
 
@@ -5627,7 +5638,12 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     cosang2 = cosang = (double)sintable[(a+512)&2047]*d;
     sinang2 = sinang = (double)sintable[a&2047]*d;
     if ((dastat&2) || (!(dastat&8))) //Don't aspect unscaled perms
-        { d = (double)xyaspect/65536.0; cosang2 *= d; sinang2 *= d; }
+    {
+        d = (double)xyaspect/65536.0;
+        cosang2 *= d;
+        sinang2 *= d;
+    }
+
     px[0] = (double)sx/65536.0 - (double)xoff*cosang2+ (double)yoff*sinang2;
     py[0] = (double)sy/65536.0 - (double)xoff*sinang - (double)yoff*cosang;
     px[1] = px[0] + (double)xsiz*cosang2;
@@ -5671,6 +5687,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     nn = z = 0;
     do
     {
+        double fx, x1, x2;
         int32_t zz = z+1; if (zz == n) zz = 0;
         x1 = px[z]; x2 = px[zz]-x1; if ((cx1 <= x1) && (x1 <= cx2)) { px2[nn] = x1; py2[nn] = py[z]; nn++; }
         if (x2 <= 0) fx = cx2; else fx = cx1;  d = fx-x1;
@@ -5686,6 +5703,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         n = z = 0;
         do
         {
+            double fy, y1, y2;
             int32_t zz = z+1; if (zz == nn) zz = 0;
             y1 = py2[z]; y2 = py2[zz]-y1; if ((cy1 <= y1) && (y1 <= cy2)) { py[n] = y1; px[n] = px2[z]; n++; }
             if (y2 <= 0) fy = cy2; else fy = cy1;  d = fy-y1;
