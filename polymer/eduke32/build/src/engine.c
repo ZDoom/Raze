@@ -6851,95 +6851,83 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
                           int32_t cx1_plus_cx2, int32_t cy1_plus_cy2,
                           int32_t *ret_yxaspect, int32_t *ret_xyaspect)
 {
-    int32_t x, sx, sy;
-
-    int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
-
     if ((dastat&2) == 0)
+    {
         if (!(dastat & 1024) && 4*ydim <= 3*xdim)
         {
             *ret_yxaspect = (12<<16)/10;
-            *ret_xyaspect = (1LL<<32)/ouryxaspect;
+            *ret_xyaspect = ((1<<16)*10)/12;
 
             // *sxptr and *syptr and *z are left unchanged
-            return;
         }
 
-    // dastat&2: Auto window size scaling
-
-    sx = *sxptr;
-    sy = *syptr;
-
-    // nasty hacks go here
-    if (!(dastat&8))
-    {
-        const int32_t cxs = cx1_plus_cx2+2;
-        int32_t sthelse;
-
-        const int32_t oxdim = xdim;
-        int32_t xdim = oxdim;  // SHADOWS global
-
-        x = xdimenscale;   //= scale(xdimen,yxaspect,320);
-
-        if (!(dastat & 1024) && 4*ydim <= 3*xdim)
-        {
-            xdim = (4*ydim)/3;
-
-            // ouryxaspect is divscale16(ydim*320, xdim*200)
-            ouryxaspect = (12<<16)/10;
-            ourxyaspect = (1LL<<32)/ouryxaspect;
-        }
-
-        sthelse = scale(sx-(320<<15), scale(xdimen, xdim, oxdim), 320);
-
-        {
-            int32_t xbord = 0;
-
-            if (dastat & (256|512))
-            {
-                xbord = scale(oxdim-xdim, cxs, oxdim);
-
-                if ((dastat & 512)==0)
-                    xbord = -xbord;
-            }
-
-            sx = ((cxs+xbord)<<15) + sthelse;
-        }
-
-        sy = ((cy1_plus_cy2+2)<<15)+mulscale16(sy-(200<<15), x);
+        return;
     }
     else
     {
-        //If not clipping to startmosts, & auto-scaling on, as a
-        //hard-coded bonus, scale to full screen instead
-
+        // dastat&2: Auto window size scaling
         const int32_t oxdim = xdim;
         int32_t xdim = oxdim;  // SHADOWS global
+
+        int32_t x, sx=*sxptr, sy=*syptr;
+        int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
 
         if (!(dastat & 1024) && 4*ydim <= 3*xdim)
         {
             xdim = (4*ydim)/3;
 
             ouryxaspect = (12<<16)/10;
-            ourxyaspect = (1LL<<32)/ouryxaspect;
+            ourxyaspect = ((1<<16)*10)/12;
         }
 
-        x = scale(xdim,ouryxaspect,320);
-        sx = (xdim<<15)+32768 + scale(sx-(320<<15),xdim,320);
-        sy = (ydim<<15)+32768 + mulscale16(sy-(200<<15),x);
+        // nasty hacks go here
+        if (!(dastat&8))
+        {
+            const int32_t cxs = cx1_plus_cx2+2;
+            int32_t sthelse;
 
-        if (dastat & 512)
-            sx += (oxdim-xdim)<<16;
-        else if ((dastat & 256) == 0)
-            sx += (oxdim-xdim)<<15;
+            x = xdimenscale;   //= scale(xdimen,yxaspect,320);
+
+            sthelse = scale(sx-(320<<15), scale(xdimen, xdim, oxdim), 320);
+
+            {
+                int32_t xbord = 0;
+
+                if (dastat & (256|512))
+                {
+                    xbord = scale(oxdim-xdim, cxs, oxdim);
+
+                    if ((dastat & 512)==0)
+                        xbord = -xbord;
+                }
+
+                sx = ((cxs+xbord)<<15) + sthelse;
+            }
+
+            sy = ((cy1_plus_cy2+2)<<15)+mulscale16(sy-(200<<15), x);
+        }
+        else
+        {
+            //If not clipping to startmosts, & auto-scaling on, as a
+            //hard-coded bonus, scale to full screen instead
+
+            x = scale(xdim,ouryxaspect,320);
+            sx = (xdim<<15)+32768 + scale(sx-(320<<15),xdim,320);
+            sy = (ydim<<15)+32768 + mulscale16(sy-(200<<15),x);
+
+            if (dastat & 512)
+                sx += (oxdim-xdim)<<16;
+            else if ((dastat & 256) == 0)
+                sx += (oxdim-xdim)<<15;
+        }
+
+        *sxptr = sx;
+        *syptr = sy;
+        *z = mulscale16(*z,x);
+
+        *ret_yxaspect = ouryxaspect;
+        *ret_xyaspect = ourxyaspect;
     }
-
-    *sxptr = sx;
-    *syptr = sy;
-    *z = mulscale16(*z,x);
-
-    *ret_yxaspect = ouryxaspect;
-    *ret_xyaspect = ourxyaspect;
 }
 
 
