@@ -1989,6 +1989,8 @@ static int32_t P_DisplayFist(int32_t gs,int32_t snum)
     int32_t looking_arc,fisti,fistpal;
     int32_t fistzoom, fistz;
 
+    int32_t wx[2] = { windowx1, windowx2 };
+
     const DukePlayer_t *const ps = g_player[snum].ps;
 
     fisti = ps->fist_incs;
@@ -2004,10 +2006,14 @@ static int32_t P_DisplayFist(int32_t gs,int32_t snum)
 
     fistpal = get_hud_pal(ps);
 
-    rotatesprite_fs(
+    if (g_fakeMultiMode && ud.multimode==2)
+        wx[(g_snum==0)] = (wx[0]+wx[1])/2+1;
+
+    rotatesprite(
         (-fisti+222+(g_player[snum].sync->avel>>4))<<16,
         (looking_arc+fistz)<<16,
-        fistzoom,0,FIST,gs,fistpal,2);
+        fistzoom,0,FIST,gs,fistpal,2,
+        wx[0],windowy1,wx[1],windowy2);
 
     return 1;
 }
