@@ -2643,12 +2643,13 @@ void G_DisplayRest(int32_t smoothratio)
             else
             {
                 P_DisplayWeapon(screenpeek);
-
-                if (g_fakeMultiMode && ud.multimode==2)  // HACK
+                if (pp2)  // HACK
                     P_DisplayWeapon(1);
 
                 if (pp->over_shoulder_on == 0)
                     P_DisplayScuba(screenpeek);
+                if (pp2 && pp2->over_shoulder_on == 0)  // HACK
+                    P_DisplayScuba(1);
             }
             G_MoveClouds();
         }
