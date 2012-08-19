@@ -1944,6 +1944,9 @@ SKIPBULLETHOLE:
     return -1;
 }
 
+
+//////////////////// HUD WEAPON / MISC. DISPLAY CODE ////////////////////
+
 static void P_DisplaySpit(int32_t snum)
 {
     int32_t i, a, x, y, z;
@@ -1986,18 +1989,20 @@ static int32_t P_DisplayFist(int32_t gs,int32_t snum)
     int32_t looking_arc,fisti,fistpal;
     int32_t fistzoom, fistz;
 
-    fisti = g_player[snum].ps->fist_incs;
+    const DukePlayer_t *const ps = g_player[snum].ps;
+
+    fisti = ps->fist_incs;
     if (fisti > 32) fisti = 32;
     if (fisti <= 0) return 0;
 
-    looking_arc = klabs(g_player[snum].ps->look_ang)/9;
+    looking_arc = klabs(ps->look_ang)/9;
 
     fistzoom = 65536 - (sintable[(512+(fisti<<6))&2047]<<2);
     fistzoom = clamp(fistzoom, 40920, 90612);
 
     fistz = 194 + (sintable[((6+fisti)<<7)&2047]>>9);
 
-    fistpal = get_hud_pal(g_player[snum].ps);
+    fistpal = get_hud_pal(ps);
 
     rotatesprite(
         (-fisti+222+(g_player[snum].sync->avel>>4))<<16,
@@ -2007,7 +2012,13 @@ static int32_t P_DisplayFist(int32_t gs,int32_t snum)
     return 1;
 }
 
-#define weapsc(sc) scale(sc,ud.weaponscale,100)
+
+#define DRAWEAP_CENTER 262144
+
+static inline int32_t weapsc(int32_t sc)
+{
+    return scale(sc, ud.weaponscale, 100);
+}
 
 static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
 {
@@ -2024,10 +2035,10 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
         xoff = 160;
         break;
     default:
-        if (orientation & 262144)
+        if (orientation & DRAWEAP_CENTER)
         {
             xoff = 160;
-            orientation &= ~262144;
+            orientation &= ~DRAWEAP_CENTER;
         }
         break;
     }
@@ -2064,7 +2075,8 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
                  wx1,windowy1,wx2,windowy2);
 }
 
-static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p, uint8_t slot)
+static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade,
+                             int32_t orientation, int32_t p, uint8_t slot)
 {
     static int32_t shadef[2] = {0, 0}, palf[2] = {0, 0};
 
@@ -2122,41 +2134,45 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
 
 static int32_t P_DisplayKnee(int32_t gs,int32_t snum)
 {
-    static int8_t knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
+    static const int8_t knee_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8};
     int32_t looking_arc, pal;
 
-    if (g_player[snum].ps->knee_incs > 11 || g_player[snum].ps->knee_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
+    const DukePlayer_t *const ps = g_player[snum].ps;
 
-    looking_arc = knee_y[g_player[snum].ps->knee_incs] + klabs(g_player[snum].ps->look_ang)/9;
+    if (ps->knee_incs > 11 || ps->knee_incs == 0 || sprite[ps->i].extra <= 0) return 0;
 
-    looking_arc -= (g_player[snum].ps->hard_landing<<3);
+    looking_arc = knee_y[ps->knee_incs] + klabs(ps->look_ang)/9;
 
-    pal = get_hud_pal(g_player[snum].ps);
+    looking_arc -= (ps->hard_landing<<3);
+
+    pal = get_hud_pal(ps);
     if (pal == 0)
-        pal = g_player[snum].ps->palookup;
+        pal = ps->palookup;
 
-    G_DrawTileScaled(105+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(knee_y[g_player[snum].ps->knee_incs]>>2),
-                     looking_arc+280-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),KNEE,gs,4+262144,pal);
+    G_DrawTileScaled(105+(g_player[snum].sync->avel>>4)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
+                     looking_arc+280-((ps->horiz-ps->horizoff)>>4),KNEE,gs,4+DRAWEAP_CENTER,pal);
 
     return 1;
 }
 
 static int32_t P_DisplayKnuckles(int32_t gs,int32_t snum)
 {
-    static int8_t knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
+    static const int8_t knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
     int32_t looking_arc, pal;
 
-    if (g_player[snum].ps->knuckle_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
+    const DukePlayer_t *const ps = g_player[snum].ps;
 
-    looking_arc = klabs(g_player[snum].ps->look_ang)/9;
+    if (ps->knuckle_incs == 0 || sprite[ps->i].extra <= 0) return 0;
 
-    looking_arc -= (g_player[snum].ps->hard_landing<<3);
+    looking_arc = klabs(ps->look_ang)/9;
 
-    pal = get_hud_pal(g_player[snum].ps);
+    looking_arc -= (ps->hard_landing<<3);
 
-    G_DrawTileScaled(160+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),
-                     looking_arc+180-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),
-                     CRACKKNUCKLES+knuckle_frames[g_player[snum].ps->knuckle_incs>>1],gs,4+262144,pal);
+    pal = get_hud_pal(ps);
+
+    G_DrawTileScaled(160+(g_player[snum].sync->avel>>4)-(ps->look_ang>>1),
+                     looking_arc+180-((ps->horiz-ps->horizoff)>>4),
+                     CRACKKNUCKLES+knuckle_frames[ps->knuckle_incs>>1],gs,4+DRAWEAP_CENTER,pal);
 
     return 1;
 }
@@ -2255,29 +2271,38 @@ void P_DisplayScuba(int32_t snum)
 static int32_t P_DisplayTip(int32_t gs,int32_t snum)
 {
     int32_t p,looking_arc, i, tipy;
-    static int16_t tip_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 
-    if (g_player[snum].ps->tipincs == 0) return 0;
+    static const int16_t tip_y[] = {
+        0,-8,-16,-32,-64,
+        -84,-108,-108,-108,-108,
+        -108,-108,-108,-108,-108,
+        -108,-96,-72,-64,-32,
+        -16
+    };
 
-    looking_arc = klabs(g_player[snum].ps->look_ang)/9;
-    looking_arc -= (g_player[snum].ps->hard_landing<<3);
+    const DukePlayer_t *const ps = g_player[snum].ps;
 
-    p = get_hud_pal(g_player[snum].ps);
+    if (ps->tipincs == 0) return 0;
 
-    /*    if(g_player[snum].ps->access_spritenum >= 0)
-            p = sprite[g_player[snum].ps->access_spritenum].pal;
+    looking_arc = klabs(ps->look_ang)/9;
+    looking_arc -= (ps->hard_landing<<3);
+
+    p = get_hud_pal(ps);
+
+    /*    if(ps->access_spritenum >= 0)
+            p = sprite[ps->access_spritenum].pal;
         else
-            p = wall[g_player[snum].ps->access_wallnum].pal;
+            p = wall[ps->access_wallnum].pal;
       */
 
     // FIXME?
     // OOB access of tip_y[] happens in 'Spider Den' of WGR2 SVN r72
-    i = g_player[snum].ps->tipincs;
+    i = ps->tipincs;
     tipy = ((unsigned)i < sizeof(tip_y)/sizeof(tip_y[0])) ? (tip_y[i]>>1) : 0;
 
-    G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1),
-                     tipy+looking_arc+240-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),
-                     TIP+((26-g_player[snum].ps->tipincs)>>4),gs,262144,p);
+    G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(ps->look_ang>>1),
+                     tipy+looking_arc+240-((ps->horiz-ps->horizoff)>>4),
+                     TIP+((26-ps->tipincs)>>4),gs,DRAWEAP_CENTER,p);
 
     return 1;
 }
@@ -2288,36 +2313,37 @@ static int32_t P_DisplayAccess(int32_t gs,int32_t snum)
         0,-8,-16,-32,-64,
         -84,-108,-108,-108,-108,
         -108,-108,-108,-108,-108,
-        -108,-96,-72,-64,-32,-16
+        -108,-96,-72,-64,-32,
+        -16
     };
 
-
     int32_t looking_arc, p = 0;
+    const DukePlayer_t *const ps = g_player[snum].ps;
 
-    if (g_player[snum].ps->access_incs == 0 || sprite[g_player[snum].ps->i].extra <= 0) return 0;
+    if (ps->access_incs == 0 || sprite[ps->i].extra <= 0) return 0;
 
-    looking_arc = access_y[g_player[snum].ps->access_incs] + klabs(g_player[snum].ps->look_ang)/9 -
-                  (g_player[snum].ps->hard_landing<<3);
+    looking_arc = access_y[ps->access_incs] + klabs(ps->look_ang)/9 -
+                  (ps->hard_landing<<3);
 
-    if (g_player[snum].ps->access_spritenum >= 0)
-        p = sprite[g_player[snum].ps->access_spritenum].pal;
+    if (ps->access_spritenum >= 0)
+        p = sprite[ps->access_spritenum].pal;
 
     //    else
-    //        p = wall[g_player[snum].ps->access_wallnum].pal;
+    //        p = wall[ps->access_wallnum].pal;
 
-    if ((g_player[snum].ps->access_incs-3) > 0 && (g_player[snum].ps->access_incs-3)>>3)
+    if ((ps->access_incs-3) > 0 && (ps->access_incs-3)>>3)
     {
         guniqhudid = 200;
-        G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),
-                         looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGLASER+(g_player[snum].ps->access_incs>>3),
-                         gs,262144,p);
+        G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(ps->look_ang>>1)+(access_y[ps->access_incs]>>2),
+                         looking_arc+266-((ps->horiz-ps->horizoff)>>4),HANDHOLDINGLASER+(ps->access_incs>>3),
+                         gs,DRAWEAP_CENTER,p);
         guniqhudid = 0;
     }
     else
     {
         guniqhudid = 201;
-        G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(g_player[snum].ps->look_ang>>1)+(access_y[g_player[snum].ps->access_incs]>>2),
-                         looking_arc+266-((g_player[snum].ps->horiz-g_player[snum].ps->horizoff)>>4),HANDHOLDINGACCESS,gs,4+262144,p);
+        G_DrawTileScaled(170+(g_player[snum].sync->avel>>4)-(ps->look_ang>>1)+(access_y[ps->access_incs]>>2),
+                         looking_arc+266-((ps->horiz-ps->horizoff)>>4),HANDHOLDINGACCESS,gs,4+DRAWEAP_CENTER,p);
         guniqhudid = 0;
     }
 
@@ -2391,9 +2417,9 @@ void P_DisplayWeapon(int32_t snum)
             guniqhudid = 100;
             if (j < 6 || j > 12)
                 G_DrawTileScaled(weapon_xoffset+80-(p->look_ang>>1),
-                                 looking_arc+250-gun_pos,KNEE,gs,o|4|262144,pal);
+                                 looking_arc+250-gun_pos,KNEE,gs,o|4|DRAWEAP_CENTER,pal);
             else G_DrawTileScaled(weapon_xoffset+160-16-(p->look_ang>>1),
-                                      looking_arc+214-gun_pos,KNEE+1,gs,o|4|262144,pal);
+                                      looking_arc+214-gun_pos,KNEE+1,gs,o|4|DRAWEAP_CENTER,pal);
             guniqhudid = 0;
         }
 
@@ -2575,7 +2601,6 @@ void P_DisplayWeapon(int32_t snum)
                 }
                 break;
 
-
             case CHAINGUN_WEAPON:
                 if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0) == 0)
                 {
@@ -2687,48 +2712,48 @@ void P_DisplayWeapon(int32_t snum)
 
                     }
                 }
-
                 break;
+
             case HANDBOMB_WEAPON:
-                    if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0) == 0)
+                if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0) == 0)
+                {
+                    guniqhudid = cw;
+                    if ((*kb))
                     {
-                        guniqhudid = cw;
-                        if ((*kb))
+                        if ((*kb) < (*aplWeaponTotalTime[p->curr_weapon]))
                         {
-                            if ((*kb) < (*aplWeaponTotalTime[p->curr_weapon]))
-                            {
 
-                                static uint8_t throw_frames[] = {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2};
+                            static uint8_t throw_frames[] = {0,0,0,0,0,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2};
 
-                                if ((*kb) < 7)
-                                    gun_pos -= 10*(*kb);        //D
-                                else if ((*kb) < 12)
-                                    gun_pos += 20*((*kb)-10); //U
-                                else if ((*kb) < 20)
-                                    gun_pos -= 9*((*kb)-14);  //D
+                            if ((*kb) < 7)
+                                gun_pos -= 10*(*kb);        //D
+                            else if ((*kb) < 12)
+                                gun_pos += 20*((*kb)-10); //U
+                            else if ((*kb) < 20)
+                                gun_pos -= 9*((*kb)-14);  //D
 
-                                G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+250-gun_pos,HANDTHROW+throw_frames[(*kb)],gs,o,pal,0);
-                            }
+                            G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+250-gun_pos,HANDTHROW+throw_frames[(*kb)],gs,o,pal,0);
                         }
-                        else
-                            G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+260-gun_pos,HANDTHROW,gs,o,pal,0);
-                        guniqhudid = 0;
                     }
+                    else
+                        G_DrawWeaponTile(weapon_xoffset+190-(p->look_ang>>1),looking_arc+260-gun_pos,HANDTHROW,gs,o,pal,0);
+                    guniqhudid = 0;
+                }
                 break;
 
             case HANDREMOTE_WEAPON:
-                    if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0) == 0)
-                    {
-                        static uint8_t remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
+                if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek, -1, 0) == 0)
+                {
+                    static uint8_t remote_frames[] = {0,1,1,2,1,1,0,0,0,0,0};
 
-                        weapon_xoffset = -48;
-                        guniqhudid = cw;
-                        //                    if ((*kb))
-                        G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE+remote_frames[(*kb)],gs,o,pal,0);
-                        //                    else
-                        //                        G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE,gs,o,pal,0);
-                        guniqhudid = 0;
-                    }
+                    weapon_xoffset = -48;
+                    guniqhudid = cw;
+                    //                    if ((*kb))
+                    G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE+remote_frames[(*kb)],gs,o,pal,0);
+                    //                    else
+                    //                        G_DrawWeaponTile(weapon_xoffset+150-(p->look_ang>>1),looking_arc+258-gun_pos,HANDREMOTE,gs,o,pal,0);
+                    guniqhudid = 0;
+                }
                 break;
 
             case DEVISTATOR_WEAPON:
