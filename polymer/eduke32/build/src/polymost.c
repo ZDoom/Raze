@@ -5359,6 +5359,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     double d, cosang, sinang, cosang2, sinang2, px[8], py[8], px2[8], py2[8];
     float m[4][4];
 
+    int32_t ourxyaspect;
+
 #if defined(USE_OPENGL) && defined(POLYMER)
     int32_t olddetailmapping = r_detailmapping, oldglowmapping = r_glowmapping;
 #endif
@@ -5632,14 +5634,17 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     if (dastat&4)
         yoff = ysiz-yoff;
 
-    z = dorotspr_handle_bit2(&sx, &sy, z, dastat, cx1, cy1, cx2, cy2);
+    {
+        int32_t temp;
+        dorotspr_handle_bit2(&sx, &sy, &z, dastat, cx1+cx2, cy1+cy2, &temp, &ourxyaspect);
+    }
 
     d = (double)z/(65536.0*16384.0);
     cosang2 = cosang = (double)sintable[(a+512)&2047]*d;
     sinang2 = sinang = (double)sintable[a&2047]*d;
     if ((dastat&2) || (!(dastat&8))) //Don't aspect unscaled perms
     {
-        d = (double)xyaspect/65536.0;
+        d = (double)ourxyaspect/65536.0;
         cosang2 *= d;
         sinang2 *= d;
     }

@@ -6845,17 +6845,24 @@ static int32_t clippoly4(int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 
 
 // INTERNAL helper function for classic/polymost dorotatesprite
-int32_t dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t z, int32_t dastat,
-                             int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
+//  sxptr, sxptr, z: in/out
+//  ret_yxaspect, ret_xyaspect: out
+void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t dastat,
+                          int32_t cx1_plus_cx2, int32_t cy1_plus_cy2,
+                          int32_t *ret_yxaspect, int32_t *ret_xyaspect)
 {
     int32_t x, sx, sy;
+
+    int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
 
     if ((dastat&2) == 0)
         if (!(dastat & 1024) && 4*ydim <= 3*xdim)
         {
-            setaspect(65536, (12<<16)/10);
-            // *sxptr and *syptr are left unchanged
-            return z;
+            *ret_yxaspect = (12<<16)/10;
+            *ret_xyaspect = (1LL<<32)/ouryxaspect;
+
+            // *sxptr and *syptr and *z are left unchanged
+            return;
         }
 
     // dastat&2: Auto window size scaling
@@ -6866,7 +6873,7 @@ int32_t dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t z, int32_t 
     // nasty hacks go here
     if (!(dastat&8))
     {
-        const int32_t cxs = cx1+cx2+2;
+        const int32_t cxs = cx1_plus_cx2+2;
         int32_t sthelse;
 
         const int32_t oxdim = xdim;
@@ -6877,8 +6884,10 @@ int32_t dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t z, int32_t 
         if (!(dastat & 1024) && 4*ydim <= 3*xdim)
         {
             xdim = (4*ydim)/3;
-            // aspect is divscale16(ydim*320, xdim*200)
-            setaspect(65536, (12<<16)/10);
+
+            // ouryxaspect is divscale16(ydim*320, xdim*200)
+            ouryxaspect = (12<<16)/10;
+            ourxyaspect = (1LL<<32)/ouryxaspect;
         }
 
         sthelse = scale(sx-(320<<15), scale(xdimen, xdim, oxdim), 320);
@@ -6897,7 +6906,7 @@ int32_t dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t z, int32_t 
             sx = ((cxs+xbord)<<15) + sthelse;
         }
 
-        sy = ((cy1+cy2+2)<<15)+mulscale16(sy-(200<<15),x);
+        sy = ((cy1_plus_cy2+2)<<15)+mulscale16(sy-(200<<15), x);
     }
     else
     {
@@ -6910,12 +6919,14 @@ int32_t dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t z, int32_t 
         if (!(dastat & 1024) && 4*ydim <= 3*xdim)
         {
             xdim = (4*ydim)/3;
-            setaspect(65536, (12<<16)/10);
+
+            ouryxaspect = (12<<16)/10;
+            ourxyaspect = (1LL<<32)/ouryxaspect;
         }
 
-        x = scale(xdim,yxaspect,320);
-        sx = (xdim<<15)+32768+scale(sx-(320<<15),xdim,320);
-        sy = (ydim<<15)+32768+mulscale16(sy-(200<<15),x);
+        x = scale(xdim,ouryxaspect,320);
+        sx = (xdim<<15)+32768 + scale(sx-(320<<15),xdim,320);
+        sy = (ydim<<15)+32768 + mulscale16(sy-(200<<15),x);
 
         if (dastat & 512)
             sx += (oxdim-xdim)<<16;
@@ -6925,8 +6936,10 @@ int32_t dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t z, int32_t 
 
     *sxptr = sx;
     *syptr = sy;
+    *z = mulscale16(*z,x);
 
-    return mulscale16(z,x);
+    *ret_yxaspect = ouryxaspect;
+    *ret_xyaspect = ourxyaspect;
 }
 
 
@@ -6944,6 +6957,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     intptr_t p, bufplc, palookupoffs;
     int32_t xsiz, ysiz, xoff, yoff, npoints, yplc, yinc, lx, rx;
     int32_t xv, yv, xv2, yv2;
+
+    int32_t ouryxaspect, ourxyaspect;
 
     UNREFERENCED_PARAMETER(uniqid);
     //============================================================================= //POLYMOST BEGINS
@@ -6986,14 +7001,14 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     cosang = sintable[(a+512)&2047];
     sinang = sintable[a&2047];
 
-    z = dorotspr_handle_bit2(&sx, &sy, z, dastat, cx1, cy1, cx2, cy2);
+    dorotspr_handle_bit2(&sx, &sy, &z, dastat, cx1+cx2, cy1+cy2, &ouryxaspect, &ourxyaspect);
 
     xv = mulscale14(cosang,z);
     yv = mulscale14(sinang,z);
     if ((dastat&2) || (dastat&8) == 0) //Don't aspect unscaled perms
     {
-        xv2 = mulscale16(xv,xyaspect);
-        yv2 = mulscale16(yv,xyaspect);
+        xv2 = mulscale16(xv,ourxyaspect);
+        yv2 = mulscale16(yv,ourxyaspect);
     }
     else
     {
@@ -7058,8 +7073,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     yv = mulscale14(cosang,i);
     if ((dastat&2) || (dastat&8)==0) //Don't aspect unscaled perms
     {
-        yv2 = mulscale16(-xv,yxaspect);
-        xv2 = mulscale16(yv,yxaspect);
+        yv2 = mulscale16(-xv,ouryxaspect);
+        xv2 = mulscale16(yv,ouryxaspect);
     }
     else
     {
