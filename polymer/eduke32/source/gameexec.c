@@ -102,9 +102,7 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
     if (El_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
         El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist);
 #endif
-    if (!apScriptGameEvent[iEventID])
-        return iReturn;
-
+    if (apScriptGameEvent[iEventID])
     {
         intptr_t *oinsptr=insptr;
         vmstate_t vm_backup;
@@ -141,13 +139,13 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
         g_currentEventExec = backupEventExec;
         iReturn = aGameVars[g_iReturnVarID].val.lValue;
         aGameVars[g_iReturnVarID].val.lValue = backupReturnVar;
+    }
 
 #ifdef LUNATIC
-        g_eventTotalMs[iEventID] += gethitickms()-t;
-        g_eventCalls[iEventID]++;
+    g_eventTotalMs[iEventID] += gethitickms()-t;
+    g_eventCalls[iEventID]++;
 #endif
-        return iReturn;
-    }
+    return iReturn;
 }
 
 static inline int32_t VM_CheckSquished(void)

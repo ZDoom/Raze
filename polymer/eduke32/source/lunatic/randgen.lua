@@ -55,7 +55,8 @@ local jkiss = ffi.metatype("rng_jkiss_t", mt)
 function new(x,y,z,c)
     local s
     if (x == nil or type(x)=="boolean") then
-        s = jkiss(0,0,0,0)  -- invalid state, must be initialized first
+        -- initialize with arbitrary but fixed state
+        s = jkiss(123456789, 987654321, 43219876, 6543217)
         if (x) then
             s:init_time_md4()
         end

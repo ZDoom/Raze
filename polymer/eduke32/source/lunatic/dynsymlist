@@ -14,6 +14,10 @@ numsectors;
 numwalls;
 numyaxbunches;
 
+totalclock;
+xdim;
+ydim;
+
 yax_getbunch;
 
 headspritesect;
@@ -33,10 +37,13 @@ kread;
 
 ksqrt;
 hitscan;
+rotatesprite;
 
 actor;
 ud;
 g_player;
+
+playerswhenstarted;
 
 luaJIT_BC_lunacon;
 luaJIT_BC_con_lang;

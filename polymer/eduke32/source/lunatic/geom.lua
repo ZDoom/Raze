@@ -33,11 +33,14 @@ local mt = {
         assert(type(b)=="number")
         return vec2_(a.x/b, a.y/b)
     end,
+--[[
+-- NOTE: metamethods from metatype() are invoken on *any mix of types*
+-- This means that we can't check a "maybe-vec2" variable like "v ~= nil".
 
     __eq = function(a,b)
         return (a.x==b.x and a.y==b.y)
     end,
-
+--]]
     __len = function(a) return math.sqrt(a.x*a.x + a.y*a.y) end,
 
     __tostring = function(a) return "vec2("..a.x..", "..a.y..")" end,

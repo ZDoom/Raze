@@ -1,6 +1,9 @@
 -- Game control module for Lunatic.
 
 local ffi = require("ffi")
+local ffiC = ffi.C
+
+local bit = require("bit")
 
 local setmetatable = setmetatable
 
@@ -97,4 +100,17 @@ function ai(name, action, move, flags)
     end
 
     def.ai[name] = ffi.new("const con_ai_t", lastid.ai, act, mov, flags)
+end
+
+
+--== RUNTIME CON FUNCTIONS ==--
+
+function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
+                      cx1, cy1, cx2, cy2)
+    if (type(tilenum) ~= "number" or not (tilenum >= 0 and tilenum < ffiC.MAXTILES)) then
+        error("bad argument #5 to rotatesprite: must be number in [0.."..ffiC.MAXTILES.."]")
+    end
+
+    ffiC.rotatesprite(65536*x, 65536*y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
+                      cx1, cy1, cx2, cy2)
 end

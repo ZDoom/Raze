@@ -56,7 +56,10 @@ local t3 = os.clock()
 
 local v = geom.vec2(0, 0)
 for i=1,N do
-    v = v + geom.intersect(A[i],V[i], B[i],W[i], true)
+    local intersp = geom.intersect(A[i],V[i], B[i],W[i], true)
+    if (intersp ~= nil) then
+        v = v + intersp
+    end
 end
 
 local t4 = os.clock()

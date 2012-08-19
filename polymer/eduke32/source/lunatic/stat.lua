@@ -12,6 +12,7 @@ module(...)
 ffi.cdef[[
 typedef struct {
     double n;
+    // vvv internal vvv
     double m, s;
     double min, max;
 } runningstat_t;
@@ -23,6 +24,8 @@ typedef struct {
 } runningstat_res_t;
 ]]
 
+
+local NaN = 0/0
 
 local res_mt = {
     __tostring = function(s)
@@ -68,8 +71,13 @@ local mt = {
         end,
 
         getstats = function(s)
-            local var = s.n > 1 and s.s/(s.n-1) or 0/0
+            local var = s.n > 1 and s.s/(s.n-1) or NaN
             return rstatres(s.n, s.m, var, math.sqrt(var), s.min, s.max)
+        end,
+
+        reset = function(s)
+            s.n, s.m = 0, 0
+            s.s, s.min, s.max = NaN, NaN, NaN
         end,
     },
 }
@@ -78,7 +86,7 @@ local rstat = ffi.metatype("runningstat_t", mt)
 function new(n,m,s, min,max)
     if (n == nil) then
         -- initialization containing no elements
-        return rstat(0, 0, 0/0, 0/0, 0/0)
+        return rstat(0, 0, NaN, NaN, NaN)
     elseif (m == nil) then
         -- same as initialization with N==0 above (one element)
         return rstat(1, n, 0, n, n)

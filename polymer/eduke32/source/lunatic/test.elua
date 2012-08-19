@@ -174,13 +174,13 @@ checkfail('gv.gethitickms = nil', "cannot create new or write into existing fiel
 checkfail('local i = actor[0].t_data[15]', "has no member named 't_data'")
 
 -- no pointer arithmetic!
-checkfail('local spr = sprite[0]; local x=spr+1',
-         "attempt to perform arithmetic on")
+checkfail('local spr = sprite[0]; local x=spr+1', "attempt to perform arithmetic on")
 
 checkfail('gameactor(1680, 0)', "bad argument #3 to 'gameactor' (function expected, got number)")
 
 checkfail("do local bt=require'bittest'; bt.QWE=1; end", "modifying module table forbidden")
-
+-- the cdata returned by player[] is not a pointer!
+checkfail("do local pl=player[0]; i=pl[1]")
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 
@@ -253,7 +253,7 @@ gameactor(1680,  -- LIZTROOP
 
               if (hs.n == 300) then
                   printf("hitscan: %s", tostring(hs:getstats()))
-                  hs = stat.new()
+                  hs:reset()
               end
 
               if (dist < 4096) then
@@ -270,6 +270,7 @@ local bittest = require "bittest"
 bittest.sieve()
 
 require("test/test_geom")
+require("test/test_rotspr")
 
 print('---=== END TEST SCRIPT ===---')
 

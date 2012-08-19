@@ -2768,7 +2768,10 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
+#ifndef LUNATIC
+    // TODO: get rid of the other outer apScriptGameEvent checks, too
     if (apScriptGameEvent[EVENT_DISPLAYREST])
+#endif
         VM_OnEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)

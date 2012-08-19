@@ -149,6 +149,7 @@ end
 ffi.cdef[[
 enum {
     MAXSTATUS = 1024,
+    MAXTILES = 30720,
 
     MAXBUNCHES = 256,
     CEILING = 0,
@@ -162,6 +163,8 @@ enum {
 ffi.cdef[[
 const int16_t numsectors, numwalls;
 const int32_t numyaxbunches;
+const int32_t totalclock;
+const int32_t xdim, ydim;
 ]]
 
 decl[[
@@ -175,6 +178,10 @@ int16_t yax_getbunch(int16_t i, int16_t cf);
 
 int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                 hitdata_t *hitinfo, uint32_t cliptype);
+
+void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+                  int8_t dashade, char dapalnum, int32_t dastat,
+                  int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 ]]
 
 -- array -> element flattening inside structs,
@@ -515,6 +522,8 @@ int32_t g_sizes_of[];
 actor_t actor[MAXSPRITES];
 user_defs ud;
 playerdata_t g_player[MAXPLAYERS];
+
+const int32_t playerswhenstarted;
 ]]
 
 -- functions
@@ -582,9 +591,9 @@ local con = require("control")
 -- All-zero action and move
 local nullac, nullmv = ffi.new("const struct action"), ffi.new("const struct move")
 
-local function check_literal_am(am)
+local function check_literal_am(am, typename)
     if (type(am) ~= "number") then
-        error("bad argument: expected number", 3)
+        error("bad argument: expected number or "..typename, 3)
     end
 
     if (not (am >= 0 and am <= 32767)) then
@@ -606,7 +615,7 @@ local actor_mt = {
                 a.t_data[4] = act.id
                 a.ac = act.ac
             else
-                check_literal_am(act)
+                check_literal_am(act, "action")
                 a.t_data[4] = act
                 a.ac = nullac
             end
@@ -620,7 +629,7 @@ local actor_mt = {
             if (ffi.istype(con_action_ct, act)) then
                 return (a.t_data[4]==act.id)
             else
-                check_literal_am(act)
+                check_literal_am(act, "action")
                 return (a.t_data[4]==act)
             end
         end,
@@ -650,7 +659,7 @@ local actor_mt = {
                 a.t_data[1] = mov.id
                 a.mv = mov.mv
             else
-                check_literal_am(mov)
+                check_literal_am(mov, "move")
                 a.t_data[1] = mov
                 a.mv = nullmv
             end
@@ -667,7 +676,7 @@ local actor_mt = {
             if (ffi.istype(con_move_ct, mov)) then
                 return (a.t_data[1]==mov.id)
             else
-                check_literal_am(mov)
+                check_literal_am(mov, "move")
                 return (a.t_data[1]==mov)
             end
         end,
@@ -678,7 +687,9 @@ local actor_mt = {
             a = ffi.cast(actor_ptr_ct, a)
 
             -- TODO: literal number AIs?
-            assert(ffi.istype(con_ai_ct, ai))
+            if (not ffi.istype(con_ai_ct, ai)) then
+                error("bad argument: expected ai", 2)
+            end
 
             -- NOTE: compare with gameexec.c
             a.t_data[5] = ai.id
@@ -695,7 +706,7 @@ local actor_mt = {
             if (ffi.istype(con_ai_ct, ai)) then
                 return (a.t_data[5]==ai.id)
             else
-                check_literal_am(ai)
+                check_literal_am(ai, "ai")
                 return (a.t_data[5]==ai)
             end
         end,
@@ -995,6 +1006,18 @@ local tmpmt = {
     __newindex = function(tab, key, val) error('cannot write directly to wall[] struct', 2) end,
 }
 wall = setmtonce({}, tmpmt)
+
+local tmpmt = {
+    __index = function(tab, key)
+                  if (key >= 0 and key < ffiC.playerswhenstarted) then
+                      return ffiC.g_player[key].ps[0]
+                  end
+                  error('out-of-bounds player[] read access', 2)
+              end,
+
+    __newindex = function(tab, key, val) error('cannot write directly to player[] struct', 2) end,
+}
+player = setmtonce({}, tmpmt)
 
 -- create a safe indirection for an ffi.C array
 local function creategtab(ctab, maxidx, name)
