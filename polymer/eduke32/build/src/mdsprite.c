@@ -2037,7 +2037,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     point3d fp, fp1, fp2, m0, m1, a0;
     md3xyzn_t *v0, *v1;
     int32_t i, j, k, l, surfi;
-    float f, g, k0, k1, k2, k3, mat[16];
+    float f, g, k0, k1, k2=0, k3=0, mat[16];  // inits: compiler-happy
     md3surf_t *s;
     GLfloat pc[4];
     int32_t                 texunits = GL_TEXTURE0_ARB;
