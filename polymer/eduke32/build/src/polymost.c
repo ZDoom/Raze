@@ -5353,7 +5353,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     static int32_t onumframes = 0;
 
     int32_t n, nn, xoff, yoff, xsiz, ysiz, method;
-    int32_t ogpicnum, ogshade, ogpal, ofoffset, oxdimen, oydimen, oldviewingrange;
+    int32_t ogpicnum, ogshade, ogpal, ofoffset, oldviewingrange;
     double ogxyaspect;
     double ogchang, ogshang, ogctang, ogstang, oghalfx, oghoriz, fx, fy, x1, y1, z1, x2, y2;
     double ogrhalfxdown10, ogrhalfxdown10x;
@@ -5573,8 +5573,6 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     ogrhalfxdown10x = grhalfxdown10x;  grhalfxdown10x = grhalfxdown10;
     oghoriz  = ghoriz;       ghoriz       = (double)(ydim>>1);
     ofoffset = frameoffset;  frameoffset  = frameplace;
-    oxdimen  = xdimen;       xdimen       = xdim;
-    oydimen  = ydimen;       ydimen       = ydim;
     ogchang = gchang; gchang = 1.0;
     ogshang = gshang; gshang = 0.0;
     ogctang = gctang; gctang = 1.0;
@@ -5729,8 +5727,6 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     grhalfxdown10x = ogrhalfxdown10x;
     ghoriz       = oghoriz;
     frameoffset  = ofoffset;
-    xdimen       = oxdimen;
-    ydimen       = oydimen;
     gchang = ogchang;
     gshang = ogshang;
     gctang = ogctang;
