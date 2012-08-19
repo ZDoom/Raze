@@ -354,12 +354,12 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
             i = ud.screen_size;
             ud.screen_size = 0;
             G_UpdateScreenArea();
-            clearview(0L);
+            clearallviews(0L);
         }
 
         if ((uint32_t)j < 2*MAXTILES)
         {
-            clearview(0);
+            clearallviews(0);
 
             rotatesprite_fs(320<<15,200<<15,65536L,0, j > MAXTILES-1?j-MAXTILES:j,0,0,
                             2+8+64+(ud.bgstretch?1024:0));
@@ -406,7 +406,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
     {
         if (!statustext)
         {
-            clearview(0L);
+            clearallviews(0L);
             //g_player[myconnectindex].ps->palette = palette;
             //G_FadePalette(0,0,0,0);
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
