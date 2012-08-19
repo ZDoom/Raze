@@ -60,8 +60,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # include "lunatic.h"
 #endif
 
-#define ROTATESPRITE_MAX 2048
-
 #if KRANDDEBUG
 # define GAME_INLINE
 # define GAME_STATIC

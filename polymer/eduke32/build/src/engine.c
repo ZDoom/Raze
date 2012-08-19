@@ -6856,7 +6856,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
         if (!(dastat & 1024) && 4*ydim <= 3*xdim)
         {
             *ret_yxaspect = (12<<16)/10;
-            *ret_xyaspect = ((1<<16)*10)/12;
+            *ret_xyaspect = (10<<16)/12;
 
             // *sxptr and *syptr and *z are left unchanged
         }
@@ -6869,61 +6869,65 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
         const int32_t oxdim = xdim;
         int32_t xdim = oxdim;  // SHADOWS global
 
-        int32_t x, sx=*sxptr, sy=*syptr;
+        int32_t zoomsc, sx=*sxptr, sy=*syptr;
         int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
+
+        // screen center to s[xy], 320<<16 coords.
+        const int32_t normxofs = sx-(320<<15), normyofs = sy-(200<<15);
 
         if (!(dastat & 1024) && 4*ydim <= 3*xdim)
         {
             xdim = (4*ydim)/3;
 
             ouryxaspect = (12<<16)/10;
-            ourxyaspect = ((1<<16)*10)/12;
+            ourxyaspect = (10<<16)/12;
         }
 
         // nasty hacks go here
         if (!(dastat&8))
         {
-            const int32_t cxs = cx1_plus_cx2+2;
-            int32_t sthelse;
+            const int32_t twice_midcx = cx1_plus_cx2+2;
 
-            x = xdimenscale;   //= scale(xdimen,yxaspect,320);
+            // screen x center to sx1, scaled to viewport
+            const int32_t scaledxofs = scale(normxofs, scale(xdimen, xdim, oxdim), 320);
 
-            sthelse = scale(sx-(320<<15), scale(xdimen, xdim, oxdim), 320);
+            int32_t xbord = 0;
 
+            if (dastat & (256|512))
             {
-                int32_t xbord = 0;
+                xbord = scale(oxdim-xdim, twice_midcx, oxdim);
 
-                if (dastat & (256|512))
-                {
-                    xbord = scale(oxdim-xdim, cxs, oxdim);
-
-                    if ((dastat & 512)==0)
-                        xbord = -xbord;
-                }
-
-                sx = ((cxs+xbord)<<15) + sthelse;
+                if ((dastat & 512)==0)
+                    xbord = -xbord;
             }
 
-            sy = ((cy1_plus_cy2+2)<<15)+mulscale16(sy-(200<<15), x);
+            sx = ((twice_midcx+xbord)<<15) + scaledxofs;
+
+            zoomsc = xdimenscale;   //= scale(xdimen,yxaspect,320);
+            sy = ((cy1_plus_cy2+2)<<15) + mulscale16(normyofs, zoomsc);
         }
         else
         {
             //If not clipping to startmosts, & auto-scaling on, as a
             //hard-coded bonus, scale to full screen instead
 
-            x = scale(xdim,ouryxaspect,320);
-            sx = (xdim<<15)+32768 + scale(sx-(320<<15),xdim,320);
-            sy = (ydim<<15)+32768 + mulscale16(sy-(200<<15),x);
+            sx = (xdim<<15)+32768 + scale(normxofs,xdim,320);
 
             if (dastat & 512)
                 sx += (oxdim-xdim)<<16;
             else if ((dastat & 256) == 0)
                 sx += (oxdim-xdim)<<15;
+
+            if (dastat&(1<<29))
+                sx += oxdim<<15;
+
+            zoomsc = scale(xdim, ouryxaspect, 320);
+            sy = (ydim<<15)+32768 + mulscale16(normyofs, zoomsc);
         }
 
         *sxptr = sx;
         *syptr = sy;
-        *z = mulscale16(*z,x);
+        *z = mulscale16(*z, zoomsc);
 
         *ret_yxaspect = ouryxaspect;
         *ret_xyaspect = ourxyaspect;
@@ -13629,6 +13633,10 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     if (z <= 16) return;
     if (picanm[picnum]&192) picnum += animateoffs(picnum,(int16_t)0xc000);
     if ((tilesizx[picnum] <= 0) || (tilesizy[picnum] <= 0)) return;
+
+    // Experimental / development bits. ONLY FOR INTERNAL USE!
+    //  bit (1<<29): see dorotspr_handle_bit2
+    ////////////////////
 
     if (((dastat&128) == 0) || (numpages < 2) || (beforedrawrooms != 0))
     {

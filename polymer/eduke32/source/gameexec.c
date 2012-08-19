@@ -1966,6 +1966,8 @@ nullquote:
                 int32_t x=Gv_GetVarX(*insptr++), y=Gv_GetVarX(*insptr++), tilenum=Gv_GetVarX(*insptr++);
                 int32_t shade=Gv_GetVarX(*insptr++), orientation=Gv_GetVarX(*insptr++);
 
+                orientation &= (ROTATESPRITE_MAX-1);
+
                 switch (tw)
                 {
                 case CON_MYOS:
@@ -2510,6 +2512,8 @@ nullquote:
                     continue;
                 }
 
+                orientation &= (ROTATESPRITE_MAX-1);
+
                 rotatesprite(x,y,z,a,tilenum,shade,pal,2|orientation,x1,y1,x2,y2);
                 continue;
             }
@@ -2546,6 +2550,8 @@ nullquote:
                     continue;
                 }
 
+                orientation &= (ROTATESPRITE_MAX-1);
+
                 G_PrintGameText(0,tilenum,x>>1,y,ScriptQuotes[q],shade,pal,orientation,x1,y1,x2,y2,z);
                 continue;
             }
@@ -2568,6 +2574,8 @@ nullquote:
                     OSD_Printf(CON_ERROR "invalid base tilenum %d\n", g_errorLineNum, keyw[g_tw], tilenum);
                     continue;
                 }
+
+                orientation &= (ROTATESPRITE_MAX-1);
 
                 G_DrawTXDigiNumZ(tilenum,x,y,q,shade,pal,orientation,x1,y1,x2,y2,z);
                 continue;
