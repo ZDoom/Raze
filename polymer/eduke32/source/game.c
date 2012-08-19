@@ -1494,9 +1494,14 @@ static void G_DrawStatusBar(int32_t snum)
             }
         }
     }
-
+#if 0
     if (u == 0)
         return;
+#else
+    // FIXME: full status bar draws rectangles in the wrong places when it's
+    // updated partially.
+    u = -1;
+#endif
 
     //0 - update health
     //1 - update armor
