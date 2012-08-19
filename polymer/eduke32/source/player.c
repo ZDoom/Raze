@@ -2069,8 +2069,8 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     if (getrendermode() >= 3 && usemodels && md_tilehasmodel(tilenum,p) >= 0)
         y += (224-weapsc(224));
 #endif
-    rotatesprite(xadd+weapsc((orientation&1024)?x:(x<<16))+((xoff-weapsc(xoff))<<16),
-                 weapsc((orientation&1024)?y:(y<<16))+((200-weapsc(200))<<16),
+    rotatesprite(xadd + weapsc(x<<16) + ((xoff-weapsc(xoff))<<16),
+                 weapsc(y<<16) + ((200-weapsc(200))<<16),
                  weapsc(65536L),a,tilenum,shade,p,(2|orientation),
                  wx1,windowy1,wx2,windowy2);
 }
