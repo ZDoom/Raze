@@ -606,8 +606,8 @@ static void modval(int32_t min, int32_t max,int32_t *p,int32_t dainc,int32_t dam
 // ((x==X)*(-sh))
 #define PHX(X) 0
 // ((x==X)?1:2)
-#define MWIN(X) rotatesprite( 320<<15,200<<15,X,0,MENUSCREEN,-16,0,10+64,0,0,xdim-1,ydim-1)
-#define MWINXY(X,OX,OY) rotatesprite( ( 320+(OX) )<<15, ( 200+(OY) )<<15,X,0,MENUSCREEN,-16,0,10+64,0,0,xdim-1,ydim-1)
+//#define MWIN(X) rotatesprite( 320<<15,200<<15,X,0,MENUSCREEN,-16,0,10+64,0,0,xdim-1,ydim-1)
+//#define MWINXY(X,OX,OY) rotatesprite( ( 320+(OX) )<<15, ( 200+(OY) )<<15,X,0,MENUSCREEN,-16,0,10+64,0,0,xdim-1,ydim-1)
 
 //extern int32_t G_LoadSaveHeader(char spot,struct savehead_ *saveh);
 
@@ -2216,10 +2216,14 @@ cheat_for_port_credits:
         rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
         menutext(160,24,0,0,"Select A User Map");
 
-        // black translucent background underneath file lists
-        rotatesprite(0<<16, 0<<16, 65536l<<5, 0, BLANK, 0, 0, 10+16+1+32,
-                     scale(40-4,xdim,320),scale(12+32-2,ydim,200),
-                     scale(320-40+4,xdim,320)-1,scale(12+32+112+4,ydim,200)-1);
+        {
+            int32_t width = 160 - (40-4);
+
+            // black translucent background underneath file lists
+            rotatesprite(0<<16, 0<<16, 65536<<5, 0, /*tile*/ 0, numshades, 0, 10+16+1+32,
+                         xdim/2-scale(width,(ydim*4)/3,320),scale(12+32-2,ydim,200),
+                         xdim/2+scale(width,(ydim*4)/3,320)-1,scale(12+32+112+4,ydim,200)-1);
+        }
 
         // path
         minitext(38,45,boardfilename,16,26);

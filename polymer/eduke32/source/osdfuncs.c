@@ -71,8 +71,8 @@ void GAME_drawosdstr(int32_t x, int32_t y, char *ch, int32_t len, int32_t shade,
             if (ac < STARTALPHANUM || ac > ENDALPHANUM) { usehightile = ht; return; }
 
             // use the format byte if the text falls within the bounds of the console buffer
-            rotatesprite(x<<16, (y<<3)<<16, 65536, 0, ac, (*(ch-ptr+fmt)&~0x1F)>>4,
-                         *(ch-ptr+fmt)&~0xE0, 8|16, 0, 0, xdim-1, ydim-1);
+            rotatesprite_fs(x<<16, (y<<3)<<16, 65536, 0, ac, (*(ch-ptr+fmt)&~0x1F)>>4,
+                            *(ch-ptr+fmt)&~0xE0, 8|16);
             x += OSDCHAR_WIDTH+1;
             ch++;
         }

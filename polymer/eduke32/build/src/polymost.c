@@ -2073,8 +2073,9 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
             oy = ox2*gstang + oy2*gctang;
             oz = oz2;
 
+#ifdef OBSOLETE_RENDMODES
             if ((oz < SCISDIST) && (rendmode < 3)) return; //annoying hack to avoid bugs in software rendering
-
+#endif
             r = ghalfx / oz;
 
             dd[j] = (dpx[i]*gdx + dpy[i]*gdy + gdo)*r;

@@ -2004,10 +2004,10 @@ static int32_t P_DisplayFist(int32_t gs,int32_t snum)
 
     fistpal = get_hud_pal(ps);
 
-    rotatesprite(
+    rotatesprite_fs(
         (-fisti+222+(g_player[snum].sync->avel>>4))<<16,
         (looking_arc+fistz)<<16,
-        fistzoom,0,FIST,gs,fistpal,2,0,0,xdim-1,ydim-1);
+        fistzoom,0,FIST,gs,fistpal,2);
 
     return 1;
 }

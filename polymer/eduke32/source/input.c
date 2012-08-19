@@ -322,7 +322,7 @@ int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32
     }
 
     if (small&1)
-        rotatesprite_fs(textsc(x)<<16,(y<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8);
-    else rotatesprite_fs((x+((small&1)?4:8))<<16,((y+((small&1)?0:4))<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(small&1)?(8|16):2+8);
+        rotatesprite_fs(textsc(x)<<16,(y<<16),32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,(8|16));
+    else rotatesprite_fs((x+8)<<16,(y+4)<<16,32768,0,SPINNINGNUKEICON+((totalclock>>3)%7),c,0,2+8);
     return (0);
 }
