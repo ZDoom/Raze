@@ -150,8 +150,12 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 // max x/y val (= max editorgridextent in Mapster32)
 #define BXY_MAX 524288
 
-// ROTATESPRITE_MAX-1 is the mask of all externally available orientation bits
-#define ROTATESPRITE_MAX 2048
+enum {
+    // ROTATESPRITE_MAX-1 is the mask of all externally available orientation bits
+    ROTATESPRITE_MAX = 2048,
+
+    RS_CENTERORIGIN = (1<<30),
+};
 
     //Make all variables in BUILD.H defined in the ENGINE,
     //and externed in GAME

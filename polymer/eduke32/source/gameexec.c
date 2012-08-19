@@ -2598,7 +2598,7 @@ nullquote:
                     OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q);
                     continue;
                 }
-                minitextshade(x,y,ScriptQuotes[q],shade,pal,26);
+                minitextshade(x,y,ScriptQuotes[q],shade,pal, 2+8+16);
                 continue;
             }
 

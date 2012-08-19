@@ -6918,7 +6918,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
             else if ((dastat & 256) == 0)
                 sx += (oxdim-xdim)<<15;
 
-            if (dastat&(1<<29))
+            if (dastat&RS_CENTERORIGIN)
                 sx += oxdim<<15;
 
             zoomsc = scale(xdim, ouryxaspect, 320);
@@ -13635,7 +13635,7 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
     if ((tilesizx[picnum] <= 0) || (tilesizy[picnum] <= 0)) return;
 
     // Experimental / development bits. ONLY FOR INTERNAL USE!
-    //  bit (1<<29): see dorotspr_handle_bit2
+    //  bit RS_CENTERORIGIN: see dorotspr_handle_bit2
     ////////////////////
 
     if (((dastat&128) == 0) || (numpages < 2) || (beforedrawrooms != 0))

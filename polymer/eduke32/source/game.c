@@ -493,7 +493,7 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
     char ch, cmode;
 
     cmode = (sb&ROTATESPRITE_MAX)!=0;
-    sb &= ROTATESPRITE_MAX-1;
+    sb &= (ROTATESPRITE_MAX-1)|RS_CENTERORIGIN;
 
     if (t == NULL)
     {
@@ -1335,16 +1335,17 @@ static void G_DrawStatusBar(int32_t snum)
         else
         {
             // ORIGINAL MINI STATUS BAR
-            int32_t orient = 10+16+256 + (g_fakeMultiMode && snum==1)*(1<<29);
+            int32_t orient = 2+8+16+256 + (g_fakeMultiMode && snum==1)*RS_CENTERORIGIN;
 
             rotatesprite_fs(sbarx(5),sbary(200-28),sb16,0,HEALTHBOX,0,21,orient);
             if (p->inven_icon)
                 rotatesprite_fs(sbarx(69),sbary(200-30),sb16,0,INVENTORYBOX,0,21,orient);
 
             // health
-            if (sprite[p->i].pal == 1 && p->last_extra < 2) // frozen
-                G_DrawDigiNum(20,200-17,1,-16,orient);
-            else G_DrawDigiNum(20,200-17,p->last_extra,-16,orient);
+            {
+                int32_t health = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
+                G_DrawDigiNum(20, 200-17, health, -16, orient);
+            }
 
             rotatesprite_fs(sbarx(37),sbary(200-28),sb16,0,AMMOBOX,0,21,orient);
 
@@ -1356,14 +1357,14 @@ static void G_DrawStatusBar(int32_t snum)
             permbit = 0;
             if (p->inven_icon)
             {
-//                orient += permbit;
+//                orient |= permbit;
 
                 i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
                 if (i >= 0)
                     rotatesprite_fs(sbarx(231-o),sbary(200-21),sb16,0,i,0,0, orient);
 
-                if (!g_fakeMultiMode)
-                    orient |= ROTATESPRITE_MAX;
+                // scale by status bar size
+                orient |= ROTATESPRITE_MAX;
 
                 minitext(292-30-o,190,"%",6, orient);
 
