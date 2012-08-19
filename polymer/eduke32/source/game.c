@@ -1174,7 +1174,7 @@ static void G_DrawStatusBar(int32_t snum)
     int32_t i, j, o, u;
     int32_t permbit = 0;
 
-    const int32_t ss = g_fakeMultiMode ? 4 : ud.screen_size;
+    const int32_t ss = g_fakeMultiMode ? min(ud.screen_size, 4) : ud.screen_size;
     const int32_t althud = g_fakeMultiMode ? 0 : ud.althud;
 
     const int32_t SBY = (200-tilesizy[BOTTOMSTATUSBAR]);
@@ -1335,24 +1335,22 @@ static void G_DrawStatusBar(int32_t snum)
         else
         {
             // ORIGINAL MINI STATUS BAR
+            int32_t orient = 10+16+256 + (g_fakeMultiMode && snum==1)*(1<<29);
 
-            const int32_t ofs = (g_fakeMultiMode && snum==1) ? 160 : 0, ofssh=ofs<<16;
-            int32_t orient = 10+16+256 + (g_fakeMultiMode?1024:0);
-
-            rotatesprite_fs(ofssh+sbarx(5),sbary(200-28),sb16,0,HEALTHBOX,0,21,orient);
+            rotatesprite_fs(sbarx(5),sbary(200-28),sb16,0,HEALTHBOX,0,21,orient);
             if (p->inven_icon)
-                rotatesprite_fs(ofssh+sbarx(69),sbary(200-30),sb16,0,INVENTORYBOX,0,21,orient);
+                rotatesprite_fs(sbarx(69),sbary(200-30),sb16,0,INVENTORYBOX,0,21,orient);
 
             // health
             if (sprite[p->i].pal == 1 && p->last_extra < 2) // frozen
-                G_DrawDigiNum(ofs+20,200-17,1,-16,orient);
-            else G_DrawDigiNum(ofs+20,200-17,p->last_extra,-16,orient);
+                G_DrawDigiNum(20,200-17,1,-16,orient);
+            else G_DrawDigiNum(20,200-17,p->last_extra,-16,orient);
 
-            rotatesprite_fs(ofssh+sbarx(37),sbary(200-28),sb16,0,AMMOBOX,0,21,orient);
+            rotatesprite_fs(sbarx(37),sbary(200-28),sb16,0,AMMOBOX,0,21,orient);
 
             if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
             else i = p->curr_weapon;
-            G_DrawDigiNum(ofs+53,200-17,p->ammo_amount[i],-16,orient);
+            G_DrawDigiNum(53,200-17,p->ammo_amount[i],-16,orient);
 
             o = 158;
             permbit = 0;
@@ -1362,25 +1360,25 @@ static void G_DrawStatusBar(int32_t snum)
 
                 i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
                 if (i >= 0)
-                    rotatesprite_fs(ofssh+sbarx(231-o),sbary(200-21),sb16,0,i,0,0, orient);
+                    rotatesprite_fs(sbarx(231-o),sbary(200-21),sb16,0,i,0,0, orient);
 
                 if (!g_fakeMultiMode)
                     orient |= ROTATESPRITE_MAX;
 
-                minitext(ofs+292-30-o,190,"%",6, orient);
+                minitext(292-30-o,190,"%",6, orient);
 
                 i = G_GetInvAmount(p);
                 j = G_GetInvOn(p);
 
-                G_DrawInvNum(ofs+284-30-o,200-6,(uint8_t)i,0, orient&~16);
+                G_DrawInvNum(284-30-o,200-6,(uint8_t)i,0, orient&~16);
 
                 if (j > 0)
-                    minitext(ofs+288-30-o,180,"On",0, orient);
+                    minitext(288-30-o,180,"On",0, orient);
                 else if ((uint32_t)j != 0x80000000)
-                    minitext(ofs+284-30-o,180,"Off",2, orient);
+                    minitext(284-30-o,180,"Off",2, orient);
 
                 if (p->inven_icon >= 6)
-                    minitext(ofs+284-35-o,180,"Auto",2, orient);
+                    minitext(284-35-o,180,"Auto",2, orient);
             }
         }
 
