@@ -1106,7 +1106,7 @@ ACTOR_STATIC void G_MovePlayers(void)
             }
             else
             {
-                if (g_netServer || (g_netServer || ud.multimode > 1))
+                if (g_netServer || ud.multimode > 1)
                     otherp = P_FindOtherPlayer(s->yvel,&otherx);
                 else
                 {
@@ -1117,7 +1117,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                 if (actorscrptr[sprite[i].picnum])
                     A_Execute(i,s->yvel,otherx);
 
-                if (g_netServer || (g_netServer || ud.multimode > 1))
+                if (g_netServer || ud.multimode > 1)
                     if (sprite[g_player[otherp].ps->i].extra > 0)
                     {
                         if (s->yrepeat > 32 && sprite[g_player[otherp].ps->i].yrepeat < 32)

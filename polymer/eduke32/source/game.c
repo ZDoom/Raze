@@ -1519,10 +1519,11 @@ static void G_DrawStatusBar(int32_t snum)
     if (u == -1)
     {
         G_PatchStatusBar(0,0,320,200);
-        if ((g_netServer || (g_netServer || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+        if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
             rotatesprite_fs(sbarx(277+1),sbary(SBY+7-1),sb16,0,KILLSICON,0,0,10+16);
     }
-    if ((g_netServer || (g_netServer || ud.multimode > 1)) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+
+    if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
     {
         if (u&32768)
         {
@@ -1675,7 +1676,7 @@ static void G_PrintCoords(int32_t snum)
     {
         if (ud.multimode > 4)
             y = 32;
-        else if (g_netServer || (g_netServer || ud.multimode > 1))
+        else if (g_netServer || ud.multimode > 1)
             y = 24;
     }
     Bsprintf(tempbuf,"XYZ= (%d,%d,%d)",g_player[snum].ps->pos.x,g_player[snum].ps->pos.y,g_player[snum].ps->pos.z);
@@ -1714,7 +1715,7 @@ void G_PrintGameQuotes(void)
     int32_t i, j, k, l;
 
     k = 1;
-    if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0 && (g_netServer || (g_netServer || ud.multimode > 1)))
+    if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0 && (g_netServer || ud.multimode > 1))
     {
         j = 0;
         k += 8;
