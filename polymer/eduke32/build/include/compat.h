@@ -146,12 +146,25 @@ static inline float nearbyintf(float x)
 # endif
 # define B_ENDIAN_C_INLINE 1
 
-#elif defined(GEKKO)
+#elif defined(GEKKO) || defined(__ANDROID__)
 # define B_LITTLE_ENDIAN 0
 # define B_BIG_ENDIAN 1
 # define B_ENDIAN_C_INLINE 1
 
-#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
+#elif defined(__OpenBSD__)
+# include <machine/endian.h>
+# if _BYTE_ORDER == _LITTLE_ENDIAN
+#  define B_LITTLE_ENDIAN 1
+#  define B_BIG_ENDIAN    0
+# elif _BYTE_ORDER == _BIG_ENDIAN
+#  define B_LITTLE_ENDIAN 0
+#  define B_BIG_ENDIAN    1
+# endif
+# define B_SWAP64(x) __swap64(x)
+# define B_SWAP32(x) __swap32(x)
+# define B_SWAP16(x) __swap16(x)
+
+#elif defined(__FreeBSD__) || defined(__NetBSD__)
 # include <sys/endian.h>
 # if _BYTE_ORDER == _LITTLE_ENDIAN
 #  define B_LITTLE_ENDIAN 1
@@ -352,8 +365,13 @@ static inline void dtol(double d, int32_t *a)
 # define BS_IRGRP  S_IRGRP
 # define BS_IWGRP  S_IWGRP
 # define BS_IEXEC  S_IEXEC
-# define BS_IWRITE S_IWRITE
-# define BS_IREAD  S_IREAD
+# ifdef __ANDROID__
+#  define BS_IWRITE S_IWUSR
+#  define BS_IREAD  S_IRUSR
+# else
+#  define BS_IWRITE S_IWRITE
+#  define BS_IREAD  S_IREAD
+# endif
 # define BS_IFIFO  S_IFIFO
 # define BS_IFCHR  S_IFCHR
 # define BS_IFBLK  S_IFBLK
