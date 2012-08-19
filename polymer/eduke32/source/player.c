@@ -2414,27 +2414,30 @@ void P_DisplayWeapon(int32_t snum)
                 G_DrawTileScaled(weapon_xoffset+80-(p->look_ang>>1),
                                  looking_arc+250-gun_pos,KNEE,gs,o|4|DRAWEAP_CENTER,pal);
             else G_DrawTileScaled(weapon_xoffset+160-16-(p->look_ang>>1),
-                                      looking_arc+214-gun_pos,KNEE+1,gs,o|4|DRAWEAP_CENTER,pal);
+                                  looking_arc+214-gun_pos,KNEE+1,gs,o|4|DRAWEAP_CENTER,pal);
             guniqhudid = 0;
         }
 
         if (sprite[p->i].xrepeat < 40)
         {
+            pal = get_hud_pal(p);
+
             if (p->jetpack_on == 0)
             {
                 i = sprite[p->i].xvel;
                 looking_arc += 32-(i>>1);
                 fistsign += i>>1;
             }
+
             cw = weapon_xoffset;
             weapon_xoffset += sintable[(fistsign)&2047]>>10;
-            G_DrawTile(weapon_xoffset+250-(p->look_ang>>1),
-                       looking_arc+258-(klabs(sintable[(fistsign)&2047]>>8)),
-                       FIST,gs,o);
+            G_DrawTileScaled(weapon_xoffset+250-(p->look_ang>>1),
+                             looking_arc+258-(klabs(sintable[(fistsign)&2047]>>8)),
+                             FIST,gs,o, pal);
             weapon_xoffset = cw - (sintable[(fistsign)&2047]>>10);
-            G_DrawTile(weapon_xoffset+40-(p->look_ang>>1),
-                       looking_arc+200+(klabs(sintable[(fistsign)&2047]>>8)),
-                       FIST,gs,o|4);
+            G_DrawTileScaled(weapon_xoffset+40-(p->look_ang>>1),
+                             looking_arc+200+(klabs(sintable[(fistsign)&2047]>>8)),
+                             FIST,gs,o|4, pal);
         }
         else
         {
