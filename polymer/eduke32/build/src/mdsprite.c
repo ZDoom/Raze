@@ -2007,12 +2007,37 @@ int      md3postload_polymer(md3model_t *m)
 }
 
 
+static void md3_vox_calcmat_common(const spritetype *tspr, const point3d *a0, float f, float mat[16])
+{
+    float g;
+    float k0, k1, k2, k3, k4, k5, k6, k7;
+
+    k0 = ((float)(tspr->x-globalposx))*f/1024.0;
+    k1 = ((float)(tspr->y-globalposy))*f/1024.0;
+    f = gcosang2*gshang;
+    g = gsinang2*gshang;
+    k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0;
+    k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] / 16384.0;
+    k2 = k0*(1-k4)+k1*k5;
+    k3 = k1*(1-k4)-k0*k5;
+    k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
+    mat[0] = k4*k6 + k5*k7; mat[4] = gchang*gstang; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
+    k6 = f*gctang + gsinang*gstang; k7 = g*gctang - gcosang*gstang;
+    mat[1] = k4*k6 + k5*k7; mat[5] = gchang*gctang; mat[ 9] = k4*k7 - k5*k6; mat[13] = k2*k6 + k3*k7;
+    k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
+    mat[2] = k4*k6 + k5*k7; mat[6] =-gshang;        mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
+
+    mat[12] += a0->y*mat[0] + a0->z*mat[4] + a0->x*mat[ 8];
+    mat[13] += a0->y*mat[1] + a0->z*mat[5] + a0->x*mat[ 9];
+    mat[14] += a0->y*mat[2] + a0->z*mat[6] + a0->x*mat[10];
+}
+
 static int32_t md3draw(md3model_t *m, const spritetype *tspr)
 {
     point3d fp, fp1, fp2, m0, m1, a0;
     md3xyzn_t *v0, *v1;
     int32_t i, j, k, l, surfi;
-    float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16];
+    float f, g, k0, k1, k2, k3, mat[16];
     md3surf_t *s;
     GLfloat pc[4];
     int32_t                 texunits = GL_TEXTURE0_ARB;
@@ -2110,24 +2135,7 @@ static int32_t md3draw(md3model_t *m, const spritetype *tspr)
     m0.x *=-f; m1.x *=-f; a0.x = (((float)(k1     -globalposy))/ -1024.0 + a0.x)*-f;
     m0.z *= g; m1.z *= g; a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
 
-    k0 = ((float)(tspr->x-globalposx))*f/1024.0;
-    k1 = ((float)(tspr->y-globalposy))*f/1024.0;
-    f = gcosang2*gshang;
-    g = gsinang2*gshang;
-    k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0;
-    k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] / 16384.0;
-    k2 = k0*(1-k4)+k1*k5;
-    k3 = k1*(1-k4)-k0*k5;
-    k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
-    mat[0] = k4*k6 + k5*k7; mat[4] = gchang*gstang; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
-    k6 = f*gctang + gsinang*gstang; k7 = g*gctang - gcosang*gstang;
-    mat[1] = k4*k6 + k5*k7; mat[5] = gchang*gctang; mat[ 9] = k4*k7 - k5*k6; mat[13] = k2*k6 + k3*k7;
-    k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
-    mat[2] = k4*k6 + k5*k7; mat[6] =-gshang;        mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
-
-    mat[12] += a0.y*mat[0] + a0.z*mat[4] + a0.x*mat[ 8];
-    mat[13] += a0.y*mat[1] + a0.z*mat[5] + a0.x*mat[ 9];
-    mat[14] += a0.y*mat[2] + a0.z*mat[6] + a0.x*mat[10];
+    md3_vox_calcmat_common(tspr, &a0, f, mat);
 
     // floor aligned
     if ((globalorientation&48)==32)
@@ -3276,7 +3284,7 @@ int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
     point3d fp, m0, a0;
     int32_t i, j, fi, xx, yy, zz;
     float ru, rv, phack[2], clut[6] = {1,1,1,1,1,1}; //1.02,1.02,0.94,1.06,0.98,0.98};
-    float f, g, k0, k1, k2, k3, k4, k5, k6, k7, mat[16], omat[16], pc[4];
+    float f, g, k0, mat[16], omat[16], pc[4];
     vert_t *vptr;
 
     if ((intptr_t)m == (intptr_t)(-1)) // hackhackhack
@@ -3316,24 +3324,7 @@ int32_t voxdraw(voxmodel_t *m, const spritetype *tspr)
     m0.x *=-f; a0.x = (((float)(tspr->y-globalposy))/ -1024.0 + a0.x)*-f;
     m0.z *= g; a0.z = (((float)(k0     -globalposz))/-16384.0 + a0.z)*g;
 
-    k0 = ((float)(tspr->x-globalposx))*f/1024.0;
-    k1 = ((float)(tspr->y-globalposy))*f/1024.0;
-    f = gcosang2*gshang;
-    g = gsinang2*gshang;
-    k4 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+1024)&2047] / 16384.0;
-    k5 = (float)sintable[(tspr->ang+spriteext[tspr->owner].angoff+ 512)&2047] / 16384.0;
-    k2 = k0*(1-k4)+k1*k5;
-    k3 = k1*(1-k4)-k0*k5;
-    k6 = f*gstang - gsinang*gctang; k7 = g*gstang + gcosang*gctang;
-    mat[0] = k4*k6 + k5*k7; mat[4] = gchang*gstang; mat[ 8] = k4*k7 - k5*k6; mat[12] = k2*k6 + k3*k7;
-    k6 = f*gctang + gsinang*gstang; k7 = g*gctang - gcosang*gstang;
-    mat[1] = k4*k6 + k5*k7; mat[5] = gchang*gctang; mat[ 9] = k4*k7 - k5*k6; mat[13] = k2*k6 + k3*k7;
-    k6 =           gcosang2*gchang; k7 =           gsinang2*gchang;
-    mat[2] = k4*k6 + k5*k7; mat[6] =-gshang;        mat[10] = k4*k7 - k5*k6; mat[14] = k2*k6 + k3*k7;
-
-    mat[12] += a0.y*mat[0] + a0.z*mat[4] + a0.x*mat[ 8];
-    mat[13] += a0.y*mat[1] + a0.z*mat[5] + a0.x*mat[ 9];
-    mat[14] += a0.y*mat[2] + a0.z*mat[6] + a0.x*mat[10];
+    md3_vox_calcmat_common(tspr, &a0, f, mat);
 
     //Mirrors
     if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
