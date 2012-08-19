@@ -2664,9 +2664,9 @@ void G_DisplayRest(int32_t smoothratio)
             {
                 if (pp->newowner == -1 && !ud.pause_on)
                 {
-                    cposx = pp->opos.x+mulscale16((int32_t)(pp->pos.x-pp->opos.x),smoothratio);
-                    cposy = pp->opos.y+mulscale16((int32_t)(pp->pos.y-pp->opos.y),smoothratio);
-                    cang = pp->oang+mulscale16((int32_t)(((pp->ang+1024-pp->oang)&2047)-1024),smoothratio);
+                    cposx = pp->opos.x + mulscale16(pp->pos.x-pp->opos.x, smoothratio);
+                    cposy = pp->opos.y + mulscale16(pp->pos.y-pp->opos.y, smoothratio);
+                    cang = pp->oang + mulscale16(((pp->ang+1024-pp->oang)&2047)-1024, smoothratio);
                 }
                 else
                 {
@@ -3542,7 +3542,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         if (p->over_shoulder_on)
         {
             ud.camera.z -= 3072;
-            G_DoThirdPerson(p,(vec3_t *)&ud.camera,&ud.camerasect,ud.cameraang,ud.camerahoriz);
+            G_DoThirdPerson(p,&ud.camera,&ud.camerasect,ud.cameraang,ud.camerahoriz);
         }
 
         cz = actor[p->i].ceilingz;
@@ -9618,6 +9618,7 @@ void G_UpdatePlayerFromMenu(void)
     {
         /*int32_t j = g_player[myconnectindex].ps->team;*/
 
+        // CODEDUP_UD_TO_GPLAYER
         g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
         g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
         g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
@@ -10429,6 +10430,7 @@ MAIN_LOOP_RESTART:
 
 //    ud.auto_run = ud.config.RunMode;
     ud.showweapons = ud.config.ShowOpponentWeapons;
+    // CODEDUP_UD_TO_GPLAYER
     g_player[myconnectindex].ps->aim_mode = ud.mouseaiming;
     g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
     g_player[myconnectindex].ps->weaponswitch = ud.weaponswitch;
@@ -10645,7 +10647,8 @@ int32_t G_DoMoveThings(void)
             if (!user_quote_time[i]) pub = NUMPAGES;
         }
 
-    if (ud.idplayers && (g_netServer || ud.multimode > 1))
+    // Name display when aiming at opponents
+    if (ud.idplayers && (g_netServer || ud.multimode > 1) && !g_fakeMultiMode)
     {
         hitdata_t hit;
         DukePlayer_t *const p = g_player[screenpeek].ps;
