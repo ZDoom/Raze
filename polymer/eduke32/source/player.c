@@ -2032,6 +2032,8 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     int32_t xoff = 192;
 
     int32_t wx[2] = { windowx1, windowx2 };
+    int32_t wy[2] = { windowy1, windowy2 };
+    int32_t yofs = 0;
 
     switch (g_currentweapon)
     {
@@ -2054,9 +2056,22 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
 
     if (g_fakeMultiMode && ud.multimode==2)
     {
+        const int32_t sidebyside = (ud.screen_size!=0);
+
         // splitscreen HACK
-        orientation &= ~(1024|512|256|8);
-        wx[(g_snum==0)] = (wx[0]+wx[1])/2+1;
+        orientation &= ~(1024|512|256);
+        if (sidebyside)
+        {
+            orientation &= ~8;
+            wx[(g_snum==0)] = (wx[0]+wx[1])/2 + 2;
+        }
+        else
+        {
+            orientation |= 8;
+            if (g_snum==0)
+                yofs = -(100<<16);
+            wy[(g_snum==0)] = (wy[0]+wy[1])/2 + 2;
+        }
     }
 
 #ifdef USE_OPENGL
@@ -2064,9 +2079,9 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
         y += (224-weapsc(224));
 #endif
     rotatesprite(weapsc(x<<16) + ((xoff-weapsc(xoff))<<16),
-                 weapsc(y<<16) + ((200-weapsc(200))<<16),
+                 weapsc(y<<16) + ((200-weapsc(200))<<16) + yofs,
                  weapsc(65536L),ang,tilenum,shade,p,(2|orientation),
-                 wx[0],windowy1,wx[1],windowy2);
+                 wx[0],wy[0], wx[1],wy[1]);
 }
 
 static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade,

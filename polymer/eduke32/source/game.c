@@ -487,6 +487,9 @@ int32_t mpgametext(int32_t y,const char *t,int32_t s,int32_t dabits)
     return(G_PrintGameText(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536));
 }
 
+// minitext_yofs: in hud_scale-independent, (<<16)-scaled, 0-200-normalized y coords,
+// (sb&ROTATESPRITE_MAX) only.
+static int32_t minitext_yofs = 0;
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb)
 {
     int32_t ac;
@@ -527,7 +530,7 @@ int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t 
         }
         else ac = ch - '!' + MINIFONT;
 
-        if (cmode) rotatesprite_fs(sbarx(x),sbary(y),sbarsc(65536L),0,ac,s,p,sb);
+        if (cmode) rotatesprite_fs(sbarx(x),minitext_yofs+sbary(y),sbarsc(65536L),0,ac,s,p,sb);
         else rotatesprite_fs(x<<16,y<<16,65536L,0,ac,s,p,sb);
         x += 4; // tilesizx[ac]+1;
 
@@ -736,14 +739,15 @@ void G_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, in
 #define POLYMOSTTRANS (1)
 #define POLYMOSTTRANS2 (1|32)
 
-// draws inventory numbers in the HUD for both the full and mini status bars
-static void G_DrawInvNum(int32_t x,int32_t y,char num1,char ha,int32_t sbits)
+// Draws inventory numbers in the HUD for both the full and mini status bars.
+// yofs: in hud_scale-independent, (<<16)-scaled, 0-200-normalized y coords.
+static void G_DrawInvNum(int32_t x, int32_t yofs, int32_t y, char num1, char ha, int32_t sbits)
 {
     char dabuf[16];
     int32_t i, shd = (x < 0);
 
     const int32_t sbscale = sbarsc(65536);
-    const int32_t sby = sbary(y), sbyp1 = sbary(y+1);
+    const int32_t sby = yofs+sbary(y), sbyp1 = yofs+sbary(y+1);
 
     if (shd) x = -x;
 
@@ -949,8 +953,8 @@ static void G_DrawWeapAmounts(const DukePlayer_t *p,int32_t x,int32_t y,int32_t 
     }
 }
 
-
-static void G_DrawDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs)
+// yofs: in hud_scale-independent, (<<16)-scaled, 0-200-normalized y coords.
+static void G_DrawDigiNum_(int32_t x, int32_t yofs, int32_t y, int32_t n, char s, int32_t cs)
 {
     int32_t i, j = 0, k, p, c;
     char b[12];
@@ -968,9 +972,14 @@ static void G_DrawDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs)
     for (k=0; k<i; k++)
     {
         p = DIGITALNUM + b[k]-'0';
-        rotatesprite_fs(sbarx(c+j),sbary(y),sbarsc(65536L),0,p,s,0,cs);
+        rotatesprite_fs(sbarx(c+j), yofs+sbary(y), sbarsc(65536), 0, p, s, 0, cs);
         j += tilesizx[p]+1;
     }
+}
+
+static inline void G_DrawDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs)
+{
+    G_DrawDigiNum_(x, 0, y, n, s, cs);
 }
 
 void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,
@@ -1174,7 +1183,7 @@ static void G_DrawStatusBar(int32_t snum)
     int32_t i, j, o, u;
     int32_t permbit = 0;
 
-    const int32_t ss = g_fakeMultiMode ? min(ud.screen_size, 4) : ud.screen_size;
+    const int32_t ss = g_fakeMultiMode ? 4 : ud.screen_size;
     const int32_t althud = g_fakeMultiMode ? 0 : ud.althud;
 
     const int32_t SBY = (200-tilesizy[BOTTOMSTATUSBAR]);
@@ -1309,7 +1318,7 @@ static void G_DrawStatusBar(int32_t snum)
                 i = G_GetInvAmount(p);
                 j = G_GetInvOn(p);
 
-                G_DrawInvNum(-(284-30-o),200-6-3,(uint8_t)i,0,10+permbit+256);
+                G_DrawInvNum(-(284-30-o),0,200-6-3,(uint8_t)i,0,10+permbit+256);
 
                 if (j > 0)
                 {
@@ -1335,23 +1344,40 @@ static void G_DrawStatusBar(int32_t snum)
         else
         {
             // ORIGINAL MINI STATUS BAR
-            int32_t orient = 2+8+16+256 + (g_fakeMultiMode && snum==1)*RS_CENTERORIGIN;
+            int32_t orient = 2+8+16+256, yofs=0, yofssh=0;
 
-            rotatesprite_fs(sbarx(5),sbary(200-28),sb16,0,HEALTHBOX,0,21,orient);
+            if (g_fakeMultiMode)
+            {
+                const int32_t sidebyside = (ud.screen_size!=0);
+
+                if (sidebyside && snum==1)
+                {
+                    orient |= RS_CENTERORIGIN;
+                }
+                else if (!sidebyside && snum==0)
+                {
+                    yofs = -100;
+                    yofssh = yofs<<16;
+                }
+            }
+
+            rotatesprite_fs(sbarx(5), yofssh+sbary(200-28), sb16, 0, HEALTHBOX, 0, 21, orient);
             if (p->inven_icon)
-                rotatesprite_fs(sbarx(69),sbary(200-30),sb16,0,INVENTORYBOX,0,21,orient);
+                rotatesprite_fs(sbarx(69), yofssh+sbary(200-30), sb16, 0, INVENTORYBOX, 0, 21, orient);
 
             // health
             {
                 int32_t health = (sprite[p->i].pal == 1 && p->last_extra < 2) ? 1 : p->last_extra;
-                G_DrawDigiNum(20, 200-17, health, -16, orient);
+                G_DrawDigiNum_(20, yofssh, 200-17, health, -16, orient);
             }
 
-            rotatesprite_fs(sbarx(37),sbary(200-28),sb16,0,AMMOBOX,0,21,orient);
+            rotatesprite_fs(sbarx(37), yofssh+sbary(200-28), sb16, 0, AMMOBOX, 0, 21, orient);
 
-            if (p->curr_weapon == HANDREMOTE_WEAPON) i = HANDBOMB_WEAPON;
-            else i = p->curr_weapon;
-            G_DrawDigiNum(53,200-17,p->ammo_amount[i],-16,orient);
+            if (p->curr_weapon == HANDREMOTE_WEAPON)
+                i = HANDBOMB_WEAPON;
+            else
+                i = p->curr_weapon;
+            G_DrawDigiNum_(53, yofssh, 200-17, p->ammo_amount[i], -16, orient);
 
             o = 158;
             permbit = 0;
@@ -1361,25 +1387,28 @@ static void G_DrawStatusBar(int32_t snum)
 
                 i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
                 if (i >= 0)
-                    rotatesprite_fs(sbarx(231-o),sbary(200-21),sb16,0,i,0,0, orient);
+                    rotatesprite_fs(sbarx(231-o), yofssh+sbary(200-21), sb16, 0, i, 0, 0, orient);
 
                 // scale by status bar size
                 orient |= ROTATESPRITE_MAX;
 
-                minitext(292-30-o,190,"%",6, orient);
+                minitext_yofs = yofssh;
+                minitext(292-30-o, 190, "%", 6, orient);
 
                 i = G_GetInvAmount(p);
                 j = G_GetInvOn(p);
 
-                G_DrawInvNum(284-30-o,200-6,(uint8_t)i,0, orient&~16);
+                G_DrawInvNum(284-30-o, yofssh, 200-6, (uint8_t)i, 0, orient&~16);
 
                 if (j > 0)
-                    minitext(288-30-o,180,"On",0, orient);
+                    minitext(288-30-o, 180, "On", 0, orient);
                 else if ((uint32_t)j != 0x80000000)
-                    minitext(284-30-o,180,"Off",2, orient);
+                    minitext(284-30-o, 180, "Off", 2, orient);
 
                 if (p->inven_icon >= 6)
-                    minitext(284-35-o,180,"Auto",2, orient);
+                    minitext(284-35-o, 180, "Auto", 2, orient);
+
+                minitext_yofs = 0;
             }
         }
 
@@ -1610,7 +1639,7 @@ static void G_DrawStatusBar(int32_t snum)
             if (u&8192)
             {
                 i = G_GetInvAmount(p);
-                G_DrawInvNum(284-30-o,SBY+28,(uint8_t)i,0,10+permbit);
+                G_DrawInvNum(284-30-o,0,SBY+28,(uint8_t)i,0,10+permbit);
             }
         }
     }

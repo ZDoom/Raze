@@ -301,10 +301,24 @@ state show_player_view
 
   ifvarg psect -1
   {
-    ifvare arg_player_id 0
-      showviewunbiased px py pz pang phoriz psect 0 0 160 199
+    getuserdef .screen_size tmp
+
+    ifvare tmp 0
+    {
+        // above/below split: first player is above
+        ifvare arg_player_id 0
+            showviewunbiased px py pz pang phoriz psect 0 0 319 100
+        else
+            showviewunbiased px py pz pang phoriz psect 0 100 319 199
+    }
     else
-      showviewunbiased px py pz pang phoriz psect 160 0 319 199
+    {
+        // side by side split: first player is left
+        ifvare arg_player_id 0
+            showviewunbiased px py pz pang phoriz psect 0 0 160 199
+        else
+            showviewunbiased px py pz pang phoriz psect 160 0 319 199
+    }
   }
 ends
 
