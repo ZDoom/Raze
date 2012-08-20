@@ -49,7 +49,7 @@ void MOUSE_Shutdown(void)
     uninitmouse();
 }
 
-
+#if 0
 void MOUSE_ShowCursor(void)
 {
 }
@@ -58,7 +58,7 @@ void MOUSE_ShowCursor(void)
 void MOUSE_HideCursor(void)
 {
 }
-
+#endif
 
 int32_t MOUSE_GetButtons(void)
 {

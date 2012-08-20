@@ -51,7 +51,7 @@ static uint8_t CONTROL_MouseButtonClickedCount[MAXMOUSEBUTTONS], CONTROL_JoyButt
 static int32_t CONTROL_UserInputCleared[3];
 static int32_t(*GetTime)(void);
 int32_t CONTROL_Started = FALSE;
-static int32_t ticrate;
+//static int32_t ticrate;
 static int32_t CONTROL_DoubleClickSpeed;
 
 int32_t extinput[CONTROL_NUM_FLAGS];
@@ -86,6 +86,7 @@ int32_t CONTROL_StartMouse(void)
     return Mouse_Init();
 }
 
+#if 0
 void CONTROL_GetJoyAbs(void)
 {
 }
@@ -93,6 +94,7 @@ void CONTROL_GetJoyAbs(void)
 void CONTROL_FilterJoyDelta(void)
 {
 }
+#endif
 
 void CONTROL_GetJoyDelta(void)
 {
@@ -114,7 +116,7 @@ void CONTROL_ShutJoy(int32_t joy)
     CONTROL_JoyPresent = FALSE;
 }
 
-int32_t CONTROL_GetTime(void)
+static int32_t CONTROL_GetTime(void)
 {
     static int32_t t = 0;
     t += 5;
@@ -442,11 +444,11 @@ static void DoGetDeviceButtons(
     uint8_t *ButtonClickedCount
 )
 {
-    int32_t i=NumButtons-1, bs;
+    int32_t i=NumButtons-1;
 
     for (; i>=0; i--)
     {
-        bs = (buttons >> i) & 1;
+        int32_t bs = (buttons >> i) & 1;
 
         DeviceButtonState[i] = bs;
         ButtonClickedState[i] = FALSE;
@@ -473,8 +475,10 @@ static void DoGetDeviceButtons(
             {
                 ButtonClickedState[i] = TRUE;
             }
+
             continue;
         }
+
         if (ButtonClickedCount[i] == 2)
             ButtonClickedCount[i] = 0;
 
@@ -484,9 +488,7 @@ static void DoGetDeviceButtons(
 
 void CONTROL_GetDeviceButtons(void)
 {
-    int32_t t;
-
-    t = GetTime();
+    int32_t t = GetTime();
 
     if (CONTROL_MouseEnabled)
     {
@@ -609,7 +611,7 @@ void CONTROL_ApplyAxis(int32_t axis, ControlInfo *info, controldevice device)
     }
 }
 
-void CONTROL_PollDevices(ControlInfo *info)
+static void CONTROL_PollDevices(ControlInfo *info)
 {
     Bmemcpy(CONTROL_LastMouseAxes, CONTROL_MouseAxes, sizeof(CONTROL_MouseAxes));
     Bmemcpy(CONTROL_LastJoyAxes,   CONTROL_JoyAxes,   sizeof(CONTROL_JoyAxes));
@@ -769,7 +771,7 @@ void CONTROL_ProcessBinds(void)
     while (i--);
 }
 
-void CONTROL_GetFunctionInput(void)
+static void CONTROL_GetFunctionInput(void)
 {
     int32_t periphs[CONTROL_NUM_FLAGS];
     int32_t i = CONTROL_NUM_FLAGS-1;
@@ -811,7 +813,7 @@ int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t
     if (TimeFunction) GetTime = TimeFunction;
     else GetTime = CONTROL_GetTime;
 
-    ticrate = ticspersecond;
+//    ticrate = ticspersecond;
 
     CONTROL_DoubleClickSpeed = (ticspersecond*57)/100;
     if (CONTROL_DoubleClickSpeed <= 0)

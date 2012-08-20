@@ -158,7 +158,7 @@ void CONTROL_MapButton
 void CONTROL_DefineFlag( int32_t which, int32_t toggle );
 int32_t CONTROL_FlagActive( int32_t which );
 void CONTROL_ClearAssignments( void );
-void CONTROL_GetFunctionInput( void );
+// void CONTROL_GetFunctionInput( void );
 void CONTROL_GetInput( ControlInfo *info );
 void CONTROL_ClearButton( int32_t whichbutton );
 extern float CONTROL_MouseSensitivity;
