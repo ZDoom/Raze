@@ -3601,50 +3601,31 @@ void overheadeditor(void)
 #endif
             if (highlightsectorcnt > 0)
             {
-                int32_t smoothRotation = !eitherSHIFT;
+                int32_t smoothRotation = eitherSHIFT;
 
                 get_sectors_center(highlightsector, highlightsectorcnt, &dax, &day);
 
-                if (smoothRotation)
+                if (!smoothRotation)
                 {
                     if (gridlock && grid > 0)
                         locktogrid(&dax, &day);
+
+                    tsign *= 512;
                 }
 
                 for (i=0; i<highlightsectorcnt; i++)
                 {
                     for (WALLS_OF_SECTOR(highlightsector[i], j))
-                    {
-                        if (smoothRotation)
-                        {
-                            x3 = wall[j].x;
-                            y3 = wall[j].y;
-                            wall[j].x = dax + tsign*(day-y3);
-                            wall[j].y = day + tsign*(x3-dax);
-                        }
-                        else
-                            rotatepoint(dax,day, wall[j].x,wall[j].y, tsign&2047, &wall[j].x,&wall[j].y);
-                    }
+                        rotatepoint(dax,day, wall[j].x,wall[j].y, tsign&2047, &wall[j].x,&wall[j].y);
 
                     for (j=headspritesect[highlightsector[i]]; j != -1; j=nextspritesect[j])
                     {
-                        if (smoothRotation)
-                        {
-                            x3 = sprite[j].x;
-                            y3 = sprite[j].y;
-                            sprite[j].x = dax + tsign*(day-y3);
-                            sprite[j].y = day + tsign*(x3-dax);
-                            sprite[j].ang = (sprite[j].ang+tsign*512)&2047;
-                        }
-                        else
-                        {
-                            rotatepoint(dax,day, sprite[j].x,sprite[j].y, tsign&2047, &sprite[j].x,&sprite[j].y);
-                            sprite[j].ang = (sprite[j].ang+tsign)&2047;
-                        }
+                        rotatepoint(dax,day, sprite[j].x,sprite[j].y, tsign&2047, &sprite[j].x,&sprite[j].y);
+                        sprite[j].ang = (sprite[j].ang+tsign)&2047;
                     }
                 }
 
-                if (smoothRotation)
+                if (!smoothRotation)
                     keystatus[0x33] = keystatus[0x34] = 0;
 
                 mouseb &= ~(16|32);
