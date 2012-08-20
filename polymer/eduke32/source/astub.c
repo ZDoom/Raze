@@ -564,9 +564,9 @@ int32_t map_undoredo(int32_t dir)
     map_revision = mapstate->revision;
 
     Bmemset(show2dsector, 0, sizeof(show2dsector));
-    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
-    Bmemset(show2dwall, 0, sizeof(show2dwall));
-    Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
+
+    reset_highlightsector();
+    reset_highlight();
 
     initspritelists();
 

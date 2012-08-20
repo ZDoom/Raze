@@ -2460,6 +2460,7 @@ static int32_t compare_wall_coords(const void *w1, const void *w2)
 #undef GETWALCOORD
 #endif
 
+// VARIOUS RESETTING FUNCTIONS
 #define RESET_EDITOR_VARS() do { \
     sectorhighlightstat = -1; \
     newnumwalls = -1; \
@@ -2468,6 +2469,18 @@ static int32_t compare_wall_coords(const void *w1, const void *w2)
     circlepoints = 7; \
     } while (0)
 
+void reset_highlightsector(void)
+{
+    Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
+    update_highlightsector();
+}
+
+void reset_highlight(void)  // walls and sprites
+{
+    Bmemset(show2dwall, 0, sizeof(show2dwall));
+    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+    update_highlight();
+}
 
 #ifdef YAX_ENABLE
 static int32_t collnumsects[2];
@@ -4061,8 +4074,7 @@ rotate_hlsect_out:
                 yax_update(0);
                 yax_updategrays(pos.z);
 
-                Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
-                update_highlightsector();
+                reset_highlightsector();
 
                 if (sandwichbunch < 0)
                     message("Extended %ss of highlighted sectors, creating bunch %d",
@@ -4254,9 +4266,7 @@ rotate_hlsect_out:
 
                 // clear wall & sprite highlights
                 //  TODO: see about consistency with update_highlight() after other ops
-                Bmemset(show2dwall, 0, sizeof(show2dwall));
-                Bmemset(show2dsprite, 0, sizeof(show2dsprite));
-                update_highlight();
+                reset_highlight();
 
                 // construct the loop!
                 i = AddLoopToSector(dstsect, &ofirstwallofs);
@@ -5703,8 +5713,7 @@ end_point_dragging:
                     }
                 }
 
-                Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
-                update_highlightsector();
+                reset_highlightsector();
 
                 yax_update(0);
                 yax_updategrays(pos.z);
@@ -7081,11 +7090,8 @@ end_batch_insert_points:
                         yax_setbunch(j, YAX_FLOOR, -1);
                 }
 #endif
-                Bmemset(hlsectorbitmap, 0, sizeof(hlsectorbitmap));
-                update_highlightsector();
-
-                Bmemset(show2dwall, 0, sizeof(show2dwall));
-                update_highlight();
+                reset_highlightsector();
+                reset_highlight();
 
                 newnumwalls = -1;
                 asksave = 1;
