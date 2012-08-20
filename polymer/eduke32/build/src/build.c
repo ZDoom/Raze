@@ -29,6 +29,7 @@ static char kensig[64];
 extern const char *ExtGetVer(void);
 
 int8_t m32_clipping=2;
+static int32_t m32_rotateang = 0;
 
 // 0   1     2     3      4       5      6      7
 // up, down, left, right, lshift, rctrl, lctrl, space
@@ -3601,7 +3602,21 @@ void overheadeditor(void)
 #endif
             if (highlightsectorcnt > 0)
             {
-                int32_t smoothRotation = eitherSHIFT;
+                int32_t smoothRotation = eitherSHIFT, manualAngle = eitherALT;
+
+                if (manualAngle)
+                {
+                    tsign = getnumber16("Rotation BUILD angle: ", 0, 2047, 1);
+                    if (tsign==0)
+                    {
+                        printmessage16(" ");
+                        goto rotate_hlsect_out;
+                    }
+
+                    printmessage16("Rotated highlighted sectors by %d BUILD degrees", tsign);
+                    tsign &= 2047;
+                    smoothRotation = 1;
+                }
 
                 get_sectors_center(highlightsector, highlightsectorcnt, &dax, &day);
 
@@ -3625,12 +3640,15 @@ void overheadeditor(void)
                     }
                 }
 
-                if (!smoothRotation)
+                m32_rotateang += tsign;
+                m32_rotateang &= 2047;
+                asksave = 1;
+rotate_hlsect_out:
+                if (!smoothRotation || manualAngle)
                     keystatus[0x33] = keystatus[0x34] = 0;
 
                 mouseb &= ~(16|32);
                 bstatus &= ~(16|32);
-                asksave = 1;
             }
             else
             {
@@ -9639,7 +9657,7 @@ badline:
 
 void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
 {
-    char snotbuf[80];
+    char snotbuf[128];
     int32_t i, m;
     int32_t v8 = (numsectors > MAXSECTORSV7 || numwalls > MAXWALLSV7 ||
                   Numsprites > MAXSPRITESV7 || numyaxbunches > 0);
@@ -9698,9 +9716,16 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
             Bsprintf(snotbuf, "%d sprites, %d walls selected", m, highlightcnt-m);
         }
         else if (highlightsectorcnt>0)
-            Bsprintf(snotbuf, "%d sectors with a total of %d walls selected", highlightsectorcnt, numhlsecwalls);
+        {
+            int32_t ii=Bsprintf(snotbuf, "%d sectors with a total of %d walls selected",
+                                highlightsectorcnt, numhlsecwalls);
+            if (m32_rotateang)
+                Bsprintf(&snotbuf[ii], " (ang=%d)", m32_rotateang);
+        }
         else
+        {
             snotbuf[0] = 0;
+        }
 
         v8 = 1;  // yellow color
     }
