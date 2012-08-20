@@ -2006,6 +2006,7 @@ static int32_t P_DisplayFist(int32_t gs,int32_t snum)
 
     fistpal = get_hud_pal(ps);
 
+    // XXX: this is outdated, doesn't handle above/below split.
     if (g_fakeMultiMode && ud.multimode==2)
         wx[(g_snum==0)] = (wx[0]+wx[1])/2+1;
 
@@ -2118,6 +2119,10 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
         G_DrawTileScaled(x,y,tilenum,shadef[slot],orientation,p);
         return;
     case 2:
+    {
+        const DukePlayer_t *const ps = g_player[screenpeek].ps;
+        const int32_t sc = scale(65536,ud.statusbarscale,100);
+
         switch (g_currentweapon)
         {
         case PISTOL_WEAPON:
@@ -2131,13 +2136,14 @@ static void G_DrawWeaponTile(int32_t x, int32_t y, int32_t tilenum, int32_t shad
         case HANDREMOTE_WEAPON:
         case HANDBOMB_WEAPON:
         case SHOTGUN_WEAPON:
-            rotatesprite_win(160<<16,(180+(g_player[screenpeek].ps->weapon_pos*g_player[screenpeek].ps->weapon_pos))<<16,
-                             scale(65536,ud.statusbarscale,100),0,g_currentweapon==GROW_WEAPON?GROWSPRITEICON:WeaponPickupSprites[g_currentweapon],
+            rotatesprite_win(160<<16,(180+(ps->weapon_pos*ps->weapon_pos))<<16,
+                             sc,0,g_currentweapon==GROW_WEAPON?GROWSPRITEICON:WeaponPickupSprites[g_currentweapon],
                              0,0,2);
             return;
         default:
             return;
         }
+    }
     }
 }
 
