@@ -40,6 +40,7 @@ gamevar pid 1 0 // This hold player 2 id
 gamevar pnum 0 0 // This is set to player 2 sprite number
 
 // Temp variables
+gamevar tmp 0 0
 gamevar px 0 0 // Player (both 1 and 2) X coordinate
 gamevar py 0 0 // Player Y coordinate
 gamevar pz 0 0 // Player Z coordinate
@@ -269,37 +270,55 @@ define ORIENT 1032  // 26
 define P1X 4
 define P2X 164
 
+gamevar arg_player_id 0 0
+
+state show_player_view
+  getplayer[arg_player_id].posx px
+  getplayer[arg_player_id].posy py
+  getplayer[arg_player_id].posz pz
+  getplayer[arg_player_id].ang pang
+  getplayer[arg_player_id].horiz phoriz
+  getplayer[arg_player_id].horizoff phorizoff
+  addvarvar phoriz phorizoff
+
+  // simulate corresponding part in G_DrawRooms (almost)
+  ifvarvare player[arg_player_id].spritebridge 0
+  {
+    setvarvar tmp player[arg_player_id].truecz
+    addvar tmp 1024
+    ifvarvarl pz tmp
+      setvarvar pz tmp
+    else
+    {
+      setvarvar tmp player[arg_player_id].truefz
+      subvar tmp 1024
+      ifvarvarg pz tmp
+        setvarvar pz tmp
+    }
+  }
+
+  getplayer[arg_player_id].cursectnum psect
+
+  ifvarg psect -1
+  {
+    ifvare arg_player_id 0
+      showviewunbiased px py pz pang phoriz psect 0 0 160 199
+    else
+      showviewunbiased px py pz pang phoriz psect 160 0 319 199
+  }
+ends
+
 onevent EVENT_DISPLAYROOMS
     setvar RETURN 1  // don't draw them
 
     // an EDuke32 hack now:
 //    setplayer[THISACTOR].rotscrnang 0 // (almost) Prevent the screen rotation when player 1 die
 
-// Took this code from the wiki
-// It show player 1 view
-  getplayer[THISACTOR].posx px
-  getplayer[THISACTOR].posy py
-  getplayer[THISACTOR].posz pz
-  getplayer[THISACTOR].ang pang
-  getplayer[THISACTOR].horiz phoriz
-  getplayer[THISACTOR].horizoff phorizoff
-  addvarvar phoriz phorizoff
-  updatesector px py psect
-  ifvarg psect -1
-    showviewunbiased px py pz pang phoriz psect 0 0 160 199
-// -------------------------------------
-// Player 2 view
-  getplayer[pid].posx px
-  getplayer[pid].posy py
-  getplayer[pid].posz pz
-  getplayer[pid].ang pang
-  getplayer[pid].horiz phoriz
-  getplayer[pid].horizoff phorizoff
-  addvarvar phoriz phorizoff
-  updatesector px py psect
-  ifvarg psect -1
-    showviewunbiased px py pz pang phoriz psect 160 0 319 199
-// -------------------------------------
+  // DRAW THE PLAYER VIEWS!
+  setvar arg_player_id 0
+  state show_player_view
+  setvar arg_player_id 1
+  state show_player_view
 
 // Draw crosshairs if they are enabled
   getuserdef[THISACTOR].crosshair pcrosshair

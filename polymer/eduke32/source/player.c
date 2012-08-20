@@ -5022,7 +5022,6 @@ void P_ProcessInput(int32_t snum)
                     }
             }
         }
-
         else
         {
             p->falling_counter = 0;
@@ -5308,6 +5307,8 @@ HORIZONLY:
             P_CheckTouchDamage(p, j);
     }
 
+    // This makes the player view lower when shrunk.  NOTE that it can get the
+    // view below the sector floor (and does, when on the ground).
     if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
         p->pos.z += 32<<8;
 

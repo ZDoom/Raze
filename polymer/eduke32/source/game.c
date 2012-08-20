@@ -3574,6 +3574,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             ud.camerahoriz = 100+sprite[p->newowner].shade;
         else if (p->spritebridge == 0)
         {
+            // NOTE: when shrunk, p->pos.z can be below the floor.  This puts the
+            // camera into the sector again then.
+
             if (ud.camera.z < (p->truecz + (4<<8)))
                 ud.camera.z = cz + (4<<8);
             else if (ud.camera.z > (p->truefz - (4<<8)))
