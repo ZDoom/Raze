@@ -673,7 +673,7 @@ nextdemo:
             }
         }
 
-        G_PrintGameQuotes();
+        G_PrintGameQuotes(screenpeek);
 
         if (ud.last_camsprite != ud.camerasprite)
         {

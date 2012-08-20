@@ -1778,11 +1778,11 @@ static int32_t calc_ybase(int32_t begy)
 
 // this handles both multiplayer and item pickup message type text
 // both are passed on to gametext
-void G_PrintGameQuotes(void)
+void G_PrintGameQuotes(int32_t snum)
 {
     int32_t i, j, k;
 
-    const DukePlayer_t *const ps = g_player[screenpeek].ps;
+    const DukePlayer_t *const ps = g_player[snum].ps;
 
     k = calc_ybase(1);
 
@@ -1848,9 +1848,30 @@ void G_PrintGameQuotes(void)
         }
     }
 
-    gametext(320>>1, k, ScriptQuotes[ps->ftq],
-             hud_glowingquotes ? quotepulseshade : 0,
-             texto(ps->fta));
+    {
+        int32_t pal = 0;
+
+        if (g_fakeMultiMode)
+        {
+            pal = g_player[snum].pcolor;
+
+            if (snum==1)
+            {
+                const int32_t sidebyside = (ud.screen_size != 0);
+
+                // NOTE: setting gametext's x -= 80 doesn't do the expected thing.
+                // Needs looking into.
+                if (sidebyside)
+                    k += 9;
+                else
+                    k += 101;
+            }
+        }
+
+        gametextpalbits(160, k, ScriptQuotes[ps->ftq],
+                        hud_glowingquotes ? quotepulseshade : 0,
+                        pal, texto(ps->fta));
+    }
 }
 
 void P_DoQuote(int32_t q, DukePlayer_t *p)
@@ -2760,9 +2781,12 @@ void G_DisplayRest(int32_t smoothratio)
 
     // HACK
     if (g_fakeMultiMode && ud.multimode==2)
+    {
         G_DrawStatusBar(1);
+        G_PrintGameQuotes(1);
+    }
 
-    G_PrintGameQuotes();
+    G_PrintGameQuotes(screenpeek);
 
     if (ud.show_level_text && hud_showmapname && g_levelTextTime > 1)
     {

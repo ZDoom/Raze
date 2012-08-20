@@ -55,9 +55,6 @@ gamevar pinput 0 0 // Set to input, used in the PROCESSINPUT event
 gamevar pcrosshair 0 0 // Do you like crosshairs? Game options will tell.
 gamevar crossscale 0 0 // crosshair scale
 gamevar pweapon 0 0 // Player weapon
-gamevar pfta 0 0 // Both used for quotes
-gamevar pftq 0 0
-gamevar pcolor 0 0 // Used to display quotes with player color
 
 gamevar p1heat 0 0 // Common night vision googles
 gamevar p2heat 0 0
@@ -371,16 +368,4 @@ onevent EVENT_DISPLAYROOMS
       setgamepalette 0
   else
     setgamepalette 2
-
-  getactor[THISACTOR].pal pcolor
-  getplayer[THISACTOR].ftq pftq
-  getplayer[THISACTOR].fta pfta
-  ifvarn pfta 0
-    gametext STARTALPHANUM P1X 2 pftq 0 pcolor 26 0 0 xdim ydim
-
-  getactor[pnum].pal pcolor
-  getplayer[pid].ftq pftq
-  getplayer[pid].fta pfta
-  ifvarn pfta 0
-    gametext STARTALPHANUM P2X 2 pftq 0 pcolor 26 0 0 xdim ydim
 endevent
