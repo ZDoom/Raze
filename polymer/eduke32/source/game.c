@@ -1738,38 +1738,58 @@ static void G_PrintCoords(int32_t snum)
     printext256(x,y+72,31,-1,tempbuf,0);
 }
 
-// this handles both multiplayer and item pickup message type text
-// both are passed on to gametext
 
-void G_PrintGameQuotes(void)
+// orientation flags depending on time that a quote has still to be displayed
+static inline int32_t texto(int32_t t)
 {
-    int32_t i, j, k, l;
+    if (t > 4) return 2+8+16;
+    if (t > 2) return 2+8+16+1;
+    return 2+8+16+1+32;
+}
 
-    k = 1;
+static int32_t calc_ybase(int32_t begy)
+{
+    int32_t k = begy;
+
     if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0 && (g_netServer || ud.multimode > 1))
     {
-        j = 0;
+        int32_t i, j = 0;
+
         k += 8;
         for (TRAVERSE_CONNECT(i))
-            if (i > j) j = i;
+            if (i > j)
+                j = i;
 
         if (j >= 4 && j <= 8) k += 8;
         else if (j > 8 && j <= 12) k += 16;
         else if (j > 12) k += 24;
     }
 
-    if (g_player[screenpeek].ps->fta > 1 && (g_player[screenpeek].ps->ftq < QUOTE_RESERVED || g_player[screenpeek].ps->ftq > QUOTE_RESERVED3))
+    return k;
+}
+
+// this handles both multiplayer and item pickup message type text
+// both are passed on to gametext
+void G_PrintGameQuotes(void)
+{
+    int32_t i, j, k;
+
+    const DukePlayer_t *const ps = g_player[screenpeek].ps;
+
+    k = calc_ybase(1);
+
+    if (ps->fta > 1 && (ps->ftq < QUOTE_RESERVED || ps->ftq > QUOTE_RESERVED3))
     {
-        if (g_player[screenpeek].ps->fta > 6)
+        if (ps->fta > 6)
             k += 7;
-        else k += g_player[screenpeek].ps->fta;
+        else k += ps->fta;
     }
 
-    j = scale(k,ydim,200);
+    j = scale(k, ydim, 200);
 
     for (i=MAXUSERQUOTES-1; i>=0; i--)
     {
-        int32_t sh;
+        int32_t sh, l;
 
         if (user_quote_time[i] <= 0)
             continue;
@@ -1777,63 +1797,52 @@ void G_PrintGameQuotes(void)
 
         sh = hud_glowingquotes ? (sintable[((totalclock+(i<<2))<<5)&2047]>>11) : 0;
 
-        if (k > 4) { mpgametext(j,user_quote[i], sh, 2+8+16); j += textsc(8); }
-        else if (k > 2) { mpgametext(j,user_quote[i], sh, 2+8+16+1); j += textsc(k<<1); }
-        else { mpgametext(j,user_quote[i], sh, 2+8+16+1+32); j += textsc(k<<1); }
+        mpgametext(j, user_quote[i], sh, texto(k));
+        j += textsc(k > 4 ? 8 : (k<<1));
 
-        l = G_GameTextLen(USERQUOTE_LEFTOFFSET,OSD_StripColors(tempbuf,user_quote[i]));
+        l = G_GameTextLen(USERQUOTE_LEFTOFFSET, OSD_StripColors(tempbuf,user_quote[i]));
         while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
         {
             l -= (ud.config.ScreenWidth-USERQUOTE_RIGHTOFFSET);
-            if (k > 4) j += textsc(8);
-            else j += textsc(k<<1);
 
+            j += textsc(k > 4 ? 8 : (k<<1));
         }
     }
 
-    if ((klabs(quotebotgoal-quotebot) <= 16) && (ud.screen_size <= 8))
+    if (klabs(quotebotgoal-quotebot) <= 16 && ud.screen_size <= 8)
         quotebot += ksgn(quotebotgoal-quotebot);
     else
         quotebot = quotebotgoal;
 
-    if (g_player[screenpeek].ps->fta <= 1) return;
+    if (ps->fta <= 1) return;
 
-    if (ScriptQuotes[g_player[screenpeek].ps->ftq] == NULL)
+    if (ScriptQuotes[ps->ftq] == NULL)
     {
-        OSD_Printf(OSD_ERROR "%s %d null quote %d\n",__FILE__,__LINE__,g_player[screenpeek].ps->ftq);
+        OSD_Printf(OSD_ERROR "%s %d null quote %d\n",__FILE__,__LINE__,ps->ftq);
         return;
     }
 
+    k = calc_ybase(0);
+
+    if (k == 0)
+    {
+        if (ps->ftq >= QUOTE_RESERVED && ps->ftq <= QUOTE_RESERVED3)
+        {
+            k = 140;//quotebot-8-4;
+        }
+        else
+        {
 #ifdef GEKKO
-    k = 16;
+            k = 16;
 #else
-    k = 0;
+            k = 0;
 #endif
-
-    if (g_player[screenpeek].ps->ftq >= QUOTE_RESERVED && g_player[screenpeek].ps->ftq <= QUOTE_RESERVED3)
-    {
-        k = 140;//quotebot-8-4;
-    }
-    else if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0 && (g_netServer || ud.multimode > 1))
-    {
-        j = 0;
-        k = 8;
-        for (TRAVERSE_CONNECT(i))
-            if (i > j) j = i;
-
-        if (j >= 4 && j <= 8) k += 8;
-        else if (j > 8 && j <= 12) k += 16;
-        else if (j > 12) k += 24;
+        }
     }
 
-    j = g_player[screenpeek].ps->fta;
-    l = hud_glowingquotes ? quotepulseshade : 0;
-    // flags:
-    if (j > 4) i = 2+8+16;
-    else if (j > 2) i = 2+8+16+1;
-    else i = 2+8+16+1+32;
-
-    gametext(320>>1,k,ScriptQuotes[g_player[screenpeek].ps->ftq], l, i);
+    gametext(320>>1, k, ScriptQuotes[ps->ftq],
+             hud_glowingquotes ? quotepulseshade : 0,
+             texto(ps->fta));
 }
 
 void P_DoQuote(int32_t q, DukePlayer_t *p)
