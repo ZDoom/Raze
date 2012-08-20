@@ -322,6 +322,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set)
     setbrightness(ud.brightness>>2, palid, set);
 }
 
+
 int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const char *t,
                         int32_t s,  int32_t p,    int32_t o,
                         int32_t x1, int32_t y1,   int32_t x2, int32_t y2, int32_t z)
@@ -368,7 +369,8 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
 
             ac = *t - '!' + tile;
 
-            if (ac < tile || ac > (tile + 93)) break;
+            if (ac < tile || ac > (tile + 93))
+                break;
 
             i = ((((f & 8) ? 8 : tilesizx[ac]) - squishtext) * z)>>16;
             newx += i;
@@ -429,18 +431,24 @@ int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const 
         }
 
         if (f&4)
-            rotatesprite(textsc(x<<shift),(origy<<shift)+textsc((y-origy)<<shift),textsc(z),
+        {
+            rotatesprite(textsc(x<<shift), (origy<<shift)+textsc((y-origy)<<shift), textsc(z),
                          0,ac,s,p,(8|16|(o&1)|(o&32)),x1,y1,x2,y2);
-        else if (f&1)
-            rotatesprite(x<<shift,(y<<shift),z,0,ac,s,p,(8|16|(o&1)|(o&32)),x1,y1,x2,y2);
-        else rotatesprite(x<<shift,(y<<shift),z,0,ac,s,p,(2|o),x1,y1,x2,y2);
+        }
+        else
+        {
+            const int32_t orient = (f&1) ? (8|16|(o&1)|(o&32)) : (2|o);
+            rotatesprite(x<<shift, y<<shift, z,
+                         0,ac,s,p,orient,x1,y1,x2,y2);
+        }
 
-        x += i = (f & 8) ?
-                 ((8 - squishtext) * z)>>16 :
-                 ((tilesizx[ac] - squishtext) * z)>>16;
+        i = (f & 8) ?
+            ((8 - squishtext) * z)>>16 :
+            ((tilesizx[ac] - squishtext) * z)>>16;
+        x += i;
 
-        if ((*t >= '0' && *t <= '9'))
-            x -= i - ((8 * z)>>16);
+        if (*t >= '0' && *t <= '9')
+            x -= i-((8*z)>>16);
 
         // wrapping long strings doesn't work for precise coordinates due to overflow
         // XXX: above comment obsolete?
