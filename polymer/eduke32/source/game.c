@@ -2926,8 +2926,21 @@ void G_DisplayRest(int32_t smoothratio)
     else
         M_DisplayMenus();
 
-    if (tempTint.f > 0 || applyTint)
-        G_FadePalette(tempTint.r,tempTint.g,tempTint.b,tempTint.f|128);
+    {
+        static int32_t applied = 0;
+
+        if (tempTint.f > 0 || applyTint)
+        {
+            G_FadePalette(tempTint.r,tempTint.g,tempTint.b,tempTint.f|128);
+            applied = 1;
+        }
+        else if (applied)
+        {
+            // be sure to always un-apply a tint.
+            setpalettefade(0,0,0, 0);
+            applied = 0;
+        }
+    }
 }
 
 static void G_DoThirdPerson(DukePlayer_t *pp, vec3_t *vect,int16_t *vsectnum, int32_t ang, int32_t horiz)
