@@ -82,24 +82,39 @@ define GROW_WEAPON 11
 // Next and previous weapon actions will never pick the expander.
 onevent EVENT_NEXTWEAPON
   getplayer[THISACTOR].curr_weapon pweapon
-  ifvare pweapon GROW_WEAPON
-    setvar RETURN DEVISTATOR_WEAPON
+  ifvare pweapon HANDBOMB_WEAPON  // XXX: HANDREMOTE_WEAPON?
+  {
+      getplayer[THISACTOR].subweapon tmp
+      andvar tmp 0xfffff7ff
+      setplayer[THISACTOR].subweapon tmp
+  }
   else ifvare pweapon SHRINKER_WEAPON
-    setvar RETURN SHRINKER_WEAPON  // select expander
+  {
+    ifvarg player[THISACTOR].ammo_amount GROW_WEAPON 0
+      setvar RETURN SHRINKER_WEAPON  // select expander
+    // else select next weapon
+  }
 endevent
 
 onevent EVENT_PREVIOUSWEAPON
   getplayer[THISACTOR].curr_weapon pweapon
+
   ifvare pweapon DEVISTATOR_WEAPON
   {
-      // Select expander. We can't return GROW_WEAPON, because it means
-      // 'next weapon' here.
-      // Ugly, because the shrinker is displayed for a split second.
-      setplayer[THISACTOR].curr_weapon SHRINKER_WEAPON
-      setvar RETURN SHRINKER_WEAPON
+    ifvarg player[THISACTOR].ammo_amount GROW_WEAPON 0
+    {
+      getplayer[THISACTOR].subweapon tmp
+      orvar tmp 0x800
+      setplayer[THISACTOR].subweapon tmp
+      // select previous weapon
+    }
   }
-  else ifvare pweapon GROW_WEAPON
-    setvar RETURN SHRINKER_WEAPON
+  ifvare pweapon GROW_WEAPON
+  {
+    ifvarg player[THISACTOR].ammo_amount SHRINKER_WEAPON 0
+      setvar RETURN SHRINKER_WEAPON  // select shrinker
+    // else select previous weapon
+  }
 endevent
 
 // Disable all the following keys, need room for player 2
