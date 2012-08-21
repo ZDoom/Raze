@@ -5133,6 +5133,12 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case REACTOR__STATIC:
             sp->extra = g_impactDamage;
             CS |= 257;
+            if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
+            {
+                sp->xrepeat = sp->yrepeat = 0;
+                changespritestat(i, STAT_MISC);
+                break;
+            }
             sp->pal = 0;
             SS = -17;
 
