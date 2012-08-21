@@ -1759,7 +1759,8 @@ static int32_t calc_ybase(int32_t begy)
 {
     int32_t k = begy;
 
-    if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0 && (g_netServer || ud.multimode > 1))
+    if (GTFLAGS(GAMETYPE_FRAGBAR) && (ud.screen_size > 0 && !g_fakeMultiMode)
+            && (g_netServer || ud.multimode > 1))
     {
         int32_t i, j = 0;
 
@@ -1783,14 +1784,13 @@ void G_PrintGameQuotes(int32_t snum)
     int32_t i, j, k;
 
     const DukePlayer_t *const ps = g_player[snum].ps;
+    const int32_t reserved_quote = (ps->ftq >= QUOTE_RESERVED && ps->ftq <= QUOTE_RESERVED3);
 
     k = calc_ybase(1);
 
-    if (ps->fta > 1 && (ps->ftq < QUOTE_RESERVED || ps->ftq > QUOTE_RESERVED3))
+    if (ps->fta > 1 && !reserved_quote)
     {
-        if (ps->fta > 6)
-            k += 7;
-        else k += ps->fta;
+        k += min(7, ps->fta);
     }
 
     j = scale(k, ydim, 200);
@@ -1801,6 +1801,7 @@ void G_PrintGameQuotes(int32_t snum)
 
         if (user_quote_time[i] <= 0)
             continue;
+
         k = user_quote_time[i];
 
         sh = hud_glowingquotes ? (sintable[((totalclock+(i<<2))<<5)&2047]>>11) : 0;
@@ -1812,7 +1813,6 @@ void G_PrintGameQuotes(int32_t snum)
         while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
         {
             l -= (ud.config.ScreenWidth-USERQUOTE_RIGHTOFFSET);
-
             j += textsc(k > 4 ? 8 : (k<<1));
         }
     }
@@ -1822,7 +1822,8 @@ void G_PrintGameQuotes(int32_t snum)
     else
         quotebot = quotebotgoal;
 
-    if (ps->fta <= 1) return;
+    if (ps->fta <= 1)
+        return;
 
     if (ScriptQuotes[ps->ftq] == NULL)
     {
@@ -1834,9 +1835,12 @@ void G_PrintGameQuotes(int32_t snum)
 
     if (k == 0)
     {
-        if (ps->ftq >= QUOTE_RESERVED && ps->ftq <= QUOTE_RESERVED3)
+        if (reserved_quote)
         {
-            k = 140;//quotebot-8-4;
+            if (!g_fakeMultiMode)
+                k = 140;//quotebot-8-4;
+            else
+                k = 50;
         }
         else
         {
