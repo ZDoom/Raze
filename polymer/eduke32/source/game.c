@@ -2619,6 +2619,19 @@ void G_DisplayRest(int32_t smoothratio)
         Bmemcpy(&tempFade, &pp2->pals, sizeof(palette_t));
         applyTint = 1;
     }
+    // loogies courtesy of being snotted on
+    else if (pp->pals.f==0 && pp->loogcnt > 0)
+    {
+        palette_t lp = { 0, 64, 0, pp->loogcnt>>1 };
+        Bmemcpy(&tempFade, &lp, sizeof(palette_t));
+        applyTint = 1;
+    }
+    else if (pp2 && pp2->pals.f==0 && pp2->loogcnt > 0)
+    {
+        palette_t lp = { 0, 64, 0, pp2->loogcnt>>1 };
+        Bmemcpy(&tempFade, &lp, sizeof(palette_t));
+        applyTint = 1;
+    }
 
     if (g_restorePalette)
     {
@@ -2636,19 +2649,6 @@ void G_DisplayRest(int32_t smoothratio)
             // delay setting the palette by one game tic
             omovethingscnt = g_moveThingsCount;
         }
-    }
-    // loogies courtesy of being snotted on
-    else if (pp->pals.f==0 && pp->loogcnt > 0)
-    {
-        palette_t lp = { 0, 64, 0, pp->loogcnt>>1 };
-        Bmemcpy(&tempFade, &lp, sizeof(palette_t));
-        applyTint = 1;
-    }
-    else if (pp2 && pp2->pals.f==0 && pp2->loogcnt > 0)
-    {
-        palette_t lp = { 0, 64, 0, pp2->loogcnt>>1 };
-        Bmemcpy(&tempFade, &lp, sizeof(palette_t));
-        applyTint = 1;
     }
 
     if (tempFade.f > 0 /*tempTint.f*/)
