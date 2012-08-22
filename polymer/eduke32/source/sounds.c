@@ -550,6 +550,13 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     pitch = get_sound_pitch(num);
     peekps = g_player[screenpeek].ps;
 
+    if (g_fakeMultiMode && ud.multimode==2)
+    {
+        // splitscreen HACK
+        if (g_player[1].ps->i == i)
+            peekps = g_player[1].ps;
+    }
+
     if (peekps->sound_pitch)
         pitch += peekps->sound_pitch;
 
