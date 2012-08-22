@@ -13932,6 +13932,8 @@ static void setpalettefade_calc(uint8_t offset)
     }
 }
 
+//#define DEBUG_PALETTEFADE
+
 //
 // setpalettefade
 //
@@ -13940,6 +13942,10 @@ void setpalettefade(char r, char g, char b, char offset)
     palfadergb.r = min(63,r) << 2;
     palfadergb.g = min(63,g) << 2;
     palfadergb.b = min(63,b) << 2;
+#ifdef DEBUG_PALETTEFADE
+    if (offset)
+        offset = max(offset, 32);
+#endif
     palfadedelta = min(63,offset) << 2;
 
     setpalettefade_calc(offset);

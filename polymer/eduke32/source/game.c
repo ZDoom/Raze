@@ -2606,27 +2606,23 @@ void G_DisplayRest(int32_t smoothratio)
     }
 #endif  // USE_OPENGL
 
-//    {
-//        static int32_t lastpalsf;  // HACK
-
-        // this does pain tinting etc from the CON
-    if ((pp->pals.f > 0 && pp->loogcnt == 0) /*|| (lastpalsf>0 && pp->pals.f==0)*/) // JBF 20040101: pals.f > 0 now >= 0
+    // this does pain tinting etc from the CON
+    // JBF 20040101: pals.f > 0 now >= 0
+    // PK: was reset to > 0 (correctly, IMO) by TX in r1625.
+    if (pp->pals.f > 0 && pp->loogcnt == 0)
     {
         Bmemcpy(&tempFade, &pp->pals, sizeof(palette_t));
-        g_restorePalette = -1;     // JBF 20040101; PK: reset tinting (-1)
         applyTint = 1;
     }
     else if (pp2 && pp2->pals.f > 0 && pp2->loogcnt == 0)
     {
         Bmemcpy(&tempFade, &pp2->pals, sizeof(palette_t));
-        g_restorePalette = -1;
         applyTint = 1;
     }
-//        lastpalsf = pp->pals.f;
-//    }
-    // reset a normal palette
-    else if (g_restorePalette)
+
+    if (g_restorePalette)
     {
+        // reset a normal palette
         static uint32_t omovethingscnt;
 
         if (g_restorePalette < 2 || omovethingscnt+1 == g_moveThingsCount)
