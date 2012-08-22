@@ -311,13 +311,10 @@ void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set)
     if (palid >= BASEPALCOUNT)
         palid = BASEPAL;
 
-    if (player != g_player[screenpeek].ps)
-    {
-        player->palette = palid;
-        return;
-    }
-
     player->palette = palid;
+
+    if (player != g_player[screenpeek].ps)
+        return;
 
     setbrightness(ud.brightness>>2, palid, set);
 }
@@ -2572,12 +2569,58 @@ static void M32_drawdebug(void)
 }
 #endif
 
+
+////////// TINT ACCUMULATOR //////////
+
+typedef struct {
+    int32_t r,g,b;
+    // f: 0-63 scale
+    int32_t maxf, sumf;
+} palaccum_t;
+
+#define PALACCUM_INITIALIZER { 0, 0, 0, 0, 0 }
+
+/* For a picture frame F and n tints C_1, C_2, ... C_n weighted a_1, a_2,
+ * ... a_n (on a 0-1 scale), the faded frame is calculated as
+ *
+ *    F_new := (1-max_i(a_i))*F + d*sum_i(a_i), where
+ *
+ *    d := max_i(a_i)/sum_i(a_i).
+ *
+ * This means that
+ *  1) tint application is independent of their order.
+ *  2) going from n+1 to n tints is continuous.
+ *
+ * But note that for more than one tint, the composite tint will in general
+ * change its hue as the ratio of the weights of the individual ones changes.
+ */
+static void palaccum_add(palaccum_t *pa, const palette_t *pal, int32_t f)
+{
+    f = clamp(f, 0, 63);
+    if (f == 0)
+        return;
+
+    pa->maxf = max(pa->maxf, f);
+    pa->sumf += f;
+
+    // TODO: we need to do away with this 0-63 scale weirdness someday.
+    pa->r += f*clamp(pal->r, 0, 63);
+    pa->g += f*clamp(pal->g, 0, 63);
+    pa->b += f*clamp(pal->b, 0, 63);
+}
+
+static void G_FadePalaccum(const palaccum_t *pa)
+{
+    setpalettefade(pa->r/pa->sumf, pa->g/pa->sumf, pa->b/pa->sumf, pa->maxf);
+}
+
+
+////////// DISPLAYREST //////////
+
 void G_DisplayRest(int32_t smoothratio)
 {
     int32_t a, i, j;
-    int32_t applyTint=0;
-    palette_t tempFade = { 0, 0, 0, 0 };
-    palette_t tempTint = { 0, 0, 0, 0 };
+    palaccum_t tint = PALACCUM_INITIALIZER;
 
     DukePlayer_t *const pp = g_player[screenpeek].ps;
     DukePlayer_t *const pp2 = g_fakeMultiMode && ud.multimode==2 ? g_player[1].ps : NULL;
@@ -2606,31 +2649,15 @@ void G_DisplayRest(int32_t smoothratio)
     }
 #endif  // USE_OPENGL
 
-    // this does pain tinting etc from the CON
-    // JBF 20040101: pals.f > 0 now >= 0
-    // PK: was reset to > 0 (correctly, IMO) by TX in r1625.
-    if (pp->pals.f > 0 && pp->loogcnt == 0)
+    palaccum_add(&tint, &pp->pals, pp->pals.f);
+    if (pp2)
+        palaccum_add(&tint, &pp2->pals, pp2->pals.f);
     {
-        Bmemcpy(&tempFade, &pp->pals, sizeof(palette_t));
-        applyTint = 1;
-    }
-    else if (pp2 && pp2->pals.f > 0 && pp2->loogcnt == 0)
-    {
-        Bmemcpy(&tempFade, &pp2->pals, sizeof(palette_t));
-        applyTint = 1;
-    }
-    // loogies courtesy of being snotted on
-    else if (pp->pals.f==0 && pp->loogcnt > 0)
-    {
-        palette_t lp = { 0, 64, 0, pp->loogcnt>>1 };
-        Bmemcpy(&tempFade, &lp, sizeof(palette_t));
-        applyTint = 1;
-    }
-    else if (pp2 && pp2->pals.f==0 && pp2->loogcnt > 0)
-    {
-        palette_t lp = { 0, 64, 0, pp2->loogcnt>>1 };
-        Bmemcpy(&tempFade, &lp, sizeof(palette_t));
-        applyTint = 1;
+        static const palette_t loogiepal = { 0, 63, 0, 0 };
+
+        palaccum_add(&tint, &loogiepal, pp->loogcnt>>1);
+        if (pp2)
+            palaccum_add(&tint, &loogiepal, pp2->loogcnt>>1);
     }
 
     if (g_restorePalette)
@@ -2650,9 +2677,6 @@ void G_DisplayRest(int32_t smoothratio)
             omovethingscnt = g_moveThingsCount;
         }
     }
-
-    if (tempFade.f > 0 /*tempTint.f*/)
-        Bmemcpy(&tempTint, &tempFade, sizeof(palette_t));
 
     if (ud.show_help)
     {
@@ -2677,9 +2701,6 @@ void G_DisplayRest(int32_t smoothratio)
             }
             G_UpdateScreenArea();
         }
-
-        if (tempTint.f > 0 || applyTint)
-            G_FadePalette(tempTint.r,tempTint.g,tempTint.b,tempTint.f|128);
 
         return;
     }
@@ -2999,9 +3020,9 @@ void G_DisplayRest(int32_t smoothratio)
     {
         static int32_t applied = 0;
 
-        if (tempTint.f > 0 || applyTint)
+        if (tint.maxf)
         {
-            G_FadePalette(tempTint.r,tempTint.g,tempTint.b,tempTint.f|128);
+            G_FadePalaccum(&tint);
             applied = 1;
         }
         else if (applied)
