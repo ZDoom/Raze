@@ -54,10 +54,11 @@ void P_PalFrom(DukePlayer_t *p, uint8_t f, uint8_t r, uint8_t g, uint8_t b)
 void P_UpdateScreenPal(DukePlayer_t *p)
 {
     int32_t intowater = 0;
+    const int32_t sect = p->cursectnum;
 
     if (p->heat_on) p->palette = SLIMEPAL;
-    else if (p->cursectnum < 0) p->palette = BASEPAL;
-    else if ((sector[p->cursectnum].ceilingpicnum >= FLOORSLIME)&&(sector[p->cursectnum].ceilingpicnum <=FLOORSLIME+2))
+    else if (sect < 0) p->palette = BASEPAL;
+    else if (sector[sect].ceilingpicnum >= FLOORSLIME && sector[sect].ceilingpicnum <= FLOORSLIME+2)
     {
         p->palette = SLIMEPAL;
         intowater = 1;
@@ -68,6 +69,7 @@ void P_UpdateScreenPal(DukePlayer_t *p)
         else p->palette = BASEPAL;
         intowater = 1;
     }
+
     g_restorePalette = 1+intowater;
 }
 

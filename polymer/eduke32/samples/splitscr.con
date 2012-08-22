@@ -11,12 +11,6 @@ Usage: eduke32 splitscr.con -q2
 
 include GAME.CON
 
-// Those are inventory parts
-definequote 160 ON
-definequote 161 OFF
-definequote 162 %
-definequote 163 AUTO
-
 // Key name definitions
 definegamefuncname 11 P2_Move_Forward
 definegamefuncname 12 P2_Move_Backward
@@ -373,14 +367,4 @@ onevent EVENT_DISPLAYROOMS
 
 
   // NOTE: weapons are drawn for both players now (EDuke32 hack)
-
-
-  // Common night vision googles
-  getplayer[THISACTOR].heat_on p1heat
-  getplayer[pid].heat_on p2heat
-  ifvarn p1heat 1
-    ifvarn p2heat 1
-      setgamepalette 0
-  else
-    setgamepalette 2
 endevent

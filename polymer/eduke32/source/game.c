@@ -2667,8 +2667,18 @@ void G_DisplayRest(int32_t smoothratio)
 
         if (g_restorePalette < 2 || omovethingscnt+1 == g_moveThingsCount)
         {
+            int32_t pal = pp->palette;
+            const int32_t opal = pal;
+
+            if (pp2)  // splitscreen HACK: BASEPAL trumps all, then it's arbitrary.
+                pal = min(pal, pp2->palette);
+
             // g_restorePalette < 0: reset tinting, too (e.g. when loading new game)
-            P_SetGamePalette(pp,pp->palette, 2 + (g_restorePalette>0)*16);
+            P_SetGamePalette(pp, pal, 2 + (g_restorePalette>0)*16);
+
+            if (pp2)  // keep first player's pal as its member!
+                pp->palette = opal;
+
             g_restorePalette = 0;
         }
         else
@@ -6734,6 +6744,9 @@ PALONLY:
 #ifndef LUNATIC
 skip:
 #endif
+        // XXX: currently, for the splitscreen mod, sprites will be pal6-colored iff the first
+        // player has nightvision on.  We should pass stuff like "from which player is this view
+        // supposed to be" as parameters ("drawing context") instead of relying on globals.
         if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
                 (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SPRITE_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
         {
