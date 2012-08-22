@@ -424,7 +424,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
 
     sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z)>>4);
 
-    if (g_fakeMultiMode && ud.multimode==2)
+    if (g_fakeMultiMode==2)
     {
         // HACK for splitscreen mod: take the min of sound distances
         // to 1st and 2nd player.
@@ -550,7 +550,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     pitch = get_sound_pitch(num);
     peekps = g_player[screenpeek].ps;
 
-    if (g_fakeMultiMode && ud.multimode==2)
+    if (g_fakeMultiMode==2)
     {
         // splitscreen HACK
         if (g_player[1].ps->i == i)

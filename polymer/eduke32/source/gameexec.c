@@ -1229,7 +1229,7 @@ skip_check:
                 continue;
             }
             if (vm.g_p == screenpeek || (GametypeFlags[ud.coop]&GAMETYPE_COOPSOUND)
-                || (g_fakeMultiMode && ud.multimode==2)
+                || (g_fakeMultiMode==2)
                 )
                 A_PlaySound(*insptr,g_player[screenpeek].ps->i);
             insptr++;

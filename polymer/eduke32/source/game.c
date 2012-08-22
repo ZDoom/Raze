@@ -2623,7 +2623,7 @@ void G_DisplayRest(int32_t smoothratio)
     palaccum_t tint = PALACCUM_INITIALIZER;
 
     DukePlayer_t *const pp = g_player[screenpeek].ps;
-    DukePlayer_t *const pp2 = g_fakeMultiMode && ud.multimode==2 ? g_player[1].ps : NULL;
+    DukePlayer_t *const pp2 = g_fakeMultiMode==2 ? g_player[1].ps : NULL;
     int32_t cposx, cposy, cang;
 
 #ifdef USE_OPENGL
@@ -2811,7 +2811,7 @@ void G_DisplayRest(int32_t smoothratio)
         G_DrawStatusBar(screenpeek);
 
     // HACK
-    if (g_fakeMultiMode && ud.multimode==2)
+    if (g_fakeMultiMode==2)
     {
         G_DrawStatusBar(1);
         G_PrintGameQuotes(1);
@@ -9052,7 +9052,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                             ud.multimode = numpl;
                             initprintf("Fake multiplayer mode: %d players.\n", ud.multimode);
 
-                            g_fakeMultiMode = 1;
+                            g_fakeMultiMode = numpl;
                         }
                     }
 

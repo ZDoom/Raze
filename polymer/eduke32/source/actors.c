@@ -1251,7 +1251,7 @@ ACTOR_STATIC void G_MoveFX(void)
             {
                 int32_t x = ldist(&sprite[peekps->i],s);
 
-                if (g_fakeMultiMode && ud.multimode==2)
+                if (g_fakeMultiMode==2)
                 {
                     // HACK for splitscreen mod
                     int32_t otherdist = ldist(&sprite[g_player[1].ps->i],s);
@@ -1277,7 +1277,7 @@ ACTOR_STATIC void G_MoveFX(void)
                 {
                     int32_t x = dist(&sprite[peekps->i],s);
 
-                    if (g_fakeMultiMode && ud.multimode==2)
+                    if (g_fakeMultiMode==2)
                     {
                         // HACK for splitscreen mod
                         int32_t otherdist = dist(&sprite[g_player[1].ps->i],s);
