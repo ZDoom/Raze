@@ -866,9 +866,11 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr[0]);
 
+    // XXX: should be "if compiled without startup GUI"
+#if !defined __linux || defined HAVE_GTK2
     if (g_noSetup == 0)
         SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
-
+#endif
     // exit early after only updating the values that can be changed from the startup window
     if (flags & 1)
     {
