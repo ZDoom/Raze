@@ -130,7 +130,7 @@ extern int32_t krd_print(const char *filename);
 
 void G_OpenDemoWrite(void)
 {
-    char d[14];
+    char d[BMAX_PATH];
     int32_t i, demonum=1;
 
     if (ud.recstat == 2)
@@ -168,11 +168,20 @@ void G_OpenDemoWrite(void)
 
         do
         {
+            int32_t nch;
+
             if (demonum == 10000) return;
 
             if (g_modDir[0] != '/')
-                Bsprintf(d,"%s/edemo%d.edm",g_modDir, demonum++);
-            else Bsprintf(d, "edemo%d.edm", demonum++);
+                nch=Bsnprintf(d, sizeof(d), "%s/edemo%d.edm", g_modDir, demonum++);
+            else nch=Bsnprintf(d, sizeof(d), "edemo%d.edm", demonum++);
+
+            if ((unsigned)nch >= sizeof(d)-1)
+            {
+                // TODO: factor out this out and use everywhere else.
+                initprintf("Couldn't start demo writing: INTERNAL ERROR: file name too long\n");
+                goto error_wopen_demo;
+            }
 
             g_demo_filePtr = Bfopen(d, "rb");
             if (g_demo_filePtr == NULL) break;
@@ -186,9 +195,10 @@ void G_OpenDemoWrite(void)
             demorec_synccompress_cvar|(demorec_seeds_cvar<<1));
         if (i)
         {
+            Bfclose(g_demo_filePtr), g_demo_filePtr=NULL;
+error_wopen_demo:
             Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
             P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-            Bfclose(g_demo_filePtr), g_demo_filePtr=NULL;
             ud.recstat = ud.m_recstat = 0;
             return;
         }
