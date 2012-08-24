@@ -117,7 +117,7 @@ static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
 // r_usenewaspect is the cvar, newaspect_enable to trigger the new behaviour in the code
 int32_t r_usenewaspect = 1, newaspect_enable=0;
-uint32_t r_screenxy = 403;  // 4:3 aspect ratio
+uint32_t r_screenxy = 0;
 
 int32_t curbrightness = 0, gammabrightness = 0;
 
@@ -13542,7 +13542,12 @@ void setaspect_new()
             int32_t pixratio;
 
             x=r_screenxy/100; y=r_screenxy%100;
-            if (y==0 || x==0) { x=4; y=3; }
+            if (y==0 || x==0)
+            {
+                // Assume square pixel aspect.
+                x = xdim;
+                y = ydim;
+            }
 
             pixratio = divscale16(xd*y, yd*x);
             yx = divscale16(yx, pixratio);
