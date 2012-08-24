@@ -10,6 +10,7 @@ buildmain=1
 buildtools=0
 installtools=0
 builddebug=0
+buildrelease=1
 pack=1
 iamhelix=0
 
@@ -55,7 +56,17 @@ for i in $*; do
             builddebug=0
             pack=1
         ;;
-
+        debughelix)
+            iamhelix=1
+            buildppc=0
+            build86=0
+            build64=1
+            buildmain=1
+            buildtools=0
+            builddebug=1
+            buildrelease=0
+            pack=1
+        ;;
         # For the convenience of universal distributors:
         dist)
             buildppc=1
@@ -296,7 +307,9 @@ if [ $buildmain == 1 ]; then
             dobuildem debug.x64 "ARCH='-arch x86_64' $commonargs RELEASE=0 BUILD32_ON_64=0 $makecmd"
         fi
 
-        dobuildem x64 "ARCH='-arch x86_64' $commonargs RELEASE=1 BUILD32_ON_64=0 $makecmd"
+        if [ $buildrelease == 1 ]; then
+            dobuildem x64 "ARCH='-arch x86_64' $commonargs RELEASE=1 BUILD32_ON_64=0 $makecmd"
+        fi
     fi
 
     if [ $build86 == 1 ]; then
