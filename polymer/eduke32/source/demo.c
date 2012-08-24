@@ -73,23 +73,23 @@ void demo_preparewarp(void)
 
 static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 {
-    char d[14];
+    char demofn[14];
     int32_t i;
 
     savehead_t saveh;
 
-    Bstrcpy(d, "edemo_.edm");
+    Bstrcpy(demofn, "edemo_.edm");
 
     if (g_whichDemo == 10)
-        d[5] = 'x';
+        demofn[5] = 'x';
     else
-        d[5] = '0' + g_whichDemo;
+        demofn[5] = '0' + g_whichDemo;
 
     if (g_whichDemo == 1 && firstdemofile[0] != 0)
     {
         if ((g_demo_recFilePtr = kopen4loadfrommod(firstdemofile,g_loadFromGroupOnly)) == -1) return(0);
     }
-    else if ((g_demo_recFilePtr = kopen4loadfrommod(d,g_loadFromGroupOnly)) == -1) return(0);
+    else if ((g_demo_recFilePtr = kopen4loadfrommod(demofn,g_loadFromGroupOnly)) == -1) return(0);
 
     Bassert(g_whichDemo >= 1);
     i = sv_loadsnapshot(g_demo_recFilePtr, -g_whichDemo, &saveh);
@@ -108,7 +108,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     demo_synccompress &= 1;
 
     i = g_demo_totalCnt/(TICRATE/TICSPERFRAME);
-    OSD_Printf("demo duration: %d min %d sec\n", i/60, i%60);
+    OSD_Printf("demo %d duration: %d min %d sec\n", g_whichDemo, i/60, i%60);
 
     g_demo_cnt=1;
     ud.reccnt = 0;
@@ -130,7 +130,7 @@ extern int32_t krd_print(const char *filename);
 
 void G_OpenDemoWrite(void)
 {
-    char d[BMAX_PATH];
+    char demofn[BMAX_PATH];
     int32_t i, demonum=1;
 
     if (ud.recstat == 2)
@@ -173,23 +173,23 @@ void G_OpenDemoWrite(void)
             if (demonum == 10000) return;
 
             if (g_modDir[0] != '/')
-                nch=Bsnprintf(d, sizeof(d), "%s/edemo%d.edm", g_modDir, demonum++);
-            else nch=Bsnprintf(d, sizeof(d), "edemo%d.edm", demonum++);
+                nch=Bsnprintf(demofn, sizeof(demofn), "%s/edemo%d.edm", g_modDir, demonum++);
+            else nch=Bsnprintf(demofn, sizeof(demofn), "edemo%d.edm", demonum++);
 
-            if ((unsigned)nch >= sizeof(d)-1)
+            if ((unsigned)nch >= sizeof(demofn)-1)
             {
                 // TODO: factor out this out and use everywhere else.
                 initprintf("Couldn't start demo writing: INTERNAL ERROR: file name too long\n");
                 goto error_wopen_demo;
             }
 
-            g_demo_filePtr = Bfopen(d, "rb");
+            g_demo_filePtr = Bfopen(demofn, "rb");
             if (g_demo_filePtr == NULL) break;
             Bfclose(g_demo_filePtr);
         }
         while (1);
 
-        if ((g_demo_filePtr = Bfopen(d,"wb")) == NULL) return;
+        if ((g_demo_filePtr = Bfopen(demofn,"wb")) == NULL) return;
 
         i=sv_saveandmakesnapshot(g_demo_filePtr, -1, demorec_diffs_cvar, demorec_diffcompress_cvar,
             demorec_synccompress_cvar|(demorec_seeds_cvar<<1));

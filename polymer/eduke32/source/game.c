@@ -320,6 +320,8 @@ void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set)
 }
 
 
+// flags
+//  4: small font, wrap strings?
 int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const char *t,
                         int32_t s,  int32_t p,    int32_t o,
                         int32_t x1, int32_t y1,   int32_t x2, int32_t y2, int32_t z)
@@ -1782,6 +1784,7 @@ void G_PrintGameQuotes(int32_t snum)
 
     const DukePlayer_t *const ps = g_player[snum].ps;
     const int32_t reserved_quote = (ps->ftq >= QUOTE_RESERVED && ps->ftq <= QUOTE_RESERVED3);
+    // NOTE: QUOTE_RESERVED4 is not included.
 
     k = calc_ybase(1);
 
@@ -2974,7 +2977,7 @@ void G_DisplayRest(int32_t smoothratio)
                  (myps->player_par/REALGAMETICSPERSEC)%60,
                  ((myps->player_par%REALGAMETICSPERSEC)*33)/10
                 );
-        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),
+        G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(21),
                         tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (ud.player_skill > 3 || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_PLAYERSFRIENDLY)))
@@ -2991,13 +2994,13 @@ void G_DisplayRest(int32_t smoothratio)
                          myps->max_actors_killed>myps->actors_killed?
                          myps->max_actors_killed:myps->actors_killed);
         }
-        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(14),
+        G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(14),
                         tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
 
         if (myps->secret_rooms == myps->max_secret_rooms)
             Bsprintf(tempbuf,"S:%d/%d", myps->secret_rooms, myps->max_secret_rooms);
         else Bsprintf(tempbuf,"S:^15%d/%d", myps->secret_rooms, myps->max_secret_rooms);
-        G_PrintGameText(13,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(7),
+        G_PrintGameText(8+4+1,STARTALPHANUM, j,scale(200-i,ud.config.ScreenHeight,200)-textsc(7),
                         tempbuf,0,10,26,0, 0, xdim-1, ydim-1, 65536);
     }
 

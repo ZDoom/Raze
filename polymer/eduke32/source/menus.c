@@ -2967,16 +2967,24 @@ cheat_for_port_credits:
                     mgametextpal(d,yy, ud.tickrate ? "Yes" : "No", MENUHIGHLIGHT(io), 0);
                     break;
                 case 11:
+                {
+                    DukePlayer_t *ps = g_player[myconnectindex].ps;
+
                     if (x==io)
                     {
-                        enabled = !((g_player[myconnectindex].ps->gm&MODE_GAME) && ud.m_recstat != 1);
-                        if ((g_player[myconnectindex].ps->gm&MODE_GAME)) G_CloseDemoWrite();
+                        enabled = !((ps->gm&MODE_GAME) && ud.m_recstat != 1);
+
+                        if ((ps->gm&MODE_GAME)) G_CloseDemoWrite();
                         else ud.m_recstat = !ud.m_recstat;
                     }
-                    if ((g_player[myconnectindex].ps->gm&MODE_GAME) && ud.m_recstat != 1)
+
+                    if ((ps->gm&MODE_GAME) && ud.m_recstat != 1)
                         enabled = 0;
-                    mgametextpal(d,yy,ud.m_recstat?((enabled && g_player[myconnectindex].ps->gm&MODE_GAME)?"Running":"On"):"Off",enabled?MENUHIGHLIGHT(io):DISABLEDMENUSHADE,enabled?0:1);
+
+                    mgametextpal(d, yy, ud.m_recstat ? ((enabled && ps->gm&MODE_GAME)?"Running":"On"):"Off",
+                                 enabled ? MENUHIGHLIGHT(io) : DISABLEDMENUSHADE, !enabled);
                     break;
+                }
                 case 12:
                     if (x==io) ChangeToMenu(201);
                     break;
