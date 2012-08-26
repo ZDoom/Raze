@@ -11062,63 +11062,39 @@ int32_t setspritez(int16_t spritenum, const vec3_t *new)
 //
 // nextsectorneighborz
 //
+// -1: ceiling or up
+//  1: floor or down
 int32_t nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, int16_t direction)
 {
-    walltype *wal;
-    int32_t i, testz, nextz;
-    int16_t sectortouse;
+    int32_t nextz = (direction==1) ? INT32_MAX : INT32_MIN;
+    int32_t sectortouse = -1;
 
-    if (direction == 1) nextz = INT32_MAX; else nextz = INT32_MIN;
+    walltype *wal = &wall[sector[sectnum].wallptr];
+    int32_t i = sector[sectnum].wallnum;
 
-    sectortouse = -1;
-
-    wal = &wall[sector[sectnum].wallptr];
-    i = sector[sectnum].wallnum;
     do
     {
-        if (wal->nextsector >= 0)
+        const int32_t ns = wal->nextsector;
+
+        if (ns >= 0)
         {
-            if (topbottom == 1)
-            {
-                testz = sector[wal->nextsector].floorz;
-                if (direction == 1)
-                {
-                    if ((testz > thez) && (testz < nextz))
-                    {
-                        nextz = testz;
-                        sectortouse = wal->nextsector;
-                    }
-                }
-                else
-                {
-                    if ((testz < thez) && (testz > nextz))
-                    {
-                        nextz = testz;
-                        sectortouse = wal->nextsector;
-                    }
-                }
-            }
+            const int32_t testz = (topbottom==1) ?
+                sector[ns].floorz : sector[ns].ceilingz;
+
+            int32_t ok;
+
+            if (direction == 1)
+                ok = (testz > thez && testz < nextz);
             else
+                ok = (testz < thez && testz > nextz);
+
+            if (ok)
             {
-                testz = sector[wal->nextsector].ceilingz;
-                if (direction == 1)
-                {
-                    if ((testz > thez) && (testz < nextz))
-                    {
-                        nextz = testz;
-                        sectortouse = wal->nextsector;
-                    }
-                }
-                else
-                {
-                    if ((testz < thez) && (testz > nextz))
-                    {
-                        nextz = testz;
-                        sectortouse = wal->nextsector;
-                    }
-                }
+                nextz = testz;
+                sectortouse = wal->nextsector;
             }
         }
+
         wal++;
         i--;
     }
