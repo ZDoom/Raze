@@ -412,7 +412,7 @@ void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
     else
     {
         wall[wal].cstat &= ~YAX_NEXTWALLBIT(cf);
-        YAX_NEXTWALL(wal, cf) = cf?-1:0;
+        YAX_NEXTWALL(wal, cf) = YAX_NEXTWALLDEFAULT(cf);
     }
 }
 

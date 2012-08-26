@@ -1659,12 +1659,18 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 #ifdef YAX_ENABLE
             if (mapinfo->numyaxbunches > 0)
             {
-                int32_t ynw, cf;
+                int32_t cf;
 
                 for (cf=0; cf<2; cf++)
                 {
-                    ynw = yax_getnextwall(m+j, cf);
-                    mapinfo->ynextwall[2*(tmpnumwalls+j) + cf] = (ynw >= 0) ? otonwall[ynw] : -1;
+                    const int32_t ynw = yax_getnextwall(m+j, cf);
+                    const int32_t nynw = (ynw >= 0) ? otonwall[ynw] : -1;
+
+                    if (mapinfo->numyaxbunches > 0)
+                        mapinfo->ynextwall[2*(tmpnumwalls+j) + cf] = nynw;
+
+                    if (ynw >= 0 && nynw < 0)  // CLEAR_YNEXTWALLS
+                        YAX_PTRNEXTWALL(mapinfo->wall, tmpnumwalls+j, cf) = YAX_NEXTWALLDEFAULT(cf);
                 }
             }
 #endif
@@ -1763,7 +1769,8 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal)
                 yax_setnextwall(i, j, mapinfo->ynextwall[2*(i-numwalls) + j]>=0 ?
                                 numwalls+mapinfo->ynextwall[2*(i-numwalls) + j] : -1);
             else
-                yax_setnextwall(i, j, -1);
+                wall[i].cstat &= ~YAX_NEXTWALLBIT(j);  // CLEAR_YNEXTWALLS
+//                yax_setnextwall(i, j, -1);
         }
 #endif
     }
