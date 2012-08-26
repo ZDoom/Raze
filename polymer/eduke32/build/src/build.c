@@ -1559,9 +1559,9 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
     {
         // only back up complete bunches
         if (numsectsofbunch[i] == yax_numsectsinbunch(i, 0)+yax_numsectsinbunch(i, 1))
-            otonbunch[i] = j++;
+            otonbunch[i] = j++;  // kept bunch
         else
-            otonbunch[i] = -1;
+            otonbunch[i] = -1;  // discarded bunch
     }
     mapinfo->numyaxbunches = j;
 #endif
@@ -1623,13 +1623,30 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
         mapinfo->sector[i].wallptr = tmpnumwalls;
 
 #ifdef YAX_ENABLE
-        if (mapinfo->numyaxbunches > 0)
+        if (mapinfo->numyaxbunches > 0 || numyaxbunches > 0)
         {
             int16_t bn[2];
 
             yax_getbunches(k, &bn[0], &bn[1]);
             for (j=0; j<2; j++)
-                mapinfo->bunchnum[2*i + j] = (bn[j]>=0) ? otonbunch[bn[j]] : -1;
+            {
+                // old bunchnum, new bunchnum
+                int32_t obn=bn[j], nbn=(obn>=0) ? otonbunch[obn] : -1;
+
+                if (mapinfo->numyaxbunches > 0)
+                    mapinfo->bunchnum[2*i + j] = nbn;
+
+                if (obn >= 0 && nbn < 0)
+                {
+                    // if a bunch was discarded
+                    sectortype *const sec = &mapinfo->sector[i];
+                    int16_t *const cs = j==YAX_CEILING ? &sec->ceilingstat : &sec->floorstat;
+                    uint8_t *const xp = j==YAX_CEILING ? &sec->ceilingxpanning : &sec->floorxpanning;
+
+                    *cs &= ~YAX_BIT;
+                    *xp = 0;
+                }
+            }
         }
 #endif
 
@@ -1707,7 +1724,7 @@ static void mapinfofull_free(mapinfofull_t *mapinfo)
 // forreal: if 0, only test if we have enough space (same return values)
 static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal)
 {
-    int32_t i, j, sect, onumsectors=numsectors, newnumsectors, newnumwalls;
+    int32_t i, j, onumsectors=numsectors, newnumsectors, newnumwalls;
 
     if (numsectors+mapinfo->numsectors>MAXSECTORS || numwalls+mapinfo->numwalls>MAXWALLS
 #ifdef YAX_ENABLE
@@ -1764,19 +1781,24 @@ static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal)
 
 #ifdef YAX_ENABLE
         for (j=0; j<2; j++)
+        {
             if (mapinfo->numyaxbunches > 0)
-                yax_setbunch(i, j, mapinfo->bunchnum[2*(i-onumsectors)+j] >= 0 ?
-                             numyaxbunches + mapinfo->bunchnum[2*(i-onumsectors)+j] : -2);
+            {
+                int32_t bn = mapinfo->bunchnum[2*(i-onumsectors)+j];
+                yax_setbunch(i, j, bn>=0 ? numyaxbunches+bn : -2);
+                // -2 clears forward yax-nextwall links.
+                // XXX: still may wrongly reset xpanning.
+            }
             else
-                yax_setbunch(i, j, -2);
-        // -2 clears forward yax-nextwall links
+                Bassert(yax_getbunch(i, j) < 0);
+        }
 #endif
     }
 
     // insert sprites
     for (i=0; i<mapinfo->numsprites; i++)
     {
-        sect = onumsectors+mapinfo->sprite[i].sectnum;
+        int32_t sect = onumsectors+mapinfo->sprite[i].sectnum;
         j = insertsprite(sect, mapinfo->sprite[i].statnum);
         Bmemcpy(&sprite[j], &mapinfo->sprite[i], sizeof(spritetype));
         sprite[j].sectnum = sect;
