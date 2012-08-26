@@ -2041,7 +2041,7 @@ DETONATE:
                                 if (actor[j].t_data[0] == 0)
                                     actor[j].t_data[0] = 1;
                             }
-                            else if (sprite[j].lotag == 21)
+                            else if (sprite[j].lotag == SE_21_DROP_FLOOR)
                                 actor[j].t_data[0] = 1;
                         }
                         j = nextspritestat[j];
@@ -2083,10 +2083,10 @@ DETONATE:
                             switch (sprite[j].lotag)
                             {
                             case 2:
-                            case 21:
-                            case 31:
-                            case 32:
-                            case 36:
+                            case SE_21_DROP_FLOOR:
+                            case SE_31_FLOOR_RISE_FALL:
+                            case SE_32_CEILING_RISE_FALL:
+                            case SE_36_PROJ_SHOOTER:
                                 actor[j].t_data[0] = 1;
                                 break;
                             case 3:
@@ -5577,7 +5577,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             q = sc->extra>>3;
             l = 0;
 
-            if (sc->lotag == 30)
+            if (sc->lotag == ST_30_ROTATE_RISE_BRIDGE)
             {
                 q >>= 2;
 
@@ -5990,7 +5990,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             break;
 
-        case 30:
+        case SE_30_TWO_WAY_TRAIN:
             if (s->owner == -1)
             {
                 t[3] = !t[3];
@@ -6458,7 +6458,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if ((sc->lotag&0xff) != 27)
                     for (TRAVERSE_CONNECT(p))
-                        if (sc->lotag != 30 && sc->lotag != 31 && sc->lotag != 0)
+                        if (sc->lotag != ST_30_ROTATE_RISE_BRIDGE && sc->lotag != ST_31_TWO_WAY_TRAIN && sc->lotag != 0)
                             if (s->sectnum == sprite[g_player[p].ps->i].sectnum)
                                 j = 0;
 
@@ -6467,10 +6467,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     if (t[0] > sh)
                         switch (sector[s->sectnum].lotag)
                         {
-                        case 20:
-                        case 21:
-                        case 22:
-                        case 26:
+                        case ST_20_CEILING_DOOR:
+                        case ST_21_FLOOR_DOOR:
+                        case ST_22_SPLITTING_DOOR:
+                        case ST_26_SPLITTING_ST_DOOR:
                             if (GetAnimationGoal(&sector[s->sectnum].ceilingz) >= 0)
                                 break;
                         default:
@@ -6729,7 +6729,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             break;
 
-        case 16: //Reactor
+        case SE_16_REACTOR: //Reactor
 
             t[2]+=32;
             if (sc->floorz<sc->ceilingz) s->shade=0;
@@ -6764,7 +6764,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             break;
 
-        case 17:
+        case SE_17_WARP_ELEVATOR:
         {
             q = t[0]*(SP<<2);
 
@@ -6820,7 +6820,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 j = headspritestat[STAT_EFFECTOR];
                 while (j >= 0)
                 {
-                    if (i != j && (sprite[j].lotag) == 17)
+                    if (i != j && (sprite[j].lotag) == SE_17_WARP_ELEVATOR)
                         if ((sc->hitag-t[0]) ==
                                 (sector[sprite[j].sectnum].hitag)
                                 && sh == (sprite[j].hitag))
@@ -7125,7 +7125,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             break;
 
-        case 21: // Cascading effect
+        case SE_21_DROP_FLOOR: // Cascading effect
         {
             int32_t *zptr;
 
@@ -7165,7 +7165,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             break;
 
-        case 24:
+        case SE_24_CONVEYOR:
         case 34:
         {
             int32_t p;
@@ -7291,7 +7291,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             break;
 
-        case 25: //PISTONS
+        case SE_25_PISTON: //PISTONS
             if (t[4] == 0) break;
 
             if (sc->floorz <= sc->ceilingz)
@@ -7314,7 +7314,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             break;
 
-        case 26:
+        case SE_26:
         {
             int32_t p;
 
@@ -7368,7 +7368,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
         }
 
-        case 27:
+        case SE_27_DEMO_CAM:
         {
             int32_t p;
             DukePlayer_t *ps;
@@ -7425,7 +7425,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
         }
 
-        case 28:
+        case SE_28_LIGHTNING:
         {
             if (t[5] > 0)
             {
@@ -7513,13 +7513,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
         }
 
-        case 29:
+        case SE_29_WAVES:
             s->hitag += 64;
             l = mulscale12((int32_t)s->yvel,sintable[s->hitag&2047]);
             sc->floorz = s->z + l;
             break;
 
-        case 31: // True Drop Floor
+        case SE_31_FLOOR_RISE_FALL: // True Drop Floor
             if (t[0] == 1)
             {
                 // Choose dir
@@ -7551,7 +7551,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             break;
 
-        case 32: // True Drop Ceiling
+        case SE_32_CEILING_RISE_FALL: // True Drop Ceiling
             if (t[0] == 1)
             {
                 // Choose dir
@@ -7612,12 +7612,12 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             break;
 
-        case 33:
+        case SE_33_QUAKE_DEBRIS:
             if (g_earthquakeTime > 0 && (krand()&7) == 0)
                 RANDOMSCRAP;
             break;
 
-        case 36:
+        case SE_36_PROJ_SHOOTER:
             if (t[0])
             {
                 if (t[0] == 1)
@@ -7710,7 +7710,7 @@ BOLT:
         const spritetype *s = &sprite[i];
         sectortype *sc;
 
-        if (s->lotag != 29) continue;
+        if (s->lotag != SE_29_WAVES) continue;
         sc = &sector[s->sectnum];
         if (sc->wallnum != 4) continue;
         wal = &wall[sc->wallptr+2];

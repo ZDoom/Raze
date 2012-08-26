@@ -5391,7 +5391,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             switch (sp->lotag)
             {
-            case 28:
+            case SE_28_LIGHTNING:
                 T6 = 65;// Delay for lightning
                 break;
             case 7: // Transporters!!!!
@@ -5437,7 +5437,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case 19:
                 sp->owner = -1;
                 break;
-            case 25: // Pistons
+            case SE_25_PISTON: // Pistons
                 T4 = sector[sect].ceilingz;
                 T5 = 1;
                 sector[sect].ceilingz = sp->z;
@@ -5446,7 +5446,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case 35:
                 sector[sect].ceilingz = sp->z;
                 break;
-            case 27:
+            case SE_27_DEMO_CAM:
                 if (ud.recstat == 1)
                 {
                     sp->xrepeat=sp->yrepeat=64;
@@ -5536,7 +5536,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                 break;
 
-            case 17:
+            case SE_17_WARP_ELEVATOR:
 
                 T3 = sector[sect].floorz; //Stopping loc
 
@@ -5554,9 +5554,9 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                 break;
 
-            case 24:
+            case SE_24_CONVEYOR:
                 sp->yvel <<= 1;
-            case 36:
+            case SE_36_PROJ_SHOOTER:
                 break;
 
             case 20:
@@ -5628,7 +5628,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 }
                 break;
 
-            case 31:
+            case SE_31_FLOOR_RISE_FALL:
             {
                 T2 = sector[sect].floorz;
                 //    T3 = sp->hitag;
@@ -5649,7 +5649,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             }
             break;
 
-            case 32:
+            case SE_32_CEILING_RISE_FALL:
             {
                 T2 = sector[sect].ceilingz;
                 T3 = sp->hitag;
@@ -5716,12 +5716,12 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case 6://Subway
             case 14://Caboos
             case 15://Subwaytype sliding door
-            case 16://That rotating blocker reactor thing
-            case 26://ESCELATOR
-            case 30://No rotational subways
+            case SE_16_REACTOR://That rotating blocker reactor thing
+            case SE_26://ESCELATOR
+            case SE_30_TWO_WAY_TRAIN://No rotational subways
                 if (sp->lotag == 0)
                 {
-                    if (sector[sect].lotag == 30)
+                    if (sector[sect].lotag == ST_30_ROTATE_RISE_BRIDGE)
                     {
                         if (sp->pal) sprite[i].clipdist = 1;
                         else sprite[i].clipdist = 0;
@@ -5774,7 +5774,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     }
                 }
 
-                if (sp->lotag == 30 || sp->lotag == 6 || sp->lotag == 14 || sp->lotag == 5)
+                if (sp->lotag == SE_30_TWO_WAY_TRAIN || sp->lotag == 6 || sp->lotag == 14 || sp->lotag == 5)
                 {
 #ifdef YAX_ENABLE
                     int32_t outerwall=-1;
@@ -5834,14 +5834,14 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     sp->owner = -1;
                     T1 = s;
 
-                    if (sp->lotag != 30)
+                    if (sp->lotag != SE_30_TWO_WAY_TRAIN)
                         T4 = sp->hitag;
                 }
 
-                else if (sp->lotag == 16)
+                else if (sp->lotag == SE_16_REACTOR)
                     T4 = sector[sect].ceilingz;
 
-                else if (sp->lotag == 26)
+                else if (sp->lotag == SE_26)
                 {
                     T4 = sp->x;
                     T5 = sp->y;
@@ -5866,15 +5866,15 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 j = A_CallSound(sect,i);
                 if (j == -1) j = SUBWAY;
                 actor[i].lastvx = j;
-            case 30:
+            case SE_30_TWO_WAY_TRAIN:
                 if (g_netServer || numplayers > 1) break;
             case 0:
             case 1:
             case 5:
             case 11:
             case 15:
-            case 16:
-            case 26:
+            case SE_16_REACTOR:
+            case SE_26:
                 Sect_SetInterpolation(sprite[i].sectnum);
                 break;
             }
@@ -6154,7 +6154,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 if (ror_sprite == -1) ror_sprite = i;
             }
 
-            if (t->lotag == 27 && ud.recstat == 1)
+            if (t->lotag == SE_27_DEMO_CAM && ud.recstat == 1)
             {
                 t->picnum = 11+((totalclock>>3)&1);
                 t->cstat |= 128;

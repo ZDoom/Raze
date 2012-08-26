@@ -336,4 +336,35 @@ extern char forcegl;
 #define Net_EnterText(x, y, t, dalen, c) _EnterText(1,x,y,t,dalen,c)
 #define S_StopSound(num) S_StopEnvSound(num, -1)
 
+// sector effector lotags
+enum {
+    SE_16_REACTOR = 16,
+    SE_17_WARP_ELEVATOR = 17,
+    SE_21_DROP_FLOOR = 21,
+    SE_24_CONVEYOR = 24,
+    SE_25_PISTON = 25,
+    SE_26 = 26,
+    SE_27_DEMO_CAM = 27,
+    SE_28_LIGHTNING = 28,
+    SE_29_WAVES = 29,
+    SE_30_TWO_WAY_TRAIN = 30,
+    SE_31_FLOOR_RISE_FALL = 31,
+    SE_32_CEILING_RISE_FALL = 32,
+    SE_33_QUAKE_DEBRIS = 33,
+    SE_36_PROJ_SHOOTER = 36,
+};
+
+// sector lotags
+enum {
+    ST_15_WARP_ELEVATOR = 15,
+    ST_20_CEILING_DOOR = 20,
+    ST_21_FLOOR_DOOR = 21,
+    ST_22_SPLITTING_DOOR = 22,
+    ST_26_SPLITTING_ST_DOOR = 26,
+    ST_28_DROP_FLOOR = 28,
+    ST_29_TEETH_DOOR = 29,
+    ST_30_ROTATE_RISE_BRIDGE = 30,
+    ST_31_TWO_WAY_TRAIN = 31,
+};
+
 #endif

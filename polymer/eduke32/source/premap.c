@@ -1116,8 +1116,8 @@ static inline void prelevel(char g)
 
         switch (sector[i].lotag)
         {
-        case 20:
-        case 22:
+        case ST_20_CEILING_DOOR:
+        case ST_22_SPLITTING_DOOR:
             if (sector[i].floorz > sector[i].ceilingz)
                 sector[i].lotag |= 32768;
             continue;

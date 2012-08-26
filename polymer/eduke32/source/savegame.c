@@ -71,17 +71,14 @@ void G_ResetInterpolations(void)
     {
         switch (sprite[k].lotag)
         {
-        case 31:
+        case SE_31_FLOOR_RISE_FALL:
             G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
             break;
-        case 32:
+        case SE_32_CEILING_RISE_FALL:
             G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
             break;
-        case 25:
-            G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
-            G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
-            break;
-        case 17:
+        case SE_17_WARP_ELEVATOR:
+        case SE_25_PISTON:
             G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
             G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
             break;
@@ -91,9 +88,9 @@ void G_ResetInterpolations(void)
         case 11:
         case 14:
         case 15:
-        case 16:
-        case 26:
-        case 30:
+        case SE_16_REACTOR:
+        case SE_26:
+        case SE_30_TWO_WAY_TRAIN:
             Sect_SetInterpolation(sprite[k].sectnum);
             break;
         }

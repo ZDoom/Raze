@@ -5361,7 +5361,7 @@ HORIZONLY:
     {
 //        p->cursectnum = s->sectnum;
 
-        if (!ud.noclip && sector[p->cursectnum].lotag == 31)
+        if (!ud.noclip && sector[p->cursectnum].lotag == ST_31_TWO_WAY_TRAIN)
         {
             if (sprite[sector[p->cursectnum].hitag].xvel && actor[sector[p->cursectnum].hitag].t_data[0] == 0)
             {
