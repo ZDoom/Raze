@@ -5541,10 +5541,22 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 T3 = sector[sect].floorz; //Stopping loc
 
                 j = nextsectorneighborz(sect,sector[sect].floorz,-1,-1);
-                T4 = sector[j].ceilingz;
+                if (j >= 0)
+                {
+                    T4 = sector[j].ceilingz;
 
-                j = nextsectorneighborz(sect,sector[sect].ceilingz,1,1);
-                T5 = sector[j].floorz;
+                    j = nextsectorneighborz(sect,sector[sect].ceilingz,1,1);
+                    if (j >= 0)
+                        T5 = sector[j].floorz;
+                }
+
+                if (j < 0)
+                {
+                    // XXX: we should return to the menu for this and similar failures
+                    Bsprintf(tempbuf, "SE 17 (warp elevator) setup failed: sprite %d at (%d, %d)",
+                             i, sprite[i].x, sprite[i].y);
+                    G_GameExit(tempbuf);
+                }
 
                 if (numplayers < 2 && !g_netServer)
                 {
