@@ -4,6 +4,7 @@
 
 local ffi = require "ffi"
 local io = require "io"
+local bit = require "bit"
 
 local error = error
 local assert = assert
@@ -104,6 +105,31 @@ local function set_secwalspr_mt(structar, maxidx)
     return setmetatable({}, mt)
 end
 
+
+local function get_numyaxbunches(map)
+    if (map.version < 9) then
+        return 0
+    end
+
+    local numbunches = 0
+
+    for i=0,map.numsectors-1 do
+        for cf=0,1 do
+            local sec = map.sector[i]
+            local stat = (cf==0) and sec.ceilingstat or sec.floorstat
+            local xpan = (cf==0) and sec.ceilingxpanning or sec.floorxpanning
+
+            if (bit.band(stat, 1024) ~= 0) then
+                if (xpan+1 > numbunches) then
+                    numbunches = xpan+1
+                end
+            end
+        end
+    end
+
+    return numbunches
+end
+
 --== LOADBOARD ==--
 -- returns:
 --  on failure, nil, errmsg
@@ -115,7 +141,8 @@ end
 --      wall=<cdata (array of walltype)>,
 --      sprite=nil or <cdata> (array of spritetype),
 --      start =
---        { x=<num>, y=<num>, z=<num>, ang=<num>, sectnum=<num> }
+--        { x=<num>, y=<num>, z=<num>, ang=<num>, sectnum=<num> },
+--      numbunches = <num>,
 --    }
 function loadboard(filename)
     local fh, errmsg = io.open(filename)
@@ -124,18 +151,16 @@ function loadboard(filename)
         return nil, errmsg
     end
 
-    -- The table we'll return on success
-    local map = { start={} }
-
     local cd = doread(fh, "int32_t", 4)
     if (cd==nil) then
         return nil, "Couldn't read header"
     end
 
-    map.version = cd[0]
-    map.start.x = cd[1]
-    map.start.y = cd[2]
-    map.start.z = cd[3]
+    -- The table we'll return on success
+    local map = {
+        version = cd[0],
+        start = { x=cd[1], y=cd[2], z=cd[3] },
+    }
 
     if (map.version < 7 or map.version > 9) then
         fh:close()
@@ -196,13 +221,15 @@ function loadboard(filename)
     if (map.numsprites~=0 and map.sprite == nil) then
         return nil, "Couldn't read sprites"
     end
+    fh:close()
 
     map.sector = set_secwalspr_mt(map.sector, map.numsectors)
     map.wall = set_secwalspr_mt(map.wall, map.numwalls)
     map.sprite = set_secwalspr_mt(map.sprite, map.numsprites)
 
+    map.numbunches = get_numyaxbunches(map)
+
     -- done
-    fh:close()
     return map
 end
 
