@@ -5,11 +5,14 @@
 local ffi = require "ffi"
 local io = require "io"
 local bit = require "bit"
+local string = require "string"
+local table = require "table"
 
 local error = error
 local assert = assert
 local print = print
 local setmetatable = setmetatable
+local tostring = tostring
 
 module(...)
 
@@ -130,6 +133,52 @@ local function get_numyaxbunches(map)
     return numbunches
 end
 
+--== sprite canonicalizer ==--
+local function sprite2str(s)
+    local FMT = "%+11d_"
+    -- NOTE: this canonicalization isn't very useful except for debugging
+    -- copy-paste in the editor.
+    -- tostring(s): make sort stable
+    return string.format(FMT:rep(4).."%s", s.x, s.y, s.z, s.ang, tostring(s))
+end
+
+local function canonicalize_sprite_order(map)
+    local numsprites = map.numsprites
+
+    map.spriten2o = {}  -- mapping of new to old sprite index
+
+    if (numsprites == 0) then
+        return
+    end
+
+    local spriteidx = {}
+
+    for i=0,numsprites-1 do  -- 0->1 based indexing
+        spriteidx[i+1] = i
+    end
+
+    table.sort(spriteidx,
+               function(i1, i2)
+                   return sprite2str(map.sprite[i1]) < sprite2str(map.sprite[i2])
+               end)
+
+    -- deep-copied sprite structs
+    local spritedup = {}
+
+    for i=0,numsprites-1 do
+        -- save sorting permutation (0-based -> 0-based)
+        map.spriten2o[i] = assert(spriteidx[i+1])
+
+        -- back up struct
+        spritedup[i] = ffi.new("spritetype")
+        ffi.copy(spritedup[i], map.sprite[i], ffi.sizeof("spritetype"))
+    end
+
+    for i=0,numsprites-1 do  -- do the actual rearrangement
+        map.sprite[i] = spritedup[spriteidx[i+1]]
+    end
+end
+
 --== LOADBOARD ==--
 -- returns:
 --  on failure, nil, errmsg
@@ -144,7 +193,7 @@ end
 --        { x=<num>, y=<num>, z=<num>, ang=<num>, sectnum=<num> },
 --      numbunches = <num>,
 --    }
-function loadboard(filename)
+function loadboard(filename, do_canonicalize_sprite)
     local fh, errmsg = io.open(filename)
 
     if (fh==nil) then
@@ -222,6 +271,11 @@ function loadboard(filename)
         return nil, "Couldn't read sprites"
     end
     fh:close()
+
+    if (do_canonicalize_sprite) then
+        -- must do this before setting metatable
+        canonicalize_sprite_order(map)
+    end
 
     map.sector = set_secwalspr_mt(map.sector, map.numsectors)
     map.wall = set_secwalspr_mt(map.wall, map.numwalls)
