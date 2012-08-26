@@ -21,12 +21,40 @@ local io = require "io"
 local os = require "os"
 
 if (#arg < 1) then
-    io.stdout:write("Usage: luajit ./foreachmap <module[.lua]> [init args...] <filename.map> ...\n\n")
+    local wr = function(s) io.stdout:write(s) end
+    wr("Usage: ./foreachmap <module[.lua]> [init args...] <filename.map> ...\n")
+    wr("       ./foreachmap -e\"some_lua_code ...\" <filename.map> ...\n\n")
+    wr("In the second form, the code is run as body of a function(map, fn)\n")
+    wr("and num{sectors,walls,sprites} and {sector,wall,sprite} do not\n")
+    wr("need to be qualified with the \"map.\" prefix.\n\n")
+    wr("Example: ./foreachmap.lua -e\"if map.numbunches==1 then print(fn) end\" ~/.eduke32/*.map\n\n")
     return
 end
 
 local modname = string.gsub(arg[1], "%.lua$", "")
-local mod = require(modname)
+
+local mod
+if (modname:sub(1,2) == "-e") then
+    local body = modname:sub(3)
+    local successfunc, errmsg = loadstring(
+        "local numsectors, numwalls, numsprites\n"
+            .."local sector, wall, sprite\n"
+            .."return function (map, fn) \n"
+            .."  numsectors, numwalls, numsprites = map.numsectors, map.numwalls, map.numsprites\n"
+            .."  sector, wall, sprite = map.sector, map.wall, map.sprite\n"
+            ..body.."\n"
+            .."end"
+    )
+
+    if (successfunc==nil) then
+        io.stderr:write("Error loading string: "..errmsg.."\n")
+        os.exit(1)
+    end
+
+    mod = { success=successfunc() }
+else
+    mod = require(modname)
+end
 
 if (mod.init) then
     if (mod.init(arg) ~= nil) then
