@@ -3491,6 +3491,11 @@ void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
 
     if (p->reloading) return;
 
+    if (p->curr_weapon != weapon && apScriptGameEvent[EVENT_CHANGEWEAPON])
+        weapon = VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1, weapon);
+    if (weapon < 0)
+        return;
+
     p->random_club_frame = 0;
 
     if (p->weapon_pos == 0)
@@ -3507,9 +3512,6 @@ void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
     }
 
     p->kickback_pic = 0;
-
-    if (p->curr_weapon != weapon && apScriptGameEvent[EVENT_CHANGEWEAPON])
-        VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1, 0);
 
     p->curr_weapon = weapon;
 
@@ -3580,14 +3582,17 @@ void P_CheckWeapon(DukePlayer_t *p)
 
     // Found the weapon
 
+    if (apScriptGameEvent[EVENT_CHANGEWEAPON])
+        weap = VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1, weap);
+    if (weap < 0)
+        return;
+
     p->last_weapon  = p->curr_weapon;
     p->random_club_frame = 0;
     p->curr_weapon  = weap;
     Gv_SetVar(g_iWeaponVarID,p->curr_weapon, p->i, snum);
     Gv_SetVar(g_iWorksLikeVarID, (unsigned)p->curr_weapon < MAX_WEAPONS ? aplWeaponWorksLike[p->curr_weapon][snum] : -1, p->i, snum);
 
-    if (apScriptGameEvent[EVENT_CHANGEWEAPON])
-        VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1, 0);
     p->kickback_pic = 0;
     if (p->holster_weapon == 1)
     {
