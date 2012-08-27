@@ -8061,6 +8061,33 @@ int32_t A_CheckSwitchTile(int32_t i)
 
 void G_MoveWorld(void)
 {
+    {
+        int32_t j, k = MAXSTATUS-1, pl;
+        do
+        {
+            int32_t i = headspritestat[k];
+
+            while (i >= 0)
+            {
+                if (!apScriptGameEvent[EVENT_PREGAME] || A_CheckSpriteFlags(i, SPRITE_NOEVENTCODE))
+                {
+                    i = nextspritestat[i];
+                    continue;
+                }
+
+                j = nextspritestat[i];
+
+                {
+                    int32_t p;
+                    pl = A_FindPlayer(&sprite[i], &p);
+                    VM_OnEvent(EVENT_PREGAME,i, pl, p, 0);
+                }
+                i = j;
+            }
+        }
+        while (k--);
+    }
+
     G_MoveZombieActors();     //ST 2
     G_MoveWeapons();          //ST 4
     G_MoveTransports();       //ST 9

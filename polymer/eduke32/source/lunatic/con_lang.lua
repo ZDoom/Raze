@@ -158,6 +158,7 @@ labels =
         EVENT_CHECKFLOORDAMAGE = 90,
         EVENT_LOADGAME = 91,
         EVENT_SAVEGAME = 92,
+        EVENT_PREGAME = 93,
     },
 }
 
