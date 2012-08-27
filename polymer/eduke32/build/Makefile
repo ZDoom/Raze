@@ -154,16 +154,13 @@ ifeq ($(RENDERTYPE),SDL)
         ifeq (1,$(SDL_FRAMEWORK))
             OURCFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
                     -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
-            UTILLIBS += -Wl,-framework,SDL -Wl,-framework,SDL_mixer ../Apple/lib/libSDLmain.a
         else
             OURCFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
-            UTILLIBS += -lSDL_mixer
         endif
     endif
 
     ifeq (0,$(SDL_FRAMEWORK))
         OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
-        UTILLIBS+= -lSDL_mixer
     else
         OURCFLAGS   += -DSDL_FRAMEWORK
     endif
