@@ -740,10 +740,33 @@ dead:
 
 void addweapon_maybeswitch(DukePlayer_t *ps, int32_t weap)
 {
-    if (!(ps->weaponswitch & 1))
-        P_AddWeaponNoSwitch(ps, weap);
-    else
+    if ((ps->weaponswitch & 1) && (ps->weaponswitch & 4))
+    {
+        int32_t snum = sprite[ps->i].yvel;
+        int32_t i, w, new_wchoice = -1, curr_wchoice = -1;
+
+        for (i=0; i<10 && (new_wchoice < 0 || curr_wchoice < 0); i++)
+        {
+            w = g_player[snum].wchoice[i];
+
+            if (w == 0) w = 9;
+            else w--;
+
+            if (w == ps->curr_weapon)
+                curr_wchoice = i;
+            if (w == weap)
+                new_wchoice = i;
+        }
+
+        if (new_wchoice < curr_wchoice)
+            P_AddWeapon(ps, weap);
+        else
+            P_AddWeaponNoSwitch(ps, weap);
+    }
+    else if (ps->weaponswitch & 1)
         P_AddWeapon(ps, weap);
+    else
+        P_AddWeaponNoSwitch(ps, weap);
 }
 
 void addweapon_addammo_common(DukePlayer_t *ps, int32_t weap, int32_t amount)

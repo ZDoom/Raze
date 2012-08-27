@@ -960,13 +960,28 @@ void M_DisplayMenus(void)
                     case 5:
                         i = 0;
                         if (ud.weaponswitch & 1)
-                            i = 1;
-                        if (x == io)
-                            i = 1-i;
-                        modval(0,1,(int32_t *)&i,1,probey==5);
-                        if ((ud.weaponswitch & 1 && !i) || (!(ud.weaponswitch & 1) && i))
                         {
-                            ud.weaponswitch ^= 1;
+                            i = 1;
+                            if (ud.weaponswitch & 4)
+                                i = 2;
+                        }
+                        l = i;
+                        if (x == io)
+                            i = (i == 2) ? 0 : i+1;
+                        modval(0,2,(int32_t *)&i,1,probey==5);
+                        if (i != l)
+                        {
+                            if (i > 0)
+                            {
+                                ud.weaponswitch |= 1;
+                                if (i == 2)
+                                    ud.weaponswitch |= 4;
+                                else
+                                    ud.weaponswitch &= ~4;
+                            }
+                            else
+                                ud.weaponswitch &= ~(1|4);
+
                             G_UpdatePlayerFromMenu();
                         }
                         break;
@@ -1073,11 +1088,21 @@ void M_DisplayMenus(void)
                         break;
 
                     case 5:
-                        mgametext(d+70,yy,ud.weaponswitch&1?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
+                    {
+                        const char *s[] = { "Off", "All weapons", "Fav priority" };
+                        i = 0;
+                        if (ud.weaponswitch & 1)
+                        {
+                            i = 1;
+                            if (ud.weaponswitch & 4)
+                                i = 2;
+                        }
+                        mgametext(d+40,yy,s[i],MENUHIGHLIGHT(io),2+8+16);
+                    }
                         break;
 
                     case 6:
-                        mgametext(d+70,yy,ud.weaponswitch&2?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
+                        mgametext(d+40,yy,ud.weaponswitch&2?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
                         break;
 
                     default:
