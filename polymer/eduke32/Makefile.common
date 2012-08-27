@@ -162,8 +162,9 @@ else
 endif
 
 ifeq (0,$(CLANG))
-    W_NO_UNUSED_RESULT := $(shell echo '' | $(CC) -E -Wno-unused-result - 2>/dev/null && echo -Wno-unused-result)
-    W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
+#    W_NO_UNUSED_RESULT := $(shell echo '' | $(CC) -E -Wno-unused-result - 2>/dev/null && echo -Wno-unused-result)
+#    W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
+    W_NO_UNUSED_RESULT := -Wno-unused-result
 else
     W_NO_UNUSED_RESULT :=
 endif
