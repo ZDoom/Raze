@@ -321,8 +321,8 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
     hitdata_t hit;
     vec3_t srcvect;
     char sizx,sizy;
-    spritetype *s = &sprite[i];
-    int16_t sect = s->sectnum;
+    spritetype *const s = &sprite[i];
+    const int16_t sect = s->sectnum;
 
     const int32_t p = (s->picnum == APLAYER) ? s->yvel : -1;
     DukePlayer_t *const ps = p >= 0 ? g_player[p].ps : NULL;
@@ -1721,19 +1721,20 @@ SKIPBULLETHOLE:
             return j;
 
         case HANDHOLDINGLASER__STATIC:
-
+        {
+            const int32_t zoff = (p>=0) ? g_player[p].ps->pyoff : 0;
             if (p >= 0)
                 zvel = (100-ps->horiz-ps->horizoff)*32;
             else zvel = 0;
             if (actor[i].shootzvel) zvel = actor[i].shootzvel;
 
-            srcvect.z -= g_player[p].ps->pyoff;
+            srcvect.z -= zoff;
             hitscan((const vec3_t *)&srcvect,sect,
                     sintable[(sa+512)&2047],
                     sintable[sa&2047],
                     zvel<<6,&hit,CLIPMASK1);
+            srcvect.z += zoff;
 
-            srcvect.z += g_player[p].ps->pyoff;
             j = 0;
             if (hit.sprite >= 0) break;
 
@@ -1751,7 +1752,8 @@ SKIPBULLETHOLE:
 
             if (j == 1)
             {
-                int32_t lTripBombControl=Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, g_player[p].ps->i, p);
+                int32_t lTripBombControl = (p < 0) ? 0 :
+                    Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, g_player[p].ps->i, p);
                 k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,TRIPBOMB,-16,4,5,sa,0,0,i,6);
                 if (lTripBombControl & TRIPBOMB_TIMER)
                 {
@@ -1764,18 +1766,21 @@ SKIPBULLETHOLE:
                     actor[k].t_data[6]=1;
                 }
                 else
-
                     sprite[k].hitag = k;
+
                 A_PlaySound(LASERTRIP_ONWALL,k);
                 sprite[k].xvel = -20;
                 A_SetSprite(k,CLIPMASK0);
                 sprite[k].cstat = 16;
-                actor[k].t_data[5] = sprite[k].ang = getangle(wall[hit.wall].x-wall[wall[hit.wall].point2].x,wall[hit.wall].y-wall[wall[hit.wall].point2].y)-512;
 
-
+                {
+                    int32_t p2 = wall[hit.wall].point2;
+                    int32_t a = getangle(wall[hit.wall].x-wall[p2].x, wall[hit.wall].y-wall[p2].y)-512;
+                    actor[k].t_data[5] = sprite[k].ang = a;
+                }
             }
             return j?k:-1;
-
+        }
         case BOUNCEMINE__STATIC:
         case MORTER__STATIC:
 

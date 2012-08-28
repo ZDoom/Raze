@@ -6807,6 +6807,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     break;
                 }
 
+                // If we still see the opening, we can't yet teleport.
                 if (t[0]==-1)
                 {
                     if (sc->floorz > t[3])
