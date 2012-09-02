@@ -1245,7 +1245,7 @@ static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthty
         bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
     }
 
-    if (pic) Bfree(pic);
+    Bfree(pic);
 
     pth->picnum = dapic;
     pth->palnum = dapal;

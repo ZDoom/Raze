@@ -215,16 +215,14 @@ int32_t ScanGroups(void)
             fclose(fp);
         }
 //        initprintf("Found %d recognized GRP %s.\n",i,i>1?"files":"file");
-        if (buf)
-            Bfree(buf);
+
+        Bfree(buf);
         return 0;
     }
 
     initprintf("Found no recognized game data!\n");
 
-    if (buf)
-        Bfree(buf);
-
+    Bfree(buf);
     return 0;
 }
 
