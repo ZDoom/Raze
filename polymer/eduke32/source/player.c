@@ -321,6 +321,14 @@ static void A_SetHitData(int32_t i, const hitdata_t *hit)
     actor[i].t_data[8] = hit->sprite;
 }
 
+static int32_t CheckShootSwitchTile(int32_t pn)
+{
+    return pn == DIPSWITCH || pn == DIPSWITCH+1 ||
+        pn == DIPSWITCH2 || pn == DIPSWITCH2+1 ||
+        pn == DIPSWITCH3 || pn == DIPSWITCH3+1 ||
+        pn == HANDSWITCH || pn == HANDSWITCH+1;
+}
+
 int32_t A_Shoot(int32_t i,int32_t atwith)
 {
     int16_t l, sa, j, k=-1;
@@ -786,15 +794,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                             A_SetHitData(wh, &hit);
                         }
                     }
-                    if (p >= 0 && (
-                                sprite[hit.sprite].picnum == DIPSWITCH ||
-                                sprite[hit.sprite].picnum == DIPSWITCH+1 ||
-                                sprite[hit.sprite].picnum == DIPSWITCH2 ||
-                                sprite[hit.sprite].picnum == DIPSWITCH2+1 ||
-                                sprite[hit.sprite].picnum == DIPSWITCH3 ||
-                                sprite[hit.sprite].picnum == DIPSWITCH3+1 ||
-                                sprite[hit.sprite].picnum == HANDSWITCH ||
-                                sprite[hit.sprite].picnum == HANDSWITCH+1))
+                    if (p >= 0 && CheckShootSwitchTile(sprite[hit.sprite].picnum))
                     {
                         P_ActivateSwitch(p,hit.sprite,1);
                         return -1;
@@ -811,15 +811,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                     }
                     if (CheckDoorTile(wall[hit.wall].picnum) == 1)
                         goto DOSKIPBULLETHOLE;
-                    if (p >= 0 && (
-                                wall[hit.wall].picnum == DIPSWITCH ||
-                                wall[hit.wall].picnum == DIPSWITCH+1 ||
-                                wall[hit.wall].picnum == DIPSWITCH2 ||
-                                wall[hit.wall].picnum == DIPSWITCH2+1 ||
-                                wall[hit.wall].picnum == DIPSWITCH3 ||
-                                wall[hit.wall].picnum == DIPSWITCH3+1 ||
-                                wall[hit.wall].picnum == HANDSWITCH ||
-                                wall[hit.wall].picnum == HANDSWITCH+1))
+                    if (p >= 0 && CheckShootSwitchTile(wall[hit.wall].picnum))
                     {
                         P_ActivateSwitch(p,hit.wall,0);
                         return -1;
@@ -1338,15 +1330,7 @@ DOSKIPBULLETHOLE:
                         A_SetHitData(l, &hit);
                     }
 
-                    if (p >= 0 && (
-                                sprite[hit.sprite].picnum == DIPSWITCH ||
-                                sprite[hit.sprite].picnum == DIPSWITCH+1 ||
-                                sprite[hit.sprite].picnum == DIPSWITCH2 ||
-                                sprite[hit.sprite].picnum == DIPSWITCH2+1 ||
-                                sprite[hit.sprite].picnum == DIPSWITCH3 ||
-                                sprite[hit.sprite].picnum == DIPSWITCH3+1 ||
-                                sprite[hit.sprite].picnum == HANDSWITCH ||
-                                sprite[hit.sprite].picnum == HANDSWITCH+1))
+                    if (p >= 0 && CheckShootSwitchTile(sprite[hit.sprite].picnum))
                     {
                         P_ActivateSwitch(p,hit.sprite,1);
                         return -1;
@@ -1359,15 +1343,7 @@ DOSKIPBULLETHOLE:
 
                     if (CheckDoorTile(wall[hit.wall].picnum) == 1)
                         goto SKIPBULLETHOLE;
-                    if (p >= 0 && (
-                                wall[hit.wall].picnum == DIPSWITCH ||
-                                wall[hit.wall].picnum == DIPSWITCH+1 ||
-                                wall[hit.wall].picnum == DIPSWITCH2 ||
-                                wall[hit.wall].picnum == DIPSWITCH2+1 ||
-                                wall[hit.wall].picnum == DIPSWITCH3 ||
-                                wall[hit.wall].picnum == DIPSWITCH3+1 ||
-                                wall[hit.wall].picnum == HANDSWITCH ||
-                                wall[hit.wall].picnum == HANDSWITCH+1))
+                    if (p >= 0 && CheckShootSwitchTile(wall[hit.wall].picnum))
                     {
                         P_ActivateSwitch(p,hit.wall,0);
                         return -1;
