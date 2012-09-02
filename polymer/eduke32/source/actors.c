@@ -884,7 +884,8 @@ ACTOR_STATIC void G_MoveZombieActors(void)
     }
 }
 
-static inline int32_t ifhitsectors(int32_t sectnum)
+// stupid name, but it's what the function does.
+static inline int32_t G_FindExplosionInSector(int32_t sectnum)
 {
     int32_t i = headspritestat[STAT_MISC];
     while (i >= 0)
@@ -896,9 +897,7 @@ static inline int32_t ifhitsectors(int32_t sectnum)
     return -1;
 }
 
-#define IFHITSECT(Sectnum) if (ifhitsectors(Sectnum) >= 0)
-
-static void nudge_player(int32_t p, int32_t sn, int32_t shl)
+static void P_Nudge(int32_t p, int32_t sn, int32_t shl)
 {
     g_player[p].ps->vel.x += actor[sn].extra*(sintable[(actor[sn].ang+512)&2047])<<shl;
     g_player[p].ps->vel.y += actor[sn].extra*(sintable[actor[sn].ang&2047])<<shl;
@@ -953,11 +952,11 @@ int32_t A_IncurDamage(int32_t sn)
 
                 if (A_CheckSpriteTileFlags(actor[sn].picnum,SPRITE_PROJECTILE) && (SpriteProjectile[sn].workslike & PROJECTILE_RPG))
                 {
-                    nudge_player(p, sn, 2);
+                    P_Nudge(p, sn, 2);
                 }
                 else if (A_CheckSpriteTileFlags(actor[sn].picnum,SPRITE_PROJECTILE))
                 {
-                    nudge_player(p, sn, 1);
+                    P_Nudge(p, sn, 1);
                 }
 
                 switch (DYNAMICTILEMAP(actor[sn].picnum))
@@ -969,10 +968,10 @@ int32_t A_IncurDamage(int32_t sn)
                 case SEENINE__STATIC:
                 case OOZFILTER__STATIC:
                 case EXPLODINGBARREL__STATIC:
-                    nudge_player(p, sn, 2);
+                    P_Nudge(p, sn, 2);
                     break;
                 default:
-                    nudge_player(p, sn, 1);
+                    P_Nudge(p, sn, 1);
                     break;
                 }
             }
@@ -7013,7 +7012,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             else //Not hit yet
             {
-                IFHITSECT(s->sectnum)
+                if (G_FindExplosionInSector(s->sectnum) >= 0)
                 {
                     P_DoQuote(QUOTE_UNLOCKED,g_player[myconnectindex].ps);
 
