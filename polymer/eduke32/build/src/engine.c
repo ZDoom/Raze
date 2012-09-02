@@ -157,6 +157,7 @@ static char *artptrs[MAXTILEFILES];
 # define B_ENGINE_STATIC static
 #endif
 
+static int32_t no_radarang2 = 0;
 static int16_t radarang2[MAXXDIM];
 B_ENGINE_STATIC uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
 const char pow2char[8] = {1,2,4,8,16,32,64,128};
@@ -4412,7 +4413,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
         {
             if (x == -1) x = xb1[z];
 
-            if (parallaxtype == 0)
+            if (parallaxtype == 0 || no_radarang2)
             {
                 n = mulscale16(xdimenrecip,viewingrange);
                 for (j=xb1[z]; j<=xb2[z]; j++)
@@ -4423,7 +4424,8 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
                 for (j=xb1[z]; j<=xb2[z]; j++)
                     lplc[j] = ((radarang2[j]+globalang)&2047)>>k;
             }
-            if (parallaxtype == 2)
+
+            if (parallaxtype == 2 && !no_radarang2)
             {
                 n = mulscale16(xdimscale,viewingrange);
                 for (j=xb1[z]; j<=xb2[z]; j++)
@@ -7446,7 +7448,7 @@ static inline void initksqrt(void)
 //
 static void dosetaspect(void)
 {
-    int32_t i, j, k, x, xinc;
+    int32_t i, j;
 
     if (xyaspect != oxyaspect)
     {
@@ -7460,21 +7462,40 @@ static void dosetaspect(void)
                 horizlookup2[i] = divscale14(klabs(horizlookup[i]),j);
             }
     }
-    if ((xdimen != oxdimen) || (viewingrange != oviewingrange))
+
+    if (xdimen != oxdimen || viewingrange != oviewingrange)
     {
+        int32_t k, x, xinc;
+
+        no_radarang2 = 0;
         oxdimen = xdimen;
         oviewingrange = viewingrange;
+
         xinc = mulscale32(viewingrange*320,xdimenrecip);
         x = (640<<16)-mulscale1(xinc,xdimen);
+
         for (i=0; i<xdimen; i++)
         {
             j = (x&65535); k = (x>>16); x += xinc;
-            Bassert(k >= 0 && k < (int32_t)(sizeof(radarang)/sizeof(radarang[0]))-1);
-            if (j != 0) j = mulscale16(radarang[k+1]-radarang[k], j);
+
+            if (k < 0 || k >= (int32_t)(sizeof(radarang)/sizeof(radarang[0]))-1)
+            {
+                no_radarang2 = 1;
+#ifdef DEBUGGINGAIDS
+                if (editstatus)
+                    initprintf("no rad2\n");
+#endif
+                break;
+            }
+
+            if (j != 0)
+                j = mulscale16(radarang[k+1]-radarang[k], j);
             radarang2[i] = (int16_t)((radarang[k]+j)>>6);
         }
+
         for (i=1; i<(int32_t)(sizeof(distrecip)/sizeof(distrecip[0])); i++)
             distrecip[i] = divscale20(xdimen,i);
+
         nytooclose = xdimen*2100;
         nytoofar = 65536*16384-1048576;
     }
