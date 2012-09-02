@@ -314,6 +314,13 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
     return j;
 }
 
+static void A_SetHitData(int32_t i, const hitdata_t *hit)
+{
+    actor[i].t_data[6] = hit->wall;
+    actor[i].t_data[7] = hit->sect;
+    actor[i].t_data[8] = hit->sprite;
+}
+
 int32_t A_Shoot(int32_t i,int32_t atwith)
 {
     int16_t l, sa, j, k=-1;
@@ -545,9 +552,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                         {
                             k = A_Spawn(j,ProjectileData[atwith].spawns);
                             sprite[k].z -= (8<<8);
-                            actor[k].t_data[6] = hit.wall;
-                            actor[k].t_data[7] = hit.sect;
-                            actor[k].t_data[8] = hit.sprite;
+                            A_SetHitData(k, &hit);
                         }
                         if (ProjectileData[atwith].sound >= 0) A_PlaySound(ProjectileData[atwith].sound,j);
                     }
@@ -733,9 +738,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 if (ProjectileData[atwith].extra_rand > 0)
                     sprite[k].extra += (krand()%ProjectileData[atwith].extra_rand);
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                actor[k].t_data[6] = hit.wall;
-                actor[k].t_data[7] = hit.sect;
-                actor[k].t_data[8] = hit.sprite;
+                A_SetHitData(k, &hit);
 
                 if (hit.wall == -1 && hit.sprite == -1)
                 {
@@ -755,9 +758,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                         int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                         if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                         if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                        actor[wh].t_data[6] = hit.wall;
-                        actor[wh].t_data[7] = hit.sect;
-                        actor[wh].t_data[8] = hit.sprite;
+                        A_SetHitData(wh, &hit);
                     }
                 }
 
@@ -782,9 +783,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                             int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                             if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                             if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                            actor[wh].t_data[6] = hit.wall;
-                            actor[wh].t_data[7] = hit.sect;
-                            actor[wh].t_data[8] = hit.sprite;
+                            A_SetHitData(wh, &hit);
                         }
                     }
                     if (p >= 0 && (
@@ -808,9 +807,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                         int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                         if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                         if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                        actor[wh].t_data[6] = hit.wall;
-                        actor[wh].t_data[7] = hit.sect;
-                        actor[wh].t_data[8] = hit.sprite;
+                        A_SetHitData(wh, &hit);
                     }
                     if (CheckDoorTile(wall[hit.wall].picnum) == 1)
                         goto DOSKIPBULLETHOLE;
@@ -905,9 +902,7 @@ DOSKIPBULLETHOLE:
                 if (ProjectileData[atwith].extra_rand > 0)
                     sprite[k].extra += (krand()%ProjectileData[atwith].extra_rand);
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                actor[k].t_data[6] = hit.wall;
-                actor[k].t_data[7] = hit.sect;
-                actor[k].t_data[8] = hit.sprite;
+                A_SetHitData(k, &hit);
 
                 if (hit.sprite >= 0)
                 {
@@ -919,9 +914,7 @@ DOSKIPBULLETHOLE:
                             int32_t wh=A_Spawn(k,ProjectileData[atwith].spawns);
                             if (ProjectileData[atwith].sxrepeat > 4) sprite[wh].xrepeat=ProjectileData[atwith].sxrepeat;
                             if (ProjectileData[atwith].syrepeat > 4) sprite[wh].yrepeat=ProjectileData[atwith].syrepeat;
-                            actor[wh].t_data[6] = hit.wall;
-                            actor[wh].t_data[7] = hit.sect;
-                            actor[wh].t_data[8] = hit.sprite;
+                            A_SetHitData(wh, &hit);
                         }
                     }
                     else sprite[k].xrepeat = sprite[k].yrepeat = 0;
@@ -1147,9 +1140,7 @@ DOSKIPBULLETHOLE:
                         k = A_Spawn(j,SMALLSMOKE);
                         sprite[k].z -= (8<<8);
                         A_PlaySound(KICK_HIT,j);
-                        actor[k].t_data[6] = hit.wall;
-                        actor[k].t_data[7] = hit.sect;
-                        actor[k].t_data[8] = hit.sprite;
+                        A_SetHitData(k, &hit);
                     }
 
                     if (p >= 0 && ps->inv_amount[GET_STEROIDS] > 0 && ps->inv_amount[GET_STEROIDS] < 400)
@@ -1308,9 +1299,7 @@ DOSKIPBULLETHOLE:
                 sprite[k].extra = *actorscrptr[atwith];
                 sprite[k].extra += (krand()%6);
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                actor[k].t_data[6] = hit.wall;
-                actor[k].t_data[7] = hit.sect;
-                actor[k].t_data[8] = hit.sprite;
+                A_SetHitData(k, &hit);
 
 
                 if (hit.wall == -1 && hit.sprite == -1)
@@ -1327,9 +1316,7 @@ DOSKIPBULLETHOLE:
                             Sect_DamageCeiling(hit.sect);
                     }
                     l = A_Spawn(k,SMALLSMOKE);
-                    actor[l].t_data[6] = hit.wall;
-                    actor[l].t_data[7] = hit.sect;
-                    actor[l].t_data[8] = hit.sprite;
+                    A_SetHitData(l, &hit);
                 }
 
                 if (hit.sprite >= 0)
@@ -1348,9 +1335,7 @@ DOSKIPBULLETHOLE:
                     else
                     {
                         l = A_Spawn(k,SMALLSMOKE);
-                        actor[l].t_data[6] = hit.wall;
-                        actor[l].t_data[7] = hit.sect;
-                        actor[l].t_data[8] = hit.sprite;
+                        A_SetHitData(l, &hit);
                     }
 
                     if (p >= 0 && (
@@ -1370,9 +1355,7 @@ DOSKIPBULLETHOLE:
                 else if (hit.wall >= 0)
                 {
                     l = A_Spawn(k,SMALLSMOKE);
-                    actor[l].t_data[6] = hit.wall;
-                    actor[l].t_data[7] = hit.sect;
-                    actor[l].t_data[8] = hit.sprite;
+                    A_SetHitData(l, &hit);
 
                     if (CheckDoorTile(wall[hit.wall].picnum) == 1)
                         goto SKIPBULLETHOLE;
@@ -1451,9 +1434,7 @@ SKIPBULLETHOLE:
                 k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,SHOTSPARK1,-15,24,24,sa,0,0,i,4);
                 sprite[k].extra = *actorscrptr[atwith];
                 sprite[k].yvel = atwith; // this is a hack to allow you to detect which weapon spawned a SHOTSPARK1
-                actor[k].t_data[6] = hit.wall;
-                actor[k].t_data[7] = hit.sect;
-                actor[k].t_data[8] = hit.sprite;
+                A_SetHitData(k, &hit);
 
                 if (hit.sprite >= 0)
                 {
@@ -1461,9 +1442,7 @@ SKIPBULLETHOLE:
                     if (sprite[hit.sprite].picnum != APLAYER)
                     {
                         l = A_Spawn(k,SMALLSMOKE);
-                        actor[l].t_data[6] = hit.wall;
-                        actor[l].t_data[7] = hit.sect;
-                        actor[l].t_data[8] = hit.sprite;
+                        A_SetHitData(l, &hit);
                     }
                     else sprite[k].xrepeat = sprite[k].yrepeat = 0;
                 }
