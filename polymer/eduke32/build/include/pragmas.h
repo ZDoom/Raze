@@ -2269,8 +2269,8 @@ static inline int32_t boundmulscale(int32_t a, int32_t d, int32_t c)
 { // courtesy of Ken
     int64_t p; 
     p = (((int64_t)a)*((int64_t)d))>>c;
-    if (p >= INT_MAX) p = INT_MAX;
-    if (p < INT_MIN) p = INT_MIN;
+    if (p >= INT32_MAX) p = INT32_MAX;
+    if (p < INT32_MIN) p = INT32_MIN;
     return((int32_t)p);
 }
 

@@ -826,7 +826,7 @@ char *Bstrupr(char *s)
 uint32_t Bgetsysmemsize(void)
 {
 #ifdef _WIN32
-    uint32_t siz = UINT_MAX;
+    uint32_t siz = UINT32_MAX;
     HMODULE lib = LoadLibrary("KERNEL32.DLL");
 
     if (lib)
@@ -840,7 +840,7 @@ uint32_t Bgetsysmemsize(void)
             MEMORYSTATUSEX memst;
             memst.dwLength = sizeof(MEMORYSTATUSEX);
             if (aGlobalMemoryStatusEx(&memst))
-                siz = (uint32_t)min(UINT_MAX, memst.ullTotalPhys);
+                siz = (uint32_t)min(UINT32_MAX, memst.ullTotalPhys);
         }
         else
         {
@@ -854,7 +854,7 @@ uint32_t Bgetsysmemsize(void)
 
     return siz;
 #elif (defined(_SC_PAGE_SIZE) || defined(_SC_PAGESIZE)) && defined(_SC_PHYS_PAGES) && !defined(GEKKO)
-    uint32_t siz = UINT_MAX;
+    uint32_t siz = UINT32_MAX;
     int64_t scpagesiz, scphyspages;
 
 #ifdef _SC_PAGE_SIZE
@@ -864,14 +864,14 @@ uint32_t Bgetsysmemsize(void)
 #endif
     scphyspages = sysconf(_SC_PHYS_PAGES);
     if (scpagesiz >= 0 && scphyspages >= 0)
-        siz = (uint32_t)min(UINT_MAX, (int64_t)scpagesiz * (int64_t)scphyspages);
+        siz = (uint32_t)min(UINT32_MAX, (int64_t)scpagesiz * (int64_t)scphyspages);
 
     //initprintf("Bgetsysmemsize(): %d pages of %d bytes, %d bytes of system memory\n",
     //		scphyspages, scpagesiz, siz);
 
     return siz;
 #else
-    return UINT_MAX;
+    return UINT32_MAX;
 #endif
 }
 

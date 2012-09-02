@@ -2687,7 +2687,7 @@ nullquote:
                 int64_t dax=Gv_GetVarX(*insptr++), day=Gv_GetVarX(*insptr++);
                 int64_t hypsq = dax*dax + day*day;
 
-                if (hypsq > (int64_t)INT_MAX)
+                if (hypsq > (int64_t)INT32_MAX)
                     Gv_SetVarX(retvar, (int32_t)sqrt((double)hypsq));
                 else
                     Gv_SetVarX(retvar, ksqrt((uint32_t)hypsq));

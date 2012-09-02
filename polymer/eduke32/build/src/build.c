@@ -3240,7 +3240,7 @@ void overheadeditor(void)
                 if (zoom >= 768)
                 {
                     int32_t alwaysshowgray =
-                        (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT_MAX));
+                        (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT32_MAX));
 
                     for (i=0, k=0; (m32_sideview && k<m32_swcnt) || (!m32_sideview && i<MAXSPRITES); i++, k++)
                     {
@@ -7919,7 +7919,7 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
 {
     int32_t i, j, dst, dist = 512, closest = -1;
     int32_t dax,day;
-    int32_t alwaysshowgray = (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT_MAX));
+    int32_t alwaysshowgray = (showinnergray || !(editorzrange[0]==INT32_MIN && editorzrange[1]==INT32_MAX));
 
     if (numwalls == 0)
         return -1;
