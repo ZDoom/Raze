@@ -16,6 +16,8 @@
 extern "C" {
 #endif
 
+#define PI 3.14159265358979323
+
 #define MAXSECTORSV8 4096
 #define MAXWALLSV8 16384
 #define MAXSPRITESV8 16384

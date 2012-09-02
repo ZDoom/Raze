@@ -7470,6 +7470,7 @@ static void dosetaspect(void)
         for (i=0; i<xdimen; i++)
         {
             j = (x&65535); k = (x>>16); x += xinc;
+            Bassert(k >= 0 && k < (int32_t)(sizeof(radarang)/sizeof(radarang[0]))-1);
             if (j != 0) j = mulscale16(radarang[k+1]-radarang[k], j);
             radarang2[i] = (int16_t)((radarang[k]+j)>>6);
         }
