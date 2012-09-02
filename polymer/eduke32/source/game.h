@@ -297,7 +297,6 @@ void P_DoQuote(int32_t q,DukePlayer_t *p);
 extern int32_t textsc(int32_t sc);
 void P_SetGamePalette(DukePlayer_t *player,uint8_t palid,int32_t set);
 int32_t app_main(int32_t argc,const char **argv);
-void computergetinput(int32_t snum,input_t *syn);
 void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step);
 //void fadepaltile(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t tile);
 

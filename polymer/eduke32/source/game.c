@@ -10657,18 +10657,6 @@ MAIN_LOOP_RESTART:
             Bmemcpy(&inputfifo[0][myconnectindex], &avg, sizeof(input_t));
             Bmemset(&avg, 0, sizeof(input_t));
 
-            /*
-            if (ud.playerai && (g_netServer || ud.multimode > 1))
-            {
-                for (TRAVERSE_CONNECT(i))
-                    if (i != myconnectindex)
-                    {
-                        //clearbufbyte(&inputfifo[g_player[i].movefifoend&(MOVEFIFOSIZ-1)][i],sizeof(input_t),0L);
-                        computergetinput(i,&inputfifo[0][i]);
-                    }
-            }
-            */
-
             do
             {
                 int32_t clockbeforetic;
