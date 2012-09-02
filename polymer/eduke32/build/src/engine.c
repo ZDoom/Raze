@@ -42,7 +42,7 @@
 # include <png.h>
 #endif
 
-#include <math.h>
+#include <math.h>  // pow
 
 #include "engine_priv.h"
 

@@ -5,7 +5,7 @@
 // Use SDL 1.2 or 1.3 from http://www.libsdl.org
 
 #include <stdlib.h>
-#include <math.h>
+#include <math.h>  // pow
 #include <signal.h>
 #include "sdl_inc.h"
 #include "compat.h"

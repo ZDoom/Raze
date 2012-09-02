@@ -27,7 +27,6 @@
 # include "mdsprite.h"
 # include "polymost.h"
 # include "pragmas.h"
-# include <math.h>
 
 // CVARS
 extern int32_t      pr_lighting;

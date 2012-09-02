@@ -11,7 +11,7 @@
 #ifndef DIK_PAUSE
 # define DIK_PAUSE 0xC5
 #endif
-#include <math.h>
+#include <math.h>  // pow
 
 #ifdef _MSC_VER
 #include <crtdbg.h>

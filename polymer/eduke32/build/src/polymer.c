@@ -2,6 +2,8 @@
 
 #ifdef USE_OPENGL
 
+#include <math.h>
+
 #define POLYMER_C
 #include "polymer.h"
 #include "engine_priv.h"
