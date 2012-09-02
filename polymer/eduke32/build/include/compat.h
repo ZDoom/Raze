@@ -30,25 +30,25 @@
 #endif
 
 #ifndef _MSC_VER
-#if defined(__GNUC__) && defined(__i386__) 
-#ifndef __fastcall
-#define __fastcall __attribute__((fastcall))
-#endif
-#else
-#define __fastcall
-#endif
+#  if defined(__GNUC__) && defined(__i386__)
+#    ifndef __fastcall
+#      define __fastcall __attribute__((fastcall))
+#    endif
+#  else
+#    define __fastcall
+#  endif
 #endif
 
 #ifdef NEDMALLOC
-#include "nedmalloc.h"
+#  include "nedmalloc.h"
 #endif
 
 #ifndef TRUE
-#define TRUE 1
+#  define TRUE 1
 #endif
 
 #ifndef FALSE
-#define FALSE 0
+#  define FALSE 0
 #endif
 
 #define WITHKPLIB
