@@ -685,7 +685,7 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum);
 void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUTE((nonnull(1,2,3)));
 int32_t    krand(void);
 int32_t   ksqrt(uint32_t num);
-// int32_t   getangle(int32_t xvect, int32_t yvect);
+int32_t   __fastcall getangle(int32_t xvect, int32_t yvect);
 
 //
 // getangle
@@ -696,18 +696,6 @@ EXTERN int16_t radarang[1280];
 static inline uint32_t uhypsq(int32_t dx, int32_t dy)
 {
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
-}
-
-static inline int32_t getangle(int32_t xvect, int32_t yvect)
-{
-    if ((xvect|yvect) == 0) return(0);
-    if (xvect == 0) return 512+((yvect<0)<<10);
-    if (yvect == 0) return ((xvect<0)<<10);
-    if (xvect == yvect) return 256+((xvect<0)<<10);
-    if (xvect == -yvect) return 768+((xvect>0)<<10);
-    if (klabs(xvect) > klabs(yvect))
-        return ((radarang[640+scale(160,yvect,xvect)]>>6)+((xvect<0)<<10))&2047;
-    return ((radarang[640-scale(160,xvect,yvect)]>>6)+512+((yvect<0)<<10))&2047;
 }
 
 void   rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y,
