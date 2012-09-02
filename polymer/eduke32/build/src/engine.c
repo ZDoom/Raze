@@ -2262,7 +2262,6 @@ static int32_t globaly1, globalx2, globalzx;
 static int32_t globalx, globaly, globalz;
 
 int16_t sectorborder[256], sectorbordercnt;
-static char tablesloaded = 0;
 int32_t ydim16, qsetmode = 0;
 int32_t startposx, startposy, startposz;
 int16_t startang, startsectnum;
@@ -7498,35 +7497,57 @@ static inline void calcbritable(void)
     }
 }
 
+#define BANG2RAD (PI/1024.0)
+
 static int32_t loadtables(void)
 {
-    int32_t i, fil;
+    static char tablesloaded = 0;
 
     if (tablesloaded == 0)
     {
+        int32_t i;
+
         initksqrt();
 
         for (i=0; i<2048; i++)
             reciptable[i] = divscale30(2048, i+2048);
 
-        if ((fil = kopen4load("tables.dat",0)) != -1)
-        {
-            kread(fil,sintable,2048*2); for (i=2048-1; i>=0; i--) sintable[i] = B_LITTLE16(sintable[i]);
-            kread(fil,radarang,640*2);  for (i=640-1;  i>=0; i--) radarang[i] = B_LITTLE16(radarang[i]);
-            for (i=0; i<640; i++) radarang[1279-i] = -radarang[i];
-            //kread(fil,textfont,1024);
-            //kread(fil,smalltextfont,1024);
-            //kread(fil,britable,1024);
-            calcbritable();
+        for (i=0; i<=512; i++)
+            sintable[i] = 16384*sin(i*BANG2RAD);
+        for (i=513; i<1024; i++)
+            sintable[i] = sintable[1024-i];
+        for (i=1024; i<2048; i++)
+            sintable[i] = -sintable[i-1024];
 
-            kclose(fil);
-        }
-        else
+        for (i=0; i<640; i++)
+            radarang[i] = -64*atan((640-0.5-i)/160)/BANG2RAD;
+        for (i=0; i<640; i++)
+            radarang[1279-i] = -radarang[i];
+
+#ifdef B_LITTLE_ENDIAN
+        i = 0;
+        if (crc32once((uint8_t *)sintable, sizeof(sintable)) != 0xee1e7aba)
+            i |= 1;
+        if (crc32once((uint8_t *)radarang, 640*sizeof(radarang[0])) != 0xee893d92)
+            i |= 2;
+
+        if (i != 0)
         {
-            engineerrstr = "Failed to load \"tables.dat\"!";
-            initprintf("ERROR: %s\n", engineerrstr);
-            return 1;
+            static const char *str[3] = { "sine table", "arctangent table",
+                                          "sine and arctangent tables" };
+            initprintf("WARNING: Calculated %s differ%s from original!\n",
+                       str[i-1], i==3 ? "" : "s");
         }
+#endif
+        // TABLES.DAT format:
+        //kread(fil,sintable,2048*2);
+        //kread(fil,radarang,640*2);
+        //kread(fil,textfont,1024);
+        //kread(fil,smalltextfont,1024);
+        //kread(fil,britable,1024);
+
+        calcbritable();
+
         tablesloaded = 1;
     }
 
