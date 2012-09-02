@@ -329,10 +329,61 @@ static int32_t CheckShootSwitchTile(int32_t pn)
         pn == HANDSWITCH || pn == HANDSWITCH+1;
 }
 
-int32_t A_Shoot(int32_t i,int32_t atwith)
+// flags:
+//  1: do sprite center adjustment (cen-=(8<<8)) for GREENSLIME or ROTATEGUN
+//  2: do auto getangle only if not RECON (if clear, do unconditionally)
+static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
+                               int32_t cen_add, int32_t flags,
+                               const vec3_t *srcvect, int32_t vel,
+                               int32_t *zvel, int16_t *sa)
+{
+    int32_t j;
+
+    Bassert((unsigned)p < MAXPLAYERS);
+
+    Gv_SetVar(g_iAimAngleVarID, AUTO_AIM_ANGLE, i, p);
+    if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
+        VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
+
+    j = -1;
+    {
+        int32_t aimang = Gv_GetVar(g_iAimAngleVarID, i, p);
+        if (aimang > 0)
+            j = A_FindTargetSprite(&sprite[i], aimang, atwith);
+    }
+
+    if (j >= 0)
+    {
+        const spritetype *const spr = &sprite[j];
+        int32_t cen = 2*(spr->yrepeat*tilesizy[spr->picnum]) + cen_add;
+        int32_t dst;
+
+        if (flags)
+        {
+            int32_t pn = spr->picnum;
+            if ((pn >= GREENSLIME && pn <= GREENSLIME+7) || spr->picnum==ROTATEGUN)
+            {
+                cen -= (8<<8);
+            }
+        }
+
+        dst = ldist(&sprite[g_player[p].ps->i], &sprite[j]);
+        if (dst == 0)
+            dst++;
+
+        *zvel = ((spr->z - srcvect->z - cen)*vel) / dst;
+
+        if (!(flags&2) || sprite[j].picnum != RECON)
+            *sa = getangle(spr->x-srcvect->x, spr->y-srcvect->y);
+    }
+
+    return j;
+}
+
+int32_t A_Shoot(int32_t i, int32_t atwith)
 {
     int16_t l, sa, j, k=-1;
-    int32_t vel, zvel = 0, x, oldzvel, dal;
+    int32_t vel, zvel = 0, x, oldzvel;
     hitdata_t hit;
     vec3_t srcvect;
     char sizx,sizy;
@@ -612,27 +663,7 @@ int32_t A_Shoot(int32_t i,int32_t atwith)
                 int32_t angRange=32;
                 int32_t zRange=256;
 
-                Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
-                    VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
-                j=-1;
-                if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
-                {
-                    j = A_FindTargetSprite(s, Gv_GetVar(g_iAimAngleVarID,i,p),atwith);
-                }
-                if (j >= 0)
-                {
-                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(5<<8);
-                    if (((sprite[j].picnum >= GREENSLIME)&&(sprite[j].picnum <= GREENSLIME+7))||(sprite[j].picnum ==ROTATEGUN))
-                    {
-                        dal -= (8<<8);
-                        //                        return -1;
-                    }
-                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hit.pos.x == 0) hit.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hit.pos.x;
-                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
-                }
+                j = GetAutoAimAngle(i, p, atwith, 5<<8, 0+1, &srcvect, 256, &zvel, &sa);
 
                 Gv_SetVar(g_iAngRangeVarID,angRange, i,p);
                 Gv_SetVar(g_iZRangeVarID,zRange,i,p);
@@ -935,30 +966,11 @@ DOSKIPBULLETHOLE:
 
             if (p >= 0)
             {
-                //            j = A_FindTargetSprite( s, AUTO_AIM_ANGLE ); // 48
-                Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
-                    VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
-                j=-1;
+                j = GetAutoAimAngle(i, p, atwith, 8<<8, 0+2, &srcvect, vel, &zvel, &sa);
 
-                if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
-                    j = A_FindTargetSprite(s, Gv_GetVar(g_iAimAngleVarID,i,p),atwith);
-
-                if (j >= 0)
-                {
-                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
-                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-
-                    if (hit.pos.x == 0)
-                        hit.pos.x++;
-
-                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hit.pos.x;
-
-                    if (sprite[j].picnum != RECON)
-                        sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
-                }
-                //                else zvel = (100-ps->horiz-ps->horizoff)*81;
-                else zvel = (100-ps->horiz-ps->horizoff)*(ProjectileData[atwith].vel/8);
+                if (j < 0)
+                    zvel = (100-ps->horiz-ps->horizoff)*(ProjectileData[atwith].vel/8);
+                //                zvel = (100-ps->horiz-ps->horizoff)*81;
 
                 if (ProjectileData[atwith].sound >= 0)
                     A_PlaySound(ProjectileData[atwith].sound,i);
@@ -1183,28 +1195,7 @@ DOSKIPBULLETHOLE:
                 int32_t angRange=32;
                 int32_t zRange=256;
 
-                Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
-                    VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
-                j=-1;
-                if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
-                {
-                    j = A_FindTargetSprite(s, Gv_GetVar(g_iAimAngleVarID,i,p),atwith);
-                }
-                if (j >= 0)
-                {
-                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(5<<8);
-                    if (((sprite[j].picnum>=GREENSLIME)&&(sprite[j].picnum<=GREENSLIME+7))||(sprite[j].picnum==ROTATEGUN))
-                    {
-
-                        dal -= (8<<8);
-
-                    }
-                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hit.pos.x == 0) hit.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hit.pos.x;
-                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
-                }
+                j = GetAutoAimAngle(i, p, atwith, 5<<8, 0+1, &srcvect, 256, &zvel, &sa);
 
                 Gv_SetVar(g_iAngRangeVarID,angRange, i,p);
                 Gv_SetVar(g_iZRangeVarID,zRange,i,p);
@@ -1455,25 +1446,9 @@ SKIPBULLETHOLE:
 
             if (p >= 0)
             {
-                //            j = A_FindTargetSprite( s, AUTO_AIM_ANGLE );
-                Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
-                    VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
-                j=-1;
-                if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
-                {
-                    j = A_FindTargetSprite(s, Gv_GetVar(g_iAimAngleVarID,i,p),atwith);
-                }
+                j = GetAutoAimAngle(i, p, atwith, -(12<<8), 0, &srcvect, vel, &zvel, &sa);
 
-                if (j >= 0)
-                {
-                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)-(12<<8);
-                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hit.pos.x == 0) hit.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hit.pos.x;
-                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
-                }
-                else
+                if (j < 0)
                     zvel = (100-ps->horiz-ps->horizoff)*98;
             }
             else
@@ -1545,26 +1520,11 @@ SKIPBULLETHOLE:
 
             if (p >= 0)
             {
-                //            j = A_FindTargetSprite( s, AUTO_AIM_ANGLE ); // 48
-                Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
-                    VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
-                j=-1;
-                if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
-                {
-                    j = A_FindTargetSprite(s, Gv_GetVar(g_iAimAngleVarID,i,p),atwith);
-                }
+                j = GetAutoAimAngle(i, p, atwith, 8<<8, 0+2, &srcvect, vel, &zvel, &sa);
 
-                if (j >= 0)
-                {
-                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(8<<8);
-                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hit.pos.x == 0) hit.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal)*vel) / hit.pos.x;
-                    if (sprite[j].picnum != RECON)
-                        sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
-                }
-                else zvel = (100-ps->horiz-ps->horizoff)*81;
+                if (j < 0)
+                    zvel = (100-ps->horiz-ps->horizoff)*81;
+
                 if (atwith == RPG)
                     A_PlaySound(RPG_SHOOT,i);
             }
@@ -1760,31 +1720,9 @@ SKIPBULLETHOLE:
 
             if (p >= 0)
             {
-                //            j = A_FindTargetSprite( s, AUTO_AIM_ANGLE );
-                Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
-                    VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
-                j=-1;
-                if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
-                {
-                    j = A_FindTargetSprite(s, Gv_GetVar(g_iAimAngleVarID,i,p),atwith);
-                }
+                j = GetAutoAimAngle(i, p, atwith, 5<<8, 0+1, &srcvect, 256, &zvel, &sa);
 
-                if (j >= 0)
-                {
-                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1)+(5<<8);
-                    if (((sprite[j].picnum >= GREENSLIME)&&(sprite[j].picnum <= GREENSLIME+7))||(sprite[j].picnum ==ROTATEGUN))
-                    {
-                        dal -= (8<<8);
-
-                    }
-                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hit.pos.x == 0)
-                        hit.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal)<<8) / hit.pos.x;
-                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
-                }
-                else
+                if (j < 0)
                 {
                     sa += 16-(krand()&31);
                     zvel = (100-ps->horiz-ps->horizoff)<<5;
@@ -1860,26 +1798,10 @@ SKIPBULLETHOLE:
             if (s->extra >= 0) s->shade = -96;
             if (p >= 0)
             {
-                //            j = A_FindTargetSprite( s, AUTO_AIM_ANGLE );
-                Gv_SetVar(g_iAimAngleVarID,AUTO_AIM_ANGLE,i,p);
-                if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
-                    VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
-                j=-1;
-                if (Gv_GetVar(g_iAimAngleVarID,i,p) > 0)
-                {
-                    j = A_FindTargetSprite(s, Gv_GetVar(g_iAimAngleVarID,i,p),atwith);
-                }
+                j = GetAutoAimAngle(i, p, atwith, 4<<8, 0, &srcvect, 768, &zvel, &sa);
 
-                if (j >= 0)
-                {
-                    dal = ((sprite[j].yrepeat*tilesizy[sprite[j].picnum])<<1);
-                    hit.pos.x = ldist(&sprite[ps->i], &sprite[j]);
-                    if (hit.pos.x == 0)
-                        hit.pos.x++;
-                    zvel = ((sprite[j].z-srcvect.z-dal-(4<<8))*768) / hit.pos.x;
-                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
-                }
-                else zvel = (100-ps->horiz-ps->horizoff)*98;
+                if (j < 0)
+                    zvel = (100-ps->horiz-ps->horizoff)*98;
             }
             else if (s->statnum != 3)
             {
