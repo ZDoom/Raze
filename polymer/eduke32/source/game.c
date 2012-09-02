@@ -3387,7 +3387,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 #endif
         )
     {
-        int32_t j, i = 0, k, dst = 0x7fffffff;
+        int32_t j, i = 0, k, dst = INT32_MAX;
 
         if (g_mirrorCount==0)
         {
@@ -5579,7 +5579,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 endwall = startwall+sector[sect].wallnum;
 
                 //find the two most clostest wall x's and y's
-                q = 0x7fffffff;
+                q = INT32_MAX;
 
                 for (s=startwall; s<endwall; s++)
                 {
@@ -5596,7 +5596,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                 T2 = clostest;
 
-                q = 0x7fffffff;
+                q = INT32_MAX;
 
                 for (s=startwall; s<endwall; s++)
                 {

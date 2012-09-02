@@ -243,7 +243,7 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
     gotshrinker = (s->picnum == APLAYER && *aplWeaponWorksLike[g_player[s->yvel].ps->curr_weapon] == SHRINKER_WEAPON);
     gotfreezer = (s->picnum == APLAYER && *aplWeaponWorksLike[g_player[s->yvel].ps->curr_weapon] == FREEZE_WEAPON);
 
-    smax = 0x7fffffff;
+    smax = INT32_MAX;
 
     dx1 = sintable[(a+512-aang)&2047];
     dy1 = sintable[(a-aang)&2047];
@@ -3630,7 +3630,7 @@ int32_t P_CheckFloorDamage(DukePlayer_t *p, int32_t tex)
 int32_t P_FindOtherPlayer(int32_t p,int32_t *d)
 {
     int32_t j, closest_player = p;
-    int32_t x, closest = 0x7fffffff;
+    int32_t x, closest = INT32_MAX;
 
     for (TRAVERSE_CONNECT(j))
         if (p != j && sprite[g_player[j].ps->i].extra > 0)

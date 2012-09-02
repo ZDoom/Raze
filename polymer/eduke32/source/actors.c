@@ -6310,7 +6310,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             if (s->owner==-1) //Start search
             {
                 t[4]=0;
-                l = 0x7fffffff;
+                l = INT32_MAX;
                 while (1) //Find the shortest dist
                 {
                     s->owner = A_FindLocator((int16_t)t[4],-1); //t[0] hold sectnum

@@ -201,7 +201,7 @@ inline int32_t G_CheckPlayerInSector(int32_t sect)
     return -1;
 }
 
-int32_t ldist(spritetype *s1,spritetype *s2)
+int32_t ldist(const spritetype *s1, const spritetype *s2)
 {
     int32_t x= klabs(s1->x-s2->x);
     int32_t y= klabs(s1->y-s2->y);
@@ -214,7 +214,7 @@ int32_t ldist(spritetype *s1,spritetype *s2)
     }
 }
 
-int32_t dist(spritetype *s1,spritetype *s2)
+int32_t dist(const spritetype *s1, const spritetype *s2)
 {
     int32_t x= klabs(s1->x-s2->x);
     int32_t y= klabs(s1->y-s2->y);
@@ -229,24 +229,31 @@ int32_t dist(spritetype *s1,spritetype *s2)
     }
 }
 
-int32_t __fastcall A_FindPlayer(spritetype *s, int32_t *d)
+static inline int32_t A_FP_ManhattanDist(const DukePlayer_t *ps, const spritetype *s)
+{
+    return klabs(ps->opos.x-s->x)
+        + klabs(ps->opos.y-s->y)
+        + ((klabs(ps->opos.z-s->z+(28<<8)))>>4);
+}
+
+int32_t __fastcall A_FindPlayer(const spritetype *s, int32_t *d)
 {
     if ((!g_netServer && ud.multimode < 2))
     {
         DukePlayer_t *const myps = g_player[myconnectindex].ps;
-        *d = klabs(myps->opos.x-s->x) + klabs(myps->opos.y-s->y) + ((klabs(myps->opos.z-s->z+(28<<8)))>>4);
+        *d = A_FP_ManhattanDist(myps, s);
         return myconnectindex;
     }
 
     {
-        int32_t j, closest_player = 0;
-        int32_t x, closest = 0x7fffffff;
+        int32_t j;
+        int32_t closest_player=0, closest=INT32_MAX;
 
         for (TRAVERSE_CONNECT(j))
         {
             DukePlayer_t *const ps = g_player[j].ps;
+            int32_t x = A_FP_ManhattanDist(ps, s);
 
-            x = klabs(ps->opos.x-s->x) + klabs(ps->opos.y-s->y) + ((klabs(ps->opos.z-s->z+(28<<8)))>>4);
             if (x < closest && sprite[ps->i].extra > 0)
             {
                 closest_player = j;
