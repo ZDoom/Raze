@@ -2919,20 +2919,6 @@ void ExtEditSpriteData(int16_t spritenum)   //F8
 
     if (eitherALT)  //ALT
         GenericSpriteSearch();
-#if 0
-    {
-        wallsprite=2;
-        cursearchsprite = spritenum;
-        curwallnum = 0;
-        cursearchspritenum = 0;
-        cursectornum = 0;
-        search_lotag = sprite[cursearchsprite].lotag;
-        search_hitag = sprite[cursearchsprite].hitag;
-        search_lotag = getnumber16("Enter sprite search lotag : ", search_lotag, BTAG_MAX,0);
-        search_hitag = getnumber16("Enter sprite search hitag : ", search_hitag, BTAG_MAX,0);
-        printmessage16("Search sprite lo=%d hi=%d",search_lotag,search_hitag);
-    }
-#endif
     else EditSpriteData(spritenum);
 }
 
@@ -7823,15 +7809,6 @@ static void Keys2d(void)
         }
         yax_updategrays(pos.z);
     }
-
-#if 0
-    if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(Z)) // ' z
-    {
-        editorzrange[0] = getnumber16("Upper Z range: ", editorzrange[0], INT32_MAX, 1);
-        editorzrange[1] = getnumber16("Lower Z range: ", editorzrange[1], INT32_MAX, 1);
-        // printmessage16("");
-    }
-#endif
 
     if (PRESSED_KEYSC(T))  // T (tag)
     {

@@ -2704,25 +2704,6 @@ repeatcase:
         C_GetNextVar();
         return 0;
 
-#if 0
-    case CON_WRITEARRAYTOFILE:
-    case CON_READARRAYFROMFILE:
-        if (C_GetNextLabelName(1))
-            return 1;
-        i = GetGamearrayID(tlabel, 0);
-        if (i > (-1))
-        {
-            *g_scriptPtr++ = i;
-        }
-        else
-        {
-            C_ReportError(ERROR_NOTAGAMEARRAY);
-            g_numCompilerErrors++;
-        }
-        C_GetNextValue(LABEL_DEFINE);
-        return 0;
-#endif
-
 // *** var ops
     case CON_RANDVAR:
     case CON_DISPLAYRANDVAR:
@@ -3355,11 +3336,6 @@ repeatcase:
         else if (tw==CON_QSUBSTR)
             C_GetManyVars(2);
         return 0;
-#if 0
-    case CON_QGETSYSSTR:
-        C_GetManyVars(2);
-        return 0;
-#endif
 
 // *** findnear*
     case CON_FINDNEARSPRITE:

@@ -115,20 +115,6 @@ void ChangeToMenu(int32_t cm)
     lastsavehead = -1;
 }
 
-#if 0
-void savetemp(char *fn,int32_t daptr,int32_t dasiz)
-{
-    FILE *fp;
-
-    if ((fp = fopen(fn,"wb")) == (FILE *)NULL)
-        return;
-
-    fwrite((char *)daptr,dasiz,1,fp);
-
-    fclose(fp);
-}
-#endif
-
 #define LMB (buttonstat&LEFT_MOUSE)
 #define RMB (buttonstat&RIGHT_MOUSE)
 #define WHEELUP (buttonstat&WHEELUP_MOUSE)
@@ -4811,7 +4797,6 @@ cheat_for_port_credits:
         ChangeToMenu(351);
         g_screenCapture = 1;
         G_DrawRooms(myconnectindex,65536);
-        //savetemp("duke3d.tmp",waloff[TILE_SAVESHOT],160*100);
         g_screenCapture = 0;
         break;
 

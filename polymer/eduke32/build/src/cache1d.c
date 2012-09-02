@@ -207,40 +207,6 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 }
 #endif
 
-#if 0
-void suckcache(intptr_t *suckptr)
-{
-    int32_t i;
-
-    //Can't exit early, because invalid pointer might be same even though lock = 0
-    for (i=0; i<cacnum; i++)
-    {
-        if ((intptr_t)(*cac[i].hand) == (intptr_t)suckptr)
-        {
-            if (*cac[i].lock) *cac[i].hand = 0;
-            cac[i].lock = &zerochar;
-            cac[i].hand = 0;
-
-            //Combine empty blocks
-            if ((i > 0) && (*cac[i-1].lock == 0))
-            {
-                cac[i-1].leng += cac[i].leng;
-                cacnum--;
-                //copybuf(&cac[i+1],&cac[i],(cacnum-i)*sizeof(cactype));  // this looks suspicious, copybuf already multiplies by 4...
-                Bmemmove(&cac[i], &cac[i+1], (cacnum-i)*sizeof(cactype));
-            }
-            else if ((i < cacnum-1) && (*cac[i+1].lock == 0))
-            {
-                cac[i+1].leng += cac[i].leng;
-                cacnum--;
-                //copybuf(&cac[i+1],&cac[i],(cacnum-i)*sizeof(cactype));  // see above
-                Bmemmove(&cac[i], &cac[i+1], (cacnum-i)*sizeof(cactype));
-            }
-        }
-    }
-}
-#endif
-
 void agecache(void)
 {
 #ifndef DEBUG_ALLOCACHE_AS_MALLOC

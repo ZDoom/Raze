@@ -1225,10 +1225,7 @@ static inline void prelevel(char g)
     for (i=headspritestat[STAT_DEFAULT]; i>=0; i=nextspritestat[i])
     {
         int32_t ii;
-#if 0
-        int32_t dx, dy;
-        int16_t sprsec;
-#endif
+
         if (PN <= 0)  // oob safety for switch below
             continue;
 
@@ -1248,28 +1245,7 @@ static inline void prelevel(char g)
             case POWERSWITCH1__STATIC:
             case LOCKSWITCH1__STATIC:
             case POWERSWITCH2__STATIC:
-#if 0
-                dx = sintable[(sprite[i].ang+512)&2047]>>9;
-                dy = sintable[(sprite[i].ang)&2047]>>9;
-
-                sprsec = sprite[i].sectnum;
-
-                // check if in 'air' (and not inside something 'solid' like
-                // sprite #624 in E4L1):
-                updatesectorz(sprite[i].x, sprite[i].y, sprite[i].z, &sprsec);
-
-                // check 2 (slightly different from 'would generate light?'):
-                if (sprsec >= 0)
-                    updatesectorz(sprite[i].x+dx, sprite[i].y+dy, sprite[i].z, &sprsec);
-                if (sprsec < 0)
-                {
-                    // dynamic re-check occurs in G_MoveWorld():
-                    spriteext[i].flags |= SPREXT_TEMPINVISIBLE;
-                    sprite[i].cstat |= 32768;
-                }
-#endif
-                // invisi-make for both switch states, but the lower code only
-                // for the 'on' state (*)
+                // the lower code only for the 'on' state (*)
                 if (ii==0)
                 {
                     j = sprite[i].lotag+32768;

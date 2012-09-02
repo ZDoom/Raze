@@ -2476,19 +2476,6 @@ static int32_t backup_drawn_walls(int32_t restore)
     return 0;
 }
 
-#if 0
-#define GETWALCOORD(w) (*(int64_t *)&wall[*(const int32_t *)(w)].x)
-static int32_t compare_wall_coords(const void *w1, const void *w2)
-{
-    if (GETWALCOORD(w1) == GETWALCOORD(w2))
-        return 0;
-    if (GETWALCOORD(w1) > GETWALCOORD(w2))
-        return 1;
-    return -1;
-}
-#undef GETWALCOORD
-#endif
-
 // VARIOUS RESETTING FUNCTIONS
 #define RESET_EDITOR_VARS() do { \
     sectorhighlightstat = -1; \

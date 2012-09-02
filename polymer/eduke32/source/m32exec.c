@@ -2553,26 +2553,6 @@ badindex:
 
                 switch (tw)
                 {
-#if 0
-                case CON_QGETSYSSTR:
-                    if (ScriptQuotes[i] == NULL)
-                    {
-                        M32_ERROR("null quote %d %d", i,j);
-                        break;
-                    }
-                    switch (j)
-                    {
-                    case STR_MAPFILENAME:
-                        Bstrcpy(ScriptQuotes[i], boardfilename);
-                        break;
-                    case STR_VERSION:
-                        Bstrcpy(ScriptQuotes[i], "Mapster32"VERSION BUILDDATE);
-                        break;
-                    default:
-                        M32_ERROR("unknown str ID %d %d", i,j);
-                    }
-                    break;
-#endif
                 case CON_QSTRCAT:
                     Bstrncat(ScriptQuotes[i], quotetext, (MAXQUOTELEN-1)-Bstrlen(ScriptQuotes[i]));
                     break;
