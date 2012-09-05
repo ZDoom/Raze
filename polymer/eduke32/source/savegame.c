@@ -361,6 +361,39 @@ int32_t G_SavePlayer(int32_t spot)
     return 0;
 }
 
+void G_LoadPlayerMaybeMulti(int32_t slot)
+{
+    if (g_netServer || ud.multimode > 1)
+    {
+        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Multiplayer Loading Not Yet Supported");
+        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+
+//        G_LoadPlayer(-1-g_lastSaveSlot);
+//        g_player[myconnectindex].ps->gm = MODE_GAME;
+    }
+    else
+    {
+        int32_t c = G_LoadPlayer(slot);
+        if (c == 0)
+            g_player[myconnectindex].ps->gm = MODE_GAME;
+    }
+}
+
+void G_SavePlayerMaybeMulti(int32_t slot)
+{
+    Bassert(slot >= 0);
+
+    if (g_netServer || ud.multimode > 1)
+    {
+        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");
+        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+//        G_SavePlayer(-1-slot);
+    }
+    else
+    {
+        G_SavePlayer(slot);
+    }
+}
 
 ////////// GENERIC SAVING/LOADING SYSTEM //////////
 

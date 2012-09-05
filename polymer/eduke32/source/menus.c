@@ -1453,20 +1453,7 @@ void M_DisplayMenus(void)
             KB_ClearKeysDown();
             FX_StopAllSounds();
 
-            if (g_netServer || ud.multimode > 1)
-            {
-                Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Multiplayer Loading Not Yet Supported");
-                P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-
-//                G_LoadPlayer(-1-g_lastSaveSlot);
-//                g_player[myconnectindex].ps->gm = MODE_GAME;
-            }
-            else
-            {
-                c = G_LoadPlayer(g_lastSaveSlot);
-                if (c == 0)
-                    g_player[myconnectindex].ps->gm = MODE_GAME;
-            }
+            G_LoadPlayerMaybeMulti(g_lastSaveSlot);
         }
 
         break;
@@ -1622,9 +1609,7 @@ void M_DisplayMenus(void)
                 totalclock = ototalclock;
             }
 
-            c = G_LoadPlayer(g_lastSaveSlot);
-            if (c == 0)
-                g_player[myconnectindex].ps->gm = MODE_GAME;
+            G_LoadPlayerMaybeMulti(g_lastSaveSlot);
 
             break;
         }
@@ -4853,16 +4838,8 @@ cheat_for_port_credits:
                     ud.savegame[g_currentMenu-360][20] = 127;
                 }
 
-                if (g_netServer || ud.multimode > 1)
-                {
-                    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");
-                    P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-                    //G_SavePlayer(-1-(g_currentMenu-360));
-                }
-                else
-                {
-                    G_SavePlayer(g_currentMenu-360);
-                }
+                G_SavePlayerMaybeMulti(g_currentMenu-360);
+
                 g_lastSaveSlot = g_currentMenu-360;
                 g_player[myconnectindex].ps->gm = MODE_GAME;
 

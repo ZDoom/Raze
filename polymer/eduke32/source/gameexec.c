@@ -3032,16 +3032,14 @@ nullquote:
         case CON_SAVE:
             insptr++;
             {
-                time_t curtime;
-
                 g_lastSaveSlot = *insptr++;
 
-                if (g_lastSaveSlot > 9)
+                if ((unsigned)g_lastSaveSlot >= 10)
                     continue;
 
                 if (tw == CON_SAVE || ud.savegame[g_lastSaveSlot][0] == 0)
                 {
-                    curtime = time(NULL);
+                    time_t curtime = time(NULL);
                     Bstrcpy(tempbuf,asctime(localtime(&curtime)));
                     clearbufbyte(ud.savegame[g_lastSaveSlot],sizeof(ud.savegame[g_lastSaveSlot]),0);
                     Bsprintf(ud.savegame[g_lastSaveSlot],"Auto");
@@ -3059,9 +3057,8 @@ nullquote:
                 g_screenCapture = 1;
                 G_DrawRooms(myconnectindex,65536);
                 g_screenCapture = 0;
-                if ((g_netServer || ud.multimode > 1))
-                    G_SavePlayer(-1-(g_lastSaveSlot));
-                else G_SavePlayer(g_lastSaveSlot);
+
+                G_SavePlayerMaybeMulti(g_lastSaveSlot);
 
                 continue;
             }

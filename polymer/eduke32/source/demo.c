@@ -738,8 +738,7 @@ nextdemo:
                 rotatesprite_fs((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128);
         }
 
-        handleevents();
-        Net_GetPackets();
+        G_HandleAsync();
 
         if (!ud.recstat)
             nextpage();
