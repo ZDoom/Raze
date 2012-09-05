@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __demo_h__
 
 extern FILE *g_demo_filePtr;
-extern char firstdemofile[BMAX_PATH];
+extern char g_firstDemoFile[BMAX_PATH];
 
 extern int32_t demoplay_diffs;
 extern int32_t demoplay_showsync;
@@ -44,7 +44,7 @@ extern int32_t g_demo_soundToggle;
 extern int32_t g_demo_totalCnt;
 
 int32_t G_PlaybackDemo(void);
-void demo_preparewarp(void);
+void Demo_PrepareWarp(void);
 void G_CloseDemoWrite(void);
 void G_DemoRecord(void);
 void G_OpenDemoWrite(void);

@@ -7679,7 +7679,7 @@ void G_HandleLocalKeys(void)
             if (g_demo_goalCnt > g_demo_totalCnt)
                 g_demo_goalCnt = 0;
             else
-                demo_preparewarp();
+                Demo_PrepareWarp();
         }
         else if (KB_KeyPressed(sc_kpad_4))
         {
@@ -7691,7 +7691,7 @@ void G_HandleLocalKeys(void)
             if (g_demo_goalCnt <= 0)
                 g_demo_goalCnt = 1;
 
-            demo_preparewarp();
+            Demo_PrepareWarp();
         }
 
 #if 0
@@ -8990,11 +8990,11 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     char *dot;
 
                     c++;
-                    Bstrcpy(firstdemofile,c);
-                    dot = Bstrchr(firstdemofile,'.');
-                    if (!dot && Bstrlen(firstdemofile)+4 < sizeof(firstdemofile))
-                        Bstrcat(firstdemofile,".edm");
-                    initprintf("Play demo %s.\n",firstdemofile);
+                    Bstrcpy(g_firstDemoFile,c);
+                    dot = Bstrchr(g_firstDemoFile,'.');
+                    if (!dot && Bstrlen(g_firstDemoFile)+4 < sizeof(g_firstDemoFile))
+                        Bstrcat(g_firstDemoFile,".edm");
+                    initprintf("Play demo %s.\n",g_firstDemoFile);
                     break;
                 }
                 case 'g':
