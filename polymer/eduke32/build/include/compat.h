@@ -650,5 +650,9 @@ char *Bstrupr(char *);
 }
 #endif
 
+#define MAYBE_FCLOSE_AND_NULL(fileptr) do { \
+    if (fileptr) { Bfclose(fileptr); fileptr=NULL; } \
+} while (0)
+
 #endif // __compat_h__
 

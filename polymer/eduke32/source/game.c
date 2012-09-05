@@ -2077,11 +2077,12 @@ void G_GameExit(const char *msg)
 #endif
     if (*msg != 0) g_player[myconnectindex].ps->palette = BASEPAL;
 
-    if (ud.recstat == 1) G_CloseDemoWrite();
+    if (ud.recstat == 1)
+        G_CloseDemoWrite();
     else if (ud.recstat == 2)
-    {
-        if (g_demo_filePtr) fclose(g_demo_filePtr);
-    } // JBF: fixes crash on demo playback
+        MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
+    // JBF: fixes crash on demo playback
+    // PK: modified from original
 
     if (!g_quickExit)
     {

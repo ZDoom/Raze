@@ -193,7 +193,7 @@ void G_OpenDemoWrite(void)
             if (g_demo_filePtr == NULL)
                 break;
 
-            Bfclose(g_demo_filePtr);
+            MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
         }
         while (1);
 
@@ -205,7 +205,7 @@ void G_OpenDemoWrite(void)
             demorec_synccompress_cvar|(demorec_seeds_cvar<<1));
         if (i)
         {
-            Bfclose(g_demo_filePtr), g_demo_filePtr=NULL;
+            MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
 error_wopen_demo:
             Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
             P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
@@ -292,7 +292,7 @@ void G_CloseDemoWrite(void)
             fwrite(&g_demo_cnt, sizeof(g_demo_cnt), 1, g_demo_filePtr);
 
         ud.recstat = ud.m_recstat = 0;
-        fclose(g_demo_filePtr);
+        MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
 
         sv_freemem();
 
