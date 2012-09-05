@@ -332,8 +332,7 @@ void G_PlayAnim(const char *fn,char t)
 
             do
             {
-                handleevents();
-                Net_GetPackets();
+                G_HandleAsync();
 
                 if (I_CheckAllInput())
                 {
@@ -404,8 +403,7 @@ void G_PlayAnim(const char *fn,char t)
 
         while (totalclock < ototalclock)
         {
-            handleevents();
-            Net_GetPackets();
+            G_HandleAsync();
 
             if (I_CheckAllInput())
                 goto ENDOFANIMLOOP;

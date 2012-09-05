@@ -335,6 +335,12 @@ extern char forcegl;
 #define Net_EnterText(x, y, t, dalen, c) _EnterText(1,x,y,t,dalen,c)
 #define S_StopSound(num) S_StopEnvSound(num, -1)
 
+static inline void G_HandleAsync(void)
+{
+    handleevents();
+    Net_GetPackets();
+}
+
 // sector effector lotags
 enum {
     SE_16_REACTOR = 16,

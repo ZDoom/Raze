@@ -2005,8 +2005,7 @@ void Net_WaitForServer(void)
         if (g_netClientPeer)
             enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, 2, ENET_PACKET_FLAG_RELIABLE));
 
-        handleevents();
-        Net_GetPackets();
+        G_HandleAsync();
 
         if (g_player[0].pingcnt > server_ready)
         {

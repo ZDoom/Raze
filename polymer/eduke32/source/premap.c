@@ -330,10 +330,8 @@ static void G_PrecacheSounds(void)
         {
             j++;
             if ((j&7) == 0)
-            {
-                handleevents();
-                Net_GetPackets();
-            }
+                G_HandleAsync();
+
             G_CacheSound(i);
         }
 }
@@ -545,10 +543,8 @@ void G_CacheMapData(void)
         MUSIC_Update();
 
         if ((j&7) == 0)
-        {
-            handleevents();
-            Net_GetPackets();
-        }
+            G_HandleAsync();
+
         if (totalclock - tc > TICRATE/4)
         {
             /*Bsprintf(tempbuf,"%d resources remaining\n",g_precacheCount-pc+1);*/
@@ -1446,16 +1442,12 @@ void G_NewGame(int32_t vn,int32_t ln,int32_t sk)
     DukePlayer_t *p = g_player[0].ps;
     int32_t i;
 
-    handleevents();
-    Net_GetPackets();
+    G_HandleAsync();
 
     if (g_skillSoundID >= 0 && ud.config.FXDevice >= 0 && ud.config.SoundToggle)
     {
         while (S_CheckSoundPlaying(-1, g_skillSoundID))
-        {
-            handleevents();
-            Net_GetPackets();
-        }
+            G_HandleAsync();
     }
 
     g_skillSoundID = -1;

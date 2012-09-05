@@ -1919,12 +1919,6 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
 
 
 ////////// OFTEN-USED FEW-LINERS //////////
-static void G_HandleAsync(void)
-{
-    handleevents();
-    Net_GetPackets();
-}
-
 static void handle_events_while_no_input(void)
 {
     I_ClearInputWaiting();
