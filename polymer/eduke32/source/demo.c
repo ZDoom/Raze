@@ -173,21 +173,16 @@ void G_OpenDemoWrite(void)
 
         do
         {
-            int32_t nch;
-
             if (demonum == 10000)
                 return;
 
-            if (g_modDir[0] != '/')
-                nch=Bsnprintf(demofn, sizeof(demofn), "%s/edemo%d.edm", g_modDir, demonum++);
-            else nch=Bsnprintf(demofn, sizeof(demofn), "edemo%d.edm", demonum++);
-
-            if ((unsigned)nch >= sizeof(demofn)-1)
+            if (G_ModDirSnprintf(demofn, sizeof(demofn), "edemo%d.edm", demonum))
             {
-                // TODO: factor out this out and use everywhere else.
                 initprintf("Couldn't start demo writing: INTERNAL ERROR: file name too long\n");
                 goto error_wopen_demo;
             }
+
+            demonum++;
 
             g_demo_filePtr = Bfopen(demofn, "rb");
             if (g_demo_filePtr == NULL)

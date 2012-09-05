@@ -372,4 +372,13 @@ enum {
     ST_31_TWO_WAY_TRAIN = 31,
 };
 
+# define G_ModDirSnprintf(buf, size, basename, ...) \
+( \
+    ( \
+        (g_modDir[0] != '/') ? \
+            Bsnprintf(buf, size, "%s/" basename, g_modDir, ## __VA_ARGS__) : \
+            Bsnprintf(buf, size, basename, ## __VA_ARGS__) \
+    ) >= ((int32_t)size)-1 \
+)
+
 #endif

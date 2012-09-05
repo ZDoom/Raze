@@ -4224,11 +4224,18 @@ nullquote:
                         FILE *fil;
                         char temp[BMAX_PATH];
 
-                        if (g_modDir[0] != '/')
-                            Bsprintf(temp,"%s/%s",g_modDir,ScriptQuotes[q]);
-                        else Bsprintf(temp,"%s",ScriptQuotes[q]);
+                        if (G_ModDirSnprintf(temp, sizeof(temp), "%s", ScriptQuotes[q]))
+                        {
+                            OSD_Printf(CON_ERROR "file name too long\n",g_errorLineNum,keyw[g_tw]);
+                            continue;
+                        }
 
-                        if ((fil = fopen(temp,"wb")) == 0) continue;
+                        fil = fopen(temp,"wb");
+                        if (fil == NULL)
+                        {
+                            OSD_Printf(CON_ERROR "couldn't open file",g_errorLineNum,keyw[g_tw]);
+                            continue;
+                        }
 
                         fwrite(aGameArrays[j].plValues,1,sizeof(int) * aGameArrays[j].size,fil);
                         fclose(fil);

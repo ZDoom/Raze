@@ -319,12 +319,11 @@ int32_t G_SavePlayer(int32_t spot)
     {
         char temp[BMAX_PATH];
 
-        // TODO: factor this out someday...
-        if (g_modDir[0] != '/')
-            Bsnprintf(temp, sizeof(temp), "%s/%s", g_modDir, fn);
-        else
-            Bsnprintf(temp, sizeof(temp), "%s", fn);
-        temp[sizeof(temp)-1] = 0;
+        if (G_ModDirSnprintf(temp, sizeof(temp), "%s", fn))
+        {
+            OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", fn);
+            return -1;
+        }
 
         errno = 0;
         fil = fopen(temp, "wb");
