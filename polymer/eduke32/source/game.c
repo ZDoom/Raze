@@ -8691,7 +8691,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                 {
                     if (argc > i+1)
                     {
-                        Bstrcpy(g_modDir,argv[i+1]);
+                        Bstrncpyz(g_modDir, argv[i+1], sizeof(g_modDir));
                         G_AddPath(argv[i+1]);
                         i++;
                     }

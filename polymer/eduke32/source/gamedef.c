@@ -5119,6 +5119,7 @@ repeatcase:
                         continue;
                     }
 
+                    // XXX
                     Bstrcpy(temp,tempbuf);
                     CONFIG_WriteSetup(1);
                     if (g_modDir[0] != '/')

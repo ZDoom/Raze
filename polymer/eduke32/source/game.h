@@ -192,7 +192,6 @@ extern const char *defaultrtsfilename[GAMECOUNT];
 extern const char *G_DefaultRtsFile(void);
 
 extern char g_modDir[BMAX_PATH];
-extern char g_modDir[BMAX_PATH];
 extern char inputloc;
 extern char ror_protectedsectors[MAXSECTORS];
 

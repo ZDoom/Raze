@@ -329,9 +329,9 @@ int32_t G_SavePlayer(int32_t spot)
         fil = fopen(temp, "wb");
         if (!fil)
         {
-            return -1;
             OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
                        temp, strerror(errno));
+            return -1;
         }
     }
 
