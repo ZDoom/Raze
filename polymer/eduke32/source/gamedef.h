@@ -112,7 +112,6 @@ extern void VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLabelID, int3
 extern void VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, int32_t lVar2);
 */
 
-#define CON_ERROR OSD_ERROR "Line %d, %s: "
 
 enum vmflags_t {
     VM_RETURN       = 0x00000001,

@@ -921,9 +921,9 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
     if ((unsigned)proj >= MAXSPRITES)
     {
         //        OSD_Printf("VM_AccessActiveProjectile(): invalid projectile (%d)\n",proj);
-        OSD_Printf(CON_ERROR "tried to %s %s on invalid target projectile (%d) %d %d from %s\n",g_errorLineNum,keyw[g_tw],
-                   iSet?"set":"get",ProjectileLabels[lLabelID].name,proj,vm.g_i,vm.g_sp->picnum,
-                   (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+        CON_ERRPRINTF("tried to %s %s on invalid target projectile (%d) %d %d from %s\n",
+                      iSet?"set":"get",ProjectileLabels[lLabelID].name,proj,vm.g_i,vm.g_sp->picnum,
+                      (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
         insptr += (lVar2 == MAXGAMEVARS);
         return;
     }
@@ -1524,14 +1524,14 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
 
 badplayer:
     //        OSD_Printf("VM_AccessPlayer(): invalid target player (%d) %d\n",iPlayer,vm.g_i);
-    OSD_Printf(CON_ERROR "tried to get %s on invalid target player (%d) from spr %d gv %s\n",g_errorLineNum,keyw[g_tw],
-               PlayerLabels[lLabelID].name,iPlayer,vm.g_i,
-               (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+    CON_ERRPRINTF("tried to get %s on invalid target player (%d) from spr %d gv %s\n",
+                  PlayerLabels[lLabelID].name,iPlayer,vm.g_i,
+                  (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
     return;
 
 badpos:
-    OSD_Printf(CON_ERROR "tried to get invalid %s position %d on player (%d) from spr %d\n",g_errorLineNum,keyw[g_tw],
-               PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
+    CON_ERRPRINTF("tried to get invalid %s position %d on player (%d) from spr %d\n",
+                  PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
     return;
 }
 
@@ -1871,15 +1871,15 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
 
 badplayer:
     //        OSD_Printf("VM_AccessPlayer(): invalid target player (%d) %d\n",iPlayer,vm.g_i);
-    OSD_Printf(CON_ERROR "tried to set %s on invalid target player (%d) from spr %d gv %s\n",g_errorLineNum,keyw[g_tw],
-               PlayerLabels[lLabelID].name,iPlayer,vm.g_i,
-               (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+    CON_ERRPRINTF("tried to set %s on invalid target player (%d) from spr %d gv %s\n",
+                  PlayerLabels[lLabelID].name,iPlayer,vm.g_i,
+                  (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 
 badpos:
-    OSD_Printf(CON_ERROR "tried to set invalid %s position %d on player (%d) from spr %d\n",g_errorLineNum,keyw[g_tw],
-               PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
+    CON_ERRPRINTF("tried to set invalid %s position %d on player (%d) from spr %d\n",
+                  PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 }
@@ -1959,7 +1959,7 @@ static void __fastcall VM_AccessPlayerInput(int32_t iSet, int32_t lVar1, int32_t
 
 badplayer:
     insptr += (lVar2 == MAXGAMEVARS);
-    OSD_Printf(CON_ERROR "invalid target player (%d) %d\n",g_errorLineNum,keyw[g_tw],iPlayer,vm.g_i);
+    CON_ERRPRINTF("invalid target player (%d) %d\n", iPlayer,vm.g_i);
     return;
 }
 
@@ -2134,7 +2134,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
 
 badwall:
     insptr += (lVar2 == MAXGAMEVARS);
-    OSD_Printf(CON_ERROR "Invalid wall %d\n",g_errorLineNum,keyw[g_tw],iWall);
+    CON_ERRPRINTF("Invalid wall %d\n", iWall);
     return;
 }
 
@@ -2378,7 +2378,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
     }
 
 badsector:
-    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],iSector);
+    CON_ERRPRINTF("Invalid sector %d\n", iSector);
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 }
@@ -2613,15 +2613,15 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     }
 
 badactor:
-    OSD_Printf(CON_ERROR "tried to set %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",g_errorLineNum,keyw[g_tw],
-               ActorLabels[lLabelID].name,iActor,vm.g_i,vm.g_sp->picnum,
-               (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+    CON_ERRPRINTF("tried to set %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",
+                  ActorLabels[lLabelID].name,iActor,vm.g_i,vm.g_sp->picnum,
+                  (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 
 badpos:
-    OSD_Printf(CON_ERROR "tried to set invalid %s position %d on sprite (%d) from spr %d\n",g_errorLineNum,keyw[g_tw],
-               ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
+    CON_ERRPRINTF("tried to set invalid %s position %d on sprite (%d) from spr %d\n",
+                  ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 }
@@ -2855,15 +2855,15 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
     }
 
 badactor:
-    OSD_Printf(CON_ERROR "tried to get %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",g_errorLineNum,keyw[g_tw],
-               ActorLabels[lLabelID].name,iActor,vm.g_i,vm.g_sp->picnum,
-               (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
+    CON_ERRPRINTF("tried to get %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",
+                  ActorLabels[lLabelID].name,iActor,vm.g_i,vm.g_sp->picnum,
+                  (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 
 badpos:
-    OSD_Printf(CON_ERROR "tried to get invalid %s position %d on sprite (%d) from spr %d\n",g_errorLineNum,keyw[g_tw],
-               ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
+    CON_ERRPRINTF("tried to get invalid %s position %d on sprite (%d) from spr %d\n",
+                  ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 }
@@ -3102,12 +3102,12 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
     }
 
 badsprite:
-    OSD_Printf(CON_ERROR "invalid target sprite (%d) %d %d\n",g_errorLineNum,keyw[g_tw],iActor,vm.g_i,vm.g_sp->picnum);
+    CON_ERRPRINTF("invalid target sprite (%d) %d %d\n", iActor, vm.g_i, vm.g_sp->picnum);
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 
 badtspr:
-    OSD_Printf(CON_ERROR "Internal bug, tsprite is unavailable\n",g_errorLineNum,keyw[g_tw]);
+    CON_ERRPRINTF("Internal bug, tsprite is unavailable\n");
     return;
 }
 
@@ -3380,7 +3380,7 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
     }
 
 badtile:
-    OSD_Printf(CON_ERROR "invalid tile (%d)\n",g_errorLineNum,keyw[g_tw],lVar1);
+    CON_ERRPRINTF("invalid tile (%d)\n", lVar1);
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 }
@@ -3448,8 +3448,8 @@ static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int
     }
 
 badpos:
-    OSD_Printf(CON_ERROR "tried to get invalid %s position %d on sprite (%d) from spr %d\n",
-               g_errorLineNum,keyw[g_tw],ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
+    CON_ERRPRINTF("tried to get invalid %s position %d on sprite (%d) from spr %d\n",
+                  ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
     return -1;
 }
 
@@ -3802,8 +3802,8 @@ static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, in
     }
 
 badpos:
-    OSD_Printf(CON_ERROR "tried to get invalid %s position %d on player (%d) from spr %d\n",
-               g_errorLineNum,keyw[g_tw],PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
+    CON_ERRPRINTF("tried to get invalid %s position %d on player (%d) from spr %d\n",
+                  PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
     return -1;
 }
 

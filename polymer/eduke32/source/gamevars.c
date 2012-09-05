@@ -661,35 +661,35 @@ int32_t __fastcall Gv_GetVar(register int32_t id, register int32_t iActor, regis
     }
 
 bad_id:
-    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid sprite/player ID %d/%d\n",g_errorLineNum,keyw[g_tw],iActor,iPlayer);
+    CON_ERRPRINTF("Gv_GetVar(): invalid sprite/player ID %d/%d\n", iActor,iPlayer);
     return -1;
 
 badvarid:
-    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
+    CON_ERRPRINTF("Gv_GetVar(): invalid gamevar ID (%d)\n", id);
     return -1;
 
 badindex:
-    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,iActor);
+    CON_ERRPRINTF("Gv_GetVar(): invalid array index (%s[%d])\n", aGameArrays[id].szLabel,iActor);
     return -1;
 
 badplayer:
-    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid player ID %d\n",g_errorLineNum,keyw[g_tw], iPlayer);
+    CON_ERRPRINTF("Gv_GetVar(): invalid player ID %d\n", iPlayer);
     return -1;
 
 badsprite:
-    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw], iPlayer);
+    CON_ERRPRINTF("Gv_GetVar(): invalid sprite ID %d\n", iPlayer);
     return -1;
 
 badsector:
-    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid sector ID %d\n",g_errorLineNum,keyw[g_tw], iPlayer);
+    CON_ERRPRINTF("Gv_GetVar(): invalid sector ID %d\n", iPlayer);
     return -1;
 
 badwall:
-    OSD_Printf(CON_ERROR "Gv_GetVar(): invalid wall ID %d\n",g_errorLineNum,keyw[g_tw], iPlayer);
+    CON_ERRPRINTF("Gv_GetVar(): invalid wall ID %d\n", iPlayer);
     return -1;
 
 wtf:
-    OSD_Printf(CON_ERROR "Gv_GetVar(): WTF?\n",g_errorLineNum,keyw[g_tw]);
+    CON_ERRPRINTF("Gv_GetVar(): WTF?\n");
     return -1;
 }
 
@@ -726,13 +726,12 @@ void __fastcall Gv_SetVar(register int32_t id, register int32_t lValue, register
     }
 
 badvarid:
-    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid gamevar (%d) from sprite %d (%d), player %d\n",
-               g_errorLineNum,keyw[g_tw],id,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
+    CON_ERRPRINTF("Gv_SetVar(): invalid gamevar (%d) from sprite %d (%d), player %d\n",
+                  id,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
     return;
 
 badindex:
-    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid index (%d) for gamevar %s from sprite %d, player %d\n",
-               g_errorLineNum,keyw[g_tw],
+    CON_ERRPRINTF("Gv_SetVar(): invalid index (%d) for gamevar %s from sprite %d, player %d\n",
                aGameVars[id].dwFlags & GAMEVAR_PERACTOR ? iActor : iPlayer,
                aGameVars[id].szLabel,vm.g_i,vm.g_p);
     return;
@@ -856,31 +855,31 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
         }
 
 badindex:
-        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid array index (%s[%d])\n",g_errorLineNum,keyw[g_tw],aGameArrays[id].szLabel,(int32_t)negateResult);
+        CON_ERRPRINTF("Gv_GetVarX(): invalid array index (%s[%d])\n", aGameArrays[id].szLabel, (int32_t)negateResult);
         return -1;
 
 badvarid:
-        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid gamevar ID (%d)\n",g_errorLineNum,keyw[g_tw],id);
+        CON_ERRPRINTF("Gv_GetVarX(): invalid gamevar ID (%d)\n", id);
         return -1;
 
 badplayer:
-        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid player ID %d\n",g_errorLineNum,keyw[g_tw], id);
+        CON_ERRPRINTF("Gv_GetVarX(): invalid player ID %d\n", id);
         return -1;
 
 badsprite:
-        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw], id);
+        CON_ERRPRINTF("Gv_GetVarX(): invalid sprite ID %d\n", id);
         return -1;
 
 badsector:
-        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid sector ID %d\n",g_errorLineNum,keyw[g_tw], id);
+        CON_ERRPRINTF("Gv_GetVarX(): invalid sector ID %d\n", id);
         return -1;
 
 badwall:
-        OSD_Printf(CON_ERROR "Gv_GetVarX(): invalid wall ID %d\n",g_errorLineNum,keyw[g_tw], id);
+        CON_ERRPRINTF("Gv_GetVarX(): invalid wall ID %d\n", id);
         return -1;
 
 wtf:
-        OSD_Printf(CON_ERROR "Gv_GetVar(): WTF?\n",g_errorLineNum,keyw[g_tw]);
+        CON_ERRPRINTF("Gv_GetVar(): WTF?\n");
         return -1;
     }
 }
@@ -912,8 +911,7 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
     }
 
 badindex:
-    OSD_Printf(CON_ERROR "Gv_SetVar(): invalid index (%d) for gamevar %s\n",
-               g_errorLineNum,keyw[g_tw], 
+    CON_ERRPRINTF("Gv_SetVar(): invalid index (%d) for gamevar %s\n",
                aGameVars[id].dwFlags & GAMEVAR_PERACTOR ? vm.g_i : vm.g_p,
                aGameVars[id].szLabel);
     return;
@@ -939,7 +937,7 @@ static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
     if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR | GAMEVAR_PERPLAYER))
     {
         if (!aGameVars[i].val.plValues)
-            OSD_Printf(CON_ERROR "Gv_GetVarDataPtr(): INTERNAL ERROR: NULL array !!!\n",g_errorLineNum,keyw[g_tw]);
+            CON_ERRPRINTF("Gv_GetVarDataPtr(): INTERNAL ERROR: NULL array !!!\n");
         return aGameVars[i].val.plValues;
     }
 

@@ -781,7 +781,7 @@ static int32_t VM_AddWeapon(int32_t weap, int32_t amount, DukePlayer_t *ps)
 {
     if ((unsigned)weap >= MAX_WEAPONS)
     {
-        OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw], weap);
+        CON_ERRPRINTF("Invalid weapon ID %d\n", weap);
         return 1;
     }
 
@@ -829,7 +829,7 @@ skip_check:
                 int32_t q = *insptr++, i = *insptr++;
                 if ((ScriptQuotes[q] == NULL || ScriptQuoteRedefinitions[i] == NULL))
                 {
-                    OSD_Printf(CON_ERROR "%d %d null quote\n",g_errorLineNum,keyw[g_tw],q,i);
+                    CON_ERRPRINTF("%d %d null quote\n", q,i);
                     break;
                 }
                 Bstrcpy(ScriptQuotes[q],ScriptQuoteRedefinitions[i]);
@@ -1113,7 +1113,7 @@ skip_check:
             insptr++;
             if (((unsigned)vm.g_sp->yvel >= MAXSOUNDS))
             {
-                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->yvel);
+                CON_ERRPRINTF("Invalid sound %d\n", vm.g_sp->yvel);
                 insptr++;
                 continue;
             }
@@ -1165,7 +1165,7 @@ skip_check:
         case CON_SOUNDONCE:
             if (((unsigned)*(++insptr) >= MAXSOUNDS))
             {
-                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr++);
+                CON_ERRPRINTF("Invalid sound %d\n", (int32_t)*insptr++);
                 continue;
             }
             if (!S_CheckSoundPlaying(vm.g_i,*insptr++))
@@ -1179,7 +1179,7 @@ skip_check:
 
                 if (((unsigned)j >= MAXSOUNDS))
                 {
-                    OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("Invalid sound %d\n", j);
                     insptr++;
                     continue;
                 }
@@ -1191,7 +1191,7 @@ skip_check:
         case CON_IFSOUND:
             if (((unsigned)*(++insptr) >= MAXSOUNDS))
             {
-                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
+                CON_ERRPRINTF("Invalid sound %d\n", (int32_t)*insptr);
                 insptr++;
                 continue;
             }
@@ -1202,7 +1202,7 @@ skip_check:
         case CON_STOPSOUND:
             if (((unsigned)*(++insptr) >= MAXSOUNDS))
             {
-                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
+                CON_ERRPRINTF("Invalid sound %d\n", (int32_t)*insptr);
                 insptr++;
                 continue;
             }
@@ -1218,7 +1218,7 @@ skip_check:
 
                 if ((j<0 || j>=MAXSOUNDS))
                 {
-                    OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("Invalid sound %d\n", j);
                     continue;
                 }
 
@@ -1235,7 +1235,7 @@ skip_check:
 
                 if ((j<0 || j>=MAXSOUNDS))
                 {
-                    OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("Invalid sound %d\n", j);
                     continue;
                 }
 
@@ -1247,7 +1247,7 @@ skip_check:
         case CON_GLOBALSOUND:
             if (((unsigned)*(++insptr) >= MAXSOUNDS))
             {
-                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
+                CON_ERRPRINTF("Invalid sound %d\n", (int32_t)*insptr);
                 insptr++;
                 continue;
             }
@@ -1261,7 +1261,7 @@ skip_check:
         case CON_SOUND:
             if ((unsigned)*(++insptr) >= MAXSOUNDS)
             {
-                OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
+                CON_ERRPRINTF("Invalid sound %d\n", (int32_t)*insptr);
                 insptr++;
                 continue;
             }
@@ -1395,7 +1395,7 @@ skip_check:
 
                 if ((unsigned)weap >= MAX_WEAPONS)
                 {
-                    OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw], weap);
+                    CON_ERRPRINTF("Invalid weapon ID %d\n", weap);
                     break;
                 }
 
@@ -1577,22 +1577,22 @@ skip_check:
                 switch (tw)
                 {
                 case CON_ACTIVATEBYSECTOR:
-                    if ((unsigned)var1 >= (unsigned)numsectors) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
+                    if ((unsigned)var1 >= (unsigned)numsectors) {CON_ERRPRINTF("Invalid sector %d\n", var1); break;}
                     G_ActivateBySector(var1, var2);
                     break;
                 case CON_OPERATESECTORS:
-                    if ((unsigned)var1 >= (unsigned)numsectors) {OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
+                    if ((unsigned)var1 >= (unsigned)numsectors) {CON_ERRPRINTF("Invalid sector %d\n", var1); break;}
                     G_OperateSectors(var1, var2);
                     break;
                 case CON_OPERATEACTIVATORS:
-                    if ((unsigned)var2>=(unsigned)playerswhenstarted) {OSD_Printf(CON_ERROR "Invalid player %d\n",g_errorLineNum,keyw[g_tw],var2); break;}
+                    if ((unsigned)var2>=(unsigned)playerswhenstarted) {CON_ERRPRINTF("Invalid player %d\n", var2); break;}
                     G_OperateActivators(var1, var2);
                     break;
                 case CON_SETASPECT:
                     setaspect(var1, var2);
                     break;
                 case CON_SSP:
-                    if ((unsigned)var1 >= MAXSPRITES) { OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],var1); break;}
+                    if ((unsigned)var1 >= MAXSPRITES) { CON_ERRPRINTF("Invalid sprite %d\n", var1); break;}
                     A_SetSprite(var1, var2);
                     break;
                 }
@@ -1606,7 +1606,7 @@ skip_check:
 
                 if ((unsigned)lVar1 >= MAXSPRITES || (unsigned)lVar2 >= MAXSPRITES)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],(unsigned)lVar1 >= MAXSPRITES ? lVar1 : lVar2);
+                    CON_ERRPRINTF("Invalid sprite %d\n", (unsigned)lVar1 >= MAXSPRITES ? lVar1 : lVar2);
                     res=0;
                 }
                 else res=cansee(sprite[lVar1].x,sprite[lVar1].y,sprite[lVar1].z,sprite[lVar1].sectnum,
@@ -1643,7 +1643,7 @@ skip_check:
                 int32_t j=Gv_GetVarX(*insptr++);
                 if ((ScriptQuotes[j] == NULL))
                 {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("null quote %d\n", j);
                     Gv_SetVarX(i,-1);
                     continue;
                 }
@@ -1658,7 +1658,7 @@ skip_check:
                 int32_t j=Gv_GetVarX(*insptr++);
                 if ((unsigned)j > MAXSTATUS)
                 {
-                    OSD_Printf(CON_ERROR "invalid status list %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("invalid status list %d\n", j);
                     continue;
                 }
                 Gv_SetVarX(i,headspritestat[j]);
@@ -1672,7 +1672,7 @@ skip_check:
                 int32_t j=Gv_GetVarX(*insptr++);
                 if ((unsigned)j >= MAXSPRITES)
                 {
-                    OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("invalid sprite ID %d\n", j);
                     continue;
                 }
                 Gv_SetVarX(i,prevspritestat[j]);
@@ -1686,7 +1686,7 @@ skip_check:
                 int32_t j=Gv_GetVarX(*insptr++);
                 if ((unsigned)j >= MAXSPRITES)
                 {
-                    OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("invalid sprite ID %d\n", j);
                     continue;
                 }
                 Gv_SetVarX(i,nextspritestat[j]);
@@ -1700,7 +1700,7 @@ skip_check:
                 int32_t j=Gv_GetVarX(*insptr++);
                 if ((unsigned)j >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "invalid sector %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("invalid sector %d\n", j);
                     continue;
                 }
                 Gv_SetVarX(i,headspritesect[j]);
@@ -1714,7 +1714,7 @@ skip_check:
                 int32_t j=Gv_GetVarX(*insptr++);
                 if ((unsigned)j >= MAXSPRITES)
                 {
-                    OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("invalid sprite ID %d\n", j);
                     continue;
                 }
                 Gv_SetVarX(i,prevspritesect[j]);
@@ -1728,7 +1728,7 @@ skip_check:
                 int32_t j=Gv_GetVarX(*insptr++);
                 if ((unsigned)j >= MAXSPRITES)
                 {
-                    OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("invalid sprite ID %d\n", j);
                     continue;
                 }
                 Gv_SetVarX(i,nextspritesect[j]);
@@ -1743,11 +1743,11 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
 
                 if ((unsigned)i >= MAXQUOTES)
-                    OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],i);
+                    CON_ERRPRINTF("invalid quote ID %d\n", i);
                 else if ((ScriptQuotes[i] == NULL))
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],i);
+                    CON_ERRPRINTF("null quote %d\n", i);
                 else if ((unsigned)f >= NUMGAMEFUNCTIONS)
-                    OSD_Printf(CON_ERROR "invalid function %d\n",g_errorLineNum,keyw[g_tw],f);
+                    CON_ERRPRINTF("invalid function %d\n", f);
                 else
                 {
                     if (j < 2)
@@ -1777,22 +1777,22 @@ skip_check:
 
                 if ((unsigned)q1>=MAXQUOTES)
                 {
-                    OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],q1);
+                    CON_ERRPRINTF("invalid quote ID %d\n", q1);
                     continue;
                 }
                 if ((ScriptQuotes[q1] == NULL))
                 {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q1);
+                    CON_ERRPRINTF("null quote %d\n", q1);
                     continue;
                 }
                 if ((unsigned)q2>=MAXQUOTES)
                 {
-                    OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],q2);
+                    CON_ERRPRINTF("invalid quote ID %d\n", q2);
                     continue;
                 }
                 if ((ScriptQuotes[q2] == NULL))
                 {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q2);
+                    CON_ERRPRINTF("null quote %d\n", q2);
                     continue;
                 }
 
@@ -1832,7 +1832,7 @@ skip_check:
                 case CON_GETPNAME:
                     if ((ScriptQuotes[i] == NULL))
                     {
-                        OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],i);
+                        CON_ERRPRINTF("null quote %d\n", i);
                         break;
                     }
                     if (g_player[j].user_name[0])
@@ -1842,7 +1842,7 @@ skip_check:
                 case CON_QGETSYSSTR:
                     if ((ScriptQuotes[i] == NULL))
                     {
-                        OSD_Printf(CON_ERROR "null quote %d %d\n",g_errorLineNum,keyw[g_tw],i,j);
+                        CON_ERRPRINTF("null quote %d %d\n", i,j);
                         break;
                     }
                     switch (j)
@@ -1867,7 +1867,7 @@ skip_check:
                         Bstrcpy(ScriptQuotes[i],EpisodeNames[ud.volume_number]);
                         break;
                     default:
-                        OSD_Printf(CON_ERROR "unknown str ID %d %d\n",g_errorLineNum,keyw[g_tw],i,j);
+                        CON_ERRPRINTF("unknown str ID %d %d\n", i,j);
                     }
                     break;
                 case CON_QSTRCAT:
@@ -1885,19 +1885,19 @@ skip_check:
                 case CON_CHANGESPRITESECT:
                     if ((unsigned)i >= MAXSPRITES)
                     {
-                        OSD_Printf(CON_ERROR "Invalid sprite %d\n",g_errorLineNum,keyw[g_tw],i);
+                        CON_ERRPRINTF("Invalid sprite %d\n", i);
                         break;
                     }
                     if ((unsigned)j >= (unsigned)numsectors)
                     {
-                        OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],j);
+                        CON_ERRPRINTF("Invalid sector %d\n", j);
                         break;
                     }
                     changespritesect(i,j);
                     break;
                 default:
 nullquote:
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[i] ? j : i);
+                    CON_ERRPRINTF("null quote %d\n", ScriptQuotes[i] ? j : i);
                     break;
                 }
                 continue;
@@ -1911,12 +1911,12 @@ nullquote:
 
                 if ((unsigned)i >= MAXSPRITES)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sprite: %d\n",g_errorLineNum,keyw[g_tw],i);
+                    CON_ERRPRINTF("Invalid sprite: %d\n", i);
                     continue;
                 }
                 if ((unsigned)j >= MAXSTATUS)
                 {
-                    OSD_Printf(CON_ERROR "Invalid statnum: %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("Invalid statnum: %d\n", j);
                     continue;
                 }
                 if (sprite[i].statnum == j) continue;
@@ -1957,13 +1957,13 @@ nullquote:
 
                 if ((volnume > MAXVOLUMES-1 || volnume < 0))
                 {
-                    OSD_Printf(CON_ERROR "invalid volume (%d)\n",g_errorLineNum,keyw[g_tw],volnume);
+                    CON_ERRPRINTF("invalid volume (%d)\n", volnume);
                     continue;
                 }
 
                 if ((levnume > MAXLEVELS-1 || levnume < 0))
                 {
-                    OSD_Printf(CON_ERROR "invalid level (%d)\n",g_errorLineNum,keyw[g_tw],levnume);
+                    CON_ERRPRINTF("invalid level (%d)\n", levnume);
                     continue;
                 }
 
@@ -2101,7 +2101,7 @@ nullquote:
 
                 if ((wallnum<0 || wallnum>=numwalls))
                 {
-                    OSD_Printf(CON_ERROR "Invalid wall %d\n",g_errorLineNum,keyw[g_tw],wallnum);
+                    CON_ERRPRINTF("Invalid wall %d\n", wallnum);
                     continue;
                 }
                 dragpoint(wallnum,newx,newy);
@@ -2115,7 +2115,7 @@ nullquote:
 
                 if ((unsigned)xvar >= MAXSPRITES || (unsigned)yvar >= MAXSPRITES)
                 {
-                    OSD_Printf(CON_ERROR "invalid sprite\n",g_errorLineNum,keyw[g_tw]);
+                    CON_ERRPRINTF("invalid sprite\n");
                     continue;
                 }
 
@@ -2130,7 +2130,7 @@ nullquote:
 
                 if ((unsigned)xvar >= MAXSPRITES || (unsigned)yvar >= MAXSPRITES)
                 {
-                    OSD_Printf(CON_ERROR "invalid sprite\n",g_errorLineNum,keyw[g_tw]);
+                    CON_ERRPRINTF("invalid sprite\n");
                     continue;
                 }
 
@@ -2196,7 +2196,7 @@ nullquote:
                 int32_t j;
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", vm.g_sp->sectnum);
                     continue;
                 }
                 j = A_Spawn(vm.g_i, lIn);
@@ -2226,7 +2226,7 @@ nullquote:
 
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", vm.g_sp->sectnum);
                     insptr++;
                     continue;
                 }
@@ -2266,7 +2266,7 @@ nullquote:
 
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", vm.g_sp->sectnum);
                     insptr++;
                     actor[vm.g_i].shootzvel=0;
                     continue;
@@ -2289,7 +2289,7 @@ nullquote:
 
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", vm.g_sp->sectnum);
                     actor[vm.g_i].shootzvel=0;
                     continue;
                 }
@@ -2315,7 +2315,7 @@ nullquote:
 
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],vm.g_sp->sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", vm.g_sp->sectnum);
                     actor[vm.g_i].shootzvel=0;
                     continue;
                 }
@@ -2342,7 +2342,7 @@ nullquote:
 
                 if (j<0 || j>=MAXSOUNDS)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sound %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("Invalid sound %d\n", j);
                     continue;
                 }
 
@@ -2373,7 +2373,7 @@ nullquote:
                 if (j >= 0 && j < MAXUNIQHUDID-1)
                     guniqhudid = j;
                 else
-                    OSD_Printf(CON_ERROR "Invalid ID %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("Invalid ID %d\n", j);
                 continue;
             }
 
@@ -2453,12 +2453,12 @@ nullquote:
 
                 if ((x1 < 0 || y1 < 0 || x2 >= xdim || y2 >= ydim))
                 {
-                    OSD_Printf(CON_ERROR "incorrect coordinates\n",g_errorLineNum,keyw[g_tw]);
+                    CON_ERRPRINTF("incorrect coordinates\n");
                     continue;
                 }
                 if ((unsigned)sect >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sect);
+                    CON_ERRPRINTF("Invalid sector %d\n", sect);
                     continue;
                 }
 
@@ -2525,13 +2525,13 @@ nullquote:
 
                 if ((unsigned)tilenum >= MAXTILES)
                 {
-                    OSD_Printf(CON_ERROR "invalid tilenum %d\n", g_errorLineNum, keyw[g_tw], tilenum);
+                    CON_ERRPRINTF("invalid tilenum %d\n", tilenum);
                     continue;
                 }
 
                 if (x < -(320<<16) || x >= (640<<16) || y < -(200<<16) || y >= (400<<16))
                 {
-                    OSD_Printf(CON_ERROR "invalid coordinates: %d, %d\n",g_errorLineNum, keyw[g_tw], x, y);
+                    CON_ERRPRINTF("invalid coordinates: %d, %d\n", x, y);
                     continue;
                 }
 
@@ -2555,19 +2555,19 @@ nullquote:
 
                 if (tilenum < 0 || tilenum+255 >= MAXTILES)
                 {
-                    OSD_Printf(CON_ERROR "invalid base tilenum %d\n", g_errorLineNum, keyw[g_tw], tilenum);
+                    CON_ERRPRINTF("invalid base tilenum %d\n", tilenum);
                     continue;
                 }
 
                 if ((unsigned)q >= MAXQUOTES)
                 {
-                    OSD_Printf(CON_ERROR "invalid quote ID %d\n", g_errorLineNum, keyw[g_tw], q);
+                    CON_ERRPRINTF("invalid quote ID %d\n", q);
                     continue;
                 }
 
                 if ((ScriptQuotes[q] == NULL))
                 {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q);
+                    CON_ERRPRINTF("null quote %d\n", q);
                     if (tw == CON_GAMETEXTZ)
                         Gv_GetVarX(*insptr++);
                     continue;
@@ -2594,7 +2594,7 @@ nullquote:
                 // NOTE: '-' not taken into account, but we have rotatesprite() bound check now anyway
                 if (tilenum < 0 || tilenum+9 >= MAXTILES)
                 {
-                    OSD_Printf(CON_ERROR "invalid base tilenum %d\n", g_errorLineNum, keyw[g_tw], tilenum);
+                    CON_ERRPRINTF("invalid base tilenum %d\n", tilenum);
                     continue;
                 }
 
@@ -2612,13 +2612,13 @@ nullquote:
 
                 if ((unsigned)q >= MAXQUOTES)
                 {
-                    OSD_Printf(CON_ERROR "invalid quote ID %d\n", g_errorLineNum, keyw[g_tw], q);
+                    CON_ERRPRINTF("invalid quote ID %d\n", q);
                     continue;
                 }
 
                 if ((ScriptQuotes[q] == NULL))
                 {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q);
+                    CON_ERRPRINTF("null quote %d\n", q);
                     continue;
                 }
                 minitextshade(x,y,ScriptQuotes[q],shade,pal, 2+8+16);
@@ -2648,7 +2648,7 @@ nullquote:
 
                     if ((unsigned)sectnum >= (unsigned)numsectors)
                     {
-                        OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
+                        CON_ERRPRINTF("Invalid sector %d\n", sectnum);
                         continue;
                     }
                     getzrange(&vect, sectnum, &ceilz, &ceilhit, &florz, &florhit, walldist, clipmask);
@@ -2668,7 +2668,7 @@ nullquote:
 
                 if ((unsigned)sectnum >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", sectnum);
                     continue;
                 }
 
@@ -2739,7 +2739,7 @@ nullquote:
 
                 if ((unsigned)sectnum >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", sectnum);
                     Gv_SetVarX(retvar, 0);
                     continue;
                 }
@@ -2774,7 +2774,7 @@ nullquote:
 
                     if ((unsigned)sectnum >= (unsigned)numsectors)
                     {
-                        OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
+                        CON_ERRPRINTF("Invalid sector %d\n", sectnum);
                         continue;
                     }
                     hitscan((const vec3_t *)&vect, sectnum, vx, vy, vz, &hit, cliptype);
@@ -2798,7 +2798,7 @@ nullquote:
 
                 if ((unsigned)sect1 >= (unsigned)numsectors || (unsigned)sect2 >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sector\n",g_errorLineNum,keyw[g_tw]);
+                    CON_ERRPRINTF("Invalid sector\n");
                     Gv_SetVarX(rvar, 0);
                 }
 
@@ -2838,7 +2838,7 @@ nullquote:
 
                 if ((unsigned)sectnum >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", sectnum);
                     continue;
                 }
                 neartag(x, y, z, sectnum, ang, &neartagsector, &neartagwall, &neartagsprite,
@@ -2888,7 +2888,7 @@ nullquote:
                 {
                     if ((unsigned)spritenum >= MAXSPRITES)
                     {
-                        OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],spritenum);
+                        CON_ERRPRINTF("invalid sprite ID %d\n", spritenum);
                         continue;
                     }
                     setsprite(spritenum, &davector);
@@ -2900,7 +2900,7 @@ nullquote:
 
                     if ((unsigned)spritenum >= MAXSPRITES)
                     {
-                        OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],spritenum);
+                        CON_ERRPRINTF("invalid sprite ID %d\n", spritenum);
                         insptr++;
                         continue;
                     }
@@ -2916,7 +2916,7 @@ nullquote:
                 int32_t sectnum = Gv_GetVarX(*insptr++), x = Gv_GetVarX(*insptr++), y = Gv_GetVarX(*insptr++);
                 if ((unsigned)sectnum >= (unsigned)numsectors)
                 {
-                    OSD_Printf(CON_ERROR "Invalid sector %d\n",g_errorLineNum,keyw[g_tw],sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", sectnum);
                     insptr++;
                     continue;
                 }
@@ -3209,7 +3209,7 @@ nullquote:
                 ps->inv_amount[GET_BOOTS] = *insptr;
                 break;
             default:
-                OSD_Printf(CON_ERROR "Invalid inventory ID %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*(insptr-1));
+                CON_ERRPRINTF("Invalid inventory ID %d\n", (int32_t)*(insptr-1));
                 break;
             }
             insptr++;
@@ -3332,7 +3332,7 @@ nullquote:
                 int32_t j = Gv_GetVarX(*insptr++);
                 if ((unsigned)j >= MAXVOLUMES*MAXLEVELS)
                 {
-                    OSD_Printf(CON_ERROR "Invalid map number: %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("Invalid map number: %d\n", j);
                     continue;
                 }
                 if (MapInfo[j].savedstate)
@@ -3436,7 +3436,7 @@ nullquote:
             insptr++;
             if ((unsigned)vm.g_p >= (unsigned)playerswhenstarted)
             {
-                OSD_Printf(CON_ERROR "invalid player ID %d\n",g_errorLineNum,keyw[g_tw],vm.g_p);
+                CON_ERRPRINTF("invalid player ID %d\n", vm.g_p);
                 insptr += 4;
             }
             else
@@ -3462,7 +3462,7 @@ nullquote:
                 int32_t dq = Gv_GetVarX(*insptr++), sq = Gv_GetVarX(*insptr++);
                 if ((ScriptQuotes[sq] == NULL || ScriptQuotes[dq] == NULL))
                 {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],ScriptQuotes[sq] ? dq : sq);
+                    CON_ERRPRINTF("null quote %d\n", ScriptQuotes[sq] ? dq : sq);
 
                     while ((*insptr & 0xFFF) != CON_NULLOP)
                         Gv_GetVarX(*insptr++);
@@ -3584,7 +3584,7 @@ nullquote:
                         }
                         else
                         {
-                            OSD_Printf(CON_ERROR "invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                            CON_ERRPRINTF("invalid array index\n");
                             continue;
                         }
                     }
@@ -3598,7 +3598,7 @@ nullquote:
                             insptr = oinsptr;
                             if ((unsigned)index >= MAXSPRITES-1)
                             {
-                                OSD_Printf(CON_ERROR "invalid array index\n",g_errorLineNum,keyw[g_tw]);
+                                CON_ERRPRINTF("invalid array index\n");
                                 Gv_GetVarX(*insptr++);
                                 continue;
                             }
@@ -3615,7 +3615,7 @@ nullquote:
                     {
                         // invalid varID
                         insptr++;
-                        OSD_Printf(CON_ERROR "invalid variable\n",g_errorLineNum,keyw[g_tw]);
+                        CON_ERRPRINTF("invalid variable\n");
                         continue;  // out of switch
                     }
                 }
@@ -3995,7 +3995,7 @@ nullquote:
 
                 if ((unsigned)lSprite >= MAXSPRITES)
                 {
-                    OSD_Printf(CON_ERROR "invalid sprite ID %d\n",g_errorLineNum,keyw[g_tw],lSprite);
+                    CON_ERRPRINTF("invalid sprite ID %d\n", lSprite);
                     if (lVar1 == MAXGAMEVARS || lVar1 & ((MAXGAMEVARS<<2)|(MAXGAMEVARS<<3))) insptr++;
                     if (lVar2 == MAXGAMEVARS || lVar2 & ((MAXGAMEVARS<<2)|(MAXGAMEVARS<<3))) insptr++;
                     continue;
@@ -4025,7 +4025,7 @@ nullquote:
 
                     if ((unsigned)iPlayer >= (unsigned)playerswhenstarted)
                     {
-                        OSD_Printf(CON_ERROR "invalid player ID %d\n",g_errorLineNum,keyw[g_tw],iPlayer);
+                        CON_ERRPRINTF("invalid player ID %d\n", iPlayer);
                         if (lVar1 == MAXGAMEVARS || lVar1 & ((MAXGAMEVARS<<2)|(MAXGAMEVARS<<3))) insptr++;
                         if (lVar2 == MAXGAMEVARS || lVar2 & ((MAXGAMEVARS<<2)|(MAXGAMEVARS<<3))) insptr++;
                         continue;
@@ -4121,7 +4121,7 @@ nullquote:
 
                 if ((unsigned)j >= (unsigned)playerswhenstarted)
                 {
-                    OSD_Printf(CON_ERROR "Invalid player ID %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("Invalid player ID %d\n", j);
                     continue;
                 }
 
@@ -4190,7 +4190,7 @@ nullquote:
 
                     if (ScriptQuotes[q] == NULL)
                     {
-                        OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],q);
+                        CON_ERRPRINTF("null quote %d\n", q);
                         continue;
                     }
 
@@ -4223,14 +4223,14 @@ nullquote:
 
                         if (G_ModDirSnprintf(temp, sizeof(temp), "%s", ScriptQuotes[q]))
                         {
-                            OSD_Printf(CON_ERROR "file name too long\n",g_errorLineNum,keyw[g_tw]);
+                            CON_ERRPRINTF("file name too long\n");
                             continue;
                         }
 
                         fil = fopen(temp,"wb");
                         if (fil == NULL)
                         {
-                            OSD_Printf(CON_ERROR "couldn't open file",g_errorLineNum,keyw[g_tw]);
+                            CON_ERRPRINTF("couldn't open file");
                             continue;
                         }
 
@@ -4314,7 +4314,7 @@ nullquote:
             insptr++;
             if (*(insptr+1) == 0)
             {
-                OSD_Printf(CON_ERROR "divide by zero!\n",g_errorLineNum,keyw[g_tw]);
+                CON_ERRPRINTF("divide by zero!\n");
                 insptr += 2;
                 continue;
             }
@@ -4326,7 +4326,7 @@ nullquote:
             insptr++;
             if (*(insptr+1) == 0)
             {
-                OSD_Printf(CON_ERROR "mod by zero!\n",g_errorLineNum,keyw[g_tw]);
+                CON_ERRPRINTF("mod by zero!\n");
                 insptr += 2;
                 continue;
             }
@@ -4389,7 +4389,7 @@ nullquote:
                 int32_t j=Gv_GetVarX(*insptr++);
                 if ((unsigned)j>=MAX_WEAPONS)
                 {
-                    OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("Invalid weapon ID %d\n", j);
                     insptr++;
                     continue;
                 }
@@ -4403,7 +4403,7 @@ nullquote:
                 int32_t j=Gv_GetVarX(*insptr++);
                 if ((unsigned)j>=MAX_WEAPONS)
                 {
-                    OSD_Printf(CON_ERROR "Invalid weapon ID %d\n",g_errorLineNum,keyw[g_tw],j);
+                    CON_ERRPRINTF("Invalid weapon ID %d\n", j);
                     insptr++;
                     continue;
                 }
@@ -4428,7 +4428,7 @@ nullquote:
 
                 if (!l2)
                 {
-                    OSD_Printf(CON_ERROR "divide by zero!\n",g_errorLineNum,keyw[g_tw]);
+                    CON_ERRPRINTF("divide by zero!\n");
                     continue;
                 }
 
@@ -4444,7 +4444,7 @@ nullquote:
 
                 if (!l2)
                 {
-                    OSD_Printf(CON_ERROR "mod by zero!\n",g_errorLineNum,keyw[g_tw]);
+                    CON_ERRPRINTF("mod by zero!\n");
                     continue;
                 }
 
@@ -4573,7 +4573,7 @@ nullquote:
             else g_musicIndex=(ud.volume_number*MAXLEVELS)+(Gv_GetVarX(*(insptr++)));
             if (MapInfo[g_musicIndex].musicfn == NULL)
             {
-                OSD_Printf(CON_ERROR "null music for map %d\n",g_errorLineNum,keyw[g_tw],g_musicIndex);
+                CON_ERRPRINTF("null music for map %d\n", g_musicIndex);
                 continue;
             }
             S_PlayMusic(&MapInfo[g_musicIndex].musicfn[0],g_musicIndex);
@@ -4585,7 +4585,7 @@ nullquote:
                 int32_t j=Gv_GetVarX(*(insptr++));
                 if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
                 {
-                    OSD_Printf(CON_ERROR "not in a single-player game.\n",g_errorLineNum,keyw[g_tw]);
+                    CON_ERRPRINTF("not in a single-player game.\n");
                     continue;
                 }
                 osdcmd_cheatsinfo_stat.cheatnum = j;
@@ -4830,7 +4830,7 @@ nullquote:
                     if (ps->inv_amount[GET_BOOTS] != *insptr) j = 1;
                     break;
                 default:
-                    OSD_Printf(CON_ERROR "invalid inventory ID: %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*(insptr-1));
+                    CON_ERRPRINTF("invalid inventory ID: %d\n", (int32_t)*(insptr-1));
                 }
 
                 VM_CONDITIONAL(j);
@@ -4895,21 +4895,21 @@ nullquote:
 
             if ((unsigned)(*insptr) >= MAXQUOTES)
             {
-                OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],(int32_t)(*insptr));
+                CON_ERRPRINTF("invalid quote ID %d\n", (int32_t)(*insptr));
                 insptr++;
                 continue;
             }
 
             if ((ScriptQuotes[*insptr] == NULL))
             {
-                OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr);
+                CON_ERRPRINTF("null quote %d\n", (int32_t)*insptr);
                 insptr++;
                 continue;
             }
 
             if ((unsigned)vm.g_p >= MAXPLAYERS)
             {
-                OSD_Printf(CON_ERROR "bad player for quote %d: (%d)\n",g_errorLineNum,keyw[g_tw],(int32_t)*insptr,vm.g_p);
+                CON_ERRPRINTF("bad player for quote %d: (%d)\n", (int32_t)*insptr,vm.g_p);
                 insptr++;
                 continue;
             }
@@ -4924,14 +4924,14 @@ nullquote:
 
                 if ((unsigned)i >= MAXQUOTES)
                 {
-                    OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],i);
+                    CON_ERRPRINTF("invalid quote ID %d\n", i);
                     insptr++;
                     continue;
                 }
 
                 if ((ScriptQuotes[i] == NULL))
                 {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],i);
+                    CON_ERRPRINTF("null quote %d\n", i);
                     continue;
                 }
                 G_AddUserQuote(ScriptQuotes[i]);
@@ -4945,14 +4945,14 @@ nullquote:
 
                 if ((unsigned)i >= MAXQUOTES)
                 {
-                    OSD_Printf(CON_ERROR "invalid quote ID %d\n",g_errorLineNum,keyw[g_tw],i);
+                    CON_ERRPRINTF("invalid quote ID %d\n", i);
                     insptr++;
                     continue;
                 }
 
                 if ((ScriptQuotes[i] == NULL))
                 {
-                    OSD_Printf(CON_ERROR "null quote %d\n",g_errorLineNum,keyw[g_tw],i);
+                    CON_ERRPRINTF("null quote %d\n", i);
                     continue;
                 }
                 OSD_Printf("%s\n",ScriptQuotes[i]);

@@ -149,4 +149,8 @@ void Gv_RefreshPointers(void);
 int32_t VM_OnEvent(int32_t iEventID,int32_t iActor,int32_t iPlayer,int32_t lDist, int32_t iReturn);
 void VM_ScriptInfo(void);
 
+#define CON_ERRPRINTF(Text, ...) do { \
+        OSD_Printf("Line %d, %s: " Text, g_errorLineNum, keyw[g_tw], ## __VA_ARGS__); \
+    } while (0)
+
 #endif
