@@ -78,25 +78,25 @@ void Demo_PrepareWarp(void)
 
 static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
 {
-    char demofn[14];
     int32_t i;
-
     savehead_t saveh;
 
-    Bstrcpy(demofn, "edemo_.edm");
+    char demofn[14];
+    const char *demofnptr;
 
-    if (g_whichDemo == 10)
-        demofn[5] = 'x';
-    else
-        demofn[5] = '0' + g_whichDemo;
-
+    if (g_whichDemo == 1 && g_firstDemoFile[0])
     {
-        char *demofnptr = (g_whichDemo == 1 && g_firstDemoFile[0]) ? g_firstDemoFile : demofn;
-
-        g_demo_recFilePtr = kopen4loadfrommod(demofnptr, g_loadFromGroupOnly);
-        if (g_demo_recFilePtr == -1)
-            return 0;
+        demofnptr = g_firstDemoFile;
     }
+    else
+    {
+        Bsprintf(demofn, "edemo%03d.edm", g_whichDemo);
+        demofnptr = demofn;
+    }
+
+    g_demo_recFilePtr = kopen4loadfrommod(demofnptr, g_loadFromGroupOnly);
+    if (g_demo_recFilePtr == -1)
+        return 0;
 
     Bassert(g_whichDemo >= 1);
     i = sv_loadsnapshot(g_demo_recFilePtr, -g_whichDemo, &saveh);
@@ -175,10 +175,10 @@ void G_OpenDemoWrite(void)
 
         do
         {
-            if (demonum == 10000)
+            if (demonum == 1000)
                 return;
 
-            if (G_ModDirSnprintf(demofn, sizeof(demofn), "edemo%d.edm", demonum))
+            if (G_ModDirSnprintf(demofn, sizeof(demofn), "edemo%03d.edm", demonum))
             {
                 initprintf("Couldn't start demo writing: INTERNAL ERROR: file name too long\n");
                 goto error_wopen_demo;
@@ -215,7 +215,7 @@ error_wopen_demo:
         demo_synccompress = demorec_synccompress_cvar;
         demorec_difftics = demorec_difftics_cvar;
 
-        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "DEMO RECORDING STARTED");
+        Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "DEMO %d RECORDING STARTED", demonum-1);
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
         ud.reccnt = 0;
@@ -398,7 +398,7 @@ RECHECK:
     {
         ud.recstat = 2;
         g_whichDemo++;
-        if (g_whichDemo == 10)
+        if (g_whichDemo == 1000)
             g_whichDemo = 1;
 
         g_player[myconnectindex].ps->gm &= ~MODE_GAME;
