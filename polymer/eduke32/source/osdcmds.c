@@ -136,7 +136,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
     if (g_player[myconnectindex].ps->gm & MODE_GAME)
     {
         // in-game behave like a cheat
-        osdcmd_cheatsinfo_stat.cheatnum = 2;
+        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_SCOTTY;
         osdcmd_cheatsinfo_stat.volume   = volume;
         osdcmd_cheatsinfo_stat.level    = level;
     }
@@ -298,7 +298,7 @@ static int32_t osdcmd_god(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
-        osdcmd_cheatsinfo_stat.cheatnum = 0;
+        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_CORNHOLIO;
     else
         OSD_Printf("god: Not in a single-player game.\n");
 
@@ -310,7 +310,7 @@ static int32_t osdcmd_noclip(const osdfuncparm_t *parm)
     UNREFERENCED_PARAMETER(parm);
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
     {
-        osdcmd_cheatsinfo_stat.cheatnum = 20;
+        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_CLIP;
     }
     else
     {
@@ -644,7 +644,7 @@ static int32_t osdcmd_give(const osdfuncparm_t *parm)
 
     if (!Bstrcasecmp(parm->parms[0], "all"))
     {
-        osdcmd_cheatsinfo_stat.cheatnum = 1;
+        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_STUFF;
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "health"))
@@ -654,7 +654,7 @@ static int32_t osdcmd_give(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->parms[0], "weapons"))
     {
-        osdcmd_cheatsinfo_stat.cheatnum = 21;
+        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_WEAPONS;
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "ammo"))
@@ -670,12 +670,12 @@ static int32_t osdcmd_give(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->parms[0], "keys"))
     {
-        osdcmd_cheatsinfo_stat.cheatnum = 23;
+        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_KEYS;
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "inventory"))
     {
-        osdcmd_cheatsinfo_stat.cheatnum = 22;
+        osdcmd_cheatsinfo_stat.cheatnum = CHEAT_INVENTORY;
         return OSDCMD_OK;
     }
     return OSDCMD_SHOWHELP;

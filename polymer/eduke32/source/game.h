@@ -371,6 +371,40 @@ enum {
     ST_31_TWO_WAY_TRAIN = 31,
 };
 
+// Cheats
+// KEEPINSYNC game.c: char CheatStrings[][]
+enum cheatindex_t
+{
+    CHEAT_CORNHOLIO,  // 0
+    CHEAT_STUFF,
+    CHEAT_SCOTTY,
+    CHEAT_COORDS,
+    CHEAT_VIEW,
+    CHEAT_TIME,  // 5
+    CHEAT_UNLOCK,
+    CHEAT_CASHMAN,
+    CHEAT_ITEMS,
+    CHEAT_RATE,
+    CHEAT_SKILL,  // 10
+    CHEAT_BETA,
+    CHEAT_HYPER,
+    CHEAT_MONSTERS,
+    CHEAT_RESERVED,
+    CHEAT_RESERVED2,  // 15
+    CHEAT_TODD,
+    CHEAT_SHOWMAP,
+    CHEAT_KROZ,
+    CHEAT_ALLEN,
+    CHEAT_CLIP,  // 20
+    CHEAT_WEAPONS,
+    CHEAT_INVENTORY,
+    CHEAT_KEYS,
+    CHEAT_DEBUG,
+    CHEAT_RESERVED3,  // 25
+    CHEAT_COMEGETSOME,
+};
+
+
 # define G_ModDirSnprintf(buf, size, basename, ...) \
 ( \
     ( \
