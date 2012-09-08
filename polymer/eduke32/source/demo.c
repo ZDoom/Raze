@@ -227,6 +227,12 @@ error_wopen_demo:
         g_demo_cnt = 1;
 }
 
+static int32_t g_demo_playFirstFlag = 0;
+void Demo_PlayFirst(void)
+{
+    g_demo_playFirstFlag = 1;
+}
+
 
 static uint8_t g_demo_seedbuf[RECSYNCBUFSIZ];
 
@@ -379,6 +385,8 @@ RECHECK:
 
     if (foundemo == 0)
     {
+        ud.recstat = 0;
+
         if (g_whichDemo > 1)
         {
             g_whichDemo = 1;
@@ -397,6 +405,7 @@ RECHECK:
     else
     {
         ud.recstat = 2;
+
         g_whichDemo++;
         if (g_whichDemo == 1000)
             g_whichDemo = 1;
@@ -433,17 +442,25 @@ RECHECK:
         // so maybe a better name for this function would be
         // G_MainLoopWhenNotInGame()?
 
+        // Demo requested from the OSD, its name is in g_firstDemoFile[]
+        if (g_demo_playFirstFlag)
+        {
+            g_demo_playFirstFlag = 0;
+            g_whichDemo = 1;  // force g_firstDemoFile[]
+            goto nextdemo_nomenu;
+        }
+
         if (foundemo && (!g_demo_paused || g_demo_goalCnt))
         {
             if (g_demo_goalCnt>0 && g_demo_goalCnt < g_demo_cnt)
             {
-                // initialize rewind or fast-forward
+                // initialize rewind
 
                 int32_t menu = g_player[myconnectindex].ps->gm&MODE_MENU;
 
                 if (g_demo_goalCnt > lastsynctic)
                 {
-                    // fast-forward
+                    // we can use a previous diff
                     if (Demo_UpdateState(0)==0)
                     {
                         g_demo_cnt = lastsynctic;
@@ -547,10 +564,11 @@ RECHECK:
 corrupt:
                         OSD_Printf(OSD_ERROR "Demo %d is corrupt (code %d).\n", g_whichDemo-1, corruptcode);
 nextdemo:
+                        g_player[myconnectindex].ps->gm |= MODE_MENU;
+nextdemo_nomenu:
                         foundemo = 0;
                         ud.reccnt = 0;
                         kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
-                        g_player[myconnectindex].ps->gm |= MODE_MENU;
 
                         if (g_demo_goalCnt>0)
                         {
@@ -716,6 +734,7 @@ nextdemo:
         if (g_player[myconnectindex].ps->gm&MODE_TYPE)
         {
             Net_EnterMessage();
+
             if ((g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
                 g_player[myconnectindex].ps->gm = MODE_MENU;
         }
@@ -723,6 +742,7 @@ nextdemo:
         {
             if (ud.recstat != 2)
                 M_DisplayMenus();
+
             if ((g_netServer || ud.multimode > 1)  && g_currentMenu != 20003 && g_currentMenu != 20005 && g_currentMenu != 210)
             {
                 ControlInfo noshareinfo;
@@ -754,7 +774,7 @@ nextdemo:
 
         G_HandleAsync();
 
-        if (!ud.recstat)
+        if (ud.recstat==0)
             nextpage();
 
         if (g_player[myconnectindex].ps->gm == MODE_GAME)

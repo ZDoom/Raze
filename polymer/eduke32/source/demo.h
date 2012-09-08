@@ -48,6 +48,8 @@ void G_CloseDemoWrite(void);
 void G_DemoRecord(void);
 void G_OpenDemoWrite(void);
 
+void Demo_PlayFirst(void);
+
 #if KRANDDEBUG
 int32_t krd_print(const char *filename);
 void krd_enable(int32_t which);

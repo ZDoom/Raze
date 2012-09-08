@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 #include "osdfuncs.h"
 #include "gamedef.h"
+#include "demo.h"  // g_firstDemoFile[]
 #include "common.h"
 
 #include <ctype.h>
@@ -211,14 +212,6 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
     }
 
-#if 0
-    if (numplayers > 1)
-    {
-        OSD_Printf("Command not allowed in multiplayer\n");
-        return OSDCMD_OK;
-    }
-#endif
-
     maybe_append_ext(filename, sizeof(filename), parm->parms[0], ".map");
 
     if ((i = kopen4loadfrommod(filename,0)) < 0)
@@ -294,6 +287,39 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static int32_t osdcmd_demo(const osdfuncparm_t *parm)
+{
+    if (numplayers > 1)
+    {
+        OSD_Printf("Command not allowed in multiplayer\n");
+        return OSDCMD_OK;
+    }
+
+    if (g_player[myconnectindex].ps->gm & MODE_GAME)
+    {
+        OSD_Printf("demo: Must not be in a game.\n");
+        return OSDCMD_OK;
+    }
+
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
+    {
+        char *tailptr;
+        const char *demostr = parm->parms[0];
+        int32_t i = Bstrtol(demostr, &tailptr, 10);
+
+        if (tailptr!=demostr && i>=0 && i<=999)  // demo number passed
+            Bsprintf(g_firstDemoFile, "edemo%03d.edm", i);
+        else  // demo file name passed
+            maybe_append_ext(g_firstDemoFile, sizeof(g_firstDemoFile), parm->parms[0], ".edm");
+
+        Demo_PlayFirst();
+    }
+
+    return OSDCMD_OK;
+}
+
 static int32_t osdcmd_god(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
@@ -308,6 +334,7 @@ static int32_t osdcmd_god(const osdfuncparm_t *parm)
 static int32_t osdcmd_noclip(const osdfuncparm_t *parm)
 {
     UNREFERENCED_PARAMETER(parm);
+
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
     {
         osdcmd_cheatsinfo_stat.cheatnum = CHEAT_CLIP;
@@ -1474,6 +1501,7 @@ int32_t registerosdcommands(void)
     {
         OSD_RegisterFunction("changelevel","changelevel <volume> <level>: warps to the given level", osdcmd_changelevel);
         OSD_RegisterFunction("map","map <mapfile>: loads the given user map", osdcmd_map);
+        OSD_RegisterFunction("demo","demo <demofile or demonum>: starts the given demo", osdcmd_demo);
     }
 
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
