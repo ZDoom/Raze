@@ -40,7 +40,6 @@ extern int32_t g_demo_paused;
 extern int32_t g_demo_recFilePtr;
 extern int32_t g_demo_rewind;
 extern int32_t g_demo_showStats;
-extern int32_t g_demo_soundToggle;
 extern int32_t g_demo_totalCnt;
 
 int32_t G_PlaybackDemo(void);

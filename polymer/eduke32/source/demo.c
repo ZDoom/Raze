@@ -29,15 +29,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 char g_firstDemoFile[BMAX_PATH];
 
-FILE *g_demo_filePtr = (FILE *)NULL;
+FILE *g_demo_filePtr = (FILE *)NULL;  // write
+int32_t g_demo_recFilePtr = -1;  // read
+
 int32_t g_demo_cnt;
 int32_t g_demo_goalCnt=0;
 int32_t g_demo_totalCnt;
-int32_t g_demo_soundToggle;
 int32_t g_demo_paused=0;
 int32_t g_demo_rewind=0;
 int32_t g_demo_showStats=1;
-int32_t g_demo_recFilePtr = -1;
+static int32_t g_demo_soundToggle;
 
 static int32_t demo_hasdiffs, demorec_diffs=1, demorec_difftics = 2*(TICRATE/TICSPERFRAME);
 int32_t demoplay_diffs=1;
@@ -69,6 +70,7 @@ void Demo_PrepareWarp(void)
         g_demo_soundToggle = ud.config.SoundToggle;
         ud.config.SoundToggle = 0;
     }
+
     FX_StopAllSounds();
     S_ClearSoundLocks();
 }
@@ -115,7 +117,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     i = g_demo_totalCnt/(TICRATE/TICSPERFRAME);
     OSD_Printf("demo %d duration: %d min %d sec\n", g_whichDemo, i/60, i%60);
 
-    g_demo_cnt=1;
+    g_demo_cnt = 1;
     ud.reccnt = 0;
 
     ud.god = ud.cashman = ud.eog = ud.showallmap = 0;
@@ -350,7 +352,7 @@ static int32_t Demo_ReadSync(int32_t errcode)
 
 int32_t G_PlaybackDemo(void)
 {
-    int32_t bigi, j, k, initsyncofs = 0, lastsyncofs = 0, lastsynctic = 0, lastsyncclock = 0;
+    int32_t bigi, j, initsyncofs = 0, lastsyncofs = 0, lastsynctic = 0, lastsyncclock = 0;
     int32_t foundemo = 0, corruptcode, outofsync=0;
     static int32_t in_menu = 0;
     //    static int32_t tmpdifftime=0;
@@ -402,12 +404,6 @@ RECHECK:
         g_player[myconnectindex].ps->gm &= ~MODE_GAME;
         g_player[myconnectindex].ps->gm |= MODE_DEMO;
 
-        //        if (G_EnterLevel(MODE_DEMO))
-        //        {
-        //            OSD_Printf("G_PlaybackDemo: G_EnterLevel\n");
-        //            ud.recstat = foundemo = 0;
-        //        }
-        //
         lastsyncofs = ktell(g_demo_recFilePtr);
         initsyncofs = lastsyncofs;
         lastsynctic = g_demo_cnt;
@@ -433,13 +429,21 @@ RECHECK:
     //    OSD_Printf("ticcnt=%d, total=%d\n", g_demo_cnt, g_demo_totalCnt);
     while (g_demo_cnt < g_demo_totalCnt || foundemo==0)
     {
+        // Main loop here. It also runs when there's no demo to show,
+        // so maybe a better name for this function would be
+        // G_MainLoopWhenNotInGame()?
+
         if (foundemo && (!g_demo_paused || g_demo_goalCnt))
         {
-            if (g_demo_goalCnt>0 && g_demo_goalCnt < g_demo_cnt)  // rewind
+            if (g_demo_goalCnt>0 && g_demo_goalCnt < g_demo_cnt)
             {
-                k = g_player[myconnectindex].ps->gm&MODE_MENU;
+                // initialize rewind or fast-forward
+
+                int32_t menu = g_player[myconnectindex].ps->gm&MODE_MENU;
+
                 if (g_demo_goalCnt > lastsynctic)
                 {
+                    // fast-forward
                     if (Demo_UpdateState(0)==0)
                     {
                         g_demo_cnt = lastsynctic;
@@ -452,8 +456,8 @@ RECHECK:
                 }
                 else
                 {
-                    j = Demo_UpdateState(1);
-                    if (!j)
+                    // update to initial state
+                    if (Demo_UpdateState(1) == 0)
                     {
                         klseek(g_demo_recFilePtr, initsyncofs, SEEK_SET);
                         g_levelTextTime = 0;
@@ -469,7 +473,7 @@ RECHECK:
                     else CORRUPT(0);
                 }
 
-                Demo_RestoreModes(k);
+                Demo_RestoreModes(menu);
             }
 
             while (totalclock >= (lockclock+TICSPERFRAME)
@@ -478,6 +482,9 @@ RECHECK:
             {
                 if (ud.reccnt<=0)
                 {
+                    // Record count reached zero (or <0, corrupted), need
+                    // reading another chunk.
+
                     char tmpbuf[4];
 
                     if (ud.reccnt<0)
@@ -500,7 +507,8 @@ RECHECK:
 
                     else if (demo_hasdiffs && Bmemcmp(tmpbuf, "dIfF", 4)==0)
                     {
-                        k=sv_readdiff(g_demo_recFilePtr);
+                        int32_t k = sv_readdiff(g_demo_recFilePtr);
+
                         if (k)
                         {
                             OSD_Printf("sv_readdiff() returned %d.\n", k);
@@ -543,11 +551,13 @@ nextdemo:
                         ud.reccnt = 0;
                         kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
                         g_player[myconnectindex].ps->gm |= MODE_MENU;
+
                         if (g_demo_goalCnt>0)
                         {
                             g_demo_goalCnt=0;
                             ud.config.SoundToggle = g_demo_soundToggle;
                         }
+
                         goto RECHECK;
                     }
                 }
@@ -561,6 +571,7 @@ nextdemo:
                     bigi++;
                     ud.reccnt--;
                 }
+
                 g_demo_cnt++;
 
                 if (!g_demo_paused)
@@ -574,7 +585,7 @@ nextdemo:
                 }
                 else
                 {
-                    k = ud.config.SoundToggle;
+                    int32_t k = ud.config.SoundToggle;
                     ud.config.SoundToggle = 0;
                     G_DoMoveThings();
                     ud.config.SoundToggle = k;
@@ -584,10 +595,11 @@ nextdemo:
 
                 if (g_demo_goalCnt > 0)
                 {
+                    // if fast-forwarding, we must update totalclock
                     totalclock += TICSPERFRAME;
 
-                    //                    OSD_Printf("t:%d, l+T:%d; cnt:%d, goal:%d%s", totalclock, (lockclock+TICSPERFRAME),
-                    //                               g_demo_cnt, g_demo_goalCnt, g_demo_cnt>=g_demo_goalCnt?" ":"\n");
+//                    OSD_Printf("t:%d, l+T:%d; cnt:%d, goal:%d%s", totalclock, (lockclock+TICSPERFRAME),
+//                               g_demo_cnt, g_demo_goalCnt, g_demo_cnt>=g_demo_goalCnt?" ":"\n");
                     if (g_demo_cnt>=g_demo_goalCnt)
                     {
                         g_demo_goalCnt = 0;
@@ -601,7 +613,7 @@ nextdemo:
             totalclock = lockclock;
         }
 
-        if (foundemo == 0)   // XXX: not better "demo is playing"?
+        if (foundemo == 0)
         {
             G_DrawBackground();
         }
@@ -653,14 +665,16 @@ nextdemo:
 
                 if (g_demo_showStats)
                 {
-                    //                    if (g_demo_cnt<tmpdifftime)
-                    //                        gametext(160,100,"DIFF",0,2+8+16);
-                    //                    {
-                    //                        char buf[32];
-                    //                        Bsprintf(buf, "RC:%4d  TC:%5d", ud.reccnt, g_demo_cnt);
-                    //                        gametext(160,100,buf,0,2+8+16);
-                    //                    }
+#if 0
+                    if (g_demo_cnt<tmpdifftime)
+                        gametext(160,100,"DIFF",0,2+8+16);
 
+                    {
+                        char buf[32];
+                        Bsprintf(buf, "RC:%4d  TC:%5d", ud.reccnt, g_demo_cnt);
+                        gametext(160,100,buf,0,2+8+16);
+                    }
+#endif
                     j=g_demo_cnt/(TICRATE/TICSPERFRAME);
                     Bsprintf(buf, "%02d:%02d", j/60, j%60);
                     gametext(18,16,buf,0,2+8+16+1024);
@@ -745,6 +759,8 @@ nextdemo:
 
         if (g_player[myconnectindex].ps->gm == MODE_GAME)
         {
+            // user wants to play a game, quit showing demo!
+
             if (foundemo)
             {
 #if KRANDDEBUG
@@ -752,6 +768,7 @@ nextdemo:
 #endif
                 kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
             }
+
             return 0;
         }
     }
@@ -759,10 +776,16 @@ nextdemo:
     ud.multimode = numplayers;  // fixes 2 infinite loops after watching demo
     kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
 
-    if (g_player[myconnectindex].ps->gm&MODE_MENU) goto RECHECK;
+    // if we're in the menu, try next demo immediately
+    if (g_player[myconnectindex].ps->gm&MODE_MENU)
+        goto RECHECK;
+
 #if KRANDDEBUG
     if (foundemo)
         krd_print("krandplay.log");
 #endif
+
+    // finished playing a demo and not in menu:
+    // return so that e.g. the title can be shown
     return 1;
 }
