@@ -40,11 +40,11 @@ int32_t g_demo_rewind=0;
 int32_t g_demo_showStats=1;
 static int32_t g_demo_soundToggle;
 
-static int32_t demo_hasdiffs, demorec_diffs=1, demorec_difftics = 2*(TICRATE/TICSPERFRAME);
+static int32_t demo_hasdiffs, demorec_diffs=1, demorec_difftics = 2*REALGAMETICSPERSEC;
 int32_t demoplay_diffs=1;
 int32_t demorec_diffs_cvar=1;
 int32_t demorec_force_cvar=0;
-int32_t demorec_difftics_cvar = 2*(TICRATE/TICSPERFRAME);
+int32_t demorec_difftics_cvar = 2*REALGAMETICSPERSEC;
 int32_t demorec_diffcompress_cvar=1;
 int32_t demorec_synccompress_cvar=1;
 int32_t demorec_seeds_cvar=1;
@@ -114,7 +114,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     demo_hasseeds = demo_synccompress&2;
     demo_synccompress &= 1;
 
-    i = g_demo_totalCnt/(TICRATE/TICSPERFRAME);
+    i = g_demo_totalCnt/REALGAMETICSPERSEC;
     OSD_Printf("demo %d duration: %d min %d sec\n", g_whichDemo, i/60, i%60);
 
     g_demo_cnt = 1;
@@ -494,7 +494,7 @@ RECHECK:
             }
 
             while (totalclock >= (lockclock+TICSPERFRAME)
-                //                   || (ud.reccnt > (TICRATE/TICSPERFRAME)*2 && ud.pause_on)
+                //                   || (ud.reccnt > REALGAMETICSPERSEC*2 && ud.pause_on)
                 || (g_demo_goalCnt>0 && g_demo_cnt<g_demo_goalCnt))
             {
                 if (ud.reccnt<=0)
@@ -642,8 +642,6 @@ nextdemo_nomenu:
 
             G_HandleLocalKeys();
 
-            //            j = min(max((totalclock-lockclock)*(65536/TICSPERFRAME),0),65536);
-
             if (framewaiting)
             {
                 framewaiting--;
@@ -666,7 +664,7 @@ nextdemo_nomenu:
 
                 nextrender += g_frameDelay;
 
-                j = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
+                j = calc_smoothratio(totalclock, ototalclock);
                 if (g_demo_paused && g_demo_rewind)
                     j = 65536-j;
 
@@ -693,7 +691,7 @@ nextdemo_nomenu:
                         gametext(160,100,buf,0,2+8+16);
                     }
 #endif
-                    j=g_demo_cnt/(TICRATE/TICSPERFRAME);
+                    j=g_demo_cnt/REALGAMETICSPERSEC;
                     Bsprintf(buf, "%02d:%02d", j/60, j%60);
                     gametext(18,16,buf,0,2+8+16+1024);
 
@@ -705,7 +703,7 @@ nextdemo_nomenu:
                     j = (182<<16) - ((((120*(g_demo_totalCnt-g_demo_cnt))<<4)/g_demo_totalCnt)<<12);
                     rotatesprite_fs(j,(16<<16)+(1<<15),32768,0,SLIDEBAR+1,0,0,2+8+16+1024);
 
-                    j=(g_demo_totalCnt-g_demo_cnt)/(TICRATE/TICSPERFRAME);
+                    j=(g_demo_totalCnt-g_demo_cnt)/REALGAMETICSPERSEC;
                     Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, g_demo_paused?"   ^15PAUSED":"");
                     gametext(194,16,buf,0,2+8+16+1024);
                 }

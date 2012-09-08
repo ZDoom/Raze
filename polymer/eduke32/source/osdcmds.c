@@ -1403,7 +1403,7 @@ int32_t registerosdcommands(void)
         { "demorec_force","demorec_force: enable/disable forced demo recording",(void *)&demorec_force_cvar, CVAR_BOOL|CVAR_NOSAVE, 0, 1 },
         {
             "demorec_difftics","demorec_difftics <number>: sets game tic interval after which a diff is recorded",
-            (void *)&demorec_difftics_cvar, CVAR_INT, 2, 60*(TICRATE/TICSPERFRAME)
+            (void *)&demorec_difftics_cvar, CVAR_INT, 2, 60*REALGAMETICSPERSEC
         },
         { "demorec_diffcompress","demorec_diffcompress <number>: Compression method for diffs. (0: none, 1: KSLZW)",(void *)&demorec_diffcompress_cvar, CVAR_INT, 0, 1 },
         { "demorec_synccompress","demorec_synccompress <number>: Compression method for input. (0: none, 1: KSLZW)",(void *)&demorec_synccompress_cvar, CVAR_INT, 0, 1 },

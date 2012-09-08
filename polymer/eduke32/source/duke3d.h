@@ -74,12 +74,20 @@ extern "C" {
 #define MAXLEVELS           64
 #define MAXGAMETYPES        16
 
-// used as a constant to satisfy all of the calculations written with ticrate = 26 in mind
-#define GAMETICSPERSEC      26
-#define REALGAMETICSPERSEC  30
-// this used to be TICRATE/GAMETICSPERSEC, which was 120/26 = 4.615~ truncated to 4 by integer division
-#define TICSPERFRAME        4
+////////// TIMING CONSTANTS //////////
+// The number of 'totalclock' increments per second:
 #define TICRATE             120
+// The number of game state updates per second:
+#define REALGAMETICSPERSEC  30
+// The number of 'totalclock' increments per game state update:
+// NOTE: calling a game state update a 'frame' is really weird.
+// (This used to be TICRATE/GAMETICSPERSEC, which was 120/26 = 4.615~ truncated
+// to 4 by integer division.)
+#define TICSPERFRAME        (TICRATE/REALGAMETICSPERSEC)
+// Used as a constant to satisfy all of the calculations written with ticrate =
+// 26 in mind:
+#define GAMETICSPERSEC      26
+
 
 #define PACKBUF_SIZE        16384
 

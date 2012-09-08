@@ -2754,8 +2754,9 @@ void G_DisplayRest(int32_t smoothratio)
         if (ud.overhead_on > 0)
         {
             // smoothratio = min(max(smoothratio,0),65536);
-            smoothratio = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
+            smoothratio = calc_smoothratio(totalclock, ototalclock);
             G_DoInterpolations(smoothratio);
+
             if (ud.scrollmode == 0)
             {
                 if (pp->newowner == -1 && !ud.pause_on)
@@ -7638,7 +7639,7 @@ void G_HandleLocalKeys(void)
         {
             KB_ClearKeyDown(sc_kpad_6);
             j = (15<<ALT_IS_PRESSED)<<(2*SHIFTS_IS_PRESSED);
-            g_demo_goalCnt = g_demo_paused ? g_demo_cnt+1 : g_demo_cnt+(TICRATE/TICSPERFRAME)*j;
+            g_demo_goalCnt = g_demo_paused ? g_demo_cnt+1 : g_demo_cnt+REALGAMETICSPERSEC*j;
             g_demo_rewind = 0;
 
             if (g_demo_goalCnt > g_demo_totalCnt)
@@ -7650,7 +7651,7 @@ void G_HandleLocalKeys(void)
         {
             KB_ClearKeyDown(sc_kpad_4);
             j = (15<<ALT_IS_PRESSED)<<(2*SHIFTS_IS_PRESSED);
-            g_demo_goalCnt = g_demo_paused ? g_demo_cnt-1 : g_demo_cnt-(TICRATE/TICSPERFRAME)*j;
+            g_demo_goalCnt = g_demo_paused ? g_demo_cnt-1 : g_demo_cnt-REALGAMETICSPERSEC*j;
             g_demo_rewind = 1;
 
             if (g_demo_goalCnt <= 0)
@@ -10664,7 +10665,7 @@ MAIN_LOOP_RESTART:
 
             if ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU)) ||
                     (g_netServer || ud.multimode > 1) || ud.recstat == 2)
-                i = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
+                i = calc_smoothratio(totalclock, ototalclock);
             else
                 i = 65536;
 

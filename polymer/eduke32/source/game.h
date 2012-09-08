@@ -340,6 +340,11 @@ static inline void G_HandleAsync(void)
     Net_GetPackets();
 }
 
+static inline int32_t calc_smoothratio(int32_t totalclk, int32_t ototalclk)
+{
+    return clamp((totalclk-ototalclk)*(65536/TICSPERFRAME), 0, 65536);
+}
+
 // sector effector lotags
 enum {
     SE_16_REACTOR = 16,

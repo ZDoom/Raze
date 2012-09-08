@@ -2415,7 +2415,7 @@ nullquote:
                 int32_t y1=Gv_GetVarX(*insptr++);
                 int32_t x2=Gv_GetVarX(*insptr++);
                 int32_t y2=Gv_GetVarX(*insptr++);
-                int32_t smoothratio = min(max((totalclock - ototalclock) * (65536 / 4),0),65536);
+                int32_t smoothratio = calc_smoothratio(totalclock, ototalclock);
 #ifdef USE_OPENGL
                 int32_t oprojhacks;
 #endif
@@ -2479,11 +2479,6 @@ nullquote:
                     newaspect_enable = o;
                 }
 
-#if 0
-                if (!ud.pause_on && ((ud.show_help == 0 && (!net_server && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU))
-                                     || (net_server || ud.multimode > 1) || ud.recstat == 2))
-                    smoothratio = min(max((totalclock-ototalclock)*(65536L/TICSPERFRAME),0),65536);
-#endif
                 G_DoInterpolations(smoothratio);
 
                 G_HandleMirror(x, y, z, a, horiz, smoothratio);
