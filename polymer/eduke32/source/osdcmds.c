@@ -167,13 +167,21 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
     int32_t i;
     char filename[BMAX_PATH];
 
-    if (parm->numparms != 1)
+    const int32_t wildcardp = parm->numparms==1 &&
+        (Bstrchr(parm->parms[0], '*') != NULL);
+
+    if (parm->numparms != 1 || wildcardp)
     {
         CACHE1D_FIND_REC *r;
         fnlist_t fnlist = FNLIST_INITIALIZER;
         int32_t maxwidth = 0;
 
-        fnlist_getnames(&fnlist, "/", "*.MAP", -1, 0);
+        if (wildcardp)
+            maybe_append_ext(filename, sizeof(filename), parm->parms[0], ".map");
+        else
+            Bstrcpy(filename, "*.MAP");
+
+        fnlist_getnames(&fnlist, "/", filename, -1, 0);
 
         for (r=fnlist.findfiles; r; r=r->next)
             maxwidth = max((unsigned)maxwidth, Bstrlen(r->name));
@@ -211,9 +219,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
     }
 #endif
 
-    strcpy(filename,parm->parms[0]);
-    if (strchr(filename,'.') == 0)
-        strcat(filename,".map");
+    maybe_append_ext(filename, sizeof(filename), parm->parms[0], ".map");
 
     if ((i = kopen4loadfrommod(filename,0)) < 0)
     {

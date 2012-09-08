@@ -315,3 +315,18 @@ char *dup_filename(const char *fn)
 
     return Bstrncpyz(buf, fn, BMAX_PATH);
 }
+
+
+// Copy FN to WBUF and append an extension if it's not there, which is checked
+// case-insensitively.
+// Returns: 1 if not all characters could be written to WBUF, 0 else.
+int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char *ext)
+{
+    const int32_t slen=Bstrlen(fn), extslen=Bstrlen(ext);
+    const int32_t haveext = (slen>=extslen && Bstrcasecmp(&fn[slen-extslen], ext)==0);
+
+    Bassert((intptr_t)wbuf != (intptr_t)fn);  // no aliasing
+
+    // If 'fn' has no extension suffixed, append one.
+    return (Bsnprintf(wbuf, wbufsiz, "%s%s", fn, haveext ? "" : ext) >= wbufsiz);
+}

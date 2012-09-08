@@ -8961,17 +8961,10 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     ud.m_coop--;
                     break;
                 case 'd':
-                {
-                    char *dot;
-
                     c++;
-                    Bstrcpy(g_firstDemoFile,c);
-                    dot = Bstrchr(g_firstDemoFile,'.');
-                    if (!dot && Bstrlen(g_firstDemoFile)+4 < sizeof(g_firstDemoFile))
-                        Bstrcat(g_firstDemoFile,".edm");
+                    maybe_append_ext(g_firstDemoFile, sizeof(g_firstDemoFile), c, ".edm");
                     initprintf("Play demo %s.\n",g_firstDemoFile);
                     break;
-                }
                 case 'g':
                     c++;
                     if (*c)
