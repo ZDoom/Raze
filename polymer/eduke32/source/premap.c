@@ -1076,7 +1076,7 @@ static void premap_setup_fixed_sprites(void)
                 j = nextspritesect[j];
 #ifdef YAX_ENABLE
                 if (j<0 && firstrun)
-                    if (sprite[i].lotag==6 || sprite[i].lotag==14)
+                    if (sprite[i].lotag==SE_6_SUBWAY || sprite[i].lotag==SE_14_SUBWAY_CAR)
                     {
                         firstrun = 0;
                         j = actor[i].t_data[9];
@@ -1203,7 +1203,7 @@ static inline void prelevel(char g)
     {
         if (sprite[i].statnum < MAXSTATUS)
         {
-            if (PN == SECTOREFFECTOR && SLT == 14)
+            if (PN == SECTOREFFECTOR && SLT == SE_14_SUBWAY_CAR)
                 continue;
             A_Spawn(-1,i);
         }
@@ -1212,7 +1212,7 @@ static inline void prelevel(char g)
     for (i=0; i < MAXSPRITES; i++)
         if (sprite[i].statnum < MAXSTATUS)
         {
-            if (PN == SECTOREFFECTOR && SLT == 14)
+            if (PN == SECTOREFFECTOR && SLT == SE_14_SUBWAY_CAR)
                 A_Spawn(-1,i);
         }
 
@@ -1257,7 +1257,7 @@ static inline void prelevel(char g)
     {
         int32_t t = sprite[j].hitag+32768;
 
-        if (sprite[j].lotag == 12 && tagbitmap[t>>3]&(1<<(t&7)))
+        if (sprite[j].lotag == SE_12_LIGHT_SWITCH && tagbitmap[t>>3]&(1<<(t&7)))
             actor[j].t_data[0] = 1;
     }
 

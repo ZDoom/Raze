@@ -451,7 +451,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
         }
     }
 
-    if ((g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
+    if ((g_sounds[num].m&16) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
         sndist = divscale14(sndist, SHT+1);
 
 sound_further_processing:

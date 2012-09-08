@@ -1269,7 +1269,7 @@ ACTOR_STATIC void G_MoveFX(void)
                     T1 = 0;
                 }
             }
-            else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 &&
+            else if (s->lotag < 999 && (unsigned)sector[s->sectnum].lotag < 9 &&  // ST_9_SLIDING_ST_DOOR
                          ud.config.AmbienceToggle && sector[SECT].floorz != sector[SECT].ceilingz)
             {
                 if (g_sounds[s->lotag].m&2)
@@ -2028,14 +2028,14 @@ DETONATE:
                     {
                         if (s->hitag == sprite[j].hitag)
                         {
-                            if (sprite[j].lotag == 13)
+                            if (sprite[j].lotag == SE_13_EXPLOSIVE)
                             {
                                 if (actor[j].t_data[2] == 0)
                                     actor[j].t_data[2] = 1;
                             }
-                            else if (sprite[j].lotag == 8)
+                            else if (sprite[j].lotag == SE_8_UP_OPEN_DOOR_LIGHTS)
                                 actor[j].t_data[4] = 1;
-                            else if (sprite[j].lotag == 18)
+                            else if (sprite[j].lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL)
                             {
                                 if (actor[j].t_data[0] == 0)
                                     actor[j].t_data[0] = 1;
@@ -2081,14 +2081,14 @@ DETONATE:
                         {
                             switch (sprite[j].lotag)
                             {
-                            case 2:
+                            case SE_2_EARTHQUAKE:
                             case SE_21_DROP_FLOOR:
                             case SE_31_FLOOR_RISE_FALL:
                             case SE_32_CEILING_RISE_FALL:
                             case SE_36_PROJ_SHOOTER:
                                 actor[j].t_data[0] = 1;
                                 break;
-                            case 3:
+                            case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
                                 actor[j].t_data[4] = 1;
                                 break;
                             }
@@ -4750,7 +4750,7 @@ DETONATEB:
                                                 {
                                                     if( sprite[j].lotag  == 3 )
                                                         Actor[j].t_data[4]=1;
-                                                    else if(sprite[j].lotag == 12)
+                                                    else if(sprite[j].lotag == SE_12_LIGHT_SWITCH)
                                                     {
                                                         Actor[j].t_data[4] = 1;
                                                         sprite[j].lotag = 3;
@@ -5744,7 +5744,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 j = headspritestat[STAT_EFFECTOR];
                 while (j >= 0)
                 {
-                    if (sprite[j].lotag == 19 && sprite[j].hitag == sh)
+                    if (sprite[j].lotag == SE_19_EXPLOSION_LOWERS_CEILING && sprite[j].hitag == sh)
                     {
                         t[0] = 0;
                         break;
@@ -5777,7 +5777,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             j = headspritestat[STAT_EFFECTOR];
             while (j >= 0)
             {
-                if ((sprite[j].lotag == 14) && (sh == sprite[j].hitag) && (actor[j].t_data[0] == t[0]))
+                if ((sprite[j].lotag == SE_14_SUBWAY_CAR) && (sh == sprite[j].hitag) && (actor[j].t_data[0] == t[0]))
                 {
                     sprite[j].xvel = s->xvel;
                     //                        if( t[4] == 1 )
@@ -5796,7 +5796,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             x = 0;
 
 
-        case 14:
+        case SE_14_SUBWAY_CAR:
             if (s->owner==-1)
                 s->owner = A_FindLocator((int16_t)t[3],(int16_t)t[0]);
 
@@ -6375,8 +6375,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
         }
 
-        case 8:
-        case 9:
+        case SE_8_UP_OPEN_DOOR_LIGHTS:
+        case SE_9_DOWN_OPEN_DOOR_LIGHTS:
 
             // work only if its moving
 
@@ -6448,14 +6448,15 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             break;
 
-        case 10:
-            if ((sc->lotag&0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag&0xff) != 23) || sc->lotag == (int16_t) 32791)
+        case SE_10_DOOR_AUTO_CLOSE:
+            // XXX: 32791, what the hell?
+            if ((sc->lotag&0xff) == ST_27_STRETCH_BRIDGE || (sc->floorz > sc->ceilingz && (sc->lotag&0xff) != ST_23_SWINGING_DOOR) || sc->lotag == (int16_t) 32791)
             {
                 int32_t p;
 
                 j = 1;
 
-                if ((sc->lotag&0xff) != 27)
+                if ((sc->lotag&0xff) != ST_27_STRETCH_BRIDGE)
                     for (TRAVERSE_CONNECT(p))
                         if (sc->lotag != ST_30_ROTATE_RISE_BRIDGE && sc->lotag != ST_31_TWO_WAY_TRAIN && sc->lotag != 0)
                             if (s->sectnum == sprite[g_player[p].ps->i].sectnum)
@@ -6482,7 +6483,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             else t[0]=0;
             break;
-        case 11: //Swingdoor
+        case SE_11_SWINGING_DOOR: //Swingdoor
 
             if (t[5] > 0)
             {
@@ -6537,7 +6538,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
             }
             break;
-        case 12:
+        case SE_12_LIGHT_SWITCH:
             if (t[0] == 3 || t[3] == 1)   //Lights going off
             {
                 sc->floorpal = 0;
@@ -6606,7 +6607,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
 
-        case 13:
+        case SE_13_EXPLOSIVE:
             if (t[2])
             {
                 // t[0]: ceiling z
@@ -6696,7 +6697,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
 
-        case 15:
+        case SE_15_SLIDING_DOOR:
 
             if (t[4])
             {
@@ -6882,7 +6883,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
         }
 
-        case 18:
+        case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
             if (t[0])
             {
                 if (s->pal)
@@ -6963,7 +6964,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             break;
 
-        case 19: //Battlestar galactia shields
+        case SE_19_EXPLOSION_LOWERS_CEILING: //Battlestar galactia shields
 
             if (t[0])
             {
@@ -7022,7 +7023,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         x = sprite[l].lotag&0x7fff;
                         switch (x)
                         {
-                        case 0:
+                        case SE_0_ROTATING_SECTOR:
                             if (sprite[l].hitag == sh)
                             {
                                 int32_t ow = sprite[l].owner;
@@ -7032,10 +7033,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             }
                             break;
 
-                        case 1:
-                        case 12:
-                            //                                case 18:
-                        case 19:
+                        case SE_1_PIVOT:
+                        case SE_12_LIGHT_SWITCH:
+                            //                                case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
+                        case SE_19_EXPLOSION_LOWERS_CEILING:
                             if (sh == sprite[l].hitag)
                                 if (actor[l].t_data[0] == 0)
                                 {
@@ -7052,7 +7053,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             break;
 
-        case 20: //Extend-o-bridge
+        case SE_20_STRETCH_BRIDGE: //Extend-o-bridge
             if (t[0] == 0) break;
             if (t[0] == 1) s->xvel = 8;
             else s->xvel = -8;
@@ -7156,7 +7157,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
         }
 
-        case 22:
+        case SE_22_TEETH_DOOR:
             if (t[1])
             {
                 if (GetAnimationGoal(&sector[t[0]].ceilingz) >= 0)
@@ -7166,7 +7167,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             break;
 
         case SE_24_CONVEYOR:
-        case 34:
+        case SE_34:
         {
             int32_t p;
 

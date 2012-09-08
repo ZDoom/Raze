@@ -152,7 +152,7 @@ static inline int32_t VM_CheckSquished(void)
 {
     sectortype *sc = &sector[vm.g_sp->sectnum];
 
-    if ((vm.g_sp->picnum == APLAYER && ud.noclip) || sc->lotag == 23)
+    if ((vm.g_sp->picnum == APLAYER && ud.noclip) || sc->lotag == ST_23_SWINGING_DOOR)
         return 0;
 
     {
@@ -3374,7 +3374,7 @@ nullquote:
                         &neartagsector,&neartagwall,&neartagsprite,&neartaghitdist, 768, 4+1, NULL);
 
                 if (neartagsector >= 0 && isanearoperator(sector[neartagsector].lotag))
-                    if ((sector[neartagsector].lotag&0xff) == 23 || sector[neartagsector].floorz == sector[neartagsector].ceilingz)
+                    if ((sector[neartagsector].lotag&0xff) == ST_23_SWINGING_DOOR || sector[neartagsector].floorz == sector[neartagsector].ceilingz)
                         if ((sector[neartagsector].lotag&16384) == 0)
                             if ((sector[neartagsector].lotag&32768) == 0)
                             {

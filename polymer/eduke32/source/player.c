@@ -517,7 +517,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                                         k = headspritesect[wall[hit.wall].nextsector];
                                         while (k >= 0)
                                         {
-                                            if (sprite[k].statnum == 3 && sprite[k].lotag == 13)
+                                            if (sprite[k].statnum == 3 && sprite[k].lotag == SE_13_EXPLOSIVE)
                                                 return -1;
                                             k = nextspritesect[k];
                                         }
@@ -862,7 +862,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                                         l = headspritesect[wall[hit.wall].nextsector];
                                         while (l >= 0)
                                         {
-                                            if (sprite[l].statnum == 3 && sprite[l].lotag == 13)
+                                            if (sprite[l].statnum == 3 && sprite[l].lotag == SE_13_EXPLOSIVE)
                                                 goto DOSKIPBULLETHOLE;
                                             l = nextspritesect[l];
                                         }
@@ -1102,7 +1102,7 @@ DOSKIPBULLETHOLE:
                                     k = headspritesect[wall[hit.wall].nextsector];
                                     while (k >= 0)
                                     {
-                                        if (sprite[k].statnum == 3 && sprite[k].lotag == 13)
+                                        if (sprite[k].statnum == 3 && sprite[k].lotag == SE_13_EXPLOSIVE)
                                             return -1;
                                         k = nextspritesect[k];
                                     }
@@ -1354,7 +1354,7 @@ DOSKIPBULLETHOLE:
                                         l = headspritesect[wall[hit.wall].nextsector];
                                         while (l >= 0)
                                         {
-                                            if (sprite[l].statnum == 3 && sprite[l].lotag == 13)
+                                            if (sprite[l].statnum == 3 && sprite[l].lotag == SE_13_EXPLOSIVE)
                                                 goto SKIPBULLETHOLE;
                                             l = nextspritesect[l];
                                         }

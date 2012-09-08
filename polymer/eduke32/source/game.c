@@ -5390,13 +5390,13 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case SE_28_LIGHTNING:
                 T6 = 65;// Delay for lightning
                 break;
-            case 7: // Transporters!!!!
-            case 23:// XPTR END
-                if (sp->lotag != 23)
+            case SE_7_TELEPORT: // Transporters!!!!
+            case SE_23_ONE_WAY_TELEPORT:// XPTR END
+                if (sp->lotag != SE_23_ONE_WAY_TELEPORT)
                 {
                     for (j=0; j<MAXSPRITES; j++)
                         if (sprite[j].statnum < MAXSTATUS && sprite[j].picnum == SECTOREFFECTOR &&
-                                (sprite[j].lotag == 7 || sprite[j].lotag == 23) && i != j && sprite[j].hitag == SHT)
+                                (sprite[j].lotag == SE_7_TELEPORT || sprite[j].lotag == SE_23_ONE_WAY_TELEPORT) && i != j && sprite[j].hitag == SHT)
                         {
                             OW = j;
                             break;
@@ -5408,11 +5408,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->cstat = 0;
                 changespritestat(i, STAT_TRANSPORT);
                 goto SPAWN_END;
-            case 1:
+            case SE_1_PIVOT:
                 sp->owner = -1;
                 T1 = 1;
                 break;
-            case 18:
+            case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
 
                 if (sp->ang == 512)
                 {
@@ -5430,7 +5430,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->hitag <<= 2;
                 break;
 
-            case 19:
+            case SE_19_EXPLOSION_LOWERS_CEILING:
                 sp->owner = -1;
                 break;
             case SE_25_PISTON: // Pistons
@@ -5439,7 +5439,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sector[sect].ceilingz = sp->z;
                 G_SetInterpolation(&sector[sect].ceilingz);
                 break;
-            case 35:
+            case SE_35:
                 sector[sect].ceilingz = sp->z;
                 break;
             case SE_27_DEMO_CAM:
@@ -5449,13 +5449,13 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     sp->cstat &= 32768;
                 }
                 break;
-            case 12:
+            case SE_12_LIGHT_SWITCH:
 
                 T2 = sector[sect].floorshade;
                 T3 = sector[sect].ceilingshade;
                 break;
 
-            case 13:
+            case SE_13_EXPLOSIVE:
 
                 T1 = sector[sect].ceilingz;
                 T2 = sector[sect].floorz;
@@ -5567,7 +5567,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case SE_36_PROJ_SHOOTER:
                 break;
 
-            case 20:
+            case SE_20_STRETCH_BRIDGE:
             {
                 int32_t q;
 
@@ -5694,11 +5694,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                 break;
 
-            case 9:
+            case SE_9_DOWN_OPEN_DOOR_LIGHTS:
                 if (sector[sect].lotag &&
                         labs(sector[sect].ceilingz-sp->z) > 1024)
                     sector[sect].lotag |= 32768; //If its open
-            case 8:
+            case SE_8_UP_OPEN_DOOR_LIGHTS:
                 //First, get the ceiling-floor shade
 
                 T1 = sector[sect].floorshade;
@@ -5715,15 +5715,15 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                 break;
 
-            case 11://Pivitor rotater
+            case SE_11_SWINGING_DOOR://Pivitor rotater
                 if (sp->ang>1024) T4 = 2;
                 else T4 = -2;
-            case 0:
-            case 2://Earthquakemakers
-            case 5://Boss Creature
-            case 6://Subway
-            case 14://Caboos
-            case 15://Subwaytype sliding door
+            case SE_0_ROTATING_SECTOR:
+            case SE_2_EARTHQUAKE://Earthquakemakers
+            case SE_5://Boss Creature
+            case SE_6_SUBWAY://Subway
+            case SE_14_SUBWAY_CAR://Caboos
+            case SE_15_SLIDING_DOOR://Subwaytype sliding door
             case SE_16_REACTOR://That rotating blocker reactor thing
             case SE_26://ESCELATOR
             case SE_30_TWO_WAY_TRAIN://No rotational subways
@@ -5782,7 +5782,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     }
                 }
 
-                if (sp->lotag == SE_30_TWO_WAY_TRAIN || sp->lotag == 6 || sp->lotag == 14 || sp->lotag == 5)
+                if (sp->lotag == SE_30_TWO_WAY_TRAIN || sp->lotag == SE_6_SUBWAY || sp->lotag == SE_14_SUBWAY_CAR || sp->lotag == SE_5)
                 {
 #ifdef YAX_ENABLE
                     int32_t outerwall=-1;
@@ -5869,18 +5869,18 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             switch (sp->lotag)
             {
-            case 6:
-            case 14:
+            case SE_6_SUBWAY:
+            case SE_14_SUBWAY_CAR:
                 j = A_CallSound(sect,i);
                 if (j == -1) j = SUBWAY;
                 actor[i].lastvx = j;
             case SE_30_TWO_WAY_TRAIN:
                 if (g_netServer || numplayers > 1) break;
-            case 0:
-            case 1:
-            case 5:
-            case 11:
-            case 15:
+            case SE_0_ROTATING_SECTOR:
+            case SE_1_PIVOT:
+            case SE_5:
+            case SE_11_SWINGING_DOOR:
+            case SE_15_SLIDING_DOOR:
             case SE_16_REACTOR:
             case SE_26:
                 Sect_SetInterpolation(sprite[i].sectnum);

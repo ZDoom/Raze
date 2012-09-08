@@ -82,12 +82,12 @@ void G_ResetInterpolations(void)
             G_SetInterpolation(&sector[sprite[k].sectnum].floorz);
             G_SetInterpolation(&sector[sprite[k].sectnum].ceilingz);
             break;
-        case 0:
-        case 5:
-        case 6:
-        case 11:
-        case 14:
-        case 15:
+        case SE_0_ROTATING_SECTOR:
+        case SE_5:
+        case SE_6_SUBWAY:
+        case SE_11_SWINGING_DOOR:
+        case SE_14_SUBWAY_CAR:
+        case SE_15_SLIDING_DOOR:
         case SE_16_REACTOR:
         case SE_26:
         case SE_30_TWO_WAY_TRAIN:
