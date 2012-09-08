@@ -7690,14 +7690,15 @@ void G_HandleLocalKeys(void)
         }
 
 #if 0
-// just what is wrong with that?
+        // Enter a game from within a demo.
         if (KB_KeyPressed(sc_Return) && ud.multimode==1)
         {
             KB_ClearKeyDown(sc_Return);
             g_demo_cnt = g_demo_goalCnt = ud.reccnt = ud.pause_on = ud.recstat = ud.m_recstat = 0;
-            kclose(g_demo_recFilePtr);
+            // XXX: probably redundant; this stuff needs an API anyway:
+            kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
             g_player[myconnectindex].ps->gm = MODE_GAME;
-//            ready2send=0;
+            ready2send=1;  // TODO: research this weird variable
             screenpeek=myconnectindex;
 //            g_demo_paused=0;
         }
