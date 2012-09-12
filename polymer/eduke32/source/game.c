@@ -5540,13 +5540,20 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 if (j >= 0)
                 {
                     T4 = sector[j].ceilingz;
+                }
+                else
+                {
+                    // use elevator sector's ceiling as heuristic
+                    T4 = sector[sect].ceilingz;
 
-                    j = nextsectorneighborz(sect,sector[sect].ceilingz,1,1);
-                    if (j >= 0)
-                        T5 = sector[j].floorz;
+                    OSD_Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector's ceilingz to "
+                               "determine when to warp. Sector %d adjacent to a door?\n", i, sect);
                 }
 
-                if (j < 0)
+                j = nextsectorneighborz(sect,sector[sect].ceilingz,1,1);
+                if (j >= 0)
+                    T5 = sector[j].floorz;
+                else
                 {
                     // XXX: we should return to the menu for this and similar failures
                     Bsprintf(tempbuf, "SE 17 (warp elevator) setup failed: sprite %d at (%d, %d)",
