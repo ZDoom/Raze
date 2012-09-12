@@ -1089,7 +1089,7 @@ void G_OperateActivators(int32_t low,int32_t snum)
                     j = headspritesect[sprite[i].sectnum];
                     while (j >= 0)
                     {
-                        if (sprite[j].statnum == 3) switch (sprite[j].lotag)
+                        if (sprite[j].statnum == STAT_EFFECTOR) switch (sprite[j].lotag)
                             {
                             case SE_36_PROJ_SHOOTER:
                             case SE_31_FLOOR_RISE_FALL:

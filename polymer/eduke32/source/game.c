@@ -6356,7 +6356,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         case TRIPBOMB__STATIC:
             continue;
         case FORCESPHERE__STATIC:
-            if (t->statnum == 5)
+            if (t->statnum == STAT_MISC)
             {
                 int16_t sqa,sqb;
 
@@ -6784,7 +6784,8 @@ skip:
                 {
                     int32_t daz;
 
-                    if ((sector[sect].lotag&0xff) > 2 || s->statnum == STAT_PROJECTILE || s->statnum == 5 || s->picnum == DRONE || s->picnum == COMMANDER)
+                    if ((sector[sect].lotag&0xff) > 2 || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC
+                            || s->picnum == DRONE || s->picnum == COMMANDER)
                         daz = sector[sect].floorz;
                     else
                         daz = actor[i].floorz;
