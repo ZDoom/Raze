@@ -3570,7 +3570,7 @@ nullquote:
                         insptr++;
 
                         index=Gv_GetVarX(*insptr++);
-                        if ((index < aGameArrays[lVarID].size)&&(index>=0))
+                        if (index>=0 && index < aGameArrays[lVarID].size)
                         {
                             OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n", keyw[g_tw], g_errorLineNum,
                                        aGameArrays[lVarID].szLabel, index,

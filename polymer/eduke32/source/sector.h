@@ -103,7 +103,7 @@ int32_t A_CheckHitSprite(int32_t i,int16_t *hitsp);
 void A_DamageObject(int32_t i,int32_t sn);
 void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith);
 int32_t __fastcall A_FindPlayer(const spritetype *s,int32_t *d);
-void allignwarpelevators(void);
+void G_AlignWarpElevators(void);
 int32_t CheckDoorTile(int32_t dapic);
 void G_AnimateCamSprite(void);
 void G_AnimateWalls(void);

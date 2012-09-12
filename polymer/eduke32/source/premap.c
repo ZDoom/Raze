@@ -1094,7 +1094,7 @@ static inline void prelevel(char g)
     int32_t i, nexti, j, startwall, endwall;
     int32_t switchpicnum;
 
-    uint8_t tagbitmap[65536>>3];
+    uint8_t tagbitmap[65536>>3];  // XXX: allocating 8k on the stack isn't that great
     Bmemset(tagbitmap, 0, sizeof(tagbitmap));
 
     Bmemset(show2dsector, 0, sizeof(show2dsector));
@@ -1295,8 +1295,9 @@ static inline void prelevel(char g)
 
         animwall[g_numAnimWalls].tag = 0;
         animwall[g_numAnimWalls].wallnum = 0;
+
         switchpicnum = wal->overpicnum;
-        if ((wal->overpicnum > W_FORCEFIELD)&&(wal->overpicnum <= W_FORCEFIELD+2))
+        if (wal->overpicnum > W_FORCEFIELD && wal->overpicnum <= W_FORCEFIELD+2)
         {
             switchpicnum = W_FORCEFIELD;
         }
@@ -1326,7 +1327,6 @@ static inline void prelevel(char g)
                         wal->lotag;
 
             case BIGFORCE__STATIC:
-
                 animwall[g_numAnimWalls].wallnum = i;
                 g_numAnimWalls++;
 
@@ -1368,7 +1368,6 @@ static inline void prelevel(char g)
         case FEMPIC1__STATIC:
         case FEMPIC2__STATIC:
         case FEMPIC3__STATIC:
-
             wal->extra = wal->picnum;
             animwall[g_numAnimWalls].tag = -1;
             if (ud.lockout)
@@ -1388,7 +1387,7 @@ static inline void prelevel(char g)
         case SCREENBREAK3__STATIC:
         case SCREENBREAK4__STATIC:
         case SCREENBREAK5__STATIC:
-
+            //
         case SCREENBREAK9__STATIC:
         case SCREENBREAK10__STATIC:
         case SCREENBREAK11__STATIC:
@@ -1400,7 +1399,6 @@ static inline void prelevel(char g)
         case SCREENBREAK17__STATIC:
         case SCREENBREAK18__STATIC:
         case SCREENBREAK19__STATIC:
-
             animwall[g_numAnimWalls].wallnum = i;
             animwall[g_numAnimWalls].tag = wal->picnum;
             g_numAnimWalls++;
@@ -1994,7 +1992,7 @@ int32_t G_EnterLevel(int32_t g)
 
     prelevel(g);
 
-    allignwarpelevators();
+    G_AlignWarpElevators();
     resetpspritevars(g);
 
 //    automapping = 0;

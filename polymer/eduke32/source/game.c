@@ -5612,7 +5612,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             break;
 
-            case 3:
+            case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
 
                 T4=sector[sect].floorshade;
 
@@ -5678,7 +5678,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             }
             break;
 
-            case 4: //Flashing lights
+            case SE_4_RANDOM_LIGHTS: //Flashing lights
 
                 T3 = sector[sect].floorshade;
 
@@ -6008,7 +6008,7 @@ SPAWN_END:
     return i;
 }
 
-static int32_t maybe_take_on_pal_of_floor(spritetype *datspr, int32_t sect)
+static int32_t G_MaybeTakeOnFloorPal(spritetype *datspr, int32_t sect)
 {
     int32_t dapal = sector[sect].floorpal;
 
@@ -6050,7 +6050,7 @@ static int32_t getofs_viewtype7(const spritetype *s, spritetype *t, int32_t a)
     return k;
 }
 
-static int32_t adult_tile_p(int32_t pic)
+static int32_t G_CheckAdultTile(int32_t pic)
 {
     switch (pic)
     {
@@ -6279,7 +6279,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         i = t->owner;
         s = (i < 0 ? &tsprite[j] : &sprite[i]);
 
-        if (ud.lockout && adult_tile_p(DYNAMICTILEMAP(s->picnum)))
+        if (ud.lockout && G_CheckAdultTile(DYNAMICTILEMAP(s->picnum)))
         {
             t->xrepeat = t->yrepeat = 0;
             continue;
@@ -6619,7 +6619,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                         t->pal = g_player[p].ps->palookup;
                     }
 PALONLY:
-            maybe_take_on_pal_of_floor(t, sect);
+            G_MaybeTakeOnFloorPal(t, sect);
 
             if (s->owner == -1) continue;
 
@@ -6659,7 +6659,7 @@ PALONLY:
             else t->picnum += T1;
             t->shade -= 6;
 
-            maybe_take_on_pal_of_floor(t, sect);
+            G_MaybeTakeOnFloorPal(t, sect);
             break;
 
         case WATERBUBBLE__STATIC:
@@ -6669,7 +6669,7 @@ PALONLY:
                 break;
             }
         default:
-            maybe_take_on_pal_of_floor(t, sect);
+            G_MaybeTakeOnFloorPal(t, sect);
             break;
         }
 
@@ -6924,7 +6924,7 @@ skip:
                         t->picnum = actor[i].t_data[1];
                     else t->picnum = actor[s->owner].dispicnum;
 
-                    if (!maybe_take_on_pal_of_floor(t, sect))
+                    if (!G_MaybeTakeOnFloorPal(t, sect))
                         t->pal = sprite[s->owner].pal;
 
                     t->shade = sprite[s->owner].shade;

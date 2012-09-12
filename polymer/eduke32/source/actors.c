@@ -4895,15 +4895,15 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
         Bmemcpy(&actor[i].bposx, s, sizeof(vec3_t));
 
         switchpicnum = s->picnum;
-        if ((s->picnum > NUKEBUTTON)&&(s->picnum <= NUKEBUTTON+3))
+        if (s->picnum > NUKEBUTTON && s->picnum <= NUKEBUTTON+3)
         {
             switchpicnum = NUKEBUTTON;
         }
-        if ((s->picnum > GLASSPIECES)&&(s->picnum <= GLASSPIECES+2))
+        if (s->picnum > GLASSPIECES && s->picnum <= GLASSPIECES+2)
         {
             switchpicnum = GLASSPIECES;
         }
-        if (s->picnum ==INNERJAW+1)
+        if (s->picnum == INNERJAW+1)
         {
             switchpicnum--;
         }

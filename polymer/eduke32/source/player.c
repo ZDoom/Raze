@@ -3514,7 +3514,7 @@ void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
     else if (wall[obj].cstat&85)
     {
         int32_t switchpicnum = wall[obj].overpicnum;
-        if ((switchpicnum>W_FORCEFIELD)&&(switchpicnum<=W_FORCEFIELD+2))
+        if (switchpicnum>W_FORCEFIELD && switchpicnum<=W_FORCEFIELD+2)
             switchpicnum=W_FORCEFIELD;
 
         switch (DYNAMICTILEMAP(switchpicnum))

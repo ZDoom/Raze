@@ -464,9 +464,8 @@ void G_AnimateWalls(void)
         }
 
         if (wall[i].cstat&16)
-            if ((wall[i].overpicnum >= W_FORCEFIELD)&&(wall[i].overpicnum <= W_FORCEFIELD+2))
+            if (wall[i].overpicnum >= W_FORCEFIELD && wall[i].overpicnum <= W_FORCEFIELD+2)
             {
-
                 t = animwall[p].tag;
 
                 if (wall[i].cstat&254)
@@ -1211,7 +1210,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite)
     {
         switchpicnum--;
     }
-    if ((picnum > MULTISWITCH)&&(picnum <= MULTISWITCH+3))
+    if (picnum > MULTISWITCH && picnum <= MULTISWITCH+3)
     {
         switchpicnum = MULTISWITCH;
     }
@@ -1489,7 +1488,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite)
     {
         switchpicnum--;
     }
-    if ((picnum > MULTISWITCH)&&(picnum <= MULTISWITCH+3))
+    if (picnum > MULTISWITCH && picnum <= MULTISWITCH+3)
     {
         switchpicnum = MULTISWITCH;
     }
@@ -1689,7 +1688,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
             if (sector[wal->nextsector].floorz-sector[wal->nextsector].ceilingz)
             {
                 int32_t switchpicnum = wal->overpicnum;
-                if ((switchpicnum > W_FORCEFIELD)&&(switchpicnum <= W_FORCEFIELD+2))
+                if (switchpicnum > W_FORCEFIELD && switchpicnum <= W_FORCEFIELD+2)
                     switchpicnum = W_FORCEFIELD;
                 switch (DYNAMICTILEMAP(switchpicnum))
                 {
@@ -1993,7 +1992,7 @@ void A_DamageObject(int32_t i,int32_t sn)
             rpg = 1;
 /*
     switchpicnum = PN;
-    if ((PN > WATERFOUNTAIN)&&(PN < WATERFOUNTAIN+3))
+    if (PN > WATERFOUNTAIN && PN < WATERFOUNTAIN+3)
     {
         switchpicnum = WATERFOUNTAIN;
     }
@@ -2439,7 +2438,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     }
 }
 
-void allignwarpelevators(void)
+void G_AlignWarpElevators(void)
 {
     int32_t j, i = headspritestat[STAT_EFFECTOR];
 
