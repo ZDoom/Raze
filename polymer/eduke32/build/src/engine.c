@@ -11019,7 +11019,7 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
     return(cnt>>31);
 }
 
-__fastcall int32_t getangle(int32_t xvect, int32_t yvect)
+int32_t __fastcall getangle(int32_t xvect, int32_t yvect)
 {
     if ((xvect|yvect) == 0) return(0);
     if (xvect == 0) return 512+((yvect<0)<<10);
