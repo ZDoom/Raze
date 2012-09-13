@@ -3365,26 +3365,28 @@ void P_AddWeaponNoSwitch(DukePlayer_t *p, int32_t weapon)
         A_PlaySound(aplWeaponSelectSound[weapon][snum],p->i);
 }
 
-void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
+void P_ChangeWeapon(DukePlayer_t *p,int32_t weapon)
 {
-    int32_t snum = sprite[p->i].yvel;
-
-    P_AddWeaponNoSwitch(p, weapon);
+    int32_t i = 0, snum = sprite[p->i].yvel;
+    int8_t curr_weapon = p->curr_weapon;
 
     if (p->reloading) return;
 
     if (p->curr_weapon != weapon && apScriptGameEvent[EVENT_CHANGEWEAPON])
-        weapon = VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1, weapon);
-    if (weapon < 0)
+        i = VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1, weapon);
+
+    if (i == -1)
         return;
+    else if (i != -2)
+        p->curr_weapon = weapon;
+
+    p->last_weapon = curr_weapon;
 
     p->random_club_frame = 0;
 
     if (p->weapon_pos == 0)
         p->weapon_pos = -1;
     else p->weapon_pos = -9;
-
-    p->last_weapon = p->curr_weapon;
 
     if (p->holster_weapon)
     {
@@ -3395,12 +3397,16 @@ void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
 
     p->kickback_pic = 0;
 
-    p->curr_weapon = weapon;
-
-    Gv_SetVar(g_iWeaponVarID,p->curr_weapon, p->i, snum);
+    Gv_SetVar(g_iWeaponVarID, p->curr_weapon, p->i, snum);
     Gv_SetVar(g_iWorksLikeVarID,
               (unsigned)p->curr_weapon < MAX_WEAPONS ? aplWeaponWorksLike[p->curr_weapon][snum] : -1,
               p->i, snum);
+}
+
+void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
+{
+    P_AddWeaponNoSwitch(p, weapon);
+    P_ChangeWeapon(p, weapon);
 }
 
 void P_SelectNextInvItem(DukePlayer_t *p)
@@ -3424,64 +3430,47 @@ void P_SelectNextInvItem(DukePlayer_t *p)
 
 void P_CheckWeapon(DukePlayer_t *p)
 {
-    int32_t i, snum, weap;
+    int32_t i, snum, weapon;
 
     if (p->reloading) return;
 
     if (p->wantweaponfire >= 0)
     {
-        weap = p->wantweaponfire;
+        weapon = p->wantweaponfire;
         p->wantweaponfire = -1;
 
-        if (weap == p->curr_weapon) return;
-        if ((p->gotweapon & (1<<weap)) && p->ammo_amount[weap] > 0)
+        if (weapon == p->curr_weapon) return;
+        if ((p->gotweapon & (1<<weapon)) && p->ammo_amount[weapon] > 0)
         {
-            P_AddWeapon(p,weap);
+            P_AddWeapon(p,weapon);
             return;
         }
     }
 
-    weap = p->curr_weapon;
+    weapon = p->curr_weapon;
 
-    if ((p->gotweapon & (1<<weap)) && (p->ammo_amount[weap] > 0 || !(p->weaponswitch & 2)))
+    if ((p->gotweapon & (1<<weapon)) && (p->ammo_amount[weapon] > 0 || !(p->weaponswitch & 2)))
         return;
 
     snum = sprite[p->i].yvel;
 
     for (i=0; i<10; i++)
     {
-        weap = g_player[snum].wchoice[i];
-        if (VOLUMEONE && weap > 6) continue;
+        weapon = g_player[snum].wchoice[i];
+        if (VOLUMEONE && weapon > 6) continue;
 
-        if (weap == 0) weap = 9;
-        else weap--;
+        if (weapon == 0) weapon = 9;
+        else weapon--;
 
-        if (weap == 0 || ((p->gotweapon & (1<<weap)) && p->ammo_amount[weap] > 0))
+        if (weapon == 0 || ((p->gotweapon & (1<<weapon)) && p->ammo_amount[weapon] > 0))
             break;
     }
 
-    if (i == 10) weap = 0;
+    if (i == 10) weapon = 0;
 
     // Found the weapon
 
-    if (apScriptGameEvent[EVENT_CHANGEWEAPON])
-        weap = VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1, weap);
-    if (weap < 0)
-        return;
-
-    p->last_weapon  = p->curr_weapon;
-    p->random_club_frame = 0;
-    p->curr_weapon  = weap;
-    Gv_SetVar(g_iWeaponVarID,p->curr_weapon, p->i, snum);
-    Gv_SetVar(g_iWorksLikeVarID, (unsigned)p->curr_weapon < MAX_WEAPONS ? aplWeaponWorksLike[p->curr_weapon][snum] : -1, p->i, snum);
-
-    p->kickback_pic = 0;
-    if (p->holster_weapon == 1)
-    {
-        p->holster_weapon = 0;
-        p->weapon_pos = 10;
-    }
-    else p->weapon_pos   = -1;
+    P_ChangeWeapon(p, weapon);
 }
 
 void P_CheckTouchDamage(DukePlayer_t *p, int32_t obj)
