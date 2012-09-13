@@ -624,6 +624,9 @@ static void win_printversion(void)
             case 1:
                 ver = osv.wProductType == VER_NT_WORKSTATION ? "7" : "Server 2008 R2";
                 break;
+            case 2:
+                ver = osv.wProductType == VER_NT_WORKSTATION ? "8" : "Server 2012";
+                break;
             }
             break;
         }
