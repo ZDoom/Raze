@@ -485,7 +485,7 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
     const uint8_t *ptr;
     int32_t            blocktype;
     int32_t            lastblocktype;
-    size_t  blocklength;
+    size_t  blocklength = 0;
     uint32_t   samplespeed = 0;  // XXX: compiler-happy on synthesis
     uint32_t   tc = 0;
     int32_t            packtype;

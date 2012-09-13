@@ -3671,7 +3671,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
     char *mptr = NULL;
     static char firstime=1;
     int32_t i,j;
-    int32_t fs,fp;
+    int32_t fs=0,fp=0;
     int32_t startcompiletime;
     instype *oscriptPtr;
     int32_t ostateCount = g_stateCount;
