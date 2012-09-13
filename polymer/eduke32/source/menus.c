@@ -1083,12 +1083,12 @@ void M_DisplayMenus(void)
                             if (ud.weaponswitch & 4)
                                 i = 2;
                         }
-                        mgametext(d+40,yy,s[i],MENUHIGHLIGHT(io),2+8+16);
+                        mgametext(d+45,yy,s[i],MENUHIGHLIGHT(io),2+8+16);
                     }
                         break;
 
                     case 6:
-                        mgametext(d+40,yy,ud.weaponswitch&2?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
+                        mgametext(d+45,yy,ud.weaponswitch&2?"On":"Off",MENUHIGHLIGHT(io),2+8+16);
                         break;
 
                     default:

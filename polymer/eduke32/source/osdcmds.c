@@ -1392,7 +1392,7 @@ int32_t registerosdcommands(void)
         { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing", (void *)&ud.viewbob, CVAR_BOOL, 0, 1 },
 
         { "cl_weaponsway", "cl_weaponsway: enable/disable player weapon swaying", (void *)&ud.weaponsway, CVAR_BOOL, 0, 1 },
-        { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void *)&ud.weaponswitch, CVAR_INT|CVAR_MULTI, 0, 3 },
+        { "cl_weaponswitch", "cl_weaponswitch: enable/disable auto weapon switching", (void *)&ud.weaponswitch, CVAR_INT|CVAR_MULTI, 0, 7 },
         { "cl_angleinterpolation", "cl_angleinterpolation: enable/disable angle interpolation", (void *)&ud.angleinterpolation, CVAR_INT, 0, 256 },
 
         { "color", "color: changes player palette", (void *)&ud.color, CVAR_INT|CVAR_MULTI, 0, g_numRealPalettes },
