@@ -799,6 +799,11 @@ void debugprintf(const char *f, ...)
 }
 
 
+int32_t handleevents_peekkeys(void)
+{
+    return 0;
+}
+
 //
 // handleevents() -- process the Windows message queue
 //   returns !0 if there was an important event worth checking (like quitting)

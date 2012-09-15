@@ -1862,6 +1862,17 @@ static SDL_Surface *loadappicon(void)
 //
 //
 
+int32_t handleevents_peekkeys(void)
+{
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION == 2)
+    SDL_PumpEvents();
+    return SDL_PeepEvents(NULL, 1, SDL_PEEKEVENT, SDL_EVENTMASK(SDL_KEYDOWN));
+#else
+    // SDL 1.3 up has not been tested to compile.
+    return 0;
+#endif
+}
+
 
 //
 // handleevents() -- process the SDL message queue

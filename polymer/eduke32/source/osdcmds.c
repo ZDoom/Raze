@@ -296,7 +296,8 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
 // Notes:
 //  * The demos should be recorded with demorec_diffs set to 0, so that the
 //    game state updates are actually computed.
-//  * There's currently no way to abort the profiling.
+//  * Currently, the profiling can only be aborted on SDL 1.2 builds by
+//    pressing any key.
 //  * With <prof> greater than 1, interpolation should be calculated properly,
 //    though this has not been verified by looking at the frames.
 //  * When testing whether a change in the source has an effect on performance,

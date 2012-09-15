@@ -371,7 +371,7 @@ int32_t Demo_IsProfiling(void)
     return (g_demo_profile > 0);
 }
 
-void Demo_StopProfiling(void)
+static void Demo_StopProfiling(void)
 {
     g_demo_stopProfile = 1;
 }
@@ -821,6 +821,9 @@ nextdemo_nomenu:
 
                 // draw status
                 Demo_DisplayProfStatus();
+
+                if (handleevents_peekkeys())
+                    Demo_StopProfiling();
             }
             else if (r_maxfps == 0 || tt >= nextrender)
             {
