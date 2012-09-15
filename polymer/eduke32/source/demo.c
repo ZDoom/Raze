@@ -227,10 +227,13 @@ error_wopen_demo:
         g_demo_cnt = 1;
 }
 
-static int32_t g_demo_playFirstFlag = 0;
-void Demo_PlayFirst(void)
+// demo_profile: < 0: prepare
+static int32_t g_demo_playFirstFlag, g_demo_profile, g_demo_stopProfile;
+void Demo_PlayFirst(int32_t prof)
 {
     g_demo_playFirstFlag = 1;
+    Bassert(prof >= 0);
+    g_demo_profile = -prof;  // prepare
 }
 
 
@@ -355,6 +358,106 @@ static int32_t Demo_ReadSync(int32_t errcode)
     return 0;
 }
 
+////////// DEMO PROFILING (TIMEDEMO MODE) //////////
+static struct {
+    int32_t numtics, numframes;
+    double totalgamems;
+    double totalroomsdrawms, totalrestdrawms;
+    double starthitickms;
+} g_prof;
+
+int32_t Demo_IsProfiling(void)
+{
+    return (g_demo_profile > 0);
+}
+
+void Demo_StopProfiling(void)
+{
+    g_demo_stopProfile = 1;
+}
+
+static void Demo_GToc(double t)
+{
+    g_prof.numtics++;
+    g_prof.totalgamems += gethitickms()-t;
+}
+
+static void Demo_RToc(double t1, double t2)
+{
+    g_prof.numframes++;
+    g_prof.totalroomsdrawms += t2-t1;
+    g_prof.totalrestdrawms += gethitickms()-t2;
+}
+
+static void Demo_DisplayProfStatus(void)
+{
+    char buf[64];
+
+    static int32_t lastpercent=-1;
+    int32_t percent = (100*g_demo_cnt)/g_demo_totalCnt;
+
+    if (lastpercent == percent)
+        return;
+    lastpercent = percent;
+
+    clearallviews(0);
+    Bsnprintf(buf, sizeof(buf), "timing... %d/%d game tics (%d %%)",
+              g_demo_cnt, g_demo_totalCnt, percent);
+    gametext(160,60, buf, 0, 2+8+16);
+    nextpage();
+}
+
+static void Demo_SetupProfile(void)
+{
+    g_demo_profile *= -1;  // now >0: profile for real
+
+    g_demo_soundToggle = ud.config.SoundToggle;
+    ud.config.SoundToggle = 0;  // restored by Demo_FinishProfile()
+
+    Bmemset(&g_prof, 0, sizeof(g_prof));
+
+    g_prof.starthitickms = gethitickms();
+}
+
+static void Demo_FinishProfile(void)
+{
+    if (Demo_IsProfiling())
+    {
+        int32_t dn=g_whichDemo-1;
+        int32_t nt=g_prof.numtics, nf=g_prof.numframes;
+        double gms=g_prof.totalgamems;
+        double dms1=g_prof.totalroomsdrawms, dms2=g_prof.totalrestdrawms;
+
+        ud.config.SoundToggle = g_demo_soundToggle;
+
+        if (nt > 0)
+        {
+            OSD_Printf("== demo %d: %d gametics\n", dn, nt);
+            OSD_Printf("== demo %d game times: %.03f ms (%.03f us/gametic)\n",
+                       dn, gms, (gms*1000.0)/nt);
+        }
+
+        if (nf > 0)
+        {
+            OSD_Printf("== demo %d: %d frames (%d frames/gametic)\n", dn, nf, g_demo_profile-1);
+            OSD_Printf("== demo %d drawrooms times: %.03f s (%.03f ms/frame)\n",
+                       dn, dms1/1000.0, dms1/nf);
+            OSD_Printf("== demo %d drawrest times: %.03f s (%.03f ms/frame)\n",
+                       dn, dms2/1000.0, dms2/nf);
+        }
+
+        {
+            double totalprofms = gms+dms1+dms2;
+            double totalms = gethitickms()-g_prof.starthitickms;
+            OSD_Printf("== demo %d: non-profiled time overhead: %.02f %%\n",
+                       dn, 100.0*totalms/totalprofms - 100.0);
+        }
+    }
+
+    g_demo_profile = 0;
+    g_demo_stopProfile = 0;
+}
+////////////////////
 
 int32_t G_PlaybackDemo(void)
 {
@@ -365,6 +468,8 @@ int32_t G_PlaybackDemo(void)
 
     if (ready2send)
         return 0;
+
+    g_demo_profile = 0;
 
 RECHECK:
 
@@ -421,6 +526,10 @@ RECHECK:
 #if KRANDDEBUG
         krd_enable(2);
 #endif
+        if (g_demo_profile < 0)
+        {
+            Demo_SetupProfile();
+        }
     }
 
     if (foundemo == 0 || in_menu || I_CheckAllInput() || numplayers > 1)
@@ -447,6 +556,7 @@ RECHECK:
         {
             g_demo_playFirstFlag = 0;
             g_whichDemo = 1;  // force g_firstDemoFile[]
+            g_demo_paused = 0;
             goto nextdemo_nomenu;
         }
 
@@ -492,6 +602,9 @@ RECHECK:
 
                 Demo_RestoreModes(menu);
             }
+
+            if (g_demo_stopProfile)
+                Demo_FinishProfile();
 
             while (totalclock >= (lockclock+TICSPERFRAME)
                 //                   || (ud.reccnt > REALGAMETICSPERSEC*2 && ud.pause_on)
@@ -576,6 +689,8 @@ nextdemo_nomenu:
                             ud.config.SoundToggle = g_demo_soundToggle;
                         }
 
+                        if (Demo_IsProfiling())  // don't reset g_demo_profile if it's < 0
+                            Demo_FinishProfile();
                         goto RECHECK;
                     }
                 }
@@ -592,14 +707,24 @@ nextdemo_nomenu:
 
                 g_demo_cnt++;
 
-                if (!g_demo_paused)
+                if (Demo_IsProfiling())
+                {
+                    int32_t t = gethitickms();
+                    G_DoMoveThings();
+                    Demo_GToc(t);
+                }
+                else if (!g_demo_paused)
                 {
                     // assumption that ud.multimode doesn't change in a demo may not be true
                     // sometime in the future                    v v v v v v v v v
                     if (g_demo_goalCnt==0 || !demo_hasdiffs || ud.reccnt/ud.multimode>=g_demo_goalCnt-g_demo_cnt)
+                    {
                         G_DoMoveThings();  // increases lockclock by TICSPERFRAME
+                    }
                     else
+                    {
                         lockclock += TICSPERFRAME;
+                    }
                 }
                 else
                 {
@@ -631,6 +756,9 @@ nextdemo_nomenu:
             totalclock = lockclock;
         }
 
+        if (Demo_IsProfiling())
+            totalclock += TICSPERFRAME;
+
         if (foundemo == 0)
         {
             G_DrawBackground();
@@ -640,6 +768,9 @@ nextdemo_nomenu:
             static uint32_t nextrender = 0, framewaiting = 0;
             uint32_t tt;
 
+            // NOTE: currently, no key/mouse events will be seen while
+            // demo-profiling because we need 'totalclock' for ourselves.
+            // And handleevents() -> sampletimer() would mess that up.
             G_HandleLocalKeys();
 
             if (framewaiting)
@@ -657,7 +788,41 @@ nextdemo_nomenu:
 
             tt = getticks();
 
-            if (r_maxfps == 0 || tt >= nextrender)
+            // Render one frame (potentially many if profiling)
+            if (Demo_IsProfiling())
+            {
+                int32_t i, num = g_demo_profile-1;
+
+                Bassert(totalclock-ototalclock==4);
+
+                for (i=0; i<num; i++)
+                {
+                    double t1 = gethitickms(), t2;
+
+//                    initprintf("t=%d, o=%d, t-o = %d\n", totalclock,
+//                               ototalclock, totalclock-ototalclock);
+
+                    // NOTE: G_DrawRooms() calculates smoothratio inside and
+                    // ignores the function argument, so we set totalclock
+                    // accordingly.
+                    j = (i<<16)/num;
+                    totalclock = ototalclock + (j>>16);
+
+                    G_DrawRooms(screenpeek,j);
+
+                    t2 = gethitickms();
+
+                    G_DisplayRest(j);
+
+                    Demo_RToc(t1, t2);
+                }
+
+                totalclock = ototalclock+4;
+
+                // draw status
+                Demo_DisplayProfStatus();
+            }
+            else if (r_maxfps == 0 || tt >= nextrender)
             {
                 if (tt > nextrender+g_frameDelay)
                     nextrender = tt;
@@ -674,7 +839,7 @@ nextdemo_nomenu:
                 framewaiting++;
             }
 
-            if ((g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+            if (!Demo_IsProfiling() && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             {
                 if (demoplay_showsync && outofsync)
                     gametext(160,100,"OUT OF SYNC",0,2+8+16);
@@ -717,7 +882,10 @@ nextdemo_nomenu:
         }
 
         if ((g_player[myconnectindex].ps->gm&MODE_MENU) && (g_player[myconnectindex].ps->gm&MODE_EOL))
+        {
+            Demo_FinishProfile();
             goto RECHECK;
+        }
 
         if (I_EscapeTrigger() && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && (g_player[myconnectindex].ps->gm&MODE_TYPE) == 0)
         {
@@ -729,7 +897,12 @@ nextdemo_nomenu:
             S_MenuSound();
         }
 
-        if (g_player[myconnectindex].ps->gm&MODE_TYPE)
+        if (Demo_IsProfiling())
+        {
+            // Do nothing: sampletimer() is reached from M_DisplayMenus() ->
+            // Net_GetPackets() else.
+        }
+        else if (g_player[myconnectindex].ps->gm&MODE_TYPE)
         {
             Net_EnterMessage();
 
@@ -756,7 +929,8 @@ nextdemo_nomenu:
             }
         }
 
-        G_PrintGameQuotes(screenpeek);
+        if (!Demo_IsProfiling())
+            G_PrintGameQuotes(screenpeek);
 
         if (ud.last_camsprite != ud.camerasprite)
         {
@@ -770,7 +944,10 @@ nextdemo_nomenu:
                 rotatesprite_fs((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128);
         }
 
-        G_HandleAsync();
+        // NOTE: We must prevent handleevents() and Net_GetPackets() from
+        // updating totalclock when profiling (both via sampletimer()):
+        if (!Demo_IsProfiling())
+            G_HandleAsync();
 
         if (ud.recstat==0)
             nextpage();
@@ -793,6 +970,8 @@ nextdemo_nomenu:
 
     ud.multimode = numplayers;  // fixes 2 infinite loops after watching demo
     kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
+
+    Demo_FinishProfile();
 
     // if we're in the menu, try next demo immediately
     if (g_player[myconnectindex].ps->gm&MODE_MENU)

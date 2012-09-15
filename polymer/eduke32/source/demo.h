@@ -48,7 +48,10 @@ void G_CloseDemoWrite(void);
 void G_DemoRecord(void);
 void G_OpenDemoWrite(void);
 
-void Demo_PlayFirst(void);
+void Demo_PlayFirst(int32_t prof);
+
+int32_t Demo_IsProfiling(void);
+void Demo_StopProfiling(void);
 
 #if KRANDDEBUG
 int32_t krd_print(const char *filename);

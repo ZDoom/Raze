@@ -287,6 +287,22 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+// demo <demonum or demofn> [<prof>]
+//
+// To profile a demo ("timedemo mode"), <prof> can be given in the range 0-8,
+// which will start to replay it as fast as possible, rendering <prof> frames
+// for each gametic.
+//
+// Notes:
+//  * The demos should be recorded with demorec_diffs set to 0, so that the
+//    game state updates are actually computed.
+//  * There's currently no way to abort the profiling.
+//  * With <prof> greater than 1, interpolation should be calculated properly,
+//    though this has not been verified by looking at the frames.
+//  * When testing whether a change in the source has an effect on performance,
+//    the variance of the run times MUST be taken into account (that is, the
+//    replaying must be performed multiple times for the old and new versions,
+//    etc.)
 static int32_t osdcmd_demo(const osdfuncparm_t *parm)
 {
     if (numplayers > 1)
@@ -301,20 +317,21 @@ static int32_t osdcmd_demo(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
-    if (parm->numparms != 1)
+    if (parm->numparms != 1 && parm->numparms != 2)
         return OSDCMD_SHOWHELP;
 
     {
         char *tailptr;
         const char *demostr = parm->parms[0];
         int32_t i = Bstrtol(demostr, &tailptr, 10);
+        int32_t prof = parm->numparms==2 ? Batoi(parm->parms[1]) : -1;
 
         if (tailptr!=demostr && i>=0 && i<=999)  // demo number passed
             Bsprintf(g_firstDemoFile, "edemo%03d.edm", i);
         else  // demo file name passed
             maybe_append_ext(g_firstDemoFile, sizeof(g_firstDemoFile), parm->parms[0], ".edm");
 
-        Demo_PlayFirst();
+        Demo_PlayFirst(clamp(prof, -1, 8)+1);
     }
 
     return OSDCMD_OK;

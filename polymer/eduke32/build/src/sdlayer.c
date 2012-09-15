@@ -825,7 +825,6 @@ void sampletimer(void)
     int32_t n;
 
     if (!timerfreq) return;
-
     i = SDL_GetTicks();
     n = (int32_t)(i * timerticspersec / timerfreq) - timerlastsample;
     if (n>0)
