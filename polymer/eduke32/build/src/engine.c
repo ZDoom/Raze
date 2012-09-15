@@ -13567,20 +13567,27 @@ void setaspect_new()
         const int32_t xd = setaspect_new_use_dimen ? xdimen : xdim;
         const int32_t yd = setaspect_new_use_dimen ? ydimen : ydim;
 
-        if (fullscreen)
+        if (fullscreen && !setaspect_new_use_dimen)
         {
-            int32_t pixratio;
+            const int32_t screenw = r_screenxy/100;
+            const int32_t screenh = r_screenxy%100;
 
-            x=r_screenxy/100; y=r_screenxy%100;
-            if (y==0 || x==0)
+            if (screenw==0 || screenh==0)
             {
                 // Assume square pixel aspect.
-                x = xdim;
-                y = ydim;
+                x = xd;
+                y = yd;
             }
+            else
+            {
+                int32_t pixratio;
 
-            pixratio = divscale16(xd*y, yd*x);
-            yx = divscale16(yx, pixratio);
+                x = screenw;
+                y = screenh;
+
+                pixratio = divscale16(xdim*screenh, ydim*screenw);
+                yx = divscale16(yx, pixratio);
+            }
         }
         else
         {
