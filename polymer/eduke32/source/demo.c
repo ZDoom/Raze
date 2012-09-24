@@ -507,7 +507,7 @@ RECHECK:
         }
 
         fadepal(0,0,0, 0,63,7);
-        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0 /*1*/);    // JBF 20040308
+        P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         G_DrawBackground();
         M_DisplayMenus();
         //g_player[myconnectindex].ps->palette = palette;

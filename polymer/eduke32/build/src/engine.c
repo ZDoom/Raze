@@ -13858,7 +13858,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
     int32_t paldidchange, palsumdidchange;
 //    uint32_t lastbright = curbrightness;
 
-    Bassert((flags&(1+4))==0);
+    Bassert((flags&4)==0);
 
     if (dapalid >= basepalcount)
         dapalid = 0;
@@ -13904,7 +13904,8 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 
         if (palsumdidchange || newpalettesum != g_lastpalettesum)
         {
-            if ((flags&1) == 0) setpalette(0,256);
+//            if ((flags&1) == 0)
+                setpalette(0,256);
         }
 
         g_lastpalettesum = lastpalettesum = newpalettesum;

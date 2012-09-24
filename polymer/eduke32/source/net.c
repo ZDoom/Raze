@@ -1988,7 +1988,7 @@ void Net_WaitForServer(void)
 
     if (numplayers < 2 || g_netServer) return;
 
-    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2);
+    P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2+1);
 
     do
     {
@@ -2009,7 +2009,7 @@ void Net_WaitForServer(void)
 
         if (g_player[0].pingcnt > server_ready)
         {
-            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2);
+            P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);
             return;
         }
     }
