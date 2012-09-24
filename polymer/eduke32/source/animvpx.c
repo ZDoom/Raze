@@ -264,13 +264,18 @@ read_ivf_frame:
             return 4;
         }
 
+// Compilation fix for Debian 6.0 (squeeze), which doesn't have
+// VP8D_GET_FRAME_CORRUPTED.
+// LibVPX doesn't seem to have a version #define, so we use the
+// following one to determine conditional compilation.
+#ifdef VPX_CODEC_CAP_ERROR_CONCEALMENT
         if (vpx_codec_control(&codec->codec, VP8D_GET_FRAME_CORRUPTED, &corrupted))
         {
             get_codec_error(codec);
             codec->decstate = -2;
             return 7;
         }
-
+#endif
         if (corrupted)
             OSD_Printf("warning: corrupted frame!\n");
     }
