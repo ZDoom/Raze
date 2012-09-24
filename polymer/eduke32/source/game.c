@@ -8943,10 +8943,37 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     ud.m_coop--;
                     break;
                 case 'd':
+                {
+                    char *colon = Bstrchr(c, ':');
+                    int32_t framespertic=-1, numrepeats=1;
+
                     c++;
+
+                    if (colon && colon != c)
+                    {
+                        // -d<filename>:<num>[,<num>]
+                        // profiling options
+                        *(colon++) = 0;
+                        Bsscanf(colon, "%u,%u", &framespertic, &numrepeats);
+                    }
+
                     maybe_append_ext(g_firstDemoFile, sizeof(g_firstDemoFile), c, ".edm");
-                    initprintf("Play demo %s.\n",g_firstDemoFile);
+
+                    if (framespertic < 0)
+                    {
+                        initprintf("Play demo %s.\n", g_firstDemoFile);
+                    }
+                    else
+                    {
+                        framespertic = clamp(framespertic, 0, 8)+1;
+                        // TODO: repeat count and gathering statistics.
+                        initprintf("Profile demo %s, %d frames/gametic, repeated 1x.\n", g_firstDemoFile,
+                                   framespertic-1);
+                        Demo_PlayFirst(framespertic, 1);
+                        g_noLogo = 1;
+                    }
                     break;
+                }
                 case 'g':
                     c++;
                     if (*c)

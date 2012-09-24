@@ -229,9 +229,11 @@ error_wopen_demo:
 
 // demo_profile: < 0: prepare
 static int32_t g_demo_playFirstFlag, g_demo_profile, g_demo_stopProfile;
-void Demo_PlayFirst(int32_t prof)
+static int32_t g_demo_exitAfter;
+void Demo_PlayFirst(int32_t prof, int32_t exitafter)
 {
     g_demo_playFirstFlag = 1;
+    g_demo_exitAfter = exitafter;
     Bassert(prof >= 0);
     g_demo_profile = -prof;  // prepare
 }
@@ -449,8 +451,9 @@ static void Demo_FinishProfile(void)
         {
             double totalprofms = gms+dms1+dms2;
             double totalms = gethitickms()-g_prof.starthitickms;
-            OSD_Printf("== demo %d: non-profiled time overhead: %.02f %%\n",
-                       dn, 100.0*totalms/totalprofms - 100.0);
+            if (totalprofms != 0)
+                OSD_Printf("== demo %d: non-profiled time overhead: %.02f %%\n",
+                           dn, 100.0*totalms/totalprofms - 100.0);
         }
     }
 
@@ -469,9 +472,14 @@ int32_t G_PlaybackDemo(void)
     if (ready2send)
         return 0;
 
-    g_demo_profile = 0;
+    if (!g_demo_playFirstFlag)
+        g_demo_profile = 0;
 
 RECHECK:
+    if (g_demo_playFirstFlag)
+        g_demo_playFirstFlag = 0;
+    else if (g_demo_exitAfter)
+        G_GameExit(" ");
 
 #if KRANDDEBUG
     if (foundemo)

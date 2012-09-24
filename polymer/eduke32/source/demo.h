@@ -48,7 +48,7 @@ void G_CloseDemoWrite(void);
 void G_DemoRecord(void);
 void G_OpenDemoWrite(void);
 
-void Demo_PlayFirst(int32_t prof);
+void Demo_PlayFirst(int32_t prof, int32_t exitafter);
 
 int32_t Demo_IsProfiling(void);
 

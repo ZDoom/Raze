@@ -332,7 +332,7 @@ static int32_t osdcmd_demo(const osdfuncparm_t *parm)
         else  // demo file name passed
             maybe_append_ext(g_firstDemoFile, sizeof(g_firstDemoFile), parm->parms[0], ".edm");
 
-        Demo_PlayFirst(clamp(prof, -1, 8)+1);
+        Demo_PlayFirst(clamp(prof, -1, 8)+1, 0);
     }
 
     return OSDCMD_OK;
