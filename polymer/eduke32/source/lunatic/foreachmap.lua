@@ -31,7 +31,8 @@ if (#arg < 1) then
     wr("The third form is a shortcut for quickly finding sectors/walls/sprites\n")
     wr("satisfying a certain condition (see example below)\n\n")
     wr("Examples: ./foreachmap.lua -e\"if map.numbunches==1 then print(fn) end\" ~/.eduke32/*.map\n")
-    wr("          ./foreachmap.lua -e\"sprite: .picnum==10 and .lotag==2563\" *.map\n\n")
+    wr("          ./foreachmap.lua -e\"sprite: .picnum==10 and .lotag==2563\" *.map\n")
+    wr("          ./foreachmap.lua -e\"sprite:: ...  -- (only prints the file names)\n\n")
     return
 end
 
@@ -42,14 +43,17 @@ if (modname:sub(1,2) == "-e") then
     local body = modname:sub(3)
 
     -- sector/wall/sprite finder shortcut
-    local b, e, what = body:find("^([a-z]+):")
+    local b, e, what = body:find("^([a-z]+)::?")
     if (what) then
+        local onlyfiles = (body:sub(e-1,e)=="::")  -- "::" means "only list files" (like grep -l)
         body = body:sub(e+1)
         body = body:gsub("%.[a-z]+", what.."[i]%0")
         body =
-            "for i=0,num"..what.."s-1 do"..
-            "  if ("..body..") then print(fn..': '..i) end "..
-            "end"
+            "for i=0,num"..what.."s-1 do\n"..
+            "  if ("..body..") then\n"..
+            (onlyfiles and "print(fn); return\n" or "print(fn..': '..i)\n") ..
+            "  end\n"..
+            "end\n"
     end
 
     local successfunc, errmsg = loadstring(
