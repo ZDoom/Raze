@@ -11910,6 +11910,48 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
             sprite[i].picnum = 0;
             CORRUPTCHK_PRINT(0, CORRUPT_SPRITE|i, "SPRITE[%d].PICNUM=%d out of range, resetting to 0", i, sprite[i].picnum);
         }
+
+        if (klabs(sprite[i].x) > BXY_MAX || klabs(sprite[i].y) > BXY_MAX)
+        {
+            int32_t onumct = numcorruptthings;
+
+            CORRUPTCHK_PRINT(3, CORRUPT_SPRITE|i, "SPRITE %d at [%d, %d] is out of the maximal grid range [%d, %d]",
+                             sprite[i].x, sprite[i].y, i, -BXY_MAX, BXY_MAX);
+
+            if (onumct < MAXCORRUPTTHINGS)
+            {
+                int32_t x=0, y=0, sect=sprite[i].sectnum, ok=0;
+
+                if ((unsigned)sect < (unsigned)numsectors)
+                {
+                    int32_t firstwall = sector[sect].wallptr;
+
+                    if ((unsigned)firstwall < (unsigned)numwalls)
+                    {
+                        x = wall[firstwall].x;
+                        y = wall[firstwall].y;
+                        ok = 1;
+                    }
+                }
+
+                if (!(tryfixing & (1ull<<onumct)))
+                {
+                    if (ok && 3 >= printfromlev)
+                        OSD_Printf("   will reposition to its sector's (%d) first"
+                                   " point [%d,%d] on tryfix\n", sect, x, y);
+                }
+                else
+                {
+                    if (ok)
+                    {
+                        sprite[i].x = x;
+                        sprite[i].y = y;
+                        OSD_Printf(CCHK_CORRECTED "auto-correction: repositioned sprite %d to "
+                                   "its sector's (%d) first point [%d,%d]\n", i, sect, x, y);
+                    }
+                }
+            }
+        }
     }
 
     i = check_spritelist_consistency();
