@@ -11667,10 +11667,14 @@ restart_grand:
                 if ((cstat&64) != 0)
                     if ((sv->z > intz) == ((cstat&8)==0)) continue;
 
-#if 0           // Abyss crash prevention code ((intz-sv->z)*zx overflowing a 8-bit word)
-                zz=(int32_t)((intz-sv->z)*vx);
+#if 1
+                // Abyss crash prevention code ((intz-sv->z)*zx overflowing a 8-bit word)
+                // PK: the reason for the crash is not the overflowing (even if it IS a problem;
+                // signed overflow is undefined behavior in C), but rather the idiv trap when
+                // the resulting quotient doesn't fit into a *signed* 32-bit integer.
+                zz = (uint32_t)(intz-sv->z) * vx;
                 intx = sv->x+scale(zz,1,vz);
-                zz=(int32_t)((intz-sv->z)*vy);
+                zz = (uint32_t)(intz-sv->z) * vy;
                 inty = sv->y+scale(zz,1,vz);
 #else
                 intx = sv->x+scale(intz-sv->z,vx,vz);
