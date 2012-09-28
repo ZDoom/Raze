@@ -39,6 +39,7 @@ EXTRN _espbak : dword
 EXTRN _pow2char : near
 EXTRN _pow2long : near
 
+EXTRN _globaltilesizy : dword
 
 ; Some macros to help make cdecl calling easier to manage
 CDECLBEGIN MACRO noi:=<0>
@@ -188,6 +189,12 @@ ALIGN 16
 PUBLIC _setvlinebpl
 _setvlinebpl:
 CDECLBEGINSET 1
+	mov dword ptr [np2_fixchain1a+2], eax
+	mov dword ptr [np2_fixchain1b+2], eax
+
+	mov dword ptr [mnp2_fixchain1b+2], eax
+	mov dword ptr [tnp2_fixchain1b+2], eax
+
 	mov dword ptr [fixchain1a+2], eax
 	mov dword ptr [fixchain1b+2], eax
 	mov dword ptr [fixchain1m+2], eax
@@ -586,6 +593,35 @@ CDECLENDSET 6
 	ret
 
 ALIGN 16
+PUBLIC _vlineasm1nonpow2
+_vlineasm1nonpow2:
+CDECLBEGINSET 6
+	mov dword ptr [np2_do_palookup+2], ebx
+	push ebp
+	mov ebp, edx  ; ebp: vertical place
+	mov ebx, eax  ; ebx: vertical increment
+	mov eax, dword ptr [globaltilesizy]
+	mov dword ptr [np2_beginvline+1], eax
+	inc ecx
+np2_fixchain1a: sub edi, 320
+np2_beginvline: ; +1: y tile size
+	mov eax, 0x00000123
+	mul ebp
+np2_fixchain1b: add edi, 320
+	and eax, 0x000000ff
+	mov al, byte ptr [esi+edx]
+	add ebp, ebx
+	dec ecx
+np2_do_palookup: ; +2: addr
+	mov al, byte ptr [0xbeeff00d+eax]
+	mov byte ptr [edi], al
+	jnz short np2_beginvline
+	mov eax, ebp
+	pop ebp
+CDECLENDSET 6
+	ret
+
+ALIGN 16
 PUBLIC _mvlineasm1      ;Masked vline
 _mvlineasm1:
 CDECLBEGINSET 6
@@ -610,6 +646,36 @@ fixchain1m: add edi, 320
 CDECLENDSET 6
 	ret
 
+	ALIGN 16
+PUBLIC _mvlineasm1nonpow2
+_mvlineasm1nonpow2:
+CDECLBEGINSET 6
+	mov dword ptr [mnp2_do_palookup+2], ebx
+	push ebp
+	mov ebp, edx  ; ebp: vertical place
+	mov ebx, eax  ; ebx: vertical increment
+	mov eax, dword ptr [globaltilesizy]
+	mov dword ptr [mnp2_beginvline+1], eax
+mnp2_beginvline: ; +1: y tile size
+	mov eax, 0x00000123
+	mul ebp
+	and eax, 0x000000ff
+	mov al, byte ptr [esi+edx]
+	cmp al, 255
+	je short mskipmask1
+mnp2_do_palookup: ; +2: addr
+	mov al, byte ptr [0xbeeff00d+eax]
+	mov byte ptr [edi], al
+mskipmask1:
+	add ebp, ebx
+mnp2_fixchain1b: add edi, 320
+	sub ecx, 1
+	jnc short mnp2_beginvline
+	mov eax, ebp
+	pop ebp
+CDECLENDSET 6
+	ret
+
 ALIGN 16
 PUBLIC _fixtransluscence
 _fixtransluscence:
@@ -623,6 +689,8 @@ CDECLBEGINSET 1
 	mov dword ptr [tran2trab+2], eax
 	mov dword ptr [tran2trac+2], eax
 	mov dword ptr [tran2trad+2], eax
+
+	mov dword ptr [tnmach4+2], eax
 CDECLENDSET 1
 	ret
 
@@ -647,6 +715,10 @@ _settransnormal:
 	mov byte ptr [transrev15+1], 9ah
 	mov byte ptr [transrev16+1], 0a7h
 	mov byte ptr [transrev17+1], 82h
+
+	mov byte ptr [ntransrev0+1], 80h
+	mov byte ptr [ntransrev1+1], 27h
+
 	ret
 
 ALIGN 16
@@ -670,6 +742,10 @@ _settransreverse:
 	mov byte ptr [transrev15+1], 0bah
 	mov byte ptr [transrev16+1], 87h
 	mov byte ptr [transrev17+1], 0a2h
+
+	mov byte ptr [ntransrev0+1], 0a0h
+	mov byte ptr [ntransrev1+1], 7h
+
 	ret
 
 ALIGN 16
@@ -703,6 +779,41 @@ fixchain1t: add edi, 320
 
 	pop ebp
 	mov eax, edx
+CDECLENDSET 6
+	ret
+
+	ALIGN 16
+PUBLIC _tvlineasm1nonpow2
+_tvlineasm1nonpow2:
+CDECLBEGINSET 6
+	mov dword ptr [tnp2_do_palookup+2], ebx
+	push ebp
+	mov ebp, edx  ; ebp: vertical place
+	mov ebx, eax  ; ebx: vertical increment
+	inc ecx
+	mov eax, dword ptr [globaltilesizy]
+	mov dword ptr [tnp2_beginvline+1], eax
+tnp2_beginvline: ; +1: y tile size
+	mov eax, 0x00000123
+	mul ebp
+	and eax, 0x000000ff
+	mov al, byte ptr [esi+edx]
+	cmp al, 255
+	je short tskipmask1
+ntransrev0:
+tnp2_do_palookup: ; +2: addr
+	mov al, byte ptr [0xbeeff00d+eax]
+ntransrev1:
+	mov ah, byte ptr [edi]
+tnmach4: mov al, byte ptr [eax+88888888h]	;_luc[eax]
+	mov byte ptr [edi], al
+tskipmask1:
+	add ebp, ebx
+tnp2_fixchain1b: add edi, 320
+	dec ecx
+	jnz short tnp2_beginvline
+	mov eax, ebp
+	pop ebp
 CDECLENDSET 6
 	ret
 
