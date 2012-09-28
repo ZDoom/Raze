@@ -721,7 +721,7 @@ CDECLBEGINSET 6
 	mov ebp, edx  ; ebp: vertical place
 	mov ebx, eax  ; ebx: vertical increment
 	mov eax, dword [globaltilesizy]
-	mov [np2_beginvline+1], eax
+	mov dword [np2_beginvline+1], eax
 	inc ecx
 np2_fixchain1a: sub edi, 320
 np2_beginvline: ; +1: y tile size
@@ -775,7 +775,7 @@ CDECLBEGINSET 6
 	mov ebp, edx  ; ebp: vertical place
 	mov ebx, eax  ; ebx: vertical increment
 	mov eax, dword [globaltilesizy]
-	mov [mnp2_beginvline+1], eax
+	mov dword [mnp2_beginvline+1], eax
 mnp2_beginvline: ; +1: y tile size
 	mov eax, 0x00000123
 	mul ebp
@@ -912,7 +912,7 @@ CDECLBEGINSET 6
 	mov ebx, eax  ; ebx: vertical increment
 	inc ecx
 	mov eax, dword [globaltilesizy]
-	mov [tnp2_beginvline+1], eax
+	mov dword [tnp2_beginvline+1], eax
 tnp2_beginvline: ; +1: y tile size
 	mov eax, 0x00000123
 	mul ebp
