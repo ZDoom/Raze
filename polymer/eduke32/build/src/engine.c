@@ -47,6 +47,7 @@
 #include "engine_priv.h"
 
 #define CACHEAGETIME 16
+//#define CLASSIC_NONPOW2_YSIZE
 
 #if !defined DEBUG_MAIN_ARRAYS
 const int32_t engine_main_arrays_are_static = 0;  // for Lunatic
@@ -2640,6 +2641,11 @@ skipitaddwall:
     while (sectorbordercnt > 0);
 }
 
+#undef NONPOW2_YSIZE_ASM
+#if defined CLASSIC_NONPOW2_YSIZE && !defined ENGINE_USING_A_C
+# define NONPOW2_YSIZE_ASM
+#endif
+
 
 //
 // maskwallscan (internal)
@@ -2686,7 +2692,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
 
     p = x+frameoffset;
 
-#ifndef ENGINE_USING_A_C
+#ifdef NONPOW2_YSIZE_ASM
     if (globalshiftval==0)
         goto do_mvlineasm1;
 #endif
@@ -2766,7 +2772,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         if (y2ve[2] > d4) mvlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],pp+2);
         if (y2ve[3] > d4) mvlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],pp+3);
     }
-#ifndef ENGINE_USING_A_C
+#ifdef NONPOW2_YSIZE_ASM
 do_mvlineasm1:
 #endif
     for (; x<=x2; x++,p++)
@@ -2784,7 +2790,7 @@ do_mvlineasm1:
         vince[0] = (int64_t)swal[x]*globalyscale;
         vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
-#ifndef ENGINE_USING_A_C
+#ifdef NONPOW2_YSIZE_ASM
         if (globalshiftval==0)
             mvlineasm1nonpow2(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],p+ylookup[y1ve[0]]);
         else
@@ -3676,7 +3682,7 @@ static void wallscan(int32_t x1, int32_t x2,
     x = x1;
     while ((umost[x] > dmost[x]) && (x <= x2)) x++;
 
-#ifndef ENGINE_USING_A_C
+#ifdef NONPOW2_YSIZE_ASM
     if (globalshiftval==0)
         goto do_vlineasm1;
 #endif
@@ -3756,7 +3762,7 @@ static void wallscan(int32_t x1, int32_t x2,
         if (y2ve[2] > d4) prevlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],p+2);
         if (y2ve[3] > d4) prevlineasm1(vince[3],palookupoffse[3],y2ve[3]-d4-1,vplce[3],bufplce[3],p+3);
     }
-#ifndef ENGINE_USING_A_C
+#ifdef NONPOW2_YSIZE_ASM
 do_vlineasm1:
 #endif
     for (; x<=x2; x++)
@@ -3774,7 +3780,7 @@ do_vlineasm1:
         vince[0] = (int64_t)swal[x]*globalyscale;
         vplce[0] = globalzd + (uint32_t)vince[0]*(y1ve[0]-globalhoriz+1);
 
-#ifndef ENGINE_USING_A_C
+#ifdef NONPOW2_YSIZE_ASM
         if (globalshiftval==0)
             vlineasm1nonpow2(vince[0],palookupoffse[0],y2ve[0]-y1ve[0]-1,vplce[0],bufplce[0]+waloff[globalpicnum],x+frameoffset+ylookup[y1ve[0]]);
         else
@@ -3813,7 +3819,7 @@ static void transmaskvline(int32_t x)
 
     p = ylookup[y1v]+x+frameoffset;
 
-#ifndef ENGINE_USING_A_C
+#ifdef NONPOW2_YSIZE_ASM
     if (globalshiftval==0)
         tvlineasm1nonpow2(vinc,palookupoffs,y2v-y1v,vplc,bufplc,p);
     else
@@ -4527,12 +4533,10 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
         globvis = mulscale4(globvis, (int32_t)((uint8_t)(secvisibility+16)));
 
     globalshiftval = logtilesizy;
-#if 1
+#if !defined CLASSIC_NONPOW2_YSIZE
     // before proper non-power-of-two tilesizy drawing
     if (pow2long[logtilesizy] != tilesizy[globalpicnum])
         globalshiftval++;
-
-    if (1)
 #else
     // non power-of-two y size textures!
     if (pow2long[logtilesizy] == tsizy)
@@ -4543,12 +4547,14 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
         globalshiftval = 32-globalshiftval;
         globalyscale = wal->yrepeat<<(globalshiftval-19);
     }
+#if defined CLASSIC_NONPOW2_YSIZE
     else
     {
         globaltilesizy = tsizy;
         globalyscale = divscale13(wal->yrepeat, tsizy);
         globalshiftval = 0;
     }
+#endif
 
     if ((globalorientation&4) == 0)
         globalzd = (((int64_t)(globalposz-topzref)*globalyscale)<<8);
@@ -5382,12 +5388,10 @@ static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
     tsizy = tilesizy[globalpicnum];
 
     globalshiftval = logtilesizy;
-#if 0
+#if !defined CLASSIC_NONPOW2_YSIZE
     // before proper non-power-of-two tilesizy drawing
-    if (pow2long[logtilesizy] != tilesizy[globalpicnum])
+    if (pow2long[logtilesizy] != tsizy)
         globalshiftval++;
-
-    if (1)
 #else
     // non power-of-two y size textures!
     if (pow2long[logtilesizy] == tsizy)
@@ -5396,12 +5400,14 @@ static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
         globalshiftval = 32-globalshiftval;
         globalyscale = divscale(512,tspr->yrepeat,globalshiftval-19);
     }
+#if defined CLASSIC_NONPOW2_YSIZE
     else
     {
         globaltilesizy = tsizy;
         globalyscale = (1<<22)/(tsizy*tspr->yrepeat);
         globalshiftval = 0;
     }
+#endif
 
     globalzd = ((int64_t)(globalposz-z1)*globalyscale)<<8;
     if ((cstat&8) > 0)
