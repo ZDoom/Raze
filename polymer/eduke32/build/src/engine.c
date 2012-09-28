@@ -47,7 +47,8 @@
 #include "engine_priv.h"
 
 #define CACHEAGETIME 16
-//#define CLASSIC_NONPOW2_YSIZE
+//#define CLASSIC_NONPOW2_YSIZE_WALLS
+#define CLASSIC_NONPOW2_YSIZE_SPRITES
 
 #if !defined DEBUG_MAIN_ARRAYS
 const int32_t engine_main_arrays_are_static = 0;  // for Lunatic
@@ -2642,8 +2643,10 @@ skipitaddwall:
 }
 
 #undef NONPOW2_YSIZE_ASM
-#if defined CLASSIC_NONPOW2_YSIZE && !defined ENGINE_USING_A_C
-# define NONPOW2_YSIZE_ASM
+#if !defined ENGINE_USING_A_C
+# if defined CLASSIC_NONPOW2_YSIZE_WALLS || defined CLASSIC_NONPOW2_YSIZE_SPRITES
+#  define NONPOW2_YSIZE_ASM
+# endif
 #endif
 
 
@@ -4533,7 +4536,7 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
         globvis = mulscale4(globvis, (int32_t)((uint8_t)(secvisibility+16)));
 
     globalshiftval = logtilesizy;
-#if !defined CLASSIC_NONPOW2_YSIZE
+#if !defined CLASSIC_NONPOW2_YSIZE_WALLS
     // before proper non-power-of-two tilesizy drawing
     if (pow2long[logtilesizy] != tilesizy[globalpicnum])
         globalshiftval++;
@@ -4547,7 +4550,7 @@ static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int3
         globalshiftval = 32-globalshiftval;
         globalyscale = wal->yrepeat<<(globalshiftval-19);
     }
-#if defined CLASSIC_NONPOW2_YSIZE
+#if defined CLASSIC_NONPOW2_YSIZE_WALLS
     else
     {
         globaltilesizy = tsizy;
@@ -5388,7 +5391,7 @@ static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
     tsizy = tilesizy[globalpicnum];
 
     globalshiftval = logtilesizy;
-#if !defined CLASSIC_NONPOW2_YSIZE
+#if !defined CLASSIC_NONPOW2_YSIZE_SPRITES
     // before proper non-power-of-two tilesizy drawing
     if (pow2long[logtilesizy] != tsizy)
         globalshiftval++;
@@ -5400,7 +5403,7 @@ static void setup_globals_sprite1(const spritetype *tspr, const sectortype *sec,
         globalshiftval = 32-globalshiftval;
         globalyscale = divscale(512,tspr->yrepeat,globalshiftval-19);
     }
-#if defined CLASSIC_NONPOW2_YSIZE
+#if defined CLASSIC_NONPOW2_YSIZE_SPRITES
     else
     {
         globaltilesizy = tsizy;
