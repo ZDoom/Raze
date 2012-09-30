@@ -600,20 +600,20 @@ CDECLBEGINSET 6
 	push ebp
 	mov ebp, edx  ; ebp: vertical place
 	mov ebx, eax  ; ebx: vertical increment
-	mov eax, dword ptr [globaltilesizy]
+	mov eax, dword ptr [_globaltilesizy]
 	mov dword ptr [np2_beginvline+1], eax
 	inc ecx
 np2_fixchain1a: sub edi, 320
 np2_beginvline: ; +1: y tile size
-	mov eax, 0x00000123
+	mov eax, 00000123h
 	mul ebp
 np2_fixchain1b: add edi, 320
-	and eax, 0x000000ff
+	and eax, 000000ffh
 	mov al, byte ptr [esi+edx]
 	add ebp, ebx
 	dec ecx
 np2_do_palookup: ; +2: addr
-	mov al, byte ptr [0xbeeff00d+eax]
+	mov al, byte ptr [eax+0000beefh]
 	mov byte ptr [edi], al
 	jnz short np2_beginvline
 	mov eax, ebp
@@ -654,17 +654,17 @@ CDECLBEGINSET 6
 	push ebp
 	mov ebp, edx  ; ebp: vertical place
 	mov ebx, eax  ; ebx: vertical increment
-	mov eax, dword ptr [globaltilesizy]
+	mov eax, dword ptr [_globaltilesizy]
 	mov dword ptr [mnp2_beginvline+1], eax
 mnp2_beginvline: ; +1: y tile size
-	mov eax, 0x00000123
+	mov eax, 00000123h
 	mul ebp
-	and eax, 0x000000ff
+	and eax, 000000ffh
 	mov al, byte ptr [esi+edx]
 	cmp al, 255
 	je short mskipmask1
 mnp2_do_palookup: ; +2: addr
-	mov al, byte ptr [0xbeeff00d+eax]
+	mov al, byte ptr [eax+0000beefh]
 	mov byte ptr [edi], al
 mskipmask1:
 	add ebp, ebx
@@ -791,18 +791,18 @@ CDECLBEGINSET 6
 	mov ebp, edx  ; ebp: vertical place
 	mov ebx, eax  ; ebx: vertical increment
 	inc ecx
-	mov eax, dword ptr [globaltilesizy]
+	mov eax, dword ptr [_globaltilesizy]
 	mov dword ptr [tnp2_beginvline+1], eax
 tnp2_beginvline: ; +1: y tile size
-	mov eax, 0x00000123
+	mov eax, 00000123h
 	mul ebp
-	and eax, 0x000000ff
+	and eax, 000000ffh
 	mov al, byte ptr [esi+edx]
 	cmp al, 255
 	je short tskipmask1
 ntransrev0:
 tnp2_do_palookup: ; +2: addr
-	mov al, byte ptr [0xbeeff00d+eax]
+	mov al, byte ptr [eax+0000beefh]
 ntransrev1:
 	mov ah, byte ptr [edi]
 tnmach4: mov al, byte ptr [eax+88888888h]	;_luc[eax]
