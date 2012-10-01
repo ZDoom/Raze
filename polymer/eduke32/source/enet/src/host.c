@@ -3,6 +3,7 @@
  @brief ENet host management functions
 */
 #define ENET_BUILDING_LIB 1
+#define __MINGW_USE_VC2005_COMPAT 1
 #include <string.h>
 #include <time.h>
 #include "enet/enet.h"
@@ -133,6 +134,9 @@ void
 enet_host_destroy (ENetHost * host)
 {
     ENetPeer * currentPeer;
+
+    if (host == NULL)
+      return;
 
     enet_socket_destroy (host -> socket);
 

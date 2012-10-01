@@ -29,7 +29,7 @@ extern "C"
 
 #define ENET_VERSION_MAJOR 1
 #define ENET_VERSION_MINOR 3
-#define ENET_VERSION_PATCH 3
+#define ENET_VERSION_PATCH 5
 #define ENET_VERSION_CREATE(major, minor, patch) (((major)<<16) | ((minor)<<8) | (patch))
 #define ENET_VERSION ENET_VERSION_CREATE(ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH)
 
@@ -58,6 +58,13 @@ typedef enum _ENetSocketOption
    ENET_SOCKOPT_RCVTIMEO  = 6,
    ENET_SOCKOPT_SNDTIMEO  = 7
 } ENetSocketOption;
+
+typedef enum _ENetSocketShutdown
+{
+    ENET_SOCKET_SHUTDOWN_READ       = 0,
+    ENET_SOCKET_SHUTDOWN_WRITE      = 1,
+    ENET_SOCKET_SHUTDOWN_READ_WRITE = 2
+} ENetSocketShutdown;
 
 enum
 {
@@ -273,6 +280,10 @@ typedef struct _ENetPeer
    enet_uint32   packetThrottleAcceleration;
    enet_uint32   packetThrottleDeceleration;
    enet_uint32   packetThrottleInterval;
+   enet_uint32   pingInterval;
+   enet_uint32   timeoutLimit;
+   enet_uint32   timeoutMinimum;
+   enet_uint32   timeoutMaximum;
    enet_uint32   lastRoundTripTime;
    enet_uint32   lowestRoundTripTime;
    enet_uint32   lastRoundTripTimeVariance;
@@ -460,6 +471,7 @@ ENET_API int        enet_socket_send (ENetSocket, const ENetAddress *, const ENe
 ENET_API int        enet_socket_receive (ENetSocket, ENetAddress *, ENetBuffer *, size_t);
 ENET_API int        enet_socket_wait (ENetSocket, enet_uint32 *, enet_uint32);
 ENET_API int        enet_socket_set_option (ENetSocket, ENetSocketOption, int);
+ENET_API int        enet_socket_shutdown (ENetSocket, ENetSocketShutdown);
 ENET_API void       enet_socket_destroy (ENetSocket);
 ENET_API int        enet_socketset_select (ENetSocket, ENetSocketSet *, ENetSocketSet *, enet_uint32);
 
@@ -521,6 +533,8 @@ extern   void       enet_host_bandwidth_throttle (ENetHost *);
 ENET_API int                 enet_peer_send (ENetPeer *, enet_uint8, ENetPacket *);
 ENET_API ENetPacket *        enet_peer_receive (ENetPeer *, enet_uint8 * channelID);
 ENET_API void                enet_peer_ping (ENetPeer *);
+ENET_API void                enet_peer_ping_interval (ENetPeer *, enet_uint32);
+ENET_API void                enet_peer_timeout (ENetPeer *, enet_uint32, enet_uint32, enet_uint32);
 ENET_API void                enet_peer_reset (ENetPeer *);
 ENET_API void                enet_peer_disconnect (ENetPeer *, enet_uint32);
 ENET_API void                enet_peer_disconnect_now (ENetPeer *, enet_uint32);
