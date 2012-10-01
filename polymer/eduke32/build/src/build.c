@@ -1413,14 +1413,9 @@ static struct overheadstate
     int16_t splitstartwall;
 } ovh;
 
-int32_t inside_editor_curpos(int16_t sectnum)
-{
-    // TODO: take care: mous[xy]plc global vs overheadeditor auto
-    return inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc, sectnum);
-}
 
-int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32_t zoom,
-                      int32_t x, int32_t y, int16_t sectnum)
+static int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32_t zoom,
+                             int32_t x, int32_t y, int16_t sectnum)
 {
     if (!m32_sideview)
         return inside(x, y, sectnum);
@@ -1455,6 +1450,13 @@ int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32
         return ret;
     }
 }
+
+int32_t inside_editor_curpos(int16_t sectnum)
+{
+    // TODO: take care: mous[xy]plc global vs overheadeditor auto
+    return inside_editor(&pos, searchx,searchy, zoom, mousxplc,mousyplc, sectnum);
+}
+
 
 static inline void drawline16base(int32_t bx, int32_t by, int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 {
@@ -2015,15 +2017,17 @@ static void correct_ornamented_sprite(int32_t i, int32_t hitw)
     int32_t j;
 
     if (hitw >= 0)
+    {
         sprite[i].ang = (getangle(POINT2(hitw).x-wall[hitw].x,
                                   POINT2(hitw).y-wall[hitw].y)+512)&2047;
 
-    //Make sure sprite's in right sector
-    if (inside(sprite[i].x, sprite[i].y, sprite[i].sectnum) == 0)
-    {
-        j = wall[hitw].point2;
-        sprite[i].x -= ksgn(wall[j].y-wall[hitw].y);
-        sprite[i].y += ksgn(wall[j].x-wall[hitw].x);
+        //Make sure sprite's in right sector
+        if (inside(sprite[i].x, sprite[i].y, sprite[i].sectnum) != 1)
+        {
+            j = wall[hitw].point2;
+            sprite[i].x -= ksgn(wall[j].y-wall[hitw].y);
+            sprite[i].y += ksgn(wall[j].x-wall[hitw].x);
+        }
     }
 }
 
@@ -6514,7 +6518,7 @@ end_join_sectors:
                                 // will add an inner loop
                                 for (j=numwalls+1; j<newnumwalls; j++)
                                 {
-                                    if (inside(wall[j].x, wall[j].y, i) == 0)
+                                    if (inside(wall[j].x, wall[j].y, i) != 1)
                                         goto check_next_sector;
                                 }
 

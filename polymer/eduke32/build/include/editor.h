@@ -245,8 +245,6 @@ void reset_highlight(void);
 void ovh_whiteoutgrab(int32_t restoreredwalls);
 
 int32_t inside_editor_curpos(int16_t sectnum);
-int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy, int32_t zoom,
-                      int32_t x, int32_t y, int16_t sectnum);
 void correct_sprite_yoffset(int32_t i);
 
 void inflineintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,

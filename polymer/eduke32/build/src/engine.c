@@ -11393,7 +11393,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
     {
         if (tmp==NULL)
         {
-            if (inside(x1,y1,sec-sector) != 0)
+            if (inside(x1,y1,sec-sector) == 1)
             {
                 hit->sect = sec-sector; hit->wall = -1; hit->sprite = -1;
                 hit->pos.x = x1; hit->pos.y = y1; hit->pos.z = z1;
@@ -11408,7 +11408,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
 
             if (!thislastsec)
             {
-                if (inside(x1,y1,sec-sector) != 0)
+                if (inside(x1,y1,sec-sector) == 1)
                 {
                     hit->sect = curspr->sectnum; hit->wall = -1; hit->sprite = curspr-sprite;
                     hit->pos.x = x1; hit->pos.y = y1; hit->pos.z = z1;
@@ -11419,7 +11419,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
             {
                 for (i=clipinfo[curidx].qbeg; i<clipinfo[curidx].qend; i++)
                 {
-                    if (inside(x1,y1,sectq[i]) != 0)
+                    if (inside(x1,y1,sectq[i]) == 1)
                     {
                         hit->sect = curspr->sectnum; hit->wall = -1; hit->sprite = curspr-sprite;
                         hit->pos.x = x1; hit->pos.y = y1; hit->pos.z = z1;
