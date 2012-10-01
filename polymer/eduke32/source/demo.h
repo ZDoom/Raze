@@ -23,6 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __demo_h__
 #define __demo_h__
 
+#define DEMOFN_FMT "edemo%03d.edm"
+#define MAXDEMOS 1000
+
 extern FILE *g_demo_filePtr;
 extern char g_firstDemoFile[BMAX_PATH];
 
@@ -49,6 +52,7 @@ void G_DemoRecord(void);
 void G_OpenDemoWrite(void);
 
 void Demo_PlayFirst(int32_t prof, int32_t exitafter);
+void Demo_SetFirst(const char *demostr);
 
 int32_t Demo_IsProfiling(void);
 

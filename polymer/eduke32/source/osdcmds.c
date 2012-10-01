@@ -322,16 +322,9 @@ static int32_t osdcmd_demo(const osdfuncparm_t *parm)
         return OSDCMD_SHOWHELP;
 
     {
-        char *tailptr;
-        const char *demostr = parm->parms[0];
-        int32_t i = Bstrtol(demostr, &tailptr, 10);
         int32_t prof = parm->numparms==2 ? Batoi(parm->parms[1]) : -1;
 
-        if (tailptr!=demostr && i>=0 && i<=999)  // demo number passed
-            Bsprintf(g_firstDemoFile, "edemo%03d.edm", i);
-        else  // demo file name passed
-            maybe_append_ext(g_firstDemoFile, sizeof(g_firstDemoFile), parm->parms[0], ".edm");
-
+        Demo_SetFirst(parm->parms[0]);
         Demo_PlayFirst(clamp(prof, -1, 8)+1, 0);
     }
 

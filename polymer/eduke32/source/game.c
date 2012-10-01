@@ -8075,7 +8075,7 @@ static void G_ShowParameterHelp(void)
 #endif
               "-connect [host]\tConnect to a multiplayer game\n"
               "-c#\t\tUse MP mode #, 1 = Dukematch, 2 = Coop, 3 = Dukematch(no spawn)\n"
-              "-d[file.edm]\tPlay a demo\n"
+              "-d[file.edm or demonum]\tPlay a demo\n"
               "-g[file.grp]\tLoad additional game data\n"
               "-h[file.def]\tLoad an alternate definitions file\n"
               "-j[dir]\t\tAdds a directory to EDuke32's search list\n"
@@ -8957,7 +8957,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         Bsscanf(colon, "%u,%u", &framespertic, &numrepeats);
                     }
 
-                    maybe_append_ext(g_firstDemoFile, sizeof(g_firstDemoFile), c, ".edm");
+                    Demo_SetFirst(c);
 
                     if (framespertic < 0)
                     {

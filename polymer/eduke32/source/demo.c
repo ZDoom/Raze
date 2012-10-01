@@ -90,7 +90,7 @@ static int32_t G_OpenDemoRead(int32_t g_whichDemo) // 0 = mine
     }
     else
     {
-        Bsprintf(demofn, "edemo%03d.edm", g_whichDemo);
+        Bsprintf(demofn, DEMOFN_FMT, g_whichDemo);
         demofnptr = demofn;
     }
 
@@ -175,10 +175,10 @@ void G_OpenDemoWrite(void)
 
         do
         {
-            if (demonum == 1000)
+            if (demonum == MAXDEMOS)
                 return;
 
-            if (G_ModDirSnprintf(demofn, sizeof(demofn), "edemo%03d.edm", demonum))
+            if (G_ModDirSnprintf(demofn, sizeof(demofn), DEMOFN_FMT, demonum))
             {
                 initprintf("Couldn't start demo writing: INTERNAL ERROR: file name too long\n");
                 goto error_wopen_demo;
@@ -236,6 +236,17 @@ void Demo_PlayFirst(int32_t prof, int32_t exitafter)
     g_demo_exitAfter = exitafter;
     Bassert(prof >= 0);
     g_demo_profile = -prof;  // prepare
+}
+
+void Demo_SetFirst(const char *demostr)
+{
+    char *tailptr;
+    int32_t i = Bstrtol(demostr, &tailptr, 10);
+
+    if (tailptr==demostr+Bstrlen(demostr) && (unsigned)i < MAXDEMOS)  // demo number passed
+        Bsprintf(g_firstDemoFile, DEMOFN_FMT, i);
+    else  // demo file name passed
+        maybe_append_ext(g_firstDemoFile, sizeof(g_firstDemoFile), demostr, ".edm");
 }
 
 
@@ -520,7 +531,7 @@ RECHECK:
         ud.recstat = 2;
 
         g_whichDemo++;
-        if (g_whichDemo == 1000)
+        if (g_whichDemo == MAXDEMOS)
             g_whichDemo = 1;
 
         g_player[myconnectindex].ps->gm &= ~MODE_GAME;
