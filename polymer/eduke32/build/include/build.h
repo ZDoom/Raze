@@ -127,7 +127,7 @@ int16_t yax_getnextwall(int16_t wal, int16_t cf);
 void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall);
 int16_t yax_vnextsec(int16_t line, int16_t cf);
 void yax_update(int32_t resetstat);
-int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf, int16_t *ret_bunchnum);
+int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf);
 
 static inline int32_t yax_waltosecmask(int32_t walclipmask)
 {
@@ -686,12 +686,6 @@ void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUT
 int32_t    krand(void);
 int32_t   ksqrt(uint32_t num);
 int32_t   __fastcall getangle(int32_t xvect, int32_t yvect);
-
-//
-// getangle
-//
-
-EXTERN int16_t radarang[1280];
 
 static inline uint32_t uhypsq(int32_t dx, int32_t dy)
 {

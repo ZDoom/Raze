@@ -4228,7 +4228,7 @@ rotate_hlsect_out:
                 }
 
                 // get other-side sector, j==loopstartwall
-                dstsect = yax_getneighborsect(wall[j].x, wall[j].y, srcsect, cf, NULL);
+                dstsect = yax_getneighborsect(wall[j].x, wall[j].y, srcsect, cf);
                 if (dstsect < 0)
                 {
                     message("Punch loop INTERNAL ERROR: dstsect < 0. Map corrupt?");

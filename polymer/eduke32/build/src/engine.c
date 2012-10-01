@@ -160,7 +160,7 @@ static char *artptrs[MAXTILEFILES];
 #endif
 
 static int32_t no_radarang2 = 0;
-static int16_t radarang2[MAXXDIM];
+static int16_t radarang[1280], radarang2[MAXXDIM];
 B_ENGINE_STATIC uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
 const char pow2char[8] = {1,2,4,8,16,32,64,128};
 const int32_t pow2long[32] =
@@ -570,7 +570,7 @@ void yax_update(int32_t resetstat)
     editstatus = oeditstatus;
 }
 
-int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf, int16_t *ret_bunchnum)
+int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf)
 {
     int16_t bunchnum = yax_getbunch(sectnum, cf);
     int32_t i;
@@ -580,11 +580,7 @@ int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf, i
 
     for (SECTORS_OF_BUNCH(bunchnum, !cf, i))
         if (inside(x, y, i)==1)
-        {
-            if (ret_bunchnum)
-                *ret_bunchnum = bunchnum;
             return i;
-        }
 
     return -1;
 }
@@ -799,7 +795,7 @@ static void yax_copytsprites()
                     if (yax_getbunch(sectnum, cf) != yax_globalbunch)
                         continue;
 
-                sectnum = yax_getneighborsect(spr->x, spr->y, sectnum, cf, NULL);
+                sectnum = yax_getneighborsect(spr->x, spr->y, sectnum, cf);
                 if (sectnum < 0)
                     continue;
             }
@@ -11246,7 +11242,7 @@ restart_grand:
                             x = x1 + mulscale24(x21,frac);
                             y = y1 + mulscale24(y21,frac);
 
-                            ns = yax_getneighborsect(x, y, dasectnum, cf, NULL);
+                            ns = yax_getneighborsect(x, y, dasectnum, cf);
                             if (ns < 0)
                                 continue;
 
@@ -11301,7 +11297,7 @@ restart_grand:
                             x = x1 + mulscale24(x21,t);
                             y = y1 + mulscale24(y21,t);
 
-                            nexts = yax_getneighborsect(x, y, dasectnum, cf, NULL);
+                            nexts = yax_getneighborsect(x, y, dasectnum, cf);
                             if (nexts >= 0)
                                 goto add_nextsector;
                         }
@@ -11772,8 +11768,7 @@ restart_grand:
         if (SECTORFLD(hit->sect,stat, hitscan_hitsectcf)&yax_waltosecmask(dawalclipmask))
             return 0;
 
-        i = yax_getneighborsect(hit->pos.x, hit->pos.y, hit->sect,
-                                hitscan_hitsectcf, NULL);
+        i = yax_getneighborsect(hit->pos.x, hit->pos.y, hit->sect, hitscan_hitsectcf);
         if (i >= 0)
         {
             Bmemcpy(&newsv, &hit->pos, sizeof(vec3_t));
@@ -12992,14 +12987,14 @@ void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
 #ifdef YAX_ENABLE
         if (z < cz)
         {
-            i = yax_getneighborsect(x, y, *sectnum, YAX_CEILING, NULL);
+            i = yax_getneighborsect(x, y, *sectnum, YAX_CEILING);
             if (i >= 0 && z >= getceilzofslope(i, x, y))
                 SET_AND_RETURN(*sectnum, i);
         }
 
         if (z > fz)
         {
-            i = yax_getneighborsect(x, y, *sectnum, YAX_FLOOR, NULL);
+            i = yax_getneighborsect(x, y, *sectnum, YAX_FLOOR);
             if (i >= 0 && z <= getflorzofslope(i, x, y))
                 SET_AND_RETURN(*sectnum, i);
         }

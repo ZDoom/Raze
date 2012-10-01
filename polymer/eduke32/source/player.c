@@ -4324,7 +4324,7 @@ static void getzsofslope_player(int16_t sectnum, int32_t dax, int32_t day, int32
 
     if ((sector[sectnum].ceilingstat&512)==0)
     {
-        i = yax_getneighborsect(dax, day, sectnum, YAX_CEILING, NULL);
+        i = yax_getneighborsect(dax, day, sectnum, YAX_CEILING);
         if (i >= 0)
         {
             *ceilz = getceilzofslope(i, dax,day);
@@ -4334,7 +4334,7 @@ static void getzsofslope_player(int16_t sectnum, int32_t dax, int32_t day, int32
 
     if ((sector[sectnum].floorstat&512)==0)
     {
-        i = yax_getneighborsect(dax, day, sectnum, YAX_FLOOR, NULL);
+        i = yax_getneighborsect(dax, day, sectnum, YAX_FLOOR);
         if (i >= 0)
         {
             *florz = getflorzofslope(i, dax,day);
