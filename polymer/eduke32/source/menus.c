@@ -664,11 +664,15 @@ static void Menus_LoadSave_DisplayCommon1(void)
 
     if (ud.savegame[probey][20] == 32)
     {
-        menutext(40,70,0,0,"Old Version");
-        Bsprintf(tempbuf,"Saved: %d.%d.%d", savehead.majorver, savehead.minorver, savehead.bytever);
-        mgametext(40,82,tempbuf,0,2+8+16);
-        Bsprintf(tempbuf,"Our: %d.%d.%d", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION);
-        mgametext(40+16,92,tempbuf,0,2+8+16);
+        menutext(53,70,0,0,"Version");
+        menutext(48,90,0,0,"Mismatch");
+
+        Bsprintf(tempbuf,"Saved: %d.%d.%d %d-bit", savehead.majorver, savehead.minorver,
+                 savehead.bytever, 8*savehead.ptrsize);
+        mgametext(31,104,tempbuf,0,2+8+16);
+        Bsprintf(tempbuf,"Our: %d.%d.%d %d-bit", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
+                 (int32_t)(8*sizeof(intptr_t)));
+        mgametext(31+16,114,tempbuf,0,2+8+16);
     }
 }
 
