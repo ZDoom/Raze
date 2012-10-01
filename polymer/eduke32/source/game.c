@@ -3939,8 +3939,8 @@ static void G_DumpDebugInfo(void)
     }
     Gv_DumpValues();
 //    fclose(fp);
-    saveboard("debug.map",&g_player[myconnectindex].ps->pos.x,&g_player[myconnectindex].ps->pos.y,
-              &g_player[myconnectindex].ps->pos.z,&g_player[myconnectindex].ps->ang,&g_player[myconnectindex].ps->cursectnum);
+    saveboard("debug.map", &g_player[myconnectindex].ps->pos, g_player[myconnectindex].ps->ang,
+              g_player[myconnectindex].ps->cursectnum);
 }
 
 int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,

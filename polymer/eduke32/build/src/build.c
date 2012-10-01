@@ -3155,9 +3155,9 @@ void overheadeditor(void)
                 int32_t cx, cy;
 
                 // Draw brown arrow (start)
-                screencoords(&x2, &y2, startposx-pos.x,startposy-pos.y, zoom);
+                screencoords(&x2, &y2, startpos.x-pos.x,startpos.y-pos.y, zoom);
                 if (m32_sideview)
-                    y2 += getscreenvdisp(startposz-pos.z, zoom);
+                    y2 += getscreenvdisp(startpos.z-pos.z, zoom);
 
                 cx = halfxdim16+x2;
                 cy = midydim16+y2;
@@ -3704,9 +3704,7 @@ rotate_hlsect_out:
 
         if (keystatus[0x46])  //Scroll lock (set starting position)
         {
-            startposx = pos.x;
-            startposy = pos.y;
-            startposz = pos.z;
+            startpos = pos;
             startang = ang;
             startsectnum = cursectnum;
             keystatus[0x46] = 0;
@@ -7751,7 +7749,7 @@ const char *SaveBoard(const char *fn, uint32_t flags)
     }
 
     saveboard_fixedsprites = ExtPreSaveMap();
-    ret = saveboard(f,&startposx,&startposy,&startposz,&startang,&startsectnum);
+    ret = saveboard(f, &startpos, startang, startsectnum);
     if ((flags&1)==0)
     {
         ExtSaveMap(f);
@@ -7784,9 +7782,9 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     editorzrange[1] = INT32_MAX;
 
     ExtPreLoadMap();
-    i = loadboard(boardfilename,(flags&4)|loadingflags, &pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+    i = loadboard(boardfilename, (flags&4)|loadingflags, &pos, &ang, &cursectnum);
     if (i == -2)
-        i = loadoldboard(boardfilename,loadingflags, &pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+        i = loadoldboard(boardfilename,loadingflags, &pos, &ang, &cursectnum);
     if (i < 0)
     {
 //        printmessage16("Invalid map format.");
@@ -7814,9 +7812,7 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
                 i==0?"successfully": (i<4 ? "(moderate corruption)" : "(HEAVY corruption)"));
     }
 
-    startposx = pos.x;      //this is same
-    startposy = pos.y;
-    startposz = pos.z;
+    startpos = pos;      //this is same
     startang = ang;
     startsectnum = cursectnum;
 
@@ -10269,7 +10265,7 @@ void test_map(int32_t mode)
     if (!mode)
         updatesector(pos.x, pos.y, &cursectnum);
     else
-        updatesector(startposx, startposy, &startsectnum);
+        updatesector(startpos.x, startpos.y, &startsectnum);
 
 #ifdef _WIN32
     if (fullscreen)
@@ -10335,9 +10331,9 @@ void test_map(int32_t mode)
 
         ExtPreSaveMap();
         if (mode)
-            saveboard(PLAYTEST_MAPNAME,&startposx,&startposy,&startposz,&startang,&startsectnum);
+            saveboard(PLAYTEST_MAPNAME, &startpos, startang, startsectnum);
         else
-            saveboard(PLAYTEST_MAPNAME,&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+            saveboard(PLAYTEST_MAPNAME, &pos, ang, cursectnum);
 
         message("Board saved to " PLAYTEST_MAPNAME ". Starting the game...");
         OSD_Printf("...as `%s'\n", fullparam);

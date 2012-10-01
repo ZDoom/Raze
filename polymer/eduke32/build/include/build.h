@@ -580,15 +580,13 @@ int32_t    preinitengine(void);	// a partial setup of the engine used for launch
 int32_t    initengine(void);
 void   uninitengine(void);
 void   initspritelists(void);
-int32_t   loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, int32_t *daposz,
-                    int16_t *daang, int16_t *dacursectnum);
+int32_t   loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 int32_t   loadmaphack(const char *filename);
 void delete_maphack_lights();
 #ifdef HAVE_CLIPSHAPE_FEATURE
 int32_t clipmapinfo_load(void);
 #endif
-int32_t   saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz,
-                    int16_t *daang, int16_t *dacursectnum);
+int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 void set_picsizanm(int32_t picnum, int16_t dasizx, int16_t dasizy, int32_t daanm);
 int32_t   loadpics(const char *filename, int32_t askedsize);
 void   loadtile(int16_t tilenume);
@@ -870,8 +868,7 @@ int32_t loaddefinitionsfile(const char *fn);
 // if loadboard() fails with -2 return, try loadoldboard(). if it fails with
 // -2, board is dodgy
 extern int32_t mapversion;
-int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz,
-                     int16_t *daang, int16_t *dacursectnum);
+int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 
 // Hash functions
 

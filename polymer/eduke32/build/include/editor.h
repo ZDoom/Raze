@@ -70,7 +70,7 @@ extern uint8_t buildkeys[NUMBUILDKEYS];
 extern double vid_gamma_3d, vid_contrast_3d, vid_brightness_3d;
 extern double msens;
 
-extern int32_t startposx, startposy, startposz;
+extern vec3_t startpos;
 extern int16_t startang, startsectnum;
 
 extern int32_t lastpm16time, synctics;

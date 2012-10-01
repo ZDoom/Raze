@@ -814,7 +814,7 @@ void ExtLoadMap(const char *mapname)
 void ExtSaveMap(const char *mapname)
 {
     UNREFERENCED_PARAMETER(mapname);
-    saveboard("backup.map",&pos.x,&pos.y,&pos.z,&ang,&cursectnum);
+    saveboard("backup.map", &pos, ang, cursectnum);
 }
 
 
@@ -8384,9 +8384,9 @@ int32_t ExtPreSaveMap(void)
     int32_t numfixedsprites;
 
     numfixedsprites = fixspritesectors();   //Do this before saving!
-    updatesectorz(startposx,startposy,startposz,&startsectnum);
+    updatesectorz(startpos.x,startpos.y,startpos.z,&startsectnum);
     if (startsectnum < 0)
-        updatesector(startposx,startposy,&startsectnum);
+        updatesector(startpos.x,startpos.y,&startsectnum);
 
     if (fixmaponsave_walls)
     {

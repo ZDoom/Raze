@@ -1282,8 +1282,7 @@ static void clipmapinfo_init()
 // this should be called before any real map is loaded.
 int32_t clipmapinfo_load(void)
 {
-    int32_t i,k,w, px,py,pz;
-    int16_t ang,cs;
+    int32_t i,k,w;
 
     int32_t lwcp = 0;
     int32_t fi;
@@ -1313,10 +1312,13 @@ int32_t clipmapinfo_load(void)
     quickloadboard = 1;
     for (fi = 0; fi < g_clipMapFilesNum; ++fi)
     {
+        int16_t ang,cs;
+        vec3_t tmppos;
+
         fisec[fi] = ournumsectors;
         fispr[fi] = ournumsprites;
 
-        i = loadboard(g_clipMapFiles[fi], 0, &px,&py,&pz, &ang,&cs);
+        i = loadboard(g_clipMapFiles[fi], 0, &tmppos, &ang, &cs);
         if (i<0)
             continue;
         // Numsprites will now be set!
@@ -2262,7 +2264,7 @@ static int32_t globalx, globaly, globalz;
 
 int16_t sectorborder[256], sectorbordercnt;
 int32_t ydim16, qsetmode = 0;
-int32_t startposx, startposy, startposz;
+vec3_t startpos;
 int16_t startang, startsectnum;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 #ifndef OBSOLETE_RENDMODES
@@ -9301,8 +9303,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 //           4: don't call polymer_loadboard
 // returns: -1: file not found
 //          -2: invalid version
-int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, int32_t *daposz,
-                  int16_t *daang, int16_t *dacursectnum)
+int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     int16_t fil, i, numsprites;
 #ifdef POLYMER
@@ -9344,9 +9345,9 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
     Bmemset(show2dwall, 0, sizeof(show2dwall));
 
-    kread(fil,daposx,4); *daposx = B_LITTLE32(*daposx);
-    kread(fil,daposy,4); *daposy = B_LITTLE32(*daposy);
-    kread(fil,daposz,4); *daposz = B_LITTLE32(*daposz);
+    kread(fil,&dapos->x,4); dapos->x = B_LITTLE32(dapos->x);
+    kread(fil,&dapos->y,4); dapos->y = B_LITTLE32(dapos->y);
+    kread(fil,&dapos->z,4); dapos->z = B_LITTLE32(dapos->z);
     kread(fil,daang,2);  *daang  = B_LITTLE16(*daang);
     kread(fil,dacursectnum,2); *dacursectnum = B_LITTLE16(*dacursectnum);
 
@@ -9436,7 +9437,7 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
 #ifdef YAX_ENABLE
     yax_update(mapversion<9);
     if (editstatus)
-        yax_updategrays(*daposz);
+        yax_updategrays(dapos->z);
 #endif
     for (i=0; i<numsprites; i++)
     {
@@ -9447,7 +9448,7 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
     }
 
     //Must be after loading sectors, etc!
-    updatesector(*daposx,*daposy,dacursectnum);
+    updatesector(dapos->x, dapos->y, dacursectnum);
 
     kclose(fil);
 
@@ -9473,9 +9474,7 @@ int32_t loadboard(char *filename, char flags, int32_t *daposx, int32_t *daposy, 
     }
     guniqhudid = 0;
 
-    startposx = *daposx;
-    startposy = *daposy;
-    startposz = *daposz;
+    startpos = *dapos;
     startang = *daang;
     startsectnum = *dacursectnum;
 
@@ -9742,8 +9741,7 @@ static void convertv6sprv7(struct spritetypev6 *from, spritetype *to)
 
 // Powerslave uses v6
 // Witchaven 1 and TekWar and LameDuke use v5
-int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *daposy, int32_t *daposz,
-                     int16_t *daang, int16_t *dacursectnum)
+int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     int16_t fil, i, numsprites;
     struct sectortypev5 v5sect;
@@ -9767,9 +9765,9 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
     Bmemset(show2dwall, 0, sizeof(show2dwall));
 
-    kread(fil,daposx,4); *daposx = B_LITTLE32(*daposx);
-    kread(fil,daposy,4); *daposy = B_LITTLE32(*daposy);
-    kread(fil,daposz,4); *daposz = B_LITTLE32(*daposz);
+    kread(fil,&dapos->x,4); dapos->x = B_LITTLE32(dapos->x);
+    kread(fil,&dapos->y,4); dapos->y = B_LITTLE32(dapos->y);
+    kread(fil,&dapos->z,4); dapos->z = B_LITTLE32(dapos->z);
     kread(fil,daang,2);  *daang  = B_LITTLE16(*daang);
     kread(fil,dacursectnum,2); *dacursectnum = B_LITTLE16(*dacursectnum);
 
@@ -9921,7 +9919,7 @@ int32_t loadoldboard(char *filename, char fromwhere, int32_t *daposx, int32_t *d
     }
 
     //Must be after loading sectors, etc!
-    updatesector(*daposx,*daposy,dacursectnum);
+    updatesector(dapos->x, dapos->y, dacursectnum);
 
     kclose(fil);
 
@@ -10261,8 +10259,7 @@ int32_t loadmaphack(const char *filename)
 //
 // saveboard
 //
-int32_t saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_t *daposz,
-                  int16_t *daang, int16_t *dacursectnum)
+int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum)
 {
     int16_t fil, i, j, numsprites, ts;
     int32_t tl;
@@ -10318,11 +10315,11 @@ int32_t saveboard(const char *filename, int32_t *daposx, int32_t *daposy, int32_
         mapversion = 7;
     tl = B_LITTLE32(mapversion);    Bwrite(fil,&tl,4);
 
-    tl = B_LITTLE32(*daposx);       Bwrite(fil,&tl,4);
-    tl = B_LITTLE32(*daposy);       Bwrite(fil,&tl,4);
-    tl = B_LITTLE32(*daposz);       Bwrite(fil,&tl,4);
-    ts = B_LITTLE16(*daang);        Bwrite(fil,&ts,2);
-    ts = B_LITTLE16(*dacursectnum); Bwrite(fil,&ts,2);
+    tl = B_LITTLE32(dapos->x);      Bwrite(fil,&tl,4);
+    tl = B_LITTLE32(dapos->y);      Bwrite(fil,&tl,4);
+    tl = B_LITTLE32(dapos->z);      Bwrite(fil,&tl,4);
+    ts = B_LITTLE16(daang);        Bwrite(fil,&ts,2);
+    ts = B_LITTLE16(dacursectnum); Bwrite(fil,&ts,2);
 
     ts = B_LITTLE16(numsectors);    Bwrite(fil,&ts,2);
 

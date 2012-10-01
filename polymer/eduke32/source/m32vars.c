@@ -604,9 +604,9 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("tempyrepeat",(intptr_t)&tempyrepeat, GAMEVAR_INTPTR|GAMEVAR_SYSTEM|GAMEVAR_READONLY);
 
     // starting position
-    Gv_NewVar("startposx",(intptr_t)&startposx, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("startposy",(intptr_t)&startposy, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
-    Gv_NewVar("startposz",(intptr_t)&startposz, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("startposx",(intptr_t)&startpos.x, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("startposy",(intptr_t)&startpos.y, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
+    Gv_NewVar("startposz",(intptr_t)&startpos.z, GAMEVAR_READONLY | GAMEVAR_INTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("startang",(intptr_t)&startang, GAMEVAR_READONLY | GAMEVAR_SHORTPTR | GAMEVAR_SYSTEM);
     Gv_NewVar("startsectnum",(intptr_t)&startsectnum, GAMEVAR_READONLY | GAMEVAR_SHORTPTR | GAMEVAR_SYSTEM);
 

@@ -1935,8 +1935,8 @@ int32_t G_EnterLevel(int32_t g)
     {
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
-            if (loadboard(boardfilename,0,&g_player[0].ps->pos.x, &g_player[0].ps->pos.y,
-                          &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) < 0)
+            if (loadboard(boardfilename, 0, &g_player[0].ps->pos, &g_player[0].ps->ang,
+                          &g_player[0].ps->cursectnum) < 0)
             {
                 OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n",boardfilename);
 
@@ -1948,8 +1948,8 @@ int32_t G_EnterLevel(int32_t g)
 
             G_SetupFilenameBasedMusic(levname, boardfilename, ud.m_level_number);
         }
-        else if (loadboard(MapInfo[mii].filename,0,&g_player[0].ps->pos.x,
-                           &g_player[0].ps->pos.y, &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) < 0)
+        else if (loadboard(MapInfo[mii].filename,0, &g_player[0].ps->pos, &g_player[0].ps->ang,
+                           &g_player[0].ps->cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n",
                        MapInfo[mii].filename);
@@ -1969,8 +1969,8 @@ int32_t G_EnterLevel(int32_t g)
         levname[i] = 255;  // leads to flags=1 for kopen4load
         levname[i+1] = 0;
 
-        if (loadboard(levname,1,&g_player[0].ps->pos.x, &g_player[0].ps->pos.y,
-                      &g_player[0].ps->pos.z, &g_player[0].ps->ang,&g_player[0].ps->cursectnum) < 0)
+        if (loadboard(levname,1, &g_player[0].ps->pos, &g_player[0].ps->ang,
+                      &g_player[0].ps->cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n",
                        MapInfo[mii].filename);
