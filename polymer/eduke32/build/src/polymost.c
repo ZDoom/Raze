@@ -4815,6 +4815,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     drawpoly(dpx,dpy,n,method);
 }
 
+#ifdef MODEL_OCCLUSION_CHECKING
 int32_t lastcullcheck = 0;
 char cullmodel[MAXSPRITES];
 int32_t cullcheckcnt = 0;
@@ -4862,6 +4863,7 @@ RECHECK:
 
     return 0;
 }
+#endif
 
 void polymost_drawsprite(int32_t snum)
 {
@@ -4916,6 +4918,8 @@ void polymost_drawsprite(int32_t snum)
                 if (mddraw(tspr)) return;
                 break;	// else, render as flat sprite
             }
+
+# ifdef MODEL_OCCLUSION_CHECKING
             if (r_modelocclusionchecking)
             {
                 if (totalclock >= lastcullcheck + CULL_DELAY && cullcheckcnt < MAXCULLCHECKS && (/*modelptr->usesalpha ||*/ tspr->yrepeat*tilesizy[sprite[tspr->owner].picnum] > 1536 || tspr->xrepeat*tilesizx[sprite[tspr->owner].picnum] > 1536))
@@ -4956,15 +4960,23 @@ void polymost_drawsprite(int32_t snum)
                 }
             }
             else cullmodel[tspr->owner] = 0;
-            if (cullmodel[tspr->owner]) break;
-            if (mddraw(tspr)) return;
+
+            if (cullmodel[tspr->owner])
+                break;
+# endif
+            if (mddraw(tspr))
+                return;
+
             break;	// else, render as flat sprite
         }
+
         if (usevoxels && (tspr->cstat&48)!=48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
         {
-            if (voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
+            if (voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr))
+                return;
             break;	// else, render as flat sprite
         }
+
         if ((tspr->cstat&48)==48 && voxmodels[tspr->picnum])
         {
             voxdraw(voxmodels[tspr->picnum], tspr);
@@ -4972,6 +4984,7 @@ void polymost_drawsprite(int32_t snum)
         }
         break;
     }
+
     if (((tspr->cstat&2) || (gltexmayhavealpha(tspr->picnum,tspr->pal))))
     {
         curpolygonoffset += 0.01f;
@@ -4979,6 +4992,7 @@ void polymost_drawsprite(int32_t snum)
         bglPolygonOffset(-curpolygonoffset, -curpolygonoffset);
     }
 #endif
+
     posx=tspr->x;
     posy=tspr->y;
     if (spriteext[tspr->owner].flags&SPREXT_AWAY1)
@@ -4991,6 +5005,7 @@ void polymost_drawsprite(int32_t snum)
         posx-=(sintable[(tspr->ang+512)&2047]>>13);
         posy-=(sintable[(tspr->ang)&2047]>>13);
     }
+
     oldsizx=tsizx=tilesizx[globalpicnum];
     oldsizy=tsizy=tilesizy[globalpicnum];
     if (usehightile && h_xsize[globalpicnum])

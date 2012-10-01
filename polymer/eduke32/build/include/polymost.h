@@ -5,13 +5,17 @@
 
 #include "hightile.h"
 
-#define CULL_OFFSET 384
-#define CULL_DELAY 2
-#define MAXCULLCHECKS 1024
+#define MODEL_OCCLUSION_CHECKING
+
+#ifdef MODEL_OCCLUSION_CHECKING
+# define CULL_OFFSET 384
+# define CULL_DELAY 2
+# define MAXCULLCHECKS 1024
 
 extern int32_t lastcullcheck;
 extern char cullmodel[MAXSPRITES];
 extern int32_t cullcheckcnt;
+#endif
 
 extern char TEXCACHEFILE[BMAX_PATH];
 
