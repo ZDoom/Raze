@@ -178,6 +178,7 @@ extern const char *ExtGetSectorType(int32_t lotag);
 
 extern int32_t LoadBoard(const char *filename, uint32_t flags);
 extern const char *SaveBoard(const char *fn, uint32_t flags);
+extern const char *GetSaveBoardFilename(const char *fn);
 
 #define CORRUPT_SECTOR (1<<17)
 #define CORRUPT_WALL (1<<18)

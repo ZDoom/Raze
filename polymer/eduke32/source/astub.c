@@ -11097,16 +11097,7 @@ static void Keys2d3d(void)
             if (totalclock < (lastsave + 120*10) || !AskIfSure("Are you sure you want to load the last saved map?"))
             {
                 int32_t sposx=pos.x,sposy=pos.y,sposz=pos.z,sang=ang;
-                char *f;
-
-                if (pathsearchmode) f = levelname;
-                else
-                {
-                    // virtual filesystem mode can't save to directories so drop the file into
-                    // the current directory
-                    f = Bstrrchr(levelname, '/');
-                    if (!f) f = levelname; else f++;
-                }
+                const char *f = GetSaveBoardFilename(levelname);
 
                 lastsave=totalclock;
                 //  			  sectorhighlightstat = -1;

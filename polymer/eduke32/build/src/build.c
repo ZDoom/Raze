@@ -157,7 +157,6 @@ int32_t g_doScreenShot;
 static int32_t backup_highlighted_map(mapinfofull_t *mapinfo);
 static int32_t restore_highlighted_map(mapinfofull_t *mapinfo, int32_t forreal);
 static void SaveBoardAndPrintMessage(const char *fn);
-static const char *GetSaveBoardFilename(void);
 
 /*
 static char scantoasc[128] =
@@ -7298,7 +7297,7 @@ CANCEL:
 #else
             _printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (T)est map, (Q)uit");
 #endif
-            printext16(16*8, ydim-STATUS2DSIZ2-12, editorcolors[15], -1, GetSaveBoardFilename(), 0);
+            printext16(16*8, ydim-STATUS2DSIZ2-12, editorcolors[15], -1, GetSaveBoardFilename(NULL), 0);
 
             showframe(1);
             bflushchars();
@@ -7703,10 +7702,13 @@ static void SaveBoardAndPrintMessage(const char *fn)
     }
 }
 
-// get the file name of the file that would be written if SaveBoard(NULL, 0) was called
-static const char *GetSaveBoardFilename(void)
+// get the file name of the file that would be written if SaveBoard(fn, 0) was called
+const char *GetSaveBoardFilename(const char *fn)
 {
-    const char *fn = boardfilename, *f;
+    const char *f;
+
+    if (!fn)
+        fn = boardfilename;
 
     if (pathsearchmode)
         f = fn;
@@ -7727,26 +7729,10 @@ static const char *GetSaveBoardFilename(void)
 // flags:  1:no ExtSaveMap (backup.map) and no taglabels saving
 const char *SaveBoard(const char *fn, uint32_t flags)
 {
-    const char *f;
     int32_t ret;
+    const char *f = GetSaveBoardFilename(fn);
 
     saveboard_savedtags = 0;
-
-    if (!fn)
-        fn = boardfilename;
-
-    if (pathsearchmode)
-        f = fn;
-    else
-    {
-        // virtual filesystem mode can't save to directories so drop the file into
-        // the current directory
-        f = Bstrrchr(fn, '/');
-        if (!f)
-            f = fn;
-        else
-            f++;
-    }
 
     saveboard_fixedsprites = ExtPreSaveMap();
     ret = saveboard(f, &startpos, startang, startsectnum);
@@ -7756,10 +7742,7 @@ const char *SaveBoard(const char *fn, uint32_t flags)
         saveboard_savedtags = !taglab_save(f);
     }
 
-    if (!ret)
-        return f;
-    else
-        return NULL;
+    return (ret==0) ? f : NULL;
 }
 
 // flags:  1: for running on Mapster32 init
