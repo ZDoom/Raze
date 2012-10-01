@@ -9050,20 +9050,20 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         else
             return OSDCMD_SHOWHELP;
     }
+    else if (!Bstrcasecmp(parm->name, "corruptcheck_noalreadyrefd"))
+    {
+        corruptcheck_noalreadyrefd = !corruptcheck_noalreadyrefd;
+        OSD_Printf("%s 'already referenced' corruption\n",
+                   corruptcheck_noalreadyrefd?"Ignore":"Regard");
+        return OSDCMD_OK;
+    }
     else if (!Bstrcasecmp(parm->name, "corruptcheck"))
     {
         int32_t tryfix = parm->numparms>=1 && !Bstrcasecmp(parm->parms[0], "tryfix");
 
         if (parm->numparms >= 1 || tryfix)
         {
-            if (!Bstrcasecmp(parm->parms[0], "noalreadyrefd"))
-            {
-                corruptcheck_noalreadyrefd = !corruptcheck_noalreadyrefd;
-                OSD_Printf("%sgnore 'already referenced' corruption\n",
-                           corruptcheck_noalreadyrefd?"I":"Don't i");
-                return OSDCMD_OK;
-            }
-            else if (!Bstrcasecmp(parm->parms[0], "now"))
+            if (!Bstrcasecmp(parm->parms[0], "now"))
             {
                 int32_t printfromlevel = 1;
                 if (parm->numparms > 1)
@@ -9416,6 +9416,7 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("testplay_addparam", "testplay_addparam \"string\": sets additional parameters for test playing", osdcmd_testplay_addparam);
     OSD_RegisterFunction("show_heightindicators", "show_heightindicators {0, 1 or 2}: sets display of height indicators in 2D mode", osdcmd_vars_pk);
     OSD_RegisterFunction("show_ambiencesounds", "show_ambiencesounds {0, 1 or 2}>: sets display of MUSICANDSFX circles in 2D mode", osdcmd_vars_pk);
+    OSD_RegisterFunction("corruptcheck_noalreadyrefd", "corruptcheck_noalreadyrefd: toggles ignoring of one-to-many red wall connections", osdcmd_vars_pk);
     OSD_RegisterFunction("corruptcheck", "corruptcheck {<seconds>|now|tryfix}: sets auto corruption check interval if <seconds> given, otherwise as indicated", osdcmd_vars_pk);
 #ifdef USE_OPENGL
     OSD_RegisterFunction("tint", "tint <pal> <r> <g> <b> <flags>: queries or sets hightile tinting", osdcmd_tint);
