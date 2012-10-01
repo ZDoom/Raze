@@ -9296,16 +9296,103 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 }
 
 
-//
-// loadboard
-//
+//////////////////// LOADING AND SAVING ROUTINES ////////////////////
+
+static void prepare_loadboard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
+{
+    initspritelists();
+
+    Bmemset(show2dsector, 0, sizeof(show2dsector));
+    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
+    Bmemset(show2dwall, 0, sizeof(show2dwall));
+
+    kread(fil,&dapos->x,4); dapos->x = B_LITTLE32(dapos->x);
+    kread(fil,&dapos->y,4); dapos->y = B_LITTLE32(dapos->y);
+    kread(fil,&dapos->z,4); dapos->z = B_LITTLE32(dapos->z);
+    kread(fil,daang,2);  *daang  = B_LITTLE16(*daang);
+    kread(fil,dacursectnum,2); *dacursectnum = B_LITTLE16(*dacursectnum);
+}
+
+static void finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t numsprites, char myflags)
+{
+    int32_t i;
+
+    for (i=0; i<numsprites; i++)
+    {
+        if ((sprite[i].cstat & 48) == 48)
+            sprite[i].cstat &= ~48;
+
+        insertsprite(sprite[i].sectnum, sprite[i].statnum);
+    }
+
+    //Must be after loading sectors, etc!
+    updatesector(dapos->x, dapos->y, dacursectnum);
+
+#ifdef HAVE_CLIPSHAPE_FEATURE
+    if (!quickloadboard)
+#endif
+    {
+        Bmemset(spriteext, 0, sizeof(spriteext_t)*MAXSPRITES);
+
+#ifdef USE_OPENGL
+        Bmemset(spritesmooth, 0, sizeof(spritesmooth_t)*(MAXSPRITES+MAXUNIQHUDID));
+//        polymost_cachesync();
+
+# ifdef POLYMER
+        if (rendmode == 4)
+        {
+            if ((myflags&4)==0)
+                polymer_loadboard();
+        }
+# endif
+#endif
+    }
+
+    guniqhudid = 0;
+}
+
+
+#define MYMAXSECTORS() (MAXSECTORS==MAXSECTORSV7 || mapversion <= 7 ? MAXSECTORSV7 : MAXSECTORSV8)
+#define MYMAXWALLS()   (MAXSECTORS==MAXSECTORSV7 || mapversion <= 7 ? MAXWALLSV7 : MAXWALLSV8)
+#define MYMAXSPRITES() (MAXSECTORS==MAXSECTORSV7 || mapversion <= 7 ? MAXSPRITESV7 : MAXSPRITESV8)
+
+static void check_sprite(int32_t i)
+{
+    if ((unsigned)sprite[i].sectnum >= MYMAXSECTORS())
+    {
+        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal sector (%d). Map is corrupt!\n",
+                   i, sprite[i].x, sprite[i].y, sprite[i].sectnum);
+
+        updatesector(sprite[i].x, sprite[i].y, &sprite[i].sectnum);
+
+        if (sprite[i].sectnum < 0)
+            sprite[i].sectnum = 0;
+    }
+
+    if ((unsigned)sprite[i].statnum >= MAXSTATUS)
+    {
+        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal statnum (%d). Map is corrupt!\n",
+                   i, sprite[i].x, sprite[i].y, sprite[i].statnum);
+        sprite[i].statnum = 0;
+    }
+
+    if ((unsigned)sprite[i].picnum >= MAXTILES)
+    {
+        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal picnum (%d). Map is corrupt!\n",
+                   i, sprite[i].x, sprite[i].y, sprite[i].picnum);
+        sprite[i].picnum = 0;
+    }
+}
+
+
 // flags: 1, 2: former parameter "fromwhere"
 //           4: don't call polymer_loadboard
 // returns: -1: file not found
 //          -2: invalid version
 int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
-    int16_t fil, i, numsprites;
+    int32_t fil, i;
+    int16_t numsprites;
 #ifdef POLYMER
     char myflags = flags&(~3);
 #endif
@@ -9335,24 +9422,10 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
     nedtrimthreadcache(0, 0);
 #endif
 
-    initspritelists();
-
-#define MYMAXSECTORS (MAXSECTORS==MAXSECTORSV7||mapversion==7 ? MAXSECTORSV7 : MAXSECTORSV8)
-#define MYMAXWALLS   (MAXSECTORS==MAXSECTORSV7||mapversion==7 ? MAXWALLSV7 : MAXWALLSV8)
-#define MYMAXSPRITES (MAXSECTORS==MAXSECTORSV7||mapversion==7 ? MAXSPRITESV7 : MAXSPRITESV8)
-
-    Bmemset(show2dsector, 0, sizeof(show2dsector));
-    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
-    Bmemset(show2dwall, 0, sizeof(show2dwall));
-
-    kread(fil,&dapos->x,4); dapos->x = B_LITTLE32(dapos->x);
-    kread(fil,&dapos->y,4); dapos->y = B_LITTLE32(dapos->y);
-    kread(fil,&dapos->z,4); dapos->z = B_LITTLE32(dapos->z);
-    kread(fil,daang,2);  *daang  = B_LITTLE16(*daang);
-    kread(fil,dacursectnum,2); *dacursectnum = B_LITTLE16(*dacursectnum);
+    prepare_loadboard(fil, dapos, daang, dacursectnum);
 
     kread(fil,&numsectors,2); numsectors = B_LITTLE16(numsectors);
-    if (numsectors > MYMAXSECTORS) { kclose(fil); return(-1); }
+    if (numsectors > MYMAXSECTORS()) { kclose(fil); return(-1); }
     kread(fil,&sector[0],sizeof(sectortype)*numsectors);
     for (i=numsectors-1; i>=0; i--)
     {
@@ -9372,7 +9445,7 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
     }
 
     kread(fil,&numwalls,2); numwalls = B_LITTLE16(numwalls);
-    if (numwalls > MYMAXWALLS) { kclose(fil); return(-1); }
+    if (numwalls > MYMAXWALLS()) { kclose(fil); return(-1); }
     kread(fil,&wall[0],sizeof(walltype)*numwalls);
     for (i=numwalls-1; i>=0; i--)
     {
@@ -9390,7 +9463,7 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
     }
 
     kread(fil,&numsprites,2); numsprites = B_LITTLE16(numsprites);
-    if (numsprites > MYMAXSPRITES) { kclose(fil); return(-1); }
+    if (numsprites > MYMAXSPRITES()) { kclose(fil); return(-1); }
     kread(fil,&sprite[0],sizeof(spritetype)*numsprites);
     for (i=numsprites-1; i>=0; i--)
     {
@@ -9410,69 +9483,19 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
         sprite[i].hitag   = B_LITTLE16(sprite[i].hitag);
         sprite[i].extra   = B_LITTLE16(sprite[i].extra);
 
-        if (sprite[i].sectnum<0||sprite[i].sectnum>=MYMAXSECTORS)
-        {
-            initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal sector(%d). Map is corrupt!\n",
-                       i,sprite[i].x,sprite[i].y,sprite[i].sectnum);
-            updatesector(sprite[i].x, sprite[i].y, &sprite[i].sectnum);
-
-            if (sprite[i].sectnum < 0)
-                sprite[i].sectnum = 0;
-        }
-
-        if (sprite[i].statnum<0||sprite[i].statnum>=MAXSTATUS)
-        {
-            initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal statnum(%d). Map is corrupt!\n",
-                       i,sprite[i].x,sprite[i].y,sprite[i].statnum);
-            sprite[i].statnum = 0;
-        }
-
-        if (sprite[i].picnum<0||sprite[i].picnum>=MAXTILES)
-        {
-            initprintf(OSD_ERROR "Map error: sprite #%d(%d,%d) with illegal picnum(%d). Map is corrupt!\n",
-                       i,sprite[i].x,sprite[i].y,sprite[i].picnum);
-            sprite[i].picnum = 0;
-        }
+        check_sprite(i);
     }
+
+    kclose(fil);
+    // Done reading file.
+
 #ifdef YAX_ENABLE
     yax_update(mapversion<9);
     if (editstatus)
         yax_updategrays(dapos->z);
 #endif
-    for (i=0; i<numsprites; i++)
-    {
-        if ((sprite[i].cstat & 48) == 48)
-            sprite[i].cstat &= ~48;
 
-        insertsprite(sprite[i].sectnum,sprite[i].statnum);
-    }
-
-    //Must be after loading sectors, etc!
-    updatesector(dapos->x, dapos->y, dacursectnum);
-
-    kclose(fil);
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    if (!quickloadboard)
-#endif
-    {
-        Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-
-#ifdef USE_OPENGL
-        Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
-
-//    polymost_cachesync();
-
-# ifdef POLYMER
-        if (rendmode == 4)
-        {
-            if ((myflags&4)==0)
-                polymer_loadboard();
-        }
-#endif
-#endif
-    }
-    guniqhudid = 0;
+    finish_loadboard(dapos, dacursectnum, numsprites, myflags);
 
     startpos = *dapos;
     startang = *daang;
@@ -9492,7 +9515,9 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
 // Witchaven 1 and TekWar and LameDuke use v5
 int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
-    int16_t fil, i, numsprites;
+    int32_t fil, i;
+    int16_t numsprites;
+
     struct sectortypev5 v5sect;
     struct walltypev5   v5wall;
     struct spritetypev5 v5spr;
@@ -9508,17 +9533,7 @@ int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daa
     kread(fil,&mapversion,4); mapversion = B_LITTLE32(mapversion);
     if (mapversion != 5L && mapversion != 6L) { kclose(fil); return(-2); }
 
-    initspritelists();
-
-    Bmemset(show2dsector, 0, sizeof(show2dsector));
-    Bmemset(show2dsprite, 0, sizeof(show2dsprite));
-    Bmemset(show2dwall, 0, sizeof(show2dwall));
-
-    kread(fil,&dapos->x,4); dapos->x = B_LITTLE32(dapos->x);
-    kread(fil,&dapos->y,4); dapos->y = B_LITTLE32(dapos->y);
-    kread(fil,&dapos->z,4); dapos->z = B_LITTLE32(dapos->z);
-    kread(fil,daang,2);  *daang  = B_LITTLE16(*daang);
-    kread(fil,dacursectnum,2); *dacursectnum = B_LITTLE16(*dacursectnum);
+    prepare_loadboard(fil, dapos, daang, dacursectnum);
 
     kread(fil,&numsectors,2); numsectors = B_LITTLE16(numsectors);
     if (numsectors > MAXSECTORS) { kclose(fil); return(-1); }
@@ -9555,6 +9570,7 @@ int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daa
             v6sect.extra = B_LITTLE16(v6sect.extra);
             break;
         }
+
         switch (mapversion)
         {
         case 5:
@@ -9601,6 +9617,7 @@ int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daa
             v6wall.extra = B_LITTLE16(v6wall.extra);
             break;
         }
+
         switch (mapversion)
         {
         case 5:
@@ -9652,6 +9669,7 @@ int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daa
             v6spr.extra = B_LITTLE16(v6spr.extra);
             break;
         }
+
         switch (mapversion)
         {
         case 5:
@@ -9659,24 +9677,14 @@ int32_t loadoldboard(char *filename, char fromwhere, vec3_t *dapos, int16_t *daa
         case 6:
             convertv6sprv7(&v6spr,&sprite[i]);
         }
-    }
 
-    for (i=0; i<numsprites; i++)
-    {
-        if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
-        insertsprite(sprite[i].sectnum,sprite[i].statnum);
+        check_sprite(i);
     }
-
-    //Must be after loading sectors, etc!
-    updatesector(dapos->x, dapos->y, dacursectnum);
 
     kclose(fil);
+    // Done reading file.
 
-#ifdef USE_OPENGL
-    Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-    Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
-#endif
-    guniqhudid = 0;
+    finish_loadboard(dapos, dacursectnum, numsprites, 0);
 
     return(0);
 }
