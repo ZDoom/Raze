@@ -995,8 +995,9 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     bglGetFloatv(GL_MODELVIEW_MATRIX, rootmodelviewmatrix);
 
     cursectnum = dacursectnum;
-    updatesector_onlynextwalls(daposx, daposy, &cursectnum);
-    if ((cursectnum >= 0) && (cursectnum < numsectors))
+    updatesectorbreadth(daposx, daposy, &cursectnum);
+
+    if (cursectnum >= 0 && cursectnum < numsectors)
         dacursectnum = cursectnum;
     else if (pr_verbosity>=2)
         OSD_Printf("PR : got sector %d after update!\n", cursectnum);

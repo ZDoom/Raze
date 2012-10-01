@@ -12843,47 +12843,70 @@ void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int16
     }
 }
 
+////////// UPDATESECTOR* FAMILY OF FUNCTIONS //////////
+
+/* Different "is inside" predicates.
+ * NOTE: The redundant bound checks are expected to be optimized away in the
+ * inlined code. */
+static inline int32_t inside_p(int32_t x, int32_t y, int16_t sectnum)
+{
+    return (sectnum>=0 && inside(x, y, sectnum) == 1);
+}
+
+static inline int32_t inside_exclude_p(int32_t x, int32_t y, int16_t i, const uint8_t *excludesectbitmap)
+{
+    return (i>=0 && !(excludesectbitmap[i>>3]&(1<<(i&7))) && inside_p(x, y, i));
+}
+
+/* NOTE: no bound check */
+static inline int32_t inside_z_p(int32_t x, int32_t y, int32_t z, int16_t i)
+{
+    int32_t cz, fz;
+    getzsofslope(i, x, y, &cz, &fz);
+    return (z >= cz && z <= fz && inside_p(x, y, i));
+}
+
+#define SET_AND_RETURN(Lval, Rval) do \
+{ \
+    (Lval) = (Rval); \
+    return; \
+} while (0)
+
 
 //
 // updatesector[z]
 //
 void updatesector(int32_t x, int32_t y, int16_t *sectnum)
 {
-    walltype *wal;
-    int32_t i, j;
+    int32_t i;
 
-    if (inside(x,y,*sectnum) == 1) return;
+    if (inside_p(x,y,*sectnum))
+        return;
 
-    if ((*sectnum >= 0) && (*sectnum < numsectors))
+    if (*sectnum >= 0 && *sectnum < numsectors)
     {
-        wal = &wall[sector[*sectnum].wallptr];
-        j = sector[*sectnum].wallnum;
+        const walltype *wal = &wall[sector[*sectnum].wallptr];
+        int32_t j = sector[*sectnum].wallnum;
+
         do
         {
             i = wal->nextsector;
-            if (i >= 0)
-                if (inside(x,y,(int16_t)i) == 1)
-                {
-                    *sectnum = i;
-                    return;
-                }
-            wal++;
-            j--;
+            if (inside_p(x, y, i))
+                SET_AND_RETURN(*sectnum, i);
+
+            wal++; j--;
         }
         while (j != 0);
     }
 
     for (i=numsectors-1; i>=0; i--)
-        if (inside(x,y,(int16_t)i) == 1)
-        {
-            *sectnum = i;
-            return;
-        }
+        if (inside_p(x, y, i))
+            SET_AND_RETURN(*sectnum, i);
 
     *sectnum = -1;
 }
 
-void updatesector_onlynextwalls(int32_t x, int32_t y, int16_t *sectnum)
+void updatesectorbreadth(int32_t x, int32_t y, int16_t *sectnum)
 {
     static int16_t sectlist[MAXSECTORS];
     static uint8_t sectbitmap[MAXSECTORS>>3];
@@ -12896,20 +12919,17 @@ void updatesector_onlynextwalls(int32_t x, int32_t y, int16_t *sectnum)
 
     for (sectcnt=0; sectcnt<nsecs; sectcnt++)
     {
-        const sectortype *sec = &sector[sectlist[sectcnt]];
-        int32_t startwall = sec->wallptr;
-        int32_t endwall = sec->wallptr + sec->wallnum;
+        if (inside_p(x,y, sectlist[sectcnt]))
+            SET_AND_RETURN(*sectnum, sectlist[sectcnt]);
 
-        if (inside(x,y, sectlist[sectcnt]) == 1)
         {
-            *sectnum = sectlist[sectcnt];
-            return;
-        }
+            const sectortype *sec = &sector[sectlist[sectcnt]];
+            int32_t startwall = sec->wallptr;
+            int32_t endwall = sec->wallptr + sec->wallnum;
 
-        for (j=startwall; j<endwall; j++)
-        {
-            if (wall[j].nextsector >= 0)
-                bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
+            for (j=startwall; j<endwall; j++)
+                if (wall[j].nextsector >= 0)
+                    bfirst_search_try(sectlist, sectbitmap, &nsecs, wall[j].nextsector);
         }
     }
 
@@ -12918,37 +12938,30 @@ void updatesector_onlynextwalls(int32_t x, int32_t y, int16_t *sectnum)
 
 void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *excludesectbitmap)
 {
-    walltype *wal;
-    int32_t i, j;
+    int32_t i;
 
-    if (*sectnum>=0 && !(excludesectbitmap[*sectnum>>3]&(1<<(*sectnum&7))) && inside(x,y,*sectnum) == 1)
+    if (inside_exclude_p(x, y, *sectnum, excludesectbitmap))
         return;
 
-    if ((*sectnum >= 0) && (*sectnum < numsectors))
+    if (*sectnum >= 0 && *sectnum < numsectors)
     {
-        wal = &wall[sector[*sectnum].wallptr];
-        j = sector[*sectnum].wallnum;
+        const walltype *wal = &wall[sector[*sectnum].wallptr];
+        int32_t j = sector[*sectnum].wallnum;
+
         do
         {
             i = wal->nextsector;
-            if (i >= 0)
-                if (!(excludesectbitmap[i>>3]&(1<<(i&7))) && inside(x,y,(int16_t)i) == 1)
-                {
-                    *sectnum = i;
-                    return;
-                }
-            wal++;
-            j--;
+            if (inside_exclude_p(x, y, i, excludesectbitmap))
+                SET_AND_RETURN(*sectnum, i);
+
+            wal++; j--;
         }
         while (j != 0);
     }
 
     for (i=numsectors-1; i>=0; i--)
-        if (!(excludesectbitmap[i>>3]&(1<<(i&7))) && inside(x,y,(int16_t)i) == 1)
-        {
-            *sectnum = i;
-            return;
-        }
+        if (inside_exclude_p(x, y, i, excludesectbitmap))
+            SET_AND_RETURN(*sectnum, i);
 
     *sectnum = -1;
 }
@@ -12958,11 +12971,13 @@ void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *
 //      (not initial anymore because it follows the sector updating due to TROR)
 void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
 {
-    walltype *wal;
-    int32_t i, j, cz, fz;
+    int32_t i;
 
     if ((uint32_t)(*sectnum) < 2*MAXSECTORS)
     {
+        const walltype *wal;
+        int32_t j, cz, fz;
+
         int32_t nofirstzcheck = 0;
 
         if (*sectnum >= MAXSECTORS)
@@ -12979,43 +12994,37 @@ void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
         {
             i = yax_getneighborsect(x, y, *sectnum, YAX_CEILING, NULL);
             if (i >= 0 && z >= getceilzofslope(i, x, y))
-                { *sectnum = i; return; }
+                SET_AND_RETURN(*sectnum, i);
         }
+
         if (z > fz)
         {
             i = yax_getneighborsect(x, y, *sectnum, YAX_FLOOR, NULL);
             if (i >= 0 && z <= getflorzofslope(i, x, y))
-                { *sectnum = i; return; }
+                SET_AND_RETURN(*sectnum, i);
         }
 #endif
-        if (nofirstzcheck || ((z >= cz) && (z <= fz)))
-            if (inside(x,y,*sectnum) != 0) return;
+        if (nofirstzcheck || (z >= cz && z <= fz))
+            if (inside_p(x, y, *sectnum))
+                return;
 
         wal = &wall[sector[*sectnum].wallptr];
         j = sector[*sectnum].wallnum;
         do
         {
+            // YAX: TODO: check neighboring sectors here too?
             i = wal->nextsector;
-            if (i >= 0)
-            {
-// YAX: TODO: check neighboring sectors here too?
-                getzsofslope(i, x, y, &cz, &fz);
-                if ((z >= cz) && (z <= fz))
-                    if (inside(x,y,(int16_t)i) == 1)
-                        { *sectnum = i; return; }
-            }
+            if (i>=0 && inside_z_p(x,y,z, i))
+                SET_AND_RETURN(*sectnum, i);
+
             wal++; j--;
         }
         while (j != 0);
     }
 
     for (i=numsectors-1; i>=0; i--)
-    {
-        getzsofslope(i, x, y, &cz, &fz);
-        if ((z >= cz) && (z <= fz))
-            if (inside(x,y,(int16_t)i) == 1)
-                { *sectnum = i; return; }
-    }
+        if (inside_z_p(x,y,z, i))
+            SET_AND_RETURN(*sectnum, i);
 
     *sectnum = -1;
 }
