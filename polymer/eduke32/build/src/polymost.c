@@ -139,7 +139,7 @@ static int32_t srepeat = 0, trepeat = 0;
 int32_t glredbluemode = 0;
 static int32_t lastglredbluemode = 0, redblueclearcnt = 0;
 
-struct glfiltermodes glfiltermodes[numglfiltermodes] =
+struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
 {
     {"GL_NEAREST",GL_NEAREST,GL_NEAREST},
     {"GL_LINEAR",GL_LINEAR,GL_LINEAR},
@@ -492,6 +492,15 @@ void gltexinvalidate8()
 #endif
 }
 
+static void bind_2d_texture(GLuint texture)
+{
+    bglBindTexture(GL_TEXTURE_2D, texture);
+    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[gltexfiltermode].mag);
+    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[gltexfiltermode].min);
+    if (glinfo.maxanisotropy > 1.0)
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
+}
+
 void gltexapplyprops(void)
 {
     int32_t i;
@@ -499,28 +508,20 @@ void gltexapplyprops(void)
 
     if (glinfo.maxanisotropy > 1.0)
     {
-        if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy) glanisotropy = (int32_t)glinfo.maxanisotropy;
+        if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy)
+            glanisotropy = (int32_t)glinfo.maxanisotropy;
     }
 
-    if (gltexfiltermode < 0) gltexfiltermode = 0;
-    else if (gltexfiltermode >= (int32_t)numglfiltermodes) gltexfiltermode = numglfiltermodes-1;
+    gltexfiltermode = clamp(gltexfiltermode, 0, NUMGLFILTERMODES-1);
+
     for (i=GLTEXCACHEADSIZ-1; i>=0; i--)
     {
         for (pth=gltexcachead[i]; pth; pth=pth->next)
         {
-            bglBindTexture(GL_TEXTURE_2D,pth->glpic);
-            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
-            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
-            if (glinfo.maxanisotropy > 1.0)
-                bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
+            bind_2d_texture(pth->glpic);
+
             if (r_fullbrights && pth->flags & 16)
-            {
-                bglBindTexture(GL_TEXTURE_2D,pth->ofb->glpic);
-                bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
-                bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
-                if (glinfo.maxanisotropy > 1.0)
-                    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
-            }
+                bind_2d_texture(pth->ofb->glpic);
         }
     }
 
@@ -536,22 +537,14 @@ void gltexapplyprops(void)
             for (j=0; j<m->numskins*(HICEFFECTMASK+1); j++)
             {
                 if (!m->texid[j]) continue;
-                bglBindTexture(GL_TEXTURE_2D,m->texid[j]);
-                bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
-                bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
-                if (glinfo.maxanisotropy > 1.0)
-                    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
+                bind_2d_texture(m->texid[j]);
             }
 
             for (sk=m->skinmap; sk; sk=sk->next)
                 for (j=0; j<(HICEFFECTMASK+1); j++)
                 {
                     if (!sk->texid[j]) continue;
-                    bglBindTexture(GL_TEXTURE_2D,sk->texid[j]);
-                    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
-                    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
-                    if (glinfo.maxanisotropy > 1.0)
-                        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
+                    bind_2d_texture(sk->texid[j]);
                 }
         }
     }
@@ -889,7 +882,7 @@ void invalidatecache(void)
         initprintf("Deleted and reopened \"%s\" as cache file\n", TEXCACHEFILE);
 }
 
-void resizeglcheck()
+static void resizeglcheck(void)
 {
     float m[4][4];
     int32_t fovcorrect;
@@ -996,10 +989,10 @@ void fixtransparency(coltype *dapic, int32_t daxsiz, int32_t daysiz, int32_t dax
         {
             if (wpptr->a) continue;
             r = g = b = j = 0;
-            if ((x>     0) && (wpptr[     -1].a)) { r += (int32_t)wpptr[     -1].r; g += (int32_t)wpptr[     -1].g; b += (int32_t)wpptr[     -1].b; j++; }
-            if ((x<daxsiz) && (wpptr[     +1].a)) { r += (int32_t)wpptr[     +1].r; g += (int32_t)wpptr[     +1].g; b += (int32_t)wpptr[     +1].b; j++; }
-            if ((y>     0) && (wpptr[naxsiz2].a)) { r += (int32_t)wpptr[naxsiz2].r; g += (int32_t)wpptr[naxsiz2].g; b += (int32_t)wpptr[naxsiz2].b; j++; }
-            if ((y<daysiz) && (wpptr[daxsiz2].a)) { r += (int32_t)wpptr[daxsiz2].r; g += (int32_t)wpptr[daxsiz2].g; b += (int32_t)wpptr[daxsiz2].b; j++; }
+            if ((x>     0) && (wpptr[     -1].a)) { r += wpptr[     -1].r; g += wpptr[     -1].g; b += wpptr[     -1].b; j++; }
+            if ((x<daxsiz) && (wpptr[     +1].a)) { r += wpptr[     +1].r; g += wpptr[     +1].g; b += wpptr[     +1].b; j++; }
+            if ((y>     0) && (wpptr[naxsiz2].a)) { r += wpptr[naxsiz2].r; g += wpptr[naxsiz2].g; b += wpptr[naxsiz2].b; j++; }
+            if ((y<daysiz) && (wpptr[daxsiz2].a)) { r += wpptr[daxsiz2].r; g += wpptr[daxsiz2].g; b += wpptr[daxsiz2].b; j++; }
             switch (j)
             {
             case 1:
@@ -1078,12 +1071,12 @@ void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt
             for (x=0; x<x3; x++,wpptr++,rpptr+=2)
             {
                 r = g = b = a = k = 0;
-                if (rpptr[0].a)                  { r += (int32_t)rpptr[0].r; g += (int32_t)rpptr[0].g; b += (int32_t)rpptr[0].b; a += (int32_t)rpptr[0].a; k++; }
-                if ((x+x+1 < x2) && (rpptr[1].a)) { r += (int32_t)rpptr[1].r; g += (int32_t)rpptr[1].g; b += (int32_t)rpptr[1].b; a += (int32_t)rpptr[1].a; k++; }
+                if (rpptr[0].a)                  { r += rpptr[0].r; g += rpptr[0].g; b += rpptr[0].b; a += rpptr[0].a; k++; }
+                if ((x+x+1 < x2) && (rpptr[1].a)) { r += rpptr[1].r; g += rpptr[1].g; b += rpptr[1].b; a += rpptr[1].a; k++; }
                 if (y+y+1 < y2)
                 {
-                    if ((rpptr[x2].a)) { r += (int32_t)rpptr[x2  ].r; g += (int32_t)rpptr[x2  ].g; b += (int32_t)rpptr[x2  ].b; a += (int32_t)rpptr[x2  ].a; k++; }
-                    if ((x+x+1 < x2) && (rpptr[x2+1].a)) { r += (int32_t)rpptr[x2+1].r; g += (int32_t)rpptr[x2+1].g; b += (int32_t)rpptr[x2+1].b; a += (int32_t)rpptr[x2+1].a; k++; }
+                    if ((rpptr[x2].a)) { r += rpptr[x2  ].r; g += rpptr[x2  ].g; b += rpptr[x2  ].b; a += rpptr[x2  ].a; k++; }
+                    if ((x+x+1 < x2) && (rpptr[x2+1].a)) { r += rpptr[x2+1].r; g += rpptr[x2+1].g; b += rpptr[x2+1].b; a += rpptr[x2+1].a; k++; }
                 }
                 switch (k)
                 {
@@ -1125,6 +1118,33 @@ static int32_t tile_is_sky(int32_t tilenum)
 #else
 # define tile_is_sky(x) (0)
 #endif
+
+static void texture_setup(int32_t dameth)
+{
+    gltexfiltermode = clamp(gltexfiltermode, 0, NUMGLFILTERMODES-1);
+    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[gltexfiltermode].mag);
+    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[gltexfiltermode].min);
+
+    if (glinfo.maxanisotropy > 1.0)
+    {
+        if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy)
+            glanisotropy = (int32_t)glinfo.maxanisotropy;
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
+    }
+
+    if (!(dameth&4))
+    {
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, !tile_is_sky(dapic) ? GL_REPEAT:
+                         (glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP));
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    }
+    else
+    {
+        //For sprite textures, clamping looks better than wrapping
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+    }
+}
 
 static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
@@ -1221,29 +1241,7 @@ static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthty
     fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
     uploadtexture(doalloc,xsiz,ysiz,hasalpha?GL_RGBA:GL_RGB,GL_RGBA,pic,tsizx,tsizy,dameth);
 
-    if (gltexfiltermode < 0) gltexfiltermode = 0;
-    else if (gltexfiltermode >= (int32_t)numglfiltermodes) gltexfiltermode = numglfiltermodes-1;
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
-
-    if (glinfo.maxanisotropy > 1.0)
-    {
-        if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy) glanisotropy = (int32_t)glinfo.maxanisotropy;
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
-    }
-
-    if (!(dameth&4))
-    {
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,!tile_is_sky(dapic) ? GL_REPEAT:
-                         (glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP));
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-    }
-    else
-    {
-        //For sprite textures, clamping looks better than wrapping
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-    }
+    texture_setup(dameth);
 
     Bfree(pic);
 
@@ -1912,29 +1910,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
         pth->scaley = ((float)tsizy) / ((float)tilesizy[dapic]);
     }
 
-    gltexfiltermode = clamp(gltexfiltermode, 0, numglfiltermodes-1);
-
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[gltexfiltermode].mag);
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[gltexfiltermode].min);
-
-    if (glinfo.maxanisotropy > 1.0)
-    {
-        if (glanisotropy <= 0 || glanisotropy > glinfo.maxanisotropy) glanisotropy = (int32_t)glinfo.maxanisotropy;
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_ANISOTROPY_EXT,glanisotropy);
-    }
-
-    if (!(dameth&4))
-    {
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, !tile_is_sky(dapic) ? GL_REPEAT:
-                         (glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP));
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-    }
-    else
-    {
-        //For sprite textures, clamping looks better than wrapping
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-        bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-    }
+    texture_setup(dameth);
 
     if (pic) Bfree(pic);
 
@@ -6245,8 +6221,8 @@ static int32_t gltexturemode(const osdfuncparm_t *parm)
     {
         OSD_Printf("Current texturing mode is %s\n", glfiltermodes[gltexfiltermode].name);
         OSD_Printf("  Vaild modes are:\n");
-        for (m = 0; m < (int32_t)numglfiltermodes; m++)
-            OSD_Printf("     %d - %s\n",m,glfiltermodes[m].name);
+        for (m = 0; m < NUMGLFILTERMODES; m++)
+            OSD_Printf("     %d - %s\n", m, glfiltermodes[m].name);
 
         return OSDCMD_OK;
     }
@@ -6255,16 +6231,18 @@ static int32_t gltexturemode(const osdfuncparm_t *parm)
     if (p == parm->parms[0])
     {
         // string
-        for (m = 0; m < (int32_t)numglfiltermodes; m++)
+        for (m = 0; m < NUMGLFILTERMODES; m++)
         {
-            if (!Bstrcasecmp(parm->parms[0], glfiltermodes[m].name)) break;
+            if (!Bstrcasecmp(parm->parms[0], glfiltermodes[m].name))
+                break;
         }
-        if (m == numglfiltermodes) m = gltexfiltermode;   // no change
+
+        if (m == NUMGLFILTERMODES)
+            m = gltexfiltermode;   // no change
     }
     else
     {
-        if (m < 0) m = 0;
-        else if (m >= (int32_t)numglfiltermodes) m = numglfiltermodes - 1;
+        m = clamp(m, 0, NUMGLFILTERMODES-1);
     }
 
     gltexfiltermode = m;

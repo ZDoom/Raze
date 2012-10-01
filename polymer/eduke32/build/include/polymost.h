@@ -32,8 +32,8 @@ struct glfiltermodes {
 	const char *name;
 	int32_t min,mag;
 };
-#define numglfiltermodes 6
-extern struct glfiltermodes glfiltermodes[numglfiltermodes];
+#define NUMGLFILTERMODES 6
+extern struct glfiltermodes glfiltermodes[NUMGLFILTERMODES];
 
 //void phex(char v, char *s);
 void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt, int32_t texfmt, coltype *pic, int32_t tsizx, int32_t tsizy, int32_t dameth);
