@@ -1708,7 +1708,9 @@ static void G_PrintCoords(int32_t snum)
 {
     const int32_t x = 250;
     int32_t y = 16;
-    const int32_t sectnum = g_player[snum].ps->cursectnum;
+
+    const DukePlayer_t *ps = g_player[snum].ps;
+    const int32_t sectnum = ps->cursectnum;
 
     if ((GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
     {
@@ -1717,13 +1719,13 @@ static void G_PrintCoords(int32_t snum)
         else if (g_netServer || ud.multimode > 1)
             y = 24;
     }
-    Bsprintf(tempbuf,"XYZ= (%d,%d,%d)",g_player[snum].ps->pos.x,g_player[snum].ps->pos.y,g_player[snum].ps->pos.z);
+    Bsprintf(tempbuf,"XYZ= (%d,%d,%d)",ps->pos.x,ps->pos.y,ps->pos.z);
     printext256(x,y,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"A/H/HO= %d,%d,%d",g_player[snum].ps->ang,g_player[snum].ps->horiz,g_player[snum].ps->horizoff);
+    Bsprintf(tempbuf,"A/H/HO= %d,%d,%d",ps->ang,ps->horiz,ps->horizoff);
     printext256(x,y+9,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"ZV= %d",g_player[snum].ps->vel.z);
+    Bsprintf(tempbuf,"ZV= %d",ps->vel.z);
     printext256(x,y+18,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"OG= %d",g_player[snum].ps->on_ground);
+    Bsprintf(tempbuf,"OG= %d  SBRIDGE=%d SBS=%d",ps->on_ground, ps->spritebridge, ps->sbs);
     printext256(x,y+27,31,-1,tempbuf,0);
     if (sectnum >= 0)
         Bsprintf(tempbuf,"SECT= %d (LO=%d EX=%d)",sectnum,sector[sectnum].lotag,sector[sectnum].extra);
@@ -1735,7 +1737,7 @@ static void G_PrintCoords(int32_t snum)
     y -= 9;
 
     y += 7;
-    Bsprintf(tempbuf,"THOLD= %d",g_player[snum].ps->transporter_hold);
+    Bsprintf(tempbuf,"THOLD= %d", ps->transporter_hold);
     printext256(x,y+54,31,-1,tempbuf,0);
     Bsprintf(tempbuf,"GAMETIC= %d",g_moveThingsCount);
     printext256(x,y+63,31,-1,tempbuf,0);
