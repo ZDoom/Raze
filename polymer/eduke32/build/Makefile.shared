@@ -314,7 +314,9 @@ else
             LIBS+= -L/opt/local/lib -L/usr/local/lib -lpng # -lz
         endif
     else
-        LIBS+= -lpng -lz
+        ifneq ($(USE_LIBPNG),0)
+            LIBS+= -lpng -lz
+        endif
     endif
 endif
 
