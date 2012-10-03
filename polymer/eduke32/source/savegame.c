@@ -844,9 +844,17 @@ static void sv_postquoteredef();
 static void sv_restsave();
 static void sv_restload();
 
+// This used to be sizeof(_prlight)*PR_MAXLIGHTS + sizeof(lightcount), but
+// 1) we haven't been loading Polymer lights since a while now since they're
+//    restored by polymer_loadboard() and
+// 2) sizeof(_prlight) differs across compilers, see
+//    http://forums.duke4.net/topic/5686-synchronize-game-save-data-across-multiple-eduke32-installations
+// Can be removed with the next savegame version bump.
+#define TRAILINGBYTES (261*1024 + 4)
+
 #define SVARDATALEN \
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
-      +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS + sizeof(_prlight)*PR_MAXLIGHTS + sizeof(lightcount))
+      +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS + TRAILINGBYTES)
 
 static uint32_t savegame_bitptrsize;
 static uint8_t savegame_quotedef[MAXQUOTES>>3];
@@ -1600,20 +1608,9 @@ static void sv_restsave()
         else
             CPDAT(&dummy_ps, sizeof(DukePlayer_t));
     }
-#ifdef POLYMER
-    // what's the point of doing this when we polymer_resetlights() through polymer_loadboard()
-    // later on anyway?
-    CPDAT(&lightcount, sizeof(lightcount));
-    for (i=0; i<lightcount; i++)
-    {
-        CPDAT(&prlights[i], sizeof(_prlight));
-        ((_prlight *)(mem-sizeof(_prlight)))->planelist = NULL;
-    }
-#endif
 
-    Bassert((savegame_restdata+SVARDATALEN)-mem >= 0);
-
-    Bmemset(mem, 0, (savegame_restdata+SVARDATALEN)-mem);
+    Bassert((savegame_restdata+SVARDATALEN)-mem == TRAILINGBYTES);
+    Bmemset(mem, 0, TRAILINGBYTES);
 #undef CPDAT
 }
 static void sv_restload()
@@ -1634,11 +1631,6 @@ static void sv_restload()
         else
             CPDAT(&dummy_ps, sizeof(DukePlayer_t));
     }
-#ifdef POLYMER
-//    CPDAT(&lightcount, sizeof(lightcount));
-//    for (i=0; i<lightcount; i++)
-//        CPDAT(&prlights[i], sizeof(_prlight));
-#endif
 #undef CPDAT
 }
 

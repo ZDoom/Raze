@@ -672,7 +672,7 @@ static void Menus_LoadSave_DisplayCommon1(void)
         mgametext(31,104,tempbuf,0,2+8+16);
         Bsprintf(tempbuf,"Our: %d.%d.%d %d-bit", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
                  (int32_t)(8*sizeof(intptr_t)));
-        mgametext(31+16,114,tempbuf,0,2+8+16);
+        mgametext(31+16,QUOTE_SAVE_BAD_VERSION,tempbuf,0,2+8+16);
     }
 }
 
