@@ -18,18 +18,3 @@
 # /polymer/eduke32/source/jaudiolib/
 /polymer/eduke32/source/jaudiolib/obj_win
 
-# /polymer-perf/eduke32/
-/polymer-perf/eduke32/eduke32
-/polymer-perf/eduke32/mapster32
-/polymer-perf/eduke32/*.con
-/polymer-perf/eduke32/*.sym
-
-# /polymer-perf/eduke32/build/obj.gnu/
-/polymer-perf/eduke32/build/obj.gnu/*.a
-
-# /polymer-perf/eduke32/eobj/
-/polymer-perf/eduke32/eobj/*.a
-
-# /polymer-perf/eduke32/rsrc/
-/polymer-perf/eduke32/rsrc/game_banner.c
-/polymer-perf/eduke32/rsrc/editor_banner.c
