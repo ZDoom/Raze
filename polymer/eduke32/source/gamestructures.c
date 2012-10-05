@@ -1140,13 +1140,13 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
         Gv_SetVarX(lVar2, SpriteProjectile[proj].hitradius);
         return;
 
-    case PROJ_VEL_MULT:
+    case PROJ_MOVECNT:
         if (iSet)
         {
-            SpriteProjectile[proj].velmult=lValue;
+            SpriteProjectile[proj].movecnt=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, SpriteProjectile[proj].velmult);
+        Gv_SetVarX(lVar2, SpriteProjectile[proj].movecnt);
         return;
 
     case PROJ_OFFSET:
@@ -3330,13 +3330,13 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
         Gv_SetVarX(lVar2, ProjectileData[lVar1].hitradius);
         return;
 
-    case PROJ_VEL_MULT:
+    case PROJ_MOVECNT:
         if (iSet)
         {
-            ProjectileData[lVar1].velmult=lValue;
+            ProjectileData[lVar1].movecnt=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, ProjectileData[lVar1].velmult);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].movecnt);
         return;
 
     case PROJ_OFFSET:

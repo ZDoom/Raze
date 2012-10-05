@@ -568,7 +568,7 @@ enum ProjectileLabel_t
     PROJ_PAL,  // 20
     PROJ_EXTRA_RAND,
     PROJ_HITRADIUS,
-    PROJ_VEL_MULT,
+    PROJ_MOVECNT,
     PROJ_OFFSET,
     PROJ_BOUNCES,  // 25
     PROJ_BSOUND,

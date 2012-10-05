@@ -999,7 +999,7 @@ const memberlabel_t ProjectileLabels[]=
     { "pal", PROJ_PAL, 0, 0 },
     { "extra_rand", PROJ_EXTRA_RAND, 0, 0 },
     { "hitradius", PROJ_HITRADIUS, 0, 0 },
-    { "velmult", PROJ_VEL_MULT, 0, 0 },
+    { "velmult", PROJ_MOVECNT, 0, 0 },
     { "offset", PROJ_OFFSET, 0, 0 },
     { "bounces", PROJ_BOUNCES, 0, 0 },
     { "bsound", PROJ_BSOUND, 0, 0 },
@@ -4057,8 +4057,8 @@ static int32_t C_ParseCommand(int32_t loop)
                     DefaultProjectileData[j].extra_rand = ProjectileData[j].extra_rand = z; break;
                 case PROJ_HITRADIUS:
                     DefaultProjectileData[j].hitradius = ProjectileData[j].hitradius = z; break;
-                case PROJ_VEL_MULT:
-                    DefaultProjectileData[j].velmult = ProjectileData[j].velmult = z; break;
+                case PROJ_MOVECNT:
+                    DefaultProjectileData[j].movecnt = ProjectileData[j].movecnt = z; break;
                 case PROJ_OFFSET:
                     DefaultProjectileData[j].offset = ProjectileData[j].offset = z; break;
                 case PROJ_BOUNCES:
@@ -5731,7 +5731,7 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("PROJ_TRAIL",PROJ_TRAIL,LABEL_DEFINE);
     C_AddDefinition("PROJ_TXREPEAT",PROJ_TXREPEAT,LABEL_DEFINE);
     C_AddDefinition("PROJ_TYREPEAT",PROJ_TYREPEAT,LABEL_DEFINE);
-    C_AddDefinition("PROJ_VEL_MULT",PROJ_VEL_MULT,LABEL_DEFINE);
+    C_AddDefinition("PROJ_VEL_MULT",PROJ_MOVECNT,LABEL_DEFINE);
     C_AddDefinition("PROJ_VEL",PROJ_VEL,LABEL_DEFINE);
     C_AddDefinition("PROJ_WORKSLIKE",PROJ_WORKSLIKE,LABEL_DEFINE);
     C_AddDefinition("PROJ_XREPEAT",PROJ_XREPEAT,LABEL_DEFINE);
@@ -5754,7 +5754,7 @@ static void C_InitProjectiles(void)
         int16_t extra, extra_rand; // 4b
         int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
         int8_t shade, xrepeat, yrepeat, pal; // 4b
-        int8_t velmult; // 1b
+        int8_t movecnt; // 1b
         uint8_t clipdist; // 1b
         int8_t filler[6]; // 6b
     } defaultprojectile_t;

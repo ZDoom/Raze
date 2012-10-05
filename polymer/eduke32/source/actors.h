@@ -92,7 +92,7 @@ typedef struct {
     int16_t extra, extra_rand; // 4b
     int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
     int8_t shade, xrepeat, yrepeat, pal; // 4b
-    int8_t velmult; // 1b
+    int8_t movecnt; // 1b
     uint8_t clipdist; // 1b
     int8_t filler[6]; // 6b
 } projectile_t;

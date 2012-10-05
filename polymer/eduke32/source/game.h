@@ -386,6 +386,8 @@ enum {
     SE_34 = 34,  // XXX
     SE_35 = 35,  // XXX
     SE_36_PROJ_SHOOTER = 36,
+    SE_49_POINT_LIGHT = 49,
+    SE_50_SPOT_LIGHT = 50,
 };
 
 // sector lotags
