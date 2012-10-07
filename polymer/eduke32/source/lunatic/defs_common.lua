@@ -172,6 +172,10 @@ int16_t yax_getbunch(int16_t i, int16_t cf);
 int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                 hitdata_t *hitinfo, uint32_t cliptype);
 
+void updatesector(int32_t x, int32_t y, int16_t *sectnum);
+void updatesectorbreadth(int32_t x, int32_t y, int16_t *sectnum);
+void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum);
+
 void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                   int8_t dashade, char dapalnum, int32_t dastat,
                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
@@ -336,6 +340,29 @@ function hitscan(pos, sectnum, vx,vy,vz, cliptype)
 
     ffiC.hitscan(vec, sectnum, vx,vy,vz, hitdata, cliptype)
     return hitdata
+end
+
+-- TODO: should these rather be one function, and the specific kind of updating
+-- controlled by an argument?
+function updatesector(pos, sectnum)
+    local sect = ffi.new("int16_t [1]")
+    sect[0] = sectnum
+    ffiC.updatesector(pos.x, pos.y, sect)
+    return sect[0]
+end
+
+function updatesectorbreadth(pos, sectnum)
+    local sect = ffi.new("int16_t [1]")
+    sect[0] = sectnum
+    ffiC.updatesectorbreadth(pos.x, pos.y, sect)
+    return sect[0]
+end
+
+function updatesectorz(pos, sectnum)
+    local sect = ffi.new("int16_t [1]")
+    sect[0] = sectnum
+    ffiC.updatesectorz(pos.x, pos.y, pos.z, sect)
+    return sect[0]
 end
 
 

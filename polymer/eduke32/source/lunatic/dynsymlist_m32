@@ -31,6 +31,10 @@ ksqrt;
 hitscan;
 rotatesprite;
 
+updatesector;
+updatesectorz;
+updatesectorbreadth;
+
 gethitickms;
 
 
