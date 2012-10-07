@@ -9184,6 +9184,32 @@ static int32_t osdcmd_tint(const osdfuncparm_t *parm)
 }
 #endif
 
+#ifdef LUNATIC
+static int32_t osdcmd_lua(const osdfuncparm_t *parm)
+{
+    // Should be used like
+    // lua "lua code..."
+    // (the quotes making the whole string passed as one argument)
+
+    int32_t ret;
+
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
+    if (g_EmState == NULL)
+    {
+        OSD_Printf("Lua state is not initialized.\n");
+        return OSDCMD_OK;
+    }
+
+    ret = Em_RunStringOnce(g_EmState, parm->parms[0]);
+    if (ret != 0)
+        OSD_Printf("Error running the Lua code (error code %d)\n", ret);
+
+    return OSDCMD_OK;
+}
+#endif
+
 // M32 script vvv
 static int32_t osdcmd_include(const osdfuncparm_t *parm)
 {
@@ -9430,6 +9456,9 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("tint", "tint <pal> <r> <g> <b> <flags>: queries or sets hightile tinting", osdcmd_tint);
 #endif
 
+#ifdef LUNATIC
+    OSD_RegisterFunction("lua", "lua \"lua code...\": runs Lua code", osdcmd_lua);
+#endif
     // M32 script
     OSD_RegisterFunction("include", "include <filenames...>: compiles one or more M32 script files", osdcmd_include);
     OSD_RegisterFunction("do", "do (m32 script ...): executes M32 script statements", osdcmd_do);

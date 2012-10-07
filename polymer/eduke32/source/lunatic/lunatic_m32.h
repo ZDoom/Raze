@@ -15,5 +15,6 @@ static inline void Em_DestroyState(Em_State *L)
 }
 
 int32_t Em_RunOnce(Em_State *L, const char *fn);
+int32_t Em_RunStringOnce(Em_State *L, const char *str);
 
 #endif

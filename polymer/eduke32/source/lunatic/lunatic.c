@@ -142,6 +142,7 @@ void El_DestroyState(El_State *estate)
 // 2: couldn't read whole file
 // 3: syntax error in lua file
 // 4: runtime error while executing lua file
+// 5: empty file
 int32_t El_RunOnce(El_State *estate, const char *fn)
 {
     return lunatic_run_once(estate->L, fn, estate->name);

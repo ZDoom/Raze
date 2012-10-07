@@ -1,4 +1,6 @@
-/* Private, game/editor-common Lunatic routines. */
+/* Private, game/editor-common Lunatic routines.
+ * This file is intended to be included exactly ONCE in the game and editor
+ * Lunatic sources. */
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -30,10 +32,13 @@ static void setup_debug_traceback(lua_State *L)
     lua_pop(L, 2);
 }
 
-static int32_t lunatic_run_once(lua_State *L, const char *fn, const char *statename)
+
+static int32_t read_whole_file(const char *fn, char **retbufptr)
 {
     int32_t fid, flen, i;
     char *buf;
+
+    *retbufptr = NULL;
 
     fid = kopen4load(fn, 0);  // TODO: g_loadFromGroupOnly, kopen4loadfrommod ?
 
@@ -42,7 +47,7 @@ static int32_t lunatic_run_once(lua_State *L, const char *fn, const char *staten
 
     flen = kfilelength(fid);
     if (flen == 0)
-        return 0;  // empty script ...
+        return 5;
 
     buf = Bmalloc(flen+1);
     if (!buf)
@@ -61,6 +66,14 @@ static int32_t lunatic_run_once(lua_State *L, const char *fn, const char *staten
     }
 
     buf[flen] = 0;
+    *retbufptr = buf;
+
+    return 0;
+}
+
+static int32_t lunatic_run_string(lua_State *L, char *buf, int32_t dofreebuf, const char *statename)
+{
+    int32_t i;
 
     // -- lua --
     Bassert(lua_gettop(L)==0);
@@ -72,7 +85,8 @@ static int32_t lunatic_run_once(lua_State *L, const char *fn, const char *staten
 
     i = luaL_loadstring(L, buf);
     Bassert(lua_gettop(L)==2);
-    Bfree(buf);
+    if (dofreebuf)
+        Bfree(buf);
 
     if (i == LUA_ERRMEM)
     {
@@ -114,4 +128,16 @@ static int32_t lunatic_run_once(lua_State *L, const char *fn, const char *staten
     lua_pop(L, 1);
 
     return 0;
+}
+
+static int32_t lunatic_run_once(lua_State *L, const char *fn, const char *statename)
+{
+    int32_t i;
+    char *buf;
+
+    i = read_whole_file(fn, &buf);
+    if (i != 0)
+        return i;
+
+    return lunatic_run_string(L, buf, 1, statename);
 }

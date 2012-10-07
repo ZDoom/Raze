@@ -29,7 +29,13 @@ Em_State *Em_CreateState(void)
 // 2: couldn't read whole file
 // 3: syntax error in lua file
 // 4: runtime error while executing lua file
+// 5: empty file
 int32_t Em_RunOnce(Em_State *L, const char *fn)
 {
-    return lunatic_run_once(L, fn, "test");
+    return lunatic_run_once(L, fn, "file");
+}
+
+int32_t Em_RunStringOnce(Em_State *L, const char *str)
+{
+    return lunatic_run_string(L, (char *)str, 0, "string");
 }
