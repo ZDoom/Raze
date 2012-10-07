@@ -163,6 +163,8 @@ ifneq (0,$(LUNATIC))
     else
         LIBS+= -L/usr/local/lib -lluajit-5.1
     endif
+
+    EDITOROBJS+= $(OBJ)/lunatic_m32.$o
     GAMEOBJS+= $(OBJ)/lunatic.$o
 
     GAMEOBJS+= $(OBJ)/../lpeg.$o  # TEMP

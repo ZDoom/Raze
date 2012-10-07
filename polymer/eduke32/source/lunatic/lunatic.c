@@ -11,7 +11,9 @@
 
 #include "gameexec.h"
 #include "gamedef.h"  // EventNames[], MAXEVENTS
+
 #include "lunatic.h"
+#include "lunatic_priv.h"
 
 // this serves two purposes:
 // the values as booleans and the addresses as keys to the Lua registry
@@ -86,16 +88,6 @@ void El_PrintTimes(void)
     OSD_Printf(" },\n}\n");
 }
 
-static void check_and_register_function(lua_State *L, void *keyaddr)
-{
-    luaL_checktype(L, -1, LUA_TFUNCTION);
-
-    lua_pushlightuserdata(L, keyaddr);  // 3, push address
-    lua_pushvalue(L, -2);  // 4, push copy of lua function
-
-    lua_settable(L, LUA_REGISTRYINDEX);  // "registry[keyaddr] = <lua function>", pop 2
-}
-
 
 // 0: success, <0: failure
 int32_t El_CreateState(El_State *estate, const char *name)
@@ -119,12 +111,7 @@ int32_t El_CreateState(El_State *estate, const char *name)
     luaopen_lpeg(L);
     lua_pop(L, lua_gettop(L));  // pop off whatever lpeg leaves on the stack
 
-    // get debug.traceback
-    lua_getglobal(L, "debug");
-    lua_getfield(L, -1, "traceback");
-    Bassert(lua_isfunction(L, -1));
-    check_and_register_function(L, &debug_traceback_key);
-    lua_pop(L, 2);
+    setup_debug_traceback(L);
 
     // create misc. global functions in the Lua state
     lua_pushcfunction(L, SetEvent_luacf);
@@ -157,88 +144,7 @@ void El_DestroyState(El_State *estate)
 // 4: runtime error while executing lua file
 int32_t El_RunOnce(El_State *estate, const char *fn)
 {
-    int32_t fid, flen, i;
-    char *buf;
-
-    lua_State *const L = estate->L;
-
-    fid = kopen4load(fn, 0);  // TODO: g_loadFromGroupOnly, kopen4loadfrommod ?
-
-    if (fid < 0)
-        return 1;
-
-    flen = kfilelength(fid);
-    if (flen == 0)
-        return 0;  // empty script ...
-
-    buf = Bmalloc(flen+1);
-    if (!buf)
-    {
-        kclose(fid);
-        return -1;
-    }
-
-    i = kread(fid, buf, flen);
-    kclose(fid);
-
-    if (i != flen)
-    {
-        Bfree(buf);
-        return 2;
-    }
-
-    buf[flen] = 0;
-
-    // -- lua --
-    Bassert(lua_gettop(L)==0);
-
-    // get debug.traceback
-    lua_pushlightuserdata(L, &debug_traceback_key);
-    lua_gettable(L, LUA_REGISTRYINDEX);
-    Bassert(lua_isfunction(L, -1));
-
-    i = luaL_loadstring(L, buf);
-    Bassert(lua_gettop(L)==2);
-    Bfree(buf);
-
-    if (i == LUA_ERRMEM)
-    {
-        lua_pop(L, 2);
-        return -1;
-    }
-
-    if (i == LUA_ERRSYNTAX)
-    {
-        OSD_Printf("state \"%s\" syntax error: %s\n", estate->name,
-                   lua_tostring(L, -1));  // get err msg
-        lua_pop(L, 2);  // pop errmsg and debug.traceback
-        return 3;
-    }
-
-    // -- call the lua chunk! --
-
-    i = lua_pcall(L, 0, 0, -2);
-    Bassert(lua_gettop(L) == 1+!!i);
-    Bassert(i != LUA_ERRERR);  // we expect debug.traceback not to fail
-
-    if (i == LUA_ERRMEM)  // XXX: should be more sophisticated.  Clean up stack? Do GC?
-    {
-        lua_pop(L, 2);
-        return -1;
-    }
-
-    if (i == LUA_ERRRUN)
-    {
-        Bassert(lua_type(L, -1)==LUA_TSTRING);
-        OSD_Printf("state \"%s\" runtime error: %s\n", estate->name,
-                   lua_tostring(L, -1));  // get err msg
-        lua_pop(L, 2);  // pop errmsg and debug.traceback
-        return 4;
-    }
-
-    lua_pop(L, 1);
-
-    return 0;
+    return lunatic_run_once(estate->L, fn, estate->name);
 }
 
 

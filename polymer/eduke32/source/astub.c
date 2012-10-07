@@ -49,6 +49,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "m32script.h"
 #include "m32def.h"
 
+#ifdef LUNATIC
+# include "lunatic_m32.h"
+#endif
+
 #include "rev.h"
 
 #ifdef _WIN32
@@ -85,6 +89,10 @@ int32_t g_defModulesNum = 0;
 #ifdef HAVE_CLIPSHAPE_FEATURE
 char **g_clipMapFiles = NULL;
 int32_t g_clipMapFilesNum = 0;
+#endif
+
+#ifdef LUNATIC
+Em_State *g_EmState;
 #endif
 
 #pragma pack(push,1)
@@ -10491,6 +10499,21 @@ int32_t ExtInit(void)
     ReadHelpFile("m32help.hlp");
 
     MultiPskyInit();
+
+#ifdef LUNATIC
+    g_EmState = Em_CreateState();
+
+    if (g_EmState)
+    {
+        i = Em_RunOnce(g_EmState, "defs_m32.ilua");
+        if (i)
+        {
+            initprintf("Lunatic: Error preparing global Lua state (code %d)\n", i);
+            Em_DestroyState(g_EmState);
+            g_EmState = NULL;
+        }
+    }
+#endif
 
     signal(SIGINT, m32script_interrupt_handler);
 
