@@ -6,9 +6,13 @@ local ffi = require("ffi")
 local ffiC = ffi.C
 
 local error = error
+local pairs = pairs
 local setmetatable = setmetatable
 
 local decl = decl
+local getfenv = getfenv
+
+local print=print
 
 
 module(...)
@@ -88,8 +92,7 @@ typedef struct {
 local vec3_ct = ffi.typeof("vec3_t")
 local hitdata_ct = ffi.typeof("hitdata_t")
 
--- TODO: add 'const'
-ffi.cdef[[int32_t engine_main_arrays_are_static, engine_v8;]]
+ffi.cdef[[const int32_t engine_main_arrays_are_static, engine_v8;]]
 
 
 --== Engine data and functions ==--
@@ -190,7 +193,7 @@ function setmtonce(tab, mt)
 end
 
 ---- indirect C array access ----
-local tmpmt = {
+local sector_mt = {
     __index = function(tab, key)
                   if (key >= 0 and key < ffiC.numsectors) then return ffiC.sector[key] end
                   error('out-of-bounds sector[] read access', 2)
@@ -198,9 +201,8 @@ local tmpmt = {
 
     __newindex = function(tab, key, val) error('cannot write directly to sector[] struct', 2) end,
 }
-sector = setmtonce({}, tmpmt)
 
-local tmpmt = {
+local wall_mt = {
     __index = function(tab, key)
                   if (key >= 0 and key < ffiC.numwalls) then return ffiC.wall[key] end
                   error('out-of-bounds wall[] read access', 2)
@@ -208,7 +210,6 @@ local tmpmt = {
 
     __newindex = function(tab, key, val) error('cannot write directly to wall[] struct', 2) end,
 }
-wall = setmtonce({}, tmpmt)
 
 -- create a safe indirection for an ffi.C array
 function creategtab(ctab, maxidx, name)
@@ -228,8 +229,20 @@ function creategtab(ctab, maxidx, name)
     return setmtonce(tab, tmpmt)
 end
 
+
+local vars_to_ignore = {}
+for varname,_ in pairs(getfenv(1)) do
+--    print("IGNORE "..varname)
+    vars_to_ignore[varname] = true
+end
+
+--== ALL GLOBALS FROM HERE ON ARE EXPORTED UPWARDS (see create_globals() below) ==--
+
+sector = setmtonce({}, sector_mt)
+wall = setmtonce({}, wall_mt)
 sprite = creategtab(ffiC.sprite, ffiC.MAXSPRITES, 'sprite[] struct')
 spriteext = creategtab(ffiC.spriteext, ffiC.MAXSPRITES, 'spriteext[] struct')
+
 headspritesect = creategtab(ffiC.headspritesect, ffiC.MAXSECTORS, 'headspritesect[]')
 -- TODO: allow sprite freelist access via the status list for CON compatibility?
 headspritestat = creategtab(ffiC.headspritestat, ffiC.MAXSTATUS, 'headspritestat[]')
@@ -321,4 +334,19 @@ function hitscan(x,y,z, sectnum, vx,vy,vz, cliptype)
 
     ffiC.hitscan(vec, sectnum, vx,vy,vz, hitdata, cliptype)
     return hitdata
+end
+
+
+-- This is supposed to be run from the file that 'require's this module to take
+-- over the non-local variables from here into the global environment.
+function create_globals(_G_their)
+    local _G_our = getfenv(1)
+    vars_to_ignore["create_globals"] = true
+
+    for varname,obj in pairs(_G_our) do
+        if (not vars_to_ignore[varname]) then
+--            print("EXPORT "..varname)
+            _G_their[varname] = obj
+        end
+    end
 end

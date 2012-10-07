@@ -8,27 +8,7 @@ local ffiC = ffi.C
 decl = ffi.cdef
 local defs_c = require("defs_common")
 
--- structs
-sector = defs_c.sector;
-wall = defs_c.wall;
-sprite = defs_c.sprite
-spriteext = defs_c.spriteext
-
-headspritesect = defs_c.headspritesect
-headspritestat = defs_c.headspritestat
-nextspritesect = defs_c.nextspritesect
-nextspritestat = defs_c.nextspritestat
-prevspritesect = defs_c.prevspritesect
-prevspritestat = defs_c.prevspritestat
-
--- functions
-spritesofsect = defs_c.spritesofsect
-spritesofstat = defs_c.spritesofstat
-sectorsofbunch = defs_c.sectorsofbunch
-
-getbunch = defs_c.getbunch
-
-hitscan = defs_c.hitscan
+defs_c.create_globals(_G)
 
 
 --== Mapster32-specific initialization

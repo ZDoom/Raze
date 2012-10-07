@@ -21,12 +21,15 @@ local gv_ = {
 local dummy_empty_table = {}
 
 -- This is for declarations of arrays or pointers which should not be
--- accessible through the "gv" global. The "defs_common" module require will
+-- accessible through the "gv" global. The "defs_common" module will
 -- use this function.
--- NOTE: don't declare multiple pointers on one line (like int32_t *a, *b;)!
+--
+-- NOTE: don't declare multiple pointers on one line (this is bad: "int32_t *a, *b")
+--  and array *arguments* should be separated by a space, like
+--  "int func(char arrayarg [16])"
 function decl(str)
     for varname in string.gmatch(str, "([%a_][%w_]*)[[(;]") do
---        print("protect "..varname)
+--        print("DUMMY "..varname)
         gv_[varname] = dummy_empty_table
     end
 
@@ -399,9 +402,10 @@ decl[[
 uint32_t rand_jkiss_u32(rng_jkiss_t *s);
 double rand_jkiss_dbl(rng_jkiss_t *s);
 
-void md4once(const unsigned char *block, unsigned int len, unsigned char digest[16]);
+void md4once(const unsigned char *block, unsigned int len, unsigned char digest [16]);
 ]]
--- XXX: "digest" --> dummy?
+-- ^^^ The space between 'digest' and '[16]' is so that it's not added to the
+-- dummy_empty_table (see regexp in decl()).
 
 
 
@@ -800,7 +804,7 @@ setfenv(1, G_)
 -- REMEMBER special position of 'tostring' (it's looked up and used as a global
 -- from 'print')
 local function printkv(label, table)
-    print('========== Keys and values of '..label)
+    print("========== Keys and values of "..label.." ("..tostring(table)..")")
     for k,v in pairs(table) do
         print(k .. ': ' .. tostring(v))
     end
@@ -812,20 +816,22 @@ end
 
 ---=== Restricted access to C variables from Lunatic ===---
 
+local setmtonce = defs_c.setmtonce
+
 -- error(..., 2) is to blame the caller and get its line numbers
 
 local tmpmt = {
     __index = function() error('dummy variable: read access forbidden', 2) end,
     __newindex = function() error('dummy variable: write access forbidden', 2) end,
 }
-defs_c.setmtonce(dummy_empty_table, tmpmt)
+setmtonce(dummy_empty_table, tmpmt)
 
 gv = gv_
 local tmpmt = {
     __index = ffiC,
     __newindex = function() error("cannot create new or write into existing fields of 'gv'", 2) end,
 }
-defs_c.setmtonce(gv, tmpmt)
+setmtonce(gv, tmpmt)
 
 ---- indirect C array access ----
 local tmpmt = {
@@ -838,32 +844,12 @@ local tmpmt = {
 
     __newindex = function(tab, key, val) error('cannot write directly to player[] struct', 2) end,
 }
-player = defs_c.setmtonce({}, tmpmt)
+player = setmtonce({}, tmpmt)
 
--- structs
-sector = defs_c.sector;
-wall = defs_c.wall;
-sprite = defs_c.sprite
-spriteext = defs_c.spriteext
-
-headspritesect = defs_c.headspritesect
-headspritestat = defs_c.headspritestat
-nextspritesect = defs_c.nextspritesect
-nextspritestat = defs_c.nextspritestat
-prevspritesect = defs_c.prevspritesect
-prevspritestat = defs_c.prevspritestat
+-- This will create 'sprite', 'wall', etc. HERE, i.e. in the environment of this chunk
+defs_c.create_globals(_G)
 
 actor = defs_c.creategtab(ffiC.actor, ffiC.MAXSPRITES, 'actor[]')
-
--- functions
-spritesofsect = defs_c.spritesofsect
-spritesofstat = defs_c.spritesofstat
-sectorsofbunch = defs_c.sectorsofbunch
-
-getbunch = defs_c.getbunch
-
-hitscan = defs_c.hitscan
-
 
 function TEMP_getvollev()  -- REMOVE
     return ffiC.ud.volume_number+1, ffiC.ud.level_number+1
