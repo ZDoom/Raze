@@ -76,8 +76,8 @@ local mt = {
         end,
 
         reset = function(s)
-            s.n, s.m = 0, 0
-            s.s, s.min, s.max = NaN, NaN, NaN
+            s.n = 0
+            s.m, s.s, s.min, s.max = NaN, NaN, NaN, NaN
         end,
     },
 }
@@ -86,7 +86,7 @@ local rstat = ffi.metatype("runningstat_t", mt)
 function new(n,m,s, min,max)
     if (n == nil) then
         -- initialization containing no elements
-        return rstat(0, 0, NaN, NaN, NaN)
+        return rstat(0, NaN, NaN, NaN, NaN)
     elseif (m == nil) then
         -- same as initialization with N==0 above (one element)
         return rstat(1, n, 0, n, n)

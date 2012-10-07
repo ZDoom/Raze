@@ -245,9 +245,8 @@ gameactor(1680,  -- LIZTROOP
 
               local spr = sprite[i]
 
-              local x,y,z = spr.x, spr.y, spr.z
               local t = gv.gethitickms()
-              local hit = hitscan(x,y,z, spr.sectnum, 10, 10, 0, gv.CLIPMASK0)
+              local hit = hitscan(spr, spr.sectnum, 10, 10, 0, gv.CLIPMASK0)
 
               hs:add(1000*(gv.gethitickms()-t))
 

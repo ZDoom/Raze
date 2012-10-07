@@ -12,13 +12,14 @@ module(...)
 
 ffi.cdef[[
 typedef struct { double x, y; } dvec2_t;
+typedef struct { double x, y, z; } dvec3_t;
 ]]
 
 local vec2_
-local mt = {
+local vec2_mt = {
     __add = function(a, b) return vec2_(a.x+b.x, a.y+b.y) end,
     __sub = function(a, b) return vec2_(a.x-b.x, a.y-b.y) end,
-    __unm = function(a) return vec2_(-a.x, -b.x) end,
+    __unm = function(a) return vec2_(-a.x, -a.x) end,
 
     __mul = function(a,b)
         if (type(a)=="number") then
@@ -50,17 +51,60 @@ local mt = {
     },
 }
 
+local vec3_
+local vec3_mt = {
+    __add = function(a, b) return vec3_(a.x+b.x, a.y+b.y, a.z+b.z) end,
+    __sub = function(a, b) return vec3_(a.x-b.x, a.y-b.y, a.z-b.z) end,
+    __unm = function(a) return vec3_(-a.x, -a.x, -a.z) end,
+
+    __mul = function(a,b)
+        if (type(a)=="number") then
+            return vec3_(a*b.x, a*b.y, a*b.z)
+        end
+
+        assert(type(b)=="number")
+        return vec2_(a.x*b, a.y*b, a.z*b)
+    end,
+
+    __div = function(a,b)
+        assert(type(b)=="number")
+        return vec2_(a.x/b, a.y/b, a.z/b)
+    end,
+--[[
+    __eq = function(a,b)
+        return (a.x==b.x and a.y==b.y and a.z==b.z)
+    end,
+--]]
+    __len = function(a) return math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z) end,
+
+    __tostring = function(a) return "vec3("..a.x..", "..a.y..", "..a.z..")" end,
+
+    __index = {
+        lensq = function(a) return a.x*a.x + a.y*a.y + a.z*a.z end,
+    },
+}
+
 -- VEC2 user data constructor.
---  * vec2(<table or ctype>), the arg should be indexable with "x" and "y"
+--  * vec2(<table>), <table> should be indexable with "x" and "y"
 --  * vec2(x, y), assuming that x and y are numbers
-vec2_ = ffi.metatype("dvec2_t", mt)
+vec2_ = ffi.metatype("dvec2_t", vec2_mt)
 vec2 = vec2_
 
 -- Returns a vec2 from anything indexable with "x" and "y"
--- (vec2(t) works if t is such a table, but not if it's a vec2)
-function tovec2(t)
-    return vec2(t.x, t.y)
-end
+-- (vec2(t) works if t is such a table, but not if it's a vec2 or other cdata)
+function tovec2(t) return vec2(t.x, t.y) end
+
+-- Same for vec3
+vec3_ = ffi.metatype("dvec3_t", vec3_mt)
+vec3 = vec3_
+function tovec3(t) return vec3(t.x, t.y, t.z) end
+
+-- This has no metamethods, but can be useful for calculations expecting
+-- integer values, e.g. geom.ivec3(x, y, z) is a reasonable way to round
+-- a vec3.  It can be also used as the RHS to the vec2/vec3 arithmetic
+-- methods.
+ivec3 = ffi.typeof("vec3_t")
+
 
 -- Two-element vector cross product.
 -- Anti-commutative, distributive.
