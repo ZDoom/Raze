@@ -43,6 +43,9 @@ OURCONLYFLAGS=$(BASECONLYFLAGS)
 OURASFLAGS=$(BASEASFLAGS)
 OURLDFLAGS=$(BASELDFLAGS) $(BUILDLDFLAGS)
 
+# Game/editor-specific linker options
+GAMELDFLAGS=
+EDITORLDFLAGS=
 
 JAUDIOLIBDIR=$(SRC)/jaudiolib
 JAUDIOLIB=libjfaudiolib.a
@@ -123,7 +126,7 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/osdcmds.$o \
 	$(OBJ)/grpscan.$o \
 	$(OBJ)/sounds.$o \
-        $(OBJ)/xdelta3.$o \
+	$(OBJ)/xdelta3.$o \
 	$(JMACTOBJ)
 
 EDITOROBJS=$(OBJ)/astub.$o \
@@ -149,8 +152,6 @@ LUAJIT=luajit
 LUAJIT_WIN_SRC:= g:/mod/LuaJIT-2.0.0-beta8/src
 
 ifneq (0,$(LUNATIC))
-    # TODO: pass these flags only when building EDuke32, not Mapster32
-
     ifeq ($(PLATFORM),WINDOWS)
         OURCFLAGS+= -I$(LUAJIT_WIN_SRC)
     else
@@ -193,7 +194,9 @@ ifneq (0,$(LUNATIC))
         OURLDFLAGS+= $(SRC)/lunatic/eduke32.def
     endif
     ifeq ($(PLATFORM),LINUX)
-        OURLDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
+        # TODO: Windows, OS X
+        GAMELDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
+        EDITORLDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist_m32
     endif
 endif
 
@@ -336,7 +339,7 @@ notice:
 
 eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB) $(MISCGAMEDEPS)
 	$(LINK_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(GAMELDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
   ifeq (0,$(DEBUGANYWAY))
     ifneq ($(PLATFORM),WII)
@@ -352,7 +355,7 @@ endif
 
 mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
 	$(LINK_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(EDITORLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
   ifeq (0,$(DEBUGANYWAY))
     ifneq ($(PLATFORM),WII)
@@ -401,6 +404,7 @@ endif
 
 
 # RULES
+
 $(EBACKTRACEDLL): Windows/src/backtrace.c
 	if $(CC) -O2 -shared -Wall -Wextra -I$(EINC) -o $@ $^ -lbfd -liberty -limagehlp; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
@@ -411,6 +415,8 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
 	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
+#### Lunatic
 
 # Create object files directly with luajit
 $(OBJ)/luaJIT_BC_%.$o: $(SRC)/lunatic/%.lua
@@ -431,15 +437,21 @@ $(OBJ)/%.$o: $(SRC)/xdelta3/%.c
 	$(COMPILE_STATUS)
 	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
+# TODO: _m32
+# List of exported symbols, OS X
 $(SRC)/lunatic/dynsymlist_osx: $(SRC)/lunatic/dynsymlist
 	sed 's/[{};]//g;s/[A-Za-z_][A-Za-z_0-9]*/_&/g' $< > $@
 
-$(SRC)/lunatic/aliases_list: $(SRC)/lunatic/dynsymlist_osx
-	sed 's/_\([A-Za-z_][A-Za-z_0-9]*\)/_\1 \1/g' $< > $@
+#$(SRC)/lunatic/aliases_list: $(SRC)/lunatic/dynsymlist_osx
+#	sed 's/_\([A-Za-z_][A-Za-z_0-9]*\)/_\1 \1/g' $< > $@
 
+# TODO: _m32
+# List of exported symbols, Windows
 $(SRC)/lunatic/eduke32.def: $(SRC)/lunatic/dynsymlist
 	echo EXPORTS > $@
 	sed 's/[{};]//g' $< >> $@
+
+####
 
 $(OBJ)/%.$o: Apple/%.m
 	$(COMPILE_STATUS)
