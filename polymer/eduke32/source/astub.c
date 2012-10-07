@@ -9184,6 +9184,32 @@ static int32_t osdcmd_tint(const osdfuncparm_t *parm)
 }
 #endif
 
+static void SaveInHistory(const char *commandstr)
+{
+    int32_t i, idx, dosave=1;
+
+    for (i=1; i<=4; i++)
+    {
+        idx = (scripthistend-i)&(SCRIPTHISTSIZ-1);
+        if (!scripthist[idx])
+            break;
+        else if (!Bstrcmp(scripthist[idx], commandstr))
+        {
+            dosave = 0;
+            break;
+        }
+    }
+
+    if (dosave)
+    {
+        if (scripthist[scripthistend])
+            Bfree(scripthist[scripthistend]);
+        scripthist[scripthistend] = Bstrdup(commandstr);
+        scripthistend++;
+        scripthistend %= SCRIPTHISTSIZ;
+    }
+}
+
 #ifdef LUNATIC
 static int32_t osdcmd_lua(const osdfuncparm_t *parm)
 {
@@ -9205,6 +9231,8 @@ static int32_t osdcmd_lua(const osdfuncparm_t *parm)
     ret = Em_RunStringOnce(g_EmState, parm->parms[0]);
     if (ret != 0)
         OSD_Printf("Error running the Lua code (error code %d)\n", ret);
+    else
+        SaveInHistory(parm->raw);
 
     return OSDCMD_OK;
 }
@@ -9324,30 +9352,8 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
         M32_PostScriptExec();
 
         if (!(vm.flags&VMFLAG_ERROR) && !dontsavehist)
-        {
-            int32_t idx, dosave=1;
+            SaveInHistory(parm->raw);
 
-            for (i=1; i<=4; i++)
-            {
-                idx = (scripthistend-i)&(SCRIPTHISTSIZ-1);
-                if (!scripthist[idx])
-                    break;
-                else if (!Bstrcmp(scripthist[idx], parm->raw))
-                {
-                    dosave = 0;
-                    break;
-                }
-            }
-
-            if (dosave)
-            {
-                if (scripthist[scripthistend])
-                    Bfree(scripthist[scripthistend]);
-                scripthist[scripthistend] = Bstrdup(parm->raw);
-                scripthistend++;
-                scripthistend %= SCRIPTHISTSIZ;
-            }
-        }
 //        asksave = 1; // handled in Access(Sprite|Sector|Wall)
     }
 
