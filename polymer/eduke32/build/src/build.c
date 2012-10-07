@@ -203,31 +203,25 @@ char lastpm16buf[156];
 //static int32_t checksectorpointer_warn = 0;
 static int32_t saveboard_savedtags, saveboard_fixedsprites;
 
-char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck);
 static int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls);
 static void locktogrid(int32_t *dax, int32_t *day);
 static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls);
-void keytimerstuff(void);
+static void keytimerstuff(void);
 static int32_t clockdir(int16_t wallstart);
 static void flipwalls(int16_t numwalls, int16_t newnumwalls);
 static int32_t insertpoint(int16_t linehighlight, int32_t dax, int32_t day, int32_t *mapwallnum);
 static void deletepoint(int16_t point, int32_t runi);
 static int32_t deletesector(int16_t sucksect);
-void fixrepeats(int16_t i);
 static int16_t loopinside(int32_t x, int32_t y, int16_t startwall);
-int32_t fillsector(int16_t sectnum, int32_t fillcolor);  // fillcolor == -1: default (pulsating)
 static int16_t whitelinescan(int16_t sucksect, int16_t dalinehighlight);
-void printcoords16(int32_t posxe, int32_t posye, int16_t ange);
-int32_t drawtilescreen(int32_t pictopleft, int32_t picbox);
-void overheadeditor(void);
+static void printcoords16(int32_t posxe, int32_t posye, int16_t ange);
+static void overheadeditor(void);
 static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line);
-int32_t fixspritesectors(void);
 static int32_t movewalls(int32_t start, int32_t offs);
-int32_t loadnames(const char *namesfile, int8_t root);
+static int32_t loadnames(const char *namesfile, int8_t root);
 static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny,
                                   int32_t maybe_screen_coord_p);
 static void initcrc(void);
-int32_t gettile(int32_t tilenum);
 
 static int32_t menuselect(void);
 static int32_t menuselect_auto(int32_t); //PK
@@ -237,7 +231,10 @@ static void correct_ornamented_sprite(int32_t i, int32_t hitw);
 
 static int32_t getfilenames(const char *path, const char *kind);
 
-void clearkeys(void) { Bmemset(keystatus,0,sizeof(keystatus)); }
+void clearkeys(void)
+{
+    Bmemset(keystatus,0,sizeof(keystatus));
+}
 
 #ifdef USE_OPENGL
 static int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
