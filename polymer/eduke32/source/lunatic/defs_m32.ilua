@@ -29,3 +29,26 @@ sectorsofbunch = defs_c.sectorsofbunch
 getbunch = defs_c.getbunch
 
 hitscan = defs_c.hitscan
+
+
+--== Mapster32-specific initialization
+
+ffi.cdef "char *listsearchpath(int32_t initp);"
+
+-- Add the search path directories to the Lua load path.
+local initp = 1
+while (true) do
+    local sp_c = ffiC.listsearchpath(initp)
+
+    if (sp_c == nil) then
+        break
+    end
+
+    local sp = ffi.string(sp_c)
+    assert(sp:sub(-1)=='/')
+    package.path = sp..'?.lua;'..package.path
+
+    initp = 0
+end
+
+--print('Lua load path: '..package.path)

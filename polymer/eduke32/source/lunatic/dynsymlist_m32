@@ -32,4 +32,8 @@ hitscan;
 rotatesprite;
 
 gethitickms;
+
+
+
+listsearchpath;
 };

@@ -263,6 +263,18 @@ static searchpath_t *searchpathhead = NULL;
 static size_t maxsearchpathlen = 0;
 int32_t pathsearchmode = 0;
 
+char *listsearchpath(int32_t initp)
+{
+    static searchpath_t *sp;
+
+    if (initp)
+        sp = searchpathhead;
+    else if (sp != NULL)
+        sp = sp->next;
+
+    return sp ? sp->path : NULL;
+}
+
 int32_t addsearchpath(const char *p)
 {
     struct stat st;
