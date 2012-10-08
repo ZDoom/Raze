@@ -77,6 +77,7 @@ void S_SoundStartup(void)
             g_sounds[i].num = 0;
             g_sounds[i].SoundOwner[j].voice = 0;
             g_sounds[i].SoundOwner[j].ow = -1;
+            g_sounds[i].SoundOwner[j].time = 0;
         }
 
         g_soundlocks[i] = 199;
@@ -341,6 +342,7 @@ void S_Cleanup(void)
 
             g_sounds[num].SoundOwner[j].ow = -1;
             g_sounds[num].SoundOwner[j].voice = 0;
+            g_sounds[num].SoundOwner[j].time = 0;
         }
         g_soundlocks[num]--;
     }
@@ -360,12 +362,18 @@ int32_t S_LoadSound(uint32_t num)
         return 0;
     }
 
-    if (g_sounds[num].filename1) fp = kopen4loadfrommod(g_sounds[num].filename1,g_loadFromGroupOnly);
-    if (fp == -1) fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
+    if (g_sounds[num].filename1)
+        fp = kopen4loadfrommod(g_sounds[num].filename1,g_loadFromGroupOnly);
+
     if (fp == -1)
     {
-        OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
-        return 0;
+        fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
+
+        if (fp == -1)
+        {
+            OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
+            return 0;
+        }
     }
 
     g_sounds[num].soundsiz = l = kfilelength(fp);
@@ -380,31 +388,61 @@ int32_t S_LoadSound(uint32_t num)
 }
 
 
-static int32_t get_sound_pitch(int32_t num)
+static int32_t S_GetPitch(int32_t num)
 {
     int32_t j = klabs(g_sounds[num].pe-g_sounds[num].ps);
 
     if (j)
         return min(g_sounds[num].ps, g_sounds[num].pe) + rand()%j;
-    else
-        return g_sounds[num].ps;
+        
+    return g_sounds[num].ps;
 }
 
-static inline int32_t find_free_slot(int32_t num)
+static int32_t S_FindSlot(int32_t num)
 {
     int32_t j = 0;
 
     while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
         j++;
 
+    if (j == MAXSOUNDINSTANCES)
+    {
+        uint32_t time = totalclock;
+        int32_t i = 0;
+
+        j = 0;
+
+        while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
+        {
+            if (g_sounds[num].SoundOwner[j].time <= time)
+            {
+                time = g_sounds[num].SoundOwner[j].time;
+                i = j;
+            }
+            j++;
+        }
+
+        if (j != MAXSOUNDINSTANCES)
+            return j;
+
+        if (FX_SoundActive(g_sounds[num].SoundOwner[i].voice))
+            FX_StopSound(g_sounds[num].SoundOwner[i].voice);
+
+        mutex_lock(&s_mutex);
+        dq[dnum++] = (num * MAXSOUNDINSTANCES) + i;
+        mutex_unlock(&s_mutex);
+        S_Cleanup();
+
+        return i;
+    }
+
     return j;
 }
 
-static inline int32_t get_sound_ang(int32_t camang, const vec3_t *cam, const vec3_t *pos)
+static inline int32_t S_GetAngle(int32_t camang, const vec3_t *cam, const vec3_t *pos)
 {
     int32_t sndang = 2048 + camang - getangle(cam->x-pos->x, cam->y-pos->y);
-    sndang &= 2047;
-    return sndang;
+    return sndang & 2047;
 }
 
 static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t camang,
@@ -420,7 +458,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
         goto sound_further_processing;
     }
 
-    sndang = get_sound_ang(camang, cam, pos);
+    sndang = S_GetAngle(camang, cam, pos);
 
     sndist = FindDistance3D(cam->x-pos->x, cam->y-pos->y, (cam->z-pos->z)>>4);
 
@@ -446,7 +484,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
                 camang = g_player[1].ps->ang;
 
                 sndist = sndist2;
-                sndang = get_sound_ang(camang, cam, pos);
+                sndang = S_GetAngle(camang, cam, pos);
             }
         }
     }
@@ -500,7 +538,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             ud.config.FXDevice < 0 ||
             ((g_sounds[num].m&8) && ud.lockout) ||
             ud.config.SoundToggle == 0 ||
-            g_sounds[num].num >= MAXSOUNDINSTANCES ||
+/*            g_sounds[num].num >= MAXSOUNDINSTANCES ||*/
             (unsigned)i >= MAXSPRITES ||
             FX_VoiceAvailable(g_sounds[num].pr) == 0 ||
             (myps->timebeforeexit > 0 && myps->timebeforeexit <= GAMETICSPERSEC*3) ||
@@ -547,7 +585,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     explosionp = S_CalcDistAndAng(i, num, cs, ca, &ud.camera, pos, &sndist, &sndang);
 
-    pitch = get_sound_pitch(num);
+    pitch = S_GetPitch(num);
     peekps = g_player[screenpeek].ps;
 
     if (g_fakeMultiMode==2)
@@ -589,7 +627,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
         else g_soundlocks[num]++;
     }
 
-    j = find_free_slot(num);
+    j = S_FindSlot(num);
 
     if (j >= MAXSOUNDINSTANCES)
     {
@@ -623,6 +661,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     g_sounds[num].num++;
     g_sounds[num].SoundOwner[j].ow = i;
     g_sounds[num].SoundOwner[j].voice = voice;
+    g_sounds[num].SoundOwner[j].time = totalclock;
     return voice;
 }
 
@@ -648,7 +687,7 @@ int32_t S_PlaySound(int32_t num)
     if ((g_sounds[num].m&8) && ud.lockout) return -1;
     if (FX_VoiceAvailable(g_sounds[num].pr) == 0) return -1;
 
-    pitch = get_sound_pitch(num);
+    pitch = S_GetPitch(num);
 
     if (g_sounds[num].ptr == 0)
     {
@@ -662,7 +701,7 @@ int32_t S_PlaySound(int32_t num)
         else g_soundlocks[num]++;
     }
 
-    j = find_free_slot(num);
+    j = S_FindSlot(num);
 
     if (j >= MAXSOUNDINSTANCES) // no slots available, so let's see if one opens up after multivoc kills a voice
         doretry = 1;
@@ -682,7 +721,7 @@ int32_t S_PlaySound(int32_t num)
     {
         S_Cleanup();
 
-        j = find_free_slot(num);
+        j = S_FindSlot(num);
 
         if (j >= MAXSOUNDINSTANCES) // still no slots available
         {
@@ -696,6 +735,7 @@ int32_t S_PlaySound(int32_t num)
     g_sounds[num].num++;
     g_sounds[num].SoundOwner[j].ow = -1;
     g_sounds[num].SoundOwner[j].voice = voice;
+    g_sounds[num].SoundOwner[j].time = totalclock;
     return voice;
 }
 
