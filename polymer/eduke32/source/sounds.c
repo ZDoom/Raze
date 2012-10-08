@@ -77,7 +77,8 @@ void S_SoundStartup(void)
             g_sounds[i].num = 0;
             g_sounds[i].SoundOwner[j].voice = 0;
             g_sounds[i].SoundOwner[j].ow = -1;
-            g_sounds[i].SoundOwner[j].time = 0;
+            g_sounds[i].SoundOwner[j].sndist = UINT32_MAX;
+            g_sounds[i].SoundOwner[j].clock = 0;
         }
 
         g_soundlocks[i] = 199;
@@ -342,7 +343,8 @@ void S_Cleanup(void)
 
             g_sounds[num].SoundOwner[j].ow = -1;
             g_sounds[num].SoundOwner[j].voice = 0;
-            g_sounds[num].SoundOwner[j].time = 0;
+            g_sounds[num].SoundOwner[j].sndist = UINT32_MAX;
+            g_sounds[num].SoundOwner[j].clock = 0;
         }
         g_soundlocks[num]--;
     }
@@ -392,13 +394,45 @@ static int32_t S_GetPitch(int32_t num)
 {
     int32_t j = klabs(g_sounds[num].pe-g_sounds[num].ps);
 
-    if (j)
-        return min(g_sounds[num].ps, g_sounds[num].pe) + rand()%j;
-        
-    return g_sounds[num].ps;
+    if (j == 0)
+        return g_sounds[num].ps;
+
+    return min(g_sounds[num].ps, g_sounds[num].pe) + rand()%j;
 }
 
-static int32_t S_FindSlot(int32_t num)
+static int32_t S_TakeSlot(int32_t num)
+{
+    uint32_t dist = 0, clock = UINT32_MAX;
+    int32_t i = 0, j = 0;
+
+    while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
+    {
+        if (g_sounds[num].SoundOwner[j].sndist > dist ||
+            (g_sounds[num].SoundOwner[j].sndist == dist && g_sounds[num].SoundOwner[j].clock < clock))
+        {
+            clock = g_sounds[num].SoundOwner[j].clock;
+            dist = g_sounds[num].SoundOwner[j].sndist;
+            i = j;
+        }
+
+        j++;
+    }
+
+    if (j != MAXSOUNDINSTANCES)
+        return j;
+
+    if (FX_SoundActive(g_sounds[num].SoundOwner[i].voice))
+        FX_StopSound(g_sounds[num].SoundOwner[i].voice);
+
+    mutex_lock(&s_mutex);
+    dq[dnum++] = (num * MAXSOUNDINSTANCES) + i;
+    mutex_unlock(&s_mutex);
+    S_Cleanup();
+
+    return i;
+}
+
+static int32_t S_GetSlot(int32_t num)
 {
     int32_t j = 0;
 
@@ -406,43 +440,14 @@ static int32_t S_FindSlot(int32_t num)
         j++;
 
     if (j == MAXSOUNDINSTANCES)
-    {
-        uint32_t time = totalclock;
-        int32_t i = 0;
-
-        j = 0;
-
-        while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
-        {
-            if (g_sounds[num].SoundOwner[j].time <= time)
-            {
-                time = g_sounds[num].SoundOwner[j].time;
-                i = j;
-            }
-            j++;
-        }
-
-        if (j != MAXSOUNDINSTANCES)
-            return j;
-
-        if (FX_SoundActive(g_sounds[num].SoundOwner[i].voice))
-            FX_StopSound(g_sounds[num].SoundOwner[i].voice);
-
-        mutex_lock(&s_mutex);
-        dq[dnum++] = (num * MAXSOUNDINSTANCES) + i;
-        mutex_unlock(&s_mutex);
-        S_Cleanup();
-
-        return i;
-    }
+        j = S_TakeSlot(num);
 
     return j;
 }
 
 static inline int32_t S_GetAngle(int32_t camang, const vec3_t *cam, const vec3_t *pos)
 {
-    int32_t sndang = 2048 + camang - getangle(cam->x-pos->x, cam->y-pos->y);
-    return sndang & 2047;
+    return (2048 + camang - getangle(cam->x-pos->x, cam->y-pos->y))&2047;
 }
 
 static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t camang,
@@ -627,7 +632,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
         else g_soundlocks[num]++;
     }
 
-    j = S_FindSlot(num);
+    j = S_GetSlot(num);
 
     if (j >= MAXSOUNDINSTANCES)
     {
@@ -661,7 +666,8 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     g_sounds[num].num++;
     g_sounds[num].SoundOwner[j].ow = i;
     g_sounds[num].SoundOwner[j].voice = voice;
-    g_sounds[num].SoundOwner[j].time = totalclock;
+    g_sounds[num].SoundOwner[j].sndist = sndist>>6;
+    g_sounds[num].SoundOwner[j].clock = totalclock;
     return voice;
 }
 
@@ -701,10 +707,13 @@ int32_t S_PlaySound(int32_t num)
         else g_soundlocks[num]++;
     }
 
-    j = S_FindSlot(num);
+    j = S_GetSlot(num);
 
-    if (j >= MAXSOUNDINSTANCES) // no slots available, so let's see if one opens up after multivoc kills a voice
-        doretry = 1;
+    if (j >= MAXSOUNDINSTANCES)
+    {
+        g_soundlocks[num]--;
+        return -1;
+    }
 
     voice = (g_sounds[num].m&1) ?
             FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
@@ -717,25 +726,11 @@ int32_t S_PlaySound(int32_t num)
         return -1;
     }
 
-    if (doretry)
-    {
-        S_Cleanup();
-
-        j = S_FindSlot(num);
-
-        if (j >= MAXSOUNDINSTANCES) // still no slots available
-        {
-            FX_SetVoiceCallback(voice, num + (MAXSOUNDS*MAXSOUNDINSTANCES));
-            return voice;
-        }
-
-        FX_SetVoiceCallback(voice, (num * MAXSOUNDINSTANCES) + j);
-    }
-
     g_sounds[num].num++;
     g_sounds[num].SoundOwner[j].ow = -1;
     g_sounds[num].SoundOwner[j].voice = voice;
-    g_sounds[num].SoundOwner[j].time = totalclock;
+    g_sounds[num].SoundOwner[j].sndist = 255-LOUDESTVOLUME;
+    g_sounds[num].SoundOwner[j].clock = totalclock;
     return voice;
 }
 
@@ -866,6 +861,7 @@ void S_Update(void)
                 g_numEnvSoundsPlaying++;
 
             FX_Pan3D(g_sounds[num].SoundOwner[k].voice, sndang>>4, sndist>>6);
+            g_sounds[num].SoundOwner[k].sndist = sndist>>6;
         }
     }
     while (num--);

@@ -53,7 +53,8 @@ typedef struct
 {
     int16_t voice;
     int16_t ow;
-    uint32_t time;
+    uint32_t sndist;
+    uint32_t clock;
 } SOUNDOWNER;
 
 
