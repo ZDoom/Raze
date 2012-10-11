@@ -2539,22 +2539,13 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 if (proj->workslike & PROJECTILE_SPIT && s->zvel < 6144)
                     s->zvel += g_spriteGravity-112;
 
-                k = s->xvel;
-                ll = s->zvel;
-
-                if (sector[s->sectnum].lotag == 2)
-                {
-                    k >>= 1;
-                    ll >>= 1;
-                }
-
                 A_GetZLimits(i);
 
                 if (proj->trail >= 0)
                 {
-                    int32_t f;
+                    int32_t cnt;
 
-                    for (f=0; f<=proj->tnum; f++)
+                    for (cnt=0; cnt<=proj->tnum; cnt++)
                     {
                         j = A_Spawn(i,proj->trail);
 
@@ -2568,18 +2559,31 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     }
                 }
 
-                do
                 {
-                    vec3_t tmpvect;
-                    Bmemcpy(&davect, s, sizeof(vec3_t));
+                    int32_t cnt = proj->movecnt;
 
-                    tmpvect.x = (k*(sintable[(s->ang+512)&2047]))>>14;
-                    tmpvect.y = (k*(sintable[s->ang&2047]))>>14;
-                    tmpvect.z = ll;
+                    k = s->xvel;
+                    ll = s->zvel;
 
-                    j = A_MoveSprite(i, &tmpvect, CLIPMASK1);
+                    if (sector[s->sectnum].lotag == 2)
+                    {
+                        k >>= 1;
+                        ll >>= 1;
+                    }
+
+                    do
+                    {
+                        vec3_t tmpvect;
+                        Bmemcpy(&davect, s, sizeof(vec3_t));
+
+                        tmpvect.x = (k*(sintable[(s->ang+512)&2047]))>>14;
+                        tmpvect.y = (k*(sintable[s->ang&2047]))>>14;
+                        tmpvect.z = ll;
+
+                        j = A_MoveSprite(i, &tmpvect, CLIPMASK1);
+                    }
+                    while (!j && --cnt > 0);
                 }
-                while (!j && --proj->movecnt);
 
                 if (!(proj->workslike & PROJECTILE_BOUNCESOFFWALLS) &&
                     s->yvel >= 0 && sprite[s->yvel].sectnum != MAXSECTORS)
