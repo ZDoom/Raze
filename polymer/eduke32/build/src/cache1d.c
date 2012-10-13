@@ -681,18 +681,21 @@ int32_t (*check_filename_casing_fn)(void) = NULL;
 static int32_t check_filename_mismatch(const char *filename, int32_t ofs)
 {
     const char *fn = filename+ofs;
+    int32_t len;
 
     // we assume that UNICODE is not #defined, winlayer.c errors out else
     if (!SHGetFileInfo(filename, -1, &shinf, sizeof(shinf), SHGFI_DISPLAYNAME))
         return -1;
 
-    if (!Bstrcmp(shinf.szDisplayName, fn))
+    len = Bstrlen(shinf.szDisplayName);
+
+    if (!Bstrncmp(shinf.szDisplayName, fn, len))
         return 0;
 
     {
         char *tfn = Bstrtolower(Bstrdup(fn));
 
-        if (!Bstrcmp(shinf.szDisplayName, tfn))
+        if (!Bstrncmp(shinf.szDisplayName, tfn, len))
         {
             Bfree(tfn);
             return 0;
@@ -700,7 +703,7 @@ static int32_t check_filename_mismatch(const char *filename, int32_t ofs)
 
         Bstrupr(tfn);
 
-        if (!Bstrcmp(shinf.szDisplayName, tfn))
+        if (!Bstrncmp(shinf.szDisplayName, tfn, len))
         {
             Bfree(tfn);
             return 0;
