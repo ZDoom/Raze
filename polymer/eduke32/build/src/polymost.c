@@ -6259,7 +6259,20 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
     int32_t r = osdcmd_cvar_set(parm);
 
     if (xdim == 0 || ydim == 0 || bpp == 0) // video not set up yet
+    {
+        if (r == OSDCMD_OK)
+        {
+#ifdef POLYMER
+            if (!Bstrcasecmp(parm->name, "r_pr_maxlightpasses"))
+            {
+                pr_maxlightpasses = r_pr_maxlightpasses;
+                return r;
+            }
+#endif
+        }
+
         return r;
+    }
 
 #ifdef USE_OPENGL
     if (r == OSDCMD_OK)
