@@ -89,7 +89,7 @@ extern "C" {
 #define GAMETICSPERSEC      26
 
 
-#define PACKBUF_SIZE        16384
+#define PACKBUF_SIZE        32768
 
 #define TILE_SAVESHOT       (MAXTILES-1)
 #define TILE_LOADSHOT       (MAXTILES-3)

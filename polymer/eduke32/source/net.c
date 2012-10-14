@@ -58,11 +58,9 @@ int16_t g_netStatnums[10] = { STAT_PROJECTILE, STAT_PLAYER, STAT_STANDABLE, STAT
                              STAT_EFFECTOR, STAT_ACTOR, STAT_ZOMBIEACTOR, STAT_MISC, MAXSTATUS
                            };
 
-int32_t lastupdate[MAXSPRITES];
-int32_t lastsectupdate[MAXSECTORS];
-int32_t lastwallupdate[MAXWALLS];
 #pragma pack(push,1)
 netmapstate_t *g_multiMapState[MAXPLAYERS];
+netmapstate_t *g_pendingMapState[MAXPLAYERS];
 netmapstate_t *g_multiMapRevisions[NET_REVISIONS];
 netmapstate_t *streamoutput = NULL;
 #pragma pack(pop)
@@ -73,6 +71,13 @@ static void alloc_multimapstate(int32_t i)
     {
         g_multiMapState[i] = Bcalloc(1, sizeof(netmapstate_t));
         if (g_multiMapState[i] == NULL)
+            G_GameExit("OUT OF MEMORY in alloc_multimapstate");
+    }
+
+    if (g_pendingMapState[i] == NULL)
+    {
+        g_pendingMapState[i] = Bcalloc(1, sizeof(netmapstate_t));
+        if (g_pendingMapState[i] == NULL)
             G_GameExit("OUT OF MEMORY in alloc_multimapstate");
     }
 }
@@ -103,7 +108,7 @@ void Net_SaveMapState(netmapstate_t *save)
             save->scriptptrs[i] = 0;
 
 
-        Bmemcpy(&save->actor[0],&actor[0],offsetof(netactor_t, t_data[0])*MAXSPRITES);
+        Bmemcpy(&save->actor[0],&actor[0],sizeof(netactor_t)*MAXSPRITES);
 
         for (i=MAXSPRITES-1; i>=0; i--)
             for (j=0;j<10;j++)
@@ -177,7 +182,7 @@ void Net_RestoreMapState(netmapstate_t *save)
         intptr_t j;
         char phealth[MAXPLAYERS];
 
-
+        initprintf("restoring revision %d\n", save->revision);
         Bassert(save->crc == crc32once((uint8_t *)save, offsetof(netmapstate_t, crc)));
 
         for (i=0; i<playerswhenstarted; i++)
@@ -201,7 +206,7 @@ void Net_RestoreMapState(netmapstate_t *save)
         Bmemcpy(&prevspritestat[0],&save->prevspritestat[0],sizeof(prevspritestat));
         Bmemcpy(&nextspritestat[0],&save->nextspritestat[0],sizeof(nextspritestat));
 
-        Bmemcpy(&actor[0],&save->actor[0],offsetof(netactor_t, t_data)*MAXSPRITES);
+        Bmemcpy(&actor[0],&save->actor[0],sizeof(netactor_t)*MAXSPRITES);
 
 
         for (i=MAXSPRITES-1; i>=0; i--)
@@ -599,6 +604,7 @@ void Net_SyncPlayer(ENetEvent *event)
 
     g_player[i].netsynctime = totalclock;
     g_player[i].playerquitflag = 1;
+    g_player[i].revision = g_netMapRevision;
 
     for (j=0; j<playerswhenstarted-1; j++) connectpoint2[j] = j+1;
     connectpoint2[playerswhenstarted-1] = -1;
@@ -661,10 +667,6 @@ void Net_SyncPlayer(ENetEvent *event)
                 initprintf("Error compressing map state for transfer!\n");
 
             Bfree(buf);
-/*
-            Bfree(g_multiMapState);
-            g_multiMapState = NULL;
-*/
         }
     }
 }
@@ -692,10 +694,13 @@ static int32_t NewGameCommon(uint8_t *pbuf)
     {
         P_ResetWeapons(i);
         P_ResetInventory(i);
+        g_player[i].revision = 0;
     }
 
     G_NewGame(ud.volume_number,ud.level_number,ud.player_skill);
     ud.coop = ud.m_coop;
+
+    g_netMapRevision = 0;
 
     if (G_EnterLevel(MODE_GAME))
     {
@@ -879,7 +884,7 @@ void Net_ParseServerPacket(ENetEvent *event)
 
 //                Bmemcpy(&g_player[i].ps->opos.x, &g_player[i].ps->pos.x, sizeof(vec3_t));
 
-//            Bmemcpy(&g_player[i].ps->pos.x, &pbuf[j], sizeof(vec3_t) * 2);
+            Bmemcpy(&g_player[i].ps->pos.x, &pbuf[j], sizeof(vec3_t) * 2);
 
             Bmemcpy(&sprite[g_player[i].ps->i], &pbuf[j], sizeof(vec3_t));
             sprite[g_player[i].ps->i].z += PHEIGHT;
@@ -1007,6 +1012,12 @@ void Net_ParseServerPacket(ENetEvent *event)
         if (!(g_player[myconnectindex].ps->gm & MODE_GAME) || g_netSync)
             return;
 
+        if (*(uint32_t *)&pbuf[1] != g_multiMapState[0]->revision)
+        {
+            initprintf("base revision mismatch, expected %d and found %d\n", g_player[myconnectindex].revision, *(uint32_t *)&pbuf[1]);
+            return;
+        }
+
         if (!streamoutput)
             streamoutput = (netmapstate_t *)Bcalloc(1, sizeof(netmapstate_t));
 
@@ -1014,22 +1025,31 @@ void Net_ParseServerPacket(ENetEvent *event)
             usize_t osize = 0;
             int ret;
 
-            j = 0;
-
-            packbufleng = qlz_size_decompressed((char *)&pbuf[1]);
+            packbufleng = qlz_size_decompressed((char *)&pbuf[5]);
             pbuf = (uint8_t *)Bmalloc(packbufleng<<1);
-            packbufleng = qlz_decompress((char *)&event->packet->data[1], (char *)(pbuf), state_decompress);
+            packbufleng = qlz_decompress((char *)&event->packet->data[5], (char *)(pbuf), state_decompress);
 
             initprintf("packbufleng: %d\n", packbufleng);
 
             ret = xd3_decode_memory((const uint8_t *)pbuf, packbufleng,
                 (const uint8_t *)g_multiMapState[0], sizeof(netmapstate_t),
                 (uint8_t *)streamoutput, &osize, sizeof(netmapstate_t), XD3_COMPLEVEL_1|XD3_NOCOMPRESS);
-            initprintf("xdelta3 returned %d\n", ret);
+
+            if (ret)
+            {
+                initprintf("xdelta3 returned %d\n", ret);
+                Bfree(pbuf);
+                break;
+            }
 
             if (sizeof(netmapstate_t) != osize)
                 initprintf("decompressed data size mismatch!\n");
-            Net_RestoreMapState(streamoutput);
+            else
+            {
+                Net_RestoreMapState(streamoutput);
+                g_player[myconnectindex].revision = streamoutput->revision;
+                Bmemcpy(g_multiMapState[0], streamoutput, sizeof(netmapstate_t));
+            }
 
             Bfree(pbuf);
         }
@@ -1042,6 +1062,8 @@ void Net_ParseServerPacket(ENetEvent *event)
 
         if (g_netSync)
         {
+            Net_RestoreMapState(g_multiMapState[0]);
+            
             packbuf[0] = PACKET_PLAYER_READY;
             packbuf[1] = myconnectindex;
 
@@ -1050,7 +1072,6 @@ void Net_ParseServerPacket(ENetEvent *event)
 
             g_netSync = 0;
 
-            Net_RestoreMapState(g_multiMapState[0]);
             g_player[myconnectindex].ps->gm = MODE_GAME;
             ready2send = 1;
         }
@@ -1138,7 +1159,7 @@ void Net_ParseClientPacket(ENetEvent *event)
 {
     uint8_t *pbuf = event->packet->data;
     int32_t packbufleng = event->packet->dataLength;
-    int16_t i, j;
+    int16_t j;
     int32_t other = pbuf[--packbufleng];
     input_t *nsyn;
 
@@ -1149,7 +1170,8 @@ void Net_ParseClientPacket(ENetEvent *event)
     {
     case PACKET_SLAVE_TO_MASTER:  //[1] (receive slave sync buffer)
     {
-        const intptr_t playeridx = (intptr_t)event->peer->data;
+        const int32_t playeridx = (int32_t)(intptr_t)event->peer->data;
+        uint32_t rev;
 
         j = 0;
 
@@ -1159,10 +1181,26 @@ void Net_ParseClientPacket(ENetEvent *event)
 
         nsyn = (input_t *)&inputfifo[0][0];
 
-        g_player[other].revision = *(uint32_t *)&pbuf[j];
+        alloc_multimapstate(playeridx);
+
+        rev = *(uint32_t *)&pbuf[j];
+
+        if (g_player[playeridx].revision != rev)
+        {
+            g_player[playeridx].ready = 1;
+            g_player[playeridx].revision = rev;
+            if (rev != g_pendingMapState[playeridx]->revision)
+                initprintf("wtf? expected confirmation of revision %d from player %d, got revision %d\n",
+                g_pendingMapState[playeridx]->revision, playeridx, rev);
+            else
+            {
+                    Bmemcpy(g_multiMapState[playeridx], g_pendingMapState[playeridx], sizeof(netmapstate_t));
+                    initprintf("player %d now at base revision %d\n", playeridx, g_player[playeridx].revision);
+            }
+        }
+
         j += sizeof(uint32_t);
 
-        alloc_multimapstate(playeridx);
         // XXX: g_multiMapRevisions[...] is NULL when started like
         // (peer 1)$ eduke32 -server
         // (peer 2)$ eduke32 -connect localhost
@@ -1220,6 +1258,8 @@ void Net_ParseClientPacket(ENetEvent *event)
 
         P_ResetPlayer(other);
 
+        g_player[other].ready = 1;
+
         j = 0;
         packbuf[j++] = PACKET_PLAYER_SPAWN;
         packbuf[j++] = other;
@@ -1230,28 +1270,6 @@ void Net_ParseClientPacket(ENetEvent *event)
         packbuf[j++] = 0;
 
         enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, j, ENET_PACKET_FLAG_RELIABLE));
-
-        // a player connecting is a good time to mark things as needing to be updated
-        // we invalidate everything that has changed since we started sending the snapshot of the map to the new player
-
-        {
-            int32_t zz, i, nexti;
-
-            for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])); zz++)
-                for (TRAVERSE_SPRITE_STAT(headspritestat[g_netStatnums[zz]], i, nexti))
-            {
-                if (lastupdate[i] >= g_player[other].netsynctime)
-                    lastupdate[i] = 0;
-            }
-        }
-
-        for (i=numwalls-1; i>=0; i--)
-            if (lastwallupdate[i] >= g_player[other].netsynctime)
-                lastwallupdate[i] = 0;
-
-        for (i=numsectors-1; i>=0; i--)
-            if (lastsectupdate[i] >= g_player[other].netsynctime)
-                lastsectupdate[i] = 0;
 
         break;
 
@@ -1268,6 +1286,7 @@ void Net_ParseClientPacket(ENetEvent *event)
 
     case PACKET_NEW_GAME:
         NewGameCommon(pbuf);
+        return;
 
     case PACKET_AUTH:
     {
@@ -1581,6 +1600,8 @@ void Net_ClientMove(void)
 
 }
 
+char g_netCompressBuf[PACKBUF_SIZE+400];
+
 void Net_UpdateClients(void)
 {
     input_t *osyn = (input_t *)&inputfifo[1][0];
@@ -1728,8 +1749,6 @@ void Net_UpdateClients(void)
     }
 
     {
-        char buf[PACKBUF_SIZE+400];
-
 #if 1
         // We're screwed anyway if this fails:
         Bassert(siz <= PACKBUF_SIZE);
@@ -1740,7 +1759,7 @@ void Net_UpdateClients(void)
             return;
         }
 #endif
-        siz = qlz_compress(packbuf+1, buf, siz, state_compress);
+        siz = qlz_compress(packbuf+1, g_netCompressBuf, siz, state_compress);
 
         if (siz >= PACKBUF_SIZE-1)
         {
@@ -1748,7 +1767,7 @@ void Net_UpdateClients(void)
             return;
         }
 
-        Bmemcpy(packbuf+1, buf, siz);
+        Bmemcpy(packbuf+1, g_netCompressBuf, siz);
         siz++;
     }
 
@@ -1774,13 +1793,16 @@ void Net_StreamLevel(void)
         ENetPeer *const currentPeer = &g_netServer->peers[pi];
         const intptr_t playeridx = (intptr_t)currentPeer->data;
 
-        if (currentPeer->state != ENET_PEER_STATE_CONNECTED)
+        if (currentPeer->state != ENET_PEER_STATE_CONNECTED || !g_player[playeridx].playerquitflag || !g_player[playeridx].ready)
             continue;
 
-        packbuf[siz++] = PACKET_MAP_STREAM;
+        g_player[playeridx].ready = 0;
+
+        packbuf[0] = PACKET_MAP_STREAM;
+        *(uint32_t *)&packbuf[1] = g_player[playeridx].revision; // base revision for this update
 
         if (g_multiMapRevisions[g_netMapRevision&(NET_REVISIONS-1)] == NULL)
-            g_multiMapRevisions[g_netMapRevision&(NET_REVISIONS-1)] = Bcalloc(1, sizeof(netmapstate_t));
+            g_multiMapRevisions[g_netMapRevision&(NET_REVISIONS-1)] = (netmapstate_t *)Bcalloc(1, sizeof(netmapstate_t));
 
         Net_SaveMapState(g_multiMapRevisions[g_netMapRevision&(NET_REVISIONS-1)]);
 
@@ -1788,11 +1810,11 @@ void Net_StreamLevel(void)
             (const uint8_t *)g_multiMapState[playeridx], sizeof(netmapstate_t),
             (uint8_t *)streamoutput, &osize, sizeof(netmapstate_t), XD3_COMPLEVEL_1|XD3_NOCOMPRESS);
 
-        g_netMapRevision++;
+        Bmemcpy(g_pendingMapState[playeridx], g_multiMapRevisions[g_netMapRevision&(NET_REVISIONS-1)], sizeof(netmapstate_t));
+
+        initprintf("upd %u->%u: ", g_player[playeridx].revision, g_netMapRevision);
 
         {
-            char buf[PACKBUF_SIZE+400];
-
             if (osize >= PACKBUF_SIZE)
             {
                 // XXX: this currently happens when e.g. switching levels
@@ -1801,7 +1823,7 @@ void Net_StreamLevel(void)
                 return;
             }
 
-            siz = qlz_compress((char *)streamoutput, buf, osize, state_compress);
+            siz = qlz_compress((char *)streamoutput, g_netCompressBuf, osize, state_compress);
 
             if (siz >= PACKBUF_SIZE-1)
             {
@@ -1810,16 +1832,19 @@ void Net_StreamLevel(void)
                 return;
             }
 
-            Bmemcpy(packbuf+1, buf, siz);
+            Bmemcpy(packbuf+1+sizeof(uint32_t), g_netCompressBuf, siz);
             siz++;
+            siz += sizeof(uint32_t);
         }
 
         packbuf[siz++] = myconnectindex;
 
-        initprintf("revision %u: final packet size: %d\n", g_netMapRevision-1, siz);
+        initprintf("final packet size: %d\n", siz);
 
         enet_peer_send(currentPeer, CHAN_GAMESTATE, enet_packet_create(packbuf, siz, ENET_PACKET_FLAG_RELIABLE));
     }
+
+    g_netMapRevision++;
 }
 
 void faketimerhandler(void)

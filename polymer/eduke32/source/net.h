@@ -89,7 +89,7 @@ enum netmode_t
 
 #pragma pack(push,1)
 typedef struct {
-    int32_t revision;
+    uint32_t revision;
     int32_t animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
     int32_t animateptr[MAXANIMATES];
 //    int32_t lockclock;
