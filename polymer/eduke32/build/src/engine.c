@@ -7920,8 +7920,10 @@ int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
 //
 // lintersect (internal)
 //
-static int32_t lintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2, int32_t z2, int32_t x3,
-                                 int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
+static int32_t lintersect(int32_t x1, int32_t y1, int32_t z1,
+                          int32_t x2, int32_t y2, int32_t z2,
+                          int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+                          int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 to p2 is a line segment
     int32_t x21, y21, x34, y34, x31, y31, bot, topt, topu, t;
@@ -7959,8 +7961,11 @@ int32_t lineintersect(int32_t x1, int32_t y1, int32_t z1, int32_t x2, int32_t y2
 //
 // rintersect (internal)
 //
-static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx_, int32_t vy_, int32_t vz, int32_t x3,
-                          int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
+// returns: -1 if didn't intersect, coefficient (x3--x4 fraction)<<16 else
+static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
+                          int32_t vx_, int32_t vy_, int32_t vz,
+                          int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+                          int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 towards p2 is a ray
     int64_t x34, y34, x31, y31, bot, topt, topu, t;
@@ -7971,16 +7976,16 @@ static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx_, int32
     bot = vx*y34 - vy*x34;
     if (bot >= 0)
     {
-        if (bot == 0) return(0);
+        if (bot == 0) return -1;
         x31 = x3-x1; y31 = y3-y1;
-        topt = x31*y34 - y31*x34; if (topt < 0) return(0);
-        topu = vx*y31 - vy*x31; if ((topu < 0) || (topu >= bot)) return(0);
+        topt = x31*y34 - y31*x34; if (topt < 0) return -1;
+        topu = vx*y31 - vy*x31; if ((topu < 0) || (topu >= bot)) return -1;
     }
     else
     {
         x31 = x3-x1; y31 = y3-y1;
-        topt = x31*y34 - y31*x34; if (topt > 0) return(0);
-        topu = vx*y31 - vy*x31; if ((topu > 0) || (topu <= bot)) return(0);
+        topt = x31*y34 - y31*x34; if (topt > 0) return -1;
+        topu = vx*y31 - vy*x31; if ((topu > 0) || (topu <= bot)) return -1;
     }
 
     t = (topt<<16)/bot;
@@ -7988,13 +7993,16 @@ static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx_, int32
     *inty = y1 + ((vy*t)>>16);
     *intz = z1 + ((vz*t)>>16);
 
-    return(1);
+    t = divscale16(topu, bot);
+    Bassert((unsigned)t < 65536);
+
+    return t;
 }
 
 int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
                      int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
 {
-    return rintersect(x1, y1, z1, vx, vy, vz, x3, y3, x4, y4, intx, inty, intz);
+    return (rintersect(x1, y1, z1, vx, vy, vz, x3, y3, x4, y4, intx, inty, intz) != -1);
 }
 
 //
@@ -11290,7 +11298,7 @@ restart_grand:
             x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
 
             if ((int64_t)(x1-sv->x)*(y2-sv->y) < (int64_t)(x2-sv->x)*(y1-sv->y)) continue;
-            if (rintersect(sv->x,sv->y,sv->z, vx,vy,vz, x1,y1, x2,y2, &intx,&inty,&intz) == 0) continue;
+            if (rintersect(sv->x,sv->y,sv->z, vx,vy,vz, x1,y1, x2,y2, &intx,&inty,&intz) == -1) continue;
 
             if (klabs(intx-sv->x)+klabs(inty-sv->y) >= klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
                 continue;
@@ -11349,7 +11357,8 @@ restart_grand:
 #ifdef USE_OPENGL
             if (!hitallsprites)
 #endif
-                if ((cstat&dasprclipmask) == 0) continue;
+                if ((cstat&dasprclipmask) == 0)
+                    continue;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
             // try and see whether this sprite's picnum has sector-like clipping data
@@ -11393,6 +11402,9 @@ restart_grand:
                 break;
 
             case 16:
+            {
+                int32_t ucoefup16;
+
                 //These lines get the 2 points of the rotated sprite
                 //Given: (x1, y1) starts out as the center point
                 tilenum = spr->picnum;
@@ -11407,19 +11419,33 @@ restart_grand:
                 if ((cstat&64) != 0)   //back side of 1-way sprite
                     if ((int64_t)(x1-sv->x)*(y2-sv->y) < (int64_t)(x2-sv->x)*(y1-sv->y)) continue;
 
-                if (rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz) == 0) continue;
+                ucoefup16 = rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz);
+                if (ucoefup16 == -1) continue;
 
                 if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y)) continue;
 
-                k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
+                k = ((tilesizy[tilenum]*spr->yrepeat)<<2);
                 if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
-                if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
-                if ((intz < daz) && (intz > daz-k))
+                if (picanm[tilenum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[tilenum]>>16)&255))*spr->yrepeat<<2);
+                if (intz > daz-k && intz < daz)
                 {
+                    if (picanm[tilenum]&PICANM_TEXHITSCAN_BIT)
+                    {
+                        // daz-intz > 0 && daz-intz < k
+                        int32_t xtex = mulscale16(ucoefup16, tilesizx[tilenum]);
+                        int32_t vcoefup16 = 65536-divscale16(daz-intz, k);
+                        int32_t ytex = mulscale16(vcoefup16, tilesizy[tilenum]);
+
+                        const char *texel = (char *)(waloff[tilenum] + tilesizy[tilenum]*xtex + ytex);
+                        if (*texel == 255)
+                            continue;
+                    }
+
                     hit->sect = dasector; hit->wall = -1; hit->sprite = z;
                     hit->pos.x = intx; hit->pos.y = inty; hit->pos.z = intz;
                 }
                 break;
+            }
 
             case 32:
                 if (vz == 0) continue;
@@ -12113,7 +12139,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 {
                     int32_t basez;
 
-                    if (rintersect(pos->x,pos->y,0, gx,gy,0, x1,y1, x2,y2, &dax,&day,&daz) == 0)
+                    if (rintersect(pos->x,pos->y,0, gx,gy,0, x1,y1, x2,y2, &dax,&day,&daz) == -1)
                         dax = pos->x, day = pos->y;
                     daz = getflorzofslope(dasect, dax,day);
                     daz2 = getflorzofslope(wal->nextsector, dax,day);
@@ -12141,7 +12167,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             if ((wal->nextsector < 0) || (wal->cstat&dawalclipmask)) clipyou = 1;
             else if (editstatus == 0)
             {
-                if (rintersect(pos->x,pos->y,0,gx,gy,0,x1,y1,x2,y2,&dax,&day,&daz) == 0)
+                if (rintersect(pos->x,pos->y,0,gx,gy,0,x1,y1,x2,y2,&dax,&day,&daz) == -1)
                     dax = pos->x, day = pos->y;
                 daz = getflorzofslope(dasect, dax,day);
                 daz2 = getflorzofslope(wal->nextsector, dax,day);

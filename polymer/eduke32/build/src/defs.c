@@ -81,10 +81,11 @@ enum scripttoken_t
     T_CACHESIZE,
     T_IMPORTTILE,
     T_MUSIC,T_ID,T_SOUND,
-    T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET,
+    T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET, T_TEXHITSCAN,
     T_INCLUDEDEFAULT,
     T_ANIMSOUNDS,
     T_NOFLOORPALRANGE,
+    T_TEXHITSCANRANGE,
     T_ECHO,
 };
 
@@ -220,6 +221,7 @@ static int32_t defsparser(scriptfile *script)
         { "sound",           T_SOUND            },
         { "animsounds",      T_ANIMSOUNDS       },  // dummy
         { "nofloorpalrange", T_NOFLOORPALRANGE  },  // dummy
+        { "texhitscanrange", T_TEXHITSCANRANGE  },
         // other stuff
         { "undefmodel",      T_UNDEFMODEL       },
         { "undefmodelrange", T_UNDEFMODELRANGE  },
@@ -491,9 +493,9 @@ static int32_t defsparser(scriptfile *script)
         case T_TILEFROMTEXTURE:
         {
             char *texturetokptr = script->ltextptr, *textureend, *fn = NULL;
-            int32_t tile=-1, token;
-            int32_t alphacut = 255;
-            int32_t xoffset = 0, yoffset = 0, goodtogo=0;
+            int32_t tile=-1;
+            int32_t alphacut = 255, texhitscan=0;
+            int32_t xoffset = 0, yoffset = 0;
 
             static const tokenlist tilefromtexturetokens[] =
             {
@@ -504,13 +506,14 @@ static int32_t defsparser(scriptfile *script)
                 { "xoff",            T_XOFFSET },
                 { "yoffset",         T_YOFFSET },
                 { "yoff",            T_YOFFSET },
+                { "texhitscan",      T_TEXHITSCAN },
             };
 
             if (scriptfile_getsymbol(script,&tile)) break;
             if (scriptfile_getbraces(script,&textureend)) break;
             while (script->textptr < textureend)
             {
-                token = getatoken(script,tilefromtexturetokens,sizeof(tilefromtexturetokens)/sizeof(tokenlist));
+                int32_t token = getatoken(script,tilefromtexturetokens,sizeof(tilefromtexturetokens)/sizeof(tokenlist));
                 switch (token)
                 {
                 case T_FILE:
@@ -521,24 +524,12 @@ static int32_t defsparser(scriptfile *script)
                     scriptfile_getsymbol(script,&xoffset); break;
                 case T_YOFFSET:
                     scriptfile_getsymbol(script,&yoffset); break;
+                case T_TEXHITSCAN:
+                    texhitscan = 1;
+                    break;
                 default:
                     break;
                 }
-
-                if ((unsigned)tile >= MAXTILES) break;	// message is printed later
-                if (!fn)
-                {
-                    initprintf("Error: missing 'file name' for tilefromtexture definition near line %s:%d\n",
-                               script->filename, scriptfile_getlinum(script,texturetokptr));
-                    break;
-                }
-
-                alphacut = clamp(alphacut, 0, 255);
-
-                if (check_file_exist(fn))
-                    break;
-
-                goodtogo = 1;
             }
 
             if ((unsigned)tile >= MAXTILES)
@@ -548,7 +539,22 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            if (goodtogo)
+            if (!fn)
+            {
+                // filefromtexture <tile> { texhitscan }  sets the bit but doesn't change tile data
+                if (texhitscan)
+                    picanm[tile] |= PICANM_TEXHITSCAN_BIT;
+                else
+                    initprintf("Error: missing 'file name' for tilefromtexture definition near line %s:%d\n",
+                               script->filename, scriptfile_getlinum(script,texturetokptr));
+                break;
+            }
+
+            if (check_file_exist(fn))
+                break;
+
+            alphacut = clamp(alphacut, 0, 255);
+
             {
                 int32_t xsiz, ysiz, j;
                 palette_t *picptr = NULL;
@@ -567,6 +573,8 @@ static int32_t defsparser(scriptfile *script)
 
                 set_picsizanm(tile, xsiz, ysiz, (picanm[tile]&0xff0000ff)+
                               (xoffset<<8)+(yoffset<<16));
+                if (texhitscan)
+                    picanm[tile] |= PICANM_TEXHITSCAN_BIT;
 
                 tile_from_truecolpic(tile, picptr, alphacut);
 
@@ -1928,6 +1936,21 @@ static int32_t defsparser(scriptfile *script)
 
             if (scriptfile_getnumber(script,&b)) break;
             if (scriptfile_getnumber(script,&e)) break;
+        }
+        break;
+
+        case T_TEXHITSCANRANGE:
+        {
+            int32_t b,e, i;
+
+            if (scriptfile_getnumber(script,&b)) break;
+            if (scriptfile_getnumber(script,&e)) break;
+
+            b = max(b, 0);
+            e = min(e, MAXTILES-1);
+
+            for (i=b; i<=e; i++)
+                picanm[i] |= PICANM_TEXHITSCAN_BIT;
         }
         break;
 
