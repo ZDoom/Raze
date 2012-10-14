@@ -115,8 +115,8 @@ typedef struct {
     int32_t floorz,ceilingz,lastvx,lastvy; //16b
     int32_t lasttransport; //4b
 
-    int16_t lightId, lightcount, lightmaxrange, cgg; //8b
-    int16_t actorstayput, dispicnum, shootzvel; // 6b
+    int16_t actorstayput, dispicnum, shootzvel, cgg; // 8b
+    int16_t lightId, lightcount, lightmaxrange; //6b
 
 #ifdef POLYMER
     _prlight *lightptr; //4b/8b
@@ -158,7 +158,12 @@ typedef struct {
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; // 6b
 
-    int32_t flags; // 4b
+    int32_t flags, bposx,bposy,bposz; //16b
+    int32_t floorz,ceilingz,lastvx,lastvy; //16b
+    int32_t lasttransport; //4b
+
+    int16_t actorstayput, dispicnum, shootzvel, cgg; // 8b
+
 } netactor_t;
 #pragma pack(pop)
 
