@@ -392,7 +392,10 @@ enum {
 
 // sector lotags
 enum {
-    // left: ST 1 and 2
+    ST_1_ABOVE_WATER = 1,
+    ST_2_UNDERWATER = 2,
+    ST_3 = 3,
+    // ^^^ maybe not complete substitution in code
     ST_9_SLIDING_ST_DOOR = 9,
     ST_15_WARP_ELEVATOR = 15,
     ST_16_PLATFORM_DOWN = 16,

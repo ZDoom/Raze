@@ -1057,12 +1057,16 @@ BOLT:
     }
 }
 
+
+static int32_t P_Submerge(int32_t j, int32_t p, DukePlayer_t *ps, int32_t sect, int32_t othersect);
+static int32_t P_Emerge(int32_t j, int32_t p, DukePlayer_t *ps, int32_t sect, int32_t othersect);
+static void P_FinishWaterChange(int32_t j, DukePlayer_t *ps, int32_t sectlotag, int32_t ow, int32_t newsectnum);
+
 int32_t otherp;
 
 ACTOR_STATIC void G_MovePlayers(void)
 {
     int32_t i = headspritestat[STAT_PLAYER];
-    int32_t otherx;
 
     while (i >= 0)
     {
@@ -1083,6 +1087,34 @@ ACTOR_STATIC void G_MovePlayers(void)
             }
             else
             {
+                int32_t otherx;
+#ifdef YAX_ENABLE
+                // TROR water submerge/emerge
+                const int32_t psect=s->sectnum, slotag=sector[psect].lotag;
+
+                if (slotag==ST_1_ABOVE_WATER || slotag==ST_2_UNDERWATER)
+                {
+                    int32_t othersect = yax_getneighborsect(
+                        s->x, s->y, psect, slotag==ST_1_ABOVE_WATER ? YAX_FLOOR : YAX_CEILING);
+
+                    // If submerging, the lower sector MUST have lotag 2.
+                    if (othersect >= 0 && (slotag==ST_2_UNDERWATER || sector[othersect].lotag==ST_2_UNDERWATER))
+                    {
+                        int32_t k = 0;
+
+                        // Compare with G_MoveTransports().
+                        p->on_warping_sector = 1;
+
+                        if (slotag==ST_1_ABOVE_WATER)
+                            k = P_Submerge(i, s->yvel, p, psect, othersect);
+                        else
+                            k = P_Emerge(i, s->yvel, p, psect, othersect);
+
+                        if (k == 1)
+                            P_FinishWaterChange(i, p, slotag, -1, othersect);
+                    }
+                }
+#endif
                 if (g_netServer || ud.multimode > 1)
                     otherp = P_FindOtherPlayer(s->yvel,&otherx);
                 else
@@ -3107,18 +3139,108 @@ BOLT:
     }
 }
 
+
+static int32_t P_Submerge(int32_t j, int32_t p, DukePlayer_t *ps, int32_t sect, int32_t othersect)
+{
+    if (ps->on_ground &&
+        ps->pos.z >= sector[sect].floorz &&
+        (TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH) || ps->vel.z > 2048))
+//        if( onfloorz && sectlotag == 1 && ps->pos.z > (sector[sect].floorz-(6<<8)) )
+    {
+        if (screenpeek == p)
+        {
+            FX_StopAllSounds();
+            S_ClearSoundLocks();
+        }
+
+        if (sprite[ps->i].extra > 0)
+            A_PlaySound(DUKE_UNDERWATER, j);
+
+        ps->opos.z = ps->pos.z = sector[othersect].ceilingz;
+//        ps->vel.x = 4096-(krand()&8192);
+//        ps->vel.y = 4096-(krand()&8192);
+
+        if (TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH))
+            ps->vel.z += 512;
+
+        return 1;
+    }
+
+    return 0;
+}
+
+static int32_t P_Emerge(int32_t j, int32_t p, DukePlayer_t *ps, int32_t sect, int32_t othersect)
+{
+    // r1449-:
+    if (ps->pos.z < (sector[sect].ceilingz+1080) && ps->vel.z == 0)
+        // r1450+, breaks submergible slime in bobsp2:
+//        if (onfloorz && sectlotag == 2 && ps->pos.z <= sector[sect].ceilingz /*&& ps->vel.z == 0*/)
+    {
+//        if( sprite[j].extra <= 0) break;
+        if (screenpeek == p)
+        {
+            FX_StopAllSounds();
+            S_ClearSoundLocks();
+        }
+
+        A_PlaySound(DUKE_GASP, j);
+
+        ps->opos.z = ps->pos.z = sector[othersect].floorz;
+        ps->vel.z = 0;
+//        ps->vel.z += 1024;
+
+        ps->jumping_toggle = 1;
+        ps->jumping_counter = 0;
+
+        return 1;
+    }
+
+    return 0;
+}
+
+static void P_FinishWaterChange(int32_t j, DukePlayer_t *ps, int32_t sectlotag, int32_t ow, int32_t newsectnum)
+{
+    int32_t l;
+    vec3_t vect;
+
+    ps->bobposx = ps->opos.x = ps->pos.x;
+    ps->bobposy = ps->opos.y = ps->pos.y;
+
+    if (ow < 0 || sprite[ow].owner != ow)
+        ps->transporter_hold = -2;
+
+    ps->cursectnum = newsectnum;
+    changespritesect(j, newsectnum);
+
+    vect.x = ps->pos.x;
+    vect.y = ps->pos.y;
+    vect.z = ps->pos.z+PHEIGHT;
+    setsprite(ps->i, &vect);
+
+    P_UpdateScreenPal(ps);
+
+    if ((krand()&255) < 32)
+        A_Spawn(j, WATERSPLASH2);
+
+    if (sectlotag == ST_1_ABOVE_WATER)
+        for (l = 0; l < 9; l++)
+        {
+            int32_t q = A_Spawn(ps->i,WATERBUBBLE);
+            sprite[q].z += krand()&16383;
+        }
+}
+
 ACTOR_STATIC void G_MoveTransports(void)
 {
-    int32_t warpspriteto;
-    int32_t i = headspritestat[STAT_TRANSPORT], j, k, l, sect, sectlotag, nexti, nextj;
-    int32_t ll,onfloorz,q;
+    int32_t i = headspritestat[STAT_TRANSPORT], j, k;
 
     while (i >= 0)
     {
-        sect = SECT;
-        sectlotag = sector[sect].lotag;
+        const int32_t sect = SECT;
+        const int32_t sectlotag = sector[sect].lotag;
 
-        nexti = nextspritestat[i];
+        const int32_t nexti = nextspritestat[i];
+        int32_t onfloorz;
 
         if (OW == i)
         {
@@ -3126,14 +3248,14 @@ ACTOR_STATIC void G_MoveTransports(void)
             continue;
         }
 
-        onfloorz = T5;
+        onfloorz = T5;  // ONFLOORZ
 
         if (T1 > 0) T1--;
 
         j = headspritesect[sect];
         while (j >= 0)
         {
-            nextj = nextspritesect[j];
+            const int32_t nextj = nextspritesect[j];
 
             switch (sprite[j].statnum)
             {
@@ -3212,82 +3334,20 @@ ACTOR_STATIC void G_MoveTransports(void)
                         }
 
                     k = 0;
-
-                    if (onfloorz && sectlotag == 1 && ps->on_ground &&
-                            ps->pos.z >= sector[sect].floorz &&
-                            (TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH) || ps->vel.z > 2048))
-                        //                        if( onfloorz && sectlotag == 1 && ps->pos.z > (sector[sect].floorz-(6<<8)) )
+                    if (onfloorz)
                     {
-                        k = 1;
-                        if (screenpeek == p)
-                        {
-                            FX_StopAllSounds();
-                            S_ClearSoundLocks();
-                        }
-                        if (sprite[ps->i].extra > 0)
-                            A_PlaySound(DUKE_UNDERWATER,j);
-                        ps->opos.z = ps->pos.z =
-                                                     sector[sprite[OW].sectnum].ceilingz;
-
-                        /*
-                                                ps->vel.x = 4096-(krand()&8192);
-                                                ps->vel.y = 4096-(krand()&8192);
-                        */
-                        if (TEST_SYNC_KEY(g_player[p].sync->bits, SK_CROUCH))
-                            ps->vel.z += 512;
-                    }
-
-                    // r1449-:
-                    if (onfloorz && sectlotag == 2 && ps->pos.z < (sector[sect].ceilingz+1080) && ps->vel.z == 0)
-                    // r1450+, breaks submergible slime in bobsp2:
-//                    if (onfloorz && sectlotag == 2 && ps->pos.z <= sector[sect].ceilingz /*&& ps->vel.z == 0*/)
-                    {
-                        k = 1;
-                        //                            if( sprite[j].extra <= 0) break;
-                        if (screenpeek == p)
-                        {
-                            FX_StopAllSounds();
-                            S_ClearSoundLocks();
-                        }
-                        A_PlaySound(DUKE_GASP,j);
-
-                        ps->opos.z = ps->pos.z =
-                                                     sector[sprite[OW].sectnum].floorz;
-
-                        ps->jumping_toggle = 1;
-                        ps->jumping_counter = 0;
-                        ps->vel.z = 0;
-                        //                        ps->vel.z += 1024;
+                        if (sectlotag==ST_1_ABOVE_WATER)
+                            k = P_Submerge(j, p, ps, sect, sprite[OW].sectnum);
+                        else if (sectlotag==ST_2_UNDERWATER)
+                            k = P_Emerge(j, p, ps, sect, sprite[OW].sectnum);
                     }
 
                     if (k == 1)
                     {
-                        vec3_t vect;
-                        ps->bobposx = ps->opos.x = ps->pos.x += sprite[OW].x-SX;
-                        ps->bobposy = ps->opos.y = ps->pos.y += sprite[OW].y-SY;
+                        ps->pos.x += sprite[OW].x-SX;
+                        ps->pos.y += sprite[OW].y-SY;
 
-                        if (sprite[OW].owner != OW)
-                            ps->transporter_hold = -2;
-                        ps->cursectnum = sprite[OW].sectnum;
-
-                        changespritesect(j,sprite[OW].sectnum);
-
-                        vect.x = ps->pos.x;
-                        vect.y = ps->pos.y;
-                        vect.z = ps->pos.z+PHEIGHT;
-                        setsprite(ps->i,&vect);
-
-                        P_UpdateScreenPal(ps);
-
-                        if ((krand()&255) < 32)
-                            A_Spawn(j,WATERSPLASH2);
-
-                        if (sectlotag == 1)
-                            for (l = 0; l < 9; l++)
-                            {
-                                q = A_Spawn(ps->i,WATERBUBBLE);
-                                sprite[q].z += krand()&16383;
-                            }
+                        P_FinishWaterChange(j, ps, sectlotag, OW, sprite[OW].sectnum);
                     }
                 }
                 break;
@@ -3305,16 +3365,17 @@ ACTOR_STATIC void G_MoveTransports(void)
             case STAT_MISC:
             case STAT_FALLER:
             case STAT_DUMMYPLAYER:
-
-                ll = klabs(sprite[j].zvel);
+            {
+                int32_t ll = klabs(sprite[j].zvel);
 
                 if (totalclock > actor[j].lasttransport)
                 {
-                    warpspriteto = 0;
-                    if (ll && sectlotag == 2 && sprite[j].z < (sector[sect].ceilingz+ll))
+                    int32_t warpspriteto = 0;
+
+                    if (ll && sectlotag == ST_2_UNDERWATER && sprite[j].z < (sector[sect].ceilingz+ll))
                         warpspriteto = 1;
 
-                    if (ll && sectlotag == 1 && sprite[j].z > (sector[sect].floorz-ll))
+                    if (ll && sectlotag == ST_1_ABOVE_WATER && sprite[j].z > (sector[sect].floorz-ll))
                         warpspriteto = 1;
 
                     if (sectlotag == 0 && (onfloorz || klabs(sprite[j].z-SZ) < 4096))
@@ -3412,38 +3473,33 @@ ACTOR_STATIC void G_MoveTransports(void)
                                     changespritesect(j,sprite[OW].sectnum);
                                 }
                                 break;
-                            case 1:
+
+                            case ST_1_ABOVE_WATER:
+                            case ST_2_UNDERWATER:
+                            {
+                                int32_t osect = sprite[OW].sectnum;
+
                                 actor[j].lasttransport = totalclock + (TICSPERFRAME<<2);
 
                                 sprite[j].x += (sprite[OW].x-SX);
                                 sprite[j].y += (sprite[OW].y-SY);
-                                sprite[j].z = sector[sprite[OW].sectnum].ceilingz;
-
-
-                                Bmemcpy(&actor[j].bposx, &sprite[j], sizeof(vec3_t));
-
-                                changespritesect(j,sprite[OW].sectnum);
-
-                                break;
-                            case 2:
-                                actor[j].lasttransport = totalclock + (TICSPERFRAME<<2);
-                                sprite[j].x += (sprite[OW].x-SX);
-                                sprite[j].y += (sprite[OW].y-SY);
-                                sprite[j].z = sector[sprite[OW].sectnum].floorz;
+                                sprite[j].z = sectlotag==ST_1_ABOVE_WATER ?
+                                    sector[osect].ceilingz : sector[osect].floorz;
 
                                 Bmemcpy(&actor[j].bposx, &sprite[j], sizeof(vec3_t));
 
-                                changespritesect(j,sprite[OW].sectnum);
+                                changespritesect(j, sprite[OW].sectnum);
 
                                 break;
+                            }
                             }
 
                             break;
                         }
                 }
                 break;
-
             }
+            }  // switch (sprite[j].statnum)
 JBOLT:
             j = nextj;
         }

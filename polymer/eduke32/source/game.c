@@ -5409,7 +5409,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 }
                 else OW = i;
 
-                T5 = sector[sect].floorz == SZ;
+                T5 = (sector[sect].floorz == SZ);  // ONFLOORZ
                 sp->cstat = 0;
                 changespritestat(i, STAT_TRANSPORT);
                 goto SPAWN_END;
