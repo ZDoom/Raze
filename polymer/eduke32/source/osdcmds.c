@@ -1398,6 +1398,8 @@ int32_t registerosdcommands(void)
 
         { "cl_idplayers", "cl_idplayers: enable/disable name display when aiming at opponents", (void *)&ud.idplayers, CVAR_BOOL, 0, 1 },
 
+        { "cl_runmode", "cl_runmode: enable/disable modernized run key operation", (void *)&ud.runkey_mode, CVAR_BOOL, 0, 1 },
+
         { "cl_showcoords", "cl_showcoords: show your position in the game world", (void *)&ud.coords, CVAR_BOOL, 0, 1 },
 
         { "cl_viewbob", "cl_viewbob: enable/disable player head bobbing", (void *)&ud.viewbob, CVAR_BOOL, 0, 1 },
