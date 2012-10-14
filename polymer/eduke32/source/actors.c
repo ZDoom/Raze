@@ -3230,6 +3230,12 @@ static void P_FinishWaterChange(int32_t j, DukePlayer_t *ps, int32_t sectlotag, 
         }
 }
 
+static int32_t A_CheckNonTeleporting(int32_t pic)
+{
+    return (pic == SHARK || pic == COMMANDER || pic == OCTABRAIN
+                || (pic >= GREENSLIME && pic <= GREENSLIME+7));
+}
+
 ACTOR_STATIC void G_MoveTransports(void)
 {
     int32_t i = headspritestat[STAT_TRANSPORT], j, k;
@@ -3352,31 +3358,31 @@ ACTOR_STATIC void G_MoveTransports(void)
                 }
                 break;
 
+
+            ////////// Non-player teleportation //////////
+
             case STAT_PROJECTILE:
                 // comment out to make RPGs pass through water: (r1450 breaks this)
 //                if (sectlotag != 0) goto JBOLT;
             case STAT_ACTOR:
-                if ((sprite[j].picnum == SHARK) || (sprite[j].picnum == COMMANDER) || (sprite[j].picnum == OCTABRAIN)
-                        || ((sprite[j].picnum >= GREENSLIME) && (sprite[j].picnum <= GREENSLIME+7)))
-                {
-                    if (sprite[j].extra > 0)
-                        goto JBOLT;
-                }
+                if (sprite[j].extra > 0 && A_CheckNonTeleporting(sprite[j].picnum))
+                    goto JBOLT;
             case STAT_MISC:
             case STAT_FALLER:
             case STAT_DUMMYPLAYER:
             {
-                int32_t ll = klabs(sprite[j].zvel);
-
                 if (totalclock > actor[j].lasttransport)
                 {
+                    const int32_t ll = klabs(sprite[j].zvel);
                     int32_t warpspriteto = 0;
 
-                    if (ll && sectlotag == ST_2_UNDERWATER && sprite[j].z < (sector[sect].ceilingz+ll))
-                        warpspriteto = 1;
-
-                    if (ll && sectlotag == ST_1_ABOVE_WATER && sprite[j].z > (sector[sect].floorz-ll))
-                        warpspriteto = 1;
+                    if (ll != 0)
+                    {
+                        if (sectlotag == ST_2_UNDERWATER && sprite[j].z < (sector[sect].ceilingz+ll))
+                            warpspriteto = 1;
+                        if (sectlotag == ST_1_ABOVE_WATER && sprite[j].z > (sector[sect].floorz-ll))
+                            warpspriteto = 1;
+                    }
 
                     if (sectlotag == 0 && (onfloorz || klabs(sprite[j].z-SZ) < 4096))
                     {
@@ -3388,9 +3394,12 @@ ACTOR_STATIC void G_MoveTransports(void)
                         warpspriteto = 1;
                     }
 
-                    if (warpspriteto && A_CheckSpriteFlags(j,SPRITE_DECAL)) goto JBOLT;
+                    if (warpspriteto)
+                    {
+                        if (A_CheckSpriteFlags(j,SPRITE_DECAL))
+                            goto JBOLT;
 
-                    if (warpspriteto) switch (DYNAMICTILEMAP(sprite[j].picnum))
+                        switch (DYNAMICTILEMAP(sprite[j].picnum))
                         {
                         case TRANSPORTERSTAR__STATIC:
                         case TRANSPORTERBEAM__STATIC:
@@ -3420,6 +3429,10 @@ ACTOR_STATIC void G_MoveTransports(void)
 
                             if (sectlotag > 0)
                             {
+                                const int32_t osect = sprite[OW].sectnum;
+
+                                Bassert(sectlotag==ST_1_ABOVE_WATER || sectlotag==ST_2_UNDERWATER);
+
                                 k = A_Spawn(j,WATERSPLASH2);
                                 if (sectlotag == ST_1_ABOVE_WATER && sprite[j].statnum == STAT_PROJECTILE)
                                 {
@@ -3427,11 +3440,21 @@ ACTOR_STATIC void G_MoveTransports(void)
                                     sprite[k].ang = sprite[j].ang;
                                     A_SetSprite(k,CLIPMASK0);
                                 }
-                            }
 
-                            switch (sectlotag)
+                                //
+                                actor[j].lasttransport = totalclock + (TICSPERFRAME<<2);
+
+                                sprite[j].x += (sprite[OW].x-SX);
+                                sprite[j].y += (sprite[OW].y-SY);
+                                sprite[j].z = sectlotag==ST_1_ABOVE_WATER ?
+                                    sector[osect].ceilingz : sector[osect].floorz;
+
+                                Bmemcpy(&actor[j].bposx, &sprite[j], sizeof(vec3_t));
+
+                                changespritesect(j, sprite[OW].sectnum);
+                            }
+                            else if (Bassert(sectlotag==0), 1)
                             {
-                            case 0:
                                 if (onfloorz)
                                 {
                                     if (sprite[j].statnum == STAT_PROJECTILE ||
@@ -3472,33 +3495,16 @@ ACTOR_STATIC void G_MoveTransports(void)
 
                                     changespritesect(j,sprite[OW].sectnum);
                                 }
-                                break;
-
-                            case ST_1_ABOVE_WATER:
-                            case ST_2_UNDERWATER:
-                            {
-                                int32_t osect = sprite[OW].sectnum;
-
-                                actor[j].lasttransport = totalclock + (TICSPERFRAME<<2);
-
-                                sprite[j].x += (sprite[OW].x-SX);
-                                sprite[j].y += (sprite[OW].y-SY);
-                                sprite[j].z = sectlotag==ST_1_ABOVE_WATER ?
-                                    sector[osect].ceilingz : sector[osect].floorz;
-
-                                Bmemcpy(&actor[j].bposx, &sprite[j], sizeof(vec3_t));
-
-                                changespritesect(j, sprite[OW].sectnum);
-
-                                break;
-                            }
                             }
 
                             break;
-                        }
-                }
+                        }  // switch (DYNAMICTILEMAP(sprite[j].picnum))
+                    }  // if (warpspriteto)
+                }  // if (totalclock > actor[j].lasttransport)
+
                 break;
-            }
+            }  // five cases
+
             }  // switch (sprite[j].statnum)
 JBOLT:
             j = nextj;
