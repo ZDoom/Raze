@@ -522,21 +522,6 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     startwin_open();
     baselayer_init();
 
-    // determine physical screen size
-    {
-        const int32_t oscreenx = GetSystemMetrics(SM_CXSCREEN);
-        const int32_t oscreeny = GetSystemMetrics(SM_CYSCREEN);
-        int32_t screenx=oscreenx, screeny=oscreeny, good=0;
-
-        divcommon(&screenx, &screeny);
-
-        if (screenx >= 1 && screenx <= 99 && screeny >= 1 && screeny <= 99)
-            r_screenxy = screenx*100 + screeny, good=1;
-
-        initprintf("Automatic fullscreen size determination: %d %d -> %d %d%s.\n",
-                   oscreenx, oscreeny, screenx, screeny, good?"":" (failed)");
-    }
-
     r = app_main(_buildargc, _buildargv);
 
     fclose(stdout);
@@ -704,6 +689,22 @@ int32_t initsystem(void)
         nogl = 1;
     }
 #endif
+
+    // determine physical screen size
+    {
+        const int32_t oscreenx = GetSystemMetrics(SM_CXSCREEN);
+        const int32_t oscreeny = GetSystemMetrics(SM_CYSCREEN);
+        int32_t screenx=oscreenx, screeny=oscreeny, good=0;
+
+        divcommon(&screenx, &screeny);
+
+        if (screenx >= 1 && screenx <= 99 && screeny >= 1 && screeny <= 99)
+            r_screenxy = screenx*100 + screeny, good=1;
+
+        if (!good)
+            initprintf("Automatic fullscreen size determination failed! %d %d -> %d %d.\n",
+            oscreenx, oscreeny, screenx, screeny);
+    }
 
     // try and start DirectDraw
     if (InitDirectDraw())
