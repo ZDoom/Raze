@@ -1790,6 +1790,19 @@ static void postloadplayer(int32_t savegamep)
     //3.5
     if (savegamep)
     {
+        int32_t i = headspritestat[STAT_FX];
+
+        while (i >= 0)
+        {
+            if (sprite[i].picnum == MUSICANDSFX)
+            {
+                T2 = ud.config.SoundToggle;
+                T1 = 0;
+            }
+
+            i = nextspritestat[i];
+        }
+
         G_UpdateScreenArea();
         FX_SetReverb(0);
     }
