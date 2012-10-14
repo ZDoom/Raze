@@ -2516,6 +2516,22 @@ static void A_DoProjectileEffects(int32_t i, const vec3_t *davect, int32_t do_ra
     }
 }
 
+static void G_WeaponHitCeilingOrFloor(int32_t i, spritetype *s, int32_t *j)
+{
+    if (s->z < actor[i].ceilingz)
+    {
+        *j = 16384|s->sectnum;
+        s->zvel = -1;
+    }
+    else if (s->z > actor[i].floorz + (16<<8)*(sector[s->sectnum].lotag == ST_1_ABOVE_WATER))
+    {
+        *j = 16384|s->sectnum;
+
+        if (sector[s->sectnum].lotag != ST_1_ABOVE_WATER)
+            s->zvel = 1;
+    }
+}
+
 ACTOR_STATIC void G_MoveWeapons(void)
 {
     int32_t i = headspritestat[STAT_PROJECTILE], j=0, k, q;
@@ -2636,20 +2652,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 }
 
                 if ((j&49152) != 49152 && !(proj->workslike & PROJECTILE_BOUNCESOFFWALLS))
-                {
-                    if (s->z < actor[i].ceilingz)
-                    {
-                        j = 16384|s->sectnum;
-                        s->zvel = -1;
-                    }
-                    else if (s->z > actor[i].floorz + (16<<8)*(sector[s->sectnum].lotag == ST_1_ABOVE_WATER))
-                    {
-                        j = 16384|s->sectnum;
-
-                        if (sector[s->sectnum].lotag != ST_1_ABOVE_WATER)
-                            s->zvel = 1;
-                    }
-                }
+                    G_WeaponHitCeilingOrFloor(i, s, &j);
 
                 if (proj->workslike & PROJECTILE_WATERBUBBLES && sector[s->sectnum].lotag == ST_2_UNDERWATER && rnd(140))
                     A_Spawn(i,WATERBUBBLE);
@@ -2917,20 +2920,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
             if ((j&49152) != 49152)
                 if (s->picnum != FREEZEBLAST)
-                {
-                    if (s->z < actor[i].ceilingz)
-                    {
-                        j = 16384|s->sectnum;
-                        s->zvel = -1;
-                    }
-                    else if (s->z > actor[i].floorz + (16<<8)*(sector[s->sectnum].lotag == ST_1_ABOVE_WATER))
-                    {
-                        j = 16384|s->sectnum;
-
-                        if (sector[s->sectnum].lotag != ST_1_ABOVE_WATER)
-                            s->zvel = 1;
-                    }
-                }
+                    G_WeaponHitCeilingOrFloor(i, s, &j);
 
             if (s->picnum == FIRELASER)
             {
