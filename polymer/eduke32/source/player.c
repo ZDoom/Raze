@@ -77,35 +77,33 @@ static void P_IncurDamage(DukePlayer_t *p)
 {
     int32_t damage;
 
-    if (VM_OnEvent(EVENT_INCURDAMAGE, p->i, sprite[p->i].yvel, -1, 0) == 0)
+    if (VM_OnEvent(EVENT_INCURDAMAGE, p->i, sprite[p->i].yvel, -1, 0) != 0)
+        return;
+
+    sprite[p->i].extra -= p->extra_extra8>>8;
+
+    damage = sprite[p->i].extra - p->last_extra;
+
+    if (damage >= 0)
+        return;
+
+    p->extra_extra8 = 0;
+
+    if (p->inv_amount[GET_SHIELD] > 0)
     {
-        sprite[p->i].extra -= p->extra_extra8>>8;
+        int32_t shield_damage =  damage * (20 + (krand()%30)) / 100;
+        damage -= shield_damage;
 
-        damage = sprite[p->i].extra - p->last_extra;
+        p->inv_amount[GET_SHIELD] += shield_damage;
 
-        if (damage < 0)
+        if (p->inv_amount[GET_SHIELD] < 0)
         {
-            p->extra_extra8 = 0;
-
-            if (p->inv_amount[GET_SHIELD] > 0)
-            {
-                int32_t shield_damage =  damage * (20 + (krand()%30)) / 100;
-                damage -= shield_damage;
-
-                p->inv_amount[GET_SHIELD] += shield_damage;
-
-                if (p->inv_amount[GET_SHIELD] < 0)
-                {
-                    damage += p->inv_amount[GET_SHIELD];
-                    p->inv_amount[GET_SHIELD] = 0;
-                }
-            }
-
-            sprite[p->i].extra = p->last_extra + damage;
+            damage += p->inv_amount[GET_SHIELD];
+            p->inv_amount[GET_SHIELD] = 0;
         }
-
     }
 
+    sprite[p->i].extra = p->last_extra + damage;
 }
 
 void P_QuickKill(DukePlayer_t *p)
@@ -114,9 +112,9 @@ void P_QuickKill(DukePlayer_t *p)
 
     sprite[p->i].extra = 0;
     sprite[p->i].cstat |= 32768;
+
     if (ud.god == 0)
         A_DoGuts(p->i,JIBS6,8);
-    return;
 }
 
 static void A_DoWaterTracers(int32_t x1,int32_t y1,int32_t z1,int32_t x2,int32_t y2,int32_t z2,int32_t n)
@@ -215,6 +213,7 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
     {
         if (!g_player[s->yvel].ps->auto_aim)
             return -1;
+
         if (g_player[s->yvel].ps->auto_aim == 2)
         {
             if (A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE) && (ProjectileData[atwith].workslike & PROJECTILE_RPG))
@@ -287,27 +286,27 @@ static int32_t A_FindTargetSprite(spritetype *s,int32_t aang,int32_t atwith)
                     xv = (SX-s->x);
                     yv = (SY-s->y);
 
-                    if ((dy1*xv) <= (dx1*yv))
-                        if ((dy2*xv) >= (dx2*yv))
+                    if ((dy1*xv <= dx1*yv) && (dy2*xv >= dx2*yv))
+                    {
+                        sdist = mulscale(dx3,xv,14) + mulscale(dy3,yv,14);
+
+                        if (sdist > 512 && sdist < smax)
                         {
-                            sdist = mulscale(dx3,xv,14) + mulscale(dy3,yv,14);
-                            if (sdist > 512 && sdist < smax)
+                            if (s->picnum == APLAYER)
+                                a = (klabs(scale(SZ-s->z,10,sdist)-(g_player[s->yvel].ps->horiz+g_player[s->yvel].ps->horizoff-100)) < 100);
+                            else a = 1;
+
+                            if (PN == ORGANTIC || PN == ROTATEGUN)
+                                cans = cansee(SX,SY,SZ,SECT,s->x,s->y,s->z-(32<<8),s->sectnum);
+                            else cans = cansee(SX,SY,SZ-(32<<8),SECT,s->x,s->y,s->z-(32<<8),s->sectnum);
+
+                            if (a && cans)
                             {
-                                if (s->picnum == APLAYER)
-                                    a = (klabs(scale(SZ-s->z,10,sdist)-(g_player[s->yvel].ps->horiz+g_player[s->yvel].ps->horizoff-100)) < 100);
-                                else a = 1;
-
-                                if (PN == ORGANTIC || PN == ROTATEGUN)
-                                    cans = cansee(SX,SY,SZ,SECT,s->x,s->y,s->z-(32<<8),s->sectnum);
-                                else cans = cansee(SX,SY,SZ-(32<<8),SECT,s->x,s->y,s->z-(32<<8),s->sectnum);
-
-                                if (a && cans)
-                                {
-                                    smax = sdist;
-                                    j = i;
-                                }
+                                smax = sdist;
+                                j = i;
                             }
                         }
+                    }
                 }
     }
 
@@ -342,6 +341,7 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
     Bassert((unsigned)p < MAXPLAYERS);
 
     Gv_SetVar(g_iAimAngleVarID, AUTO_AIM_ANGLE, i, p);
+
     if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
         VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
 
@@ -410,6 +410,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
         if (s->picnum != ROTATEGUN)
         {
             srcvect.z -= (7<<8);
+
             if (A_CheckEnemySprite(s) && PN != COMMANDER)
             {
                 srcvect.x += (sintable[(sa+1024+96)&2047]>>7);
@@ -442,9 +443,9 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
 #endif // POLYMER
     }
 
-    if (A_CheckSpriteTileFlags(atwith,SPRITE_PROJECTILE))
+    if (A_CheckSpriteTileFlags(atwith, SPRITE_PROJECTILE))
     {
-        /* Custom projectiles.  This is a big hack. */
+        /* Custom projectiles */
 
 #ifdef POLYMER
         if (ProjectileData[atwith].flashcolor)
