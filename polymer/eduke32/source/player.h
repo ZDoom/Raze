@@ -221,7 +221,7 @@ typedef struct {
     int32_t pcolor, pteam;
     uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
-    char vote, gotvote, pingcnt, playerquitflag;
+    char vote, gotvote, pingcnt, playerquitflag, ready;
     char user_name[32];
     uint32_t revision;
 } playerdata_t;

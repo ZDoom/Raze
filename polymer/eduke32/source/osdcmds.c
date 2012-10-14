@@ -130,7 +130,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
                 ud.m_noexits = 0;
 
             g_player[myconnectindex].ps->gm |= MODE_MENU;
-            ChangeToMenu(603);
+            M_ChangeMenu(603);
         }
         return OSDCMD_OK;
     }
@@ -265,7 +265,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
                 ud.m_noexits = 0;
 
             g_player[myconnectindex].ps->gm |= MODE_MENU;
-            ChangeToMenu(603);
+            M_ChangeMenu(603);
         }
         return OSDCMD_OK;
     }
@@ -641,7 +641,7 @@ static int32_t osdcmd_cmenu(const osdfuncparm_t *parm)
     }
     else
     {
-        ChangeToMenu(Batol(parm->parms[0]));
+        M_ChangeMenu(Batol(parm->parms[0]));
     }
 
     return OSDCMD_OK;
@@ -1476,7 +1476,7 @@ int32_t registerosdcommands(void)
         { "snd_mixrate", "snd_mixrate: sound mixing rate", (void *)&ud.config.MixRate, CVAR_INT, 0, 48000 },
         { "snd_numbits", "snd_numbits: sound bits", (void *)&ud.config.NumBits, CVAR_INT, 8, 16 },
         { "snd_numchannels", "snd_numchannels: the number of sound channels", (void *)&ud.config.NumChannels, CVAR_INT, 0, 2 },
-        { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void *)&ud.config.NumVoices, CVAR_INT, 0, 96 },
+        { "snd_numvoices", "snd_numvoices: the number of concurrent sounds", (void *)&ud.config.NumVoices, CVAR_INT, 0, 256 },
         { "snd_reversestereo", "snd_reversestereo: reverses the stereo channels", (void *)&ud.config.ReverseStereo, CVAR_BOOL, 0, 16 },
 
         { "team","team <value>: change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },

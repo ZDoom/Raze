@@ -915,7 +915,7 @@ nextdemo_nomenu:
             FX_StopAllSounds();
             S_ClearSoundLocks();
             g_player[myconnectindex].ps->gm |= MODE_MENU;
-            ChangeToMenu(0);
+            M_ChangeMenu(MENU_MAIN);
             S_MenuSound();
         }
 

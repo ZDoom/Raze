@@ -2870,8 +2870,8 @@ void G_DisplayRest(int32_t smoothratio)
 
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2) ready2send = 0;
 
-            if (g_player[myconnectindex].ps->gm&MODE_GAME) ChangeToMenu(50);
-            else ChangeToMenu(0);
+            if (g_player[myconnectindex].ps->gm&MODE_GAME) M_ChangeMenu(50);
+            else M_ChangeMenu(MENU_MAIN);
             screenpeek = myconnectindex;
         }
     }
@@ -3997,8 +3997,6 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     Bmemset(&spritesmooth[i], 0, sizeof(spritesmooth_t));
 
     A_ResetVars(i);
-
-    lastupdate[i] = 0;
 
     if (apScriptGameEvent[EVENT_EGS])
     {
@@ -6006,6 +6004,7 @@ SPAWN_END:
 
     // spawning is technically not allowed to fail in BUILD, so we just hide whatever
     // the client spawns with SPRITE_NULL because the server will send it anyway
+/*
     if (g_netClient && j >= 0)
     {
         int32_t zz;
@@ -6016,6 +6015,7 @@ SPAWN_END:
                 return i;
             }
     }
+*/
 
     return i;
 }
@@ -6191,11 +6191,13 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         i = t->owner;
         s = &sprite[t->owner];
 
+/*
         if (A_CheckSpriteFlags(i, SPRITE_NULL))
         {
             t->xrepeat = t->yrepeat = 0;
             continue;
         }
+*/
 
         if (t->picnum < GREENSLIME || t->picnum > GREENSLIME+7)
             switch (DYNAMICTILEMAP(t->picnum))
@@ -7796,7 +7798,7 @@ void G_HandleLocalKeys(void)
         if (KB_UnBoundKeyPressed(sc_F1)/* || (ud.show_help && I_AdvanceTrigger())*/)
         {
             KB_ClearKeyDown(sc_F1);
-            ChangeToMenu(400);
+            M_ChangeMenu(400);
             FX_StopAllSounds();
             S_ClearSoundLocks();
 
@@ -7843,7 +7845,7 @@ FAKE_F2:
                     P_DoQuote(QUOTE_SAVE_DEAD,g_player[myconnectindex].ps);
                     return;
                 }
-                ChangeToMenu(350);
+                M_ChangeMenu(350);
                 g_screenCapture = 1;
                 G_DrawRooms(myconnectindex,65536);
                 //savetemp("duke3d.tmp",waloff[TILE_SAVESHOT],160*100);
@@ -7867,7 +7869,7 @@ FAKE_F2:
                 KB_ClearKeyDown(sc_F3);
 
 FAKE_F3:
-                ChangeToMenu(300);
+                M_ChangeMenu(300);
                 FX_StopAllSounds();
                 S_ClearSoundLocks();
 
@@ -7894,7 +7896,7 @@ FAKE_F3:
                 ready2send = 0;
                 totalclock = ototalclock;
             }
-            ChangeToMenu(701);
+            M_ChangeMenu(MENU_SOUND_INGAME);
 
         }
 
@@ -7987,7 +7989,7 @@ FAKE_F3:
         if (KB_UnBoundKeyPressed(sc_F10))
         {
             KB_ClearKeyDown(sc_F10);
-            ChangeToMenu(500);
+            M_ChangeMenu(500);
             FX_StopAllSounds();
             S_ClearSoundLocks();
             g_player[myconnectindex].ps->gm |= MODE_MENU;
@@ -8053,7 +8055,7 @@ FAKE_F3:
     if (KB_UnBoundKeyPressed(sc_F11))
     {
         KB_ClearKeyDown(sc_F11);
-        ChangeToMenu(232);
+        M_ChangeMenu(232);
         FX_StopAllSounds();
         S_ClearSoundLocks();
         g_player[myconnectindex].ps->gm |= MODE_MENU;
@@ -9757,7 +9759,7 @@ void G_BackToMenu(void)
     if (ud.recstat == 1) G_CloseDemoWrite();
     ud.warp_on = 0;
     g_player[myconnectindex].ps->gm = MODE_MENU;
-    ChangeToMenu(0);
+    M_ChangeMenu(MENU_MAIN);
     KB_FlushKeyboardQueue();
     Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
     wm_setapptitle(tempbuf);
@@ -9790,7 +9792,7 @@ static int32_t G_EndOfLevel(void)
                 if (!VOLUMEALL)
                     G_DoOrderScreen();
                 g_player[myconnectindex].ps->gm = MODE_MENU;
-                ChangeToMenu(0);
+                M_ChangeMenu(MENU_MAIN);
                 probey = 0;
                 return 2;
             }
@@ -9858,7 +9860,7 @@ int32_t app_main(int32_t argc, const char **argv)
 #endif
 
     Bassert(sizeof(actor_t)==128);
-    Bassert(offsetof(actor_t, bposx) == sizeof(netactor_t));
+    Bassert(offsetof(actor_t, lightId) == sizeof(netactor_t));
     Bassert(sizeof(DukePlayer_t)%4 == 0);
 
 #ifdef GEKKO

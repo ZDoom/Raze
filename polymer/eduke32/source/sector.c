@@ -238,7 +238,7 @@ static inline int32_t A_FP_ManhattanDist(const DukePlayer_t *ps, const spritetyp
 
 int32_t __fastcall A_FindPlayer(const spritetype *s, int32_t *d)
 {
-    if ((!g_netServer && ud.multimode < 2))
+    if (!g_netServer && ud.multimode < 2)
     {
         DukePlayer_t *const myps = g_player[myconnectindex].ps;
         *d = A_FP_ManhattanDist(myps, s);

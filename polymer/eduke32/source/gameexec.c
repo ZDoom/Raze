@@ -2329,7 +2329,7 @@ nullquote:
 
         case CON_CMENU:
             insptr++;
-            ChangeToMenu(Gv_GetVarX(*insptr++));
+            M_ChangeMenu(Gv_GetVarX(*insptr++));
             continue;
 
         case CON_SOUNDVAR:
@@ -3080,7 +3080,7 @@ nullquote:
                 {
                     g_player[vm.g_p].ps->gm |= MODE_MENU;
                     KB_ClearKeyDown(sc_Space);
-                    ChangeToMenu(15000);
+                    M_ChangeMenu(15000);
                 }
                 else g_player[vm.g_p].ps->gm = MODE_RESTART;
                 vm.g_flags |= VM_NOEXECUTE;
@@ -5101,11 +5101,13 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
                          &sprite[iActor], 0
                        };
 
+/*
     if (g_netClient && A_CheckSpriteFlags(iActor, SPRITE_NULL))
     {
         A_DeleteSprite(iActor);
         return;
     }
+*/
 
     if (g_netServer || g_netClient)
         randomseed = ticrandomseed;
@@ -5230,11 +5232,11 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     else if (ud.respawn_items == 1 && (vm.g_sp->cstat&32768)) return;
 
     if (A_CheckSpriteFlags(vm.g_i, SPRITE_USEACTIVATOR) && sector[vm.g_sp->sectnum].lotag & 16384)
-        changespritestat(vm.g_i,STAT_ZOMBIEACTOR);
+        changespritestat(vm.g_i, STAT_ZOMBIEACTOR);
     else if (actor[vm.g_i].timetosleep > 1)
         actor[vm.g_i].timetosleep--;
     else if (actor[vm.g_i].timetosleep == 1)
-        changespritestat(vm.g_i,STAT_ZOMBIEACTOR);
+        changespritestat(vm.g_i, STAT_ZOMBIEACTOR);
 }
 
 void G_SaveMapState(mapstate_t *save)
