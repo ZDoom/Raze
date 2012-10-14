@@ -406,6 +406,8 @@ static int32_t S_TakeSlot(int32_t num)
     uint32_t dist = 0, clock = UINT32_MAX;
     int32_t i = 0, j = 0;
 
+    S_Cleanup();
+
     while (j < MAXSOUNDINSTANCES && g_sounds[num].SoundOwner[j].voice > 0)
     {
         if (g_sounds[num].SoundOwner[j].sndist > dist ||
@@ -767,18 +769,11 @@ void S_StopEnvSound(int32_t num, int32_t i)
             {
                 if (i >= 0 && g_sounds[num].SoundOwner[j].voice <= FX_Ok)
                     initprintf(OSD_ERROR "S_StopEnvSound(): bad voice %d for sound ID %d index %d!\n", g_sounds[num].SoundOwner[j].voice, num, j);
-                else if (g_sounds[num].SoundOwner[j].voice > FX_Ok && FX_SoundActive(g_sounds[num].SoundOwner[j].voice))
+                else if (g_sounds[num].SoundOwner[j].voice > FX_Ok)
+                {
                     FX_StopSound(g_sounds[num].SoundOwner[j].voice);
-
-                // FX_SoundActive returning false could mean one of two things: we asked to stop the sound
-                // right when it was done playing, or we lost track of a voice somewhere (didn't get the callback)
-                // the first scenario resolves itself, and this addresses the second
-
-                mutex_lock(&s_mutex);
-                dq[dnum++] = (num * MAXSOUNDINSTANCES) + j;
-                mutex_unlock(&s_mutex);
-                S_Cleanup();
-                break;
+                    return;
+                }
             }
         }
     }
@@ -883,10 +878,8 @@ void S_ClearSoundLocks(void)
     int32_t i;
 
     for (i=g_maxSoundPos; i >= 0 ; i--)
-    {
         if (g_soundlocks[i] >= 200)
             g_soundlocks[i] = 199;
-    }
 
     for (i=0; i<11; i++)
         if (rts_lumplockbyte[i] >= 200)
