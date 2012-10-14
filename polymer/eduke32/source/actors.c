@@ -309,90 +309,86 @@ BOLT:
 
 int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 {
-    spritetype *spr = &sprite[spritenum];
+    spritetype *const spr = &sprite[spritenum];
     int32_t retval, daz;
-    int16_t dasectnum, cd;
-    int32_t bg = A_CheckEnemySprite(spr);
-    int32_t oldx = spr->x, oldy = spr->y;
-    /*int32_t osectnum = spr->sectnum;*/
-
+    int16_t dasectnum;
+    const int32_t bg = A_CheckEnemySprite(spr);
+    const int32_t oldx = spr->x, oldy = spr->y;
+//    const int32_t osectnum = spr->sectnum;
 
     if (spr->statnum == STAT_MISC || (bg && spr->xrepeat < 4))
     {
         spr->x += (change->x*TICSPERFRAME)>>2;
         spr->y += (change->y*TICSPERFRAME)>>2;
         spr->z += (change->z*TICSPERFRAME)>>2;
+
         if (bg)
-            setsprite(spritenum,(vec3_t *)spr);
+            setsprite(spritenum, (vec3_t *)spr);
+
         return 0;
     }
 
     dasectnum = spr->sectnum;
-
     daz = spr->z - ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
+
+    {
+        const int32_t oldz=spr->z;
+        int32_t clipdist;
+
+        if (bg)
+        {
+            if (spr->xrepeat > 60)
+                clipdist = 1024;
+            else if (spr->picnum == LIZMAN)
+                clipdist = 292;
+            else if (ActorType[spr->picnum]&3)
+                clipdist = spr->clipdist<<2;
+            else
+                clipdist = 192;
+        }
+        else
+        {
+            if (spr->statnum == STAT_PROJECTILE && (SpriteProjectile[spritenum].workslike & PROJECTILE_REALCLIPDIST) == 0)
+                clipdist = 8;
+            else
+                clipdist = spr->clipdist<<2;
+        }
+
+        spr->z = daz;
+        retval = clipmove((vec3_t *)spr, &dasectnum,
+                          (change->x*TICSPERFRAME)<<11, (change->y*TICSPERFRAME)<<11,
+                          clipdist, 4<<8, 4<<8, cliptype);
+        spr->z = oldz;
+    }
 
     if (bg)
     {
-        if (spr->xrepeat > 60)
-        {
-            int32_t oz = spr->z;
-            spr->z = daz;
-            retval = clipmove((vec3_t *)spr,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),1024L,(4<<8),(4<<8),cliptype);
-            daz = spr->z;
-            spr->z = oz;
-        }
-        else
-        {
-            int32_t oz = spr->z;
-
-            if (spr->picnum == LIZMAN)
-                cd = 292L;
-            else if ((ActorType[spr->picnum]&3))
-                cd = spr->clipdist<<2;
-            else
-                cd = 192L;
-
-            spr->z = daz;
-            retval = clipmove((vec3_t *)spr,&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),cd,(4<<8),(4<<8),cliptype);
-            daz = spr->z;
-            spr->z = oz;
-        }
-
-        if (dasectnum < 0 || (dasectnum >= 0 &&
-                              ((actor[spritenum].actorstayput >= 0 && actor[spritenum].actorstayput != dasectnum) ||
-                               ((spr->picnum == BOSS2) && spr->pal == 0 && sector[dasectnum].lotag != ST_3) ||
-                               ((spr->picnum == BOSS1 || spr->picnum == BOSS2) && sector[dasectnum].lotag == ST_1_ABOVE_WATER) /*||
-                               (sector[dasectnum].lotag == ST_1_ABOVE_WATER && (spr->picnum == LIZMAN || (spr->picnum == LIZTROOP && spr->zvel == 0)))*/
-                              ))
-           )
+        if (dasectnum < 0 ||
+                ((actor[spritenum].actorstayput >= 0 && actor[spritenum].actorstayput != dasectnum) ||
+                 (spr->picnum == BOSS2 && spr->pal == 0 && sector[dasectnum].lotag != ST_3) ||
+                 ((spr->picnum == BOSS1 || spr->picnum == BOSS2) && sector[dasectnum].lotag == ST_1_ABOVE_WATER)
+//                 || (sector[dasectnum].lotag == ST_1_ABOVE_WATER && (spr->picnum == LIZMAN || (spr->picnum == LIZTROOP && spr->zvel == 0)))
+                )
+            )
         {
             spr->x = oldx;
             spr->y = oldy;
-            /*
+/*
             if (dasectnum >= 0 && sector[dasectnum].lotag == ST_1_ABOVE_WATER && spr->picnum == LIZMAN)
-            spr->ang = (krand()&2047);
+                spr->ang = (krand()&2047);
             else if ((Actor[spritenum].t_data[0]&3) == 1 && spr->picnum != COMMANDER)
-            spr->ang = (krand()&2047);
-            */
-            setsprite(spritenum,(vec3_t *)spr);
-            if (dasectnum < 0) dasectnum = 0;
+                spr->ang = (krand()&2047);
+*/
+            setsprite(spritenum, (vec3_t *)spr);
+
+            if (dasectnum < 0)
+                dasectnum = 0;
+
             return (16384+dasectnum);
         }
-        if ((retval&49152) >= 32768 && (actor[spritenum].cgg==0)) spr->ang += 768;
-    }
-    else
-    {
-        int32_t oz = spr->z;
-        spr->z = daz;
 
-        if (spr->statnum == STAT_PROJECTILE && (SpriteProjectile[spritenum].workslike & PROJECTILE_REALCLIPDIST) == 0)
-            retval =
-                clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),8L,(4<<8),(4<<8),cliptype);
-        else
-            retval =
-                clipmove((vec3_t *)&sprite[spritenum],&dasectnum,((change->x*TICSPERFRAME)<<11),((change->y*TICSPERFRAME)<<11),(int32_t)(spr->clipdist<<2),(4<<8),(4<<8),cliptype);
-        daz = spr->z;
-        spr->z = oz;
+        if ((retval&49152) >= 32768 && actor[spritenum].cgg==0)
+            spr->ang += 768;
     }
 
     if (dasectnum == -1)
@@ -400,33 +396,34 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
         dasectnum = spr->sectnum;
 //        OSD_Printf("%s:%d wtf\n",__FILE__,__LINE__);
     }
-
-    if ((dasectnum != spr->sectnum))
+    else if (dasectnum != spr->sectnum)
     {
-        changespritesect(spritenum,dasectnum);
+        changespritesect(spritenum, dasectnum);
         A_GetZLimits(spritenum);
     }
 
+    Bassert(dasectnum == spr->sectnum);
+
     daz = spr->z + ((change->z*TICSPERFRAME)>>3);
 
-    bg = (tilesizy[spr->picnum]*spr->yrepeat)>>1;
-    if ((daz > actor[spritenum].ceilingz) && (daz <= actor[spritenum].floorz)/*
-         &&
-                (osectnum == dasectnum || cansee(oldx, oldy, spr->z - bg, osectnum, spr->x, spr->y, daz - bg, dasectnum))*/
+//    bg = (tilesizy[spr->picnum]*spr->yrepeat)>>1;
+    if (daz > actor[spritenum].ceilingz && daz <= actor[spritenum].floorz
+//        && (osectnum == dasectnum || cansee(oldx, oldy, spr->z - bg, osectnum, spr->x, spr->y, daz - bg, dasectnum))
        )
     {
         spr->z = daz;
 #ifdef YAX_ENABLE
-        if (change->z && yax_getbunch(spr->sectnum, (change->z>0))>=0)
-            if ((SECTORFLD(spr->sectnum,stat, (change->z>0))&yax_waltosecmask(cliptype))==0)
+        if (change->z && yax_getbunch(dasectnum, (change->z>0))>=0)
+            if ((SECTORFLD(dasectnum,stat, (change->z>0))&yax_waltosecmask(cliptype))==0)
             {
-//                initprintf("spr %d, sect %d: chz=%d, cfz=[%d,%d]\n", spritenum, spr->sectnum, change->z,
+//                initprintf("spr %d, sect %d: chz=%d, cfz=[%d,%d]\n", spritenum, dasectnum, change->z,
 //                           actor[spritenum].ceilingz, actor[spritenum].floorz);
                 setspritez(spritenum, (vec3_t *)spr);
             }
 #endif
     }
-    else if (retval == 0) retval = 16384+dasectnum;
+    else if (retval == 0)
+        retval = 16384+dasectnum;
 
     if (retval == (16384+dasectnum))
         if (spr->statnum == STAT_PROJECTILE)
@@ -461,6 +458,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
                             if (totalclock > actor[spritenum].lasttransport)
                             {
                                 actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
+
                                 spr->x += (sprite[OW].x-SX);
                                 spr->y += (sprite[OW].y-SY);
                                 spr->z = sector[sprite[OW].sectnum].floorz - daz + sector[sprite[i].sectnum].ceilingz;
@@ -1049,10 +1047,9 @@ void A_MoveDummyPlayers(void)
 
         SX += (ps->pos.x-ps->opos.x);
         SY += (ps->pos.y-ps->opos.y);
-        setsprite(i,(vec3_t *)&sprite[i]);
+        setsprite(i, (vec3_t *)&sprite[i]);
 
 BOLT:
-
         i = nexti;
     }
 }
@@ -6890,6 +6887,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         actor[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
 
                     }
+
                     k = nextk;
                 }
             }
