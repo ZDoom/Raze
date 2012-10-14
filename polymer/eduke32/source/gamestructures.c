@@ -906,6 +906,15 @@ static void __fastcall VM_AccessUserdef(int32_t iSet, int32_t lLabelID, int32_t 
         Gv_SetVarX(lVar2, ud.textscale);
         return;
 
+    case USERDEFS_RUNKEY_MODE:
+        if (iSet)
+        {
+            ud.runkey_mode = lValue;
+            return;
+        }
+        Gv_SetVarX(lVar2, ud.runkey_mode);
+        return;
+
     default:
         return;
     }
