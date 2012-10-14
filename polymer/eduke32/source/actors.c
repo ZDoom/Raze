@@ -2535,7 +2535,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
         /* Custom projectiles */
         if (A_CheckSpriteFlags(i,SPRITE_PROJECTILE))
         {
-            projectile_t *const proj = &SpriteProjectile[i];
+            const projectile_t *const proj = &SpriteProjectile[i];
 
             if (proj->pal >= 0)
                 s->pal = proj->pal;
@@ -2639,13 +2639,13 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 {
                     if (s->z < actor[i].ceilingz)
                     {
-                        j = 16384|(s->sectnum);
+                        j = 16384|s->sectnum;
                         s->zvel = -1;
                     }
-                    else if ((s->z > actor[i].floorz && sector[s->sectnum].lotag != ST_1_ABOVE_WATER) ||
-                        (s->z > actor[i].floorz+(16<<8) && sector[s->sectnum].lotag == ST_1_ABOVE_WATER))
+                    else if (s->z > actor[i].floorz + (16<<8)*(sector[s->sectnum].lotag == ST_1_ABOVE_WATER))
                     {
-                        j = 16384|(s->sectnum);
+                        j = 16384|s->sectnum;
+
                         if (sector[s->sectnum].lotag != ST_1_ABOVE_WATER)
                             s->zvel = 1;
                     }
@@ -2709,7 +2709,6 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
                             if (!(proj->workslike & PROJECTILE_FORCEIMPACT))
                                 KILLIT(i);
-
                         }
 
                         if (proj->workslike & PROJECTILE_FORCEIMPACT)
@@ -2921,206 +2920,207 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 {
                     if (s->z < actor[i].ceilingz)
                     {
-                        j = 16384|(s->sectnum);
+                        j = 16384|s->sectnum;
                         s->zvel = -1;
                     }
-                    else if ((s->z > actor[i].floorz && sector[s->sectnum].lotag != ST_1_ABOVE_WATER) ||
-                        (s->z > actor[i].floorz+(16<<8) && sector[s->sectnum].lotag == ST_1_ABOVE_WATER))
+                    else if (s->z > actor[i].floorz + (16<<8)*(sector[s->sectnum].lotag == ST_1_ABOVE_WATER))
                     {
-                        j = 16384|(s->sectnum);
+                        j = 16384|s->sectnum;
+
                         if (sector[s->sectnum].lotag != ST_1_ABOVE_WATER)
                             s->zvel = 1;
                     }
                 }
 
-                if (s->picnum == FIRELASER)
+            if (s->picnum == FIRELASER)
+            {
+                for (k=-3; k<2; k++)
                 {
-                    for (k=-3; k<2; k++)
-                    {
-                        x = A_InsertSprite(s->sectnum,
-                            s->x+((k*sintable[(s->ang+512)&2047])>>9),
-                            s->y+((k*sintable[s->ang&2047])>>9),
-                            s->z+((k*ksgn(s->zvel))*klabs(s->zvel/24)),FIRELASER,-40+(k<<2),
-                            s->xrepeat,s->yrepeat,0,0,0,s->owner,5);
+                    x = A_InsertSprite(s->sectnum,
+                                       s->x+((k*sintable[(s->ang+512)&2047])>>9),
+                                       s->y+((k*sintable[s->ang&2047])>>9),
+                                       s->z+((k*ksgn(s->zvel))*klabs(s->zvel/24)),FIRELASER,-40+(k<<2),
+                                       s->xrepeat,s->yrepeat,0,0,0,s->owner,5);
 
-                        sprite[x].cstat = 128;
-                        sprite[x].pal = s->pal;
-                    }
+                    sprite[x].cstat = 128;
+                    sprite[x].pal = s->pal;
                 }
-                else if (s->picnum == SPIT) if (s->zvel < 6144)
+            }
+            else if (s->picnum == SPIT)
+                if (s->zvel < 6144)
                     s->zvel += g_spriteGravity-112;
 
-                if (j != 0)
+            if (j != 0)
+            {
+                if (s->picnum == COOLEXPLOSION1)
                 {
-                    if (s->picnum == COOLEXPLOSION1)
-                    {
-                        if ((j&49152) == 49152 && sprite[j&(MAXSPRITES-1)].picnum != APLAYER)
-                            goto COOLEXPLOSION;
-                        s->xvel = 0;
-                        s->zvel = 0;
-                    }
+                    if ((j&49152) == 49152 && sprite[j&(MAXSPRITES-1)].picnum != APLAYER)
+                        goto COOLEXPLOSION;
+                    s->xvel = 0;
+                    s->zvel = 0;
+                }
 
-                    if ((j&49152) == 49152)
-                    {
-                        j &= (MAXSPRITES-1);
+                if ((j&49152) == 49152)
+                {
+                    j &= (MAXSPRITES-1);
 
-                        if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
-                            if (A_CheckEnemySprite(&sprite[j]) || sprite[j].picnum == APLAYER)
-                            {
-                                j = A_Spawn(i,TRANSPORTERSTAR);
-                                sprite[j].pal = 1;
-                                sprite[j].xrepeat = 32;
-                                sprite[j].yrepeat = 32;
-
-                                KILLIT(i);
-                            }
-
-                            A_DamageObject(j,i);
-
-                            if (sprite[j].picnum == APLAYER)
-                            {
-                                int32_t p = sprite[j].yvel;
-                                A_PlaySound(PISTOL_BODYHIT,j);
-
-                                if (s->picnum == SPIT)
-                                    P_HandleBeingSpitOn(g_player[p].ps);
-                            }
-                    }
-                    else if ((j&49152) == 32768)
-                    {
-                        j &= (MAXWALLS-1);
-
-                        if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+                    if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
+                        if (A_CheckEnemySprite(&sprite[j]) || sprite[j].picnum == APLAYER)
                         {
+                            j = A_Spawn(i,TRANSPORTERSTAR);
+                            sprite[j].pal = 1;
+                            sprite[j].xrepeat = 32;
+                            sprite[j].yrepeat = 32;
+
+                            KILLIT(i);
+                        }
+
+                    A_DamageObject(j,i);
+
+                    if (sprite[j].picnum == APLAYER)
+                    {
+                        int32_t p = sprite[j].yvel;
+                        A_PlaySound(PISTOL_BODYHIT,j);
+
+                        if (s->picnum == SPIT)
+                            P_HandleBeingSpitOn(g_player[p].ps);
+                    }
+                }
+                else if ((j&49152) == 32768)
+                {
+                    j &= (MAXWALLS-1);
+
+                    if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT && (wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+                    {
+                        k = getangle(
+                            wall[wall[j].point2].x-wall[j].x,
+                            wall[wall[j].point2].y-wall[j].y);
+                        s->ang = ((k<<1) - s->ang)&2047;
+                        s->owner = i;
+                        A_Spawn(i,TRANSPORTERSTAR);
+                        goto BOLT;
+                    }
+                    else
+                    {
+                        setsprite(i,&davect);
+                        A_DamageWall(i,j,(vec3_t *)s,s->picnum);
+
+                        if (s->picnum == FREEZEBLAST)
+                        {
+                            if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
+                            {
+                                s->extra >>= 1;
+                                s->yvel--;
+                            }
+
                             k = getangle(
                                 wall[wall[j].point2].x-wall[j].x,
                                 wall[wall[j].point2].y-wall[j].y);
                             s->ang = ((k<<1) - s->ang)&2047;
-                            s->owner = i;
-                            A_Spawn(i,TRANSPORTERSTAR);
                             goto BOLT;
+                        }
+                    }
+                }
+                else if ((j&49152) == 16384)
+                {
+                    setsprite(i,&davect);
+
+                    if (s->zvel < 0)
+                    {
+                        if (sector[s->sectnum].ceilingstat&1)
+                            if (sector[s->sectnum].ceilingpal == 0)
+                                KILLIT(i);
+
+                        Sect_DamageCeiling(s->sectnum);
+                    }
+
+                    if (s->picnum == FREEZEBLAST)
+                    {
+                        A_DoProjectileBounce(i);
+                        A_SetSprite(i, CLIPMASK1);
+                        s->extra >>= 1;
+                        if (s->xrepeat > 8)
+                            s->xrepeat -= 2;
+                        if (s->yrepeat > 8)
+                            s->yrepeat -= 2;
+                        s->yvel--;
+                        goto BOLT;
+                    }
+                }
+
+                if (s->picnum != SPIT)
+                {
+                    if (s->picnum == RPG)
+                    {
+                        k = A_Spawn(i,EXPLOSION2);
+                        A_PlaySound(RPG_EXPLODE,k);
+                        Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
+
+                        if (s->xrepeat < 10)
+                        {
+                            sprite[k].xrepeat = 6;
+                            sprite[k].yrepeat = 6;
+                        }
+                        else if ((j&49152) == 16384)
+                        {
+                            if (s->zvel > 0)
+                                A_Spawn(i,EXPLOSION2BOT);
+                            else
+                            {
+                                sprite[k].cstat |= 8;
+                                sprite[k].z += (48<<8);
+                            }
+
+                        }
+
+                        if (s->xrepeat >= 10)
+                        {
+                            x = s->extra;
+                            A_RadiusDamage(i,g_rpgBlastRadius, x>>2,x>>1,x-(x>>2),x);
                         }
                         else
                         {
-                            setsprite(i,&davect);
-                            A_DamageWall(i,j,(vec3_t *)s,s->picnum);
-
-                            if (s->picnum == FREEZEBLAST)
-                            {
-                                if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
-                                {
-                                    s->extra >>= 1;
-                                    s->yvel--;
-                                }
-
-                                k = getangle(
-                                    wall[wall[j].point2].x-wall[j].x,
-                                    wall[wall[j].point2].y-wall[j].y);
-                                s->ang = ((k<<1) - s->ang)&2047;
-                                goto BOLT;
-                            }
+                            x = s->extra+(g_globalRandom&3);
+                            A_RadiusDamage(i,(g_rpgBlastRadius>>1),x>>2,x>>1,x-(x>>2),x);
                         }
                     }
-                    else if ((j&49152) == 16384)
+                    else if (s->picnum == SHRINKSPARK)
                     {
-                        setsprite(i,&davect);
-
-                        if (s->zvel < 0)
-                        {
-                            if (sector[s->sectnum].ceilingstat&1)
-                                if (sector[s->sectnum].ceilingpal == 0)
-                                    KILLIT(i);
-
-                            Sect_DamageCeiling(s->sectnum);
-                        }
-
-                        if (s->picnum == FREEZEBLAST)
-                        {
-                            A_DoProjectileBounce(i);
-                            A_SetSprite(i, CLIPMASK1);
-                            s->extra >>= 1;
-                            if (s->xrepeat > 8)
-                                s->xrepeat -= 2;
-                            if (s->yrepeat > 8)
-                                s->yrepeat -= 2;
-                            s->yvel--;
-                            goto BOLT;
-                        }
+                        A_Spawn(i,SHRINKEREXPLOSION);
+                        A_PlaySound(SHRINKER_HIT,i);
+                        A_RadiusDamage(i,g_shrinkerBlastRadius,0,0,0,0);
                     }
-
-                    if (s->picnum != SPIT)
+                    else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER)
                     {
-                        if (s->picnum == RPG)
+                        k = A_Spawn(i,EXPLOSION2);
+                        sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat>>1;
+                        if ((j&49152) == 16384)
                         {
-                            k = A_Spawn(i,EXPLOSION2);
-                            A_PlaySound(RPG_EXPLODE,k);
-                            Bmemcpy(&sprite[k],&davect,sizeof(vec3_t));
-
-                            if (s->xrepeat < 10)
+                            if (s->zvel < 0)
                             {
-                                sprite[k].xrepeat = 6;
-                                sprite[k].yrepeat = 6;
-                            }
-                            else if ((j&49152) == 16384)
-                            {
-                                if (s->zvel > 0)
-                                    A_Spawn(i,EXPLOSION2BOT);
-                                else
-                                {
-                                    sprite[k].cstat |= 8;
-                                    sprite[k].z += (48<<8);
-                                }
-
+                                sprite[k].cstat |= 8;
+                                sprite[k].z += (72<<8);
                             }
 
-                            if (s->xrepeat >= 10)
-                            {
-                                x = s->extra;
-                                A_RadiusDamage(i,g_rpgBlastRadius, x>>2,x>>1,x-(x>>2),x);
-                            }
-                            else
-                            {
-                                x = s->extra+(g_globalRandom&3);
-                                A_RadiusDamage(i,(g_rpgBlastRadius>>1),x>>2,x>>1,x-(x>>2),x);
-                            }
-                        }
-                        else if (s->picnum == SHRINKSPARK)
-                        {
-                            A_Spawn(i,SHRINKEREXPLOSION);
-                            A_PlaySound(SHRINKER_HIT,i);
-                            A_RadiusDamage(i,g_shrinkerBlastRadius,0,0,0,0);
-                        }
-                        else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER)
-                        {
-                            k = A_Spawn(i,EXPLOSION2);
-                            sprite[k].xrepeat = sprite[k].yrepeat = s->xrepeat>>1;
-                            if ((j&49152) == 16384)
-                            {
-                                if (s->zvel < 0)
-                                {
-                                    sprite[k].cstat |= 8;
-                                    sprite[k].z += (72<<8);
-                                }
-
-                            }
                         }
                     }
-
-                    if (s->picnum != COOLEXPLOSION1)
-                        KILLIT(i);
                 }
 
-                if (s->picnum == COOLEXPLOSION1)
-                {
+                if (s->picnum != COOLEXPLOSION1)
+                    KILLIT(i);
+            }
+
+            if (s->picnum == COOLEXPLOSION1)
+            {
 COOLEXPLOSION:
-                    s->shade++;
-                    if (s->shade >= 40)
-                        KILLIT(i);
-                }
-                else if (s->picnum == RPG && sector[s->sectnum].lotag == ST_2_UNDERWATER && s->xrepeat >= 10 && rnd(140))
-                    A_Spawn(i,WATERBUBBLE);
+                s->shade++;
+                if (s->shade >= 40)
+                    KILLIT(i);
+            }
+            else if (s->picnum == RPG && sector[s->sectnum].lotag == ST_2_UNDERWATER && s->xrepeat >= 10 && rnd(140))
+                A_Spawn(i,WATERBUBBLE);
 
-                goto BOLT;
+            goto BOLT;
 
         case SHOTSPARK1__STATIC:
             if (!actorscrptr[sprite[i].picnum])
