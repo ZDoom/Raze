@@ -366,7 +366,7 @@ void A_Fall(int32_t iActor)
         c = 0;
     else
     {
-        if (G_CheckForSpaceCeiling(s->sectnum) || sector[s->sectnum].lotag == 2)
+        if (G_CheckForSpaceCeiling(s->sectnum) || sector[s->sectnum].lotag == ST_2_UNDERWATER)
             c = g_spriteGravity/6;
     }
 
@@ -397,7 +397,7 @@ void A_Fall(int32_t iActor)
 #endif
        )
     {
-        if (sector[s->sectnum].lotag == 2 && s->zvel > 3122)
+        if (sector[s->sectnum].lotag == ST_2_UNDERWATER && s->zvel > 3122)
             s->zvel = 3144;
         s->z += s->zvel = min(6144, s->zvel+c);
     }
@@ -1280,7 +1280,7 @@ skip_check:
             {
                 int32_t j = g_spriteGravity;
 
-                if (G_CheckForSpaceCeiling(vm.g_sp->sectnum) || sector[vm.g_sp->sectnum].lotag == 2)
+                if (G_CheckForSpaceCeiling(vm.g_sp->sectnum) || sector[vm.g_sp->sectnum].lotag == ST_2_UNDERWATER)
                     j = g_spriteGravity/6;
                 else if (G_CheckForSpaceFloor(vm.g_sp->sectnum))
                     j = 0;
@@ -1322,7 +1322,7 @@ skip_check:
                         actor[vm.g_i].extra = 1;
                         vm.g_sp->zvel = 0;
                     }
-                    else if (vm.g_sp->zvel > 2048  && sector[vm.g_sp->sectnum].lotag != 1)
+                    else if (vm.g_sp->zvel > 2048  && sector[vm.g_sp->sectnum].lotag != ST_1_ABOVE_WATER)
                     {
                         j = vm.g_sp->sectnum;
                         pushmove((vec3_t *)vm.g_sp,(int16_t *)&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
@@ -1340,7 +1340,7 @@ skip_check:
                     vm.g_sp->z = (actor[vm.g_i].floorz - ZOFFSET);
                 continue;
             }
-            else if (sector[vm.g_sp->sectnum].lotag == 1)
+            else if (sector[vm.g_sp->sectnum].lotag == ST_1_ABOVE_WATER)
             {
                 switch (DYNAMICTILEMAP(vm.g_sp->picnum))
                 {
@@ -3119,11 +3119,11 @@ nullquote:
         continue;
 
         case CON_IFONWATER:
-            VM_CONDITIONAL(sector[vm.g_sp->sectnum].lotag == 1 && klabs(vm.g_sp->z-sector[vm.g_sp->sectnum].floorz) < (32<<8));
+            VM_CONDITIONAL(sector[vm.g_sp->sectnum].lotag == ST_1_ABOVE_WATER && klabs(vm.g_sp->z-sector[vm.g_sp->sectnum].floorz) < (32<<8));
             continue;
 
         case CON_IFINWATER:
-            VM_CONDITIONAL(sector[vm.g_sp->sectnum].lotag == 2);
+            VM_CONDITIONAL(sector[vm.g_sp->sectnum].lotag == ST_2_UNDERWATER);
             continue;
 
         case CON_IFCOUNT:
@@ -5219,7 +5219,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
             return;
         }
 
-    if (vm.g_sp->statnum != 1)
+    if (vm.g_sp->statnum != STAT_ACTOR)
         return;
 
     if (A_CheckEnemySprite(vm.g_sp))

@@ -4230,12 +4230,12 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->cstat |= 128;
             if (j >= 0)
             {
-                if (sector[sprite[j].sectnum].lotag == 2)
+                if (sector[sprite[j].sectnum].lotag == ST_2_UNDERWATER)
                 {
                     sp->z = getceilzofslope(SECT,SX,SY)+(16<<8);
                     sp->cstat |= 8;
                 }
-                else if (sector[sprite[j].sectnum].lotag == 1)
+                else if (sector[sprite[j].sectnum].lotag == ST_1_ABOVE_WATER)
                     sp->z = getflorzofslope(SECT,SX,SY);
             }
 
@@ -4417,7 +4417,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         }
 
-        if (sector[SECT].lotag == 1)
+        if (sector[SECT].lotag == ST_1_ABOVE_WATER)
         {
             changespritestat(i, STAT_MISC);
             break;
@@ -4638,7 +4638,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             }
 
             sp->z = sector[sect].floorz;
-            if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
+            if (sector[sect].lotag != ST_1_ABOVE_WATER && sector[sect].lotag != ST_2_UNDERWATER)
                 sp->xrepeat = sp->yrepeat = 32;
 
             A_AddToDeleteQueue(i);
@@ -4852,7 +4852,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->xrepeat = sprite[j].xrepeat;
                 sp->yrepeat = sprite[j].yrepeat;
                 sp->zvel = 128;
-                if (sector[sp->sectnum].lotag != 2)
+                if (sector[sp->sectnum].lotag != ST_2_UNDERWATER)
                     sp->cstat |= 32768;
             }
             changespritestat(i, STAT_DUMMYPLAYER);
@@ -4962,7 +4962,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
         case TOUCHPLATE__STATIC:
             T3 = sector[sect].floorz;
-            if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
+            if (sector[sect].lotag != ST_1_ABOVE_WATER && sector[sect].lotag != ST_2_UNDERWATER)
                 sector[sect].floorz = sp->z;
             if (sp->pal && (g_netServer || ud.multimode > 1))
             {
@@ -5374,8 +5374,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case 46:
                 ror_protectedsectors[sp->sectnum] = 1;
                 /* XXX: fall-through intended? */
-            case 49:
-            case 50:
+            case SE_49_POINT_LIGHT:
+            case SE_50_SPOT_LIGHT:
             {
                 int32_t j, nextj;
 
@@ -5872,7 +5872,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                     sp->shade = 0;
                 }
-                else if (sp->lotag == 2)
+                else if (sp->lotag == SE_2_EARTHQUAKE)
                 {
                     T6 = sector[sp->sectnum].floorheinum;
                     sector[sp->sectnum].floorheinum = 0;
@@ -6571,7 +6571,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 #endif
                     k = getofs_viewtype5(s, t, oura);
 
-                if (sector[s->sectnum].lotag == 2) k += 1795-1405;
+                if (sector[s->sectnum].lotag == ST_2_UNDERWATER) k += 1795-1405;
                 else if ((actor[i].floorz-s->z) > (64<<8)) k += 60;
 
                 t->picnum += k;
@@ -6580,7 +6580,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 goto PALONLY;
             }
 
-            if (g_player[p].ps->on_crane == -1 && (sector[s->sectnum].lotag&0x7ff) != 1)
+            if (g_player[p].ps->on_crane == -1 && (sector[s->sectnum].lotag&0x7ff) != 1)  // ST_1_ABOVE_WATER ?
             {
                 l = s->z-actor[g_player[p].ps->i].floorz+(3<<8);
                 if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
@@ -6624,7 +6624,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 #endif
                             k = getofs_viewtype5(s, t, oura);
 
-                        if (sector[t->sectnum].lotag == 2) k += 1795-1405;
+                        if (sector[t->sectnum].lotag == ST_2_UNDERWATER) k += 1795-1405;
                         else if ((actor[i].floorz-s->z) > (64<<8)) k += 60;
 
                         t->picnum += k;
@@ -6852,7 +6852,7 @@ skip:
         switch (DYNAMICTILEMAP(s->picnum))
         {
         case LASERLINE__STATIC:
-            if (sector[t->sectnum].lotag == 2) t->pal = 8;
+            if (sector[t->sectnum].lotag == ST_2_UNDERWATER) t->pal = 8;
             t->z = sprite[s->owner].z-(3<<8);
             if (g_tripbombLaserMode == 2 && g_player[screenpeek].ps->heat_on == 0)
                 t->yrepeat = 0;

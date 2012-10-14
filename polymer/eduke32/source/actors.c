@@ -360,16 +360,16 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 
         if (dasectnum < 0 || (dasectnum >= 0 &&
                               ((actor[spritenum].actorstayput >= 0 && actor[spritenum].actorstayput != dasectnum) ||
-                               ((spr->picnum == BOSS2) && spr->pal == 0 && sector[dasectnum].lotag != 3) ||
-                               ((spr->picnum == BOSS1 || spr->picnum == BOSS2) && sector[dasectnum].lotag == 1) /*||
-                               (sector[dasectnum].lotag == 1 && (spr->picnum == LIZMAN || (spr->picnum == LIZTROOP && spr->zvel == 0)))*/
+                               ((spr->picnum == BOSS2) && spr->pal == 0 && sector[dasectnum].lotag != ST_3) ||
+                               ((spr->picnum == BOSS1 || spr->picnum == BOSS2) && sector[dasectnum].lotag == ST_1_ABOVE_WATER) /*||
+                               (sector[dasectnum].lotag == ST_1_ABOVE_WATER && (spr->picnum == LIZMAN || (spr->picnum == LIZTROOP && spr->zvel == 0)))*/
                               ))
            )
         {
             spr->x = oldx;
             spr->y = oldy;
             /*
-            if (dasectnum >= 0 && sector[dasectnum].lotag == 1 && spr->picnum == LIZMAN)
+            if (dasectnum >= 0 && sector[dasectnum].lotag == ST_1_ABOVE_WATER && spr->picnum == LIZMAN)
             spr->ang = (krand()&2047);
             else if ((Actor[spritenum].t_data[0]&3) == 1 && spr->picnum != COMMANDER)
             spr->ang = (krand()&2047);
@@ -438,7 +438,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
                 {
                     switch (sector[dasectnum].lotag)
                     {
-                    case 1:
+                    case ST_1_ABOVE_WATER:
                         if (daz >= actor[spritenum].floorz)
                         {
                             if (totalclock > actor[spritenum].lasttransport)
@@ -455,7 +455,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
 
                             return 0;
                         }
-                    case 2:
+                    case ST_2_UNDERWATER:
                         if (daz <= actor[spritenum].ceilingz)
                         {
                             if (totalclock > actor[spritenum].lasttransport)
@@ -1024,14 +1024,14 @@ void A_MoveDummyPlayers(void)
 
         psectnum = ps->cursectnum;
 
-        if (ps->on_crane >= 0 || (psectnum >= 0 && sector[psectnum].lotag != 1) || sprite[ps->i].extra <= 0)
+        if (ps->on_crane >= 0 || (psectnum >= 0 && sector[psectnum].lotag != ST_1_ABOVE_WATER) || sprite[ps->i].extra <= 0)
         {
             ps->dummyplayersprite = -1;
             KILLIT(i);
         }
         else
         {
-            if (ps->on_ground && ps->on_warping_sector == 1 && psectnum >= 0 && sector[psectnum].lotag == 1)
+            if (ps->on_ground && ps->on_warping_sector == 1 && psectnum >= 0 && sector[psectnum].lotag == ST_1_ABOVE_WATER)
             {
                 CS = 257;
                 SZ = sector[SECT].ceilingz+(27<<8);
@@ -1042,7 +1042,7 @@ void A_MoveDummyPlayers(void)
             }
             else
             {
-                if (sector[SECT].lotag != 2) SZ = sector[SECT].floorz;
+                if (sector[SECT].lotag != ST_2_UNDERWATER) SZ = sector[SECT].floorz;
                 CS = (int16_t) 32768;
             }
         }
@@ -1072,7 +1072,7 @@ ACTOR_STATIC void G_MovePlayers(void)
     {
         const int32_t nexti = nextspritestat[i];
 
-        spritetype *s = &sprite[i];
+        spritetype *const s = &sprite[i];
         DukePlayer_t *const p = g_player[s->yvel].ps;
 
         if (s->owner >= 0)
@@ -1193,9 +1193,9 @@ ACTOR_STATIC void G_MovePlayers(void)
             else
             {
                 s->yrepeat = 36;
-                if (sector[s->sectnum].lotag != 2)
+                if (sector[s->sectnum].lotag != ST_2_UNDERWATER)
                     A_Fall(i);
-                if (s->zvel == 0 && sector[s->sectnum].lotag == 1)
+                if (s->zvel == 0 && sector[s->sectnum].lotag == ST_1_ABOVE_WATER)
                     s->z += (32<<8);
             }
 
@@ -2597,7 +2597,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     k = s->xvel;
                     ll = s->zvel;
 
-                    if (sector[s->sectnum].lotag == 2)
+                    if (sector[s->sectnum].lotag == ST_2_UNDERWATER)
                     {
                         k >>= 1;
                         ll >>= 1;
@@ -2645,16 +2645,16 @@ ACTOR_STATIC void G_MoveWeapons(void)
                         j = 16384|(s->sectnum);
                         s->zvel = -1;
                     }
-                    else if ((s->z > actor[i].floorz && sector[s->sectnum].lotag != 1) ||
-                        (s->z > actor[i].floorz+(16<<8) && sector[s->sectnum].lotag == 1))
+                    else if ((s->z > actor[i].floorz && sector[s->sectnum].lotag != ST_1_ABOVE_WATER) ||
+                        (s->z > actor[i].floorz+(16<<8) && sector[s->sectnum].lotag == ST_1_ABOVE_WATER))
                     {
                         j = 16384|(s->sectnum);
-                        if (sector[s->sectnum].lotag != 1)
+                        if (sector[s->sectnum].lotag != ST_1_ABOVE_WATER)
                             s->zvel = 1;
                     }
                 }
 
-                if (proj->workslike & PROJECTILE_WATERBUBBLES && sector[s->sectnum].lotag == 2 && rnd(140))
+                if (proj->workslike & PROJECTILE_WATERBUBBLES && sector[s->sectnum].lotag == ST_2_UNDERWATER && rnd(140))
                     A_Spawn(i,WATERBUBBLE);
 
                 if (j != 0)
@@ -2878,7 +2878,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
             k = s->xvel;
             ll = s->zvel;
 
-            if (s->picnum == RPG && sector[s->sectnum].lotag == 2)
+            if (s->picnum == RPG && sector[s->sectnum].lotag == ST_2_UNDERWATER)
             {
                 k >>= 1;
                 ll >>= 1;
@@ -2892,7 +2892,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
             {
             case RPG__STATIC:
                 if (DYNAMICTILEMAP(s->picnum) == RPG__STATIC && actor[i].picnum != BOSS2 &&
-                    s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
+                    s->xrepeat >= 10 && sector[s->sectnum].lotag != ST_2_UNDERWATER)
                 {
                     j = A_Spawn(i,SMALLSMOKE);
                     sprite[j].z += (1<<8);
@@ -2927,11 +2927,11 @@ ACTOR_STATIC void G_MoveWeapons(void)
                         j = 16384|(s->sectnum);
                         s->zvel = -1;
                     }
-                    else if ((s->z > actor[i].floorz && sector[s->sectnum].lotag != 1) ||
-                        (s->z > actor[i].floorz+(16<<8) && sector[s->sectnum].lotag == 1))
+                    else if ((s->z > actor[i].floorz && sector[s->sectnum].lotag != ST_1_ABOVE_WATER) ||
+                        (s->z > actor[i].floorz+(16<<8) && sector[s->sectnum].lotag == ST_1_ABOVE_WATER))
                     {
                         j = 16384|(s->sectnum);
-                        if (sector[s->sectnum].lotag != 1)
+                        if (sector[s->sectnum].lotag != ST_1_ABOVE_WATER)
                             s->zvel = 1;
                     }
                 }
@@ -3120,7 +3120,7 @@ COOLEXPLOSION:
                     if (s->shade >= 40)
                         KILLIT(i);
                 }
-                else if (s->picnum == RPG && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(140))
+                else if (s->picnum == RPG && sector[s->sectnum].lotag == ST_2_UNDERWATER && s->xrepeat >= 10 && rnd(140))
                     A_Spawn(i,WATERBUBBLE);
 
                 goto BOLT;
@@ -3309,7 +3309,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                             break;
                         }
                     }
-                    else if (!(sectlotag == 1 && ps->on_ground == 1)) break;
+                    else if (!(sectlotag == ST_1_ABOVE_WATER && ps->on_ground == 1)) break;
 
                     if (onfloorz == 0 && klabs(SZ-ps->pos.z) < 6144)
                         if ((ps->jetpack_on == 0) || (ps->jetpack_on && TEST_SYNC_KEY(g_player[p].sync->bits, SK_JUMP)) ||
@@ -3404,24 +3404,24 @@ ACTOR_STATIC void G_MoveTransports(void)
                         case TOILETWATER__STATIC:
                         case LASERLINE__STATIC:
                             goto JBOLT;
+
                         case PLAYERONWATER__STATIC:
-                            if (sectlotag == 2)
+                            if (sectlotag == ST_2_UNDERWATER)
                             {
                                 sprite[j].cstat &= 32768;
                                 break;
                             }
                         default:
-                            if (sprite[j].statnum == STAT_MISC && !(sectlotag == 1 || sectlotag == 2))
+                            if (sprite[j].statnum == STAT_MISC && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER))
                                 break;
-
                         case WATERBUBBLE__STATIC:
-                            //                                if( rnd(192) && sprite[j].picnum == WATERBUBBLE)
-                            //                                 break;
+//                            if( rnd(192) && sprite[j].picnum == WATERBUBBLE)
+//                                break;
 
                             if (sectlotag > 0)
                             {
                                 k = A_Spawn(j,WATERSPLASH2);
-                                if (sectlotag == 1 && sprite[j].statnum == STAT_PROJECTILE)
+                                if (sectlotag == ST_1_ABOVE_WATER && sprite[j].statnum == STAT_PROJECTILE)
                                 {
                                     sprite[k].xvel = sprite[j].xvel>>1;
                                     sprite[k].ang = sprite[j].ang;
@@ -4459,16 +4459,16 @@ ACTOR_STATIC void G_MoveActors(void)
             {
                 A_Fall(i);
 
-                if ((sector[sect].lotag != 1 || actor[i].floorz != sector[sect].floorz) && s->z >= actor[i].floorz-(ZOFFSET) && s->yvel < 3)
+                if ((sector[sect].lotag != ST_1_ABOVE_WATER || actor[i].floorz != sector[sect].floorz) && s->z >= actor[i].floorz-(ZOFFSET) && s->yvel < 3)
                 {
                     if (s->yvel > 0 || (s->yvel == 0 && actor[i].floorz == sector[sect].floorz))
                         A_PlaySound(PIPEBOMB_BOUNCE,i);
                     s->zvel = -((4-s->yvel)<<8);
-                    if (sector[s->sectnum].lotag== 2)
+                    if (sector[s->sectnum].lotag == ST_2_UNDERWATER)
                         s->zvel >>= 2;
                     s->yvel++;
                 }
-                if (s->z < actor[i].ceilingz)   // && sector[sect].lotag != 2 )
+                if (s->z < actor[i].ceilingz)   // && sector[sect].lotag != ST_2_UNDERWATER )
                 {
                     s->z = actor[i].ceilingz+(3<<8);
                     s->zvel = 0;
@@ -4486,7 +4486,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
             actor[i].movflag = j;
 
-            if (sector[SECT].lotag == 1 && s->zvel == 0 && actor[i].floorz == sector[sect].floorz)
+            if (sector[SECT].lotag == ST_1_ABOVE_WATER && s->zvel == 0 && actor[i].floorz == sector[sect].floorz)
             {
                 s->z += (32<<8);
                 if (t[5] == 0)
@@ -4513,7 +4513,7 @@ ACTOR_STATIC void G_MoveActors(void)
             if (s->xvel > 0)
             {
                 s->xvel -= 5;
-                if (sector[sect].lotag == 2)
+                if (sector[sect].lotag == ST_2_UNDERWATER)
                     s->xvel -= 10;
 
                 if (s->xvel < 0)
@@ -5004,7 +5004,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 t[0]++;
                 if (t[0] == 1)
                 {
-                    if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
+                    if (sector[sect].lotag != ST_1_ABOVE_WATER && sector[sect].lotag != ST_2_UNDERWATER)
                         KILLIT(i);
                     /*
                     else
@@ -5074,7 +5074,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 T1 += (krand()&63);
                 if ((T1&2047) > 512 && (T1&2047) < 1596)
                 {
-                    if (sector[sect].lotag == 2)
+                    if (sector[sect].lotag == ST_2_UNDERWATER)
                     {
                         if (s->zvel < 64)
                             s->zvel += (g_spriteGravity>>5)+(krand()&7);
@@ -5148,7 +5148,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 if (s->z < l-(2<<8))
                 {
                     if (t[1] < 2) t[1]++;
-                    else if (sector[sect].lotag != 2)
+                    else if (sector[sect].lotag != ST_2_UNDERWATER)
                     {
                         t[1] = 0;
                         if (s->picnum == DUKELEG || s->picnum == DUKETORSO || s->picnum == DUKEGUN)
@@ -5166,7 +5166,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
 
                     if (s->zvel < 6144)
                     {
-                        if (sector[sect].lotag == 2)
+                        if (sector[sect].lotag == ST_2_UNDERWATER)
                         {
                             if (s->zvel < 1024)
                                 s->zvel += 48;
@@ -5326,7 +5326,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 if (sect < 0 || (sector[sect].floorz + 256) < s->z)
                     KILLIT(i);
 
-                if (sector[sect].lotag == 2)
+                if (sector[sect].lotag == ST_2_UNDERWATER)
                 {
                     t[1]++;
                     if (t[1] > 8)
@@ -5371,7 +5371,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 if (s->z == actor[i].floorz-(ZOFFSET) && t[0] < 3)
                 {
                     s->zvel = -((3-t[0])<<8)-(krand()&511);
-                    if (sector[sect].lotag == 2)
+                    if (sector[sect].lotag == ST_2_UNDERWATER)
                         s->zvel >>= 1;
                     s->xrepeat >>= 1;
                     s->yrepeat >>= 1;
@@ -5887,7 +5887,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         break;
                     }
 
-                    if (sector[ps->cursectnum].lotag != 2)
+                    if (sector[ps->cursectnum].lotag != ST_2_UNDERWATER)
                     {
                         if (g_playerSpawnPoints[p].os == s->sectnum)
                         {
@@ -5929,7 +5929,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 j = headspritesect[s->sectnum];
                 while (j >= 0)
                 {
-                    if (sprite[j].statnum != STAT_PLAYER && sector[sprite[j].sectnum].lotag != 2 &&
+                    if (sprite[j].statnum != STAT_PLAYER && sector[sprite[j].sectnum].lotag != ST_2_UNDERWATER &&
                             (sprite[j].picnum != SECTOREFFECTOR || (sprite[j].lotag == SE_49_POINT_LIGHT||sprite[j].lotag == SE_50_SPOT_LIGHT))
                             && sprite[j].picnum != LOCATORS)
                     {
@@ -5984,7 +5984,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 for (j=headspritesect[s->sectnum]; j >= 0; j=nextspritesect[j])
                 {
                     // keep this conditional in sync with above!
-                    if (sprite[j].statnum != STAT_PLAYER && sector[sprite[j].sectnum].lotag != 2 &&
+                    if (sprite[j].statnum != STAT_PLAYER && sector[sprite[j].sectnum].lotag != ST_2_UNDERWATER &&
                             (sprite[j].picnum != SECTOREFFECTOR || (sprite[j].lotag == SE_49_POINT_LIGHT||sprite[j].lotag == SE_50_SPOT_LIGHT))
                             && sprite[j].picnum != LOCATORS)
                     {

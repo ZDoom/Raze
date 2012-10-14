@@ -329,7 +329,7 @@ void G_DoSectorAnimations(void)
                         }
 
             for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
-                if (sprite[j].statnum != 3)
+                if (sprite[j].statnum != STAT_EFFECTOR)
                 {
                     actor[j].bposz = sprite[j].z;
                     sprite[j].z += v;
@@ -1084,6 +1084,7 @@ void G_OperateActivators(int32_t low,int32_t snum)
                     break;
                 }
 
+                // ST_2_UNDERWATER
                 if (sector[sprite[i].sectnum].lotag < 3)
                 {
                     j = headspritesect[sprite[i].sectnum];
@@ -1892,7 +1893,7 @@ void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith
         i= headspritestat[STAT_EFFECTOR];
         while (i >= 0)
         {
-            if (SHT == wall[dawallnum].lotag && SLT == 3)
+            if (SHT == wall[dawallnum].lotag && SLT == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
             {
                 T3 = j;
                 T4 = darkestwall;
@@ -1963,7 +1964,7 @@ int32_t Sect_DamageCeiling(int32_t sn)
         j = krand()&1;
         while (i >= 0)
         {
-            if (SHT == (sector[sn].hitag) && SLT == 3)
+            if (SHT == (sector[sn].hitag) && SLT == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
             {
                 T3 = j;
                 T5 = 1;
@@ -2354,7 +2355,7 @@ void A_DamageObject(int32_t i,int32_t sn)
         if ((sprite[i].cstat&16) && SHT == 0 && SLT == 0 && sprite[i].statnum == STAT_DEFAULT)
             break;
 
-        if ((sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && sprite[i].statnum != 4)
+        if ((sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && sprite[i].statnum != STAT_PROJECTILE)
         {
             if (A_CheckEnemySprite(&sprite[i]) == 1)
             {

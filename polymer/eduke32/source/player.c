@@ -65,7 +65,7 @@ void P_UpdateScreenPal(DukePlayer_t *p)
     }
     else
     {
-        if (sector[p->cursectnum].lotag == 2) p->palette = WATERPAL;
+        if (sector[p->cursectnum].lotag == ST_2_UNDERWATER) p->palette = WATERPAL;
         else p->palette = BASEPAL;
         intowater = 1;
     }
@@ -141,7 +141,7 @@ static void A_DoWaterTracers(int32_t x1,int32_t y1,int32_t z1,int32_t x2,int32_t
         if (sect < 0)
             break;
 
-        if (sector[sect].lotag == 2)
+        if (sector[sect].lotag == ST_2_UNDERWATER)
             A_InsertSprite(sect,x1,y1,z1,WATERBUBBLE,-32,4+(krand()&3),4+(krand()&3),krand()&2047,0,0,g_player[0].ps->i,5);
         else
             A_InsertSprite(sect,x1,y1,z1,SMALLSMOKE,-32,14,14,0,0,0,g_player[0].ps->i,5);
@@ -639,7 +639,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                         }
                     }
                 }
-                else if (p >= 0 && zvel > 0 && sector[hit.sect].lotag == 1)
+                else if (p >= 0 && zvel > 0 && sector[hit.sect].lotag == ST_1_ABOVE_WATER)
                 {
                     j = A_Spawn(g_player[p].ps->i,WATERSPLASH2);
                     sprite[j].x = hit.pos.x;
@@ -766,7 +766,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
 
             if (ProjectileData[atwith].workslike & PROJECTILE_WATERBUBBLES)
             {
-                if ((krand()&15) == 0 && sector[hit.sect].lotag == 2)
+                if ((krand()&15) == 0 && sector[hit.sect].lotag == ST_2_UNDERWATER)
                     A_DoWaterTracers(hit.pos.x,hit.pos.y,hit.pos.z,srcvect.x,srcvect.y,srcvect.z,8-(ud.multimode>>1));
             }
 
@@ -1170,7 +1170,7 @@ DOSKIPBULLETHOLE:
                         }
                     }
                 }
-                else if (p >= 0 && zvel > 0 && sector[hit.sect].lotag == 1)
+                else if (p >= 0 && zvel > 0 && sector[hit.sect].lotag == ST_1_ABOVE_WATER)
                 {
                     j = A_Spawn(g_player[p].ps->i,WATERSPLASH2);
                     sprite[j].x = hit.pos.x;
@@ -1272,7 +1272,7 @@ DOSKIPBULLETHOLE:
 
             if (hit.sect < 0) return -1;
 
-            if ((krand()&15) == 0 && sector[hit.sect].lotag == 2)
+            if ((krand()&15) == 0 && sector[hit.sect].lotag == ST_2_UNDERWATER)
                 A_DoWaterTracers(hit.pos.x,hit.pos.y,hit.pos.z,
                                  srcvect.x,srcvect.y,srcvect.z,8-(ud.multimode>>1));
 
@@ -1656,6 +1656,7 @@ SKIPBULLETHOLE:
             if (hit.wall >= 0 && hit.sect >= 0)
                 if (((hit.pos.x-srcvect.x)*(hit.pos.x-srcvect.x)+(hit.pos.y-srcvect.y)*(hit.pos.y-srcvect.y)) < (290*290))
                 {
+                    // ST_2_UNDERWATER
                     if (wall[hit.wall].nextsector >= 0)
                     {
                         if (sector[wall[hit.wall].nextsector].lotag <= 2 && sector[hit.sect].lotag <= 2)
@@ -1803,7 +1804,7 @@ SKIPBULLETHOLE:
                 if (j < 0)
                     zvel = (100-ps->horiz-ps->horizoff)*98;
             }
-            else if (s->statnum != 3)
+            else if (s->statnum != STAT_EFFECTOR)
             {
                 j = A_FindPlayer(s,&x);
                 l = ldist(&sprite[g_player[j].ps->i],s);
@@ -3260,7 +3261,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
         }
     }
 
-    if (p->cursectnum >= 0 && p->scuba_on == 0 && sector[p->cursectnum].lotag == 2)
+    if (p->cursectnum >= 0 && p->scuba_on == 0 && sector[p->cursectnum].lotag == ST_2_UNDERWATER)
     {
         if (p->inv_amount[GET_SCUBA] > 0)
         {
@@ -3930,6 +3931,7 @@ void P_ProcessWeapon(int32_t snum)
                         if (hit.sect < 0 || hit.sprite >= 0)
                             break;
 
+                        // ST_2_UNDERWATER
                         if (hit.wall >= 0 && sector[hit.sect].lotag > 2)
                             break;
 
@@ -3948,6 +3950,7 @@ void P_ProcessWeapon(int32_t snum)
                             j = nextspritesect[j];
                         }
 
+                        // ST_2_UNDERWATER
                         if (j == -1 && hit.wall >= 0 && (wall[hit.wall].cstat&16) == 0)
                             if ((wall[hit.wall].nextsector >= 0 &&
                                     sector[wall[hit.wall].nextsector].lotag <= 2) ||
@@ -4411,7 +4414,7 @@ void P_ProcessInput(int32_t snum)
     p->ohorizoff = p->horizoff;
 
     // calculates automatic view angle for playing without a mouse
-    if (p->aim_mode == 0 && p->on_ground && psectlotag != 2 && (sector[p->cursectnum].floorstat&2))
+    if (p->aim_mode == 0 && p->on_ground && psectlotag != ST_2_UNDERWATER && (sector[p->cursectnum].floorstat&2))
     {
         x = p->pos.x+(sintable[(p->ang+512)&2047]>>5);
         y = p->pos.y+(sintable[p->ang&2047]>>5);
@@ -4525,7 +4528,7 @@ void P_ProcessInput(int32_t snum)
         if ((numplayers < 2 || g_netServer) && p->dead_flag == 0)
             P_FragPlayer(snum);
 
-        if (psectlotag == 2)
+        if (psectlotag == ST_2_UNDERWATER)
         {
             if (p->on_warping_sector == 0)
             {
@@ -4670,7 +4673,7 @@ void P_ProcessInput(int32_t snum)
 
     i = 40;
 
-    if (psectlotag == 2)
+    if (psectlotag == ST_2_UNDERWATER)
     {
         // under water
         p->jumping_counter = 0;
@@ -4787,10 +4790,10 @@ void P_ProcessInput(int32_t snum)
             }
         }
 
-        if (shrunk == 0 && (psectlotag == 0 || psectlotag == 2)) k = 32;
+        if (shrunk == 0 && (psectlotag == 0 || psectlotag == ST_2_UNDERWATER)) k = 32;
         else k = 16;
 
-        if (psectlotag != 2 && p->scuba_on == 1)
+        if (psectlotag != ST_2_UNDERWATER && p->scuba_on == 1)
             p->scuba_on = 0;
 
         if (p->pos.z > (fz-(k<<8)))
@@ -4798,14 +4801,14 @@ void P_ProcessInput(int32_t snum)
         if (p->pos.z < (actor[p->i].ceilingz+(18<<8)))
             p->pos.z = actor[p->i].ceilingz+(18<<8);
     }
-    else if (psectlotag != 2)
+    else if (psectlotag != ST_2_UNDERWATER)
     {
         p->airleft = 15 * GAMETICSPERSEC; // 13 seconds
 
         if (p->scuba_on == 1)
             p->scuba_on = 0;
 
-        if (psectlotag == 1 && p->spritebridge == 0)
+        if (psectlotag == ST_1_ABOVE_WATER && p->spritebridge == 0)
         {
             if (shrunk == 0)
             {
@@ -4895,7 +4898,7 @@ void P_ProcessInput(int32_t snum)
                 }
 
                 if ((p->pos.z+p->vel.z) >= (fz-(i<<8)) && p->cursectnum >= 0)   // hit the ground
-                    if (sector[p->cursectnum].lotag != 1)
+                    if (sector[p->cursectnum].lotag != ST_1_ABOVE_WATER)
                     {
                         if (p->falling_counter > 62)
                             P_QuickKill(p);
@@ -4932,7 +4935,7 @@ void P_ProcessInput(int32_t snum)
                 p->scream_voice = -1;
             }
 
-            if (psectlotag != 1 && psectlotag != 2 && p->on_ground == 0 && p->vel.z > (6144>>1))
+            if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground == 0 && p->vel.z > (6144>>1))
                 p->hard_landing = p->vel.z>>10;
 
             p->on_ground = 1;
@@ -4996,7 +4999,7 @@ void P_ProcessInput(int32_t snum)
 
             if (p->jumping_counter < (1024+256))
             {
-                if (psectlotag == 1 && p->jumping_counter > 768)
+                if (psectlotag == ST_1_ABOVE_WATER && p->jumping_counter > 768)
                 {
                     p->jumping_counter = 0;
                     p->vel.z = -512;
@@ -5017,7 +5020,7 @@ void P_ProcessInput(int32_t snum)
 
         p->pos.z += p->vel.z;
 
-        if ((psectlotag != 2 || cz != sector[p->cursectnum].ceilingz) && p->pos.z < (cz+(4<<8)))
+        if ((psectlotag != ST_2_UNDERWATER || cz != sector[p->cursectnum].ceilingz) && p->pos.z < (cz+(4<<8)))
         {
             p->jumping_counter = 0;
             if (p->vel.z < 0)
@@ -5039,7 +5042,7 @@ void P_ProcessInput(int32_t snum)
     {
         int32_t tempang = g_player[snum].sync->avel<<1;
 
-        if (psectlotag == 2) p->angvel =(tempang-(tempang>>3))*ksgn(doubvel);
+        if (psectlotag == ST_2_UNDERWATER) p->angvel =(tempang-(tempang>>3))*ksgn(doubvel);
         else p->angvel = tempang*ksgn(doubvel);
 
         p->ang += p->angvel;
@@ -5127,7 +5130,7 @@ void P_ProcessInput(int32_t snum)
                     }
                     break;
 
-                case 1:
+                case ST_1_ABOVE_WATER:
                     if (!p->spritebridge)
                     {
                         if ((krand()&1) == 0)
@@ -5149,7 +5152,7 @@ void P_ProcessInput(int32_t snum)
 
         j = 0;
 
-        if (psectlotag == 2)
+        if (psectlotag == ST_2_UNDERWATER)
             j = 0x1400;
         else if (p->on_ground && (TEST_SYNC_KEY(sb_snum, SK_CROUCH) || (*kb > 10 && aplWeaponWorksLike[p->curr_weapon][snum] == KNEE_WEAPON)))
             j = 0x2000;
@@ -5168,10 +5171,10 @@ void P_ProcessInput(int32_t snum)
     }
 
 HORIZONLY:
-    if (psectlotag == 1 || p->spritebridge == 1) i = (4L<<8);
+    if (psectlotag == ST_1_ABOVE_WATER || p->spritebridge == 1) i = (4L<<8);
     else i = (20L<<8);
 
-    if (p->cursectnum >= 0 && sector[p->cursectnum].lotag == 2) k = 0;
+    if (p->cursectnum >= 0 && sector[p->cursectnum].lotag == ST_2_UNDERWATER) k = 0;
     else k = 1;
 
     if (ud.noclip)
@@ -5193,7 +5196,7 @@ HORIZONLY:
         // this updatesectorz conflicts with Duke3d's way of teleporting through water,
         // so make it a bit conditional... OTOH, this way we have an ugly z jump when
         // changing from above water to underwater
-        if (sect >= 0 && !(sector[sect].lotag==1 && p->on_ground && fb>=0))
+        if (sect >= 0 && !(sector[sect].lotag==ST_1_ABOVE_WATER && p->on_ground && fb>=0))
         {
             if ((fb>=0 && !(sector[sect].floorstat&512)) || (cb>=0 && !(sector[sect].ceilingstat&512)))
             {
@@ -5208,14 +5211,14 @@ HORIZONLY:
 
     // This makes the player view lower when shrunk.  NOTE that it can get the
     // view below the sector floor (and does, when on the ground).
-    if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
+    if (p->jetpack_on == 0 && psectlotag != ST_2_UNDERWATER && psectlotag != ST_1_ABOVE_WATER && shrunk)
         p->pos.z += 32<<8;
 
     if (p->jetpack_on == 0)
     {
         if (s->xvel > 16)
         {
-            if (psectlotag != 1 && psectlotag != 2 && p->on_ground)
+            if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground)
             {
                 p->pycount += 52;
                 p->pycount &= 2047;
@@ -5223,7 +5226,7 @@ HORIZONLY:
                     klabs(s->xvel*sintable[p->pycount])/1596;
             }
         }
-        else if (psectlotag != 2 && psectlotag != 1)
+        else if (psectlotag != ST_2_UNDERWATER && psectlotag != ST_1_ABOVE_WATER)
             p->pyoff = 0;
     }
 
@@ -5233,6 +5236,7 @@ HORIZONLY:
     setsprite(p->i,(vec3_t *)&p->pos.x);
     p->pos.z -= PHEIGHT;
 
+    // ST_2_UNDERWATER
     if (p->cursectnum >= 0 && psectlotag < 3)
     {
 //        p->cursectnum = s->sectnum;
@@ -5247,7 +5251,8 @@ HORIZONLY:
         }
     }
 
-    if (p->cursectnum >= 0 && truefdist < PHEIGHT && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
+    if (p->cursectnum >= 0 && truefdist < PHEIGHT && p->on_ground &&
+            psectlotag != ST_1_ABOVE_WATER && shrunk == 0 && sector[p->cursectnum].lotag == ST_1_ABOVE_WATER)
         if (!A_CheckSoundPlaying(p->i,DUKE_ONWATER))
             A_PlaySound(DUKE_ONWATER,p->i);
 
