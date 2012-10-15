@@ -15844,7 +15844,7 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
         return i;
 
     /* Create and initialize the png_struct with default error handling. */
-    png_ptr = png_create_write_struct_2(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL, Bmalloc, Bfree);
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     if (png_ptr == NULL)
     {
         Bfclose(fp);
