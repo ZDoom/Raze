@@ -25,7 +25,14 @@
 #ifndef _XDELTA3_H_
 #define _XDELTA3_H_
 
+#define _POSIX_SOURCE
+#define _ISOC99_SOURCE
+#define _C99_SOURCE
+
+#include <errno.h>
+#include <stdarg.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -98,40 +105,40 @@
  * the 32bit boundary [xdelta3-test.h]).
  */
 #ifndef _WIN32
-    #include <stdint.h>
+#include <stdint.h>
 #else
-    #define WIN32_LEAN_AND_MEAN
-    #if XD3_USE_LARGEFILE64
-        /* 64 bit file offsets: uses GetFileSizeEx and SetFilePointerEx.
-         * requires Win2000 or newer version of WinNT */
+#define WIN32_LEAN_AND_MEAN
+#if XD3_USE_LARGEFILE64
+/* 64 bit file offsets: uses GetFileSizeEx and SetFilePointerEx.
+ * requires Win2000 or newer version of WinNT */
         #ifndef WINVER
-            #define WINVER		0x0500
+#define WINVER		0x0500
         #endif
         #ifndef _WIN32_WINNT
-            #define _WIN32_WINNT	0x0500
+#define _WIN32_WINNT	0x0500
         #endif
-    #else
-        /* 32 bit (DWORD) file offsets: uses GetFileSize and
-         * SetFilePointer. compatible with win9x-me and WinNT4 */
+#else
+/* 32 bit (DWORD) file offsets: uses GetFileSize and
+ * SetFilePointer. compatible with win9x-me and WinNT4 */
         #ifndef WINVER
-            #define WINVER		0x0400
+#define WINVER		0x0400
         #endif
         #ifndef _WIN32_WINNT
-            #define _WIN32_WINNT	0x0400
-        #endif
+#define _WIN32_WINNT	0x0400
+#endif
     #endif
-    #include <windows.h>
-    #ifdef _MSC_VER
-        #define inline
-        typedef signed int     ssize_t;
-        typedef unsigned char  uint8_t;
-        typedef unsigned short uint16_t;
-        typedef unsigned long  uint32_t;
-        typedef ULONGLONG      uint64_t;
-    #else
-        /* mingw32, lcc and watcom provide a proper header */
-        #include <stdint.h>
-    #endif
+#include <windows.h>
+#ifdef _MSC_VER
+#define inline
+typedef signed int     ssize_t;
+typedef unsigned char  uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned long  uint32_t;
+typedef ULONGLONG      uint64_t;
+#else
+/* mingw32, lcc and watcom provide a proper header */
+#include <stdint.h>
+#endif
 #endif
 typedef unsigned int   usize_t;
 
@@ -300,30 +307,12 @@ typedef int              (xd3_comp_table_func) (xd3_stream *stream,
 #define XD3_ASSERT(x) (void)0
 #endif  /* XD3_DEBUG */
 
-#ifdef __GNUC__
-#ifndef max
-#define max(x,y) ({ \
-	const typeof(x) _x = (x);	\
-	const typeof(y) _y = (y);	\
-	(void) (&_x == &_y);		\
-	_x > _y ? _x : _y; })
-#endif /* __GNUC__ */
-
-#ifndef min
-#define min(x,y) ({ \
-	const typeof(x) _x = (x);	\
-	const typeof(y) _y = (y);	\
-	(void) (&_x == &_y);		\
-	_x < _y ? _x : _y; })
-#endif
-#else  /* __GNUC__ */
 #ifndef max
 #define max(x,y) ((x) < (y) ? (y) : (x))
 #endif
 #ifndef min
 #define min(x,y) ((x) < (y) ? (x) : (y))
 #endif
-#endif  /* __GNUC__ */
 
 /****************************************************************
  PUBLIC ENUMS
@@ -358,7 +347,7 @@ typedef enum {
   XD3_INVALID_INPUT = -17712, /* invalid input/decoder error */
   XD3_NOSECOND    = -17713, /* when secondary compression finds no
 			       improvement. */
-  XD3_UNIMPLEMENTED = -17714, /* currently VCD_TARGET */
+  XD3_UNIMPLEMENTED = -17714  /* currently VCD_TARGET */
 } xd3_rvalues;
 
 /* special values in config->flags */
@@ -376,7 +365,9 @@ typedef enum
 
   XD3_SEC_DJW        = (1 << 5),   /* use DJW static huffman */
   XD3_SEC_FGK        = (1 << 6),   /* use FGK adaptive huffman */
-  XD3_SEC_TYPE       = (XD3_SEC_DJW | XD3_SEC_FGK),
+  XD3_SEC_LZMA       = (1 << 24),  /* use LZMA secondary */
+
+  XD3_SEC_TYPE       = (XD3_SEC_DJW | XD3_SEC_FGK | XD3_SEC_LZMA),
 
   XD3_SEC_NODATA     = (1 << 7),   /* disable secondary compression of
 				      the data section. */
@@ -409,13 +400,13 @@ typedef enum
    * and is independent of compression level).  This is for
    * convenience, especially with xd3_encode_memory(). */
 
-  XD3_COMPLEVEL_SHIFT = 20,  /* 20 - 24 */
+  XD3_COMPLEVEL_SHIFT = 20,  /* 20 - 23 */
   XD3_COMPLEVEL_MASK = (0xF << XD3_COMPLEVEL_SHIFT),
   XD3_COMPLEVEL_1 = (1 << XD3_COMPLEVEL_SHIFT),
   XD3_COMPLEVEL_2 = (2 << XD3_COMPLEVEL_SHIFT),
   XD3_COMPLEVEL_3 = (3 << XD3_COMPLEVEL_SHIFT),
   XD3_COMPLEVEL_6 = (6 << XD3_COMPLEVEL_SHIFT),
-  XD3_COMPLEVEL_9 = (9 << XD3_COMPLEVEL_SHIFT),
+  XD3_COMPLEVEL_9 = (9 << XD3_COMPLEVEL_SHIFT)
 
 } xd3_flags;
 
@@ -430,7 +421,7 @@ typedef enum
   XD3_SMATCH_FAST    = 2,
   XD3_SMATCH_FASTER  = 3,
   XD3_SMATCH_FASTEST = 4,
-  XD3_SMATCH_SOFT    = 5,
+  XD3_SMATCH_SOFT    = 5
 } xd3_smatch_cfg;
 
 /*********************************************************************
@@ -455,7 +446,7 @@ typedef enum {
 			  source/target. */
   MATCH_FORWARD   = 2, /* currently expanding a match forward in the
 			  source/target. */
-  MATCH_SEARCHING = 3, /* currently searching for a match. */
+  MATCH_SEARCHING = 3  /* currently searching for a match. */
 
 } xd3_match_state;
 
@@ -474,7 +465,7 @@ typedef enum {
   ENC_FLUSH     = 4, /* currently emitting output. */
   ENC_POSTOUT   = 5, /* after an output section. */
   ENC_POSTWIN   = 6, /* after all output sections. */
-  ENC_ABORTED   = 7, /* abort. */
+  ENC_ABORTED   = 7  /* abort. */
 } xd3_encode_state;
 
 /* The xd3_decode_input state machine steps through these states in
@@ -527,7 +518,7 @@ typedef enum {
 
   DEC_FINISH   = 23, /* window finished */
 
-  DEC_ABORTED  = 24, /* xd3_abort_stream */
+  DEC_ABORTED  = 24  /* xd3_abort_stream */
 } xd3_decode_state;
 
 /************************************************************
@@ -848,8 +839,7 @@ struct _xd3_stream
 				       * if there is at least one
 				       * match in the buffer. */
 
-  // SRCWIN
-  // these variables plus srcwin_maxsz above (set by config)
+  /* SRCWIN: these variables plus srcwin_maxsz above (set by config) */
   int                srcwin_decided;    /* boolean: true if srclen and
 					   srcbase have been
 					   decided. */
@@ -858,7 +848,7 @@ struct _xd3_stream
 					       decided early. */
   xoff_t             srcwin_cksum_pos;  /* Source checksum position */
 
-  // MATCH
+  /* MATCH */
   xd3_match_state    match_state;      /* encoder match state */
   xoff_t             match_srcpos;     /* current match source
 					  position relative to
@@ -1357,5 +1347,29 @@ void xd3_blksize_add (xoff_t *blkno,
 
   XD3_ASSERT (*blkoff < source->blksize);
 }
+
+#define XD3_NOOP 0U
+#define XD3_ADD 1U
+#define  XD3_RUN 2U
+#define  XD3_CPY 3U /* XD3_CPY rtypes are represented as (XD3_CPY +
+                     * copy-mode value) */
+
+#if XD3_DEBUG
+#define IF_DEBUG(x) x
+#else
+#define IF_DEBUG(x)
+#endif
+#if XD3_DEBUG > 1
+#define IF_DEBUG1(x) x
+#else
+#define IF_DEBUG1(x)
+#endif
+#if XD3_DEBUG > 2
+#define IF_DEBUG2(x) x
+#else
+#define IF_DEBUG2(x)
+#endif
+
+#define SIZEOF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
 #endif /* _XDELTA3_H_ */
