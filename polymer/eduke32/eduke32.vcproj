@@ -145,10 +145,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\build\include\nedmalloc.h"
-					>
-				</File>
-				<File
 					RelativePath=".\build\include\osd.h"
 					>
 				</File>
@@ -278,10 +274,6 @@
 				</File>
 				<File
 					RelativePath=".\build\src\mdsprite.c"
-					>
-				</File>
-				<File
-					RelativePath=".\build\src\nedmalloc.c"
 					>
 				</File>
 				<File

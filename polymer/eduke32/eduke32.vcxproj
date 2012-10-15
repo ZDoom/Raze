@@ -92,7 +92,6 @@
     <ClInclude Include="build\include\mdsprite.h" />
     <ClInclude Include="build\include\mmulti.h" />
     <ClInclude Include="build\include\mutex.h" />
-    <ClInclude Include="build\include\nedmalloc.h" />
     <ClInclude Include="build\include\osd.h" />
     <ClInclude Include="build\include\osxbits.h" />
     <ClInclude Include="build\include\osxmain.h" />
@@ -116,6 +115,7 @@
     <ClInclude Include="source\gameexec.h" />
     <ClInclude Include="source\gamevars.h" />
     <ClInclude Include="source\global.h" />
+    <ClInclude Include="source\input.h" />
     <ClInclude Include="source\m32def.h" />
     <ClInclude Include="source\menus.h" />
     <ClInclude Include="source\net.h" />
@@ -200,7 +200,6 @@
     <ClCompile Include="build\src\md4.c" />
     <ClCompile Include="build\src\mdsprite.c" />
     <ClCompile Include="build\src\mutex.c" />
-    <ClCompile Include="build\src\nedmalloc.c" />
     <ClCompile Include="build\src\osd.c" />
     <ClCompile Include="build\src\polymer.c" />
     <ClCompile Include="build\src\polymost.c" />
@@ -226,6 +225,7 @@
     <ClCompile Include="source\gamevars.c" />
     <ClCompile Include="source\global.c" />
     <ClCompile Include="source\grpscan.c" />
+    <ClCompile Include="source\input.c" />
     <ClCompile Include="source\m32def.c" />
     <ClCompile Include="source\m32exec.c" />
     <ClCompile Include="source\m32structures.c" />

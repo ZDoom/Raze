@@ -135,11 +135,7 @@ static char taskswitching=1;
 
 static OSVERSIONINFOEX osv;
 
-#ifdef NEDMALLOC
-extern int32_t largepagesavailable;
-#else
 static HMODULE nedhandle = NULL;
-#endif
 
 
 //-------------------------------------------------------------------------------------------------
@@ -350,34 +346,6 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         return -1;
     }
 
-#ifdef NEDMALLOC
-    /* Attempt to enable SeLockMemoryPrivilege, 2003/Vista/7 only */
-    if (Bgetenv("BUILD_NOLARGEPAGES") == NULL &&
-            (osv.dwMajorVersion >= 6 || (osv.dwMajorVersion == 5 && osv.dwMinorVersion == 2)))
-    {
-        HANDLE token;
-        if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &token))
-        {
-            TOKEN_PRIVILEGES privs;
-            privs.PrivilegeCount = 1;
-            if (LookupPrivilegeValue(NULL, SE_LOCK_MEMORY_NAME, &privs.Privileges[0].Luid))
-            {
-                privs.Privileges[0].Attributes=SE_PRIVILEGE_ENABLED;
-
-                if (!AdjustTokenPrivileges(token, FALSE, &privs, 0, NULL, NULL) || GetLastError() != S_OK)
-                {
-                    // failure...
-                    largepagesavailable = 0;
-                }
-            }
-            CloseHandle(token);
-        }
-    }
-
-    nedcreatepool(SYSTEM_POOL_SIZE, -1);
-    //    atexit(neddestroysyspool);
-#else
-    // don't want to mix msvcrt with msvcrtd!
 #ifndef DEBUGGINGAIDS
     if ((nedhandle = LoadLibrary("nedmalloc.dll")))
     {
@@ -386,7 +354,6 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         if ((nedcreatepool = (void *)GetProcAddress(nedhandle, "nedcreatepool")))
             nedcreatepool(SYSTEM_POOL_SIZE, -1);
     }
-#endif
 #endif
 
 #ifdef DEBUGGINGAIDS
@@ -621,15 +588,7 @@ static void win_printversion(void)
     initprintf("Windows %s (build %lu.%lu.%lu) %s", ver,
                osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber, osv.szCSDVersion);
 
-#ifdef NEDMALLOC
-    initprintf("\n");
-
-    if (largepagesavailable)
-        initprintf("Large page support available\n");
-#else
     initprintf(nedhandle ? "\nInitialized nedmalloc\n" : "\n");
-#endif
-
 }
 
 
@@ -736,10 +695,6 @@ void uninitsystem(void)
 
 #ifdef USE_OPENGL
     unloadgldriver();
-#endif
-
-#ifndef NEDMALLOC
-    // if (nedhandle) FreeLibrary(nedhandle), nedhandle = NULL;
 #endif
 }
 

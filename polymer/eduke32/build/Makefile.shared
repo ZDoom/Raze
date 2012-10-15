@@ -163,7 +163,6 @@ ifeq ($(PLATFORM),BSD)
     ifneq ($(findstring i386, $(shell uname -m)), i386)
         override NOASM=1
     endif
-    override NEDMALLOC=0
     STDCPPLIB=-lstdc++
 endif
 ifeq ($(PLATFORM),BEOS)
@@ -275,10 +274,6 @@ ifneq (0,$(POLYMER))
  ifneq (0,$(USE_OPENGL))
   BUILDCFLAGS+= -DPOLYMER
  endif
-endif
-
-ifneq (0,$(NEDMALLOC))
-    BUILDCFLAGS+= -DNEDMALLOC
 endif
 
 ifneq ($(EXESUFFIX_OVERRIDE),)

@@ -197,11 +197,6 @@ int32_t main(int32_t argc, char *argv[])
     char *argp;
     FILE *fp;
 
-#ifdef NEDMALLOC
-    nedcreatepool(SYSTEM_POOL_SIZE, -1);
-    //    atexit(neddestroysyspool);
-#endif
-
     buildkeytranslationtable();
 
 #ifdef HAVE_GTK2
@@ -260,7 +255,7 @@ void setvsync(int32_t sync)
 static void attach_debugger_here(void) {}
 
 /* XXX: libexecinfo could be used on systems without gnu libc. */
-#if defined __GNUC__ && !defined __OpenBSD__ && !(defined __APPLE__ && defined __BIG_ENDIAN__) && !defined(GEKKO)
+#if defined __GNUC__ && !defined __OpenBSD__ && !(defined __APPLE__ && defined __BIG_ENDIAN__) && !defined(GEKKO) && !defined(__ANDROID__)
 # define PRINTSTACKONSEGV 1
 # include <execinfo.h>
 #endif
@@ -363,7 +358,7 @@ int32_t initsystem(void)
     }
 #endif
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(__ANDROID__)
 
     //icon = loadtarga("icon.tga");
 
@@ -719,7 +714,7 @@ void grabmouse(char a)
     {
         if (a != mousegrab)
         {
-#if !defined DEBUGGINGAIDS || defined __APPLE__
+#if !defined __ANDROID__ && (!defined DEBUGGINGAIDS || defined __APPLE__)
             SDL_GrabMode g;
 
             g = SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF);
@@ -950,6 +945,7 @@ static int32_t sortmodes(const struct validmode_t *a, const struct validmode_t *
 static char modeschecked=0;
 void getvalidmodes(void)
 {
+    int32_t i, j, maxx=0, maxy=0;
     static int32_t cdepths[] =
     {
         8,
@@ -966,7 +962,6 @@ void getvalidmodes(void)
     pf.BitsPerPixel = 8;
     pf.BytesPerPixel = 1;
 #endif
-    int32_t i, j, maxx=0, maxy=0;
 
     if (modeschecked || novideo) return;
 
@@ -1838,7 +1833,7 @@ int32_t setgamma(void)
     return i;
 }
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(__ANDROID__)
 extern struct sdlappicon sdlappicon;
 static SDL_Surface *loadappicon(void)
 {

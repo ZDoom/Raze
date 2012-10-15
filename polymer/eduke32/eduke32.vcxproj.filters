@@ -123,9 +123,6 @@
     <ClInclude Include="build\include\mmulti.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\nedmalloc.h">
-      <Filter>build\headers</Filter>
-    </ClInclude>
     <ClInclude Include="build\include\osd.h">
       <Filter>build\headers</Filter>
     </ClInclude>
@@ -390,6 +387,9 @@
     <ClInclude Include="source\xdelta3\xdelta3-list.h">
       <Filter>xdelta3\headers</Filter>
     </ClInclude>
+    <ClInclude Include="source\input.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -441,9 +441,6 @@
       <Filter>build\source</Filter>
     </ClCompile>
     <ClCompile Include="build\src\mdsprite.c">
-      <Filter>build\source</Filter>
-    </ClCompile>
-    <ClCompile Include="build\src\nedmalloc.c">
       <Filter>build\source</Filter>
     </ClCompile>
     <ClCompile Include="build\src\osd.c">
@@ -676,6 +673,9 @@
     </ClCompile>
     <ClCompile Include="source\xdelta3\xdelta3.c">
       <Filter>xdelta3\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\input.c">
+      <Filter>eduke32\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

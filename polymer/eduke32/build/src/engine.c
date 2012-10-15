@@ -36,9 +36,6 @@
 
 #ifdef USE_LIBPNG
 //# include <setjmp.h>
-# ifdef NEDMALLOC
-#  define PNG_USER_MEM_SUPPORTED
-# endif
 # include <png.h>
 #endif
 
@@ -47,7 +44,7 @@
 #include "engine_priv.h"
 
 #define CACHEAGETIME 16
-//#define CLASSIC_NONPOW2_YSIZE_WALLS
+// #define CLASSIC_NONPOW2_YSIZE_WALLS
 #define CLASSIC_NONPOW2_YSIZE_SPRITES
 
 #if !defined DEBUG_MAIN_ARRAYS
@@ -9426,10 +9423,6 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
         if (!ok) { kclose(fil); return(-2); }
     }
 
-#ifdef NEDMALLOC
-    nedtrimthreadcache(0, 0);
-#endif
-
     prepare_loadboard(fil, dapos, daang, dacursectnum);
 
     kread(fil,&numsectors,2); numsectors = B_LITTLE16(numsectors);
@@ -15851,11 +15844,7 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
         return i;
 
     /* Create and initialize the png_struct with default error handling. */
-# ifndef NEDMALLOC
-    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-# else
     png_ptr = png_create_write_struct_2(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL, Bmalloc, Bfree);
-# endif
     if (png_ptr == NULL)
     {
         Bfclose(fp);

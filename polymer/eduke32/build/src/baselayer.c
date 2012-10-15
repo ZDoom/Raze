@@ -383,7 +383,7 @@ int32_t baselayer_init(void)
 
 void makeasmwriteable(void)
 {
-#if !defined(NOASM) && !defined(GEKKO)
+#if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
     extern int32_t dep_begin, dep_end;
 # if defined _WIN32
     DWORD oldprot;

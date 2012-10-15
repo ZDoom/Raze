@@ -39,10 +39,6 @@
 #  endif
 #endif
 
-#ifdef NEDMALLOC
-#  include "nedmalloc.h"
-#endif
-
 #ifndef TRUE
 #  define TRUE 1
 #endif
@@ -476,21 +472,12 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # define Bassert assert
 # define Brand rand
 # define Balloca alloca
-# ifdef NEDMALLOC
-#  define Bmalloc nedmalloc
-#  define Bcalloc nedcalloc
-#  define Brealloc nedrealloc
-#  define Bfree nedfree
-#  define Bstrdup nedstrdup
-#  define Bmemalign nedmemalign
-# else
 #  define Bmalloc malloc
 #  define Bcalloc calloc
 #  define Brealloc realloc
 #  define Bfree free
 #  define Bstrdup strdup
 #  define Bmemalign memalign
-# endif
 # define Bopen open
 # define Bclose close
 # define Bwrite write

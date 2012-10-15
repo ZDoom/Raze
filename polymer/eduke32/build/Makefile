@@ -60,9 +60,6 @@ endif
 
 UTILLIBS= -lm # -lpthread
 UTILADDOBJS=
-ifneq (0,$(NEDMALLOC))
-    UTILADDOBJS+= $(OBJ)/nedmalloc.$o
-endif
 
 ENGINEOBJS=
 ifeq (0,$(NOASM))
@@ -99,10 +96,6 @@ endif
 
 ifeq (1,$(POLYMER))
     ENGINEOBJS+=  $(OBJ)/polymer.$o
-endif
-
-ifeq (1,$(NEDMALLOC))
-    ENGINEOBJS+=  $(OBJ)/nedmalloc.$o
 endif
 
 EDITOROBJS=$(OBJ)/build.$o \
