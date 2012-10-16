@@ -5699,6 +5699,21 @@ static void C_AddDefaultDefinitions(void)
     for (i=0; i<MAXEVENTS; i++)
         C_AddDefinition(EventNames[i].text, EventNames[i].tokenid, LABEL_DEFINE);
 
+    for (i=0; i<NUMGAMEFUNCTIONS; i++)
+    {
+        int32_t j;
+
+        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
+
+        Bsprintf(tempbuf,"GAMEFUNC_%s", gamefunctions[i]);
+
+        for (j=Bstrlen(tempbuf); j>=0; j--)
+            tempbuf[j] = Btoupper(tempbuf[j]);
+
+        C_AddDefinition(tempbuf, i, LABEL_DEFINE);
+        initprintf("added def %s %d\n", tempbuf, i);
+    }
+
     C_AddDefinition("STR_MAPNAME",STR_MAPNAME,LABEL_DEFINE);
     C_AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME,LABEL_DEFINE);
     C_AddDefinition("STR_PLAYERNAME",STR_PLAYERNAME,LABEL_DEFINE);
