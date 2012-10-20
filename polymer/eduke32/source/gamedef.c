@@ -5711,7 +5711,6 @@ static void C_AddDefaultDefinitions(void)
             tempbuf[j] = Btoupper(tempbuf[j]);
 
         C_AddDefinition(tempbuf, i, LABEL_DEFINE);
-        initprintf("added def %s %d\n", tempbuf, i);
     }
 
     C_AddDefinition("STR_MAPNAME",STR_MAPNAME,LABEL_DEFINE);
