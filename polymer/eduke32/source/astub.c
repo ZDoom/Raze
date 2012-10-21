@@ -10712,6 +10712,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                 mylight.radius = (256-(SS+128))<<1;
                                 mylight.faderadius = (int16_t)(mylight.radius * 0.75f);
                                 mylight.tilenum = OW;
+                                mylight.publicflags.emitshadow = !(CS & 64);
 
                                 addprlight_common1(&mylight, i);
                             }
@@ -10745,6 +10746,10 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                 {
                                     spritelightptr[i]->horiz = SH;
                                     spritelightptr[i]->flags.invalidate = 1;
+                                }
+                                if (!(CS & 64) != spritelightptr[i]->publicflags.emitshadow)
+                                {
+                                    spritelightptr[i]->publicflags.emitshadow = !(CS & 64);
                                 }
                                 spritelightptr[i]->tilenum = OW;
                             }

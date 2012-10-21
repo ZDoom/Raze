@@ -7751,6 +7751,7 @@ static void G_DoEffectorLights(void)  // STATNUM 14
                     mylight.minshade = sprite[i].xoffset;
                     mylight.maxshade = sprite[i].yoffset;
                     mylight.tilenum = 0;
+                    mylight.publicflags.emitshadow = 0;
 
                     if (CS & 2)
                     {
@@ -7814,6 +7815,7 @@ static void G_DoEffectorLights(void)  // STATNUM 14
                     mylight.minshade = sprite[i].xoffset;
                     mylight.maxshade = sprite[i].yoffset;
                     mylight.tilenum = actor[i].picnum;
+                    mylight.publicflags.emitshadow = !(CS & 64);
 
                     if (CS & 2)
                     {
@@ -7871,6 +7873,9 @@ static void G_DoEffectorLights(void)  // STATNUM 14
                 {
                     actor[i].lightptr->horiz = SH;
                     actor[i].lightptr->flags.invalidate = 1;
+                }
+                if (!(CS & 64) != actor[i].lightptr->publicflags.emitshadow) {
+                    actor[i].lightptr->publicflags.emitshadow = !(CS & 64);
                 }
                 actor[i].lightptr->tilenum = actor[i].picnum;
             }

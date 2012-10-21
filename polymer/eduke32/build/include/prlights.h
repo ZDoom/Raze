@@ -18,6 +18,9 @@ typedef struct      s_prlight {
     uint8_t         color[3], priority;
     int8_t          minshade, maxshade;
     int16_t         tilenum;
+    struct          {
+        int32_t     emitshadow  : 1;
+    }               publicflags;
     // internal members
     float           proj[16];
     float           transform[16];

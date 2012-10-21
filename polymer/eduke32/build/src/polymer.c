@@ -1479,7 +1479,7 @@ int16_t             polymer_addlight(_prlight* light)
 
     Bmemcpy(&prlights[lighti], light, sizeof(_prlight));
 
-    if (light->radius) {
+    if (light->radius && light->publicflags.emitshadow) {
         polymer_processspotlight(&prlights[lighti]);
 
         // get the texture handle for the lightmap
@@ -4600,15 +4600,18 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         // PR_BIT_SPOT_LIGHT
         if (prlights[lights[curlight]].radius) {
             programbits |= prprogrambits[PR_BIT_SPOT_LIGHT].bit;
-            // PR_BIT_SHADOW_MAP
-            if (prlights[lights[curlight]].rtindex != -1) {
-                programbits |= prprogrambits[PR_BIT_SHADOW_MAP].bit;
-                programbits |= prprogrambits[PR_BIT_PROJECTION_MAP].bit;
-            }
-            // PR_BIT_LIGHT_MAP
-            if (prlights[lights[curlight]].lightmap) {
-                programbits |= prprogrambits[PR_BIT_LIGHT_MAP].bit;
-                programbits |= prprogrambits[PR_BIT_PROJECTION_MAP].bit;
+
+            if (prlights[lights[curlight]].publicflags.emitshadow) {
+                // PR_BIT_SHADOW_MAP
+                if (prlights[lights[curlight]].rtindex != -1) {
+                    programbits |= prprogrambits[PR_BIT_SHADOW_MAP].bit;
+                    programbits |= prprogrambits[PR_BIT_PROJECTION_MAP].bit;
+                }
+                // PR_BIT_LIGHT_MAP
+                if (prlights[lights[curlight]].lightmap) {
+                    programbits |= prprogrambits[PR_BIT_LIGHT_MAP].bit;
+                    programbits |= prprogrambits[PR_BIT_PROJECTION_MAP].bit;
+                }
             }
         }
     }
@@ -5144,7 +5147,7 @@ static void         polymer_updatelights(void)
             // highly suboptimal
             polymer_removelight(i);
 
-            if (light->radius)
+            if (light->radius && light->publicflags.emitshadow)
                 polymer_processspotlight(light);
 
             polymer_culllight(i);
@@ -5328,7 +5331,7 @@ static void         polymer_processspotlight(_prlight* light)
     lightpos[1] = -(float)light->z / 16.0f;
     lightpos[2] = -(float)light->x;
 
-        // calculate the spot light transformations and matrices
+    // calculate the spot light transformations and matrices
     radius = (float)(light->radius) / (2048.0f / 360.0f);
     ang = (float)(light->angle) / (2048.0f / 360.0f);
     horizang = (float)(-getangle(128, light->horiz-100)) / (2048.0f / 360.0f);
@@ -5536,7 +5539,8 @@ static void         polymer_prepareshadows(void)
         while (!prlights[i].flags.active)
             i++;
 
-        if (prlights[i].radius && prlights[i].flags.isinview)
+        if (prlights[i].radius && prlights[i].publicflags.emitshadow &&
+            prlights[i].flags.isinview)
         {
             prlights[i].flags.isinview = 0;
             prlights[i].rtindex = j + 1;
