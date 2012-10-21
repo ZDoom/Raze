@@ -56,6 +56,7 @@ extern void (APIENTRY * bglClear)( GLbitfield mask );
 extern void (APIENTRY * bglColorMask)( GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha );
 extern void (APIENTRY * bglAlphaFunc)( GLenum func, GLclampf ref );
 extern void (APIENTRY * bglBlendFunc)( GLenum sfactor, GLenum dfactor );
+extern void (APIENTRY * bglBlendEquation)( GLenum mode );
 extern void (APIENTRY * bglCullFace)( GLenum mode );
 extern void (APIENTRY * bglFrontFace)( GLenum mode );
 extern void (APIENTRY * bglPolygonOffset)( GLfloat factor, GLfloat units );

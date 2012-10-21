@@ -286,6 +286,8 @@ static void addprlight_common1(_prlight *mylightptr, int32_t i)
     else
         mylightptr->priority = PR_LIGHT_PRIO_MAX;
 
+    mylightptr->publicflags.negative = !!(CS & 128);
+
     spritelightid[i] = polymer_addlight(mylightptr);
     if (spritelightid[i] >= 0)
         spritelightptr[i] = &prlights[spritelightid[i]];
@@ -10697,6 +10699,10 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                 }
                                 if (check_prlight_colors(i))
                                     copy_prlight_colors(spritelightptr[i], i);
+                                if (!!(CS & 128) != spritelightptr[i]->publicflags.negative)
+                                {
+                                    spritelightptr[i]->publicflags.negative = !!(CS & 128);
+                                }
                             }
                         }
                     }
@@ -10750,6 +10756,10 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                 if (!(CS & 64) != spritelightptr[i]->publicflags.emitshadow)
                                 {
                                     spritelightptr[i]->publicflags.emitshadow = !(CS & 64);
+                                }
+                                if (!!(CS & 128) != spritelightptr[i]->publicflags.negative)
+                                {
+                                    spritelightptr[i]->publicflags.negative = !!(CS & 128);
                                 }
                                 spritelightptr[i]->tilenum = OW;
                             }

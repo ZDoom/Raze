@@ -9980,6 +9980,9 @@ int32_t loadmaphack(const char *filename)
             scriptfile_getnumber(script, &value);
             light.tilenum = value;
 
+            light.publicflags.emitshadow = 1;
+            light.publicflags.negative = 0;
+
             if (rendmode == 4)
             {
                 if (maphacklightcnt == PR_MAXLIGHTS)

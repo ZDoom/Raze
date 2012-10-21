@@ -4654,11 +4654,13 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
     // PR_BIT_LIGHTING_PASS
     if (programbits & prprogrambits[PR_BIT_LIGHTING_PASS].bit)
     {
-	// Careful with that, it works only if we respect the wrapping order
-	// or make sure GL_BLEND is the only ENABLE we mess with here.
-        bglPushAttrib(GL_ENABLE_BIT);
-	bglEnable(GL_BLEND);
+        bglPushAttrib(GL_COLOR_BUFFER_BIT);
+        bglEnable(GL_BLEND);
         bglBlendFunc(GL_ONE, GL_ONE);
+
+        if (prlights[lights[curlight]].publicflags.negative) {
+            bglBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+        }
     }
 
     // PR_BIT_NORMAL_MAP
@@ -4900,6 +4902,13 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         color[1] = prlights[lights[curlight]].color[1]   / 255.0f;
         color[2] = prlights[lights[curlight]].color[2]   / 255.0f;
 
+        // If this isn't a lighting-only pass, just negate the components
+        if (!curlight && prlights[lights[curlight]].publicflags.negative) {
+            color[0] = -color[0];
+            color[1] = -color[1];
+            color[2] = -color[2];
+        }
+
         bglLightfv(GL_LIGHT0, GL_AMBIENT, pos);
         bglLightfv(GL_LIGHT0, GL_DIFFUSE, color);
         if (material.mdspritespace == GL_TRUE) {
@@ -4933,7 +4942,6 @@ static void         polymer_unbindmaterial(int32_t programbits)
     if (programbits & prprogrambits[PR_BIT_LIGHTING_PASS].bit)
     {
         bglPopAttrib();
-        bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 
     // PR_BIT_NORMAL_MAP

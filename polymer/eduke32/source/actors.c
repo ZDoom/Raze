@@ -740,6 +740,9 @@ void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t 
         mylight.priority = priority;
         mylight.tilenum = 0;
 
+        mylight.publicflags.emitshadow = 1;
+        mylight.publicflags.negative = 0;
+
         actor[srcsprite].lightId = polymer_addlight(&mylight);
         if (actor[srcsprite].lightId >= 0)
             actor[srcsprite].lightptr = &prlights[actor[srcsprite].lightId];
@@ -7752,6 +7755,7 @@ static void G_DoEffectorLights(void)  // STATNUM 14
                     mylight.maxshade = sprite[i].yoffset;
                     mylight.tilenum = 0;
                     mylight.publicflags.emitshadow = 0;
+                    mylight.publicflags.negative = !!(CS & 128);
 
                     if (CS & 2)
                     {
@@ -7788,6 +7792,9 @@ static void G_DoEffectorLights(void)  // STATNUM 14
                     actor[i].lightptr->color[1] = sprite[i].yvel;
                     actor[i].lightptr->color[2] = sprite[i].zvel;
                 }
+                if (!!(CS & 128) != actor[i].lightptr->publicflags.negative) {
+                    actor[i].lightptr->publicflags.negative = !!(CS & 128);
+                }
             }
             break;
         }
@@ -7816,6 +7823,7 @@ static void G_DoEffectorLights(void)  // STATNUM 14
                     mylight.maxshade = sprite[i].yoffset;
                     mylight.tilenum = actor[i].picnum;
                     mylight.publicflags.emitshadow = !(CS & 64);
+                    mylight.publicflags.negative = !!(CS & 128);
 
                     if (CS & 2)
                     {
@@ -7876,6 +7884,9 @@ static void G_DoEffectorLights(void)  // STATNUM 14
                 }
                 if (!(CS & 64) != actor[i].lightptr->publicflags.emitshadow) {
                     actor[i].lightptr->publicflags.emitshadow = !(CS & 64);
+                }
+                if (!!(CS & 128) != actor[i].lightptr->publicflags.negative) {
+                    actor[i].lightptr->publicflags.negative = !!(CS & 128);
                 }
                 actor[i].lightptr->tilenum = actor[i].picnum;
             }

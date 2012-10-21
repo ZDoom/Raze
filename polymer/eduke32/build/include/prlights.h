@@ -20,6 +20,7 @@ typedef struct      s_prlight {
     int16_t         tilenum;
     struct          {
         int32_t     emitshadow  : 1;
+        int32_t     negative    : 1;
     }               publicflags;
     // internal members
     float           proj[16];

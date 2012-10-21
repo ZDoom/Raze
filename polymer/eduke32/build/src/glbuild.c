@@ -16,6 +16,7 @@ void (APIENTRY *bglClear)(GLbitfield mask);
 void (APIENTRY *bglColorMask)(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 void (APIENTRY *bglAlphaFunc)(GLenum func, GLclampf ref);
 void (APIENTRY *bglBlendFunc)(GLenum sfactor, GLenum dfactor);
+void (APIENTRY *bglBlendEquation)(GLenum mode);
 void (APIENTRY *bglCullFace)(GLenum mode);
 void (APIENTRY *bglFrontFace)(GLenum mode);
 void (APIENTRY *bglPolygonOffset)(GLfloat factor, GLfloat units);
@@ -495,6 +496,8 @@ int32_t loadglextensions(void)
     if (!hGLDLL) return 0;
 #endif
 
+    bglBlendEquation    = GETPROCEXTSOFT("glBlendEquation");
+
     bglTexImage3D		= GETPROCEXTSOFT("glTexImage3D");
     bglCompressedTexImage2DARB  = GETPROCEXTSOFT("glCompressedTexImage2DARB");
     bglGetCompressedTexImageARB = GETPROCEXTSOFT("glGetCompressedTexImageARB");
@@ -660,6 +663,7 @@ int32_t unloadgldriver(void)
     bglColorMask		= NULL;
     bglAlphaFunc		= NULL;
     bglBlendFunc		= NULL;
+    bglBlendEquation    = NULL;
     bglCullFace		    = NULL;
     bglFrontFace		= NULL;
     bglPolygonOffset	= NULL;
