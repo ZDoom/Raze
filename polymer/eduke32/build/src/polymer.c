@@ -1479,7 +1479,7 @@ int16_t             polymer_addlight(_prlight* light)
 
     Bmemcpy(&prlights[lighti], light, sizeof(_prlight));
 
-    if (light->radius && light->publicflags.emitshadow) {
+    if (light->radius) {
         polymer_processspotlight(&prlights[lighti]);
 
         // get the texture handle for the lightmap
@@ -4600,18 +4600,15 @@ static int32_t      polymer_bindmaterial(_prmaterial material, int16_t* lights, 
         // PR_BIT_SPOT_LIGHT
         if (prlights[lights[curlight]].radius) {
             programbits |= prprogrambits[PR_BIT_SPOT_LIGHT].bit;
-
-            if (prlights[lights[curlight]].publicflags.emitshadow) {
-                // PR_BIT_SHADOW_MAP
-                if (prlights[lights[curlight]].rtindex != -1) {
-                    programbits |= prprogrambits[PR_BIT_SHADOW_MAP].bit;
-                    programbits |= prprogrambits[PR_BIT_PROJECTION_MAP].bit;
-                }
-                // PR_BIT_LIGHT_MAP
-                if (prlights[lights[curlight]].lightmap) {
-                    programbits |= prprogrambits[PR_BIT_LIGHT_MAP].bit;
-                    programbits |= prprogrambits[PR_BIT_PROJECTION_MAP].bit;
-                }
+            // PR_BIT_SHADOW_MAP
+            if (prlights[lights[curlight]].rtindex != -1) {
+                programbits |= prprogrambits[PR_BIT_SHADOW_MAP].bit;
+                programbits |= prprogrambits[PR_BIT_PROJECTION_MAP].bit;
+            }
+            // PR_BIT_LIGHT_MAP
+            if (prlights[lights[curlight]].lightmap) {
+                programbits |= prprogrambits[PR_BIT_LIGHT_MAP].bit;
+                programbits |= prprogrambits[PR_BIT_PROJECTION_MAP].bit;
             }
         }
     }
@@ -5155,7 +5152,7 @@ static void         polymer_updatelights(void)
             // highly suboptimal
             polymer_removelight(i);
 
-            if (light->radius && light->publicflags.emitshadow)
+            if (light->radius)
                 polymer_processspotlight(light);
 
             polymer_culllight(i);
