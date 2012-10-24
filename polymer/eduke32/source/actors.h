@@ -168,19 +168,21 @@ typedef struct {
 #pragma pack(pop)
 
 enum sflags_t {
-    SPRITE_SHADOW       = 0x00000001,
-    SPRITE_NVG          = 0x00000002,
-    SPRITE_NOSHADE      = 0x00000004,
-    SPRITE_PROJECTILE   = 0x00000008,
-    SPRITE_DECAL        = 0x00000010,
-    SPRITE_BADGUY       = 0x00000020,
-    SPRITE_NOPAL        = 0x00000040,
-    SPRITE_NOEVENTCODE  = 0x00000080,
-    SPRITE_NOLIGHT      = 0x00000100,
-    SPRITE_USEACTIVATOR = 0x00000200,
-    SPRITE_NULL         = 0x00000400, // null sprite in multiplayer
-    SPRITE_NOCLIP       = 0x00000800, // clipmove it with cliptype 0
-    SPRITE_NOFLOORSHADOW= 0x00001000, // for temp. internal use, per-tile flag not checked
+    SPRITE_SHADOW           = 0x00000001,
+    SPRITE_NVG              = 0x00000002,
+    SPRITE_NOSHADE          = 0x00000004,
+    SPRITE_PROJECTILE       = 0x00000008,
+    SPRITE_DECAL            = 0x00000010,
+    SPRITE_BADGUY           = 0x00000020,
+    SPRITE_NOPAL            = 0x00000040,
+    SPRITE_NOEVENTCODE      = 0x00000080,
+    SPRITE_NOLIGHT          = 0x00000100,
+    SPRITE_USEACTIVATOR     = 0x00000200,
+    SPRITE_NULL             = 0x00000400, // null sprite in multiplayer
+    SPRITE_NOCLIP           = 0x00000800, // clipmove it with cliptype 0
+    SPRITE_NOFLOORSHADOW    = 0x00001000, // for temp. internal use, per-tile flag not checked
+    SPRITE_SMOOTHMOVE       = 0x00002000,
+    SPRITE_NOTELEPORT       = 0x00004000,
 };
 
 // custom projectiles

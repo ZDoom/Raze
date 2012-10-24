@@ -399,7 +399,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
     else if (dasectnum != spr->sectnum)
     {
         changespritesect(spritenum, dasectnum);
-        A_GetZLimits(spritenum);
+        // A_GetZLimits(spritenum);
     }
 
     Bassert(dasectnum == spr->sectnum);
@@ -3220,8 +3220,12 @@ static void P_FinishWaterChange(int32_t j, DukePlayer_t *ps, int32_t sectlotag, 
         }
 }
 
-static int32_t A_CheckNonTeleporting(int32_t pic)
+static int32_t A_CheckNonTeleporting(int32_t s)
 {
+    int32_t pic = sprite[s].picnum;
+
+    if (A_CheckSpriteFlags(s, SPRITE_NOTELEPORT)) return 1;
+
     return (pic == SHARK || pic == COMMANDER || pic == OCTABRAIN
                 || (pic >= GREENSLIME && pic <= GREENSLIME+7));
 }
@@ -3355,7 +3359,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                 // comment out to make RPGs pass through water: (r1450 breaks this)
 //                if (sectlotag != 0) goto JBOLT;
             case STAT_ACTOR:
-                if (sprite[j].extra > 0 && A_CheckNonTeleporting(sprite[j].picnum))
+                if (sprite[j].extra > 0 && A_CheckNonTeleporting(j))
                     goto JBOLT;
             case STAT_MISC:
             case STAT_FALLER:
