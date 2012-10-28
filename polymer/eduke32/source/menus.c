@@ -804,22 +804,6 @@ void M_DisplayMenus(void)
 
     Net_GetPackets();
 
-    if (g_netSync)
-    {
-        P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2+1);
-        rotatesprite_fs(0,0,65536L,0,BETASCREEN,0,0,2+8+16+64);
-
-        rotatesprite_fs(160<<16,(104)<<16,60<<10,0,DUKENUKEM,0,0,2+8);
-        rotatesprite_fs(160<<16,(129)<<16,30<<11,0,THREEDEE,0,0,2+8);
-        if (PLUTOPAK)   // JBF 20030804
-            rotatesprite_fs(160<<16,(151)<<16,30<<11,0,PLUTOPAKSPRITE+1,0,0,2+8);
-
-        gametext(160,190,"Transferring gamestate",14,2);
-        nextpage();
-
-        return;
-    }
-
     {
         if (buttonstat != 0 && !onbar)
         {
@@ -5227,100 +5211,23 @@ VOLUME_ALL_40x:
 
     case 603:
     {
-        int32_t plrvotes = 0, j = 0;
-
         x = M_Probe(186,124,0,0);
 
         if (voting != myconnectindex)
+		{
             g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-
-        if (x == -1)
-        {
-            if (voting == myconnectindex)
-            {
-                for (i=0; i<MAXPLAYERS; i++)
-                {
-                    g_player[i].vote = 0;
-                    g_player[i].gotvote = 0;
-                }
-
-                tempbuf[0] = PACKET_MAP_VOTE_CANCEL;
-                tempbuf[1] = myconnectindex;
-
-                if (g_netClient)
-                    enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 2, ENET_PACKET_FLAG_RELIABLE));
-                else if (g_netServer)
-                    enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 2, ENET_PACKET_FLAG_RELIABLE));
-
-                voting = -1;
-            }
+		}
+		else if (x == -1)
+		{
+			Net_SendMapVoteCancel(0);
             M_ChangeMenu(MENU_MAIN);
-        }
-
-        for (i=0; i<MAXPLAYERS; i++)
-        {
-            plrvotes += g_player[i].vote;
-            j += g_player[i].gotvote;
-        }
-        if (j == numplayers || !g_player[myconnectindex].ps->i || (plrvotes > (numplayers>>1)) || (g_netServer))
-        {
-            if (plrvotes > (numplayers>>1) || !g_player[myconnectindex].ps->i || (g_netServer))
-            {
-                if (ud.m_player_skill == 3) ud.m_respawn_monsters = 1;
-                else ud.m_respawn_monsters = 0;
-
-                if ((GametypeFlags[ud.m_coop] & GAMETYPE_ITEMRESPAWN)) ud.m_respawn_items = 1;
-                else ud.m_respawn_items = 0;
-
-                ud.m_respawn_inventory = 1;
-
-                for (TRAVERSE_CONNECT(margin))
-                {
-                    P_ResetWeapons(margin);
-                    P_ResetInventory(margin);
-
-                }
-
-                Net_NewGame(ud.m_volume_number,ud.m_level_number);
-
-                if (voting == myconnectindex && !(g_netServer))
-                    G_AddUserQuote("Vote Succeeded");
-
-                G_NewGame(ud.m_volume_number,ud.m_level_number,ud.m_player_skill+1);
-                if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
-
-                return;
-            }
-            else if (j == numplayers)
-            {
-                for (i=0; i<MAXPLAYERS; i++)
-                {
-                    g_player[i].vote = 0;
-                    g_player[i].gotvote = 0;
-                }
-
-                voting = -1;
-
-                tempbuf[0] = PACKET_MAP_VOTE_CANCEL;
-                tempbuf[1] = myconnectindex;
-                tempbuf[2] = 1;
-                tempbuf[3] = myconnectindex;
-
-                if (g_netClient)
-                    enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-                else if (g_netServer)
-                    enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-
-                Bsprintf(ScriptQuotes[QUOTE_RESERVED2],"Vote Failed");
-                P_DoQuote(QUOTE_RESERVED2,g_player[myconnectindex].ps);
-                g_player[myconnectindex].ps->gm &= ~MODE_MENU;
-            }
-        }
-        else
-        {
+		}
+		else
+		{
             mgametext(160,90,"Waiting for votes",0,2);
-        }
-        break;
+		}
+
+		break;
     }
     case 600:
         margin = (320>>1) - 120;
@@ -5436,35 +5343,14 @@ VOLUME_ALL_40x:
             // master does whatever it wants
             if (g_netServer)
             {
-                M_ChangeMenu(603);
+                Net_FillNewGame(&pendingnewgame, 1);
+                Net_StartNewGame();
+                Net_SendNewGame(1, NULL);
                 break;
             }
             if (voting == -1)
             {
-                if (g_player[myconnectindex].ps->i)
-                {
-                    for (i=0; i<MAXPLAYERS; i++)
-                    {
-                        g_player[i].vote = 0;
-                        g_player[i].gotvote = 0;
-                    }
-                    g_player[myconnectindex].vote = g_player[myconnectindex].gotvote = 1;
-                    voting = myconnectindex;
-
-                    tempbuf[0] = PACKET_MAP_VOTE_INITIATE;
-                    tempbuf[1] = myconnectindex;
-                    tempbuf[2] = ud.m_volume_number;
-                    tempbuf[3] = ud.m_level_number;
-                    tempbuf[4] = myconnectindex;
-
-                    if (g_netClient)
-                        enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 5, ENET_PACKET_FLAG_RELIABLE));
-                    else if (g_netServer)
-                        enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 5, ENET_PACKET_FLAG_RELIABLE));
-                }
-                if ((GametypeFlags[ud.m_coop] & GAMETYPE_PLAYERSFRIENDLY) && !(GametypeFlags[ud.m_coop] & GAMETYPE_TDM))
-                    ud.m_noexits = 0;
-
+                Net_SendMapVoteInitiate();
                 M_ChangeMenu(603);
             }
             break;

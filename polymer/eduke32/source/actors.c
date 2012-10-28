@@ -532,7 +532,7 @@ void A_DeleteSprite(int32_t s)
 
 void A_AddToDeleteQueue(int32_t i)
 {
-    if (g_netClientPeer || g_spriteDeleteQueueSize == 0)
+    if (g_spriteDeleteQueueSize == 0)
     {
         A_DeleteSprite(i);
         return;

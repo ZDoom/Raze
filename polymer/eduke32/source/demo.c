@@ -926,7 +926,7 @@ nextdemo_nomenu:
         }
         else if (g_player[myconnectindex].ps->gm&MODE_TYPE)
         {
-            Net_EnterMessage();
+            Net_SendMessage();
 
             if ((g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
                 g_player[myconnectindex].ps->gm = MODE_MENU;

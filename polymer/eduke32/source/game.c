@@ -3026,7 +3026,7 @@ void G_DisplayRest(int32_t smoothratio)
     if (!Demo_IsProfiling())
     {
         if (g_player[myconnectindex].ps->gm&MODE_TYPE)
-            Net_EnterMessage();
+            Net_SendMessage();
         else
             M_DisplayMenus();
     }
@@ -7299,9 +7299,9 @@ FOUNDCHEAT:
                         i = Bstrlen(CheatStrings[k])-1;
                         ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
                     }
-                    if (numplayers > 1 && g_netServer)
+                    /*if (numplayers > 1 && g_netServer)
                         Net_NewGame(ud.m_volume_number,ud.m_level_number);
-                    else g_player[myconnectindex].ps->gm |= MODE_RESTART;
+                    else*/ g_player[myconnectindex].ps->gm |= MODE_RESTART;
 
                     end_cheat();
                     return;
@@ -7480,22 +7480,10 @@ void G_HandleLocalKeys(void)
     {
         if (KB_UnBoundKeyPressed(sc_F1) || KB_UnBoundKeyPressed(sc_F2) || ud.autovote)
         {
-            tempbuf[0] = PACKET_MAP_VOTE;
-            tempbuf[1] = myconnectindex;
-            tempbuf[2] = (KB_UnBoundKeyPressed(sc_F1) || ud.autovote ? ud.autovote-1 : 0);
-            tempbuf[3] = myconnectindex;
-
-            if (g_netClient)
-                enet_peer_send(g_netClientPeer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-            else if (g_netServer)
-                enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(tempbuf, 4, ENET_PACKET_FLAG_RELIABLE));
-
-
             G_AddUserQuote("Vote Cast");
-            g_player[myconnectindex].gotvote = 1;
+            Net_SendMapVote(KB_UnBoundKeyPressed(sc_F1) || ud.autovote ? ud.autovote-1 : 0);
             KB_ClearKeyDown(sc_F1);
             KB_ClearKeyDown(sc_F2);
-            voting = -1;
         }
     }
 
@@ -10875,19 +10863,20 @@ int32_t G_DoMoveThings(void)
 //    Net_CorrectPrediction();
 
     if (g_netServer)
-        Net_UpdateClients();
+        Net_SendServerUpdates();
 
     if ((everyothertime&1) == 0)
     {
         G_AnimateWalls();
         A_MoveCyclers();
 
-        if (g_netServer)
-            Net_StreamLevel();
+// Map updates are disabled for now
+//        if (g_netServer && (everyothertime % 10) == 0)
+//            Net_SendMapUpdate();
     }
 
     if (g_netClient)   //Slave
-        Net_ClientMove();
+        Net_SendClientUpdate();
 
     return 0;
 }

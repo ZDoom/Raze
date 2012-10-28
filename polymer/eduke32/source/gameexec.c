@@ -1969,9 +1969,9 @@ nullquote:
 
                 ud.m_volume_number = ud.volume_number = volnume;
                 ud.m_level_number = ud.level_number = levnume;
-                if (numplayers > 1 && g_netServer)
-                    Net_NewGame(volnume,levnume);
-                else
+                //if (numplayers > 1 && g_netServer)
+                //    Net_NewGame(volnume,levnume);
+                //else
                 {
                     g_player[myconnectindex].ps->gm |= MODE_EOL;
                     ud.display_bonus_screen = 0;

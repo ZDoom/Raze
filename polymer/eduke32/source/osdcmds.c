@@ -98,6 +98,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
 
     if (numplayers > 1)
     {
+		/*
         if (g_netServer)
             Net_NewGame(volume,level);
         else if (voting == -1)
@@ -132,6 +133,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
             g_player[myconnectindex].ps->gm |= MODE_MENU;
             M_ChangeMenu(603);
         }
+		*/
         return OSDCMD_OK;
     }
     if (g_player[myconnectindex].ps->gm & MODE_GAME)
@@ -227,6 +229,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
 
     if (numplayers > 1)
     {
+		/*
         if (g_netServer)
         {
             Net_SendUserMapName();
@@ -267,6 +270,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
             g_player[myconnectindex].ps->gm |= MODE_MENU;
             M_ChangeMenu(603);
         }
+		*/
         return OSDCMD_OK;
     }
 

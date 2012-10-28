@@ -92,7 +92,6 @@ typedef struct {
     uint32_t revision;
     int32_t animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
     int32_t animateptr[MAXANIMATES];
-//    int32_t lockclock;
     int32_t msx[2048], msy[2048];
     int32_t randomseed, g_globalRandom;
 
@@ -138,30 +137,118 @@ extern int32_t        g_netDisconnect;
 extern int32_t        g_netPlayersWaiting;
 extern int32_t        g_netPort;
 extern int32_t        g_networkMode;
-extern int32_t        g_netSync;
 extern int32_t        lastsectupdate[MAXSECTORS];
 extern int32_t        lastupdate[MAXSPRITES];
 extern int32_t        lastwallupdate[MAXWALLS];
 extern int16_t        g_netStatnums[10];
 
+#pragma pack(push,1)
+typedef struct {
+	vec3_t pos;
+	vec3_t opos;
+	vec3_t vel;
+	int16_t ang;
+	int16_t horiz;
+	int16_t horizoff;
+	int16_t ping;
+	int16_t playerindex;
+	int16_t deadflag;
+	int16_t playerquitflag;
+} playerupdate_t;
+#pragma pack(pop)
 
-int32_t Net_PackSprite(int32_t i,uint8_t *pbuf);
-int32_t Net_UnpackSprite(int32_t i,uint8_t *pbuf);
-void    Net_ClientMove(void);
+#pragma pack(push,1)
+typedef struct {
+	int8_t header;
+	int8_t connection;
+	int8_t level_number;
+	int8_t volume_number;
+	int8_t player_skill;
+	int8_t monsters_off;
+	int8_t respawn_monsters;
+	int8_t respawn_items;
+	int8_t respawn_inventory;
+	int8_t marker;
+	int8_t ffire;
+	int8_t noexits;
+	int8_t coop;
+} newgame_t;
+#pragma pack(pop)
+
+newgame_t pendingnewgame;
+
+// Connect/Disconnect
 void    Net_Connect(const char *srvaddr);
 void    Net_Disconnect(void);
-void    Net_EnterMessage(void);
+void    Net_ReceiveDisconnect(ENetEvent *event);
+
+// Packet Handlers
 void    Net_GetPackets(void);
-void    Net_NewGame(int32_t volume,int32_t level);
+void    Net_HandleServerPackets(void);
+void    Net_HandleClientPackets(void);
 void    Net_ParseClientPacket(ENetEvent *event);
 void    Net_ParseServerPacket(ENetEvent *event);
+void    Net_ParsePacketCommon(uint8_t *pbuf, int32_t packbufleng, int32_t serverpacketp);
+
+void    Net_SendVersion(ENetPeer *client);
+void    Net_RecieveVersion(uint8_t *pbuf, int32_t packbufleng);
+
+void    Net_SendChallenge();
+void    Net_RecieveChallenge(uint8_t *pbuf, int32_t packbufleng, ENetEvent *event);
+
+void    Net_SendNewPlayer(int32_t newplayerindex);
+void    Net_RecieveNewPlayer(uint8_t *pbuf, int32_t packbufleng);
+
+void    Net_SendPlayerIndex(int32_t index, ENetPeer *peer);
+void    Net_RecievePlayerIndex(uint8_t *pbuf, int32_t packbufleng);
+
+void    Net_SendClientInfo(void);
+void    Net_ReceiveClientInfo(uint8_t *pbuf, int32_t packbufleng, int32_t fromserver);
+
+void    Net_SendUserMapName(void);
+void    Net_ReceiveUserMapName(uint8_t *pbuf, int32_t packbufleng);
+
+void    Net_SendClientSync(ENetEvent *event, int32_t player);
+void    Net_ReceiveClientSync(ENetEvent *event);
+
+void    Net_SendMapUpdate(void);
+void    Net_ReceiveMapUpdate(uint8_t *pbuf, int32_t packbufleng);
+
+void    Net_FillPlayerUpdate(playerupdate_t *update, int32_t player);
+void    Net_ExtractPlayerUpdate(playerupdate_t *update);
+
+void    Net_SendServerUpdates(void);
+void    Net_ReceiveServerUpdate(ENetEvent *event);
+
+void    Net_SendClientUpdate(void);
+void    Net_ReceiveClientUpdate(ENetEvent *event);
+
+void    Net_SendMessage(void);
+void    Net_ReceiveMessage(uint8_t *pbuf, int32_t packbufleng);
+
+void    Net_StartNewGame();
+void    Net_SendNewGame(int32_t frommenu, ENetPeer *peer);
+void    Net_ReceiveNewGame(ENetEvent *event);
+
+void    Net_FillNewGame(newgame_t* newgame, int32_t frommenu);
+void    Net_ExtractNewGame(newgame_t* newgame, int32_t menuonly);
+
+void    Net_SendMapVoteInitiate(void);
+void    Net_RecieveMapVoteInitiate(uint8_t *pbuf);
+
+void    Net_SendMapVote(int32_t votefor);
+void    Net_RecieveMapVote(uint8_t *pbuf);
+void    Net_CheckForEnoughVotes();
+
+void    Net_SendMapVoteCancel(int32_t failed);
+void    Net_RecieveMapVoteCancel(uint8_t *pbuf);
+
+//////////
+
 void    Net_ResetPrediction(void);
 void    Net_RestoreMapState(netmapstate_t *save);
-void    Net_SendClientInfo(void);
-void    Net_SendUserMapName(void);
-void    Net_StreamLevel(void);
 void    Net_SyncPlayer(ENetEvent *event);
-void    Net_UpdateClients(void);
 void    Net_WaitForServer(void);
 void    faketimerhandler(void);
-#endif
+
+#endif // __netplay_h__
