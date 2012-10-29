@@ -186,7 +186,7 @@ endif
 
 
 # compiler flags etc.
-BASECONLYFLAGS=-Wimplicit
+BASECONLYFLAGS=-Wimplicit -Wdeclaration-after-statement
 BASECXXFLAGS= -fno-exceptions -fno-rtti
 BASEASFLAGS=-s #-g
 BASELDFLAGS=
@@ -269,7 +269,7 @@ else
     W_NO_UNUSED_RESULT :=
 endif
 
-CWARNS := -W -Wall -Wdeclaration-after-statement -Werror-implicit-function-declaration \
+CWARNS := -W -Wall -Werror-implicit-function-declaration \
     -Wpointer-arith \
     -Wextra \
     #-Wstrict-prototypes \

@@ -146,7 +146,7 @@ static int buildkeytranslationtable(void)
 
 #undef main
 
-int main(int argc, char **argv)
+int main(void)
 {
     int i;
 

@@ -62,13 +62,13 @@ private:
 
     void writeShort(ofstream &ofs, short s)
     {
-        char d[2] = { s&255, (s>>8)&255 };
+        char d[2] = { static_cast<char>(s&255), static_cast<char>((s>>8)&255) };
         ofs.write(d, 2);
     }
 
     void writeLong(ofstream &ofs, long l)
     {
-        char d[4] = { l&255, (l>>8)&255, (l>>16)&255, (l>>24)&255 };
+        char d[4] = { static_cast<char>(l&255), static_cast<char>((l>>8)&255), static_cast<char>((l>>16)&255), static_cast<char>((l>>24)&255) };
         ofs.write(d, 4);
     }
 
