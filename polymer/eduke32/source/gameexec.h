@@ -124,6 +124,7 @@ enum GameEvent_t {
     EVENT_LOADGAME,
     EVENT_SAVEGAME,
     EVENT_PREGAME,
+    EVENT_CHANGEMENU,
     MAXEVENTS
 };
 

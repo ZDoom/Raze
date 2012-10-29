@@ -97,35 +97,65 @@ extern int32_t voting;
 
 void M_ChangeMenu(int32_t cm)
 {
-    g_currentMenu = cm;
+    if (apScriptGameEvent[EVENT_CHANGEMENU])
+        cm = VM_OnEvent(EVENT_CHANGEMENU, g_player[myconnectindex].ps->i, myconnectindex, -1, cm);
 
-    switch (g_currentMenu)
+    if (cm >= 0)
     {
-    case MENU_MAIN:
-        probey = last_zero;
-        break;
-    case MENU_MAIN_INGAME:
-        probey = last_fifty;
-        break;
-    case MENU_EPISODE:
-        probey = last_onehundred;
-        break;
-    case MENU_OPTIONS:
-        probey = last_twoohtwo;
-        break;
-    case MENU_SKILL:
-        probey = 1;
-        break;
-    default:
-        if (cm >= MENU_LOAD && cm < MENU_STORY)
-            probey = last_threehundred;
-        else if ((cm >= 1000 && cm <= 1009))
-            return;
-        else probey = 0;
-        break;
-    }
+        g_currentMenu = cm;
 
-    lastsavehead = -1;
+        switch (g_currentMenu)
+        {
+        case MENU_MAIN:
+            probey = last_zero;
+            break;
+        case MENU_MAIN_INGAME:
+            probey = last_fifty;
+            break;
+        case MENU_EPISODE:
+            probey = last_onehundred;
+            break;
+        case MENU_OPTIONS:
+            probey = last_twoohtwo;
+            break;
+        case MENU_SKILL:
+            probey = 1;
+            break;
+        default:
+            if (cm >= MENU_LOAD && cm < MENU_STORY)
+                probey = last_threehundred;
+            else if ((cm >= 1000 && cm <= 1009))
+                return;
+            else probey = 0;
+            break;
+        }
+
+        lastsavehead = -1;
+    }
+}
+
+static void M_LinearPanels(int32_t firstMenu, int32_t lastMenu)
+{
+    int32_t changedMenu = g_currentMenu;
+
+    if (I_PanelUp())
+    {
+        I_PanelUpClear();
+
+        S_PlaySound(KICK_HIT);
+        changedMenu--;
+        if (changedMenu < firstMenu) changedMenu = lastMenu;
+        M_ChangeMenu(changedMenu);
+    }
+    else if (I_PanelDown())
+    {
+        I_PanelDownClear();
+
+        S_PlaySound(KICK_HIT);
+        changedMenu++;
+        if (changedMenu > lastMenu) changedMenu = firstMenu;
+        M_ChangeMenu(changedMenu);
+    }
 }
 
 #define LMB (buttonstat&LEFT_MOUSE)
@@ -996,7 +1026,7 @@ void M_DisplayMenus(void)
                         {
                             strcpy(buf, szPlayerName);
                             inputloc = strlen(buf);
-                            g_currentMenu = 20003;
+                            M_ChangeMenu(20003);
 
                             I_AdvanceTriggerClear();
                         }
@@ -1127,7 +1157,7 @@ void M_DisplayMenus(void)
                     }
                     I_AdvanceTriggerClear();
 
-                    g_currentMenu = 20002;
+                    M_ChangeMenu(20002);
                 }
             }
 
@@ -1224,7 +1254,7 @@ void M_DisplayMenus(void)
                 strcpy(buf, ud.ridecule[x]);
                 inputloc = strlen(buf);
                 last_menu_pos = probey;
-                g_currentMenu = 20005;
+                M_ChangeMenu(20005);
                 I_AdvanceTriggerClear();
             }
         }
@@ -1238,7 +1268,7 @@ void M_DisplayMenus(void)
                     Bstrcpy(ud.ridecule[last_menu_pos],buf);
                 }
                 I_AdvanceTriggerClear();
-                g_currentMenu = 20004;
+                M_ChangeMenu(20004);
             }
         }
         for (i=0; i<10; i++)
@@ -1453,13 +1483,13 @@ void M_DisplayMenus(void)
             {
                 strcpy(buf, "localhost");
                 inputloc = strlen(buf);
-                g_currentMenu = 20021;
+                M_ChangeMenu(20021);
             }
             else if (x == 1)
             {
                 strcpy(buf, "19014");
                 inputloc = strlen(buf);
-                g_currentMenu = 20022;
+                M_ChangeMenu(20022);
             }
             else if (x == 2)
                 {}
@@ -1477,7 +1507,7 @@ void M_DisplayMenus(void)
 
                 I_AdvanceTriggerClear();
 
-                g_currentMenu = 20020;
+                M_ChangeMenu(20020);
             }
         }
         else if (g_currentMenu == 20022)
@@ -1492,7 +1522,7 @@ void M_DisplayMenus(void)
 
                 I_AdvanceTriggerClear();
 
-                g_currentMenu = 20020;
+                M_ChangeMenu(20020);
             }
         }
 
@@ -1600,7 +1630,7 @@ void M_DisplayMenus(void)
                                 wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
 #endif
                 }
-                g_currentMenu = MENU_ADULTMODE;
+                M_ChangeMenu(MENU_ADULTMODE);
                 I_AdvanceTriggerClear();
             }
         }
@@ -1625,7 +1655,7 @@ void M_DisplayMenus(void)
                     else
                     {
                         buf[0] = 0;
-                        g_currentMenu = MENU_ADULTPASSWORD;
+                        M_ChangeMenu(MENU_ADULTPASSWORD);
                         inputloc = 0;
                         KB_FlushKeyboardQueue();
                     }
@@ -1650,7 +1680,7 @@ void M_DisplayMenus(void)
 
             else if (x == 1)
             {
-                g_currentMenu = MENU_ADULTPASSWORD;
+                M_ChangeMenu(MENU_ADULTPASSWORD);
                 inputloc = 0;
                 KB_FlushKeyboardQueue();
             }
@@ -1846,22 +1876,7 @@ void M_DisplayMenus(void)
             l = 4;
         }
 
-        if (I_PanelUp())
-        {
-            I_PanelUpClear();
-
-            S_PlaySound(KICK_HIT);
-            g_currentMenu--;
-            if (g_currentMenu < MENU_CREDITS) g_currentMenu = MENU_CREDITS+l;
-        }
-        else if (I_PanelDown())
-        {
-            I_PanelDownClear();
-
-            S_PlaySound(KICK_HIT);
-            g_currentMenu++;
-            if (g_currentMenu > MENU_CREDITS+l) g_currentMenu = MENU_CREDITS;
-        }
+        M_LinearPanels(MENU_CREDITS, MENU_CREDITS+l);
 
         x = M_Probe(0,0,0,1);
 
@@ -4987,16 +5002,16 @@ cheat_for_port_credits2:
             if (g_currentMenu == MENU_LOAD)
             {
                 if (ud.savegame[x][0])
-                    g_currentMenu = (1000+x);
+                    M_ChangeMenu(1000+x);
             }
             else
             {
                 if (ud.savegame[x][0] != 0)
-                    g_currentMenu = 2000+x;
+                    M_ChangeMenu(2000+x);
                 else
                 {
                     KB_FlushKeyboardQueue();
-                    g_currentMenu = (360+x);
+                    M_ChangeMenu(360+x);
                     ud.savegame[x][0] = 0;
                     inputloc = 0;
                 }
@@ -5016,22 +5031,7 @@ DISPLAYNAMES:
 
         margin = MENU_MARGIN_CENTER;
 
-        if (I_PanelUp())
-        {
-            I_PanelUpClear();
-
-            S_PlaySound(KICK_HIT);
-            g_currentMenu--;
-            if (g_currentMenu < MENU_STORY) g_currentMenu = 403;
-        }
-        else if (I_PanelDown())
-        {
-            I_PanelDownClear();
-
-            S_PlaySound(KICK_HIT);
-            g_currentMenu++;
-            if (g_currentMenu > 403) g_currentMenu = MENU_STORY;
-        }
+        M_LinearPanels(MENU_STORY, 403);
 
         x = M_Probe(0,0,0,1);
 
@@ -5051,22 +5051,7 @@ VOLUME_ALL_40x:
 
         margin = MENU_MARGIN_CENTER;
 
-        if (I_PanelUp())
-        {
-            I_PanelUpClear();
-
-            S_PlaySound(KICK_HIT);
-            g_currentMenu--;
-            if (g_currentMenu < MENU_STORY) g_currentMenu = MENU_F1HELP;
-        }
-        else if (I_PanelDown())
-        {
-            I_PanelDownClear();
-
-            S_PlaySound(KICK_HIT);
-            g_currentMenu++;
-            if (g_currentMenu > MENU_F1HELP) g_currentMenu = MENU_STORY;
-        }
+        M_LinearPanels(MENU_STORY, MENU_F1HELP);
 
         x = M_Probe(0,0,0,1);
 
@@ -5427,7 +5412,7 @@ VOLUME_ALL_40x:
         break;
     }
     if (apScriptGameEvent[EVENT_DISPLAYMENUREST])
-        VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[myconnectindex].ps->i, myconnectindex, -1, 0);
+        VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
     if (I_EscapeTrigger())
         I_EscapeTriggerClear();

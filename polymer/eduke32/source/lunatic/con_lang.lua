@@ -159,6 +159,7 @@ labels =
         EVENT_LOADGAME = 91,
         EVENT_SAVEGAME = 92,
         EVENT_PREGAME = 93,
+        EVENT_CHANGEMENU = 94,
     },
 }
 
