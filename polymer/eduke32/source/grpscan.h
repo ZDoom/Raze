@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __grpscan_h__
 
 // List of internally-known GRP files
-#define NUMGRPFILES 8
+#define NUMGRPFILES 9
 struct grpfile {
 	const char *name;
 	int32_t crcval;

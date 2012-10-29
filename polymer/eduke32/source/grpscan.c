@@ -33,14 +33,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 struct grpfile grpfiles[NUMGRPFILES] =
 {
-    { "Duke Nukem 3D",                          0xBBC9CE44, 26524524, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D: Atomic Edition",          0xF514A6AC, 44348015, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D: Atomic Edition",          0xFD3DCFF1, 44356548, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D Shareware",                0x983AD923, 11035779, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D Mac Shareware",            0xC5F71561, 10444391, GAMEFLAG_DUKE, NULL },
-    { "NAM",                                    0x75C1F07B, 43448927, GAMEFLAG_NAM,  NULL },
-    { "Napalm",                                 0x3DE1589A, 44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,  NULL },
-    { "WWII GI",                                0x907B82BF, 77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,  NULL },
+    { "Duke Nukem 3D",                            0xBBC9CE44, 26524524, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D (South Korean Censored)",    0xAA4F6A40, 26385383, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D: Atomic Edition",            0xFD3DCFF1, 44356548, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D: Atomic Edition (Censored)", 0xF514A6AC, 44348015, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D Shareware",                  0x983AD923, 11035779, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D Mac Shareware",              0xC5F71561, 10444391, GAMEFLAG_DUKE, NULL },
+    { "NAM",                                      0x75C1F07B, 43448927, GAMEFLAG_NAM,  NULL },
+    { "Napalm",                                   0x3DE1589A, 44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,  NULL },
+    { "WWII GI",                                  0x907B82BF, 77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,  NULL },
 };
 struct grpfile *foundgrps = NULL;
 
