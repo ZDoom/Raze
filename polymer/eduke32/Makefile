@@ -53,12 +53,8 @@ JAUDIOLIB=libjfaudiolib.a
 ENETDIR=$(SRC)/enet
 ENETLIB=libenet.a
 
-EBACKTRACEDLL=ebacktrace1.dll
-EBACKTRACEDLL_TARGET=
-
 
 include $(EROOT)/Makefile.shared
-
 
 ifneq (0,$(USE_LIBVPX))
     ifeq ($(PLATFORM),WINDOWS)
@@ -71,6 +67,18 @@ ifneq (0,$(USE_LIBVPX))
         OURCFLAGS+= -I/opt/local/include -I/usr/local/include
     endif
 endif
+
+
+EDUKE32 ?= eduke32$(EXESUFFIX)
+MAPSTER32 ?= mapster32$(EXESUFFIX)
+
+EDUKE32_TARGET:=$(EDUKE32)
+ifneq ($(PLATFORM),WII)
+    MAPSTER32_TARGET:=$(MAPSTER32)
+endif
+
+EBACKTRACEDLL ?= ebacktrace1.dll
+EBACKTRACEDLL_TARGET:=
 
 ifeq ($(PLATFORM),WINDOWS)
     OBJ=obj_win
@@ -316,11 +324,6 @@ ifeq ($(PRETTY_OUTPUT),1)
 endif
 .PHONY: clean all engine $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB)
 
-EDUKE32_TARGET:=eduke32$(EXESUFFIX)
-ifneq ($(PLATFORM),WII)
-    MAPSTER32_TARGET:=mapster32$(EXESUFFIX)
-endif
-
 # TARGETS
 
 all: notice $(EDUKE32_TARGET) $(MAPSTER32_TARGET) $(EBACKTRACEDLL_TARGET)
@@ -328,45 +331,46 @@ all: notice $(EDUKE32_TARGET) $(MAPSTER32_TARGET) $(EBACKTRACEDLL_TARGET)
 all:
 	$(BUILD_FINISHED)
 ifneq (,$(EDUKE32_TARGET))
-	@ls -l $(EDUKE32_TARGET)
+	@ls -l $(EDUKE32)
 endif
 ifneq (,$(MAPSTER32_TARGET))
-	@ls -l $(MAPSTER32_TARGET)
+	@ls -l $(MAPSTER32)
 endif
 
 notice:
 	$(BUILD_STARTED)
 
-eduke32$(EXESUFFIX): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB) $(MISCGAMEDEPS)
+
+$(EDUKE32): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB) $(MISCGAMEDEPS)
 	$(LINK_STATUS)
 	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(GAMELDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
   ifeq (0,$(DEBUGANYWAY))
     ifneq ($(PLATFORM),WII)
-	  $(STRIP) $(EDUKE32_TARGET)
+	  $(STRIP) $(EDUKE32)
     endif
   endif
 endif
 ifeq ($(PLATFORM),DARWIN)
 	cp -RPf "Apple/bundles/EDuke32.app" "./"
 	mkdir -p "EDuke32.app/Contents/MacOS"
-	cp -f "$(EDUKE32_TARGET)" "EDuke32.app/Contents/MacOS/"
+	cp -f "$(EDUKE32)" "EDuke32.app/Contents/MacOS/"
 endif
 
-mapster32$(EXESUFFIX): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
+$(MAPSTER32): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
 	$(LINK_STATUS)
 	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(EDITORLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
   ifeq (0,$(DEBUGANYWAY))
     ifneq ($(PLATFORM),WII)
-	  $(STRIP) $(MAPSTER32_TARGET)
+	  $(STRIP) $(MAPSTER32)
     endif
   endif
 endif
 ifeq ($(PLATFORM),DARWIN)
 	cp -RPf "Apple/bundles/Mapster32.app" "./"
 	mkdir -p "Mapster32.app/Contents/MacOS"
-	cp -f "$(MAPSTER32_TARGET)" "Mapster32.app/Contents/MacOS/"
+	cp -f "$(MAPSTER32)" "Mapster32.app/Contents/MacOS/"
 endif
 
 include Makefile.deps
@@ -503,7 +507,7 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 # PHONIES	
 
 clean:
-	-rm -f $(OBJ)/* eduke32$(EXESUFFIX) eduke32$(EXESUFFIX).memmap mapster32$(EXESUFFIX) mapster32$(EXESUFFIX).memmap core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
+	-rm -f $(OBJ)/* $(EDUKE32) $(EDUKE32).memmap $(MAPSTER32) $(MAPSTER32).memmap core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf EDuke32.app Mapster32.app
 endif

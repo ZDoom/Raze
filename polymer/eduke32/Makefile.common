@@ -5,6 +5,67 @@
 # Use colored output
 PRETTY_OUTPUT ?= 1
 
+# Tools
+CC=gcc
+CXX=g++
+AS=nasm
+AR=ar
+RC=windres
+RANLIB=ranlib
+STRIP=strip
+
+CLANG?=0
+
+ifneq (0,$(CLANG))
+    CC=clang -std=gnu89
+    CXX=clang
+#    AR=llvm-ar
+#    RANLIB=llvm-ranlib
+endif
+
+# GCC version, for conditional selection of flags.
+# This is easier than trying to squeeze it out of gcc --version:
+GCC_MAJOR?=4
+
+# Detect machine architecture
+SYSARCH?=$(strip $(shell uname -m))
+
+# Detect the platform if it wasn't explicitly given to us from
+# the outside world. This allows cross-compilation by overriding
+# CC and giving us PLATFORM specifically.
+#
+ifndef PLATFORM
+    uname=$(strip $(shell uname -s))
+    PLATFORM=UNKNOWN
+    ifeq ($(findstring Linux,$(uname)),Linux)
+        PLATFORM=LINUX
+    endif
+    ifeq ($(findstring BSD,$(uname)),BSD)
+        PLATFORM=BSD
+    endif
+    ifeq ($(findstring MINGW,$(uname)),MINGW)
+        PLATFORM=WINDOWS
+    endif
+    ifeq ($(findstring Darwin,$(uname)),Darwin)
+        PLATFORM=DARWIN
+    endif
+    ifeq ($(findstring BeOS,$(uname)),BeOS)
+        PLATFORM=BEOS
+    endif
+    ifeq ($(findstring skyos,$(uname)),skyos)
+        PLATFORM=SKYOS
+    endif
+    ifeq ($(findstring QNX,$(uname)),QNX)
+        PLATFORM=QNX
+    endif
+    ifeq ($(findstring SunOS,$(uname)),SunOS)
+        PLATFORM=SUNOS
+    endif
+    ifeq ($(findstring syllable,$(uname)),syllable)
+        PLATFORM=SYLLABLE
+    endif
+endif
+
 # Binary suffix override:
 EXESUFFIX_OVERRIDE ?=
 
@@ -34,6 +95,7 @@ BUILD32_ON_64 ?= 0
 USE_LIBPNG ?= 1
 USE_LIBVPX ?= 1
 
+
 ifeq (0,$(USE_OPENGL))
     POLYMER = 0
     USE_LIBVPX = 0
@@ -47,7 +109,6 @@ endif
 #  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
 #  OPTLEVEL	- 0..3 = GCC optimization strategy
 #  LTO - 1 = enable link-time optimization, for GCC 4.5 and up
-#  CLANG - 1 = enable the Clang/LLVM compiler
 #
 RELEASE?=1
 DEBUGANYWAY?=0
@@ -58,7 +119,62 @@ OPTLEVEL?=2
 PROFILER?=0
 MUDFLAP?=0
 LTO?=0
-CLANG?=0
+
+ifeq (4,$(GCC_MAJOR))
+    F_NO_STACK_PROTECTOR := -fno-stack-protector
+    # there are some link-time issues with stack protectors, so make it possible to override
+    F_STACK_PROTECTOR_ALL ?= -fstack-protector-all
+    ifeq (0,$(CLANG))
+        F_JUMP_TABLES := -fjump-tables
+    endif
+    M_TUNE_GENERIC := -mtune=generic
+    M_STACKREALIGN := -mstackrealign
+    W_STRICT_OVERFLOW := -Wstrict-overflow=1
+endif
+
+ifeq ($(PLATFORM),DARWIN)
+    DARWINVERSION?=$(strip $(shell uname -r | cut -d . -f 1))
+    ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 10)))
+        DARWIN9 ?= 1
+    endif
+
+#    BASECFLAGS    += -fno-leading-underscore
+
+    ifeq (1,$(DARWIN9))
+        F_JUMP_TABLES :=
+        W_STRICT_OVERFLOW :=
+    endif
+
+    ifeq (1,$(BUILD32_ON_64))
+        BASECFLAGS += $(F_NO_STACK_PROTECTOR)
+    else
+        ifeq ($(findstring ppc,$(ARCH)),ppc)
+            BASECFLAGS += $(F_NO_STACK_PROTECTOR)
+        endif
+    endif
+endif
+
+ifndef OPTOPT
+    ifeq ($(PLATFORM), WII)
+        OPTOPT=
+    else
+        OPTOPTARCH=$(ARCH)
+        ifeq (,$(OPTOPTARCH))
+            OPTOPTARCH=$(SYSARCH)
+        endif
+
+        ifeq (i686,$(findstring i686, $(OPTOPTARCH)))
+            OPTOPT=-march=pentium3 $(M_TUNE_GENERIC) -mmmx
+            # -msse2 -mfpmath=sse,387 -malign-double $(M_STACKREALIGN)
+        else
+            OPTOPT=
+        endif
+    endif
+
+    ifneq (,$(CUSTOMOPT))
+        OPTOPT+= $(CUSTOMOPT)
+    endif
+endif
 
 ifneq (0,$(KRANDDEBUG))
     RELEASE=0
@@ -68,21 +184,6 @@ ifneq (0,$(PROFILER))
 endif
 
 
-# Tools
-CC=gcc
-CXX=g++
-AS=nasm
-AR=ar
-RC=windres
-RANLIB=ranlib
-STRIP=strip
-
-ifneq (0,$(CLANG))
-    CC=clang -std=gnu89
-    CXX=clang++
-#    AR=llvm-ar
-#    RANLIB=llvm-ranlib
-endif
 
 # compiler flags etc.
 BASECONLYFLAGS=-Wimplicit
@@ -177,12 +278,14 @@ CWARNS := -W -Wall -Wdeclaration-after-statement -Werror-implicit-function-decla
     #-Wcast-qual -Wcast-align \
     #-Waddress -Wlogical-op
 
-BASECFLAGS=$(debug) $(CWARNS) \
+BASECFLAGS=$(debug) $(OPTOPT) $(CWARNS) \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
 	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH)
 ifneq (0,$(CLANG))
     BASECFLAGS+= -Wno-unused-value -Wno-parentheses
 endif
+
+BASELDFLAGS+= $(OPTOPT)
 
 # This should come from the environment:
 ifdef EDUKE32_MY_DEVELOPER_ID

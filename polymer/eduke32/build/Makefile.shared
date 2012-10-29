@@ -27,75 +27,12 @@ endif
 
 SDL_FRAMEWORK	= 0
 
-# Detect machine architecture
-SYSARCH?=$(strip $(shell uname -m))
-
-# GCC version, for conditional selection of flags.
-# This is easier than trying to squeeze it out of gcc --version:
-GCC_MAJOR ?= 4
 ifeq (4,$(GCC_MAJOR))
-    F_NO_STACK_PROTECTOR := -fno-stack-protector
-    # there are some link-time issues with stack protectors, so make it possible to override
-    F_STACK_PROTECTOR_ALL ?= -fstack-protector-all
-    ifeq (0,$(CLANG))
-        F_JUMP_TABLES := -fjump-tables
-    endif
-    M_TUNE_GENERIC := -mtune=generic
-    M_STACKREALIGN := -mstackrealign
     L_SSP := -lssp
-    W_STRICT_OVERFLOW := -Wstrict-overflow=1
-endif
-
-ifndef ARCH
-    ifeq ($(PLATFORM), WII)
-        ARCH=
-    else
-    ifeq ($(findstring i686, $(shell uname -m)), i686)
-        ARCH=-march=pentium3 $(M_TUNE_GENERIC) -mmmx # -msse2 -mfpmath=sse,387 -malign-double $(M_STACKREALIGN)
-    else
-        ARCH=
-    endif
-    endif
 endif
 
 BUILDCFLAGS=$(ARCH)
 BUILDLDFLAGS=$(ARCH)
-
-# Detect the platform if it wasn't explicitly given to us from
-# the outside world. This allows cross-compilation by overriding
-# CC and giving us PLATFORM specifically.
-#
-ifndef PLATFORM
-    uname=$(strip $(shell uname -s))
-    PLATFORM=UNKNOWN
-    ifeq ($(findstring Linux,$(uname)),Linux)
-        PLATFORM=LINUX
-    endif
-    ifeq ($(findstring BSD,$(uname)),BSD)
-        PLATFORM=BSD
-    endif
-    ifeq ($(findstring MINGW,$(uname)),MINGW)
-        PLATFORM=WINDOWS
-    endif
-    ifeq ($(findstring Darwin,$(uname)),Darwin)
-        PLATFORM=DARWIN
-    endif
-    ifeq ($(findstring BeOS,$(uname)),BeOS)
-        PLATFORM=BEOS
-    endif
-    ifeq ($(findstring skyos,$(uname)),skyos)
-        PLATFORM=SKYOS
-    endif
-    ifeq ($(findstring QNX,$(uname)),QNX)
-        PLATFORM=QNX
-    endif
-    ifeq ($(findstring SunOS,$(uname)),SunOS)
-        PLATFORM=SUNOS
-    endif
-    ifeq ($(findstring syllable,$(uname)),syllable)
-        PLATFORM=SYLLABLE
-    endif
-endif
 
 ifeq ($(PLATFORM),LINUX)
     STDCPPLIB=
@@ -122,30 +59,19 @@ ifeq ($(PLATFORM),LINUX)
     endif
 endif
 ifeq ($(PLATFORM),DARWIN)
-    DARWINVERSION?=$(strip $(shell uname -r | cut -d . -f 1))
-    ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 10)))
-        DARWIN9 ?= 1
-    endif
-
     RENDERTYPE    = SDL
     STDCPPLIB    = -lstdc++
-    BUILDCFLAGS    += -DHAVE_INTTYPES #-fno-leading-underscore
+    BUILDCFLAGS    += -DHAVE_INTTYPES
     GTKCOMPAT32    = 0
     SDL_FRAMEWORK    = 1
 
     ifeq (1,$(DARWIN9))
         BUILDCFLAGS += -DDARWIN9
-        F_JUMP_TABLES :=
-        W_STRICT_OVERFLOW :=
     endif
 
     ifeq (1,$(BUILD32_ON_64))
-        BUILDCFLAGS += $(F_NO_STACK_PROTECTOR)
         ARCH=-arch i386
     else
-        ifeq ($(findstring ppc,$(ARCH)),ppc)
-            BUILDCFLAGS += $(F_NO_STACK_PROTECTOR)
-        endif
         # ASM won't work on PowerPC or x86_64
         override NOASM    = 1
     endif
@@ -154,13 +80,14 @@ ifeq ($(PLATFORM),WINDOWS)
     RENDERTYPE ?= WIN
     BUILDCFLAGS+= -DHAVE_INTTYPES
     EXESUFFIX=.exe
-    LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 -lcomctl32 #-lshfolder
+    LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 -lcomctl32
+    #-lshfolder
 #    STDCPPLIB=-lstdc++
 endif
 ifeq ($(PLATFORM),BSD)
     RENDERTYPE=SDL
     BUILDCFLAGS+= -DHAVE_INTTYPES
-    ifneq ($(findstring i386, $(shell uname -m)), i386)
+    ifneq ($(findstring i386, $(SYSARCH)), i386)
         override NOASM=1
     endif
     STDCPPLIB=-lstdc++
@@ -322,8 +249,16 @@ endif
 
 
 ifeq ($(PRETTY_OUTPUT),1)
-BUILD_STARTED = printf "\033[K\033[1;36mBuild started using \"$(CC) $(OURCFLAGS) $(OURCONLYFLAGS) $(OURCXXFLAGS)\"\033[0m\n"
-BUILD_ECHOFLAGS = printf "\033[K\033[1;36mEnded compilation in this directory using \"$(CC) $(OURCFLAGS) $(OURCONLYFLAGS) $(OURCXXFLAGS)\"\033[0m\n"
+BUILD_SETTINGS_COMPILER = \033[1;33mcompiler: \033[0;33m\"$(CC) $(OURCFLAGS) $(OURCONLYFLAGS) $(OURCXXFLAGS)\"
+BUILD_SETTINGS_ASSEMBLER = \033[1;33massembler: \033[0;33m\"$(AS) $(OURASFLAGS)\"
+BUILD_SETTINGS_LINKER = \033[1;33mlinker: \033[0;33m\"$(OURLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB)\"
+ifeq (0,$(NOASM))
+    BUILD_SETTINGS = printf "$(BUILD_SETTINGS_COMPILER)\n$(BUILD_SETTINGS_ASSEMBLER)\n$(BUILD_SETTINGS_LINKER)\033[0m\n"
+else
+    BUILD_SETTINGS = printf "$(BUILD_SETTINGS_COMPILER)\n$(BUILD_SETTINGS_LINKER)\033[0m\n"
+endif
+BUILD_STARTED = printf "\033[K\033[1;36mBuild started using:\033[0m\n"; $(BUILD_SETTINGS)
+BUILD_ECHOFLAGS = printf "\033[K\033[1;36mEnded compilation in this directory using:\n$(BUILD_SETTINGS_COMPILER)\033[0m\n"
 BUILD_FINISHED = printf "\033[K\033[1;36mBuild successful:\033[0m\n"
 COMPILE_STATUS = printf "\033[K\033[0mBuilding object \033[1m$@\033[0m...\033[0m\r"
 ONESTEP_STATUS = printf "\033[K\033[0mBuilding executable \033[1m$@\033[0m...\033[0m\r"
@@ -338,7 +273,7 @@ LINK_OK = printf "\033[K\033[0;32mLinked executable \033[1;32m$@\033[0;32m \033[
 LINK_FAILED = printf "\033[K\033[0;31mFailed linking executable \033[1;31m$@\033[0;31m!\033[0m\n"; exit 1
 else
 BUILD_STARTED = 
-BUILD_ECHOFLAGS=
+BUILD_ECHOFLAGS =
 BUILD_FINISHED = 
 COMPILE_STATUS = 
 ONESTEP_STATUS = 
