@@ -971,6 +971,8 @@ const memberlabel_t PlayerLabels[]=
     { "max_shield_amount", PLAYER_MAX_SHIELD_AMOUNT, 0, 0 },
     { "max_ammo_amount", PLAYER_MAX_AMMO_AMOUNT, LABEL_HASPARM2, MAX_WEAPONS },
     { "last_quick_kick", PLAYER_LAST_QUICK_KICK, 0, 0 },
+    { "autostep", PLAYER_AUTOSTEP, 0, 0 },
+    { "autostep_sbw", PLAYER_AUTOSTEP_SBW, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 

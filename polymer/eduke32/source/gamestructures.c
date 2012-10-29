@@ -1524,7 +1524,11 @@ static void __fastcall VM_GetPlayer(register int32_t lVar1, register int32_t lLa
     case PLAYER_MAX_AMMO_AMOUNT:
         Gv_SetVarX(lVar2, ps->max_ammo_amount[lParm2]); return;
     case PLAYER_LAST_QUICK_KICK:
-        Gv_SetVarX(lVar2, ps->last_quick_kick);
+        Gv_SetVarX(lVar2, ps->last_quick_kick); return;
+    case PLAYER_AUTOSTEP:
+        Gv_SetVarX(lVar2, ps->autostep); return;
+    case PLAYER_AUTOSTEP_SBW:
+        Gv_SetVarX(lVar2, ps->autostep_sbw);
         return;
 
     default:
@@ -1871,7 +1875,11 @@ static void __fastcall VM_SetPlayer(int32_t lVar1, int32_t lLabelID, int32_t lVa
     case PLAYER_MAX_AMMO_AMOUNT:
         ps->max_ammo_amount[lParm2]=lVar1; return;
     case PLAYER_LAST_QUICK_KICK:
-        ps->last_quick_kick=lVar1;
+        ps->last_quick_kick=lVar1; return;
+    case PLAYER_AUTOSTEP:
+        ps->autostep=lVar1; return;
+    case PLAYER_AUTOSTEP_SBW:
+        ps->autostep_sbw=lVar1;
         return;
 
     default:
@@ -3806,6 +3814,10 @@ static int32_t __fastcall VM_AccessPlayerX(int32_t iPlayer, int32_t lLabelID, in
         return ps->max_ammo_amount[lParm2];
     case PLAYER_LAST_QUICK_KICK:
         return ps->last_quick_kick;
+    case PLAYER_AUTOSTEP:
+        return ps->autostep;
+    case PLAYER_AUTOSTEP_SBW:
+        return ps->autostep_sbw;
     default:
         return -1;
     }

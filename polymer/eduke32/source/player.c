@@ -5172,8 +5172,8 @@ void P_ProcessInput(int32_t snum)
     }
 
 HORIZONLY:
-    if (psectlotag == ST_1_ABOVE_WATER || p->spritebridge == 1) i = (4L<<8);
-    else i = (20L<<8);
+    if (psectlotag == ST_1_ABOVE_WATER || p->spritebridge == 1) i = p->autostep_sbw;
+    else i = p->autostep;
 
     if (p->cursectnum >= 0 && sector[p->cursectnum].lotag == ST_2_UNDERWATER) k = 0;
     else k = 1;

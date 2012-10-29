@@ -1670,6 +1670,9 @@ static void resetpspritevars(char g)
                 g_player[j].ps->frag_ps = j;
                 actor[i].owner = i;
 
+                g_player[j].ps->autostep = (20L<<8);
+                g_player[j].ps->autostep_sbw = (4L<<8);
+
                 actor[i].bposx = g_player[j].ps->bobposx = g_player[j].ps->opos.x = g_player[j].ps->pos.x =        s->x;
                 actor[i].bposy = g_player[j].ps->bobposy = g_player[j].ps->opos.y = g_player[j].ps->pos.y =        s->y;
                 actor[i].bposz = g_player[j].ps->opos.z = g_player[j].ps->pos.z =        s->z;

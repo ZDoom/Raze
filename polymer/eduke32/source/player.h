@@ -147,6 +147,7 @@ typedef struct {
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;
     int32_t runspeed, max_player_health, max_shield_amount;
+    int32_t autostep, autostep_sbw;
 
     uint32_t interface_toggle_flag;
 
