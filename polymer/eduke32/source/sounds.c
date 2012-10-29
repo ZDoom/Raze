@@ -678,7 +678,6 @@ int32_t S_PlaySound(int32_t num)
 {
     int32_t pitch;
     int32_t voice, j;
-    int32_t doretry = 0;
 
     if (apScriptGameEvent[EVENT_SOUND])
         num = VM_OnEvent(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, -1, num);
