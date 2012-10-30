@@ -3978,16 +3978,16 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     // sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
-    if (actorscrptr[s_pn])
+    if (g_tile[s_pn].execPtr)
     {
-        s->extra = *actorscrptr[s_pn];
-        T5 = *(actorscrptr[s_pn]+1);
-        T2 = *(actorscrptr[s_pn]+2);
+        s->extra = *g_tile[s_pn].execPtr;
+        T5 = *(g_tile[s_pn].execPtr+1);
+        T2 = *(g_tile[s_pn].execPtr+2);
 #ifdef LUNATIC
         set_action_members(i);
         set_move_members(i);
 #endif
-        s->hitag = *(actorscrptr[s_pn]+3);
+        s->hitag = *(g_tile[s_pn].execPtr+3);
     }
 
     if (show2dsector[SECT>>3]&(1<<(SECT&7))) show2dsprite[i>>3] |= (1<<(i&7));
@@ -4107,17 +4107,17 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         if (CS&1) CS |= 256;
 
-        if (actorscrptr[s])
+        if (g_tile[s].execPtr)
         {
-            SH = *(actorscrptr[s]);
-            T5 = *(actorscrptr[s]+1);
-            T2 = *(actorscrptr[s]+2);
+            SH = *(g_tile[s].execPtr);
+            T5 = *(g_tile[s].execPtr+1);
+            T2 = *(g_tile[s].execPtr+2);
 #ifdef LUNATIC
             set_action_members(i);
             set_move_members(i);
 #endif
-            if (*(actorscrptr[s]+3) && SHT == 0)
-                SHT = *(actorscrptr[s]+3);
+            if (*(g_tile[s].execPtr+3) && SHT == 0)
+                SHT = *(g_tile[s].execPtr+3);
         }
         else T2 = T5 = 0;
     }
@@ -4162,7 +4162,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
     else switch (DYNAMICTILEMAP(sp->picnum))
         {
         default:
-            if (actorscrptr[sp->picnum])
+            if (g_tile[sp->picnum].execPtr)
             {
                 if (j == -1 && sp->lotag > ud.player_skill)
                 {
@@ -4175,7 +4175,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 if (sp->xrepeat == 0 || sp->yrepeat == 0)
                     sp->xrepeat = sp->yrepeat = 1;
 
-                if (ActorType[sp->picnum] & 3)
+                if (A_CheckSpriteTileFlags(sp->picnum, SPRITE_BADGUY))
                 {
                     if (ud.monsters_off == 1)
                     {
@@ -4186,7 +4186,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                     A_Fall(i);
 
-                    if (ActorType[sp->picnum] & 2)
+                    if (A_CheckSpriteTileFlags(sp->picnum, SPRITE_BADGUYSTAYPUT))
                         actor[i].actorstayput = sp->sectnum;
 
                     g_player[myconnectindex].ps->max_actors_killed++;
@@ -5044,8 +5044,27 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     break;
                 }
             }
+            else
+            {
+                switch (DYNAMICTILEMAP(sp->picnum))
+                {
+                case LIZTROOPONTOILET__STATIC:
+                case LIZTROOPSHOOT__STATIC:
+                case LIZTROOPJETPACK__STATIC:
+                case LIZTROOPDUCKING__STATIC:
+                case LIZTROOPRUNNING__STATIC:
+                case LIZTROOPSTAYPUT__STATIC:
+                case LIZTROOPJUSTSIT__STATIC:
+                case LIZTROOP__STATIC:
+                    if (g_scriptVersion == 13)
+                default:
+                        sp->extra <<= 1;
+                    break;
+                }
+            }
 
-            if (sp->picnum == BOSS4STAYPUT || sp->picnum == BOSS1 || sp->picnum == BOSS2 || sp->picnum == BOSS1STAYPUT || sp->picnum == BOSS3 || sp->picnum == BOSS4)
+            if (sp->picnum == BOSS4STAYPUT || sp->picnum == BOSS1 || sp->picnum == BOSS2 ||
+                sp->picnum == BOSS1STAYPUT || sp->picnum == BOSS3 || sp->picnum == BOSS4)
             {
                 if (j >= 0 && sprite[j].picnum == RESPAWN)
                     sp->pal = sprite[j].pal;
@@ -6595,7 +6614,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 // Display APLAYER sprites with action PSTAND when viewed through
                 // a camera.  Not implemented for Lunatic.
 #ifndef LUNATIC
-                const intptr_t *aplayer_scr = actorscrptr[APLAYER];
+                const intptr_t *aplayer_scr = g_tile[APLAYER].execPtr;
                 // [0]=strength, [1]=actionofs, [2]=moveofs
 
                 t_data4 = aplayer_scr[1];
@@ -6687,7 +6706,7 @@ PALONLY:
             break;
         }
 
-        if (actorscrptr[s->picnum])
+        if (g_tile[s->picnum].execPtr)
         {
             /*
             if (ud.angleinterpolation)
@@ -7969,6 +7988,7 @@ FAKE_F3:
                 KB_FlushKeyboardQueue();
                 KB_ClearKeysDown();
                 FX_StopAllSounds();
+                S_ClearSoundLocks();
 
                 G_LoadPlayerMaybeMulti(g_lastSaveSlot);
             }

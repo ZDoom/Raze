@@ -165,6 +165,20 @@ typedef struct {
     int16_t actorstayput, dispicnum, shootzvel, cgg; // 8b
 
 } netactor_t;
+
+typedef struct {
+    intptr_t *execPtr; // pointer to CON script for this tile, formerly actorscrptr
+    intptr_t *loadPtr; // pointer to load time CON script, formerly actorLoadEventScrPtr or something
+
+    uint32_t flags;    // formerly SpriteFlags, ActorType
+
+    int16_t cacherange[2]; // formerly SpriteCache
+
+    // todo: make these pointers and allocate at runtime
+    projectile_t proj;
+    projectile_t defproj;
+} tiledata_t;
+
 #pragma pack(pop)
 
 enum sflags_t {
@@ -183,6 +197,8 @@ enum sflags_t {
     SPRITE_NOFLOORSHADOW    = 0x00001000, // for temp. internal use, per-tile flag not checked
     SPRITE_SMOOTHMOVE       = 0x00002000,
     SPRITE_NOTELEPORT       = 0x00004000,
+    SPRITE_BADGUYSTAYPUT    = 0x00008000,
+    SPRITE_CACHE            = 0x00010000,
 };
 
 // custom projectiles
@@ -210,19 +226,13 @@ enum pflags_t {
     PROJECTILE_ACCURATE            = 0x00100000,
 };
 
+extern tiledata_t       g_tile[MAXTILES];
 extern actor_t          actor[MAXSPRITES];
-extern char             ActorType[MAXTILES];
-extern int16_t          SpriteCacheList[MAXTILES][3];
-extern int32_t          SpriteFlags[MAXTILES];
 extern int32_t          block_deletesprite;
 extern int32_t          g_noEnemies;
 extern int32_t          otherp;
 extern int32_t          ticrandomseed;
-extern intptr_t         *actorLoadEventScrptr[MAXTILES];
-extern intptr_t         *actorscrptr[MAXTILES];
 extern intptr_t         *g_parsingActorPtr;
-extern projectile_t     DefaultProjectileData[MAXTILES];
-extern projectile_t     ProjectileData[MAXTILES];
 extern projectile_t     SpriteProjectile[MAXSPRITES];
 
 

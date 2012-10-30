@@ -707,15 +707,12 @@ dead:
             }
             else if (vm.g_sp->picnum != DRONE && vm.g_sp->picnum != SHARK && vm.g_sp->picnum != COMMANDER)
             {
-                if (actor[vm.g_i].bposz != vm.g_sp->z || ((!g_netServer && ud.multimode < 2) && ud.player_skill < 2))
+                if (ps->actorsqu == vm.g_i) return;
+
+                if (!A_CheckSpriteFlags(vm.g_i, SPRITE_SMOOTHMOVE))
                 {
-                    if ((vm.g_t[0]&1) || ps->actorsqu == vm.g_i) return;
-                    else daxvel <<= 1;
-                }
-                else
-                {
-                    if ((vm.g_t[0]&3) || ps->actorsqu == vm.g_i) return;
-                    else daxvel <<= 2;
+                    if (vm.g_t[0]&1) return;
+                    daxvel <<= 1;
                 }
             }
         }
@@ -1352,7 +1349,7 @@ skip_check:
 #endif
 
                     if ((vm.g_sp->hitag & jumptoplayer) ||
-                        (actorscrptr[vm.g_sp->picnum] &&
+                        (g_tile[vm.g_sp->picnum].execPtr &&
 #ifndef LUNATIC
                          (unsigned)moveScriptOfs < (unsigned)g_scriptSize-1 && script[moveScriptOfs + 1]
 #else
@@ -1937,12 +1934,12 @@ nullquote:
                     actor[i].flags = 0;
                     sprite[i].hitag = 0;
 
-                    if (actorscrptr[sprite[i].picnum])
+                    if (g_tile[sprite[i].picnum].execPtr)
                     {
                         // offsets
-                        T5 = *(actorscrptr[sprite[i].picnum]+1);  // action
-                        T2 = *(actorscrptr[sprite[i].picnum]+2);  // move
-                        sprite[i].hitag = *(actorscrptr[sprite[i].picnum]+3);  // ai bits
+                        T5 = *(g_tile[sprite[i].picnum].execPtr+1);  // action
+                        T2 = *(g_tile[sprite[i].picnum].execPtr+2);  // move
+                        sprite[i].hitag = *(g_tile[sprite[i].picnum].execPtr+3);  // ai bits
                     }
                 }
                 changespritestat(i,j);
@@ -5070,7 +5067,7 @@ void A_LoadActor(int32_t iActor)
     vm.g_sp = &sprite[vm.g_i];    // Pointer to sprite structure
     vm.g_t = &actor[vm.g_i].t_data[0];   // Sprite's 'extra' data
 
-    if (actorLoadEventScrptr[vm.g_sp->picnum] == NULL)
+    if (g_tile[vm.g_sp->picnum].loadPtr == NULL)
         return;
 
     vm.g_flags &= ~(VM_RETURN|VM_KILL|VM_NOEXECUTE);
@@ -5083,7 +5080,7 @@ void A_LoadActor(int32_t iActor)
         return;
     }
 
-    insptr = actorLoadEventScrptr[vm.g_sp->picnum];
+    insptr = g_tile[vm.g_sp->picnum].loadPtr;
     VM_Execute(1);
     insptr = NULL;
 
@@ -5163,7 +5160,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
         El_CallActor(&g_ElState, vm.g_sp->picnum, iActor, iPlayer, lDist);
 #endif
 
-    insptr = 4 + (actorscrptr[vm.g_sp->picnum]);
+    insptr = 4 + (g_tile[vm.g_sp->picnum].execPtr);
     VM_Execute(1);
     insptr = NULL;
 

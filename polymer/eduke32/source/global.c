@@ -37,6 +37,7 @@ int32_t neartaghitdist,lockclock,g_startArmorAmount;
 int32_t g_spriteGravity=176;
 
 actor_t actor[MAXSPRITES];
+tiledata_t g_tile[MAXTILES];
 
 int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos,g_spriteDeleteQueueSize=64;
 animwalltype animwall[MAXANIMWALLS];
@@ -110,9 +111,8 @@ int32_t vel, svel, angvel, horiz, ototalclock, g_actorRespawnTime=768, g_itemRes
 intptr_t *g_scriptPtr,*insptr;
 int32_t *labelcode, *labeltype;
 int32_t g_numLabels,g_numDefaultLabels;
-intptr_t *actorscrptr[MAXTILES],*g_parsingActorPtr;
+intptr_t *g_parsingActorPtr;
 char *label;
-char ActorType[MAXTILES];
 intptr_t *script = NULL;
 
 int32_t g_scriptSize = 1048576;
@@ -171,9 +171,7 @@ int32_t oldipos[MAXINTERPOLATIONS];
 int32_t bakipos[MAXINTERPOLATIONS];
 int32_t *curipos[MAXINTERPOLATIONS];
 
-int32_t SpriteFlags[MAXTILES];
-
-projectile_t ProjectileData[MAXTILES], DefaultProjectileData[MAXTILES], SpriteProjectile[MAXSPRITES];
+projectile_t SpriteProjectile[MAXSPRITES];
 
 char CheatKeys[2] = { sc_D, sc_N };
 char setupfilename[BMAX_PATH]= SETUPFILENAME;

@@ -341,7 +341,7 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
                 clipdist = 1024;
             else if (spr->picnum == LIZMAN)
                 clipdist = 292;
-            else if (ActorType[spr->picnum]&3)
+            else if (A_CheckSpriteTileFlags(spr->picnum, SPRITE_BADGUY))
                 clipdist = spr->clipdist<<2;
             else
                 clipdist = 192;
@@ -664,7 +664,8 @@ void Sect_ClearInterpolation(int32_t sectnum)
 static int32_t move_fixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
 {
     if ((FIXSPR_STATNUMP(sprite[j].statnum) ||
-         ((sprite[j].statnum==STAT_ACTOR || sprite[j].statnum==STAT_ZOMBIEACTOR) && (ActorType[sprite[j].picnum]&4)))
+         ((sprite[j].statnum==STAT_ACTOR || sprite[j].statnum==STAT_ZOMBIEACTOR) &&
+         A_CheckSpriteTileFlags(sprite[j].picnum, SPRITE_BADGUY)))
             && actor[j].t_data[7]==(0x18190000|pivotspr))
     {
         rotatepoint(0,0, actor[j].t_data[8],actor[j].t_data[9], daang&2047, &sprite[j].x,&sprite[j].y);
@@ -1123,7 +1124,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                     otherx = 0;
                 }
 
-                if (actorscrptr[sprite[i].picnum])
+                if (g_tile[sprite[i].picnum].execPtr)
                     A_Execute(i,s->yvel,otherx);
 
                 if (g_netServer || ud.multimode > 1)
@@ -2410,7 +2411,7 @@ CLEAR_THE_BOLT:
         case STEAM__STATIC:
         case CEILINGSTEAM__STATIC:
         case WATERBUBBLEMAKER__STATIC:
-            if (!actorscrptr[sprite[i].picnum])
+            if (!g_tile[sprite[i].picnum].execPtr)
                 goto BOLT;
             {
                 int32_t p = A_FindPlayer(s, &x);
@@ -2796,7 +2797,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
 
                     if (proj->workslike & PROJECTILE_HITSCAN)
                     {
-                        if (!actorscrptr[sprite[i].picnum])
+                        if (!g_tile[sprite[i].picnum].execPtr)
                             goto BOLT;
                         {
                             int32_t p = A_FindPlayer(s,&x);
@@ -3116,7 +3117,7 @@ COOLEXPLOSION:
             goto BOLT;
 
         case SHOTSPARK1__STATIC:
-            if (!actorscrptr[sprite[i].picnum])
+            if (!g_tile[sprite[i].picnum].execPtr)
                 goto BOLT;
             {
                 int32_t p = A_FindPlayer(s,&x);
@@ -4868,7 +4869,7 @@ DETONATEB:
             }
         }
 
-        if (!actorscrptr[sprite[i].picnum])
+        if (!g_tile[sprite[i].picnum].execPtr)
             goto BOLT;
         {
             int32_t p = A_FindPlayer(s,&x);
@@ -5309,7 +5310,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
             case TRANSPORTERSTAR__STATIC:
             case TRANSPORTERBEAM__STATIC:
             {
-                if (!actorscrptr[sprite[i].picnum])
+                if (!g_tile[sprite[i].picnum].execPtr)
                     goto BOLT;
                 {
                     int32_t p = A_FindPlayer(s,&x);
@@ -8182,7 +8183,6 @@ int32_t A_CheckEnemyTile(int32_t pn)
     //this case can't be handled by the dynamictostatic system because it adds
     //stuff to the value from names.h so handling separately
     if (A_CheckSpriteTileFlags(pn, SPRITE_BADGUY) ||
-        (ActorType[pn]&3) ||
         (pn >= GREENSLIME && pn <= GREENSLIME+7))
         return 1;
 

@@ -43,7 +43,6 @@ extern El_State g_ElState;
 
 static int32_t g_whichPalForPlayer = 9;
 int32_t g_numRealPalettes;
-int16_t SpriteCacheList[MAXTILES][3];
 
 static uint8_t precachehightile[2][MAXTILES>>3];
 static int32_t  g_precacheCount;
@@ -91,8 +90,8 @@ static void G_CacheSpriteNum(int32_t i)
 
     maxc = 1;
 
-    if (SpriteCacheList[PN][0] == PN)
-        for (j = PN; j <= SpriteCacheList[PN][1]; j++)
+    if (A_CheckSpriteTileFlags(PN, SPRITE_CACHE) && g_tile[PN].cacherange[1])
+        for (j = g_tile[PN].cacherange[0]; j <= g_tile[PN].cacherange[1]; j++)
             tloadtile(j,1);
 
     switch (DYNAMICTILEMAP(PN))
@@ -227,10 +226,11 @@ static void G_PrecacheSprites(void)
 
     for (i=0; i<MAXTILES; i++)
     {
-        if (SpriteFlags[i] & SPRITE_PROJECTILE)
+        if (g_tile[i].flags & SPRITE_PROJECTILE)
             tloadtile(i,1);
-        if (SpriteCacheList[i][0] == i && SpriteCacheList[i][2])
-            for (j = i; j <= SpriteCacheList[i][1]; j++)
+
+        if (A_CheckSpriteTileFlags(i, SPRITE_CACHE) && g_tile[i].cacherange[1])
+            for (j = g_tile[i].cacherange[0]; j <= g_tile[i].cacherange[1]; j++)
                 tloadtile(j,1);
     }
     tloadtile(BOTTOMSTATUSBAR,1);
@@ -1059,7 +1059,8 @@ static void premap_setup_fixed_sprites(void)
                 // TRIPBOMB uses t_data[7] for its own purposes. Wouldn't be
                 // too useful with moving sectors anyway
                 if ((FIXSPR_STATNUMP(sprite[j].statnum) && sprite[j].picnum!=TRIPBOMB) ||
-                    ((sprite[j].statnum==STAT_ACTOR || sprite[j].statnum==STAT_ZOMBIEACTOR) && (ActorType[sprite[j].picnum]&4)))
+                    ((sprite[j].statnum==STAT_ACTOR || sprite[j].statnum==STAT_ZOMBIEACTOR) &&
+                    A_CheckSpriteTileFlags(sprite[j].picnum, SPRITE_BADGUY)))
                 {
                     pivot = i;
                     if (sprite[i].lotag==0)

@@ -55,8 +55,6 @@ extern int32_t g_iWallVarID;
 extern int32_t g_iPlayerVarID;
 extern int32_t g_iActorVarID;
 
-extern intptr_t *actorLoadEventScrptr[MAXTILES];
-
 extern intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
 
 extern int32_t otherp;

@@ -148,8 +148,6 @@ int32_t g_iWallVarID=-1;
 int32_t g_iPlayerVarID=-1;
 int32_t g_iActorVarID=-1;
 
-intptr_t *actorLoadEventScrptr[MAXTILES];
-
 intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
 static intptr_t *g_parsingEventPtr=NULL;
 
@@ -1226,8 +1224,8 @@ static int32_t C_SetScriptSize(int32_t newsize)
         else scriptptrs[i] = 0;
     }
 
-    G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_FWD_NON0);
-    G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_FWD_NON0);
+    G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
+    G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
     G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_FWD_NON0);
 
     initprintf("Resizing code buffer to %d*%d bytes\n",newsize, (int32_t)sizeof(intptr_t));
@@ -1279,8 +1277,8 @@ static int32_t C_SetScriptSize(int32_t newsize)
             script[i] = j;
         }
 
-    G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_BACK_NON0);
-    G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_BACK_NON0);
+    G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), script, P2I_BACK_NON0);
+    G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), script, P2I_BACK_NON0);
     G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_BACK_NON0);
 
     Bfree(scriptptrs);
@@ -2752,15 +2750,21 @@ static int32_t C_ParseCommand(int32_t loop)
 
             if (tw == CON_EVENTLOADACTOR)
             {
-                actorLoadEventScrptr[*g_scriptPtr] = g_parsingActorPtr;
+                g_tile[*g_scriptPtr].loadPtr = g_parsingActorPtr;
                 g_checkingIfElse = 0;
                 continue;
             }
 
-            actorscrptr[*g_scriptPtr] = g_parsingActorPtr;
+            g_tile[*g_scriptPtr].execPtr = g_parsingActorPtr;
 
             if (tw == CON_USERACTOR)
-                ActorType[*g_scriptPtr] = j;
+            {
+                if (j & 1)
+                    g_tile[*g_scriptPtr].flags |= SPRITE_BADGUY;
+
+                if (j & 2)
+                    g_tile[*g_scriptPtr].flags |= SPRITE_BADGUYSTAYPUT;
+            }
 
             for (j=0; j<4; j++)
             {
@@ -4016,65 +4020,65 @@ static int32_t C_ParseCommand(int32_t loop)
                 switch (y)
                 {
                 case PROJ_WORKSLIKE:
-                    DefaultProjectileData[j].workslike = ProjectileData[j].workslike = z; break;
+                    g_tile[j].defproj.workslike = g_tile[j].proj.workslike = z; break;
                 case PROJ_SPAWNS:
-                    DefaultProjectileData[j].spawns = ProjectileData[j].spawns = z; break;
+                    g_tile[j].defproj.spawns = g_tile[j].proj.spawns = z; break;
                 case PROJ_SXREPEAT:
-                    DefaultProjectileData[j].sxrepeat = ProjectileData[j].sxrepeat = z; break;
+                    g_tile[j].defproj.sxrepeat = g_tile[j].proj.sxrepeat = z; break;
                 case PROJ_SYREPEAT:
-                    DefaultProjectileData[j].syrepeat = ProjectileData[j].syrepeat = z; break;
+                    g_tile[j].defproj.syrepeat = g_tile[j].proj.syrepeat = z; break;
                 case PROJ_SOUND:
-                    DefaultProjectileData[j].sound = ProjectileData[j].sound = z; break;
+                    g_tile[j].defproj.sound = g_tile[j].proj.sound = z; break;
                 case PROJ_ISOUND:
-                    DefaultProjectileData[j].isound = ProjectileData[j].isound = z; break;
+                    g_tile[j].defproj.isound = g_tile[j].proj.isound = z; break;
                 case PROJ_VEL:
-                    DefaultProjectileData[j].vel = ProjectileData[j].vel = z; break;
+                    g_tile[j].defproj.vel = g_tile[j].proj.vel = z; break;
                 case PROJ_EXTRA:
-                    DefaultProjectileData[j].extra = ProjectileData[j].extra = z; break;
+                    g_tile[j].defproj.extra = g_tile[j].proj.extra = z; break;
                 case PROJ_DECAL:
-                    DefaultProjectileData[j].decal = ProjectileData[j].decal = z; break;
+                    g_tile[j].defproj.decal = g_tile[j].proj.decal = z; break;
                 case PROJ_TRAIL:
-                    DefaultProjectileData[j].trail = ProjectileData[j].trail = z; break;
+                    g_tile[j].defproj.trail = g_tile[j].proj.trail = z; break;
                 case PROJ_TXREPEAT:
-                    DefaultProjectileData[j].txrepeat = ProjectileData[j].txrepeat = z; break;
+                    g_tile[j].defproj.txrepeat = g_tile[j].proj.txrepeat = z; break;
                 case PROJ_TYREPEAT:
-                    DefaultProjectileData[j].tyrepeat = ProjectileData[j].tyrepeat = z; break;
+                    g_tile[j].defproj.tyrepeat = g_tile[j].proj.tyrepeat = z; break;
                 case PROJ_TOFFSET:
-                    DefaultProjectileData[j].toffset = ProjectileData[j].toffset = z; break;
+                    g_tile[j].defproj.toffset = g_tile[j].proj.toffset = z; break;
                 case PROJ_TNUM:
-                    DefaultProjectileData[j].tnum = ProjectileData[j].tnum = z; break;
+                    g_tile[j].defproj.tnum = g_tile[j].proj.tnum = z; break;
                 case PROJ_DROP:
-                    DefaultProjectileData[j].drop = ProjectileData[j].drop = z; break;
+                    g_tile[j].defproj.drop = g_tile[j].proj.drop = z; break;
                 case PROJ_CSTAT:
-                    DefaultProjectileData[j].cstat = ProjectileData[j].cstat = z; break;
+                    g_tile[j].defproj.cstat = g_tile[j].proj.cstat = z; break;
                 case PROJ_CLIPDIST:
-                    DefaultProjectileData[j].clipdist = ProjectileData[j].clipdist = z; break;
+                    g_tile[j].defproj.clipdist = g_tile[j].proj.clipdist = z; break;
                 case PROJ_SHADE:
-                    DefaultProjectileData[j].shade = ProjectileData[j].shade = z; break;
+                    g_tile[j].defproj.shade = g_tile[j].proj.shade = z; break;
                 case PROJ_XREPEAT:
-                    DefaultProjectileData[j].xrepeat = ProjectileData[j].xrepeat = z; break;
+                    g_tile[j].defproj.xrepeat = g_tile[j].proj.xrepeat = z; break;
                 case PROJ_YREPEAT: 
-                    DefaultProjectileData[j].yrepeat = ProjectileData[j].yrepeat = z; break;
+                    g_tile[j].defproj.yrepeat = g_tile[j].proj.yrepeat = z; break;
                 case PROJ_PAL:
-                    DefaultProjectileData[j].pal = ProjectileData[j].pal = z; break;
+                    g_tile[j].defproj.pal = g_tile[j].proj.pal = z; break;
                 case PROJ_EXTRA_RAND:
-                    DefaultProjectileData[j].extra_rand = ProjectileData[j].extra_rand = z; break;
+                    g_tile[j].defproj.extra_rand = g_tile[j].proj.extra_rand = z; break;
                 case PROJ_HITRADIUS:
-                    DefaultProjectileData[j].hitradius = ProjectileData[j].hitradius = z; break;
+                    g_tile[j].defproj.hitradius = g_tile[j].proj.hitradius = z; break;
                 case PROJ_MOVECNT:
-                    DefaultProjectileData[j].movecnt = ProjectileData[j].movecnt = z; break;
+                    g_tile[j].defproj.movecnt = g_tile[j].proj.movecnt = z; break;
                 case PROJ_OFFSET:
-                    DefaultProjectileData[j].offset = ProjectileData[j].offset = z; break;
+                    g_tile[j].defproj.offset = g_tile[j].proj.offset = z; break;
                 case PROJ_BOUNCES:
-                    DefaultProjectileData[j].bounces = ProjectileData[j].bounces = z; break;
+                    g_tile[j].defproj.bounces = g_tile[j].proj.bounces = z; break;
                 case PROJ_BSOUND:
-                    DefaultProjectileData[j].bsound = ProjectileData[j].bsound = z; break;
+                    g_tile[j].defproj.bsound = g_tile[j].proj.bsound = z; break;
                 case PROJ_RANGE:
-                    DefaultProjectileData[j].range = ProjectileData[j].range = z; break;
+                    g_tile[j].defproj.range = g_tile[j].proj.range = z; break;
                 default: break;
                 }
 
-                SpriteFlags[j] |= SPRITE_PROJECTILE;
+                g_tile[j].flags |= SPRITE_PROJECTILE;
                 continue;
             }
 
@@ -4097,7 +4101,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     continue;
                 }
 
-                SpriteFlags[j] = *g_scriptPtr;
+                g_tile[j].flags = *g_scriptPtr;
 
                 continue;
             }
@@ -4131,19 +4135,19 @@ static int32_t C_ParseCommand(int32_t loop)
             switch (tw)
             {
             case CON_SPRITESHADOW:
-                SpriteFlags[*g_scriptPtr] |= SPRITE_SHADOW;
+                g_tile[*g_scriptPtr].flags |= SPRITE_SHADOW;
                 break;
             case CON_SPRITENVG:
-                SpriteFlags[*g_scriptPtr] |= SPRITE_NVG;
+                g_tile[*g_scriptPtr].flags |= SPRITE_NVG;
                 break;
             case CON_SPRITENOSHADE:
-                SpriteFlags[*g_scriptPtr] |= SPRITE_NOSHADE;
+                g_tile[*g_scriptPtr].flags |= SPRITE_NOSHADE;
                 break;
             case CON_SPRITENOPAL:
-                SpriteFlags[*g_scriptPtr] |= SPRITE_NOPAL;
+                g_tile[*g_scriptPtr].flags |= SPRITE_NOPAL;
                 break;
             case CON_PRECACHE:
-                SpriteCacheList[*g_scriptPtr][0] = j;
+                g_tile[*g_scriptPtr].flags |= SPRITE_CACHE;
                 C_GetNextValue(LABEL_DEFINE);
                 g_scriptPtr--;
                 i = *g_scriptPtr;
@@ -4152,11 +4156,16 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_ReportError(ERROR_EXCEEDSMAXTILES);
                     g_numCompilerErrors++;
                 }
-                SpriteCacheList[j][1] = i;
+                g_tile[j].cacherange[0] = i;
                 C_GetNextValue(LABEL_DEFINE);
                 g_scriptPtr--;
                 i = *g_scriptPtr;
-                SpriteCacheList[j][2] = i;
+                if ((unsigned)i >= MAXTILES)
+                {
+                    C_ReportError(ERROR_EXCEEDSMAXTILES);
+                    g_numCompilerErrors++;
+                }
+                g_tile[j].cacherange[1] = i;
                 break;
             }
             continue;
@@ -5716,6 +5725,18 @@ static void C_AddDefaultDefinitions(void)
         C_AddDefinition(tempbuf, i, LABEL_DEFINE);
     }
 
+    C_AddDefinition("SFLAG_SHADOW", SPRITE_SHADOW, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NVG", SPRITE_NVG, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOSHADE", SPRITE_NOSHADE, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_BADGUY", SPRITE_BADGUY, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOPAL", SPRITE_NOPAL, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOEVENTS", SPRITE_NOEVENTCODE, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOLIGHT", SPRITE_NOLIGHT, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_USEACTIVATOR", SPRITE_USEACTIVATOR, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOCLIP", SPRITE_NOCLIP, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_SMOOTHMOVE", SPRITE_SMOOTHMOVE, LABEL_DEFINE);
+    C_AddDefinition("SFLAG_NOTELEPORT", SPRITE_NOTELEPORT, LABEL_DEFINE);
+
     C_AddDefinition("STR_MAPNAME",STR_MAPNAME,LABEL_DEFINE);
     C_AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME,LABEL_DEFINE);
     C_AddDefinition("STR_PLAYERNAME",STR_PLAYERNAME,LABEL_DEFINE);
@@ -5788,9 +5809,10 @@ static void C_InitProjectiles(void)
         G_GameExit("ERROR: C_InitProjectiles(): projectile_t mismatch!");
 
     for (i=MAXTILES-1; i>=0; i--)
-        Bmemcpy(&ProjectileData[i],&DefaultProjectile,sizeof(projectile_t));
-
-    Bmemcpy(&DefaultProjectileData[0], &ProjectileData[0], sizeof(ProjectileData));
+    {
+        Bmemcpy(&g_tile[i].proj, &DefaultProjectile, sizeof(projectile_t));
+        Bmemcpy(&g_tile[i].defproj, &g_tile[i].proj, sizeof(projectile_t));
+    }
 }
 #pragma pack(pop)
 
@@ -5882,10 +5904,9 @@ void C_Compile(const char *filenam)
     kread(fp,(char *)textptr,fs);
     kclose(fp);
 
-    Bmemset(actorscrptr, 0, sizeof(actorscrptr));
-    Bmemset(actorLoadEventScrptr, 0, sizeof(actorLoadEventScrptr));
-    Bmemset(ActorType, 0, sizeof(ActorType));
-//    clearbufbyte(script,sizeof(script),0l); // JBF 20040531: yes? no?
+    for (i=MAXTILES-1; i>=0; i--)
+        Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
+
     if (script != NULL)
         Bfree(script);
 
@@ -5996,7 +6017,7 @@ void C_Compile(const char *filenam)
             if (apScriptGameEvent[i])
                 k++;
         for (i=MAXTILES-1; i>=0; i--)
-            if (actorscrptr[i])
+            if (g_tile[i].execPtr)
                 l++;
 
         if (j) initprintf("%d quotes, ", j);

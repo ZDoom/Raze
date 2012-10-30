@@ -2123,7 +2123,7 @@ void A_DamageObject(int32_t i,int32_t sn)
     case FUELPOD__STATIC:
     case SOLARPANNEL__STATIC:
     case ANTENNA__STATIC:
-        if (sprite[sn].extra != *actorscrptr[SHOTSPARK1])
+        if (sprite[sn].extra != *g_tile[SHOTSPARK1].execPtr)
         {
             for (j=15; j>0; j--)
                 A_InsertSprite(SECT,SX,SY,sector[SECT].floorz-(12<<8)-(j<<9),SCRAP1+(krand()&15),-8,64,64,
@@ -2363,7 +2363,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
                 if ((PN != DRONE) && (PN != ROTATEGUN) && (PN != COMMANDER) && (PN < GREENSLIME || PN > GREENSLIME+7))
                     if (sprite[sn].picnum != FREEZEBLAST)
-                        if (ActorType[PN] == 0)
+                        if (!A_CheckSpriteTileFlags(PN, SPRITE_BADGUY))
                         {
                             j = A_Spawn(sn,JIBS6);
                             if (sprite[sn].pal == 6)

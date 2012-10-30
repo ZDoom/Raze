@@ -81,5 +81,6 @@ enum
     P2I_BACK_NON0 = 1+2,
 };
 void G_Util_PtrToIdx(void *ptr, uint32_t len, const void *base, int32_t mode);
+void G_Util_PtrToIdx2(void *ptr, uint32_t len, size_t ofs, const void *base, int32_t mode);
 
 #endif

@@ -1017,7 +1017,8 @@ void Gv_ResetSystemDefaults(void)
     g_iPlayerVarID=Gv_GetVarIndex("player");
     g_iActorVarID=Gv_GetVarIndex("actorvar");
 
-    Bmemcpy(&ProjectileData,&DefaultProjectileData,sizeof(ProjectileData));
+    for (i=MAXTILES-1; i>=0; i--)
+        Bmemcpy(&g_tile[i].proj, &g_tile[i].defproj, sizeof(projectile_t));
 
     //AddLog("EOF:ResetWeaponDefaults");
 }

@@ -58,6 +58,33 @@ void G_Util_PtrToIdx(void *ptr, uint32_t len, const void *base, int32_t mode)
         }
 }
 
+void G_Util_PtrToIdx2(void *ptr, uint32_t len, size_t ofs, const void *base, int32_t mode)
+{
+    uint32_t i;
+    uint8_t *iptr = (uint8_t *)ptr; 
+    intptr_t ibase = (intptr_t)base;
+    int32_t back_p = mode&P2I_BACK_BIT;
+    int32_t onlynon0_p = mode&P2I_ONLYNON0_BIT;
+
+    // TODO: convert to proper offsets/indices for (a step towards) cross-
+    //       compatibility between 32- and 64-bit systems in the netplay.
+    //       REMEMBER to bump BYTEVERSION then.
+
+    for (i=0; i<len; i++)
+    {
+        // WARNING: C std doesn't say that bit pattern of NULL is necessarily 0!
+        if (!onlynon0_p || *(intptr_t *)iptr)
+        {
+            if (!back_p)
+                *(intptr_t *)iptr -= ibase;
+            else
+                *(intptr_t *)iptr += ibase;
+        }
+
+        iptr += ofs;
+    }
+}
+
 // TODO: sync with TROR special interpolations? (e.g. upper floor of subway)
 void G_ResetInterpolations(void)
 {
@@ -934,10 +961,7 @@ static const dataspec_t svgm_secwsp[] =
 #ifdef USE_OPENGL
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postspriteext, 0, 1 },
 #endif
-    { DS_NOCHK, &SpriteFlags[0], sizeof(SpriteFlags[0]), MAXTILES },
-    { DS_NOCHK, &SpriteCacheList[0], sizeof(SpriteCacheList[0]), MAXTILES },
     { 0, &DynamicTileMap[0], sizeof(DynamicTileMap[0]), MAXTILES },  // NOCHK?
-    { DS_NOCHK, &ActorType[0], sizeof(uint8_t), MAXTILES },
     { DS_NOCHK, &g_numCyclers, sizeof(g_numCyclers), 1 },
     { DS_CNT(g_numCyclers), &cyclers[0][0], sizeof(cyclers[0]), (intptr_t)&g_numCyclers },
     { DS_NOCHK, &g_numAnimWalls, sizeof(g_numAnimWalls), 1 },
@@ -947,8 +971,6 @@ static const dataspec_t svgm_secwsp[] =
     { DS_NOCHK, &g_mirrorSector[0], sizeof(g_mirrorSector[0]), sizeof(g_mirrorSector)/sizeof(g_mirrorSector[0]) },
 // projectiles
     { 0, &SpriteProjectile[0], sizeof(projectile_t), MAXSPRITES },
-    { 0, &ProjectileData[0], sizeof(projectile_t), MAXTILES },
-    { DS_NOCHK, &DefaultProjectileData[0], sizeof(projectile_t), MAXTILES },
     { 0, &everyothertime, sizeof(everyothertime), 1 },
     { DS_END, 0, 0, 0 }
 };
@@ -961,10 +983,9 @@ static const dataspec_t svgm_script[] =
     { DS_DYNAMIC|DS_CNT(savegame_bitptrsize)|DS_NOCHK, &bitptr, sizeof(bitptr[0]), (intptr_t)&savegame_bitptrsize },
 
     { DS_SAVEFN|DS_NOCHK, (void *)&sv_prescriptsave_once, 0, 1 },
-    { DS_NOCHK, &actorscrptr[0], sizeof(actorscrptr[0]), MAXTILES },
+    { 0, &g_tile[0], sizeof(tiledata_t), MAXTILES },
     { DS_LOADFN|DS_NOCHK, (void *)&sv_prescriptload_once, 0, 1 },
     { DS_DYNAMIC|DS_CNT(g_scriptSize)|DS_NOCHK, &script, sizeof(script[0]), (intptr_t)&g_scriptSize },
-    { DS_NOCHK, &actorLoadEventScrptr[0], sizeof(actorLoadEventScrptr[0]), MAXTILES },
 //    { DS_NOCHK, &apScriptGameEvent[0], sizeof(apScriptGameEvent[0]), MAXGAMEEVENTS },
     { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_postscript_once, 0, 1 },
 
@@ -1477,8 +1498,8 @@ static void sv_prescriptsave_once()
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
             script[i] = (intptr_t *)script[i] - script;
 
-    G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_FWD_NON0);
-    G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_FWD_NON0);
+   G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
+   G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
 }
 static void sv_prescriptload_once()
 {
@@ -1490,8 +1511,8 @@ static void sv_postscript_once()
 {
     int32_t i;
 
-    G_Util_PtrToIdx(actorscrptr, MAXTILES, script, P2I_BACK_NON0);
-    G_Util_PtrToIdx(actorLoadEventScrptr, MAXTILES, script, P2I_BACK_NON0);
+   G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), script, P2I_BACK_NON0);
+   G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), script, P2I_BACK_NON0);
 
     for (i=0; i<g_scriptSize; i++)
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))

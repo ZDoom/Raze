@@ -1583,6 +1583,7 @@ void M_DisplayMenus(void)
             KB_FlushKeyboardQueue();
             KB_ClearKeysDown();
             FX_StopAllSounds();
+            S_ClearSoundLocks();
 
             G_LoadPlayerMaybeMulti(g_lastSaveSlot);
         }
@@ -2029,22 +2030,22 @@ cheat_for_port_credits:
             minitext(161-(Bstrlen(p)<<1), 59+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 58+10-l, p, 8, 10+16+128);
 
-            mgametext(160,78-l,"Engine and Game Maintenance",0,2+8+16);
+            mgametext(160,78-l,"Additional Engine and Game Programming",0,2+8+16);
             p = "Philipp \"Helixhorned\" Kutin";
             minitext(161-(Bstrlen(p)<<1), 79+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 78+10-l, p, 8, 10+16+128);
 
-            mgametext(160,98-l,"Original \"JFDuke3D\" Porting Work",0,2+8+16);
+            mgametext(160,98-l,"\"JFDuke3D\" and \"JFBuild\" code",0,2+8+16);
             p = "Jonathon \"JonoF\" Fowler";
             minitext(161-(Bstrlen(p)<<1), 99+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 98+10-l, p, 8, 10+16+128);
 
-            mgametext(160,118-l,"DOS \"EDuke\" Code",0,2+8+16);
+            mgametext(160,118-l,"Legacy \"NAM\", \"WW2GI\" and \"EDuke\" Code",0,2+8+16);
             p = "Matt \"Matteus\" Saettler";
             minitext(161-(Bstrlen(p)<<1), 119+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 118+10-l, p, 8, 10+16+128);
 
-            mgametext(160,138-l,"BUILD Engine and Polymost Renderer",0,2+8+16);
+            mgametext(160,138-l,"Core BUILD Engine functionality",0,2+8+16);
             p = "Ken \"Awesoken\" Silverman";
             minitext(161-(Bstrlen(p)<<1), 139+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 138+10-l, p, 8, 10+16+128);
