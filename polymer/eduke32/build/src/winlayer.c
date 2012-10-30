@@ -34,7 +34,9 @@
 #include "a.h"
 #include "osd.h"
 #include "rawinput.h"
-#include "nedmalloc.h"
+#ifndef DEBUGGINGAIDS
+    #include "nedmalloc.h"
+#endif
 #include "mutex.h"
 
 // undefine to restrict windowed resolutions to conventional sizes
@@ -354,9 +356,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         if ((nedcreatepool = (void *)GetProcAddress(nedhandle, "nedcreatepool")))
             nedcreatepool(SYSTEM_POOL_SIZE, -1);
     }
-#endif
-
-#ifdef DEBUGGINGAIDS
+#else
     LoadLibraryA("ebacktrace1.dll");
 /*
         wm_msgbox("boo","didn't load backtrace DLL (code %d)\n", (int)GetLastError());
@@ -375,7 +375,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         return -1;
     }
 
-    // carve up the commandline into more recognizable pieces
+    // carve up the command line into more recognizable pieces
     argvbuf = Bstrdup(GetCommandLine());
     _buildargc = 0;
     if (argvbuf)
@@ -585,10 +585,8 @@ static void win_printversion(void)
         break;
     }
 
-    initprintf("Windows %s (build %lu.%lu.%lu) %s", ver,
-               osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber, osv.szCSDVersion);
-
-    initprintf(nedhandle ? "\nInitialized nedmalloc\n" : "\n");
+    initprintf("Windows %s %s (build %lu.%lu.%lu)\n", ver, osv.szCSDVersion,
+               osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber);
 }
 
 
@@ -640,6 +638,9 @@ int32_t initsystem(void)
     lockcount=0;
 
     win_printversion();
+
+    if (nedhandle)
+        initprintf("Initialized nedmalloc\n");
 
 #ifdef USE_OPENGL
     if (loadgldriver(getenv("BUILD_GLDRV")))
