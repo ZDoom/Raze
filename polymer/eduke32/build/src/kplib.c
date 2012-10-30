@@ -3302,7 +3302,7 @@ void kpzload(const char *filnam, intptr_t *pic, int32_t *bpl, int32_t *xsiz, int
     (*pic) = 0;
     if (handle < 0) return;
     leng = kfilelength(handle);
-    buf = (char *)Bmalloc(leng+1); if (!buf) return;
+    buf = (char *)Bmalloc(leng+1); if (!buf) { kclose(handle); return; }
     buf[leng]=0;  // FIXME: buf[leng] read in kpegrend(), see BUF_LENG_READ
     kread(handle,buf,leng);
     kclose(handle);
