@@ -5725,6 +5725,22 @@ static void C_AddDefaultDefinitions(void)
         C_AddDefinition(tempbuf, i, LABEL_DEFINE);
     }
 
+    C_AddDefinition("STAT_DEFAULT", STAT_DEFAULT, LABEL_DEFINE);
+    C_AddDefinition("STAT_ACTOR", STAT_ACTOR, LABEL_DEFINE);
+    C_AddDefinition("STAT_ZOMBIEACTOR", STAT_ZOMBIEACTOR, LABEL_DEFINE);
+    C_AddDefinition("STAT_EFFECTOR", STAT_EFFECTOR, LABEL_DEFINE);
+    C_AddDefinition("STAT_PROJECTILE", STAT_PROJECTILE, LABEL_DEFINE);
+    C_AddDefinition("STAT_MISC", STAT_MISC, LABEL_DEFINE);
+    C_AddDefinition("STAT_STANDABLE", STAT_STANDABLE, LABEL_DEFINE);
+    C_AddDefinition("STAT_LOCATOR", STAT_LOCATOR, LABEL_DEFINE);
+    C_AddDefinition("STAT_ACTIVATOR", STAT_ACTIVATOR, LABEL_DEFINE);
+    C_AddDefinition("STAT_TRANSPORT", STAT_TRANSPORT, LABEL_DEFINE);
+    C_AddDefinition("STAT_PLAYER", STAT_PLAYER, LABEL_DEFINE);
+    C_AddDefinition("STAT_FX", STAT_FX, LABEL_DEFINE);
+    C_AddDefinition("STAT_FALLER", STAT_FALLER, LABEL_DEFINE);
+    C_AddDefinition("STAT_DUMMYPLAYER", STAT_DUMMYPLAYER, LABEL_DEFINE);
+    C_AddDefinition("STAT_LIGHT", STAT_LIGHT, LABEL_DEFINE);
+
     C_AddDefinition("SFLAG_SHADOW", SPRITE_SHADOW, LABEL_DEFINE);
     C_AddDefinition("SFLAG_NVG", SPRITE_NVG, LABEL_DEFINE);
     C_AddDefinition("SFLAG_NOSHADE", SPRITE_NOSHADE, LABEL_DEFINE);
@@ -5828,6 +5844,9 @@ void C_Compile(const char *filenam)
 
     Bmemset(apScriptGameEvent, 0, sizeof(apScriptGameEvent));
 
+    for (i=MAXTILES-1; i>=0; i--)
+        Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
+
     C_InitHashes();
     Gv_Init();
     C_InitProjectiles();
@@ -5903,9 +5922,6 @@ void C_Compile(const char *filenam)
     textptr = (char *) mptr;
     kread(fp,(char *)textptr,fs);
     kclose(fp);
-
-    for (i=MAXTILES-1; i>=0; i--)
-        Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
 
     if (script != NULL)
         Bfree(script);
