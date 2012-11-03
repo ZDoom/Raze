@@ -285,6 +285,8 @@ extern int32_t taglab_getnextfreetag(void);
 
 extern int32_t showtags;
 
+int32_t select_sprite_tag(int32_t spritenum);
+
 
 #define NEXTWALL(i) (wall[wall[i].nextwall])
 #define POINT2(i) (wall[wall[i].point2])

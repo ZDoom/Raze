@@ -2977,6 +2977,54 @@ static int32_t AddLoopToSector(int32_t k, int32_t *ret_ofirstwallofs)
 
 #define EDITING_MAP_P() (newnumwalls>=0 || joinsector[0]>=0 || circlewall>=0 || (bstatus&1))
 
+int32_t select_sprite_tag(int32_t spritenum)
+{
+    int32_t lt = taglab_linktags(1, spritenum);
+    spritetype *spr = &sprite[spritenum];
+
+    if (lt==0)
+        return INT32_MIN;
+
+    if (lt&1)
+        return spr->lotag;
+    if (lt&2)
+        return spr->hitag;
+    if (lt&4)
+        return spr->extra;
+    if (lt&8)
+        return spr->xvel;
+    if (lt&16)
+        return spr->yvel;
+    if (lt&32)
+        return spr->zvel;
+    if (lt&64)
+        return spr->extra;
+
+    return INT32_MIN;
+}
+
+static void drawlinebetween(int32_t si1, int32_t si2, int32_t col, uint32_t pat)
+{
+    // based on m32exec.c/drawline*
+    const spritetype *s1 = &sprite[si1], *s2 = &sprite[si2];
+    const int32_t xofs=halfxdim16, yofs=midydim16;
+    const uint32_t opat=drawlinepat;
+
+    int32_t x1, x2, y1, y2;
+
+    screencoords(&x1,&y1, s1->x-pos.x,s1->y-pos.y, zoom);
+    screencoords(&x2,&y2, s2->x-pos.x,s2->y-pos.y, zoom);
+
+    if (m32_sideview)
+    {
+        y1 += getscreenvdisp(s1->z-pos.z,zoom);
+        y2 += getscreenvdisp(s2->z-pos.z,zoom);
+    }
+
+    drawlinepat = pat;
+    drawline16(xofs+x1,yofs+y1, xofs+x2,yofs+y2, col>=0?editorcolors[col&15]:((-col)&255));
+    drawlinepat = opat;
+}
 
 void overheadeditor(void)
 {
@@ -3175,6 +3223,22 @@ void overheadeditor(void)
             draw2dscreen(&pos,cursectnum,ang,zoom,grid);
 
             begindrawing();	//{{{
+
+            if (keystatus[0x2a] && (pointhighlight&16384))
+            {
+                // draw lines to linking sprites
+                const int32_t refspritenum = pointhighlight&16383;
+                const int32_t reftag = select_sprite_tag(refspritenum);
+
+                if (reftag != INT32_MIN)
+                {
+                    for (i=0; i<numsectors; i++)
+                        for (SPRITES_OF_SECT(i, j))
+                            if (reftag==select_sprite_tag(j))
+                                drawlinebetween(refspritenum, j, 12, 0x33333333);
+                }
+            }
+
             if (showtags)
             {
                 if (zoom >= 768)

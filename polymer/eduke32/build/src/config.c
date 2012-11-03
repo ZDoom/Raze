@@ -482,7 +482,6 @@ int32_t writesetup(const char *fn)
              "autocorruptchecksec = %d\n"
              "\n"
              "; Ignore 'already referenced wall' warnings\n"
-             "; (toggled with 'corruptcheck noalreadyrefd')\n"
              "corruptcheck_noalreadyrefd = %d\n"
              "\n"
              "; Fix sprite sectnums when saving a map or entering 3D mode\n"

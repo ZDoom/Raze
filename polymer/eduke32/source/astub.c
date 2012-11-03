@@ -1062,7 +1062,8 @@ int32_t taglab_gettag(const char *label)
 
 #define TLCHAR "+"
 #define TLCHR(Cond) ((Cond)?TLCHAR:"")
-static uint64_t taglab_nolink_SEs = (1ull<<10)|(1ull<<27)|(1ull<<28)|(1ull<<29)|(1ull<<49)|(1ull<<50);
+static uint64_t taglab_nolink_SEs = (1ull<<10)|(1ull<<27)|(1ull<<28)|(1ull<<29)|
+    (1ull<<31)|(1ull<<32)|(1ull<<49)|(1ull<<50);
 
 // Whether the individual tags have linking semantics. Based on
 //  http://infosuite.duke4.net/index.php?page=references_special_textures
@@ -1173,9 +1174,12 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
 
 int32_t taglab_getnextfreetag(void)
 {
-    int32_t i, lt, nextfreetag=1;
+    int32_t i, nextfreetag=1;
+
     for (i=0; i<MAXSPRITES; i++)
     {
+        int32_t tag;
+
         if (sprite[i].statnum == MAXSTATUS)
             continue;
 
@@ -1188,16 +1192,16 @@ int32_t taglab_getnextfreetag(void)
             continue;
         }
 
-        lt = taglab_linktags(1, i);
-        if ((lt&1) && nextfreetag <= sprite[i].lotag)
-            nextfreetag = sprite[i].lotag+1;
-        if ((lt&2) && nextfreetag <= sprite[i].hitag)
-            nextfreetag = sprite[i].hitag+1;
+        tag = select_sprite_tag(i);
+
+        if (tag != INT32_MIN && nextfreetag <= tag)
+            nextfreetag = tag+1;
     }
 
     for (i=0; i<numwalls; i++)
     {
-        lt = taglab_linktags(0, i);
+        int32_t lt = taglab_linktags(0, i);
+
         if ((lt&1) && nextfreetag <= wall[i].lotag)
             nextfreetag = wall[i].lotag+1;
         if ((lt&2) && nextfreetag <= wall[i].hitag)
@@ -7482,9 +7486,35 @@ paste_ceiling_or_floor:
     VM_OnEvent(EVENT_KEYS3D, -1);
 }// end 3d
 
+// returns: whether sprite is out of grid
+static int32_t jump_to_sprite(int32_t spritenum)
+{
+    const spritetype *spr = &sprite[spritenum];
+
+    if (pos.x >= -editorgridextent && pos.x <= editorgridextent &&
+            pos.y >= -editorgridextent && pos.y <= editorgridextent)
+    {
+        pos.x = spr->x;
+        pos.y = spr->y;
+
+        // BZ_MAX?
+        if (pos.z >= -(editorgridextent<<4) && pos.z <= editorgridextent<<4)
+            pos.z = spr->z;
+
+        ang = spr->ang;
+
+        if ((unsigned)spr->sectnum < (unsigned)numsectors)
+            cursectnum = spr->sectnum;
+
+        return 0;
+    }
+
+    return 1;
+}
+
 static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
 {
-    char did_wrap = 0, outofgrid=0;
+    char did_wrap = 0, outofgrid;
     int32_t i, j, k = 0;
 
     dir = 1-2*(dir<0);
@@ -7563,21 +7593,10 @@ static void DoSpriteSearch(int32_t dir)  // <0: backwards, >=0: forwards
             }
 
         // found matching sprite
-        if (pos.x >= -editorgridextent && pos.x <= editorgridextent &&
-                pos.y >= -editorgridextent && pos.y <= editorgridextent)
-        {
-            pos.x = sprite[gs_cursprite].x;
-            pos.y = sprite[gs_cursprite].y;
-            if (pos.z >= -editorgridextent<<4 && pos.z <= editorgridextent<<4)
-                pos.z = sprite[gs_cursprite].z;
-            ang = sprite[gs_cursprite].ang;
-        }
-        else
-            outofgrid = 1;
+        outofgrid = jump_to_sprite(gs_cursprite);
 
         printmessage16("%s Sprite seach%s: found sprite %d%s", dir<0 ? "<" : ">",
                        did_wrap ? " (wrap)" : "", gs_cursprite, outofgrid?"(outside grid)":"");
-        did_wrap = 0;
         return;
 
 NEXTSPRITE:
@@ -8072,72 +8091,118 @@ static void Keys2d(void)
 
     if (tsign)
     {
-        if (eitherALT && numcorruptthings>0)
+        if (eitherALT)
         {
-            int32_t wrap=0, x, y, z;
+            if (numcorruptthings > 0)
+            {
+                int32_t wrap=0, x, y, z;
 
-            if (curcorruptthing<0 || curcorruptthing>=numcorruptthings)
-                curcorruptthing = 0;
+                if (curcorruptthing<0 || curcorruptthing>=numcorruptthings)
+                    curcorruptthing = 0;
+                else
+                {
+                    curcorruptthing += tsign;
+                    wrap = (curcorruptthing<0 || curcorruptthing>=numcorruptthings);
+                    curcorruptthing += numcorruptthings;
+                    curcorruptthing %= numcorruptthings;
+                }
+
+                k = corruptthings[curcorruptthing];
+                j = -1;
+                switch (k&CORRUPT_MASK)
+                {
+                case 0:
+                    printmessage16("MAP LIMITS EXCEEDED!");
+                    x = y = z = 0;
+                    break;
+                case CORRUPT_SECTOR:
+                    i = k&(MAXSECTORS-1);
+                    j = 0;
+                    x = wall[sector[i].wallptr].x;
+                    y = wall[sector[i].wallptr].y;
+                    z = getflorzofslope(i, x, y);
+                    break;
+                case CORRUPT_WALL:
+                    i = k&(MAXWALLS-1);
+                    j = 1;
+                    x = wall[i].x + (wall[wall[i].point2].x-wall[i].x)/2;
+                    y = wall[i].y + (wall[wall[i].point2].y-wall[i].y)/2;
+                    z = getflorzofslope(sectorofwall(i), x, y);
+                    break;
+                case CORRUPT_SPRITE:
+                    i = k&(MAXSPRITES-1);
+                    j = 2;
+                    x = sprite[i].x;
+                    y = sprite[i].y;
+                    z = sprite[i].z;
+                    break;
+                default:
+                    k = 0;
+                    x = y = z = 0;
+                    break;
+                }
+
+                if (k)
+                {
+                    static const char *secwalspr[3] = {"sector", "wall", "sprite"};
+                    if (x>=-editorgridextent && x<=editorgridextent &&
+                        y>=-editorgridextent && y<=editorgridextent)
+                    {
+                        pos.x = x;
+                        pos.y = y;
+                        pos.z = z;
+#ifdef YAX_ENABLE
+                        yax_updategrays(pos.z);
+#endif
+                    }
+                    else x=editorgridextent+1;
+
+                    printmessage16("#%d: %s Corrupt %s %d%s", curcorruptthing+1, tsign<0?"<":">", secwalspr[j],
+                                   i, (x==editorgridextent+1) ? " (outside grid)" : (wrap ? " (wrap)" : ""));
+                }
+            }
             else
             {
-                curcorruptthing += tsign;
-                wrap = (curcorruptthing<0 || curcorruptthing>=numcorruptthings);
-                curcorruptthing += numcorruptthings;
-                curcorruptthing %= numcorruptthings;
+                printmessage16("Map has no corruptions, cannot cycle them.");
             }
-
-            k = corruptthings[curcorruptthing];
-            j = -1;
-            switch (k&CORRUPT_MASK)
+        }
+        else if (keystatus[KEYSC_LSHIFT])
+        {
+            if (pointhighlight&16384)
             {
-            case 0:
-                printmessage16("MAP LIMITS EXCEEDED!");
-                x = y = z = 0;
-                break;
-            case CORRUPT_SECTOR:
-                i = k&(MAXSECTORS-1);
-                j = 0;
-                x = wall[sector[i].wallptr].x;
-                y = wall[sector[i].wallptr].y;
-                z = getflorzofslope(i, x, y);
-                break;
-            case CORRUPT_WALL:
-                i = k&(MAXWALLS-1);
-                j = 1;
-                x = wall[i].x + (wall[wall[i].point2].x-wall[i].x)/2;
-                y = wall[i].y + (wall[wall[i].point2].y-wall[i].y)/2;
-                z = getflorzofslope(sectorofwall(i), x, y);
-                break;
-            case CORRUPT_SPRITE:
-                i = k&(MAXSPRITES-1);
-                j = 2;
-                x = sprite[i].x;
-                y = sprite[i].y;
-                z = sprite[i].z;
-                break;
-            default:
-                k = 0;
-                x = y = z = 0;
-                break;
-            }
+                const int32_t refspritenum = pointhighlight&16383;
+                const int32_t reftag = select_sprite_tag(refspritenum);
+                int32_t tmpspritenum = refspritenum;
 
-            if (k)
-            {
-                static const char *secwalspr[3] = {"sector", "wall", "sprite"};
-                if (x>=-editorgridextent && x<=editorgridextent &&
-                        y>=-editorgridextent && y<=editorgridextent)
+                while (reftag != INT32_MIN)  // if (reftag != INT32_MIN) while (1)
                 {
-                    pos.x = x;
-                    pos.y = y;
-                    pos.z = z;
-#ifdef YAX_ENABLE
-                    yax_updategrays(pos.z);
-#endif
-                }
-                else x=editorgridextent+1;
+                    tmpspritenum += tsign;
+                    if ((unsigned)tmpspritenum >= MAXSPRITES)
+                        tmpspritenum = (MAXSPRITES+tmpspritenum)%MAXSPRITES;
 
-                printmessage16("#%d: %s Corrupt %s %d%s", curcorruptthing+1, tsign<0?"<":">", secwalspr[j],
-                               i, (x==editorgridextent+1) ? " (outside grid)" : (wrap ? " (wrap)" : ""));
+                    if (tmpspritenum==refspritenum)
+                    {
+                        silentmessage("No other sprites with tag %d");
+                        break;
+                    }
+
+                    if (reftag==select_sprite_tag(tmpspritenum))
+                    {
+                        int32_t oog = jump_to_sprite(tmpspritenum);
+
+                        // center cursor so that we can repeat this
+                        searchx = halfxdim16;
+                        searchy = midydim16;
+
+                        silentmessage("Next sprite with tag %d: %d%s", reftag, tmpspritenum,
+                                      oog ? "(out of grid)" : "");
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                printmessage16("No sprite higlighted, cannot cycle linking sprites.");
             }
         }
         else if (wallsprite==0)
@@ -8167,11 +8232,6 @@ static void Keys2d(void)
         }
         else if (wallsprite==2)
             DoSpriteSearch(tsign);
-
-///__old_sprite_search_1__
-
-///__old_sprite_search_2__
-
     }
 
     if (PRESSED_KEYSC(G))  // G (grid on/off)
