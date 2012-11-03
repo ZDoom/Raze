@@ -969,7 +969,9 @@ static void resizeglcheck(void)
     }
 }
 
-void fixtransparency(coltype *dapic, int32_t daxsiz, int32_t daysiz, int32_t daxsiz2, int32_t daysiz2, int32_t dameth)
+// NOTE: must not use DAPICNUM for indexing into tile arrays.
+static void fixtransparency(int32_t dapicnum, coltype *dapic, int32_t daxsiz, int32_t daysiz,
+                            int32_t daxsiz2, int32_t daysiz2, int32_t dameth)
 {
     coltype *wpptr;
     int32_t j, x, y, r, g, b, dox, doy, naxsiz2;
@@ -987,7 +989,25 @@ void fixtransparency(coltype *dapic, int32_t daxsiz, int32_t daysiz, int32_t dax
         wpptr = &dapic[y*daxsiz2+dox];
         for (x=dox; x>=0; x--,wpptr--)
         {
+            // HACK for on-screen lower part of chaingun sprite to prevent a subtexel
+            // transparent horizontal line between the bottom and top parts with linear
+            // filtering.
+            if (dapicnum==2536 && tilesizx[2536]==211 && tilesizy[2536]==55)  // CHAINGUN
+            {
+                if (doy>=3 && y==2 && x>=78 && x<=157)
+                {
+                    const coltype *onedown = &dapic[(y+1)*daxsiz2+x];
+                    if (wpptr->a==0 && onedown->a!=0)
+                        Bmemcpy(wpptr, onedown, sizeof(coltype));
+                    // Comment out to see what texels are affected:
+                    //wpptr->r=255; wpptr->g = wpptr->b = 0; wpptr->a = 255;
+                    continue;
+                }
+            }
+            // END HACK
+
             if (wpptr->a) continue;
+
             r = g = b = j = 0;
             if ((x>     0) && (wpptr[     -1].a)) { r += wpptr[     -1].r; g += wpptr[     -1].g; b += wpptr[     -1].b; j++; }
             if ((x<daxsiz) && (wpptr[     +1].a)) { r += wpptr[     +1].r; g += wpptr[     +1].g; b += wpptr[     +1].b; j++; }
@@ -1095,7 +1115,7 @@ void uploadtexture(int32_t doalloc, int32_t xsiz, int32_t ysiz, int32_t intexfmt
                 //if (wpptr->a) wpptr->a = 255;
             }
         }
-        if (tsizx >= 0) fixtransparency(pic,(tsizx+(1<<j)-1)>>j,(tsizy+(1<<j)-1)>>j,x3,y3,dameth);
+        if (tsizx >= 0) fixtransparency(-1, pic,(tsizx+(1<<j)-1)>>j,(tsizy+(1<<j)-1)>>j,x3,y3,dameth);
         if (j >= js)
         {
             if (doalloc&1)
@@ -1238,7 +1258,7 @@ static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthty
     if (doalloc) bglGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
     bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
-    fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
+    fixtransparency(dapic, pic,tsizx,tsizy,xsiz,ysiz,dameth);
     uploadtexture(doalloc,xsiz,ysiz,hasalpha?GL_RGBA:GL_RGB,GL_RGBA,pic,tsizx,tsizy,dameth);
 
     texture_setup(dameth);
@@ -1894,7 +1914,7 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
             bglGenTextures(1, &pth->glpic); //# of textures (make OpenGL allocate structure)
         bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
-        fixtransparency(pic,tsizx,tsizy,xsiz,ysiz,dameth);
+        fixtransparency(-1, pic,tsizx,tsizy,xsiz,ysiz,dameth);
         uploadtexture(doalloc,xsiz,ysiz,intexfmt,texfmt,pic,-1,tsizy,dameth|8192|(hicr->flags & 16?4096:0));
     }
 
