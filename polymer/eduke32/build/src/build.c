@@ -4146,7 +4146,7 @@ rotate_hlsect_out:
 
                 if (loopstartwall == -1)
                 {
-                    message("Didn't find any non-grayed out loop start walls");
+                    message("Didn't find any non-grayed out CCW loop start walls");
                     goto end_yax;
                 }
 
@@ -4165,6 +4165,8 @@ rotate_hlsect_out:
                     cf = YAX_CEILING;
                 else if (cb < 0)
                     cf = YAX_FLOOR;
+
+                fade_editor_screen(-1);
 
                 // query top/bottom
                 if (cf == -1)
@@ -5855,7 +5857,7 @@ end_point_dragging:
                             if (uneqbn == 1)
                             {
                                 OSD_Printf("Can't join two sectors with different ceiling bunchnums."
-                                           " To make them equal, join their upper neighbor's floors.");
+                                           " To make them equal, join their upper neighbor's floors.\n");
                                 printmessage16("Can't join two sectors with different ceiling bunchnums. See OSD");
                                 joinsector[0] = joinsector[1] = -1;
                                 goto end_join_sectors;
