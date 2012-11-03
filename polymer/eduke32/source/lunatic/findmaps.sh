@@ -13,4 +13,4 @@ if [ -z "$ok" ]; then
     exit 1
 fi
 
-find -L "$1" -name '*.map' -print0 | xargs -0 ./foreachmap.lua "-e$2"
+find -L "$1" -iname '*.map' -print0 | xargs -0 ./foreachmap.lua "-e$2"

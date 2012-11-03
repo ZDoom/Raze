@@ -141,6 +141,7 @@ typedef struct {
 //  * int16_t --> int8_t
 //  * char --> int8_t
 // Need to carefully think about implications!
+// KEEPINSYNC lunatic/defs.ilua
 typedef struct {
     vec3_t pos, opos, vel, npos;
     int32_t bobposx, bobposy;
@@ -213,6 +214,7 @@ typedef struct {
     int8_t extbits, filler; // 2b
 } input_t;
 
+// KEEPINSYNC lunatic/defs.ilua
 typedef struct {
     DukePlayer_t *ps;
     input_t *sync;

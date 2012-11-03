@@ -140,8 +140,8 @@ checkfail('print(nextspritesect[4].whatfield)', "attempt to index a number value
 -- creating new keys forbidden... handled by LuaJit
 checkfail('wall[4].QWE = 123', "has no member named 'QWE'")
 
--- our 'require' disallows importing such dangerous stuff
-checkfail("require('os')")
+-- our 'require' has only safe stuff
+--checkfail("require('os')")
 
 -- we must declare globals with 'gamevar'
 checkfail("new_global = 345", "attempt to write to undeclared variable 'new_global'")

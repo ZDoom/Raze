@@ -10,10 +10,15 @@ local BAR1x5 = 3163
 
 local function draw_hline_dotted(x1, x2, y, pal,stat)
     for x=x1,x2,2 do
+        local pl = player[0]
         local tile = (x==x1 or x==x2) and BAR1x5 or DOT1x5
-        if (player[0].curr_weapon==2) then
+
+        if (pl.curr_weapon==2) then
             x = x + 16*math.sin(2*math.pi*gv.totalclock/120)
+        elseif (pl.curr_weapon==1) then
+            x = x + (pl.ang - 1024)/100
         end
+
         rs(x,y, 65536, 0, tile, 0,pal,stat, 0,0,gv.xdim-1,gv.ydim-1)
     end
 end

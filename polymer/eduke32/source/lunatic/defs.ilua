@@ -172,6 +172,7 @@ typedef struct {
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;
     int32_t runspeed, max_player_health, max_shield_amount;
+    int32_t autostep, autostep_sbw;
 
     uint32_t interface_toggle_flag;
 
@@ -259,7 +260,7 @@ typedef struct {
     int32_t pcolor, pteam;
     uint8_t frags[MAXPLAYERS], wchoice[MAX_WEAPONS];
 
-    char vote, gotvote, pingcnt, playerquitflag;
+    char vote, gotvote, pingcnt, playerquitflag, ready;
     char user_name[32];
     uint32_t revision;
 } playerdata_t;
@@ -274,6 +275,7 @@ enum
     NUMGAMEFUNCTIONS = 56,
 };
 
+// NOTE: not packed!
 typedef struct {
     vec3_t camera;
     int32_t const_visibility,uw_framerate;
@@ -428,9 +430,19 @@ string.dump = nil
 
 
 -- sanity-check struct type sizes
+local good = true
 for i=0,6 do
-    assert(ffi.sizeof(ffi.string(ffiC.g_sizes_of_what[i]))
-           == ffiC.g_sizes_of[i])
+    local what = ffi.string(ffiC.g_sizes_of_what[i])
+    local fsz = ffi.sizeof(what)
+    local csz = ffiC.g_sizes_of[i]
+    print(i..": "..what..": C sizeof = "..tostring(csz)..", FFI sizeof = "..tostring(fsz))
+    if (fsz ~= csz) then
+        good = false;
+    end
+end
+
+if (not good) then
+    error("Some sizes don't match between C and LuaJIT/FFI.")
 end
 
 
