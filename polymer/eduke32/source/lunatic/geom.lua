@@ -34,14 +34,11 @@ local vec2_mt = {
         assert(type(b)=="number")
         return vec2_(a.x/b, a.y/b)
     end,
---[[
--- NOTE: metamethods from metatype() are invoken on *any mix of types*
--- This means that we can't check a "maybe-vec2" variable like "v ~= nil".
 
     __eq = function(a,b)
-        return (a.x==b.x and a.y==b.y)
+        return (ffi.istype(a,b) and a.x==b.x and a.y==b.y)
     end,
---]]
+
     __len = function(a) return math.sqrt(a.x*a.x + a.y*a.y) end,
 
     __tostring = function(a) return "vec2("..a.x..", "..a.y..")" end,
@@ -70,11 +67,11 @@ local vec3_mt = {
         assert(type(b)=="number")
         return vec2_(a.x/b, a.y/b, a.z/b)
     end,
---[[
+
     __eq = function(a,b)
-        return (a.x==b.x and a.y==b.y and a.z==b.z)
+        return (ffi.istype(a,b) and a.x==b.x and a.y==b.y and a.z==b.z)
     end,
---]]
+
     __len = function(a) return math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z) end,
 
     __tostring = function(a) return "vec3("..a.x..", "..a.y..", "..a.z..")" end,
@@ -103,6 +100,11 @@ function tovec3(t) return vec3(t.x, t.y, t.z) end
 -- integer values, e.g. geom.ivec3(x, y, z) is a reasonable way to round
 -- a vec3.  It can be also used as the RHS to the vec2/vec3 arithmetic
 -- methods.
+ffi.cdef[[
+#pragma pack(push,1)
+typedef struct { int32_t x, y, z; } vec3_t;
+#pragma pack(pop)
+]]
 ivec3 = ffi.typeof("vec3_t")
 
 
