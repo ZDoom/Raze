@@ -53,7 +53,7 @@ int32_t animvpx_read_ivf_header(int32_t inhandle, animvpx_ivf_header_t *hdr)
 
     hdr->numframes = B_LITTLE32(hdr->numframes);
 
-    // the rest is snatched from vpxdec.c (except 0 check for fps)
+    // the rest is based on vpxdec.c --> file_is_ivf()
 
     /* Some versions of vpxenc used 1/(2*fps) for the timebase, so
      * we can guess the framerate using only the timebase in this
@@ -72,9 +72,17 @@ int32_t animvpx_read_ivf_header(int32_t inhandle, animvpx_ivf_header_t *hdr)
 
         if (hdr->fpsdenom==0 || hdr->fpsnumer==0)
             return 5;  // "invalid framerate numerator or denominator"
+
+        initprintf("animvpx: rate is %d frames / %d seconds (%.03f fps) after 1/(2*fps) correction.\n",
+                   hdr->fpsnumer, hdr->fpsdenom, (double)hdr->fpsnumer/hdr->fpsdenom);
     }
     else
     {
+        double fps = (hdr->fpsdenom==0) ? 0.0 : hdr->fpsnumer/hdr->fpsdenom;
+
+        initprintf("animvpx: set rate to 30 fps (header says %d frames / %d seconds = %.03f fps).\n",
+                   hdr->fpsnumer, hdr->fpsdenom, fps);
+
         /* Don't know FPS for sure, and don't have readahead code
          * (yet?), so just default to 30fps.
          */
