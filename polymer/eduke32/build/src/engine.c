@@ -2762,7 +2762,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int16_t *uwal, int16_t *dwal, i
         if (u4 > y1ve[2]) vplce[2] = mvlineasm1(vince[2],palookupoffse[2],u4-y1ve[2]-1,vplce[2],bufplce[2],ylookup[y1ve[2]]+p+2);
         if (u4 > y1ve[3]) vplce[3] = mvlineasm1(vince[3],palookupoffse[3],u4-y1ve[3]-1,vplce[3],bufplce[3],ylookup[y1ve[3]]+p+3);
 
-        if (d4 >= u4) mvlineasm4(d4-u4+1, (char *)ylookup[u4]+p);
+        if (d4 >= u4) mvlineasm4(d4-u4+1, (char *)(ylookup[u4]+p));
 
         pp = p+ylookup[d4+1];
         if (y2ve[0] > d4) mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],pp+0);
@@ -3752,7 +3752,7 @@ static void wallscan(int32_t x1, int32_t x2,
         if (u4 > y1ve[2]) vplce[2] = prevlineasm1(vince[2],palookupoffse[2],u4-y1ve[2]-1,vplce[2],bufplce[2],ylookup[y1ve[2]]+x+frameoffset+2);
         if (u4 > y1ve[3]) vplce[3] = prevlineasm1(vince[3],palookupoffse[3],u4-y1ve[3]-1,vplce[3],bufplce[3],ylookup[y1ve[3]]+x+frameoffset+3);
 
-        if (d4 >= u4) vlineasm4(d4-u4+1, (char *)ylookup[u4]+x+frameoffset);
+        if (d4 >= u4) vlineasm4(d4-u4+1, (char *)(ylookup[u4]+x+frameoffset));
 
         p = x+frameoffset+ylookup[d4+1];
         if (y2ve[0] > d4) prevlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],p+0);
@@ -7136,6 +7136,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
                     by += (uint32_t)yv*(y1-oy); oy = y1;
 
+                    Bassert(bx >= 0);
+
                     bufplce[xx] = (bx>>16)*ysiz+bufplc;
                     vplce[xx] = by;
                     y1ve[xx] = y1;
@@ -7174,7 +7176,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                     if (u4 > y1ve[2]) vplce[2] = prevlineasm1(vince[2],palookupoffse[2],u4-y1ve[2]-1,vplce[2],bufplce[2],ylookup[y1ve[2]]+p+2);
                     if (u4 > y1ve[3]) vplce[3] = prevlineasm1(vince[3],palookupoffse[3],u4-y1ve[3]-1,vplce[3],bufplce[3],ylookup[y1ve[3]]+p+3);
 
-                    if (d4 >= u4) vlineasm4(d4-u4+1, (char *)ylookup[u4]+p);
+                    if (d4 >= u4) vlineasm4(d4-u4+1, (char *)(ylookup[u4]+p));
 
                     i = p+ylookup[d4+1];
                     if (y2ve[0] > d4) prevlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],i+0);
@@ -7198,7 +7200,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
                     if (u4 > y1ve[2]) vplce[2] = mvlineasm1(vince[2],palookupoffse[2],u4-y1ve[2]-1,vplce[2],bufplce[2],ylookup[y1ve[2]]+p+2);
                     if (u4 > y1ve[3]) vplce[3] = mvlineasm1(vince[3],palookupoffse[3],u4-y1ve[3]-1,vplce[3],bufplce[3],ylookup[y1ve[3]]+p+3);
 
-                    if (d4 >= u4) mvlineasm4(d4-u4+1, (char *)ylookup[u4]+p);
+                    if (d4 >= u4) mvlineasm4(d4-u4+1, (char *)(ylookup[u4]+p));
 
                     i = p+ylookup[d4+1];
                     if (y2ve[0] > d4) mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],i+0);
