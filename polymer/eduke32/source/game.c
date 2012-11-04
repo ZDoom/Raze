@@ -1150,19 +1150,19 @@ static int32_t G_GetInvAmount(const DukePlayer_t *p)
 {
     switch (p->inven_icon)
     {
-    case 1:
+    case ICON_FIRSTAID:
         return p->inv_amount[GET_FIRSTAID];
-    case 2:
+    case ICON_STEROIDS:
         return ((p->inv_amount[GET_STEROIDS]+3)>>2);
-    case 3:
+    case ICON_HOLODUKE:
         return ((p->inv_amount[GET_HOLODUKE]+15)/24);
-    case 4:
+    case ICON_JETPACK:
         return ((p->inv_amount[GET_JETPACK]+15)>>4);
-    case 5:
+    case ICON_HEATS:
         return p->inv_amount[GET_HEATS]/12;
-    case 6:
+    case ICON_SCUBA:
         return ((p->inv_amount[GET_SCUBA]+63)>>6);
-    case 7:
+    case ICON_BOOTS:
         return (p->inv_amount[GET_BOOTS]>>1);
     }
 
@@ -1173,11 +1173,11 @@ static int32_t G_GetInvOn(const DukePlayer_t *p)
 {
     switch (p->inven_icon)
     {
-    case 3:
+    case ICON_HOLODUKE:
         return p->holoduke_on;
-    case 4:
+    case ICON_JETPACK:
         return p->jetpack_on;
-    case 5:
+    case ICON_HEATS:
         return p->heat_on;
     }
 
@@ -1310,7 +1310,7 @@ static void G_DrawStatusBar(int32_t snum)
             {
                 const int32_t orient = 10+16+permbit+256;
 
-                i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
+                i = ((unsigned)p->inven_icon < ICON_MAX) ? item_icons[p->inven_icon] : -1;
                 if (i >= 0)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
@@ -1340,7 +1340,7 @@ static void G_DrawStatusBar(int32_t snum)
                     minitext(284-30-o,180-3,"Off",2, orient+ROTATESPRITE_MAX);
                 }
 
-                if (p->inven_icon >= 6)
+                if (p->inven_icon >= ICON_SCUBA)
                 {
                     if (getrendermode() >= 3 && althud_shadows)
                         minitext(284-35-o+1,180-3+1,"Auto",4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
@@ -1392,7 +1392,7 @@ static void G_DrawStatusBar(int32_t snum)
             {
 //                orient |= permbit;
 
-                i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
+                i = ((unsigned)p->inven_icon < ICON_MAX) ? item_icons[p->inven_icon] : -1;
                 if (i >= 0)
                     rotatesprite_fs(sbarx(231-o), yofssh+sbary(200-21), sb16, 0, i, 0, 0, orient);
 
@@ -1412,7 +1412,7 @@ static void G_DrawStatusBar(int32_t snum)
                 else if ((uint32_t)j != 0x80000000)
                     minitext(284-30-o, 180, "Off", 2, orient);
 
-                if (p->inven_icon >= 6)
+                if (p->inven_icon >= ICON_SCUBA)
                     minitext(284-35-o, 180, "Auto", 2, orient);
 
                 minitext_yofs = 0;
@@ -1628,11 +1628,11 @@ static void G_DrawStatusBar(int32_t snum)
 
             if (u&(2048+4096))
             {
-                i = ((unsigned)p->inven_icon < 8) ? item_icons[p->inven_icon] : -1;
+                i = ((unsigned)p->inven_icon < ICON_MAX) ? item_icons[p->inven_icon] : -1;
                 // XXX: i < 0?
                 rotatesprite_fs(sbarx(231-o),sbary(SBY+13),sb16,0,i,0,0,10+16+permbit);
                 minitext(292-30-o,SBY+24,"%",6,10+16+permbit + ROTATESPRITE_MAX);
-                if (p->inven_icon >= 6) minitext(284-35-o,SBY+14,"Auto",2,10+16+permbit + ROTATESPRITE_MAX);
+                if (p->inven_icon >= ICON_SCUBA) minitext(284-35-o,SBY+14,"Auto",2,10+16+permbit + ROTATESPRITE_MAX);
             }
 
             if (u&(2048+4096))
@@ -7268,7 +7268,7 @@ FOUNDCHEAT:
                     P_DoQuote(QUOTE_CHEAT_EVERYTHING, g_player[myconnectindex].ps);
 
 //                    P_DoQuote(QUOTE_21,g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->inven_icon = 1;
+                    g_player[myconnectindex].ps->inven_icon = ICON_FIRSTAID;
 
                     end_cheat();
                     return;

@@ -2520,7 +2520,6 @@ void P_HandleSharedKeys(int32_t snum)
             }
         }
 
-    // j = sb_snum & ((15<<8)|(1<<12)|(1<<15)|(1<<16)|(1<<22)|(1<<19)|(1<<20)|(1<<21)|(1<<24)|(1<<25)|(1<<27)|(1<<28)|(1<<29)|(1<<30)|(1<<31));
     j = sb_snum & ((15<<SK_WEAPON_BITS)|BIT(SK_STEROIDS)|BIT(SK_NIGHTVISION)|BIT(SK_MEDKIT)|BIT(SK_QUICK_KICK)| \
                    BIT(SK_HOLSTER)|BIT(SK_INV_LEFT)|BIT(SK_PAUSE)|BIT(SK_HOLODUKE)|BIT(SK_JETPACK)|BIT(SK_INV_RIGHT)| \
                    BIT(SK_TURNAROUND)|BIT(SK_OPEN)|BIT(SK_INVENTORY)|BIT(SK_ESCAPE));
@@ -2560,19 +2559,19 @@ void P_HandleSharedKeys(int32_t snum)
             {
                 switch (p->inven_icon)
                 {
-                case 4:
+                case ICON_JETPACK:
                     sb_snum |= BIT(SK_JETPACK);
                     break;
-                case 3:
+                case ICON_HOLODUKE:
                     sb_snum |= BIT(SK_HOLODUKE);
                     break;
-                case 5:
+                case ICON_HEATS:
                     sb_snum |= BIT(SK_NIGHTVISION);
                     break;
-                case 1:
+                case ICON_FIRSTAID:
                     sb_snum |= BIT(SK_MEDKIT);
                     break;
-                case 2:
+                case ICON_STEROIDS:
                     sb_snum |= BIT(SK_STEROIDS);
                     break;
                 }
@@ -2586,7 +2585,7 @@ void P_HandleSharedKeys(int32_t snum)
             {
                 p->heat_on = !p->heat_on;
                 P_UpdateScreenPal(p);
-                p->inven_icon = 5;
+                p->inven_icon = ICON_HEATS;
                 A_PlaySound(NITEVISION_ONOFF,p->i);
                 P_DoQuote(QUOTE_NVG_OFF-!!p->heat_on,p);
             }
@@ -2603,7 +2602,7 @@ void P_HandleSharedKeys(int32_t snum)
                     P_DoQuote(QUOTE_USED_STEROIDS,p);
                 }
                 if (p->inv_amount[GET_STEROIDS] > 0)
-                    p->inven_icon = 2;
+                    p->inven_icon = ICON_STEROIDS;
             }
             return;		// is there significance to returning?
         }
@@ -2629,44 +2628,44 @@ CHECKINV1:
 
                 switch (dainv)
                 {
-                case 4:
+                case ICON_JETPACK:
                     if (p->inv_amount[GET_JETPACK] > 0 && i > 1)
                         break;
                     if (k) dainv++;
                     else dainv--;
                     goto CHECKINV1;
-                case 6:
+                case ICON_SCUBA:
                     if (p->inv_amount[GET_SCUBA] > 0 && i > 1)
                         break;
                     if (k) dainv++;
                     else dainv--;
                     goto CHECKINV1;
-                case 2:
+                case ICON_STEROIDS:
                     if (p->inv_amount[GET_STEROIDS] > 0 && i > 1)
                         break;
                     if (k) dainv++;
                     else dainv--;
                     goto CHECKINV1;
-                case 3:
+                case ICON_HOLODUKE:
                     if (p->inv_amount[GET_HOLODUKE] > 0 && i > 1)
                         break;
                     if (k) dainv++;
                     else dainv--;
                     goto CHECKINV1;
-                case 0:
-                case 1:
+                case ICON_NONE:
+                case ICON_FIRSTAID:
                     if (p->inv_amount[GET_FIRSTAID] > 0 && i > 1)
                         break;
                     if (k) dainv = 2;
                     else dainv = 7;
                     goto CHECKINV1;
-                case 5:
+                case ICON_HEATS:
                     if (p->inv_amount[GET_HEATS] > 0 && i > 1)
                         break;
                     if (k) dainv++;
                     else dainv--;
                     goto CHECKINV1;
-                case 7:
+                case ICON_BOOTS:
                     if (p->inv_amount[GET_BOOTS] > 0 && i > 1)
                         break;
                     if (k) dainv = 1;
@@ -2888,7 +2887,7 @@ CHECKINV1:
                 {
                     if (p->inv_amount[GET_HOLODUKE] > 0)
                     {
-                        p->inven_icon = 3;
+                        p->inven_icon = ICON_HOLODUKE;
 
                         if (p->cursectnum > -1)
                         {
@@ -2927,7 +2926,7 @@ CHECKINV1:
                     {
                         p->inv_amount[GET_FIRSTAID] -= j;
                         sprite[p->i].extra = p->max_player_health;
-                        p->inven_icon = 1;
+                        p->inven_icon = ICON_FIRSTAID;
                     }
                     else
                     {
@@ -2949,7 +2948,7 @@ CHECKINV1:
                     p->jetpack_on = !p->jetpack_on;
                     if (p->jetpack_on)
                     {
-                        p->inven_icon = 4;
+                        p->inven_icon = ICON_JETPACK;
                         if (p->scream_voice > FX_Ok)
                         {
                             FX_StopSound(p->scream_voice);

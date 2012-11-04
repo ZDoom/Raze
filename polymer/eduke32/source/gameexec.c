@@ -3147,7 +3147,7 @@ nullquote:
             {
             case GET_STEROIDS:
                 ps->inv_amount[GET_STEROIDS] = *insptr;
-                ps->inven_icon = 2;
+                ps->inven_icon = ICON_STEROIDS;
                 break;
 
             case GET_SHIELD:
@@ -3158,17 +3158,17 @@ nullquote:
 
             case GET_SCUBA:
                 ps->inv_amount[GET_SCUBA] = *insptr;// 1600;
-                ps->inven_icon = 6;
+                ps->inven_icon = ICON_SCUBA;
                 break;
 
             case GET_HOLODUKE:
                 ps->inv_amount[GET_HOLODUKE] = *insptr;// 1600;
-                ps->inven_icon = 3;
+                ps->inven_icon = ICON_HOLODUKE;
                 break;
 
             case GET_JETPACK:
                 ps->inv_amount[GET_JETPACK] = *insptr;// 1600;
-                ps->inven_icon = 4;
+                ps->inven_icon = ICON_JETPACK;
                 break;
 
             case GET_ACCESS:
@@ -3188,16 +3188,16 @@ nullquote:
 
             case GET_HEATS:
                 ps->inv_amount[GET_HEATS] = *insptr;
-                ps->inven_icon = 5;
+                ps->inven_icon = ICON_HEATS;
                 break;
 
             case GET_FIRSTAID:
-                ps->inven_icon = 1;
+                ps->inven_icon = ICON_FIRSTAID;
                 ps->inv_amount[GET_FIRSTAID] = *insptr;
                 break;
 
             case GET_BOOTS:
-                ps->inven_icon = 7;
+                ps->inven_icon = ICON_BOOTS;
                 ps->inv_amount[GET_BOOTS] = *insptr;
                 break;
             default:

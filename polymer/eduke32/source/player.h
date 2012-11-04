@@ -54,6 +54,19 @@ enum dukeinv_t {
     GET_MAX
 };
 
+// these are not in the same order as the above, and it can't be changed for compat reasons. lame!
+enum dukeinvicon_t {
+    ICON_NONE,
+    ICON_FIRSTAID,
+    ICON_STEROIDS,
+    ICON_HOLODUKE,
+    ICON_JETPACK,
+    ICON_HEATS,
+    ICON_SCUBA,
+    ICON_BOOTS,
+    ICON_MAX
+};
+
 enum dukeweapon_t {
     KNEE_WEAPON,  // 0
     PISTOL_WEAPON,

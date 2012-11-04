@@ -3267,7 +3267,7 @@ static int32_t P_DoCounters(DukePlayer_t *p)
         if (p->inv_amount[GET_SCUBA] > 0)
         {
             p->scuba_on = 1;
-            p->inven_icon = 6;
+            p->inven_icon = ICON_SCUBA;
             P_DoQuote(QUOTE_SCUBA_ON,p);
         }
         else
@@ -3414,20 +3414,20 @@ void P_AddWeapon(DukePlayer_t *p,int32_t weapon)
 void P_SelectNextInvItem(DukePlayer_t *p)
 {
     if (p->inv_amount[GET_FIRSTAID] > 0)
-        p->inven_icon = 1;
+        p->inven_icon = ICON_FIRSTAID;
     else if (p->inv_amount[GET_STEROIDS] > 0)
-        p->inven_icon = 2;
+        p->inven_icon = ICON_STEROIDS;
     else if (p->inv_amount[GET_JETPACK] > 0)
-        p->inven_icon = 4;
+        p->inven_icon = ICON_JETPACK;
     else if (p->inv_amount[GET_HOLODUKE] > 0)
-        p->inven_icon = 3;
+        p->inven_icon = ICON_HOLODUKE;
     else if (p->inv_amount[GET_HEATS] > 0)
-        p->inven_icon = 5;
+        p->inven_icon = ICON_HEATS;
     else if (p->inv_amount[GET_SCUBA] > 0)
-        p->inven_icon = 6;
+        p->inven_icon = ICON_SCUBA;
     else if (p->inv_amount[GET_BOOTS] > 0)
-        p->inven_icon = 7;
-    else p->inven_icon = 0;
+        p->inven_icon = ICON_BOOTS;
+    else p->inven_icon = ICON_NONE;
 }
 
 void P_CheckWeapon(DukePlayer_t *p)
@@ -5060,7 +5060,7 @@ void P_ProcessInput(int32_t snum)
             if (p->inv_amount[GET_BOOTS] > 0)
             {
                 p->inv_amount[GET_BOOTS]--;
-                p->inven_icon = 7;
+                p->inven_icon = ICON_BOOTS;
                 if (p->inv_amount[GET_BOOTS] <= 0)
                     P_SelectNextInvItem(p);
             }

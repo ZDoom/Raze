@@ -501,7 +501,7 @@ void G_CacheMapData(void)
 
 #ifdef USE_OPENGL
 // PRECACHE
-            if (ud.config.useprecache)
+            if (ud.config.useprecache && bpp > 8)
             {
                 int32_t k,type;
 
@@ -545,7 +545,7 @@ void G_CacheMapData(void)
         if ((j&7) == 0)
             G_HandleAsync();
 
-        if (totalclock - tc > TICRATE/4)
+        if (bpp > 8 && totalclock - tc > TICRATE/4)
         {
             /*Bsprintf(tempbuf,"%d resources remaining\n",g_precacheCount-pc+1);*/
             tc = min(100,100*pc/g_precacheCount);
@@ -789,7 +789,7 @@ void P_ResetStatus(int32_t snum)
     if (p->inv_amount[GET_STEROIDS] < 400)
     {
         p->inv_amount[GET_STEROIDS] = 0;
-        p->inven_icon = 0;
+        p->inven_icon = ICON_NONE;
     }
     p->heat_on =            0;
     p->jetpack_on =         0;
@@ -863,14 +863,12 @@ void P_ResetInventory(int32_t snum)
 
     Bmemset(p->inv_amount, 0, sizeof(p->inv_amount));
 
-    p->inven_icon       = 0;
     p->scuba_on =           0;
     p->heat_on = 0;
     p->jetpack_on =         0;
     p->holoduke_on = -1;
-
     p->inv_amount[GET_SHIELD] =      g_startArmorAmount;
-    p->inven_icon = 0;
+    p->inven_icon = ICON_NONE;
     VM_OnEvent(EVENT_RESETINVENTORY, p->i, snum, -1, 0);
 }
 

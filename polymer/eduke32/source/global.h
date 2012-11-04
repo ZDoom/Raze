@@ -64,7 +64,7 @@ G_EXTERN char pus,pub;
 G_EXTERN char ready2send;
 G_EXTERN char setupfilename[BMAX_PATH];
 G_EXTERN char szPlayerName[32];
-G_EXTERN char tempbuf[2048],packbuf[PACKBUF_SIZE],menutextbuf[128],buf[1024];
+G_EXTERN char tempbuf[MAXSECTORS<<1],packbuf[PACKBUF_SIZE],menutextbuf[128],buf[1024];
 G_EXTERN char typebuflen,typebuf[141];
 G_EXTERN const char *s_buildDate;
 G_EXTERN input_t avg;
