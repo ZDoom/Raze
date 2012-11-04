@@ -2975,8 +2975,6 @@ static int32_t AddLoopToSector(int32_t k, int32_t *ret_ofirstwallofs)
     return extendedSector;
 }
 
-#define EDITING_MAP_P() (newnumwalls>=0 || joinsector[0]>=0 || circlewall>=0 || (bstatus&1))
-
 int32_t select_sprite_tag(int32_t spritenum)
 {
     int32_t lt = taglab_linktags(1, spritenum);
@@ -3003,28 +3001,77 @@ int32_t select_sprite_tag(int32_t spritenum)
     return INT32_MIN;
 }
 
-static void drawlinebetween(int32_t si1, int32_t si2, int32_t col, uint32_t pat)
+static void drawlinebetween(const vec3_t *v1, const vec3_t *v2, int32_t col, uint32_t pat)
 {
     // based on m32exec.c/drawline*
-    const spritetype *s1 = &sprite[si1], *s2 = &sprite[si2];
     const int32_t xofs=halfxdim16, yofs=midydim16;
     const uint32_t opat=drawlinepat;
 
     int32_t x1, x2, y1, y2;
 
-    screencoords(&x1,&y1, s1->x-pos.x,s1->y-pos.y, zoom);
-    screencoords(&x2,&y2, s2->x-pos.x,s2->y-pos.y, zoom);
+    screencoords(&x1,&y1, v1->x-pos.x,v1->y-pos.y, zoom);
+    screencoords(&x2,&y2, v2->x-pos.x,v2->y-pos.y, zoom);
 
     if (m32_sideview)
     {
-        y1 += getscreenvdisp(s1->z-pos.z,zoom);
-        y2 += getscreenvdisp(s2->z-pos.z,zoom);
+        y1 += getscreenvdisp(v1->z-pos.z,zoom);
+        y2 += getscreenvdisp(v2->z-pos.z,zoom);
     }
 
     drawlinepat = pat;
-    drawline16(xofs+x1,yofs+y1, xofs+x2,yofs+y2, col>=0?editorcolors[col&15]:((-col)&255));
+    drawline16(xofs+x1,yofs+y1, xofs+x2,yofs+y2, col);
     drawlinepat = opat;
 }
+
+// world -> screen coords for overhead mode
+void ovhscrcoords(int32_t x, int32_t y, int32_t *scrx, int32_t *scry)
+{
+    *scrx = halfxdim16 + mulscale14(x-pos.x, zoom);
+    *scry = midydim16 + mulscale14(y-pos.y, zoom);
+}
+
+static void draw_cross(int32_t centerx, int32_t centery, int32_t radius, int32_t col)
+{
+    int32_t dax, day;
+    ovhscrcoords(centerx, centery, &dax, &day);
+    drawline16base(dax, day, -radius,-radius, +radius,+radius, col);
+    drawline16base(dax, day, -radius,+radius, +radius,-radius, col);
+}
+
+static void draw_square(int32_t dax, int32_t day, int32_t ps, int32_t col)
+{
+    ovhscrcoords(dax, day, &dax, &day);
+    drawline16base(dax, day, -ps,-ps, +ps,-ps, col);
+    drawline16base(dax, day, +ps,-ps, +ps,+ps, col);
+    drawline16base(dax, day, +ps,+ps, -ps,+ps, col);
+    drawline16base(dax, day, -ps,+ps, -ps,-ps, col);
+}
+
+//// Interactive Scaling
+static struct {
+    int8_t active, rotatep;
+    int32_t pivx, pivy;  // pivot point
+    int32_t dragx, dragy;  // dragged point
+    int32_t xsc, ysc, ang;
+} isc;
+
+static void isc_transform(int32_t *x, int32_t *y)
+{
+    if (!isc.rotatep)
+    {
+        *x = isc.pivx + mulscale16(*x-isc.pivx, isc.xsc);
+        *y = isc.pivy + mulscale16(*y-isc.pivy, isc.ysc);
+    }
+    else
+    {
+        rotatepoint(isc.pivx, isc.pivy, *x, *y, isc.ang, x, y);
+    }
+}
+
+#define EDITING_MAP_P() (newnumwalls>=0 || joinsector[0]>=0 || circlewall>=0 || (bstatus&1) || isc.active)
+
+#define HLMEMBERX(Hl, Member) (*(((Hl)&16384) ? &sprite[(Hl)&16383].Member : &wall[Hl].Member))
+#define HLMEMBER(Hlidx, Member) HLMEMBERX(highlight[Hlidx], Member)
 
 void overheadeditor(void)
 {
@@ -3035,7 +3082,7 @@ void overheadeditor(void)
     int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3; //, x4, y4;
     int32_t highlightx1, highlighty1, highlightx2, highlighty2;
     int16_t bad, joinsector[2];
-    int32_t mousx, mousy, bstatus;
+    int32_t bstatus, mousewaitmask=0;
     int16_t circlepoints;
     int32_t sectorhighlightx=0, sectorhighlighty=0;
     int16_t cursectorhighlight, sectorhighlightstat;
@@ -3082,6 +3129,8 @@ void overheadeditor(void)
 
     while ((keystatus[buildkeys[BK_MODE2D_3D]]>>1) == 0)
     {
+        int32_t mousx, mousy;
+
         if (!((vel|angvel|svel) //DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
                 || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || keystatus[0x10] || keystatus[0x11]
                 || keystatus[0x48] || keystatus[0x4b] || keystatus[0x4d] || keystatus[0x50]  // keypad keys
@@ -3128,6 +3177,13 @@ void overheadeditor(void)
 
         oldmousebstatus = bstatus;
         getmousevalues(&mousx,&mousy,&bstatus);
+
+        {
+            int32_t bs = bstatus;
+            bstatus &= ~mousewaitmask;
+            mousewaitmask &= bs;
+        }
+
         mousx = (mousx<<16)+mousexsurp;
         mousy = (mousy<<16)+mouseysurp;
         {
@@ -3224,7 +3280,7 @@ void overheadeditor(void)
 
             begindrawing();	//{{{
 
-            if (keystatus[0x2a] && (pointhighlight&16384))
+            if (keystatus[0x2a] && (pointhighlight&16384) && highlightcnt<=0)  // LShift
             {
                 // draw lines to linking sprites
                 const int32_t refspritenum = pointhighlight&16383;
@@ -3235,7 +3291,8 @@ void overheadeditor(void)
                     for (i=0; i<numsectors; i++)
                         for (SPRITES_OF_SECT(i, j))
                             if (reftag==select_sprite_tag(j))
-                                drawlinebetween(refspritenum, j, 12, 0x33333333);
+                                drawlinebetween((vec3_t *)&sprite[refspritenum], (vec3_t *)&sprite[j],
+                                                editorcolors[12], 0x33333333);
                 }
             }
 
@@ -3356,25 +3413,167 @@ void overheadeditor(void)
                         fillsector(i, -1);
             }
 
-            if (keystatus[0x2a]) // FIXME
+            if (keystatus[0x2a])  // LShift
             {
-                drawlinepat = 0x00ff00ff;
-                drawline16(searchx,0, searchx,ydim2d-1, editorcolors[15]);
-                drawline16(0,searchy, xdim2d-1,searchy, editorcolors[15]);
-                drawlinepat = 0xffffffff;
+                if (m32_sideview || highlightcnt <= 0)
+                {
+                    drawlinepat = 0x00ff00ff;
+                    drawline16(searchx,0, searchx,ydim2d-1, editorcolors[15]);
+                    drawline16(0,searchy, xdim2d-1,searchy, editorcolors[15]);
+                    drawlinepat = 0xffffffff;
 
-                _printmessage16("(%d,%d)",mousxplc,mousyplc);
-#if 0
-                i = (Bstrlen(tempbuf)<<3)+6;
-                if ((searchx+i) < (xdim2d-1))
-                    i = 0;
-                else i = (searchx+i)-(xdim2d-1);
-                if ((searchy+16) < (ydim2d-STATUS2DSIZ2-1))
-                    j = 0;
-                else j = (searchy+16)-(ydim2d-STATUS2DSIZ2-1);
-                printext16(searchx+6-i,searchy+6-j,editorcolors[11],-1,tempbuf,0);
-#endif
+                    _printmessage16("(%d,%d)",mousxplc,mousyplc);
+                }
+                else
+                {
+                    // do interactive scaling
+                    if (!isc.active)
+                    {
+                        if (pointhighlight >= 0 && (bstatus&3))
+                        {
+                            // initialize by finding pivot point
+                            int32_t minx=INT32_MAX, miny=INT32_MAX;
+                            int32_t maxx=INT32_MIN, maxy=INT32_MIN;
+
+                            isc.rotatep = ((bstatus&3)==2);
+                            bstatus &= ~3;
+
+                            for (i=0; i<highlightcnt; i++)
+                            {
+                                minx = min(minx, HLMEMBER(i, x));
+                                miny = min(miny, HLMEMBER(i, y));
+                                maxx = max(maxx, HLMEMBER(i, x));
+                                maxy = max(maxy, HLMEMBER(i, y));
+                            }
+
+                            isc.pivx = (minx+maxx)/2;
+                            isc.pivy = (miny+maxy)/2;
+
+                            isc.dragx = HLMEMBERX(pointhighlight, x);
+                            isc.dragy = HLMEMBERX(pointhighlight, y);
+
+                            isc.xsc = isc.ysc = 1<<16;
+                            isc.ang = 0;
+
+                            isc.active = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (bstatus&3)
+                        {
+                            // drag/rotate the reference point
+                            const int32_t pivx=isc.pivx, pivy=isc.pivy;
+                            const int32_t dragx=isc.dragx, dragy=isc.dragy;
+                            int32_t mxplc=mousxplc, myplc=mousyplc, xsc=1<<16, ysc=1<<16;
+
+                            const int32_t dx=dragx-pivx, dy=dragy-pivy;
+                            int32_t mdx, mdy;
+
+                            bstatus &= ~3;
+
+                            draw_cross(pivx, pivy, 3, editorcolors[14]);
+
+                            adjustmark(&mxplc, &myplc, numwalls);
+                            mdx = mxplc-pivx;
+                            mdy = myplc-pivy;
+
+                            if (!isc.rotatep)
+                            {
+                                if (mdx != 0 && dx != 0 && klabs(dx) >= 8)
+                                    xsc = min(klabs(divscale16(mdx, dx)), 1<<18);
+                                if (mdy != 0 && dy != 0 && klabs(dy) >= 8)
+                                    ysc = min(klabs(divscale16(mdy, dy)), 1<<18);
+
+                                if (eitherCTRL)
+                                    xsc = ysc = max(xsc, ysc);
+
+                                isc.xsc = xsc;
+                                isc.ysc = ysc;
+
+                                printmessage16("scale x=%.3f y=%.3f", (double)xsc/65536, (double)ysc/65536);
+                            }
+                            else
+                            {
+                                isc.ang = getangle(mdx, mdy) - getangle(dx, dy);
+                                printmessage16("rotate ang %d", isc.ang);
+                            }
+
+                            for (i=0; i<highlightcnt; i++)
+                            {
+                                int32_t x=HLMEMBER(i, x), y=HLMEMBER(i, y);
+
+                                isc_transform(&x, &y);
+
+                                draw_square(x, y, 2, editorcolors[15]);
+
+                                if ((highlight[i]&16384)==0)
+                                {
+                                    const walltype *wal = &wall[highlight[i]];
+                                    const int32_t p2=wal->point2, hlp=(show2dwall[p2>>3]&(1<<(p2&7)));
+                                    vec3_t v1 = { x, y, 0 }, v2 = { wall[p2].x, wall[p2].y, 0 };
+
+                                    isc_transform(&v2.x, &v2.y);
+                                    if (!hlp)
+                                    {
+                                        v2.x = wall[p2].x;
+                                        v2.y = wall[p2].y;
+                                    }
+
+                                    drawlinebetween(&v1, &v2, !hlp ? 8 :
+                                                    editorcolors[wal->nextwall >= 0 ? 33 : 7],
+                                                    0x11111111);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // finish interactive scaling
+                            isc.active = 0;
+
+                            if ((!isc.rotatep && (isc.xsc!=1<<16 || isc.ysc!=1<<16)) ||
+                                (isc.rotatep && (isc.ang!=0)))
+                            {
+                                for (i=0; i<highlightcnt; i++)
+                                {
+                                    int32_t *x=&HLMEMBER(i, x), *y=&HLMEMBER(i, y);
+
+                                    isc_transform(x, y);
+
+                                    if (isc.rotatep && (highlight[i]&16384))
+                                    {
+                                        spritetype *spr = &sprite[highlight[i]&16383];
+                                        spr->ang = (spr->ang + isc.ang)&2047;
+                                    }
+                                }
+
+                                if (!isc.rotatep)
+                                    message("Highlights scaled by x=%.3f y=%.3f",
+                                            (double)isc.xsc/65536, (double)isc.ysc/65536);
+                                else
+                                    message("Highlights rotated by %d BUILD degrees", isc.ang);
+
+                                asksave = 1;
+                            }
+                            else
+                                printmessage16(" ");
+                        }
+                    }
+                }
             }
+            else
+            {
+                if (isc.active)
+                {
+                    isc.active = 0;
+
+                    printmessage16("Aborted interactive %s.", isc.rotatep ? "rotation" : "scaling");
+                    bstatus &= ~3;
+                    mousewaitmask = 3;
+                    pointhighlight = -1;
+                }
+            }
+
             drawline16(searchx,0, searchx,8, editorcolors[15]);
             drawline16(0,searchy, 8,searchy, editorcolors[15]);
 
@@ -3452,10 +3651,8 @@ void overheadeditor(void)
                 else
                 {
                     getclosestpointonwall(mousxplc,mousyplc, linehighlight, &dax,&day, 0);
-                    x2 = mulscale14(dax-pos.x,zoom);
-                    y2 = mulscale14(day-pos.y,zoom);
-
-                    drawline16base(halfxdim16+x2,midydim16+y2, 0,0, 0,0, col);
+                    ovhscrcoords(dax, day, &x2, &y2);
+                    drawline16base(x2, y2, 0,0, 0,0, col);
                 }
             }
 
@@ -6354,10 +6551,7 @@ end_join_sectors:
                 centerx = ((x1+x2) + scale(y1-y2,tempint1,tempint2))>>1;
                 centery = ((y1+y2) + scale(x2-x1,tempint1,tempint2))>>1;
 
-                dax = mulscale14(centerx-pos.x,zoom);
-                day = mulscale14(centery-pos.y,zoom);
-                drawline16base(halfxdim16+dax,midydim16+day, -2,-2, +2,+2, editorcolors[14]);
-                drawline16base(halfxdim16+dax,midydim16+day, -2,+2, +2,-2, editorcolors[14]);
+                draw_cross(centerx, centery, 2, editorcolors[14]);
 
                 circleang1 = getangle(x1-centerx,y1-centery);
                 circleang2 = getangle(x2-centerx,y2-centery);
@@ -6396,13 +6590,8 @@ end_join_sectors:
                     if (bad > 0 && goodtogo)
                         insertpoint(circlewall, dax,day, &circlewall);
 
-                    dax = mulscale14(dax-pos.x,zoom);
-                    day = mulscale14(day-pos.y,zoom);
-                    drawline16base(halfxdim16+dax,midydim16+day, -ps,-ps, +ps,-ps, editorcolors[14]);
-                    drawline16base(halfxdim16+dax,midydim16+day, +ps,-ps, +ps,+ps, editorcolors[14]);
-                    drawline16base(halfxdim16+dax,midydim16+day, +ps,+ps, -ps,+ps, editorcolors[14]);
-                    drawline16base(halfxdim16+dax,midydim16+day, -ps,+ps, -ps,-ps, editorcolors[14]);
-//                    drawcircle16(halfxdim16+dax, midydim16+day, 3, 14);
+                    draw_square(dax, day, ps, editorcolors[14]);
+//                    drawcircle16(dax, day, 3, 14);
                 }
 
                 if (bad > 0 && goodtogo)
@@ -7104,7 +7293,7 @@ end_batch_insert_points:
 
             for (i=0; i<numsectors; i++)
             {
-                if (highlightsectorcnt <= 0 || !keystatus[0x2a])
+                if (highlightsectorcnt <= 0 || !keystatus[0x2a])  // LShift
                 {
                     YAX_SKIPSECTOR(i);
 
@@ -7315,7 +7504,7 @@ end_insert_points:
             {
 nextmap:
 //				bad = 0;
-                i = menuselect_auto(keystatus[0x2a] ? 0:1); // Left Shift: prev map
+                i = menuselect_auto(keystatus[0x2a] ? 0:1); // LShift: prev map
                 if (i < 0)
                 {
                     if (i == -1)

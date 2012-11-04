@@ -252,6 +252,8 @@ void inflineintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                       int32_t x3, int32_t y3, int32_t x4, int32_t y4,
                       int32_t *intx, int32_t *inty, int32_t *sign12, int32_t *sign34);
 
+void ovhscrcoords(int32_t x, int32_t y, int32_t *scrx, int32_t *scry);
+
 extern uint8_t hlsectorbitmap[MAXSECTORS>>3];
 
 #if defined(_WIN32)

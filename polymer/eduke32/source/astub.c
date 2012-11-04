@@ -10657,10 +10657,6 @@ void ExtUnInit(void)
 void ExtPreCheckKeys(void) // just before drawrooms
 {
     int32_t i = 0, ii;
-    int32_t radius, xp1, yp1;
-    int32_t col;
-    int32_t picnum, frames;
-    int32_t daang = 0, flags, shade;
 
     if (qsetmode == 200)    //In 3D mode
     {
@@ -10846,6 +10842,10 @@ void ExtPreCheckKeys(void) // just before drawrooms
     {
         for (i=ii=0; i<MAXSPRITES && ii < Numsprites; i++)
         {
+            int32_t daang = 0, flags, shade;
+            int32_t picnum, frames;
+            int32_t xp1, yp1;
+
             if ((sprite[i].cstat & 48) != 0 || sprite[i].statnum == MAXSTATUS) continue;
             ii++;
             picnum = sprite[i].picnum;
@@ -10936,8 +10936,6 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 break;
             }
 
-            xp1 = mulscale14(sprite[i].x-pos.x,zoom);
-            yp1 = mulscale14(sprite[i].y-pos.y-(tilesizy[picnum]<<2),zoom);
             if (i+16384 != pointhighlight || !(totalclock&32))
             {
                 shade = sprite[i].shade;
@@ -10945,10 +10943,9 @@ void ExtPreCheckKeys(void) // just before drawrooms
                     shade = 6;
             }
 
-            xp1 += halfxdim16;
-            yp1 += midydim16;
+            ovhscrcoords(sprite[i].x, sprite[i].y-(tilesizy[picnum]<<2), &xp1, &yp1);
 
-            ydim16 = ydim-STATUS2DSIZ2;
+            ydim16 = ydim-STATUS2DSIZ2;  // XXX?
 
             if (xp1 < 4 || xp1 > xdim-6 || yp1 < 4 || yp1 > ydim16-6)
                 continue;
@@ -10962,6 +10959,9 @@ void ExtPreCheckKeys(void) // just before drawrooms
         for (ii=0; ii<numsectors; ii++)
             for (i=headspritesect[ii]; i>=0; i=nextspritesect[i])
             {
+                int32_t radius, col;
+                int32_t xp1, yp1;
+
                 if (sprite[i].picnum != MUSICANDSFX /*|| zoom < 256*/ )
                     continue;
 
@@ -10977,7 +10977,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 if (i+16384 == pointhighlight)
                     if (totalclock & 32) col += (2<<2);
                 drawlinepat = 0xf0f0f0f0;
-                drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, scalescreeny(16384), editorcolors[(int32_t)col]);
+                drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, scalescreeny(16384), editorcolors[col]);
                 drawlinepat = 0xffffffff;
             }
     }
