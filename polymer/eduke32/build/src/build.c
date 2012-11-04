@@ -6502,8 +6502,6 @@ end_join_sectors:
                                     if (wall[k].x==wall[numwalls].x && wall[k].y==wall[numwalls].y)
                                     {
                                         YAX_SKIPWALL(k);
-                                        if (wall[k].nextwall >= 0)
-                                            YAX_SKIPWALL(wall[k].nextwall);
 
                                         m = k;
                                         break;

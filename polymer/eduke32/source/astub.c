@@ -13248,7 +13248,7 @@ static void FuncMenu(void)
                 if (editval)
                 {
                     j=getnumber16("Percentage of original:    ",100,1000,0);
-                    if (j!=100)
+                    if (j!=100 && j!=0)
                     {
                         int32_t w, currsector, start_wall, end_wall;
                         double size = (j/100.f);
@@ -13289,7 +13289,7 @@ static void FuncMenu(void)
                 if (editval)
                 {
                     j=getnumber16("Shade divisor:    ",1,128,1);
-                    if (j!=1)
+                    if (j > 1)
                     {
                         for (i=0; i<numsectors; i++)
                         {
@@ -13312,7 +13312,7 @@ static void FuncMenu(void)
                 if (editval)
                 {
                     j=getnumber16("Visibility divisor:    ",1,128,0);
-                    if (j!=1)
+                    if (j > 1)
                     {
                         for (i=0; i<numsectors; i++)
                         {
