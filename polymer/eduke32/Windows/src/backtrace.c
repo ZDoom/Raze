@@ -76,10 +76,11 @@ output_init(struct output_buffer *ob, char * buf, size_t sz)
 static void
 output_print(struct output_buffer *ob, const char * format, ...)
 {
+	va_list ap;
+
 	if (ob->sz == ob->ptr)
 		return;
 	ob->buf[ob->ptr] = '\0';
-	va_list ap;
 	va_start(ap,format);
 	vsnprintf(ob->buf + ob->ptr , ob->sz - ob->ptr , format, ap);
 	va_end(ap);
@@ -91,6 +92,7 @@ static void
 lookup_section(bfd *abfd, asection *sec, void *opaque_data)
 {
 	struct find_info *data = opaque_data;
+	bfd_vma vma;
 
 	if (data->func)
 		return;
@@ -98,7 +100,7 @@ lookup_section(bfd *abfd, asection *sec, void *opaque_data)
 	if (!(bfd_get_section_flags(abfd, sec) & SEC_ALLOC)) 
 		return;
 
-	bfd_vma vma = bfd_get_section_vma(abfd, sec);
+	vma = bfd_get_section_vma(abfd, sec);
 	if (data->counter < vma || vma + bfd_get_section_size(sec) <= data->counter) 
 		return;
 
@@ -131,18 +133,22 @@ find(struct bfd_ctx * b, DWORD offset, const char **file, const char **func, uns
 static int
 init_bfd_ctx(struct bfd_ctx *bc, const char * procname, struct output_buffer *ob)
 {
+	int r1, r2, r3;
+	bfd *b;
+	void *symbol_table;
+	unsigned dummy = 0;
 	bc->handle = NULL;
 	bc->symbol = NULL;
 
-	bfd *b = bfd_openr(procname, 0);
+	b = bfd_openr(procname, 0);
 	if (!b) {
 		output_print(ob,"Failed to open bfd from (%s)\n" , procname);
 		return 1;
 	}
 
-	int r1 = bfd_check_format(b, bfd_object);
-	int r2 = bfd_check_format_matches(b, bfd_object, NULL);
-	int r3 = bfd_get_file_flags(b) & HAS_SYMS;
+	r1 = bfd_check_format(b, bfd_object);
+	r2 = bfd_check_format_matches(b, bfd_object, NULL);
+	r3 = bfd_get_file_flags(b) & HAS_SYMS;
 
 	if (!(r1 && r2 && r3)) {
 		bfd_close(b);
@@ -150,9 +156,6 @@ init_bfd_ctx(struct bfd_ctx *bc, const char * procname, struct output_buffer *ob
 		return 1;
 	}
 
-	void *symbol_table;
-
-	unsigned dummy = 0;
 	if (bfd_read_minisymbols(b, FALSE, &symbol_table, &dummy) == 0) {
 		if (bfd_read_minisymbols(b, TRUE, &symbol_table, &dummy) < 0) {
 			free(symbol_table);
@@ -184,13 +187,13 @@ close_bfd_ctx(struct bfd_ctx *bc)
 static struct bfd_ctx *
 get_bc(struct output_buffer *ob , struct bfd_set *set , const char *procname)
 {
+	struct bfd_ctx bc;
 	while(set->name) {
 		if (strcmp(set->name , procname) == 0) {
 			return set->bc;
 		}
 		set = set->next;
 	}
-	struct bfd_ctx bc;
 	if (init_bfd_ctx(&bc, procname , ob)) {
 		return NULL;
 	}
@@ -219,11 +222,14 @@ static char procname[MAX_PATH];
 static void
 _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT context)
 {
-	GetModuleFileNameA(NULL, procname, sizeof procname);
-
+	STACKFRAME frame;
+    HANDLE process, thread;
+	char symbol_buffer[sizeof(IMAGEHLP_SYMBOL) + 255];
+	char module_name_raw[MAX_PATH];
 	struct bfd_ctx *bc = NULL;
 
-	STACKFRAME frame;
+	GetModuleFileNameA(NULL, procname, sizeof procname);
+
 	memset(&frame,0,sizeof(frame));
 
 	frame.AddrPC.Offset = context->Eip;
@@ -233,11 +239,8 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 	frame.AddrFrame.Offset = context->Ebp;
 	frame.AddrFrame.Mode = AddrModeFlat;
 
-	HANDLE process = GetCurrentProcess();
-	HANDLE thread = GetCurrentThread();
-
-	char symbol_buffer[sizeof(IMAGEHLP_SYMBOL) + 255];
-	char module_name_raw[MAX_PATH];
+	process = GetCurrentProcess();
+	thread = GetCurrentThread();
 
 	while(StackWalk(IMAGE_FILE_MACHINE_I386, 
 		process, 
@@ -247,27 +250,29 @@ _backtrace(struct output_buffer *ob, struct bfd_set *set, int depth , LPCONTEXT 
 		0, 
 		SymFunctionTableAccess, 
 		SymGetModuleBase, 0)) {
+        IMAGEHLP_SYMBOL *symbol;
+		DWORD module_base;
+		const char * module_name = "[unknown module]";
+
+		const char * file = NULL;
+		const char * func = NULL;
+		unsigned line = 0;
 
 		--depth;
 		if (depth < 0)
 			break;
 
-		IMAGEHLP_SYMBOL *symbol = (IMAGEHLP_SYMBOL *)symbol_buffer;
+		symbol = (IMAGEHLP_SYMBOL *)symbol_buffer;
 		symbol->SizeOfStruct = (sizeof *symbol) + 255;
 		symbol->MaxNameLength = 254;
 
-		DWORD module_base = SymGetModuleBase(process, frame.AddrPC.Offset);
+		module_base = SymGetModuleBase(process, frame.AddrPC.Offset);
 
-		const char * module_name = "[unknown module]";
 		if (module_base && 
 			GetModuleFileNameA((HINSTANCE)module_base, module_name_raw, MAX_PATH)) {
 			module_name = module_name_raw;
 			bc = get_bc(ob, set, module_name);
 		}
-
-		const char * file = NULL;
-		const char * func = NULL;
-		unsigned line = 0;
 
 		if (bc) {
 			find(bc,frame.AddrPC.Offset,&file,&func,&line);
@@ -306,32 +311,36 @@ static LONG WINAPI
 exception_filter(LPEXCEPTION_POINTERS info)
 {
 	struct output_buffer ob;
+    int logfd, written;
 	output_init(&ob, g_output, BUFFER_MAX);
 
 	if (!SymInitialize(GetCurrentProcess(), 0, TRUE)) {
 		output_print(&ob,"Failed to init symbol context\n");
 	}
 	else {
-		bfd_init();
 		struct bfd_set *set = calloc(1,sizeof(*set));
+		bfd_init();
 		_backtrace(&ob , set , 128 , info->ContextRecord);
 		release_set(set);
 
 		SymCleanup(GetCurrentProcess());
 	}
 
-    int logfd = open("eduke32_or_mapster32.crashlog", O_APPEND | O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-    int written;
+    logfd = open("eduke32_or_mapster32.crashlog", O_APPEND | O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 
     if (logfd) {
+        time_t curtime;
+        struct tm *curltime;
+        const char *theasctime;
+        const char *finistr = "---------------\n";
+
         while ((written = write(logfd, g_output, strlen(g_output)))) {
             g_output += written;
         }
 
-        time_t curtime = time(NULL);
-        struct tm *curltime = localtime(&curtime);
-        const char *theasctime = curltime ? asctime(curltime) : NULL;
-        const char *finistr = "---------------\n";
+        curtime = time(NULL);
+        curltime = localtime(&curtime);
+        theasctime = curltime ? asctime(curltime) : NULL;
 
         if (theasctime)
             write(logfd, theasctime, strlen(theasctime));
