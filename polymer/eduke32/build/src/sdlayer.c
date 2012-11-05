@@ -2245,7 +2245,7 @@ int32_t handleevents(void)
 
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
 // from SDL HG, modified
-static int32_t SDL_WaitEventTimeout(SDL_Event *event, int32_t timeout)
+int32_t SDL_WaitEventTimeout(SDL_Event *event, int32_t timeout)
 {
     uint32_t expiration = 0;
 

@@ -15,6 +15,10 @@ struct sdlappicon {
 	uint8_t *mask;
 };
 
+#if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
+int32_t SDL_WaitEventTimeout(SDL_Event *event, int32_t timeout);
+#endif
+
 static inline void idle_waitevent_timeout(uint32_t timeout)
 {
     SDL_WaitEventTimeout(NULL, timeout);
