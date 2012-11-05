@@ -196,12 +196,6 @@ void initialize_engine_globals(void)
     pow2long[29] = 536870912L;
     pow2long[30] = 1073741824L;
     pow2long[31] = 2147483647L;
-
-#ifdef USE_OPENGL
-    mdinited = 0;
-    mdpause = 0;
-    nextmodelid = 0;
-#endif
 }
 
 int32_t reciptable[2048], fpuasm;
