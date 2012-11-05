@@ -6,8 +6,7 @@
 #define __ENET_ENET_H__
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #include <stdlib.h>

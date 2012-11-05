@@ -12,7 +12,7 @@
 #include "compat.h"
 #include "pragmas.h"
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 extern "C" {
 #endif
 
@@ -274,13 +274,15 @@ typedef struct {
     uint8_t filler;
     float alpha;
     spritetype *tspr;
+
+
 #if !defined UINTPTR_MAX
 # error Need UINTPTR_MAX define to select between 32- and 64-bit structs
 #endif
 #if UINTPTR_MAX == 0xffffffff
     /* On a 32-bit build, pad the struct so it has the same size everywhere.
      * REMINDER: Will break savegames. */
-    const intptr_t dummy_;
+    intptr_t dummy_;
 #endif
 } spriteext_t;
 
@@ -387,7 +389,8 @@ EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 EXTERN int16_t tilesizx[MAXTILES], tilesizy[MAXTILES];
 EXTERN char picsiz[MAXTILES];
 EXTERN char walock[MAXTILES];
-EXTERN const int32_t pow2long[32];
+EXTERN char pow2char[8];
+EXTERN int32_t pow2long[32];
 EXTERN int32_t picanm[MAXTILES];
 EXTERN intptr_t waloff[MAXTILES];  // stores pointers to cache  -- SA
 
@@ -718,8 +721,8 @@ int32_t deletesprite(int16_t spritenum);
 
 int32_t   changespritesect(int16_t spritenum, int16_t newsectnum);
 int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
-int32_t   setsprite(int16_t spritenum, const vec3_t *new) ATTRIBUTE((nonnull(2)));
-int32_t   setspritez(int16_t spritenum, const vec3_t *new) ATTRIBUTE((nonnull(2)));
+int32_t   setsprite(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
+int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 
 void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs, int32_t alsotileyofs);
 
@@ -902,7 +905,9 @@ void hash_delete(hashtable_t *t, const char *s);
 #endif
 #endif
 
-#ifdef __cplusplus
+extern void initialize_engine_globals(void);
+
+#ifdef EXTERNC
 }
 #endif
 

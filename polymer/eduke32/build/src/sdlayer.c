@@ -4,6 +4,8 @@
 //
 // Use SDL 1.2 or 1.3 from http://www.libsdl.org
 
+#define __STDC_FORMAT_MACROS
+#define __STDC_LIMIT_MACROS
 #include <stdlib.h>
 #include <math.h>  // pow
 #include <signal.h>
@@ -2241,16 +2243,6 @@ int32_t handleevents(void)
     return rv;
 }
 
-inline void idle(void)
-{
-    usleep(1000);
-}
-
-inline void idle_waitevent(void)
-{
-    SDL_WaitEvent(NULL);
-}
-
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
 // from SDL HG, modified
 static int32_t SDL_WaitEventTimeout(SDL_Event *event, int32_t timeout)
@@ -2286,11 +2278,6 @@ static int32_t SDL_WaitEventTimeout(SDL_Event *event, int32_t timeout)
     }
 }
 #endif
-
-inline void idle_waitevent_timeout(uint32_t timeout)
-{
-    SDL_WaitEventTimeout(NULL, timeout);
-}
 
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
 static int32_t buildkeytranslationtable(void)

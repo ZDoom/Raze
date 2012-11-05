@@ -174,6 +174,11 @@ endif
 
 OURCFLAGS+= $(BUILDCFLAGS)
 
+INVOCATION=$(CC) $(OURCONLYFLAGS)
+ifneq ($(CPLUSPLUS),0)
+    INVOCATION=$(CXX) $(OURCXXFLAGS)
+endif
+
 .SILENT:
 .PHONY: clean cleanutils veryclean all utils enginelib editorlib
 
@@ -296,15 +301,15 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 # comment out to debug a-c.o
 $(OBJ)/a-c.$o: $(SRC)/a-c.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(subst -O0,-O2,$(subst -fcatch-undefined-behavior,,$(OURCFLAGS))) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(subst -O0,-O2,$(subst -fcatch-undefined-behavior,,$(OURCFLAGS))) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.m
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.cc
 	$(COMPILE_STATUS)
@@ -344,7 +349,7 @@ $(OBJ)/%.$o: $(SRC)/util/%.cxx
 
 $(OBJ)/%.$o: $(RSRC)/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@

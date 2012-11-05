@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #ifndef __linklist_h
 #define __linklist_h
-#ifdef __cplusplus
-extern "C" {
+#ifdef EXTERNC
+{
 #endif
 
 
@@ -112,7 +112,7 @@ extern "C" {
 #define LL_Move     LL_MoveNode
 
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 };
 #endif
 #endif

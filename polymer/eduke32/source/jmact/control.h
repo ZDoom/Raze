@@ -33,8 +33,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef _control_public
 #define _control_public
-#ifdef __cplusplus
-extern "C" {
+#ifdef EXTERNC
+{
 #endif
 
 
@@ -219,7 +219,7 @@ void CONTROL_ProcessBinds(void);
 extern int32_t extinput[CONTROL_NUM_FLAGS];
 extern int32_t control_smoothmouse;
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 };
 #endif
 #endif

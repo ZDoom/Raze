@@ -192,15 +192,6 @@ int32_t isanearoperator(int32_t lotag)
     return 0;
 }
 
-inline int32_t G_CheckPlayerInSector(int32_t sect)
-{
-    int32_t i;
-    for (TRAVERSE_CONNECT(i))
-        if ((unsigned)g_player[i].ps->i < MAXSPRITES && sprite[g_player[i].ps->i].sectnum == sect)
-            return i;
-    return -1;
-}
-
 int32_t ldist(const spritetype *s1, const spritetype *s2)
 {
     int32_t x= klabs(s1->x-s2->x);

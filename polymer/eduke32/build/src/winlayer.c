@@ -5,12 +5,21 @@
 #define DIRECTDRAW_VERSION  0x0600
 #define _WIN32_WINNT 0x0501
 #define WIN32_LEAN_AND_MEAN
+#define CINTERFACE
+
+// bug in the dx headers
+#define bMAKEDIPROP(prop)    ((REFGUID)(prop))
+#define bDIPROP_BUFFERSIZE       bMAKEDIPROP(1)
+#define bDIPROP_DEADZONE         bMAKEDIPROP(5)
+#define bDIPROP_SATURATION       bMAKEDIPROP(6)
+
 #include <windows.h>
 #include <ddraw.h>
 #include <dinput.h>
 #ifndef DIK_PAUSE
 # define DIK_PAUSE 0xC5
 #endif
+
 #include <math.h>  // pow
 
 #ifdef _MSC_VER
@@ -18,6 +27,8 @@
 #endif
 
 #include "dxdidf.h"	// comment this out if c_dfDI* is being reported as multiply defined
+#define __STDC_FORMAT_MACROS
+#define __STDC_LIMIT_MACROS
 #include <stdlib.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -856,7 +867,7 @@ void uninitinput(void)
 }
 
 
-inline void idle_waitevent_timeout(uint32_t timeout)
+void idle_waitevent_timeout(uint32_t timeout)
 {
     // timeout becomes a completion deadline
     timeout += getticks();
@@ -876,15 +887,6 @@ inline void idle_waitevent_timeout(uint32_t timeout)
     while (timeout > (getticks() + 10));
 }
 
-inline void idle_waitevent(void)
-{
-    idle_waitevent_timeout(100);
-}
-
-inline void idle(void)
-{
-    idle_waitevent();
-}
 
 //
 // setjoydeadzone() -- sets the dead and saturation zones for the joystick
@@ -916,7 +918,7 @@ void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
     }
     dipdw.dwData = dead;
 
-    result = IDirectInputDevice7_SetProperty(lpDID, DIPROP_DEADZONE, &dipdw.diph);
+    result = IDirectInputDevice7_SetProperty(lpDID, bDIPROP_DEADZONE, &dipdw.diph);
     if (FAILED(result))
     {
         //ShowDInputErrorBox("Failed setting joystick dead zone", result);
@@ -926,7 +928,7 @@ void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
 
     dipdw.dwData = satur;
 
-    result = IDirectInputDevice7_SetProperty(lpDID, DIPROP_SATURATION, &dipdw.diph);
+    result = IDirectInputDevice7_SetProperty(lpDID, bDIPROP_SATURATION, &dipdw.diph);
     if (FAILED(result))
     {
         //ShowDInputErrorBox("Failed setting joystick saturation point", result);
@@ -962,7 +964,7 @@ void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
         dipdw.diph.dwHow = DIPH_BYOFFSET;
     }
 
-    result = IDirectInputDevice7_GetProperty(lpDID, DIPROP_DEADZONE, &dipdw.diph);
+    result = IDirectInputDevice7_GetProperty(lpDID, bDIPROP_DEADZONE, &dipdw.diph);
     if (FAILED(result))
     {
         //ShowDInputErrorBox("Failed getting joystick dead zone", result);
@@ -972,7 +974,7 @@ void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
 
     *dead = dipdw.dwData;
 
-    result = IDirectInputDevice7_GetProperty(lpDID, DIPROP_SATURATION, &dipdw.diph);
+    result = IDirectInputDevice7_GetProperty(lpDID, bDIPROP_SATURATION, &dipdw.diph);
     if (FAILED(result))
     {
         //ShowDInputErrorBox("Failed getting joystick saturation point", result);
@@ -1167,7 +1169,7 @@ static BOOL InitDirectInput(void)
     dipdw.diph.dwHow = DIPH_DEVICE;
     dipdw.dwData = INPUT_BUFFER_SIZE;
 
-    result = IDirectInputDevice7_SetProperty(dev2, DIPROP_BUFFERSIZE, &dipdw.diph);
+    result = IDirectInputDevice7_SetProperty(dev2, bDIPROP_BUFFERSIZE, &dipdw.diph);
     if (FAILED(result)) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed setting buffering", result); }
     else if (result != DI_OK) initprintf("    Set buffering with warning: %s\n",GetDInputError(result));
 

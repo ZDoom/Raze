@@ -168,7 +168,7 @@ fi
 
 if [ -n "$rev" ]; then
     # throw the svn revision into a header.  this is ugly.
-    echo "const char *s_buildRev = \"r$rev\";" > source/rev.h
+    echo "s_buildRev = \"r$rev\";" > source/rev.h
 else
     rev=unknown
     vc=none

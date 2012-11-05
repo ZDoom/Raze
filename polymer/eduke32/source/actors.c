@@ -26,10 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gameexec.h"
 
 #if KRANDDEBUG
-# define ACTOR_INLINE
 # define ACTOR_STATIC
 #else
-# define ACTOR_INLINE inline
 # define ACTOR_STATIC static
 #endif
 
@@ -37,12 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int32_t g_numEnvSoundsPlaying;
 extern int32_t g_noEnemies;
-
-inline void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
-{
-    int32_t i=g_numInterpolations-1;
-    for (; i>=0; i--) oldipos[i] = *curipos[i];
-}
 
 void G_SetInterpolation(int32_t *posptr)
 {
@@ -87,26 +79,6 @@ void G_DoInterpolations(int32_t smoothratio)       //Stick at beginning of draws
         if (odelta != ndelta) j = mulscale16(ndelta,smoothratio);
         *curipos[i] = oldipos[i]+j;
     }
-}
-
-inline void G_RestoreInterpolations(void)  //Stick at end of drawscreen
-{
-    int32_t i=g_numInterpolations-1;
-
-    if (--g_interpolationLock)
-        return;
-
-    for (; i>=0; i--) *curipos[i] = bakipos[i];
-}
-
-inline int32_t G_CheckForSpaceCeiling(int32_t sectnum)
-{
-    return ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 && (sector[sectnum].ceilingpicnum==MOONSKY1 || sector[sectnum].ceilingpicnum==BIGORBIT1)?1:0);
-}
-
-inline int32_t G_CheckForSpaceFloor(int32_t sectnum)
-{
-    return ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 && ((sector[sectnum].floorpicnum==MOONSKY1)||(sector[sectnum].floorpicnum==BIGORBIT1))?1:0);
 }
 
 void G_ClearCameraView(DukePlayer_t *ps)
@@ -474,15 +446,6 @@ int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
         }
 
     return(retval);
-}
-
-ACTOR_INLINE int32_t A_SetSprite(int32_t i,uint32_t cliptype)
-{
-    vec3_t davect = {(sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
-                     (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,
-                     sprite[i].zvel
-                    };
-    return (A_MoveSprite(i,&davect,cliptype)==0);
 }
 
 int32_t block_deletesprite = 0;
@@ -8221,11 +8184,6 @@ int32_t A_CheckEnemyTile(int32_t pn)
     }
 
     return 0;
-}
-
-inline int32_t A_CheckEnemySprite(const spritetype *s)
-{
-    return(A_CheckEnemyTile(s->picnum));
 }
 
 int32_t A_CheckSwitchTile(int32_t i)

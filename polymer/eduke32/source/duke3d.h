@@ -23,8 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __duke3d_h__
 #define __duke3d_h__
 
-#ifdef __cplusplus
-extern "C" {
+#ifdef EXTERNC
+{
 #endif
 
 // JBF
@@ -131,7 +131,7 @@ extern "C" {
 #include "gameexec.h"
 #include "gamevars.h"
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 }
 #endif
 #endif

@@ -122,8 +122,7 @@ typedef struct
 	} qlz_state_decompress;
 #endif
 
-
-#if defined (__cplusplus)
+#ifdef EXTERNC
 extern "C" {
 #endif
 
@@ -137,7 +136,7 @@ int qlz_get_setting(int setting);
 extern qlz_state_compress *state_compress;
 extern qlz_state_decompress *state_decompress;
 
-#if defined (__cplusplus)
+#ifdef EXTERNC
 }
 #endif
 

@@ -39,6 +39,8 @@ or else fragmentation will occur
 */
 #define SYNCPACKETSIZE 1344
 
+newgame_t pendingnewgame;
+
 uint32_t g_netMapRevision = 0;
 ENetHost *g_netServer = NULL;
 ENetHost *g_netClient = NULL;
@@ -1006,7 +1008,7 @@ void Net_RecieveVersion(uint8_t *pbuf, int32_t packbufleng)
 // Challenge Packets
 
 // sends a simple crc32 of the current password, verified by the server before the connection can continue
-void Net_SendChallenge(ENetPeer *client)
+void Net_SendChallenge()
 {
     int32_t l = 1;
 

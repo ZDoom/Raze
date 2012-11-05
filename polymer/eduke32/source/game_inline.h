@@ -20,23 +20,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __grpscan_h__
-#define __grpscan_h__
+#ifndef __game_inline_h__
+#define __game_inline_h__
 
-// List of internally-known GRP files
-#define NUMGRPFILES 9
-typedef struct grpfile {
-	const char *name;
-	int32_t crcval;
-	int32_t size;
-	int32_t game;
-	struct grpfile *next;
-} grpfile_type;
+EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
 
-extern struct grpfile grpfiles[NUMGRPFILES];
-extern struct grpfile *foundgrps;
-
-int32_t ScanGroups(void);
-void FreeGroups(void);
+#ifndef DISABLE_INLINING
+#include "game_inline.c"
+#endif
 
 #endif

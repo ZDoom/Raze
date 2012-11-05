@@ -12,6 +12,10 @@
 # include <SDL.h>
 #endif
 
+#ifdef EXTERNC
+extern "C" {
+#endif
+
 #if defined(_WIN32)
 typedef HANDLE mutex_t;
 #elif !defined GEKKO
@@ -25,5 +29,10 @@ typedef SDL_mutex* mutex_t;
 extern int32_t mutex_init(mutex_t *mutex);
 extern int32_t mutex_lock(mutex_t *mutex);
 extern int32_t mutex_unlock(mutex_t *mutex);
+
+
+#ifdef EXTERNC
+}
+#endif
 
 #endif

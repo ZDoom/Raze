@@ -23,23 +23,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __global_h__
 #define __global_h__
 
-#include "duke3d.h"
-#include "sector.h"
-
 #ifdef __global_c__
     #define G_EXTERN
 #else
     #define G_EXTERN extern
 #endif
 
-// duke3d global soup :(
-
 #define MAXINTERPOLATIONS MAXSPRITES
 // KEEPINSYNC lunatic/con_lang.lua
 #define MAXSKILLS 7
 
-G_EXTERN int32_t myconnectindex, numplayers;
+// duke3d global soup :(
+
+#include "compat.h"
+#include "build.h"
+
+G_EXTERN int32_t g_numInterpolations;
+G_EXTERN int32_t g_interpolationLock;
+G_EXTERN int32_t oldipos[MAXINTERPOLATIONS];
+G_EXTERN int32_t *curipos[MAXINTERPOLATIONS];
+G_EXTERN int32_t bakipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t connectpoint2[MAXPLAYERS];
+
+#include "duke3d.h"
+#include "sector.h"
+#include "quotes.h"
+
+void initialize_globals(void);
+
+G_EXTERN int32_t myconnectindex, numplayers;
 
 G_EXTERN const char *s_buildRev;
 G_EXTERN DukeStatus_t sbar;
@@ -68,7 +80,6 @@ G_EXTERN char tempbuf[MAXSECTORS<<1],packbuf[PACKBUF_SIZE],menutextbuf[128],buf[
 G_EXTERN char typebuflen,typebuf[141];
 G_EXTERN const char *s_buildDate;
 G_EXTERN input_t avg;
-G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 G_EXTERN input_t loc;
 G_EXTERN input_t recsync[RECSYNCBUFSIZ];
 G_EXTERN int16_t BlimpSpawnSprites[15];
@@ -84,10 +95,8 @@ G_EXTERN int16_t myang,omyang,mycursectnum,myjumpingcounter;
 G_EXTERN int16_t myhoriz,omyhoriz,myhorizoff,omyhorizoff;
 G_EXTERN int16_t neartagsector,neartagwall,neartagsprite;
 G_EXTERN int32_t *animateptr[MAXANIMATES];
-G_EXTERN int32_t *curipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t GametypeFlags[MAXGAMETYPES];
 G_EXTERN int32_t animategoal[MAXANIMATES],animatevel[MAXANIMATES],g_animateCount;
-G_EXTERN int32_t bakipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t cloudtotalclock;
 G_EXTERN int32_t fricxv,fricyv;
 G_EXTERN int32_t g_currentFrameRate;
@@ -98,11 +107,9 @@ G_EXTERN char g_earthquakeTime;
 G_EXTERN int32_t g_gameQuit;
 G_EXTERN int32_t g_groupFileHandle;
 G_EXTERN int32_t g_impactDamage,g_maxPlayerHealth;
-G_EXTERN int32_t g_interpolationLock;
 G_EXTERN int32_t g_lastSaveSlot;
 G_EXTERN int32_t g_musicSize;
 G_EXTERN int32_t g_numFreezeBounces;
-G_EXTERN int32_t g_numInterpolations;
 G_EXTERN int32_t g_numLabels,g_numDefaultLabels;
 G_EXTERN int32_t g_numRealPalettes;
 G_EXTERN int32_t g_playerFriction;
@@ -111,10 +118,10 @@ G_EXTERN int32_t g_scriptSize;
 G_EXTERN int32_t g_showShareware;
 G_EXTERN int32_t g_spriteGravity;
 G_EXTERN int32_t g_timerTicsPerSecond;
+G_EXTERN int8_t g_numPlayerSprites;
 G_EXTERN int32_t g_tripbombLaserMode;
 G_EXTERN int32_t msx[2048],msy[2048];
 G_EXTERN int32_t neartaghitdist,lockclock,g_startArmorAmount;
-G_EXTERN int32_t oldipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t playerswhenstarted;
 G_EXTERN int32_t screenpeek;
 G_EXTERN int32_t startofdynamicinterpolations;
@@ -124,8 +131,11 @@ G_EXTERN intptr_t *g_scriptPtr,*insptr;
 G_EXTERN int32_t *labelcode,*labeltype;
 G_EXTERN intptr_t *script;
 G_EXTERN map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS];  // +1 volume for "intro", "briefing" music
+#pragma pack(push,1)
 G_EXTERN playerdata_t g_player[MAXPLAYERS];
 G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
+G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
+#pragma pack(pop)
 G_EXTERN projectile_t SpriteProjectile[MAXSPRITES];
 G_EXTERN sound_t g_sounds[MAXSOUNDS];
 G_EXTERN uint32_t everyothertime;

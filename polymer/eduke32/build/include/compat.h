@@ -23,7 +23,11 @@
 // This gives us access to 'intptr_t' and 'uintptr_t', which are
 // abstractions to the size of a pointer on a given platform
 // (ie, they're guaranteed to be the same size as a pointer)
+
+#define __STDC_FORMAT_MACROS
+#define __STDC_LIMIT_MACROS
 #ifdef HAVE_INTTYPES
+#  include <stdint.h>
 #  include <inttypes.h>
 #elif defined(_MSC_VER)
 #  include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
@@ -55,7 +59,7 @@
 // library will need to wrap these functions with suitable emulations.
 #define __compat_h_macrodef__
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 #  include <cstdarg>
 #  ifdef __compat_h_macrodef__
 #   include <cstdio>
@@ -69,7 +73,7 @@
 #endif
 
 #ifdef __compat_h_macrodef__
-# ifndef __cplusplus
+# ifndef EXTERNC
 #  include <stdio.h>
 #  include <string.h>
 #  include <stdlib.h>
@@ -122,6 +126,14 @@ static inline float nearbyintf(float x)
 
 #if DEBUGGINGAIDS>=2
 # define DEBUG_MAIN_ARRAYS
+#endif
+
+#ifndef DISABLE_INLINING
+# define EXTERN_INLINE static inline
+# define EXTERN_INLINE_HEADER static inline
+#else
+# define EXTERN_INLINE
+# define EXTERN_INLINE_HEADER extern
 #endif
 
 #if !defined DEBUG_MAIN_ARRAYS
@@ -240,7 +252,7 @@ static inline float nearbyintf(float x)
 # error Unknown endianness
 #endif
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 
 # ifndef SCREWED_UP_CPP
 //   using namespace std;
@@ -633,7 +645,7 @@ char *Bstrlwr(char *);
 char *Bstrupr(char *);
 #endif
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 }
 #endif
 

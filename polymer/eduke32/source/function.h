@@ -30,8 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifndef _function_public_
 #define _function_public_
-#ifdef __cplusplus
-extern "C" {
+#ifdef EXTERNC
+{
 #endif
 
 #define NUMKEYENTRIES 56
@@ -101,7 +101,7 @@ enum GameFunction_t
    gamefunc_Dpad_Select,
    gamefunc_Dpad_Aiming
    };
-#ifdef __cplusplus
+#ifdef EXTERNC
 };
 #endif
 #endif

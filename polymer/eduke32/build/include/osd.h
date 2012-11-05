@@ -5,6 +5,9 @@
 #ifndef __osd_h__
 #define __osd_h__
 
+#ifdef EXTERNC
+extern "C" {
+#endif
 
 typedef struct {
 	int32_t numparms;
@@ -22,7 +25,7 @@ typedef struct _symbol
     int32_t (*func)(const osdfuncparm_t *);
 } symbol_t;
 
-symbol_t *symbols;
+extern symbol_t *symbols;
 
 const char *OSD_StripColors(char *out, const char *in);
 
@@ -197,6 +200,10 @@ void OSD_WriteCvars(FILE *fp);
 extern char osdhistorybuf[OSD_HISTORYDEPTH][OSD_EDITLENGTH+1];  // history strings
 extern int32_t  osdhistorysize;       // number of entries in history
 extern int32_t  osdhistorytotal;      // number of total history entries
+
+#ifdef EXTERNC
+}
+#endif
 
 #endif // __osd_h__
 

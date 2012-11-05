@@ -35,6 +35,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "limits.h"
 #include "sndcards.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum FX_ERRORS
    {
    FX_Warning = -2,
@@ -110,5 +114,10 @@ int32_t FX_StartDemandFeedPlayback( void ( *function )( char **ptr, uint32_t *le
 
 int32_t FX_SetVoiceCallback(int32_t handle, uint32_t callbackval);
 int32_t FX_SetPrintf(void (*function)(const char *, ...));
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

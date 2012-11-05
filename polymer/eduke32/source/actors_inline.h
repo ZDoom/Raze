@@ -20,23 +20,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __grpscan_h__
-#define __grpscan_h__
+#ifndef __actors_inline_h__
+#define __actors_inline_h__
 
-// List of internally-known GRP files
-#define NUMGRPFILES 9
-typedef struct grpfile {
-	const char *name;
-	int32_t crcval;
-	int32_t size;
-	int32_t game;
-	struct grpfile *next;
-} grpfile_type;
+#if KRANDDEBUG
+# define ACTOR_INLINE
+# define ACTOR_INLINE_HEADER extern
+#else
+# define ACTOR_INLINE EXTERN_INLINE
+# define ACTOR_INLINE_HEADER EXTERN_INLINE_HEADER
+#endif
 
-extern struct grpfile grpfiles[NUMGRPFILES];
-extern struct grpfile *foundgrps;
+ACTOR_INLINE_HEADER int32_t A_SetSprite(int32_t i,uint32_t cliptype);
 
-int32_t ScanGroups(void);
-void FreeGroups(void);
+EXTERN_INLINE_HEADER void G_UpdateInterpolations(void);
+EXTERN_INLINE_HEADER void G_RestoreInterpolations(void);
+
+EXTERN_INLINE_HEADER int32_t G_CheckForSpaceCeiling(int32_t sectnum);
+EXTERN_INLINE_HEADER int32_t G_CheckForSpaceFloor(int32_t sectnum);
+
+EXTERN_INLINE_HEADER int32_t A_CheckEnemySprite(const spritetype *s);
+
+#ifndef DISABLE_INLINING
+#include "actors_inline.c"
+#endif
 
 #endif

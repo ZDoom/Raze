@@ -42,7 +42,6 @@ extern El_State g_ElState;
 #endif
 
 static int32_t g_whichPalForPlayer = 9;
-int32_t g_numRealPalettes;
 
 static uint8_t precachehightile[2][MAXTILES>>3];
 static int32_t  g_precacheCount;

@@ -36,6 +36,11 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 endif
 
+INVOCATION=$(CC) $(OURCONLYFLAGS)
+ifneq ($(CPLUSPLUS),0)
+    INVOCATION=$(CXX) $(OURCXXFLAGS)
+endif
+
 
 OBJECTS=$(OBJ)/drivers.o \
 	$(OBJ)/fx_man.o \
@@ -69,7 +74,7 @@ $(OBJNAME): $(OBJECTS)
 $(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c
 	-mkdir -p $(OBJ)
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:

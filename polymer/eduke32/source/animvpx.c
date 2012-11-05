@@ -1,5 +1,9 @@
 /* ANM file replacement with VP8 video */
 
+#define __STDC_FORMAT_MACROS
+#define __STDC_LIMIT_MACROS
+
+
 #include <stdint.h>
 
 #include "compat.h"

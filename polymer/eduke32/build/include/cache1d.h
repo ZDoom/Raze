@@ -6,7 +6,7 @@
 #include "compat.h"
 #include "mutex.h"
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 extern "C" {
 #endif
 
@@ -66,7 +66,7 @@ void	kdfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil);
 #endif
 void	dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil);
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 }
 #endif
 

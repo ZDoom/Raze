@@ -288,7 +288,6 @@ void G_HandleSpecialKeys(void);
 void G_PrintGameQuotes(int32_t snum);
 //void G_SE40(int32_t smoothratio);
 void G_SetCrosshairColor(int32_t r,int32_t g,int32_t b);
-void G_SetStatusBarScale(int32_t sc);
 void G_Shutdown(void);
 void G_UpdatePlayerFromMenu(void);
 void M32RunScript(const char *s);
@@ -458,5 +457,7 @@ enum cheatindex_t
             Bsnprintf(buf, size, basename, ## __VA_ARGS__) \
     ) >= ((int32_t)size)-1 \
 )
+
+#include "game_inline.h"
 
 #endif

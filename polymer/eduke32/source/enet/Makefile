@@ -17,6 +17,11 @@ OURCXXFLAGS=$(BASECXXFLAGS)
 OURLDFLAGS=$(BASELDFLAGS)
 OURASFLAGS=$(BASEASFLAGS)
 
+INVOCATION=$(CC) $(OURCONLYFLAGS)
+ifneq ($(CPLUSPLUS),0)
+    INVOCATION=$(CXX) $(OURCXXFLAGS)
+endif
+
 
 OBJECTS=$(OBJ)/callbacks.o \
 	$(OBJ)/host.o \
@@ -44,7 +49,7 @@ $(OBJNAME): $(OBJECTS)
 $(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c $(INC)/enet/*.h
 	-mkdir -p $(OBJ)
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:

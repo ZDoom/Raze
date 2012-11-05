@@ -74,7 +74,7 @@ then
     rm mapster32.debug.exe
 
     # throw the svn revision into a header.  this is ugly.
-    echo "const char *s_buildRev = \"r$head\";" > source/rev.h
+    echo "s_buildRev = \"r$head\";" > source/rev.h
 
     # clean the tree and build debug first
     echo "${make[@]}" RELEASE=0 $clean all

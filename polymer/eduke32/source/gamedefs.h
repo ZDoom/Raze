@@ -30,8 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifndef _gamedefs_public_
 #define _gamedefs_public_
-#ifdef __cplusplus
-extern "C" {
+#ifdef EXTERNC
+{
 #endif
 
 //****************************************************************************
@@ -187,7 +187,7 @@ enum
    };
 
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 };
 #endif
 #endif

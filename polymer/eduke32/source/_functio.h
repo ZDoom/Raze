@@ -30,8 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifndef _function_private_
 #define _function_private_
-#ifdef __cplusplus
-extern "C" {
+#ifdef EXTERNC
+{
 #endif
 char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    {
@@ -503,7 +503,7 @@ static const char * joystickdigitaldefaults[] =
 #endif
 
 #endif
-#ifdef __cplusplus
+#ifdef EXTERNC
 };
 #endif
 #endif

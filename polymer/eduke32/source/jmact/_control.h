@@ -34,8 +34,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #ifndef _control_private
 #define _control_private
-#ifdef __cplusplus
-extern "C" {
+#ifdef EXTERNC
+{
 #endif
 
 
@@ -223,7 +223,7 @@ static int32_t   CONTROL_GetTime( void );
 void    CONTROL_AxisFunctionState( int32_t * state );
 void    CONTROL_GetJoyMovement( ControlInfo * info );
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 };
 #endif
 #endif

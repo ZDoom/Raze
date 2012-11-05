@@ -149,6 +149,12 @@ ifneq ($(USE_LIBVPX),0)
     GAMEOBJS+= $(OBJ)/animvpx.$o
 endif
 
+ifneq (0,$(DISABLEINLINING))
+    GAMEOBJS+= $(OBJ)/game_inline.$o \
+	$(OBJ)/actors_inline.$o \
+	$(OBJ)/sector_inline.$o
+endif
+
 MISCGAMEDEPS=
 
 
@@ -163,7 +169,7 @@ ifneq (0,$(LUNATIC))
     ifeq ($(PLATFORM),WINDOWS)
         OURCFLAGS+= -I$(LUAJIT_WIN_SRC)
     else
-        OURCFLAGS+= -I/usr/local/include/luajit-2.0
+        OURCFLAGS+= -I/usr/include/luajit-2.0
     endif
     OURCFLAGS+= -I$(SRC)/lunatic -DLUNATIC
 
@@ -319,6 +325,11 @@ ifeq ($(PLATFORM),WII)
     # -msdata=eabi
 endif
 
+INVOCATION=$(CC) $(OURCONLYFLAGS)
+ifneq ($(CPLUSPLUS),0)
+    INVOCATION=$(CXX) $(OURCXXFLAGS)
+endif
+
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
 endif
@@ -343,7 +354,7 @@ notice:
 
 $(EDUKE32): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB) $(MISCGAMEDEPS)
 	$(LINK_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(GAMELDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(GAMELDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
   ifeq (0,$(DEBUGANYWAY))
     ifneq ($(PLATFORM),WII)
@@ -359,7 +370,7 @@ endif
 
 $(MAPSTER32): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
 	$(LINK_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(EDITORLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(EDITORLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
   ifeq (0,$(DEBUGANYWAY))
     ifneq ($(PLATFORM),WII)
@@ -410,7 +421,7 @@ endif
 # RULES
 
 $(EBACKTRACEDLL): Windows/src/backtrace.c
-	if $(CC) -O2 -shared -Wall -Wextra -I$(EINC) -o $@ $^ -lbfd -liberty -limagehlp; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CC) $(OURCONLYFLAGS) -O2 -shared -Wall -Wextra -I$(EINC) -o $@ $^ -lbfd -liberty -limagehlp; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.nasm
 	$(COMPILE_STATUS)
@@ -418,7 +429,7 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 #### Lunatic
 
@@ -435,11 +446,11 @@ endif
 
 $(OBJ)/%.$o: $(SRC)/lunatic/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/xdelta3/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 # TODO: _m32
 # List of exported symbols, OS X
@@ -459,7 +470,7 @@ $(SRC)/lunatic/eduke32.def: $(SRC)/lunatic/dynsymlist
 
 $(OBJ)/%.$o: Apple/%.m
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.cc
 	$(COMPILE_STATUS)
@@ -475,27 +486,23 @@ $(OBJ)/%.$o: $(SRC)/%.cxx
 
 $(OBJ)/%.$o: $(SRC)/jmact/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(COMPILE_STATUS)
 	if $(RC) -i $< -o $@ --include-dir=$(EINC) --include-dir=$(SRC) -DPOLYMER=$(POLYMER); then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
-$(OBJ)/%.$o: $(SRC)/util/%.c
-	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
-
 $(OBJ)/%.$o: $(RSRC)/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/game_banner.$o: $(RSRC)/game_banner.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(INVOCATION) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(RSRC)/game_banner.c: $(RSRC)/game.bmp
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@

@@ -338,11 +338,14 @@ char *Bgetcwd(char *buf, bsize_t size)
 //
 // Stuff which must be a function
 //
+#ifdef _WIN32
+typedef BOOL (WINAPI * aSHGetSpecialFolderPathAtype)(HWND, LPTSTR, int, BOOL);
+#endif
 
 char *Bgethomedir(void)
 {
 #ifdef _WIN32
-    FARPROC aSHGetSpecialFolderPathA;
+    aSHGetSpecialFolderPathAtype aSHGetSpecialFolderPathA;
     TCHAR appdata[MAX_PATH];
     int32_t loaded = 0;
     HMODULE hShell32 = GetModuleHandle("shell32.dll");
@@ -356,7 +359,7 @@ char *Bgethomedir(void)
     if (hShell32 == NULL)
         return NULL;
 
-    aSHGetSpecialFolderPathA = GetProcAddress(hShell32, "SHGetSpecialFolderPathA");
+    aSHGetSpecialFolderPathA = (aSHGetSpecialFolderPathAtype)GetProcAddress(hShell32, "SHGetSpecialFolderPathA");
     if (aSHGetSpecialFolderPathA != NULL)
         if (SUCCEEDED(aSHGetSpecialFolderPathA(NULL, appdata, CSIDL_APPDATA, FALSE)))
         {
@@ -811,6 +814,10 @@ char *Bstrupr(char *s)
 //
 // Bgetsysmemsize() -- gets the amount of system memory in the machine
 //
+#ifdef _WIN32
+typedef BOOL (WINAPI *aGlobalMemoryStatusExType)(LPMEMORYSTATUSEX);
+#endif
+
 uint32_t Bgetsysmemsize(void)
 {
 #ifdef _WIN32
@@ -819,8 +826,8 @@ uint32_t Bgetsysmemsize(void)
 
     if (lib)
     {
-        BOOL (WINAPI *aGlobalMemoryStatusEx)(LPMEMORYSTATUSEX) =
-            (void *)GetProcAddress(lib, "GlobalMemoryStatusEx");
+        aGlobalMemoryStatusExType aGlobalMemoryStatusEx =
+            (aGlobalMemoryStatusExType)GetProcAddress(lib, "GlobalMemoryStatusEx");
 
         if (aGlobalMemoryStatusEx)
         {

@@ -7,8 +7,8 @@
 
 #include <math.h>
 
-#ifdef __cplusplus
-extern "C" {
+#ifdef EXTERNC
+{
 #endif
 
 #define VERSION "2.0.0devel"
@@ -318,7 +318,7 @@ extern int32_t scripthistend;
 #define AIMING_AT_WALL_OR_MASK (AIMING_AT_WALL || AIMING_AT_MASKWALL)
 #define AIMING_AT_CEILING_OR_FLOOR (AIMING_AT_CEILING || AIMING_AT_FLOOR)
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 }
 #endif
 

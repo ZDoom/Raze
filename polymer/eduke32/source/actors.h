@@ -131,14 +131,14 @@ typedef struct {
 #if UINTPTR_MAX == 0xffffffff
     /* 32-bit */
 # ifndef LUNATIC
-    const int8_t filler[20];
+    int8_t filler[20];
 # else
-    const int8_t filler[4];
+    int8_t filler[4];
 # endif
 #else
     /* 64-bit */
 # ifndef LUNATIC
-    const int8_t filler[16];
+    int8_t filler[16];
 # else
     /* no padding */
 #endif
@@ -265,7 +265,6 @@ static inline void set_move_members(int32_t i)
 #endif
 
 void                A_AddToDeleteQueue(int32_t i);
-int32_t             A_CheckEnemySprite(const spritetype *s);
 int32_t             A_CheckEnemyTile(int32_t pn);
 int32_t             A_CheckSwitchTile(int32_t i);
 void                A_DeleteSprite(int32_t s);
@@ -277,22 +276,19 @@ void                A_MoveDummyPlayers(void);
 int32_t             A_MoveSprite(int32_t spritenum,const vec3_t *change,uint32_t cliptype);
 void                A_PlayAlertSound(int32_t i);
 void                A_RadiusDamage(int32_t i,int32_t r,int32_t hp1,int32_t hp2,int32_t hp3,int32_t hp4);
-int32_t             A_SetSprite(int32_t i,uint32_t cliptype);
 void                A_SpawnMultiple(int32_t sp,int32_t pic,int32_t n);
 
 void                G_AddGameLight(int32_t radius,int32_t srcsprite,int32_t zoffset,int32_t range,int32_t color,int32_t priority);
-int32_t             G_CheckForSpaceCeiling(int32_t sectnum);
-int32_t             G_CheckForSpaceFloor(int32_t sectnum);
 void                G_ClearCameraView(DukePlayer_t *ps);
 void                G_DoInterpolations(int32_t smoothratio);
 void                G_MoveWorld(void);
-extern inline void  G_RestoreInterpolations(void);
 void                G_SetInterpolation(int32_t *posptr);
 void                G_StopInterpolation(int32_t *posptr);
-extern inline void  G_UpdateInterpolations(void);
 
 // PK 20110701: changed input argument: int32_t i (== sprite, whose sectnum...) --> sectnum directly
 void                Sect_ClearInterpolation(int32_t sectnum);
 void                Sect_SetInterpolation(int32_t sectnum);
+
+#include "actors_inline.h"
 
 #endif

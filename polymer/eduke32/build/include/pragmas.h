@@ -5,7 +5,7 @@
 #ifndef __pragmas_h__
 #define __pragmas_h__
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 extern "C" {
 #endif
 
@@ -2293,7 +2293,7 @@ void copybufreverse(const void *S, void *D, int32_t c);
 
 #endif
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 }
 #endif
 

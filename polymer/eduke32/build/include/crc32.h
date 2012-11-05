@@ -3,7 +3,7 @@
 
 #include "compat.h"
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 extern "C" {
 #endif
 
@@ -32,7 +32,7 @@ static inline uint32_t crc32finish(uint32_t *crcvar)
     return *crcvar;
 }
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 }
 #endif
 

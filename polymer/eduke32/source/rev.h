@@ -1,1 +1,1 @@
-const char *s_buildRev = "rXXXX";
+s_buildRev = "rXXXX";

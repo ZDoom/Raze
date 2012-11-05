@@ -16,6 +16,8 @@
 #include "baselayer.h"
 #ifdef RENDERTYPEWIN
 #include "winlayer.h"
+#else
+#include "sdlayer.h"
 #endif
 
 #include "m32script.h"

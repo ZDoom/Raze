@@ -17,7 +17,6 @@
 
 #include <math.h>
 
-voxmodel_t *voxmodels[MAXVOXELS];
 static int32_t curextra=MAXTILES;
 // nedpool *model_data_pool;
 // #define MODEL_POOL_SIZE 20971520
@@ -76,12 +75,8 @@ int32_t Ptile2tile(int32_t tile,int32_t pallet)
     return t;
 }
 
-int32_t mdinited=0;
-int32_t mdpause=0;
-
 #define MODELALLOCGROUP 256
 static int32_t nummodelsalloced = 0;
-int32_t nextmodelid = 0;
 
 static int32_t maxmodelverts = 0, allocmodelverts = 0;
 static int32_t maxmodeltris = 0, allocmodeltris = 0;

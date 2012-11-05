@@ -23,8 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __premap_h__
 #define __premap_h__
 
-extern const char pow2char[];
-
 extern int32_t g_levelTextTime;
 extern int32_t g_numRealPalettes;
 extern int32_t voting,vote_map,vote_episode;

@@ -451,7 +451,9 @@ int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
 
         if (!sigchld_handler_set)
         {
-            struct sigaction sa = { .sa_handler=sigchld_handler, .sa_flags=0 };
+            struct sigaction sa;
+            sa.sa_handler=sigchld_handler;
+            sa.sa_flags=0;
             sigemptyset(&sa.sa_mask);
 
             if (sigaction(SIGCHLD, &sa, NULL)==-1)

@@ -8,7 +8,7 @@
 #include "compat.h"
 #include "osd.h"
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 extern "C" {
 #endif
 
@@ -107,9 +107,6 @@ void debugprintf(const char *,...) ATTRIBUTE((format(printf,1,2)));
 
 int32_t handleevents(void);
 int32_t handleevents_peekkeys(void);
-extern inline void idle(void);
-extern inline void idle_waitevent(void);
-extern inline void idle_waitevent_timeout(uint32_t timeout);
 
 extern void (*keypresscallback)(int32_t,int32_t);
 extern void (*mousepresscallback)(int32_t,int32_t);
@@ -180,7 +177,7 @@ int32_t baselayer_init();
 
 void makeasmwriteable(void);
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 }
 #endif
 

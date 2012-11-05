@@ -29,7 +29,7 @@ typedef struct
 } animvpx_ivf_header_t;
 #pragma pack(pop)
 
-const char *animvpx_read_ivf_header_errmsg[7];
+extern const char *animvpx_read_ivf_header_errmsg[7];
 int32_t animvpx_read_ivf_header(int32_t inhandle, animvpx_ivf_header_t *hdr);
 
 
@@ -77,7 +77,7 @@ typedef struct
 int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, int32_t inhandle, animvpx_codec_ctx *codec);
 int32_t animvpx_uninit_codec(animvpx_codec_ctx *codec);
 
-const char *animvpx_nextpic_errmsg[8];
+extern const char *animvpx_nextpic_errmsg[8];
 int32_t animvpx_nextpic(animvpx_codec_ctx *codec, uint8_t **pic);
 
 void animvpx_setup_glstate(void);

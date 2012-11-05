@@ -9,7 +9,7 @@ if not "%rev%"=="" set vc=svn
 if "%rev%"=="" for /f "delims=" %%G in ('git svn info 2^>^&1 ^| grep Revision ^| cut -d " " -f 2') do @set rev=r%%G
 if not "%rev%"=="" set vc=git
 if "%rev%"=="" set vc=none
-if not "%rev%"=="" echo const char *s_buildRev = "%rev%";>source\rev.h
+if not "%rev%"=="" echo s_buildRev = "%rev%";>source\rev.h
 if "%rev%"=="" set rev=rXXXX
 
 :: Get the current date:

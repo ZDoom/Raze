@@ -10,6 +10,9 @@
 #include "scriptfile.h"
 #include "cache1d.h"
 
+#ifdef EXTERNC
+extern "C" {
+#endif
 
 //// TYPES
 struct strllist
@@ -68,5 +71,9 @@ int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char
 #define EDUKE32_TMRDEF int32_t t[20], ti=0; const char *tmrstr=__func__; fprintf(stderr,"%s\n",tmrstr); t[ti++]=getticks();
 #define EDUKE32_TMRTIC t[ti++]=getticks()
 #define EDUKE32_TMRPRN do { int ii=0; fprintf(stderr,"%s: ",tmrstr); for (ii=1; ii<ti; ii++) fprintf(stderr,"%d ", t[ii]-t[ii-1]); fprintf(stderr,"\n"); } while (0)
+
+#ifdef EXTERNC
+}
+#endif
 
 #endif

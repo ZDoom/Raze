@@ -14,6 +14,11 @@
 #define __cdecl
 #endif
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 extern int32_t __cdecl mmxoverlay();
 extern int32_t __cdecl sethlinesizes(int32_t,int32_t,int32_t);
 extern int32_t __cdecl setpalookupaddress(char *);
@@ -61,7 +66,16 @@ extern int32_t __cdecl setupdrawslab(int32_t,int32_t);
 extern int32_t __cdecl drawslab(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern void __cdecl stretchhline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 
+#ifdef __cplusplus
+}
+#endif
+
 #elif defined(_MSC_VER)	&& !defined(NOASM)	// __GNUC__ && __i386__
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 extern int32_t _cdecl mmxoverlay();
 extern int32_t _cdecl sethlinesizes(int32_t,int32_t,int32_t);
@@ -109,6 +123,10 @@ extern int32_t _cdecl settransreverse();
 extern int32_t _cdecl setupdrawslab(int32_t,int32_t);
 extern int32_t _cdecl drawslab(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern void _cdecl stretchhline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
+
+#ifdef __cplusplus
+}
+#endif
 
 #else				// _MSC_VER
 

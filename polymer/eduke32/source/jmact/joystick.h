@@ -2,8 +2,8 @@
 #ifndef __joystick_h
 #define __joystick_h
 
-#ifdef __cplusplus
-extern "C" {
+#ifdef EXTERNC
+{
 #endif
 
 #if defined(GEKKO)
@@ -50,7 +50,7 @@ int32_t	JOYSTICK_GetAxis( int32_t a );
 void	JOYSTICK_ClearAxis( int32_t a );
 void	JOYSTICK_ClearAllAxes( void );
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 };
 #endif
 #endif /* __joystick_h */

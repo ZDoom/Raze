@@ -18,6 +18,18 @@ int32_t win_gethinstance(void);
 void win_allowtaskswitching(int32_t onf);
 int32_t win_checkinstance(void);
 
+extern void idle_waitevent_timeout(uint32_t timeout);
+
+static inline void idle_waitevent(void)
+{
+    idle_waitevent_timeout(100);
+}
+
+static inline void idle(void)
+{
+    idle_waitevent();
+}
+
 #include "baselayer.h"
 
 #else

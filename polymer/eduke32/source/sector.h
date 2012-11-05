@@ -109,7 +109,6 @@ void G_AnimateCamSprite(void);
 void G_AnimateWalls(void);
 int32_t G_ActivateWarpElevators(int32_t s,int32_t d);
 int32_t G_CheckActivatorMotion(int32_t lotag);
-extern inline int32_t G_CheckPlayerInSector(int32_t sect);
 void G_DoSectorAnimations(void);
 void G_OperateActivators(int32_t low,int32_t snum);
 void G_OperateForceFields(int32_t s,int32_t low);
@@ -126,5 +125,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite);
 void P_CheckSectors(int32_t snum);
 int32_t Sect_DamageCeiling(int32_t sn);
 int32_t SetAnimation(int32_t animsect,int32_t *animptr,int32_t thegoal,int32_t thevel);
+
+#include "sector_inline.h"
 
 #endif

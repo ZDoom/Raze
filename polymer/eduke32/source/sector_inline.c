@@ -20,23 +20,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef __grpscan_h__
-#define __grpscan_h__
+#ifndef __sector_inline_c__
+#define __sector_inline_c__
 
-// List of internally-known GRP files
-#define NUMGRPFILES 9
-typedef struct grpfile {
-	const char *name;
-	int32_t crcval;
-	int32_t size;
-	int32_t game;
-	struct grpfile *next;
-} grpfile_type;
+#include "compat.h"
+#include "build.h"
+#include "global.h"
+#include "duke3d.h"
+#include "macros.h"
+#include "player.h"
+#include "sector_inline.h"
 
-extern struct grpfile grpfiles[NUMGRPFILES];
-extern struct grpfile *foundgrps;
-
-int32_t ScanGroups(void);
-void FreeGroups(void);
+EXTERN_INLINE int32_t G_CheckPlayerInSector(int32_t sect)
+{
+    int32_t i;
+    for (TRAVERSE_CONNECT(i))
+        if ((unsigned)g_player[i].ps->i < MAXSPRITES && sprite[g_player[i].ps->i].sectnum == sect)
+            return i;
+    return -1;
+}
 
 #endif

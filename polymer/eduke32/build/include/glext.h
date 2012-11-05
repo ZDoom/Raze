@@ -1,7 +1,7 @@
 #ifndef __glext_h_
 #define __glext_h_
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 extern "C" {
 #endif
 
@@ -11481,7 +11481,7 @@ typedef void (APIENTRYP PFNGLMULTIDRAWELEMENTSINDIRECTAMDPROC) (GLenum mode, GLe
 #endif
 
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 }
 #endif
 

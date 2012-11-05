@@ -23,160 +23,73 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __global_c__
 #include "global.h"
 #include "duke3d.h"
-#include "rev.h"
 
-const char *s_buildDate = "20120522";
-char *MusicPtr = NULL;
-int32_t g_musicSize;
-
-int16_t g_globalRandom;
-int16_t neartagsector, neartagwall, neartagsprite;
-
-int32_t neartaghitdist,lockclock,g_startArmorAmount;
-// JBF: g_spriteGravity modified to default to Atomic ed. default when using 1.3d CONs
-int32_t g_spriteGravity=176;
-
-actor_t actor[MAXSPRITES];
-tiledata_t g_tile[MAXTILES];
-
-int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos,g_spriteDeleteQueueSize=64;
-animwalltype animwall[MAXANIMWALLS];
-int16_t g_numAnimWalls;
-int32_t *animateptr[MAXANIMATES];
-int32_t animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
-int16_t animatesect[MAXANIMATES];
-int32_t msx[2048],msy[2048];
-int16_t cyclers[MAXCYCLERS][6],g_numCyclers;
-
-char *ScriptQuotes[MAXQUOTES], *ScriptQuoteRedefinitions[MAXQUOTES];
-
-char tempbuf[MAXSECTORS<<1], packbuf[PACKBUF_SIZE], menutextbuf[128], buf[1024];
-
-int16_t camsprite;
-int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
-
-int32_t g_currentMenu;
-
-map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
-sound_t g_sounds[ MAXSOUNDS ];
-volatile char g_soundlocks[MAXSOUNDS];
-
-char EpisodeNames[MAXVOLUMES][33] = { "L.A. Meltdown", "Lunar Apocalypse", "Shrapnel City" };
-char SkillNames[MAXSKILLS][33] = { "Piece Of Cake", "Let's Rock", "Come Get Some", "Damn I'm Good" };
-
-char GametypeNames[MAXGAMETYPES][33] = { "DukeMatch (Spawn)","Cooperative Play","DukeMatch (No Spawn)","Team DM (Spawn)","Team DM (No Spawn)"};
-
-int32_t GametypeFlags[MAXGAMETYPES] =
+void initialize_globals(void)
 {
-    /*4+*/8+16+1024+2048+16384,
-    1+2+32+64+128+256+512+4096+8192+32768,
-    2+/*4+*/8+16+16384,
-    /*4+*/8+16+1024+2048+16384+65536+131072,
-    2+/*4+*/8+16+16384+65536+131072
-};
-char g_numGametypes = 5;
+    #include "rev.h"
+    s_buildDate = "20120522";
 
-int32_t g_currentFrameRate;
+    // JBF: g_spriteGravity modified to default to Atomic ed. default when using 1.3d CONs
+    g_spriteGravity = 176;
 
-char g_numVolumes = 3;
+    g_spriteDeleteQueueSize = 64;
 
-int32_t g_timerTicsPerSecond=TICRATE;
+    strcpy(EpisodeNames[0], "L.A. Meltdown");
+    strcpy(EpisodeNames[1], "Lunar Apocalypse");
+    strcpy(EpisodeNames[2], "Shrapnel City");
 
-int8_t g_numPlayerSprites;
-char g_loadFromGroupOnly=0, g_earthquakeTime;
+    strcpy(SkillNames[0], "Piece Of Cake");
+    strcpy(SkillNames[1], "Let's Rock");
+    strcpy(SkillNames[2], "Come Get Some");
+    strcpy(SkillNames[3], "Damn I'm Good");
 
-int32_t playerswhenstarted;
+    strcpy(GametypeNames[0], "DukeMatch (Spawn)");
+    strcpy(GametypeNames[1], "Cooperative Play");
+    strcpy(GametypeNames[2], "DukeMatch (No Spawn)");
+    strcpy(GametypeNames[3], "Team DM (Spawn)");
+    strcpy(GametypeNames[4], "Team DM (No Spawn)");
 
-int32_t fricxv,fricyv;
-#pragma pack(push,1)
-playerdata_t g_player[MAXPLAYERS];
-input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
-playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
-#pragma pack(pop)
-user_defs ud;
+    GametypeFlags[0] = /*4+*/8+16+1024+2048+16384;
+    GametypeFlags[1] = 1+2+32+64+128+256+512+4096+8192+32768;
+    GametypeFlags[2] = 2+/*4+*/8+16+16384;
+    GametypeFlags[3] = /*4+*/8+16+1024+2048+16384+65536+131072;
+    GametypeFlags[4] = 2+/*4+*/8+16+16384+65536+131072;
 
-char pus, pub;
+    g_numGametypes = 5;
 
-input_t loc;
-input_t recsync[RECSYNCBUFSIZ];
-input_t avg;
+    g_numVolumes = 3;
 
-//Multiplayer syncing variables
-int32_t screenpeek;
+    g_timerTicsPerSecond = TICRATE;
 
-//Game recording variables
-char ready2send;
-int32_t vel, svel, angvel, horiz, ototalclock, g_actorRespawnTime=768, g_itemRespawnTime=768, g_groupFileHandle;
+    g_actorRespawnTime = 768;
+    g_itemRespawnTime = 768;
 
-intptr_t *g_scriptPtr,*insptr;
-int32_t *labelcode, *labeltype;
-int32_t g_numLabels,g_numDefaultLabels;
-intptr_t *g_parsingActorPtr;
-char *label;
-intptr_t *script = NULL;
+    g_scriptSize = 1048576;
 
-int32_t g_scriptSize = 1048576;
+    BlimpSpawnSprites[0] = RPGSPRITE__STATIC;
+    BlimpSpawnSprites[1] = CHAINGUNSPRITE__STATIC;
+    BlimpSpawnSprites[2] = DEVISTATORAMMO__STATIC;
+    BlimpSpawnSprites[3] = RPGAMMO__STATIC;
+    BlimpSpawnSprites[4] = RPGAMMO__STATIC;
+    BlimpSpawnSprites[5] = JETPACK__STATIC;
+    BlimpSpawnSprites[6] = SHIELD__STATIC;
+    BlimpSpawnSprites[7] = FIRSTAID__STATIC;
+    BlimpSpawnSprites[8] = STEROIDS__STATIC;
+    BlimpSpawnSprites[9] = RPGAMMO__STATIC;
+    BlimpSpawnSprites[10] = RPGAMMO__STATIC;
+    BlimpSpawnSprites[11] = RPGSPRITE__STATIC;
+    BlimpSpawnSprites[12] = RPGAMMO__STATIC;
+    BlimpSpawnSprites[13] = FREEZESPRITE__STATIC;
+    BlimpSpawnSprites[14] = FREEZEAMMO__STATIC;
 
-char typebuflen,typebuf[141];
+    g_playerFriction = 0xcc00;
 
-int32_t g_musicIndex;
-char EnvMusicFilename[MAXVOLUMES+1][BMAX_PATH];
-char g_RTSPlaying;
+    g_numFreezeBounces=3;
 
+    g_lastSaveSlot = -1;
 
-int16_t BlimpSpawnSprites[15] =
-{
-    RPGSPRITE__STATIC,
-    CHAINGUNSPRITE__STATIC,
-    DEVISTATORAMMO__STATIC,
-    RPGAMMO__STATIC,
-    RPGAMMO__STATIC,
-    JETPACK__STATIC,
-    SHIELD__STATIC,
-    FIRSTAID__STATIC,
-    STEROIDS__STATIC,
-    RPGAMMO__STATIC,
-    RPGAMMO__STATIC,
-    RPGSPRITE__STATIC,
-    RPGAMMO__STATIC,
-    FREEZESPRITE__STATIC,
-    FREEZEAMMO__STATIC
-};
+    CheatKeys[0] = sc_D;
+    CheatKeys[1] = sc_N;
 
-int32_t g_impactDamage, g_maxPlayerHealth;
-int32_t g_scriptDebug;
-
-//GLOBAL.C - replace the end "my's" with this
-vec3_t my, omy, myvel;
-int16_t myhoriz, omyhoriz, myhorizoff, omyhorizoff;
-int16_t myang, omyang, mycursectnum, myjumpingcounter;
-
-char myjumpingtoggle, myonground, myhardlanding, myreturntocenter;
-
-int32_t g_playerFriction = 0xcc00, g_showShareware;
-
-char szPlayerName[32];
-int32_t g_damageCameras,g_freezerSelfDamage=0,g_tripbombLaserMode=0;
-int32_t g_gameQuit = 0;
-uint32_t everyothertime;
-int32_t g_numFreezeBounces=3,g_rpgBlastRadius,g_pipebombBlastRadius,g_tripbombBlastRadius,
-        g_shrinkerBlastRadius,g_morterBlastRadius,g_bouncemineBlastRadius,g_seenineBlastRadius;
-DukeStatus_t sbar;
-
-int16_t g_numClouds,clouds[128],cloudx[128],cloudy[128];
-int32_t cloudtotalclock = 0;
-int32_t g_numInterpolations = 0, startofdynamicinterpolations = 0;
-int32_t g_interpolationLock = 0;
-int32_t oldipos[MAXINTERPOLATIONS];
-int32_t bakipos[MAXINTERPOLATIONS];
-int32_t *curipos[MAXINTERPOLATIONS];
-
-projectile_t SpriteProjectile[MAXSPRITES];
-
-char CheatKeys[2] = { sc_D, sc_N };
-char setupfilename[BMAX_PATH]= SETUPFILENAME;
-
-int32_t g_doQuickSave = 0;
-uint32_t g_moveThingsCount = 0;
-
-int32_t g_restorePalette = 0, g_screenCapture = 0, g_noEnemies = 0;
+    strcpy(setupfilename, SETUPFILENAME);
+}

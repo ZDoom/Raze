@@ -138,7 +138,6 @@ palette_t palookupfog[MAXPALOOKUPS];
 
 static int32_t artversion;
 int32_t mapversion=7; // JBF 20040211: default mapversion to 7
-char picsiz[MAXTILES];
 static void *pic = NULL;
 static char tilefilenum[MAXTILES];
 static int32_t tilefileoffs[MAXTILES];
@@ -149,28 +148,62 @@ static int32_t artsize = 0, cachesize = 0;
 // Whole ART file contents loaded from ZIPs in memory.
 static char *artptrs[MAXTILEFILES];
 
-// GCC 4.6 LTO build fix
-#ifdef USING_LTO
-# define B_ENGINE_STATIC
-#else
-# define B_ENGINE_STATIC static
-#endif
-
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280], radarang2[MAXXDIM];
-B_ENGINE_STATIC uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
-const char pow2char[8] = {1,2,4,8,16,32,64,128};
-const int32_t pow2long[32] =
+
+uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
+
+void initialize_engine_globals(void)
 {
-    1L,2L,4L,8L,
-    16L,32L,64L,128L,
-    256L,512L,1024L,2048L,
-    4096L,8192L,16384L,32768L,
-    65536L,131072L,262144L,524288L,
-    1048576L,2097152L,4194304L,8388608L,
-    16777216L,33554432L,67108864L,134217728L,
-    268435456L,536870912L,1073741824L,2147483647L
-};
+    pow2char[0] = 1;
+    pow2char[1] = 2;
+    pow2char[2] = 4;
+    pow2char[3] = 8;
+    pow2char[4] = 16;
+    pow2char[5] = 32;
+    pow2char[6] = 64;
+    pow2char[7] = 128;
+
+    pow2long[0] = 1L;
+    pow2long[1] = 2L;
+    pow2long[2] = 4L;
+    pow2long[3] = 8L;
+    pow2long[4] = 16L;
+    pow2long[5] = 32L;
+    pow2long[6] = 64L;
+    pow2long[7] = 128L;
+    pow2long[8] = 256L;
+    pow2long[9] = 512L;
+    pow2long[10] = 1024L;
+    pow2long[11] = 2048L;
+    pow2long[12] = 4096L;
+    pow2long[13] = 8192L;
+    pow2long[14] = 16384L;
+    pow2long[15] = 32768L;
+    pow2long[16] = 65536L;
+    pow2long[17] = 131072L;
+    pow2long[18] = 262144L;
+    pow2long[19] = 524288L;
+    pow2long[20] = 1048576L;
+    pow2long[21] = 2097152L;
+    pow2long[22] = 4194304L;
+    pow2long[23] = 8388608L;
+    pow2long[24] = 16777216L;
+    pow2long[25] = 33554432L;
+    pow2long[26] = 67108864L;
+    pow2long[27] = 134217728L;
+    pow2long[28] = 268435456L;
+    pow2long[29] = 536870912L;
+    pow2long[30] = 1073741824L;
+    pow2long[31] = 2147483647L;
+
+#ifdef USE_OPENGL
+    mdinited = 0;
+    mdpause = 0;
+    nextmodelid = 0;
+#endif
+}
+
 int32_t reciptable[2048], fpuasm;
 
 char britable[16][256]; // JBF 20040207: full 8bit precision
@@ -1180,7 +1213,7 @@ typedef struct
     walltype *wall;
 } mapinfo_t;
 
-static void mapinfo_set(mapinfo_t *bak, mapinfo_t *new)
+static void mapinfo_set(mapinfo_t *bak, mapinfo_t *newmap)
 {
     if (bak)
     {
@@ -1190,12 +1223,12 @@ static void mapinfo_set(mapinfo_t *bak, mapinfo_t *new)
         bak->wall = wall;
     }
 
-    if (new)
+    if (newmap)
     {
-        numsectors = new->numsectors;
-        numwalls = new->numwalls;
-        sector = new->sector;
-        wall = new->wall;
+        numsectors = newmap->numsectors;
+        numwalls = newmap->numwalls;
+        sector = newmap->sector;
+        wall = newmap->wall;
     }
 }
 
@@ -2195,7 +2228,6 @@ static int32_t yb1[MAXWALLSB], xb2[MAXWALLSB], yb2[MAXWALLSB];
 int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
 static int32_t rx2[MAXWALLSB], ry2[MAXWALLSB];
 int16_t p2[MAXWALLSB], thesector[MAXWALLSB];
-int16_t thewall[MAXWALLSB];
 
 int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 
@@ -2205,11 +2237,9 @@ static int32_t smoststart[MAXWALLSB];
 static char smostwalltype[MAXWALLSB];
 static int32_t smostwall[MAXWALLSB], smostwallcnt = -1;
 
-int16_t maskwall[MAXWALLSB], maskwallcnt;
 static int32_t spritesx[MAXSPRITESONSCREEN];
 static int32_t spritesy[MAXSPRITESONSCREEN+1];
 static int32_t spritesz[MAXSPRITESONSCREEN];
-spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 
 static int16_t umost[MAXXDIM], dmost[MAXXDIM];
 static int16_t bakumost[MAXXDIM], bakdmost[MAXXDIM];
@@ -10845,14 +10875,14 @@ void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs, int32_t alsotile
 //
 // setsprite
 //
-int32_t setsprite(int16_t spritenum, const vec3_t *new)
+int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
 {
     int16_t tempsectnum = sprite[spritenum].sectnum;
 
-    if ((void *)new != (void *)&sprite[spritenum])
-        Bmemcpy(&sprite[spritenum], new, sizeof(vec3_t));
+    if ((void *)newpos != (void *)&sprite[spritenum])
+        Bmemcpy(&sprite[spritenum], newpos, sizeof(vec3_t));
 
-    updatesector(new->x,new->y,&tempsectnum);
+    updatesector(newpos->x,newpos->y,&tempsectnum);
 
     if (tempsectnum < 0)
         return(-1);
@@ -10862,14 +10892,14 @@ int32_t setsprite(int16_t spritenum, const vec3_t *new)
     return(0);
 }
 
-int32_t setspritez(int16_t spritenum, const vec3_t *new)
+int32_t setspritez(int16_t spritenum, const vec3_t *newpos)
 {
     int16_t tempsectnum = sprite[spritenum].sectnum;
 
-    if ((void *)new != (void *)&sprite[spritenum])
-        Bmemcpy(&sprite[spritenum], new, sizeof(vec3_t));
+    if ((void *)newpos != (void *)&sprite[spritenum])
+        Bmemcpy(&sprite[spritenum], newpos, sizeof(vec3_t));
 
-    updatesectorz(new->x,new->y,new->z,&tempsectnum);
+    updatesectorz(newpos->x,newpos->y,newpos->z,&tempsectnum);
 
     if (tempsectnum < 0)
         return(-1);

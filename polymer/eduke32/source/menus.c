@@ -654,7 +654,6 @@ static savehead_t savehead;
 
 //static int32_t volnum,levnum,plrskl,numplr;
 //static char brdfn[BMAX_PATH];
-int32_t g_lastSaveSlot = -1;
 
 static void M_DrawBackground(void)
 {

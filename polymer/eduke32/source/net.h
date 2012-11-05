@@ -175,7 +175,7 @@ typedef struct {
 } newgame_t;
 #pragma pack(pop)
 
-newgame_t pendingnewgame;
+extern newgame_t pendingnewgame;
 
 // Connect/Disconnect
 void    Net_Connect(const char *srvaddr);

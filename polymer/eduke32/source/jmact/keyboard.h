@@ -27,8 +27,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef _keyboard_public
 #define _keyboard_public
-#ifdef __cplusplus
-extern "C" {
+#ifdef EXTERNC
+{
 #endif
 
 #include "baselayer.h"	// for the keyboard stuff
@@ -103,7 +103,7 @@ void    KB_Shutdown( void );
 #define KB_FlushKeyBoardQueue KB_FlushKeyboardQueue
 #define KB_GetCh KB_Getch
 
-#ifdef __cplusplus
+#ifdef EXTERNC
 };
 #endif
 #endif

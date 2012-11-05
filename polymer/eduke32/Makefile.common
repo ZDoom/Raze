@@ -17,8 +17,8 @@ STRIP=strip
 CLANG?=0
 
 ifneq (0,$(CLANG))
-    CC=clang -std=gnu89
-    CXX=clang
+    CC=clang -x c -std=gnu89
+    CXX=clang -x c++
 #    AR=llvm-ar
 #    RANLIB=llvm-ranlib
 endif
@@ -103,22 +103,26 @@ endif
 
 
 # Debugging/Build options
+#  CPLUSPLUS - 1 = enable C++ building
 #  RELEASE - 1 = no debugging
 #  DEBUGANYWAY - 1 = include debug symbols even when generating release code
+#  DISABLEINLINING - 1 = compile inline functions as extern instead of static inline
 #  KRANDDEBUG - 1 = include logging of krand() calls for debugging the demo system
 #  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
 #  OPTLEVEL	- 0..3 = GCC optimization strategy
 #  LTO - 1 = enable link-time optimization, for GCC 4.5 and up
 #
+CPLUSPLUS?=0
 RELEASE?=1
 DEBUGANYWAY?=0
 KRANDDEBUG?=0
+DISABLEINLINING?=0
 EFENCE?=0
 DMALLOC?=0
 OPTLEVEL?=2
 PROFILER?=0
 MUDFLAP?=0
-LTO?=0
+LTO?=1
 
 ifeq (4,$(GCC_MAJOR))
     F_NO_STACK_PROTECTOR := -fno-stack-protector
@@ -187,7 +191,7 @@ endif
 
 # compiler flags etc.
 BASECONLYFLAGS=-Wimplicit -Wdeclaration-after-statement
-BASECXXFLAGS= -fno-exceptions -fno-rtti
+BASECXXFLAGS= -fno-exceptions -fno-rtti -fpermissive
 BASEASFLAGS=-s #-g
 BASELDFLAGS=
 
@@ -283,6 +287,10 @@ BASECFLAGS=$(debug) $(OPTOPT) $(CWARNS) \
 	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH)
 ifneq (0,$(CLANG))
     BASECFLAGS+= -Wno-unused-value -Wno-parentheses
+endif
+
+ifneq (0,$(DISABLEINLINING))
+    BASECFLAGS+= -DDISABLE_INLINING
 endif
 
 BASELDFLAGS+= $(OPTOPT)

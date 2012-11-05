@@ -46,11 +46,11 @@
 // compiling for ARM we should wrap <wchar.h> include with 'extern "C++" {}'
 // or compiler give many errors like this:
 //   error C2733: second C linkage of overloaded function 'wmemchr' not allowed
-#ifdef __cplusplus
+#ifdef EXTERNC
 extern "C" {
 #endif
 #  include <wchar.h>
-#ifdef __cplusplus
+#ifdef EXTERNC
 }
 #endif
 

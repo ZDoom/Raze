@@ -22,6 +22,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 
+#ifdef RENDERTYPEWIN
+#include "winlayer.h"
+#else
+#include "sdlayer.h"
+#endif
+
 #include "scriplib.h"
 #include "file_lib.h"
 #include "mathutil.h"
@@ -247,11 +253,6 @@ enum gametokens
 };
 
 
-inline void G_SetStatusBarScale(int32_t sc)
-{
-    ud.statusbarscale = min(100,max(10,sc));
-    G_UpdateScreenArea();
-}
 
 static int32_t sbarx(int32_t x)
 {
@@ -9870,6 +9871,8 @@ int32_t app_main(int32_t argc, const char **argv)
     Bassert(sizeof(actor_t)==128);
     Bassert(offsetof(actor_t, lightId) == sizeof(netactor_t));
     Bassert(sizeof(DukePlayer_t)%4 == 0);
+
+    initialize_globals();
 
 #ifdef GEKKO
 	L2Enhance();

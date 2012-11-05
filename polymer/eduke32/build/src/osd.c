@@ -1784,13 +1784,9 @@ int32_t OSD_Dispatch(const char *cmd)
         ofp.parms    = (const char **)parms;
         ofp.raw      = cmd;
 
-        switch ((intptr_t)symb->func)
-        {
-        case(intptr_t)OSD_ALIAS:
+        if ((intptr_t)symb->func == (intptr_t)OSD_ALIAS)
             OSD_Dispatch(symb->help);
-        case(intptr_t)OSD_UNALIASED:
-            break;
-        default:
+        else if ((intptr_t)symb->func != (intptr_t)OSD_UNALIASED)
             switch (symb->func(&ofp))
             {
             case OSDCMD_OK:
@@ -1800,7 +1796,6 @@ int32_t OSD_Dispatch(const char *cmd)
                 break;
             }
             break;
-        }
 
         state = wtp;
     }

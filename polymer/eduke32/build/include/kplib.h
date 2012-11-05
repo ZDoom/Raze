@@ -1,3 +1,7 @@
+#ifdef EXTERNC
+extern "C" {
+#endif
+
 	//High-level (easy) picture loading function:
 extern void kpzload (const char *, intptr_t *, int32_t *, int32_t *, int32_t *);
 	//Low-level PNG/JPG functions:
@@ -19,3 +23,7 @@ extern void kzclose ();
 extern void kzfindfilestart (const char *); //pass wildcard string
 extern int32_t kzfindfile (char *); //you alloc buf, returns 1:found,0:~found
 
+
+#ifdef EXTERNC
+}
+#endif
