@@ -9586,8 +9586,6 @@ static void G_Startup(void)
 
     G_CompileScripts();
 
-    CONFIG_ReadKeys(); // we re-read the keys after compiling the CONs
-
     if (initengine())
     {
         wm_msgbox("Build Engine Initialization Error",

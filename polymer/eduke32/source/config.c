@@ -338,67 +338,7 @@ void CONFIG_SetDefaults(void)
         CONTROL_MapAnalogAxis(i, ud.config.JoystickAnalogueAxes[i], controldevice_joystick);
     }
 }
-/*
-===================
-=
-= CONFIG_ReadKeys
-=
-===================
-*/
 
-void CONFIG_ReadKeys(void)
-{
-    int32_t i;
-    int32_t numkeyentries;
-    int32_t function;
-    char keyname1[80];
-    char keyname2[80];
-    kb_scancode key1,key2;
-
-    if (ud.config.scripthandle < 0) return;
-
-    numkeyentries = SCRIPT_NumberEntries(ud.config.scripthandle,"KeyDefinitions");
-
-    Bmemset(&KeyBindings,0,sizeof(KeyBindings));
-
-    for (i=0; i<numkeyentries; i++)
-    {
-        function = CONFIG_FunctionNameToNum(SCRIPT_Entry(ud.config.scripthandle,"KeyDefinitions", i));
-        if (function != -1)
-        {
-            memset(keyname1,0,sizeof(keyname1));
-            memset(keyname2,0,sizeof(keyname2));
-            SCRIPT_GetDoubleString
-            (
-                ud.config.scripthandle,
-                "KeyDefinitions",
-                SCRIPT_Entry(ud.config.scripthandle, "KeyDefinitions", i),
-                keyname1,
-                keyname2
-            );
-            key1 = 0xff;
-            key2 = 0xff;
-            if (keyname1[0])
-            {
-                key1 = (uint8_t) KB_StringToScanCode(keyname1);
-            }
-            if (keyname2[0])
-            {
-                key2 = (uint8_t) KB_StringToScanCode(keyname2);
-            }
-            ud.config.KeyboardKeys[function][0] = key1;
-            ud.config.KeyboardKeys[function][1] = key2;
-        }
-    }
-
-    for (i=0; i<NUMGAMEFUNCTIONS; i++)
-    {
-        if (i == gamefunc_Show_Console)
-            OSD_CaptureKey(ud.config.KeyboardKeys[i][0]);
-        else
-            CONFIG_MapKey(i, ud.config.KeyboardKeys[i][0], 0, ud.config.KeyboardKeys[i][1], 0);
-    }
-}
 
 // wrapper for CONTROL_MapKey(), generates key bindings to reflect changes to keyboard setup
 void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scancode key2, kb_scancode oldkey2)
@@ -766,8 +706,6 @@ int32_t CONFIG_ReadSetup(void)
 #endif
 
     }
-
-//    CONFIG_ReadKeys();
 
     //CONFIG_SetupMouse(ud.config.scripthandle);
     //CONFIG_SetupJoystick(ud.config.scripthandle);
