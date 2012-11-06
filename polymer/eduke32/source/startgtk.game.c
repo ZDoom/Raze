@@ -260,9 +260,7 @@ static gboolean on_startwin_delete_event(GtkWidget *widget, GdkEvent *event, gpo
 
 
 // -- SUPPORT FUNCTIONS -------------------------------------------------------
-extern "C" {
-    extern const GdkPixdata startbanner_pixdata;
-}
+extern const GdkPixdata startbanner_pixdata;
 
 static GdkPixbuf *load_banner(void)
 {
