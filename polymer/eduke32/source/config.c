@@ -407,7 +407,8 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
     int32_t ii[] = { key1, key2, oldkey1, oldkey2 };
     char buf[64];
 
-    CONTROL_MapKey(which, key1, key2);
+    UNREFERENCED_PARAMETER(which);
+//    CONTROL_MapKey(which, key1, key2);
 
     for (k = 0; (unsigned)k < (sizeof(ii) / sizeof(ii[0])); k++)
     {

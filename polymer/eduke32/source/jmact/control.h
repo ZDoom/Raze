@@ -147,7 +147,7 @@ extern uint64_t   CONTROL_ButtonHeldState;
 //
 //***************************************************************************
 
-void CONTROL_MapKey( int32_t which, kb_scancode key1, kb_scancode key2 );
+//void CONTROL_MapKey( int32_t which, kb_scancode key1, kb_scancode key2 );
 void CONTROL_MapButton
         (
         int32_t whichfunction,

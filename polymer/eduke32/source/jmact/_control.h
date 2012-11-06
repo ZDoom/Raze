@@ -208,21 +208,6 @@ typedef struct
 //
 //***************************************************************************
 
-void    CONTROL_GetMouseDelta( void );
-uint8_t    CONTROL_GetMouseButtons( void );
-int32_t CONTROL_StartMouse( void );
-//void    CONTROL_GetJoyAbs( void );
-void    CONTROL_GetJoyDelta( void );
-int32_t CONTROL_StartJoy( int32_t joy );
-void    CONTROL_ShutJoy( int32_t joy );
-void    CONTROL_SetFlag( int32_t which, int32_t active );
-void    CONTROL_ButtonFunctionState( int32_t * state );
-int32_t CONTROL_KeyboardFunctionPressed( int32_t whichfunction );
-static inline int32_t CONTROL_CheckRange( int32_t which );
-static int32_t   CONTROL_GetTime( void );
-void    CONTROL_AxisFunctionState( int32_t * state );
-void    CONTROL_GetJoyMovement( ControlInfo * info );
-
 #ifdef EXTERNC
 };
 #endif
