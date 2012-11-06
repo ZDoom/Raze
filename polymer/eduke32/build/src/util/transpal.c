@@ -165,7 +165,7 @@ int main(int argc, char **argv)
     {
         Bprintf("TRANSPAL [-t]<numshades><trans#(0-inv,256-opa)><r><g><b>  by Kenneth Silverman\n");
         Bprintf("   Ex #1: transpal 32 170 30 59 11      (I use these values in my BUILD demo)\n");
-        Bprintf("                          юддаддаддд The RGB scales are optional\n");
+        Bprintf("                          \xc0\xc4\xc4\xc1\xc4\xc4\xc1\xc4\xc4\xc4 The RGB scales are optional\n");
         Bprintf("   Ex #2: transpal 64 160\n\n");
         Bprintf("Once tables are generated, the optional -t switch determines what to save:\n");
         Bprintf("   Exclude -t to update both the shade table and transluscent table\n");

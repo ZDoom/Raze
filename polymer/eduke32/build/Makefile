@@ -48,14 +48,16 @@ endif
 
 include Makefile.shared
 
-OURCFLAGS=$(BASECFLAGS) -Wno-char-subscripts -I$(INC)
+OURCOMMONFLAGS=$(BASECOMMONFLAGS) -Wno-char-subscripts -I$(INC)
+OURCFLAGS=$(OURCOMMONFLAGS) $(BASECFLAGS)
 OURCONLYFLAGS=$(BASECONLYFLAGS)
 OURCXXFLAGS=$(BASECXXFLAGS)
 OURASFLAGS=$(BASEASFLAGS)
-OURLDFLAGS=$(BASELDFLAGS) $(BUILDLDFLAGS)
+PRINTLDFLAGS=$(BASELDFLAGS)
+OURLDFLAGS=$(OURCOMMONFLAGS) $(PRINTLDFLAGS)
 
 ifneq ($(LUNATIC),0)
-    OURCFLAGS+= -DLUNATIC
+    OURCOMMONFLAGS+= -DLUNATIC
 endif
 
 UTILLIBS= -lm # -lpthread
@@ -112,14 +114,14 @@ ifeq ($(PLATFORM),DARWIN)
         ENGINEOBJS += $(OBJ)/StartupWinController.editor.$o
     endif
     OURASFLAGS     += -f macho -DUNDERSCORES
-    OURCFLAGS   += -fno-pic -DUNDERSCORES
+    OURCOMMONFLAGS   += -fno-pic -DUNDERSCORES
 endif
 ifeq ($(PLATFORM),BSD)
     OURASFLAGS+= -f elf
-    OURCFLAGS+= -I/usr/X11R6/include
+    OURCOMMONFLAGS+= -I/usr/X11R6/include
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    OURCFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc # -I$(ENETROOT)/include
+    OURCOMMONFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc # -I$(ENETROOT)/include
     OURASFLAGS+= -DUNDERSCORES -f win32
 endif
 ifeq ($(PLATFORM),BEOS)
@@ -145,21 +147,21 @@ ifeq ($(RENDERTYPE),SDL)
         endif
 
         ifeq (1,$(SDL_FRAMEWORK))
-            OURCFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
+            OURCOMMONFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
                     -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
         else
-            OURCFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
+            OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
         endif
     endif
 
     ifeq (0,$(SDL_FRAMEWORK))
-        OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
+        OURCOMMONFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
     else
-        OURCFLAGS   += -DSDL_FRAMEWORK
+        OURCOMMONFLAGS   += -DSDL_FRAMEWORK
     endif
 
     ifeq (1,$(HAVE_GTK2))
-        OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
+        OURCOMMONFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
         ENGINEOBJS+= $(OBJ)/gtkbits.$o
         ifeq ($(LINKED_GTK),0)
             ENGINEOBJS+= $(OBJ)/dynamicgtk.$o
@@ -172,11 +174,13 @@ ifeq ($(RENDERTYPE),WIN)
     EDITOROBJS+= $(OBJ)/startwin.editor.$o
 endif
 
-OURCFLAGS+= $(BUILDCFLAGS)
+OURCOMMONFLAGS+= $(BUILDCOMMONFLAGS)
 
-INVOCATION=$(CC) $(OURCONLYFLAGS)
+COMPILER=$(CC) $(OURCONLYFLAGS)
+LINKER=$(L_CC)
 ifneq ($(CPLUSPLUS),0)
-    INVOCATION=$(CXX) $(OURCXXFLAGS)
+    COMPILER=$(CXX) $(OURCXXFLAGS)
+    LINKER=$(L_CXX)
 endif
 
 .SILENT:
@@ -239,56 +243,56 @@ $(OBJ)/$(EDITORLIB): $(EDITOROBJS)
 
 kextract$(EXESUFFIX): $(OBJ)/kextract.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 kgroup$(EXESUFFIX): $(OBJ)/kgroup.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 transpal$(EXESUFFIX): $(OBJ)/transpal.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 kmd2tool$(EXESUFFIX): $(OBJ)/kmd2tool.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 md2tool$(EXESUFFIX): $(OBJ)/md2tool.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 generateicon$(EXESUFFIX): $(OBJ)/generateicon.$o $(OBJ)/compat.$o $(OBJ)/pragmas.$o $(OBJ)/kplib.$o \
         $(OBJ)/cache1d.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 enumdisplay$(EXESUFFIX): $(OBJ)/enumdisplay.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); fi
 getdxdidf$(EXESUFFIX): $(OBJ)/getdxdidf.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -ldinput; then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -ldinput; then $(ONESTEP_OK); fi
 makesdlkeytrans$(EXESUFFIX): $(OBJ)/makesdlkeytrans.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 arttool$(EXESUFFIX): $(OBJ)/arttool.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CXX) -o $@ $^ $(OURLDFLAGS) $(STATICSTDCPP) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(L_CXX) -o $@ $^ $(OURLDFLAGS) $(STATICSTDCPP) $(UTILLIBS); then $(ONESTEP_OK); fi
 givedepth$(EXESUFFIX): $(OBJ)/givedepth.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 mkpalette$(EXESUFFIX): $(OBJ)/mkpalette.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 unpackssi$(EXESUFFIX): $(OBJ)/unpackssi.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 bsuite$(EXESUFFIX): $(OBJ)/bsuite.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(CC) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
 
 # DEPENDENCIES
 include Makefile.deps
@@ -301,15 +305,15 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 # comment out to debug a-c.o
 $(OBJ)/a-c.$o: $(SRC)/a-c.c
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(subst -O0,-O2,$(subst -fcatch-undefined-behavior,,$(OURCFLAGS))) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(subst -O0,-O2,$(subst -fcatch-undefined-behavior,,$(OURCFLAGS))) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.m
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.cc
 	$(COMPILE_STATUS)
@@ -325,7 +329,7 @@ $(OBJ)/%.$o: $(SRC)/%.cxx
 
 $(OBJ)/%.$o: $(SRC)/misc/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(COMPILE_STATUS)
@@ -333,7 +337,7 @@ $(OBJ)/%.$o: $(SRC)/misc/%.rc
 
 $(OBJ)/%.$o: $(SRC)/util/%.c
 	$(COMPILE_STATUS)
-	if $(CC) $(OURCONLYFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/util/%.cc
 	$(COMPILE_STATUS)
@@ -349,7 +353,7 @@ $(OBJ)/%.$o: $(SRC)/util/%.cxx
 
 $(OBJ)/%.$o: $(RSRC)/%.c
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@

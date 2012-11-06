@@ -1359,7 +1359,7 @@ void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
         dasizeof = 1;
     }
 
-    ptr = buffer;
+    ptr = (char*)buffer;
 
     Bmemcpy(lzwrawbuf, ptr, (int32_t)dasizeof);
 

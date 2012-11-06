@@ -31,8 +31,7 @@ ifeq (4,$(GCC_MAJOR))
     L_SSP := -lssp
 endif
 
-BUILDCFLAGS=$(ARCH)
-BUILDLDFLAGS=$(ARCH)
+BUILDCOMMONFLAGS=$(ARCH)
 
 ifeq ($(PLATFORM),LINUX)
     STDCPPLIB=
@@ -43,14 +42,14 @@ endif
 
 ifeq ($(PLATFORM),LINUX)
     RENDERTYPE=SDL
-    BUILDCFLAGS+= -DHAVE_INTTYPES
+    BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     GTKCOMPAT32=0
 
     ifeq ($(findstring x86_64,$(shell uname -m)),x86_64)
         ifeq (1,$(BUILD32_ON_64))
             # On my 64bit Gentoo these are the 32bit emulation libs
             LIBS+= -m32 -L/emul/linux/x86/usr/lib
-            BUILDCFLAGS+= -m32
+            BUILDCOMMONFLAGS+= -m32
             # Override WITHOUT_GTK=0
             GTKCOMPAT32=1
         else
@@ -61,12 +60,12 @@ endif
 ifeq ($(PLATFORM),DARWIN)
     RENDERTYPE    = SDL
     STDCPPLIB    = -lstdc++
-    BUILDCFLAGS    += -DHAVE_INTTYPES
+    BUILDCOMMONFLAGS    += -DHAVE_INTTYPES
     GTKCOMPAT32    = 0
     SDL_FRAMEWORK    = 1
 
     ifeq (1,$(DARWIN9))
-        BUILDCFLAGS += -DDARWIN9
+        BUILDCOMMONFLAGS += -DDARWIN9
     endif
 
     ifeq (1,$(BUILD32_ON_64))
@@ -78,7 +77,7 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 ifeq ($(PLATFORM),WINDOWS)
     RENDERTYPE ?= WIN
-    BUILDCFLAGS+= -DHAVE_INTTYPES
+    BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     EXESUFFIX=.exe
     LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 -lcomctl32
     #-lshfolder
@@ -86,7 +85,7 @@ ifeq ($(PLATFORM),WINDOWS)
 endif
 ifeq ($(PLATFORM),BSD)
     RENDERTYPE=SDL
-    BUILDCFLAGS+= -DHAVE_INTTYPES
+    BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     ifneq ($(findstring i386, $(SYSARCH)), i386)
         override NOASM=1
     endif
@@ -100,9 +99,9 @@ ifeq ($(PLATFORM),SKYOS)
     RENDERTYPE=SDL
     EXESUFFIX=.app
     override NOASM=1
-    BUILDCFLAGS+= -DUNDERSCORES
+    BUILDCOMMONFLAGS+= -DUNDERSCORES
     SDLCONFIG=
-    SDLCONFIG_CFLAGS=-I/boot/programs/sdk/include/sdl
+    SDLCONFIG_COMMONFLAGS=-I/boot/programs/sdk/include/sdl
     LIBS+= -lSDL -lnet
 endif
 ifeq ($(PLATFORM),WII)
@@ -121,7 +120,7 @@ ifeq ($(PLATFORM),WII)
     override NOASM=1
     override WITHOUT_GTK=1
     # -msdata=eabi
-    BUILDCFLAGS+= -g -mtune=750 -meabi -mhard-float \
+    BUILDCOMMONFLAGS+= -g -mtune=750 -meabi -mhard-float \
         -DGEKKO -DHAVE_INTTYPES -D__POWERPC__ \
         -I$(LIBOGC_INC) -I$(LIBOGC_INC)/SDL -I$(PORTLIBS)/include
     SDLCONFIG=
@@ -150,12 +149,12 @@ endif
 ifeq ($(RENDERTYPE),SDL)
     ifeq ($(SDL_FRAMEWORK),1)
         LIBS        += -Wl,-framework,SDL
-        SDLCONFIG_CFLAGS+= -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers
+        SDLCONFIG_COMMONFLAGS+= -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers
     else
     ifneq ($(SDLCONFIG),)
         SDLCONFIG_LIBS+= $(shell $(SDLCONFIG) --libs)
         LIBS+= $(SDLCONFIG_LIBS)
-        SDLCONFIG_CFLAGS+=$(shell $(SDLCONFIG) --cflags)
+        SDLCONFIG_COMMONFLAGS+=$(shell $(SDLCONFIG) --cflags)
     endif
     endif
 
@@ -185,21 +184,21 @@ else
 endif
 
 
-BUILDCFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1 $(W_STRICT_OVERFLOW)
+BUILDCOMMONFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1 $(W_STRICT_OVERFLOW)
 
 ifneq (0,$(USE_OPENGL))
-    BUILDCFLAGS+= -DUSE_OPENGL
+    BUILDCOMMONFLAGS+= -DUSE_OPENGL
 endif
 ifneq (0,$(NOASM))
-    BUILDCFLAGS+= -DNOASM
+    BUILDCOMMONFLAGS+= -DNOASM
 endif
 ifneq (0,$(LINKED_GTK))
-    BUILDCFLAGS+= -DLINKED_GTK
+    BUILDCOMMONFLAGS+= -DLINKED_GTK
 endif
 
 ifneq (0,$(POLYMER))
  ifneq (0,$(USE_OPENGL))
-  BUILDCFLAGS+= -DPOLYMER
+  BUILDCOMMONFLAGS+= -DPOLYMER
  endif
 endif
 
@@ -227,12 +226,12 @@ ifeq ($(PLATFORM),WINDOWS)
     ifneq ($(USE_LIBPNG),0)
         # XXX: these assume that the compiler runs from build/. Ugh.
         LIBS+= -L../Windows/lib -lpng_mini -lz_mini
-        BUILDCFLAGS+= -I../Windows/include
+        BUILDCOMMONFLAGS+= -I../Windows/include
     endif
 else
     ifeq ($(PLATFORM),DARWIN)
         ifneq ($(USE_LIBPNG),0)
-            BUILDCFLAGS+= -I/opt/local/include -I/sw/include -I/usr/local/include 
+            BUILDCOMMONFLAGS+= -I/opt/local/include -I/sw/include -I/usr/local/include 
             LIBS+= -L/opt/local/lib -L/usr/local/lib -lpng # -lz
         endif
     else
@@ -249,9 +248,9 @@ endif
 
 
 ifeq ($(PRETTY_OUTPUT),1)
-BUILD_SETTINGS_COMPILER = \033[1;36mcompiler: \033[0;36m\"$(INVOCATION) $(OURCFLAGS)\"
+BUILD_SETTINGS_COMPILER = \033[1;36mcompiler: \033[0;36m\"$(COMPILER) $(OURCFLAGS)\"
 BUILD_SETTINGS_ASSEMBLER = \033[1;36massembler: \033[0;36m\"$(AS) $(OURASFLAGS)\"
-BUILD_SETTINGS_LINKER = \033[1;36mlinker: \033[0;36m\"$(OURLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB)\"
+BUILD_SETTINGS_LINKER = \033[1;36mlinker: \033[0;36m\"$(PRINTLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB)\"
 ifeq (0,$(NOASM))
     BUILD_SETTINGS = printf "$(BUILD_SETTINGS_COMPILER)\n$(BUILD_SETTINGS_ASSEMBLER)\n$(BUILD_SETTINGS_LINKER)\033[0m\n"
 else

@@ -14,11 +14,16 @@ RC=windres
 RANLIB=ranlib
 STRIP=strip
 
+L_CC=$(CC)
+L_CXX=$(CXX)
+
 CLANG?=0
 
 ifneq (0,$(CLANG))
     CC=clang -x c -std=gnu89
     CXX=clang -x c++
+    L_CC=clang -std=gnu89
+    L_CXX=clang
 #    AR=llvm-ar
 #    RANLIB=llvm-ranlib
 endif
@@ -122,7 +127,18 @@ DMALLOC?=0
 OPTLEVEL?=2
 PROFILER?=0
 MUDFLAP?=0
-LTO?=1
+
+ifndef LTO
+    LTO=1
+    ifneq (0,$(CLANG))
+        ifeq ($(PLATFORM), WINDOWS)
+            LTO=0
+        endif
+    endif
+endif
+
+ifeq (4,$(GCC_MAJOR))
+endif
 
 ifeq (4,$(GCC_MAJOR))
     F_NO_STACK_PROTECTOR := -fno-stack-protector
@@ -142,7 +158,7 @@ ifeq ($(PLATFORM),DARWIN)
         DARWIN9 ?= 1
     endif
 
-#    BASECFLAGS    += -fno-leading-underscore
+#    BASECOMMONFLAGS    += -fno-leading-underscore
 
     ifeq (1,$(DARWIN9))
         F_JUMP_TABLES :=
@@ -150,10 +166,10 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 
     ifeq (1,$(BUILD32_ON_64))
-        BASECFLAGS += $(F_NO_STACK_PROTECTOR)
+        BASECOMMONFLAGS += $(F_NO_STACK_PROTECTOR)
     else
         ifeq ($(findstring ppc,$(ARCH)),ppc)
-            BASECFLAGS += $(F_NO_STACK_PROTECTOR)
+            BASECOMMONFLAGS += $(F_NO_STACK_PROTECTOR)
         endif
     endif
 endif
@@ -190,6 +206,7 @@ endif
 
 
 # compiler flags etc.
+BASECFLAGS=
 BASECONLYFLAGS=-Wimplicit -Wdeclaration-after-statement
 BASECXXFLAGS= -fno-exceptions -fno-rtti -fpermissive
 BASEASFLAGS=-s #-g
@@ -243,7 +260,7 @@ else
 
     ifneq (0,$(CLANG))
 #        CLANG_MAJOR := $(shell clang -dM -E -x c /dev/null | grep __clang_major__ | awk '{ print $$3 }')
-        debug+= -fcatch-undefined-behavior
+        BASECFLAGS+= -Xclang -fcatch-undefined-behavior
 #        ifeq ($(CLANG_MAJOR),3)
 #            debug+= -faddress-sanitizer
 #        endif
@@ -282,41 +299,41 @@ CWARNS := -W -Wall -Werror-implicit-function-declaration \
     #-Wcast-qual -Wcast-align \
     #-Waddress -Wlogical-op
 
-BASECFLAGS=$(debug) $(OPTOPT) $(CWARNS) \
+BASECOMMONFLAGS=$(debug) $(OPTOPT) $(CWARNS) \
 	-funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=2 \
 	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH)
 ifneq (0,$(CLANG))
-    BASECFLAGS+= -Wno-unused-value -Wno-parentheses
+    BASECOMMONFLAGS+= -Wno-unused-value -Wno-parentheses
 endif
 
 ifneq (0,$(DISABLEINLINING))
-    BASECFLAGS+= -DDISABLE_INLINING
+    BASECOMMONFLAGS+= -DDISABLE_INLINING
 endif
 
 BASELDFLAGS+= $(OPTOPT)
 
 # This should come from the environment:
 ifdef EDUKE32_MY_DEVELOPER_ID
-    BASECFLAGS+= -DMY_DEVELOPER_ID=$(EDUKE32_MY_DEVELOPER_ID)
+    BASECOMMONFLAGS+= -DMY_DEVELOPER_ID=$(EDUKE32_MY_DEVELOPER_ID)
 endif
 
 ifneq (0,$(USE_LIBPNG))
-    BASECFLAGS+= -DUSE_LIBPNG
+    BASECOMMONFLAGS+= -DUSE_LIBPNG
 endif
 ifneq (0,$(USE_LIBVPX))
-    BASECFLAGS+= -DUSE_LIBVPX
+    BASECOMMONFLAGS+= -DUSE_LIBVPX
 endif
 ifneq (0,$(OSX_STARTUPWINDOW))
-    BASECFLAGS+= -DOSX_STARTUPWINDOW
+    BASECOMMONFLAGS+= -DOSX_STARTUPWINDOW
 endif
 
 ifneq (0,$(EFENCE))
     LIBS+= -lefence
-    BASECFLAGS+= -DEFENCE
+    BASECOMMONFLAGS+= -DEFENCE
 endif
 ifneq (0,$(DMALLOC))
     LIBS+= -ldmalloc
-    BASECFLAGS+= -DDMALLOC
+    BASECOMMONFLAGS+= -DDMALLOC
 endif
 
 # Misc. stuff that is constant between Makefiles

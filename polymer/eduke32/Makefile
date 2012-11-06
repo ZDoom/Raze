@@ -35,13 +35,14 @@ else
     endif
 endif
 
-OURCFLAGS=$(BASECFLAGS) \
+OURCOMMONFLAGS=$(BASECOMMONFLAGS) \
     -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(JAUDIOLIBDIR)/include -I$(ENETDIR)/include -I$(SRC)/xdelta3
-
+OURCFLAGS=$(OURCOMMONFLAGS) $(BASECFLAGS)
 OURCXXFLAGS=$(BASECXXFLAGS)
 OURCONLYFLAGS=$(BASECONLYFLAGS)
 OURASFLAGS=$(BASEASFLAGS)
-OURLDFLAGS=$(BASELDFLAGS) $(BUILDLDFLAGS)
+PRINTLDFLAGS=$(BASELDFLAGS)
+OURLDFLAGS=$(OURCOMMONFLAGS) $(PRINTLDFLAGS)
 
 # Game/editor-specific linker options
 GAMELDFLAGS=
@@ -59,12 +60,12 @@ include $(EROOT)/Makefile.shared
 ifneq (0,$(USE_LIBVPX))
     ifeq ($(PLATFORM),WINDOWS)
         LIBS+= -LWindows/lib
-        OURCFLAGS+= -IWindows/include
+        OURCOMMONFLAGS+= -IWindows/include
     endif
     ifeq ($(PLATFORM),DARWIN)
         # vpx headers and lib from 'port install libvpx' or 'brew install libvpx'
         LIBS+= -L/opt/local/lib -L/usr/local/lib
-        OURCFLAGS+= -I/opt/local/include -I/usr/local/include
+        OURCOMMONFLAGS+= -I/opt/local/include -I/usr/local/include
     endif
 endif
 
@@ -167,11 +168,11 @@ LUAJIT_WIN_SRC:= g:/mod/LuaJIT-2.0.0-beta8/src
 
 ifneq (0,$(LUNATIC))
     ifeq ($(PLATFORM),WINDOWS)
-        OURCFLAGS+= -I$(LUAJIT_WIN_SRC)
+        OURCOMMONFLAGS+= -I$(LUAJIT_WIN_SRC)
     else
-        OURCFLAGS+= -I/usr/include/luajit-2.0
+        OURCOMMONFLAGS+= -I/usr/include/luajit-2.0
     endif
-    OURCFLAGS+= -I$(SRC)/lunatic -DLUNATIC
+    OURCOMMONFLAGS+= -I$(SRC)/lunatic -DLUNATIC
 
     ifeq ($(PLATFORM),WINDOWS)
         LIBS+= -LWindows/lib -lluajit
@@ -201,11 +202,11 @@ ifneq (0,$(LUNATIC))
         STRIP+= -s $(SRC)/lunatic/dynsymlist_osx
 
         MISCGAMEDEPS+= $(SRC)/lunatic/dynsymlist_osx
-        OURLDFLAGS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(SRC)/lunatic/aliases_list #-exported_symbols_list $(SRC)/lunatic/dynsymlist_osx
+        PRINTLDFLAGS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(SRC)/lunatic/aliases_list #-exported_symbols_list $(SRC)/lunatic/dynsymlist_osx
     endif
     ifeq ($(PLATFORM),WINDOWS)
         MISCGAMEDEPS+= $(SRC)/lunatic/eduke32.def
-        OURLDFLAGS+= $(SRC)/lunatic/eduke32.def
+        PRINTLDFLAGS+= $(SRC)/lunatic/eduke32.def
     endif
     ifeq ($(PLATFORM),LINUX)
         # TODO: Windows, OS X
@@ -219,7 +220,7 @@ endif
 
 ifeq ($(PLATFORM),LINUX)
     ifeq (0,$(CLANG))
-        OURCFLAGS	+= -fno-pic
+        OURCOMMONFLAGS	+= -fno-pic
     endif
     OURASFLAGS	+= -f elf
     LIBS		+= -lvorbisfile -lvorbis -logg
@@ -230,7 +231,7 @@ ifeq ($(PLATFORM),WII)
 endif
 
 ifeq ($(PLATFORM),DARWIN)
-    OURCFLAGS += -fno-pic -I$(abspath Apple) -I$(abspath Apple/include)
+    OURCOMMONFLAGS += -fno-pic -I$(abspath Apple) -I$(abspath Apple/include)
 
     ifneq ($(findstring x86_64,$(ARCH)),x86_64)
         ifeq (,$(ARCH))
@@ -243,7 +244,7 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 
     ifeq (1,$(SDL_FRAMEWORK))
-        OURCFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
+        OURCOMMONFLAGS += -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
                 -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
 
         LIBS += -LApple/lib -lvorbisfile -lvorbis -logg -lm \
@@ -257,7 +258,7 @@ ifeq ($(PLATFORM),DARWIN)
         EDITOROBJS+=$(OBJ)/SDLMain.$o
         GAMEOBJS+=$(OBJ)/SDLMain.$o
     else
-        OURCFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
+        OURCOMMONFLAGS += -I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
         LIBS += -lvorbisfile -lvorbis -logg -lm -lSDL_mixer \
                 -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
                 -Wl,-framework,CoreMidi -Wl,-framework,AudioUnit \
@@ -274,7 +275,7 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
-    OURCFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include
+    OURCOMMONFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include
     OURASFLAGS+= -DUNDERSCORES -f win32
     LIBS		+= -L$(JAUDIOLIBDIR)/third-party/mingw32/lib -lvorbisfile -lvorbis -logg -lwsock32 -lws2_32 -lwinmm -ldsound
     GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o $(OBJ)/music.$o $(OBJ)/midi.$o $(OBJ)/mpu401.$o
@@ -286,15 +287,15 @@ else
     ifeq ($(RENDERTYPE),SDL)
         ifeq (0,$(SDL_FRAMEWORK))
             ifneq ($(PLATFORM),WII)
-                OURCFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
+                OURCOMMONFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
             endif
             LIBS+= -l$(SDLNAME)_mixer
         else
-            OURCFLAGS   += -DSDL_FRAMEWORK
+            OURCOMMONFLAGS   += -DSDL_FRAMEWORK
         endif
 
         ifeq (1,$(HAVE_GTK2))
-            OURCFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
+            OURCOMMONFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
             GAMEOBJS+= $(OBJ)/game_banner.$o $(OBJ)/startgtk.game.$o
             EDITOROBJS+= $(OBJ)/editor_banner.$o
         endif
@@ -305,29 +306,31 @@ else
 endif
 
 
-OURCFLAGS+= $(BUILDCFLAGS)
+OURCOMMONFLAGS+= $(BUILDCOMMONFLAGS)
 
 ifeq ($(PLATFORM),WINDOWS)
-    OURLDFLAGS+= -Wl,--large-address-aware
+    PRINTLDFLAGS+= -Wl,--large-address-aware
 endif
 #ifneq (0,$(KRANDDEBUG))
 ifeq ($(PLATFORM),DARWIN)
-    OURLDFLAGS+=-Wl,-map -Wl,$@.memmap
+    PRINTLDFLAGS+=-Wl,-map -Wl,$@.memmap
 else
-    OURLDFLAGS+=-Wl,-Map=$@.memmap
+    PRINTLDFLAGS+=-Wl,-Map=$@.memmap
 endif
 #endif
 ifneq (0,$(PROFILER))
-    OURLDFLAGS+=-pg
+    PRINTLDFLAGS+=-pg
 endif
 ifeq ($(PLATFORM),WII)
-    OURLDFLAGS+= -mrvl -meabi -mhard-float -Wl,--gc-sections -Wl,-Map,$(notdir $@).map
+    PRINTLDFLAGS+= -mrvl -meabi -mhard-float -Wl,--gc-sections -Wl,-Map,$(notdir $@).map
     # -msdata=eabi
 endif
 
-INVOCATION=$(CC) $(OURCONLYFLAGS)
+COMPILER=$(CC) $(OURCONLYFLAGS)
+LINKER=$(L_CC)
 ifneq ($(CPLUSPLUS),0)
-    INVOCATION=$(CXX) $(OURCXXFLAGS)
+    COMPILER=$(CXX) $(OURCXXFLAGS)
+    LINKER=$(L_CXX)
 endif
 
 ifeq ($(PRETTY_OUTPUT),1)
@@ -354,7 +357,7 @@ notice:
 
 $(EDUKE32): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB) $(MISCGAMEDEPS)
 	$(LINK_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(GAMELDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(GAMELDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
   ifeq (0,$(DEBUGANYWAY))
     ifneq ($(PLATFORM),WII)
@@ -370,7 +373,7 @@ endif
 
 $(MAPSTER32): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
 	$(LINK_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -o $@ $^ $(OURLDFLAGS) $(EDITORLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(EDITORLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
   ifeq (0,$(DEBUGANYWAY))
     ifneq ($(PLATFORM),WII)
@@ -429,7 +432,7 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 #### Lunatic
 
@@ -446,11 +449,11 @@ endif
 
 $(OBJ)/%.$o: $(SRC)/lunatic/%.c
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/xdelta3/%.c
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 # TODO: _m32
 # List of exported symbols, OS X
@@ -470,7 +473,7 @@ $(SRC)/lunatic/eduke32.def: $(SRC)/lunatic/dynsymlist
 
 $(OBJ)/%.$o: Apple/%.m
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.cc
 	$(COMPILE_STATUS)
@@ -486,7 +489,7 @@ $(OBJ)/%.$o: $(SRC)/%.cxx
 
 $(OBJ)/%.$o: $(SRC)/jmact/%.c
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/misc/%.rc
 	$(COMPILE_STATUS)
@@ -494,15 +497,15 @@ $(OBJ)/%.$o: $(SRC)/misc/%.rc
 
 $(OBJ)/%.$o: $(RSRC)/%.c
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/game_banner.$o: $(RSRC)/game_banner.c
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -Wno-pointer-sign -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(RSRC)/game_banner.c: $(RSRC)/game.bmp
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@

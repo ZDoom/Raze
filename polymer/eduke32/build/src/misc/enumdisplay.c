@@ -54,19 +54,22 @@ HRESULT WINAPI ddenum(DDSURFACEDESC *ddsd, VOID *udata ATTRIBUTE((unused)))
     return(DDENUMRET_OK);
 }
 
+typedef HRESULT (WINAPI *aDirectDrawCreateType)(GUID *, LPDIRECTDRAW *, IUnknown *);
+typedef HRESULT (WINAPI *aDirectDrawEnumerateType)(LPDDENUMCALLBACK, LPVOID);
+
 int InitDirectDraw(void)
 {
     HRESULT result;
-    HRESULT (WINAPI *aDirectDrawCreate)(GUID *, LPDIRECTDRAW *, IUnknown *);
-    HRESULT (WINAPI *aDirectDrawEnumerate)(LPDDENUMCALLBACK, LPVOID);
+    aDirectDrawCreateType aDirectDrawCreate;
+    aDirectDrawEnumerateType aDirectDrawEnumerate;
 
     hDDrawDLL = LoadLibrary("DDRAW.DLL");
     if (!hDDrawDLL) { fprintf(output, "Failed loading DDRAW.DLL\n"); return -1; }
 
-    aDirectDrawEnumerate = (void *)GetProcAddress(hDDrawDLL, "DirectDrawEnumerateA");
+    aDirectDrawEnumerate = (aDirectDrawEnumerateType)GetProcAddress(hDDrawDLL, "DirectDrawEnumerateA");
     if (!aDirectDrawEnumerate) { fprintf(output, "Error fetching DirectDrawEnumerate\n"); return -1; }
 
-    aDirectDrawCreate = (void *)GetProcAddress(hDDrawDLL, "DirectDrawCreate");
+    aDirectDrawCreate = (aDirectDrawCreateType)GetProcAddress(hDDrawDLL, "DirectDrawCreate");
     if (!aDirectDrawCreate) { fprintf(output, "Error fetching DirectDrawCreate\n"); return -1; }
 
     result = aDirectDrawCreate(NULL, &lpDD, NULL);

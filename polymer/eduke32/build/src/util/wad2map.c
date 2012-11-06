@@ -151,7 +151,7 @@ static int secval[4096], secopnum = 0;
 
 #define THINGLISTNUM 123
 static short thinglookup[MAXTHINGTYPES];
-typedef struct { short num; char name[8]; } thinglisttype;
+typedef struct { short num; char name[9]; } thinglisttype;
 static thinglisttype thinglist[THINGLISTNUM] =
 {{1,"PLAYA1"},{2,"PLAYA1"},{3,"PLAYA1"},{4,"PLAYA1"},{11,"PLAYA1"},{14,""},{3004,"POSSA1"},
 {84,"SSWVA1"},{9,"SPOSA1"},{65,"CPOSA1"},{3001,"TROOA1"},{3002,"SARGA1"},{58,"SARGA1"},

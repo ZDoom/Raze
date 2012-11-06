@@ -15,30 +15,31 @@ else
 endif
 
 # for BUILD_ECHOFLAGS:
-OURCFLAGS=$(BASECFLAGS) $(BUILDCFLAGS) -I$(INC) -I$(SRC)
+OURCOMMONFLAGS=$(BASECOMMONFLAGS) $(BUILDCOMMONFLAGS) -I$(INC) -I$(SRC)
 ifneq ($(PLATFORM),WII)
-    OURCFLAGS+= -DHAVE_VORBIS
+    OURCOMMONFLAGS+= -DHAVE_VORBIS
 endif
 ifneq ($(RELEASE),0)
     # Debugging disabled
     debug+= $(F_NO_STACK_PROTECTOR)
 endif
+OURCFLAGS=$(OURCOMMONFLAGS) $(BASECFLAGS)
 OURCONLYFLAGS=$(BASECONLYFLAGS)
 OURCXXFLAGS=$(BASECXXFLAGS)
-OURLDFLAGS=$(BASELDFLAGS)
+PRINTLDFLAGS=$(BASELDFLAGS)
 OURASFLAGS=$(BASEASFLAGS)
 
 ifeq ($(PLATFORM),DARWIN)
     ifeq (1,$(SDL_FRAMEWORK))
         APPLE_INCLUDE_DIR:=../../Apple/include
-        OURCFLAGS += -DSDL_FRAMEWORK -I$(APPLE_INCLUDE_DIR) -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
+        OURCOMMONFLAGS += -DSDL_FRAMEWORK -I$(APPLE_INCLUDE_DIR) -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
                 -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
     endif
 endif
 
-INVOCATION=$(CC) $(OURCONLYFLAGS)
+COMPILER=$(CC) $(OURCONLYFLAGS)
 ifneq ($(CPLUSPLUS),0)
-    INVOCATION=$(CXX) $(OURCXXFLAGS)
+    COMPILER=$(CXX) $(OURCXXFLAGS)
 endif
 
 
@@ -52,14 +53,14 @@ OBJECTS=$(OBJ)/drivers.o \
 	$(OBJ)/driver_nosound.o
 
 ifeq ($(PLATFORM),WINDOWS)
-    OURCFLAGS+= -I$(DXROOT)/include -Ithird-party/mingw32/include
+    OURCOMMONFLAGS+= -I$(DXROOT)/include -Ithird-party/mingw32/include
     OBJECTS+= $(OBJ)/driver_directsound.o
     OBJNAME=libjfaudiolib_win32.a
     OBJ=obj_win
 else
-    OURCFLAGS+= -DHAVE_SDL $(SDLCONFIG_CFLAGS)
+    OURCOMMONFLAGS+= -DHAVE_SDL $(SDLCONFIG_COMMONFLAGS)
     ifneq ($(PLATFORM),DARWIN)
-        OURCFLAGS+=`pkg-config --cflags vorbis`
+        OURCOMMONFLAGS+=`pkg-config --cflags vorbis`
     endif
     OBJECTS+= $(OBJ)/driver_sdl.o
 endif
@@ -74,7 +75,7 @@ $(OBJNAME): $(OBJECTS)
 $(OBJECTS): $(OBJ)/%.o: $(SRC)/%.c
 	-mkdir -p $(OBJ)
 	$(COMPILE_STATUS)
-	if $(INVOCATION) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
