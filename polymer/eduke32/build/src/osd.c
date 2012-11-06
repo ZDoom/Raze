@@ -1795,7 +1795,6 @@ int32_t OSD_Dispatch(const char *cmd)
                 OSD_Printf("%s\n", symb->help);
                 break;
             }
-            break;
 
         state = wtp;
     }
