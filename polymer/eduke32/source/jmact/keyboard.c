@@ -243,7 +243,7 @@ const char *KB_ScanCodeToString(kb_scancode scancode)
     return "";
 }
 
-kb_scancode KB_StringToScanCode(char * string)
+kb_scancode KB_StringToScanCode(const char * string)
 {
     uint32_t s;
 

@@ -745,9 +745,9 @@ void CONTROL_ProcessBinds(void)
             if (KB_KeyPressed(i) && (KeyBindings[i].repeat || (KeyBindings[i].laststate == 0)))
             {
                 OSD_Dispatch(KeyBindings[i].cmd);
-                KeyBindings[i].laststate = KB_KeyPressed(i);
             }
-            else KeyBindings[i].laststate = KB_KeyPressed(i);
+
+            KeyBindings[i].laststate = KB_KeyPressed(i);
         }
     }
     while (i--);

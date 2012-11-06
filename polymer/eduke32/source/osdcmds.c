@@ -727,17 +727,11 @@ void onvideomodechange(int32_t newmode)
 {
     uint8_t palid;
 
-    if (newmode)
-    {
-        if (g_player[screenpeek].ps->palette < BASEPALCOUNT)
-            palid = g_player[screenpeek].ps->palette;
-        else
-            palid = BASEPAL;
-    }
-    else
-    {
+    // XXX?
+    if (!newmode || g_player[screenpeek].ps->palette < BASEPALCOUNT)
         palid = g_player[screenpeek].ps->palette;
-    }
+    else
+        palid = BASEPAL;
 
 #ifdef POLYMER
     if (getrendermode() == 4)
@@ -912,7 +906,7 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 {
     int32_t i, j;
 
-    if (parm->numparms==1&&!Bstrcasecmp(parm->parms[0],"showkeys"))
+    if (parm->numparms==1 && !Bstrcasecmp(parm->parms[0],"showkeys"))
     {
         for (i=0; ConsoleKeys[i].name; i++)
             OSD_Printf("%s\n",ConsoleKeys[i].name);
@@ -930,14 +924,16 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
             if (KeyBindings[i].cmd[0] && KeyBindings[i].key)
             {
                 j++;
-                OSD_Printf("%-9s %s\"%s\"\n",KeyBindings[i].key, KeyBindings[i].repeat?"":"norepeat ", KeyBindings[i].cmd);
+                OSD_Printf("%-9s %s\"%s\"\n", KeyBindings[i].key, KeyBindings[i].repeat?"":"norepeat ",
+                           KeyBindings[i].cmd);
             }
 
         for (i=0; i<MAXMOUSEBUTTONS; i++)
             if (MouseBindings[i].cmd[0] && MouseBindings[i].key)
             {
                 j++;
-                OSD_Printf("%-9s %s\"%s\"\n",MouseBindings[i].key, MouseBindings[i].repeat?"":"norepeat ",MouseBindings[i].cmd);
+                OSD_Printf("%-9s %s\"%s\"\n", MouseBindings[i].key, MouseBindings[i].repeat?"":"norepeat ",
+                           MouseBindings[i].cmd);
             }
 
         if (j == 0)
@@ -960,7 +956,8 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 
         if (parm->numparms < 2)
         {
-            OSD_Printf("%-9s %s\"%s\"\n",ConsoleButtons[i], MouseBindings[i].repeat?"":"norepeat ",MouseBindings[i].cmd);
+            OSD_Printf("%-9s %s\"%s\"\n", ConsoleButtons[i], MouseBindings[i].repeat?"":"norepeat ",
+                       MouseBindings[i].cmd);
             return OSDCMD_OK;
         }
 
@@ -989,7 +986,8 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 
     if (parm->numparms < 2)
     {
-        OSD_Printf("%-9s %s\"%s\"\n",ConsoleKeys[i].name, KeyBindings[ConsoleKeys[i].id].repeat?"":"norepeat ", KeyBindings[ConsoleKeys[i].id].cmd);
+        OSD_Printf("%-9s %s\"%s\"\n", ConsoleKeys[i].name, KeyBindings[ConsoleKeys[i].id].repeat?"":"norepeat ",
+                   KeyBindings[ConsoleKeys[i].id].cmd);
         return OSDCMD_OK;
     }
 
