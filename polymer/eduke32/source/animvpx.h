@@ -6,8 +6,10 @@
 #define ANIM_VPX_H
 
 #define VPX_CODEC_DISABLE_COMPAT 1
-#include <vpx/vpx_decoder.h>
+#ifndef ANIMVPX_STANDALONE
+# include <vpx/vpx_decoder.h>
 //#include <vpx/vp8dx.h>
+#endif
 
 // IVF format: http://wiki.multimedia.cx/index.php?title=IVF
 #pragma pack(push,1)
@@ -29,9 +31,9 @@ typedef struct
 } animvpx_ivf_header_t;
 #pragma pack(pop)
 
+#ifndef ANIMVPX_STANDALONE
 extern const char *animvpx_read_ivf_header_errmsg[7];
 int32_t animvpx_read_ivf_header(int32_t inhandle, animvpx_ivf_header_t *hdr);
-
 
 typedef struct
 {
@@ -85,6 +87,7 @@ void animvpx_restore_glstate(void);
 int32_t animvpx_render_frame(animvpx_codec_ctx *codec);
 
 void animvpx_print_stats(const animvpx_codec_ctx *codec);
+#endif
 
 static inline int32_t animvpx_check_header(const animvpx_ivf_header_t *hdr)
 {

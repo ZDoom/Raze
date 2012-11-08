@@ -10,6 +10,7 @@
 #include <stdint.h>
 #define Bmemcmp memcmp
 #define USE_OPENGL
+#define ANIMVPX_STANDALONE
 #include "animvpx.h"
 
 
@@ -78,7 +79,7 @@ int main(int argc, char **argv)
         unsigned long numer = strtoul(argv[2], NULL, 10);
         unsigned long denom = strtoul(argv[3], NULL, 10);
         uint32_t numer32=numer, denom32=denom;
-        const int NUMER_OFS = offsetof(animvpx_ivf_header_t, fpsnumer);
+        const int NUMER_OFS = 16;  //offsetof(animvpx_ivf_header_t, fpsnumer);
 
         if (denom == 0)
         {

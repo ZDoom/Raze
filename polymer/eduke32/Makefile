@@ -444,7 +444,7 @@ $(OBJ)/%.$o: $(SRC)/%.c
 
 #### Utilities
 
-$(IVFRATE): $(SRC)/ivfrate.c
+$(IVFRATE): $(SRC)/ivfrate.c $(SRC)/animvpx.h
 	if $(COMPILER) -Wall -Wextra $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 #### Lunatic
@@ -530,7 +530,7 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 # PHONIES	
 
 clean:
-	-rm -f $(OBJ)/* $(EDUKE32) $(EDUKE32).memmap $(MAPSTER32) $(MAPSTER32).memmap core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
+	-rm -f $(OBJ)/* $(EDUKE32) $(EDUKE32).memmap $(MAPSTER32) $(MAPSTER32).memmap $(IVFRATE) core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf EDuke32.app Mapster32.app
 endif
