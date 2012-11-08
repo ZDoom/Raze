@@ -3782,10 +3782,8 @@ cheat_for_port_credits2:
                 S_PlaySound(PISTOL_BODYHIT);
 
                 ud.config.KeyboardKeys[function][whichkey] = KB_GetLastScanCode();
-                if (function == gamefunc_Show_Console)
-                    OSD_CaptureKey(KB_GetLastScanCode());
-                else
-                    CONFIG_MapKey(function, ud.config.KeyboardKeys[function][0], key[0], ud.config.KeyboardKeys[function][1], key[1]);
+
+                CONFIG_MapKey(function, ud.config.KeyboardKeys[function][0], key[0], ud.config.KeyboardKeys[function][1], key[1]);
             }
 
             M_ChangeMenu(MENU_KEYBOARDSETUP);

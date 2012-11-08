@@ -148,33 +148,19 @@ const char *CONFIG_AnalogNumToName(int32_t func)
 void CONFIG_SetDefaultKeys(int32_t type)
 {
     int32_t i,f;
+    const char (*keyptr)[MAXGAMEFUNCLEN] = type ? oldkeydefaults : keydefaults;
 
     Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
 
     Bmemset(&KeyBindings,0,sizeof(KeyBindings));
     Bmemset(&MouseBindings,0,sizeof(MouseBindings));
 
-    if (type == 1)
-    {
-        for (i=0; i < (int32_t)(sizeof(oldkeydefaults)/sizeof(oldkeydefaults[0])); i+=3)
-        {
-            f = CONFIG_FunctionNameToNum(oldkeydefaults[i+0]);
-            if (f == -1) continue;
-            ud.config.KeyboardKeys[f][0] = KB_StringToScanCode(oldkeydefaults[i+1]);
-            ud.config.KeyboardKeys[f][1] = KB_StringToScanCode(oldkeydefaults[i+2]);
-
-            if (f == gamefunc_Show_Console) OSD_CaptureKey(ud.config.KeyboardKeys[f][0]);
-            else CONFIG_MapKey(f, ud.config.KeyboardKeys[f][0], 0, ud.config.KeyboardKeys[f][1], 0);
-        }
-        return;
-    }
-
     for (i=0; i < (int32_t)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3)
     {
-        f = CONFIG_FunctionNameToNum(keydefaults[i+0]);
+        f = CONFIG_FunctionNameToNum(keyptr[i+0]);
         if (f == -1) continue;
-        ud.config.KeyboardKeys[f][0] = KB_StringToScanCode(keydefaults[i+1]);
-        ud.config.KeyboardKeys[f][1] = KB_StringToScanCode(keydefaults[i+2]);
+        ud.config.KeyboardKeys[f][0] = KB_StringToScanCode(keyptr[i+1]);
+        ud.config.KeyboardKeys[f][1] = KB_StringToScanCode(keyptr[i+2]);
 
         if (f == gamefunc_Show_Console) OSD_CaptureKey(ud.config.KeyboardKeys[f][0]);
         else CONFIG_MapKey(f, ud.config.KeyboardKeys[f][0], 0, ud.config.KeyboardKeys[f][1], 0);
@@ -350,6 +336,9 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
 
     UNREFERENCED_PARAMETER(which);
 //    CONTROL_MapKey(which, key1, key2);
+
+    if (which == gamefunc_Show_Console)
+        OSD_CaptureKey(key1);
 
     for (k = 0; (unsigned)k < (sizeof(ii) / sizeof(ii[0])); k++)
     {

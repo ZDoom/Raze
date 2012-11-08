@@ -1035,6 +1035,9 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
                 ud.config.KeyboardKeys[j][1] = ud.config.KeyboardKeys[j][0];
                 ud.config.KeyboardKeys[j][0] = ConsoleKeys[i].id;
 //            CONTROL_MapKey(j, ConsoleKeys[i].id, ud.config.KeyboardKeys[j][0]);
+
+                if (j == gamefunc_Show_Console)
+                    OSD_CaptureKey(ConsoleKeys[i].id);
             }
         }
     }
@@ -1548,7 +1551,7 @@ int32_t registerosdcommands(void)
         char *t;
         int32_t j;
 
-        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
+//        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
 
         Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);
         t = Bstrdup(tempbuf);
