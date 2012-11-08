@@ -3679,12 +3679,12 @@ cheat_for_port_credits2:
         }
         else if (x == NUMGAMEFUNCTIONS)
         {
-            CONFIG_SetDefaultKeys(0);
+            CONFIG_SetDefaultKeys((const char (*)[MAXGAMEFUNCLEN])keydefaults);
             break;
         }
         else if (x == NUMGAMEFUNCTIONS+1)
         {
-            CONFIG_SetDefaultKeys(1);
+            CONFIG_SetDefaultKeys(oldkeydefaults);
             break;
         }
         else if (x>=0)

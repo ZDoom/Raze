@@ -145,10 +145,9 @@ const char *CONFIG_AnalogNumToName(int32_t func)
 ===================
 */
 
-void CONFIG_SetDefaultKeys(int32_t type)
+void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
 {
     int32_t i,f;
-    const char (*keyptr)[MAXGAMEFUNCLEN] = type ? oldkeydefaults : keydefaults;
 
     Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
 
@@ -271,7 +270,7 @@ void CONFIG_SetDefaults(void)
 
     // JBF 20031211
 
-    CONFIG_SetDefaultKeys(0);
+    CONFIG_SetDefaultKeys((const char (*)[MAXGAMEFUNCLEN])keydefaults);
 
     memset(ud.config.MouseFunctions, -1, sizeof(ud.config.MouseFunctions));
     for (i=0; i<MAXMOUSEBUTTONS; i++)
