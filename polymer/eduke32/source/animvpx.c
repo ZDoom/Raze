@@ -26,29 +26,22 @@ const char *animvpx_read_ivf_header_errmsg[] = {
     "unrecognized IVF version, expected 0",
     "only VP8 video stream supported",
     "invalid framerate numerator or denominator after correction, must not be 0",
-    "INTERNAL ERROR, IVF header size wrong"
 };
 
 int32_t animvpx_read_ivf_header(int32_t inhandle, animvpx_ivf_header_t *hdr)
 {
-    if (sizeof(animvpx_ivf_header_t) != 32)
-        return 6;
+    int32_t err;
+
+    Bassert(sizeof(animvpx_ivf_header_t) == 32);
 
     if (kread(inhandle, hdr, sizeof(animvpx_ivf_header_t)) != sizeof(animvpx_ivf_header_t))
         return 1;  // "couldn't read header"
 
-    if (Bmemcmp(hdr,"DKIF",4))
-        return 2;  // "not an IVF file"
-
-    hdr->version = B_LITTLE16(hdr->version);
-    if (hdr->version != 0)
-        return 3;  // "unrecognized IVF version"
+    err = animvpx_check_header(hdr);
+    if (err)
+        return err;
 
     hdr->hdrlen = B_LITTLE16(hdr->hdrlen);
-    // fourcc is left as-is
-
-    if (Bmemcmp(hdr->fourcc, "VP80", 4))
-        return 4;  // "only VP8 supported"
 
     hdr->width = B_LITTLE16(hdr->width);
     hdr->height = B_LITTLE16(hdr->height);
@@ -59,30 +52,21 @@ int32_t animvpx_read_ivf_header(int32_t inhandle, animvpx_ivf_header_t *hdr)
 
     // the rest is based on vpxdec.c --> file_is_ivf()
 
-    /* Some versions of vpxenc used 1/(2*fps) for the timebase, so
-     * we can guess the framerate using only the timebase in this
-     * case. Other files would require reading ahead to guess the
-     * timebase, like we do for webm.
-     */
     if (hdr->fpsnumer < 1000)
     {
-        /* Correct for the factor of 2 applied to the timebase in the
-         * encoder.
-         */
-        if (hdr->fpsnumer&1)
-            hdr->fpsdenom <<= 1;
-        else
-            hdr->fpsnumer >>= 1;
+        // NOTE: We got rid of the 1/(2*fps) correction from libvpx's vpxdec.c,
+        // users are encouraged to use the "ivfrate" utility from the source/
+        // directory instead.
 
         if (hdr->fpsdenom==0 || hdr->fpsnumer==0)
             return 5;  // "invalid framerate numerator or denominator"
 
-        initprintf("animvpx: rate is %d frames / %d seconds (%.03f fps) after 1/(2*fps) correction.\n",
+        initprintf("animvpx: rate is %d frames / %d seconds (%.03f fps).\n",
                    hdr->fpsnumer, hdr->fpsdenom, (double)hdr->fpsnumer/hdr->fpsdenom);
     }
     else
     {
-        double fps = (hdr->fpsdenom==0) ? 0.0 : hdr->fpsnumer/hdr->fpsdenom;
+        double fps = (hdr->fpsdenom==0) ? 0.0 : (double)hdr->fpsnumer/hdr->fpsdenom;
 
         initprintf("animvpx: set rate to 30 fps (header says %d frames / %d seconds = %.03f fps).\n",
                    hdr->fpsnumer, hdr->fpsdenom, fps);

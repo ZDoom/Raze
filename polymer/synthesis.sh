@@ -9,8 +9,8 @@ make=( make PLATFORM=WINDOWS CC='wine gcc' CXX='wine g++' AS='wine nasm' RC='win
 clean=veryclean
 
 # the following file paths are relative to $source
-targets=( eduke32.exe mapster32.exe )
-bin_packaged=( eduke32.exe eduke32.debug.exe mapster32.exe mapster32.debug.exe ebacktrace1.dll SEHELP.HLP STHELP.HLP names.h buildlic.txt GNU.TXT m32help.hlp nedmalloc.dll tiles.cfg samples/* )
+targets=( eduke32.exe mapster32.exe ivfrate.exe )
+bin_packaged=( eduke32.exe eduke32.debug.exe mapster32.exe mapster32.debug.exe ivfrate.exe ebacktrace1.dll SEHELP.HLP STHELP.HLP names.h buildlic.txt GNU.TXT m32help.hlp nedmalloc.dll tiles.cfg samples/* )
 not_src_packaged=( psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple/lib )
 
 # group that owns the resulting packages

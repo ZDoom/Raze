@@ -79,6 +79,8 @@ endif
 EDUKE32 ?= eduke32$(EXESUFFIX)
 MAPSTER32 ?= mapster32$(EXESUFFIX)
 
+IVFRATE ?= ivfrate$(EXESUFFIX)
+
 EDUKE32_TARGET:=$(EDUKE32)
 ifneq ($(PLATFORM),WII)
     MAPSTER32_TARGET:=$(MAPSTER32)
@@ -439,6 +441,11 @@ $(OBJ)/%.$o: $(SRC)/%.nasm
 $(OBJ)/%.$o: $(SRC)/%.c
 	$(COMPILE_STATUS)
 	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
+#### Utilities
+
+$(IVFRATE): $(SRC)/ivfrate.c
+	if $(COMPILER) -Wall -Wextra $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 #### Lunatic
 

@@ -86,5 +86,19 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec);
 
 void animvpx_print_stats(const animvpx_codec_ctx *codec);
 
+static inline int32_t animvpx_check_header(const animvpx_ivf_header_t *hdr)
+{
+    if (Bmemcmp(hdr->magic,"DKIF",4))
+        return 2;  // "not an IVF file"
+
+    if (hdr->version != 0)
+        return 3;  // "unrecognized IVF version"
+
+    // fourcc is left as-is
+    if (Bmemcmp(hdr->fourcc, "VP80", 4))
+        return 4;  // "only VP8 supported"
+
+    return 0;
+}
 
 #endif  // !defined ANIM_VPX_H
