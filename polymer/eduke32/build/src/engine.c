@@ -9424,9 +9424,7 @@ int32_t loadboard(char *filename, char flags, vec3_t *dapos, int16_t *daang, int
 {
     int32_t fil, i;
     int16_t numsprites;
-#ifdef POLYMER
     char myflags = flags&(~3);
-#endif
 
     flags &= 3;
 
