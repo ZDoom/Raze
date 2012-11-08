@@ -2,6 +2,15 @@
 # EDuke32 Makefile for GNU Make
 #
 
+# Lunatic development, do not touch!
+LUNATIC=0
+ifneq ($(LUNATIC),0)
+    # FIXME: Lunatic doesn't build with inlining because of wacky include
+    # chains!
+    override DISABLEINLINING=1
+endif
+
+
 include Makefile.common
 
 
@@ -12,9 +21,6 @@ else
     DXROOT=../sdk/dx
     #DXROOT=c:/sdks/directx/dx8
 endif
-
-# Lunatic development, do not touch!
-LUNATIC=0
 
 # Build locations
 SRC=source
@@ -170,14 +176,14 @@ ifneq (0,$(LUNATIC))
     ifeq ($(PLATFORM),WINDOWS)
         OURCOMMONFLAGS+= -I$(LUAJIT_WIN_SRC)
     else
-        OURCOMMONFLAGS+= -I/usr/include/luajit-2.0
+        OURCOMMONFLAGS+= -I/usr/local/include/luajit-2.0
     endif
     OURCOMMONFLAGS+= -I$(SRC)/lunatic -DLUNATIC
 
     ifeq ($(PLATFORM),WINDOWS)
         LIBS+= -LWindows/lib -lluajit
     else
-        LIBS+= -L/usr/local/lib -lluajit-5.1
+        LIBS+= -lluajit-5.1
     endif
 
     EDITOROBJS+= $(OBJ)/lunatic_m32.$o

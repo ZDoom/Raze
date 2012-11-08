@@ -435,7 +435,7 @@ for i=0,6 do
     local what = ffi.string(ffiC.g_sizes_of_what[i])
     local fsz = ffi.sizeof(what)
     local csz = ffiC.g_sizes_of[i]
-    print(i..": "..what..": C sizeof = "..tostring(csz)..", FFI sizeof = "..tostring(fsz))
+--    print(i..": "..what..": C sizeof = "..tostring(csz)..", FFI sizeof = "..tostring(fsz))
     if (fsz ~= csz) then
         good = false;
     end

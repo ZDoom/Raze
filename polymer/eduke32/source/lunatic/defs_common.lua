@@ -1,6 +1,7 @@
 
 -- This file contains LuaJIT definitions of stuff that's common to the game and
--- editor.  The 'decl' is expected to be defined in the global environment.
+-- editor.  The 'decl' function is expected to be defined in the global
+-- environment.
 
 local ffi = require("ffi")
 local ffiC = ffi.C
