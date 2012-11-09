@@ -224,7 +224,7 @@ static int16_t maphacklight[PR_MAXLIGHTS];
 #endif
 
 // forward refs
-inline int32_t getscreenvdisp(int32_t bz, int32_t zoome);
+int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome);
 
 static void scansector(int16_t sectnum);

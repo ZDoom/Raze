@@ -524,9 +524,11 @@ $(OBJ)/editor_banner.$o: $(RSRC)/editor_banner.c
 
 $(RSRC)/game_banner.c: $(RSRC)/game.bmp
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@
+	echo "extern const GdkPixdata startbanner_pixdata;" >> $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 	echo "#include <gdk-pixbuf/gdk-pixdata.h>" > $@
+	echo "extern const GdkPixdata startbanner_pixdata;" >> $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
 # PHONIES	
