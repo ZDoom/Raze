@@ -206,7 +206,7 @@ endif
 
 
 # compiler flags etc.
-BASECFLAGS=
+BASECFLAGS= -Wno-attributes
 BASECONLYFLAGS=-Wimplicit -Wdeclaration-after-statement
 BASECXXFLAGS= -fno-exceptions -fno-rtti -fpermissive
 BASEASFLAGS=-s #-g

@@ -415,7 +415,9 @@ EXTERN char show2dwall[(MAXWALLS+7)>>3];
 EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
 //EXTERN char automapping;
 
-EXTERN char gotpic[(MAXTILES+7)>>3];
+// In the editor, gotpic is only referenced from inline assembly;
+// the compiler needs that hint or building with LTO will discard it.
+EXTERN char ATTRIBUTE((used)) gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN char editorcolors[256];
