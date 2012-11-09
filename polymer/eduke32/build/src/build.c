@@ -2206,10 +2206,13 @@ void fade_editor_screen(int32_t keepcol)
 
 static void copy_some_wall_members(int16_t dst, int16_t src, int32_t reset_some)
 {
-    //                                 x  y  p2 nw ns cs p  op sh pl xr yr xp yp lo hi ex
-    static const walltype nullwall = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, -1 };
+    static walltype nullwall;
     walltype *dstwal=&wall[dst];
     const walltype *srcwal = src >= 0 ? &wall[src] : &nullwall;
+
+    memset(&nullwall, 0, sizeof(nullwall));
+    nullwall.yrepeat = 8;
+    nullwall.extra = -1;
 
     if (reset_some)
     {

@@ -243,6 +243,8 @@ ifneq (0,$(RELEASE))
     endif
     ifeq (0,$(DEBUGANYWAY))
         debug+= -fomit-frame-pointer -DNDEBUG
+    else
+        debug+= -DDEBUGGINGAIDS
     endif
     ifneq (0,$(LTO))
         BASELDFLAGS+= -flto

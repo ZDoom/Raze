@@ -1,6 +1,6 @@
 
 template<typename TrackedType>
-TrackedType __TRACKER_NAME<TrackedType>::operator __TRACKER_OPERATOR (__TRACKER_RIGHTHAND_TYPE)
+inline TrackedType __TRACKER_NAME<TrackedType>::operator __TRACKER_OPERATOR (__TRACKER_RIGHTHAND_TYPE)
 {
     bool isNoop;
 
@@ -11,6 +11,9 @@ TrackedType __TRACKER_NAME<TrackedType>::operator __TRACKER_OPERATOR (__TRACKER_
         case __TRACKER_NOOP_RIGHTHAND_ZERO:
             isNoop = __TRACKER_RIGHTHAND == 0;
             break;
+        case __TRACKER_NOOP_RIGHTHAND_ONE:
+            isNoop = __TRACKER_RIGHTHAND == 1;
+            break;
         default:
         case __TRACKER_NEVER:
             isNoop = false;
@@ -19,10 +22,9 @@ TrackedType __TRACKER_NAME<TrackedType>::operator __TRACKER_OPERATOR (__TRACKER_
 
     if (!isNoop) {
 
-        // hook here
-        int TrackedAddress = (int)&this->TrackedValue;
-        TrackedAddress += __TRACKER_GLOBAL_OFFSET;
-        *((TrackedType*)TrackedAddress) = 1;
+        __TRACKER_GLOBAL_HOOK((int)&this->TrackedValue);
         return (this->TrackedValue __TRACKER_OPERATOR __TRACKER_RIGHTHAND);
+    } else {
+        return this->TrackedValue;
     }
 }

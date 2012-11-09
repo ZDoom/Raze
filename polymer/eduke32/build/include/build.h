@@ -170,6 +170,38 @@ enum {
 #  define EXTERN extern
 #endif
 
+#ifdef __cplusplus
+
+static inline void sector_tracker_hook(unsigned int address);
+static inline void wall_tracker_hook(unsigned int address);
+static inline void sprite_tracker_hook(unsigned int address);
+
+#define __TRACKER_NAME SectorTracker
+#define __TRACKER_GLOBAL_HOOK sector_tracker_hook
+#include "tracker.hpp"
+#undef __TRACKER_NAME
+#undef __TRACKER_GLOBAL_HOOK
+
+#define __TRACKER_NAME WallTracker
+#define __TRACKER_GLOBAL_HOOK wall_tracker_hook
+#include "tracker.hpp"
+#undef __TRACKER_NAME
+#undef __TRACKER_GLOBAL_HOOK
+
+#define __TRACKER_NAME SpriteTracker
+#define __TRACKER_GLOBAL_HOOK sprite_tracker_hook
+#include "tracker.hpp"
+#undef __TRACKER_NAME
+#undef __TRACKER_GLOBAL_HOOK
+
+#define Tracker(Container, Type) Container##Tracker<Type>
+
+#else
+
+#define Tracker(Container, Type) Type
+
+#endif // __cplusplus
+
 #pragma pack(push,1)
 
 //ceilingstat/floorstat:
@@ -193,17 +225,17 @@ enum {
     //40 bytes
 typedef struct
 {
-    int16_t wallptr, wallnum;
-    int32_t ceilingz, floorz;
-    int16_t ceilingstat, floorstat;
-    int16_t ceilingpicnum, ceilingheinum;
-    int8_t ceilingshade;
-    uint8_t ceilingpal, ceilingxpanning, ceilingypanning;
-    int16_t floorpicnum, floorheinum;
-    int8_t floorshade;
-    uint8_t floorpal, floorxpanning, floorypanning;
-    uint8_t visibility, filler;
-    int16_t lotag, hitag, extra;
+    Tracker(Sector, int16_t) wallptr, wallnum;
+    Tracker(Sector, int32_t) ceilingz, floorz;
+    Tracker(Sector, int16_t) ceilingstat, floorstat;
+    Tracker(Sector, int16_t) ceilingpicnum, ceilingheinum;
+    Tracker(Sector, int8_t) ceilingshade;
+    Tracker(Sector, uint8_t) ceilingpal, ceilingxpanning, ceilingypanning;
+    Tracker(Sector, int16_t) floorpicnum, floorheinum;
+    Tracker(Sector, int8_t) floorshade;
+    Tracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
+    Tracker(Sector, uint8_t) visibility, filler;
+    Tracker(Sector, int16_t) lotag, hitag, extra;
 } sectortype;
 
 //cstat:
@@ -223,12 +255,12 @@ typedef struct
     //32 bytes
 typedef struct
 {
-    int32_t x, y;
-    int16_t point2, nextwall, nextsector, cstat;
-    int16_t picnum, overpicnum;
-    int8_t shade;
-    uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
-    int16_t lotag, hitag, extra;
+    Tracker(Wall, int32_t) x, y;
+    Tracker(Wall, int16_t) point2, nextwall, nextsector, cstat;
+    Tracker(Wall, int16_t) picnum, overpicnum;
+    Tracker(Wall, int8_t) shade;
+    Tracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
+    Tracker(Wall, int16_t) lotag, hitag, extra;
 } walltype;
 
 //cstat:
@@ -253,15 +285,15 @@ typedef struct
     //44 bytes
 typedef struct
 {
-    int32_t x, y, z;
-    int16_t cstat, picnum;
-    int8_t shade;
-    uint8_t pal, clipdist, filler;
-    uint8_t xrepeat, yrepeat;
-    int8_t xoffset, yoffset;
-    int16_t sectnum, statnum;
-    int16_t ang, owner, xvel, yvel, zvel;
-    int16_t lotag, hitag, extra;
+    Tracker(Sprite, int32_t) x, y, z;
+    Tracker(Sprite, int16_t) cstat, picnum;
+    Tracker(Sprite, int8_t) shade;
+    Tracker(Sprite, uint8_t) pal, clipdist, filler;
+    Tracker(Sprite, uint8_t) xrepeat, yrepeat;
+    Tracker(Sprite, int8_t) xoffset, yoffset;
+    Tracker(Sprite, int16_t) sectnum, statnum;
+    Tracker(Sprite, int16_t) ang, owner, xvel, yvel, zvel;
+    Tracker(Sprite, int16_t) lotag, hitag, extra;
 } spritetype;
 
 typedef struct {
@@ -320,6 +352,53 @@ EXTERN walltype wall[MAXWALLS + M32_FIXME_WALLS];
 EXTERN spritetype sprite[MAXSPRITES];
 EXTERN spritetype tsprite[MAXSPRITESONSCREEN];
 #endif
+
+EXTERN char sectorclean[MAXSECTORS + M32_FIXME_SECTORS];
+EXTERN char wallclean[MAXWALLS + M32_FIXME_WALLS];
+EXTERN char spriteclean[MAXSPRITES];
+EXTERN char tspriteclean[MAXSPRITESONSCREEN];
+
+static inline void sector_tracker_hook(unsigned int address)
+{
+    address -= (int)(sector);
+    address /= sizeof(sectortype);
+
+    if (address > MAXSECTORS + M32_FIXME_SECTORS) return;
+
+    sectorclean[address] = 0;
+}
+
+static inline void wall_tracker_hook(unsigned int address)
+{
+    address -= (int)(wall);
+    address /= sizeof(walltype);
+
+    if (address > MAXWALLS + M32_FIXME_WALLS) return;
+
+    wallclean[address] = 0;
+}
+
+static inline void sprite_tracker_hook(unsigned int address)
+{
+    if (address >= (int)(sprite) &&
+        address < (int)(sprite) + MAXSPRITES * sizeof(spritetype))
+    {
+        address -= (int)(sprite);
+        address /= sizeof(spritetype);
+
+        spriteclean[address] = 0;
+    } else {
+        address -= (int)(tsprite);
+        address /= sizeof(spritetype);
+
+        if (address > MAXSPRITESONSCREEN) return;
+
+        tspriteclean[address] = 0;
+    }
+
+    if (address > MAXSPRITES) return;
+
+}
 
 EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN int16_t thewall[MAXWALLSB];

@@ -3951,9 +3951,22 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 {
     int32_t p, i = insertsprite(whatsect,s_ss);
     spritetype *s = &sprite[i];
-    spritetype spr_temp = { s_x, s_y, s_z, 0, s_pn, s_s, 0, 0, 0, s_xr, s_yr, 0, 0,
-                            whatsect, s_ss, s_a, s_ow, s_ve, 0, s_zv, 0, 0, 0
-                          };
+    spritetype spr_temp;
+
+    memset(&spr_temp, 0, sizeof(spritetype));
+    spr_temp.x = s_x;
+    spr_temp.y = s_y;
+    spr_temp.z = s_z;
+    spr_temp.picnum = s_pn;
+    spr_temp.shade = s_s;
+    spr_temp.xrepeat = s_xr;
+    spr_temp.yrepeat = s_yr;
+    spr_temp.sectnum = whatsect;
+    spr_temp.statnum = s_ss;
+    spr_temp.ang = s_a;
+    spr_temp.owner = s_ow;
+    spr_temp.xvel = s_ve;
+    spr_temp.zvel = s_zv;
 
     if (i < 0)
     {
