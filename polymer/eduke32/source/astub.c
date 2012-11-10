@@ -100,7 +100,7 @@ int32_t g_clipMapFilesNum = 0;
 #endif
 
 #ifdef LUNATIC
-Em_State *g_EmState;
+static L_State g_EmState;
 #endif
 
 #pragma pack(push,1)
@@ -9294,13 +9294,13 @@ static int32_t osdcmd_lua(const osdfuncparm_t *parm)
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
 
-    if (g_EmState == NULL)
+    if (!L_IsInitialized(&g_EmState))
     {
         OSD_Printf("Lua state is not initialized.\n");
         return OSDCMD_OK;
     }
 
-    ret = Em_RunStringOnce(g_EmState, parm->parms[0]);
+    ret = L_RunString(&g_EmState, (char *)parm->parms[0], 0);
     if (ret != 0)
         OSD_Printf("Error running the Lua code (error code %d)\n", ret);
     else
@@ -10608,16 +10608,13 @@ int32_t ExtInit(void)
     MultiPskyInit();
 
 #ifdef LUNATIC
-    g_EmState = Em_CreateState();
-
-    if (g_EmState)
+    if (Em_CreateState(&g_EmState) == 0)
     {
-        i = Em_RunOnce(g_EmState, "defs_m32.ilua");
-        if (i)
+        i = L_RunOnce(&g_EmState, "defs_m32.ilua");
+        if (i != 0)
         {
             initprintf("Lunatic: Error preparing global Lua state (code %d)\n", i);
-            Em_DestroyState(g_EmState);
-            g_EmState = NULL;
+            Em_DestroyState(&g_EmState);
         }
     }
 #endif

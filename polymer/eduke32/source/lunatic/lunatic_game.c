@@ -1,19 +1,18 @@
-/* The Lunatic Interpreter, part of EDuke32 */
+/* The Lunatic Interpreter, part of EDuke32. Game-side stuff. */
 
 #include <stdint.h>
 
-#include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
 
-#include "cache1d.h"
+#include "lunatic_game.h"
+
 #include "osd.h"
+#include "gamedef.h"  // EventNames[]
 
-#include "gameexec.h"
-#include "gamedef.h"  // EventNames[], MAXEVENTS
 
-#include "lunatic.h"
-#include "lunatic_priv.h"
+L_State g_ElState;
+
 
 // this serves two purposes:
 // the values as booleans and the addresses as keys to the Lua registry
@@ -21,9 +20,6 @@ uint8_t g_elEvents[MAXEVENTS];
 
 // same thing for actors:
 uint8_t g_elActors[MAXTILES];
-
-// Lua-registry key for debug.traceback
-static uint8_t debug_traceback_key;
 
 // for timing events and actors
 uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
@@ -89,29 +85,15 @@ void El_PrintTimes(void)
 }
 
 
-// 0: success, <0: failure
-int32_t El_CreateState(El_State *estate, const char *name)
+////////// STATE CREATION/DESTRUCTIION //////////
+
+static void El_StateSetup(lua_State *L)
 {
-    lua_State *L;
-
-    estate->name = Bstrdup(name);
-    if (!estate->name)
-        return -1;
-
-    L = estate->L = luaL_newstate();
-
-    if (!estate->L)
-    {
-        Bfree(estate->name);
-        estate->name = NULL;
-        return -2;
-    }
-
     luaL_openlibs(L);  // NOTE: we set up the sandbox in defs.ilua
     luaopen_lpeg(L);
     lua_pop(L, lua_gettop(L));  // pop off whatever lpeg leaves on the stack
 
-    setup_debug_traceback(L);
+    L_SetupDebugTraceback(L);
 
     // create misc. global functions in the Lua state
     lua_pushcfunction(L, SetEvent_luacf);
@@ -120,32 +102,17 @@ int32_t El_CreateState(El_State *estate, const char *name)
     lua_setglobal(L, "gameactor");
 
     Bassert(lua_gettop(L)==0);
-
-    return 0;
 }
 
-void El_DestroyState(El_State *estate)
+// 0: success, <0: failure
+int32_t El_CreateState(L_State *estate, const char *name)
 {
-    if (!estate->L)
-        return;
-
-    Bfree(estate->name);
-    estate->name = NULL;
-
-    lua_close(estate->L);
-    estate->L = NULL;
+    return L_CreateState(estate, name, &El_StateSetup);
 }
 
-// -1: alloc failure
-// 0: success
-// 1: didn't find file
-// 2: couldn't read whole file
-// 3: syntax error in lua file
-// 4: runtime error while executing lua file
-// 5: empty file
-int32_t El_RunOnce(El_State *estate, const char *fn)
+void El_DestroyState(L_State *estate)
 {
-    return lunatic_run_once(estate->L, fn, estate->name);
+    L_DestroyState(estate);
 }
 
 
@@ -162,7 +129,7 @@ static int32_t SetEvent_luacf(lua_State *L)
     eventidx = luaL_checkint(L, 1);
 
     luaL_argcheck(L, (unsigned)eventidx < MAXEVENTS, 1, "must be an event number (0 .. MAXEVENTS-1)");
-    check_and_register_function(L, &g_elEvents[eventidx]);
+    L_CheckAndRegisterFunction(L, &g_elEvents[eventidx]);
     g_elEvents[eventidx] = 1;
 
     return 0;
@@ -179,7 +146,7 @@ static int32_t SetActor_luacf(lua_State *L)
     actortile = luaL_checkint(L, 1);
 
     luaL_argcheck(L, (unsigned)actortile < MAXTILES, 1, "must be an tile number (0 .. MAXTILES-1)");
-    check_and_register_function(L, &g_elActors[actortile]);
+    L_CheckAndRegisterFunction(L, &g_elActors[actortile]);
     g_elActors[actortile] = 1;
 
     return 0;
@@ -187,8 +154,8 @@ static int32_t SetActor_luacf(lua_State *L)
 
 //////////////////////////////
 
-static int32_t call_registered_function3(lua_State *L, void *keyaddr,
-                                         int32_t iActor, int32_t iPlayer, int32_t lDist)
+static int32_t call_regd_function3(lua_State *L, void *keyaddr,
+                                   int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
     int32_t i;
 
@@ -212,14 +179,14 @@ static int32_t call_registered_function3(lua_State *L, void *keyaddr,
     return i;
 }
 
-int32_t El_CallEvent(El_State *estate, int32_t eventidx, int32_t iActor, int32_t iPlayer, int32_t lDist)
+int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
     // XXX: estate must be the one where the events were registered...
     //      make a global?
 
     lua_State *const L = estate->L;
 
-    int32_t i = call_registered_function3(L, &g_elEvents[eventidx], iActor, iPlayer, lDist);
+    int32_t i = call_regd_function3(L, &g_elEvents[eventidx], iActor, iPlayer, lDist);
 
     if (i == LUA_ERRRUN)
     {
@@ -232,11 +199,11 @@ int32_t El_CallEvent(El_State *estate, int32_t eventidx, int32_t iActor, int32_t
     return 0;
 }
 
-int32_t El_CallActor(El_State *estate, int32_t actortile, int32_t iActor, int32_t iPlayer, int32_t lDist)
+int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t iPlayer, int32_t lDist)
 {
     lua_State *const L = estate->L;
 
-    int32_t i = call_registered_function3(L, &g_elActors[actortile], iActor, iPlayer, lDist);
+    int32_t i = call_regd_function3(L, &g_elActors[actortile], iActor, iPlayer, lDist);
 
     if (i == LUA_ERRRUN)
     {

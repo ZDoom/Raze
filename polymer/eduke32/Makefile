@@ -2,15 +2,6 @@
 # EDuke32 Makefile for GNU Make
 #
 
-# Lunatic development, do not touch!
-LUNATIC=0
-ifneq ($(LUNATIC),0)
-    # FIXME: Lunatic doesn't build with inlining because of wacky include
-    # chains!
-    override DISABLEINLINING=1
-endif
-
-
 include Makefile.common
 
 
@@ -170,28 +161,9 @@ MISCGAMEDEPS=
 
 
 ## Lunatic devel
-
-LUAJIT=luajit
-
-# for LJ headers:
-LUAJIT_WIN_SRC:= g:/mod/LuaJIT-2.0.0-beta8/src
-
 ifneq (0,$(LUNATIC))
-    ifeq ($(PLATFORM),WINDOWS)
-        OURCOMMONFLAGS+= -I$(LUAJIT_WIN_SRC)
-    else
-        OURCOMMONFLAGS+= -I/usr/local/include/luajit-2.0
-    endif
-    OURCOMMONFLAGS+= -I$(SRC)/lunatic -DLUNATIC
-
-    ifeq ($(PLATFORM),WINDOWS)
-        LIBS+= -LWindows/lib -lluajit
-    else
-        LIBS+= -lluajit-5.1
-    endif
-
     EDITOROBJS+= $(OBJ)/lunatic_m32.$o
-    GAMEOBJS+= $(OBJ)/lunatic.$o
+    GAMEOBJS+= $(OBJ)/lunatic_game.$o
 
     GAMEOBJS+= $(OBJ)/../lpeg.$o  # TEMP
     GAMEOBJS+= $(OBJ)/luaJIT_BC_con_lang.$o \
@@ -219,7 +191,6 @@ ifneq (0,$(LUNATIC))
         PRINTLDFLAGS+= $(SRC)/lunatic/eduke32.def
     endif
     ifeq ($(PLATFORM),LINUX)
-        # TODO: Windows, OS X
         GAMELDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
         EDITORLDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist_m32
     endif

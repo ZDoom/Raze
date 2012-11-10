@@ -35,8 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "menus.h"
 
 #ifdef LUNATIC
-# include "lunatic.h"
-extern El_State g_ElState;  // this needs to go into a header sometime
+# include "lunatic_game.h"
 #endif
 
 #if KRANDDEBUG
@@ -99,7 +98,7 @@ int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lD
 #ifdef LUNATIC
     const double t = gethitickms();
 
-    if (El_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
+    if (L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID))
         El_CallEvent(&g_ElState, iEventID, iActor, iPlayer, lDist);
 #endif
     if (apScriptGameEvent[iEventID])
@@ -5156,7 +5155,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 #ifdef LUNATIC
     t = gethitickms();
 
-    if (El_IsInitialized(&g_ElState) && El_HaveActor(vm.g_sp->picnum))
+    if (L_IsInitialized(&g_ElState) && El_HaveActor(vm.g_sp->picnum))
         El_CallActor(&g_ElState, vm.g_sp->picnum, iActor, iPlayer, lDist);
 #endif
 

@@ -1,41 +1,23 @@
-/* The Lunatic Interpreter, part of EDuke32/Mapster32 */
+/* The Lunatic Interpreter, part of EDuke32. Editor stuff. */
 
-#include <stdint.h>
-
-#include <lua.h>
 #include <lualib.h>
-#include <lauxlib.h>
 
 #include "lunatic_m32.h"
-#include "lunatic_priv.h"
 
 
-Em_State *Em_CreateState(void)
+static void Em_StateSetup(lua_State *L)
 {
-    lua_State *L = luaL_newstate();
-
-    if (L == NULL)
-        return NULL;
-
     luaL_openlibs(L);
-    setup_debug_traceback(L);
-
-    return L;
+    L_SetupDebugTraceback(L);
 }
 
-// -1: alloc failure
-// 0: success
-// 1: didn't find file
-// 2: couldn't read whole file
-// 3: syntax error in lua file
-// 4: runtime error while executing lua file
-// 5: empty file
-int32_t Em_RunOnce(Em_State *L, const char *fn)
+
+int Em_CreateState(L_State *estate)
 {
-    return lunatic_run_once(L, fn, "file");
+    return L_CreateState(estate, "m32", &Em_StateSetup);
 }
 
-int32_t Em_RunStringOnce(Em_State *L, const char *str)
+void Em_DestroyState(L_State *estate)
 {
-    return lunatic_run_string(L, (char *)str, 0, "string");
+    L_DestroyState(estate);
 }

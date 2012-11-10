@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _gamedef_h_
 #define _gamedef_h_
 
+#include "build.h"  // hashtable_t
 #include "common.h"  // tokenlist
 
 #define MAXGAMEEVENTS   128

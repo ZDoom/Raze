@@ -308,6 +308,35 @@ ifneq (0,$(CLANG))
     BASECOMMONFLAGS+= -Wno-unused-value -Wno-parentheses
 endif
 
+
+#### Lunatic development, do not touch!
+LUNATIC=0
+LUAJIT=luajit
+
+# for LJ headers:
+LUAJIT_WIN_SRC:= g:/mod/LuaJIT-2.0.0-beta8/src
+
+ifneq ($(LUNATIC),0)
+    # FIXME: Lunatic doesn't build with inlining because of wacky include
+    # chains!
+    override DISABLEINLINING=1
+
+    ifeq ($(PLATFORM),WINDOWS)
+        BASECOMMONFLAGS+= -I$(LUAJIT_WIN_SRC)
+    else
+        BASECOMMONFLAGS+= -I/usr/local/include/luajit-2.0
+    endif
+    BASECOMMONFLAGS+= -I$(SRC)/lunatic -DLUNATIC
+
+    ifeq ($(PLATFORM),WINDOWS)
+        LIBS+= -LWindows/lib -lluajit
+    else
+        LIBS+= -lluajit-5.1
+    endif
+endif
+
+####
+
 ifneq (0,$(DISABLEINLINING))
     BASECOMMONFLAGS+= -DDISABLE_INLINING
 endif

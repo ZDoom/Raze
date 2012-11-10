@@ -58,8 +58,8 @@ $(OBJ)/osdcmds.$o: $(SRC)/osdcmds.c $(INC)/osdcmds.h $(EINC)/osd.h $(duke3d_h)
 $(OBJ)/xdelta3.$o: $(SRC)/xdelta3/xdelta3.c $(SRC)/xdelta3/xdelta3.h
 $(OBJ)/animvpx.$o: $(SRC)/animvpx.c $(SRC)/animvpx.h $(duke3d_h) $(EINC)/glbuild.h
 
-$(OBJ)/lunatic.$o: $(SRC)/lunatic/lunatic.c $(SRC)/lunatic/lunatic.h $(SRC)/lunatic/lunatic_priv.h $(EINC)/cache1d.h $(EINC)/osd.h
-$(OBJ)/lunatic_m32.$o: $(SRC)/lunatic/lunatic_m32.c $(SRC)/lunatic/lunatic_m32.h $(SRC)/lunatic/lunatic_priv.h $(EINC)/cache1d.h $(EINC)/osd.h
+$(OBJ)/lunatic_game.$o: $(EINC)/lunatic.h $(SRC)/lunatic/lunatic_game.c $(SRC)/lunatic/lunatic_game.h $(SRC)/gamedef.h $(SRC)/gameexec.h $(EINC)/cache1d.h $(EINC)/osd.h
+$(OBJ)/lunatic_m32.$o: $(EINC)/lunatic.h $(SRC)/lunatic/lunatic_m32.c $(SRC)/lunatic/lunatic_m32.h $(EINC)/cache1d.h $(EINC)/osd.h
 
 # editor objects
 m32_script_hs=$(EINC)/m32script.h $(SRC)/m32def.h

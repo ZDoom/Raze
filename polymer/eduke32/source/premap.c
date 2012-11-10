@@ -37,8 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #ifdef LUNATIC
-# include "lunatic.h"
-extern El_State g_ElState;
+# include "lunatic_game.h"
 #endif
 
 static int32_t g_whichPalForPlayer = 9;
@@ -1419,9 +1418,9 @@ static inline void prelevel(char g)
     }
 
 #ifdef LUNATIC
-    if (El_IsInitialized(&g_ElState))
+    if (L_IsInitialized(&g_ElState))
     {
-        i = El_RunOnce(&g_ElState, "test.elua");
+        i = L_RunOnce(&g_ElState, "test.elua");
         if (i)
             OSD_Printf("Error running the test ELua script (code %d)\n", i);
         else

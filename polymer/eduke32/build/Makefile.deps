@@ -31,6 +31,8 @@ $(OBJ)/polymer.$o: $(SRC)/polymer.c $(INC)/polymer.h $(INC)/compat.h $(INC)/buil
 $(OBJ)/mutex.$o: $(SRC)/mutex.c $(INC)/mutex.h
 $(OBJ)/rawinput.$o: $(SRC)/rawinput.c $(INC)/rawinput.h
 
+$(OBJ)/lunatic.$o: $(SRC)/lunatic.c $(INC)/lunatic.h $(INC)/cache1d.h $(INC)/osd.h
+
 $(OBJ)/buildres.$(res): $(SRC)/misc/buildres.rc $(INC)/startwin.editor.h
 $(OBJ)/startwin.editor.$o: $(SRC)/startwin.editor.c $(INC)/build.h $(INC)/editor.h $(INC)/winlayer.h $(INC)/compat.h $(INC)/startwin.editor.h
 $(OBJ)/startgtk.editor.$o: $(SRC)/startgtk.editor.c $(INC)/baselayer.h $(INC)/build.h $(INC)/editor.h $(INC)/compat.h

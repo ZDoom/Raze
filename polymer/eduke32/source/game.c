@@ -63,7 +63,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "input.h"
 
 #ifdef LUNATIC
-# include "lunatic.h"
+# include "lunatic_game.h"
 #endif
 
 #if KRANDDEBUG
@@ -137,10 +137,6 @@ int32_t g_defModulesNum = 0;
 #ifdef HAVE_CLIPSHAPE_FEATURE
 char **g_clipMapFiles = NULL;
 int32_t g_clipMapFilesNum = 0;
-#endif
-
-#ifdef LUNATIC
-El_State g_ElState;
 #endif
 
 extern int32_t lastvisinc;
@@ -10449,7 +10445,7 @@ int32_t app_main(int32_t argc, const char **argv)
     }
     else
     {
-        i = El_RunOnce(&g_ElState, "defs.ilua");
+        i = L_RunOnce(&g_ElState, "defs.ilua");
         if (i)
         {
             initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);

@@ -100,6 +100,10 @@ ifeq (1,$(POLYMER))
     ENGINEOBJS+=  $(OBJ)/polymer.$o
 endif
 
+ifeq (1,$(LUNATIC))
+    ENGINEOBJS+=  $(OBJ)/lunatic.$o
+endif
+
 EDITOROBJS=$(OBJ)/build.$o \
 	$(OBJ)/config.$o
 

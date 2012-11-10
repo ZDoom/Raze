@@ -1,20 +1,11 @@
+/* The Lunatic Interpreter, part of EDuke32. Editor stuff. */
+
 #ifndef EDUKE32_LUNATIC_M32_H_
 #define EDUKE32_LUNATIC_M32_H_
 
-#include <lua.h>
+#include "lunatic.h"
 
-
-typedef lua_State Em_State;
-
-
-Em_State *Em_CreateState(void);
-
-static inline void Em_DestroyState(Em_State *L)
-{
-    lua_close(L);
-}
-
-int32_t Em_RunOnce(Em_State *L, const char *fn);
-int32_t Em_RunStringOnce(Em_State *L, const char *str);
+int Em_CreateState(L_State *estate);
+void Em_DestroyState(L_State *estate);
 
 #endif
