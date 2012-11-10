@@ -172,9 +172,9 @@ enum {
 
 #ifdef __cplusplus
 
-static inline void sector_tracker_hook(unsigned int address);
-static inline void wall_tracker_hook(unsigned int address);
-static inline void sprite_tracker_hook(unsigned int address);
+static inline void sector_tracker_hook(uintptr_t address);
+static inline void wall_tracker_hook(uintptr_t address);
+static inline void sprite_tracker_hook(uintptr_t address);
 
 #define __TRACKER_NAME SectorTracker
 #define __TRACKER_GLOBAL_HOOK sector_tracker_hook
@@ -358,9 +358,9 @@ EXTERN char wallclean[MAXWALLS + M32_FIXME_WALLS];
 EXTERN char spriteclean[MAXSPRITES];
 EXTERN char tspriteclean[MAXSPRITESONSCREEN];
 
-static inline void sector_tracker_hook(unsigned int address)
+static inline void sector_tracker_hook(uintptr_t address)
 {
-    address -= (int)(sector);
+    address -= (uintptr_t)(sector);
     address /= sizeof(sectortype);
 
     if (address > MAXSECTORS + M32_FIXME_SECTORS) return;
@@ -368,9 +368,9 @@ static inline void sector_tracker_hook(unsigned int address)
     sectorclean[address] = 0;
 }
 
-static inline void wall_tracker_hook(unsigned int address)
+static inline void wall_tracker_hook(uintptr_t address)
 {
-    address -= (int)(wall);
+    address -= (uintptr_t)(wall);
     address /= sizeof(walltype);
 
     if (address > MAXWALLS + M32_FIXME_WALLS) return;
@@ -378,17 +378,17 @@ static inline void wall_tracker_hook(unsigned int address)
     wallclean[address] = 0;
 }
 
-static inline void sprite_tracker_hook(unsigned int address)
+static inline void sprite_tracker_hook(uintptr_t address)
 {
-    if (address >= (int)(sprite) &&
-        address < (int)(sprite) + MAXSPRITES * sizeof(spritetype))
+    if (address >= (uintptr_t)(sprite) &&
+        address < (uintptr_t)(sprite) + MAXSPRITES * sizeof(spritetype))
     {
-        address -= (int)(sprite);
+        address -= (uintptr_t)(sprite);
         address /= sizeof(spritetype);
 
         spriteclean[address] = 0;
     } else {
-        address -= (int)(tsprite);
+        address -= (uintptr_t)(tsprite);
         address /= sizeof(spritetype);
 
         if (address > MAXSPRITESONSCREEN) return;
