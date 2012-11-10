@@ -6886,9 +6886,14 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
         {
             *ret_yxaspect = (12<<16)/10;
             *ret_xyaspect = (10<<16)/12;
-
-            // *sxptr and *syptr and *z are left unchanged
         }
+        else
+        {
+            *ret_yxaspect = yxaspect;
+            *ret_xyaspect = xyaspect;
+        }
+
+        // *sxptr and *syptr and *z are left unchanged
 
         return;
     }

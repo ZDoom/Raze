@@ -10848,7 +10848,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
     //    if (cursectornum >= 0)
     //        fillsector(cursectornum, 31);
 
-    if (0 && graphicsmode && !m32_sideview && zoom >= 256)
+    if (graphicsmode && !m32_sideview && zoom >= 256)
     {
         for (i=ii=0; i<MAXSPRITES && ii < Numsprites; i++)
         {
