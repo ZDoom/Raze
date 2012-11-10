@@ -3496,12 +3496,12 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         setaspect_new();
     }
 
-    smoothratio = clamp((totalclock-ototalclock)*(65536/4), 0, 65536);
-
-    visibility = (int32_t)(p->visibility * (numplayers > 1 ? 1.f : r_ambientlightrecip));
-
     if (ud.pause_on || g_player[snum].ps->on_crane > -1)
         smoothratio = 65536;
+    else
+        smoothratio = clamp((totalclock-ototalclock)*(65536/4), 0, 65536);
+
+    visibility = (int32_t)(p->visibility * (numplayers > 1 ? 1.f : r_ambientlightrecip));
 
     ud.camerasect = p->cursectnum;
 
@@ -3630,6 +3630,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             p->orotscrnang = p->rotscrnang; // JBF: save it for next time
         }
 
+        if (p->newowner < 0)
         {
             vec3_t cam = { p->opos.x+mulscale16(p->pos.x-p->opos.x, smoothratio),
                            p->opos.y+mulscale16(p->pos.y-p->opos.y, smoothratio),
@@ -3638,30 +3639,33 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
             Bmemcpy(&ud.camera, &cam, sizeof(vec3_t));
             ud.cameraang = p->oang + mulscale16(((p->ang+1024-p->oang)&2047)-1024, smoothratio);
+            ud.cameraang += p->look_ang;
             ud.camerahoriz = p->ohoriz+p->ohorizoff
                 + mulscale16((p->horiz+p->horizoff-p->ohoriz-p->ohorizoff), smoothratio);
-        }
-        ud.cameraang += p->look_ang;
 
-        if (p->newowner >= 0)
+            if (ud.viewbob)
+            {
+                int32_t addz = (p->opyoff + mulscale16(p->pyoff-p->opyoff, smoothratio));
+                if (p->over_shoulder_on)
+                    addz >>= 3;
+
+                ud.camera.z += addz;
+            }
+
+            if (p->over_shoulder_on)
+            {
+                ud.camera.z -= 3072;
+                G_DoThirdPerson(p,&ud.camera,&ud.camerasect,ud.cameraang,ud.camerahoriz);
+            }
+        }
+        else
         {
+            // looking through viewscreen
+            Bmemcpy(&ud.camera, &p->pos, sizeof(vec3_t));
             ud.cameraang = p->ang + p->look_ang;
-            ud.camerahoriz = p->horiz + p->horizoff;
-            Bmemcpy(&ud.camera, p, sizeof(vec3_t));
+            ud.camerahoriz = 100+sprite[p->newowner].shade;
             ud.camerasect = sprite[p->newowner].sectnum;
             smoothratio = 65536;
-        }
-        else if (ud.viewbob) // if (p->over_shoulder_on == 0)
-        {
-            if (p->over_shoulder_on)
-                ud.camera.z += (p->opyoff + mulscale16(p->pyoff-p->opyoff, smoothratio))>>3;
-            else ud.camera.z += p->opyoff + mulscale16(p->pyoff-p->opyoff, smoothratio);
-        }
-
-        if (p->over_shoulder_on)
-        {
-            ud.camera.z -= 3072;
-            G_DoThirdPerson(p,&ud.camera,&ud.camerasect,ud.cameraang,ud.camerahoriz);
         }
 
         cz = actor[p->i].ceilingz;
@@ -3676,9 +3680,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         if (sprite[p->i].pal == 1)
             ud.camera.z -= (18<<8);
 
-        if (p->newowner >= 0)
-            ud.camerahoriz = 100+sprite[p->newowner].shade;
-        else if (p->spritebridge == 0)
+        if (p->newowner < 0 && p->spritebridge == 0)
         {
             // NOTE: when shrunk, p->pos.z can be below the floor.  This puts the
             // camera into the sector again then.
