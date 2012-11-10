@@ -1204,6 +1204,8 @@ static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthty
     }
     else
     {
+        const int32_t dofullbright = !(picanm[dapic]&PICANM_NOFULLBRIGHT_BIT);
+
         for (y=0; y<ysiz; y++)
         {
             if (y < tsizy) y2 = y; else y2 = y-tsizy;
@@ -1217,7 +1219,7 @@ static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthty
                 if (!fullbrightloadingpass)
                 {
                     // regular texture
-                    if ((dacol > 239) && (dacol != 255))
+                    if (dacol > 239 && dacol != 255 && dofullbright)
                         hasfullbright = 1;
                     wpptr->a = 255;
                 }

@@ -148,6 +148,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 #endif
 
 #define PICANM_TEXHITSCAN_BIT (1<<28)
+#define PICANM_NOFULLBRIGHT_BIT (1<<30)
 
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)

@@ -9735,6 +9735,10 @@ static void G_Startup(void)
             G_GameExit("Failed loading art.");
     }
 
+    // Make the fullscreen nuke logo background non-fullbright.  Has to be
+    // after dynamic tile remapping (from C_Compile) and loading tiles.
+    picanm[LOADSCREEN] |= PICANM_NOFULLBRIGHT_BIT;
+
 //    initprintf("Loading palette/lookups...\n");
     G_LoadExtraPalettes();
 
