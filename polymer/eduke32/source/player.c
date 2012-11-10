@@ -4577,15 +4577,6 @@ void P_ProcessInput(int32_t snum)
 
     if (p->newowner >= 0)
     {
-        i = p->newowner;
-        p->pos.x = SX;
-        p->pos.y = SY;
-        p->pos.z = SZ;
-        p->ang =  SA;
-        p->vel.x = p->vel.y = s->xvel = 0;
-        p->look_ang = 0;
-        p->rotscrnang = 0;
-
         P_DoCounters(p);
 
         if (*aplWeaponWorksLike[p->curr_weapon] == HANDREMOTE_WEAPON)

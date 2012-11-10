@@ -3258,9 +3258,8 @@ void P_CheckSectors(int32_t snum)
             case VIEWSCREEN__STATIC:
             case VIEWSCREEN2__STATIC:
             {
-                i = headspritestat[STAT_ACTOR];
-
-                while (i >= 0)
+                // Try to find a camera sprite for the viewscreen.
+                for (SPRITES_OF(STAT_ACTOR, i))
                 {
                     if (PN == CAMERA1 && SP == 0 && sprite[neartagsprite].hitag == SLT)
                     {
@@ -3278,9 +3277,17 @@ void P_CheckSectors(int32_t snum)
 
                         // parallaxtype = 2;
                         p->newowner = i;
+
+                        p->pos.x = SX;
+                        p->pos.y = SY;
+                        p->pos.z = SZ;
+                        p->ang =  SA;
+                        p->vel.x = p->vel.y = sprite[p->i].xvel = 0;
+                        p->look_ang = 0;
+                        p->rotscrnang = 0;
+
                         return;
                     }
-                    i = nextspritestat[i];
                 }
             }
 
