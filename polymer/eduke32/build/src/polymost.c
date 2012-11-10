@@ -164,10 +164,9 @@ static GLuint polymosttext = 0;
 extern char nofog;
 int32_t glrendmode = 3;
 
-// Those THREE globals control the drawing of fullbright tiles
-static int32_t fullbrightloadingpass = 0;
+// This variable, and 'shadeforfullbrightpass' control the drawing of
+// fullbright tiles.  Also see 'fullbrightloadingpass'.
 static int32_t fullbrightdrawingpass = 0;
-static int32_t shadeforfullbrightpass;
 
 float curpolygonoffset;    // internal polygon offset stack for drawing flat sprites to avoid depth fighting
 
@@ -338,8 +337,7 @@ pthtyp *gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
     // load a replacement
     for (pth=gltexcachead[j]; pth; pth=pth->next)
     {
-        if (pth->picnum == dapicnum &&
-                pth->palnum == si->palnum &&
+        if (pth->picnum == dapicnum && pth->palnum == si->palnum &&
                 (si->palnum>0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
                 (pth->flags & (1+2+4)) == (((dameth&4)>>2)+2+((drawingskybox>0)<<2)) &&
                 (drawingskybox>0 ? (pth->skyface == drawingskybox) : 1)
@@ -355,6 +353,7 @@ pthtyp *gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
                     goto tryart;   // failed, so try for ART
                 }
             }
+
             return(pth);
         }
     }
@@ -388,9 +387,11 @@ pthtyp *gltexcache(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
         if (drawingskybox) return NULL;
         goto tryart;   // failed, so try for ART
     }
+
     pth->palnum = si->palnum;
     pth->next = gltexcachead[j];
     gltexcachead[j] = pth;
+
     return(pth);
 
 tryart:
@@ -398,16 +399,17 @@ tryart:
 
     // load from art
     for (pth=gltexcachead[j]; pth; pth=pth->next)
-        if (pth->picnum == dapicnum &&
-                pth->palnum == dapalnum &&
+        if (pth->picnum == dapicnum && pth->palnum == dapalnum &&
                 (pth->flags & (1+2)) == ((dameth&4)>>2)
            )
         {
             if (pth->flags & 128)
             {
                 pth->flags &= ~128;
-                if (gloadtile_art(dapicnum,dapalnum,dameth,pth,0)) return NULL; //reload tile (for animations)
+                if (gloadtile_art(dapicnum,dapalnum,dameth,pth,0))
+                    return NULL; //reload tile (for animations)
             }
+
             return(pth);
         }
 
@@ -419,6 +421,7 @@ tryart:
         Bfree(pth);
         return NULL;
     }
+
     pth->next = gltexcachead[j];
     gltexcachead[j] = pth;
 
@@ -427,21 +430,21 @@ tryart:
 
 static inline int32_t gltexmayhavealpha(int32_t dapicnum, int32_t dapalnum)
 {
-    int32_t j = (dapicnum&(GLTEXCACHEADSIZ-1));
+    const int32_t j = (dapicnum&(GLTEXCACHEADSIZ-1));
     pthtyp *pth;
 
     for (pth=gltexcachead[j]; pth; pth=pth->next)
-        if ((pth->picnum == dapicnum) && (pth->palnum == dapalnum))
-            return((pth->flags&8) != 0);
-    return(1);
+        if (pth->picnum == dapicnum && pth->palnum == dapalnum)
+            return ((pth->flags&8) != 0);
+
+    return 1;
 }
 
 void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 {
-    int32_t j;
+    const int32_t j = (dapicnum&(GLTEXCACHEADSIZ-1));
     pthtyp *pth;
 
-    j = (dapicnum&(GLTEXCACHEADSIZ-1));
     for (pth=gltexcachead[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum && (pth->flags & 1) == ((dameth&4)>>2))
         {
@@ -1168,12 +1171,15 @@ static void texture_setup(int32_t dameth)
 
 static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
-    coltype *pic, *wpptr;
-    int32_t x, y, x2, y2, xsiz, ysiz, dacol, tsizx, tsizy;
+    coltype *pic;
+    int32_t xsiz, ysiz;
     char hasalpha = 0, hasfullbright = 0;
 
-    tsizx = tilesizx[dapic];
-    tsizy = tilesizy[dapic];
+    static int32_t fullbrightloadingpass = 0;
+
+    int32_t tsizx = tilesizx[dapic];
+    int32_t tsizy = tilesizy[dapic];
+
     if (!glinfo.texnpot)
     {
         for (xsiz=1; xsiz<tsizx; xsiz+=xsiz);
@@ -1205,54 +1211,58 @@ static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthty
     else
     {
         const int32_t dofullbright = !(picanm[dapic]&PICANM_NOFULLBRIGHT_BIT);
+        int32_t y;
 
         for (y=0; y<ysiz; y++)
         {
+            coltype *wpptr = &pic[y*xsiz];
+            int32_t x, y2;
+
             if (y < tsizy) y2 = y; else y2 = y-tsizy;
-            wpptr = &pic[y*xsiz];
+
             for (x=0; x<xsiz; x++,wpptr++)
             {
-                if ((dameth&4) && ((x >= tsizx) || (y >= tsizy))) //Clamp texture
+                int32_t dacol, x2;
+
+                if ((dameth&4) && (x >= tsizx || y >= tsizy)) //Clamp texture
                     { wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0; continue; }
                 if (x < tsizx) x2 = x; else x2 = x-tsizx;
-                dacol = (int32_t)(*(char *)(waloff[dapic]+x2*tsizy+y2));
+
+                dacol = *(char *)(waloff[dapic]+x2*tsizy+y2);
+
                 if (!fullbrightloadingpass)
                 {
                     // regular texture
                     if (dacol > 239 && dacol != 255 && dofullbright)
                         hasfullbright = 1;
+
                     wpptr->a = 255;
                 }
-                else if (fullbrightloadingpass == 1)
+                else
                 {
                     // texture with only fullbright areas
                     if (dacol < 240)    // regular colors
                     {
-                        wpptr->a = 0; hasalpha = 1;
+                        wpptr->a = 0;
+                        hasalpha = 1;
                     }
                     else   // fullbright
                     {
                         wpptr->a = 255;
                     }
                 }
+
                 if (dacol != 255)
-                    dacol = (int32_t)((uint8_t)palookup[dapal][dacol]);
-                else
                 {
-                    wpptr->a = 0; hasalpha = 1;
-                }
-                if (gammabrightness)
-                {
-                    wpptr->r = curpalette[dacol].r;
-                    wpptr->g = curpalette[dacol].g;
-                    wpptr->b = curpalette[dacol].b;
+                    dacol = (uint8_t)palookup[dapal][dacol];
                 }
                 else
                 {
-                    wpptr->r = britable[curbrightness][ curpalette[dacol].r ];
-                    wpptr->g = britable[curbrightness][ curpalette[dacol].g ];
-                    wpptr->b = britable[curbrightness][ curpalette[dacol].b ];
+                    wpptr->a = 0;
+                    hasalpha = 1;
                 }
+
+                bricolor((palette_t *)wpptr, dacol);
             }
         }
     }
@@ -1273,17 +1283,19 @@ static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthty
     pth->flags = ((dameth&4)>>2) | (hasalpha<<3);
     pth->hicr = NULL;
 
-    if ((hasfullbright) && (!fullbrightloadingpass))
+    if (hasfullbright && !fullbrightloadingpass)
     {
-        // load the ONLY texture that'll be assembled with the regular one to make the final texture with fullbright pixels
+        // Load the ONLY texture that'll be assembled with the regular one to
+        // make the final texture with fullbright pixels.
         fullbrightloadingpass = 1;
         pth->ofb = (pthtyp *)Bcalloc(1,sizeof(pthtyp));
         if (!pth->ofb) return 1;
-        pth->flags |= (hasfullbright<<4);
+        pth->flags |= (1<<4);
         if (gloadtile_art(dapic, dapal, dameth, pth->ofb, 1)) return 1;
 
         fullbrightloadingpass = 0;
     }
+
     return 0;
 }
 
@@ -2493,8 +2505,8 @@ void drawpoly(double *dpx, double *dpy, int32_t n, int32_t method)
 
         if (fullbrightdrawingpass == 1) // tile has fullbright colors ?
         {
+            int32_t shadeforfullbrightpass = globalshade; // save the current shade
             fullbrightdrawingpass = 2;
-            shadeforfullbrightpass = globalshade; // save the current shade
             globalshade = -128; // fullbright
             bglDisable(GL_FOG);
             drawpoly(dpx, dpy, n_, method_); // draw them afterwards, then. :)
@@ -6087,20 +6099,8 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     if (col < 0)
         col = 0;
 
-    if (gammabrightness)
-    {
-        p = curpalette[col];
-        b = curpalette[arbackcol];
-    }
-    else
-    {
-        p.r = britable[curbrightness][ curpalette[col].r ];
-        p.g = britable[curbrightness][ curpalette[col].g ];
-        p.b = britable[curbrightness][ curpalette[col].b ];
-        b.r = britable[curbrightness][ curpalette[arbackcol].r ];
-        b.g = britable[curbrightness][ curpalette[arbackcol].g ];
-        b.b = britable[curbrightness][ curpalette[arbackcol].b ];
-    }
+    bricolor(&p, col);
+    bricolor(&b, arbackcol);
 
     if ((rendmode < 3) || (qsetmode != 200)) return(-1);
 
@@ -6200,16 +6200,8 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
             if ((unsigned)col >= 256)
                 col = 0;
 
-            if (gammabrightness)
-            {
-                p = curpalette[col];
-            }
-            else
-            {
-                p.r = britable[curbrightness][ curpalette[col].r ];
-                p.g = britable[curbrightness][ curpalette[col].g ];
-                p.b = britable[curbrightness][ curpalette[col].b ];
-            }
+            bricolor(&p, col);
+
             bglColor4ub(p.r,p.g,p.b,255);
             continue;
         }

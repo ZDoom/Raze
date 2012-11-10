@@ -161,4 +161,20 @@ static inline void setgotpic(int32_t tilenume)
 
 #endif
 
+static inline void bricolor(palette_t *wpptr, int32_t dacol)
+{
+    if (gammabrightness)
+    {
+        wpptr->r = curpalette[dacol].r;
+        wpptr->g = curpalette[dacol].g;
+        wpptr->b = curpalette[dacol].b;
+    }
+    else
+    {
+        wpptr->r = britable[curbrightness][ curpalette[dacol].r ];
+        wpptr->g = britable[curbrightness][ curpalette[dacol].g ];
+        wpptr->b = britable[curbrightness][ curpalette[dacol].b ];
+    }
+}
+
 #endif	/* ENGINE_PRIV_H */
