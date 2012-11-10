@@ -98,7 +98,7 @@ static void fillData(int32_t chan, void *ptr, int32_t remaining, void *udata)
 			
 			memcpy(ptr, sptr, len);
 			
-			ptr += len;
+			ptr = (void *)((uintptr_t)(ptr) + len);
 			MixBufferUsed += len;
 			remaining -= len;
 		}
