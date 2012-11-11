@@ -3278,13 +3278,7 @@ void P_CheckSectors(int32_t snum)
                         // parallaxtype = 2;
                         p->newowner = i;
 
-                        p->pos.x = SX;
-                        p->pos.y = SY;
-                        p->pos.z = SZ;
-                        p->ang =  SA;
-                        p->vel.x = p->vel.y = sprite[p->i].xvel = 0;
-                        p->look_ang = 0;
-                        p->rotscrnang = 0;
+                        P_UpdatePosWhenViewingCam(p);
 
                         return;
                     }

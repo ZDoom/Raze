@@ -4359,6 +4359,19 @@ static void getzsofslope_player(int16_t sectnum, int32_t dax, int32_t day, int32
 }
 #endif
 
+void P_UpdatePosWhenViewingCam(DukePlayer_t *p)
+{
+    int32_t i = p->newowner;
+
+    p->pos.x = SX;
+    p->pos.y = SY;
+    p->pos.z = SZ;
+    p->ang =  SA;
+    p->vel.x = p->vel.y = sprite[p->i].xvel = 0;
+    p->look_ang = 0;
+    p->rotscrnang = 0;
+}
+
 void P_ProcessInput(int32_t snum)
 {
     DukePlayer_t *const p = g_player[snum].ps;
@@ -4577,6 +4590,7 @@ void P_ProcessInput(int32_t snum)
 
     if (p->newowner >= 0)
     {
+        P_UpdatePosWhenViewingCam(p);
         P_DoCounters(p);
 
         if (*aplWeaponWorksLike[p->curr_weapon] == HANDREMOTE_WEAPON)

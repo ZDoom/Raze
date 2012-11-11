@@ -308,6 +308,7 @@ void        P_DropWeapon(DukePlayer_t *p);
 int32_t     P_FindOtherPlayer(int32_t p,int32_t *d);
 void        P_FireWeapon(DukePlayer_t *p);
 void        P_FragPlayer(int32_t snum);
+void        P_UpdatePosWhenViewingCam(DukePlayer_t *p);
 void        P_ProcessInput(int32_t snum);
 void        P_ProcessWeapon(int32_t snum);
 void        P_QuickKill(DukePlayer_t *p);
