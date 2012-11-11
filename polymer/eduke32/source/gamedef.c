@@ -2763,7 +2763,7 @@ static int32_t C_ParseCommand(int32_t loop)
                     g_tile[*g_scriptPtr].flags |= SPRITE_BADGUY;
 
                 if (j & 2)
-                    g_tile[*g_scriptPtr].flags |= SPRITE_BADGUYSTAYPUT;
+                    g_tile[*g_scriptPtr].flags |= (SPRITE_BADGUY|SPRITE_BADGUYSTAYPUT);
             }
 
             for (j=0; j<4; j++)
