@@ -5,6 +5,26 @@
 // This file has been modified from Ken Silverman's original release
 // by Jonathon Fowler (jf@jonof.id.au)
 
+
+#ifdef CACHE1D_COMPRESS_ONLY
+// Standalone libcache1d.so containing only the compression/decompression
+// functions.
+# include <stdint.h>
+# include <stdio.h>
+# include <string.h>
+# include <stddef.h>
+
+# define BFILE FILE
+# define C1D_STATIC
+# define B_LITTLE16(x) (x)
+# define B_LITTLE32(x) (x)
+# define Bmemset memset
+# define Bmemcpy memcpy
+# define bsize_t size_t
+#else
+// cache1d.o for EDuke32
+# define C1D_STATIC static
+
 #include "compat.h"
 #ifdef _WIN32
 // for FILENAME_CASE_CHECK
@@ -1287,6 +1307,10 @@ failure:
     return NULL;
 }
 
+
+#endif // #ifdef CACHE1D_COMPRESS_ONLY / else
+
+
 //Internal LZW variables
 #define LZWSIZE 16384           //Watch out for shorts!
 #define LZWSIZEPAD (LZWSIZE+(LZWSIZE>>4))
@@ -1298,7 +1322,43 @@ static int16_t lzwbuf2[LZWSIZEPAD], lzwbuf3[LZWSIZEPAD];
 static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwoutbuf);
 static int32_t lzwuncompress(const char *lzwinbuf, int32_t compleng, char *lzwoutbuf);
 
-int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
+#ifndef CACHE1D_COMPRESS_ONLY
+static int32_t kdfread_func(intptr_t fil, void *outbuf, int32_t length)
+{
+    return kread((int32_t)fil, outbuf, length);
+}
+
+static void dfwrite_func(intptr_t fp, const void *inbuf, int32_t length)
+{
+    Bfwrite(inbuf, length, 1, (BFILE *)fp);
+}
+#else
+# define kdfread_func NULL
+# define dfwrite_func NULL
+#endif
+
+// These two follow the argument order of the C functions "read" and "write":
+// handle, buffer, length.
+C1D_STATIC int32_t (*c1d_readfunc)(intptr_t, void *, int32_t) = kdfread_func;
+C1D_STATIC void (*c1d_writefunc)(intptr_t, const void *, int32_t) = dfwrite_func;
+
+
+////////// COMPRESSED READ //////////
+
+static uint32_t decompress_part(int16_t *lengptr, intptr_t f, uint32_t *kgoalptr)
+{
+    int32_t leng;
+    if (c1d_readfunc(f, lengptr, 2) != 2)
+        return 1;
+    leng = B_LITTLE16(*lengptr);
+    if (c1d_readfunc(f,lzwcompbuf, leng) != leng)
+        return 1;
+    *kgoalptr = lzwuncompress(lzwcompbuf, *lengptr, lzwrawbuf);
+    return 0;
+}
+
+// Read from 'f' into 'buffer'.
+C1D_STATIC int32_t c1d_read_compressed(void *buffer, bsize_t dasizeof, bsize_t count, intptr_t f)
 {
     uint32_t i, j, k, kgoal;
     int16_t leng;
@@ -1312,20 +1372,18 @@ int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
 
     ptr = (char *)buffer;
 
-    if (kread(fil,&leng,2) != 2) return -1; leng = B_LITTLE16(leng);
-    if (kread(fil,lzwcompbuf,(int32_t)leng) != leng) return -1;
-    k = 0; kgoal = lzwuncompress(lzwcompbuf,(int32_t)leng,lzwrawbuf);
+    k = decompress_part(&leng, f, &kgoal);
+    if (k) return -1;
 
-    copybufbyte(lzwrawbuf,ptr,(int32_t)dasizeof);
+    Bmemcpy(ptr, lzwrawbuf, (int32_t)dasizeof);
     k += (int32_t)dasizeof;
 
     for (i=1; i<count; i++)
     {
         if (k >= kgoal)
         {
-            if (kread(fil,&leng,2) != 2) return -1; leng = B_LITTLE16(leng);
-            if (kread(fil,lzwcompbuf,(int32_t)leng) != leng) return -1;
-            k = 0; kgoal = lzwuncompress(lzwcompbuf,(int32_t)leng,lzwrawbuf);
+            k = decompress_part(&leng, f, &kgoal);
+            if (k) return -1;
         }
 
         for (j=0; j<dasizeof; j++)
@@ -1338,17 +1396,26 @@ int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
     return count;
 }
 
-static uint32_t compress_part(uint32_t k, BFILE *fil)
+int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
+{
+    return c1d_read_compressed(buffer, dasizeof, count, (intptr_t)fil);
+}
+
+
+////////// COMPRESSED WRITE //////////
+
+static uint32_t compress_part(uint32_t k, intptr_t f)
 {
     int16_t leng, swleng;
-
-    leng = (int16_t)lzwcompress(lzwrawbuf,k,lzwcompbuf); swleng = B_LITTLE16(leng);
-    Bfwrite(&swleng,2,1,fil); Bfwrite(lzwcompbuf,(int32_t)leng,1,fil);
-
+    leng = (int16_t)lzwcompress(lzwrawbuf,k,lzwcompbuf);
+    swleng = B_LITTLE16(leng);
+    c1d_writefunc(f, &swleng, 2);
+    c1d_writefunc(f, lzwcompbuf, leng);
     return 0;
 }
 
-void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
+// Write from 'buffer' to 'f'.
+C1D_STATIC void c1d_write_compressed(const void *buffer, bsize_t dasizeof, bsize_t count, intptr_t f)
 {
     uint32_t i, j, k;
     const char *ptr;
@@ -1365,7 +1432,7 @@ void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
 
     k = dasizeof;
     if (k > LZWSIZE-dasizeof)
-        k = compress_part(k, fil);
+        k = compress_part(k, f);
 
     for (i=1; i<count; i++)
     {
@@ -1374,14 +1441,21 @@ void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
 
         k += dasizeof;
         if (k > LZWSIZE-dasizeof)
-            k = compress_part(k, fil);
+            k = compress_part(k, f);
 
         ptr += dasizeof;
     }
 
     if (k > 0)
-        compress_part(k, fil);
+        compress_part(k, f);
 }
+
+void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
+{
+    c1d_write_compressed(buffer, dasizeof, count, (intptr_t)fil);
+}
+
+////////// CORE COMPRESSION FUNCTIONS //////////
 
 static int32_t lzwcompress(const char *lzwinbuf, int32_t uncompleng, char *lzwoutbuf)
 {
@@ -1486,7 +1560,7 @@ static int32_t lzwuncompress(const char *lzwinbuf, int32_t compleng, char *lzwou
 
     if (strtot == 0)
     {
-        copybuf(lzwinbuf+4,lzwoutbuf,((compleng-4)+3)>>2);
+        Bmemcpy(lzwoutbuf, lzwinbuf+4, (compleng-4)+3);
         return uncompleng;
     }
 
@@ -1525,27 +1599,6 @@ static int32_t lzwuncompress(const char *lzwinbuf, int32_t compleng, char *lzwou
 
     return uncompleng;
 }
-
-
-#if 0
-int32_t dfread(void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
-{
-    // recipe to get dfread from kdfread: e.g.
-    //  kread(fil,&leng,2) != 2
-    //   -->
-    //  Bfread(&leng,2,1,fil) != 1
-    // (take care!)
-}
-
-void kdfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
-{
-    // recipe to get kdfwrite from dfwrite: e.g.
-    //  Bfwrite(&swleng,2,1,fil);
-    //   -->
-    //  Bwrite(fil,&swleng,2);
-    // (take care!)
-}
-#endif
 
 /*
  * vim:ts=4:sw=4:
