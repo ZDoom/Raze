@@ -56,6 +56,7 @@ G_EXTERN int32_t myconnectindex, numplayers;
 G_EXTERN const char *s_buildRev;
 G_EXTERN DukeStatus_t sbar;
 G_EXTERN actor_t actor[MAXSPRITES];
+// g_tile: tile-specific data THAT DOES NOT CHANGE during the course of a game
 G_EXTERN tiledata_t g_tile[MAXTILES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
 G_EXTERN char *ScriptQuotes[MAXQUOTES],*ScriptQuoteRedefinitions[MAXQUOTES];
@@ -136,6 +137,7 @@ G_EXTERN playerdata_t g_player[MAXPLAYERS];
 G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
 G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 #pragma pack(pop)
+G_EXTERN projectile_t ProjectileData[MAXTILES];
 G_EXTERN projectile_t SpriteProjectile[MAXSPRITES];
 G_EXTERN sound_t g_sounds[MAXSOUNDS];
 G_EXTERN uint32_t everyothertime;

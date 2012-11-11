@@ -967,6 +967,7 @@ static const dataspec_t svgm_secwsp[] =
     { DS_NOCHK, &g_mirrorSector[0], sizeof(g_mirrorSector[0]), sizeof(g_mirrorSector)/sizeof(g_mirrorSector[0]) },
 // projectiles
     { 0, &SpriteProjectile[0], sizeof(projectile_t), MAXSPRITES },
+    { 0, &ProjectileData[0], sizeof(projectile_t), MAXTILES },
     { 0, &everyothertime, sizeof(everyothertime), 1 },
     { DS_END, 0, 0, 0 }
 };
@@ -979,7 +980,7 @@ static const dataspec_t svgm_script[] =
     { DS_DYNAMIC|DS_CNT(savegame_bitptrsize)|DS_NOCHK, &bitptr, sizeof(bitptr[0]), (intptr_t)&savegame_bitptrsize },
 
     { DS_SAVEFN|DS_NOCHK, (void *)&sv_prescriptsave_once, 0, 1 },
-    { 0, &g_tile[0], sizeof(tiledata_t), MAXTILES },
+    { DS_NOCHK, &g_tile[0], sizeof(tiledata_t), MAXTILES },
     { DS_LOADFN|DS_NOCHK, (void *)&sv_prescriptload_once, 0, 1 },
     { DS_DYNAMIC|DS_CNT(g_scriptSize)|DS_NOCHK, &script, sizeof(script[0]), (intptr_t)&g_scriptSize },
 //    { DS_NOCHK, &apScriptGameEvent[0], sizeof(apScriptGameEvent[0]), MAXGAMEEVENTS },

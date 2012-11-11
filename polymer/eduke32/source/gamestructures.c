@@ -3143,253 +3143,253 @@ static void __fastcall VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t 
     case PROJ_WORKSLIKE:
         if (iSet)
         {
-            g_tile[lVar1].proj.workslike=lValue;
+            ProjectileData[lVar1].workslike=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.workslike);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].workslike);
         return;
 
     case PROJ_SPAWNS:
         if (iSet)
         {
-            g_tile[lVar1].proj.spawns=lValue;
+            ProjectileData[lVar1].spawns=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.spawns);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].spawns);
         return;
 
     case PROJ_SXREPEAT:
         if (iSet)
         {
-            g_tile[lVar1].proj.sxrepeat=lValue;
+            ProjectileData[lVar1].sxrepeat=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.sxrepeat);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].sxrepeat);
         return;
 
     case PROJ_SYREPEAT:
         if (iSet)
         {
-            g_tile[lVar1].proj.syrepeat=lValue;
+            ProjectileData[lVar1].syrepeat=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.syrepeat);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].syrepeat);
         return;
 
     case PROJ_SOUND:
         if (iSet)
         {
-            g_tile[lVar1].proj.sound=lValue;
+            ProjectileData[lVar1].sound=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.sound);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].sound);
         return;
 
     case PROJ_ISOUND:
         if (iSet)
         {
-            g_tile[lVar1].proj.isound=lValue;
+            ProjectileData[lVar1].isound=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.isound);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].isound);
         return;
 
     case PROJ_VEL:
         if (iSet)
         {
-            g_tile[lVar1].proj.vel=lValue;
+            ProjectileData[lVar1].vel=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.vel);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].vel);
         return;
 
     case PROJ_EXTRA:
         if (iSet)
         {
-            g_tile[lVar1].proj.extra=lValue;
+            ProjectileData[lVar1].extra=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.extra);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].extra);
         return;
 
     case PROJ_DECAL:
         if (iSet)
         {
-            g_tile[lVar1].proj.decal=lValue;
+            ProjectileData[lVar1].decal=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.decal);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].decal);
         return;
 
     case PROJ_TRAIL:
         if (iSet)
         {
-            g_tile[lVar1].proj.trail=lValue;
+            ProjectileData[lVar1].trail=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.trail);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].trail);
         return;
 
     case PROJ_TXREPEAT:
         if (iSet)
         {
-            g_tile[lVar1].proj.txrepeat=lValue;
+            ProjectileData[lVar1].txrepeat=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.txrepeat);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].txrepeat);
         return;
 
     case PROJ_TYREPEAT:
         if (iSet)
         {
-            g_tile[lVar1].proj.tyrepeat=lValue;
+            ProjectileData[lVar1].tyrepeat=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.tyrepeat);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].tyrepeat);
         return;
 
     case PROJ_TOFFSET:
         if (iSet)
         {
-            g_tile[lVar1].proj.toffset=lValue;
+            ProjectileData[lVar1].toffset=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.toffset);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].toffset);
         return;
 
     case PROJ_TNUM:
         if (iSet)
         {
-            g_tile[lVar1].proj.tnum=lValue;
+            ProjectileData[lVar1].tnum=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.tnum);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].tnum);
         return;
 
     case PROJ_DROP:
         if (iSet)
         {
-            g_tile[lVar1].proj.drop=lValue;
+            ProjectileData[lVar1].drop=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.drop);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].drop);
         return;
 
     case PROJ_CSTAT:
         if (iSet)
         {
-            g_tile[lVar1].proj.cstat=lValue;
+            ProjectileData[lVar1].cstat=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.cstat);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].cstat);
         return;
 
     case PROJ_CLIPDIST:
         if (iSet)
         {
-            g_tile[lVar1].proj.clipdist=lValue;
+            ProjectileData[lVar1].clipdist=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.clipdist);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].clipdist);
         return;
 
     case PROJ_SHADE:
         if (iSet)
         {
-            g_tile[lVar1].proj.shade=lValue;
+            ProjectileData[lVar1].shade=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.shade);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].shade);
         return;
 
     case PROJ_XREPEAT:
         if (iSet)
         {
-            g_tile[lVar1].proj.xrepeat=lValue;
+            ProjectileData[lVar1].xrepeat=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.xrepeat);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].xrepeat);
         return;
 
     case PROJ_YREPEAT:
         if (iSet)
         {
-            g_tile[lVar1].proj.yrepeat=lValue;
+            ProjectileData[lVar1].yrepeat=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.yrepeat);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].yrepeat);
         return;
 
     case PROJ_PAL:
         if (iSet)
         {
-            g_tile[lVar1].proj.pal=lValue;
+            ProjectileData[lVar1].pal=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.pal);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].pal);
         return;
 
     case PROJ_EXTRA_RAND:
         if (iSet)
         {
-            g_tile[lVar1].proj.extra_rand=lValue;
+            ProjectileData[lVar1].extra_rand=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.extra_rand);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].extra_rand);
         return;
 
     case PROJ_HITRADIUS:
         if (iSet)
         {
-            g_tile[lVar1].proj.hitradius=lValue;
+            ProjectileData[lVar1].hitradius=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.hitradius);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].hitradius);
         return;
 
     case PROJ_MOVECNT:
         if (iSet)
         {
-            g_tile[lVar1].proj.movecnt=lValue;
+            ProjectileData[lVar1].movecnt=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.movecnt);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].movecnt);
         return;
 
     case PROJ_OFFSET:
         if (iSet)
         {
-            g_tile[lVar1].proj.offset=lValue;
+            ProjectileData[lVar1].offset=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.offset);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].offset);
         return;
 
     case PROJ_BOUNCES:
         if (iSet)
         {
-            g_tile[lVar1].proj.bounces=lValue;
+            ProjectileData[lVar1].bounces=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.bounces);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].bounces);
         return;
 
     case PROJ_BSOUND:
         if (iSet)
         {
-            g_tile[lVar1].proj.bsound=lValue;
+            ProjectileData[lVar1].bsound=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.bsound);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].bsound);
         return;
 
     case PROJ_RANGE:
         if (iSet)
         {
-            g_tile[lVar1].proj.range=lValue;
+            ProjectileData[lVar1].range=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, g_tile[lVar1].proj.range);
+        Gv_SetVarX(lVar2, ProjectileData[lVar1].range);
         return;
 
     default:

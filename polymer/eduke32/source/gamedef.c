@@ -4020,61 +4020,61 @@ static int32_t C_ParseCommand(int32_t loop)
                 switch (y)
                 {
                 case PROJ_WORKSLIKE:
-                    g_tile[j].defproj.workslike = g_tile[j].proj.workslike = z; break;
+                    g_tile[j].defproj.workslike = ProjectileData[j].workslike = z; break;
                 case PROJ_SPAWNS:
-                    g_tile[j].defproj.spawns = g_tile[j].proj.spawns = z; break;
+                    g_tile[j].defproj.spawns = ProjectileData[j].spawns = z; break;
                 case PROJ_SXREPEAT:
-                    g_tile[j].defproj.sxrepeat = g_tile[j].proj.sxrepeat = z; break;
+                    g_tile[j].defproj.sxrepeat = ProjectileData[j].sxrepeat = z; break;
                 case PROJ_SYREPEAT:
-                    g_tile[j].defproj.syrepeat = g_tile[j].proj.syrepeat = z; break;
+                    g_tile[j].defproj.syrepeat = ProjectileData[j].syrepeat = z; break;
                 case PROJ_SOUND:
-                    g_tile[j].defproj.sound = g_tile[j].proj.sound = z; break;
+                    g_tile[j].defproj.sound = ProjectileData[j].sound = z; break;
                 case PROJ_ISOUND:
-                    g_tile[j].defproj.isound = g_tile[j].proj.isound = z; break;
+                    g_tile[j].defproj.isound = ProjectileData[j].isound = z; break;
                 case PROJ_VEL:
-                    g_tile[j].defproj.vel = g_tile[j].proj.vel = z; break;
+                    g_tile[j].defproj.vel = ProjectileData[j].vel = z; break;
                 case PROJ_EXTRA:
-                    g_tile[j].defproj.extra = g_tile[j].proj.extra = z; break;
+                    g_tile[j].defproj.extra = ProjectileData[j].extra = z; break;
                 case PROJ_DECAL:
-                    g_tile[j].defproj.decal = g_tile[j].proj.decal = z; break;
+                    g_tile[j].defproj.decal = ProjectileData[j].decal = z; break;
                 case PROJ_TRAIL:
-                    g_tile[j].defproj.trail = g_tile[j].proj.trail = z; break;
+                    g_tile[j].defproj.trail = ProjectileData[j].trail = z; break;
                 case PROJ_TXREPEAT:
-                    g_tile[j].defproj.txrepeat = g_tile[j].proj.txrepeat = z; break;
+                    g_tile[j].defproj.txrepeat = ProjectileData[j].txrepeat = z; break;
                 case PROJ_TYREPEAT:
-                    g_tile[j].defproj.tyrepeat = g_tile[j].proj.tyrepeat = z; break;
+                    g_tile[j].defproj.tyrepeat = ProjectileData[j].tyrepeat = z; break;
                 case PROJ_TOFFSET:
-                    g_tile[j].defproj.toffset = g_tile[j].proj.toffset = z; break;
+                    g_tile[j].defproj.toffset = ProjectileData[j].toffset = z; break;
                 case PROJ_TNUM:
-                    g_tile[j].defproj.tnum = g_tile[j].proj.tnum = z; break;
+                    g_tile[j].defproj.tnum = ProjectileData[j].tnum = z; break;
                 case PROJ_DROP:
-                    g_tile[j].defproj.drop = g_tile[j].proj.drop = z; break;
+                    g_tile[j].defproj.drop = ProjectileData[j].drop = z; break;
                 case PROJ_CSTAT:
-                    g_tile[j].defproj.cstat = g_tile[j].proj.cstat = z; break;
+                    g_tile[j].defproj.cstat = ProjectileData[j].cstat = z; break;
                 case PROJ_CLIPDIST:
-                    g_tile[j].defproj.clipdist = g_tile[j].proj.clipdist = z; break;
+                    g_tile[j].defproj.clipdist = ProjectileData[j].clipdist = z; break;
                 case PROJ_SHADE:
-                    g_tile[j].defproj.shade = g_tile[j].proj.shade = z; break;
+                    g_tile[j].defproj.shade = ProjectileData[j].shade = z; break;
                 case PROJ_XREPEAT:
-                    g_tile[j].defproj.xrepeat = g_tile[j].proj.xrepeat = z; break;
+                    g_tile[j].defproj.xrepeat = ProjectileData[j].xrepeat = z; break;
                 case PROJ_YREPEAT: 
-                    g_tile[j].defproj.yrepeat = g_tile[j].proj.yrepeat = z; break;
+                    g_tile[j].defproj.yrepeat = ProjectileData[j].yrepeat = z; break;
                 case PROJ_PAL:
-                    g_tile[j].defproj.pal = g_tile[j].proj.pal = z; break;
+                    g_tile[j].defproj.pal = ProjectileData[j].pal = z; break;
                 case PROJ_EXTRA_RAND:
-                    g_tile[j].defproj.extra_rand = g_tile[j].proj.extra_rand = z; break;
+                    g_tile[j].defproj.extra_rand = ProjectileData[j].extra_rand = z; break;
                 case PROJ_HITRADIUS:
-                    g_tile[j].defproj.hitradius = g_tile[j].proj.hitradius = z; break;
+                    g_tile[j].defproj.hitradius = ProjectileData[j].hitradius = z; break;
                 case PROJ_MOVECNT:
-                    g_tile[j].defproj.movecnt = g_tile[j].proj.movecnt = z; break;
+                    g_tile[j].defproj.movecnt = ProjectileData[j].movecnt = z; break;
                 case PROJ_OFFSET:
-                    g_tile[j].defproj.offset = g_tile[j].proj.offset = z; break;
+                    g_tile[j].defproj.offset = ProjectileData[j].offset = z; break;
                 case PROJ_BOUNCES:
-                    g_tile[j].defproj.bounces = g_tile[j].proj.bounces = z; break;
+                    g_tile[j].defproj.bounces = ProjectileData[j].bounces = z; break;
                 case PROJ_BSOUND:
-                    g_tile[j].defproj.bsound = g_tile[j].proj.bsound = z; break;
+                    g_tile[j].defproj.bsound = ProjectileData[j].bsound = z; break;
                 case PROJ_RANGE:
-                    g_tile[j].defproj.range = g_tile[j].proj.range = z; break;
+                    g_tile[j].defproj.range = ProjectileData[j].range = z; break;
                 default: break;
                 }
 
@@ -5826,8 +5826,8 @@ static void C_InitProjectiles(void)
 
     for (i=MAXTILES-1; i>=0; i--)
     {
-        Bmemcpy(&g_tile[i].proj, &DefaultProjectile, sizeof(projectile_t));
-        Bmemcpy(&g_tile[i].defproj, &g_tile[i].proj, sizeof(projectile_t));
+        Bmemcpy(&ProjectileData[i], &DefaultProjectile, sizeof(projectile_t));
+        Bmemcpy(&g_tile[i].defproj, &DefaultProjectile, sizeof(projectile_t));
     }
 }
 #pragma pack(pop)

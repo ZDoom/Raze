@@ -174,8 +174,7 @@ typedef struct {
 
     int16_t cacherange[2]; // formerly SpriteCache
 
-    // todo: make these pointers and allocate at runtime
-    projectile_t proj;
+    // todo: make this a pointer and allocate at runtime
     projectile_t defproj;
 } tiledata_t;
 
