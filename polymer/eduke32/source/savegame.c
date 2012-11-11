@@ -36,10 +36,11 @@ extern char *bitptr;
 //  back_p==1: "small int" -> ptr
 //
 //  mode: see enum in savegame.h
-void G_Util_PtrToIdx(void *ptr, uint32_t len, const void *base, int32_t mode)
+void G_Util_PtrToIdx(void *ptr, int32_t count, const void *base, int32_t mode)
 {
-    uint32_t i;
-    intptr_t *iptr = ptr, ibase = (intptr_t)base;
+    int32_t i;
+    intptr_t *iptr = ptr;
+    intptr_t ibase = (intptr_t)base;
     int32_t back_p = mode&P2I_BACK_BIT;
     int32_t onlynon0_p = mode&P2I_ONLYNON0_BIT;
 
@@ -47,7 +48,7 @@ void G_Util_PtrToIdx(void *ptr, uint32_t len, const void *base, int32_t mode)
     //       compatibility between 32- and 64-bit systems in the netplay.
     //       REMEMBER to bump BYTEVERSION then.
 
-    for (i=0; i<len; i++)
+    for (i=0; i<count; i++)
         // WARNING: C std doesn't say that bit pattern of NULL is necessarily 0!
         if (!onlynon0_p || iptr[i])
         {
@@ -58,21 +59,16 @@ void G_Util_PtrToIdx(void *ptr, uint32_t len, const void *base, int32_t mode)
         }
 }
 
-void G_Util_PtrToIdx2(void *ptr, uint32_t len, size_t ofs, const void *base, int32_t mode)
+void G_Util_PtrToIdx2(void *ptr, int32_t count, size_t stride, const void *base, int32_t mode)
 {
-    uint32_t i;
-    uint8_t *iptr = (uint8_t *)ptr; 
+    int32_t i;
+    uint8_t *iptr = (uint8_t *)ptr;
     intptr_t ibase = (intptr_t)base;
     int32_t back_p = mode&P2I_BACK_BIT;
     int32_t onlynon0_p = mode&P2I_ONLYNON0_BIT;
 
-    // TODO: convert to proper offsets/indices for (a step towards) cross-
-    //       compatibility between 32- and 64-bit systems in the netplay.
-    //       REMEMBER to bump BYTEVERSION then.
-
-    for (i=0; i<len; i++)
+    for (i=0; i<count; i++)
     {
-        // WARNING: C std doesn't say that bit pattern of NULL is necessarily 0!
         if (!onlynon0_p || *(intptr_t *)iptr)
         {
             if (!back_p)
@@ -81,7 +77,7 @@ void G_Util_PtrToIdx2(void *ptr, uint32_t len, size_t ofs, const void *base, int
                 *(intptr_t *)iptr += ibase;
         }
 
-        iptr += ofs;
+        iptr += stride;
     }
 }
 
