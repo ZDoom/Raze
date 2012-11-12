@@ -981,21 +981,21 @@ void Net_SendVersion(ENetPeer *client)
         return;
     }
 
-    buf[0] = PACKET_VERSION;
-    buf[1] = BYTEVERSION;
+    *(uint16_t *)&buf[0] = PACKET_VERSION;
+    buf[2] = BYTEVERSION;
     // XXX: s_buildDate is outdated and useless; uint8 is not enough :/
-    buf[2] = (uint8_t)atoi(s_buildDate);
-    buf[3] = myconnectindex;
+    buf[3] = (uint8_t)atoi(s_buildDate);
+    buf[4] = myconnectindex;
 
-    enet_peer_send(client, CHAN_GAMESTATE, enet_packet_create(&buf[0], 4, ENET_PACKET_FLAG_RELIABLE));
+    enet_peer_send(client, CHAN_GAMESTATE, enet_packet_create(&buf[0], 5, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void Net_RecieveVersion(uint8_t *pbuf, int32_t packbufleng)
 {
-    if (pbuf[1] != BYTEVERSION || pbuf[2] != (uint8_t)atoi(s_buildDate))
+    if (*(uint16_t *)&pbuf[1] != BYTEVERSION || pbuf[3] != (uint8_t)atoi(s_buildDate))
     {
         initprintf("Server protocol is version %d.%d, expecting %d.%d\n",
-                   pbuf[1], pbuf[2], BYTEVERSION, (uint8_t)atoi(s_buildDate));
+                   *(uint16_t *)&pbuf[1], pbuf[3], BYTEVERSION, (uint8_t)atoi(s_buildDate));
         initprintf("Server version mismatch!  You cannot play Duke with different versions!\n");
         g_netDisconnect = 1;
         return;
