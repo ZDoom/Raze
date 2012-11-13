@@ -974,15 +974,15 @@ void Net_ParsePacketCommon(uint8_t *pbuf, int32_t packbufleng, int32_t serverpac
 ////////////////////////////////////////////////////////////////////////////////
 // Version Packets
 
+// TODO: switch this around so the client sends their version to the server for
+// verification, instead of the other way around like it is now
 void Net_SendVersion(ENetPeer *client)
 {
     if (!g_netServer)
-    {
         return;
-    }
 
-    *(uint16_t *)&buf[0] = PACKET_VERSION;
-    buf[2] = BYTEVERSION;
+    buf[0] = PACKET_VERSION;
+    *(uint16_t *)&buf[1] = BYTEVERSION;
     // XXX: s_buildDate is outdated and useless; uint8 is not enough :/
     buf[3] = (uint8_t)atoi(s_buildDate);
     buf[4] = myconnectindex;
