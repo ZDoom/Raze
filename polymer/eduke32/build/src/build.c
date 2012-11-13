@@ -5216,7 +5216,7 @@ end_autoredwall:
 
             dragwall[0] = dragwall[1] = -1;
 
-            // attemt to delete some points
+            // attempt to delete some points
             for (runi=0; runi<3; runi++)  // check, tweak, carry out
                 for (i=numwalls-1; i>=0; i--)
                 {
@@ -6884,9 +6884,14 @@ check_next_sector: ;
                     int16_t danumwalls, splitendwall, doSectorSplit;
                     int16_t secondstartwall=-1;  // used only with splitting
                     int32_t expectedNumwalls = numwalls+2*(newnumwalls-numwalls-1), loopnum;
-
+                    int32_t firstwallflag;
+#ifdef YAX_ENABLE
+                    int16_t cb, fb;
+#endif
                     startwall = sector[ovh.splitsect].wallptr;
                     endwall = startwall + sector[ovh.splitsect].wallnum - 1;
+
+                    firstwallflag = (startwall==ovh.splitstartwall || startwall==lastwall(ovh.splitstartwall));
 
 //                    OSD_Printf("numwalls: %d, newnumwalls: %d\n", numwalls, newnumwalls);
                     i = -1;
@@ -6912,18 +6917,14 @@ check_next_sector: ;
                         goto end_space_handling;
                     }
 #ifdef YAX_ENABLE
+                    yax_getbunches(ovh.splitsect, &cb, &fb);
+
+                    if ((cb>=0 && (sector[ovh.splitsect].ceilingstat&2))
+                        || (fb>=0 && (sector[ovh.splitsect].floorstat&2)))
                     {
-                        int16_t cb, fb;
-
-                        yax_getbunches(ovh.splitsect, &cb, &fb);
-
-                        if ((cb>=0 && (sector[ovh.splitsect].ceilingstat&2))
-                                || (fb>=0 && (sector[ovh.splitsect].floorstat&2)))
-                        {
-                            printmessage16("Sloped extended sectors cannot be split.");
-                            newnumwalls--;
-                            goto end_space_handling;
-                        }
+                        printmessage16("Sloped extended sectors cannot be split.");
+                        newnumwalls--;
+                        goto end_space_handling;
                     }
 #endif
                     ////////// common code for splitting/loop joining //////////
@@ -7105,6 +7106,20 @@ check_next_sector: ;
 
                     if (numwalls==expectedNumwalls)
                     {
+                        if (doSectorSplit && cb<0 && fb<0)
+                        {
+                            if (firstwallflag)
+                            {
+                                int32_t rhsnew1stwall = sector[numsectors-2].wallptr;
+                                int32_t lhsotherwall = wall[rhsnew1stwall].nextwall;
+
+                                Bassert(lhsotherwall >= 0);
+
+                                setfirstwall(numsectors-2, lastwall(rhsnew1stwall));
+                                setfirstwall(numsectors-1, wall[lhsotherwall].point2);
+                            }
+                        }
+
                         message("%s", doSectorSplit ? "Sector split." : "Loops joined.");
                     }
                     else
