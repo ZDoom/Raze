@@ -684,15 +684,17 @@ static void M_DisplaySaveGameList(void)
     {
         if (ud.savegame[x][0])
         {
-            minitext(c,48+(12*x),ud.savegame[x],2,10+16);
-        }
-        else if (ud.savegame[x][20]==32 && g_currentMenu!=360+x)
-        {
-            // old version and not entering new name
-            char buf[22];
-            Bmemcpy(buf, ud.savegame[x], 22);
-            buf[0] = '?';
-            minitext(c,48+(12*x),buf,13,10+16);
+            if (g_oldverSavegame[x] && g_currentMenu!=360+x)
+            {
+                // old version and not entering new name
+                char buf[sizeof(ud.savegame[0])];
+                Bmemcpy(buf, ud.savegame[x], sizeof(ud.savegame[0]));
+                minitext(c,48+(12*x),buf,13,10+16);
+            }
+            else
+            {
+                minitext(c,48+(12*x),ud.savegame[x],2,10+16);
+            }
         }
     }
 }
@@ -723,7 +725,7 @@ static void Menus_LoadSave_DisplayCommon1(void)
 
     rotatesprite_fs(101<<16,97<<16,65536L>>1,512,TILE_LOADSHOT,-32,0,4+10+64);
 
-    if (ud.savegame[probey][20] == 32)
+    if (g_oldverSavegame[probey])
     {
         menutext(53,70,0,0,"Version");
         menutext(48,90,0,0,"Mismatch");
@@ -4930,7 +4932,7 @@ cheat_for_port_credits2:
         if (g_currentMenu == MENU_LOAD)
         {
             // load game
-            if (ud.savegame[probey][0] || ud.savegame[probey][20]==32) // ...[20]==32: old version
+            if (ud.savegame[probey][0])
             {
                 Menus_LoadSave_DisplayCommon1();
 
@@ -4950,7 +4952,7 @@ cheat_for_port_credits2:
         else
         {
             // save game
-            if (ud.savegame[probey][0] || ud.savegame[probey][20]==32) // ...[20]==32: old version
+            if (ud.savegame[probey][0])
             {
                 Menus_LoadSave_DisplayCommon1();
             }
@@ -4999,7 +5001,7 @@ cheat_for_port_credits2:
         case 9:
             if (g_currentMenu == MENU_LOAD)
             {
-                if (ud.savegame[x][0])
+                if (ud.savegame[x][0] && !g_oldverSavegame[x])
                     M_ChangeMenu(1000+x);
             }
             else

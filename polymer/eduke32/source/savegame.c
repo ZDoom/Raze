@@ -29,6 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern char *bitptr;
 
+uint8_t g_oldverSavegame[10];
+
 #define BITPTR_POINTER 1
 
 // For storing pointers in files.
@@ -150,16 +152,9 @@ void ReadSaveGameHeaders(void)
         k = sv_loadheader(fil, i, &h);
         if (k)
         {
+            // old version, signal to menu code
             if (k==2 || k==3)
-            {
-                // old version, signal to menu code (which should be rewritten
-                // more cleanly)
-
-                h.savename[0] = 0;
-
-                h.savename[20] = 32;
-                h.savename[21] = 0;
-            }
+                g_oldverSavegame[i] = 1;
             // else h.savename is all zeros (fatal failure, like wrong header
             // magic or too short header)
         }
@@ -1236,6 +1231,8 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
         }
     }
 
+    g_oldverSavegame[spot] = 0;
+
     return 0;
 }
 
@@ -1808,18 +1805,12 @@ static void postloadplayer(int32_t savegamep)
     //3.5
     if (savegamep)
     {
-        int32_t i = headspritestat[STAT_FX];
-
-        while (i >= 0)
-        {
+        for (SPRITES_OF(STAT_FX, i))
             if (sprite[i].picnum == MUSICANDSFX)
             {
                 T2 = ud.config.SoundToggle;
                 T1 = 0;
             }
-
-            i = nextspritestat[i];
-        }
 
         G_UpdateScreenArea();
         FX_SetReverb(0);
