@@ -603,7 +603,7 @@ int32_t CONFIG_ReadSetup(void)
 // #ifdef _WIN32
         if (g_noSetup == 0 && g_modDir[0] == '/')
         {
-            struct stat st;
+            struct Bstat st;
             SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
 
             if (Bstat(g_modDir, &st))
@@ -792,7 +792,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth",ud.config.ScreenWidth,FALSE,FALSE);  // JBF 20031206
 
 
-    SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr[0]);
+    SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",g_grpNamePtr);
 
     // XXX: should be "if compiled without startup GUI"
 #if !defined __linux || defined HAVE_GTK2

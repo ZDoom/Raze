@@ -41,7 +41,7 @@ uint8_t g_oldverSavegame[10];
 void G_Util_PtrToIdx(void *ptr, int32_t count, const void *base, int32_t mode)
 {
     int32_t i;
-    intptr_t *iptr = ptr;
+    intptr_t *iptr = (intptr_t *)ptr;
     intptr_t ibase = (intptr_t)base;
     int32_t back_p = mode&P2I_BACK_BIT;
     int32_t onlynon0_p = mode&P2I_ONLYNON0_BIT;
@@ -485,7 +485,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
 
         if (sp->flags&DS_STRING)
         {
-            fwrite(sp->ptr, Bstrlen(sp->ptr), 1, fil);  // not null-terminated!
+            fwrite(sp->ptr, Bstrlen((const char *)sp->ptr), 1, fil);  // not null-terminated!
             continue;
         }
 
@@ -537,7 +537,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
         if (sp->flags&(DS_STRING|DS_CMP))  // DS_STRING and DS_CMP is for static data only
         {
             if (sp->flags&(DS_STRING))
-                i = Bstrlen(sp->ptr);
+                i = Bstrlen((const char *)sp->ptr);
             else
                 i = sp->size*sp->cnt;
 
@@ -559,7 +559,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
 
         if (fil>=0)
         {
-            mem = (dump && (sp->flags&DS_NOCHK)==0) ? dump : ptr;
+            mem = (dump && (sp->flags&DS_NOCHK)==0) ? dump : (uint8_t *)ptr;
 
             if ((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=savegame_comprthres)
             {
@@ -627,7 +627,7 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
         {                                     \
             if (*p!=*op)                      \
             {                                 \
-                *op = *p;                     \
+                *op = *p;      \
                 VAL(Idxbits, retdiff) = i;    \
                 retdiff += BYTES(Idxbits);    \
                 VAL(Datbits, retdiff) = *p;   \
@@ -642,15 +642,15 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
 
 #define CPDATA(Datbits) do \
     { \
-        const UINT(Datbits) *p=ptr;  \
-        UINT(Datbits) *op=dump;      \
-        uint32_t i, nelts=(size*cnt)/BYTES(Datbits); \
-        if (nelts>65536)          \
-            CPELTS(32,Datbits);   \
-        else if (nelts>256)       \
-            CPELTS(16,Datbits);   \
-        else                      \
-            CPELTS(8,Datbits);    \
+        const UINT(Datbits) *p=(UINT(Datbits) *)ptr;    \
+        UINT(Datbits) *op=(UINT(Datbits) *)dump;        \
+        uint32_t i, nelts=(size*cnt)/BYTES(Datbits);    \
+        if (nelts>65536)                                \
+            CPELTS(32,Datbits);                         \
+        else if (nelts>256)                             \
+            CPELTS(16,Datbits);                         \
+        else                                            \
+            CPELTS(8,Datbits);                          \
     } while (0)
 
     if (size==8)
@@ -685,7 +685,7 @@ static void cmpspecdata(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **dif
     void *ptr;
     uint8_t *dump=*dumpvar, *diff=*diffvar, *tmptr;
     const dataspec_t *sp=spec;
-    int32_t cnt, eltnum=0, nbytes=(getnumvar(spec)+7)>>3, l=Bstrlen(spec->ptr);
+    int32_t cnt, eltnum=0, nbytes=(getnumvar(spec)+7)>>3, l=Bstrlen((const char *)spec->ptr);
 
     Bmemcpy(diff, spec->ptr, l);
     diff+=l;
@@ -728,7 +728,7 @@ static int32_t applydiff(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **di
 {
     uint8_t *dumptr=*dumpvar, *diffptr=*diffvar;
     const dataspec_t *sp=spec;
-    int32_t cnt, eltnum=-1, nbytes=(getnumvar(spec)+7)>>3, l=Bstrlen(spec->ptr);
+    int32_t cnt, eltnum=-1, nbytes=(getnumvar(spec)+7)>>3, l=Bstrlen((const char *)spec->ptr);
 
     if (Bmemcmp(diffptr, spec->ptr, l))  // check STRING magic (sync check)
         return 1;
@@ -882,7 +882,7 @@ static uint8_t savegame_restdata[SVARDATALEN];
 
 static const dataspec_t svgm_udnetw[] =
 {
-    { DS_STRING, "blK:udnt", 0, 1 },
+    { DS_STRING, (void *)"blK:udnt", 0, 1 },
     { 0, &ud.multimode, sizeof(ud.multimode), 1 },
     { 0, &g_numPlayerSprites, sizeof(g_numPlayerSprites), 1 },
     { 0, &g_playerSpawnPoints, sizeof(g_playerSpawnPoints), 1 },
@@ -925,7 +925,7 @@ static const dataspec_t svgm_udnetw[] =
 
 static const dataspec_t svgm_secwsp[] =
 {
-    { DS_STRING, "blK:swsp", 0, 1 },
+    { DS_STRING, (void *)"blK:swsp", 0, 1 },
     { DS_NOCHK, &numwalls, sizeof(numwalls), 1 },
     { DS_MAINAR|DS_CNT(numwalls), &wall, sizeof(walltype), (intptr_t)&numwalls },
     { DS_NOCHK, &numsectors, sizeof(numsectors), 1 },
@@ -969,7 +969,7 @@ static const dataspec_t svgm_secwsp[] =
 
 static const dataspec_t svgm_script[] =
 {
-    { DS_STRING, "blK:scri", 0, 1 },
+    { DS_STRING, (void *)"blK:scri", 0, 1 },
     { DS_NOCHK, &g_scriptSize, sizeof(g_scriptSize), 1 },
     { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_calcbitptrsize, 0, 1 },
     { DS_DYNAMIC|DS_CNT(savegame_bitptrsize)|DS_NOCHK, &bitptr, sizeof(bitptr[0]), (intptr_t)&savegame_bitptrsize },
@@ -990,7 +990,7 @@ static const dataspec_t svgm_script[] =
 
 static const dataspec_t svgm_anmisc[] =
 {
-    { DS_STRING, "blK:anms", 0, 1 },
+    { DS_STRING, (void *)"blK:anms", 0, 1 },
     { 0, &g_animateCount, sizeof(g_animateCount), 1 },
     { 0, &animatesect[0], sizeof(animatesect[0]), MAXANIMATES },
     { 0, &animategoal[0], sizeof(animategoal[0]), MAXANIMATES },
@@ -1031,7 +1031,7 @@ static const dataspec_t svgm_anmisc[] =
     { 0, savegame_restdata, 1, sizeof(savegame_restdata) },  // sz/cnt swapped for kdfread
     { DS_LOADFN, (void *)&sv_restload, 0, 1 },
 
-    { DS_STRING, "savegame_end", 0, 1 },
+    { DS_STRING, (void *)"savegame_end", 0, 1 },
     { DS_END, 0, 0, 0 }
 };
 
@@ -1062,7 +1062,7 @@ static void sv_makevarspec()
     for (i=0; i<g_gameVarCount; i++)
         numsavedvars += (aGameVars[i].dwFlags&SV_SKIPMASK) ? 0 : 1;
 
-    svgm_vars = Bmalloc((numsavedvars+g_gameArrayCount+2)*sizeof(dataspec_t));
+    svgm_vars = (dataspec_t *)Bmalloc((numsavedvars+g_gameArrayCount+2)*sizeof(dataspec_t));
 
     svgm_vars[0].flags = DS_STRING;
     svgm_vars[0].ptr = magic;
@@ -1111,11 +1111,11 @@ static int32_t doallocsnap(int32_t allocinit)
 {
     sv_freemem();
 
-    svsnapshot = Bmalloc(svsnapsiz);
+    svsnapshot = (uint8_t *)Bmalloc(svsnapsiz);
     if (allocinit)
-        svinitsnap = Bmalloc(svsnapsiz);
+        svinitsnap = (uint8_t *)Bmalloc(svsnapsiz);
     svdiffsiz = svsnapsiz;  // theoretically it's less than could be needed in the worst case, but practically it's overkill
-    svdiff = Bmalloc(svdiffsiz);
+    svdiff = (uint8_t *)Bmalloc(svdiffsiz);
     if (svsnapshot==NULL || (allocinit && svinitsnap==NULL) || svdiff==NULL)
     {
         sv_freemem();
@@ -1499,7 +1499,7 @@ static void sv_prescriptload_once()
 {
     if (script)
         Bfree(script);
-    script = Bmalloc(g_scriptSize * sizeof(script[0]));
+    script = (intptr_t *)Bmalloc(g_scriptSize * sizeof(script[0]));
 }
 static void sv_postscript_once()
 {
@@ -1551,7 +1551,7 @@ static void sv_postanimateptr()
 static void sv_prequote()
 {
     if (!savegame_quotes)
-        savegame_quotes = Bcalloc(MAXQUOTES, MAXQUOTELEN);
+        savegame_quotes = (char (*)[MAXQUOTELEN])Bcalloc(MAXQUOTES, MAXQUOTELEN);
 }
 static void sv_quotesave()
 {
@@ -1572,7 +1572,7 @@ static void sv_quoteload()
         if (savegame_quotedef[i>>3]&(1<<(i&7)))
         {
             if (!ScriptQuotes[i])
-                ScriptQuotes[i] = Bcalloc(1, MAXQUOTELEN);
+                ScriptQuotes[i] = (char *)Bcalloc(1, MAXQUOTELEN);
             Bmemcpy(ScriptQuotes[i], savegame_quotes[i], MAXQUOTELEN);
         }
     }
@@ -1580,7 +1580,7 @@ static void sv_quoteload()
 static void sv_prequoteredef()
 {
     // "+1" needed for dfwrite which doesn't handle the src==NULL && cnt==0 case
-    savegame_quoteredefs = Bcalloc(g_numQuoteRedefinitions+1, MAXQUOTELEN);
+    savegame_quoteredefs = (char (*)[MAXQUOTELEN])Bcalloc(g_numQuoteRedefinitions+1, MAXQUOTELEN);
 }
 static void sv_quoteredefsave()
 {
@@ -1595,7 +1595,7 @@ static void sv_quoteredefload()
     for (i=0; i<g_numQuoteRedefinitions; i++)
     {
         if (!ScriptQuoteRedefinitions[i])
-            ScriptQuoteRedefinitions[i] = Bcalloc(1,MAXQUOTELEN);
+            ScriptQuoteRedefinitions[i] = (char *)Bcalloc(1,MAXQUOTELEN);
         Bmemcpy(ScriptQuoteRedefinitions[i], savegame_quoteredefs[i], MAXQUOTELEN);
     }
 }

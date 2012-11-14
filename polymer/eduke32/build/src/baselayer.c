@@ -383,10 +383,16 @@ int32_t baselayer_init(void)
 # include <sys/mman.h>
 #endif
 
+#if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
+extern "C" {
+extern int32_t dep_begin, dep_end;
+};
+#endif
+
 void makeasmwriteable(void)
 {
 #if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
-    extern int32_t dep_begin, dep_end;
+//    extern int32_t dep_begin, dep_end;
 # if defined _WIN32
     DWORD oldprot;
     if (!VirtualProtect((LPVOID)&dep_begin, (SIZE_T)&dep_end - (SIZE_T)&dep_begin, PAGE_EXECUTE_READWRITE, &oldprot))

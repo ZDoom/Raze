@@ -103,7 +103,7 @@ void yax_updategrays(int32_t posze);
 
 #ifdef YAX_ENABLE
 // more user tag hijacking: lotag/extra :/
-# define YAX_PTRNEXTWALL(Ptr, Wall, Cf) (*(&Ptr[Wall].lotag + 2*Cf))
+# define YAX_PTRNEXTWALL(Ptr, Wall, Cf) (*(int16_t *)(&Ptr[Wall].lotag + 2*Cf))
 # define YAX_NEXTWALL(Wall, Cf) YAX_PTRNEXTWALL(wall, Wall, Cf)
 # define YAX_NEXTWALLDEFAULT(Cf) (((Cf)==YAX_CEILING) ? 0 : -1)
 
@@ -228,7 +228,7 @@ typedef struct
 {
     Tracker(Sector, int16_t) wallptr, wallnum;
     Tracker(Sector, int32_t) ceilingz, floorz;
-    Tracker(Sector, int16_t) ceilingstat, floorstat;
+    Tracker(Sector, uint16_t) ceilingstat, floorstat;
     Tracker(Sector, int16_t) ceilingpicnum, ceilingheinum;
     Tracker(Sector, int8_t) ceilingshade;
     Tracker(Sector, uint8_t) ceilingpal, ceilingxpanning, ceilingypanning;
@@ -236,7 +236,8 @@ typedef struct
     Tracker(Sector, int8_t) floorshade;
     Tracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
     Tracker(Sector, uint8_t) visibility, filler;
-    Tracker(Sector, int16_t) lotag, hitag, extra;
+    Tracker(Sector, uint16_t) lotag, hitag;
+    Tracker(Sector, int16_t) extra;
 } sectortype;
 
 //cstat:
@@ -257,11 +258,13 @@ typedef struct
 typedef struct
 {
     Tracker(Wall, int32_t) x, y;
-    Tracker(Wall, int16_t) point2, nextwall, nextsector, cstat;
+    Tracker(Wall, int16_t) point2, nextwall, nextsector;
+    Tracker(Wall, uint16_t) cstat;
     Tracker(Wall, int16_t) picnum, overpicnum;
     Tracker(Wall, int8_t) shade;
     Tracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
-    Tracker(Wall, int16_t) lotag, hitag, extra;
+    Tracker(Wall, uint16_t) lotag, hitag;
+    Tracker(Wall, int16_t) extra;
 } walltype;
 
 //cstat:
@@ -287,14 +290,16 @@ typedef struct
 typedef struct
 {
     Tracker(Sprite, int32_t) x, y, z;
-    Tracker(Sprite, int16_t) cstat, picnum;
+    Tracker(Sprite, uint16_t) cstat;
+    Tracker(Sprite, int16_t) picnum;
     Tracker(Sprite, int8_t) shade;
     Tracker(Sprite, uint8_t) pal, clipdist, filler;
     Tracker(Sprite, uint8_t) xrepeat, yrepeat;
     Tracker(Sprite, int8_t) xoffset, yoffset;
     Tracker(Sprite, int16_t) sectnum, statnum;
     Tracker(Sprite, int16_t) ang, owner, xvel, yvel, zvel;
-    Tracker(Sprite, int16_t) lotag, hitag, extra;
+    Tracker(Sprite, uint16_t) lotag, hitag;
+    Tracker(Sprite, int16_t) extra;
 } spritetype;
 
 typedef struct {
@@ -407,7 +412,13 @@ EXTERN spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t xdim, ydim, numpages;
 EXTERN int32_t yxaspect, viewingrange;
+#ifdef __cplusplus
+extern "C" {
+#endif
 EXTERN intptr_t ylookup[MAXYDIM+1];
+#ifdef __cplusplus
+};
+#endif
 
 #define MAXVALIDMODES 256
 EXTERN int32_t validmodecnt;
@@ -469,8 +480,14 @@ EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 EXTERN int16_t tilesizx[MAXTILES], tilesizy[MAXTILES];
 EXTERN char picsiz[MAXTILES];
 EXTERN char walock[MAXTILES];
+#ifdef __cplusplus
+extern "C" {
+#endif
 EXTERN char pow2char[8];
 EXTERN int32_t pow2long[32];
+#ifdef __cplusplus
+};
+#endif
 EXTERN int32_t picanm[MAXTILES];
 EXTERN intptr_t waloff[MAXTILES];  // stores pointers to cache  -- SA
 

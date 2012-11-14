@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <math.h>  // sqrt
 
+#include "compat.h"
+
 #include "duke3d.h"
 #include "gamedef.h"
 #include "gameexec.h"
@@ -87,7 +89,7 @@ void VM_ScriptInfo(void)
     }
 
     if (vm.g_i)
-        initprintf("current actor: %d (%d)\n",vm.g_i,vm.g_sp->picnum);
+        initprintf_nowarn("current actor: %d (%d)\n",vm.g_i,vm.g_sp->picnum);
 
     initprintf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);
 }
@@ -442,7 +444,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
 
     {
         vm.g_t[1] = 0;
-        OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, vm.g_sp->picnum);
+        OSD_Printf_nowarn(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, vm.g_sp->picnum);
         return;
     }
 
@@ -591,7 +593,7 @@ dead:
     if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize-1)
     {
         vm.g_t[1] = 0;
-        OSD_Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, vm.g_sp->picnum);
+        OSD_Printf_nowarn(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, vm.g_sp->picnum);
         return;
     }
 
@@ -3306,7 +3308,7 @@ nullquote:
 
         case CON_SAVEMAPSTATE:
             if (MapInfo[ud.volume_number *MAXLEVELS+ud.level_number].savedstate == NULL)
-                MapInfo[ud.volume_number *MAXLEVELS+ud.level_number].savedstate = Bcalloc(1,sizeof(mapstate_t));
+                MapInfo[ud.volume_number *MAXLEVELS+ud.level_number].savedstate = (mapstate_t *)Bcalloc(1,sizeof(mapstate_t));
             G_SaveMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
             insptr++;
             continue;
@@ -4165,7 +4167,8 @@ nullquote:
 
                 if (j<0 || j >= g_gameArrayCount || index >= aGameArrays[j].size || index < 0)
                 {
-                    OSD_Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",j,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
+                    OSD_Printf_nowarn(OSD_ERROR "Gv_SetVar(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",
+                        j,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
                     continue;
                 }
                 aGameArrays[j].plValues[index]=value;
@@ -4199,7 +4202,7 @@ nullquote:
                         {
                             /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
                                 aGameArrays[j].szLabel, aGameArrays[j].size, asize / GAR_ELTSZ);*/
-                            aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, asize);
+                            aGameArrays[j].plValues = (intptr_t *)Brealloc(aGameArrays[j].plValues, asize);
                             aGameArrays[j].size = asize / GAR_ELTSZ;
                             kread(fil, aGameArrays[j].plValues, asize);
                         }
@@ -4250,7 +4253,7 @@ nullquote:
                 if (asize > 0)
                 {
                     /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);*/
-                    aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, GAR_ELTSZ * asize);
+                    aGameArrays[j].plValues = (intptr_t *)Brealloc(aGameArrays[j].plValues, GAR_ELTSZ * asize);
                     aGameArrays[j].size = asize;
                 }
                 continue;
@@ -4978,7 +4981,8 @@ nullquote:
                 if (vm.g_sp->yvel) G_OperateRespawns(vm.g_sp->yvel);
                 break;
             default:
-                if (vm.g_sp->hitag >= 0) G_OperateRespawns(vm.g_sp->hitag);
+//                if (vm.g_sp->hitag >= 0)
+                    G_OperateRespawns(vm.g_sp->hitag);
                 break;
             }
             continue;
@@ -5309,13 +5313,13 @@ void G_SaveMapState(mapstate_t *save)
             if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
             {
                 if (!save->vars[i])
-                    save->vars[i] = Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+                    save->vars[i] = (intptr_t *)Bcalloc(MAXPLAYERS,sizeof(intptr_t));
                 Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXPLAYERS);
             }
             else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
             {
                 if (!save->vars[i])
-                    save->vars[i] = Bcalloc(MAXSPRITES,sizeof(intptr_t));
+                    save->vars[i] = (intptr_t *)Bcalloc(MAXSPRITES,sizeof(intptr_t));
                 Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXSPRITES);
             }
             else save->vars[i] = (intptr_t *)aGameVars[i].val.lValue;

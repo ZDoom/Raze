@@ -23,7 +23,7 @@
 
 void ClearBuffer_DW( void *ptr, unsigned data, int32_t length )
 {
-    unsigned *ptrdw = ptr;
+    unsigned *ptrdw = (unsigned *)ptr;
     while (length--) {
         *(ptrdw++) = data;
     }

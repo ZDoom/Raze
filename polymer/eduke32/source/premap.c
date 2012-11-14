@@ -88,8 +88,8 @@ static void G_CacheSpriteNum(int32_t i)
 
     maxc = 1;
 
-    if (A_CheckSpriteTileFlags(PN, SPRITE_CACHE) && g_tile[PN].cacherange[1])
-        for (j = g_tile[PN].cacherange[0]; j <= g_tile[PN].cacherange[1]; j++)
+    if (g_tile[PN].cacherange >= PN)
+        for (j = PN; j <= g_tile[PN].cacherange; j++)
             tloadtile(j,1);
 
     switch (DYNAMICTILEMAP(PN))
@@ -227,8 +227,8 @@ static void G_PrecacheSprites(void)
         if (g_tile[i].flags & SPRITE_PROJECTILE)
             tloadtile(i,1);
 
-        if (A_CheckSpriteTileFlags(i, SPRITE_CACHE) && g_tile[i].cacherange[1])
-            for (j = g_tile[i].cacherange[0]; j <= g_tile[i].cacherange[1]; j++)
+        if (A_CheckSpriteTileFlags(i, SPRITE_CACHE))
+            for (j = i; j <= g_tile[i].cacherange; j++)
                 tloadtile(j,1);
     }
     tloadtile(BOTTOMSTATUSBAR,1);
@@ -1139,7 +1139,7 @@ static inline void prelevel(char g)
             continue;
         }
 
-        if (sector[i].lotag == -1)
+        if (sector[i].lotag == UINT16_MAX)
         {
             g_player[0].ps->exitx = wall[sector[i].wallptr].x;
             g_player[0].ps->exity = wall[sector[i].wallptr].y;
@@ -1154,7 +1154,7 @@ static inline void prelevel(char g)
         A_ResetVars(i);
         A_LoadActor(i);
         VM_OnEvent(EVENT_LOADACTOR, i, -1, -1, 0);
-        if (sprite[i].lotag == -1 && (sprite[i].cstat&16))
+        if (sprite[i].lotag == UINT16_MAX && (sprite[i].cstat&16))
         {
             g_player[0].ps->exitx = SX;
             g_player[0].ps->exity = SY;
@@ -1799,7 +1799,7 @@ static void realloc_and_copy_musicfn(int32_t level_number, const char *levnamebu
     char **musicfn = altp ? &MapInfo[level_number].alt_musicfn : &MapInfo[level_number].musicfn;
     int32_t dastrlen = Bstrlen(levnamebuf);
 
-    *musicfn = Brealloc(*musicfn, dastrlen+1);
+    *musicfn = (char *)Brealloc(*musicfn, dastrlen+1);
     Bstrcpy(*musicfn, levnamebuf);
 }
 
@@ -1902,7 +1902,7 @@ int32_t G_EnterLevel(int32_t g)
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
             if (MapInfo[mii].filename == NULL)
-                MapInfo[mii].filename = Bcalloc(BMAX_PATH, sizeof(uint8_t));
+                MapInfo[mii].filename = (char *)Bcalloc(BMAX_PATH, sizeof(uint8_t));
             if (MapInfo[mii].name == NULL)
                 MapInfo[mii].name = Bstrdup("User Map");
         }

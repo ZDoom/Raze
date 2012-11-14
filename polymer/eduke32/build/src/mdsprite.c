@@ -369,7 +369,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
     ma.fpssc = fpssc;
     ma.flags = flags;
 
-    map = Bmalloc(sizeof(mdanim_t));
+    map = (mdanim_t *)Bmalloc(sizeof(mdanim_t));
     if (!map) return(-4);
     Bmemcpy(map, &ma, sizeof(ma));
 
@@ -721,7 +721,7 @@ static int32_t mdloadskin_cached(int32_t fil, const texcacheheader *head, int32_
             if (!picc) goto failure; else midbuf = picc;
         }
 
-        if (dedxtfilter(fil, &pict, pic, midbuf, packbuf, (head->flags&4)==4)) goto failure;
+        if (dedxtfilter(fil, &pict, (char *)pic, (char *)midbuf, (char *)packbuf, (head->flags&4)==4)) goto failure;
 
         bglCompressedTexImage2DARB(GL_TEXTURE_2D,level,pict.format,pict.xdim,pict.ydim,pict.border,
                                    pict.size,pic);
@@ -1156,7 +1156,7 @@ static void mdloadvbos(md3model_t *m)
 {
     int32_t     i;
 
-    m->vbos = Bmalloc(m->head.numsurfs * sizeof(GLuint));
+    m->vbos = (GLuint *)Bmalloc(m->head.numsurfs * sizeof(GLuint));
     bglGenBuffersARB(m->head.numsurfs, m->vbos);
 
     i = 0;
@@ -1412,9 +1412,9 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
         m3->skinmap = sk;
     }
 
-    m3->indexes = Bmalloc(sizeof(uint16_t) * s->numtris);
-    m3->vindexes = Bmalloc(sizeof(uint16_t) * s->numtris * 3);
-    m3->maxdepths = Bmalloc(sizeof(float) * s->numtris);
+    m3->indexes = (uint16_t *)Bmalloc(sizeof(uint16_t) * s->numtris);
+    m3->vindexes = (uint16_t *)Bmalloc(sizeof(uint16_t) * s->numtris * 3);
+    m3->maxdepths = (float *)Bmalloc(sizeof(float) * s->numtris);
 
     if (!m3->indexes || !m3->vindexes || !m3->maxdepths)
         QuitOnFatalError("OUT OF MEMORY in md2load!");
@@ -1634,9 +1634,9 @@ static md3model_t *md3load(int32_t fil)
     }
 #endif
 
-    m->indexes = Bmalloc(sizeof(uint16_t) * maxtrispersurf);
-    m->vindexes = Bmalloc(sizeof(uint16_t) * maxtrispersurf * 3);
-    m->maxdepths = Bmalloc(sizeof(float) * maxtrispersurf);
+    m->indexes = (uint16_t *)Bmalloc(sizeof(uint16_t) * maxtrispersurf);
+    m->vindexes = (uint16_t *)Bmalloc(sizeof(uint16_t) * maxtrispersurf * 3);
+    m->maxdepths = (float *)Bmalloc(sizeof(float) * maxtrispersurf);
 
     if (!m->indexes || !m->vindexes || !m->maxdepths)
         QuitOnFatalError("OUT OF MEMORY in md3load!");
@@ -1852,9 +1852,9 @@ int      md3postload_polymer(md3model_t *m)
             initprintf("size %d (%d fr, %d v): md %s surf %d/%d\n", i, m->head.numframes, s->numverts,
                        m->head.nam, surfi, m->head.numsurfs);
 #endif
-        s->geometry = Bcalloc(m->head.numframes * s->numverts * sizeof(float), 15);
+        s->geometry = (float *)Bcalloc(m->head.numframes * s->numverts * sizeof(float), 15);
 
-        numtris = Bcalloc(s->numverts, sizeof(int));
+        numtris = (int *)Bcalloc(s->numverts, sizeof(int));
 
         if (!s->geometry || !numtris)
             QuitOnFatalError("OUT OF MEMORY in md3postload_polymer!");
@@ -3468,8 +3468,8 @@ int32_t mddraw(const spritetype *tspr)
 
     if (r_vbos && (r_vbocount > allocvbos))
     {
-        indexvbos = Brealloc(indexvbos, sizeof(GLuint) * r_vbocount);
-        vertvbos = Brealloc(vertvbos, sizeof(GLuint) * r_vbocount);
+        indexvbos = (GLuint *)Brealloc(indexvbos, sizeof(GLuint) * r_vbocount);
+        vertvbos = (GLuint *)Brealloc(vertvbos, sizeof(GLuint) * r_vbocount);
 
         bglGenBuffersARB(r_vbocount - allocvbos, &(indexvbos[allocvbos]));
         bglGenBuffersARB(r_vbocount - allocvbos, &(vertvbos[allocvbos]));

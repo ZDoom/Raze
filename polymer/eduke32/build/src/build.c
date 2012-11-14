@@ -1580,19 +1580,19 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
     }
 
     // allocate temp storage
-    ptrs[np++] = mapinfo->sector = Bmalloc(highlightsectorcnt * sizeof(sectortype));
+    ptrs[np++] = mapinfo->sector = (sectortype *)Bmalloc(highlightsectorcnt * sizeof(sectortype));
     if (!mapinfo->sector) return -2;
 
-    ptrs[np++] = mapinfo->wall = Bmalloc(tmpnumwalls * sizeof(walltype));
+    ptrs[np++] = mapinfo->wall = (walltype *)Bmalloc(tmpnumwalls * sizeof(walltype));
     if (!mapinfo->wall) { free_n_ptrs(ptrs, np-1); return -2; }
 
 #ifdef YAX_ENABLE
     if (mapinfo->numyaxbunches > 0)
     {
-        ptrs[np++] = mapinfo->bunchnum = Bmalloc(highlightsectorcnt*2*sizeof(int16_t));
+        ptrs[np++] = mapinfo->bunchnum = (int16_t *)Bmalloc(highlightsectorcnt*2*sizeof(int16_t));
         if (!mapinfo->bunchnum) { free_n_ptrs(ptrs, np-1); return -2; }
 
-        ptrs[np++] = mapinfo->ynextwall = Bmalloc(tmpnumwalls*2*sizeof(int16_t));
+        ptrs[np++] = mapinfo->ynextwall = (int16_t *)Bmalloc(tmpnumwalls*2*sizeof(int16_t));
         if (!mapinfo->ynextwall) { free_n_ptrs(ptrs, np-1); return -2; }
     }
     else
@@ -1603,7 +1603,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 
     if (tmpnumsprites>0)
     {
-        ptrs[np++] = mapinfo->sprite = Bmalloc(tmpnumsprites * sizeof(spritetype));
+        ptrs[np++] = mapinfo->sprite = (spritetype *)Bmalloc(tmpnumsprites * sizeof(spritetype));
         if (!mapinfo->sprite) { free_n_ptrs(ptrs, np-1); return -2; }
     }
     else
@@ -1640,7 +1640,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
                 {
                     // if a bunch was discarded
                     sectortype *const sec = &mapinfo->sector[i];
-                    int16_t *const cs = j==YAX_CEILING ? &sec->ceilingstat : &sec->floorstat;
+                    uint16_t *const cs = j==YAX_CEILING ? &sec->ceilingstat : &sec->floorstat;
                     uint8_t *const xp = j==YAX_CEILING ? &sec->ceilingxpanning : &sec->floorxpanning;
 
                     *cs &= ~YAX_BIT;
@@ -2181,7 +2181,7 @@ void fade_editor_screen(int32_t keepcol)
 {
     char blackcol=0, greycol=whitecol-25, *cp;
     int32_t pix, i, threecols = (keepcol >= 256);
-    char cols[3] = {keepcol&0xff, (keepcol>>8)&0xff, (keepcol>>16)&0xff};
+    char cols[3] = {(char)(keepcol&0xff), (char)((keepcol>>8)&0xff), (char)((keepcol>>16)&0xff)};
 
     begindrawing();
     cp = (char *)frameplace;
@@ -2445,7 +2445,7 @@ static int32_t backup_drawn_walls(int32_t restore)
             if (newnumwalls <= numwalls)  // shouldn't happen
                 return 2;
 
-            tmpwall = Bmalloc((newnumwalls-numwalls) * sizeof(walltype));
+            tmpwall = (walltype *)Bmalloc((newnumwalls-numwalls) * sizeof(walltype));
             if (!tmpwall)
                 return 1;
 
@@ -2732,7 +2732,7 @@ static int32_t bakframe_fillandfade(char **origframeptr, int32_t sectnum, const 
 {
     if (!*origframeptr)
     {
-        *origframeptr = Bmalloc(xdim*ydim);
+        *origframeptr = (char *)Bmalloc(xdim*ydim);
         if (*origframeptr)
         {
             begindrawing();
@@ -4221,7 +4221,7 @@ rotate_hlsect_out:
                     //   ^           |
                     // minfloorz  ---|
 
-                    ulz[0] = oldfz - swsecheight*((double)(oldfz-maxceilz)/(minfloorz-maxceilz));
+                    ulz[0] = (int32_t)(oldfz - swsecheight*((double)(oldfz-maxceilz)/(minfloorz-maxceilz)));
                     ulz[0] &= ~255;
                     ulz[1] = ulz[0] + swsecheight;
 
@@ -4969,8 +4969,8 @@ end_yax: ;
                                     sector[refsect].wallnum += n;
                                     if (refsect != numsectors-1)
                                     {
-                                        walltype *tmpwall = Bmalloc(n * sizeof(walltype));
-                                        int16_t *tmponw = Bmalloc(n * sizeof(int16_t));
+                                        walltype *tmpwall = (walltype *)Bmalloc(n * sizeof(walltype));
+                                        int16_t *tmponw = (int16_t *)Bmalloc(n * sizeof(int16_t));
 
                                         if (!tmpwall || !tmponw)
                                         {
@@ -5836,9 +5836,9 @@ end_point_dragging:
 
                         if (!delayerr)
                             message("Outer wall coordinates must coincide for both components");
-                        OSD_Printf("wal0:%d (%d,%d)--(%d,%d)\n",(int)(wal0-wall),
+                        OSD_Printf_nowarn("wal0:%d (%d,%d)--(%d,%d)\n",(int)(wal0-wall),
                                    wal0->x,wal0->y, wal0p2->x,wal0p2->y);
-                        OSD_Printf("wal1:%d (%d,%d)--(%d,%d)\n",(int)(wal1-wall),
+                        OSD_Printf_nowarn("wal1:%d (%d,%d)--(%d,%d)\n",(int)(wal1-wall),
                                    wal1->x,wal1->y, wal1p2->x,wal1p2->y);
 
                         goto end_join_sectors;
@@ -8572,7 +8572,7 @@ int32_t fixspritesectors(void)
                                 initprintf("--------------------\n");
                                 printfirsttime = 1;
                             }
-                            initprintf("Changed sectnum of sprite %d from %d to %d\n", i, sprite[i].sectnum, j);
+                            initprintf_nowarn("Changed sectnum of sprite %d from %d to %d\n", i, sprite[i].sectnum, j);
                             changespritesect(i, j);
                         }
                         break;
@@ -10021,9 +10021,10 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
     printext16(264, ydim-STATUS2DSIZ+128, v8?editorcolors[10]:whitecol, -1, snotbuf,0);
 }
 
-#define DOPRINT(Yofs, fmt, ...) \
-    Bsprintf(snotbuf, fmt, ## __VA_ARGS__); \
-    printext16(8+col*200, ydim/*-(row*96)*/-STATUS2DSIZ+Yofs, color, -1, snotbuf, 0);
+#define DOPRINT(Yofs, fmt, ...) do { \
+    Bsprintf_nowarn(snotbuf, fmt, ## __VA_ARGS__); \
+    printext16(8+col*200, ydim/*-(row*96)*/-STATUS2DSIZ+Yofs, color, -1, snotbuf, 0); \
+    } while (0)
 
 void showsectordata(int16_t sectnum, int16_t small)
 {
@@ -10547,9 +10548,9 @@ void test_map(int32_t mode)
         else
         {
 #ifdef _WIN32
-            fullparam = Bstrrchr(mapster32_fullpath, '\\');
+            fullparam = (char *)Bstrrchr(mapster32_fullpath, '\\');
 #else
-            fullparam = Bstrrchr(mapster32_fullpath, '/');
+            fullparam = (char *)Bstrrchr(mapster32_fullpath, '/');
 #endif
             if (fullparam)
             {
@@ -10572,7 +10573,7 @@ void test_map(int32_t mode)
         // and a possible extra space not in testplay_addparam,
         // the length should be Bstrlen(game_executable)+Bstrlen(param)+(slen+1)+2+1.
 
-        fullparam = Bmalloc(Bstrlen(game_executable)+Bstrlen(param)+slen+4);
+        fullparam = (char *)Bmalloc(Bstrlen(game_executable)+Bstrlen(param)+slen+4);
         Bsprintf(fullparam,"\"%s\"",game_executable);
 
         if (testplay_addparam)

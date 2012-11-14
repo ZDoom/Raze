@@ -1183,7 +1183,7 @@ skip_check:
                 int32_t o_g_st=vm.g_st, arsize = aGameArrays[aridx].size;
                 instype *end=insptr;
                 int32_t sectcnt, numsects=0;
-                int16_t *sectlist = aGameArrays[aridx].vals;  // actually an int32_t array
+                int16_t *sectlist = (int16_t *)aGameArrays[aridx].vals;  // actually an int32_t array
                 int32_t *sectlist32 = (int32_t *)sectlist;
                 int32_t j, startwall, endwall, ns;
                 static uint8_t sectbitmap[MAXSECTORS>>3];

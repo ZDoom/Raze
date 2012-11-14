@@ -3031,7 +3031,7 @@ void P_CheckSectors(int32_t snum)
             P_DoQuote(QUOTE_FOUND_SECRET,p);
             p->secret_rooms++;
             return;
-        case -1:
+        case UINT16_MAX:
             for (TRAVERSE_CONNECT(i))
                 g_player[i].ps->gm = MODE_EOL;
             sector[p->cursectnum].lotag = 0;
@@ -3049,7 +3049,7 @@ void P_CheckSectors(int32_t snum)
                 ud.m_level_number = ud.level_number;
             }
             return;
-        case -2:
+        case UINT16_MAX-1:
             sector[p->cursectnum].lotag = 0;
             p->timebeforeexit = GAMETICSPERSEC*8;
             p->customexitsound = sector[p->cursectnum].hitag;

@@ -8,31 +8,31 @@ class __TRACKER_NAME
     public:
         inline TrackedType* operator & ()
         {
-            __TRACKER_GLOBAL_HOOK((int)&this->TrackedValue);
+            __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
             return &this->TrackedValue;
         }
 
         inline TrackedType operator ++ ()
         {
-            __TRACKER_GLOBAL_HOOK((int)&this->TrackedValue);
+            __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
             return ++this->TrackedValue;
         }
 
         inline TrackedType operator ++ (int)
         {
-            __TRACKER_GLOBAL_HOOK((int)&this->TrackedValue);
+            __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
             return this->TrackedValue++;
         }
 
         inline TrackedType operator -- ()
         {
-            __TRACKER_GLOBAL_HOOK((int)&this->TrackedValue);
+            __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
             return --this->TrackedValue;
         }
 
         inline TrackedType operator -- (int)
         {
-            __TRACKER_GLOBAL_HOOK((int)&this->TrackedValue);
+            __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
             return this->TrackedValue--;
         }
 

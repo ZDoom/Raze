@@ -132,7 +132,8 @@ int32_t vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, in
 
 
 extern intptr_t palookupoffse[4];
-extern int32_t vplce[4], vince[4];
+extern uint32_t vplce[4];
+extern int32_t vince[4];
 extern intptr_t bufplce[4];
 
 // cnt >= 1

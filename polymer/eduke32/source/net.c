@@ -45,7 +45,7 @@ uint32_t g_netMapRevision = 0;
 ENetHost *g_netServer = NULL;
 ENetHost *g_netClient = NULL;
 ENetPeer *g_netClientPeer = NULL;
-int32_t g_netPort = 23513;
+enet_uint16 g_netPort = 23513;
 int32_t g_netDisconnect = 0;
 char g_netPassword[32];
 int32_t g_netPlayersWaiting = 0;
@@ -71,14 +71,14 @@ static void alloc_multimapstate(int32_t i)
 {
     if (g_multiMapState[i] == NULL)
     {
-        g_multiMapState[i] = Bcalloc(1, sizeof(netmapstate_t));
+        g_multiMapState[i] = (netmapstate_t *)Bcalloc(1, sizeof(netmapstate_t));
         if (g_multiMapState[i] == NULL)
             G_GameExit("OUT OF MEMORY in alloc_multimapstate");
     }
 
     if (g_pendingMapState[i] == NULL)
     {
-        g_pendingMapState[i] = Bcalloc(1, sizeof(netmapstate_t));
+        g_pendingMapState[i] = (netmapstate_t *)Bcalloc(1, sizeof(netmapstate_t));
         if (g_pendingMapState[i] == NULL)
             G_GameExit("OUT OF MEMORY in alloc_multimapstate");
     }

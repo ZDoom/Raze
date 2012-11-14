@@ -61,6 +61,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "common.h"
 #include "common_game.h"
 #include "input.h"
+#include "compat.h"
 
 #ifdef LUNATIC
 # include "lunatic_game.h"
@@ -1725,7 +1726,7 @@ static void G_PrintCoords(int32_t snum)
     Bsprintf(tempbuf,"OG= %d  SBRIDGE=%d SBS=%d",ps->on_ground, ps->spritebridge, ps->sbs);
     printext256(x,y+27,31,-1,tempbuf,0);
     if (sectnum >= 0)
-        Bsprintf(tempbuf,"SECT= %d (LO=%d EX=%d)",sectnum,sector[sectnum].lotag,sector[sectnum].extra);
+        Bsprintf_nowarn(tempbuf,"SECT= %d (LO=%d EX=%d)",sectnum,sector[sectnum].lotag,sector[sectnum].extra);
     else
         Bsprintf(tempbuf,"SECT= %d", sectnum);
     printext256(x,y+36,31,-1,tempbuf,0);
@@ -3584,8 +3585,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 // If the view is rotated (not 0 or 180 degrees modulo 360 degrees),
                 // we render onto a square tile and display a portion of that
                 // rotated on-screen later on.
-                const int32_t viewtilexsiz = ((tang&1023) ? tiltcx : tiltcy)>>!ud.detail;
-                const int32_t viewtileysiz = tiltcx>>!ud.detail;
+                const int32_t viewtilexsiz = ((tang&1023) ? tiltcx : tiltcy)>>(int)!ud.detail;
+                const int32_t viewtileysiz = tiltcx>>(int)!ud.detail;
 
                 walock[TILE_TILT] = 255;
                 if (waloff[TILE_TILT] == 0)
@@ -3597,8 +3598,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             if ((tang&1023) == 512)
             {
                 //Block off unscreen section of 90ø tilted screen
-                j = ((tiltcx-(60*tiltcs))>>!ud.detail);
-                for (i=((60*tiltcs)>>!ud.detail)-1; i>=0; i--)
+                j = ((tiltcx-(60*tiltcs))>>(int)!ud.detail);
+                for (i=((60*tiltcs)>>(int)!ud.detail)-1; i>=0; i--)
                 {
                     startumost[i] = 1;
                     startumost[i+j] = 1;
@@ -3802,7 +3803,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 // NOTE: maybe need to move this to the engine...
                 begindrawing();
                 {
-                    palette_t *const frame = Bcalloc(xdim*ydim, 4);
+                    palette_t *const frame = (palette_t *const)Bcalloc(xdim*ydim, 4);
                     char *const pic = (char *)waloff[TILE_SAVESHOT];
 
                     int32_t x, y;
@@ -3907,12 +3908,13 @@ static void G_DumpDebugInfo(void)
         }
         OSD_Printf("\n");
     }
+
     for (x=0; x<MAXSTATUS; x++)
     {
         j = headspritestat[x];
         while (j >= 0)
         {
-            OSD_Printf("Sprite %d (%d,%d,%d) (picnum: %d)\n",j,sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].picnum);
+            OSD_Printf_nowarn("Sprite %d (%d,%d,%d) (picnum: %d)\n",j,sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].picnum);
             for (i=0; i<g_gameVarCount; i++)
             {
                 if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR))
@@ -3969,7 +3971,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
     if (i < 0)
     {
         G_DumpDebugInfo();
-        OSD_Printf("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
+        OSD_Printf_nowarn("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
                    s_pn,sprite[s_ow].picnum,s_ow,s_x,s_y,s_z,whatsect);
         G_GameExit("Too many sprites spawned.");
     }
@@ -4984,7 +4986,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (sp->hitag && sp->picnum == WATERBUBBLEMAKER)
             {
                 // JBF 20030913: Pisses off X_Move(), eg. in bobsp2
-                OSD_Printf(OSD_ERROR "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
+                OSD_Printf_nowarn(OSD_ERROR "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
                            i,sp->x,sp->y);
                 sp->hitag = 0;
             }
@@ -5590,7 +5592,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 else
                 {
                     // XXX: we should return to the menu for this and similar failures
-                    Bsprintf(tempbuf, "SE 17 (warp elevator) setup failed: sprite %d at (%d, %d)",
+                    Bsprintf_nowarn(tempbuf, "SE 17 (warp elevator) setup failed: sprite %d at (%d, %d)",
                              i, sprite[i].x, sprite[i].y);
                     G_GameExit(tempbuf);
                 }
@@ -5795,7 +5797,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     }
                     if (j == -1)
                     {
-                        OSD_Printf(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",sp->x,sp->y);
+                        OSD_Printf_nowarn(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",sp->x,sp->y);
                         changespritestat(i, STAT_ACTOR);
                         if (apScriptGameEvent[EVENT_SPAWN])
                         {
@@ -5818,7 +5820,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     tempwallptr++;
                     if (tempwallptr > 2047)
                     {
-                        Bsprintf(tempbuf,"Too many moving sectors at (%d,%d).\n",wall[s].x,wall[s].y);
+                        Bsprintf_nowarn(tempbuf,"Too many moving sectors at (%d,%d).\n",wall[s].x,wall[s].y);
                         G_GameExit(tempbuf);
                     }
                 }
@@ -5831,7 +5833,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     startwall = sector[sect].wallptr;
                     endwall = startwall+sector[sect].wallnum;
 
-                    if (sector[sect].hitag == -1)
+                    if (sector[sect].hitag == UINT16_MAX)
                         sp->extra = 0;
                     else sp->extra = 1;
 
@@ -5876,7 +5878,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 #endif
                     if (j == 0)
                     {
-                        Bsprintf(tempbuf,"Subway found no zero'd sectors with locators\nat (%d,%d).\n",sp->x,sp->y);
+                        Bsprintf_nowarn(tempbuf,"Subway found no zero'd sectors with locators\nat (%d,%d).\n",sp->x,sp->y);
                         G_GameExit(tempbuf);
                     }
 
@@ -7672,7 +7674,7 @@ void G_HandleLocalKeys(void)
         if (KB_KeyPressed(sc_kpad_6))
         {
             KB_ClearKeyDown(sc_kpad_6);
-            j = (15<<ALT_IS_PRESSED)<<(2*SHIFTS_IS_PRESSED);
+            j = (15<<(int)ALT_IS_PRESSED)<<(2*(int)SHIFTS_IS_PRESSED);
             g_demo_goalCnt = g_demo_paused ? g_demo_cnt+1 : g_demo_cnt+REALGAMETICSPERSEC*j;
             g_demo_rewind = 0;
 
@@ -7684,7 +7686,7 @@ void G_HandleLocalKeys(void)
         else if (KB_KeyPressed(sc_kpad_4))
         {
             KB_ClearKeyDown(sc_kpad_4);
-            j = (15<<ALT_IS_PRESSED)<<(2*SHIFTS_IS_PRESSED);
+            j = (15<<(int)ALT_IS_PRESSED)<<(2*(int)SHIFTS_IS_PRESSED);
             g_demo_goalCnt = g_demo_paused ? g_demo_cnt-1 : g_demo_cnt-REALGAMETICSPERSEC*j;
             g_demo_rewind = 1;
 
@@ -8424,7 +8426,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             }
 
             if (!preload)
-                anim_hi_sounds[animnum] = Bcalloc(allocsz, 2*sizeof(anim_hi_sounds[0]));
+                anim_hi_sounds[animnum] = (uint16_t *)Bcalloc(allocsz, 2*sizeof(anim_hi_sounds[0]));
             while (script->textptr < animsoundsend)
             {
                 int32_t framenum, soundnum;
@@ -8485,7 +8487,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                     newptr = Brealloc(anim_hi_sounds[animnum], allocsz*2*sizeof(anim_hi_sounds[0]));
 
                     if (!newptr) break;
-                    anim_hi_sounds[animnum] = newptr;
+                    anim_hi_sounds[animnum] = (uint16_t *)newptr;
                 }
 
                 bad=0;
@@ -8968,7 +8970,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     break;
                 case 'd':
                 {
-                    char *colon = Bstrchr(c, ':');
+                    char * colon = (char *)Bstrchr(c, ':');
                     int32_t framespertic=-1, numrepeats=1;
 
                     c++;
@@ -9511,8 +9513,8 @@ static void G_CompileScripts(void)
         char *newlabel;
         int32_t *newlabelcode;
 
-        newlabel     = Bmalloc(g_numLabels<<6);
-        newlabelcode = Bmalloc(g_numLabels*sizeof(int32_t));
+        newlabel     = (char *)Bmalloc(g_numLabels<<6);
+        newlabelcode = (int32_t *)Bmalloc(g_numLabels*sizeof(int32_t));
 
         if (!newlabel || !newlabelcode)
             G_GameExit("Error: out of memory retaining labels\n");
@@ -9949,7 +9951,13 @@ int32_t app_main(int32_t argc, const char **argv)
     wm_setapptitle(tempbuf);
 //initprintf("sizeof(mapstate_t)=%d\n", (int32_t)sizeof(mapstate_t));
 
-    initprintf(HEAD2 " %s\n", s_buildRev);
+    initprintf(HEAD2 " %s %s\n", s_buildRev,
+#ifdef __cplusplus
+        "C++ build"
+#else
+        ""
+#endif
+        );
     initprintf("Compiled %s\n", __DATE__" "__TIME__);
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
@@ -10397,7 +10405,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        if (CONTROL_Startup(1, &GetTime, TICRATE))
+        if (CONTROL_Startup(controltype_keyboardandmouse, &GetTime, TICRATE))
         {
             ERRprintf("There was an error initializing the CONTROL system.\n");
             uninitengine();
