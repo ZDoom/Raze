@@ -4981,7 +4981,8 @@ nullquote:
                 if (vm.g_sp->yvel) G_OperateRespawns(vm.g_sp->yvel);
                 break;
             default:
-                if (vm.g_sp->hitag >= 0) G_OperateRespawns(vm.g_sp->hitag);
+//                if (vm.g_sp->hitag >= 0)
+                    G_OperateRespawns(vm.g_sp->hitag);
                 break;
             }
             continue;
