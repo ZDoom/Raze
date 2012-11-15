@@ -1315,9 +1315,9 @@ const char *ExtGetSectorCaption(int16_t sectnum)
     {
         Bstrcpy(lo, ExtGetSectorType(sector[sectnum].lotag));
         if (qsetmode != 200)
-            Bsprintf(tempbuf,"%hu,%hu %s", sector[sectnum].hitag, sector[sectnum].lotag, lo);
+            Bsprintf_nowarn(tempbuf,"%hu,%hu %s", sector[sectnum].hitag, sector[sectnum].lotag, lo);
         else
-            Bsprintf(tempbuf,"%hu %s", sector[sectnum].lotag, lo);
+            Bsprintf_nowarn(tempbuf,"%hu %s", sector[sectnum].lotag, lo);
     }
     return(tempbuf);
 }
@@ -1527,7 +1527,7 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
 
             SpriteName(spritenum,lo);
             if (sprite[spritenum].extra != -1)
-                Bsprintf(tempbuf,"%s,%s,%d %s", histr, lostr, sprite[spritenum].extra, lo);
+                Bsprintf_nowarn(tempbuf,"%s,%s,%d %s", histr, lostr, sprite[spritenum].extra, lo);
             else
                 Bsprintf(tempbuf,"%s,%s %s", histr, lostr, lo);
         }
@@ -4556,7 +4556,7 @@ ENDFOR1:
         ExtCheckKeys();
 
         printmessage256(0,0,"^251Text entry mode.^31 Navigation keys change vars.");
-        Bsprintf(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
+        Bsprintf_nowarn(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
                  hgap, vgap, spcgap[alphidx], sprite[linebegspr].shade, sprite[linebegspr].pal);
         printmessage256(0, 9, buffer);
         showframe(1);
@@ -4925,9 +4925,9 @@ static void Keys3d(void)
                     height3 = sector[nextsect].ceilingz - sector[searchsector].ceilingz;
                 }
 
-                Bsprintf(lines[num++],"Panning: %d, %d", wall[w].xpanning, wall[w].ypanning);
-                Bsprintf(lines[num++],"Repeat:  %d, %d", wall[searchwall].xrepeat, wall[searchwall].yrepeat);
-                Bsprintf(lines[num++],"Overpic: %d", wall[searchwall].overpicnum);
+                Bsprintf_nowarn(lines[num++],"Panning: %d, %d", wall[w].xpanning, wall[w].ypanning);
+                Bsprintf_nowarn(lines[num++],"Repeat:  %d, %d", wall[searchwall].xrepeat, wall[searchwall].yrepeat);
+                Bsprintf_nowarn(lines[num++],"Overpic: %d", wall[searchwall].overpicnum);
                 lines[num++][0]=0;
 
                 if (getmessageleng)
@@ -4966,7 +4966,7 @@ static void Keys3d(void)
                     break;
 
                 Bsprintf(lines[num++],"^251Sector %d^31 %s, Lotag:%s", searchsector, typestr[searchstat], ExtGetSectorCaption(searchsector));
-                Bsprintf(lines[num++],"Height: %d, Visibility:%d", height2, sector[searchsector].visibility);
+                Bsprintf_nowarn(lines[num++],"Height: %d, Visibility:%d", height2, sector[searchsector].visibility);
                 break;
 
             case SEARCH_SPRITE:
@@ -4974,10 +4974,10 @@ static void Keys3d(void)
                              sprite[searchwall].pal, sprite[searchwall].cstat, sprite[searchwall].lotag,
                              sprite[searchwall].hitag, sprite[searchwall].extra,0);
 
-                Bsprintf(lines[num++], "Repeat:  %d,%d", sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
-                Bsprintf(lines[num++], "PosXY:   %d,%d%s", sprite[searchwall].x, sprite[searchwall].y,
+                Bsprintf_nowarn(lines[num++], "Repeat:  %d,%d", sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
+                Bsprintf_nowarn(lines[num++], "PosXY:   %d,%d%s", sprite[searchwall].x, sprite[searchwall].y,
                          sprite[searchwall].xoffset|sprite[searchwall].yoffset ? " ^251*":"");
-                Bsprintf(lines[num++], "PosZ: ""   %d", sprite[searchwall].z);// prevents tab character
+                Bsprintf_nowarn(lines[num++], "PosZ: ""   %d", sprite[searchwall].z);// prevents tab character
                 lines[num++][0]=0;
 
                 if (getmessageleng)
@@ -4991,9 +4991,9 @@ static void Keys3d(void)
                     if (sprite[searchwall].picnum==SECTOREFFECTOR)
                         Bsprintf(lines[num++],"^251Sprite %d^31 %s", searchwall, SectorEffectorText(searchwall));
                     else
-                        Bsprintf(lines[num++],"^251Sprite %d^31 %s", searchwall, names[sprite[searchwall].picnum]);
+                        Bsprintf_nowarn(lines[num++],"^251Sprite %d^31 %s", searchwall, names[sprite[searchwall].picnum]);
                 }
-                else Bsprintf(lines[num++],"^251Sprite %d^31, picnum %d", searchwall, sprite[searchwall].picnum);
+                else Bsprintf_nowarn(lines[num++],"^251Sprite %d^31, picnum %d", searchwall, sprite[searchwall].picnum);
 
                 Bsprintf(lines[num++], "Elevation:%d",
                          getflorzofslope(searchsector, sprite[searchwall].x, sprite[searchwall].y) - sprite[searchwall].z);
@@ -5111,7 +5111,7 @@ static void Keys3d(void)
         if (AIMING_AT_WALL_OR_MASK)
         {
             wall[searchwall].cstat &= YAX_NEXTWALLBITS;
-            message("Wall %d cstat = %d", searchwall, wall[searchwall].cstat);
+            message_nowarn("Wall %d cstat = %d", searchwall, wall[searchwall].cstat);
         }
         else if (AIMING_AT_SPRITE)
         {
@@ -5277,7 +5277,7 @@ static void Keys3d(void)
         {
             sprite[searchwall].ang += tsign<<(!eitherSHIFT*7);
             sprite[searchwall].ang &= 2047;
-            message("Sprite %d angle: %d", searchwall, sprite[searchwall].ang);
+            message_nowarn("Sprite %d angle: %d", searchwall, sprite[searchwall].ang);
         }
     }
 
@@ -8477,7 +8477,7 @@ int32_t ExtPreSaveMap(void)
                 if (wall[j].point2 < startwall)
                     startwall = wall[j].point2;
             if (sector[i].wallptr != startwall)
-                initprintf("Warning: set sector %d's wallptr to %d (was %d)\n", i,
+                initprintf_nowarn("Warning: set sector %d's wallptr to %d (was %d)\n", i,
                            sector[i].wallptr, startwall);
             sector[i].wallptr = startwall;
         }
@@ -11444,6 +11444,7 @@ void ExtCheckKeys(void)
 //#define CCHKPREF OSDTEXT_RED "^O"
 #define CCHK_CORRECTED OSDTEXT_GREEN " -> "
 
+#ifdef _MSC_VER
 #define CORRUPTCHK_PRINT(errlev, what, fmt, ...) do  \
 { \
     bad = max(bad, errlev); \
@@ -11453,7 +11454,17 @@ void ExtCheckKeys(void)
     if (errlev >= printfromlev) \
         OSD_Printf("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
 } while (0)
-
+#else
+#define CORRUPTCHK_PRINT(errlev, what, fmt, ...) do  \
+{ \
+    bad = max(bad, errlev); \
+    if (numcorruptthings>=MAXCORRUPTTHINGS) \
+    goto too_many_errors; \
+    corruptthings[numcorruptthings++] = (what); \
+    if (errlev >= printfromlev) \
+    OSD_Printf_nowarn("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
+} while (0)
+#endif
 #ifdef YAX_ENABLE
 static int32_t walls_have_equal_endpoints(int32_t w1, int32_t w2)
 {
@@ -12339,7 +12350,8 @@ static void EditSectorData(int16_t sectnum)
 #endif
                 break;
             case 1:
-                for (i=Bsprintf(med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning); i < med_dispwidth; i++) med_disptext[i] = ' ';
+                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning);
+                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {
                     Bsprintf(med_edittext,"Sector %d Ceiling X Pan: ",sectnum);
@@ -12389,7 +12401,8 @@ static void EditSectorData(int16_t sectnum)
                 break;
 
             case 1:
-                for (i=Bsprintf(med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning); i < med_dispwidth; i++) med_disptext[i] = ' ';
+                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning);
+                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {
                     Bsprintf(med_edittext,"Sector %d Floor X Pan: ",sectnum);
@@ -12478,7 +12491,8 @@ static void EditWallData(int16_t wallnum)
                       sizeof(wall[wallnum].pal), M32_MAXPALOOKUPS, 0);
             break;
         case 3:
-            for (i=Bsprintf(med_disptext,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat); i < med_dispwidth; i++) med_disptext[i] = ' ';
+            Bsprintf_nowarn_return(i, med_disptext,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat);
+            for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
             if (med_editval)
             {
                 Bsprintf(med_edittext,"Wall %d X Repeat: ",wallnum);
@@ -12490,7 +12504,8 @@ static void EditWallData(int16_t wallnum)
             }
             break;
         case 4:
-            for (i=Bsprintf(med_disptext,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning); i < med_dispwidth; i++) med_disptext[i] = ' ';
+            Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning);
+            for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
             if (med_editval)
             {
                 Bsprintf(med_edittext,"Wall %d X Pan: ",wallnum);
@@ -12669,7 +12684,8 @@ static void EditSpriteData(int16_t spritenum)
                 break;
             case 3:
             {
-                for (i=Bsprintf(med_disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < med_dispwidth; i++) med_disptext[i] = ' ';
+                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat);
+                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {
                     Bsprintf(med_edittext,"Sprite %d X Repeat: ",spritenum);
@@ -12683,7 +12699,8 @@ static void EditSpriteData(int16_t spritenum)
             break;
             case 4:
             {
-                for (i=Bsprintf(med_disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < med_dispwidth; i++) med_disptext[i] = ' ';
+                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset);
+                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {
                     Bsprintf(med_edittext,"Sprite %d X Offset: ",spritenum);

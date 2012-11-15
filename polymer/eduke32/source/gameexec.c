@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <math.h>  // sqrt
 
+#include "compat.h"
+
 #include "duke3d.h"
 #include "gamedef.h"
 #include "gameexec.h"
@@ -87,7 +89,7 @@ void VM_ScriptInfo(void)
     }
 
     if (vm.g_i)
-        initprintf("current actor: %d (%d)\n",vm.g_i,vm.g_sp->picnum);
+        initprintf_nowarn("current actor: %d (%d)\n",vm.g_i,vm.g_sp->picnum);
 
     initprintf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);
 }
@@ -442,7 +444,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
 
     {
         vm.g_t[1] = 0;
-        OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, vm.g_sp->picnum);
+        OSD_Printf_nowarn(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, vm.g_sp->picnum);
         return;
     }
 
@@ -591,7 +593,7 @@ dead:
     if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize-1)
     {
         vm.g_t[1] = 0;
-        OSD_Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, vm.g_sp->picnum);
+        OSD_Printf_nowarn(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, vm.g_sp->picnum);
         return;
     }
 
@@ -4165,7 +4167,8 @@ nullquote:
 
                 if (j<0 || j >= g_gameArrayCount || index >= aGameArrays[j].size || index < 0)
                 {
-                    OSD_Printf(OSD_ERROR "Gv_SetVar(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",j,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
+                    OSD_Printf_nowarn(OSD_ERROR "Gv_SetVar(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",
+                        j,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
                     continue;
                 }
                 aGameArrays[j].plValues[index]=value;

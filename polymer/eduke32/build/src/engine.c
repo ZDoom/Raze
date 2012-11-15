@@ -9396,7 +9396,7 @@ static void check_sprite(int32_t i)
 {
     if ((unsigned)sprite[i].sectnum >= MYMAXSECTORS())
     {
-        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal sector (%d). Map is corrupt!\n",
+        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal sector (%d). Map is corrupt!\n",
                    i, sprite[i].x, sprite[i].y, sprite[i].sectnum);
 
         updatesector(sprite[i].x, sprite[i].y, &sprite[i].sectnum);
@@ -9407,14 +9407,14 @@ static void check_sprite(int32_t i)
 
     if ((unsigned)sprite[i].statnum >= MAXSTATUS)
     {
-        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal statnum (%d). Map is corrupt!\n",
+        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal statnum (%d). Map is corrupt!\n",
                    i, sprite[i].x, sprite[i].y, sprite[i].statnum);
         sprite[i].statnum = 0;
     }
 
     if ((unsigned)sprite[i].picnum >= MAXTILES)
     {
-        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal picnum (%d). Map is corrupt!\n",
+        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal picnum (%d). Map is corrupt!\n",
                    i, sprite[i].x, sprite[i].y, sprite[i].picnum);
         sprite[i].picnum = 0;
     }
@@ -10070,14 +10070,14 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
     {
         if ((unsigned)sprite[j].statnum > MAXSTATUS)
         {
-            initprintf("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",
+            initprintf_nowarn("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",
                        j,sprite[j].x,sprite[j].y,sprite[j].statnum);
             changespritestat(j,0);
         }
 
         if ((unsigned)sprite[j].sectnum > MAXSECTORS)
         {
-            initprintf("Map error: sprite #%d(%d,%d) with an illegal sectnum(%d)\n",
+            initprintf_nowarn("Map error: sprite #%d(%d,%d) with an illegal sectnum(%d)\n",
                        j,sprite[j].x,sprite[j].y,sprite[j].sectnum);
             changespritesect(j,0);
         }

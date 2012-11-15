@@ -5836,9 +5836,9 @@ end_point_dragging:
 
                         if (!delayerr)
                             message("Outer wall coordinates must coincide for both components");
-                        OSD_Printf("wal0:%d (%d,%d)--(%d,%d)\n",(int)(wal0-wall),
+                        OSD_Printf_nowarn("wal0:%d (%d,%d)--(%d,%d)\n",(int)(wal0-wall),
                                    wal0->x,wal0->y, wal0p2->x,wal0p2->y);
-                        OSD_Printf("wal1:%d (%d,%d)--(%d,%d)\n",(int)(wal1-wall),
+                        OSD_Printf_nowarn("wal1:%d (%d,%d)--(%d,%d)\n",(int)(wal1-wall),
                                    wal1->x,wal1->y, wal1p2->x,wal1p2->y);
 
                         goto end_join_sectors;
@@ -8572,7 +8572,7 @@ int32_t fixspritesectors(void)
                                 initprintf("--------------------\n");
                                 printfirsttime = 1;
                             }
-                            initprintf("Changed sectnum of sprite %d from %d to %d\n", i, sprite[i].sectnum, j);
+                            initprintf_nowarn("Changed sectnum of sprite %d from %d to %d\n", i, sprite[i].sectnum, j);
                             changespritesect(i, j);
                         }
                         break;
@@ -10021,9 +10021,10 @@ void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
     printext16(264, ydim-STATUS2DSIZ+128, v8?editorcolors[10]:whitecol, -1, snotbuf,0);
 }
 
-#define DOPRINT(Yofs, fmt, ...) \
-    Bsprintf(snotbuf, fmt, ## __VA_ARGS__); \
-    printext16(8+col*200, ydim/*-(row*96)*/-STATUS2DSIZ+Yofs, color, -1, snotbuf, 0);
+#define DOPRINT(Yofs, fmt, ...) do { \
+    Bsprintf_nowarn(snotbuf, fmt, ## __VA_ARGS__); \
+    printext16(8+col*200, ydim/*-(row*96)*/-STATUS2DSIZ+Yofs, color, -1, snotbuf, 0); \
+    } while (0)
 
 void showsectordata(int16_t sectnum, int16_t small)
 {
