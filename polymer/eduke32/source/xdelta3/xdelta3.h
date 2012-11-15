@@ -135,7 +135,7 @@
 typedef signed int     ssize_t;
 typedef unsigned char  uint8_t;
 typedef unsigned short uint16_t;
-typedef unsigned long  uint32_t;
+typedef unsigned __int32  uint32_t;
 typedef ULONGLONG      uint64_t;
 #else
 /* mingw32, lcc and watcom provide a proper header */
