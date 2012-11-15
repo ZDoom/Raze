@@ -14,7 +14,7 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
-#define _WIN32_IE 0x0400
+//#define _WIN32_IE 0x0400
 #define _WIN32_WINNT 0x0501
 #include <windows.h>
 #include <shlobj.h>
@@ -570,8 +570,8 @@ char *Bgetsystemdrives(void)
 
 int32_t Bfilelength(int32_t fd)
 {
-    struct stat st;
-    if (fstat(fd, &st) < 0) return -1;
+    struct Bstat st;
+    if (Bfstat(fd, &st) < 0) return -1;
     return(int32_t)(st.st_size);
 }
 
@@ -643,7 +643,7 @@ struct Bdirent	*Breaddir(BDIR *dir)
 {
     BDIR_real *dirr = (BDIR_real *)dir;
     struct dirent *de;
-    struct stat st;
+    struct Bstat st;
     char *fn;
 
 #ifdef _MSC_VER

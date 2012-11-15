@@ -315,7 +315,7 @@ char *listsearchpath(int32_t initp)
 
 int32_t addsearchpath(const char *p)
 {
-    struct stat st;
+    struct Bstat st;
     char *s;
     searchpath_t *srch;
 

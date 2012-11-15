@@ -5101,7 +5101,7 @@ repeatcase:
                 if (Bstrcmp(setupfilename,SETUPFILENAME) == 0) // not set to something else via -cfg
                 {
                     char temp[BMAX_PATH];
-                    struct stat st;
+                    struct Bstat st;
                     int32_t fullscreen = ud.config.ScreenMode;
                     int32_t xdim = ud.config.ScreenWidth, ydim = ud.config.ScreenHeight, bpp = ud.config.ScreenBPP;
                     int32_t usemouse = ud.config.UseMouse, usejoy = ud.config.UseJoystick;

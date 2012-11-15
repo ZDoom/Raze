@@ -100,6 +100,7 @@
 #endif
 
 #if defined(_MSC_VER)
+#include <direct.h>
 # define inline __inline
 # define longlong(x) x##i64
 static inline float nearbyintf(float x) 
@@ -500,7 +501,13 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # else
 #  define Btell tell
 # endif
+# ifdef _MSC_VER
 # define Bstat stat
+# define Bfstat fstat
+# else
+# define Bstat stat
+# define Bfstat fstat
+# endif
 # define Bfileno fileno
 # define Bferror ferror
 # define Bfopen fopen
