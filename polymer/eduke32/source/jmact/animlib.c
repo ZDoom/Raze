@@ -259,7 +259,7 @@ void ANIM_LoadAnim(char * buffer)
 {
     uint16_t i;
 
-    anim = (anim_t *)Brealloc(anim, sizeof(anim_t));
+    anim = Brealloc(anim, sizeof(anim_t));
 
     anim->curlpnum = 0xffff;
     anim->currentframe = -1;

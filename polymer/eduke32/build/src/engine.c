@@ -130,22 +130,7 @@ static int16_t *dotp1[MAXYDIM], *dotp2[MAXYDIM];
 
 static int8_t tempbuf[MAXWALLS];
 
-// referenced from asm
-#ifdef __cplusplus
-extern "C" {
-#endif
 int32_t ebpbak, espbak;
-int32_t reciptable[2048], fpuasm;
-intptr_t asm1, asm2, asm3, asm4, palookupoffse[4];
-uint32_t vplce[4];
-int32_t vince[4];
-intptr_t bufplce[4];
-int32_t globaltilesizy;
-int32_t globalx1, globaly2, globalx3, globaly3;
-#ifdef __cplusplus
-};
-#endif
-
 static intptr_t slopalookup[16384];    // was 2048
 #if defined(USE_OPENGL)
 palette_t palookupfog[MAXPALOOKUPS];
@@ -212,6 +197,8 @@ void initialize_engine_globals(void)
     pow2long[30] = 1073741824L;
     pow2long[31] = 2147483647L;
 }
+
+int32_t reciptable[2048], fpuasm;
 
 char britable[16][256]; // JBF 20040207: full 8bit precision
 
@@ -863,8 +850,8 @@ void yax_preparedrawrooms(void)
     if (getrendermode()==0 && ymostallocsize < xdimen*numyaxbunches)
     {
         ymostallocsize = xdimen*numyaxbunches;
-        yumost = (int16_t *)Brealloc(yumost, ymostallocsize*sizeof(int16_t));
-        ydmost = (int16_t *)Brealloc(ydmost, ymostallocsize*sizeof(int16_t));
+        yumost = Brealloc(yumost, ymostallocsize*sizeof(int16_t));
+        ydmost = Brealloc(ydmost, ymostallocsize*sizeof(int16_t));
 
         if (!yumost || !ydmost)
         {
@@ -1265,7 +1252,6 @@ static walltype *loadwall, *loadwallinv;
 static spritetype *loadsprite;
 
 // sectoidx bits
-#undef CM_NONE
 #define CM_NONE (CM_MAX<<1)
 #define CM_SOME (CM_NONE-1)
 #define CM_OUTER (CM_MAX)   // sector surrounds clipping sector
@@ -1332,9 +1318,9 @@ int32_t clipmapinfo_load(void)
 
     clipmapinfo_init();
 
-    loadsector = (sectortype *)Bmalloc(MAXSECTORS * sizeof(sectortype));
-    loadwall = (walltype *)Bmalloc(MAXWALLS * sizeof(walltype));
-    loadsprite = (spritetype *)Bmalloc(MAXSPRITES * sizeof(spritetype));
+    loadsector = Bmalloc(MAXSECTORS * sizeof(sectortype));
+    loadwall = Bmalloc(MAXWALLS * sizeof(walltype));
+    loadsprite = Bmalloc(MAXSPRITES * sizeof(spritetype));
 
     if (!loadsector || !loadwall || !loadsprite)
     {
@@ -1408,8 +1394,8 @@ int32_t clipmapinfo_load(void)
     }
 
     // shrink
-    loadsector = (sectortype *)Brealloc(loadsector, ournumsectors*sizeof(sectortype));
-    loadwall = (walltype *)Brealloc(loadwall, ournumwalls*sizeof(walltype));
+    loadsector = Brealloc(loadsector, ournumsectors*sizeof(sectortype));
+    loadwall = Brealloc(loadwall, ournumwalls*sizeof(walltype));
 
     Bmemcpy(sector, loadsector, ournumsectors*sizeof(sectortype));
     Bmemcpy(wall, loadwall, ournumwalls*sizeof(walltype));
@@ -1419,7 +1405,7 @@ int32_t clipmapinfo_load(void)
 
     //  vvvv    don't use headsprite[sect,stat]!   vvvv
 
-    sectoidx = (int16_t *)Bmalloc(numsectors*sizeof(sectoidx[0]));
+    sectoidx = Bmalloc(numsectors*sizeof(sectoidx[0]));
     if (!sectoidx || !sector || !wall)
     {
         clipmapinfo_init();
@@ -1461,8 +1447,8 @@ int32_t clipmapinfo_load(void)
         int16_t ns, outersect;
         int32_t pn,scnt, x,y,z, maxdist;
 
-        sectq = (int16_t *)Bmalloc(numsectors*sizeof(sectq[0]));
-        tempictoidx = (int16_t *)Bmalloc(MAXTILES*sizeof(tempictoidx[0]));
+        sectq = Bmalloc(numsectors*sizeof(sectq[0]));
+        tempictoidx = Bmalloc(MAXTILES*sizeof(tempictoidx[0]));
         if (!sectq || !tempictoidx)
         {
             clipmapinfo_init();
@@ -1701,7 +1687,7 @@ int32_t clipmapinfo_load(void)
     Bmemcpy(loadwall, wall, ournumwalls*sizeof(walltype));
 
     // loadwallinv will contain all walls with inverted orientation for x/y-flip handling
-    loadwallinv = (walltype *)Bmalloc(ournumwalls*sizeof(walltype));
+    loadwallinv = Bmalloc(ournumwalls*sizeof(walltype));
     if (!loadwallinv)
     {
         clipmapinfo_init();
@@ -2279,6 +2265,9 @@ static int32_t globalhisibility, globalpisibility, globalcisibility;
 int32_t xyaspect;
 static int32_t viewingrangerecip;
 
+intptr_t asm1, asm2, asm3, asm4, palookupoffse[4];
+int32_t vplce[4], vince[4];
+intptr_t bufplce[4];
 static char globalxshift, globalyshift;
 static int32_t globalxpanning, globalypanning;
 int32_t globalshade, globalorientation;
@@ -2288,6 +2277,9 @@ static int32_t globalzd, globalyscale;
 static int32_t globalxspan, globalyspan, globalispow2=1;  // true if texture has power-of-two x and y size
 static intptr_t globalbufplc;
 
+int32_t globaltilesizy;
+
+int32_t globalx1, globaly2, globalx3, globaly3;
 static int32_t globaly1, globalx2, globalzx;
 static int32_t globalx, globaly, globalz;
 
@@ -4362,7 +4354,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
 
     int32_t dapyscale;
     int16_t dapskybits;
-    static const int16_t zeropskyoff[MAXPSKYTILES] = { 0 };
+    static const int16_t zeropskyoff[MAXPSKYTILES];
     const int16_t *dapskyoff;
 
     UNREFERENCED_PARAMETER(dax1);
@@ -7577,14 +7569,14 @@ static int32_t loadtables(void)
             reciptable[i] = divscale30(2048, i+2048);
 
         for (i=0; i<=512; i++)
-            sintable[i] = (int16_t)(16384*sin(i*BANG2RAD));
+            sintable[i] = 16384*sin(i*BANG2RAD);
         for (i=513; i<1024; i++)
             sintable[i] = sintable[1024-i];
         for (i=1024; i<2048; i++)
             sintable[i] = -sintable[i-1024];
 
         for (i=0; i<640; i++)
-            radarang[i] = (int16_t)(-64*atan((640-0.5-i)/160)/BANG2RAD);
+            radarang[i] = -64*atan((640-0.5-i)/160)/BANG2RAD;
         for (i=0; i<640; i++)
             radarang[1279-i] = -radarang[i];
 
@@ -7678,8 +7670,8 @@ static int32_t loadpalette(void)
     kread(fil,palette,768);
     kread(fil,&numshades,2); numshades = B_LITTLE16(numshades);
 
-    palookup[0] = (char *)Bmalloc(numshades<<8);
-    transluc = (char *)Bmalloc(65536);
+    palookup[0] = Bmalloc(numshades<<8);
+    transluc = Bmalloc(65536);
     if (palookup[0] == NULL || transluc == NULL)
         exit(1);
 
@@ -8264,7 +8256,7 @@ int32_t initengine(void)
 #if !defined _WIN32 && defined DEBUGGINGAIDS && !defined GEKKO
     struct sigaction sigact, oldact;
     memset(&sigact, 0, sizeof(sigact));
-    sigact.sa_sigaction = (void (*)(int, siginfo_t*, void*))sighandler;
+    sigact.sa_sigaction = (void *)sighandler;
     sigact.sa_flags = SA_SIGINFO;
     sigaction(SIGFPE, &sigact, &oldact);
 #endif
@@ -9404,7 +9396,7 @@ static void check_sprite(int32_t i)
 {
     if ((unsigned)sprite[i].sectnum >= MYMAXSECTORS())
     {
-        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal sector (%d). Map is corrupt!\n",
+        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal sector (%d). Map is corrupt!\n",
                    i, sprite[i].x, sprite[i].y, sprite[i].sectnum);
 
         updatesector(sprite[i].x, sprite[i].y, &sprite[i].sectnum);
@@ -9415,14 +9407,14 @@ static void check_sprite(int32_t i)
 
     if ((unsigned)sprite[i].statnum >= MAXSTATUS)
     {
-        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal statnum (%d). Map is corrupt!\n",
+        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal statnum (%d). Map is corrupt!\n",
                    i, sprite[i].x, sprite[i].y, sprite[i].statnum);
         sprite[i].statnum = 0;
     }
 
     if ((unsigned)sprite[i].picnum >= MAXTILES)
     {
-        initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal picnum (%d). Map is corrupt!\n",
+        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal picnum (%d). Map is corrupt!\n",
                    i, sprite[i].x, sprite[i].y, sprite[i].picnum);
         sprite[i].picnum = 0;
     }
@@ -10078,14 +10070,14 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
     {
         if ((unsigned)sprite[j].statnum > MAXSTATUS)
         {
-            initprintf_nowarn("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",
+            initprintf("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",
                        j,sprite[j].x,sprite[j].y,sprite[j].statnum);
             changespritestat(j,0);
         }
 
         if ((unsigned)sprite[j].sectnum > MAXSECTORS)
         {
-            initprintf_nowarn("Map error: sprite #%d(%d,%d) with an illegal sectnum(%d)\n",
+            initprintf("Map error: sprite #%d(%d,%d) with an illegal sectnum(%d)\n",
                        j,sprite[j].x,sprite[j].y,sprite[j].sectnum);
             changespritesect(j,0);
         }
@@ -10309,7 +10301,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
         Bfree(lookups);
 
     j = ydim*4;  //Leave room for horizlookup&horizlookup2
-    lookups = (int32_t *)Bmalloc(2*j*sizeof(lookups[0]));
+    lookups = Bmalloc(2*j*sizeof(lookups[0]));
 
     if (lookups == NULL)
     {
@@ -10522,7 +10514,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
             if (filegrp[fil] == 254) // from zip
             {
                 i = kfilelength(fil);
-                artptrs[tilefilei] = (char *)Brealloc(artptrs[tilefilei], i);
+                artptrs[tilefilei] = Brealloc(artptrs[tilefilei], i);
                 klseek(fil, 0, BSEEK_SET);
                 kread(fil, artptrs[tilefilei], i);
             }
@@ -13614,7 +13606,7 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
     if (palookup[palnum] == NULL || (palnum!=0 && palookup[palnum] == palookup[0]))
     {
         //Allocate palookup buffer
-        palookup[palnum] = (char *)Bmalloc(numshades<<8);
+        palookup[palnum] = Bmalloc(numshades<<8);
         if (palookup[palnum] == NULL)
             exit(1);
     }
@@ -14315,7 +14307,7 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
 
     if ((newfirstwall < startwall) || (newfirstwall >= startwall+danumwalls)) return;
 
-    tmpwall = (walltype *)Bmalloc(danumwalls * sizeof(walltype));
+    tmpwall = Bmalloc(danumwalls * sizeof(walltype));
     if (!tmpwall)
     {
         initprintf("setfirstwall: OUT OF MEMORY!\n");
@@ -15945,7 +15937,7 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     text = (png_textp)png_malloc(png_ptr, 2*png_sizeof(png_text));
     text[0].compression = PNG_TEXT_COMPRESSION_NONE;
     text[0].key = "Title";
-    text[0].text = (png_charp)(editstatus ? "Mapster32 screenshot" : "EDuke32 screenshot");
+    text[0].text = editstatus ? "Mapster32 screenshot" : "EDuke32 screenshot";
 
     text[1].compression = PNG_TEXT_COMPRESSION_NONE;
     text[1].key = "Software";
@@ -16258,7 +16250,7 @@ void setpolymost2dview(void)
 void hash_init(hashtable_t *t)
 {
     hash_free(t);
-    t->items=(hashitem_t **)Bcalloc(1, t->size * sizeof(hashitem_t));
+    t->items=Bcalloc(1, t->size * sizeof(hashitem_t));
 }
 
 void hash_free(hashtable_t *t)

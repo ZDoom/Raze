@@ -1362,10 +1362,10 @@ ACTOR_STATIC void G_MoveFallers(void)
         }
         else if (T1 == 1)
         {
-            if (s->lotag < INT16_MAX)
+            if (s->lotag > 0)
             {
                 s->lotag-=3;
-                if (s->lotag > INT16_MAX)
+                if (s->lotag <= 0)
                 {
                     s->xvel = (32+(krand()&63));
                     s->zvel = -(1024+(krand()&1023));
@@ -1905,7 +1905,7 @@ ACTOR_STATIC void G_MoveStandables(void)
             A_PlaySound(PIPEBOMB_EXPLODE,j);
             A_PlaySound(GLASS_HEAVYBREAK,j);
 
-            if (s->hitag < INT16_MAX)
+            if (s->hitag > 0)
             {
                 j = headspritestat[STAT_STANDABLE];
                 while (j >= 0)
@@ -1959,10 +1959,10 @@ ACTOR_STATIC void G_MoveStandables(void)
             {
                 if (s->shade == -32)
                 {
-                    if (s->lotag < INT16_MAX)
+                    if (s->lotag > 0)
                     {
                         s->lotag-=3;
-                        if (s->lotag > INT16_MAX) s->lotag = UINT16_MAX-99;
+                        if (s->lotag <= 0) s->lotag = -99;
                     }
                     else
                         s->shade = -33;
@@ -2023,7 +2023,7 @@ DETONATE:
                     if (s->xrepeat)
                         for (x=0; x<8; x++) RANDOMSCRAP;
 
-                    if ((t[3] == 1 && s->xrepeat) || s->lotag == UINT16_MAX-99)
+                    if ((t[3] == 1 && s->xrepeat) || s->lotag == -99)
                     {
                         int32_t j = A_Spawn(i,EXPLOSION2);
                         x = s->extra;
@@ -2042,7 +2042,7 @@ DETONATE:
             if (s->yvel == 1)
             {
                 s->hitag--;
-                if (s->hitag == UINT16_MAX)
+                if (s->hitag <= 0)
                 {
                     G_OperateSectors(sect,i);
 
@@ -2264,7 +2264,7 @@ CLEAR_THE_BOLT:
             goto BOLT;
 
         case TOUCHPLATE__STATIC:
-            if (t[1] == 1 && s->hitag != UINT16_MAX)  //Move the sector floor
+            if (t[1] == 1 && s->hitag >= 0)  //Move the sector floor
             {
                 x = sector[sect].floorz;
 
@@ -2317,7 +2317,7 @@ CLEAR_THE_BOLT:
                         t[3] = !t[3];
                         G_OperateMasterSwitches(s->lotag);
                         G_OperateActivators(s->lotag,p);
-                        if (s->hitag < INT16_MAX)
+                        if (s->hitag > 0)
                         {
                             s->hitag--;
                             if (s->hitag == 0) t[5] = 1;
@@ -5541,7 +5541,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             j = s->owner;
 
-            if (sprite[j].lotag == UINT16_MAX)
+            if (sprite[j].lotag == (int16_t) 65535)
                 KILLIT(i);
 
             q = sc->extra>>3;
@@ -6421,7 +6421,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
         case SE_10_DOOR_AUTO_CLOSE:
             // XXX: 32791, what the hell?
-            if ((sc->lotag&0xff) == ST_27_STRETCH_BRIDGE || (sc->floorz > sc->ceilingz && (sc->lotag&0xff) != ST_23_SWINGING_DOOR) || sc->lotag == 32791)
+            if ((sc->lotag&0xff) == ST_27_STRETCH_BRIDGE || (sc->floorz > sc->ceilingz && (sc->lotag&0xff) != ST_23_SWINGING_DOOR) || sc->lotag == (int16_t) 32791)
             {
                 int32_t p;
 
@@ -7760,7 +7760,7 @@ static void G_DoEffectorLights(void)  // STATNUM 14
                     actor[i].lightptr->color[1] = sprite[i].yvel;
                     actor[i].lightptr->color[2] = sprite[i].zvel;
                 }
-                if ((int)!!(CS & 128) != actor[i].lightptr->publicflags.negative) {
+                if (!!(CS & 128) != actor[i].lightptr->publicflags.negative) {
                     actor[i].lightptr->publicflags.negative = !!(CS & 128);
                 }
             }
@@ -7850,10 +7850,10 @@ static void G_DoEffectorLights(void)  // STATNUM 14
                     actor[i].lightptr->horiz = SH;
                     actor[i].lightptr->flags.invalidate = 1;
                 }
-                if ((int)!(CS & 64) != actor[i].lightptr->publicflags.emitshadow) {
+                if (!(CS & 64) != actor[i].lightptr->publicflags.emitshadow) {
                     actor[i].lightptr->publicflags.emitshadow = !(CS & 64);
                 }
-                if ((int)!!(CS & 128) != actor[i].lightptr->publicflags.negative) {
+                if (!!(CS & 128) != actor[i].lightptr->publicflags.negative) {
                     actor[i].lightptr->publicflags.negative = !!(CS & 128);
                 }
                 actor[i].lightptr->tilenum = actor[i].picnum;

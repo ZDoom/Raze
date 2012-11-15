@@ -294,7 +294,7 @@ bwglSetPixelFormatProcPtr bwglSetPixelFormat;
 bwglSwapIntervalEXTProcPtr bwglSwapIntervalEXT;
 bwglCreateContextAttribsARBProcPtr bwglCreateContextAttribsARB;
 
-static HMODULE hGLDLL, hGLUDLL;
+static HANDLE hGLDLL, hGLUDLL;
 #else
 #include <dlfcn.h>
 

@@ -782,7 +782,9 @@ void                polymer_uninit(void)
 void                polymer_setaspect(int32_t ang)
 {
     float           aspect;
-    float fang = (float)ang * atanf((float)viewingrange/65536.0f)/(PI/4);
+    float fang = ang;
+
+    fang *= atanf((float)viewingrange/65536.0f)/(PI/4);
 
     if (pr_customaspect != 0.0f)
         aspect = pr_customaspect;
@@ -1169,7 +1171,7 @@ void                polymer_editorpick(void)
             GLfloat dadepth;
 
             int16_t k, bestk=0;
-            GLfloat bestwdistsq = (GLfloat)3.4e38, wdistsq;
+            GLfloat bestwdistsq = 3.4e38, wdistsq;
             GLfloat w1[2], w2[2], w21[2], pw1[2], pw2[2];
             GLfloat ptonline[2];
             GLfloat scrvxz[2];
@@ -1572,7 +1574,7 @@ void                polymer_texinvalidate(void)
 
 void                polymer_definehighpalookup(char basepalnum, char palnum, char *data)
 {
-    prhighpalookups[basepalnum][palnum].data = (char *)Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
+    prhighpalookups[basepalnum][palnum].data = Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
     
     Bmemcpy(prhighpalookups[basepalnum][palnum].data, data, PR_HIGHPALOOKUP_DATA_SIZE);
 }
@@ -1632,8 +1634,8 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
     mirrorcount = 0;
 
-    localsectormasks = (int16_t *)Bmalloc(sizeof(int16_t) * numsectors);
-    localsectormaskcount = (int16_t *)Bcalloc(sizeof(int16_t), 1);
+    localsectormasks = Bmalloc(sizeof(int16_t) * numsectors);
+    localsectormaskcount = Bcalloc(sizeof(int16_t), 1);
     cursectormasks = localsectormasks;
     cursectormaskcount = localsectormaskcount;
 
@@ -2174,17 +2176,17 @@ static int32_t      polymer_initsector(int16_t sectnum)
     if (pr_verbosity >= 2) OSD_Printf("PR : Initializing sector %i...\n", sectnum);
 
     sec = &sector[sectnum];
-    s = (_prsector *)Bcalloc(1, sizeof(_prsector));
+    s = Bcalloc(1, sizeof(_prsector));
     if (s == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sector %i : Bmalloc failed.\n", sectnum);
         return (0);
     }
 
-    s->verts = (GLdouble *)Bcalloc(sec->wallnum, sizeof(GLdouble) * 3);
-    s->floor.buffer = (GLfloat *)Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->verts = Bcalloc(sec->wallnum, sizeof(GLdouble) * 3);
+    s->floor.buffer = Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
     s->floor.vertcount = sec->wallnum;
-    s->ceil.buffer = (GLfloat *)Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->ceil.buffer = Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
     s->ceil.vertcount = sec->wallnum;
     if ((s->verts == NULL) || (s->floor.buffer == NULL) || (s->ceil.buffer == NULL))
     {
@@ -2354,9 +2356,9 @@ static int32_t      polymer_updatesector(int16_t sectnum)
                 heidiff = (int32_t)(curbuffer[(i*5)+1] - curbuffer[1]);
                 // don't forget the sign, tey could be negative with concave sectors
                 if (tey >= 0)
-                    tey = (int32_t)sqrt((double)((tey * tey) + (heidiff * heidiff)));
+                    tey = (int32_t)sqrt((tey * tey) + (heidiff * heidiff));
                 else
-                    tey = -(int32_t)sqrt((double)((tey * tey) + (heidiff * heidiff)));
+                    tey = -(int32_t)sqrt((tey * tey) + (heidiff * heidiff));
             }
 
             if (curstat & 4)
@@ -2514,8 +2516,8 @@ void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
     {
         if (pr_verbosity >= 2) OSD_Printf("PR : Indice overflow, extending the indices list... !\n");
         s->indicescount++;
-        s->floor.indices = (GLushort *)Brealloc(s->floor.indices, s->indicescount * sizeof(GLushort));
-        s->ceil.indices = (GLushort *)Brealloc(s->ceil.indices, s->indicescount * sizeof(GLushort));
+        s->floor.indices = Brealloc(s->floor.indices, s->indicescount * sizeof(GLushort));
+        s->ceil.indices = Brealloc(s->ceil.indices, s->indicescount * sizeof(GLushort));
     }
     s->ceil.indices[s->curindice] = (intptr_t)vertex;
     s->curindice++;
@@ -2539,15 +2541,15 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
     if (s->floor.indices == NULL)
     {
         s->indicescount = (max(3, sec->wallnum) - 2) * 3;
-        s->floor.indices = (GLushort *)Bcalloc(s->indicescount, sizeof(GLushort));
-        s->ceil.indices = (GLushort *)Bcalloc(s->indicescount, sizeof(GLushort));
+        s->floor.indices = Bcalloc(s->indicescount, sizeof(GLushort));
+        s->ceil.indices = Bcalloc(s->indicescount, sizeof(GLushort));
     }
 
     s->curindice = 0;
 
-    bgluTessCallback(prtess, GLU_TESS_VERTEX_DATA, (void (PR_CALLBACK *)(void))polymer_tessvertex);
-    bgluTessCallback(prtess, GLU_TESS_EDGE_FLAG, (void (PR_CALLBACK *)(void))polymer_tessedgeflag);
-    bgluTessCallback(prtess, GLU_TESS_ERROR, (void (PR_CALLBACK *)(void))polymer_tesserror);
+    bgluTessCallback(prtess, GLU_TESS_VERTEX_DATA, polymer_tessvertex);
+    bgluTessCallback(prtess, GLU_TESS_EDGE_FLAG, polymer_tessedgeflag);
+    bgluTessCallback(prtess, GLU_TESS_ERROR, polymer_tesserror);
 
     bgluTessProperty(prtess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_POSITIVE);
 
@@ -2684,7 +2686,7 @@ static int32_t      polymer_initwall(int16_t wallnum)
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initializing wall %i...\n", wallnum);
 
-    w = (_prwall *)Bcalloc(1, sizeof(_prwall));
+    w = Bcalloc(1, sizeof(_prwall));
     if (w == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize wall %i : Bmalloc failed.\n", wallnum);
@@ -2692,13 +2694,13 @@ static int32_t      polymer_initwall(int16_t wallnum)
     }
 
     if (w->mask.buffer == NULL) {
-        w->mask.buffer = (GLfloat *)Bmalloc(4 * sizeof(GLfloat) * 5);
+        w->mask.buffer = Bmalloc(4 * sizeof(GLfloat) * 5);
         w->mask.vertcount = 4;
     }
     if (w->bigportal == NULL)
-        w->bigportal = (GLfloat *)Bmalloc(4 * sizeof(GLfloat) * 5);
+        w->bigportal = Bmalloc(4 * sizeof(GLfloat) * 5);
     if (w->cap == NULL)
-        w->cap = (GLfloat *)Bmalloc(4 * sizeof(GLfloat) * 3);
+        w->cap = Bmalloc(4 * sizeof(GLfloat) * 3);
 
     bglGenBuffersARB(1, &w->wall.vbo);
     bglGenBuffersARB(1, &w->over.vbo);
@@ -2792,7 +2794,7 @@ static void         polymer_updatewall(int16_t wallnum)
     }
 
     if (w->wall.buffer == NULL) {
-        w->wall.buffer = (GLfloat *)Bcalloc(4, sizeof(GLfloat) * 5);  // XXX
+        w->wall.buffer = Bcalloc(4, sizeof(GLfloat) * 5);  // XXX
         w->wall.vertcount = 4;
     }
 
@@ -2993,7 +2995,7 @@ static void         polymer_updatewall(int16_t wallnum)
         if ((overwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
             if (w->over.buffer == NULL) {
-                w->over.buffer = (GLfloat *)Bmalloc(4 * sizeof(GLfloat) * 5);
+                w->over.buffer = Bmalloc(4 * sizeof(GLfloat) * 5);
                 w->over.vertcount = 4;
             }
 
@@ -3465,7 +3467,7 @@ void                polymer_updatesprite(int32_t snum)
 {
     int32_t         curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff, i, j, cs;
     spritetype      *tspr = tspriteptr[snum];
-    float           xratio, yratio, ang, f;
+    float           xratio, yratio, ang;
     float           spos[3];
     const GLfloat   *inbuffer;
     uint8_t         flipu, flipv;
@@ -3483,7 +3485,7 @@ void                polymer_updatesprite(int32_t snum)
 
         if (prsprites[tspr->owner] == NULL)
         {
-            if (pr_verbosity >= 1) OSD_Printf_nowarn("PR : Cannot initialize sprite %i : Bmalloc failed.\n", tspr->owner);
+            if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sprite %i : Bmalloc failed.\n", tspr->owner);
             return;
         }
 
@@ -3521,8 +3523,7 @@ void                polymer_updatesprite(int32_t snum)
             s->plane.material.diffusemodulation[3] = 0xAA;
     }
 
-    f = s->plane.material.diffusemodulation[3] * (1.0f - spriteext[tspr->owner].alpha);
-    s->plane.material.diffusemodulation[3] = (GLubyte)f;
+    s->plane.material.diffusemodulation[3] *=  (1.0f - spriteext[tspr->owner].alpha);
 
     if (searchit == 2)
     {
@@ -4097,7 +4098,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     color = mdspritematerial.diffusemodulation;
 
     color[0] = color[1] = color[2] =
-        (GLubyte)(((float)(numshades-min(max((tspr->shade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades) * 0xFF);
+        ((float)(numshades-min(max((tspr->shade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades) * 0xFF;
 
     usinghighpal = (pr_highpalookups &&
                     prhighpalookups[curbasepal][tspr->pal].map);
@@ -4108,14 +4109,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     {
         if (!(m->flags&1) || (!(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0))
         {
-            double f;
-
-            f = color[0] * (float)hictinting[tspr->pal].r / 255.0;
-            color[0] = (GLubyte)f;
-            f = color[1] * (float)hictinting[tspr->pal].g / 255.0;
-            color[1] = (GLubyte)f;
-            f = color[2] * (float)hictinting[tspr->pal].b / 255.0;
-            color[2] = (GLubyte)f;
+            color[0] *= (float)hictinting[tspr->pal].r / 255.0;
+            color[1] *= (float)hictinting[tspr->pal].g / 255.0;
+            color[2] *= (float)hictinting[tspr->pal].b / 255.0;
         }
         else globalnoeffect=1; //mdloadskin reads this
     }
@@ -4126,14 +4122,9 @@ static void         polymer_drawmdsprite(spritetype *tspr)
          hictinting[MAXPALOOKUPS-1].g != 255 ||
          hictinting[MAXPALOOKUPS-1].b != 255))
     {
-        double f;
-
-        f = color[0] * hictinting[MAXPALOOKUPS-1].r / 255.0;
-        color[0] = (GLubyte)f;
-        f = color[1] * hictinting[MAXPALOOKUPS-1].g / 255.0;
-        color[1] = (GLubyte)f;
-        f = color[2] * hictinting[MAXPALOOKUPS-1].b / 255.0;
-        color[2] = (GLubyte)f;
+        color[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
+        color[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;
+        color[2] *= hictinting[MAXPALOOKUPS-1].b / 255.0;
     }
 
     if (tspr->cstat & 2)
@@ -4145,10 +4136,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     } else
         color[3] = 0xFF;
 
-    {
-        double f = color[3] * (1.0f - spriteext[tspr->owner].alpha);
-        color[3] = (GLubyte)f;
-    }
+    color[3] *=  (1.0f - spriteext[tspr->owner].alpha);
 
     if (searchit == 2)
     {
@@ -4385,9 +4373,9 @@ static void         polymer_loadmodelvbos(md3model_t* m)
     int32_t         i;
     md3surf_t       *s;
 
-    m->indices = (GLuint *)Bmalloc(m->head.numsurfs * sizeof(GLuint));
-    m->texcoords = (GLuint *)Bmalloc(m->head.numsurfs * sizeof(GLuint));
-    m->geometry = (GLuint *)Bmalloc(m->head.numsurfs * sizeof(GLuint));
+    m->indices = Bmalloc(m->head.numsurfs * sizeof(GLuint));
+    m->texcoords = Bmalloc(m->head.numsurfs * sizeof(GLuint));
+    m->geometry = Bmalloc(m->head.numsurfs * sizeof(GLuint));
 
     bglGenBuffersARB(m->head.numsurfs, m->indices);
     bglGenBuffersARB(m->head.numsurfs, m->texcoords);
@@ -4493,34 +4481,24 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
-            (GLubyte)(((float)(numshades-min(max((shade  * shadescale),0),numshades)))/((float)numshades) * 0xFF);
+            ((float)(numshades-min(max((shade  * shadescale),0),numshades)))/((float)numshades) * 0xFF;
  
         if (pth->flags & 2)
         {
             if (pth->palnum != pal)
             {
-                double f;
-
-                f = material->diffusemodulation[0] * (float)hictinting[pal].r / 255.0;
-                material->diffusemodulation[0] = (GLubyte)f;
-                f = material->diffusemodulation[1] * (float)hictinting[pal].g / 255.0;
-                material->diffusemodulation[1] = (GLubyte)f;
-                f = material->diffusemodulation[2] * (float)hictinting[pal].b / 255.0;
-                material->diffusemodulation[2] = (GLubyte)f;
+                material->diffusemodulation[0] *= (float)hictinting[pal].r / 255.0;
+                material->diffusemodulation[1] *= (float)hictinting[pal].g / 255.0;
+                material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
             }
 
             // fullscreen tint on global palette change... this is used for nightvision and underwater tinting
             // if ((hictinting[MAXPALOOKUPS-1].r + hictinting[MAXPALOOKUPS-1].g + hictinting[MAXPALOOKUPS-1].b) != 0x2FD)
             if (!usinghighpal && ((uint32_t)hictinting[MAXPALOOKUPS-1].r & 0xFFFFFF00) != 0xFFFFFF00)
             {
-                double f;
-
-                f = material->diffusemodulation[0] * hictinting[MAXPALOOKUPS-1].r / 255.0;
-                material->diffusemodulation[0] = (GLubyte)f;
-                f = material->diffusemodulation[1] * hictinting[MAXPALOOKUPS-1].g / 255.0;
-                material->diffusemodulation[1] = (GLubyte)f;
-                f = material->diffusemodulation[2] * hictinting[MAXPALOOKUPS-1].b / 255.0;
-                material->diffusemodulation[2] = (GLubyte)f;
+                material->diffusemodulation[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
+                material->diffusemodulation[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;
+                material->diffusemodulation[2] *= hictinting[MAXPALOOKUPS-1].b / 255.0;
             }
         }
  
@@ -5249,7 +5227,7 @@ out:
     }
 
     oldhead = prlights[lighti].planelist;
-    prlights[lighti].planelist = (_prplanelist *)Bmalloc(sizeof(_prplanelist));
+    prlights[lighti].planelist = Bmalloc(sizeof(_prplanelist));
     prlights[lighti].planelist->n = oldhead;
 
     prlights[lighti].planelist->plane = plane;
@@ -5675,7 +5653,7 @@ static void         polymer_initrendertargets(int32_t count)
     ocount = count;
     //////////
 
-    prrts = (_prrt *)Bcalloc(count, sizeof(_prrt));
+    prrts = Bcalloc(count, sizeof(_prrt));
 
     i = 0;
     while (i < count)

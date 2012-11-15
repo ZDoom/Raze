@@ -390,18 +390,6 @@
     <ClInclude Include="source\input.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\tracker_operator.hpp">
-      <Filter>build\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="build\include\tracker_operators.hpp">
-      <Filter>build\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="build\include\tracker.hpp">
-      <Filter>build\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="source\animvpx.h">
-      <Filter>eduke32\headers</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -688,12 +676,6 @@
     </ClCompile>
     <ClCompile Include="source\input.c">
       <Filter>eduke32\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\animvpx.c">
-      <Filter>eduke32\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\enet\src\compress.c">
-      <Filter>enet\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

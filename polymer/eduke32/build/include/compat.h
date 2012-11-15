@@ -20,13 +20,6 @@
 # define ATTRIBUTE(attrlist)
 #endif
 
-#ifndef min
-#define min(x,y) ((x) < (y) ? (x) : (y))
-#endif
-#ifndef max
-#define max(x,y) ((x) > (y) ? (x) : (y))
-#endif
-
 // This gives us access to 'intptr_t' and 'uintptr_t', which are
 // abstractions to the size of a pointer on a given platform
 // (ie, they're guaranteed to be the same size as a pointer)
@@ -107,7 +100,6 @@
 #endif
 
 #if defined(_MSC_VER)
-#include <direct.h>
 # define inline __inline
 # define longlong(x) x##i64
 static inline float nearbyintf(float x) 
@@ -508,13 +500,7 @@ static inline uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7ff
 # else
 #  define Btell tell
 # endif
-# ifdef _MSC_VER
 # define Bstat stat
-# define Bfstat fstat
-# else
-# define Bstat stat
-# define Bfstat fstat
-# endif
 # define Bfileno fileno
 # define Bferror ferror
 # define Bfopen fopen
@@ -668,39 +654,6 @@ char *Bstrupr(char *);
 #define MAYBE_FCLOSE_AND_NULL(fileptr) do { \
     if (fileptr) { Bfclose(fileptr); fileptr=NULL; } \
 } while (0)
-
-#define NOWARN(print_func, fmt, ...) do { \
-    print_func(fmt, ## __VA_ARGS__); \
-} while (0)
-
-#define NOWARN_RETURN(print_func, var, fmt, ...) do { \
-    var = print_func(fmt, ## __VA_ARGS__); \
-} while (0)
-
-// TODO: add MSVC pragmas to disable equivalent warning, if necessary later
-#ifndef _MSC_VER
-#ifdef _WIN32
-// MinGW's _Pragma is completely broken so our GCC NOWARN macro is useless there
- #pragma GCC diagnostic ignored "-Wformat"
-#else
- #undef NOWARN
- #undef NOWARN_RETURN
-
- #define NOWARN(print_func, fmt, ...) do { _Pragma("GCC diagnostic ignored \"-Wformat\"") \
-    print_func(fmt, ## __VA_ARGS__); \
-    _Pragma("GCC diagnostic warning \"-Wformat\"") } while (0)
-
- #define NOWARN_RETURN(print_func, var, fmt, ...) do { _Pragma("GCC diagnostic ignored \"-Wformat\"") \
-    var = print_func(fmt, ## __VA_ARGS__); \
-    _Pragma("GCC diagnostic warning \"-Wformat\"") } while (0)
-#endif
-#endif
-
-#define OSD_Printf_nowarn(fmt, ...) NOWARN(OSD_Printf, fmt, ## __VA_ARGS__)
-#define Bsprintf_nowarn(fmt, ...) NOWARN(Bsprintf, fmt, ## __VA_ARGS__)
-#define Bsprintf_nowarn_return(x, fmt, ...) NOWARN_RETURN(Bsprintf, x, fmt, ## __VA_ARGS__)
-#define initprintf_nowarn(fmt, ...) NOWARN(initprintf, fmt, ## __VA_ARGS__)
-#define message_nowarn(fmt, ...) NOWARN(message, fmt, ## __VA_ARGS__)
 
 #endif // __compat_h__
 

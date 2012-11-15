@@ -33,15 +33,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 struct grpfile grpfiles[NUMGRPFILES] =
 {
-    { "Duke Nukem 3D",                            (int32_t)0xBBC9CE44, 26524524, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D (South Korean Censored)",    (int32_t)0xAA4F6A40, 26385383, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D: Atomic Edition",            (int32_t)0xFD3DCFF1, 44356548, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D: Plutonium Pak",             (int32_t)0xF514A6AC, 44348015, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D Shareware",                  (int32_t)0x983AD923, 11035779, GAMEFLAG_DUKE, NULL },
-    { "Duke Nukem 3D Mac Shareware",              (int32_t)0xC5F71561, 10444391, GAMEFLAG_DUKE, NULL },
-    { "NAM",                                      (int32_t)0x75C1F07B, 43448927, GAMEFLAG_NAM,  NULL },
-    { "Napalm",                                   (int32_t)0x3DE1589A, 44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,  NULL },
-    { "WWII GI",                                  (int32_t)0x907B82BF, 77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,  NULL },
+    { "Duke Nukem 3D",                            0xBBC9CE44, 26524524, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D (South Korean Censored)",    0xAA4F6A40, 26385383, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D: Atomic Edition",            0xFD3DCFF1, 44356548, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D: Atomic Edition (Censored)", 0xF514A6AC, 44348015, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D Shareware",                  0x983AD923, 11035779, GAMEFLAG_DUKE, NULL },
+    { "Duke Nukem 3D Mac Shareware",              0xC5F71561, 10444391, GAMEFLAG_DUKE, NULL },
+    { "NAM",                                      0x75C1F07B, 43448927, GAMEFLAG_NAM,  NULL },
+    { "Napalm",                                   0x3DE1589A, 44365728, GAMEFLAG_NAM|GAMEFLAG_NAPALM,  NULL },
+    { "WWII GI",                                  0x907B82BF, 77939508, GAMEFLAG_WW2GI|GAMEFLAG_NAM,  NULL },
 };
 struct grpfile *foundgrps = NULL;
 
@@ -75,7 +75,7 @@ static int32_t LoadGroupsCache(void)
         if (scriptfile_getnumber(script, &fmtime)) break;   // modification time
         if (scriptfile_getnumber(script, &fcrcval)) break;  // crc checksum
 
-        fg = (struct grpcache *)Bcalloc(1, sizeof(struct grpcache));
+        fg = Bcalloc(1, sizeof(struct grpcache));
         fg->next = grpcache;
         grpcache = fg;
 
@@ -109,7 +109,7 @@ int32_t ScanGroups(void)
     char *fn;
     struct Bstat st;
 #define BUFFER_SIZE (1024 * 1024 * 8)
-    uint8_t *buf = (uint8_t *)Bmalloc(BUFFER_SIZE);
+    uint8_t *buf = Bmalloc(BUFFER_SIZE);
 
     if (!buf)
     {
@@ -165,7 +165,7 @@ int32_t ScanGroups(void)
 
             fh = openfrompath(sidx->name, BO_RDONLY|BO_BINARY, BS_IREAD);
             if (fh < 0) continue;
-            if (Bfstat(fh, &st)) continue;
+            if (fstat(fh, &st)) continue;
 
             initprintf(" Checksumming %s...", sidx->name);
             crc32init((uint32_t *)&crcval);

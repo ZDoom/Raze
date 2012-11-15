@@ -135,7 +135,7 @@ extern ENetPeer       *g_netClientPeer;
 extern char           g_netPassword[32];
 extern int32_t        g_netDisconnect;
 extern int32_t        g_netPlayersWaiting;
-extern enet_uint16    g_netPort;
+extern int32_t        g_netPort;
 extern int32_t        g_networkMode;
 extern int32_t        lastsectupdate[MAXSECTORS];
 extern int32_t        lastupdate[MAXSPRITES];

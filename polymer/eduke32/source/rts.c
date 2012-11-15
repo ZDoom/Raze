@@ -110,7 +110,7 @@ int32_t RTS_AddFile(const char *filename)
     //
     // Fill in lumpinfo
     //
-    lump_p = (lumpinfo_t *)Brealloc(rts_lumpinfo, (rts_numlumps + header.numlumps)*sizeof(lumpinfo_t));
+    lump_p = Brealloc(rts_lumpinfo, (rts_numlumps + header.numlumps)*sizeof(lumpinfo_t));
     if (!lump_p)
     {
         kclose(handle);
@@ -163,7 +163,7 @@ void RTS_Init(const char *filename)
     // set up caching
     //
     length = (rts_numlumps) * sizeof(*rts_lumpcache);
-    rts_lumpcache = (void **)Bmalloc(length);
+    rts_lumpcache = Bmalloc(length);
     memset(rts_lumpcache,0,length);
     RTS_Started = TRUE;
 }

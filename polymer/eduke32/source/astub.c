@@ -415,12 +415,12 @@ static void create_compressed_block(int32_t idx, const void *srcdata, uint32_t s
     uint32_t j;
 
     // allocate
-    mapstate->sws[idx] = (char *)Bmalloc(4 + size + QADDNSZ);
+    mapstate->sws[idx] = Bmalloc(4 + size + QADDNSZ);
     if (!mapstate->sws[idx]) { initprintf("OUT OF MEM in undo/redo\n"); osdcmd_quit(NULL); }
 
     // compress & realloc
     j = qlz_compress(srcdata, mapstate->sws[idx]+4, size, state_compress);
-    mapstate->sws[idx] = (char *)Brealloc(mapstate->sws[idx], 4 + j);
+    mapstate->sws[idx] = Brealloc(mapstate->sws[idx], 4 + j);
     if (!mapstate->sws[idx]) { initprintf("COULD not realloc in undo/redo\n"); osdcmd_quit(NULL); }
 
     // write refcount
@@ -474,7 +474,7 @@ void create_map_snapshot(void)
 
         map_revision = 1;
 
-        mapstate = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
+        mapstate = Bcalloc(1, sizeof(mapundo_t));
         mapstate->revision = map_revision;
         mapstate->prev = mapstate->next = NULL;
     }
@@ -485,7 +485,7 @@ void create_map_snapshot(void)
         // now, have no successors
 
         // calloc because not everything may be set in the following:
-        mapstate->next = (mapundo_t *)Bcalloc(1, sizeof(mapundo_t));
+        mapstate->next = Bcalloc(1, sizeof(mapundo_t));
         mapstate->next->prev = mapstate;
 
         mapstate = mapstate->next;
@@ -524,7 +524,7 @@ void create_map_snapshot(void)
             if (!try_match_with_prev(2, Numsprites, tempcrc))
             {
                 int32_t i = 0;
-                spritetype *const tspri = (spritetype *)Bmalloc(Numsprites*sizeof(spritetype) + 4);
+                spritetype *const tspri = Bmalloc(Numsprites*sizeof(spritetype) + 4);
                 spritetype *spri = tspri;
 
                 if (!tspri) { initprintf("OUT OF MEM in undo/redo (2)\n"); osdcmd_quit(NULL); }
@@ -897,7 +897,7 @@ int32_t taglab_load(const char *filename, int32_t flags)
 
     len = kfilelength(fil);
 
-    filebuf = (char *)Bmalloc(len+1);
+    filebuf = Bmalloc(len+1);
     if (!filebuf)
     {
         kclose(fil);
@@ -1315,9 +1315,9 @@ const char *ExtGetSectorCaption(int16_t sectnum)
     {
         Bstrcpy(lo, ExtGetSectorType(sector[sectnum].lotag));
         if (qsetmode != 200)
-            Bsprintf_nowarn(tempbuf,"%hu,%hu %s", sector[sectnum].hitag, sector[sectnum].lotag, lo);
+            Bsprintf(tempbuf,"%hu,%hu %s", sector[sectnum].hitag, sector[sectnum].lotag, lo);
         else
-            Bsprintf_nowarn(tempbuf,"%hu %s", sector[sectnum].lotag, lo);
+            Bsprintf(tempbuf,"%hu %s", sector[sectnum].lotag, lo);
     }
     return(tempbuf);
 }
@@ -1350,8 +1350,8 @@ const char *ExtGetWallCaption(int16_t wallnum)
         int32_t lt = taglab_linktags(0, wallnum);
         char histr[TAGLAB_MAX+16], lostr[TAGLAB_MAX+16];
 
-        lt &= ~(int)(wall[wallnum].lotag<=0);
-        lt &= ~(int)((wall[wallnum].hitag<=0)<<1);
+        lt &= ~(wall[wallnum].lotag<=0);
+        lt &= ~((wall[wallnum].hitag<=0)<<1);
 
         taglab_handle1(lt&2, wall[wallnum].hitag, histr);
 
@@ -1491,8 +1491,8 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
         return tempbuf;
 
     lt = taglab_linktags(1, spritenum);
-    lt &= ~(int)(sprite[spritenum].lotag<=0);
-    lt &= ~(int)((sprite[spritenum].hitag<=0)<<1);
+    lt &= ~(sprite[spritenum].lotag<=0);
+    lt &= ~((sprite[spritenum].hitag<=0)<<1);
 
     if ((sprite[spritenum].lotag|sprite[spritenum].hitag) == 0)
     {
@@ -1527,7 +1527,7 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
 
             SpriteName(spritenum,lo);
             if (sprite[spritenum].extra != -1)
-                Bsprintf_nowarn(tempbuf,"%s,%s,%d %s", histr, lostr, sprite[spritenum].extra, lo);
+                Bsprintf(tempbuf,"%s,%s,%d %s", histr, lostr, sprite[spritenum].extra, lo);
             else
                 Bsprintf(tempbuf,"%s,%s %s", histr, lostr, lo);
         }
@@ -1754,7 +1754,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
             if (runi==1 && sprite[i].picnum!=RESPAWN)
                 continue;
 
-            pic = (runi==0) ? (int)sprite[i].picnum : (int)sprite[i].hitag;
+            pic = (runi==0) ? sprite[i].picnum : sprite[i].hitag;
             if (pic<0 || pic>=MAXTILES)
                 continue;
 
@@ -1948,7 +1948,7 @@ static void ReadHelpFile(const char *name)
         return;
     }
 
-    helppage=(helppage_t **)Bmalloc(IHELP_INITPAGES * sizeof(helppage_t *));
+    helppage=Bmalloc(IHELP_INITPAGES * sizeof(helppage_t *));
     numallocpages=IHELP_INITPAGES;
     if (!helppage) goto HELPFILE_ERROR;
 
@@ -1968,7 +1968,7 @@ static void ReadHelpFile(const char *name)
 
         if (Bfeof(fp) || charsread<=0) break;
 
-        hp=(helppage_t *)Bcalloc(1,sizeof(helppage_t) + IHELP_INITLINES*80);
+        hp=Bcalloc(1,sizeof(helppage_t) + IHELP_INITLINES*80);
         if (!hp) goto HELPFILE_ERROR;
         hp->numlines = IHELP_INITLINES;
 
@@ -1979,7 +1979,7 @@ static void ReadHelpFile(const char *name)
         {
             if (j >= hp->numlines)
             {
-                hp=(helppage_t *)Brealloc(hp, sizeof(helppage_t) + 2*hp->numlines*80);
+                hp=Brealloc(hp, sizeof(helppage_t) + 2*hp->numlines*80);
                 if (!hp) goto HELPFILE_ERROR;
                 hp->numlines *= 2;
             }
@@ -2012,13 +2012,13 @@ static void ReadHelpFile(const char *name)
         }
         while (!newpage(tempbuf) && !Bfeof(fp) && charsread>0);
 
-        hp=(helppage_t *)Brealloc(hp, sizeof(helppage_t) + j*80);
+        hp=Brealloc(hp, sizeof(helppage_t) + j*80);
         if (!hp) goto HELPFILE_ERROR;
         hp->numlines=j;
 
         if (i >= numallocpages)
         {
-            helppage = (helppage_t **)Brealloc(helppage, 2*numallocpages*sizeof(helppage_t *));
+            helppage = Brealloc(helppage, 2*numallocpages*sizeof(helppage_t *));
             numallocpages *= 2;
             if (!helppage) goto HELPFILE_ERROR;
         }
@@ -2026,7 +2026,7 @@ static void ReadHelpFile(const char *name)
         i++;
     }
 
-    helppage =(helppage_t **) Brealloc(helppage, i*sizeof(helppage_t *));
+    helppage = Brealloc(helppage, i*sizeof(helppage_t *));
     if (!helppage) goto HELPFILE_ERROR;
     numhelppages = i;
 
@@ -2335,7 +2335,7 @@ static int32_t sort_sounds(int32_t how)
 
     n = g_numsounds;
     src = source = g_sndnum;
-    dest = (int16_t *)Bmalloc(sizeof(int16_t) * n);
+    dest = Bmalloc(sizeof(int16_t) * n);
     dst = dest;
     if (!dest) return -1;
 
@@ -3748,7 +3748,7 @@ static int32_t OnSaveTileGroup(void)
         Bfprintf(fp, "tilegroup \"%s\""OURNEWL"{"OURNEWL, name);
         Bfprintf(fp, TTAB "hotkey \"%c\""OURNEWL OURNEWL, hotkey);
 
-        if (!(s_TileGroups[tile_groups].pIds = (int32_t *)Bmalloc(n * sizeof(s_TileGroups[tile_groups].pIds[0]))))
+        if (!(s_TileGroups[tile_groups].pIds = Bmalloc(n * sizeof(s_TileGroups[tile_groups].pIds[0]))))
             TMPERRMSG_RETURN("Out of memory.");
 
         j = 0;
@@ -4269,8 +4269,8 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
         if (small)
             x1 /= 2;
 
-        x1 = (int32_t)(x1 * 320.0/xdimgame);
-        scale = (int32_t)(max(tilesizx[picnum],tilesizy[picnum])/24.0);
+        x1 *= 320.0/xdimgame;
+        scale /= (max(tilesizx[picnum],tilesizy[picnum])/24.0);
 
         setaspect(65536L, (int32_t)divscale16(ydim*320L,xdim*200L));
         // +1024: prevents rotatesprite from setting aspect itself
@@ -4278,8 +4278,8 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
         setaspect(oviewingrange, oyxaspect);
     }
 
-    x = (int32_t)(x * xdimgame/320.0);
-    y = (int32_t)(y * ydimgame/200.0);
+    x *= xdimgame/320.0;
+    y *= ydimgame/200.0;
 
     begindrawing();
     printext256(x+2,y+2,0,-1,title,small);
@@ -4384,16 +4384,16 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
         switch (bytes)
         {
         case 1:
-            getnumber_dochar((char *)num, danum);
+            getnumber_dochar(num, danum);
             break;
         case 2:
-            getnumber_doint16_t((int16_t *)num, danum);
+            getnumber_doint16_t(num, danum);
             break;
         case 4:
-            getnumber_doint32((int32_t *)num, danum);
+            getnumber_doint32(num, danum);
             break;
         case 8:
-            getnumber_doint64((int64_t *)num, danum);
+            getnumber_doint64(num, danum);
             break;
         }
     }
@@ -4405,16 +4405,16 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
     switch (bytes)
     {
     case 1:
-        getnumber_dochar((char *)num, oldnum);
+        getnumber_dochar(num, oldnum);
         break;
     case 2:
-        getnumber_doint16_t((int16_t *)num, oldnum);
+        getnumber_doint16_t(num, oldnum);
         break;
     case 4:
-        getnumber_doint32((int32_t *)num, oldnum);
+        getnumber_doint32(num, oldnum);
         break;
     case 8:
-        getnumber_doint64((int64_t *)num, oldnum);
+        getnumber_doint64(num, oldnum);
         break;
     }
 }
@@ -4489,7 +4489,7 @@ ENDFOR1:
     sprite[startspr].xoffset = -(((picanm[t])>>8)&255);
     sprite[startspr].yoffset = -(((picanm[t])>>16)&255);
 
-    spritenums = (int16_t *)Bmalloc(stackallocsize * sizeof(int16_t));
+    spritenums = Bmalloc(stackallocsize * sizeof(int16_t));
     if (!spritenums) goto ERROR_NOMEMORY;
 
     cursor = insertsprite(sprite[startspr].sectnum,0);
@@ -4556,7 +4556,7 @@ ENDFOR1:
         ExtCheckKeys();
 
         printmessage256(0,0,"^251Text entry mode.^31 Navigation keys change vars.");
-        Bsprintf_nowarn(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
+        Bsprintf(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
                  hgap, vgap, spcgap[alphidx], sprite[linebegspr].shade, sprite[linebegspr].pal);
         printmessage256(0, 9, buffer);
         showframe(1);
@@ -4624,7 +4624,7 @@ ENDFOR1:
                 if (numletters >= stackallocsize)
                 {
                     stackallocsize *= 2;
-                    spritenums = (int16_t *)Brealloc(spritenums, stackallocsize*sizeof(int16_t));
+                    spritenums = Brealloc(spritenums, stackallocsize*sizeof(int16_t));
                     if (!spritenums) goto ERROR_NOMEMORY;
                 }
                 spritenums[numletters++] = i;
@@ -4818,7 +4818,7 @@ static void toggle_cf_flipping(int32_t sectnum, int32_t floorp)
 
     static const int16_t orient[8] = { 360, -360, -180, 180, -270, 270, 90, -90 };
 
-    uint16_t *stat = &SECTORFLD(sectnum,stat, floorp);
+    int16_t *stat = &SECTORFLD(sectnum,stat, floorp);
     int32_t i = *stat;
 
     i = (i&0x4)+((i>>4)&3);
@@ -4925,9 +4925,9 @@ static void Keys3d(void)
                     height3 = sector[nextsect].ceilingz - sector[searchsector].ceilingz;
                 }
 
-                Bsprintf_nowarn(lines[num++],"Panning: %d, %d", wall[w].xpanning, wall[w].ypanning);
-                Bsprintf_nowarn(lines[num++],"Repeat:  %d, %d", wall[searchwall].xrepeat, wall[searchwall].yrepeat);
-                Bsprintf_nowarn(lines[num++],"Overpic: %d", wall[searchwall].overpicnum);
+                Bsprintf(lines[num++],"Panning: %d, %d", wall[w].xpanning, wall[w].ypanning);
+                Bsprintf(lines[num++],"Repeat:  %d, %d", wall[searchwall].xrepeat, wall[searchwall].yrepeat);
+                Bsprintf(lines[num++],"Overpic: %d", wall[searchwall].overpicnum);
                 lines[num++][0]=0;
 
                 if (getmessageleng)
@@ -4966,7 +4966,7 @@ static void Keys3d(void)
                     break;
 
                 Bsprintf(lines[num++],"^251Sector %d^31 %s, Lotag:%s", searchsector, typestr[searchstat], ExtGetSectorCaption(searchsector));
-                Bsprintf_nowarn(lines[num++],"Height: %d, Visibility:%d", height2, sector[searchsector].visibility);
+                Bsprintf(lines[num++],"Height: %d, Visibility:%d", height2, sector[searchsector].visibility);
                 break;
 
             case SEARCH_SPRITE:
@@ -4974,10 +4974,10 @@ static void Keys3d(void)
                              sprite[searchwall].pal, sprite[searchwall].cstat, sprite[searchwall].lotag,
                              sprite[searchwall].hitag, sprite[searchwall].extra,0);
 
-                Bsprintf_nowarn(lines[num++], "Repeat:  %d,%d", sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
-                Bsprintf_nowarn(lines[num++], "PosXY:   %d,%d%s", sprite[searchwall].x, sprite[searchwall].y,
+                Bsprintf(lines[num++], "Repeat:  %d,%d", sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
+                Bsprintf(lines[num++], "PosXY:   %d,%d%s", sprite[searchwall].x, sprite[searchwall].y,
                          sprite[searchwall].xoffset|sprite[searchwall].yoffset ? " ^251*":"");
-                Bsprintf_nowarn(lines[num++], "PosZ: ""   %d", sprite[searchwall].z);// prevents tab character
+                Bsprintf(lines[num++], "PosZ: ""   %d", sprite[searchwall].z);// prevents tab character
                 lines[num++][0]=0;
 
                 if (getmessageleng)
@@ -4991,9 +4991,9 @@ static void Keys3d(void)
                     if (sprite[searchwall].picnum==SECTOREFFECTOR)
                         Bsprintf(lines[num++],"^251Sprite %d^31 %s", searchwall, SectorEffectorText(searchwall));
                     else
-                        Bsprintf_nowarn(lines[num++],"^251Sprite %d^31 %s", searchwall, names[sprite[searchwall].picnum]);
+                        Bsprintf(lines[num++],"^251Sprite %d^31 %s", searchwall, names[sprite[searchwall].picnum]);
                 }
-                else Bsprintf_nowarn(lines[num++],"^251Sprite %d^31, picnum %d", searchwall, sprite[searchwall].picnum);
+                else Bsprintf(lines[num++],"^251Sprite %d^31, picnum %d", searchwall, sprite[searchwall].picnum);
 
                 Bsprintf(lines[num++], "Elevation:%d",
                          getflorzofslope(searchsector, sprite[searchwall].x, sprite[searchwall].y) - sprite[searchwall].z);
@@ -5001,8 +5001,8 @@ static void Keys3d(void)
             }
         }
 
-        x = (int32_t)(WIND1X*(xdimgame/320.));
-        y = (int32_t)(WIND1Y*(ydimgame/200.));
+        x = WIND1X*(xdimgame/320.);
+        y = WIND1Y*(ydimgame/200.);
         y += (ydimgame>>6)*8;
 
         if (getmessageleng)
@@ -5111,7 +5111,7 @@ static void Keys3d(void)
         if (AIMING_AT_WALL_OR_MASK)
         {
             wall[searchwall].cstat &= YAX_NEXTWALLBITS;
-            message_nowarn("Wall %d cstat = %d", searchwall, wall[searchwall].cstat);
+            message("Wall %d cstat = %d", searchwall, wall[searchwall].cstat);
         }
         else if (AIMING_AT_SPRITE)
         {
@@ -5277,7 +5277,7 @@ static void Keys3d(void)
         {
             sprite[searchwall].ang += tsign<<(!eitherSHIFT*7);
             sprite[searchwall].ang &= 2047;
-            message_nowarn("Sprite %d angle: %d", searchwall, sprite[searchwall].ang);
+            message("Sprite %d angle: %d", searchwall, sprite[searchwall].ang);
         }
     }
 
@@ -5545,9 +5545,9 @@ static void Keys3d(void)
                 if (eitherCTRL)  //CTRL
                 {
                     if (tsign==1)
-                        visibility <<= (int)(visibility < 16384);
+                        visibility <<= (visibility < 16384);
                     else
-                        visibility >>= (int)(visibility > 32);
+                        visibility >>= (visibility > 32);
                     silentmessage("Global visibility %d", visibility);
                 }
                 else
@@ -6218,21 +6218,21 @@ static void Keys3d(void)
         else if (AIMING_AT_CEILING_OR_FLOOR)
         {
             sector[searchsector].lotag =
-                _getnumber256("Sector lotag: ", sector[searchsector].lotag, BTAG_MAX, 0, (void *(*)(int32_t))ExtGetSectorType);
+                _getnumber256("Sector lotag: ", sector[searchsector].lotag, BTAG_MAX, 0, (void *)ExtGetSectorType);
         }
         else if (AIMING_AT_SPRITE)
         {
             if (sprite[searchwall].picnum == SECTOREFFECTOR)
             {
                 sprite[searchwall].lotag =
-                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j, (void *(*)(int32_t))SectorEffectorTagText);
+                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j, (void *)SectorEffectorTagText);
             }
             else if (sprite[searchwall].picnum == MUSICANDSFX)
             {
                 int16_t oldtag = sprite[searchwall].lotag;
 
                 sprite[searchwall].lotag =
-                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j, (void *(*)(int32_t))MusicAndSFXTagText);
+                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j, (void *)MusicAndSFXTagText);
 
                 if ((sprite[searchwall].filler&1) && sprite[searchwall].lotag != oldtag)
                 {
@@ -6388,7 +6388,7 @@ static void Keys3d(void)
         if (AIMING_AT_CEILING_OR_FLOOR)   //Set masked/transluscent ceilings/floors
         {
             int32_t nexti[4] = { 128, 256, 384, 0 };
-            uint16_t *stat = &AIMED_CEILINGFLOOR(stat);
+            int16_t *stat = &AIMED_CEILINGFLOOR(stat);
             const char *statmsg[4] = {"normal", "masked", "translucent", "translucent (2)"};
 
             i = (*stat&(128+256))>>7;
@@ -7870,7 +7870,7 @@ static void Keys2d(void)
                 j = 4*(j&1);
                 Bsprintf(buffer,"Sprite (%d) Lo-tag: ", i);
                 sprite[i].lotag = _getnumber16(buffer, sprite[i].lotag, BTAG_MAX, 0+j, sprite[i].picnum==SECTOREFFECTOR ?
-                                               (void *(*)(int32_t))SectorEffectorTagText : NULL);
+                                               (void *)SectorEffectorTagText : NULL);
             }
             else if (linehighlight >= 0)
             {
@@ -7894,7 +7894,7 @@ static void Keys2d(void)
             {
                 Bsprintf(buffer,"Sector (%d) Lo-tag: ", tcursectornum);
                 sector[tcursectornum].lotag =
-                    _getnumber16(buffer, sector[tcursectornum].lotag, BTAG_MAX, 0, (void *(*)(int32_t))ExtGetSectorType);                
+                    _getnumber16(buffer, sector[tcursectornum].lotag, BTAG_MAX, 0, (void *)ExtGetSectorType);                
             }
         }
     }
@@ -8477,7 +8477,7 @@ int32_t ExtPreSaveMap(void)
                 if (wall[j].point2 < startwall)
                     startwall = wall[j].point2;
             if (sector[i].wallptr != startwall)
-                initprintf_nowarn("Warning: set sector %d's wallptr to %d (was %d)\n", i,
+                initprintf("Warning: set sector %d's wallptr to %d (was %d)\n", i,
                            sector[i].wallptr, startwall);
             sector[i].wallptr = startwall;
         }
@@ -8570,14 +8570,14 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     if (argc <= 1)
         return;
 
-    lengths = (int32_t *)Bmalloc(argc*sizeof(int32_t));
+    lengths = Bmalloc(argc*sizeof(int32_t));
     for (j=1; j<argc; j++)
     {
         lengths[j] = Bstrlen(argv[j]);
         maxlen += lengths[j];
     }
 
-    testplay_addparam = (char *)Bmalloc(maxlen+argc);
+    testplay_addparam = Bmalloc(maxlen+argc);
     testplay_addparam[0] = 0;
 
     j = 0;
@@ -8867,7 +8867,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     if (j > 0)
     {
         testplay_addparam[j-1] = 0;
-        testplay_addparam = (char *)Brealloc(testplay_addparam, j*sizeof(char));
+        testplay_addparam = Brealloc(testplay_addparam, j*sizeof(char));
     }
     else
     {
@@ -9015,9 +9015,9 @@ static int32_t osdcmd_testplay_addparam(const osdfuncparm_t *parm)
     if (slen > 0)
     {
         if (!testplay_addparam)
-            testplay_addparam = (char *)Bmalloc(slen+1);
+            testplay_addparam = Bmalloc(slen+1);
         else
-            testplay_addparam = (char *)Brealloc(testplay_addparam, slen+1);
+            testplay_addparam = Brealloc(testplay_addparam, slen+1);
 
         Bmemcpy(testplay_addparam, parm->parms[0], slen);
         testplay_addparam[slen] = 0;
@@ -9369,7 +9369,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
 
     ofs = 2*(parm->numparms>0);  // true if "do" command
     slen = Bstrlen(parm->raw+ofs);
-    tp = (char *)Bmalloc(slen+2);
+    tp = Bmalloc(slen+2);
     if (!tp) goto OUTOFMEM;
     Bmemcpy(tp, parm->raw+ofs, slen);
 
@@ -9893,7 +9893,7 @@ int32_t parsetilegroups(scriptfile *script)
             if (scriptfile_getstring(script,&name)) break;
             if (scriptfile_getbraces(script,&end)) break;
 
-            s_TileGroups[tile_groups].pIds = (int32_t *)Bcalloc(MAX_TILE_GROUP_ENTRIES, sizeof(int32_t));
+            s_TileGroups[tile_groups].pIds = Bcalloc(MAX_TILE_GROUP_ENTRIES, sizeof(int32_t));
             s_TileGroups[tile_groups].szText = Bstrdup(name);
 
             while (script->textptr < end)
@@ -9968,7 +9968,7 @@ int32_t parsetilegroups(scriptfile *script)
                 }
             }
 
-            s_TileGroups[tile_groups].pIds = (int32_t *)Brealloc(s_TileGroups[tile_groups].pIds,
+            s_TileGroups[tile_groups].pIds = Brealloc(s_TileGroups[tile_groups].pIds,
                                                       s_TileGroups[tile_groups].nIds*sizeof(int32_t));
             tile_groups++;
             break;
@@ -10122,7 +10122,7 @@ static int32_t loadtilegroups(const char *fn)
 #if 0
     // ---------- Init hardcoded tile group consisting of all named tiles
     s_TileGroups[0].szText = Bstrdup("All named");
-    s_TileGroups[0].pIds = (int32_t *)Bmalloc(MAXTILES * sizeof(s_TileGroups[0].pIds[0]));
+    s_TileGroups[0].pIds = Bmalloc(MAXTILES * sizeof(s_TileGroups[0].pIds[0]));
     if (!s_TileGroups[0].pIds)
         return -1;
     j = 0;
@@ -10282,7 +10282,7 @@ static int32_t parseconsounds(scriptfile *script)
                 duplicate = 1;
                 Bfree(g_sounds[sndnum].filename);
             }
-            g_sounds[sndnum].filename = (char *)Bcalloc(slen+1,sizeof(uint8_t));
+            g_sounds[sndnum].filename = Bcalloc(slen+1,sizeof(uint8_t));
             // Hopefully noone does memcpy(..., g_sounds[].filename, BMAX_PATH)
             if (!g_sounds[sndnum].filename)
             {
@@ -10762,7 +10762,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                 }
                                 if (check_prlight_colors(i))
                                     copy_prlight_colors(spritelightptr[i], i);
-                                if ((int)!!(CS & 128) != spritelightptr[i]->publicflags.negative)
+                                if (!!(CS & 128) != spritelightptr[i]->publicflags.negative)
                                 {
                                     spritelightptr[i]->publicflags.negative = !!(CS & 128);
                                 }
@@ -10816,11 +10816,11 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                     spritelightptr[i]->horiz = SH;
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
-                                if ((int)!(CS & 64) != spritelightptr[i]->publicflags.emitshadow)
+                                if (!(CS & 64) != spritelightptr[i]->publicflags.emitshadow)
                                 {
                                     spritelightptr[i]->publicflags.emitshadow = !(CS & 64);
                                 }
-                                if ((int)!!(CS & 128) != spritelightptr[i]->publicflags.negative)
+                                if (!!(CS & 128) != spritelightptr[i]->publicflags.negative)
                                 {
                                     spritelightptr[i]->publicflags.negative = !!(CS & 128);
                                 }
@@ -11020,7 +11020,7 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
         if (showinvisibility && (tspr->cstat&32768))
         {
             tspr->pal = 6;
-            tspr->cstat &= (uint16_t)~32768;
+            tspr->cstat &= ~32768;
             tspr->cstat |= 2+512;
         }
 
@@ -11444,7 +11444,6 @@ void ExtCheckKeys(void)
 //#define CCHKPREF OSDTEXT_RED "^O"
 #define CCHK_CORRECTED OSDTEXT_GREEN " -> "
 
-#ifdef _MSC_VER
 #define CORRUPTCHK_PRINT(errlev, what, fmt, ...) do  \
 { \
     bad = max(bad, errlev); \
@@ -11454,17 +11453,7 @@ void ExtCheckKeys(void)
     if (errlev >= printfromlev) \
         OSD_Printf("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
 } while (0)
-#else
-#define CORRUPTCHK_PRINT(errlev, what, fmt, ...) do  \
-{ \
-    bad = max(bad, errlev); \
-    if (numcorruptthings>=MAXCORRUPTTHINGS) \
-    goto too_many_errors; \
-    corruptthings[numcorruptthings++] = (what); \
-    if (errlev >= printfromlev) \
-    OSD_Printf_nowarn("#%d: " fmt "\n", numcorruptthings, ## __VA_ARGS__); \
-} while (0)
-#endif
+
 #ifdef YAX_ENABLE
 static int32_t walls_have_equal_endpoints(int32_t w1, int32_t w2)
 {
@@ -11739,9 +11728,9 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
 
     if (!corruptcheck_noalreadyrefd)
     {
-        seen_nextwalls = (uint8_t *)Bcalloc((numwalls+7)>>3,1);
+        seen_nextwalls = Bcalloc((numwalls+7)>>3,1);
         if (!seen_nextwalls) return 5;
-        lastnextwallsource = (int16_t *)Bmalloc(numwalls*sizeof(lastnextwallsource[0]));
+        lastnextwallsource = Bmalloc(numwalls*sizeof(lastnextwallsource[0]));
         if (!lastnextwallsource) { Bfree(seen_nextwalls); return 5; }
     }
 
@@ -12350,8 +12339,7 @@ static void EditSectorData(int16_t sectnum)
 #endif
                 break;
             case 1:
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning);
-                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+                for (i=Bsprintf(med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning); i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {
                     Bsprintf(med_edittext,"Sector %d Ceiling X Pan: ",sectnum);
@@ -12401,8 +12389,7 @@ static void EditSectorData(int16_t sectnum)
                 break;
 
             case 1:
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning);
-                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+                for (i=Bsprintf(med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning); i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {
                     Bsprintf(med_edittext,"Sector %d Floor X Pan: ",sectnum);
@@ -12491,8 +12478,7 @@ static void EditWallData(int16_t wallnum)
                       sizeof(wall[wallnum].pal), M32_MAXPALOOKUPS, 0);
             break;
         case 3:
-            Bsprintf_nowarn_return(i, med_disptext,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat);
-            for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+            for (i=Bsprintf(med_disptext,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat); i < med_dispwidth; i++) med_disptext[i] = ' ';
             if (med_editval)
             {
                 Bsprintf(med_edittext,"Wall %d X Repeat: ",wallnum);
@@ -12504,8 +12490,7 @@ static void EditWallData(int16_t wallnum)
             }
             break;
         case 4:
-            Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning);
-            for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+            for (i=Bsprintf(med_disptext,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning); i < med_dispwidth; i++) med_disptext[i] = ' ';
             if (med_editval)
             {
                 Bsprintf(med_edittext,"Wall %d X Pan: ",wallnum);
@@ -12684,8 +12669,7 @@ static void EditSpriteData(int16_t spritenum)
                 break;
             case 3:
             {
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat);
-                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+                for (i=Bsprintf(med_disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat); i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {
                     Bsprintf(med_edittext,"Sprite %d X Repeat: ",spritenum);
@@ -12699,8 +12683,7 @@ static void EditSpriteData(int16_t spritenum)
             break;
             case 4:
             {
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset);
-                for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
+                for (i=Bsprintf(med_disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset); i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {
                     Bsprintf(med_edittext,"Sprite %d X Offset: ",spritenum);
@@ -13142,7 +13125,7 @@ static void FuncMenu(void)
             {
                 char *statename = statesinfo[funcMenuStatenum[(col-1)*8 + row]].name;
                 int32_t snlen = Bstrlen(statename);
-                char *tmpscript = (char *)Bmalloc(1+5+1+snlen+1);
+                char *tmpscript = Bmalloc(1+5+1+snlen+1);
 
                 if (!tmpscript)
                     break;

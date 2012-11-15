@@ -118,12 +118,12 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     i = g_gameArrayCount;
 
     if (aGameArrays[i].szLabel == NULL)
-        aGameArrays[i].szLabel = (char *)Bcalloc(MAXARRAYLABEL, sizeof(char));
+        aGameArrays[i].szLabel = Bcalloc(MAXARRAYLABEL, sizeof(char));
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel, pszLabel);
 
     if (!(dwFlags & GAMEARRAY_TYPE_MASK))
-        aGameArrays[i].vals = (int32_t *)Bcalloc(asize, sizeof(int32_t));
+        aGameArrays[i].vals = Bcalloc(asize, sizeof(int32_t));
     else
         aGameArrays[i].vals = arrayptr;
 
@@ -181,7 +181,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     if ((aGameVars[i].dwFlags & GAMEVAR_SYSTEM) == 0)
     {
         if (aGameVars[i].szLabel == NULL)
-            aGameVars[i].szLabel = (char *)Bcalloc(MAXVARLABEL, sizeof(uint8_t));
+            aGameVars[i].szLabel = Bcalloc(MAXVARLABEL, sizeof(uint8_t));
         if (aGameVars[i].szLabel != pszLabel)
             Bstrcpy(aGameVars[i].szLabel,pszLabel);
         aGameVars[i].dwFlags = dwFlags;
@@ -208,7 +208,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     if (aGameVars[i].dwFlags & GAMEVAR_PERBLOCK)
     {
         if (!aGameVars[i].val.plValues)
-            aGameVars[i].val.plValues = (int32_t *)Bcalloc(1+MAXEVENTS+g_stateCount, sizeof(int32_t));
+            aGameVars[i].val.plValues = Bcalloc(1+MAXEVENTS+g_stateCount, sizeof(int32_t));
         for (j=0; j<1+MAXEVENTS+g_stateCount; j++)
             aGameVars[i].val.plValues[j] = lValue;
     }

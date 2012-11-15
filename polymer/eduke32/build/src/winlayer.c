@@ -8,25 +8,10 @@
 #define CINTERFACE
 
 // bug in the dx headers
-#if defined (_MSC_VER) || !defined(__cplusplus)
-#define bDIPROP_BUFFERSIZE       MAKEDIPROP(1)
-#define bDIPROP_DEADZONE         MAKEDIPROP(5)
-#define bDIPROP_SATURATION       MAKEDIPROP(6)
-#else
-#define bMAKEDIPROP(prop)        ((REFGUID)(prop))
+#define bMAKEDIPROP(prop)    ((REFGUID)(prop))
 #define bDIPROP_BUFFERSIZE       bMAKEDIPROP(1)
 #define bDIPROP_DEADZONE         bMAKEDIPROP(5)
 #define bDIPROP_SATURATION       bMAKEDIPROP(6)
-#endif
-
-// wtf, Microsoft?
-#if defined (_MSC_VER) && defined(__cplusplus)
-# define bREFGUID                 (REFGUID)
-# define bREFIID                  (REFIID)
-#else
-# define bREFGUID                 &
-# define bREFIID                  &
-#endif
 
 #include <windows.h>
 #include <ddraw.h>
@@ -36,10 +21,6 @@
 #endif
 
 #include <math.h>  // pow
-
-#ifdef __cplusplus
-#include <algorithm>
-#endif
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -78,7 +59,7 @@ static int32_t winlayer_have_ATI = 0;
 int32_t   _buildargc = 0;
 const char **_buildargv = NULL;
 static char *argvbuf = NULL;
-extern int32_t app_main(int32_t argc, const char **argv);
+extern int32_t app_main(int32_t argc, const char *argv[]);
 extern void app_crashhandler(void);
 
 // Windows crud
@@ -381,13 +362,9 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 #ifndef DEBUGGINGAIDS
     if ((nedhandle = LoadLibrary("nedmalloc.dll")))
     {
-#ifdef __cplusplus
-        nedalloc::nedpool_t *(WINAPI *nedcreatepool)(size_t, int);
-        if ((nedcreatepool = (nedalloc::nedpool_t *(WINAPI *)(size_t, int))GetProcAddress(nedhandle, "nedcreatepool")))
-#else
         nedpool *(WINAPI *nedcreatepool)(size_t, int);
+
         if ((nedcreatepool = (void *)GetProcAddress(nedhandle, "nedcreatepool")))
-#endif
             nedcreatepool(SYSTEM_POOL_SIZE, -1);
     }
 #else
@@ -987,7 +964,7 @@ void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
         dipdw.diph.dwHow = DIPH_BYOFFSET;
     }
 
-    result = IDirectInputDevice7_GetProperty(lpDID, bDIPROP_DEADZONE, (LPDIPROPHEADER)&dipdw.diph);
+    result = IDirectInputDevice7_GetProperty(lpDID, bDIPROP_DEADZONE, &dipdw.diph);
     if (FAILED(result))
     {
         //ShowDInputErrorBox("Failed getting joystick dead zone", result);
@@ -1133,7 +1110,7 @@ static BOOL InitDirectInput(void)
         }
     }
 
-    aDirectInputCreateA = (HRESULT(WINAPI *)(HINSTANCE, DWORD, LPDIRECTINPUT7A *, LPUNKNOWN))GetProcAddress(hDInputDLL, "DirectInputCreateA");
+    aDirectInputCreateA = (void *)GetProcAddress(hDInputDLL, "DirectInputCreateA");
     if (!aDirectInputCreateA) ShowErrorBox("Error fetching DirectInputCreateA()");
 
     result = aDirectInputCreateA(hInstance, DIRECTINPUT_VERSION, &lpDI, NULL);
@@ -1156,12 +1133,11 @@ static BOOL InitDirectInput(void)
     *devicedef.did = NULL;
 
     //        initprintf("  - Creating %s device\n", devicedef.name);
-    result = IDirectInput7_CreateDeviceEx(lpDI, bREFGUID guidDevs, bREFIID IID_IDirectInputDevice7, (LPVOID *)&dev, NULL);
-    
+    result = IDirectInput7_CreateDeviceEx(lpDI, &guidDevs, &IID_IDirectInputDevice7, (void *)&dev, NULL);
     if (FAILED(result)) { HorribleDInputDeath("Failed creating device", result); }
     else if (result != DI_OK) initprintf("    Created device with warning: %s\n",GetDInputError(result));
 
-    result = IDirectInputDevice7_QueryInterface(dev, bREFIID IID_IDirectInputDevice7, (LPVOID *)&dev2);
+    result = IDirectInputDevice7_QueryInterface(dev, &IID_IDirectInputDevice7, (LPVOID *)&dev2);
     IDirectInputDevice7_Release(dev);
     if (FAILED(result)) { HorribleDInputDeath("Failed querying DirectInput7 interface for device", result); }
     else if (result != DI_OK) initprintf("    Queried IDirectInputDevice7 interface with warning: %s\n",GetDInputError(result));
@@ -1707,7 +1683,7 @@ static void ToggleDesktopComposition(BOOL compEnable)
     static HRESULT(WINAPI *aDwmEnableComposition)(UINT);
 
     if (!hDWMApiDLL && (hDWMApiDLL = LoadLibrary("DWMAPI.DLL")))
-        aDwmEnableComposition = (HRESULT(WINAPI *)(UINT))GetProcAddress(hDWMApiDLL, "DwmEnableComposition");
+        aDwmEnableComposition = (void *)GetProcAddress(hDWMApiDLL, "DwmEnableComposition");
 
     if (aDwmEnableComposition)
     {
@@ -2295,7 +2271,7 @@ static int32_t setgammaramp(WORD gt[3][256])
 
         if (!(DDdwCaps2 & DDCAPS2_PRIMARYGAMMA)) return -1;
 
-        hr = IDirectDrawSurface_QueryInterface(lpDDSPrimary, bREFIID IID_IDirectDrawGammaControl, (LPVOID *)&gam);
+        hr = IDirectDrawSurface_QueryInterface(lpDDSPrimary, &IID_IDirectDrawGammaControl, (LPVOID)&gam);
         if (hr != DD_OK)
         {
             //            ShowDDrawErrorBox("Error querying gamma control", hr);
@@ -2367,7 +2343,7 @@ static int32_t getgammaramp(WORD gt[3][256])
 
         if (!(DDdwCaps2 & DDCAPS2_PRIMARYGAMMA)) return -1;
 
-        hr = IDirectDrawSurface_QueryInterface(lpDDSPrimary, bREFIID IID_IDirectDrawGammaControl, (LPVOID *)&gam);
+        hr = IDirectDrawSurface_QueryInterface(lpDDSPrimary, &IID_IDirectDrawGammaControl, (LPVOID)&gam);
         if (hr != DD_OK)
         {
             ShowDDrawErrorBox("Error querying gamma control", hr);
@@ -2427,7 +2403,7 @@ static BOOL InitDirectDraw(void)
     }
 
     // get the pointer to DirectDrawEnumerate
-    aDirectDrawEnumerate = (HRESULT(WINAPI *)(LPDDENUMCALLBACK, LPVOID))GetProcAddress(hDDrawDLL, "DirectDrawEnumerateA");
+    aDirectDrawEnumerate = (void *)GetProcAddress(hDDrawDLL, "DirectDrawEnumerateA");
     if (!aDirectDrawEnumerate)
     {
         ShowErrorBox("Error fetching DirectDrawEnumerate()");
@@ -2440,7 +2416,7 @@ static BOOL InitDirectDraw(void)
     aDirectDrawEnumerate(InitDirectDraw_enum, NULL);
 
     // get the pointer to DirectDrawCreate
-    aDirectDrawCreate = (HRESULT(WINAPI *)(GUID *, LPDIRECTDRAW *, IUnknown *))GetProcAddress(hDDrawDLL, "DirectDrawCreate");
+    aDirectDrawCreate = (void *)GetProcAddress(hDDrawDLL, "DirectDrawCreate");
     if (!aDirectDrawCreate)
     {
         ShowErrorBox("Error fetching DirectDrawCreate()");
@@ -3836,13 +3812,13 @@ static BOOL RegisterWindowClass(void)
     wcx.cbClsExtra	= 0;
     wcx.cbWndExtra	= 0;
     wcx.hInstance	= hInstance;
-    wcx.hIcon	= (HICON)LoadImage(hInstance, MAKEINTRESOURCE(100), IMAGE_ICON,
+    wcx.hIcon	= LoadImage(hInstance, MAKEINTRESOURCE(100), IMAGE_ICON,
                             GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR);
     wcx.hCursor	= LoadCursor(NULL, IDC_ARROW);
     wcx.hbrBackground = (HBRUSH)COLOR_GRAYTEXT;
     wcx.lpszMenuName = NULL;
     wcx.lpszClassName = WindowClass;
-    wcx.hIconSm	= (HICON)LoadImage(hInstance, MAKEINTRESOURCE(100), IMAGE_ICON,
+    wcx.hIconSm	= LoadImage(hInstance, MAKEINTRESOURCE(100), IMAGE_ICON,
                             GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
     if (!RegisterClassEx(&wcx))
     {

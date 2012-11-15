@@ -17,15 +17,6 @@
 # define YAX_MAXDRAWS 8
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-    extern intptr_t asm1, asm2, asm3, asm4;
-    extern int32_t globalx1, globaly2;
-#ifdef __cplusplus
-};
-#endif
-
 //#define OBSOLETE_RENDMODES
 
 extern uint8_t basepalcount;
@@ -43,9 +34,10 @@ extern int32_t globalpal, cosglobalang, singlobalang;
 extern int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 extern int32_t globalvisibility;
 extern int32_t xyaspect;
+extern intptr_t asm1, asm2, asm3, asm4;
 extern int32_t globalshade;
 extern int16_t globalpicnum;
-
+extern int32_t globalx1, globaly2;
 extern int32_t globalorientation;
 
 extern int16_t editstatus;

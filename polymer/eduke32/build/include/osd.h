@@ -85,8 +85,8 @@ enum osdflags_t
     OSD_CAPS        = 0x00000040
 };
 
-#define OSD_ALIAS     (int32_t (*)(const osdfuncparm_t*))0x1337
-#define OSD_UNALIASED (int32_t (*)(const osdfuncparm_t*))0xDEAD
+#define OSD_ALIAS     (void *)0x1337
+#define OSD_UNALIASED (void *)0xDEAD
 
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1

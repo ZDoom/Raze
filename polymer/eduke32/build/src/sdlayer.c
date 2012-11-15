@@ -527,7 +527,7 @@ int32_t initinput(void)
     for (i=0; i<SDLK_LAST; i++)
     {
         if (!keytranslation[i]) continue;
-        Bstrncpyz(key_names[ keytranslation[i] ], SDL_GetKeyName((SDLKey)i), sizeof(key_names[i]));
+        Bstrncpyz(key_names[ keytranslation[i] ], SDL_GetKeyName(i), sizeof(key_names[i]));
     }
 #else
     for (i=0; i<SDL_NUM_SCANCODES; i++)

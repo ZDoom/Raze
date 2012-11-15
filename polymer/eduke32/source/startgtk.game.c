@@ -354,9 +354,9 @@ static void PopulateForm(unsigned char pgs)
             gtk_list_store_set(modes3d, &iter, 0,buf, 1,i, -1);
             if (i == mode3d)
             {
-                g_signal_handlers_block_by_func(stwidgets.vmode3dcombo, (gpointer)on_vmode3dcombo_changed, NULL);
+                g_signal_handlers_block_by_func(stwidgets.vmode3dcombo, on_vmode3dcombo_changed, NULL);
                 gtk_combo_box_set_active_iter(GTK_COMBO_BOX(stwidgets.vmode3dcombo), &iter);
-                g_signal_handlers_unblock_by_func(stwidgets.vmode3dcombo, (gpointer)on_vmode3dcombo_changed, NULL);
+                g_signal_handlers_unblock_by_func(stwidgets.vmode3dcombo, on_vmode3dcombo_changed, NULL);
             }
         }
     }
@@ -461,9 +461,9 @@ static void PopulateForm(unsigned char pgs)
             if (!Bstrcasecmp(fg->name, settings.selectedgrp))
             {
                 GtkTreeSelection *sel = gtk_tree_view_get_selection(gamelist);
-                g_signal_handlers_block_by_func(sel, (gpointer)on_gamelist_selection_changed, NULL);
+                g_signal_handlers_block_by_func(sel, on_gamelist_selection_changed, NULL);
                 gtk_tree_selection_select_iter(sel, &iter);
-                g_signal_handlers_unblock_by_func(sel, (gpointer)on_gamelist_selection_changed, NULL);
+                g_signal_handlers_unblock_by_func(sel, on_gamelist_selection_changed, NULL);
             }
         }
     }
@@ -524,9 +524,9 @@ static GtkWidget *create_window(void)
     stwidgets.vmode3dlabel = gtk_label_new_with_mnemonic("_Video mode:");
     gtk_misc_set_alignment(GTK_MISC(stwidgets.vmode3dlabel), 0.3, 0);
 #ifdef POLYMER
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dlabel, 0,1, 0,1, GTK_FILL, (GtkAttachOptions)0, 4, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dlabel, 0,1, 0,1, GTK_FILL, 0, 4, 0);
 #else
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dlabel, 0,1, 0,1, GTK_FILL, (GtkAttachOptions)0, 4, 7);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dlabel, 0,1, 0,1, GTK_FILL, 0, 4, 7);
 #endif
 
     // 3D video mode combo
@@ -543,18 +543,17 @@ static GtkWidget *create_window(void)
     }
     
 #ifdef POLYMER
-   gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dcombo, 1,2, 0,1, 
-       (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)0, 4, 0);
+   gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dcombo, 1,2, 0,1, GTK_EXPAND | GTK_FILL, 0, 4, 0);
 #else
-   gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dcombo, 1,2, 0,1, GTK_EXPAND | GTK_FILL, (GtkAttachOptions)0, 4, 7);
+   gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dcombo, 1,2, 0,1, GTK_EXPAND | GTK_FILL, 0, 4, 7);
 #endif
 
     // Fullscreen checkbox
     stwidgets.displayvlayout = gtk_vbox_new(TRUE, 0);
 #ifdef POLYMER
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.displayvlayout, 2,3, 0,1, GTK_FILL, (GtkAttachOptions)0, 4, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.displayvlayout, 2,3, 0,1, GTK_FILL, 0, 4, 0);
 #else
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.displayvlayout, 2,3, 0,1, GTK_FILL, (GtkAttachOptions)0, 4, 7);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.displayvlayout, 2,3, 0,1, GTK_FILL, 0, 4, 7);
 #endif
 
     stwidgets.fullscreencheck = gtk_check_button_new_with_mnemonic("_Fullscreen");
@@ -569,7 +568,7 @@ static GtkWidget *create_window(void)
     // Input devices LabelText
     stwidgets.inputdevlabel = gtk_label_new_with_mnemonic("_Input devices:");
     gtk_misc_set_alignment(GTK_MISC(stwidgets.inputdevlabel), 0.3, 0);
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inputdevlabel, 0,1, 1,2, GTK_FILL, (GtkAttachOptions)0, 4, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inputdevlabel, 0,1, 1,2, GTK_FILL, 0, 4, 0);
 
     // Input devices combo
     {
@@ -583,13 +582,12 @@ static GtkWidget *create_window(void)
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(stwidgets.inputdevcombo), cell, FALSE);
         gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(stwidgets.inputdevcombo), cell, "text", 0, NULL);
     }
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inputdevcombo, 1,2, 1,2,
-        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)0, 4, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.inputdevcombo, 1,2, 1,2, GTK_EXPAND | GTK_FILL, 0, 4, 0);
 
     // Custom mod LabelText
     stwidgets.custommodlabel = gtk_label_new_with_mnemonic("Custom _game:");
     gtk_misc_set_alignment(GTK_MISC(stwidgets.custommodlabel), 0.3, 0);
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.custommodlabel, 0,1, 2,3, GTK_FILL, (GtkAttachOptions)0, 4, 7);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.custommodlabel, 0,1, 2,3, GTK_FILL, 0, 4, 7);
 
     // Custom mod combo
     {
@@ -603,21 +601,19 @@ static GtkWidget *create_window(void)
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(stwidgets.custommodcombo), cell, FALSE);
         gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(stwidgets.custommodcombo), cell, "text", 0, NULL);
     }
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.custommodcombo, 1,2, 2,3,
-        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)0, 4, 7);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.custommodcombo, 1,2, 2,3, GTK_EXPAND | GTK_FILL, 0, 4, 7);
 
     // Empty horizontal layout
     stwidgets.emptyhlayout = gtk_hbox_new(TRUE, 0);
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.emptyhlayout, 0,3, 3,4, (GtkAttachOptions)0, 
-        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 4, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.emptyhlayout, 0,3, 3,4, 0, GTK_EXPAND | GTK_FILL, 4, 0);
 
     // Autoload checkbox
     stwidgets.autoloadcheck = gtk_check_button_new_with_mnemonic("_Enable \"autoload\" folder");
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.autoloadcheck, 0,3, 4,5, GTK_FILL, (GtkAttachOptions)0, 2, 2);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.autoloadcheck, 0,3, 4,5, GTK_FILL, 0, 2, 2);
 
     // Always show config checkbox
     stwidgets.alwaysshowcheck = gtk_check_button_new_with_mnemonic("_Always show this window at startup");
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.alwaysshowcheck, 0,3, 5,6, GTK_FILL, (GtkAttachOptions)0, 2, 2);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.alwaysshowcheck, 0,3, 5,6, GTK_FILL, 0, 2, 2);
 
     // Configuration tab
     stwidgets.configtab = gtk_label_new("Configuration");

@@ -102,7 +102,7 @@ int32_t animvpx_init_codec(const animvpx_ivf_header_t *info, int32_t inhandle, a
 
     //
     codec->inhandle = inhandle;
-    codec->pic = (uint8_t *)Bcalloc(info->width*info->height,4);
+    codec->pic = Bcalloc(info->width*info->height,4);
 
     codec->compbuflen = codec->compbufallocsiz = 0;
     codec->compbuf = NULL;
@@ -173,14 +173,14 @@ static int32_t animvpx_read_frame(int32_t inhandle, uint8_t **bufptr, uint32_t *
 
     if (!*bufptr)
     {
-        *bufptr = (uint8_t *)Bmalloc(hdr.framesiz);
+        *bufptr = Bmalloc(hdr.framesiz);
         if (!*bufptr)
             return 2;
         *bufallocsizptr = hdr.framesiz;
     }
     else if (*bufallocsizptr < hdr.framesiz)
     {
-        *bufptr = (uint8_t *)Brealloc(*bufptr, hdr.framesiz);
+        *bufptr = Brealloc(*bufptr, hdr.framesiz);
         if (!*bufptr)
             return 2;
         *bufallocsizptr = hdr.framesiz;

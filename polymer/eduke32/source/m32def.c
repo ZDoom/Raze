@@ -787,9 +787,9 @@ static int32_t C_CopyLabel(void)
 {
     if (g_numLabels >= label_allocsize)
     {
-        label = (char *)Brealloc(label, 2*label_allocsize*MAXLABELLEN*sizeof(char));
-        labelval = (int32_t *)Brealloc(labelval, 2*label_allocsize*sizeof(labelval[0]));
-        labeltype = (uint8_t *)Brealloc(labeltype, 2*label_allocsize*sizeof(labeltype[0]));
+        label = Brealloc(label, 2*label_allocsize*MAXLABELLEN*sizeof(char));
+        labelval = Brealloc(labelval, 2*label_allocsize*sizeof(labelval[0]));
+        labeltype = Brealloc(labeltype, 2*label_allocsize*sizeof(labeltype[0]));
 
         if (label==NULL || labelval==NULL || labeltype==NULL)
         {
@@ -1025,7 +1025,7 @@ static void C_GetNextVarType(int32_t type)
                 if (i>=constants_allocsize)
                 {
                     constants_allocsize *= 2;
-                    constants = (int32_t *)Brealloc(constants, constants_allocsize * sizeof(constants[0]));
+                    constants = Brealloc(constants, constants_allocsize * sizeof(constants[0]));
                     if (!constants)
                     {
                         initprintf("C_GetNextVarType(): ERROR: out of memory!\n");
@@ -1826,7 +1826,7 @@ static int32_t C_ParseCommand(void)
                 if (g_stateCount >= statesinfo_allocsize)
                 {
                     statesinfo_allocsize *= 2;
-                    statesinfo = (statesinfo_t *)Brealloc(statesinfo, statesinfo_allocsize * sizeof(statesinfo[0]));
+                    statesinfo = Brealloc(statesinfo, statesinfo_allocsize * sizeof(statesinfo[0]));
                     if (!statesinfo)
                     {
                         initprintf("C_ParseCommand(): ERROR: out of memory!\n");
@@ -3220,7 +3220,7 @@ repeatcase:
         }
 
         if (ScriptQuotes[k] == NULL)
-            ScriptQuotes[k] = (char *)Bcalloc(MAXQUOTELEN, sizeof(uint8_t));
+            ScriptQuotes[k] = Bcalloc(MAXQUOTELEN, sizeof(uint8_t));
 
         if (!ScriptQuotes[k])
         {
@@ -3238,7 +3238,7 @@ repeatcase:
         if (tw == CON_REDEFINEQUOTE)
         {
             if (ScriptQuoteRedefinitions[g_numQuoteRedefinitions] == NULL)
-                ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = (char *)Bcalloc(MAXQUOTELEN, sizeof(uint8_t));
+                ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = Bcalloc(MAXQUOTELEN, sizeof(uint8_t));
             if (!ScriptQuoteRedefinitions[g_numQuoteRedefinitions])
             {
                 Bsprintf(tempbuf,"Failed allocating %d byte quote text buffer.", MAXQUOTELEN);
@@ -3680,13 +3680,13 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 
     if (firstime)
     {
-        label = (char *)Bmalloc(label_allocsize * MAXLABELLEN * sizeof(char));
-        labelval = (int32_t *)Bmalloc(label_allocsize * sizeof(int32_t));
-        labeltype = (uint8_t *)Bmalloc(label_allocsize * sizeof(uint8_t));
+        label = Bmalloc(label_allocsize * MAXLABELLEN * sizeof(char));
+        labelval = Bmalloc(label_allocsize * sizeof(int32_t));
+        labeltype = Bmalloc(label_allocsize * sizeof(uint8_t));
 
-        constants = (int32_t *)Bmalloc(constants_allocsize * sizeof(int32_t));
+        constants = Bmalloc(constants_allocsize * sizeof(int32_t));
 
-        statesinfo = (statesinfo_t *)Bmalloc(statesinfo_allocsize * sizeof(statesinfo_t));
+        statesinfo = Bmalloc(statesinfo_allocsize * sizeof(statesinfo_t));
 
         for (i=0; i<MAXEVENTS; i++)
         {
@@ -3699,7 +3699,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         Gv_Init();
         C_AddDefaultDefinitions();
 
-        script = (instype *)Bcalloc(g_scriptSize, sizeof(instype));
+        script = Bcalloc(g_scriptSize, sizeof(instype));
         //        initprintf("script: %d\n",script);
         if (!script || !label || !labelval || !labeltype || !constants)
         {
@@ -3719,7 +3719,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
     if (isfilename)
     {
         fs = Bstrlen(filenameortext);
-        mptr = (char *)Bmalloc(fs+1+4);
+        mptr = Bmalloc(fs+1+4);
         if (!mptr)
         {
             initprintf("C_Compile(): ERROR: out of memory!\n");
@@ -3810,13 +3810,13 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
             {
                 if (aGameVars[i].val.plValues)
                 {
-                    aGameVars[i].val.plValues = (int32_t *)Brealloc(aGameVars[i].val.plValues, (1+MAXEVENTS+g_stateCount)*sizeof(int32_t));
+                    aGameVars[i].val.plValues = Brealloc(aGameVars[i].val.plValues, (1+MAXEVENTS+g_stateCount)*sizeof(int32_t));
                     for (j=ostateCount; j<g_stateCount; j++)
                         aGameVars[i].val.plValues[1+MAXEVENTS+j] = aGameVars[i].lDefault;
                 }
                 else
                 {
-                    aGameVars[i].val.plValues = (int32_t *)Bmalloc((1+MAXEVENTS+g_stateCount)*sizeof(int32_t));
+                    aGameVars[i].val.plValues = Bmalloc((1+MAXEVENTS+g_stateCount)*sizeof(int32_t));
                     for (j=0; j<(1+MAXEVENTS+g_stateCount); j++)
                         aGameVars[i].val.plValues[j] = aGameVars[i].lDefault;
                 }
@@ -4006,7 +4006,7 @@ void C_PrintErrorPosition()
         return;
 
     {
-        char *buf = (char *)Bmalloc(nchars+1);
+        char *buf = Bmalloc(nchars+1);
 
         Bmemcpy(buf, b, nchars);
         buf[nchars]=0;

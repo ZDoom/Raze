@@ -172,7 +172,7 @@ typedef struct {
 
     uint32_t flags;    // formerly SpriteFlags, ActorType
 
-    int16_t cacherange; // formerly SpriteCache
+    int16_t cacherange[2]; // formerly SpriteCache
 
     // todo: make this a pointer and allocate at runtime
     projectile_t defproj;

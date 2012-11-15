@@ -192,9 +192,9 @@ static void PopulateForm(void)
         gtk_list_store_set(modes3d, &iter, 0,buf, 1,i, -1);
         if (i == mode3d)
         {
-            g_signal_handlers_block_by_func(box3d, (gpointer)on_vmode3dcombo_changed, NULL);
+            g_signal_handlers_block_by_func(box3d, on_vmode3dcombo_changed, NULL);
             gtk_combo_box_set_active_iter(box3d, &iter);
-            g_signal_handlers_unblock_by_func(box3d, (gpointer)on_vmode3dcombo_changed, NULL);
+            g_signal_handlers_unblock_by_func(box3d, on_vmode3dcombo_changed, NULL);
         }
 
         // only 8-bit modes get used for 2D
@@ -204,9 +204,9 @@ static void PopulateForm(void)
         gtk_list_store_set(modes2d, &iter, 0,buf, 1,i, -1);
         if (i == mode2d)
         {
-            g_signal_handlers_block_by_func(box2d, (gpointer)on_vmode2dcombo_changed, NULL);
+            g_signal_handlers_block_by_func(box2d, on_vmode2dcombo_changed, NULL);
             gtk_combo_box_set_active_iter(box2d, &iter);
-            g_signal_handlers_unblock_by_func(box2d, (gpointer)on_vmode2dcombo_changed, NULL);
+            g_signal_handlers_unblock_by_func(box2d, on_vmode2dcombo_changed, NULL);
         }
     }
 
@@ -254,7 +254,7 @@ static GtkWidget *create_window(void)
     // 2D video mode label
     stwidgets.vmode2dlabel = gtk_label_new_with_mnemonic("_2D Video mode:");
     gtk_misc_set_alignment(GTK_MISC(stwidgets.vmode2dlabel), 0.3, 0);
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode2dlabel, 0,1, 0,1, GTK_FILL, (GtkAttachOptions)0, 4, 6);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode2dlabel, 0,1, 0,1, GTK_FILL, 0, 4, 6);
 
     // 2D video mode combo
     {
@@ -268,15 +268,14 @@ static GtkWidget *create_window(void)
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(stwidgets.vmode2dcombo), cell, FALSE);
         gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(stwidgets.vmode2dcombo), cell, "text", 0, NULL);
     }
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode2dcombo, 1,2, 0,1, 
-        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)0, 4, 6);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode2dcombo, 1,2, 0,1, GTK_EXPAND | GTK_FILL, 0, 4, 6);
     gtk_widget_add_accelerator(stwidgets.vmode2dcombo, "grab_focus", stwidgets.accel_group,
                                GDK_2, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);
 
     // Fullscreen checkbox
     stwidgets.fullscreencheck = gtk_check_button_new_with_mnemonic("_Fullscreen");
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.fullscreencheck, 2,3, 0,1, GTK_FILL, (GtkAttachOptions)0, 4, 6);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.fullscreencheck, 2,3, 0,1, GTK_FILL, 0, 4, 6);
     gtk_widget_add_accelerator(stwidgets.fullscreencheck, "grab_focus", stwidgets.accel_group,
                                GDK_F, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);
@@ -284,7 +283,7 @@ static GtkWidget *create_window(void)
     // 3D video mode label
     stwidgets.vmode3dlabel = gtk_label_new_with_mnemonic("_3D Video mode:");
     gtk_misc_set_alignment(GTK_MISC(stwidgets.vmode3dlabel), 0.3, 0);
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dlabel, 0,1, 1,2, GTK_FILL, (GtkAttachOptions)0, 4, 6);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dlabel, 0,1, 1,2, GTK_FILL, 0, 4, 6);
 
     // 3D video mode combo
     {
@@ -298,19 +297,17 @@ static GtkWidget *create_window(void)
         gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(stwidgets.vmode3dcombo), cell, FALSE);
         gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(stwidgets.vmode3dcombo), cell, "text", 0, NULL);
     }
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dcombo, 1,2, 1,2, 
-        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), (GtkAttachOptions)0, 4, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.vmode3dcombo, 1,2, 1,2, GTK_EXPAND | GTK_FILL, 0, 4, 0);
     gtk_widget_add_accelerator(stwidgets.vmode3dcombo, "grab_focus", stwidgets.accel_group,
                                GDK_3, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);
     // Empty horizontal layout
     stwidgets.emptyhlayout = gtk_hbox_new(TRUE, 0);
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.emptyhlayout, 0,1, 2,3, (GtkAttachOptions)0, 
-        (GtkAttachOptions)(GTK_EXPAND | GTK_FILL), 0, 0);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.emptyhlayout, 0,1, 2,3, 0, GTK_EXPAND | GTK_FILL, 0, 0);
 
     // Always show config checkbox
     stwidgets.alwaysshowcheck = gtk_check_button_new_with_mnemonic("_Always show configuration on start");
-    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.alwaysshowcheck, 0,2, 3,4, GTK_FILL, (GtkAttachOptions)0, 4, 6);
+    gtk_table_attach(GTK_TABLE(stwidgets.configtlayout), stwidgets.alwaysshowcheck, 0,2, 3,4, GTK_FILL, 0, 4, 6);
     gtk_widget_add_accelerator(stwidgets.alwaysshowcheck, "grab_focus", stwidgets.accel_group,
                                GDK_A, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);
@@ -351,7 +348,7 @@ static GtkWidget *create_window(void)
                                GDK_C, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(stwidgets.cancelbutton, "clicked", stwidgets.accel_group,
-                               GDK_Escape, (GdkModifierType)0,
+                               GDK_Escape, 0,
                                GTK_ACCEL_VISIBLE);
 
     stwidgets.cancelbuttonalign = gtk_alignment_new(0.5, 0.5, 0, 0);
@@ -374,7 +371,7 @@ static GtkWidget *create_window(void)
                                GDK_S, GDK_MOD1_MASK,
                                GTK_ACCEL_VISIBLE);
     gtk_widget_add_accelerator(stwidgets.startbutton, "clicked", stwidgets.accel_group,
-                               GDK_Return, (GdkModifierType)0,
+                               GDK_Return, 0,
                                GTK_ACCEL_VISIBLE);
 
     stwidgets.startbuttonalign = gtk_alignment_new(0.5, 0.5, 0, 0);

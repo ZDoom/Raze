@@ -1544,14 +1544,14 @@ void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texca
 
         if (alloclen < miplen)
         {
-            char *picc = (char *)Brealloc(pic, miplen);
+            void *picc = Brealloc(pic, miplen);
             if (!picc) goto failure; else pic = picc;
             alloclen = miplen;
 
-            picc = (char *)Brealloc(packbuf, alloclen+400);
+            picc = Brealloc(packbuf, alloclen+400);
             if (!picc) goto failure; else packbuf = picc;
 
-            picc = (char *)Brealloc(midbuf, miplen);
+            picc = Brealloc(midbuf, miplen);
             if (!picc) goto failure; else midbuf = picc;
         }
 
@@ -1666,14 +1666,14 @@ static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t
 
         if (alloclen < pict.size)
         {
-            char *picc = (char *)Brealloc(pic, pict.size);
+            void *picc = Brealloc(pic, pict.size);
             if (!picc) goto failure; else pic = picc;
             alloclen = pict.size;
 
-            picc = (char *)Brealloc(packbuf, alloclen+16);
+            picc = Brealloc(packbuf, alloclen+16);
             if (!picc) goto failure; else packbuf = picc;
 
-            picc = (char *)Brealloc(midbuf, pict.size);
+            picc = Brealloc(midbuf, pict.size);
             if (!picc) goto failure; else midbuf = picc;
         }
 
@@ -1831,13 +1831,13 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
                 lastfn = fn;  // careful...
                 if (!lastpic)
                 {
-                    lastpic = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
+                    lastpic = Bmalloc(xsiz*ysiz*sizeof(coltype));
                     lastsize = xsiz*ysiz;
                 }
                 else if (lastsize < xsiz*ysiz)
                 {
                     Bfree(lastpic);
-                    lastpic = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
+                    lastpic = Bmalloc(xsiz*ysiz*sizeof(coltype));
                 }
                 if (lastpic)
                     Bmemcpy(lastpic, pic, xsiz*ysiz*sizeof(coltype));
@@ -3372,7 +3372,7 @@ static void polymost_drawalls(int32_t bunch)
     int32_t i, x, y, z, cz, fz, wallnum, sectnum, nextsectnum;
 
     int16_t dapskybits;
-    static const int16_t zeropskyoff[MAXPSKYTILES] = { 0 };
+    static const int16_t zeropskyoff[MAXPSKYTILES];
     const int16_t *dapskyoff;
 
     sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
@@ -6547,7 +6547,7 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
     if (stride == 16) //If DXT3...
     {
         //alpha_4x4
-        cptr = (char *)midbuf;
+        cptr = midbuf;
         for (k=0; k<8; k++) *cptr++ = pic[k];
         for (j=stride; (unsigned)j<miplen; j+=stride)
             for (k=0; k<8; k++) *cptr++ = pic[j+k];
@@ -6573,7 +6573,7 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
     }
 
     //rgb0,rgb1
-    cptr = (char *)midbuf;
+    cptr = midbuf;
     for (k=0; k<=2; k+=2)
         for (j=0; (unsigned)j<miplen; j+=stride)
             { *(int16_t *)cptr = hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
@@ -6598,7 +6598,7 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
     Bwrite(fil,writebuf,cleng);
 
     //index_4x4
-    cptr = (char *)midbuf;
+    cptr = midbuf;
     for (j=0; (unsigned)j<miplen; j+=stride)
     {
         const char *c2 = &pic[j+offs+4];
@@ -6689,7 +6689,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
                 if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
         }
 
-        cptr = (char *)midbuf;
+        cptr = midbuf;
         for (k=0; k<8; k++) pic[k] = *cptr++;
         for (j=stride; j<pict->size; j+=stride)
             for (k=0; k<8; k++) pic[j+k] = (*cptr++);
@@ -6736,7 +6736,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
             if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
     }
 
-    cptr = (char *)midbuf;
+    cptr = midbuf;
     for (k=0; k<=2; k+=2)
     {
         for (j=0; j<pict->size; j+=stride)
@@ -6787,7 +6787,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
             if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
     }
 
-    cptr = (char *)midbuf;
+    cptr = midbuf;
     for (j=0; j<pict->size; j+=stride)
     {
         pic[j+offs+4] = ((cptr[0]>>0)&3) + (((cptr[1]>>0)&3)<<2) + (((cptr[2]>>0)&3)<<4) + (((cptr[3]>>0)&3)<<6);

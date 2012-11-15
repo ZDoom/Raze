@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#define NUMOPTIONS 9
 //char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
 
-char default_buildkeys[NUMBUILDKEYS] =
+uint8_t default_buildkeys[NUMBUILDKEYS] =
 {
 	0xc8,0xd0,0xcb,0xcd,0x2a,0x9d,0x1d,0x39,
 	0x1e,0x2c,0xd1,0xc9,0x47,0x49,

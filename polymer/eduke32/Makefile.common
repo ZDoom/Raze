@@ -208,7 +208,7 @@ endif
 # compiler flags etc.
 BASECFLAGS= -Wno-attributes
 BASECONLYFLAGS=-Wimplicit -Wdeclaration-after-statement
-BASECXXFLAGS= -fno-exceptions -fno-rtti -fpermissive -Wno-write-strings -Wno-narrowing
+BASECXXFLAGS= -fno-exceptions -fno-rtti -fpermissive
 BASEASFLAGS=-s #-g
 BASELDFLAGS=
 
