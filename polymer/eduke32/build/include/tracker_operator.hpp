@@ -22,7 +22,7 @@ inline TrackedType __TRACKER_NAME<TrackedType>::operator __TRACKER_OPERATOR (__T
 
     if (!isNoop) {
 
-        __TRACKER_GLOBAL_HOOK((int)&this->TrackedValue);
+        __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
         return (this->TrackedValue __TRACKER_OPERATOR __TRACKER_RIGHTHAND);
     } else {
         return this->TrackedValue;
