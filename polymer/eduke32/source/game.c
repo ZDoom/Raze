@@ -8487,7 +8487,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                     newptr = Brealloc(anim_hi_sounds[animnum], allocsz*2*sizeof(anim_hi_sounds[0]));
 
                     if (!newptr) break;
-                    anim_hi_sounds[animnum] = newptr;
+                    anim_hi_sounds[animnum] = (uint16_t *)newptr;
                 }
 
                 bad=0;
@@ -8970,7 +8970,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     break;
                 case 'd':
                 {
-                    char *colon = Bstrchr(c, ':');
+                    char * colon = (char *)Bstrchr(c, ':');
                     int32_t framespertic=-1, numrepeats=1;
 
                     c++;

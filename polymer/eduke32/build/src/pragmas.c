@@ -341,14 +341,14 @@ void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t 
 
 void clearbuf(void *d, int32_t c, int32_t a)
 {
-    int32_t *p = d;
+    int32_t *p = (int32_t *)d;
 
     while ((c--) > 0) *(p++) = a;
 }
 
 void copybuf(const void *s, void *d, int32_t c)
 {
-    const int32_t *p = s;
+    const int32_t *p = (const int32_t *)s;
     int32_t *q = (int32_t *)d;
 
     while ((c--) > 0) *(q++) = *(p++);
@@ -383,16 +383,16 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
 
 void copybufbyte(const void *S, void *D, int32_t c)
 {
-    const char *p = S;
-    char *q = D;
+    const char *p = (const char *)S;
+    char *q = (char *)D;
 
     while ((c--) > 0) *(q++) = *(p++);
 }
 
 void copybufreverse(const void *S, void *D, int32_t c)
 {
-    const char *p = S;
-    char *q = D;
+    const char *p = (const char *)S;
+    char *q = (char *)D;
 
     while ((c--) > 0) *(q++) = *(p--);
 }

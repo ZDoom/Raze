@@ -4384,16 +4384,16 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
         switch (bytes)
         {
         case 1:
-            getnumber_dochar(num, danum);
+            getnumber_dochar((char *)num, danum);
             break;
         case 2:
-            getnumber_doint16_t(num, danum);
+            getnumber_doint16_t((int16_t *)num, danum);
             break;
         case 4:
-            getnumber_doint32(num, danum);
+            getnumber_doint32((int32_t *)num, danum);
             break;
         case 8:
-            getnumber_doint64(num, danum);
+            getnumber_doint64((int64_t *)num, danum);
             break;
         }
     }
@@ -4405,16 +4405,16 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
     switch (bytes)
     {
     case 1:
-        getnumber_dochar(num, oldnum);
+        getnumber_dochar((char *)num, oldnum);
         break;
     case 2:
-        getnumber_doint16_t(num, oldnum);
+        getnumber_doint16_t((int16_t *)num, oldnum);
         break;
     case 4:
-        getnumber_doint32(num, oldnum);
+        getnumber_doint32((int32_t *)num, oldnum);
         break;
     case 8:
-        getnumber_doint64(num, oldnum);
+        getnumber_doint64((int64_t *)num, oldnum);
         break;
     }
 }
@@ -6218,21 +6218,21 @@ static void Keys3d(void)
         else if (AIMING_AT_CEILING_OR_FLOOR)
         {
             sector[searchsector].lotag =
-                _getnumber256("Sector lotag: ", sector[searchsector].lotag, BTAG_MAX, 0, (void *)ExtGetSectorType);
+                _getnumber256("Sector lotag: ", sector[searchsector].lotag, BTAG_MAX, 0, (void *(*)(int32_t))ExtGetSectorType);
         }
         else if (AIMING_AT_SPRITE)
         {
             if (sprite[searchwall].picnum == SECTOREFFECTOR)
             {
                 sprite[searchwall].lotag =
-                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j, (void *)SectorEffectorTagText);
+                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j, (void *(*)(int32_t))SectorEffectorTagText);
             }
             else if (sprite[searchwall].picnum == MUSICANDSFX)
             {
                 int16_t oldtag = sprite[searchwall].lotag;
 
                 sprite[searchwall].lotag =
-                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j, (void *)MusicAndSFXTagText);
+                    _getnumber256("Sprite lotag: ", sprite[searchwall].lotag, BTAG_MAX, 0+j, (void *(*)(int32_t))MusicAndSFXTagText);
 
                 if ((sprite[searchwall].filler&1) && sprite[searchwall].lotag != oldtag)
                 {
@@ -7870,7 +7870,7 @@ static void Keys2d(void)
                 j = 4*(j&1);
                 Bsprintf(buffer,"Sprite (%d) Lo-tag: ", i);
                 sprite[i].lotag = _getnumber16(buffer, sprite[i].lotag, BTAG_MAX, 0+j, sprite[i].picnum==SECTOREFFECTOR ?
-                                               (void *)SectorEffectorTagText : NULL);
+                                               (void *(*)(int32_t))SectorEffectorTagText : NULL);
             }
             else if (linehighlight >= 0)
             {
@@ -7894,7 +7894,7 @@ static void Keys2d(void)
             {
                 Bsprintf(buffer,"Sector (%d) Lo-tag: ", tcursectornum);
                 sector[tcursectornum].lotag =
-                    _getnumber16(buffer, sector[tcursectornum].lotag, BTAG_MAX, 0, (void *)ExtGetSectorType);                
+                    _getnumber16(buffer, sector[tcursectornum].lotag, BTAG_MAX, 0, (void *(*)(int32_t))ExtGetSectorType);                
             }
         }
     }

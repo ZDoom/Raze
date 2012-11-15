@@ -6547,7 +6547,7 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
     if (stride == 16) //If DXT3...
     {
         //alpha_4x4
-        cptr = midbuf;
+        cptr = (char *)midbuf;
         for (k=0; k<8; k++) *cptr++ = pic[k];
         for (j=stride; (unsigned)j<miplen; j+=stride)
             for (k=0; k<8; k++) *cptr++ = pic[j+k];
@@ -6573,7 +6573,7 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
     }
 
     //rgb0,rgb1
-    cptr = midbuf;
+    cptr = (char *)midbuf;
     for (k=0; k<=2; k+=2)
         for (j=0; (unsigned)j<miplen; j+=stride)
             { *(int16_t *)cptr = hicosub(*(int16_t *)(&pic[offs+j+k])); cptr += 2; }
@@ -6598,7 +6598,7 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
     Bwrite(fil,writebuf,cleng);
 
     //index_4x4
-    cptr = midbuf;
+    cptr = (char *)midbuf;
     for (j=0; (unsigned)j<miplen; j+=stride)
     {
         const char *c2 = &pic[j+offs+4];
@@ -6689,7 +6689,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
                 if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
         }
 
-        cptr = midbuf;
+        cptr = (char *)midbuf;
         for (k=0; k<8; k++) pic[k] = *cptr++;
         for (j=stride; j<pict->size; j+=stride)
             for (k=0; k<8; k++) pic[j+k] = (*cptr++);
@@ -6736,7 +6736,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
             if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
     }
 
-    cptr = midbuf;
+    cptr = (char *)midbuf;
     for (k=0; k<=2; k+=2)
     {
         for (j=0; j<pict->size; j+=stride)
@@ -6787,7 +6787,7 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
             if (qlz_decompress(packbuf,midbuf,state_decompress) == 0) return -1;
     }
 
-    cptr = midbuf;
+    cptr = (char *)midbuf;
     for (j=0; j<pict->size; j+=stride)
     {
         pic[j+offs+4] = ((cptr[0]>>0)&3) + (((cptr[1]>>0)&3)<<2) + (((cptr[2]>>0)&3)<<4) + (((cptr[3]>>0)&3)<<6);

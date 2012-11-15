@@ -2547,9 +2547,9 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
 
     s->curindice = 0;
 
-    bgluTessCallback(prtess, GLU_TESS_VERTEX_DATA, polymer_tessvertex);
-    bgluTessCallback(prtess, GLU_TESS_EDGE_FLAG, polymer_tessedgeflag);
-    bgluTessCallback(prtess, GLU_TESS_ERROR, polymer_tesserror);
+    bgluTessCallback(prtess, GLU_TESS_VERTEX_DATA, (void (PR_CALLBACK *)(void))polymer_tessvertex);
+    bgluTessCallback(prtess, GLU_TESS_EDGE_FLAG, (void (PR_CALLBACK *)(void))polymer_tessedgeflag);
+    bgluTessCallback(prtess, GLU_TESS_ERROR, (void (PR_CALLBACK *)(void))polymer_tesserror);
 
     bgluTessProperty(prtess, GLU_TESS_WINDING_RULE, GLU_TESS_WINDING_POSITIVE);
 

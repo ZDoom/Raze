@@ -10548,9 +10548,9 @@ void test_map(int32_t mode)
         else
         {
 #ifdef _WIN32
-            fullparam = Bstrrchr(mapster32_fullpath, '\\');
+            fullparam = (char *)Bstrrchr(mapster32_fullpath, '\\');
 #else
-            fullparam = Bstrrchr(mapster32_fullpath, '/');
+            fullparam = (char *)Bstrrchr(mapster32_fullpath, '/');
 #endif
             if (fullparam)
             {

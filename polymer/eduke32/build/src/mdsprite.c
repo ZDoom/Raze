@@ -721,7 +721,7 @@ static int32_t mdloadskin_cached(int32_t fil, const texcacheheader *head, int32_
             if (!picc) goto failure; else midbuf = picc;
         }
 
-        if (dedxtfilter(fil, &pict, pic, midbuf, packbuf, (head->flags&4)==4)) goto failure;
+        if (dedxtfilter(fil, &pict, (char *)pic, (char *)midbuf, (char *)packbuf, (head->flags&4)==4)) goto failure;
 
         bglCompressedTexImage2DARB(GL_TEXTURE_2D,level,pict.format,pict.xdim,pict.ydim,pict.border,
                                    pict.size,pic);

@@ -8264,7 +8264,7 @@ int32_t initengine(void)
 #if !defined _WIN32 && defined DEBUGGINGAIDS && !defined GEKKO
     struct sigaction sigact, oldact;
     memset(&sigact, 0, sizeof(sigact));
-    sigact.sa_sigaction = (void *)sighandler;
+    sigact.sa_sigaction = (void (*)(int, siginfo_t*, void*))sighandler;
     sigact.sa_flags = SA_SIGINFO;
     sigaction(SIGFPE, &sigact, &oldact);
 #endif
@@ -15945,7 +15945,7 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     text = (png_textp)png_malloc(png_ptr, 2*png_sizeof(png_text));
     text[0].compression = PNG_TEXT_COMPRESSION_NONE;
     text[0].key = "Title";
-    text[0].text = editstatus ? "Mapster32 screenshot" : "EDuke32 screenshot";
+    text[0].text = (png_charp)(editstatus ? "Mapster32 screenshot" : "EDuke32 screenshot");
 
     text[1].compression = PNG_TEXT_COMPRESSION_NONE;
     text[1].key = "Software";
