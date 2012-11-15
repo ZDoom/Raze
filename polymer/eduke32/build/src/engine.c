@@ -130,7 +130,22 @@ static int16_t *dotp1[MAXYDIM], *dotp2[MAXYDIM];
 
 static int8_t tempbuf[MAXWALLS];
 
+// referenced from asm
+#ifdef __cplusplus
+extern "C" {
+#endif
 int32_t ebpbak, espbak;
+int32_t reciptable[2048], fpuasm;
+intptr_t asm1, asm2, asm3, asm4, palookupoffse[4];
+uint32_t vplce[4];
+int32_t vince[4];
+intptr_t bufplce[4];
+int32_t globaltilesizy;
+int32_t globalx1, globaly2, globalx3, globaly3;
+#ifdef __cplusplus
+};
+#endif
+
 static intptr_t slopalookup[16384];    // was 2048
 #if defined(USE_OPENGL)
 palette_t palookupfog[MAXPALOOKUPS];
@@ -197,8 +212,6 @@ void initialize_engine_globals(void)
     pow2long[30] = 1073741824L;
     pow2long[31] = 2147483647L;
 }
-
-int32_t reciptable[2048], fpuasm;
 
 char britable[16][256]; // JBF 20040207: full 8bit precision
 
@@ -1252,6 +1265,7 @@ static walltype *loadwall, *loadwallinv;
 static spritetype *loadsprite;
 
 // sectoidx bits
+#undef CM_NONE
 #define CM_NONE (CM_MAX<<1)
 #define CM_SOME (CM_NONE-1)
 #define CM_OUTER (CM_MAX)   // sector surrounds clipping sector
@@ -2265,9 +2279,6 @@ static int32_t globalhisibility, globalpisibility, globalcisibility;
 int32_t xyaspect;
 static int32_t viewingrangerecip;
 
-intptr_t asm1, asm2, asm3, asm4, palookupoffse[4];
-int32_t vplce[4], vince[4];
-intptr_t bufplce[4];
 static char globalxshift, globalyshift;
 static int32_t globalxpanning, globalypanning;
 int32_t globalshade, globalorientation;
@@ -2277,9 +2288,6 @@ static int32_t globalzd, globalyscale;
 static int32_t globalxspan, globalyspan, globalispow2=1;  // true if texture has power-of-two x and y size
 static intptr_t globalbufplc;
 
-int32_t globaltilesizy;
-
-int32_t globalx1, globaly2, globalx3, globaly3;
 static int32_t globaly1, globalx2, globalzx;
 static int32_t globalx, globaly, globalz;
 

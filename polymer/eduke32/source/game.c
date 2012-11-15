@@ -9951,7 +9951,13 @@ int32_t app_main(int32_t argc, const char **argv)
     wm_setapptitle(tempbuf);
 //initprintf("sizeof(mapstate_t)=%d\n", (int32_t)sizeof(mapstate_t));
 
-    initprintf(HEAD2 " %s\n", s_buildRev);
+    initprintf(HEAD2 " %s %s\n", s_buildRev,
+#ifdef __cplusplus
+        "C++ build"
+#else
+        ""
+#endif
+        );
     initprintf("Compiled %s\n", __DATE__" "__TIME__);
 
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)

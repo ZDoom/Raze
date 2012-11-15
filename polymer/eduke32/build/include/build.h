@@ -407,7 +407,13 @@ EXTERN spritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t xdim, ydim, numpages;
 EXTERN int32_t yxaspect, viewingrange;
+#ifdef __cplusplus
+extern "C" {
+#endif
 EXTERN intptr_t ylookup[MAXYDIM+1];
+#ifdef __cplusplus
+};
+#endif
 
 #define MAXVALIDMODES 256
 EXTERN int32_t validmodecnt;
@@ -469,8 +475,14 @@ EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 EXTERN int16_t tilesizx[MAXTILES], tilesizy[MAXTILES];
 EXTERN char picsiz[MAXTILES];
 EXTERN char walock[MAXTILES];
+#ifdef __cplusplus
+extern "C" {
+#endif
 EXTERN char pow2char[8];
 EXTERN int32_t pow2long[32];
+#ifdef __cplusplus
+};
+#endif
 EXTERN int32_t picanm[MAXTILES];
 EXTERN intptr_t waloff[MAXTILES];  // stores pointers to cache  -- SA
 
