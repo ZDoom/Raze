@@ -797,10 +797,14 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             //OSD_Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
         }
         else
+            return 0;
+#if 0
         {
+            // fall back to the model-defined texture
             if ((unsigned)number >= (unsigned)m->numskins)
                 number = 0;
 
+            // m->skinfn is undefined when md3model_t is cast to md2model_t --> crash
             skinfile = m->skinfn + number*64;
             texidx = &m->texid[number*(HICEFFECTMASK+1) + hicfxmask(pal)];
             Bstrncpyz(fn, m->basepath, BMAX_PATH);
@@ -808,6 +812,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                 Bstrcat(fn,skinfile);
             //OSD_Printf("Using MD2/MD3 skin (%d) %s, pal=%d\n",number,skinfile,pal);
         }
+#endif
     }
 
     if (!skinfile[0])
