@@ -88,8 +88,8 @@ static void G_CacheSpriteNum(int32_t i)
 
     maxc = 1;
 
-    if (A_CheckSpriteTileFlags(PN, SPRITE_CACHE) && g_tile[PN].cacherange[1])
-        for (j = g_tile[PN].cacherange[0]; j <= g_tile[PN].cacherange[1]; j++)
+    if (g_tile[PN].cacherange >= PN)
+        for (j = PN; j <= g_tile[PN].cacherange; j++)
             tloadtile(j,1);
 
     switch (DYNAMICTILEMAP(PN))
@@ -227,8 +227,8 @@ static void G_PrecacheSprites(void)
         if (g_tile[i].flags & SPRITE_PROJECTILE)
             tloadtile(i,1);
 
-        if (A_CheckSpriteTileFlags(i, SPRITE_CACHE) && g_tile[i].cacherange[1])
-            for (j = g_tile[i].cacherange[0]; j <= g_tile[i].cacherange[1]; j++)
+        if (A_CheckSpriteTileFlags(i, SPRITE_CACHE))
+            for (j = i; j <= g_tile[i].cacherange; j++)
                 tloadtile(j,1);
     }
     tloadtile(BOTTOMSTATUSBAR,1);

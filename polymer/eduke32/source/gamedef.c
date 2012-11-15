@@ -4147,7 +4147,6 @@ static int32_t C_ParseCommand(int32_t loop)
                 g_tile[*g_scriptPtr].flags |= SPRITE_NOPAL;
                 break;
             case CON_PRECACHE:
-                g_tile[*g_scriptPtr].flags |= SPRITE_CACHE;
                 C_GetNextValue(LABEL_DEFINE);
                 g_scriptPtr--;
                 i = *g_scriptPtr;
@@ -4156,16 +4155,13 @@ static int32_t C_ParseCommand(int32_t loop)
                     C_ReportError(ERROR_EXCEEDSMAXTILES);
                     g_numCompilerErrors++;
                 }
-                g_tile[j].cacherange[0] = i;
+                g_tile[j].cacherange = i;
+
                 C_GetNextValue(LABEL_DEFINE);
                 g_scriptPtr--;
-                i = *g_scriptPtr;
-                if ((unsigned)i >= MAXTILES)
-                {
-                    C_ReportError(ERROR_EXCEEDSMAXTILES);
-                    g_numCompilerErrors++;
-                }
-                g_tile[j].cacherange[1] = i;
+                if (*g_scriptPtr)
+                    g_tile[j].flags |= SPRITE_CACHE;                
+
                 break;
             }
             continue;
