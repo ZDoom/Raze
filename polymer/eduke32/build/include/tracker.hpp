@@ -3,9 +3,9 @@
 template<typename TrackedType>
 class __TRACKER_NAME
 {
+    public:
         TrackedType TrackedValue;
 
-    public:
         inline TrackedType* operator & ()
         {
             __TRACKER_GLOBAL_HOOK((uintptr_t)&this->TrackedValue);
@@ -37,34 +37,24 @@ class __TRACKER_NAME
         }
 
         inline TrackedType operator = (TrackedType);
-        inline TrackedType operator = (__TRACKER_NAME<TrackedType>);
 
         inline TrackedType operator += (TrackedType);
-        inline TrackedType operator += (__TRACKER_NAME<TrackedType>);
 
         inline TrackedType operator -= (TrackedType);
-        inline TrackedType operator -= (__TRACKER_NAME<TrackedType>);
 
         inline TrackedType operator *= (TrackedType);
-        inline TrackedType operator *= (__TRACKER_NAME<TrackedType>);
 
         inline TrackedType operator /= (TrackedType);
-        inline TrackedType operator /= (__TRACKER_NAME<TrackedType>);
 
         inline TrackedType operator |= (TrackedType);
-        inline TrackedType operator |= (__TRACKER_NAME<TrackedType>);
 
         inline TrackedType operator &= (TrackedType);
-        inline TrackedType operator &= (__TRACKER_NAME<TrackedType>);
 
         inline TrackedType operator ^= (TrackedType);
-        inline TrackedType operator ^= (__TRACKER_NAME<TrackedType>);
 
         inline TrackedType operator <<= (TrackedType);
-        inline TrackedType operator <<= (__TRACKER_NAME<TrackedType>);
 
         inline TrackedType operator >>= (TrackedType);
-        inline TrackedType operator >>= (__TRACKER_NAME<TrackedType>);
 
         inline operator TrackedType() const;
 };
@@ -80,12 +70,6 @@ enum {
 };
 
 #endif
-
-#define __TRACKER_RIGHTHAND_TYPE __TRACKER_NAME<TrackedType> rightHand
-#define __TRACKER_RIGHTHAND rightHand.TrackedValue
-#include "tracker_operators.hpp"
-#undef __TRACKER_RIGHTHAND_TYPE
-#undef __TRACKER_RIGHTHAND
 
 #define __TRACKER_RIGHTHAND_TYPE TrackedType rightHand
 #define __TRACKER_RIGHTHAND rightHand

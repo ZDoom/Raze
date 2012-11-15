@@ -514,7 +514,13 @@ EXTERN char show2dsprite[(MAXSPRITES+7)>>3];
 
 // In the editor, gotpic is only referenced from inline assembly;
 // the compiler needs that hint or building with LTO will discard it.
-EXTERN char ATTRIBUTE((used)) gotpic[(MAXTILES+7)>>3];
+#ifndef __clang__
+# define GOTPIC_USED ATTRIBUTE((used))
+#else
+# define GOTPIC_USED
+#endif
+
+EXTERN char GOTPIC_USED gotpic[(MAXTILES+7)>>3];
 EXTERN char gotsector[(MAXSECTORS+7)>>3];
 
 EXTERN char editorcolors[256];
