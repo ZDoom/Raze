@@ -7760,7 +7760,7 @@ static void G_DoEffectorLights(void)  // STATNUM 14
                     actor[i].lightptr->color[1] = sprite[i].yvel;
                     actor[i].lightptr->color[2] = sprite[i].zvel;
                 }
-                if (!!(CS & 128) != actor[i].lightptr->publicflags.negative) {
+                if ((int)!!(CS & 128) != actor[i].lightptr->publicflags.negative) {
                     actor[i].lightptr->publicflags.negative = !!(CS & 128);
                 }
             }
@@ -7850,10 +7850,10 @@ static void G_DoEffectorLights(void)  // STATNUM 14
                     actor[i].lightptr->horiz = SH;
                     actor[i].lightptr->flags.invalidate = 1;
                 }
-                if (!(CS & 64) != actor[i].lightptr->publicflags.emitshadow) {
+                if ((int)!(CS & 64) != actor[i].lightptr->publicflags.emitshadow) {
                     actor[i].lightptr->publicflags.emitshadow = !(CS & 64);
                 }
-                if (!!(CS & 128) != actor[i].lightptr->publicflags.negative) {
+                if ((int)!!(CS & 128) != actor[i].lightptr->publicflags.negative) {
                     actor[i].lightptr->publicflags.negative = !!(CS & 128);
                 }
                 actor[i].lightptr->tilenum = actor[i].picnum;

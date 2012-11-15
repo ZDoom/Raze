@@ -1350,8 +1350,8 @@ const char *ExtGetWallCaption(int16_t wallnum)
         int32_t lt = taglab_linktags(0, wallnum);
         char histr[TAGLAB_MAX+16], lostr[TAGLAB_MAX+16];
 
-        lt &= ~(wall[wallnum].lotag<=0);
-        lt &= ~((wall[wallnum].hitag<=0)<<1);
+        lt &= ~(int)(wall[wallnum].lotag<=0);
+        lt &= ~(int)((wall[wallnum].hitag<=0)<<1);
 
         taglab_handle1(lt&2, wall[wallnum].hitag, histr);
 
@@ -1491,8 +1491,8 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
         return tempbuf;
 
     lt = taglab_linktags(1, spritenum);
-    lt &= ~(sprite[spritenum].lotag<=0);
-    lt &= ~((sprite[spritenum].hitag<=0)<<1);
+    lt &= ~(int)(sprite[spritenum].lotag<=0);
+    lt &= ~(int)((sprite[spritenum].hitag<=0)<<1);
 
     if ((sprite[spritenum].lotag|sprite[spritenum].hitag) == 0)
     {
@@ -1754,7 +1754,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
             if (runi==1 && sprite[i].picnum!=RESPAWN)
                 continue;
 
-            pic = (runi==0) ? sprite[i].picnum : sprite[i].hitag;
+            pic = (runi==0) ? (int)sprite[i].picnum : (int)sprite[i].hitag;
             if (pic<0 || pic>=MAXTILES)
                 continue;
 
@@ -4269,8 +4269,8 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
         if (small)
             x1 /= 2;
 
-        x1 *= 320.0/xdimgame;
-        scale /= (max(tilesizx[picnum],tilesizy[picnum])/24.0);
+        x1 = (int32_t)(x1 * 320.0/xdimgame);
+        scale = (int32_t)(max(tilesizx[picnum],tilesizy[picnum])/24.0);
 
         setaspect(65536L, (int32_t)divscale16(ydim*320L,xdim*200L));
         // +1024: prevents rotatesprite from setting aspect itself
@@ -4278,8 +4278,8 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
         setaspect(oviewingrange, oyxaspect);
     }
 
-    x *= xdimgame/320.0;
-    y *= ydimgame/200.0;
+    x = (int32_t)(x * xdimgame/320.0);
+    y = (int32_t)(y * ydimgame/200.0);
 
     begindrawing();
     printext256(x+2,y+2,0,-1,title,small);
@@ -5001,8 +5001,8 @@ static void Keys3d(void)
             }
         }
 
-        x = WIND1X*(xdimgame/320.);
-        y = WIND1Y*(ydimgame/200.);
+        x = (int32_t)(WIND1X*(xdimgame/320.));
+        y = (int32_t)(WIND1Y*(ydimgame/200.));
         y += (ydimgame>>6)*8;
 
         if (getmessageleng)
@@ -5545,9 +5545,9 @@ static void Keys3d(void)
                 if (eitherCTRL)  //CTRL
                 {
                     if (tsign==1)
-                        visibility <<= (visibility < 16384);
+                        visibility <<= (int)(visibility < 16384);
                     else
-                        visibility >>= (visibility > 32);
+                        visibility >>= (int)(visibility > 32);
                     silentmessage("Global visibility %d", visibility);
                 }
                 else
@@ -10762,7 +10762,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                 }
                                 if (check_prlight_colors(i))
                                     copy_prlight_colors(spritelightptr[i], i);
-                                if (!!(CS & 128) != spritelightptr[i]->publicflags.negative)
+                                if ((int)!!(CS & 128) != spritelightptr[i]->publicflags.negative)
                                 {
                                     spritelightptr[i]->publicflags.negative = !!(CS & 128);
                                 }
@@ -10816,11 +10816,11 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                     spritelightptr[i]->horiz = SH;
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
-                                if (!(CS & 64) != spritelightptr[i]->publicflags.emitshadow)
+                                if ((int)!(CS & 64) != spritelightptr[i]->publicflags.emitshadow)
                                 {
                                     spritelightptr[i]->publicflags.emitshadow = !(CS & 64);
                                 }
-                                if (!!(CS & 128) != spritelightptr[i]->publicflags.negative)
+                                if ((int)!!(CS & 128) != spritelightptr[i]->publicflags.negative)
                                 {
                                     spritelightptr[i]->publicflags.negative = !!(CS & 128);
                                 }

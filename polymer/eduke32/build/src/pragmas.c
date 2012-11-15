@@ -371,7 +371,7 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
 {
     // Cringe City
     char *p = (char *)D;
-    int32_t m[4] = { 0xffl,0xff00l,0xff0000l,0xff000000l };
+    int32_t m[4] = { 0xffl,0xff00l,0xff0000l,(int32_t)0xff000000l };
     int32_t n[4] = { 0,8,16,24 };
     int32_t z=0;
     while ((c--) > 0)

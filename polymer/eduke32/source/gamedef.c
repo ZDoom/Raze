@@ -5812,8 +5812,9 @@ static void C_InitProjectiles(void)
 
     defaultprojectile_t DefaultProjectile =
     {
-        1, -1, 2048, 0, 0, SMALLSMOKE, -1, -1, 600, BULLETHOLE, -1, 0, 0, 448, g_numFreezeBounces, PIPEBOMB_BOUNCE, 1,
-        100, -1, -1, -1, -1, -1, -96, 18, 18, 0, 1, 32, {0,0,0,0,0,0},
+        1, -1, 2048, 0, 0, (int16_t)SMALLSMOKE, -1, -1, 600, (int16_t)BULLETHOLE, -1, 0, 0, 448,
+        (int16_t)g_numFreezeBounces, (int16_t)PIPEBOMB_BOUNCE, 1, 100, -1, -1, -1, -1, -1, -96, 18, 18,
+        0, 1, 32, {0,0,0,0,0,0},
     };
 
     // this will only happen if I forget to update this function...

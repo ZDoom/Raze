@@ -728,7 +728,7 @@ nextdemo_nomenu:
 
                 if (Demo_IsProfiling())
                 {
-                    int32_t t = gethitickms();
+                    int32_t t = (int32_t)gethitickms();
                     G_DoMoveThings();
                     Demo_GToc(t);
                 }

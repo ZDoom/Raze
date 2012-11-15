@@ -3585,8 +3585,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 // If the view is rotated (not 0 or 180 degrees modulo 360 degrees),
                 // we render onto a square tile and display a portion of that
                 // rotated on-screen later on.
-                const int32_t viewtilexsiz = ((tang&1023) ? tiltcx : tiltcy)>>!ud.detail;
-                const int32_t viewtileysiz = tiltcx>>!ud.detail;
+                const int32_t viewtilexsiz = ((tang&1023) ? tiltcx : tiltcy)>>(int)!ud.detail;
+                const int32_t viewtileysiz = tiltcx>>(int)!ud.detail;
 
                 walock[TILE_TILT] = 255;
                 if (waloff[TILE_TILT] == 0)
@@ -3598,8 +3598,8 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             if ((tang&1023) == 512)
             {
                 //Block off unscreen section of 90ø tilted screen
-                j = ((tiltcx-(60*tiltcs))>>!ud.detail);
-                for (i=((60*tiltcs)>>!ud.detail)-1; i>=0; i--)
+                j = ((tiltcx-(60*tiltcs))>>(int)!ud.detail);
+                for (i=((60*tiltcs)>>(int)!ud.detail)-1; i>=0; i--)
                 {
                     startumost[i] = 1;
                     startumost[i+j] = 1;
@@ -7674,7 +7674,7 @@ void G_HandleLocalKeys(void)
         if (KB_KeyPressed(sc_kpad_6))
         {
             KB_ClearKeyDown(sc_kpad_6);
-            j = (15<<ALT_IS_PRESSED)<<(2*SHIFTS_IS_PRESSED);
+            j = (15<<(int)ALT_IS_PRESSED)<<(2*(int)SHIFTS_IS_PRESSED);
             g_demo_goalCnt = g_demo_paused ? g_demo_cnt+1 : g_demo_cnt+REALGAMETICSPERSEC*j;
             g_demo_rewind = 0;
 
@@ -7686,7 +7686,7 @@ void G_HandleLocalKeys(void)
         else if (KB_KeyPressed(sc_kpad_4))
         {
             KB_ClearKeyDown(sc_kpad_4);
-            j = (15<<ALT_IS_PRESSED)<<(2*SHIFTS_IS_PRESSED);
+            j = (15<<(int)ALT_IS_PRESSED)<<(2*(int)SHIFTS_IS_PRESSED);
             g_demo_goalCnt = g_demo_paused ? g_demo_cnt-1 : g_demo_cnt-REALGAMETICSPERSEC*j;
             g_demo_rewind = 1;
 

@@ -1171,7 +1171,7 @@ void                polymer_editorpick(void)
             GLfloat dadepth;
 
             int16_t k, bestk=0;
-            GLfloat bestwdistsq = 3.4e38, wdistsq;
+            GLfloat bestwdistsq = (GLfloat)3.4e38, wdistsq;
             GLfloat w1[2], w2[2], w21[2], pw1[2], pw2[2];
             GLfloat ptonline[2];
             GLfloat scrvxz[2];
@@ -2356,9 +2356,9 @@ static int32_t      polymer_updatesector(int16_t sectnum)
                 heidiff = (int32_t)(curbuffer[(i*5)+1] - curbuffer[1]);
                 // don't forget the sign, tey could be negative with concave sectors
                 if (tey >= 0)
-                    tey = (int32_t)sqrt((tey * tey) + (heidiff * heidiff));
+                    tey = (int32_t)sqrt((double)((tey * tey) + (heidiff * heidiff)));
                 else
-                    tey = -(int32_t)sqrt((tey * tey) + (heidiff * heidiff));
+                    tey = -(int32_t)sqrt((double)((tey * tey) + (heidiff * heidiff)));
             }
 
             if (curstat & 4)

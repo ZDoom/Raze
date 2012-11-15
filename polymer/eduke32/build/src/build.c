@@ -2181,7 +2181,7 @@ void fade_editor_screen(int32_t keepcol)
 {
     char blackcol=0, greycol=whitecol-25, *cp;
     int32_t pix, i, threecols = (keepcol >= 256);
-    char cols[3] = {keepcol&0xff, (keepcol>>8)&0xff, (keepcol>>16)&0xff};
+    char cols[3] = {(char)(keepcol&0xff), (char)((keepcol>>8)&0xff), (char)((keepcol>>16)&0xff)};
 
     begindrawing();
     cp = (char *)frameplace;
@@ -4221,7 +4221,7 @@ rotate_hlsect_out:
                     //   ^           |
                     // minfloorz  ---|
 
-                    ulz[0] = oldfz - swsecheight*((double)(oldfz-maxceilz)/(minfloorz-maxceilz));
+                    ulz[0] = (int32_t)(oldfz - swsecheight*((double)(oldfz-maxceilz)/(minfloorz-maxceilz)));
                     ulz[0] &= ~255;
                     ulz[1] = ulz[0] + swsecheight;
 
