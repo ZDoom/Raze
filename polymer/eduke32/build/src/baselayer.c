@@ -384,9 +384,13 @@ int32_t baselayer_init(void)
 #endif
 
 #if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
+#ifdef __cplusplus
 extern "C" {
+#endif
 extern int32_t dep_begin, dep_end;
+#ifdef __cplusplus
 };
+#endif
 #endif
 
 void makeasmwriteable(void)
