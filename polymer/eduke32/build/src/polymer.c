@@ -782,9 +782,7 @@ void                polymer_uninit(void)
 void                polymer_setaspect(int32_t ang)
 {
     float           aspect;
-    float fang = ang;
-
-    fang *= atanf((float)viewingrange/65536.0f)/(PI/4);
+    float fang = (float)ang * atanf((float)viewingrange/65536.0f)/(PI/4);
 
     if (pr_customaspect != 0.0f)
         aspect = pr_customaspect;
@@ -3467,7 +3465,7 @@ void                polymer_updatesprite(int32_t snum)
 {
     int32_t         curpicnum, xsize, ysize, tilexoff, tileyoff, xoff, yoff, i, j, cs;
     spritetype      *tspr = tspriteptr[snum];
-    float           xratio, yratio, ang;
+    float           xratio, yratio, ang, f;
     float           spos[3];
     const GLfloat   *inbuffer;
     uint8_t         flipu, flipv;
@@ -3523,7 +3521,8 @@ void                polymer_updatesprite(int32_t snum)
             s->plane.material.diffusemodulation[3] = 0xAA;
     }
 
-    s->plane.material.diffusemodulation[3] *=  (1.0f - spriteext[tspr->owner].alpha);
+    f = s->plane.material.diffusemodulation[3] * (1.0f - spriteext[tspr->owner].alpha);
+    s->plane.material.diffusemodulation[3] = (GLubyte)f;
 
     if (searchit == 2)
     {
@@ -4098,7 +4097,7 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     color = mdspritematerial.diffusemodulation;
 
     color[0] = color[1] = color[2] =
-        ((float)(numshades-min(max((tspr->shade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades) * 0xFF;
+        (GLubyte)(((float)(numshades-min(max((tspr->shade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades) * 0xFF);
 
     usinghighpal = (pr_highpalookups &&
                     prhighpalookups[curbasepal][tspr->pal].map);
@@ -4109,9 +4108,14 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     {
         if (!(m->flags&1) || (!(tspr->owner >= MAXSPRITES) && sector[sprite[tspr->owner].sectnum].floorpal!=0))
         {
-            color[0] *= (float)hictinting[tspr->pal].r / 255.0;
-            color[1] *= (float)hictinting[tspr->pal].g / 255.0;
-            color[2] *= (float)hictinting[tspr->pal].b / 255.0;
+            double f;
+
+            f = color[0] * (float)hictinting[tspr->pal].r / 255.0;
+            color[0] = (GLubyte)f;
+            f = color[1] * (float)hictinting[tspr->pal].g / 255.0;
+            color[1] = (GLubyte)f;
+            f = color[2] * (float)hictinting[tspr->pal].b / 255.0;
+            color[2] = (GLubyte)f;
         }
         else globalnoeffect=1; //mdloadskin reads this
     }
@@ -4122,9 +4126,14 @@ static void         polymer_drawmdsprite(spritetype *tspr)
          hictinting[MAXPALOOKUPS-1].g != 255 ||
          hictinting[MAXPALOOKUPS-1].b != 255))
     {
-        color[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
-        color[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;
-        color[2] *= hictinting[MAXPALOOKUPS-1].b / 255.0;
+        double f;
+
+        f = color[0] * hictinting[MAXPALOOKUPS-1].r / 255.0;
+        color[0] = (GLubyte)f;
+        f = color[1] * hictinting[MAXPALOOKUPS-1].g / 255.0;
+        color[1] = (GLubyte)f;
+        f = color[2] * hictinting[MAXPALOOKUPS-1].b / 255.0;
+        color[2] = (GLubyte)f;
     }
 
     if (tspr->cstat & 2)
@@ -4136,7 +4145,10 @@ static void         polymer_drawmdsprite(spritetype *tspr)
     } else
         color[3] = 0xFF;
 
-    color[3] *=  (1.0f - spriteext[tspr->owner].alpha);
+    {
+        double f = color[3] * (1.0f - spriteext[tspr->owner].alpha);
+        color[3] = (GLubyte)f;
+    }
 
     if (searchit == 2)
     {
@@ -4481,24 +4493,34 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->diffusemodulation[0] =
             material->diffusemodulation[1] =
             material->diffusemodulation[2] =
-            ((float)(numshades-min(max((shade  * shadescale),0),numshades)))/((float)numshades) * 0xFF;
+            (GLubyte)(((float)(numshades-min(max((shade  * shadescale),0),numshades)))/((float)numshades) * 0xFF);
  
         if (pth->flags & 2)
         {
             if (pth->palnum != pal)
             {
-                material->diffusemodulation[0] *= (float)hictinting[pal].r / 255.0;
-                material->diffusemodulation[1] *= (float)hictinting[pal].g / 255.0;
-                material->diffusemodulation[2] *= (float)hictinting[pal].b / 255.0;
+                double f;
+
+                f = material->diffusemodulation[0] * (float)hictinting[pal].r / 255.0;
+                material->diffusemodulation[0] = (GLubyte)f;
+                f = material->diffusemodulation[1] * (float)hictinting[pal].g / 255.0;
+                material->diffusemodulation[1] = (GLubyte)f;
+                f = material->diffusemodulation[2] * (float)hictinting[pal].b / 255.0;
+                material->diffusemodulation[2] = (GLubyte)f;
             }
 
             // fullscreen tint on global palette change... this is used for nightvision and underwater tinting
             // if ((hictinting[MAXPALOOKUPS-1].r + hictinting[MAXPALOOKUPS-1].g + hictinting[MAXPALOOKUPS-1].b) != 0x2FD)
             if (!usinghighpal && ((uint32_t)hictinting[MAXPALOOKUPS-1].r & 0xFFFFFF00) != 0xFFFFFF00)
             {
-                material->diffusemodulation[0] *= hictinting[MAXPALOOKUPS-1].r / 255.0;
-                material->diffusemodulation[1] *= hictinting[MAXPALOOKUPS-1].g / 255.0;
-                material->diffusemodulation[2] *= hictinting[MAXPALOOKUPS-1].b / 255.0;
+                double f;
+
+                f = material->diffusemodulation[0] * hictinting[MAXPALOOKUPS-1].r / 255.0;
+                material->diffusemodulation[0] = (GLubyte)f;
+                f = material->diffusemodulation[1] * hictinting[MAXPALOOKUPS-1].g / 255.0;
+                material->diffusemodulation[1] = (GLubyte)f;
+                f = material->diffusemodulation[2] * hictinting[MAXPALOOKUPS-1].b / 255.0;
+                material->diffusemodulation[2] = (GLubyte)f;
             }
         }
  

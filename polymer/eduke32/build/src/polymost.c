@@ -3372,7 +3372,7 @@ static void polymost_drawalls(int32_t bunch)
     int32_t i, x, y, z, cz, fz, wallnum, sectnum, nextsectnum;
 
     int16_t dapskybits;
-    static const int16_t zeropskyoff[MAXPSKYTILES];
+    static const int16_t zeropskyoff[MAXPSKYTILES] = { 0 };
     const int16_t *dapskyoff;
 
     sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];

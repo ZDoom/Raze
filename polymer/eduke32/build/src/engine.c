@@ -4362,7 +4362,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
 
     int32_t dapyscale;
     int16_t dapskybits;
-    static const int16_t zeropskyoff[MAXPSKYTILES];
+    static const int16_t zeropskyoff[MAXPSKYTILES] = { 0 };
     const int16_t *dapskyoff;
 
     UNREFERENCED_PARAMETER(dax1);
