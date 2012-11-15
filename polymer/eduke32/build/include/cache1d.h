@@ -13,7 +13,9 @@ extern "C" {
 #define MAXGROUPFILES 8     //Warning: Fix groupfil if this is changed
 #define MAXOPENFILES 64     //Warning: Fix filehan if this is changed
 
-extern char filegrp[MAXOPENFILES];
+#ifdef WITHKPLIB
+int32_t cache1d_file_fromzip(int32_t fil);
+#endif
 
 void	initcache(intptr_t dacachestart, int32_t dacachesize);
 void	allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr);

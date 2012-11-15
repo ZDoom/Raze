@@ -530,7 +530,7 @@ static int32_t groupfilpos[MAXGROUPFILES];
 static char *gfilelist[MAXGROUPFILES];
 static int32_t *gfileoffs[MAXGROUPFILES];
 
-char filegrp[MAXOPENFILES];
+static char filegrp[MAXOPENFILES];
 static int32_t filepos[MAXOPENFILES];
 static intptr_t filehan[MAXOPENFILES] =
 {
@@ -542,6 +542,11 @@ static intptr_t filehan[MAXOPENFILES] =
 #ifdef WITHKPLIB
 static char filenamsav[MAXOPENFILES][260];
 static int32_t kzcurhand = -1;
+
+int32_t cache1d_file_fromzip(int32_t fil)
+{
+    return (filegrp[fil] == 254);
+}
 #endif
 
 int32_t initgroupfile(const char *filename)

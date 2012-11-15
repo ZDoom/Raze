@@ -10457,8 +10457,7 @@ void set_picsizanm(int32_t picnum, int16_t dasizx, int16_t dasizy, int32_t daanm
 //
 int32_t loadpics(const char *filename, int32_t askedsize)
 {
-    int32_t offscount, localtilestart, localtileend, dasiz;
-    int32_t i, fil, tilefilei, numtiles_dummy;
+    int32_t i, tilefilei;
 
     Bstrcpy(artfilename,filename);
 
@@ -10470,12 +10469,17 @@ int32_t loadpics(const char *filename, int32_t askedsize)
 
     for (tilefilei=0; tilefilei<MAXTILEFILES; tilefilei++)
     {
+        int32_t fil;
+
         artfilename[7] = (tilefilei%10)+48;
         artfilename[6] = ((tilefilei/10)%10)+48;
         artfilename[5] = ((tilefilei/100)%10)+48;
 
         if ((fil = kopen4load(artfilename,0)) != -1)
         {
+            int32_t localtilestart, localtileend, localnumtiles;
+            int32_t offscount, numtiles_dummy;
+
             kread(fil,&artversion,4); artversion = B_LITTLE32(artversion);
             if (artversion != 1)
             {
@@ -10483,9 +10487,11 @@ int32_t loadpics(const char *filename, int32_t askedsize)
                 kclose(fil);
                 continue;
             }
+
             kread(fil,&numtiles_dummy,4);
             kread(fil,&localtilestart,4); localtilestart = B_LITTLE32(localtilestart);
             kread(fil,&localtileend,4);   localtileend   = B_LITTLE32(localtileend);
+
             if ((uint32_t)localtilestart >= MAXTILES || (uint32_t)localtileend >= MAXTILES)
             {
                 initprintf("loadpics: Invalid localtilestart or localtileend in %s\n", artfilename);
@@ -10498,9 +10504,13 @@ int32_t loadpics(const char *filename, int32_t askedsize)
                 kclose(fil);
                 continue;
             }
-            kread(fil,&tilesizx[localtilestart],(localtileend-localtilestart+1)<<1);
-            kread(fil,&tilesizy[localtilestart],(localtileend-localtilestart+1)<<1);
-            kread(fil,&picanm[localtilestart],(localtileend-localtilestart+1)<<2);
+
+            localnumtiles = (localtileend-localtilestart+1);
+
+            kread(fil,&tilesizx[localtilestart], localnumtiles<<1);
+            kread(fil,&tilesizy[localtilestart], localnumtiles<<1);
+            kread(fil,&picanm[localtilestart], localnumtiles<<2);
+
             for (i=localtilestart; i<=localtileend; i++)
             {
                 tilesizx[i] = B_LITTLE16(tilesizx[i]);
@@ -10508,18 +10518,20 @@ int32_t loadpics(const char *filename, int32_t askedsize)
                 picanm[i]   = B_LITTLE32(picanm[i]);
             }
 
-            offscount = 4+4+4+4+((localtileend-localtilestart+1)<<3);
+            offscount = 4+4+4+4+(localnumtiles<<3);
             for (i=localtilestart; i<=localtileend; i++)
             {
+                int32_t dasiz = tilesizx[i]*tilesizy[i];
+
                 tilefilenum[i] = tilefilei;
                 tilefileoffs[i] = offscount;
-                dasiz = (int32_t)(tilesizx[i]*tilesizy[i]);
+
                 offscount += dasiz;
                 artsize += ((dasiz+15)&0xfffffff0);
             }
 
 #ifdef WITHKPLIB
-            if (filegrp[fil] == 254) // from zip
+            if (cache1d_file_fromzip(fil)) // from zip
             {
                 i = kfilelength(fil);
                 artptrs[tilefilei] = (char *)Brealloc(artptrs[tilefilei], i);
