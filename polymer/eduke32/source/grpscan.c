@@ -165,7 +165,7 @@ int32_t ScanGroups(void)
 
             fh = openfrompath(sidx->name, BO_RDONLY|BO_BINARY, BS_IREAD);
             if (fh < 0) continue;
-            if (fstat(fh, &st)) continue;
+            if (Bfstat(fh, &st)) continue;
 
             initprintf(" Checksumming %s...", sidx->name);
             crc32init((uint32_t *)&crcval);
