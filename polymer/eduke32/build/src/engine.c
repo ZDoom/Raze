@@ -1281,8 +1281,8 @@ static spritetype *loadsprite;
 #define CM_CEILINGZ(Sec) (*(int32_t *)&sector[Sec].visibility)  // visibility,filler,lotag
 
 // backup of original normalized coordinates
-#define CM_WALL_X(Wal) (*(int32_t *)&wall[Wal].picnum)
-#define CM_WALL_Y(Wal) (*(int32_t *)&wall[Wal].lotag)
+#define CM_WALL_X(Wal) (*(int32_t *)&wall[Wal].picnum)  // picnum, overpicnum
+#define CM_WALL_Y(Wal) (*(int32_t *)&wall[Wal].lotag)  // lotag, hitag
 
 // don't rotate when applying clipping, for models with rotational symmetry
 #define CM_NOROT(Spri) (sprite[Spri].cstat&2)
@@ -6605,6 +6605,19 @@ static void fillpolygon(int32_t npoints)
     faketimerhandler();
 }
 
+static inline int32_t addscaleclamp(int32_t a, int32_t b, int32_t s1, int32_t s2)
+{
+    // a + scale(b, s1, s1-s2), but without arithmetic exception when the
+    // scale() expression overflows
+
+    double tmp = (double)a + ((double)b*s1)/(s1-s2);
+
+    if (tmp <= INT32_MIN+1)
+        return INT32_MIN+1;
+    if (tmp >= INT32_MAX)
+        return INT32_MAX;
+    return tmp;
+}
 
 //
 // clippoly (internal)
@@ -6637,8 +6650,8 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
                 }
                 if ((s1^s2) < 0)
                 {
-                    rx2[npoints2] = rx1[z]+scale(rx1[zz]-rx1[z],s1,s1-s2);
-                    ry2[npoints2] = ry1[z]+scale(ry1[zz]-ry1[z],s1,s1-s2);
+                    rx2[npoints2] = addscaleclamp(rx1[z], rx1[zz]-rx1[z], s1, s2);
+                    ry2[npoints2] = addscaleclamp(ry1[z], ry1[zz]-ry1[z], s1, s2);
                     if (s1 < 0) p2[splitcnt++] = npoints2;
                     xb2[npoints2] = npoints2+1;
                     npoints2++;
@@ -6686,8 +6699,8 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
                 }
                 if ((s1^s2) < 0)
                 {
-                    rx1[npoints] = rx2[z]+scale(rx2[zz]-rx2[z],s1,s1-s2);
-                    ry1[npoints] = ry2[z]+scale(ry2[zz]-ry2[z],s1,s1-s2);
+                    rx1[npoints] = addscaleclamp(rx2[z], rx2[zz]-rx2[z], s1, s2);
+                    ry1[npoints] = addscaleclamp(ry2[z], ry2[zz]-ry2[z], s1, s2);
                     if (s1 < 0) p2[splitcnt++] = npoints;
                     xb1[npoints] = npoints+1;
                     npoints++;
@@ -6736,8 +6749,8 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
                 }
                 if ((s1^s2) < 0)
                 {
-                    rx2[npoints2] = rx1[z]+scale(rx1[zz]-rx1[z],s1,s1-s2);
-                    ry2[npoints2] = ry1[z]+scale(ry1[zz]-ry1[z],s1,s1-s2);
+                    rx2[npoints2] = addscaleclamp(rx1[z], rx1[zz]-rx1[z], s1, s2);
+                    ry2[npoints2] = addscaleclamp(ry1[z], ry1[zz]-ry1[z], s1, s2);
                     if (s1 < 0) p2[splitcnt++] = npoints2;
                     xb2[npoints2] = npoints2+1;
                     npoints2++;
@@ -6785,8 +6798,8 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
                 }
                 if ((s1^s2) < 0)
                 {
-                    rx1[npoints] = rx2[z]+scale(rx2[zz]-rx2[z],s1,s1-s2);
-                    ry1[npoints] = ry2[z]+scale(ry2[zz]-ry2[z],s1,s1-s2);
+                    rx1[npoints] = addscaleclamp(rx2[z], rx2[zz]-rx2[z], s1, s2);
+                    ry1[npoints] = addscaleclamp(ry2[z], ry2[zz]-ry2[z], s1, s2);
                     if (s1 < 0) p2[splitcnt++] = npoints;
                     xb1[npoints] = npoints+1;
                     npoints++;

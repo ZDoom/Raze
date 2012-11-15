@@ -312,14 +312,11 @@ typedef struct {
     uint8_t filler;
     float alpha;
     spritetype *tspr;
-
-
 #if !defined UINTPTR_MAX
 # error Need UINTPTR_MAX define to select between 32- and 64-bit structs
 #endif
 #if UINTPTR_MAX == 0xffffffff
-    /* On a 32-bit build, pad the struct so it has the same size everywhere.
-     * REMINDER: Will break savegames. */
+    /* On a 32-bit build, pad the struct so it has the same size everywhere. */
     intptr_t dummy_;
 #endif
 } spriteext_t;
