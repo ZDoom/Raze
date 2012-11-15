@@ -3406,7 +3406,7 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
     setgotpic(globalpicnum);
     if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) return 1;
-    if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum, 0);
+    DO_TILE_ANIM(globalpicnum, 0);
 
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
     globalbufplc = waloff[globalpicnum];
@@ -4220,7 +4220,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
         daz = sec->floorz;
     }
 
-    if ((picanm[globalpicnum]&192) != 0) globalpicnum += animateoffs(globalpicnum,sectnum);
+    DO_TILE_ANIM(globalpicnum, sectnum);
     setgotpic(globalpicnum);
     if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) return;
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
@@ -4397,7 +4397,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     }
 
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
-    if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,(int16_t)sectnum);
+    DO_TILE_ANIM(globalpicnum, sectnum);
     globalshiftval = (picsiz[globalpicnum]>>4);
     if (pow2long[globalshiftval] != tilesizy[globalpicnum]) globalshiftval++;
     globalshiftval = 32-globalshiftval;
@@ -4537,7 +4537,7 @@ static void setup_globals_wall1(const walltype *wal, int32_t dapicnum)
 
     globalpicnum = dapicnum;
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
-    if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum, 0);
+    DO_TILE_ANIM(globalpicnum, 0);
 
     globalxpanning = wal->xpanning;
     globalypanning = wal->ypanning;
@@ -5514,9 +5514,9 @@ static void drawsprite(int32_t snum)
 
     if ((cstat&48) != 48)
     {
-        if (picanm[tilenum]&192) tilenum += animateoffs(tilenum,spritenum+32768);
         if ((tilesizx[tilenum] <= 0) || (tilesizy[tilenum] <= 0) || (spritenum < 0))
             return;
+        DO_TILE_ANIM(tilenum, spritenum+32768);
     }
     if ((tspr->xrepeat <= 0) || (tspr->yrepeat <= 0)) return;
 
@@ -6190,7 +6190,7 @@ draw_as_face_sprite:
         globalorientation = cstat;
         globalpicnum = tilenum;
         if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
-        //if (picanm[globalpicnum]&192) globalpicnum += animateoffs((short)globalpicnum,spritenum+32768);
+        //DO_TILE_ANIM(globalpicnum, spritenum+32768);
 
         if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
         setgotpic(globalpicnum);
@@ -9136,7 +9136,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
             setgotpic(globalpicnum);
             if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) continue;
-            if ((picanm[globalpicnum]&192) != 0) globalpicnum += animateoffs((int16_t)globalpicnum,s);
+            DO_TILE_ANIM(globalpicnum, s);
             if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
             globalbufplc = waloff[globalpicnum];
             globalshade = max(min(sec->floorshade,numshades-1),0);
@@ -9271,7 +9271,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
             setgotpic(globalpicnum);
             if ((tilesizx[globalpicnum] <= 0) || (tilesizy[globalpicnum] <= 0)) continue;
-            if ((picanm[globalpicnum]&192) != 0) globalpicnum += animateoffs((int16_t)globalpicnum,s);
+            DO_TILE_ANIM(globalpicnum, s);
             if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
             globalbufplc = waloff[globalpicnum];
 
@@ -13505,7 +13505,7 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 
     if ((cx1 > cx2) || (cy1 > cy2)) return;
     if (z <= 16) return;
-    if (picanm[picnum]&192) picnum += animateoffs(picnum,(int16_t)0xc000);
+    DO_TILE_ANIM(picnum, 0xc000);
     if ((tilesizx[picnum] <= 0) || (tilesizy[picnum] <= 0)) return;
 
     // Experimental / development bits. ONLY FOR INTERNAL USE!

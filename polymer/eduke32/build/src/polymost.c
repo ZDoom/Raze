@@ -3452,7 +3452,7 @@ static void polymost_drawalls(int32_t bunch)
 
         globalpicnum = sec->floorpicnum; globalshade = sec->floorshade; globalpal = (int32_t)((uint8_t)sec->floorpal);
         globalorientation = sec->floorstat;
-        if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,sectnum);
+        DO_TILE_ANIM(globalpicnum, sectnum);
 
         // multi-psky stuff
         dapskyoff = zeropskyoff;
@@ -3744,7 +3744,7 @@ static void polymost_drawalls(int32_t bunch)
 
         globalpicnum = sec->ceilingpicnum; globalshade = sec->ceilingshade; globalpal = (int32_t)((uint8_t)sec->ceilingpal);
         globalorientation = sec->ceilingstat;
-        if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,sectnum);
+        DO_TILE_ANIM(globalpicnum, sectnum);
 
         // multi-psky stuff
         dapskyoff = zeropskyoff;
@@ -4089,7 +4089,7 @@ static void polymost_drawalls(int32_t bunch)
             if (((cy0 < ocy0) || (cy1 < ocy1)) && (!((sec->ceilingstat&sector[nextsectnum].ceilingstat)&1)))
             {
                 globalpicnum = wal->picnum; globalshade = wal->shade; globalpal = (int32_t)((uint8_t)wal->pal);
-                if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,wallnum+16384);
+                DO_TILE_ANIM(globalpicnum, wallnum+16384);
 
                 if (!(wal->cstat&4)) i = sector[nextsectnum].ceilingz; else i = sec->ceilingz;
 
@@ -4126,7 +4126,7 @@ static void polymost_drawalls(int32_t bunch)
                     guy += (float)(nwal->xpanning-wal->xpanning)*gdy;
                 }
                 globalpicnum = nwal->picnum; globalshade = nwal->shade; globalpal = (int32_t)((uint8_t)nwal->pal);
-                if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,wallnum+16384);
+                DO_TILE_ANIM(globalpicnum, wallnum+16384);
 
                 if (!(nwal->cstat&4)) i = sector[nextsectnum].floorz; else i = sec->ceilingz;
 
@@ -4158,7 +4158,7 @@ static void polymost_drawalls(int32_t bunch)
         {
             if (nextsectnum < 0) globalpicnum = wal->picnum; else globalpicnum = wal->overpicnum;
             globalshade = wal->shade; globalpal = (int32_t)((uint8_t)wal->pal);
-            if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,wallnum+16384);
+            DO_TILE_ANIM(globalpicnum, wallnum+16384);
 
             if (nextsectnum >= 0) { if (!(wal->cstat&4)) i = nextsec->ceilingz; else i = sec->ceilingz; }
             else { if (!(wal->cstat&4)) i = sec->ceilingz;     else i = sec->floorz; }
@@ -4679,7 +4679,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     z2 = min(nsec->floorz,sec->floorz);
 
     globalpicnum = wal->overpicnum; if ((uint32_t)globalpicnum >= MAXTILES) globalpicnum = 0;
-    if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,(int16_t)thewall[z]+16384);
+    DO_TILE_ANIM(globalpicnum, (int16_t)thewall[z]+16384);
     globalshade = (int32_t)wal->shade;
     globalpal = (int32_t)((uint8_t)wal->pal);
     globalorientation = (int32_t)wal->cstat;
@@ -4898,7 +4898,7 @@ void polymost_drawsprite(int32_t snum)
     if ((globalorientation&48) != 48)  	// only non-voxel sprites should do this
     {
         int32_t flag;
-        if (picanm[globalpicnum]&192) globalpicnum += animateoffs(globalpicnum,spritenum+32768);
+        DO_TILE_ANIM(globalpicnum, spritenum+32768);
         flag = usehightile && h_xsize[globalpicnum];
         xoff = (int32_t)tspr->xoffset;
         yoff = (int32_t)tspr->yoffset;

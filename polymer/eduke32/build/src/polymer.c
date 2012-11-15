@@ -1485,8 +1485,7 @@ int16_t             polymer_addlight(_prlight* light)
             int16_t     picnum = light->tilenum;
             pthtyp*     pth;
 
-            if (picanm[picnum] & 192)
-                picnum += animateoffs(picnum, 0);
+            DO_TILE_ANIM(picnum, 0);
 
             if (!waloff[picnum])
                 loadtile(picnum);
@@ -2288,9 +2287,9 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     }
 
     floorpicnum = sec->floorpicnum;
-    if (picanm[floorpicnum]&192) floorpicnum += animateoffs(floorpicnum,sectnum);
+    DO_TILE_ANIM(floorpicnum, sectnum);
     ceilingpicnum = sec->ceilingpicnum;
-    if (picanm[ceilingpicnum]&192) ceilingpicnum += animateoffs(ceilingpicnum,sectnum);
+    DO_TILE_ANIM(ceilingpicnum, sectnum);
 
     if ((!s->flags.empty) && (!needfloor) &&
             (sec->floorstat == s->floorstat) &&
@@ -2797,13 +2796,16 @@ static void         polymer_updatewall(int16_t wallnum)
     }
 
     wallpicnum = wal->picnum;
-    if (picanm[wallpicnum]&192) wallpicnum += animateoffs(wallpicnum,wallnum+16384);
+    DO_TILE_ANIM(wallpicnum, wallnum+16384);
+
     walloverpicnum = wal->overpicnum;
-    if (walloverpicnum>=0 && picanm[walloverpicnum]&192) walloverpicnum += animateoffs(walloverpicnum,wallnum+16384);
+    if (walloverpicnum>=0)
+        DO_TILE_ANIM(walloverpicnum, wallnum+16384);
+
     if (nwallnum >= 0 && nwallnum < numwalls)
     {
         nwallpicnum = wall[nwallnum].picnum;
-        if (picanm[nwallpicnum]&192) nwallpicnum += animateoffs(nwallpicnum,wallnum+16384);
+        DO_TILE_ANIM(nwallpicnum, wallnum+16384);
     }
     else
         nwallpicnum = 0;
@@ -3501,7 +3503,7 @@ void                polymer_updatesprite(int32_t snum)
     s = prsprites[tspr->owner];
 
     curpicnum = tspr->picnum;
-    if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);
+    DO_TILE_ANIM(curpicnum, tspr->owner+32768);
 
     if (tspr->cstat & 48 && searchit != 2)
     {
@@ -3534,7 +3536,7 @@ void                polymer_updatesprite(int32_t snum)
     }
 
     curpicnum = tspr->picnum;
-    if (picanm[curpicnum]&192) curpicnum += animateoffs(curpicnum,tspr->owner+32768);
+    DO_TILE_ANIM(curpicnum, tspr->owner+32768);
 
     if (((tspr->cstat>>4) & 3) == 0)
         xratio = (float)(tspr->xrepeat) * 0.20f; // 32 / 160
@@ -3773,7 +3775,7 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
     while (i < 5)
     {
         picnum = tilenum + i;
-        if (picanm[picnum]&192) picnum += animateoffs(picnum,0);
+        DO_TILE_ANIM(picnum, 0);
         if (!waloff[picnum])
             loadtile(picnum);
         pth = gltexcache(picnum, palnum, 0);
@@ -3861,7 +3863,7 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
     if (pr_vbos > 0)
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, skyboxdatavbo);
 
-    if (picanm[tilenum]&192) tilenum += animateoffs(tilenum,0);
+    DO_TILE_ANIM(tilenum, 0);
 
     i = 0;
     while (i < 6)
@@ -5189,8 +5191,7 @@ static void         polymer_updatelights(void)
                 int16_t     picnum = light->tilenum;
                 pthtyp*     pth;
 
-                if (picanm[picnum] & 192)
-                    picnum += animateoffs(picnum, 0);
+                DO_TILE_ANIM(picnum, 0);
 
                 if (!waloff[picnum])
                     loadtile(picnum);
