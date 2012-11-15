@@ -3308,7 +3308,7 @@ nullquote:
 
         case CON_SAVEMAPSTATE:
             if (MapInfo[ud.volume_number *MAXLEVELS+ud.level_number].savedstate == NULL)
-                MapInfo[ud.volume_number *MAXLEVELS+ud.level_number].savedstate = Bcalloc(1,sizeof(mapstate_t));
+                MapInfo[ud.volume_number *MAXLEVELS+ud.level_number].savedstate = (mapstate_t *)Bcalloc(1,sizeof(mapstate_t));
             G_SaveMapState(MapInfo[ud.volume_number*MAXLEVELS+ud.level_number].savedstate);
             insptr++;
             continue;
@@ -4202,7 +4202,7 @@ nullquote:
                         {
                             /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
                                 aGameArrays[j].szLabel, aGameArrays[j].size, asize / GAR_ELTSZ);*/
-                            aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, asize);
+                            aGameArrays[j].plValues = (intptr_t *)Brealloc(aGameArrays[j].plValues, asize);
                             aGameArrays[j].size = asize / GAR_ELTSZ;
                             kread(fil, aGameArrays[j].plValues, asize);
                         }
@@ -4253,7 +4253,7 @@ nullquote:
                 if (asize > 0)
                 {
                     /*OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n", aGameArrays[j].szLabel, aGameArrays[j].size, asize);*/
-                    aGameArrays[j].plValues=Brealloc(aGameArrays[j].plValues, GAR_ELTSZ * asize);
+                    aGameArrays[j].plValues = (intptr_t *)Brealloc(aGameArrays[j].plValues, GAR_ELTSZ * asize);
                     aGameArrays[j].size = asize;
                 }
                 continue;
@@ -5313,13 +5313,13 @@ void G_SaveMapState(mapstate_t *save)
             if (aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)
             {
                 if (!save->vars[i])
-                    save->vars[i] = Bcalloc(MAXPLAYERS,sizeof(intptr_t));
+                    save->vars[i] = (intptr_t *)Bcalloc(MAXPLAYERS,sizeof(intptr_t));
                 Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXPLAYERS);
             }
             else if (aGameVars[i].dwFlags & GAMEVAR_PERACTOR)
             {
                 if (!save->vars[i])
-                    save->vars[i] = Bcalloc(MAXSPRITES,sizeof(intptr_t));
+                    save->vars[i] = (intptr_t *)Bcalloc(MAXSPRITES,sizeof(intptr_t));
                 Bmemcpy(&save->vars[i][0],&aGameVars[i].val.plValues[0],sizeof(intptr_t) * MAXSPRITES);
             }
             else save->vars[i] = (intptr_t *)aGameVars[i].val.lValue;

@@ -1062,7 +1062,7 @@ static void sv_makevarspec()
     for (i=0; i<g_gameVarCount; i++)
         numsavedvars += (aGameVars[i].dwFlags&SV_SKIPMASK) ? 0 : 1;
 
-    svgm_vars = Bmalloc((numsavedvars+g_gameArrayCount+2)*sizeof(dataspec_t));
+    svgm_vars = (dataspec_t *)Bmalloc((numsavedvars+g_gameArrayCount+2)*sizeof(dataspec_t));
 
     svgm_vars[0].flags = DS_STRING;
     svgm_vars[0].ptr = magic;
@@ -1111,11 +1111,11 @@ static int32_t doallocsnap(int32_t allocinit)
 {
     sv_freemem();
 
-    svsnapshot = Bmalloc(svsnapsiz);
+    svsnapshot = (uint8_t *)Bmalloc(svsnapsiz);
     if (allocinit)
-        svinitsnap = Bmalloc(svsnapsiz);
+        svinitsnap = (uint8_t *)Bmalloc(svsnapsiz);
     svdiffsiz = svsnapsiz;  // theoretically it's less than could be needed in the worst case, but practically it's overkill
-    svdiff = Bmalloc(svdiffsiz);
+    svdiff = (uint8_t *)Bmalloc(svdiffsiz);
     if (svsnapshot==NULL || (allocinit && svinitsnap==NULL) || svdiff==NULL)
     {
         sv_freemem();
@@ -1499,7 +1499,7 @@ static void sv_prescriptload_once()
 {
     if (script)
         Bfree(script);
-    script = Bmalloc(g_scriptSize * sizeof(script[0]));
+    script = (intptr_t *)Bmalloc(g_scriptSize * sizeof(script[0]));
 }
 static void sv_postscript_once()
 {
@@ -1551,7 +1551,7 @@ static void sv_postanimateptr()
 static void sv_prequote()
 {
     if (!savegame_quotes)
-        savegame_quotes = Bcalloc(MAXQUOTES, MAXQUOTELEN);
+        savegame_quotes = (char (*)[MAXQUOTELEN])Bcalloc(MAXQUOTES, MAXQUOTELEN);
 }
 static void sv_quotesave()
 {
@@ -1572,7 +1572,7 @@ static void sv_quoteload()
         if (savegame_quotedef[i>>3]&(1<<(i&7)))
         {
             if (!ScriptQuotes[i])
-                ScriptQuotes[i] = Bcalloc(1, MAXQUOTELEN);
+                ScriptQuotes[i] = (char *)Bcalloc(1, MAXQUOTELEN);
             Bmemcpy(ScriptQuotes[i], savegame_quotes[i], MAXQUOTELEN);
         }
     }
@@ -1580,7 +1580,7 @@ static void sv_quoteload()
 static void sv_prequoteredef()
 {
     // "+1" needed for dfwrite which doesn't handle the src==NULL && cnt==0 case
-    savegame_quoteredefs = Bcalloc(g_numQuoteRedefinitions+1, MAXQUOTELEN);
+    savegame_quoteredefs = (char (*)[MAXQUOTELEN])Bcalloc(g_numQuoteRedefinitions+1, MAXQUOTELEN);
 }
 static void sv_quoteredefsave()
 {
@@ -1595,7 +1595,7 @@ static void sv_quoteredefload()
     for (i=0; i<g_numQuoteRedefinitions; i++)
     {
         if (!ScriptQuoteRedefinitions[i])
-            ScriptQuoteRedefinitions[i] = Bcalloc(1,MAXQUOTELEN);
+            ScriptQuoteRedefinitions[i] = (char *)Bcalloc(1,MAXQUOTELEN);
         Bmemcpy(ScriptQuoteRedefinitions[i], savegame_quoteredefs[i], MAXQUOTELEN);
     }
 }

@@ -1799,7 +1799,7 @@ static void realloc_and_copy_musicfn(int32_t level_number, const char *levnamebu
     char **musicfn = altp ? &MapInfo[level_number].alt_musicfn : &MapInfo[level_number].musicfn;
     int32_t dastrlen = Bstrlen(levnamebuf);
 
-    *musicfn = Brealloc(*musicfn, dastrlen+1);
+    *musicfn = (char *)Brealloc(*musicfn, dastrlen+1);
     Bstrcpy(*musicfn, levnamebuf);
 }
 
@@ -1902,7 +1902,7 @@ int32_t G_EnterLevel(int32_t g)
         if (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0)
         {
             if (MapInfo[mii].filename == NULL)
-                MapInfo[mii].filename = Bcalloc(BMAX_PATH, sizeof(uint8_t));
+                MapInfo[mii].filename = (char *)Bcalloc(BMAX_PATH, sizeof(uint8_t));
             if (MapInfo[mii].name == NULL)
                 MapInfo[mii].name = Bstrdup("User Map");
         }

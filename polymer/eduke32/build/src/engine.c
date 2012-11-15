@@ -863,8 +863,8 @@ void yax_preparedrawrooms(void)
     if (getrendermode()==0 && ymostallocsize < xdimen*numyaxbunches)
     {
         ymostallocsize = xdimen*numyaxbunches;
-        yumost = Brealloc(yumost, ymostallocsize*sizeof(int16_t));
-        ydmost = Brealloc(ydmost, ymostallocsize*sizeof(int16_t));
+        yumost = (int16_t *)Brealloc(yumost, ymostallocsize*sizeof(int16_t));
+        ydmost = (int16_t *)Brealloc(ydmost, ymostallocsize*sizeof(int16_t));
 
         if (!yumost || !ydmost)
         {
@@ -1332,9 +1332,9 @@ int32_t clipmapinfo_load(void)
 
     clipmapinfo_init();
 
-    loadsector = Bmalloc(MAXSECTORS * sizeof(sectortype));
-    loadwall = Bmalloc(MAXWALLS * sizeof(walltype));
-    loadsprite = Bmalloc(MAXSPRITES * sizeof(spritetype));
+    loadsector = (sectortype *)Bmalloc(MAXSECTORS * sizeof(sectortype));
+    loadwall = (walltype *)Bmalloc(MAXWALLS * sizeof(walltype));
+    loadsprite = (spritetype *)Bmalloc(MAXSPRITES * sizeof(spritetype));
 
     if (!loadsector || !loadwall || !loadsprite)
     {
@@ -1408,8 +1408,8 @@ int32_t clipmapinfo_load(void)
     }
 
     // shrink
-    loadsector = Brealloc(loadsector, ournumsectors*sizeof(sectortype));
-    loadwall = Brealloc(loadwall, ournumwalls*sizeof(walltype));
+    loadsector = (sectortype *)Brealloc(loadsector, ournumsectors*sizeof(sectortype));
+    loadwall = (walltype *)Brealloc(loadwall, ournumwalls*sizeof(walltype));
 
     Bmemcpy(sector, loadsector, ournumsectors*sizeof(sectortype));
     Bmemcpy(wall, loadwall, ournumwalls*sizeof(walltype));
@@ -1419,7 +1419,7 @@ int32_t clipmapinfo_load(void)
 
     //  vvvv    don't use headsprite[sect,stat]!   vvvv
 
-    sectoidx = Bmalloc(numsectors*sizeof(sectoidx[0]));
+    sectoidx = (int16_t *)Bmalloc(numsectors*sizeof(sectoidx[0]));
     if (!sectoidx || !sector || !wall)
     {
         clipmapinfo_init();
@@ -1461,8 +1461,8 @@ int32_t clipmapinfo_load(void)
         int16_t ns, outersect;
         int32_t pn,scnt, x,y,z, maxdist;
 
-        sectq = Bmalloc(numsectors*sizeof(sectq[0]));
-        tempictoidx = Bmalloc(MAXTILES*sizeof(tempictoidx[0]));
+        sectq = (int16_t *)Bmalloc(numsectors*sizeof(sectq[0]));
+        tempictoidx = (int16_t *)Bmalloc(MAXTILES*sizeof(tempictoidx[0]));
         if (!sectq || !tempictoidx)
         {
             clipmapinfo_init();
@@ -1701,7 +1701,7 @@ int32_t clipmapinfo_load(void)
     Bmemcpy(loadwall, wall, ournumwalls*sizeof(walltype));
 
     // loadwallinv will contain all walls with inverted orientation for x/y-flip handling
-    loadwallinv = Bmalloc(ournumwalls*sizeof(walltype));
+    loadwallinv = (walltype *)Bmalloc(ournumwalls*sizeof(walltype));
     if (!loadwallinv)
     {
         clipmapinfo_init();
@@ -7678,8 +7678,8 @@ static int32_t loadpalette(void)
     kread(fil,palette,768);
     kread(fil,&numshades,2); numshades = B_LITTLE16(numshades);
 
-    palookup[0] = Bmalloc(numshades<<8);
-    transluc = Bmalloc(65536);
+    palookup[0] = (char *)Bmalloc(numshades<<8);
+    transluc = (char *)Bmalloc(65536);
     if (palookup[0] == NULL || transluc == NULL)
         exit(1);
 
@@ -10309,7 +10309,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
         Bfree(lookups);
 
     j = ydim*4;  //Leave room for horizlookup&horizlookup2
-    lookups = Bmalloc(2*j*sizeof(lookups[0]));
+    lookups = (int32_t *)Bmalloc(2*j*sizeof(lookups[0]));
 
     if (lookups == NULL)
     {
@@ -10522,7 +10522,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
             if (filegrp[fil] == 254) // from zip
             {
                 i = kfilelength(fil);
-                artptrs[tilefilei] = Brealloc(artptrs[tilefilei], i);
+                artptrs[tilefilei] = (char *)Brealloc(artptrs[tilefilei], i);
                 klseek(fil, 0, BSEEK_SET);
                 kread(fil, artptrs[tilefilei], i);
             }
@@ -13614,7 +13614,7 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
     if (palookup[palnum] == NULL || (palnum!=0 && palookup[palnum] == palookup[0]))
     {
         //Allocate palookup buffer
-        palookup[palnum] = Bmalloc(numshades<<8);
+        palookup[palnum] = (char *)Bmalloc(numshades<<8);
         if (palookup[palnum] == NULL)
             exit(1);
     }
@@ -14315,7 +14315,7 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
 
     if ((newfirstwall < startwall) || (newfirstwall >= startwall+danumwalls)) return;
 
-    tmpwall = Bmalloc(danumwalls * sizeof(walltype));
+    tmpwall = (walltype *)Bmalloc(danumwalls * sizeof(walltype));
     if (!tmpwall)
     {
         initprintf("setfirstwall: OUT OF MEMORY!\n");
@@ -16258,7 +16258,7 @@ void setpolymost2dview(void)
 void hash_init(hashtable_t *t)
 {
     hash_free(t);
-    t->items=Bcalloc(1, t->size * sizeof(hashitem_t));
+    t->items=(hashitem_t **)Bcalloc(1, t->size * sizeof(hashitem_t));
 }
 
 void hash_free(hashtable_t *t)

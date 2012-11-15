@@ -1574,7 +1574,7 @@ void                polymer_texinvalidate(void)
 
 void                polymer_definehighpalookup(char basepalnum, char palnum, char *data)
 {
-    prhighpalookups[basepalnum][palnum].data = Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
+    prhighpalookups[basepalnum][palnum].data = (char *)Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
     
     Bmemcpy(prhighpalookups[basepalnum][palnum].data, data, PR_HIGHPALOOKUP_DATA_SIZE);
 }
@@ -1634,8 +1634,8 @@ static void         polymer_displayrooms(int16_t dacursectnum)
 
     mirrorcount = 0;
 
-    localsectormasks = Bmalloc(sizeof(int16_t) * numsectors);
-    localsectormaskcount = Bcalloc(sizeof(int16_t), 1);
+    localsectormasks = (int16_t *)Bmalloc(sizeof(int16_t) * numsectors);
+    localsectormaskcount = (int16_t *)Bcalloc(sizeof(int16_t), 1);
     cursectormasks = localsectormasks;
     cursectormaskcount = localsectormaskcount;
 
@@ -2176,17 +2176,17 @@ static int32_t      polymer_initsector(int16_t sectnum)
     if (pr_verbosity >= 2) OSD_Printf("PR : Initializing sector %i...\n", sectnum);
 
     sec = &sector[sectnum];
-    s = Bcalloc(1, sizeof(_prsector));
+    s = (_prsector *)Bcalloc(1, sizeof(_prsector));
     if (s == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize sector %i : Bmalloc failed.\n", sectnum);
         return (0);
     }
 
-    s->verts = Bcalloc(sec->wallnum, sizeof(GLdouble) * 3);
-    s->floor.buffer = Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->verts = (GLdouble *)Bcalloc(sec->wallnum, sizeof(GLdouble) * 3);
+    s->floor.buffer = (GLfloat *)Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
     s->floor.vertcount = sec->wallnum;
-    s->ceil.buffer = Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->ceil.buffer = (GLfloat *)Bcalloc(sec->wallnum, sizeof(GLfloat) * 5);
     s->ceil.vertcount = sec->wallnum;
     if ((s->verts == NULL) || (s->floor.buffer == NULL) || (s->ceil.buffer == NULL))
     {
@@ -2516,8 +2516,8 @@ void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
     {
         if (pr_verbosity >= 2) OSD_Printf("PR : Indice overflow, extending the indices list... !\n");
         s->indicescount++;
-        s->floor.indices = Brealloc(s->floor.indices, s->indicescount * sizeof(GLushort));
-        s->ceil.indices = Brealloc(s->ceil.indices, s->indicescount * sizeof(GLushort));
+        s->floor.indices = (GLushort *)Brealloc(s->floor.indices, s->indicescount * sizeof(GLushort));
+        s->ceil.indices = (GLushort *)Brealloc(s->ceil.indices, s->indicescount * sizeof(GLushort));
     }
     s->ceil.indices[s->curindice] = (intptr_t)vertex;
     s->curindice++;
@@ -2541,8 +2541,8 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
     if (s->floor.indices == NULL)
     {
         s->indicescount = (max(3, sec->wallnum) - 2) * 3;
-        s->floor.indices = Bcalloc(s->indicescount, sizeof(GLushort));
-        s->ceil.indices = Bcalloc(s->indicescount, sizeof(GLushort));
+        s->floor.indices = (GLushort *)Bcalloc(s->indicescount, sizeof(GLushort));
+        s->ceil.indices = (GLushort *)Bcalloc(s->indicescount, sizeof(GLushort));
     }
 
     s->curindice = 0;
@@ -2686,7 +2686,7 @@ static int32_t      polymer_initwall(int16_t wallnum)
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initializing wall %i...\n", wallnum);
 
-    w = Bcalloc(1, sizeof(_prwall));
+    w = (_prwall *)Bcalloc(1, sizeof(_prwall));
     if (w == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Cannot initialize wall %i : Bmalloc failed.\n", wallnum);
@@ -2694,13 +2694,13 @@ static int32_t      polymer_initwall(int16_t wallnum)
     }
 
     if (w->mask.buffer == NULL) {
-        w->mask.buffer = Bmalloc(4 * sizeof(GLfloat) * 5);
+        w->mask.buffer = (GLfloat *)Bmalloc(4 * sizeof(GLfloat) * 5);
         w->mask.vertcount = 4;
     }
     if (w->bigportal == NULL)
-        w->bigportal = Bmalloc(4 * sizeof(GLfloat) * 5);
+        w->bigportal = (GLfloat *)Bmalloc(4 * sizeof(GLfloat) * 5);
     if (w->cap == NULL)
-        w->cap = Bmalloc(4 * sizeof(GLfloat) * 3);
+        w->cap = (GLfloat *)Bmalloc(4 * sizeof(GLfloat) * 3);
 
     bglGenBuffersARB(1, &w->wall.vbo);
     bglGenBuffersARB(1, &w->over.vbo);
@@ -2794,7 +2794,7 @@ static void         polymer_updatewall(int16_t wallnum)
     }
 
     if (w->wall.buffer == NULL) {
-        w->wall.buffer = Bcalloc(4, sizeof(GLfloat) * 5);  // XXX
+        w->wall.buffer = (GLfloat *)Bcalloc(4, sizeof(GLfloat) * 5);  // XXX
         w->wall.vertcount = 4;
     }
 
@@ -2995,7 +2995,7 @@ static void         polymer_updatewall(int16_t wallnum)
         if ((overwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
             if (w->over.buffer == NULL) {
-                w->over.buffer = Bmalloc(4 * sizeof(GLfloat) * 5);
+                w->over.buffer = (GLfloat *)Bmalloc(4 * sizeof(GLfloat) * 5);
                 w->over.vertcount = 4;
             }
 
@@ -4373,9 +4373,9 @@ static void         polymer_loadmodelvbos(md3model_t* m)
     int32_t         i;
     md3surf_t       *s;
 
-    m->indices = Bmalloc(m->head.numsurfs * sizeof(GLuint));
-    m->texcoords = Bmalloc(m->head.numsurfs * sizeof(GLuint));
-    m->geometry = Bmalloc(m->head.numsurfs * sizeof(GLuint));
+    m->indices = (GLuint *)Bmalloc(m->head.numsurfs * sizeof(GLuint));
+    m->texcoords = (GLuint *)Bmalloc(m->head.numsurfs * sizeof(GLuint));
+    m->geometry = (GLuint *)Bmalloc(m->head.numsurfs * sizeof(GLuint));
 
     bglGenBuffersARB(m->head.numsurfs, m->indices);
     bglGenBuffersARB(m->head.numsurfs, m->texcoords);
@@ -5227,7 +5227,7 @@ out:
     }
 
     oldhead = prlights[lighti].planelist;
-    prlights[lighti].planelist = Bmalloc(sizeof(_prplanelist));
+    prlights[lighti].planelist = (_prplanelist *)Bmalloc(sizeof(_prplanelist));
     prlights[lighti].planelist->n = oldhead;
 
     prlights[lighti].planelist->plane = plane;
@@ -5653,7 +5653,7 @@ static void         polymer_initrendertargets(int32_t count)
     ocount = count;
     //////////
 
-    prrts = Bcalloc(count, sizeof(_prrt));
+    prrts = (_prrt *)Bcalloc(count, sizeof(_prrt));
 
     i = 0;
     while (i < count)

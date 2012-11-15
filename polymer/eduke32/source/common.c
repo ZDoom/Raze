@@ -146,7 +146,7 @@ void G_AddGroup(const char *buffer)
 {
     char buf[BMAX_PATH];
 
-    struct strllist *s = Bcalloc(1,sizeof(struct strllist));
+    struct strllist *s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
 
     Bstrcpy(buf, buffer);
 
@@ -167,7 +167,7 @@ void G_AddGroup(const char *buffer)
 
 void G_AddPath(const char *buffer)
 {
-    struct strllist *s = Bcalloc(1,sizeof(struct strllist));
+    struct strllist *s = (struct strllist *)Bcalloc(1,sizeof(struct strllist));
     s->str = Bstrdup(buffer);
 
     if (CommandPaths)
@@ -311,7 +311,7 @@ void G_DoAutoload(const char *dirname)
 // returns a buffer of size BMAX_PATH
 char *dup_filename(const char *fn)
 {
-    char *buf = Bmalloc(BMAX_PATH);
+    char *buf = (char *)Bmalloc(BMAX_PATH);
 
     return Bstrncpyz(buf, fn, BMAX_PATH);
 }

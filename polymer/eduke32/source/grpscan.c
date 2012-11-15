@@ -75,7 +75,7 @@ static int32_t LoadGroupsCache(void)
         if (scriptfile_getnumber(script, &fmtime)) break;   // modification time
         if (scriptfile_getnumber(script, &fcrcval)) break;  // crc checksum
 
-        fg = Bcalloc(1, sizeof(struct grpcache));
+        fg = (struct grpcache *)Bcalloc(1, sizeof(struct grpcache));
         fg->next = grpcache;
         grpcache = fg;
 
@@ -109,7 +109,7 @@ int32_t ScanGroups(void)
     char *fn;
     struct Bstat st;
 #define BUFFER_SIZE (1024 * 1024 * 8)
-    uint8_t *buf = Bmalloc(BUFFER_SIZE);
+    uint8_t *buf = (uint8_t *)Bmalloc(BUFFER_SIZE);
 
     if (!buf)
     {

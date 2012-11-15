@@ -1580,19 +1580,19 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
     }
 
     // allocate temp storage
-    ptrs[np++] = mapinfo->sector = Bmalloc(highlightsectorcnt * sizeof(sectortype));
+    ptrs[np++] = mapinfo->sector = (sectortype *)Bmalloc(highlightsectorcnt * sizeof(sectortype));
     if (!mapinfo->sector) return -2;
 
-    ptrs[np++] = mapinfo->wall = Bmalloc(tmpnumwalls * sizeof(walltype));
+    ptrs[np++] = mapinfo->wall = (walltype *)Bmalloc(tmpnumwalls * sizeof(walltype));
     if (!mapinfo->wall) { free_n_ptrs(ptrs, np-1); return -2; }
 
 #ifdef YAX_ENABLE
     if (mapinfo->numyaxbunches > 0)
     {
-        ptrs[np++] = mapinfo->bunchnum = Bmalloc(highlightsectorcnt*2*sizeof(int16_t));
+        ptrs[np++] = mapinfo->bunchnum = (int16_t *)Bmalloc(highlightsectorcnt*2*sizeof(int16_t));
         if (!mapinfo->bunchnum) { free_n_ptrs(ptrs, np-1); return -2; }
 
-        ptrs[np++] = mapinfo->ynextwall = Bmalloc(tmpnumwalls*2*sizeof(int16_t));
+        ptrs[np++] = mapinfo->ynextwall = (int16_t *)Bmalloc(tmpnumwalls*2*sizeof(int16_t));
         if (!mapinfo->ynextwall) { free_n_ptrs(ptrs, np-1); return -2; }
     }
     else
@@ -1603,7 +1603,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
 
     if (tmpnumsprites>0)
     {
-        ptrs[np++] = mapinfo->sprite = Bmalloc(tmpnumsprites * sizeof(spritetype));
+        ptrs[np++] = mapinfo->sprite = (spritetype *)Bmalloc(tmpnumsprites * sizeof(spritetype));
         if (!mapinfo->sprite) { free_n_ptrs(ptrs, np-1); return -2; }
     }
     else
@@ -2445,7 +2445,7 @@ static int32_t backup_drawn_walls(int32_t restore)
             if (newnumwalls <= numwalls)  // shouldn't happen
                 return 2;
 
-            tmpwall = Bmalloc((newnumwalls-numwalls) * sizeof(walltype));
+            tmpwall = (walltype *)Bmalloc((newnumwalls-numwalls) * sizeof(walltype));
             if (!tmpwall)
                 return 1;
 
@@ -2732,7 +2732,7 @@ static int32_t bakframe_fillandfade(char **origframeptr, int32_t sectnum, const 
 {
     if (!*origframeptr)
     {
-        *origframeptr = Bmalloc(xdim*ydim);
+        *origframeptr = (char *)Bmalloc(xdim*ydim);
         if (*origframeptr)
         {
             begindrawing();
@@ -4969,8 +4969,8 @@ end_yax: ;
                                     sector[refsect].wallnum += n;
                                     if (refsect != numsectors-1)
                                     {
-                                        walltype *tmpwall = Bmalloc(n * sizeof(walltype));
-                                        int16_t *tmponw = Bmalloc(n * sizeof(int16_t));
+                                        walltype *tmpwall = (walltype *)Bmalloc(n * sizeof(walltype));
+                                        int16_t *tmponw = (int16_t *)Bmalloc(n * sizeof(int16_t));
 
                                         if (!tmpwall || !tmponw)
                                         {
@@ -10573,7 +10573,7 @@ void test_map(int32_t mode)
         // and a possible extra space not in testplay_addparam,
         // the length should be Bstrlen(game_executable)+Bstrlen(param)+(slen+1)+2+1.
 
-        fullparam = Bmalloc(Bstrlen(game_executable)+Bstrlen(param)+slen+4);
+        fullparam = (char *)Bmalloc(Bstrlen(game_executable)+Bstrlen(param)+slen+4);
         Bsprintf(fullparam,"\"%s\"",game_executable);
 
         if (testplay_addparam)

@@ -3803,7 +3803,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 // NOTE: maybe need to move this to the engine...
                 begindrawing();
                 {
-                    palette_t *const frame = Bcalloc(xdim*ydim, 4);
+                    palette_t *const frame = (palette_t *const)Bcalloc(xdim*ydim, 4);
                     char *const pic = (char *)waloff[TILE_SAVESHOT];
 
                     int32_t x, y;
@@ -8426,7 +8426,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             }
 
             if (!preload)
-                anim_hi_sounds[animnum] = Bcalloc(allocsz, 2*sizeof(anim_hi_sounds[0]));
+                anim_hi_sounds[animnum] = (uint16_t *)Bcalloc(allocsz, 2*sizeof(anim_hi_sounds[0]));
             while (script->textptr < animsoundsend)
             {
                 int32_t framenum, soundnum;
@@ -9513,8 +9513,8 @@ static void G_CompileScripts(void)
         char *newlabel;
         int32_t *newlabelcode;
 
-        newlabel     = Bmalloc(g_numLabels<<6);
-        newlabelcode = Bmalloc(g_numLabels*sizeof(int32_t));
+        newlabel     = (char *)Bmalloc(g_numLabels<<6);
+        newlabelcode = (int32_t *)Bmalloc(g_numLabels*sizeof(int32_t));
 
         if (!newlabel || !newlabelcode)
             G_GameExit("Error: out of memory retaining labels\n");

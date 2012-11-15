@@ -1544,14 +1544,14 @@ void writexcache(const char *fn, int32_t len, int32_t dameth, char effect, texca
 
         if (alloclen < miplen)
         {
-            void *picc = Brealloc(pic, miplen);
+            char *picc = (char *)Brealloc(pic, miplen);
             if (!picc) goto failure; else pic = picc;
             alloclen = miplen;
 
-            picc = Brealloc(packbuf, alloclen+400);
+            picc = (char *)Brealloc(packbuf, alloclen+400);
             if (!picc) goto failure; else packbuf = picc;
 
-            picc = Brealloc(midbuf, miplen);
+            picc = (char *)Brealloc(midbuf, miplen);
             if (!picc) goto failure; else midbuf = picc;
         }
 
@@ -1666,14 +1666,14 @@ static int32_t gloadtile_cached(int32_t fil, const texcacheheader *head, int32_t
 
         if (alloclen < pict.size)
         {
-            void *picc = Brealloc(pic, pict.size);
+            char *picc = (char *)Brealloc(pic, pict.size);
             if (!picc) goto failure; else pic = picc;
             alloclen = pict.size;
 
-            picc = Brealloc(packbuf, alloclen+16);
+            picc = (char *)Brealloc(packbuf, alloclen+16);
             if (!picc) goto failure; else packbuf = picc;
 
-            picc = Brealloc(midbuf, pict.size);
+            picc = (char *)Brealloc(midbuf, pict.size);
             if (!picc) goto failure; else midbuf = picc;
         }
 
@@ -1831,13 +1831,13 @@ static int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicre
                 lastfn = fn;  // careful...
                 if (!lastpic)
                 {
-                    lastpic = Bmalloc(xsiz*ysiz*sizeof(coltype));
+                    lastpic = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
                     lastsize = xsiz*ysiz;
                 }
                 else if (lastsize < xsiz*ysiz)
                 {
                     Bfree(lastpic);
-                    lastpic = Bmalloc(xsiz*ysiz*sizeof(coltype));
+                    lastpic = (coltype *)Bmalloc(xsiz*ysiz*sizeof(coltype));
                 }
                 if (lastpic)
                     Bmemcpy(lastpic, pic, xsiz*ysiz*sizeof(coltype));

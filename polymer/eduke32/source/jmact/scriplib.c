@@ -122,7 +122,7 @@ void SCRIPT_FreeSection(ScriptSectionType * section)
 
 #define AllocSection(s) \
 	{ \
-		(s) = Bmalloc(sizeof(ScriptSectionType)); \
+		(s) = (ScriptSectionType *)Bmalloc(sizeof(ScriptSectionType)); \
 		(s)->name = NULL; \
 		(s)->entries = NULL; \
 		(s)->lastline = NULL; \
@@ -131,7 +131,7 @@ void SCRIPT_FreeSection(ScriptSectionType * section)
 	}
 #define AllocEntry(e) \
 	{ \
-		(e) = Bmalloc(sizeof(ScriptEntryType)); \
+		(e) = (ScriptEntryType *)Bmalloc(sizeof(ScriptEntryType)); \
 		(e)->name = NULL; \
 		(e)->value = NULL; \
 		(e)->nextentry = (e); \
@@ -827,7 +827,7 @@ void SCRIPT_PutString
         if (*q == '\r' || *q == '\n' || *q == '\t' || *q == '\\' || *q == '"') len+=2;
         else if (*q >= ' ') len++;
     }
-    p = raw = Bmalloc(len);
+    p = raw = (char *)Bmalloc(len);
     *(p++) = '"';
     for (q=string; *q; q++)
     {
@@ -868,7 +868,7 @@ void SCRIPT_PutDoubleString
         if (*q == '\r' || *q == '\n' || *q == '\t' || *q == '\\' || *q == '"') len+=2;
         else if (*q >= ' ') len++;
     }
-    p = raw = Bmalloc(len);
+    p = raw = (char *)Bmalloc(len);
     *(p++) = '"';
     for (q=string1; *q; q++)
     {

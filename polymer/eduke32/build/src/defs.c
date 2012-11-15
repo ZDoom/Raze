@@ -163,9 +163,9 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
     const int32_t xsiz = tilesizx[tile], ysiz = tilesizy[tile];
     int32_t i, j;
 
-    char *ftd = Bmalloc(xsiz*ysiz);
+    char *ftd = (char *)Bmalloc(xsiz*ysiz);
 
-    faketiledata[tile] = Bmalloc(xsiz*ysiz + 400);
+    faketiledata[tile] = (char *)Bmalloc(xsiz*ysiz + 400);
 
     for (i=xsiz-1; i>=0; i--)
     {
@@ -1484,7 +1484,7 @@ static int32_t defsparser(scriptfile *script)
             fd = kopen4load(fn, 0);
 
             // load the highpalookup and send it to polymer
-            highpaldata = Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
+            highpaldata = (char *)Bmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
 
             {
                 char *filebuf;
@@ -1492,7 +1492,7 @@ static int32_t defsparser(scriptfile *script)
 
                 filesize = kfilelength(fd);
 
-                filebuf = Bmalloc(filesize);
+                filebuf = (char *)Bmalloc(filesize);
                 if (!filebuf) { kclose(fd); Bfree(highpaldata); break; }
 
                 klseek(fd, 0, SEEK_SET);
