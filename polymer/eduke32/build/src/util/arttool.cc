@@ -3,15 +3,130 @@
  * @author Jonathon Fowler
  * @license Artistic License 2.0 (http://www.perlfoundation.org/artistic_license_2_0)
  */
+// Bstring and C++ STL --> C conversion by Hendricks266
 
-#include <cstdio>
-#include <fstream>
-#include <cstring>
-#include <string>
+#include <stdio.h>
+#include <string.h>
 
 #include "compat.h"
 
-using namespace std;
+////////// Bstring //////////
+
+class Bstring {
+    public:
+        Bstring(void);
+        Bstring(const char*);
+        Bstring(const Bstring&);
+        ~Bstring(void);
+
+        operator const char*() const;
+        const char* operator()(void) const;
+        char& operator[](int);
+
+        Bstring& operator=(const char*);
+        Bstring& operator=(const Bstring&);
+
+        Bstring& operator+=(const char*);
+        Bstring& operator+=(const Bstring&);
+
+        bool operator==(const Bstring&) const;
+        bool operator!=(const Bstring&) const;
+        bool operator< (const Bstring&) const;
+        bool operator<=(const Bstring&) const;
+        bool operator> (const Bstring&) const;
+        bool operator>=(const Bstring&) const;
+
+        bool operator==(const char*) const;
+        bool operator!=(const char*) const;
+        bool operator< (const char*) const;
+        bool operator<=(const char*) const;
+        bool operator> (const char*) const;
+        bool operator>=(const char*) const;
+
+        int compare(const char*) const;
+        int compare(const Bstring&) const;
+
+        unsigned length(void) const;
+
+        void clear(void);
+
+    protected:
+        char* data;
+};
+
+Bstring::Bstring(void) { data = NULL; }
+Bstring::Bstring(const Bstring &value) {
+    if (&value != this)
+        (*this)=value();
+}
+Bstring::Bstring(const char *str) {
+    data = NULL;
+    (*this)=str;
+}
+
+Bstring::~Bstring(void) { clear(); }
+
+Bstring::operator const char*() const { return data; }
+const char* Bstring::operator()(void) const { return data; }
+char& Bstring::operator[](int index) { return data[index]; }
+
+Bstring& Bstring::operator=(const Bstring &value)
+{
+    if (&value != this)
+        (*this)=value();
+
+    return *this;
+}
+Bstring& Bstring::operator=(const char *str)
+{
+    clear();
+    data = Bstrdup(str);
+
+    return *this;
+}
+
+Bstring& Bstring::operator+=(const Bstring &value)
+{
+    (*this)+=value();
+
+    return *this;
+}
+Bstring& Bstring::operator+=(const char *str)
+{
+    data = (char*) Brealloc(data, (Bstrlen(data) + Bstrlen(str) + 1) * sizeof(char));
+    Bstrcat(data, str);
+
+    return *this;
+}
+
+bool Bstring::operator==(const Bstring &value) const { return Bstrcmp(data, value()) == 0; }
+bool Bstring::operator!=(const Bstring &value) const { return Bstrcmp(data, value()) != 0; }
+bool Bstring::operator< (const Bstring &value) const { return Bstrcmp(data, value())  < 0; }
+bool Bstring::operator<=(const Bstring &value) const { return Bstrcmp(data, value()) <= 0; }
+bool Bstring::operator> (const Bstring &value) const { return Bstrcmp(data, value())  > 0; }
+bool Bstring::operator>=(const Bstring &value) const { return Bstrcmp(data, value()) >= 0; }
+
+bool Bstring::operator==(const char *str) const { return Bstrcmp(data, str) == 0; }
+bool Bstring::operator!=(const char *str) const { return Bstrcmp(data, str) != 0; }
+bool Bstring::operator< (const char *str) const { return Bstrcmp(data, str)  < 0; }
+bool Bstring::operator<=(const char *str) const { return Bstrcmp(data, str) <= 0; }
+bool Bstring::operator> (const char *str) const { return Bstrcmp(data, str)  > 0; }
+bool Bstring::operator>=(const char *str) const { return Bstrcmp(data, str) >= 0; }
+
+int Bstring::compare(const Bstring &value) const { return Bstrcmp(data,value()); }
+int Bstring::compare(const char *str) const { return Bstrcmp(data,str); }
+
+unsigned Bstring::length(void) const { return Bstrlen(data); }
+
+void Bstring::clear(void)
+{
+    if (data != NULL)
+        Bfree(data);
+
+    data = NULL;
+}
+
+////////// arttool //////////
 
 void usage()
 {
@@ -39,7 +154,7 @@ void usage()
     Bprintf("  arttool tileprop [options] <tilenum>\n");
     Bprintf("    -x <pixels>    X-centre\n");
     Bprintf("    -y <pixels>    Y-centre\n");
-    Bprintf("    -ann <frames>  Animation frame span, may be -ve\n");
+    Bprintf("    -ann <frames>  Animation frame span, may be negative\n");
     Bprintf("    -ant <type>    Animation type (0=none, 1=oscillate, 2=forward, 3=reverse)\n");
     Bprintf("    -ans <speed>   Animation speed\n");
     Bprintf("    Changes tile properties\n");
@@ -48,7 +163,7 @@ void usage()
 
 class ARTFile {
 private:
-    string filename_;
+    Bstring filename_;
     long localtilestart_;
     long localtileend_;
     short * tilesizx_;
@@ -60,33 +175,37 @@ private:
     char * insert_;
     int insertlen_;
 
-    void writeShort(ofstream &ofs, short s)
+    void writeShort(BFILE *ofs, short s)
     {
+        Bassert(ofs);
         char d[2] = { static_cast<char>(s&255), static_cast<char>((s>>8)&255) };
-        ofs.write(d, 2);
+        Bfwrite(d,1,2,ofs); // 2 == sizeof(d)
     }
 
-    void writeLong(ofstream &ofs, long l)
+    void writeLong(BFILE *ofs, long l)
     {
+        Bassert(ofs);
         char d[4] = { static_cast<char>(l&255), static_cast<char>((l>>8)&255), static_cast<char>((l>>16)&255), static_cast<char>((l>>24)&255) };
-        ofs.write(d, 4);
+        Bfwrite(d,1,4,ofs); // 4 == sizeof(d)
     }
 
-    short readShort(ifstream &ifs)
+    short readShort(BFILE *ifs)
     {
+        Bassert(ifs);
         unsigned char d[2];
         unsigned short s;
-        ifs.read((char *) d, 2);
+        Bfread(d,1,2,ifs); // 2 == sizeof(d)
         s = (unsigned short)d[0];
         s |= (unsigned short)d[1] << 8;
         return (short)s;
     }
 
-    long readLong(ifstream &ifs)
+    long readLong(BFILE *ifs)
     {
+        Bassert(ifs);
         unsigned char d[4];
         unsigned long l;
-        ifs.read((char *) d, 4);
+        Bfread(d,1,4,ifs); // 4 == sizeof(d)
         l = (unsigned long)d[0];
         l |= (unsigned long)d[1] << 8;
         l |= (unsigned long)d[2] << 16;
@@ -107,43 +226,36 @@ private:
 
     void load()
     {
-        ifstream infile(filename_.c_str(), ios::in | ios::binary);
+        BFILE *infile = Bfopen(filename_(),"rb");
         int i, ntiles;
 
-        if (infile.is_open()) {
-            do {
-                if (readLong(infile) != 1) {
-                    break;
-                }
-                readLong(infile);    // skip the numtiles
-                dispose();
+        if (infile != NULL && readLong(infile) == 1)
+        {
+            readLong(infile);    // skip the numtiles
+            dispose();
 
-                localtilestart_ = readLong(infile);
-                localtileend_   = readLong(infile);
-                ntiles = localtileend_ - localtilestart_ + 1;
+            localtilestart_ = readLong(infile);
+            localtileend_   = readLong(infile);
+            ntiles = localtileend_ - localtilestart_ + 1;
 
-                tilesizx_ = new short[ntiles];
-                tilesizy_ = new short[ntiles];
-                picanm_   = new long[ntiles];
+            tilesizx_ = new short[ntiles];
+            tilesizy_ = new short[ntiles];
+            picanm_   = new long[ntiles];
 
-                for (i = 0; i < ntiles; i++) {
-                    tilesizx_[i] = readShort(infile);
-                }
-                for (i = 0; i < ntiles; i++) {
-                    tilesizy_[i] = readShort(infile);
-                }
-                for (i = 0; i < ntiles; i++) {
-                    picanm_[i] = readLong(infile);
-                }
-
-            } while (0);
-
-            infile.close();
+            for (i = 0; i < ntiles; ++i) {
+                tilesizx_[i] = readShort(infile);
+            }
+            for (i = 0; i < ntiles; ++i) {
+                tilesizy_[i] = readShort(infile);
+            }
+            for (i = 0; i < ntiles; ++i) {
+                picanm_[i] = readLong(infile);
+            }
         }
     }
 
 public:
-    ARTFile(string filename)
+    ARTFile(Bstring filename)
      : filename_(filename), localtilestart_(0), localtileend_(-1),
        tilesizx_(0), tilesizy_(0), picanm_(0),
        markprelength_(0), markskiplength_(0), markpostlength_(0),
@@ -215,11 +327,11 @@ public:
 
         markprelength_ = markpostlength_ = 0;
 
-        for (i = 0; i < tile; i++) {
+        for (i = 0; i < tile; ++i) {
             markprelength_ += tilesizx_[i] * tilesizy_[i];
         }
         markskiplength_ = tilesizx_[tile] * tilesizy_[tile];
-        for (i = tile + 1; i <= end; i++) {
+        for (i = tile + 1; i <= end; ++i) {
             markpostlength_ += tilesizx_[i] * tilesizy_[i];
         }
 
@@ -306,18 +418,19 @@ public:
 
     int write()
     {
-        string tmpfilename(filename_ + ".arttooltmp");
-        ofstream outfile(tmpfilename.c_str(), ios::out | ios::trunc | ios::binary);
-        ifstream infile(filename_.c_str(), ios::in | ios::binary);
-        int i, left;
-        char blk[4096];
+        BFILE *outfile = tmpfile();
 
-        if (!infile.is_open() && (markprelength_ > 0 || markskiplength_ > 0 || markpostlength_ > 0)) {
+        BFILE *infile = Bfopen(filename_(),"rb");
+        int tmp, left;
+        static const unsigned int blksize = 4096;
+        char blk[blksize];
+
+        if (infile == NULL && (markprelength_ > 0 || markskiplength_ > 0 || markpostlength_ > 0)) {
             return -1;    // couldn't open the original file for copying
-        } else if (infile.is_open()) {
+        } else if (infile != NULL) {
             // skip to the start of the existing ART data
             int ofs = 4+4+4+4+(2+2+4)*(localtileend_-localtilestart_+1);
-            infile.seekg(ofs, ios::cur);
+            Bfseek(infile, ofs, SEEK_CUR);
         }
 
         // write a header to the temporary file
@@ -325,58 +438,64 @@ public:
         writeLong(outfile, 0);    // numtiles
         writeLong(outfile, localtilestart_);
         writeLong(outfile, localtileend_);
-        for (int i = 0; i < localtileend_ - localtilestart_ + 1; i++) {
+        for (int i = 0; i < localtileend_ - localtilestart_ + 1; ++i) {
             writeShort(outfile, tilesizx_[i]);
         }
-        for (int i = 0; i < localtileend_ - localtilestart_ + 1; i++) {
+        for (int i = 0; i < localtileend_ - localtilestart_ + 1; ++i) {
             writeShort(outfile, tilesizy_[i]);
         }
-        for (int i = 0; i < localtileend_ - localtilestart_ + 1; i++) {
+        for (int i = 0; i < localtileend_ - localtilestart_ + 1; ++i) {
             writeLong(outfile, picanm_[i]);
         }
 
         // copy the existing leading tile data to be kept
         left = markprelength_;
         while (left > 0) {
-            i = left;
-            if ((unsigned int)i > sizeof(blk)) {
-                i = sizeof(blk);
+            tmp = left;
+            if ((unsigned int)tmp > blksize) {
+                tmp = blksize;
             }
-            infile.read(blk, i);
-            outfile.write(blk, i);
-            left -= i;
+            Bfread(blk, 1, tmp, infile);
+            Bfwrite(blk, 1, tmp, outfile);
+            left -= tmp;
         }
 
         // insert the replacement data
         if (insertlen_ > 0) {
-            outfile.write(insert_, insertlen_);
+            Bfwrite(insert_, 1, insertlen_, outfile);
         }
 
         if (markskiplength_ > 0) {
-            infile.seekg(markskiplength_, ios::cur);
+            Bfseek(infile, markskiplength_, SEEK_CUR);
         }
 
         // copy the existing trailing tile data to be kept
         left = markpostlength_;
         while (left > 0) {
-            i = left;
-            if ((unsigned int)i > sizeof(blk)) {
-                i = sizeof(blk);
+            tmp = left;
+            if ((unsigned int)tmp > blksize) {
+                tmp = blksize;
             }
-            infile.read(blk, i);
-            outfile.write(blk, i);
-            left -= i;
+            Bfread(blk, 1, tmp, infile);
+            Bfwrite(blk, 1, tmp, outfile);
+            left -= tmp;
         }
 
-        // close our files
-        if (infile.is_open()) {
-            infile.close();
-        }
-        outfile.close();
+        // clean up
+        const long int tempsize = Bftell(outfile);
+        Brewind(outfile);
 
-        // replace it with the new one
-        unlink(filename_.c_str());
-        rename(tmpfilename.c_str(), filename_.c_str());
+        Bfclose(infile);
+
+        infile = Bfopen(filename_(),"wb");
+
+        char * buffer = (char*)Bmalloc(tempsize * sizeof(char));
+
+        Bfread(buffer, 1, tempsize, outfile);
+        Bfwrite(buffer, 1, tempsize, infile);
+
+        Bfclose(infile);
+        Bfclose(outfile);
 
         return 0;
     }
@@ -445,23 +564,24 @@ int loadimage_pcx(unsigned char * data, int datalen ATTRIBUTE((unused)), char **
  * @param imgdatah receives the decoded image height
  * @return 0 on success
  */
-int loadimage(string filename, char ** imgdata, int& imgdataw, int& imgdatah)
+int loadimage(Bstring filename, char ** imgdata, int& imgdataw, int& imgdatah)
 {
-    ifstream infile(filename.c_str(), ios::in | ios::binary);
+    BFILE *infile = Bfopen(filename(),"rb");
     unsigned char * data = 0;
     int datalen = 0, err = 0;
 
-    if (!infile.is_open()) {
+    if (infile == NULL)
         return 1;
-    }
 
-    infile.seekg(0, ios::end);
-    datalen = infile.tellg();
-    infile.seekg(0, ios::beg);
+    struct Bstat stbuf;
+    if (Bfstat(Bfileno(infile), &stbuf) == -1)
+        return 1;
+
+    datalen = stbuf.st_size;
 
     data = new unsigned char [datalen];
-    infile.read((char *) data, datalen);
-    infile.close();
+    Bfread(data, 1, datalen, infile);
+    Bfclose(infile);
 
     err = loadimage_pcx(data, datalen, imgdata, imgdataw, imgdatah);
 
@@ -472,9 +592,9 @@ int loadimage(string filename, char ** imgdata, int& imgdataw, int& imgdatah)
 
 class Operation {
 protected:
-    string makefilename(int n)
+    Bstring makefilename(int n)
     {
-        string filename("tilesXXX.art");
+        Bstring filename("tilesXXX.art");
         filename[5] = '0' + (n / 100) % 10;
         filename[6] = '0' + (n / 10) % 10;
         filename[7] = '0' + (n / 1) % 10;
@@ -499,7 +619,7 @@ public:
             case ERR_BAD_VALUE: return "bad value";
             case ERR_TOO_MANY_PARAMS: return "too many parameters given";
             case ERR_NO_ART_FILE: return "no ART file was found";
-            case ERR_INVALID_IMAGE: return "a corrupt or unrecognised image was given";
+            case ERR_INVALID_IMAGE: return "a nonexistent, corrupt, or unrecognised image was given";
             default: return "unknown error";
         }
     }
@@ -514,7 +634,7 @@ public:
      * @param value the option value
      * @return a value from the Result enum
      */
-    virtual Result setOption(string opt, string value) = 0;
+    virtual Result setOption(const Bstring &opt, const Bstring &value) = 0;
 
     /**
      * Sets a parameter from the unnamed sequence
@@ -522,7 +642,7 @@ public:
      * @param value the parameter value
      * @return a value from the Result enum
      */
-    virtual Result setParameter(int number, string value) = 0;
+    virtual Result setParameter(const int &number, const Bstring &value) = 0;
 
     /**
      * Do the operation
@@ -537,20 +657,20 @@ private:
 public:
     CreateOp() : filen_(0), offset_(0), ntiles_(256) { }
 
-    virtual Result setOption(string opt, string value)
+    virtual Result setOption(const Bstring &opt, const Bstring &value)
     {
         if (opt == "f") {
-            filen_ = atoi(value.c_str());
+            filen_ = atoi(value());
             if (filen_ < 0 || filen_ > 999) {
                 return ERR_BAD_VALUE;
             }
         } else if (opt == "o") {
-            offset_ = atoi(value.c_str());
+            offset_ = atoi(value());
             if (offset_ < 0) {
                 return ERR_BAD_VALUE;
             }
         } else if (opt == "n") {
-            ntiles_ = atoi(value.c_str());
+            ntiles_ = atoi(value());
             if (ntiles_ < 1) {
                 return ERR_BAD_VALUE;
             }
@@ -560,7 +680,7 @@ public:
         return ERR_NO_ERROR;
     }
 
-    virtual Result setParameter(int number ATTRIBUTE((unused)), string value ATTRIBUTE((unused)))
+    virtual Result setParameter(const int &number ATTRIBUTE((unused)), const Bstring &value ATTRIBUTE((unused)))
     {
         return ERR_TOO_MANY_PARAMS;
     }
@@ -581,7 +701,7 @@ private:
     int xofs_, yofs_;
     int animframes_, animtype_, animspeed_;
     int tilenum_;
-    string filename_;
+    Bstring filename_;
 public:
     AddTileOp()
      : xofs_(0), yofs_(0),
@@ -589,24 +709,24 @@ public:
        tilenum_(-1), filename_("")
     { }
 
-    virtual Result setOption(string opt, string value)
+    virtual Result setOption(const Bstring &opt, const Bstring &value)
     {
         if (opt == "x") {
-            xofs_ = atoi(value.c_str());
+            xofs_ = atoi(value());
         } else if (opt == "y") {
-            yofs_ = atoi(value.c_str());
+            yofs_ = atoi(value());
         } else if (opt == "ann") {
-            animframes_ = atoi(value.c_str());
+            animframes_ = atoi(value());
             if (animframes_ < 0 || animframes_ > 63) {
                 return ERR_BAD_VALUE;
             }
         } else if (opt == "ant") {
-            animtype_ = atoi(value.c_str());
+            animtype_ = atoi(value());
             if (animtype_ < 0 || animtype_ > 3) {
                 return ERR_BAD_VALUE;
             }
         } else if (opt == "ans") {
-            animspeed_ = atoi(value.c_str());
+            animspeed_ = atoi(value());
             if (animspeed_ < 0 || animspeed_ > 15) {
                 return ERR_BAD_VALUE;
             }
@@ -616,11 +736,11 @@ public:
         return ERR_NO_ERROR;
     }
 
-    virtual Result setParameter(int number, string value)
+    virtual Result setParameter(const int &number, const Bstring &value)
     {
         switch (number) {
             case 0:
-                tilenum_ = atoi(value.c_str());
+                tilenum_ = atoi(value());
                 return ERR_NO_ERROR;
             case 1:
                 filename_ = value;
@@ -702,16 +822,16 @@ private:
 public:
     RmTileOp() : tilenum_(-1) { }
 
-    virtual Result setOption(string opt ATTRIBUTE((unused)), string value ATTRIBUTE((unused)))
+    virtual Result setOption(const Bstring &opt ATTRIBUTE((unused)), const Bstring &value ATTRIBUTE((unused)))
     {
         return ERR_BAD_OPTION;
     }
 
-    virtual Result setParameter(int number, string value)
+    virtual Result setParameter(const int &number, const Bstring &value)
     {
         switch (number) {
             case 0:
-                tilenum_ = atoi(value.c_str());
+                tilenum_ = atoi(value());
                 return ERR_NO_ERROR;
             default:
                 return ERR_TOO_MANY_PARAMS;
@@ -765,28 +885,28 @@ public:
       tilenum_(-1), settings_(0)
     { }
 
-    virtual Result setOption(string opt, string value)
+    virtual Result setOption(const Bstring &opt, const Bstring &value)
     {
         if (opt == "x") {
-            xofs_ = atoi(value.c_str());
+            xofs_ = atoi(value());
             settings_ |= SET_XOFS;
         } else if (opt == "y") {
-            yofs_ = atoi(value.c_str());
+            yofs_ = atoi(value());
             settings_ |= SET_YOFS;
         } else if (opt == "ann") {
-            animframes_ = atoi(value.c_str());
+            animframes_ = atoi(value());
             settings_ |= SET_ANIMFRAMES;
             if (animframes_ < 0 || animframes_ > 63) {
                 return ERR_BAD_VALUE;
             }
         } else if (opt == "ant") {
-            animtype_ = atoi(value.c_str());
+            animtype_ = atoi(value());
             settings_ |= SET_ANIMTYPE;
             if (animtype_ < 0 || animtype_ > 3) {
                 return ERR_BAD_VALUE;
             }
         } else if (opt == "ans") {
-            animspeed_ = atoi(value.c_str());
+            animspeed_ = atoi(value());
             settings_ |= SET_ANIMSPEED;
             if (animspeed_ < 0 || animspeed_ > 15) {
                 return ERR_BAD_VALUE;
@@ -797,11 +917,11 @@ public:
         return ERR_NO_ERROR;
     }
 
-    virtual Result setParameter(int number, string value)
+    virtual Result setParameter(const int &number, const Bstring &value)
     {
         switch (number) {
             case 0:
-                tilenum_ = atoi(value.c_str());
+                tilenum_ = atoi(value());
                 return ERR_NO_ERROR;
             default:
                 return ERR_TOO_MANY_PARAMS;
@@ -860,8 +980,8 @@ int main(int argc, char ** argv)
     if (argc < 2) {
         showusage = 1;
     } else {
-        string opt(argv[1]);
-        string value;
+        Bstring opt(argv[1]);
+        Bstring value;
 
         // create the option handler object according to the first param
         if (opt == "create") {
@@ -879,15 +999,15 @@ int main(int argc, char ** argv)
         // apply the command line options given
         if (oper) {
             int unnamedParm = 0;
-            for (int i = 2; i < argc && !showusage; i++) {
+            for (int i = 2; i < argc && !showusage; ++i) {
                 if (argv[i][0] == '-') {
-                    opt = string(argv[i]).substr(1);
+                    opt = argv[i] + 1;
                     if (i+1 >= argc) {
                         showusage = 2;
                         break;
                     }
-                    value = string(argv[i+1]);
-                    i++;
+                    value = argv[i+1];
+                    ++i;
 
                     switch (err = oper->setOption(opt, value)) {
                         case Operation::ERR_NO_ERROR: break;
@@ -897,7 +1017,7 @@ int main(int argc, char ** argv)
                             break;
                     }
                 } else {
-                    value = string(argv[i]);
+                    value = argv[i];
                     switch (oper->setParameter(unnamedParm, value)) {
                         case Operation::ERR_NO_ERROR: break;
                         default:
@@ -905,7 +1025,7 @@ int main(int argc, char ** argv)
                             showusage = 2;
                             break;
                     }
-                    unnamedParm++;
+                    ++unnamedParm;
                 }
             }
         }

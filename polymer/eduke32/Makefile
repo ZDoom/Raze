@@ -5,7 +5,8 @@
 include Makefile.common
 
 
-# SDK locations - adjust to match your setup
+# SDK locations for Windows - adjust to match your setup
+#
 ifneq ($(DXROOT_OVERRIDE),)
     DXROOT=$(DXROOT_OVERRIDE)
 else
@@ -14,6 +15,7 @@ else
 endif
 
 # Build locations
+#
 SRC=source
 RSRC=rsrc
 ESRC=$(EROOT)/src
@@ -70,8 +72,6 @@ endif
 EDUKE32 ?= eduke32$(EXESUFFIX)
 MAPSTER32 ?= mapster32$(EXESUFFIX)
 
-IVFRATE ?= samples/ivfrate$(EXESUFFIX)
-
 EDUKE32_TARGET:=$(EDUKE32)
 ifneq ($(PLATFORM),WII)
     MAPSTER32_TARGET:=$(MAPSTER32)
@@ -79,8 +79,6 @@ endif
 
 EBACKTRACEDLL ?= ebacktrace1.dll
 EBACKTRACEDLL_TARGET:=
-
-IVFRATE_TARGET:=$(IVFRATE)
 
 ifeq ($(PLATFORM),WINDOWS)
     OBJ=obj_win
@@ -321,19 +319,28 @@ endif
 
 # TARGETS
 
-all: notice $(EDUKE32_TARGET) $(MAPSTER32_TARGET) $(EBACKTRACEDLL_TARGET) $(IVFRATE_TARGET)
+UTILOBJS=$(OBJ)/ivfrate.$o
+UTILS=ivfrate$(EXESUFFIX)
 
-all:
-	$(BUILD_FINISHED)
+all: start $(EDUKE32_TARGET) $(MAPSTER32_TARGET) $(EBACKTRACEDLL_TARGET) finish
 ifneq (,$(EDUKE32_TARGET))
 	@ls -l $(EDUKE32)
 endif
 ifneq (,$(MAPSTER32_TARGET))
 	@ls -l $(MAPSTER32)
 endif
+ifneq (,$(EBACKTRACEDLL_TARGET))
+	@ls -l $(EBACKTRACEDLL)
+endif
 
-notice:
+utils: start $(UTILS) finish
+	@ls -l $(UTILS)
+
+start:
 	$(BUILD_STARTED)
+
+finish:
+	$(BUILD_FINISHED)
 
 
 $(EDUKE32): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB) $(MISCGAMEDEPS)
@@ -405,6 +412,7 @@ endif
 # RULES
 
 $(EBACKTRACEDLL): Windows/src/backtrace.c
+	$(COMPILE_STATUS)
 	if $(CC) $(OURCONLYFLAGS) -O2 -shared -Wall -Wextra -I$(EINC) -o $@ $^ -lbfd -liberty -limagehlp; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.nasm
@@ -417,8 +425,13 @@ $(OBJ)/%.$o: $(SRC)/%.c
 
 #### Utilities
 
-$(IVFRATE): $(SRC)/ivfrate.c $(SRC)/animvpx.h
-	if $(COMPILER) -Wall -Wextra $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+$(OBJ)/%.$o: $(SRC)/util/%.c
+	$(COMPILE_STATUS)
+	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+
+ivfrate$(EXESUFFIX): $(OBJ)/ivfrate.$o
+	$(ONESTEP_STATUS)
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(LIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 
 #### Lunatic
 
@@ -463,15 +476,15 @@ $(OBJ)/%.$o: Apple/%.m
 
 $(OBJ)/%.$o: $(SRC)/%.cc
 	$(COMPILE_STATUS)
-	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CXX) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.cpp
 	$(COMPILE_STATUS)
-	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CXX) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.cxx
 	$(COMPILE_STATUS)
-	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CXX) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/jmact/%.c
 	$(COMPILE_STATUS)
@@ -502,15 +515,21 @@ $(RSRC)/editor_banner.c: $(RSRC)/build.bmp
 	echo "extern const GdkPixdata startbanner_pixdata;" >> $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
-# PHONIES	
+# PHONIES
 
 clean:
-	-rm -f $(OBJ)/* $(EDUKE32) $(EDUKE32).memmap $(MAPSTER32) $(MAPSTER32).memmap $(IVFRATE) core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
+	-rm -f $(OBJ)/* $(EDUKE32) $(EDUKE32).memmap $(MAPSTER32) $(MAPSTER32).memmap core* duke3d_w32$(EXESUFFIX) && $(MAKE) -C $(JAUDIOLIBDIR) clean && $(MAKE) -C $(ENETDIR) clean
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf EDuke32.app Mapster32.app
 endif
 	echo -n "" > $(OBJ)/keep.me
 
-veryclean: clean
+cleanutils:
+	-rm -f $(UTILS) $(UTILOBJS) $(addsuffix .memmap, $(UTILS))
+
+veryclean: clean cleanutils
 	-rm -f $(EOBJ)/* $(RSRC)/*banner* $(EBACKTRACEDLL)
 	echo -n "" > $(EOBJ)/keep.me
+
+printutils:
+	echo "$(UTILS)"

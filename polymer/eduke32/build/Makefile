@@ -2,12 +2,6 @@
 # Build Makefile for GNU Make
 #
 
-# Notes:
-#  As of 6 July 2005, the engine should handle optimisations being enabled.
-#  If things seem to be going wrong, lower or disable optimisations, then
-#  try again. If things are still going wrong, call me.
-#   
-
 include ../Makefile.common
 
 
@@ -19,7 +13,6 @@ else
     DXROOT=../../sdk/dx
     #DXROOT=c:/sdks/directx/dx8
 endif
-FMODROOTWIN=c:/sdks/fmodapi374win/api
 
 # Build locations - OBJ gets overridden to the game-specific objects dir
 #
@@ -125,7 +118,7 @@ ifeq ($(PLATFORM),BSD)
     OURCOMMONFLAGS+= -I/usr/X11R6/include
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    OURCOMMONFLAGS+= -DUNDERSCORES -I$(DXROOT)/include -I$(FMODROOTWIN)/inc # -I$(ENETROOT)/include
+    OURCOMMONFLAGS+= -DUNDERSCORES -I$(DXROOT)/include # -I$(ENETROOT)/include
     OURASFLAGS+= -DUNDERSCORES -f win32
 endif
 ifeq ($(PLATFORM),BEOS)
@@ -188,7 +181,7 @@ ifneq ($(CPLUSPLUS),0)
 endif
 
 .SILENT:
-.PHONY: clean cleanutils veryclean all utils enginelib editorlib
+.PHONY: clean cleanutils veryclean all utils dxutils sdlutils printutils printsdlutils printdxutils enginelib editorlib
 
 # TARGETS
 
@@ -209,24 +202,20 @@ SDLUTILOBJS=$(OBJ)/makesdlkeytrans.$o
 SDLUTILS=makesdlkeytrans$(EXESUFFIX)
 
 # all: $(OBJ)/$(ENGINELIB) $(OBJ)/$(EDITORLIB)
-utils: start $(UTILS) finish utilfinish
-dxutils: start $(DXUTILS) finish dxutilfinish
-sdlutils: start $(SDLUTILS) finish sdlutilfinish
+utils: start $(UTILS) finish
+	@ls -l $(UTILS)
+
+dxutils: start $(DXUTILS) finish
+	@ls -l $(DXUTILS)
+
+sdlutils: start $(SDLUTILS) finish
+	@ls -l $(SDLUTILS)
 
 start:
 	$(BUILD_STARTED)
 
 finish:
 	$(BUILD_FINISHED)
-
-utilfinish:
-	@ls -l $(UTILS)
-
-dxutilfinish:
-	@ls -l $(DXUTILS)
-
-sdlutilfinish:
-	@ls -l $(SDLUTILS)
 
 enginelib: $(OBJ)/$(ENGINELIB)
 $(OBJ)/$(ENGINELIB): $(ENGINEOBJS)
@@ -247,56 +236,56 @@ $(OBJ)/$(EDITORLIB): $(EDITOROBJS)
 
 kextract$(EXESUFFIX): $(OBJ)/kextract.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 kgroup$(EXESUFFIX): $(OBJ)/kgroup.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 transpal$(EXESUFFIX): $(OBJ)/transpal.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 wad2art$(EXESUFFIX): $(OBJ)/wad2art.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 wad2map$(EXESUFFIX): $(OBJ)/wad2map.$o $(OBJ)/pragmas.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 kmd2tool$(EXESUFFIX): $(OBJ)/kmd2tool.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 md2tool$(EXESUFFIX): $(OBJ)/md2tool.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 generateicon$(EXESUFFIX): $(OBJ)/generateicon.$o $(OBJ)/compat.$o $(OBJ)/pragmas.$o $(OBJ)/kplib.$o \
         $(OBJ)/cache1d.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 cacheinfo$(EXESUFFIX): $(OBJ)/cacheinfo.$o $(OBJ)/compat.$o $(OBJ)/compat_tools.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 enumdisplay$(EXESUFFIX): $(OBJ)/enumdisplay.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -lgdi32; then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 getdxdidf$(EXESUFFIX): $(OBJ)/getdxdidf.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -ldinput; then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS) -I$(DXROOT)/include -ldinput; then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 makesdlkeytrans$(EXESUFFIX): $(OBJ)/makesdlkeytrans.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 arttool$(EXESUFFIX): $(OBJ)/arttool.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(L_CXX) -o $@ $^ $(OURLDFLAGS) $(STATICSTDCPP) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(L_CXX) -o $@ $^ $(OURLDFLAGS) $(STATICSTDCPP) $(STDCPPLIB) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 givedepth$(EXESUFFIX): $(OBJ)/givedepth.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 mkpalette$(EXESUFFIX): $(OBJ)/mkpalette.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 unpackssi$(EXESUFFIX): $(OBJ)/unpackssi.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 bsuite$(EXESUFFIX): $(OBJ)/bsuite.$o $(UTILADDOBJS)
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(UTILLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 
 # DEPENDENCIES
 include Makefile.deps
@@ -321,15 +310,15 @@ $(OBJ)/%.$o: $(SRC)/%.m
 
 $(OBJ)/%.$o: $(SRC)/%.cc
 	$(COMPILE_STATUS)
-	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CXX) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.cpp
 	$(COMPILE_STATUS)
-	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CXX) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/%.cxx
 	$(COMPILE_STATUS)
-	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CXX) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/misc/%.c
 	$(COMPILE_STATUS)
@@ -345,15 +334,15 @@ $(OBJ)/%.$o: $(SRC)/util/%.c
 
 $(OBJ)/%.$o: $(SRC)/util/%.cc
 	$(COMPILE_STATUS)
-	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CXX) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/util/%.cpp
 	$(COMPILE_STATUS)
-	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CXX) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(SRC)/util/%.cxx
 	$(COMPILE_STATUS)
-	if $(CXX) $(CXXFLAGS) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
+	if $(CXX) $(OURCXXFLAGS) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 
 $(OBJ)/%.$o: $(RSRC)/%.c
 	$(COMPILE_STATUS)
@@ -381,6 +370,9 @@ clean:
 cleanutils:
 	-rm -f $(UTILS) $(UTILOBJS) $(DXUTILS) $(DXUTILOBJS) $(SDLUTILS) $(SDLUTILOBJS) $(UTILADDOBJS)
 
+veryclean: clean cleanutils
+	-rm -f $(ENGINELIB) $(EDITORLIB)
+
 printutils:
 	echo "$(UTILS)"
 
@@ -389,9 +381,6 @@ printdxutils:
 
 printsdlutils:
 	echo "$(SDLUTILS)"
-
-veryclean: clean cleanutils
-	-rm -f $(ENGINELIB) $(EDITORLIB)
 
 .PHONY: fixlineends
 fixlineends:

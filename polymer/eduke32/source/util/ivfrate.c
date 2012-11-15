@@ -9,7 +9,9 @@
 
 #include <stdint.h>
 #define Bmemcmp memcmp
-#define USE_OPENGL
+#ifndef USE_OPENGL
+# define USE_OPENGL
+#endif
 #define ANIMVPX_STANDALONE
 #include "animvpx.h"
 

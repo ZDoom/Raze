@@ -17,6 +17,7 @@
 /*
     NOTE: This program does not fall under BUILDLIC.
 */
+// DOS 16-bit real mode UI --> portable command line conversion by Hendricks266
 
 #include <stdlib.h>
 #include <stdio.h>
