@@ -1139,7 +1139,7 @@ static inline void prelevel(char g)
             continue;
         }
 
-        if (sector[i].lotag == -1)
+        if (sector[i].lotag == UINT16_MAX)
         {
             g_player[0].ps->exitx = wall[sector[i].wallptr].x;
             g_player[0].ps->exity = wall[sector[i].wallptr].y;
@@ -1154,7 +1154,7 @@ static inline void prelevel(char g)
         A_ResetVars(i);
         A_LoadActor(i);
         VM_OnEvent(EVENT_LOADACTOR, i, -1, -1, 0);
-        if (sprite[i].lotag == -1 && (sprite[i].cstat&16))
+        if (sprite[i].lotag == UINT16_MAX && (sprite[i].cstat&16))
         {
             g_player[0].ps->exitx = SX;
             g_player[0].ps->exity = SY;

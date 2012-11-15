@@ -4818,7 +4818,7 @@ static void toggle_cf_flipping(int32_t sectnum, int32_t floorp)
 
     static const int16_t orient[8] = { 360, -360, -180, 180, -270, 270, 90, -90 };
 
-    int16_t *stat = &SECTORFLD(sectnum,stat, floorp);
+    uint16_t *stat = &SECTORFLD(sectnum,stat, floorp);
     int32_t i = *stat;
 
     i = (i&0x4)+((i>>4)&3);
@@ -6388,7 +6388,7 @@ static void Keys3d(void)
         if (AIMING_AT_CEILING_OR_FLOOR)   //Set masked/transluscent ceilings/floors
         {
             int32_t nexti[4] = { 128, 256, 384, 0 };
-            int16_t *stat = &AIMED_CEILINGFLOOR(stat);
+            uint16_t *stat = &AIMED_CEILINGFLOOR(stat);
             const char *statmsg[4] = {"normal", "masked", "translucent", "translucent (2)"};
 
             i = (*stat&(128+256))>>7;
@@ -11020,7 +11020,7 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
         if (showinvisibility && (tspr->cstat&32768))
         {
             tspr->pal = 6;
-            tspr->cstat &= ~32768;
+            tspr->cstat &= (uint16_t)~32768;
             tspr->cstat |= 2+512;
         }
 

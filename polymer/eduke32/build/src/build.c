@@ -1640,7 +1640,7 @@ static int32_t backup_highlighted_map(mapinfofull_t *mapinfo)
                 {
                     // if a bunch was discarded
                     sectortype *const sec = &mapinfo->sector[i];
-                    int16_t *const cs = j==YAX_CEILING ? &sec->ceilingstat : &sec->floorstat;
+                    uint16_t *const cs = j==YAX_CEILING ? &sec->ceilingstat : &sec->floorstat;
                     uint8_t *const xp = j==YAX_CEILING ? &sec->ceilingxpanning : &sec->floorxpanning;
 
                     *cs &= ~YAX_BIT;

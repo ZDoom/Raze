@@ -5833,7 +5833,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     startwall = sector[sect].wallptr;
                     endwall = startwall+sector[sect].wallnum;
 
-                    if (sector[sect].hitag == -1)
+                    if (sector[sect].hitag == UINT16_MAX)
                         sp->extra = 0;
                     else sp->extra = 1;
 
