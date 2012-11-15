@@ -56,6 +56,7 @@ typedef struct
     int16_t ang, owner, xvel, yvel, zvel;
     int16_t lotag, hitag, extra;
 } spritetype;
+#pragma pack(pop)
 ]]
 
 local C = ffi.C

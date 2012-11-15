@@ -14,6 +14,9 @@
 --  message is printed to stderr.
 -- Finally, if there is a .finish field in the module, it is run with no args.
 
+-- forxcode example: print sprite numbers with lotag < -1 (interpreting lotag it as signed),
+-- and for each matching sprite also print its lotag and picnum:
+-- ./findmaps.sh ~/.eduke32/ "sprite: .lotag < -1 :: io. write(', '.. .lotag .. ' ' .. .picnum)"
 
 local B = require "build"
 local string = require "string"
@@ -22,9 +25,9 @@ local os = require "os"
 
 if (#arg < 1) then
     local wr = function(s) io.stdout:write(s) end
-    wr("Usage: ./foreachmap <module[.lua]> [init args...] <filename.map> ...\n")
-    wr("       ./foreachmap -e\"some_lua_code ...\" <filename.map> ...\n")
-    wr("       ./foreachmap -e\"[sector|wall|sprite]: <condition on .<field>>\" <fn.map> ...\n\n")
+    wr("Usage: ./foreachmap.lua <module[.lua]> [init args...] <filename.map> ...\n")
+    wr("       ./foreachmap.lua -e\"some_lua_code ...\" <filename.map> ...\n")
+    wr("       ./foreachmap.lua -e\"[sector|wall|sprite]: <condition on .<field>>\" <fn.map> ...\n\n")
     wr("In the second form, the code is run as body of a function(map, fn)\n")
     wr("and num{sectors,walls,sprites} and {sector,wall,sprite} do not\n")
     wr("need to be qualified with the \"map.\" prefix.\n")
@@ -32,7 +35,8 @@ if (#arg < 1) then
     wr("satisfying a certain condition (see example below)\n\n")
     wr("Examples: ./foreachmap.lua -e\"if map.numbunches==1 then print(fn) end\" ~/.eduke32/*.map\n")
     wr("          ./foreachmap.lua -e\"sprite: .picnum==10 and .lotag==2563\" *.map\n")
-    wr("          ./foreachmap.lua -e\"sprite:: ...  -- (only prints the file names)\n\n")
+    wr("          ./foreachmap.lua -e\"sprite:: ...  -- (only prints the file names)\n")
+    wr("(See foreachmap.lua for an example of the \"forxcode\" feature.)\n\n")
     return
 end
 
@@ -46,13 +50,27 @@ if (modname:sub(1,2) == "-e") then
     local b, e, what = body:find("^([a-z]+)::?")
     if (what) then
         local onlyfiles = (body:sub(e-1,e)=="::")  -- "::" means "only list files" (like grep -l)
-        body = body:sub(e+1)
-        body = body:gsub("%.[a-z]+", what.."[i]%0")
+        body = body:sub(e+1)  -- clip off "bla::"
+        body = body:gsub("%.[a-z]+", what.."[i]%0")  -- e.g. .lotag --> sprite[i].lotag
+
+        local perxcode
+        -- look for additional "print" code to be executed for each match
+        b, e, perxcode = body:find("::(.*)")
+        if (perxcode) then
+            body = body:sub(1,b-1)
+            if (onlyfiles) then
+                error("Per-x code can only be used with the ':' syntax (list each match)")
+            end
+        else
+            perxcode = ""
+        end
+
         body =
             "for i=0,num"..what.."s-1 do\n"..
             "  if ("..body..") then\n"..
-            (onlyfiles and "print(fn); return\n" or "print(fn..': '..i)\n") ..
-            "  end\n"..
+            (onlyfiles and "io.write(fn); return\n" or "io.write(fn..': '..i)\n") ..
+            perxcode .. "io.write('\\n')"..
+            "\n  end\n"..
             "end\n"
     end
 
