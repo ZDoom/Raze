@@ -402,6 +402,9 @@
     <ClInclude Include="source\animvpx.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
+    <ClInclude Include="build\include\nedmalloc.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
