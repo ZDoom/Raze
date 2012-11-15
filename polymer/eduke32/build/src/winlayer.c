@@ -385,7 +385,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         nedalloc::nedpool_t *(WINAPI *nedcreatepool)(size_t, int);
         if ((nedcreatepool = (nedalloc::nedpool_t *(WINAPI *)(size_t, int))GetProcAddress(nedhandle, "nedcreatepool")))
 #else
-        nedpool_t *(WINAPI *nedcreatepool)(size_t, int);
+        nedpool *(WINAPI *nedcreatepool)(size_t, int);
         if ((nedcreatepool = (void *)GetProcAddress(nedhandle, "nedcreatepool")))
 #endif
             nedcreatepool(SYSTEM_POOL_SIZE, -1);
