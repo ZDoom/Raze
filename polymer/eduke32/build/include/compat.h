@@ -677,8 +677,10 @@ char *Bstrupr(char *);
     var = print_func(fmt, ## __VA_ARGS__); \
 } while (0)
 
+#ifdef __cplusplus
+#ifdef _MSC_VER
 // TODO: add MSVC pragmas to disable equivalent warning, if necessary later
-#ifndef _MSC_VER
+#else
 #ifdef _WIN32
 // MinGW's _Pragma is completely broken so our GCC NOWARN macro is useless there
  #pragma GCC diagnostic ignored "-Wformat"
@@ -693,8 +695,9 @@ char *Bstrupr(char *);
  #define NOWARN_RETURN(print_func, var, fmt, ...) do { _Pragma("GCC diagnostic ignored \"-Wformat\"") \
     var = print_func(fmt, ## __VA_ARGS__); \
     _Pragma("GCC diagnostic warning \"-Wformat\"") } while (0)
-#endif
-#endif
+#endif // _WIN32
+#endif // _MSC_VER
+#endif // __cplusplus
 
 #define OSD_Printf_nowarn(fmt, ...) NOWARN(OSD_Printf, fmt, ## __VA_ARGS__)
 #define Bsprintf_nowarn(fmt, ...) NOWARN(Bsprintf, fmt, ## __VA_ARGS__)
