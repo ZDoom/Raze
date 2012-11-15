@@ -2125,7 +2125,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].lotag=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, wall[iWall].lotag);
+        Gv_SetVarX(lVar2, (int16_t)wall[iWall].lotag);
         return;
 
     case WALL_HITAG:
@@ -2134,7 +2134,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
             wall[iWall].hitag=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, wall[iWall].hitag);
+        Gv_SetVarX(lVar2, (int16_t)wall[iWall].hitag);
         return;
 
     case WALL_EXTRA:
@@ -2357,7 +2357,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].lotag=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, sector[iSector].lotag);
+        Gv_SetVarX(lVar2, (int16_t)sector[iSector].lotag);
         return;
 
     case SECTOR_HITAG:
@@ -2366,7 +2366,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
             sector[iSector].hitag=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, sector[iSector].hitag);
+        Gv_SetVarX(lVar2, (int16_t)sector[iSector].hitag);
         return;
 
     case SECTOR_EXTRA:
@@ -2740,11 +2740,11 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
         return;
 
     case ACTOR_LOTAG:
-        Gv_SetVarX(lVar2, sprite[iActor].lotag);
+        Gv_SetVarX(lVar2, (int16_t)sprite[iActor].lotag);
         return;
 
     case ACTOR_HITAG:
-        Gv_SetVarX(lVar2, sprite[iActor].hitag);
+        Gv_SetVarX(lVar2, (int16_t)sprite[iActor].hitag);
         return;
 
     case ACTOR_EXTRA:
@@ -3092,7 +3092,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->lotag=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->lotag);
+        Gv_SetVarX(lVar2, (int16_t)spriteext[iActor].tspr->lotag);
         return;
 
     case ACTOR_HITAG:
@@ -3101,7 +3101,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
             spriteext[iActor].tspr->hitag=lValue;
             return;
         }
-        Gv_SetVarX(lVar2, spriteext[iActor].tspr->hitag);
+        Gv_SetVarX(lVar2, (int16_t)spriteext[iActor].tspr->hitag);
         return;
 
     case ACTOR_EXTRA:
@@ -3429,8 +3429,8 @@ static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int
     case ACTOR_XVEL: return sprite[iActor].xvel;
     case ACTOR_YVEL: return sprite[iActor].yvel;
     case ACTOR_ZVEL: return sprite[iActor].zvel;
-    case ACTOR_LOTAG: return sprite[iActor].lotag;
-    case ACTOR_HITAG: return sprite[iActor].hitag;
+    case ACTOR_LOTAG: return (int16_t)sprite[iActor].lotag;
+    case ACTOR_HITAG: return (int16_t)sprite[iActor].hitag;
     case ACTOR_EXTRA: return sprite[iActor].extra;
     case ACTOR_HTCGG: return actor[iActor].cgg;
     case ACTOR_HTPICNUM : return actor[iActor].picnum;
@@ -3494,8 +3494,8 @@ static int32_t __fastcall VM_AccessSectorX(int32_t iSector, int32_t lLabelID)
     case SECTOR_FLOORYPANNING: return sector[iSector].floorypanning;
     case SECTOR_VISIBILITY: return sector[iSector].visibility;
     case SECTOR_ALIGNTO: return sector[iSector].filler;
-    case SECTOR_LOTAG: return sector[iSector].lotag;
-    case SECTOR_HITAG: return sector[iSector].hitag;
+    case SECTOR_LOTAG: return (int16_t)sector[iSector].lotag;
+    case SECTOR_HITAG: return (int16_t)sector[iSector].hitag;
     case SECTOR_EXTRA: return sector[iSector].extra;
     case SECTOR_CEILINGBUNCH:
     case SECTOR_FLOORBUNCH:
@@ -3861,9 +3861,9 @@ static int32_t __fastcall VM_AccessWallX(int32_t iWall, int32_t lLabelID)
     case WALL_YPANNING:
         return wall[iWall].ypanning;
     case WALL_LOTAG:
-        return wall[iWall].lotag;
+        return (int16_t)wall[iWall].lotag;
     case WALL_HITAG:
-        return wall[iWall].hitag;
+        return (int16_t)wall[iWall].hitag;
     case WALL_EXTRA:
         return wall[iWall].extra;
     default:
