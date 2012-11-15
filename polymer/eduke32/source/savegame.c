@@ -627,7 +627,7 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
         {                                     \
             if (*p!=*op)                      \
             {                                 \
-                *op = *p;                     \
+                *op = *p;      \
                 VAL(Idxbits, retdiff) = i;    \
                 retdiff += BYTES(Idxbits);    \
                 VAL(Datbits, retdiff) = *p;   \

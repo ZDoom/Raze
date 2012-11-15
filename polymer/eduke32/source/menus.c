@@ -661,7 +661,7 @@ static void M_DrawBackground(void)
 }
 
 
-static void M_DrawTopBar(char *caption)
+static void M_DrawTopBar(const char *caption)
 {
     rotatesprite_fs(160<<16,19<<16,65536L,0,MENUBAR,16,0,10);
     menutext(160,24,0,0,caption);
@@ -2669,7 +2669,7 @@ cheat_for_port_credits2:
 #ifdef POLYMER
                     else
                     {
-                        float ratios[] = { 0.0, 1.33, 1.66, 1.78, 1.85, 2.35 };
+                        double ratios[] = { 0.0, 1.33, 1.66, 1.78, 1.85, 2.35 };
 
                         int32_t j = (sizeof(ratios)/sizeof(ratios[0]));
 

@@ -10405,7 +10405,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        if (CONTROL_Startup(1, &GetTime, TICRATE))
+        if (CONTROL_Startup(controltype_keyboardandmouse, &GetTime, TICRATE))
         {
             ERRprintf("There was an error initializing the CONTROL system.\n");
             uninitengine();
