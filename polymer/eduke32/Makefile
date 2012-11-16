@@ -35,7 +35,7 @@ else
 endif
 
 OURCOMMONFLAGS=$(BASECOMMONFLAGS) \
-    -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(JAUDIOLIBDIR)/include -I$(ENETDIR)/include -I$(SRC)/xdelta3
+    -I$(INC) -I$(EINC) -I$(SRC)/jmact -I$(JAUDIOLIBDIR)/include -I$(ENETDIR)/include 
 OURCFLAGS=$(OURCOMMONFLAGS) $(BASECFLAGS)
 OURCXXFLAGS=$(BASECXXFLAGS)
 OURCONLYFLAGS=$(BASECONLYFLAGS)
@@ -134,7 +134,6 @@ GAMEOBJS=$(OBJ)/game.$o \
 	$(OBJ)/osdcmds.$o \
 	$(OBJ)/grpscan.$o \
 	$(OBJ)/sounds.$o \
-	$(OBJ)/xdelta3.$o \
 	$(JMACTOBJ)
 
 EDITOROBJS=$(OBJ)/astub.$o \
@@ -447,10 +446,6 @@ else
 endif
 
 $(OBJ)/%.$o: $(SRC)/lunatic/%.c
-	$(COMPILE_STATUS)
-	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
-
-$(OBJ)/%.$o: $(SRC)/xdelta3/%.c
 	$(COMPILE_STATUS)
 	if $(COMPILER) $(OURCFLAGS) -c $< -o $@; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
 

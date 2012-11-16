@@ -44,7 +44,7 @@ AS=ml
 LINK=link /nologo /opt:ref 
 MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
-	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(SRC)\xdelta3 /I$(JAUDIOLIBDIR)\include /I$(ENETDIR)\include \
+	/I$(INC) /I$(EINC)\msvc /I$(EINC)\ /I$(SRC)\jmact /I$(JAUDIOLIBDIR)\include /I$(ENETDIR)\include \
  	/W2 $(ENGINEOPTS) \
  	/I$(DXROOT)\include /DRENDERTYPEWIN=1
  	
@@ -106,7 +106,6 @@ GAMEOBJS=$(OBJ)\game.$o \
  	$(JMACTOBJ) \
 	$(AUDIOLIBOBJ) \
 	$(OBJ)\sounds.$o \
-	$(OBJ)\xdelta3.$o \
 !ifdef DEBUG
 	$(OBJ)\mdump.$o
 !endif
@@ -132,9 +131,6 @@ EDITOROBJS=$(OBJ)\astub.$o \
 	$(AS) /c $(ASFLAGS) /Fo$@ $<
 
 {$(SRC)\jmact}.c{$(OBJ)\}.$o:
-	$(CC) /c $(CFLAGS) /Fo$@ $<
-
-{$(SRC)\xdelta3}.c{$(OBJ)\}.$o:
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 {$(SRC)\util}.c{$(OBJ)\}.$o:

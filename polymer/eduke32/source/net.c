@@ -31,7 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "enet/enet.h"
 #include "quicklz.h"
 #include "crc32.h"
-#include "xdelta3.h"
 
 /*
 this should be lower than the MTU size by at least the size of the UDP and ENet headers
@@ -1313,7 +1312,7 @@ void Net_SendMapUpdate(void)
     int32_t pi;
     int32_t siz = 0;
     netmapstate_t *currentstate;
-    usize_t osize = sizeof(netmapstate_t);
+    size_t osize = sizeof(netmapstate_t);
 
     if (!g_netServer || numplayers < 2)
         return;
@@ -1346,11 +1345,13 @@ void Net_SendMapUpdate(void)
         packbuf[0] = PACKET_MAP_STREAM;
         *(uint32_t *)&packbuf[1] = g_player[playeridx].revision; // base revision for this update
 
+/*
         xd3_encode_memory((const uint8_t *) currentstate, sizeof(netmapstate_t),
                           (const uint8_t *) g_multiMapState[playeridx], sizeof(netmapstate_t),
                           (uint8_t *)tempnetbuf, &osize, sizeof(netmapstate_t), XD3_COMPLEVEL_1|XD3_NOCOMPRESS);
 
         Bmemcpy(g_pendingMapState[playeridx], currentstate, sizeof(netmapstate_t));
+*/
 
         siz = qlz_compress((char *)tempnetbuf, packbuf+1+sizeof(uint32_t), osize, state_compress);
 
@@ -1370,7 +1371,7 @@ void Net_SendMapUpdate(void)
 void Net_ReceiveMapUpdate(uint8_t *pbuf, int32_t packbufleng)
 {
     int ret;
-    usize_t osize = 0;
+    size_t osize = 0;
     netmapstate_t *receivedstate;
 
     packbufleng = qlz_size_decompressed((char *)&pbuf[5]);
@@ -1379,6 +1380,7 @@ void Net_ReceiveMapUpdate(uint8_t *pbuf, int32_t packbufleng)
 
     initprintf("packbufleng: %d\n", packbufleng);
 
+/*
     ret = xd3_decode_memory((const uint8_t *)pbuf, packbufleng,
                             (const uint8_t *)g_multiMapState[0], sizeof(netmapstate_t),
                             (uint8_t *)tempnetbuf, &osize, sizeof(netmapstate_t), XD3_COMPLEVEL_1|XD3_NOCOMPRESS);
@@ -1389,7 +1391,7 @@ void Net_ReceiveMapUpdate(uint8_t *pbuf, int32_t packbufleng)
         Bfree(pbuf);
         return;
     }
-
+*/
     if (sizeof(netmapstate_t) != osize)
     {
         initprintf("decompressed data size mismatch!\n");

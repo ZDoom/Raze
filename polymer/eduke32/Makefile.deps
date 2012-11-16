@@ -55,7 +55,6 @@ $(OBJ)/config.$o: $(SRC)/config.c $(duke3d_h) $(SRC)/jmact/scriplib.h $(INC)/_fu
 $(OBJ)/winbits.$o: $(SRC)/winbits.c
 $(OBJ)/osdfuncs.$o: $(SRC)/names.h $(EINC)/build.h $(EINC)/osd.h
 $(OBJ)/osdcmds.$o: $(SRC)/osdcmds.c $(INC)/osdcmds.h $(EINC)/osd.h $(duke3d_h)
-$(OBJ)/xdelta3.$o: $(SRC)/xdelta3/xdelta3.c $(SRC)/xdelta3/xdelta3.h
 $(OBJ)/animvpx.$o: $(SRC)/animvpx.c $(SRC)/animvpx.h $(duke3d_h) $(EINC)/glbuild.h
 
 $(OBJ)/lunatic_game.$o: $(EINC)/lunatic.h $(SRC)/lunatic/lunatic_game.c $(SRC)/lunatic/lunatic_game.h $(SRC)/gamedef.h $(SRC)/gameexec.h $(EINC)/cache1d.h $(EINC)/osd.h
