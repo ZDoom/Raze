@@ -697,6 +697,8 @@ const memberlabel_t SectorLabels[]=
     { "extra", SECTOR_EXTRA, 0, 0 },
     { "ceilingbunch", SECTOR_CEILINGBUNCH, 0, 0 },
     { "floorbunch", SECTOR_FLOORBUNCH, 0, 0 },
+    { "ulotag", SECTOR_ULOTAG, 0, 0 },
+    { "uhitag", SECTOR_UHITAG, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 
@@ -719,6 +721,8 @@ const memberlabel_t WallLabels[]=
     { "lotag", WALL_LOTAG, 0, 0 },
     { "hitag", WALL_HITAG, 0, 0 },
     { "extra", WALL_EXTRA, 0, 0 },
+    { "ulotag", WALL_ULOTAG, 0, 0 },
+    { "uhitag", WALL_UHITAG, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 
@@ -784,6 +788,9 @@ const memberlabel_t ActorLabels[]=
     { "htflags", ACTOR_HTFLAGS, 0, 0 },
 
     { "alpha", ACTOR_ALPHA, 0, 0 },
+
+    { "ulotag", ACTOR_ULOTAG, 0, 0 },
+    { "uhitag", ACTOR_UHITAG, 0, 0 },
 
     { "", -1, 0, 0  }     // END OF LIST
 };

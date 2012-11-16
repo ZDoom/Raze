@@ -2122,7 +2122,7 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
     case WALL_LOTAG:
         if (iSet)
         {
-            wall[iWall].lotag=lValue;
+            wall[iWall].lotag=(int16_t)lValue;
             return;
         }
         Gv_SetVarX(lVar2, (int16_t)wall[iWall].lotag);
@@ -2131,10 +2131,28 @@ static void __fastcall VM_AccessWall(int32_t iSet, int32_t lVar1, int32_t lLabel
     case WALL_HITAG:
         if (iSet)
         {
-            wall[iWall].hitag=lValue;
+            wall[iWall].hitag=(int16_t)lValue;
             return;
         }
         Gv_SetVarX(lVar2, (int16_t)wall[iWall].hitag);
+        return;
+
+    case WALL_ULOTAG:
+        if (iSet)
+        {
+            wall[iWall].lotag=lValue;
+            return;
+        }
+        Gv_SetVarX(lVar2, wall[iWall].lotag);
+        return;
+
+    case WALL_UHITAG:
+        if (iSet)
+        {
+            wall[iWall].hitag=lValue;
+            return;
+        }
+        Gv_SetVarX(lVar2, wall[iWall].hitag);
         return;
 
     case WALL_EXTRA:
@@ -2354,7 +2372,7 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
     case SECTOR_LOTAG:
         if (iSet)
         {
-            sector[iSector].lotag=lValue;
+            sector[iSector].lotag=(int16_t)lValue;
             return;
         }
         Gv_SetVarX(lVar2, (int16_t)sector[iSector].lotag);
@@ -2363,10 +2381,28 @@ static void __fastcall VM_AccessSector(int32_t iSet, int32_t lVar1, int32_t lLab
     case SECTOR_HITAG:
         if (iSet)
         {
-            sector[iSector].hitag=lValue;
+            sector[iSector].hitag=(int16_t)lValue;
             return;
         }
         Gv_SetVarX(lVar2, (int16_t)sector[iSector].hitag);
+        return;
+
+    case SECTOR_ULOTAG:
+        if (iSet)
+        {
+            sector[iSector].lotag=lValue;
+            return;
+        }
+        Gv_SetVarX(lVar2, sector[iSector].lotag);
+        return;
+
+    case SECTOR_UHITAG:
+        if (iSet)
+        {
+            sector[iSector].hitag=lValue;
+            return;
+        }
+        Gv_SetVarX(lVar2, sector[iSector].hitag);
         return;
 
     case SECTOR_EXTRA:
@@ -2498,10 +2534,18 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
         return;
 
     case ACTOR_LOTAG:
-        sprite[iActor].lotag=lVar1;
+        sprite[iActor].lotag=(int16_t)lVar1;
         return;
 
     case ACTOR_HITAG:
+        sprite[iActor].hitag=(int16_t)lVar1;
+        return;
+
+    case ACTOR_ULOTAG:
+        sprite[iActor].lotag=lVar1;
+        return;
+
+    case ACTOR_UHITAG:
         sprite[iActor].hitag=lVar1;
         return;
 
@@ -2745,6 +2789,14 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
 
     case ACTOR_HITAG:
         Gv_SetVarX(lVar2, (int16_t)sprite[iActor].hitag);
+        return;
+
+    case ACTOR_ULOTAG:
+        Gv_SetVarX(lVar2, sprite[iActor].lotag);
+        return;
+
+    case ACTOR_UHITAG:
+        Gv_SetVarX(lVar2, sprite[iActor].hitag);
         return;
 
     case ACTOR_EXTRA:
@@ -3089,7 +3141,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
     case ACTOR_LOTAG:
         if (iSet)
         {
-            spriteext[iActor].tspr->lotag=lValue;
+            spriteext[iActor].tspr->lotag=(int16_t)lValue;
             return;
         }
         Gv_SetVarX(lVar2, (int16_t)spriteext[iActor].tspr->lotag);
@@ -3098,10 +3150,28 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
     case ACTOR_HITAG:
         if (iSet)
         {
-            spriteext[iActor].tspr->hitag=lValue;
+            spriteext[iActor].tspr->hitag=(int16_t)lValue;
             return;
         }
         Gv_SetVarX(lVar2, (int16_t)spriteext[iActor].tspr->hitag);
+        return;
+
+    case ACTOR_ULOTAG:
+        if (iSet)
+        {
+            spriteext[iActor].tspr->lotag=lValue;
+            return;
+        }
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->lotag);
+        return;
+
+    case ACTOR_UHITAG:
+        if (iSet)
+        {
+            spriteext[iActor].tspr->hitag=lValue;
+            return;
+        }
+        Gv_SetVarX(lVar2, spriteext[iActor].tspr->hitag);
         return;
 
     case ACTOR_EXTRA:
@@ -3431,6 +3501,8 @@ static int32_t __fastcall VM_AccessSpriteX(int32_t iActor, int32_t lLabelID, int
     case ACTOR_ZVEL: return sprite[iActor].zvel;
     case ACTOR_LOTAG: return (int16_t)sprite[iActor].lotag;
     case ACTOR_HITAG: return (int16_t)sprite[iActor].hitag;
+    case ACTOR_ULOTAG: return sprite[iActor].lotag;
+    case ACTOR_UHITAG: return sprite[iActor].hitag;
     case ACTOR_EXTRA: return sprite[iActor].extra;
     case ACTOR_HTCGG: return actor[iActor].cgg;
     case ACTOR_HTPICNUM : return actor[iActor].picnum;
@@ -3496,6 +3568,8 @@ static int32_t __fastcall VM_AccessSectorX(int32_t iSector, int32_t lLabelID)
     case SECTOR_ALIGNTO: return sector[iSector].filler;
     case SECTOR_LOTAG: return (int16_t)sector[iSector].lotag;
     case SECTOR_HITAG: return (int16_t)sector[iSector].hitag;
+    case SECTOR_ULOTAG: return sector[iSector].lotag;
+    case SECTOR_UHITAG: return sector[iSector].hitag;
     case SECTOR_EXTRA: return sector[iSector].extra;
     case SECTOR_CEILINGBUNCH:
     case SECTOR_FLOORBUNCH:
@@ -3864,6 +3938,10 @@ static int32_t __fastcall VM_AccessWallX(int32_t iWall, int32_t lLabelID)
         return (int16_t)wall[iWall].lotag;
     case WALL_HITAG:
         return (int16_t)wall[iWall].hitag;
+    case WALL_ULOTAG:
+        return wall[iWall].lotag;
+    case WALL_UHITAG:
+        return wall[iWall].hitag;
     case WALL_EXTRA:
         return wall[iWall].extra;
     default:

@@ -451,6 +451,8 @@ enum SectorLabel_t
     SECTOR_EXTRA,
     SECTOR_CEILINGBUNCH,
     SECTOR_FLOORBUNCH,
+    SECTOR_ULOTAG,
+    SECTOR_UHITAG,
     SECTOR_END
 };
 
@@ -473,6 +475,8 @@ enum WallLabel_t
     WALL_LOTAG,
     WALL_HITAG,
     WALL_EXTRA,
+    WALL_ULOTAG,
+    WALL_UHITAG,
     WALL_END
 };
 
@@ -530,6 +534,8 @@ enum ActorLabel_t
     ACTOR_YPANNING,
     ACTOR_HTFLAGS,
     ACTOR_ALPHA,
+    ACTOR_ULOTAG,
+    ACTOR_UHITAG,
     ACTOR_END
 };
 
