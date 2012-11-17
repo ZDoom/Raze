@@ -2324,8 +2324,9 @@ int32_t hitallsprites = 0;
 
 typedef struct { int32_t x1, y1, x2, y2; } linetype;
 static linetype clipit[MAXCLIPNUM];
-static int16_t clipsectorlist[MAXCLIPNUM], clipsectnum, origclipsectorlist[MAXCLIPNUM], origclipsectnum;
-static int16_t clipspritelist[MAXCLIPNUM], clipspritenum;  // sector-like sprite clipping
+static int32_t clipsectnum, origclipsectnum, clipspritenum;
+static int16_t clipsectorlist[MAXCLIPNUM], origclipsectorlist[MAXCLIPNUM];
+static int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
 static int16_t clipobjectval[MAXCLIPNUM];
 
 typedef struct
@@ -10998,18 +10999,13 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t thez, int16_t topbottom, in
 //
 int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2)
 {
-    sectortype *sec;
-    walltype *wal, *wal2;
-    int32_t cnt, nexts, x, y, z, cfz[2], dasectnum, dacnt, danum;
-    int32_t x21, y21, z21, x31, y31, x34, y34, bot, t;
+    int32_t dacnt, danum;
+    const int32_t x21 = x2-x1, y21 = y2-y1, z21 = z2-z1;
 
     static uint8_t sectbitmap[MAXSECTORS>>3];
 #ifdef YAX_ENABLE
     int16_t pendingsectnum;
     vec3_t pendingvec;
-
-    int32_t cfz1[2], cfz2[2];  // both wrt dasectnum
-    int16_t bn[2];
 
     // invalid sectnums can happen, for example if the player is using noclip
     if (sect1 < 0 || sect2 < 0)
@@ -11017,35 +11013,41 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
 
     Bmemset(&pendingvec, 0, sizeof(vec3_t));  // compiler-happy
 #endif
-
     Bmemset(sectbitmap, 0, (numsectors+7)>>3);
-
 #ifdef YAX_ENABLE
 restart_grand:
 #endif
-    if ((x1 == x2) && (y1 == y2)) return(sect1 == sect2);
+    if (x1 == x2 && y1 == y2)
+        return (sect1 == sect2);
 
 #ifdef YAX_ENABLE
     pendingsectnum = -1;
 #endif
-    x21 = x2-x1; y21 = y2-y1; z21 = z2-z1;
-
     sectbitmap[sect1>>3] |= (1<<(sect1&7));
     clipsectorlist[0] = sect1; danum = 1;
 
     for (dacnt=0; dacnt<danum; dacnt++)
     {
-        dasectnum = clipsectorlist[dacnt]; sec = &sector[dasectnum];
+        const int32_t dasectnum = clipsectorlist[dacnt];
+        const sectortype *const sec = &sector[dasectnum];
+        const walltype *wal;
+        int32_t cnt;
 #ifdef YAX_ENABLE
+        int32_t cfz1[2], cfz2[2];  // both wrt dasectnum
+        int16_t bn[2];
+
         yax_getbunches(dasectnum, &bn[0], &bn[1]);
         getzsofslope(dasectnum, x1,y1, &cfz1[0], &cfz1[1]);
         getzsofslope(dasectnum, x2,y2, &cfz2[0], &cfz2[1]);
 #endif
         for (cnt=sec->wallnum,wal=&wall[sec->wallptr]; cnt>0; cnt--,wal++)
         {
-            wal2 = &wall[wal->point2];
-            x31 = wal->x-x1; x34 = wal->x-wal2->x;
-            y31 = wal->y-y1; y34 = wal->y-wal2->y;
+            const walltype *const wal2 = &wall[wal->point2];
+            const int32_t x31 = wal->x-x1, x34 = wal->x-wal2->x;
+            const int32_t y31 = wal->y-y1, y34 = wal->y-wal2->y;
+
+            int32_t x, y, z, nexts, t, bot;
+            int32_t cfz[2];
 
             bot = y21*x34-x21*y34; if (bot <= 0) continue;
             // XXX: OVERFLOW
@@ -11177,16 +11179,17 @@ static int32_t hitscan_hitsectcf=-1;
 // how: -1: behave like ceiling, 1: behave like floor
 static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdata_t *hit,
                                  int32_t vx, int32_t vy, int32_t vz,
-                                 int16_t stat, int16_t heinum, int32_t z, int32_t how, const intptr_t *tmp)
+                                 uint16_t stat, int16_t heinum, int32_t z, int32_t how, const intptr_t *tmp)
 {
     int32_t x1 = INT32_MAX, y1, z1;
-    int32_t dax, day, i, j;
-    walltype *wal, *wal2;
+    int32_t i;
 
     if (stat&2)
     {
-        wal = &wall[sec->wallptr]; wal2 = &wall[wal->point2];
-        dax = wal2->x-wal->x; day = wal2->y-wal->y;
+        const walltype *const wal = &wall[sec->wallptr];
+        const walltype *const wal2 = &wall[wal->point2];
+        int32_t j, dax=wal2->x-wal->x, day=wal2->y-wal->y;
+
         i = nsqrtasm(uhypsq(dax,day)); if (i == 0) return 1; //continue;
         i = divscale15(heinum,i);
         dax *= i; day *= i;
@@ -11228,9 +11231,9 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
         }
         else
         {
-            int32_t curidx=(int32_t)tmp[0];
-            spritetype *curspr=(spritetype *)tmp[1];
-            int32_t thislastsec = tmp[2];
+            const int32_t curidx=(int32_t)tmp[0];
+            const spritetype *const curspr=(spritetype *)tmp[1];
+            const int32_t thislastsec = tmp[2];
 
             if (!thislastsec)
             {
@@ -11269,17 +11272,9 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
 int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                 hitdata_t *hit, uint32_t cliptype)
 {
-    sectortype *sec;
-    walltype *wal, *wal2;
-    spritetype *spr;
-    int32_t z, zz, x1, y1=0, z1=0, x2, y2, x3, y3, x4, y4, intx, inty, intz;
-    int32_t topt, topu, bot, dist, offx, offy, cstat;
-    int32_t i, k, l, tilenum, xoff, yoff, dax, day, daz, daz2;
-    int32_t ang, cosang, sinang, xspan, yspan, xrepeat, yrepeat;
-    int32_t dawalclipmask, dasprclipmask;
-    int16_t tempshortcnt, tempshortnum, dasector, startwall, endwall;
-    int16_t nextsector;
-    char clipyou;
+    int32_t x1, y1=0, z1=0, x2, y2, intx, inty, intz;
+    int32_t i, k, l, daz;
+    int16_t tempshortcnt, tempshortnum;
 
     spritetype *curspr = NULL;
     int32_t clipspritecnt, curidx=-1;
@@ -11289,11 +11284,12 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
     vec3_t newsv;
     int32_t oldhitsect = -1, oldhitsect2 = -2;
 #endif
+    const int32_t dawalclipmask = (cliptype&65535);
+    const int32_t dasprclipmask = (cliptype>>16);
+
     hit->sect = -1; hit->wall = -1; hit->sprite = -1;
     if (sectnum < 0) return(-1);
 
-    dawalclipmask = (cliptype&65535);
-    dasprclipmask = (cliptype>>16);
 #ifdef YAX_ENABLE
 restart_grand:
 #endif
@@ -11304,6 +11300,10 @@ restart_grand:
     clipspritecnt = clipspritenum = 0;
     do
     {
+        const sectortype *sec;
+        const walltype *wal, *wal2;
+        int32_t dasector, z, startwall, endwall;
+
 #ifdef HAVE_CLIPSHAPE_FEATURE
         if (tempshortcnt >= tempshortnum)
         {
@@ -11358,7 +11358,10 @@ restart_grand:
         startwall = sec->wallptr; endwall = startwall + sec->wallnum;
         for (z=startwall,wal=&wall[startwall]; z<endwall; z++,wal++)
         {
-            if (curspr && wal->nextsector<0) continue;
+            const int32_t nextsector = wal->nextsector;
+            int32_t daz2, zz;
+
+            if (curspr && nextsector<0) continue;
 
             wal2 = &wall[wal->point2];
             x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
@@ -11369,7 +11372,6 @@ restart_grand:
             if (klabs(intx-sv->x)+klabs(inty-sv->y) >= klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
                 continue;
 
-            nextsector = wal->nextsector;
             if (!curspr)
             {
                 if ((nextsector < 0) || (wal->cstat&dawalclipmask))
@@ -11418,8 +11420,8 @@ restart_grand:
 #endif
         for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
-            spr = &sprite[z];
-            cstat = spr->cstat;
+            const spritetype *const spr = &sprite[z];
+            int32_t cstat = spr->cstat;
 #ifdef USE_OPENGL
             if (!hitallsprites)
 #endif
@@ -11442,6 +11444,9 @@ restart_grand:
             switch (cstat&48)
             {
             case 0:
+            {
+                int32_t topt, topu, bot, dist, offx, offy;
+
                 topt = vx*(x1-sv->x) + vy*(y1-sv->y); if (topt <= 0) continue;
                 bot = vx*vx + vy*vy; if (bot == 0) continue;
 
@@ -11464,14 +11469,16 @@ restart_grand:
                 hit->sect = dasector; hit->wall = -1; hit->sprite = z;
                 hit->pos.x = intx; hit->pos.y = inty; hit->pos.z = intz;
                 break;
+            }
 
             case 16:
             {
                 int32_t ucoefup16;
+                const int32_t tilenum = spr->picnum;
+                int32_t xoff, dax, day;
 
                 //These lines get the 2 points of the rotated sprite
                 //Given: (x1, y1) starts out as the center point
-                tilenum = spr->picnum;
                 xoff = picanm[tilenum].xofs + spr->xoffset;
                 if ((cstat&4) > 0) xoff = -xoff;
                 k = spr->ang; l = spr->xrepeat;
@@ -11510,6 +11517,12 @@ restart_grand:
             }
 
             case 32:
+            {
+                char clipyou;
+                int32_t ang, sinang, cosang, xspan, yspan, xrepeat, yrepeat;
+                int32_t tilenum, xoff, yoff, dax, day;
+                int32_t x3, y3, x4, y4, zz;
+
                 if (vz == 0) continue;
                 intz = z1;
                 if (((intz-sv->z)^vz) < 0) continue;
@@ -11582,6 +11595,7 @@ restart_grand:
                 }
                 break;
             }
+            }
         }
     }
     while (++tempshortcnt < tempshortnum || clipspritecnt < clipspritenum);
@@ -11644,44 +11658,47 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
              int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch,
              int32_t (*blacklist_sprite_func)(int32_t))
 {
-    walltype *wal, *wal2;
-    spritetype *spr;
-    int32_t i, z, zz, xe, ye, ze, x1, y1, z1, x2, y2, intx, inty, intz;
-    int32_t topt, topu, bot, dist, offx, offy, vx, vy, vz;
-    int16_t tempshortcnt, tempshortnum, dasector, startwall, endwall;
-    int16_t nextsector, good;
+    int16_t tempshortcnt, tempshortnum;
+
+    const int32_t vx = mulscale14(sintable[(ange+2560)&2047],neartagrange);
+    const int32_t vy = mulscale14(sintable[(ange+2048)&2047],neartagrange);
+    const int32_t vz = 0;
+    int32_t xe = xs+vx;
+    int32_t ye = ys+vy;
+    int32_t ze = 0;
 
     *neartagsector = -1; *neartagwall = -1; *neartagsprite = -1;
     *neartaghitdist = 0;
 
-    if (sectnum < 0 || (tagsearch & 3) == 0) return;
-
-    vx = mulscale14(sintable[(ange+2560)&2047],neartagrange); xe = xs+vx;
-    vy = mulscale14(sintable[(ange+2048)&2047],neartagrange); ye = ys+vy;
-    vz = 0; ze = 0;
+    if (sectnum < 0 || (tagsearch & 3) == 0)
+        return;
 
     clipsectorlist[0] = sectnum;
     tempshortcnt = 0; tempshortnum = 1;
 
     do
     {
-        dasector = clipsectorlist[tempshortcnt];
+        const int32_t dasector = clipsectorlist[tempshortcnt];
 
-        startwall = sector[dasector].wallptr;
-        endwall = startwall + sector[dasector].wallnum - 1;
+        const int32_t startwall = sector[dasector].wallptr;
+        const int32_t endwall = startwall + sector[dasector].wallnum - 1;
+        const walltype *wal;
+        int32_t z;
+
         for (z=startwall,wal=&wall[startwall]; z<=endwall; z++,wal++)
         {
-            wal2 = &wall[wal->point2];
-            x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
+            const walltype *const wal2 = &wall[wal->point2];
+            const int32_t nextsector = wal->nextsector;
 
-            nextsector = wal->nextsector;
+            const int32_t x1=wal->x, y1=wal->y, x2=wal2->x, y2=wal2->y;
+            int32_t intx, inty, intz, good = 0;
 
-            good = 0;
             if (nextsector >= 0)
             {
                 if ((tagsearch&1) && sector[nextsector].lotag) good |= 1;
                 if ((tagsearch&2) && sector[nextsector].hitag) good |= 1;
             }
+
             if ((tagsearch&1) && wal->lotag) good |= 2;
             if ((tagsearch&2) && wal->hitag) good |= 2;
 
@@ -11697,8 +11714,10 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
                     *neartaghitdist = dmulscale14(intx-xs,sintable[(ange+2560)&2047],inty-ys,sintable[(ange+2048)&2047]);
                     xe = intx; ye = inty; ze = intz;
                 }
+
                 if (nextsector >= 0)
                 {
+                    int32_t zz;
                     for (zz=tempshortnum-1; zz>=0; zz--)
                         if (clipsectorlist[zz] == nextsector) break;
                     if (zz < 0) clipsectorlist[tempshortnum++] = nextsector;
@@ -11708,42 +11727,51 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
 
         tempshortcnt++;
 
-        if (tagsearch & 4) continue; // skip sprite search
+        if (tagsearch & 4)
+            continue; // skip sprite search
 
         for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
+            const spritetype *const spr = &sprite[z];
+            int32_t good = 0;
+
             if (blacklist_sprite_func && blacklist_sprite_func(z))
                 continue;
 
-            spr = &sprite[z];
-
-            good = 0;
             if ((tagsearch&1) && spr->lotag) good |= 1;
             if ((tagsearch&2) && spr->hitag) good |= 1;
+
             if (good != 0)
             {
-                x1 = spr->x; y1 = spr->y; z1 = spr->z;
+                const int32_t x1=spr->x, y1=spr->y;
+                int32_t z1=spr->z;
 
-                topt = vx*(x1-xs) + vy*(y1-ys);
+                const int32_t topt = vx*(x1-xs) + vy*(y1-ys);
+
                 if (topt > 0)
                 {
-                    bot = vx*vx + vy*vy;
+                    const int32_t bot = vx*vx + vy*vy;
+
                     if (bot != 0)
                     {
-                        intz = zs+scale(vz,topt,bot);
+                        int32_t i;
+                        const int32_t intz = zs+scale(vz,topt,bot);
+
                         z1 += spriteheightofs(z, &i, 1);
                         if (intz >= z1-i && intz <= z1)
                         {
-                            topu = vx*(y1-ys) - vy*(x1-xs);
+                            const int32_t topu = vx*(y1-ys) - vy*(x1-xs);
 
-                            offx = scale(vx,topu,bot);
-                            offy = scale(vy,topu,bot);
-                            dist = offx*offx + offy*offy;
+                            const int32_t offx = scale(vx,topu,bot);
+                            const int32_t offy = scale(vy,topu,bot);
+                            const int32_t dist = offx*offx + offy*offy;
+
                             i = (tilesizx[spr->picnum]*spr->xrepeat);
                             if (dist <= mulscale7(i,i))
                             {
-                                intx = xs + scale(vx,topt,bot);
-                                inty = ys + scale(vy,topt,bot);
+                                const int32_t intx = xs + scale(vx,topt,bot);
+                                const int32_t inty = ys + scale(vy,topt,bot);
+
                                 if (klabs(intx-xs)+klabs(inty-ys) < klabs(xe-xs)+klabs(ye-ys))
                                 {
                                     *neartagsprite = z;
@@ -11772,11 +11800,10 @@ int32_t dragpoint_noreset = 0;
 void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
 #ifdef YAX_ENABLE
 {
-    int32_t thelastwall, cnt, w, tmpstartwall, clockwise;
-    int32_t i, j, numyaxwalls=0, tmpcf;
+    int32_t i, numyaxwalls=0;
     static int16_t yaxwalls[MAXWALLS];
 
-    uint8_t *walbitmap = (uint8_t *)tempbuf;
+    uint8_t *const walbitmap = (uint8_t *)tempbuf;
 
     if (!dragpoint_noreset)
         Bmemset(walbitmap, 0, (numwalls+7)>>3);
@@ -11784,14 +11811,16 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
 
     for (i=0; i<numyaxwalls; i++)
     {
-        w = yaxwalls[i];
-        tmpstartwall = w;
+        int32_t clockwise = 0;
+        int32_t w = yaxwalls[i];
+        const int32_t tmpstartwall = w;
 
-        cnt = MAXWALLS;
+        int32_t cnt = MAXWALLS;
 
-        clockwise = 0;
         while (1)
         {
+            int32_t j, tmpcf;
+
             wall[w].x = dax;
             wall[w].y = day;
             walbitmap[w>>3] |= (1<<(w&7));
@@ -11826,7 +11855,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
 
             if (clockwise)
             {
-                thelastwall = lastwall(w);
+                int32_t thelastwall = lastwall(w);
                 if (wall[thelastwall].nextwall >= 0)
                     w = wall[thelastwall].nextwall;
                 else
@@ -11847,6 +11876,8 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
 
     if (editstatus)
     {
+        int32_t w;
+        // TODO: extern a separate bitmap instead?
         for (w=0; w<numwalls; w++)
             if (walbitmap[w>>3] & (1<<(w&7)))
                 wall[w].cstat |= (1<<14);
@@ -11914,19 +11945,22 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day)
 //
 int32_t lastwall(int16_t point)
 {
-    int32_t i, j, cnt;
+    int32_t i, cnt;
 
-    if ((point > 0) && (wall[point-1].point2 == point)) return(point-1);
+    if (point > 0 && wall[point-1].point2 == point)
+        return point-1;
+
     i = point;
     cnt = MAXWALLS;
     do
     {
-        j = wall[i].point2;
+        int32_t j = wall[i].point2;
         if (j == point) return(i);
         i = j;
         cnt--;
     }
     while (cnt > 0);
+
     return(point);
 }
 
@@ -12019,7 +12053,7 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
     }
 
     if ((curspr->cstat&128) != (sector[j].CM_CSTAT&128))
-        daz += (((curspr->cstat&128)>>6)-1)*(((int32_t)tilesizy[curspr->picnum]*(int32_t)curspr->yrepeat)<<1);
+        daz += (((curspr->cstat&128)>>6)-1)*((tilesizy[curspr->picnum]*curspr->yrepeat)<<1);
 
     *clipsectcnt = clipsectnum = 0;
     // init sectors for this index
@@ -12086,50 +12120,46 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                  int32_t xvect, int32_t yvect,
                  int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype)
 {
-    walltype *wal, *wal2;
-    spritetype *spr;
-    sectortype *sec, *sec2;
-    int32_t i, j, tempint1, tempint2;
-    int32_t oxvect, oyvect, goalx, goaly, intx, inty, lx, ly, retval;
-    int32_t k, l, clipsectcnt, startwall, endwall, cstat, dasect;
-    int32_t x1, y1, x2, y2, cx, cy, rad, xmin, ymin, xmax, ymax, daz, daz2;
-    int32_t bsz, dax, day, xoff, yoff, xspan, yspan, cosang, sinang, tilenum;
-    int32_t xrepeat, yrepeat, gx, gy, dx, dy, dasprclipmask, dawalclipmask;
-    int32_t hitwall, cnt, clipyou;
+    const sectortype *sec2;
+    int32_t i, j, k, l, tempint1, tempint2;
+    int32_t x1, y1, x2, y2;
+    int32_t dax, day, daz, daz2;
+    int32_t hitwall, cnt, retval=0;
 
     spritetype *curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
-    int32_t curidx=-1, clipspritecnt;
+    int32_t curidx=-1, clipsectcnt, clipspritecnt;
 
-    if (((xvect|yvect) == 0) || (*sectnum < 0)) return(0);
-    retval = 0;
+    const int32_t dawalclipmask = (cliptype&65535);        //CLIPMASK0 = 0x00010001
+    const int32_t dasprclipmask = (cliptype>>16);          //CLIPMASK1 = 0x01000040
+
+    const int32_t oxvect=xvect, oyvect=yvect;
+
+    int32_t goalx = pos->x + (xvect>>14);
+    int32_t goaly = pos->y + (yvect>>14);
+    const int32_t cx = (pos->x+goalx)>>1;
+    const int32_t cy = (pos->y+goaly)>>1;
+
+    //Extra walldist for sprites on sector lines
+    const int32_t gx=goalx-(pos->x), gy=goaly-(pos->y);
+    const int32_t rad = nsqrtasm(uhypsq(gx,gy)) + MAXCLIPDIST+walldist + 8;
+    const int32_t xmin = cx-rad, ymin = cy-rad;
+    const int32_t xmax = cx+rad, ymax = cy+rad;
+
+    if ((xvect|yvect) == 0 || *sectnum < 0)
+        return 0;
 
     clipmove_warned = 0;
-
-    oxvect = xvect;
-    oyvect = yvect;
-
-    goalx = pos->x + (xvect>>14);
-    goaly = pos->y + (yvect>>14);
-
-
     clipnum = 0;
-
-    cx = (pos->x+goalx)>>1;
-    cy = (pos->y+goaly)>>1;
-    //Extra walldist for sprites on sector lines
-    gx = goalx-(pos->x); gy = goaly-(pos->y);
-    rad = nsqrtasm(uhypsq(gx,gy)) + MAXCLIPDIST+walldist + 8;
-    xmin = cx-rad; ymin = cy-rad;
-    xmax = cx+rad; ymax = cy+rad;
-
-    dawalclipmask = (cliptype&65535);        //CLIPMASK0 = 0x00010001
-    dasprclipmask = (cliptype>>16);          //CLIPMASK1 = 0x01000040
 
     clipsectorlist[0] = (*sectnum);
     clipsectcnt = 0; clipsectnum = 1;
     clipspritecnt = 0; clipspritenum = 0;
     do
     {
+        const walltype *wal;
+        const sectortype *sec;
+        int32_t dasect, startwall, endwall;
+
 #ifdef HAVE_CLIPSHAPE_FEATURE
         if (clipsectcnt>=clipsectnum)
         {
@@ -12175,7 +12205,9 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
         startwall = sec->wallptr; endwall = startwall + sec->wallnum;
         for (j=startwall,wal=&wall[startwall]; j<endwall; j++,wal++)
         {
-            wal2 = &wall[wal->point2];
+            int32_t clipyou = 0, dx, dy;
+            const walltype *const wal2 = &wall[wal->point2];
+
             if ((wal->x < xmin) && (wal2->x < xmin)) continue;
             if ((wal->x > xmax) && (wal2->x > xmax)) continue;
             if ((wal->y < ymin) && (wal2->y < ymin)) continue;
@@ -12189,8 +12221,6 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             if (dx > 0) dax = dx*(ymin-y1); else dax = dx*(ymax-y1);
             if (dy > 0) day = dy*(xmax-x1); else day = dy*(xmin-x1);
             if (dax >= day) continue;
-
-            clipyou = 0;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
             if (curspr)
@@ -12249,6 +12279,8 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             if (clipyou)
             {
                 int16_t objtype;
+                int32_t bsz;
+
                 if (!curspr)
                     objtype = (int16_t)j+32768;
                 else
@@ -12283,9 +12315,11 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
         for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
         {
-            spr = &sprite[j];
-            cstat = spr->cstat;
-            if ((cstat&dasprclipmask) == 0) continue;
+            const spritetype *const spr = &sprite[j];
+            const int32_t cstat = spr->cstat;
+
+            if ((cstat&dasprclipmask) == 0)
+                continue;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
             if (clipsprite_try(spr, xmin,ymin, xmax,ymax))
@@ -12301,6 +12335,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                     daz = spr->z + spriteheightofs(j, &k, 1);
                     if (((pos->z) < daz+ceildist) && ((pos->z) > daz-k-flordist))
                     {
+                        int32_t bsz;
                         bsz = (spr->clipdist<<2)+walldist; if (gx < 0) bsz = -bsz;
                         addclipline(x1-bsz,y1-bsz,x1-bsz,y1+bsz,(int16_t)j+49152);
                         bsz = (spr->clipdist<<2)+walldist; if (gy < 0) bsz = -bsz;
@@ -12308,12 +12343,15 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                     }
                 }
                 break;
+
             case 16:
                 daz = spr->z + spriteheightofs(j, &k, 1);
                 daz2 = daz-k;
                 daz += ceildist; daz2 -= flordist;
                 if (((pos->z) < daz) && ((pos->z) > daz2))
                 {
+                    int32_t tilenum, xoff;
+
                     //These lines get the 2 points of the rotated sprite
                     //Given: (x1, y1) starts out as the center point
                     tilenum = spr->picnum;
@@ -12324,6 +12362,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                     l = tilesizx[tilenum]; k = (l>>1)+xoff;
                     x1 -= mulscale16(dax,k); x2 = x1+mulscale16(dax,l);
                     y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
+
                     if (clipinsideboxline(cx,cy,x1,y1,x2,y2,rad) != 0)
                     {
                         dax = mulscale14(sintable[(spr->ang+256+512)&2047],walldist);
@@ -12347,13 +12386,19 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                     }
                 }
                 break;
+
             case 32:
+            {
                 daz = spr->z+ceildist;
                 daz2 = spr->z-flordist;
                 if (((pos->z) < daz) && ((pos->z) > daz2))
                 {
+                    int32_t cosang, sinang, xspan, yspan, xrepeat, yrepeat;
+                    int32_t tilenum, xoff, yoff;
+
                     if ((cstat&64) != 0)
-                        if (((pos->z) > spr->z) == ((cstat&8)==0)) continue;
+                        if ((pos->z > spr->z) == ((cstat&8)==0))
+                            continue;
 
                     tilenum = spr->picnum;
                     xoff = picanm[tilenum].xofs + spr->xoffset;
@@ -12403,6 +12448,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 }
                 break;
             }
+            }
         }
     }
     while (clipsectcnt < clipsectnum || clipspritecnt < clipspritenum);
@@ -12422,15 +12468,15 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
     cnt = clipmoveboxtracenum;
     do
     {
-        intx = goalx; inty = goaly;
+        int32_t intx=goalx, inty=goaly;
+
         hitwall = raytrace(pos->x, pos->y, &intx, &inty);
         if (hitwall >= 0)
         {
-            uint64_t tempull;
+            const int32_t lx = clipit[hitwall].x2-clipit[hitwall].x1;
+            const int32_t ly = clipit[hitwall].y2-clipit[hitwall].y1;
+            const uint64_t tempull = (int64_t)lx*(int64_t)lx + (int64_t)ly*(int64_t)ly;
 
-            lx = clipit[hitwall].x2-clipit[hitwall].x1;
-            ly = clipit[hitwall].y2-clipit[hitwall].y1;
-            tempull = (int64_t)lx*(int64_t)lx + (int64_t)ly*(int64_t)ly;
             if (tempull > 0 && tempull < INT32_MAX)
             {
                 tempint2 = (int32_t)tempull;
@@ -12519,28 +12565,30 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                  int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype)
 {
-    sectortype *sec, *sec2;
-    walltype *wal;
-    int32_t i, j, k, t, dx, dy, dax, day, daz, daz2, bad, dir;
-    int32_t /*dasprclipmask,*/ dawalclipmask;
-    int16_t startwall, endwall, clipsectcnt;
-    char bad2;
+    int32_t i, j, k, t, dx, dy, dax, day, daz;
+    int32_t dir, bad, bad2;
 
-    if ((*sectnum) < 0) return(-1);
+    const int32_t dawalclipmask = (cliptype&65535);
+//    const int32_t dasprclipmask = (cliptype>>16);
 
-    dawalclipmask = (cliptype&65535);
-//    dasprclipmask = (cliptype>>16);
+    if (*sectnum < 0)
+        return -1;
 
     k = 32;
     dir = 1;
     do
     {
+        int32_t clipsectcnt;
+
         bad = 0;
 
         clipsectorlist[0] = *sectnum;
         clipsectcnt = 0; clipsectnum = 1;
         do
         {
+            const walltype *wal;
+            const sectortype *sec;
+            int32_t startwall, endwall;
 #if 0
             // Push FACE sprites
             for(i=headspritesect[clipsectorlist[clipsectcnt]];i>=0;i=nextspritesect[i])
@@ -12588,8 +12636,8 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                     if (wal->cstat&dawalclipmask) j = 1;
                     if (j == 0)
                     {
-                        sec2 = &sector[wal->nextsector];
-
+                        const sectortype *const sec2 = &sector[wal->nextsector];
+                        int32_t daz2;
 
                         //Find closest point on wall (dax, day) to (vect->x, vect->y)
                         dax = wall[wal->point2].x-wal->x;
@@ -12616,6 +12664,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                         if ((daz2 > daz+(1<<8)) && ((sec2->ceilingstat&1) == 0))
                             if (vect->z <= daz2+(ceildist-1)) j = 1;
                     }
+
                     if (j != 0)
                     {
                         j = getangle(wall[wal->point2].x-wal->x,wall[wal->point2].y-wal->y);
@@ -12954,7 +13003,7 @@ int32_t krand(void)
         }
 #endif
 
-    return(((uint32_t)randomseed)>>16);
+    return ((uint32_t)randomseed)>>16;
 }
 
 
@@ -12965,16 +13014,11 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
                int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit,
                int32_t walldist, uint32_t cliptype)
 {
-    sectortype *sec;
-    walltype *wal, *wal2;
-    spritetype *spr;
-    int32_t clipsectcnt, startwall, endwall, tilenum, xoff, yoff, dax, day;
-    int32_t xmin, ymin, xmax, ymax, i, j, k, l, daz, daz2, dx, dy;
-    int32_t x1, y1, x2, y2, x3, y3, x4, y4, ang, cosang, sinang;
-    int32_t xspan, yspan, xrepeat, yrepeat, dasprclipmask, dawalclipmask;
-    int16_t cstat;
+    int32_t clipsectcnt;
+    int32_t dax, day, daz, daz2;
+    int32_t i, j, k, l, dx, dy;
+    int32_t x1, y1, x2, y2;
 
-    char clipyou;
 #ifdef YAX_ENABLE
     // YAX round, -1:center, 0:ceiling, 1:floor
     int32_t mcf=-1;
@@ -12983,6 +13027,14 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     spritetype *curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
     int32_t curidx=-1, clipspritecnt;
 
+    //Extra walldist for sprites on sector lines
+    const int32_t extradist = walldist+MAXCLIPDIST+1;
+    const int32_t xmin = pos->x-extradist, ymin = pos->y-extradist;
+    const int32_t xmax = pos->x+extradist, ymax = pos->y+extradist;
+
+    const int32_t dawalclipmask = (cliptype&65535);
+    const int32_t dasprclipmask = (cliptype>>16);
+
     if (sectnum < 0)
     {
         *ceilz = INT32_MIN; *ceilhit = -1;
@@ -12990,16 +13042,8 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
         return;
     }
 
-    //Extra walldist for sprites on sector lines
-    i = walldist+MAXCLIPDIST+1;
-    xmin = pos->x-i; ymin = pos->y-i;
-    xmax = pos->x+i; ymax = pos->y+i;
-
     getzsofslope(sectnum,pos->x,pos->y,ceilz,florz);
     *ceilhit = sectnum+16384; *florhit = sectnum+16384;
-
-    dawalclipmask = (cliptype&65535);
-    dasprclipmask = (cliptype>>16);
 
 #ifdef YAX_ENABLE
     origclipsectorlist[0] = sectnum;
@@ -13024,6 +13068,10 @@ restart_grand:
 #endif
     do  //Collect sectors inside your square first
     {
+        const walltype *wal;
+        const sectortype *sec;
+        int32_t startwall, endwall;
+
 #ifdef HAVE_CLIPSHAPE_FEATURE
         if (clipsectcnt>=clipsectnum)
         {
@@ -13080,7 +13128,8 @@ restart_grand:
             k = wal->nextsector;
             if (k >= 0)
             {
-                wal2 = &wall[wal->point2];
+                const walltype *const wal2 = &wall[wal->point2];
+
                 x1 = wal->x; x2 = wal2->x;
                 if ((x1 < xmin) && (x2 < xmin)) continue;
                 if ((x1 > xmax) && (x2 > xmax)) continue;
@@ -13185,10 +13234,12 @@ restart_grand:
     {
         for (j=headspritesect[clipsectorlist[i]]; j>=0; j=nextspritesect[j])
         {
-            spr = &sprite[j];
-            cstat = spr->cstat;
+            const spritetype *const spr = &sprite[j];
+            const int32_t cstat = spr->cstat;
             if (cstat&dasprclipmask)
             {
+                int32_t clipyou;
+
 #ifdef HAVE_CLIPSHAPE_FEATURE
                 if (clipsprite_try(spr, xmin,ymin, xmax,ymax))
                     continue;
@@ -13208,6 +13259,9 @@ restart_grand:
                     }
                     break;
                 case 16:
+                {
+                    int32_t tilenum, xoff;
+
                     tilenum = spr->picnum;
                     xoff = picanm[tilenum].xofs + spr->xoffset;
                     if ((cstat&4) > 0) xoff = -xoff;
@@ -13223,7 +13277,14 @@ restart_grand:
                         clipyou = 1;
                     }
                     break;
+                }
+
                 case 32:
+                {
+                    int32_t ang, cosang, sinang;
+                    int32_t tilenum, xoff, yoff, xspan, yspan, xrepeat, yrepeat;
+                    int32_t x3, y3, x4, y4;
+
                     daz = spr->z; daz2 = daz;
 
                     if ((cstat&64) != 0)
@@ -13280,6 +13341,7 @@ restart_grand:
                     }
                     break;
                 }
+                }
 
                 if (clipyou != 0)
                 {
@@ -13316,8 +13378,9 @@ restart_grand:
 #ifdef YAX_ENABLE
     if (numyaxbunches > 0)
     {
-        int32_t dasecclipmask = yax_waltosecmask(dawalclipmask);
+        const int32_t dasecclipmask = yax_waltosecmask(dawalclipmask);
         int16_t cb, fb, didchange;
+
         yax_getbunches(sectnum, &cb, &fb);
 
         mcf++;
