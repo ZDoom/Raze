@@ -47,36 +47,31 @@ static int32_t  g_precacheCount;
 
 extern int32_t g_levelTextTime;
 
+static void flag_precache(int32_t tile, int32_t type)
+{
+    if (!(gotpic[tile>>3] & pow2char[tile&7]))
+        g_precacheCount++;
+    gotpic[tile>>3] |= pow2char[tile&7];
+    precachehightile[type][tile>>3] |= pow2char[tile&7];
+}
+
 static void tloadtile(int32_t tilenume, int32_t type)
 {
-    if (picanm[tilenume].num < 1)
+    int32_t i,j;
+
+    if ((picanm[tilenume].sf&PICANM_ANIMTYPE_MASK)==PICANM_ANIMTYPE_BACK)
     {
-        if (!(gotpic[tilenume>>3] & pow2char[tilenume&7])) g_precacheCount++;
-        gotpic[tilenume>>3] |= pow2char[tilenume&7];
-        precachehightile[(uint8_t)type][tilenume>>3] |= pow2char[tilenume&7];
-        return;
+        i = tilenume - picanm[tilenume].num;
+        j = tilenume;
+    }
+    else
+    {
+        i = tilenume;
+        j = tilenume + picanm[tilenume].num;
     }
 
-    {
-        int32_t i,j;
-
-        if ((picanm[tilenume].sf&PICANM_ANIMTYPE_MASK)==PICANM_ANIMTYPE_BACK)
-        {
-            i = tilenume - picanm[tilenume].num;
-            j = tilenume;
-        }
-        else
-        {
-            i = tilenume;
-            j = tilenume + picanm[tilenume].num;
-        }
-        for (; i<=j; i++)
-        {
-            if (!(gotpic[i>>3] & pow2char[i&7])) g_precacheCount++;
-            gotpic[i>>3] |= pow2char[i&7];
-            precachehightile[(uint8_t)type][i>>3] |= pow2char[i&7];
-        }
-    }
+    for (; i<=j; i++)
+        flag_precache(i, type);
 }
 
 static void G_CacheSpriteNum(int32_t i)

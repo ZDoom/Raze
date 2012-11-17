@@ -10893,6 +10893,7 @@ int32_t krecip(int32_t num)
 void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs, int32_t alsotileyofs)
 {
     int32_t hei, flooraligned=((sprite[i].cstat&48)==32);
+    int32_t picnum = sprite[i].picnum;
 
     if (zofs)
         *zofs = 0;
@@ -10904,16 +10905,17 @@ void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs, int32_t alsotile
         return;
     }
 
-    hei = (tilesizy[sprite[i].picnum]*sprite[i].yrepeat)<<2;
+    hei = (tilesizy[picnum]*sprite[i].yrepeat)<<2;
     if (zofs)
     {
         if (sprite[i].cstat&128)
             *zofs = hei>>1;
 
-        if (alsotileyofs && (unsigned)sprite[i].picnum < MAXTILES)
-            if (picanm[sprite[i].picnum].yofs)
-                *zofs -= picanm[sprite[i].picnum].yofs*sprite[i].yrepeat<<2;
+        if (alsotileyofs)
+            if (picanm[picnum].yofs)
+                *zofs -= picanm[picnum].yofs*sprite[i].yrepeat<<2;
     }
+
     *height = hei;
 }
 
@@ -12558,40 +12560,41 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
         clipsectcnt = 0; clipsectnum = 1;
         do
         {
-            /*Push FACE sprites
+#if 0
+            // Push FACE sprites
             for(i=headspritesect[clipsectorlist[clipsectcnt]];i>=0;i=nextspritesect[i])
             {
-            spr = &sprite[i];
-            if (((spr->cstat&48) != 0) && ((spr->cstat&48) != 48)) continue;
-            if ((spr->cstat&dasprclipmask) == 0) continue;
+                spr = &sprite[i];
+                if (((spr->cstat&48) != 0) && ((spr->cstat&48) != 48)) continue;
+                if ((spr->cstat&dasprclipmask) == 0) continue;
 
-            dax = (vect->x)-spr->x; day = (vect->y)-spr->y;
-            t = (spr->clipdist<<2)+walldist;
-            if ((klabs(dax) < t) && (klabs(day) < t))
-            {
-            t = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
-            if (spr->cstat&128) daz = spr->z+(t>>1); else daz = spr->z;
-            if (picanm[spr->picnum].yofs) daz -= ((int32_t)picanm[spr->picnum].yofs*spr->yrepeat<<2);
-            if (((vect->z) < daz+ceildist) && ((vect->z) > daz-t-flordist))
-            {
-            t = (spr->clipdist<<2)+walldist;
+                dax = (vect->x)-spr->x; day = (vect->y)-spr->y;
+                t = (spr->clipdist<<2)+walldist;
+                if ((klabs(dax) < t) && (klabs(day) < t))
+                {
+                    t = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
+                    if (spr->cstat&128) daz = spr->z+(t>>1); else daz = spr->z;
+                    if (picanm[spr->picnum].yofs) daz -= ((int32_t)picanm[spr->picnum].yofs*spr->yrepeat<<2);
+                    if (((vect->z) < daz+ceildist) && ((vect->z) > daz-t-flordist))
+                    {
+                        t = (spr->clipdist<<2)+walldist;
 
-            j = getangle(dax,day);
-            dx = (sintable[(j+512)&2047]>>11);
-            dy = (sintable[(j)&2047]>>11);
-            bad2 = 16;
-            do
-            {
-            vect->x = (vect->x) + dx; vect->y = (vect->y) + dy;
-            bad2--; if (bad2 == 0) break;
-            } while ((klabs((vect->x)-spr->x) < t) && (klabs((vect->y)-spr->y) < t));
-            bad = -1;
-            k--; if (k <= 0) return(bad);
-            updatesector(vect->x,vect->y,sectnum);
+                        j = getangle(dax,day);
+                        dx = (sintable[(j+512)&2047]>>11);
+                        dy = (sintable[(j)&2047]>>11);
+                        bad2 = 16;
+                        do
+                        {
+                            vect->x = (vect->x) + dx; vect->y = (vect->y) + dy;
+                            bad2--; if (bad2 == 0) break;
+                        } while ((klabs((vect->x)-spr->x) < t) && (klabs((vect->y)-spr->y) < t));
+                        bad = -1;
+                        k--; if (k <= 0) return(bad);
+                        updatesector(vect->x,vect->y,sectnum);
+                    }
+                }
             }
-            }
-            }*/
-
+#endif
             sec = &sector[clipsectorlist[clipsectcnt]];
             if (dir > 0)
                 startwall = sec->wallptr, endwall = startwall + sec->wallnum;
