@@ -49,7 +49,6 @@ static int32_t   CONTROL_MouseButtonClickedTime[MAXMOUSEBUTTONS],  CONTROL_JoyBu
 static int32_t CONTROL_MouseButtonClickedState[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedState[MAXJOYBUTTONS];
 static int32_t CONTROL_MouseButtonClicked[MAXMOUSEBUTTONS],      CONTROL_JoyButtonClicked[MAXJOYBUTTONS];
 static uint8_t CONTROL_MouseButtonClickedCount[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedCount[MAXJOYBUTTONS];
-static int32_t CONTROL_UserInputCleared[3];
 static int32_t(*GetTime)(void);
 int32_t CONTROL_Started = FALSE;
 //static int32_t ticrate;
@@ -815,8 +814,6 @@ int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t
 
     CONTROL_ButtonState     = 0;
     CONTROL_ButtonHeldState = 0;
-
-    memset(CONTROL_UserInputCleared, 0, sizeof(CONTROL_UserInputCleared));
 
     for (i=0; i<CONTROL_NUM_FLAGS; i++)
         CONTROL_Flags[i].used = FALSE;
