@@ -350,7 +350,7 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
             CONTROL_KeyBinds[ii[k]].key=Bstrdup(ConsoleKeys[j].name);
 
         CONTROL_KeyBinds[ii[k]].repeat = 1;
-        CONTROL_KeyBinds[ii[k]].cmd[0] = 0;
+
         tempbuf[0] = 0;
 
         for (i=NUMGAMEFUNCTIONS-1; i>=0; i--)
@@ -362,11 +362,13 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
             }
         }
 
-        Bstrncpyz(CONTROL_KeyBinds[ii[k]].cmd, tempbuf, MAXBINDSTRINGLENGTH);
+        CONTROL_KeyBinds[ii[k]].cmdstr = (char *)Brealloc(CONTROL_KeyBinds[ii[k]].cmdstr, Bstrlen(tempbuf));
 
-        i = Bstrlen(CONTROL_KeyBinds[ii[k]].cmd);
+        Bstrncpyz(CONTROL_KeyBinds[ii[k]].cmdstr, tempbuf, Bstrlen(tempbuf));
+
+        i = Bstrlen(CONTROL_KeyBinds[ii[k]].cmdstr);
         if (i)
-            CONTROL_KeyBinds[ii[k]].cmd[i-2] = 0; // cut off the trailing "; "
+            CONTROL_KeyBinds[ii[k]].cmdstr[i-2] = 0; // cut off the trailing "; "
     }
 }
 
@@ -734,12 +736,14 @@ void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_settings.cfg
         Bfprintf(fp,"unbindall\n");
 
         for (i=0; i<MAXBOUNDKEYS; i++)
-            if (CONTROL_KeyBinds[i].cmd[0] && CONTROL_KeyBinds[i].key)
-                Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",CONTROL_KeyBinds[i].key,CONTROL_KeyBinds[i].repeat?"":" norepeat",CONTROL_KeyBinds[i].cmd);
+            if (CONTROL_KeyBinds[i].cmdstr && CONTROL_KeyBinds[i].key)
+                Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",CONTROL_KeyBinds[i].key,
+                CONTROL_KeyBinds[i].repeat?"":" norepeat",CONTROL_KeyBinds[i].cmdstr);
 
         for (i=0; i<MAXMOUSEBUTTONS; i++)
-            if (CONTROL_MouseBinds[i].cmd[0])
-                Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",CONTROL_MouseBinds[i].key,CONTROL_MouseBinds[i].repeat?"":" norepeat",CONTROL_MouseBinds[i].cmd);
+            if (CONTROL_MouseBinds[i].cmdstr)
+                Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",CONTROL_MouseBinds[i].key,
+                CONTROL_MouseBinds[i].repeat?"":" norepeat",CONTROL_MouseBinds[i].cmdstr);
 
         for (symb=symbols; symb!=NULL; symb=symb->next)
             if (symb->func == (void *)OSD_ALIAS)

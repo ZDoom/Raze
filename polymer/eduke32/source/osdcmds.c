@@ -921,19 +921,19 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 
         OSD_Printf("Current key bindings:\n");
         for (i=0; i<MAXBOUNDKEYS; i++)
-            if (CONTROL_KeyBinds[i].cmd[0] && CONTROL_KeyBinds[i].key)
+            if (CONTROL_KeyBinds[i].cmdstr && CONTROL_KeyBinds[i].key)
             {
                 j++;
                 OSD_Printf("%-9s %s\"%s\"\n", CONTROL_KeyBinds[i].key, CONTROL_KeyBinds[i].repeat?"":"norepeat ",
-                           CONTROL_KeyBinds[i].cmd);
+                           CONTROL_KeyBinds[i].cmdstr);
             }
 
         for (i=0; i<MAXMOUSEBUTTONS; i++)
-            if (CONTROL_MouseBinds[i].cmd[0] && CONTROL_MouseBinds[i].key)
+            if (CONTROL_MouseBinds[i].cmdstr && CONTROL_MouseBinds[i].key)
             {
                 j++;
                 OSD_Printf("%-9s %s\"%s\"\n", CONTROL_MouseBinds[i].key, CONTROL_MouseBinds[i].repeat?"":"norepeat ",
-                           CONTROL_MouseBinds[i].cmd);
+                           CONTROL_MouseBinds[i].cmdstr);
             }
 
         if (j == 0)
@@ -956,8 +956,9 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 
         if (parm->numparms < 2)
         {
-            OSD_Printf("%-9s %s\"%s\"\n", ConsoleButtons[i], CONTROL_MouseBinds[i].repeat?"":"norepeat ",
-                       CONTROL_MouseBinds[i].cmd);
+            if (CONTROL_MouseBinds[i].cmdstr && CONTROL_MouseBinds[i].key)
+                OSD_Printf("%-9s %s\"%s\"\n", ConsoleButtons[i], CONTROL_MouseBinds[i].repeat?"":"norepeat ",
+                CONTROL_MouseBinds[i].cmdstr);
             return OSDCMD_OK;
         }
 
@@ -976,7 +977,10 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
             Bstrcat(tempbuf," ");
             Bstrcat(tempbuf,parm->parms[j++]);
         }
-        Bstrncpy(CONTROL_MouseBinds[i].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
+
+        CONTROL_MouseBinds[i].cmdstr = (char *)Brealloc(CONTROL_MouseBinds[i].cmdstr, Bstrlen(tempbuf));
+
+        Bstrncpyz(CONTROL_MouseBinds[i].cmdstr, tempbuf, Bstrlen(tempbuf));
 
         CONTROL_MouseBinds[i].key=ConsoleButtons[i];
         if (!OSD_ParsingScript())
@@ -986,8 +990,9 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
 
     if (parm->numparms < 2)
     {
+        if (CONTROL_KeyBinds[ConsoleKeys[i].id].cmdstr && CONTROL_KeyBinds[ConsoleKeys[i].id].key)
         OSD_Printf("%-9s %s\"%s\"\n", ConsoleKeys[i].name, CONTROL_KeyBinds[ConsoleKeys[i].id].repeat?"":"norepeat ",
-                   CONTROL_KeyBinds[ConsoleKeys[i].id].cmd);
+                   CONTROL_KeyBinds[ConsoleKeys[i].id].cmdstr);
         return OSDCMD_OK;
     }
 
@@ -1006,7 +1011,9 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
         Bstrcat(tempbuf," ");
         Bstrcat(tempbuf,parm->parms[j++]);
     }
-    Bstrncpy(CONTROL_KeyBinds[ConsoleKeys[i].id].cmd,tempbuf, MAXBINDSTRINGLENGTH-1);
+
+    CONTROL_KeyBinds[ConsoleKeys[i].id].cmdstr = (char *)Brealloc(CONTROL_KeyBinds[ConsoleKeys[i].id].cmdstr, Bstrlen(tempbuf));
+    Bstrncpyz(CONTROL_KeyBinds[ConsoleKeys[i].id].cmdstr,tempbuf, Bstrlen(tempbuf));
 
     CONTROL_KeyBinds[ConsoleKeys[i].id].key=ConsoleKeys[i].name;
 
@@ -1055,12 +1062,18 @@ static int32_t osdcmd_unbindall(const osdfuncparm_t *parm)
     UNREFERENCED_PARAMETER(parm);
 
     for (i=0; i<MAXBOUNDKEYS; i++)
-        if (CONTROL_KeyBinds[i].cmd[0])
-            CONTROL_KeyBinds[i].cmd[0] = 0;
+        if (CONTROL_KeyBinds[i].cmdstr)
+        {
+            Bfree(CONTROL_KeyBinds[i].cmdstr);
+            CONTROL_KeyBinds[i].cmdstr = NULL;
+        }
 
     for (i=0; i<MAXMOUSEBUTTONS; i++)
-        if (CONTROL_MouseBinds[i].cmd[0])
-            CONTROL_MouseBinds[i].cmd[0] = 0;
+        if (CONTROL_MouseBinds[i].cmdstr)
+        {
+            Bfree(CONTROL_MouseBinds[i].cmdstr);
+            CONTROL_MouseBinds[i].cmdstr = NULL;
+        }
 
     for (i=0; i<NUMGAMEFUNCTIONS; i++)
     {
@@ -1094,7 +1107,11 @@ static int32_t osdcmd_unbind(const osdfuncparm_t *parm)
             return OSDCMD_SHOWHELP;
 
         CONTROL_MouseBinds[i].repeat = 0;
-        CONTROL_MouseBinds[i].cmd[0] = 0;
+        if (CONTROL_MouseBinds[i].cmdstr)
+        {
+            Bfree(CONTROL_MouseBinds[i].cmdstr);
+            CONTROL_MouseBinds[i].cmdstr = NULL;
+        }
 
         OSD_Printf("unbound %s\n",ConsoleButtons[i]);
 
@@ -1102,7 +1119,11 @@ static int32_t osdcmd_unbind(const osdfuncparm_t *parm)
     }
 
     CONTROL_KeyBinds[ConsoleKeys[i].id].repeat = 0;
-    CONTROL_KeyBinds[ConsoleKeys[i].id].cmd[0] = 0;
+    if (CONTROL_KeyBinds[ConsoleKeys[i].id].cmdstr)
+    {
+        Bfree(CONTROL_KeyBinds[ConsoleKeys[i].id].cmdstr);
+        CONTROL_KeyBinds[ConsoleKeys[i].id].cmdstr = NULL;
+    }
 
     OSD_Printf("unbound key %s\n",ConsoleKeys[i].name);
 

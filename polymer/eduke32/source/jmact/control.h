@@ -198,12 +198,11 @@ void CONTROL_PrintKeyMap(void);
 void CONTROL_PrintControlFlag(int32_t which);
 void CONTROL_PrintAxes( void );
 
-#define MAXBINDSTRINGLENGTH 128
 #define MAXBOUNDKEYS 256
 
 typedef struct binding {
     const char *key;
-    char cmd[MAXBINDSTRINGLENGTH];
+    char *cmdstr;
     char repeat;
     char laststate;
 } keybind;
