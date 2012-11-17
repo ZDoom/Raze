@@ -879,15 +879,16 @@ static void loadmhk(int32_t domessage)
 // one convenient function
 void spriteoncfz(int32_t i, int32_t *czptr, int32_t *fzptr)
 {
-    int32_t cz,fz, height, zofs;
+    int32_t height, zofs;
 
-    getzsofslope(sprite[i].sectnum, sprite[i].x,sprite[i].y, &cz, &fz);
-    spriteheightofs(i, &height, &zofs, 0);
+    getzsofslope(sprite[i].sectnum, sprite[i].x,sprite[i].y, czptr, fzptr);
+    if ((sprite[i].cstat&48)==32)
+        return;
 
-    if (czptr)
-        *czptr = cz + height - zofs;
-    if (fzptr)
-        *fzptr = fz - zofs;
+    zofs = spriteheightofs(i, &height, 0);
+
+    *czptr += height - zofs;
+    *fzptr -= zofs;
 }
 
 static void move_and_update(int32_t xvect, int32_t yvect, int32_t addshr)

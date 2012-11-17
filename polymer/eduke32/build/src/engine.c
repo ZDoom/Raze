@@ -2492,7 +2492,7 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
         if (cb < 0 && fb < 0)
             return 0;
 
-        spriteheightofs(z, &spheight, &spzofs, 1);
+        spzofs = spriteheightofs(z, &spheight, 1);
 
         // TODO: get*zofslope?
         if (cb>=0 && spr->z+spzofs-spheight < sector[sectnum].ceilingz)
@@ -10881,7 +10881,6 @@ int32_t ksqrt(uint32_t num)
     return(nsqrtasm(num));
 }
 
-
 //
 // krecip
 //
@@ -10890,33 +10889,25 @@ int32_t krecip(int32_t num)
     return(krecipasm(num));
 }
 
-void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs, int32_t alsotileyofs)
+// Gets the BUILD unit height and z offset of a sprite.
+// Returns the z offset, 'height' may be NULL.
+int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
 {
-    int32_t hei, flooraligned=((sprite[i].cstat&48)==32);
-    int32_t picnum = sprite[i].picnum;
+    int32_t hei, zofs=0;
+    const int32_t picnum=sprite[i].picnum, yrepeat=sprite[i].yrepeat;
 
-    if (zofs)
-        *zofs = 0;
-
-    if (flooraligned)
-    {
-        if (height)
-            *height = 0;
-        return;
-    }
-
-    hei = (tilesizy[picnum]*sprite[i].yrepeat)<<2;
-    if (zofs)
-    {
-        if (sprite[i].cstat&128)
-            *zofs = hei>>1;
-
-        if (alsotileyofs)
-            if (picanm[picnum].yofs)
-                *zofs -= picanm[picnum].yofs*sprite[i].yrepeat<<2;
-    }
-
+    hei = (tilesizy[picnum]*yrepeat)<<2;
     *height = hei;
+
+    if (sprite[i].cstat&128)
+        zofs = hei>>1;
+
+    // NOTE: a positive per-tile yoffset translates the sprite into the
+    // negative world z direction (i.e. upward).
+    if (alsotileyofs)
+        zofs -= picanm[picnum].yofs*yrepeat<<2;
+
+    return zofs;
 }
 
 //
@@ -11456,9 +11447,7 @@ restart_grand:
 
                 intz = sv->z+scale(vz,topt,bot);
 
-                i = (tilesizy[spr->picnum]*spr->yrepeat<<2);
-                if (cstat&128) z1 += (i>>1);
-                if (picanm[spr->picnum].yofs) z1 -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
+                z1 += spriteheightofs(z, &i, 1);
                 if ((intz > z1) || (intz < z1-i)) continue;
                 topu = vx*(y1-sv->y) - vy*(x1-sv->x);
 
@@ -11499,9 +11488,7 @@ restart_grand:
 
                 if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y)) continue;
 
-                k = ((tilesizy[tilenum]*spr->yrepeat)<<2);
-                if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
-                if (picanm[tilenum].yofs) daz -= (picanm[tilenum].yofs*spr->yrepeat<<2);
+                daz = spr->z + spriteheightofs(z, &k, 1);
                 if (intz > daz-k && intz < daz)
                 {
                     if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)
@@ -11744,10 +11731,8 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
                     if (bot != 0)
                     {
                         intz = zs+scale(vz,topt,bot);
-                        i = tilesizy[spr->picnum]*spr->yrepeat;
-                        if (spr->cstat&128) z1 += (i<<1);
-                        if (picanm[spr->picnum].yofs) z1 -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
-                        if ((intz <= z1) && (intz >= z1-(i<<2)))
+                        z1 += spriteheightofs(z, &i, 1);
+                        if (intz >= z1-i && intz <= z1)
                         {
                             topu = vx*(y1-ys) - vy*(x1-xs);
 
@@ -12313,9 +12298,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             case 0:
                 if ((x1 >= xmin) && (x1 <= xmax) && (y1 >= ymin) && (y1 <= ymax))
                 {
-                    k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
-                    if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
-                    if (picanm[spr->picnum].yofs) daz -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
+                    daz = spr->z + spriteheightofs(j, &k, 1);
                     if (((pos->z) < daz+ceildist) && ((pos->z) > daz-k-flordist))
                     {
                         bsz = (spr->clipdist<<2)+walldist; if (gx < 0) bsz = -bsz;
@@ -12326,9 +12309,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 }
                 break;
             case 16:
-                k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
-                if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
-                if (picanm[spr->picnum].yofs) daz -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
+                daz = spr->z + spriteheightofs(j, &k, 1);
                 daz2 = daz-k;
                 daz += ceildist; daz2 -= flordist;
                 if (((pos->z) < daz) && ((pos->z) > daz2))
@@ -12572,9 +12553,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                 t = (spr->clipdist<<2)+walldist;
                 if ((klabs(dax) < t) && (klabs(day) < t))
                 {
-                    t = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
-                    if (spr->cstat&128) daz = spr->z+(t>>1); else daz = spr->z;
-                    if (picanm[spr->picnum].yofs) daz -= ((int32_t)picanm[spr->picnum].yofs*spr->yrepeat<<2);
+                    daz = spr->z + spriteheightofs(i, &t, 1);
                     if (((vect->z) < daz+ceildist) && ((vect->z) > daz-t-flordist))
                     {
                         t = (spr->clipdist<<2)+walldist;
@@ -13223,12 +13202,8 @@ restart_grand:
                     k = walldist+(spr->clipdist<<2)+1;
                     if ((klabs(x1-pos->x) <= k) && (klabs(y1-pos->y) <= k))
                     {
-                        daz = spr->z;
-                        k = ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
-                        if (cstat&128) daz += k;
-                        if (picanm[spr->picnum].yofs)
-                            daz -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
-                        daz2 = daz - (k<<1);
+                        daz = spr->z + spriteheightofs(j, &k, 1);
+                        daz2 = daz - k;
                         clipyou = 1;
                     }
                     break;
@@ -13243,11 +13218,8 @@ restart_grand:
                     y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
                     if (clipinsideboxline(pos->x,pos->y,x1,y1,x2,y2,walldist+1) != 0)
                     {
-                        daz = spr->z; k = ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
-                        if (cstat&128) daz += k;
-                        if (picanm[spr->picnum].yofs)
-                            daz -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
-                        daz2 = daz-(k<<1);
+                        daz = spr->z + spriteheightofs(j, &k, 1);
+                        daz2 = daz-k;
                         clipyou = 1;
                     }
                     break;

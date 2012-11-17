@@ -234,7 +234,7 @@ int32_t fillsector(int16_t sectnum, int32_t fillcolor);  // fillcolor == -1: def
 int32_t ask_if_sure(const char *query, uint32_t flags);
 int32_t editor_ask_function(const char *question, const char *dachars, int32_t numchars);
 
-void spriteoncfz(int32_t i, int32_t *czptr, int32_t *fzptr);
+void spriteoncfz(int32_t i, int32_t *czptr, int32_t *fzptr) ATTRIBUTE((nonnull(2,3)));
 void DoSpriteOrnament(int32_t i);
 
 void getpoint(int32_t searchxe, int32_t searchye, int32_t *x, int32_t *y);

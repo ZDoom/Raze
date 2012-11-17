@@ -848,7 +848,7 @@ int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
 int32_t   setsprite(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 
-void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs, int32_t alsotileyofs);
+int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs) ATTRIBUTE((nonnull(2)));
 
 int32_t   screencapture(const char *filename, char inverseit, const char *versionstr) ATTRIBUTE((nonnull(1)));
 
