@@ -5650,14 +5650,16 @@ static void Keys3d(void)
     {
         if (ASSERT_AIMING)
         {
-            j = i = (keystatus[KEYSC_EQUAL] || (bstatus&16)) ? 1 : -1;
+            int32_t pic = AIMED_SELOVR_PICNUM;
+            int32_t dir = (keystatus[KEYSC_EQUAL] || (bstatus&16)) ? 1 : -1;
 
-            while (!tilesizx[AIMED_SELOVR_PICNUM] || !tilesizy[AIMED_SELOVR_PICNUM] || j)
+            do
             {
-                i += AIMED_SELOVR_PICNUM + MAXTILES;
-                AIMED_SELOVR_PICNUM = i % MAXTILES;
-                j = 0;
+                pic += dir + MAXTILES;
+                pic %= MAXTILES;
             }
+            while (tilesizx[pic]<=0 || tilesizy[pic]<=0);
+            AIMED_SELOVR_PICNUM = pic;
 
             if (AIMING_AT_SPRITE)
                 correct_sprite_yoffset(searchwall);
