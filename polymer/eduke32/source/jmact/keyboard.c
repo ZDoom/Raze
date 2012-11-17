@@ -37,10 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "keyboard.h"
 #include "control.h"
 
-
 kb_scancode KB_LastScan;
-
-static int32_t numpad = 0;
 
 // translation table for taking key names to scancodes and back again
 static struct
@@ -152,79 +149,6 @@ static struct
     { "Delete", 0xd3 },
 };
 
-// translation table for turning scancode into ascii characters
-/*
-static char sctoasc[2][256] = {
-	{
-//      0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
-	0,   27,  '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 8,   9,   // 0x00
-	'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 13,  0,   'a', 's', // 0x10
-	'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', '\'','`', 0,   '\\','z', 'x', 'c', 'v', // 0x20
-	'b', 'n', 'm', ',', '.', '/', 0,   '*', 0,   ' ', 0,   0,   0,   0,   0,   0,   // 0x30
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   '-', 0,   0,   0,   '+', 0,   // 0x40
-	0,   0,   0,   '.', 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0x50
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0x60
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0x70
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0x80
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   13,  0,   0,   0,   // 0x90
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0xa0
-	0,   0,   0,   0,   0,   '/', 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0xb0
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0xc0
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0xd0
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0xe0
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0    // 0xf0
-	},
-	{
-//      0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
-	0,   27,  '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+', 8,   9,   // 0x00
-	'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '{', '}', 13,  0,   'A', 'S', // 0x10
-	'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', '~', 0,   '|', 'Z', 'X', 'C', 'V', // 0x20
-	'B', 'N', 'M', '<', '>', '?', 0,   '*', 0,   ' ', 0,   0,   0,   0,   0,   0,   // 0x30
-	0,   0,   0,   0,   0,   0,   0,   '7', '8', '9', '-', '4', '5', '6', '+', '1', // 0x40
-	'2', '3', '0', '.', 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0x50
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0x60
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0x70
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0x80
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   13,  0,   0,   0,   // 0x90
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0xa0
-	0,   0,   0,   0,   0,   '/', 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0xb0
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0xc0
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0xd0
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   // 0xe0
-	0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0    // 0xf0
-	}
-};
-*/
-
-int32_t KB_KeyWaiting(void)
-{
-    return bkbhit();
-//	return (keyfifoplc != keyfifoend);
-}
-
-char KB_Getch(void)
-{
-    /*
-    	uint8_t ch;
-    	char shifted;
-    	if (keyfifoplc == keyfifoend) return 0;
-    	ch = keyfifo[keyfifoplc];
-    	keyfifoplc = ((keyfifoplc+2)&(KEYFIFOSIZ-1));
-
-    	shifted = ((keystatus[0x2a]!=0)||(keystatus[0x36]!=0));
-    	if (ch >= 0x47 && ch <= 0x52) shifted = numpad;
-
-    	return sctoasc[shifted][ch];
-    */
-    return (char)bgetchar();
-}
-
-void KB_FlushKeyboardQueue(void)
-{
-    //keyfifoplc = keyfifoend = 0;
-    bflushchars();
-}
-
 void KB_ClearKeysDown(void)
 {
     KB_LastScan = 0;
@@ -253,21 +177,6 @@ kb_scancode KB_StringToScanCode(const char * string)
     return 0;
 }
 
-void KB_TurnKeypadOn(void)
-{
-    numpad = 1;
-}
-
-void KB_TurnKeypadOff(void)
-{
-    numpad = 0;
-}
-
-int32_t KB_KeypadActive(void)
-{
-    return numpad;
-}
-
 static void KB_KeyEvent(int32_t scancode, int32_t keypressed)
 {
     if (keypressed) KB_LastScan = scancode;
@@ -275,7 +184,6 @@ static void KB_KeyEvent(int32_t scancode, int32_t keypressed)
 
 void KB_Startup(void)
 {
-    numpad = 0;
     setkeypresscallback(KB_KeyEvent);
 }
 

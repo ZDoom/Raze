@@ -2346,7 +2346,7 @@ cheat_for_port_credits2:
             else
             {
                 char ch2, ch;
-                ch = KB_Getch();
+                ch = KB_GetCh();
                 if (ch > 0 && ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9')))
                 {
                     if (ch >= 'a') ch -= ('a'-'A');

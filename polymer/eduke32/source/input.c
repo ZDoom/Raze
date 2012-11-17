@@ -39,7 +39,7 @@ int32_t I_CheckAllInput(void)
 }
 void I_ClearAllInput(void)
 {
-    KB_FlushKeyBoardQueue();
+    KB_FlushKeyboardQueue();
     KB_ClearKeysDown();
     MOUSE_ClearAllButtons();
     JOYSTICK_ClearAllButtons();
@@ -55,7 +55,7 @@ int32_t I_CheckInputWaiting(void)
 }
 int32_t I_ClearInputWaiting(void)
 {
-    KB_FlushKeyBoardQueue();
+    KB_FlushKeyboardQueue();
     KB_ClearKeysDown(); // JBF
     I_JoystickAdvanceTriggerClear();
     return (
@@ -137,7 +137,7 @@ int32_t I_AdvanceTrigger(void)
 }
 int32_t I_AdvanceTriggerClear(void)
 {
-    KB_FlushKeyBoardQueue();
+    KB_FlushKeyboardQueue();
     KB_ClearKeyDown(sc_kpad_Enter);
     KB_ClearKeyDown(sc_Enter);
     I_JoystickAdvanceTriggerClear();
@@ -155,7 +155,7 @@ int32_t I_ReturnTrigger(void)
 }
 int32_t I_ReturnTriggerClear(void)
 {
-    KB_FlushKeyBoardQueue();
+    KB_FlushKeyboardQueue();
     KB_ClearKeyDown(sc_Escape);
     return (
             MOUSE_ClearButton(RIGHT_MOUSE) ||
@@ -171,7 +171,7 @@ int32_t I_EscapeTrigger(void)
 }
 int32_t I_EscapeTriggerClear(void)
 {
-    KB_FlushKeyBoardQueue();
+    KB_FlushKeyboardQueue();
     KB_ClearKeyDown(sc_Escape);
     return (
             I_JoystickEscapeTriggerClear()
@@ -197,7 +197,7 @@ int32_t I_PanelUp(void)
 }
 int32_t I_PanelUpClear(void)
 {
-    KB_FlushKeyBoardQueue();
+    KB_FlushKeyboardQueue();
     KB_ClearKeyDown(sc_LeftArrow);
     KB_ClearKeyDown(sc_kpad_4);
     KB_ClearKeyDown(sc_UpArrow);
@@ -230,7 +230,7 @@ int32_t I_PanelDown(void)
 }
 int32_t I_PanelDownClear(void)
 {
-    KB_FlushKeyBoardQueue();
+    KB_FlushKeyboardQueue();
     KB_ClearKeyDown(sc_RightArrow);
     KB_ClearKeyDown(sc_kpad_6);
     KB_ClearKeyDown(sc_DownArrow);
@@ -257,7 +257,7 @@ int32_t _EnterText(int32_t small,int32_t x,int32_t y,char *t,int32_t dalen,int32
     char ch;
     int32_t i;
 
-    while ((ch = KB_Getch()) != 0)
+    while ((ch = KB_GetCh()) != 0)
     {
         if (ch == asc_BackSpace)
         {

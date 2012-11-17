@@ -80,6 +80,12 @@ extern kb_scancode KB_LastScan;
 
 #define KB_UnBoundKeyPressed( scan )  ( keystatus[ ( scan ) ] != 0 && !CONTROL_KeyBinds[scan].cmdstr)
 
+#define KB_GetCh bgetchar
+
+#define KB_KeyWaiting bkbhit
+
+#define KB_FlushKeyboardQueue bflushchars
+
 /*
 =============================================================================
 
@@ -88,20 +94,11 @@ extern kb_scancode KB_LastScan;
 =============================================================================
 */
 
-int32_t KB_KeyWaiting( void );         // Checks if a character is waiting in the keyboard queue
-char    KB_Getch( void );              // Gets the next keypress
-void    KB_FlushKeyboardQueue( void ); // Empties the keyboard queue of all waiting characters.
 void    KB_ClearKeysDown( void );      // Clears all keys down flags.
 const char *  KB_ScanCodeToString( kb_scancode scancode ); // convert scancode into a string
 kb_scancode KB_StringToScanCode( const char * string );  // convert a string into a scancode
-void    KB_TurnKeypadOn( void );       // turn the keypad on
-void    KB_TurnKeypadOff( void );      // turn the keypad off
-int32_t KB_KeypadActive( void );       // check whether keypad is active
 void    KB_Startup( void );
 void    KB_Shutdown( void );
-
-#define KB_FlushKeyBoardQueue KB_FlushKeyboardQueue
-#define KB_GetCh KB_Getch
 
 #ifdef EXTERNC
 };

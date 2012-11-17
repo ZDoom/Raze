@@ -1741,11 +1741,20 @@ skip_check:
                 int32_t j = Gv_GetVarX(*insptr++);
 
                 if ((unsigned)i >= MAXQUOTES)
+                {
                     CON_ERRPRINTF("invalid quote ID %d\n", i);
+                    continue;
+                }
                 else if ((ScriptQuotes[i] == NULL))
+                {
                     CON_ERRPRINTF("null quote %d\n", i);
+                    continue;
+                }
                 else if ((unsigned)f >= NUMGAMEFUNCTIONS)
+                {
                     CON_ERRPRINTF("invalid function %d\n", f);
+                    continue;
+                }
                 else
                 {
                     if (j < 2)

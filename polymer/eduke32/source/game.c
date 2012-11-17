@@ -7069,7 +7069,7 @@ static void G_CheatGetInv(void)
 static void end_cheat(void)
 {
     g_player[myconnectindex].ps->cheat_phase = 0;
-    KB_FlushKeyBoardQueue();
+    KB_FlushKeyboardQueue();
 }
 
 static int8_t cheatbuf[MAXCHEATLEN], cheatbuflen;
@@ -7105,7 +7105,7 @@ GAME_STATIC void G_DoCheats(void)
     {
         while (KB_KeyWaiting())
         {
-            ch = Btolower(KB_Getch());
+            ch = Btolower(KB_GetCh());
 
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {
@@ -7169,7 +7169,7 @@ FOUNDCHEAT:
 
                 case CHEAT_KEYS:
                     g_player[myconnectindex].ps->got_access =  7;
-                    KB_FlushKeyBoardQueue();
+                    KB_FlushKeyboardQueue();
                     end_cheat();
                     return;
 
@@ -7451,7 +7451,7 @@ FOUNDCHEAT:
                     ud.eog = 1;
                     g_player[myconnectindex].ps->player_par = 0;
                     g_player[myconnectindex].ps->gm |= MODE_EOL;
-                    KB_FlushKeyBoardQueue();
+                    KB_FlushKeyboardQueue();
                     return;
                 }
             }

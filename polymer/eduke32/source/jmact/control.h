@@ -148,13 +148,7 @@ extern uint64_t   CONTROL_ButtonHeldState;
 //***************************************************************************
 
 //void CONTROL_MapKey( int32_t which, kb_scancode key1, kb_scancode key2 );
-void CONTROL_MapButton
-        (
-        int32_t whichfunction,
-        int32_t whichbutton,
-        int32_t doubleclicked,
-    controldevice device
-        );
+void CONTROL_MapButton(int32_t whichfunction, int32_t whichbutton, int32_t doubleclicked, controldevice device);
 void CONTROL_DefineFlag( int32_t which, int32_t toggle );
 int32_t CONTROL_FlagActive( int32_t which );
 void CONTROL_ClearAssignments( void );
@@ -162,43 +156,21 @@ void CONTROL_ClearAssignments( void );
 void CONTROL_GetInput( ControlInfo *info );
 void CONTROL_ClearButton( int32_t whichbutton );
 extern float CONTROL_MouseSensitivity;
-int32_t CONTROL_Startup
-   (
-   controltype which,
-   int32_t ( *TimeFunction )( void ),
-   int32_t ticspersecond
-   );
+int32_t CONTROL_Startup(controltype which, int32_t ( *TimeFunction )( void ), int32_t ticspersecond);
 void CONTROL_Shutdown( void );
 
 void CONTROL_SetDoubleClickDelay(int32_t delay);
 int32_t CONTROL_GetDoubleClickDelay(void);
 
-void CONTROL_MapAnalogAxis
-   (
-   int32_t whichaxis,
-   int32_t whichanalog,
-   controldevice device
-   );
-
-void CONTROL_MapDigitalAxis
-   (
-   int32_t whichaxis,
-   int32_t whichfunction,
-   int32_t direction,
-   controldevice device
-   );
-void CONTROL_SetAnalogAxisScale
-   (
-   int32_t whichaxis,
-   int32_t axisscale,
-   controldevice device
-   );
+void CONTROL_MapAnalogAxis(int32_t whichaxis, int32_t whichanalog, controldevice device);
+void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t direction, controldevice device);
+void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldevice device);
 
 void CONTROL_PrintKeyMap(void);
 void CONTROL_PrintControlFlag(int32_t which);
 void CONTROL_PrintAxes( void );
 
-#define MAXBOUNDKEYS 256
+#define MAXBOUNDKEYS MAXKEYBOARDSCAN
 
 typedef struct binding {
     const char *key;

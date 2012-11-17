@@ -574,16 +574,14 @@ static void CONTROL_ApplyAxis(int32_t axis, ControlInfo *info, controldevice dev
 
 static void CONTROL_PollDevices(ControlInfo *info)
 {
-    Bmemcpy(CONTROL_LastMouseAxes, CONTROL_MouseAxes, sizeof(CONTROL_MouseAxes));
-    Bmemcpy(CONTROL_LastJoyAxes,   CONTROL_JoyAxes,   sizeof(CONTROL_JoyAxes));
-
-    memset(CONTROL_MouseAxes, 0, sizeof(CONTROL_MouseAxes));
-    memset(CONTROL_JoyAxes,   0, sizeof(CONTROL_JoyAxes));
     memset(info, 0, sizeof(ControlInfo));
 
     if (CONTROL_MouseEnabled)
     {
         int32_t i = MAXMOUSEAXES-1;
+
+        Bmemcpy(CONTROL_LastMouseAxes, CONTROL_MouseAxes, sizeof(CONTROL_MouseAxes));
+        memset(CONTROL_MouseAxes, 0, sizeof(CONTROL_MouseAxes));
 
         CONTROL_GetMouseDelta();
         for (; i>=0; i--)
@@ -598,6 +596,9 @@ static void CONTROL_PollDevices(ControlInfo *info)
     if (CONTROL_JoystickEnabled)
     {
         int32_t i = joynumaxes-1;
+
+        Bmemcpy(CONTROL_LastJoyAxes,   CONTROL_JoyAxes,   sizeof(CONTROL_JoyAxes));
+        memset(CONTROL_JoyAxes,   0, sizeof(CONTROL_JoyAxes));
 
         for (; i>=0; i--)
         {
