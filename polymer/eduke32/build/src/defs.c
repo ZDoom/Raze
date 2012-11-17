@@ -475,18 +475,28 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile_range("animtilerange", &tile1, &tile2, script, cmdtokptr))
                 break;
 
-            if (tile2-tile1 >= 64)
+            if (tile2-tile1 > 255)
             {
-                initprintf("Error: animtilerange: tile difference can be at most 64 on line %s:%d\n",
+                initprintf("Error: animtilerange: tile difference can be at most 255 on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
                 break;
             }
 
             spd = clamp(spd, 0, 15);
-            type = clamp(type, 0, 3);
+            if (type&~3)
+            {
+                initprintf("Error: animtilerange: animation type must be 0, 1, 2 or 3 on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+            }
 
-            picanm[tile1] &= 0xf0ffff00;  // clear animation fields
-            picanm[tile1] |= (spd<<24)+(type<<6)+tile2-tile1;
+            // set anim speed
+            picanm[tile1].sf &= ~PICANM_ANIMSPEED_MASK;
+            picanm[tile1].sf |= spd;
+            // set anim type
+            picanm[tile1].sf &= ~PICANM_ANIMTYPE_MASK;
+            picanm[tile1].sf |= type<<PICANM_ANIMTYPE_SHIFT;
+            // set anim number
+            picanm[tile1].num = tile2-tile1;
 
             break;
         }
@@ -543,7 +553,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 // filefromtexture <tile> { texhitscan }  sets the bit but doesn't change tile data
                 if (texhitscan)
-                    picanm[tile] |= PICANM_TEXHITSCAN_BIT;
+                    picanm[tile].sf |= PICANM_TEXHITSCAN_BIT;
                 else
                     initprintf("Error: missing 'file name' for tilefromtexture definition near line %s:%d\n",
                                script->filename, scriptfile_getlinum(script,texturetokptr));
@@ -568,13 +578,11 @@ static int32_t defsparser(scriptfile *script)
                 if (xsiz <= 0 || ysiz <= 0)
                     break;
 
-                xoffset = clamp(xoffset, -128, 127)&255;
-                yoffset = clamp(yoffset, -128, 127)&255;
-
-                set_picsizanm(tile, xsiz, ysiz, (picanm[tile]&0xff0000ff)+
-                              (xoffset<<8)+(yoffset<<16));
+                set_tilesiz(tile, xsiz, ysiz);
+                picanm[tile].xofs = clamp(xoffset, -128, 127);
+                picanm[tile].yofs = clamp(yoffset, -128, 127);
                 if (texhitscan)
-                    picanm[tile] |= PICANM_TEXHITSCAN_BIT;
+                    picanm[tile].sf |= PICANM_TEXHITSCAN_BIT;
 
                 tile_from_truecolpic(tile, picptr, alphacut);
 
@@ -604,7 +612,8 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile("importtile", &tile, script, cmdtokptr))
                 break;
 
-            set_picsizanm(tile, xsiz, ysiz, 0);
+            set_tilesiz(tile, xsiz, ysiz);
+            Bmemset(&picanm[tile], 0, sizeof(picanm_t));
 
             tile_from_truecolpic(tile, picptr, 255);
 
@@ -621,7 +630,8 @@ static int32_t defsparser(scriptfile *script)
 
             if (xsiz > 0 && ysiz > 0)
             {
-                set_picsizanm(tile, xsiz, ysiz, 0);
+                set_tilesiz(tile, xsiz, ysiz);
+                Bmemset(&picanm[tile], 0, sizeof(picanm_t));
                 faketilesiz[tile] = -1;
             }
 
@@ -644,7 +654,8 @@ static int32_t defsparser(scriptfile *script)
 
             for (i=tile1; i<=tile2; i++)
             {
-                set_picsizanm(i, xsiz, ysiz, 0);
+                set_tilesiz(i, xsiz, ysiz);
+                Bmemset(&picanm[i], 0, sizeof(picanm_t));
                 faketilesiz[i] = -1;
             }
 
@@ -1950,7 +1961,7 @@ static int32_t defsparser(scriptfile *script)
             e = min(e, MAXTILES-1);
 
             for (i=b; i<=e; i++)
-                picanm[i] |= PICANM_TEXHITSCAN_BIT;
+                picanm[i].sf |= PICANM_TEXHITSCAN_BIT;
         }
         break;
 

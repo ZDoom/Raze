@@ -147,9 +147,6 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 # define YAX_SKIPWALL(i) (i)=(i)
 #endif
 
-#define PICANM_TEXHITSCAN_BIT (1<<28)
-#define PICANM_NOFULLBRIGHT_BIT (1<<30)
-
 #define CLIPMASK0 (((1L)<<16)+1L)
 #define CLIPMASK1 (((256L)<<16)+64L)
 
@@ -485,7 +482,32 @@ EXTERN int32_t pow2long[32];
 #ifdef __cplusplus
 };
 #endif
-EXTERN int32_t picanm[MAXTILES];
+
+// picanm[].sf:
+// |bit(1<<7)
+// |animtype|animtype|texhitscan|nofullbright|speed|speed|speed|speed|
+enum {
+    PICANM_ANIMTYPE_NONE = 0,
+    PICANM_ANIMTYPE_OSC = (1<<6),
+    PICANM_ANIMTYPE_FWD = (2<<6),
+    PICANM_ANIMTYPE_BACK = (3<<6),
+
+    PICANM_ANIMTYPE_SHIFT = 6,
+    PICANM_ANIMTYPE_MASK = (3<<6),  // must be 192
+    PICANM_MISC_MASK = (3<<4),
+    PICANM_TEXHITSCAN_BIT = (2<<4),
+    PICANM_NOFULLBRIGHT_BIT = (1<<4),
+    PICANM_ANIMSPEED_MASK = 15,  // must be 15
+};
+
+// NOTE: If the layout of this struct is changed, loadpics() must be modified
+// accordingly.
+typedef struct {
+    uint8_t num;  // animate number
+    int8_t xofs, yofs;
+    uint8_t sf;  // anim. speed and flags
+} picanm_t;
+EXTERN picanm_t picanm[MAXTILES];
 EXTERN intptr_t waloff[MAXTILES];  // stores pointers to cache  -- SA
 
 EXTERN int32_t windowpos, windowx, windowy;
@@ -694,7 +716,7 @@ void delete_maphack_lights();
 int32_t clipmapinfo_load(void);
 #endif
 int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
-void set_picsizanm(int32_t picnum, int16_t dasizx, int16_t dasizy, int32_t daanm);
+void set_tilesiz(int32_t picnum, int16_t dasizx, int16_t dasizy);
 int32_t   loadpics(const char *filename, int32_t askedsize);
 void   loadtile(int16_t tilenume);
 int32_t   qloadkvx(int32_t voxindex, const char *filename);

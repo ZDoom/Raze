@@ -2159,7 +2159,7 @@ static int32_t insert_sprite_common(int32_t sectnum, int32_t dax, int32_t day)
 
 void correct_sprite_yoffset(int32_t i)
 {
-    int32_t tileyofs = (int8_t)((picanm[sprite[i].picnum]>>16)&255);
+    int32_t tileyofs = picanm[sprite[i].picnum].yofs;
     int32_t tileysiz = tilesizy[sprite[i].picnum];
 
     if (klabs(tileyofs) >= tileysiz)

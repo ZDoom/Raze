@@ -3559,8 +3559,8 @@ void                polymer_updatesprite(int32_t snum)
 
     tilexoff = (int32_t)tspr->xoffset;
     tileyoff = (int32_t)tspr->yoffset;
-    tilexoff += (int8_t)((usehightile&&h_xsize[curpicnum])?(h_xoffs[curpicnum]):((picanm[curpicnum]>>8)&255));
-    tileyoff += (int8_t)((usehightile&&h_xsize[curpicnum])?(h_yoffs[curpicnum]):((picanm[curpicnum]>>16)&255));
+    tilexoff += (usehightile && h_xsize[curpicnum]) ? h_xoffs[curpicnum] : picanm[curpicnum].xofs;
+    tileyoff += (usehightile && h_xsize[curpicnum]) ? h_yoffs[curpicnum] : picanm[curpicnum].yofs;
 
     xoff = (int32_t)(tilexoff * xratio);
     yoff = (int32_t)(tileyoff * yratio);

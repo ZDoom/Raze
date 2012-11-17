@@ -1210,7 +1210,7 @@ static int32_t gloadtile_art(int32_t dapic, int32_t dapal, int32_t dameth, pthty
     }
     else
     {
-        const int32_t dofullbright = !(picanm[dapic]&PICANM_NOFULLBRIGHT_BIT);
+        const int32_t dofullbright = !(picanm[dapic].sf&PICANM_NOFULLBRIGHT_BIT);
         int32_t y;
 
         for (y=0; y<ysiz; y++)
@@ -4902,8 +4902,8 @@ void polymost_drawsprite(int32_t snum)
         flag = usehightile && h_xsize[globalpicnum];
         xoff = (int32_t)tspr->xoffset;
         yoff = (int32_t)tspr->yoffset;
-        xoff += (int8_t)(flag ? h_xoffs[globalpicnum] : ((picanm[globalpicnum]>>8)&255));
-        yoff += (int8_t)(flag ? h_yoffs[globalpicnum] : ((picanm[globalpicnum]>>16)&255));
+        xoff += flag ? h_xoffs[globalpicnum] : picanm[globalpicnum].xofs;
+        yoff += flag ? h_yoffs[globalpicnum] : picanm[globalpicnum].yofs;
     }
 
     method = 1+4;
@@ -5437,8 +5437,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
                 if (dastat&16)
                 {
                     xsiz = tilesizx[picnum]; ysiz = tilesizy[picnum];
-                    xoff = (int32_t)((int8_t)((picanm[picnum]>>8)&255))+(xsiz>>1);
-                    yoff = (int32_t)((int8_t)((picanm[picnum]>>16)&255))+(ysiz>>1);
+                    xoff = picanm[picnum].xofs + (xsiz>>1);
+                    yoff = picanm[picnum].yofs + (ysiz>>1);
 
                     d = (double)z/(65536.0*16384.0);
                     cosang2 = cosang = (double)sintable[(a+512)&2047]*d;
@@ -5653,8 +5653,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     }
     else
     {
-        xoff = (int32_t)((int8_t)((picanm[globalpicnum]>>8)&255))+(xsiz>>1);
-        yoff = (int32_t)((int8_t)((picanm[globalpicnum]>>16)&255))+(ysiz>>1);
+        xoff = picanm[globalpicnum].xofs + (xsiz>>1);
+        yoff = picanm[globalpicnum].yofs + (ysiz>>1);
     }
 
     if (dastat&4)

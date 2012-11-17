@@ -2247,7 +2247,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                         x1 = sprx;
                         y1 = spry;
                         tilenum = spr->picnum;
-                        xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
+                        xoff = picanm[tilenum].xofs + spr->xoffset;
                         if ((spr->cstat&4) > 0) xoff = -xoff;
                         k = spr->ang;
                         l = spr->xrepeat;
@@ -2277,10 +2277,9 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                     break;
 
                 case 32:
-
                     tilenum = spr->picnum;
-                    xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
-                    yoff = (int32_t)((int8_t)((picanm[tilenum]>>16)&255))+((int32_t)spr->yoffset);
+                    xoff = picanm[tilenum].xofs + spr->xoffset;
+                    yoff = picanm[tilenum].yofs + spr->yoffset;
                     if ((spr->cstat&4) > 0) xoff = -xoff;
                     if ((spr->cstat&8) > 0) yoff = -yoff;
 
@@ -3841,7 +3840,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             const int16_t tang = (ud.screen_tilting) ? p->rotscrnang : 0;
 
             setviewback();
-            picanm[TILE_TILT] &= 0xff0000ff;
+            picanm[TILE_TILT].xofs = picanm[TILE_TILT].yofs = 0;
 
             i = (tang&511);
             if (i > 256)
@@ -9735,7 +9734,7 @@ static void G_Startup(void)
 
     // Make the fullscreen nuke logo background non-fullbright.  Has to be
     // after dynamic tile remapping (from C_Compile) and loading tiles.
-    picanm[LOADSCREEN] |= PICANM_NOFULLBRIGHT_BIT;
+    picanm[LOADSCREEN].sf |= PICANM_NOFULLBRIGHT_BIT;
 
 //    initprintf("Loading palette/lookups...\n");
     G_LoadExtraPalettes();

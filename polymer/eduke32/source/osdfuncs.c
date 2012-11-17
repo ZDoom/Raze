@@ -141,7 +141,8 @@ void GAME_onshowosd(int32_t shown)
     // most of this is copied from my dummytile stuff in defs.c
     if (!tilesizx[BGTILE] || !tilesizy[BGTILE])
     {
-        set_picsizanm(BGTILE, BGTILE_SIZEX, BGTILE_SIZEY, 0);
+        set_tilesiz(BGTILE, BGTILE_SIZEX, BGTILE_SIZEY);
+        Bmemset(&picanm[BGTILE], 0, sizeof(picanm_t));
         faketilesiz[BGTILE] = -1;
     }
 

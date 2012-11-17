@@ -3096,30 +3096,32 @@ static void prepwall(int32_t z, const walltype *wal)
 //
 int32_t animateoffs(int16_t tilenum, int16_t fakevar)
 {
-    int32_t i, k, offs;
+    int32_t i, k, offs=0, animnum=picanm[tilenum].num;
 
     UNREFERENCED_PARAMETER(fakevar);
 
-    offs = 0;
-    i = (totalclocklock>>((picanm[tilenum]>>24)&15));
-    if ((picanm[tilenum]&63) > 0)
+    i = totalclocklock>>(picanm[tilenum].sf&PICANM_ANIMSPEED_MASK);
+
+    if (picanm[tilenum].num > 0)
     {
-        switch (picanm[tilenum]&192)
+        switch (picanm[tilenum].sf&PICANM_ANIMTYPE_MASK)
         {
-        case 64:
-            k = (i%((picanm[tilenum]&63)<<1));
-            if (k < (picanm[tilenum]&63))
+        case PICANM_ANIMTYPE_OSC:
+            k = (i%(animnum<<1));
+            if (k < animnum)
                 offs = k;
             else
-                offs = (((picanm[tilenum]&63)<<1)-k);
+                offs = (animnum<<1)-k;
             break;
-        case 128:
-            offs = (i%((picanm[tilenum]&63)+1));
+        case PICANM_ANIMTYPE_FWD:
+            offs = i%(animnum+1);
             break;
-        case 192:
-            offs = -(i%((picanm[tilenum]&63)+1));
+        case PICANM_ANIMTYPE_BACK:
+            offs = -(i%(animnum+1));
+            break;
         }
     }
+
     return(offs);
 }
 
@@ -5529,8 +5531,8 @@ static void drawsprite(int32_t snum)
         if (cstat&512) settransreverse(); else settransnormal();
     }
 
-    xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)tspr->xoffset);
-    yoff = (int32_t)((int8_t)((picanm[tilenum]>>16)&255))+((int32_t)tspr->yoffset);
+    xoff = picanm[tilenum].xofs + tspr->xoffset;
+    yoff = picanm[tilenum].yofs + tspr->yoffset;
 
     if ((cstat&48) == 0)
     {
@@ -6312,7 +6314,7 @@ draw_as_face_sprite:
         }
 
         if (!(cstat&128)) tspr->z -= mulscale22(B_LITTLE32(longptr[5]),nyrepeat);
-        yoff = /*(int32_t) ((int8_t)((picanm[sprite[tspr->owner].picnum]>>16)&255)) +*/ (int32_t)tspr->yoffset;
+        yoff = /*picanm[sprite[tspr->owner].picnum].yofs +*/ tspr->yoffset;
         tspr->z -= mulscale14(yoff,nyrepeat);
 
         globvis = globalvisibility;
@@ -7037,8 +7039,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     {
         // Bit 1<<4 clear: origin is center of tile, and per-tile offset is applied.
         // TODO: split the two?
-        xoff = (int32_t)((int8_t)((picanm[picnum]>>8)&255))+(xsiz>>1);
-        yoff = (int32_t)((int8_t)((picanm[picnum]>>16)&255))+(ysiz>>1);
+        xoff = picanm[picnum].xofs + (xsiz>>1);
+        yoff = picanm[picnum].yofs + (ysiz>>1);
     }
 
     // Bit 1<<2: invert y
@@ -8909,7 +8911,7 @@ killsprite:
                     spritesz[k] = tspriteptr[k]->z;
                     if ((tspriteptr[k]->cstat&48) != 32)
                     {
-                        yoff = (int32_t)((int8_t)((picanm[tspriteptr[k]->picnum]>>16)&255))+((int32_t)tspriteptr[k]->yoffset);
+                        yoff = picanm[tspriteptr[k]->picnum].yofs + tspriteptr[k]->yoffset;
                         spritesz[k] -= ((yoff*tspriteptr[k]->yrepeat)<<2);
                         yspan = (tilesizy[tspriteptr[k]->picnum]*tspriteptr[k]->yrepeat<<2);
                         if (!(tspriteptr[k]->cstat&128)) spritesz[k] -= (yspan>>1);
@@ -9223,8 +9225,8 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             npoints = 0;
 
             tilenum = spr->picnum;
-            xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
-            yoff = (int32_t)((int8_t)((picanm[tilenum]>>16)&255))+((int32_t)spr->yoffset);
+            xoff = picanm[tilenum].xofs + spr->xoffset;
+            yoff = picanm[tilenum].yofs + spr->yoffset;
             if ((spr->cstat&4) > 0) xoff = -xoff;
             if ((spr->cstat&8) > 0) yoff = -yoff;
 
@@ -10445,24 +10447,27 @@ void nextpage(void)
     numframes++;
 }
 
-void set_picsizanm(int32_t picnum, int16_t dasizx, int16_t dasizy, int32_t daanm)
+static void set_picsiz(int32_t picnum)
 {
     int32_t j;
 
-    tilesizx[picnum] = dasizx;
-    tilesizy[picnum] = dasizy;
-
-    picanm[picnum] = daanm;
-
     j = 15;
-    while ((j > 1) && (pow2long[j] > dasizx))
+    while ((j > 1) && (pow2long[j] > tilesizx[picnum]))
         j--;
     picsiz[picnum] = j;
 
     j = 15;
-    while ((j > 1) && (pow2long[j] > dasizy))
+    while ((j > 1) && (pow2long[j] > tilesizy[picnum]))
         j--;
-    picsiz[picnum] += j<<4;
+    picsiz[picnum] |= j<<4;
+}
+
+void set_tilesiz(int32_t picnum, int16_t dasizx, int16_t dasizy)
+{
+    tilesizx[picnum] = dasizx;
+    tilesizy[picnum] = dasizy;
+
+    set_picsiz(picnum);
 }
 
 //
@@ -10528,7 +10533,16 @@ int32_t loadpics(const char *filename, int32_t askedsize)
             {
                 tilesizx[i] = B_LITTLE16(tilesizx[i]);
                 tilesizy[i] = B_LITTLE16(tilesizy[i]);
-                picanm[i]   = B_LITTLE32(picanm[i]);
+
+                Bassert(sizeof(picanm_t)==4);
+                Bassert(PICANM_ANIMTYPE_MASK == 192);
+                // Old on-disk format: anim type is in the 2 highest bits of the lowest byte.
+                picanm[i].sf &= ~192;
+                picanm[i].sf |= picanm[i].num&192;
+                picanm[i].num &= ~192;
+
+                // don't allow setting texhitscan/nofullbright from ART (yet?)
+                picanm[i].sf &= ~PICANM_MISC_MASK;
             }
 
             offscount = 4+4+4+4+(localnumtiles<<3);
@@ -10572,7 +10586,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
     initcache((intptr_t)pic, cachesize);
 
     for (i=0; i<MAXTILES; i++)
-        set_picsizanm(i, tilesizx[i], tilesizy[i], picanm[i]);
+        set_picsiz(i);
 
     artfil = -1;
     artfilnum = -1;
@@ -10672,7 +10686,8 @@ intptr_t allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     walock[tilenume] = 255;
     allocache(&waloff[tilenume],dasiz,&walock[tilenume]);
 
-    set_picsizanm(tilenume, xsiz, ysiz, 0);
+    set_tilesiz(tilenume, xsiz, ysiz);
+    Bmemset(&picanm[tilenume], 0, sizeof(picanm_t));
 
     return(waloff[tilenume]);
 }
@@ -10896,8 +10911,8 @@ void spriteheightofs(int16_t i, int32_t *height, int32_t *zofs, int32_t alsotile
             *zofs = hei>>1;
 
         if (alsotileyofs && (unsigned)sprite[i].picnum < MAXTILES)
-            if (picanm[sprite[i].picnum]&0x00ff0000)
-                *zofs -= ((int8_t)((picanm[sprite[i].picnum]>>16)&255))*sprite[i].yrepeat<<2;
+            if (picanm[sprite[i].picnum].yofs)
+                *zofs -= picanm[sprite[i].picnum].yofs*sprite[i].yrepeat<<2;
     }
     *height = hei;
 }
@@ -11441,7 +11456,7 @@ restart_grand:
 
                 i = (tilesizy[spr->picnum]*spr->yrepeat<<2);
                 if (cstat&128) z1 += (i>>1);
-                if (picanm[spr->picnum]&0x00ff0000) z1 -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                if (picanm[spr->picnum].yofs) z1 -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
                 if ((intz > z1) || (intz < z1-i)) continue;
                 topu = vx*(y1-sv->y) - vy*(x1-sv->x);
 
@@ -11466,7 +11481,7 @@ restart_grand:
                 //These lines get the 2 points of the rotated sprite
                 //Given: (x1, y1) starts out as the center point
                 tilenum = spr->picnum;
-                xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
+                xoff = picanm[tilenum].xofs + spr->xoffset;
                 if ((cstat&4) > 0) xoff = -xoff;
                 k = spr->ang; l = spr->xrepeat;
                 dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
@@ -11484,10 +11499,10 @@ restart_grand:
 
                 k = ((tilesizy[tilenum]*spr->yrepeat)<<2);
                 if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
-                if (picanm[tilenum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[tilenum]>>16)&255))*spr->yrepeat<<2);
+                if (picanm[tilenum].yofs) daz -= (picanm[tilenum].yofs*spr->yrepeat<<2);
                 if (intz > daz-k && intz < daz)
                 {
-                    if (picanm[tilenum]&PICANM_TEXHITSCAN_BIT)
+                    if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)
                     {
                         // daz-intz > 0 && daz-intz < k
                         int32_t xtex = mulscale16(ucoefup16, tilesizx[tilenum]);
@@ -11529,8 +11544,8 @@ restart_grand:
                 if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y)) continue;
 
                 tilenum = spr->picnum;
-                xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
-                yoff = (int32_t)((int8_t)((picanm[tilenum]>>16)&255))+((int32_t)spr->yoffset);
+                xoff = picanm[tilenum].xofs + spr->xoffset;
+                yoff = picanm[tilenum].yofs + spr->yoffset;
                 if ((cstat&4) > 0) xoff = -xoff;
                 if ((cstat&8) > 0) yoff = -yoff;
 
@@ -11729,7 +11744,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
                         intz = zs+scale(vz,topt,bot);
                         i = tilesizy[spr->picnum]*spr->yrepeat;
                         if (spr->cstat&128) z1 += (i<<1);
-                        if (picanm[spr->picnum]&0x00ff0000) z1 -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                        if (picanm[spr->picnum].yofs) z1 -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
                         if ((intz <= z1) && (intz >= z1-(i<<2)))
                         {
                             topu = vx*(y1-ys) - vy*(x1-xs);
@@ -12298,7 +12313,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 {
                     k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
                     if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
-                    if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                    if (picanm[spr->picnum].yofs) daz -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
                     if (((pos->z) < daz+ceildist) && ((pos->z) > daz-k-flordist))
                     {
                         bsz = (spr->clipdist<<2)+walldist; if (gx < 0) bsz = -bsz;
@@ -12311,7 +12326,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             case 16:
                 k = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
                 if (cstat&128) daz = spr->z+(k>>1); else daz = spr->z;
-                if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                if (picanm[spr->picnum].yofs) daz -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
                 daz2 = daz-k;
                 daz += ceildist; daz2 -= flordist;
                 if (((pos->z) < daz) && ((pos->z) > daz2))
@@ -12319,7 +12334,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                     //These lines get the 2 points of the rotated sprite
                     //Given: (x1, y1) starts out as the center point
                     tilenum = spr->picnum;
-                    xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
+                    xoff = picanm[tilenum].xofs + spr->xoffset;
                     if ((cstat&4) > 0) xoff = -xoff;
                     k = spr->ang; l = spr->xrepeat;
                     dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
@@ -12358,8 +12373,8 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                         if (((pos->z) > spr->z) == ((cstat&8)==0)) continue;
 
                     tilenum = spr->picnum;
-                    xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
-                    yoff = (int32_t)((int8_t)((picanm[tilenum]>>16)&255))+((int32_t)spr->yoffset);
+                    xoff = picanm[tilenum].xofs + spr->xoffset;
+                    yoff = picanm[tilenum].yofs + spr->yoffset;
                     if ((cstat&4) > 0) xoff = -xoff;
                     if ((cstat&8) > 0) yoff = -yoff;
 
@@ -12556,7 +12571,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
             {
             t = ((tilesizy[spr->picnum]*spr->yrepeat)<<2);
             if (spr->cstat&128) daz = spr->z+(t>>1); else daz = spr->z;
-            if (picanm[spr->picnum]&0x00ff0000) daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+            if (picanm[spr->picnum].yofs) daz -= ((int32_t)picanm[spr->picnum].yofs*spr->yrepeat<<2);
             if (((vect->z) < daz+ceildist) && ((vect->z) > daz-t-flordist))
             {
             t = (spr->clipdist<<2)+walldist;
@@ -13208,15 +13223,15 @@ restart_grand:
                         daz = spr->z;
                         k = ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
                         if (cstat&128) daz += k;
-                        if (picanm[spr->picnum]&0x00ff0000)
-                            daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                        if (picanm[spr->picnum].yofs)
+                            daz -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
                         daz2 = daz - (k<<1);
                         clipyou = 1;
                     }
                     break;
                 case 16:
                     tilenum = spr->picnum;
-                    xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
+                    xoff = picanm[tilenum].xofs + spr->xoffset;
                     if ((cstat&4) > 0) xoff = -xoff;
                     k = spr->ang; l = spr->xrepeat;
                     dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
@@ -13227,8 +13242,8 @@ restart_grand:
                     {
                         daz = spr->z; k = ((tilesizy[spr->picnum]*spr->yrepeat)<<1);
                         if (cstat&128) daz += k;
-                        if (picanm[spr->picnum]&0x00ff0000)
-                            daz -= ((int32_t)((int8_t)((picanm[spr->picnum]>>16)&255))*spr->yrepeat<<2);
+                        if (picanm[spr->picnum].yofs)
+                            daz -= (picanm[spr->picnum].yofs*spr->yrepeat<<2);
                         daz2 = daz-(k<<1);
                         clipyou = 1;
                     }
@@ -13240,8 +13255,8 @@ restart_grand:
                         if ((pos->z > daz) == ((cstat&8)==0)) continue;
 
                     tilenum = spr->picnum;
-                    xoff = (int32_t)((int8_t)((picanm[tilenum]>>8)&255))+((int32_t)spr->xoffset);
-                    yoff = (int32_t)((int8_t)((picanm[tilenum]>>16)&255))+((int32_t)spr->yoffset);
+                    xoff = picanm[tilenum].xofs + spr->xoffset;
+                    yoff = picanm[tilenum].yofs + spr->yoffset;
                     if ((cstat&4) > 0) xoff = -xoff;
                     if ((cstat&8) > 0) yoff = -yoff;
 

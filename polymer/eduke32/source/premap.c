@@ -49,7 +49,7 @@ extern int32_t g_levelTextTime;
 
 static void tloadtile(int32_t tilenume, int32_t type)
 {
-    if ((picanm[tilenume]&63) < 1)
+    if (picanm[tilenume].num < 1)
     {
         if (!(gotpic[tilenume>>3] & pow2char[tilenume&7])) g_precacheCount++;
         gotpic[tilenume>>3] |= pow2char[tilenume&7];
@@ -60,15 +60,15 @@ static void tloadtile(int32_t tilenume, int32_t type)
     {
         int32_t i,j;
 
-        if ((picanm[tilenume]&192)==192)
+        if ((picanm[tilenume].sf&PICANM_ANIMTYPE_MASK)==PICANM_ANIMTYPE_BACK)
         {
-            i = tilenume - (picanm[tilenume]&63);
+            i = tilenume - picanm[tilenume].num;
             j = tilenume;
         }
         else
         {
             i = tilenume;
-            j = tilenume + (picanm[tilenume]&63);
+            j = tilenume + picanm[tilenume].num;
         }
         for (; i<=j; i++)
         {

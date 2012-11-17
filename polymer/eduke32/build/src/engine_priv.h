@@ -81,8 +81,8 @@ extern palette_t palookupfog[MAXPALOOKUPS];
 int32_t wallfront(int32_t l1, int32_t l2);
 int32_t animateoffs(int16_t tilenum, int16_t fakevar);
 
-#define DO_TILE_ANIM(Picnum, Fakevar) do {                              \
-        if (picanm[Picnum]&192) Picnum += animateoffs(Picnum, Fakevar); \
+#define DO_TILE_ANIM(Picnum, Fakevar) do { \
+        if (picanm[Picnum].sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum, Fakevar); \
     } while (0)
 
 void dorotspr_handle_bit2(int32_t *sx, int32_t *sy, int32_t *z, int32_t dastat,

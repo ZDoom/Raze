@@ -4083,15 +4083,16 @@ static void tilescreen_drawrest(int32_t iSelected, int32_t showmsg)
         printext256(xdim>>2,ydim-10,whitecol,-1,szT,0);
 
         // EditArt offset flags.
-        Bsprintf(szT,"%d, %d", (int8_t)((picanm[idTile]>>8)&0xFF), (int8_t)((picanm[idTile]>>16)&0xFF));
+        Bsprintf(szT,"%d, %d", picanm[idTile].xofs, picanm[idTile].yofs);
         printext256((xdim>>2)+100,ydim-10,whitecol,-1,szT,0);
 
         // EditArt animation flags.
-        if (picanm[idTile]&0xc0)
+        if (picanm[idTile].sf&PICANM_ANIMTYPE_MASK)
         {
             static const char *anmtype[] = {"", "Osc", "Fwd", "Bck"};
+            int32_t ii = (picanm[idTile].sf&PICANM_ANIMTYPE_MASK)>>PICANM_ANIMTYPE_SHIFT;
 
-            Bsprintf(szT,"%s %d", anmtype[(picanm[idTile]&0xc0)>>6], picanm[idTile]&0x3f);
+            Bsprintf(szT,"%s %d", anmtype[ii], picanm[idTile].num);
             printext256((xdim>>2)+100+14*8,ydim-10,whitecol,-1,szT,0);
         }
     }
@@ -4488,8 +4489,8 @@ ENDFOR1:
     curspr = linebegspr = startspr;
 
     t = sprite[startspr].picnum;
-    sprite[startspr].xoffset = -(((picanm[t])>>8)&255);
-    sprite[startspr].yoffset = -(((picanm[t])>>16)&255);
+    sprite[startspr].xoffset = -picanm[t].xofs;
+    sprite[startspr].yoffset = -picanm[t].yofs;
 
     spritenums = (int16_t *)Bmalloc(stackallocsize * sizeof(int16_t));
     if (!spritenums) goto ERROR_NOMEMORY;
@@ -4605,8 +4606,8 @@ ENDFOR1:
                 sprite[i].picnum = t;
                 sprite[i].ang = daang;
 
-                sprite[i].xoffset = -(((picanm[sprite[i].picnum])>>8)&255);
-                sprite[i].yoffset = -(((picanm[sprite[i].picnum])>>16)&255);
+                sprite[i].xoffset = -picanm[t].xofs;
+                sprite[i].yoffset = -picanm[t].yofs;
                 sprite[i].xoffset += alphabets[alphidx].xofs[(int32_t)ch-33];
                 sprite[i].yoffset += alphabets[alphidx].yofs[(int32_t)ch-33];
 
