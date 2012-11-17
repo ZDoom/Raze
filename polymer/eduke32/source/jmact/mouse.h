@@ -46,9 +46,9 @@ void    MOUSE_Shutdown( void );
 //void    MOUSE_ShowCursor( void );
 //void    MOUSE_HideCursor( void );
 int32_t MOUSE_GetButtons( void );
-int32_t	MOUSE_ClearButton( int32_t b );
-void	MOUSE_ClearAllButtons(void);
-void    MOUSE_GetDelta( int32_t*x, int32_t*y  );
+#define	MOUSE_ClearButton(b) (mouseb &= ~b)
+#define MOUSE_ClearAllButtons() mouseb = 0
+#define MOUSE_GetDelta(x, y) readmousexy(x,y)
 
 #ifdef EXTERNC
 };

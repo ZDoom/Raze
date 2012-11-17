@@ -70,20 +70,5 @@ int32_t MOUSE_GetButtons(void)
 }
 
 
-int32_t MOUSE_ClearButton(int32_t b)
-{
-    return (mouseb &= ~b);
-}
-void MOUSE_ClearAllButtons(void)
-{
-    mouseb = 0;
-}
-
-
-void MOUSE_GetDelta(int32_t*x, int32_t*y)
-{
-    readmousexy(x,y);
-}
-
 
 
