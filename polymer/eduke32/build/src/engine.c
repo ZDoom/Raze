@@ -9040,6 +9040,10 @@ killsprite:
     enddrawing();   //}}}
 }
 
+static void get_flatspr_points(const spritetype *spr, int32_t px, int32_t py,
+                               int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
+                               int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4);
+
 //
 // drawmapview
 //
@@ -9048,15 +9052,15 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     walltype *wal;
     sectortype *sec;
     spritetype *spr;
-    int32_t tilenum, xoff, yoff, i, j, k, l, cosang, sinang, xspan, yspan;
-    int32_t xrepeat, yrepeat, x, y, x1, y1, x2, y2, x3, y3, x4, y4, bakx1, baky1;
+    int32_t i, j, k, l;
+    int32_t x, y, x1, y1, x2, y2, x3, y3, x4, y4, bakx1, baky1;
     int32_t s, w, ox, oy, startwall, cx1, cy1, cx2, cy2;
     int32_t bakgxvect, bakgyvect, sortnum, gap, npoints;
     int32_t xvect, yvect, xvect2, yvect2, daslope;
 
     int32_t oyxaspect=yxaspect, oviewingrange=viewingrange;
 
-    setaspect(65536, divscale16((xdim*320*5)/8, xdim*200));
+    setaspect(65536, divscale16((320*5)/8, 200));
 
     beforedrawrooms = 0;
 
@@ -9223,28 +9227,15 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
         spr = &sprite[tsprite[s].owner];
         if ((spr->cstat&48) == 32)
         {
+            int32_t xspan;
+
             npoints = 0;
 
-            tilenum = spr->picnum;
-            xoff = picanm[tilenum].xofs + spr->xoffset;
-            yoff = picanm[tilenum].yofs + spr->yoffset;
-            if ((spr->cstat&4) > 0) xoff = -xoff;
-            if ((spr->cstat&8) > 0) yoff = -yoff;
-
-            k = spr->ang&2047;  // FIXME ?  See DNE_BUG_HERE
-            cosang = sintable[(k+512)&2047]; sinang = sintable[k];
-            xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
-            yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
-
-            ox = ((xspan>>1)+xoff)*xrepeat; oy = ((yspan>>1)+yoff)*yrepeat;
-            x1 = spr->x + mulscale(sinang,ox,16) + mulscale(cosang,oy,16);
-            y1 = spr->y + mulscale(sinang,oy,16) - mulscale(cosang,ox,16);
-            l = xspan*xrepeat;
-            x2 = x1 - mulscale(sinang,l,16);
-            y2 = y1 + mulscale(cosang,l,16);
-            l = yspan*yrepeat;
-            k = -mulscale(cosang,l,16); x3 = x2+k; x4 = x1+k;
-            k = -mulscale(sinang,l,16); y3 = y2+k; y4 = y1+k;
+            x1 = spr->x;
+            y1 = spr->y;
+            get_flatspr_points(spr, 0, 0, &x1, &x2, &x3, &x4,
+                               &y1, &y2, &y3, &y4);
+            xspan = tilesizx[spr->picnum];
 
             xb1[0] = 1; xb1[1] = 2; xb1[2] = 3; xb1[3] = 0;
             npoints = 4;
@@ -11263,6 +11254,103 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
     return 0;
 }
 
+// x1, y1: in/out
+// rest x/y: out
+static void get_rotspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
+                              int32_t *y1, int32_t *y2)
+{
+    //These lines get the 2 points of the rotated sprite
+    //Given: (x1, y1) starts out as the center point
+
+    const int32_t tilenum=spr->picnum, ang=spr->ang;
+    const int32_t xrepeat = spr->xrepeat;
+    int32_t xoff = picanm[tilenum].xofs + spr->xoffset;
+    int32_t k, l, dax, day;
+
+    if (spr->cstat&4)
+        xoff = -xoff;
+
+    dax = sintable[ang&2047]*xrepeat;
+    day = sintable[(ang+1536)&2047]*xrepeat;
+
+    l = tilesizx[tilenum];
+    k = (l>>1)+xoff;
+
+    *x1 -= mulscale16(dax,k);
+    *x2 = *x1 + mulscale16(dax,l);
+
+    *y1 -= mulscale16(day,k);
+    *y2 = *y1 + mulscale16(day,l);
+}
+
+// x1, y1: in/out
+// rest x/y: out
+static void get_flatspr_points(const spritetype *spr, int32_t px, int32_t py,
+                               int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
+                               int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
+{
+    const int32_t tilenum = spr->picnum;
+    // &2047 in sinang:
+    // DNE 1.3D lights camera action (1st level), spr->ang==2306
+    // (probably from CON)
+    const int32_t cosang = sintable[(spr->ang+512)&2047];
+    const int32_t sinang = sintable[spr->ang&2047];
+
+    const int32_t xspan=tilesizx[tilenum], xrepeat=spr->xrepeat;
+    const int32_t yspan=tilesizy[tilenum], yrepeat=spr->yrepeat;
+
+    int32_t xoff = picanm[tilenum].xofs + spr->xoffset;
+    int32_t yoff = picanm[tilenum].yofs + spr->yoffset;
+    int32_t k, l, dax, day;
+
+    if (spr->cstat&4)
+        xoff = -xoff;
+    if (spr->cstat&8)
+        yoff = -yoff;
+
+    dax = ((xspan>>1)+xoff)*xrepeat;
+    day = ((yspan>>1)+yoff)*yrepeat;
+
+    *x1 += dmulscale16(sinang,dax, cosang,day) - px;
+    *y1 += dmulscale16(sinang,day, -cosang,dax) - py;
+
+    l = xspan*xrepeat;
+    *x2 = *x1 - mulscale16(sinang,l);
+    *y2 = *y1 + mulscale16(cosang,l);
+
+    l = yspan*yrepeat;
+    k = -mulscale16(cosang,l); *x3 = *x2+k; *x4 = *x1+k;
+    k = -mulscale16(sinang,l); *y3 = *y2+k; *y4 = *y1+k;
+}
+
+static int32_t get_flatspr_clipyou(int32_t x1, int32_t x2, int32_t x3, int32_t x4,
+                                   int32_t y1, int32_t y2, int32_t y3, int32_t y4)
+{
+    int32_t clipyou = 0;
+
+    if ((y1^y2) < 0)
+    {
+        if ((x1^x2) < 0) clipyou ^= (x1*y2 < x2*y1)^(y1<y2);
+        else if (x1 >= 0) clipyou ^= 1;
+    }
+    if ((y2^y3) < 0)
+    {
+        if ((x2^x3) < 0) clipyou ^= (x2*y3 < x3*y2)^(y2<y3);
+        else if (x2 >= 0) clipyou ^= 1;
+    }
+    if ((y3^y4) < 0)
+    {
+        if ((x3^x4) < 0) clipyou ^= (x3*y4 < x4*y3)^(y3<y4);
+        else if (x3 >= 0) clipyou ^= 1;
+    }
+    if ((y4^y1) < 0)
+    {
+        if ((x4^x1) < 0) clipyou ^= (x4*y1 < x1*y4)^(y4<y1);
+        else if (x4 >= 0) clipyou ^= 1;
+    }
+
+    return clipyou;
+}
 
 //
 // hitscan
@@ -11273,7 +11361,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 hitdata_t *hit, uint32_t cliptype)
 {
     int32_t x1, y1=0, z1=0, x2, y2, intx, inty, intz;
-    int32_t i, k, l, daz;
+    int32_t i, k, daz;
     int16_t tempshortcnt, tempshortnum;
 
     spritetype *curspr = NULL;
@@ -11421,7 +11509,7 @@ restart_grand:
         for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
             const spritetype *const spr = &sprite[z];
-            int32_t cstat = spr->cstat;
+            const int32_t cstat = spr->cstat;
 #ifdef USE_OPENGL
             if (!hitallsprites)
 #endif
@@ -11464,7 +11552,8 @@ restart_grand:
                 intx = sv->x + scale(vx,topt,bot);
                 inty = sv->y + scale(vy,topt,bot);
 
-                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y)) continue;
+                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
+                    continue;
 
                 hit->sect = dasector; hit->wall = -1; hit->sprite = z;
                 hit->pos.x = intx; hit->pos.y = inty; hit->pos.z = intz;
@@ -11475,17 +11564,8 @@ restart_grand:
             {
                 int32_t ucoefup16;
                 const int32_t tilenum = spr->picnum;
-                int32_t xoff, dax, day;
 
-                //These lines get the 2 points of the rotated sprite
-                //Given: (x1, y1) starts out as the center point
-                xoff = picanm[tilenum].xofs + spr->xoffset;
-                if ((cstat&4) > 0) xoff = -xoff;
-                k = spr->ang; l = spr->xrepeat;
-                dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
-                l = tilesizx[tilenum]; k = (l>>1)+xoff;
-                x1 -= mulscale16(dax,k); x2 = x1+mulscale16(dax,l);
-                y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
+                get_rotspr_points(spr, &x1, &x2, &y1, &y2);
 
                 if ((cstat&64) != 0)   //back side of 1-way sprite
                     if ((int64_t)(x1-sv->x)*(y2-sv->y) < (int64_t)(x2-sv->x)*(y1-sv->y)) continue;
@@ -11493,7 +11573,8 @@ restart_grand:
                 ucoefup16 = rintersect(sv->x,sv->y,sv->z,vx,vy,vz,x1,y1,x2,y2,&intx,&inty,&intz);
                 if (ucoefup16 == -1) continue;
 
-                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y)) continue;
+                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
+                    continue;
 
                 daz = spr->z + spriteheightofs(z, &k, 1);
                 if (intz > daz-k && intz < daz)
@@ -11519,8 +11600,6 @@ restart_grand:
             case 32:
             {
                 char clipyou;
-                int32_t ang, sinang, cosang, xspan, yspan, xrepeat, yrepeat;
-                int32_t tilenum, xoff, yoff, dax, day;
                 int32_t x3, y3, x4, y4, zz;
 
                 if (vz == 0) continue;
@@ -11543,52 +11622,15 @@ restart_grand:
                 inty = sv->y+scale(intz-sv->z,vy,vz);
 #endif
 
-                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y)) continue;
+                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
+                    continue;
 
-                tilenum = spr->picnum;
-                xoff = picanm[tilenum].xofs + spr->xoffset;
-                yoff = picanm[tilenum].yofs + spr->yoffset;
-                if ((cstat&4) > 0) xoff = -xoff;
-                if ((cstat&8) > 0) yoff = -yoff;
+                get_flatspr_points(spr, intx, inty, &x1, &x2, &x3, &x4,
+                                   &y1, &y2, &y3, &y4);
 
-                ang = spr->ang&2047;  // FIXME ? See DNE_BUG_HERE
-                cosang = sintable[(ang+512)&2047]; sinang = sintable[ang];
-                xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
-                yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
+                clipyou = get_flatspr_clipyou(x1, x2, x3, x4, y1, y2, y3, y4);
 
-                dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
-                x1 += dmulscale16(sinang,dax,cosang,day)-intx;
-                y1 += dmulscale16(sinang,day,-cosang,dax)-inty;
-                l = xspan*xrepeat;
-                x2 = x1 - mulscale16(sinang,l);
-                y2 = y1 + mulscale16(cosang,l);
-                l = yspan*yrepeat;
-                k = -mulscale16(cosang,l); x3 = x2+k; x4 = x1+k;
-                k = -mulscale16(sinang,l); y3 = y2+k; y4 = y1+k;
-
-                clipyou = 0;
-                if ((y1^y2) < 0)
-                {
-                    if ((x1^x2) < 0) clipyou ^= (x1*y2<x2*y1)^(y1<y2);
-                    else if (x1 >= 0) clipyou ^= 1;
-                }
-                if ((y2^y3) < 0)
-                {
-                    if ((x2^x3) < 0) clipyou ^= (x2*y3<x3*y2)^(y2<y3);
-                    else if (x2 >= 0) clipyou ^= 1;
-                }
-                if ((y3^y4) < 0)
-                {
-                    if ((x3^x4) < 0) clipyou ^= (x3*y4<x4*y3)^(y3<y4);
-                    else if (x3 >= 0) clipyou ^= 1;
-                }
-                if ((y4^y1) < 0)
-                {
-                    if ((x4^x1) < 0) clipyou ^= (x4*y1<x1*y4)^(y4<y1);
-                    else if (x4 >= 0) clipyou ^= 1;
-                }
-
-                if (clipyou != 0)
+                if (clipyou)
                 {
                     hit->sect = dasector; hit->wall = -1; hit->sprite = z;
                     hit->pos.x = intx; hit->pos.y = inty; hit->pos.z = intz;
@@ -12121,7 +12163,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                  int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype)
 {
     const sectortype *sec2;
-    int32_t i, j, k, l, tempint1, tempint2;
+    int32_t i, j, k, tempint1, tempint2;
     int32_t x1, y1, x2, y2;
     int32_t dax, day, daz, daz2;
     int32_t hitwall, cnt, retval=0;
@@ -12350,18 +12392,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 daz += ceildist; daz2 -= flordist;
                 if (((pos->z) < daz) && ((pos->z) > daz2))
                 {
-                    int32_t tilenum, xoff;
-
-                    //These lines get the 2 points of the rotated sprite
-                    //Given: (x1, y1) starts out as the center point
-                    tilenum = spr->picnum;
-                    xoff = picanm[tilenum].xofs + spr->xoffset;
-                    if ((cstat&4) > 0) xoff = -xoff;
-                    k = spr->ang; l = spr->xrepeat;
-                    dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
-                    l = tilesizx[tilenum]; k = (l>>1)+xoff;
-                    x1 -= mulscale16(dax,k); x2 = x1+mulscale16(dax,l);
-                    y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
+                    get_rotspr_points(spr, &x1, &x2, &y1, &y2);
 
                     if (clipinsideboxline(cx,cy,x1,y1,x2,y2,rad) != 0)
                     {
@@ -12393,33 +12424,14 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 daz2 = spr->z-flordist;
                 if (((pos->z) < daz) && ((pos->z) > daz2))
                 {
-                    int32_t cosang, sinang, xspan, yspan, xrepeat, yrepeat;
-                    int32_t tilenum, xoff, yoff;
-
                     if ((cstat&64) != 0)
                         if ((pos->z > spr->z) == ((cstat&8)==0))
                             continue;
 
-                    tilenum = spr->picnum;
-                    xoff = picanm[tilenum].xofs + spr->xoffset;
-                    yoff = picanm[tilenum].yofs + spr->yoffset;
-                    if ((cstat&4) > 0) xoff = -xoff;
-                    if ((cstat&8) > 0) yoff = -yoff;
-
-                    k = spr->ang&2047;  // FIXME ?  See DNE_BUG_HERE
-                    cosang = sintable[(k+512)&2047]; sinang = sintable[k];
-                    xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
-                    yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
-
-                    dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
-                    rxi[0] = x1 + dmulscale16(sinang,dax,cosang,day);
-                    ryi[0] = y1 + dmulscale16(sinang,day,-cosang,dax);
-                    l = xspan*xrepeat;
-                    rxi[1] = rxi[0] - mulscale16(sinang,l);
-                    ryi[1] = ryi[0] + mulscale16(cosang,l);
-                    l = yspan*yrepeat;
-                    k = -mulscale16(cosang,l); rxi[2] = rxi[1]+k; rxi[3] = rxi[0]+k;
-                    k = -mulscale16(sinang,l); ryi[2] = ryi[1]+k; ryi[3] = ryi[0]+k;
+                    rxi[0] = x1;
+                    rxi[1] = y1;
+                    get_flatspr_points(spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
+                                       &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
 
                     dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist);
                     day = mulscale14(sintable[(spr->ang-256)&2047],walldist);
@@ -13016,7 +13028,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
 {
     int32_t clipsectcnt;
     int32_t dax, day, daz, daz2;
-    int32_t i, j, k, l, dx, dy;
+    int32_t i, j, k, dx, dy;
     int32_t x1, y1, x2, y2;
 
 #ifdef YAX_ENABLE
@@ -13236,9 +13248,10 @@ restart_grand:
         {
             const spritetype *const spr = &sprite[j];
             const int32_t cstat = spr->cstat;
+
             if (cstat&dasprclipmask)
             {
-                int32_t clipyou;
+                int32_t clipyou = 0;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
                 if (clipsprite_try(spr, xmin,ymin, xmax,ymax))
@@ -13246,7 +13259,6 @@ restart_grand:
 #endif
                 x1 = spr->x; y1 = spr->y;
 
-                clipyou = 0;
                 switch (cstat&48)
                 {
                 case 0:
@@ -13258,18 +13270,11 @@ restart_grand:
                         clipyou = 1;
                     }
                     break;
+
                 case 16:
                 {
-                    int32_t tilenum, xoff;
+                    get_rotspr_points(spr, &x1, &x2, &y1, &y2);
 
-                    tilenum = spr->picnum;
-                    xoff = picanm[tilenum].xofs + spr->xoffset;
-                    if ((cstat&4) > 0) xoff = -xoff;
-                    k = spr->ang; l = spr->xrepeat;
-                    dax = sintable[k&2047]*l; day = sintable[(k+1536)&2047]*l;
-                    l = tilesizx[tilenum]; k = (l>>1)+xoff;
-                    x1 -= mulscale16(dax,k); x2 = x1+mulscale16(dax,l);
-                    y1 -= mulscale16(day,k); y2 = y1+mulscale16(day,l);
                     if (clipinsideboxline(pos->x,pos->y,x1,y1,x2,y2,walldist+1) != 0)
                     {
                         daz = spr->z + spriteheightofs(j, &k, 1);
@@ -13281,8 +13286,6 @@ restart_grand:
 
                 case 32:
                 {
-                    int32_t ang, cosang, sinang;
-                    int32_t tilenum, xoff, yoff, xspan, yspan, xrepeat, yrepeat;
                     int32_t x3, y3, x4, y4;
 
                     daz = spr->z; daz2 = daz;
@@ -13290,55 +13293,15 @@ restart_grand:
                     if ((cstat&64) != 0)
                         if ((pos->z > daz) == ((cstat&8)==0)) continue;
 
-                    tilenum = spr->picnum;
-                    xoff = picanm[tilenum].xofs + spr->xoffset;
-                    yoff = picanm[tilenum].yofs + spr->yoffset;
-                    if ((cstat&4) > 0) xoff = -xoff;
-                    if ((cstat&8) > 0) yoff = -yoff;
-
-                    // &2047: FIXME ?  DNE_BUG_HERE
-                    // DNE 1.3D lights camera action (1st level), spr->ang==2306
-                    ang = spr->ang&2047;
-
-                    cosang = sintable[(ang+512)&2047]; sinang = sintable[ang];
-                    xspan = tilesizx[tilenum]; xrepeat = spr->xrepeat;
-                    yspan = tilesizy[tilenum]; yrepeat = spr->yrepeat;
-
-                    dax = ((xspan>>1)+xoff)*xrepeat; day = ((yspan>>1)+yoff)*yrepeat;
-                    x1 += dmulscale16(sinang,dax,cosang,day)-pos->x;
-                    y1 += dmulscale16(sinang,day,-cosang,dax)-pos->y;
-                    l = xspan*xrepeat;
-                    x2 = x1 - mulscale16(sinang,l);
-                    y2 = y1 + mulscale16(cosang,l);
-                    l = yspan*yrepeat;
-                    k = -mulscale16(cosang,l); x3 = x2+k; x4 = x1+k;
-                    k = -mulscale16(sinang,l); y3 = y2+k; y4 = y1+k;
+                    get_flatspr_points(spr, pos->x, pos->y, &x1, &x2, &x3, &x4,
+                                       &y1, &y2, &y3, &y4);
 
                     dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist+4);
                     day = mulscale14(sintable[(spr->ang-256)&2047],walldist+4);
                     x1 += dax; x2 -= day; x3 -= dax; x4 += day;
                     y1 += day; y2 += dax; y3 -= day; y4 -= dax;
 
-                    if ((y1^y2) < 0)
-                    {
-                        if ((x1^x2) < 0) clipyou ^= (x1*y2<x2*y1)^(y1<y2);
-                        else if (x1 >= 0) clipyou ^= 1;
-                    }
-                    if ((y2^y3) < 0)
-                    {
-                        if ((x2^x3) < 0) clipyou ^= (x2*y3<x3*y2)^(y2<y3);
-                        else if (x2 >= 0) clipyou ^= 1;
-                    }
-                    if ((y3^y4) < 0)
-                    {
-                        if ((x3^x4) < 0) clipyou ^= (x3*y4<x4*y3)^(y3<y4);
-                        else if (x3 >= 0) clipyou ^= 1;
-                    }
-                    if ((y4^y1) < 0)
-                    {
-                        if ((x4^x1) < 0) clipyou ^= (x4*y1<x1*y4)^(y4<y1);
-                        else if (x4 >= 0) clipyou ^= 1;
-                    }
+                    clipyou = get_flatspr_clipyou(x1, x2, x3, x4, y1, y2, y3, y4);
                     break;
                 }
                 }
