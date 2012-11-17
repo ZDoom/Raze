@@ -18,6 +18,7 @@
 #include "osd.h"
 #include "pragmas.h"
 
+#define CONTROL_CheckRange(which) ((uint32_t)which >= (uint32_t)CONTROL_NUM_FLAGS)
 
 int32_t CONTROL_JoyPresent = FALSE;
 int32_t CONTROL_JoystickEnabled = FALSE;
@@ -81,33 +82,11 @@ static void CONTROL_GetMouseDelta(void)
     CONTROL_MouseAxes[1].analog = (int32_t)((y * 4.0f * CONTROL_MouseSensitivity) * 2.0f);
 }
 
-static void CONTROL_GetJoyDelta(void)
-{
-    int32_t i;
-
-    for (i=0; i<joynumaxes; i++)
-        CONTROL_JoyAxes[i].analog = joyaxis[i]; // >> 5;
-}
-
-static int32_t CONTROL_StartJoy(int32_t joy)
-{
-    UNREFERENCED_PARAMETER(joy);
-    return (inputdevices & 4) == 4;
-}
-
 static int32_t CONTROL_GetTime(void)
 {
     static int32_t t = 0;
     t += 5;
     return t;
-}
-
-static inline int32_t CONTROL_CheckRange(int32_t which)
-{
-    if ((uint32_t)which >= (uint32_t)CONTROL_NUM_FLAGS) return TRUE;
-    //Error("CONTROL_CheckRange: Index %d out of valid range for %d control flags.",
-    //	which, CONTROL_NUM_FLAGS);
-    return FALSE;
 }
 
 static void CONTROL_SetFlag(int32_t which, int32_t active)
@@ -619,11 +598,12 @@ static void CONTROL_PollDevices(ControlInfo *info)
 
     if (CONTROL_JoystickEnabled)
     {
-        int32_t i = MAXJOYAXES-1;
+        int32_t i = joynumaxes-1;
 
-        CONTROL_GetJoyDelta();
         for (; i>=0; i--)
         {
+            CONTROL_JoyAxes[i].analog = joyaxis[i];
+
             CONTROL_DigitizeAxis(i, controldevice_joystick);
             CONTROL_ScaleAxis(i, controldevice_joystick);
             LIMITCONTROL(&CONTROL_JoyAxes[i].analog);
@@ -824,8 +804,7 @@ int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t
     //	case controltype_keyboardandjoystick:
     CONTROL_NumJoyAxes    = min(MAXJOYAXES,joynumaxes);
     CONTROL_NumJoyButtons = min(MAXJOYBUTTONS,joynumbuttons + 4*(joynumhats>0));
-    CONTROL_JoyPresent    = CONTROL_StartJoy(0);
-    CONTROL_JoystickEnabled = CONTROL_JoyPresent;
+    CONTROL_JoystickEnabled = CONTROL_JoyPresent = (inputdevices&4)>>2;
     //		break;
     //}
 
