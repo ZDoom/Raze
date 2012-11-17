@@ -210,14 +210,14 @@ typedef struct binding {
 
 #define MAXMOUSEBUTTONS 10
 
-extern keybind KeyBindings[MAXBOUNDKEYS], MouseBindings[MAXMOUSEBUTTONS];
-extern int32_t bindsenabled;
+extern keybind CONTROL_KeyBinds[MAXBOUNDKEYS], CONTROL_MouseBinds[MAXMOUSEBUTTONS];
+extern int32_t CONTROL_BindsEnabled;
 
 void CONTROL_ProcessBinds(void);
 
 #define CONTROL_NUM_FLAGS   64
-extern int32_t extinput[CONTROL_NUM_FLAGS];
-extern int32_t control_smoothmouse;
+extern int32_t CONTROL_OSDInput[CONTROL_NUM_FLAGS];
+extern int32_t CONTROL_SmoothMouse;
 
 #ifdef EXTERNC
 };

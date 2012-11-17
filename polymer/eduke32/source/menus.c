@@ -3833,7 +3833,7 @@ cheat_for_port_credits2:
         {
             //input smoothing
             ud.config.SmoothInput = !ud.config.SmoothInput;
-            control_smoothmouse = ud.config.SmoothInput;
+            CONTROL_SmoothMouse = ud.config.SmoothInput;
         }
         else if (x == NUMMOUSEFUNCTIONS+2+2)
         {
@@ -3912,7 +3912,7 @@ cheat_for_port_credits2:
         if (probey == NUMMOUSEFUNCTIONS+2+1)
         {
 //            mgametext(160,160+9,"This option incurs a movement delay",0,2+8+16);
-            control_smoothmouse = ud.config.SmoothInput;
+            CONTROL_SmoothMouse = ud.config.SmoothInput;
         }
 
         mgametextpal(240,118+9, g_myAimMode && !ud.mouseaiming ? "Yes" : "No",
@@ -3973,13 +3973,13 @@ cheat_for_port_credits2:
                 {
                     ud.config.MouseFunctions[whichkey>>1][whichkey&1] = x;
                     CONTROL_MapButton(x, whichkey>>1, whichkey&1, controldevice_mouse);
-                    MouseBindings[whichkey>>1].cmd[0] = 0; // kill the bind when changing the button in the menu
+                    CONTROL_MouseBinds[whichkey>>1].cmd[0] = 0; // kill the bind when changing the button in the menu
                 }
                 else
                 {
                     ud.config.MouseFunctions[whichkey-NUMDOUBLEMBTNS][0] = x;
                     CONTROL_MapButton(x, whichkey-NUMDOUBLEMBTNS, 0, controldevice_mouse);
-                    MouseBindings[whichkey-NUMDOUBLEMBTNS].cmd[0] = 0;
+                    CONTROL_MouseBinds[whichkey-NUMDOUBLEMBTNS].cmd[0] = 0;
                 }
                 M_ChangeMenu(205);
                 probey = whichkey;

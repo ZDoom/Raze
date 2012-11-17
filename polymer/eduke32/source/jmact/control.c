@@ -54,10 +54,11 @@ int32_t CONTROL_Started = FALSE;
 //static int32_t ticrate;
 static int32_t CONTROL_DoubleClickSpeed;
 
-int32_t extinput[CONTROL_NUM_FLAGS];
-keybind KeyBindings[MAXBOUNDKEYS], MouseBindings[MAXMOUSEBUTTONS];
-int32_t bindsenabled = 0;
-int32_t control_smoothmouse = 0;
+int32_t CONTROL_OSDInput[CONTROL_NUM_FLAGS];
+keybind CONTROL_KeyBinds[MAXBOUNDKEYS];
+keybind CONTROL_MouseBinds[MAXMOUSEBUTTONS];
+int32_t CONTROL_BindsEnabled = 0;
+int32_t CONTROL_SmoothMouse = 0;
 
 static void CONTROL_GetMouseDelta(void)
 {
@@ -65,7 +66,7 @@ static void CONTROL_GetMouseDelta(void)
 
     MOUSE_GetDelta(&x, &y);
 
-    if (control_smoothmouse)
+    if (CONTROL_SmoothMouse)
     {
         static int32_t lastx = 0, lasty = 0;
 
@@ -682,7 +683,7 @@ static void CONTROL_ButtonFunctionState(int32_t *p1)
 
         do
         {
-            if (!MouseBindings[i].cmd[0])
+            if (!CONTROL_MouseBinds[i].cmd[0])
             {
                 j = CONTROL_MouseButtonMapping[i].doubleclicked;
                 if (j != KEYUNDEFINED)
@@ -693,15 +694,15 @@ static void CONTROL_ButtonFunctionState(int32_t *p1)
                     p1[j] |= CONTROL_MouseButtonState[i];
             }
 
-            if (!bindsenabled)
+            if (!CONTROL_BindsEnabled)
                 continue;
 
-            if (MouseBindings[i].cmd[0] && CONTROL_MouseButtonState[i])
+            if (CONTROL_MouseBinds[i].cmd[0] && CONTROL_MouseButtonState[i])
             {
-                if (MouseBindings[i].repeat || (MouseBindings[i].laststate == 0))
-                    OSD_Dispatch(MouseBindings[i].cmd);
+                if (CONTROL_MouseBinds[i].repeat || (CONTROL_MouseBinds[i].laststate == 0))
+                    OSD_Dispatch(CONTROL_MouseBinds[i].cmd);
             }
-            MouseBindings[i].laststate = CONTROL_MouseButtonState[i];
+            CONTROL_MouseBinds[i].laststate = CONTROL_MouseButtonState[i];
         }
         while (i--);
     }
@@ -735,19 +736,19 @@ void CONTROL_ProcessBinds(void)
 {
     int32_t i=MAXBOUNDKEYS-1;
 
-    if (!bindsenabled)
+    if (!CONTROL_BindsEnabled)
         return;
 
     do
     {
-        if (KeyBindings[i].cmd[0])
+        if (CONTROL_KeyBinds[i].cmd[0])
         {
-            if (KB_KeyPressed(i) && (KeyBindings[i].repeat || (KeyBindings[i].laststate == 0)))
+            if (KB_KeyPressed(i) && (CONTROL_KeyBinds[i].repeat || (CONTROL_KeyBinds[i].laststate == 0)))
             {
-                OSD_Dispatch(KeyBindings[i].cmd);
+                OSD_Dispatch(CONTROL_KeyBinds[i].cmd);
             }
 
-            KeyBindings[i].laststate = KB_KeyPressed(i);
+            CONTROL_KeyBinds[i].laststate = KB_KeyPressed(i);
         }
     }
     while (i--);
@@ -767,14 +768,14 @@ static void CONTROL_GetFunctionInput(void)
 
     do
     {
-        CONTROL_SetFlag(i, /*CONTROL_KeyboardFunctionPressed(i) | */periphs[i] | extinput[i]);
+        CONTROL_SetFlag(i, /*CONTROL_KeyboardFunctionPressed(i) | */periphs[i] | CONTROL_OSDInput[i]);
 
         if (CONTROL_Flags[i].cleared == FALSE) BUTTONSET(i, CONTROL_Flags[i].active);
         else if (CONTROL_Flags[i].active == FALSE) CONTROL_Flags[i].cleared = 0;
     }
     while (i--);
 
-    memset(extinput, 0, sizeof(extinput));
+    memset(CONTROL_OSDInput, 0, sizeof(CONTROL_OSDInput));
 }
 
 void CONTROL_GetInput(ControlInfo *info)

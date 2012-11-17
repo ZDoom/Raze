@@ -10616,7 +10616,7 @@ MAIN_LOOP_RESTART:
         Net_GetPackets();
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
-        bindsenabled = g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO);
+        CONTROL_BindsEnabled = g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO);
 
 #ifndef _WIN32
         // stdin -> OSD input for dedicated server
@@ -11005,7 +11005,7 @@ void G_BonusScreen(int32_t bonusonly)
     FX_StopAllSounds();
     S_ClearSoundLocks();
     FX_SetReverb(0L);
-    bindsenabled = 1; // so you can use your screenshot bind on the score screens
+    CONTROL_BindsEnabled = 1; // so you can use your screenshot bind on the score screens
 
     if (bonusonly) goto FRAGBONUS;
 

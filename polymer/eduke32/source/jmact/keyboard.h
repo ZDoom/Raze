@@ -78,7 +78,7 @@ extern kb_scancode KB_LastScan;
 
 #define KB_ClearKeyDown( scan ) { keystatus[ ( scan ) ] = FALSE; }
 
-#define KB_UnBoundKeyPressed( scan )  ( keystatus[ ( scan ) ] != 0 && !KeyBindings[scan].cmd[0])
+#define KB_UnBoundKeyPressed( scan )  ( keystatus[ ( scan ) ] != 0 && !CONTROL_KeyBinds[scan].cmd[0])
 
 /*
 =============================================================================

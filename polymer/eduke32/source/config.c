@@ -151,8 +151,8 @@ void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
 
     Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
 
-    Bmemset(&KeyBindings,0,sizeof(KeyBindings));
-    Bmemset(&MouseBindings,0,sizeof(MouseBindings));
+    Bmemset(&CONTROL_KeyBinds,0,sizeof(CONTROL_KeyBinds));
+    Bmemset(&CONTROL_MouseBinds,0,sizeof(CONTROL_MouseBinds));
 
     for (i=0; i < (int32_t)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3)
     {
@@ -347,10 +347,10 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
             if (ii[k] == ConsoleKeys[j].id)
                 break;
         if (ConsoleKeys[j].name)
-            KeyBindings[ii[k]].key=Bstrdup(ConsoleKeys[j].name);
+            CONTROL_KeyBinds[ii[k]].key=Bstrdup(ConsoleKeys[j].name);
 
-        KeyBindings[ii[k]].repeat = 1;
-        KeyBindings[ii[k]].cmd[0] = 0;
+        CONTROL_KeyBinds[ii[k]].repeat = 1;
+        CONTROL_KeyBinds[ii[k]].cmd[0] = 0;
         tempbuf[0] = 0;
 
         for (i=NUMGAMEFUNCTIONS-1; i>=0; i--)
@@ -362,11 +362,11 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
             }
         }
 
-        Bstrncpyz(KeyBindings[ii[k]].cmd, tempbuf, MAXBINDSTRINGLENGTH);
+        Bstrncpyz(CONTROL_KeyBinds[ii[k]].cmd, tempbuf, MAXBINDSTRINGLENGTH);
 
-        i = Bstrlen(KeyBindings[ii[k]].cmd);
+        i = Bstrlen(CONTROL_KeyBinds[ii[k]].cmd);
         if (i)
-            KeyBindings[ii[k]].cmd[i-2] = 0; // cut off the trailing "; "
+            CONTROL_KeyBinds[ii[k]].cmd[i-2] = 0; // cut off the trailing "; "
     }
 }
 
@@ -734,12 +734,12 @@ void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_settings.cfg
         Bfprintf(fp,"unbindall\n");
 
         for (i=0; i<MAXBOUNDKEYS; i++)
-            if (KeyBindings[i].cmd[0] && KeyBindings[i].key)
-                Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",KeyBindings[i].key,KeyBindings[i].repeat?"":" norepeat",KeyBindings[i].cmd);
+            if (CONTROL_KeyBinds[i].cmd[0] && CONTROL_KeyBinds[i].key)
+                Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",CONTROL_KeyBinds[i].key,CONTROL_KeyBinds[i].repeat?"":" norepeat",CONTROL_KeyBinds[i].cmd);
 
         for (i=0; i<MAXMOUSEBUTTONS; i++)
-            if (MouseBindings[i].cmd[0])
-                Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",MouseBindings[i].key,MouseBindings[i].repeat?"":" norepeat",MouseBindings[i].cmd);
+            if (CONTROL_MouseBinds[i].cmd[0])
+                Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",CONTROL_MouseBinds[i].key,CONTROL_MouseBinds[i].repeat?"":" norepeat",CONTROL_MouseBinds[i].cmd);
 
         for (symb=symbols; symb!=NULL; symb=symb->next)
             if (symb->func == (void *)OSD_ALIAS)
