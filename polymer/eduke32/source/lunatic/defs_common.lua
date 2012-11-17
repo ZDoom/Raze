@@ -21,13 +21,14 @@ module(...)
 
 --== Core engine structs ==--
 
+-- TODO: provide getters for unsigned {hi,lo}tag?
 ffi.cdef[[
 #pragma pack(push,1)
 typedef struct
 {
     const int16_t wallptr, wallnum;
     int32_t ceilingz, floorz;
-    int16_t ceilingstat, floorstat;
+    uint16_t ceilingstat, floorstat;
     int16_t ceilingpicnum, ceilingheinum;
     int8_t ceilingshade;
     uint8_t ceilingpal, ceilingxpanning, ceilingypanning;
@@ -42,7 +43,7 @@ typedef struct
 {
     int32_t x, y;
     const int16_t point2, nextwall, nextsector;
-    int16_t cstat;
+    uint16_t cstat;
     int16_t picnum, overpicnum;
     int8_t shade;
     uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
@@ -52,7 +53,8 @@ typedef struct
 typedef struct
 {
     int32_t x, y, z;
-    int16_t cstat, picnum;
+    uint16_t cstat;
+    int16_t picnum;
     int8_t shade;
     uint8_t pal, clipdist, filler;
     uint8_t xrepeat, yrepeat;
