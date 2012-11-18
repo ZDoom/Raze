@@ -44,7 +44,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 typedef uint8_t kb_scancode;
 
-#define MAXKEYBOARDSCAN  128
+#define MAXKEYBOARDSCAN  256
 
 
 /*
