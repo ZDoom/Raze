@@ -4362,7 +4362,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case FORCESPHERE__STATIC:
             if (j == -1)
             {
-                sp->cstat = (int16_t) 32768;
+                sp->cstat = 32768;
                 changespritestat(i, STAT_ZOMBIEACTOR);
             }
             else
@@ -4804,7 +4804,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 changespritestat(i, STAT_MISC);
                 break;
             }
-            sp->cstat = (int16_t)32768;
+            sp->cstat = 32768;
             changespritestat(i, STAT_FX);
             break;
 
@@ -5155,7 +5155,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         case ACTIVATORLOCKED__STATIC:
         case ACTIVATOR__STATIC:
-            sp->cstat = (int16_t) 32768;
+            sp->cstat = 32768;
             if (sp->picnum == ACTIVATORLOCKED)
                 sector[sp->sectnum].lotag |= 16384;
             changespritestat(i, STAT_ACTIVATOR);
@@ -5937,7 +5937,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->shade = -16;
             if (sp->xrepeat <= 8)
             {
-                sp->cstat = (int16_t)32768;
+                sp->cstat = 32768;
                 sp->xrepeat=sp->yrepeat=0;
             }
             else sp->cstat = 1+256;

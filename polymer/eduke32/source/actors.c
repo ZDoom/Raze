@@ -1008,7 +1008,7 @@ void A_MoveDummyPlayers(void)
             else
             {
                 if (sector[SECT].lotag != ST_2_UNDERWATER) SZ = sector[SECT].floorz;
-                CS = (int16_t) 32768;
+                CS = 32768;
             }
         }
 
@@ -3794,7 +3794,7 @@ ACTOR_STATIC void G_MoveActors(void)
             {
                 if (g_noEnemies == 1)
                 {
-                    s->cstat = (int16_t)32768;
+                    s->cstat = 32768;
                     goto BOLT;
                 }
                 else if (g_noEnemies == 2) s->cstat = 257;
@@ -4006,7 +4006,7 @@ ACTOR_STATIC void G_MoveActors(void)
             {
                 if (g_noEnemies == 1)
                 {
-                    s->cstat = (int16_t)32768;
+                    s->cstat = 32768;
                     goto BOLT;
                 }
                 else if (g_noEnemies == 2) s->cstat = 257;
@@ -4580,7 +4580,7 @@ DETONATEB:
                     {
                         t[2] = g_itemRespawnTime;
                         A_Spawn(i,RESPAWNMARKERRED);
-                        s->cstat = (int16_t) 32768;
+                        s->cstat = 32768;
                         s->yrepeat = 9;
                         goto BOLT;
                     }
@@ -4624,7 +4624,7 @@ DETONATEB:
                         {
                             t[2] = g_itemRespawnTime;
                             A_Spawn(i,RESPAWNMARKERRED);
-                            s->cstat = (int16_t) 32768;
+                            s->cstat = 32768;
                         }
                     }
 
@@ -4652,8 +4652,8 @@ DETONATEB:
                     case SECTOREFFECTOR__STATIC:
                         if (sprite[j].lotag == 1)
                         {
-                            sprite[j].lotag = (int16_t) 65535;
-                            sprite[j].hitag = (int16_t) 65535;
+                            sprite[j].lotag = 65535;
+                            sprite[j].hitag = 65535;
                         }
                         break;
                     case REACTOR__STATIC:
@@ -4664,7 +4664,7 @@ DETONATEB:
                         break;
                     case REACTORSPARK__STATIC:
                     case REACTOR2SPARK__STATIC:
-                        sprite[j].cstat = (int16_t) 32768;
+                        sprite[j].cstat = 32768;
                         break;
                     }
                     j = nextspritesect[j];
@@ -4794,7 +4794,7 @@ DETONATEB:
                     if ((j = A_IncurDamage(i)) >= 0)
                     {
                         t[0] = 1; // static
-                        s->cstat = (int16_t)32768;
+                        s->cstat = 32768;
                         for (x=0; x<5; x++) RANDOMSCRAP;
                         goto BOLT;
                     }
@@ -4822,7 +4822,7 @@ DETONATEB:
         {
             if (g_noEnemies == 1)
             {
-                s->cstat = (int16_t)32768;
+                s->cstat = 32768;
                 goto BOLT;
             }
             else if (g_noEnemies == 2)

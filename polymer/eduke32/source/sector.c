@@ -1436,7 +1436,7 @@ int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite)
         }
     }
 
-    if (lotag == (int16_t) 65535)
+    if (lotag == 65535)
     {
 
         g_player[myconnectindex].ps->gm = MODE_EOL;
