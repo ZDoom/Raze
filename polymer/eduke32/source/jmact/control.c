@@ -60,6 +60,55 @@ keybind CONTROL_MouseBinds[MAXMOUSEBUTTONS];
 int32_t CONTROL_BindsEnabled = 0;
 int32_t CONTROL_SmoothMouse = 0;
 
+void CONTROL_ClearAllBinds(void)
+{
+    int32_t i;
+    for (i=0; i<MAXBOUNDKEYS; i++)
+        CONTROL_FreeKeyBind(i);
+    for (i=0; i<MAXMOUSEBUTTONS; i++)
+        CONTROL_FreeMouseBind(i);
+}
+
+void CONTROL_BindKey(int32_t i, const char *cmd, int32_t repeat, const char *keyname)
+{
+    keybind *kb = &CONTROL_KeyBinds[i];
+
+    Bfree(kb->cmdstr);
+    kb->cmdstr = Bstrdup(cmd);
+    kb->repeat = repeat;
+    kb->key = keyname;
+}
+
+void CONTROL_BindMouse(int32_t i, const char *cmd, int32_t repeat, const char *keyname)
+{
+    keybind *mb = &CONTROL_MouseBinds[i];
+
+    Bfree(mb->cmdstr);
+    mb->cmdstr = Bstrdup(cmd);
+    mb->repeat = repeat;
+    mb->key = keyname;
+}
+
+void CONTROL_FreeKeyBind(int32_t i)
+{
+    keybind *kb = &CONTROL_KeyBinds[i];
+
+    Bfree(kb->cmdstr);
+    kb->cmdstr = NULL;
+    kb->repeat = 0;
+    kb->key = NULL;
+}
+
+void CONTROL_FreeMouseBind(int32_t i)
+{
+    keybind *mb = &CONTROL_MouseBinds[i];
+
+    Bfree(mb->cmdstr);
+    mb->cmdstr = NULL;
+    mb->repeat = 0;
+    mb->key = NULL;
+}
+
 static void CONTROL_GetMouseDelta(void)
 {
     int32_t x,y;
@@ -177,7 +226,6 @@ void CONTROL_PrintKeyMap(void)
                    i, CONTROL_KeyMapping[i].key1, CONTROL_KeyMapping[i].key2);
     }
 }
-#endif
 
 void CONTROL_PrintControlFlag(int32_t which)
 {
@@ -207,6 +255,7 @@ void CONTROL_PrintAxes(void)
                    CONTROL_JoyAxesMap[i].minmap, CONTROL_JoyAxesMap[i].maxmap);
     }
 }
+#endif
 
 void CONTROL_MapButton(int32_t whichfunction, int32_t whichbutton, int32_t doubleclicked, controldevice device)
 {
@@ -826,23 +875,10 @@ int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t
 
 void CONTROL_Shutdown(void)
 {
-    int32_t i;
+    if (!CONTROL_Started)
+        return;
 
-    if (!CONTROL_Started) return;
-
-    for (i=0; i<MAXBOUNDKEYS; i++)
-        if (CONTROL_KeyBinds[i].cmdstr)
-        {
-            Bfree(CONTROL_KeyBinds[i].cmdstr);
-            CONTROL_KeyBinds[i].cmdstr = NULL;
-        }
-
-    for (i=0; i<MAXMOUSEBUTTONS; i++)
-        if (CONTROL_MouseBinds[i].cmdstr)
-        {
-            Bfree(CONTROL_MouseBinds[i].cmdstr);
-            CONTROL_MouseBinds[i].cmdstr = NULL;
-        }
+    CONTROL_ClearAllBinds();
 
     MOUSE_Shutdown();
     uninitinput();

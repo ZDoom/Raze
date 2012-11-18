@@ -3973,21 +3973,13 @@ cheat_for_port_credits2:
                 {
                     ud.config.MouseFunctions[whichkey>>1][whichkey&1] = x;
                     CONTROL_MapButton(x, whichkey>>1, whichkey&1, controldevice_mouse);
-                    if (CONTROL_MouseBinds[whichkey>>1].cmdstr)
-                    {
-                        Bfree(CONTROL_MouseBinds[whichkey>>1].cmdstr);
-                        CONTROL_MouseBinds[whichkey>>1].cmdstr = NULL;
-                    }
+                    CONTROL_FreeMouseBind(whichkey>>1);
                 }
                 else
                 {
                     ud.config.MouseFunctions[whichkey-NUMDOUBLEMBTNS][0] = x;
                     CONTROL_MapButton(x, whichkey-NUMDOUBLEMBTNS, 0, controldevice_mouse);
-                    if (CONTROL_MouseBinds[whichkey-NUMDOUBLEMBTNS].cmdstr)
-                    {
-                        Bfree(CONTROL_MouseBinds[whichkey-NUMDOUBLEMBTNS].cmdstr);
-                        CONTROL_MouseBinds[whichkey-NUMDOUBLEMBTNS].cmdstr = NULL;
-                    }
+                    CONTROL_FreeMouseBind(whichkey-NUMDOUBLEMBTNS);
 
                 }
                 M_ChangeMenu(205);

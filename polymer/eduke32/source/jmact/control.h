@@ -166,25 +166,47 @@ void CONTROL_MapAnalogAxis(int32_t whichaxis, int32_t whichanalog, controldevice
 void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t direction, controldevice device);
 void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldevice device);
 
-void CONTROL_PrintKeyMap(void);
-void CONTROL_PrintControlFlag(int32_t which);
-void CONTROL_PrintAxes( void );
+//void CONTROL_PrintKeyMap(void);
+//void CONTROL_PrintControlFlag(int32_t which);
+//void CONTROL_PrintAxes( void );
+
+
+////////// KEY/MOUSE BIND STUFF //////////
 
 #define MAXBOUNDKEYS MAXKEYBOARDSCAN
+#define MAXMOUSEBUTTONS 10
 
 typedef struct binding {
-    const char *key;
-    char *cmdstr;
+    const char *key;  // always set to const char *
+    char *cmdstr;  // alloc'd
     char repeat;
     char laststate;
 } keybind;
 
-#define MAXMOUSEBUTTONS 10
-
+// Direct use DEPRECATED:
 extern keybind CONTROL_KeyBinds[MAXBOUNDKEYS], CONTROL_MouseBinds[MAXMOUSEBUTTONS];
+
 extern int32_t CONTROL_BindsEnabled;
 
+void CONTROL_ClearAllBinds(void);
+void CONTROL_BindKey(int32_t i, const char *cmd, int32_t repeat, const char *keyname);
+void CONTROL_BindMouse(int32_t i, const char *cmd, int32_t repeat, const char *keyname);
+void CONTROL_FreeKeyBind(int32_t i);
+void CONTROL_FreeMouseBind(int32_t i);
+
+static inline int32_t CONTROL_KeyIsBound(int32_t i)
+{
+    return (CONTROL_KeyBinds[i].cmdstr && CONTROL_KeyBinds[i].key);
+}
+
+static inline int32_t CONTROL_MouseIsBound(int32_t i)
+{
+    return (CONTROL_MouseBinds[i].cmdstr && CONTROL_MouseBinds[i].key);
+}
+
 void CONTROL_ProcessBinds(void);
+
+////////////////////
 
 #define CONTROL_NUM_FLAGS   64
 extern int32_t CONTROL_OSDInput[CONTROL_NUM_FLAGS];

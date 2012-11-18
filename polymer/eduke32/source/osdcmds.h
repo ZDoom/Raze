@@ -35,16 +35,14 @@ void onvideomodechange(int32_t newmode);
 
 extern float r_ambientlight,r_ambientlightrecip;
 
-#pragma pack(push,1)
 // key bindings stuff
 typedef struct {
     const char *name;
     int32_t id;
 } keydef_t;
 
-extern keydef_t ConsoleKeys[];
-extern const char *ConsoleButtons[];
-#pragma pack(pop)
+extern const keydef_t ConsoleKeys[];
+extern const char *const ConsoleButtons[];
 
 #endif	// __osdcmds_h__
 

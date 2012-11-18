@@ -151,8 +151,7 @@ void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
 
     Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
 
-    Bmemset(&CONTROL_KeyBinds,0,sizeof(CONTROL_KeyBinds));
-    Bmemset(&CONTROL_MouseBinds,0,sizeof(CONTROL_MouseBinds));
+    CONTROL_ClearAllBinds();
 
     for (i=0; i < (int32_t)(sizeof(keydefaults)/sizeof(keydefaults[0])); i+=3)
     {
@@ -331,7 +330,7 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
 {
     int32_t i, j, k;
     int32_t ii[] = { key1, key2, oldkey1, oldkey2 };
-    char buf[64];
+    char buf[2*MAXGAMEFUNCLEN];
 
     UNREFERENCED_PARAMETER(which);
 //    CONTROL_MapKey(which, key1, key2);
@@ -341,15 +340,12 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
 
     for (k = 0; (unsigned)k < (sizeof(ii) / sizeof(ii[0])); k++)
     {
-        if (ii[k] == 0xff || !ii[k]) continue;
+        if (ii[k] == 0xff || !ii[k])
+            continue;
 
         for (j=0; ConsoleKeys[j].name; j++)
             if (ii[k] == ConsoleKeys[j].id)
                 break;
-        if (ConsoleKeys[j].name)
-            CONTROL_KeyBinds[ii[k]].key=Bstrdup(ConsoleKeys[j].name);
-
-        CONTROL_KeyBinds[ii[k]].repeat = 1;
 
         tempbuf[0] = 0;
 
@@ -362,13 +358,16 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
             }
         }
 
-        CONTROL_KeyBinds[ii[k]].cmdstr = (char *)Brealloc(CONTROL_KeyBinds[ii[k]].cmdstr, Bstrlen(tempbuf));
-
-        Bstrncpyz(CONTROL_KeyBinds[ii[k]].cmdstr, tempbuf, Bstrlen(tempbuf));
-
-        i = Bstrlen(CONTROL_KeyBinds[ii[k]].cmdstr);
-        if (i)
-            CONTROL_KeyBinds[ii[k]].cmdstr[i-2] = 0; // cut off the trailing "; "
+        i = Bstrlen(tempbuf);
+        if (i >= 2)
+        {
+            tempbuf[i-2] = 0;  // cut off the trailing "; "
+            CONTROL_BindKey(ii[k], tempbuf, 1, ConsoleKeys[j].name ? ConsoleKeys[j].name : "<?>");
+        }
+        else
+        {
+            CONTROL_FreeKeyBind(ii[k]);
+        }
     }
 }
 
@@ -736,12 +735,12 @@ void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_settings.cfg
         Bfprintf(fp,"unbindall\n");
 
         for (i=0; i<MAXBOUNDKEYS; i++)
-            if (CONTROL_KeyBinds[i].cmdstr && CONTROL_KeyBinds[i].key)
+            if (CONTROL_KeyIsBound(i))
                 Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",CONTROL_KeyBinds[i].key,
                 CONTROL_KeyBinds[i].repeat?"":" norepeat",CONTROL_KeyBinds[i].cmdstr);
 
         for (i=0; i<MAXMOUSEBUTTONS; i++)
-            if (CONTROL_MouseBinds[i].cmdstr)
+            if (CONTROL_MouseIsBound(i))
                 Bfprintf(fp,"bind \"%s\"%s \"%s\"\n",CONTROL_MouseBinds[i].key,
                 CONTROL_MouseBinds[i].repeat?"":" norepeat",CONTROL_MouseBinds[i].cmdstr);
 
