@@ -18,6 +18,9 @@
 -- and for each matching sprite also print its lotag and picnum:
 -- ./findmaps.sh ~/.eduke32/ "sprite: .lotag < -1 :: io. write(', '.. .lotag .. ' ' .. .picnum)"
 
+-- The local 'd' provides defs loaded from ../../names.h, example:
+-- ./findmaps.sh ~/.eduke32/ "sprite: .picnum>=d. CRACK1 and .picnum<=d. CRACK4"
+
 local B = require "build"
 local string = require "string"
 local io = require "io"
@@ -75,6 +78,7 @@ if (modname:sub(1,2) == "-e") then
     end
 
     local successfunc, errmsg = loadstring(
+        "local d=require('build').readdefs('../../names.h') or error('Need ../../names.h')\n"..  -- XXX
         "local numsectors, numwalls, numsprites\n"
             .."local sector, wall, sprite\n"
             .."return function (map, fn) \n"

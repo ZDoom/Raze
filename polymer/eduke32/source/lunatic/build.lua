@@ -13,6 +13,7 @@ local assert = assert
 local print = print
 local setmetatable = setmetatable
 local tostring = tostring
+local tonumber = tonumber
 
 module(...)
 
@@ -376,4 +377,28 @@ function loadarts(filenames)
     tile.sizy = set_sizarray_mt(tile.sizy)
 
     return tile
+end
+
+function readdefs(fn)
+    local fh, errmsg = io.open(fn)
+
+    if (fh==nil) then
+        return nil, errmsg
+    end
+
+    local defs = {}
+
+    while (true) do
+        local line = fh:read()
+        if (line == nil) then
+            break
+        end
+        local defname, numstr = string.match(line, "#?%s*define%s+([%a_][%w_]+)%s+([0-9]+)")
+        if (defname) then
+            defs[defname] = tonumber(numstr)
+        end
+    end
+
+    fh:close()
+    return defs
 end
