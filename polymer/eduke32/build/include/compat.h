@@ -470,13 +470,6 @@ int32_t		Bclosedir(BDIR *dir);
   typedef int32_t bssize_t;
 #endif
 
-static inline char *Bstrncpyz(char *dst, const char *src, bsize_t n)
-{
-    strncpy(dst, src, n);
-    dst[n-1] = 0;
-    return dst;
-}
-
 #if RAND_MAX == 32767
 static inline uint16_t system_15bit_rand(void) { return (uint16_t)rand(); }
 #else  // RAND_MAX > 32767, assumed to be of the form 2^k - 1
@@ -660,6 +653,13 @@ int32_t Bwildmatch (const char *i, const char *j);
 char *Bstrlwr(char *);
 char *Bstrupr(char *);
 #endif
+
+static inline char *Bstrncpyz(char *dst, const char *src, bsize_t n)
+{
+    Bstrncpy(dst, src, n);
+    dst[n-1] = 0;
+    return dst;
+}
 
 #ifdef EXTERNC
 }
