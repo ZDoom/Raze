@@ -18,8 +18,6 @@
 #include "osd.h"
 #include "pragmas.h"
 
-#define CONTROL_CheckRange(which) ((uint32_t)which >= (uint32_t)CONTROL_NUM_FLAGS)
-
 int32_t CONTROL_JoyPresent = FALSE;
 int32_t CONTROL_JoystickEnabled = FALSE;
 int32_t CONTROL_MousePresent = FALSE;
@@ -60,6 +58,9 @@ keybind CONTROL_MouseBinds[MAXMOUSEBUTTONS];
 int32_t CONTROL_BindsEnabled = 0;
 int32_t CONTROL_SmoothMouse = 0;
 
+#define CONTROL_CheckRange(which) ((uint32_t)which >= (uint32_t)CONTROL_NUM_FLAGS)
+#define BIND(x, s, r, k) do { Bfree(x.cmdstr); x.cmdstr = s; x.repeat = r; x.key = k; } while (0)
+
 void CONTROL_ClearAllBinds(void)
 {
     int32_t i;
@@ -71,42 +72,22 @@ void CONTROL_ClearAllBinds(void)
 
 void CONTROL_BindKey(int32_t i, const char *cmd, int32_t repeat, const char *keyname)
 {
-    keybind *kb = &CONTROL_KeyBinds[i];
-
-    Bfree(kb->cmdstr);
-    kb->cmdstr = Bstrdup(cmd);
-    kb->repeat = repeat;
-    kb->key = keyname;
+    BIND(CONTROL_KeyBinds[i], Bstrdup(cmd), repeat, keyname);
 }
 
 void CONTROL_BindMouse(int32_t i, const char *cmd, int32_t repeat, const char *keyname)
 {
-    keybind *mb = &CONTROL_MouseBinds[i];
-
-    Bfree(mb->cmdstr);
-    mb->cmdstr = Bstrdup(cmd);
-    mb->repeat = repeat;
-    mb->key = keyname;
+    BIND(CONTROL_MouseBinds[i], Bstrdup(cmd), repeat, keyname);
 }
 
 void CONTROL_FreeKeyBind(int32_t i)
 {
-    keybind *kb = &CONTROL_KeyBinds[i];
-
-    Bfree(kb->cmdstr);
-    kb->cmdstr = NULL;
-    kb->repeat = 0;
-    kb->key = NULL;
+    BIND(CONTROL_KeyBinds[i], NULL, 0, NULL);
 }
 
 void CONTROL_FreeMouseBind(int32_t i)
 {
-    keybind *mb = &CONTROL_MouseBinds[i];
-
-    Bfree(mb->cmdstr);
-    mb->cmdstr = NULL;
-    mb->repeat = 0;
-    mb->key = NULL;
+    BIND(CONTROL_MouseBinds[i], NULL, 0, NULL);
 }
 
 static void CONTROL_GetMouseDelta(void)
