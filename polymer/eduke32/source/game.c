@@ -9267,6 +9267,9 @@ static void G_DisplayLogo(void)
 
             clearallviews(0L);
             nextpage();
+
+            FX_StopAllSounds();
+            S_ClearSoundLocks();
         }
 
         if (logoflags & LOGO_PLAYMUSIC)
