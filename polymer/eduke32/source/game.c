@@ -4154,8 +4154,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         {
             sp->extra = 1;
 
-            if (g_damageCameras) sp->cstat = 257;
-            else sp->cstat = 0;
+            sp->cstat &= 32768;
+            if (g_damageCameras) sp->cstat |= 257;
         }
         if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
         {
