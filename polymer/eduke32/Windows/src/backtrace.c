@@ -22,6 +22,14 @@
 #include <windows.h>
 #include <excpt.h>
 #include <imagehlp.h>
+
+#ifndef PACKAGE
+# define PACKAGE EBACKTRACE1
+#endif
+#ifndef PACKAGE_VERSION
+# define PACKAGE_VERSION 1
+#endif
+
 #include <bfd.h>
 #include <psapi.h>
 #include <stdlib.h>
