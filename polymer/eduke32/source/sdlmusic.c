@@ -145,9 +145,11 @@ int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 
     if (external_midi)
     {
+#if defined FORK_EXEC_MIDI
         int32_t ws=1, numargs=0, pagesize=sysconf(_SC_PAGE_SIZE);
         char *c, *cmd;
         size_t sz;
+#endif
 
         initprintf("Setting music command to \"%s\".\n", command);
 

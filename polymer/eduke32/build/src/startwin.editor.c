@@ -1,4 +1,4 @@
-#ifndef RENDERTYPEWIN
+#ifndef _WIN32
 #error Only for Windows
 #endif
 

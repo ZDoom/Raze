@@ -29,10 +29,10 @@ OURCXXFLAGS=$(BASECXXFLAGS)
 PRINTLDFLAGS=$(BASELDFLAGS)
 OURASFLAGS=$(BASEASFLAGS)
 
-ifeq ($(PLATFORM),DARWIN)
-    ifeq (1,$(SDL_FRAMEWORK))
+ifeq (1,$(SDL_FRAMEWORK))
+    ifeq ($(PLATFORM),DARWIN)
         APPLE_INCLUDE_DIR:=../../Apple/include
-        OURCOMMONFLAGS += -DSDL_FRAMEWORK -I$(APPLE_INCLUDE_DIR) -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
+        OURCOMMONFLAGS += -I$(APPLE_INCLUDE_DIR) -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
                 -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
     endif
 endif
@@ -53,14 +53,22 @@ OBJECTS=$(OBJ)/drivers.o \
 	$(OBJ)/driver_nosound.o
 
 ifeq ($(PLATFORM),WINDOWS)
-    OURCOMMONFLAGS+= -I$(DXROOT)/include -Ithird-party/mingw32/include
-    OBJECTS+= $(OBJ)/driver_directsound.o
+    ifeq ($(RENDERTYPE),WIN)
+        OURCOMMONFLAGS+= -DHAVE_DS -I$(DXROOT)/include
+        OBJECTS+= $(OBJ)/driver_directsound.o
+    endif
+
+    OURCOMMONFLAGS+= -Ithird-party/mingw32/include
     OBJNAME=libjfaudiolib_win32.a
     OBJ=obj_win
-else
-    OURCOMMONFLAGS+= -DHAVE_SDL $(SDLCONFIG_COMMONFLAGS)
+endif
+
+ifeq ($(RENDERTYPE),SDL)
+    OURCOMMONFLAGS+= -DHAVE_SDL
     ifneq ($(PLATFORM),DARWIN)
-        OURCOMMONFLAGS+=`pkg-config --cflags vorbis`
+        ifneq ($(PLATFORM),WINDOWS)
+            OURCOMMONFLAGS+=`pkg-config --cflags vorbis`
+        endif
     endif
     OBJECTS+= $(OBJ)/driver_sdl.o
 endif

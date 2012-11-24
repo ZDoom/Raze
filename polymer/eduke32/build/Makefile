@@ -98,7 +98,8 @@ ifeq (1,$(LUNATIC))
 endif
 
 EDITOROBJS=$(OBJ)/build.$o \
-	$(OBJ)/config.$o
+	$(OBJ)/config.$o \
+	$(OBJ)/defs.$o
 
 # PLATFORM SPECIFIC SETTINGS
 
@@ -118,8 +119,9 @@ ifeq ($(PLATFORM),BSD)
     OURCOMMONFLAGS+= -I/usr/X11R6/include
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    OURCOMMONFLAGS+= -DUNDERSCORES -I$(DXROOT)/include # -I$(ENETROOT)/include
+    OURCOMMONFLAGS+= -DUNDERSCORES # -I$(ENETROOT)/include
     OURASFLAGS+= -DUNDERSCORES -f win32
+    EDITOROBJS+= $(OBJ)/startwin.editor.$o
 endif
 ifeq ($(PLATFORM),BEOS)
     OURASFLAGS+= -f elf
@@ -151,12 +153,6 @@ ifeq ($(RENDERTYPE),SDL)
         endif
     endif
 
-    ifeq (0,$(SDL_FRAMEWORK))
-        OURCOMMONFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
-    else
-        OURCOMMONFLAGS   += -DSDL_FRAMEWORK
-    endif
-
     ifeq (1,$(HAVE_GTK2))
         OURCOMMONFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
         ENGINEOBJS+= $(OBJ)/gtkbits.$o
@@ -167,8 +163,8 @@ ifeq ($(RENDERTYPE),SDL)
     endif
 endif
 ifeq ($(RENDERTYPE),WIN)
+    OURCOMMONFLAGS+= -I$(DXROOT)/include
     ENGINEOBJS+= $(OBJ)/winlayer.$o $(OBJ)/rawinput.$o
-    EDITOROBJS+= $(OBJ)/startwin.editor.$o
 endif
 
 OURCOMMONFLAGS+= $(BUILDCOMMONFLAGS)

@@ -8737,7 +8737,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
-#ifdef _WIN32
+#if defined _WIN32 && defined RENDERTYPEWIN
                 if (!Bstrcasecmp(c+1,"nodinput"))
                 {
                     initprintf("DirectInput (joystick) support disabled\n");

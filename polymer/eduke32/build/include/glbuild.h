@@ -4,7 +4,7 @@
 
 #ifdef USE_OPENGL
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
@@ -541,7 +541,7 @@ extern bgluProjectProcPtr bgluProject;
 typedef GLint            (APIENTRY * bgluUnProjectProcPtr)(GLdouble winX, GLdouble winY, GLdouble winZ, const GLdouble * model, const GLdouble * proj, const GLint * view, GLdouble* objX, GLdouble* objY, GLdouble* objZ);
 extern bgluUnProjectProcPtr bgluUnProject;
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
 // Windows
 typedef HGLRC (WINAPI * bwglCreateContextProcPtr)(HDC);
 extern bwglCreateContextProcPtr bwglCreateContext;

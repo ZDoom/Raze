@@ -32,6 +32,7 @@ ifeq (4,$(GCC_MAJOR))
 endif
 
 BUILDCOMMONFLAGS=$(ARCH)
+BUILDLIBS=
 
 ifeq ($(PLATFORM),LINUX)
     STDCPPLIB:=
@@ -48,7 +49,7 @@ ifeq ($(PLATFORM),LINUX)
     ifeq ($(findstring x86_64,$(shell uname -m)),x86_64)
         ifeq (1,$(BUILD32_ON_64))
             # On my 64bit Gentoo these are the 32bit emulation libs
-            LIBS+= -m32 -L/emul/linux/x86/usr/lib
+            BUILDLIBS+= -m32 -L/emul/linux/x86/usr/lib
             BUILDCOMMONFLAGS+= -m32
             # Override WITHOUT_GTK=0
             GTKCOMPAT32=1
@@ -76,10 +77,12 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    RENDERTYPE ?= WIN
+    RENDERTYPE?=WIN
+    WITHOUT_GTK?=1
+    SDL_FRAMEWORK=1
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     EXESUFFIX=.exe
-    LIBS+= -lmingwex -lwinmm -L$(DXROOT)/lib -lwsock32 -lcomctl32
+    BUILDLIBS+= -lmingwex -lwsock32 -lcomctl32 -lwinmm
     #-lshfolder
     #STDCPPLIB:=-lstdc++
 endif
@@ -102,7 +105,7 @@ ifeq ($(PLATFORM),SKYOS)
     BUILDCOMMONFLAGS+= -DUNDERSCORES
     SDLCONFIG=
     SDLCONFIG_COMMONFLAGS=-I/boot/programs/sdk/include/sdl
-    LIBS+= -lSDL -lnet
+    BUILDLIBS+= -lSDL -lnet
 endif
 ifeq ($(PLATFORM),WII)
     ifeq ($(strip $(DEVKITPPC)),)
@@ -124,21 +127,21 @@ ifeq ($(PLATFORM),WII)
         -DGEKKO -DHAVE_INTTYPES -D__POWERPC__ \
         -I$(LIBOGC_INC) -I$(LIBOGC_INC)/SDL -I$(PORTLIBS)/include
     SDLCONFIG=
-    LIBS+= -lSDL_mixer -lsmpeg -lSDL -laesnd
+    BUILDLIBS+= -lSDL_mixer -lsmpeg -lSDL -laesnd
 endif
 ifeq ($(PLATFORM),QNX)
     RENDERTYPE=SDL
     override USE_OPENGL=0
     override NOASM=1
     STDCPPLIB:=-lstdc++
-    LIBS+= -lsocket
+    BUILDLIBS+= -lsocket
 endif
 ifeq ($(PLATFORM),SUNOS)
     RENDERTYPE=SDL
     override USE_OPENGL=0
     override NOASM=1
     STDCPPLIB:=-lstdc++
-    LIBS+= -lsocket -lnsl
+    BUILDLIBS+= -lsocket -lnsl
 endif
 ifeq ($(PLATFORM),SYLLABLE)
     RENDERTYPE=SDL
@@ -153,16 +156,30 @@ ifneq (0,$(CLANG))
 endif
 
 ifeq ($(RENDERTYPE),SDL)
+
     ifeq ($(SDL_FRAMEWORK),1)
-        LIBS        += -Wl,-framework,SDL
-        SDLCONFIG_COMMONFLAGS+= -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers
+        SDLCONFIG_COMMONFLAGS += -DSDL_FRAMEWORK
+    endif
+
+    ifneq ($(PLATFORM),WINDOWS)
+        ifeq ($(SDL_FRAMEWORK),1)
+            ifeq ($(PLATFORM),DARWIN)
+                SDLCONFIG_LIBS        += -Wl,-framework,SDL
+                SDLCONFIG_COMMONFLAGS+= -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers
+            endif
+        else
+            ifneq ($(SDLCONFIG),)
+                SDLCONFIG_COMMONFLAGS+=$(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
+                SDLCONFIG_LIBS+= $(shell $(SDLCONFIG) --libs)
+            endif
+        endif
     else
-    ifneq ($(SDLCONFIG),)
-        SDLCONFIG_LIBS+= $(shell $(SDLCONFIG) --libs)
-        LIBS+= $(SDLCONFIG_LIBS)
-        SDLCONFIG_COMMONFLAGS+=$(shell $(SDLCONFIG) --cflags)
+        SDLCONFIG_COMMONFLAGS += -D_GNU_SOURCE=1
+        SDLCONFIG_LIBS+= -lmingw32 -lSDLmain -lSDL
     endif
-    endif
+
+    BUILDLIBS+= $(SDLCONFIG_LIBS)
+    BUILDCOMMONFLAGS+= $(SDLCONFIG_COMMONFLAGS)
 
     ifeq (1,$(WITHOUT_GTK))
         HAVE_GTK2=0
@@ -174,9 +191,9 @@ ifeq ($(RENDERTYPE),SDL)
             # include cairo, so we need to filter out those -l switches in order to link
             ifneq ($(LINKED_GTK),0)
                 ifeq ($(GTKCOMPAT32),1)
-                    LIBS+= $(shell pkg-config --libs gtk+-2.0 | sed 's/\s-l\(pango\)\{0,1\}cairo\S*\s/ /g')
+                    BUILDLIBS+= $(shell pkg-config --libs gtk+-2.0 | sed 's/\s-l\(pango\)\{0,1\}cairo\S*\s/ /g')
                 else
-                    LIBS+= $(shell pkg-config --libs gtk+-2.0)
+                    BUILDLIBS+= $(shell pkg-config --libs gtk+-2.0)
                 endif
             endif
         else
@@ -185,7 +202,7 @@ ifeq ($(RENDERTYPE),SDL)
     endif
 else
     ifeq ($(RENDERTYPE),WIN)
-        LIBS+= -mwindows -ldxguid
+        BUILDLIBS+= -L$(DXROOT)/lib -ldxguid
     endif
 endif
 
@@ -223,40 +240,40 @@ endif
 
 ifneq ($(PLATFORM),WINDOWS)
     ifneq ($(PLATFORM),WII)
-        LIBS+= -ldl
+        BUILDLIBS+= -ldl
     endif
-    LIBS+= -pthread
+    BUILDLIBS+= -pthread
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
     ifneq ($(USE_LIBPNG),0)
         # XXX: these assume that the compiler runs from build/. Ugh.
-        LIBS+= -L../Windows/lib -lpng_mini -lz_mini
+        BUILDLIBS+= -L../Windows/lib -lpng_mini -lz_mini
         BUILDCOMMONFLAGS+= -I../Windows/include
     endif
 else
     ifeq ($(PLATFORM),DARWIN)
         ifneq ($(USE_LIBPNG),0)
             BUILDCOMMONFLAGS+= -I/opt/local/include -I/sw/include -I/usr/local/include 
-            LIBS+= -L/opt/local/lib -L/usr/local/lib -lpng # -lz
+            BUILDLIBS+= -L/opt/local/lib -L/usr/local/lib -lpng # -lz
         endif
     else
         ifneq ($(USE_LIBPNG),0)
-            LIBS+= -lpng -lz
+            BUILDLIBS+= -lpng -lz
         endif
     endif
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
-    LIBS+= $(L_SSP) -Wl,--enable-auto-import
-    LIBS+= -lwsock32 -lws2_32 -lwinmm #-L$(ENETROOT)
+    BUILDLIBS+= $(L_SSP) -Wl,--enable-auto-import
+    BUILDLIBS+= -mwindows -lwsock32 -lws2_32 #-L$(ENETROOT)
 endif
 
 
 ifeq ($(PRETTY_OUTPUT),1)
 BUILD_SETTINGS_COMPILER = \033[1;36mcompiler: \033[0;36m\"$(COMPILER) $(OURCFLAGS)\"
 BUILD_SETTINGS_ASSEMBLER = \033[1;36massembler: \033[0;36m\"$(AS) $(OURASFLAGS)\"
-BUILD_SETTINGS_LINKER = \033[1;36mlinker: \033[0;36m\"$(PRINTLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB)\"
+BUILD_SETTINGS_LINKER = \033[1;36mlinker: \033[0;36m\"$(PRINTLDFLAGS) $(OURLIBS) $(STATICSTDCPP) $(STDCPPLIB)\"
 ifeq (0,$(NOASM))
     BUILD_SETTINGS = printf "$(BUILD_SETTINGS_COMPILER)\n$(BUILD_SETTINGS_ASSEMBLER)\n$(BUILD_SETTINGS_LINKER)\033[0m\n"
 else

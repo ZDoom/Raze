@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
-#ifndef RENDERTYPEWIN
+#ifndef _WIN32
 #error Only for Windows
 #endif
 
@@ -225,8 +225,11 @@ static void PopulateForm(int32_t pgs)
         (void)ComboBox_ResetContent(hwnd);
         (void)ComboBox_SetCurSel(hwnd, 0);
 
+        j = 4;
+
+#ifdef RENDERTYPEWIN
         if (di_disabled) j = 2;
-        else j = 4;
+#endif
 
         for (i=0; i<j; i++)
         {

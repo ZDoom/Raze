@@ -28,7 +28,11 @@ Minimum required SDL versions:
 
 #if defined(_NEED_SDLMIXER)
 # if defined(SDL_FRAMEWORK)
-#  include <SDL_mixer/SDL_mixer.h>
+#  if defined(_WIN32)
+#   include <SDL/SDL_mixer.h>
+#  else
+#   include <SDL_mixer/SDL_mixer.h>
+#  endif
 # else
 #  include "SDL_mixer.h"
 # endif

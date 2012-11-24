@@ -39,7 +39,7 @@
 #undef UNREFERENCED_PARAMETER
 #define UNREFERENCED_PARAMETER(x) x=x
 
-# ifndef OSX_STARTUPWINDOW
+# if !defined _WIN32 && !defined OSX_STARTUPWINDOW
 int32_t startwin_open(void) { return 0; }
 int32_t startwin_close(void) { return 0; }
 int32_t startwin_puts(const char *s) { UNREFERENCED_PARAMETER(s); return 0; }
@@ -116,6 +116,16 @@ static mutex_t m_initprintf;
 
 // Joystick dead and saturation zones
 uint16_t *joydead, *joysatur;
+
+#ifdef _WIN32
+//
+// win_gethinstance() -- gets the application instance
+//
+int32_t win_gethinstance(void)
+{
+    return (int32_t)(HINSTANCE)GetModuleHandle(NULL);
+}
+#endif
 
 int32_t wm_msgbox(char *name, char *fmt, ...)
 {
@@ -257,7 +267,7 @@ void setvsync(int32_t sync)
 static void attach_debugger_here(void) {}
 
 /* XXX: libexecinfo could be used on systems without gnu libc. */
-#if defined __GNUC__ && !defined __OpenBSD__ && !(defined __APPLE__ && defined __BIG_ENDIAN__) && !defined(GEKKO) && !defined(__ANDROID__)
+#if !defined _WIN32 && defined __GNUC__ && !defined __OpenBSD__ && !(defined __APPLE__ && defined __BIG_ENDIAN__) && !defined(GEKKO) && !defined(__ANDROID__)
 # define PRINTSTACKONSEGV 1
 # include <execinfo.h>
 #endif
@@ -462,7 +472,9 @@ void initprintf(const char *f, ...)
     if (flushlogwindow || Bstrlen(dabuf) > 768)
     {
         startwin_puts(dabuf);
+#ifndef _WIN32
         startwin_idle(NULL);
+#endif
         Bmemset(dabuf, 0, sizeof(dabuf));
     }
     mutex_unlock(&m_initprintf);
@@ -2236,7 +2248,9 @@ int32_t handleevents(void)
         }
     }
 
+#ifndef _WIN32
     startwin_idle(NULL);
+#endif
 
 #undef SetKey
 

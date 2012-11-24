@@ -279,7 +279,7 @@ bgluProjectProcPtr bgluProject;
 bgluUnProjectProcPtr bgluUnProject;
 
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
 // Windows
 bwglCreateContextProcPtr bwglCreateContext;
 bwglDeleteContextProcPtr bwglDeleteContext;
@@ -331,7 +331,7 @@ int32_t loadgldriver(const char *driver)
 {
     int32_t err=0;
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     if (hGLDLL) return 0;
 #endif
 
@@ -354,7 +354,7 @@ int32_t loadgldriver(const char *driver)
 #endif
     gldriver = Bstrdup(driver);
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     bwglCreateContext = (bwglCreateContextProcPtr) GETPROC("wglCreateContext");
     bwglDeleteContext = (bwglDeleteContextProcPtr) GETPROC("wglDeleteContext");
     bwglGetProcAddress = (bwglGetProcAddressProcPtr) GETPROC("wglGetProcAddress");
@@ -492,7 +492,7 @@ fail:
 int32_t loadglextensions(void)
 {
     int32_t err = 0;
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     if (!hGLDLL) return 0;
 #endif
 
@@ -635,7 +635,7 @@ int32_t loadglextensions(void)
     bglDebugMessageCallbackARB = (bglDebugMessageCallbackARBProcPtr) GETPROCEXTSOFT("glDebugMessageCallbackARB");
 #endif
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     bwglSwapIntervalEXT = (bwglSwapIntervalEXTProcPtr) GETPROCEXTSOFT("wglSwapIntervalEXT");
     bwglCreateContextAttribsARB = (bwglCreateContextAttribsARBProcPtr) GETPROCEXTSOFT("wglCreateContextAttribsARB");
 #endif
@@ -646,14 +646,14 @@ int32_t unloadgldriver(void)
 {
     unloadglulibrary();
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     if (!hGLDLL) return 0;
 #endif
 
     Bfree(gldriver);
     gldriver = NULL;
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     FreeLibrary(hGLDLL);
     hGLDLL = NULL;
 #endif
@@ -897,7 +897,7 @@ int32_t unloadgldriver(void)
     bglGetActiveAttribARB = (bglGetActiveAttribARBProcPtr) NULL;
     bglGetAttribLocationARB = (bglGetAttribLocationARBProcPtr) NULL;
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     bwglCreateContext = (bwglCreateContextProcPtr) NULL;
     bwglDeleteContext = (bwglDeleteContextProcPtr) NULL;
     bwglGetProcAddress = (bwglGetProcAddressProcPtr) NULL;
@@ -936,7 +936,7 @@ int32_t loadglulibrary(const char *driver)
 {
     int32_t err=0;
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     if (hGLUDLL) return 0;
 #endif
 
@@ -988,14 +988,14 @@ fail:
 
 int32_t unloadglulibrary(void)
 {
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     if (!hGLUDLL) return 0;
 #endif
 
     Bfree(glulibrary);
     glulibrary = NULL;
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     FreeLibrary(hGLUDLL);
     hGLUDLL = NULL;
 #else

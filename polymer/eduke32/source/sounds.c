@@ -56,7 +56,7 @@ void S_SoundStartup(void)
         fxdevicetype = ASS_AutoDetect;
     else return;
 
-#ifdef WIN32
+#ifdef RENDERTYPEWIN
     initdata = (void *) win_gethwnd();
 #endif
 

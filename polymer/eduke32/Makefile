@@ -47,6 +47,8 @@ OURLDFLAGS=$(OURCOMMONFLAGS) $(PRINTLDFLAGS)
 GAMELDFLAGS=
 EDITORLDFLAGS=
 
+LIBS=
+
 JAUDIOLIBDIR=$(SRC)/jaudiolib
 JAUDIOLIB=libjfaudiolib.a
 
@@ -55,6 +57,10 @@ ENETLIB=libenet.a
 
 
 include $(EROOT)/Makefile.shared
+
+
+OURLIBS=$(LIBS) $(BASELIBS) $(BUILDLIBS)
+
 
 ifneq (0,$(USE_LIBVPX))
     ifeq ($(PLATFORM),WINDOWS)
@@ -253,34 +259,37 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
-    OURCOMMONFLAGS	+= -fno-pic -DUNDERSCORES -I$(DXROOT)/include
+    OURCOMMONFLAGS	+= -fno-pic -DUNDERSCORES
     OURASFLAGS+= -DUNDERSCORES -f win32
-    LIBS		+= -L$(JAUDIOLIBDIR)/third-party/mingw32/lib -lvorbisfile -lvorbis -logg -lwsock32 -lws2_32 -lwinmm -ldsound
-    GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o $(OBJ)/music.$o $(OBJ)/midi.$o $(OBJ)/mpu401.$o
+    LIBS		+= -L$(JAUDIOLIBDIR)/third-party/mingw32/lib -lvorbisfile -lvorbis -logg -lwsock32 -lws2_32 -lwinmm
+    GAMEOBJS+= $(OBJ)/gameres.$o $(OBJ)/winbits.$o $(OBJ)/startwin.game.$o
     EDITOROBJS+= $(OBJ)/buildres.$o
     JAUDIOLIB=libjfaudiolib_win32.a
     ENETLIB=libenet_win32.a
-else
-# -lGLU to build with gluBuild2DMipmaps
-    ifeq ($(RENDERTYPE),SDL)
-        ifeq (0,$(SDL_FRAMEWORK))
-            ifneq ($(PLATFORM),WII)
-                OURCOMMONFLAGS+= $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags))
-            endif
-            LIBS+= -l$(SDLNAME)_mixer
-        else
-            OURCOMMONFLAGS   += -DSDL_FRAMEWORK
-        endif
-
-        ifeq (1,$(HAVE_GTK2))
-            OURCOMMONFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
-            GAMEOBJS+= $(OBJ)/game_banner.$o $(OBJ)/startgtk.game.$o
-            EDITOROBJS+= $(OBJ)/editor_banner.$o
-        endif
-
-        GAMEOBJS+= $(OBJ)/game_icon.$o $(OBJ)/sdlmusic.$o
-        EDITOROBJS+= $(OBJ)/build_icon.$o
+    ifeq ($(RENDERTYPE),WIN)
+        OURCOMMONFLAGS += -I$(DXROOT)/include
+        LIBS+= -ldsound
+        GAMEOBJS+= $(OBJ)/music.$o $(OBJ)/midi.$o $(OBJ)/mpu401.$o
     endif
+endif
+# -lGLU to build with gluBuild2DMipmaps
+ifeq ($(RENDERTYPE),SDL)
+    ifeq ($(PLATFORM),WINDOWS)
+        LIBS+= Windows/lib/SDL_mixer.lib
+    else
+        ifneq ($(PLATFORM),DARWIN)
+            LIBS+= -l$(SDLNAME)_mixer
+        endif
+    endif
+
+    ifeq (1,$(HAVE_GTK2))
+        OURCOMMONFLAGS+= -DHAVE_GTK2 $(shell pkg-config --cflags gtk+-2.0)
+        GAMEOBJS+= $(OBJ)/game_banner.$o $(OBJ)/startgtk.game.$o
+        EDITOROBJS+= $(OBJ)/editor_banner.$o
+    endif
+
+    GAMEOBJS+= $(OBJ)/game_icon.$o $(OBJ)/sdlmusic.$o
+    EDITOROBJS+= $(OBJ)/build_icon.$o
 endif
 
 
@@ -344,7 +353,7 @@ finish:
 
 $(EDUKE32): $(GAMEOBJS) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(ENETDIR)/$(ENETLIB) $(MISCGAMEDEPS)
 	$(LINK_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(GAMELDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(GAMELDFLAGS) $(OURLIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))
   ifeq (0,$(DEBUGANYWAY))
     ifneq ($(PLATFORM),WII)
@@ -358,9 +367,9 @@ ifeq ($(PLATFORM),DARWIN)
 	cp -f "$(EDUKE32)" "EDuke32.app/Contents/MacOS/"
 endif
 
-$(MAPSTER32): $(EDITOROBJS) $(EOBJ)/$(EDITORLIB) $(EOBJ)/$(ENGINELIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
+$(MAPSTER32): $(EDITOROBJS) $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
 	$(LINK_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(EDITORLDFLAGS) $(LIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(EDITORLDFLAGS) $(OURLIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
   ifeq (0,$(DEBUGANYWAY))
     ifneq ($(PLATFORM),WII)
@@ -430,7 +439,7 @@ $(OBJ)/%.$o: $(SRC)/util/%.c
 
 ivfrate$(EXESUFFIX): $(OBJ)/ivfrate.$o
 	$(ONESTEP_STATUS)
-	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(LIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
+	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(OURLIBS); then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 
 #### Lunatic
 

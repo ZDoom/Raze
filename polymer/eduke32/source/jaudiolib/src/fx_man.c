@@ -134,7 +134,7 @@ int32_t FX_Init
 
     if (SoundCard == ASS_AutoDetect)
     {
-#if defined WIN32
+#if defined HAVE_DS
         SoundCard = ASS_DirectSound;
 #elif defined HAVE_SDL
         SoundCard = ASS_SDL;

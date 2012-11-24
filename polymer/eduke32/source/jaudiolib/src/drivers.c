@@ -31,7 +31,7 @@
 # include "driver_sdl.h"
 #endif
 
-#ifdef WIN32
+#ifdef HAVE_DS
 # include "driver_directsound.h"
 #endif
 
@@ -79,7 +79,7 @@ static struct {
 	#endif
 	
 	// Windows DirectSound
-	#ifdef WIN32
+	#ifdef HAVE_DS
 	{
 		DirectSoundDrv_GetError,
 		DirectSoundDrv_ErrorString,

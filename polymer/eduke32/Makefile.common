@@ -217,10 +217,10 @@ ifeq ($(PLATFORM),WII)
     override USE_LIBVPX = 0
 endif
 
-LIBS=-lm
+BASELIBS=-lm
 ifneq (0,$(USE_LIBVPX))
     # On Windows, we link statically to libvpx
-    LIBS+= -lvpx
+    BASELIBS+= -lvpx
 endif
 
 
@@ -268,15 +268,15 @@ else
 #        endif
     endif
     ifeq ($(PLATFORM),LINUX)
-        LIBS+=-rdynamic
+        BASELIBS+=-rdynamic
     endif
     ifneq (0,$(MUDFLAP))
-        LIBS+= -lmudflapth
+        BASELIBS+= -lmudflapth
         debug+= -fmudflapth
     endif
     ifneq (0,$(PROFILER))
         # might need to be disabled for Darwin:
-        LIBS+= -lprofiler
+        BASELIBS+= -lprofiler
         debug+= -pg
     endif
     ifneq (0,$(KRANDDEBUG))
@@ -329,9 +329,9 @@ ifneq ($(LUNATIC),0)
     BASECOMMONFLAGS+= -I$(SRC)/lunatic -DLUNATIC
 
     ifeq ($(PLATFORM),WINDOWS)
-        LIBS+= -LWindows/lib -lluajit
+        BASELIBS+= -LWindows/lib -lluajit
     else
-        LIBS+= -lluajit-5.1
+        BASELIBS+= -lluajit-5.1
     endif
 endif
 
@@ -359,11 +359,11 @@ ifneq (0,$(OSX_STARTUPWINDOW))
 endif
 
 ifneq (0,$(EFENCE))
-    LIBS+= -lefence
+    BASELIBS+= -lefence
     BASECOMMONFLAGS+= -DEFENCE
 endif
 ifneq (0,$(DMALLOC))
-    LIBS+= -ldmalloc
+    BASELIBS+= -ldmalloc
     BASECOMMONFLAGS+= -DDMALLOC
 endif
 

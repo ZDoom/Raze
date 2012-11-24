@@ -9,6 +9,10 @@
 #include "compat.h"
 #include "baselayer.h"
 
+#ifdef _WIN32
+int32_t win_gethinstance(void);
+#endif
+
 struct sdlappicon {
 	int32_t width,height;
 	uint32_t *pixels;
@@ -31,7 +35,11 @@ static inline void idle_waitevent(void)
 
 static inline void idle(void)
 {
+#ifndef _WIN32
     usleep(1000);
+#else
+    Sleep(1);
+#endif
 }
 
 #else
