@@ -669,34 +669,35 @@ static inline char *Bstrncpyz(char *dst, const char *src, bsize_t n)
     if (fileptr) { Bfclose(fileptr); fileptr=NULL; } \
 } while (0)
 
-#define NOWARN(print_func, fmt, ...) do { \
+
+// Make into an #if 1 to enable format-related warnings in C++:
+#ifndef __cplusplus
+
+ #define NOWARN(print_func, fmt, ...) do { \
     print_func(fmt, ## __VA_ARGS__); \
 } while (0)
 
-#define NOWARN_RETURN(print_func, var, fmt, ...) do { \
+ #define NOWARN_RETURN(print_func, var, fmt, ...) do { \
     var = print_func(fmt, ## __VA_ARGS__); \
 } while (0)
 
-#ifdef __cplusplus
-#ifdef _MSC_VER
+#else
+// builing in C++
+
+# if defined _MSC_VER
 // TODO: add MSVC pragmas to disable equivalent warning, if necessary later
-#else
-#ifdef _WIN32
+# elif defined _WIN32
 // MinGW's _Pragma is completely broken so our GCC NOWARN macro is useless there
- #pragma GCC diagnostic ignored "-Wformat"
-#else
- #undef NOWARN
- #undef NOWARN_RETURN
-
- #define NOWARN(print_func, fmt, ...) do { _Pragma("GCC diagnostic ignored \"-Wformat\"") \
+  #pragma GCC diagnostic ignored "-Wformat"
+# else
+  #define NOWARN(print_func, fmt, ...) do { _Pragma("GCC diagnostic ignored \"-Wformat\"") \
     print_func(fmt, ## __VA_ARGS__); \
     _Pragma("GCC diagnostic warning \"-Wformat\"") } while (0)
 
- #define NOWARN_RETURN(print_func, var, fmt, ...) do { _Pragma("GCC diagnostic ignored \"-Wformat\"") \
+  #define NOWARN_RETURN(print_func, var, fmt, ...) do { _Pragma("GCC diagnostic ignored \"-Wformat\"") \
     var = print_func(fmt, ## __VA_ARGS__); \
     _Pragma("GCC diagnostic warning \"-Wformat\"") } while (0)
-#endif // _WIN32
-#endif // _MSC_VER
+# endif // compiler/environment
 #endif // __cplusplus
 
 #define OSD_Printf_nowarn(fmt, ...) NOWARN(OSD_Printf, fmt, ## __VA_ARGS__)
@@ -706,4 +707,3 @@ static inline char *Bstrncpyz(char *dst, const char *src, bsize_t n)
 #define message_nowarn(fmt, ...) NOWARN(message, fmt, ## __VA_ARGS__)
 
 #endif // __compat_h__
-
