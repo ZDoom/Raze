@@ -15,8 +15,7 @@ int32_t win_gethinstance(void);
 
 struct sdlappicon {
 	int32_t width,height;
-	uint32_t *pixels;
-	uint8_t *mask;
+	uint8_t *pixels;
 };
 
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
