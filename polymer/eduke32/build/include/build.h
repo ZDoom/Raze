@@ -353,10 +353,9 @@ EXTERN spritetype sprite[MAXSPRITES];
 EXTERN spritetype tsprite[MAXSPRITESONSCREEN];
 #endif
 
-EXTERN char sectorclean[MAXSECTORS + M32_FIXME_SECTORS];
-EXTERN char wallclean[MAXWALLS + M32_FIXME_WALLS];
-EXTERN char spriteclean[MAXSPRITES];
-EXTERN char tspriteclean[MAXSPRITESONSCREEN];
+EXTERN uint32_t sectorchanged[MAXSECTORS + M32_FIXME_SECTORS];
+EXTERN uint32_t wallchanged[MAXWALLS + M32_FIXME_WALLS];
+EXTERN uint32_t spritechanged[MAXSPRITES];
 
 static inline void sector_tracker_hook(uintptr_t address)
 {
@@ -365,7 +364,7 @@ static inline void sector_tracker_hook(uintptr_t address)
 
     if (address > MAXSECTORS + M32_FIXME_SECTORS) return;
 
-    sectorclean[address] = 0;
+    sectorchanged[address]++;
 }
 
 static inline void wall_tracker_hook(uintptr_t address)
@@ -375,7 +374,7 @@ static inline void wall_tracker_hook(uintptr_t address)
 
     if (address > MAXWALLS + M32_FIXME_WALLS) return;
 
-    wallclean[address] = 0;
+    wallchanged[address]++;
 }
 
 static inline void sprite_tracker_hook(uintptr_t address)
@@ -386,18 +385,8 @@ static inline void sprite_tracker_hook(uintptr_t address)
         address -= (uintptr_t)(sprite);
         address /= sizeof(spritetype);
 
-        spriteclean[address] = 0;
-    } else {
-        address -= (uintptr_t)(tsprite);
-        address /= sizeof(spritetype);
-
-        if (address > MAXSPRITESONSCREEN) return;
-
-        tspriteclean[address] = 0;
+        spritechanged[address]++;
     }
-
-    if (address > MAXSPRITES) return;
-
 }
 
 EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
