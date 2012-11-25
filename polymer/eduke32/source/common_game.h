@@ -45,4 +45,8 @@ extern void clearGrpNamePtr(void);
 extern void clearDefNamePtr(void);
 extern void clearScriptNamePtr(void);
 
+//////////
+
+extern void G_MultiPskyInit(void);
+
 #endif

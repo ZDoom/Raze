@@ -8,6 +8,7 @@
 #include "cache1d.h"
 #include "kplib.h"
 #include "baselayer.h"
+#include "names.h"
 
 #include "common.h"
 #include "common_game.h"
@@ -136,6 +137,60 @@ const char *G_ConFile(void)
         return G_DefaultConFile();
     else
         return g_scriptNamePtr;
+}
+
+//////////
+
+void G_MultiPskyInit(void)
+{
+    int32_t i;
+
+    // new-style multi-psky handling
+    pskymultilist[0] = MOONSKY1;
+    pskymultilist[1] = BIGORBIT1;
+    pskymultilist[2] = LA;
+
+    pskymultiyscale[0] = 32768;
+    pskymultiyscale[1] = 32768;
+    pskymultiyscale[2] = 16384+1024;
+
+    for (i=0; i<3; ++i)
+    {
+        pskymultibits[i] = 3;
+        Bmemset(pskymultioff[i], 0, sizeof(pskymultioff[i]));
+    }
+
+    // KEEPINSYNC with Polymer MAX OFFSET = 4
+
+    // MOONSKY1
+    //        earth          mountain   mountain         sun
+    pskymultioff[0][6]=1;
+    pskymultioff[0][1]=2;
+    pskymultioff[0][4]=2;
+    pskymultioff[0][2]=3;
+
+    // BIGORBIT1   // orbit
+    //       earth1         2           3           moon/sun
+    pskymultioff[1][5]=1;
+    pskymultioff[1][6]=2;
+    pskymultioff[1][7]=3;
+    pskymultioff[1][2]=4;
+
+    // LA // la city
+    //       earth1         2           3           moon/sun
+    pskymultioff[2][0]=1;
+    pskymultioff[2][1]=2;
+    pskymultioff[2][2]=1;
+    pskymultioff[2][3]=3;
+    pskymultioff[2][4]=4;
+    pskymultioff[2][5]=0;
+    pskymultioff[2][6]=2;
+    pskymultioff[2][7]=3;
+
+    pskynummultis = 3;
+
+    // default in game:
+    parallaxyscale = 32768;
 }
 
 //////////
