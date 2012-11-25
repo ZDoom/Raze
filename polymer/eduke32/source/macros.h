@@ -20,6 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 //-------------------------------------------------------------------------
 
+#ifndef EDUKE32_MACROS_H_
+#define EDUKE32_MACROS_H_
+
 // Macros, some from SW source
 
 #define ALT_IS_PRESSED ( KB_KeyPressed( sc_RightAlt ) || KB_KeyPressed( sc_LeftAlt ) )
@@ -206,3 +209,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define T8  actor[i].t_data[7]
 #define T9  actor[i].t_data[8]
 
+#endif

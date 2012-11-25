@@ -32,10 +32,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "osd.h"
 
 #include "cache1d.h"
-#include "macros.h"
-#include "mathutil.h"
 #include "build.h"  // vec3_t
 #include "editor.h"
+
+#include "macros.h"
+#include "mathutil.h"
 
 #ifdef WIN32
 #include "winlayer.h"
