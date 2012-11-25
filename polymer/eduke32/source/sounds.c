@@ -57,7 +57,7 @@ void S_SoundStartup(void)
     else return;
 
 #ifdef RENDERTYPEWIN
-    initdata = (void *) win_gethwnd();
+    initdata = (void *) win_gethwnd(); // used for DirectSound
 #endif
 
     initprintf("Initializing sound... ");

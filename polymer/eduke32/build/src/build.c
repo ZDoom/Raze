@@ -14,11 +14,12 @@
 #include "common.h"
 
 #include "baselayer.h"
-#ifdef RENDERTYPEWIN
-#include "winlayer.h"
-#else
-#include "sdlayer.h"
+#include "renderlayer.h"
+
+#ifdef _WIN32
+# include "winbits.h"
 #endif
+
 
 #include "m32script.h"
 
@@ -493,7 +494,7 @@ void M32_DrawRoomsAndMasks(void)
 }
 
 #undef STARTUP_SETUP_WINDOW
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
+#if defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
 # define STARTUP_SETUP_WINDOW
 #endif
 
@@ -520,7 +521,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
     if ((i = ExtPreInit(argc,argv)) < 0) return -1;
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     backgroundidle = 1;
 #endif
 

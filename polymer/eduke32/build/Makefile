@@ -121,6 +121,7 @@ endif
 ifeq ($(PLATFORM),WINDOWS)
     OURCOMMONFLAGS+= -DUNDERSCORES # -I$(ENETROOT)/include
     OURASFLAGS+= -DUNDERSCORES -f win32
+    ENGINEOBJS+= $(OBJ)/winbits.$o
     EDITOROBJS+= $(OBJ)/startwin.editor.$o
 endif
 ifeq ($(PLATFORM),BEOS)

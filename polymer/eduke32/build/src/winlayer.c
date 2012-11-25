@@ -69,6 +69,8 @@
 #endif
 #include "mutex.h"
 
+#include "winbits.h"
+
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
 
@@ -79,17 +81,12 @@ int32_t   _buildargc = 0;
 const char **_buildargv = NULL;
 static char *argvbuf = NULL;
 extern int32_t app_main(int32_t argc, const char **argv);
-extern void app_crashhandler(void);
 
 // Windows crud
 static HINSTANCE hInstance = 0;
 static HWND hWindow = 0;
 #define WINDOW_STYLE (WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX)
-#define WindowClass "buildapp"
 static BOOL window_class_registered = FALSE;
-static HANDLE instanceflag = NULL;
-
-int32_t    backgroundidle = 1;
 
 static WORD sysgamma[3][256];
 extern int32_t curbrightness, gammabrightness;
@@ -102,13 +99,10 @@ char nogl=0;
 char forcegl=0;
 #endif
 
-static LPTSTR GetWindowsErrorMsg(DWORD code);
 static const char *GetDDrawError(HRESULT code);
 static const char *GetDInputError(HRESULT code);
-static void ShowErrorBox(const char *m);
 static void ShowDDrawErrorBox(const char *m, HRESULT r);
 static void ShowDInputErrorBox(const char *m, HRESULT r);
-static inline BOOL CheckWinVersion(void);
 static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 static BOOL InitDirectDraw(void);
 static void UninitDirectDraw(void);
@@ -154,7 +148,6 @@ char modechange=1;
 char repaintneeded=0;
 char offscreenrendering=0;
 char videomodereset = 0;
-char silentvideomodeswitch = 0;
 
 // input and events
 char quitevent=0;
@@ -162,12 +155,6 @@ char appactive=1;
 char realfs=0;
 char regrabmouse=0;
 uint32_t mousewheel[2] = { 0,0 };
-
-static char taskswitching=1;
-
-static OSVERSIONINFOEX osv;
-
-static HMODULE nedhandle = NULL;
 
 
 //-------------------------------------------------------------------------------------------------
@@ -224,37 +211,6 @@ int32_t win_gethinstance(void)
     return (int32_t)hInstance;
 }
 
-
-//
-// win_allowtaskswitching() -- captures/releases alt+tab hotkeys
-//
-void win_allowtaskswitching(int32_t onf)
-{
-    if (onf == taskswitching) return;
-
-    if (onf)
-    {
-        UnregisterHotKey(0,0);
-        UnregisterHotKey(0,1);
-    }
-    else
-    {
-        RegisterHotKey(0,0,MOD_ALT,VK_TAB);
-        RegisterHotKey(0,1,MOD_ALT|MOD_SHIFT,VK_TAB);
-    }
-
-    taskswitching = onf;
-}
-
-
-//
-// win_checkinstance() -- looks for another instance of a Build app
-//
-int32_t win_checkinstance(void)
-{
-    if (!instanceflag) return 0;
-    return (WaitForSingleObject(instanceflag,0) == WAIT_TIMEOUT);
-}
 
 
 //
@@ -378,26 +334,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
         return -1;
     }
 
-#ifndef DEBUGGINGAIDS
-    if ((nedhandle = LoadLibrary("nedmalloc.dll")))
-    {
-#ifdef __cplusplus
-        nedalloc::nedpool_t *(WINAPI *nedcreatepool)(size_t, int);
-        if ((nedcreatepool = (nedalloc::nedpool_t *(WINAPI *)(size_t, int))GetProcAddress(nedhandle, "nedcreatepool")))
-#else
-        nedpool *(WINAPI *nedcreatepool)(size_t, int);
-        if ((nedcreatepool = (void *)GetProcAddress(nedhandle, "nedcreatepool")))
-#endif
-            nedcreatepool(SYSTEM_POOL_SIZE, -1);
-    }
-#else
-    LoadLibraryA("ebacktrace1.dll");
-/*
-        wm_msgbox("boo","didn't load backtrace DLL (code %d)\n", (int)GetLastError());
-    else
-        wm_msgbox("yay","loaded backtrace DLL\n");
-*/
-#endif
+    win_open();
 
     hdc = GetDC(NULL);
     r = GetDeviceCaps(hdc, BITSPIXEL);
@@ -518,8 +455,6 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 
     //    atexit(uninitsystem);
 
-    instanceflag = CreateSemaphore(NULL, 1,1, WindowClass);
-
     startwin_open();
     baselayer_init();
 
@@ -530,7 +465,8 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
     if (r) Sleep(3000);
 
     startwin_close();
-    if (instanceflag) CloseHandle(instanceflag);
+
+    win_close();
 
     if (argvbuf) Bfree(argvbuf);
 
@@ -579,51 +515,6 @@ static int32_t set_windowpos(const osdfuncparm_t *parm)
 // initsystem() -- init systems
 //
 
-static void win_printversion(void)
-{
-    const char *ver = "";
-
-    switch (osv.dwPlatformId)
-    {
-    case VER_PLATFORM_WIN32_NT:
-        if (osv.dwMajorVersion == 5)
-        {
-            switch (osv.dwMinorVersion)
-            {
-            case 1:
-                ver = "XP";
-                break;
-            case 2:
-                ver = osv.wProductType == VER_NT_WORKSTATION ? "XP x64" : "Server 2003";
-                break;
-            }
-            break;
-        }
-
-        if (osv.dwMajorVersion == 6)
-        {
-            switch (osv.dwMinorVersion)
-            {
-            case 0:
-                ver = osv.wProductType == VER_NT_WORKSTATION ? "Vista" : "Server 2008";
-                break;
-            case 1:
-                ver = osv.wProductType == VER_NT_WORKSTATION ? "7" : "Server 2008 R2";
-                break;
-            case 2:
-                ver = osv.wProductType == VER_NT_WORKSTATION ? "8" : "Server 2012";
-                break;
-            }
-            break;
-        }
-        break;
-    }
-
-    initprintf("Windows %s %s (build %lu.%lu.%lu)\n", ver, osv.szCSDVersion,
-               osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber);
-}
-
-
 // http://www.gamedev.net/topic/47021-how-to-determine-video-card-with-win32-api
 static void determine_ATI(void)
 {
@@ -671,10 +562,7 @@ int32_t initsystem(void)
     frameplace=0;
     lockcount=0;
 
-    win_printversion();
-
-    if (nedhandle)
-        initprintf("Initialized nedmalloc\n");
+    win_init();
 
 #ifdef USE_OPENGL
     if (loadgldriver(getenv("BUILD_GLDRV")))
@@ -726,7 +614,7 @@ void uninitsystem(void)
     uninitinput();
     uninittimer();
 
-    win_allowtaskswitching(1);
+    win_uninit();
 
 #ifdef USE_OPENGL
     unloadgldriver();
@@ -1546,7 +1434,6 @@ static const char *GetDInputError(HRESULT code)
 //  TIMER
 //=================================================================================================
 
-static int64_t timerfreq=0;
 static int32_t timerlastsample=0;
 int32_t timerticspersec=0;
 static double msperhitick = 0;
@@ -1575,22 +1462,17 @@ int32_t inittimer(int32_t tickspersecond)
 {
     int64_t t;
 
-    if (timerfreq) return 0;	// already installed
+    if (win_timerfreq) return 0;	// already installed
 
     //    initprintf("Initializing timer\n");
 
-    // OpenWatcom seems to want us to query the value into a local variable
-    // instead of the global 'timerfreq' or else it gets pissed with an
-    // access violation
-    if (!QueryPerformanceFrequency((LARGE_INTEGER *)&t))
-    {
-        ShowErrorBox("Failed fetching timer frequency");
-        return -1;
-    }
-    timerfreq = t;
+    t = win_inittimer();
+    if (t < 0)
+        return t;
+
     timerticspersec = tickspersecond;
     QueryPerformanceCounter((LARGE_INTEGER *)&t);
-    timerlastsample = (int32_t)(t*timerticspersec / timerfreq);
+    timerlastsample = (int32_t)(t*timerticspersec / win_timerfreq);
 
     usertimercallback = NULL;
 
@@ -1604,9 +1486,9 @@ int32_t inittimer(int32_t tickspersecond)
 //
 void uninittimer(void)
 {
-    if (!timerfreq) return;
+    if (!win_timerfreq) return;
 
-    timerfreq=0;
+    win_timerfreq=0;
     timerticspersec = 0;
 
     msperhitick = 0;
@@ -1620,10 +1502,10 @@ inline void sampletimer(void)
     int64_t i;
     int32_t n;
 
-    if (!timerfreq) return;
+    if (!win_timerfreq) return;
 
     QueryPerformanceCounter((LARGE_INTEGER *)&i);
-    n = (int32_t)((i*timerticspersec / timerfreq) - timerlastsample);
+    n = (int32_t)((i*timerticspersec / win_timerfreq) - timerlastsample);
 
     if (n <= 0) return;
 
@@ -1640,23 +1522,20 @@ inline void sampletimer(void)
 uint32_t getticks(void)
 {
     int64_t i;
-    if (timerfreq == 0) return 0;
+    if (win_timerfreq == 0) return 0;
     QueryPerformanceCounter((LARGE_INTEGER *)&i);
-    return (uint32_t)(i*longlong(1000)/timerfreq);
+    return (uint32_t)(i*longlong(1000)/win_timerfreq);
 }
 
 // high-resolution timers for profiling
 uint64_t gethiticks(void)
 {
-    uint64_t i;
-    if (timerfreq == 0) return 0;
-    QueryPerformanceCounter((LARGE_INTEGER *)&i);
-    return i;
+    return win_gethiticks();
 }
 
 uint64_t gethitickspersec(void)
 {
-    return timerfreq;
+    return win_timerfreq;
 }
 
 // Returns the time since an unspecified starting time in milliseconds.
@@ -1700,22 +1579,6 @@ static VOID    *lpPixels    = NULL;
 
 static int32_t setgammaramp(WORD gt[3][256]);
 static int32_t getgammaramp(WORD gt[3][256]);
-
-static void ToggleDesktopComposition(BOOL compEnable)
-{
-    static HMODULE              hDWMApiDLL        = NULL;
-    static HRESULT(WINAPI *aDwmEnableComposition)(UINT);
-
-    if (!hDWMApiDLL && (hDWMApiDLL = LoadLibrary("DWMAPI.DLL")))
-        aDwmEnableComposition = (HRESULT(WINAPI *)(UINT))GetProcAddress(hDWMApiDLL, "DwmEnableComposition");
-
-    if (aDwmEnableComposition)
-    {
-        aDwmEnableComposition(compEnable);
-        if (!silentvideomodeswitch)
-            initprintf("%sabling desktop composition...\n", (compEnable) ? "En" : "Dis");
-    }
-}
 
 //
 // checkvideomode() -- makes sure the video mode passed is legal
@@ -1814,8 +1677,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         gammabrightness = 0;
     }
 
-    if (osv.dwMajorVersion >= 6)
-        ToggleDesktopComposition(c < 16);
+    win_setvideomode(c);
 
     if (!silentvideomodeswitch)
         initprintf("Setting video mode %dx%d (%d-bit %s)\n",
@@ -3631,35 +3493,6 @@ static const char *GetDDrawError(HRESULT code)
 //  MOSTLY STATIC INTERNAL WINDOWS THINGS
 //=================================================================================================
 
-//
-// ShowErrorBox() -- shows an error message box
-//
-static void ShowErrorBox(const char *m)
-{
-    TCHAR msg[1024];
-
-    wsprintf(msg, "%s: %s", m, GetWindowsErrorMsg(GetLastError()));
-    MessageBox(0, msg, apptitle, MB_OK|MB_ICONSTOP);
-}
-
-
-//
-// CheckWinVersion() -- check to see what version of Windows we happen to be running under
-//
-static inline BOOL CheckWinVersion(void)
-{
-    ZeroMemory(&osv, sizeof(osv));
-    osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-
-    // we don't like anything older than Windows XP
-
-    if (!GetVersionEx((LPOSVERSIONINFOA)&osv)) return FALSE;
-
-    if (osv.dwMajorVersion >= 6) return TRUE;
-    if (osv.dwMajorVersion == 5 && osv.dwMinorVersion >= 1) return TRUE;
-
-    return FALSE;
-}
 
 
 //
@@ -3853,20 +3686,4 @@ static BOOL RegisterWindowClass(void)
     window_class_registered = TRUE;
 
     return FALSE;
-}
-
-
-//
-// GetWindowsErrorMsg() -- gives a pointer to a static buffer containing the Windows error message
-//
-static LPTSTR GetWindowsErrorMsg(DWORD code)
-{
-    static TCHAR lpMsgBuf[1024];
-
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                  NULL, code,
-                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                  (LPTSTR)lpMsgBuf, 1024, NULL);
-
-    return lpMsgBuf;
 }

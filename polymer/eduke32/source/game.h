@@ -312,11 +312,8 @@ static inline int32_t G_GetTeamPalette(int32_t team)
 int32_t G_GetVersionFromWebsite(char *buffer);
 #endif
 
-#ifdef RENDERTYPEWIN
-void app_crashhandler(void);
 #ifdef USE_OPENGL
 extern char forcegl;
-#endif
 #endif
 
 #define minitextshade(x, y, t, s, p, sb) minitext_(x,y,t,s,p,sb)

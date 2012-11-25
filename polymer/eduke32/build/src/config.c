@@ -6,10 +6,8 @@
 #include "editor.h"
 #include "osd.h"
 
-#ifdef RENDERTYPEWIN
-#include "winlayer.h"
-#endif
 #include "baselayer.h"
+#include "renderlayer.h"
 
 static int32_t vesares[13][2] = {{320,200},{360,200},{320,240},{360,240},{320,400},
     {360,400},{640,350},{640,400},{640,480},{800,600},

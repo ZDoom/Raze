@@ -1,11 +1,9 @@
-// Windows DIB/DirectDraw interface layer
-// for the Build Engine
-// by Jonathon Fowler (jf@jonof.id.au)
+// Windows DIB/DirectDraw interface layer for the Build Engine
+// Originally by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef __build_interface_layer__
 #define __build_interface_layer__ WIN
 
-extern int32_t backgroundidle;	// set to 1 to tell winlayer to go to idle priority when inactive
 extern uint32_t maxrefreshfreq;
 
 extern int32_t glusecds;
@@ -14,9 +12,6 @@ extern char di_disabled;
 
 int32_t win_gethwnd(void);
 int32_t win_gethinstance(void);
-
-void win_allowtaskswitching(int32_t onf);
-int32_t win_checkinstance(void);
 
 extern void idle_waitevent_timeout(uint32_t timeout);
 

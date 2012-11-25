@@ -27,7 +27,11 @@
 # include "glbuild.h"
 #endif
 
-#if defined __APPLE__
+#if defined _WIN32
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
+# include "winbits.h"
+#elif defined __APPLE__
 # include "osxbits.h"
 # include <mach/mach.h>
 # include <mach/mach_time.h>
@@ -211,6 +215,17 @@ int32_t main(int32_t argc, char *argv[])
 
     buildkeytranslationtable();
 
+#ifdef _WIN32
+    if (!CheckWinVersion())
+    {
+        MessageBox(0, "This application requires Windows XP or better to run.",
+                   apptitle, MB_OK|MB_ICONSTOP);
+        return -1;
+    }
+
+    win_open();
+#endif
+
 #ifdef HAVE_GTK2
     gtkbuild_init(&argc, &argv);
 #endif
@@ -250,6 +265,10 @@ int32_t main(int32_t argc, char *argv[])
 #ifdef HAVE_GTK2
     gtkbuild_exit(r);
 #endif
+#ifdef _WIN32
+    win_close();
+#endif
+
     return r;
 }
 
@@ -291,6 +310,7 @@ static void sighandler(int signum)
 //        usleep(15000000);
 #endif
         attach_debugger_here();
+        app_crashhandler();
         uninitsystem();
         exit(8);
     }
@@ -319,6 +339,10 @@ int32_t initsystem(void)
     SDL_VERSION(&compiled);
 
     mutex_init(&m_initprintf);
+
+#ifdef _WIN32
+    win_init();
+#endif
 
     initprintf("Initializing SDL system interface "
                "(compiled against SDL version %d.%d.%d, found version %d.%d.%d)\n",
@@ -437,6 +461,10 @@ void uninitsystem(void)
     }
 
     SDL_Quit();
+
+#ifdef _WIN32
+    win_uninit();
+#endif
 
 #ifdef USE_OPENGL
     unloadgldriver();
@@ -728,7 +756,7 @@ void grabmouse(char a)
     {
         if (a != mousegrab)
         {
-#if !defined __ANDROID__ && (!defined DEBUGGINGAIDS || defined __APPLE__)
+#if !defined __ANDROID__ && (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__)
             SDL_GrabMode g;
 
             g = SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF);
@@ -802,6 +830,14 @@ int32_t inittimer(int32_t tickspersecond)
 
 //    initprintf("Initializing timer\n");
 
+#ifdef _WIN32
+    {
+        int32_t t = win_inittimer();
+        if (t < 0)
+            return t;
+    }
+#endif
+
     timerfreq = 1000;
     timerticspersec = tickspersecond;
     timerlastsample = SDL_GetTicks() * timerticspersec / timerfreq;
@@ -821,6 +857,10 @@ void uninittimer(void)
     if (!timerfreq) return;
 
     timerfreq=0;
+
+#ifdef _WIN32
+    win_timerfreq=0;
+#endif
 
     msperhitick = 0;
 }
@@ -868,6 +908,8 @@ uint64_t gethiticks(void)
     ticks *= 1000000000;
     ticks += now.tv_nsec;
     return (ticks);
+# elif defined _WIN32
+    return win_gethiticks();
 # elif defined __APPLE__
     return mach_absolute_time();
 # else
@@ -886,6 +928,8 @@ uint64_t gethitickspersec(void)
 #if (SDL_MAJOR_VERSION == 1 && SDL_MINOR_VERSION < 3) // SDL 1.2
 # if _POSIX_TIMERS>0 && defined _POSIX_MONOTONIC_CLOCK
     return 1000000000;
+# elif defined _WIN32
+    return win_timerfreq;
 # elif defined __APPLE__
     static mach_timebase_info_data_t ti;
     if (ti.denom == 0)
@@ -1254,6 +1298,10 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         };
 
         if (nogl) return -1;
+
+# ifdef _WIN32
+        win_setvideomode(c);
+# endif
 
         initprintf("Setting video mode %dx%d (%d-bpp %s)\n",
                    x,y,c, ((fs&1) ? "fullscreen" : "windowed"));
@@ -1967,22 +2015,30 @@ int32_t handleevents(void)
             {
             case SDL_WINDOWEVENT_FOCUS_GAINED:
                 appactive = 1;
-# ifndef DEBUGGINGAIDS
+# if !defined DEBUGGINGAIDS || defined _WIN32
                 if (mousegrab && moustat)
                 {
                     SDL_WM_GrabInput(SDL_GRAB_ON);
                     SDL_ShowCursor(SDL_DISABLE);
                 }
 # endif
+# ifdef _WIN32
+                if (backgroundidle)
+                    SetPriorityClass(GetCurrentProcess(), NORMAL_PRIORITY_CLASS);
+# endif
                 break;
             case SDL_WINDOWEVENT_FOCUS_LOST:
                 appactive = 0;
-# ifndef DEBUGGINGAIDS
+# if !defined DEBUGGINGAIDS || defined _WIN32
                 if (mousegrab && moustat)
                 {
                     SDL_WM_GrabInput(SDL_GRAB_OFF);
                     SDL_ShowCursor(SDL_ENABLE);
                 }
+# endif
+# ifdef _WIN32
+                if (backgroundidle)
+                    SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
 # endif
                 break;
             }
@@ -2058,7 +2114,7 @@ int32_t handleevents(void)
             if (ev.active.state & SDL_APPINPUTFOCUS)
             {
                 appactive = ev.active.gain;
-# ifndef DEBUGGINGAIDS
+# if !defined DEBUGGINGAIDS || defined _WIN32
                 if (mousegrab && moustat)
                 {
                     if (appactive)
@@ -2072,6 +2128,11 @@ int32_t handleevents(void)
                         SDL_ShowCursor(SDL_ENABLE);
                     }
                 }
+# endif
+# ifdef _WIN32
+                if (backgroundidle)
+                    SetPriorityClass(GetCurrentProcess(),
+                                     appactive ? NORMAL_PRIORITY_CLASS : IDLE_PRIORITY_CLASS);
 # endif
                 rv=-1;
             }

@@ -25,13 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "editor.h"
 #include "pragmas.h"
 
-#ifdef RENDERTYPEWIN
-#include "winlayer.h"
-#else
-#include "sdlayer.h"
-#endif
-
 #include "baselayer.h"
+#include "renderlayer.h"
 
 #include "osd.h"
 #include "cache1d.h"
@@ -8477,7 +8472,7 @@ static void G_ShowParameterHelp(void)
 #endif
               "-namesfile [file.h]\t\tLoad a custom NAMES.H for tile names\n"
               "-nocheck\t\t\tDisables map pointer checking when saving (default)\n"  // kept for script compat
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
+#if defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
               "-setup\t\t\tDisplays the configuration dialog\n"
 #endif
 #if !defined(_WIN32)
@@ -10576,7 +10571,6 @@ int32_t ExtInit(void)
     return rv;
 }
 
-#ifdef RENDERTYPEWIN
 void app_crashhandler(void)
 {
     if (levelname[0])
@@ -10590,7 +10584,6 @@ void app_crashhandler(void)
         SaveBoard(f, 1);
     }
 }
-#endif
 
 void ExtUnInit(void)
 {

@@ -3,9 +3,7 @@
 #include "build.h"
 #include "baselayer.h"
 
-#ifdef RENDERTYPEWIN
-#include "winlayer.h"
-#endif
+#include "renderlayer.h"
 
 #include "polymost.h"
 

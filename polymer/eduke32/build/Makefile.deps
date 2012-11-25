@@ -24,12 +24,13 @@ $(OBJ)/osd.$o: $(SRC)/osd.c $(INC)/build.h $(INC)/osd.h $(INC)/compat.h $(INC)/b
 $(OBJ)/pragmas.$o: $(SRC)/pragmas.c $(INC)/compat.h
 $(OBJ)/scriptfile.$o: $(SRC)/scriptfile.c $(INC)/scriptfile.h $(INC)/cache1d.h $(INC)/compat.h
 $(OBJ)/sdlayer.$o: $(SRC)/sdlayer.c $(INC)/compat.h $(INC)/sdlayer.h $(INC)/baselayer.h $(INC)/cache1d.h $(INC)/pragmas.h $(INC)/a.h $(INC)/build.h $(INC)/osd.h $(INC)/glbuild.h
-$(OBJ)/winlayer.$o: $(SRC)/winlayer.c $(INC)/compat.h $(INC)/winlayer.h $(INC)/baselayer.h $(INC)/pragmas.h $(INC)/build.h $(INC)/a.h $(INC)/osd.h $(INC)/dxdidf.h $(INC)/glbuild.h $(INC)/rawinput.h
+$(OBJ)/winlayer.$o: $(SRC)/winlayer.c $(INC)/compat.h $(INC)/winlayer.h $(INC)/baselayer.h $(INC)/pragmas.h $(INC)/build.h $(INC)/a.h $(INC)/osd.h $(INC)/dxdidf.h $(INC)/glbuild.h $(INC)/rawinput.h $(INC)/winbits.h
 $(OBJ)/gtkbits.$o: $(SRC)/gtkbits.c $(INC)/baselayer.h $(INC)/build.h $(INC)/dynamicgtk.h
 $(OBJ)/dynamicgtk.$o: $(SRC)/dynamicgtk.c $(INC)/dynamicgtk.h
 $(OBJ)/polymer.$o: $(SRC)/polymer.c $(INC)/polymer.h $(INC)/compat.h $(INC)/build.h $(INC)/glbuild.h $(INC)/osd.h $(INC)/pragmas.h $(INC)/mdsprite.h $(INC)/polymost.h
 $(OBJ)/mutex.$o: $(SRC)/mutex.c $(INC)/mutex.h
 $(OBJ)/rawinput.$o: $(SRC)/rawinput.c $(INC)/rawinput.h
+$(OBJ)/winbits.$o: $(SRC)/winbits.c $(INC)/winbits.h
 
 $(OBJ)/lunatic.$o: $(SRC)/lunatic.c $(INC)/lunatic.h $(INC)/cache1d.h $(INC)/osd.h
 

@@ -21,6 +21,8 @@ extern char quitevent, appactive;
 
 extern int32_t vsync;
 
+extern void app_crashhandler(void);
+
 // NOTE: these are implemented in game-land so they may be overridden in game specific ways
 extern int32_t startwin_open(void);
 extern int32_t startwin_close(void);

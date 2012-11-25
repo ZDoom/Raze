@@ -22,11 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "duke3d.h"
 
-#ifdef RENDERTYPEWIN
-#include "winlayer.h"
-#else
-#include "sdlayer.h"
-#endif
+#include "baselayer.h"
+#include "renderlayer.h"
 
 #include "scriplib.h"
 #include "file_lib.h"
@@ -76,17 +73,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #ifdef _WIN32
-#include "winlayer.h"
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <shellapi.h>
+# include "winlayer.h"
+# define WIN32_LEAN_AND_MEAN
+# include <windows.h>
+# include <shellapi.h>
 extern int32_t G_GetVersionFromWebsite(char *buffer);
-#define UPDATEINTERVAL 604800 // 1w
+# define UPDATEINTERVAL 604800 // 1w
+# include "winbits.h"
 #else
 static int32_t usecwd = 0;
-#ifndef GEKKO
-#include <sys/ioctl.h>
-#endif
+# ifndef GEKKO
+#  include <sys/ioctl.h>
+# endif
 #endif /* _WIN32 */
 
 int32_t g_quitDeadline = 0;
@@ -8115,7 +8113,7 @@ static void G_ShowParameterHelp(void)
               "-r\t\tRecord demo\n"
               "-s#\t\tSet skill level (1-4)\n"
               "-server\t\tStart a multiplayer game for other players to join\n"
-#if defined RENDERTYPEWIN || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
+#if defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
               "-setup/nosetup\tEnables/disables startup window\n"
 #endif
               "-t#\t\tSet respawn mode: 1 = Monsters, 2 = Items, 3 = Inventory, x = All\n"
@@ -8737,7 +8735,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
-#if defined _WIN32 && defined RENDERTYPEWIN
+#if defined RENDERTYPEWIN
                 if (!Bstrcasecmp(c+1,"nodinput"))
                 {
                     initprintf("DirectInput (joystick) support disabled\n");
@@ -9842,14 +9840,12 @@ static int32_t G_EndOfLevel(void)
 
 }
 
-#ifdef RENDERTYPEWIN
 void app_crashhandler(void)
 {
     G_CloseDemoWrite();
     VM_ScriptInfo();
     G_GameQuit();
 }
-#endif
 
 #ifdef _WIN32
 // See FILENAME_CASE_CHECK in cache1d.c
@@ -9898,7 +9894,7 @@ int32_t app_main(int32_t argc, const char **argv)
 	fatInit(28, true);
 #endif
 
-#ifdef RENDERTYPEWIN
+#ifdef _WIN32
     if (argc > 1)
     {
         for (; i<argc; i++)
@@ -9920,11 +9916,9 @@ int32_t app_main(int32_t argc, const char **argv)
         initprintf("An error occurred while initializing ENet.\n");
     else atexit(enet_deinitialize);
 
-#ifdef RENDERTYPEWIN
-    backgroundidle = 0;
-#endif
-
 #ifdef _WIN32
+    backgroundidle = 0;
+
     {
         extern int32_t (*check_filename_casing_fn)(void);
         check_filename_casing_fn = check_filename_casing;
@@ -10170,7 +10164,7 @@ int32_t app_main(int32_t argc, const char **argv)
         else if (!fg) g_gameNamePtr = "Unknown GRP";
     }
 
-#if (defined RENDERTYPEWIN || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2)))
+#if (defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2)))
     if (i < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_JF || ud.config.ForceSetup)) || g_commandSetup)
     {
         if (quitevent || !startwin_run())

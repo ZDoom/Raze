@@ -79,7 +79,8 @@ ENGINEOBJS= \
 	$(OBJ)\winlayer.$o \
 	$(OBJ)\polymer.$o \
 	$(OBJ)\mutex.$o \
-	$(OBJ)\rawinput.$o
+	$(OBJ)\rawinput.$o \
+	$(OBJ)\winbits.$o
 
 EDITOROBJS=$(OBJ)\build.$o \
 	$(OBJ)\startwin.editor.$o \
