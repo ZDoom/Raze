@@ -7,6 +7,9 @@
 #include "baselayer.h"
 #include "winbits.h"
 
+#ifndef DEBUGGINGAIDS
+# include "nedmalloc.h"
+#endif
 
 int32_t backgroundidle = 1;
 
