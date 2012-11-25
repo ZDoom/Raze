@@ -10883,15 +10883,15 @@ int32_t krecip(int32_t num)
 
 // Gets the BUILD unit height and z offset of a sprite.
 // Returns the z offset, 'height' may be NULL.
-int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
+int32_t spriteheightofsptr(const spritetype *spr, int32_t *height, int32_t alsotileyofs)
 {
     int32_t hei, zofs=0;
-    const int32_t picnum=sprite[i].picnum, yrepeat=sprite[i].yrepeat;
+    const int32_t picnum=spr->picnum, yrepeat=spr->yrepeat;
 
     hei = (tilesizy[picnum]*yrepeat)<<2;
     *height = hei;
 
-    if (sprite[i].cstat&128)
+    if (spr->cstat&128)
         zofs = hei>>1;
 
     // NOTE: a positive per-tile yoffset translates the sprite into the
@@ -11352,6 +11352,53 @@ static int32_t get_flatspr_clipyou(int32_t x1, int32_t x2, int32_t x3, int32_t x
     return clipyou;
 }
 
+// intp: point of currently best (closest) intersection
+static int32_t try_facespr_intersect(const spritetype *spr, const vec3_t *refpos,
+                                     int32_t vx, int32_t vy, int32_t vz,
+                                     vec3_t *intp, int32_t strictly_smaller_than_p)
+{
+    const int32_t x1=spr->x, y1=spr->y;
+    const int32_t xs=refpos->x, ys=refpos->y;
+
+    const int32_t topt = vx*(x1-xs) + vy*(y1-ys);
+    if (topt > 0)
+    {
+        const int32_t bot = vx*vx + vy*vy;
+        if (bot != 0)
+        {
+            int32_t i;
+            const int32_t intz = refpos->z + scale(vz,topt,bot);
+            const int32_t z1 = spr->z + spriteheightofsptr(spr, &i, 1);
+
+            if (intz >= z1-i && intz <= z1)
+            {
+                const int32_t topu = vx*(y1-ys) - vy*(x1-xs);
+
+                const int32_t offx = scale(vx,topu,bot);
+                const int32_t offy = scale(vy,topu,bot);
+                const int32_t dist = offx*offx + offy*offy;
+
+                i = tilesizx[spr->picnum]*spr->xrepeat;
+                if (dist <= mulscale7(i,i))
+                {
+                    const int32_t intx = xs + scale(vx,topt,bot);
+                    const int32_t inty = ys + scale(vy,topt,bot);
+
+                    if (klabs(intx-xs)+klabs(inty-ys) + strictly_smaller_than_p
+                            <= klabs(intp->x-xs)+klabs(intp->y-ys))
+                    {
+                        intp->x = intx;
+                        intp->y = inty;
+                        intp->z = intz;
+                        return 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
 //
 // hitscan
 //
@@ -11533,30 +11580,13 @@ restart_grand:
             {
             case 0:
             {
-                int32_t topt, topu, bot, dist, offx, offy;
+                if (try_facespr_intersect(spr, sv, vx, vy, vz, &hit->pos, 0))
+                {
+                    hit->sect = dasector;
+                    hit->wall = -1;
+                    hit->sprite = z;
+                }
 
-                topt = vx*(x1-sv->x) + vy*(y1-sv->y); if (topt <= 0) continue;
-                bot = vx*vx + vy*vy; if (bot == 0) continue;
-
-                intz = sv->z+scale(vz,topt,bot);
-
-                z1 += spriteheightofs(z, &i, 1);
-                if ((intz > z1) || (intz < z1-i)) continue;
-                topu = vx*(y1-sv->y) - vy*(x1-sv->x);
-
-                offx = scale(vx,topu,bot);
-                offy = scale(vy,topu,bot);
-                dist = offx*offx + offy*offy;
-                i = tilesizx[spr->picnum]*spr->xrepeat; i *= i;
-                if (dist > (i>>7)) continue;
-                intx = sv->x + scale(vx,topt,bot);
-                inty = sv->y + scale(vy,topt,bot);
-
-                if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
-                    continue;
-
-                hit->sect = dasector; hit->wall = -1; hit->sprite = z;
-                hit->pos.x = intx; hit->pos.y = inty; hit->pos.z = intz;
                 break;
             }
 
@@ -11704,10 +11734,8 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
 
     const int32_t vx = mulscale14(sintable[(ange+2560)&2047],neartagrange);
     const int32_t vy = mulscale14(sintable[(ange+2048)&2047],neartagrange);
-    const int32_t vz = 0;
-    int32_t xe = xs+vx;
-    int32_t ye = ys+vy;
-    int32_t ze = 0;
+    vec3_t hitv = { xs+vx, ys+vy, 0 };
+    const vec3_t sv = { xs, ys, zs };
 
     *neartagsector = -1; *neartagwall = -1; *neartagsprite = -1;
     *neartaghitdist = 0;
@@ -11747,14 +11775,14 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
             if ((good == 0) && (nextsector < 0)) continue;
             if ((int64_t)(x1-xs)*(y2-ys) < (int64_t)(x2-xs)*(y1-ys)) continue;
 
-            if (lintersect(xs,ys,zs,xe,ye,ze,x1,y1,x2,y2,&intx,&inty,&intz) == 1)
+            if (lintersect(xs,ys,zs,hitv.x,hitv.y,hitv.z,x1,y1,x2,y2,&intx,&inty,&intz) == 1)
             {
                 if (good != 0)
                 {
                     if (good&1) *neartagsector = nextsector;
                     if (good&2) *neartagwall = z;
                     *neartaghitdist = dmulscale14(intx-xs,sintable[(ange+2560)&2047],inty-ys,sintable[(ange+2048)&2047]);
-                    xe = intx; ye = inty; ze = intz;
+                    hitv.x = intx; hitv.y = inty; hitv.z = intz;
                 }
 
                 if (nextsector >= 0)
@@ -11775,56 +11803,17 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, 
         for (z=headspritesect[dasector]; z>=0; z=nextspritesect[z])
         {
             const spritetype *const spr = &sprite[z];
-            int32_t good = 0;
 
             if (blacklist_sprite_func && blacklist_sprite_func(z))
                 continue;
 
-            if ((tagsearch&1) && spr->lotag) good |= 1;
-            if ((tagsearch&2) && spr->hitag) good |= 1;
-
-            if (good != 0)
+            if (((tagsearch&1) && spr->lotag) || ((tagsearch&2) && spr->hitag))
             {
-                const int32_t x1=spr->x, y1=spr->y;
-                int32_t z1=spr->z;
-
-                const int32_t topt = vx*(x1-xs) + vy*(y1-ys);
-
-                if (topt > 0)
+                if (try_facespr_intersect(spr, &sv, vx, vy, 0, &hitv, 1))
                 {
-                    const int32_t bot = vx*vx + vy*vy;
-
-                    if (bot != 0)
-                    {
-                        int32_t i;
-                        const int32_t intz = zs+scale(vz,topt,bot);
-
-                        z1 += spriteheightofs(z, &i, 1);
-                        if (intz >= z1-i && intz <= z1)
-                        {
-                            const int32_t topu = vx*(y1-ys) - vy*(x1-xs);
-
-                            const int32_t offx = scale(vx,topu,bot);
-                            const int32_t offy = scale(vy,topu,bot);
-                            const int32_t dist = offx*offx + offy*offy;
-
-                            i = (tilesizx[spr->picnum]*spr->xrepeat);
-                            if (dist <= mulscale7(i,i))
-                            {
-                                const int32_t intx = xs + scale(vx,topt,bot);
-                                const int32_t inty = ys + scale(vy,topt,bot);
-
-                                if (klabs(intx-xs)+klabs(inty-ys) < klabs(xe-xs)+klabs(ye-ys))
-                                {
-                                    *neartagsprite = z;
-                                    *neartaghitdist = dmulscale14(intx-xs,sintable[(ange+2560)&2047],inty-ys,sintable[(ange+2048)&2047]);
-                                    xe = intx;
-                                    ye = inty;
-                                    ze = intz;
-                                }
-                            }
-                        }
-                    }
+                    *neartagsprite = z;
+                    *neartaghitdist = dmulscale14(hitv.x-xs, sintable[(ange+2560)&2047],
+                                                  hitv.y-ys, sintable[(ange+2048)&2047]);
                 }
             }
         }
