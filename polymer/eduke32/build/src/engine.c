@@ -8349,6 +8349,10 @@ int32_t initengine(void)
 }
 
 
+#define DO_FREE_AND_NULL(var) do { \
+    if (var != NULL) { Bfree(var); var = NULL; } \
+} while (0)
+
 //
 // uninitengine
 //
@@ -8372,33 +8376,23 @@ void uninitengine(void)
 
     // this leaves a bunch of invalid pointers in waloff... fixme?
     for (i=0; i<MAXTILEFILES; i++)
-    {
-        if (artptrs[i])
-        {
-            Bfree(artptrs[i]);
-            artptrs[i] = NULL;
-        }
-    }
+        DO_FREE_AND_NULL(artptrs[i]);
 
-    if (transluc != NULL) { Bfree(transluc); transluc = NULL; }
-    if (pic != NULL) { Bfree(pic); pic = NULL; }
-    if (lookups != NULL)
-    {
-        Bfree(lookups);
-        lookups = NULL;
-    }
+    DO_FREE_AND_NULL(transluc);
+    DO_FREE_AND_NULL(pic);
+    DO_FREE_AND_NULL(lookups);
 
     for (i=0; i<MAXPALOOKUPS; i++)
         if (palookup[i] != NULL && (i==0 || palookup[i] != palookup[0]))
         {
+            // Take care of handling aliased ^^^ cases!
             Bfree(palookup[i]);
         }
 
 #ifdef DYNALLOC_ARRAYS
-    if (blockptr != NULL)
-        Bfree(blockptr);
+    DO_FREE_AND_NULL(blockptr);
 #else
-    if (state_compress) Bfree(state_compress);
+    DO_FREE_AND_NULL(state_compress);
 #endif
 
     uninitsystem();
@@ -8850,23 +8844,25 @@ static inline int32_t         sameside(_equation *eq, _point2d *p1, _point2d *p2
 //
 void drawmasks(void)
 {
-    int32_t i, j, k, l, gap, xs, ys, xp, yp, yoff, yspan, modelp=0;
-    // PLAG: sorting stuff
-    _equation maskeq, p1eq, p2eq;
-    _point2d dot, dot2, middle, pos, spr;
+    int32_t i, j, k, l, modelp=0;
 
-    for (i=spritesortcnt-1; i>=0; i--) tspriteptr[i] = &tsprite[i];
+    for (i=spritesortcnt-1; i>=0; i--)
+        tspriteptr[i] = &tsprite[i];
+
     for (i=spritesortcnt-1; i>=0; i--)
     {
-        xs = tspriteptr[i]->x-globalposx; ys = tspriteptr[i]->y-globalposy;
-        yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
+        const int32_t xs = tspriteptr[i]->x-globalposx, ys = tspriteptr[i]->y-globalposy;
+        const int32_t yp = dmulscale6(xs,cosviewingrangeglobalang,ys,sinviewingrangeglobalang);
 #ifdef USE_OPENGL
         modelp = (usemodels && tile2model[tspriteptr[i]->picnum].modelid >= 0);
 #endif
         if (yp > (4<<8))
         {
-            xp = dmulscale6(ys,cosglobalang,-xs,singlobalang);
-            if (mulscale24(labs(xp+yp),xdimen) >= yp) goto killsprite;
+            const int32_t xp = dmulscale6(ys,cosglobalang,-xs,singlobalang);
+
+            if (mulscale24(labs(xp+yp),xdimen) >= yp)
+                goto killsprite;
+
             spritesx[i] = scale(xp+yp,xdimen<<7,yp);
         }
         else if ((tspriteptr[i]->cstat&48) == 0)
@@ -8875,10 +8871,12 @@ killsprite:
             if (!modelp)
             {
                 spritesortcnt--;  //Delete face sprite if on wrong side!
-                if (i == spritesortcnt) continue;
-                tspriteptr[i] = tspriteptr[spritesortcnt];
-                spritesx[i] = spritesx[spritesortcnt];
-                spritesy[i] = spritesy[spritesortcnt];
+                if (i != spritesortcnt)
+                {
+                    tspriteptr[i] = tspriteptr[spritesortcnt];
+                    spritesx[i] = spritesx[spritesortcnt];
+                    spritesy[i] = spritesy[spritesortcnt];
+                }
                 continue;
             }
         }
@@ -8886,6 +8884,7 @@ killsprite:
     }
 
     {
+        int32_t gap, ys;
         gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
         for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
             for (i=0; i<spritesortcnt-gap; i++)
@@ -8903,20 +8902,29 @@ killsprite:
         ys = spritesy[0]; i = 0;
         for (j=1; j<=spritesortcnt; j++)
         {
-            if (spritesy[j] == ys) continue;
+            if (spritesy[j] == ys)
+                continue;
+
             ys = spritesy[j];
+
             if (j > i+1)
             {
                 for (k=i; k<j; k++)
                 {
-                    spritesz[k] = tspriteptr[k]->z;
-                    if ((tspriteptr[k]->cstat&48) != 32)
+                    const spritetype *const s = tspriteptr[k];
+
+                    spritesz[k] = s->z;
+                    if ((s->cstat&48) != 32)
                     {
-                        yoff = picanm[tspriteptr[k]->picnum].yofs + tspriteptr[k]->yoffset;
-                        spritesz[k] -= ((yoff*tspriteptr[k]->yrepeat)<<2);
-                        yspan = (tilesizy[tspriteptr[k]->picnum]*tspriteptr[k]->yrepeat<<2);
-                        if (!(tspriteptr[k]->cstat&128)) spritesz[k] -= (yspan>>1);
-                        if (klabs(spritesz[k]-globalposz) < (yspan>>1)) spritesz[k] = globalposz;
+                        int32_t yoff = picanm[s->picnum].yofs + s->yoffset;
+                        int32_t yspan = (tilesizy[s->picnum]*s->yrepeat<<2);
+
+                        spritesz[k] -= (yoff*s->yrepeat)<<2;
+
+                        if (!(s->cstat&128))
+                            spritesz[k] -= (yspan>>1);
+                        if (klabs(spritesz[k]-globalposz) < (yspan>>1))
+                            spritesz[k] = globalposz;
                     }
                 }
                 for (k=i+1; k<j; k++)
@@ -8942,25 +8950,30 @@ killsprite:
     }
 
     begindrawing(); //{{{
-
-    /*for(i=spritesortcnt-1;i>=0;i--)
+#if 0
+    for (i=spritesortcnt-1; i>=0; i--)
     {
-        xs = tspriteptr[i].x-globalposx;
-        ys = tspriteptr[i].y-globalposy;
-        zs = tspriteptr[i].z-globalposz;
+        double xs = tspriteptr[i]->x-globalposx;
+        double ys = tspriteptr[i]->y-globalposy;
+        int32_t zs = tspriteptr[i]->z-globalposz;
 
-        xp = ys*cosglobalang-xs*singlobalang;
-        yp = (zs<<1);
-        zp = xs*cosglobalang+ys*singlobalang;
+        int32_t xp = ys*cosglobalang-xs*singlobalang;
+        int32_t yp = (zs<<1);
+        int32_t zp = xs*cosglobalang+ys*singlobalang;
 
-        xs = scale(xp,halfxdimen<<12,zp)+((halfxdimen+windowx1)<<12);
-        ys = scale(yp,xdimenscale<<12,zp)+((globalhoriz+windowy1)<<12);
+        xs = ((double)xp*(halfxdimen<<12)/zp)+((halfxdimen+windowx1)<<12);
+        ys = ((double)yp*(xdimenscale<<12)/zp)+((globalhoriz+windowy1)<<12);
 
-        drawline256(xs-65536,ys-65536,xs+65536,ys+65536,31);
-        drawline256(xs+65536,ys-65536,xs-65536,ys+65536,31);
-    }*/
-
+        if (xs >= INT32_MIN && xs <= INT32_MAX && ys >= INT32_MIN && ys <= INT32_MAX)
+        {
+            drawline256(xs-65536,ys-65536,xs+65536,ys+65536,31);
+            drawline256(xs+65536,ys-65536,xs-65536,ys+65536,31);
+        }
+    }
+#endif
     {
+        _point2d pos;
+
 #ifdef USE_OPENGL
         curpolygonoffset = 0;
 # ifdef MODEL_OCCLUSION_CHECKING
@@ -8972,6 +8985,10 @@ killsprite:
 
         while (maskwallcnt)
         {
+            _point2d dot, dot2, middle;
+            // PLAG: sorting stuff
+            _equation maskeq, p1eq, p2eq;
+
             maskwallcnt--;
 #if defined(USE_OPENGL) && defined(POLYMER)
             if (rendmode == 4)
@@ -9003,10 +9020,12 @@ killsprite:
                 i--;
                 if (tspriteptr[i] != NULL)
                 {
+                    _point2d spr;
+
                     spr.x = (float)tspriteptr[i]->x;
                     spr.y = (float)tspriteptr[i]->y;
 
-                    if ((sameside(&maskeq, &spr, &pos) == 0) && sameside(&p1eq, &middle, &spr) && sameside(&p2eq, &middle, &spr))
+                    if (!sameside(&maskeq, &spr, &pos) && sameside(&p1eq, &middle, &spr) && sameside(&p2eq, &middle, &spr))
                     {
                         drawsprite(i);
                         tspriteptr[i] = NULL;
@@ -9022,6 +9041,7 @@ killsprite:
             if (tspriteptr[spritesortcnt] != NULL)
                 drawsprite(spritesortcnt);
         }
+
 #ifdef MODEL_OCCLUSION_CHECKING
         if (totalclock < lastcullcheck - CULL_DELAY)
             lastcullcheck = totalclock;
@@ -9031,16 +9051,15 @@ killsprite:
     }
 
 #ifdef POLYMER
-    if (rendmode == 4) {
+    if (rendmode == 4)
         polymer_drawmasks();
-    }
 #endif
 
     indrawroomsandmasks = 0;
     enddrawing();   //}}}
 }
 
-static void get_flatspr_points(const spritetype *spr, int32_t px, int32_t py,
+static void get_floorspr_points(const spritetype *spr, int32_t px, int32_t py,
                                int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
                                int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4);
 
@@ -9233,7 +9252,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             x1 = spr->x;
             y1 = spr->y;
-            get_flatspr_points(spr, 0, 0, &x1, &x2, &x3, &x4,
+            get_floorspr_points(spr, 0, 0, &x1, &x2, &x3, &x4,
                                &y1, &y2, &y3, &y4);
             xspan = tilesizx[spr->picnum];
 
@@ -10469,7 +10488,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
 {
     int32_t i, tilefilei;
 
-    Bstrcpy(artfilename,filename);
+    Bstrncpyz(artfilename, filename, sizeof(artfilename));
 
     Bmemset(tilesizx, 0, sizeof(tilesizx));
     Bmemset(tilesizy, 0, sizeof(tilesizy));
@@ -11164,6 +11183,17 @@ add_nextsector:
     return(0);
 }
 
+static inline void hit_set(hitdata_t *hit, int32_t sectnum, int32_t wallnum, int32_t spritenum,
+                           int32_t x, int32_t y, int32_t z)
+{
+    hit->sect = sectnum;
+    hit->wall = wallnum;
+    hit->sprite = spritenum;
+    hit->pos.x = x;
+    hit->pos.y = y;
+    hit->pos.z = z;
+}
+
 static int32_t hitscan_hitsectcf=-1;
 
 // stat, heinum, z: either ceiling- or floor-
@@ -11215,8 +11245,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
         {
             if (inside(x1,y1,sec-sector) == 1)
             {
-                hit->sect = sec-sector; hit->wall = -1; hit->sprite = -1;
-                hit->pos.x = x1; hit->pos.y = y1; hit->pos.z = z1;
+                hit_set(hit, sec-sector, -1, -1, x1, y1, z1);
                 hitscan_hitsectcf = (how+1)>>1;
             }
         }
@@ -11229,10 +11258,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
             if (!thislastsec)
             {
                 if (inside(x1,y1,sec-sector) == 1)
-                {
-                    hit->sect = curspr->sectnum; hit->wall = -1; hit->sprite = curspr-sprite;
-                    hit->pos.x = x1; hit->pos.y = y1; hit->pos.z = z1;
-                }
+                    hit_set(hit, curspr->sectnum, -1, curspr-sprite, x1, y1, z1);
             }
 #ifdef HAVE_CLIPSHAPE_FEATURE
             else
@@ -11241,8 +11267,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
                 {
                     if (inside(x1,y1,sectq[i]) == 1)
                     {
-                        hit->sect = curspr->sectnum; hit->wall = -1; hit->sprite = curspr-sprite;
-                        hit->pos.x = x1; hit->pos.y = y1; hit->pos.z = z1;
+                        hit_set(hit, curspr->sectnum, -1, curspr-sprite, x1, y1, z1);
                         break;
                     }
                 }
@@ -11256,7 +11281,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
 
 // x1, y1: in/out
 // rest x/y: out
-static void get_rotspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
+static void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
                               int32_t *y1, int32_t *y2)
 {
     //These lines get the 2 points of the rotated sprite
@@ -11285,7 +11310,7 @@ static void get_rotspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
 
 // x1, y1: in/out
 // rest x/y: out
-static void get_flatspr_points(const spritetype *spr, int32_t px, int32_t py,
+static void get_floorspr_points(const spritetype *spr, int32_t px, int32_t py,
                                int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
                                int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
 {
@@ -11323,7 +11348,7 @@ static void get_flatspr_points(const spritetype *spr, int32_t px, int32_t py,
     k = -mulscale16(sinang,l); *y3 = *y2+k; *y4 = *y1+k;
 }
 
-static int32_t get_flatspr_clipyou(int32_t x1, int32_t x2, int32_t x3, int32_t x4,
+static int32_t get_floorspr_clipyou(int32_t x1, int32_t x2, int32_t x3, int32_t x4,
                                    int32_t y1, int32_t y2, int32_t y3, int32_t y4)
 {
     int32_t clipyou = 0;
@@ -11511,15 +11536,14 @@ restart_grand:
             {
                 if ((nextsector < 0) || (wal->cstat&dawalclipmask))
                 {
-                    hit->sect = dasector; hit->wall = z; hit->sprite = -1;
-                    hit->pos.x = intx; hit->pos.y = inty; hit->pos.z = intz;
+                    hit_set(hit, dasector, z, -1, intx, inty, intz);
                     continue;
                 }
+
                 getzsofslope(nextsector,intx,inty,&daz,&daz2);
-                if ((intz <= daz) || (intz >= daz2))
+                if (intz <= daz || intz >= daz2)
                 {
-                    hit->sect = dasector; hit->wall = z; hit->sprite = -1;
-                    hit->pos.x = intx; hit->pos.y = inty; hit->pos.z = intz;
+                    hit_set(hit, dasector, z, -1, intx, inty, intz);
                     continue;
                 }
             }
@@ -11530,17 +11554,16 @@ restart_grand:
 
                 if (wal->cstat&dawalclipmask)
                 {
-                    hit->sect = curspr->sectnum; hit->wall = -1; hit->sprite = curspr-sprite;
-                    hit->pos.x = intx; hit->pos.y = inty; hit->pos.z = intz;
+                    hit_set(hit, curspr->sectnum, -1, curspr-sprite, intx, inty, intz);
                     continue;
                 }
+
                 getzsofslope(nextsector,intx,inty,&daz,&daz2);
                 getzsofslope(sectq[clipinfo[curidx].qend],intx,inty,&cz,&fz);
                 // ceil   cz daz daz2 fz   floor
                 if ((cz <= intz && intz <= daz) || (daz2 <= intz && intz <= fz))
                 {
-                    hit->sect = curspr->sectnum; hit->wall = -1; hit->sprite = curspr-sprite;
-                    hit->pos.x = intx; hit->pos.y = inty; hit->pos.z = intz;
+                    hit_set(hit, curspr->sectnum, -1, curspr-sprite, intx, inty, intz);
                     continue;
                 }
             }
@@ -11595,7 +11618,7 @@ restart_grand:
                 int32_t ucoefup16;
                 const int32_t tilenum = spr->picnum;
 
-                get_rotspr_points(spr, &x1, &x2, &y1, &y2);
+                get_wallspr_points(spr, &x1, &x2, &y1, &y2);
 
                 if ((cstat&64) != 0)   //back side of 1-way sprite
                     if ((int64_t)(x1-sv->x)*(y2-sv->y) < (int64_t)(x2-sv->x)*(y1-sv->y)) continue;
@@ -11621,15 +11644,13 @@ restart_grand:
                             continue;
                     }
 
-                    hit->sect = dasector; hit->wall = -1; hit->sprite = z;
-                    hit->pos.x = intx; hit->pos.y = inty; hit->pos.z = intz;
+                    hit_set(hit, dasector, -1, z, intx, inty, intz);
                 }
                 break;
             }
 
             case 32:
             {
-                char clipyou;
                 int32_t x3, y3, x4, y4, zz;
 
                 if (vz == 0) continue;
@@ -11655,16 +11676,14 @@ restart_grand:
                 if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
                     continue;
 
-                get_flatspr_points(spr, intx, inty, &x1, &x2, &x3, &x4,
+                get_floorspr_points(spr, intx, inty, &x1, &x2, &x3, &x4,
                                    &y1, &y2, &y3, &y4);
 
-                clipyou = get_flatspr_clipyou(x1, x2, x3, x4, y1, y2, y3, y4);
-
-                if (clipyou)
+                if (get_floorspr_clipyou(x1, x2, x3, x4, y1, y2, y3, y4))
                 {
-                    hit->sect = dasector; hit->wall = -1; hit->sprite = z;
-                    hit->pos.x = intx; hit->pos.y = inty; hit->pos.z = intz;
+                    hit_set(hit, dasector, -1, z, intx, inty, intz);
                 }
+
                 break;
             }
             }
@@ -12381,7 +12400,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 daz += ceildist; daz2 -= flordist;
                 if (((pos->z) < daz) && ((pos->z) > daz2))
                 {
-                    get_rotspr_points(spr, &x1, &x2, &y1, &y2);
+                    get_wallspr_points(spr, &x1, &x2, &y1, &y2);
 
                     if (clipinsideboxline(cx,cy,x1,y1,x2,y2,rad) != 0)
                     {
@@ -12419,7 +12438,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
                     rxi[0] = x1;
                     rxi[1] = y1;
-                    get_flatspr_points(spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
+                    get_floorspr_points(spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
                                        &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
 
                     dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist);
@@ -13262,7 +13281,7 @@ restart_grand:
 
                 case 16:
                 {
-                    get_rotspr_points(spr, &x1, &x2, &y1, &y2);
+                    get_wallspr_points(spr, &x1, &x2, &y1, &y2);
 
                     if (clipinsideboxline(pos->x,pos->y,x1,y1,x2,y2,walldist+1) != 0)
                     {
@@ -13282,7 +13301,7 @@ restart_grand:
                     if ((cstat&64) != 0)
                         if ((pos->z > daz) == ((cstat&8)==0)) continue;
 
-                    get_flatspr_points(spr, pos->x, pos->y, &x1, &x2, &x3, &x4,
+                    get_floorspr_points(spr, pos->x, pos->y, &x1, &x2, &x3, &x4,
                                        &y1, &y2, &y3, &y4);
 
                     dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist+4);
@@ -13290,7 +13309,7 @@ restart_grand:
                     x1 += dax; x2 -= day; x3 -= dax; x4 += day;
                     y1 += day; y2 += dax; y3 -= day; y4 -= dax;
 
-                    clipyou = get_flatspr_clipyou(x1, x2, x3, x4, y1, y2, y3, y4);
+                    clipyou = get_floorspr_clipyou(x1, x2, x3, x4, y1, y2, y3, y4);
                     break;
                 }
                 }
