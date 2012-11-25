@@ -450,6 +450,7 @@ end
 -- declares struct action and struct move, and their ID-wrapped types
 -- con_action_t and con_move_t
 local con = require("control")
+local MV, AC, AI = con.MV, con.AC, con.AI
 
 -- All-zero action and move
 local nullac, nullmv = ffi.new("const struct action"), ffi.new("const struct move")
@@ -474,6 +475,11 @@ local actor_mt = {
         -- action
         set_action = function(a, act)
             a = ffi.cast(actor_ptr_ct, a)
+            if (type(act)=="string") then
+                act = AC[act];
+            end
+            -- TODO: disallow passing the FFI types altogether, in favor of
+            -- strings (also move, ai)?
             if (ffi.istype(con_action_ct, act)) then
                 a.t_data[4] = act.id
                 a.ac = act.ac
@@ -489,6 +495,9 @@ local actor_mt = {
 
         has_action = function(a, act)
             a = ffi.cast(actor_ptr_ct, a)
+            if (type(act)=="string") then
+                act = AC[act];
+            end
             if (ffi.istype(con_action_ct, act)) then
                 return (a.t_data[4]==act.id)
             else
@@ -518,6 +527,9 @@ local actor_mt = {
         -- move
         set_move = function(a, mov, movflags)
             a = ffi.cast(actor_ptr_ct, a)
+            if (type(mov)=="string") then
+                mov = MV[mov];
+            end
             if (ffi.istype(con_move_ct, mov)) then
                 a.t_data[1] = mov.id
                 a.mv = mov.mv
@@ -536,6 +548,9 @@ local actor_mt = {
 
         has_move = function(a, mov)
             a = ffi.cast(actor_ptr_ct, a)
+            if (type(mov)=="string") then
+                mov = MV[mov];
+            end
             if (ffi.istype(con_move_ct, mov)) then
                 return (a.t_data[1]==mov.id)
             else
@@ -549,6 +564,9 @@ local actor_mt = {
             local oa = a
             a = ffi.cast(actor_ptr_ct, a)
 
+            if (type(mov)=="string") then
+                ai = AI[ai];
+            end
             -- TODO: literal number AIs?
             if (not ffi.istype(con_ai_ct, ai)) then
                 error("bad argument: expected ai", 2)
@@ -566,6 +584,9 @@ local actor_mt = {
         has_ai = function(a, ai)
             a = ffi.cast(actor_ptr_ct, a)
 
+            if (type(mov)=="string") then
+                ai = AI[ai];
+            end
             if (ffi.istype(con_ai_ct, ai)) then
                 return (a.t_data[5]==ai.id)
             else

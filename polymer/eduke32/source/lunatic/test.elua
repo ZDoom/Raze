@@ -236,7 +236,12 @@ local con = require("con")
 local AC, MV = con.AC, con.MV
 con.action("TROOPFLINTCH", 50, 1, 1, 1, 6)
 con.move("SHRUNKVELS", 32)
-con.ai("AITEMP", "TROOPFLINTCH", MV.SHRUNKVELS, 0)  -- TODO: test
+con.ai("AITEMP", AC.TROOPFLINTCH, MV.SHRUNKVELS, 0)  -- TODO: test
+-- This should work as well. In fact, it's exactly the same, but I prefer the
+-- above version for clarity.  NOTE: we'll need to think whether it's OK to
+-- redefine composites (moves/actions/ais) during gameplay (probably not).
+-- Or will we allow only one definition per label ever?
+con.ai("AITEMP", "TROOPFLINTCH", "SHRUNKVELS", 0)
 
 gameactor(1680,  -- LIZTROOP
           function(i, playeri, dist)
@@ -257,8 +262,8 @@ gameactor(1680,  -- LIZTROOP
 
               if (dist < 4096) then
                   -- Duke Vader / Anakin Nukewalker?
-                  actor[i]:set_action(AC.TROOPFLINTCH)
-                  actor[i]:set_move(MV.SHRUNKVELS)
+                  actor[i]:set_action("TROOPFLINTCH")
+                  actor[i]:set_move("SHRUNKVELS")
               end
           end
          )

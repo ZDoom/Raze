@@ -7,7 +7,6 @@ local bit = require("bit")
 
 local setmetatable = setmetatable
 
-local assert = assert
 local error = error
 local type = type
 
@@ -31,11 +30,15 @@ local function check_name(name, what, errlev)
 end
 
 local function action_or_move(what, numargs, tab, name, ...)
-    assert(lastid[what] > -(2^31))
+    if (lastid[what] <= -(2^31)) then
+        error("Too many "..what.."s defined", 3);
+    end
     check_name(name, what, 3)
 
     local args = {...}
-    assert(#args <= numargs)
+    if (#args > numargs) then
+        error("Too many arguments passed to "..what, 3)
+    end
 
     for i=1,#args do
         local n = args[i]
@@ -79,11 +82,13 @@ local function get_action_or_move(what, val, argi)
     end
 
     -- TODO: literal number actions/moves?
-    error("bad argument #"..argi.." to ai: must be string or "..what)
+    error("bad argument #"..argi.." to ai: must be string or "..what, 3)
 end
 
 function ai(name, action, move, flags)
-    assert(lastid.ai > -(2^31))
+    if (lastid.ai <= -(2^31)) then
+        error("Too many AIs defined", 2);
+    end
     check_name(name, "ai", 2)
 
     lastid.ai = lastid.ai-1
@@ -108,7 +113,7 @@ end
 function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
                       cx1, cy1, cx2, cy2)
     if (type(tilenum) ~= "number" or not (tilenum >= 0 and tilenum < ffiC.MAXTILES)) then
-        error("bad argument #5 to rotatesprite: must be number in [0.."..ffiC.MAXTILES.."]")
+        error("bad argument #5 to rotatesprite: must be number in [0.."..ffiC.MAXTILES.."]", 2)
     end
 
     ffiC.rotatesprite(65536*x, 65536*y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
