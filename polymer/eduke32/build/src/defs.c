@@ -81,11 +81,12 @@ enum scripttoken_t
     T_CACHESIZE,
     T_IMPORTTILE,
     T_MUSIC,T_ID,T_SOUND,
-    T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET, T_TEXHITSCAN,
+    T_TILEFROMTEXTURE, T_XOFFSET, T_YOFFSET, T_TEXHITSCAN, T_NOFULLBRIGHT,
     T_INCLUDEDEFAULT,
     T_ANIMSOUNDS,
     T_NOFLOORPALRANGE,
     T_TEXHITSCANRANGE,
+    T_NOFULLBRIGHTRANGE,
     T_ECHO,
 };
 
@@ -222,6 +223,7 @@ static int32_t defsparser(scriptfile *script)
         { "animsounds",      T_ANIMSOUNDS       },  // dummy
         { "nofloorpalrange", T_NOFLOORPALRANGE  },  // dummy
         { "texhitscanrange", T_TEXHITSCANRANGE  },
+        { "nofullbrightrange", T_NOFULLBRIGHTRANGE },
         // other stuff
         { "undefmodel",      T_UNDEFMODEL       },
         { "undefmodelrange", T_UNDEFMODELRANGE  },
@@ -504,7 +506,7 @@ static int32_t defsparser(scriptfile *script)
         {
             char *texturetokptr = script->ltextptr, *textureend, *fn = NULL;
             int32_t tile=-1;
-            int32_t alphacut = 255, texhitscan=0;
+            int32_t alphacut = 255, texhitscan=0, nofullbright=0;
             int32_t xoffset = 0, yoffset = 0;
 
             static const tokenlist tilefromtexturetokens[] =
@@ -517,6 +519,7 @@ static int32_t defsparser(scriptfile *script)
                 { "yoffset",         T_YOFFSET },
                 { "yoff",            T_YOFFSET },
                 { "texhitscan",      T_TEXHITSCAN },
+                { "nofullbright",    T_NOFULLBRIGHT },
             };
 
             if (scriptfile_getsymbol(script,&tile)) break;
@@ -554,7 +557,10 @@ static int32_t defsparser(scriptfile *script)
                 // filefromtexture <tile> { texhitscan }  sets the bit but doesn't change tile data
                 if (texhitscan)
                     picanm[tile].sf |= PICANM_TEXHITSCAN_BIT;
-                else
+                if (nofullbright)
+                    picanm[tile].sf |= PICANM_NOFULLBRIGHT_BIT;
+
+                if (!texhitscan && !nofullbright)
                     initprintf("Error: missing 'file name' for tilefromtexture definition near line %s:%d\n",
                                script->filename, scriptfile_getlinum(script,texturetokptr));
                 break;
@@ -583,6 +589,8 @@ static int32_t defsparser(scriptfile *script)
                 picanm[tile].yofs = clamp(yoffset, -128, 127);
                 if (texhitscan)
                     picanm[tile].sf |= PICANM_TEXHITSCAN_BIT;
+                if (nofullbright)
+                    picanm[tile].sf |= PICANM_NOFULLBRIGHT_BIT;
 
                 tile_from_truecolpic(tile, picptr, alphacut);
 
@@ -1951,6 +1959,7 @@ static int32_t defsparser(scriptfile *script)
         break;
 
         case T_TEXHITSCANRANGE:
+        case T_NOFULLBRIGHTRANGE:
         {
             int32_t b,e, i;
 
@@ -1961,7 +1970,8 @@ static int32_t defsparser(scriptfile *script)
             e = min(e, MAXTILES-1);
 
             for (i=b; i<=e; i++)
-                picanm[i].sf |= PICANM_TEXHITSCAN_BIT;
+                picanm[i].sf |= (tokn==T_TEXHITSCANRANGE) ?
+                    PICANM_TEXHITSCAN_BIT : PICANM_NOFULLBRIGHT_BIT;
         }
         break;
 
