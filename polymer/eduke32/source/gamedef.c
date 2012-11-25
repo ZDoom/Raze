@@ -5707,6 +5707,7 @@ static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
     g_numDefaultLabels++;
 }
 
+// KEEPINSYNC lunatic/con_lang.lua
 static void C_AddDefaultDefinitions(void)
 {
     int32_t i;

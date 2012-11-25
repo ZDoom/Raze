@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SLEEPTIME           1536
 #define ZOFFSET             (1<<8)
 
+// KEEPINSYNC lunatic/con_lang.lua
 #define STAT_DEFAULT        0
 #define STAT_ACTOR          1
 #define STAT_ZOMBIEACTOR    2
@@ -180,6 +181,7 @@ typedef struct {
 
 #pragma pack(pop)
 
+// KEEPINSYNC lunatic/con_lang.lua
 enum sflags_t {
     SPRITE_SHADOW           = 0x00000001,
     SPRITE_NVG              = 0x00000002,
@@ -201,6 +203,7 @@ enum sflags_t {
 };
 
 // custom projectiles
+// KEEPINSYNC lunatic/con_lang.lua
 enum pflags_t {
     PROJECTILE_HITSCAN             = 0x00000001,
     PROJECTILE_RPG                 = 0x00000002,
