@@ -179,8 +179,9 @@ checkfail('local spr = sprite[0]; local x=spr+1', "attempt to perform arithmetic
 checkfail('gameactor(1680, 0)', "bad argument #3 to 'gameactor' (function expected, got number)")
 
 checkfail("do local bt=require'bittest'; bt.QWE=1; end", "modifying module table forbidden")
--- the cdata returned by player[] is not a pointer!
-checkfail("do local pl=player[0]; i=pl[1]")
+-- the cdata returned by player[] can't be made into a pointer!
+checkfail("do local pl=player[0]; i=pl[1]; end")
+checkfail("do local ud=gv.ud.camera; end", "dummy variable: read access forbidden")  -- test for proper decl()
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 

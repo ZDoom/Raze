@@ -8,6 +8,7 @@ local ffiC = ffi.C
 
 local string = string
 local table = table
+local print = print
 
 --== First, load the definitions common to the game's and editor's Lua interface.
 
@@ -24,10 +25,12 @@ local dummy_empty_table = {}
 -- accessible through the "gv" global. The "defs_common" module will
 -- use this function.
 --
--- NOTE: don't declare multiple pointers on one line (this is bad: "int32_t *a, *b")
---  and array *arguments* should be separated by a space, like
---  "int func(char arrayarg [16])"
+-- Notes: do not declare multiple pointers on one line (this is bad:
+-- "int32_t *a, *b"). Do not name array arguments (or add a space
+-- between the identifier and the '[' instead).
 function decl(str)
+    -- NOTE that the regexp also catches non-array/non-function identifiers
+    -- like "user_defs ud;"
     for varname in string.gmatch(str, "([%a_][%w_]*)[[(;]") do
 --        print("DUMMY "..varname)
         gv_[varname] = dummy_empty_table
@@ -97,9 +100,8 @@ enum {
 };
 ]]
 
-ffi.cdef([[
+ffi.cdef[[
 #pragma pack(push,1)
-
 struct action {
     int16_t startframe, numframes;
     int16_t viewtype, incval, delay;
@@ -118,18 +120,18 @@ typedef struct {
     con_move_t mov;
     int32_t movflags;
 } con_ai_t;
-
-// TODO: still need to make some fields read-only
-// NOTE: must not expose arrays in structs!!!
-typedef struct
-{
+#pragma pack(pop)
 ]]
-..repeat_n_elts("int32_t", "_t", 10)..
-[[
-//    const int32_t t_data[10];  // 56b sometimes used to hold offsets to con code
+
+-- Struct template for actor_t. It already has 'const' fields (TODO: might need
+-- to make more 'const'), but still has array members exposed, so is unsuited
+-- for external exposure.
+local ACTOR_STRUCT = [[
+{
+    const int32_t t_data[10];  // 56b sometimes used to hold offsets to con code
     const struct move mv;
     const struct action ac;
-    const int16_t _padding;
+    const int16_t _padding[1];
 
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; //6b
@@ -140,33 +142,12 @@ typedef struct
 
     const int16_t lightId, lightcount, lightmaxrange, cgg; //8b
     int16_t actorstayput, dispicnum, shootzvel; // 6b
-]]
-..repeat_n_elts("int8_t", "_d", 8)..
-[[
-//    const int8_t _do_not_use[8];
-} actor_t;
-
-// The _u_t versions are unrestricted variants for internal use.
-typedef struct
-{
-    int32_t t_data[10];
-    struct move mv;
-    struct action ac;
-    const int16_t padding_;
-
-    int16_t picnum,ang,extra,owner;
-    int16_t movflag,tempang,timetosleep;
-
-    int32_t flags, bposx,bposy,bposz;
-    int32_t floorz,ceilingz,lastvx,lastvy;
-    int32_t lasttransport;
-
-    int16_t lightId, lightcount, lightmaxrange, cgg;
-    int16_t actorstayput, dispicnum, shootzvel;
     const int8_t _do_not_use[8];
-} actor_u_t;
+}
+]]
 
-typedef struct {
+local DUKEPLAYER_STRUCT = [[
+{
     vec3_t pos, opos, vel, npos;
     int32_t bobposx, bobposy;
     int32_t truefz, truecz, player_par;
@@ -180,19 +161,15 @@ typedef struct {
 
     uint16_t max_actors_killed, actors_killed;
     uint16_t gotweapon, zoom;
-]]
-..repeat_n_elts("int16_t", "_lx", 64)..repeat_n_elts("int16_t", "_ly", 64)..
-[[
-//    int16_t loogiex[64], loogiey[64];
+
+    const int16_t loogiex[64];
+    const int16_t loogiey[64];
     int16_t sbs, sound_pitch;
 
     int16_t ang, oang, angvel, cursectnum, look_ang, last_extra, subweapon;
-]]
-..repeat_n_elts("int16_t", "_ma", ffiC.MAX_WEAPONS)
-..repeat_n_elts("int16_t", "_aa", ffiC.MAX_WEAPONS)
-..repeat_n_elts("int16_t", "_ia", ffiC.GET_MAX)..
-[[
-//    int16_t max_ammo_amount[MAX_WEAPONS], ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
+    const int16_t max_ammo_amount[MAX_WEAPONS];
+    const int16_t ammo_amount[MAX_WEAPONS];
+    const int16_t inv_amount[GET_MAX];
     int16_t wackedbyactor, pyoff, opyoff;
 
     int16_t horiz, horizoff, ohoriz, ohorizoff;
@@ -203,10 +180,8 @@ typedef struct {
     int16_t random_club_frame, one_eighty_count;
     int16_t dummyplayersprite, extra_extra8;
     int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
-]]
-..repeat_n_elts("int16_t", "_w", ffiC.MAX_WEAPONS)..
-[[
-//    int16_t weaprecs[MAX_WEAPONS];
+
+    const int16_t weaprecs[MAX_WEAPONS];
     int16_t weapon_sway, crack_time, bobcounter;
 
     int16_t orotscrnang, rotscrnang, dead_flag;   // JBF 20031220: added orotscrnang
@@ -236,13 +211,68 @@ typedef struct {
     int8_t last_weapon, cheat_phase, weapon_pos, wantweaponfire, curr_weapon;
 
     palette_t pals;
-]]
-..repeat_n_elts("char", "_n", 32)..
-[[
-//    char name[32];
 
-    int8_t padding_;
-} DukePlayer_t;
+    const char name[32];
+
+    const int8_t padding_[1];
+}
+]]
+
+local randgen = require("randgen")
+
+-- Converts a template struct definition to an internal, unrestricted one.
+local function strip_const(structstr)
+    return string.gsub(structstr, "const ", "");
+end
+
+local ma_rand = randgen.new(true)  -- initialize to "random" (time-based) seed
+local ma_count = nil
+
+local function ma_replace_array(typestr, neltstr)
+    local nelts = tonumber(neltstr)
+    if (nelts==nil) then
+        nelts = ffiC[neltstr]
+        assert(type(nelts)=="number")
+    end
+
+    local strtab = { "const ", typestr.." " }
+    for i=1,nelts do
+        local ch1 = 97 + (ma_rand:getu32() % 25)  -- 'a'..'z'
+        strtab[i+2] = string.format("_%c%x%s", ch1, ma_count, (i<nelts) and "," or "")
+        ma_count = ma_count+1
+    end
+    strtab[#strtab+1] = ";"
+
+    return table.concat(strtab)
+end
+
+-- Converts a template struct definition to an external one, in which arrays
+-- have been substituted by randomly named scalar fields.
+local function mangle_arrays(structstr)
+    ma_count = 0
+    -- NOTE: regexp only works for non-nested arrays and for one array per line.
+    return (string.gsub(structstr, "const%s+([%w_]+)[^\n]+%[([%w_]+)%];", ma_replace_array))
+end
+
+--print(mangle_arrays(ACTOR_STRUCT))
+
+ffi.cdef([[
+#pragma pack(push, 1)
+typedef struct
+]].. mangle_arrays(ACTOR_STRUCT) ..[[
+actor_t;
+
+typedef struct
+]].. strip_const(ACTOR_STRUCT).. [[
+actor_u_t;  // The _u_t versions are unrestricted variants for internal use.
+
+typedef struct
+]].. mangle_arrays(DUKEPLAYER_STRUCT) ..[[
+DukePlayer_t;
+
+typedef struct
+]].. strip_const(DUKEPLAYER_STRUCT) ..[[
+DukePlayer_u_t;
 
 typedef struct {
     uint32_t bits; // 4b
@@ -394,29 +424,12 @@ void kclose(int32_t handle);
 int32_t kread(int32_t handle, void *buffer, int32_t leng);
 ]]
 
--- JKISS PRNG state struct and functions, see randgen module
-ffi.cdef[[
-typedef struct {
-    uint32_t x, y, z, c;
-} rng_jkiss_t;
-]]
-decl[[
-uint32_t rand_jkiss_u32(rng_jkiss_t *s);
-double rand_jkiss_dbl(rng_jkiss_t *s);
-
-void md4once(const unsigned char *block, unsigned int len, unsigned char digest [16]);
-]]
--- ^^^ The space between 'digest' and '[16]' is so that it's not added to the
--- dummy_empty_table (see regexp in decl()).
-
-
 
 local assert = assert
 local error = error
 local ipairs = ipairs
 local loadstring = loadstring
 local pairs = pairs
-local print = print
 local rawget = rawget
 local rawset = rawset
 local setmetatable = setmetatable
@@ -616,8 +629,6 @@ end
 
 ---=== Set up restricted global environment ===---
 
-gv_tmp = gv_  -- required by randgen
-
 local allowed_modules = {
     coroutine=coroutine, bit=bit, table=table, math=math, string=string,
 
@@ -625,7 +636,7 @@ local allowed_modules = {
         clock = function() return gv_.gethitickms()*0.001 end,
     },
 
-    randgen = require("randgen"),
+    randgen = randgen,
     geom = require("geom"),
     stat = require("stat"),
     bitar = require("bitar"),

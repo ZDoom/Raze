@@ -142,8 +142,6 @@ end
 local LABEL = { MOVE=2, AI=3, ACTION=5, [2]="move", [3]="ai", [5]="action",
                 NUMBER=1, [1]="number" }
 
--- Table names in the 'con' module
---local LABEL_TABNAME = { [2]="MV", [3]="AI", [5]="AC" }
 -- Function names in the 'con' module
 local LABEL_FUNCNAME = { [2]="move", [3]="ai", [5]="action" }
 
@@ -235,8 +233,6 @@ local function lookup_composite(labeltype, pos, identifier)
         return "_WRONGTYPE"
     end
 
-    -- Generate a lookup into the control module's move/action/ai defs.
---    val = string.format("_con.%s[%q]", LABEL_TABNAME[labeltype], identifier)
     -- Generate a quoted identifier name.
     val = string.format("%q", identifier)
 
@@ -757,7 +753,7 @@ local Ci = {
         function(str, ...) return string.format("actor[_aci]:set_move(%s)", str) end,
 
     cactor = cmd(D) /
-        "sprite[_aci].tilenum=%1",
+        "sprite[_aci].tilenum=%1",  -- TODO: wrap, e.g. sprite[]:set_picnum(tilenum), bound check there
     count = cmd(D),
     cstator = cmd(D),
     cstat = cmd(D),

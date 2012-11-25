@@ -6,18 +6,29 @@ local ffiC = ffi.C
 local rawset = rawset
 
 local type = type
-local gv = gv_tmp  -- temporarily set in defs.c
+local decl = decl  -- comes from above (defs.ilua)
 
 local print = print  -- for commented out debug block in new() below
 
 module(...)
 
 
--- NOTE: PRNG state struct and functions are declared in defs.ilua
-
+-- PRNG state struct
 ffi.cdef[[
+typedef struct {
+    uint32_t x, y, z, c;
+} rng_jkiss_t;
+
 typedef union { unsigned char u[16]; double d[2]; } uchar_double_u_t;
 typedef union { unsigned char u[16]; uint32_t i[4]; } uchar_uint_u_t;
+]]
+
+-- PRNG functions
+decl[[
+uint32_t rand_jkiss_u32(rng_jkiss_t *s);
+double rand_jkiss_dbl(rng_jkiss_t *s);
+
+void md4once(const unsigned char *block, unsigned int len, unsigned char digest [16]);
 ]]
 
 local mt = {
@@ -36,8 +47,8 @@ local mt = {
             local tout = ffi.new("uchar_uint_u_t")
 
             repeat
-                tin.d[0] = gv.gethitickms() % 1
-                tin.d[1] = gv.gethitickms() % 1
+                tin.d[0] = ffiC.gethitickms() % 1
+                tin.d[1] = ffiC.gethitickms() % 1
 
                 ffiC.md4once(tin.u, 16, tout.u)
 
