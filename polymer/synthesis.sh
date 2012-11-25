@@ -5,7 +5,7 @@ top=/var/www/synthesis/eduke32
 lockfile=$top/synthesis_building
 source=eduke32
 output=/var/www/dukeworld.duke4.net/eduke32/synthesis
-make=( make PLATFORM=WINDOWS CC='wine gcc' CXX='wine g++' AS='wine nasm' RC='wine windres' STRIP='wine strip' AR='wine ar' RANLIB='wine ranlib' PRETTY_OUTPUT=0 NEDMALLOC=0 )
+make=( make PLATFORM=WINDOWS CC='i586-mingw32msvc-gcc' CXX='i586-mingw32msvc-g++' AS='nasm' RC='i586-mingw32msvc-windres' STRIP='i586-mingw32msvc-strip' AR='i586-mingw32msvc-ar' RANLIB='i586-mingw32msvc-ranlib' PRETTY_OUTPUT=0 NEDMALLOC=0 )
 clean=veryclean
 
 # the following file paths are relative to $source
