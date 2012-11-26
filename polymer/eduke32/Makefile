@@ -84,15 +84,12 @@ ifneq ($(PLATFORM),WII)
 endif
 
 EBACKTRACEDLL ?= ebacktrace1.dll
-EBACKTRACEDLL_TARGET:=
+EBACKTRACEDLL_TARGET:=$(EBACKTRACEDLL)
 
 ifeq ($(PLATFORM),WINDOWS)
     OBJ=obj_win
     EOBJ=eobj_win
     LIBS+= $(L_SSP) -Wl,--enable-auto-import
-    ifeq (0,$(RELEASE))
-        EBACKTRACEDLL_TARGET=$(EBACKTRACEDLL)
-    endif
 else
     ifeq ($(PLATFORM),LINUX)
         LIBS+= -ldl -lrt
@@ -330,13 +327,15 @@ endif
 UTILOBJS=$(OBJ)/ivfrate.$o
 UTILS=ivfrate$(EXESUFFIX)
 
-all: start $(EDUKE32_TARGET) $(MAPSTER32_TARGET) $(EBACKTRACEDLL_TARGET) finish
+all: start $(EDUKE32_TARGET) $(MAPSTER32_TARGET) finish
 ifneq (,$(EDUKE32_TARGET))
 	@ls -l $(EDUKE32)
 endif
 ifneq (,$(MAPSTER32_TARGET))
 	@ls -l $(MAPSTER32)
 endif
+
+ebacktrace: start $(EBACKTRACEDLL_TARGET) finish
 ifneq (,$(EBACKTRACEDLL_TARGET))
 	@ls -l $(EBACKTRACEDLL)
 endif

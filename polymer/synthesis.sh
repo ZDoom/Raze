@@ -11,7 +11,7 @@ clean=veryclean
 # the following file paths are relative to $source
 targets=( eduke32.exe mapster32.exe )
 package=package
-not_src_packaged=( psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple/lib )
+not_src_packaged=( psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple/lib $package/ebacktrace1.dll )
 
 # group that owns the resulting packages
 group=dukeworld
@@ -89,8 +89,6 @@ then
     mv -f eduke32.exe "$package/eduke32.debug.exe"
     echo mv -f mapster32.exe "$package/mapster32.debug.exe"
     mv -f mapster32.exe "$package/mapster32.debug.exe"
-    echo mv -f ebacktrace1.dll "$package/ebacktrace1.dll"
-    mv -f ebacktrace1.dll "$package/ebacktrace1.dll"
 
     # clean the tree and build release
     echo "${make[@]}" $clean all
