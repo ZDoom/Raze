@@ -9,8 +9,8 @@ make=( make PLATFORM=WINDOWS CC='i586-mingw32msvc-gcc' CXX='i586-mingw32msvc-g++
 clean=veryclean
 
 # the following file paths are relative to $source
-targets=( eduke32.exe mapster32.exe samples/ivfrate.exe )
-bin_packaged=( eduke32.exe eduke32.debug.exe mapster32.exe mapster32.debug.exe ebacktrace1.dll SEHELP.HLP STHELP.HLP names.h buildlic.txt GNU.TXT m32help.hlp nedmalloc.dll tiles.cfg samples/* )
+targets=( eduke32.exe mapster32.exe )
+package=package
 not_src_packaged=( psd source/jaudiolib/third-party/vorbis.framework/Versions/A/vorbis Apple/lib )
 
 # group that owns the resulting packages
@@ -67,12 +67,6 @@ then
 
     cd $top/$source
 
-    # remove possible old debug binaries
-    echo rm eduke32.debug.exe
-    rm eduke32.debug.exe
-    echo rm mapster32.debug.exe
-    rm mapster32.debug.exe
-
     # throw the svn revision into a header.  this is ugly.
     echo "s_buildRev = \"r$head\";" > source/rev.h
 
@@ -90,13 +84,13 @@ then
         fi
     done
 
-    # move the debug binaries out of the way
-    echo mv eduke32.exe eduke32.debug.exe
-    mv eduke32.exe eduke32.debug.exe
-    echo mv mapster32.exe mapster32.debug.exe
-    mv mapster32.exe mapster32.debug.exe
-    echo mv ebacktrace1.dll ebacktrace1.debug.dll
-    mv ebacktrace1.dll ebacktrace1.debug.dll
+    # move the targets to $package
+    echo mv -f eduke32.exe "$package/eduke32.debug.exe"
+    mv -f eduke32.exe "$package/eduke32.debug.exe"
+    echo mv -f mapster32.exe "$package/mapster32.debug.exe"
+    mv -f mapster32.exe "$package/mapster32.debug.exe"
+    echo mv -f ebacktrace1.dll "$package/ebacktrace1.dll"
+    mv -f ebacktrace1.dll "$package/ebacktrace1.dll"
 
     # clean the tree and build release
     echo "${make[@]}" $clean all
@@ -112,9 +106,11 @@ then
         fi
     done
 
-    # move this back where it belongs
-    echo mv ebacktrace1.debug.dll ebacktrace1.dll
-    mv ebacktrace1.debug.dll ebacktrace1.dll
+    # move the targets to $package
+    echo mv -f eduke32.exe "$package/eduke32.exe"
+    mv -f eduke32.exe "$package/eduke32.exe"
+    echo mv -f mapster32.exe "$package/mapster32.exe"
+    mv -f mapster32.exe "$package/mapster32.exe"
 
     # get the date in the YYYYMMDD format (ex: 20091001)
     date=`date +%Y%m%d`
@@ -123,8 +119,10 @@ then
     mkdir $output/$date-$head
     
     # package the binary snapshot
-    echo zip -9 $output/$date-$head/${basename}_${platform}_$date-$head.zip ${bin_packaged[@]}
-    zip -9 $output/$date-$head/${basename}_${platform}_$date-$head.zip ${bin_packaged[@]}
+    cd $package
+    echo zip -r -y -9 $output/$date-$head/${basename}_${platform}_$date-$head.zip * -x "*.svn*"
+    zip -r -y -9 $output/$date-$head/${basename}_${platform}_$date-$head.zip * -x "*.svn*"
+    cd $top/$source
 
     # hack to restore [e]obj/keep.me
     echo svn update -r $head
@@ -146,13 +144,17 @@ then
     echo tar cjf ${basename}_src_$date-$head.tar.bz2 ${basename}_$date-$head
     tar cjf ${basename}_src_$date-$head.tar.bz2 ${basename}_$date-$head
     rm -r ${basename}_$date-$head
+
+    # clean up the revision header
+    cd $top/$source
+    echo svn revert "source/rev.h"
+    svn revert "source/rev.h"
     
     # output the changelog since last snapshot in the output directory
-    if [  $lastrevision ]
+    if [ $lastrevision ]
     then
         # add one so that we only include what is new to this update
         let lastrevision+=1
-        cd $top/$source
         svn log -r $head:$lastrevision > $output/$date-$head/ChangeLog.txt
     fi
     

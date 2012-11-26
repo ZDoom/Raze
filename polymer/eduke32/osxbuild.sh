@@ -13,6 +13,7 @@ builddebug=0
 buildrelease=1
 pack=1
 iamhelix=0
+package=package
 
 # Enforce OS:
 if [ `uname -s` != Darwin ]; then
@@ -294,7 +295,7 @@ fi
 # The build process itself:
 if [ $buildmain == 1 ]; then
     rm -f {eduke32,mapster32}{.debug,}{.x86,.x64,.ppc,}
-    rm -rf {EDuke32,Mapster32}{.debug,}.app
+    rm -rf {$package/,}{EDuke32,Mapster32}{.debug,}.app
 
     if [ $iamhelix == 1 ]; then
         makecmd="make -j 2"
@@ -346,8 +347,6 @@ if [ $builddebug == 1 ] || [ $pack == 1 ]; then
 fi
 
 # Begin assembling archive contents:
-arcontents="README.OSX Changelog.txt tools/kextract tools/kgroup tools/arttool"
-
 echo Creating fat binaries.
 success=0
 for i in {eduke32,mapster32}{.debug,}; do
@@ -364,12 +363,14 @@ for i in {eduke32,mapster32}{.debug,}; do
         app=${i//eduke32/EDuke32}
         app=${app//mapster32/Mapster32}.app
         cp -f $i "$app/Contents/MacOS/${i%.debug}"
-        arcontents="$arcontents $app"
+        mv -f "$app" "$package/"
     fi
 done
 
 # Almost done...
 if [ $success == 1 ]; then
+    cd $package
+
     echo "Generating README.OSX and Changelog.txt"
 
     # Output README.OSX:
@@ -406,6 +407,7 @@ if [ $success == 1 ]; then
         arfilename="eduke32-osx-$rev.zip"
         echo "Packing distribution into $arfilename"
         rm -f "$arfilename"
-        zip -r -y "$arfilename" $arcontents -x "*.svn*" "*.git*"
+        zip -r -y "$arfilename" * -x "*.svn*" "*.git*" "*.dll"
     fi
+    cd ..
 fi
