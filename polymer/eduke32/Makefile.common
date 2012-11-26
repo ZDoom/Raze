@@ -112,6 +112,7 @@ endif
 #  RELEASE - 1 = no debugging
 #  DEBUGANYWAY - 1 = include debug symbols even when generating release code
 #  DISABLEINLINING - 1 = compile inline functions as extern instead of static inline
+#  FORCEWARNINGS - 1 = do not disable any compiler warnings within the source
 #  KRANDDEBUG - 1 = include logging of krand() calls for debugging the demo system
 #  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
 #  OPTLEVEL	- 0..3 = GCC optimization strategy
@@ -122,6 +123,7 @@ RELEASE?=1
 DEBUGANYWAY?=0
 KRANDDEBUG?=0
 DISABLEINLINING?=0
+FORCEWARNINGS?=0
 EFENCE?=0
 DMALLOC?=0
 OPTLEVEL?=2
@@ -339,6 +341,9 @@ endif
 
 ifneq (0,$(DISABLEINLINING))
     BASECOMMONFLAGS+= -DDISABLE_INLINING
+endif
+ifneq (0,$(FORCEWARNINGS))
+    BASECOMMONFLAGS+= -DFORCE_WARNINGS
 endif
 
 BASELDFLAGS+= $(OPTOPT)

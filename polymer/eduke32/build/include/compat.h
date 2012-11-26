@@ -678,6 +678,7 @@ static inline char *Bstrncpyz(char *dst, const char *src, bsize_t n)
 } while (0)
 
 #ifdef __cplusplus
+#ifndef FORCE_WARNINGS
 #ifdef _MSC_VER
 // TODO: add MSVC pragmas to disable equivalent warning, if necessary later
 #else
@@ -697,6 +698,7 @@ static inline char *Bstrncpyz(char *dst, const char *src, bsize_t n)
     _Pragma("GCC diagnostic warning \"-Wformat\"") } while (0)
 #endif // _WIN32
 #endif // _MSC_VER
+#endif // FORCE_WARNINGS
 #endif // __cplusplus
 
 #define OSD_Printf_nowarn(fmt, ...) NOWARN(OSD_Printf, fmt, ## __VA_ARGS__)
