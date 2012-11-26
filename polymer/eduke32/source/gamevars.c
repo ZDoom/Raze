@@ -727,7 +727,7 @@ void __fastcall Gv_SetVar(register int32_t id, register int32_t lValue, register
 
 badvarid:
     CON_ERRPRINTF("Gv_SetVar(): invalid gamevar (%d) from sprite %d (%d), player %d\n",
-                  id,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
+                  id,vm.g_i,TrackerCast(sprite[vm.g_i].picnum),vm.g_p);
     return;
 
 badindex:

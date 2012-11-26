@@ -3485,7 +3485,7 @@ void                polymer_updatesprite(int32_t snum)
 
         if (prsprites[tspr->owner] == NULL)
         {
-            if (pr_verbosity >= 1) OSD_Printf_nowarn("PR : Cannot initialize sprite %i : Bmalloc failed.\n", tspr->owner);
+            if (pr_verbosity >= 1) OSD_Printf_nowarn("PR : Cannot initialize sprite %i : Bmalloc failed.\n", TrackerCast(tspr->owner));
             return;
         }
 

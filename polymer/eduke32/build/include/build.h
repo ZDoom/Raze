@@ -193,10 +193,12 @@ static inline void sprite_tracker_hook(uintptr_t address);
 #undef __TRACKER_GLOBAL_HOOK
 
 #define Tracker(Container, Type) Container##Tracker<Type>
+#define TrackerCast(x) x.cast()
 
 #else
 
 #define Tracker(Container, Type) Type
+#define TrackerCast(x) x
 
 #endif // __cplusplus
 

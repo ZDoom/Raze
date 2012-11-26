@@ -5839,9 +5839,9 @@ end_point_dragging:
                         if (!delayerr)
                             message("Outer wall coordinates must coincide for both components");
                         OSD_Printf_nowarn("wal0:%d (%d,%d)--(%d,%d)\n",(int)(wal0-wall),
-                                   wal0->x,wal0->y, wal0p2->x,wal0p2->y);
+                                   TrackerCast(wal0->x),TrackerCast(wal0->y), TrackerCast(wal0p2->x),TrackerCast(wal0p2->y));
                         OSD_Printf_nowarn("wal1:%d (%d,%d)--(%d,%d)\n",(int)(wal1-wall),
-                                   wal1->x,wal1->y, wal1p2->x,wal1p2->y);
+                                   TrackerCast(wal1->x),TrackerCast(wal1->y), TrackerCast(wal1p2->x),TrackerCast(wal1p2->y));
 
                         goto end_join_sectors;
                     }
@@ -8574,7 +8574,7 @@ int32_t fixspritesectors(void)
                                 initprintf("--------------------\n");
                                 printfirsttime = 1;
                             }
-                            initprintf_nowarn("Changed sectnum of sprite %d from %d to %d\n", i, sprite[i].sectnum, j);
+                            initprintf_nowarn("Changed sectnum of sprite %d from %d to %d\n", i, TrackerCast(sprite[i].sectnum), j);
                             changespritesect(i, j);
                         }
                         break;
@@ -10044,19 +10044,19 @@ void showsectordata(int16_t sectnum, int16_t small)
     }
 
     DOPRINT(32, "^10Sector %d", sectnum);
-    DOPRINT(48, "Firstwall: %d", sec->wallptr);
-    DOPRINT(56, "Numberofwalls: %d", sec->wallnum);
+    DOPRINT(48, "Firstwall: %d", TrackerCast(sec->wallptr));
+    DOPRINT(56, "Numberofwalls: %d", TrackerCast(sec->wallnum));
     DOPRINT(64, "Firstsprite: %d", headspritesect[sectnum]);
-    DOPRINT(72, "Tags: %d, %d", sec->hitag, sec->lotag);
-    DOPRINT(80, "     (0x%x), (0x%x)", sec->hitag, sec->lotag);
-    DOPRINT(88, "Extra: %d", sec->extra);
-    DOPRINT(96, "Visibility: %d", sec->visibility);
+    DOPRINT(72, "Tags: %d, %d", TrackerCast(sec->hitag), TrackerCast(sec->lotag));
+    DOPRINT(80, "     (0x%x), (0x%x)", TrackerCast(sec->hitag), TrackerCast(sec->lotag));
+    DOPRINT(88, "Extra: %d", TrackerCast(sec->extra));
+    DOPRINT(96, "Visibility: %d", TrackerCast(sec->visibility));
     DOPRINT(104, "Pixel height: %d", (sec->floorz-sec->ceilingz)>>8);
 
     col++;
 
     DOPRINT(32, "^10CEILING:^O");
-    DOPRINT(48, "Flags (hex): %x", sec->ceilingstat);
+    DOPRINT(48, "Flags (hex): %x", TrackerCast(sec->ceilingstat));
     {
         int32_t xp=sec->ceilingxpanning, yp=sec->ceilingypanning;
 #ifdef YAX_ENABLE
@@ -10065,11 +10065,11 @@ void showsectordata(int16_t sectnum, int16_t small)
 #endif
         DOPRINT(56, "(X,Y)pan: %d, %d", xp, yp);
     }
-    DOPRINT(64, "Shade byte: %d", sec->ceilingshade);
-    DOPRINT(72, "Z-coordinate: %d", sec->ceilingz);
-    DOPRINT(80, "Tile number: %d", sec->ceilingpicnum);
-    DOPRINT(88, "Ceiling heinum: %d", sec->ceilingheinum);
-    DOPRINT(96, "Palookup number: %d", sec->ceilingpal);
+    DOPRINT(64, "Shade byte: %d", TrackerCast(sec->ceilingshade));
+    DOPRINT(72, "Z-coordinate: %d", TrackerCast(sec->ceilingz));
+    DOPRINT(80, "Tile number: %d", TrackerCast(sec->ceilingpicnum));
+    DOPRINT(88, "Ceiling heinum: %d", TrackerCast(sec->ceilingheinum));
+    DOPRINT(96, "Palookup number: %d", TrackerCast(sec->ceilingpal));
 #ifdef YAX_ENABLE
     DOPRINT(104, "Bunch number: %d", yax_getbunch(sectnum, YAX_CEILING));
 #endif
@@ -10077,7 +10077,7 @@ void showsectordata(int16_t sectnum, int16_t small)
     col++;
 
     DOPRINT(32, "^10FLOOR:^O");
-    DOPRINT(48, "Flags (hex): %x", sec->floorstat);
+    DOPRINT(48, "Flags (hex): %x", TrackerCast(sec->floorstat));
     {
         int32_t xp=sec->floorxpanning, yp=sec->floorypanning;
 #ifdef YAX_ENABLE
@@ -10086,11 +10086,11 @@ void showsectordata(int16_t sectnum, int16_t small)
 #endif
         DOPRINT(56, "(X,Y)pan: %d, %d", xp, yp);
     }
-    DOPRINT(64, "Shade byte: %d", sec->floorshade);
-    DOPRINT(72, "Z-coordinate: %d", sec->floorz);
-    DOPRINT(80, "Tile number: %d", sec->floorpicnum);
-    DOPRINT(88, "Floor heinum: %d", sec->floorheinum);
-    DOPRINT(96, "Palookup number: %d", sec->floorpal);
+    DOPRINT(64, "Shade byte: %d", TrackerCast(sec->floorshade));
+    DOPRINT(72, "Z-coordinate: %d", TrackerCast(sec->floorz));
+    DOPRINT(80, "Tile number: %d", TrackerCast(sec->floorpicnum));
+    DOPRINT(88, "Floor heinum: %d", TrackerCast(sec->floorheinum));
+    DOPRINT(96, "Palookup number: %d", TrackerCast(sec->floorpal));
 #ifdef YAX_ENABLE
     DOPRINT(104, "Bunch number: %d", yax_getbunch(sectnum, YAX_FLOOR));
 #endif
@@ -10114,31 +10114,31 @@ void showwalldata(int16_t wallnum, int16_t small)
     }
 
     DOPRINT(32, "^10Wall %d", wallnum);
-    DOPRINT(48, "X-coordinate: %d", wal->x);
-    DOPRINT(56, "Y-coordinate: %d", wal->y);
-    DOPRINT(64, "Point2: %d", wal->point2);
+    DOPRINT(48, "X-coordinate: %d", TrackerCast(wal->x));
+    DOPRINT(56, "Y-coordinate: %d", TrackerCast(wal->y));
+    DOPRINT(64, "Point2: %d", TrackerCast(wal->point2));
     DOPRINT(72, "Sector: ^010%d", sectorofwall(wallnum));
 
-    DOPRINT(88, "Tags: %d,  %d", wal->hitag, wal->lotag);
-    DOPRINT(96, "     (0x%x),  (0x%x)", wal->hitag, wal->lotag);
+    DOPRINT(88, "Tags: %d,  %d", TrackerCast(wal->hitag), TrackerCast(wal->lotag));
+    DOPRINT(96, "     (0x%x),  (0x%x)", TrackerCast(wal->hitag), TrackerCast(wal->lotag));
 
     col++;
 
     DOPRINT(32, "^10%s^O", (wal->picnum>=0 && wal->picnum<MAXTILES) ? names[wal->picnum] : "!INVALID!");
-    DOPRINT(48, "Flags (hex): %x", wal->cstat);
-    DOPRINT(56, "Shade: %d", wal->shade);
-    DOPRINT(64, "Pal: %d", wal->pal);
-    DOPRINT(72, "(X,Y)repeat: %d, %d", wal->xrepeat, wal->yrepeat);
-    DOPRINT(80, "(X,Y)pan: %d, %d", wal->xpanning, wal->ypanning);
-    DOPRINT(88, "Tile number: %d", wal->picnum);
-    DOPRINT(96, "OverTile number: %d", wal->overpicnum);
+    DOPRINT(48, "Flags (hex): %x", TrackerCast(wal->cstat));
+    DOPRINT(56, "Shade: %d", TrackerCast(wal->shade));
+    DOPRINT(64, "Pal: %d", TrackerCast(wal->pal));
+    DOPRINT(72, "(X,Y)repeat: %d, %d", TrackerCast(wal->xrepeat), TrackerCast(wal->yrepeat));
+    DOPRINT(80, "(X,Y)pan: %d, %d", TrackerCast(wal->xpanning), TrackerCast(wal->ypanning));
+    DOPRINT(88, "Tile number: %d", TrackerCast(wal->picnum));
+    DOPRINT(96, "OverTile number: %d", TrackerCast(wal->overpicnum));
 
     col++;
 
-    DOPRINT(48-(small?16:0), "nextsector: %d", wal->nextsector);
-    DOPRINT(56-(small?16:0), "nextwall: %d", wal->nextwall);
+    DOPRINT(48-(small?16:0), "nextsector: %d", TrackerCast(wal->nextsector));
+    DOPRINT(56-(small?16:0), "nextwall: %d", TrackerCast(wal->nextwall));
 
-    DOPRINT(72-(small?16:0), "Extra: %d", wal->extra);
+    DOPRINT(72-(small?16:0), "Extra: %d", TrackerCast(wal->extra));
 
     // TX 20050102 I'm not sure what unit dist<<4 is supposed to be, but dist itself is correct in terms of game coordinates as one would expect
     DOPRINT(96-(small?16:0),  "Wall length: %d",  wallength(wallnum));
@@ -10163,36 +10163,36 @@ void showspritedata(int16_t spritenum, int16_t small)
     }
 
     DOPRINT(32, "^10Sprite %d", spritenum);
-    DOPRINT(48, "X-coordinate: %d", spr->x);
-    DOPRINT(56, "Y-coordinate: %d", spr->y);
-    DOPRINT(64, "Z-coordinate: %d", spr->z);
+    DOPRINT(48, "X-coordinate: %d", TrackerCast(spr->x));
+    DOPRINT(56, "Y-coordinate: %d", TrackerCast(spr->y));
+    DOPRINT(64, "Z-coordinate: %d", TrackerCast(spr->z));
 
-    DOPRINT(72, "Sectnum: ^010%d", spr->sectnum);
-    DOPRINT(80, "Statnum: %d", spr->statnum);
+    DOPRINT(72, "Sectnum: ^010%d", TrackerCast(spr->sectnum));
+    DOPRINT(80, "Statnum: %d", TrackerCast(spr->statnum));
 
-    DOPRINT(96, "Tags: %d,  %d", spr->hitag, spr->lotag);
-    DOPRINT(104, "     (0x%x),  (0x%x)", spr->hitag, spr->lotag);
+    DOPRINT(96, "Tags: %d,  %d", TrackerCast(spr->hitag), TrackerCast(spr->lotag));
+    DOPRINT(104, "     (0x%x),  (0x%x)", TrackerCast(spr->hitag), TrackerCast(spr->lotag));
 
     col++;
 
     DOPRINT(32, "^10,0                        ^O");  // 24 blanks
     DOPRINT(32, "^10%s^O", (spr->picnum>=0 && spr->picnum<MAXTILES) ? names[spr->picnum] : "!INVALID!");
-    DOPRINT(48, "Flags (hex): %x", spr->cstat);
-    DOPRINT(56, "Shade: %d", spr->shade);
-    DOPRINT(64, "Pal: %d", spr->pal);
-    DOPRINT(72, "(X,Y)repeat: %d, %d", spr->xrepeat, spr->yrepeat);
-    DOPRINT(80, "(X,Y)offset: %d, %d", spr->xoffset, spr->yoffset);
-    DOPRINT(88, "Tile number: %d", spr->picnum);
+    DOPRINT(48, "Flags (hex): %x", TrackerCast(spr->cstat));
+    DOPRINT(56, "Shade: %d", TrackerCast(spr->shade));
+    DOPRINT(64, "Pal: %d", TrackerCast(spr->pal));
+    DOPRINT(72, "(X,Y)repeat: %d, %d", TrackerCast(spr->xrepeat), TrackerCast(spr->yrepeat));
+    DOPRINT(80, "(X,Y)offset: %d, %d", TrackerCast(spr->xoffset), TrackerCast(spr->yoffset));
+    DOPRINT(88, "Tile number: %d", TrackerCast(spr->picnum));
 
     col++;
 
-    DOPRINT(48, "Angle (2048 degrees): %d", spr->ang);
-    DOPRINT(56, "X-Velocity: %d", spr->xvel);
-    DOPRINT(64, "Y-Velocity: %d", spr->yvel);
-    DOPRINT(72, "Z-Velocity: %d", spr->zvel);
-    DOPRINT(80, "Owner: %d", spr->owner);
-    DOPRINT(88, "Clipdist: %d", spr->clipdist);
-    DOPRINT(96, "Extra: %d", spr->extra);
+    DOPRINT(48, "Angle (2048 degrees): %d", TrackerCast(spr->ang));
+    DOPRINT(56, "X-Velocity: %d", TrackerCast(spr->xvel));
+    DOPRINT(64, "Y-Velocity: %d", TrackerCast(spr->yvel));
+    DOPRINT(72, "Z-Velocity: %d", TrackerCast(spr->zvel));
+    DOPRINT(80, "Owner: %d", TrackerCast(spr->owner));
+    DOPRINT(88, "Clipdist: %d", TrackerCast(spr->clipdist));
+    DOPRINT(96, "Extra: %d", TrackerCast(spr->extra));
 }
 
 #undef DOPRINT

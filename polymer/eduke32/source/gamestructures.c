@@ -931,7 +931,7 @@ static void __fastcall VM_AccessActiveProjectile(int32_t iSet, int32_t lVar1, in
     {
         //        OSD_Printf("VM_AccessActiveProjectile(): invalid projectile (%d)\n",proj);
         CON_ERRPRINTF("tried to %s %s on invalid target projectile (%d) %d %d from %s\n",
-                      iSet?"set":"get",ProjectileLabels[lLabelID].name,proj,vm.g_i,vm.g_sp->picnum,
+                      iSet?"set":"get",ProjectileLabels[lLabelID].name,proj,vm.g_i,TrackerCast(vm.g_sp->picnum),
                       (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
         insptr += (lVar2 == MAXGAMEVARS);
         return;
@@ -2675,7 +2675,7 @@ static void __fastcall VM_SetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
 
 badactor:
     CON_ERRPRINTF("tried to set %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",
-                  ActorLabels[lLabelID].name,iActor,vm.g_i,vm.g_sp->picnum,
+                  ActorLabels[lLabelID].name,iActor,vm.g_i,TrackerCast(vm.g_sp->picnum),
                   (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
     insptr += (lVar2 == MAXGAMEVARS);
     return;
@@ -2925,7 +2925,7 @@ static void __fastcall VM_GetSprite(int32_t lVar1, int32_t lLabelID, int32_t lVa
 
 badactor:
     CON_ERRPRINTF("tried to get %s on invalid target sprite (%d) from spr %d pic %d gv %s\n",
-                  ActorLabels[lLabelID].name,iActor,vm.g_i,vm.g_sp->picnum,
+                  ActorLabels[lLabelID].name,iActor,vm.g_i,TrackerCast(vm.g_sp->picnum),
                   (lVar1<MAXGAMEVARS)?aGameVars[lVar1].szLabel:"extended");
     insptr += (lVar2 == MAXGAMEVARS);
     return;
@@ -3189,7 +3189,7 @@ static void __fastcall VM_AccessTsprite(int32_t iSet, int32_t lVar1, int32_t lLa
     }
 
 badsprite:
-    CON_ERRPRINTF("invalid target sprite (%d) %d %d\n", iActor, vm.g_i, vm.g_sp->picnum);
+    CON_ERRPRINTF("invalid target sprite (%d) %d %d\n", iActor, vm.g_i, TrackerCast(vm.g_sp->picnum));
     insptr += (lVar2 == MAXGAMEVARS);
     return;
 

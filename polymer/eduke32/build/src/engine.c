@@ -9431,7 +9431,7 @@ static void check_sprite(int32_t i)
     if ((unsigned)sprite[i].sectnum >= MYMAXSECTORS())
     {
         initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal sector (%d). Map is corrupt!\n",
-                   i, sprite[i].x, sprite[i].y, sprite[i].sectnum);
+                   i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].sectnum));
 
         updatesector(sprite[i].x, sprite[i].y, &sprite[i].sectnum);
 
@@ -9442,14 +9442,14 @@ static void check_sprite(int32_t i)
     if ((unsigned)sprite[i].statnum >= MAXSTATUS)
     {
         initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal statnum (%d). Map is corrupt!\n",
-                   i, sprite[i].x, sprite[i].y, sprite[i].statnum);
+                   i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].statnum));
         sprite[i].statnum = 0;
     }
 
     if ((unsigned)sprite[i].picnum >= MAXTILES)
     {
         initprintf_nowarn(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal picnum (%d). Map is corrupt!\n",
-                   i, sprite[i].x, sprite[i].y, sprite[i].picnum);
+                   i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].sectnum));
         sprite[i].picnum = 0;
     }
 }
@@ -10105,14 +10105,14 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
         if ((unsigned)sprite[j].statnum > MAXSTATUS)
         {
             initprintf_nowarn("Map error: sprite #%d(%d,%d) with an illegal statnum(%d)\n",
-                       j,sprite[j].x,sprite[j].y,sprite[j].statnum);
+                       j,TrackerCast(sprite[j].x),TrackerCast(sprite[j].y),TrackerCast(sprite[j].statnum));
             changespritestat(j,0);
         }
 
         if ((unsigned)sprite[j].sectnum > MAXSECTORS)
         {
             initprintf_nowarn("Map error: sprite #%d(%d,%d) with an illegal sectnum(%d)\n",
-                       j,sprite[j].x,sprite[j].y,sprite[j].sectnum);
+                       j,TrackerCast(sprite[j].x),TrackerCast(sprite[j].y),TrackerCast(sprite[j].sectnum));
             changespritesect(j,0);
         }
     }

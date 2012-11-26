@@ -89,7 +89,7 @@ void VM_ScriptInfo(void)
     }
 
     if (vm.g_i)
-        initprintf_nowarn("current actor: %d (%d)\n",vm.g_i,vm.g_sp->picnum);
+        initprintf_nowarn("current actor: %d (%d)\n",vm.g_i,TrackerCast(vm.g_sp->picnum));
 
     initprintf("g_errorLineNum: %d, g_tw: %d\n",g_errorLineNum,g_tw);
 }
@@ -444,7 +444,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t a)
 
     {
         vm.g_t[1] = 0;
-        OSD_Printf_nowarn(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, vm.g_sp->picnum);
+        OSD_Printf_nowarn(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.g_i, TrackerCast(vm.g_sp->picnum));
         return;
     }
 
@@ -593,7 +593,7 @@ dead:
     if ((unsigned)vm.g_t[1] >= (unsigned)g_scriptSize-1)
     {
         vm.g_t[1] = 0;
-        OSD_Printf_nowarn(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, vm.g_sp->picnum);
+        OSD_Printf_nowarn(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.g_i, TrackerCast(vm.g_sp->picnum));
         return;
     }
 
@@ -1111,7 +1111,7 @@ skip_check:
             insptr++;
             if (((unsigned)vm.g_sp->yvel >= MAXSOUNDS))
             {
-                CON_ERRPRINTF("Invalid sound %d\n", vm.g_sp->yvel);
+                CON_ERRPRINTF("Invalid sound %d\n", TrackerCast(vm.g_sp->yvel));
                 insptr++;
                 continue;
             }
@@ -2203,7 +2203,7 @@ nullquote:
                 int32_t j;
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", vm.g_sp->sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.g_sp->sectnum));
                     continue;
                 }
                 j = A_Spawn(vm.g_i, lIn);
@@ -2233,7 +2233,7 @@ nullquote:
 
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", vm.g_sp->sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.g_sp->sectnum));
                     insptr++;
                     continue;
                 }
@@ -2273,7 +2273,7 @@ nullquote:
 
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", vm.g_sp->sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.g_sp->sectnum));
                     insptr++;
                     actor[vm.g_i].shootzvel=0;
                     continue;
@@ -2296,7 +2296,7 @@ nullquote:
 
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", vm.g_sp->sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.g_sp->sectnum));
                     actor[vm.g_i].shootzvel=0;
                     continue;
                 }
@@ -2322,7 +2322,7 @@ nullquote:
 
                 if ((unsigned)vm.g_sp->sectnum >= (unsigned)numsectors)
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", vm.g_sp->sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.g_sp->sectnum));
                     actor[vm.g_i].shootzvel=0;
                     continue;
                 }
@@ -4177,7 +4177,7 @@ nullquote:
                 if (j<0 || j >= g_gameArrayCount || index >= aGameArrays[j].size || index < 0)
                 {
                     OSD_Printf_nowarn(OSD_ERROR "Gv_SetVar(): tried to set invalid array ID (%d) or index out of bounds from sprite %d (%d), player %d\n",
-                        j,vm.g_i,sprite[vm.g_i].picnum,vm.g_p);
+                        j,vm.g_i,TrackerCast(sprite[vm.g_i].picnum),vm.g_p);
                     continue;
                 }
                 aGameArrays[j].plValues[index]=value;

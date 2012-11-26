@@ -1257,9 +1257,9 @@ const char *ExtGetSectorCaption(int16_t sectnum)
     {
         Bstrcpy(lo, ExtGetSectorType(sector[sectnum].lotag));
         if (qsetmode != 200)
-            Bsprintf_nowarn(tempbuf,"%hu,%hu %s", sector[sectnum].hitag, sector[sectnum].lotag, lo);
+            Bsprintf_nowarn(tempbuf,"%hu,%hu %s", TrackerCast(sector[sectnum].hitag), TrackerCast(sector[sectnum].lotag), lo);
         else
-            Bsprintf_nowarn(tempbuf,"%hu %s", sector[sectnum].lotag, lo);
+            Bsprintf_nowarn(tempbuf,"%hu %s", TrackerCast(sector[sectnum].lotag), lo);
     }
     return(tempbuf);
 }
@@ -1469,7 +1469,7 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
 
             SpriteName(spritenum,lo);
             if (sprite[spritenum].extra != -1)
-                Bsprintf_nowarn(tempbuf,"%s,%s,%d %s", histr, lostr, sprite[spritenum].extra, lo);
+                Bsprintf_nowarn(tempbuf,"%s,%s,%d %s", histr, lostr, TrackerCast(sprite[spritenum].extra), lo);
             else
                 Bsprintf(tempbuf,"%s,%s %s", histr, lostr, lo);
         }
@@ -4502,7 +4502,7 @@ ENDFOR1:
 
         printmessage256(0,0,"^251Text entry mode.^31 Navigation keys change vars.");
         Bsprintf_nowarn(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
-                 hgap, vgap, spcgap[alphidx], sprite[linebegspr].shade, sprite[linebegspr].pal);
+                 hgap, vgap, spcgap[alphidx], TrackerCast(sprite[linebegspr].shade), TrackerCast(sprite[linebegspr].pal));
         printmessage256(0, 9, buffer);
         showframe(1);
 
@@ -4870,9 +4870,9 @@ static void Keys3d(void)
                     height3 = sector[nextsect].ceilingz - sector[searchsector].ceilingz;
                 }
 
-                Bsprintf_nowarn(lines[num++],"Panning: %d, %d", wall[w].xpanning, wall[w].ypanning);
-                Bsprintf_nowarn(lines[num++],"Repeat:  %d, %d", wall[searchwall].xrepeat, wall[searchwall].yrepeat);
-                Bsprintf_nowarn(lines[num++],"Overpic: %d", wall[searchwall].overpicnum);
+                Bsprintf_nowarn(lines[num++],"Panning: %d, %d", TrackerCast(wall[w].xpanning), TrackerCast(wall[w].ypanning));
+                Bsprintf_nowarn(lines[num++],"Repeat:  %d, %d", TrackerCast(wall[searchwall].xrepeat), TrackerCast(wall[searchwall].yrepeat));
+                Bsprintf_nowarn(lines[num++],"Overpic: %d", TrackerCast(wall[searchwall].overpicnum));
                 lines[num++][0]=0;
 
                 if (getmessageleng)
@@ -4911,7 +4911,7 @@ static void Keys3d(void)
                     break;
 
                 Bsprintf(lines[num++],"^251Sector %d^31 %s, Lotag:%s", searchsector, typestr[searchstat], ExtGetSectorCaption(searchsector));
-                Bsprintf_nowarn(lines[num++],"Height: %d, Visibility:%d", height2, sector[searchsector].visibility);
+                Bsprintf_nowarn(lines[num++],"Height: %d, Visibility:%d", height2, TrackerCast(sector[searchsector].visibility));
                 break;
 
             case SEARCH_SPRITE:
@@ -4919,10 +4919,12 @@ static void Keys3d(void)
                              sprite[searchwall].pal, sprite[searchwall].cstat, sprite[searchwall].lotag,
                              sprite[searchwall].hitag, sprite[searchwall].extra,0);
 
-                Bsprintf_nowarn(lines[num++], "Repeat:  %d,%d", sprite[searchwall].xrepeat, sprite[searchwall].yrepeat);
-                Bsprintf_nowarn(lines[num++], "PosXY:   %d,%d%s", sprite[searchwall].x, sprite[searchwall].y,
+                Bsprintf_nowarn(lines[num++], "Repeat:  %d,%d",
+                    TrackerCast(sprite[searchwall].xrepeat), TrackerCast(sprite[searchwall].yrepeat));
+                Bsprintf_nowarn(lines[num++], "PosXY:   %d,%d%s",
+                    TrackerCast(sprite[searchwall].x), TrackerCast(sprite[searchwall].y),
                          sprite[searchwall].xoffset|sprite[searchwall].yoffset ? " ^251*":"");
-                Bsprintf_nowarn(lines[num++], "PosZ: ""   %d", sprite[searchwall].z);// prevents tab character
+                Bsprintf_nowarn(lines[num++], "PosZ: ""   %d", TrackerCast(sprite[searchwall].z));// prevents tab character
                 lines[num++][0]=0;
 
                 if (getmessageleng)
@@ -4938,7 +4940,7 @@ static void Keys3d(void)
                     else
                         Bsprintf_nowarn(lines[num++],"^251Sprite %d^31 %s", searchwall, names[sprite[searchwall].picnum]);
                 }
-                else Bsprintf_nowarn(lines[num++],"^251Sprite %d^31, picnum %d", searchwall, sprite[searchwall].picnum);
+                else Bsprintf_nowarn(lines[num++],"^251Sprite %d^31, picnum %d", searchwall, TrackerCast(sprite[searchwall].picnum));
 
                 Bsprintf(lines[num++], "Elevation:%d",
                          getflorzofslope(searchsector, sprite[searchwall].x, sprite[searchwall].y) - sprite[searchwall].z);
@@ -5056,7 +5058,7 @@ static void Keys3d(void)
         if (AIMING_AT_WALL_OR_MASK)
         {
             wall[searchwall].cstat &= YAX_NEXTWALLBITS;
-            message_nowarn("Wall %d cstat = %d", searchwall, wall[searchwall].cstat);
+            message_nowarn("Wall %d cstat = %d", searchwall, TrackerCast(wall[searchwall].cstat));
         }
         else if (AIMING_AT_SPRITE)
         {
@@ -5222,7 +5224,7 @@ static void Keys3d(void)
         {
             sprite[searchwall].ang += tsign<<(!eitherSHIFT*7);
             sprite[searchwall].ang &= 2047;
-            message_nowarn("Sprite %d angle: %d", searchwall, sprite[searchwall].ang);
+            message_nowarn("Sprite %d angle: %d", searchwall, TrackerCast(sprite[searchwall].ang));
         }
     }
 
@@ -8425,7 +8427,7 @@ int32_t ExtPreSaveMap(void)
                     startwall = wall[j].point2;
             if (sector[i].wallptr != startwall)
                 initprintf_nowarn("Warning: set sector %d's wallptr to %d (was %d)\n", i,
-                           sector[i].wallptr, startwall);
+                           TrackerCast(sector[i].wallptr), startwall);
             sector[i].wallptr = startwall;
         }
 
@@ -11760,10 +11762,10 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                 {
                     if (wall[j].point2 < 0 || wall[j].point2 >= MAXWALLS)
                         CORRUPTCHK_PRINT(5, CORRUPT_WALL|j, CCHK_PANIC "WALL[%d].POINT2=%d INVALID!!!",
-                                         j, wall[j].point2);
+                                         j, TrackerCast(wall[j].point2));
                     else
                         CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].POINT2=%d out of range [%d, %d]",
-                                         j, wall[j].point2, w0, endwall);
+                                         j, TrackerCast(wall[j].point2), w0, endwall);
                 }
 
                 nw = wall[j].nextwall;
@@ -11956,7 +11958,7 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                         if (nw<sector[ns].wallptr || nw>=sector[ns].wallptr+sector[ns].wallnum)
                         {
                             CORRUPTCHK_PRINT(4, CORRUPT_WALL|j, "WALL[%d].NEXTWALL=%d out of .NEXTSECTOR=%d's bounds [%d .. %d]",
-                                             j, nw, ns, sector[ns].wallptr, sector[ns].wallptr+sector[ns].wallnum-1);
+                                             j, nw, ns, TrackerCast(sector[ns].wallptr), sector[ns].wallptr+sector[ns].wallnum-1);
                             if (onumct < MAXCORRUPTTHINGS)
                             {
                                 if (tryfixing & (1ull<<onumct))
@@ -11988,15 +11990,15 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
             continue;
 
         if (sprite[i].sectnum<0 || sprite[i].sectnum>=numsectors)
-            CORRUPTCHK_PRINT(4, CORRUPT_SPRITE|i, "SPRITE[%d].SECTNUM=%d. Expect problems!", i, sprite[i].sectnum);
+            CORRUPTCHK_PRINT(4, CORRUPT_SPRITE|i, "SPRITE[%d].SECTNUM=%d. Expect problems!", i, TrackerCast(sprite[i].sectnum));
 
         if (sprite[i].statnum<0 || sprite[i].statnum>MAXSTATUS)
-            CORRUPTCHK_PRINT(4, CORRUPT_SPRITE|i, "SPRITE[%d].STATNUM=%d. Expect problems!", i, sprite[i].statnum);
+            CORRUPTCHK_PRINT(4, CORRUPT_SPRITE|i, "SPRITE[%d].STATNUM=%d. Expect problems!", i, TrackerCast(sprite[i].statnum));
 
         if (sprite[i].picnum<0 || sprite[i].picnum>=MAXTILES)
         {
             sprite[i].picnum = 0;
-            CORRUPTCHK_PRINT(0, CORRUPT_SPRITE|i, "SPRITE[%d].PICNUM=%d out of range, resetting to 0", i, sprite[i].picnum);
+            CORRUPTCHK_PRINT(0, CORRUPT_SPRITE|i, "SPRITE[%d].PICNUM=%d out of range, resetting to 0", i, TrackerCast(sprite[i].picnum));
         }
 
         if (klabs(sprite[i].x) > BXY_MAX || klabs(sprite[i].y) > BXY_MAX)
@@ -12004,7 +12006,7 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
             int32_t onumct = numcorruptthings;
 
             CORRUPTCHK_PRINT(3, CORRUPT_SPRITE|i, "SPRITE %d at [%d, %d] is out of the maximal grid range [%d, %d]",
-                             sprite[i].x, sprite[i].y, i, -BXY_MAX, BXY_MAX);
+                             TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), i, -BXY_MAX, BXY_MAX);
 
             if (onumct < MAXCORRUPTTHINGS)
             {
@@ -12295,7 +12297,8 @@ static void EditSectorData(int16_t sectnum)
 #endif
                 break;
             case 1:
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].ceilingxpanning,sector[sectnum].ceilingypanning);
+                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",
+                    TrackerCast(sector[sectnum].ceilingxpanning),TrackerCast(sector[sectnum].ceilingypanning));
                 for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {
@@ -12346,7 +12349,8 @@ static void EditSectorData(int16_t sectnum)
                 break;
 
             case 1:
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",sector[sectnum].floorxpanning,sector[sectnum].floorypanning);
+                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",
+                    TrackerCast(sector[sectnum].floorxpanning),TrackerCast(sector[sectnum].floorypanning));
                 for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {
@@ -12436,7 +12440,8 @@ static void EditWallData(int16_t wallnum)
                       sizeof(wall[wallnum].pal), M32_MAXPALOOKUPS, 0);
             break;
         case 3:
-            Bsprintf_nowarn_return(i, med_disptext,"(X,Y)repeat: %d, %d",wall[wallnum].xrepeat,wall[wallnum].yrepeat);
+            Bsprintf_nowarn_return(i, med_disptext,"(X,Y)repeat: %d, %d",
+                TrackerCast(wall[wallnum].xrepeat),TrackerCast(wall[wallnum].yrepeat));
             for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
             if (med_editval)
             {
@@ -12449,7 +12454,8 @@ static void EditWallData(int16_t wallnum)
             }
             break;
         case 4:
-            Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",wall[wallnum].xpanning,wall[wallnum].ypanning);
+            Bsprintf_nowarn_return(i, med_disptext,"(X,Y)pan: %d, %d",
+                TrackerCast(wall[wallnum].xpanning),TrackerCast(wall[wallnum].ypanning));
             for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
             if (med_editval)
             {
@@ -12629,7 +12635,8 @@ static void EditSpriteData(int16_t spritenum)
                 break;
             case 3:
             {
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)repeat: %d, %d",sprite[spritenum].xrepeat,sprite[spritenum].yrepeat);
+                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)repeat: %d, %d",
+                    TrackerCast(sprite[spritenum].xrepeat),TrackerCast(sprite[spritenum].yrepeat));
                 for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {
@@ -12644,7 +12651,8 @@ static void EditSpriteData(int16_t spritenum)
             break;
             case 4:
             {
-                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)offset: %d, %d",sprite[spritenum].xoffset,sprite[spritenum].yoffset);
+                Bsprintf_nowarn_return(i, med_disptext,"(X,Y)offset: %d, %d",
+                    TrackerCast(sprite[spritenum].xoffset),TrackerCast(sprite[spritenum].yoffset));
                 for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
                 if (med_editval)
                 {

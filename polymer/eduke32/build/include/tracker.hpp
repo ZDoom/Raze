@@ -57,6 +57,8 @@ class __TRACKER_NAME
         inline TrackedType operator >>= (TrackedType);
 
         inline operator TrackedType() const;
+
+        inline TrackedType cast() const;
 };
 
 #ifndef __tracker_hpp
@@ -79,6 +81,12 @@ enum {
 
 template<typename TrackedType>
 __TRACKER_NAME<TrackedType>::operator TrackedType() const
+{
+    return this->TrackedValue;
+}
+
+template<typename TrackedType>
+inline TrackedType __TRACKER_NAME<TrackedType>::cast() const
 {
     return this->TrackedValue;
 }
