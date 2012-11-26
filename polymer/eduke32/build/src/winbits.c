@@ -8,6 +8,7 @@
 #include "winbits.h"
 
 #ifndef DEBUGGINGAIDS
+# define DISABLE_EXCEPTIONS
 # include "nedmalloc.h"
 #endif
 

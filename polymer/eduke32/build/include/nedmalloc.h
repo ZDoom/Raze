@@ -29,6 +29,16 @@ DEALINGS IN THE SOFTWARE.
 #ifndef NEDMALLOC_H
 #define NEDMALLOC_H
 
+#ifndef UNREFERENCED_PARAMETER
+    #define UNREFERENCED_PARAMETER(x) x=x
+#endif
+
+#if defined __GNUC__ || defined __clang__
+# define ATTRIBUTE(attrlist) __attribute__(attrlist)
+#else
+# define ATTRIBUTE(attrlist)
+#endif
+
 /*! \file nedmalloc.h
 \brief Defines the functionality provided by nedalloc.
 */
@@ -962,6 +972,7 @@ policies...
 		//! \brief Specifies the nedpool to use. Defaults to zero (the system pool).
 		nedpool *policy_nedpool(size_t bytes) const
 		{
+            UNREFERENCED_PARAMETER(bytes);
 			return 0;
 		}
 		//! \brief Specifies the granularity to use. Defaults to \em bytes (no granularity).
@@ -972,17 +983,22 @@ policies...
 		//! \brief Specifies the alignment to use. Defaults to zero (no alignment).
 		size_t policy_alignment(size_t bytes) const
 		{
+            UNREFERENCED_PARAMETER(bytes);
 			return 0;
 		}
 		//! \brief Specifies the flags to use. Defaults to zero (no flags).
 		unsigned policy_flags(size_t bytes) const
 		{
+            UNREFERENCED_PARAMETER(bytes);
 			return 0;
 		}
 		//! \brief Specifies what to do when the allocation fails. Defaults to throwing std::bad_alloc.
 		void policy_throwbadalloc(size_t bytes) const
 		{
+            UNREFERENCED_PARAMETER(bytes);
+#ifndef DISABLE_EXCEPTIONS
 			throw std::bad_alloc();
+#endif
 		}
 		//! \brief Specifies if the type is POD. Is std::is_pod<T>::value on C++0x compilers, otherwise false.
 		static const bool policy_typeIsPOD=
@@ -1003,7 +1019,7 @@ policies...
 		const T *address(const T &s) const { return &s; }
 		size_t max_size() const { return (static_cast<size_t>(0) - static_cast<size_t>(1)) / sizeof(T); }
 		bool operator!=(const baseimplementation &other) const { return !(*this == other); }
-		bool operator==(const baseimplementation &other) const { return true; }
+		bool operator==(const baseimplementation &other) const { UNREFERENCED_PARAMETER(other); return true; }
 
 		void construct(T *const p, const T &t) const {
 			void *const _p = static_cast<void *>(p);
@@ -1051,6 +1067,7 @@ policies...
 			return static_cast<T *>(ptr);
 		}
 		void deallocate(T *p, const size_t n) const {
+            UNREFERENCED_PARAMETER(n);
 			nedpfree(0/*not needed*/, p);
 		}
 		template<typename U> T *allocate(const size_t n, const U * /* hint */) const {
@@ -1095,6 +1112,7 @@ namespace nedpolicy
 		protected:
 			size_t policy_alignment(size_t bytes) const
 			{
+                UNREFERENCED_PARAMETER(bytes);
 				return alignment;
 			}
 		};
@@ -1194,7 +1212,10 @@ namespace nedpolicy
 		protected:
 			void policy_throwbadalloc(size_t bytes) const
 			{
+                UNREFERENCED_PARAMETER(bytes);
+#ifndef DISABLE_EXCEPTIONS
 				throw T();
+#endif
 			}
 		};
 	};
@@ -1206,6 +1227,7 @@ namespace nedpolicy
 		protected:
 			void policy_throwbadalloc(size_t bytes) const
 			{
+                UNREFERENCED_PARAMETER(bytes);
 			}
 		};
 	};
@@ -1311,7 +1333,7 @@ public:
 		policy6, policy7, policy8, policy9, policy10,
 		policy11, policy12, policy13, policy14, policy15
 #endif
-	> &o) { }
+	> &o) { UNREFERENCED_PARAMETER(o); }
 #ifdef HAVE_CPP0XRVALUEREFS
 	template<typename U> nedallocator(nedallocator<U,
 #ifdef HAVE_CPP0XVARIADICTEMPLATES
