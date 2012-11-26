@@ -1494,7 +1494,7 @@ void uninittimer(void)
 //
 // sampletimer() -- update totalclock
 //
-inline void sampletimer(void)
+void sampletimer(void)
 {
     int64_t i;
     int32_t n;
