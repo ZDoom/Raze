@@ -48,6 +48,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 # define GAMEEXEC_STATIC static
 #endif
 
+enum vmflags_t {
+    VM_RETURN       = 0x00000001,
+    VM_KILL         = 0x00000002,
+    VM_NOEXECUTE    = 0x00000004,
+};
+
 vmstate_t vm;
 
 int32_t g_errorLineNum;
@@ -767,7 +773,7 @@ void addweapon_maybeswitch(DukePlayer_t *ps, int32_t weap)
         P_AddWeaponNoSwitch(ps, weap);
 }
 
-void addweapon_addammo_common(DukePlayer_t *ps, int32_t weap, int32_t amount)
+static void addweapon_addammo_common(DukePlayer_t *ps, int32_t weap, int32_t amount)
 {
     P_AddAmmo(weap, ps, amount);
 

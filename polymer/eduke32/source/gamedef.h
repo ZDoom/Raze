@@ -112,12 +112,6 @@ extern void VM_AccessProjectile(int32_t iSet, int32_t lVar1, int32_t lLabelID, i
 */
 
 
-enum vmflags_t {
-    VM_RETURN       = 0x00000001,
-    VM_KILL         = 0x00000002,
-    VM_NOEXECUTE    = 0x00000004,
-};
-
 typedef struct {
     int32_t g_i, g_p, g_x;
     int32_t *g_t;
