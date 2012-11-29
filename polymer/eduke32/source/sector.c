@@ -192,34 +192,6 @@ int32_t isanearoperator(int32_t lotag)
     return 0;
 }
 
-int32_t ldist(const spritetype *s1, const spritetype *s2)
-{
-    int32_t x= klabs(s1->x-s2->x);
-    int32_t y= klabs(s1->y-s2->y);
-
-    if (x<y) swaplong(&x,&y);
-
-    {
-        int32_t t = y + (y>>1);
-        return (x - (x>>5) - (x>>7)  + (t>>2) + (t>>6));
-    }
-}
-
-int32_t dist(const spritetype *s1, const spritetype *s2)
-{
-    int32_t x= klabs(s1->x-s2->x);
-    int32_t y= klabs(s1->y-s2->y);
-    int32_t z= klabs((s1->z-s2->z)>>4);
-
-    if (x<y) swaplong(&x,&y);
-    if (x<z) swaplong(&x,&z);
-
-    {
-        int32_t t = y + z;
-        return (x - (x>>4) + (t>>2) + (t>>3));
-    }
-}
-
 static inline int32_t A_FP_ManhattanDist(const DukePlayer_t *ps, const spritetype *s)
 {
     return klabs(ps->opos.x-s->x)

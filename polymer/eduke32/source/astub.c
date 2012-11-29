@@ -2541,22 +2541,6 @@ static void SoundDisplay(void)
 }
 // PK_ ^^^^
 
-// from sector.c
-static int32_t dist(spritetype *s1,spritetype *s2)
-{
-    int32_t x = klabs(s1->x-s2->x);
-    int32_t y = klabs(s1->y-s2->y);
-    int32_t z = klabs((s1->z-s2->z)>>4);
-
-    if (x<y) swaplong(&x,&y);
-    if (x<z) swaplong(&x,&z);
-
-    {
-        int32_t t = y + z;
-        return (x - (x>>4) + (t>>2) + (t>>3));
-    }
-}
-
 int32_t AmbienceToggle = 1;
 int32_t ParentalLock = 0;
 #undef T1

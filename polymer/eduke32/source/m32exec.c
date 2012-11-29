@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "osd.h"
 #include "keys.h"
+#include "common.h"
 
 // from macros.h
 #define rnd(X) ((krand()>>8)>=(255-(X)))
@@ -57,36 +58,6 @@ int32_t VM_Execute(int32_t once);
 static instype *x_sortingstateptr;
 
 //#include "m32structures.c"
-
-// from sector.c vvv
-static int32_t ldist(const spritetype *s1, const spritetype *s2)
-{
-    int32_t x= klabs(s1->x-s2->x);
-    int32_t y= klabs(s1->y-s2->y);
-
-    if (x<y) swaplong(&x,&y);
-
-    {
-        int32_t t = y + (y>>1);
-        return (x - (x>>5) - (x>>7)  + (t>>2) + (t>>6));
-    }
-}
-
-static int32_t dist(const spritetype *s1, const spritetype *s2)
-{
-    int32_t x= klabs(s1->x-s2->x);
-    int32_t y= klabs(s1->y-s2->y);
-    int32_t z= klabs((s1->z-s2->z)>>4);
-
-    if (x<y) swaplong(&x,&y);
-    if (x<z) swaplong(&x,&z);
-
-    {
-        int32_t t = y + z;
-        return (x - (x>>4) + (t>>2) + (t>>3));
-    }
-}
-///
 
 #ifdef DEBUGGINGAIDS
 void X_Disasm(ofstype beg, int32_t size)
