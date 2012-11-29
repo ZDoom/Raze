@@ -42,6 +42,7 @@ int32_t G_GetVersionFromWebsite(char *buffer)
     struct hostent *h;
     char *host = "eduke32.sourceforge.net";
     char *req = "GET http://eduke32.sourceforge.net/VERSION HTTP/1.0\r\n\r\n\r\n";
+    char *tok;
     char tempbuf[2048],otherbuf[16],ver[16];
     SOCKET mysock;
 
@@ -94,13 +95,26 @@ int32_t G_GetVersionFromWebsite(char *buffer)
     }
 
     //    initprintf("sent %d bytes\n",bytes_sent);
-    recv(mysock, (char *)&tempbuf, sizeof(tempbuf), 0);
+    i = recv(mysock, (char *)&tempbuf, sizeof(tempbuf), 0);
+    if (i < 0)
+    {
+//        initprintf("update: recv() returned %d\n", i);
+        return 0;
+    }
+
     closesocket(mysock);
 
     Bmemcpy(&otherbuf,&tempbuf,sizeof(otherbuf));
 
     strtok(otherbuf," ");
-    if (Batol(strtok(NULL," ")) == 200)
+    tok = strtok(NULL," ");
+    if (tok == NULL)
+    {
+//        initprintf("update: strtok() produced no token\n");
+        return 0;
+    }
+
+    if (Batol(tok) == 200)
     {
         for (i=0; (unsigned)i<strlen(tempbuf); i++) // HACK: all of this needs to die a fiery death; we just skip to the content
         {
