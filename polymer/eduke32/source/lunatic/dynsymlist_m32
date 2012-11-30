@@ -27,9 +27,14 @@ nextspritestat;
 headsectbunch;
 nextsectbunch;
 
+krand;
 ksqrt;
+cansee;
 hitscan;
 rotatesprite;
+
+dist;
+ldist;
 
 updatesector;
 updatesectorz;

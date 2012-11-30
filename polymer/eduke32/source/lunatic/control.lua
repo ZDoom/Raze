@@ -119,3 +119,7 @@ function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
     ffiC.rotatesprite(65536*x, 65536*y, zoom, ang, tilenum, shade, pal, bit.bor(2,orientation),
                       cx1, cy1, cx2, cy2)
 end
+
+function rnd(x)
+    return (bit.rshift(ffiC.krand(), 8) >= (255-x))
+end

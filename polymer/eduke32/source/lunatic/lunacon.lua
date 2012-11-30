@@ -667,6 +667,10 @@ local setperxvarcmd = -- set<actor/player>var[<idx>].<member> <var>
     arraypat * memberpat * sp1 * t_rvar
 
 
+local function ACS(s) return "actor[_aci]"..s end
+local function SPS(s) return "sprite[_aci]"..s end
+local function PLS(s) return "player[_pli]"..s end
+
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
 -- that have no arguments and that are prefixes of other commands MUST be
 -- suffixed with a "* #sp1" pattern.
@@ -748,25 +752,28 @@ local Ci = {
     getincangle = cmd(W,R,R),
 
     --- 3. Actors
-    action = cmd(AC) /
-        function(str) return string.format("actor[_aci]:set_action(%s)", str) end,
-    ai = cmd(AI) /
-        function(str) return string.format("actor[_aci]:set_ai(%s)", str) end,
+    action = cmd(AC)
+        / ACS":set_action(%1)",
+    ai = cmd(AI)
+        / ACS":set_ai(%1)",
     -- TODO: move's flags
-    move = sp1 * t_move * (sp1 * t_define)^0 /
-        function(str, ...) return string.format("actor[_aci]:set_move(%s)", str) end,
+    move = sp1 * t_move * (sp1 * t_define)^0
+        / ACS":set_move(%1)",
 
-    cactor = cmd(D) /
-        "sprite[_aci].tilenum=%1",  -- TODO: wrap, e.g. sprite[]:set_picnum(tilenum), bound check there
-    count = cmd(D),
+    cactor = cmd(D)
+        / SPS".picnum=%1",  -- TODO: wrap, e.g. sprite[]:set_picnum(tilenum), bound check there
+    count = cmd(D)
+        / ACS":set_count(%1)",
     cstator = cmd(D),
     cstat = cmd(D),
     clipdist = cmd(D),
     sizeto = cmd(D,D),
-    sizeat = cmd(D,D) /
-        "sprite[_aci].xrepeat, sprite[_aci].yrepeat = %1, %2",
-    strength = cmd(D),
-    addstrength = cmd(D),
+    sizeat = cmd(D,D)
+        / (SPS".xrepeat,"..SPS".yrepeat=%1,%2"),
+    strength = cmd(D)
+        / SPS".extra=%1",
+    addstrength = cmd(D)
+        / (SPS".extra="..SPS".extra+%1"),
     spritepal = cmd(D),
 
     hitradius = cmd(D,D,D,D,D),
@@ -812,10 +819,12 @@ local Ci = {
     guts = cmd(D,D),
 
     -- cont'd
-    addkills = cmd(D),
+    addkills = cmd(D)
+        / (PLS".actors_killed="..PLS".actors_killed+%1;"..ACS".actorstayput=-1"),
     addphealth = cmd(D),
     angoff = cmd(D),
-    debug = cmd(D),
+    debug = cmd(D)
+        / "",  -- TODO?
     endofgame = cmd(D),
     eqspawn = cmd(D),
     espawn = cmd(D),
@@ -851,11 +860,14 @@ local Ci = {
     nullop = cmd(),
     pkick = cmd(),
     pstomp = cmd(),
-    resetactioncount = cmd(),
-    resetcount = cmd(),
+    resetactioncount = cmd()
+        / ACS":reset_acount()",
+    resetcount = cmd()
+        / ACS":set_count(0)",
     resetplayer = cmd(),  -- exec SPECIAL HANDLING!
     respawnhitag = cmd(),
-    tip = cmd(),
+    tip = cmd()
+        / PLS".tipincs=26",
     tossweapon = cmd(),
     wackplayer = cmd(),
 
@@ -990,24 +1002,39 @@ local Ci = {
 }
 
 local Cif = {
-    ifai = cmd(AI),
-    ifaction = cmd(AC),
-    ifmove = cmd(MV),
+    ifai = cmd(AI)
+        / ACS":has_ai(%1)",
+    ifaction = cmd(AC)
+        / ACS":has_action(%1)",
+    ifmove = cmd(MV)
+        / ACS":has_move(%1)",
 
-    ifrnd = cmd(D),
+    ifrnd = cmd(D)
+        / "_gv.rnd(%1)",
     ifpdistl = cmd(D),
     ifpdistg = cmd(D),
-    ifwasweapon = cmd(D),
-    ifactioncount = cmd(D),
-    ifcount = cmd(D),
-    ifactor = cmd(D),
-    ifstrength = cmd(D),
-    ifspawnedby = cmd(D),
-    ifgapzl = cmd(D),
-    iffloordistl = cmd(D),
-    ifceilingdistl = cmd(D),
-    ifphealthl = cmd(D),
-    ifspritepal = cmd(D),
+    ifactioncount = cmd(D)
+        / ACS":get_acount()==%1",
+    ifcount = cmd(D)
+        / ACS":get_count()==%1",
+    ifactor = cmd(D)
+        / SPS".picnum==%d",
+    ifstrength = cmd(D)
+        / SPS".extra<=%d",
+    ifspawnedby = cmd(D)
+        / ACS".picnum==%d",
+    ifwasweapon = cmd(D)
+        / ACS".picnum==%d",
+    ifgapzl = cmd(D)  -- factor into a con.* function?
+        / format("_bit.arshift(%s-%s,8)<%%1", ACS".floorz", ACS".ceilingz"),
+    iffloordistl = cmd(D)
+        / format("(%s-%s)<=256*%%1", ACS".floorz", SPS".z"),
+    ifceilingdistl = cmd(D)
+        / format("(%s-%s)<=256*%%1", SPS".z", ACS".ceilingz"),
+    ifphealthl = cmd(D)
+        / format("sprite[%s].extra<%%1", PLS".i"),
+    ifspritepal = cmd(D)
+        / SPS".pal==%1",
     ifgotweaponce = cmd(D),
     ifangdiffl = cmd(D),
     ifsound = cmd(D),
@@ -1037,24 +1064,30 @@ local Cif = {
     ifsquished = cmd(),
     ifserver = cmd(),
     ifrespawn = cmd(),
-    ifoutside = cmd(),
+    ifoutside = cmd()
+        / format("_bit.band(sector[%s].ceilingstat,1)~=0", SPS".sectnum"),
     ifonwater = cmd(),
     ifnotmoving = cmd(),
     ifnosounds = cmd(),
-    ifmultiplayer = cmd(),
-    ifinwater = cmd(),
+    ifmultiplayer = cmd()
+        / "false",  -- TODO?
+    ifinwater = cmd()
+        / format("sector[%s].lotag==2", SPS".sectnum"),
     ifinspace = cmd(),
     ifinouterspace = cmd(),
-    ifhitweapon = cmd(),
+    ifhitweapon = cmd()
+        / "TODO",
     ifhitspace = cmd(),
-    ifdead = cmd(),
+    ifdead = cmd()
+        / SPS".extra<=0",
     ifclient = cmd(),
     ifcanshoottarget = cmd(),
     ifcanseetarget = cmd(),
     ifcansee = cmd() * #sp1,
     ifbulletnear = cmd(),
     ifawayfromwall = cmd(),
-    ifactornotstayput = cmd(),
+    ifactornotstayput = cmd()
+        / ACS".actorstayput==-1",
 }
 
 
@@ -1165,7 +1198,21 @@ local function after_inner_cmd_Cmt(subj, pos, ...)
     end
 
     if (type(capts[1])=="string" and capts[2]==nil) then
-        return true, capts[1].."--"
+        return true, capts[1] .."--"..linecolstr(pos) --TEMP
+    end
+
+    return true
+end
+
+local function after_if_cmd_Cmt(subj, pos, ...)
+    local capts = {...}
+
+    if (g_numerrors == inf) then
+        return nil
+    end
+
+    if (type(capts[1])=="string" and capts[2]==nil) then
+        return true, capts[1]
     end
 
     return true
@@ -1181,19 +1228,18 @@ local function after_cmd_Cmt(subj, pos, ...)
 end
 
 -- attach the command names at the front!
-local function attachnames(kwtab, customfunc)
+local function attachnames(kwtab, matchtimefunc)
     for cmdname,cmdpat in pairs(kwtab) do
         -- The match-time function capture at the end is so that every
         -- command acts as a barrier to captures to prevent stack overflow (and
         -- to make lpeg.match return a subject position at the end)
-        kwtab[cmdname] = lpeg.Cmt(Keyw(cmdname) * cmdpat,
-                                  customfunc or after_cmd_Cmt)
+        kwtab[cmdname] = lpeg.Cmt(Keyw(cmdname) * cmdpat, matchtimefunc)
     end
 end
 
-attachnames(Co)
+attachnames(Co, after_cmd_Cmt)
 attachnames(Ci, after_inner_cmd_Cmt)
-attachnames(Cif)
+attachnames(Cif, after_if_cmd_Cmt)
 
 
 -- Takes one or more tables and +'s all its patterns together in reverse
@@ -1269,7 +1315,7 @@ local Cb = {
     state = sp1 * t_identifier * sp1 * stmt_list_or_eps * "ends",
 }
 
-attachnames(Cb)
+attachnames(Cb, after_cmd_Cmt)
 
 
 local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09")^0
@@ -1284,10 +1330,11 @@ local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09"
 local t_broken_identifier = BadIdent(-((t_number + t_good_identifier) * (sp1 + Set("[]:"))) *
                                      (alphanum + Set("_/\\*")) * (alphanum + Set("_/\\*-"))^0)
 
-local function begin_if_fn()
+local function begin_if_fn(condstr)
     g_ifseqlevel = g_ifseqlevel+1
-
-    return "if (TODO) then"
+    condstr = condstr or "TODO"
+    assert(type(condstr)=="string")
+    return format("if (%s) then", condstr)
 end
 
 local function end_if_fn()
@@ -1350,7 +1397,7 @@ local Grammar = Pat{
         (Var("case_block") + Var("default_block"))^0 * sp1 * "endswitch",
 
     -- NOTE: some old DNWMD has "case: PIGCOP".  I don't think I'll allow that.
-    case_block = (sp1 * Keyw("case") * sp1 * t_define * (sp0*":")^-1)^1 * sp1 *
+    case_block = (sp1 * Keyw("case") * sp1 * t_define/"XXX_CASE" * (sp0*":")^-1)^1 * sp1 *
         stmt_list_nosp_or_eps, -- * "break",
 
     default_block = sp1 * Keyw("default") * (sp0*":"*sp0 + sp1) * stmt_list_nosp_or_eps,  -- * "break",
@@ -1362,7 +1409,7 @@ local Grammar = Pat{
 
     -- TODO?: SST TC has "state ... else ends"
     while_stmt = Keyw("whilevarvarn") * sp1 * t_rvar * sp1 * t_rvar * sp1 * Var("single_stmt")
-        + Keyw("whilevarn") * sp1 * t_rvar * sp1 * t_define * sp1 * Var("single_stmt"),
+        + Keyw("whilevarn") * sp1 * t_rvar * sp1 * t_define/"WHILE_XXX" * sp1 * Var("single_stmt"),
 
     -- TODO: some sp1 --> sp0?
     single_stmt = Stmt(
@@ -1426,6 +1473,10 @@ end
 
 ---=== EXPORTED FUNCTIONS ===---
 
+local function new_initial_perfile_codetab()
+    return { "local _con=require'con'; local _gv=gv; local _bit=require'bit'" }
+end
+
 function parse(contents)  -- local
     -- save outer state
     local lastkw, lastkwpos, numerrors = g_lastkw, g_lastkwpos, g_numerrors
@@ -1433,7 +1484,7 @@ function parse(contents)  -- local
     local curcode = g_curcode
 
     g_ifseqlevel = 0
-    g_curcode = { "local _con=require'con'\n" }
+    g_curcode = new_initial_perfile_codetab()
     g_file_code[g_filename] = g_curcode
 
     -- set up new state

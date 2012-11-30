@@ -19,6 +19,8 @@ MAXSKILLS = 7
 
 MAXSOUNDS = 4096
 
+SLEEPTIME = 1536
+
 
 -- KEEPINSYNC with gamedef.c:C_AddDefaultDefinitions() and the respective
 -- defines. These are exported to the ffi.C namespace and as literal defines

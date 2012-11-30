@@ -174,6 +174,11 @@ int16_t yax_getbunch(int16_t i, int16_t cf);
 
 int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                 hitdata_t *hitinfo, uint32_t cliptype);
+int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
+               int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
+
+int32_t ldist(const spritetype *s1, const spritetype *s2);
+int32_t dist(const spritetype *s1, const spritetype *s2);
 
 void updatesector(int32_t x, int32_t y, int16_t *sectnum);
 void updatesectorbreadth(int32_t x, int32_t y, int16_t *sectnum);
@@ -186,8 +191,10 @@ void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 
 -- misc. functions
 ffi.cdef[[
-int32_t ksqrt(uint32_t num);
 double gethitickms(void);
+
+int32_t krand(void);
+int32_t ksqrt(uint32_t num);
 ]]
 
 
@@ -343,6 +350,19 @@ function hitscan(pos, sectnum, vx,vy,vz, cliptype)
 
     ffiC.hitscan(vec, sectnum, vx,vy,vz, hitdata, cliptype)
     return hitdata
+end
+
+function cansee(pos1,sect1, pos2,sect2)
+    if (sect1 >= ffiC.numsectors+0ULL) then
+        error("passed out-of-bounds first sector number "..sect1, 2)
+    end
+    if (sect2 >= ffiC.numsectors+0ULL) then
+        error("passed out-of-bounds second sector number "..sect2, 2)
+    end
+
+    local ret = ffiC.cansee(pos1.x,pos1.y,pos1.z, sect1,
+                            pos2.x,pos2.y,pos2.z, sect2)
+    return (ret~=0) and true or false
 end
 
 -- TODO: should these rather be one function, and the specific kind of updating

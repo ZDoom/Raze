@@ -6,6 +6,7 @@ _EDUKE32_LUNATIC = true
 local ffi = require("ffi")
 local ffiC = ffi.C
 
+local bit = bit
 local string = string
 local table = table
 local print = print
@@ -219,6 +220,7 @@ local DUKEPLAYER_STRUCT = [[
 ]]
 
 local randgen = require("randgen")
+local geom = require("geom")
 
 -- Converts a template struct definition to an internal, unrestricted one.
 local function strip_const(structstr)
@@ -414,6 +416,8 @@ user_defs ud;
 playerdata_t g_player[MAXPLAYERS];
 
 const int32_t playerswhenstarted;
+
+int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
 ]]
 
 -- functions
@@ -612,8 +616,18 @@ local actor_mt = {
 ffi.metatype("actor_t", actor_mt)
 
 
---- default defines
+--- default defines etc.
 local con_lang = require("con_lang")
+
+local player_mt = {
+    __index = {
+        cansee = function(p, otherpos, othersect)
+            return cansee(p.pos, sprite[p.i].sectnum, otherpos, othersect)
+        end,
+    },
+}
+ffi.metatype("DukePlayer_t", player_mt)
+
 
 for i=1,#con_lang.labels do
     local strbuf = {"enum {"}
@@ -637,7 +651,7 @@ local allowed_modules = {
     },
 
     randgen = randgen,
-    geom = require("geom"),
+    geom = geom,
     stat = require("stat"),
     bitar = require("bitar"),
 

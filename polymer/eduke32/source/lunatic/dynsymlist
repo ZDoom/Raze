@@ -27,9 +27,14 @@ nextspritestat;
 headsectbunch;
 nextsectbunch;
 
+krand;
 ksqrt;
+cansee;
 hitscan;
 rotatesprite;
+
+dist;
+ldist;
 
 updatesector;
 updatesectorz;
@@ -52,6 +57,8 @@ ud;
 g_player;
 
 playerswhenstarted;
+
+A_IncurDamage;
 
 luaJIT_BC_lunacon;
 luaJIT_BC_con_lang;
