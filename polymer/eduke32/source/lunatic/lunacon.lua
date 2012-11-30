@@ -151,11 +151,8 @@ local LABEL_FUNCNAME = { [2]="move", [3]="ai", [5]="action" }
 
 local g_labeldef = {}  -- Lua numbers for numbers, strings for composites
 local g_labeltype = {}
-local TEMP_numlookups = {}
 
 local function reset_labels()
-    TEMP_numlookups = {}
-
     -- NO is also a valid `move', `ai' or `action', but they are handled
     -- separately in lookup_composite().
     g_labeldef = { NO=0 }
@@ -239,12 +236,6 @@ local function lookup_composite(labeltype, pos, identifier)
 
     -- Generate a quoted identifier name.
     val = format("%q", identifier)
-
-    if (TEMP_numlookups[identifier]) then
-        TEMP_numlookups[identifier] = TEMP_numlookups[identifier]+1
-    else
-        TEMP_numlookups[identifier] = 1
-    end
 
     return val
 end
@@ -1569,18 +1560,6 @@ if (not _EDUKE32_LUNATIC) then
             end
             print(msg)
         end
-
-        -- TEMP
-        local n, numl = 0, 0
-        local ll = {[1]=0, [2]=0, [3]=0}
-        for id,numlookups in pairs(TEMP_numlookups) do
-            numl = numl+numlookups
-            n = n+1
-            if (numlookups<=3) then
-                ll[numlookups] = ll[numlookups]+1
-            end
-        end
-        printf("avg. lookups: %f (%d %d %d)", numl/n, ll[1],ll[2],ll[3])
 
 --[[
         local file = io.stdout

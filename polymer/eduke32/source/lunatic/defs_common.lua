@@ -395,7 +395,7 @@ function cansee(pos1,sect1, pos2,sect2)
 
     local ret = ffiC.cansee(pos1.x,pos1.y,pos1.z, sect1,
                             pos2.x,pos2.y,pos2.z, sect2)
-    return (ret~=0) and true or false
+    return (ret~=0)
 end
 
 -- TODO: should these rather be one function, and the specific kind of updating

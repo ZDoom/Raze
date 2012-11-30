@@ -177,7 +177,9 @@ local DUKEPLAYER_STRUCT = [[
     int16_t newowner, jumping_counter, airleft;
     int16_t fta, ftq, access_wallnum, access_spritenum;
     int16_t got_access, weapon_ang, visibility;
-    int16_t somethingonplayer, on_crane, i, one_parallax_sectnum;
+    int16_t somethingonplayer, on_crane;
+    const int16_t i;
+    int16_t one_parallax_sectnum;
     int16_t random_club_frame, one_eighty_count;
     int16_t dummyplayersprite, extra_extra8;
     int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
@@ -209,7 +211,8 @@ local DUKEPLAYER_STRUCT = [[
     uint8_t walking_snd_toggle, palookup, hard_landing, fist_incs;
 
     int8_t numloogs, loogcnt, scream_voice;
-    int8_t last_weapon, cheat_phase, weapon_pos, wantweaponfire, curr_weapon;
+    int8_t last_weapon, cheat_phase, weapon_pos, wantweaponfire;
+    int8_t const curr_weapon;
 
     palette_t pals;
 
@@ -413,6 +416,7 @@ playerdata_t g_player[MAXPLAYERS];
 const int32_t playerswhenstarted;
 
 int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
+void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap);
 ]]
 
 -- functions
@@ -478,6 +482,7 @@ local function check_literal_am(am, typename)
 end
 
 local actor_ptr_ct = ffi.typeof("actor_u_t *")  -- an unrestricted actor_t pointer
+local player_ptr_ct = ffi.typeof("DukePlayer_u_t *")
 local con_action_ct = ffi.typeof("con_action_t")
 local con_move_ct = ffi.typeof("con_move_t")
 local con_ai_ct = ffi.typeof("con_ai_t")
@@ -614,8 +619,46 @@ ffi.metatype("actor_t", actor_mt)
 --- default defines etc.
 local con_lang = require("con_lang")
 
+local function check_weapon_idx(weap)
+    if (weap >= ffiC.MAX_WEAPONS+0ULL) then
+        error("Invalid weapon ID "..weap, 3)
+    end
+end
+
 local player_mt = {
     __index = {
+        --- Getters/setters
+        get_ammo_amount = function(p, weap)
+            check_weapon_idx(weap)
+            return ffi.cast(player_ptr_ct, p).ammo_amount[weap]
+        end,
+
+        set_ammo_amount = function(p, weap, amount)
+            check_weapon_idx(weap)
+            ffi.cast(player_ptr_ct, p).ammo_amount[weap] = amount
+        end,
+
+        get_max_ammo_amount = function(p, weap)
+            check_weapon_idx(weap)
+            return ffi.cast(player_ptr_ct, p).max_ammo_amount[weap]
+        end,
+
+        set_max_ammo_amount = function(p, weap, amount)
+            check_weapon_idx(weap)
+            ffi.cast(player_ptr_ct, p).max_ammo_amount[weap] = amount
+        end,
+
+        set_curr_weapon = function(p, weap)
+            check_weapon_idx(weap)
+            ffi.cast(player_ptr_ct, p).curr_weapon = weap
+        end,
+
+        -- CON-like addammo/addweapon, but without the non-local control flow
+        -- (returns true if weapon's ammo was at the max. instead).
+        addammo = con.addammo,
+        addweapon = con.addweapon,
+
+        --- Convenient wrappers around engine functions
         cansee = function(p, otherpos, othersect)
             return cansee(p.pos, sprite[p.i].sectnum, otherpos, othersect)
         end,
@@ -700,7 +743,7 @@ local function readintostr(fn)
 
     if (sz < 0) then
         ffi.kclose(fd)
-        error("INTERNAL ERROR: kfilelength() returned negative length", 5)
+        error("INTERNAL ERROR: kfilelength() returned negative length", ERRLEV)
     end
 
     local str = ffi.new("char [?]", sz)  -- XXX: what does it do on out of mem?

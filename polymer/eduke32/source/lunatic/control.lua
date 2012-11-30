@@ -4,11 +4,14 @@ local ffi = require("ffi")
 local ffiC = ffi.C
 
 local bit = require("bit")
+local math = require("math")
 
 local setmetatable = setmetatable
 
 local error = error
 local type = type
+
+local player = player
 
 
 module(...)
@@ -122,4 +125,56 @@ end
 
 function rnd(x)
     return (bit.rshift(ffiC.krand(), 8) >= (255-x))
+end
+
+
+---=== Weapon stuff
+
+
+--- Helper functions (might be exported later)
+
+local function have_weapon(ps, weap)
+    return (bit.band(ps.gotweapon, bit.lshift(1, weap)) ~= 0)
+end
+
+local function have_ammo_at_max(ps, weap)
+    return (ps:get_ammo_amount(weap) >= ps:get_max_ammo_amount(weap))
+end
+
+local function P_AddAmmo(ps, weap, amount)
+    if (not have_ammo_at_max(ps, weap)) then
+        -- NOTE: no clamping towards the bottom
+        ps:set_ammo_amount(weap, math.min(curamount+amount, maxamount))
+    end
+end
+
+local function P_AddWeaponAmmoCommon(ps, weap, amount)
+    P_AddAmmo(ps, weap, amount)
+
+    if (ps.curr_weapon==KNEE_WEAPON and have_weapon(weap)) then
+        ffiC.P_AddWeaponMaybeSwitch(ps, weap);
+    end
+end
+
+
+--- Exported functions
+
+-- The return value is true iff the ammo was at the weapon's max.
+-- In that case, no action is taken.
+function addammo(ps, weapon, amount)
+    return have_ammo_at_max(ps, weap) or P_AddWeaponAmmoCommon(ps, weap, amount)
+end
+
+function addweapon(ps, weapon, amount)
+    if (weap >= ffiC.MAX_WEAPONS+0ULL) then
+        error("Invalid weapon ID "..weap, 2)
+    end
+
+    if (not have_weapon(ps, weap)) then
+        ffiC.P_AddWeaponMaybeSwitch(ps, weap);
+    elseif (have_ammo_at_max(ps, weap)) then
+        return true
+    end
+
+    P_AddWeaponAmmoCommon(ps, weap, amount)
 end

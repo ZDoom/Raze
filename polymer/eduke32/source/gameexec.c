@@ -742,7 +742,8 @@ dead:
     else vm.g_sp->shade += (sector[vm.g_sp->sectnum].floorshade-vm.g_sp->shade)>>1;
 }
 
-void addweapon_maybeswitch(DukePlayer_t *ps, int32_t weap)
+// NOTE: Used from Lunatic
+void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap)
 {
     if ((ps->weaponswitch & 1) && (ps->weaponswitch & 4))
     {
@@ -773,12 +774,12 @@ void addweapon_maybeswitch(DukePlayer_t *ps, int32_t weap)
         P_AddWeaponNoSwitch(ps, weap);
 }
 
-static void addweapon_addammo_common(DukePlayer_t *ps, int32_t weap, int32_t amount)
+static void P_AddWeaponAmmoCommon(DukePlayer_t *ps, int32_t weap, int32_t amount)
 {
     P_AddAmmo(weap, ps, amount);
 
     if (ps->curr_weapon == KNEE_WEAPON && (ps->gotweapon & (1 << weap)))
-        addweapon_maybeswitch(ps, weap);
+        P_AddWeaponMaybeSwitch(ps, weap);
 }
 
 static int32_t VM_AddWeapon(int32_t weap, int32_t amount, DukePlayer_t *ps)
@@ -791,7 +792,7 @@ static int32_t VM_AddWeapon(int32_t weap, int32_t amount, DukePlayer_t *ps)
 
     if ((ps->gotweapon & (1 << weap)) == 0)
     {
-        addweapon_maybeswitch(ps, weap);
+        P_AddWeaponMaybeSwitch(ps, weap);
     }
     else if (ps->ammo_amount[weap] >= ps->max_ammo_amount[weap])
     {
@@ -799,7 +800,7 @@ static int32_t VM_AddWeapon(int32_t weap, int32_t amount, DukePlayer_t *ps)
         return 2;
     }
 
-    addweapon_addammo_common(ps, weap, amount);
+    P_AddWeaponAmmoCommon(ps, weap, amount);
 
     return 0;
 }
@@ -1409,7 +1410,7 @@ skip_check:
                     break;
                 }
 
-                addweapon_addammo_common(ps, weap, amount);
+                P_AddWeaponAmmoCommon(ps, weap, amount);
 
                 continue;
             }
