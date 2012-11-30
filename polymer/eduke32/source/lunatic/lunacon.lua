@@ -20,7 +20,7 @@ local Pat, Set, Range, Var = lpeg.P, lpeg.S, lpeg.R, lpeg.V
 local POS = lpeg.Cp
 
 ---- All keywords pattern -- needed for CON syntax
-local con = require("con_lang")
+local conl = require("con_lang")
 
 
 local function match_until(matchsp, untilsp)  -- (!untilsp matchsp)* in PEG
@@ -28,8 +28,10 @@ local function match_until(matchsp, untilsp)  -- (!untilsp matchsp)* in PEG
     return (matchsp - Pat(untilsp))^0
 end
 
+local format = string.format
+
 local function printf(fmt, ...)
-    print(string.format(fmt, ...))
+    print(format(fmt, ...))
 end
 
 
@@ -71,11 +73,12 @@ local function reset_codegen()
 end
 
 local function addcode(x)
+    assert(type(x)=="string" or type(x)=="table")
     g_curcode[#g_curcode+1] = x
 end
 
 local function addcodef(fmt, ...)
-    addcode(string.format(fmt, ...))
+    addcode(format(fmt, ...))
 end
 
 local function on_actor_end(usertype, tsamm, codetab)
@@ -84,6 +87,7 @@ local function on_actor_end(usertype, tsamm, codetab)
 
     -- usertype is non-nil only for 'useractor'
     addcodef("gameactor(%d, function(_aci, _pli, _dist)", tilenum)
+    assert(type(codetab)=="table")
     g_actor_code[tilenum] = codetab
 
     addcode(codetab)
@@ -94,7 +98,7 @@ end
 
 local function linecolstr(pos)
     local line, col = getlinecol(pos)
-    return string.format("%d:%d", line, col)
+    return format("%d:%d", line, col)
 end
 
 local function perrprintf(pos, fmt, ...)
@@ -158,8 +162,8 @@ local function reset_labels()
     g_labeltype = { NO=LABEL.NUMBER }
 
     -- Initialize default defines.
-    for i=1,#con.labels do
-        for label, val in pairs(con.labels[i]) do
+    for i=1,#conl.labels do
+        for label, val in pairs(conl.labels[i]) do
             g_labeldef[label] = val
             g_labeltype[label] = LABEL.NUMBER
         end
@@ -193,8 +197,8 @@ local function do_define_label(identifier, num)
             errprintf("refusing to overwrite `%s' label \"%s\" with a `define'd number",
                       LABEL[oldtype], identifier)
         else
-            -- con.labels[...]: don't warn for wrong PROJ_ redefinitions
-            if (oldval ~= num and con.labels[2][identifier]==nil) then
+            -- conl.labels[...]: don't warn for wrong PROJ_ redefinitions
+            if (oldval ~= num and conl.labels[2][identifier]==nil) then
                 warnprintf("label \"%s\" not redefined with new value %d (old: %d)",
                            identifier, num, oldval)
             end
@@ -234,7 +238,7 @@ local function lookup_composite(labeltype, pos, identifier)
     end
 
     -- Generate a quoted identifier name.
-    val = string.format("%q", identifier)
+    val = format("%q", identifier)
 
     if (TEMP_numlookups[identifier]) then
         TEMP_numlookups[identifier] = TEMP_numlookups[identifier]+1
@@ -282,10 +286,10 @@ local function do_define_composite(labeltype, identifier, ...)
 
     -- Make a string out of that.
     for i=1+(isai and 2 or 0),#args do
-        args[i] = string.format("%d", args[i])
+        args[i] = format("%d", args[i])
     end
 
-    addcodef("_con.%s(%q,%s)\n", LABEL_FUNCNAME[labeltype], identifier, table.concat(args, ","))
+    addcodef("_con.%s(%q,%s)", LABEL_FUNCNAME[labeltype], identifier, table.concat(args, ","))
 
     g_labeldef[identifier] = ""
     g_labeltype[identifier] = labeltype
@@ -350,7 +354,7 @@ end
 
 --- Per-module game data
 local g_data = {}
-local EPMUL = con.MAXLEVELS
+local EPMUL = conl.MAXLEVELS
 
 local function reset_gamedata()
     g_data = {}
@@ -372,12 +376,12 @@ local function reset_gamedata()
 end
 
 local function cmd_definelevelname(vol, lev, fn, ptstr, dtstr, levname)
-    if (vol < 0 or vol >= con.MAXVOLUMES) then
+    if (vol < 0 or vol >= conl.MAXVOLUMES) then
         errprintf("volume number exceeds maximum volume count.")
         return
     end
 
-    if (lev < 0 or lev >= con.MAXLEVELS) then
+    if (lev < 0 or lev >= conl.MAXLEVELS) then
         errprintf("level number exceeds maximum number of levels per episode.")
         return
     end
@@ -396,7 +400,7 @@ local function cmd_definelevelname(vol, lev, fn, ptstr, dtstr, levname)
 end
 
 local function cmd_defineskillname(skillnum, name)
-    if (skillnum < 0 or skillnum >= con.MAXSKILLS) then
+    if (skillnum < 0 or skillnum >= conl.MAXSKILLS) then
         errprintf("volume number is negative or exceeds maximum skill count.")
         return
     end
@@ -405,7 +409,7 @@ local function cmd_defineskillname(skillnum, name)
 end
 
 local function cmd_definevolumename(vol, name)
-    if (vol < 0 or vol >= con.MAXVOLUMES) then
+    if (vol < 0 or vol >= conl.MAXVOLUMES) then
         errprintf("volume number is negative or exceeds maximum volume count.")
         return
     end
@@ -436,8 +440,8 @@ local function cmd_gamestartup(...)
 end
 
 local function cmd_definesound(sndnum, fn, ...)
-    if (sndnum < 0 or sndnum >= con.MAXSOUNDS) then
-        errprintf("sound number is or exceeds sound limit of %d", con.MAXSOUNDS)
+    if (sndnum < 0 or sndnum >= conl.MAXSOUNDS) then
+        errprintf("sound number is or exceeds sound limit of %d", conl.MAXSOUNDS)
         return
     end
 
@@ -447,16 +451,16 @@ local function cmd_definesound(sndnum, fn, ...)
 end
 
 local function cmd_music(volnum, ...)
-    if (volnum < 0 or volnum >= con.MAXVOLUMES+1) then
+    if (volnum < 0 or volnum >= conl.MAXVOLUMES+1) then
         errprintf("volume number is negative or exceeds maximum volume count+1")
         return
     end
 
     local filenames = {...}
 
-    if (#filenames > con.MAXLEVELS) then
-        warnprintf("ignoring extraneous %d music file names", #filenames-con.MAXLEVELS)
-        for i=con.MAXLEVELS+1,#filenames do
+    if (#filenames > conl.MAXLEVELS) then
+        warnprintf("ignoring extraneous %d music file names", #filenames-conl.MAXLEVELS)
+        for i=conl.MAXLEVELS+1,#filenames do
             filenames[i] = nil
         end
     end
@@ -588,7 +592,7 @@ local Co = {
     definesound = sp1 * t_define * sp1 * maybe_quoted_filename * n_defines(5) / cmd_definesound,
 
     -- NOTE: gamevar.ogg and the like is OK, too
-    music = sp1 * t_define * match_until(sp1 * t_filename, sp1 * con.keyword * sp1) / cmd_music,
+    music = sp1 * t_define * match_until(sp1 * t_filename, sp1 * conl.keyword * sp1) / cmd_music,
 
     --- 3. Game Settings
     -- gamestartup has 25/29 fixed defines, depending on 1.3D/1.5 version:
@@ -669,12 +673,12 @@ local setperxvarcmd = -- set<actor/player>var[<idx>].<member> <var>
 
 local Ci = {
     -- these can appear anywhere in the script
-    ["break"] = cmd() /
-        "do return end",  -- TODO: more exact semantics
+    ["break"] = cmd()
+        / "do return end",  -- TODO: more exact semantics
     ["return"] = cmd(),
 
-    state = cmd(I) /
-        "%1()",  -- TODO: mangle names
+    state = cmd(I)
+        / "%1()",  -- TODO: mangle names
 
     --- 1. get*, set*
     getactor = getstructcmd,
@@ -841,8 +845,8 @@ local Ci = {
     flash = cmd(),
     getlastpal = cmd(),
     insertspriteq = cmd(),
-    killit = cmd() /
-        "do return 2 end",  -- exec SPECIAL HANDLING!
+    killit = cmd()
+        / "do return 2 end",  -- exec SPECIAL HANDLING!
     mikesnd = cmd(),
     nullop = cmd(),
     pkick = cmd(),
@@ -1208,7 +1212,6 @@ local function all_alt_pattern(...)
         for cmdname,_ in pairs(pattab) do
             cmds[#cmds+1] = cmdname
         end
-
     end
 
     -- ...and then sort them in ascending lexicographical order
@@ -1272,7 +1275,7 @@ attachnames(Cb)
 local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09")^0
 
 -- CON isaltok also has chars in "{}.", but these could potentially
--- interfere with *CON* syntax.  The "]" is so that the number in array[80]
+-- interfere with *CON* syntax.  The "]" is so that the number in e.g. array[80]
 -- isn't considered a broken identifier.
 -- "-" is somewhat problematic, but we allow it only as 2nd and up character, so
 -- there's no ambiguity with unary minus.  (Commands must be separated by spaces
@@ -1317,7 +1320,7 @@ local Grammar = Pat{
     whitespace = Set(" \t\r\26") + newline + Set("(),;") + comment + linecomment,
 
     t_identifier_all = t_broken_identifier + t_good_identifier,
-    -- NOTE: -con.keyword alone would be wrong, e.g. "state breakobject":
+    -- NOTE: -conl.keyword alone would be wrong, e.g. "state breakobject":
     -- NOTE 2: The + "[" is so that stuff like
     --   getactor[THISACTOR].x x
     --   getactor[THISACTOR].y y
@@ -1325,7 +1328,7 @@ local Grammar = Pat{
     --   getactor[THISACTOR].x x
     --   getactor [THISACTOR].y y
     -- This is in need of cleanup!
-    t_identifier = -NotKeyw(con.keyword * (sp1 + "[")) * lpeg.C(t_identifier_all),
+    t_identifier = -NotKeyw(conl.keyword * (sp1 + "[")) * lpeg.C(t_identifier_all),
     t_define = (POS() * lpeg.C(t_maybe_minus) * t_identifier / lookup_defined_label) + t_number,
 
     t_move =
@@ -1402,7 +1405,7 @@ local function do_flatten_codetab(code, intotab)
         local elt = code[i]
 
         if (type(elt)=="string") then
-            intotab[#intotab+1] = code[i]
+            intotab[#intotab+1] = elt
         elseif (type(elt)=="table") then
             do_flatten_codetab(elt, intotab)
         else
@@ -1531,7 +1534,7 @@ if (not _EDUKE32_LUNATIC) then
 --[[
         local file = io.stdout
         for filename,codetab in pairs(g_file_code) do
-            file:write(string.format("-- GENERATED CODE (%s):\n", filename))
+            file:write(format("-- GENERATED CODE for \"%s\":\n", filename))
             file:write(table.concat(flatten_codetab(codetab), "\n"))
             file:write("\n")
         end

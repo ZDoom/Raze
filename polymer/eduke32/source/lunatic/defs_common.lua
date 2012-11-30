@@ -319,7 +319,7 @@ end
 
 function getbunch(sectnum, cf)
     if (sectnum < 0 or sectnum >= ffiC.numsectors) then
-        error('passed out-of-bounds sector number '..sectnum, 2)
+        error("passed out-of-bounds sector number "..sectnum, 2)
     end
     if (cf ~= 0 and cf ~= 1) then
         error("passed invalid 'cf' to getbunch, must be 0 or 1", 2)
@@ -334,8 +334,8 @@ end
 -- TODO: make v[xyz] be passed as one aggregate, too?
 -- Additionally, permit different coordinates? (ang&horiz, ...)
 function hitscan(pos, sectnum, vx,vy,vz, cliptype)
-    if (sectnum < 0 or sectnum >= ffiC.numsectors) then
-        error('passed out-of-bounds sector number '..sectnum, 2)
+    if (sectnum >= ffiC.numsectors+0ULL) then
+        error("passed out-of-bounds sector number "..sectnum, 2)
     end
 
     local vec = vec3_ct(pos.x, pos.y, pos.z)

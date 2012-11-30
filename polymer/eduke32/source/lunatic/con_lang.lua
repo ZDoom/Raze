@@ -21,7 +21,8 @@ MAXSOUNDS = 4096
 
 
 -- KEEPINSYNC with gamedef.c:C_AddDefaultDefinitions() and the respective
--- defines
+-- defines. These are exported to the ffi.C namespace and as literal defines
+-- in lunacon.lua.
 labels =
 {
     {
