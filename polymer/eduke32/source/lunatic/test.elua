@@ -266,6 +266,10 @@ gameactor(1680,  -- LIZTROOP
                   -- Duke Vader / Anakin Nukewalker?
                   actor[i]:set_action("TROOPFLINTCH")
                   actor[i]:set_move("SHRUNKVELS")
+
+                  if (dist < 1024) then
+                      con.killit()
+                  end
               end
           end
          )

@@ -159,6 +159,17 @@ end
 
 --- Exported functions
 
+-- Non-local control flow. These ones call the original error(), not our
+-- redefinition in defs.ilua.
+function longjmp()
+    error(false)
+end
+
+function killit()
+    -- TODO: guard against deletion of player sprite?
+    error(true)
+end
+
 -- The return value is true iff the ammo was at the weapon's max.
 -- In that case, no action is taken.
 function addammo(ps, weapon, amount)

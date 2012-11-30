@@ -5112,6 +5112,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
 {
 #ifdef LUNATIC
     double t;
+    int32_t killit=0;
 #endif
     vmstate_t tempvm = { iActor, iPlayer, lDist, &actor[iActor].t_data[0],
                          &sprite[iActor], 0
@@ -5176,7 +5177,7 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     t = gethitickms();
 
     if (L_IsInitialized(&g_ElState) && El_HaveActor(vm.g_sp->picnum))
-        El_CallActor(&g_ElState, vm.g_sp->picnum, iActor, iPlayer, lDist);
+        killit = (El_CallActor(&g_ElState, vm.g_sp->picnum, iActor, iPlayer, lDist)==1);
 #endif
 
     insptr = 4 + (g_tile[vm.g_sp->picnum].execPtr);
@@ -5188,7 +5189,11 @@ void A_Execute(int32_t iActor,int32_t iPlayer,int32_t lDist)
     g_actorCalls[vm.g_sp->picnum]++;
 #endif
 
-    if (vm.g_flags & VM_KILL)
+    if ((vm.g_flags & VM_KILL)
+#ifdef LUNATIC
+        || killit
+#endif
+        )
     {
         // if player was set to squish, first stop that...
         if (vm.g_p >= 0 && g_player[vm.g_p].ps->actorsqu == vm.g_i)

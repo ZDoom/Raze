@@ -670,7 +670,8 @@ local Ci = {
     -- these can appear anywhere in the script
     ["break"] = cmd()
         / "do return end",  -- TODO: more exact semantics
-    ["return"] = cmd(),
+    ["return"] = cmd()
+        / "_con.longjmp()",  -- TODO: test with code from Wiki "return" entry
 
     state = cmd(I)
         / "%1()",  -- TODO: mangle names
@@ -846,7 +847,7 @@ local Ci = {
     getlastpal = cmd(),
     insertspriteq = cmd(),
     killit = cmd()
-        / "do return 2 end",  -- exec SPECIAL HANDLING!
+        / "_con.killit()",  -- exec SPECIAL HANDLING!
     mikesnd = cmd(),
     nullop = cmd(),
     pkick = cmd(),

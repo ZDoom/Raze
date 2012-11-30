@@ -190,10 +190,17 @@ int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t 
 
     if (i == LUA_ERRRUN)
     {
+        if (lua_isboolean(L, -1))
+        {
+            lua_pop(L, 1);
+            return 0;
+        }
+
+        Bassert(lua_type(L, -1)==LUA_TSTRING);
         OSD_Printf("event \"%s\" (state \"%s\") runtime error: %s\n", EventNames[eventidx].text,
                    estate->name, lua_tostring(L, -1));  // get err msg
         lua_pop(L, 1);
-        return 4;
+        return -1;
     }
 
     return 0;
@@ -207,10 +214,18 @@ int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t
 
     if (i == LUA_ERRRUN)
     {
+        if (lua_isboolean(L, -1))
+        {
+            int32_t killit = lua_toboolean(L, -1);
+            lua_pop(L, 1);
+            return killit;
+        }
+
+        Bassert(lua_type(L, -1)==LUA_TSTRING);
         OSD_Printf("actor %d (sprite %d, state \"%s\") runtime error: %s\n", actortile, iActor,
                    estate->name, lua_tostring(L, -1));  // get err msg
         lua_pop(L, 1);
-        return 4;
+        return -1;
     }
 
     return 0;
