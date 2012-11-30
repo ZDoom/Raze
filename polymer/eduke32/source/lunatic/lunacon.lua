@@ -761,7 +761,7 @@ local Ci = {
         / ACS":set_move(%1)",
 
     cactor = cmd(D)
-        / SPS".picnum=%1",  -- TODO: wrap, e.g. sprite[]:set_picnum(tilenum), bound check there
+        / SPS":set_picnum(%1)",
     count = cmd(D)
         / ACS":set_count(%1)",
     cstator = cmd(D),

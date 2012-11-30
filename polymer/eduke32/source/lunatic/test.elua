@@ -182,6 +182,7 @@ checkfail("do local bt=require'bittest'; bt.QWE=1; end", "modifying module table
 -- the cdata returned by player[] can't be made into a pointer!
 checkfail("do local pl=player[0]; i=pl[1]; end")
 checkfail("do local ud=gv.ud.camera; end", "dummy variable: read access forbidden")  -- test for proper decl()
+checkfail("sprite[0]:set_picnum(-10)", "attempt to set invalid picnum")
 
 printf('ceilingbunch of sector 0: %d', getbunch(0, gv.CEILING))
 

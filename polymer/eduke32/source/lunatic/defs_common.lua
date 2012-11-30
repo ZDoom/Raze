@@ -6,6 +6,8 @@
 local ffi = require("ffi")
 local ffiC = ffi.C
 
+local string = require("string")
+
 local error = error
 local pairs = pairs
 local setmetatable = setmetatable
@@ -20,19 +22,41 @@ module(...)
 
 
 --== Core engine structs ==--
+local SPRITE_STRUCT = [[
+{
+    int32_t x, y, z;
+    uint16_t cstat;
+    const int16_t picnum;
+    int8_t shade;
+    uint8_t pal, clipdist, filler;
+    uint8_t xrepeat, yrepeat;
+    int8_t xoffset, yoffset;
+    const int16_t sectnum, statnum;
+    int16_t ang, owner, xvel, yvel, zvel;
+    int16_t lotag, hitag, extra;
+}
+]]
+
+-- Converts a template struct definition to an internal, unrestricted one.
+function strip_const(structstr)
+    return string.gsub(structstr, "const ", "");
+end
+
 
 -- TODO: provide getters for unsigned {hi,lo}tag?
-ffi.cdef[[
+ffi.cdef([[
 #pragma pack(push,1)
 typedef struct
 {
     const int16_t wallptr, wallnum;
     int32_t ceilingz, floorz;
     uint16_t ceilingstat, floorstat;
-    int16_t ceilingpicnum, ceilingheinum;
+    const int16_t ceilingpicnum;
+    int16_t ceilingheinum;
     int8_t ceilingshade;
     uint8_t ceilingpal, ceilingxpanning, ceilingypanning;
-    int16_t floorpicnum, floorheinum;
+    const int16_t floorpicnum;
+    int16_t floorheinum;
     int8_t floorshade;
     uint8_t floorpal, floorxpanning, floorypanning;
     uint8_t visibility, filler;
@@ -44,25 +68,19 @@ typedef struct
     int32_t x, y;
     const int16_t point2, nextwall, nextsector;
     uint16_t cstat;
-    int16_t picnum, overpicnum;
+    const int16_t picnum, overpicnum;
     int8_t shade;
     uint8_t pal, xrepeat, yrepeat, xpanning, ypanning;
     int16_t lotag, hitag, extra;
 } walltype;
 
 typedef struct
-{
-    int32_t x, y, z;
-    uint16_t cstat;
-    int16_t picnum;
-    int8_t shade;
-    uint8_t pal, clipdist, filler;
-    uint8_t xrepeat, yrepeat;
-    int8_t xoffset, yoffset;
-    const int16_t sectnum, statnum;
-    int16_t ang, owner, xvel, yvel, zvel;
-    int16_t lotag, hitag, extra;
-} spritetype;
+]].. SPRITE_STRUCT ..[[
+spritetype;
+
+typedef struct
+]].. strip_const(SPRITE_STRUCT) ..[[
+spritetype_u_t;
 
 typedef struct {
     const uint32_t mdanimtims;
@@ -90,7 +108,7 @@ typedef struct {
     char r,g,b,f;
 } palette_t;
 #pragma pack(pop)
-]]
+]])
 
 local vec3_ct = ffi.typeof("vec3_t")
 local hitdata_ct = ffi.typeof("hitdata_t")
@@ -198,6 +216,21 @@ int32_t ksqrt(uint32_t num);
 ]]
 
 
+local spritetype_ptr_ct = ffi.typeof("spritetype_u_t *")
+
+local spritetype_mt = {
+    __index = {
+        set_picnum = function(s, tilenum)
+            if (tilenum >= ffiC.MAXTILES+0ULL) then
+                error("attempt to set invalid picnum "..tilenum, 2)
+            end
+            ffi.cast(spritetype_ptr_ct, s).picnum = tilenum
+        end
+    },
+}
+ffi.metatype("spritetype", spritetype_mt)
+
+
 ---=== Restricted access to C variables from Lunatic ===---
 
 -- set metatable and forbid setting it further
@@ -209,18 +242,18 @@ end
 ---- indirect C array access ----
 local sector_mt = {
     __index = function(tab, key)
-                  if (key >= 0 and key < ffiC.numsectors) then return ffiC.sector[key] end
-                  error('out-of-bounds sector[] read access', 2)
-              end,
+        if (key >= 0 and key < ffiC.numsectors) then return ffiC.sector[key] end
+        error('out-of-bounds sector[] read access', 2)
+    end,
 
     __newindex = function(tab, key, val) error('cannot write directly to sector[] struct', 2) end,
 }
 
 local wall_mt = {
     __index = function(tab, key)
-                  if (key >= 0 and key < ffiC.numwalls) then return ffiC.wall[key] end
-                  error('out-of-bounds wall[] read access', 2)
-              end,
+        if (key >= 0 and key < ffiC.numwalls) then return ffiC.wall[key] end
+        error('out-of-bounds wall[] read access', 2)
+    end,
 
     __newindex = function(tab, key, val) error('cannot write directly to wall[] struct', 2) end,
 }
@@ -230,14 +263,14 @@ function creategtab(ctab, maxidx, name)
     local tab = {}
     local tmpmt = {
         __index = function(tab, key)
-                      if (key>=0 and key < maxidx) then
-                          return ctab[key]
-                      end
-                      error('out-of-bounds '..name..' read access', 2)
-                  end,
+            if (key>=0 and key < maxidx) then
+                return ctab[key]
+            end
+            error('out-of-bounds '..name..' read access', 2)
+        end,
         __newindex = function(tab, key, val)
-                         error('cannot write directly to '..name, 2)
-                     end,
+            error('cannot write directly to '..name, 2)
+        end,
     }
 
     return setmtonce(tab, tmpmt)

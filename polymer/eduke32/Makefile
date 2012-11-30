@@ -158,12 +158,13 @@ ifneq (0,$(DISABLEINLINING))
 endif
 
 MISCGAMEDEPS=
+MISCEDITORDEPS=
 
 
 ## Lunatic devel
 ifneq (0,$(LUNATIC))
-    EDITOROBJS+= $(OBJ)/lunatic_m32.$o
-    GAMEOBJS+= $(OBJ)/lunatic_game.$o
+    EDITOROBJS+= $(OBJ)/lunatic_m32.$o $(OBJ)/luaJIT_BC_defs_common.$o
+    GAMEOBJS+= $(OBJ)/lunatic_game.$o $(OBJ)/luaJIT_BC_defs_common.$o
 
     GAMEOBJS+= $(OBJ)/../lpeg.$o  # TEMP
     GAMEOBJS+= $(OBJ)/luaJIT_BC_con_lang.$o \
@@ -188,7 +189,9 @@ ifneq (0,$(LUNATIC))
     endif
     ifeq ($(PLATFORM),WINDOWS)
         MISCGAMEDEPS+= $(SRC)/lunatic/eduke32.def
-        PRINTLDFLAGS+= $(SRC)/lunatic/eduke32.def
+        GAMELDFLAGS+= $(SRC)/lunatic/eduke32.def
+        MISCEDITORDEPS+= $(SRC)/lunatic/mapster32.def
+        EDITORLDFLAGS+= $(SRC)/lunatic/mapster32.def
     endif
     ifeq ($(PLATFORM),LINUX)
         GAMELDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
@@ -366,7 +369,7 @@ ifeq ($(PLATFORM),DARWIN)
 	cp -f "$(EDUKE32)" "EDuke32.app/Contents/MacOS/"
 endif
 
-$(MAPSTER32): $(EDITOROBJS) $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB)
+$(MAPSTER32): $(EDITOROBJS) $(EOBJ)/$(ENGINELIB) $(EOBJ)/$(EDITORLIB) $(JAUDIOLIBDIR)/$(JAUDIOLIB) $(MISCEDITORDEPS)
 	$(LINK_STATUS)
 	if $(LINKER) -o $@ $^ $(OURLDFLAGS) $(EDITORLDFLAGS) $(OURLIBS) $(STATICSTDCPP) $(STDCPPLIB); then $(LINK_OK); else $(LINK_FAILED); fi
 ifeq (1,$(RELEASE))	
@@ -465,9 +468,12 @@ $(SRC)/lunatic/dynsymlist_osx: $(SRC)/lunatic/dynsymlist
 #$(SRC)/lunatic/aliases_list: $(SRC)/lunatic/dynsymlist_osx
 #	sed 's/_\([A-Za-z_][A-Za-z_0-9]*\)/_\1 \1/g' $< > $@
 
-# TODO: _m32
 # List of exported symbols, Windows
 $(SRC)/lunatic/eduke32.def: $(SRC)/lunatic/dynsymlist
+	echo EXPORTS > $@
+	sed 's/[{};]//g' $< >> $@
+
+$(SRC)/lunatic/mapster32.def: $(SRC)/lunatic/dynsymlist_m32
 	echo EXPORTS > $@
 	sed 's/[{};]//g' $< >> $@
 

@@ -42,7 +42,7 @@ end
 
 -- load them!
 local defs_c = require("defs_common")
-
+local strip_const = defs_c.strip_const
 
 ---=== EDuke32 game definitions ===---
 
@@ -221,11 +221,6 @@ local DUKEPLAYER_STRUCT = [[
 
 local randgen = require("randgen")
 local geom = require("geom")
-
--- Converts a template struct definition to an internal, unrestricted one.
-local function strip_const(structstr)
-    return string.gsub(structstr, "const ", "");
-end
 
 local ma_rand = randgen.new(true)  -- initialize to "random" (time-based) seed
 local ma_count = nil
