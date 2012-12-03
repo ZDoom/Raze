@@ -201,10 +201,14 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
                 hitdata_t *hitinfo, uint32_t cliptype);
 int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
                int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
+void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, int16_t *neartagsector, int16_t *neartagwall,
+             int16_t *neartagsprite, int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch,
+             int32_t (*blacklist_sprite_func)(int32_t));
 
 int32_t ldist(const spritetype *s1, const spritetype *s2);
 int32_t dist(const spritetype *s1, const spritetype *s2);
 
+int32_t inside(int32_t x, int32_t y, int16_t sectnum);
 void updatesector(int32_t x, int32_t y, int16_t *sectnum);
 void updatesectorbreadth(int32_t x, int32_t y, int16_t *sectnum);
 void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum);
@@ -220,6 +224,7 @@ double gethitickms(void);
 
 int32_t krand(void);
 int32_t ksqrt(uint32_t num);
+int32_t __fastcall getangle(int32_t xvect, int32_t yvect);
 ]]
 
 local ivec3_
@@ -317,6 +322,12 @@ nextspritestat = creategtab(ffiC.nextspritestat, ffiC.MAXSPRITES, 'nextspritesta
 prevspritesect = creategtab(ffiC.prevspritesect, ffiC.MAXSPRITES, 'prevspritesect[]')
 prevspritestat = creategtab(ffiC.prevspritestat, ffiC.MAXSPRITES, 'prevspritestat[]')
 
+local function check_sector_idx(sectnum)
+    if (sectnum >= ffiC.numsectors+0ULL) then
+        error("passed out-of-bounds sector number "..sectnum, 3)
+    end
+end
+
 --== Per-sector/per-statnum sprite iterators ==--
 local function iter_spritesofsect(sect, i)
     if (i < 0) then
@@ -329,10 +340,7 @@ local function iter_spritesofsect(sect, i)
 end
 
 function spritesofsect(sect)
-    if (sect < 0 or sect >= ffiC.numsectors) then
-        error("passed invalid sectnum to spritesofsect iterator", 2)
-    end
-
+    check_sector_idx(sect)
     return iter_spritesofsect, sect, -1
 end
 
@@ -347,7 +355,7 @@ local function iter_spritesofstat(stat, i)
 end
 
 function spritesofstat(stat)
-    if (stat < 0 or stat >= ffiC.MAXSTATUS) then
+    if (stat >= ffiC.MAXSTATUS+0ULL) then
         error("passed invalid statnum to spritesofstat iterator", 2)
     end
 
@@ -377,9 +385,7 @@ function sectorsofbunch(bunchnum, cf)
 end
 
 function getbunch(sectnum, cf)
-    if (sectnum < 0 or sectnum >= ffiC.numsectors) then
-        error("passed out-of-bounds sector number "..sectnum, 2)
-    end
+    check_sector_idx(sectnum)
     if (cf ~= 0 and cf ~= 1) then
         error("passed invalid 'cf' to getbunch, must be 0 or 1", 2)
     end
@@ -389,14 +395,12 @@ end
 
 
 ---=== Engine functions, wrapped for Lua convenience ===---
+
 -- returns a hitdata_ct
 -- TODO: make v[xyz] be passed as one aggregate, too?
 -- Additionally, permit different coordinates? (ang&horiz, ...)
 function hitscan(pos, sectnum, vx,vy,vz, cliptype)
-    if (sectnum >= ffiC.numsectors+0ULL) then
-        error("passed out-of-bounds sector number "..sectnum, 2)
-    end
-
+    check_sector_idx(sectnum)
     local vec = vec3_ct(pos.x, pos.y, pos.z)
     local hitdata = hitdata_ct()
 
@@ -415,6 +419,31 @@ function cansee(pos1,sect1, pos2,sect2)
     local ret = ffiC.cansee(pos1.x,pos1.y,pos1.z, sect1,
                             pos2.x,pos2.y,pos2.z, sect2)
     return (ret~=0)
+end
+
+ffi.cdef[[
+typedef struct {
+    int32_t sector, wall, sprite;
+    int32_t dist;
+} neartag_ret_t;
+]]
+local neartag_ret_ct = ffi.typeof("const neartag_ret_t")
+
+-- TODO: make tagsearch something more convenient
+function neartag(pos, sectnum, ang, range, tagsearch)
+    check_sector_idx(sectnum)
+    local newar = function() return ffi.new("int16_t [1]") end
+    local a, b, c, d = newar(), newar(), newar(), ffi.new("int32_t [1]")
+    ffiC.neartag(pos.x, pos.y, pos.z, sectnum, ang, a, b, c, d, range, tagsearch, nil)
+    return neartag_ret_ct(a[0], b[0], c[0], d[0])
+end
+
+-- TODO: reimplement in Lua (benefit: no int overflow)?  On the engine side,
+-- make it take a sectortype pointer, and add as metamethod to our LuaJIT
+-- sector type ("contains"?)
+function inside(pos, sectnum)
+    check_sector_idx(sectnum)
+    return (ffiC.inside(pos.x, pos.y, sectnum)==1)
 end
 
 -- TODO: should these rather be one function, and the specific kind of updating

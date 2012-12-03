@@ -5,6 +5,7 @@ local ffiC = ffi.C
 
 local bit = require("bit")
 local math = require("math")
+local geom = require("geom")
 
 local setmetatable = setmetatable
 
@@ -12,7 +13,10 @@ local error = error
 local type = type
 
 local player = assert(player)
-local cansee = require("defs_common").cansee
+local defs_c = require("defs_common")
+local cansee = defs_c.cansee
+local neartag = defs_c.neartag
+local inside = defs_c.inside
 
 
 module(...)
@@ -232,23 +236,23 @@ function _VM_ResetPlayer2(snum)
     return (ffiC.VM_ResetPlayer2(snum)~=0)
 end
 
-function _addinventory(p, inv, amount, pal)
+local PALBITS = { [0]=1, [21]=2, [23]=4 }
+local ICONS = {
+    [ffiC.GET_FIRSTAID] = 1,  -- ICON_FIRSTAID
+    [ffiC.GET_STEROIDS] = 2,
+    [ffiC.GET_HOLODUKE] = 3,
+    [ffiC.GET_JETPACK] = 4,
+    [ffiC.GET_HEATS] = 5,
+    [ffiC.GET_SCUBA] = 6,
+    [ffiC.GET_BOOTS] = 7,
+}
+
+function _addinventory(ps, inv, amount, pal)
     if (inv == ffiC.GET_ACCESS) then
-        local PALBITS = { [0]=1, [21]=2, [23]=4 }
         if (PALBITS[pal]) then
             ps.got_access = bit.bor(ps.got_access, PALBITS[pal])
         end
     else
-        local ICONS = {
-            [ffiC.GET_FIRSTAID] = 1,  -- ICON_FIRSTAID
-            [ffiC.GET_STEROIDS] = 2,
-            [ffiC.GET_HOLODUKE] = 3,
-            [ffiC.GET_JETPACK] = 4,
-            [ffiC.GET_HEATS] = 5,
-            [ffiC.GET_SCUBA] = 6,
-            [ffiC.GET_BOOTS] = 7,
-        }
-
         if (ICONS[inv]) then
             ps.inven_icon = ICONS[inv]
         end
@@ -259,6 +263,19 @@ function _addinventory(p, inv, amount, pal)
         -- NOTE: this is more permissive than CON, e.g. allows
         -- GET_DUMMY1 too.
         ps:set_inv_amount(inv, amount)
+    end
+end
+
+-- For GET_ACCESS: returns logical: whether player has card given by PAL
+-- Else: returns inventory amount
+function _getinventory(ps, inv, pal)
+    if (inv == ffiC.GET_ACCESS) then
+        if (PALBITS[pal]) then
+            return (bit.band(ps.got_access, PALBITS[pal])~=0)
+        end
+        return false
+    else
+        return ps:get_inv_amount(inv)
     end
 end
 
@@ -280,6 +297,118 @@ function _addweapon(ps, weapon, amount)
     end
 
     P_AddWeaponAmmoCommon(ps, weap, amount)
+end
+
+function _A_RadiusDamage(i, r, hp1, hp2, hp3, hp4)
+    check_sprite_idx(i)
+    ffiC.A_RadiusDamage(i, r, hp1, hp2, hp3, hp4)
+end
+
+function _testkey(pli, synckey)
+    local bound_check = player[pli]
+    if (synckey >= 32ULL) then
+        error("Invalid argument #2 to _testkey: must be in [0..31]", 2)
+    end
+    local bits = ffiC.player[pli].sync.bits
+    return (bit.band(bits, bit.lshift(1,synckey)) ~= 0)
+end
+
+function _operate(spritenum)
+    local NEAROP = {
+        [9] = true,
+        [15] = true,
+        [16] = true,
+        [17] = true,
+        [18] = true,
+        [19] = true,
+        [20] = true,
+        [21] = true,
+        [22] = true,
+        [23] = true,
+        [25] = true,
+        [26] = true,
+        [29] = true,
+    }
+
+    local spr = sprite[spritenum]
+
+    if (sector[spr.sectnum].lotag == 0) then
+        local tag = neartag(spr^(32*256), spr.sectnum, spr.ang, 768, 4+1)
+        if (tag.sector >= 0) then
+            local sect = sector[tag.sector]
+            local lotag = sect.lotag
+            if (NEAROP[bit.band(lotag, 0xff)]) then
+                if (lotag==23 or sect.floorz==sect.ceilingz) then
+                    if (bit.band(lotag, 32768+16384) == 0) then
+                        for j in spritesofsect(tag.sector) do
+                            if (sprite[j].picnum==2) then
+                                -- TODO: ^^^ actually ACTIVATOR. Make the
+                                -- dynamic name->tilenum mappings work.
+                                return
+                            end
+                        end
+                        ffiC.G_OperateSectors(tag.sector, spritenum)
+                    end
+                end
+            end
+        end
+    end
+end
+
+function _endofgame(pli, timebeforeexit)
+    player[pli].timebeforeexit = timebeforeexit
+    player[pli].customexitsound = -1
+    ffiC.ud.eog = 1
+end
+
+function _bulletnear(i)
+    return (ffiC.A_Dodge(sprite[i]) == 1)
+end
+
+-- d is a distance
+function _awayfromwall(spr, d)
+    local vec2 = geom.vec2
+    local vecs = { vec2(d,d), vec2(-d,-d), vec2(d,-d), vec2(-d,d) }
+    for i=1,4 do
+        if (not inside(vecs[i]+spr, spr.sectnum)) then
+            return false
+        end
+    end
+    return true
+end
+
+function _canseetarget(spr, ps)
+    -- NOTE: &41 ?
+    return cansee(spr^(bit.band(ffiC.krand(),41)), spr.sectnum,
+                  ps.pos, sprite[ps.i].sectnum)
+end
+
+function _getlastpal(spritenum)
+    local spr = sprite[spritenum]
+    if (spr.picnum == 1405) then  -- TODO: APLAYER
+        spr.pal = player[spr.yvel].palookup
+    else
+        if (spr.pal == 1 and spr.extra == 0) then  -- hack for frozen
+            spr.extra = spr.extra+1
+        end
+        spr.pal = actor[spritenum].tempang
+    end
+    actor[spritenum].tempang = 0
+end
+
+-- abs(G_GetAngleDelta(a1, a2))
+function _angdiffabs(a1, a2)
+    a1 = bit.band(a1, 2047)
+    a2 = bit.band(a2, 2047)
+    -- a1 and a2 are in [0, 2047]
+    if (math.abs(a2-a1) < 1024) then
+        return math.abs(a2-a1)
+    end
+    -- |a2-a1| >= 1024
+    if (a2 > 1024) then a2=a2-2048 end
+    if (a1 > 1024) then a1=a1-2048 end
+    -- a1 and a2 is in [-1023, 1024]
+    return math.abs(a2-a1)
 end
 
 

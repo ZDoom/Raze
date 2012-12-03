@@ -29,8 +29,11 @@ nextsectbunch;
 
 krand;
 ksqrt;
+inside;
+getangle;
 cansee;
 hitscan;
+neartag;
 rotatesprite;
 
 dist;
@@ -77,4 +80,7 @@ A_IncurDamage;
 A_Spawn;
 VM_FallSprite;
 VM_ResetPlayer2;
+A_RadiusDamage;
+G_OperateSectors;
+A_Dodge;
 };

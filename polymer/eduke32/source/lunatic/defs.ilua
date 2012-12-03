@@ -191,8 +191,11 @@ local DUKEPLAYER_STRUCT = [[
     const int16_t i;
     const int16_t one_parallax_sectnum;
     int16_t random_club_frame, one_eighty_count;
-    int16_t dummyplayersprite, extra_extra8;
-    int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
+    const int16_t dummyplayersprite;
+    int16_t extra_extra8;
+    int16_t actorsqu, timebeforeexit;
+    const int16_t customexitsound;
+    int16_t last_pissed_time;
 
     const int16_t weaprecs[MAX_WEAPONS];
     int16_t weapon_sway, crack_time, bobcounter;
@@ -432,6 +435,9 @@ int32_t A_IncurDamage(int32_t sn);
 int32_t A_Spawn(int32_t j, int32_t pn);
 void VM_FallSprite(int32_t i);
 int32_t VM_ResetPlayer2(int32_t snum);
+void A_RadiusDamage(int32_t i, int32_t r, int32_t, int32_t, int32_t, int32_t);
+void G_OperateSectors(int32_t sn, int32_t ii);
+int32_t A_Dodge(spritetype *s);
 ]]
 
 -- functions
@@ -696,13 +702,29 @@ local player_mt = {
             ffi.cast(player_ptr_ct, p).inv_amount[inv] = amount
         end,
 
+        set_customexitsound = function(p, soundnum)
+            if (soundnum >= con_lang.MAXSOUNDS+0ULL) then
+                error("Invalid sound number "..soundnum, 2)
+            end
+            ffi.cast(player_ptr_ct, p).customexitsound = soundnum
+        end,
+
         -- CON-like addammo/addweapon, but without the non-local control flow
         -- (returns true if weapon's ammo was at the max. instead).
         addammo = con._addammo,
         addweapon = con._addweapon,
+
         addinventory = con._addinventory,
 
         pstomp = con._pstomp,
+
+        wack = function(p)
+            p.horiz = p.horiz + 64
+            p.return_to_center = 9
+            local n = bit.arshift(128-bit.band(ffiC.krand(),255), 1)
+            p.rotscrnang = n
+            p.look_ang = n
+        end,
 
         --- Not fully specified, off-limits to users.  Might disappear, change
         --- signature, etc...

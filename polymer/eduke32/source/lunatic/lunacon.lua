@@ -586,8 +586,8 @@ local Co = {
     music = sp1 * t_define * match_until(sp1 * t_filename, sp1 * conl.keyword * sp1) / cmd_music,
 
     --- 3. Game Settings
-    -- gamestartup has 25/29 fixed defines, depending on 1.3D/1.5 version:
-    gamestartup = (sp1 * t_define)^25 / cmd_gamestartup,
+    -- gamestartup has 26/30 fixed defines, depending on 1.3D/1.5 version:
+    gamestartup = (sp1 * t_define)^26 / cmd_gamestartup,
     spritenopal = cmd(D),
     spritenoshade = cmd(D),
     spritenvg = cmd(D),
@@ -766,7 +766,8 @@ local Ci = {
         / (SPS".cstat=_bit.bor(%1,"..SPS".cstat)"),
     cstat = cmd(D)
         / SPS".cstat=%1",
-    clipdist = cmd(D),
+    clipdist = cmd(D)
+        / SPS".clipdist=%1",
     sizeto = cmd(D,D)
         / "_con._sizeto(_aci)",  -- TODO: see control.lua:_sizeto
     sizeat = cmd(D,D)
@@ -777,7 +778,8 @@ local Ci = {
         / (SPS".extra="..SPS".extra+%1"),
     spritepal = cmd(D),
 
-    hitradius = cmd(D,D,D,D,D),
+    hitradius = cmd(D,D,D,D,D)
+        / "_con._A_RadiusDamage(%1,%2,%3,%4,%5)",
     hitradiusvar = cmd(R,R,R,R,R),
 
     -- some commands taking read vars
@@ -821,7 +823,8 @@ local Ci = {
         / "",  -- TODO
     addinventory = cmd(D,D)
         / PLS":addinventory(%1,%2)",
-    guts = cmd(D,D),
+    guts = cmd(D,D)
+        / "",  -- TODO
 
     -- cont'd
     addkills = cmd(D)
@@ -831,20 +834,26 @@ local Ci = {
     angoff = cmd(D),
     debug = cmd(D)
         / "",  -- TODO?
-    endofgame = cmd(D),
+    endofgame = cmd(D)
+        / "_con._endofgame(_pli,%1)",
     eqspawn = cmd(D),
     espawn = cmd(D),
     globalsound = cmd(D)
         / "",
     lotsofglass = cmd(D),
-    mail = cmd(D),
-    money = cmd(D),
-    paper = cmd(D),
+    mail = cmd(D)
+        / "",  -- TODO
+    money = cmd(D)
+        / "",  -- TODO
+    paper = cmd(D)
+        / "",  -- TODO
     qspawn = cmd(D),
-    quote = cmd(D),
+    quote = cmd(D)
+        / "",  -- TODO
     savenn = cmd(D),
     save = cmd(D),
-    sleeptime = cmd(D),
+    sleeptime = cmd(D)
+        / ACS".timetosleep=%1",
     soundonce = cmd(D),
     sound = cmd(D)
         / "",  -- TODO: all things audio...
@@ -863,13 +872,16 @@ local Ci = {
     fall = cmd()
         / "_con._VM_FallSprite(_aci)",
     flash = cmd(),
-    getlastpal = cmd(),
+    getlastpal = cmd()
+        / "_con._getlastpal(_aci)",
     insertspriteq = cmd(),
     killit = cmd()  -- NLCF
         / "_con.killit()",
     mikesnd = cmd(),
-    nullop = cmd(),
-    pkick = cmd(),
+    nullop = cmd()
+        / "",  -- NOTE: really generate no code
+    pkick = cmd()
+        / "",  -- TODO
     pstomp = cmd()
         / PLS":pstomp(_aci)",
     resetactioncount = cmd()
@@ -878,11 +890,14 @@ local Ci = {
         / ACS":set_count(0)",
     resetplayer = cmd()  -- NLCF
         / "if (_con._VM_ResetPlayer2(_pli,_aci)) then _con.longjmp() end",
-    respawnhitag = cmd(),
+    respawnhitag = cmd()
+        / "",  -- TODO
     tip = cmd()
         / PLS".tipincs=26",
-    tossweapon = cmd(),
-    wackplayer = cmd(),
+    tossweapon = cmd()
+        / "",  -- TODO
+    wackplayer = cmd()
+        / PLS":wack()",
 
     -- player/sprite searching
     findplayer = cmd(W),
@@ -949,7 +964,8 @@ local Ci = {
     palfrom = (sp1 * t_define)^-4
         / handle_palfrom,
 
-    operate = cmd() * #sp1,
+    operate = cmd() * #sp1
+        / "_con._operate(_aci)",
 
     myos = cmd(R,R,R,R,R),
     myosx = cmd(R,R,R,R,R),
@@ -1051,11 +1067,17 @@ local Cif = {
         / format("sprite[%s].extra<%%1", PLS".i"),
     ifspritepal = cmd(D)
         / SPS".pal==%1",
-    ifgotweaponce = cmd(D),
-    ifangdiffl = cmd(D),
+    ifgotweaponce = cmd(D)
+        / "false",  -- TODO? (multiplayer only)
+    ifangdiffl = cmd(D)
+        / format("_con._angdiffabs(%s,%s)<=%%1", PLS".ang", SPS".ang"),
     ifsound = cmd(D)
         / "",
-    ifpinventory = cmd(D,D),
+    -- vvv TODO: this is not correct for GET_ACCESS or GET_SHIELD.
+    -- Additionally, it accesses the current sprite unconditinally
+    -- (will throw error if invalid).
+    ifpinventory = cmd(D,D)
+        / format("_con._getinventory(%s,%%1,%s)~=%%2", PLS"", SPS".pal"),
 
     ifvarl = cmd(R,D),
     ifvarg = cmd(R,D),
@@ -1077,36 +1099,45 @@ local Cif = {
 
     ifactorsound = cmd(R,R),
 
-    ifp = (sp1 * t_define)^1,
+    ifp = (sp1 * t_define)^1
+        / "false",  -- TODO
     ifsquished = cmd()
         / "false",  -- TODO
     ifserver = cmd(),
-    ifrespawn = cmd(),
+    ifrespawn = cmd()
+        / "false",  -- TODO
     ifoutside = cmd()
         / format("_bit.band(sector[%s].ceilingstat,1)~=0", SPS".sectnum"),
     ifonwater = cmd()
         / format("sectnum[%s].lotag==1 and _math.abs(%s-sector[%s].floorz)<32*256",
                  SPS".sectnum", SPS".z", SPS".sectnum"),
-    ifnotmoving = cmd(),
+    ifnotmoving = cmd()
+        / "_bit.band(actor[_aci].movflag,49152)>16384",
     ifnosounds = cmd(),
     ifmultiplayer = cmd()
         / "false",  -- TODO?
     ifinwater = cmd()
         / format("sector[%s].lotag==2", SPS".sectnum"),
-    ifinspace = cmd(),
-    ifinouterspace = cmd(),
+    ifinspace = cmd()
+        / "false",  -- TODO
+    ifinouterspace = cmd()
+        / "false",  -- TODO
     ifhitweapon = cmd()
         / "_con._A_IncurDamage(_aci)",
-    ifhitspace = cmd(),
+    ifhitspace = cmd()
+        / "_con._testkey(_pli,29)",  -- XXX
     ifdead = cmd()
         / SPS".extra<=0",
     ifclient = cmd(),
     ifcanshoottarget = cmd()
         / "false",  -- TODO
-    ifcanseetarget = cmd(),
+    ifcanseetarget = cmd()  -- TODO: maybe set timetosleep afterwards
+        / format("_con._canseetarget(%s,%s)", SPS"", PLS""),
     ifcansee = cmd() * #sp1,
-    ifbulletnear = cmd(),
-    ifawayfromwall = cmd(),
+    ifbulletnear = cmd()
+        / "_con._bulletnear(_aci)",
+    ifawayfromwall = cmd()
+        / format("_con._awayfromwall(%s,108)", SPS""),
     ifactornotstayput = cmd()
         / ACS".actorstayput==-1",
 }

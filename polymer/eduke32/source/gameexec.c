@@ -203,7 +203,7 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *p)
     p->look_ang = p->rotscrnang = n>>1;
 }
 
-GAMEEXEC_STATIC int32_t A_Dodge(spritetype *s)
+int32_t A_Dodge(spritetype *s)
 {
     int32_t bx,by,bxvect,byvect,i;
     int32_t mx = s->x, my = s->y;
@@ -434,8 +434,6 @@ int32_t G_GetAngleDelta(int32_t a,int32_t na)
     if (na > 1024) na -= 2048;
     if (a > 1024) a -= 2048;
 
-    na -= 2048;
-    a -= 2048;
 //    OSD_Printf("G_GetAngleDelta() returning %d\n",na-a);
     return (na-a);
 }
