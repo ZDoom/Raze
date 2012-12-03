@@ -50,6 +50,10 @@ local g_filename = "???"
 local g_directory = ""  -- with trailing slash if not empty
 local g_numerrors = 0
 
+-- Warning options. Key names are the same as cmdline options, e.g.
+-- -Wno-bad-identifier for disabling the "bad identifier" warning.
+local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true, }
+
 -- How many 'if' statements are following immediately each other,
 -- needed to cope with CONs dangling-else resolution
 local g_ifseqlevel = 0
@@ -92,6 +96,14 @@ local function on_actor_end(usertype, tsamm, codetab)
 
     addcode(codetab)
     addcode("end)")
+end
+
+local function on_state_end(statename, codetab)
+    -- TODO: mangle names, make them accessible from other translation units
+    addcodef("local function %s()", statename)
+    assert(type(codetab)=="table")
+    addcode(codetab)
+    addcode("end")
 end
 
 ----------
@@ -195,9 +207,11 @@ local function do_define_label(identifier, num)
                       LABEL[oldtype], identifier)
         else
             -- conl.labels[...]: don't warn for wrong PROJ_ redefinitions
-            if (oldval ~= num and conl.labels[2][identifier]==nil) then
-                warnprintf("label \"%s\" not redefined with new value %d (old: %d)",
-                           identifier, num, oldval)
+            if (g_warn["not-redefined"]) then
+                if (oldval ~= num and conl.labels[2][identifier]==nil) then
+                    warnprintf("label \"%s\" not redefined with new value %d (old: %d)",
+                               identifier, num, oldval)
+                end
             end
         end
     else
@@ -1222,7 +1236,7 @@ end
 
 local function BadIdent(pat)
     local function tfunc(subj, pos, a)
-        if (not g_badids[a]) then
+        if (g_warn["bad-identifier"] and not g_badids[a]) then
             warnprintf("bad identifier: %s", a)
             g_badids[a] = true
         end
@@ -1364,7 +1378,8 @@ local Cb = {
 
     onevent = sp1 * t_define * sp1 * stmt_list_or_eps * "endevent",
 
-    state = sp1 * t_identifier * sp1 * stmt_list_or_eps * "ends",
+    state = sp1 * t_identifier * sp1 * stmt_list_or_eps * "ends"
+        / on_state_end,
 }
 
 attachnames(Cb, after_cmd_Cmt)
@@ -1380,7 +1395,7 @@ local t_good_identifier = Range("AZ", "az", "__") * Range("AZ", "az", "__", "09"
 -- in CON, so a trailing "-" is "OK", too.)
 -- This is broken in itself, so we ought to make a compatibility/modern CON switch.
 local t_broken_identifier = BadIdent(-((t_number + t_good_identifier) * (sp1 + Set("[]:"))) *
-                                     (alphanum + Set("_/\\*")) * (alphanum + Set("_/\\*-"))^0)
+                                     (alphanum + Set("_/\\*?")) * (alphanum + Set("_/\\*-+?"))^0)
 
 local function begin_if_fn(condstr)
     g_ifseqlevel = g_ifseqlevel+1
@@ -1589,10 +1604,50 @@ function parse(contents)  -- local
     g_newlineidxs = newlineidxs
 end
 
+local function handle_cmdline_arg(str)
+    if (str:sub(1,1)=="-") then
+        if (#str == 1) then
+            printf("Warning: input from stdin not supported")
+        else
+            local ok = false
+            local kind = str:sub(2,2)
+
+            if (kind=="W" and #str >= 3) then
+                -- warnings
+                local val = true
+                local warnstr = str:sub(3)
+
+                if (#warnstr >= 4 and warnstr:sub(1,3)=="no-") then
+                    val = false
+                    warnstr = warnstr:sub(4)
+                end
+
+                if (type(g_warn[warnstr])=="boolean") then
+                    g_warn[warnstr] = val
+                    ok = true
+                end
+            end
+
+            if (not ok) then
+                printf("Warning: Unrecognized option %s", str)
+            end
+        end
+
+        return true
+    end
+end
 
 if (not _EDUKE32_LUNATIC) then
     --- stand-alone
-    local debug = require("debug")
+
+    local i = 1
+    while (arg[i]) do
+        if (handle_cmdline_arg(arg[i])) then
+            table.remove(arg, i)
+        else
+            i = i+1
+        end
+    end
 
     for argi=1,#arg do
         local filename = arg[argi]
