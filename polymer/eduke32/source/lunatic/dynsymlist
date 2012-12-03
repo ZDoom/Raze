@@ -72,4 +72,9 @@ md4once;
 
 A_IncurDamage;
 P_AddWeaponMaybeSwitch;
+A_Shoot;
+A_IncurDamage;
+A_Spawn;
+VM_FallSprite;
+VM_ResetPlayer2;
 };

@@ -2584,7 +2584,7 @@ typedef struct {
  *
  * This means that
  *  1) tint application is independent of their order.
- *  2) going from n+1 to n tints is continuous.
+ *  2) going from n+1 to n tints is continuous when the leaving one has faded.
  *
  * But note that for more than one tint, the composite tint will in general
  * change its hue as the ratio of the weights of the individual ones changes.

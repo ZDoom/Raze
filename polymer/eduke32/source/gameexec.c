@@ -5499,3 +5499,20 @@ void G_RestoreMapState(mapstate_t *save)
         G_ResetTimers();
     }
 }
+
+#ifdef LUNATIC
+void VM_FallSprite(int32_t i)
+{
+    vm.g_i = i;
+    vm.g_sp = &sprite[i];
+    VM_Fall();
+}
+
+int32_t VM_ResetPlayer2(int32_t snum)
+{
+    vm.g_p = snum;
+    vm.g_flags &= ~VM_NOEXECUTE;
+    VM_ResetPlayer();
+    return (vm.g_flags&VM_NOEXECUTE);
+}
+#endif

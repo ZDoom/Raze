@@ -9,6 +9,7 @@ local ffiC = ffi.C
 local bit = bit
 local string = string
 local table = table
+local math = math
 local print = print
 
 --== First, load the definitions common to the game's and editor's Lua interface.
@@ -40,9 +41,11 @@ function decl(str)
     ffi.cdef(str)
 end
 
--- load them!
+-- load the common definitions!
 local defs_c = require("defs_common")
 local strip_const = defs_c.strip_const
+local setmtonce = defs_c.setmtonce
+
 
 ---=== EDuke32 game definitions ===---
 
@@ -134,7 +137,9 @@ local ACTOR_STRUCT = [[
     const struct action ac;
     const int16_t _padding[1];
 
-    int16_t picnum,ang,extra,owner; //8b
+    const int16_t picnum;
+    int16_t ang, extra;
+    const int16_t owner;
     int16_t movflag,tempang,timetosleep; //6b
 
     int32_t flags, bposx,bposy,bposz; //16b
@@ -142,7 +147,9 @@ local ACTOR_STRUCT = [[
     int32_t lasttransport; //4b
 
     const int16_t lightId, lightcount, lightmaxrange, cgg; //8b
-    int16_t actorstayput, dispicnum, shootzvel; // 6b
+    int16_t actorstayput;
+    const int16_t dispicnum;
+    int16_t shootzvel;
     const int8_t _do_not_use[8];
 }
 ]]
@@ -167,19 +174,22 @@ local DUKEPLAYER_STRUCT = [[
     const int16_t loogiey[64];
     int16_t sbs, sound_pitch;
 
-    int16_t ang, oang, angvel, cursectnum, look_ang, last_extra, subweapon;
+    int16_t ang, oang, angvel;
+    const int16_t cursectnum;
+    int16_t look_ang, last_extra, subweapon;
     const int16_t max_ammo_amount[MAX_WEAPONS];
     const int16_t ammo_amount[MAX_WEAPONS];
     const int16_t inv_amount[GET_MAX];
     int16_t wackedbyactor, pyoff, opyoff;
 
     int16_t horiz, horizoff, ohoriz, ohorizoff;
-    int16_t newowner, jumping_counter, airleft;
+    const int16_t newowner;
+    int16_t jumping_counter, airleft;
     int16_t fta, ftq, access_wallnum, access_spritenum;
     int16_t got_access, weapon_ang, visibility;
     int16_t somethingonplayer, on_crane;
     const int16_t i;
-    int16_t one_parallax_sectnum;
+    const int16_t one_parallax_sectnum;
     int16_t random_club_frame, one_eighty_count;
     int16_t dummyplayersprite, extra_extra8;
     int16_t actorsqu, timebeforeexit, customexitsound, last_pissed_time;
@@ -417,6 +427,11 @@ const int32_t playerswhenstarted;
 
 int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
 void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap);
+int32_t A_Shoot(int32_t i, int32_t atwith);
+int32_t A_IncurDamage(int32_t sn);
+int32_t A_Spawn(int32_t j, int32_t pn);
+void VM_FallSprite(int32_t i);
+int32_t VM_ResetPlayer2(int32_t snum);
 ]]
 
 -- functions
@@ -461,6 +476,18 @@ if (not good) then
     error("Some sizes don't match between C and LuaJIT/FFI.")
 end
 
+-- "player" global, needed by the "control" module
+local tmpmt = {
+    __index = function(tab, key)
+                  if (key >= 0 and key < ffiC.playerswhenstarted) then
+                      return ffiC.g_player[key].ps[0]
+                  end
+                  error('out-of-bounds player[] read access', 2)
+              end,
+
+    __newindex = function(tab, key, val) error('cannot write directly to player[] struct', 2) end,
+}
+player = setmtonce({}, tmpmt)
 
 --== Custom operations for BUILD data structures ==--
 -- declares struct action and struct move, and their ID-wrapped types
@@ -625,6 +652,12 @@ local function check_weapon_idx(weap)
     end
 end
 
+local function check_inventory_idx(inv)
+    if (inv >= ffiC.GET_MAX+0ULL) then
+        error("Invalid inventory ID "..inv, 3)
+    end
+end
+
 local player_mt = {
     __index = {
         --- Getters/setters
@@ -653,13 +686,34 @@ local player_mt = {
             ffi.cast(player_ptr_ct, p).curr_weapon = weap
         end,
 
+        get_inv_amount = function(p, inv)
+            check_inventory_idx(inv)
+            return ffi.cast(player_ptr_ct, p).inv_amount[inv]
+        end,
+
+        set_inv_amount = function(p, inv, amount)
+            check_inventory_idx(inv)
+            ffi.cast(player_ptr_ct, p).inv_amount[inv] = amount
+        end,
+
         -- CON-like addammo/addweapon, but without the non-local control flow
         -- (returns true if weapon's ammo was at the max. instead).
-        addammo = con.addammo,
-        addweapon = con.addweapon,
+        addammo = con._addammo,
+        addweapon = con._addweapon,
+        addinventory = con._addinventory,
 
-        --- Convenient wrappers around engine functions
-        cansee = function(p, otherpos, othersect)
+        pstomp = con._pstomp,
+
+        --- Not fully specified, off-limits to users.  Might disappear, change
+        --- signature, etc...
+        _palfrom = function(p, f, r,g,b)
+            local pals = p.pals
+            pals.f = f
+            pals.r, pals.g, pals.b = r, g, b
+        end,
+
+        -- XXX: is this so useful without z offset?
+        _cansee = function(p, otherpos, othersect)
             return cansee(p.pos, sprite[p.i].sectnum, otherpos, othersect)
         end,
     },
@@ -884,6 +938,7 @@ G_._G = G_
 G_._EDUKE32_LUNATIC = _EDUKE32_LUNATIC
 G_.gameevent = gameevent  -- included in lunatic.c
 G_.gameactor = gameactor  -- included in lunatic.c
+G_.player = player  -- from above
 
 
 ---=== Lunatic interpreter setup ===---
@@ -912,8 +967,6 @@ end
 
 ---=== Restricted access to C variables from Lunatic ===---
 
-local setmtonce = defs_c.setmtonce
-
 -- error(..., 2) is to blame the caller and get its line numbers
 
 local tmpmt = {
@@ -929,22 +982,10 @@ local tmpmt = {
 }
 setmtonce(gv, tmpmt)
 
----- indirect C array access ----
-local tmpmt = {
-    __index = function(tab, key)
-                  if (key >= 0 and key < ffiC.playerswhenstarted) then
-                      return ffiC.g_player[key].ps[0]
-                  end
-                  error('out-of-bounds player[] read access', 2)
-              end,
-
-    __newindex = function(tab, key, val) error('cannot write directly to player[] struct', 2) end,
-}
-player = setmtonce({}, tmpmt)
-
 -- This will create 'sprite', 'wall', etc. HERE, i.e. in the environment of this chunk
 defs_c.create_globals(_G)
 
+---- indirect C array access ----
 actor = defs_c.creategtab(ffiC.actor, ffiC.MAXSPRITES, 'actor[]')
 
 function TEMP_getvollev()  -- REMOVE

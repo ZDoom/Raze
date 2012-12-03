@@ -11,7 +11,8 @@ local setmetatable = setmetatable
 local error = error
 local type = type
 
-local player = player
+local player = assert(player)
+local cansee = require("defs_common").cansee
 
 
 module(...)
@@ -111,7 +112,7 @@ function ai(name, action, move, flags)
 end
 
 
---== RUNTIME CON FUNCTIONS ==--
+---=== RUNTIME CON FUNCTIONS ===---
 
 function rotatesprite(x, y, zoom, ang, tilenum, shade, pal, orientation,
                       cx1, cy1, cx2, cy2)
@@ -128,10 +129,10 @@ function rnd(x)
 end
 
 
----=== Weapon stuff
+---=== Weapon stuff ===---
 
 
---- Helper functions (might be exported later)
+--- Helper functions (might be exported later) ---
 
 local function have_weapon(ps, weap)
     return (bit.band(ps.gotweapon, bit.lshift(1, weap)) ~= 0)
@@ -157,26 +158,117 @@ local function P_AddWeaponAmmoCommon(ps, weap, amount)
 end
 
 
---- Exported functions
+--- Functions that must be exported because they are used by LunaCON generated code,
+--- but which are off limits to users.  (That is, we need to think about how to
+--- expose the functionality in a better fashion than merely giving access to
+--- the C functions.)
 
--- Non-local control flow. These ones call the original error(), not our
--- redefinition in defs.ilua.
-function longjmp()
-    error(false)
+local function check_sprite_idx(i)
+    if (i >= ffiC.MAXSPRITES+0ULL) then
+        error("invalid argument: must be a valid sprite index", 3)
+    end
 end
 
-function killit()
-    -- TODO: guard against deletion of player sprite?
-    error(true)
+local function check_tile_idx(tilenum)
+    if (tilenum >= ffiC.MAXTILES+0ULL) then
+        error("invalid argument: must be a valid tile number", 3)
+    end
+end
+
+function _A_Shoot(i, atwith)
+    check_sprite_idx(i)
+    check_tile_idx(atwith)
+
+    return ffiC.A_Shoot(i, atwith)
+end
+
+function _A_IncurDamage(sn)
+    check_sprite_idx(sn)
+    return ffiC.A_IncurDamage(sn)
+end
+
+function _VM_FallSprite(i)
+    check_sprite_idx(i)
+    ffiC.VM_FallSprite(i)
+end
+
+function _sizeto(i, xr, yr)
+    local spr = sprite[i]
+    local dr = (xr-spr.xrepeat)
+    -- NOTE: could "overflow" (e.g. goal repeat is 256, gets converted to 0)
+    spr.xrepeat = spr.xrepeat + ((dr == 0) and 0 or (dr < 0 and -1 or 1))
+    -- TODO: y stretching is conditional
+    dr = (yr-spr.yrepeat)
+    spr.yrepeat = spr.yrepeat + ((dr == 0) and 0 or (dr < 0 and -1 or 1))
+end
+
+-- NOTE: function args have overloaded meaning
+function _A_Spawn(j, pn)
+    local bound_check = sector[sprite[j].sectnum]  -- two in one whack
+    check_tile_idx(pn)
+    return ffiC.A_Spawn(j, pn)
+end
+
+function _pstomp(ps, i)
+    if (ps.knee_incs == 0 and sprite[ps.i].xrepeat >= 40) then
+        local spr = sprite[i]
+        if (cansee(spr^(4*256), spr.sectnum, ps.pos^(-16*256), sprite[ps.i].sectnum)) then
+            for j=ffiC.playerswhenstarted-1,0 do
+                if (player[j].actorsqu == i) then
+                    return
+                end
+            end
+            ps.actorsqu = i
+            ps.knee_incs = -1
+            if (ps.weapon_pos == 0) then
+                ps.weapon_pos = -1
+            end
+        end
+    end
+end
+
+function _VM_ResetPlayer2(snum)
+    local bound_check = player[snum]
+    return (ffiC.VM_ResetPlayer2(snum)~=0)
+end
+
+function _addinventory(p, inv, amount, pal)
+    if (inv == ffiC.GET_ACCESS) then
+        local PALBITS = { [0]=1, [21]=2, [23]=4 }
+        if (PALBITS[pal]) then
+            ps.got_access = bit.bor(ps.got_access, PALBITS[pal])
+        end
+    else
+        local ICONS = {
+            [ffiC.GET_FIRSTAID] = 1,  -- ICON_FIRSTAID
+            [ffiC.GET_STEROIDS] = 2,
+            [ffiC.GET_HOLODUKE] = 3,
+            [ffiC.GET_JETPACK] = 4,
+            [ffiC.GET_HEATS] = 5,
+            [ffiC.GET_SCUBA] = 6,
+            [ffiC.GET_BOOTS] = 7,
+        }
+
+        if (ICONS[inv]) then
+            ps.inven_icon = ICONS[inv]
+        end
+
+        if (inv == ffiC.GET_SHIELD) then
+            amount = math.min(ps.max_shield_amount, amount)
+        end
+        -- NOTE: this is more permissive than CON, e.g. allows
+        -- GET_DUMMY1 too.
+        ps:set_inv_amount(inv, amount)
+    end
 end
 
 -- The return value is true iff the ammo was at the weapon's max.
 -- In that case, no action is taken.
-function addammo(ps, weapon, amount)
+function _addammo(ps, weapon, amount)
     return have_ammo_at_max(ps, weap) or P_AddWeaponAmmoCommon(ps, weap, amount)
 end
 
-function addweapon(ps, weapon, amount)
+function _addweapon(ps, weapon, amount)
     if (weap >= ffiC.MAX_WEAPONS+0ULL) then
         error("Invalid weapon ID "..weap, 2)
     end
@@ -188,4 +280,18 @@ function addweapon(ps, weapon, amount)
     end
 
     P_AddWeaponAmmoCommon(ps, weap, amount)
+end
+
+
+--- Exported functions ---
+
+-- Non-local control flow. These ones call the original error(), not our
+-- redefinition in defs.ilua.
+function longjmp()
+    error(false)
+end
+
+function killit()
+    -- TODO: guard against deletion of player sprite?
+    error(true)
 end

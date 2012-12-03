@@ -662,6 +662,12 @@ local function ACS(s) return "actor[_aci]"..s end
 local function SPS(s) return "sprite[_aci]"..s end
 local function PLS(s) return "player[_pli]"..s end
 
+local function handle_palfrom(...)
+    local v = {...}
+    return format(PLS":_palfrom(%d,%d,%d,%d)",
+                  v[1] or 0, v[2] or 0, v[3] or 0, v[4] or 0)
+end
+
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
 -- that have no arguments and that are prefixes of other commands MUST be
 -- suffixed with a "* #sp1" pattern.
@@ -670,7 +676,7 @@ local Ci = {
     -- these can appear anywhere in the script
     ["break"] = cmd()
         / "do return end",  -- TODO: more exact semantics
-    ["return"] = cmd()
+    ["return"] = cmd()  -- NLCF
         / "_con.longjmp()",  -- TODO: test with code from Wiki "return" entry
 
     state = cmd(I)
@@ -756,10 +762,13 @@ local Ci = {
         / SPS":set_picnum(%1)",
     count = cmd(D)
         / ACS":set_count(%1)",
-    cstator = cmd(D),
-    cstat = cmd(D),
+    cstator = cmd(D)
+        / (SPS".cstat=_bit.bor(%1,"..SPS".cstat)"),
+    cstat = cmd(D)
+        / SPS".cstat=%1",
     clipdist = cmd(D),
-    sizeto = cmd(D,D),
+    sizeto = cmd(D,D)
+        / "_con._sizeto(_aci)",  -- TODO: see control.lua:_sizeto
     sizeat = cmd(D,D)
         / (SPS".xrepeat,"..SPS".yrepeat=%1,%2"),
     strength = cmd(D)
@@ -804,23 +813,29 @@ local Ci = {
     setgamepalette = cmd(R),
 
     -- some commands taking defines
-    addammo = cmd(D,D),  -- exec SPECIAL HANDLING!
-    addweapon = cmd(D,D),  -- exec SPECIAL HANDLING!
-    debris = cmd(D,D),
-    addinventory = cmd(D,D),
+    addammo = cmd(D,D)  -- NLCF
+        / format("if (%s) then _con.longjmp() end", PLS":addammo(%1,%2)"),
+    addweapon = cmd(D,D)  -- NLCF
+        / format("if (%s) then _con.longjmp() end", PLS":addweapon(%1,%2)"),
+    debris = cmd(D,D)
+        / "",  -- TODO
+    addinventory = cmd(D,D)
+        / PLS":addinventory(%1,%2)",
     guts = cmd(D,D),
 
     -- cont'd
     addkills = cmd(D)
         / (PLS".actors_killed="..PLS".actors_killed+%1;"..ACS".actorstayput=-1"),
-    addphealth = cmd(D),
+    addphealth = cmd(D)
+        / "",  -- TODO
     angoff = cmd(D),
     debug = cmd(D)
         / "",  -- TODO?
     endofgame = cmd(D),
     eqspawn = cmd(D),
     espawn = cmd(D),
-    globalsound = cmd(D),
+    globalsound = cmd(D)
+        / "",
     lotsofglass = cmd(D),
     mail = cmd(D),
     money = cmd(D),
@@ -831,32 +846,38 @@ local Ci = {
     save = cmd(D),
     sleeptime = cmd(D),
     soundonce = cmd(D),
-    sound = cmd(D),
+    sound = cmd(D)
+        / "",  -- TODO: all things audio...
     spawn = cmd(D),
-    stopsound = cmd(D),
+    stopsound = cmd(D)
+        / "",
 
     eshoot = cmd(D),
     ezshoot = cmd(R,D),
     ezshootvar = cmd(R,R),
-    shoot = cmd(D),
+    shoot = cmd(D)
+        / "_con._A_Shoot(_aci, %1)",
     zshoot = cmd(R,D),
     zshootvar = cmd(R,R),
 
-    fall = cmd(),
+    fall = cmd()
+        / "_con._VM_FallSprite(_aci)",
     flash = cmd(),
     getlastpal = cmd(),
     insertspriteq = cmd(),
-    killit = cmd()
-        / "_con.killit()",  -- exec SPECIAL HANDLING!
+    killit = cmd()  -- NLCF
+        / "_con.killit()",
     mikesnd = cmd(),
     nullop = cmd(),
     pkick = cmd(),
-    pstomp = cmd(),
+    pstomp = cmd()
+        / PLS":pstomp(_aci)",
     resetactioncount = cmd()
         / ACS":reset_acount()",
     resetcount = cmd()
         / ACS":set_count(0)",
-    resetplayer = cmd(),  -- exec SPECIAL HANDLING!
+    resetplayer = cmd()  -- NLCF
+        / "if (_con._VM_ResetPlayer2(_pli,_aci)) then _con.longjmp() end",
     respawnhitag = cmd(),
     tip = cmd()
         / PLS".tipincs=26",
@@ -925,7 +946,8 @@ local Ci = {
     neartag = cmd(R,R,R,R,R,W,W,W,W,R,R),
     operateactivators = cmd(R,R),
     operatesectors = cmd(R,R),
-    palfrom = (sp1 * t_define)^-4,
+    palfrom = (sp1 * t_define)^-4
+        / handle_palfrom,
 
     operate = cmd() * #sp1,
 
@@ -1002,9 +1024,11 @@ local Cif = {
         / ACS":has_move(%1)",
 
     ifrnd = cmd(D)
-        / "_gv.rnd(%1)",
-    ifpdistl = cmd(D),
-    ifpdistg = cmd(D),
+        / "_con.rnd(%1)",
+    ifpdistl = cmd(D)
+        / "_dist<%1",  -- TODO: maybe set actor[].timetosleep afterwards
+    ifpdistg = cmd(D)
+        / "_dist>%1",  -- TODO: maybe set actor[].timetosleep afterwards
     ifactioncount = cmd(D)
         / ACS":get_acount()==%1",
     ifcount = cmd(D)
@@ -1029,7 +1053,8 @@ local Cif = {
         / SPS".pal==%1",
     ifgotweaponce = cmd(D),
     ifangdiffl = cmd(D),
-    ifsound = cmd(D),
+    ifsound = cmd(D)
+        / "",
     ifpinventory = cmd(D,D),
 
     ifvarl = cmd(R,D),
@@ -1053,12 +1078,15 @@ local Cif = {
     ifactorsound = cmd(R,R),
 
     ifp = (sp1 * t_define)^1,
-    ifsquished = cmd(),
+    ifsquished = cmd()
+        / "false",  -- TODO
     ifserver = cmd(),
     ifrespawn = cmd(),
     ifoutside = cmd()
         / format("_bit.band(sector[%s].ceilingstat,1)~=0", SPS".sectnum"),
-    ifonwater = cmd(),
+    ifonwater = cmd()
+        / format("sectnum[%s].lotag==1 and _math.abs(%s-sector[%s].floorz)<32*256",
+                 SPS".sectnum", SPS".z", SPS".sectnum"),
     ifnotmoving = cmd(),
     ifnosounds = cmd(),
     ifmultiplayer = cmd()
@@ -1068,12 +1096,13 @@ local Cif = {
     ifinspace = cmd(),
     ifinouterspace = cmd(),
     ifhitweapon = cmd()
-        / "TODO",
+        / "_con._A_IncurDamage(_aci)",
     ifhitspace = cmd(),
     ifdead = cmd()
         / SPS".extra<=0",
     ifclient = cmd(),
-    ifcanshoottarget = cmd(),
+    ifcanshoottarget = cmd()
+        / "false",  -- TODO
     ifcanseetarget = cmd(),
     ifcansee = cmd() * #sp1,
     ifbulletnear = cmd(),
@@ -1466,7 +1495,7 @@ end
 ---=== EXPORTED FUNCTIONS ===---
 
 local function new_initial_perfile_codetab()
-    return { "local _con=require'con'; local _gv=gv; local _bit=require'bit'" }
+    return { "local _con=require'con'; local _bit=require'bit'" }
 end
 
 function parse(contents)  -- local

@@ -4,7 +4,7 @@ local ffi = require("ffi")
 local math = require("math")
 
 local type = type
-local assert = assert
+local error = error
 
 
 module(...)
@@ -19,19 +19,23 @@ local vec2_
 local vec2_mt = {
     __add = function(a, b) return vec2_(a.x+b.x, a.y+b.y) end,
     __sub = function(a, b) return vec2_(a.x-b.x, a.y-b.y) end,
-    __unm = function(a) return vec2_(-a.x, -a.x) end,
+    __unm = function(a) return vec2_(-a.x, -a.y) end,
 
     __mul = function(a,b)
         if (type(a)=="number") then
             return vec2_(a*b.x, a*b.y)
         end
 
-        assert(type(b)=="number")
+        if (type(b)~="number") then
+            error("number expected in vec2 multiplication", 2)
+        end
         return vec2_(a.x*b, a.y*b)
     end,
 
     __div = function(a,b)
-        assert(type(b)=="number")
+        if (type(b)~="number") then
+            error("number expected in vec2 division", 2)
+        end
         return vec2_(a.x/b, a.y/b)
     end,
 
@@ -52,19 +56,23 @@ local vec3_
 local vec3_mt = {
     __add = function(a, b) return vec3_(a.x+b.x, a.y+b.y, a.z+b.z) end,
     __sub = function(a, b) return vec3_(a.x-b.x, a.y-b.y, a.z-b.z) end,
-    __unm = function(a) return vec3_(-a.x, -a.x, -a.z) end,
+    __unm = function(a) return vec3_(-a.x, -a.y, -a.z) end,
 
     __mul = function(a,b)
         if (type(a)=="number") then
             return vec3_(a*b.x, a*b.y, a*b.z)
         end
 
-        assert(type(b)=="number")
+        if (type(b)~="number") then
+            error("number expected in vec3 multiplication", 2)
+        end
         return vec2_(a.x*b, a.y*b, a.z*b)
     end,
 
     __div = function(a,b)
-        assert(type(b)=="number")
+        if (type(b)~="number") then
+            error("number expected in vec3 division", 2)
+        end
         return vec2_(a.x/b, a.y/b, a.z/b)
     end,
 

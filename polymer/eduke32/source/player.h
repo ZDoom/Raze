@@ -56,12 +56,12 @@ enum dukeinv_t {
 
 // these are not in the same order as the above, and it can't be changed for compat reasons. lame!
 enum dukeinvicon_t {
-    ICON_NONE,
+    ICON_NONE,  // 0
     ICON_FIRSTAID,
     ICON_STEROIDS,
     ICON_HOLODUKE,
     ICON_JETPACK,
-    ICON_HEATS,
+    ICON_HEATS,  // 5
     ICON_SCUBA,
     ICON_BOOTS,
     ICON_MAX

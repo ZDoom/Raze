@@ -32,7 +32,10 @@ local SPRITE_STRUCT = [[
     uint8_t xrepeat, yrepeat;
     int8_t xoffset, yoffset;
     const int16_t sectnum, statnum;
-    int16_t ang, owner, xvel, yvel, zvel;
+    int16_t ang;
+    // NOTE: yvel is often used as player index in game code. Make xvel/zvel
+    // "const" for consistency, too.
+    const int16_t owner, xvel, yvel, zvel;
     int16_t lotag, hitag, extra;
 }
 ]]
@@ -42,6 +45,10 @@ function strip_const(structstr)
     return string.gsub(structstr, "const ", "");
 end
 
+-- NOTE for FFI definitions: we're compiling EDuke32 with -funsigned-char, so
+-- we need to take care to declare chars as unsigned whenever it matters, for
+-- example if it represents a palette index.  (I think it's harmless for stuff
+-- like passing a function argument, but it should be done there for clarity.)
 
 -- TODO: provide getters for unsigned {hi,lo}tag?
 ffi.cdef([[
@@ -105,7 +112,7 @@ typedef struct {
 } hitdata_t;
 
 typedef struct {
-    char r,g,b,f;
+    unsigned char r,g,b,f;
 } palette_t;
 #pragma pack(pop)
 ]])
@@ -203,7 +210,7 @@ void updatesectorbreadth(int32_t x, int32_t y, int16_t *sectnum);
 void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum);
 
 void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                  int8_t dashade, char dapalnum, int32_t dastat,
+                  int8_t dashade, unsigned char dapalnum, int32_t dastat,
                   int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 ]]
 
@@ -215,10 +222,22 @@ int32_t krand(void);
 int32_t ksqrt(uint32_t num);
 ]]
 
+local ivec3_
+local ivec3_mt = {
+    -- '^' is the "translate upwards" operator
+    __pow = function(v, zofs)
+        return ivec3_(v.x, v.y, v.z-zofs)
+    end,
+}
+ivec3_ = ffi.metatype("vec3_t", ivec3_mt)
 
 local spritetype_ptr_ct = ffi.typeof("spritetype_u_t *")
 
 local spritetype_mt = {
+    __pow = function(s, zofs)
+        return ivec3_(s.x, s.y, s.z-zofs)
+    end,
+
     __index = {
         set_picnum = function(s, tilenum)
             if (tilenum >= ffiC.MAXTILES+0ULL) then
