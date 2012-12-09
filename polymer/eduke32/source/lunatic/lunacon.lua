@@ -9,6 +9,7 @@ local math = require("math")
 local string = require("string")
 local table = require("table")
 
+
 local arg = arg
 
 local assert = assert
@@ -612,7 +613,8 @@ local Co = {
     setgamename = newline_term_string,
 
     precache = cmd(D,D,D),
-    scriptsize = cmd(D),  -- unused
+    scriptsize = cmd(D)
+        / "",  -- no-op
     cheatkeys = cmd(D,D),
 
     definecheat = newline_term_string,  -- XXX: actually tricker syntax (TS)
@@ -713,6 +715,11 @@ local function handle_palfrom(...)
                   v[1] or 0, v[2] or 0, v[3] or 0, v[4] or 0)
 end
 
+local function handle_move(mv, ...)
+    local flags = {...}
+    return format(ACS":set_move(%s,%d)", mv, (flags[1] and bit.bor(...)) or 0)
+end
+
 -- NOTE about prefixes: most is handled by all_alt_pattern(), however commands
 -- that have no arguments and that are prefixes of other commands MUST be
 -- suffixed with a "* #sp1" pattern.
@@ -799,9 +806,8 @@ local Ci = {
         / ACS":set_action(%1)",
     ai = cmd(AI)
         / ACS":set_ai(%1)",
-    -- TODO: move's flags
     move = sp1 * t_move * (sp1 * t_define)^0
-        / ACS":set_move(%1)",
+        / handle_move,
 
     cactor = cmd(D)
         / SPS":set_picnum(%1)",
@@ -876,7 +882,8 @@ local Ci = {
         / (PLS".actors_killed="..PLS".actors_killed+%1;"..ACS".actorstayput=-1"),
     addphealth = cmd(D)
         / "",  -- TODO
-    angoff = cmd(D),
+    angoff = cmd(D)
+        / "spritext[_aci].angoff=%1",
     debug = cmd(D)
         / "",  -- TODO?
     endofgame = cmd(D)
@@ -916,7 +923,8 @@ local Ci = {
 
     fall = cmd()
         / "_con._VM_FallSprite(_aci)",
-    flash = cmd(),
+    flash = cmd()
+        / format("_con._flash(%s,%s)", ACS"", SPS""),
     getlastpal = cmd()
         / "_con._getlastpal(_aci)",
     insertspriteq = cmd(),
@@ -926,7 +934,7 @@ local Ci = {
     nullop = cmd()
         / "",  -- NOTE: really generate no code
     pkick = cmd()
-        / "",  -- TODO
+        / format("_con._pkick(%s,%s)", PLS"", ACS""),
     pstomp = cmd()
         / PLS":pstomp(_aci)",
     resetactioncount = cmd()
@@ -1119,10 +1127,8 @@ local Cif = {
     ifsound = cmd(D)
         / "",
     -- vvv TODO: this is not correct for GET_ACCESS or GET_SHIELD.
-    -- Additionally, it accesses the current sprite unconditinally
-    -- (will throw error if invalid).
     ifpinventory = cmd(D,D)
-        / format("_con._getinventory(%s,%%1,%s)~=%%2", PLS"", SPS".pal"),
+        / format("_con._getinventory(%s,%%1,_aci)~=%%2", PLS""),
 
     ifvarl = cmd(R,D),
     ifvarg = cmd(R,D),
@@ -1145,12 +1151,12 @@ local Cif = {
     ifactorsound = cmd(R,R),
 
     ifp = (sp1 * t_define)^1
-        / "false",  -- TODO
+        / function (...) return format("_con._ifp(%d,_pli,_aci)", bit.bor(...)) end,
     ifsquished = cmd()
         / "false",  -- TODO
     ifserver = cmd(),
     ifrespawn = cmd()
-        / "false",  -- TODO
+        / format("_con._checkrespawn(%s)", SPS""),
     ifoutside = cmd()
         / format("_bit.band(sector[%s].ceilingstat,1)~=0", SPS".sectnum"),
     ifonwater = cmd()
@@ -1164,9 +1170,9 @@ local Cif = {
     ifinwater = cmd()
         / format("sector[%s].lotag==2", SPS".sectnum"),
     ifinspace = cmd()
-        / "false",  -- TODO
+        / format("_con._checkspace(%s,false)", SPS".sectnum"),
     ifinouterspace = cmd()
-        / "false",  -- TODO
+        / format("_con._checkspace(%s,true)", SPS".sectnum"),
     ifhitweapon = cmd()
         / "_con._A_IncurDamage(_aci)",
     ifhitspace = cmd()
@@ -1175,10 +1181,11 @@ local Cif = {
         / SPS".extra<=0",
     ifclient = cmd(),
     ifcanshoottarget = cmd()
-        / "false",  -- TODO
+        / "_con._canshoottarget(_dist,_aci)",
     ifcanseetarget = cmd()  -- TODO: maybe set timetosleep afterwards
         / format("_con._canseetarget(%s,%s)", SPS"", PLS""),
-    ifcansee = cmd() * #sp1,
+    ifcansee = cmd() * #sp1
+        / format("_con._cansee(_aci,%s)", PLS""),
     ifbulletnear = cmd()
         / "_con._bulletnear(_aci)",
     ifawayfromwall = cmd()
@@ -1706,7 +1713,7 @@ if (string.dump) then
         end
 
 --[[
-        local file = io.stdout
+        local file = require("io").stdout
         for filename,codetab in pairs(g_file_code) do
             file:write(format("-- GENERATED CODE for \"%s\":\n", filename))
             file:write(table.concat(flatten_codetab(codetab), "\n"))

@@ -171,6 +171,20 @@ end
 --- expose the functionality in a better fashion than merely giving access to
 --- the C functions.)
 
+local D = {
+    -- TODO: dynamic tile remapping
+    ACTIVATOR = 2,
+    APLAYER = 1405,
+
+    FIRSTAID = 53,
+    STEROIDS = 55,
+    AIRTANK = 56,
+    JETPACK = 57,
+    HEATSENSOR = 59,
+    BOOTS = 61,
+    HOLODUKE = 1348,
+}
+
 local function check_sprite_idx(i)
     if (i >= ffiC.MAXSPRITES+0ULL) then
         error("invalid argument: must be a valid sprite index", 3)
@@ -186,7 +200,6 @@ end
 function _A_Shoot(i, atwith)
     check_sprite_idx(i)
     check_tile_idx(atwith)
-
     return ffiC.A_Shoot(i, atwith)
 end
 
@@ -235,6 +248,13 @@ function _pstomp(ps, i)
     end
 end
 
+function _pkick(ps, spr)
+    -- TODO: multiplayer branch
+    if (spr.picnum~=D.APLAYER and ps.quick_kick==0) then
+        ps.quick_kick = 14
+    end
+end
+
 function _VM_ResetPlayer2(snum)
     local bound_check = player[snum]
     return (ffiC.VM_ResetPlayer2(snum)~=0)
@@ -272,10 +292,10 @@ end
 
 -- For GET_ACCESS: returns logical: whether player has card given by PAL
 -- Else: returns inventory amount
-function _getinventory(ps, inv, pal)
+function _getinventory(ps, inv, i)
     if (inv == ffiC.GET_ACCESS) then
-        if (PALBITS[pal]) then
-            return (bit.band(ps.got_access, PALBITS[pal])~=0)
+        if (PALBITS[sprite[i].pal]) then
+            return (bit.band(ps.got_access, PALBITS[sprite[i].pal])~=0)
         end
         return false
     else
@@ -345,9 +365,7 @@ function _operate(spritenum)
                 if (lotag==23 or sect.floorz==sect.ceilingz) then
                     if (bit.band(lotag, 32768+16384) == 0) then
                         for j in spritesofsect(tag.sector) do
-                            if (sprite[j].picnum==2) then
-                                -- TODO: ^^^ actually ACTIVATOR. Make the
-                                -- dynamic name->tilenum mappings work.
+                            if (sprite[j].picnum==D.ACTIVATOR) then
                                 return
                             end
                         end
@@ -381,15 +399,144 @@ function _awayfromwall(spr, d)
     return true
 end
 
+local function krandand(mask)
+    return bit.band(ffiC.krand(), mask)
+end
+
+local BANG2RAD = math.pi/1024
+
+local function cossinb(bang)
+    -- XXX: better use the precalc'd arrays instead?
+    local ang = BANG2RAD*(bang)
+    return 16384*math.cos(ang), 16384*math.sin(ang)
+end
+
+local function manhatdist(v1, v2)
+    return math.abs(v1.x-v2.x) + math.abs(v1.y-v2.y)
+end
+
+-- "otherspr" is either player or holoduke sprite
+local function A_GetFurthestVisiblePoint(aci, otherspr)
+    if (bit.band(actor[aci].get_t_data(0), 63) ~= 0) then
+        return
+    end
+
+    local angincs = (ud.player_skill < 3) and 1024 or 2048/(1+krandand(1))
+
+    local j = 0
+    repeat
+        local c, s = cossinb(otherspr.ang + j)
+        local hit = hitscan(otherspr^(16*256), otherspr.sectnum,
+                            c, s, 16384-krandand(32767), ffiC.CLIPMASK1)
+        local dother = manhatdist(hit.pos, otherspr)
+        local dactor = manhatdist(hit.pos, spr)
+
+        if (dother < dactor and hit.sect >= 0) then
+            if (cansee(hit.pos, hit.sect, otherspr^(16*256), otherspr.sectnum)) then
+                return hit
+            end
+        end
+
+        j = j + (angincs - krandand(511))
+    until (j >= 2048)
+end
+
+local SLEEPTIME = 1536
+
+function _cansee(aci, ps)
+    -- Select sprite for monster to target.
+    local spr = sprite[aci]
+    local s = sprite[ps.i]
+
+    if (ps.holoduke_on) then
+        -- If holoduke is on, let them target holoduke first.
+        local hs = sprite[ps.holoduke_on]
+
+        if (cansee(spr^krandand(8191), spr.sectnum, s, s.sectnum)) then
+            s = hs
+        end
+    end
+
+    -- Can they see player (or player's holoduke)?
+    local can = cansee(spr^krandand(47*256), spr.sectnum, s^(24*256), s.sectnum)
+
+    if (not can) then
+        -- Search around for target player.
+        local hit = A_GetFurthestVisiblePoint(aci, s)
+        if (hit ~= nil) then
+            can = true
+            actor[aci].lastvx = hit.pos.x
+            actor[aci].lastvy = hit.pos.y
+        end
+    else
+        -- Else, they did see it. Save where we were looking...
+        actor[aci].lastvx = s.x
+        actor[aci].lastvy = s.y
+    end
+
+    if (can and (spr.statnum==ffiC.STAT_ACTOR or spr.statnum==ffiC.STAT_STANDABLE)) then
+        actor[aci].timetosleep = SLEEPTIME
+    end
+
+    return can
+end
+
 function _canseetarget(spr, ps)
     -- NOTE: &41 ?
-    return cansee(spr^(bit.band(ffiC.krand(),41)), spr.sectnum,
+    return cansee(spr^krandand(41), spr.sectnum,
                   ps.pos, sprite[ps.i].sectnum)
+end
+
+local function A_CheckHitSprite(spr, angadd)
+    local zoff = (spr:isenemy() and 42*256) or (spr.picnum==D.APLAYER and 39*256) or 0
+
+    local c, s = cossinb(spr.ang+angadd)
+    local hit = hitscan(spr^zoff, spr.sectnum, c, s, 0, ffiC.CLIPMASK1)
+    if (hit.wall >= 0 and wall[hit.wall]:ismasked() and spr:isenemy()) then
+        return -1, nil
+    end
+
+    local dx = hit.pos.x-spr.x
+    local dy = hit.pos.y-spr.y
+    return hit.sprite, math.sqrt(dx*dx+dy*dy)  -- TODO: use "ldist" approximation for authenticity
+end
+
+function _canshoottarget(dist, aci)
+    if (dist > 1024) then
+        local spr = sprite[aci]
+
+        local hitspr, hitdist = A_CheckHitSprite(spr, 0)
+        if (hitdist == nil) then
+            return true
+        end
+
+        local bigenemy = (spr:isenemy() and spr.xrepeat > 56)
+
+        local sclip = bigenemy and 3084 or 768
+        local angdif = bigenemy and 48 or 16
+
+        local sclips = { sclip, sclip, 768 }
+        local angdifs = { 0, angdif, -angdif }
+
+        for i=1,3 do
+            if (i > 1) then
+                hitspr, hitdist = A_CheckHitSprite(aci, angdifs[i])
+            end
+
+            if (hitspr >= 0 and sprite[hitspr].picnum == spr.picnum) then
+                if (hitdist > sclips[i]) then
+                    return false
+                end
+            end
+        end
+    end
+
+    return true
 end
 
 function _getlastpal(spritenum)
     local spr = sprite[spritenum]
-    if (spr.picnum == 1405) then  -- TODO: APLAYER
+    if (spr.picnum == D.APLAYER) then
         spr.pal = player[spr.yvel].palookup
     else
         if (spr.pal == 1 and spr.extra == 0) then  -- hack for frozen
@@ -413,6 +560,94 @@ function _angdiffabs(a1, a2)
     if (a1 > 1024) then a1=a1-2048 end
     -- a1 and a2 is in [-1023, 1024]
     return math.abs(a2-a1)
+end
+
+local SK = {
+    CROUCH = 1,
+    RUN = 5,
+}
+
+local function _ifp(flags, pli, aci)
+    local l = flags
+    local ps = player[pli]
+    local vel = sprite[ps.i].xvel
+    local band = bit.band
+    local j = false
+
+    if (band(l,8)~=0 and ps.on_ground and _testkey(pli, SK.CROUCH)) then
+        j = true
+    elseif (band(l,16)~=0 and ps.jumping_counter == 0 and not ps.on_ground and ps.vel.z > 2048) then
+        j = true
+    elseif (band(l,32)~=0 and ps.jumping_counter > 348) then
+        j = true
+    elseif (band(l,1)~=0 and vel >= 0 and vel < 8) then
+        j = true
+    elseif (band(l,2)~=0 and vel >= 8 and not _testkey(pli, SK.RUN)) then
+        j = true
+    elseif (band(l,4)~=0 and vel >= 8 and _testkey(pli, SK.RUN)) then
+        j = true
+    elseif (band(l,64)~=0 and ps.pos.z < (sprite[_aci].z-(48*256))) then
+        j = true
+    elseif (band(l,128)~=0 and vel <= -8 and not _testkey(pli, SK.RUN)) then
+        j = true
+    elseif (band(l,256)~=0 and vel <= -8 and _testkey(pli, SK.RUN)) then
+        j = true
+    elseif (band(l,512)~=0 and (ps.quick_kick > 0 or (ps.curr_weapon == ffiC.KNEE_WEAPON and ps.kickback_pic > 0))) then
+        j = true
+    elseif (band(l,1024)~=0 and sprite[ps.i].xrepeat < 32) then
+        j = true
+    elseif (band(l,2048)~=0 and ps.jetpack_on) then
+        j = true
+    elseif (band(l,4096)~=0 and ps:get_inv_amount(ffiC.GET_STEROIDS) > 0 and ps:get_inv_amount(ffiC.GET_STEROIDS) < 400) then
+        j = true
+    elseif (band(l,8192)~=0 and ps.on_ground) then
+        j = true
+    elseif (band(l,16384)~=0 and sprite[ps.i].xrepeat > 32 and sprite[ps.i].extra > 0 and ps.timebeforeexit == 0) then
+        j = true
+    elseif (band(l,32768)~=0 and sprite[ps.i].extra <= 0) then
+        j = true
+    elseif (band(l,65536)~=0) then
+        -- TODO: multiplayer branch
+        if (_angdiffabs(ps.ang, ffiC.getangle(sprite[_aci].x-ps.pos.x, sprite[_aci].y-ps.pos.y)) < 128) then
+            j = true
+        end
+    end
+
+    return j
+end
+
+function _checkspace(sectnum, floorp)
+    local sect = sector[sectnum]
+    local picnum = floorp and sect.floorpicnum or sect.ceilingpicnum
+    local stat = floorp and sect.floorstat or sect.ceilingstat
+    return bit.band(stat,1)~=0 and sect.ceilingpal == 0 and
+        (picnum==D.MOONSKY1 or picnum==D.BIGORBIT1)
+end
+
+function _flash(spr, ps)
+   spr.shade = -127
+   ps.visibility = -127
+   ffiC.lastvisinc = ffiC.totalclock+32
+end
+
+local INVENTILE = {
+    [D.FIRSTAID] = true,
+    [D.STEROIDS] = true,
+    [D.AIRTANK] = true,
+    [D.JETPACK] = true,
+    [D.HEATSENSOR] = true,
+    [D.BOOTS] = true,
+    [D.HOLODUKE] = true,
+}
+
+function _checkrespawn(spr)
+    if (spr:isenemy()) then
+        return (ud.respawn_monsters~=0)
+    end
+    if (INVENTILE[spr.picnum]) then
+        return (ud.respawn_inventory~=0)
+    end
+    return (ud.respawn_items~=0)
 end
 
 

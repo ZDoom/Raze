@@ -9910,10 +9910,12 @@ bool fatInit (uint32_t cacheSize, bool setAsDefaultDevice);
 #ifdef LUNATIC
 const char *g_sizes_of_what[] = {
     "sectortype", "walltype", "spritetype",
-    "actor_t", "DukePlayer_t", "playerdata_t", "user_defs" };
+    "actor_t", "DukePlayer_t", "playerdata_t",
+    "user_defs", "tiledata_t" };
 int32_t g_sizes_of[] = {
     sizeof(sectortype), sizeof(walltype), sizeof(spritetype),
-    sizeof(actor_t), sizeof(DukePlayer_t), sizeof(playerdata_t), sizeof(user_defs) };
+    sizeof(actor_t), sizeof(DukePlayer_t), sizeof(playerdata_t),
+    sizeof(user_defs), sizeof(tiledata_t) };
 #endif
 
 int32_t app_main(int32_t argc, const char **argv)

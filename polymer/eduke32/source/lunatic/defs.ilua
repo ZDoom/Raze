@@ -305,6 +305,32 @@ typedef struct {
     char user_name[32];
     uint32_t revision;
 } playerdata_t;
+
+typedef struct {
+    int32_t workslike, cstat; // 8b
+    int32_t hitradius, range, flashcolor; // 12b
+    int16_t spawns, sound, isound, vel; // 8b
+    int16_t decal, trail, tnum, drop; // 8b
+    int16_t offset, bounces, bsound; // 6b
+    int16_t toffset; // 2b
+    int16_t extra, extra_rand; // 4b
+    int8_t sxrepeat, syrepeat, txrepeat, tyrepeat; // 4b
+    int8_t shade, xrepeat, yrepeat, pal; // 4b
+    int8_t movecnt; // 1b
+    uint8_t clipdist; // 1b
+    int8_t filler[6]; // 6b
+} projectile_t;
+
+typedef struct {
+    intptr_t *execPtr;
+    intptr_t *loadPtr;
+
+    uint32_t flags;
+
+    int16_t cacherange;
+
+    projectile_t defproj;
+} tiledata_t;
 #pragma pack(pop)
 
 enum
@@ -425,6 +451,7 @@ user_defs ud;
 playerdata_t g_player[MAXPLAYERS];
 
 const int32_t playerswhenstarted;
+int32_t lastvisinc;
 
 int32_t A_IncurDamage(int32_t sn);  // not bound-checked!
 void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int32_t weap);
@@ -455,7 +482,7 @@ string.dump = nil
 
 -- sanity-check struct type sizes
 local good = true
-for i=0,6 do
+for i=0,7 do
     local what = ffi.string(ffiC.g_sizes_of_what[i])
     local fsz = ffi.sizeof(what)
     local csz = ffiC.g_sizes_of[i]
@@ -468,6 +495,12 @@ end
 if (not good) then
     error("Some sizes don't match between C and LuaJIT/FFI.")
 end
+
+-- Add game-side metamethods to "spritetype" and register it with "metatype"
+defs_c.spritetype_mt.__index.isenemy = function(s)
+    return (bit.band(ffiC.g_tile[s.picnum], ffiC.SFLAG_BADGUY)~=0)
+end
+ffi.metatype("spritetype", defs_c.spritetype_mt)
 
 -- "player" global, needed by the "control" module
 local tmpmt = {
@@ -630,6 +663,14 @@ local actor_mt = {
                 check_literal_am(ai, "ai")
                 return (a.t_data[5]==ai)
             end
+        end,
+
+        -- Getters/setters.
+        get_t_data = function(a, idx)
+            if (idx >= 10ULL) then
+                error("Invalid t_data index "..idx, 2)
+            end
+            return ffi.cast(actor_ptr_ct, a).t_data[idx]
         end,
     },
 }

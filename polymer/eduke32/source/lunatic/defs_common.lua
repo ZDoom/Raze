@@ -6,6 +6,7 @@
 local ffi = require("ffi")
 local ffiC = ffi.C
 
+local bit = require("bit")
 local string = require("string")
 
 local error = error
@@ -236,9 +237,30 @@ local ivec3_mt = {
 }
 ivec3_ = ffi.metatype("vec3_t", ivec3_mt)
 
+local walltype_mt = {
+    __index = {
+        isblocking = function(w)
+            return (bit.band(w.cstat, 1)~=0)
+        end,
+
+        ismasked = function(w)
+            return (bit.band(w.cstat, 16)~=0)
+        end,
+
+        isoneway = function(w)
+            return (bit.band(w.cstat, 32)~=0)
+        end,
+
+        ishittable = function(w)
+            return (bit.band(w.cstat, 64)~=0)
+        end,
+    }
+}
+ffi.metatype("walltype", walltype_mt)
+
 local spritetype_ptr_ct = ffi.typeof("spritetype_u_t *")
 
-local spritetype_mt = {
+spritetype_mt = {
     __pow = function(s, zofs)
         return ivec3_(s.x, s.y, s.z-zofs)
     end,
@@ -252,7 +274,8 @@ local spritetype_mt = {
         end
     },
 }
-ffi.metatype("spritetype", spritetype_mt)
+-- The user of this module can insert additional "spritetype" metamethods and
+-- register them with "ffi.metatype".
 
 
 ---=== Restricted access to C variables from Lunatic ===---
