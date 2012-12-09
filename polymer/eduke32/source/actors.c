@@ -8144,47 +8144,7 @@ void A_PlayAlertSound(int32_t i)
 
 int32_t A_CheckEnemyTile(int32_t pn)
 {
-    //this case can't be handled by the dynamictostatic system because it adds
-    //stuff to the value from names.h so handling separately
-    if (A_CheckSpriteTileFlags(pn, SPRITE_BADGUY) ||
-        (pn >= GREENSLIME && pn <= GREENSLIME+7))
-        return 1;
-
-    switch (DYNAMICTILEMAP(pn))
-    {
-    case SHARK__STATIC:
-    case RECON__STATIC:
-    case DRONE__STATIC:
-    case LIZTROOPONTOILET__STATIC:
-    case LIZTROOPJUSTSIT__STATIC:
-    case LIZTROOPSTAYPUT__STATIC:
-    case LIZTROOPSHOOT__STATIC:
-    case LIZTROOPJETPACK__STATIC:
-    case LIZTROOPDUCKING__STATIC:
-    case LIZTROOPRUNNING__STATIC:
-    case LIZTROOP__STATIC:
-    case OCTABRAIN__STATIC:
-    case COMMANDER__STATIC:
-    case COMMANDERSTAYPUT__STATIC:
-    case PIGCOP__STATIC:
-    case EGG__STATIC:
-    case PIGCOPSTAYPUT__STATIC:
-    case PIGCOPDIVE__STATIC:
-    case LIZMAN__STATIC:
-    case LIZMANSPITTING__STATIC:
-    case LIZMANFEEDING__STATIC:
-    case LIZMANJUMP__STATIC:
-    case ORGANTIC__STATIC:
-    case BOSS1__STATIC:
-    case BOSS2__STATIC:
-    case BOSS3__STATIC:
-    case BOSS4__STATIC:
-    case RAT__STATIC:
-    case ROTATEGUN__STATIC:
-        return 1;
-    }
-
-    return 0;
+    return A_CheckSpriteTileFlags(pn, SPRITE_BADGUY);
 }
 
 int32_t A_CheckSwitchTile(int32_t i)

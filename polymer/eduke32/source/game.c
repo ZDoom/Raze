@@ -9589,6 +9589,48 @@ static void G_LoadExtraPalettes(void)
     kclose(fp);
 }
 
+#define SETBGFLAG(Tilenum) g_tile[Tilenum].flags |= SPRITE_BADGUY
+
+// Has to be after setting the dynamic names (e.g. SHARK).
+static void A_InitEnemyFlags(void)
+{
+    int32_t i;
+
+    for (i=GREENSLIME; i<=GREENSLIME+7; i++)
+        SETBGFLAG(i);
+
+    SETBGFLAG(SHARK);
+    SETBGFLAG(RECON);
+    SETBGFLAG(DRONE);
+    SETBGFLAG(LIZTROOPONTOILET);
+    SETBGFLAG(LIZTROOPJUSTSIT);
+    SETBGFLAG(LIZTROOPSTAYPUT);
+    SETBGFLAG(LIZTROOPSHOOT);
+    SETBGFLAG(LIZTROOPJETPACK);
+    SETBGFLAG(LIZTROOPDUCKING);
+    SETBGFLAG(LIZTROOPRUNNING);
+    SETBGFLAG(LIZTROOP);
+    SETBGFLAG(OCTABRAIN);
+    SETBGFLAG(COMMANDER);
+    SETBGFLAG(COMMANDERSTAYPUT);
+    SETBGFLAG(PIGCOP);
+    SETBGFLAG(EGG);
+    SETBGFLAG(PIGCOPSTAYPUT);
+    SETBGFLAG(PIGCOPDIVE);
+    SETBGFLAG(LIZMAN);
+    SETBGFLAG(LIZMANSPITTING);
+    SETBGFLAG(LIZMANFEEDING);
+    SETBGFLAG(LIZMANJUMP);
+    SETBGFLAG(ORGANTIC);
+    SETBGFLAG(BOSS1);
+    SETBGFLAG(BOSS2);
+    SETBGFLAG(BOSS3);
+    SETBGFLAG(BOSS4);
+    SETBGFLAG(RAT);
+    SETBGFLAG(ROTATEGUN);
+}
+#undef SETBGFLAG
+
 extern int32_t startwin_run(void);
 static void G_SetupGameButtons(void);
 
@@ -9614,6 +9656,7 @@ static void G_Startup(void)
     setbasepaltable(basepaltable, BASEPALCOUNT);
 
     G_InitDynamicTiles();
+    A_InitEnemyFlags();
 
     if (g_netServer || ud.multimode > 1) G_CheckGametype();
 

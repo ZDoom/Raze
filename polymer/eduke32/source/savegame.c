@@ -862,17 +862,9 @@ static void sv_postquoteredef();
 static void sv_restsave();
 static void sv_restload();
 
-// This used to be sizeof(_prlight)*PR_MAXLIGHTS + sizeof(lightcount), but
-// 1) we haven't been loading Polymer lights since a while now since they're
-//    restored by polymer_loadboard() and
-// 2) sizeof(_prlight) differs across compilers, see
-//    http://forums.duke4.net/topic/5686-synchronize-game-save-data-across-multiple-eduke32-installations
-// Can be removed with the next savegame version bump.
-#define TRAILINGBYTES (261*1024 + 4)
-
 #define SVARDATALEN \
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
-      +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS + TRAILINGBYTES)
+      +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS)
 
 static uint32_t savegame_bitptrsize;
 static uint8_t savegame_quotedef[MAXQUOTES>>3];
@@ -1624,8 +1616,7 @@ static void sv_restsave()
             CPDAT(&dummy_ps, sizeof(DukePlayer_t));
     }
 
-    Bassert((savegame_restdata+SVARDATALEN)-mem == TRAILINGBYTES);
-    Bmemset(mem, 0, TRAILINGBYTES);
+    Bassert((savegame_restdata+SVARDATALEN)-mem == 0);
 #undef CPDAT
 }
 static void sv_restload()
