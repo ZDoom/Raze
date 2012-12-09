@@ -5313,15 +5313,17 @@ repeatcase:
                 initprintf("%s:%d: error: quote number exceeds limit of %d.\n",g_szScriptFileName,g_lineNumber,MAXQUOTES);
                 g_numCompilerErrors++;
             }
-
-            if (ScriptQuotes[k] == NULL)
-                ScriptQuotes[k] = (char *)Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
-
-            if (!ScriptQuotes[k])
+            else
             {
-                ScriptQuotes[k] = NULL;
-                Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(uint8_t) * MAXQUOTELEN);
-                G_GameExit(tempbuf);
+                if (ScriptQuotes[k] == NULL)
+                    ScriptQuotes[k] = (char *)Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
+
+                if (!ScriptQuotes[k])
+                {
+                    ScriptQuotes[k] = NULL;
+                    Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(uint8_t) * MAXQUOTELEN);
+                    G_GameExit(tempbuf);
+                }
             }
 
             if (tw == CON_DEFINEQUOTE)
@@ -5336,9 +5338,8 @@ repeatcase:
             {
                 if (ScriptQuoteRedefinitions[g_numQuoteRedefinitions] == NULL)
                     ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = (char *)Bcalloc(MAXQUOTELEN,sizeof(uint8_t));
-                if (!ScriptQuoteRedefinitions[g_numQuoteRedefinitions])
+                if (ScriptQuoteRedefinitions[g_numQuoteRedefinitions] == NULL)
                 {
-                    ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = NULL;
                     Bsprintf(tempbuf,"Failed allocating %" PRIdPTR " byte quote text buffer.",sizeof(uint8_t) * MAXQUOTELEN);
                     G_GameExit(tempbuf);
                 }
@@ -5368,8 +5369,12 @@ repeatcase:
                     break;
                 }
             }
+
             if (tw == CON_DEFINEQUOTE)
-                *(ScriptQuotes[k]+i) = '\0';
+            {
+                if ((unsigned)k < MAXQUOTES)
+                    *(ScriptQuotes[k]+i) = '\0';
+            }
             else
             {
                 *(ScriptQuoteRedefinitions[g_numQuoteRedefinitions]+i) = '\0';
