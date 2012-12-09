@@ -99,7 +99,7 @@ BUILD32_ON_64 ?= 0
 # DO NOT SET THIS TO 1 AND COMMIT IT.
 USE_LIBPNG ?= 1
 USE_LIBVPX ?= 1
-
+NETCODE ?= 1
 
 ifeq (0,$(USE_OPENGL))
     POLYMER = 0
@@ -308,6 +308,10 @@ BASECOMMONFLAGS=$(debug) $(OPTOPT) $(CWARNS) \
 	$(F_JUMP_TABLES) $(W_NO_UNUSED_RESULT) $(ARCH)
 ifneq (0,$(CLANG))
     BASECOMMONFLAGS+= -Wno-unused-value -Wno-parentheses
+endif
+
+ifeq (0,$(NETCODE))
+    BASECOMMONFLAGS+= -DNETCODE_DISABLE
 endif
 
 

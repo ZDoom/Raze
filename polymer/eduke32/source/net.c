@@ -50,6 +50,10 @@ char g_netPassword[32];
 int32_t g_netPlayersWaiting = 0;
 int32_t g_networkMode = NET_CLIENT;
 
+#ifdef NETCODE_DISABLE
+void faketimerhandler(void) {}
+#else
+
 static char recbuf[180];
 static int32_t g_chatPlayer = -1;
 
@@ -627,6 +631,8 @@ void Net_ReceiveDisconnect(ENetEvent *event)
 ////////////////////////////////////////////////////////////////////////////////
 // Packet Handlers
 
+#endif
+
 void Net_GetPackets(void)
 {
     sampletimer();
@@ -655,6 +661,8 @@ void Net_GetPackets(void)
         Net_HandleServerPackets();
     }
 }
+
+#ifndef NETCODE_DISABLE
 
 void Net_HandleClientPackets(void)
 {
@@ -2316,3 +2324,4 @@ void Net_RecieveMapVoteCancel(uint8_t *pbuf)
     voting = -1;
 }
 
+#endif  // !defined NETCODE_DISABLE

@@ -1206,6 +1206,7 @@ static int32_t osdcmd_password(const osdfuncparm_t *parm)
 
 static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
 {
+#ifndef NETCODE_DISABLE
     ENetPeer *currentPeer;
     char ipaddr[32];
 
@@ -1231,12 +1232,13 @@ static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
         initprintf("%x %s %s\n", currentPeer->address.host, ipaddr,
                    g_player[(intptr_t)currentPeer->data].user_name);
     }
-
+#endif
     return OSDCMD_OK;
 }
 
 static int32_t osdcmd_kick(const osdfuncparm_t *parm)
 {
+#ifndef NETCODE_DISABLE
     ENetPeer *currentPeer;
     uint32_t hexaddr;
 
@@ -1269,11 +1271,13 @@ static int32_t osdcmd_kick(const osdfuncparm_t *parm)
 
     initprintf("Player %s not found!\n", parm->parms[0]);
     osdcmd_listplayers(NULL);
+#endif
     return OSDCMD_OK;
 }
 
 static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
 {
+#ifndef NETCODE_DISABLE
     ENetPeer *currentPeer;
     uint32_t hexaddr;
 
@@ -1312,6 +1316,7 @@ static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
 
     initprintf("Player %s not found!\n", parm->parms[0]);
     osdcmd_listplayers(NULL);
+#endif
     return OSDCMD_OK;
 }
 

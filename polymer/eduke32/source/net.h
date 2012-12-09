@@ -25,6 +25,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "enet/enet.h"
 
+extern uint32_t        g_netMapRevision;
+extern ENetHost       *g_netClient;
+extern ENetHost       *g_netServer;
+extern ENetPeer       *g_netClientPeer;
+extern char           g_netPassword[32];
+extern int32_t        g_netDisconnect;
+extern int32_t        g_netPlayersWaiting;
+extern enet_uint16    g_netPort;
+extern int32_t        g_networkMode;
+extern int32_t        lastsectupdate[MAXSECTORS];
+extern int32_t        lastupdate[MAXSPRITES];
+extern int32_t        lastwallupdate[MAXWALLS];
+extern int16_t        g_netStatnums[10];
+
 #define NET_REVISIONS 64
 
 enum netchan_t
@@ -128,20 +142,6 @@ extern netmapstate_t  *g_multiMapState[MAXPLAYERS];
 extern netmapstate_t  *g_multiMapRevisions[NET_REVISIONS];
 #pragma pack(pop)
 
-extern uint32_t        g_netMapRevision;
-extern ENetHost       *g_netClient;
-extern ENetHost       *g_netServer;
-extern ENetPeer       *g_netClientPeer;
-extern char           g_netPassword[32];
-extern int32_t        g_netDisconnect;
-extern int32_t        g_netPlayersWaiting;
-extern enet_uint16    g_netPort;
-extern int32_t        g_networkMode;
-extern int32_t        lastsectupdate[MAXSECTORS];
-extern int32_t        lastupdate[MAXSPRITES];
-extern int32_t        lastwallupdate[MAXWALLS];
-extern int16_t        g_netStatnums[10];
-
 #pragma pack(push,1)
 typedef struct {
 	vec3_t pos;
@@ -177,13 +177,17 @@ typedef struct {
 
 extern newgame_t pendingnewgame;
 
+#ifndef NETCODE_DISABLE
+
 // Connect/Disconnect
 void    Net_Connect(const char *srvaddr);
 void    Net_Disconnect(void);
 void    Net_ReceiveDisconnect(ENetEvent *event);
 
 // Packet Handlers
+#endif
 void    Net_GetPackets(void);
+#ifndef NETCODE_DISABLE
 void    Net_HandleServerPackets(void);
 void    Net_HandleClientPackets(void);
 void    Net_ParseClientPacket(ENetEvent *event);
@@ -250,5 +254,82 @@ void    Net_RestoreMapState(netmapstate_t *save);
 void    Net_SyncPlayer(ENetEvent *event);
 void    Net_WaitForServer(void);
 void    faketimerhandler(void);
+
+#else
+/* NETCODE_ENABLE is not defined */
+
+// Connect/Disconnect
+#define Net_Connect(...) ((void)0)
+#define Net_Disconnect(...) ((void)0)
+#define Net_ReceiveDisconnect(...) ((void)0)
+
+// Packet Handlers
+#define Net_HandleServerPackets(...) ((void)0)
+#define Net_HandleClientPackets(...) ((void)0)
+#define Net_ParseClientPacket(...) ((void)0)
+#define Net_ParseServerPacket(...) ((void)0)
+#define Net_ParsePacketCommon(...) ((void)0)
+
+#define Net_SendVersion(...) ((void)0)
+#define Net_RecieveVersion(...) ((void)0)
+
+#define Net_SendChallenge(...) ((void)0)
+#define Net_RecieveChallenge(...) ((void)0)
+
+#define Net_SendNewPlayer(...) ((void)0)
+#define Net_RecieveNewPlayer(...) ((void)0)
+
+#define Net_SendPlayerIndex(...) ((void)0)
+#define Net_RecievePlayerIndex(...) ((void)0)
+
+#define Net_SendClientInfo(...) ((void)0)
+#define Net_ReceiveClientInfo(...) ((void)0)
+
+#define Net_SendUserMapName(...) ((void)0)
+#define Net_ReceiveUserMapName(...) ((void)0)
+
+#define Net_SendClientSync(...) ((void)0)
+#define Net_ReceiveClientSync(...) ((void)0)
+
+#define Net_SendMapUpdate(...) ((void)0)
+#define Net_ReceiveMapUpdate(...) ((void)0)
+
+#define Net_FillPlayerUpdate(...) ((void)0)
+#define Net_ExtractPlayerUpdate(...) ((void)0)
+
+#define Net_SendServerUpdates(...) ((void)0)
+#define Net_ReceiveServerUpdate(...) ((void)0)
+
+#define Net_SendClientUpdate(...) ((void)0)
+#define Net_ReceiveClientUpdate(...) ((void)0)
+
+#define Net_SendMessage(...) ((void)0)
+#define Net_ReceiveMessage(...) ((void)0)
+
+#define Net_StartNewGame(...) ((void)0)
+#define Net_SendNewGame(...) ((void)0)
+#define Net_ReceiveNewGame(...) ((void)0)
+
+#define Net_FillNewGame(...) ((void)0)
+#define Net_ExtractNewGame(...) ((void)0)
+
+#define Net_SendMapVoteInitiate(...) ((void)0)
+#define Net_RecieveMapVoteInitiate(...) ((void)0)
+
+#define Net_SendMapVote(...) ((void)0)
+#define Net_RecieveMapVote(...) ((void)0)
+#define Net_CheckForEnoughVotes(...) ((void)0)
+
+#define Net_SendMapVoteCancel(...) ((void)0)
+#define Net_RecieveMapVoteCancel(...) ((void)0)
+
+//////////
+
+#define Net_ResetPrediction(...) ((void)0)
+#define Net_RestoreMapState(...) ((void)0)
+#define Net_SyncPlayer(...) ((void)0)
+#define Net_WaitForServer(...) ((void)0)
+
+#endif
 
 #endif // __netplay_h__

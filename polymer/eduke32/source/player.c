@@ -3667,7 +3667,7 @@ void P_FragPlayer(int32_t snum)
         p->dead_flag = (512-((krand()&1)<<10)+(krand()&255)-512)&2047;
         if (p->dead_flag == 0)
             p->dead_flag++;
-
+#ifndef NETCODE_DISABLE
         if (g_netServer)
         {
             packbuf[0] = PACKET_FRAG;
@@ -3679,6 +3679,7 @@ void P_FragPlayer(int32_t snum)
 
             enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(packbuf, 9, ENET_PACKET_FLAG_RELIABLE));
         }
+#endif
     }
 
     p->jetpack_on = 0;

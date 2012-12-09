@@ -931,7 +931,7 @@ static void VM_ResetPlayer(void)
 
         if (g_fakeMultiMode)
             P_ResetPlayer(vm.g_p);
-
+#ifndef NETCODE_DISABLE
         if (g_netServer)
         {
             int32_t jj = 0;
@@ -949,6 +949,7 @@ static void VM_ResetPlayer(void)
             enet_host_broadcast(g_netServer, CHAN_GAMESTATE, enet_packet_create(
                                     packbuf, jj, ENET_PACKET_FLAG_RELIABLE));
         }
+#endif
     }
     P_UpdateScreenPal(g_player[vm.g_p].ps);
     //AddLog("EOF: resetplayer");

@@ -7754,6 +7754,7 @@ void G_HandleLocalKeys(void)
 
                 G_AddUserQuote(ud.ridecule[i-1]);
 
+#ifndef NETCODE_DISABLE
                 ch = 0;
 
                 tempbuf[ch] = PACKET_MESSAGE;
@@ -7769,7 +7770,7 @@ void G_HandleLocalKeys(void)
                     enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, i, 0));
                 else if (g_netServer)
                     enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, i, 0));
-
+#endif
                 pus = NUMPAGES;
                 pub = NUMPAGES;
 
@@ -7783,7 +7784,7 @@ void G_HandleLocalKeys(void)
                     FX_PlayAuto3D((char *)RTS_GetSound(i-1),RTS_SoundLength(i-1),0,0,0,255,-i);
 
                     g_RTSPlaying = 7;
-
+#ifndef NETCODE_DISABLE
                     if ((g_netServer || ud.multimode > 1))
                     {
                         tempbuf[0] = PACKET_RTS;
@@ -7795,7 +7796,7 @@ void G_HandleLocalKeys(void)
                         else if (g_netServer)
                             enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, 3, 0));
                     }
-
+#endif
                     pus = NUMPAGES;
                     pub = NUMPAGES;
 
@@ -9960,9 +9961,11 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 #endif
 
+#ifndef NETCODE_DISABLE
     if (enet_initialize_with_callbacks(ENET_VERSION, &callbacks) != 0)
         initprintf("An error occurred while initializing ENet.\n");
     else atexit(enet_deinitialize);
+#endif
 
 #ifdef _WIN32
     backgroundidle = 0;
@@ -10331,6 +10334,7 @@ int32_t app_main(int32_t argc, const char **argv)
     if (g_scriptDebug)
         initprintf("CON debugging activated (level %d).\n",g_scriptDebug);
 
+#ifndef NETCODE_DISABLE
     if (g_networkMode == NET_SERVER || g_networkMode == NET_DEDICATED_SERVER)
     {
         ENetAddress address = { ENET_HOST_ANY, g_netPort };
@@ -10340,7 +10344,7 @@ int32_t app_main(int32_t argc, const char **argv)
             initprintf("An error occurred while trying to create an ENet server host.\n");
         else initprintf("Multiplayer server initialized\n");
     }
-
+#endif
     numplayers = 1;
 
     if (!g_fakeMultiMode)
