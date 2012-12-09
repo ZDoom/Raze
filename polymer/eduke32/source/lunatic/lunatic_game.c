@@ -64,18 +64,35 @@ double rand_jkiss_dbl(rng_jkiss_t *s)
 
 void El_PrintTimes(void)
 {
-    int32_t i;
+    int32_t i, maxlen=0;
+    char buf[32];
+    const char nn = Bstrlen("EVENT_");
+
+    for (i=0; i<MAXEVENTS; i++)
+    {
+        int32_t len = Bstrlen(EventNames[i]+nn);
+        Bassert(len < (int32_t)sizeof(buf));
+        maxlen = max(len, maxlen);
+    }
 
     OSD_Printf("{\n {\n");
-    OSD_Printf("  -- event times, [event]={ total calls, total time in ms, time per call in us }\n");
+    OSD_Printf("  -- event times, [event]={ total calls, total time [ms], mean time/call [us] }\n");
     for (i=0; i<MAXEVENTS; i++)
         if (g_eventCalls[i])
-            OSD_Printf("  [%2d]={ %8d, %9.3f, %9.3f },\n",
-                       i, g_eventCalls[i], g_eventTotalMs[i],
+        {
+            int32_t n=Bsprintf(buf, "%s", EventNames[i]+nn);
+
+            for (; n<maxlen; n++)
+                buf[n] = ' ';
+            buf[maxlen] = 0;
+
+            OSD_Printf("  [%s]={ %8d, %9.3f, %9.3f },\n",
+                       buf, g_eventCalls[i], g_eventTotalMs[i],
                        1000*g_eventTotalMs[i]/g_eventCalls[i]);
+        }
 
     OSD_Printf(" },\n\n {\n");
-    OSD_Printf("  -- actor times, [tile]={ total calls, total time in ms, time per call in us }\n");
+    OSD_Printf("  -- actor times, [tile]={ total calls, total time [ms], mean time/call [us] }\n");
     for (i=0; i<MAXTILES; i++)
         if (g_actorCalls[i])
             OSD_Printf("  [%5d]={ %8d, %9.3f, %9.3f },\n",
@@ -197,7 +214,7 @@ int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t 
         }
 
         Bassert(lua_type(L, -1)==LUA_TSTRING);
-        OSD_Printf("event \"%s\" (state \"%s\") runtime error: %s\n", EventNames[eventidx].text,
+        OSD_Printf("event \"%s\" (state \"%s\") runtime error: %s\n", EventNames[eventidx],
                    estate->name, lua_tostring(L, -1));  // get err msg
         lua_pop(L, 1);
         return -1;

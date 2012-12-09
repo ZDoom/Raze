@@ -86,7 +86,7 @@ typedef struct
     int32_t maxParm2;
 } memberlabel_t;
 
-extern const tokenlist EventNames[];  // MAXEVENTS
+extern const char *EventNames[];  // MAXEVENTS
 extern const memberlabel_t SectorLabels[];
 extern const memberlabel_t WallLabels[];
 extern const memberlabel_t ActorLabels[];
