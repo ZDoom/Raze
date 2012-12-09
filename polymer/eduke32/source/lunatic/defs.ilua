@@ -1,8 +1,7 @@
 -- INTERNAL
 -- definitions of BUILD and game types for the Lunatic Interpreter
 
-_EDUKE32_LUNATIC = true
-
+local require = require
 local ffi = require("ffi")
 local ffiC = ffi.C
 
@@ -10,7 +9,22 @@ local bit = bit
 local string = string
 local table = table
 local math = math
+
+local assert = assert
+local error = error
+local ipairs = ipairs
+local loadstring = loadstring
+local pairs = pairs
+local rawget = rawget
+local rawset = rawset
+local setmetatable = setmetatable
+local setfenv = setfenv
+local tonumber = tonumber
+local type = type
+
 local print = print
+local tostring = tostring
+
 
 --== First, load the definitions common to the game's and editor's Lua interface.
 
@@ -43,28 +57,12 @@ end
 
 -- load the common definitions!
 local defs_c = require("defs_common")
+local cansee = defs_c.cansee
 local strip_const = defs_c.strip_const
 local setmtonce = defs_c.setmtonce
 
 
 ---=== EDuke32 game definitions ===---
-
--- array -> element flattening inside structs,
--- e.g. int32_t a[4] --> int32_t _a0, _a1, _a2, _a3;
-local function repeat_n_elts(type, namebase, num)
-    local strbuf = { "const "..type.." " }
-
-    for i=1,num do
-        local str = namebase..tostring(i-1)
-        if (i < num) then
-            str = str..","
-        end
-        strbuf[#strbuf+1] = str
-    end
-    strbuf[#strbuf+1] = ";"
-
-    return table.concat(strbuf)
-end
 
 ---- game structs ----
 ffi.cdef[[
@@ -449,17 +447,6 @@ int32_t kread(int32_t handle, void *buffer, int32_t leng);
 ]]
 
 
-local assert = assert
-local error = error
-local ipairs = ipairs
-local loadstring = loadstring
-local pairs = pairs
-local rawget = rawget
-local rawset = rawset
-local setmetatable = setmetatable
-local setfenv = setfenv
-local type = type
-
 -- http://lua-users.org/wiki/SandBoxes says "potentially unsafe"
 -- as it allows to see implementations of functions.
 --local string_dump = string.dump
@@ -614,7 +601,7 @@ local actor_mt = {
             local oa = a
             a = ffi.cast(actor_ptr_ct, a)
 
-            if (type(mov)=="string") then
+            if (type(ai)=="string") then
                 ai = AI[ai];
             end
             -- TODO: literal number AIs?
@@ -634,7 +621,7 @@ local actor_mt = {
         has_ai = function(a, ai)
             a = ffi.cast(actor_ptr_ct, a)
 
-            if (type(mov)=="string") then
+            if (type(ai)=="string") then
                 ai = AI[ai];
             end
             if (ffi.istype(con_ai_ct, ai)) then
@@ -957,7 +944,6 @@ G_._VERSION = _VERSION
 G_._G = G_
 
 --- non-default data and functions
-G_._EDUKE32_LUNATIC = _EDUKE32_LUNATIC
 G_.gameevent = gameevent  -- included in lunatic.c
 G_.gameactor = gameactor  -- included in lunatic.c
 G_.player = player  -- from above

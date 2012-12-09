@@ -1,11 +1,29 @@
 -- LunaCON CON to Lunatic translator
 -- requires LPeg, http://www.inf.puc-rio.br/~roberto/lpeg/lpeg.html
 
+local require = require
 local lpeg = require("lpeg")
 
-if (not _EDUKE32_LUNATIC) then
+local bit = require("bit")
+local math = require("math")
+local string = require("string")
+local table = require("table")
+
+local arg = arg
+
+local assert = assert
+local pairs = pairs
+local pcall = pcall
+local print = print
+local tonumber = tonumber
+local type = type
+
+if (string.dump) then
     require("strict")
 end
+
+
+module(...)
 
 
 -- I think that the "too many pending calls/choices" is unavoidable in general.
@@ -48,11 +66,13 @@ local g_badids = {}  -- maps bad id strings to 'true'
 local g_recurslevel = -1  -- 0: base CON file, >0 included
 local g_filename = "???"
 local g_directory = ""  -- with trailing slash if not empty
+local g_maxerrors = 20
 local g_numerrors = 0
 
 -- Warning options. Key names are the same as cmdline options, e.g.
 -- -Wno-bad-identifier for disabling the "bad identifier" warning.
-local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true, }
+local g_warn = { ["not-redefined"]=true, ["bad-identifier"]=true,
+                 ["number-conversion"]=true, }
 
 -- How many 'if' statements are following immediately each other,
 -- needed to cope with CONs dangling-else resolution
@@ -113,8 +133,17 @@ local function linecolstr(pos)
     return format("%d:%d", line, col)
 end
 
+local function increment_numerrors()
+    g_numerrors = g_numerrors+1
+    if (g_numerrors == g_maxerrors) then
+        g_numerrors = inf
+        printf("Too many errors (%d), aborting...", g_maxerrors)
+    end
+end
+
 local function perrprintf(pos, fmt, ...)
     printf("%s %s: error: "..fmt, g_filename, linecolstr(pos), ...)
+    increment_numerrors()
 end
 
 local function errprintf(fmt, ...)
@@ -123,7 +152,7 @@ local function errprintf(fmt, ...)
     else
         printf("%s ???: error: "..fmt, g_filename, ...)
     end
-    g_numerrors = g_numerrors+1
+    increment_numerrors()
 end
 
 local function pwarnprintf(pos, fmt, ...)
@@ -145,7 +174,9 @@ local function parse_number(pos, numstr)
         perrprintf(pos, "number %s out of the range of a 32-bit integer", numstr)
         num = NaN
     elseif (num >= 0x80000000 and numstr:sub(1,2):lower()~="0x") then
-        pwarnprintf(pos, "number %s converted to a negative one", numstr)
+        if (g_warn["number-conversion"]) then
+            pwarnprintf(pos, "number %s converted to a negative one", numstr)
+        end
         num = num-(0xffffffff+1)
     end
 
@@ -306,7 +337,7 @@ local function parse(contents) end -- fwd-decl
 local function do_include_file(dirname, filename) end
 local function cmd_include(filename) end
 
-if (_EDUKE32_LUNATIC) then
+if (not string.dump) then
     -- NOT IMPLEMENTED
 else
     function do_include_file(dirname, filename)
@@ -1064,13 +1095,13 @@ local Cif = {
     ifcount = cmd(D)
         / ACS":get_count()==%1",
     ifactor = cmd(D)
-        / SPS".picnum==%d",
+        / SPS".picnum==%1",
     ifstrength = cmd(D)
-        / SPS".extra<=%d",
+        / SPS".extra<=%1",
     ifspawnedby = cmd(D)
-        / ACS".picnum==%d",
+        / ACS".picnum==%1",
     ifwasweapon = cmd(D)
-        / ACS".picnum==%d",
+        / ACS".picnum==%1",
     ifgapzl = cmd(D)  -- factor into a con.* function?
         / format("_bit.arshift(%s-%s,8)<%%1", ACS".floorz", ACS".ceilingz"),
     iffloordistl = cmd(D)
@@ -1158,7 +1189,6 @@ local Cif = {
 
 
 ----==== Tracing and reporting ====----
-local string = require("string")
 
 -- g_newlineidxs will contain the 1-based file offsets to "\n" characters
 local g_newlineidxs = {}
@@ -1492,8 +1522,6 @@ local Grammar = Pat{
 }
 
 
-local math = require("math")
-
 local function setup_newlineidxs(contents)
     local newlineidxs = {}
     for i in string.gmatch(contents, "()\n") do
@@ -1637,7 +1665,7 @@ local function handle_cmdline_arg(str)
     end
 end
 
-if (not _EDUKE32_LUNATIC) then
+if (string.dump) then
     --- stand-alone
 
     local i = 1

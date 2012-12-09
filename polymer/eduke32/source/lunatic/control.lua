@@ -18,6 +18,8 @@ local cansee = defs_c.cansee
 local neartag = defs_c.neartag
 local inside = defs_c.inside
 
+-- NOTE FOR RELEASE: the usually global stuff like "sprite" etc. ought to be
+-- accessed as locals here
 
 module(...)
 
@@ -148,6 +150,8 @@ end
 
 local function P_AddAmmo(ps, weap, amount)
     if (not have_ammo_at_max(ps, weap)) then
+        local curamount = ps:get_ammo_amount(weap)
+        local maxamount = ps:get_max_ammo_amount(weap)
         -- NOTE: no clamping towards the bottom
         ps:set_ammo_amount(weap, math.min(curamount+amount, maxamount))
     end
@@ -156,7 +160,7 @@ end
 local function P_AddWeaponAmmoCommon(ps, weap, amount)
     P_AddAmmo(ps, weap, amount)
 
-    if (ps.curr_weapon==KNEE_WEAPON and have_weapon(weap)) then
+    if (ps.curr_weapon==ffiC.KNEE_WEAPON and have_weapon(weap)) then
         ffiC.P_AddWeaponMaybeSwitch(ps, weap);
     end
 end
@@ -281,11 +285,11 @@ end
 
 -- The return value is true iff the ammo was at the weapon's max.
 -- In that case, no action is taken.
-function _addammo(ps, weapon, amount)
+function _addammo(ps, weap, amount)
     return have_ammo_at_max(ps, weap) or P_AddWeaponAmmoCommon(ps, weap, amount)
 end
 
-function _addweapon(ps, weapon, amount)
+function _addweapon(ps, weap, amount)
     if (weap >= ffiC.MAX_WEAPONS+0ULL) then
         error("Invalid weapon ID "..weap, 2)
     end
