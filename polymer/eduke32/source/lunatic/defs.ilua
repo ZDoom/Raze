@@ -135,14 +135,14 @@ local ACTOR_STRUCT = [[
     const struct action ac;
     const int16_t _padding[1];
 
+    int32_t flags, bposx,bposy,bposz; //16b
+    int32_t floorz,ceilingz,lastvx,lastvy; //16b
+    int32_t lasttransport; //4b
+
     const int16_t picnum;
     int16_t ang, extra;
     const int16_t owner;
     int16_t movflag,tempang,timetosleep; //6b
-
-    int32_t flags, bposx,bposy,bposz; //16b
-    int32_t floorz,ceilingz,lastvx,lastvy; //16b
-    int32_t lasttransport; //4b
 
     const int16_t lightId, lightcount, lightmaxrange, cgg; //8b
     int16_t actorstayput;

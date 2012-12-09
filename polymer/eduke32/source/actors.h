@@ -98,23 +98,23 @@ typedef struct {
     int8_t filler[6]; // 6b
 } projectile_t;
 
-// (+ 40 8 6 16 16 4 8 6 4 20)
+// (+ 40 16 16 4 8 6 8 6 4 20)
 typedef struct {
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
 
 #ifdef LUNATIC
-    // TODO: rearrange for better packing when enabling Lunatic
+    // total: 16b
     struct move mv;
     struct action ac;
     const int16_t padding_;
 #endif
 
-    int16_t picnum,ang,extra,owner; //8b
-    int16_t movflag,tempang,timetosleep; //6b
-
     int32_t flags, bposx,bposy,bposz; //16b
     int32_t floorz,ceilingz,lastvx,lastvy; //16b
     int32_t lasttransport; //4b
+
+    int16_t picnum,ang,extra,owner; //8b
+    int16_t movflag,tempang,timetosleep; //6b
 
     int16_t actorstayput, dispicnum, shootzvel, cgg; // 8b
     int16_t lightId, lightcount, lightmaxrange; //6b
@@ -156,12 +156,12 @@ typedef struct {
     const int16_t padding_;
 #endif
 
-    int16_t picnum,ang,extra,owner; //8b
-    int16_t movflag,tempang,timetosleep; // 6b
-
     int32_t flags, bposx,bposy,bposz; //16b
     int32_t floorz,ceilingz,lastvx,lastvy; //16b
     int32_t lasttransport; //4b
+
+    int16_t picnum,ang,extra,owner; //8b
+    int16_t movflag,tempang,timetosleep; // 6b
 
     int16_t actorstayput, dispicnum, shootzvel, cgg; // 8b
 
