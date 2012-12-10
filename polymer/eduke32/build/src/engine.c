@@ -2417,13 +2417,13 @@ static void setpalettefade_calc(uint8_t offset);
 
 void fade_screen_black(int32_t moreopaquep)
 {
+#ifdef USE_OPENGL
     if (getrendermode() >= 3)
     {
-        // we have a ~1 px horizontal line if we don't shift y by -1,
-        // might need a fix in rotatesprite!
-        rotatesprite_fs(0, -(1<<16), 65536<<3, 0, 0,0,4,10+16+1+((!moreopaquep)*32)+1024);  // tile 0: 64x32
+        fullscreen_tint_gl(0,0,0, moreopaquep ? 168 : 84);
     }
     else
+#endif
     {
         Bassert(!offscreenrendering);
 
