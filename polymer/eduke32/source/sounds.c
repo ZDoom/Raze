@@ -542,7 +542,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     const DukePlayer_t *const myps = g_player[myconnectindex].ps;
     const DukePlayer_t *peekps;
 
-    if (apScriptGameEvent[EVENT_SOUND])
+    if (G_HaveEvent(EVENT_SOUND))
         num = VM_OnEvent(EVENT_SOUND, i, screenpeek, -1, num);
 
     if ((unsigned)num > (unsigned)g_maxSoundPos ||
@@ -682,7 +682,7 @@ int32_t S_PlaySound(int32_t num)
     int32_t pitch;
     int32_t voice, j;
 
-    if (apScriptGameEvent[EVENT_SOUND])
+    if (G_HaveEvent(EVENT_SOUND))
         num = VM_OnEvent(EVENT_SOUND, g_player[screenpeek].ps->i, screenpeek, -1, num);
 
     if (ud.config.FXDevice < 0) return -1;

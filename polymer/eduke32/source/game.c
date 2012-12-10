@@ -2871,10 +2871,7 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-#ifndef LUNATIC
-    // TODO: get rid of the other outer apScriptGameEvent checks, too
-    if (apScriptGameEvent[EVENT_DISPLAYREST])
-#endif
+    if (G_HaveEvent(EVENT_DISPLAYREST))
     {
         int32_t vr=viewingrange, asp=yxaspect;
         VM_OnEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
@@ -3141,7 +3138,7 @@ void G_DrawBackground(void)
 #define MENUTILE (!getrendermode()?MENUSCREEN:LOADSCREEN)
 //        Gv_SetVar(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
         bgtile = (tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE);
-        if (apScriptGameEvent[EVENT_GETMENUTILE])
+        if (G_HaveEvent(EVENT_GETMENUTILE))
             bgtile = VM_OnEvent(EVENT_GETMENUTILE, -1, myconnectindex, -1, bgtile);
         if (Gv_GetVarByLabel("MENU_TILE", tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?0:1, -1, -1))
         {
@@ -3725,7 +3722,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         dont_draw = 0;
         // NOTE: might be rendering off-screen here, so CON commands that draw stuff
         //  like showview must cope with that situation or bail out!
-        if (apScriptGameEvent[EVENT_DISPLAYROOMS])
+        if (G_HaveEvent(EVENT_DISPLAYROOMS))
             dont_draw = VM_OnEvent(EVENT_DISPLAYROOMS, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
         ud.camerahoriz = clamp(ud.camerahoriz, HORIZ_MIN, HORIZ_MAX);
@@ -4014,7 +4011,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     A_ResetVars(i);
 
-    if (apScriptGameEvent[EVENT_EGS])
+    if (G_HaveEvent(EVENT_EGS))
     {
         extern int32_t block_deletesprite;
         int32_t pl=A_FindPlayer(s, &p);
@@ -5802,7 +5799,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                         OSD_Printf_nowarn(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
                             TrackerCast(sp->x),TrackerCast(sp->y));
                         changespritestat(i, STAT_ACTOR);
-                        if (apScriptGameEvent[EVENT_SPAWN])
+                        if (G_HaveEvent(EVENT_SPAWN))
                         {
                             int32_t pl=A_FindPlayer(&sprite[i],&p);
                             VM_OnEvent(EVENT_SPAWN,i, pl, p, 0);
@@ -6033,7 +6030,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         }
 
 SPAWN_END:
-    if (apScriptGameEvent[EVENT_SPAWN])
+    if (G_HaveEvent(EVENT_SPAWN))
     {
         int32_t pl=A_FindPlayer(&sprite[i],&p);
         VM_OnEvent(EVENT_SPAWN,i, pl, p, 0);
@@ -7008,7 +7005,7 @@ skip:
         */
     }
 
-    if (apScriptGameEvent[EVENT_ANIMATESPRITES])
+    if (G_HaveEvent(EVENT_ANIMATESPRITES))
     {
         for (j = spritesortcnt-1; j>=0; j--)
             G_DoEventAnimSprites(j);

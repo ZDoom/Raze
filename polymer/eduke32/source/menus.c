@@ -97,7 +97,7 @@ extern int32_t voting;
 
 void M_ChangeMenu(int32_t cm)
 {
-    if (apScriptGameEvent[EVENT_CHANGEMENU])
+    if (G_HaveEvent(EVENT_CHANGEMENU))
         cm = VM_OnEvent(EVENT_CHANGEMENU, g_player[myconnectindex].ps->i, myconnectindex, -1, cm);
 
     if (cm >= 0)
@@ -851,7 +851,7 @@ void M_DisplayMenus(void)
         walock[TILE_LOADSHOT] = 1;
         return;
     }
-    if (apScriptGameEvent[EVENT_DISPLAYMENU])
+    if (G_HaveEvent(EVENT_DISPLAYMENU))
         VM_OnEvent(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
@@ -5412,7 +5412,7 @@ VOLUME_ALL_40x:
 
         break;
     }
-    if (apScriptGameEvent[EVENT_DISPLAYMENUREST])
+    if (G_HaveEvent(EVENT_DISPLAYMENUREST))
         VM_OnEvent(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
 
     if (I_EscapeTrigger())

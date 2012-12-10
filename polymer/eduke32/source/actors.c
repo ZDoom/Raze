@@ -477,7 +477,7 @@ void A_DeleteSprite(int32_t s)
         return;
     }
 
-    if (apScriptGameEvent[EVENT_KILLIT])
+    if (G_HaveEvent(EVENT_KILLIT))
     {
         int32_t p, pl=A_FindPlayer(&sprite[s],&p);
 
@@ -8199,7 +8199,7 @@ void G_MoveWorld(void)
         {
             int32_t j = nextspritestat[i];
 
-            if (!apScriptGameEvent[EVENT_PREGAME] || A_CheckSpriteFlags(i, SPRITE_NOEVENTCODE))
+            if (!G_HaveEvent(EVENT_PREGAME) || A_CheckSpriteFlags(i, SPRITE_NOEVENTCODE))
             {
                 i = j;
                 continue;
@@ -8246,7 +8246,7 @@ void G_MoveWorld(void)
             if (getrendermode() == 4)
                 A_DoLight(i);
 #endif
-            if (!apScriptGameEvent[EVENT_GAME] || A_CheckSpriteFlags(i, SPRITE_NOEVENTCODE))
+            if (!G_HaveEvent(EVENT_GAME) || A_CheckSpriteFlags(i, SPRITE_NOEVENTCODE))
             {
                 i = j;
                 continue;

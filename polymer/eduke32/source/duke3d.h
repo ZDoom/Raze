@@ -131,6 +131,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gameexec.h"
 #include "gamevars.h"
 
+#ifdef LUNATIC
+# include "lunatic_game.h"
+#endif
+
+static inline int32_t G_HaveEvent(int32_t iEventID)
+{
+    return
+#ifdef LUNATIC
+        El_HaveEvent(iEventID) ||
+#endif
+        apScriptGameEvent[iEventID]!=NULL;
+}
+
 #ifdef EXTERNC
 }
 #endif

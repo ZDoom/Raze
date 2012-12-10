@@ -342,7 +342,7 @@ static int32_t GetAutoAimAngle(int32_t i, int32_t p, int32_t atwith,
 
     Gv_SetVar(g_iAimAngleVarID, AUTO_AIM_ANGLE, i, p);
 
-    if (apScriptGameEvent[EVENT_GETAUTOAIMANGLE])
+    if (G_HaveEvent(EVENT_GETAUTOAIMANGLE))
         VM_OnEvent(EVENT_GETAUTOAIMANGLE, i, p, -1, 0);
 
     j = -1;
@@ -674,7 +674,7 @@ int32_t A_Shoot(int32_t i, int32_t atwith)
                 Gv_SetVar(g_iAngRangeVarID,angRange, i,p);
                 Gv_SetVar(g_iZRangeVarID,zRange,i,p);
 
-                if (apScriptGameEvent[EVENT_GETSHOTRANGE])
+                if (G_HaveEvent(EVENT_GETSHOTRANGE))
                     VM_OnEvent(EVENT_GETSHOTRANGE, i,p, -1, 0);
 
                 angRange=Gv_GetVar(g_iAngRangeVarID,i,p);
@@ -1209,7 +1209,7 @@ DOSKIPBULLETHOLE:
                 Gv_SetVar(g_iAngRangeVarID,angRange, i,p);
                 Gv_SetVar(g_iZRangeVarID,zRange,i,p);
 
-                if (apScriptGameEvent[EVENT_GETSHOTRANGE])
+                if (G_HaveEvent(EVENT_GETSHOTRANGE))
                     VM_OnEvent(EVENT_GETSHOTRANGE, i,p, -1, 0);
 
                 angRange=Gv_GetVar(g_iAngRangeVarID,i,p);
@@ -3089,10 +3089,10 @@ void getinput(int32_t snum)
     loc.extbits |= (BUTTON(gamefunc_Strafe_Left) || (svel > 0))<<2;
     loc.extbits |= (BUTTON(gamefunc_Strafe_Right) || (svel < 0))<<3;
 
-    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNLEFT])
+    if (G_HaveEvent(EVENT_PROCESSINPUT) || G_HaveEvent(EVENT_TURNLEFT))
         loc.extbits |= BUTTON(gamefunc_Turn_Left)<<4;
 
-    if (apScriptGameEvent[EVENT_PROCESSINPUT] || apScriptGameEvent[EVENT_TURNRIGHT])
+    if (G_HaveEvent(EVENT_PROCESSINPUT) || G_HaveEvent(EVENT_TURNRIGHT))
         loc.extbits |= BUTTON(gamefunc_Turn_Right)<<5;
 
     // used for changing team
@@ -3382,7 +3382,7 @@ void P_ChangeWeapon(DukePlayer_t *p,int32_t weapon)
 
     if (p->reloading) return;
 
-    if (p->curr_weapon != weapon && apScriptGameEvent[EVENT_CHANGEWEAPON])
+    if (p->curr_weapon != weapon && G_HaveEvent(EVENT_CHANGEWEAPON))
         i = VM_OnEvent(EVENT_CHANGEWEAPON,p->i, snum, -1, weapon);
 
     if (i == -1)
@@ -3898,7 +3898,7 @@ void P_ProcessWeapon(int32_t snum)
 
             if (VM_OnEvent(EVENT_FIRE, p->i, snum, -1, 0) == 0)
             {
-                if (apScriptGameEvent[EVENT_FIREWEAPON]) // this event is deprecated
+                if (G_HaveEvent(EVENT_FIREWEAPON)) // this event is deprecated
                     VM_OnEvent(EVENT_FIREWEAPON, p->i, snum, -1, 0);
 
                 switch (aplWeaponWorksLike[p->curr_weapon][snum])

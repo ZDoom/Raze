@@ -716,7 +716,7 @@ void P_ResetPlayer(int32_t snum)
 
     pl->movement_lock = 0;
 
-    if (apScriptGameEvent[EVENT_RESETPLAYER])
+    if (G_HaveEvent(EVENT_RESETPLAYER))
         VM_OnEvent(EVENT_RESETPLAYER, pl->i, snum, -1, 0);
 }
 
