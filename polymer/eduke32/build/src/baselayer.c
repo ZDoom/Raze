@@ -127,6 +127,35 @@ void readjoybstatus(int32_t *b)
 }
 
 #ifdef USE_OPENGL
+void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
+{
+    bglMatrixMode(GL_PROJECTION);
+    bglPushMatrix();
+    bglLoadIdentity();
+    bglMatrixMode(GL_MODELVIEW);
+    bglPushMatrix();
+    bglLoadIdentity();
+
+    bglDisable(GL_DEPTH_TEST);
+    bglDisable(GL_ALPHA_TEST);
+    bglDisable(GL_TEXTURE_2D);
+
+    bglEnable(GL_BLEND);
+    bglColor4ub(r, g, b, f);
+
+    bglBegin(GL_TRIANGLES);
+    bglVertex2f(-2.5f, 1.f);
+    bglVertex2f(2.5f, 1.f);
+    bglVertex2f(.0f, -2.5f);
+    bglEnd();
+
+    bglDisable(GL_BLEND);
+
+    bglPopMatrix();
+    bglMatrixMode(GL_PROJECTION);
+    bglPopMatrix();
+}
+
 struct glinfo_t glinfo =
 {
     "Unknown",  // vendor

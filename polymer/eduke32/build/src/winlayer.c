@@ -1950,33 +1950,7 @@ void showframe(int32_t w)
     if (bpp > 8)
     {
         if (palfadedelta)
-        {
-            bglMatrixMode(GL_PROJECTION);
-            bglPushMatrix();
-            bglLoadIdentity();
-            bglMatrixMode(GL_MODELVIEW);
-            bglPushMatrix();
-            bglLoadIdentity();
-
-            bglDisable(GL_DEPTH_TEST);
-            bglDisable(GL_ALPHA_TEST);
-            bglDisable(GL_TEXTURE_2D);
-
-            bglEnable(GL_BLEND);
-            bglColor4ub(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
-
-            bglBegin(GL_TRIANGLES);
-            bglVertex2f(-2.5f, 1.f);
-            bglVertex2f(2.5f, 1.f);
-            bglVertex2f(.0f, -2.5f);
-            bglEnd();
-
-            bglDisable(GL_BLEND);
-
-            bglPopMatrix();
-            bglMatrixMode(GL_PROJECTION);
-            bglPopMatrix();
-        }
+            fullscreen_tint_gl(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
         bwglSwapBuffers(hDC);
         return;
