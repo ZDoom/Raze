@@ -2875,7 +2875,11 @@ void G_DisplayRest(int32_t smoothratio)
     // TODO: get rid of the other outer apScriptGameEvent checks, too
     if (apScriptGameEvent[EVENT_DISPLAYREST])
 #endif
+    {
+        int32_t vr=viewingrange, asp=yxaspect;
         VM_OnEvent(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek, -1, 0);
+        setaspect(vr, asp);
+    }
 
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
     {

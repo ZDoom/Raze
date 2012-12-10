@@ -5780,8 +5780,6 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     gshang = ogshang;
     gctang = ogctang;
     gstang = ogstang;
-
-    setaspect_new();
 }
 
 #ifdef USE_OPENGL

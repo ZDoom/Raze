@@ -7479,8 +7479,6 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
             buffermode = obuffermode;
             setactivepage(activepage);
         }*/
-
-    setaspect_new();
 }
 
 
