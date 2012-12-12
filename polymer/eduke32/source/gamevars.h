@@ -25,10 +25,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "gamedef.h"
 
+#define MAXGAMEVARS 2048 // must be a power of two
+#define MAXVARLABEL 26
+
 // store global game definitions
 enum GamevarFlags_t {
-    MAXGAMEVARS        = 2048,       // must be a power of two
-    MAXVARLABEL        = 26,
     GAMEVAR_PERPLAYER  = 0x00000001, // per-player variable
     GAMEVAR_PERACTOR   = 0x00000002, // per-actor variable
     GAMEVAR_USER_MASK  = (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR),
@@ -45,12 +46,12 @@ enum GamevarFlags_t {
     GAMEVAR_NORESET    = 0x00020000, // var values are not reset when restoring map state
     GAMEVAR_SPECIAL    = 0x00040000, // flag for structure member shortcut vars
     GAMEVAR_NOMULTI    = 0x00080000, // don't attach to multiplayer packets
-    GAMEVAR_NONGLOBAL  = (GAMEVAR_INTPTR|GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR|GAMEVAR_SPECIAL|MAXGAMEVARS<<1),
 };
 
+#define MAXGAMEARRAYS (MAXGAMEVARS>>2) // must be lower than MAXGAMEVARS
+#define MAXARRAYLABEL MAXVARLABEL
+
 enum GamearrayFlags_t {
-    MAXGAMEARRAYS      = (MAXGAMEVARS>>2), // must be lower than MAXGAMEVARS
-    MAXARRAYLABEL      = MAXVARLABEL,
     GAMEARRAY_NORMAL   = 0,
     GAMEARRAY_NORESET  = 0x00000001,
 };
