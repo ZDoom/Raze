@@ -326,17 +326,17 @@ int32_t fnlist_getnames(fnlist_t *fnl, const char *dirname, const char *pattern,
 }
 
 
-// loads all group (grp, zip, pk3) files in the given directory
+// loads all group (grp, zip, pk3/4) files in the given directory
 void G_LoadGroupsInDir(const char *dirname)
 {
-    static const char *extensions[3] = { "*.grp", "*.zip", "*.pk3" };
+    static const char *extensions[4] = { "*.grp", "*.zip", "*.pk3", "*.pk4" };
 
     char buf[BMAX_PATH];
     int32_t i;
 
     fnlist_t fnlist = FNLIST_INITIALIZER;
 
-    for (i=0; i<3; i++)
+    for (i=0; i<4; i++)
     {
         CACHE1D_FIND_REC *rec;
 

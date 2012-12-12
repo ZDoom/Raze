@@ -9195,7 +9195,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                         CommandMap = argv[i++];
                         continue;
                     }
-                    if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip") || !Bstrcasecmp(k,".pk3"))
+                    if (!Bstrcasecmp(k,".grp") || !Bstrcasecmp(k,".zip") || !Bstrcasecmp(k,".pk3") || !Bstrcasecmp(k,".pk4"))
                     {
                         G_AddGroup(argv[i++]);
                         continue;
