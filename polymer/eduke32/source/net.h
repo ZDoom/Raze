@@ -25,7 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "enet/enet.h"
 
-extern uint32_t        g_netMapRevision;
 extern ENetHost       *g_netClient;
 extern ENetHost       *g_netServer;
 extern ENetPeer       *g_netClientPeer;
@@ -34,10 +33,11 @@ extern int32_t        g_netDisconnect;
 extern int32_t        g_netPlayersWaiting;
 extern enet_uint16    g_netPort;
 extern int32_t        g_networkMode;
+extern int32_t        g_netIndex;
 extern int32_t        lastsectupdate[MAXSECTORS];
 extern int32_t        lastupdate[MAXSPRITES];
 extern int32_t        lastwallupdate[MAXWALLS];
-extern int16_t        g_netStatnums[10];
+extern int16_t		  g_netStatnums[];
 
 #define NET_REVISIONS 64
 
@@ -45,7 +45,6 @@ enum netchan_t
 {
     CHAN_MOVE,      // unreliable movement packets
     CHAN_GAMESTATE, // gamestate changes... frags, respawns, player names, etc
-    CHAN_SYNC,      // client join sync packets
     CHAN_CHAT,      // chat and RTS
     CHAN_MISC,      // whatever else
     CHAN_MAX
@@ -61,7 +60,6 @@ enum DukePacket_t
     PACKET_PLAYER_DISCONNECTED,
     PACKET_PLAYER_SPAWN,
     PACKET_FRAG,
-    PACKET_REQUEST_GAMESTATE,
     PACKET_VERSION,
     PACKET_AUTH,
     PACKET_PLAYER_PING,
@@ -101,77 +99,64 @@ enum netmode_t
     NET_DEDICATED_SERVER
 };
 
+#define NETMAXACTORS 1024
+
 #pragma pack(push,1)
-typedef struct {
-    uint32_t revision;
-    int32_t animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
-    int32_t animateptr[MAXANIMATES];
-    int32_t msx[2048], msy[2048];
-    int32_t randomseed, g_globalRandom;
+typedef struct
+{
 
-    int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
-    int16_t animatesect[MAXANIMATES];
-    int16_t cyclers[MAXCYCLERS][6];
-    int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
-    int16_t g_numAnimWalls;
-    int16_t g_numCyclers;
-    int16_t headspritesect[MAXSECTORS+1];
-    int16_t headspritestat[MAXSTATUS+1];
-    int16_t nextspritesect[MAXSPRITES];
-    int16_t nextspritestat[MAXSPRITES];
-    int16_t numsectors;
-    int16_t numwalls;
-    int16_t prevspritesect[MAXSPRITES];
-    int16_t prevspritestat[MAXSPRITES];
+    uint32_t numActors;
+    netactor_t actor[NETMAXACTORS];
 
-    uint8_t g_earthquakeTime;
-    int8_t g_numPlayerSprites;
-    uint8_t scriptptrs[MAXSPRITES];
-
-    netactor_t actor[MAXSPRITES];
-    playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
-    animwalltype animwall[MAXANIMWALLS];
-    sectortype sector[MAXSECTORS];
-    spriteext_t spriteext[MAXSPRITES];
-    spritetype sprite[MAXSPRITES];
-    walltype wall[MAXWALLS];
-    uint32_t crc;
 } netmapstate_t;
+
+typedef struct
+{
+
+    uint32_t numActors;
+    uint32_t numToDelete;
+    uint32_t fromRevision;
+    uint32_t toRevision;
+    char data[MAXSPRITES *sizeof(netactor_t)];
+
+} netmapdiff_t;
 
 extern netmapstate_t  *g_multiMapState[MAXPLAYERS];
 extern netmapstate_t  *g_multiMapRevisions[NET_REVISIONS];
 #pragma pack(pop)
 
 #pragma pack(push,1)
-typedef struct {
-	vec3_t pos;
-	vec3_t opos;
-	vec3_t vel;
-	int16_t ang;
-	int16_t horiz;
-	int16_t horizoff;
-	int16_t ping;
-	int16_t playerindex;
-	int16_t deadflag;
-	int16_t playerquitflag;
+typedef struct
+{
+    vec3_t pos;
+    vec3_t opos;
+    vec3_t vel;
+    int16_t ang;
+    int16_t horiz;
+    int16_t horizoff;
+    int16_t ping;
+    int16_t playerindex;
+    int16_t deadflag;
+    int16_t playerquitflag;
 } playerupdate_t;
 #pragma pack(pop)
 
 #pragma pack(push,1)
-typedef struct {
-	int8_t header;
-	int8_t connection;
-	int8_t level_number;
-	int8_t volume_number;
-	int8_t player_skill;
-	int8_t monsters_off;
-	int8_t respawn_monsters;
-	int8_t respawn_items;
-	int8_t respawn_inventory;
-	int8_t marker;
-	int8_t ffire;
-	int8_t noexits;
-	int8_t coop;
+typedef struct
+{
+    int8_t header;
+    int8_t connection;
+    int8_t level_number;
+    int8_t volume_number;
+    int8_t player_skill;
+    int8_t monsters_off;
+    int8_t respawn_monsters;
+    int8_t respawn_items;
+    int8_t respawn_inventory;
+    int8_t marker;
+    int8_t ffire;
+    int8_t noexits;
+    int8_t coop;
 } newgame_t;
 #pragma pack(pop)
 
@@ -212,11 +197,22 @@ void    Net_ReceiveClientInfo(uint8_t *pbuf, int32_t packbufleng, int32_t fromse
 void    Net_SendUserMapName(void);
 void    Net_ReceiveUserMapName(uint8_t *pbuf, int32_t packbufleng);
 
-void    Net_SendClientSync(ENetEvent *event, int32_t player);
-void    Net_ReceiveClientSync(ENetEvent *event);
+netmapstate_t *Net_GetRevision(uint8_t revision, uint8_t cancreate);
 
 void    Net_SendMapUpdate(void);
-void    Net_ReceiveMapUpdate(uint8_t *pbuf, int32_t packbufleng);
+void    Net_ReceiveMapUpdate(ENetEvent *event);
+
+void    Net_FillMapDiff(uint32_t fromRevision, uint32_t toRevision);
+void	Net_SaveMapState(netmapstate_t *save);
+void    Net_RestoreMapState();
+
+void    Net_CopyToNet(int32_t i, netactor_t &netactor);
+void    Net_CopyFromNet(int32_t i, netactor_t &netactor);
+int32_t Net_ActorsAreDifferent(netactor_t &actor1, netactor_t &actor2);
+int32_t Net_IsRelevantSprite(int32_t i);
+int32_t Net_IsRelevantStat(int32_t stat);
+int32_t Net_InsertSprite(int32_t sect, int32_t stat);
+void    Net_DeleteSprite(int32_t spritenum);
 
 void    Net_FillPlayerUpdate(playerupdate_t *update, int32_t player);
 void    Net_ExtractPlayerUpdate(playerupdate_t *update);
@@ -231,11 +227,12 @@ void    Net_SendMessage(void);
 void    Net_ReceiveMessage(uint8_t *pbuf, int32_t packbufleng);
 
 void    Net_StartNewGame();
+void    Net_NotifyNewGame();
 void    Net_SendNewGame(int32_t frommenu, ENetPeer *peer);
 void    Net_ReceiveNewGame(ENetEvent *event);
 
-void    Net_FillNewGame(newgame_t* newgame, int32_t frommenu);
-void    Net_ExtractNewGame(newgame_t* newgame, int32_t menuonly);
+void    Net_FillNewGame(newgame_t *newgame, int32_t frommenu);
+void    Net_ExtractNewGame(newgame_t *newgame, int32_t menuonly);
 
 void    Net_SendMapVoteInitiate(void);
 void    Net_RecieveMapVoteInitiate(uint8_t *pbuf);
@@ -250,12 +247,12 @@ void    Net_RecieveMapVoteCancel(uint8_t *pbuf);
 //////////
 
 void    Net_ResetPrediction(void);
-void    Net_RestoreMapState(netmapstate_t *save);
 void    Net_SyncPlayer(ENetEvent *event);
 void    Net_WaitForServer(void);
 void    faketimerhandler(void);
 
 #else
+
 /* NETCODE_ENABLE is not defined */
 
 // Connect/Disconnect

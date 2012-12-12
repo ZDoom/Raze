@@ -1947,6 +1947,12 @@ void A_DamageObject(int32_t i,int32_t sn)
     int16_t j;
     int32_t k, rpg=0;
     spritetype *s;
+
+    if (g_netClient)
+    {
+        return;
+    }
+
 //    int32_t switchpicnum = PN;
 
     i &= (MAXSPRITES-1);

@@ -200,6 +200,7 @@ labels =
         STAT_FALLER = 12,
         STAT_DUMMYPLAYER = 13,
         STAT_LIGHT = 14,
+        STAT_NETALLOC = 15,
     },
 
     {

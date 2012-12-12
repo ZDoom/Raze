@@ -490,7 +490,15 @@ void A_DeleteSprite(int32_t s)
         A_DeleteLight(s);
 #endif
 
-    deletesprite(s);
+    // NetAlloc
+    if (Net_IsRelevantSprite(s))
+    {
+        Net_DeleteSprite(s);
+    }
+    else
+    {
+        deletesprite(s);
+    }
 }
 
 void A_AddToDeleteQueue(int32_t i)

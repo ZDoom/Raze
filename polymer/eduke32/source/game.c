@@ -3948,7 +3948,19 @@ static void G_DumpDebugInfo(void)
 int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,
                        int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss)
 {
-    int32_t p, i = insertsprite(whatsect,s_ss);
+    int32_t p;
+    int32_t i;
+
+    // NetAlloc
+    if (Net_IsRelevantStat(s_ss))
+    {
+        i = Net_InsertSprite(whatsect,s_ss);
+    }
+    else
+    {
+        i = insertsprite(whatsect,s_ss);
+    }
+	
     spritetype *s = &sprite[i];
     spritetype spr_temp;
 
@@ -6035,21 +6047,6 @@ SPAWN_END:
         int32_t pl=A_FindPlayer(&sprite[i],&p);
         VM_OnEvent(EVENT_SPAWN,i, pl, p, 0);
     }
-
-    // spawning is technically not allowed to fail in BUILD, so we just hide whatever
-    // the client spawns with SPRITE_NULL because the server will send it anyway
-/*
-    if (g_netClient && j >= 0)
-    {
-        int32_t zz;
-        for (zz = 0; (unsigned)zz < (sizeof(g_netStatnums)/sizeof(g_netStatnums[0])); zz++)
-            if (sprite[i].statnum == g_netStatnums[zz])
-            {
-                actor[i].flags |= SPRITE_NULL;
-                return i;
-            }
-    }
-*/
 
     return i;
 }
@@ -9932,7 +9929,6 @@ int32_t app_main(int32_t argc, const char **argv)
 #endif
 
     Bassert(sizeof(actor_t)==128);
-    Bassert(offsetof(actor_t, lightId) == sizeof(netactor_t));
     Bassert(sizeof(DukePlayer_t)%4 == 0);
 
     initialize_globals();
@@ -10963,9 +10959,10 @@ int32_t G_DoMoveThings(void)
         G_AnimateWalls();
         A_MoveCyclers();
 
-// Map updates are disabled for now
-//        if (g_netServer && (everyothertime % 10) == 0)
-//            Net_SendMapUpdate();
+        if (g_netServer && (everyothertime % 10) == 0)
+		{
+            Net_SendMapUpdate();
+		}
     }
 
     if (g_netClient)   //Slave

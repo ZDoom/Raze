@@ -45,6 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define STAT_FALLER         12
 #define STAT_DUMMYPLAYER    13
 #define STAT_LIGHT          14
+#define STAT_NETALLOC       15
 
 
 // Defines the motion characteristics of an actor
@@ -164,6 +165,9 @@ typedef struct {
     int16_t movflag,tempang,timetosleep; // 6b
 
     int16_t actorstayput, dispicnum, shootzvel, cgg; // 8b
+
+    spritetype sprite;
+    int16_t netIndex;
 
 } netactor_t;
 

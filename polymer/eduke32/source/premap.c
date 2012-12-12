@@ -1992,6 +1992,7 @@ int32_t G_EnterLevel(int32_t g)
 
     //PREMAP.C - replace near the my's at the end of the file
 
+    Net_NotifyNewGame();
     Net_ResetPrediction();
 
     //g_player[myconnectindex].ps->palette = palette;
