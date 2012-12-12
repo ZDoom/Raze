@@ -100,220 +100,40 @@ void Gv_ResetSystemDefaults(void);
 void Gv_ResetVars(void);
 void Gv_WriteSave(FILE *fil,int32_t newbehav);
 
-static inline void __fastcall Gv_AddVar(register int32_t id, register int32_t lValue)
-{
-    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
-    {
-    default:
-        aGameVars[id].val.lValue += lValue;
-        return;
-    case GAMEVAR_PERPLAYER:
-        if ((unsigned)vm.g_p > MAXPLAYERS-1) return;
-        aGameVars[id].val.plValues[vm.g_p] += lValue;
-        return;
-    case GAMEVAR_PERACTOR:
-        if ((unsigned)vm.g_i > MAXSPRITES-1) return;
-        aGameVars[id].val.plValues[vm.g_i] += lValue;
-        return;
-    case GAMEVAR_INTPTR:
-        *((int32_t *)aGameVars[id].val.lValue) += (int32_t)lValue;
-        return;
-    case GAMEVAR_SHORTPTR:
-        *((int16_t *)aGameVars[id].val.lValue) += (int16_t)lValue;
-        return;
-    case GAMEVAR_CHARPTR:
-        *((uint8_t *)aGameVars[id].val.lValue) +=(uint8_t)lValue;
-        return;
-    }
+#define GV_VAROP(func, operator) static inline void __fastcall func(register int32_t id, register int32_t lValue) \
+{ \
+    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK)) \
+    { \
+    default: \
+        aGameVars[id].val.lValue operator lValue; \
+        return; \
+    case GAMEVAR_PERPLAYER: \
+        if ((unsigned)vm.g_p > MAXPLAYERS-1) return; \
+        aGameVars[id].val.plValues[vm.g_p] operator lValue; \
+        return; \
+    case GAMEVAR_PERACTOR: \
+        if ((unsigned)vm.g_i > MAXSPRITES-1) return; \
+        aGameVars[id].val.plValues[vm.g_i] operator lValue; \
+        return; \
+    case GAMEVAR_INTPTR: \
+        *((int32_t *)aGameVars[id].val.lValue) operator (int32_t)lValue; \
+        return; \
+    case GAMEVAR_SHORTPTR: \
+        *((int16_t *)aGameVars[id].val.lValue) operator (int16_t)lValue; \
+        return; \
+    case GAMEVAR_CHARPTR: \
+        *((uint8_t *)aGameVars[id].val.lValue) operator (uint8_t)lValue; \
+        return; \
+    } \
 }
 
-static inline void __fastcall Gv_SubVar(register int32_t id, register int32_t lValue)
-{
-    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
-    {
-    default:
-        aGameVars[id].val.lValue -= lValue;
-        return;
-    case GAMEVAR_PERPLAYER:
-        if ((unsigned)vm.g_p > MAXPLAYERS-1) return;
-        aGameVars[id].val.plValues[vm.g_p] -= lValue;
-        return;
-    case GAMEVAR_PERACTOR:
-        if ((unsigned)vm.g_i > MAXSPRITES-1) return;
-        aGameVars[id].val.plValues[vm.g_i] -= lValue;
-        return;
-    case GAMEVAR_INTPTR:
-        *((int32_t *)aGameVars[id].val.lValue) -= (int32_t)lValue;
-        return;
-    case GAMEVAR_SHORTPTR:
-        *((int16_t *)aGameVars[id].val.lValue) -= (int16_t)lValue;
-        return;
-    case GAMEVAR_CHARPTR:
-        *((uint8_t *)aGameVars[id].val.lValue) -=(uint8_t)lValue;
-        return;
-    }
-}
-
-static inline void __fastcall Gv_MulVar(register int32_t id, register int32_t lValue)
-{
-    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
-    {
-    default:
-        aGameVars[id].val.lValue *= lValue;
-        return;
-    case GAMEVAR_PERPLAYER:
-        if ((unsigned)vm.g_p > MAXPLAYERS-1) return;
-        aGameVars[id].val.plValues[vm.g_p] *= lValue;
-        return;
-    case GAMEVAR_PERACTOR:
-        if ((unsigned)vm.g_i > MAXSPRITES-1) return;
-        aGameVars[id].val.plValues[vm.g_i] *= lValue;
-        return;
-    case GAMEVAR_INTPTR:
-        *((int32_t *)aGameVars[id].val.lValue) *= (int32_t)lValue;
-        return;
-    case GAMEVAR_SHORTPTR:
-        *((int16_t *)aGameVars[id].val.lValue) *= (int16_t)lValue;
-        return;
-    case GAMEVAR_CHARPTR:
-        *((uint8_t *)aGameVars[id].val.lValue) *=(uint8_t)lValue;
-        return;
-    }
-}
-
-static inline void __fastcall Gv_DivVar(register int32_t id, register int32_t lValue)
-{
-    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
-    {
-    default:
-        aGameVars[id].val.lValue /= lValue;
-        return;
-    case GAMEVAR_PERPLAYER:
-        if ((unsigned)vm.g_p > MAXPLAYERS-1) return;
-        aGameVars[id].val.plValues[vm.g_p] /= lValue;
-        return;
-    case GAMEVAR_PERACTOR:
-        if ((unsigned)vm.g_i > MAXSPRITES-1) return;
-        aGameVars[id].val.plValues[vm.g_i] /= lValue;
-        return;
-    case GAMEVAR_INTPTR:
-        *((int32_t *)aGameVars[id].val.lValue) /= (int32_t)lValue;
-        return;
-    case GAMEVAR_SHORTPTR:
-        *((int16_t *)aGameVars[id].val.lValue) /= (int16_t)lValue;
-        return;
-    case GAMEVAR_CHARPTR:
-        *((uint8_t *)aGameVars[id].val.lValue) /=(uint8_t)lValue;
-        return;
-    }
-}
-
-static inline void __fastcall Gv_ModVar(register int32_t id, register int32_t lValue)
-{
-    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
-    {
-    default:
-        aGameVars[id].val.lValue %= lValue;
-        return;
-    case GAMEVAR_PERPLAYER:
-        if ((unsigned)vm.g_p > MAXPLAYERS-1) return;
-        aGameVars[id].val.plValues[vm.g_p] %= lValue;
-        return;
-    case GAMEVAR_PERACTOR:
-        if ((unsigned)vm.g_i > MAXSPRITES-1) return;
-        aGameVars[id].val.plValues[vm.g_i] %= lValue;
-        return;
-    case GAMEVAR_INTPTR:
-        *((int32_t *)aGameVars[id].val.lValue) %= (int32_t)lValue;
-        return;
-    case GAMEVAR_SHORTPTR:
-        *((int16_t *)aGameVars[id].val.lValue) %= (int16_t)lValue;
-        return;
-    case GAMEVAR_CHARPTR:
-        *((uint8_t *)aGameVars[id].val.lValue) %=(uint8_t)lValue;
-        return;
-    }
-}
-
-static inline void __fastcall Gv_AndVar(register int32_t id, register int32_t lValue)
-{
-    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
-    {
-    default:
-        aGameVars[id].val.lValue &= lValue;
-        return;
-    case GAMEVAR_PERPLAYER:
-        if ((unsigned)vm.g_p > MAXPLAYERS-1) return;
-        aGameVars[id].val.plValues[vm.g_p] &= lValue;
-        return;
-    case GAMEVAR_PERACTOR:
-        if ((unsigned)vm.g_i > MAXSPRITES-1) return;
-        aGameVars[id].val.plValues[vm.g_i] &= lValue;
-        return;
-    case GAMEVAR_INTPTR:
-        *((int32_t *)aGameVars[id].val.lValue) &= (int32_t)lValue;
-        return;
-    case GAMEVAR_SHORTPTR:
-        *((int16_t *)aGameVars[id].val.lValue) &= (int16_t)lValue;
-        return;
-    case GAMEVAR_CHARPTR:
-        *((uint8_t *)aGameVars[id].val.lValue) &=(uint8_t)lValue;
-        return;
-    }
-}
-
-static inline void __fastcall Gv_XorVar(register int32_t id, register int32_t lValue)
-{
-    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
-    {
-    default:
-        aGameVars[id].val.lValue ^= lValue;
-        return;
-    case GAMEVAR_PERPLAYER:
-        if ((unsigned)vm.g_p > MAXPLAYERS-1) return;
-        aGameVars[id].val.plValues[vm.g_p] ^= lValue;
-        return;
-    case GAMEVAR_PERACTOR:
-        if ((unsigned)vm.g_i > MAXSPRITES-1) return;
-        aGameVars[id].val.plValues[vm.g_i] ^= lValue;
-        return;
-    case GAMEVAR_INTPTR:
-        *((int32_t *)aGameVars[id].val.lValue) ^= (int32_t)lValue;
-        return;
-    case GAMEVAR_SHORTPTR:
-        *((int16_t *)aGameVars[id].val.lValue) ^= (int16_t)lValue;
-        return;
-    case GAMEVAR_CHARPTR:
-        *((uint8_t *)aGameVars[id].val.lValue) ^=(uint8_t)lValue;
-        return;
-    }
-}
-
-static inline void __fastcall Gv_OrVar(register int32_t id, register int32_t lValue)
-{
-    switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK))
-    {
-    default:
-        aGameVars[id].val.lValue |= lValue;
-        return;
-    case GAMEVAR_PERPLAYER:
-        if ((unsigned)vm.g_p > MAXPLAYERS-1) return;
-        aGameVars[id].val.plValues[vm.g_p] |= lValue;
-        return;
-    case GAMEVAR_PERACTOR:
-        if ((unsigned)vm.g_i > MAXSPRITES-1) return;
-        aGameVars[id].val.plValues[vm.g_i] |= lValue;
-        return;
-    case GAMEVAR_INTPTR:
-        *((int32_t *)aGameVars[id].val.lValue) |= (int32_t)lValue;
-        return;
-    case GAMEVAR_SHORTPTR:
-        *((int16_t *)aGameVars[id].val.lValue) |= (int16_t)lValue;
-        return;
-    case GAMEVAR_CHARPTR:
-        *((uint8_t *)aGameVars[id].val.lValue) |=(uint8_t)lValue;
-        return;
-    }
-}
+GV_VAROP(Gv_AddVar, +=)
+GV_VAROP(Gv_SubVar, -=)
+GV_VAROP(Gv_MulVar, *=)
+GV_VAROP(Gv_DivVar, /=)
+GV_VAROP(Gv_ModVar, %=)
+GV_VAROP(Gv_AndVar, &=)
+GV_VAROP(Gv_XorVar, ^=)
+GV_VAROP(Gv_OrVar, |=)
 
 #endif
