@@ -206,9 +206,9 @@ void    Net_FillMapDiff(uint32_t fromRevision, uint32_t toRevision);
 void	Net_SaveMapState(netmapstate_t *save);
 void    Net_RestoreMapState();
 
-void    Net_CopyToNet(int32_t i, netactor_t &netactor);
-void    Net_CopyFromNet(int32_t i, netactor_t &netactor);
-int32_t Net_ActorsAreDifferent(netactor_t &actor1, netactor_t &actor2);
+void    Net_CopyToNet(int32_t i, netactor_t *netactor);
+void    Net_CopyFromNet(int32_t i, netactor_t *netactor);
+int32_t Net_ActorsAreDifferent(netactor_t *actor1, netactor_t *actor2);
 int32_t Net_IsRelevantSprite(int32_t i);
 int32_t Net_IsRelevantStat(int32_t stat);
 int32_t Net_InsertSprite(int32_t sect, int32_t stat);

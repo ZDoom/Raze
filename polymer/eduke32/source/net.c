@@ -1102,7 +1102,7 @@ void Net_SaveMapState(netmapstate_t *save)
         {
             if (Net_IsRelevantSprite(i))
             {
-                netactor_t &tempActor = save->actor[save->numActors];
+                netactor_t *tempActor = &save->actor[save->numActors];
                 Net_CopyToNet(i, tempActor);
                 save->numActors++;
             }
@@ -1174,7 +1174,7 @@ void Net_FillMapDiff(uint32_t fromRevision, uint32_t toRevision)
         {
             assert(fromNet == toNet);
 
-            if (Net_ActorsAreDifferent(fromState->actor[fromIndex], toState->actor[toIndex]))
+            if (Net_ActorsAreDifferent(&fromState->actor[fromIndex], &toState->actor[toIndex]))
             {
                 //initprintf("This actor is different: %d - %d\n", toState->actor[toIndex].netIndex, toState->actor[toIndex].sprite.picnum);
 
@@ -1223,7 +1223,7 @@ void Net_RestoreMapState()
             initprintf("This actor is new: %d - %d\n", i, actorBuf[j].sprite.picnum);
         }
         */
-        Net_CopyFromNet(i, actorBuf[j]);
+        Net_CopyFromNet(i, &actorBuf[j]);
     }
 
     deleteBuf = (int32_t *) &actorBuf[tempMapDiff.numActors];
@@ -1234,130 +1234,130 @@ void Net_RestoreMapState()
     }
 }
 
-void Net_CopyToNet(int32_t i, netactor_t &netactor)
+void Net_CopyToNet(int32_t i, netactor_t *netactor)
 {
-    netactor.netIndex = i;
-    netactor.picnum = actor[i].picnum;
-    netactor.ang = actor[i].ang;
-    netactor.extra = actor[i].extra;
-    netactor.owner = actor[i].owner;
-    netactor.movflag = actor[i].movflag;
-    netactor.tempang = actor[i].tempang;
-    netactor.timetosleep = actor[i].timetosleep;
-    netactor.flags = actor[i].flags;
-    netactor.floorz = actor[i].floorz;
-    netactor.lastvx = actor[i].lastvx;
-    netactor.lastvy = actor[i].lastvy;
-    netactor.lasttransport = actor[i].lasttransport;
-    netactor.actorstayput = actor[i].actorstayput;
-    //netactor.dispicnum = actor[i].dispicnum;
-    netactor.shootzvel = actor[i].shootzvel;
-    netactor.cgg = actor[i].cgg;
-    netactor.owner = netactor.owner;
+    netactor->netIndex = i;
+    netactor->picnum = actor[i].picnum;
+    netactor->ang = actor[i].ang;
+    netactor->extra = actor[i].extra;
+    netactor->owner = actor[i].owner;
+    netactor->movflag = actor[i].movflag;
+    netactor->tempang = actor[i].tempang;
+    netactor->timetosleep = actor[i].timetosleep;
+    netactor->flags = actor[i].flags;
+    netactor->floorz = actor[i].floorz;
+    netactor->lastvx = actor[i].lastvx;
+    netactor->lastvy = actor[i].lastvy;
+    netactor->lasttransport = actor[i].lasttransport;
+    netactor->actorstayput = actor[i].actorstayput;
+    //netactor->dispicnum = actor[i].dispicnum;
+    netactor->shootzvel = actor[i].shootzvel;
+    netactor->cgg = actor[i].cgg;
+	netactor->owner = actor[i].owner;
 
-    netactor.sprite.owner = sprite[i].owner;
-    netactor.sprite.statnum = sprite[i].statnum;
-    netactor.sprite.sectnum = sprite[i].sectnum;
-    netactor.sprite.x = sprite[i].x;
-    netactor.sprite.y = sprite[i].y;
-    netactor.sprite.z = sprite[i].z;
-    netactor.sprite.picnum = sprite[i].picnum;
-    netactor.sprite.shade = sprite[i].shade;
-    netactor.sprite.xrepeat = sprite[i].xrepeat;
-    netactor.sprite.yrepeat = sprite[i].yrepeat;
-    netactor.sprite.ang = sprite[i].ang;
-    netactor.sprite.xvel = sprite[i].xvel;
-    netactor.sprite.yvel = sprite[i].yvel;
-    netactor.sprite.zvel = sprite[i].zvel;
-    netactor.sprite.owner = sprite[i].owner;
+    netactor->sprite.owner = sprite[i].owner;
+    netactor->sprite.statnum = sprite[i].statnum;
+    netactor->sprite.sectnum = sprite[i].sectnum;
+    netactor->sprite.x = sprite[i].x;
+    netactor->sprite.y = sprite[i].y;
+    netactor->sprite.z = sprite[i].z;
+    netactor->sprite.picnum = sprite[i].picnum;
+    netactor->sprite.shade = sprite[i].shade;
+    netactor->sprite.xrepeat = sprite[i].xrepeat;
+    netactor->sprite.yrepeat = sprite[i].yrepeat;
+    netactor->sprite.ang = sprite[i].ang;
+    netactor->sprite.xvel = sprite[i].xvel;
+    netactor->sprite.yvel = sprite[i].yvel;
+    netactor->sprite.zvel = sprite[i].zvel;
+    netactor->sprite.owner = sprite[i].owner;
 }
 
-void Net_CopyFromNet(int32_t i, netactor_t &netactor)
+void Net_CopyFromNet(int32_t i, netactor_t *netactor)
 {
-    if (sprite[i].statnum != netactor.sprite.statnum)
+    if (sprite[i].statnum != netactor->sprite.statnum)
     {
-        changespritestat(i, netactor.sprite.statnum);
+        changespritestat(i, netactor->sprite.statnum);
     }
 
-    if (sprite[i].sectnum != netactor.sprite.sectnum)
+    if (sprite[i].sectnum != netactor->sprite.sectnum)
     {
-        changespritesect(i, netactor.sprite.sectnum);
+        changespritesect(i, netactor->sprite.sectnum);
     }
 
-    actor[i].picnum = netactor.picnum;
-    actor[i].ang = netactor.ang;
-    actor[i].extra = netactor.extra;
-    actor[i].owner = netactor.owner;
-    actor[i].movflag = netactor.movflag;
-    actor[i].tempang = netactor.tempang;
-    actor[i].timetosleep = netactor.timetosleep;
-    actor[i].flags = netactor.flags;
-    actor[i].floorz = netactor.floorz;
-    actor[i].lastvx = netactor.lastvx;
-    actor[i].lastvy = netactor.lastvy;
-    actor[i].lasttransport = netactor.lasttransport;
-    actor[i].actorstayput = netactor.actorstayput;
-    actor[i].dispicnum = netactor.dispicnum;
-    actor[i].shootzvel = netactor.shootzvel;
-    actor[i].cgg = netactor.cgg;
-    actor[i].owner = netactor.owner;
+    actor[i].picnum = netactor->picnum;
+    actor[i].ang = netactor->ang;
+    actor[i].extra = netactor->extra;
+    actor[i].owner = netactor->owner;
+    actor[i].movflag = netactor->movflag;
+    actor[i].tempang = netactor->tempang;
+    actor[i].timetosleep = netactor->timetosleep;
+    actor[i].flags = netactor->flags;
+    actor[i].floorz = netactor->floorz;
+    actor[i].lastvx = netactor->lastvx;
+    actor[i].lastvy = netactor->lastvy;
+    actor[i].lasttransport = netactor->lasttransport;
+    actor[i].actorstayput = netactor->actorstayput;
+    actor[i].dispicnum = netactor->dispicnum;
+    actor[i].shootzvel = netactor->shootzvel;
+    actor[i].cgg = netactor->cgg;
+    actor[i].owner = netactor->owner;
 
-    sprite[i].x = netactor.sprite.x;
-    sprite[i].y = netactor.sprite.y;
-    sprite[i].z = netactor.sprite.z;
-    sprite[i].picnum = netactor.sprite.picnum;
-    sprite[i].shade = netactor.sprite.shade;
-    sprite[i].xrepeat = netactor.sprite.xrepeat;
-    sprite[i].yrepeat = netactor.sprite.yrepeat;
-    sprite[i].ang = netactor.sprite.ang;
-    sprite[i].xvel = netactor.sprite.xvel;
-    sprite[i].yvel = netactor.sprite.yvel;
-    sprite[i].zvel = netactor.sprite.zvel;
-    sprite[i].owner = netactor.sprite.owner;
+    sprite[i].x = netactor->sprite.x;
+    sprite[i].y = netactor->sprite.y;
+    sprite[i].z = netactor->sprite.z;
+    sprite[i].picnum = netactor->sprite.picnum;
+    sprite[i].shade = netactor->sprite.shade;
+    sprite[i].xrepeat = netactor->sprite.xrepeat;
+    sprite[i].yrepeat = netactor->sprite.yrepeat;
+    sprite[i].ang = netactor->sprite.ang;
+    sprite[i].xvel = netactor->sprite.xvel;
+    sprite[i].yvel = netactor->sprite.yvel;
+    sprite[i].zvel = netactor->sprite.zvel;
+    sprite[i].owner = netactor->sprite.owner;
 }
 
-int32_t Net_ActorsAreDifferent(netactor_t &actor1, netactor_t &actor2)
+int32_t Net_ActorsAreDifferent(netactor_t *actor1, netactor_t *actor2)
 {
     int32_t allDiff;
     int32_t finalDiff;
     int32_t nonStandableDiff;
 
     allDiff =
-        actor1.picnum			!= actor2.picnum ||
-        actor1.ang				!= actor2.ang ||
-        actor1.extra			!= actor2.extra ||
-        actor1.owner			!= actor2.owner ||
-        actor1.movflag			!= actor2.movflag ||
-        actor1.tempang			!= actor2.tempang ||
-        //actor1.timetosleep	!= actor2.timetosleep ||
-        actor1.flags			!= actor2.flags ||
-        actor1.floorz			!= actor2.floorz ||
-        actor1.lastvx			!= actor2.lastvx ||
-        actor1.lastvy			!= actor2.lastvy ||
-        actor1.lasttransport	!= actor2.lasttransport ||
-        actor1.actorstayput		!= actor2.actorstayput ||
-        //actor1.dispicnum		!= actor2.dispicnum ||
-        actor1.shootzvel		!= actor2.shootzvel ||
-        //actor1.cgg			!= actor2.cgg ||
+        actor1->picnum			!= actor2->picnum ||
+        actor1->ang				!= actor2->ang ||
+        actor1->extra			!= actor2->extra ||
+        actor1->owner			!= actor2->owner ||
+        actor1->movflag			!= actor2->movflag ||
+        actor1->tempang			!= actor2->tempang ||
+        //actor1->timetosleep	!= actor2->timetosleep ||
+        actor1->flags			!= actor2->flags ||
+        actor1->floorz			!= actor2->floorz ||
+        actor1->lastvx			!= actor2->lastvx ||
+        actor1->lastvy			!= actor2->lastvy ||
+        actor1->lasttransport	!= actor2->lasttransport ||
+        actor1->actorstayput	!= actor2->actorstayput ||
+        //actor1->dispicnum		!= actor2->dispicnum ||
+        actor1->shootzvel		!= actor2->shootzvel ||
+        //actor1->cgg			!= actor2->cgg ||
 
-        actor1.sprite.owner		!= actor2.sprite.owner ||
-        actor1.sprite.statnum	!= actor2.sprite.statnum ||
-        actor1.sprite.sectnum	!= actor2.sprite.sectnum ||
-        actor1.sprite.picnum	!= actor2.sprite.picnum ||
-        //actor1.sprite.shade		!= actor2.sprite.shade ||
-        actor1.sprite.xrepeat	!= actor2.sprite.xrepeat ||
-        actor1.sprite.yrepeat	!= actor2.sprite.yrepeat;// ||
-    //actor1.sprite.ang		!= actor2.sprite.ang ||
+        actor1->sprite.owner	!= actor2->sprite.owner ||
+        actor1->sprite.statnum	!= actor2->sprite.statnum ||
+        actor1->sprite.sectnum	!= actor2->sprite.sectnum ||
+        actor1->sprite.picnum	!= actor2->sprite.picnum ||
+        //actor1->sprite.shade	!= actor2->sprite.shade ||
+        actor1->sprite.xrepeat	!= actor2->sprite.xrepeat ||
+        actor1->sprite.yrepeat	!= actor2->sprite.yrepeat;// ||
+	    //actor1->sprite.ang	!= actor2->sprite.ang ||
 
     nonStandableDiff =
-        actor1.sprite.x			!= actor2.sprite.x ||
-        actor1.sprite.y			!= actor2.sprite.y ||
-        actor1.sprite.z			!= actor2.sprite.z ||
-        actor1.sprite.xvel		!= actor2.sprite.xvel ||
-        actor1.sprite.yvel		!= actor2.sprite.yvel ||
-        actor1.sprite.zvel		!= actor2.sprite.zvel;
+        actor1->sprite.x		!= actor2->sprite.x ||
+        actor1->sprite.y		!= actor2->sprite.y ||
+        actor1->sprite.z		!= actor2->sprite.z ||
+        actor1->sprite.xvel		!= actor2->sprite.xvel ||
+        actor1->sprite.yvel		!= actor2->sprite.yvel ||
+        actor1->sprite.zvel		!= actor2->sprite.zvel;
 
-    finalDiff = allDiff || (actor1.sprite.statnum != STAT_STANDABLE && nonStandableDiff);
+    finalDiff = allDiff || (actor1->sprite.statnum != STAT_STANDABLE && nonStandableDiff);
 
     return finalDiff;
 }
