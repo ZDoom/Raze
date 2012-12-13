@@ -71,6 +71,22 @@ ifndef PLATFORM
     endif
 endif
 
+ifndef SUBPLATFORM
+    SUBPLATFORM=
+    ifeq ($(PLATFORM),LINUX)
+        SUBPLATFORM=LINUX
+    endif
+    ifeq ($(PLATFORM),DINGOO)
+        SUBPLATFORM=LINUX
+    endif
+    ifeq ($(PLATFORM),GCW)
+        SUBPLATFORM=LINUX
+    endif
+    ifeq ($(PLATFORM),CAANOO)
+        SUBPLATFORM=LINUX
+    endif
+endif
+
 # Binary suffix override:
 EXESUFFIX_OVERRIDE ?=
 
@@ -269,7 +285,7 @@ else
 #            debug+= -faddress-sanitizer
 #        endif
     endif
-    ifeq ($(PLATFORM),LINUX)
+    ifeq ($(SUBPLATFORM),LINUX)
         BASELIBS+=-rdynamic
     endif
     ifneq (0,$(MUDFLAP))

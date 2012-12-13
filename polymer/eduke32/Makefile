@@ -97,7 +97,7 @@ ifeq ($(PLATFORM),WINDOWS)
     EOBJ=eobj_win
     LIBS+= $(L_SSP) -Wl,--enable-auto-import
 else
-    ifeq ($(PLATFORM),LINUX)
+    ifeq ($(SUBPLATFORM),LINUX)
         LIBS+= -ldl -lrt
     endif
     LIBS+= -pthread
@@ -199,7 +199,7 @@ ifneq (0,$(LUNATIC))
         MISCEDITORDEPS+= $(SRC)/lunatic/mapster32.def
         EDITORLDFLAGS+= $(SRC)/lunatic/mapster32.def
     endif
-    ifeq ($(PLATFORM),LINUX)
+    ifeq ($(SUBPLATFORM),LINUX)
         GAMELDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist
         EDITORLDFLAGS+= -Wl,--dynamic-list=$(SRC)/lunatic/dynsymlist_m32
     endif
@@ -208,7 +208,7 @@ endif
 
 # PLATFORM SPECIFIC SETTINGS
 
-ifeq ($(PLATFORM),LINUX)
+ifeq ($(SUBPLATFORM),LINUX)
     ifeq (0,$(CLANG))
         OURCOMMONFLAGS	+= -fno-pic
     endif

@@ -34,14 +34,14 @@ endif
 BUILDCOMMONFLAGS=$(ARCH)
 BUILDLIBS=
 
-ifeq ($(PLATFORM),LINUX)
+ifeq ($(SUBPLATFORM),LINUX)
     STDCPPLIB:=
 else
     # Overridden for OSes that don't have the cutdown stdc++ that is supc++
     STDCPPLIB:=-lsupc++
 endif
 
-ifeq ($(PLATFORM),LINUX)
+ifeq ($(SUBPLATFORM),LINUX)
     RENDERTYPE=SDL
     BUILDCOMMONFLAGS+= -DHAVE_INTTYPES
     GTKCOMPAT32=0

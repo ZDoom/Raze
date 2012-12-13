@@ -103,7 +103,7 @@ EDITOROBJS=$(OBJ)/build.$o \
 
 # PLATFORM SPECIFIC SETTINGS
 
-ifeq ($(PLATFORM),LINUX)
+ifeq ($(SUBPLATFORM),LINUX)
     OURASFLAGS+= -f elf
 endif
 ifeq ($(PLATFORM),DARWIN)
