@@ -410,22 +410,60 @@ int32_t MV_PlayLoopedVorbis
         vorbis_comment * vc = ov_comment(&vd->vf, 0);
         if (vc != NULL)
         {
-            char *vc_loopstart = vorbis_comment_query(vc, "LOOP_START", 0);
+            int loopTagCount;
+
+            static const char *loopStartTags[] = {
+                "LOOP_START",
+                "LOOPSTART"
+            };
+
+            char *vc_loopstart = NULL;
+
+            for (loopTagCount = 0; loopTagCount < 2 && vc_loopstart == NULL; ++loopTagCount)
+                vc_loopstart = vorbis_comment_query(vc, loopStartTags[loopTagCount], 0);
+
             if (vc_loopstart != NULL)
             {
                 ogg_int64_t ov_loopstart = atol(vc_loopstart);
-                if (ov_loopstart >= 0)
+                if (ov_loopstart >= 0) // a loop starting at 0 is valid
                 {
-                    char *vc_loopend = vorbis_comment_query(vc, "LOOP_END", 0);
+                    static const char *loopEndTags[] = {
+                        "LOOP_END",
+                        "LOOPEND"
+                    };
+
+                    char *vc_loopend = NULL;
 
                     voice->LoopStart = (char *) (intptr_t) ov_loopstart;
                     voice->LoopSize = 1;
 
+                    for (loopTagCount = 0; loopTagCount < 2 && vc_loopend == NULL; ++loopTagCount)
+                        vc_loopend = vorbis_comment_query(vc, loopEndTags[loopTagCount], 0);
+
                     if (vc_loopend != NULL)
                     {
                         ogg_int64_t ov_loopend = atol(vc_loopend);
-                        if (ov_loopend > 0)
+                        if (ov_loopend > 0) // a loop ending at 0 is invalid
                             voice->LoopEnd = (char *) (intptr_t) ov_loopend;
+                    }
+                    else
+                    {
+                        static const char *loopLengthTags[] = {
+                            "LOOP_LENGTH",
+                            "LOOPLENGTH"
+                        };
+
+                        char *vc_looplength = NULL;
+
+                        for (loopTagCount = 0; loopTagCount < 2 && vc_looplength == NULL; ++loopTagCount)
+                            vc_looplength = vorbis_comment_query(vc, loopLengthTags[loopTagCount], 0);
+
+                        if (vc_looplength != NULL)
+                        {
+                            ogg_int64_t ov_looplength = atol(vc_looplength);
+                            if (ov_looplength > 0) // a loop of length 0 is invalid
+                                voice->LoopEnd = (char *) (intptr_t) (ov_looplength + ov_loopstart);
+                        }
                     }
                 }
             }
