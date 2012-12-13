@@ -5186,10 +5186,11 @@ static void Keys3d(void)
     }
 
     // . Search & fix panning to the right (3D)
-    if (AIMING_AT_WALL_OR_MASK && PRESSED_KEYSC(PERIOD))
+    if (AIMING_AT_WALL_OR_MASK && ((tsign=PRESSED_KEYSC(PERIOD)) || PRESSED_KEYSC(COMMA)))
     {
-        int32_t naligned=AutoAlignWalls(searchwall, eitherCTRL|((!eitherSHIFT)<<1)|
-                                        (eitherALT<<2)|((!!keystatus[KEYSC_QUOTE])<<3), 0);
+        uint32_t flags = eitherCTRL | ((!eitherSHIFT)<<1) | (tsign?0:16) |
+            (eitherALT<<2) | ((!!keystatus[KEYSC_QUOTE])<<3);
+        int32_t naligned=AutoAlignWalls(searchwall, flags, 0);
         message("Aligned %d wall%s based on wall %d%s%s%s%s", naligned,
                 naligned==1?"":"s", searchwall,
                 eitherCTRL?", recursing nextwalls":"",

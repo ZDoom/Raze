@@ -10403,13 +10403,15 @@ void AlignWallPoint2(int32_t w0)
 //  2: iterate point2's
 //  4: carry pixel width from first wall over to the rest
 //  8: align TROR nextwalls
+// 16: iterate lastwall()s (point2 in reverse)
 int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 {
     static int32_t numaligned, wall0, cstat0;
     static uint32_t lenrepquot;
+    const int32_t totheleft = flags&16;
 
     int32_t z0 = GetWallBaseZ(w0);
-    int32_t w1 = wall[w0].point2;
+    int32_t w1 = totheleft ? lastwall(w0) : wall[w0].point2;
     const int32_t tilenum = wall[w0].picnum;
 
     if (nrecurs == 0)
@@ -10496,7 +10498,7 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
                         break;
                     w0 = w1;
                     z0 = GetWallBaseZ(w0);
-                    w1 = wall[w0].point2;
+                    w1 = totheleft ? lastwall(w0) : wall[w0].point2;
 
                     continue;
                 }
@@ -10508,7 +10510,7 @@ int32_t AutoAlignWalls(int32_t w0, uint32_t flags, int32_t nrecurs)
 
         if (wall[w1].nextwall < 0 || !(flags&2))
             break;
-        w1 = NEXTWALL(w1).point2;
+        w1 = totheleft ? lastwall(wall[w1].nextwall) : NEXTWALL(w1).point2;
     }
 
     return numaligned;
