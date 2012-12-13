@@ -2041,7 +2041,7 @@ cheat_for_port_credits:
             minitext(161-(Bstrlen(p)<<1), 99+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 98+10-l, p, 8, 10+16+128);
 
-            mgametext(160,118-l,"Legacy \"NAM\", \"WW2GI\" and \"EDuke\" Code",0,2+8+16);
+            mgametext(160,118-l,"Legacy \"NAM\", \"WWII GI\", and \"EDuke\" Code",0,2+8+16);
             p = "Matt \"Matteus\" Saettler";
             minitext(161-(Bstrlen(p)<<1), 119+10-l, p, 4, 10+16+128);
             minitext(160-(Bstrlen(p)<<1), 118+10-l, p, 8, 10+16+128);
@@ -2072,29 +2072,35 @@ cheat_for_port_credits2:
                     " ",
                     "Thanks to the following people for their contributions:",
                     " ",
+                    "Adam Fazakerley",   // netcode NAT traversal
                     "Alan Ondra",        // testing
-                    "Charlie Honig",     // showview command
-                    "Dan Gaskill",       // testing
-                    "David Koenig",      // Merged a couple of things from duke3d_w32
+                    "Bioman",            // GTK work, APT repository and package upkeep
+                    "Brandon Bergren",   // "Bdragon" - tiles.cfg
+                    "Charlie Honig",     // "CONAN" - showview command
+                    "Dan Gaskill",       // "DeeperThought" - testing
+                    "David Koenig",      // "Bargle" - Merged a couple of things from duke3d_w32
                     "Ed Coolidge",       // Mapster32 improvements
                     "Ferry Landzaat",    // ? (listed on the wiki page)
                     "Hendricks266",      // misc stuff
                     "Hunter_rus",        // tons of stuff
                     "James Bentler",     // Mapster32 improvements
-                    "Javier Martinez",   // EDuke 2.1.1 stuff I think
+                    "Jasper Foreman",    // netcode contributions
+                    "Javier Martinez",   // "Malone3D" - EDuke 2.1.1 components
                     "Jeff Hart",         // website graphics
-                    "Jonathan Smith",    // testing
-                    "Jose del Castillo", // EDuke 2.1.1 stuff I think
+                    "Jonathan Smith",    // "Mblackwell" - testing
+                    "Jose del Castillo", // "Renegado" - EDuke 2.1.1 components
                     "Lachlan McDonald",  // official EDuke32 icon
-                    "Marcus Herbert",    // OS X compatibility work
-                    "Matthew Palmer",    // testing and eduke32.com domain
+                    "LSDNinja",          // OS X help and testing
+                    "Marcus Herbert",    // "rhoenie" - OS X compatibility work
+                    "Matthew Palmer",    // "Usurper" - testing and eduke32.com domain
                     "Ozkan Sezer",       // SDL/GTK version checking improvements
-                    "Peter Green",       // dynamic remapping, custom gametypes
-                    "Peter Veenstra",    // port to 64-bit
+                    "Peter Green",       // "Plugwash" - dynamic remapping, custom gametypes
+                    "Peter Veenstra",    // "Qbix" - port to 64-bit
                     "Randy Heit",        // random snippets of ZDoom here and there
                     "Robin Green",       // CON array support
-                    "Ryan Gordon",       // icculus.org Duke3D port sound code
+                    "Ryan Gordon",       // "icculus" - icculus.org Duke3D port sound code
                     "Stephen Anthony",   // early 64-bit porting work
+                    "tueidj",            // Wii port
                     " ",
                     " ",
                     "BUILD engine technology available under BUILDLIC.",
